@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-01-02 11:17:12 $
+# $Date: 2006-01-02 12:48:05 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 #    Copyright (c) 2005 Dominique Dumont.
 #
@@ -69,7 +69,7 @@ WriteMakefile
    MAN3PODS     => \%M3,
    ABSTRACT     => 'Configuration model for semantic validation of data',
    AUTHOR       => 'Dominique Dumont (domi@komarr.grenoble.hp.com)',
-   PRERE        => {
+   PREREQ_PM    => {
 		    'Struct::Compare'  => 0, # for test
 		    'Test::More'       => 0, # for test
 		    'Pod::Usage'       => 0,
