@@ -1,0 +1,204 @@
+# $Author: ddumont $
+# $Date: 2006-01-03 11:54:55 $
+# $Name: not supported by cvs2svn $
+# $Revision: 1.1 $
+
+#    Copyright (c) 2006 Dominique Dumont.
+#
+#    This file is part of Config-Model.
+#
+#    Config-Model is free software; you can redistribute it and/or
+#    modify it under the terms of the GNU Lesser Public License as
+#    published by the Free Software Foundation; either version 2.1 of
+#    the License, or (at your option) any later version.
+#
+#    Config-Model is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#    Lesser Public License for more details.
+#
+#    You should have received a copy of the GNU Lesser Public License
+#    along with Config-Model; if not, write to the Free Software
+#    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+#    02110-1301 USA
+
+# This grammar is used by ValueComputer.pm to provide computation for
+# a leaf value of a configuration tree.
+
+{
+# $Revision: 1.1 $
+
+# This grammar is compatible with Parse::RecDescent < 1.90 or >= 1.90
+use strict;
+use warnings ;
+}
+
+pre_compute: <skip:''> pre_value[@arg](s) 
+  { 
+    my $str = join ('',@{$item[-1]}) ;
+    $return =  $str;
+  }
+
+pre_value: 
+  <skip:''> object '{' /\s*/ pre_value[@arg] /\s*/ '}' 
+    {
+     # print "pre_value handling \$foo{ ... }\n";
+     my $pre_value = $item{pre_value} ;
+     my $object = $item{object};
+     $return = exists $arg[1]->{$object}{$pre_value} ?
+       $arg[1]->{$object}{$pre_value} : 
+       "\$".$object.'{'.$pre_value.'}';
+    }
+  | <skip:''> function '(' /\s*/ object /\s*/ ')'
+  {
+      # print "pre_value handling &foo(...)\n";
+ 
+   # get now the object refered
+   my $fetch_str = $arg[1]->{$item{object}} ;
+   Config::Model::Exception::Formula->throw
+    (
+      object => $arg[0],
+      error => "Item $item{object} has no associated location string"
+    ) unless defined $fetch_str;
+
+   my $object = $arg[0]->grab( step => $fetch_str) ;
+
+   if ($item{function} eq 'element')
+   {
+     my $result = $object->element_name ;
+     Config::Model::Exception::Model->throw
+     (
+       object => $arg[0],
+       error => "'",$object->name,"' has no element name"
+     ) unless defined $result ;
+     $return = $result ;
+   }
+   elsif ($item{function} eq 'index')
+   {
+     my $result = $object->index_value ;
+     Config::Model::Exception::Formula->throw
+     (
+      object => $arg[0],
+      error => "'",$object->_name,"' has no index value"
+     ) unless defined $result ;
+     $return = $result ;
+   }
+   else
+   {
+     Config::Model::Exception::Formula->throw
+     (
+      object => $arg[0],
+      error => "Unknown computation function &$item{function}, ".
+               "expected &element(...) or &index(...)"
+     );
+   }
+  }
+  | <skip:''> '&' /\w+/ (/\(\s*\)/)(?)  
+  {
+    # print "pre_value handling &foo()\n";
+    my $f_name = $item[3] ;
+    my $method_name = $f_name eq 'element' ? 'element_name' : 
+      $f_name eq 'index' ? 'index_value' : undef;
+
+    Config::Model::Exception::Formula->throw
+     (
+      object => $arg[0],
+      error => "Unknown computation function &$f_name, ".
+               "expected &element or &index"
+     ) unless defined $method_name;
+
+    $return = $arg[0]->$method_name();
+
+    Config::Model::Exception::Formula->throw
+     (
+      object => $arg[0],
+      error => "Missing $f_name attribute (method '$method_name' on "
+                . ref($arg[0]) . ")\n"
+     ) unless defined $return ;
+  }
+  | object 
+  {
+    # print "pre_value handling \$foo\n";
+    my $object = $item{object};
+    $return ="\$".$object ;
+  }
+  |  <skip:''> /[^\$&]*/
+
+compute:  <skip:''> value[@arg](s) 
+  { 
+    # if one value is undef, return undef;
+    my @values = @{$item[-1]} ;
+    # print "compute return is '",join("','",@values),"'\n";
+
+    $return = join ('',@values) ;
+  }
+
+value: 
+  <skip:''> object '{' <commit> /\s*/ value[@arg] /\s*/ '}' 
+    {
+     my $object = $item{object};
+     my $value = $item{value} ;
+
+     # print "value: replacement object '$object', value '$value'\n";
+     Config::Model::Exception::Formula->throw
+     (
+      object => $arg[0],
+      error => "Unknown replacement rule: $object\n"
+     )  unless defined $arg[1]->{$object} ;
+
+     if ($value =~ /\$/)
+       {
+         # must keep original variable
+         $return = '$'.$object.'{'.$value.'}';
+       }
+     else
+       {
+         Config::Model::Exception::Formula->throw
+           (
+             object => $arg[0],
+             error => "Unknown replacement value for rule '$object': "
+                  ."'$value'\n"
+           ) unless  defined $arg[1]->{$object}{$value} ;
+
+	 $return = $arg[1]->{$object}{$value} ;
+       }
+    }
+  | object <commit>
+  {
+    my $name=$item{object} ;
+    my $path = $arg[1]->{$name} ; # can be a ref for test purpose
+    # print "value: replace \$$name...\n";
+
+    Config::Model::Exception::Formula->throw
+      (
+         object => $arg[0],
+         error => "undefined formula variable: '$name', expected '".
+	           join("','", keys(%{$arg[1]}))."'"
+      ) unless defined $path;
+
+    if ($path =~ /\$/)
+      {
+        # print "compute rule skip name $name path '$path'\n";
+        $return = "\$$name" ; # restore name that contain '$var'
+      }
+    else
+      {
+        # print "fetching var object '$name' with '$path'\n";
+        $return = $arg[0]->grab(step => $path)->fetch ;
+        # print "fetched var object '$name' with '$path', result '", defined $return ? $return : 'undef',"'\n";
+
+        Config::Model::Exception::WrongValue->throw
+          (
+            object => $arg[0],
+            error => "formula variable grabbed with '$path' has an undefined value"
+          ) unless defined $return ;
+       }
+    1 ;
+  }
+  |  <skip:''> /[^\$]*/
+
+object: <skip:''> /\$/ /\w+/
+
+function: <skip:''> '&' /\w+/
+
+
