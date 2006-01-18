@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-01-13 16:31:59 $
+# $Date: 2006-01-18 17:02:56 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 # this file is used by test script
 
@@ -80,6 +80,11 @@ $model->create_config_class
 				      element_type => 'leaf',
 				      element_args => {value_type => 'string'},
 				    },
+	       hash_a => { type => 'hash',
+			  index_type => 'string',
+			  element_type => 'leaf',
+			  element_args => {value_type => 'string'},
+			},
 	       olist => { type => 'list',
 			  element_type => 'node',
 			  element_args => { config_class_name => 'SlaveZ' },
