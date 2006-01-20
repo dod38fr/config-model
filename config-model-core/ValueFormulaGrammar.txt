@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-01-03 11:54:55 $
+# $Date: 2006-01-20 13:10:31 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 #    Copyright (c) 2006 Dominique Dumont.
 #
@@ -26,7 +26,7 @@
 # a leaf value of a configuration tree.
 
 {
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 # This grammar is compatible with Parse::RecDescent < 1.90 or >= 1.90
 use strict;
@@ -61,7 +61,7 @@ pre_value:
       error => "Item $item{object} has no associated location string"
     ) unless defined $fetch_str;
 
-   my $object = $arg[0]->grab( step => $fetch_str) ;
+   my $object = $arg[0]->grab($fetch_str) ;
 
    if ($item{function} eq 'element')
    {
@@ -184,7 +184,7 @@ value:
     else
       {
         # print "fetching var object '$name' with '$path'\n";
-        $return = $arg[0]->grab(step => $path)->fetch ;
+        $return = $arg[0]->grab_value($path) ;
         # print "fetched var object '$name' with '$path', result '", defined $return ? $return : 'undef',"'\n";
 
         Config::Model::Exception::WrongValue->throw
