@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-01-13 16:26:00 $
+# $Date: 2006-02-02 13:00:41 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 use ExtUtils::testlib;
 use Test::More tests => 9;
@@ -86,6 +86,7 @@ sub disp_up {
 my $trace = shift || 0;
 $::verbose          = 1 if $trace =~ /v/;
 $::debug            = 1 if $trace =~ /d/;
+Config::Model::Exception::Any->Trace(1) if $trace =~ /e/;
 
 ok(1,"compiled");
 
@@ -96,7 +97,7 @@ ok($inst,"created dummy instance") ;
 my $root = $inst -> config_root ;
 
 my $step = 'std_id:ab X=Bv - std_id:bc X=Av - a_string="toto tata"';
-ok( $root->walk( step => $step, role => 'intermediate' ),
+ok( $root->load( step => $step, role => 'intermediate' ),
   "set up data in tree with '$step'");
 
 $scan = Config::Model::ObjTreeScanner->new(
@@ -122,7 +123,7 @@ $scan->scan_node($root) ;
 ok(1,"performed scan") ;
 
 my $expect = << 'EOF' ;
-disp_obj Master element: std_id lista listb olist string_with_def a_string int_v
+disp_obj Master element: std_id lista listb hash_a olist string_with_def a_string int_v
 disp_hash Master element(std_id): ab bc
 disp_obj_elt Master element: std_id key ab
 disp_obj std_id:ab element: X Z DX

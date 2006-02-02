@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-01-18 17:02:56 $
+# $Date: 2006-02-02 13:00:41 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 # this file is used by test script
 
@@ -22,7 +22,7 @@ $model->create_config_class
 	       [qw/aa ab ac ad/] => 
 	       { type => 'leaf', value_type => 'string' },
 	       sub_slave => { type => 'node' ,
-			      class => 'SubSlave2',
+			      config_class_name => 'SubSlave2',
 			    }
 	      ]
   );
@@ -51,11 +51,10 @@ $model->create_config_class
 			  type => 'hash',
 			  index_type  => 'string',
 			  element_type => 'node',
-			  element_args => { config_class_name 
-					    => 'SlaveZ' },
+			  config_class_name => 'SlaveZ' ,
 			 },
 	       sub_slave => { type => 'node' ,
-			      class => 'SubSlave',
+			      config_class_name => 'SubSlave',
 			    },
 	       [qw/X Y/] => { type => 'leaf',
 			      value_type => 'enum',
@@ -74,7 +73,7 @@ $model->create_config_class
 	       std_id => { type => 'hash',
 			   index_type  => 'string',
 			   element_type => 'node',
-			   element_args => { config_class_name => 'SlaveZ' },
+			   config_class_name => 'SlaveZ' ,
 			 },
 	       [qw/lista listb/] => { type => 'list',
 				      element_type => 'leaf',
@@ -87,7 +86,7 @@ $model->create_config_class
 			},
 	       olist => { type => 'list',
 			  element_type => 'node',
-			  element_args => { config_class_name => 'SlaveZ' },
+			  config_class_name => 'SlaveZ' ,
 			},
 	       tree_macro => { type => 'leaf',
 			       value_type => 'enum',
@@ -95,14 +94,14 @@ $model->create_config_class
 			     },
 	       warp => {
 			type => 'warped_node',
-			warper  => '! tree_macro',
-			class   => 'SlaveY', 
+			follow  => '! tree_macro',
+			config_class_name   => 'SlaveY', 
 			morph => 1 ,
-			linkage => {
-				    #XY => { class => 'SlaveY'},
-				    mXY => { class => 'SlaveY'},
-				    XZ  => { class => 'SlaveZ' }
-				   }
+			rules => [
+				  #XY => { config_class_name => 'SlaveY'},
+				  mXY => { config_class_name => 'SlaveY'},
+				  XZ  => { config_class_name => 'SlaveZ' }
+				 ]
 		       },
 	       string_with_def => { type => 'leaf',
 				    value_type => 'string',
