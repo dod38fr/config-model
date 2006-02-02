@@ -1,9 +1,9 @@
 # $Author: ddumont $
-# $Date: 2006-01-13 16:20:36 $
+# $Date: 2006-02-02 12:59:55 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
-#    Copyright (c) 2005 Dominique Dumont.
+#    Copyright (c) 2006 Dominique Dumont.
 #
 #    This file is part of Config-Model.
 #
@@ -28,7 +28,7 @@ use Carp;
 use warnings ;
 use UNIVERSAL qw( isa can );
 
-our $VERSION = sprintf "%d.%03d", q$Revision: 1.1 $ =~ /(\d+)\.(\d+)/;
+our $VERSION = sprintf "%d.%03d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/;
 
 use Carp qw/croak confess cluck/;
 
@@ -158,8 +158,7 @@ be undefined if the element type is scalar.
 
 =item *
 
-C<$obj> is the obj L<Config::Model::Value> object tied to the
-leaf. Is undef if the leaf is not a Value object.
+C<$obj> is the L<Config::Model::Value> object.
 
 =back
 
@@ -183,7 +182,7 @@ C<@keys> is an list containing all the keys of the hash.
 
  ($object,@element_list)
 
-C<@element_list> contains all the element (or attributes) of the node.
+C<@element_list> contains all the elements of the node.
 
 =item C<node_cb>
 
@@ -297,8 +296,11 @@ sub scan_node {
 		 ) 
 	  unless isa($object, "Config::Model::AnyThing") ;
 
-    # skip exploration of warp object
-    return if ($object->isa('Config::Model::WarpedNode')) ;
+    # skip exploration of warped out node
+    if ($object->isa('Config::Model::WarpedNode')) {
+	$object = $object->get_actual_node ;
+	return unless defined $object ;
+    }
 
     my @element_list= $object->get_element_name(for => $self->{role}) ;
 
@@ -334,13 +336,13 @@ sub scan_element {
         $self->{hash_cb}->($parent,$element,@keys) if $autov or @keys;
     }
     elsif ($element_type eq 'list') {
-        #print "type lsit\n";
+        #print "type list\n";
         my @keys = $self->get_keys($parent,$element) ;
         $self->{list_cb}->($parent,$element, @keys) if $autov or @keys ;
     }
     elsif ($element_type eq 'node') {
         #print "type object\n";
-        # is a scalar and class, or a WarpObject
+        # is a scalar and class, or a WarpedNode
 
 	# avoid auto-vivification
         return unless $autov or $parent->is_element_defined($element) ;
@@ -356,7 +358,6 @@ sub scan_element {
     elsif ($element_type eq 'leaf') {
         my $obj = $parent->get_element_for($element) ;
 
-	$obj->warp_init ;
 	my $type = $obj->value_type ;
 	return unless $type;
 	my $cb_name = $type.'_value_cb' ;
@@ -390,7 +391,6 @@ sub scan_hash {
     }
     elsif ($element_type eq 'leaf') {
         my $obj = $item->fetch($key) ;
-	$obj->warp_init ;
 	my $cb_name = $obj->value_type.'_value_cb' ;
 	my $cb = $self->{$cb_name};
 	croak "scan_hash: No call_back specified for '$cb_name'" 
