@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-01-03 12:11:45 $
+# $Date: 2006-02-02 12:58:39 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 #    Copyright (c) 2005 Dominique Dumont.
 #
@@ -132,7 +132,6 @@ advanced> and C<intermediate>.
 
 =cut
 
-# permission
 @permission_list = qw/intermediate advanced master/;
 
 =item level
@@ -141,12 +140,11 @@ Level is C<important>, C<normal> or C<hidden>.
 
 The level is used to set how configuration data is presented to the
 user in browsing mode. C<Important> elements will be shown to the user
-no matter what. C<hidden> elements will be explained with the E<warp>
+no matter what. C<hidden> elements will be explained with the I<warp>
 notion.
 
 =cut
 
-# level: Important, normal
 @level = qw/hidden normal important/;
 
 =item status
@@ -267,6 +265,12 @@ sub create_one_config_class {
 	my $compact_info = delete $raw_copy{$info_name} ;
 	next unless defined $compact_info ;
 
+	Config::Model::Exception::ModelDeclaration->throw
+	    (
+	     error=> "Data for parameter $info_name of $config_class_name"
+	     ." is not an array ref"
+	    ) unless ref($compact_info) eq 'ARRAY' ;
+
 	my @info = @$compact_info ; 
 	while (@info) {
 	    my ($item,$info) = splice @info,0,2 ;
@@ -295,7 +299,7 @@ sub create_one_config_class {
         (
          error=> "create class $config_class_name: unknown ".
 	 "parameter '" . join("', '",@left_params)."', expected '".
-	 join("', '",@legal_params,qw/description important_elements/)."'"
+	 join("', '",@legal_params,qw/class_description/)."'"
         )
 	  if @left_params ;
 
