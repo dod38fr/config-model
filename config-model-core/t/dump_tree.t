@@ -1,11 +1,11 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-01-17 13:13:44 $
+# $Date: 2006-02-03 17:04:31 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 use ExtUtils::testlib;
-use Test::More tests => 10;
+use Test::More tests => 6;
 use Config::Model;
 
 use warnings;
@@ -42,7 +42,7 @@ my $root = $inst -> config_root ;
 ok($root,"Config root created") ;
 
 my $step = 'std_id:ab X=Bv - std_id:bc X=Av - a_string="toto tata"';
-ok( $root->walk( step => $step, role => 'intermediate' ),
+ok( $root->load( step => $step, role => 'intermediate' ),
   "set up data in tree with '$step'");
 
 my $dts = $root->dump_tree;
@@ -81,23 +81,5 @@ int_v=10 -
 EOF
 
 is($dts,$expect,"check dump of all values ") ;
-
-
-__END__
-
-
-my $dts = $root->to_dts;
-
-print "dts string:\n$dts" if $trace;
-is( $dts, $dump, "compare dts string and old distill" );
-
-    $dump = dump_tree( object => $root );
-    $dump =~ s/-\n$/- -\n/;
-    $dts = $root->_to_dts( full_dump => 1 );
-
-    print "full dts string:\n$dts" if $trace;
-    is( $dts, $dump, "compare dts string and old dump" );
-
-}
 
 
