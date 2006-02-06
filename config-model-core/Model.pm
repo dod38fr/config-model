@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-02-02 12:58:39 $
+# $Date: 2006-02-06 13:05:47 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 #    Copyright (c) 2005 Dominique Dumont.
 #
@@ -621,18 +621,16 @@ Set C<$::verbose> to 1 to get verbose messages on STDOUT.
 Depending on available time, a better log/error system may be
 implemented.
 
+=head1 AUTHOR
+
+Dominique Dumont, domi@komarr.grenoble.hp.com
+
 =head1 SEE ALSO
 
-L<Config::Model::AnyNode>, L<Config::Model::AnyThing>,
-L<Config::Model::AnyWriter>, L<Config::Model::AutoIncrement>,
-L<Config::Model::AutoRead>, L<Config::Model::Exception>,
-L<Config::Model::FileUtils>, L<Config::Model::Framework>,
-L<Config::Model::Id>, L<Config::Model::Instance>,
-L<Config::Model::LicToolParser>, L<Config::Model::ObjTreeScanner>,
-L<Config::Model::OcIniRefinery>, L<Config::Model::TreeIf>,
-L<Config::Model::Value>, L<Config::Model::WarpArray>,
-L<Config::Model::WarpHash>, L<Config::Model::WarpObject>,
-L<Config::Model::WarpThing>
-
+L<Config::Model::Instance>, 
+L<Config::Model::Node>, 
+L<Config::Model::HashId>,
+L<Config::Model::ListId>,
+L<Config::Model::Value>
 
 =cut
