@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-01-17 13:13:04 $
+# $Date: 2006-02-06 12:35:44 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 #    Copyright (c) 2006 Dominique Dumont.
 #
@@ -30,7 +30,7 @@ use Config::Model::Exception ;
 use Config::Model::ObjTreeScanner ;
 
 use vars qw($VERSION);
-$VERSION = sprintf "%d.%03d", q$Revision: 1.1 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -162,7 +162,7 @@ sub dump_tree {
 	my $list_obj = $obj->get_element_for($element) ;
         my $elt_type = $list_obj->element_type ;
 
-        if ( $elt_type eq 'class' ) {
+        if ( $elt_type eq 'node' ) {
             foreach my $k ( sort @keys ) {
                 $view_scanner->scan_hash( $obj, $element, $k );
             }
