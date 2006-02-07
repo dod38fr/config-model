@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-02-06 13:05:47 $
+# $Date: 2006-02-07 13:12:18 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 
 #    Copyright (c) 2005 Dominique Dumont.
 #
@@ -37,14 +37,101 @@ $VERSION = '0.001';
 
 =head1 NAME
 
-Config::Model - Model to create configuration trees
+Config::Model - Model to create configuration validation tool
 
 =head1 DESCRIPTION
 
-This set of modules provides a framework to set up a model of a
-configuration using a description based on a tree structure.
+Using Config::Model, a typical configuration validation tool will be
+made of 3 parts :
 
-Using a tree structure has several advantages:
+=over
+
+=item 1
+
+The user interface
+
+=item 2
+
+The validation engine which is in charge of validating all the
+configuration information provided by the user.
+
+=item 3
+
+The storage facility that store the configuration information
+
+=back
+
+The important part is the B<validation engine>. 
+
+=head1 User interface
+
+The user interface will use some parts of the API to set and get
+configuration values. More importantly, a generic user interface will
+need to explore the configuration model to be able to generate at
+run-time relevant configuration screens.
+
+A generic Curses interface is under development. More on this later.
+
+One can also consider to use Webmin (L<http://www.webmin.com>) on top
+of config model.
+
+=head1 Storage
+
+The storage will often be a way to store configuration in usual
+configuration files, like C</etc/X11/xorg.conf>
+
+One can also consider storing configuration data in a database, ldap
+directory or using elektra project L<http://www.libelektra.org/>
+
+=head1 Validation engine
+
+C<Config::Model> provides a way to get a validation engine where the
+configuration model is completely separated from the actual processing
+instruction.
+
+The configuration model is expressed in a declarative form (i.e. a
+Perl data structure which is always easier to maintain than a lot of
+code.)
+
+The declaration specifies:
+
+=over 8
+
+=item *
+
+The structure of the configuration data (which can be queried by
+generic user interfaces)
+
+=item *
+
+The properties of each element (boundaries, check, integer or string,
+enum like type ...)
+
+=item *
+
+The default values of parameters (if any)
+
+=item *
+
+Mandatory parameters
+
+=item *
+
+Targeted audience (intermediate, advance, master)
+
+=item *
+
+On-line help (for ach parameter or value of parameter)
+
+=item *
+
+The level of expertise of each parameter (to hide expert parameters
+from newbie eyes)
+
+=back
+
+The structure of the configuration data must be based on a tree
+structure. This structure has several advantages:
 
 =over
 
@@ -107,16 +194,17 @@ branches. See L<Config::Model::Node>.
 =item elements
 
 Elements are the attributes (or a set of attributes) of a node.  An
-element can contain one item (scalar element), several items (array
-element) or a collection of identified items (hash elements).
-Each item can be another node or a leaf.
+element can contain one item (scalar element), several items (list
+element, see L<Config::Model::ListId>) or a collection of identified
+items (hash element< see L<Config::Model::HashId>).  Each item can be
+another node or a leaf.
 
 =item leaves
 
 A leaf is the actual container of the configuration parameters (nodes
 and elements only define the structure). The leaves can be plain
 (unconstrained value) or be strongly typed (values are checked against
-a set of rules).
+a set of rules). See L<Config::Model::Value)
 
 =back
 
@@ -188,24 +276,63 @@ my %check;
 
 $check{permission}=\%permission_index ;
 
+=head1 Configuration Model
+
+Before talking about a configuration tree, we must create a
+configuration model that will set all the properties of the validation
+engine you want to create
+
+=head2 Constructor
+
+Simply call new without parameters:
+
+ my $model = Config::Model -> new ;
+
+=cut
+
 sub new {
     my $type = shift ;
     bless {},$type;
 }
 
-sub create_config_class {
-    my $self=shift ;
+=head2 create_config_class( ... )
 
-    if (ref($_[0]) eq 'HASH') {
-	map {$self->create_one_config_class(%$_)} @_ ;
-    }
-    elsif (ref($_[0]) eq 'ARRAY') {
-	map {$self->create_one_config_class(@$_)} @_ ;
-    }
-    else {
-	$self->create_one_config_class(@_);
-    }
-};
+Create I<one> configuration class. Named parameters are:
+
+=over 8
+
+=item B<element>
+
+List of element and their properties. The value passed with element is
+actually an array ref containing a pair of element_name, and a
+hash_ref. E.g:
+
+  element => [ foo => { type => 'leaf', ...} ]
+
+To ease the declaration of a serie of identical elements, the element
+names can be grouped in an array ref:
+
+  element => [ [qw/foo bar baz/] => { type => 'leaf', ...} ]
+
+Read L</"element properties"> for more details of element declaration.
+
+=item B<permission>
+
+Specifies what skill level is recommended to see elements. Valid
+permission are C<master>, C<advanced> and C<intermediate>
+(default). The syntax is similar to C<element> syntax:
+
+ permission => [ foo => 'intermediate',  # default
+                 [qw/bar baz/] => 'master' 
+               ],
+
+=item B<status>
+
+=item B<level>
+
+=item B<description>
+
+=cut
 
 # unpacked model is:
 # {
@@ -218,9 +345,7 @@ sub create_config_class {
 #   level        => { element_name => <level like important or normal..> },
 # }
 
-
-
-sub create_one_config_class {
+sub create_config_class {
     my $self=shift ;
     my %raw_model = @_ ;
 
