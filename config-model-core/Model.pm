@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-02-07 13:12:18 $
+# $Date: 2006-02-09 13:38:11 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.4 $
+# $Revision: 1.5 $
 
 #    Copyright (c) 2005 Dominique Dumont.
 #
@@ -61,7 +61,8 @@ The storage facility that store the configuration information
 
 =back
 
-The important part is the B<validation engine>. 
+C<Config::Model> provides a B<validation engine> according to a set of
+rules.
 
 =head1 User interface
 
@@ -85,50 +86,73 @@ directory or using elektra project L<http://www.libelektra.org/>
 
 =head1 Validation engine
 
-C<Config::Model> provides a way to get a validation engine where the
-configuration model is completely separated from the actual processing
-instruction.
+C<Config::Model> provides a way to get a validation engine from a set
+of rules. This set of rules is now called the configuration model. 
+
+C<Config::Model> has 2 main interfaces:
+
+=over
+
+=item 8
+
+=item *
+
+The model API with L</"create_config_class">
+
+=item *
+
+The functional API where you can get and set configuration data or
+query the engine for model informations. (introspection feature)
+
+=back
+
+=head1 Configuration Model
+
+Before talking about a configuration tree, we must create a
+configuration model that will set all the properties of the validation
+engine you want to create.
+
+=head2 Constructor
+
+Simply call new without parameters:
+
+ my $model = Config::Model -> new ;
+
+This will create an empty shell for you model.
+
+=cut
+
+sub new {
+    my $type = shift ;
+    bless {},$type;
+}
+
+=head2 declaring the model
 
 The configuration model is expressed in a declarative form (i.e. a
 Perl data structure which is always easier to maintain than a lot of
 code.)
 
-The declaration specifies:
+Each node of the configuration tree is attached to a configuration
+class whose properties you must declare by calling
+L</"create_config_class">.
 
-=over 8
+Each configuration class contains mostly 2 types of elements:
 
-=item *
-
-The structure of the configuration data (which can be queried by
-generic user interfaces)
-
-=item *
-
-The properties of each element (boundaries, check, integer or string,
-enum like type ...)
+=over
 
 =item *
 
-The default values of parameters (if any)
+A node type element that will refer to another configuration class
 
 =item *
 
-Mandatory parameters
-
-=item *
-
-Targeted audience (intermediate, advance, master)
-
-=item *
-
-On-line help (for ach parameter or value of parameter)
-
-=item *
-
-The level of expertise of each parameter (to hide expert parameters
-from newbie eyes)
+A value element that will contains actual configuration data
 
 =back
+
+By declaring a set of configuration classes and refering them in node
+element, you will shape the structure of your configuration tree.
 
 The structure of the configuration data must be based on a tree
 structure. This structure has several advantages:
@@ -180,35 +204,95 @@ classes). But they must be declared as a DAG (directed acyclic graph).
 
 =end html
 
-=head1 Configuration tree
+Each configuration class declaration specifies:
 
-A configuration tree is made of:
+=over 8
 
-=over
+=item *
 
-=item nodes
+Most importantly, the type of the element (mostly C<leaf>, or C<node>)
 
-A node is a junction between the trunk and a branch or between
-branches. See L<Config::Model::Node>.
+=item *
 
-=item elements
+The properties of each element (boundaries, check, integer or string,
+enum like type ...)
 
-Elements are the attributes (or a set of attributes) of a node.  An
-element can contain one item (scalar element), several items (list
-element, see L<Config::Model::ListId>) or a collection of identified
-items (hash element< see L<Config::Model::HashId>).  Each item can be
-another node or a leaf.
+=item *
 
-=item leaves
+The default values of parameters (if any)
 
-A leaf is the actual container of the configuration parameters (nodes
-and elements only define the structure). The leaves can be plain
-(unconstrained value) or be strongly typed (values are checked against
-a set of rules). See L<Config::Model::Value)
+=item *
+
+Mandatory parameters
+
+=item *
+
+Targeted audience (intermediate, advance, master)
+
+=item *
+
+On-line help (for ach parameter or value of parameter)
+
+=item *
+
+The level of expertise of each parameter (to hide expert parameters
+from newbie eyes)
 
 =back
 
-Each element of a node has several properties:
+See L<Config::Model::Node> for details on how to declare a
+configuration class.
+
+=cut
+
+
+=head1 Configuration instance
+
+A configuration instance if the staring point of a configuration tree.
+When creating a model instance, you must specify the root class name, I.e. the
+configuration class that is used by the root node of the tree. 
+
+ my $model = Config::Model->new() ;
+ $model ->create_config_class 
+  (
+   name => "SomeRootClass",
+   element => [ ...  ]
+  ) ;
+
+ my $inst = $model->instance (root_class_name => 'SomeRootClass', 
+                              instance_name => 'test1');
+
+You can create several separated instances from a model.
+
+=cut
+
+sub instance {
+    my $self = shift ;
+    my %args = @_ ;
+    my $root_class_name =  $args{root_class_name}
+      or croak "Model: can't create instance without root_class_name ";
+    my $instance_name =  $args{instance_name}
+      or croak "Model: can't create instance without instance_name ";
+
+    if (defined $self->{instance}{$instance_name}{$root_class_name}) {
+	return $self->{instance}{$instance_name}{$root_class_name} ;
+    }
+
+    my $i = Config::Model::Instance 
+      -> new (config_model => $self,
+	      root_class_name => $root_class_name) ;
+
+    $self->{instance}{$instance_name}{$root_class_name} = $i ;
+    return $i ;
+}
+
+=head1 Configuration class
+
+A configuration class is made of series of elements which are detailed
+in L<Config::Model::Node>.
+
+Whatever its type (node, leaf,... ), each element of a node has
+several other properties:
 
 =over
 
@@ -251,7 +335,23 @@ element will raise an exception.
 Description of the element. This description will be used when
 generating user interfaces.
 
-=back
+=back 
+
+Example:
+
+  my $model = Config::Model -> new ;
+
+  $model->create_config_class 
+  (
+   name => 'SomeRootClass',
+   permission => [ [ qw/tree_macro warp/ ] => 'advanced'] ,
+   description => [ X => 'X-ray' ],
+   class_description => "SomeRootClass description",
+   element => [ ... ] 
+  ) ;
+
+Again, see L<Config::Model::Node> for more details on configuration
+class declaration.
 
 =cut
 
@@ -275,64 +375,6 @@ my %check;
 }
 
 $check{permission}=\%permission_index ;
-
-=head1 Configuration Model
-
-Before talking about a configuration tree, we must create a
-configuration model that will set all the properties of the validation
-engine you want to create
-
-=head2 Constructor
-
-Simply call new without parameters:
-
- my $model = Config::Model -> new ;
-
-=cut
-
-sub new {
-    my $type = shift ;
-    bless {},$type;
-}
-
-=head2 create_config_class( ... )
-
-Create I<one> configuration class. Named parameters are:
-
-=over 8
-
-=item B<element>
-
-List of element and their properties. The value passed with element is
-actually an array ref containing a pair of element_name, and a
-hash_ref. E.g:
-
-  element => [ foo => { type => 'leaf', ...} ]
-
-To ease the declaration of a serie of identical elements, the element
-names can be grouped in an array ref:
-
-  element => [ [qw/foo bar baz/] => { type => 'leaf', ...} ]
-
-Read L</"element properties"> for more details of element declaration.
-
-=item B<permission>
-
-Specifies what skill level is recommended to see elements. Valid
-permission are C<master>, C<advanced> and C<intermediate>
-(default). The syntax is similar to C<element> syntax:
-
- permission => [ foo => 'intermediate',  # default
-                 [qw/bar baz/] => 'master' 
-               ],
-
-=item B<status>
-
-=item B<level>
-
-=item B<description>
-
-=cut
 
 # unpacked model is:
 # {
@@ -363,8 +405,8 @@ sub create_config_class {
     $self->{raw_model}{$config_class_name} = \%raw_model ;
 
     # perform some syntax and rule checks and expand compacted
-    # elements ie ( [qw/foo bar/] => {...}
-    #  foo => {...} , bar => {...}
+    # elements ie  [qw/foo bar/] => {...} is transformed into
+    #  foo => {...} , bar => {...} before being stored
 
     my %raw_copy = %raw_model ;
     my @element_list ;
@@ -434,6 +476,14 @@ sub create_config_class {
     return $self ;
 }
 
+=head1 Model query
+
+=head2 get_model( config_class_name )
+
+Return a hash containing the model declaration.
+
+=cut
+
 sub get_model {
     my $self =shift ;
     my $config_class_name = shift ;
@@ -442,25 +492,14 @@ sub get_model {
       croak "get_model error: unknown config class name: $config_class_name";
 }
 
-sub instance {
-    my $self = shift ;
-    my %args = @_ ;
-    my $root_class_name =  $args{root_class_name}
-      or croak "Model: can't create instance without root_class_name ";
-    my $instance_name =  $args{instance_name}
-      or croak "Model: can't create instance without instance_name ";
+=head2 get_element_name( class => Foo, for => advanded )
 
-    if (defined $self->{instance}{$instance_name}{$root_class_name}) {
-	return $self->{instance}{$instance_name}{$root_class_name} ;
-    }
+Get all names of the elements of class C<Foo> that are accessible for
+level C<advanded>. 
 
-    my $i = Config::Model::Instance 
-      -> new (config_model => $self,
-	      root_class_name => $root_class_name) ;
+Level can be C<master> (default), C<advanded> or C<intermediate>.
 
-    $self->{instance}{$instance_name}{$root_class_name} = $i ;
-    return $i ;
-}
+=cut
 
 sub get_element_name {
     my $self = shift ;
@@ -482,6 +521,7 @@ sub get_element_name {
     return wantarray ? @array : join( ' ', @array );
 }
 
+# internal
 sub get_element_with_permission {
     my $self      = shift ;
     my $class     = shift ;
@@ -503,6 +543,7 @@ sub get_element_with_permission {
     return @result ;
 }
 
+#internal
 sub get_element_property {
     my $self = shift ;
     my %args = @_ ;
@@ -517,205 +558,6 @@ sub get_element_property {
     return $self->{model}{$class}{$prop}{$elt} ;
 }
 
-
-__END__
-
-
-
-
-
-=head1 Tree nodes
-
-B<Warning: doc below is outdated.>
-
-=head2 Customized nodes
-
-TBD re-write doc to explain how to declare a node
-
-The L<Config::Model::AnyNode|Config::Model::AnyNode> base class provides
-a constructor whose parameters can overrides the setting of the object
-contained in the elements of the node.
-
-For instance, the default value of a value in a element can be changed,
-or the possible values of an enumerated type.
-
-See L<AnyNode constructor documentation|Config::Model::AnyNode/CONSTRUCTOR>
-
-=head2 AutoRead nodes
-
-As configuration model are getting bigger, the load time of a tree
-gets longer. The L<Config::Model::AutoRead|Config::Model::AutoRead> class provides a way to
-load the configuration informations only when needed.
-
-To use this features, the node must 
-L<inherit|Config::Model::AutoRead/INHERITANCE> this class.
-
-=head1 Tree leaf
-
-The leaves of the tree contain the actual configuration
-values. Depending on the declaration, the leaf will have different
-properties.
-
-=head2 Plain leaf
-
-An unconstrained leaf may be implemented with:
-
-=over
-
-=item *
-
-The L<get_set|Class::IntrospectionMethods/get_set> method.
-
-=item *
-
-The L<tie_scalar|Class::IntrospectionMethods/tie_scalar> method using
-L<Config::Model::Value|Config::Model::Value> as a tied class. For an
-unconstrained value, the 
-L<value_type|Config::Model::Value/"VALUE TYPES"> must be set to C<string>.
-
-=back
-
-You may need to use C<tie_scalar> instead of C<get_set> if you want to
-add special relation to this leaf (e.g. use this value as 
-L<warp|Config::Model::Value/"Warp: dynamic value configuration">
-master
-or L<computation|Config::Model::Value/"Compute a Value"> variable).
-
-=head2 Specialized leaf
-
-You can declare a leaf with special property:
-
-=over
-
-=item strong type
-
-Declare a specific L<value_type|Config::Model::Value/"VALUE TYPES">
-like integer, number, boolean, enum (...) with the 
-L<Value constructor|Config::Model::Value/CONSTRUCTOR>.
-
-=item default value
-
-Use C<default> parameter with the 
-L<Value constructor|Config::Model::Value/CONSTRUCTOR>
-
-=item mandatory
-
-Use C<mandatory> parameter with the 
-L<Value constructor|Config::Model::Value/CONSTRUCTOR>
-
-=item privilege level
-
-Use C<catalog> parameter in the warp declaration with the 
-L<Value constructor|Config::Model::Value/CONSTRUCTOR>.
-
-=item bounded integer or number
-
-Use C<min> and C<max> parameter with the 
-L<Value constructor|Config::Model::Value/CONSTRUCTOR>
-
-=item computation
-
-The value is computed from the values of other leaves in the tree. See
-L<Value constructor|Config::Model::Value/"Compute a Value">
-
-=item auto-increment
-
-Use the L<Config::Model::AutoIncrement|Config::Model::AutoIncrement> class
-with C<tie_scalar>.
-
-=back
-
-If none of these possibilities fits your needs, you will have to write
-your own tie class to fit your needs.
-
-See:
-
-=over
-
-=item *
-
-L<perltie>.
-
-=item *
-
-L<Tie::Scalar>
-
-=back
-
-
-=head2 Warped leaf
-
-A warped leaf is a special case where the above properties can be
-modified at run time (e.g. "warped") depending on the value of another
-leaf in the tree (nicknamed the "warp master"). See 
-L<"dynamic value configuration"|Config::Model::Value/"Warp: dynamic value configuration"> for details.
-
-=head1 Warped nodes
-
-Just like the warped leaf, a node can also be warped depending on the
-value of another leaf in the tree. In this case the object's class can
-be changed at run-time. The privilege of the element can also be
-warped. See L<Config::Model::WarpObject> for details.
-
-=head1 Tree relations
-
-In other words, how leaves are tied to nodes and how nodes
-are tied between them.
-
-=head2 simple relation
-
-The most simple: a one to one relation. Achieved with
-L<get_set|Class::IntrospectionMethods/get_set> (plain storage),
-L<tie_scalar|Class::IntrospectionMethods/tie_scalar> (customized storage), or
-L<object|Class::IntrospectionMethods/object> (item is an object) methods from
-Class::IntrospectionMethods.
-
-=head2 simple list relation
-
-A element contains a list of a items. The user does not really care about
-an identifier. Achieved with L<list|Class::IntrospectionMethods/list> (plain
-storage), L<object_list|Class::IntrospectionMethods/object_list> (item is an
-object) methods from Class::IntrospectionMethods.
-
-This relation is not practical to handle with CLI, hence it is not
-really used and should be considered as experimental.
-
-=head2 customized list relation
-
-The list behavior can be customized with a tied array (See
-L<Tie::Array>). Currently, L<Config::Model::Id|Config::Model::Id> can be
-used as a tied array.
-
-Achieved with L<tie_list|Class::IntrospectionMethods/tie_list> (plain storage),
-or L<object_tie_list|Class::IntrospectionMethods/object_tie_list> (item is an
-object) methods from Class::IntrospectionMethods.
-
-Not (yet) used. experimental.
-
-=head2 hash relation
-
-A element contains a set of a items. Each item has an identifier.
-
-Achieved with L<hash|Class::IntrospectionMethods/hash> (plain storage),
-L<object_tie_hash|Class::IntrospectionMethods/object_tie_hash> (item is an
-object)or L<tie_tie_hash|Class::IntrospectionMethods/tie_tie_hash> (customized
-item) methods from Class::IntrospectionMethods.
-
-To use C<object_tie_hash> and C<tie_tie_hash> with a plain hash, just
-omit the C<tie_hash> parameter.
-
-=head2 customized hash relation
-
-In some hairy case, the hash relation can be customized by using
-L<Config::Model::Id|Config::Model::Id>. Use the C<tie_hash> parameter
-with the methods listed below.
-
-Achieved with L<tie_hash|Class::IntrospectionMethods/tie_hash> (plain storage),
-L<object_tie_hash|Class::IntrospectionMethods/object_tie_hash> (item is an
-object)or L<tie_tie_hash|Class::IntrospectionMethods/tie_tie_hash> (both
-relation and item are customized) methods from Class::IntrospectionMethods.
-
-
 =head1 Error handling
 
 Errors are handled with an exception mechanism (See
@@ -725,7 +567,7 @@ When a strongly typed Value object gets an authorized value, it raises
 an exception. If this exception is not catched, the programs exits.
 
 See L<Config::Model::Exception|Config::Model::Exception> for details on
-the various exception classes provided with the framework.
+the various exception classes provided with C<Config::Model>.
 
 =head1 Log and Traces
 
