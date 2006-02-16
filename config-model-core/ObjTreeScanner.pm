@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-02-02 12:59:55 $
+# $Date: 2006-02-16 13:09:43 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 #    Copyright (c) 2006 Dominique Dumont.
 #
@@ -28,7 +28,7 @@ use Carp;
 use warnings ;
 use UNIVERSAL qw( isa can );
 
-our $VERSION = sprintf "%d.%03d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/;
+our $VERSION = sprintf "%d.%03d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/;
 
 use Carp qw/croak confess cluck/;
 
@@ -198,7 +198,7 @@ sub new {
     my $type = shift ;
     my %args = @_;
 
-    my $self = { role => 'intermediate' , auto_vivify => 1 } ;
+    my $self = { permission => 'intermediate' , auto_vivify => 1 } ;
     bless $self,$type ;
 
     $self->{leaf_cb} = delete $args{leaf_cb} or
@@ -212,7 +212,7 @@ sub new {
       qw/boolean enum enum_integer string integer number/; 
 
     foreach my $param (qw/element_cb hash_cb list_cb node_cb
-                          role auto_vivify up_cb/, @value_cb) {
+                          permission auto_vivify up_cb/, @value_cb) {
         $self->{$param} = delete $args{$param} if defined $args{$param};
         croak __PACKAGE__,"->new: missing $param parameter"
           unless defined $self->{$param} ;
@@ -242,7 +242,7 @@ sub create_fallback {
 
         my $node_cb = sub {
             my ($obj,$element,$key) = @_ ;
-	    my $next = $obj -> get_element_for($element) ;
+	    my $next = $obj -> fetch_element($element) ;
 
             my $type = $obj->element_type($element) ;
             $next = $next->fetch($key) if $type eq 'list' || $type eq 'hash';
@@ -302,7 +302,7 @@ sub scan_node {
 	return unless defined $object ;
     }
 
-    my @element_list= $object->get_element_name(for => $self->{role}) ;
+    my @element_list= $object->get_element_name(for => $self->{permission}) ;
 
     # we could add here a "last element" call-back, but it's not
     # very usefull if the last element is a hash.
@@ -356,7 +356,7 @@ sub scan_element {
         $self->{node_cb}-> ($parent,$element) ;
     }
     elsif ($element_type eq 'leaf') {
-        my $obj = $parent->get_element_for($element) ;
+        my $obj = $parent->fetch_element($element) ;
 
 	my $type = $obj->value_type ;
 	return unless $type;
@@ -382,14 +382,14 @@ sub scan_hash {
     my ($self,$parent,$element,$key) = @_ ;
 
     #print "scan_hash ",$parent->name," element $element key $key ";
-    my $item = $parent -> get_element_for($element) ;
-    my $element_type = $item->element_type($element);
+    my $item = $parent -> fetch_element($element) ;
+    my $collected_type = $item->collected_type($element);
 
-    if ($element_type =~ /node$/) {
+    if ($collected_type =~ /node$/) {
         #print "type object or warped\n";
         $self->{node_cb}-> ($parent,$element,$key) ;
     }
-    elsif ($element_type eq 'leaf') {
+    elsif ($collected_type eq 'leaf') {
         my $obj = $item->fetch($key) ;
 	my $cb_name = $obj->value_type.'_value_cb' ;
 	my $cb = $self->{$cb_name};
@@ -398,7 +398,7 @@ sub scan_hash {
 	$cb-> ($parent,$element,$key,$obj);
     }
     else {
-	croak "Unexpected element_type: $element_type";
+	croak "Unexpected collected_type: $collected_type";
     }
 }
 
@@ -426,7 +426,7 @@ sub get_keys {
     my ($self,$obj,$element) = @_ ;
 
     my $element_type = $obj->element_type($element);
-    my $item = $obj->get_element_for($element) ;
+    my $item = $obj->fetch_element($element) ;
 
     return sort $item->get_all_indexes 
       if $element_type eq 'hash' || $element_type eq 'list' ;

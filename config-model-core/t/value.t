@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-02-06 12:34:35 $
+# $Date: 2006-02-16 13:09:43 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
@@ -96,11 +96,11 @@ my $root = $inst -> config_root ;
 
 my $result ;
 
-eval {$root->get_element_for('crooked') ; } ;
+eval {$root->fetch_element('crooked') ; } ;
 ok( $@,"test create expected failure");
 print "normal error:\n", $@, "\n" if $trace;
 
-my $i = $root->get_element_for('scalar') ;
+my $i = $root->fetch_element('scalar') ;
 ok($i,"test create bounded integer") ;
 
 ok( $i->store( 1),"store test" );
@@ -119,7 +119,7 @@ ok($@ , "bounded integer: number error");
 print "normal error:\n", $@, "\n" if $trace;
 
 
-my $nb = $root->get_element_for('bounded_number');
+my $nb = $root->fetch_element('bounded_number');
 ok($nb,"created ".$nb->name) ;
 
 ok($nb->store(1)  ,"assign 1") ;
@@ -133,7 +133,7 @@ $nb->store(undef);
 ok( defined $nb->fetch() ? 0: 1  ,"store undef") ;
 
 
-my $ms = $root->get_element_for('mandatory_string') ;
+my $ms = $root->fetch_element('mandatory_string') ;
 ok($ms,"created mandatory_string") ;
 
 eval { my $v = $ms->fetch; } ;
@@ -144,7 +144,7 @@ ok( $ms->store('toto'),"mandatory_string: store" );
 is($ms->fetch,'toto'  ,"and read");
 
 
-my $mb = $root->get_element_for('mandatory_boolean') ;
+my $mb = $root->fetch_element('mandatory_boolean') ;
 ok($mb,"created mandatory_boolean") ;
 
 eval { my $v = $mb->fetch; } ;
@@ -187,13 +187,13 @@ print "mandatory boolean: set to False\n" if $trace;
 is( $mb->store('False'), 0, "mandatory boolean: set to False" );
 is( $mb->fetch,0, "and read" );
 
-eval {$root->get_element_for('crooked_enum') ; } ;
+eval {$root->fetch_element('crooked_enum') ; } ;
 ok( $@,"test create expected failure with enum with wrong default");
 print "normal error:\n", $@, "\n" if $trace;
 
 
 
-my $de = $root->get_element_for('enum') ;
+my $de = $root->fetch_element('enum') ;
 ok($de,"Created enum with correct default") ;
 
 eval { $mb->store('toto'); } ;
@@ -239,7 +239,7 @@ is( $de->store('H'), 'H', "enum:  set a new value");
 
 ###
 
-my $ei= $root->get_element_for('enum_integer') ;
+my $ei= $root->fetch_element('enum_integer') ;
 ok($ei, "Creating enum_integer") ;
 
 is( $ei->store(1), 1, "enum_integer: store 1" );
@@ -268,12 +268,12 @@ ok($@,"enum integer: too many --") ;
 print "normal error:\n", $@, "\n" if $trace;
 
 
-my $uc_c = $root -> get_element_for('uc_convert');
+my $uc_c = $root -> fetch_element('uc_convert');
 ok($uc_c, "testing convert => uc");
 is( $uc_c->store('coucou'), 'COUCOU', "uc_convert: testing store");
 is( $uc_c->fetch(),         'COUCOU', "uc_convert: testing read");
 
-my $lc_c = $root -> get_element_for('lc_convert');
+my $lc_c = $root -> fetch_element('lc_convert');
 ok($lc_c, "testing convert => lc");
 is( $lc_c->store('coUcOu'), 'coucou', "lc_convert: testing store");
 is( $lc_c->fetch(),         'coucou', "lc_convert: testing read");
@@ -282,7 +282,7 @@ is( $lc_c->fetch(),         'coucou', "lc_convert: testing read");
 
 print "Testing integrated help\n" if $trace;
 
-my $value_with_help = $root->get_element_for('enum_with_help');
+my $value_with_help = $root->fetch_element('enum_with_help');
 my $full_help = $value_with_help->help;
 
 is( $full_help->{a}, 'a help',"full enum help" );

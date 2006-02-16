@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-02-06 12:34:35 $
+# $Date: 2006-02-16 13:09:43 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 use warnings FATAL => qw(all);
 
@@ -57,7 +57,7 @@ $model ->create_config_class
 						  B => { max_nb => 2 }
 						}
 				      },
-			element_type => 'node',
+			collected_type => 'node',
 			config_class_name => 'Slave'
 		      },
        'multi_warp' 
@@ -74,7 +74,7 @@ $model ->create_config_class
 		     [ '2', 'A' ] => { max => 7, default => [ 0 .. 7 ] }
 		   ]
 	       },
-	    element_type => 'node',
+	    collected_type => 'node',
 	    config_class_name => 'Slave'
 	  },
        'multi_auto_create'
@@ -90,7 +90,7 @@ $model ->create_config_class
 		      [ '2', 'A' ] => { max => 7, auto_create => [ 0 .. 7 ] }
 		    ],
 	       },
-	    element_type => 'node',
+	    collected_type => 'node',
 	    config_class_name => 'Slave'
 	  }
       ]
@@ -103,12 +103,12 @@ my $inst = $model->instance (root_class_name => 'Master',
 ok($inst,"created dummy instance") ;
 
 my $root = $inst -> config_root ;
-my $macro = $root->get_element_for('macro') ;
+my $macro = $root->fetch_element('macro') ;
 
 is($macro->store('A'),'A',"Set macro to A") ;
 is($macro->fetch(),'A',"Check macro") ;
 
-my $warped_hash = $root->get_element_for('warped_hash') ;
+my $warped_hash = $root->fetch_element('warped_hash') ;
 ok( $warped_hash->fetch('1'), "Set one slave" );
 
 my $res = eval { $warped_hash->fetch('2'); };
@@ -142,15 +142,15 @@ is($macro->store('B'),'B',"Set macro to B (limit max to 2)") ;
 is_deeply( [ $warped_hash->get_all_indexes ], [qw/1 2/],
 	   "check reduced key set") ;
 
-my $multi_warp = $root->get_element_for('multi_warp') ;
+my $multi_warp = $root->fetch_element('multi_warp') ;
 
 is( $multi_warp->max, 3, "check multi_warp default max" );
 
-my $multi_auto_create = $root->get_element_for('multi_auto_create') ;
+my $multi_auto_create = $root->fetch_element('multi_auto_create') ;
 is( $multi_auto_create->max,
     3, "check multi_auto_create default max" );
 
-is( $root->get_element_for('version')->store(2), 2, 'set version to 2') ;
+is( $root->fetch_element('version')->store(2), 2, 'set version to 2') ;
 is( $macro->store('C'),'C','set macro to C') ;
 
 is_deeply( $multi_warp->default ,
@@ -162,7 +162,7 @@ is_deeply( [ sort $multi_warp->get_all_indexes ] ,
 	   "check multi_warp default key set with different warp master"
 	 );
 
-is($multi_warp->fetch('5')->get_element_for('X')->store('Av'),
+is($multi_warp->fetch('5')->fetch_element('X')->store('Av'),
    'Av', "store Av in X");
 
 $root->load(step => 'multi_warp:5 X=Av') ;

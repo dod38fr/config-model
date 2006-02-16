@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-02-02 13:00:41 $
+# $Date: 2006-02-16 13:09:43 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 use ExtUtils::testlib;
 use Test::More tests => 9;
@@ -49,7 +49,7 @@ sub disp_obj_elt {
     $result .= " key $key" if defined $key;
     $result .= "\n";
 
-    my $next = $obj->get_element_for($element) ;
+    my $next = $obj->fetch_element($element) ;
     $next = $next-> fetch($key) if defined $key ;
 
     $scan->scan_node($next);
@@ -68,7 +68,7 @@ sub disp_hash {
 sub disp_leaf {
     my ( $obj, $element, $index ) = @_;
 
-    my $value = $obj->get_element_for($element) ;
+    my $value = $obj->fetch_element($element) ;
     $value = $value-> fetch($index) if defined $index ;
 
     $result .= "disp_leaf " . $obj->name . " element $element ";
@@ -97,7 +97,7 @@ ok($inst,"created dummy instance") ;
 my $root = $inst -> config_root ;
 
 my $step = 'std_id:ab X=Bv - std_id:bc X=Av - a_string="toto tata"';
-ok( $root->load( step => $step, role => 'intermediate' ),
+ok( $root->load( step => $step, permission => 'intermediate' ),
   "set up data in tree with '$step'");
 
 $scan = Config::Model::ObjTreeScanner->new(

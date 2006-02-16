@@ -1,9 +1,9 @@
 # $Author: ddumont $
-# $Date: 2006-02-09 13:38:11 $
+# $Date: 2006-02-16 13:09:43 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.5 $
+# $Revision: 1.6 $
 
-#    Copyright (c) 2005 Dominique Dumont.
+#    Copyright (c) 2005,2006 Dominique Dumont.
 #
 #    This file is part of Config-Model.
 #
@@ -299,8 +299,8 @@ several other properties:
 =item permission
 
 By using the C<permission> parameter, you can change the permission
-level of each element. Authorized privilege values are C<master,
-advanced> and C<intermediate>.
+level of each element. Authorized privilege values are C<master>,
+C<advanced> and C<intermediate>.
 
 =cut
 
@@ -343,11 +343,11 @@ Example:
 
   $model->create_config_class 
   (
-   name => 'SomeRootClass',
-   permission => [ [ qw/tree_macro warp/ ] => 'advanced'] ,
-   description => [ X => 'X-ray' ],
+   config_class_name => 'SomeRootClass',
+   permission        => [ [ qw/tree_macro warp/ ] => 'advanced'] ,
+   description       => [ X => 'X-ray' ],
    class_description => "SomeRootClass description",
-   element => [ ... ] 
+   element           => [ ... ] 
   ) ;
 
 Again, see L<Config::Model::Node> for more details on configuration

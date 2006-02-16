@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-02-03 17:46:17 $
+# $Date: 2006-02-16 13:09:43 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 use ExtUtils::testlib;
 use Test::More tests => 27;
@@ -46,7 +46,7 @@ my $root = $inst -> config_root ;
 Config::Model::Exception::Any->Trace(1) if $trace =~ /e/;
 
 my $step = 'std_id:ab X=Bv - std_id:bc X=Av - a_string="titi , toto" ';
-ok( $root->load( step => $step, role => 'intermediate' ),
+ok( $root->load( step => $step, permission => 'intermediate' ),
   "load '$step'");
 
 is($root->grab('olist:0' )->index_value,0,'test grab olist:0') ;

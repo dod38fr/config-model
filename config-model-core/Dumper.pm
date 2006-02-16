@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-02-06 12:35:44 $
+# $Date: 2006-02-16 13:09:43 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 #    Copyright (c) 2006 Dominique Dumont.
 #
@@ -30,7 +30,7 @@ use Config::Model::Exception ;
 use Config::Model::ObjTreeScanner ;
 
 use vars qw($VERSION);
-$VERSION = sprintf "%d.%03d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -139,7 +139,7 @@ sub dump_tree {
         my ( $obj, $element, $index, $value_obj ) = @_;
 
 	# if element is a collection, get the value pointed by $index
-	$value_obj = $obj->get_element_for($element)->fetch($index) 
+	$value_obj = $obj->fetch_element($element)->fetch($index) 
 	  if defined $index ;
 
 	# get value or only customized value
@@ -159,7 +159,7 @@ sub dump_tree {
         my ( $obj, $element, @keys ) = @_;
 
         my $pad      = $compute_pad->($obj);
-	my $list_obj = $obj->get_element_for($element) ;
+	my $list_obj = $obj->fetch_element($element) ;
         my $elt_type = $list_obj->element_type ;
 
         if ( $elt_type eq 'node' ) {
@@ -177,7 +177,7 @@ sub dump_tree {
         my ( $obj, $element, $key ) = @_;
 
         my $type = $obj -> element_type($element);
-	my $next = $obj -> get_element_for($element) ;
+	my $next = $obj -> fetch_element($element) ;
 
         $next = $next ->fetch($key) if
               $type eq 'list' or $type eq 'hash';
@@ -192,14 +192,14 @@ sub dump_tree {
     };
 
     my @scan_args = (
-        role        => delete $args{role} || 'master',
-        fallback    => 'all',
-        auto_vivify => 0,
-        list_cb     => $list_cb,
-        leaf_cb     => $std_cb,
-        node_cb     => $element_elt_cb,
-        up_cb       => sub { $ret .= ' -'; }
-    );
+		     permission        => delete $args{permission} || 'master',
+		     fallback    => 'all',
+		     auto_vivify => 0,
+		     list_cb     => $list_cb,
+		     leaf_cb     => $std_cb,
+		     node_cb     => $element_elt_cb,
+		     up_cb       => sub { $ret .= ' -'; }
+		    );
 
     my @left = keys %args;
     croak "Dumper: unknown parameter:@left" if @left;

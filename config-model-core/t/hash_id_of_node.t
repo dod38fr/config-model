@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-02-06 12:34:35 $
+# $Date: 2006-02-16 13:09:43 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 use warnings FATAL => qw(all);
 
@@ -23,7 +23,7 @@ ok(1,"Compilation done");
 
 my @element = ( 
 	       # Value constructor args are passed in their specific array ref
-	       element_type => 'node',
+	       collected_type => 'node',
 	       config_class_name => 'Slave' ,
 	      ) ;
 
@@ -72,7 +72,7 @@ ok($inst,"created dummy instance") ;
 
 my $root = $inst -> config_root ;
 
-my $b = $root->get_element_for('bounded_hash') ;
+my $b = $root->fetch_element('bounded_hash') ;
 ok($b,"bounded hash created") ;
 
 is($b->name,'Master bounded_hash id',"check hash id name");

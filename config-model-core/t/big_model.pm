@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-02-02 13:00:41 $
+# $Date: 2006-02-16 13:09:43 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 
 # this file is used by test script
 
@@ -50,7 +50,7 @@ $model->create_config_class
 	       std_id => {
 			  type => 'hash',
 			  index_type  => 'string',
-			  element_type => 'node',
+			  collected_type => 'node',
 			  config_class_name => 'SlaveZ' ,
 			 },
 	       sub_slave => { type => 'node' ,
@@ -72,20 +72,20 @@ $model->create_config_class
    element => [
 	       std_id => { type => 'hash',
 			   index_type  => 'string',
-			   element_type => 'node',
+			   collected_type => 'node',
 			   config_class_name => 'SlaveZ' ,
 			 },
 	       [qw/lista listb/] => { type => 'list',
-				      element_type => 'leaf',
+				      collected_type => 'leaf',
 				      element_args => {value_type => 'string'},
 				    },
 	       hash_a => { type => 'hash',
 			  index_type => 'string',
-			  element_type => 'leaf',
+			  collected_type => 'leaf',
 			  element_args => {value_type => 'string'},
 			},
 	       olist => { type => 'list',
-			  element_type => 'node',
+			  collected_type => 'node',
 			  config_class_name => 'SlaveZ' ,
 			},
 	       tree_macro => { type => 'leaf',

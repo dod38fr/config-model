@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-02-06 12:34:35 $
+# $Date: 2006-02-16 13:09:43 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 use warnings FATAL => qw(all);
 
@@ -30,14 +30,14 @@ $model ->create_config_class
        => {
 	   type => 'hash',
 	   index_type => 'string',
-	   element_type => 'node',
+	   collected_type => 'node',
 	   config_class_name => 'RSlave' ,
 	  },
        big_compute
        => {
 	   type => 'hash',
 	   index_type => 'string',
-	   element_type => 'leaf',
+	   collected_type => 'leaf',
 	   element_args 
 	   => {
 	       value_type => 'string',
@@ -67,7 +67,7 @@ $model ->create_config_class
        => {
 	   type => 'hash',
 	   index_type => 'string',
-	   element_type => 'leaf',
+	   collected_type => 'leaf',
 	   element_args 
 	   => {
 	       value_type => 'string',
@@ -106,7 +106,7 @@ $model -> create_config_class
 	=> {
 	    type => 'hash',
             index_type => 'string',
-	    element_type => 'node',
+	    collected_type => 'node',
 	    config_class_name => 'RSlave',
 	   },
 	W => {
@@ -223,7 +223,7 @@ is_deeply( [$model->get_element_name(class => 'Slave',
 	   "Elements of Slave from the model"
 	 );
 
-my $slave = $root-> get_element_for('bar') ;
+my $slave = $root-> fetch_element('bar') ;
 ok($slave,"Created slave(bar)");
 
 is_deeply( [$slave->get_element_name(for => 'intermediate')],
@@ -231,32 +231,32 @@ is_deeply( [$slave->get_element_name(for => 'intermediate')],
 	   "Elements of Slave from the object"
 	 );
 my $result ;
-eval { $result = $slave->get_element_for('W')->fetch ;} ;
+eval { $result = $slave->fetch_element('W')->fetch ;} ;
 ok($@,"reading slave->W (undef value_type error)") ;
 print "normal error: $@" if $trace;
 
-is($slave->get_element_for('X')->fetch , undef,
+is($slave->fetch_element('X')->fetch , undef,
   "reading slave->X (undef)") ;
 
-is($root->get_element_for('macro')->store('A'), 'A',
+is($root->fetch_element('macro')->store('A'), 'A',
    "setting master->macro to A") ;
 
-map {is($slave->get_element_for($_)->fetch , 'Av',
+map {is($slave->fetch_element($_)->fetch , 'Av',
 	"reading slave->$_ (Av)") ; } qw/X Y Z/;
 
-is($root->get_element_for('macro')->store('C'), 'C',
+is($root->fetch_element('macro')->store('C'), 'C',
    "setting master->macro to C") ;
 
-is($slave->get_element_for('X')->fetch , undef,
+is($slave->fetch_element('X')->fetch , undef,
   "reading slave->X (undef)") ;
 
-$root->get_element_for('macro')->store('A') ;
+$root->fetch_element('macro')->store('A') ;
 
 is_deeply( [$slave->get_element_name(for => 'intermediate')],
 	   [qw/X Y Z recursive_slave W/], 
 	   "Slave elements from the object (W pops in when macro is set to A)"
 	 );
-$root->get_element_for('macro')->store('B') ;
+$root->fetch_element('macro')->store('B') ;
 
 is_deeply( [$slave->get_element_name(for => 'intermediate')],
 	   [qw/X Y Z recursive_slave/], 
@@ -267,36 +267,36 @@ is_deeply( [$slave->get_element_name(for => 'advanced')],
 	   "Slave elements from the object for advanced level"
 	 );
 
-map {is($slave->get_element_for($_)->fetch , 'Bv',
+map {is($slave->fetch_element($_)->fetch , 'Bv',
 	"reading slave->$_ (Bv)") ; } qw/X Y Z/;
 
-is($slave->get_element_for('Y')->store('Cv'), 'Cv',
+is($slave->fetch_element('Y')->store('Cv'), 'Cv',
    'Set slave->Y to Cv');
 
 
 # testing warp in warp out
-$root->get_element_for('macro')->store('C') ;
-eval {$result = $slave->get_element_for('W')->fetch ;} ;
+$root->fetch_element('macro')->store('C') ;
+eval {$result = $slave->fetch_element('W')->fetch ;} ;
 ok($@,"reading slave->W (undef value_type error)") ;
 print "normal error: $@" if $trace;
 
 
-map {is($slave->get_element_for($_)->fetch , undef,
+map {is($slave->fetch_element($_)->fetch , undef,
 	"reading slave->$_ (undef)") ; } qw/X Z/;
-is($slave->get_element_for('Y')->fetch , 'Cv',
+is($slave->fetch_element('Y')->fetch , 'Cv',
 	"reading slave->Y (Cv)") ;
 
-is($slave->get_element_for('Comp')->fetch , 'macro is C',
+is($slave->fetch_element('Comp')->fetch , 'macro is C',
 	"reading slave->Comp") ;
 
-is($root->get_element_for('m_value')->store('Cv'), 'Cv',
+is($root->fetch_element('m_value')->store('Cv'), 'Cv',
    'set m_value to Cv'
   );
 
-my $rslave1  = $slave  ->get_element_for('recursive_slave')->fetch('l1');
-my $rslave2  = $rslave1->get_element_for('recursive_slave')->fetch('l2') ;
+my $rslave1  = $slave  ->fetch_element('recursive_slave')->fetch('l1');
+my $rslave2  = $rslave1->fetch_element('recursive_slave')->fetch('l2') ;
 my $big_compute_obj 
-             = $rslave2->get_element_for('big_compute')    ->fetch('b1');
+             = $rslave2->fetch_element('big_compute')    ->fetch('b1');
 
 isa_ok($big_compute_obj,'Config::Model::Value',
        'Created new big compute object'
@@ -328,7 +328,7 @@ is( $str,
   "testing pre_compute with &element(stuff) and &index(\$stuff)");
 
 my $bc_val  
-  = $rslave2->get_element_for('big_compute')->fetch("test_1")->fetch;
+  = $rslave2->fetch_element('big_compute')->fetch("test_1")->fetch;
 
 is( $bc_val,
     'macro is C, my idx: test_1, my element big_compute, upper element recursive_slave, up idx l2',
@@ -341,27 +341,27 @@ is( $big_compute_obj->fetch,
     'reading slave->big_compute(b1)'
 );
 
-is( $rslave1->get_element_for('big_replace')->fetch('br1'),
+is( $rslave1->fetch_element('big_replace')->fetch('br1'),
     'trad idx level1',
     'reading rslave1->big_replace(br1)');
 
-is( $rslave2->get_element_for('big_replace')->fetch('br1'),
+is( $rslave2->fetch_element('big_replace')->fetch('br1'),
     'trad idx level2',
     'reading rslave2->big_replace(br1)');
 
-is( $rslave1->get_element_for('macro_replace')->fetch('br1')->fetch,
+is( $rslave1->fetch_element('macro_replace')->fetch('br1')->fetch,
     'trad macro is macroC',
     'reading rslave1->macro_replace(br1)');
 
-is( $rslave2->get_element_for('macro_replace')->fetch('br1')->fetch,
+is( $rslave2->fetch_element('macro_replace')->fetch('br1')->fetch,
     'trad macro is macroC',
     'reading rslave2->macro_replace(br1)');
 
-is( $root->get_element_for('compute')->fetch(),
+is( $root->fetch_element('compute')->fetch(),
     'macro is C, my element is compute',
     'reading root->compute');
 
-my @masters = $root->get_element_for('macro')->get_depend_slave();
+my @masters = $root->fetch_element('macro')->get_depend_slave();
 my @names = sort map { $_->name } @masters;
 print "macro controls:\n\t", join( "\n\t", @names ), "\n"
     if $trace;
@@ -386,28 +386,28 @@ is_deeply( \@names ,
 
 Config::Model::Exception::Any->Trace(1);
 
-eval { $root->get_element_for('var_path')->fetch; };
+eval { $root->fetch_element('var_path')->fetch; };
 like( $@, qr/'! where_is_element' has an undefined value/,
     'reading var_path while where_is_element variable is undef');
 
 # set one variable of the formula
-$root->get_element_for('where_is_element')->store('get_element');
+$root->fetch_element('where_is_element')->store('get_element');
 
-eval { $root->get_element_for('var_path')->fetch; };
+eval { $root->fetch_element('var_path')->fetch; };
 like( $@, qr/'! get_element' has an undefined value/,
     'reading var_path while get_element variable is undef');
 
 # set the other variable of the formula
-$root->get_element_for('get_element')->store('m_value_element');
+$root->fetch_element('get_element')->store('m_value_element');
 
-is($root->get_element_for('var_path')->fetch(),
+is($root->fetch_element('var_path')->fetch(),
    'get_element is m_value, indirect value is \'Cv\'',
    "reading var_path through m_value element");
 
 # modify the other variable of the formula
-$root->get_element_for('get_element')->store('compute_element');
+$root->fetch_element('get_element')->store('compute_element');
 
-is($root->get_element_for('var_path')->fetch(),
+is($root->fetch_element('var_path')->fetch(),
    'get_element is compute, indirect value is \'macro is C, my element is compute\'',
    "reading var_path through compute element");
 

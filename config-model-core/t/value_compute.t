@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-02-06 12:34:35 $
+# $Date: 2006-02-16 13:09:43 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
@@ -79,12 +79,12 @@ is_deeply([$root->get_element_name()],
 	 "check available elements");
 
 my ( $av, $bv, $compute_int );
-$av=$root->get_element_for('av') ;
-$bv=$root->get_element_for('bv') ;
+$av=$root->fetch_element('av') ;
+$bv=$root->fetch_element('bv') ;
 
 ok($bv,"created av and bv values") ;
 
-ok($compute_int = $root->get_element_for('compute_int'),
+ok($compute_int = $root->fetch_element('compute_int'),
    "create computed integer value (av + bv)");
 
 my $parser = Config::Model::ValueFormulaParser->new ;
@@ -92,7 +92,7 @@ my $parser = Config::Model::ValueFormulaParser->new ;
 $::RD_HINT  = 1 if $trace > 4;
 $::RD_TRACE = 1 if $trace > 5;
 
-my $object = $root->get_element_for('one_var') ;
+my $object = $root->fetch_element('one_var') ;
 my $rules =  { 
 	      bar => '- sbv', 
 	      rep1 => { bv => 'rbv' },
@@ -105,7 +105,7 @@ eval {$str = $parser->value( '$bar', 1, $object, $rules );};
 ok($@,"test compute parser on a very small formula with undef variable") ;
 print "normal error :\n", $@, "\n" if $trace;
 
-$root->get_element_for('sbv')->store('bv') ;
+$root->fetch_element('sbv')->store('bv') ;
 $str = $parser->value( '$bar', 1, $object, $rules );
 is( $str, 'bv', "test compute parser on a very small formula: '\$bar'");
 
@@ -173,14 +173,14 @@ is($compute_int->fetch, undef,
 ok($inst->pop_no_value_check,
    "enable fetch value check");
 
-my $s = $root->get_element_for('meet_test') ;
+my $s = $root->fetch_element('meet_test') ;
 eval {$result = $s->fetch ;} ;
 ok($@,"test for undef variables in string") ;
 print "normal error:\n", $@, "\n" if $trace;
 
 my ($as,$bs) = ('Linus','his penguin') ;
-$root->get_element_for('sav')->store($as) ;
-$root->get_element_for('sbv')->store($bs) ;
+$root->fetch_element('sav')->store($as) ;
+$root->fetch_element('sbv')->store($bs) ;
 $result = $s->fetch ;
 is($result, 'meet Linus and his penguin',
   "test result :  computed string is '$result' (a: $as, b: $bs)") ;
@@ -188,7 +188,7 @@ is($result, 'meet Linus and his penguin',
 
 print "test allow_compute_override\n" if $trace;
 
-my $comp_over =  $root-> get_element_for('compute_with_override');
+my $comp_over =  $root-> fetch_element('compute_with_override');
 $bv->store(2) ;
 
 is( $comp_over->fetch, 3, "test computed value" );

@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-02-06 13:06:45 $
+# $Date: 2006-02-16 13:09:43 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -27,7 +27,7 @@ use Carp;
 use strict;
 
 use vars qw($VERSION);
-$VERSION = sprintf "%d.%03d", q$Revision: 1.1 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -270,7 +270,8 @@ sub grab {
 			) ;
 	}
 
-        unless ($obj->is_element_available(name => $name, role => 'master')) {
+        unless ($obj->is_element_available(name => $name, 
+					   permission => 'master')) {
             Config::Model::Exception::UnavailableElement
 		->throw (
 			 object => $obj,
@@ -284,8 +285,8 @@ sub grab {
 	# Not translated below
 	# '%' action grab but does not create !
         if (defined $action and $action eq '%' 
-	    and not $obj->get_element_for($name)
-	    ->get_element_for_key($arg)) 
+	    and not $obj->fetch_element($name)
+	    ->fetch_element_key($arg)) 
 	  {
             Config::Model::Exception::UnknownId
 		->throw (
@@ -298,10 +299,10 @@ sub grab {
 
         if (defined $action) {
 	    # action can only be % or :
-	    $obj = $obj->get_element_for($name) ->fetch($arg)
+	    $obj = $obj->fetch_element($name) ->fetch($arg)
           }
         else {
-	    $obj = $obj->get_element_for($name);
+	    $obj = $obj->fetch_element($name);
 	}
     }
 

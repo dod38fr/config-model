@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-02-06 12:34:35 $
+# $Date: 2006-02-16 13:09:43 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 use warnings FATAL => qw(all);
 
@@ -82,7 +82,7 @@ $model ->create_config_class
     => {
 	type => 'hash',
 	index_type  => 'string',
-	element_type => 'node',
+	collected_type => 'node',
 	warp  =>  { follow => '! tree_macro',
 		    morph   => 1,
 		    rules => { XY  => { config_class_name => 'SlaveY', },
@@ -128,56 +128,56 @@ is($root->is_element_available('a_hash_of_warped_nodes'),0,
    'check that a_hash_of_warped_nodes is not available'
   ) ;
 
-eval { $root->get_element_for('a_hash_of_warped_nodes')->fetch(1) 
-	 -> get_element_for('X')->store('coucou');} ;
+eval { $root->fetch_element('a_hash_of_warped_nodes')->fetch(1) 
+	 -> fetch_element('X')->store('coucou');} ;
 ok($@,'test stored on a warped node element (should fail)') ;
 print "Normal error:\n", $@ if $trace ;
 
-is($root->get_element_for('tree_macro')->store('XY'),'XY',
+is($root->fetch_element('tree_macro')->store('XY'),'XY',
    'set master->tree_macro to XY');
 
-my $ahown = $root->get_element_for('a_hash_of_warped_nodes') ;
+my $ahown = $root->fetch_element('a_hash_of_warped_nodes') ;
 is( $ahown->fetch(234) -> config_class_name, 'SlaveY' ,
    "reading a_hash_of_warped_nodes (is SlaveY because tree_macro was set)") ;
 
-is($root->get_element_for('tree_macro')->store('XZ'),'XZ',
+is($root->fetch_element('tree_macro')->store('XZ'),'XZ',
    'set master->tree_macro to XZ');
 
 is( $ahown->fetch(234) -> config_class_name, 'SlaveZ' ,
    "reading a_hash_of_warped_nodes (is SlaveZ because tree_macro was set)") ;
 
-is($ahown->fetch(234) -> get_element_for('X')->fetch, undef,  
+is($ahown->fetch(234) -> fetch_element('X')->fetch, undef,  
    'reading master a_hash_of_warped_nodes:234 X (undef)');
 
-is($root->get_element_for('v_macro')->store('A'),'A',
+is($root->fetch_element('v_macro')->store('A'),'A',
    'set master v_macro to A');
 
 map {
-    is($ahown->fetch(234) -> get_element_for($_)->fetch, 'Av',  
+    is($ahown->fetch(234) -> fetch_element($_)->fetch, 'Av',  
        "reading master a_hash_of_warped_nodes:234 $_ (default value)");
     } qw/X Z/ ;
 
 map {
-    is($ahown->fetch(234) -> get_element_for($_)->store('Cv'), 'Cv',  
+    is($ahown->fetch(234) -> fetch_element($_)->store('Cv'), 'Cv',  
        "Set master a_hash_of_warped_nodes:234 $_ to Cv");
     } qw/X Z/ ;
 
-is($root->get_element_for('tree_macro')->store('mXY'),'mXY',
+is($root->fetch_element('tree_macro')->store('mXY'),'mXY',
    'set master->tree_macro to mXY (with morphing)...');
 
-is($ahown->fetch(234) -> get_element_for('X')->fetch, 'Cv',  
+is($ahown->fetch(234) -> fetch_element('X')->fetch, 'Cv',  
        "... X value was kept ...");
 
-is($ahown->fetch(234) -> get_element_for('Y')->fetch, 'Av',  
+is($ahown->fetch(234) -> fetch_element('Y')->fetch, 'Av',  
        "... Y is back to default value");
 
-is($root->get_element_for('v_macro')->store('B'),'B',
+is($root->fetch_element('v_macro')->store('B'),'B',
    'set master v_macro to B');
 
-is($ahown->fetch(234) -> get_element_for('X')->fetch, 'Cv',  
+is($ahown->fetch(234) -> fetch_element('X')->fetch, 'Cv',  
        "... X value was kept ...");
 
-is($ahown->fetch(234) -> get_element_for('Y')->fetch, 'Bv',  
+is($ahown->fetch(234) -> fetch_element('Y')->fetch, 'Bv',  
        "... Y is to new default value");
 
 # TBD 
@@ -186,7 +186,7 @@ is($ahown->fetch(234) -> get_element_for('Y')->fetch, 'Bv',
 #ok( $dump, qr/ X = Cv/ );
 
 
-my $warped_node = $root -> get_element_for( 'a_warped_node') ;
+my $warped_node = $root -> fetch_element( 'a_warped_node') ;
 isa_ok($warped_node,"Config::Model::WarpedNode", "created warped node") ;
 
 is($ahown->fetch(234)->element_name, 'a_hash_of_warped_nodes', 
@@ -206,7 +206,7 @@ is_deeply([$root->get_element_name(for => 'intermediate')],
               a_warped_node/],
 	 'reading elements of root') ;
 
-is($root->get_element_for('tree_macro')->store('W'),'W',
+is($root->fetch_element('tree_macro')->store('W'),'W',
    'set master->tree_macro to W (warp out)...');
 
 is_deeply([$root->get_element_name(for => 'intermediate')],
@@ -218,12 +218,12 @@ is_deeply([$root->get_element_name(for => 'advanced')],
 	 'reading elements of root after warp out') ;
 
 
-is($root->get_element_for('b_macro')->store(1),1,
+is($root->fetch_element('b_macro')->store(1),1,
    'set master->b_macro to 1 (warp in bool_object)...');
 
-$root->get_element_for('b_macro')->store(1) ;
+$root->fetch_element('b_macro')->store(1) ;
 
-is($root->get_element_for('bool_object')->config_class_name,
+is($root->fetch_element('bool_object')->config_class_name,
    'SlaveY',
    'check theorical bool_object type...');
 

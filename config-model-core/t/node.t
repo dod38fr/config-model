@@ -1,11 +1,11 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-02-07 12:56:12 $
+# $Date: 2006-02-16 13:09:43 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 use ExtUtils::testlib;
-use Test::More tests => 45;
+use Test::More tests => 49;
 use Config::Model;
 
 use warnings;
@@ -100,7 +100,7 @@ is_deeply( [ sort $root->get_element_name(for => 'advanced') ],
 is_deeply( [ sort $root->get_element_name(for => 'master') ],
 	   [qw/array_args captain hash_args/], "check Master elements");
 
-my $w = $root->get_element_for('captain') ;
+my $w = $root->fetch_element('captain') ;
 ok( $w, "Created Captain" );
 
 is($w->config_class_name,'Captain',"test class_name") ;
@@ -109,7 +109,7 @@ is($w->element_name,'captain',"test element_name") ;
 is($w->name,'captain',"test name") ;
 is($w->location,'captain',"test captain location") ;
 
-my $b = $w->get_element_for('bar');
+my $b = $w->fetch_element('bar');
 ok( $b, "Created Sarge" );
 
 is($b->get_element_property(property => 'permission', element => 'Y'),
@@ -119,42 +119,42 @@ is($b->get_element_property(property => 'permission',element => 'Z'),
 is($b->get_element_property(property => 'permission',element => 'X'),
    'master',      "check X permission") ;
 
-is( $b->get_value_for('X'), 'Av',  "test X value" );
-is( $b->get_value_for('Y'), 'Bv',  "test Y value" );
-is( $b->get_value_for('Z'), undef, "test Z value" );
+is( $b->fetch_element_value('X'), 'Av',  "test X value" );
+is( $b->fetch_element_value('Y'), 'Bv',  "test Y value" );
+is( $b->fetch_element_value('Z'), undef, "test Z value" );
 
-eval { $b->get_element_for('Z','user');} ;
-ok($@,"get_element_for with unexpected permission") ;
+eval { $b->fetch_element('Z','user');} ;
+ok($@,"fetch_element with unexpected permission") ;
 like($@,qr/Unexpected permission/,"check error message") ;
 
-eval { $b->get_element_for('X','intermediate');} ;
-ok($@,"get_element_for with unexpected permission") ;
+eval { $b->fetch_element('X','intermediate');} ;
+ok($@,"fetch_element with unexpected permission") ;
 like($@,qr/restricted element/,"check error message") ;
 
-$root->get_element_for('array_args')->get_element_for('bar')
-  ->set_value_for( X => 'Dv' );
+$root->fetch_element('array_args')->fetch_element('bar')
+  ->store_element_value( X => 'Dv' );
 
-is( $root->get_element_for('array_args')->get_element_for('bar')
-    ->get_value_for( 'X'),
+is( $root->fetch_element('array_args')->fetch_element('bar')
+    ->fetch_element_value( 'X'),
     'Dv', "Testing X modif done through array ref constructor arg" );
 
-is( $root->get_element_for('array_args')
+is( $root->fetch_element('array_args')
     ->get_element_property(property => 'permission',element => 'bar'),
     'intermediate' );
-is( $root->get_element_for('array_args')->get_element_for('bar')
+is( $root->fetch_element('array_args')->fetch_element('bar')
     ->get_element_property(property => 'permission',element => 'X'), 
     'master' );
 
-my $tested = $root->get_element_for('hash_args')->get_element_for('bar');
+my $tested = $root->fetch_element('hash_args')->fetch_element('bar');
 
-$tested->set_value_for( X => 'Dv');
+$tested->store_element_value( X => 'Dv');
 
 is($tested->config_class_name,  'Sarge',"test bar config_class_name") ;
 is($tested->element_name,'bar'  ,"test bar element_name") ;
 is($tested->name,        'hash_args bar' ,"test bar name") ;
 is($tested->location,    'hash_args bar' ,"test bar location") ;
 
-is( $tested->get_value_for('X'),
+is( $tested->fetch_element_value('X'),
     'Dv', "Testing X modif done through hash ref constructor arg" );
 is( $tested->get_element_property(property => 'permission',element => 'X'),
     'master',
@@ -206,3 +206,13 @@ is( $root->get_element_property(property => 'level',element => 'captain' ),
 is( $root->reset_element_property( property => 'level',element =>'captain'), 
     'important',
     "test importance" );
+
+map {
+    my $key_label = defined $_->[0] ? $_->[0] : 'undef';
+    is( $root->next_element($_->[0]), $_->[1], 
+	"test next_element ($key_label)" );
+} ( [ undef, 'captain'] ,
+    [ '',    'captain'] ,
+    [ qw/captain array_args/ ],
+    [ qw/array_args hash_args/]
+  ) ;

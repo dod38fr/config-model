@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-02-06 12:34:35 $
+# $Date: 2006-02-16 13:09:43 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 use warnings FATAL => qw(all);
 
@@ -24,7 +24,7 @@ ok(1,"Compilation done");
 
 my @element = ( 
 	       # Value constructor args are passed in their specific array ref
-	       element_type => 'leaf',
+	       collected_type => 'leaf',
 	       element_args => {value_type => 'string'},
 	      ) ;
 
@@ -84,7 +84,7 @@ ok($inst,"created dummy instance") ;
 
 my $root = $inst -> config_root ;
 
-my $b = $root->get_element_for('bounded_hash') ;
+my $b = $root->fetch_element('bounded_hash') ;
 ok($b,"bounded hash created") ;
 
 is($b->name,'Master bounded_hash id',"check hash id name");
@@ -118,7 +118,7 @@ is( $b->exists(2), '', "deleted id does not exist" );
 is( $b->index_type, 'integer',"reading value_type" );
 is( $b->max, 123,"reading max boundary" );
 
-my $ac = $root->get_element_for('hash_with_auto_created_id') ;
+my $ac = $root->fetch_element('hash_with_auto_created_id') ;
 ok($ac,"created hash_with_auto_created_id") ;
 
 is_deeply([$ac->get_all_indexes], ['yada'],"check auto-created id") ;
@@ -128,23 +128,23 @@ $ac->fetch('foo')->store(3) ;
 ok($ac->exists('yada'), "...idem after creating another id") ;
 is_deeply([$ac->get_all_indexes], ['foo','yada'],"check the 2 ids") ;
 
-my $dk = $root->get_element_for('hash_with_default_id');
+my $dk = $root->fetch_element('hash_with_default_id');
 ok($dk,"created hash_with_default_id ...") ;
 
 is_deeply([$dk->get_all_indexes], ['yada'],"check default id") ;
 ok($dk->exists('yada'), "...and test default id on empty hash") ;
 
-my $dk2 = $root->get_element_for('hash_with_default_id_2');
+my $dk2 = $root->fetch_element('hash_with_default_id_2');
 ok($dk2,"created hash_with_default_id_2 ...") ;
 ok($dk2->fetch('foo')->store(3),"... store a value...") ;
 is_deeply([$dk2->get_all_indexes], ['foo'],"...check existing id...") ;
 is($dk2->exists('yada'),'', "...and test that default id is not provided") ;
 
-my $dk3 = $root->get_element_for('hash_with_several_default_keys');
+my $dk3 = $root->fetch_element('hash_with_several_default_keys');
 ok($dk3,"created hash_with_several_default_keys ...") ;
 is_deeply([sort $dk3->get_all_indexes], [qw/x y z/],"...check default id") ;
 
-my $ac2 = $root->get_element_for('hash_with_several_auto_created_id');
+my $ac2 = $root->fetch_element('hash_with_several_auto_created_id');
 ok($ac2,"created hash_with_several_auto_created_id ...") ;
 ok($ac2->fetch('foo')->store(3),"... store a value...") ;
 is_deeply([sort $ac2->get_all_indexes], [qw/foo x y z/],"...check id...") ;

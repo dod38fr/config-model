@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-02-06 12:34:35 $
+# $Date: 2006-02-16 13:09:43 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 use warnings FATAL => qw(all);
 
@@ -188,5 +188,5 @@ foreach my $c1 (@m1) {
     }
 }
 
-my @array = $root->get_element_for('m1')->get_all_warper_object;
+my @array = $root->fetch_element('m1')->get_all_warper_object;
 is( @array, 3, "test number of warp roots" );

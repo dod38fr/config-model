@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-02-06 12:34:35 $
+# $Date: 2006-02-16 13:09:43 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 use warnings FATAL => qw(all);
 
@@ -103,17 +103,17 @@ my $root = $inst -> config_root ;
 
 
 foreach my $mv (qw/A B C/) {
-    ok( $root->get_element_for('macro')->store($mv) ,
+    ok( $root->fetch_element('macro')->store($mv) ,
 	"Set macro to $mv");
 
     foreach my $element (qw/m1 m2a m2b/) {
-        is( $root->get_element_for($element)->fetch(),
+        is( $root->fetch_element($element)->fetch(),
 	    $element . '_' . $mv,
 	    "Reading Master element $element");
     }
 
     foreach my $element (qw/e1 e2/) {
-        is( $root->get_element_for($element)->fetch(),
+        is( $root->fetch_element($element)->fetch(),
 	    $element . '_' . $mv ,
 	    "Reading Master element $element");
     }

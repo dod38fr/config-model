@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-02-06 12:34:35 $
+# $Date: 2006-02-16 13:09:43 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
@@ -85,11 +85,11 @@ my $root = $inst -> config_root ;
 
 my ( $w1, $w2, $w3, $bad_w, $rec_wo , $t);
 
-eval {$bad_w = $root->get_element_for('wrong_syntax_rule') ;};
+eval {$bad_w = $root->fetch_element('wrong_syntax_rule') ;};
 ok($@,"set up warped object with wrong rules syntax" ) ;
 print "normal error:\n", $@, "\n" if $trace;
 
-eval {$bad_w = $root->get_element_for('wrong_rule_semantic') ;} ;
+eval {$bad_w = $root->fetch_element('wrong_rule_semantic') ;} ;
 ok($@, "set up warped object with wrong rules semantic" ) ;
 print "normal error:\n", $@, "\n" if $trace;
 
@@ -97,14 +97,14 @@ eval { $t = $bad_w->fetch ; } ;
 ok( $@,"wrong rules semantic warped object blows up" );
 print "normal error:\n", $@, "\n" if $trace;
 
-ok( $w1 = $root->get_element_for('warped_object'), 
+ok( $w1 = $root->fetch_element('warped_object'), 
     "set up warped object");
 
 eval { my $str = $w1->fetch ; } ;
 ok($@, "try to read warped object while warp master is undef"  );
 print "normal error:\n", $@, "\n" if $trace;
 
-my $warp_master = $root->get_element_for('enum') ;
+my $warp_master = $root->fetch_element('enum') ;
 is( $warp_master->store('F'), 'F', 
     "store F in warp master" );
 is( $w1->fetch, 'F', "read warped object default value" );
@@ -113,7 +113,7 @@ is( $w1 -> store ('F2'), 'F2', "store F2 in  warped object");
 is( $w1->fetch, 'F2',"and read" );
 
 
-ok($rec_wo=$root->get_element_for('recursive_warped_object'), 
+ok($rec_wo=$root->fetch_element('recursive_warped_object'), 
    "set up recursive_warped_object");
 
 eval { my $str = $rec_wo->fetch ; } ;
@@ -138,8 +138,8 @@ $warp_master->store('F') ;
 is($w1->fetch, 'A',
    "set value valid for both warp, warp w1 to G and test that the value is still ok");
 
-$w2 = $root->get_element_for('w2');
-$w3 = $root->get_element_for('w3');
+$w2 = $root->fetch_element('w2');
+$w3 = $root->fetch_element('w3');
 
 is($w2->fetch, 'F',
    "test unset value for w2 after setting warp master");

@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-02-03 17:04:31 $
+# $Date: 2006-02-16 13:09:43 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 use ExtUtils::testlib;
 use Test::More tests => 6;
@@ -42,7 +42,7 @@ my $root = $inst -> config_root ;
 ok($root,"Config root created") ;
 
 my $step = 'std_id:ab X=Bv - std_id:bc X=Av - a_string="toto tata"';
-ok( $root->load( step => $step, role => 'intermediate' ),
+ok( $root->load( step => $step, permission => 'intermediate' ),
   "set up data in tree with '$step'");
 
 my $dts = $root->dump_tree;

@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-02-02 13:00:41 $
+# $Date: 2006-02-16 13:09:43 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 use warnings FATAL => qw(all);
 
@@ -29,7 +29,7 @@ $model ->create_config_class
    'element' => [ 
 		 if => { type => 'hash',
 			 index_type => 'string',
-			 element_type => 'node',
+			 collected_type => 'node',
 			 config_class_name  => 'If',
 		       },
 		 trap => { type => 'leaf',
@@ -54,7 +54,7 @@ $model ->create_config_class
    element => [
 	       node => { type => 'hash',
 			 index_type => 'string',
-			 element_type => 'node',
+			 collected_type => 'node',
 			 config_class_name  => 'Node',
 		       },
 	      ]
@@ -88,12 +88,12 @@ $model ->create_config_class
    element => [
 	       host => { type => 'hash',
 			 index_type => 'string',
-			 element_type => 'node',
+			 collected_type => 'node',
 			 config_class_name  => 'Host'
 		       },
 	       lan => { type => 'hash',
 			index_type => 'string',
-			element_type => 'node',
+			collected_type => 'node',
 			config_class_name  => 'Lan'
 		      }
 	      ]
