@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-02-16 13:09:43 $
+# $Date: 2006-02-23 13:43:31 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 use warnings FATAL => qw(all);
 
@@ -293,10 +293,10 @@ is($root->fetch_element('m_value')->store('Cv'), 'Cv',
    'set m_value to Cv'
   );
 
-my $rslave1  = $slave  ->fetch_element('recursive_slave')->fetch('l1');
-my $rslave2  = $rslave1->fetch_element('recursive_slave')->fetch('l2') ;
+my $rslave1  = $slave  ->fetch_element('recursive_slave')->fetch_with_id('l1');
+my $rslave2  = $rslave1->fetch_element('recursive_slave')->fetch_with_id('l2') ;
 my $big_compute_obj 
-             = $rslave2->fetch_element('big_compute')    ->fetch('b1');
+             = $rslave2->fetch_element('big_compute')    ->fetch_with_id('b1');
 
 isa_ok($big_compute_obj,'Config::Model::Value',
        'Created new big compute object'
@@ -328,7 +328,7 @@ is( $str,
   "testing pre_compute with &element(stuff) and &index(\$stuff)");
 
 my $bc_val  
-  = $rslave2->fetch_element('big_compute')->fetch("test_1")->fetch;
+  = $rslave2->fetch_element('big_compute')->fetch_with_id("test_1")->fetch;
 
 is( $bc_val,
     'macro is C, my idx: test_1, my element big_compute, upper element recursive_slave, up idx l2',
@@ -349,11 +349,11 @@ is( $rslave2->fetch_element('big_replace')->fetch('br1'),
     'trad idx level2',
     'reading rslave2->big_replace(br1)');
 
-is( $rslave1->fetch_element('macro_replace')->fetch('br1')->fetch,
+is( $rslave1->fetch_element('macro_replace')->fetch_with_id('br1')->fetch,
     'trad macro is macroC',
     'reading rslave1->macro_replace(br1)');
 
-is( $rslave2->fetch_element('macro_replace')->fetch('br1')->fetch,
+is( $rslave2->fetch_element('macro_replace')->fetch_with_id('br1')->fetch,
     'trad macro is macroC',
     'reading rslave2->macro_replace(br1)');
 

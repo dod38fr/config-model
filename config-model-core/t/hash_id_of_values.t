@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-02-16 13:09:43 $
+# $Date: 2006-02-23 13:43:30 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 use warnings FATAL => qw(all);
 
@@ -89,26 +89,26 @@ ok($b,"bounded hash created") ;
 
 is($b->name,'Master bounded_hash id',"check hash id name");
 
-my $b1 = $b->fetch(1) ;
+my $b1 = $b->fetch_with_id(1) ;
 isa_ok($b1,'Config::Model::Value',"fetched element id 1") ;
 
 is($b1->store('foo'),'foo',"Storing in id 1" ) ;
 
-is($b->fetch(2)->store('bar'),'bar',"Storing in id 2" ) ;
+is($b->fetch_with_id(2)->store('bar'),'bar',"Storing in id 2" ) ;
 
-eval { $b->fetch('')->store('foo');} ;
+eval { $b->fetch_with_id('')->store('foo');} ;
 ok($@,"empty index error") ;
 print "normal error: ", $@ if $trace;
 
-eval { $b->fetch(0)->store('foo');} ;
+eval { $b->fetch_with_id(0)->store('foo');} ;
 ok($@,"min error") ;
 print "normal error: ", $@ if $trace;
 
-eval { $b->fetch(124)->store('foo');} ;
+eval { $b->fetch_with_id(124)->store('foo');} ;
 ok($@,"max error") ;
 print "normal error: ", $@ if $trace;
 
-eval { $b->fetch(40)->store('foo');} ;
+eval { $b->fetch_with_id(40)->store('foo');} ;
 ok($@,"max nb error") ;
 print "normal error: ", $@ if $trace;
 
@@ -124,7 +124,7 @@ ok($ac,"created hash_with_auto_created_id") ;
 is_deeply([$ac->get_all_indexes], ['yada'],"check auto-created id") ;
 ok($ac->exists('yada'), "...idem") ;
 
-$ac->fetch('foo')->store(3) ;
+$ac->fetch_with_id('foo')->store(3) ;
 ok($ac->exists('yada'), "...idem after creating another id") ;
 is_deeply([$ac->get_all_indexes], ['foo','yada'],"check the 2 ids") ;
 
@@ -136,7 +136,7 @@ ok($dk->exists('yada'), "...and test default id on empty hash") ;
 
 my $dk2 = $root->fetch_element('hash_with_default_id_2');
 ok($dk2,"created hash_with_default_id_2 ...") ;
-ok($dk2->fetch('foo')->store(3),"... store a value...") ;
+ok($dk2->fetch_with_id('foo')->store(3),"... store a value...") ;
 is_deeply([$dk2->get_all_indexes], ['foo'],"...check existing id...") ;
 is($dk2->exists('yada'),'', "...and test that default id is not provided") ;
 
@@ -146,30 +146,6 @@ is_deeply([sort $dk3->get_all_indexes], [qw/x y z/],"...check default id") ;
 
 my $ac2 = $root->fetch_element('hash_with_several_auto_created_id');
 ok($ac2,"created hash_with_several_auto_created_id ...") ;
-ok($ac2->fetch('foo')->store(3),"... store a value...") ;
+ok($ac2->fetch_with_id('foo')->store(3),"... store a value...") ;
 is_deeply([sort $ac2->get_all_indexes], [qw/foo x y z/],"...check id...") ;
-
-__END__
-
-print "Creating hash with several auto-created keys\n" if $trace;
-my %ac2;
-tie(%ac2, 'Config::Model::Id', @test,
-    index_type  => 'string',
-    auto_create => [qw/x y z/]
-);
-ok(1);
-
-$ac2{foo} = 'baz';
-
-@keys = sort keys %ac2;
-print "keys are: @keys\n" if $trace;
-ok( scalar @keys, 4 );
-ok( "@keys", "foo x y z" );
-$e = exists $ac2{x};
-ok($e);
-
-$e = exists $ac2{x};
-ok($e);
-
-#print Dumper tied %b ;
 

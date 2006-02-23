@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-02-16 13:09:43 $
+# $Date: 2006-02-23 13:43:30 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 use warnings FATAL => qw(all);
 
@@ -109,23 +109,23 @@ is($macro->store('A'),'A',"Set macro to A") ;
 is($macro->fetch(),'A',"Check macro") ;
 
 my $warped_hash = $root->fetch_element('warped_hash') ;
-ok( $warped_hash->fetch('1'), "Set one slave" );
+ok( $warped_hash->fetch_with_id('1'), "Set one slave" );
 
-my $res = eval { $warped_hash->fetch('2'); };
+my $res = eval { $warped_hash->fetch_with_id('2'); };
 ok( $@, "Set second slave (normal error)" );
 print "normal error:", $@, "\n" if $trace;
 
 is($macro->store('B'),'B',"Set macro to B") ;
-ok( $warped_hash->fetch('2'), "Set second slave" );
+ok( $warped_hash->fetch_with_id('2'), "Set second slave" );
 
-$res = eval { $warped_hash->fetch('3'); };
+$res = eval { $warped_hash->fetch_with_id('3'); };
 ok( $@, "Set third slave (normal error)" );
 print "normal error:", $@, "\n" if $trace;
 
 is($macro->store('C'),'C',"Set macro to C (warp_reset)") ;
-ok( $warped_hash->fetch('3'), "Set third slave" );
+ok( $warped_hash->fetch_with_id('3'), "Set third slave" );
 
-$res = eval { $warped_hash->fetch('4'); };
+$res = eval { $warped_hash->fetch_with_id('4'); };
 ok( $@, "Set fourth slave (normal error)" );
 print "normal error:", $@, "\n" if $trace;
 
@@ -162,7 +162,7 @@ is_deeply( [ sort $multi_warp->get_all_indexes ] ,
 	   "check multi_warp default key set with different warp master"
 	 );
 
-is($multi_warp->fetch('5')->fetch_element('X')->store('Av'),
+is($multi_warp->fetch_with_id('5')->fetch_element('X')->store('Av'),
    'Av', "store Av in X");
 
 $root->load(step => 'multi_warp:5 X=Av') ;

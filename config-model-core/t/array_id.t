@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-02-16 13:09:43 $
+# $Date: 2006-02-23 13:43:30 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 use warnings FATAL => qw(all);
 
@@ -52,18 +52,18 @@ my $root = $inst -> config_root ;
 my $b = $root->fetch_element('bounded_list');
 ok($b,"bounded list created") ;
 
-is($b->fetch(1)->store('foo'),'foo',"stored in 1") ;
-is($b->fetch(0)->store('baz'),'baz',"stored in 0") ;
-is($b->fetch(2)->store('bar'),'bar',"stored in 2") ;
+is($b->fetch_with_id(1)->store('foo'),'foo',"stored in 1") ;
+is($b->fetch_with_id(0)->store('baz'),'baz',"stored in 0") ;
+is($b->fetch_with_id(2)->store('bar'),'bar',"stored in 2") ;
 
-eval { $b->fetch(124)->store('baz') ;} ;
+eval { $b->fetch_with_id(124)->store('baz') ;} ;
 ok($@,"max error") ;
 print "normal error:", $@, "\n" if $trace;
 
 is_deeply([$b->get_all_indexes],[0,1,2],"check ids") ;
 
 $b->delete(1) ;
-is($b->fetch(1)->fetch, undef,"check deleted id") ;
+is($b->fetch_with_id(1)->fetch, undef,"check deleted id") ;
 
 is($b->index_type,'integer','check list index_type') ;
 is($b->max,123,'check list max boundary') ;

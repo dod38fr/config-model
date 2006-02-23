@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-02-16 13:09:43 $
+# $Date: 2006-02-23 13:43:30 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 
 #    Copyright (c) 2006 Dominique Dumont.
 #
@@ -28,7 +28,7 @@ use Carp;
 use warnings ;
 use UNIVERSAL qw( isa can );
 
-our $VERSION = sprintf "%d.%03d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/;
+our $VERSION = sprintf "%d.%03d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/;
 
 use Carp qw/croak confess cluck/;
 
@@ -245,7 +245,7 @@ sub create_fallback {
 	    my $next = $obj -> fetch_element($element) ;
 
             my $type = $obj->element_type($element) ;
-            $next = $next->fetch($key) if $type eq 'list' || $type eq 'hash';
+            $next = $next->fetch_with_id($key) if $type eq 'list' || $type eq 'hash';
             $self->scan_node($next);
 	} ;
 
@@ -390,7 +390,7 @@ sub scan_hash {
         $self->{node_cb}-> ($parent,$element,$key) ;
     }
     elsif ($collected_type eq 'leaf') {
-        my $obj = $item->fetch($key) ;
+        my $obj = $item->fetch_with_id($key) ;
 	my $cb_name = $obj->value_type.'_value_cb' ;
 	my $cb = $self->{$cb_name};
 	croak "scan_hash: No call_back specified for '$cb_name'" 

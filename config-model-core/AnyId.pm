@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-02-23 13:23:53 $
+# $Date: 2006-02-23 13:43:30 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -29,7 +29,7 @@ use Carp;
 use strict;
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.1 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/;
 
 use base qw/Config::Model::WarpedThing/;
 
@@ -399,7 +399,7 @@ sub set_element_class {
 
     foreach my $idx (@current_idx) {
 	# check if some action is needed
-	my $old_object = $self->_fetch( $idx ) ;
+	my $old_object = $self->_fetch_with_id( $idx ) ;
 
 	next unless defined $old_object ;
 
@@ -419,7 +419,7 @@ sub set_element_class {
 	      $old_object->config_class_name,
 		" to $config_class_name\n"
 		  if $::debug ;
-	    $self->fetch( $idx )->copy_from($old_object) ;
+	    $self->fetch_with_id( $idx )->copy_from($old_object) ;
 	}
     }
 
@@ -494,13 +494,13 @@ sub check {
 
 =head1 Informations management
 
-=head2 fetch ( index )
+=head2 fetch_with_id ( index )
 
 Fetch the collected element held by the hash or list.
 
 =cut
 
-sub fetch {
+sub fetch_with_id {
     my ($self,$idx) = @_ ;
 
     $self->warp 
@@ -510,7 +510,7 @@ sub fetch {
 
     if ($ok) {
 	$self->auto_vivify($idx) unless $self->_defined($idx) ;
-        return $self->_fetch($idx) ;
+        return $self->_fetch_with_id($idx) ;
       }
     elsif ($self->instance->get_value_check('fetch')) {
         Config::Model::Exception::WrongValue 
@@ -532,7 +532,7 @@ Returns an array containing all elements held by the hash or list.
 sub fetch_all {
     my $self = shift ;
     my @keys  = $self->get_all_indexes ;
-    return map { $self->fetch($_) ;} @keys ;
+    return map { $self->fetch_with_id($_) ;} @keys ;
 }
 
 =head2 get_all_indexes()

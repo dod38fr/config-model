@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-02-16 13:09:43 $
+# $Date: 2006-02-23 13:43:30 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 
 use ExtUtils::testlib;
 use Test::More tests => 9;
@@ -50,7 +50,7 @@ sub disp_obj_elt {
     $result .= "\n";
 
     my $next = $obj->fetch_element($element) ;
-    $next = $next-> fetch($key) if defined $key ;
+    $next = $next-> fetch_with_id($key) if defined $key ;
 
     $scan->scan_node($next);
 }
@@ -69,7 +69,7 @@ sub disp_leaf {
     my ( $obj, $element, $index ) = @_;
 
     my $value = $obj->fetch_element($element) ;
-    $value = $value-> fetch($index) if defined $index ;
+    $value = $value-> fetch_with_id($index) if defined $index ;
 
     $result .= "disp_leaf " . $obj->name . " element $element ";
     $result .= "value ".$value->fetch  if defined $value->fetch;

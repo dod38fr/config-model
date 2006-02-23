@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-02-16 13:09:43 $
+# $Date: 2006-02-23 13:43:30 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 use warnings FATAL => qw(all);
 
@@ -77,7 +77,7 @@ ok($b,"bounded hash created") ;
 
 is($b->name,'Master bounded_hash id',"check hash id name");
 
-my $b1 = $b->fetch(1) ;
+my $b1 = $b->fetch_with_id(1) ;
 isa_ok($b1,'Config::Model::Node',"fetched element id 1") ;
 
 is($b1->config_class_name,'Slave', 'check config_class_name') ;

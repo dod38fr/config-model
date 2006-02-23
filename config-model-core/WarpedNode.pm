@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-02-21 13:20:22 $
+# $Date: 2006-02-23 13:43:30 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -32,7 +32,7 @@ use Config::Model::Exception ;
 use Data::Dumper ;
 
 use vars qw($VERSION $AUTOLOAD) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.1 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -95,7 +95,7 @@ WarpedNode should not be created directly.
 
 =head1 Warped node model declaration
 
-=head2 Paremeter overview
+=head2 Parameter overview
 
 A warped node must be declared with the following parameters:
 
@@ -298,8 +298,6 @@ sub create_node {
 1;
 
 __END__
-
-
 
 =head1 EXAMPLE
 

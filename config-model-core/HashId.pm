@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-02-23 13:24:18 $
+# $Date: 2006-02-23 13:43:30 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -31,7 +31,7 @@ use strict;
 use base qw/Config::Model::AnyId/ ;
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.1 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -147,7 +147,7 @@ sub _get_all_indexes {
 }
 
 # fetch without any check 
-sub _fetch {
+sub _fetch_with_id {
     my ($self,$key) = @_ ;
     return $self->{data}{$key};
 }

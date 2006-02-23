@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-02-21 12:55:25 $
+# $Date: 2006-02-23 13:43:30 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -30,7 +30,7 @@ use Carp;
 use warnings FATAL => qw(all);
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.1 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/;
 
 use base qw/Config::Model::AnyThing/ ;
 
@@ -131,7 +131,7 @@ of several L<grab string|Config::Model::AnyThing/"grab(...)">:
 
  follow => [ '! macro1', '- macro2' ]
 
-=head2 warp rules argument
+=head2 Warp rules argument
 
 Hash or array ref that specify the warped object property changes.
 These rules specfies the actual property changes for the warped object

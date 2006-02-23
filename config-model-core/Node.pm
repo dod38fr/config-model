@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-02-16 13:06:40 $
+# $Date: 2006-02-23 13:43:30 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -33,12 +33,12 @@ use UNIVERSAL;
 use Scalar::Util qw/weaken/;
 use Storable qw/dclone/ ;
 
-use base qw/Config::Model::WarpedThing/;
+use base qw/Config::Model::AnyThing/;
 
 use vars qw($VERSION $AUTOLOAD @status @level
 @permission_list %permission_index );
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.1 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/;
 
 *status           = *Config::Model::status ;
 *level            = *Config::Model::level ;
@@ -609,6 +609,11 @@ Returns the configuration model of this node.
 
 Returns the configuration class name of this node.
 
+=head2 instance
+
+Returns the instance object containing this node. Inherited from 
+L<Config::Model::AnyThing>
+
 =cut
 
 for my $datum (qw/config_model model config_class_name/) {
@@ -655,6 +660,23 @@ sub element_type {
     croak "element_type: missing element name" unless @_ ;
     return $self->{model}{element}{$_[0]}{type} ;
 }
+
+=head2 element_name()
+
+Returns the element name that contain this object. Inherited from 
+L<Config::Model::AnyThing>
+
+=head2 index_value()
+
+See L<Config::Model::AnyThing/"index_value()">
+
+=head2 parent()
+
+See L<Config::Model::AnyThing/"parent()">
+
+=head2 location()
+
+See L<Config::Model::AnyThing/"location()">
 
 =head1 Element property management
 
@@ -891,16 +913,6 @@ sub fetch_element {
     return $self->{element}{$element_name} ;
 }
 
-=head2 parent
-
-Returns the node containing this object (returns undef for root node).
-
-=cut
-
-sub parent {
-    return shift->{parent} ;
-}
-
 =head2 fetch_element_value ( name  [ , user_permission ])
 
 Fetch and returns the I<value> of a leaf element from a node.
@@ -1000,6 +1012,19 @@ sub is_element_defined {
     my $self = shift ;
     return defined $self->{element}{$_[0]}
 }
+
+=head2 grab(...)
+
+See L<Config::Model::AnyThing/"grab(...)">.
+
+=head2 grab_value(...)
+
+See L<Config::Model::AnyThing/"grab_value(...)">.
+
+
+=head2 grab_root()
+
+See L<Config::Model::AnyThing/"grab_root()">.
 
 =head1 Serialisation
 
@@ -1111,8 +1136,8 @@ Dominique Dumont, domi@komarr.grenoble.hp.com
 
 =head1 SEE ALSO
 
-L<Config::Model::Instance>, 
 L<Config::Model::Model>, 
+L<Config::Model::Instance>, 
 L<Config::Model::HashId>,
 L<Config::Model::ListId>,
 L<Config::Model::WarpedNode>,

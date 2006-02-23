@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-02-16 13:09:43 $
+# $Date: 2006-02-23 13:43:30 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 #    Copyright (c) 2006 Dominique Dumont.
 #
@@ -29,7 +29,7 @@ use warnings ;
 use Config::Model::Exception ;
 
 use vars qw($VERSION);
-$VERSION = sprintf "%d.%03d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -348,13 +348,13 @@ sub _load_list {
 	return $node;
     }
     elsif ($action eq ':' and $elt_type =~ /node/) {
-	return $element->fetch($cmd) ;
+	return $element->fetch_with_id($cmd) ;
     }
     elsif ($action eq ':' and $elt_type =~ /leaf/) {
 	my ($id,$value) = ($cmd =~ m/(\w+)=(.*)/) ;
 	$value =~ s/^"// ; # remove possible leading quote
 	$value =~ s/"$// ; # remove possible trailing quote
-	$element->fetch($id)->store($value) ;
+	$element->fetch_with_id($id)->store($value) ;
 	return $node ;
     }
     else {
@@ -376,13 +376,13 @@ sub _load_hash {
     my $elt_type = $element->collected_type ;
 
     if ($action eq ':' and $elt_type =~ /node/) {
-	return $element->fetch($cmd) ;
+	return $element->fetch_with_id($cmd) ;
     }
     elsif ($action eq ':' and $elt_type =~ /leaf/) {
 	my ($id,$value) = ($cmd =~ m/(\w+)=(.*)/) ;
 	$value =~ s/^"// ; # remove possible leading quote
 	$value =~ s/"$// ; # remove possible trailing quote
-	$element->fetch($id)->store($value) ;
+	$element->fetch_with_id($id)->store($value) ;
 	return $node
     }
     else {

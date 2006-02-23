@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-02-16 13:09:43 $
+# $Date: 2006-02-23 13:43:30 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 use ExtUtils::testlib;
 use Test::More tests => 33;
@@ -61,28 +61,28 @@ ok( $root->load( step => $step, permission => 'intermediate' ),
 
 # perform some checks
 my $olist = $root->fetch_element('olist') ;
-is($olist->fetch(0)->element_name, 'olist', 'check list element_name') ;
+is($olist->fetch_with_id(0)->element_name, 'olist', 'check list element_name') ;
 
 map {
-    is($olist->fetch($_)->config_class_name, 'SlaveZ', 
+    is($olist->fetch_with_id($_)->config_class_name, 'SlaveZ', 
        "check list element $_ class") ;
     } (0,1) ;
 
 my $lista = $root->fetch_element('lista') ;
 isa_ok($lista, 'Config::Model::ListId','check lista class');
 map {
-    isa_ok($lista->fetch($_), 'Config::Model::Value', 
+    isa_ok($lista->fetch_with_id($_), 'Config::Model::Value', 
        "check lista element $_ class") ;
     } (0,1) ;
 
-is($olist->fetch(0)->fetch_element('X')->fetch, 'Av', 
+is($olist->fetch_with_id(0)->fetch_element('X')->fetch, 'Av', 
    "check list element 0 content") ;
-is($olist->fetch(1)->fetch_element('X')->fetch, 'Bv', 
+is($olist->fetch_with_id(1)->fetch_element('X')->fetch, 'Bv', 
    "check list element 1 content") ;
 
 my @expect = qw/a b c d/;
 map {
-    is($lista->fetch($_)->fetch, $expect[$_], 
+    is($lista->fetch_with_id($_)->fetch, $expect[$_], 
        "check lista element $_ content") ;
     } (0 .. 3) ;
 
@@ -99,7 +99,7 @@ is( $root->fetch_element('a_string')->fetch, "foo bar baz",
 
 @expect = qw/a b c d e/;
 map {
-    is($lista->fetch($_)->fetch, $expect[$_], 
+    is($lista->fetch_with_id($_)->fetch, $expect[$_], 
        "check lista element $_ content") ;
     } (0 .. 4) ;
 
@@ -115,4 +115,4 @@ ok( $root->load( step => $step, ), "load : '$step'");
 is_deeply( [sort $root->fetch_element('hash_a')->get_all_indexes ],
 	   [qw!a b!],
 	   'check result' );
-is($root->fetch_element('hash_a')->fetch('a')->fetch,'z', 'check result');
+is($root->fetch_element('hash_a')->fetch_with_id('a')->fetch,'z', 'check result');

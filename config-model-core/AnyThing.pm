@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-02-16 13:09:43 $
+# $Date: 2006-02-23 13:43:30 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -27,7 +27,7 @@ use Carp;
 use strict;
 
 use vars qw($VERSION);
-$VERSION = sprintf "%d.%03d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -45,7 +45,7 @@ configuration tree.
 
 AnyThing provides some methods and no constructor.
 
-=head1 Methods
+=head1 Introspection methods
 
 =head2 element_name()
 
@@ -63,7 +63,7 @@ is called on the root of the tree.
 
 =cut 
 
-foreach my $datum (qw/element_name index_value parent/) {
+foreach my $datum (qw/element_name index_value parent instance/) {
     no strict "refs";       # to register new methods in package
     *$datum = sub {
 	my $self= shift;
@@ -132,9 +132,12 @@ sub xpath {
     return $str;
 }
 
+=head1 Information management
+
 =head2 grab(...)
 
-Grab an object from the configuration tree. The parameter is a string indicating the steps to follow in the tree to find the required item.
+Grab an object from the configuration tree. The parameter is a string
+indicating the steps to follow in the tree to find the required item.
 
 The steps are made of the following items separated by spaces:
 
@@ -299,7 +302,7 @@ sub grab {
 
         if (defined $action) {
 	    # action can only be % or :
-	    $obj = $obj->fetch_element($name) ->fetch($arg)
+	    $obj = $obj->fetch_element($name) ->fetch_with_id($arg)
           }
         else {
 	    $obj = $obj->fetch_element($name);
@@ -381,19 +384,6 @@ sub grab_ancestor_with_element_named {
     }
 }
 
-=head2 load(...)
-
-Load configuration tree with data passed in the string.
-
-See L<Config::Model::Loader> for details.
-
-=cut
-
-sub load {
-    my $self = shift ;
-    my $loader = Config::Model::Loader->new ;
-    $loader->load(node => $self, @_) ;
-}
 
 1;
 
