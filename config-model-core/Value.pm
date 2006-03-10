@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-03-09 12:45:16 $
+# $Date: 2006-03-10 13:03:18 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -36,7 +36,7 @@ use base qw/Config::Model::WarpedThing/ ;
 
 use vars qw($VERSION) ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.1 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -766,15 +766,18 @@ sub get_choice_from_refered_to {
 		  element => $element,
 		  info => "Error related to 'refer_to' element of '".
 	          $self->parent->config_class_name() . "'"
-		 ) unless  $obj->is_element_available(name => $element) ;
+		 ) 
+	  unless  $obj->is_element_available(name => $element) ;
 
     my $type = $obj->element_type($element) ;
 
-    Config::Model::Exception::Model -> throw
-	(
-	  object => $obj,
-	 message => "element '$element' type is $type. Expected hash or list"
-	) unless $type eq 'hash' or $type eq 'list' ;
+    Config::Model::Exception::Model 
+	-> throw (
+		  object => $obj,
+		  message => "element '$element' type is $type. "
+		            ."Expected hash or list"
+		 )
+	  unless $type eq 'hash' or $type eq 'list' ;
 
     my @array = $obj->fetch_element($element)->get_all_indexes() ;
 
