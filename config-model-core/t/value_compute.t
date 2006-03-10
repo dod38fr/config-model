@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-02-16 13:09:43 $
+# $Date: 2006-03-10 13:08:16 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
@@ -89,8 +89,11 @@ ok($compute_int = $root->fetch_element('compute_int'),
 
 my $parser = Config::Model::ValueFormulaParser->new ;
 
-$::RD_HINT  = 1 if $trace > 4;
-$::RD_TRACE = 1 if $trace > 5;
+{
+    no warnings qw/once/;
+    $::RD_HINT  = 1 if $trace > 4;
+    $::RD_TRACE = 1 if $trace > 5;
+}
 
 my $object = $root->fetch_element('one_var') ;
 my $rules =  { 
