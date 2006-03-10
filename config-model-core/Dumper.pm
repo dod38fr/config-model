@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-02-16 13:09:43 $
+# $Date: 2006-03-10 12:59:32 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 
 #    Copyright (c) 2006 Dominique Dumont.
 #
@@ -30,7 +30,7 @@ use Config::Model::Exception ;
 use Config::Model::ObjTreeScanner ;
 
 use vars qw($VERSION);
-$VERSION = sprintf "%d.%03d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -102,7 +102,7 @@ the data back into a configuration tree.
 
 Parameters are:
 
-=over *
+=over
 
 =item full_dump
 
@@ -179,7 +179,7 @@ sub dump_tree {
         my $type = $obj -> element_type($element);
 	my $next = $obj -> fetch_element($element) ;
 
-        $next = $next ->fetch($key) if
+        $next = $next ->fetch_with_id($key) if
               $type eq 'list' or $type eq 'hash';
 
         return if $ret and $next->isa('Config::Model::AutoRead');
