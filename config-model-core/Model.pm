@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-03-10 13:10:36 $
+# $Date: 2006-03-10 15:57:33 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.8 $
+# $Revision: 1.9 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -88,23 +88,6 @@ directory or using elektra project L<http://www.libelektra.org/>
 
 C<Config::Model> provides a way to get a validation engine from a set
 of rules. This set of rules is now called the configuration model. 
-
-C<Config::Model> has 2 main interfaces:
-
-=over
-
-=item 8
-
-=item *
-
-The model API with L</"create_config_class">
-
-=item *
-
-The functional API where you can get and set configuration data or
-query the engine for model informations. (introspection feature)
-
-=back
 
 =head1 Configuration Model
 
