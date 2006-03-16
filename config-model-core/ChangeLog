@@ -1,0 +1,4 @@
+2006-03-16  Dominique Dumont  <domi@komarr.grenoble.hp.com> v0.503
+
+	* Makefile.PL (MY::postamble): Corrected CPAN dependencies
+
