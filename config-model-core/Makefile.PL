@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-01-02 12:48:05 $
+# $Date: 2006-03-16 12:28:31 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 #    Copyright (c) 2005 Dominique Dumont.
 #
@@ -70,13 +70,12 @@ WriteMakefile
    ABSTRACT     => 'Configuration model for semantic validation of data',
    AUTHOR       => 'Dominique Dumont (domi@komarr.grenoble.hp.com)',
    PREREQ_PM    => {
-		    'Struct::Compare'  => 0, # for test
-		    'Test::More'       => 0, # for test
-		    'Pod::Usage'       => 0,
-		    'Log::Log4perl'    => 0,
-		    'Scalar::Util'     => 0, # provided by perl 5.8.0
-		    'Exception::Class' => 0,
-		    'Error'            => 0
+		    'Test::More'        => 0, # for test
+		    # 'Log::Log4perl'    => 0,
+		    'Parse::RecDescent' => '1.90',
+		    'Scalar::Util'      => 0, # provided by perl 5.8.0
+		    'Exception::Class'  => 0,
+		    'Error'             => 0
 		   },
    clean => {FILES => $clean}
   );
