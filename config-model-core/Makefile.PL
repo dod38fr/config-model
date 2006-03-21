@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-03-16 12:28:31 $
+# $Date: 2006-03-21 11:20:27 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 
 #    Copyright (c) 2005 Dominique Dumont.
 #
@@ -37,7 +37,8 @@ foreach my $what (qw/ValueFormula/) {
 
     $str .= "\n$pname: $gname\n".
       "\t".'$(PERLRUN)'." -MParse::RecDescent - $gname Config::Model::$name\n".
-          "\t".'echo "" >> '."$pname\n" ;
+          "\t".'echo "" >> '."$pname\n".
+	   "\t".'echo "1;" >> '."$pname\n" ;
     push (@files, $pname) unless grep (/$name/, @files) ;
     $clean .= $pname.' ';
 }
