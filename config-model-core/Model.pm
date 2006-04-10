@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-03-16 12:29:32 $
+# $Date: 2006-04-10 11:40:20 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.11 $
+# $Revision: 1.12 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -475,12 +475,12 @@ sub get_model {
       croak "get_model error: unknown config class name: $config_class_name";
 }
 
-=head2 get_element_name( class => Foo, for => advanded )
+=head2 get_element_name( class => Foo, for => advanced )
 
 Get all names of the elements of class C<Foo> that are accessible for
-level C<advanded>. 
+level C<advanced>. 
 
-Level can be C<master> (default), C<advanded> or C<intermediate>.
+Level can be C<master> (default), C<advanced> or C<intermediate>.
 
 =cut
 
