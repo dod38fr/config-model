@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-02-16 13:09:43 $
+# $Date: 2006-04-10 11:49:54 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.4 $
+# $Revision: 1.5 $
 
 # this file is used by test script
 
@@ -10,7 +10,7 @@ $model->create_config_class
   (
    name => 'SubSlave2',
    element => [
-	       [qw/aa2 ab2 ac2 ad2/] =>
+	       [qw/aa2 ab2 ac2 ad2 Z/] =>
 	       { type => 'leaf', value_type => 'string' }
 	      ]
   );
