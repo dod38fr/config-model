@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-02-10 12:12:51 $
+# $Date: 2006-04-10 11:39:27 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -26,6 +26,7 @@ use Scalar::Util qw(weaken) ;
 use Config::Model::Exception ;
 use Config::Model::Node ;
 use Config::Model::Loader;
+use Config::Model::Searcher;
 
 use strict ;
 use Carp;
@@ -34,7 +35,7 @@ use warnings::register ;
 
 use vars qw/$VERSION/ ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.1 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/;
 
 use Carp qw/croak confess cluck/;
 
@@ -76,6 +77,9 @@ sub new {
     my $config_model = delete $args{config_model} || 
       confess __PACKAGE__," error: missing config_model parameter" ;
 
+    confess __PACKAGE__," error: config_model is not a Config::Model object"
+      unless $config_model->isa('Config::Model') ; 
+
     my $self 
       = {
 	 # stack used to store whether read and/or write check must 
@@ -86,9 +90,10 @@ sub new {
 
 	 # a unique (instance wise) placeholder for various tree objects
 	 # to store informations
-	 catalog => {
-		     auto_inc => {}
-		    } ,
+	 safe => {
+		  auto_inc => {}
+		 } ,
+	 config_model => $config_model ,
 	 name => $root_class_name ,
 
 	 # This array holds a set of sub ref that will be invoked when
@@ -97,6 +102,7 @@ sub new {
 	 write_back => [] ,
 	};
 
+    weaken($self->{config_model}) ;
 
     bless $self, $class;
 
@@ -120,6 +126,16 @@ Returns the root object of the configuration tree.
 
 sub config_root {
     return shift->{tree} ;
+}
+
+=head2 config_model()
+
+Returns the model of the configuration tree.
+
+=cut
+
+sub config_model {
+    return shift->{config_model} ;
 }
 
 
@@ -239,6 +255,21 @@ sub load {
     $loader->load(node => $self->{tree}, @_) ;
 }
 
+=head2 search_element ( element => <name> [, privilege => ... ] )
+
+Search an element in the configuration model (respecting privilege
+level).
+
+This method returns a L<Config::Model::Searcher> object. See
+L<Config::Model::Searcher> for details on how to handle a search.
+
+=cut
+
+sub search_element {
+    my $self = shift ;
+    $self->{tree}->search_element(@_) ;
+}
+
 =begin comment
 
 These function are used for model plugin which is not yet implemented
@@ -283,6 +314,7 @@ Dominique Dumont, domi@komarr.grenoble.hp.com
 L<Config::Model>, 
 L<Config::Model::Node>, 
 L<Config::Model::Loader>,
+L<Config::Model::Searcher>,
 L<Config::Model::Value>,
 
 =cut
