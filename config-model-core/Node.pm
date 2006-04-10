@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-02-23 13:43:30 $
+# $Date: 2006-04-10 11:44:15 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -38,7 +38,7 @@ use base qw/Config::Model::AnyThing/;
 use vars qw($VERSION $AUTOLOAD @status @level
 @permission_list %permission_index );
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/;
 
 *status           = *Config::Model::status ;
 *level            = *Config::Model::level ;
@@ -636,6 +636,16 @@ sub has_element {
     croak "has_element: missing element name" unless @_ ;
     return defined $self->{model}{element}{$_[0]} ? 1 : 0 ;
 }
+
+=head2 search_element ( element => <name> [, privilege => ... ] )
+
+From this node (or warped node), search an element (respecting
+privilege level). Inherited from L<Config::Model::AnyThing>.
+
+This method returns a L<Config::Model::Searcher> object. See
+L<Config::Model::Searcher> for details on how to handle a search.
+
+=cut
 
 =head2 element_model ( element_name )
 
