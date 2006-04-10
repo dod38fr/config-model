@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-02-23 13:43:30 $
+# $Date: 2006-04-10 11:34:10 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -27,7 +27,7 @@ use Carp;
 use strict;
 
 use vars qw($VERSION);
-$VERSION = sprintf "%d.%03d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -384,6 +384,26 @@ sub grab_ancestor_with_element_named {
     }
 }
 
+=head2 search_element(element => <name> [, privilege => ... ])
+
+From this node (or warped node), search an element (respecting
+privilege level).
+
+This method returns a L<Config::Model::Searcher> object. See
+L<Config::Model::Searcher> for details on how to handle a search.
+
+=cut
+
+sub search_element {
+    my $self = shift ;
+    my %args = @_ ;
+    my $element = $args{element} 
+      || croak "search_element: Missing 'element' parameter" ;
+
+    my $model = $self->instance->config_model ;
+    return Config::Model::Searcher
+      -> new(model => $model, node => $self, %args ) ;
+}
 
 1;
 
