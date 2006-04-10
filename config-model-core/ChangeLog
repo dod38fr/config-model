@@ -1,3 +1,16 @@
+2006-04-10  Dominique Dumont  <domi@komarr.grenoble.hp.com> v0.504
+
+	* Searcher.pm: Added search element feature. This feature provides
+	a way to search for a configuration element in a configuration
+	tree. The search can be launcher from an instance or any node of a
+	configuration tree. Getting to searched target can be manual or
+	automatic (with call-backs provided by user)
+
+2006-03-21  Dominique Dumont  <domi@komarr.grenoble.hp.com>
+
+	* Makefile.PL: Changed grammar pre-compilation to add a "1;" at
+	the end of ValueFormulaParser.pm (Makes Windows happy)
+
 2006-03-16  Dominique Dumont  <domi@komarr.grenoble.hp.com> v0.503
 
 	* Makefile.PL (MY::postamble): Corrected CPAN dependencies
