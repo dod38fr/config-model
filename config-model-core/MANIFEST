@@ -14,6 +14,7 @@ Model.pm
 Node.pm
 ObjTreeScanner.pm
 README
+Searcher.pm
 t/array_id.t
 t/big_model.pm
 t/dump_tree.t
@@ -27,6 +28,7 @@ t/multi_warp_value.t
 t/node.t
 t/obj_tree_scanner.t
 t/recursive_warp_value.t
+t/search_element.t
 t/value.t
 t/value_compute.t
 t/value_refer_to.t
