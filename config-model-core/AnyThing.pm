@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-04-10 11:34:10 $
+# $Date: 2006-04-10 11:43:23 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.4 $
+# $Revision: 1.5 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -27,7 +27,7 @@ use Carp;
 use strict;
 
 use vars qw($VERSION);
-$VERSION = sprintf "%d.%03d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -384,7 +384,7 @@ sub grab_ancestor_with_element_named {
     }
 }
 
-=head2 search_element(element => <name> [, privilege => ... ])
+=head2 search_element( element => <name> [, privilege => ... ] )
 
 From this node (or warped node), search an element (respecting
 privilege level).
