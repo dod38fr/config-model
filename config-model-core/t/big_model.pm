@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-04-10 11:49:54 $
+# $Date: 2006-04-21 12:08:59 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.5 $
+# $Revision: 1.6 $
 
 # this file is used by test script
 
@@ -69,6 +69,7 @@ $model->create_config_class
    name => 'Master',
    permission => [ [qw/tree_macro warp/] => 'advanced'] ,
    class_description => "Master description",
+   level      => [ [qw/hash_a tree_macro/] => 'important' ],
    element => [
 	       std_id => { type => 'hash',
 			   index_type  => 'string',
@@ -108,6 +109,7 @@ $model->create_config_class
 				    default    => 'yada yada'
 				  },
 	       a_string => { type => 'leaf',
+			     mandatory => 1 ,
 			     value_type => 'string'
 			   },
 	       int_v => { type => 'leaf',
