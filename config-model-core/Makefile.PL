@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-03-21 11:20:27 $
+# $Date: 2006-04-21 12:02:03 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.4 $
+# $Revision: 1.5 $
 
 #    Copyright (c) 2005 Dominique Dumont.
 #
@@ -28,25 +28,6 @@ use ExtUtils::MakeMaker;
 
 my @files= grep {$_ ne "Model.pm"} <*.pm> ;
 
-my $str = '';
-my $clean = '';
-foreach my $what (qw/ValueFormula/) {
-    my $name = $what.'Parser' ;
-    my $pname = $name.'.pm';
-    my $gname = $what.'Grammar.txt';
-
-    $str .= "\n$pname: $gname\n".
-      "\t".'$(PERLRUN)'." -MParse::RecDescent - $gname Config::Model::$name\n".
-          "\t".'echo "" >> '."$pname\n".
-	   "\t".'echo "1;" >> '."$pname\n" ;
-    push (@files, $pname) unless grep (/$name/, @files) ;
-    $clean .= $pname.' ';
-}
-
-sub MY::postamble {
-    $str ;
-}
-
 my %PM = map ( ( "$_" => '$(INST_LIB)'."/Config/Model/$_" ), @files ) ;
 
 $PM{"Model.pm"} = '$(INST_LIB)'."/Config/Model.pm" ;
@@ -63,7 +44,7 @@ $M3{"Model.pm"}= '$(INST_MAN3DIR)/Config::Model.3pm' ;
 
 WriteMakefile 
   (
-   NAME         => 'config-model',
+   NAME         => 'Config-Model',
    VERSION_FROM => 'Model.pm',
    dist         => {COMPRESS=>'gzip -9f', SUFFIX => 'gz'},
    PM           => \%PM ,
@@ -78,6 +59,5 @@ WriteMakefile
 		    'Exception::Class'  => 0,
 		    'Error'             => 0
 		   },
-   clean => {FILES => $clean}
   );
 
