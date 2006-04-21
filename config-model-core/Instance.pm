@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-04-10 11:39:27 $
+# $Date: 2006-04-21 11:58:39 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -27,6 +27,7 @@ use Config::Model::Exception ;
 use Config::Model::Node ;
 use Config::Model::Loader;
 use Config::Model::Searcher;
+use Config::Model::WizardHelper;
 
 use strict ;
 use Carp;
@@ -35,7 +36,7 @@ use warnings::register ;
 
 use vars qw/$VERSION/ ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/;
 
 use Carp qw/croak confess cluck/;
 
@@ -269,6 +270,27 @@ sub search_element {
     my $self = shift ;
     $self->{tree}->search_element(@_) ;
 }
+
+=head2 wizard_helper ( ... )
+
+This method returns a L<Config::Model::WizardHelper> object. See
+L<Config::Model::WizardHelper> for details on how to create a wizard
+widget with this object.
+
+wizard_helper arguments are explained in  L<Config::Model::WizardHelper>
+L<constructor arguments|Config::Model::WizardHelper/"Creating a wizard helper">.
+
+=cut
+
+sub wizard_helper {
+    my $self = shift ;
+
+    my $tree_root = $self->config_root ;
+
+    return Config::Model::WizardHelper->new ( root => $tree_root, @_) ;
+}
+
+
 
 =begin comment
 
