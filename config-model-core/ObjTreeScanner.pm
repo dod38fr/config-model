@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-02-23 13:43:30 $
+# $Date: 2006-04-21 12:05:07 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.4 $
+# $Revision: 1.5 $
 
 #    Copyright (c) 2006 Dominique Dumont.
 #
@@ -28,7 +28,7 @@ use Carp;
 use warnings ;
 use UNIVERSAL qw( isa can );
 
-our $VERSION = sprintf "%d.%03d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/;
+our $VERSION = sprintf "%d.%03d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/;
 
 use Carp qw/croak confess cluck/;
 
@@ -40,7 +40,7 @@ Config::Model::ObjTreeScanner - Scan config tree and perform call-backs
 
  use Config::Model::ObjTreeScanner ;
 
- # define tree object
+ # define configuration tree object
  my $root = ... ;
 
  # defined call-backs
@@ -68,7 +68,7 @@ Config::Model::ObjTreeScanner - Scan config tree and perform call-backs
 =head1 DESCRIPTION
 
 This module creates an object that will explore (depth first) a
-configuration tree object.
+configuration tree.
 
 For each node or leaf encountered, the ObjTreeScanner object will
 call-back one of the subroutine reference passed during construction.
@@ -86,7 +86,8 @@ way, the user only have to provide call-backs for the leaves.
 =head2 new ( ... )
 
 One way or another, the ObjTreeScanner object must be able to find all
-callback for all the items of the tree:
+callback for all the items of the tree. All the possible call-back are
+listed below:
 
 =over
 
@@ -119,9 +120,9 @@ Optional parameter:
 
 =over
 
-=item *
+=item fallback
 
-fallback: if set to 'node', the scanner will provide default call-back
+If set to 'node', the scanner will provide default call-back
 for node items. If set to 'leaf', the scanner will set all leaf
 callback (like enum_integer_value_cb, enum_value_cb ...) to
 string_value_cb or to the mandatory leaf_cb value. "fallback" callback
@@ -129,15 +130,21 @@ will not override callbacks provided by the user.
 
 If set to 'all', equivalent to 'node' and 'leaf'.
 
+=item permission
+
+Set the privilege level used for the scan (default 'intermediate').
+
+=item auto_vivify 
+
+Whether to create the configuration items while scan (default is 1).
+
 =back
 
-=over
+=head1 Callback prototypes
 
-=head1 Callbacks prototypes
+The leaf callback will be called with the following parameters:
 
-The leaf callbacks will be called with the following parameters:
-
- ($object,$element,$index, $obj_object) 
+ ($node,$element,$index, $leaf_object) 
 
 where:
 
@@ -145,7 +152,7 @@ where:
 
 =item *
 
-C<$object> is the node that contain the leaf.
+C<$node> is the node that contain the leaf.
 
 =item *
 
@@ -158,7 +165,7 @@ be undefined if the element type is scalar.
 
 =item *
 
-C<$obj> is the L<Config::Model::Value> object.
+C<$leaf_object> is a L<Config::Model::Value> object.
 
 =back
 
@@ -168,27 +175,25 @@ Others :
 
 =item C<list_cb> : 
 
- ($object,$element,@indexes)
+ ($node,$element,@indexes)
 
 C<@indexes> is an list containing all the indexes of the array.
 
 =item C<hash_cb>:
 
- ($object,$element,@keys)
+ ($node,$element,@keys)
 
 C<@keys> is an list containing all the keys of the hash.
 
 =item C<element_cb>: 
 
- ($object,@element_list)
+ ($node,@element_list)
 
 C<@element_list> contains all the elements of the node.
 
 =item C<node_cb>
 
- ($object,$element)
-
-=back
+ ($node,$element)
 
 =back
 
@@ -278,40 +283,40 @@ sub create_fallback {
 
 =head1 METHODS
 
-=head2 scan_node ($object)
+=head2 scan_node ($node)
 
-Explore the object and call C<element_cb> on all elements.
+Explore the node and call C<element_cb> on all elements.
 
 =cut
 
 sub scan_node {
-    my ($self,$object) = @_ ;
+    my ($self,$node) = @_ ;
 
-    #print "scan_node ",$object->name,"\n";
+    #print "scan_node ",$node->name,"\n";
     # get all elements according to catalog
 
     Config::Model::Exception::Internal
 	-> throw (
-		  error => "'$object' is not a Config::Model object" 
+		  error => "'$node' is not a Config::Model object" 
 		 ) 
-	  unless isa($object, "Config::Model::AnyThing") ;
+	  unless isa($node, "Config::Model::AnyThing") ;
 
     # skip exploration of warped out node
-    if ($object->isa('Config::Model::WarpedNode')) {
-	$object = $object->get_actual_node ;
-	return unless defined $object ;
+    if ($node->isa('Config::Model::WarpedNode')) {
+	$node = $node->get_actual_node ;
+	return unless defined $node ;
     }
 
-    my @element_list= $object->get_element_name(for => $self->{permission}) ;
+    my @element_list= $node->get_element_name(for => $self->{permission}) ;
 
     # we could add here a "last element" call-back, but it's not
     # very usefull if the last element is a hash.
-    $self->{element_cb}->($object,@element_list) ;
+    $self->{element_cb}->($node,@element_list) ;
 
-    $self->{up_cb}->($object) ;
+    $self->{up_cb}->($node) ;
 }
 
-=head2 scan_element($object,$element)
+=head2 scan_element($node,$element)
 
 Explore the element and call either C<hash_cb>, C<list_cb>, C<node_cb>
 or a leaf call-back (the leaf call-back called depends on the Value
@@ -371,7 +376,7 @@ sub scan_element {
     }
 }
 
-=head2 scan_hash ($object,$element,$key)
+=head2 scan_hash ($node,$element,$key)
 
 Explore the hash member (or hash value) and call either C<node_cb>
 or a leaf call-back.
@@ -402,7 +407,7 @@ sub scan_hash {
     }
 }
 
-=head2 scan_list ($object,$element,$index)
+=head2 scan_list ($node,$element,$index)
 
 Just like C<scan_hash>: Explore the list member and call either
 C<node_cb> or a leaf call-back.
@@ -413,7 +418,7 @@ sub scan_list {
     goto &scan_hash ;
 }
 
-=head2 get_keys ($object, $element)
+=head2 get_keys ($node, $element)
 
 Returns an list containing the sorted keys of a hash element or returns
 an list containning (0.. last_index) of an list element.
