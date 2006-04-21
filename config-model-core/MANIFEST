@@ -36,9 +36,11 @@ t/value_simple_warp.t
 t/warped_id.t
 t/warped_node.t
 t/warped_value.t
+t/wizard.t
 TODO
 Value.pm
 ValueComputer.pm
 ValueFormulaGrammar.txt
 WarpedNode.pm
 WarpedThing.pm
+WizardHelper.pm
