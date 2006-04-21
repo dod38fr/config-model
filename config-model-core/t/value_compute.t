@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-03-10 13:08:16 $
+# $Date: 2006-04-21 12:11:50 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
@@ -87,7 +87,11 @@ ok($bv,"created av and bv values") ;
 ok($compute_int = $root->fetch_element('compute_int'),
    "create computed integer value (av + bv)");
 
-my $parser = Config::Model::ValueFormulaParser->new ;
+no warnings 'once';
+my $parser = Parse::RecDescent
+  -> new($Config::Model::ValueComputer::compute_grammar) ;
+
+use warnings 'once';
 
 {
     no warnings qw/once/;
@@ -97,7 +101,7 @@ my $parser = Config::Model::ValueFormulaParser->new ;
 
 my $object = $root->fetch_element('one_var') ;
 my $rules =  { 
-	      bar => '- sbv', 
+	      bar => '- sbv',
 	      rep1 => { bv => 'rbv' },
 	     } ;
 

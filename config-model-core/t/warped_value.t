@@ -1,14 +1,15 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-02-23 13:43:31 $
+# $Date: 2006-04-21 12:12:10 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
 use Test::More;
 use Config::Model;
+use Config::Model::ValueComputer ;
 
 BEGIN { plan tests => 43; }
 
@@ -309,7 +310,9 @@ my $rules = {
     up2 => '- -',
 };
 
-my $parser = Config::Model::ValueFormulaParser->new ;
+no warnings 'once' ;
+my $parser = Parse::RecDescent->new($Config::Model::ValueComputer::compute_grammar) ;
+use warnings 'once';
 
 # the 2 next tests are used to check what going on before trying the
 # real test below. But beware, the error messages for these 2 tests
