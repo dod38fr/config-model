@@ -40,7 +40,6 @@ t/wizard.t
 TODO
 Value.pm
 ValueComputer.pm
-ValueFormulaGrammar.txt
 WarpedNode.pm
 WarpedThing.pm
 WizardHelper.pm
