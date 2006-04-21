@@ -1,3 +1,13 @@
+2006-04-21  Dominique Dumont  <domi@komarr.grenoble.hp.com> v0.505
+
+	* WizardHelper.pm: New file. This class helps to create wizard
+	widget for config models
+
+	* Makefile.PL: ValueFormula is no longer compiled at build-time
+	but on the fly at run-time. Hopefully this will fix Windows
+	problem and ease integration downstream for a minor performance
+	penalty at start time.
+
 2006-04-10  Dominique Dumont  <domi@komarr.grenoble.hp.com> v0.504
 
 	* Searcher.pm: Added search element feature. This feature provides
