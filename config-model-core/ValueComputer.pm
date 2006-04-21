@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-03-06 13:23:09 $
+# $Date: 2006-04-21 12:06:08 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -28,13 +28,11 @@ use strict;
 
 use Scalar::Util qw(weaken) ;
 use Carp ;
-use Config::Model::ValueFormulaParser ;
+use Parse::RecDescent ;
 
-use vars qw($VERSION $compute_parser) ;
+use vars qw($VERSION $compute_grammar $compute_parser) ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.1 $ =~ /(\d+)\.(\d+)/;
-
-$compute_parser = Config::Model::ValueFormulaParser->new ;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -250,6 +248,9 @@ sub new {
 
     weaken($self->{value_object}) ;
 
+    # create parser if needed 
+    $compute_parser ||= Parse::RecDescent->new($compute_grammar) ;
+
     # must make a first pass at computation to subsitute index and
     # slot values.  leaves $xxx outside of $index or &slot untouched
     my $result = $compute_parser
@@ -366,6 +367,186 @@ sub compute_user_var {
 
     return \%user_var ;
 }
+
+$compute_grammar = << 'END_OF_GRAMMAR' ;
+
+{
+# $Revision: 1.2 $
+
+# This grammar is compatible with Parse::RecDescent < 1.90 or >= 1.90
+use strict;
+use warnings ;
+}
+
+pre_compute: <skip:''> pre_value[@arg](s) 
+  { 
+    my $str = join ('',@{$item[-1]}) ;
+    $return =  $str;
+  }
+
+pre_value: 
+  <skip:''> object '{' /\s*/ pre_value[@arg] /\s*/ '}' 
+    {
+     # print "pre_value handling \$foo{ ... }\n";
+     my $pre_value = $item{pre_value} ;
+     my $object = $item{object};
+     $return = exists $arg[1]->{$object}{$pre_value} ?
+       $arg[1]->{$object}{$pre_value} : 
+       "\$".$object.'{'.$pre_value.'}';
+    }
+  | <skip:''> function '(' /\s*/ object /\s*/ ')'
+  {
+      # print "pre_value handling &foo(...)\n";
+ 
+   # get now the object refered
+   my $fetch_str = $arg[1]->{$item{object}} ;
+   Config::Model::Exception::Formula->throw
+    (
+      object => $arg[0],
+      error => "Item $item{object} has no associated location string"
+    ) unless defined $fetch_str;
+
+   my $object = $arg[0]->grab($fetch_str) ;
+
+   if ($item{function} eq 'element')
+   {
+     my $result = $object->element_name ;
+     Config::Model::Exception::Model->throw
+     (
+       object => $arg[0],
+       error => "'",$object->name,"' has no element name"
+     ) unless defined $result ;
+     $return = $result ;
+   }
+   elsif ($item{function} eq 'index')
+   {
+     my $result = $object->index_value ;
+     Config::Model::Exception::Formula->throw
+     (
+      object => $arg[0],
+      error => "'",$object->_name,"' has no index value"
+     ) unless defined $result ;
+     $return = $result ;
+   }
+   else
+   {
+     Config::Model::Exception::Formula->throw
+     (
+      object => $arg[0],
+      error => "Unknown computation function &$item{function}, ".
+               "expected &element(...) or &index(...)"
+     );
+   }
+  }
+  | <skip:''> '&' /\w+/ (/\(\s*\)/)(?)  
+  {
+    # print "pre_value handling &foo()\n";
+    my $f_name = $item[3] ;
+    my $method_name = $f_name eq 'element' ? 'element_name' : 
+      $f_name eq 'index' ? 'index_value' : undef;
+
+    Config::Model::Exception::Formula->throw
+     (
+      object => $arg[0],
+      error => "Unknown computation function &$f_name, ".
+               "expected &element or &index"
+     ) unless defined $method_name;
+
+    $return = $arg[0]->$method_name();
+
+    Config::Model::Exception::Formula->throw
+     (
+      object => $arg[0],
+      error => "Missing $f_name attribute (method '$method_name' on "
+                . ref($arg[0]) . ")\n"
+     ) unless defined $return ;
+  }
+  | object 
+  {
+    # print "pre_value handling \$foo\n";
+    my $object = $item{object};
+    $return ="\$".$object ;
+  }
+  |  <skip:''> /[^\$&]*/
+
+compute:  <skip:''> value[@arg](s) 
+  { 
+    # if one value is undef, return undef;
+    my @values = @{$item[-1]} ;
+    # print "compute return is '",join("','",@values),"'\n";
+
+    $return = join ('',@values) ;
+  }
+
+value: 
+  <skip:''> object '{' <commit> /\s*/ value[@arg] /\s*/ '}' 
+    {
+     my $object = $item{object};
+     my $value = $item{value} ;
+
+     # print "value: replacement object '$object', value '$value'\n";
+     Config::Model::Exception::Formula->throw
+     (
+      object => $arg[0],
+      error => "Unknown replacement rule: $object\n"
+     )  unless defined $arg[1]->{$object} ;
+
+     if ($value =~ /\$/)
+       {
+         # must keep original variable
+         $return = '$'.$object.'{'.$value.'}';
+       }
+     else
+       {
+         Config::Model::Exception::Formula->throw
+           (
+             object => $arg[0],
+             error => "Unknown replacement value for rule '$object': "
+                  ."'$value'\n"
+           ) unless  defined $arg[1]->{$object}{$value} ;
+
+	 $return = $arg[1]->{$object}{$value} ;
+       }
+    }
+  | object <commit>
+  {
+    my $name=$item{object} ;
+    my $path = $arg[1]->{$name} ; # can be a ref for test purpose
+    # print "value: replace \$$name...\n";
+
+    Config::Model::Exception::Formula->throw
+      (
+         object => $arg[0],
+         error => "undefined formula variable: '$name', expected '".
+	           join("','", keys(%{$arg[1]}))."'"
+      ) unless defined $path;
+
+    if ($path =~ /\$/)
+      {
+        # print "compute rule skip name $name path '$path'\n";
+        $return = "\$$name" ; # restore name that contain '$var'
+      }
+    else
+      {
+        # print "fetching var object '$name' with '$path'\n";
+        $return = $arg[0]->grab_value($path) ;
+        # print "fetched var object '$name' with '$path', result '", defined $return ? $return : 'undef',"'\n";
+
+        Config::Model::Exception::WrongValue->throw
+          (
+            object => $arg[0],
+            error => "formula variable grabbed with '$path' has an undefined value"
+          ) unless defined $return ;
+       }
+    1 ;
+  }
+  |  <skip:''> /[^\$]*/
+
+object: <skip:''> /\$/ /\w+/
+
+function: <skip:''> '&' /\w+/
+
+END_OF_GRAMMAR
 
 1;
 
