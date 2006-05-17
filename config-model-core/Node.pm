@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-04-10 11:44:15 $
+# $Date: 2006-05-17 11:58:05 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -28,6 +28,7 @@ use warnings;
 use Config::Model::Exception;
 use Config::Model::Loader;
 use Config::Model::Dumper;
+use Config::Model::Report;
 # use Log::Log4perl ;
 use UNIVERSAL;
 use Scalar::Util qw/weaken/;
@@ -38,7 +39,7 @@ use base qw/Config::Model::AnyThing/;
 use vars qw($VERSION $AUTOLOAD @status @level
 @permission_list %permission_index );
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/;
 
 *status           = *Config::Model::status ;
 *level            = *Config::Model::level ;
@@ -1078,6 +1079,33 @@ sub dump_tree {
     my $self = shift ;
     my $dumper = Config::Model::Dumper->new ;
     $dumper->dump_tree(node => $self, @_) ;
+}
+
+=head2 report ()
+
+Provides a text report on the content of the configuration below this
+node.
+
+=cut
+
+sub report {
+    my $self = shift ;
+    my $reporter = Config::Model::Report->new ;
+    $reporter->report(node => $self) ;
+}
+
+=head2 audit ()
+
+Provides a text audit on the content of the configuration below this
+node. This audit will show only value different from their default
+value.
+
+=cut
+
+sub audit {
+    my $self = shift ;
+    my $reporter = Config::Model::Report->new ;
+    $reporter->report(node => $self, audit => 1) ;
 }
 
 =head2 copy_from ( another_node_object )
