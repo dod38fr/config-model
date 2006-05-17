@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-04-21 11:51:14 $
+# $Date: 2006-05-17 11:56:49 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.14 $
+# $Revision: 1.15 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -27,13 +27,14 @@ use Carp;
 use strict;
 use warnings FATAL => qw(all);
 use vars qw/@ISA @EXPORT @EXPORT_OK $VERSION/;
+use Storable ('dclone') ;
 
 use Config::Model::Instance ;
 
 # this class holds the version number of the package
 use vars qw($VERSION @status @level @permission_list %permission_index) ;
 
-$VERSION = '0.505';
+$VERSION = '0.506';
 
 =head1 NAME
 
@@ -214,7 +215,7 @@ Targeted audience (intermediate, advance, master)
 
 =item *
 
-On-line help (for ach parameter or value of parameter)
+On-line help (for each parameter or value of parameter)
 
 =item *
 
@@ -318,25 +319,8 @@ element will raise an exception.
 Description of the element. This description will be used when
 generating user interfaces.
 
-=back 
-
-Example:
-
-  my $model = Config::Model -> new ;
-
-  $model->create_config_class 
-  (
-   config_class_name => 'SomeRootClass',
-   permission        => [ [ qw/tree_macro warp/ ] => 'advanced'] ,
-   description       => [ X => 'X-ray' ],
-   class_description => "SomeRootClass description",
-   element           => [ ... ] 
-  ) ;
-
-Again, see L<Config::Model::Node> for more details on configuration
-class declaration.
-
 =cut
+
 
 my %default_property =
   (
@@ -370,6 +354,8 @@ $check{permission}=\%permission_index ;
 #   level        => { element_name => <level like important or normal..> },
 # }
 
+my @legal_params = qw/permission status description element level/;
+
 sub create_config_class {
     my $self=shift ;
     my %raw_model = @_ ;
@@ -392,27 +378,55 @@ sub create_config_class {
     #  foo => {...} , bar => {...} before being stored
 
     my %raw_copy = %raw_model ;
+    my %model = ( element_list => [] );
+
+    $self->inherit_class(\%model, \%raw_copy) ;
+
+    # check config class parameters
+    $self->check_class_parameters($config_class_name, \%model, \%raw_copy) ;
+
+    # copy description of configuration class
+    $model{class_description} = delete $raw_copy{class_description} ;
+
+    my @left_params = keys %raw_copy ;
+    Config::Model::Exception::ModelDeclaration->throw
+        (
+         error=> "create class $config_class_name: unknown ".
+	 "parameter '" . join("', '",@left_params)."', expected '".
+	 join("', '",@legal_params,qw/class_description/)."'"
+        )
+	  if @left_params ;
+
+
+    $self->{model}{$config_class_name} = \%model ;
+
+    return $self ;
+}
+
+
+sub check_class_parameters {
+    my $self  = shift;
+    my $config_class_name = shift;
+    my $model = shift || die ;
+    my $raw_model = shift || die ;
+
     my @element_list ;
 
     # first get the element list
-    my @compact_list = @{$raw_copy{element}} ;
+    my @compact_list = @{$raw_model->{element} || []} ;
     while (@compact_list) {
 	my ($item,$info) = splice @compact_list,0,2 ;
 	# store the order of element as declared in 'element'
 	push @element_list, ref($item) ? @$item : ($item) ;
     }
 
-    my %model = (element_list => \@element_list);
-
-    my @legal_params = qw/permission status description element level/;
-
     foreach my $info_name (@legal_params) {
 	# fill default info
-	map {$model{$info_name}{$_} = $default_property{$info_name}; }
+	map {$model->{$info_name}{$_} = $default_property{$info_name}; }
 	  @element_list 
 	    if defined $default_property{$info_name};
 
-	my $compact_info = delete $raw_copy{$info_name} ;
+	my $compact_info = delete $raw_model->{$info_name} ;
 	next unless defined $compact_info ;
 
 	Config::Model::Exception::ModelDeclaration->throw
@@ -436,28 +450,93 @@ sub create_config_class {
 		    and not defined $check{$info_name}{$info} ;
 
 	    foreach my $name (@element_names) {
-		$model{$info_name}{$name} = $info ;
+		$model->{$info_name}{$name} = $info ;
 	    }
 	}
     }
 
-    # copy description of configuration class
-    $model{class_description} = delete $raw_copy{class_description} ;
-
-    my @left_params = keys %raw_copy ;
-    Config::Model::Exception::ModelDeclaration->throw
-        (
-         error=> "create class $config_class_name: unknown ".
-	 "parameter '" . join("', '",@left_params)."', expected '".
-	 join("', '",@legal_params,qw/class_description/)."'"
-        )
-	  if @left_params ;
-
-
-    $self->{model}{$config_class_name} = \%model ;
-
-    return $self ;
+    # add declared elements to possibly inherited element list
+    push @{$model->{element_list}}, @element_list;
 }
+
+=item inherit
+
+Inherit element description from another class. You can inherit from all
+the other configuration class parameter:
+
+  inherit => 'AnotherClass' ,
+
+or choose to inherit only some data:
+
+  inherit => [ 'AnotherClass', 'element', 'description', ... ]
+
+=back 
+
+=cut
+
+sub inherit_class {
+    my $self  = shift;
+    my $model = shift ;
+    my $raw_model = shift ;
+
+    my $inherit_info = delete $raw_model->{inherit} ;
+
+    return unless defined $inherit_info ;
+
+    # inherit one other model
+    my ($inherit_class, @inherit_items) = 
+      ref $inherit_info ? @$inherit_info : ( $inherit_info , 'all');
+
+    my $inherited_model ;
+    if ($inherit_items[0] eq 'all') {
+	$inherited_model = $self->get_raw_model($inherit_class) ;
+    }
+    else {
+	my $inherited_raw_model = $self->get_raw_model($inherit_class) ;
+	foreach my $inherited_item (@inherit_items) {
+	    my $ok = grep {$inherited_item eq $_} @legal_params ;
+	    if ($ok) {
+		$inherited_model->{$inherited_item} 
+		  = $inherited_raw_model->{$inherited_item} ;
+	    }
+	    else {
+		Config::Model::Exception::ModelDeclaration->throw
+		    (
+		     error => "Cannot inherit '$inherited_item', "
+		            . "expected @legal_params"
+		    ) ;
+	    }
+	}
+    }
+
+    # takes care of cascaded inheritance
+    $self->inherit_class($model, $inherited_model);
+
+    $self->check_class_parameters($inherit_class, $model, $inherited_model) ;
+}
+
+
+
+=pod
+
+Example:
+
+  my $model = Config::Model -> new ;
+
+  $model->create_config_class 
+  (
+   config_class_name => 'SomeRootClass',
+   permission        => [ [ qw/tree_macro warp/ ] => 'advanced'] ,
+   description       => [ X => 'X-ray' ],
+   class_description => "SomeRootClass description",
+   element           => [ ... ] 
+  ) ;
+
+Again, see L<Config::Model::Node> for more details on configuration
+class declaration.
+
+=cut
+
 
 =head1 Model query
 
@@ -471,8 +550,21 @@ sub get_model {
     my $self =shift ;
     my $config_class_name = shift ;
 
-    return $self->{model}{$config_class_name} ||
+    my $model = $self->{model}{$config_class_name} ||
       croak "get_model error: unknown config class name: $config_class_name";
+
+    return dclone($model) ;
+}
+
+# internal. For now ...
+sub get_raw_model {
+    my $self =shift ;
+    my $config_class_name = shift ;
+
+    my $model = $self->{raw_model}{$config_class_name} ||
+      croak "get_raw_model error: unknown config class name: $config_class_name";
+
+    return dclone($model) ;
 }
 
 =head2 get_element_name( class => Foo, for => advanced )
@@ -496,10 +588,10 @@ sub get_element_name {
       join (' or ', @permission_list) 
 	unless defined $permission_index{$for} ;
 
-    my @catalogs 
-      = ( @permission_list[ $permission_index{$for} .. $#permission_list ] );
+    my @permissions 
+      = @permission_list[ 0 .. $permission_index{$for} ] ;
     my @array
-      = $self->get_element_with_permission($class,@catalogs);
+      = $self->get_element_with_permission($class,@permissions);
 
     return wantarray ? @array : join( ' ', @array );
 }
