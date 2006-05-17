@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-03-10 15:58:51 $
+# $Date: 2006-05-17 11:51:42 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -27,7 +27,7 @@ use warnings ;
 use strict;
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/;
 
 push @Exception::Class::Base::ISA, 'Error';
 
@@ -185,7 +185,7 @@ sub full_message {
     my $msg = $self->description;
     $msg .= " in node '$location'" if $location ;
     $msg .= ':';
-    $msg .= "\n\tcommand: ".$self->command if $self->command;
+    $msg .= "\n\tcommand: ".$self->command if $self->command ne '';
     $msg .= "\n\t". $self->message."\n";
 
     return $msg;
@@ -241,7 +241,10 @@ sub full_message {
 	  || $obj->isa('Config::Model::WarpedNode');
 
     my $min_level = $self->min_level || 'master' ;
-    my @elements = $obj -> get_element_name(for => $min_level) ;
+    # TBD use model instead of node
+    my @elements = $obj -> config_model 
+      -> get_element_name(class => $obj -> config_class_name,
+			  for => $min_level) ;
 
     my $msg = '';
     $msg .= "In ". $self->where .": " if 
@@ -254,7 +257,7 @@ sub full_message {
 
     $msg .=
       $self->description. " '". $self->element. "'"
-        . " (class ".ref($obj) .")\n"
+        . " (configuration class '".$obj -> config_class_name ."')\n"
           . "\tExpected: '". join("','",@elements)."'\n" ;
 
     # inform about available elements after a change of warp master value
