@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-03-10 13:03:18 $
+# $Date: 2006-05-17 11:49:08 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -29,7 +29,7 @@ use Carp;
 use strict;
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/;
 
 use base qw/Config::Model::WarpedThing/;
 
@@ -533,6 +533,18 @@ sub fetch_all {
     my $self = shift ;
     my @keys  = $self->get_all_indexes ;
     return map { $self->fetch_with_id($_) ;} @keys ;
+}
+
+=head2 fetch_all_values()
+
+Returns an array containing all values held by the hash or list.
+
+=cut
+
+sub fetch_all_values {
+    my $self = shift ;
+    my @keys  = $self->get_all_indexes ;
+    return map { $self->fetch_with_id($_)->fetch ;} @keys ;
 }
 
 =head2 get_all_indexes()
