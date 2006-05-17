@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-04-10 11:50:30 $
+# $Date: 2006-05-17 12:05:15 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 use ExtUtils::testlib;
 use Test::More tests => 15;
@@ -32,6 +32,8 @@ unless ($return = do $file) {
 my $trace = shift || 0;
 $::verbose          = 1 if $trace =~ /v/;
 $::debug            = 1 if $trace =~ /d/;
+
+$Data::Dumper::Indent = 1 ;
 
 ok(1,"compiled");
 
@@ -63,7 +65,7 @@ my @data
       {
        'ab2' => {'next_step' => {'sub_slave' => {'next_step' => {'sub_slave' => {'next_step' => 'ab2'}}}}},
        'aa2' => {'next_step' => {'sub_slave' => {'next_step' => {'sub_slave' => {'next_step' => 'aa2'}}}}},
-       'X' => {'next_step' => 'X'},
+       'X' => {'next_step' => {'std_id' => {'next_step' => 'X'}}},
        'ac' => {'next_step' => {'sub_slave' => {'next_step' => 'ac'}}},
        'Y' => {'next_step' => 'Y'},
        'DX' => {'next_step' => {'std_id' => {'next_step' => 'DX'}}},
@@ -96,10 +98,21 @@ my @data
        'lista' => {'next_step' => 'lista'}, 'ab2' => {'next_step' => {'warp' => {'next_class' => {'SlaveY' => {'next_step' => {'sub_slave' => {'next_step' => {'sub_slave' => {'next_step' => 'ab2'}}}}}}}}},
        'int_v' => {'next_step' => 'int_v'}, 
        'listb' => {'next_step' => 'listb'},
-       'X' => {'next_step' => {'olist' => {'next_step' => 'X'}, 
-			       'warp' => {'next_class' => {'SlaveZ' => {'next_step' => 'X'}, 
-							   'SlaveY' => {'next_step' => 'X'}}},
-			       'std_id' => {'next_step' => 'X'}}
+       'X' => {
+	       'next_step' 
+	       => {'olist' => {'next_step' => 'X'},
+		   'warp' 
+		   => {
+		       'next_class' 
+		       => {'SlaveZ' => {'next_step' => 'X'},
+			   'SlaveY' 
+			   => {
+			       'next_step' => {'std_id' => {'next_step' => 'X'}}
+			      }
+			  }
+		      },
+		   'std_id' => {'next_step' => 'X'}
+		  }
 	      },
        'ac' => {'next_step' => {'warp' => {'next_class' => {'SlaveY' => {'next_step' => {'sub_slave' => {'next_step' => 'ac'}}}}}}},
        'ab' => {'next_step' => {'warp' => {'next_class' => {'SlaveY' => {'next_step' => {'sub_slave' => {'next_step' => 'ab'}}}}}}},
@@ -114,11 +127,12 @@ foreach my $item (@data) {
     my $searcher = $node->search_element(element => $item->[0]);
 
     is_deeply( $searcher->{data}, $item->[2] , 
-	       "verify search on ".$node->config_class_name) ;
+	       "verify search data on ".$node->config_class_name) ;
     #print Dumper $searcher->{data} ;
 }
 
 my $searcher = $root->search_element(element => 'X');
+$root->load("tree_macro=XZ") ;
 
 my $step = $searcher->next_step() ;
 is_deeply($step, [qw/olist std_id warp/],'check first step') ;
@@ -133,12 +147,13 @@ $step = $searcher->next_step() ;
 is_deeply($step, [],'check that no more steps are left') ;
 
 # no user choice to llok for aa
+$root->load("tree_macro=XY") ;
 $searcher = $root->search_element(element => 'aa');
 $target = $searcher->auto_choose(sub{}, sub {}) ;
 is($target->name,'warp sub_slave aa', 'check auto choosen object for aa') ;
 
-$root->load("tree_macro=XZ") ;
 $searcher = $root->search_element(element => 'DX');
+$root->load("tree_macro=XZ") ;
 my $cb1 = sub {
     my $object = shift ;
     is($object->config_class_name, 'Master', 
