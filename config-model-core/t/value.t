@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-02-16 13:09:43 $
+# $Date: 2006-05-17 12:05:57 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
@@ -283,10 +283,10 @@ is( $lc_c->fetch(),         'coucou', "lc_convert: testing read");
 print "Testing integrated help\n" if $trace;
 
 my $value_with_help = $root->fetch_element('enum_with_help');
-my $full_help = $value_with_help->help;
+my $full_help = $value_with_help->get_help;
 
 is( $full_help->{a}, 'a help',"full enum help" );
-is( $value_with_help->help( 'a' ), 'a help',"enum help on one choice") ;
-is( $value_with_help->help('b'), undef ,"test undef help");
+is( $value_with_help->get_help( 'a' ), 'a help',"enum help on one choice") ;
+is( $value_with_help->get_help('b'), undef ,"test undef help");
 
 
