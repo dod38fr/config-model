@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-04-21 11:59:19 $
+# $Date: 2006-05-17 11:53:18 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.4 $
+# $Revision: 1.5 $
 
 #    Copyright (c) 2006 Dominique Dumont.
 #
@@ -29,7 +29,7 @@ use warnings ;
 use Config::Model::Exception ;
 
 use vars qw($VERSION);
-$VERSION = sprintf "%d.%03d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -358,10 +358,11 @@ sub _load_list {
 	return $node ;
     }
     else {
-	Config::Model::Exception::Model
+	Config::Model::Exception::Load
 	    -> throw (
 		      object => $element,
-		      error => "Assignment with $action$cmd on unexpected "
+                      command => $cmd ,
+		      error => "List assignment with $action$cmd on unexpected "
 		      ."collected_type: $elt_type"
 		     ) ;
     }
@@ -386,10 +387,11 @@ sub _load_hash {
 	return $node
     }
     else {
-	Config::Model::Exception::Model
+	Config::Model::Exception::Load
 	    -> throw (
 		      object => $element,
-		      error => "Assignment with $action$cmd on unexpected "
+                      command => $cmd ,
+		      error => "Hash assignment with $action$cmd on unexpected "
 		      ."collected_type: $elt_type"
 		     ) ;
     }
@@ -408,11 +410,13 @@ sub _load_leaf {
 	$element->store($value) ;
     }
     else {
-	Config::Model::Exception::Model
+	Config::Model::Exception::Load
 	    -> throw (
 		      object => $element,
-		      error => "Assignment with $action$cmd on unexpected "
-		      ."element ".$element->name
+                      command => $cmd ,
+		      error => "Load error on leaf with "
+		      ."'$element_name$action$cmd' command "
+		      ."(element '".$element->name."')"
 		     ) ;
     }
 
