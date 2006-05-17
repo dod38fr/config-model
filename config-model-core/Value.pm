@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-03-10 13:03:18 $
+# $Date: 2006-05-17 12:02:14 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -36,7 +36,7 @@ use base qw/Config::Model::WarpedThing/ ;
 
 use vars qw($VERSION) ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -565,10 +565,12 @@ For instance if you declare 2 C<Value> element this way:
        type => 'leaf',
        value_type => 'enum',
        choice => [qw/PAL NTSC/]  
-       warp => [ '- country', # this points to the warp master
-                US     => { default => 'NTSC' },
-                Europe => { default => 'PAL'  },
-                Japan  => { default => 'NTSC' } 
+       warp => { follow => '- country', # this points to the warp master
+                 rules => { US     => { default => 'NTSC' },
+                            Europe => { default => 'PAL'  },
+                            Japan  => { default => 'NTSC' } 
+                          }
+               }
        ],
      },
    ]
@@ -583,10 +585,11 @@ possible values of an enum element:
  state => {
       type => 'leaf',
       value_type => 'enum', # example is admittedly silly
-      warp => [ '- country',
-                US     => { choice => ['Kansas', 'Texas'   ]},
-                Europe => { choice => ['France', 'Espagna' ]},
-                Japan  => { choice => ['Honshu', 'Hokkaido' ]}
+      warp => [ follow => '- country',
+                rules => { US     => { choice => ['Kansas', 'Texas'   ]},
+                           Europe => { choice => ['France', 'Espagna' ]},
+                           Japan  => { choice => ['Honshu', 'Hokkaido' ]}
+                         }
       ]
  }
 
@@ -873,7 +876,7 @@ sub get_choice
     return undef ;
   }
 
-=head2 help ( [ on_value ] )
+=head2 get_help ( [ on_value ] )
 
 Returns the help strings passed to the constructor.
 
@@ -884,7 +887,7 @@ Without parameter returns a hash ref that contains all the help strings.
 
 =cut
 
-sub help {
+sub get_help {
     my $self= shift;
 
     my $help = $self->{help} ;
