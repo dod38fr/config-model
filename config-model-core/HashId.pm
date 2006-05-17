@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-02-23 13:43:30 $
+# $Date: 2006-05-17 11:52:47 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -31,7 +31,7 @@ use strict;
 use base qw/Config::Model::AnyId/ ;
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -143,7 +143,7 @@ sub fetch_size {
 
 sub _get_all_indexes {
     my $self = shift;
-    return  keys %{$self->{data}} ;
+    return sort keys %{$self->{data}} ;
 }
 
 # fetch without any check 
