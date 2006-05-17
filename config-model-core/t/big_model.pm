@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-04-21 12:08:59 $
+# $Date: 2006-05-17 12:03:39 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.6 $
+# $Revision: 1.7 $
 
 # this file is used by test script
 
@@ -27,11 +27,30 @@ $model->create_config_class
 	      ]
   );
 
+# rather dummy class to check inheritance
+$model->create_config_class
+  (
+   name => 'X_base_class2',
+   element => [
+	       X => { type => 'leaf',
+		      value_type => 'enum',
+		      choice     => [qw/Av Bv Cv/]
+		    },
+	      ],
+  ) ;
+
+$model->create_config_class
+  (
+   name => 'X_base_class',
+   inherit => 'X_base_class2',
+  ) ;
+
+
 $model->create_config_class 
   (
    name => 'SlaveZ',
    element => [
-	       [qw/X Z/] => { type => 'leaf',
+	       [qw/Z/] => { type => 'leaf',
 			      value_type => 'enum',
 			      choice     => [qw/Av Bv Cv/]
 			    },
@@ -40,7 +59,8 @@ $model->create_config_class
 			     default    => 'Dv',
 			     choice     => [qw/Av Bv Cv Dv/]
 			   },
-	      ]
+	      ],
+   inherit => 'X_base_class',
   );
 
 $model->create_config_class 
@@ -56,11 +76,12 @@ $model->create_config_class
 	       sub_slave => { type => 'node' ,
 			      config_class_name => 'SubSlave',
 			    },
-	       [qw/X Y/] => { type => 'leaf',
-			      value_type => 'enum',
-			      choice     => [qw/Av Bv Cv/]
-			    },
-	      ]
+	       Y => { type => 'leaf',
+		      value_type => 'enum',
+		      choice     => [qw/Av Bv Cv/]
+		    },
+	      ],
+   inherit => [ 'X_base_class', 'element' ],
   );
 
 
