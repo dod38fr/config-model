@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-04-21 12:05:07 $
+# $Date: 2006-05-17 11:58:55 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.5 $
+# $Revision: 1.6 $
 
 #    Copyright (c) 2006 Dominique Dumont.
 #
@@ -28,7 +28,7 @@ use Carp;
 use warnings ;
 use UNIVERSAL qw( isa can );
 
-our $VERSION = sprintf "%d.%03d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/;
+our $VERSION = sprintf "%d.%03d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/;
 
 use Carp qw/croak confess cluck/;
 
@@ -433,7 +433,7 @@ sub get_keys {
     my $element_type = $obj->element_type($element);
     my $item = $obj->fetch_element($element) ;
 
-    return sort $item->get_all_indexes 
+    return $item->get_all_indexes 
       if $element_type eq 'hash' || $element_type eq 'list' ;
 
     Config::Model::Exception::Internal
