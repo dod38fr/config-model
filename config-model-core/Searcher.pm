@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-04-10 11:52:25 $
+# $Date: 2006-05-17 12:01:07 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 #    Copyright (c) 2006 Dominique Dumont.
 #
@@ -29,7 +29,7 @@ use warnings ;
 use Config::Model::Exception ;
 
 use vars qw($VERSION);
-$VERSION = sprintf "%d.%03d", q$Revision: 1.1 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -116,7 +116,7 @@ sub new {
 
     bless $self, $type ;
 
-    $self->{privilege} = $args{privilege} || 'intermediate' ;
+    $self->{privilege} = $args{privilege} || 'master' ;
 
     my $root_class = $self->{node}->config_class_name ;
 
@@ -404,6 +404,7 @@ sub _auto_choose_elt {
     if ($elt_type =~ /list|hash/) {
 	my $object   = $self->{current}{object} ;
 	my @choice = $object->get_all_indexes() ;
+
 	my $id = @choice == 1 ? $choice[0] 
 	       :                $id_cb->($object, @choice ) ;
 
