@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-03-10 12:59:32 $
+# $Date: 2006-05-17 11:50:55 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.4 $
+# $Revision: 1.5 $
 
 #    Copyright (c) 2006 Dominique Dumont.
 #
@@ -30,7 +30,7 @@ use Config::Model::Exception ;
 use Config::Model::ObjTreeScanner ;
 
 use vars qw($VERSION);
-$VERSION = sprintf "%d.%03d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -119,7 +119,6 @@ nodes and leaves attached to this node are also dumped.
 
 =cut
 
-# will replace older dump function
 sub dump_tree {
     my $self = shift;
 
@@ -160,16 +159,16 @@ sub dump_tree {
 
         my $pad      = $compute_pad->($obj);
 	my $list_obj = $obj->fetch_element($element) ;
-        my $elt_type = $list_obj->element_type ;
+        my $elt_type = $list_obj->collected_type ;
 
         if ( $elt_type eq 'node' ) {
-            foreach my $k ( sort @keys ) {
+            foreach my $k ( @keys ) {
                 $view_scanner->scan_hash( $obj, $element, $k );
             }
         }
         else {
             $ret .= "\n$pad$element=" 
-	      . join( ',', $list_obj->fetch_all );
+	      . join( ',', $list_obj->fetch_all_values );
         }
     };
 
