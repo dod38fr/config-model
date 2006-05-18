@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-05-17 11:59:26 $
+# $Date: 2006-05-18 11:36:09 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 #    Copyright (c) 2006 Dominique Dumont.
 #
@@ -31,7 +31,7 @@ use Config::Model::ObjTreeScanner ;
 use Text::Wrap ;
 
 use vars qw($VERSION);
-$VERSION = sprintf "%d.%03d", q$Revision: 1.1 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -56,26 +56,22 @@ Config::Model::Report - Serialize data of config tree
  my $step = 'std_id:ab X=Bv - std_id:bc X=Av - a_string="toto tata"';
  $root->walk( step => $step ) ;
 
- # dump only customized data (audit mode)
- print $root->dump_tree;
+ # report only customized data (audit mode)
+ print $root->audit;
 
- # dump all data including default values
- print $root->dump_tree( full_dump => 1 ) ;
+ # report all data including default values
+ print $root->report ;
 
 =head1 DESCRIPTION
 
-This module is used directly by L<Config::Model::Node> to serialize 
-configuration data in a compact (but readable) string.
+This module is used directly by L<Config::Model::Node> to provide
+a human readable report of the configuration. This report includes
+the configuration values and (if provided by the model) the description
+of the configuration item and their effect.
 
-The serialisation can be done in standard mode where only customized
-values are dumped in the string. I.e. only data modified by the user
-are dumped.
-
-The other mode is C<full_dump> mode where all all data, including
-default values, are dumped.
-
-The serialized string can be used by L<Config::Model::Walker> to store
-the data back into a configuration tree.
+A C<report> will show C<all> configuration items. An C<audit> will
+show only configuration items which are different from their default
+value.
 
 =head1 CONSTRUCTOR
 
@@ -92,24 +88,20 @@ sub new {
 
 =head1 Methods
 
-=head2 dump_tree
+=head2 report
 
-Return a string that contains a dump of the object tree with all the
-values. This string follows the convention defined by
-L<Config::Model::Walker>.
-
-The serialized string can be used by L<Config::Model::Walker> to store
-the data back into a configuration tree.
+Returns a string containing the configuration values and (if provided
+by the model) the description of the configuration item and their
+effect.
 
 Parameters are:
 
 =over
 
-=item full_dump
+=item audit
 
-Set to 1 to dump all configuration data including default
-values. Default is 0, where the dump contains only data modified by
-the user (i.e. data differ from default values).
+Set to 1 to report only configuration data different from default
+values. Default is 0.
 
 =item node
 
