@@ -96,6 +96,13 @@ So far this set of modules have succesfully been used by HP on
 proprietary products. I've recently got the authorisation to make it
 an open source project.
 
+Do you have an example of a model ?
+-----------------------------------
+
+The "example" directory contains a configuration model example for the
+/etc/fstab file and a small program that will read the fstab file and
+show you different ways the extracted information can be shown.
+
 Where can I get more doc ?
 --------------------------
 
