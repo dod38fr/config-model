@@ -1,3 +1,27 @@
+2006-05-19  Dominique Dumont  <domi@komarr.grenoble.hp.com> v0.506
+
+	* examples/fstab/FstabModel.pl: added Fstab example with its fstab
+	configuration model. This example includes a small program that
+	use this model to show some ways to extract configuration
+	informations.
+
+2006-05-17  Dominique Dumont  <domi@komarr.grenoble.hp.com> 
+
+	* Report.pm: new file. Provides report and audit facility for
+	Node.pm
+
+	* Node.pm (report): new method
+	(audit): new method
+
+	* Model.pm (create_config_class): added inheritance of
+	configuration models.
+
+	* HashId.pm (_get_all_indexes): sort returned indexes
+
+	* Dumper.pm (dump_tree): fix list dump which did not work
+
+	* AnyId.pm (fetch_all_values): new method
+
 2006-04-21  Dominique Dumont  <domi@komarr.grenoble.hp.com> v0.505
 
 	* WizardHelper.pm: New file. This class helps to create wizard

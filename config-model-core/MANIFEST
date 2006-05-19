@@ -2,6 +2,10 @@ AnyId.pm
 AnyThing.pm
 ChangeLog
 Dumper.pm
+examples/fstab/FstabModel.pl
+examples/fstab/fstab_test.pl
+examples/fstab/fstab.sample
+examples/fstab/README
 Exception.pm
 HashId.pm
 Instance.pm
@@ -13,6 +17,7 @@ MANIFEST			This list of files
 Model.pm
 Node.pm
 ObjTreeScanner.pm
+Report.pm
 README
 Searcher.pm
 t/array_id.t
@@ -28,6 +33,7 @@ t/multi_warp_value.t
 t/node.t
 t/obj_tree_scanner.t
 t/recursive_warp_value.t
+t/report.t
 t/search_element.t
 t/value.t
 t/value_compute.t
