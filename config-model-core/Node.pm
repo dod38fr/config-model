@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-05-17 11:58:05 $
+# $Date: 2006-06-15 12:00:52 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.4 $
+# $Revision: 1.5 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -34,12 +34,12 @@ use UNIVERSAL;
 use Scalar::Util qw/weaken/;
 use Storable qw/dclone/ ;
 
-use base qw/Config::Model::AnyThing/;
+use base qw/Config::Model::AutoRead/;
 
 use vars qw($VERSION $AUTOLOAD @status @level
 @permission_list %permission_index );
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/;
 
 *status           = *Config::Model::status ;
 *level            = *Config::Model::level ;
@@ -56,7 +56,7 @@ Config::Model::Node - Class for configuration tree node
 
  $model->create_config_class 
   (
-   config_class_name => 'OneConfigClass',
+   name              => 'OneConfigClass',
    element           => [
                           [qw/X Y Z/] 
                           => {
@@ -73,6 +73,10 @@ Config::Model::Node - Class for configuration tree node
    class_description => "OneConfigClass detailed description",
 
   );
+
+ my $instance = $model->instance (root_class_name => 'OneConfigClass', 
+                                  instance_name => 'test1');
+ my $root_node = $instance -> config_root ;
 
 =head1 DESCRIPTION
 
@@ -112,10 +116,10 @@ A class declaration is made of the following parameters:
 
 =over
 
-=item B<config_class_name> 
+=item B<name> 
 
 Mandatory C<string> parameter. This config class name can be used by a node
-element in another config_class_name class.
+element in another configuration class.
 
 =item B<class_description> 
 
@@ -257,7 +261,7 @@ sub create_node {
     Config::Model::Exception::Model->throw
         (
          error=> "create node '$element_name' error: "
-	         ."missing 'config_class_name' parameter",
+	         ."missing config class name parameter",
          object => $self
         )
 	  unless defined $element_info->{config_class_name} ;
@@ -575,12 +579,26 @@ sub new {
     my $class_name = $self->{config_class_name} ;
     print "New $class_name requested by $caller_class\n" if $::verbose;
 
-    $self->{model} 
-      = dclone ( $self->{config_model}->get_model($class_name) );
+    my $model 
+      = $self->{model} 
+	= dclone ( $self->{config_model}->get_model($class_name) );
 
     $self->check_permission ;
 
     $self->perform_init_step($init_step) ;
+
+    # setup auto_read
+    if (defined $model->{read_config}) {
+	$self->auto_read_init($model->{read_config}, 
+			      $model->{read_config_dir});
+    }
+
+    # setup auto_write
+    if (defined $model->{write_config}) {
+	$self->auto_write_init($model->{write_config}, 
+			       $model->{write_config_dir});
+    }
+
     return $self ;
 }
 
