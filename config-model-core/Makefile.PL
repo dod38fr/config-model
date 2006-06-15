@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-04-21 12:02:03 $
+# $Date: 2006-06-15 11:58:36 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.5 $
+# $Revision: 1.6 $
 
 #    Copyright (c) 2005 Dominique Dumont.
 #
@@ -59,5 +59,7 @@ WriteMakefile
 		    'Exception::Class'  => 0,
 		    'Error'             => 0
 		   },
+   # cleanup required by t/auto_read.t
+   clean => {FILES => "wr_test zero_test"}
   );
 
