@@ -1,3 +1,17 @@
+2006-06-15  Dominique Dumont  <domi@komarr.grenoble.hp.com> v0.507
+
+	* TermUI.pm: New file. Provides a shell like interactive user
+	interface.
+
+	* Node.pm: Now inherit AutoRead class
+
+	* Instance.pm: Adapted for auto read/write.
+
+2006-06-12  Dominique Dumont  <domi@komarr.grenoble.hp.com> 
+
+	* AutoRead.pm: New file. Provides node the capabilities to load
+	config data when creating a configuration node.
+
 2006-05-19  Dominique Dumont  <domi@komarr.grenoble.hp.com> v0.506
 
 	* examples/fstab/FstabModel.pl: added Fstab example with its fstab
