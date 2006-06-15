@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-06-12 11:33:14 $
+# $Date: 2006-06-15 11:55:21 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -31,7 +31,7 @@ use UNIVERSAL ;
 
 use base qw/Config::Model::AnyThing/ ;
 
-our $VERSION = sprintf "%d.%03d", q$Revision: 1.1 $ =~ /(\d+)\.(\d+)/;
+our $VERSION = sprintf "%d.%03d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -42,9 +42,11 @@ Config::Model::AutoRead - Load on demand base class for configuration node
   $model->create_config_class 
   (
    config_class_name => 'OneAutoReadConfigClass',
-   read => 'cds',
-   read => { class => 'ProcessRead' ,  function => 'read_it'},
-   write => 'cds';
+
+   read_config  => [ 'cds', { class => 'ProcessRead' ,  function => 'read_it'} ],
+   write_config => 'cds';
+
+   config_dir  => '/etc/my_config_dir',
 
    element => ...
   ) ;
@@ -52,10 +54,12 @@ Config::Model::AutoRead - Load on demand base class for configuration node
 =head1 DESCRIPTION
 
 This class provides a way to read on demand the configuration
-informations. In other words, when an AutoRead object is created, all
-the configuration information are read during creation. 
+informations. 
 
-This feature is usefull when you want to read configuration class
+In other words, when a node object is created, all the configuration
+information are read during creation.
+
+This feature is also useful if you want to read configuration class
 declarations at run time. (For instance in a C</etc> directory like
 C</etc/config_model.d>). In this case, each configuration class must
 specify how to read and write configuration information.
@@ -84,7 +88,9 @@ When read, the object registers itself to the instance. Then the user
 can call the C<write_back> method on the instance (See
 L<Config::Model::Instance>) to write all configuration informations.
 
-=head1 Configuration class with autoread or auto write
+=head1 Configuration class with auto read or auto write
+
+=head2 read and write specification
 
 A configuration class will be declared with optional C<read> or
 C<write> parameters:
@@ -93,7 +99,7 @@ C<write> parameters:
   write => 'cds';
 
 The various C<read> method will be tried in order specified. When a read
-operation is successfull, the remaining read methods will be skipped.
+operation is successful, the remaining read methods will be skipped.
 
 In the example above, C<AutoRead> will first try to load the "dump
 tree string" as defined in L<Config::Model::Dumper>. If successful,
@@ -134,16 +140,30 @@ To migrate from an old format to a new format:
              { class => 'NewFormat' ,  function => 'new_read'} ],
   write => [ { class => 'NewFormat' ,  function => 'write'   } ],
 
+=head2 read write directory
+
+You must also specify where to read or write configuration
+information. These informations can be read or written in the same
+directory :
+
+  conf_dir => '/etc/my_config_dir',
+
+Or configuration informations can be read from one directory and
+written in another directory:
+
+   read_config_dir  => '/etc/old_config_dir',
+   write_config_dir => '/etc/new_config_dir',
+
 =cut
 
 # called at configuration class creation
 sub auto_read_init {
-    my $self = shift ;
-    my $readlist = shift ;
+    my ($self, $readlist, $r_dir) = @_ ;
 
     my $instance = $self->instance() ;
 
-    my $r_dir = $instance -> read_directory ; 
+    # override is permitted
+    $self->{r_dir} = $r_dir ||= $instance -> read_directory ; 
 
     foreach my $read (@$readlist) {
 	last if ($read eq 'xml' and $self->read_xml()) ;
@@ -160,12 +180,12 @@ sub auto_read_init {
 }
 
 sub auto_write_init {
-    my $self = shift ;
-    my $wrlist = shift ;
+    my ($self, $wrlist, $w_dir) = @_ ;
 
     my $instance = $self->instance() ;
 
-    my $w_dir = $instance -> write_directory ; 
+    # override is permitted
+    $self->{w_dir} = $w_dir ||= $instance -> write_directory ; 
 
     # provide a proper write back function
     my @array = ref $wrlist ? @$wrlist : ($wrlist) ;
@@ -196,8 +216,8 @@ sub get_cfg_file_name
     my $create_dir = shift || 0 ;
 
     my $i = $self->instance ;
-    my $dir = $r_or_w eq 'r' ? $i->read_directory
-            : $r_or_w eq 'w' ? $i->write_directory
+    my $dir = $r_or_w eq 'r' ? $self->{r_dir}
+            : $r_or_w eq 'w' ? $self->{w_dir}
             :                  croak "get_cfg_file_name: expected r or w not $r_or_w" ;
 
     croak "get_cfg_file_name: no read/write directory provided by instance"
@@ -244,45 +264,6 @@ sub write_xml
   {
     my $self = shift;
     die "write_xml: not yet implemented";
-  }
-
-sub check_auto_args
-  {
-    my ($class,$key,$value) = @_ ;
-
-    croak "$class: unpected key '$key', expected 'read' or 'write'"
-      unless $key eq 'read' or $key eq 'write' ;
-
-    if (ref($value) eq 'HASH')
-      {
-	my %h = %$value ;
-	map { croak "$class: missing '$_' key in $key anonymous hash"} 
-	  grep {not defined $h{$_}} qw/class function/;
-      }
-    elsif ($value ne 'xml' and $value ne 'cds')
-      {
-	croak "$class: unexpected value '$value' for '$key'. ",
-	  "Expected 'xml' or 'cds'";
-      }
-  }
-
-sub setup_autoread
-  {
-    my ($self,@args) = @_ ;
-
-    my $class = ref($self) || $self ; # can be called as class method
-    my $auto ;
-    {
-      no strict 'refs';
-      $auto = \%{$class.'::auto'} ;
-    }
-
-    while (@args)
-      {
-	my ($key,$value) = splice @args,0,2 ;
-	_check_auto_args($class,$key,$value) ;
-	push @{$auto->{$key}},$value ;
-      }
   }
 
 1;
