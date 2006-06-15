@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-05-17 11:56:49 $
+# $Date: 2006-06-15 11:59:43 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.15 $
+# $Revision: 1.16 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -34,7 +34,7 @@ use Config::Model::Instance ;
 # this class holds the version number of the package
 use vars qw($VERSION @status @level @permission_list %permission_index) ;
 
-$VERSION = '0.506';
+$VERSION = '0.507';
 
 =head1 NAME
 
@@ -248,14 +248,16 @@ configuration class that is used by the root node of the tree.
 
 You can create several separated instances from a model.
 
+When using autoread or autowrite feature
+
 =cut
 
 sub instance {
     my $self = shift ;
     my %args = @_ ;
-    my $root_class_name =  $args{root_class_name}
+    my $root_class_name = delete $args{root_class_name}
       or croak "Model: can't create instance without root_class_name ";
-    my $instance_name =  $args{instance_name}
+    my $instance_name =  delete $args{instance_name}
       or croak "Model: can't create instance without instance_name ";
 
     if (defined $self->{instance}{$instance_name}{$root_class_name}) {
@@ -264,7 +266,10 @@ sub instance {
 
     my $i = Config::Model::Instance 
       -> new (config_model => $self,
-	      root_class_name => $root_class_name) ;
+	      root_class_name => $root_class_name,
+	      name => $instance_name ,
+	      %args                      # for optional parameters like *directory
+	     ) ;
 
     $self->{instance}{$instance_name}{$root_class_name} = $i ;
     return $i ;
@@ -418,6 +423,12 @@ sub check_class_parameters {
 	my ($item,$info) = splice @compact_list,0,2 ;
 	# store the order of element as declared in 'element'
 	push @element_list, ref($item) ? @$item : ($item) ;
+    }
+
+    # get data read/write information (if any)
+    foreach my $rw_info (qw/read_config  read_config_dir 
+                            write_config write_config_dir/) {
+	$model->{$rw_info} = delete $raw_model->{$rw_info} ;
     }
 
     foreach my $info_name (@legal_params) {
