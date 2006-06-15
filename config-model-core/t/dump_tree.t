@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-05-17 12:04:24 $
+# $Date: 2006-06-15 12:02:50 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.4 $
+# $Revision: 1.5 $
 
 use ExtUtils::testlib;
 use Test::More tests => 6;
@@ -46,9 +46,9 @@ my $step = 'std_id:ab X=Bv - std_id:bc X=Av - a_string="toto tata" '
 ok( $root->load( step => $step, permission => 'intermediate' ),
   "set up data in tree with '$step'");
 
-my $dts = $root->dump_tree;
+my $cds = $root->dump_tree;
 
-print "dts string:\n$dts" if $trace ;
+print "cds string:\n$cds" if $trace ;
 
 my $expect = <<'EOF' ;
 std_id:ab
@@ -67,10 +67,10 @@ warp
 a_string="toto tata" -
 EOF
 
-is($dts,$expect,"check dump of only customized values ") ;
+is($cds,$expect,"check dump of only customized values ") ;
 
-$dts = $root->dump_tree( full_dump => 1 );
-print "dts string:\n$dts" if $trace  ;
+$cds = $root->dump_tree( full_dump => 1 );
+print "cds string:\n$cds" if $trace  ;
 
 $expect = <<'EOF' ;
 std_id:ab
@@ -95,6 +95,6 @@ a_string="toto tata"
 int_v=10 -
 EOF
 
-is($dts,$expect,"check dump of all values ") ;
+is($cds,$expect,"check dump of all values ") ;
 
 
