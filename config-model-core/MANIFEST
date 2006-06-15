@@ -1,5 +1,6 @@
 AnyId.pm
 AnyThing.pm
+AutoRead.pm
 ChangeLog
 Dumper.pm
 examples/fstab/FstabModel.pl
@@ -21,6 +22,7 @@ Report.pm
 README
 Searcher.pm
 t/array_id.t
+t/auto_read.t
 t/big_model.pm
 t/dump_tree.t
 t/grab.t
