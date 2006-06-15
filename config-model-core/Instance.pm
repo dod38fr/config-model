@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-04-21 11:58:39 $
+# $Date: 2006-06-15 11:57:22 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -36,7 +36,7 @@ use warnings::register ;
 
 use vars qw/$VERSION/ ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/;
 
 use Carp qw/croak confess cluck/;
 
@@ -95,12 +95,17 @@ sub new {
 		  auto_inc => {}
 		 } ,
 	 config_model => $config_model ,
-	 name => $root_class_name ,
+	 root_class_name => $root_class_name ,
 
 	 # This array holds a set of sub ref that will be invoked when
 	 # the users requires to write all configuration tree in their
 	 # backend storage.
 	 write_back => [] ,
+
+	 # used for auto_read auto_write feature
+	 name            => $args{name} ,
+	 read_directory  => $args{read_directory}  || $args{directory},
+	 write_directory => $args{write_directory} || $args{directory},
 	};
 
     weaken($self->{config_model}) ;
@@ -118,6 +123,16 @@ sub new {
 
 
 =head1 METHODS
+
+=head2 name()
+
+Returns the instance name.
+
+=cut
+
+sub name {
+    return shift->{name} ;
+}
 
 =head2 config_root()
 
@@ -177,7 +192,7 @@ sub push_no_value_check {
 	}
         else {
             croak "push_no_value_check: cannot relax $w value check";
-	}
+ 	}
     }
 
     unshift @{ $self->{check_stack} }, \%h ;
@@ -292,19 +307,40 @@ sub wizard_helper {
 
 
 
-=begin comment
+=head1 Auto read and write feature
 
-These function are used for model plugin which is not yet implemented
+Usually, a program based on config model must first create the
+configuration model, then load all configuration data. 
+
+This feature enables you to declare with the model a way to load
+configuration data (and to write it back). See
+L<Config::Model::AutoRead> for details.
+
+=head2 read_directory()
+
+Returns directory where configuration data is read from.
+
+=cut
+
+sub read_directory {
+    return shift -> {read_directory} ;
+}
+
+=head2 write_directory()
+
+Returns directory where configuration data is written to.
+
+=cut
+
+sub write_directory {
+    return shift -> {write_directory} ;
+}
 
 =head2 register_write_back ( sub_ref )
 
 Register a sub ref that will be called with C<write_back> method.
 
-=head2 write_back
-
-Run all subroutines registered with C<register_write_back> to write
-the configuration informations. (See L<Config::Model::AutoRead> for
-details).
+=cut
 
 sub register_write_back {
     my $self = shift ;
@@ -315,9 +351,16 @@ sub register_write_back {
     push @{$self->{write_back}}, $wb ;
 }
 
+=head2 write_back
+
+Run all subroutines registered with C<register_write_back> to write
+the configuration informations. (See L<Config::Model::AutoRead> for
+details).
+
+=cut
+
 sub write_back {
     my $self = shift ;
-
     map { &$_ } @{$self->{write_back}} ;
 }
 
