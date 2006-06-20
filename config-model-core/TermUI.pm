@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-06-15 12:05:04 $
+# $Date: 2006-06-20 12:00:46 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 #    Copyright (c) 2005 Dominique Dumont.
 #
@@ -29,6 +29,9 @@ use strict ;
 use warnings ;
 
 use Term::ReadLine;
+
+use vars qw($VERSION);
+$VERSION = sprintf "%d.%03d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
