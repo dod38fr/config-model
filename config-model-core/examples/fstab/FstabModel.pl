@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-05-19 12:35:21 $
+# $Date: 2006-06-26 12:01:58 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -37,18 +37,18 @@
 # since all swap devices have a 'none' mount point.
 # So I've decided not to sort at all and store the fstab information
 # one by one in a collection. Hence the 'list' type of 'line' element.
-$model ->create_config_class 
-  (
+
+[
+  [
    name => "Fstab",
    element => [ line => { type => 'list' ,
 			  collected_type => 'node',
 			  config_class_name => 'FsLine'
 			}
 	      ]
-  ) ;
+  ],
 
-$model ->create_config_class 
-  (
+  [
    name => "FsLine",
 
    'class_description' => 'data of one /etc/fstab line',
@@ -138,11 +138,10 @@ $model ->create_config_class
 			 default => 0,
 		       },
       ]
-  ) ;
+  ],
 
 # These options are available for all file systems (according to mount(8))
-$model->create_config_class
-  (
+  [
    name => "CommonOptions",
    class_description => "options valid for all types of file systems",
    description => [
@@ -174,10 +173,9 @@ $model->create_config_class
 		       }
 	       },
       ]
-  ) ;
+  ],
 
-$model->create_config_class
-  (
+  [
    name => "SwapOptions",
    class_description => "Swap options",
    'element' 
@@ -186,11 +184,10 @@ $model->create_config_class
 	       value_type => 'boolean',
 	     },
       ]
-  ) ;
+  ],
 
 # not all options are listed to keep example, err..., simple.
-$model ->create_config_class 
-  (
+  [
    name => "Ext2FsOpt",
 
    # all common option are part of ext2 options
@@ -210,10 +207,9 @@ $model ->create_config_class
 		    choice => [qw/continue remount-ro panic/],
 		  },
       ],
-  );
+  ],
 
-$model ->create_config_class 
-  (
+  [
    name => "Ext3FsOpt",
 
    # ext3 feature all ext2 options
@@ -251,10 +247,9 @@ $model ->create_config_class
         . 'system, pass the mode to the kernel as boot parameter, e.g. '
         . 'rootflags=data=journal.'
       ]
-  );
+  ],
 
-$model ->create_config_class 
-  (
+  [
    name => "Iso9660_Opt",
    inherit => 'CommonOptions' ,
    'element' 
@@ -262,7 +257,9 @@ $model ->create_config_class
 				   value_type => 'boolean',
 			     },
       ]
-  ) ;
+  ],
+] ;
 
-1;
+# do not put 1; at the end of the file
+
 
