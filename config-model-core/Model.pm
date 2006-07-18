@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-06-15 11:59:43 $
+# $Date: 2006-07-18 16:27:23 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.16 $
+# $Revision: 1.17 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -102,13 +102,16 @@ Simply call new without parameters:
 
  my $model = Config::Model -> new ;
 
-This will create an empty shell for you model.
+This will create an empty shell for your model.
 
 =cut
 
 sub new {
     my $type = shift ;
-    bless {},$type;
+    my %args = @_;
+    bless {
+	   model_dir => $args{model_dir} || '/etc/config-model.d' ,
+	  },$type;
 }
 
 =head2 declaring the model
@@ -255,6 +258,7 @@ When using autoread or autowrite feature
 sub instance {
     my $self = shift ;
     my %args = @_ ;
+
     my $root_class_name = delete $args{root_class_name}
       or croak "Model: can't create instance without root_class_name ";
     my $instance_name =  delete $args{instance_name}
@@ -264,11 +268,16 @@ sub instance {
 	return $self->{instance}{$instance_name}{$root_class_name} ;
     }
 
+    if (defined $args{model_file}) {
+	my $file = delete $args{model_file} ;
+	$self->load($root_class_name, $file) ;
+    }
+
     my $i = Config::Model::Instance 
       -> new (config_model => $self,
 	      root_class_name => $root_class_name,
 	      name => $instance_name ,
-	      %args                      # for optional parameters like *directory
+	      %args                 # for optional parameters like *directory
 	     ) ;
 
     $self->{instance}{$instance_name}{$root_class_name} = $i ;
@@ -546,8 +555,48 @@ Example:
 Again, see L<Config::Model::Node> for more details on configuration
 class declaration.
 
+=head1 Load pre-declared model
+
+You can also load pre-declared model.
+
+=head2 load(dir => ...)
+
+This method will open the specified directory and execute all C<.pl>
+files found in this directory.
+
+This perl files must use the global variable C<$model> to declare
+models. E.g.:
+
+ $model ->create_config_class ( ... ) ;
+
 =cut
 
+
+sub load {
+    my $self =shift ;
+    my $load_model = shift ;
+    my $load_file = shift ;
+
+    $load_file ||= $self->{model_dir} . '/' . $load_model . '.pl' ;
+
+    croak "Model load: Unknown model $load_model (missing file $load_file)\n"
+      unless -e $load_file ;
+
+    my $model = do $load_file or die "compile error with $load_file: $@";
+
+    unless ($model) {
+	warn "couldn't parse $load_file: $@" if $@;
+	warn "couldn't do $load_file: $!"    unless defined $model;
+	warn "couldn't run $load_file"       unless $model;
+    }
+
+    die "Model file $load_file does not return an array ref\n"
+      unless ref($model) eq 'ARRAY';
+
+    foreach my $config_class_info (@$model) {
+	$self->create_config_class(@$config_class_info) ;
+    }
+}
 
 =head1 Model query
 
@@ -560,6 +609,9 @@ Return a hash containing the model declaration.
 sub get_model {
     my $self =shift ;
     my $config_class_name = shift ;
+
+    $self->load($config_class_name) 
+      unless defined $self->{model}{$config_class_name} ;
 
     my $model = $self->{model}{$config_class_name} ||
       croak "get_model error: unknown config class name: $config_class_name";
