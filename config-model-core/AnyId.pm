@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-05-17 11:49:08 $
+# $Date: 2006-07-18 12:09:56 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.4 $
+# $Revision: 1.5 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -29,7 +29,7 @@ use Carp;
 use strict;
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/;
 
 use base qw/Config::Model::WarpedThing/;
 
@@ -362,6 +362,23 @@ for my $datum (qw/min max max_nb index_type default auto_create
     } ;
 }
 
+=head2 get_cargo_type()
+
+Returns the object type contained by the hash or list (i.e. returns
+C<collected_type>).
+
+=cut
+
+sub get_cargo_type {
+    my $self = shift ;
+    #my @ids = $self->get_all_indexes ;
+    # the returned cargo type might be different from collected type
+    # when collected type is 'warped_node'. 
+    #return @ids ? $self->fetch_with_id($ids[0])->get_cargo_type
+    #  : $self->{collected_type} ;
+    return $self->{collected_type} ;
+}
+
 =head2 name()
 
 Returns the object name. The name finishes with ' id'.
@@ -372,6 +389,21 @@ sub name
   {
     my $self = shift ;
     return $self->{parent}->name . ' '.$self->{element_name}.' id' ;
+  }
+
+=head2 config_class_name()
+
+Returns the config_class_name of collected elements. Valid only
+for collection of nodes.
+
+This method will return undef if C<collected_type> is not C<node>.
+
+=cut
+
+sub config_class_name
+  {
+    my $self = shift ;
+    return $self->{config_class_name} ;
   }
 
 # internal. This method will deal with warp when collected elements
@@ -657,7 +689,7 @@ sub auto_vivify {
 
 =head2 defined ( index )
 
-Returns true of the value held at C<index> is defined.
+Returns true if the value held at C<index> is defined.
 
 =cut
 
@@ -672,7 +704,7 @@ sub defined {
 
 =head2 exists ( index )
 
-Returns true of the value held at C<index> exists (i.e the key exists
+Returns true if the value held at C<index> exists (i.e the key exists
 but the value may be undefined). This method may not make sense for
 list element.
 
@@ -723,8 +755,8 @@ __END__
 
 =head1 CAVEATS
 
-The argument that specified the type of the element stored in the hash
-or list is name C<collected_type>. This name sounds lame. If a native
+The argument that specifies the type of the element stored in the hash
+or list is named C<collected_type>. This name sounds lame. If a native
 english speaker can suggest a better name, I'll be glad to change it.
 
 =head1 AUTHOR
