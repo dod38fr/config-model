@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-03-06 12:53:38 $
+# $Date: 2006-07-18 16:22:41 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -31,7 +31,7 @@ use strict;
 use base qw/Config::Model::AnyId/ ;
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.1 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -117,6 +117,17 @@ sub set {
 }
 
 =head1 Methods
+
+=head2 get_type
+
+Returns C<list>.
+
+=cut
+
+sub get_type {
+    my $self = shift;
+    return 'list' ;
+}
 
 =head2 fetch_size
 
