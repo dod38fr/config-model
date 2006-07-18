@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-05-17 11:51:42 $
+# $Date: 2006-07-18 16:20:38 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.4 $
+# $Revision: 1.5 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -27,7 +27,7 @@ use warnings ;
 use strict;
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/;
 
 push @Exception::Class::Base::ISA, 'Error';
 
@@ -59,6 +59,12 @@ use Exception::Class
    => { isa         => 'Config::Model::Exception::User',
 	description => 'restricted element',
 	fields      => [qw/object element level req_level info/],
+      },
+
+   'Config::Model::Exception::WrongType' 
+   => { isa         => 'Config::Model::Exception::User',
+	description => 'wrong element type',
+	fields      => [qw/object function got_type expected_type info/],
       },
 
    'Config::Model::Exception::WrongValue'
@@ -278,7 +284,6 @@ sub full_message {
 
 package Config::Model::Exception::UnknownId ;
 
-# FIXME : out of date
 sub full_message {
     my $self = shift;
 
@@ -297,8 +302,29 @@ sub full_message {
 
     $msg .=
       $self->description. " '". $self->id() . "'"
-        . " for element '$element' of class '".ref($obj)
+        . " for element '".$obj->location
           . "'\n\texpected: $id_str\n" ;
+
+    return $msg;
+}
+
+package Config::Model::Exception::WrongType ;
+
+sub full_message {
+    my $self = shift;
+
+    my $obj = $self->object ;
+
+    my $msg = '';
+    $msg .= "In function ". $self->function .": " if 
+      defined $self->function;
+
+    $msg .=
+      $self->description
+        . " for element '".$obj->location
+          . "'\n\tgot type '".$self->got_type
+	  . "', expected '". $self->expected_type
+	    . "' ". $self->info. "\n" ;
 
     return $msg;
 }
