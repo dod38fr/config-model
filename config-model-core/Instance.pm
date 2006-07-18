@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-06-15 11:57:22 $
+# $Date: 2006-07-18 16:21:47 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.4 $
+# $Revision: 1.5 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -36,7 +36,7 @@ use warnings::register ;
 
 use vars qw/$VERSION/ ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/;
 
 use Carp qw/croak confess cluck/;
 
@@ -155,10 +155,11 @@ sub config_model {
 }
 
 
-=head2 push_no_value_check ( [fetch] , [store], [type] )
+=head2 push_no_value_check ( fetch | store | type , ... )
 
 Tune C<Config::Model::Value> to perform check on read (fetch) or write
-(store).  The passed parameters are stacked. Parameters are :
+(store) or verify the value according to its C<value_type>.  The
+passed parameters are stacked. Parameters are :
 
 =over 8
 
@@ -172,13 +173,19 @@ Skip read check.
 
 =item type
 
-Skip value_type check (See L<Config::Model::Value> for details).
+Skip value_type check (See L<Config::Model::Value> for details). 
+I.e L<Config::Model::Value> will not enforce type checking.
 
 =back
 
 Note that these values are stacked. They can be read by
 get_value_check until the next push_no_value_check or
 pop_no_value_check call.
+
+Example:
+
+  $i->push_no_value_check('fetch') ;
+  $i->push_no_value_check('fetch','type') ;
 
 =cut
 
