@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-06-12 11:35:16 $
+# $Date: 2006-07-18 16:11:12 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.6 $
+# $Revision: 1.7 $
 
 #    Copyright (c) 2006 Dominique Dumont.
 #
@@ -30,7 +30,7 @@ use Config::Model::Exception ;
 use Config::Model::ObjTreeScanner ;
 
 use vars qw($VERSION);
-$VERSION = sprintf "%d.%03d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -136,10 +136,6 @@ sub dump_tree {
 
     my $std_cb = sub {
         my ( $obj, $element, $index, $value_obj ) = @_;
-
-	# if element is a collection, get the value pointed by $index
-	$value_obj = $obj->fetch_element($element)->fetch($index) 
-	  if defined $index ;
 
 	# get value or only customized value
 	my $value = $full ? $value_obj->fetch : $value_obj->fetch_custom;
