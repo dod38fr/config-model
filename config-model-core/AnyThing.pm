@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-04-10 11:43:23 $
+# $Date: 2006-07-18 12:13:39 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.5 $
+# $Revision: 1.6 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -27,7 +27,7 @@ use Carp;
 use strict;
 
 use vars qw($VERSION);
-$VERSION = sprintf "%d.%03d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -69,6 +69,22 @@ foreach my $datum (qw/element_name index_value parent instance/) {
 	my $self= shift;
 	return $self->{$datum};
     } ;
+}
+
+=head2 get_type()
+
+Returns the type (e.g. C<list> or C<hash> or C<leaf> or C<node> or
+C<warped_node> of the element containing this object. See
+L</element_type>.
+
+=cut 
+
+sub get_type {
+    my $self = shift;
+    my $p = $self->parent ;
+    return defined $p ? $p->element_type($self->element_name)
+                      : 'node' ; # root node
+
 }
 
 sub _set_parent {
@@ -136,10 +152,40 @@ sub xpath {
 
 =head2 grab(...)
 
-Grab an object from the configuration tree. The parameter is a string
-indicating the steps to follow in the tree to find the required item.
+Grab an object from the configuration tree.
 
-The steps are made of the following items separated by spaces:
+Parameters are:
+
+=over
+
+=item step
+
+A string indicating the steps to follow in the tree to find the
+required item. (mandatory)
+
+=item strict
+
+When set to 1, C<grab> will throw an exception if no object is found
+using the passed string. When set to 0, the object found at last will
+be returned. For instance, for the step C<good_step wrong_step>, only
+the object held by C<good_step> will be returned.
+
+=item type 
+
+Either C<node>, C<leaf>. Return only an object of requested
+type. Depending on C<strict> value, C<grab> will either throw an
+exception or return the last found object of requested type.
+(optional, default to C<undef>, which means any type of object)
+
+=item autoadd
+
+When set to 1, C<hash> or C<list> configuration element are created
+when requested by the passed steps. (default is 1).
+
+=back
+
+The C<step> parameters is made of the following items separated by
+spaces:
 
 =over 8
 
@@ -168,11 +214,6 @@ If C<?xxx:yy>, go up the tree the same way. But no check is done to
 see if id C<yy> actually exists or not. Only the element C<xxx> is 
 considered when going up the tree.
 
-=item xxx%yy
-
-Like C<xxx:yy>, but does not create id C<yy> for element C<xxx>. I.e. grab
-will fail if the id C<yy> does not already exsits in element C<xxx>
-
 =back
 
 
@@ -182,7 +223,6 @@ will fail if the id C<yy> does not already exsits in element C<xxx>
 
 # accept commands like
 # item:b -> go down a node, create a new node if necessary
-# item%b -> go down a node, fail if node creation is necessary
 # - climbs up
 # ! climbs up to the top 
 
@@ -190,9 +230,20 @@ will fail if the id C<yy> does not already exsits in element C<xxx>
 
 sub grab {
     my $self = shift ;
-    my $step = shift || confess "grab: no step passed";
-
-    confess "grab: too many parameters" if @_ ;
+    my ($step,$strict,$autoadd, $type) = (undef, 1, 1, undef) ;
+    if ( @_ > 1 ) {
+	my %args = @_;
+	$step    = $args{step};
+	$strict  = $args{strict}  if defined $args{strict};
+	$autoadd = $args{autoadd} if defined $args{autoadd};
+	$type    = $args{type} ; # node, leaf or undef
+    }
+    elsif (@_ == 1) {
+	$step = shift ;
+    }
+    else {
+	confess "grab: no step passed";
+    }
 
     Config::Model::Exception::Internal
 	->throw (
@@ -211,20 +262,21 @@ sub grab {
       "' on object '",$self->name, "'\n"
           if $::debug;
 
-    my $obj = $self ;
+    my @found = ($self) ;
 
   COMMAND:
     while( my $cmd = shift @command) {
+	my $obj = $found[-1] ;
         print "grab: executing cmd '$cmd' on object '",$obj->name,
           "($obj)'\n" if $::debug;
 
         if ($cmd eq '!') { 
-            $obj = $obj->grab_root ;
+            push @found, $obj->grab_root ;
             next ;
           }
 
         if ($cmd =~ /^\?(\w+)/) {
-	    $obj = $obj->grab_ancestor_with_element_named($1) ;
+	    push @found, $obj->grab_ancestor_with_element_named($1) ;
 	    $cmd =~ s/^\?// ; #remove the go up part
 	    unshift @command, $cmd ;
 	    next ;
@@ -232,19 +284,18 @@ sub grab {
 
         if ($cmd eq '-') { 
             if (defined $obj->parent) {
-                $obj = $obj->parent ; 
+                push @found, $obj->parent ; 
                 next ;
               } 
             else {
-                print "grab: ",$obj->name," has not PARENT\n" 
+                print "grab: ",$obj->name," has no parent\n" 
 		  if $::debug;
-                return undef ;
+                return $strict ? undef : $obj ;
               }
           }
 
         unless ($obj->isa('Config::Model::Node') 
-		or $obj->isa('Config::Model::WarpedNode'))
-          {
+		or $obj->isa('Config::Model::WarpedNode')) {
             Config::Model::Exception::Model
 		->throw (
 			 object => $obj,
@@ -254,7 +305,7 @@ sub grab {
 	}
 
         my ($name, $action, $arg) 
-	  = ($cmd =~ /(\w+)(?:([:%])([\w:\/\.\-]+))?/);
+	  = ($cmd =~ /(\w+)(?:(:)([\w:\/\.\-]+))?/);
 
 	{
 	  no warnings "uninitialized" ;
@@ -270,7 +321,8 @@ sub grab {
 			 function => 'grab',
 			 info => "grab called from '".$self->name.
 			 "' with steps '@saved'"
-			) ;
+			) if $strict ;
+	    last ;
 	}
 
         unless ($obj->is_element_available(name => $name, 
@@ -282,34 +334,51 @@ sub grab {
 			 function => 'grab',
 			 info => "grab called from '".$self->name.
 			 "' with steps '@saved'"
-			) ;
+			) if $strict;
+	   last ;
 	}
 
-	# Not translated below
-	# '%' action grab but does not create !
-        if (defined $action and $action eq '%' 
-	    and not $obj->fetch_element($name)
-	    ->fetch_element_key($arg)) 
+	# create list or hash element only if autoadd is true
+        if (defined $action and $autoadd == 0
+	    and not $obj->fetch_element($name)->exists($arg)) 
 	  {
             Config::Model::Exception::UnknownId
 		->throw (
-			 object => $obj,
+			 object => $obj->fetch_element($name),
 			 element => $name,
 			 id => $arg,
 			 function => 'grab'
-			) ;
+			)  if $strict;
+	    last ;
 	}
 
-        if (defined $action) {
-	    # action can only be % or :
-	    $obj = $obj->fetch_element($name) ->fetch_with_id($arg)
-          }
-        else {
-	    $obj = $obj->fetch_element($name);
+	my $next_obj = $obj->fetch_element($name) ;
+
+	# action can only be :
+	$next_obj = $next_obj -> fetch_with_id($arg) if defined $action ;
+
+	push @found, $next_obj ;
+    }
+
+    # check element type
+    if ( defined $type ) {
+	while ( @found and $found[-1]-> get_type ne $type ) {
+	    Config::Model::Exception::WrongType
+		->throw (
+			 object => $found[-1],
+			 function => 'grab',
+			 got_type => $found[-1] -> get_type,
+			 expected_type => $type,
+			 info   => "requested with step '$step'"
+			) if $strict ;
+	    pop @found;
 	}
     }
 
-    return $obj ;
+    my $return = $found[-1] ;
+    print "grab: returning object '",$return->name,
+      "($return)'\n" if $::debug;
+    return $return;
 }
 
 =head2 grab_value(...)
@@ -324,8 +393,10 @@ leaf.
 
 sub grab_value {
     my $self = shift ;
+    my @args = scalar @_ == 1 ? ( step => $_[0], type => 'leaf')
+      : ( @_ , type => 'leaf') ;
 
-    my $obj = $self->grab(@_) ;
+    my $obj = $self->grab(@args) ;
 
     Config::Model::Exception::User
 	-> throw (
