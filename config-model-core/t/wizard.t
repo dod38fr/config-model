@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-04-21 12:08:06 $
+# $Date: 2006-07-19 12:26:53 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 use ExtUtils::testlib;
 use Test::More tests => 6;
@@ -20,15 +20,6 @@ use vars qw/$model/;
 
 $model = Config::Model -> new ;
 
-my $file = 't/big_model.pm';
-
-my $return ;
-unless ($return = do $file) {
-    warn "couldn't parse $file: $@" if $@;
-    warn "couldn't do $file: $!"    unless defined $return;
-    warn "couldn't run $file"       unless $return;
-}
-
 my $trace = shift || 0;
 $::verbose          = 1 if $trace =~ /v/;
 $::debug            = 1 if $trace =~ /d/;
@@ -37,6 +28,7 @@ $::trace            = 1 if $trace =~ /t/;
 ok(1,"compiled");
 
 my $inst = $model->instance (root_class_name => 'Master', 
+			     model_file => 't/big_model.pm',
 			     instance_name => 'test1');
 ok($inst,"created dummy instance") ;
 

@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-02-23 13:43:30 $
+# $Date: 2006-07-19 12:26:53 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.4 $
+# $Revision: 1.5 $
 
 use ExtUtils::testlib;
 use Test::More tests => 9;
@@ -20,16 +20,6 @@ use Data::Dumper;
 use vars qw/$model/;
 
 $model = Config::Model -> new ;
-
-my $file = 't/big_model.pm';
-
-my $return ;
-unless ($return = do $file) {
-    warn "couldn't parse $file: $@" if $@;
-    warn "couldn't do $file: $!"    unless defined $return;
-    warn "couldn't run $file"       unless $return;
-}
-
 
 my $scan;
 my $result = '';
@@ -91,7 +81,8 @@ Config::Model::Exception::Any->Trace(1) if $trace =~ /e/;
 ok(1,"compiled");
 
 my $inst = $model->instance (root_class_name => 'Master', 
-				 instance_name => 'test1');
+			     model_file => 't/big_model.pm',
+			     instance_name => 'test1');
 ok($inst,"created dummy instance") ;
 
 my $root = $inst -> config_root ;
@@ -123,7 +114,7 @@ $scan->scan_node($root) ;
 ok(1,"performed scan") ;
 
 my $expect = << 'EOF' ;
-disp_obj Master element: std_id lista listb hash_a olist string_with_def a_string int_v
+disp_obj Master element: std_id lista listb hash_a hash_b olist string_with_def a_string int_v
 disp_hash Master element(std_id): ab bc
 disp_obj_elt Master element: std_id key ab
 disp_obj std_id:ab element: X Z DX
