@@ -1,11 +1,11 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-02-16 13:09:43 $
+# $Date: 2006-07-19 12:24:56 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 use ExtUtils::testlib;
-use Test::More tests => 27;
+use Test::More tests => 32;
 use Config::Model;
 
 use warnings;
@@ -20,17 +20,6 @@ use vars qw/$model/;
 
 $model = Config::Model -> new ;
 
-my $file = 't/big_model.pm';
-
-my $return ;
-unless ($return = do $file) {
-    warn "couldn't parse $file: $@" if $@;
-    warn "couldn't do $file: $!"    unless defined $return;
-    warn "couldn't run $file"       unless $return;
-}
-
-
-
 my $trace = shift || '';
 $::verbose          = 1 if $trace =~ /v/;
 $::debug            = 1 if $trace =~ /d/;
@@ -38,7 +27,8 @@ $::debug            = 1 if $trace =~ /d/;
 ok(1,"compiled");
 
 my $inst = $model->instance (root_class_name => 'Master', 
-				 instance_name => 'test1');
+			     model_file => 't/big_model.pm',
+			     instance_name => 'test1');
 ok($inst,"created dummy instance") ;
 
 my $root = $inst -> config_root ;
@@ -49,7 +39,9 @@ my $step = 'std_id:ab X=Bv - std_id:bc X=Av - a_string="titi , toto" ';
 ok( $root->load( step => $step, permission => 'intermediate' ),
   "load '$step'");
 
-is($root->grab('olist:0' )->index_value,0,'test grab olist:0') ;
+my $grabbed = $root->grab('olist:0' ) ;
+is($grabbed->location, 'olist:0', 'test grab olist:0 (obj)') ;
+is($root->grab('olist:0' )->index_value,0,'test grab olist:0 (index)') ;
 
 my $wp = 'olist:0';
 eval {$root->grab(\$wp )->index_value; };
@@ -98,4 +90,19 @@ eval { $leaf->grab('?argh' ); };
 ok($@,"test grab with wrong step: '?argh'");
 print "normal error:\n", $@, "\n" if $trace;
 
+eval { $root->grab(step => 'std_id:zzz', autoadd => 0 ); };
+ok($@,"test autoadd 0 with 'std_id:zzz'");
+print "normal error:\n", $@, "\n" if $trace;
 
+
+$root->grab(step => 'std_id:zzz', autoadd => 1 );
+ok(1,"test autoadd 1 with 'std_id:zzz'");
+
+my $obj = $root->grab(step => 'std_id:zzz foobar', strict => 0 );
+is($obj->location,"std_id:zzz","test no strict grab");
+
+$obj = $root->grab(step => 'std_id:ab X', type => 'node' , strict => 0);
+is($obj->location,"std_id:ab","test no strict grab with type node");
+exit ;
+eval { $root->grab(step => 'std_id:ab X', type => 'node' , strict => 1); } ;ok($@,"test strict grab with type node");
+print "normal error:\n", $@, "\n" if $trace;
