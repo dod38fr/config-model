@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-05-17 11:58:55 $
+# $Date: 2006-07-19 11:44:43 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.6 $
+# $Revision: 1.7 $
 
 #    Copyright (c) 2006 Dominique Dumont.
 #
@@ -28,7 +28,7 @@ use Carp;
 use warnings ;
 use UNIVERSAL qw( isa can );
 
-our $VERSION = sprintf "%d.%03d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/;
+our $VERSION = sprintf "%d.%03d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/;
 
 use Carp qw/croak confess cluck/;
 
@@ -237,6 +237,7 @@ sub create_fallback {
     return if not defined $fallback or $fallback eq 'none' ;
 
     my $done = 0 ;
+    my $autov = $self->{auto_vivify} ;
 
     if ($fallback eq 'node' or $fallback eq 'all') {
         $done ++ ;
@@ -247,6 +248,10 @@ sub create_fallback {
 
         my $node_cb = sub {
             my ($obj,$element,$key) = @_ ;
+
+	    # avoid auto-vivification
+	    return unless $autov or $obj->is_element_defined($element) ;
+
 	    my $next = $obj -> fetch_element($element) ;
 
             my $type = $obj->element_type($element) ;
@@ -331,26 +336,21 @@ sub scan_element {
 
     return unless defined $element_type; # element may not be initialized
 
-    my $autov = $self->{auto_vivify} ;
-
     #print "scan_element $element ";
     if ($element_type eq 'hash') {
         #print "type hash\n";
         my @keys = $self->get_keys($parent,$element) ;
         # if hash element grab keys and perform callback
-        $self->{hash_cb}->($parent,$element,@keys) if $autov or @keys;
+        $self->{hash_cb}->($parent,$element,@keys);
     }
     elsif ($element_type eq 'list') {
         #print "type list\n";
         my @keys = $self->get_keys($parent,$element) ;
-        $self->{list_cb}->($parent,$element, @keys) if $autov or @keys ;
+        $self->{list_cb}->($parent,$element, @keys);
     }
     elsif ($element_type eq 'node') {
         #print "type object\n";
         # is a scalar and class, or a WarpedNode
-
-	# avoid auto-vivification
-        return unless $autov or $parent->is_element_defined($element) ;
 
         # if obj element, cb
         $self->{node_cb}-> ($parent,$element) ;
