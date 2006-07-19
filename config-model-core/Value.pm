@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-05-17 12:02:14 $
+# $Date: 2006-07-19 10:33:04 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -36,7 +36,7 @@ use base qw/Config::Model::WarpedThing/ ;
 
 use vars qw($VERSION) ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -850,6 +850,20 @@ sub name {
     return $name ;
 }
 
+=head2 get_type
+
+Returns C<leaf>.
+
+=cut
+
+sub get_type {
+    return 'leaf' ;
+}
+
+sub get_cargo_type {
+    return 'leaf' ;
+}
+
 =head2 can_store()
 
 Returns true if the value object can be assigned to. Return 0 for a
@@ -1302,7 +1316,7 @@ Dominique Dumont, domi@komarr.grenoble.hp.com
 
 =head1 SEE ALSO
 
-L<Config::Model::Id>, L<Config::Model::WarpThing>, L<Exception::Class>
+L<Config::Model::AnyId>, L<Config::Model::WarpThing>, L<Exception::Class>
 
 =cut
 
