@@ -1,5 +1,5 @@
 
-Config::Model - Framework for semantic validation of config data
+Config::Model - Framework for semantic validation of configuration data
 
 The Config::Model provides a framework to help in validating the
 semantic content of configuration data.
@@ -51,7 +51,7 @@ The declaration specifies:
 - the default values of parameters (if any)
 - mandatory parameters
 - the targeted audience (intermediate, advance, master)
-- on-line help (for ach parameter or value of parameter)
+- on-line help (for each parameter or value of parameter)
 - the level of expertise of each parameter (to hide expert parameters
   from newbie eyes)
 
@@ -63,16 +63,21 @@ So, in the end:
 - upgrade of configuration data is easier and sanity check is
   performed
 - audit of configuration is possible to check what was modified by the
-  user compated to default values
+  user compared to default values
 
 What about the user interface ?
 -------------------------------
+
+Config::Model comes with a shell-like interface.
 
 Config::Model will also come with a Curses::UI interface that queries
 the user's model and generate the relevant user screens.
 
 Why an old-fashioned Curses interface ?
 To be able to configure your system even if X is not running.
+
+If time permits, I may write a perl/Tk interface. Help is welcome on
+this topic (or help with any other toolkit)
 
 What about data storage ?
 -------------------------
@@ -92,7 +97,7 @@ of several configuration files together.
 Where does this come from ?
 ---------------------------
 
-So far this set of modules have succesfully been used by HP on
+So far this set of modules have successfully been used by HP on
 proprietary products. I've recently got the authorisation to make it
 an open source project.
 
@@ -103,6 +108,21 @@ The "example" directory contains a configuration model example for the
 /etc/fstab file. This example includes a small program that use this
 model to show some ways to extract configuration informations.
 
+What is the status of the project ?
+-----------------------------------
+
+Beta for most of the code, Alpha for the Terminal interface (TermUI.pm)
+
+Help is welcome on:
+- graphical user interface
+- configuration model creation (if you have a configuration itch to
+  scratch, you're welcome)
+
+If you want to help ?
+---------------------
+
+Send me a mail at domi@komarr.grenoble.hp.com 
+
 Where can I get more doc ?
 --------------------------
 
@@ -112,7 +132,7 @@ On sourceforge:
 What's the licence ?
 ------------------
 
-    Copyright (c) 2005 Dominique Dumont.
+    Copyright (c) 2005-2006 Dominique Dumont.
 
     This file is part of Config-Model.
 
@@ -134,7 +154,7 @@ What's the licence ?
 ---------------------------------------------------------------------
 INSTALLATION
 
-   	 gunzip -c <dist_file>.tar.gz | tar xvf -
+   	 tar zxvf <dist_file>.tar.gz 
    	 cd <dist_directory>
    	 perl Makefile.PL
    	 make test          
