@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-06-15 12:00:52 $
+# $Date: 2006-07-19 11:56:05 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.5 $
+# $Revision: 1.6 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -29,6 +29,7 @@ use Config::Model::Exception;
 use Config::Model::Loader;
 use Config::Model::Dumper;
 use Config::Model::Report;
+use Config::Model::Describe;
 # use Log::Log4perl ;
 use UNIVERSAL;
 use Scalar::Util qw/weaken/;
@@ -39,7 +40,7 @@ use base qw/Config::Model::AutoRead/;
 use vars qw($VERSION $AUTOLOAD @status @level
 @permission_list %permission_index );
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/;
 
 *status           = *Config::Model::status ;
 *level            = *Config::Model::level ;
@@ -616,6 +617,20 @@ sub name {
     return $self->location($self) || $self->{config_class_name};
 }
 
+=head2 get_type
+
+Returns C<node>.
+
+=cut
+
+sub get_type {
+    return 'node' ;
+}
+
+sub get_cargo_type {
+    return 'node' ;
+}
+
 =head2 config_model
 
 Returns the B<entire> configuration model.
@@ -709,11 +724,33 @@ See L<Config::Model::AnyThing/"location()">
 
 =head1 Element property management
 
-=head2 get_element_name ( for => <permission>  )
+=head2 get_element_name ( for => <permission>, ...  )
 
 Return all elements names available for C<permission>.
 If no permission is specified, will return all
 slots available at 'master' level (I.e all elements).
+
+Optional paremeters are:
+
+=over
+
+=item *
+
+B<type>: Returns only element of requested type (e.g. C<list>,
+C<hash>, C<leaf>,...). By default return elements of any type.
+
+=item *
+
+B<cargo_type>: Returns only element which contain requested type.
+ E.g. if C<get_element_name> is called with C<< cargo_type => leaf >>,
+ C<get_element_name> will return simple leaf elements, but also hash
+ or list element that contain L<leaf|Config::Model::Value> object. By
+ default return elements of any type.
+
+
+
+
+=back
 
 Returns an array in array context, and a string 
 (e.g. C<join(' ',@array)>) in scalar context.
@@ -724,7 +761,9 @@ sub get_element_name {
     my $self      = shift;
     my %args = @_ ;
 
-    my $for = $args{for} || 'master' ;
+    my $for  = $args{for} || 'master' ;
+    my $type = $args{type} ; # optional
+    my $cargo_type = $args{cargo_type} ; # optional
 
     croak "get_element_name: wrong 'for' parameter. Expected ", 
       join (' or ', @permission_list) 
@@ -746,7 +785,14 @@ sub get_element_name {
 
 	next if $info->{level}{$elt} eq 'hidden' ;
 	my $elt_idx =  $permission_index{$info->{permission}{$elt}} ;
-	push @result, $elt if $for_idx >= $elt_idx ;
+	my $elt_type =  $self->{element}{$elt}->get_type ;
+	my $elt_cargo = $self->{element}{$elt}->get_cargo_type ;
+	if ($for_idx >= $elt_idx 
+	    and (not defined $type       or $type       eq $elt_type)
+	    and (not defined $cargo_type or $cargo_type eq $elt_cargo)
+	   ) {
+	    push @result, $elt ;
+	}
     }
 
     print "get_element_name: got @result for level $for\n"
@@ -1099,6 +1145,19 @@ sub dump_tree {
     $dumper->dump_tree(node => $self, @_) ;
 }
 
+=head2 describe ()
+
+Provides a decription of the node elements.
+
+=cut
+
+sub describe {
+    my $self = shift ;
+
+    my $descriptor = Config::Model::Describe->new ;
+    $descriptor->describe(node => $self) ;
+}
+
 =head2 report ()
 
 Provides a text report on the content of the configuration below this
@@ -1174,7 +1233,6 @@ sub get_help {
     $help =~ s/[\s\n]+/ /g;
     return $help;
 }
-
 
 1;
 
