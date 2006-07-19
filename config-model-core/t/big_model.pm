@@ -1,22 +1,21 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-05-17 12:03:39 $
+# $Date: 2006-07-19 12:23:17 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.7 $
+# $Revision: 1.8 $
 
 # this file is used by test script
 
-$model->create_config_class 
-  (
+[
+  [
    name => 'SubSlave2',
    element => [
 	       [qw/aa2 ab2 ac2 ad2 Z/] =>
 	       { type => 'leaf', value_type => 'string' }
 	      ]
-  );
+  ],
 
-$model->create_config_class 
-  (
+  [
    name => 'SubSlave',
    element => [
 	       [qw/aa ab ac ad/] => 
@@ -25,11 +24,10 @@ $model->create_config_class
 			      config_class_name => 'SubSlave2',
 			    }
 	      ]
-  );
+  ],
 
 # rather dummy class to check inheritance
-$model->create_config_class
-  (
+  [
    name => 'X_base_class2',
    element => [
 	       X => { type => 'leaf',
@@ -37,17 +35,15 @@ $model->create_config_class
 		      choice     => [qw/Av Bv Cv/]
 		    },
 	      ],
-  ) ;
+  ],
 
-$model->create_config_class
-  (
+  [
    name => 'X_base_class',
    inherit => 'X_base_class2',
-  ) ;
+  ],
 
 
-$model->create_config_class 
-  (
+  [
    name => 'SlaveZ',
    element => [
 	       [qw/Z/] => { type => 'leaf',
@@ -61,10 +57,9 @@ $model->create_config_class
 			   },
 	      ],
    inherit => 'X_base_class',
-  );
+  ],
 
-$model->create_config_class 
-  (
+  [
    name => 'SlaveY',
    element => [
 	       std_id => {
@@ -82,11 +77,10 @@ $model->create_config_class
 		    },
 	      ],
    inherit => [ 'X_base_class', 'element' ],
-  );
+  ],
 
 
-$model->create_config_class 
-  (
+  [
    name => 'Master',
    permission => [ [qw/tree_macro warp/] => 'advanced'] ,
    class_description => "Master description",
@@ -101,7 +95,7 @@ $model->create_config_class
 				      collected_type => 'leaf',
 				      element_args => {value_type => 'string'},
 				    },
-	       hash_a => { type => 'hash',
+	       [qw/hash_a hash_b/] => { type => 'hash',
 			  index_type => 'string',
 			  collected_type => 'leaf',
 			  element_args => {value_type => 'string'},
@@ -140,6 +134,8 @@ $model->create_config_class
 			  max        => 15
 			}
 	      ]
-  );
+  ],
+]
+;
 
-1;
+# do not put 1; at the end or Model-> load will not work
