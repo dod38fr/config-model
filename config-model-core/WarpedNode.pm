@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-05-18 11:40:41 $
+# $Date: 2006-07-19 10:31:44 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.4 $
+# $Revision: 1.5 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -32,7 +32,7 @@ use Config::Model::Exception ;
 use Data::Dumper ;
 
 use vars qw($VERSION $AUTOLOAD) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -208,7 +208,8 @@ sub name {
 # Forward selected methods (See man perltootc)
 foreach my $method (qw/fetch_element config_class_name get_element_name
                        has_element is_element_available element_type load
-		       fetch_element_value /
+		       fetch_element_value get_type get_cargo_type 
+                       describe/
 		   ) {
     # to register new methods in package
     no strict "refs"; 
