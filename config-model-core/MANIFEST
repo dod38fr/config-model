@@ -5,7 +5,7 @@ AutoRead.pm
 ChangeLog
 Describe.pm
 Dumper.pm
-examples/fstab/FstabModel.pl
+examples/fstab/Fstab.pl
 examples/fstab/fstab_test.pl
 examples/fstab/fstab.sample
 examples/fstab/README
