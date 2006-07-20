@@ -1,3 +1,43 @@
+2006-07-20  Dominique Dumont  <domi@komarr.grenoble.hp.com> v0.601
+
+	* config-model: new program. This programs can be invoked to
+	modify configuration files (provided the corresponding model is
+	available in /etc/config-model.d). (Still shaky. Don't run as
+	root)
+
+2006-07-19  Dominique Dumont  <domi@komarr.grenoble.hp.com>
+
+	* Node.pm (get_type): new method
+	(get_cargo_type): new method
+	(get_element_name): added type and cargo_type parameters to filter
+	returned element depending on their type or cargo (contained) type
+	(describe): new method. Uses new Describe.pm file
+
+	* Value.pm (get_type): new method
+	(get_cargo_type): new method
+
+2006-07-18  Dominique Dumont  <domi@komarr.grenoble.hp.com>
+
+	* Model.pm (load): new method. Model can load model declaration
+	from /etc/config-model.d. The model must be valid perl script that
+	ends with an array ref containing configuraiton class declaration
+	like the one accepted by create_config_class
+
+	* ListId.pm (get_type): new method
+
+	* HashId.pm (get_type): new method
+
+	* Exception.pm : Added WrongType exception for new grab parameters
+
+	* AnyThing.pm (get_type): New method
+	(grab): added strict, autoadd, type parameter.
+
+	* AnyId.pm (get_cargo_type): new method.
+	(config_class_name): new mehtod
+
+	* Describe.pm: New file. Provides a human readable description of
+	a configuration node.
+
 2006-06-15  Dominique Dumont  <domi@komarr.grenoble.hp.com> v0.507
 
 	* TermUI.pm: New file. Provides a shell like interactive user
