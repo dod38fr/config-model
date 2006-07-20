@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-06-26 12:04:06 $
+# $Date: 2006-07-20 11:53:25 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -33,19 +33,27 @@
 # - by line
 
 # Sorting by device is not possible since we can mount one device
-# under several mount points. Sorting by mount point is difficeult
+# under several mount points. Sorting by mount point is difficult
 # since all swap devices have a 'none' mount point.
-# So I've decided not to sort at all and store the fstab information
-# one by one in a collection. Hence the 'list' type of 'line' element.
+# So I've decided to use a label for fstab entries. This label
+# will be constructed by the parser, but it cannot be stored
+# in the fstab file. Hopefully, this will be easier to use 
+# than a simple list.
 
 [
   [
    name => "Fstab",
-   element => [ line => { type => 'list' ,
+   element => [ fs   => { type => 'hash' ,
+			  index_type => 'string',
 			  collected_type => 'node',
 			  config_class_name => 'FsLine'
 			}
-	      ]
+	      ],
+   class_description => 'static information about the filesystems',
+   'description' 
+   => [ fs => 'Each "fs" element contain the information about one filesystem. Each filesystem is referred in this model by a label constructed by the fstab parser. This label cannot be stored in the fstab file, so if you create a new file system, the label you will choose may not be stored and will be re-created by the fstab parser' ],
+   # of course this could change if the information is stored outside
+   # of /etc/fstab
   ],
 
   [
