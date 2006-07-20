@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-05-19 12:35:21 $
+# $Date: 2006-07-20 11:55:39 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -40,12 +40,10 @@ GetOptions ("use_sample" => \$use_sample);
 
 my $fstab_file = $use_sample ? 'fstab.sample' : '/etc/fstab' ;
 
-$model = Config::Model -> new ;
-
-do "FstabModel.pl" || die "compile error: $@";
+$model = Config::Model -> new(model_dir => '.') ;
 
 my $instance = $model -> instance( root_class_name => 'Fstab',
-				   instance_name => 'test'
+				   instance_name => 'test',
 				 ) ;
 
 my $root= $instance -> config_root ;
@@ -59,7 +57,7 @@ If this program fails to read your /etc/fstab, please re-run it with
 ";
 
 sub stop {
-    print "Hit any key to continue\n";
+    print "Hit <return> to continue\n";
     my $read = <STDIN> ;
 }
 
@@ -75,19 +73,21 @@ my %opt_r_translate
      minixdf => 'statfs_behavior=minixdf',
     ) ;
 
-my $nb = 0;
 while (<FSTAB>) {
     s/#.*//;
     next if /^\s*$/;
     my ($device,$mount_point,$type,$options, $dump, $pass) = split;
 
-    my $line_obj 
-      = $root->fetch_element('line')->fetch_with_id($nb++) ;
+    my ($dev_name) = ($device =~ /(\w+)$/) ;
+    my $label = $type eq 'swap' ? "swap-on-$dev_name" : $mount_point; 
+
+    my $fs_obj 
+      = $root->fetch_element('fs')->fetch_with_id($label) ;
 
     my $load_line = "fs_vfstype=$type fs_spec=$device fs_file=$mount_point "
       ."fs_freq=$dump fs_passno=$pass" ;
     #print "loading with '$load_line'\n";
-    $line_obj->load($load_line) ;
+    $fs_obj->load($load_line) ;
 
     # now load options
     #print "fs_type $type options is $options\n";
@@ -98,10 +98,11 @@ while (<FSTAB>) {
 	$_ .= '=1' unless /=/ ;
     } @options ;
     #print "load @options\n";
-    $line_obj->fetch_element('fs_mntopts')->load (\@options) ;
+    $fs_obj->fetch_element('fs_mntopts')->load (\@options) ;
 }
 
 print "
+ok. I could read $fstab_file.
 
 The second part of this program will produce a report that shows the
 settings contained in $fstab_file and shows the on-line help provided
@@ -138,15 +139,17 @@ sub produce_fstab {
       );
 
     my @new_fstab ;
-    foreach my $line_obj ($root->fetch_element('line')->fetch_all) {
-	my $opt_container = $line_obj->fetch_element('fs_mntopts');
-	my $fs_type = $line_obj->fetch_element_value('fs_vfstype');
+    foreach my $fs_obj ($root->fetch_element('fs')->fetch_all) {
+	my $opt_container = $fs_obj->fetch_element('fs_mntopts');
+	my $fs_type = $fs_obj->fetch_element_value('fs_vfstype');
 
 	if ($with_help) {
-	    my $line_help = $line_obj->fetch_element('fs_vfstype')
+	    my $fs_help = $fs_obj->fetch_element('fs_vfstype')
 	      ->get_help($fs_type);
-	    push @new_fstab, wrap("# '$fs_type' file system: ",
-				  '#    ', $line_help) if $line_help;
+	    push @new_fstab, 
+	      "# fs label: ".$fs_obj->index_value ,
+	      wrap("# '$fs_type' file system: ",
+		   '#    ', $fs_help) if $fs_help;
 	}
 
 	my @opt_arg;
@@ -177,12 +180,12 @@ sub produce_fstab {
 	}
 
 	push @new_fstab, sprintf("%-10s %-20s %-15s %-15s %d %d",
-				 $line_obj->fetch_element_value('fs_spec'),
-				 $line_obj->fetch_element_value('fs_file'),
+				 $fs_obj->fetch_element_value('fs_spec'),
+				 $fs_obj->fetch_element_value('fs_file'),
 				 $fs_type ,
 				 join(',',@opt_arg),
-				 $line_obj->fetch_element_value('fs_freq'),
-				 $line_obj->fetch_element_value('fs_passno'),
+				 $fs_obj->fetch_element_value('fs_freq'),
+				 $fs_obj->fetch_element_value('fs_passno'),
 				) ;
 	push @new_fstab, "" if $with_help ;
     }
@@ -204,3 +207,30 @@ model.
 stop ;
 
 print join ("\n",produce_fstab(1)),"\n";
+
+print "
+
+Now we can enter in an interactive shell to explore or modify
+the fstab data (do not fear to play in the shell, the modified data 
+will not be written).
+
+Exit the shell by typing CTRL-D. 
+
+The first command you might to type is 'help' (or hit TAB twice
+to get the list of available commands)
+
+" ;
+
+stop ;
+
+require Config::Model::TermUI;
+my $term_ui = Config::Model::TermUI
+  -> new( root => $root ,
+	  title => $fstab_file.' configuration',
+	  prompt => ' >',
+	);
+
+# engage in user interaction
+$term_ui -> run_loop ;
+
+print "\n\n$0 done\n";
