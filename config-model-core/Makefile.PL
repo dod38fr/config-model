@@ -1,9 +1,9 @@
 # $Author: ddumont $
-# $Date: 2006-06-15 11:58:36 $
+# $Date: 2006-07-20 12:23:17 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.6 $
+# $Revision: 1.7 $
 
-#    Copyright (c) 2005 Dominique Dumont.
+#    Copyright (c) 2005-2006 Dominique Dumont.
 #
 #    This file is part of Config-Model.
 #
@@ -49,6 +49,7 @@ WriteMakefile
    dist         => {COMPRESS=>'gzip -9f', SUFFIX => 'gz'},
    PM           => \%PM ,
    MAN3PODS     => \%M3,
+   'EXE_FILES' => ['config-model'],
    ABSTRACT     => 'Configuration model for semantic validation of data',
    AUTHOR       => 'Dominique Dumont (domi@komarr.grenoble.hp.com)',
    PREREQ_PM    => {
