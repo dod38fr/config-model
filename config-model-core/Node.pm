@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-07-19 11:56:05 $
+# $Date: 2006-09-07 11:46:28 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.6 $
+# $Revision: 1.7 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -40,7 +40,7 @@ use base qw/Config::Model::AutoRead/;
 use vars qw($VERSION $AUTOLOAD @status @level
 @permission_list %permission_index );
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/;
 
 *status           = *Config::Model::status ;
 *level            = *Config::Model::level ;
@@ -226,6 +226,14 @@ sub create_element {
 
     Config::Model::Exception::Model->throw
         (
+         error=> "element '$element_name' error: "
+	       . "passed information is not a hash ref",
+         object => $self
+        ) 
+	  unless ref($element_info) eq 'HASH' ;
+
+    Config::Model::Exception::Model->throw
+        (
          error=> "create element '$element_name' error: "
 	         . "missing 'type' parameter",
          object => $self
@@ -248,7 +256,8 @@ sub create_element {
 =item C<node>
 
 The element is a simple node of a tree instanciated from a 
-configuration class (declared with L</"create_config_class( ... )">). 
+configuration class (declared with 
+L<Config::Model/"create_config_class( ... )">). 
 See L</"Node element">.
 
 =cut
@@ -416,11 +425,12 @@ You can also change the default values of several leaves:
   init_step => [ 'bar' => 'Av', 'foo X' => 'Bv'  ]
 
 In fact, the target of C<init_step> (C<bar>) is retrieved by the
-L</grab> method, so any string accepted by L</grab> can be used with
+L</grab(...)> method, so any string accepted by C<grab> can be used with
 C<init_step>.
 
 The I<effects> of C<init_step> are applied on the target through a
-call to the L</set> method.
+call to the L<< load|/load ( step => string [, permission => ... ] ) >> 
+method.
 
 The effect can be:
 
@@ -505,11 +515,22 @@ C<value_type> parameter. See L<Config::Model::Value> for more details.
 
 =head2 Hash element
 
-(with C<collected_type> set to
-C<node>) or values (default).  When declaring a C<hash> element, you
-must also provide a C<index_type> parameter. See
-L<Config::Model::HashId> and L<Config::Model::AnyId> for more details.
+When declaring a C<hash> element, you must also provide a
+C<index_type> parameter.
 
+You can also provide a C<collected_type> parameter set to C<node> or
+C<leaf> (default).
+
+See L<Config::Model::HashId> and L<Config::Model::AnyId> for more
+details.
+
+=head2 List element
+
+You can also provide a C<collected_type> parameter set to C<node> or
+C<leaf> (default).
+
+See L<Config::Model::ListId> and L<Config::Model::AnyId> for more
+details.
 
 =cut
 
