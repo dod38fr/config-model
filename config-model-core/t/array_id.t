@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-02-23 13:43:30 $
+# $Date: 2006-09-07 11:50:06 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 
 use warnings FATAL => qw(all);
 
@@ -10,7 +10,7 @@ use ExtUtils::testlib;
 use Test::More;
 use Config::Model;
 
-BEGIN { plan tests => 11; }
+BEGIN { plan tests => 14; }
 
 use strict;
 
@@ -68,3 +68,7 @@ is($b->fetch_with_id(1)->fetch, undef,"check deleted id") ;
 is($b->index_type,'integer','check list index_type') ;
 is($b->max,123,'check list max boundary') ;
 
+$b->push('toto','titi') ;
+is($b->fetch_with_id(2)->fetch, 'bar', "check last item of table") ;
+is($b->fetch_with_id(3)->fetch, 'toto',"check pushed item") ;
+is($b->fetch_with_id(4)->fetch, 'titi',"check pushed item") ;
