@@ -24,6 +24,7 @@ use warnings ;
 
 use Config::Model;
 use Getopt::Long ;
+use Pod::Usage ;
 
 # lame tracing that should be replaced by Log4perl
 use vars qw/$verbose $debug/ ;
@@ -31,7 +32,7 @@ use vars qw/$verbose $debug/ ;
 $verbose = 0;
 $debug = 0;
 
-my $ui_type = 'term';
+my $ui_type = 'shell';
 my $model_dir = '/etc/config-model.d/' ;
 my $root_model ;
 my $trace = 0 ;
@@ -95,13 +96,22 @@ Provides a full stack trace when exiting on error.
 
 =cut
 
+my $man = 0;
+my $help = 0;
+
 my $result = GetOptions ("if=s"         => \$ui_type,
 			 "model_dir=s"  => \$model_dir,
 			 "root_model=s" => \$root_model,
 			 "verbose!"     => \$verbose,
 			 "debug!"       => \$debug,
 			 "trace!"       => \$trace,
+			 "man!"         => \$man,
+			 "help!"        => \$help
 			);
+
+pod2usage(2) if not $result ;
+pod2usage(1) if $help;
+pod2usage(-verbose => 2) if $man;
 
 Config::Model::Exception::Any->Trace(1) if $trace ;
 
