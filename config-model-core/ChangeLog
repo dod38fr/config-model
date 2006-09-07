@@ -1,3 +1,19 @@
+2006-09-07  Dominique Dumont  <domi@komarr.grenoble.hp.com> v0.602
+
+	* config-model: added -help and -man options to command line
+
+	* Model.pm (load): model file now must return an array ref and not
+	invoke Model methods. See t/big_model.pm for an example
+	(load): can load model file for model class that contain '::'. In
+	this case the model file is searched in a sub-directory just like
+	a perl class (E.g Model::Foo -> Model/Foo.pm)
+
+	* HashId.pm (create_default): can initialise children nodes while
+	creating default keys. (Necessary to be able to write a
+	configuration model for Xorg)
+
+	* AnyId.pm (move): new method
+
 2006-07-20  Dominique Dumont  <domi@komarr.grenoble.hp.com> v0.601
 
 	* config-model: new program. This programs can be invoked to
