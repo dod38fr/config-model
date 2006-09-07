@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-07-18 16:22:41 $
+# $Date: 2006-09-07 11:42:06 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -31,7 +31,7 @@ use strict;
 use base qw/Config::Model::AnyId/ ;
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -184,12 +184,18 @@ sub _clear {
     $self->{data} = [] ;
 }
 
+=head2 push( value )
+
+push some value at the end of the list.
+
+=cut
+
 # list only methods
 sub push {
     my $self = shift ;
     my $idx   = scalar @{$self->{data}};
 
-    $self->store($idx++, shift) while (@_);
+    map { $self->fetch_with_id( $idx++ )->store( $_ ) ; } @_ ;
 }
 
 1;
