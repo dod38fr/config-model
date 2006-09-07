@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-06-15 11:55:21 $
+# $Date: 2006-09-07 11:38:55 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -31,7 +31,7 @@ use UNIVERSAL ;
 
 use base qw/Config::Model::AnyThing/ ;
 
-our $VERSION = sprintf "%d.%03d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/;
+our $VERSION = sprintf "%d.%03d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -173,7 +173,7 @@ sub auto_read_init {
 	my $c = my $file = $read->{class} ;
 	$file =~ s!::!/!g;
 	my $f = $read->{function} ;
-	require $file unless $c->can($f);
+	require $file.'.pm' unless $c->can($f);
 	no strict 'refs';
 	last if &{$c.'::'.$f}(conf_dir => $r_dir, object => $self) ;
     }
