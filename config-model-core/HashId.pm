@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-07-18 16:21:20 $
+# $Date: 2006-09-07 11:40:04 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.4 $
+# $Revision: 1.5 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -31,7 +31,7 @@ use strict;
 use base qw/Config::Model::AnyId/ ;
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -187,8 +187,19 @@ sub create_default {
     return if @temp ;
 
     # hash is empty so create empty element for default keys
-    my $def= $self->{default} ;
-    map {$self->{data}{$_} = undef } (ref $def ? @$def : ($def)) ;
+    my $def = $self->{default} ;
+
+    if (ref $def eq 'HASH') {
+	foreach my $def_key (keys %$def) {
+	    $self->fetch_with_id($def_key)->load($def->{$def_key}) ;
+	}
+    }
+    elsif (ref $def eq 'ARRAY') {
+	map {$self->{data}{$_} = undef } @$def ;
+    }
+    else {
+	$self->{data}{$def} = undef ;
+    }
 }
 
 sub _delete {
