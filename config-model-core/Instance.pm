@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-07-18 16:21:47 $
+# $Date: 2006-09-07 11:40:40 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.5 $
+# $Revision: 1.6 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -36,7 +36,7 @@ use warnings::register ;
 
 use vars qw/$VERSION/ ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/;
 
 use Carp qw/croak confess cluck/;
 
@@ -370,8 +370,6 @@ sub write_back {
     my $self = shift ;
     map { &$_ } @{$self->{write_back}} ;
 }
-
-=end comment
 
 =cut
 
