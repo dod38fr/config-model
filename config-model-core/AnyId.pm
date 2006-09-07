@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-07-18 12:09:56 $
+# $Date: 2006-09-07 11:38:10 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.5 $
+# $Revision: 1.6 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -29,7 +29,7 @@ use Carp;
 use strict;
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/;
 
 use base qw/Config::Model::WarpedThing/;
 
@@ -68,6 +68,12 @@ Config::Model::AnyId - Base class for hash or list element
             collected_type => 'leaf',
             element_args => {value_type => 'string'},
           },
+      hash_of_nodes 
+      => { type => 'hash',                 # hash id
+           index_type  => 'integer',
+           collected_type => 'node',
+           config_class_name => 'Foo' ,
+         },
       ]
   ) ;
 
@@ -124,6 +130,11 @@ C<collected_type> (See </"CAVEATS">).
 
 Either C<integer> or C<string>. Mandatory for hash.
 
+=item collected_type
+
+Specifies the type of cargo held by the hash of list. Can be C<node> or
+C<value> (default).
+
 =item min
 
 Specify the minimum value (optional, only for hash and for integer index)
@@ -143,7 +154,13 @@ When set, the default parameter (or set of parameters) are used as
 default keys hashes and created automatically when the keys or exists
 functions are used on an I<empty> hash.
 
-Called with C<< default => 'foo' >>, or C<< default => ['foo', 'bar'] >>.
+You can use C<< default => 'foo' >>, or C<< default => ['foo', 'bar'] >>.
+
+To perform special set-up on children nodes you can also use 
+
+   default =>  { 'foo' => 'X=Av Y=Bv'  ,
+		 'bar' => 'Y=Av Z=Cv' }
+
 
 =item auto_create
 
@@ -555,6 +572,35 @@ sub fetch_with_id {
     return undef ;
 }
 
+=head2 move ( from_index, to_index )
+
+Move an element within the hash or list.
+
+=cut
+
+sub move {
+    my ($self,$from, $to) = @_ ;
+
+    my $moved = $self->fetch_with_id($from) ;
+    $self->_delete($from);
+
+    my $ok = $self->check($to) ;
+    if ($ok) {
+	$self->_store($to, $moved) ;
+    }
+    else {
+	# restore moved item where it came from
+	$self->_store($from, $moved) ;
+	if ($self->instance->get_value_check('fetch')) {
+	    Config::Model::Exception::WrongValue 
+		-> throw (
+			  error => join("\n\t",@{$self->{error}}),
+			  object => $self
+			 ) ;
+	}
+    }
+}
+
 =head2 fetch_all()
 
 Returns an array containing all elements held by the hash or list.
@@ -765,7 +811,7 @@ Dominique Dumont, domi@komarr.grenoble.hp.com
 
 =head1 SEE ALSO
 
-L<Config::Model::Model>,
+L<Config::Model>,
 L<Config::Model::Instance>,
 L<Config::Model::HashId>,
 L<Config::Model::ListId>,
