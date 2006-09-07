@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-07-19 11:56:42 $
+# $Date: 2006-09-07 11:45:55 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.18 $
+# $Revision: 1.19 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -435,8 +435,11 @@ sub check_class_parameters {
     }
 
     # get data read/write information (if any)
+    $model->{read_config_dir} = $model->{write_config_dir}
+      = delete $raw_model->{config_dir} ;
     foreach my $rw_info (qw/read_config  read_config_dir 
                             write_config write_config_dir/) {
+	next unless defined $raw_model->{$rw_info} ;
 	$model->{$rw_info} = delete $raw_model->{$rw_info} ;
     }
 
@@ -559,15 +562,29 @@ class declaration.
 
 You can also load pre-declared model.
 
-=head2 load(dir => ...)
+=head2 load( <model_name> )
 
-This method will open the specified directory and execute all C<.pl>
-files found in this directory.
+This method will open the model directory and execute a C<.pl>
+file containing the model declaration,
 
-This perl files must use the global variable C<$model> to declare
-models. E.g.:
+This perl file must return an array ref to declare models. E.g.:
 
- $model ->create_config_class ( ... ) ;
+ [
+  [
+   name => 'Class_1',
+   element => [ ... ]
+  ],
+  [
+   name => 'Class_2',
+   element => [ ... ]
+  ]
+ ]; 
+
+do not put C<1;> at the end or C<load> will not work
+
+If a model name contain a C<::> (e.g C<Foo::Bar>), C<load> will look for
+a file named C<Foo/Bar.pl>.
+
 
 =cut
 
@@ -577,7 +594,9 @@ sub load {
     my $load_model = shift ;
     my $load_file = shift ;
 
-    $load_file ||= $self->{model_dir} . '/' . $load_model . '.pl' ;
+    my $load_path = $load_model . '.pl' ;
+    $load_path =~ s/::/\//g;
+    $load_file ||= $self->{model_dir} . '/' . $load_path ;
 
     croak "Model load: Unknown model $load_model (missing file $load_file)\n"
       unless -e $load_file ;
