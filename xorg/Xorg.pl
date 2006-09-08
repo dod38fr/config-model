@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-09-07 12:11:05 $
+# $Date: 2006-09-08 12:16:52 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1.1.1 $
+# $Revision: 1.2 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -48,6 +48,14 @@
  		    config_class_name => 'Xorg::Module',
 		   },
 
+       # From InputDevice section
+       [qw/CorePointer CoreKeyboard/]
+       => { type => 'leaf',
+	    value_type => 'string',
+	    mandatory => 1,
+	    refer_to => '! InputDevice',
+	  },
+
        'InputDevice' 
        => {
 	   type => 'hash',
@@ -77,6 +85,8 @@
        Files          => 'File pathnames',
        ServerFlags    => 'Server flags',
        Module         => 'Dynamic module loading',
+       CorePointer    => 'name of the core (primary) pointer device',
+       CoreKeyboard   => 'name of the core (primary) keyboard device',
        InputDevice    => 'Input device(s) description',
        Device         => 'Graphics device description',
        VideoAdaptor   => 'Xv video adaptor description',
