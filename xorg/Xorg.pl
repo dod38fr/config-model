@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-09-08 12:16:52 $
+# $Date: 2006-09-11 11:57:24 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -68,9 +68,23 @@
 
 	  },
 
-#        ServerLayout   Overall layout
+       'MultiHead' => => { type => 'leaf',
+			   value_type => 'boolean',
+			   default => 0,
+			 },
 
 #        Device         Graphics device description
+       'Device' 
+       => {
+	   type => 'hash',
+	   index_type => 'string' , # Identifier field in xorg.conf
+	   collected_type => 'node',
+	   config_class_name => 'Xorg::Device',
+	  },
+
+
+#        ServerLayout   Overall layout
+
 #        VideoAdaptor   Xv video adaptor description
 #        Monitor        Monitor description
 #        Modes          Video modes descriptions
@@ -79,6 +93,7 @@
 #        Vendor         Vendor-specific configuration
       ],
 
+   level => [ [qw/MultiHead/] => 'important' ],
        
    'description' 
    => [
@@ -88,6 +103,7 @@
        CorePointer    => 'name of the core (primary) pointer device',
        CoreKeyboard   => 'name of the core (primary) keyboard device',
        InputDevice    => 'Input device(s) description',
+       MultiHead      => 'Set this to one if you plan to use more than 1 display",
        Device         => 'Graphics device description',
        VideoAdaptor   => 'Xv video adaptor description',
        Monitor        => 'Monitor description',
