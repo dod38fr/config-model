@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-09-11 11:57:24 $
+# $Date: 2006-09-21 11:19:47 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -103,7 +103,7 @@
        CorePointer    => 'name of the core (primary) pointer device',
        CoreKeyboard   => 'name of the core (primary) keyboard device',
        InputDevice    => 'Input device(s) description',
-       MultiHead      => 'Set this to one if you plan to use more than 1 display",
+       MultiHead      => 'Set this to one if you plan to use more than 1 display',
        Device         => 'Graphics device description',
        VideoAdaptor   => 'Xv video adaptor description',
        Monitor        => 'Monitor description',
