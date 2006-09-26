@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-09-07 11:38:10 $
+# $Date: 2006-09-26 11:44:46 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.6 $
+# $Revision: 1.7 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -29,7 +29,7 @@ use Carp;
 use strict;
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/;
 
 use base qw/Config::Model::WarpedThing/;
 
@@ -587,6 +587,7 @@ sub move {
     my $ok = $self->check($to) ;
     if ($ok) {
 	$self->_store($to, $moved) ;
+	$moved->index_value($to) ;
     }
     else {
 	# restore moved item where it came from
