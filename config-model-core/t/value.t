@@ -1,23 +1,23 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-05-17 12:05:57 $
+# $Date: 2006-09-26 11:54:58 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
-use Test::More;
+use Test::More tests => 76 ;
 use Config::Model ;
 use Config::Model::Value;
 
-BEGIN { plan tests => 74; }
-
 use strict;
 
-my $trace = shift || 0;
+my $arg = shift || '';
 
-$::verbose = 1 if $trace > 2;
-$::debug   = 1 if $trace > 3;
+my $trace = $arg =~ /t/ ? 1 : 0 ;
+$::verbose          = 1 if $arg =~ /v/;
+$::debug            = 1 if $arg =~ /d/;
+Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 
 ok(1,"Compilation done");
 
@@ -85,6 +85,10 @@ $model ->create_config_class
 				value_type => 'string',
 				convert    => 'lc',
 			      },
+		built_in_default => { type => 'leaf',
+				      value_type => 'string',
+				      built_in    => 'bi_def',
+				    },
 	      ] , # dummy class
   ) ;
 
@@ -290,3 +294,9 @@ is( $value_with_help->get_help( 'a' ), 'a help',"enum help on one choice") ;
 is( $value_with_help->get_help('b'), undef ,"test undef help");
 
 
+print "Testing built_in default value\n" if $trace ;
+
+my $bi_def = $root->fetch_element('built_in_default');
+
+is( $bi_def->fetch, undef,"built_in actual value" );
+is( $bi_def->fetch_standard,'bi_def' ,"built_in actual value" );
