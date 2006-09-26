@@ -1,7 +1,7 @@
 # -*- cperl -*-
-# $Date: 2006-02-06 12:34:35 $
+# $Date: 2006-09-26 11:54:25 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 use warnings FATAL => qw(all);
 
@@ -9,7 +9,7 @@ use ExtUtils::testlib;
 use Test::More;
 use Config::Model;
 
-BEGIN { plan tests => 19; }
+BEGIN { plan tests => 21; }
 
 use strict;
 
@@ -27,7 +27,8 @@ $model ->create_config_class
   ) ;
 
 my $inst = $model->instance (root_class_name => 'Master', 
-			     instance_name => 'test1');
+			     instance_name => 'test1',
+			    'directory'   => 'foobar' );
 ok($inst,"created dummy instance") ;
 
 isa_ok( $inst->config_root , 'Config::Model::Node',"test config root class" );
@@ -58,3 +59,5 @@ is( $inst->data('test'),undef,"test empty private data ..." );
 is( $inst->data( 'test', 'coucou' ), 'coucou', "store private data" );
 is( $inst->data( 'test'), 'coucou', "retrieve private data" );
 
+is( $inst->read_directory,  'foobar', "test read directory") ;
+is( $inst->write_directory, 'foobar', "test write directory") ;
