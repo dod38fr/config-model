@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-09-22 11:49:00 $
+# $Date: 2006-09-26 11:49:12 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.7 $
+# $Revision: 1.8 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -36,7 +36,7 @@ use warnings::register ;
 
 use vars qw/$VERSION/ ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.8 $ =~ /(\d+)\.(\d+)/;
 
 use Carp qw/croak confess cluck/;
 
@@ -65,9 +65,9 @@ an existing model:
  my $inst = $model->instance (root_class_name => 'SomeRootClass', 
                               instance_name => 'test1');
 
-Usually, the configuration directory is specified within the
-configuration model. For test purpose you can specify this
-directory where eny of these parameters :
+Usually, directory (or directories) holding configuration files is
+specified within the configuration model. For test purpose you can
+specify this directory with any of these parameters :
 
 =over
 
@@ -85,6 +85,8 @@ Where to read I<and> write configuration files
 
 =back
 
+Note that C<all> directory specified within the configuration model
+will be overridden.
 
 =cut
 
