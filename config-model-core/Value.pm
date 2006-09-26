@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-07-19 10:33:04 $
+# $Date: 2006-09-26 11:51:10 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.4 $
+# $Revision: 1.5 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -36,7 +36,7 @@ use base qw/Config::Model::WarpedThing/ ;
 
 use vars qw($VERSION) ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -82,6 +82,14 @@ the construction.
 
 =item *
 
+built-in default parameter: specifies the default value that is built
+in the application to be configured. This built-in default value will
+not written in the configuration files. Only the C<fetch_standard>
+method will return the built-in default value. This may be used for
+audit purpose.
+
+=item *
+
 mandatory value: reading a mandatory value will raise an exception if the
 value is not specified and has no default value.
 
@@ -120,26 +128,44 @@ C<string>. Mandatory. See L</"Value types">.
 
 Specify the default value (optional)
 
+=item built_in
+
+Specify a built in default value (optional)
+
 =cut
 
 # internal method
 sub set_default {
     my ($self,$arg_ref) = @_ ;
 
-    my $def  = delete $arg_ref->{default} ;
+    if (defined $arg_ref->{default} and defined $arg_ref->{built_in}) {
+	Config::Model::Exception::Model
+	    -> throw (
+		      object => $self,
+		      error => "Cannot specify both 'built_in' and "
+		      ."'default' parameters",
+		     ) 
+    }
 
-    if (defined $def) {
+    foreach my $item (qw/built_in default/) {
+	my $def    = delete $arg_ref->{$item} ;
+
+	next unless defined $def ;
+
 	# will check default value
 	my $ok = $self->check($def,0) ;
 	Config::Model::Exception::Model
 	    -> throw (
 		      object => $self,
-		      error => "Wrong default value\n\t".
+		      error => "Wrong $item value\n\t".
 		      join("\n\t",@{$self->{error}})
 		     ) 
 	      unless $ok ;
+
+	print "Set $item value for ",$self->name,"\n" if $::debug ;
+
+	$self->{$item} = $def ;
     }
-    $self->{default} = $def ;
 }
 
 =item compute
@@ -320,7 +346,7 @@ scalar with a hash ref. Example:
 =cut
 
 my @accessible_params =  qw/min max mandatory default value_type
-                             choice convert/ ;
+                             choice convert built_in/ ;
 
 my @allowed_warp_params = (@accessible_params, qw/level permission/);
 
@@ -387,7 +413,7 @@ sub set {
 
     # cleanup all parameters that are handled by warp
     map(delete $self->{$_}, 
-        qw/min max mandatory default value_type choice
+        qw/min max mandatory default built_in value_type choice
            allow_compute_override refer_to/) ;
 
     # merge data passed to the constructor with data passed to set
@@ -419,7 +445,8 @@ sub set {
     $self->set_refer_to   ( \%args ) if defined $args{refer_to};
     $self->set_properties ( \%args );
     $self->set_value_type ( \%args );
-    $self->set_default    ( \%args ) if exists  $args{default};
+    $self->set_default    ( \%args ) if (    exists $args{default} 
+					  or exists $args{built_in} );
     $self->set_compute    ( \%args ) if defined $args{compute};
     $self->set_convert    ( \%args ) if defined $args{convert};
 
@@ -1121,7 +1148,7 @@ identical to the default value or the computed value.
 
 sub fetch_custom {
     my $self = shift ;
-    my $std_value = $self->_pre_fetch ;
+    my $std_value = $self->fetch_standard ;
 
     no warnings "uninitialized" ;
     return ($self->{data} ne $std_value) ? $self->{data} : undef ;
@@ -1129,14 +1156,16 @@ sub fetch_custom {
 
 =head2 fetch_standard
 
-Returns the standard value as defined by the configuration model. It
-can be either a default value or a computed value.
+Returns the standard value as defined by the configuration model. The
+standard value can be either a computed value, a default value or a
+built-in default value.
 
 =cut
 
 sub fetch_standard {
     my $self = shift ;
-    return $self->_pre_fetch ;
+    my $pre_fetch = $self->_pre_fetch ;
+    return defined $pre_fetch ? $pre_fetch : $self->{built_in} ;
 }
 
 sub _init {
@@ -1194,8 +1223,6 @@ sub fetch {
     my $std_value = $self->_pre_fetch ;
 
     my $value = defined $self->{data} ? $self->{data} : $std_value ;
-
-    #print "FETCH: got $value with audit $value_audit\n" ;
 
     if (defined $value) {
         return $value if $self->check($value) ;
