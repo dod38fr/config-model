@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-09-07 11:38:55 $
+# $Date: 2006-09-26 11:48:32 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -31,7 +31,7 @@ use UNIVERSAL ;
 
 use base qw/Config::Model::AnyThing/ ;
 
-our $VERSION = sprintf "%d.%03d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/;
+our $VERSION = sprintf "%d.%03d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -162,8 +162,8 @@ sub auto_read_init {
 
     my $instance = $self->instance() ;
 
-    # override is permitted
-    $self->{r_dir} = $r_dir ||= $instance -> read_directory ; 
+    # overide is permitted
+    $self->{r_dir} = $instance -> read_directory ||$r_dir ; 
 
     foreach my $read (@$readlist) {
 	last if ($read eq 'xml' and $self->read_xml()) ;
@@ -175,7 +175,7 @@ sub auto_read_init {
 	my $f = $read->{function} ;
 	require $file.'.pm' unless $c->can($f);
 	no strict 'refs';
-	last if &{$c.'::'.$f}(conf_dir => $r_dir, object => $self) ;
+	last if &{$c.'::'.$f}(conf_dir => $self->{r_dir}, object => $self) ;
     }
 }
 
@@ -184,8 +184,8 @@ sub auto_write_init {
 
     my $instance = $self->instance() ;
 
-    # override is permitted
-    $self->{w_dir} = $w_dir ||= $instance -> write_directory ; 
+    # overide is permitted
+    $self->{w_dir} = $instance -> write_directory || $w_dir ; 
 
     # provide a proper write back function
     my @array = ref $wrlist ? @$wrlist : ($wrlist) ;
@@ -202,7 +202,7 @@ sub auto_write_init {
 	    $file =~ s!::!/!g;
 	    require $file ;
 	    my $f = $write->{function} ;
-	    $wb = sub { $c->$f(conf_dir => $w_dir, object => $self) ;} ;
+	    $wb = sub { $c->$f(conf_dir => $self->{w_dir}, object => $self) ;};
 	}
 
 	$instance->register_write_back($wb) ;
