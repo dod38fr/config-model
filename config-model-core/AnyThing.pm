@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-07-18 12:13:39 $
+# $Date: 2006-09-26 11:46:08 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.6 $
+# $Revision: 1.7 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -27,7 +27,7 @@ use Carp;
 use strict;
 
 use vars qw($VERSION);
-$VERSION = sprintf "%d.%03d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -63,12 +63,20 @@ is called on the root of the tree.
 
 =cut 
 
-foreach my $datum (qw/element_name index_value parent instance/) {
+foreach my $datum (qw/element_name parent instance/) {
     no strict "refs";       # to register new methods in package
     *$datum = sub {
-	my $self= shift;
+	my $self = shift;
 	return $self->{$datum};
     } ;
+}
+
+# index_value can be written to when move method is called. But let's
+# not advertise this feature.
+sub index_value {
+    my $self = shift;
+    $self->{index_value} = shift if @_;
+    return $self->{index_value} ;
 }
 
 =head2 get_type()
