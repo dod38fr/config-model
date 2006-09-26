@@ -1,13 +1,13 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-09-07 11:50:06 $
+# $Date: 2006-09-26 11:51:42 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.4 $
+# $Revision: 1.5 $
 
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
-use Test::More tests => 10 ;
+use Test::More tests => 12 ;
 use Config::Model ;
 use Data::Dumper ;
 
@@ -103,7 +103,13 @@ hash_with_default_and_init:def_2
   Z=Cv - -
 ', "check default items with children setup") ;
 
+is ($h_with_def->fetch_with_id('def_1')->index_value, 'def_1',
+   'check index_value prior to move') ;
+
 $h_with_def->move('def_1', 'moved_1') ;
+
+is ($h_with_def->fetch_with_id('moved_1')->index_value, 'moved_1',
+   'check index_value after move') ;
 
 $res = [$h_with_def->get_all_indexes] ;
 is_deeply($res , [qw/def_2 moved_1/], 'check moved items keys') ;
