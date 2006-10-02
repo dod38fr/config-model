@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-07-19 11:44:43 $
+# $Date: 2006-10-02 11:35:48 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.7 $
+# $Revision: 1.8 $
 
 #    Copyright (c) 2006 Dominique Dumont.
 #
@@ -28,7 +28,7 @@ use Carp;
 use warnings ;
 use UNIVERSAL qw( isa can );
 
-our $VERSION = sprintf "%d.%03d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/;
+our $VERSION = sprintf "%d.%03d", q$Revision: 1.8 $ =~ /(\d+)\.(\d+)/;
 
 use Carp qw/croak confess cluck/;
 
@@ -388,13 +388,13 @@ sub scan_hash {
 
     #print "scan_hash ",$parent->name," element $element key $key ";
     my $item = $parent -> fetch_element($element) ;
-    my $collected_type = $item->collected_type($element);
+    my $cargo_type = $item->cargo_type($element);
 
-    if ($collected_type =~ /node$/) {
+    if ($cargo_type =~ /node$/) {
         #print "type object or warped\n";
         $self->{node_cb}-> ($parent,$element,$key) ;
     }
-    elsif ($collected_type eq 'leaf') {
+    elsif ($cargo_type eq 'leaf') {
         my $obj = $item->fetch_with_id($key) ;
 	my $cb_name = $obj->value_type.'_value_cb' ;
 	my $cb = $self->{$cb_name};
@@ -403,7 +403,7 @@ sub scan_hash {
 	$cb-> ($parent,$element,$key,$obj);
     }
     else {
-	croak "Unexpected collected_type: $collected_type";
+	croak "Unexpected cargo_type: $cargo_type";
     }
 }
 

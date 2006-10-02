@@ -1,3 +1,22 @@
+2006-09-26  Dominique Dumont  <domi@komarr.grenoble.hp.com>
+
+	* Value.pm (set_default): added built_in default
+	parameter. Built_in default parameter are not written in
+	configuration files but can be used to audit configuration data.
+	
+	* AutoRead.pm (auto_read_init): bug fix: override of read_dir was
+	not taken into account
+	(auto_write_init): idem for write_dir
+
+2006-09-22  Dominique Dumont  <domi@komarr.grenoble.hp.com>
+
+	* Instance.pm: added doc for the possibility to specify where to
+	read or write the configuration files.
+
+2006-09-21  Dominique Dumont  <domi@komarr.grenoble.hp.com>
+
+	* AnyId.pm (move): also change index value of moved items.
+
 2006-09-07  Dominique Dumont  <domi@komarr.grenoble.hp.com> v0.602
 
 	* config-model: added -help and -man options to command line

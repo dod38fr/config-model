@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-07-19 12:23:17 $
+# $Date: 2006-10-02 11:35:48 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.8 $
+# $Revision: 1.9 $
 
 # this file is used by test script
 
@@ -65,7 +65,7 @@
 	       std_id => {
 			  type => 'hash',
 			  index_type  => 'string',
-			  collected_type => 'node',
+			  cargo_type => 'node',
 			  config_class_name => 'SlaveZ' ,
 			 },
 	       sub_slave => { type => 'node' ,
@@ -88,20 +88,20 @@
    element => [
 	       std_id => { type => 'hash',
 			   index_type  => 'string',
-			   collected_type => 'node',
+			   cargo_type => 'node',
 			   config_class_name => 'SlaveZ' ,
 			 },
 	       [qw/lista listb/] => { type => 'list',
-				      collected_type => 'leaf',
+				      cargo_type => 'leaf',
 				      element_args => {value_type => 'string'},
 				    },
 	       [qw/hash_a hash_b/] => { type => 'hash',
 			  index_type => 'string',
-			  collected_type => 'leaf',
+			  cargo_type => 'leaf',
 			  element_args => {value_type => 'string'},
 			},
 	       olist => { type => 'list',
-			  collected_type => 'node',
+			  cargo_type => 'node',
 			  config_class_name => 'SlaveZ' ,
 			},
 	       tree_macro => { type => 'leaf',

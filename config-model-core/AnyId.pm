@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-09-26 11:44:46 $
+# $Date: 2006-10-02 11:35:48 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.7 $
+# $Revision: 1.8 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -29,7 +29,7 @@ use Carp;
 use strict;
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.8 $ =~ /(\d+)\.(\d+)/;
 
 use base qw/Config::Model::WarpedThing/;
 
@@ -58,20 +58,20 @@ Config::Model::AnyId - Base class for hash or list element
 
             # hash boundaries
             min => 1, max => 123, max_nb => 2 ,
-            collected_type => 'leaf',
+            cargo_type => 'leaf',
             element_args => {value_type => 'string'},
           },
       bounded_list 
        => { type => 'list',                 # list id
 
             max => 123, 
-            collected_type => 'leaf',
+            cargo_type => 'leaf',
             element_args => {value_type => 'string'},
           },
       hash_of_nodes 
       => { type => 'hash',                 # hash id
            index_type  => 'integer',
-           collected_type => 'node',
+           cargo_type => 'node',
            config_class_name => 'Foo' ,
          },
       ]
@@ -102,7 +102,7 @@ sub new {
 
     bless $self,$type;
 
-    foreach my $p (qw/element_name collected_type instance config_model/) {
+    foreach my $p (qw/element_name cargo_type instance config_model/) {
 	$self->{$p} = delete $args_ref->{$p} or
 	  croak "$type->new: Missing $p parameter" ;
     }
@@ -124,13 +124,13 @@ A hash or list element must be declared with the following parameters:
 
 Mandatory element type. Must be C<hash> or C<list> to have a
 collection element.  The actual element type must be specified by
-C<collected_type> (See </"CAVEATS">).
+C<cargo_type> (See </"CAVEATS">).
 
 =item index_type
 
 Either C<integer> or C<string>. Mandatory for hash.
 
-=item collected_type
+=item cargo_type
 
 Specifies the type of cargo held by the hash of list. Can be C<node> or
 C<value> (default).
@@ -216,7 +216,7 @@ For instance, with this model:
                                                   B => { max_nb => 2 }
                                                 }
                                       },
-                        collected_type => 'node',
+                        cargo_type => 'node',
                         config_class_name => 'Dummy'
                       },
      ]
@@ -357,7 +357,7 @@ declared in the model unless they were warped):
 
 =item auto_create 
 
-=item collected_type 
+=item cargo_type 
 
 =item element_class 
 
@@ -370,7 +370,7 @@ declared in the model unless they were warped):
 =cut
 
 for my $datum (qw/min max max_nb index_type default auto_create 
-                  collected_type element_class element_args morph
+                  cargo_type element_class element_args morph
                   config_model/) {
     no strict "refs";       # to register new methods in package
     *$datum = sub {
@@ -382,7 +382,7 @@ for my $datum (qw/min max max_nb index_type default auto_create
 =head2 get_cargo_type()
 
 Returns the object type contained by the hash or list (i.e. returns
-C<collected_type>).
+C<cargo_type>).
 
 =cut
 
@@ -392,8 +392,8 @@ sub get_cargo_type {
     # the returned cargo type might be different from collected type
     # when collected type is 'warped_node'. 
     #return @ids ? $self->fetch_with_id($ids[0])->get_cargo_type
-    #  : $self->{collected_type} ;
-    return $self->{collected_type} ;
+    #  : $self->{cargo_type} ;
+    return $self->{cargo_type} ;
 }
 
 =head2 name()
@@ -413,7 +413,7 @@ sub name
 Returns the config_class_name of collected elements. Valid only
 for collection of nodes.
 
-This method will return undef if C<collected_type> is not C<node>.
+This method will return undef if C<cargo_type> is not C<node>.
 
 =cut
 
@@ -430,7 +430,7 @@ sub set_element_class {
     my $self=shift;
     my $arg_ref = shift ;
 
-    return unless $self->{collected_type} eq 'node' ;
+    return unless $self->{cargo_type} eq 'node' ;
 
     $self->set_parent_element_property($arg_ref) ;
 
@@ -639,7 +639,7 @@ sub get_all_indexes {
 }
 
 
-# auto vivify must create according to collected_type
+# auto vivify must create according to cargo_type
 # node -> Node or user class
 # leaf -> Value or user class
 
@@ -664,28 +664,28 @@ sub auto_vivify {
     my $class = $self->{element_class} ;
     my $element_args = $self->{element_args} || {} ;
 
-    my $collected_type = $self->{collected_type} ;
+    my $cargo_type = $self->{cargo_type} ;
 
     Config::Model::Exception::Model 
 	-> throw (
 		  object => $self,
-		  message => "unknown '$collected_type' collected_type:  "
+		  message => "unknown '$cargo_type' cargo_type:  "
 		  ."in element_args. Expected "
 		  .join (' or ',keys %element_default_class)
 		 ) 
-	      unless defined $element_default_class{$collected_type} ;
+	      unless defined $element_default_class{$cargo_type} ;
 
     my $el_class = 'Config::Model::'
-      . $element_default_class{$collected_type} ;
+      . $element_default_class{$cargo_type} ;
 
     if (defined $class) {
 	Config::Model::Exception::Model 
 	    -> throw (
 		      object => $self,
-		      message => "$collected_type class "
+		      message => "$cargo_type class "
 		      ."cannot be overidden by '$class'"
 		     ) 
-	      unless $can_override_class{$collected_type} ;
+	      unless $can_override_class{$cargo_type} ;
 	$el_class = $class;
     }
 
@@ -703,7 +703,7 @@ sub auto_vivify {
     my $item ;
 
     # check parameters passed by the user
-    if ($collected_type eq 'node') {
+    if ($cargo_type eq 'node') {
 	Config::Model::Exception::Model 
 	    -> throw (
 		      object => $self,
@@ -799,12 +799,6 @@ sub clear {
 1;
 
 __END__
-
-=head1 CAVEATS
-
-The argument that specifies the type of the element stored in the hash
-or list is named C<collected_type>. This name sounds lame. If a native
-english speaker can suggest a better name, I'll be glad to change it.
 
 =head1 AUTHOR
 

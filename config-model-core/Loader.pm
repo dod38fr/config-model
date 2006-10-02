@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-05-17 11:53:18 $
+# $Date: 2006-10-02 11:35:48 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.5 $
+# $Revision: 1.6 $
 
 #    Copyright (c) 2006 Dominique Dumont.
 #
@@ -29,7 +29,7 @@ use warnings ;
 use Config::Model::Exception ;
 
 use vars qw($VERSION);
-$VERSION = sprintf "%d.%03d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -99,7 +99,7 @@ Go down using C<xxx> element. (For C<node> type element)
 =item xxx:yy
 
 Go down using C<xxx> element and id C<yy> (For C<hash> or C<list>
-element with C<node> collected_type)
+element with C<node> cargo_type)
 
 =item xxx~yy
 
@@ -120,7 +120,7 @@ Set list element C<xxx> to list C<z1,z2,z3>.
 
 =item xxx:yy=zz
 
-For C<hash> element containing C<leaf> collected_type. Set the leaf
+For C<hash> element containing C<leaf> cargo_type. Set the leaf
 identified by key C<yy> to value C<zz>.
 
 =back
@@ -339,7 +339,7 @@ sub _load_list {
     my $element = $node -> fetch_element($element_name) ;
     my $action = substr ($cmd,0,1,'') ;
 
-    my $elt_type = $element->collected_type ;
+    my $elt_type = $element->cargo_type ;
 
     if ($action eq '=' and $elt_type eq 'leaf') {
 	print "Setting list element ",$element->name," to $cmd\n"
@@ -363,7 +363,7 @@ sub _load_list {
 		      object => $element,
                       command => $cmd ,
 		      error => "List assignment with $action$cmd on unexpected "
-		      ."collected_type: $elt_type"
+		      ."cargo_type: $elt_type"
 		     ) ;
     }
 }
@@ -374,7 +374,7 @@ sub _load_hash {
     my $element = $node -> fetch_element($element_name) ;
     my $action = substr ($cmd,0,1,'') ;
 
-    my $elt_type = $element->collected_type ;
+    my $elt_type = $element->cargo_type ;
 
     if ($action eq ':' and $elt_type =~ /node/) {
 	return $element->fetch_with_id($cmd) ;
@@ -392,7 +392,7 @@ sub _load_hash {
 		      object => $element,
                       command => $cmd ,
 		      error => "Hash assignment with $action$cmd on unexpected "
-		      ."collected_type: $elt_type"
+		      ."cargo_type: $elt_type"
 		     ) ;
     }
 }

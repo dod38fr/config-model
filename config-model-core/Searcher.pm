@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-05-17 12:01:07 $
+# $Date: 2006-10-02 11:35:48 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 #    Copyright (c) 2006 Dominique Dumont.
 #
@@ -29,7 +29,7 @@ use warnings ;
 use Config::Model::Exception ;
 
 use vars qw($VERSION);
-$VERSION = sprintf "%d.%03d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -165,7 +165,7 @@ sub _sniff_class {
     foreach my $element (@elements) {
 	my $element_model = $c_model->{element}{$element};
 	my $element_type  = $element_model->{type};
-	my $c_type        = $element_model->{collected_type} || '';
+	my $c_type        = $element_model->{cargo_type} || '';
 
 	my %local_found = %$found_ref ;
 

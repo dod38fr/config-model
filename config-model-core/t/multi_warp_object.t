@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-02-16 13:09:43 $
+# $Date: 2006-10-02 11:35:48 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 use warnings FATAL => qw(all);
 
@@ -63,7 +63,7 @@ $model ->create_config_class
        'bar'
        => { type => 'hash',
 	    index_type => 'string',
-	    collected_type => 'node',
+	    cargo_type => 'node',
 	    'warp'
 	    => { follow => [ '! macro1', '- macro2' ],
 		 morph  => 1,

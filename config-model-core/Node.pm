@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-09-07 11:46:28 $
+# $Date: 2006-10-02 11:35:48 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.7 $
+# $Revision: 1.8 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -40,7 +40,7 @@ use base qw/Config::Model::AutoRead/;
 use vars qw($VERSION $AUTOLOAD @status @level
 @permission_list %permission_index );
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.8 $ =~ /(\d+)\.(\d+)/;
 
 *status           = *Config::Model::status ;
 *level            = *Config::Model::level ;
@@ -518,7 +518,7 @@ C<value_type> parameter. See L<Config::Model::Value> for more details.
 When declaring a C<hash> element, you must also provide a
 C<index_type> parameter.
 
-You can also provide a C<collected_type> parameter set to C<node> or
+You can also provide a C<cargo_type> parameter set to C<node> or
 C<leaf> (default).
 
 See L<Config::Model::HashId> and L<Config::Model::AnyId> for more
@@ -526,7 +526,7 @@ details.
 
 =head2 List element
 
-You can also provide a C<collected_type> parameter set to C<node> or
+You can also provide a C<cargo_type> parameter set to C<node> or
 C<leaf> (default).
 
 See L<Config::Model::ListId> and L<Config::Model::AnyId> for more

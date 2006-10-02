@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-07-20 11:53:25 $
+# $Date: 2006-10-02 11:35:48 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -45,7 +45,7 @@
    name => "Fstab",
    element => [ fs   => { type => 'hash' ,
 			  index_type => 'string',
-			  collected_type => 'node',
+			  cargo_type => 'node',
 			  config_class_name => 'FsLine'
 			}
 	      ],

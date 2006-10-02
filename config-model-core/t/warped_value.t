@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-04-21 12:12:10 $
+# $Date: 2006-10-02 11:35:48 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.4 $
+# $Revision: 1.5 $
 
 use warnings FATAL => qw(all);
 
@@ -31,14 +31,14 @@ $model ->create_config_class
        => {
 	   type => 'hash',
 	   index_type => 'string',
-	   collected_type => 'node',
+	   cargo_type => 'node',
 	   config_class_name => 'RSlave' ,
 	  },
        big_compute
        => {
 	   type => 'hash',
 	   index_type => 'string',
-	   collected_type => 'leaf',
+	   cargo_type => 'leaf',
 	   element_args 
 	   => {
 	       value_type => 'string',
@@ -68,7 +68,7 @@ $model ->create_config_class
        => {
 	   type => 'hash',
 	   index_type => 'string',
-	   collected_type => 'leaf',
+	   cargo_type => 'leaf',
 	   element_args 
 	   => {
 	       value_type => 'string',
@@ -107,7 +107,7 @@ $model -> create_config_class
 	=> {
 	    type => 'hash',
             index_type => 'string',
-	    collected_type => 'node',
+	    cargo_type => 'node',
 	    config_class_name => 'RSlave',
 	   },
 	W => {
