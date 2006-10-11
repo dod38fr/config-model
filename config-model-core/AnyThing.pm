@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-09-26 11:46:08 $
+# $Date: 2006-10-11 11:34:25 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.7 $
+# $Revision: 1.8 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -27,7 +27,7 @@ use Carp;
 use strict;
 
 use vars qw($VERSION);
-$VERSION = sprintf "%d.%03d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.8 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -123,6 +123,7 @@ sub location {
     $element = '' unless defined $element;
 
     my $idx = $self->index_value;
+    $idx = '"'.$idx.'"' if defined $idx && $idx =~ /\s/ ;
 
     my $str = '';
     $str .= $self->parent->location
@@ -176,13 +177,13 @@ required item. (mandatory)
 When set to 1, C<grab> will throw an exception if no object is found
 using the passed string. When set to 0, the object found at last will
 be returned. For instance, for the step C<good_step wrong_step>, only
-the object held by C<good_step> will be returned.
+the object held by C<good_step> will be returned. (default is 1)
 
 =item type 
 
-Either C<node>, C<leaf>. Return only an object of requested
-type. Depending on C<strict> value, C<grab> will either throw an
-exception or return the last found object of requested type.
+Either C<node>, C<leaf>, C<hash> or C<list>. Returns only an object of
+requested type. Depending on C<strict> value, C<grab> will either
+throw an exception or return the last found object of requested type.
 (optional, default to C<undef>, which means any type of object)
 
 =item autoadd
