@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-10-02 11:35:48 $
+# $Date: 2006-10-11 11:40:46 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.6 $
+# $Revision: 1.7 $
 
 #    Copyright (c) 2006 Dominique Dumont.
 #
@@ -29,7 +29,7 @@ use warnings ;
 use Config::Model::Exception ;
 
 use vars qw($VERSION);
-$VERSION = sprintf "%d.%03d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -187,8 +187,9 @@ sub load {
        $huge_string =~ 
        m/
          (         # begin of *one* command
+          (?:        # group parts of a command (e.g ...:...=... )
            [^\s"]+  # match anything but a space and a quote
-           (?:        # begin group
+           (?:        # begin quoted group 
              "         # begin of a string
               (?:        # begin group
                 \\"       # match an escaped quote
@@ -196,10 +197,11 @@ sub load {
                 [^"]      # anything but a quote
               )*         # lots of time
              "         # end of the string
-           )          # end of group
+           )          # end of quoted group
            ?          # match if I got more than one group
-          )        # end of *one* command
-         /gx       # 'g' means that all commands are fed into @command array
+          )+      # can have several parts in one command
+         )        # end of *one* command
+        /gx       # 'g' means that all commands are fed into @command array
        ) ; 
 
     #print "command is ",join('+',@command),"\n" ;
@@ -380,9 +382,9 @@ sub _load_hash {
 	return $element->fetch_with_id($cmd) ;
     }
     elsif ($action eq ':' and $elt_type =~ /leaf/) {
-	my ($id,$value) = ($cmd =~ m/(\w+)=(.*)/) ;
-	$value =~ s/^"// ; # remove possible leading quote
-	$value =~ s/"$// ; # remove possible trailing quote
+	# remove possible leading or trailing quote with the map
+	my ($id,$value) = map  { s/^"// ;  s/"$// ; $_ } split /=/, $cmd, 2;
+	#print "_load_hash: id is '$id', value is '$value' ($cmd)\n";
 	$element->fetch_with_id($id)->store($value) ;
 	return $node
     }
