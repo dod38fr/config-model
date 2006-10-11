@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-07-19 12:23:47 $
+# $Date: 2006-10-11 11:43:16 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.6 $
+# $Revision: 1.7 $
 
 use ExtUtils::testlib;
 use Test::More tests => 6;
@@ -33,7 +33,8 @@ ok($inst,"created dummy instance") ;
 my $root = $inst -> config_root ;
 ok($root,"Config root created") ;
 
-my $step = 'std_id:ab X=Bv - std_id:bc X=Av - a_string="toto tata" '
+my $step = 'std_id:ab X=Bv - std_id:bc X=Av - std_id:"b d " X=Av '
+  .'- a_string="toto tata" '
   .'lista=a,b,c,d olist:0 X=Av - olist:1 X=Bv - listb=b,c,d';
 ok( $root->load( step => $step, permission => 'intermediate' ),
   "set up data in tree with '$step'");
@@ -43,6 +44,8 @@ my $cds = $root->dump_tree;
 print "cds string:\n$cds" if $trace ;
 
 my $expect = <<'EOF' ;
+std_id:"b d "
+  X=Av -
 std_id:ab
   X=Bv -
 std_id:bc
@@ -65,6 +68,9 @@ $cds = $root->dump_tree( full_dump => 1 );
 print "cds string:\n$cds" if $trace  ;
 
 $expect = <<'EOF' ;
+std_id:"b d "
+  X=Av
+  DX=Dv -
 std_id:ab
   X=Bv
   DX=Dv -
