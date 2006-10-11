@@ -1,13 +1,13 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-10-02 11:35:48 $
+# $Date: 2006-10-11 11:43:44 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.4 $
+# $Revision: 1.5 $
 
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
-use Test::More tests => 32 ;
+use Test::More tests => 33 ;
 use Config::Model ;
 
 use strict;
@@ -25,7 +25,7 @@ ok(1,"Compilation done");
 my @element = ( 
 	       # Value constructor args are passed in their specific array ref
 	       cargo_type => 'leaf',
-	       element_args => {value_type => 'string'},
+	       cargo_args => {value_type => 'string'},
 	      ) ;
 
 # minimal set up to get things working
@@ -44,7 +44,7 @@ $model ->create_config_class
 
 	    # hash boundaries
 	    min => 1, max => 123, max_nb => 2 ,
-	    element_class => 'Config::Model::Value',
+	    cargo_class => 'Config::Model::Value',
 	    @element
 	  },
        hash_with_auto_created_id
@@ -75,6 +75,13 @@ $model ->create_config_class
 	   default    => [qw/x y z/],
 	   @element
 	  },
+       hash_follower 
+       => {
+	   type => 'hash',
+	   index_type  => 'string',
+	   @element ,
+	   follow  => '- hash_with_several_auto_created_id',
+	  }
       ],
    );
 
@@ -149,3 +156,5 @@ ok($ac2,"created hash_with_several_auto_created_id ...") ;
 ok($ac2->fetch_with_id('foo')->store(3),"... store a value...") ;
 is_deeply([sort $ac2->get_all_indexes], [qw/foo x y z/],"...check id...") ;
 
+my $follower = $root->fetch_element('hash_follower');
+is_deeply([sort $follower->get_all_indexes], [qw/foo x y z/],"check follower id") ;
