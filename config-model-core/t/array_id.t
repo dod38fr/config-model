@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-10-02 11:35:48 $
+# $Date: 2006-10-11 11:42:18 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.5 $
+# $Revision: 1.6 $
 
 use warnings FATAL => qw(all);
 
@@ -21,7 +21,7 @@ ok(1,"Compilation done");
 my @element = ( 
 	       # Value constructor args are passed in their specific array ref
 	       cargo_type => 'leaf',
-	       element_args => {value_type => 'string'},
+	       cargo_args => {value_type => 'string'},
 	      ) ;
 
 # minimal set up to get things working

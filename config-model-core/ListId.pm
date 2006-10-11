@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-10-02 11:35:48 $
+# $Date: 2006-10-11 11:38:01 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.4 $
+# $Revision: 1.5 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -31,7 +31,7 @@ use strict;
 use base qw/Config::Model::AnyId/ ;
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -49,7 +49,7 @@ Config::Model::ListId - Handle list element for configuration model
             max => 123, 
             max_nb => 2 ,
             cargo_type => 'leaf',
-            element_args => {value_type => 'string'},
+            cargo_args => {value_type => 'string'},
           },
       ]
   ) ;

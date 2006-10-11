@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-10-02 11:35:48 $
+# $Date: 2006-10-11 11:45:16 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.5 $
+# $Revision: 1.6 $
 
 use warnings FATAL => qw(all);
 
@@ -39,7 +39,7 @@ $model ->create_config_class
 	   type => 'hash',
 	   index_type => 'string',
 	   cargo_type => 'leaf',
-	   element_args 
+	   cargo_args 
 	   => {
 	       value_type => 'string',
 	       compute    => ['macro is $m, my idx: &index, '
@@ -69,7 +69,7 @@ $model ->create_config_class
 	   type => 'hash',
 	   index_type => 'string',
 	   cargo_type => 'leaf',
-	   element_args 
+	   cargo_args 
 	   => {
 	       value_type => 'string',
 	       compute    => [
