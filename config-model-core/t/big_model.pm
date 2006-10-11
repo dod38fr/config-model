@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-10-02 11:35:48 $
+# $Date: 2006-10-11 11:42:43 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.9 $
+# $Revision: 1.10 $
 
 # this file is used by test script
 
@@ -93,12 +93,12 @@
 			 },
 	       [qw/lista listb/] => { type => 'list',
 				      cargo_type => 'leaf',
-				      element_args => {value_type => 'string'},
+				      cargo_args => {value_type => 'string'},
 				    },
 	       [qw/hash_a hash_b/] => { type => 'hash',
 			  index_type => 'string',
 			  cargo_type => 'leaf',
-			  element_args => {value_type => 'string'},
+			  cargo_args => {value_type => 'string'},
 			},
 	       olist => { type => 'list',
 			  cargo_type => 'node',
