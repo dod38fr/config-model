@@ -1,11 +1,11 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-07-19 12:26:53 $
+# $Date: 2006-10-11 11:44:42 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.4 $
+# $Revision: 1.5 $
 
 use ExtUtils::testlib;
-use Test::More tests => 33;
+use Test::More tests => 36;
 use Config::Model;
 
 use warnings;
@@ -13,9 +13,7 @@ no warnings qw(once);
 
 use strict;
 
-use vars qw/$model/;
-
-$model = Config::Model -> new ;
+my $model = Config::Model -> new ;
 
 my $arg = shift || '' ;
 my $trace = $arg =~ /t/ ? 1 : 0 ;
@@ -41,6 +39,15 @@ is( $root->fetch_element('a_string')->fetch, 'titi , toto',
 ok( $root->load( step => 'tree_macro=XY', permission => 'advanced' ),
   "Set tree_macro");
 
+# use indexes with white spaces
+
+$step = 'std_id:"a b" X=Bv - std_id:" b  c " X=Av " ';
+ok( $root->load( step => $step, permission => 'intermediate' ),
+  "load '$step'");
+
+is_deeply([ $root->fetch_element('std_id')->get_all_indexes ],
+	  [ '" b  c "', '"a b"','ab','bc'],
+	  "check indexes");
 
 $step = 'std_id:ab ZZX=Bv - std_id:bc X=Bv';
 eval {$root->load( step => $step, permission => 'intermediate' ); };
@@ -95,16 +102,23 @@ map {
        "check lista element $_ content") ;
     } (0 .. 4) ;
 
-# set the value of the previous obecjt
+# set the value of the previous object
 $step = 'std_id:f/o/o:b.ar X=Bv' ;
 ok( $root->load( step => $step, ), "load : '$step'");
 is_deeply( [sort $root->fetch_element('std_id')->get_all_indexes ],
-	   [qw!ab bc f/o/o:b.ar!],
-	   'check result' );
+	   ['" b  c "', '"a b"',qw!ab bc f/o/o:b.ar!],
+	   "check result after load '$step'" );
 
-$step = 'hash_a:a=z hash_a:b=z2' ;
+$step = 'hash_a:a=z hash_a:b=z2 hash_a:"a b "="z 1"' ;
 ok( $root->load( step => $step, ), "load : '$step'");
 is_deeply( [sort $root->fetch_element('hash_a')->get_all_indexes ],
-	   [qw!a b!],
-	   'check result' );
-is($root->fetch_element('hash_a')->fetch_with_id('a')->fetch,'z', 'check result');
+	   ['a','a b ','b'],
+	   "check result after load '$step'" );
+is($root->fetch_element('hash_a')->fetch_with_id('a')->fetch,'z',
+   'check result');
+
+my $elt = $root->fetch_element('hash_a')->fetch_with_id('a b ');
+is($elt->fetch,'z 1', 'check result with white spaces');
+
+is ($elt->location,'hash_a:"a b "', 'check location') ;
+
