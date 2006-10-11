@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-07-19 12:15:04 $
+# $Date: 2006-10-11 11:58:46 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.4 $
+# $Revision: 1.5 $
 
 #    Copyright (c) 2006 Dominique Dumont.
 #
@@ -31,7 +31,7 @@ use warnings ;
 use Term::ReadLine;
 
 use vars qw($VERSION);
-$VERSION = sprintf "%d.%03d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -124,7 +124,7 @@ my $desc_sub = sub {
     if (@_) {
 	my $item ;
 	while ($item = shift) {
-	    print "DEBUG: desc on $item\n";
+	    print "DEBUG: desc on $item\n" if $::debug;
 	    if ($obj->isa('Config::Model::Node')) {
 		my $type = $obj->element_type($item) ;
 		my $elt = $obj->fetch_element($item);
@@ -264,7 +264,7 @@ my $cd_completion_sub = sub {
     my $new_node = $self->{current_node} 
       -> grab(step => "@cmds", strict => 0, type => 'node', autoadd => 0);
 
-    my $name = $new_node -> element_name ;
+    my $name = $new_node -> element_name || '';
 
     my @choice ;
 
@@ -290,8 +290,8 @@ my $cd_completion_sub = sub {
 
     my $found = scalar grep {$_ eq $last} @choice ;
 
-    print "  cd cmd: new_node is ",$new_node->location,", name $name, ",
-      "choice @choice, found $found\n";
+    print "DEBUG:  cd cmd: new_node is ",$new_node->location,", name $name, ",
+      "choice @choice, found $found\n" if $::debug;
     return () if $found ;
 
     return @choice ;
@@ -419,7 +419,7 @@ sub run {
 
     my ($action,@args) = grep ( /[^\s]/, split (m/\s+/,$user_cmd))  ;
 
-    print "DEBUG: run '$action' with '",join("','",@args),"'\n";
+    print "DEBUG: run '$action' with '",join("','",@args),"'\n" if $::debug;
 
     if (defined $run_dispatch{$action}) {
 	my $res = eval { $run_dispatch{$action}->($self,@args) ; } ;
