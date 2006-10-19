@@ -1,3 +1,18 @@
+2006-10-19  Dominique Dumont  <domi@komarr.grenoble.hp.com> v0.603
+
+	* Value.pm (set): forbids to specify both 'refer_to' and
+	'value_type' in value declaration
+
+2006-10-11  Dominique Dumont  <domi@komarr.grenoble.hp.com>
+
+	* Loader.pm (load): Accepts now to load configuration data where
+	index can contain white space. (e.g. Monitor:"Hercules Pro")
+
+	* AnyId.pm: changed 'element_args' to 'cargo_args'. Changed
+	'element_class' to 'cargo_class'. Added 'follow' parameter so a
+	hash key can mimic the keys of another hash in the configuration
+	tree.
+
 2006-09-26  Dominique Dumont  <domi@komarr.grenoble.hp.com>
 
 	* Value.pm (set_default): added built_in default
@@ -15,7 +30,7 @@
 
 2006-09-21  Dominique Dumont  <domi@komarr.grenoble.hp.com>
 
-	* AnyId.pm (move): also change index value of moved items.
+	* AnyId.pm (move): also change index value when moving items.
 
 2006-09-07  Dominique Dumont  <domi@komarr.grenoble.hp.com> v0.602
 
