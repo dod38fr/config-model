@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-09-26 11:51:10 $
+# $Date: 2006-10-19 11:20:00 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.5 $
+# $Revision: 1.6 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -36,7 +36,7 @@ use base qw/Config::Model::WarpedThing/ ;
 
 use vars qw($VERSION) ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -422,10 +422,20 @@ sub set {
     print "'".$self->name."' set called with \n", Dumper(\%args)
       if $::debug ;
 
+    if (defined $args{refer_to} and defined $args{value_type}) {
+	Config::Model::Exception::Model
+	    -> throw (
+		      object => $self,
+		      error => "Cannot specify both value_type "
+		               . "and refer_to",
+		     ) 
+	};
+
     if ( (     not defined $args{refer_to}
 	   and not defined $args{value_type} 
 	 )
 	 or (defined $args{value_type} 
+	     and not defined $args{refer_to}
 	     and $args{value_type} =~ 'enum'
 	     and not defined $args{choice}
 	    )
@@ -710,7 +720,7 @@ during start up and will fail at run time.
 =head1 Value Reference
 
 To set up an enumerated value where the possible choice depends on the
-key of a L<Config::Model::Id> object, you must use the C<refer_to>
+key of a L<Config::Model::AnyId> object, you must use the C<refer_to>
 parameter.
 
 =cut
