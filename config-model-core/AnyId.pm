@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-10-11 11:32:51 $
+# $Date: 2006-10-19 11:18:22 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.9 $
+# $Revision: 1.10 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -29,7 +29,7 @@ use Carp;
 use strict;
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.9 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.10 $ =~ /(\d+)\.(\d+)/;
 
 use base qw/Config::Model::WarpedThing/;
 
@@ -132,14 +132,19 @@ Either C<integer> or C<string>. Mandatory for hash.
 
 =item cargo_type
 
-Specifies the type of cargo held by the hash of list. Can be C<node> or
-C<value> (default).
+Specifies the type of cargo held by the hash of list. Can be C<node>
+or C<value> (default).
 
 =item cargo_args
 
 Constructor arguments passed to the cargo object. See
 L<Config::Model::Node> when C<cargo_type> is C<node>. See 
 L<Config::Model::Value> when C<cargo_type> is C<value>.
+
+=item config_class_name
+
+Specifies the type of configuration object held in the hash. Only
+valid when C<cargo_type> is C<node>.
 
 =item min
 
