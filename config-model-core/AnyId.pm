@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-10-19 11:18:22 $
+# $Date: 2006-10-19 11:22:58 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.10 $
+# $Revision: 1.11 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -29,7 +29,7 @@ use Carp;
 use strict;
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.10 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.11 $ =~ /(\d+)\.(\d+)/;
 
 use base qw/Config::Model::WarpedThing/;
 
@@ -173,7 +173,7 @@ To perform special set-up on children nodes you can also use
 		 'bar' => 'Y=Av Z=Cv' }
 
 
-=ite follow
+=item follow
 
 Specifies that the keys of the hash follow the keys of another hash in
 the configuration tree. In other words, the hash you're creating will
