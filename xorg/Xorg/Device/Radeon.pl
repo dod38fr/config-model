@@ -1,7 +1,7 @@
 # $Author: ddumont $
 # $Date: 2006-11-07 12:39:50 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.1 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -22,33 +22,21 @@
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 
 
-# This model was created from xorg.conf(5x) man page from xorg
-# project (http://www.x.org/).
+# Model for Radeon driver (see radeon(5))
 
-# Top level class feature xorg.conf sections
+[
+ [
+  name => "Xorg::Device::Radeon",
+  'element' 
+  => [ 
+      'MergedFB'         => { type       => 'leaf',
+			      value_type => 'boolean',
+			    },
+     ],
 
-$foo 
-  = [
-     [
-     name => "Xorg::Files",
-     'element' 
-     => [ 
-	 # we might want to create a dedicated class to help
-	 # check validity of path. OTOH, a line like 
-	 # " /usr/lib/X11/fonts/75dpi/:unscaled" is valid and
-	 # is not a path because of the ":unscaled" wart.
-	 [qw/FontPath RGBPath ModulePath/]
-	 => { type => 'list',
-	      cargo_type => 'leaf',
-	      cargo_args => {value_type => 'string'},
-	    },
-	],
-
-     'description' 
-     => [
-	 FontPath => 'search path for fonts',
-	 RGBPath  => 'path name for the RGB color database',
-	 ModulePath => 'search path for loadable  Xorg  server  modules',
-	],
-     ]
-    ];
+  'description' 
+  => [
+      'MergedFB' => 'This enables merged framebuffer mode.  In this mode you have a single  shared  framebuffer  with  two  viewports looking into it.  It is similar to Xinerama, but has some advantages.  It is faster than Xinerama, the DRI works on both heads, and it supports clone modes.',
+     ],
+ ]
+];

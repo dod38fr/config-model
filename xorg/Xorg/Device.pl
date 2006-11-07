@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-09-11 11:56:55 $
+# $Date: 2006-11-07 12:39:50 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -57,13 +57,13 @@
 				    }
 			  },
 
-      'Options'
+      'Option'
       => { type     => 'warped_node',
 	   follow   => '- Driver',
 	   'rules' 
 	   => { 'radeon' => { config_class_name => 'Xorg::Device::Radeon' },
 	      }
-	 }
+	 },
 
       [qw/Chipset Ramdac DacSpeed/]
                        => { type       => 'leaf',
