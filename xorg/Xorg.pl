@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-09-21 11:19:47 $
+# $Date: 2006-11-07 12:38:02 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.4 $
+# $Revision: 1.5 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -51,7 +51,6 @@
        # From InputDevice section
        [qw/CorePointer CoreKeyboard/]
        => { type => 'leaf',
-	    value_type => 'string',
 	    mandatory => 1,
 	    refer_to => '! InputDevice',
 	  },
@@ -60,7 +59,7 @@
        => {
 	   type => 'hash',
 	   index_type => 'string' , # Identifier field in xorg.conf
-	   collected_type => 'node',
+	   cargo_type => 'node',
 	   config_class_name => 'Xorg::InputDevice',
 	   # set up default keyboard and mouse as recommended by xorg.conf
 	   default => { 'kbd'   =>'driver=keyboard',
@@ -78,17 +77,41 @@
        => {
 	   type => 'hash',
 	   index_type => 'string' , # Identifier field in xorg.conf
-	   collected_type => 'node',
+	   cargo_type => 'node',
 	   config_class_name => 'Xorg::Device',
 	  },
 
+#        VideoAdaptor   Xv video adaptor description
+#        Difficult to provide a model without doc...
 
+#        Monitor        Monitor description
+       'Monitor'
+       => {
+	   type => 'hash',
+	   index_type => 'string' , # Identifier field in xorg.conf
+	   cargo_type => 'node',
+	   config_class_name => 'Xorg::Monitor',
+	  },
+
+
+#        Modes          Video modes descriptions
+       'Modes' => {
+	   type => 'hash',
+	   index_type => 'string' , 
+	   cargo_type => 'node',
+	   config_class_name => 'Xorg::Monitor::Mode',
+	  },
+
+#        Screen         Screen configuration
+       'Screen' => { 
+		    type => 'hash',
+		    index_type => 'string' , # Identifier field in xorg.conf
+		    cargo_type => 'node',
+		    config_class_name => 'Xorg::Screen',
+		   },
+       
 #        ServerLayout   Overall layout
 
-#        VideoAdaptor   Xv video adaptor description
-#        Monitor        Monitor description
-#        Modes          Video modes descriptions
-#        Screen         Screen configuration
 #        DRI            DRI-specific configuration
 #        Vendor         Vendor-specific configuration
       ],
