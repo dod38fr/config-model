@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-11-07 12:38:02 $
+# $Date: 2006-11-07 12:47:50 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.5 $
+# $Revision: 1.6 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -112,6 +112,12 @@
        
 #        ServerLayout   Overall layout
 
+       'ServerLayout' => { 
+		    type => 'hash',
+		    index_type => 'string' , # Identifier field in xorg.conf
+		    cargo_type => 'node',
+		    config_class_name => 'Xorg::ServerLayout',
+		   },
 #        DRI            DRI-specific configuration
 #        Vendor         Vendor-specific configuration
       ],
@@ -132,7 +138,11 @@
        Monitor        => 'Monitor description',
        Modes          => 'Video modes descriptions',
        Screen         => 'Screen configuration',
-       ServerLayout   => 'Overall layout',
+
+       ServerLayout => 'represents the binding of one or more screens
+       (Screen sections) and one or more input devices (InputDevice
+       sections) to form a complete configuration.',
+
        DRI            => 'DRI-specific configuration',
        Vendor         => 'Vendor-specific configuration',
        Keyboard       => 'Keyboard configuration (obsolete)',

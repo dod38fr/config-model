@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-09-07 12:11:05 $
+# $Date: 2006-11-07 12:47:51 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1.1.1 $
+# $Revision: 1.2 $
 
 use ExtUtils::testlib;
 use Test::More tests => 33;
@@ -25,8 +25,10 @@ Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 
 ok(1,"compiled");
 
-my $inst = $model->instance (root_class_name => 'Xorg', 
-			     instance_name => 'xorg_instance');
+my $inst = $model->instance (root_class_name  => 'Xorg', 
+			     instance_name    => 'xorg_instance',
+			     'read_directory' => 'data',
+			    );
 ok($inst,"created dummy instance") ;
 
 my $root = $inst -> config_root ;
@@ -34,3 +36,5 @@ my $root = $inst -> config_root ;
 $inst->push_no_value_check('fetch') ;
 my $res = $root->describe ;
 $inst->pop_no_value_check;
+
+#print $root->dump_tree ;
