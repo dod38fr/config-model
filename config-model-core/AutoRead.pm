@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-09-26 11:48:32 $
+# $Date: 2006-12-05 17:16:57 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.4 $
+# $Revision: 1.5 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -31,7 +31,7 @@ use UNIVERSAL ;
 
 use base qw/Config::Model::AnyThing/ ;
 
-our $VERSION = sprintf "%d.%03d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/;
+our $VERSION = sprintf "%d.%03d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -95,8 +95,9 @@ L<Config::Model::Instance>) to write all configuration informations.
 A configuration class will be declared with optional C<read> or
 C<write> parameters:
 
-  read => [ 'cds', read => { class => 'Bar' ,  function => 'read_it'}, ]
-  write => 'cds';
+  read_config  => [ 'cds', 
+                    read => { class => 'Bar' ,  function => 'read_it'}, ]
+  write_config => 'cds';
 
 The various C<read> method will be tried in order specified. When a read
 operation is successful, the remaining read methods will be skipped.
@@ -121,24 +122,28 @@ C<cds> format.
 
 To read and write only customized files :
 
-  read => { class => 'Bar' ,  function => 'read_it'},
-  write => { class => 'Bar' ,  function => 'write_it'};
+  read_config  => { class => 'Bar' ,  function => 'read_it'},
+  write_config => { class => 'Bar' ,  function => 'write_it'};
 
 To read and write only cds files :
 
-  read => 'cds', 
-  write => 'cds' ;
+  read_config  => 'cds', 
+  write_config => 'cds' ;
+
+=for comment
 
 To migrate from custom format to xml:
 
-  read => [ 'xml', { class => 'Bar' ,  function => 'read_it'} ],
-  write => 'xml';
+  read_config  => [ 'xml', { class => 'Bar' ,  function => 'read_it'} ],
+  write_config => 'xml';
+
+=end comment
 
 To migrate from an old format to a new format:
 
-  read =>  [ { class => 'OldFormat' ,  function => 'old_read'} ,
-             { class => 'NewFormat' ,  function => 'new_read'} ],
-  write => [ { class => 'NewFormat' ,  function => 'write'   } ],
+  read_config  => [ { class => 'OldFormat' ,  function => 'old_read'} ,
+                    { class => 'NewFormat' ,  function => 'new_read'} ],
+  write_config => [ { class => 'NewFormat' ,  function => 'write'   } ],
 
 =head2 read write directory
 
@@ -188,7 +193,7 @@ sub auto_write_init {
     $self->{w_dir} = $instance -> write_directory || $w_dir ; 
 
     # provide a proper write back function
-    my @array = ref $wrlist ? @$wrlist : ($wrlist) ;
+    my @array = ref $wrlist eq 'ARRAY' ? @$wrlist : ($wrlist) ;
     foreach my $write (@array) {
 	my $wb ;
 	if ($write eq 'xml') {
@@ -200,9 +205,13 @@ sub auto_write_init {
 	elsif (ref($write) eq 'HASH') {
 	    my $c = my $file = $write->{class} ;
 	    $file =~ s!::!/!g;
-	    require $file ;
 	    my $f = $write->{function} ;
-	    $wb = sub { $c->$f(conf_dir => $self->{w_dir}, object => $self) ;};
+	    require $file.'.pm' unless $c->can($f) ;
+	    my $safe_self = $self ; # provide a closure
+	    $wb = sub {  no strict 'refs';
+			 &{$c.'::'.$f}(conf_dir => $self->{w_dir}, 
+				       object => $safe_self) ;
+		     };
 	}
 
 	$instance->register_write_back($wb) ;
