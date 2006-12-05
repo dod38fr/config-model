@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-10-11 11:34:25 $
+# $Date: 2006-12-05 17:09:06 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.8 $
+# $Revision: 1.9 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -27,7 +27,7 @@ use Carp;
 use strict;
 
 use vars qw($VERSION);
-$VERSION = sprintf "%d.%03d", q$Revision: 1.8 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.9 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -105,6 +105,18 @@ sub _set_parent {
 
     $self->{parent} =  $parent ;
     weaken ($self->{parent}) ;
+}
+
+=head2 root()
+
+Returns the root node of the configuration tree.
+
+=cut
+
+sub root {
+    my $self = shift;
+
+    return $self->parent || $self;
 }
 
 =head2 location()
@@ -262,8 +274,28 @@ sub grab {
 	  unless ref $step eq 'ARRAY' || not ref $step ;
 
     # accept commands, grep remove empty items left by spurious spaces
+    my $huge_string = ref $step ? join (' ', @$step) : $step ;
     my @command = 
-      grep($_, ref $step ? map( split , @$step) : split /[\s\n]+/,$step ) ;
+      ( 
+       $huge_string =~ 
+       m/
+         (         # begin of *one* command
+          (?:        # group parts of a command (e.g ...:... )
+           [^\s"]+  # match anything but a space and a quote
+           (?:        # begin quoted group 
+             "         # begin of a string
+              (?:        # begin group
+                \\"       # match an escaped quote
+                |         # or
+                [^"]      # anything but a quote
+              )*         # lots of time
+             "         # end of the string
+           )          # end of quoted group
+           ?          # match if I got more than one group
+          )+      # can have several parts in one command
+         )        # end of *one* command
+        /gx
+      ) ;
 
     my @saved = @command ;
 
@@ -314,7 +346,12 @@ sub grab {
 	}
 
         my ($name, $action, $arg) 
-	  = ($cmd =~ /(\w+)(?:(:)([\w:\/\.\-]+))?/);
+	  = ($cmd =~ /(\w+)(?:(:)((?:"[^\"]*")|(?:[\w:\/\.\-]+)))?/);
+
+	if (defined $arg) {
+	    $arg =~ s/^"// ; # remove possible leading quote
+	    $arg =~ s/"$// ; # remove possible trailing quote
+	}
 
 	{
 	  no warnings "uninitialized" ;
@@ -411,9 +448,9 @@ sub grab_value {
 	-> throw (
 		  object => $self,
 		  message => "grab_value: cannot get value of non-leaf "
-		  ."item with '@_'"
+		  ."item with '".join("' '",@_)."'"
 		 ) 
-	  unless $obj->isa("Config::Model::Value");
+	  unless ref $obj && $obj->isa("Config::Model::Value");
 
     return $obj->fetch ;
 }
