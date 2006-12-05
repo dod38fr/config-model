@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-10-11 11:37:34 $
+# $Date: 2006-12-05 17:29:17 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.7 $
+# $Revision: 1.8 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -31,7 +31,7 @@ use strict;
 use base qw/Config::Model::AnyId/ ;
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.8 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -177,6 +177,17 @@ sub _exists {
 sub _defined {
     my ($self,$key) = @_ ;
     return defined $self->{data}{$key};
+}
+
+#internal
+sub auto_create_elements {
+    my $self = shift ;
+
+    my $auto_p = $self->{auto_create} ;
+    # create empty slots
+    map {
+	$self->{data}{$_} = undef unless exists $self->{data}{$_};
+    }  (ref $auto_p ? @$auto_p : ($auto_p)) ;
 }
 
 # internal
