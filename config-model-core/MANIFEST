@@ -3,6 +3,7 @@ AnyId.pm
 AnyThing.pm
 AutoRead.pm
 ChangeLog
+CheckList.pm
 Describe.pm
 Dumper.pm
 examples/fstab/Fstab.pl
@@ -28,6 +29,7 @@ t/array_id.t
 t/auto_load_model.t
 t/auto_read.t
 t/big_model.pm
+t/check_list.t
 t/describe_node.t
 t/dump_tree.t
 t/grab.t
