@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-10-11 11:38:01 $
+# $Date: 2006-12-05 17:30:26 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.5 $
+# $Revision: 1.6 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -31,7 +31,7 @@ use strict;
 use base qw/Config::Model::AnyId/ ;
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -77,13 +77,13 @@ sub new {
     Config::Model::Exception::Model->throw 
         (
          object => $self,
-         error =>  "Cannot use max_nb with list element"
+         error =>  "Cannot use max_nb with ".$self->get_type." element"
         ) if defined $args{max_nb};
 
     Config::Model::Exception::Model->throw 
         (
          object => $self,
-         error => "Cannot use min with list element"
+         error => "Cannot use min with ".$self->get_type." element"
         ) if defined $args{min};
 
     # Supply the mandatory parameter
@@ -106,6 +106,8 @@ sub set {
 
     # remove unwanted items
     my $data = $self->{data} ;
+
+    return unless defined $self->{max} ;
 
     # delete entries that no longer fit the constraints imposed by the
     # warp mechanism
@@ -196,6 +198,39 @@ sub push {
     my $idx   = scalar @{$self->{data}};
 
     map { $self->fetch_with_id( $idx++ )->store( $_ ) ; } @_ ;
+}
+
+#internal
+sub auto_create_elements {
+    my $self = shift ;
+
+    my $auto_p = $self->{auto_create} - 1;
+    # create empty slots
+    map {
+	$self->{data}[$_] = undef unless defined $self->{data}[$_];
+    }  (0 .. $auto_p ) ;
+}
+
+# internal
+sub create_default {
+    my $self = shift ;
+
+    return if @{$self->{data}} ;
+
+    # list is empty so create empty element for default keys
+    my $def = $self->get_default_keys ;
+
+    if (ref $def eq 'HASH') {
+	foreach my $def_key (keys %$def) {
+	    $self->fetch_with_id($def_key)->load($def->{$def_key}) ;
+	}
+    }
+    elsif (ref $def eq 'ARRAY') {
+	map {$self->{data}[$_] = undef } @$def ;
+    }
+    else {
+	$self->{data}[$def] = undef ;
+    }
 }
 
 1;
