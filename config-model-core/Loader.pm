@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-10-11 11:40:46 $
+# $Date: 2006-12-05 17:31:36 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.7 $
+# $Revision: 1.8 $
 
 #    Copyright (c) 2006 Dominique Dumont.
 #
@@ -29,7 +29,7 @@ use warnings ;
 use Config::Model::Exception ;
 
 use vars qw($VERSION);
-$VERSION = sprintf "%d.%03d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.8 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -202,7 +202,7 @@ sub load {
           )+      # can have several parts in one command
          )        # end of *one* command
         /gx       # 'g' means that all commands are fed into @command array
-       ) ; 
+       ) ; #"asdf ;
 
     #print "command is ",join('+',@command),"\n" ;
 
@@ -226,10 +226,11 @@ sub load {
 }
 
 my %load_dispatch = (
-		     node => \&_walk_node,
-		     hash => \&_load_hash,
-		     list => \&_load_list,
-		     leaf => \&_load_leaf,
+		     node       => \&_walk_node,
+		     hash       => \&_load_hash,
+		     check_list => \&_load_list,
+		     list       => \&_load_list,
+		     leaf       => \&_load_leaf,
 		    ) ;
 
 sub _load {
@@ -239,13 +240,13 @@ sub _load {
 
     my $cmd ;
     while ($cmd = shift @$cmdref) {
-        #print "Executing cmd '$cmd'\n";
+        print "_load:Executing cmd '$cmd' on node $node\n" if $::debug;
 	my $saved_cmd = $cmd ;
 
         next if $cmd =~ /^\s*$/ ;
 
         if ($cmd eq '!') {
-	    $node = $inst -> config_root ;
+	    $node = $node -> root ;
 	    next ;
 	}
 
@@ -260,9 +261,26 @@ sub _load {
         unless (defined $element_name) {
 	    Config::Model::Exception::Load
 		-> throw (
-			  command => $cmd ,
+			  command => $saved_cmd ,
 			  error => 'Syntax error: cannot find '
 			  .'element in command'
+			 );
+	}
+
+        unless (defined $node) {
+	    Config::Model::Exception::Load
+		-> throw (
+			  command => $saved_cmd ,
+			  error => "Error: Got undefined node"
+			 );
+	}
+
+        unless ($node->isa("Config::Model::Node")) {
+	    Config::Model::Exception::Load
+		-> throw (
+			  command => $saved_cmd ,
+			  error => "Error: Expected a node, got '"
+			  .$node -> name. "'"
 			 );
 	}
 
