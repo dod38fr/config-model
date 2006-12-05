@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-10-02 11:35:48 $
+# $Date: 2006-12-05 17:25:14 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 #    Copyright (c) 2006 Dominique Dumont.
 #
@@ -30,7 +30,7 @@ use Config::Model::Exception ;
 use Config::Model::ObjTreeScanner ;
 
 use vars qw($VERSION);
-$VERSION = sprintf "%d.%03d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -108,12 +108,8 @@ sub describe {
     my $desc_node = delete $args{node} 
       || croak "describe: missing 'node' parameter";
 
-    my $format = "%-12s %-12s %-12s %-35s\n" ;
-
-    my $ret = sprintf($format, qw/name value type comment/);
-
     my $std_cb = sub {
-        my ( $obj, $element, $index, $value_obj ) = @_;
+        my ( $scanner, $data_r, $obj, $element, $index, $value_obj ) = @_;
 
 	my $value = $value_obj->fetch ;
         $value = '"' . $value . '"' if defined $value and $value =~ /\s/;
@@ -129,14 +125,11 @@ sub describe {
 	  if $type eq 'enum' ;
 	push @comment, 'mandatory' if $value_obj->mandatory ;
 
-	$ret .= sprintf($format, $name, $value, $type, 
-			join(', ',@comment) ) ;
+	push @$data_r , [ $name, $value, $type, join(', ',@comment) ]  ;
     };
 
-    my $view_scanner;
-
     my $list_cb = sub {
-        my ( $obj, $element, @keys ) = @_;
+        my ( $scanner, $data_r, $obj, $element, @keys ) = @_;
 
 	#print "DEBUG: list_cb on $element, keys @keys\n";
 	my $list_obj = $obj->fetch_element($element) ;
@@ -144,20 +137,19 @@ sub describe {
 
         if ( $elt_type eq 'node' ) {
 	    my $class_name = $list_obj->config_class_name ;
-	    $ret .= sprintf($format, $element, "<$class_name>", 
+	    push @$data_r , [ $element, "<$class_name>", 
 			    'node list', 
-			    @keys ? "keys: @keys" : 'empty list');
+			    @keys ? "keys: @keys" : 'empty list' ];
         }
         else {
-            $ret .= sprintf($format,$element,
+            push @$data_r , [ $element,
 			    join( ',', $list_obj->fetch_all_values ),
-			    'list',''
-			   );
+			    'list','' ];
         }
     };
 
     my $hash_cb = sub {
-        my ( $obj, $element, @keys ) = @_;
+        my ( $scanner, $data_r, $obj, $element, @keys ) = @_;
 
  	#print "DEBUG: hash_cb on $element, keys @keys\n";
 	my $hash_obj = $obj->fetch_element($element) ;
@@ -165,53 +157,54 @@ sub describe {
 
         if ( $elt_type eq 'node' ) {
 	    my $class_name = $hash_obj->config_class_name ;
-	    $ret .= sprintf($format, $element, "<$class_name>", 
-			    'node hash', "keys: @keys");
+	    push @$data_r , [ $element, "<$class_name>", 
+			    'node hash', "keys: @keys" ];
         }
         elsif (@keys) {
-            map {$view_scanner->scan_hash($obj,$element,$_)} @keys ;
+            map {$scanner->scan_hash($data_r, $obj,$element,$_)} @keys ;
         }
 	else {
-	    $ret .= sprintf($format, $element, "[empty hash]", 
-			    'value hash', "");
+	    push @$data_r, [ $element, "[empty hash]", 'value hash', "" ];
 	}
     };
 
     my $node_cb = sub {
-        my ( $obj, $element, $key ) = @_;
+        my ( $scanner, $data_r, $obj, $element, $key, $next ) = @_;
 
  	#print "DEBUG: elt_cb on $element, key $key\n";
         my $type = $obj -> element_type($element);
-	my $next = $obj -> fetch_element($element) ;
 
-        $next = $next ->fetch_with_id($key) if
-              $type eq 'list' or $type eq 'hash';
 	my $class_name = $next->config_class_name ;
-        $ret .= sprintf($format,$element,"<$class_name>",'node','');
+        push @$data_r, [ $element,"<$class_name>",'node','' ];
 	#$ret .= ":$key" if $type eq 'list' or $type eq 'hash';
 
         #$view_scanner->scan_node($next);
     };
 
     my @scan_args = (
-		     permission        => delete $args{permission} || 'master',
-		     fallback    => 'all',
-		     auto_vivify => 0,
-		     list_cb     => $list_cb,
-		     hash_cb     => $hash_cb,
-		     leaf_cb     => $std_cb,
-		     node_cb     => $node_cb,
+		     permission    => delete $args{permission} || 'master',
+		     fallback      => 'all',
+		     auto_vivify   => 0,
+		     list_cb       => $list_cb,
+		     check_list_cb => $list_cb,
+		     hash_cb       => $hash_cb,
+		     leaf_cb       => $std_cb ,
+		     node_cb       => $node_cb,
 		    );
 
     my @left = keys %args;
     croak "Describe: unknown parameter:@left" if @left;
 
     # perform the scan
-    $view_scanner = Config::Model::ObjTreeScanner->new(@scan_args);
+    my $view_scanner = Config::Model::ObjTreeScanner->new(@scan_args);
 
-    $view_scanner->scan_node($desc_node);
+    my $format = "%-12s %-12s %-12s %-35s\n" ;
 
-    return $ret ;
+    my @ret = [ qw/name value type comment/ ];
+
+    $view_scanner->scan_node(\@ret ,$desc_node);
+
+    return join '', map { sprintf($format, @$_) } @ret ; 
 }
 
 1;
