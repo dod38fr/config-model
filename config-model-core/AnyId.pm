@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-10-19 11:22:58 $
+# $Date: 2006-12-05 17:14:48 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.11 $
+# $Revision: 1.12 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -29,7 +29,7 @@ use Carp;
 use strict;
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.11 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.12 $ =~ /(\d+)\.(\d+)/;
 
 use base qw/Config::Model::WarpedThing/;
 
@@ -104,7 +104,8 @@ sub new {
 
     foreach my $p (qw/element_name cargo_type instance config_model/) {
 	$self->{$p} = delete $args_ref->{$p} or
-	  croak "$type->new: Missing $p parameter" ;
+	  croak "$type->new: Missing $p parameter for element ".
+	    $self->{element_name} || 'unknown' ;
     }
 
     $self->_set_parent(delete $args_ref->{parent}) ;
@@ -181,6 +182,19 @@ always have the same keys as the other hash.
 
    follow => '- another_hash'
 
+=item allow
+
+Specified authorized keys:
+
+  allow => ['foo','bar','baz']
+
+=item allow_from
+
+A bit like the C<follow> parameters. Except that the hash pointed to
+by C<allow_from> specified the authorized keys for this hash.
+
+  allow_from => '- another_hash'
+
 =item auto_create
 
 When set, the default parameter (or set of parameters) are 
@@ -188,6 +202,10 @@ used as keys hashes and created automatically.
 
 Called with C<< auto_create => 'foo' >>, or 
 C<< auto_create => ['foo', 'bar'] >>.
+
+For list, C<auto_create> indicated the number of elements to
+create. E.g.  C<< auto_create => 4 >> will initialize the list with 4
+undef elements.
 
 =item warp
 
@@ -280,7 +298,7 @@ leads to a nb of items greater than the max_nb constraint.
 =cut
 
 my @common_params =  qw/min max max_nb default follow auto_create 
-                             cargo_args/ ;
+                             cargo_args allow allow_from/ ;
 
 my @allowed_warp_params = (@common_params,qw/config_class_name permission/) ;
 
@@ -341,10 +359,7 @@ sub set {
     }
 
     if (defined $self->{auto_create}) {
-        my $auto_p = $self->{auto_create} ;
-        # create empty slots
-        map {$self->{data}{$_} = undef unless exists $self->{data}{$_};
-	 }  (ref $auto_p ? @$auto_p : ($auto_p)) ;
+	$self->auto_create_elements ;
     }
 
     # handle config_class_name warp
@@ -551,14 +566,15 @@ sub check {
     my @error  ;
 
     if ($self->{follow}) {
-	my $followed = $self->grab(step => $self->{follow},
-				   type => $self->get_type,
-				  ) ;
-	if ($followed->exists($idx)) {
-	    return 1;
-	}
-	$self->{error} = ["key $idx does not exists in ".$followed->name] ;
-	return 0 ;
+	$self->check_follow($idx) or return 0 ;
+    }
+
+    if ($self->{allow}) {
+	$self->check_allow($idx) or return 0 ;
+    }
+
+    if ($self->{allow_from}) {
+	$self->check_allow_from($idx) or return 0 ;
     }
 
     my $nb =  $self->fetch_size ;
@@ -597,6 +613,58 @@ sub check {
     $self->{error} = \@error ;
     return not scalar @error ;
 }
+
+#internal
+sub check_follow {
+    my ($self,$idx) = @_ ; 
+
+    my $followed = $self->grab(step => $self->{follow},
+			       type => $self->get_type,
+			      ) ;
+    if ($followed->exists($idx)) {
+	return 1;
+    }
+
+    $self->{error} = ["key '$idx' does not exists in '".$followed->name 
+		      . "'. Expected '"
+		      . join("', '", $followed->get_all_indexes)
+		      . "'"
+		     ] ;
+    return 0 ;
+}
+
+#internal
+sub check_allow {
+    my ($self,$idx) = @_ ; 
+
+    my $ok = grep { $_ eq $idx } @{$self->{allow}} ;
+
+    return 1 if $ok ;
+
+    $self->{error} = ["Unexpected key '$idx'. Expected '".
+		      join("', '",@{$self->{allow}} ). "'"]   ;
+    return 0 ;
+}
+
+#internal
+sub check_allow_from {
+    my ($self,$idx) = @_ ; 
+
+    my $from = $self->grab(step => $self->{allow_from},
+			   type => $self->get_type,
+			  ) ;
+    my $ok = grep { $_ eq $idx } $from->get_all_indexes ;
+
+    return 1 if $ok ;
+
+    $self->{error} = ["key '$idx' does not exists in '"
+		      . $from->name 
+		      . "'. Expected '"
+		      . join( "', '", $from->get_all_indexes). "'" ] ;
+
+    return 0 ;
+}
+
 
 =head1 Informations management
 
@@ -679,8 +747,27 @@ Returns an array containing all values held by the hash or list.
 
 sub fetch_all_values {
     my $self = shift ;
+
     my @keys  = $self->get_all_indexes ;
-    return map { $self->fetch_with_id($_)->fetch ;} @keys ;
+
+    if ($self->{cargo_type} eq 'leaf') {
+	return map { $self->fetch_with_id($_)->fetch ;} @keys ;
+    }
+    else {
+	my $info = "current keys are '".join("', '",@keys)."'." ;
+	if ($self->{cargo_type} eq 'node') {
+	    $info .= "config class is ".
+	      $self->fetch_with_id($keys[0])->config_class_name ;
+	}
+	Config::Model::Exception::WrongType
+	    ->throw(
+		    object => $self,
+		    function => 'fetch_all_values',
+		    got_type => $self->{cargo_type},
+		    expected_type => 'leaf',
+		    info => $info,
+		   )
+    }
 }
 
 =head2 get_all_indexes()
@@ -866,11 +953,12 @@ Dominique Dumont, domi@komarr.grenoble.hp.com
 
 L<Config::Model>,
 L<Config::Model::Instance>,
+L<Config::Model::Node>,
+L<Config::Model::WarpedNode>,
 L<Config::Model::HashId>,
 L<Config::Model::ListId>,
-L<Config::Model::WarpedNode>,
+L<Config::Model::CheckList>,
 L<Config::Model::Value>
-
 
 =cut
 
