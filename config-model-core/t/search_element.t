@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-07-19 12:26:53 $
+# $Date: 2006-12-06 12:52:00 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 
 use ExtUtils::testlib;
 use Test::More tests => 15;
@@ -109,6 +109,8 @@ my @data
        'ac' => {'next_step' => {'warp' => {'next_class' => {'SlaveY' => {'next_step' => {'sub_slave' => {'next_step' => 'ac'}}}}}}},
        'ab' => {'next_step' => {'warp' => {'next_class' => {'SlaveY' => {'next_step' => {'sub_slave' => {'next_step' => 'ab'}}}}}}},
        'hash_b' => {'next_step' => 'hash_b'},
+       'my_check_list' => {'next_step' => 'my_check_list'},
+       'my_reference'  => {'next_step' => 'my_reference'},
        'hash_a' => {'next_step' => 'hash_a'}
       }
      ]

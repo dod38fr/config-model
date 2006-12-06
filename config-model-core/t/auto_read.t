@@ -1,11 +1,11 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-06-15 12:04:05 $
+# $Date: 2006-12-06 12:51:59 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 use ExtUtils::testlib;
-use Test::More tests => 12;
+use Test::More tests => 14;
 use Config::Model;
 use File::Path;
 
@@ -90,7 +90,7 @@ $model->create_config_class
    name => 'Master',
 
    read_config  => [ 'cds', { class => 'MasterRead', function => 'read_it' }],
-   write_config => 'cds' ,
+   write_config => [ 'cds', { class => 'MasterRead', function => 'wr_stuff'}],
 
    read_config_dir  => $zdir,
    write_config_dir => $wr_dir,
@@ -113,6 +113,12 @@ sub read_it {
     my %args = @_;
     $result{master_read} = $args{conf_dir};
     $args{object}->store_element_value('aa','aa was set');
+}
+
+sub wr_stuff {
+    my %args = @_;
+    $result{wr_stuff} = $args{conf_dir};
+    $result{wr_root_name} = $args{object}->name ;
 }
 
 package Level1Read;
@@ -147,7 +153,7 @@ is( $level1->grab_value('bar X'), 'Cv', "Level1 legacy read" );
 
 is( $result{level1_read}, $zdir, "Level1 read conf dir" );
 
-is( scalar @{ $i_zero->{write_back} }, 2, "write back are stored" );
+is( scalar @{ $i_zero->{write_back} }, 3, "write call back are stored" );
 
 # perform write back of dodu tree dump string
 $i_zero->write_back;
@@ -155,6 +161,10 @@ $i_zero->write_back;
 # check written files
 map { ok( -e "$wr_dir/$_.cds", "file $_.cds" ); } 
   ('zero_test','zero_test/level1') ;
+
+# check called write routine
+is($result{wr_stuff},'wr_test','check write dir') ;
+is($result{wr_root_name},'Master','check conf root to write') ;
 
 my $dump = $master->dump_tree( );
 print "Master dump:\n$dump\n" if $trace;

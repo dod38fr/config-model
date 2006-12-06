@@ -1,13 +1,13 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-02-16 13:09:43 $
+# $Date: 2006-12-06 12:51:59 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
-use Test::More tests => 56 ;
+use Test::More tests => 61 ;
 use Config::Model ;
 
 use strict;
@@ -76,6 +76,20 @@ $model ->create_config_class
 		    ]
 	       },
 	  },
+       'm3'
+       => { type => 'leaf',
+	    value_type => 'string',
+	    default    => 'unsatisfied',
+	    'warp'
+	    => {
+		follow => '- macro2', 
+		'rules'
+		=>  [
+		     ['B2', 'A2' ] => { default => 'A2 B2 rule' },
+		     'C2'          => { default => 'C2 rule'    },
+		    ]
+	       },
+	  },
       ]
   );
 
@@ -91,16 +105,31 @@ is_deeply( [ Config::Model::WarpedThing::_dclone_key('foo') ],
     ['foo'], "Test _dclone_key (single key)" );
 
 
-my @expanded_keys = Config::Model::WarpedThing::_expand_key('foo');
+my @expanded_keys = Config::Model::WarpedThing::_expand_key(0,'foo');
 
 #print Dumper \@expanded_keys ;
 is_deeply( \@expanded_keys, ['foo'], "Test _expand_key (single key)" );
+
+@expanded_keys 
+  = Config::Model::WarpedThing::_expand_key(0,['foo','bar']);
+
+#print Dumper \@expanded_keys ;
+is_deeply( \@expanded_keys, ['foo','bar'], 
+	   "Test _expand_key (1 warper, 2 keys) " );
+
+@expanded_keys 
+  = Config::Model::WarpedThing::_expand_key(1,['foo','bar']);
+
+#print Dumper \@expanded_keys ;
+is_deeply( \@expanded_keys, [ ['foo','bar'] ], 
+	   "Test _expand_key (1 warper, 2 keys) " );
+
 my $simple_rule = [ 'my', 'rules' ];
 
 my @expected_rules = ( 'foo', $simple_rule );
 
 my @expanded_rules
-    = Config::Model::WarpedThing::_expand_rules( 'foo' => $simple_rule );
+    = Config::Model::WarpedThing::_expand_rules(0, 'foo' => $simple_rule );
 
 #print Dumper \@expanded_rules , \@expected_rules;
 is_deeply( \@expanded_rules, \@expected_rules,
@@ -113,7 +142,7 @@ is_deeply(
     "Test _dclone_key (backward)"
 );
 
-@expanded_keys = Config::Model::WarpedThing::_expand_key( \@keys );
+@expanded_keys = Config::Model::WarpedThing::_expand_key(1, \@keys );
 
 #print Dumper \@expanded_keys , \@keys ;
 is_deeply( \@expanded_keys, [ \@keys ], "Test _expand_key (backward)" );
@@ -121,7 +150,7 @@ is_deeply( \@expanded_keys, [ \@keys ], "Test _expand_key (backward)" );
 @expected_rules = ( \@keys, $simple_rule );
 
 @expanded_rules
-    = Config::Model::WarpedThing::_expand_rules( \@keys => $simple_rule );
+    = Config::Model::WarpedThing::_expand_rules(1, \@keys => $simple_rule );
 
 is_deeply( \@expanded_rules, \@expected_rules,
     "Test _expand_rules (backward)" );
@@ -147,15 +176,15 @@ my @expected_keys = (
     [ 'foo', 'bar', 'b3', 'baz', 'c3' ]
 );
 
-@expanded_keys = Config::Model::WarpedThing::_expand_key( \@keys );
+@expanded_keys = Config::Model::WarpedThing::_expand_key( 1,\@keys );
 
 #print Dumper \@keys,\@expanded_keys , \@expected_keys;
 is_deeply( \@expanded_keys, \@expected_keys, "Test _expand_key" );
 
 @expanded_rules
-    = Config::Model::WarpedThing::_expand_rules( \@keys => [ 'my', 'rules' ] );
+    = Config::Model::WarpedThing::_expand_rules(1, \@keys => [ 'my', 'rules' ] );
 
-# perl 5.8.7's Test::More seems more strict than 5.8.4 when comnparing
+# perl 5.8.7's Test::More seems more strict than 5.8.4 when comparing
 # data (it checks also if ref are identicals...)
 my $tmp_array = [ 'my', 'rules' ];
 @expected_rules = map { ( $_ => $tmp_array ) } @expected_keys;
@@ -187,6 +216,18 @@ foreach my $c1 (@m1) {
         }
     }
 }
+
+my @test = ( ["macro2=A2" ,"A2 B2 rule" ],
+	     ["macro2=C2" ,"C2 rule" ],
+	     ["macro2=B2" ,"A2 B2 rule" ],
+	   ) ;
+
+foreach my $u_test (@test) {
+    my ($load,$exp) = @$u_test ;
+    $root->load($load) ;
+    is($root->grab_value('m3'),$exp,"test m3 with $load") ;
+}
+
 
 my @array = $root->fetch_element('m1')->get_all_warper_object;
 is( @array, 3, "test number of warp roots" );

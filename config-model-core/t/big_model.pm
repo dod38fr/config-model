@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-10-11 11:42:43 $
+# $Date: 2006-12-06 12:51:59 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.10 $
+# $Revision: 1.11 $
 
 # this file is used by test script
 
@@ -132,10 +132,16 @@
 			  default    => '10',
 			  min        => 5,
 			  max        => 15
-			}
-	      ]
-  ],
-]
-;
+			},
+	       my_check_list => { type => 'check_list',
+				  refer_to => '- hash_a + ! hash_b',
+				} ,
+	       my_reference => { type => 'leaf',
+				 value_type => 'reference',
+				 refer_to => '- hash_a + ! hash_b',
+			       }
+	      ],
+   ],
+] ;
 
 # do not put 1; at the end or Model-> load will not work

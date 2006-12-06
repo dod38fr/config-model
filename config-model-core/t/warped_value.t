@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-10-11 11:45:16 $
+# $Date: 2006-12-06 12:52:00 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.6 $
+# $Revision: 1.7 $
 
 use warnings FATAL => qw(all);
 
@@ -11,7 +11,7 @@ use Test::More;
 use Config::Model;
 use Config::Model::ValueComputer ;
 
-BEGIN { plan tests => 43; }
+BEGIN { plan tests => 45; }
 
 use strict;
 
@@ -160,7 +160,7 @@ $model -> create_config_class
 		 type => 'leaf',
 		 value_type => 'enum',
 		 name       => 'macro',
-		 choice     => [qw/A B C/]
+		 choice     => [qw/A B C D/]
 		},
        'm_value' => {
 		     type => 'leaf',
@@ -168,11 +168,11 @@ $model -> create_config_class
 		     warp       => {
 				    follow => '- macro',
 				    'rules' 
-				    => {
-					A => { choice => [qw/Av Bv/] },
+				    => [
+					[qw/A D/] => { choice => [qw/Av Bv/] },
 					B => { choice => [qw/Bv Cv/] },
 					C => { choice => [qw/Cv/] }
-				       }
+				       ]
 				   }
 		    },
        'compute' 
@@ -250,6 +250,16 @@ is($root->fetch_element('macro')->store('C'), 'C',
 
 is($slave->fetch_element('X')->fetch , undef,
   "reading slave->X (undef)") ;
+
+$root->fetch_element('macro')->store('A') ;
+
+is($root->fetch_element('m_value')->store('Av') , 'Av',
+   'test m_value with macro=A') ;
+
+$root->fetch_element('macro')->store('D') ;
+
+is($root->fetch_element('m_value')->fetch , 'Av',
+   'test m_value with macro=D') ;
 
 $root->fetch_element('macro')->store('A') ;
 

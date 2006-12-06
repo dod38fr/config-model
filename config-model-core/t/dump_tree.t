@@ -1,11 +1,11 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-10-11 11:43:16 $
+# $Date: 2006-12-06 12:51:59 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.7 $
+# $Revision: 1.8 $
 
 use ExtUtils::testlib;
-use Test::More tests => 6;
+use Test::More tests => 7;
 use Config::Model;
 
 use warnings;
@@ -95,4 +95,36 @@ EOF
 
 is($cds,$expect,"check dump of all values ") ;
 
+
+$root->fetch_element('listb')->clear ;
+
+$cds = $root->dump_tree( full_dump => 1 );
+print "cds string:\n$cds" if $trace  ;
+
+$expect = <<'EOF' ;
+std_id:"b d "
+  X=Av
+  DX=Dv -
+std_id:ab
+  X=Bv
+  DX=Dv -
+std_id:bc
+  X=Av
+  DX=Dv -
+lista=a,b,c,d
+olist:0
+  X=Av
+  DX=Dv -
+olist:1
+  X=Bv
+  DX=Dv -
+warp
+  sub_slave
+    sub_slave - - -
+string_with_def="yada yada"
+a_string="toto tata"
+int_v=10 -
+EOF
+
+is($cds,$expect,"check dump of all values after listb is cleared") ;
 

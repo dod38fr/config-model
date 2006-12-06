@@ -1,13 +1,13 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-10-11 11:43:44 $
+# $Date: 2006-12-06 12:51:59 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.5 $
+# $Revision: 1.6 $
 
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
-use Test::More tests => 33 ;
+use Test::More tests => 40 ;
 use Config::Model ;
 
 use strict;
@@ -81,7 +81,21 @@ $model ->create_config_class
 	   index_type  => 'string',
 	   @element ,
 	   follow  => '- hash_with_several_auto_created_id',
-	  }
+	  },
+       hash_with_allow
+       => {
+	   type => 'hash',
+	   index_type  => 'string',
+	   @element ,
+	   allow  => [qw/foo bar baz/],
+	  },
+       hash_with_allow_from
+       => {
+	   type => 'hash',
+	   index_type  => 'string',
+	   @element ,
+	   allow_from  => '- hash_with_several_auto_created_id',
+	  },
       ],
    );
 
@@ -158,3 +172,26 @@ is_deeply([sort $ac2->get_all_indexes], [qw/foo x y z/],"...check id...") ;
 
 my $follower = $root->fetch_element('hash_follower');
 is_deeply([sort $follower->get_all_indexes], [qw/foo x y z/],"check follower id") ;
+
+eval { $follower->fetch_with_id('zoo')->store('zoo');} ;
+ok($@,"forbidden index error (not in followed object)") ;
+print "normal error: ", $@ if $trace;
+
+my $allow = $root->fetch_element('hash_with_allow'); 
+
+ok($allow,"created hash_with_allow ...") ;
+ok($allow->fetch_with_id('foo')->store(3),"... store a value...") ;
+
+eval { $allow->fetch_with_id('zoo')->store('zoo');} ;
+ok($@,"not allowed index error") ;
+print "normal error: ", $@ if $trace;
+
+my $allow_from = $root->fetch_element('hash_with_allow_from'); 
+
+ok($allow_from,"created hash_with_allow ...") ;
+ok($allow_from->fetch_with_id('foo')->store(3),"... store a value...") ;
+
+eval { $allow_from->fetch_with_id('zoo')->store('zoo');} ;
+ok($@,"not allowed index error") ;
+print "normal error: ", $@ if $trace;
+

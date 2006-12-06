@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-07-19 12:26:53 $
+# $Date: 2006-12-06 12:52:00 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 use ExtUtils::testlib;
 use Test::More tests => 16 ;
@@ -55,7 +55,7 @@ my $path = $term_ui->list_cd_path ;
 
 is_deeply ($path, 
 	   [qw/std_id:ab std_id:bc tree_macro warp
-               string_with_def a_string int_v/] ,
+               string_with_def a_string int_v my_check_list my_reference/] ,
 	   'check list cd path at root') ;
 
 is($term_ui->prompt, $expected_prompt ,'test prompt at root') ;
@@ -63,7 +63,7 @@ is($term_ui->prompt, $expected_prompt ,'test prompt at root') ;
 my @test = ( 
 	    [ 'vf std_id:ab', "Unexpected command 'vf'", $expected_prompt  ],
 	    [ 'ls', 
-	      'std_id  lista  listb  hash_a  hash_b  olist  tree_macro  warp  string_with_def  a_string  int_v', 
+	      'std_id  lista  listb  hash_a  hash_b  olist  tree_macro  warp  string_with_def  a_string  int_v  my_check_list  my_reference', 
 	      $expected_prompt  ],
 	    [ 'cd std_id:ab', "", $prompt.': std_id:ab $ '  ],
 	    [ 'set X=Av',"", $prompt.': std_id:ab $ ' ],

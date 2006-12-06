@@ -1,13 +1,13 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-10-02 11:35:48 $
+# $Date: 2006-12-06 12:52:00 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.4 $
+# $Revision: 1.5 $
 
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
-use Test::More tests => 13 ;
+use Test::More tests => 14 ;
 use Config::Model ;
 
 use strict;
@@ -65,9 +65,11 @@ $model ->create_config_class
    name => 'Node',
    element => [
 	       host => { type => 'leaf',
+			 value_type => 'reference' ,
 			 refer_to => '! host'
 		       },
 	       if   => { type => 'leaf',
+			 value_type => 'reference' ,
 			 refer_to => [ '  ! host:$h if ', h => '- host' ]
 		       },
 	       ip => { type => 'leaf',
@@ -95,7 +97,12 @@ $model ->create_config_class
 			index_type => 'string',
 			cargo_type => 'node',
 			config_class_name  => 'Lan'
-		      }
+		      },
+	       host_and_choice => { type => 'leaf',
+				    value_type => 'reference' ,
+				    refer_to => [ '! host ' ],
+				    choice => [qw/foo bar/]
+				  }
 	      ]
   );
 
@@ -149,3 +156,7 @@ is( $root->grab_value('lan:B node:2 ip'), '10.0.1.2', "got ip 10.0.1.2" );
 
 #print distill_root( object => $root );
 #print dump_root( object => $root );
+
+my $hac = $root->fetch_element('host_and_choice') ;
+is_deeply([$hac->get_choice],['A','B','bar','foo'],
+	 "check that default choice and refer_to add up");

@@ -1,11 +1,11 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-10-11 11:55:39 $
+# $Date: 2006-12-06 12:51:59 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.6 $
+# $Revision: 1.7 $
 
 use ExtUtils::testlib;
-use Test::More tests => 37;
+use Test::More tests => 38;
 use Config::Model;
 
 use warnings;
@@ -122,3 +122,5 @@ is($elt->fetch,'z 1', 'check result with white spaces');
 
 is ($elt->location,'hash_a:"a b "', 'check location') ;
 
+$step = 'my_check_list:0=a my_check_list:1=b' ;
+ok( $root->load( step => $step, ), "load : '$step'");

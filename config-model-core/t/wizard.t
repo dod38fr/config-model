@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-07-19 12:26:53 $
+# $Date: 2006-12-06 12:52:00 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 use ExtUtils::testlib;
 use Test::More tests => 6;
@@ -40,7 +40,7 @@ my @leaf_cb_expect = ( 'Master tree_macro', 'Master a_string' ) ;
 my @hash_cb_expect = ( 'Master hash_a id' ) ;
 
 my $leaf_cb = sub {
-    my ($node,$element,$index, $leaf_object) = @_ ;
+    my ($wiz, $data_r,$node,$element,$index, $leaf_object) = @_ ;
     print "test: leaf_cb called for ",$leaf_object->name,"\n" 
       if $::trace ;
     my $expect = shift @leaf_cb_expect ;
@@ -48,7 +48,7 @@ my $leaf_cb = sub {
 };
 
 my $hash_cb = sub {
-    my ($node,$element,@keys) = @_ ;
+    my ($wiz, $data_r,$node,$element,@keys) = @_ ;
     print "test: hash_cb called for ",$node->name," element $element\n" 
       if $::trace ;
     my $obj = $node->fetch_element($element) ;

@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-10-11 11:42:18 $
+# $Date: 2006-12-06 12:51:59 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.6 $
+# $Revision: 1.7 $
 
 use warnings FATAL => qw(all);
 
@@ -10,7 +10,7 @@ use ExtUtils::testlib;
 use Test::More;
 use Config::Model;
 
-BEGIN { plan tests => 14; }
+BEGIN { plan tests => 17; }
 
 use strict;
 
@@ -39,6 +39,24 @@ $model ->create_config_class
 
 	    max => 123, 
 	    @element
+	  },
+       list_with_auto_created_id
+       => {
+	   type => 'list',
+	   auto_create => 4,
+	   @element
+	  },
+       [qw/list_with_default_id list_with_default_id_2/]
+       => {
+	   type => 'list',
+	   default    => 1 ,
+	   @element
+	  },
+       list_with_several_default_keys
+       => {
+	   type => 'list',
+	   default    => [2..5],
+	   @element
 	  },
        ]
    ) ;
@@ -72,3 +90,13 @@ $b->push('toto','titi') ;
 is($b->fetch_with_id(2)->fetch, 'bar', "check last item of table") ;
 is($b->fetch_with_id(3)->fetch, 'toto',"check pushed item") ;
 is($b->fetch_with_id(4)->fetch, 'titi',"check pushed item") ;
+
+my $ld1 = $root->fetch_element('list_with_default_id');
+is_deeply([$ld1->get_all_indexes],[0,1],"check list_with_default_id ids") ;
+
+my $lds = $root->fetch_element('list_with_several_default_keys');
+is_deeply([$lds->get_all_indexes],[0 .. 5],"check list_with_several_default_keys") ;
+
+my $lac = $root->fetch_element('list_with_auto_created_id');
+is_deeply([$lac->get_all_indexes],[0 .. 3],"check list_with_auto_created_id") ;
+

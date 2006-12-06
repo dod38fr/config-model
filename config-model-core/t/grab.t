@@ -1,11 +1,11 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-07-19 12:24:56 $
+# $Date: 2006-12-06 12:51:59 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 
 use ExtUtils::testlib;
-use Test::More tests => 32;
+use Test::More tests => 34;
 use Config::Model;
 
 use warnings;
@@ -35,7 +35,7 @@ my $root = $inst -> config_root ;
 
 Config::Model::Exception::Any->Trace(1) if $trace =~ /e/;
 
-my $step = 'std_id:ab X=Bv - std_id:bc X=Av - a_string="titi , toto" ';
+my $step = 'std_id:ab X=Bv - std_id:bc X=Av - std_id:"b c" X=Av - a_string="titi , toto" ';
 ok( $root->load( step => $step, permission => 'intermediate' ),
   "load '$step'");
 
@@ -60,13 +60,15 @@ is( $root->location(), '','location test' );
 foreach my $wstep ( 
 		   'std_id:ab', 'olist:0', 'olist:1', 
 		   'warp',
-		   'warp std_id:toto'
+		   'warp std_id:toto',
+		   'warp std_id:"b c"'
 		  )
 {
     my $obj = $root->grab( $wstep );
     ok($obj,"grab $wstep...");
     is( $obj->location, $wstep,"... and test its location" );
 }
+
 
 print $root->dump_tree( ) if $trace =~ /t/;
 
