@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-11-07 12:47:50 $
+# $Date: 2006-12-06 13:03:16 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.6 $
+# $Revision: 1.7 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -34,6 +34,8 @@
    read_config => [ { class => 'Config::Xorg::Read', function => 'read'}] ,
    config_dir => '/etc/X11/' ,
 
+   write_config => { class => 'Config::Xorg::Write' ,  function => 'write'},
+
    'element' 
    => [
        'Files' => {
@@ -41,7 +43,10 @@
 		   config_class_name => 'Xorg::Files',
 		  },
 
-#        ServerFlags    will be done later
+        'ServerFlags' => {
+			  type => 'node',
+			  config_class_name => 'Xorg::ServerFlags',
+			 },
 
        'Module' => {
  		    type => 'node',
@@ -51,7 +56,8 @@
        # From InputDevice section
        [qw/CorePointer CoreKeyboard/]
        => { type => 'leaf',
-	    mandatory => 1,
+	   # mandatory => 1,
+	    value_type => 'reference',
 	    refer_to => '! InputDevice',
 	  },
 
@@ -72,7 +78,7 @@
 			   default => 0,
 			 },
 
-#        Device         Graphics device description
+       # Graphics device description
        'Device' 
        => {
 	   type => 'hash',
@@ -81,10 +87,9 @@
 	   config_class_name => 'Xorg::Device',
 	  },
 
-#        VideoAdaptor   Xv video adaptor description
-#        Difficult to provide a model without doc...
+       # VideoAdaptor   Xv video adaptor description
+       # Difficult to provide a model without doc...
 
-#        Monitor        Monitor description
        'Monitor'
        => {
 	   type => 'hash',
@@ -94,7 +99,7 @@
 	  },
 
 
-#        Modes          Video modes descriptions
+       # Video modes descriptions
        'Modes' => {
 	   type => 'hash',
 	   index_type => 'string' , 
@@ -102,32 +107,31 @@
 	   config_class_name => 'Xorg::Monitor::Mode',
 	  },
 
-#        Screen         Screen configuration
+       # Screen configuration
        'Screen' => { 
 		    type => 'hash',
 		    index_type => 'string' , # Identifier field in xorg.conf
 		    cargo_type => 'node',
 		    config_class_name => 'Xorg::Screen',
 		   },
-       
-#        ServerLayout   Overall layout
 
+       # Overall layout
        'ServerLayout' => { 
 		    type => 'hash',
 		    index_type => 'string' , # Identifier field in xorg.conf
 		    cargo_type => 'node',
 		    config_class_name => 'Xorg::ServerLayout',
 		   },
-#        DRI            DRI-specific configuration
-#        Vendor         Vendor-specific configuration
+       # DRI            DRI-specific configuration
+       # Vendor         Vendor-specific configuration
       ],
 
    level => [ [qw/MultiHead/] => 'important' ],
-       
+
    'description' 
    => [
        Files          => 'File pathnames',
-       ServerFlags    => 'Server flags',
+       ServerFlags    => 'Server flags used to specify some global Xorg server options.',
        Module         => 'Dynamic module loading',
        CorePointer    => 'name of the core (primary) pointer device',
        CoreKeyboard   => 'name of the core (primary) keyboard device',
