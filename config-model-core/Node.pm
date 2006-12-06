@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-10-02 11:35:48 $
+# $Date: 2006-12-06 12:46:39 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.8 $
+# $Revision: 1.9 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -40,7 +40,7 @@ use base qw/Config::Model::AutoRead/;
 use vars qw($VERSION $AUTOLOAD @status @level
 @permission_list %permission_index );
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.8 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.9 $ =~ /(\d+)\.(\d+)/;
 
 *status           = *Config::Model::status ;
 *level            = *Config::Model::level ;
@@ -205,6 +205,7 @@ my %create_sub_for =
    leaf => \&create_leaf,
    hash => \&create_id,
    list => \&create_id,
+   check_list => \&create_id ,
    warped_node => \&create_warped_node,
   ) ;
 
@@ -354,9 +355,20 @@ of this collection is identified by an integer (Just like a regular
 perl array, except that you can set up constraint of the keys).  See
 L</"List element">
 
+=item C<check_list> 
+
+The element is a collection of values which are unique in the
+check_list. See L<CheckList>.
+
 =back
 
 =cut
+
+my %id_class_hash = (
+		     hash       => 'HashId',
+		     list       => 'ListId',
+		     check_list => 'CheckList' ,
+		    ) ;
 
 sub create_id {
     my $self = shift ;
@@ -373,8 +385,11 @@ sub create_id {
 		)
 	  unless defined $type ;
 
+    croak "Undefined id_class for type '$type'" 
+      unless defined $id_class_hash{$type};
+
     my $id_class = delete $element_info->{$type.'_class'} 
-      || 'Config::Model::'.ucfirst($type).'Id';
+      || 'Config::Model::'.$id_class_hash{$type} ;
 
     if (not defined *{$id_class.'::'}) {
 	my $file = $id_class.'.pm';
@@ -716,7 +731,8 @@ sub element_model {
 
 =head2 element_type ( element_name )
 
-Returns the type (e.g. leaf, hash, list or node) of the element. 
+Returns the type (e.g. leaf, hash, list, checklist or node) of the
+element.
 
 =cut
 
@@ -738,6 +754,10 @@ See L<Config::Model::AnyThing/"index_value()">
 =head2 parent()
 
 See L<Config::Model::AnyThing/"parent()">
+
+=head2 root()
+
+See L<Config::Model::AnyThing/"root()">
 
 =head2 location()
 
@@ -1024,6 +1044,16 @@ sub fetch_element_value {
     my $element_name = shift ;
     my $user = shift || 'master' ;
 
+    if ($self->element_type($element_name)  ne 'leaf') {
+	Config::Model::Exception::WrongType
+	    ->throw(
+		    object   => $self->fetch_element($element_name),
+		    function => 'fetch_element_value',
+		    got_type => $self->element_type($element_name),
+		    expected_type => 'leaf',
+		   );
+    }
+
     return $self->fetch_element($element_name,$user)->fetch() ;
 }
 
@@ -1271,10 +1301,11 @@ Dominique Dumont, domi@komarr.grenoble.hp.com
 
 =head1 SEE ALSO
 
-L<Config::Model::Model>, 
+L<Config::Model>, 
 L<Config::Model::Instance>, 
 L<Config::Model::HashId>,
 L<Config::Model::ListId>,
+L<Config::Model::CheckList>,
 L<Config::Model::WarpedNode>,
 L<Config::Model::Value>
 
