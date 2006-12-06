@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-04-21 12:07:32 $
+# $Date: 2006-12-06 08:38:44 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 #    Copyright (c) 2006 Dominique Dumont.
 #
@@ -31,7 +31,7 @@ use Config::Model::Exception ;
 use Error qw(:try);
 
 use vars qw($VERSION);
-$VERSION = sprintf "%d.%03d", q$Revision: 1.1 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -84,9 +84,9 @@ method.
 
 =head1 Creating a wizard helper
 
-A wizard helper will need at least to kind of call-back that must be
+A wizard helper will need at least two kind of call-back that must be
 provided by the user: a call-back for leaf elements and a call-back
-for hash elements (that will be also used for list elements).
+for hash elements (which will be also used for list elements).
 
 These call-back must be passed when creating the wizard object (the
 parameters are named C<lead_cb> and C<hash_cb>)
@@ -203,13 +203,13 @@ when the scan is completely done.
 
 sub start {
     my $self = shift ;
-    $self->{scanner}->scan_node($self->{root}) ;
+    $self->{scanner}->scan_node(undef, $self->{root}) ;
 }
 
 # internal. This call-back is passed to ObjTreeScanner. It will call
 # scan_element in an order which depends on $self->{forward}.
 sub element_cb {
-    my ($self,$node,@element) = @_ ;
+    my ($self,$scanner, $data_r, $node,@element) = @_ ;
 
     warn "wiz_walk, element_cb called on '", $node->name,
       "' element: @element\n" if $::verbose;
@@ -220,7 +220,7 @@ sub element_cb {
 	my $element = $element[$i] ;
 	warn "wiz_walk, element_cb calls scan_element on element $element\n"
 	  if $::verbose;
-	$self->{scanner}->scan_element($node,$element) ;
+	$self->{scanner}->scan_element($data_r,$node,$element) ;
 	$i += $self->{forward} ;
     }
 }
@@ -240,7 +240,7 @@ sub get_cb {
 # also check if the hash (or list) element is flagged as 'important'
 # and call user's hash or list call-back if needed
 sub hash_cb {
-    my ($self,$node,$element) = splice @_,0,3 ;
+    my ($self,$scanner, $data_r,$node,$element) = splice @_,0,5 ;
     my @keys = sort @_ ;
 
     warn "wiz_walk, hash_cb (element $element) called on '", $node->name,
@@ -257,7 +257,7 @@ sub hash_cb {
 
     while ($i >= 0 and $i < 2) {
 	if ($self->{call_back_on_important} and $i == 0 and $level eq 'important') {
-	    $cb->($node,$element,@keys) ;
+	    $cb->($self,$data_r,$node,$element,@keys) ;
 	    # recompute keys as they may have been modified during call-back
 	    @keys = $self->{scanner}->get_keys($node,$element) ;
 	}
@@ -268,7 +268,7 @@ sub hash_cb {
 		my $k = $keys[$j] ;
 		warn "wiz_walk, hash_cb (element $element) calls ",
 		  "scan_hash on key $k\n" if $::verbose;
-		$self->{scanner}->scan_hash($node,$element,$k) ;
+		$self->{scanner}->scan_hash($data_r,$node,$element,$k) ;
 		$j += $self->{forward} ;
 	    }
 	}
@@ -282,7 +282,7 @@ sub hash_cb {
 # call user's call-back if needed
 
 sub leaf_cb {
-    my ($self,$node,$element,$index,$value_obj) = @_ ;
+    my ($self,$scanner, $data_r,$node,$element,$index,$value_obj) = @_ ;
 
     warn "wiz_walk,leaf_cb called on '", $node->name,
       "' element '$element'", defined $index ? ", index $index":'', "\n" 
@@ -297,7 +297,7 @@ sub leaf_cb {
 	warn "leaf_cb found important elt: '", $node->name,
 	  "' element $element", defined $index ? ", index $index":'', "\n" 
 	    if $::verbose;
-	$user_leaf_cb->($node,$element,$index,$value_obj) ;
+	$user_leaf_cb->($self,$data_r,$node,$element,$index,$value_obj) ;
     }
 
     # now need to check for errors...
@@ -311,7 +311,7 @@ sub leaf_cb {
 	warn "leaf_cb oopsed on '", $node->name,
 	  "' element $element", defined $index ? ", index $index":'', "\n" 
 	    if $::verbose;
-	$user_leaf_cb->($node,$element,$index,$value_obj , $error_msg) ;
+	$user_leaf_cb->($self,$data_r,$node,$element,$index,$value_obj , $error_msg) ;
     }
     otherwise {
         my $oops = shift ;
@@ -359,6 +359,10 @@ Dominique Dumont, domi@komarr.grenoble.hp.com
 L<Config::Model>,
 L<Config::Model::Instance>,
 L<Config::Model::Node>,
+L<Config::Model::HashId>,
+L<Config::Model::ListId>,
+L<Config::Model::Value>,
+L<Config::Model::CheckList>,
 L<Config::Model::ObjTreeScanner>,
 
 =cut
