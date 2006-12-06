@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-10-19 11:18:53 $
+# $Date: 2006-12-06 12:48:18 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.21 $
+# $Revision: 1.22 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -34,7 +34,7 @@ use Config::Model::Instance ;
 # this class holds the version number of the package
 use vars qw($VERSION @status @level @permission_list %permission_index) ;
 
-$VERSION = '0.603';
+$VERSION = '0.604';
 
 =head1 NAME
 
@@ -752,9 +752,25 @@ Dominique Dumont, domi@komarr.grenoble.hp.com
 =head1 SEE ALSO
 
 L<Config::Model::Instance>, 
+
+=head2 Model elements
+
 L<Config::Model::Node>, 
 L<Config::Model::HashId>,
 L<Config::Model::ListId>,
 L<Config::Model::Value>
+L<Config::Model::CheckList>,
+L<Config::Model::AutoRead>,
+
+=head2 Model utilities
+
+L<Config::Model::Describe>,
+L<Config::Model::Dumper>,
+L<Config::Model::Loader>,
+L<Config::Model::ObjTreeScanner>,
+L<Config::Model::Report>,
+L<Config::Model::Searcher>,
+L<Config::Model::TermUI>,
+L<Config::Model::WizardHelper>,
 
 =cut
