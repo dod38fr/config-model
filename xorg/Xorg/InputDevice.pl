@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-11-07 12:39:50 $
+# $Date: 2006-12-06 13:09:13 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -32,7 +32,7 @@
   name => "Xorg::InputDevice",
   'element' 
   => [ 
-      'Driver'         => {type       => 'leaf',
+      'Driver'         => { type       => 'leaf',
 			    value_type => 'enum',
 			    mandatory  => 1 ,
 			    choice => [qw/keyboard mouse/] ,

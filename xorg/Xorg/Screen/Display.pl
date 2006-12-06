@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-11-07 12:44:08 $
+# $Date: 2006-12-06 13:09:16 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -88,7 +88,7 @@
 
        'Modes'  => {
 		    type => 'check_list',
-		    refer_to => [ '! Monitor:"$my_monitor" UseModes',
+		    refer_to => [ '! Monitor:"$my_monitor" UseModes + ! Monitor:"$my_monitor" Mode ',
 				  'my_monitor' => '- - Monitor'
 				],
 		    # built-in Vesa modes
@@ -115,21 +115,18 @@
                                                TrueColor DirectColor/],
 				 built_in => 'PseudoColor',
 			       },
-			  15
-			  => { 
-			      choice => [qw/TrueColor DirectColor/],
-			      built_in => 'TrueColor',
-			     },
-			  16
-			  => { 
-			      choice => [qw/TrueColor DirectColor/],
-			      built_in => 'TrueColor',
-			     },
-			  24 
-			  => { 
-			      choice => [qw/TrueColor DirectColor/],
-			      built_in => 'TrueColor',
-			     },
+			  15 => { 
+				 choice => [qw/TrueColor DirectColor/],
+				 built_in => 'TrueColor',
+				},
+			  16 => { 
+				 choice => [qw/TrueColor DirectColor/],
+				 built_in => 'TrueColor',
+				},
+			  24 => { 
+				 choice => [qw/TrueColor DirectColor/],
+				 built_in => 'TrueColor',
+				},
 			 }
 		   },
 	  },

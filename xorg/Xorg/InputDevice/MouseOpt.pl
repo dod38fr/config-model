@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-11-07 12:44:08 $
+# $Date: 2006-12-06 13:09:15 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -29,9 +29,6 @@
   name => "Xorg::InputDevice::MouseOpt",
   'element' 
   => [ 
-      'CorePointer'     => { type       => 'leaf',
-			     value_type => 'boolean',
-			   },
       'Device'          => { type   => 'leaf' ,
 			     value_type => 'string',
 			   },

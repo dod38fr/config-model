@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-11-07 12:44:08 $
+# $Date: 2006-12-06 13:09:13 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -51,7 +51,7 @@
 			  config_class_name => 'Xorg::Monitor::Gamma'},
 
       'UseModes'    => { type => 'check_list',
-			 refer_to => '! Modes + - Mode',
+			 refer_to => '! Modes ',
 		       } ,
       'Mode'        => { type => 'hash',
 			 index_type => 'string',

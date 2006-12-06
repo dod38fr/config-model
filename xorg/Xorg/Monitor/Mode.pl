@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-11-07 12:44:08 $
+# $Date: 2006-12-06 13:09:15 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -43,7 +43,7 @@
        => {type => 'leaf', value_type => 'boolean', built_in => 0 },
        [qw/HSyncPolarity VSyncPolarity CSyncPolarity/]
        => {type => 'leaf', value_type => 'enum', 
-	   choice => [qw/positive negative/]
+	   choice => [qw/positive negative/],
 	  },
      ],
   'description'

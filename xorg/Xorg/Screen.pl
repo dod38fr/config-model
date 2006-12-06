@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-11-07 12:44:08 $
+# $Date: 2006-12-06 13:09:13 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -35,12 +35,14 @@
   => [
       'Device' => {
 		   type => 'leaf',
+		   value_type => 'reference' ,
 		   refer_to => '! Device', # refer device identifier
 		   mandatory => 1,
 		  }  ,
 
       'Monitor' => {
 		   type => 'leaf',
+		   value_type => 'reference' ,
 		   refer_to => '! Monitor', # refer device identifier
 		   mandatory => 1,          # better to be mandatory
 		  } ,
@@ -52,7 +54,8 @@
 
       'DefaultDepth' => {
 			 type => 'leaf',
-			 value_type => 'integer',
+			 value_type => 'reference',
+			 refer_to => '- Display',
 			} ,
 
       'DefaultFbBpp' => {
@@ -65,9 +68,12 @@
 		   config_class_name => 'Xorg::Screen::Option' 
 		  },
       'Display' => { 
-		   type     => 'node',
-		   config_class_name => 'Xorg::Screen::Display' 
-		  },
+		    type     => 'hash',
+		    index_type => 'integer',
+		    min => 1, max => 32,
+		    cargo_type => 'node',
+		    config_class_name => 'Xorg::Screen::Display' 
+		   },
      ],
   'description'
   => [

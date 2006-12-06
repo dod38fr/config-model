@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-11-07 12:44:08 $
+# $Date: 2006-12-06 13:09:15 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -49,9 +49,8 @@
   name => "Xorg::InputDevice::KeyboardOpt",
   'element' 
   => [ 
-      'CoreKeyboard'     => { type       => 'leaf',
-			      value_type => 'boolean',
-			    },
+      # CoreKeyboard option is stored at top level (in Xorg model)
+
       "Protocol"         => {
 			     type => 'leaf',
 			     value_type  => 'enum',
@@ -72,7 +71,7 @@
 
       "XkbDisable" => { type => 'leaf',
 			value_type => "boolean",
-			built_in => 1,
+			built_in => 0,
 		      },
 
       'XkbRules'        => {
