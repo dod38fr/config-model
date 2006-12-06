@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-02-23 13:43:30 $
+# $Date: 2006-12-06 10:59:19 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -30,7 +30,7 @@ use Carp;
 use warnings FATAL => qw(all);
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/;
 
 use base qw/Config::Model::AnyThing/ ;
 
@@ -142,6 +142,14 @@ depending on the value(s) of the warp master(s). E.g.:
             B => { <effect for macro1 == B> }
           }
 
+In case of similar effects, you can group the rules:
+
+  follow => [ '! macro1' ],
+  rules => [ A => { <effect for macro1 == A> },
+             ['B','C'] => { <effect for macro1 == B|C > }
+           ]
+
+
 In case of several warp masters, the rules must be an array ref:
 
  follow => [ '! macro1', '- macro2' ],
@@ -152,7 +160,12 @@ In case of several warp masters, the rules must be an array ref:
            [qw/B D/] => {<effect for macro1 == B and macro2 == D>},
           ]
 
-Of course some combinations of warp master values can have the same effect:
+The C<rules> array structure is the same as the previous example, but
+the interpretation is different because C<follow> points to more that
+one item.
+
+Of course some combinations of warp master values can have the same
+effect:
 
  follow => [ '! macro1', '- macro2' ],
  rules => [
@@ -240,32 +253,40 @@ sub _dclone_key {
     return map { ref $_ ? [ @$_ ] : $_ } @_ ;
 }
 
-# $rule:                  @exp_keys
-# 'foo'                => ( foo )
-# [ 'foo', 'bar' ]     => ( [ 'foo', 'bar' ] )
-# [ [f1 ,f2 ] , bar ]  => ( [f1, bar ], [f2 , bar] )
+# $multi_follow $key_rule:               @exp_keys
+#     0         'foo'                => ( foo )
+#     0         [ 'foo', 'bar' ]     => ( 'foo', 'bar' )
+#     1         [ 'foo', 'bar' ]     => ( [ 'foo', 'bar' ] )
+#     1         [ [f1 ,f2 ] , bar ]  => ( [f1, bar ], [f2 , bar] )
 # return a list of expanded rules from the passed rule.
 sub _expand_key {
-    # deep copy of keys, and store in an array
-    my @exp_keys  = ( _dclone_key( shift ) ) ;
+    my $multi_follow = shift ;
 
-    for (my $i = 0; defined $exp_keys[$i]; $i ++) {
-	next unless ref $exp_keys[$i] ;
+    if ($multi_follow) {
+	# deep copy of keys, and store in an array
+	my @exp_keys  = ( _dclone_key( shift ) ) ;
 
-	for (my $j = 0; defined $exp_keys[$i][$j]; $j ++) {
-	    next unless ref $exp_keys[$i][$j];
+	for (my $i = 0; defined $exp_keys[$i]; $i ++) {
+	    next unless ref $exp_keys[$i] ;
 
-	    my @a = @{$exp_keys[$i][$j]} ;
-	    $exp_keys[$i][$j] = shift @a ;
-	    map {
-		my ($b) = _dclone_key($exp_keys[$i] ) ;
-		push @exp_keys , $b ;
-		$b-> [$j] = $_ ;
-	    } @a ;
+	    for (my $j = 0; defined $exp_keys[$i][$j]; $j ++) {
+		next unless ref $exp_keys[$i][$j];
+
+		my @a = @{$exp_keys[$i][$j]} ;
+		$exp_keys[$i][$j] = shift @a ;
+		map {
+		    my ($b) = _dclone_key($exp_keys[$i] ) ;
+		    push @exp_keys , $b ;
+		    $b-> [$j] = $_ ;
+		} @a ;
+	    }
 	}
-    }
 
-   return @exp_keys ;
+	return @exp_keys ;
+    }
+    else {
+	return map { ref $_ ? @$_ : $_ } @_ ;
+    }
 }
 
 # internal: used to expand multi warp masters rules
@@ -275,13 +296,14 @@ sub _expand_key {
 # [ f1, b1 ] => {..} ,[ f1,b2 ] => {...}, [f2,b1] => {...} ...
 # [ [ f1a, f1b ] , b1 ] => {..} ,[ f1,b2 ] => {...}, ...
 sub _expand_rules {
+    my $multi_follow = shift ;
     my @rules = @_ ;
 
     my @expanded ;
     for (my $r_idx = 0; $r_idx < $#rules; $r_idx  += 2) {
-	my $rule = $rules[$r_idx] ;
+	my $key_rule = $rules[$r_idx] ;
 	map { push @expanded, $_ =>  $rules[$r_idx+1] } 
-	  _expand_key($rule) ;
+	  _expand_key($multi_follow, $key_rule) ;
     }
 
     return @expanded ;
@@ -319,21 +341,26 @@ sub submit_to_warp {
     # is equivalent to 
     # [ f1a, b1 ] => { ... }, [  f1b , b1 ] => { ... }
 
-    # check the number of keys in the @rules set
-    for (my $r_idx = 0; $r_idx < $#rules; $r_idx  += 2) {
-        my $key_set = $rules[$r_idx] ;
-        my @keys = ref($key_set) ? @$key_set : ($key_set) ;
+    my $multi_follow =  @warper_items > 1 ? 1 : 0;
 
-        Config::Model::Exception::Model
-	    -> throw (
-		      object => $self,
-		      error => "Warp rule error in object '".$self->name.
-		      ": Wrong nb of keys in set '@keys',".
-		      " Expected ".scalar @warper_items." keys"
-		     ) unless @keys == @warper_items;
+    # check the number of keys in the @rules set if we have more
+    # than one warper_items
+    if ( $multi_follow ) {
+	for (my $r_idx = 0; $r_idx < $#rules; $r_idx  += 2) {
+	    my $key_set = $rules[$r_idx] ;
+	    my @keys = ref($key_set) ? @$key_set : ($key_set) ;
+
+	    Config::Model::Exception::Model
+		-> throw (
+			  object => $self,
+			  error => "Warp rule error in object '".$self->name.
+			  ": Wrong nb of keys in set '@keys',".
+			  " Expected ".scalar @warper_items." keys"
+			 ) unless @keys == @warper_items;
+	}
     }
 
-    my @expanded = _expand_rules( @rules  ) ;
+    my @expanded = _expand_rules( $multi_follow, @rules ) ;
 
     my $rules_h = {} ;
     for (my $r_idx = 0; $r_idx < $#expanded; $r_idx  += 2) {
