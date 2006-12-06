@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-10-19 11:20:00 $
+# $Date: 2006-12-06 12:44:29 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.6 $
+# $Revision: 1.7 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -36,7 +36,7 @@ use base qw/Config::Model::WarpedThing/ ;
 
 use vars qw($VERSION) ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -319,14 +319,7 @@ See L</"Value reference">.
 sub set_refer_to {
     my ($self, $arg_ref) = @_ ;
 
-    $arg_ref->{value_type} = 'enum';
     $self->{refer_to} = delete $arg_ref->{refer_to};
-
-    Config::Model::Exception::Model
-	-> throw (
-		  object => $self,
-		  error => "Value error: cannot combine choice and refer_to"
-		 ) if defined $arg_ref->{choice} ;
 }
 
 
@@ -357,7 +350,11 @@ sub new {
     my $self={} ;
     bless $self,$type;
 
-    $self->{mandatory} = $self->{allow_compute_override} = 0;
+    $self->{mandatory} = $self->{allow_compute_override} = 0 ;
+
+    # this parameter is internal and is used only by CheckList
+    $self->{unique_value} = delete $args{unique_value} || 0 ;
+
     $self->{element_name} = delete $args{element_name} 
       || croak "Value new: no 'element_name' defined" ;
     $self->{index_value} = delete $args{index_value} ; 
@@ -371,12 +368,11 @@ sub new {
     Config::Model::Exception::Model
 	-> throw (
 		  error=> "$type creation error: missing value_type or "
-		  ."warp or refer_to parameter",
+		  ."warp parameter",
 		  object => $self
 		 ) 
 	  unless (   defined $args{value_type} 
-		  or defined $args{warp}
-		  or defined $args{refer_to});
+		  or defined $args{warp});
 
     Config::Model::Exception::Model
 	-> throw (
@@ -422,37 +418,32 @@ sub set {
     print "'".$self->name."' set called with \n", Dumper(\%args)
       if $::debug ;
 
-    if (defined $args{refer_to} and defined $args{value_type}) {
-	Config::Model::Exception::Model
-	    -> throw (
-		      object => $self,
-		      error => "Cannot specify both value_type "
-		               . "and refer_to",
-		     ) 
-	};
-
-    if ( (     not defined $args{refer_to}
-	   and not defined $args{value_type} 
-	 )
-	 or (defined $args{value_type} 
-	     and not defined $args{refer_to}
-	     and $args{value_type} =~ 'enum'
-	     and not defined $args{choice}
+    if ( not          defined $args{value_type} 
+	 or (         defined $args{value_type} 
+	      and     $args{value_type} =~ 'enum'
+	      and not defined $args{choice}
 	    )
        ) {
         $self->{parent}
-	      -> set_element_property(property=> 'level',
-				      element => $self->{element_name},
-				      value   =>'hidden') ;
+	      -> set_element_property(property => 'level',
+				      element  => $self->{element_name},
+				      value    =>'hidden') ;
         delete $self->{data} ;
         return ;
     }
 
+    if ($args{value_type} eq 'reference' and not defined $args{refer_to}) {
+	Config::Model::Exception::Model
+	    -> throw (
+		      object => $self,
+		      error => "Missing 'refer_to' parameter with "
+		             . "'reference' value_type "
+		     ) 
+	};
+
     map { $self->{$_} =  delete $args{$_} if defined $args{$_} }
       qw/name min max mandatory allow_compute_override/;
 
-    # Note set_refer_to forces value_type to 'enum' in %args
-    $self->set_refer_to   ( \%args ) if defined $args{refer_to};
     $self->set_properties ( \%args );
     $self->set_value_type ( \%args );
     $self->set_default    ( \%args ) if (    exists $args{default} 
@@ -510,6 +501,11 @@ The value can be a decimal number
 
 Actually, no check is performed with this type.
 
+=item C<reference>
+
+Like an C<enum> where the possible values (aka choice) is defined by
+another location if the configuration tree. See L</Value Reference>.
+
 =back
 
 =cut
@@ -532,10 +528,12 @@ sub set_value_type {
         # convert any value to boolean
         $self->{data} = $self->{data} ? 1 : 0 if defined $self->{data};
     }
-    elsif ($value_type eq 'enum' or $value_type eq 'enum_integer') {
+    elsif (   $value_type eq 'reference' 
+	   or $value_type eq 'enum' 
+	   or $value_type eq 'enum_integer'
+	  ) {
+	$self->set_refer_to ($arg_ref) if $value_type eq 'reference';
         my $choice = delete $arg_ref->{choice} ;
-        #confess $self)," error: undefined choice of $value_type type" 
-        #  unless defined $choice;
         $self->setup_enum_choice($choice) if defined $choice ;
     }
     elsif (   $value_type eq 'string' 
@@ -601,11 +599,12 @@ For instance if you declare 2 C<Value> element this way:
      tv_standard => {
        type => 'leaf',
        value_type => 'enum',
-       choice => [qw/PAL NTSC/]  
+       choice => [qw/PAL NTSC SECAM/]  
        warp => { follow => '- country', # this points to the warp master
-                 rules => { US     => { default => 'NTSC' },
-                            Europe => { default => 'PAL'  },
-                            Japan  => { default => 'NTSC' } 
+                 rules => { US     => { default => 'NTSC'  },
+                            France => { default => 'SECAM' },
+                            Japan  => { default => 'NTSC'  },
+                            Europe => { default => 'PAL'   },
                           }
                }
        ],
@@ -616,22 +615,38 @@ For instance if you declare 2 C<Value> element this way:
 Setting C<country> element to C<US> will mean that C<tv_standard> has
 a default value set to C<NTSC> by the warp mechanism.
 
-Likewise, th warp mechanism enables you to dynamically change the
+Likewise, the warp mechanism enables you to dynamically change the
 possible values of an enum element:
 
  state => {
       type => 'leaf',
       value_type => 'enum', # example is admittedly silly
       warp => [ follow => '- country',
-                rules => { US     => { choice => ['Kansas', 'Texas'   ]},
-                           Europe => { choice => ['France', 'Espagna' ]},
+                rules => { US     => { choice => ['Kansas', 'Texas'    ]},
+                           Europe => { choice => ['France', 'Spain'    ]},
                            Japan  => { choice => ['Honshu', 'Hokkaido' ]}
                          }
       ]
  }
 
-Note that the C<state> element is not available until C<country> is
-set to a value.
+Note that the C<state> element is not available while C<country> is
+undefined.
+
+As syntactic sugar, similar rules can be grouped within an array ref
+instead of a hash ref. I.e., you can specify
+
+                 rules => [ 
+                            [qw/UK Germany Italy/] => { default => 'PAL'  },
+                            US     => { default => 'NTSC'  },
+                          ]
+
+instead of :
+                 rules => { 
+                            UK      => { default => 'PAL'  },
+                            Germany => { default => 'PAL'  },
+                            Italy   => { default => 'PAL'  },
+                            US      => { default => 'NTSC'  },
+                          }
 
 =cut
 
@@ -720,8 +735,8 @@ during start up and will fail at run time.
 =head1 Value Reference
 
 To set up an enumerated value where the possible choice depends on the
-key of a L<Config::Model::AnyId> object, you must use the C<refer_to>
-parameter.
+key of a L<Config::Model::AnyId> object, you must set C<value_type>
+to C<reference>.
 
 =cut
 
@@ -746,87 +761,110 @@ sub submit_to_refer_to {
 
 =pod
 
-This parameter implies that:
+When C<value_type> is a reference, you must also set the C<refer_to>
+parameter. 
 
 =over
 
 =item * 
 
-the first argument points to an array or hash element in the
-configuration tree using the path syntax (See
-L<Config::Model::Node/grab> for details). This path is treated like
-a computaion formula. Hence it can contain variable and substitution
+The first argument of C<refer_to> points to an array or hash element
+in the configuration tree using the path syntax (See
+L<Config::Model::Node/grab> for details). This path is treated like a
+computaion formula. Hence it can contain variable and substitution
 like a computation formula.
 
 =item *
 
-The following arguments define the variable used in the path formula.
+The following arguments of C<refer_to> define the variable used in the
+path formula.
 
 =item *
 
-The C<value_type> of the Value object with a C<refer_to> parameter is
-forced to C<enum>
-
-=item *
-
-The available choice of this enum is made from the available keys of
-the refered_to hash element or the range of the refered_to array element.
+The available choice of this reference value is made from the
+available keys of the refered_to hash element or the range of the
+refered_to array element.
 
 =back
 
 The example means the the value must correspond to an existing host:
 
+ value_type => 'reference',
  refer_to => '! host' 
 
 This example means the the value must correspond to an existing lan
 within the host whose Id is specified by hostname:
 
+ value_type => 'reference',
  refer_to => ['! host:$a lan', a => '- hostname' ]
+
+If you need to combine possibilities from several hash, use the "C<+>"
+token to separate 2 paths:
+
+ value_type => 'reference',
+ refer_to => ['! host:$a lan + ! host:foobar lan', 
+              a => '- hostname' ]
+
+You can specify C<refer_to> with a C<choice> argument so the possible
+enum value will be the combination of the specified choice and the
+refered_to values.
 
 =cut
 
+# internal
 sub get_choice_from_refered_to {
     my $self = shift ;
 
     $self->submit_to_refer_to if ($self->{refer_to} and 
 				  not defined $self->{refer_compute}) ;
 
-    my @path = split (/\s+/,$self->{refer_compute}->compute) ;
+    my $user_spec = $self->{refer_compute}->compute ;
+    my %enum_choice = map { ($_ => 1 ) } $self->get_choice ;
 
-    my $element = pop @path ;
+    my @references =  split /\s+\+\s+/, $user_spec ;
+    $self->{refered_to_path} = \@references ;
 
-    print "get_choice_from_refered_to:\n\tpath: @path, element $element\n"
-      if $::debug ;
+    for my $reference ( @references ) {
+	my @path = split (/\s+/,$reference) ;
 
-    my $obj = $self->grab("@path");
+	my $element = pop @path ;
 
-    Config::Model::Exception::UnknownElement
-	-> throw (
-		  object => $obj,
-		  element => $element,
-		  info => "Error related to 'refer_to' element of '".
-	          $self->parent->config_class_name() . "'"
-		 ) 
-	  unless  $obj->is_element_available(name => $element) ;
+	print "get_choice_from_refered_to:\n\tpath: @path, element $element\n"
+	  if $::debug ;
 
-    my $type = $obj->element_type($element) ;
+	my $obj = $self->grab("@path");
 
-    Config::Model::Exception::Model 
-	-> throw (
-		  object => $obj,
-		  message => "element '$element' type is $type. "
-		            ."Expected hash or list"
-		 )
-	  unless $type eq 'hash' or $type eq 'list' ;
+	Config::Model::Exception::UnknownElement
+	    -> throw (
+		      object => $obj,
+		      element => $element,
+		      info => "Error related to 'refer_to' element of '".
+		      $self->parent->config_class_name() . "'"
+		     ) 
+	      unless  $obj->is_element_available(name => $element) ;
 
-    my @array = $obj->fetch_element($element)->get_all_indexes() ;
+	my $type = $obj->element_type($element) ;
+
+	Config::Model::Exception::Model 
+	    -> throw (
+		      object => $obj,
+		      message => "element '$element' type is $type. "
+		      ."Expected hash or list or check_list"
+		     )
+	      unless $type eq 'hash' or $type eq 'list' 
+		or $type eq 'check_list';
+
+	# use a hash so choices are unique
+	map { $enum_choice{$_} = 1 }
+	  $obj->fetch_element($element)->get_all_indexes();
+    }
 
     print "get_choice_from_refered_to:\n\tSetting choice to '", 
-      join("','",@array),"'\n"
+      join("','",sort keys %enum_choice),"'\n"
 	if $::debug ;
 
-    $self->setup_enum_choice(\@array) ;
-  }
+    $self->setup_enum_choice([sort keys %enum_choice]) ;
+}
 
 
 
@@ -854,6 +892,8 @@ declared in the model unless they were warped):
 =item value_type 
 
 =item default 
+
+=item built_in
 
 =item index_value
 
@@ -916,7 +956,8 @@ sub can_store {
 
 =head2 get_choice()
 
-Query legal values (only for enum types)
+Query legal values (only for enum types). Return an array (possibly
+empty).
 
 =cut
 
@@ -924,7 +965,7 @@ sub get_choice
   {
     my $self = shift ;
     return @{$self->{choice}} if defined $self->{choice};
-    return undef ;
+    return () ;
   }
 
 =head2 get_help ( [ on_value ] )
@@ -971,7 +1012,10 @@ sub enum_error {
     my $var = $self->{value_type} ;
     push @choice, $var if ($var =~ s/enum_//) ;
     push @error, "$self->{value_type} type does not know '$value'. Expected ".
-      join(" or ",@choice) , $self->warp_error;
+      join(" or ",@choice) ; 
+    push @error, "Expected list is given by '".
+      join("', '", @{$self->{refered_to_path}})."'" if $var eq 'reference';
+    push @error, $self->warp_error if $self->{warp};
 
     return @error ;
 }
@@ -1011,7 +1055,9 @@ sub check {
         push @error,"Type $self->{value_type}: value $value is a number ".
 	  "but not an integer";
     }
-    elsif ($self->{value_type} =~ 'enum') {
+    elsif (   $self->{value_type} =~ 'enum' 
+	   or $self->{value_type} eq 'reference'
+	  ) {
         push @error, ($quiet ? 'enum error' : $self->enum_error($value))
           unless defined $self->{choice_hash} and 
             defined $self->{choice_hash}{$value} ;
@@ -1055,6 +1101,12 @@ sub store {
 
     if ($ok) {
         $self->{data} = $value ; # may be undef
+
+	if ($self -> {unique_value}) {
+	    my $parent = $self->parent ;
+	    my $reference = $parent->fetch_element($self->{element_name}) ;
+	    $reference -> store_value ($self->index_value , $value) ;
+	}
     }
     elsif ($self->instance->get_value_check('store')) {
         Config::Model::Exception::WrongValue 
@@ -1105,6 +1157,7 @@ sub pre_store {
     $value = $self->{convert_sub}($value) 
       if (defined $self->{convert_sub} and defined $value) ;
 
+    $self->check_unique($value) if $self->{unique_value} ;
 
     my $ok = $self->store_check($value) ;
 
@@ -1146,6 +1199,25 @@ sub _value_type_error {
 		  object => $self,
 		  message => $str
 		 ) ;
+}
+
+# there's no allow override for this type.
+sub check_unique {
+    my ($self,$value) = @_ ;
+
+    my $parent = $self->parent ;
+    my $reference = $parent->fetch_element($self->{element_name}) ;
+
+    my ($known, $other_idx) 
+      = $reference -> is_value_known ($self->index_value, $value) ;
+    if ( $known ) {
+	Config::Model::Exception::User
+	    -> throw (
+		      object => $self,
+		      message => "Value '$value' is already stored in element '"
+		      . $parent->name . " $self->{element_name}:$other_idx'"
+		     ) ;
+    }
 }
 
 =head2 fetch_custom
@@ -1353,7 +1425,9 @@ Dominique Dumont, domi@komarr.grenoble.hp.com
 
 =head1 SEE ALSO
 
-L<Config::Model::AnyId>, L<Config::Model::WarpThing>, L<Exception::Class>
+L<Config::Model>, L<Config::Model::Node>,
+L<Config::Model::AnyId>, L<Config::Model::WarpedThing>, L<Exception::Class>
+
 
 =cut
 
