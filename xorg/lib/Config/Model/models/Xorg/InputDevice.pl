@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-11-07 12:39:50 $
+# $Date: 2006-12-07 13:13:22 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.1 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -25,60 +25,38 @@
 # This model was created from xorg.conf(5x) man page from xorg
 # project (http://www.x.org/).
 
-# Model for Device section of xorg.conf
+# Model for InputDevice section of xorg.conf
 
 [
  [
-  name => "Xorg::Device",
+  name => "Xorg::InputDevice",
   'element' 
   => [ 
       'Driver'         => { type       => 'leaf',
 			    value_type => 'enum',
 			    mandatory  => 1 ,
-			    # obviously, some more work is needed here
-			    choice => [qw/radeon/] ,
+			    choice => [qw/keyboard mouse/] ,
 			  },
-
-      'BusID'          => { type       => 'leaf',
-			    value_type => 'string',
-			    warp => { follow => '! MultiHead',
-				      rules => { 
-						1 => { mandatory  => 1 } 
-					       }
-				    }
-			  },
-
-      'Screen'         => { type       => 'leaf',
-			    value_type => 'integer',
-			    warp => { follow => '! MultiHead',
-				      rules => { 
-						1 => { mandatory  => 1 } 
-					       }
-				    }
-			  },
-
+      [qw/SendCoreEvents HistorySize/]
+                       => { type       => 'leaf',
+			    value_type => 'boolean' },
       'Option'
       => { type     => 'warped_node',
 	   follow   => '- Driver',
 	   'rules' 
-	   => { 'radeon' => { config_class_name => 'Xorg::Device::Radeon' },
+	   => { 'keyboard' 
+		=> { config_class_name => 'Xorg::InputDevice::KeyboardOpt' },
+		'mouse' 
+		=> { config_class_name => 'Xorg::InputDevice::MouseOpt' },
 	      }
 	 },
-
-      [qw/Chipset Ramdac DacSpeed/]
-                       => { type       => 'leaf',
-			    value_type => 'string',
-			  },
-
-
      ],
-
-  # need deep knowledge to set up these options
-  permission => [ [qw/Chipset Ramdac DacSpeed/] => 'advanced' ] ,
 
   'description' 
   => [
-      'Driver' => 'name of the driver to use for this graphics device',
+      'Driver' => 'name of the driver to use for this input device',
+      'SendCoreEvents' => 'when enabled cause the input  device  to  always report core events.  This can be used, for example, to allow an additional pointer device  to  generate core pointer events (like moving the cursor, etc).',
+      'HistorySize' => 'Sets the motion history size.  Default: 0.'
      ],
  ]
 ];

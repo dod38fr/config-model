@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-12-06 13:03:16 $
+# $Date: 2006-12-07 13:13:21 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.7 $
+# $Revision: 1.1 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -31,10 +31,10 @@
   [
    name => "Xorg",
 
-   read_config => [ { class => 'Config::Xorg::Read', function => 'read'}] ,
+   read_config => [ { class => 'Config::Model::Xorg::Read', function => 'read'}] ,
    config_dir => '/etc/X11/' ,
 
-   write_config => { class => 'Config::Xorg::Write' ,  function => 'write'},
+   write_config => { class => 'Config::Model::Xorg::Write', function => 'write'},
 
    'element' 
    => [

@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-12-06 13:09:15 $
+# $Date: 2006-12-07 13:13:21 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.1 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -22,38 +22,33 @@
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 
 
-# Model for Mouse driver. Where's the doc ???
+# This model was created from xorg.conf(5x) man page from xorg
+# project (http://www.x.org/).
 
-[
- [
-  name => "Xorg::InputDevice::MouseOpt",
-  'element' 
-  => [ 
-      'Device'          => { type   => 'leaf' ,
-			     value_type => 'string',
-			   },
-      'Protocol'        => { type   => 'leaf',
-			     value_type => 'enum',
-			     choice => [qw!ImPS/2 IntelliMouse!] ,
-			   },
-      'Emulate3Buttons' => { type       => 'leaf',
-			     value_type => 'boolean',
-			     default    => 0,
-			   },
-      'ZAxisMapping'    => {type   => 'leaf' ,
-			    value_type => 'string',
-			   },
-      'SendCoreEvents'  => { type       => 'leaf',
-			     value_type => 'boolean',
-			   },
-      "Buttons"         => {type   => 'leaf' ,
-			    value_type => 'string',
-			   },
-     ],
+# Top level class feature xorg.conf sections
 
-  'description' 
-  => [
+$foo 
+  = [
+     [
+     name => "Xorg::Files",
+     'element' 
+     => [ 
+	 # we might want to create a dedicated class to help
+	 # check validity of path. OTOH, a line like 
+	 # " /usr/lib/X11/fonts/75dpi/:unscaled" is valid and
+	 # is not a path because of the ":unscaled" wart.
+	 [qw/FontPath RGBPath ModulePath/]
+	 => { type => 'list',
+	      cargo_type => 'leaf',
+	      cargo_args => {value_type => 'string'},
+	    },
+	],
 
-     ],
- ]
-];
+     'description' 
+     => [
+	 FontPath => 'search path for fonts',
+	 RGBPath  => 'path name for the RGB color database',
+	 ModulePath => 'search path for loadable  Xorg  server  modules',
+	],
+     ]
+    ];

@@ -1,5 +1,5 @@
 # $Author: ddumont $
-# $Date: 2006-11-07 12:39:50 $
+# $Date: 2006-12-07 13:13:23 $
 # $Name: not supported by cvs2svn $
 # $Revision: 1.1 $
 
@@ -22,21 +22,18 @@
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 
 
-# Model for Radeon driver (see radeon(5))
+# This model was created from xorg.conf(5x) man page from xorg
+# project (http://www.x.org/).
+
+# Model for Mode line (used by Monitor and Modes section)
+# see xorg.conf
 
 [
  [
-  name => "Xorg::Device::Radeon",
-  'element' 
-  => [ 
-      'MergedFB'         => { type       => 'leaf',
-			      value_type => 'boolean',
-			    },
-     ],
-
-  'description' 
-  => [
-      'MergedFB' => 'This enables merged framebuffer mode.  In this mode you have a single  shared  framebuffer  with  two  viewports looking into it.  It is similar to Xinerama, but has some advantages.  It is faster than Xinerama, the DRI works on both heads, and it supports clone modes.',
-     ],
- ]
+  name => "Xorg::Monitor::Option",
+  'element'
+  => [ [qw/DPMS SyncOnGreen/ ]
+       => {type       => 'leaf', value_type => 'boolean' },
+     ]
+ ],
 ];
