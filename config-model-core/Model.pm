@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-12-06 12:48:18 $
+# $Date: 2006-12-08 13:08:43 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.22 $
+# $Revision: 1.23 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -34,7 +34,7 @@ use Config::Model::Instance ;
 # this class holds the version number of the package
 use vars qw($VERSION @status @level @permission_list %permission_index) ;
 
-$VERSION = '0.604';
+$VERSION = '0.605';
 
 =head1 NAME
 
@@ -109,8 +109,9 @@ This will create an empty shell for your model.
 sub new {
     my $type = shift ;
     my %args = @_;
+
     bless {
-	   model_dir => $args{model_dir} || '/etc/config-model.d' ,
+	   model_dir => $args{model_dir} ,
 	  },$type;
 }
 
@@ -596,12 +597,12 @@ sub load {
 
     my $load_path = $load_model . '.pl' ;
     $load_path =~ s/::/\//g;
-    $load_file ||= $self->{model_dir} . '/' . $load_path ;
+    $load_file ||=  ($self->{model_dir} || 'Config/Model/models') 
+      . '/'. $load_path ;
 
-    croak "Model load: Unknown model $load_model (missing file $load_file)\n"
-      unless -e $load_file ;
+    print "Model: load model $load_file\n" if $::verbose ;
 
-    my $model = do $load_file or die "compile error with $load_file: $@";
+    my $model = do $load_file or die "compile error with $load_file: ", $! || $@;
 
     unless ($model) {
 	warn "couldn't parse $load_file: $@" if $@;
