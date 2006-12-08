@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-07-20 11:55:39 $
+# $Date: 2006-12-08 12:59:22 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -50,9 +50,9 @@ my $root= $instance -> config_root ;
 
 print "
 The first part of this example program will read your $fstab_file.
-Bear in mind that the current Fstab model is far from being complete.
-If this program fails to read your /etc/fstab, please re-run it with
-'-use_sample' option.
+Bear in mind that the Fstab model provided in this example is far from
+being complete.  If this program fails to read your /etc/fstab, please
+re-run it with '-use_sample' option.
 
 ";
 
@@ -106,8 +106,8 @@ ok. I could read $fstab_file.
 
 The second part of this program will produce a report that shows the
 settings contained in $fstab_file and shows the on-line help provided
-with Fstab model (feel free to modify FstabModel.pm to provide more
-help).
+with Fstab model (feel free to modify the model (Fstab.pm) to provide
+more help).
 
 ";
 
@@ -198,9 +198,9 @@ print join ("\n",produce_fstab()),"\n";
 
 print "
 
-To help newbie to understand their configuration files, we can also
-produce a fstab file with the help and descriptions provided in fstab
-model.
+To help newbie admin to understand their configuration files, this
+program can also produce a fstab file with the help and descriptions
+provided in fstab model.
 
 ";
 
@@ -210,14 +210,14 @@ print join ("\n",produce_fstab(1)),"\n";
 
 print "
 
-Now we can enter in an interactive shell to explore or modify
-the fstab data (do not fear to play in the shell, the modified data 
-will not be written).
+Now you can enter in an interactive shell to explore or modify the
+fstab data (do not fear to play in the pseudo-shell provided by this
+program as the modified data will not be written back to /etc/fstab).
 
-Exit the shell by typing CTRL-D. 
+Exit the pseudo-shell by typing CTRL-D. 
 
-The first command you might to type is 'help' (or hit TAB twice
-to get the list of available commands)
+The first command you might want to type is 'help'. You can also hit
+TAB twice to get the list of available commands.
 
 " ;
 
@@ -233,4 +233,5 @@ my $term_ui = Config::Model::TermUI
 # engage in user interaction
 $term_ui -> run_loop ;
 
-print "\n\n$0 done\n";
+print "\n$0 done. Feel free to send feedback to the author ",
+  "(domi\@komarr.grenoble.hp.com)\n\n";
