@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-12-05 17:27:19 $
+# $Date: 2006-12-08 13:01:29 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 
 #    Copyright (c) 2006 Dominique Dumont.
 #
@@ -31,7 +31,7 @@ use Config::Model::ObjTreeScanner ;
 use Text::Wrap ;
 
 use vars qw($VERSION);
-$VERSION = sprintf "%d.%03d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -134,15 +134,16 @@ sub report {
 
 	if (defined $value) {
 	    my $name = defined $index ? " $element:$index" : $element;
-	    push @$data_r , $obj->location." $name = $value", '';
+	    push @$data_r , $obj->location." $name = $value";
 	    my $desc = $obj->get_help($element) ;
 	    if (defined $desc and $desc) {
-		push @$data_r , wrap ("\t","\t\t", "DESCRIPION: $desc" ) ;
+		push @$data_r , wrap ("\t","\t\t", "DESCRIPTION: $desc" ) ;
 	    }
 	    my $effect = $value_obj->get_help($value) ;
 	    if (defined $effect and $effect) {
-		push @$$data_r, wrap ("\t","\t\t", "SELECTED: $effect" ) ;
+		push @$data_r, wrap ("\t","\t\t", "SELECTED: $effect" ) ;
 	    }
+	    push @$data_r , '' ; # to get empty line in report
 	}
     };
 
