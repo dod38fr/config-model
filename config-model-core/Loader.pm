@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-12-05 17:31:36 $
+# $Date: 2006-12-08 13:03:53 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.8 $
+# $Revision: 1.9 $
 
 #    Copyright (c) 2006 Dominique Dumont.
 #
@@ -29,7 +29,7 @@ use warnings ;
 use Config::Model::Exception ;
 
 use vars qw($VERSION);
-$VERSION = sprintf "%d.%03d", q$Revision: 1.8 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.9 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -295,7 +295,7 @@ sub _load {
 	}
 
         unless ($node->is_element_available(name => $element_name,
-					    permission => $permission)) {
+					    permission => 'master')) {
 	    Config::Model::Exception::UnavailableElement
 		-> throw (
 			  object => $node,
