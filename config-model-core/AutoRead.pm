@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-12-05 17:16:57 $
+# $Date: 2006-12-08 13:01:55 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.5 $
+# $Revision: 1.6 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -31,7 +31,7 @@ use UNIVERSAL ;
 
 use base qw/Config::Model::AnyThing/ ;
 
-our $VERSION = sprintf "%d.%03d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/;
+our $VERSION = sprintf "%d.%03d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -130,7 +130,7 @@ To read and write only cds files :
   read_config  => 'cds', 
   write_config => 'cds' ;
 
-=for comment
+=begin comment
 
 To migrate from custom format to xml:
 
