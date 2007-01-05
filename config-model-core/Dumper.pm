@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-12-05 17:26:05 $
+# $Date: 2007-01-05 13:02:19 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.10 $
+# $Revision: 1.11 $
 
 #    Copyright (c) 2006 Dominique Dumont.
 #
@@ -30,7 +30,7 @@ use Config::Model::Exception ;
 use Config::Model::ObjTreeScanner ;
 
 use vars qw($VERSION);
-$VERSION = sprintf "%d.%03d", q$Revision: 1.10 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.11 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -147,7 +147,10 @@ sub dump_tree {
 
         my $pad = $compute_pad->($obj);
 
-        my $name = defined $index ? "$element:$index" : $element;
+        my $name = defined $index && $index =~ /\s/ ? "$element:\"$index\"" 
+	         : defined $index                   ? "$element:$index" 
+                 :                                     $element;
+
         $$data_r .= "\n" . $pad . $name . '=' . $value if defined $value;
     };
 
@@ -179,6 +182,7 @@ sub dump_tree {
         my $pad = $compute_pad->($obj);
         $$data_r .= "\n$pad$element";
 	if ($type eq 'list' or $type eq 'hash') {
+	    $key = '"' . $key . '"' if  $key =~ /\s/;
 	    $$data_r .= ":$key" ;
 	}
 
