@@ -1,9 +1,9 @@
 # $Author: ddumont $
-# $Date: 2007-01-08 12:36:29 $
+# $Date: 2007-01-08 12:48:22 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.10 $
+# $Revision: 1.11 $
 
-#    Copyright (c) 2006 Dominique Dumont.
+#    Copyright (c) 2006-2007 Dominique Dumont.
 #
 #    This file is part of Config-Model.
 #
@@ -29,7 +29,7 @@ use warnings ;
 use Config::Model::Exception ;
 
 use vars qw($VERSION);
-$VERSION = sprintf "%d.%03d", q$Revision: 1.10 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.11 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 

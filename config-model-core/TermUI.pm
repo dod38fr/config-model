@@ -1,9 +1,9 @@
 # $Author: ddumont $
-# $Date: 2007-01-08 12:38:36 $
+# $Date: 2007-01-08 12:48:23 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.6 $
+# $Revision: 1.7 $
 
-#    Copyright (c) 2006 Dominique Dumont.
+#    Copyright (c) 2006-2007 Dominique Dumont.
 #
 #    This file is part of Config-Model.
 #
@@ -31,7 +31,7 @@ use warnings ;
 use Term::ReadLine;
 
 use vars qw($VERSION);
-$VERSION = sprintf "%d.%03d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 

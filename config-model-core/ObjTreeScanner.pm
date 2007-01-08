@@ -1,9 +1,9 @@
 # $Author: ddumont $
-# $Date: 2006-12-05 17:23:19 $
+# $Date: 2007-01-08 12:48:22 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.9 $
+# $Revision: 1.10 $
 
-#    Copyright (c) 2006 Dominique Dumont.
+#    Copyright (c) 2006-2007 Dominique Dumont.
 #
 #    This file is part of Config-Model.
 #
@@ -28,7 +28,7 @@ use Carp;
 use warnings ;
 use UNIVERSAL qw( isa can );
 
-our $VERSION = sprintf "%d.%03d", q$Revision: 1.9 $ =~ /(\d+)\.(\d+)/;
+our $VERSION = sprintf "%d.%03d", q$Revision: 1.10 $ =~ /(\d+)\.(\d+)/;
 
 use Carp qw/croak confess cluck/;
 

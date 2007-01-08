@@ -1,9 +1,9 @@
 # $Author: ddumont $
-# $Date: 2007-01-08 12:41:54 $
+# $Date: 2007-01-08 12:48:22 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.24 $
+# $Revision: 1.25 $
 
-#    Copyright (c) 2005,2006 Dominique Dumont.
+#    Copyright (c) 2005-2007 Dominique Dumont.
 #
 #    This file is part of Config-Model.
 #
