@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-10-11 11:58:46 $
+# $Date: 2007-01-08 12:38:36 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.5 $
+# $Revision: 1.6 $
 
 #    Copyright (c) 2006 Dominique Dumont.
 #
@@ -31,7 +31,7 @@ use warnings ;
 use Term::ReadLine;
 
 use vars qw($VERSION);
-$VERSION = sprintf "%d.%03d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -219,6 +219,7 @@ my %run_dispatch =
        my $self = shift ;
        my ($elt,$key) = split /:/,$_[0] ;
        $self->{current_node}->fetch_element($elt)->delete($key);
+       return '' ;
    },
    ll => $ll_sub,
    cd => $cd_sub,
@@ -417,12 +418,14 @@ sub run {
 
     return '' unless $user_cmd =~ /\w/ ;
 
-    my ($action,@args) = grep ( /[^\s]/, split (m/\s+/,$user_cmd))  ;
+    $user_cmd =~ s/^\s+// ;
 
-    print "DEBUG: run '$action' with '",join("','",@args),"'\n" if $::debug;
+    my ($action,$args) = split (m/\s+/,$user_cmd, 2)  ;
+
+    print "DEBUG: run '$action' with '$args'\n" if $::debug;
 
     if (defined $run_dispatch{$action}) {
-	my $res = eval { $run_dispatch{$action}->($self,@args) ; } ;
+	my $res = eval { $run_dispatch{$action}->($self,$args) ; } ;
 	print $@ if $@ ;
 	return $res ;
     }
@@ -438,7 +441,7 @@ sub list_cd_path {
     my @result ;
     foreach my $elt_name ($c_node->get_element_name) {
 	my $t = $c_node->element_type($elt_name) ;
-	
+
 	if ($t eq 'list' or $t eq 'hash') {
 	    push @result, 
 	      map { "$elt_name:$_" }
@@ -457,9 +460,11 @@ sub list_cd_path {
 
 Auto-completion is not complete.
 
+UI should take into account permission.
+
 =head1 AUTHOR
 
-Dominique Dumont, domi@komarr.grenoble.hp.com
+Dominique Dumont, (ddumont at cpan dot org)
 
 =head1 SEE ALSO
 
