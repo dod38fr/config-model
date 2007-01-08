@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-12-08 13:03:53 $
+# $Date: 2007-01-08 12:36:29 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.9 $
+# $Revision: 1.10 $
 
 #    Copyright (c) 2006 Dominique Dumont.
 #
@@ -29,7 +29,7 @@ use warnings ;
 use Config::Model::Exception ;
 
 use vars qw($VERSION);
-$VERSION = sprintf "%d.%03d", q$Revision: 1.9 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.10 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -226,11 +226,12 @@ sub load {
 }
 
 my %load_dispatch = (
-		     node       => \&_walk_node,
-		     hash       => \&_load_hash,
-		     check_list => \&_load_list,
-		     list       => \&_load_list,
-		     leaf       => \&_load_leaf,
+		     node        => \&_walk_node,
+		     warped_node => \&_walk_node,
+		     hash        => \&_load_hash,
+		     check_list  => \&_load_list,
+		     list        => \&_load_list,
+		     leaf        => \&_load_leaf,
 		    ) ;
 
 sub _load {
@@ -275,13 +276,16 @@ sub _load {
 			 );
 	}
 
-        unless ($node->isa("Config::Model::Node")) {
+        unless (   $node->isa("Config::Model::Node") 
+		or $node->isa("Config::Model::WarpedNode")) {
 	    Config::Model::Exception::Load
 		-> throw (
 			  command => $saved_cmd ,
-			  error => "Error: Expected a node, got '"
+			  error => "Error: Expected a node (even a warped node), got '"
 			  .$node -> name. "'"
 			 );
+	    # below, has_element method from WarpedNode will raise
+	    # exception if warped_node is not available
 	}
 
         unless ($node->has_element($element_name)) {
@@ -368,6 +372,9 @@ sub _load_list {
 	return $node;
     }
     elsif ($action eq ':' and $elt_type =~ /node/) {
+	# remove possible leading or trailing quote
+	$cmd =~ s/^"//;
+	$cmd =~ s/"$//;
 	return $element->fetch_with_id($cmd) ;
     }
     elsif ($action eq ':' and $elt_type =~ /leaf/) {
@@ -397,6 +404,9 @@ sub _load_hash {
     my $elt_type = $element->cargo_type ;
 
     if ($action eq ':' and $elt_type =~ /node/) {
+	# remove possible leading or trailing quote
+	$cmd =~ s/^"//;
+	$cmd =~ s/"$//;
 	return $element->fetch_with_id($cmd) ;
     }
     elsif ($action eq ':' and $elt_type =~ /leaf/) {
@@ -448,7 +458,7 @@ sub _load_leaf {
 
 =head1 AUTHOR
 
-Dominique Dumont, domi@komarr.grenoble.hp.com
+Dominique Dumont, (ddumont at cpan dot org)
 
 =head1 SEE ALSO
 
