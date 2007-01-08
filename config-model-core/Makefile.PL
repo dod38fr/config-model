@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-07-20 12:23:17 $
+# $Date: 2007-01-08 12:54:28 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.7 $
+# $Revision: 1.8 $
 
 #    Copyright (c) 2005-2006 Dominique Dumont.
 #
@@ -54,7 +54,7 @@ WriteMakefile
    AUTHOR       => 'Dominique Dumont (domi@komarr.grenoble.hp.com)',
    PREREQ_PM    => {
 		    'Test::More'        => 0, # for test
-		    # 'Log::Log4perl'    => 0,
+		    'Log::Log4perl'     => 0,
 		    'Parse::RecDescent' => '1.90',
 		    'Scalar::Util'      => 0, # provided by perl 5.8.0
 		    'Exception::Class'  => 0,
