@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-12-06 12:51:59 $
+# $Date: 2007-01-08 12:52:48 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.11 $
+# $Revision: 1.12 $
 
 # this file is used by test script
 
@@ -71,6 +71,16 @@
 	       sub_slave => { type => 'node' ,
 			      config_class_name => 'SubSlave',
 			    },
+	       warp2 => {
+			 type => 'warped_node',
+			 follow  => '! tree_macro',
+			 config_class_name   => 'SubSlave', 
+			 morph => 1 ,
+			 rules => [
+				   mXY => { config_class_name => 'SubSlave2'},
+				   XZ  => { config_class_name => 'SubSlave2'}
+				  ]
+			},
 	       Y => { type => 'leaf',
 		      value_type => 'enum',
 		      choice     => [qw/Av Bv Cv/]
@@ -106,7 +116,11 @@
 			},
 	       tree_macro => { type => 'leaf',
 			       value_type => 'enum',
-			       choice     => [qw/XY XZ mXY/]
+			       choice     => [qw/XY XZ mXY/],
+			       help => { XY  => 'XY help',
+					 XZ  => 'XZ help',
+					 mXY => 'mXY help',
+				       }
 			     },
 	       warp => {
 			type => 'warped_node',
@@ -116,9 +130,14 @@
 			rules => [
 				  #XY => { config_class_name => 'SlaveY'},
 				  mXY => { config_class_name => 'SlaveY'},
-				  XZ  => { config_class_name => 'SlaveZ' }
+				  XZ  => { config_class_name => 'SlaveZ'}
 				 ]
 		       },
+
+	       'slave_y' => { type => 'node',
+			      config_class_name => 'SlaveY' ,
+			    },
+
 	       string_with_def => { type => 'leaf',
 				    value_type => 'string',
 				    default    => 'yada yada'
@@ -141,6 +160,9 @@
 				 refer_to => '- hash_a + ! hash_b',
 			       }
 	      ],
+   description => [
+		   tree_macro => 'controls behavior of other elements'
+		  ]
    ],
 ] ;
 

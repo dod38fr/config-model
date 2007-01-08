@@ -1,11 +1,11 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-07-19 12:26:53 $
+# $Date: 2007-01-08 12:51:49 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 
 use ExtUtils::testlib;
-use Test::More tests => 6;
+use Test::More tests => 7;
 use Config::Model;
 
 use warnings;
@@ -36,6 +36,10 @@ ok($root,"Config root created") ;
 my $step = 'std_id:ab X=Bv - std_id:bc X=Av - a_string="toto tata" '
   .'lista=a,b,c,d olist:0 X=Av - olist:1 X=Bv - listb=b,c,d';
 ok( $root->load( step => $step, permission => 'intermediate' ),
+  "set up data in tree with '$step'");
+
+$step = 'tree_macro=XY';
+ok( $root->load( step => $step, permission => 'advanced' ),
   "set up data in tree with '$step'");
 
 my $report = $root->report;
@@ -73,6 +77,10 @@ olist:1 X = Bv
 
 olist:1 DX = Dv
 
+ tree_macro = XY
+	DESCRIPTION: controls behavior of other elements
+	SELECTED: XY help
+
  string_with_def = "yada yada"
 
  a_string = "toto tata"
@@ -80,7 +88,8 @@ olist:1 DX = Dv
  int_v = 10
 EOF
 
-is($report,$expect,"check dump of only customized values ") ;
+is_deeply([split /\n/,$report ],
+	  [split /\n/,$expect ],"check dump of only customized values ") ;
 
 $report = $root->audit();
 print "audit string:\n$report" if $trace  ;
@@ -108,9 +117,14 @@ olist:0 X = Av
 
 olist:1 X = Bv
 
+ tree_macro = XY
+	DESCRIPTION: controls behavior of other elements
+	SELECTED: XY help
+
  a_string = "toto tata"
 EOF
 
-is($report,$expect,"check dump of all values ") ;
+is_deeply([split /\n/,$report ],
+	  [split /\n/,$expect ],"check dump of all values ") ;
 
 

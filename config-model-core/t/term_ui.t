@@ -1,11 +1,11 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-12-06 12:52:00 $
+# $Date: 2007-01-08 12:51:49 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 
 use ExtUtils::testlib;
-use Test::More tests => 16 ;
+use Test::More tests => 22 ;
 use Config::Model;
 use Config::Model::TermUI ;
 
@@ -54,7 +54,7 @@ ok($term_ui,"Created term_ui") ;
 my $path = $term_ui->list_cd_path ;
 
 is_deeply ($path, 
-	   [qw/std_id:ab std_id:bc tree_macro warp
+	   [qw/std_id:ab std_id:bc tree_macro warp slave_y
                string_with_def a_string int_v my_check_list my_reference/] ,
 	   'check list cd path at root') ;
 
@@ -63,11 +63,14 @@ is($term_ui->prompt, $expected_prompt ,'test prompt at root') ;
 my @test = ( 
 	    [ 'vf std_id:ab', "Unexpected command 'vf'", $expected_prompt  ],
 	    [ 'ls', 
-	      'std_id  lista  listb  hash_a  hash_b  olist  tree_macro  warp  string_with_def  a_string  int_v  my_check_list  my_reference', 
+	      'std_id  lista  listb  hash_a  hash_b  olist  tree_macro  warp  slave_y  string_with_def  a_string  int_v  my_check_list  my_reference', 
 	      $expected_prompt  ],
+	    [ 'set a_string="some value with space"', "", $expected_prompt],
 	    [ 'cd std_id:ab', "", $prompt.': std_id:ab $ '  ],
 	    [ 'set X=Av',"", $prompt.': std_id:ab $ ' ],
 	    [ 'display X',"Av", $prompt.': std_id:ab $ ' ],
+	    [ 'cd !',"",$expected_prompt],
+	    [ 'delete std_id:ab',"", $expected_prompt],
 	   ) ;
 
 foreach my $a_test (@test) {

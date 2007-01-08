@@ -1,11 +1,11 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-12-06 12:51:59 $
+# $Date: 2007-01-08 12:51:49 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.7 $
+# $Revision: 1.8 $
 
 use ExtUtils::testlib;
-use Test::More tests => 38;
+use Test::More tests => 40;
 use Config::Model;
 
 use warnings;
@@ -36,8 +36,16 @@ ok( $root->load( step => $step, permission => 'intermediate' ),
 is( $root->fetch_element('a_string')->fetch, 'titi , toto',
   "check a_string");
 
+ok( $root->load( step => 'tree_macro=XZ', permission => 'advanced' ),
+  "Set tree_macro to XZ");
+
+# test load with warped_node below root (used to fail)
+$step = 'slave_y warp2 aa2="foo bar baz"';
+ok( $root->load( step => $step, permission => 'intermediate' ),
+  "load '$step'");
+
 ok( $root->load( step => 'tree_macro=XY', permission => 'advanced' ),
-  "Set tree_macro");
+  "Set tree_macro to XY");
 
 # use indexes with white spaces
 
@@ -46,7 +54,7 @@ ok( $root->load( step => $step, permission => 'intermediate' ),
   "load '$step'");
 
 is_deeply([ $root->fetch_element('std_id')->get_all_indexes ],
-	  [ '" b  c "', '"a b"','ab','bc'],
+	  [ ' b  c ', 'a b','ab','bc'],
 	  "check indexes");
 
 $step = 'std_id:ab ZZX=Bv - std_id:bc X=Bv';
@@ -106,7 +114,7 @@ map {
 $step = 'std_id:f/o/o:b.ar X=Bv' ;
 ok( $root->load( step => $step, ), "load : '$step'");
 is_deeply( [sort $root->fetch_element('std_id')->get_all_indexes ],
-	   ['" b  c "', '"a b"',qw!ab bc f/o/o:b.ar!],
+	   [' b  c ', 'a b',qw!ab bc f/o/o:b.ar!],
 	   "check result after load '$step'" );
 
 $step = 'hash_a:a=z hash_a:b=z2 hash_a:"a b "="z 1"' ;

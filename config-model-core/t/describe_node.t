@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-12-06 12:51:59 $
+# $Date: 2007-01-08 12:51:49 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 use ExtUtils::testlib;
 use Test::More tests => 6;
@@ -56,6 +56,7 @@ hash_b       [empty hash] value hash
 olist        <SlaveZ>     node list    keys: 0 1
 tree_macro   [undef]      enum         choice: XY XZ mXY
 warp         <SlaveY>     node
+slave_y      <SlaveY>     node
 string_with_def "yada yada"  string
 a_string     "toto tata"  string       mandatory
 int_v        10           integer

@@ -1,11 +1,11 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-12-06 12:51:59 $
+# $Date: 2007-01-08 12:51:49 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.8 $
+# $Revision: 1.9 $
 
 use ExtUtils::testlib;
-use Test::More tests => 7;
+use Test::More tests => 8;
 use Config::Model;
 
 use warnings;
@@ -39,15 +39,18 @@ my $step = 'std_id:ab X=Bv - std_id:bc X=Av - std_id:"b d " X=Av '
 ok( $root->load( step => $step, permission => 'intermediate' ),
   "set up data in tree with '$step'");
 
+is_deeply([ sort $root->fetch_element('std_id')->get_all_indexes ],
+	  ['ab','b d ','bc'], "check std_id keys" ) ;
+
 my $cds = $root->dump_tree;
 
 print "cds string:\n$cds" if $trace ;
 
 my $expect = <<'EOF' ;
-std_id:"b d "
-  X=Av -
 std_id:ab
   X=Bv -
+std_id:"b d "
+  X=Av -
 std_id:bc
   X=Av -
 lista=a,b,c,d
@@ -58,6 +61,13 @@ olist:1
   X=Bv -
 warp
   sub_slave
+    sub_slave - -
+  warp2
+    sub_slave - - -
+slave_y
+  sub_slave
+    sub_slave - -
+  warp2
     sub_slave - - -
 a_string="toto tata" -
 EOF
@@ -68,11 +78,11 @@ $cds = $root->dump_tree( full_dump => 1 );
 print "cds string:\n$cds" if $trace  ;
 
 $expect = <<'EOF' ;
-std_id:"b d "
-  X=Av
-  DX=Dv -
 std_id:ab
   X=Bv
+  DX=Dv -
+std_id:"b d "
+  X=Av
   DX=Dv -
 std_id:bc
   X=Av
@@ -87,6 +97,13 @@ olist:1
   DX=Dv -
 warp
   sub_slave
+    sub_slave - -
+  warp2
+    sub_slave - - -
+slave_y
+  sub_slave
+    sub_slave - -
+  warp2
     sub_slave - - -
 string_with_def="yada yada"
 a_string="toto tata"
@@ -102,11 +119,11 @@ $cds = $root->dump_tree( full_dump => 1 );
 print "cds string:\n$cds" if $trace  ;
 
 $expect = <<'EOF' ;
-std_id:"b d "
-  X=Av
-  DX=Dv -
 std_id:ab
   X=Bv
+  DX=Dv -
+std_id:"b d "
+  X=Av
   DX=Dv -
 std_id:bc
   X=Av
@@ -120,6 +137,13 @@ olist:1
   DX=Dv -
 warp
   sub_slave
+    sub_slave - -
+  warp2
+    sub_slave - - -
+slave_y
+  sub_slave
+    sub_slave - -
+  warp2
     sub_slave - - -
 string_with_def="yada yada"
 a_string="toto tata"
