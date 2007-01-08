@@ -2,4 +2,8 @@
 o [domi] Provide import/export of configuration data in free form XML
 
 o [domi] Add model plug-in facility
- 
+  Currently, models can be provided in modular load-on-demand
+   classes. This is necessary if more applications are using
+   config-model. But it's not the same mechanism as plug-in. Plugin is
+   necessary for application like xorg which are delivered in modular
+   packages.  
