@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-12-06 10:59:19 $
+# $Date: 2007-01-08 12:41:54 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -30,7 +30,7 @@ use Carp;
 use warnings FATAL => qw(all);
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/;
 
 use base qw/Config::Model::AnyThing/ ;
 
@@ -694,7 +694,7 @@ sub warp_error {
 
 =head1 AUTHOR
 
-Dominique Dumont, domi@komarr.grenoble.hp.com
+Dominique Dumont, (ddumont at cpan dot org)
 
 =head1 SEE ALSO
 

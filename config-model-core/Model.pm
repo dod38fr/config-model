@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-12-08 13:08:43 $
+# $Date: 2007-01-08 12:41:54 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.23 $
+# $Revision: 1.24 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -748,7 +748,7 @@ implemented.
 
 =head1 AUTHOR
 
-Dominique Dumont, domi@komarr.grenoble.hp.com
+Dominique Dumont, (ddumont at cpan dot org)
 
 =head1 SEE ALSO
 
@@ -762,6 +762,7 @@ L<Config::Model::ListId>,
 L<Config::Model::Value>
 L<Config::Model::CheckList>,
 L<Config::Model::AutoRead>,
+L<Config::Model::WarpedNode>, 
 
 =head2 Model utilities
 

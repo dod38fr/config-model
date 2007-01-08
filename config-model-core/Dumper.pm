@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-01-05 13:02:19 $
+# $Date: 2007-01-08 12:41:54 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.11 $
+# $Revision: 1.12 $
 
 #    Copyright (c) 2006 Dominique Dumont.
 #
@@ -30,7 +30,7 @@ use Config::Model::Exception ;
 use Config::Model::ObjTreeScanner ;
 
 use vars qw($VERSION);
-$VERSION = sprintf "%d.%03d", q$Revision: 1.11 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.12 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -216,7 +216,7 @@ sub dump_tree {
 
 =head1 AUTHOR
 
-Dominique Dumont, domi@komarr.grenoble.hp.com
+Dominique Dumont, (ddumont at cpan dot org)
 
 =head1 SEE ALSO
 

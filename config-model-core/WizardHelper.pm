@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-12-06 08:38:44 $
+# $Date: 2007-01-08 12:41:54 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 #    Copyright (c) 2006 Dominique Dumont.
 #
@@ -31,7 +31,7 @@ use Config::Model::Exception ;
 use Error qw(:try);
 
 use vars qw($VERSION);
-$VERSION = sprintf "%d.%03d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -352,7 +352,7 @@ sub wiz_go_backward {
 
 =head1 AUTHOR
 
-Dominique Dumont, domi@komarr.grenoble.hp.com
+Dominique Dumont, (ddumont at cpan dot org)
 
 =head1 SEE ALSO
 

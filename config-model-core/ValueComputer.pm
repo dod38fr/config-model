@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-04-21 12:06:08 $
+# $Date: 2007-01-08 12:41:54 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -32,7 +32,7 @@ use Parse::RecDescent ;
 
 use vars qw($VERSION $compute_grammar $compute_parser) ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -371,7 +371,7 @@ sub compute_user_var {
 $compute_grammar = << 'END_OF_GRAMMAR' ;
 
 {
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 # This grammar is compatible with Parse::RecDescent < 1.90 or >= 1.90
 use strict;
@@ -555,7 +555,7 @@ __END__
 
 =head1 AUTHOR
 
-Dominique Dumont, domi@komarr.grenoble.hp.com
+Dominique Dumont, (ddumont at cpan dot org)
 
 =head1 SEE ALSO
 
