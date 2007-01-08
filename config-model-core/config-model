@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-#    Copyright (c) 2006 Dominique Dumont.
+#    Copyright (c) 2006-2007 Dominique Dumont.
 #
 #    This file is part of Config-Model.
 #
@@ -25,17 +25,34 @@ use warnings ;
 use Config::Model;
 use Getopt::Long ;
 use Pod::Usage ;
+use Log::Log4perl ;
 
-# lame tracing that should be replaced by Log4perl
+# lame tracing that will be replaced by Log4perl
 use vars qw/$verbose $debug/ ;
 
 $verbose = 0;
 $debug = 0;
 
+my $log4perl_conf_file = '/etc/log4config-model.conf' ;
+my $fallback_conf = << 'EOC';
+log4perl.logger.ConfigModel=WARN, A1
+log4perl.appender.A1=Log::Dispatch::File
+log4perl.appender.A1.filename=/tmp/ConfigModel.log
+log4perl.appender.A1.mode=append
+log4perl.appender.A1.layout=Log::Log4perl::Layout::SimpleLayout
+EOC
+
+my $log4perl_conf = -e $log4perl_conf_file ? $log4perl_conf_file 
+                  :                          \$fallback_conf ;
+
+Log::Log4perl::init($log4perl_conf);
+
 my $ui_type = 'shell';
-my $model_dir = '/etc/config-model.d/' ;
+my $model_dir ;
 my $root_model ;
 my $trace = 0 ;
+my $read_conf_dir;
+my $wr_conf_dir ;
 
 =head1 NAME
 
@@ -77,7 +94,19 @@ for details.
 =item -model_dir
 
 Specify an alternate directory to find model files. Mostly useful for
-tests. Default is C</etc/config-model.d/>.
+tests. 
+
+=item -write_directory
+
+Specify where to write the configuration files. (Actual default
+directory and file names depends on the model (See C<-root_model>
+option).
+
+=item -write_directory
+
+Specify where to read the configuration files. (Actual default
+directory and file names depends on the model (See C<-root_model>
+option).
 
 =item -verbose
 
@@ -99,14 +128,16 @@ Provides a full stack trace when exiting on error.
 my $man = 0;
 my $help = 0;
 
-my $result = GetOptions ("if=s"         => \$ui_type,
-			 "model_dir=s"  => \$model_dir,
-			 "root_model=s" => \$root_model,
-			 "verbose!"     => \$verbose,
-			 "debug!"       => \$debug,
-			 "trace!"       => \$trace,
-			 "man!"         => \$man,
-			 "help!"        => \$help
+my $result = GetOptions ("if=s"             => \$ui_type,
+			 "model_dir=s"      => \$model_dir,
+			 "root_model=s"     => \$root_model,
+			 "verbose!"         => \$verbose,
+			 "debug!"           => \$debug,
+			 "trace!"           => \$trace,
+			 "man!"             => \$man,
+			 "help!"            => \$help,
+			 "read_conf_dir=s"  => \$read_conf_dir,
+			 "write_conf_dir=s" => \$wr_conf_dir ,
 			);
 
 pod2usage(2) if not $result ;
@@ -118,10 +149,17 @@ Config::Model::Exception::Any->Trace(1) if $trace ;
 die "Unspecified root configuration model (option -root_model)\n"
   unless defined $root_model ;
 
+if (defined $wr_conf_dir && ! -e $wr_conf_dir) {
+    mkdir $wr_conf_dir, 0755 || die "can't create $wr_conf_dir:$!";
+}
+
 my $model = Config::Model -> new(model_dir => $model_dir) ;
 
 my $inst = $model->instance (root_class_name => $root_model,
-			     instance_name   => $root_model.'_instance');
+			     instance_name   => $root_model.'_instance',
+			     read_directory  => $read_conf_dir,
+                             write_directory => $wr_conf_dir,
+			    );
 
 my $root = $inst -> config_root ;
 
@@ -139,6 +177,9 @@ if ($ui_type eq 'shell') {
 else {
     die "Unsupported user interface: $ui_type";
 }
+
+
+$inst->write_back; 
 
 =head1 CAVEATS
 
