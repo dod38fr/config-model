@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-12-06 12:44:29 $
+# $Date: 2007-01-08 12:39:05 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.7 $
+# $Revision: 1.8 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -36,7 +36,7 @@ use base qw/Config::Model::WarpedThing/ ;
 
 use vars qw($VERSION) ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.8 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -1075,9 +1075,9 @@ sub check {
         # accepted, no more check
     }
     else {
-	my $msg = "Cannot deal with type ".
-	  $self->{value_type}. ", value '$value'".
-	    (defined $self->{choice} ? "choice @{$self->{choice}}" : '');
+	my $msg = "Cannot check value_type '".
+	  $self->{value_type}. "' (value '$value'".
+	    (defined $self->{choice} ? ", choice @{$self->{choice}})" : ')');
         Config::Model::Exception::Model 
 	    -> throw (object => $self, message => $msg) ;
     }
@@ -1421,7 +1421,7 @@ See L<Config::Model::Exception> for more details.
 
 =head1 AUTHOR
 
-Dominique Dumont, domi@komarr.grenoble.hp.com
+Dominique Dumont, (ddumont at cpan dot org)
 
 =head1 SEE ALSO
 
