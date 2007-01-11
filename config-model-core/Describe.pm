@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-01-08 12:48:22 $
+# $Date: 2007-01-11 12:32:23 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.5 $
+# $Revision: 1.6 $
 
 #    Copyright (c) 2006-2007 Dominique Dumont.
 #
@@ -30,7 +30,7 @@ use Config::Model::Exception ;
 use Config::Model::ObjTreeScanner ;
 
 use vars qw($VERSION);
-$VERSION = sprintf "%d.%03d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -137,9 +137,9 @@ sub describe {
 
         if ( $elt_type eq 'node' ) {
 	    my $class_name = $list_obj->config_class_name ;
+	    my @show_keys = @keys ? @keys : ('<empty>')  ;
 	    push @$data_r , [ $element, "<$class_name>", 
-			    'node list', 
-			    @keys ? "keys: @keys" : 'empty list' ];
+			    'node list', "indexes: @show_keys" ];
         }
         else {
             push @$data_r , [ $element,
@@ -157,8 +157,10 @@ sub describe {
 
         if ( $elt_type eq 'node' ) {
 	    my $class_name = $hash_obj->config_class_name ;
+	    my @show_keys = @keys ? map { qq("$_") } @keys : ('<empty>')  ;
+	    my $show_str = "keys: @show_keys";
 	    push @$data_r , [ $element, "<$class_name>", 
-			    'node hash', "keys: @keys" ];
+			    'node hash', $show_str ];
         }
         elsif (@keys) {
             map {$scanner->scan_hash($data_r, $obj,$element,$_)} @keys ;
