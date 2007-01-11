@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-01-08 12:48:23 $
+# $Date: 2007-01-11 12:33:34 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.7 $
+# $Revision: 1.8 $
 
 #    Copyright (c) 2006-2007 Dominique Dumont.
 #
@@ -31,7 +31,7 @@ use warnings ;
 use Term::ReadLine;
 
 use vars qw($VERSION);
-$VERSION = sprintf "%d.%03d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.8 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -111,8 +111,8 @@ display elt elt:key
 ls   -> show elements of current node
 help -> show available command
 desc[ription] -> show class desc of current node
-desc(elt)   -> show desc of element from current node
-desc(value) -> show effect of value (for enum)
+desc <element>   -> show desc of element from current node
+desc <value> -> show effect of value (for enum)
 exit -> exit shell
 ';
 
@@ -276,7 +276,7 @@ my $cd_completion_sub = sub {
 	      -> get_all_indexes ;
 	    #print "$elt_name @idx\n";
 	    if (@idx) {
-		my @tmp = map { "$elt_name:$_"; } @idx ;
+		my @tmp = map { qq($elt_name:$_); } @idx ;
 		#print "tmp @tmp\n";
 		push @choice, @tmp ;
 	    } 
@@ -458,9 +458,24 @@ sub list_cd_path {
 
 =head1 BUGS
 
+=over
+
+=item *
+
 Auto-completion is not complete.
 
+=item *
+
+Auto-completion provides wrong choice when you try to C<cd> in a hash
+where the index contains a white space. I.e. the correct command is
+C<cd foo:"a b"> instead of C<cd foo:a b> as proposed by auto
+completion.
+
+=item *
+
 UI should take into account permission.
+
+=back
 
 =head1 AUTHOR
 
