@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2007-01-08 12:51:49 $
+# $Date: 2007-01-11 12:35:08 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 
 use ExtUtils::testlib;
 use Test::More tests => 6;
@@ -47,13 +47,13 @@ print "description string:\n$description" if $trace ;
 
 my $expect = <<'EOF' ;
 name         value        type         comment
-std_id       <SlaveZ>     node hash    keys: ab bc
+std_id       <SlaveZ>     node hash    keys: "ab" "bc"
 lista        a,b,c,d      list
 listb        b,c,d        list
 hash_a:titi  titi_value   string
 hash_a:toto  toto_value   string
 hash_b       [empty hash] value hash
-olist        <SlaveZ>     node list    keys: 0 1
+olist        <SlaveZ>     node list    indexes: 0 1
 tree_macro   [undef]      enum         choice: XY XZ mXY
 warp         <SlaveY>     node
 slave_y      <SlaveY>     node
