@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-12-07 13:13:22 $
+# $Date: 2007-01-11 12:59:53 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -128,7 +128,7 @@
 		    built_in   => 1 ,
 		    warp => { follow => '- use_global_gamma',
 			      rules => {
-					1 => { value_type => 'integer', }
+					1 => { value_type => 'number', }
 				       }
 			    }
 
@@ -138,7 +138,9 @@
 	    built_in   => 1 ,
 	    warp => { follow => '- use_global_gamma',
 		      rules => {
-				0 => { value_type => 'integer', }
+				0 => { value_type => 'number', 
+				       mandatory  => 1 , # all 3 are required
+				     }
 			       }
 		    }
 	  },

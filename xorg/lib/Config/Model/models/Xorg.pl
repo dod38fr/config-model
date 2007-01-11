@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-12-07 13:13:21 $
+# $Date: 2007-01-11 12:59:53 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -68,15 +68,15 @@
 	   cargo_type => 'node',
 	   config_class_name => 'Xorg::InputDevice',
 	   # set up default keyboard and mouse as recommended by xorg.conf
-	   default => { 'kbd'   =>'driver=keyboard',
-			'mouse' => 'driver=mouse' } ,
+	   default => { 'kbd'   => 'Driver=keyboard',
+			'mouse' => 'Driver=mouse'     } ,
 
 	  },
 
-       'MultiHead' => => { type => 'leaf',
-			   value_type => 'boolean',
-			   default => 0,
-			 },
+       'MultiHead' => { type => 'leaf',
+			value_type => 'boolean',
+			default => 0,
+		      },
 
        # Graphics device description
        'Device' 
@@ -123,6 +123,10 @@
 		    config_class_name => 'Xorg::ServerLayout',
 		   },
        # DRI            DRI-specific configuration
+       'DRI' => {
+		 type => 'node',
+		 config_class_name => 'Xorg::DRI',
+		},
        # Vendor         Vendor-specific configuration
       ],
 
@@ -152,5 +156,18 @@
        Keyboard       => 'Keyboard configuration (obsolete)',
        Pointer        => 'Pointer/mouse configuration (obsolete)',
       ],
-  ]
+  ],
+
+  [
+   name => "Xorg::DRI",
+   # A lot of info is still missing.
+   element => [
+	       Mode => { type => 'leaf',
+			 value_type => 'string', # err, placeholder...
+		       },
+	      ],
+   description => [
+		   Mode => 'DRI mode, usually set to 0666',
+		  ]
+  ],
 ];

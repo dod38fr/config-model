@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-12-07 13:13:21 $
+# $Date: 2007-01-11 12:59:53 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -36,7 +36,7 @@
 			    value_type => 'enum',
 			    mandatory  => 1 ,
 			    # obviously, some more work is needed here
-			    choice => [qw/radeon/] ,
+			    choice => [qw/radeon nvidia/] ,
 			  },
 
       'BusID'          => { type       => 'leaf',
@@ -62,6 +62,7 @@
 	   follow   => '- Driver',
 	   'rules' 
 	   => { 'radeon' => { config_class_name => 'Xorg::Device::Radeon' },
+		'nvidia' => { config_class_name => 'Xorg::Device::Nvidia' },
 	      }
 	 },
 

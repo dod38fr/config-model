@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-01-11 12:59:53 $
+# $Date: 2007-01-11 13:01:21 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.1 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -22,38 +22,34 @@
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 
 
-# Model for Mouse driver. Where's the doc ???
+# Model for Nvidia proprietary driver (see 
+# http://download.nvidia.com/XFree86/Linux-x86/1.0-8774/README/appendix-d.html)
+
+# this model is preliminary. More work is required.
 
 [
  [
-  name => "Xorg::InputDevice::MouseOpt",
+  name => "Xorg::Device::Nvidia",
   'element' 
   => [ 
-      'Device'          => { type   => 'leaf' ,
-			     value_type => 'string',
-			   },
-      'Protocol'        => { type   => 'leaf',
-			     value_type => 'enum',
-			     choice => [qw!ImPS/2 IntelliMouse!] ,
-			   },
-      'Emulate3Buttons' => { type       => 'leaf',
-			     value_type => 'boolean',
-			     built_in   => 0,
-			   },
-      'ZAxisMapping'    => {type   => 'leaf' ,
-			    value_type => 'string',
-			   },
-      'SendCoreEvents'  => { type       => 'leaf',
-			     value_type => 'boolean',
-			   },
-      "Buttons"         => {type   => 'leaf' ,
-			    value_type => 'string',
-			   },
+      'TwinView'         => { type       => 'leaf',
+			      value_type => 'boolean',
+			      built_in   => 0,
+			    },
+      'MetaModes'        => { type       => 'leaf',
+			      value_type => 'string',
+			    },
+      'CrtcNumber'       => { type       => 'leaf',
+			      value_type => 'integer',
+			    },
      ],
 
   'description' 
   => [
-
+      # See 
+      # http://download.nvidia.com/XFree86/Linux-x86/1.0-8774/README/appendix-g.html
+      'MetaModes'        => 'Incomplete model. TBD',
+      
      ],
  ]
 ];

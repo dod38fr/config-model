@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-12-07 13:13:21 $
+# $Date: 2007-01-11 12:59:17 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -28,6 +28,9 @@ use warnings ;
 use Carp ;
 use IO::File ;
 use Config::Model::ObjTreeScanner ;
+use Log::Log4perl ;
+
+my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
 sub write {
     my %args = @_ ;
@@ -42,16 +45,12 @@ sub write {
 
     my $file = "$dir/xorg.conf" ;
 
-    print __PACKAGE__," write: writing config file $file\n";
+    $logger->warn( __PACKAGE__." write: writing config file $file\n");
 
-    my $fh = new IO::File $file, "w" ;
+    open (CONF,"> $file ") || die __PACKAGE__," write: can't open $file:$!";
 
-    if (defined $fh) {
-	print join("\n", write_all($fh, $config_root)) ;
-    }
-    else {
-	die __PACKAGE__," write: can't open $file:$!";
-    }
+    print CONF join("\n", write_all($config_root)) ;
+    close CONF;
 }
 
 sub wr_std_leaf {
@@ -67,7 +66,9 @@ sub wr_module {
 sub wr_std_options {
     my ($scanner, $data_r ,$node,$element_name,$index, $leaf_object,$v) = @_ ;
     my $b_in = $leaf_object->built_in ;
-    if ( defined $v && defined $b_in && $v && $v ne $b_in) {
+    if ( defined $v && (   (not defined $b_in) 
+			|| (defined $b_in && $v && $v ne $b_in) )
+       ) {
 	my $str =  qq(\tOption\t"$element_name");
 	$str .= qq(\t"$v") if defined $v && $v ;
 	push @$data_r, $str ;
@@ -91,30 +92,43 @@ sub push_flag_value {
     }
 } ;
 
-my %dispatch_leaf = ( 'Xorg::Module' => \&wr_module,
-		      'Xorg::Files'  => \&wr_std_leaf ,
-		      'Xorg::InputDevice' => \&wr_std_leaf ,
-		      'Xorg::InputDevice::MouseOpt' => \&wr_std_options ,
-		      'Xorg::InputDevice::KeyboardOpt' => \&wr_std_options ,
-		      'Xorg::Device' => \&wr_std_leaf ,
-		      'Xorg::Device::Radeon' => \&wr_std_options ,
-		      'Xorg::Monitor' => \&wr_std_leaf ,
-		      'Xorg::Monitor::Option' => \&wr_std_options ,
-		      'Xorg::Monitor::Mode' => \&push_value ,
-		      'Xorg::Monitor::Mode::Timing' => \&push_value ,
-		      'Xorg::Monitor::Mode::Flags' => \&push_flag_value ,
-		      'Xorg::Screen' => \&wr_std_leaf ,
-		      'Xorg::Screen::Option' => \&wr_std_options ,
-		      'Xorg::Screen::Display' => \&wr_std_leaf ,
-		      'Xorg::ServerLayout' => \&wr_std_leaf ,
-		    ) ;
+my %dispatch_leaf 
+  = (
+     'Xorg' => 1,
+     'Xorg::Module' => \&wr_module,
+     'Xorg::Files'  => \&wr_std_leaf ,
+     'Xorg::InputDevice' => \&wr_std_leaf ,
+     'Xorg::InputDevice::MouseOpt' => \&wr_std_options ,
+     'Xorg::InputDevice::KeyboardOpt' => \&wr_std_options ,
+     'Xorg::Device' => \&wr_std_leaf ,
+     'Xorg::Device::Radeon' => \&wr_std_options ,
+     'Xorg::Device::Nvidia' => \&wr_std_options ,
+     'Xorg::Monitor' => \&wr_std_leaf ,
+     'Xorg::Monitor::Option' => \&wr_std_options ,
+     'Xorg::Monitor::Mode' => \&push_value ,
+     'Xorg::Monitor::Mode::Timing' => \&push_value ,
+     'Xorg::Monitor::Mode::Flags' => \&push_flag_value ,
+     'Xorg::Screen' => \&wr_std_leaf ,
+     'Xorg::Screen::Option' => \&wr_std_options ,
+     'Xorg::Screen::Display' => \&wr_std_leaf ,
+     'Xorg::ServerLayout' => \&wr_std_leaf ,
+     'Xorg::ServerFlags' => \&wr_std_options ,
+     'Xorg::DRI' => \&wr_std_leaf
+    ) ;
 
 sub wr_leaf {
     my ($scanner, $data_r, $node,$element_name,$index, $leaf_object) = @_ ;
     my $v = $leaf_object->fetch ;
     my $cb = $dispatch_leaf{$node ->config_class_name() } ;
-    $cb->(@_ ,$v ) if defined $cb ;
-} ;
+    if (defined $cb && ref $cb) {
+	$cb->(@_ ,$v ) ;
+    }
+    elsif (not defined $cb) {
+	# can't fallback to wr_std_leaf as some elements from model
+	# are not meant to be written back in xorg.conf
+	warn "wr_leaf: no call-back defined for ",$node ->config_class_name() ;
+    }
+} 
 
 sub wr_section {
     my ($scanner, $data_r, $node,$element_name,$key,$next_node) = @_;
@@ -152,7 +166,7 @@ sub wr_sub_section {
     my ($scanner, $data_r, $node,$element_name,$key,$next_node) = @_;
     { 
 	no warnings "uninitialized" ;
-	print "wr_sub_section called on ",$node->name," $element_name,$key\n";
+	$logger->debug( "wr_sub_section called on ",$node->name," $element_name,$key");
     }
 
     push @$data_r, qq(\tSubSection "$element_name") ,
@@ -177,7 +191,7 @@ sub wr_serverlayout_screen {
 	}
 	if ($pos_obj-> is_element_available('x')) {
 	    map {
-		$str .= $pos_obj->fetch_element_value($_).'" ' ;
+		$str .= $pos_obj->fetch_element_value($_).' ' ;
 		} qw/x y/ ;
 	}
 
@@ -196,28 +210,92 @@ sub wr_serverlayout_inputdevice {
     push @$data_r, $str ;
 }
 
+sub wr_monitor_display_size {
+    my ($scanner, $data_r, $node,$element_name,$key,$next_node) = @_;
+
+    my $w = $next_node->fetch_element_value("width") ;
+    my $h = $next_node->fetch_element_value("height") ;
+
+    push @$data_r, "\tDisplaySize\t$w $h" if defined $w && defined $h; 
+}
+
+sub wr_monitor_gamma {
+    my ($scanner, $data_r, $node,$element_name,$key,$next_node) = @_;
+
+    if ($next_node->fetch_element_value("use_global_gamma")) {
+	my $g = $next_node->fetch_element_value("gamma") ;
+	push @$data_r, "\tGamma\t$g" if defined $g ;
+    }
+    else {
+	my @v = map { $next_node->fetch_element_value($_."_gamma") }
+	  qw/red green blue/ ;
+	push @$data_r, "\tGamma\t@v" ;
+    }
+
+}
+
+sub wr_screen_display_virtual {
+    my ($scanner, $data_r, $node,$element_name,$key,$next_node) = @_;
+
+    my $x = $next_node->fetch_element_value("xdim") ;
+    my $y = $next_node->fetch_element_value("ydim") ;
+
+    push @$data_r, "\t\tVirtual\t$x $y" if defined $x && defined $y; 
+}
+
+sub wr_screen_display_viewport {
+    my ($scanner, $data_r, $node,$element_name,$key,$next_node) = @_;
+
+    my $x = $next_node->fetch_element_value("x0") ;
+    my $y = $next_node->fetch_element_value("y0") ;
+
+    push @$data_r, "\t\tViewPort\t$x $y" if defined $x && defined $y; 
+}
+
+sub wr_device_kbd_autorepeat {
+    my ($scanner, $data_r, $node,$element_name,$key,$next_node) = @_;
+
+    my $d = $next_node->fetch_element_value("delay") ;
+    my $r = $next_node->fetch_element_value("rate") ;
+
+    push @$data_r, qq(\tOption\t"AutoRepeat" "$d $r")
+      if defined $d && defined $r; 
+}
+
 my %dispatch_node 
-  = ( 'Xorg::Files' => \&wr_section,
-      'Xorg::Module' => \&wr_section,
-      'Xorg::InputDevice' => \&wr_section,
-      'Xorg::Device' => \&wr_section,
-      'Xorg::Monitor' => \&wr_section,
-      'Xorg::Monitor::Mode' => \&wr_mode_line ,
-      'Xorg::Screen' => \&wr_section,
-      'Xorg::Screen::Display' => \&wr_sub_section,
-      'Xorg::ServerLayout' => \&wr_section,
-      'Xorg::ServerLayout::Screen' => \&wr_serverlayout_screen,
-      'Xorg::ServerLayout::InputDevice' => \&wr_serverlayout_inputdevice,
+  = ( 
+     'Xorg' => 1 ,
+     'Xorg::Files' => \&wr_section,
+     'Xorg::Module' => \&wr_section,
+     'Xorg::InputDevice' => \&wr_section,
+     'Xorg::InputDevice::KeyboardOpt::AutoRepeat' => \&wr_device_kbd_autorepeat,
+     'Xorg::Device' => \&wr_section,
+     'Xorg::DRI' => \&wr_section,
+     'Xorg::Monitor' => \&wr_section,
+     'Xorg::Monitor::Mode' => \&wr_mode_line ,
+     'Xorg::Monitor::DisplaySize' => \&wr_monitor_display_size ,
+     'Xorg::Monitor::Gamma' => \&wr_monitor_gamma ,
+     'Xorg::Screen' => \&wr_section,
+     'Xorg::Screen::Display' => \&wr_sub_section,
+     "Xorg::Screen::Display::Virtual" => \&wr_screen_display_virtual,
+     "Xorg::Screen::Display::ViewPort" => \&wr_screen_display_viewport,
+     'Xorg::ServerLayout' => \&wr_section,
+     'Xorg::ServerFlags' => \&wr_section,
+     'Xorg::ServerLayout::Screen' => \&wr_serverlayout_screen,
+     'Xorg::ServerLayout::InputDevice' => \&wr_serverlayout_inputdevice,
     ) ;
 
 sub wr_node {
     my ($scanner, $data_r, $node,$element_name,$key, $next_node) = @_;
     my $dispatcher_data = $next_node->config_class_name ;
     my $cb = $dispatch_node{$dispatcher_data} ;
-    if (defined $cb ) { $cb->(@_) ; }
+    if (defined $cb && ref $cb) { $cb->(@_) ; }
+    elsif (defined $cb && $cb) {
+	$scanner->scan_node($data_r,$next_node) ;
+    }
     else {
 	no warnings "uninitialized" ;
-	print "wr_node called on $dispatcher_data $element_name,$key\n";
+	$logger->debug( "wr_node called on $dispatcher_data $element_name,$key");
 	$scanner->scan_node($data_r,$next_node) ;
     }
 } ;
@@ -242,10 +320,9 @@ sub wr_list {
 }
 
 sub write_all {
-    my $fh = shift;
     my $root = shift ;
 
-    print "write_all called\n";
+    $logger->debug( "write_all called");
 
     my @result = ("# Xorg.cong written by Xorg Config::Model",
 		  "# do not edit", '' ) ;
@@ -276,7 +353,7 @@ __END__
 
 sub wr_leaf2 {
     my ($node,$element_name,$index, $leaf_object) = @_ ;
-    #print "Node $node $index  $element_name\n";
+    #$logger->debug( "Node $node $index  $element_name\n";
     my $v = $leaf_object->fetch ;
     my $loc = $node->location ;
 

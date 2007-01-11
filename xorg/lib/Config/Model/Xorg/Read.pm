@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-12-07 13:13:20 $
+# $Date: 2007-01-11 12:59:02 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -27,6 +27,10 @@ use strict;
 use warnings ;
 use Carp ;
 use IO::File ;
+use Log::Log4perl;
+use Data::Dumper ;
+
+my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
 sub read {
     my %args = @_ ;
@@ -34,6 +38,7 @@ sub read {
       || croak __PACKAGE__," read: undefined config root object";
     my $dir = $args{conf_dir} 
       || croak __PACKAGE__," read: undefined config dir";
+    my $test = $args{test} || 0;
 
     unless (-d $dir ) {
 	croak __PACKAGE__," read: unknown config dir $dir";
@@ -46,79 +51,160 @@ sub read {
 
     my $i = $config_root->instance ;
 
-    # As the data contained in a typical xorg.conf are presented in an
-    # order that might upset the model, model check are disabled while
-    # reading xorg.conf. The accuracy of data will be checked when
-    # reading data from the configuration tree
-    $i->push_no_value_check('fetch','store','type') ;
-
-    print __PACKAGE__," read: loading config file $file\n";
+    $logger->info("loading config file $file");
 
     my $fh = new IO::File $file, "r" ;
 
     if (defined $fh) {
 	my @file = $fh->getlines ;
 	$fh->close;
-	map { s/#.*$//; s/^\s*//; } @file ;
-	my @xorg_conf = grep { not /^\s*$/ ;} @file;
+	my $idx = 0 ;
+	# store also input line number
+	map {s/#.*$//; s/^\s*//; s/\s+$//; $_ = [ "line ".$idx++ ,$_ ]} @file ;
+	my @raw_xorg_conf = grep { $_->[1] !~ /^\s*$/ ;} @file;
+	chomp @raw_xorg_conf ;
 
-	chomp @xorg_conf ;
-	parse_all(\@xorg_conf, $config_root) ;
+	#print Dumper(\@raw_xorg_conf); exit ;
+	my $data = parse_raw_xorg(\@raw_xorg_conf) ;
+
+	return $data if $test ;
+	#print Dumper($data); exit ;
+
+	parse_all($data, $config_root) ;
     }
     else {
 	die __PACKAGE__," read: can't open $file:$!";
     }
-
-    # restore check when storing data in the configuration tree
-    $i->pop_no_value_check() ;
 }
 
+# return a data structure in the form :
+#   hash_ref->array_ref->hash_ref->array_ref
+#
+# { section_name => [ 
+#                     # section_a
+#                     { element_name => [ [ value_a ] , [ va, lue, _b ] },
+#                     ...
+#                     # section_b 
+#                     ...
+#                   ],
+# },
+# ...
+sub parse_raw_xorg {
+    my $xorg_lines = shift ;
+
+    my %data ;
+
+    while (@$xorg_lines) {
+	my $line_data = shift @$xorg_lines ;
+	my ($line_nb,$line) = @$line_data ;
+	my ($key,$value) = split /\s+/,$line,2;
+	if ($key eq 'Section') {
+	    $value =~ s/"//g;
+	    push @{$data{$value}}, 
+	      [ $line_nb, parse_raw_section($xorg_lines) ] ;
+	}
+    }
+    return \%data ;
+}
+
+sub parse_raw_section {
+    my $xorg_lines = shift ;
+
+    my %data ;
+    while (@$xorg_lines) {
+	my $line_data = shift @$xorg_lines ;
+	my ($line_nb,$line) = @$line_data ;
+	my ($key,$value) = split /\s+/,$line,2;
+	if ($key eq 'EndSection' or $key eq 'EndSubSection') {
+	    return \%data ;
+	}
+	elsif ($key eq 'SubSection') {
+	    $value =~ s/"//g;
+	    push @{$data{$value}}, [ $line_nb, parse_raw_section($xorg_lines) ];
+	}
+	else {
+	    my @store = ( $line_nb ) ;
+	    while (length($value)) {
+		if ($value =~ /^"([^"]+)"/) {
+		    push @store,$1 ;
+		    $value =~ s/^"[^"]+"\s*//g;
+		}
+		elsif ($value =~ /^([^"\s]+)/) {
+		    push @store,$1 ;
+		    $value =~ s/^([^"\s]+)\s*//g;
+		}
+		else {
+		    die "parse_raw_section: unexpected value $value";
+		}
+
+	    }
+	    push @{$data{$key}}, \@store ;
+	}
+    }
+}
+
+# Need to update functions beloow
 sub parse_all {
     my $xorg_conf = shift;
     my $root = shift ;
 
-    print "parse_all called\n";
-    while (@$xorg_conf) {
-	my $line = shift @$xorg_conf ;
-	print "parse_all: line '$line'\n";
+    # important sections must be parsed in a specific order
+    my @sections = qw/InputDevice Device Monitor Screen ServerLayout
+                      ServerFlags/ ;
 
-	if ($line =~ /^\s*Section\s+"(\w+)"/) {
-	    if ($root->has_element($1)) {
-		parse_section($xorg_conf,$root->fetch_element($1)) ;
-	    }
-	    else {
-		skip_section($xorg_conf) ;
-	    }
+    foreach my $section_name (@sections) {
+	foreach	my $section_data (@{$xorg_conf->{$section_name}}) {
+	    $logger->debug( "parse_all: important section '$section_name'");
+	    parse_section($section_data,$root->fetch_element($section_name)) ;
 	}
-	else {
-	    print "parse_all: unexpected line '$line'\n";
-	}
+	delete $xorg_conf->{$section_name} ;
     }
-}
 
-sub skip_section {
-    my $xorg_conf = shift;
-    
-    while ( @$xorg_conf ) {
-	my $line = shift @$xorg_conf ;
-	return if $line =~ /^\s*EndSection/ ;
+    # try to parse remaining sections
+    foreach my $section_name (keys %$xorg_conf) {
+	next unless $root->has_element($section_name) ;
+
+	foreach	my $section_data (@{$xorg_conf->{$section_name}}) {
+	    $logger->debug( "parse_all: section '$section_name'");
+	    parse_section($section_data,$root->fetch_element($section_name)) ;
+	}
+	delete $xorg_conf->{$section_name} ;
     }
-    print "skip_section reached end of file\n";
+
+    if (keys %$xorg_conf) {
+	die "can't handle section ", join(' ',keys %$xorg_conf),
+	  ": Error in input file or Xorg model is incomplete";
+    }
 }
 
 sub parse_option {
-    my ($obj, $trash, $trash2, $line) = @_ ;
-    my ($opt) = ( $line =~ /Option\s*"(\w+)"/ ); #";
-    my ($arg) = ( $line =~ /Option\s*"\w+"\s+"?([\w\/\-:\.\s]+)"?/ ); #";
-    if ($opt =~ /Core(Keyboard|Pointer)/ ) {
+    my ($obj, $trash, $line, @args) = @_ ;
+    my $opt = shift @args;
+
+    if ($obj->config_class_name eq 'Xorg::ServerFlags') {
+	$logger->debug( "obj ",$obj->name, " ($line) load option '$opt' ");
+	my $opt_obj = $obj->fetch_element($opt) ;
+	$opt_obj->store ( @args  ? $args[0] : 1 ) ;
+    }
+    elsif ($opt =~ /Core(Keyboard|Pointer)/ ) {
 	my $id = $obj -> index_value ;
-	print "Load $opt to '$id'\n";
+	$logger->debug( "($line) Load top level $opt to '$id'");
 	$obj->load( qq(! $opt="$id") ) ;
     }
+    elsif (    $obj->config_class_name eq 'Xorg::InputDevice' 
+	   and $opt eq 'AutoRepeat') {
+	$logger->debug( "obj ",$obj->name, " ($line) load option '$opt' with '",
+			join('+',@args),"' ");
+	my @v = split / /,$args[0] ;
+	my $load = sprintf ( "Option AutoRepeat delay=%s rate=%s", @v);
+	$logger->debug( $obj->name," load '$load'");
+	$obj->load($load) ;
+    }
     else {
-	print "obj ",$obj->name, " load option '$opt' \n";
+	# dont' work for ServerFlags
+	$logger->debug( "obj ",$obj->name, " ($line) load option '$opt' ");
 	my $opt_obj = $obj->fetch_element("Option")->fetch_element($opt) ;
-	$opt_obj->store ( defined $arg ? $arg : 1 ) ;
+	$opt_obj->store ( @args  ? $args[0] : 1 ) ;
     }
 }
 
@@ -132,170 +218,219 @@ my %mode_flags = (
 	    );
 
 sub parse_mode_line {
-    my ($obj, $trash, $mode_name, $line) = @_ ;
-    my ($mode) = ( $line =~ /ModeLine\s*"[\w\.\-]+"\s+(.*)/ ); #";
-    print "Mode line: $mode_name -> $mode\n";
-    my @m = split /\s+/, $mode ;
-    my $load = "Mode:$mode_name DotClock=$m[0] ";
-    $load .= "HTimings disp=$m[1] syncstart=$m[2] syncend=$m[3] total=$m[4] - ";
-    $load .= "VTimings disp=$m[5] syncstart=$m[6] syncend=$m[7] total=$m[8] - ";
-    splice @m,0,9 ;
+    my ($obj, $trash, $line, $mode, @m) = @_ ;
+
+    # force @v content to be numerical instead of strings
+    my @v = map { 0 + $_ } splice @m,0,9 ;
+
+    my $load = "Mode:$mode DotClock=$v[0] ";
+    $load .= "HTimings disp=$v[1] syncstart=$v[2] syncend=$v[3] total=$v[4] - ";
+    $load .= "VTimings disp=$v[5] syncstart=$v[6] syncend=$v[7] total=$v[8] - ";
 
     $load .= "Flags " . join (' ', map {$mode_flags{$_} || "$_=1" } @m ) . ' - ' 
       if @m ;
 
-    print "load '$load'\n";
+    $logger->debug( "($line) load '$load'");
     $obj->load($load) ;
 }
 
 sub parse_modes_list {
-    my ($obj, $trash, $trash2, $line) = @_ ;
-    $line =~ s/^\s*Modes\s*//;
-    $line =~ s/"//g;
-    my @modes = split /\s+/,$line;
-    my $load = "Modes=".join(',',@modes);
+    my ($obj, $trash, $line_nb, @modes) = @_ ;
 
-    print "load '$load'\n";
+    my $load = "Modes=".join(',',@modes);
+    $logger->debug( "($line_nb))load '$load'");
     $obj->load($load) ;
 }
 
+# called while parsing ServerLayout or Device
+# key is always 'Screen'
 sub parse_layout_screen {
-    my ($obj, $trash, $trash2, $line) = @_ ;
+    my ($obj, $key, $line, $value, @args) = @_ ;
 
     my $load;
-    my $saved_line = $line ;
 
     if ($obj->config_class_name eq 'Xorg::Device') {
-	my ($num) 
-	  = ($line =~ /Screen\s+(\d*)/) ;
-	$load = "Screen=$num";
+	$load = "Screen=$value";
     }
     else {
-	my $num = 0 ;
-
-	$line =~ s/\s*Screen\s*//;
-
-	if ($line =~ /^(\d+)/) {
-	    $num = $1 ;
-	    $line =~ s/\d+\s*// ;
+	my ($num, $screen_id);
+	if ($value =~ /^(\d+)$/) {
+	    $num = $value ;
+	    $screen_id = shift @args ;
+	} 
+	else {
+	    $num = 0;
+	    $screen_id = $value ;
 	}
 
-	$load = "Screen:$num ";
+	$load = "Screen:$num screen_id=\"$screen_id\" ";
 
-	if ($line =~ /^"([\w\.\-\s]+)"/) {
-	    $load .= "screen_id=\"$1\" " ; # screen_id
-	    $line =~ s/^"[\w\.\-\s]+"\s*//g;
-	}
-	print "load '$load' from line '$line'\n";
+	$logger->debug( "Screen load '$load'");
 
-	if ($line =~ /^(\w+)/) {
-	    my $end = $1 ;
+	if (@args) {
+	    # there's a position information
 	    my ($relative_spec, $pos );
 
-	    if ($end =~ /^\d+$/ or $end eq 'Relative') {
-		$pos = 'Absolute' if $end =~ /^\d+$/;
-		# there's a coordinate
-		my ($x,$y) = ($line =~ /(\d+)\s+ (\d+)\s*$/) ;
-		$relative_spec = "x=$x y=$y" ;
+	    if ( $args[0] =~ /^\d+$/ ) {
+		$pos = 'Absolute' ;
+		$relative_spec = sprintf("x=%s y=%s",@args) ;
+	    }
+	    elsif ($args[0] eq 'Absolute') {
+		$pos = shift @args ;
+		$relative_spec = sprintf("x=%s y=%s",@args) ;
+	    }
+	    elsif ($args[0] eq 'Relative') {
+		$pos = shift @args ;
+		$relative_spec = sprintf("screen_id=\"%s\" x=%s y=%s",@args) ;
 	    }
 	    else {
-		$pos = $end ;
-		$line =~ /"([\w\.\-\s]+)"\s*$/ ;
-		$relative_spec = "screen_id=\"$1\"" ;
+		$pos = shift @args;
+		$relative_spec = sprintf("screen_id=\"%s\"",@args) ;
 	    }
 	    $load .= "position relative_screen_location=$pos $relative_spec ";
 	}
-	print "load '$load' from line '$line'\n";
+	$logger->debug( "Screen ($line) load '$load' ");
     }
 
-    print $obj->config_class_name," load '$load' from line '$saved_line'\n";
+    $logger->debug( $obj->config_class_name," load '$load'");
     $obj->load($load) ;
 }
 
+# called when parsing section ServerLayout
 sub parse_input_device {
-    my ($obj, $trash, $id, $line) = @_ ;
-    print "trash $trash id $id line '$line'\n";
-    my ($last) = ($line =~ /"([^"]+)"\s*$/) ;
-    my $dev = $obj->fetch_element('InputDevice')
-      -> fetch_with_id($id) ;
+    my ($obj, $trash, $line ,$id, @opt) = @_ ;
 
-    if ($last ne $id) {
-	print "Load '! $last=\"$id\"'\n";
-	$obj->load("! $last=\"$id\"") ;
+    $logger->debug( "$trash id:'$id' option '".join("' '",@opt)."'");
+
+    my $dev = $obj->fetch_element('InputDevice') -> fetch_with_id($id) ;
+
+    foreach my $opt (@opt) {
+	if ($opt eq 'SendCoreEvents') {
+	    $dev->fetch_element($opt)->store(1) ;
+	}
+	elsif ($opt =~ /Core(Keyboard|Pointer)/) {
+	    $logger->debug( "Load '! $opt=\"$id\"'");
+	    $obj->load("! $opt=\"$id\"") ;
+	}
+	else {
+	    die "parse_input_device ($line): Unexpected ServerLayout->InputDevice ",
+	      "option: $opt. Error in input file or Xorg model is incomplete";
+	}
     }
+}
+
+sub parse_display_size {
+    my ($obj, $tag_name, $line ,$w, $h) = @_ ;
+    $logger->debug( "$tag_name width:'$w' height:$h");
+    my $load = "DisplaySize width=$w height=$h";
+    $logger->debug( $obj->config_class_name," load '$load'");
+    $obj->load($load) ;
+}
+
+sub parse_view_port {
+    my ($obj, $tag_name, $line ,$x0, $y0) = @_ ;
+    $logger->debug( "$tag_name x0:'$x0' y0:$y0");
+    my $load = "ViewPort x0=$x0 y0=$y0";
+    $logger->debug( $obj->config_class_name," load '$load'");
+    $obj->load($load) ;
+}
+
+sub parse_virtual {
+    my ($obj, $tag_name, $line ,$xdim, $ydim) = @_ ;
+    $logger->debug( "$tag_name xdim:'$xdim' ydim:$ydim");
+    my $load = "Virtual xdim=$xdim ydim=$ydim";
+    $logger->debug( $obj->config_class_name," load '$load'");
+    $obj->load($load) ;
+}
+
+sub parse_gamma {
+    my ($obj, $tag_name, $line ,@g) = @_ ;
+    $logger->debug( "$tag_name @g");
+    my $global = @g == 1 ? 1 : 0 ;
+    my $load = "Gamma use_global_gamma=$global ";
+    $load .= $global ? "gamma=$g[0]" 
+                     : sprintf("red_gamma=%s green_gamma=%s blue_gamma=%s",@g) ;
+    $logger->debug( $obj->config_class_name," load '$load'");
+    $obj->load($load) ;
 }
 
 my %parse_line 
   = (
-     'FontPath' => sub { $_[0]->fetch_element($_[1])->push($_[2]) ;} ,
-     'Load'     => sub { $_[0]->fetch_element($_[2])->store(1)    ;} ,
+     'FontPath' => sub { $_[0]->fetch_element($_[1])->push($_[3]) ;} ,
+     'Load'     => sub { $_[0]->fetch_element($_[3])->store(1)    ;} ,
      'ModeLine' => \&parse_mode_line,
      'Option'   => \&parse_option ,
      'Modes'    => \&parse_modes_list,
      'Screen'   => \&parse_layout_screen,
      'InputDevice' => \&parse_input_device,
+     'DisplaySize' => \&parse_display_size ,
+     'ViewPort' => \&parse_view_port ,
+     'Virtual'  => \&parse_virtual ,
+     'Gamma'    => \&parse_gamma ,
     ) ;
 
 sub parse_section {
-    my $xorg_conf = shift;
+    my $section_line_data = shift ; # [ line_nb, hash ref ]
     my $obj = shift ;
 
-    # section like InputDevice must be parsed in 2 times
+    my ($sect_line_nb, $section_data) = @$section_line_data ;
+
+    # section like InputDevice have an identifier which must be extracted first
     my $obj_type = $obj->get_type ;
     my $has_id = $obj_type =~ /list|hash/ ? 1 : 0 ;
     my $tmp_obj = $obj ;
 
-    print "parse_section called on ",$obj->name," (has_id: $has_id)\n";
+    $logger->debug( "parse_section ($sect_line_nb) called on ",
+		    $obj->name," (has_id: $has_id)");
 
     # first get the identifier and create the object. 
-    my $idx = 0;
-    while ($has_id and @$xorg_conf) {
-	my $line = $xorg_conf->[$idx] ; # do not remove yet
+    if ($has_id) {
+	my $id_rr =  delete $section_data->{Identifier}
+	          || delete $section_data->{Depth}
+	          || die "can't find identifier for ",$obj->name ;
 
-	if (   $line =~ /^Identifier\s+"([\w\-\s]+)"/i
-	    or $line =~ /^Depth\s+([\w]+)/i
-	   ) {
-	    my $id = $1 ;
-	    print "parse_section: found id '$id' for '",$obj->name,"'\n";
-	    $tmp_obj = $obj->fetch_with_id($id) ;
-	    splice @$xorg_conf, $idx,1; # remove the line containing the id 
-	    last ;
-	}
-	$idx ++ ;
-	die "parse_section: can't find id " if $idx > 1000;
+	my ($line,$id) = @{$id_rr->[0]}  ;
+	$logger->debug( "parse_section $line: found id '$id' for '",
+			$obj->name,"'");
+	$tmp_obj = $obj->fetch_with_id($id) ;
     }
 
-    # then fill the data;
-    while (@$xorg_conf) {
-	my $line = shift @$xorg_conf ; # now we remove the line
-
-	# should always work because array was cleaned up;
-	my ($key) = ( $line =~ /^(\w+)/ ) ;
-
-	die "parse_section: undefined key for line '$line'\n"
-	  unless defined $key ;
-
-	if ($line =~ /^End(Sub)?Section/) {
-	    print "Found $line for ",$obj->name,"\n";
-	    last ;
+    # get driver or other important (warp master) element
+    foreach my $important (qw/Driver Monitor/) {
+	if ($tmp_obj->has_element($important)) {
+	    my $item = delete $section_data->{$important};
+	    $logger->debug( $obj->name," loads $important with ",$item->[0][1]);
+	    $tmp_obj->fetch_element($important)->store($item->[0][1]) ;
 	}
-	elsif ($line =~ /^\s*SubSection\s+"(\w+)"/) {
-	    my $elt = $1 ;
-	    parse_section($xorg_conf,$tmp_obj->fetch_element($elt)) ;
-	}
-	elsif (defined $parse_line{$key}) {
-	    my ($elt, $arg) = ( $line =~ /(\w+)\s+"([^"]+)"/ ); #";
-	    $parse_line{$key} -> ($tmp_obj, $elt, $arg, $line) ;
-	}
-	else {
-	    my ($elt, $arg) = ( $line =~ /(\w+)\s+"?([^"]+)"?/ ); #";
-	    if ($tmp_obj->has_element($elt)) {
-		print $obj->name, " store $elt = '$arg' (from '$line')\n";
-		$tmp_obj->fetch_element($elt)->store($arg)
+    }
+
+    # then fill remaining data;
+    foreach my $key (keys %$section_data) {
+	my $a2_r = $section_data->{$key}; # array of array ref ;
+
+	foreach my $arg (@$a2_r) {
+	    if (defined $parse_line{$key}) {
+		$parse_line{$key} -> ($tmp_obj, $key, @$arg) ;
 	    }
 	    else {
-		print "parse_section: unexpected '$elt' element for ",
-		  $tmp_obj->name, "($line)\n" ;
+		if (ref $arg->[1] eq 'HASH') {
+		    # we have a subsection
+		    $logger->debug( $tmp_obj->name, " subsection $key ");
+		    parse_section($arg,$tmp_obj->fetch_element($key)) ;
+		}
+		elsif ($tmp_obj->has_element($key) ) {
+		    my $line = shift @$arg ;
+		    my $val = "@$arg" ; 
+		    $logger->debug( $tmp_obj->name, 
+				    " ($line) store $key = '$val'");
+		    $tmp_obj->fetch_element($key)->store($val)
+		}
+		else {
+		    my $line = shift @$arg ;
+		    $logger->warn( "parse_section $line: unexpected '$key' "
+				   ."element for ",
+				   $tmp_obj->name, " (@$arg)") ;
+		}
 	    }
 	}
 
