@@ -96,13 +96,13 @@ for details.
 Specify an alternate directory to find model files. Mostly useful for
 tests. 
 
-=item -write_directory
+=item -write_conf_dir
 
 Specify where to write the configuration files. (Actual default
 directory and file names depends on the model (See C<-root_model>
 option).
 
-=item -write_directory
+=item -read_conf_dir
 
 Specify where to read the configuration files. (Actual default
 directory and file names depends on the model (See C<-root_model>
@@ -181,16 +181,9 @@ else {
 
 $inst->write_back; 
 
-=head1 CAVEATS
-
-Most of the code used to define configuration model is quite usable.
-
-But writing back configuration is still shaky. So don't run this
-program as root (yet...)
-
 =head1 AUTHOR
 
-Dominique Dumont, domi@komarr.grenoble.hp.com
+Dominique Dumont, ddumont at cpan dot org
 
 =head1 SEE ALSO
 
