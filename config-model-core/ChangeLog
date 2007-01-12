@@ -1,3 +1,14 @@
+2007-01-12  Dominique Dumont  v0.607
+
+	* t/term_ui.t: Changed tests to try to load Term::ReadLine and
+	skip tests if Term::ReadLine cannot be loaded.
+
+2007-01-11  Dominique Dumont  v0.606
+
+	* config-model: Corrected wrong doc for options.
+
+	* Describe.pm: Small cosmetic changes in output.
+
 2007-01-08  Dominique Dumont  v0.605
 
 	* config-model: Now uses Log::Log4perl. (Still need to use
