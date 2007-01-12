@@ -1,11 +1,24 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2007-01-08 12:51:49 $
+# $Date: 2007-01-12 12:59:24 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.4 $
+# $Revision: 1.5 $
 
 use ExtUtils::testlib;
-use Test::More tests => 22 ;
+use Test::More ;
+
+# this block is necessary to avoid failure on some automatic cpan
+# testers setup which fail while loading Term::ReadLine
+BEGIN { 
+    eval { require Term::ReadLine ;} ;
+    if ($@) {
+	plan skip_all => "Cannot load Term::ReadLine" ;
+    }
+    else {
+	plan tests => 22 ;
+    }
+}
+
 use Config::Model;
 use Config::Model::TermUI ;
 
