@@ -1,0 +1,25 @@
+Build.PL
+data/xorg.conf
+lib/Config/Model/models/Xorg.pl
+lib/Config/Model/models/Xorg/Device.pl
+lib/Config/Model/models/Xorg/Device/Nvidia.pl
+lib/Config/Model/models/Xorg/Device/Radeon.pl
+lib/Config/Model/models/Xorg/Files.pl
+lib/Config/Model/models/Xorg/InputDevice.pl
+lib/Config/Model/models/Xorg/InputDevice/KeyboardOpt.pl
+lib/Config/Model/models/Xorg/InputDevice/MouseOpt.pl
+lib/Config/Model/models/Xorg/Module.pl
+lib/Config/Model/models/Xorg/Monitor.pl
+lib/Config/Model/models/Xorg/Monitor/Mode.pl
+lib/Config/Model/models/Xorg/Monitor/Option.pl
+lib/Config/Model/models/Xorg/Screen.pl
+lib/Config/Model/models/Xorg/Screen/Display.pl
+lib/Config/Model/models/Xorg/Screen/Option.pl
+lib/Config/Model/models/Xorg/ServerFlags.pl
+lib/Config/Model/models/Xorg/ServerLayout.pl
+lib/Config/Model/Xorg/Read.pm
+lib/Config/Model/Xorg/Write.pm
+MANIFEST			This list of files
+README
+t/xorg.t
+META.yml
