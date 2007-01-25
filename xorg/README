@@ -25,6 +25,20 @@ this perl module:
 
   $ config-model -root_model Xorg -read data -write wr_test
   
+--------------------------------------------------------------------
+MODULE CONTENT
+
+This Perl modules contains several files (listed in MANIFEST). Here
+are the purpose of the main files:
+- Build.PL : script to build the Perl module. See Module::Build(3pm)
+- data/xorg.conf: sample xorg.conf used with non-reg test
+- lib/Config/Model/models : directory containing Xorg model files. The
+  main model is Xorg.pl. The complete xorg model is made from all
+  files contained in this directory.
+- lib/Config/Model/Xorg/Read.pm: Read xorg.conf files
+- lib/Config/Model/Xorg/Write.pm: Write xorg.conf files
+- t/xorg.t: non-regression test
+
 
 --------------------------------------------------------------------
 BUGS
