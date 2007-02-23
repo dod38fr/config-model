@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-01-08 12:48:23 $
+# $Date: 2007-02-23 12:55:16 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.4 $
+# $Revision: 1.5 $
 
 #    Copyright (c) 2006-2007 Dominique Dumont.
 #
@@ -31,7 +31,7 @@ use Config::Model::Exception ;
 use Error qw(:try);
 
 use vars qw($VERSION);
-$VERSION = sprintf "%d.%03d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -47,7 +47,7 @@ Config::Model::WizardHelper - Helps to create wizard widget for config models
  my $root   = $inst -> config_root ;
 
  my $wizard = $inst -> wizard_helper ( leaf_cb => sub { ... },
-                                       hash_cb => sub { ... } );
+                                       hash_element_cb => sub { ... } );
  $wizard->start ;
 
 =head1 DESCRIPTION
@@ -89,7 +89,7 @@ provided by the user: a call-back for leaf elements and a call-back
 for hash elements (which will be also used for list elements).
 
 These call-back must be passed when creating the wizard object (the
-parameters are named C<lead_cb> and C<hash_cb>)
+parameters are named C<leaf_element_cb> and C<hash_element_cb>)
 
 Here are the the parameters accepted by C<wizard_helper>:
 
@@ -108,7 +108,7 @@ Subroutine called backed for leaf elements. See
 L<Config::Model::ObjTreeScanner/"Callback prototypes"> for signature
 and details. (mandatory)
 
-=head2 hash_cb
+=head2 hash_element_cb
 
 Subroutine called backed for hash elements. See
 L<Config::Model::ObjTreeScanner/"Callback prototypes"> for signature
@@ -124,7 +124,7 @@ call-back for each type of leaf:
  number_value_cb, boolean_value_cb, string_value_cb
 
 Likewise, you can also provide a call-back dedicated to list elements with
-C<list_cb>
+C<list_element_cb>
 
 
 =cut
@@ -158,13 +158,13 @@ sub new {
     my %cb_hash ;
     # mandatory call-back parameters 
     foreach my $p (qw/leaf hash/) {
-	my $item = $p.'_cb' ;
+	my $item = $p.'_element_cb' ;
 	$cb_hash{$item} = delete $args{$item} or
 	  croak "WizardHelper->new: Missing $item parameter" ;
     }
 
-    # handle optional list_cb parameter
-    $cb_hash{list_cb} = delete $args{list_cb} || $cb_hash{hash_cb} ;
+    # handle optional list_element_cb parameter
+    $cb_hash{list_element_cb} = delete $args{list_element_cb} || $cb_hash{hash_element_cb} ;
 
     # optional call-back parameters 
     foreach my $p (qw/enum_value enum_integer_value
@@ -182,11 +182,11 @@ sub new {
     # called indirectly through wizard-helper own call-backs
 
     $self->{scanner} = Config::Model::ObjTreeScanner
-      -> new ( fallback   => 'all' ,
-	       permission => $user_scan_args{permission} ,
-	       hash_cb    => sub { $self ->    hash_cb (@_) },
-	       element_cb => sub { $self -> element_cb (@_) },
-	       leaf_cb    => sub { $self ->    leaf_cb (@_) },
+      -> new ( fallback        => 'all' ,
+	       permission      => $user_scan_args{permission} ,
+	       hash_element_cb         => sub { $self ->    hash_element_cb (@_) },
+	       node_content_cb => sub { $self -> node_content_cb (@_) },
+	       leaf_cb         => sub { $self ->    leaf_cb (@_) },
 	     );
 
     return $self ;
@@ -208,18 +208,19 @@ sub start {
 
 # internal. This call-back is passed to ObjTreeScanner. It will call
 # scan_element in an order which depends on $self->{forward}.
-sub element_cb {
+sub node_content_cb {
     my ($self,$scanner, $data_r, $node,@element) = @_ ;
 
-    warn "wiz_walk, element_cb called on '", $node->name,
+    warn "wiz_walk, node_content_cb called on '", $node->name,
       "' element: @element\n" if $::verbose;
 
     my $i = $self->{forward} == 1 ? 0 : $#element ;
 
     while ($i >= 0 and $i < @element) {
 	my $element = $element[$i] ;
-	warn "wiz_walk, element_cb calls scan_element on element $element\n"
-	  if $::verbose;
+	warn "wiz_walk, node_content_cb calls scan_element ",
+	  "on element $element\n"
+	    if $::verbose;
 	$self->{scanner}->scan_element($data_r,$node,$element) ;
 	$i += $self->{forward} ;
     }
@@ -230,7 +231,7 @@ sub element_cb {
 sub get_cb {
     my $self = shift;
     my $elt_type = shift ;
-    return $self->{dispatch_cb}{$elt_type.'_cb'}
+    return $self->{dispatch_cb}{$elt_type.'_element_cb'}
       || croak "wizard get_cb: unexpected type $elt_type" ;
 
 }
@@ -239,11 +240,11 @@ sub get_cb {
 # scan_hash in an order which depends on $self->{forward}.  it will
 # also check if the hash (or list) element is flagged as 'important'
 # and call user's hash or list call-back if needed
-sub hash_cb {
+sub hash_element_cb {
     my ($self,$scanner, $data_r,$node,$element) = splice @_,0,5 ;
     my @keys = sort @_ ;
 
-    warn "wiz_walk, hash_cb (element $element) called on '", $node->name,
+    warn "wiz_walk, hash_element_cb (element $element) called on '", $node->name,
       "' keys: '@keys' \n" if $::verbose;
 
     # get the call-back to use
@@ -266,7 +267,7 @@ sub hash_cb {
 	    my $j = $self->{forward} == 1 ? 0 : $#keys ;
 	    while ($j >= 0 and $j < @keys) {
 		my $k = $keys[$j] ;
-		warn "wiz_walk, hash_cb (element $element) calls ",
+		warn "wiz_walk, hash_element_cb (element $element) calls ",
 		  "scan_hash on key $k\n" if $::verbose;
 		$self->{scanner}->scan_hash($data_r,$node,$element,$k) ;
 		$j += $self->{forward} ;

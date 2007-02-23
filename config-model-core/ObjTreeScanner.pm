@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-01-08 12:48:22 $
+# $Date: 2007-02-23 12:55:16 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.10 $
+# $Revision: 1.11 $
 
 #    Copyright (c) 2006-2007 Dominique Dumont.
 #
@@ -28,7 +28,7 @@ use Carp;
 use warnings ;
 use UNIVERSAL qw( isa can );
 
-our $VERSION = sprintf "%d.%03d", q$Revision: 1.10 $ =~ /(\d+)\.(\d+)/;
+our $VERSION = sprintf "%d.%03d", q$Revision: 1.11 $ =~ /(\d+)\.(\d+)/;
 
 use Carp qw/croak confess cluck/;
 
@@ -68,11 +68,13 @@ Config::Model::ObjTreeScanner - Scan config tree and perform call-backs
    permission => 'master', # consider all values
 
    # node callback
-   list_cb       => \&disp_hash    ,
-   check_list_cb => \&disp_hash    ,
-   hash_cb       => \&disp_hash    ,
-   element_cb    => \&disp_obj     ,
-   node_cb       => \&disp_obj_elt ,
+   node_content_cb               => \&disp_obj_elt ,
+
+   # element callback
+   list_element_cb       => \&disp_hash    ,
+   check_list_element_cb => \&disp_hash    ,
+   hash_element_cb       => \&disp_hash    ,
+   node_element_cb       => \&disp_obj     ,
 
    # leaf callback
    leaf_cb               => \&disp_leaf,
@@ -83,6 +85,9 @@ Config::Model::ObjTreeScanner - Scan config tree and perform call-backs
    boolean_value_cb      => \&disp_leaf,
    string_value_cb       => \&disp_leaf,
    reference_value_cb    => \&disp_leaf,
+
+   # call-back when going up the tree
+   up_cb                 => sub {} ,
   ) ;
 
  $scan->scan_node(\$result, $root) ;
@@ -92,13 +97,33 @@ Config::Model::ObjTreeScanner - Scan config tree and perform call-backs
 This module creates an object that will explore (depth first) a
 configuration tree.
 
-For each node or leaf encountered, the ObjTreeScanner object will
+For each part of the configuration tree, ObjTreeScanner object will
 call-back one of the subroutine reference passed during construction.
+
+Call-back routines will be called:
+
+=over
+
+=item *
+
+For each node containing elements (including root node)
+
+=item *
+
+For each element of a node. This element can be a list, hash, node or
+simple leaf element.
+
+=item *
+
+For each item contained in a node, hash or list. This item can be a
+simple leaf or another node.
+
+=back
 
 To continue the exploration, these call-backs must also call the
 scanner. (i.e. perform another call-back). In other words the user's
-subroutine and the scanner plays a game of ping-pong until the
-tree is completely explored.
+subroutine and the scanner plays a game of ping-pong until the tree is
+completely explored.
 
 The scanner provides a set of default callback for the nodes. This
 way, the user only have to provide call-backs for the leaves.
@@ -119,13 +144,20 @@ listed below:
 
 =item leaf callback:
 
-C<leaf_cb>, C<enum_value_cb>, C<enum_integer_value_cb>,
+C<leaf_cb> is a catch-all generic callback. All other are specialized
+call-back : C<enum_value_cb>, C<enum_integer_value_cb>,
 C<integer_value_cb>, C<number_value_cb>, C<boolean_value_cb>,
 C<string_value_cb>, C<reference_value_cb>
 
 =item node callback:
 
-C<list_cb>, C<check_list_cb>, C<hash_cb>, C<element_cb>, C<node_cb>.
+C<node_content_cb> 
+
+=item element callback:
+
+All these call-backs are called on the elements of a node:
+C<list_element_cb>, C<check_list_element_cb>, C<hash_element_cb>,
+C<node_element_cb>, C<node_content_cb>.
 
 =back
 
@@ -135,7 +167,7 @@ constructor:
    $scan = Config::Model::ObjTreeScanner-> new
   (
    # node callback
-   list_cb => sub ,
+   list_element_cb => sub ,
    ...
   )
 
@@ -168,7 +200,10 @@ Whether to create the configuration items while scan (default is 1).
 
 =head1 Callback prototypes
 
-The leaf callback will be called with the following parameters:
+=head2 Leaf callback
+
+C<leaf_cb> is called for each leaf of the tree. The leaf callback will
+be called with the following parameters:
 
  ($scanner, $data_ref,$node,$element_name,$index, $leaf_object) 
 
@@ -203,19 +238,19 @@ C<$leaf_object> is a L<Config::Model::Value> object.
 
 =back
 
-Others :
+=head List element callback
 
-=over
-
-=item C<list_cb> : 
+C<list_element_cb> is called on all list element of a node, i.e. call
+on the list object itself and not in the elements contained in the
+list.
 
  ($scanner, $data_ref,$node,$element_name,@indexes)
 
-C<@indexes> is an list containing all the indexes of the array.
+C<@indexes> is an list containing all the indexes of the list.
 
 Example:
 
-  sub my_list_cb {
+  sub my_list_element_cb {
      my ($scanner, $data_ref,$node,$element_name,@idx) = @_ ;
 
      # custom code using $data_ref
@@ -224,13 +259,19 @@ Example:
      map {$scanner->scan_list($data_ref,$node,$element_name,$_)} @idx ;
   }
 
-=item C<check_list_cb> : 
+=head2 Check list element callback
+
+C<check_list_element_cb>: Like C<list_element_cb>, but called on a
+check_list element.
 
  ($scanner, $data_ref,$node,$element_name,@indexes)
 
-C<@indexes> is an list containing all the indexes of the array.
+C<@indexes> is an list containing all the indexes of the check_list.
 
-=item C<hash_cb>:
+=head2 Hash element callback
+
+C<hash_element_cb>: Like C<list_element_cb>, but called on a
+hash element.
 
  ($scanner, $data_ref,$node,$element_name,@keys)
 
@@ -238,7 +279,7 @@ C<@keys> is an list containing all the keys of the hash.
 
 Example:
 
-  sub my_hash_cb {
+  sub my_hash_element_cb {
      my ($scanner, $data_ref,$node,$element_name,@keys) = @_ ;
 
      # custom code using $data_ref
@@ -247,15 +288,18 @@ Example:
      map {$scanner->scan_hash($data_ref,$node,$element_name,$_)} @keys ;
   }
 
-=item C<element_cb>: 
+=head2 Node content callback
+
+C<node_content_cb>: This call-back is called foreach node (including
+root node).
 
  ($scanner, $data_ref,$node,@element_list)
 
-C<@element_list> contains all the elements of the node.
+C<@element_list> contains all the element names of the node.
 
 Example:
 
-  sub my_element_cb = { 
+  sub my_node_element_cb = { 
      my ($scanner, $data_ref,$node,@element) = @_ ;
 
      # custom code using $data_ref
@@ -264,24 +308,28 @@ Example:
      map {$scanner->scan_element($data_ref, $node,$_)} @element ;
   }
 
-=item C<node_cb>
+=head2 Node element callback
 
- ($scanner, $data_ref,$node,$element_name,$key, $next_node)
+C<node_element_cb> is called for each node contained within a node
+(i.e not with root node):
 
-C<$key> may be undef if C<$node>'s element not a hash or a
-list. C<$element_name> and C<$key> specifies the element name and key of
-the the node you want to scan. (passed with C<$next_node>)
-Note that C<$next_node> may be undef if C<auto_vivify> is 0.
+ ($scanner, $data_ref,$node,$element_name,$key, $contained_node)
+
+C<$key> may be undef if C<$contained_node> is not a part of a hash or
+a list. C<$element_name> and C<$key> specifies the element name and
+key of the the contained node you want to scan. (passed with
+C<$contained_node>) Note that C<$contained_node> may be undef if
+C<auto_vivify> is 0.
 
 Example:
 
-  sub my_node_cb {
-    my ($scanner, $data_ref,$node,$element_name,$key, $next_node) = @_
+  sub my_node_content_cb {
+    my ($scanner, $data_ref,$node,$element_name,$key, $contained_node) = @_
 
     # your custom code using $data_ref
 
     # explore next node 
-    $scanner->scan_node($data_ref,$next_node);
+    $scanner->scan_node($data_ref,$contained_node);
   }
 
 =back
@@ -305,7 +353,8 @@ sub new {
     my @value_cb = map {$_.'_value_cb'} 
       qw/boolean enum enum_integer string integer number reference/; 
 
-    foreach my $param (qw/element_cb hash_cb list_cb check_list_cb node_cb
+    foreach my $param (qw/node_element_cb hash_element_cb 
+                          list_element_cb check_list_element_cb node_content_cb
                           permission auto_vivify up_cb/, @value_cb) {
         $self->{$param} = delete $args{$param} if defined $args{$param};
         croak __PACKAGE__,"->new: missing $param parameter"
@@ -329,26 +378,26 @@ sub create_fallback {
 
     if ($fallback eq 'node' or $fallback eq 'all') {
         $done ++ ;
-        my $element_cb = sub {
+        my $node_content_cb = sub {
             my ($scanner, $data_r,$node,@element) = @_ ;
             map {$scanner->scan_element($data_r,$node,$_)} @element ;
 	} ;
 
-        my $node_cb = sub {
+        my $node_element_cb = sub {
             my ($scanner, $data_r,$node,$element_name,$key, $next_node) = @_ ;
             $scanner->scan_node($data_r,$next_node);
 	} ;
 
-        my $hash_cb = sub {
+        my $hash_element_cb = sub {
             my ($scanner, $data_r,$node,$element_name,@keys) = @_ ;
             map {$scanner->scan_hash($data_r,$node,$element_name,$_)} @keys ;
 	};
 
-        $self->{list_cb}        = $hash_cb;
-        $self->{check_list_cb}  = $hash_cb;
-        $self->{hash_cb}        = $hash_cb;
-        $self->{element_cb}     = $element_cb;
-        $self->{node_cb}        = $node_cb ;
+        $self->{list_element_cb}        = $hash_element_cb;
+        $self->{check_list_element_cb}  = $hash_element_cb;
+        $self->{hash_element_cb}        = $hash_element_cb;
+        $self->{node_element_cb}        = $node_element_cb;
+        $self->{node_content_cb}        = $node_content_cb ;
 	$self->{up_cb}          = sub {} ; # do nothing
     }
 
@@ -372,7 +421,7 @@ sub create_fallback {
 
 =head2 scan_node ($data_r,$node)
 
-Explore the node and call C<element_cb> passing all element names.
+Explore the node and call C<node_element_cb> passing all element names.
 
 =cut
 
@@ -398,14 +447,14 @@ sub scan_node {
 
     # we could add here a "last element" call-back, but it's not
     # very usefull if the last element is a hash.
-    $self->{element_cb}->($self, $data_r,$node,@element_list) ;
+    $self->{node_content_cb}->($self, $data_r,$node,@element_list) ;
 
     $self->{up_cb}->($self, $data_r,$node) ;
 }
 
 =head2 scan_element($data_r,$node,$element_name)
 
-Explore the element and call either C<hash_cb>, C<list_cb>, C<node_cb>
+Explore the element and call either C<hash_element_cb>, C<list_element_cb>, C<node_content_cb>
 or a leaf call-back (the leaf call-back called depends on the Value
 object properties: enum, string, integer and so on)
 
@@ -424,17 +473,17 @@ sub scan_element {
         #print "type hash\n";
         my @keys = $self->get_keys($node,$element_name) ;
         # if hash element grab keys and perform callback
-        $self->{hash_cb}->($self, $data_r,$node,$element_name,@keys);
+        $self->{hash_element_cb}->($self, $data_r,$node,$element_name,@keys);
     }
     elsif ($element_type eq 'list') {
         #print "type list\n";
         my @keys = $self->get_keys($node,$element_name) ;
-        $self->{list_cb}->($self, $data_r,$node,$element_name, @keys);
+        $self->{list_element_cb}->($self, $data_r,$node,$element_name, @keys);
     }
     elsif ($element_type eq 'check_list') {
         #print "type list\n";
         my @keys = $self->get_keys($node,$element_name) ;
-        $self->{check_list_cb}->($self, $data_r,$node,$element_name, @keys);
+        $self->{check_list_element_cb}->($self, $data_r,$node,$element_name, @keys);
     }
     elsif ($element_type eq 'node') {
         #print "type object\n";
@@ -443,15 +492,15 @@ sub scan_element {
 	             ? $node->fetch_element($element_name) : undef ;
 
         # if obj element, cb
-        $self->{node_cb}-> ($self, $data_r, $node,
-			    $element_name,undef, $next_obj ) ;
+        $self->{node_element_cb}-> ($self, $data_r, $node,
+				    $element_name,undef, $next_obj ) ;
     }
     elsif ($element_type eq 'warped_node') {
         #print "type warped\n";
 	my $next_obj = ($autov or $node->is_element_defined($element_name))
 	             ? $node->fetch_element($element_name) : undef ;
-        $self->{node_cb}-> ($self, $data_r,$node,
-			    $element_name, undef, $next_obj) ;
+        $self->{node_element_cb}-> ($self, $data_r,$node,
+				    $element_name, undef, $next_obj) ;
     }
     elsif ($element_type eq 'leaf') {
 	my $next_obj = $node->fetch_element($element_name) ;
@@ -470,7 +519,7 @@ sub scan_element {
 
 =head2 scan_hash ($data_r,$node,$element_name,$key)
 
-Explore the hash member (or hash value) and call either C<node_cb> or
+Explore the hash member (or hash value) and call either C<node_content_cb> or
 a leaf call-back.
 
 =cut
@@ -485,8 +534,8 @@ sub scan_hash {
 
     if ($cargo_type =~ /node$/) {
         #print "type object or warped\n";
-        $self->{node_cb}-> ($self, $data_r,$node,
-			    $element_name,$key, $next_obj) ;
+        $self->{node_element_cb}-> ($self, $data_r,$node,
+				    $element_name,$key, $next_obj) ;
     }
     elsif ($cargo_type eq 'leaf') {
 	my $cb_name = $next_obj->value_type.'_value_cb' ;
@@ -503,7 +552,7 @@ sub scan_hash {
 =head2 scan_list ($data_r,$node,$element_name,$index)
 
 Just like C<scan_hash>: Explore the list member and call either
-C<node_cb> or a leaf call-back.
+C<node_content_cb> or a leaf call-back.
 
 =cut
 

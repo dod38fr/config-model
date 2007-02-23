@@ -1,3 +1,7 @@
+2007-02-23  Dominique Dumont  v0.608
+
+	* ObjTreeScanner.pm: Clarified call-back names.
+
 2007-01-12  Dominique Dumont  v0.607
 
 	* t/term_ui.t: Changed tests to try to load Term::ReadLine and

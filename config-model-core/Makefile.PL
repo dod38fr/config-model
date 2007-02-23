@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-01-11 12:32:53 $
+# $Date: 2007-02-23 12:55:16 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.9 $
+# $Revision: 1.10 $
 
 #    Copyright (c) 2005-2006 Dominique Dumont.
 #
@@ -54,6 +54,9 @@ WriteMakefile
    AUTHOR       => 'Dominique Dumont (ddumont at cpan dot org)',
    PREREQ_PM    => {
 		    'Test::More'        => 0, # for test
+		    'Term::ReadLine'    => 0,
+		    # not tested with Term::ReadLine::Perl
+		    'Term::ReadLine::Gnu' => 0,
 		    'Log::Log4perl'     => 0,
 		    'Parse::RecDescent' => '1.90',
 		    'Scalar::Util'      => 0, # provided by perl 5.8.0

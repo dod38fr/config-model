@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-01-08 12:48:22 $
+# $Date: 2007-02-23 12:55:16 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.13 $
+# $Revision: 1.14 $
 
 #    Copyright (c) 2006-2007 Dominique Dumont.
 #
@@ -30,7 +30,7 @@ use Config::Model::Exception ;
 use Config::Model::ObjTreeScanner ;
 
 use vars qw($VERSION);
-$VERSION = sprintf "%d.%03d", q$Revision: 1.13 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.14 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -154,7 +154,7 @@ sub dump_tree {
         $$data_r .= "\n" . $pad . $name . '=' . $value if defined $value;
     };
 
-    my $list_cb = sub {
+    my $list_element_cb = sub {
         my ( $scanner, $data_r, $obj, $element, @keys ) = @_;
 
         my $pad      = $compute_pad->($obj);
@@ -172,7 +172,7 @@ sub dump_tree {
         }
     };
 
-    my $element_elt_cb = sub {
+    my $element_cb = sub {
         my ( $scanner, $data_r, $obj, $element, $key, $next ) = @_;
 
         my $type = $obj -> element_type($element);
@@ -190,13 +190,13 @@ sub dump_tree {
     };
 
     my @scan_args = (
-		     permission        => delete $args{permission} || 'master',
-		     fallback    => 'all',
-		     auto_vivify => 0,
-		     list_cb     => $list_cb,
-		     leaf_cb     => $std_cb,
-		     node_cb     => $element_elt_cb,
-		     up_cb       => sub { ${$_[1]} .= ' -'; }
+		     permission      => delete $args{permission} || 'master',
+		     fallback        => 'all',
+		     auto_vivify     => 0,
+		     list_element_cb => $list_element_cb,
+		     leaf_cb         => $std_cb,
+		     node_element_cb => $element_cb,
+		     up_cb           => sub { ${$_[1]} .= ' -'; }
 		    );
 
     my @left = keys %args;

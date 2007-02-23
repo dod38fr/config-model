@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-12-06 12:52:00 $
+# $Date: 2007-02-23 12:55:16 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 
 use ExtUtils::testlib;
 use Test::More tests => 6;
@@ -36,28 +36,28 @@ my $root = $inst -> config_root ;
 
 Config::Model::Exception::Any->Trace(1) if $trace =~ /e/;
 
-my @leaf_cb_expect = ( 'Master tree_macro', 'Master a_string' ) ;
-my @hash_cb_expect = ( 'Master hash_a id' ) ;
+my @leaf_element_cb_expect = ( 'Master tree_macro', 'Master a_string' ) ;
+my @hash_element_cb_expect = ( 'Master hash_a id' ) ;
 
-my $leaf_cb = sub {
+my $leaf_element_cb = sub {
     my ($wiz, $data_r,$node,$element,$index, $leaf_object) = @_ ;
-    print "test: leaf_cb called for ",$leaf_object->name,"\n" 
+    print "test: leaf_element_cb called for ",$leaf_object->name,"\n" 
       if $::trace ;
-    my $expect = shift @leaf_cb_expect ;
-    is( $leaf_object->name, $expect, "leaf_cb got $expect" ) ;
+    my $expect = shift @leaf_element_cb_expect ;
+    is( $leaf_object->name, $expect, "leaf_element_cb got $expect" ) ;
 };
 
-my $hash_cb = sub {
+my $hash_element_cb = sub {
     my ($wiz, $data_r,$node,$element,@keys) = @_ ;
-    print "test: hash_cb called for ",$node->name," element $element\n" 
+    print "test: hash_element_cb called for ",$node->name," element $element\n" 
       if $::trace ;
     my $obj = $node->fetch_element($element) ;
-    my $expect = shift @hash_cb_expect ;
-    is( $obj->name, $expect, "hash_cb got $expect" ) ;
+    my $expect = shift @hash_element_cb_expect ;
+    is( $obj->name, $expect, "hash_element_cb got $expect" ) ;
 };
 
-my $wizard = $inst->wizard_helper(leaf_cb => $leaf_cb, 
-				  hash_cb => $hash_cb,
+my $wizard = $inst->wizard_helper(leaf_element_cb => $leaf_element_cb, 
+				  hash_element_cb => $hash_element_cb,
 				  permission => 'advanced') ;
 ok($wizard,"created wizard helper") ;
 

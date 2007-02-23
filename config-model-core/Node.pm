@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-01-08 12:48:22 $
+# $Date: 2007-02-23 12:55:16 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.11 $
+# $Revision: 1.12 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -40,7 +40,7 @@ use base qw/Config::Model::AutoRead/;
 use vars qw($VERSION $AUTOLOAD @status @level
 @permission_list %permission_index );
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.11 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.12 $ =~ /(\d+)\.(\d+)/;
 
 *status           = *Config::Model::status ;
 *level            = *Config::Model::level ;
@@ -1264,7 +1264,7 @@ If called without element, returns the description of the class
 If called with an element name, returns the description of the
 element (Stored in C<description> attribute of a node declaration).
 
-Returns undef if no description was found.
+Returns an empty string if no description was found.
 
 =cut
 
@@ -1280,7 +1280,6 @@ sub get_help {
         $help = $self->{model}{class_description};
     }
 
-    return undef unless defined $help;
     $help =~ s/[\s\n]+/ /g;
     return $help;
 }

@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-01-11 12:32:23 $
+# $Date: 2007-02-23 12:55:16 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.6 $
+# $Revision: 1.7 $
 
 #    Copyright (c) 2006-2007 Dominique Dumont.
 #
@@ -30,7 +30,7 @@ use Config::Model::Exception ;
 use Config::Model::ObjTreeScanner ;
 
 use vars qw($VERSION);
-$VERSION = sprintf "%d.%03d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -128,10 +128,10 @@ sub describe {
 	push @$data_r , [ $name, $value, $type, join(', ',@comment) ]  ;
     };
 
-    my $list_cb = sub {
+    my $list_element_cb = sub {
         my ( $scanner, $data_r, $obj, $element, @keys ) = @_;
 
-	#print "DEBUG: list_cb on $element, keys @keys\n";
+	#print "DEBUG: list_element_cb on $element, keys @keys\n";
 	my $list_obj = $obj->fetch_element($element) ;
         my $elt_type = $list_obj->cargo_type ;
 
@@ -148,10 +148,10 @@ sub describe {
         }
     };
 
-    my $hash_cb = sub {
+    my $hash_element_cb = sub {
         my ( $scanner, $data_r, $obj, $element, @keys ) = @_;
 
- 	#print "DEBUG: hash_cb on $element, keys @keys\n";
+ 	#print "DEBUG: hash_element_cb on $element, keys @keys\n";
 	my $hash_obj = $obj->fetch_element($element) ;
 	my $elt_type = $hash_obj->cargo_type ;
 
@@ -170,7 +170,7 @@ sub describe {
 	}
     };
 
-    my $node_cb = sub {
+    my $node_element_cb = sub {
         my ( $scanner, $data_r, $obj, $element, $key, $next ) = @_;
 
  	#print "DEBUG: elt_cb on $element, key $key\n";
@@ -184,14 +184,14 @@ sub describe {
     };
 
     my @scan_args = (
-		     permission    => delete $args{permission} || 'master',
-		     fallback      => 'all',
-		     auto_vivify   => 0,
-		     list_cb       => $list_cb,
-		     check_list_cb => $list_cb,
-		     hash_cb       => $hash_cb,
-		     leaf_cb       => $std_cb ,
-		     node_cb       => $node_cb,
+		     permission            => delete $args{permission} || 'master',
+		     fallback              => 'all',
+		     auto_vivify           => 0,
+		     list_element_cb       => $list_element_cb,
+		     check_list_element_cb => $list_element_cb,
+		     hash_element_cb       => $hash_element_cb,
+		     leaf_cb               => $std_cb ,
+		     node_element_cb       => $node_element_cb,
 		    );
 
     my @left = keys %args;
