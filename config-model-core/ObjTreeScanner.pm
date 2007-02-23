@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-02-23 12:55:16 $
+# $Date: 2007-02-23 12:58:12 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.11 $
+# $Revision: 1.12 $
 
 #    Copyright (c) 2006-2007 Dominique Dumont.
 #
@@ -28,7 +28,7 @@ use Carp;
 use warnings ;
 use UNIVERSAL qw( isa can );
 
-our $VERSION = sprintf "%d.%03d", q$Revision: 1.11 $ =~ /(\d+)\.(\d+)/;
+our $VERSION = sprintf "%d.%03d", q$Revision: 1.12 $ =~ /(\d+)\.(\d+)/;
 
 use Carp qw/croak confess cluck/;
 
@@ -238,7 +238,7 @@ C<$leaf_object> is a L<Config::Model::Value> object.
 
 =back
 
-=head List element callback
+=head1 List element callback
 
 C<list_element_cb> is called on all list element of a node, i.e. call
 on the list object itself and not in the elements contained in the
@@ -331,8 +331,6 @@ Example:
     # explore next node 
     $scanner->scan_node($data_ref,$contained_node);
   }
-
-=back
 
 =cut
 
@@ -591,8 +589,16 @@ sub get_keys {
 
 1;
 
+=head1 AUTHOR
+
+Dominique Dumont, (ddumont at cpan dot org)
+
 =head1 SEE ALSO
 
+L<Config::Model>,L<Config::Model::Node>,L<Config::Model::Instance>, 
+L<Config::Model::HashId>,
+L<Config::Model::ListId>,
+L<Config::Model::CheckList>,
 L<Config::Model::Value>
 
 =cut
