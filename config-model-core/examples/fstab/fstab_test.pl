@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-12-08 12:59:22 $
+# $Date: 2007-02-23 13:02:52 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -234,4 +234,4 @@ my $term_ui = Config::Model::TermUI
 $term_ui -> run_loop ;
 
 print "\n$0 done. Feel free to send feedback to the author ",
-  "(domi\@komarr.grenoble.hp.com)\n\n";
+  "(ddumont at cpan dot org)\n\n";
