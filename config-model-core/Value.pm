@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-01-08 12:48:23 $
+# $Date: 2007-03-16 12:22:34 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.9 $
+# $Revision: 1.10 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -36,7 +36,7 @@ use base qw/Config::Model::WarpedThing/ ;
 
 use vars qw($VERSION) ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.9 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.10 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -325,12 +325,12 @@ sub set_refer_to {
 
 =item warp
 
-See section below: </"Warp: dynamic value configuration">.
+See section below: L</"Warp: dynamic value configuration">.
 
 =item help
 
-You may provide detailed description on possible values of this tied
-scalar with a hash ref. Example:
+You may provide detailed description on possible values with a hash
+ref. Example:
 
  help => { oui => "French for 'yes'", non => "French for 'no'"}
 
@@ -964,6 +964,7 @@ empty).
 sub get_choice
   {
     my $self = shift ;
+
     return @{$self->{choice}} if defined $self->{choice};
     return () ;
   }
@@ -1291,9 +1292,25 @@ sub _pre_fetch {
     return $std_value ;
 }
 
-=head1 fetch()
+=head2 fetch_no_check
 
-Fetch value from leaf element
+Fetch value from leaf element without checking the value.
+
+=cut
+
+sub fetch_no_check {
+    my $self = shift ;
+
+    # always call to perform submit_to_warp
+    my $std_value = $self->_pre_fetch ;
+
+    return defined $self->{data} ? $self->{data} : $std_value ;
+
+}
+
+=head2 fetch()
+
+Check and fetch value from leaf element 
 
 =cut
 
@@ -1301,10 +1318,7 @@ sub fetch {
     my $self = shift ;
     my $inst = $self->instance ;
 
-    # allways call to perform submit_to_warp
-    my $std_value = $self->_pre_fetch ;
-
-    my $value = defined $self->{data} ? $self->{data} : $std_value ;
+    my $value = $self->fetch_no_check ;
 
     if (defined $value) {
         return $value if $self->check($value) ;
