@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-01-08 12:48:22 $
+# $Date: 2007-03-16 12:21:21 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -31,7 +31,7 @@ use strict;
 use base qw/Config::Model::ListId/ ;
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -47,6 +47,9 @@ Config::Model::CheckList - Handle check list element
        check_list 
        => { type => 'check_list',
             choice => [ 'A', 'B', 'C', 'D' ],
+            help   => { A => 'A effect is this',
+                        D => 'D does that',
+                      }
           },
        check_list_refering_to_another_hash 
        => { type => 'check_list',
@@ -59,6 +62,8 @@ Config::Model::CheckList - Handle check list element
 =head1 DESCRIPTION
 
 This class provides a check list element for a L<Config::Model::Node>.
+In other words, this class provides a list of booleans items. Each item
+can be set to 1 or 0.
 
 The available items in the check list can be :
 
@@ -99,15 +104,21 @@ sub new {
     map { $args{cargo_args}{$_} = delete $args{$_}
 	    if defined $args{$_} ;
       }
-      qw/choice refer_to/ ;
+      qw/choice refer_to help/ ;
 
 
     my $self = $type->SUPER::new(%args) ;
 
+    $self->cl_init ;
+
+    return $self; 
+}
+
+sub cl_init {
+    my $self = shift ;
     $self->{value_book} = { } ;
     $self->{index_book} = { } ;
-
-    return $self; }
+}
 
 =head1 CheckList model declaration
 
@@ -163,6 +174,156 @@ sub store_value {
 	$self->{value_book}{$value} = $index ;
 	$self->{index_book}{$index} = $value ;
     }
+}
+
+=head2 check ( $choice )
+
+Set choice.
+
+=cut
+
+sub check {
+    my ($self, $choice) = @_;
+    my $idx = $self->{value_book}{$choice} ;
+
+    if (defined	$idx ) {
+	$self->fetch_with_id($idx)->store($choice) ;
+    }
+    else {
+	$self->push($choice) ;
+    }
+}
+
+=head2 uncheck ( $choice )
+
+Unset choice
+
+=cut
+
+sub uncheck {
+    my ($self, $choice) = @_;
+    my $idx = $self->{value_book}{$choice} ;
+
+    if (defined	$idx ) {
+	$self->delete($idx) ;
+    }
+
+    # there's nothing to do if the value was not already checked.
+}
+
+=head2 get_choice
+
+Returns an array of all items names that can be checked (i.e.
+that can have value 0 or 1).
+
+=cut
+
+sub get_choice {
+    my $self = shift ;
+    # since this type of object is useless without at least one object
+    # defined, there's no harm in retrieving (and potentially
+    # creating) the value object at index 0.
+
+    $self->fetch_with_id(0)->get_choice ;
+}
+
+# no harm if we filter out undefined values when fetching them....
+sub fetch_all_values {
+    my $self = shift ;
+    my @all      = $self->SUPER::fetch_all_values ;
+    my @filtered = grep ( defined $_ ,  @all ) ;
+    return wantarray ? @filtered : \@filtered ;
+}
+
+=head2 get_help (choice_value)
+
+Return the help string on this choice value
+
+=cut
+
+sub get_help {
+    my $self = shift ;
+    $self->fetch_with_id(0)->get_help(@_) ;
+}
+
+=head2 clear
+
+Reset the check list 
+
+=cut
+
+sub clear {
+    my $self = shift ;
+    $self->SUPER::clear ;
+    $self->cl_init ;
+}
+
+=head2 get_checked_list ()
+
+Returns a list (or a list ref) of all checked items (i.e. all items
+set to 1). 
+
+=cut
+
+sub get_checked_list {
+    my $self = shift ;
+    $self->fetch_all_values ;
+}
+
+=head2 set_checked_list ( item1, item2, ..)
+
+Set all passed items to checked (1). All other available items
+in the check list are set to 0.
+
+Example:
+
+  # set cl to A=0 B=1 C=0 D=1
+  $cl->set_checked_list('B','D')
+
+=cut
+
+sub set_checked_list {
+    my $self = shift ;
+    $self->clear ;
+    $self->store_set(@_) ;
+}
+
+=head2 get_checked_list_as_hash ()
+
+Returns a hash (or a hash ref) of all items. The boolean value is the
+value of the hash.
+
+Example:
+
+ { A => 0, B => 1, C => 0 , D => 1}
+
+=cut
+
+sub get_checked_list_as_hash {
+    my $self = shift ;
+    my %result = map { $_ => 0 } $self->get_choice ;
+
+    map { $result{$_} = 1 } $self->fetch_all_values ;
+    return wantarray ? %result : \%result;
+}
+
+=head2 set_checked_list_as_hash ( A => 1, B => 1 )
+
+Set check_list items. Missing items in the paramaters are set to 0.
+
+The example ( A => 1, B => 1 ) above will give :
+
+ A = 1 , B = 1, C = 0 , D = 0
+
+=cut
+
+sub set_checked_list_as_hash {
+    my $self = shift ;
+    my %check = ref $_[0] ? %{$_[0]} : @_ ;
+
+    $self->clear ; 
+    my $idx = 0 ;
+    map { $self->fetch_with_id($idx++)->store($_) if $check{$_} } keys %check ;
 }
 
 1;
