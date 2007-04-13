@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-03-16 12:22:34 $
+# $Date: 2007-04-13 10:04:08 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.10 $
+# $Revision: 1.11 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -29,6 +29,7 @@ use Data::Dumper ;
 use Parse::RecDescent ;
 use Config::Model::Exception ;
 use Config::Model::ValueComputer ;
+use Config::Model::IdElementReference ;
 use Error qw(:try); 
 use Carp ;
 
@@ -36,7 +37,7 @@ use base qw/Config::Model::WarpedThing/ ;
 
 use vars qw($VERSION) ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.10 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.11 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -293,9 +294,9 @@ Array ref of the possible value of an enum. Example :
 =cut
 
 sub setup_enum_choice {
-    my ($self,$choice) = @_ ;
+    my $self = shift ;
 
-    my @choice = ref $choice ? @$choice : ($choice) ;
+    my @choice = ref $_[0] ? @{$_[0]} : @_ ;
 
     # store all enum values in a hash. This way, checking
     # whether a value is present in the enum set is easier
@@ -743,20 +744,24 @@ to C<reference>.
 sub submit_to_refer_to {
     my $self = shift ;
 
+    $self->{ref_object} = Config::Model::IdElementReference 
+      -> new ( refer_to   => $self->{refer_to},
+	       config_elt => $self,
+	     ) ;
+
     my $refto = $self->{refer_to} ;
     my ($refer_path,%var) = ref $refto ? @$refto : ($refto) ;
 
-    $self->{refer_compute} = Config::Model::ValueComputer
-      -> new (
-	      user_formula => $refer_path ,
-	      user_var => \%var ,
-	      value_object => $self ,
-	      value_type => $self->{value_type}
-	     );
-
+    # warp registration is done for all element that are used as variable
+    # for complex reference (ie '- $foo' , {foo => '- bar'} )
     $self->register_in_other_value(\%var) ;
-  }
 
+}
+
+sub setup_reference_choice {
+    my $self = shift ;
+    $self->setup_enum_choice(@_) ;
+}
 
 
 =pod
@@ -811,60 +816,6 @@ refered_to values.
 
 =cut
 
-# internal
-sub get_choice_from_refered_to {
-    my $self = shift ;
-
-    $self->submit_to_refer_to if ($self->{refer_to} and 
-				  not defined $self->{refer_compute}) ;
-
-    my $user_spec = $self->{refer_compute}->compute ;
-    my %enum_choice = map { ($_ => 1 ) } $self->get_choice ;
-
-    my @references =  split /\s+\+\s+/, $user_spec ;
-    $self->{refered_to_path} = \@references ;
-
-    for my $reference ( @references ) {
-	my @path = split (/\s+/,$reference) ;
-
-	my $element = pop @path ;
-
-	print "get_choice_from_refered_to:\n\tpath: @path, element $element\n"
-	  if $::debug ;
-
-	my $obj = $self->grab("@path");
-
-	Config::Model::Exception::UnknownElement
-	    -> throw (
-		      object => $obj,
-		      element => $element,
-		      info => "Error related to 'refer_to' element of '".
-		      $self->parent->config_class_name() . "'"
-		     ) 
-	      unless  $obj->is_element_available(name => $element) ;
-
-	my $type = $obj->element_type($element) ;
-
-	Config::Model::Exception::Model 
-	    -> throw (
-		      object => $obj,
-		      message => "element '$element' type is $type. "
-		      ."Expected hash or list or check_list"
-		     )
-	      unless $type eq 'hash' or $type eq 'list' 
-		or $type eq 'check_list';
-
-	# use a hash so choices are unique
-	map { $enum_choice{$_} = 1 }
-	  $obj->fetch_element($element)->get_all_indexes();
-    }
-
-    print "get_choice_from_refered_to:\n\tSetting choice to '", 
-      join("','",sort keys %enum_choice),"'\n"
-	if $::debug ;
-
-    $self->setup_enum_choice([sort keys %enum_choice]) ;
-}
 
 
 
@@ -961,12 +912,15 @@ empty).
 
 =cut
 
+sub get_default_choice {
+    goto &get_choice ;
+}
+
 sub get_choice
   {
     my $self = shift ;
 
-    return @{$self->{choice}} if defined $self->{choice};
-    return () ;
+    return @{$self->{choice} || [] } ;
   }
 
 =head2 get_help ( [ on_value ] )
@@ -1139,7 +1093,7 @@ sub pre_store {
     }
 
     if (defined $self->{refer_to}) {
-	$self->get_choice_from_refered_to ;
+	$self->{ref_object}->get_choice_from_refered_to ;
     }
 
     # check if the object was initialized
@@ -1258,7 +1212,8 @@ sub _init {
       if ($self->{warp} and @{$self->{warp_info}{computed_master}});
 
     if (defined $self->{refer_to}) {
-	$self->get_choice_from_refered_to ;
+	$self->submit_to_refer_to ;
+	$self->{ref_object}->get_choice_from_refered_to ;
     }
 }
 
@@ -1387,33 +1342,6 @@ sub get_depend_slave {
 
     return @result ;
   }
-
-sub register_in_other_value {
-    my $self = shift;
-    my $var = shift ;
-
-    # register compute or refer_to dependency. This info may be used
-    # by other tools
-    foreach my $path (values %$var) {
-        if (ref $path eq 'HASH') {
-            # check replace rule
-            map {
-                Config::Model::Exception::Formula
-		    -> throw (
-			      error => "replace arg '$_' is not alphanumeric"
-			     ) if /\W/ ;
-	    }  (%$path) ;
-	}
-        elsif (not ref $path) {
-	    # is ref during test case
-	    #print "path is '$path'\n";
-            next if $path =~ /\$/ ; # next if path also contain a variable
-            my $master = $self->get_master_object($path);
-            next unless $master->can('register_dependency');
-            $master->register_dependency($self) ;
-	}
-    }
-}
 
 1;
 
