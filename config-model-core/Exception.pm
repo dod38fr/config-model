@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-01-08 12:48:22 $
+# $Date: 2007-04-27 15:15:45 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.8 $
+# $Revision: 1.9 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -27,7 +27,7 @@ use warnings ;
 use strict;
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.8 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.9 $ =~ /(\d+)\.(\d+)/;
 
 push @Exception::Class::Base::ISA, 'Error';
 
@@ -223,7 +223,7 @@ sub full_message {
     my $location = $obj->name ;
     my $msg = $self->description;
     my $element = $self->element ;
-    $msg .= "'$element' in node '$location'.\n" ;
+    $msg .= " '$element' in node '$location'.\n" ;
     my $tied = 'tied_'.$element ;
 
     $msg .= "\t".$obj->$tied->warp_error
