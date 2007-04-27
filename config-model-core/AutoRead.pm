@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-01-08 12:48:22 $
+# $Date: 2007-04-27 15:12:53 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.8 $
+# $Revision: 1.9 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -31,7 +31,7 @@ use UNIVERSAL ;
 
 use base qw/Config::Model::AnyThing/ ;
 
-our $VERSION = sprintf "%d.%03d", q$Revision: 1.8 $ =~ /(\d+)\.(\d+)/;
+our $VERSION = sprintf "%d.%03d", q$Revision: 1.9 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -50,6 +50,9 @@ Config::Model::AutoRead - Load on demand base class for configuration node
 
    element => ...
   ) ;
+
+  # config data will be written in /etc/my_config_dir/foo.cds
+  my $instance = $model->instance(instance_name => 'foo') ;
 
 =head1 DESCRIPTION
 
@@ -99,19 +102,26 @@ C<write> parameters:
                     read => { class => 'Bar' ,  function => 'read_it'}, ]
   write_config => 'cds';
 
-The various C<read> method will be tried in order specified. When a read
-operation is successful, the remaining read methods will be skipped.
+The various C<read> method will be tried in order specified:
 
-In the example above, C<AutoRead> will first try to load the "dump
-tree string" as defined in L<Config::Model::Dumper>. If successful,
-the configuration tree is loaded and the second method is skippped. 
+=over
 
-If loading the C<cds> file fails, the following method is tried by
-calling C<read_it> function from package C<Bar>.
+=item *
 
-The second function will be called with these parameters:
+First the cds file name which depend on the parameters used in model
+creation and instance creation:   
+C<< <model:config_dir>/<instance_name>.cds >>
+The syntax of the C<cds> file is described in  L<Config::Model::Dumper>.
+=item * 
+
+A call to C<Bar::read_it> with these parameters:
 
  (object => config_tree_root, conf_dir => config_file_location )
+
+=back
+
+When a read operation is successful, the remaining read methods will
+be skipped.
 
 When necessary (or required by the user), all configuration
 informations are written back using B<all> the write method passed.
@@ -170,7 +180,11 @@ sub auto_read_init {
     # overide is permitted
     $self->{r_dir} = $instance -> read_directory ||$r_dir ; 
 
-    foreach my $read (@$readlist) {
+    die "auto_read_init: readlist must be array ref or scalar\n" 
+      if ref $readlist  eq 'HASH' ;
+
+    my @list = ref $readlist  eq 'ARRAY' ? @$readlist :  ($readlist) ;
+    foreach my $read (@list) {
 	last if ($read eq 'xml' and $self->read_xml()) ;
 	last if ($read eq 'cds' and $self->read_cds()) ;
 	next unless ref($read) eq 'HASH' ;
