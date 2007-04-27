@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-02-23 12:55:16 $
+# $Date: 2007-04-27 15:13:32 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.7 $
+# $Revision: 1.8 $
 
 #    Copyright (c) 2006-2007 Dominique Dumont.
 #
@@ -30,7 +30,7 @@ use Config::Model::Exception ;
 use Config::Model::ObjTreeScanner ;
 
 use vars qw($VERSION);
-$VERSION = sprintf "%d.%03d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.8 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -148,6 +148,15 @@ sub describe {
         }
     };
 
+    my $check_list_element_cb = sub {
+        my ( $scanner, $data_r, $obj, $element, @choices ) = @_;
+
+	my $list_obj = $obj->fetch_element($element) ;
+	push @$data_r , [ $element,
+			  join( ',', $list_obj->get_checked_list ),
+			  'check_list','' ];
+    };
+
     my $hash_element_cb = sub {
         my ( $scanner, $data_r, $obj, $element, @keys ) = @_;
 
@@ -188,7 +197,7 @@ sub describe {
 		     fallback              => 'all',
 		     auto_vivify           => 0,
 		     list_element_cb       => $list_element_cb,
-		     check_list_element_cb => $list_element_cb,
+		     check_list_element_cb => $check_list_element_cb,
 		     hash_element_cb       => $hash_element_cb,
 		     leaf_cb               => $std_cb ,
 		     node_element_cb       => $node_element_cb,

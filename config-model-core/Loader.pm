@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-01-08 12:48:22 $
+# $Date: 2007-04-27 15:14:15 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.11 $
+# $Revision: 1.12 $
 
 #    Copyright (c) 2006-2007 Dominique Dumont.
 #
@@ -29,7 +29,7 @@ use warnings ;
 use Config::Model::Exception ;
 
 use vars qw($VERSION);
-$VERSION = sprintf "%d.%03d", q$Revision: 1.11 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.12 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -363,21 +363,25 @@ sub _load_list {
     my $element = $node -> fetch_element($element_name) ;
     my $action = substr ($cmd,0,1,'') ;
 
-    my $elt_type = $element->cargo_type ;
+    my $elt_type   = $node -> element_type( $element_name ) ;
+    my $cargo_type = $element->cargo_type ;
 
-    if ($action eq '=' and $elt_type eq 'leaf') {
-	print "Setting list element ",$element->name," to $cmd\n"
+    if ($action eq '=' and $cargo_type eq 'leaf') {
+	# valid for check_list or list
+	print "Setting $elt_type element ",$element->name," to $cmd\n"
 	    if $::verbose ;
-	$element->store_set( split( /,/ , $cmd ) ) ; 
+	my @set = split( /,/ , $cmd ) ;
+	map { s/^"// ; s/"$//; } @set ;
+	$element->store_set( @set ) ;
 	return $node;
     }
-    elsif ($action eq ':' and $elt_type =~ /node/) {
+    elsif ($elt_type eq 'list' and $action eq ':' and $cargo_type =~ /node/) {
 	# remove possible leading or trailing quote
 	$cmd =~ s/^"//;
 	$cmd =~ s/"$//;
 	return $element->fetch_with_id($cmd) ;
     }
-    elsif ($action eq ':' and $elt_type =~ /leaf/) {
+    elsif ($elt_type eq 'list' and $action eq ':' and $cargo_type =~ /leaf/) {
 	my ($id,$value) = ($cmd =~ m/(\w+)=(.*)/) ;
 	$value =~ s/^"// ; # remove possible leading quote
 	$value =~ s/"$// ; # remove possible trailing quote
@@ -389,8 +393,8 @@ sub _load_list {
 	    -> throw (
 		      object => $element,
                       command => $cmd ,
-		      error => "List assignment with $action$cmd on unexpected "
-		      ."cargo_type: $elt_type"
+		      error => "Wrong assignment with '$action$cmd' on "
+		      ."element type: $elt_type, cargo_type: $cargo_type"
 		     ) ;
     }
 }
@@ -401,15 +405,15 @@ sub _load_hash {
     my $element = $node -> fetch_element($element_name) ;
     my $action = substr ($cmd,0,1,'') ;
 
-    my $elt_type = $element->cargo_type ;
+    my $cargo_type = $element->cargo_type ;
 
-    if ($action eq ':' and $elt_type =~ /node/) {
+    if ($action eq ':' and $cargo_type =~ /node/) {
 	# remove possible leading or trailing quote
 	$cmd =~ s/^"//;
 	$cmd =~ s/"$//;
 	return $element->fetch_with_id($cmd) ;
     }
-    elsif ($action eq ':' and $elt_type =~ /leaf/) {
+    elsif ($action eq ':' and $cargo_type =~ /leaf/) {
 	# remove possible leading or trailing quote with the map
 	my ($id,$value) = map  { s/^"// ;  s/"$// ; $_ } split /=/, $cmd, 2;
 	#print "_load_hash: id is '$id', value is '$value' ($cmd)\n";
@@ -422,7 +426,7 @@ sub _load_hash {
 		      object => $element,
                       command => $cmd ,
 		      error => "Hash assignment with $action$cmd on unexpected "
-		      ."cargo_type: $elt_type"
+		      ."cargo_type: $cargo_type"
 		     ) ;
     }
 }
