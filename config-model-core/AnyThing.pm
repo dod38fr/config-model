@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-01-08 12:48:22 $
+# $Date: 2007-04-27 15:11:30 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.11 $
+# $Revision: 1.12 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -27,7 +27,7 @@ use Carp;
 use strict;
 
 use vars qw($VERSION);
-$VERSION = sprintf "%d.%03d", q$Revision: 1.11 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.12 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -35,7 +35,7 @@ Config::Model::AnyThing - Base class for configuration tree item
 
 =head1 SYNOPSIS
 
- package Config::Model::SomeThing ;
+ package Config::Model::Node ;
  use base qw/Config::Model::AnyThing/ ;
 
 =head1 DESCRIPTION
@@ -82,8 +82,7 @@ sub index_value {
 =head2 get_type()
 
 Returns the type (e.g. C<list> or C<hash> or C<leaf> or C<node> or
-C<warped_node> of the element containing this object. See
-L</element_type>.
+C<warped_node>) of the element containing this object. 
 
 =cut 
 
@@ -501,21 +500,19 @@ sub grab_ancestor_with_element_named {
     }
 }
 
-=head2 search_element( element => <name> [, privilege => ... ] )
+=head2 searcher ()
 
-From this node (or warped node), search an element (respecting
-privilege level).
+Returns an object dedicated to search an element in the configuration
+model (respecting privilege level).
 
 This method returns a L<Config::Model::Searcher> object. See
 L<Config::Model::Searcher> for details on how to handle a search.
 
 =cut
 
-sub search_element {
+sub searcher {
     my $self = shift ;
     my %args = @_ ;
-    my $element = $args{element} 
-      || croak "search_element: Missing 'element' parameter" ;
 
     my $model = $self->instance->config_model ;
     return Config::Model::Searcher
