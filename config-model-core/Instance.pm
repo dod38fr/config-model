@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-01-08 12:48:22 $
+# $Date: 2007-04-27 15:17:38 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.10 $
+# $Revision: 1.11 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -36,7 +36,7 @@ use warnings::register ;
 
 use vars qw/$VERSION/ ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.10 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.11 $ =~ /(\d+)\.(\d+)/;
 
 use Carp qw/croak confess cluck/;
 
@@ -135,11 +135,7 @@ sub new {
 
     bless $self, $class;
 
-    $self->{tree} = Config::Model::Node
-      -> new ( config_class_name =>$root_class_name,
-	       instance => $self,
-	       config_model => $config_model
-	     );
+    $self->reset_config ;
 
     return $self ;
 }
@@ -166,6 +162,26 @@ Returns the root object of the configuration tree.
 sub config_root {
     return shift->{tree} ;
 }
+
+=head2 reset_config
+
+Destroy current configuration tree (with data) and returns a new tree with
+data loaded from disk.
+
+=cut
+
+sub reset_config {
+    my $self= shift ;
+
+    $self->{tree} = Config::Model::Node
+      -> new ( config_class_name =>$self->{root_class_name},
+	       instance => $self,
+	       config_model => $self->{config_model}
+	     );
+
+    return $self->{tree} ;
+}
+
 
 =head2 config_model()
 
@@ -301,10 +317,10 @@ sub load {
     $loader->load(node => $self->{tree}, @_) ;
 }
 
-=head2 search_element ( element => <name> [, privilege => ... ] )
+=head2 searcher ( )
 
-Search an element in the configuration model (respecting privilege
-level).
+Returns an object dedicated to search an element in the configuration
+model (respecting privilege level).
 
 This method returns a L<Config::Model::Searcher> object. See
 L<Config::Model::Searcher> for details on how to handle a search.
@@ -329,10 +345,11 @@ L<constructor arguments|Config::Model::WizardHelper/"Creating a wizard helper">.
 
 sub wizard_helper {
     my $self = shift ;
+    my @args = @_ ;
 
     my $tree_root = $self->config_root ;
 
-    return Config::Model::WizardHelper->new ( root => $tree_root, @_) ;
+    return Config::Model::WizardHelper->new ( root => $tree_root, @args) ;
 }
 
 
