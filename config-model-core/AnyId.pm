@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-01-08 12:48:22 $
+# $Date: 2007-04-27 15:09:07 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.14 $
+# $Revision: 1.15 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -29,7 +29,7 @@ use Carp;
 use strict;
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.14 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.15 $ =~ /(\d+)\.(\d+)/;
 
 use base qw/Config::Model::WarpedThing/;
 
@@ -134,13 +134,13 @@ Either C<integer> or C<string>. Mandatory for hash.
 =item cargo_type
 
 Specifies the type of cargo held by the hash of list. Can be C<node>
-or C<value> (default).
+or C<leaf> (default).
 
 =item cargo_args
 
 Constructor arguments passed to the cargo object. See
 L<Config::Model::Node> when C<cargo_type> is C<node>. See 
-L<Config::Model::Value> when C<cargo_type> is C<value>.
+L<Config::Model::Value> when C<cargo_type> is C<leaf>.
 
 =item config_class_name
 
@@ -584,7 +584,7 @@ sub check {
     Config::Model::Exception::Internal
 	-> throw (
 		  object => $self,
-		  error => "check method: hash index is not defined"
+		  error => "check method: key or index is not defined"
 		 ) unless defined $idx ;
 
     if ($idx eq '') {
@@ -724,6 +724,36 @@ sub move {
 			  object => $self
 			 ) ;
 	}
+    }
+}
+
+=head2 copy ( from_index, to_index )
+
+Deep copy an element within the hash or list. If the element contained
+by the hash or list is a node, all configuration informations are
+copied from one node to another.
+
+=cut
+
+sub copy {
+    my ($self,$from, $to) = @_ ;
+
+    my $from_obj = $self->fetch_with_id($from) ;
+    my $ok = $self->check($to) ;
+
+    if ($ok && $self->{cargo_type} eq 'leaf') {
+	$self->fetch_with_id($to)->store($from_obj->fetch()) ;
+    }
+    elsif ( $ok ) {
+	# node object 
+	$self->fetch_with_id($to)->copy_from($from_obj) ;
+    }
+    elsif ($self->instance->get_value_check('fetch')) {
+	Config::Model::Exception::WrongValue 
+	    -> throw (
+		      error => join("\n\t",@{$self->{error}}),
+		      object => $self
+		     ) ;
     }
 }
 
