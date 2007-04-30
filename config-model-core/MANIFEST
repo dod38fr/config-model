@@ -12,6 +12,7 @@ examples/fstab/fstab.sample
 examples/fstab/README
 Exception.pm
 HashId.pm
+IdElementReference.pm
 Instance.pm
 LICENSE
 ListId.pm
