@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-02-23 12:55:16 $
+# $Date: 2007-05-04 11:24:17 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.28 $
+# $Revision: 1.29 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -34,7 +34,7 @@ use Config::Model::Instance ;
 # this class holds the version number of the package
 use vars qw($VERSION @status @level @permission_list %permission_index) ;
 
-$VERSION = '0.608';
+$VERSION = '0.609';
 
 =head1 NAME
 
@@ -260,14 +260,18 @@ sub instance {
     my $self = shift ;
     my %args = @_ ;
 
+    my $instance_name =  delete $args{instance_name} || delete $args{name} ;
+
+    croak "Model: can't create or retrieve instance without instance_name"
+      unless defined $instance_name ;
+
+    if (defined $self->{instance}{$instance_name}) {
+	return $self->{instance}{$instance_name} ;
+    }
+
     my $root_class_name = delete $args{root_class_name}
       or croak "Model: can't create instance without root_class_name ";
-    my $instance_name =  delete $args{instance_name}
-      or croak "Model: can't create instance without instance_name ";
 
-    if (defined $self->{instance}{$instance_name}{$root_class_name}) {
-	return $self->{instance}{$instance_name}{$root_class_name} ;
-    }
 
     if (defined $args{model_file}) {
 	my $file = delete $args{model_file} ;
@@ -281,8 +285,13 @@ sub instance {
 	      %args                 # for optional parameters like *directory
 	     ) ;
 
-    $self->{instance}{$instance_name}{$root_class_name} = $i ;
+    $self->{instance}{$instance_name} = $i ;
     return $i ;
+}
+
+sub instance_names {
+    my $self = shift ;
+    return keys %{$self->{instance}} ;
 }
 
 =head1 Configuration class
@@ -618,6 +627,10 @@ sub load {
     }
 }
 
+# TBD: For a proper model plugin, scan directory <model_name>.d and
+# load in merge mode all pieces of model found there merge mode: model
+# data is added to main model before running create_config_class
+
 =head1 Model query
 
 =head2 get_model( config_class_name )
@@ -756,13 +769,37 @@ L<Config::Model::Instance>,
 
 =head2 Model elements
 
-L<Config::Model::Node>, 
-L<Config::Model::HashId>,
-L<Config::Model::ListId>,
-L<Config::Model::Value>
-L<Config::Model::CheckList>,
-L<Config::Model::AutoRead>,
-L<Config::Model::WarpedNode>, 
+The arrow shows the inheritance of the classes
+
+=over
+
+=item * 
+
+L<Config::Model::Node> <- L<Config::Model::AutoRead> <- L<Config::Model::AnyThing> 
+
+=item *
+
+L<Config::Model::HashId> <- L<Config::Model::AnyId> <- L<Config::Model::WarpedThing> <- L<Config::Model::AnyThing> 
+
+=item *
+
+L<Config::Model::ListId> <- L<Config::Model::AnyId> <- L<Config::Model::WarpedThing> <- L<Config::Model::AnyThing> 
+
+=item *
+
+L<Config::Model::Value> <- L<Config::Model::WarpedThing> <- L<Config::Model::AnyThing> 
+
+=item *
+
+L<Config::Model::CheckList> <- L<Config::Model::ListId> <- L<Config::Model::WarpedThing> <- L<Config::Model::AnyThing> 
+
+=item *
+
+L<Config::Model::WarpedNode> <- <- L<Config::Model::WarpedThing> <- L<Config::Model::AnyThing> 
+
+
+=back
+
 
 =head2 Model utilities
 
