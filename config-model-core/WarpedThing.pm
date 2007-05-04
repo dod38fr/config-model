@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-01-08 12:48:23 $
+# $Date: 2007-05-04 11:39:37 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.5 $
+# $Revision: 1.6 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -30,7 +30,7 @@ use Carp;
 use warnings FATAL => qw(all);
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/;
 
 use base qw/Config::Model::AnyThing/ ;
 
@@ -610,6 +610,33 @@ sub get_all_warper_object {
       unless defined $self->{warper_object} ;
 
     return @{$self->{warper_object}} ;
+}
+
+sub register_in_other_value {
+    my $self = shift;
+    my $var = shift ;
+
+    # register compute or refer_to dependency. This info may be used
+    # by other tools
+    foreach my $path (values %$var) {
+        if (ref $path eq 'HASH') {
+            # check replace rule
+            map {
+                Config::Model::Exception::Formula
+		    -> throw (
+			      error => "replace arg '$_' is not alphanumeric"
+			     ) if /\W/ ;
+	    }  (%$path) ;
+	}
+        elsif (not ref $path) {
+	    # is ref during test case
+	    #print "path is '$path'\n";
+            next if $path =~ /\$/ ; # next if path also contain a variable
+            my $master = $self->get_master_object($path);
+            next unless $master->can('register_dependency');
+            $master->register_dependency($self) ;
+	}
+    }
 }
 
 =head1 Methods
