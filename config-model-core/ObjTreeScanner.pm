@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-02-23 12:58:12 $
+# $Date: 2007-05-04 11:27:40 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.12 $
+# $Revision: 1.13 $
 
 #    Copyright (c) 2006-2007 Dominique Dumont.
 #
@@ -24,11 +24,12 @@
 package Config::Model::ObjTreeScanner ;
 use strict ;
 use Config::Model::Exception ;
+use Carp::Assert::More ;
 use Carp;
 use warnings ;
 use UNIVERSAL qw( isa can );
 
-our $VERSION = sprintf "%d.%03d", q$Revision: 1.12 $ =~ /(\d+)\.(\d+)/;
+our $VERSION = sprintf "%d.%03d", q$Revision: 1.13 $ =~ /(\d+)\.(\d+)/;
 
 use Carp qw/croak confess cluck/;
 
@@ -238,7 +239,7 @@ C<$leaf_object> is a L<Config::Model::Value> object.
 
 =back
 
-=head1 List element callback
+=head2 List element callback
 
 C<list_element_cb> is called on all list element of a node, i.e. call
 on the list object itself and not in the elements contained in the
@@ -246,7 +247,7 @@ list.
 
  ($scanner, $data_ref,$node,$element_name,@indexes)
 
-C<@indexes> is an list containing all the indexes of the list.
+C<@indexes> is a list containing all the indexes of the list.
 
 Example:
 
@@ -264,9 +265,9 @@ Example:
 C<check_list_element_cb>: Like C<list_element_cb>, but called on a
 check_list element.
 
- ($scanner, $data_ref,$node,$element_name,@indexes)
+ ($scanner, $data_ref,$node,$element_name,@check_items)
 
-C<@indexes> is an list containing all the indexes of the check_list.
+C<@check_items> is a list containing all the items of the check_list.
 
 =head2 Hash element callback
 
@@ -392,7 +393,6 @@ sub create_fallback {
 	};
 
         $self->{list_element_cb}        = $hash_element_cb;
-        $self->{check_list_element_cb}  = $hash_element_cb;
         $self->{hash_element_cb}        = $hash_element_cb;
         $self->{node_element_cb}        = $node_element_cb;
         $self->{node_content_cb}        = $node_content_cb ;
@@ -403,12 +403,13 @@ sub create_fallback {
         $done ++ ;
         my $l = $self->{string_value_cb} ||= $self->{leaf_cb} ;
 
-        $self->{enum_value_cb}         = $l ;
-        $self->{enum_integer_value_cb} = $l ;
-        $self->{integer_value_cb}      = $l ;
-        $self->{number_value_cb}       = $l ;
-        $self->{boolean_value_cb}      = $l ;
-        $self->{reference_value_cb}    = $l ;
+        $self->{check_list_element_cb}  ||= $l ;
+        $self->{enum_value_cb}          ||= $l ;
+        $self->{enum_integer_value_cb}  ||= $l ;
+        $self->{integer_value_cb}       ||= $l ;
+        $self->{number_value_cb}        ||= $l ;
+        $self->{boolean_value_cb}       ||= $l ;
+        $self->{reference_value_cb}     ||= $l ;
       }
 
     croak __PACKAGE__,"->new: Unexpected fallback value '$fallback'. ",
@@ -452,9 +453,10 @@ sub scan_node {
 
 =head2 scan_element($data_r,$node,$element_name)
 
-Explore the element and call either C<hash_element_cb>, C<list_element_cb>, C<node_content_cb>
-or a leaf call-back (the leaf call-back called depends on the Value
-object properties: enum, string, integer and so on)
+Explore the element and call either C<hash_element_cb>,
+C<list_element_cb>, C<node_content_cb> or a leaf call-back (the leaf
+call-back called depends on the Value object properties: enum, string,
+integer and so on)
 
 =cut
 
@@ -480,8 +482,8 @@ sub scan_element {
     }
     elsif ($element_type eq 'check_list') {
         #print "type list\n";
-        my @keys = $self->get_keys($node,$element_name) ;
-        $self->{check_list_element_cb}->($self, $data_r,$node,$element_name, @keys);
+	my $cl_elt = $node->fetch_element($element_name) ;
+        $self->{check_list_element_cb}->($self, $data_r,$node,$element_name, undef, $cl_elt);
     }
     elsif ($element_type eq 'node') {
         #print "type object\n";
@@ -525,8 +527,12 @@ a leaf call-back.
 sub scan_hash {
     my ($self,$data_r,$node,$element_name,$key) = @_ ;
 
+    assert_like($node->element_type($element_name), qr/(hash|list)/);
+
     #print "scan_hash ",$node->name," element $element_name key $key ";
     my $item = $node -> fetch_element($element_name) ;
+
+
     my $cargo_type = $item->cargo_type($element_name);
     my $next_obj = $item->fetch_with_id($key) ;
 
@@ -575,8 +581,7 @@ sub get_keys {
 
     return $item->get_all_indexes 
       if    $element_type eq 'hash' 
-	 || $element_type eq 'list' 
-	 || $element_type eq 'check_list';
+	 || $element_type eq 'list' ;
 
     Config::Model::Exception::Internal
 	->throw (
