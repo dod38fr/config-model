@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-01-08 12:48:23 $
+# $Date: 2007-05-04 11:38:08 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.7 $
+# $Revision: 1.8 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -32,7 +32,7 @@ use Config::Model::Exception ;
 use Data::Dumper ;
 
 use vars qw($VERSION $AUTOLOAD) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.8 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -200,10 +200,15 @@ sub new {
     return $self ;
 }
 
-sub name {
-    my $self = shift;
-    return $self->location($self) ;
-}
+=head1 Forwarded methods
+
+The following methods are forwared to contained node:
+
+fetch_element config_class_name get_element_name has_element
+is_element_available element_type load fetch_element_value get_type
+get_cargo_type describe config_model
+
+=cut
 
 # Forward selected methods (See man perltootc)
 foreach my $method (qw/fetch_element config_class_name get_element_name
@@ -220,6 +225,38 @@ foreach my $method (qw/fetch_element config_class_name get_element_name
 	return $self->{data}->$method(@_);
     } ;
 }
+
+=head1 Methods
+
+=head2 name
+
+Return the name of the node (even if warped out).
+
+=cut
+
+sub name {
+    my $self = shift;
+    return $self->location($self) ;
+}
+
+=head2 is_accessible
+
+Returns true if the node hidden behind this warped node is accessible,
+i.e. the warp master have values so a node was warped in.
+
+=cut
+
+sub is_accessible {
+    my $self= shift;
+    return defined $self->{data} ? 1 : 0 ;
+}
+
+=head2 get_actual_node
+
+Returns the node object hidden behind the warped node. Croaks if the
+node is not accessible.
+
+=cut
 
 sub get_actual_node {
     my $self= shift;
