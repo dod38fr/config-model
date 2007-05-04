@@ -1,13 +1,13 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-10-02 11:35:48 $
+# $Date: 2007-05-04 11:44:59 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.4 $
+# $Revision: 1.5 $
 
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
-use Test::More tests => 32 ;
+use Test::More tests => 34 ;
 use Config::Model ;
 
 use strict;
@@ -124,6 +124,10 @@ ok($inst,"created dummy instance") ;
 
 my $root = $inst -> config_root ;
 
+is($root->fetch_element('a_warped_node')->is_accessible,0,
+   'check that a_warped_node is not accessible'
+  ) ;
+
 is($root->is_element_available('a_hash_of_warped_nodes'),0,
    'check that a_hash_of_warped_nodes is not available'
   ) ;
@@ -135,6 +139,10 @@ print "Normal error:\n", $@ if $trace ;
 
 is($root->fetch_element('tree_macro')->store('XY'),'XY',
    'set master->tree_macro to XY');
+
+is($root->fetch_element('a_warped_node')->is_accessible,1,
+   'check that a_warped_node is accessible'
+  ) ;
 
 my $ahown = $root->fetch_element('a_hash_of_warped_nodes') ;
 is( $ahown->fetch_with_id(234) -> config_class_name, 'SlaveY' ,

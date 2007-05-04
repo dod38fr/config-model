@@ -1,11 +1,11 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2007-01-08 12:51:49 $
+# $Date: 2007-05-04 11:44:59 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.5 $
+# $Revision: 1.6 $
 
 use ExtUtils::testlib;
-use Test::More tests => 15;
+use Test::More tests => 22;
 use Config::Model;
 
 use warnings;
@@ -128,17 +128,24 @@ my @data
      ]
     ) ;
 
+my @items = $root->searcher->get_searchable_elements ;
+my @expected = qw/DX X Y Z a_string aa aa2 ab ab2 ac ac2 ad ad2 
+                  hash_a hash_b int_v lista listb my_check_list 
+                  my_reference string_with_def tree_macro/ ;
+
+is_deeply(\@items, \@expected, "list of searchable items") ;
+
 foreach my $item (@data) {
     next unless @$item == 3 ;
     my $node = $root->grab($item->[1]) ;
-    my $searcher = $node->search_element(element => $item->[0]);
+    my $searcher = $node->searcher->prepare(element => $item->[0]);
 
     is_deeply( $searcher->{data}, $item->[2] , 
 	       "verify search data on ".$node->config_class_name) ||
 		 print Dumper $searcher->{data} ;
 }
 
-my $searcher = $root->search_element(element => 'X');
+my $searcher = $root->searcher->prepare(element => 'X');
 $root->load("tree_macro=XZ") ;
 
 my $step = $searcher->next_step() ;
@@ -155,12 +162,21 @@ is_deeply($step, [],'check that no more steps are left') ;
 
 # no user choice to look for aa
 $root->load("tree_macro=XY") ;
-$searcher = $root->search_element(element => 'aa');
+$searcher = $root->searcher->prepare(element => 'aa');
 $searcher->choose('warp') ;
 $target = $searcher->auto_choose(sub{}, sub {}) ;
 is($target->name,'warp sub_slave aa', 'check auto choosen object for aa') ;
 
-$searcher = $root->search_element(element => 'DX');
+# try choose_next
+$searcher = $root->searcher->prepare(element => 'aa');
+$searcher->choose('warp') ;
+$step = $searcher->next_choice() ;
+is_deeply($step, [],'check that no more steps are left after next_choice') ;
+$target = $searcher->current_object ;
+is($target->name,'warp sub_slave aa', 'check choosen object for aa') ;
+
+
+$searcher = $root->searcher->prepare(element => 'DX');
 $root->load("tree_macro=XZ") ;
 my $cb1 = sub {
     my $object = shift ;
@@ -188,3 +204,17 @@ $target = $searcher->auto_choose(sub{'std_id'}, sub {return 'foo';}) ;
 is($target->name, 'std_id:foo DX',
 	  'check auto_choose target for DX (std_id)') ;
 
+# restart and try through std_d with next_choice
+$searcher->reset ;
+$step = $searcher->next_choice() ;
+is_deeply($step, [qw/olist slave_y std_id warp/],'next_choice 1') ;
+
+$searcher->choose('std_id') ;
+ok(1, "std_id choice done") ;
+$root->instance->push_no_value_check('fetch') ;
+#print $root->dump_tree(full_dump =>1) ;
+
+$step = $searcher->next_choice() ;
+is_deeply($step, [],'next_choice 2') ;
+
+is($searcher->current_object->name, 'std_id:foo DX','next_choice target') ;

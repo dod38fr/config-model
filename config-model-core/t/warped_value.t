@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-12-06 12:52:00 $
+# $Date: 2007-05-04 11:44:59 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.7 $
+# $Revision: 1.8 $
 
 use warnings FATAL => qw(all);
 
@@ -11,7 +11,7 @@ use Test::More;
 use Config::Model;
 use Config::Model::ValueComputer ;
 
-BEGIN { plan tests => 45; }
+BEGIN { plan tests => 46; }
 
 use strict;
 
@@ -186,6 +186,7 @@ $model -> create_config_class
        => {
 	   type => 'leaf',
 	   value_type => 'string',
+	   mandatory => 1 , # will croak if value cannot be computed
 	   compute
 	   => [
 	       'get_element is $element_table{$s}, indirect value is \'$v\'',
@@ -327,15 +328,15 @@ use warnings 'once';
 # the 2 next tests are used to check what going on before trying the
 # real test below. But beware, the error messages for these 2 tests
 # might be misleading.
-my $str = $parser->pre_compute( $txt, 1, $big_compute_obj, $rules );
-is( $str, 'macro is $m, my idx: b1, my element big_compute, ' ,
+my $str_r = $parser->pre_compute( $txt, 1, $big_compute_obj, $rules );
+is( $$str_r, 'macro is $m, my idx: b1, my element big_compute, ' ,
   "testing pre_compute with & and &index on \$big_compute_obj");
 
 $txt .= 'upper elements &element($up2) &element($up), up idx &index($up2) &index($up)';
 
-$str = $parser->pre_compute( $txt, 1, $big_compute_obj, $rules );
+$str_r = $parser->pre_compute( $txt, 1, $big_compute_obj, $rules );
 
-is( $str,
+is( $$str_r,
           'macro is $m, my idx: b1, my element big_compute, '
         . 'upper elements recursive_slave recursive_slave, up idx l1 l2',
   "testing pre_compute with &element(stuff) and &index(\$stuff)");
@@ -400,14 +401,16 @@ is_deeply( \@names ,
 Config::Model::Exception::Any->Trace(1);
 
 eval { $root->fetch_element('var_path')->fetch; };
-like( $@, qr/'! where_is_element' has an undefined value/,
-    'reading var_path while where_is_element variable is undef');
+like( $@, qr/'! where_is_element' is undef/,
+      'reading var_path while where_is_element variable is undef');
 
 # set one variable of the formula
 $root->fetch_element('where_is_element')->store('get_element');
 
 eval { $root->fetch_element('var_path')->fetch; };
-like( $@, qr/'! get_element' has an undefined value/,
+like( $@, qr/'! where_is_element' is 'get_element'/,
+    'reading var_path while where_is_element is defined');
+like( $@, qr/Mandatory value is not defined/,
     'reading var_path while get_element variable is undef');
 
 # set the other variable of the formula

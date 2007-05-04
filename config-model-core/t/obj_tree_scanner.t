@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2007-02-23 12:55:16 $
+# $Date: 2007-05-04 11:44:59 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.8 $
+# $Revision: 1.9 $
 
 use ExtUtils::testlib;
 use Test::More tests => 9;
@@ -49,6 +49,16 @@ sub disp_hash {
     map { $scanner->scan_hash( $data_r, $node, $element, $_ ) } @keys;
 }
 
+sub disp_check_list {
+    my ( $scanner, $data_r, $node, $element, @choices ) = @_;
+
+    return unless @choices;
+
+    $$data_r .= "disp_check_list " . $node->name . " element($element): "
+      . join(',',$node->fetch_element($element)->get_checked_list) . " are set\n";
+
+}
+
 sub disp_leaf {
     my ( $scanner, $data_r, $node, $element, $index ) = @_;
 
@@ -81,7 +91,8 @@ ok($inst,"created dummy instance") ;
 
 my $root = $inst -> config_root ;
 
-my $step = 'std_id:ab X=Bv - std_id:bc X=Av - a_string="toto tata"';
+my $step = 'std_id:ab X=Bv - std_id:bc X=Av - a_string="toto tata" '
+ .'hash_a:X2=x hash_a:Y2=xy  hash_b:X3=xy my_check_list=X2,X3';
 ok( $root->load( step => $step, permission => 'intermediate' ),
   "set up data in tree with '$step'");
 
@@ -89,7 +100,7 @@ my $scan = Config::Model::ObjTreeScanner->new(
 
     #min_level => 'EXPERT',
     list_element_cb       => \&disp_hash,
-    check_list_element_cb => \&disp_hash,
+    check_list_element_cb => \&disp_check_list,
     hash_element_cb       => \&disp_hash,
     node_element_cb       => \&disp_node_elt,
     node_content_cb       => \&disp_node_content,
@@ -127,6 +138,11 @@ disp_leaf std_id:bc element X value Av
 disp_leaf std_id:bc element Z
 disp_leaf std_id:bc element DX value Dv
 disp_up std_id:bc
+disp_hash Master element(hash_a): X2 Y2
+disp_leaf Master element hash_a value x
+disp_leaf Master element hash_a value xy
+disp_hash Master element(hash_b): X3
+disp_leaf Master element hash_b value xy
 disp_node_elt Master element: slave_y
 disp_node_content slave_y element: std_id sub_slave warp2 Y
 disp_node_elt slave_y element: sub_slave
@@ -164,6 +180,7 @@ disp_up slave_y
 disp_leaf Master element string_with_def value yada yada
 disp_leaf Master element a_string value toto tata
 disp_leaf Master element int_v value 10
+disp_check_list Master element(my_check_list): X2,X3 are set
 disp_leaf Master element my_reference
 disp_up Master
 EOF
@@ -191,6 +208,9 @@ disp_leaf std_id:ab element DX value Dv
 disp_leaf std_id:bc element X value Av
 disp_leaf std_id:bc element Z
 disp_leaf std_id:bc element DX value Dv
+disp_leaf Master element hash_a value x
+disp_leaf Master element hash_a value xy
+disp_leaf Master element hash_b value xy
 disp_leaf slave_y sub_slave element aa
 disp_leaf slave_y sub_slave element ab
 disp_leaf slave_y sub_slave element ac
@@ -213,6 +233,7 @@ disp_leaf slave_y element Y
 disp_leaf Master element string_with_def value yada yada
 disp_leaf Master element a_string value toto tata
 disp_leaf Master element int_v value 10
+disp_leaf Master element my_check_list value X2,X3
 disp_leaf Master element my_reference
 EOF
 

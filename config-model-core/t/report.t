@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2007-01-08 12:51:49 $
+# $Date: 2007-05-04 11:44:59 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.4 $
+# $Revision: 1.5 $
 
 use ExtUtils::testlib;
 use Test::More tests => 7;
@@ -34,7 +34,8 @@ my $root = $inst -> config_root ;
 ok($root,"Config root created") ;
 
 my $step = 'std_id:ab X=Bv - std_id:bc X=Av - a_string="toto tata" '
-  .'lista=a,b,c,d olist:0 X=Av - olist:1 X=Bv - listb=b,c,d';
+  .'lista=a,b,c,d olist:0 X=Av - olist:1 X=Bv - listb=b,c,d '
+    . '! hash_a:X2=x hash_a:Y2=xy  hash_b:X3=xy my_check_list=X2,X3' ;
 ok( $root->load( step => $step, permission => 'intermediate' ),
   "set up data in tree with '$step'");
 
@@ -69,6 +70,12 @@ std_id:bc DX = Dv
 
   listb:2 = d
 
+  hash_a:X2 = x
+
+  hash_a:Y2 = xy
+
+  hash_b:X3 = xy
+
 olist:0 X = Av
 
 olist:0 DX = Dv
@@ -86,6 +93,8 @@ olist:1 DX = Dv
  a_string = "toto tata"
 
  int_v = 10
+
+ my_check_list = X2,X3
 EOF
 
 is_deeply([split /\n/,$report ],
@@ -113,6 +122,12 @@ std_id:bc X = Av
 
   listb:2 = d
 
+  hash_a:X2 = x
+
+  hash_a:Y2 = xy
+
+  hash_b:X3 = xy
+
 olist:0 X = Av
 
 olist:1 X = Bv
@@ -122,6 +137,8 @@ olist:1 X = Bv
 	SELECTED: XY help
 
  a_string = "toto tata"
+
+ my_check_list = X2,X3
 EOF
 
 is_deeply([split /\n/,$report ],

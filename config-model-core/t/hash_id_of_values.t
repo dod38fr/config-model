@@ -1,13 +1,13 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-12-06 12:51:59 $
+# $Date: 2007-05-04 11:44:58 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.6 $
+# $Revision: 1.7 $
 
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
-use Test::More tests => 40 ;
+use Test::More tests => 42 ;
 use Config::Model ;
 
 use strict;
@@ -35,6 +35,14 @@ $model ->create_config_class
    name => "Master",
    element 
    => [ 
+       plain_hash 
+       => { type => 'hash',
+	    # hash_class constructor args are all keys of this hash
+	    # except type and class
+	    index_type  => 'integer',
+
+	    @element
+	  },
        bounded_hash 
        => { type => 'hash',
 	    # hash_class constructor args are all keys of this hash
@@ -194,4 +202,10 @@ ok($allow_from->fetch_with_id('foo')->store(3),"... store a value...") ;
 eval { $allow_from->fetch_with_id('zoo')->store('zoo');} ;
 ok($@,"not allowed index error") ;
 print "normal error: ", $@ if $trace;
+
+my $ph = $root->fetch_element('plain_hash') ;
+$ph->fetch_with_id(2)->store('baz') ;
+ok($ph->copy(2,3),"value copy") ;
+is($ph->fetch_with_id(3)->fetch, 
+   $ph->fetch_with_id(2)->fetch, "compare copied value") ;
 

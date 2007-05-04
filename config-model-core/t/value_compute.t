@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-04-21 12:11:50 $
+# $Date: 2007-05-04 11:44:59 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.4 $
+# $Revision: 1.5 $
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
@@ -88,6 +88,9 @@ ok($compute_int = $root->fetch_element('compute_int'),
    "create computed integer value (av + bv)");
 
 no warnings 'once';
+
+Parse::RecDescent->Precompile($Config::Model::ValueComputer::compute_grammar, "PreGrammar");
+
 my $parser = Parse::RecDescent
   -> new($Config::Model::ValueComputer::compute_grammar) ;
 
@@ -105,47 +108,43 @@ my $rules =  {
 	      rep1 => { bv => 'rbv' },
 	     } ;
 
-my $str = $parser->pre_value( '$bar', 1, $object, $rules);
-is( $str, '$bar' , "test pre_compute parser on a very small formula: '\$bar'");
+my $ref = $parser->pre_value( '$bar', 1, $object, $rules );
+is( $$ref, '$bar' , "test pre_compute parser on a very small formula: '\$bar'");
 
-eval {$str = $parser->value( '$bar', 1, $object, $rules );};
-ok($@,"test compute parser on a very small formula with undef variable") ;
-print "normal error :\n", $@, "\n" if $trace;
+$ref = $parser->value( '$bar', 1, $object, $rules  );
+is($$ref,undef,"test compute parser on a very small formula with undef variable") ;
 
 $root->fetch_element('sbv')->store('bv') ;
-$str = $parser->value( '$bar', 1, $object, $rules );
-is( $str, 'bv', "test compute parser on a very small formula: '\$bar'");
+$ref = $parser->value( '$bar', 1, $object, $rules );
+is( $$ref, 'bv', "test compute parser on a very small formula: '\$bar'");
 
-$str = $parser->pre_value( '$rep1{$bar}', 1, $object, $rules );
-is( $str, '$rep1{$bar}',"test pre-compute parser with substitution" );
+$ref = $parser->pre_value( '$rep1{$bar}', 1, $object, $rules );
+is( $$ref, '$rep1{$bar}',"test pre-compute parser with substitution" );
 
-$str = $parser->value( '$rep1{$bar}', 1, $object, $rules );
-is( $str, 'rbv', "test compute parser with subsitution");
+$ref = $parser->value( '$rep1{$bar}', 1, $object, $rules );
+is( $$ref, 'rbv', "test compute parser with substitution");
 
 my $txt = 'my stuff is  $bar, indeed';
-$str = $parser->pre_compute( $txt, 1, $object, $rules );
-is( $str, $txt,"test pre_compute parser with a string" );
+$ref = $parser->pre_compute( $txt, 1, $object, $rules );
+is( $$ref, $txt,"test pre_compute parser with a string" );
 
-$str = $parser->compute( $txt, 1, $object, $rules );
-is( $str, 'my stuff is  bv, indeed',
+$ref = $parser->compute( $txt, 1, $object, $rules );
+is( $$ref, 'my stuff is  bv, indeed',
   "test compute parser with a string" );
 
 $txt = 'local stuff is element:&element!';
-$str = $parser->pre_compute( $txt, 1, $object, $rules );
-is( $str, 'local stuff is element:one_var!',
+$ref = $parser->pre_compute( $txt, 1, $object, $rules );
+is( $$ref, 'local stuff is element:one_var!',
   "test pre_compute parser with function (&element)");
 
 # In fact, function is formula is handled only by pre_compute.
-$str = $parser->compute( $txt, 1, $object, $rules );
-is( $str, $txt,
+$ref = $parser->compute( $txt, 1, $object, $rules );
+is( $$ref, $txt,
     "test compute parser with function (&element)");
 
 ## test integer formula
-my $result ;
-eval {$result = $compute_int->fetch; } ;
-ok($@,"test that compute croaks with undefined variables" );
-print "normal error:\n", $@, "\n" if $trace;
-
+my $result = $compute_int->fetch; 
+is ($result, undef,"test that compute returns undef with undefined variables" );
 
 $av->store(1) ;
 $bv->store(2) ;
@@ -181,9 +180,8 @@ ok($inst->pop_no_value_check,
    "enable fetch value check");
 
 my $s = $root->fetch_element('meet_test') ;
-eval {$result = $s->fetch ;} ;
-ok($@,"test for undef variables in string") ;
-print "normal error:\n", $@, "\n" if $trace;
+$result = $s->fetch ;
+is($result,undef,"test for undef variables in string") ;
 
 my ($as,$bs) = ('Linus','his penguin') ;
 $root->fetch_element('sav')->store($as) ;

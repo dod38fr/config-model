@@ -1,13 +1,13 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-10-02 11:35:48 $
+# $Date: 2007-05-04 11:44:58 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.6 $
+# $Revision: 1.7 $
 
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
-use Test::More tests => 12 ;
+use Test::More tests => 17 ;
 use Config::Model ;
 use Data::Dumper ;
 
@@ -35,7 +35,16 @@ $model ->create_config_class
    name => "Master",
    element 
    => [ 
-       'bounded_hash'
+       'plain_hash'
+       => { type => 'hash',
+	    # hash_class constructor args are all keys of this hash
+	    # except type and class
+	    hash_class => 'Config::Model::HashId', # default
+	    index_type  => 'integer',
+
+	    @element
+	  },
+        'bounded_hash'
        => { type => 'hash',
 	    # hash_class constructor args are all keys of this hash
 	    # except type and class
@@ -125,3 +134,14 @@ hash_with_default_and_init:moved_1
   Y=Bv - -
 ', "check moved items with children setup") ;
 
+$root->load("plain_hash:2 X=Av Y=Av Z=Cv") ;
+my $ph = $root->fetch_element('plain_hash') ;
+ok($ph->copy(2,3),"node copy in hash") ;
+is($ph->fetch_with_id(2)->dump_tree, 
+   $ph->fetch_with_id(3)->dump_tree, "compare copied values") ;
+
+ok($ph->move(2,4),"node move in hash") ;
+is($ph->fetch_with_id(4)->dump_tree, 
+   $ph->fetch_with_id(3)->dump_tree, "compare copied then moved values") ;
+
+is_deeply([$ph->get_all_indexes],[3,4],"compare indexes after move") ;

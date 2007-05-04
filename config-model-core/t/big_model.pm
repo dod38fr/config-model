@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2007-01-08 12:52:48 $
+# $Date: 2007-05-04 11:44:58 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.12 $
+# $Revision: 1.13 $
 
 # this file is used by test script
 
@@ -94,7 +94,7 @@
    name => 'Master',
    permission => [ [qw/tree_macro warp/] => 'advanced'] ,
    class_description => "Master description",
-   level      => [ [qw/hash_a tree_macro/] => 'important' ],
+   level      => [ [qw/hash_a tree_macro int_v/] => 'important' ],
    element => [
 	       std_id => { type => 'hash',
 			   index_type  => 'string',

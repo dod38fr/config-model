@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2007-01-08 12:51:49 $
+# $Date: 2007-05-04 11:44:58 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.9 $
+# $Revision: 1.10 $
 
 use ExtUtils::testlib;
 use Test::More tests => 8;
@@ -35,7 +35,8 @@ ok($root,"Config root created") ;
 
 my $step = 'std_id:ab X=Bv - std_id:bc X=Av - std_id:"b d " X=Av '
   .'- a_string="toto tata" '
-  .'lista=a,b,c,d olist:0 X=Av - olist:1 X=Bv - listb=b,c,d';
+  .'lista=a,b,c,d olist:0 X=Av - olist:1 X=Bv - listb=b,c,d '
+  . '! hash_a:X2=x hash_a:Y2=xy  hash_b:X3=xy my_check_list=X2,X3' ;
 ok( $root->load( step => $step, permission => 'intermediate' ),
   "set up data in tree with '$step'");
 
@@ -55,6 +56,9 @@ std_id:bc
   X=Av -
 lista=a,b,c,d
 listb=b,c,d
+hash_a:X2=x
+hash_a:Y2=xy
+hash_b:X3=xy
 olist:0
   X=Av -
 olist:1
@@ -69,10 +73,13 @@ slave_y
     sub_slave - -
   warp2
     sub_slave - - -
-a_string="toto tata" -
+a_string="toto tata"
+my_check_list=X2,X3 -
 EOF
 
-is($cds,$expect,"check dump of only customized values ") ;
+$cds =~ s/\s+\n/\n/g;
+is_deeply( [split /\n/,$cds], [split /\n/,$expect], 
+	   "check dump of only customized values ") ;
 
 $cds = $root->dump_tree( full_dump => 1 );
 print "cds string:\n$cds" if $trace  ;
@@ -89,6 +96,9 @@ std_id:bc
   DX=Dv -
 lista=a,b,c,d
 listb=b,c,d
+hash_a:X2=x
+hash_a:Y2=xy
+hash_b:X3=xy
 olist:0
   X=Av
   DX=Dv -
@@ -107,11 +117,13 @@ slave_y
     sub_slave - - -
 string_with_def="yada yada"
 a_string="toto tata"
-int_v=10 -
+int_v=10
+my_check_list=X2,X3 -
 EOF
 
-is($cds,$expect,"check dump of all values ") ;
-
+$cds =~ s/\s+\n/\n/g;
+is_deeply( [split /\n/,$cds], [split /\n/,$expect], 
+	   "check dump of all values ") ;
 
 $root->fetch_element('listb')->clear ;
 
@@ -129,6 +141,9 @@ std_id:bc
   X=Av
   DX=Dv -
 lista=a,b,c,d
+hash_a:X2=x
+hash_a:Y2=xy
+hash_b:X3=xy
 olist:0
   X=Av
   DX=Dv -
@@ -147,8 +162,11 @@ slave_y
     sub_slave - - -
 string_with_def="yada yada"
 a_string="toto tata"
-int_v=10 -
+int_v=10
+my_check_list=X2,X3 -
 EOF
 
-is($cds,$expect,"check dump of all values after listb is cleared") ;
+$cds =~ s/\s+\n/\n/g;
+is_deeply( [split /\n/,$cds], [split /\n/,$expect], 
+	   "check dump of all values after listb is cleared") ;
 

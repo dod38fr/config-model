@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2007-01-11 12:35:08 $
+# $Date: 2007-05-04 11:44:58 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.4 $
+# $Revision: 1.5 $
 
 use ExtUtils::testlib;
 use Test::More tests => 6;
@@ -36,7 +36,7 @@ ok($root,"Config root created") ;
 my $step = 'std_id:ab X=Bv - std_id:bc X=Av - a_string="toto tata" '
   .'hash_a:toto=toto_value hash_a:titi=titi_value '
   .'lista=a,b,c,d olist:0 X=Av - olist:1 X=Bv - listb=b,c,d '
-  .'my_check_list:0=toto my_reference="titi"';
+  .'my_check_list=toto my_reference="titi"';
 
 ok( $root->load( step => $step, permission => 'intermediate' ),
   "set up data in tree with '$step'");
@@ -60,7 +60,7 @@ slave_y      <SlaveY>     node
 string_with_def "yada yada"  string
 a_string     "toto tata"  string       mandatory
 int_v        10           integer
-my_check_list toto         list
+my_check_list toto         check_list
 my_reference titi         reference
 EOF
 

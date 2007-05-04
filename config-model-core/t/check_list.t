@@ -1,16 +1,17 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-12-06 12:51:59 $
+# $Date: 2007-05-04 11:44:58 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
 use Test::More;
 use Config::Model;
+use Data::Dumper ;
 
-BEGIN { plan tests => 13; }
+BEGIN { plan tests => 42; }
 
 use strict;
 
@@ -36,9 +37,32 @@ $model ->create_config_class
 	    cargo_type => 'leaf',
 	    cargo_args => { value_type => 'string' },
 	  },
+
        choice_list 
        => { type => 'check_list',
 	    choice     => ['A' .. 'Z'],
+	    help => { A => 'A help', E => 'E help' } ,
+	  },
+
+       choice_list_with_default
+       => { type => 'check_list',
+	    choice     => ['A' .. 'Z'],
+	    default   => [ 'A', 'D' ],
+	    help => { A => 'A help', E => 'E help' } ,
+	  },
+
+       macro => { type => 'leaf',
+		  value_type => 'enum',
+		  choice     => [qw/AD AH/],
+		},
+
+       'warped_choice_list'
+       => { type => 'check_list',
+	    warp => { follow => '- macro',
+		      rules  => { AD => { choice => [ 'A' .. 'D' ], default => ['A', 'B' ] },
+				  AH => { choice => [ 'A' .. 'H' ] },
+				}
+		    }
 	  },
 
        refer_to_list 
@@ -51,6 +75,16 @@ $model ->create_config_class
             refer_to => '- my_hash + - my_hash2   + - my_hash3'
           },
 
+       refer_to_check_list_and_choice
+       => { type => 'check_list',
+            refer_to => [ '- refer_to_2_list + - $var',
+			  var => '- indirection ',
+			],
+	    choice  => [qw/A1 A2 A3/],
+          },
+
+       indirection => { type => 'leaf', value_type => 'string' } ,
+
        ]
    ) ;
 
@@ -62,48 +96,149 @@ my $root = $inst -> config_root ;
 
 my $cl = $root->fetch_element('choice_list') ;
 
-$cl->fetch_with_id(0)->store('A') ;
-is($cl->fetch_with_id(0)->fetch , 'A', "check 0 A " ) ;
+# check get_choice
+is_deeply ( [$cl->get_choice], ['A' .. 'Z'],
+	  "check_get_choice") ;
 
-$cl->fetch_with_id(0)->store('C') ;
-is($cl->fetch_with_id(0)->fetch , 'C', "check 0 C" ) ;
+ok(1, "test get_checked_list for empty check_list") ;
+my @got = $cl->get_checked_list ;
+is (scalar @got, 0, "test nb of elt in check_list ") ;
+is_deeply( \@got , [] , "test get_checked_list after set_checked_list") ;
 
-$cl->fetch_with_id(0)->store('A') ;
-is($cl->fetch_with_id(0)->fetch , 'A', "check 0 A (stored again value)" ) ;
+my %expect ;
+map {$expect {$_} = 0 } ('A' .. 'Z') ;
 
-$cl->fetch_with_id(1)->store('C') ;
-is($cl->fetch_with_id(1)->fetch , 'C', "check 1 C" ) ;
+my $hr = $cl->get_checked_list_as_hash ;
+is_deeply( $hr , \%expect , 
+	   "test get_checked_list_as_hash for empty checklist") ;
 
-eval {$cl->fetch_with_id(3)->store('A') ;} ;
-ok( $@ ,"store 3 A: which is an error" );
+# check help
+is($cl->get_help('A'),'A help',"test help") ;
+
+my @set = sort qw/A C Z V Y/ ;
+$cl->set_checked_list(@set) ;
+ok(1, "test set_checked_list") ;
+@got = $cl->get_checked_list ;
+is (scalar @got, 5, "test nb of elt in check_list after set_checked_list") ;
+is_deeply( \@got , \@set , "test get_checked_list after set_checked_list") ;
+
+# test global get and set as hash
+$hr = $cl->get_checked_list_as_hash ;
+map {$expect {$_} = 1 } @set ;
+is_deeply( $hr , \%expect , "test get_checked_list_as_hash") ;
+
+$expect{V} = 0;
+$expect{W} = 1;
+$cl->set_checked_list_as_hash(%expect) ;
+ok(1, "test set_checked_list_as_hash") ;
+@got = sort $cl->get_checked_list ;
+is_deeply( \@got , [sort qw/A C Z W Y/] , 
+	   "test get_checked_list after set_checked_list_as_hash") ;
+
+$cl->clear ;
+
+# test global get and set
+@got = $cl->get_checked_list ;
+is (scalar @got, 0, "test nb of elt in check_list after clear") ;
+
+
+eval {$cl->check('a') ;} ;
+ok( $@ ,"check 'a': which is an error" );
 print "normal error:\n", $@, "\n" if $trace;
 
 # now test with a refer_to parameter
 
-$root->load("my_hash:X=x my_hash:Y=y my_hash:Z=z") ;
+$root->load("my_hash:X=x my_hash:Y=y") ;
+ok(1,"load my_hash:X=x my_hash:Y=y worked correctly") ;
+
 my $rflist = $root->fetch_element('refer_to_list') ;
+ok($rflist, "created refer_to_list") ;
 
-is_deeply([$rflist->fetch_with_id(0)->get_choice] ,
-	  [qw/X Y Z/], 'check simple refer choices') ;
+is_deeply([$rflist->get_choice] ,
+	  [qw/X Y/], 'check simple refer choices') ;
 
-$rflist->fetch_with_id(0)->store('X') ;
-is($rflist->fetch_with_id(0)->fetch , 'X', "check 0 X " ) ;
+$root->load("my_hash:Z=z") ;
+ok(1,"load my_hash:Z=z worked correctly") ;
 
-eval {$rflist->fetch_with_id(3)->store('A') ;} ;
-ok( $@ ,"store 3 A: which is an error" );
-print "normal error:\n", $@, "\n" if $trace;
+is_deeply([$rflist->get_choice] ,
+	  [qw/X Y Z/], 'check simple refer choices after 2nd load') ;
 
-$rflist->fetch_with_id(3)->store('Z') ;
-is($rflist->fetch_with_id(3)->fetch , 'Z', "check 0 Z " ) ;
-
-eval {$rflist->fetch_with_id(2)->store('Z') ;} ;
-ok( $@ ,"store 2 Z: which is an error" );
-print "normal error:\n", $@, "\n" if $trace;
-
-# now test with a refer_to parameter with 3 references
-
-$root->load("my_hash2:X2=x my_hash2:X=xy my_hash3:Y2=y") ;
+# load hashes that are used by reference check list
+$root->load("my_hash2:X2=x my_hash2:X=xy") ;
 
 my $rf2list = $root->fetch_element('refer_to_2_list') ;
-is_deeply([sort $rf2list->fetch_with_id(0)->get_choice] ,
+ok($rf2list, "created refer_to_2_list") ;
+is_deeply([sort $rf2list->get_choice] ,
+	  [qw/X X2 Y Z/], 'check refer_to_2_list choices') ;
+
+$root->load("my_hash3:Y2=y") ;
+is_deeply([sort $rf2list->get_choice] ,
 	  [qw/X X2 Y Y2 Z/], 'check refer_to_2_list choices') ;
+
+my $rtclac = $root->fetch_element('refer_to_check_list_and_choice') ;
+ok($rtclac, "created refer_to_check_list_and_choice") ;
+
+is_deeply([sort $rtclac->get_choice] ,
+	  [qw/A1 A2 A3/], 'check refer_to_check_list_and_choice choices') ;
+
+
+eval {$rtclac->check('X') ;} ;
+ok( $@ ,"get_choice with undef 'indirection' parm: which is an error" );
+print "normal error:\n", $@, "\n" if $trace;
+
+$root->fetch_element('indirection')->store('my_hash') ;
+
+is_deeply([sort $rtclac->get_choice] ,
+	  [qw/A1 A2 A3 X Y Z/], 'check refer_to_check_list_and_choice choices with indirection set') ;
+
+$rf2list->check('X2') ;
+is_deeply([sort $rtclac->get_choice] ,
+	  [sort qw/A1 A2 A3 X X2 Y Z/], 'check X2 and test choices') ;
+
+# load hashes that are used by reference check list
+$root->load("my_hash2:X3=x") ;
+$rf2list->check('X3','Y2') ;
+is_deeply([sort $rf2list->get_choice] ,
+	  [qw/X X2 X3 Y Y2 Z/], 'check refer_to_2_list choices with X3') ;
+is_deeply([sort $rtclac->get_choice] ,
+	  [qw/A1 A2 A3 X X2 X3 Y Y2 Z/], 'check refer_to_check_list_and_choice choices') ;
+
+my $dflist = $root->fetch_element('choice_list_with_default') ;
+ok($dflist, "created choice_list_with_default") ;
+@got = $dflist->get_checked_list ;
+is_deeply (\@got, ['A','D'], "test default of choice_list_with_default") ;
+
+$dflist->check('C') ;
+$dflist->uncheck('D') ;
+@got = $dflist->get_checked_list ;
+is_deeply (\@got, ['A','C'], "test default of choice_list_with_default") ;
+
+@got = $dflist->get_checked_list('custom') ;
+is_deeply (\@got, ['C'], "test custom of choice_list_with_default") ;
+
+@got = $dflist->get_checked_list('standard') ;
+is_deeply (\@got, ['A','D'], "test standard of choice_list_with_default") ;
+
+my $warp_list = $root->fetch_element('warped_choice_list') ;
+ok($warp_list, "created warped_choice_list") ;
+
+eval {$warp_list->get_choice ;} ;
+ok( $@ ,"get_choice on wihtout warp set (macro=undef): which is an error" );
+print "normal error:\n", $@, "\n" if $trace;
+
+$root->load("macro=AD") ;
+
+is_deeply([$warp_list->get_choice] ,
+	  [ 'A' .. 'D'], 'check warp_list choice after setting macro=AD') ;
+
+@got = $warp_list->get_checked_list ;
+is_deeply (\@got, ['A','B'], "test default of warped_choice_list") ;
+
+$root->load("macro=AH") ;
+
+is_deeply([$warp_list->get_choice] ,
+	  [ 'A' .. 'H'], 'check warp_list choice after setting macro=AH') ;
+
+@got = $warp_list->get_checked_list ;
+is_deeply (\@got, [], "test default of warped_choice_list after setting macro=AH") ;
+
