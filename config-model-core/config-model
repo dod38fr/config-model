@@ -47,7 +47,20 @@ my $log4perl_conf = -e $log4perl_conf_file ? $log4perl_conf_file
 
 Log::Log4perl::init($log4perl_conf);
 
-my $ui_type = 'shell';
+
+my $ui_type ;
+
+eval {require Config::Model::CursesUI ;} ;
+
+if ($@) {
+    warn "You should install Config::Model::CursesUI for a more friendly user interface\n";
+    $ui_type = 'shell' ;
+}
+else {
+    $ui_type = 'curses';
+}
+
+
 my $model_dir ;
 my $root_model ;
 my $trace = 0 ;
@@ -87,9 +100,22 @@ will look for C</etc/config-model.d/Fstab.pl> model file. See L<Config::Model> f
 
 =item -if
 
-Specify the user interface type. Currently only C<shell> is possible
-which provides a shell like interface.  See L<Config::Model::TermUI>
+Specify the user interface type. 
+
+=over
+
+=item *
+
+C<shell>: provides a shell like interface.  See L<Config::Model::TermUI>
 for details.
+
+=item *
+
+C<curses>: provides a curses user interface (If
+Config::Model::CursesUI is installed).
+
+=back
+
 
 =item -model_dir
 
@@ -155,8 +181,8 @@ if (defined $wr_conf_dir && ! -e $wr_conf_dir) {
 
 my $model = Config::Model -> new(model_dir => $model_dir) ;
 
-my $inst = $model->instance (root_class_name => $root_model,
-			     instance_name   => $root_model.'_instance',
+my $inst = $model->instance (root_class_name => $root_model ,
+			     instance_name   => $root_model ,
 			     read_directory  => $read_conf_dir,
                              write_directory => $wr_conf_dir,
 			    );
@@ -173,6 +199,24 @@ if ($ui_type eq 'shell') {
 
     # engage in user interaction
     $shell_ui -> run_loop ;
+}
+elsif ($ui_type eq 'curses') {
+    my $err_file = '/tmp/config-model-error.log' ;
+
+    print "In case of error, check $err_file\n";
+
+    open (FH,"> $err_file") || die "Can't open $err_file: $!" ;
+    open STDERR, ">&FH";
+
+    my $dialog = Config::Model::CursesUI-> new
+      (
+       permission => 'advanced',
+      ) ;
+
+    # engage in user interaction
+    $dialog->start( $model )  ;
+
+    close FH ;
 }
 else {
     die "Unsupported user interface: $ui_type";
