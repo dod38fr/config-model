@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-02-23 12:55:16 $
+# $Date: 2007-05-04 11:25:00 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.12 $
+# $Revision: 1.13 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -40,7 +40,7 @@ use base qw/Config::Model::AutoRead/;
 use vars qw($VERSION $AUTOLOAD @status @level
 @permission_list %permission_index );
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.12 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.13 $ =~ /(\d+)\.(\d+)/;
 
 *status           = *Config::Model::status ;
 *level            = *Config::Model::level ;
@@ -667,6 +667,12 @@ sub get_cargo_type {
     return 'node' ;
 }
 
+# always true. this method is required so that WarpedNode and Node
+# have a similar API.
+sub is_accessible {
+    return 1;
+}
+
 =head2 config_model
 
 Returns the B<entire> configuration model.
@@ -707,13 +713,15 @@ sub has_element {
     return defined $self->{model}{element}{$_[0]} ? 1 : 0 ;
 }
 
-=head2 search_element ( element => <name> [, privilege => ... ] )
+=head2 searcher ()
 
-From this node (or warped node), search an element (respecting
-privilege level). Inherited from L<Config::Model::AnyThing>.
+Returns an object dedicated to search an element in the configuration
+model (respecting privilege level).
 
 This method returns a L<Config::Model::Searcher> object. See
 L<Config::Model::Searcher> for details on how to handle a search.
+
+This method is inherited from L<Config::Model::AnyThing>.
 
 =cut
 
@@ -1133,7 +1141,6 @@ Returns 1 if the element is defined.
 
 =cut
 
-
 sub is_element_defined {
     my $self = shift ;
     return defined $self->{element}{$_[0]}
@@ -1253,7 +1260,6 @@ sub copy_from {
     $self->load( step => $dump, check_store => 0 ) ;
 }
 
-
 =head1 Help management
 
 =head2 get_help ( [ element_name ] )
@@ -1279,6 +1285,8 @@ sub get_help {
     else {
         $help = $self->{model}{class_description};
     }
+
+    return '' unless defined $help ;
 
     $help =~ s/[\s\n]+/ /g;
     return $help;
