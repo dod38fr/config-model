@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-02-23 12:55:16 $
+# $Date: 2007-05-04 11:40:58 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.5 $
+# $Revision: 1.6 $
 
 #    Copyright (c) 2006-2007 Dominique Dumont.
 #
@@ -31,7 +31,7 @@ use Config::Model::Exception ;
 use Error qw(:try);
 
 use vars qw($VERSION);
-$VERSION = sprintf "%d.%03d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -89,7 +89,7 @@ provided by the user: a call-back for leaf elements and a call-back
 for hash elements (which will be also used for list elements).
 
 These call-back must be passed when creating the wizard object (the
-parameters are named C<leaf_element_cb> and C<hash_element_cb>)
+parameters are named C<leaf_cb> and C<hash_element_cb>)
 
 Here are the the parameters accepted by C<wizard_helper>:
 
@@ -126,8 +126,8 @@ call-back for each type of leaf:
 Likewise, you can also provide a call-back dedicated to list elements with
 C<list_element_cb>
 
-
 =cut
+
 
 sub new {
     my $type = shift; 
@@ -157,8 +157,7 @@ sub new {
 
     my %cb_hash ;
     # mandatory call-back parameters 
-    foreach my $p (qw/leaf hash/) {
-	my $item = $p.'_element_cb' ;
+    foreach my $item (qw/leaf_cb hash_element_cb/) {
 	$cb_hash{$item} = delete $args{$item} or
 	  croak "WizardHelper->new: Missing $item parameter" ;
     }
@@ -166,8 +165,12 @@ sub new {
     # handle optional list_element_cb parameter
     $cb_hash{list_element_cb} = delete $args{list_element_cb} || $cb_hash{hash_element_cb} ;
 
+    # optional call-back parameter
+    $cb_hash{check_list_element_cb} 
+      = delete $args{check_list_element_cb} || $cb_hash{leaf_cb};
+
     # optional call-back parameters 
-    foreach my $p (qw/enum_value enum_integer_value
+    foreach my $p (qw/enum_value enum_integer_value reference_value
                       integer_value number_value
                       boolean_value string_value/
 		  ) {
@@ -184,9 +187,9 @@ sub new {
     $self->{scanner} = Config::Model::ObjTreeScanner
       -> new ( fallback        => 'all' ,
 	       permission      => $user_scan_args{permission} ,
-	       hash_element_cb         => sub { $self ->    hash_element_cb (@_) },
+	       hash_element_cb => sub { $self -> hash_element_cb (@_) },
 	       node_content_cb => sub { $self -> node_content_cb (@_) },
-	       leaf_cb         => sub { $self ->    leaf_cb (@_) },
+	       leaf_cb         => sub { $self -> leaf_cb (@_) },
 	     );
 
     return $self ;
@@ -231,9 +234,8 @@ sub node_content_cb {
 sub get_cb {
     my $self = shift;
     my $elt_type = shift ;
-    return $self->{dispatch_cb}{$elt_type.'_element_cb'}
+    return $self->{dispatch_cb}{$elt_type.'_cb'}
       || croak "wizard get_cb: unexpected type $elt_type" ;
-
 }
 
 # internal. This call-back is passed to ObjTreeScanner. It will call
@@ -248,7 +250,7 @@ sub hash_element_cb {
       "' keys: '@keys' \n" if $::verbose;
 
     # get the call-back to use
-    my $cb = $self->get_cb( $node -> element_type($element) ) ;
+    my $cb = $self->get_cb( $node -> element_type($element) . '_element') ;
 
     # use the same algorithm for check_important and
     # scan_element pseudo elements
@@ -289,7 +291,11 @@ sub leaf_cb {
       "' element '$element'", defined $index ? ", index $index":'', "\n" 
 	if $::verbose;
 
-    my $user_leaf_cb = $self->get_cb( $node -> element_type($element) ) ;
+    my $elt_type = $node -> element_type($element) ;
+    my $key = $elt_type eq 'leaf' ? $value_obj -> value_type . '_value'
+            :                       $elt_type.'_element' ;
+
+    my $user_leaf_cb = $self->get_cb( $key) ;
 
     my $level 
       = $node->get_element_property(element => $element, property => 'level');
@@ -322,28 +328,28 @@ sub leaf_cb {
 
 }
 
-=head2 wiz_go_forward
+=head2 go_forward
 
 Set wizard in forward (default) mode.
 
 =cut
 
-sub wiz_go_forward {
+sub go_forward {
     my $self = shift ;
-    warn "wiz_for: going forward\n" 
+    warn "WizardHelper: going forward\n" 
       if $::verbose && $self ->{forward} == -1 ;
     $self ->{forward} = 1 ; 
 }
 
-=head2 wiz_go_backward
+=head2 go_backward
 
 Set wizard in backward mode.
 
 =cut
 
-sub wiz_go_backward {
+sub go_backward {
     my $self = shift ;
-    warn "wiz_for: going backward\n" 
+    warn "WizardHelper:: going backward\n" 
       if $::verbose && $self ->{forward} == 1 ;
     $self ->{forward} = -1 ; 
 }
