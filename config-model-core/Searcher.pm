@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-01-08 12:48:23 $
+# $Date: 2007-05-04 11:34:47 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.5 $
+# $Revision: 1.6 $
 
 #    Copyright (c) 2006-2007 Dominique Dumont.
 #
@@ -29,7 +29,7 @@ use warnings ;
 use Config::Model::Exception ;
 
 use vars qw($VERSION);
-$VERSION = sprintf "%d.%03d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -51,7 +51,8 @@ Config::Model::Searcher - Search an element in a configuration model
  my $root = $inst -> config_root ;
 
  # create searcher for manual search
- my $searcher = $root->search_element(element => 'X');
+ my $searcher = $root->searcher();
+ $searcher -> prepare (element => 'X') ;
  my $step1 = $searcher->next_step() ; # return possibilities
  my $obj1 = $searcher->choose($step1->[0]) ;
  my $step2 = $searcher->next_step() ; # return possibilities
@@ -109,7 +110,7 @@ sub new {
     my %args = @_ ;
 
     my $self = {} ;
-    foreach my $p (qw/model element node/) {
+    foreach my $p (qw/model node/) {
 	$self->{$p} = delete $args{$p} or
 	  croak "Searcher->new: Missing $p parameter" ;
     }
@@ -122,21 +123,8 @@ sub new {
 
     $self->{data} = $self->_sniff_class($root_class, $self->{privilege}, {}) ;
 
-    $self->reset ; # initialise the search engine
-
-    unless (defined $self->{search_tree}) {
-	my $searched = $self->{element} ;
-	Config::Model::Exception::User
-	    -> throw (
-		      message   => "Searcher cannot find element '$searched' "
-		      . "from $root_class. Found only "
-		      . join (' ', sort keys %{$self->{data}})
-		     );
-    }
-
-    return $self ;
+    return $self;
 }
-
 
 # to verify the data structure returned by search_element, you can used
 # either Data::Dumper or Tk::ObjScanner (both are available on CPAN)
@@ -213,6 +201,51 @@ sub _sniff_warped_node {
 
 =head1 Methods
 
+=head2 get_searchable_elements
+
+Return the list of elements found in model that can be searched in the
+configuration tree.
+
+=cut
+
+sub get_searchable_elements {
+    my $self= shift ;
+    return sort keys %{$self->{data}} ;
+}
+
+=head2 prepare(element => ...)
+
+Prepare the searcher to look for the element passed in the argument.
+Returns the searcher object (i.e. $self).
+
+=cut
+
+sub prepare {
+    my $self =shift ;
+    my %args = @_ ;
+
+    foreach my $p (qw/element/) {
+	$self->{$p} = delete $args{$p} or
+	  croak "Searcher->prepare: Missing $p parameter" ;
+    }
+
+    $self->reset ; # initialise the search engine
+
+    unless (defined $self->{search_tree}) {
+	my $searched = $self->{element} ;
+	my $root_class = $self->{node}->config_class_name ;
+	Config::Model::Exception::User
+	    -> throw (
+		      message   => "Searcher cannot find element '$searched' "
+		      . "from $root_class. Found only "
+		      . join (' ', sort keys %{$self->{data}})
+		     );
+    }
+
+    return $self ;
+}
+
+
 =head2 reset
 
 Re-initialise the search engine to redo the search from start
@@ -229,12 +262,24 @@ sub reset {
     $self->{current}{element_type} = 'node' ;
 }
 
+=head2 searched
+
+Returns the searched element name.
+
+=cut
+
+sub searched {
+    return shift->{element} ;
+}
+
+
 =head1 Manual search
 
 =head2 next_step()
 
 Returns an array ref containing the next possible step to find the
-element you're looking for.
+element you're looking for. The array ref can contain 1 or more
+elements.
 
 If the array ref is empty, you can get the target element with 
 L</"current_object()">.
@@ -243,14 +288,47 @@ L</"current_object()">.
 
 sub next_step {
     my $self = shift ;
-    my $next_step = $self->{search_tree}{next_step} ;
 
-    return [] unless defined $next_step ;
+    my $current_obj = $self->{current}{object} ;
 
-    my @result =  ref $next_step ? sort keys %$next_step : ($next_step);
-    my $name = $self->{current}{element_name} ;
-    #print "From $name, next_step is @result\n";
+    my @result ;
+    if ($current_obj->get_type =~ /list|hash/) {
+	@result = $current_obj -> get_all_indexes ;
+    }
+    else {
+	my $next_step = $self->{search_tree}{next_step} ;
+
+	@result =  ref     $next_step ? sort keys %$next_step 
+	        :  defined $next_step ? ($next_step)
+		:                       ()                    ;
+    }
+	#my $name = $self->{current}{element_name} ;
+	#print "From $name, next_step is @result\n";
     return \@result ;
+}
+
+=head2 next_choice()
+
+Returns an array ref containing the next non-obvious choice to find
+the element you're looking for.
+
+If the array ref is empty, you can get the target element with 
+L</"current_object()">.
+
+=cut
+
+sub next_choice {
+    my $self = shift ;
+    my $result ;
+
+    while (1) {
+	$result = $self->next_step ;
+	print "next_choice: result is @$result\n" if $::debug ;
+	return $result if  scalar @$result != 1 ;
+
+	$self->choose(@$result) ;
+    } 
+
 }
 
 =head2 choose( <choosen_element_name> )
@@ -260,7 +338,39 @@ one of the possibilities given by L</"next_step()">.
 
 =cut
 
+# TBD if choice is an id, Node is a hash...
+
 sub choose {
+    my $self = shift ;
+    my $choice = shift ;
+
+    #print "choose $choice from node\n";
+    my $obj = $self->{current}{object} ;
+    if ($obj->get_type =~ /hash|list/) {
+	$self->choose_from_id_element($choice) ;
+    }
+    else {
+	$self->choose_from_node($choice) ;
+    }
+}
+
+sub choose_from_id_element {
+    my $self = shift ;
+    my $choice = shift ;
+
+    #print "choose $choice from id\n";
+    my $id_obj = $self->{current}{object} ;
+    my $class  = $id_obj->config_class_name ;
+
+    # the following line may trigger an exception for warped out
+    # elements
+    my $next_node = $id_obj->fetch_with_id ($choice); 
+
+    $self->{current}{object}       = $next_node ;
+    return $next_node ;
+}
+
+sub choose_from_node {
     my $self = shift ;
     my $choice = shift ;
 
@@ -307,7 +417,7 @@ sub choose {
 	$next_node = $node->fetch_element($choice);
     }
 
-    $self->{current}{object}         = $next_node ;
+    $self->{current}{object}       = $next_node ;
     $self->{current}{element_type} = $node->element_type($choice) ;
     $self->{current}{element_name} = $choice ;
     return $next_node ;
@@ -317,7 +427,7 @@ sub choose {
 
 Returns the object where the search engine is. It can be 
 a L<node|Config::Model::Node>, 
-an L<list|Config::Model::ListId>, 
+a L<list|Config::Model::ListId>, 
 a L<hash|Config::Model::HashId>, or 
 a L<leaf element|Config::Model::Value>.
 
@@ -340,7 +450,7 @@ where more than one element can lead to the searched item.
 C<id_call_back> will be called when the search engine finds a hash
 element or a list element which contain B<no> or B<more than 1>
 elements. In this case the call-back will have return an id that will
-be used bby the search engine to get the target element.
+be used by the search engine to get the target element.
 
 Both call-back arguments will be:
 
@@ -352,9 +462,18 @@ The current object (as returned by L</"current_object()">)
 
 =item *
 
-The possible choices
+A list of possible choices
 
 =back
+
+For instances, your callback will be :
+
+ my $id_cb = sub {
+    my ($object,@choices) = @_ ;
+    ....
+    return $choice[1] ;
+ }
+
 
 Both call-back are expected to return a scalar value that is either:
 
