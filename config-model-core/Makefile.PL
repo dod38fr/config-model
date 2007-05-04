@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-02-23 12:55:16 $
+# $Date: 2007-05-04 11:43:46 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.10 $
+# $Revision: 1.11 $
 
 #    Copyright (c) 2005-2006 Dominique Dumont.
 #
@@ -61,6 +61,7 @@ WriteMakefile
 		    'Parse::RecDescent' => '1.90',
 		    'Scalar::Util'      => 0, # provided by perl 5.8.0
 		    'Exception::Class'  => 0,
+		    'Carp::Assert::More' => 0,
 		    'Error'             => 0
 		   },
    # cleanup required by t/auto_read.t
