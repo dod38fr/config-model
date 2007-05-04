@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-03-16 12:21:21 $
+# $Date: 2007-05-04 11:20:12 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.4 $
+# $Revision: 1.5 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -28,10 +28,12 @@ use warnings ;
 use Carp;
 use strict;
 
-use base qw/Config::Model::ListId/ ;
+
+
+use base qw/Config::Model::WarpedThing/ ;
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -76,9 +78,7 @@ A fixed list (with the C<choice> parameter)
 =item *
 
 A dynamic list where the available choise are the keys of another hash
-of the configuration tree. This other hash is indicated by the
-C<refer_to> paramater. C<refer_to> uses the syntax of the C<step>
-parameter of L<grab(...)|Config::AnyThing/"grab(...)">
+of the configuration tree. See L</"Choice reference"> for details.
 
 =back
 
@@ -90,49 +90,283 @@ CheckList object should not be created directly.
 
 =cut
 
+my @accessible_params =  qw/default choice/ ;
+
+my @allowed_warp_params = (@accessible_params, qw/level permission/);
+
 sub new {
     my $type = shift;
     my %args = @_ ;
 
-    $args{cargo_type} = 'leaf' ;
-    $args{cargo_args}{unique_value} = 1;
+    my $self = { } ;
+    bless $self,$type;
 
-    $args{cargo_args}{value_type} 
-      = defined $args{refer_to} ? 'reference' : 'enum' ;
+    foreach my $p (qw/element_name instance config_model/) {
+	$self->{$p} = delete $args{$p} or
+	  croak "$type->new: Missing $p parameter for element ".
+	    $self->{element_name} || 'unknown' ;
+    }
 
-    # add actual implementation of check_list
-    map { $args{cargo_args}{$_} = delete $args{$_}
-	    if defined $args{$_} ;
-      }
-      qw/choice refer_to help/ ;
+    $self->_set_parent(delete $args{parent}) ;
 
+    my $warp_info = delete $args{warp} ;
 
-    my $self = $type->SUPER::new(%args) ;
+    $self->{help} = delete $args{help} ;
+
+    $self->{backup}  = \%args ;
+
+    $self->set() ; # set will use backup data
+
+    if (defined $warp_info) {
+	$self->check_warp_args( \@allowed_warp_params, $warp_info) ;
+    }
+
+    $self->submit_to_warp($self->{warp}) if $self->{warp} ;
 
     $self->cl_init ;
 
-    return $self; 
+    return $self ;
 }
 
 sub cl_init {
     my $self = shift ;
-    $self->{value_book} = { } ;
-    $self->{index_book} = { } ;
+
+    $self->{data} = {} ;
+
+    $self->warp if ($self->{warp});
+
+    if (defined $self->{refer_to}) {
+	$self->{ref_object}->get_choice_from_refered_to ;
+    }
 }
+
+sub name {
+    my $self = shift ;
+    my $name =  $self->{parent}->name . ' '.$self->{element_name} ;
+    return $name ;
+}
+
+sub value_type { return 'check_list' ;} 
 
 =head1 CheckList model declaration
 
-See
-L<model declaration section|Config::Model::AnyId/"Hash or list model declaration">
-from L<Config::Model::AnyId>.
+A check list element must be declared with the following parameters:
+
+=over
+
+=item type
+
+Always C<checklist>.
+
+=item choice
+
+A list ref containing the check list items (optional)
+
+=item refer_to
+
+This parameters is used when the keys of a hash are used to specify
+the possible choices of the check list. See L<Choice reference> for
+details. (optional)
+
+=item default
+
+List ref to specify the check list items which are "on" by default.
+(optional)
+
+=item help
+
+Hash ref to provide informations on the check list items.
+
+=item warp
+
+Used to provide dynamic modifications of the check list properties
+See L<Config::Model::WarpedThing> for details
+
+=back
+
+For example:
+
+=over
+
+=item *
+
+A simple check list with help:
+
+       choice_list
+       => { type => 'check_list',
+            choice     => ['A' .. 'Z'],
+            help => { A => 'A help', E => 'E help' } ,
+          },
+
+=item *
+
+A check list with default values:
+
+       choice_list_with_default
+       => { type => 'check_list',
+            choice     => ['A' .. 'Z'],
+            default   => [ 'A', 'D' ],
+          },
+
+=item *
+
+A check list whose available choice and default change depending on
+the value of the C<macro> parameter:
+
+       'warped_choice_list'
+       => { type => 'check_list',
+            warp => { follow => '- macro',
+                      rules  => { AD => { choice => [ 'A' .. 'D' ], 
+                                          default => ['A', 'B' ] },
+                                  AH => { choice => [ 'A' .. 'H' ] },
+                                }
+                    }
+          },
+
+=back
+
 
 =cut
+
+# warning : call to 'set' are not cumulative. Default value are always
+# restored. Lest keeping track of what was modified with 'set' is
+# too hard for the user.
+sub set {
+    my $self = shift ;
+
+    # cleanup all parameters that are handled by warp
+    map(delete $self->{$_}, 
+        qw/default choice refer_to/) ;
+
+    # merge data passed to the constructor with data passed to set
+    my %args = (%{$self->{backup}},@_ );
+
+    if (defined $args{choice}) {
+	my @choice = @{ delete $args{choice} } ;
+	$self->{default_choice} = \@choice ;
+	$self->setup_choice( @choice ) ;
+    }
+
+    if (defined $args{default}) {
+	$self->{default} = delete $args{default} ;
+	my %h = map { $_ => 1 } @{$self->{default}} ;
+	$self->{default_data} = \%h ;
+    }
+    else {
+	$self->{default_data} = {} ;
+    }
+
+    if (defined $args{refer_to}) {
+	$self->{choice} ||= [] ; # create empty choice
+	$self->{refer_to} = delete $args{refer_to} ;
+	$self->submit_to_refer_to() ;
+    }
+
+    Config::Model::Exception::Model
+	-> throw (
+		  object => $self,
+		  error => "Unexpected parameters :".join(' ', keys %args )
+		 ) 
+	  if scalar keys %args ;
+}
+
+sub setup_choice {
+    my $self = shift ;
+    my @choice = ref $_[0] ? @{$_[0]} : @_ ;
+
+    print "CheckList: setup_choice with @choice\n" if $::debug ;
+    # store all enum values in a hash. This way, checking
+    # whether a value is present in the enum set is easier
+    delete $self->{choice_hash} if defined $self->{choice_hash} ;
+    map {$self->{choice_hash}{$_} =  1;} @choice ;
+
+    $self->{choice}  = \@choice ;
+
+    # cleanup current data if it does not fit current choices
+    foreach my $item (keys %{$self->{data}}) {
+	delete $self->{data}{$item} unless defined $self->{choice_hash}{$item} ;
+    }
+}
+
+# Need to extract Config::Model::Reference (used by Value, and maybe AnyId).
+
+=head1 Choice reference
+
+This other hash is indicated by the C<refer_to> parameter. C<refer_to>
+uses the syntax of the C<step> parameter of
+L<grab(...)|Config::AnyThing/"grab(...)">
+
+See L<refer_to parameter|Config::Model::IdElementReference/"refer_to parameter">.
+
+=head2 Reference examples
+
+=over
+
+=item *
+
+A check list where the available choices are the keys of C<my_hash>
+configuration parameter:
+
+       refer_to_list
+       => { type => 'check_list',
+            refer_to => '- my_hash'
+          },
+
+=item *
+
+A check list where the available choices are the keys of C<my_hash>
+and C<my_hash2> and C<my_hash3> configuration parameter:
+
+
+       refer_to_3_lists
+       => { type => 'check_list',
+            refer_to => '- my_hash + - my_hash2   + - my_hash3'
+          },
+
+=item *
+
+A check list where the available choices are the specified choice and
+the choice of C<refer_to_3_lists> and a hash whose name is specified
+by the value of the C<indirection> configuration parameter (this
+example is admitedly convoluted):
+
+
+       refer_to_check_list_and_choice
+       => { type => 'check_list',
+            refer_to => [ '- refer_to_2_list + - $var',
+                          var => '- indirection ',
+                        ],
+            choice  => [qw/A1 A2 A3/],
+          },
+
+=back
+
+=cut
+
+sub submit_to_refer_to {
+    my $self = shift ;
+
+    my $refto = $self->{refer_to} ;
+    $self->{ref_object} = Config::Model::IdElementReference 
+      -> new ( refer_to   => $refto,
+	       config_elt => $self,
+	     ) ;
+    my ($refer_path,%var) = ref $refto ? @$refto : ($refto) ;
+
+    $self->register_in_other_value(\%var) ;
+}
+
+sub setup_reference_choice {
+    my $self = shift ;
+    $self->setup_choice(@_) ;
+}
+
 
 =head1 Methods
 
 =head2 get_type
 
-Returns C<list>.
+Returns C<check_list>.
 
 =cut
 
@@ -141,39 +375,17 @@ sub get_type {
     return 'check_list' ;
 }
 
-# remember that CheckList is implemented by a list of enum values. The
-# only way to guarantee that all Value object have a different content
-# is to query CheckList with the is_value_known method.
+=head2 cargo_type()
 
-# internal. Used by Value object to check if other member of the list
-# already have this value. 
-sub is_value_known {
-    my ($self, $index, $queried_value) = @_;
+Returns 'leaf'.
 
-    # retrieve the index of the Value obj that contains the passed
-    # value
-    my $res = $self->{value_book}{$queried_value} ;
+=cut
 
-    # return 1 only if the queried value was found in *another* index
-    return (1, $res)  if defined $res && $index ne $res ;
+sub get_cargo_type { goto &cargo_type } 
 
-    return (0) ;
-}
-
-# internal. Used by value object to store the value they hold (with
-# the index)
-sub store_value {
-    my ($self, $index, $value) = @_;
-
-    # clean up old value
-    my $old_value = $self->{index_book}{$index} ;
-    delete $self->{value_book}{$old_value} if defined $old_value ;
-
-    if (defined $value) {
-	# store new data
-	$self->{value_book}{$value} = $index ;
-	$self->{index_book}{$index} = $value ;
-    }
+sub cargo_type {
+    my $self = shift ;
+    return 'leaf' ;
 }
 
 =head2 check ( $choice )
@@ -183,14 +395,40 @@ Set choice.
 =cut
 
 sub check {
-    my ($self, $choice) = @_;
-    my $idx = $self->{value_book}{$choice} ;
-
-    if (defined	$idx ) {
-	$self->fetch_with_id($idx)->store($choice) ;
+    my $self = shift ;
+    if (defined $self->{refer_to}) {
+	$self->{ref_object}->get_choice_from_refered_to ;
     }
-    else {
-	$self->push($choice) ;
+
+    map {$self->store($_ , 1 ) } @_ ;
+}
+
+sub store {
+    my ($self, $choice, $value) = @_;
+
+    my $inst = $self->instance ;
+
+    if ($value != 0 and $value != 1) {
+        Config::Model::Exception::WrongValue 
+	    -> throw ( error => "store: check item value must be boolean, "
+		              . "not '$value'.",
+		       object => $self) ;
+	return ;
+    }
+
+    my $ok = $self->{choice_hash}{$choice} || 0 ;
+
+    if ($ok ) {
+	$self->{data}{$choice} = $value ;
+    }
+    elsif ($inst->get_value_check('store'))  {
+	my $err_str = "Unknown check_list item '$choice'. Expected '"
+                    . join("', '",@{$self->{choice}}) . "'" ;
+	$err_str .= "\n\t". $self->{ref_object}->reference_info 
+	  if defined $self->{refer_to} ;
+        Config::Model::Exception::WrongValue 
+	    -> throw ( error =>  $err_str ,
+		       object => $self) ;
     }
 }
 
@@ -201,14 +439,12 @@ Unset choice
 =cut
 
 sub uncheck {
-    my ($self, $choice) = @_;
-    my $idx = $self->{value_book}{$choice} ;
-
-    if (defined	$idx ) {
-	$self->delete($idx) ;
+    my $self = shift ;
+    if (defined $self->{refer_to}) {
+	$self->{ref_object}->get_choice_from_refered_to ;
     }
 
-    # there's nothing to do if the value was not already checked.
+    map {$self->store($_ , 0 ) } @_ ;
 }
 
 =head2 get_choice
@@ -218,21 +454,33 @@ that can have value 0 or 1).
 
 =cut
 
+# get_choice is always called when using check_list, so having a
+# warp safety check here makes sense
+
 sub get_choice {
     my $self = shift ;
-    # since this type of object is useless without at least one object
-    # defined, there's no harm in retrieving (and potentially
-    # creating) the value object at index 0.
 
-    $self->fetch_with_id(0)->get_choice ;
+    if (defined $self->{refer_to}) {
+	$self->{ref_object}->get_choice_from_refered_to ;
+    }
+
+    if (not defined $self->{choice}) {
+        my $msg = "check_list element has no defined choice. " . 
+	  $self->warp_error;
+	Config::Model::Exception::UnavailableElement
+	    -> throw (
+		      info => $msg,
+		      object => $self->parent,
+		      element => $self->element_name,
+		     ) ;
+    }
+
+    return @{ $self->{choice} } ;
 }
 
-# no harm if we filter out undefined values when fetching them....
-sub fetch_all_values {
+sub get_default_choice {
     my $self = shift ;
-    my @all      = $self->SUPER::fetch_all_values ;
-    my @filtered = grep ( defined $_ ,  @all ) ;
-    return wantarray ? @filtered : \@filtered ;
+    return @{$self->{default_choice} || [] } ;
 }
 
 =head2 get_help (choice_value)
@@ -243,7 +491,14 @@ Return the help string on this choice value
 
 sub get_help {
     my $self = shift ;
-    $self->fetch_with_id(0)->get_help(@_) ;
+    my $help = $self->{help} ;
+
+    return $help unless @_ ;
+
+    my $on_value = shift ;
+    return $help->{$on_value} if defined $help and defined $on_value ;
+
+    return undef ;
 }
 
 =head2 clear
@@ -254,7 +509,6 @@ Reset the check list
 
 sub clear {
     my $self = shift ;
-    $self->SUPER::clear ;
     $self->cl_init ;
 }
 
@@ -267,7 +521,25 @@ set to 1).
 
 sub get_checked_list {
     my $self = shift ;
-    $self->fetch_all_values ;
+
+    my %h = $self->get_checked_list_as_hash(@_) ;
+    return  grep { $h{$_} } sort keys %h ;
+}
+
+=head2 fetch ()
+
+Returns a string listing the checked items (i.e. "A,B,C")
+
+=cut
+
+sub fetch {
+    my $self = shift ;
+    return join (',', $self->get_checked_list);
+}
+
+sub fetch_custom {
+    my $self = shift ;
+    return join (',', $self->get_checked_list('custom'));
 }
 
 =head2 set_checked_list ( item1, item2, ..)
@@ -282,10 +554,12 @@ Example:
 
 =cut
 
+sub store_set { goto &set_checked_list } 
+
 sub set_checked_list {
     my $self = shift ;
     $self->clear ;
-    $self->store_set(@_) ;
+    $self->check (@_) ;
 }
 
 =head2 get_checked_list_as_hash ()
@@ -301,9 +575,21 @@ Example:
 
 sub get_checked_list_as_hash {
     my $self = shift ;
-    my %result = map { $_ => 0 } $self->get_choice ;
+    my $type = shift || '';
 
-    map { $result{$_} = 1 } $self->fetch_all_values ;
+    if ($type and $type ne 'custom' and $type ne 'standard') {
+	croak "get_checked_list_as_hash: expected custom or standard parameter, not $type" ;
+    }
+
+    # fill empty hash result missing data
+    my %h = map { $_ => 0 } $self->get_choice ;
+
+    # copy hash and return it
+    my %result 
+      = $type eq 'custom'   ? (%h,%{$self->{data}} )
+      : $type eq 'standard' ? (%h,%{$self->{default_data}})
+      :                       (%h,%{$self->{default_data}},%{$self->{data}} ) ;
+
     return wantarray ? %result : \%result;
 }
 
@@ -322,8 +608,14 @@ sub set_checked_list_as_hash {
     my %check = ref $_[0] ? %{$_[0]} : @_ ;
 
     $self->clear ; 
-    my $idx = 0 ;
-    map { $self->fetch_with_id($idx++)->store($_) if $check{$_} } keys %check ;
+
+    if (defined $self->{refer_to}) {
+	$self->{ref_object}->get_choice_from_refered_to ;
+    }
+
+    while (my ($key, $value) = each %check) {
+	$self->store($key,$value) ;
+    }
 }
 
 1;
