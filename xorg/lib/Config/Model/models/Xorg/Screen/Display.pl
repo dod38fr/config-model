@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-12-07 13:13:23 $
+# $Date: 2007-05-07 11:45:34 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -86,15 +86,17 @@
 		       config_class_name => 'Xorg::Screen::Display::ViewPort',
 		     }, 
 
-       'Modes'  => {
-		    type => 'check_list',
-		    refer_to => [ '! Monitor:"$my_monitor" UseModes + ! Monitor:"$my_monitor" Mode ',
-				  'my_monitor' => '- - Monitor'
-				],
-		    # built-in Vesa modes
-		    choice => ["1280x1024", "1024x768", "832x624", 
-			       "800x600", "720x400", "640x480"],
-		   },
+       'Modes'  
+       => {
+	   type => 'check_list',
+	   refer_to => [ '! Modes:"$my_monitor_use_modes" + ! Monitor:"$my_monitor" Mode ',
+			 'my_monitor' => '- - Monitor',
+			 'my_monitor_use_modes' => '! Monitor:"$my_monitor" UseModes'
+		       ],
+	   # built-in Vesa modes
+	   choice => ["1280x1024", "1024x768", "832x624", 
+		      "800x600", "720x400", "640x480"],
+	  },
 
        'Visual' 
        => {
