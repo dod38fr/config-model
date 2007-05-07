@@ -1,4 +1,5 @@
 Build.PL
+ChangeLog
 data/xorg.conf
 lib/Config/Model/models/Xorg.pl
 lib/Config/Model/models/Xorg/Device.pl
