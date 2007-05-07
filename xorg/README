@@ -3,8 +3,11 @@ Config::Model::Xorg - Xorg model (for Config::Model)
 
 This module provides a configuration model for Xorg.
 
-With this module and Config::Model, you have a tool to modify the
-configuration of your favorite X server.
+With this module and Config::Model, you have a tool to tune the
+configuration of your favourite X server.
+
+Installing Config::Model::CursesUI is recommended as you'll have a
+more user friendly curses based user interface.
 
 Once this module is installed, you can run (as root, but please backup
 /etc/X11/xorg.conf before):
@@ -24,7 +27,11 @@ configuration). Note that you must run this command where you unpacked
 this perl module:
 
   $ config-model -root_model Xorg -read data -write wr_test
-  
+
+If you do not have the curses user interface, be sure to read doc
+which explain the basic command of the terminal based interface:
+http://search.cpan.org/dist/Config-Model/TermUI.pm#USER_COMMAND_SYNTAX
+
 --------------------------------------------------------------------
 MODULE CONTENT
 
