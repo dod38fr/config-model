@@ -1,0 +1,10 @@
+2007-05-07  Dominique Dumont  v0.501
+
+	* lib/Config/Model/Xorg/Write.pm: Added method to write new
+	checklist type content in xorg.conf
+
+	* lib/Config/Model/models/Xorg/Monitor.pl: Use new checklist type
+
+	* lib/Config/Model/models/Xorg/Screen/Display.pl: fixed wrong
+	reference in Modes parameter
+
