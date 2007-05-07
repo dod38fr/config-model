@@ -1,3 +1,55 @@
+2007-05-07  Dominique Dumont   v0.609
+
+	* examples/fstab/fstab_test.pl (produce_fstab): added curses
+	interface example (need to install Config::Model::CursesUI to
+	work)
+
+2007-05-04  Dominique Dumont  
+
+	* config-model: added possibility to use the curses interface
+	provided by Config::Model::CursesUI (if this one is installed)
+
+	* ValueComputer.pm: Modified so compute may return an undef value
+	if one of the variable (extracted from the configuration data) of
+	the formula is undefined. In other word, propagate undef instead
+	of croaking.
+
+	* Searcher.pm: Lots of bug fixes
+	(get_searchable_elements): new method
+	(prepare): new method. Search is now done in 3 moves: create the
+	searcher object, prepare the search, and run the search
+
+	* Value.pm: removed unique_value parameter which was a bad idea
+	for a check list implementation. Moved reference handling into new
+	IdElementReference class
+
+	* IdElementReference.pm: New class extracted from Value object so
+	reference can be used also by CheckList
+
+	* CheckList.pm: re-wrote as a "check_list" type and not a "list"
+	type
+
+2007-04-27  Dominique Dumont  
+
+	* Instance.pm (reset_config): new method
+	(searcher): renamed search_element to
+	searcher. searcher retunrs a Config::Model::Searcher object.
+	
+	* AnyThing.pm (searcher): renamed search_element to
+	searcher. searcher retunrs a Config::Model::Searcher object.
+
+	* AnyId.pm (copy): new method to deep-copy the content of a hash
+	or id element.
+
+2007-04-13  Dominique Dumont  
+
+	* Value.pm: moved out reference facility in
+	Config::Model::IdElementReference
+
+2007-03-16  Dominique Dumont  
+
+	* Value.pm (fetch_no_check): new method
+
 2007-02-23  Dominique Dumont  v0.608
 
 	* ObjTreeScanner.pm: Clarified call-back names.
