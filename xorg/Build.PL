@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-01-23 12:35:08 $
+# $Date: 2007-05-07 12:06:51 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 #    Copyright (c) 2007 Dominique Dumont.
 #
@@ -26,14 +26,18 @@ use Module::Build;
 
 my $build = Module::Build->new
   (
-   module_name => 'Config::Model::Xorg',
-   license => 'lgpl',
-   dist_version => 0.5 ,
-   dist_author  => "Dominique Dumont (ddumont at cpan dot org)",
-   requires => {
-		'Config::Model'   => '0.606',
-		'Log::Log4perl'   => 0 ,
-	       },
+   module_name   => 'Config::Model::Xorg',
+   license       => 'lgpl',
+   dist_version  => 0.501 ,
+   dist_author   => "Dominique Dumont (ddumont at cpan dot org)",
+   dist_abstract => "Configuration model for xorg.conf",
+   requires      => {
+		     'Config::Model'   => '0.609',
+		     'Log::Log4perl'   => 0 ,
+		    },
+   recommends    => {
+		     'Config::Model::CursesUI' => 0,
+		    },
   );
 
 $build->add_build_element('pl');
