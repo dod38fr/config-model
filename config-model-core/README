@@ -108,13 +108,27 @@ The "example" directory contains a configuration model example for the
 /etc/fstab file. This example includes a small program that use this
 model to show some ways to extract configuration informations.
 
+User interface sucks
+--------------------
+
+TermUI is admitedly limited. 
+
+For a better user interface, you should also install
+Config::Model::CursesUI. Help would be welcome for a gtk or perl/Tk
+user interface.
+
 What is the status of the project ?
 -----------------------------------
 
-Beta for most of the code, Alpha for the Terminal interface (TermUI.pm)
+- Most of the code is Beta
+- Terminal interface (TermUI.pm) is alpha
+- Curses interface (provided by Config::Model::CursesUI) is alpha
+- Xorg model (provided by Config::Model::Xorg) is alpha
+
 
 Help is welcome on:
-- graphical user interface
+- graphical user interface (gtk or perlTk)
+- backend storage (use Config::General or ldap maybe ?)
 - configuration model creation (if you have a configuration itch to
   scratch, you're welcome)
 
