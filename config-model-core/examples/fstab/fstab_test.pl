@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-02-23 13:02:52 $
+# $Date: 2007-05-07 11:31:35 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.4 $
+# $Revision: 1.5 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -130,12 +130,13 @@ sub produce_fstab {
 
     my %opt_w_translate = 
       (
-       rw => { 0 => 'ro', 1 => 'rw' },
+       rw              => { 0 => 'ro', 1 => 'rw' },
        statfs_behavior => { bsddf => 'bsddf', minixdf => 'minixdf'},
-       user => { 0 => '' , 1 => 'user'},
-       sw => { 0 => '' , 1 => 'sw'},
-       defaults => { 0 => '' , 1 => 'defaults'},
-       auto => { 0 => 'noauto' , 1 => 'auto'},
+       user            => { 0 => '' , 1 => 'user'},
+       user_xattr      => { 0 => '' , 1 => 'user_xattr'},
+       sw              => { 0 => '' , 1 => 'sw'},
+       defaults        => { 0 => '' , 1 => 'defaults'},
+       auto            => { 0 => 'noauto' , 1 => 'auto'},
       );
 
     my @new_fstab ;
@@ -232,6 +233,45 @@ my $term_ui = Config::Model::TermUI
 
 # engage in user interaction
 $term_ui -> run_loop ;
+
+eval {require Config::Model::CursesUI} ;
+
+if ($@) {
+    print "
+
+If you want to try the curses interface, you must install 
+Config::Model::CursesUI and re-run this test.
+
+" ;
+}
+else {
+    my $err_file = '/tmp/config-model-error.log' ;
+
+    print "
+
+Now you can enter in a curses interface to check fstab data. Liek before, data
+are not written back to /etc/fstab, so feel free to experiment
+
+In case of error, check $err_file
+
+" ;
+
+    stop ;
+
+    open (FH,"> $err_file") || die "Can't open $err_file: $!" ;
+    open STDERR, ">&FH";
+
+    my $dialog = Config::Model::CursesUI-> new
+      (
+       permission => 'advanced',
+      ) ;
+
+    # engage in user interaction
+    # eval is required to trap the exit done in Curses
+    eval{ $dialog->start( $model ) } ;
+
+    close FH ;
+}
 
 print "\n$0 done. Feel free to send feedback to the author ",
   "(ddumont at cpan dot org)\n\n";
