@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-01-11 12:59:17 $
+# $Date: 2007-05-07 11:47:50 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -205,7 +205,7 @@ sub wr_serverlayout_inputdevice {
     my $str = qq(\tInputDevice "$key") ;
     my $sce = $next_node->fetch_element_value("SendCoreEvents");
     if (defined $sce && $sce) {
-	$str .= qq( "SendCoreEvents" ) ;
+	$str .= ' "SendCoreEvents" ' ;
     }
     push @$data_r, $str ;
 }
@@ -319,6 +319,13 @@ sub wr_list {
     }
 }
 
+sub wr_check_list {
+    my ($scanner, $data_ref,$node,$element_name,@indexes) = @_ ;
+    #warn "wr_check_list called on node ".$node->name." element $element_name\n";
+    my @list = $node->fetch_element($element_name)->get_checked_list ;
+    push @$data_ref, qq(\t\t$element_name\t").join('" "',@list).'"';
+}
+
 sub write_all {
     my $root = shift ;
 
@@ -330,8 +337,8 @@ sub write_all {
     my $scan = Config::Model::ObjTreeScanner-> new
       (
        leaf_cb => \&wr_leaf ,
-       node_cb => \&wr_node ,
-       check_list_cb => \&wr_list ,
+       node_element_cb => \&wr_node ,
+       check_list_element_cb => \&wr_check_list ,
        permission => 'master' ,
        fallback => 'all',
       ) ;
