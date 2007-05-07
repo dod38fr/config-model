@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-10-02 11:35:48 $
+# $Date: 2007-05-07 11:31:13 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -203,9 +203,9 @@
 
    # ext2 specific elements
    'element' 
-   => [ 'acl' => { type => 'leaf' ,
-		   value_type => 'boolean',
-		 },
+   => [ [qw/acl user_xattr/] => { type => 'leaf' ,
+				  value_type => 'boolean',
+				},
 	statfs_behavior => { type => 'leaf' ,
 			     value_type => 'enum',
 			     choice => [qw/bsddf minixdf/],
@@ -215,6 +215,10 @@
 		    choice => [qw/continue remount-ro panic/],
 		  },
       ],
+   'description' 
+   => [ 
+       'user_xattr' => 'Support "user." extended attributes '
+      ]
   ],
 
   [
