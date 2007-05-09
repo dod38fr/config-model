@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-05-04 11:43:46 $
+# $Date: 2007-05-09 11:46:17 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.11 $
+# $Revision: 1.12 $
 
 #    Copyright (c) 2005-2006 Dominique Dumont.
 #
@@ -49,8 +49,8 @@ WriteMakefile
    dist         => {COMPRESS=>'gzip -9f', SUFFIX => 'gz'},
    PM           => \%PM ,
    MAN3PODS     => \%M3,
-   'EXE_FILES'  => [ 'config-model' ],
-   ABSTRACT     => 'Configuration model for semantic validation of data',
+   'EXE_FILES'  => [ 'config-edit' ],
+   ABSTRACT     => 'Describe and edit configuration data',
    AUTHOR       => 'Dominique Dumont (ddumont at cpan dot org)',
    PREREQ_PM    => {
 		    'Test::More'        => 0, # for test

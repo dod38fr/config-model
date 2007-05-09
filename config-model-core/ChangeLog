@@ -1,4 +1,8 @@
-2007-05-07  Dominique Dumont   v0.609
+2007-05-09  Dominique Dumont   v0.609
+
+	* config-edit: renamed from config-model
+
+2007-05-07  Dominique Dumont  
 
 	* examples/fstab/fstab_test.pl (produce_fstab): added curses
 	interface example (need to install Config::Model::CursesUI to
