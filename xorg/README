@@ -12,21 +12,21 @@ more user friendly curses based user interface.
 Once this module is installed, you can run (as root, but please backup
 /etc/X11/xorg.conf before):
 
-  # config-model -root_model Xorg
+  # config-edit -root_model Xorg
 
 You may want to try it safely first by writing the resulting xorg.conf
 elsewhere (in this case you can run this command with your user
 account):
 
-  $ config-model -root_model Xorg -write_directory test 
+  $ config-edit -root_model Xorg -write_directory test 
 
-If config-model fails with your xorg.conf (See BUGS section below),
-you can try config-model with the provided xorg.conf (but it won't be
+If config-edit fails with your xorg.conf (See BUGS section below), you
+can try config-edit with the provided xorg.conf (but it won't be
 useful for you as this file will not match your hardware
 configuration). Note that you must run this command where you unpacked
 this perl module:
 
-  $ config-model -root_model Xorg -read data -write wr_test
+  $ config-edit -root_model Xorg -read data -write wr_test
 
 If you do not have the curses user interface, be sure to read doc
 which explain the basic command of the terminal based interface:
