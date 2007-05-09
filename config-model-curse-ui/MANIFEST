@@ -1,0 +1,5 @@
+MANIFEST			This list of files
+Build.PL
+lib/Config/Model/CursesUI.pm
+t/curses_ui.t
+t/test_model.pm
