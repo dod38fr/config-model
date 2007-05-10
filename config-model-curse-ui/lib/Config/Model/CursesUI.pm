@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-05-09 12:19:11 $
+# $Date: 2007-05-10 11:50:15 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 #    Copyright (c) 2007 Dominique Dumont.
 #
@@ -48,7 +48,7 @@ use Exception::Class
   ) ;
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.1 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/;
 
 my @help_settings = qw/-bg green -fg black -border 1 -title HELP
                        -titlereverse 0
@@ -829,67 +829,6 @@ sub layout_leaf_value
       goto &layout_string_value ;
   }
 
-sub dummy {
-    my ($self,$win,$node,$element,$index,$leaf) = @_ ;
-
-    $self->add_debug_label($win) ;
-
-    my $orig_value = $leaf->fetch ;
-
-    $win -> add ( undef, 'Label',
-                  '-y' => 2,
-                  -text => "Enter new value and press <enter value>"
-		);
-
-    my $editor 
-      = $win -> add ( undef, 'TextEntry',
-		      -sbborder => 1,
-		      '-y' => 3,
-		      -width => 60,
-		      -text => $orig_value
-		    );
-
-    $win -> add ( undef, 'Label', -text => "current value: ", '-y' => 6 ) ;
-
-    my $cur_win 
-      = $win -> add ( undef, 'Label', 
-		      -text => $orig_value, 
-		      -bg => 'yellow',
-		      -width => 60 ,
-		      '-x' => 15, '-y' => 6
-		    ) ;
-
-    my $value = $orig_value ;
-
-    my $sub = sub {
-	my ($new) = $editor->get;
-	if (not defined $orig_value or $new ne $value) {
-	    $self->set_leaf_value( $leaf, $new ) ;
-	    $value = $new ;
-	    $cur_win->text( $new ) ;
-	}
-    } ;
-
-    my $reset = sub {
-	$self   ->set_leaf_value( $leaf, $orig_value );
-	$editor ->text( $orig_value ) ;
-	$cur_win->text( $orig_value ) ;
-    } ;
-
-    $win->add(undef,
-	      'Buttonbox',
-	      '-y' => 4 ,
-	      '-x' => 0 ,
-	      '-width' => 40 ,
-	      -buttons   => 
-	      [ { -label => '< Reset value >', -onpress => $reset},
-		{ -label => '< Enter value >', -onpress => $sub } 
-	      ]
-	     ) ;
-
-    return $editor ;
-}
-
 sub set_leaf_value {
     my ($self,$leaf,$new) = @_ ;
 
@@ -1482,48 +1421,6 @@ sub display_all_elements {
     push @{$self->{stack}} , sub{$self->display_all_elements($root)};
   }
 
-# called when user has to choose among the elements of a node
-sub display_possible_element_dummy {
-    my ($self,$node, @choices) = @_;
-
-    $self->update_location($node) ;
-    my $searched= $self->{searcher}->searched ;
-
-    my $win = $self->set_center_window("Select a path for $searched");
-
-    $self->add_debug_label($win) ;
-
-    $win -> add ( undef, 'Label',
-		  -width => 45 ,
-                  -text => "'$searched' can be found in all these\n"
-		         . "configuration elements. Please select one."
-		);
-
-    my $listbox ;
-    my $sub = sub {
-	my ($element) = $listbox->get;
-	warn "display_possible_element: user chose $element";
-	#$self->display_possible_node($searched,$path,$node,$element) ;
-    } ;
-
-    $listbox = $win -> add ( undef, 'Listbox',
-			     '-y'        => 3,
-			     -values     => \@choices,
-			     -width      => 30,
-			     -border     => 1,
-			     -title      => 'Select path',
-			     -vscrollbar => 1,
-			     -onchange   => $sub ,
-			   ) ;
-
-    $listbox->focus ;
-
-    #$self->add_std_button($win,$node,$but) ;
-    push @{$self->{stack}} , 
-      sub{$self->display_possible_element($node,@choices)};
-
-}
-
 sub search_dispatch {
     my ($self, $object) = @_ ;
     my $obj_type = $object->get_type ;
@@ -1957,40 +1854,31 @@ Config::Model::CursesUI - Curses interface for configuration tree
 
 =head1 SYNOPSIS
 
+ use Config::Model ;
  use Config::Model::CursesUI ;
- use Config::Model::Instance;
 
- my $inst = Config::Model::Instance->new (root => 'SomeConfig');
+ my $model = Config::Model -> new ;
 
- # prepare sub to load the tree from config file
- my $load_sub = sub { ... } ;
-
- # prepare sub to commit (write) the content of the tree in the
- # config files
- my $store_sub = sub { ... } ;
-
- # fill configuration tree if needed
- &$load_sub ;
+ my $inst = $model->instance (root_class_name => 'XXX',
+                              instance_name   => 'yyy');
 
  # create dialog
  my $dialog = Config::Model::CursesUI-> new
   (
-   permission => 'USER', # or 'SUPPORT'
-   load => sub{},
-   store => sub{}
+   permission => 'intermediate', # or 'advanced'
   ) ;
 
  # start never returns
- $dialog->start($root) ;
+ $dialog->start($model) ;
 
 =head1 DESCRIPTION
 
-This class provides a L<Curses::UI> interface to a configuration tree.
+This class provides a L<Curses::UI> interface to configuration data
+managed by L<Config::Model>.
 
 IMPORTANT: Once the CursesUI object is created, STDOUT and STDERR
 are managed by the Curses interface, so all print and warn will not
-work as you expect.
-
+work as expected.
 
 =head1 CONSTRUCTOR
 
@@ -2001,27 +1889,20 @@ The constructor accepts the following parameters:
 =item permission
 
 Specifies the permission level of the user (default:
-C<intermediate>). The permission can be C<master advanced intermediate>.
-
-=item load
-
-subroutine ref containing the code to load the configuration data from the
-configuration files. This sub is called without any arguments.
-
-=item store
-
-subroutine ref containing the code to store the configuration data in the
-configuration files. This sub is called without any arguments.
-
-This sub may also contain any code required when configuration data
-is written such as log in syslog.
+C<intermediate>). The permission can be C<master advanced
+intermediate>.
 
 =back
 
+=head1 AUTHOR
+
+Dominique Dumont, (ddumont at cpan dot org)
 
 =head1 SEE ALSO
 
-L<Config::Model::Instance>, L<Config::Model::TreeIf>, L<Curses::UI>,
+L<Config::Model>, 
+L<Config::Model::ObjTreeScanner>, 
+L<Curses::UI>,
 L<Curses>
 
 =cut
