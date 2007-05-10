@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-05-09 12:19:10 $
+# $Date: 2007-05-10 12:04:28 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 #    Copyright (c) 2007 Dominique Dumont.
 #
@@ -28,11 +28,12 @@ my $build = Module::Build->new
   (
    module_name => 'Config::Model::CursesUI',
    license => 'lgpl',
-   dist_version => 0.5 ,
+   dist_abstract => "Curses interface for Config::Model",
    dist_author  => "Dominique Dumont (ddumont at cpan dot org)",
-   dist_abstract => "Curses intraface for Config::Model",
    requires => {
 		'Config::Model'   => '0.608',
+		'Exception::Class' => 0,
+		'Curses::UI' => '0.95',
 		'Log::Log4perl'   => 0 ,
 	       },
    add_to_cleanup => [qw/stderr.log wr_data/] ,

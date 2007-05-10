@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2007-05-09 12:19:12 $
+# $Date: 2007-05-10 12:04:31 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 use warnings FATAL => qw(all);
 use ExtUtils::testlib;
@@ -16,7 +16,6 @@ use strict ;
 
 BEGIN { plan tests => 3;} 
 
-
 use vars qw/$hw/;
 use Curses::UI ;
 
@@ -27,7 +26,7 @@ $::verbose          = 1 if $arg =~ /v/;
 $::debug            = 1 if $arg =~ /d/;
 Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 
-print "You can run the GUI with 't' argument. E.g. 'perl t/curses_ui.t t'\n";
+warn "You can run the GUI with 'i' argument. E.g. 'perl t/curses_ui.t i'\n";
 
 ok(1,"Config::Model::CursesUI loaded") ;
 
@@ -45,21 +44,15 @@ open STDERR, ">&FH";
 
 warn "----\n";
 
-#if (1)#$trace)
-  {
-    # need to keep the instance somewhere
 
+if ($arg =~ /i/ ) {
     my $dialog = Config::Model::CursesUI-> new
       (
        permission => 'advanced',
       ) ;
-
-    ok(ref($dialog) , 'curses ui created') ;
-
-
     $dialog->start( $model )  ;
-  }
+}
 
 close FH ;
 
-exit ;
+ok(1,"done") ;
