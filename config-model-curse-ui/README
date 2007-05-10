@@ -1,0 +1,34 @@
+This module provides a Curses interface for all configuration
+descriptions created for Config::Model.
+
+This interface is used by config-edit program provided by
+Config::Model.
+
+--------------------------------------------------------------------
+TEST
+
+The automatic test done by "./Build test" is minimal. IT just compile
+the module.
+
+You can also run the test in interactive mode by typing:
+
+   perl t/curses_ui.t i
+
+--------------------------------------------------------------------
+
+AUTHOR
+    Copyright (c) 2007 Dominique Dumont.
+
+    This file is part of Config-Model-CursesUI.
+
+---------------------------------------------------------------------
+INSTALLATION
+
+        tar zxvf <dist_file>.tar.gz
+        cd <dist_directory>
+        perl Build.PL
+        ./Build test
+
+If you want to install this software without packaging, type also:
+
+        ./Build install
