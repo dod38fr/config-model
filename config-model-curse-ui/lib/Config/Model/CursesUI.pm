@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-05-10 11:50:15 $
+# $Date: 2007-05-10 11:51:10 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 #    Copyright (c) 2007 Dominique Dumont.
 #
@@ -34,7 +34,6 @@ use Error qw(:try);
 
 use Config::Model::ObjTreeScanner ;
 use Curses::UI ;
-use Tk::ObjScanner;
 
 use Config::Model::Exception ;
 use Exception::Class 
@@ -48,7 +47,7 @@ use Exception::Class
   ) ;
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/;
 
 my @help_settings = qw/-bg green -fg black -border 1 -title HELP
                        -titlereverse 0
