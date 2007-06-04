@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-05-04 11:24:17 $
+# $Date: 2007-06-04 11:25:40 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.29 $
+# $Revision: 1.30 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -34,7 +34,7 @@ use Config::Model::Instance ;
 # this class holds the version number of the package
 use vars qw($VERSION @status @level @permission_list %permission_index) ;
 
-$VERSION = '0.609';
+$VERSION = '0.610';
 
 =head1 NAME
 
@@ -652,10 +652,15 @@ sub get_model {
     return dclone($model) ;
 }
 
+# returns a hash ref containing the raw model, i.e. before expansion of 
+# multiple keys (i.e. [qw/a b c/] => ... )
 # internal. For now ...
 sub get_raw_model {
     my $self =shift ;
     my $config_class_name = shift ;
+
+    $self->load($config_class_name) 
+      unless defined $self->{model}{$config_class_name} ;
 
     my $model = $self->{raw_model}{$config_class_name} ||
       croak "get_raw_model error: unknown config class name: $config_class_name";
