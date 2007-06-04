@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-05-04 11:31:09 $
+# $Date: 2007-06-04 11:26:51 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.12 $
+# $Revision: 1.13 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -37,7 +37,7 @@ use base qw/Config::Model::WarpedThing/ ;
 
 use vars qw($VERSION) ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.12 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.13 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -343,7 +343,7 @@ ref. Example:
 my @accessible_params =  qw/min max mandatory default value_type
                              choice convert built_in/ ;
 
-my @allowed_warp_params = (@accessible_params, qw/level permission/);
+my @allowed_warp_params = (@accessible_params, qw/level permission help/);
 
 sub new {
     my $type = shift;
@@ -383,8 +383,6 @@ sub new {
 
     my $warp_info = delete $args{warp} ;
 
-    $self->{help} = delete $args{help} ;
-
     $self->{backup}  = \%args ;
 
     $self->set() ; # set will use backup data
@@ -407,9 +405,9 @@ sub set {
     my $self = shift ;
 
     # cleanup all parameters that are handled by warp
-    map(delete $self->{$_}, 
-        qw/min max mandatory default built_in value_type choice
-           allow_compute_override refer_to/) ;
+    map(delete $self->{$_}, @allowed_warp_params ) ;
+       # qw/min max mandatory default built_in value_type choice
+       #    allow_compute_override refer_to/) ;
 
     # merge data passed to the constructor with data passed to set
     my %args = (%{$self->{backup}},@_ );
@@ -441,7 +439,7 @@ sub set {
 	};
 
     map { $self->{$_} =  delete $args{$_} if defined $args{$_} }
-      qw/name min max mandatory allow_compute_override/;
+      qw/name min max mandatory help allow_compute_override/;
 
     $self->set_properties ( \%args );
     $self->set_value_type ( \%args );
