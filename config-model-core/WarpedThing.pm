@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-05-04 11:39:37 $
+# $Date: 2007-06-04 11:27:19 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.6 $
+# $Revision: 1.7 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -30,7 +30,7 @@ use Carp;
 use warnings FATAL => qw(all);
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/;
 
 use base qw/Config::Model::AnyThing/ ;
 
@@ -226,7 +226,7 @@ sub check_warp_args {
         Config::Model::Exception::Model
 	    -> throw (
 		      object => $self,
-		      error => "rules value for @keys is not a hash ref"
+		      error => "rules value for @keys is not a hash ref ($v)"
 		     ) 
 	      unless ref($v) eq 'HASH' ;
 
