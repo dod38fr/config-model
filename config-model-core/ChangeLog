@@ -1,3 +1,7 @@
+2007-06-04  Dominique Dumont  v0.610
+
+	* Value.pm: can also warp help for enum value
+
 2007-05-09  Dominique Dumont   v0.609
 
 	* config-edit: renamed from config-model
