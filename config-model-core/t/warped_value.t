@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2007-05-04 11:44:59 $
+# $Date: 2007-06-04 11:27:46 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.8 $
+# $Revision: 1.9 $
 
 use warnings FATAL => qw(all);
 
@@ -11,7 +11,7 @@ use Test::More;
 use Config::Model;
 use Config::Model::ValueComputer ;
 
-BEGIN { plan tests => 46; }
+BEGIN { plan tests => 49; }
 
 use strict;
 
@@ -121,7 +121,7 @@ $model -> create_config_class
 				 default    => 'Av',
 				 level      => 'normal',
 				 permission => 'intermediate',
-				 choice     => [qw/Av Bv Cv/]
+				 choice     => [qw/Av Bv Cv/],
 				},
 			   B => {
 				 value_type => 'enum',
@@ -169,9 +169,15 @@ $model -> create_config_class
 				    follow => '- macro',
 				    'rules' 
 				    => [
-					[qw/A D/] => { choice => [qw/Av Bv/] },
-					B => { choice => [qw/Bv Cv/] },
-					C => { choice => [qw/Cv/] }
+					[qw/A D/] => { choice => [qw/Av Bv/],
+						       help => { Av => 'Av help'} ,
+						     },
+					B => { choice => [qw/Bv Cv/],
+					       help   => { Bv => 'Bv help'} ,
+					     },
+					C => { choice => [qw/Cv/],
+					       help   => { Cv => 'Cv help' } ,
+					     }
 				       ]
 				   }
 		    },
@@ -249,6 +255,9 @@ map {is($slave->fetch_element($_)->fetch , 'Av',
 is($root->fetch_element('macro')->store('C'), 'C',
    "setting master->macro to C") ;
 
+is($root->fetch_element('m_value')->get_help('Cv') , 'Cv help',
+   'test m_value help with macro=C') ;
+
 is($slave->fetch_element('X')->fetch , undef,
   "reading slave->X (undef)") ;
 
@@ -256,6 +265,12 @@ $root->fetch_element('macro')->store('A') ;
 
 is($root->fetch_element('m_value')->store('Av') , 'Av',
    'test m_value with macro=A') ;
+
+is($root->fetch_element('m_value')->get_help('Av') , 'Av help',
+   'test m_value help with macro=A') ;
+
+is($root->fetch_element('m_value')->get_help('Cv') , undef ,
+   'test m_value help with macro=A') ;
 
 $root->fetch_element('macro')->store('D') ;
 
