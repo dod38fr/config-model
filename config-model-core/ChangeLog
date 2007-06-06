@@ -1,4 +1,9 @@
-2007-06-04  Dominique Dumont  v0.610
+2007-06-06  Dominique Dumont v0.610
+
+	* Model.pm (inherit_class): Fix configuration class inheritance
+	mechanism
+
+2007-06-04  Dominique Dumont  
 
 	* Value.pm: can also warp help for enum value
 
