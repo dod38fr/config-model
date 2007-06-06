@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2007-05-04 11:44:59 $
+# $Date: 2007-06-06 12:25:13 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.9 $
+# $Revision: 1.10 $
 
 use ExtUtils::testlib;
 use Test::More tests => 9;
@@ -144,7 +144,8 @@ disp_leaf Master element hash_a value xy
 disp_hash Master element(hash_b): X3
 disp_leaf Master element hash_b value xy
 disp_node_elt Master element: slave_y
-disp_node_content slave_y element: std_id sub_slave warp2 Y
+disp_node_content slave_y element: X std_id sub_slave warp2 Y
+disp_leaf slave_y element X
 disp_node_elt slave_y element: sub_slave
 disp_node_content slave_y sub_slave element: aa ab ac ad sub_slave
 disp_leaf slave_y sub_slave element aa
@@ -211,6 +212,7 @@ disp_leaf std_id:bc element DX value Dv
 disp_leaf Master element hash_a value x
 disp_leaf Master element hash_a value xy
 disp_leaf Master element hash_b value xy
+disp_leaf slave_y element X
 disp_leaf slave_y sub_slave element aa
 disp_leaf slave_y sub_slave element ab
 disp_leaf slave_y sub_slave element ac

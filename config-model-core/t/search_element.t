@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2007-05-04 11:44:59 $
+# $Date: 2007-06-06 12:25:13 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.6 $
+# $Revision: 1.7 $
 
 use ExtUtils::testlib;
 use Test::More tests => 22;
@@ -59,7 +59,7 @@ my @data
 
        'aa2' => {'next_step' => {'warp2' => {'next_class' => {'SubSlave2' => {'next_step' => 'aa2'}}}, 'sub_slave' => {'next_step' => {'sub_slave' => {'next_step' => 'aa2'}}}}}, 
 
-       'X' => {'next_step' => {'std_id' => {'next_step' => 'X'}}},
+       'X' => {'next_step' => 'X'},
        'ac' => {'next_step' => {'sub_slave' => {'next_step' => 'ac'}}},
        'Y' => {'next_step' => 'Y'},
        'DX' => {'next_step' => {'std_id' => {'next_step' => 'DX'}}},
@@ -115,7 +115,7 @@ my @data
 
        'my_reference' => {'next_step' => 'my_reference'},
 
-       'X' => {'next_step' => {'slave_y' => {'next_step' => {'std_id' => {'next_step' => 'X'}}}, 'olist' => {'next_step' => 'X'}, 'warp' => {'next_class' => {'SlaveZ' => {'next_step' => 'X'}, 'SlaveY' => {'next_step' => {'std_id' => {'next_step' => 'X'}}}}}, 'std_id' => {'next_step' => 'X'}}},
+       'X' => {'next_step' => {'slave_y' => {'next_step' => 'X' }, 'olist' => {'next_step' => 'X'}, 'warp' => {'next_class' => {'SlaveZ' => {'next_step' => 'X'}, 'SlaveY' => {'next_step' => 'X' }}}, 'std_id' => {'next_step' => 'X'}}},
 
        'ac' => {'next_step' => {'slave_y' => {'next_step' => {'sub_slave' => {'next_step' => 'ac'}}}, 'warp' => {'next_class' => {'SlaveY' => {'next_step' => {'sub_slave' => {'next_step' => 'ac'}}}}}}},
 
@@ -141,8 +141,9 @@ foreach my $item (@data) {
     my $searcher = $node->searcher->prepare(element => $item->[0]);
 
     is_deeply( $searcher->{data}, $item->[2] , 
-	       "verify search data on ".$node->config_class_name) ||
-		 print Dumper $searcher->{data} ;
+	       "verify search data on ".$node->config_class_name
+	       . "($item->[0],$item->[1])" )
+      || print Dumper $searcher->{data} ;
 }
 
 my $searcher = $root->searcher->prepare(element => 'X');
