@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-04-27 15:12:53 $
+# $Date: 2007-06-06 12:14:51 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.9 $
+# $Revision: 1.10 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -31,7 +31,7 @@ use UNIVERSAL ;
 
 use base qw/Config::Model::AnyThing/ ;
 
-our $VERSION = sprintf "%d.%03d", q$Revision: 1.9 $ =~ /(\d+)\.(\d+)/;
+our $VERSION = sprintf "%d.%03d", q$Revision: 1.10 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -161,7 +161,7 @@ You must also specify where to read or write configuration
 information. These informations can be read or written in the same
 directory :
 
-  conf_dir => '/etc/my_config_dir',
+  config_dir => '/etc/my_config_dir',
 
 Or configuration informations can be read from one directory and
 written in another directory:
