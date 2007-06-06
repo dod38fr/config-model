@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-05-04 11:25:00 $
+# $Date: 2007-06-06 12:23:46 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.13 $
+# $Revision: 1.14 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -40,7 +40,7 @@ use base qw/Config::Model::AutoRead/;
 use vars qw($VERSION $AUTOLOAD @status @level
 @permission_list %permission_index );
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.13 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.14 $ =~ /(\d+)\.(\d+)/;
 
 *status           = *Config::Model::status ;
 *level            = *Config::Model::level ;
@@ -180,7 +180,19 @@ element will raise an exception (See L<Config::Model::Exception>.
 Optional C<list ref> of element description. These descriptions will
 be used when generating user interfaces.
 
+
+=item B<read_config>
+
+=item B<write_config>
+
+=item B<config_dir>
+
+Parameters used to load on demand configuration data. 
+See L<Config::Model::AutoRead> for details.
+
 =back
+
+
 
 =head1 Element declaration
 
