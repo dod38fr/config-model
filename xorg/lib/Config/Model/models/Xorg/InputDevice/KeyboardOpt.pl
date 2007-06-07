@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-12-07 13:13:22 $
+# $Date: 2007-06-07 16:51:16 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -47,6 +47,7 @@
  ],
  [
   name => "Xorg::InputDevice::KeyboardOpt",
+  inherit => "Xorg::InputDevice::KeyboardOptRules" ,
   'element' 
   => [ 
       # CoreKeyboard option is stored at top level (in Xorg model)
@@ -74,37 +75,6 @@
 			built_in => 0,
 		      },
 
-      'XkbRules'        => {
-			     type => 'leaf',
-			     value_type  => 'enum',
-			     choice => [qw/xorg xfree98/] ,
-			     default => 'xorg',
-			    },
-
-      "XkbModel"  => {
-		      type => 'leaf',
-		      value_type  => 'enum',
-		      choice => [qw/pc104 pc105 pc98/] ,
-		      default => 'pc105',
-		     },
-
-      "XkbLayout" => {
-		      type => 'leaf',
-		      value_type  => 'enum',
-		      choice => [qw!us nec/jp!] ,
-		      default => 'us',
-		     },
-
-      "XkbVariant" => {
-		       type => 'leaf',
-		       value_type  => 'enum',
-		       choice => [qw!!] ,
-		      },
-      # needs to be refined ...
-      "XkbOptions" => {
-		       type => 'leaf',
-		       value_type  => 'string',
-		      }, 
      ],
 
 
@@ -117,16 +87,6 @@
       "AutoRepeat" => "sets the auto repeat behaviour for the keyboard. This is not implemented on all platforms.",
 
       "XLeds" => "makes the keyboard LEDs specified available for client  use instead of their traditional function (Scroll Lock, Caps Lock and Num Lock). The numbers are in the range 1 to 3.",
-
-      "XkbRules" => "specifies which XKB rules file to use for interpreting the XkbModel, XkbLayout,  XkbVariant,  and  XkbOptions settings.",
-
-      "XkbModel" => "specifies the XKB keyboard model name.",
-
-      "XkbLayout" => "specifies the XKB keyboard layout name. This is usually the country or language type of the keyboard.",
-
-      "XkbVariant" => "specifies the XKB keyboard variant components. These can be used to enhance the keyboard layout details.",
-
-      "XkbOptions" => "specifies the XKB keyboard option components. These can be used to enhance the keyboard behaviour.",
 
      ],
  ]
