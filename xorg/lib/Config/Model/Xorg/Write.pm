@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-05-07 11:47:50 $
+# $Date: 2007-06-07 16:47:00 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -75,6 +75,13 @@ sub wr_std_options {
     }
 } ;
 
+sub wr_kbd_model_options {
+    my ($scanner, $data_r ,$node,$element_name,$index, $leaf_object,$v) = @_ ;
+    if ( defined $v && $v ) {
+	push @$data_r, qq(\tOption\tXkbOptions\t"$element_name:$v");
+    }
+} ;
+
 sub push_value {
     my ($scanner, $data_r ,$node,$element_name,$index, $leaf_object,$v) = @_ ;
     push @$data_r, $v if defined $v;
@@ -116,10 +123,26 @@ my %dispatch_leaf
      'Xorg::DRI' => \&wr_std_leaf
     ) ;
 
+my %dispatch_leaf_re 
+ = (
+    'Xorg::InputDevice::KeyboardOptModel::.*' => \&wr_kbd_model_options ,
+   ) ;
+
 sub wr_leaf {
     my ($scanner, $data_r, $node,$element_name,$index, $leaf_object) = @_ ;
     my $v = $leaf_object->fetch ;
-    my $cb = $dispatch_leaf{$node ->config_class_name() } ;
+    my $class_name = $node ->config_class_name() ;
+    my $cb = $dispatch_leaf{$class_name} ;
+
+    if (not defined $cb) {
+	foreach my $k (keys %dispatch_leaf_re) {
+	    next unless $class_name =~ /$k/ ;
+	    $cb = $dispatch_leaf_re{$k};
+	    #warn "using regexp dispath $k for $class_name\n";
+	    last;
+	}
+    }
+
     if (defined $cb && ref $cb) {
 	$cb->(@_ ,$v ) ;
     }

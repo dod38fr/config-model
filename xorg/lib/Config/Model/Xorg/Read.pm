@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-01-11 12:59:02 $
+# $Date: 2007-06-07 16:46:47 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -197,6 +197,15 @@ sub parse_option {
 			join('+',@args),"' ");
 	my @v = split / /,$args[0] ;
 	my $load = sprintf ( "Option AutoRepeat delay=%s rate=%s", @v);
+	$logger->debug( $obj->name," load '$load'");
+	$obj->load($load) ;
+    }
+    elsif (     $obj->config_class_name eq 'Xorg::InputDevice'
+	    and $opt eq 'XkbOptions' ) {
+	$logger->debug( "obj ",$obj->name, " ($line) load option '$opt' with '",
+			join('+',@args),"' ");
+	my @v = split /:/,$args[0] ;
+	my $load = sprintf ( "Option XkbOptions %s=%s", @v);
 	$logger->debug( $obj->name," load '$load'");
 	$obj->load($load) ;
     }
