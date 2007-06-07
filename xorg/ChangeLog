@@ -1,3 +1,13 @@
+2007-06-07  Dominique Dumont  v0.502
+
+	* lib/Config/Model/models/Xorg/InputDevice.pl: added xkb keyboard
+	driver choice
+
+	* Build.PL: - Extract keyboard configuration model for Xorg's lst
+	files (Can fallback on linux model if Xorg is not installed. This
+	feature can be useful for CPAN automatic tests) 
+	- Guess Xorg config file location for $Config{osname}
+	
 2007-05-07  Dominique Dumont  v0.501
 
 	* lib/Config/Model/Xorg/Write.pm: Added method to write new
