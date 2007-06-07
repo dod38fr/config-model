@@ -1,6 +1,12 @@
 Build.PL
 ChangeLog
 data/xorg.conf
+fallback_models/ConfigDir.pl
+fallback_models/KeyboardOptRules.pl
+fallback_models/Sgi.pl
+fallback_models/Sun.pl
+fallback_models/Xorg-it.pl
+fallback_models/Xorg.pl
 lib/Config/Model/models/Xorg.pl
 lib/Config/Model/models/Xorg/Device.pl
 lib/Config/Model/models/Xorg/Device/Nvidia.pl
