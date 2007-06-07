@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-01-11 12:59:53 $
+# $Date: 2007-06-07 16:48:15 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -32,7 +32,8 @@
    name => "Xorg",
 
    read_config => [ { class => 'Config::Model::Xorg::Read', function => 'read'}] ,
-   config_dir => '/etc/X11/' ,
+   # config file location is now inherited from a model generated at build time
+   inherit => 'Xorg::ConfigDir',
 
    write_config => { class => 'Config::Model::Xorg::Write', function => 'write'},
 
