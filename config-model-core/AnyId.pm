@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-04-27 15:09:07 $
+# $Date: 2007-07-03 11:34:16 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.15 $
+# $Revision: 1.16 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -29,7 +29,7 @@ use Carp;
 use strict;
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.15 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.16 $ =~ /(\d+)\.(\d+)/;
 
 use base qw/Config::Model::WarpedThing/;
 
@@ -125,7 +125,7 @@ A hash or list element must be declared with the following parameters:
 
 Mandatory element type. Must be C<hash> or C<list> to have a
 collection element.  The actual element type must be specified by
-C<cargo_type> (See </"CAVEATS">).
+C<cargo_type> (See L</"CAVEATS">).
 
 =item index_type
 
