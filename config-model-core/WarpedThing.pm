@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-07-03 11:41:22 $
+# $Date: 2007-07-03 11:49:41 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.8 $
+# $Revision: 1.9 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -32,7 +32,7 @@ use Carp;
 use warnings FATAL => qw(all);
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.8 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.9 $ =~ /(\d+)\.(\d+)/;
 
 use base qw/Config::Model::AnyThing/ ;
 
@@ -214,63 +214,6 @@ sub check_warp_args {
 
 sub _dclone_key {
     return map { ref $_ ? [ @$_ ] : $_ } @_ ;
-}
-
-# legacy:
-# $multi_follow $key_rule:               @exp_keys
-#     0         'foo'                => ( foo )
-#     0         [ 'foo', 'bar' ]     => ( 'foo', 'bar' )
-#     1         [ 'foo', 'bar' ]     => ( [ 'foo', 'bar' ] )
-#     1         [ [f1 ,f2 ] , bar ]  => ( [f1, bar ], [f2 , bar] )
-# return a list of expanded rules from the passed rule.
-sub _expand_key {
-    my $multi_follow = shift ;
-
-    if ($multi_follow) {
-	# deep copy of keys, and store in an array
-	my @exp_keys  = ( _dclone_key( shift ) ) ;
-
-	for (my $i = 0; defined $exp_keys[$i]; $i ++) {
-	    next unless ref $exp_keys[$i] ;
-
-	    for (my $j = 0; defined $exp_keys[$i][$j]; $j ++) {
-		next unless ref $exp_keys[$i][$j];
-
-		my @a = @{$exp_keys[$i][$j]} ;
-		$exp_keys[$i][$j] = shift @a ;
-		map {
-		    my ($b) = _dclone_key($exp_keys[$i] ) ;
-		    push @exp_keys , $b ;
-		    $b-> [$j] = $_ ;
-		} @a ;
-	    }
-	}
-
-	return @exp_keys ;
-    }
-    else {
-	return map { ref $_ ? @$_ : $_ } @_ ;
-    }
-}
-
-# internal & legacy : used to expand multi warp masters rules
-
-# @rules is either:
-# foo => {...} , bar => {...}
-# [ f1, b1 ] => {..} ,[ f1,b2 ] => {...}, [f2,b1] => {...} ...
-# [ [ f1a, f1b ] , b1 ] => {..} ,[ f1,b2 ] => {...}, ...
-sub _expand_rules {
-    my $multi_follow = shift ;
-    my @rules = @_ ;
-
-    my @expanded ;
-    for (my $r_idx = 0; $r_idx < $#rules; $r_idx  += 2) {
-	my $key_rule = $rules[$r_idx] ;
-	map { push @expanded, $_ =>  $rules[$r_idx+1] } 
-	  _expand_key($multi_follow, $key_rule) ;
-    }
-
-    return @expanded ;
 }
 
 # internal 
