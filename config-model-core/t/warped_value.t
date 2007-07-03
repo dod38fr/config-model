@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2007-06-04 11:27:46 $
+# $Date: 2007-07-03 15:28:19 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.9 $
+# $Revision: 1.10 $
 
 use warnings FATAL => qw(all);
 
@@ -11,13 +11,16 @@ use Test::More;
 use Config::Model;
 use Config::Model::ValueComputer ;
 
-BEGIN { plan tests => 49; }
+BEGIN { plan tests => 51; }
 
 use strict;
 
 my $trace = shift || '' ;
 
 Config::Model::Exception::Any->Trace(1) if $trace =~ /e/;
+
+$::verbose = 1 if $trace =~ /v/;
+$::debug   = 1 if $trace =~ /d/ ;
 
 ok(1,"Compilation done");
 
@@ -103,7 +106,7 @@ $model -> create_config_class
 						}
 				      }
 		       },
-	recursive_slave
+	'recursive_slave'
 	=> {
 	    type => 'hash',
             index_type => 'string',
@@ -165,21 +168,43 @@ $model -> create_config_class
        'm_value' => {
 		     type => 'leaf',
 		     value_type => 'enum',
-		     warp       => {
-				    follow => '- macro',
-				    'rules' 
-				    => [
-					[qw/A D/] => { choice => [qw/Av Bv/],
-						       help => { Av => 'Av help'} ,
-						     },
-					B => { choice => [qw/Bv Cv/],
-					       help   => { Bv => 'Bv help'} ,
-					     },
-					C => { choice => [qw/Cv/],
-					       help   => { Cv => 'Cv help' } ,
-					     }
-				       ]
-				   }
+		     'warp'
+		     => {
+			 follow => { m => '- macro' },
+			 'rules' 
+			 => [
+			     '$m eq "A" or $m eq "D"'
+			     => { choice => [qw/Av Bv/],
+				  help => { Av => 'Av help'} ,
+				},
+			     '$m eq "B"' => { choice => [qw/Bv Cv/],
+					    help   => { Bv => 'Bv help'} ,
+					  },
+			     '$m eq "C"' => { choice => [qw/Cv/],
+					    help   => { Cv => 'Cv help' } ,
+					  }
+			    ]
+			}
+		    },
+       'm_value_old' => {
+		     type => 'leaf',
+		     value_type => 'enum',
+		     'warp'
+		     => {
+			 follow => '- macro',
+			 'rules' 
+			 => [
+			     [qw/A D/] => { choice => [qw/Av Bv/],
+					    help => { Av => 'Av help'} ,
+					  },
+			     B => { choice => [qw/Bv Cv/],
+				    help   => { Bv => 'Bv help'} ,
+				  },
+			     C => { choice => [qw/Cv/],
+				    help   => { Cv => 'Cv help' } ,
+				  }
+			    ]
+			}
 		    },
        'compute' 
        => {
@@ -208,9 +233,6 @@ $model -> create_config_class
 			      }
       ]
    );
-
-$::verbose = 1 if $trace =~ /v/;
-$::debug   = 1 if $trace =~ /d/ ;
 
 my $inst = $model->instance (root_class_name => 'Master', 
 			     instance_name => 'test1');
@@ -266,6 +288,9 @@ $root->fetch_element('macro')->store('A') ;
 is($root->fetch_element('m_value')->store('Av') , 'Av',
    'test m_value with macro=A') ;
 
+is($root->fetch_element('m_value_old')->store('Av') , 'Av',
+   'test m_value_old with macro=A') ;
+
 is($root->fetch_element('m_value')->get_help('Av') , 'Av help',
    'test m_value help with macro=A') ;
 
@@ -276,6 +301,9 @@ $root->fetch_element('macro')->store('D') ;
 
 is($root->fetch_element('m_value')->fetch , 'Av',
    'test m_value with macro=D') ;
+
+is($root->fetch_element('m_value_old')->fetch , 'Av',
+   'test m_value_old with macro=D') ;
 
 $root->fetch_element('macro')->store('A') ;
 
@@ -395,12 +423,13 @@ my @names = sort map { $_->name } @masters;
 print "macro controls:\n\t", join( "\n\t", @names ), "\n"
     if $trace;
 
-is( scalar @masters, 11,'reading macro slaves' );
+is( scalar @masters, 12,'reading macro slaves' );
 
 is_deeply( \@names ,
 	   [
 	    'Master compute',
 	    'Master m_value',
+	    'Master m_value_old',
 	    'bar Comp',
 	    'bar W',
 	    'bar X',

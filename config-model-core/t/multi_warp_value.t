@@ -1,14 +1,15 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-12-06 12:51:59 $
+# $Date: 2007-07-03 15:28:19 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
-use Test::More tests => 61 ;
+use Test::More tests => 65 ;
 use Config::Model ;
+use Storable qw/dclone/ ;
 
 use strict;
 
@@ -37,8 +38,8 @@ foreach my $c1 (@m1) {
 
 # minimal set up to get things working
 my $model = Config::Model->new() ;
-$model ->create_config_class 
-  (
+my $model_data = 
+  {
    name => 'Master',
    'element'
    => [
@@ -90,8 +91,30 @@ $model ->create_config_class
 		    ]
 	       },
 	  },
+       'm4'
+       => { type => 'leaf',
+	    value_type => 'string',
+	    default    => 'unsatisfied',
+	    'warp'
+	    => {
+		follow => { m1 => '- macro1', 
+			    m2 => ' - macro2',
+			    m3 => '- macro3' },
+		'rules'
+		=>  [
+		     '$m1 eq "A1" and $m2 eq "A2" and $m3 eq "A3"'
+		     => { default => '3xA' },
+		     '($m1 eq "B1") and ($m2 eq "B2" or $m2 eq "C2") and ($m3 eq "B3")'
+		     => { default => '3x[BC]' },
+		    ]
+	       },
+	  },
       ]
-  );
+  };
+
+my $copy = dclone $model_data ;
+
+$model ->create_config_class (%$copy) ;
 
 my $inst = $model->instance (root_class_name => 'Master', 
 			     instance_name => 'test1');
@@ -105,94 +128,6 @@ is_deeply( [ Config::Model::WarpedThing::_dclone_key('foo') ],
     ['foo'], "Test _dclone_key (single key)" );
 
 
-my @expanded_keys = Config::Model::WarpedThing::_expand_key(0,'foo');
-
-#print Dumper \@expanded_keys ;
-is_deeply( \@expanded_keys, ['foo'], "Test _expand_key (single key)" );
-
-@expanded_keys 
-  = Config::Model::WarpedThing::_expand_key(0,['foo','bar']);
-
-#print Dumper \@expanded_keys ;
-is_deeply( \@expanded_keys, ['foo','bar'], 
-	   "Test _expand_key (1 warper, 2 keys) " );
-
-@expanded_keys 
-  = Config::Model::WarpedThing::_expand_key(1,['foo','bar']);
-
-#print Dumper \@expanded_keys ;
-is_deeply( \@expanded_keys, [ ['foo','bar'] ], 
-	   "Test _expand_key (1 warper, 2 keys) " );
-
-my $simple_rule = [ 'my', 'rules' ];
-
-my @expected_rules = ( 'foo', $simple_rule );
-
-my @expanded_rules
-    = Config::Model::WarpedThing::_expand_rules(0, 'foo' => $simple_rule );
-
-#print Dumper \@expanded_rules , \@expected_rules;
-is_deeply( \@expanded_rules, \@expected_rules,
-    "Test _expand_rules ( single keys)" );
-
-my @keys = (qw/foo bar baz/);
-is_deeply(
-    \@keys,
-    Config::Model::WarpedThing::_dclone_key( \@keys ),
-    "Test _dclone_key (backward)"
-);
-
-@expanded_keys = Config::Model::WarpedThing::_expand_key(1, \@keys );
-
-#print Dumper \@expanded_keys , \@keys ;
-is_deeply( \@expanded_keys, [ \@keys ], "Test _expand_key (backward)" );
-
-@expected_rules = ( \@keys, $simple_rule );
-
-@expanded_rules
-    = Config::Model::WarpedThing::_expand_rules(1, \@keys => $simple_rule );
-
-is_deeply( \@expanded_rules, \@expected_rules,
-    "Test _expand_rules (backward)" );
-
-#print Dumper \@expanded_rules , \@expected_rules;
-
-@keys = ( qw/foo bar/, [qw/b1 b2 b3/], 'baz', [qw/c1 c2 c3/] );
-is_deeply(
-    \@keys,
-    Config::Model::WarpedThing::_dclone_key( \@keys ),
-    "Test _dclone_key"
-);
-
-my @expected_keys = (
-    [ 'foo', 'bar', 'b1', 'baz', 'c1' ],
-    [ 'foo', 'bar', 'b2', 'baz', 'c1' ],
-    [ 'foo', 'bar', 'b3', 'baz', 'c1' ],
-    [ 'foo', 'bar', 'b1', 'baz', 'c2' ],
-    [ 'foo', 'bar', 'b1', 'baz', 'c3' ],
-    [ 'foo', 'bar', 'b2', 'baz', 'c2' ],
-    [ 'foo', 'bar', 'b2', 'baz', 'c3' ],
-    [ 'foo', 'bar', 'b3', 'baz', 'c2' ],
-    [ 'foo', 'bar', 'b3', 'baz', 'c3' ]
-);
-
-@expanded_keys = Config::Model::WarpedThing::_expand_key( 1,\@keys );
-
-#print Dumper \@keys,\@expanded_keys , \@expected_keys;
-is_deeply( \@expanded_keys, \@expected_keys, "Test _expand_key" );
-
-@expanded_rules
-    = Config::Model::WarpedThing::_expand_rules(1, \@keys => [ 'my', 'rules' ] );
-
-# perl 5.8.7's Test::More seems more strict than 5.8.4 when comparing
-# data (it checks also if ref are identicals...)
-my $tmp_array = [ 'my', 'rules' ];
-@expected_rules = map { ( $_ => $tmp_array ) } @expected_keys;
-
-#print Dumper \@expanded_rules, \@expected_rules;
-is_deeply( \@expanded_rules, \@expected_rules, "Test _expand_rules" );
-
-#print Dumper \@expanded_rules, \@expected_rules ;
 
 #use Devel::TraceCalls;
 #trace_calls {Class => "Config::Model::Value",};
@@ -205,7 +140,8 @@ foreach my $c1 (@m1) {
         foreach my $c3 (@m3) {
             ok( $root->load("macro3=$c3"), "Setting Root macro3 to $c3" );
 
-            is( $root->grab_value('m1'), "m$c1$c2$c3", "Reading Root slot m1" );
+	    my $vm1 = $root->grab_value('m1') ;
+            is( $vm1 , "m$c1$c2$c3", "Reading Root slot m1: $vm1" );
 
             my $index  = "$c1$c2$c3";
             my $m2_val =
@@ -213,6 +149,7 @@ foreach my $c1 (@m1) {
                 : $index =~ /B1[BC]2B3/ ? '3x[BC]'
                 : 'unsatisfied';
             is( $root->grab_value('m2'), $m2_val, "Reading Root slot m2" );
+            is( $root->grab_value('m4'), $m2_val, "Reading Root slot m4" );
         }
     }
 }
@@ -231,3 +168,11 @@ foreach my $u_test (@test) {
 
 my @array = $root->fetch_element('m1')->get_all_warper_object;
 is( @array, 3, "test number of warp roots" );
+
+# check that model_data was not modified
+is_deeply($copy, $model_data, "check that copy was not modified") ;
+
+delete $model_data->{name} ; # not part of saved raw_model
+
+is_deeply($model->get_raw_model('Master'), $model_data, 
+	  "check that copy in model object was not modified") ;
