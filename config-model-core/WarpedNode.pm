@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-05-04 11:38:08 $
+# $Date: 2007-07-03 11:38:20 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.8 $
+# $Revision: 1.9 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -29,10 +29,10 @@ use Scalar::Util qw(weaken) ;
 
 use base qw/Config::Model::WarpedThing/ ;
 use Config::Model::Exception ;
-use Data::Dumper ;
+use Data::Dumper ();
 
 use vars qw($VERSION $AUTOLOAD) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.8 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.9 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -284,8 +284,9 @@ sub set {
     # mega cleanup
     map(delete $self->{$_}, @allowed_warp_params) ;
 
-    print $self->name." set called with \n", Dumper(\%args)
-      if $::debug ;
+    print $self->name." set called with \n", 
+      Data::Dumper->Dump([\%args],['set_args'])
+	  if $::debug ;
 
     $self->set_parent_element_property(\%args) ;
 

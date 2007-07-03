@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-06-04 11:26:51 $
+# $Date: 2007-07-03 11:37:14 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.13 $
+# $Revision: 1.14 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -25,7 +25,7 @@ package Config::Model::Value ;
 use warnings ;
 use strict;
 use Scalar::Util qw(weaken) ;
-use Data::Dumper ;
+use Data::Dumper ();
 use Parse::RecDescent ;
 use Config::Model::Exception ;
 use Config::Model::ValueComputer ;
@@ -37,7 +37,7 @@ use base qw/Config::Model::WarpedThing/ ;
 
 use vars qw($VERSION) ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.13 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.14 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -412,8 +412,9 @@ sub set {
     # merge data passed to the constructor with data passed to set
     my %args = (%{$self->{backup}},@_ );
 
-    print "'".$self->name."' set called with \n", Dumper(\%args)
-      if $::debug ;
+    print "'".$self->name."' set called with \n",
+      Data::Dumper->Dump([\%args], ['set_arg'])
+	  if $::debug ;
 
     if ( not          defined $args{value_type} 
 	 or (         defined $args{value_type} 
@@ -638,6 +639,7 @@ instead of a hash ref. I.e., you can specify
                           ]
 
 instead of :
+
                  rules => { 
                             UK      => { default => 'PAL'  },
                             Germany => { default => 'PAL'  },

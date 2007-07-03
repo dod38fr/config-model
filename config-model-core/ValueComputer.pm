@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-05-04 11:37:24 $
+# $Date: 2007-07-03 11:37:45 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.5 $
+# $Revision: 1.6 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -29,11 +29,11 @@ use strict;
 use Scalar::Util qw(weaken) ;
 use Carp ;
 use Parse::RecDescent ;
-use Data::Dumper ;
+use Data::Dumper () ;
 
 use vars qw($VERSION $compute_grammar $compute_parser) ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -394,7 +394,7 @@ sub compute_user_var {
 $compute_grammar = << 'END_OF_GRAMMAR' ;
 
 {
-# $Revision: 1.5 $
+# $Revision: 1.6 $
 
 # This grammar is compatible with Parse::RecDescent < 1.90 or >= 1.90
 use strict;
