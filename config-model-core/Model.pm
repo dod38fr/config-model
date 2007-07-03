@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-06-06 12:22:43 $
+# $Date: 2007-07-03 11:45:09 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.31 $
+# $Revision: 1.32 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -28,13 +28,14 @@ use strict;
 use warnings FATAL => qw(all);
 use vars qw/@ISA @EXPORT @EXPORT_OK $VERSION/;
 use Storable ('dclone') ;
+use Data::Dumper ();
 
 use Config::Model::Instance ;
 
 # this class holds the version number of the package
 use vars qw($VERSION @status @level @permission_list %permission_index) ;
 
-$VERSION = '0.610';
+$VERSION = '0.611';
 
 =head1 NAME
 
@@ -308,7 +309,7 @@ several other properties:
 
 By using the C<permission> parameter, you can change the permission
 level of each element. Authorized privilege values are C<master>,
-C<advanced> and C<intermediate>.
+C<advanced> and C<intermediate> (default).
 
 =cut
 
@@ -409,18 +410,18 @@ sub create_config_class {
     # elements ie  [qw/foo bar/] => {...} is transformed into
     #  foo => {...} , bar => {...} before being stored
 
-    my %raw_copy = %raw_model ;
-    $self->inherit_class(\%raw_copy) ;
+    my $raw_copy = dclone \%raw_model ;
+    $self->inherit_class($raw_copy) ;
 
     my %model = ( element_list => [] );
 
     # check config class parameters
-    $self->check_class_parameters($config_class_name, \%model, \%raw_copy) ;
+    $self->check_class_parameters($config_class_name, \%model, $raw_copy) ;
 
     # copy description of configuration class
-    $model{class_description} = delete $raw_copy{class_description} ;
+    $model{class_description} = delete $raw_copy->{class_description} ;
 
-    my @left_params = keys %raw_copy ;
+    my @left_params = keys %$raw_copy ;
     Config::Model::Exception::ModelDeclaration->throw
         (
          error=> "create class $config_class_name: unknown ".
@@ -494,6 +495,16 @@ sub check_class_parameters {
 		  if defined $check{$info_name} 
 		    and not defined $check{$info_name}{$info} ;
 
+	    # warp can be found only in element item
+	    if (ref $info eq 'HASH') {
+		if (defined $info->{warp}) {
+		    $self->translate_warp_info($element_names[0], $info->{warp});
+		}
+		elsif (defined $info->{type} && $info->{type} eq 'warped_node') {
+		    $self->translate_warp_info($element_names[0], $info);
+		}
+	    }
+
 	    foreach my $name (@element_names) {
 		$model->{$info_name}{$name} = $info ;
 	    }
@@ -504,16 +515,161 @@ sub check_class_parameters {
     push @{$model->{element_list}}, @element_list;
 }
 
+# internal: translate warp information into 'boolean expr' => { ... }
+sub translate_warp_info {
+    my $self = shift ;
+    my $elt_name = shift ;
+    my $warp_info = shift ;
+
+    print "translate_warp_info $elt_name input:\n", 
+      Data::Dumper->Dump( [$warp_info ] , [qw/warp_info/ ]) ,"\n"
+	  if $::debug ;
+
+    my $follow = $self->translate_follow_arg($elt_name,$warp_info->{follow}) ;
+
+    # now, follow is only { w1 => 'warp1', w2 => 'warp2'}
+    my @warper_items = values %$follow ;
+
+    my $multi_follow =  @warper_items > 1 ? 1 : 0;
+
+    my $rules = $self->translate_rules_arg($elt_name,
+					   \@warper_items, $warp_info->{rules});
+
+    $warp_info->{follow} = $follow;
+    $warp_info->{rules}  = $rules ;
+
+    print "translate_warp_info $elt_name output:\n",
+      Data::Dumper->Dump([$warp_info ] , [qw/new_warp_info/ ] ) ,"\n"
+	  if $::debug ;
+}
+
+# internal
+sub translate_multi_follow_legacy_rules {
+    my ($self,  $elt_name , $warper_items, $raw_rules) = @_ ;
+    my @rules ;
+
+    # we have more than one warper_items
+
+    for (my $r_idx = 0; $r_idx < $#$raw_rules; $r_idx  += 2) {
+	my $key_set = $raw_rules->[$r_idx] ;
+	my @keys = ref($key_set) ? @$key_set : ($key_set) ;
+
+	# legacy: check the number of keys in the @rules set 
+	if ( @keys != @$warper_items and $key_set !~ / eq /) {
+	    Config::Model::Exception::ModelDeclaration
+		-> throw (
+			  error => "Warp rule error in object '$elt_name'"
+			        . ": Wrong nb of keys in set '@keys',"
+			        . " Expected " . scalar @$warper_items . " keys"
+			 )  ;
+	}
+	# legacy:
+	# if a key of a rule (e.g. f1 or b1) is an array ref, all the
+	# values passed in the array are considered as valid.
+	# i.e. [ [ f1a, f1b] , b1 ] => { ... }
+	# is equivalent to 
+	# [ f1a, b1 ] => { ... }, [  f1b , b1 ] => { ... }
+	
+	# now translate [ [ f1a, f1b] , b1 ] => { ... }
+	# into "( $f1 eq f1a or $f1 eq f1b ) and $f2 eq b1)" => { ... }
+	my @bool_expr ;
+	my $b_idx = 0;
+	foreach my $key (@keys) {
+	    if (ref $key ) {
+		my @expr = map { "\$f$b_idx eq '$_'" } @$key ;
+		push @bool_expr , "(" . join (" or ", @expr ). ")" ;
+	    }
+	    elsif ($key !~ / eq /) {
+		push @bool_expr, "\$f$b_idx eq '$key'" ;
+	    }
+	    else {
+		push @bool_expr, $key ;
+	    }
+	    $b_idx ++ ;
+	}
+	push @rules , join ( ' and ', @bool_expr),  $raw_rules->[$r_idx+1] ;
+    }
+    return @rules ;
+}
+
+sub translate_follow_arg {
+    my $self = shift ;
+    my $elt_name = shift ;
+    my $raw_follow = shift ;
+
+    if (ref($raw_follow) eq 'HASH') {
+	# follow is { w1 => 'warp1', w2 => 'warp2'} 
+	return $raw_follow ;
+    }
+    elsif (ref($raw_follow) eq 'ARRAY') {
+	# translate legacy follow arguments ['warp1','warp2',...]
+	my $follow = {} ;
+	my $idx = 0;
+	map { $follow->{'f' . $idx++ } = $_ } @$raw_follow ;
+	return $follow ;
+    }
+    else {
+	# follow is a simple string
+	return { f1 => $raw_follow } ;
+    }
+}
+
+sub translate_rules_arg {
+    my $self = shift ;
+    my $elt_name = shift ;
+    my $warper_items = shift ;
+    my $raw_rules = shift ;
+
+    my $multi_follow =  @$warper_items > 1 ? 1 : 0;
+
+    # $rules is either:
+    # { f1 => { ... } }  (  may be [ f1 => { ... } ] ?? )
+    # [ 'boolean expr' => { ... } ]
+    # legacy:
+    # [ f1, b1 ] => {..} ,[ f1,b2 ] => {...}, [f2,b1] => {...} ...
+    # foo => {...} , bar => {...}
+    my @rules ;
+    if (ref($raw_rules) eq 'HASH') {
+	# transform the simple hash { foo => { ...} }
+	# into array ref [ '$f1 eq foo' => { ... } ]
+	my $h = $raw_rules ;
+	@rules = map { ( "\$f1 eq '$_'" , $h->{$_} ) } keys %$h ;
+    } 
+    elsif (ref($raw_rules) eq 'ARRAY') {
+	if ( $multi_follow ) {
+	    push @rules, 
+	      $self->translate_multi_follow_legacy_rules( $elt_name, $warper_items,
+							  $raw_rules ) ;
+	}
+	else {
+	    # now translate [ f1a, f1b]  => { ... }
+	    # into "$f1 eq f1a or $f1 eq f1b " => { ... }
+	    my @raw_rules = @{$raw_rules} ;
+	    for (my $r_idx = 0; $r_idx < $#raw_rules; $r_idx  += 2) {
+		my $key_set = $raw_rules[$r_idx] ;
+		my @keys = ref($key_set) ? @$key_set : ($key_set) ;
+		my @bool_expr = map { /\$/ ? $_ : "\$f1 eq '$_'" } @keys ;
+		push @rules , join ( ' or ', @bool_expr),  $raw_rules[$r_idx+1] ;
+	    }
+	}
+    }
+    else {
+	Config::Model::Exception::ModelDeclaration
+	    -> throw (
+		      error => "Warp rule error in object '$elt_name': "
+		             . "rules must be a hash ref. Got '$raw_rules'"
+		     ) ;
+    }
+
+    return \@rules ;
+}
+
+
 =item inherit
 
-Inherit element description from another class. You can inherit from all
-the other configuration class parameter:
+Inherit element description from another class. 
 
   inherit => 'AnotherClass' ,
-
-or choose to inherit only some data:
-
-  inherit => [ 'AnotherClass', 'element', 'description', ... ]
 
 =back 
 
@@ -523,20 +679,16 @@ sub inherit_class {
     my $self  = shift;
     my $raw_model = shift ;
 
-    my $inherit_info = delete $raw_model->{inherit} ;
+    my $inherit_class = delete $raw_model->{inherit} ;
 
-    return () unless defined $inherit_info ;
+    return () unless defined $inherit_class ;
 
-    # inherit one other model
-    my ($inherit_class, @inherit_items) = 
-      ref $inherit_info ? @$inherit_info : ( $inherit_info , @legal_params);
-
-    my $inherited_raw_model = $self->get_raw_model($inherit_class) ;
+    my $inherited_raw_model = dclone $self->get_raw_model($inherit_class) ;
 
     # takes care of cascaded inheritance
     $self->inherit_class( $inherited_raw_model ) ;
 
-    my %inherit_item = map { $_ => 1 } @inherit_items ;
+    my %inherit_item = map { $_ => 1 } @legal_params ;
 
     # now inherited_raw_model contains all information to be merged to 
     # raw_model
