@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-05-07 11:31:35 $
+# $Date: 2007-07-03 15:27:21 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.5 $
+# $Revision: 1.6 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -249,8 +249,9 @@ else {
 
     print "
 
-Now you can enter in a curses interface to check fstab data. Liek before, data
-are not written back to /etc/fstab, so feel free to experiment
+Now you can enter in a curses interface to check fstab data. Like
+before, data are not written back to /etc/fstab, so feel free to
+experiment
 
 In case of error, check $err_file
 
