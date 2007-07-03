@@ -1,3 +1,15 @@
+2007-07-03  Dominique Dumont  v0.611
+
+	* WarpedThing.pm: Modified the way to specify complex warped
+	rules. The former way based on list of lists was confusing. Now
+	you can specify boolean expressions to find the warp rule to apply.
+	
+	* Model.pm: Simplified config class inheritance mechanism: inherit
+	all or nothing. Added translation of legacy warp parameter (based
+	on list of lists) to new warp parameters (based on boolean
+	expressions). So the change done in WarpedThing is backward
+	compatible.
+	
 2007-06-06  Dominique Dumont v0.610
 
 	* Model.pm (inherit_class): Fix configuration class inheritance
