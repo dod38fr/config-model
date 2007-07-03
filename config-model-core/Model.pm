@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-07-03 11:45:09 $
+# $Date: 2007-07-03 15:29:18 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.32 $
+# $Revision: 1.33 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -344,6 +344,11 @@ element will raise an exception.
 Description of the element. This description will be used when
 generating user interfaces.
 
+=item class_description
+
+Description of the configuration class. This description will be used
+when generating user interfaces.
+
 =cut
 
 
@@ -387,7 +392,7 @@ This parameter is currently reserved for a model editor (yet to be written).
 =cut
 
 my @legal_params = qw/permission status description element level config_dir 
-                      generated_by/;
+                      generated_by class_description/;
 
 sub create_config_class {
     my $self=shift ;
@@ -417,9 +422,6 @@ sub create_config_class {
 
     # check config class parameters
     $self->check_class_parameters($config_class_name, \%model, $raw_copy) ;
-
-    # copy description of configuration class
-    $model{class_description} = delete $raw_copy->{class_description} ;
 
     my @left_params = keys %$raw_copy ;
     Config::Model::Exception::ModelDeclaration->throw
@@ -466,6 +468,10 @@ sub check_class_parameters {
     # be used to avoid interactive edition of a generated model
     $model->{generated_by} = delete $raw_model->{generated_by} ;
 
+    # class_description cannot be handled in the next loop
+    $model->{class_description} = delete $raw_model->{class_description} 
+      if defined $raw_model->{class_description}  ;
+
     foreach my $info_name (@legal_params) {
 	# fill default info
 	map {$model->{$info_name}{$_} = $default_property{$info_name}; }
@@ -510,6 +516,14 @@ sub check_class_parameters {
 	    }
 	}
     }
+
+    Config::Model::Exception::ModelDeclaration->throw
+	(
+	 error => "create class $config_class_name: unexpected "
+	        . "parameters '". join (', ', keys %$raw_model) ."' "
+	        . "Expected '".join("', '",@legal_params)."'"
+	)
+	  if keys %$raw_model ;
 
     # add declared elements to possibly inherited element list
     push @{$model->{element_list}}, @element_list;
