@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-06-06 12:23:46 $
+# $Date: 2007-07-03 11:35:58 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.14 $
+# $Revision: 1.15 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -40,7 +40,7 @@ use base qw/Config::Model::AutoRead/;
 use vars qw($VERSION $AUTOLOAD @status @level
 @permission_list %permission_index );
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.14 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.15 $ =~ /(\d+)\.(\d+)/;
 
 *status           = *Config::Model::status ;
 *level            = *Config::Model::level ;
@@ -436,7 +436,7 @@ C<config_class_name> parameter. For instance:
 =head2 Locally changing properties of node element 
 
 You can provide an C<init_step> parameter with a set of key, value
-pair as argument. These arguments are infact a set of targets and
+pair as argument. These arguments are in fact a set of targets and
 actions.
 
 The targets can be elements of the node itself:
