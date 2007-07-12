@@ -1,0 +1,117 @@
+# -*- cperl -*-
+# $Author: ddumont $
+# $Date: 2007-07-12 15:36:44 $
+# $Name: not supported by cvs2svn $
+# $Revision: 1.1 $
+
+use ExtUtils::testlib;
+use Test::More tests => 10;
+use Config::Model;
+
+use warnings;
+no warnings qw(once);
+
+use strict;
+
+use vars qw/$model/;
+
+$model = Config::Model -> new ;
+
+my $arg = shift || '' ;
+my $trace = $arg =~ /t/ ? 1 : 0 ;
+$::verbose          = 1 if $arg =~ /v/;
+$::debug            = 1 if $arg =~ /d/;
+Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
+
+ok(1,"compiled");
+
+my $inst = $model->instance (root_class_name => 'Master', 
+			     model_file => 't/big_model.pm',
+			     instance_name => 'test1');
+ok($inst,"created dummy instance") ;
+
+my $root = $inst -> config_root ;
+ok($root,"Config root created") ;
+
+my $step = 'std_id:ab X=Bv - std_id:bc X=Av - a_string="toto tata" '
+  .'hash_a:toto=toto_value hash_a:titi=titi_value '
+  .'lista=a,b,c,d olist:0 X=Av - olist:1 X=Bv - listb=b,c,d '
+  .'my_check_list=toto my_reference="titi"';
+
+ok( $root->load( step => $step, permission => 'intermediate' ),
+  "set up data in tree with '$step'");
+
+my $data = $root->dump_as_data ;
+
+my $expect = {
+          'olist' => [
+                       {
+                         'X' => 'Av'
+                       },
+                       {
+                         'X' => 'Bv'
+                       }
+                     ],
+          'my_check_list' => [
+                               'toto'
+                             ],
+          'a_string' => 'toto tata',
+          'listb' => [
+                       'b',
+                       'c',
+                       'd'
+                     ],
+          'my_reference' => 'titi',
+          'hash_a' => {
+                        'toto' => 'toto_value',
+                        'titi' => 'titi_value'
+                      },
+          'std_id' => {
+                        'ab' => {
+                                  'X' => 'Bv'
+                                },
+                        'bc' => {
+                                  'X' => 'Av'
+                                }
+                      },
+          'lista' => [
+                       'a',
+                       'b',
+                       'c',
+                       'd'
+                     ]
+        };
+
+is_deeply($data, $expect, "check data dump") ;
+
+# add default information provided by model to check full dump
+$expect->{string_with_def} = 'yada yada';
+$expect->{int_v} = 10 ;
+$expect->{olist}[0]{DX} = 'Dv' ;
+$expect->{olist}[1]{DX} = 'Dv' ;
+$expect->{std_id}{ab}{DX} = 'Dv' ;
+$expect->{std_id}{bc}{DX} = 'Dv' ;
+
+my $full_data = $root->dump_as_data(full_dump => 1 ) ;
+
+is_deeply($full_data, $expect, "check full data dump") ;
+
+# use Data::Dumper; print Dumper $full_data ;
+
+my $inst2 = $model->instance (root_class_name => 'Master', 
+			      #model_file => 't/big_model.pm',
+			      instance_name => 'test2');
+ok($inst,"created 2nd dummy instance") ;
+
+my $root2 = $inst2 -> config_root ;
+ok($root2,"Config root2  created") ;
+
+$root2->load_data($data) ;
+
+ok(1,"loaded perl data structure in 2nd instance") ;
+
+my $dump1 = $root ->dump_tree ;
+my $dump2 = $root2->dump_tree ;
+
+is($dump2, $dump1, 
+   "check that dump of 2nd tree is identical to dump of the first tree") ;
