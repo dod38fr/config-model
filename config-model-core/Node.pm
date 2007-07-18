@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-07-03 11:35:58 $
+# $Date: 2007-07-18 15:58:22 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.15 $
+# $Revision: 1.16 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -28,6 +28,7 @@ use warnings;
 use Config::Model::Exception;
 use Config::Model::Loader;
 use Config::Model::Dumper;
+use Config::Model::DumpAsData;
 use Config::Model::Report;
 use Config::Model::Describe;
 # use Log::Log4perl ;
@@ -40,7 +41,7 @@ use base qw/Config::Model::AutoRead/;
 use vars qw($VERSION $AUTOLOAD @status @level
 @permission_list %permission_index );
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.15 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.16 $ =~ /(\d+)\.(\d+)/;
 
 *status           = *Config::Model::status ;
 *level            = *Config::Model::level ;
@@ -454,10 +455,6 @@ You can also change the default values of several leaves:
 In fact, the target of C<init_step> (C<bar>) is retrieved by the
 L</grab(...)> method, so any string accepted by C<grab> can be used with
 C<init_step>.
-
-The I<effects> of C<init_step> are applied on the target through a
-call to the L<< load|/load ( step => string [, permission => ... ] ) >> 
-method.
 
 The effect can be:
 
@@ -1191,8 +1188,50 @@ sub load {
     my $self = shift ;
     my $loader = Config::Model::Loader->new ;
 
-    my @args = @_ eq 1 ? (step => $_[0]) : @_ ;
-    $loader->load(node => $self, @args) ;
+    my %args = @_ eq 1 ? (step => $_[0]) : @_ ;
+    if (defined $args{step}) {
+	$loader->load(node => $self, %args) ;
+    }
+    elsif (defined $args{ref}) {
+	$self->load_data($args{ref}) ;
+    }
+}
+
+=head2 load_data ( hash_ref )
+
+Load configuration data with a hash ref. The hash ref key must match
+the available elements of the node. The hash ref structure must match
+the structure of the configuration model.
+
+=cut
+
+sub load_data {
+    my $self = shift ;
+    my $h = shift ;
+
+    if (ref ($h) ne 'HASH') {
+	Config::Model::Exception::User
+	    -> throw (
+		      object => $self,
+		      message => "load_data called with non hash ref arg: $h"
+		     ) ;
+    }
+
+    # data must be loaded according to the element order defined by
+    # the model
+    foreach my $elt ( @{$self->{model}{element_list}} ) {
+	next unless defined $h->{$elt} ;
+	my $obj = $self->fetch_element($elt) ;
+	$obj -> load_data(delete $h->{$elt}) ;
+    }
+
+    if (%$h) {
+	Config::Model::Exception::User 
+	    -> throw (
+		      message => "load_data: unknown elements: ". join(' ',keys %$h),
+		      object => $self,
+		     ) ;
+    }
 }
 
 =head2 dump_tree ( [ full_dump => 1] )
@@ -1213,6 +1252,19 @@ sub dump_tree {
     my $self = shift ;
     my $dumper = Config::Model::Dumper->new ;
     $dumper->dump_tree(node => $self, @_) ;
+}
+
+=head2 dump_as_data ( )
+
+Dumps the configuration data of the node and its siblings into a perl
+data structure.
+
+=cut
+
+sub dump_as_data {
+    my $self = shift ;
+    my $dumper = Config::Model::DumpAsData->new ;
+    $dumper->dump_as_data(node => $self, @_) ;
 }
 
 =head2 describe ()
