@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-05-04 11:27:40 $
+# $Date: 2007-07-18 15:59:32 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.13 $
+# $Revision: 1.14 $
 
 #    Copyright (c) 2006-2007 Dominique Dumont.
 #
@@ -29,7 +29,7 @@ use Carp;
 use warnings ;
 use UNIVERSAL qw( isa can );
 
-our $VERSION = sprintf "%d.%03d", q$Revision: 1.13 $ =~ /(\d+)\.(\d+)/;
+our $VERSION = sprintf "%d.%03d", q$Revision: 1.14 $ =~ /(\d+)\.(\d+)/;
 
 use Carp qw/croak confess cluck/;
 
@@ -218,7 +218,9 @@ C<$scanner> is the scanner object.
 
 =item *
 
-C<$data_ref> is the reference passwd to the first call of the scanner. 
+C<$data_ref> is a reference that is first passed to the first call of
+the scanner. Then C<$data_ref> is relayed through the various
+call-backs
 
 =item *
 
