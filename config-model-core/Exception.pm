@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-04-27 15:15:45 $
+# $Date: 2007-07-18 15:30:31 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.9 $
+# $Revision: 1.10 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -27,7 +27,7 @@ use warnings ;
 use strict;
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.9 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.10 $ =~ /(\d+)\.(\d+)/;
 
 push @Exception::Class::Base::ISA, 'Error';
 
@@ -46,7 +46,7 @@ use Exception::Class
    'Config::Model::Exception::UnavailableElement'
    => { isa         => 'Config::Model::Exception::User',
 	description => 'unavailable element',
-	fields      => [qw/object element info/],
+	fields      => [qw/object element info function/],
       },
 
    'Config::Model::Exception::ObsoleteElement'
@@ -223,11 +223,10 @@ sub full_message {
     my $location = $obj->name ;
     my $msg = $self->description;
     my $element = $self->element ;
+    my $function = $self->function ;
     $msg .= " '$element' in node '$location'.\n" ;
-    my $tied = 'tied_'.$element ;
-
-    $msg .= "\t".$obj->$tied->warp_error
-      if $obj->can($tied) and $obj->$tied->can('warp_error');
+    $msg .= "\tError occured when calling $function.\n" if defined $function ;
+    $msg .= "\t".$obj->warp_error if $obj->can('warp_error');
 
     $msg .= "\t".$self->info."\n" if defined $self->info ;
     return $msg;
