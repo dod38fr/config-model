@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-07-18 15:33:20 $
+# $Date: 2007-07-18 15:34:55 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.11 $
+# $Revision: 1.12 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -31,7 +31,7 @@ use strict;
 use base qw/Config::Model::AnyId/ ;
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.11 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.12 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -263,10 +263,9 @@ sub nextkey {
 }
 
 
-=head2 load_data ( list_ref )
+=head2 load_data ( hash_ref )
 
-Load check_list as an array ref. Data is simply forwarded to
-L<set_checked_list>.
+Load check_list as a hash ref.
 
 =cut
 
