@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-07-03 15:29:18 $
+# $Date: 2007-07-18 15:51:58 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.33 $
+# $Revision: 1.34 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -113,6 +113,7 @@ sub new {
 
     bless {
 	   model_dir => $args{model_dir} ,
+	   skip_inheritance => $args{skip_inheritance} || 0,
 	  },$type;
 }
 
@@ -375,13 +376,15 @@ $check{permission}=\%permission_index ;
 
 # unpacked model is:
 # {
-#   element_list => [ ... ],
-#   permission   => { element_name => <permission> },
-#   status       => { element_name => <status>     },
-#   description  => { element_name => <string> },
-#   element      => { element_name => element_data (left as is)    },
+#   element_list  => [ ... ],
+#   permission    => { element_name => <permission> },
+#   status        => { element_name => <status>     },
+#   description   => { element_name => <string> },
+#   element       => { element_name => element_data (left as is)    },
 #   class_description => <class description string>,
-#   level        => { element_name => <level like important or normal..> },
+#   level         => { element_name => <level like important or normal..> },
+#   inherit       => 'class_name',
+#   inherit_after => 'element_name',
 # }
 
 =item generated_by
@@ -416,9 +419,17 @@ sub create_config_class {
     #  foo => {...} , bar => {...} before being stored
 
     my $raw_copy = dclone \%raw_model ;
-    $self->inherit_class($raw_copy) ;
-
     my %model = ( element_list => [] );
+
+    # add inherited items
+    if ($self->{skip_inheritance}) {
+	$model{inherit}       = delete $raw_copy->{inherit} ;
+	$model{inherit_after} = delete $raw_copy->{inherit_after} ;
+    }
+    else {
+	$self->inherit_class($raw_copy) ; 
+    }
+
 
     # check config class parameters
     $self->check_class_parameters($config_class_name, \%model, $raw_copy) ;
@@ -435,9 +446,8 @@ sub create_config_class {
 
     $self->{model}{$config_class_name} = \%model ;
 
-    return $self ;
+    return $config_class_name ;
 }
-
 
 sub check_class_parameters {
     my $self  = shift;
@@ -525,8 +535,7 @@ sub check_class_parameters {
 	)
 	  if keys %$raw_model ;
 
-    # add declared elements to possibly inherited element list
-    push @{$model->{element_list}}, @element_list;
+    $model->{element_list} = \@element_list;
 }
 
 # internal: translate warp information into 'boolean expr' => { ... }
@@ -685,26 +694,69 @@ Inherit element description from another class.
 
   inherit => 'AnotherClass' ,
 
+In a configuration class, the order of the element is important. For
+instance if C<foo> is warped by C<bar>, you must declare C<bar>
+element before C<foo>.
+
+When inheriting another class, you may wish to insert the inherited
+elements after a specific element of your inheriting class:
+
+  # say AnotherClass contains element xyz
+  inherit => 'AnotherClass' ,
+  inherit_after => "foo" ,
+  element => [ bar => ... , foo => ... , baz => ... ]
+
+Now the element of your class will be:
+
+  ( bar , foo , xyz , baz )
+
 =back 
 
 =cut
 
 sub inherit_class {
     my $self  = shift;
-    my $raw_model = shift ;
+    my $raw_model = shift || die "inherit_class: undefined raw_model";
 
     my $inherit_class = delete $raw_model->{inherit} ;
 
     return () unless defined $inherit_class ;
 
     my $inherited_raw_model = dclone $self->get_raw_model($inherit_class) ;
+    my $inherit_after       = delete $raw_model->{inherit_after} ;
 
-    # takes care of cascaded inheritance
+    # takes care of recursive inheritance
     $self->inherit_class( $inherited_raw_model ) ;
 
     my %inherit_item = map { $_ => 1 } @legal_params ;
 
-    # now inherited_raw_model contains all information to be merged to 
+    # now inherit element (special treatment because order is
+    # important)
+    if (defined $inherit_after and defined $raw_model->{element}) {
+	my %elt_idx ;
+	my @raw_elt = @{$raw_model->{element}} ;
+	my $idx = 0 ;
+	for (my $idx = 0; $idx < @raw_elt ; $idx += 2) {
+	    my $elt = $raw_elt[$idx] ;
+	    map { $elt_idx{$_} = $idx } ref $elt ? @$elt : ($elt) ;
+	}
+
+	# + 2 because we splice *after* $inherit_after
+	my $splice_idx = $elt_idx{$inherit_after} + 2;
+
+	if (defined $splice_idx) {
+	    my $to_copy = delete $inherited_raw_model->{element} ;
+	    splice ( @{$raw_model->{element}}, $splice_idx, 0, @$to_copy) ;
+	}
+	else {
+	    my $msg =  "Unknown element for 'inherit_after': "
+		        . "$inherit_after, expected ". join(' ', keys %elt_idx) ;
+	    Config::Model::Exception::ModelDeclaration
+		-> throw (error => $msg) ;
+	}
+    }
+
+    # now inherited_raw_model contains all information to be merged to
     # raw_model
 
     my $inherited_model ;
@@ -731,7 +783,6 @@ sub inherit_class {
 	}
     }
 
-    #$self->check_class_parameters($inherit_class, $model, $inherited_model) ;
 }
 
 
@@ -781,6 +832,9 @@ do not put C<1;> at the end or C<load> will not work
 If a model name contain a C<::> (e.g C<Foo::Bar>), C<load> will look for
 a file named C<Foo/Bar.pl>.
 
+Returns a list containining the names of the loaded classes. For instance, if 
+C<Foo/Bar.pl> contains a model for C<Foo::Bar> and C<Foo::Bar2>, C<load>
+will return C<( 'Foo::Bar' , 'Foo::Bar2' )>.
 
 =cut
 
@@ -792,12 +846,18 @@ sub load {
 
     my $load_path = $load_model . '.pl' ;
     $load_path =~ s/::/\//g;
+
     $load_file ||=  ($self->{model_dir} || 'Config/Model/models') 
-      . '/'. $load_path ;
+                 . '/'. $load_path ;
 
     print "Model: load model $load_file\n" if $::verbose ;
 
-    my $model = do $load_file or die "compile error with $load_file: ", $! || $@;
+    my $model = do $load_file or
+      Config::Model::Exception::ModelDeclaration
+	  -> throw (
+		    message => "model $load_model compile error in $load_file: "
+		             . ( $! || $@)
+		   );
 
     unless ($model) {
 	warn "couldn't parse $load_file: $@" if $@;
@@ -808,9 +868,12 @@ sub load {
     die "Model file $load_file does not return an array ref\n"
       unless ref($model) eq 'ARRAY';
 
+    my @loaded ;
     foreach my $config_class_info (@$model) {
-	$self->create_config_class(@$config_class_info) ;
+	push @loaded, $self->create_config_class(@$config_class_info) ;
     }
+
+    return @loaded
 }
 
 # TBD: For a proper model plugin, scan directory <model_name>.d and
@@ -827,7 +890,8 @@ Return a hash containing the model declaration.
 
 sub get_model {
     my $self =shift ;
-    my $config_class_name = shift ;
+    my $config_class_name = shift 
+      || die "Model::get_model: missing config class name argument" ;
 
     $self->load($config_class_name) 
       unless defined $self->{model}{$config_class_name} ;
