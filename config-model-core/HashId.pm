@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-01-08 12:48:22 $
+# $Date: 2007-07-18 15:33:20 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.10 $
+# $Revision: 1.11 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -31,7 +31,7 @@ use strict;
 use base qw/Config::Model::AnyId/ ;
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.10 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.11 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -260,6 +260,32 @@ sub nextkey {
       if ($self->{warp} and @{$self->{warp_info}{computed_master}});
 
     return scalar each %{$self->{data}};
+}
+
+
+=head2 load_data ( list_ref )
+
+Load check_list as an array ref. Data is simply forwarded to
+L<set_checked_list>.
+
+=cut
+
+sub load_data {
+    my $self = shift ;
+    my $data = shift ;
+    if (ref ($data)  eq 'HASH') {
+	foreach my $elt (keys %$data ) {
+	    my $obj = $self->fetch_with_id($elt) ;
+	    $obj -> load_data($data->{$elt}) ;
+	}
+    }
+    else {
+	Config::Model::Exception::User
+	    -> throw (
+		      object => $self,
+		      message => "load_data called with non hash ref arg: $data"
+		     ) ;
+    }
 }
 
 1;

@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-07-18 15:27:43 $
+# $Date: 2007-07-18 15:29:47 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.6 $
+# $Revision: 1.7 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -33,7 +33,7 @@ use strict;
 use base qw/Config::Model::WarpedThing/ ;
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -618,6 +618,13 @@ sub set_checked_list_as_hash {
 	$self->store($key,$value) ;
     }
 }
+
+=head2 load_data ( list_ref )
+
+Load check_list as an array ref. Data is simply forwarded to
+L<set_checked_list>.
+
+=cut
 
 sub load_data {
     my $self = shift ;
