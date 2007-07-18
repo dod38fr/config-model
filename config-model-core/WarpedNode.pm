@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-07-03 11:38:20 $
+# $Date: 2007-07-18 16:02:11 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.9 $
+# $Revision: 1.10 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -32,7 +32,7 @@ use Config::Model::Exception ;
 use Data::Dumper ();
 
 use vars qw($VERSION $AUTOLOAD) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.9 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.10 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -115,7 +115,7 @@ See L<Config::Model::WarpedThing/"Warp follow argument"> for details.
 
 boolean. If 1, WarpedNode will try to recursively copy the value from
 the old object to the new object using 
-<copy_from method|L<Config::Model::Node/"copy_from ( another_node_object )">.
+L<copy_from method|Config::Model::Node/"copy_from ( another_node_object )">.
 When a copy is not possible, undef values
 will be assigned to object elements.
 
@@ -302,7 +302,7 @@ sub set {
       and $self->{config_class_name} eq $config_class_name ;
 
     my $old_object = $self->{data} ;
-    my $morph = $self->{warp}{morph} ;
+    my $morph = $self->{warp}{morph} || 0 ;
 
     # create a new object from scratch
     my $new_object = $self->create_node($config_class_name,@args) ;
