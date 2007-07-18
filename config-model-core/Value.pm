@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-07-03 11:37:14 $
+# $Date: 2007-07-18 16:00:38 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.14 $
+# $Revision: 1.15 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -37,7 +37,7 @@ use base qw/Config::Model::WarpedThing/ ;
 
 use vars qw($VERSION) ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.14 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.15 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -1108,6 +1108,29 @@ sub _value_type_error {
 		  message => $str
 		 ) ;
 }
+
+=head2 load_data( scalar_value )
+
+Load scalar data. Data is simply forwarded to L<store>.
+
+=cut
+
+sub load_data {
+    my $self = shift ;
+    my $data  = shift ;
+
+    if (ref $data) {
+	Config::Model::Exception::User
+	    -> throw (
+		      object => $self,
+		      message => "load_data called with non scalar arg: $data"
+		     ) ;
+    }
+    else {
+	$self->store($data) ;
+    }
+}
+
 
 =head2 fetch_custom
 
