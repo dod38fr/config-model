@@ -5,6 +5,7 @@ AutoRead.pm
 ChangeLog
 CheckList.pm
 Describe.pm
+DumpAsData.pm
 Dumper.pm
 examples/fstab/Fstab.pl
 examples/fstab/fstab_test.pl
@@ -32,6 +33,7 @@ t/auto_read.t
 t/big_model.pm
 t/check_list.t
 t/describe_node.t
+t/dump_as_data.t
 t/dump_tree.t
 t/grab.t
 t/hash_id_of_node.t
