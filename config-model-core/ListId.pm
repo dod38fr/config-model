@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-01-08 12:48:22 $
+# $Date: 2007-07-18 15:40:15 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.8 $
+# $Revision: 1.9 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -31,7 +31,7 @@ use strict;
 use base qw/Config::Model::AnyId/ ;
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.8 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.9 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -230,6 +230,32 @@ sub create_default {
     }
     else {
 	$self->{data}[$def] = undef ;
+    }
+}
+
+=head2 load_data ( list_ref )
+
+Load check_list as an array ref. 
+
+=cut
+
+sub load_data {
+    my $self = shift ;
+    my $data = shift ;
+
+    if (ref ($data)  eq 'ARRAY') {
+	my $idx = 0;
+	foreach my $item (@$data ) {
+	    my $obj = $self->fetch_with_id($idx++) ;
+	    $obj -> load_data($item) ;
+	}
+    }
+    else {
+	Config::Model::Exception::User
+	    -> throw (
+		      object => $self,
+		      message => "load_data called with non array ref arg: $data"
+		     ) ;
     }
 }
 
