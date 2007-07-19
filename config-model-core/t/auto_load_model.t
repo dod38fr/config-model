@@ -1,11 +1,11 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-07-19 12:25:23 $
+# $Date: 2007-07-19 11:28:51 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 use ExtUtils::testlib;
-use Test::More tests => 4;
+use Test::More tests => 5;
 use Config::Model;
 
 use warnings;
@@ -13,10 +13,7 @@ no warnings qw(once);
 
 use strict;
 
-use vars qw/$model/;
-
-$model = Config::Model -> new ;
-
+my $model = Config::Model -> new ;
 
 my $arg = shift || '' ;
 my $trace = $arg =~ /t/ ? 1 : 0 ;
@@ -42,3 +39,11 @@ ok( $root->load( step => $step, permission => 'intermediate' ),
 
 # no need to check more. The above command would have failed if
 # the file containing the model was not loaded.
+
+# check that loading a model without inheritance works
+
+my $model2 = Config::Model -> new ( skip_inheritance => 1 ) ;
+my $inst2 = $model2->instance (root_class_name => 'Master', 
+			     model_file    => 't/big_model.pm' ,
+			     instance_name => 'test1');
+ok($inst2,"created dummy instance 2") ;
