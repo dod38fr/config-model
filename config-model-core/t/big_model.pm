@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2007-07-03 15:28:19 $
+# $Date: 2007-07-19 11:29:14 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.14 $
+# $Revision: 1.15 $
 
 # this file is used by test script
 
@@ -58,6 +58,7 @@
 			   },
 	      ],
    inherit => 'X_base_class',
+   inherit_after => 'Z',
   ],
 
   [
