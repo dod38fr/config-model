@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-07-03 11:49:41 $
+# $Date: 2007-07-19 11:25:22 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.9 $
+# $Revision: 1.10 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -32,7 +32,7 @@ use Carp;
 use warnings FATAL => qw(all);
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.9 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.10 $ =~ /(\d+)\.(\d+)/;
 
 use base qw/Config::Model::AnyThing/ ;
 
@@ -440,7 +440,7 @@ sub get_master_object {
 		 )
 	  unless ref $master_path eq 'ARRAY' || not ref $master_path ;
 
-    my $master = $self->grab($master_path);
+    my $master = $self->grab(step => $master_path, strict => 0);
 
     Config::Model::Exception::Internal
 	-> throw (
