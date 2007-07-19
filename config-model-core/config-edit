@@ -173,7 +173,7 @@ pod2usage(-verbose => 2) if $man;
 
 Config::Model::Exception::Any->Trace(1) if $trace ;
 
-die "Unspecified root configuration model (option -root_model)\n"
+die "Unspecified root configuration model (option -model)\n"
   unless defined $root_model ;
 
 if (defined $wr_conf_dir && ! -e $wr_conf_dir) {
