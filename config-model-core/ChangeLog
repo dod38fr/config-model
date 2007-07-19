@@ -1,3 +1,22 @@
+2007-07-18  Dominique Dumont  <dominique.dumont@hp.com>
+
+	* Value.pm (load_data): new_method
+
+	* Node.pm (load_data): new_method
+	(dump_as_data): new_method
+
+	* Model.pm (inherit_class): added inherit_after parameter. In a
+	model, the order of the elements is important. This parameter
+	enable a model to inherit elements from another class and to place
+	them in a specific place among the original elements.
+	(load): returns the names of the class loaded by this method.
+
+	* ListId.pm (load_data): new method
+
+	* HashId.pm (load_data): new method
+
+	* CheckList.pm (load_data): new method
+
 2007-07-03  Dominique Dumont  v0.611
 
 	* WarpedThing.pm: Modified the way to specify complex warped

@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2007-05-04 11:44:58 $
+# $Date: 2007-07-19 11:29:55 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.5 $
+# $Revision: 1.6 $
 
 use ExtUtils::testlib;
 use Test::More tests => 6;
@@ -72,8 +72,8 @@ print "description string:\n$description" if $trace  ;
 
 $expect = <<'EOF' ;
 name         value        type         comment
-X            Bv           enum         choice: Av Bv Cv
 Z            [undef]      enum         choice: Av Bv Cv
+X            Bv           enum         choice: Av Bv Cv
 DX           Dv           enum         choice: Av Bv Cv Dv
 EOF
 

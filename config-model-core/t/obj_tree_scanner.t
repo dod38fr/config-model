@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2007-06-06 12:25:13 $
+# $Date: 2007-07-19 11:29:55 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.10 $
+# $Revision: 1.11 $
 
 use ExtUtils::testlib;
 use Test::More tests => 9;
@@ -127,15 +127,15 @@ my $expect = << 'EOF' ;
 disp_node_content Master element: std_id lista listb hash_a hash_b olist slave_y string_with_def a_string int_v my_check_list my_reference
 disp_hash Master element(std_id): ab bc
 disp_node_elt Master element: std_id key ab
-disp_node_content std_id:ab element: X Z DX
-disp_leaf std_id:ab element X value Bv
+disp_node_content std_id:ab element: Z X DX
 disp_leaf std_id:ab element Z
+disp_leaf std_id:ab element X value Bv
 disp_leaf std_id:ab element DX value Dv
 disp_up std_id:ab
 disp_node_elt Master element: std_id key bc
-disp_node_content std_id:bc element: X Z DX
-disp_leaf std_id:bc element X value Av
+disp_node_content std_id:bc element: Z X DX
 disp_leaf std_id:bc element Z
+disp_leaf std_id:bc element X value Av
 disp_leaf std_id:bc element DX value Dv
 disp_up std_id:bc
 disp_hash Master element(hash_a): X2 Y2
@@ -203,11 +203,11 @@ ok(1,'performed scan with fallback');
 print $result if $trace ;
 
 $expect = << 'EOF' ;
-disp_leaf std_id:ab element X value Bv
 disp_leaf std_id:ab element Z
+disp_leaf std_id:ab element X value Bv
 disp_leaf std_id:ab element DX value Dv
-disp_leaf std_id:bc element X value Av
 disp_leaf std_id:bc element Z
+disp_leaf std_id:bc element X value Av
 disp_leaf std_id:bc element DX value Dv
 disp_leaf Master element hash_a value x
 disp_leaf Master element hash_a value xy
