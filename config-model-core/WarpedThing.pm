@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-07-19 11:25:22 $
+# $Date: 2007-07-24 12:35:46 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.10 $
+# $Revision: 1.11 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -27,12 +27,14 @@ use Scalar::Util qw(weaken) ;
 use Data::Dumper ;
 #use Storable qw(dclone) ;
 use Config::Model::ValueComputer ;
+use Config::Model::Exception ;
 use Carp;
+use Error qw/try/;
 
 use warnings FATAL => qw(all);
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.10 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.11 $ =~ /(\d+)\.(\d+)/;
 
 use base qw/Config::Model::AnyThing/ ;
 
@@ -244,20 +246,49 @@ sub submit_to_warp {
                           computed_master => \@comp_master
                          } ;
 
+    my %warper_obj ;
+
+    # first check if the warp master are available, if not, mark the
+    # element as unavailable and abort warp register process
     foreach my $warper_name (keys %$follow) {
 	my $warper_path = $follow -> {$warper_name} ;
         print ref($self).' '.$self->name
 	  . " is warped by $warper_name => '$warper_path'\n"
 	    if $::debug;
+	my $warper;
+
+	# try
+	eval {
+	    $warper = $self->get_warper_object($warper_path);
+ 	} ;
+
+	# catch
+	my $exp_error = 'Config::Model::Exception::UnavailableElement' ;
+ 	if ( my $e = Exception::Class->caught( $exp_error )) {
+ 	    $self->{parent}
+ 	      -> set_element_property(property => 'level',
+ 				      element  => $self->element_name,
+ 				      value    =>'hidden') ;
+ 	    delete $self->{warp_info} ;
+ 	    print "\t'$warper_path' location is unavailable.\n"
+ 	      if $::debug;
+ 	   return $self ;
+ 	} ;
+
+        print "\t'$warper_path' location in tree is: '",$warper->name,"'\n"
+          if $::debug;
+
+	$warper_obj{$warper_name} = $warper ;
+    }
+
+    # now that warp masters are accounted for, we can call register
+    foreach my $warper_name (keys %warper_obj) {
+	my $warper = $warper_obj{$warper_name} ;
 
         # warp will register this value object in another value object
         # (the warper).  When the warper gets a new value, it will
         # modify the warped object according to the data passed by the
         # user.
-
-        my $warper = $self->get_warper_object($warper_path);
-        print "\t'$warper_path' location in tree is: '",$warper->name,"'\n"
-          if $::debug;
 
         my $type = $warper -> register ($self,$warper_name) ;
 
@@ -440,7 +471,8 @@ sub get_master_object {
 		 )
 	  unless ref $master_path eq 'ARRAY' || not ref $master_path ;
 
-    my $master = $self->grab(step => $master_path, strict => 0);
+    my $master = $self->grab(step => $master_path, 
+			     grab_non_available => 0);
 
     Config::Model::Exception::Internal
 	-> throw (
@@ -544,17 +576,35 @@ sub warp_error {
     my $follow = $self->{warp}{follow} ;
     my @rules  = @{$self->{warp}{rules}} ;
 
-    # follow is either ['warp1','warp2',...] or 'warp'
-    my @warper_paths = ref($follow) eq 'ARRAY' ? 
-      @$follow : ($follow) ;
+    # follow is either ['warp1','warp2',...] 
+    # or { warp1 => {....} , ...} or 'warp'
+    my @warper_paths = ref($follow) eq 'ARRAY' ? @$follow 
+                     : ref($follow) eq 'HASH'  ? values %$follow
+                     :                           ($follow) ;
 
     my $str = "You may solve the problem by modifying ".
       (@warper_paths>1 ? "one or more of ": '').
         "the following configuration parameters:\n" ;
 
-    for (my $idx = 0; $idx < @warper_paths; $idx++) {
-        my $warper =$self->get_warper_object($warper_paths[$idx],$idx);
-        my $warper_value = $warper->fetch ;
+    my $expected_error = 'Config::Model::Exception::UnavailableElement';
+
+    foreach my $warper_path ( @warper_paths ) {
+	my $warper_value ;
+	my $warper ;
+
+	# try 
+	eval {
+	    $warper = $self->get_warper_object($warper_path);
+	    $warper_value = $warper->fetch ;
+	};
+
+	# catch
+	if ( my $e = Exception::Class->caught($expected_error) )
+        {
+	    $str .= "\t'$warper_path' which is unavailable\n" ;
+	    next ;
+        }
+
         $warper_value = 'undef' unless defined $warper_value ;
 
         my @choice = defined $warper->choice ? @{$warper->choice} :
