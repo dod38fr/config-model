@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-04-27 15:11:30 $
+# $Date: 2007-07-26 11:31:07 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.12 $
+# $Revision: 1.13 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -27,7 +27,7 @@ use Carp;
 use strict;
 
 use vars qw($VERSION);
-$VERSION = sprintf "%d.%03d", q$Revision: 1.12 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.13 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -202,6 +202,11 @@ throw an exception or return the last found object of requested type.
 When set to 1, C<hash> or C<list> configuration element are created
 when requested by the passed steps. (default is 1).
 
+=item grab_non_available
+
+When set to 1, grab will return an object even if this one is not
+available. I.e. even if this element was warped out. (default is 0).
+
 =back
 
 The C<step> parameters is made of the following items separated by
@@ -250,12 +255,15 @@ considered when going up the tree.
 
 sub grab {
     my $self = shift ;
-    my ($step,$strict,$autoadd, $type) = (undef, 1, 1, undef) ;
+    my ($step,$strict,$autoadd, $type, $grab_non_available)
+      = (undef, 1, 1, undef, 0 ) ;
     if ( @_ > 1 ) {
 	my %args = @_;
 	$step    = $args{step};
 	$strict  = $args{strict}  if defined $args{strict};
 	$autoadd = $args{autoadd} if defined $args{autoadd};
+	$grab_non_available = $args{grab_non_available} 
+	  if defined $args{grab_non_available};
 	$type    = $args{type} ; # node, leaf or undef
     }
     elsif (@_ == 1) {
@@ -370,8 +378,9 @@ sub grab {
 	    last ;
 	}
 
-        unless ($obj->is_element_available(name => $name, 
-					   permission => 'master')) {
+        unless ($grab_non_available 
+		or $obj->is_element_available(name => $name, 
+					      permission => 'master')) {
             Config::Model::Exception::UnavailableElement
 		->throw (
 			 object => $obj,
