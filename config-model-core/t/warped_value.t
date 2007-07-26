@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2007-07-03 15:28:19 $
+# $Date: 2007-07-26 12:25:41 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.10 $
+# $Revision: 1.11 $
 
 use warnings FATAL => qw(all);
 
@@ -11,7 +11,7 @@ use Test::More;
 use Config::Model;
 use Config::Model::ValueComputer ;
 
-BEGIN { plan tests => 51; }
+BEGIN { plan tests => 56; }
 
 use strict;
 
@@ -162,8 +162,18 @@ $model -> create_config_class
        macro => {
 		 type => 'leaf',
 		 value_type => 'enum',
-		 name       => 'macro',
 		 choice     => [qw/A B C D/]
+		},
+       macro2 => {
+		 type => 'leaf',
+		  warp => {  follow => '- macro',
+			     'rules'
+			     => [ "B" 
+				  => { value_type => 'enum', 
+				       choice     => [qw/A B C D/]
+				     },
+				]
+			  }
 		},
        'm_value' => {
 		     type => 'leaf',
@@ -227,6 +237,25 @@ $model -> create_config_class
 	       element_table => {qw/m_value_element m_value compute_element compute/}
 	      ]
 	  },
+
+       'class' => {
+		   type => 'hash',
+		   index_type => 'string',
+		   cargo_type => 'leaf',
+		   cargo_args => { value_type => 'string' } ,
+		  },
+        'warped_out_ref'
+        =>{
+	   type => 'leaf',
+	   refer_to => '! class',
+	   warp => {  follow => { m => '- macro', m2 => '- macro2'},
+		      rules  => [ '$m eq "A" or $m2 eq "A"' 
+				  => { value_type => 'reference', 
+				     },
+				]
+ 		  }
+ 	 },
+       
        [qw/bar foo foo2/ ] => {
 			       type => 'node',
 			       config_class_name => 'Slave'
@@ -241,7 +270,7 @@ ok($inst,"created dummy instance") ;
 my $root = $inst -> config_root ;
 
 is_deeply( [$root->get_element_name(for => 'intermediate')],
-	   [qw'get_element where_is_element macro compute var_path bar foo foo2'], 
+	   [qw'get_element where_is_element macro compute var_path class bar foo foo2'], 
 	   "Elements of Master"
 	 );
 
@@ -267,6 +296,30 @@ print "normal error: $@" if $trace;
 
 is($slave->fetch_element('X')->fetch , undef,
   "reading slave->X (undef)") ;
+
+is($root->fetch_element('macro')->store('B'), 'B',
+   "setting master->macro to B") ;
+
+is_deeply( [$root->get_element_name(for => 'intermediate')],
+	   [qw'get_element where_is_element macro macro2 
+	       m_value m_value_old compute var_path class bar foo foo2'], 
+	   "Elements of Master when macro = B"
+	 );
+
+is($root->fetch_element('macro2')->store('A'), 'A',
+   "setting master->macro2 to A") ;
+
+is_deeply( [$root->get_element_name(for => 'intermediate')],
+	   [qw'get_element where_is_element macro macro2 
+	       m_value m_value_old compute var_path class warped_out_ref bar foo foo2'], 
+	   "Elements of Master when macro = B macro2 = A"
+	 );
+
+$root->fetch_element('class')->fetch_with_id('foo')->store('foo_v') ;
+$root->fetch_element('class')->fetch_with_id('bar')->store('bar_v') ;
+
+is($root->fetch_element('warped_out_ref')->store('foo'), 'foo',
+   "setting master->warped_out_ref to foo") ;
 
 is($root->fetch_element('macro')->store('A'), 'A',
    "setting master->macro to A") ;
@@ -423,13 +476,15 @@ my @names = sort map { $_->name } @masters;
 print "macro controls:\n\t", join( "\n\t", @names ), "\n"
     if $trace;
 
-is( scalar @masters, 12,'reading macro slaves' );
+is( scalar @masters, 14,'reading macro slaves' );
 
 is_deeply( \@names ,
 	   [
 	    'Master compute',
 	    'Master m_value',
 	    'Master m_value_old',
+	    'Master macro2',
+	    'Master warped_out_ref',
 	    'bar Comp',
 	    'bar W',
 	    'bar X',
