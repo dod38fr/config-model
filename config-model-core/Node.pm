@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-07-18 15:58:22 $
+# $Date: 2007-07-26 12:22:00 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.16 $
+# $Revision: 1.17 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -41,7 +41,7 @@ use base qw/Config::Model::AutoRead/;
 use vars qw($VERSION $AUTOLOAD @status @level
 @permission_list %permission_index );
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.16 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.17 $ =~ /(\d+)\.(\d+)/;
 
 *status           = *Config::Model::status ;
 *level            = *Config::Model::level ;
@@ -1210,10 +1210,11 @@ sub load_data {
     my $h = shift ;
 
     if (ref ($h) ne 'HASH') {
-	Config::Model::Exception::User
+	Config::Model::Exception::LoadData
 	    -> throw (
 		      object => $self,
-		      message => "load_data called with non hash ref arg: $h"
+		      message => "load_data called with non hash ref arg",
+		      wrong_data => $h,
 		     ) ;
     }
 
@@ -1226,9 +1227,10 @@ sub load_data {
     }
 
     if (%$h) {
-	Config::Model::Exception::User 
+	Config::Model::Exception::LoadData 
 	    -> throw (
-		      message => "load_data: unknown elements: ". join(' ',keys %$h),
+		      message => "load_data: unknown elements: ",
+                      wrong_data => $h,
 		      object => $self,
 		     ) ;
     }

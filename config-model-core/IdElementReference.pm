@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-05-04 11:22:14 $
+# $Date: 2007-07-26 12:21:14 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 #    Copyright (c) 2007 Dominique Dumont.
 #
@@ -31,7 +31,7 @@ use Carp ;
 
 use vars qw($VERSION) ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.1 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/;
 
 
 =head1 NAME
@@ -92,10 +92,10 @@ sub new {
 
     foreach my $k (qw/config_elt refer_to/) {
 	$self->{$k} = delete $args{$k} || 
-	  croak "Config::Model::ValueComputer:new undefined parameter $k";
+	  croak "Config::Model::IdElementReference:new undefined parameter $k";
     }
 
-    die "Config::Model::IdElementReference:new unexpected parameter: ",
+    croak "Config::Model::IdElementReference:new unexpected parameter: ",
       join(' ',keys %args) if %args ;
 
     weaken($self->{config_elt}) ;

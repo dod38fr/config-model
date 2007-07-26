@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-07-18 15:40:15 $
+# $Date: 2007-07-26 12:21:36 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.9 $
+# $Revision: 1.10 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -31,7 +31,7 @@ use strict;
 use base qw/Config::Model::AnyId/ ;
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.9 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.10 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -251,10 +251,11 @@ sub load_data {
 	}
     }
     else {
-	Config::Model::Exception::User
+	Config::Model::Exception::LoadData
 	    -> throw (
 		      object => $self,
-		      message => "load_data called with non array ref arg: $data"
+		      message => "load_data called with non array ref arg",
+		      wrong_data => $data,
 		     ) ;
     }
 }
