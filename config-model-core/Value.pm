@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-07-18 16:00:38 $
+# $Date: 2007-07-26 12:12:38 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.15 $
+# $Revision: 1.16 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -37,7 +37,7 @@ use base qw/Config::Model::WarpedThing/ ;
 
 use vars qw($VERSION) ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.15 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.16 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -298,6 +298,10 @@ sub setup_enum_choice {
 
     my @choice = ref $_[0] ? @{$_[0]} : @_ ;
 
+    print $self->name, " setup_enum_choice:\n\twith '", 
+      join("','",@choice),"'\n"
+	if $::debug ;
+
     # store all enum values in a hash. This way, checking
     # whether a value is present in the enum set is easier
     delete $self->{choice_hash} if defined $self->{choice_hash} ;
@@ -315,15 +319,6 @@ sub setup_enum_choice {
 
 Returns the data structure used to specify the id element used as a
 reference. See L<Value Reference> for details.
-
-=cut
-
-sub set_refer_to {
-    my ($self, $arg_ref) = @_ ;
-
-    $self->{refer_to} = delete $arg_ref->{refer_to};
-}
-
 
 =item warp
 
@@ -363,6 +358,8 @@ sub new {
     $self->{instance} = delete $args{instance} 
       || croak "Value: missing 'instance' parameter" ;
 
+    # refer_to cannot be warped because of registration
+    $self->{refer_to} = delete $args{refer_to};
 
     Config::Model::Exception::Model
 	-> throw (
@@ -430,7 +427,7 @@ sub set {
         return ;
     }
 
-    if ($args{value_type} eq 'reference' and not defined $args{refer_to}) {
+    if ($args{value_type} eq 'reference' and not defined $self->{refer_to}) {
 	Config::Model::Exception::Model
 	    -> throw (
 		      object => $self,
@@ -440,14 +437,14 @@ sub set {
 	};
 
     map { $self->{$_} =  delete $args{$_} if defined $args{$_} }
-      qw/name min max mandatory help allow_compute_override/;
+      qw/min max mandatory help allow_compute_override/;
 
-    $self->set_properties ( \%args );
-    $self->set_value_type ( \%args );
-    $self->set_default    ( \%args ) if (    exists $args{default} 
-					  or exists $args{built_in} );
-    $self->set_compute    ( \%args ) if defined $args{compute};
-    $self->set_convert    ( \%args ) if defined $args{convert};
+    $self->set_properties     ( \%args );
+    $self->set_value_type     ( \%args );
+    $self->set_default        ( \%args ) if (    exists $args{default} 
+					      or exists $args{built_in} );
+    $self->set_compute        ( \%args ) if defined $args{compute};
+    $self->set_convert        ( \%args ) if defined $args{convert};
 
     Config::Model::Exception::Model
 	-> throw (
@@ -530,7 +527,6 @@ sub set_value_type {
 	   or $value_type eq 'enum' 
 	   or $value_type eq 'enum_integer'
 	  ) {
-	$self->set_refer_to ($arg_ref) if $value_type eq 'reference';
         my $choice = delete $arg_ref->{choice} ;
         $self->setup_enum_choice($choice) if defined $choice ;
     }
@@ -759,16 +755,18 @@ L<Config::Model::IdElementReference> for details.
 sub submit_to_refer_to {
     my $self = shift ;
 
+    my $refto =  $self->{refer_to} ||
+      croak "value's submit_to_refer_to: undefined refer_to" ;
+
     $self->{ref_object} = Config::Model::IdElementReference 
-      -> new ( refer_to   => $self->{refer_to},
+      -> new ( refer_to   => $refto ,
 	       config_elt => $self,
 	     ) ;
 
-    my $refto = $self->{refer_to} ;
     my ($refer_path,%var) = ref $refto ? @$refto : ($refto) ;
 
-    # warp registration is done for all element that are used as variable
-    # for complex reference (ie '- $foo' , {foo => '- bar'} )
+    # refer_to registration is done for all element that are used as
+    # variable for complex reference (ie '- $foo' , {foo => '- bar'} )
     $self->register_in_other_value(\%var) ;
 
 }
@@ -876,12 +874,11 @@ sub get_default_choice {
     goto &get_choice ;
 }
 
-sub get_choice
-  {
+sub get_choice {
     my $self = shift ;
 
     return @{$self->{choice} || [] } ;
-  }
+}
 
 =head2 get_help ( [ on_value ] )
 
@@ -1035,7 +1032,7 @@ sub pre_store {
     my $inst = $self->instance ;
 
     $self->warp 
-      if ($self->{warp} and @{$self->{warp_info}{computed_master}});
+      if ($self->{warp} and defined $self->{warp_info} and @{$self->{warp_info}{computed_master}});
 
     if (defined $self->{compute} 
 	and not $self->{allow_compute_override}) {
@@ -1120,10 +1117,11 @@ sub load_data {
     my $data  = shift ;
 
     if (ref $data) {
-	Config::Model::Exception::User
+	Config::Model::Exception::LoadData
 	    -> throw (
 		      object => $self,
-		      message => "load_data called with non scalar arg: $data"
+		      message => "load_data called with non scalar arg",
+		      wrong_data => $data,
 		     ) ;
     }
     else {
@@ -1166,7 +1164,7 @@ sub _init {
     my $self = shift ;
 
     $self->warp 
-      if ($self->{warp} and @{$self->{warp_info}{computed_master}});
+      if ($self->{warp} and defined $self->{warp_info} and @{$self->{warp_info}{computed_master}});
 
     if (defined $self->{refer_to}) {
 	$self->submit_to_refer_to ;
