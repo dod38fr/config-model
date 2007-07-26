@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-07-03 11:34:16 $
+# $Date: 2007-07-26 11:28:39 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.16 $
+# $Revision: 1.17 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -29,7 +29,7 @@ use Carp;
 use strict;
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.16 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.17 $ =~ /(\d+)\.(\d+)/;
 
 use base qw/Config::Model::WarpedThing/;
 
@@ -130,6 +130,14 @@ C<cargo_type> (See L</"CAVEATS">).
 =item index_type
 
 Either C<integer> or C<string>. Mandatory for hash.
+
+=item ordered
+
+Whether to keep the order of the hash keys (default no). (a bit like
+L<Tie::IxHash>).  The hash keys are ordered along their creation. The
+order can be modified with L<swap||Config::Model::HashId/"swap ( key1 , key2 )">,
+L<move_up|Config::Model::HashId/"move_up ( key )"> or
+L<move_down|Config::Model::HashId/"move_down ( key )">.
 
 =item cargo_type
 
@@ -300,7 +308,8 @@ leads to a nb of items greater than the max_nb constraint.
 my @common_params =  qw/min max max_nb default follow auto_create 
                              cargo_args allow allow_from/ ;
 
-my @allowed_warp_params = (@common_params,qw/config_class_name permission/) ;
+my @allowed_warp_params 
+  = (@common_params,qw/config_class_name permission/) ;
 
 
 # this method can be called by the warp mechanism to alter (warp) the
@@ -406,7 +415,7 @@ object (as declared in the model unless they were warped):
 =cut
 
 for my $datum (qw/min max max_nb index_type default follow auto_create 
-                  cargo_type cargo_class cargo_args morph
+                  cargo_type cargo_class cargo_args morph ordered
                   config_model/) {
     no strict "refs";       # to register new methods in package
     *$datum = sub {
@@ -544,7 +553,7 @@ sub handle_args {
     my $warp_info = delete $args{warp} ;
 
     map { $self->{$_} =  delete $args{$_} if defined $args{$_} }
-         qw/index_class index_type morph/;
+         qw/index_class index_type morph ordered/;
 
     %{$self->{backup}}  = %args ;
 
@@ -802,7 +811,8 @@ sub fetch_all_values {
 
 =head2 get_all_indexes()
 
-Returns an array containing all indexes of the hash or list.
+Returns an array containing all indexes of the hash or list. Hash keys
+are sorted alphabetically, except for ordered hashed.
 
 =cut
 
