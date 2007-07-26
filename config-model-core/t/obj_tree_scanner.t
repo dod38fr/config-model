@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2007-07-19 11:29:55 $
+# $Date: 2007-07-26 12:23:41 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.11 $
+# $Revision: 1.12 $
 
 use ExtUtils::testlib;
 use Test::More tests => 9;
@@ -124,7 +124,7 @@ ok(1,"performed scan") ;
 print $result if $trace ;
 
 my $expect = << 'EOF' ;
-disp_node_content Master element: std_id lista listb hash_a hash_b olist slave_y string_with_def a_string int_v my_check_list my_reference
+disp_node_content Master element: std_id lista listb hash_a hash_b ordered_hash olist slave_y string_with_def a_string int_v my_check_list my_reference
 disp_hash Master element(std_id): ab bc
 disp_node_elt Master element: std_id key ab
 disp_node_content std_id:ab element: Z X DX

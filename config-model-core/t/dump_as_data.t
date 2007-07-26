@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2007-07-12 15:36:44 $
+# $Date: 2007-07-26 12:23:06 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 use ExtUtils::testlib;
 use Test::More tests => 10;
@@ -35,8 +35,9 @@ ok($root,"Config root created") ;
 
 my $step = 'std_id:ab X=Bv - std_id:bc X=Av - a_string="toto tata" '
   .'hash_a:toto=toto_value hash_a:titi=titi_value '
+  .'ordered_hash:z=1 ordered_hash:y=2 ordered_hash:x=3 '
   .'lista=a,b,c,d olist:0 X=Av - olist:1 X=Bv - listb=b,c,d '
-  .'my_check_list=toto my_reference="titi"';
+  .'my_check_list=toto my_reference="titi" ';
 
 ok( $root->load( step => $step, permission => 'intermediate' ),
   "set up data in tree with '$step'");
@@ -55,6 +56,14 @@ my $expect = {
           'my_check_list' => [
                                'toto'
                              ],
+          'ordered_hash' => [
+                              'z',
+                              '1',
+                              'y',
+                              '2',
+                              'x',
+                              '3'
+                            ],
           'a_string' => 'toto tata',
           'listb' => [
                        'b',
@@ -82,6 +91,8 @@ my $expect = {
                      ]
         };
 
+#use Data::Dumper; print Dumper $data ;
+
 is_deeply($data, $expect, "check data dump") ;
 
 # add default information provided by model to check full dump
@@ -96,7 +107,6 @@ my $full_data = $root->dump_as_data(full_dump => 1 ) ;
 
 is_deeply($full_data, $expect, "check full data dump") ;
 
-# use Data::Dumper; print Dumper $full_data ;
 
 my $inst2 = $model->instance (root_class_name => 'Master', 
 			      #model_file => 't/big_model.pm',

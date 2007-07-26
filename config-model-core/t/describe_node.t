@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2007-07-19 11:29:55 $
+# $Date: 2007-07-26 12:22:54 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.6 $
+# $Revision: 1.7 $
 
 use ExtUtils::testlib;
 use Test::More tests => 6;
@@ -53,6 +53,7 @@ listb        b,c,d        list
 hash_a:titi  titi_value   string
 hash_a:toto  toto_value   string
 hash_b       [empty hash] value hash
+ordered_hash [empty hash] value hash
 olist        <SlaveZ>     node list    indexes: 0 1
 tree_macro   [undef]      enum         choice: XY XZ mXY
 warp         <SlaveY>     node

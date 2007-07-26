@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2007-06-06 12:25:13 $
+# $Date: 2007-07-26 12:23:53 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.7 $
+# $Revision: 1.8 $
 
 use ExtUtils::testlib;
 use Test::More tests => 22;
@@ -107,6 +107,8 @@ my @data
 
        'hash_b' => {'next_step' => 'hash_b'},
 
+       'ordered_hash' => {'next_step' => 'ordered_hash'},
+
        'ab2' => {'next_step' => {'slave_y' => {'next_step' => {'warp2' => {'next_class' => {'SubSlave2' => {'next_step' => 'ab2'}}}, 'sub_slave' => {'next_step' => {'sub_slave' => {'next_step' => 'ab2'}}}}}, 'warp' => {'next_class' => {'SlaveY' => {'next_step' => {'warp2' => {'next_class' => {'SubSlave2' => {'next_step' => 'ab2'}}}, 'sub_slave' => {'next_step' => {'sub_slave' => {'next_step' => 'ab2'}}}}}}}}},
 
        'int_v' => {'next_step' => 'int_v'},
@@ -131,7 +133,7 @@ my @data
 my @items = $root->searcher->get_searchable_elements ;
 my @expected = qw/DX X Y Z a_string aa aa2 ab ab2 ac ac2 ad ad2 
                   hash_a hash_b int_v lista listb my_check_list 
-                  my_reference string_with_def tree_macro/ ;
+                  my_reference ordered_hash string_with_def tree_macro/ ;
 
 is_deeply(\@items, \@expected, "list of searchable items") ;
 

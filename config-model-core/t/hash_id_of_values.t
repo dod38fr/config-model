@@ -1,13 +1,13 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2007-05-04 11:44:58 $
+# $Date: 2007-07-26 12:23:26 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.7 $
+# $Revision: 1.8 $
 
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
-use Test::More tests => 42 ;
+use Test::More tests => 47 ;
 use Config::Model ;
 
 use strict;
@@ -103,6 +103,13 @@ $model ->create_config_class
 	   index_type  => 'string',
 	   @element ,
 	   allow_from  => '- hash_with_several_auto_created_id',
+	  },
+       ordered_hash
+       => {
+	   type => 'hash',
+	   index_type  => 'string',
+	   @element ,
+	   ordered  => 1 ,
 	  },
       ],
    );
@@ -209,3 +216,27 @@ ok($ph->copy(2,3),"value copy") ;
 is($ph->fetch_with_id(3)->fetch, 
    $ph->fetch_with_id(2)->fetch, "compare copied value") ;
 
+
+my $oh = $root->fetch_element('ordered_hash') ;
+ok($oh,"created ordered_hash ...") ;
+$oh->fetch_with_id('z' ) -> store( 1 );
+$oh->fetch_with_id('x' ) -> store( 2 );
+$oh->fetch_with_id('a' ) -> store( 3 );
+
+is_deeply([$oh->get_all_indexes], [qw/z x a/],
+	 "check index order of ordered_hash") ;
+
+$oh ->swap(qw/z x/) ;
+
+is_deeply([$oh->get_all_indexes], [qw/x z a/],
+	 "check index order of ordered_hash after swap(z x)") ;
+
+$oh ->move_up(qw/a/) ;
+
+is_deeply([$oh->get_all_indexes], [qw/x a z/],
+	 "check index order of ordered_hash after move_up(a)") ;
+
+$oh ->move_down(qw/x/) ;
+
+is_deeply([$oh->get_all_indexes], [qw/a x z/],
+	 "check index order of ordered_hash after move_down(x)") ;

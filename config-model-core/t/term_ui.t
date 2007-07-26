@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2007-02-23 12:55:16 $
+# $Date: 2007-07-26 12:24:07 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.6 $
+# $Revision: 1.7 $
 
 use ExtUtils::testlib;
 use Test::More ;
@@ -80,7 +80,7 @@ is($term_ui->prompt, $expected_prompt ,'test prompt at root') ;
 my @test = ( 
 	    [ 'vf std_id:ab', "Unexpected command 'vf'", $expected_prompt  ],
 	    [ 'ls', 
-	      'std_id  lista  listb  hash_a  hash_b  olist  tree_macro  warp  slave_y  string_with_def  a_string  int_v  my_check_list  my_reference', 
+	      'std_id  lista  listb  hash_a  hash_b  ordered_hash  olist  tree_macro  warp  slave_y  string_with_def  a_string  int_v  my_check_list  my_reference', 
 	      $expected_prompt  ],
 	    [ 'set a_string="some value with space"', "", $expected_prompt],
 	    [ 'cd std_id:ab', "", $prompt.': std_id:ab $ '  ],
