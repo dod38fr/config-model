@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-07-18 15:30:31 $
+# $Date: 2007-07-26 12:18:00 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.10 $
+# $Revision: 1.11 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -25,9 +25,10 @@ package Config::Model::Exception ;
 use Error ;
 use warnings ;
 use strict;
+use Data::Dumper ;
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.10 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.11 $ =~ /(\d+)\.(\d+)/;
 
 push @Exception::Class::Base::ISA, 'Error';
 
@@ -41,6 +42,12 @@ use Exception::Class
    'Config::Model::Exception::User' 
    => { isa         => 'Config::Model::Exception::Any',
 	description => 'user error' ,
+      },
+
+   'Config::Model::Exception::LoadData' 
+   => { isa         => 'Config::Model::Exception::User',
+	description => 'Load data structure (perl) error' ,
+	fields      => [qw/wrong_data/] ,
       },
 
    'Config::Model::Exception::UnavailableElement'
@@ -157,6 +164,22 @@ sub xpath_message {
     $msg .= "'$location' " if $location ;
     $msg .= "has a ".$self->description ;
     $msg .= ":\n\t". $self->message."\n";
+
+    return $msg;
+}
+
+package Config::Model::Exception::LoadData ;
+
+sub full_message {
+    my $self = shift;
+
+    my $obj = $self->object ;
+    my $location = defined $obj ? $obj->name :'';
+    my $msg = "Configuration item ";
+    $msg .= "'$location' " if $location ;
+    $msg .= "has a ".$self->description ;
+    $msg .= ":\n\t". $self->message."\n";
+    $msg .= Data::Dumper->Dump([$self->wrong_data],['wrong data']) ;
 
     return $msg;
 }
