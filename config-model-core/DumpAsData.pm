@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-07-12 15:38:35 $
+# $Date: 2007-07-26 12:16:52 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 #    Copyright (c) 2007 Dominique Dumont.
 #
@@ -30,7 +30,7 @@ use Config::Model::Exception ;
 use Config::Model::ObjTreeScanner ;
 
 use vars qw($VERSION);
-$VERSION = sprintf "%d.%03d", q$Revision: 1.1 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -122,12 +122,18 @@ sub dump_as_data {
 	# resume exploration but pass a ref on $data_ref hash element
 	# instead of data_ref
 	my %h ;
-	map { 
+	my @res = map { 
 	    my $v ;
 	    $scanner->scan_hash(\$v,$node,$element_name,$_);
 	    $h{$_} = $v if defined $v ;
+	    defined $v ? ( $_ , $v ) : () ;
 	} @keys ;
-	$$data_ref = \%h if scalar %h ;
+	if ($node->fetch_element($element_name)->ordered) {
+	    $$data_ref = \@res if @res ;
+	}
+	else {
+	    $$data_ref = \%h if scalar %h ;
+	}
     };
 
     my $list_element_cb = sub {
