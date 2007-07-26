@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-10-02 11:35:48 $
+# $Date: 2007-07-26 12:24:31 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.4 $
+# $Revision: 1.5 $
 
 use warnings FATAL => qw(all);
 
@@ -41,7 +41,6 @@ $model ->create_config_class
    => [
        macro => { type => 'leaf',
 		  value_type => 'enum',
-		  name       => 'macro',
 		  choice     => [qw/A B C/],
 		},
        version => { type => 'leaf',
