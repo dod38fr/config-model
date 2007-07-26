@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-07-18 15:34:55 $
+# $Date: 2007-07-26 12:20:01 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.12 $
+# $Revision: 1.13 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -31,7 +31,7 @@ use strict;
 use base qw/Config::Model::AnyId/ ;
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.12 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.13 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -78,6 +78,7 @@ sub new {
     my $self = $type->SUPER::new(\%args) ;
 
     $self->{data} = {} ;
+    $self->{list} = [] ;
 
     Config::Model::Exception::Model->throw 
         (
@@ -154,7 +155,8 @@ sub fetch_size {
 
 sub _get_all_indexes {
     my $self = shift;
-    return sort keys %{$self->{data}} ;
+    return $self->{ordered} ? @{$self->{list}}
+         :                    sort keys %{$self->{data}} ;
 }
 
 # fetch without any check 
@@ -163,9 +165,11 @@ sub _fetch_with_id {
     return $self->{data}{$key};
 }
 
-# store without any check 
+# store without any check
 sub _store {
     my ($self, $key, $value) =  @_ ;
+    push @{$self->{list}}, $key 
+      unless exists $self->{data}{$key};
     return $self->{data}{$key} = $value ;
 }
 
@@ -186,7 +190,7 @@ sub auto_create_elements {
     my $auto_p = $self->{auto_create} ;
     # create empty slots
     map {
-	$self->{data}{$_} = undef unless exists $self->{data}{$_};
+	$self->_store($_, undef) unless exists $self->{data}{$_};
     }  (ref $auto_p ? @$auto_p : ($auto_p)) ;
 }
 
@@ -206,20 +210,25 @@ sub create_default {
 	}
     }
     elsif (ref $def eq 'ARRAY') {
-	map {$self->{data}{$_} = undef } @$def ;
+	map {$self->_store($_,undef) } @$def ;
     }
     else {
-	$self->{data}{$def} = undef ;
+	$self->_store($def, undef) ;
     }
 }
 
 sub _delete {
     my ($self,$key) = @_ ;
+
+    # remove key in ordered list
+    @{$self->{list}} = grep { $_ ne $key } @{ $self->{list}} ;
+
     return delete $self->{data}{$key};
 }
 
 sub _clear {
     my ($self) = @_ ;
+    $self->{list} = [];
     $self->{data} = {};
 }
 
@@ -240,12 +249,12 @@ sub firstkey {
     $self->create_default if defined $self->{default};
 
     # reset "each" iterator (to be sure, map is also an iterator)
-    my $temp = keys %{$self->{data}} ;
-
-    return scalar each %{$self->{data}};
+    my @list = $self->_get_all_indexes ;
+    $self->{each_list} = \@list ;
+    return shift @list ;
 }
 
-=head2 firstkey
+=head2 nextkey
 
 Returns the next key of the hash. Behaves like C<each> core perl
 function.
@@ -259,30 +268,135 @@ sub nextkey {
     $self->warp 
       if ($self->{warp} and @{$self->{warp_info}{computed_master}});
 
-    return scalar each %{$self->{data}};
+    my $res =  shift @{$self->{each_list}} ;
+
+    return $res if defined $res ;
+
+    # reset list for next call to next_keys
+    $self->{each_list} = [ $self->_get_all_indexes  ] ;
+
+    return undef ;
 }
 
+=head2 swap ( key1 , key2 )
 
-=head2 load_data ( hash_ref )
+Swap the order of the 2 keys. Ignored for non ordered hash.
 
-Load check_list as a hash ref.
+=cut
+
+sub swap {
+    my $self = shift ;
+    my ($key1,$key2) = @_ ;
+
+
+    foreach my $k (@_) {
+	Config::Model::Exception::User
+	    -> throw (
+		      object => $self,
+		      message => "swap: unknow key $k"
+		     )
+	      unless exists $self->{data}{$k} ;
+    }
+
+    my $list = $self->{list} ;
+    for (my $idx = 0; $idx < $#$list; $idx ++ ) {
+	if ($list->[$idx] eq $key1) {
+	    $list->[$idx] = $key2 ;
+	}
+	elsif ($list->[$idx] eq $key2) {
+	     $list->[$idx] = $key1 ;
+	}
+    }
+}
+
+=head2 move_up ( key )
+
+Move the key up in a ordered hash. Attempt to move up the first key of
+an ordered hash will be ignored. Ignored for non ordered hash.
+
+=cut
+
+sub move_up {
+    my $self = shift ;
+    my ($key) = @_ ;
+
+    Config::Model::Exception::User
+	-> throw (
+		  object => $self,
+		  message => "move_up: unknow key $key"
+		 )
+	  unless exists $self->{data}{$key} ;
+
+    my $list = $self->{list} ;
+    # we start from 1 as we can't move up idx 0
+    for (my $idx = 1; $idx < scalar @$list; $idx ++ ) {
+	if ($list->[$idx] eq $key) {
+	    $list->[$idx]   = $list->[$idx-1];
+	    $list->[$idx-1] = $key ;
+	    last ;
+	}
+    }
+}
+
+=head2 move_down ( key )
+
+Move the key down in a ordered hash. Attempt to move up the last key of
+an ordered hash will be ignored. Ignored for non ordered hash.
+
+=cut
+
+sub move_down {
+    my $self = shift ;
+    my ($key) = @_ ;
+
+    Config::Model::Exception::User
+	-> throw (
+		  object => $self,
+		  message => "move_down: unknow key $key"
+		 )
+	  unless exists $self->{data}{$key} ;
+
+    my $list = $self->{list} ;
+    # we end at $#$list -1  as we can't move down last idx
+    for (my $idx = 0; $idx < scalar @$list - 1 ; $idx ++ ) {
+	if ($list->[$idx] eq $key) {
+	    $list->[$idx]   = $list->[$idx+1];
+	    $list->[$idx+1] = $key ;
+	    last ;
+	}
+    }
+}
+
+=head2 load_data ( hash_ref | array_ref)
+
+Load check_list as a hash ref for standard hash.
+Ordered hash must be loaded with a array ref.
 
 =cut
 
 sub load_data {
     my $self = shift ;
     my $data = shift ;
-    if (ref ($data)  eq 'HASH') {
+    if (not $self->{ordered} and ref ($data) eq 'HASH') {
 	foreach my $elt (keys %$data ) {
 	    my $obj = $self->fetch_with_id($elt) ;
 	    $obj -> load_data($data->{$elt}) ;
 	}
     }
+    elsif ( $self->{ordered} and ref ($data) eq 'ARRAY') {
+	my $idx = 0 ;
+	while ( $idx < @$data ) {
+	    my $obj = $self->fetch_with_id($data->[$idx++]) ;
+	    $obj -> load_data($data->[$idx++]) ;
+	}
+    }
     else {
-	Config::Model::Exception::User
+	my $expected = $self->{ordered} ? 'array' : 'hash' ;
+	Config::Model::Exception::LoadData
 	    -> throw (
 		      object => $self,
-		      message => "load_data called with non hash ref arg: $data"
+		      message => "load_data called with non $expected ref arg",
+		      wrong_data => $data ,
 		     ) ;
     }
 }
