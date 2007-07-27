@@ -1,4 +1,18 @@
-2007-07-18  Dominique Dumont  <dominique.dumont@hp.com>
+2007-07-26  Dominique Dumont  v0.612
+
+	* HashId.pm : can preserve hash key order (when created with
+	ordered => 1). New method to manipulate hash key order are swap,
+	move_up, move_down.
+
+	* Exception.pm :new error class  Config::Model::Exception::LoadData
+
+	* AnyThing.pm (grab): added 'grab_non_available' parameter.
+
+	* AnyId.pm: added "ordered" parameter to create ordered hash
+	elements. I.e. hashes where the order of the keys is kept (like
+	Tie::IxHash)
+
+2007-07-18  Dominique Dumont  
 
 	* Value.pm (load_data): new_method
 
