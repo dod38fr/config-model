@@ -118,16 +118,18 @@ Help is welcome on:
 - configuration model creation (if you have a configuration itch to
   scratch, you're welcome)
 
-If you want to help ?
----------------------
+If you want to discuss Config::Model ?
+--------------------------------------
 
-Send me a mail at: ddumont at cpan dot org.
+Subscribe to tge config-model-users list:
+
+http://lists.sourceforge.net/mailman/listinfo/config-model-users
 
 Is there more documentation ?
 -----------------------------
 
 Yes, on sourceforge:
-  http://sourceforge.net/projects/config-model
+  http://config-model.wiki.sourceforge.net/
 
 What's the licence ?
 ------------------
