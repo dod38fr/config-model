@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-07-18 16:02:11 $
+# $Date: 2007-09-06 11:30:15 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.10 $
+# $Revision: 1.11 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -32,7 +32,7 @@ use Config::Model::Exception ;
 use Data::Dumper ();
 
 use vars qw($VERSION $AUTOLOAD) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.10 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.11 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -63,6 +63,21 @@ Config::Model::WarpedNode - Node that change config class properties
                          },
                   XZ => { config_class_name => 'SlaveZ' }
                  }
+       },
+
+    'another_warped_node'
+    => {
+        type => 'warped_node',
+        follow  => { tm => '! tree_macro'},
+        morph   => 1,
+        rules => [
+                  '$tm eq "XY"'  => { config_class_name => ['SlaveY'], },
+                  '$tm eq "mXY"' => {
+                                    config_class_name   => 'SlaveY',
+                                    permission => 'intermediate'
+                                  },
+                  '$tm eq "XZ"'  => { config_class_name => 'SlaveZ' }
+                 ]
        },
 
 =head1 DESCRIPTION
@@ -288,9 +303,16 @@ sub set {
       Data::Dumper->Dump([\%args],['set_args'])
 	  if $::debug ;
 
+    my $config_class_name = delete $args{config_class_name};
+
+    unless (defined $config_class_name) {
+	$args{level} = 'hidden' ;
+	# cannot delete bluntly {data} for ListId or HashId
+        $self->clear ;
+    }
+
     $self->set_parent_element_property(\%args) ;
 
-    my $config_class_name = $args{config_class_name};
     return unless defined $config_class_name ;
 
     my @args ;
@@ -322,7 +344,6 @@ sub set {
 sub create_node {
     my $self= shift ;
     my $config_class_name = shift ;
-    my @init_step = @_ ;
 
     my @args = (config_class_name => $config_class_name,
 		instance          => $self->{instance},
@@ -330,11 +351,37 @@ sub create_node {
 		index_value       => $self->{index_value},
 	       ) ;
 
-    push @args, init_step => \@init_step if @init_step ;
-
     return  $self->parent->new(@args) ;
 }
 
+sub clear {
+    my $self = shift ;
+    delete $self->{data} ;
+}
+
+=head2 load_data ( hash_ref )
+
+Load configuration data with a hash ref. The hash ref key must match
+the available elements of the node carried by the warped node.
+
+=cut
+
+sub load_data {
+    my $self = shift ;
+    my $h = shift ;
+
+    if (ref ($h) ne 'HASH') {
+	Config::Model::Exception::LoadData
+	    -> throw (
+		      object => $self,
+		      message => "load_data called with non hash ref arg",
+		      wrong_data => $h,
+		     ) ;
+    }
+
+    $self->get_actual_node->load_data($h) ;
+
+}
 
 1;
 
