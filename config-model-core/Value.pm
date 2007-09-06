@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-07-26 12:12:38 $
+# $Date: 2007-09-06 11:27:06 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.16 $
+# $Revision: 1.17 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -37,7 +37,7 @@ use base qw/Config::Model::WarpedThing/ ;
 
 use vars qw($VERSION) ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.16 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.17 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -439,7 +439,7 @@ sub set {
     map { $self->{$_} =  delete $args{$_} if defined $args{$_} }
       qw/min max mandatory help allow_compute_override/;
 
-    $self->set_properties     ( \%args );
+    $self->set_parent_element_property ( \%args );
     $self->set_value_type     ( \%args );
     $self->set_default        ( \%args ) if (    exists $args{default} 
 					      or exists $args{built_in} );
@@ -548,27 +548,6 @@ sub set_value_type {
         Config::Model::Exception::Model
 	    -> throw (object => $self, error => $msg) 
 	      unless defined $self->{warp};
-    }
-}
-
-sub set_properties {
-    my ($self, $arg_ref) = @_ ;
-
-    foreach my $property_name (qw/level permission/) {
-	if (defined $arg_ref->{$property_name}) {
-	    my $v = delete $arg_ref->{$property_name} ;
-	    $self->{parent}
-	      -> set_element_property (
-				       property=> $property_name,
-				       element => $self->{element_name},
-				       value   => $v,
-				     );
-	}
-	else {
-	    $self->{parent}
-	      ->reset_element_property(property => $property_name,
-				       element  => $self->{element_name});
-	}
     }
 }
 
