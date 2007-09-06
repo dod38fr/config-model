@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-07-27 11:27:00 $
+# $Date: 2007-09-06 11:23:25 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.35 $
+# $Revision: 1.36 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -40,6 +40,36 @@ $VERSION = '0.612';
 =head1 NAME
 
 Config::Model - Model to create configuration validation tool
+
+=head1 SYNOPSIS
+
+ # create new Model object
+ my $model = Config::Model->new() ;
+
+ # create config model
+ $model ->create_config_class 
+  (
+   name => "SomeRootClass",
+   element => [ ...  ]
+  ) ;
+
+ # create instance 
+ my $instance = $model->instance (root_class_name => 'SomeRootClass', 
+                                  instance_name => 'test1');
+
+ # get configuration tree root
+ my $cfg_root = $instance -> config_root ;
+
+ # You can also use load on demand
+ my $model = Config::Model->new() ;
+
+ # this call will look for a AnotherClass.pl that will contain
+ # the model
+ my $inst2 = $model->instance (root_class_name => 'AnotherClass', 
+                              instance_name => 'test2');
+
+ # then get configuration tree root
+ my $cfg_root = $inst2 -> config_root ;
 
 =head1 DESCRIPTION
 
@@ -111,9 +141,16 @@ sub new {
     my $type = shift ;
     my %args = @_;
 
+    my $skip =  $args{skip_include} || 0 ;
+
+    if (defined $args{skip_inheritance}) {
+	carp "skip_inheritance is deprecated, use skip_include" ;
+	$skip = $args{skip_inheritance} ;
+    }
+
     bless {
 	   model_dir => $args{model_dir} ,
-	   skip_inheritance => $args{skip_inheritance} || 0,
+	   skip_include => $skip,
 	  },$type;
 }
 
@@ -355,10 +392,10 @@ when generating user interfaces.
 
 my %default_property =
   (
-   status     => 'standard',
-   level      => 'normal',
-   permission => 'intermediate',
-   description=> ''
+   status      => 'standard',
+   level       => 'normal',
+   permission  => 'intermediate',
+   description => ''
   );
 
 my %check;
@@ -383,8 +420,8 @@ $check{permission}=\%permission_index ;
 #   element       => { element_name => element_data (left as is)    },
 #   class_description => <class description string>,
 #   level         => { element_name => <level like important or normal..> },
-#   inherit       => 'class_name',
-#   inherit_after => 'element_name',
+#   include       => 'class_name',
+#   include_after => 'element_name',
 # }
 
 =item generated_by
@@ -412,6 +449,16 @@ sub create_config_class {
 	    );
     }
 
+    if (defined $raw_model{inherit_after}) {
+	warn "Model $config_class_name: inherit_after is deprecated ",
+	  "in favor of include_after\n";
+	$raw_model{include_after} = delete $raw_model{inherit_after} ;
+    }
+    if (defined $raw_model{inherit}) {
+	warn "Model $config_class_name: inherit is deprecated in favor of include\n";
+	$raw_model{include} = delete $raw_model{inherit} ;
+    }
+
     $self->{raw_model}{$config_class_name} = \%raw_model ;
 
     # perform some syntax and rule checks and expand compacted
@@ -421,13 +468,14 @@ sub create_config_class {
     my $raw_copy = dclone \%raw_model ;
     my %model = ( element_list => [] );
 
-    # add inherited items
-    if ($self->{skip_inheritance}) {
-	$model{inherit}       = delete $raw_copy->{inherit} ;
-	$model{inherit_after} = delete $raw_copy->{inherit_after} ;
+
+    # add included items
+    if ($self->{skip_include}) {
+	$model{include}       = delete $raw_copy->{include} ;
+	$model{include_after} = delete $raw_copy->{include_after} ;
     }
     else {
-	$self->inherit_class($raw_copy) ; 
+	$self->include_class($raw_copy) ; 
     }
 
 
@@ -481,6 +529,19 @@ sub check_class_parameters {
     # class_description cannot be handled in the next loop
     $model->{class_description} = delete $raw_model->{class_description} 
       if defined $raw_model->{class_description}  ;
+
+
+    # check for duplicate in @element_list.
+    my %check_list ;
+    map { $check_list{$_}++ } @element_list ;
+    my @extra = grep { $check_list{$_} > 1 } keys %check_list ;
+    if (@extra) {
+	Config::Model::Exception::ModelDeclaration->throw
+	    (
+	     error=> "class $config_class_name: @extra element ".
+	              "is declared more than once. Check the included parts"
+	    ) ;
+    }
 
     foreach my $info_name (@legal_params) {
 	# fill default info
@@ -688,22 +749,22 @@ sub translate_rules_arg {
 }
 
 
-=item inherit
+=item include
 
-Inherit element description from another class. 
+Include element description from another class. 
 
-  inherit => 'AnotherClass' ,
+  include => 'AnotherClass' ,
 
 In a configuration class, the order of the element is important. For
 instance if C<foo> is warped by C<bar>, you must declare C<bar>
 element before C<foo>.
 
-When inheriting another class, you may wish to insert the inherited
-elements after a specific element of your inheriting class:
+When including another class, you may wish to insert the included
+elements after a specific element of your including class:
 
   # say AnotherClass contains element xyz
-  inherit => 'AnotherClass' ,
-  inherit_after => "foo" ,
+  include => 'AnotherClass' ,
+  include_after => "foo" ,
   element => [ bar => ... , foo => ... , baz => ... ]
 
 Now the element of your class will be:
@@ -714,25 +775,25 @@ Now the element of your class will be:
 
 =cut
 
-sub inherit_class {
+sub include_class {
     my $self  = shift;
-    my $raw_model = shift || die "inherit_class: undefined raw_model";
+    my $raw_model = shift || die "include_class: undefined raw_model";
 
-    my $inherit_class = delete $raw_model->{inherit} ;
+    my $include_class = delete $raw_model->{include} ;
 
-    return () unless defined $inherit_class ;
+    return () unless defined $include_class ;
 
-    my $inherited_raw_model = dclone $self->get_raw_model($inherit_class) ;
-    my $inherit_after       = delete $raw_model->{inherit_after} ;
+    my $included_raw_model = dclone $self->get_raw_model($include_class) ;
+    my $include_after       = delete $raw_model->{include_after} ;
 
-    # takes care of recursive inheritance
-    $self->inherit_class( $inherited_raw_model ) ;
+    # takes care of recursive include
+    $self->include_class( $included_raw_model ) ;
 
-    my %inherit_item = map { $_ => 1 } @legal_params ;
+    my %include_item = map { $_ => 1 } @legal_params ;
 
-    # now inherit element (special treatment because order is
+    # now include element (special treatment because order is
     # important)
-    if (defined $inherit_after and defined $raw_model->{element}) {
+    if (defined $include_after and defined $included_raw_model->{element}) {
 	my %elt_idx ;
 	my @raw_elt = @{$raw_model->{element}} ;
 	my $idx = 0 ;
@@ -741,43 +802,41 @@ sub inherit_class {
 	    map { $elt_idx{$_} = $idx } ref $elt ? @$elt : ($elt) ;
 	}
 
-	# + 2 because we splice *after* $inherit_after
-	my $splice_idx = $elt_idx{$inherit_after} + 2;
-
-	if (defined $splice_idx) {
-	    my $to_copy = delete $inherited_raw_model->{element} ;
-	    splice ( @{$raw_model->{element}}, $splice_idx, 0, @$to_copy) ;
-	}
-	else {
-	    my $msg =  "Unknown element for 'inherit_after': "
-		        . "$inherit_after, expected ". join(' ', keys %elt_idx) ;
+	if (not defined $elt_idx{$include_after}) {
+	    my $msg =  "Unknown element for 'include_after': "
+		        . "$include_after, expected ". join(' ', keys %elt_idx) ;
 	    Config::Model::Exception::ModelDeclaration
 		-> throw (error => $msg) ;
 	}
+
+	# + 2 because we splice *after* $include_after
+	my $splice_idx = $elt_idx{$include_after} + 2;
+	my $to_copy = delete $included_raw_model->{element} ;
+	splice ( @{$raw_model->{element}}, $splice_idx, 0, @$to_copy) ;
     }
 
-    # now inherited_raw_model contains all information to be merged to
+    # now included_raw_model contains all information to be merged to
     # raw_model
 
-    my $inherited_model ;
-    foreach my $inherited_item (keys %$inherited_raw_model) {
-	if (defined $inherit_item{$inherited_item}) {
-	    my $to_copy = $inherited_raw_model->{$inherited_item} ;
+    my $included_model ;
+    foreach my $included_item (keys %$included_raw_model) {
+	if (defined $include_item{$included_item}) {
+	    my $to_copy = $included_raw_model->{$included_item} ;
 	    if (ref($to_copy) eq 'HASH') {
-		map { $raw_model->{$inherited_item}{$_} = $to_copy->{$_} } 
+		map { $raw_model->{$included_item}{$_} = $to_copy->{$_} } 
 		  keys %$to_copy ;
 	    }
 	    elsif (ref($to_copy) eq 'ARRAY') {
-		unshift @{$raw_model->{$inherited_item}}, @$to_copy;
+		unshift @{$raw_model->{$included_item}}, @$to_copy;
 	    }
 	    else {
-		$raw_model->{$inherited_item} = $to_copy ;
+		$raw_model->{$included_item} = $to_copy ;
 	    }
 	}
 	else {
 	    Config::Model::Exception::ModelDeclaration->throw
 		(
-		 error => "Cannot inherit '$inherited_item', "
+		 error => "Cannot include '$included_item', "
 		 . "expected @legal_params"
 		) ;
 	}
@@ -840,7 +899,7 @@ will return C<( 'Foo::Bar' , 'Foo::Bar2' )>.
 
 
 sub load {
-    my $self =shift ;
+    my $self = shift ;
     my $load_model = shift ;
     my $load_file = shift ;
 
@@ -870,7 +929,10 @@ sub load {
 
     my @loaded ;
     foreach my $config_class_info (@$model) {
-	push @loaded, $self->create_config_class(@$config_class_info) ;
+	my @data = ref $config_class_info eq 'HASH' ? %$config_class_info
+	         : ref $config_class_info eq 'ARRAY' ? @$config_class_info
+	         : croak "load $load_file: config_class_info is not a ref" ;
+	push @loaded, $self->create_config_class(@data) ;
     }
 
     return @loaded
