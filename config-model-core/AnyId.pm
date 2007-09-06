@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-07-26 11:28:39 $
+# $Date: 2007-09-06 11:18:07 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.17 $
+# $Revision: 1.18 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -29,7 +29,7 @@ use Carp;
 use strict;
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.17 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.18 $ =~ /(\d+)\.(\d+)/;
 
 use base qw/Config::Model::WarpedThing/;
 
@@ -110,7 +110,10 @@ sub new {
 
     $self->_set_parent(delete $args_ref->{parent}) ;
 
-    $self->{cargo_class} = delete $args_ref->{cargo_class} ;
+    foreach my $p (qw/cargo_class cargo_args/) {
+	next unless defined $args_ref->{$p} ;
+	$self->{$p} = delete $args_ref->{$p} ;
+    }
 
     return $self ;
 }
@@ -306,7 +309,7 @@ leads to a nb of items greater than the max_nb constraint.
 =cut
 
 my @common_params =  qw/min max max_nb default follow auto_create 
-                             cargo_args allow allow_from/ ;
+                             allow allow_from/ ;
 
 my @allowed_warp_params 
   = (@common_params,qw/config_class_name permission/) ;
@@ -493,20 +496,24 @@ sub config_class_name
     return $self->{config_class_name} ;
   }
 
-# internal. This method will deal with warp when collected elements
-# are node type. This will handle morphing (i.e loose copy of
-# configuration data from old node object to new node object).
+# internal for cargo_type eq 'node' only. This method will deal with
+# warp when collected elements are node type. This will handle
+# morphing (i.e loose copy of configuration data from old node object
+# to new node object).
 sub set_cargo_class {
     my $self=shift;
     my $arg_ref = shift ;
 
     return unless $self->{cargo_type} eq 'node' ;
 
-    $self->set_parent_element_property($arg_ref) ;
-
     my $config_class_name = delete $arg_ref->{config_class_name};
-    # cleanup of argument
-    delete $arg_ref->{permission} ;
+
+    if (not defined $config_class_name) {
+	$arg_ref->{level} = 'hidden' ;
+	# cannot delete bluntly {data} for ListId or HashId
+        $self->clear ;
+    }
+    $self->set_parent_element_property($arg_ref) ;
 
     my @current_idx = $self->_get_all_indexes ;
 
