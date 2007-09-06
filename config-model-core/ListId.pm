@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-07-26 12:21:36 $
+# $Date: 2007-09-06 11:19:41 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.10 $
+# $Revision: 1.11 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -31,7 +31,7 @@ use strict;
 use base qw/Config::Model::AnyId/ ;
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.10 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.11 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -139,6 +139,7 @@ Returns the nb of elements of the list.
 
 sub fetch_size {
     my $self =shift ;
+    confess "Undef data " unless defined $self->{data} ;
     return scalar @{$self->{data}} ;
 }
 
