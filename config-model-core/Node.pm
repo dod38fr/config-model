@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-07-26 12:22:00 $
+# $Date: 2007-09-06 11:25:46 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.17 $
+# $Revision: 1.18 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -41,7 +41,7 @@ use base qw/Config::Model::AutoRead/;
 use vars qw($VERSION $AUTOLOAD @status @level
 @permission_list %permission_index );
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.17 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.18 $ =~ /(\d+)\.(\d+)/;
 
 *status           = *Config::Model::status ;
 *level            = *Config::Model::level ;
@@ -294,9 +294,6 @@ sub create_node {
 		instance          => $self->{instance},
 		element_name      => $element_name) ;
 
-    push @args, init_step => $element_info->{init_step} 
-      if defined $element_info->{init_step} ;
-
     $self->{element}{$element_name} = $self->new(@args) ;
 }
 
@@ -434,80 +431,7 @@ C<config_class_name> parameter. For instance:
               ]
    ) ;
 
-=head2 Locally changing properties of node element 
-
-You can provide an C<init_step> parameter with a set of key, value
-pair as argument. These arguments are in fact a set of targets and
-actions.
-
-The targets can be elements of the node itself:
-
-  init_step => [ 'bar' => 'Av' ] # default value of bar is Av
-
-or elements of nodes lower in the tree:
-
-  init_step => [ 'foo X' => 'Bv' ] # default value of X in bar is Av
-
-You can also change the default values of several leaves: 
-
-  init_step => [ 'bar' => 'Av', 'foo X' => 'Bv'  ]
-
-In fact, the target of C<init_step> (C<bar>) is retrieved by the
-L</grab(...)> method, so any string accepted by C<grab> can be used with
-C<init_step>.
-
-The effect can be:
-
-=over
-
-=item *
-
-A string: In this case, the target grabed will have a default value
-set to the effect. I.e, the C<set()> method will be called with C<<
-(default => ... ) >>. In other words, this feature changes locally
-only the default value.
-
-=item *
-
-A hash ref. In this case the content of the hash ref will be passed to
-the C<set()> method. In other world, this feature changes locally all
-properties of the leaf. For instance, the hash ref may contain 
-C<< max => XXX >> pair to change the maximum value of the leaf target.
-
-=back
-
 =cut
-
-# this function should be called only by new when dealing with
-# init_step parameter
-sub perform_init_step {
-    my $self = shift ;
-    my $step = shift ;
-
-    return unless defined $step ;
-
-    my @steps = @$step ;
-    my $class_name = $self->{config_class_name} ;
-
-    while ( my $step_str = shift @steps) {
-        my $obj = $self->grab($step_str );
-
-        my $param = shift @steps;
-        confess "$class_name new error : don't know what to do with ",
-            "object grabed with '$step_str'"
-            unless defined $param;
-
-        my @arg   =
-              ref($param) eq 'ARRAY' ? @$param
-            : ref($param) eq 'HASH'  ? %$param
-            : ( default => $param );
-
-        print "$class_name new: initialize '$step_str' with @arg\n" if $::verbose;
-        $obj->set(@arg);
-    }
-
-    return $self;
-}
 
 # check validity of permission declaration. 
 # create a list to classify elements by permission
@@ -603,8 +527,6 @@ sub new {
 
     my %args = @_ ;
 
-    my $init_step = delete $args{init_step} ;
-
     foreach my $p (@mandatory_parameters) {
 	$self->{$p} = delete $args{$p} or
 	  croak "Node->new: Missing $p parameter" ;
@@ -630,8 +552,6 @@ sub new {
 	= dclone ( $self->{config_model}->get_model($class_name) );
 
     $self->check_permission ;
-
-    $self->perform_init_step($init_step) ;
 
     # setup auto_read
     if (defined $model->{read_config}) {
@@ -1207,7 +1127,7 @@ the structure of the configuration model.
 
 sub load_data {
     my $self = shift ;
-    my $h = shift ;
+    my $h = dclone shift ;
 
     if (ref ($h) ne 'HASH') {
 	Config::Model::Exception::LoadData
