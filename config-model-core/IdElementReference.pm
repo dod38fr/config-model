@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-07-26 12:21:14 $
+# $Date: 2007-09-17 11:53:56 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 #    Copyright (c) 2007 Dominique Dumont.
 #
@@ -31,7 +31,7 @@ use Carp ;
 
 use vars qw($VERSION) ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/;
 
 
 =head1 NAME
@@ -72,10 +72,11 @@ Config::Model::IdElementReference - Refer to id element(s) and extract keys
 
 This class is user by L<Config::Model::Value> to set up an enumerated
 value where the possible choice depends on the key of a
-L<Config::Model::AnyId> object. 
+L<Config::Model::HashId> or the content of a L<Config::Model::ListId>
+object.
 
 This class is also used by L<Config::Model::CheckList> to define the
-cheklist items from the keys of another hash.
+cheklist items from the keys of another hash (or content of a list).
 
 =head1 CONSTRUCTOR
 
@@ -214,8 +215,23 @@ sub get_choice_from_refered_to {
 	if ($type eq 'check_list') {
 	    @choice = $obj->fetch_element($element)->get_checked_list();
 	}
-	elsif ( $type eq 'hash' or $type eq 'list') {
+	elsif ( $type eq 'hash') {
 	    @choice = $obj->fetch_element($element)->get_all_indexes();
+	}
+	elsif ( $type eq 'list') {
+	    my $list_obj = $obj->fetch_element($element) ;
+	    my $ct = $list_obj-> get_cargo_type ;
+	    if ($ct eq 'leaf') {
+		@choice = $list_obj->fetch_all_values();
+	    }
+	    else {
+		Config::Model::Exception::Model 
+		    -> throw (
+			  object => $obj,
+			      message => "element '$element' cargo_type is $ct. "
+			      ."Expected 'leaf'"
+			     ) ;
+	    }
 	}
 	else {
 	    Config::Model::Exception::Model 
