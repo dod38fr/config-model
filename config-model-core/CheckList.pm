@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-07-26 12:15:09 $
+# $Date: 2007-09-17 11:52:32 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.8 $
+# $Revision: 1.9 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -33,7 +33,7 @@ use strict;
 use base qw/Config::Model::WarpedThing/ ;
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.8 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.9 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -90,7 +90,7 @@ CheckList object should not be created directly.
 
 =cut
 
-my @accessible_params =  qw/default choice/ ;
+my @accessible_params =  qw/default_list choice/ ;
 
 my @allowed_warp_params = (@accessible_params, qw/level permission/);
 
@@ -168,7 +168,7 @@ This parameters is used when the keys of a hash are used to specify
 the possible choices of the check list. See L<Choice reference> for
 details. (optional)
 
-=item default
+=item default_list
 
 List ref to specify the check list items which are "on" by default.
 (optional)
@@ -205,7 +205,7 @@ A check list with default values:
        choice_list_with_default
        => { type => 'check_list',
             choice     => ['A' .. 'Z'],
-            default   => [ 'A', 'D' ],
+            default_list   => [ 'A', 'D' ],
           },
 
 =item *
@@ -217,7 +217,7 @@ the value of the C<macro> parameter:
        => { type => 'check_list',
             warp => { follow => '- macro',
                       rules  => { AD => { choice => [ 'A' .. 'D' ], 
-                                          default => ['A', 'B' ] },
+                                          default_list => ['A', 'B' ] },
                                   AH => { choice => [ 'A' .. 'H' ] },
                                 }
                     }
@@ -236,7 +236,7 @@ sub set {
 
     # cleanup all parameters that are handled by warp
     map(delete $self->{$_}, 
-        qw/default choice refer_to/) ;
+        qw/default_list choice refer_to/) ;
 
     # merge data passed to the constructor with data passed to set
     my %args = (%{$self->{backup}},@_ );
@@ -248,8 +248,13 @@ sub set {
     }
 
     if (defined $args{default}) {
-	$self->{default} = delete $args{default} ;
-	my %h = map { $_ => 1 } @{$self->{default}} ;
+	warn $self->name,": default param is deprecated, use default_list\n";
+	$args{default_list} = delete $args{default} ;
+    }
+
+    if (defined $args{default_list}) {
+	$self->{default_list} = delete $args{default_list} ;
+	my %h = map { $_ => 1 } @{$self->{default_list}} ;
 	$self->{default_data} = \%h ;
     }
     else {
