@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-09-06 11:30:15 $
+# $Date: 2007-09-17 12:02:44 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.11 $
+# $Revision: 1.12 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -32,7 +32,7 @@ use Config::Model::Exception ;
 use Data::Dumper ();
 
 use vars qw($VERSION $AUTOLOAD) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.11 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.12 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -196,6 +196,7 @@ sub new {
     # optional parameter that makes sense only if warped node is held
     # by a hash or an array
     $self->{index_value}  =  delete $args{index_value} ;
+    $self->{id_owner}     =  delete $args{id_owner} ;
 
     $self->{backup} = \%args ;
 
@@ -311,7 +312,7 @@ sub set {
         $self->clear ;
     }
 
-    $self->set_parent_element_property(\%args) ;
+    $self->set_owner_element_property(\%args) ;
 
     return unless defined $config_class_name ;
 
