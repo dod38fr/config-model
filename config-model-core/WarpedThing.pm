@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-09-06 11:30:54 $
+# $Date: 2007-09-17 12:03:21 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.13 $
+# $Revision: 1.14 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -33,7 +33,7 @@ use Carp;
 use warnings FATAL => qw(all);
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.13 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.14 $ =~ /(\d+)\.(\d+)/;
 
 use base qw/Config::Model::AnyThing/ ;
 
@@ -172,7 +172,7 @@ sub check_warp_args {
 
     # check that rules element are array ref and store them for
     # error checking
-    my $rules_ref = delete $arg_ref->{rules} ;
+    my $rules_ref =  $arg_ref->{rules} ;
     my @rules 
       = ref $rules_ref eq 'HASH'  ? %$rules_ref :
 	ref $rules_ref eq 'ARRAY' ? @$rules_ref :
@@ -306,8 +306,8 @@ sub set_parent_element_property {
     my ($self, $arg_ref) = @_ ;
 
     foreach my $property_name (qw/level permission/) {
-	if (defined $arg_ref->{$property_name}) {
-	    my $v = delete $arg_ref->{$property_name} ;
+	my $v = delete $arg_ref->{$property_name} ;
+	if (defined $v) {
 	    $self->{parent}
 	      -> set_element_property (
 				       property=> $property_name,
@@ -316,6 +316,7 @@ sub set_parent_element_property {
 				     );
 	}
 	else {
+	    # reset ensures that property is reset to known state by default
 	    $self->{parent}
 	      ->reset_element_property(property => $property_name,
 				       element  => $self->{element_name});
@@ -323,6 +324,13 @@ sub set_parent_element_property {
     }
 }
 
+sub set_owner_element_property {
+    my $self = shift ;
+    my $ref = shift ;
+
+    my $next = $self->{id_owner} || $self ;
+    $next -> set_parent_element_property($ref) ;
+}
 
 # try to actually warp (change properties) of a warped object.
 sub warp {
