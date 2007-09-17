@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-09-06 11:23:25 $
+# $Date: 2007-09-17 12:00:46 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.36 $
+# $Revision: 1.37 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -544,8 +544,8 @@ sub check_class_parameters {
     }
 
     foreach my $info_name (@legal_params) {
-	# fill default info
-	map {$model->{$info_name}{$_} = $default_property{$info_name}; }
+	# fill default info (but do not clobber already existing info)
+	map {$model->{$info_name}{$_} ||= $default_property{$info_name}; }
 	  @element_list 
 	    if defined $default_property{$info_name};
 
@@ -563,6 +563,7 @@ sub check_class_parameters {
 	    my ($item,$info) = splice @info,0,2 ;
 	    my @element_names = ref($item) ? @$item : ($item) ;
 
+	    # check for duplicate elements
 	    Config::Model::Exception::ModelDeclaration->throw
 		(
 		 error=> "create class $config_class_name: unknown ".
@@ -572,12 +573,26 @@ sub check_class_parameters {
 		  if defined $check{$info_name} 
 		    and not defined $check{$info_name}{$info} ;
 
+	    if ($info_name eq 'element') {
+		foreach my $info_to_move (qw/description level permission status/) {
+		    my $moved_data = delete $info->{$info_to_move}  ;
+		    next unless defined $moved_data ;
+		    map {$model->{$info_to_move}{$_} = $moved_data ; }
+			 @element_names ;
+		}
+	    }
+
 	    # warp can be found only in element item
 	    if (ref $info eq 'HASH') {
 		if (defined $info->{warp}) {
 		    $self->translate_warp_info($element_names[0], $info->{warp});
 		}
-		elsif (defined $info->{type} && $info->{type} eq 'warped_node') {
+		if (    defined $info->{cargo_args} 
+		    and defined $info->{cargo_args}{warp}) {
+		    $self->translate_warp_info($element_names[0], 
+					       $info->{cargo_args}{warp});
+		}
+		if (defined $info->{type} && $info->{type} eq 'warped_node') {
 		    $self->translate_warp_info($element_names[0], $info);
 		}
 	    }
@@ -722,7 +737,8 @@ sub translate_rules_arg {
     elsif (ref($raw_rules) eq 'ARRAY') {
 	if ( $multi_follow ) {
 	    push @rules, 
-	      $self->translate_multi_follow_legacy_rules( $elt_name, $warper_items,
+	      $self->translate_multi_follow_legacy_rules( $elt_name, 
+							  $warper_items,
 							  $raw_rules ) ;
 	}
 	else {
@@ -738,10 +754,11 @@ sub translate_rules_arg {
 	}
     }
     else {
+	my $item = defined $raw_rules ? $raw_rules : '<undef>' ;
 	Config::Model::Exception::ModelDeclaration
 	    -> throw (
 		      error => "Warp rule error in object '$elt_name': "
-		             . "rules must be a hash ref. Got '$raw_rules'"
+		             . "rules must be a hash ref. Got '$item'"
 		     ) ;
     }
 
@@ -857,12 +874,31 @@ Example:
    config_class_name => 'SomeRootClass',
    permission        => [ [ qw/tree_macro warp/ ] => 'advanced'] ,
    description       => [ X => 'X-ray' ],
+   level             => [ 'tree_macro' => 'important' ] ,
    class_description => "SomeRootClass description",
    element           => [ ... ] 
   ) ;
 
 Again, see L<Config::Model::Node> for more details on configuration
 class declaration.
+
+For convenience, C<permission>, C<level> and C<description> parameters
+can also be declared within the element declaration:
+
+  $model->create_config_class 
+  (
+   config_class_name => 'SomeRootClass',
+   class_description => "SomeRootClass description",
+   'element'
+   => [ 
+        tree_macro => { level => 'important',
+                        permission => 'advanced',
+                      },
+        warp       => { permission => 'advanced', } ,
+        X          => { description => 'X-ray', } ,
+      ] 
+  ) ;
+
 
 =head1 Load pre-declared model
 
