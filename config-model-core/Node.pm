@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-09-06 11:25:46 $
+# $Date: 2007-09-20 11:40:27 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.18 $
+# $Revision: 1.19 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -41,7 +41,7 @@ use base qw/Config::Model::AutoRead/;
 use vars qw($VERSION $AUTOLOAD @status @level
 @permission_list %permission_index );
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.18 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.19 $ =~ /(\d+)\.(\d+)/;
 
 *status           = *Config::Model::status ;
 *level            = *Config::Model::level ;
@@ -758,7 +758,8 @@ sub get_element_name {
     # must respect the order of the elements declared in the model by
     # the user
     foreach my $elt (@element_list) {
-	# create element if they don't exist
+	# create element if they don't exist, this enables warp stuff
+	# to kick in
 	$self->create_element($elt) unless defined $self->{element}{$elt};
 
 	next if $info->{level}{$elt} eq 'hidden' ;
@@ -1149,7 +1150,8 @@ sub load_data {
     if (%$h) {
 	Config::Model::Exception::LoadData 
 	    -> throw (
-		      message => "load_data: unknown elements: ",
+		      message => "load_data: unknown elements (expected "
+		     . join(' ' ,@{$self->{model}{element_list}} ). ") ",
                       wrong_data => $h,
 		      object => $self,
 		     ) ;
