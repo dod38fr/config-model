@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-09-17 12:02:08 $
+# $Date: 2007-09-20 11:38:32 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.18 $
+# $Revision: 1.19 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -37,7 +37,7 @@ use base qw/Config::Model::WarpedThing/ ;
 
 use vars qw($VERSION) ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.18 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.19 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -180,14 +180,28 @@ computed value declaration.
 sub set_compute {
     my ($self, $arg_ref) = @_ ;
 
-    Config::Model::Exception::Model
-	-> throw (
-		  object => $self,
-		  error => "Compute value must be an array ref"
-		 ) 
-	  unless ref($arg_ref->{compute}) eq 'ARRAY' ;
+    my $c_ref = delete $arg_ref->{compute};
 
-    $self->{compute} = delete $arg_ref->{compute};
+    if (ref($c_ref) eq 'HASH') {
+	$self->{compute} = $c_ref ;
+    }
+    else {
+	Config::Model::Exception::Model
+	    -> throw (
+		      object => $self,
+		      error => "Compute value must be a hash ref not $c_ref"
+		     ) ;
+    }
+
+    foreach my $item (qw/formula variables/) {
+	next if defined $self->{compute}{$item} ;
+	Config::Model::Exception::Model
+	    -> throw (
+		      object => $self,
+		      error => "Missing compute $item"
+		     ) ;
+    }
+
     delete $self->{_compute} ;
 }
 
@@ -195,17 +209,18 @@ sub set_compute {
 # parameters
 sub submit_to_compute {
     my $self = shift ;
-    my ($user_formula,%var) = @{$self->{compute}} ;
 
+    my $c_info = $self->{compute} ;
     $self->{_compute} = Config::Model::ValueComputer
       -> new (
-	      user_formula => $user_formula ,
-	      user_var => \%var ,
+	      user_formula => $c_info->{formula} ,
+	      user_var     => $c_info->{variables} ,
+	      substitution => $c_info->{substitution},
 	      value_object => $self ,
-	      value_type => $self->{value_type}
+	      value_type   => $self->{value_type}
 	     );
 
-    $self->register_in_other_value(\%var) ;
+    $self->register_in_other_value( $c_info->{variables} ) ;
 }
 
 
@@ -374,10 +389,10 @@ sub new {
     Config::Model::Exception::Model
 	-> throw (
 		  error=> "$type creation error: "
-		  ."compute value must be an array ref",
+		  ."compute value must be a hash ref",
 		  object => $self
 		 ) 
-	  if (defined $args{compute} and ref($args{compute}) ne 'ARRAY') ;
+	  if (defined $args{compute} and ref($args{compute}) ne 'HASH') ;
 
     my $warp_info = delete $args{warp} ;
 
@@ -398,7 +413,7 @@ sub new {
 
 # warning : call to 'set' are not cumulative. Default value are always
 # restored. Lest keeping track of what was modified with 'set' is
-# too hard for the user.
+# too confusing.
 sub set {
     my $self = shift ;
 

@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-07-03 11:37:45 $
+# $Date: 2007-09-20 11:37:55 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.6 $
+# $Revision: 1.7 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -33,7 +33,7 @@ use Data::Dumper () ;
 
 use vars qw($VERSION $compute_grammar $compute_parser) ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -54,18 +54,35 @@ Config::Model::ValueComputer - Provides configuration value computation
        compute_int 
        => { type => 'leaf',
             value_type => 'integer',
-            compute    => [ '$a + $b', a => '- av', b => '- bv' ],
+            compute    => { formula   => '$a + $b', 
+                            variables => { a => '- av', b => '- bv'}
+                          },
             min        => -4,
             max        => 4,
           },
        [qw/sav sbv/] => {type => 'leaf',
                          value_type => 'string',
                       },
-       compute_string =>
+       compute_string
        => { type => 'leaf',
             value_type => 'string',
-            compute => [ 'meet $a and $b', a => '- sav', b => '- sbv' ],
+            compute => { formula => 'meet $a and $b', 
+                         variables => { '- sav', b => '- sbv' }
+                       },
           },
+       compute_with_substitution 
+       => {
+            formula => '$munge{$who} is the $munge{$what} of $munge{$country}',
+            variables => {
+                           who   => '! who' ,
+                           what  => '! what' ,
+                           country => '- country',
+                         },
+            substitute => { munge => {  chief => 'president', 
+                                        America => 'USA'
+                                     }
+                          },
+    ]
       ]
  ) ;
 
@@ -81,7 +98,7 @@ value can be used as a defult value.
 =head1 Computed value declaration
 
 A computed value must be declared in a 'leaf' element. The leaf element
-must have a C<compute> argument pointing to an array ref. 
+must have a C<compute> argument pointing to a hash ref. 
 
 This array ref contains:
 
@@ -89,7 +106,7 @@ This array ref contains:
 
 =item *
 
-A string or a formula that use variables and subsitution function.
+A string formula that use variables and substitution function.
 
 =item *
 
@@ -166,7 +183,9 @@ In this numeric example, C<result> default value is C<av + bv>:
   result => { 
     type => 'leaf',
     value_type => 'integer', 
-    compute => [ '$a + $b' , a => '- av', b => '- bv' ]
+    compute => { formula => '$a + $b' , 
+                 variables => { a => '- av', b => '- bv' },
+               }
   }
 
 In this string example, the default value of the C<Comp> element is
@@ -176,7 +195,9 @@ actually a string made of "C<macro is >" and the value of the
    comp => { 
     type => 'leaf',
     value_type => 'string', 
-    compute => [ '"macro is $m"' , m => '- - macro']]
+    compute => { formula => '"macro is $m"' ,
+                 variables => { m => '- - macro' }
+               }
    }
 
 =head2 Compute substitution
@@ -187,13 +208,18 @@ can be done using a hash like notation within the formula.
 
 For instance, if you want to display a summary of a config, you can do :
 
- compute => [
-   '$munge{$who} is the $munge{$what} of $munge{$country}'
-    who   => '! who' ,
-    what  => '! what' ,
-    country => '- country',
-    munge => {  chief => 'president', America => 'USA'}
-    ]
+       compute_with_substitution 
+       => {
+            formula => '$munge{$who} is the $munge{$what} of $munge{$country}',
+            variables => {
+                           who   => '! who' ,
+                           what  => '! what' ,
+                           country => '- country',
+                         },
+            substitute => { munge => {  chief => 'president', 
+                                        America => 'USA'
+                                     }
+                          },
 
 =head2 Complex formula
 
@@ -208,13 +234,18 @@ I.e. C<&element($foo)> is ok, but C<&element(&index($foo))> is not allowed.
 
 Compute variables can themselves be computed :
 
-   compute => [
-     'get_element is $element_table{$s}, indirect value is \'$v\'',
-     's' => '! $where',
-      where => '! where_is_element',
-      v => '! $element_table{$s}',
-      element_table => { qw/m_value_element m_value compute_element compute/ }
-    ]
+   compute => {
+     formula => 'get_element is $element_table{$s}, indirect value is \'$v\'',
+     variables => { 's' => '! $where',
+                     where => '! where_is_element',
+                     v => '! $element_table{$s}',
+                  }
+     substitution => { element_table 
+                      => { m_value_element => 'm_value',
+                           compute_element => 'compute' 
+                         }
+                     }
+    }
 
 Be sure not to specify a loop when doing recursive computation.
 
@@ -229,7 +260,9 @@ compute parameter:
     type => 'leaf',
     value_type => 'string', 
     allow_compute_override => 1,
-    compute => [ '"macro is $m"' , m => '- - macro']
+    compute => { formula => '"macro is $m"' , 
+                 variables => { m => '- - macro' }
+               }
    }
 
 =cut
@@ -244,6 +277,8 @@ sub new {
 	$self->{$k}=delete $args{$k} || 
 	  croak "Config::Model::ValueComputer:new undefined parameter $k";
     }
+
+    $self->{substitution} = delete $args{substitution} || {} ;
 
     die "Config::Model::ValueComputer:new unexpected parameter: ",
       join(' ',keys %args) if %args ;
@@ -261,7 +296,8 @@ sub new {
 	 $self->{user_formula},
 	 1,
 	 $self->{value_object},
-	 $self->{user_var}
+	 $self->{user_var},
+	 $self->{substitution}
 	) ;
 
     $self->{pre_formula} = $$result_r ;
@@ -282,7 +318,7 @@ sub compute {
     return unless defined $user_var ;
 
     my $formula_r = $compute_parser
-      -> compute ($pre_formula, 1,$self->{value_object}, $user_var) ;
+      -> compute ($pre_formula, 1,$self->{value_object}, $user_var, $self->{substitution}) ;
 
     my $formula = $$formula_r ;
 
@@ -359,11 +395,11 @@ sub compute_user_var {
         foreach my $key (keys %user_var) {
             my $value = $user_var{$key} ; # value may be undef
             next unless (defined $value and $value =~ /\$/) ;
-            next if ref($value); # skip replacement rules
+            #next if ref($value); # skip replacement rules
             print "key '$key', value '$value', left $var_left\n" 
 	      if $::debug;
             my $res_r = $compute_parser
-	      -> compute ($value, 1,$self->{value_object}, \%user_var);
+	      -> compute ($value, 1,$self->{value_object}, \%user_var, $self->{substitution});
 	    my $res = $$res_r ;
             #return undef unless defined $res ;
             $user_var{$key} = $res ;
@@ -394,7 +430,7 @@ sub compute_user_var {
 $compute_grammar = << 'END_OF_GRAMMAR' ;
 
 {
-# $Revision: 1.6 $
+# $Revision: 1.7 $
 
 # This grammar is compatible with Parse::RecDescent < 1.90 or >= 1.90
 use strict;
@@ -417,10 +453,11 @@ pre_value:
      # print "pre_value handling \$foo{ ... }\n";
      my $pre_value = ${ $item{pre_value} } ;
      my $object = $item{object};
-     my $result = exists $arg[1]->{$object}{$pre_value} ?
-       $arg[1]->{$object}{$pre_value} : 
+     my $result = exists $arg[2]->{$object}{$pre_value} ?
+       $arg[2]->{$object}{$pre_value} : 
        "\$".$object.'{'.$pre_value.'}';
      $return = \$result ;
+     # print "\$foo{...} result = ",$$return," \n";
   }
   | <skip:''> function '(' /\s*/ object /\s*/ ')' {
      # print "pre_value handling &foo(...)\n";
@@ -464,6 +501,8 @@ pre_value:
 		       "expected &element(...) or &index(...)"
 		      );
      }
+     # print "\&foo(...) result = ",$$return," \n";
+     $return ;
   }
   | <skip:''> '&' /\w+/ (/\(\s*\)/)(?) {
      # print "pre_value handling &foo()\n";
@@ -535,7 +574,7 @@ value:
 		   object => $arg[0],
 		   error => "Unknown replacement rule: $object\n"
 		  )  
-	 unless defined $arg[1]->{$object} ;
+	 unless defined $arg[2]->{$object} ;
 
      my $result ;
      if (defined $value and $value =~ /\$/) {
@@ -550,9 +589,9 @@ value:
                         error => "Unknown replacement value for rule '$object': "
                                . "'$value'\n"
                       )
-             unless  defined $arg[1]->{$object}{$value} ;
+             unless  defined $arg[2]->{$object}{$value} ;
 
-	 $result = $arg[1]->{$object}{$value} ;
+	 $result = $arg[2]->{$object}{$value} ;
        }
      $return = \$result ;
     }

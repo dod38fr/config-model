@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-09-17 12:00:46 $
+# $Date: 2007-09-20 11:39:00 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.37 $
+# $Revision: 1.38 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -582,19 +582,9 @@ sub check_class_parameters {
 		}
 	    }
 
-	    # warp can be found only in element item
+	    # warp can be found only in element item 
 	    if (ref $info eq 'HASH') {
-		if (defined $info->{warp}) {
-		    $self->translate_warp_info($element_names[0], $info->{warp});
-		}
-		if (    defined $info->{cargo_args} 
-		    and defined $info->{cargo_args}{warp}) {
-		    $self->translate_warp_info($element_names[0], 
-					       $info->{cargo_args}{warp});
-		}
-		if (defined $info->{type} && $info->{type} eq 'warped_node') {
-		    $self->translate_warp_info($element_names[0], $info);
-		}
+		$self->translate_legacy_info($element_names[0], $info) ;
 	    }
 
 	    foreach my $name (@element_names) {
@@ -613,6 +603,67 @@ sub check_class_parameters {
 
     $model->{element_list} = \@element_list;
 }
+
+sub translate_legacy_info {
+    my $self = shift ;
+    my $elt_name = shift ;
+    my $info = shift ;
+
+    #translate legacy warp information
+    if (defined $info->{warp}) {
+	$self->translate_warp_info($elt_name, $info->{warp});
+    }
+    if (    defined $info->{cargo_args} 
+	and defined $info->{cargo_args}{warp}) {
+	$self->translate_warp_info($elt_name, 
+				   $info->{cargo_args}{warp});
+    }
+    if (defined $info->{type} && $info->{type} eq 'warped_node') {
+	$self->translate_warp_info($elt_name, $info);
+    }
+
+    if (defined $info->{compute}) {
+	$self->translate_compute_info($elt_name, $info);
+    }
+    if (    defined $info->{cargo_args} 
+	and defined $info->{cargo_args}{compute}) {
+	$self->translate_compute_info($elt_name, 
+				   $info->{cargo_args});
+    }
+    if (    defined $info->{warp} 
+	and defined $info->{warp}{compute}) {
+	$self->translate_compute_info($elt_name, 
+				   $info->{warp});
+    }
+}
+
+sub translate_compute_info {
+    my $self = shift ;
+    my $elt_name = shift ;
+    my $info = shift ;
+
+    my $compute_info= $info->{compute} ;
+    print "translate_compute_info_info $elt_name input:\n", 
+      Data::Dumper->Dump( [$compute_info ] , [qw/compute_info/ ]) ,"\n"
+	  if $::debug ;
+
+    if (ref($compute_info) eq 'ARRAY') {
+	warn 
+	  "$elt_name: specifying compute info with an array ref is deprecated\n"; 
+	my ($user_formula,%var) = @$compute_info ;
+	my %subs ;
+	map { $subs{$_} = delete $var{$_} if ref($var{$_})} keys %var ;
+	# change the hash *in* the info structure
+	$info->{compute} = { formula => $user_formula,
+			     variables => \%var,
+			     substitution => \%subs
+			   } ;
+	print "translate_warp_info $elt_name output:\n",
+	  Data::Dumper->Dump([$info->{compute} ] , [qw/new_compute_info/ ] ) ,"\n"
+	      if $::debug ;
+    }
+}
+
 
 # internal: translate warp information into 'boolean expr' => { ... }
 sub translate_warp_info {
