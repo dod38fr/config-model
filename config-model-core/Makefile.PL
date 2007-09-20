@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-05-09 11:46:17 $
+# $Date: 2007-09-20 16:21:34 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.12 $
+# $Revision: 1.13 $
 
 #    Copyright (c) 2005-2006 Dominique Dumont.
 #
@@ -65,6 +65,7 @@ WriteMakefile
 		    'Error'             => 0
 		   },
    # cleanup required by t/auto_read.t
-   clean => {FILES => "wr_test zero_test"}
+   # PreGrammar.pm is create by t/value_computer.t
+   clean => {FILES => "PreGrammar.pm wr_test zero_test"}
   );
 

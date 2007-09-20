@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-09-20 11:37:55 $
+# $Date: 2007-09-20 16:21:34 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.7 $
+# $Revision: 1.8 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -33,7 +33,7 @@ use Data::Dumper () ;
 
 use vars qw($VERSION $compute_grammar $compute_parser) ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.8 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -70,18 +70,17 @@ Config::Model::ValueComputer - Provides configuration value computation
                          variables => { '- sav', b => '- sbv' }
                        },
           },
-       compute_with_substitution 
+       compute_with_replace 
        => {
-            formula => '$munge{$who} is the $munge{$what} of $munge{$country}',
+            formula   => '$replace{$who} is the $replace{$what} of $replace{$country}',
             variables => {
                            who   => '! who' ,
                            what  => '! what' ,
                            country => '- country',
                          },
-            substitute => { munge => {  chief => 'president', 
-                                        America => 'USA'
-                                     }
-                          },
+	    replace   => { chief => 'president', 
+                            America => 'USA'
+                         },
     ]
       ]
  ) ;
@@ -106,7 +105,7 @@ This array ref contains:
 
 =item *
 
-A string formula that use variables and substitution function.
+A string formula that use variables and replace function.
 
 =item *
 
@@ -116,7 +115,7 @@ L<grab() method|Config::Model::AnyThing/"grab(...)">
 
 =item *
 
-An optional set of substitution rules.
+An optional set of replace rules.
 
 =back
 
@@ -200,30 +199,30 @@ actually a string made of "C<macro is >" and the value of the
                }
    }
 
-=head2 Compute substitution
+=head2 Compute replace
 
 Sometime, using the value of a tree leaf is not enough and you need to
 substitute a replacement for any value you can get. This replacement
-can be done using a hash like notation within the formula.
+can be done using a hash like notation within the formula using the
+C<%replace> hash.
 
 For instance, if you want to display a summary of a config, you can do :
 
-       compute_with_substitution 
+       compute_with_replace 
        => {
-            formula => '$munge{$who} is the $munge{$what} of $munge{$country}',
+            formula => '$replace{$who} is the $replace{$what} of $replace{$country}',
             variables => {
                            who   => '! who' ,
                            what  => '! what' ,
                            country => '- country',
                          },
-            substitute => { munge => {  chief => 'president', 
-                                        America => 'USA'
-                                     }
-                          },
+            replace => {  chief => 'president', 
+                          America => 'USA'
+                       },
 
 =head2 Complex formula
 
-C<&index>, C<&element>, and substitution can be combined. But the
+C<&index>, C<&element>, and replace can be combined. But the
 argument of C<&element> or C<&index> can only be a value object
 specification (I.e. something like 'C<- - foo>'), it cannot be a value
 replacement of another C<&element> or C<&index>.
@@ -235,16 +234,14 @@ I.e. C<&element($foo)> is ok, but C<&element(&index($foo))> is not allowed.
 Compute variables can themselves be computed :
 
    compute => {
-     formula => 'get_element is $element_table{$s}, indirect value is \'$v\'',
+     formula => 'get_element is $replace{$s}, indirect value is \'$v\'',
      variables => { 's' => '! $where',
                      where => '! where_is_element',
-                     v => '! $element_table{$s}',
+                     v => '! $replace{$s}',
                   }
-     substitution => { element_table 
-                      => { m_value_element => 'm_value',
-                           compute_element => 'compute' 
-                         }
-                     }
+     replace   => { m_value_element => 'm_value',
+                    compute_element => 'compute' 
+                  }
     }
 
 Be sure not to specify a loop when doing recursive computation.
@@ -278,7 +275,7 @@ sub new {
 	  croak "Config::Model::ValueComputer:new undefined parameter $k";
     }
 
-    $self->{substitution} = delete $args{substitution} || {} ;
+    $self->{replace} = delete $args{replace} || {} ;
 
     die "Config::Model::ValueComputer:new unexpected parameter: ",
       join(' ',keys %args) if %args ;
@@ -297,7 +294,7 @@ sub new {
 	 1,
 	 $self->{value_object},
 	 $self->{user_var},
-	 $self->{substitution}
+	 $self->{replace}
 	) ;
 
     $self->{pre_formula} = $$result_r ;
@@ -318,7 +315,7 @@ sub compute {
     return unless defined $user_var ;
 
     my $formula_r = $compute_parser
-      -> compute ($pre_formula, 1,$self->{value_object}, $user_var, $self->{substitution}) ;
+      -> compute ($pre_formula, 1,$self->{value_object}, $user_var, $self->{replace}) ;
 
     my $formula = $$formula_r ;
 
@@ -383,7 +380,7 @@ sub compute_user_var {
     my $self = shift ;
 
     # a shallow copy should be enough as we don't allow
-    # substitution in replacement rules
+    # replace in replacement rules
     my %user_var = %{$self->{user_var}} ;
 
     # apply a compute on all user_var until no $var is left
@@ -399,7 +396,7 @@ sub compute_user_var {
             print "key '$key', value '$value', left $var_left\n" 
 	      if $::debug;
             my $res_r = $compute_parser
-	      -> compute ($value, 1,$self->{value_object}, \%user_var, $self->{substitution});
+	      -> compute ($value, 1,$self->{value_object}, \%user_var, $self->{replace});
 	    my $res = $$res_r ;
             #return undef unless defined $res ;
             $user_var{$key} = $res ;
@@ -430,7 +427,7 @@ sub compute_user_var {
 $compute_grammar = << 'END_OF_GRAMMAR' ;
 
 {
-# $Revision: 1.7 $
+# $Revision: 1.8 $
 
 # This grammar is compatible with Parse::RecDescent < 1.90 or >= 1.90
 use strict;
@@ -449,13 +446,11 @@ pre_compute: <skip:''> pre_value[@arg](s) {
 }
 
 pre_value: 
-  <skip:''> object '{' /\s*/ pre_value[@arg] /\s*/ '}' {
+  <skip:''> '$replace' '{' /\s*/ pre_value[@arg] /\s*/ '}' {
      # print "pre_value handling \$foo{ ... }\n";
      my $pre_value = ${ $item{pre_value} } ;
-     my $object = $item{object};
-     my $result = exists $arg[2]->{$object}{$pre_value} ?
-       $arg[2]->{$object}{$pre_value} : 
-       "\$".$object.'{'.$pre_value.'}';
+     my $result = exists $arg[2]->{$pre_value} ? $arg[2]->{$pre_value} 
+                :                               '$replace{'.$pre_value.'}';
      $return = \$result ;
      # print "\$foo{...} result = ",$$return," \n";
   }
@@ -564,34 +559,26 @@ compute:  <skip:''> value[@arg](s) {
   }
 
 value: 
-  <skip:''> object '{' <commit> /\s*/ value[@arg] /\s*/ '}' {
-     my $object = $item{object};
+  <skip:''> '$replace' '{' <commit> /\s*/ value[@arg] /\s*/ '}' {
      my $value = ${ $item{value} } ;
 
-     # print "value: replacement object '$object', value '$value'\n";
-     Config::Model::Exception::Formula
-         -> throw (
-		   object => $arg[0],
-		   error => "Unknown replacement rule: $object\n"
-		  )  
-	 unless defined $arg[2]->{$object} ;
-
+     # print "value: replacement, value '$value'\n";
      my $result ;
      if (defined $value and $value =~ /\$/) {
          # must keep original variable
-         $result = '$'.$object.'{'.$value.'}';
+         $result = '$replace{'.$value.'}';
        }
      elsif (defined $value)
        {
          Config::Model::Exception::Formula
              -> throw (
                        object => $arg[0],
-                        error => "Unknown replacement value for rule '$object': "
+                        error => "Unknown replacement value for replace: "
                                . "'$value'\n"
                       )
-             unless  defined $arg[2]->{$object}{$value} ;
+             unless  defined $arg[2]->{$value} ;
 
-	 $result = $arg[2]->{$object}{$value} ;
+	 $result = $arg[2]->{$value} ;
        }
      $return = \$result ;
     }

@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-09-20 11:38:32 $
+# $Date: 2007-09-20 16:21:34 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.19 $
+# $Revision: 1.20 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -37,7 +37,7 @@ use base qw/Config::Model::WarpedThing/ ;
 
 use vars qw($VERSION) ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.19 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.20 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -215,7 +215,7 @@ sub submit_to_compute {
       -> new (
 	      user_formula => $c_info->{formula} ,
 	      user_var     => $c_info->{variables} ,
-	      substitution => $c_info->{substitution},
+	      replace      => $c_info->{replace},
 	      value_object => $self ,
 	      value_type   => $self->{value_type}
 	     );

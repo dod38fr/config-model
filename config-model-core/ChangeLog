@@ -1,3 +1,35 @@
+2007-09-20  Dominique Dumont  <dominique.dumont@hp.com>
+
+	* ValueComputer.pm: Now compute paramter must use explicit
+	parameters for compute formula, variables and replace.
+	Backward compatibility is kept by translating old compute
+	declaration in Model.pm
+	
+2007-09-17  Dominique Dumont  <dominique.dumont@hp.com>
+
+	* Model.pm (include_class): permission, level and
+	description paremeters can also be declared within the element
+	declaration.
+
+	* IdElementReference.pm (): A reference to a list will now take
+		  into account the values of the list instead of the
+		  indexes of the list
+
+	* CheckList.pm: Change the name of 'default' parameter to
+         'default_list' ('default' is still accepted but is deprecated)
+
+2007-09-06  Dominique Dumont  <dominique.dumont@hp.com>
+
+	* WarpedNode.pm: improved synopsis in doc
+	(load_data): new method (forgotten in 0.612)
+
+	* Model.pm: -doc: added synopsis
+	- inherit is deprecated in favor of include 
+	- inherit_after is deprecated in favor of include_after
+	- Raise an exception if an element is declared twice in a
+	  model (even through include mechanism: overriding an
+	  included element leads to confusion)
+
 2007-07-26  Dominique Dumont  v0.612
 
 	* HashId.pm : can preserve hash key order (when created with
@@ -14,10 +46,10 @@
 
 2007-07-18  Dominique Dumont  
 
-	* Value.pm (load_data): new_method
+	* Value.pm (load_data): new method
 
-	* Node.pm (load_data): new_method
-	(dump_as_data): new_method
+	* Node.pm (load_data): new method
+	(dump_as_data): new method 
 
 	* Model.pm (inherit_class): added inherit_after parameter. In a
 	model, the order of the elements is important. This parameter

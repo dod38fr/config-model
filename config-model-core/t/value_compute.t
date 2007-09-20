@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2007-09-20 11:39:37 $
+# $Date: 2007-09-20 16:21:34 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.6 $
+# $Revision: 1.7 $
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
@@ -110,7 +110,7 @@ my $rules =  {
 	      bar => '- sbv',
 	     } ;
 my $srules = {
-	      rep1 => { bv => 'rbv' },
+	       bv => 'rbv' 
 	     };
 
 my $ref = $parser->pre_value( '$bar', 1, $object, $rules , $srules );
@@ -123,10 +123,10 @@ $root->fetch_element('sbv')->store('bv') ;
 $ref = $parser->value( '$bar', 1, $object, $rules  , $srules);
 is( $$ref, 'bv', "test compute parser on a very small formula: '\$bar'");
 
-$ref = $parser->pre_value( '$rep1{$bar}', 1, $object, $rules , $srules );
-is( $$ref, '$rep1{$bar}',"test pre-compute parser with substitution" );
+$ref = $parser->pre_value( '$replace{$bar}', 1, $object, $rules , $srules );
+is( $$ref, '$replace{$bar}',"test pre-compute parser with substitution" );
 
-$ref = $parser->value( '$rep1{$bar}', 1, $object, $rules , $srules );
+$ref = $parser->value( '$replace{$bar}', 1, $object, $rules , $srules );
 is( $$ref, 'rbv', "test compute parser with substitution");
 
 my $txt = 'my stuff is  $bar, indeed';
