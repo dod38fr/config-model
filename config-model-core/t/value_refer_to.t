@@ -1,13 +1,13 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-12-06 12:52:00 $
+# $Date: 2007-09-20 11:39:37 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.5 $
+# $Revision: 1.6 $
 
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
-use Test::More tests => 14 ;
+use Test::More tests => 15 ;
 use Config::Model ;
 
 use strict;
@@ -102,7 +102,17 @@ $model ->create_config_class
 				    value_type => 'reference' ,
 				    refer_to => [ '! host ' ],
 				    choice => [qw/foo bar/]
-				  }
+				  },
+	       dumb_list => { type => 'list',
+			      cargo_type => 'leaf',
+			      cargo_args => {value_type => 'string'}
+			    },
+	       refer_to_list_enum 
+	       => {
+		   type => 'leaf',
+		   value_type => 'reference',
+		   refer_to => '- dumb_list',
+		  }
 	      ]
   );
 
@@ -160,3 +170,12 @@ is( $root->grab_value('lan:B node:2 ip'), '10.0.1.2', "got ip 10.0.1.2" );
 my $hac = $root->fetch_element('host_and_choice') ;
 is_deeply([$hac->get_choice],['A','B','bar','foo'],
 	 "check that default choice and refer_to add up");
+
+
+# test reference to list values
+$root->load("dumb_list=a,b,c,d,e") ;
+
+my $rtle = $root->fetch_element("refer_to_list_enum") ;
+is_deeply( [$rtle -> get_choice ], [qw/a b c d e/],
+	   "check choice of refer_to_list_enum"
+	 ) ;

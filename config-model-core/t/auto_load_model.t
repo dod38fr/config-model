@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2007-07-19 11:28:51 $
+# $Date: 2007-09-20 11:39:37 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 use ExtUtils::testlib;
 use Test::More tests => 5;
@@ -42,7 +42,7 @@ ok( $root->load( step => $step, permission => 'intermediate' ),
 
 # check that loading a model without inheritance works
 
-my $model2 = Config::Model -> new ( skip_inheritance => 1 ) ;
+my $model2 = Config::Model -> new ( skip_include => 1 ) ;
 my $inst2 = $model2->instance (root_class_name => 'Master', 
 			     model_file    => 't/big_model.pm' ,
 			     instance_name => 'test1');

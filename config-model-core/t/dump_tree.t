@@ -1,11 +1,11 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2007-05-04 11:44:58 $
+# $Date: 2007-09-20 11:39:37 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.10 $
+# $Revision: 1.11 $
 
 use ExtUtils::testlib;
-use Test::More tests => 8;
+use Test::More tests => 9;
 use Config::Model;
 
 use warnings;
@@ -170,3 +170,51 @@ $cds =~ s/\s+\n/\n/g;
 is_deeply( [split /\n/,$cds], [split /\n/,$expect], 
 	   "check dump of all values after listb is cleared") ;
 
+
+# check empty strings
+
+my $a_s = $root->fetch_element('a_string');
+$a_s->store("") ;
+
+$expect = <<'EOF' ;
+std_id:ab
+  X=Bv
+  DX=Dv -
+std_id:"b d "
+  X=Av
+  DX=Dv -
+std_id:bc
+  X=Av
+  DX=Dv -
+lista=a,b,c,d
+hash_a:X2=x
+hash_a:Y2=xy
+hash_b:X3=xy
+olist:0
+  X=Av
+  DX=Dv -
+olist:1
+  X=Bv
+  DX=Dv -
+warp
+  sub_slave
+    sub_slave - -
+  warp2
+    sub_slave - - -
+slave_y
+  sub_slave
+    sub_slave - -
+  warp2
+    sub_slave - - -
+string_with_def="yada yada"
+a_string=""
+int_v=10
+my_check_list=X2,X3 -
+EOF
+
+$cds = $root->dump_tree( full_dump => 1 );
+print "cds string:\n$cds" if $trace  ;
+
+$cds =~ s/\s+\n/\n/g;
+is_deeply( [split /\n/,$cds], [split /\n/,$expect], 
+	   "check dump of all values after a_string is set to ''") ;

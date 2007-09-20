@@ -1,11 +1,11 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-02-16 13:09:43 $
+# $Date: 2007-09-20 11:39:37 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 
 use ExtUtils::testlib;
-use Test::More tests => 49;
+use Test::More tests => 45;
 use Config::Model;
 
 use warnings;
@@ -40,8 +40,7 @@ $model->create_config_class
    permission => [ bar => 'intermediate' ],
    element => [
 	       bar => { type => 'node', 
-			config_class_name => 'Sarge' ,
-			init_step => [ Y => 'Bv' ]
+			config_class_name => 'Sarge' 
 		      }
 	      ]
   );
@@ -55,15 +54,10 @@ $model ->create_config_class
 		captain => { 
 			 type => 'node',
 			 config_class_name => 'Captain',
-			 init_step => [ 'bar X' => 'Av' ]
 			},
 		[qw/array_args hash_args/] 
 		=> { type => 'node',
 		     config_class_name => 'Captain',
-		     init_step 
-		     => [ 'bar X' 
-			  => [ choice => [qw/Av Bv Cv Dv/] ] 
-			]
 		   },
 	       ],
    class_description => "Master description",
@@ -119,8 +113,6 @@ is($b->get_element_property(property => 'permission',element => 'Z'),
 is($b->get_element_property(property => 'permission',element => 'X'),
    'master',      "check X permission") ;
 
-is( $b->fetch_element_value('X'), 'Av',  "test X value" );
-is( $b->fetch_element_value('Y'), 'Bv',  "test Y value" );
 is( $b->fetch_element_value('Z'), undef, "test Z value" );
 
 eval { $b->fetch_element('Z','user');} ;
@@ -131,13 +123,6 @@ eval { $b->fetch_element('X','intermediate');} ;
 ok($@,"fetch_element with unexpected permission") ;
 like($@,qr/restricted element/,"check error message") ;
 
-$root->fetch_element('array_args')->fetch_element('bar')
-  ->store_element_value( X => 'Dv' );
-
-is( $root->fetch_element('array_args')->fetch_element('bar')
-    ->fetch_element_value( 'X'),
-    'Dv', "Testing X modif done through array ref constructor arg" );
-
 is( $root->fetch_element('array_args')
     ->get_element_property(property => 'permission',element => 'bar'),
     'intermediate' );
@@ -147,15 +132,11 @@ is( $root->fetch_element('array_args')->fetch_element('bar')
 
 my $tested = $root->fetch_element('hash_args')->fetch_element('bar');
 
-$tested->store_element_value( X => 'Dv');
-
 is($tested->config_class_name,  'Sarge',"test bar config_class_name") ;
 is($tested->element_name,'bar'  ,"test bar element_name") ;
 is($tested->name,        'hash_args bar' ,"test bar name") ;
 is($tested->location,    'hash_args bar' ,"test bar location") ;
 
-is( $tested->fetch_element_value('X'),
-    'Dv', "Testing X modif done through hash ref constructor arg" );
 is( $tested->get_element_property(property => 'permission',element => 'X'),
     'master',
     "checking X permission");

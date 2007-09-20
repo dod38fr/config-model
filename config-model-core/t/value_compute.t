@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2007-05-04 11:44:59 $
+# $Date: 2007-09-20 11:39:37 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.5 $
+# $Revision: 1.6 $
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
@@ -13,10 +13,13 @@ BEGIN { plan tests => 28; }
 
 use strict;
 
-my $trace = shift || 0;
+my $arg = shift || '';
 
-$::verbose = 1 if $trace > 2;
-$::debug   = 1 if $trace > 3;
+my $trace = $arg =~ /t/ ? 1 : 0 ;
+$::verbose          = 1 if $arg =~ /v/;
+$::debug            = 1 if $arg =~ /d/;
+Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
+
 
 ok(1,"Compilation done");
 
@@ -105,40 +108,42 @@ use warnings 'once';
 my $object = $root->fetch_element('one_var') ;
 my $rules =  { 
 	      bar => '- sbv',
-	      rep1 => { bv => 'rbv' },
 	     } ;
+my $srules = {
+	      rep1 => { bv => 'rbv' },
+	     };
 
-my $ref = $parser->pre_value( '$bar', 1, $object, $rules );
+my $ref = $parser->pre_value( '$bar', 1, $object, $rules , $srules );
 is( $$ref, '$bar' , "test pre_compute parser on a very small formula: '\$bar'");
 
-$ref = $parser->value( '$bar', 1, $object, $rules  );
+$ref = $parser->value( '$bar', 1, $object, $rules , $srules  );
 is($$ref,undef,"test compute parser on a very small formula with undef variable") ;
 
 $root->fetch_element('sbv')->store('bv') ;
-$ref = $parser->value( '$bar', 1, $object, $rules );
+$ref = $parser->value( '$bar', 1, $object, $rules  , $srules);
 is( $$ref, 'bv', "test compute parser on a very small formula: '\$bar'");
 
-$ref = $parser->pre_value( '$rep1{$bar}', 1, $object, $rules );
+$ref = $parser->pre_value( '$rep1{$bar}', 1, $object, $rules , $srules );
 is( $$ref, '$rep1{$bar}',"test pre-compute parser with substitution" );
 
-$ref = $parser->value( '$rep1{$bar}', 1, $object, $rules );
+$ref = $parser->value( '$rep1{$bar}', 1, $object, $rules , $srules );
 is( $$ref, 'rbv', "test compute parser with substitution");
 
 my $txt = 'my stuff is  $bar, indeed';
-$ref = $parser->pre_compute( $txt, 1, $object, $rules );
+$ref = $parser->pre_compute( $txt, 1, $object, $rules , $srules );
 is( $$ref, $txt,"test pre_compute parser with a string" );
 
-$ref = $parser->compute( $txt, 1, $object, $rules );
+$ref = $parser->compute( $txt, 1, $object, $rules  , $srules);
 is( $$ref, 'my stuff is  bv, indeed',
   "test compute parser with a string" );
 
 $txt = 'local stuff is element:&element!';
-$ref = $parser->pre_compute( $txt, 1, $object, $rules );
+$ref = $parser->pre_compute( $txt, 1, $object, $rules , $srules );
 is( $$ref, 'local stuff is element:one_var!',
   "test pre_compute parser with function (&element)");
 
 # In fact, function is formula is handled only by pre_compute.
-$ref = $parser->compute( $txt, 1, $object, $rules );
+$ref = $parser->compute( $txt, 1, $object, $rules , $srules );
 is( $$ref, $txt,
     "test compute parser with function (&element)");
 

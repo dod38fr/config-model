@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2007-07-26 12:25:41 $
+# $Date: 2007-09-20 11:39:37 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.11 $
+# $Revision: 1.12 $
 
 use warnings FATAL => qw(all);
 
@@ -11,16 +11,16 @@ use Test::More;
 use Config::Model;
 use Config::Model::ValueComputer ;
 
-BEGIN { plan tests => 56; }
+BEGIN { plan tests => 58; }
 
 use strict;
 
-my $trace = shift || '' ;
+my $arg = shift || '';
 
-Config::Model::Exception::Any->Trace(1) if $trace =~ /e/;
-
-$::verbose = 1 if $trace =~ /v/;
-$::debug   = 1 if $trace =~ /d/ ;
+my $trace = $arg =~ /t/ ? 1 : 0 ;
+$::verbose          = 1 if $arg =~ /v/;
+$::debug            = 1 if $arg =~ /d/;
+Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 
 ok(1,"Compilation done");
 
@@ -384,9 +384,18 @@ is($slave->fetch_element('Y')->store('Cv'), 'Cv',
 
 # testing warp in warp out
 $root->fetch_element('macro')->store('C') ;
+is( $slave->is_element_available(name => 'W', permission => 'advanced'),
+    0, " test W is not available") ;
+$root->fetch_element('macro')->store('B') ;
+is( $slave->is_element_available(name => 'W', permission => 'advanced'),
+    1, " test W is available") ;
+
+$root->fetch_element('macro')->store('C') ;
+
 eval {$result = $slave->fetch_element('W')->fetch ;} ;
 ok($@,"reading slave->W (undef value_type error)") ;
 print "normal error: $@" if $trace;
+
 
 
 map {is($slave->fetch_element($_)->fetch , undef,

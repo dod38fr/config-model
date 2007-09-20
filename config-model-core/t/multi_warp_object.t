@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-10-02 11:35:48 $
+# $Date: 2007-09-20 11:39:37 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 
 use warnings FATAL => qw(all);
 
@@ -125,7 +125,7 @@ is($root->get_element_property(element =>'bar', property => 'permission'),
 ok( $root->load('macro2=D'), 'set macro2 to D'  );
 
 is ($root->grab('bar:1')->config_class_name ,'SlaveY',
-   'check bar:1 config class name (is SlaveZ)') ;
+   'check bar:1 config class name (is SlaveY)') ;
 
 is($root->get_element_property(element =>'bar', property => 'permission'),
    'intermediate', 'check bar permission') ;

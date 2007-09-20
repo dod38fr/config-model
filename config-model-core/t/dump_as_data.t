@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2007-07-26 12:23:06 $
+# $Date: 2007-09-20 11:39:37 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 use ExtUtils::testlib;
 use Test::More tests => 10;
@@ -33,63 +33,54 @@ ok($inst,"created dummy instance") ;
 my $root = $inst -> config_root ;
 ok($root,"Config root created") ;
 
-my $step = 'std_id:ab X=Bv - std_id:bc X=Av - a_string="toto tata" '
-  .'hash_a:toto=toto_value hash_a:titi=titi_value '
-  .'ordered_hash:z=1 ordered_hash:y=2 ordered_hash:x=3 '
-  .'lista=a,b,c,d olist:0 X=Av - olist:1 X=Bv - listb=b,c,d '
-  .'my_check_list=toto my_reference="titi" ';
+my $step = '
+std_id:ab X=Bv -
+std_id:bc X=Av -
+tree_macro=mXY
+a_string="toto tata"
+hash_a:toto=toto_value 
+hash_a:titi=titi_value
+ordered_hash:z=1 
+ordered_hash:y=2
+ordered_hash:x=3 
+lista=a,b,c,d
+olist:0 X=Av -
+olist:1 X=Bv -
+listb=b,c,d
+my_check_list=toto my_reference="titi"
+warp warp2 aa2="foo bar"
+';
 
-ok( $root->load( step => $step, permission => 'intermediate' ),
+$step =~ s/\n/ /g;
+
+ok( $root->load( step => $step, permission => 'advanced' ),
   "set up data in tree with '$step'");
 
 my $data = $root->dump_as_data ;
 
 my $expect = {
-          'olist' => [
-                       {
-                         'X' => 'Av'
-                       },
-                       {
-                         'X' => 'Bv'
-                       }
-                     ],
-          'my_check_list' => [
-                               'toto'
-                             ],
-          'ordered_hash' => [
-                              'z',
-                              '1',
-                              'y',
-                              '2',
-                              'x',
-                              '3'
-                            ],
-          'a_string' => 'toto tata',
-          'listb' => [
-                       'b',
-                       'c',
-                       'd'
-                     ],
-          'my_reference' => 'titi',
-          'hash_a' => {
-                        'toto' => 'toto_value',
-                        'titi' => 'titi_value'
-                      },
-          'std_id' => {
-                        'ab' => {
-                                  'X' => 'Bv'
-                                },
-                        'bc' => {
-                                  'X' => 'Av'
-                                }
-                      },
-          'lista' => [
-                       'a',
-                       'b',
-                       'c',
-                       'd'
-                     ]
-        };
+	      'olist' => [{'X' => 'Av'}, {'X' => 'Bv'}],
+	      'my_check_list' => ['toto'],
+	      'tree_macro' => 'mXY',
+	      'ordered_hash' => ['z', '1', 'y', '2', 'x', '3'],
+	      'a_string' => 'toto tata',
+	      'listb' => ['b', 'c', 'd'],
+	      'my_reference' => 'titi',
+	      'hash_a' => {
+			   'toto' => 'toto_value',
+			   'titi' => 'titi_value'
+			  },
+	      'std_id' => {
+			   'ab' => {'X' => 'Bv'},
+			   'bc' => {'X' => 'Av'}
+			  },
+	      'lista' => ['a', 'b', 'c', 'd'],
+	      'warp' => {
+			 'warp2' => {
+				     'aa2' => 'foo bar'
+				    }
+			},
+       };
 
 #use Data::Dumper; print Dumper $data ;
 

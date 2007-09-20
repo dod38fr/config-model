@@ -1,13 +1,13 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2007-07-26 12:24:31 $
+# $Date: 2007-09-20 11:39:37 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.5 $
+# $Revision: 1.6 $
 
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
-use Test::More tests => 30 ;
+use Test::More tests => 36 ;
 use Config::Model ;
 
 use strict;
@@ -76,6 +76,30 @@ $model ->create_config_class
 	    cargo_type => 'node',
 	    config_class_name => 'Slave'
 	  },
+
+       # how to properly hide bar when macro != A ???
+       'hash_with_warped_value' 
+       => { type => 'hash',
+	    index_type => 'string',
+	    cargo_type => 'leaf',
+	    level => 'hidden', # must also accept level permission and description here
+	    warp => { follow => '- macro',
+		      'rules'
+		      => { 'A' => {
+				   level => 'intermediate' ,
+				  } ,
+			 }
+		    },
+	    cargo_args => {
+			   warp => { follow => '- macro',
+				     'rules'
+				     => { 'A' => {
+						     value_type => 'string'
+						 } ,
+					}
+				   }
+			  }
+	  },
        'multi_auto_create'
        => { type => 'hash',
 	    index_type  => 'integer',
@@ -104,8 +128,14 @@ ok($inst,"created dummy instance") ;
 my $root = $inst -> config_root ;
 my $macro = $root->fetch_element('macro') ;
 
+is($root->is_element_available('hash_with_warped_value'),0,
+  "check warped out hash_with_warped_value (macro is undef)"); 
+
 is($macro->store('A'),'A',"Set macro to A") ;
 is($macro->fetch(),'A',"Check macro") ;
+
+is($root->is_element_available('hash_with_warped_value'),1,
+  "check warped out hash_with_warped_value (macro is A)"); 
 
 my $warped_hash = $root->fetch_element('warped_hash') ;
 ok( $warped_hash->fetch_with_id('1'), "Set one slave" );
@@ -187,7 +217,20 @@ is( $multi_auto_create->max,
 # remove one item to avoid error when setting macro to A
 $warped_hash->delete('2') ;
 
+is($root->is_element_available('hash_with_warped_value'),0,
+  "check warped out hash_with_warped_value (macro is C)"); 
+
 ok( $macro->store('A'), "assign new value to warp master (same effect)" );
 
 is( $root->grab_value('multi_warp:5 X'), 'Av',
     "check X value after assign" );
+
+is($root->is_element_available('hash_with_warped_value'),1,
+  "check warped out hash_with_warped_value (macro is A)"); 
+
+is( $root->grab_value('hash_with_warped_value:5'), undef,
+    "check hash_with_warped_value:5" );
+
+is( $root->grab_value('hash_with_warped_value:6'), undef,
+    "check hash_with_warped_value:6" );
+

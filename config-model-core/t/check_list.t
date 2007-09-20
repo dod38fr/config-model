@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2007-05-04 11:44:58 $
+# $Date: 2007-09-20 11:39:37 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 use warnings FATAL => qw(all);
 
@@ -11,7 +11,7 @@ use Test::More;
 use Config::Model;
 use Data::Dumper ;
 
-BEGIN { plan tests => 42; }
+BEGIN { plan tests => 43; }
 
 use strict;
 
@@ -59,7 +59,8 @@ $model ->create_config_class
        'warped_choice_list'
        => { type => 'check_list',
 	    warp => { follow => '- macro',
-		      rules  => { AD => { choice => [ 'A' .. 'D' ], default => ['A', 'B' ] },
+		      rules  => { AD => { choice => [ 'A' .. 'D' ], 
+					  default_list => ['A', 'B' ] },
 				  AH => { choice => [ 'A' .. 'H' ] },
 				}
 		    }
@@ -85,6 +86,15 @@ $model ->create_config_class
 
        indirection => { type => 'leaf', value_type => 'string' } ,
 
+       dumb_list => { type => 'list',
+		      cargo_type => 'leaf',
+		      cargo_args => {value_type => 'string'}
+		    },
+       refer_to_dumb_list
+       => {
+	   type => 'check_list',
+	   refer_to => '- dumb_list + - my_hash',
+	  }
        ]
    ) ;
 
@@ -223,7 +233,7 @@ my $warp_list = $root->fetch_element('warped_choice_list') ;
 ok($warp_list, "created warped_choice_list") ;
 
 eval {$warp_list->get_choice ;} ;
-ok( $@ ,"get_choice on wihtout warp set (macro=undef): which is an error" );
+ok( $@ ,"get_choice on without warp set (macro=undef): which is an error" );
 print "normal error:\n", $@, "\n" if $trace;
 
 $root->load("macro=AD") ;
@@ -242,3 +252,11 @@ is_deeply([$warp_list->get_choice] ,
 @got = $warp_list->get_checked_list ;
 is_deeply (\@got, [], "test default of warped_choice_list after setting macro=AH") ;
 
+
+# test reference to list values
+$root->load("dumb_list=a,b,c,d,e") ;
+
+my $rtl = $root->fetch_element("refer_to_dumb_list") ;
+is_deeply( [$rtl -> get_choice ], [qw/X Y Z a b c d e/],
+	   "check choice of refer_to_dumb_list"
+	 ) ;

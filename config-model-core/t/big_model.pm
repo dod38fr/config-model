@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2007-07-26 12:22:25 $
+# $Date: 2007-09-20 11:39:37 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.16 $
+# $Revision: 1.17 $
 
 # this file is used by test script
 
@@ -26,7 +26,6 @@
 	      ]
   ],
 
-# rather dummy class to check inheritance
   [
    name => 'X_base_class2',
    element => [
@@ -35,12 +34,12 @@
 		      choice     => [qw/Av Bv Cv/]
 		    },
 	      ],
-   class_description => 'rather dummy class to check inheritance',
+   class_description => 'rather dummy class to check include feature',
   ],
 
   [
    name => 'X_base_class',
-   inherit => 'X_base_class2',
+   include => 'X_base_class2',
   ],
 
 
@@ -57,8 +56,8 @@
 			     choice     => [qw/Av Bv Cv Dv/]
 			   },
 	      ],
-   inherit => 'X_base_class',
-   inherit_after => 'Z',
+   include => 'X_base_class',
+   include_after => 'Z',
   ],
 
   [
@@ -88,7 +87,7 @@
 		      choice     => [qw/Av Bv Cv/]
 		    },
 	      ],
-   inherit => 'X_base_class',
+   include => 'X_base_class',
   ],
 
 
