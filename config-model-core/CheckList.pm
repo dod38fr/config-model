@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-09-17 11:52:32 $
+# $Date: 2007-09-25 12:23:00 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.9 $
+# $Revision: 1.10 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -33,7 +33,7 @@ use strict;
 use base qw/Config::Model::WarpedThing/ ;
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.9 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.10 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -113,6 +113,13 @@ sub new {
 
     $self->{help} = delete $args{help} ;
 
+    if (defined $args{refer_to} or defined $args{computed_refer_to}) {
+	$self->{choice} ||= [] ; # create empty choice
+	$self->{refer_to} = delete $args{refer_to} ;
+	$self->{computed_refer_to} = delete $args{computed_refer_to} ;
+	$self->submit_to_refer_to() ;
+    }
+
     $self->{backup}  = \%args ;
 
     $self->set() ; # set will use backup data
@@ -135,7 +142,7 @@ sub cl_init {
 
     $self->warp if ($self->{warp});
 
-    if (defined $self->{refer_to}) {
+    if (defined $self->{ref_object}) {
 	$self->{ref_object}->get_choice_from_refered_to ;
     }
 }
@@ -164,8 +171,15 @@ A list ref containing the check list items (optional)
 
 =item refer_to
 
-This parameters is used when the keys of a hash are used to specify
-the possible choices of the check list. See L<Choice reference> for
+This parameter is used when the keys of a hash are used to specify the
+possible choices of the check list. C<refer_to> point to a hash or list
+element in the configuration tree. See L<Choice reference> for
+details. (optional)
+
+=item computed_refer_to
+
+Like C<refer_to>, but use a computed value to find the hash or list
+element in the configuration tree. See L<Choice reference> for
 details. (optional)
 
 =item default_list
@@ -235,8 +249,7 @@ sub set {
     my $self = shift ;
 
     # cleanup all parameters that are handled by warp
-    map(delete $self->{$_}, 
-        qw/default_list choice refer_to/) ;
+    map(delete $self->{$_}, qw/default_list choice/) ;
 
     # merge data passed to the constructor with data passed to set
     my %args = (%{$self->{backup}},@_ );
@@ -259,12 +272,6 @@ sub set {
     }
     else {
 	$self->{default_data} = {} ;
-    }
-
-    if (defined $args{refer_to}) {
-	$self->{choice} ||= [] ; # create empty choice
-	$self->{refer_to} = delete $args{refer_to} ;
-	$self->submit_to_refer_to() ;
     }
 
     Config::Model::Exception::Model
@@ -297,9 +304,9 @@ sub setup_choice {
 
 =head1 Choice reference
 
-This other hash is indicated by the C<refer_to> parameter. C<refer_to>
-uses the syntax of the C<step> parameter of
-L<grab(...)|Config::AnyThing/"grab(...)">
+This other hash is indicated by the C<refer_to> or
+C<computed_refer_to> parameter. C<refer_to> uses the syntax of the
+C<step> parameter of L<grab(...)|Config::AnyThing/"grab(...)">
 
 See L<refer_to parameter|Config::Model::IdElementReference/"refer_to parameter">.
 
@@ -338,8 +345,9 @@ example is admitedly convoluted):
 
        refer_to_check_list_and_choice
        => { type => 'check_list',
-            refer_to => [ '- refer_to_2_list + - $var',
-                          var => '- indirection ',
+            computed_refer_to => { formula => '- refer_to_2_list + - $var',
+                                   variables { 'var' => '- indirection ' }
+                                 },
                         ],
             choice  => [qw/A1 A2 A3/],
           },
@@ -351,14 +359,24 @@ example is admitedly convoluted):
 sub submit_to_refer_to {
     my $self = shift ;
 
-    my $refto = $self->{refer_to} ;
-    $self->{ref_object} = Config::Model::IdElementReference 
-      -> new ( refer_to   => $refto,
-	       config_elt => $self,
-	     ) ;
-    my ($refer_path,%var) = ref $refto ? @$refto : ($refto) ;
-
-    $self->register_in_other_value(\%var) ;
+    if (defined $self->{refer_to}) {
+	$self->{ref_object} = Config::Model::IdElementReference 
+	  -> new ( refer_to   => $self->{refer_to} ,
+		   config_elt => $self,
+		 ) ;
+    }
+    elsif (defined $self->{computed_refer_to}) {
+	$self->{ref_object} = Config::Model::IdElementReference 
+	  -> new ( computed_refer_to => $self->{computed_refer_to} ,
+		   config_elt => $self,
+		 ) ;
+	# refer_to registration is done for all element that are used as
+	# variable for complex reference (ie '- $foo' , {foo => '- bar'} )
+	$self->register_in_other_value($self->{computed_refer_to}{variables}) ;
+    }
+    else {
+	croak "checklist submit_to_refer_to: undefined refer_to or computed_refer_to" ;
+    }
 }
 
 sub setup_reference_choice {
@@ -401,7 +419,7 @@ Set choice.
 
 sub check {
     my $self = shift ;
-    if (defined $self->{refer_to}) {
+    if (defined $self->{ref_object}) {
 	$self->{ref_object}->get_choice_from_refered_to ;
     }
 
@@ -430,7 +448,7 @@ sub store {
 	my $err_str = "Unknown check_list item '$choice'. Expected '"
                     . join("', '",@{$self->{choice}}) . "'" ;
 	$err_str .= "\n\t". $self->{ref_object}->reference_info 
-	  if defined $self->{refer_to} ;
+	  if defined $self->{ref_object};
         Config::Model::Exception::WrongValue 
 	    -> throw ( error =>  $err_str ,
 		       object => $self) ;
@@ -445,7 +463,7 @@ Unset choice
 
 sub uncheck {
     my $self = shift ;
-    if (defined $self->{refer_to}) {
+    if (defined $self->{ref_object}) {
 	$self->{ref_object}->get_choice_from_refered_to ;
     }
 
@@ -465,7 +483,7 @@ that can have value 0 or 1).
 sub get_choice {
     my $self = shift ;
 
-    if (defined $self->{refer_to}) {
+    if (defined $self->{ref_object}) {
 	$self->{ref_object}->get_choice_from_refered_to ;
     }
 
@@ -615,7 +633,7 @@ sub set_checked_list_as_hash {
 
     $self->clear ; 
 
-    if (defined $self->{refer_to}) {
+    if (defined $self->{ref_object}) {
 	$self->{ref_object}->get_choice_from_refered_to ;
     }
 

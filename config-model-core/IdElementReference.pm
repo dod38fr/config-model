@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-09-17 11:53:56 $
+# $Date: 2007-09-25 12:23:00 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 
 #    Copyright (c) 2007 Dominique Dumont.
 #
@@ -31,7 +31,7 @@ use Carp ;
 
 use vars qw($VERSION) ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/;
 
 
 =head1 NAME
@@ -48,7 +48,10 @@ Config::Model::IdElementReference - Refer to id element(s) and extract keys
 			 },
             if   => { type => 'leaf',
                       value_type => 'reference' ,
-                      refer_to => [ '  ! host:$h if ', h => '- node_host' ]
+                      computed_refer_to 
+                      => { formula => '  ! host:$h if ',
+                           variables => { h => '- node_host' }
+                         }
                     },
             ],
 
@@ -89,22 +92,58 @@ Construction is handled by the calling object.
 sub new {
     my $type = shift ;
     my %args = @_ ;
-    my $self= {} ;
+    my $self = {} ;
 
-    foreach my $k (qw/config_elt refer_to/) {
-	$self->{$k} = delete $args{$k} || 
-	  croak "Config::Model::IdElementReference:new undefined parameter $k";
+    if ($::debug) {
+	my %show = %args ;
+	delete $show{config_elt} ;
+	print Data::Dumper->Dump([\%show],['IdElementReference_new_args']) ;
     }
 
-    croak "Config::Model::IdElementReference:new unexpected parameter: ",
-      join(' ',keys %args) if %args ;
-
-    weaken($self->{config_elt}) ;
+    my $obj = $self->{config_elt} = delete $args{config_elt} || 
+      croak "Config::Model::IdElementReference:new undefined parameter config_elt";
 
     bless $self,$type ;
 
-    my $refto = $self->{refer_to} ;
-    my ($refer_path,%var) = ref $refto ? @$refto : ($refto) ;
+    my $found = 0 ;
+    map { $self->{$_} = delete $args{$_}; $found++ } 
+      grep {defined $args{$_}} qw/refer_to computed_refer_to/ ;
+
+    if (not $found ) {
+	Config::Model::Exception::Model 
+	    -> throw (
+		      object => $obj,
+		      message => "missing " 
+                               . "refer_to or computed_refer_to parameter"
+		     ) ;
+    }
+    elsif ($found > 1 ) {
+	Config::Model::Exception::Model 
+	    -> throw (
+		      object => $obj,
+		      message => "cannot specify both "
+                               . "refer_to and computed_refer_to parameters" 
+		     ) ;
+    }
+
+    Config::Model::Exception::Model 
+	    -> throw (
+		      object => $obj,
+		      message => "IdElementReference unexpected parameter: "
+		               . join(' ',keys %args)
+		      ) 
+	      if %args ;
+
+    weaken($self->{config_elt}) ;
+
+
+    my $rft  = $self->{refer_to};
+    my $crft = $self->{computed_refer_to} || {} ;
+    my %c_args = %$crft ;
+
+    my $refer_path = defined $rft ? $rft
+                   :                delete $c_args{formula} ;
+
 
     # split refer_path on + then create as many ValueComputer as
     # required
@@ -113,8 +152,9 @@ sub new {
     foreach my $single_path (@references) {
 	push @{$self->{compute}}, Config::Model::ValueComputer
 	  -> new (
-		  user_formula => $single_path ,
-		  user_var => \%var ,
+		  formula => $single_path ,
+		  variables => {} ,
+		  %c_args,
 		  value_object => $self->{config_elt} ,
 		  value_type => 'string'   # a reference is always a string
 		 );
@@ -125,33 +165,26 @@ sub new {
 
 =head1 Config class parameters
 
-=head2 refer_to parameter
-
-C<refer_to> is used to spepify the hash element that will be used as a
-reference.
-
 =over
 
-=item * 
+=item refer_to
 
-The first argument of C<refer_to> points to an array or hash element
+C<refer_to> is used to spepify the hash element that will be used as a
+reference. C<refer_to> points to an array or hash element
 in the configuration tree using the path syntax (See
-L<Config::Model::Node/grab> for details). This path is treated like a
-computation formula. Hence it can contain variable and substitution
-like a computation formula.
+L<Config::Model::Node/grab> for details).
 
-=item *
+=item computed_refer_to
 
-The following arguments of C<refer_to> define the variable used in the
-path formula.
-
-=item *
-
-The available choice of this reference value is made from the
-available keys of the refered_to hash element or the range of the
-refered_to array element.
+When C<computed_refer_to> is used, the path is computed using values
+from several elements in the configuration tree. C<computed_refer_to>
+is a hash with 2 mandatory elements: C<formula> and C<variables>.
 
 =back
+
+The available choice of this (computed or not) reference value is made
+from the available keys of the refered_to hash element or the values
+of the refered_to array element.
 
 The example means the the value must correspond to an existing host:
 
@@ -162,18 +195,21 @@ This example means the the value must correspond to an existing lan
 within the host whose Id is specified by hostname:
 
  value_type => 'reference',
- refer_to => ['! host:$a lan', a => '- hostname' ]
+ computed_refer_to => { formula => '! host:$a lan', 
+                        variables => { a => '- hostname' }
+                      {}
 
 If you need to combine possibilities from several hash, use the "C<+>"
 token to separate 2 paths:
 
  value_type => 'reference',
- refer_to => ['! host:$a lan + ! host:foobar lan', 
-              a => '- hostname' ]
+ computed_refer_to => { formula => '! host:$a lan + ! host:foobar lan', 
+                        variables => { a => '- hostname' }
+                      }
 
-You can specify C<refer_to> with a C<choice> argument so the possible
-enum value will be the combination of the specified choice and the
-refered_to values.
+You can specify C<refer_to> or C<computed_refer_to> with a C<choice>
+argument so the possible enum value will be the combination of the
+specified choice and the refered_to values.
 
 =cut
 

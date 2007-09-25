@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-09-20 16:21:34 $
+# $Date: 2007-09-25 12:23:00 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.8 $
+# $Revision: 1.9 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -33,7 +33,7 @@ use Data::Dumper () ;
 
 use vars qw($VERSION $compute_grammar $compute_parser) ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.8 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.9 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -269,9 +269,15 @@ sub new {
     my %args = @_ ;
     my $self= {} ;
 
+    if ($::debug) {
+	my %show = %args ;
+	delete $show{value_object} ;
+	print Data::Dumper->Dump([\%show],['Computedvalue_new_args']) ;
+    }
+
     # value_object is mostly used for error messages
-    foreach my $k (qw/user_formula user_var value_type value_object/) {
-	$self->{$k}=delete $args{$k} || 
+    foreach my $k (qw/formula variables value_type value_object/) {
+	$self->{$k} = delete $args{$k} || 
 	  croak "Config::Model::ValueComputer:new undefined parameter $k";
     }
 
@@ -279,6 +285,7 @@ sub new {
 
     die "Config::Model::ValueComputer:new unexpected parameter: ",
       join(' ',keys %args) if %args ;
+
 
     weaken($self->{value_object}) ;
 
@@ -290,10 +297,10 @@ sub new {
     my $result_r = $compute_parser
       -> pre_compute
 	(
-	 $self->{user_formula},
+	 $self->{formula},
 	 1,
 	 $self->{value_object},
-	 $self->{user_var},
+	 $self->{variables},
 	 $self->{replace}
 	) ;
 
@@ -302,20 +309,20 @@ sub new {
     bless $self,$type ;
 }
 
-sub user_formula { return shift->{user_formula} ;}
-sub user_var     { return shift->{user_var} ;}
+sub formula { return shift->{formula} ;}
+sub variables     { return shift->{variables} ;}
 
 sub compute {
     my $self = shift ;
 
     my $pre_formula = $self->{pre_formula};
 
-    my $user_var = $self->compute_user_var ;
+    my $variables = $self->compute_variables ;
 
-    return unless defined $user_var ;
+    return unless defined $variables ;
 
     my $formula_r = $compute_parser
-      -> compute ($pre_formula, 1,$self->{value_object}, $user_var, $self->{replace}) ;
+      -> compute ($pre_formula, 1,$self->{value_object}, $variables, $self->{replace}) ;
 
     my $formula = $$formula_r ;
 
@@ -324,7 +331,7 @@ sub compute {
     print "compute: pre_formula $pre_formula\n",
       "compute: rule to eval $formula\n" if $::debug;
 
-    my $result = $self->{formula} = $formula ;
+    my $result = $self->{computed_formula} = $formula ;
 
     if ($self->{value_type} =~ /(integer|number)/) {
         $result = eval $formula ;
@@ -343,63 +350,63 @@ sub compute {
 sub compute_info {
     my $self = shift;
 
-    my $orig_user_var = $self->{user_var} ;
-    my $user_var = $self->compute_user_var ;
-    my $str = "value is computed from '$self->{user_formula}'";
+    my $orig_variables = $self->{variables} ;
+    my $variables = $self->compute_variables ;
+    my $str = "value is computed from '$self->{formula}'";
 
-    return $str unless defined $user_var ;
+    return $str unless defined $variables ;
 
-    #print Dumper $user_var ;
+    #print Dumper $variables ;
 
-    if (%$user_var) {
+    if (%$variables) {
         $str .= ", where " ;
-        foreach my $k (sort keys %$user_var) {
-	    my $u_val = $user_var->{$k} ;
+        foreach my $k (sort keys %$variables) {
+	    my $u_val = $variables->{$k} ;
 	    if (ref($u_val)) {
 		map {
-		    $str.= "\n\t\t'\$$k" . "{$_} is converted to '$orig_user_var->{$k}{$_}'";
+		    $str.= "\n\t\t'\$$k" . "{$_} is converted to '$orig_variables->{$k}{$_}'";
 		    } sort keys %$u_val ;
  	    }
 	    else {
 		my $val = defined $u_val ? $self->{value_object} ->grab($u_val) ->fetch 
 		        :                  undef ;
-		$str.= "\n\t\t'$k' from path '$orig_user_var->{$k}' is ";
+		$str.= "\n\t\t'$k' from path '$orig_variables->{$k}' is ";
 		$str.= defined $val ? "'$val'" : 'undef' ;
 	    }
 	}
     }
 
-    #$str .= " (evaluated as '$self->{formula}')"
-    #  if $self->{user_formula} ne $self->{formula} ;
+    #$str .= " (evaluated as '$self->{computed_formula}')"
+    #  if $self->{formula} ne $self->{computed_formula} ;
 
     return $str ;
 }
 
 #internal
-sub compute_user_var {
+sub compute_variables {
     my $self = shift ;
 
     # a shallow copy should be enough as we don't allow
     # replace in replacement rules
-    my %user_var = %{$self->{user_var}} ;
+    my %variables = %{$self->{variables}} ;
 
-    # apply a compute on all user_var until no $var is left
-    my $var_left = scalar (keys %user_var) + 1 ;
+    # apply a compute on all variables until no $var is left
+    my $var_left = scalar (keys %variables) + 1 ;
 
     while ($var_left) {
         my $old_var_left= $var_left ;
         my $did_something = 0 ;
-        foreach my $key (keys %user_var) {
-            my $value = $user_var{$key} ; # value may be undef
+        foreach my $key (keys %variables) {
+            my $value = $variables{$key} ; # value may be undef
             next unless (defined $value and $value =~ /\$/) ;
             #next if ref($value); # skip replacement rules
             print "key '$key', value '$value', left $var_left\n" 
 	      if $::debug;
             my $res_r = $compute_parser
-	      -> compute ($value, 1,$self->{value_object}, \%user_var, $self->{replace});
+	      -> compute ($value, 1,$self->{value_object}, \%variables, $self->{replace});
 	    my $res = $$res_r ;
             #return undef unless defined $res ;
-            $user_var{$key} = $res ;
+            $variables{$key} = $res ;
 	    {
 		no warnings "uninitialized" ;
 		print "\tresult '$res' left $var_left, did $did_something\n" 
@@ -407,8 +414,8 @@ sub compute_user_var {
 	    }
 	}
 
-        my @var_left =  grep {defined $user_var{$_} && $user_var{$_} =~ /\$/} 
-	  sort keys %user_var;
+        my @var_left =  grep {defined $variables{$_} && $variables{$_} =~ /\$/} 
+	  sort keys %variables;
 
         $var_left = @var_left ;
 
@@ -421,13 +428,13 @@ sub compute_user_var {
 	      unless ($var_left < $old_var_left);
     }
 
-    return \%user_var ;
+    return \%variables ;
 }
 
 $compute_grammar = << 'END_OF_GRAMMAR' ;
 
 {
-# $Revision: 1.8 $
+# $Revision: 1.9 $
 
 # This grammar is compatible with Parse::RecDescent < 1.90 or >= 1.90
 use strict;

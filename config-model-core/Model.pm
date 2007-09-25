@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-09-20 16:21:34 $
+# $Date: 2007-09-25 12:23:00 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.39 $
+# $Revision: 1.40 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -624,28 +624,43 @@ sub translate_legacy_info {
 
     # compute cannot be warped
     if (defined $info->{compute}) {
-	$self->translate_compute_info($elt_name, $info);
+	$self->translate_compute_info($elt_name, $info,'compute');
     }
     if (    defined $info->{cargo_args} 
 	and defined $info->{cargo_args}{compute}) {
 	$self->translate_compute_info($elt_name, 
-				   $info->{cargo_args});
+				      $info->{cargo_args},'compute');
     }
+
+    # refer_to cannot be warped
+    if (defined $info->{refer_to}) {
+	$self->translate_compute_info($elt_name, $info,refer_to => 'computed_refer_to');
+    }
+    if (    defined $info->{cargo_args} 
+	and defined $info->{cargo_args}{refer_to}) {
+	$self->translate_compute_info($elt_name, 
+				      $info->{cargo_args},refer_to => 'computed_refer_to');
+    }
+
+    print Data::Dumper->Dump([$info ] , ['translated_'.$elt_name ] ) ,"\n" if $::debug;
 }
 
 sub translate_compute_info {
     my $self = shift ;
     my $elt_name = shift ;
     my $info = shift ;
+    my $old_name = shift ;
+    my $new_name = shift || $old_name ;
 
-    my $compute_info= $info->{compute} ;
-    print "translate_compute_info_info $elt_name input:\n", 
-      Data::Dumper->Dump( [$compute_info ] , [qw/compute_info/ ]) ,"\n"
-	  if $::debug ;
+    if (ref($info->{$old_name}) eq 'ARRAY') {
+	my $compute_info = delete $info->{$old_name} ;
+	print "translate_compute_info $elt_name input:\n", 
+	  Data::Dumper->Dump( [$compute_info ] , [qw/compute_info/ ]) ,"\n"
+	      if $::debug ;
 
-    if (ref($compute_info) eq 'ARRAY') {
-	warn 
-	  "$elt_name: specifying compute info with an array ref is deprecated\n"; 
+	warn "$elt_name: specifying compute info with ",
+	  "an array ref is deprecated\n"; 
+
 	my ($user_formula,%var) = @$compute_info ;
 	my $replace_h ;
 	map { $replace_h = delete $var{$_} if ref($var{$_})} keys %var ;
@@ -657,13 +672,13 @@ sub translate_compute_info {
 	map { s/\$(\w+){/\$replace{/g } values %var ;
 
 	# change the hash *in* the info structure
-	$info->{compute} = { formula => $user_formula,
-			     variables => \%var,
-			   } ;
-	$info->{compute}{replace} = $replace_h if defined $replace_h ;
+	$info->{$new_name} = { formula => $user_formula,
+			       variables => \%var,
+			     } ;
+	$info->{$new_name}{replace} = $replace_h if defined $replace_h ;
 
 	print "translate_warp_info $elt_name output:\n",
-	  Data::Dumper->Dump([$info->{compute} ] , [qw/new_compute_info/ ] ) ,"\n"
+	  Data::Dumper->Dump([$info->{$new_name} ] , ['new_'.$new_name ] ) ,"\n"
 	      if $::debug ;
     }
 }
