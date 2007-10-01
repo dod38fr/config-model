@@ -24,6 +24,7 @@ lib/Config/Model/models/Xorg/Screen/Display.pl
 lib/Config/Model/models/Xorg/Screen/Option.pl
 lib/Config/Model/models/Xorg/ServerFlags.pl
 lib/Config/Model/models/Xorg/ServerLayout.pl
+lib/Config/Model/Xorg.pm
 lib/Config/Model/Xorg/Read.pm
 lib/Config/Model/Xorg/Write.pm
 MANIFEST			This list of files

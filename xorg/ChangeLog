@@ -1,3 +1,8 @@
+2007-10-01  Dominique Dumont  v0.503
+
+	* lib/Config/Model/models/Xorg/ServerFlags.pl: removed duplicate
+	element definition that will break with Config::Model 0.613
+
 2007-06-07  Dominique Dumont  v0.502
 
 	* lib/Config/Model/models/Xorg/InputDevice.pl: added xkb keyboard
