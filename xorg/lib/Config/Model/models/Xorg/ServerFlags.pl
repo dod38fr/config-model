@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-01-11 12:59:53 $
+# $Date: 2007-10-01 15:29:36 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -41,7 +41,7 @@
       [qw/NoTrapSignals DontVTSwitch DontZap DontZoom DisableVidModeExtension
           AllowNonLocalXvidtune DisableModInDev AllowMouseOpenFail VTSysReq
           XkbDisable NoPM Xinerama AllowDeactivateGrabs AllowClosedownGrabs
-          IgnoreABI Xinerama
+          IgnoreABI
        /] 
       =>  { type => 'leaf', value_type => "boolean", built_in => 0 } ,
 
