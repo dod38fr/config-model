@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-12-07 13:13:22 $
+# $Date: 2007-10-01 15:30:13 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -65,6 +65,14 @@ $foo
 
 	 # this model part is commented as I don't know which options
 	 # are available to extmod
+# Here's an example form Phoronix http://phoronix.com/forums/showthread.php?t=3496
+# Load "extmod"
+# SubSection "extmod"
+# Option "omit XVideo"
+# Option "omit XVideo-MotionCompensation"
+# Option "omit XFree86-VidModeExtension"
+# EndSubSection
+
 # 	 'extmod_option'
 # 	 => { type => 'warped_node',
 # 	      follow => '- extmod',
