@@ -1,24 +1,31 @@
-2007-09-20  Dominique Dumont  <dominique.dumont@hp.com>
+2007-09-25  Dominique Dumont  v0.613
 
-	* ValueComputer.pm: Now compute paramter must use explicit
-	parameters for compute formula, variables and replace.
-	Backward compatibility is kept by translating old compute
-	declaration in Model.pm
+	* IdElementReference.pm: Changes the API of IdElementReference so
+	that API is more explicit (Like the API change for
+	ValueComputer). This change is backward compatible (model
+	translation)
+
+2007-09-20  Dominique Dumont  
+
+	* ValueComputer.pm: Now compute paramater must use explicit
+	parameters for compute formula, variables and replace.  Backward
+	compatibility is kept by translating old compute declaration in
+	Model.pm
 	
-2007-09-17  Dominique Dumont  <dominique.dumont@hp.com>
+2007-09-17  Dominique Dumont  
 
-	* Model.pm (include_class): permission, level and
-	description paremeters can also be declared within the element
-	declaration.
-
+	* Model.pm (include_class): permission, level and description
+	parameters can also be declared within the element declaration.
+	(i.e. at the same level than 'type' )
+	
 	* IdElementReference.pm (): A reference to a list will now take
-		  into account the values of the list instead of the
-		  indexes of the list
+	into account the values of the list instead of the indexes of the
+	list. This makes more sense...
 
 	* CheckList.pm: Change the name of 'default' parameter to
          'default_list' ('default' is still accepted but is deprecated)
 
-2007-09-06  Dominique Dumont  <dominique.dumont@hp.com>
+2007-09-06  Dominique Dumont  
 
 	* WarpedNode.pm: improved synopsis in doc
 	(load_data): new method (forgotten in 0.612)
