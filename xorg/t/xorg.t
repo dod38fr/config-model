@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2007-01-11 13:02:32 $
+# $Date: 2007-10-01 15:31:07 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.4 $
+# $Revision: 1.5 $
 
 use ExtUtils::testlib;
 use Test::More tests => 7;
@@ -98,3 +98,4 @@ is_deeply([split /\n/, $wr_dump ],
 	  "compare dump of original xorg with second dump") ;
 
 
+# require Tk::ObjScanner; Tk::ObjScanner::scan_object($model) ;
