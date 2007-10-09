@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2007-09-20 11:39:37 $
+# $Date: 2007-10-09 11:15:07 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.6 $
+# $Revision: 1.7 $
 
 use warnings FATAL => qw(all);
 
@@ -182,9 +182,9 @@ is( $multi_auto_create->max,
 is( $root->fetch_element('version')->store(2), 2, 'set version to 2') ;
 is( $macro->store('C'),'C','set macro to C') ;
 
-is_deeply( $multi_warp->default ,
+is_deeply( $multi_warp->default_keys ,
 	   [0 .. 7],
-	   "check multi_warp default index parameter"
+	   "check multi_warp default_keys index parameter"
 	 );
 is_deeply( [ sort $multi_warp->get_all_indexes ] ,
 	   [0 .. 7],

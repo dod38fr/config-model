@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-09-17 11:50:26 $
+# $Date: 2007-10-09 11:13:52 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.19 $
+# $Revision: 1.20 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -29,7 +29,7 @@ use Carp;
 use strict;
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.19 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.20 $ =~ /(\d+)\.(\d+)/;
 
 use base qw/Config::Model::WarpedThing/;
 
@@ -171,18 +171,21 @@ Specify the maximum value (optional, only for integer index)
 Specify the maximum number of indexes. (hash only, optional, may also
 be used with string index type)
 
-=item default
+=item default_keys
 
 When set, the default parameter (or set of parameters) are used as
 default keys hashes and created automatically when the keys or exists
 functions are used on an I<empty> hash.
 
-You can use C<< default => 'foo' >>, or C<< default => ['foo', 'bar'] >>.
+You can use C<< default_keys => 'foo' >>, 
+or C<< default_keys => ['foo', 'bar'] >>.
+
+=item default_with_init
 
 To perform special set-up on children nodes you can also use 
 
-   default =>  { 'foo' => 'X=Av Y=Bv'  ,
-		 'bar' => 'Y=Av Z=Cv' }
+   default_with_init =>  { 'foo' => 'X=Av Y=Bv'  ,
+		           'bar' => 'Y=Av Z=Cv' }
 
 
 =item follow
@@ -308,8 +311,8 @@ leads to a nb of items greater than the max_nb constraint.
 
 =cut
 
-my @common_params =  qw/min max max_nb default follow auto_create 
-                             allow allow_from/ ;
+my @common_params =  qw/min max max_nb default_with_init default_keys
+                        follow auto_create allow allow_from/ ;
 
 my @allowed_warp_params 
   = (@common_params,qw/config_class_name permission level/) ;
@@ -435,7 +438,9 @@ object (as declared in the model unless they were warped):
 
 =item index_type 
 
-=item default 
+=item default_keys 
+
+=item default_with_init 
 
 =item auto_create 
 
@@ -453,7 +458,8 @@ object (as declared in the model unless they were warped):
 
 =cut
 
-for my $datum (qw/min max max_nb index_type default follow auto_create 
+for my $datum (qw/min max max_nb index_type default_keys default_with_init
+                  follow auto_create 
                   cargo_type cargo_class cargo_args morph ordered
                   config_model/) {
     no strict "refs";       # to register new methods in package
@@ -483,8 +489,8 @@ sub get_cargo_type {
 =head2 get_default_keys
 
 Returns a list ref of the current default keys. These keys can be set
-by the C<default> parameters or by the other hash pointed by C<follow>
-parameter.
+by the C<default_keys> or C<default_with_init> parameters or by the
+other hash pointed by C<follow> parameter.
 
 =cut
 
@@ -497,12 +503,16 @@ sub get_default_keys {
 				  ) ;
 	return [ $followed -> get_all_indexes ];
     }
-    elsif (defined $self->{default}) {
-	return $self->{default} ;
-    }
-    else {
-	return [] ;
-    }
+
+    my @res ;
+
+    push @res , @{ $self->{default_keys} }
+      if defined $self->{default_keys} ;
+
+    push @res , keys %{$self->{default_with_init}}
+      if defined $self->{default_with_init} ;
+
+    return \@res ;
 }
 
 =head2 name()
@@ -854,7 +864,8 @@ are sorted alphabetically, except for ordered hashed.
 
 sub get_all_indexes {
     my $self = shift;
-    $self->create_default if (   defined $self->{default} 
+    $self->create_default if (   defined $self->{default_keys}
+			      or defined $self->{default_with_init}
 			      or defined $self->{follow});
     return $self->_get_all_indexes ;
 }
