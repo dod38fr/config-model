@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-10-01 15:49:29 $
+# $Date: 2007-10-09 11:14:16 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.41 $
+# $Revision: 1.42 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -642,6 +642,24 @@ sub translate_legacy_info {
 				      $info->{cargo_args},refer_to => 'computed_refer_to');
     }
 
+    # translate id default param
+    # default cannot be stored in cargo_args since is applies to the id itself
+    if ( defined $info->{type} 
+         and ($info->{type} eq 'list' or $info->{type} eq 'hash')
+       ) {
+	if (defined $info->{default}) {
+	    $self->translate_id_default_info($elt_name, $info);
+	} 
+	if (defined $info->{warp} ) {
+	    my $rules_a = $info->{warp}{rules} ;
+	    my %h = @$rules_a ;
+	    foreach my $rule_effect (values %h) {
+		next unless defined $rule_effect->{default} ;
+		$self->translate_id_default_info($elt_name, $rule_effect);
+	    }
+	}
+    }
+
     print Data::Dumper->Dump([$info ] , ['translated_'.$elt_name ] ) ,"\n" if $::debug;
 }
 
@@ -683,6 +701,37 @@ sub translate_compute_info {
     }
 }
 
+
+# internal: translate default information for id element
+sub translate_id_default_info {
+    my $self = shift ;
+    my $elt_name = shift ;
+    my $info = shift ;
+
+    print "translate_id_default_info $elt_name input:\n", 
+      Data::Dumper->Dump( [$info ] , [qw/info/ ]) ,"\n"
+	  if $::debug ;
+
+    my $warn = "$elt_name: 'default' parameter for list or " 
+             . "hash element is deprecated. ";
+
+    my $def_info = delete $info->{default} ;
+    if (ref($def_info) eq 'HASH') {
+	$info->{default_with_init} = $def_info ;
+	warn $warn,"Use default_with_init\n" ;
+    }
+    elsif (ref($def_info) eq 'ARRAY') {
+	$info->{default_keys} = $def_info ;
+	warn $warn,"Use default_keys\n" ;
+    }
+    else {
+	$info->{default_keys} = [ $def_info ] ;
+	warn $warn,"Use default_keys\n" ;
+    }
+    print "translate_id_default_info $elt_name output:\n",
+      Data::Dumper->Dump([$info ] , [qw/new_info/ ] ) ,"\n"
+	  if $::debug ;
+}
 
 # internal: translate warp information into 'boolean expr' => { ... }
 sub translate_warp_info {
