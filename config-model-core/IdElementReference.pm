@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-09-25 12:23:00 $
+# $Date: 2007-10-11 11:36:02 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.4 $
+# $Revision: 1.5 $
 
 #    Copyright (c) 2007 Dominique Dumont.
 #
@@ -31,7 +31,7 @@ use Carp ;
 
 use vars qw($VERSION) ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/;
 
 
 =head1 NAME
@@ -303,7 +303,7 @@ sub reference_info {
     my $str = "Choice was retrieved with: " ;
 
     foreach my $compute_obj (@{$self->{compute}}) {
-	my $path = $compute_obj->user_formula ;
+	my $path = $compute_obj->formula ;
 	$path = defined $path ? "'$path'" : 'undef' ;
 	$str .= "\n\tpath $path" ;
 	$str .= "\n\t" . $compute_obj->compute_info ;
@@ -318,7 +318,7 @@ sub compute_obj {
 
 sub reference_path {
     my $self = shift ;
-    return map { $_ -> user_formula } @{$self->{compute}}
+    return map { $_ -> formula } @{$self->{compute}}
 }
 
 =head1 AUTHOR

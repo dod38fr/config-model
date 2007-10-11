@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-04-27 15:14:15 $
+# $Date: 2007-10-11 11:36:02 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.12 $
+# $Revision: 1.13 $
 
 #    Copyright (c) 2006-2007 Dominique Dumont.
 #
@@ -29,7 +29,7 @@ use warnings ;
 use Config::Model::Exception ;
 
 use vars qw($VERSION);
-$VERSION = sprintf "%d.%03d", q$Revision: 1.12 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.13 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -357,6 +357,10 @@ sub _walk_node {
     return $element;
 }
 
+sub unquote {
+    map { s/^"// && s/"$// && s/\\"/"/g;  } @_ ;
+}
+
 sub _load_list {
     my ($self,$node,$element_name,$cmd) = @_ ;
 
@@ -371,20 +375,18 @@ sub _load_list {
 	print "Setting $elt_type element ",$element->name," to $cmd\n"
 	    if $::verbose ;
 	my @set = split( /,/ , $cmd ) ;
-	map { s/^"// ; s/"$//; } @set ;
+	unquote( @set );
 	$element->store_set( @set ) ;
 	return $node;
     }
     elsif ($elt_type eq 'list' and $action eq ':' and $cargo_type =~ /node/) {
 	# remove possible leading or trailing quote
-	$cmd =~ s/^"//;
-	$cmd =~ s/"$//;
+	unquote ($cmd) ;
 	return $element->fetch_with_id($cmd) ;
     }
     elsif ($elt_type eq 'list' and $action eq ':' and $cargo_type =~ /leaf/) {
 	my ($id,$value) = ($cmd =~ m/(\w+)=(.*)/) ;
-	$value =~ s/^"// ; # remove possible leading quote
-	$value =~ s/"$// ; # remove possible trailing quote
+	unquote($value) ;
 	$element->fetch_with_id($id)->store($value) ;
 	return $node ;
     }
@@ -409,13 +411,12 @@ sub _load_hash {
 
     if ($action eq ':' and $cargo_type =~ /node/) {
 	# remove possible leading or trailing quote
-	$cmd =~ s/^"//;
-	$cmd =~ s/"$//;
+	unquote ($cmd) ;
 	return $element->fetch_with_id($cmd) ;
     }
     elsif ($action eq ':' and $cargo_type =~ /leaf/) {
-	# remove possible leading or trailing quote with the map
-	my ($id,$value) = map  { s/^"// ;  s/"$// ; $_ } split /=/, $cmd, 2;
+	my ($id,$value) = split /=/, $cmd, 2;
+	unquote( $id,$value) ;
 	#print "_load_hash: id is '$id', value is '$value' ($cmd)\n";
 	$element->fetch_with_id($id)->store($value) ;
 	return $node
@@ -439,8 +440,7 @@ sub _load_leaf {
 
     if ($action eq '=' and $element->isa('Config::Model::Value')) {
 	my $value = $cmd;
-	$value =~ s/^"// ; # remove possible leading quote
-	$value =~ s/"$// ; # remove possible trailing quote
+	unquote($value) ;
 	$element->store($value) ;
     }
     else {

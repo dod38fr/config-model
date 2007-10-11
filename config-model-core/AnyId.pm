@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-10-11 10:49:06 $
+# $Date: 2007-10-11 11:36:02 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.21 $
+# $Revision: 1.22 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -29,7 +29,7 @@ use Carp;
 use strict;
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.21 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.22 $ =~ /(\d+)\.(\d+)/;
 
 use base qw/Config::Model::WarpedThing/;
 
@@ -262,7 +262,7 @@ For instance, with this model:
                         index_type => 'integer',
                         max_nb     => 3,
                         warp       => {
-                                       follow_keys_from => '- macro',
+                                       follow => '- macro',
                                        rules => { A => { max_nb => 1 },
                                                   B => { max_nb => 2 }
                                                 }

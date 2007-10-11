@@ -1,11 +1,11 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2007-05-04 11:44:58 $
+# $Date: 2007-10-11 11:36:03 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.9 $
+# $Revision: 1.10 $
 
 use ExtUtils::testlib;
-use Test::More tests => 40;
+use Test::More tests => 44;
 use Config::Model;
 
 use warnings;
@@ -132,3 +132,15 @@ is ($elt->location,'hash_a:"a b "', 'check location') ;
 
 $step = 'my_check_list=a,"a b "' ;
 ok( $root->load( step => $step, ), "load : '$step'");
+
+$step = 'a_string="a \"b\" "' ;
+ok( $root->load( step => $step, ), "load : '$step'");
+is($root->fetch_element('a_string')->fetch , 'a "b" ',
+  "test value loaded by '$step'");
+
+$step = 'lista=a,"a \"b\" "' ;
+ok( $root->load( step => $step, ), "load : '$step'");
+is($root->fetch_element('lista')->fetch_with_id(1)->fetch ,
+   'a "b" ',
+   "test value loaded by '$step'");
+

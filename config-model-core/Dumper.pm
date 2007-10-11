@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-09-06 11:18:54 $
+# $Date: 2007-10-11 11:36:02 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.15 $
+# $Revision: 1.16 $
 
 #    Copyright (c) 2006-2007 Dominique Dumont.
 #
@@ -30,7 +30,7 @@ use Config::Model::Exception ;
 use Config::Model::ObjTreeScanner ;
 
 use vars qw($VERSION);
-$VERSION = sprintf "%d.%03d", q$Revision: 1.15 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.16 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -144,9 +144,10 @@ sub dump_tree {
 	my $value = $full ? $value_obj->fetch : $value_obj->fetch_custom;
 
 	if (    defined $value 
-	    and ($value =~ /\s/ or $value eq '')
+	    and ($value =~ /(\s|")/ or $value eq '')
 	   ) {
-	    $value = '"' . $value . '"' ;
+	    $value =~ s/"/\\"/g ; # escape present quotes
+	    $value = '"' . $value . '"' ; # add my quotes
 	}
 
         my $pad = $compute_pad->($obj);

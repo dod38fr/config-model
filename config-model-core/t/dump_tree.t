@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2007-09-20 11:39:37 $
+# $Date: 2007-10-11 11:36:03 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.11 $
+# $Revision: 1.12 $
 
 use ExtUtils::testlib;
 use Test::More tests => 9;
@@ -34,7 +34,7 @@ my $root = $inst -> config_root ;
 ok($root,"Config root created") ;
 
 my $step = 'std_id:ab X=Bv - std_id:bc X=Av - std_id:"b d " X=Av '
-  .'- a_string="toto tata" '
+  .'- a_string="toto \"titi\" tata" '
   .'lista=a,b,c,d olist:0 X=Av - olist:1 X=Bv - listb=b,c,d '
   . '! hash_a:X2=x hash_a:Y2=xy  hash_b:X3=xy my_check_list=X2,X3' ;
 ok( $root->load( step => $step, permission => 'intermediate' ),
@@ -73,7 +73,7 @@ slave_y
     sub_slave - -
   warp2
     sub_slave - - -
-a_string="toto tata"
+a_string="toto \"titi\" tata"
 my_check_list=X2,X3 -
 EOF
 
@@ -116,7 +116,7 @@ slave_y
   warp2
     sub_slave - - -
 string_with_def="yada yada"
-a_string="toto tata"
+a_string="toto \"titi\" tata"
 int_v=10
 my_check_list=X2,X3 -
 EOF
@@ -161,7 +161,7 @@ slave_y
   warp2
     sub_slave - - -
 string_with_def="yada yada"
-a_string="toto tata"
+a_string="toto \"titi\" tata"
 int_v=10
 my_check_list=X2,X3 -
 EOF
