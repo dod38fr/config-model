@@ -1,3 +1,19 @@
+2007-10-11  Dominique Dumont
+
+	* Model.pm (translate_id_names): new method to translate AnyId
+	parameter chanages
+
+	* AnyId.pm: Changed some parameters: follow -> follow_keys,
+	allow -> allow_keys, allow_from -> allow_keys_from
+
+2007-10-09  Dominique Dumont
+
+	* Model.pm (translate_id_default_info): provides backward
+	compatibility for AnyId parameter changes.
+
+	* AnyId.pm: default parameter is replaced by 'default_keys' and
+	'default_with_init'.
+
 2007-09-25  Dominique Dumont  v0.613
 
 	* IdElementReference.pm: Changes the API of IdElementReference so

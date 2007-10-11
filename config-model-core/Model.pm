@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-10-09 11:14:16 $
+# $Date: 2007-10-11 10:49:06 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.42 $
+# $Revision: 1.43 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -650,10 +650,12 @@ sub translate_legacy_info {
 	if (defined $info->{default}) {
 	    $self->translate_id_default_info($elt_name, $info);
 	} 
+	$self->translate_id_names($elt_name,$info) ;
 	if (defined $info->{warp} ) {
 	    my $rules_a = $info->{warp}{rules} ;
 	    my %h = @$rules_a ;
 	    foreach my $rule_effect (values %h) {
+		$self->translate_id_names($elt_name, $rule_effect) ;
 		next unless defined $rule_effect->{default} ;
 		$self->translate_id_default_info($elt_name, $rule_effect);
 	    }
@@ -661,6 +663,28 @@ sub translate_legacy_info {
     }
 
     print Data::Dumper->Dump([$info ] , ['translated_'.$elt_name ] ) ,"\n" if $::debug;
+}
+
+sub translate_id_names {
+    my $self = shift;
+    my $elt_name = shift ;
+    my $info = shift;
+    $self->translate_name($elt_name, $info, 'allow',     'allow_keys') ;
+    $self->translate_name($elt_name, $info, 'allow_from','allow_keys_from') ;
+    $self->translate_name($elt_name, $info, 'follow',    'follow_keys_from') ;
+}
+
+sub translate_name {
+    my $self     = shift;
+    my $elt_name = shift ;
+    my $info     = shift;
+    my $from     = shift ;
+    my $to       = shift ;
+
+    if (defined $info->{$from}) {
+	warn "$elt_name: parameter $from is deprecated in favor of $to\n";
+	$info->{$to} = delete $info->{$from}  ;
+    }
 }
 
 sub translate_compute_info {
