@@ -1,0 +1,23 @@
+Build.PL
+ChangeLog
+README
+config-model-edit
+data/CheckListExamples.pl
+data/HashIdOfValues.pl
+data/MasterModel.pl
+data/WarpedId.pl
+data/WarpedValues.pl
+data/X_base_class.pl
+lib/Config/Model/Itself.pm
+lib/Config/Model/models/Itself/CargoElement.pl
+lib/Config/Model/models/Itself/Class.pl
+lib/Config/Model/models/Itself/ComputedValue.pl
+lib/Config/Model/models/Itself/Element.pl
+lib/Config/Model/models/Itself/Model.pl
+lib/Config/Model/models/Itself/WarpableElement.pl
+lib/Config/Model/models/Itself/WarpRule.pl
+lib/Config/Model/models/Itself/WarpValue.pl
+MANIFEST			This list of files
+t/itself.t
+t/itself.t.ptkdb
+t/load_write_all.t

@@ -1,0 +1,84 @@
+
+Config::Model::Itself - Config::Model model (for Config::Model)
+
+This module provides a configuration model for Config::Model.
+
+Which means that you can use the same UI to edit configuration data
+(for instance Xorg configuration data from xorg.conf) and Xorg model
+(if you need to add new parameters in Xorg model)
+
+With this module and Config::Model, you have a tool to tune the
+configuration models.
+
+Installing Config::Model::CursesUI is recommended as you'll have a
+more user friendly curses based user interface.
+
+-- TO BE MODIFIED BELOW
+
+Once this module is installed, you can run (as root, but please backup
+/etc/X11/xorg.conf before):
+
+  # config-edit -model Xorg
+
+You may want to try it safely first by writing the resulting xorg.conf
+elsewhere (in this case you can run this command with your user
+account):
+
+  $ config-edit -model Xorg -write_directory test 
+
+If config-edit fails with your xorg.conf (See BUGS section below), you
+can try config-edit with the provided xorg.conf (but it won't be
+useful for you as this file will not match your hardware
+configuration). Note that you must run this command where you unpacked
+this perl module:
+
+  $ config-edit -model Xorg -read data -write wr_test
+
+If you do not have the curses user interface, be sure to read doc
+which explain the basic command of the terminal based interface:
+http://search.cpan.org/dist/Config-Model/TermUI.pm#USER_COMMAND_SYNTAX
+
+--------------------------------------------------------------------
+MODULE CONTENT
+
+This Perl modules contains several files (listed in MANIFEST). Here
+are the purpose of the main files:
+- Build.PL : script to build the Perl module. See Module::Build(3pm)
+- data/xorg.conf: sample xorg.conf used with non-reg test
+- lib/Config/Model/models : directory containing Xorg model files. The
+  main model is Xorg.pl. The complete xorg model is made from all
+  files contained in this directory.
+- lib/Config/Model/Xorg/Read.pm: Read xorg.conf files
+- lib/Config/Model/Xorg/Write.pm: Write xorg.conf files
+- t/xorg.t: non-regression test
+
+--------------------------------------------------------------------
+
+BUGS
+
+This model is quite young and is incomplete.
+
+So far, the following video cards have a model (see
+lib/Config/Model/models/Xorg/Device/ directory) :
+- ATI card (rather complete Radeon.pl model for radeon driver)
+- Nvidia card (very preliminary Nvidia.pl model for Nvidia proprietary
+  driver)
+
+--------------------------------------------------------------------
+
+AUTHOR
+    Copyright (c) 2007 Dominique Dumont.
+
+    This file is part of Config-Model-Xorg.
+
+---------------------------------------------------------------------
+INSTALLATION
+
+   	tar zxvf <dist_file>.tar.gz 
+   	cd <dist_directory>
+   	perl Build.PL
+	./Build test
+
+If you want to install this software without packaging, type also:
+
+        ./Build install

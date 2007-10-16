@@ -1,0 +1,257 @@
+#!/usr/bin/perl
+
+#    Copyright (c) 2007 Dominique Dumont.
+#
+#    This file is part of Config-Model-Itself.
+#
+#    Config-Model is free software; you can redistribute it and/or
+#    modify it under the terms of the GNU Lesser Public License as
+#    published by the Free Software Foundation; either version 2.1 of
+#    the License, or (at your option) any later version.
+#
+#    Config-Model is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#    Lesser Public License for more details.
+#
+#    You should have received a copy of the GNU Lesser Public License
+#    along with Config-Model; if not, write to the Free Software
+#    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+#    02110-1301 USA
+
+use strict ;
+use warnings ;
+
+use Config::Model;
+use Getopt::Long ;
+use Pod::Usage ;
+use Log::Log4perl ;
+use Config::Model::Itself ;
+
+# lame tracing that will be replaced by Log4perl
+use vars qw/$verbose $debug/ ;
+
+$verbose = 0;
+$debug = 0;
+
+my $log4perl_conf_file = '/etc/log4config-model.conf' ;
+my $fallback_conf = << 'EOC';
+log4perl.logger.ConfigModel=WARN, A1
+log4perl.appender.A1=Log::Dispatch::File
+log4perl.appender.A1.filename=/tmp/ConfigModel.log
+log4perl.appender.A1.mode=append
+log4perl.appender.A1.layout=Log::Log4perl::Layout::SimpleLayout
+EOC
+
+my $log4perl_conf = -e $log4perl_conf_file ? $log4perl_conf_file 
+                  :                          \$fallback_conf ;
+
+Log::Log4perl::init($log4perl_conf);
+
+
+my $ui_type ;
+
+eval {require Config::Model::CursesUI ;} ;
+
+if ($@) {
+    warn "You should install Config::Model::CursesUI for a more friendly user interface\n";
+    $ui_type = 'shell' ;
+}
+else {
+    $ui_type = 'curses';
+}
+
+
+my $model_dir ;
+my $root_model ;
+my $trace = 0 ;
+my $read_conf_dir;
+my $wr_conf_dir ;
+
+=head1 NAME
+
+config-model-edit - Edit Config::Model models
+
+=head1 SYNOPSIS
+
+  config-model-edit [options] -model Fstab
+
+=head1 DESCRIPTION
+
+Config-model is a general purpose configuration framework. Models
+stored in /C</etc/config-model.d> are configuration description.
+
+TBD
+
+The config-model-edit program will use these configuration
+descriptions to provide a user interface so user can easily and
+securely modify the configuration of their system.
+
+=head1 Options
+
+=over
+
+=item -model
+
+Mandatory option that specifies the configuration data to be
+edited. The model must be available in C</etc/config-model.d/>
+directory in a C<.pl> file. E.g. this command:
+
+  config-edit -model Fstab
+
+will look for C</etc/config-model.d/Fstab.pl> model file. See
+L<Config::Model> for more details.
+
+=item -if
+
+Specify the user interface type. 
+
+=over
+
+=item *
+
+C<shell>: provides a shell like interface.  See L<Config::Model::TermUI>
+for details.
+
+=item *
+
+C<curses>: provides a curses user interface (If
+Config::Model::CursesUI is installed).
+
+=back
+
+
+=item -model_dir
+
+Specify an alternate directory to find model files. Mostly useful for
+tests. 
+
+=item -write_conf_dir
+
+Specify where to write the configuration files. (Actual default
+directory and file names depends on the model (See C<-model>
+option).
+
+=item -read_conf_dir
+
+Specify where to read the configuration files. (Actual default
+directory and file names depends on the model (See C<-model>
+option).
+
+=item -verbose
+
+Be (very) verbose
+
+=item -debug
+
+Provide debug infos.
+
+=item -trace
+
+Provides a full stack trace when exiting on error.
+
+=back
+
+
+=cut
+
+my $man = 0;
+my $help = 0;
+
+my $result = GetOptions ("if=s"             => \$ui_type,
+			 "model_dir=s"      => \$model_dir,
+			 "model=s"          => \$root_model,
+			 "verbose!"         => \$verbose,
+			 "debug!"           => \$debug,
+			 "trace!"           => \$trace,
+			 "man!"             => \$man,
+			 "help!"            => \$help,
+			 "read_conf_dir=s"  => \$read_conf_dir,
+			 "write_conf_dir=s" => \$wr_conf_dir ,
+			);
+
+pod2usage(2) if not $result ;
+pod2usage(1) if $help;
+pod2usage(-verbose => 2) if $man;
+
+Config::Model::Exception::Any->Trace(1) if $trace ;
+
+die "Unspecified root configuration model (option -model)\n"
+  unless defined $root_model ;
+
+if (defined $wr_conf_dir && ! -e $wr_conf_dir) {
+    mkdir $wr_conf_dir, 0755 || die "can't create $wr_conf_dir:$!";
+}
+
+my $model = Config::Model -> new();
+
+my $inst = $model->instance (root_class_name => 'Itself::Model' ,
+			     instance_name   => $root_model ,
+			    );
+
+my $root = $inst -> config_root ;
+
+# now load model
+
+my $rw_obj = Config::Model::Itself -> new(model_object => $root ) ;
+
+if (not defined $model_dir) {
+    $model_dir =  $INC{'Config/Model.pm'} ;
+    $model_dir =~ s/\.pm//;
+    $model_dir .= '/models' ;
+}
+
+$rw_obj -> read_all( conf_dir => $model_dir) ;
+
+if ($ui_type eq 'shell') {
+    require Config::Model::TermUI;
+    my $shell_ui = Config::Model::TermUI
+      -> new( root => $root ,
+	      title => $root_model.' configuration',
+	      prompt => ' >',
+	    );
+
+    # engage in user interaction
+    $shell_ui -> run_loop ;
+}
+elsif ($ui_type eq 'curses') {
+    my $err_file = '/tmp/config-edit-error.log' ;
+
+    print "In case of error, check $err_file\n";
+
+    open (FH,"> $err_file") || die "Can't open $err_file: $!" ;
+    open STDERR, ">&FH";
+
+    my $dialog = Config::Model::CursesUI-> new
+      (
+       permission => 'advanced',
+      ) ;
+
+    # engage in user interaction
+    $dialog->start( $model )  ;
+
+    close FH ;
+}
+else {
+    die "Unsupported user interface: $ui_type";
+}
+
+
+=head1 AUTHOR
+
+Dominique Dumont, ddumont at cpan dot org
+
+=head1 SEE ALSO
+
+L<Config::Model::Model>, 
+L<Config::Model::Instance>, 
+L<Config::Model::HashId>,
+L<Config::Model::ListId>,
+L<Config::Model::WarpedNode>,
+L<Config::Model::Value>
+
+=cut
+
+
+
+
