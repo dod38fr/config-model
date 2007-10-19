@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2007-05-04 11:44:59 $
+# $Date: 2007-10-19 11:43:42 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.5 $
+# $Revision: 1.6 $
 
 use ExtUtils::testlib;
 use Test::More tests => 7;
@@ -89,6 +89,8 @@ olist:1 DX = Dv
 	SELECTED: XY help
 
  string_with_def = "yada yada"
+
+ a_uniline = "yada yada"
 
  a_string = "toto tata"
 

@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-10-11 10:49:06 $
+# $Date: 2007-10-19 11:43:41 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.43 $
+# $Revision: 1.44 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -1307,5 +1307,6 @@ L<Config::Model::Report>,
 L<Config::Model::Searcher>,
 L<Config::Model::TermUI>,
 L<Config::Model::WizardHelper>,
+L<Config::Model::AutoRead>,
 
 =cut

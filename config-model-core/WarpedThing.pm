@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-09-17 12:03:21 $
+# $Date: 2007-10-19 11:43:41 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.14 $
+# $Revision: 1.15 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -33,7 +33,7 @@ use Carp;
 use warnings FATAL => qw(all);
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.14 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.15 $ =~ /(\d+)\.(\d+)/;
 
 use base qw/Config::Model::AnyThing/ ;
 
@@ -58,7 +58,7 @@ WarpThing does not provide a constructor.
 
 =head1 Warper and warped
 
-Warping an object means the the properties of the object will be
+Warping an object means that the properties of the object will be
 changed depending on the value of another object.
 
 The changed object is refered as the I<warped> object.
@@ -109,8 +109,8 @@ a boolean expression to specify the effect. The first match will
 be applied. In this case, rules is a list ref:
 
   follow => { m => '! macro1' } ,
-  rules => [ '$m eq A'             => { <effect for macro1 == A> },
-             '$m eq B or $m eq C'  => { <effect for macro1 == B|C > }
+  rules => [ '$m eq "A"'               => { <effect for macro1 == A> },
+             '$m eq "B" or $m eq"C "'  => { <effect for macro1 == B|C > }
            ]
 
 
@@ -119,10 +119,10 @@ rules must use boolean expression:
 
  follow => { m1 => '! macro1', m2 => '- macro2' } ,
  rules => [
-           '$m1 eq A && $m2 eq C' => { <effect for A C> },
-           '$m1 eq A && $m2 eq D' => { <effect for A D> },
-           '$m1 eq B && $m2 eq C' => { <effect for B C> },
-           '$m1 eq B && $m2 eq D' => { <effect for B D> },
+           '$m1 eq "A" && $m2 eq "C"' => { <effect for A C> },
+           '$m1 eq "A" && $m2 eq "D"' => { <effect for A D> },
+           '$m1 eq "B" && $m2 eq "C"' => { <effect for B C> },
+           '$m1 eq "B" && $m2 eq "D"' => { <effect for B D> },
           ]
 
 Of course some combinations of warp master values can have the same
@@ -130,19 +130,19 @@ effect:
 
  follow => { m1 => '! macro1', m2 => '- macro2' } ,
  rules => [
-           '$m1 eq A && $m2 eq C' => { <effect X> },
-           '$m1 eq A && $m2 eq D' => { <effect Y> },
-           '$m1 eq B && $m2 eq C' => { <effect Y> },
-           '$m1 eq B && $m2 eq D' => { <effect Y> },
+           '$m1 eq "A" && $m2 eq "C"' => { <effect X> },
+           '$m1 eq "A" && $m2 eq "D"' => { <effect Y> },
+           '$m1 eq "B" && $m2 eq "C"' => { <effect Y> },
+           '$m1 eq "B" && $m2 eq "D"' => { <effect Y> },
           ]
 
 In this case, you can use different boolean expression to save typing:
 
  follow => { m1 => '! macro1', m2 => '- macro2' } ,
  rules => [
-           '$m1 eq A && $m2 eq C' => { <effect X> },
-           '$m1 eq A && $m2 eq D' => { <effect Y> },
-           '$m1 eq B && ( $m2 eq C or $m2 eq D) ' => { <effect Y> },
+           '$m1 eq "A" && $m2 eq "C"' => { <effect X> },
+           '$m1 eq "A" && $m2 eq "D"' => { <effect Y> },
+           '$m1 eq "B" && ( $m2 eq "C" or $m2 eq "D") ' => { <effect Y> },
           ]
 
 Note that the boolean expression will be sanitised and used in a Perl

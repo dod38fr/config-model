@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2007-07-26 12:23:53 $
+# $Date: 2007-10-19 11:43:42 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.8 $
+# $Revision: 1.9 $
 
 use ExtUtils::testlib;
 use Test::More tests => 22;
@@ -83,6 +83,8 @@ my @data
       {
        'string_with_def' => {'next_step' => 'string_with_def'},
 
+       'a_uniline' => {'next_step' => 'a_uniline'},
+
        'aa2' => {'next_step' => {'slave_y' => {'next_step' => {'warp2' => {'next_class' => {'SubSlave2' => {'next_step' => 'aa2'}}}, 'sub_slave' => {'next_step' => {'sub_slave' => {'next_step' => 'aa2'}}}}}, 'warp' => {'next_class' => {'SlaveY' => {'next_step' => {'warp2' => {'next_class' => {'SubSlave2' => {'next_step' => 'aa2'}}}, 'sub_slave' => {'next_step' => {'sub_slave' => {'next_step' => 'aa2'}}}}}}}}},
 
        'Y' => {'next_step' => {'slave_y' => {'next_step' => 'Y'}, 'warp' => {'next_class' => {'SlaveY' => {'next_step' => 'Y'}}}}},
@@ -131,7 +133,7 @@ my @data
     ) ;
 
 my @items = $root->searcher->get_searchable_elements ;
-my @expected = qw/DX X Y Z a_string aa aa2 ab ab2 ac ac2 ad ad2 
+my @expected = qw/DX X Y Z a_string a_uniline aa aa2 ab ab2 ac ac2 ad ad2 
                   hash_a hash_b int_v lista listb my_check_list 
                   my_reference ordered_hash string_with_def tree_macro/ ;
 

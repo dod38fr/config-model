@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2007-10-11 11:36:03 $
+# $Date: 2007-10-19 11:43:42 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.12 $
+# $Revision: 1.13 $
 
 use ExtUtils::testlib;
 use Test::More tests => 9;
@@ -116,6 +116,7 @@ slave_y
   warp2
     sub_slave - - -
 string_with_def="yada yada"
+a_uniline="yada yada"
 a_string="toto \"titi\" tata"
 int_v=10
 my_check_list=X2,X3 -
@@ -161,6 +162,7 @@ slave_y
   warp2
     sub_slave - - -
 string_with_def="yada yada"
+a_uniline="yada yada"
 a_string="toto \"titi\" tata"
 int_v=10
 my_check_list=X2,X3 -
@@ -207,6 +209,7 @@ slave_y
   warp2
     sub_slave - - -
 string_with_def="yada yada"
+a_uniline="yada yada"
 a_string=""
 int_v=10
 my_check_list=X2,X3 -

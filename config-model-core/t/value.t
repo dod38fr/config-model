@@ -1,12 +1,12 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2006-09-26 11:54:58 $
+# $Date: 2007-10-19 11:43:42 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.4 $
+# $Revision: 1.5 $
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
-use Test::More tests => 76 ;
+use Test::More tests => 78 ;
 use Config::Model ;
 use Config::Model::Value;
 
@@ -89,6 +89,10 @@ $model ->create_config_class
 				      value_type => 'string',
 				      built_in    => 'bi_def',
 				    },
+		a_uniline  => { type => 'leaf',
+				value_type => 'uniline',
+				built_in    => 'bi_def',
+			      },
 	      ] , # dummy class
   ) ;
 
@@ -300,3 +304,13 @@ my $bi_def = $root->fetch_element('built_in_default');
 
 is( $bi_def->fetch, undef,"built_in actual value" );
 is( $bi_def->fetch_standard,'bi_def' ,"built_in actual value" );
+
+###
+
+my $uni = $root->fetch_element('a_uniline') ;
+eval { $uni->store("foo\nbar");};
+ok($@,"uniline: tried to store a multi line") ;
+print "normal error:\n", $@, "\n" if $trace;
+
+$uni->store("foo bar");
+is($uni->fetch, "foo bar","tested uniline value") ;

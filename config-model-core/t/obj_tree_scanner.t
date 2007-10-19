@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2007-07-26 12:23:41 $
+# $Date: 2007-10-19 11:43:42 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.12 $
+# $Revision: 1.13 $
 
 use ExtUtils::testlib;
 use Test::More tests => 9;
@@ -124,7 +124,7 @@ ok(1,"performed scan") ;
 print $result if $trace ;
 
 my $expect = << 'EOF' ;
-disp_node_content Master element: std_id lista listb hash_a hash_b ordered_hash olist slave_y string_with_def a_string int_v my_check_list my_reference
+disp_node_content Master element: std_id lista listb hash_a hash_b ordered_hash olist slave_y string_with_def a_uniline a_string int_v my_check_list my_reference
 disp_hash Master element(std_id): ab bc
 disp_node_elt Master element: std_id key ab
 disp_node_content std_id:ab element: Z X DX
@@ -179,6 +179,7 @@ disp_up slave_y warp2
 disp_leaf slave_y element Y
 disp_up slave_y
 disp_leaf Master element string_with_def value yada yada
+disp_leaf Master element a_uniline value yada yada
 disp_leaf Master element a_string value toto tata
 disp_leaf Master element int_v value 10
 disp_check_list Master element(my_check_list): X2,X3 are set
@@ -233,6 +234,7 @@ disp_leaf slave_y warp2 sub_slave element ad2
 disp_leaf slave_y warp2 sub_slave element Z
 disp_leaf slave_y element Y
 disp_leaf Master element string_with_def value yada yada
+disp_leaf Master element a_uniline value yada yada
 disp_leaf Master element a_string value toto tata
 disp_leaf Master element int_v value 10
 disp_leaf Master element my_check_list value X2,X3

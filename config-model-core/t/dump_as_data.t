@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2007-10-11 10:49:06 $
+# $Date: 2007-10-19 11:43:42 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.4 $
+# $Revision: 1.5 $
 
 use ExtUtils::testlib;
 use Test::More tests => 11;
@@ -95,6 +95,7 @@ $expect->{olist}[0]{DX} = 'Dv' ;
 $expect->{olist}[1]{DX} = 'Dv' ;
 $expect->{std_id}{ab}{DX} = 'Dv' ;
 $expect->{std_id}{bc}{DX} = 'Dv' ;
+$expect->{a_uniline} = 'yada yada';
 
 my $full_data = $root->dump_as_data(full_dump => 1 ) ;
 

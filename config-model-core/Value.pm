@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-09-25 12:23:00 $
+# $Date: 2007-10-19 11:43:41 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.21 $
+# $Revision: 1.22 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -37,7 +37,7 @@ use base qw/Config::Model::WarpedThing/ ;
 
 use vars qw($VERSION) ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.21 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.22 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -123,7 +123,7 @@ A leaf element must be declared with the following parameters:
 =item value_type
 
 Either C<boolean>, C<enum>, C<integer>, C<enum_integer>, C<number>,
-C<string>. Mandatory. See L</"Value types">.
+C<uniline>, C<string>. Mandatory. See L</"Value types">.
 
 =item default
 
@@ -513,6 +513,10 @@ value which can be an integer or be disabled.
 
 The value can be a decimal number
 
+=item C<uniline>
+
+A one line string. I.e without "\n" in it.
+
 =item C<string>
 
 Actually, no check is performed with this type.
@@ -553,7 +557,9 @@ sub set_value_type {
     }
     elsif (   $value_type eq 'string' 
 	   or $value_type eq 'integer' 
-	   or $value_type eq 'number') {
+	   or $value_type eq 'number'
+	   or $value_type eq 'uniline'
+	  ) {
         Config::Model::Exception::Model
 	    -> throw (
 		      object => $self,
@@ -564,7 +570,7 @@ sub set_value_type {
     }
     else {
 	my $msg = "Unexpected value type : '$value_type' ".
-	  "expected 'boolean', 'enum', 'string' or 'integer'."
+	  "expected 'boolean', 'enum', 'uniline', 'string' or 'integer'."
 	    ."Value type can also be set up with a warp relation" ;
         Config::Model::Exception::Model
 	    -> throw (object => $self, error => $msg) 
@@ -741,7 +747,7 @@ Set C<value_type> to C<reference>.
 =item *
 
 Specify the C<refer_to> or C<computed_refer_to> parameter. 
-See L<refer_to parameter|Config::Model::IdElementReference/"refer_to parameter">.
+See L<refer_to parameter|Config::Model::IdElementReference/"Config class parameters">.
 
 =back
 
@@ -986,6 +992,10 @@ sub check {
 	   or $self->{value_type} =~ /number/
 	  ) {
         push @error,"Value '$value' is not of type ". $self->{value_type};
+    }
+    elsif ($self->{value_type} eq 'uniline') {
+	push @error,'"uniline" value must not contain embedded newlines (\n)'
+	  if $value =~ /\n/;
     }
     elsif ($self->{value_type} eq 'string') {
         # accepted, no more check

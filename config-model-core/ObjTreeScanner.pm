@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-07-18 15:59:32 $
+# $Date: 2007-10-19 11:43:41 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.14 $
+# $Revision: 1.15 $
 
 #    Copyright (c) 2006-2007 Dominique Dumont.
 #
@@ -29,7 +29,7 @@ use Carp;
 use warnings ;
 use UNIVERSAL qw( isa can );
 
-our $VERSION = sprintf "%d.%03d", q$Revision: 1.14 $ =~ /(\d+)\.(\d+)/;
+our $VERSION = sprintf "%d.%03d", q$Revision: 1.15 $ =~ /(\d+)\.(\d+)/;
 
 use Carp qw/croak confess cluck/;
 
@@ -85,6 +85,7 @@ Config::Model::ObjTreeScanner - Scan config tree and perform call-backs
    number_value_cb       => \&disp_leaf,
    boolean_value_cb      => \&disp_leaf,
    string_value_cb       => \&disp_leaf,
+   uniline_value_cb      => \&disp_leaf,
    reference_value_cb    => \&disp_leaf,
 
    # call-back when going up the tree
@@ -148,7 +149,7 @@ listed below:
 C<leaf_cb> is a catch-all generic callback. All other are specialized
 call-back : C<enum_value_cb>, C<enum_integer_value_cb>,
 C<integer_value_cb>, C<number_value_cb>, C<boolean_value_cb>,
-C<string_value_cb>, C<reference_value_cb>
+C<string_value_cb>, C<uniline_value_cb>, C<reference_value_cb>
 
 =item node callback:
 
@@ -352,7 +353,7 @@ sub new {
 
     # get all call_backs
     my @value_cb = map {$_.'_value_cb'} 
-      qw/boolean enum enum_integer string integer number reference/; 
+      qw/boolean enum enum_integer string uniline integer number reference/; 
 
     foreach my $param (qw/node_element_cb hash_element_cb 
                           list_element_cb check_list_element_cb node_content_cb
@@ -412,6 +413,7 @@ sub create_fallback {
         $self->{number_value_cb}        ||= $l ;
         $self->{boolean_value_cb}       ||= $l ;
         $self->{reference_value_cb}     ||= $l ;
+        $self->{uniline_value_cb}       ||= $l ;
       }
 
     croak __PACKAGE__,"->new: Unexpected fallback value '$fallback'. ",

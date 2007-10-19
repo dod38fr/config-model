@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-10-11 11:36:02 $
+# $Date: 2007-10-19 11:43:41 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.5 $
+# $Revision: 1.6 $
 
 #    Copyright (c) 2007 Dominique Dumont.
 #
@@ -31,7 +31,7 @@ use Carp ;
 
 use vars qw($VERSION) ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/;
 
 
 =head1 NAME
@@ -169,9 +169,9 @@ sub new {
 
 =item refer_to
 
-C<refer_to> is used to spepify the hash element that will be used as a
-reference. C<refer_to> points to an array or hash element
-in the configuration tree using the path syntax (See
+C<refer_to> is used to specify a hash element that will be used as a
+reference. C<refer_to> points to an array or hash element in the
+configuration tree using the path syntax (See
 L<Config::Model::Node/grab> for details).
 
 =item computed_refer_to

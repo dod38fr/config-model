@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2007-07-26 12:22:54 $
+# $Date: 2007-10-19 11:43:42 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.7 $
+# $Revision: 1.8 $
 
 use ExtUtils::testlib;
 use Test::More tests => 6;
@@ -59,6 +59,7 @@ tree_macro   [undef]      enum         choice: XY XZ mXY
 warp         <SlaveY>     node
 slave_y      <SlaveY>     node
 string_with_def "yada yada"  string
+a_uniline    "yada yada"  uniline
 a_string     "toto tata"  string       mandatory
 int_v        10           integer
 my_check_list toto         check_list

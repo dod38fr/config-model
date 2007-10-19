@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2007-09-20 11:39:37 $
+# $Date: 2007-10-19 11:43:42 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.17 $
+# $Revision: 1.18 $
 
 # this file is used by test script
 
@@ -149,6 +149,10 @@
 				    value_type => 'string',
 				    default    => 'yada yada'
 				  },
+	       a_uniline => { type => 'leaf',
+			     value_type => 'uniline',
+			     default    => 'yada yada'
+			    },
 	       a_string => { type => 'leaf',
 			     mandatory => 1 ,
 			     value_type => 'string'

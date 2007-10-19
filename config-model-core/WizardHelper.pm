@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-05-04 11:40:58 $
+# $Date: 2007-10-19 11:43:41 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.6 $
+# $Revision: 1.7 $
 
 #    Copyright (c) 2006-2007 Dominique Dumont.
 #
@@ -31,7 +31,7 @@ use Config::Model::Exception ;
 use Error qw(:try);
 
 use vars qw($VERSION);
-$VERSION = sprintf "%d.%03d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -121,7 +121,7 @@ By default, C<leaf_cb> will be called for all types of leaf elements
 call-back for each type of leaf: 
 
  enum_value_cb, enum_integer_value_cb, integer_value_cb,
- number_value_cb, boolean_value_cb, string_value_cb
+ number_value_cb, boolean_value_cb, uniline_value_cb, string_value_cb
 
 Likewise, you can also provide a call-back dedicated to list elements with
 C<list_element_cb>
@@ -172,7 +172,7 @@ sub new {
     # optional call-back parameters 
     foreach my $p (qw/enum_value enum_integer_value reference_value
                       integer_value number_value
-                      boolean_value string_value/
+                      boolean_value string_value uniline_value/
 		  ) {
 	my $item = $p.'_cb' ;
 	$cb_hash{$item} = delete $args{$item} || $cb_hash{leaf_cb};
