@@ -1,4 +1,4 @@
-2007-10-19  Dominique Dumont 
+2007-10-19  Dominique Dumont v0.614
 
 	* Value.pm: added 'uniline' value type for string with no embedded
 	newline. (no "\n")
@@ -6,7 +6,7 @@
 2007-10-11  Dominique Dumont
 
 	* Model.pm (translate_id_names): new method to translate AnyId
-	parameter chanages
+	parameter changes
 
 	* AnyId.pm: Changed some parameters: follow -> follow_keys,
 	allow -> allow_keys, allow_from -> allow_keys_from
