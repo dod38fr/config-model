@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-05-07 11:46:16 $
+# $Date: 2007-10-23 16:18:25 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -34,14 +34,14 @@
   => [ 
       [qw/VendorName ModelName/]
       => { type       => 'leaf',
-	   value_type => 'string',
+	   value_type => 'uniline',
 	 },
       'HorizSync'    => { type       => 'leaf',
-			  value_type => 'string',
+			  value_type => 'uniline',
 			  built_in   => '28-33kHz'
 			},
       'VertRefresh'  => { type       => 'leaf',
-			  value_type => 'string',
+			  value_type => 'uniline',
 			  built_in   => '43-72Hz'
 			},
       'DisplaySize' =>  { type => 'node', 

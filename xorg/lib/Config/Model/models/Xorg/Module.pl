@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-10-01 15:30:13 $
+# $Date: 2007-10-23 16:18:25 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -31,9 +31,8 @@ $foo
      name => "Xorg::Module",
 
      'class_description' 
-      => [
-	 'Xorg Module contains the list of module to load.',
-	],
+      => 'Xorg Module contains the list of module to load.',
+
 
       # problem: how can we list an extension that could be installed
       # by another package ??

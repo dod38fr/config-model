@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-12-07 13:13:22 $
+# $Date: 2007-10-23 16:18:25 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -49,7 +49,7 @@
 
       'VideoAdaptor' => {
 			 type => 'leaf',
-			 value_type => 'string',
+			 value_type => 'uniline',
 			} ,
 
       'DefaultDepth' => {
@@ -60,7 +60,7 @@
 
       'DefaultFbBpp' => {
 			 type => 'leaf',
-			 value_type => 'string',
+			 value_type => 'uniline',
 			} ,
 
       'Option' => { 

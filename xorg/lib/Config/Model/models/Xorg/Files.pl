@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2006-12-07 13:13:21 $
+# $Date: 2007-10-23 16:18:25 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -40,7 +40,7 @@ $foo
 	 [qw/FontPath RGBPath ModulePath/]
 	 => { type => 'list',
 	      cargo_type => 'leaf',
-	      cargo_args => {value_type => 'string'},
+	      cargo_args => {value_type => 'uniline'},
 	    },
 	],
 

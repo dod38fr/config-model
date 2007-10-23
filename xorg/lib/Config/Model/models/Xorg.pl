@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-06-07 16:48:15 $
+# $Date: 2007-10-23 16:18:25 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -164,7 +164,7 @@
    # A lot of info is still missing.
    element => [
 	       Mode => { type => 'leaf',
-			 value_type => 'string', # err, placeholder...
+			 value_type => 'uniline', # err, placeholder...
 		       },
 	      ],
    description => [

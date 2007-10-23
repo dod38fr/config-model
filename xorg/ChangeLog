@@ -1,3 +1,9 @@
+2007-10-23  Dominique Dumont  v0.504
+
+	* models: changed 'string' type to 'uniline' in parameters that
+	should be filled with simple entry (without embedded \n)
+	* models/Xorg/ServerLayout.pl: small bug fixes in the model
+	
 2007-10-01  Dominique Dumont  v0.503
 
 	* lib/Config/Model/models/Xorg/ServerFlags.pl: removed duplicate

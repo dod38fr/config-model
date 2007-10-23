@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-10-01 15:29:36 $
+# $Date: 2007-10-23 16:18:25 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -46,7 +46,7 @@
       =>  { type => 'leaf', value_type => "boolean", built_in => 0 } ,
 
       
-      "VTInit"      => { type => 'leaf', value_type => "string" },
+      "VTInit"      => { type => 'leaf', value_type => "uniline" },
       "BlankTime"   => { type => 'leaf', value_type => "integer", built_in => 10 },
       "StandbyTime" => { type => 'leaf', value_type => "integer", built_in => 20 },
       "SuspendTime" => { type => 'leaf', value_type => "integer", built_in => 30 },

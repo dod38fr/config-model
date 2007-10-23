@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-01-11 12:59:53 $
+# $Date: 2007-10-23 16:18:25 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -92,11 +92,13 @@
       'screen_id'
       => { type => 'leaf',
 	   refer_to => '! Screen', 
+	   level => 'hidden',
+	   value_type => 'reference',
 	   'warp'
 	   => { follow => '- relative_screen_location',
 		'rules' => [ 
 			    [qw/RightOf LeftOf Above Below Relative/] 
-			    => { value_type => 'reference', mandatory => 1 }
+			    => { level => 'normal', mandatory => 1 }
 			   ]
 	      }
 	 },

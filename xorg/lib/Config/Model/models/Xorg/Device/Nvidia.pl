@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-01-11 13:01:21 $
+# $Date: 2007-10-23 16:18:25 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -37,7 +37,7 @@
 			      built_in   => 0,
 			    },
       'MetaModes'        => { type       => 'leaf',
-			      value_type => 'string',
+			      value_type => 'uniline',
 			    },
       'CrtcNumber'       => { type       => 'leaf',
 			      value_type => 'integer',

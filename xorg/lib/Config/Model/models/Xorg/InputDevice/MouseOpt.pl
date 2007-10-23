@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-01-11 12:59:53 $
+# $Date: 2007-10-23 16:18:25 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -30,7 +30,7 @@
   'element' 
   => [ 
       'Device'          => { type   => 'leaf' ,
-			     value_type => 'string',
+			     value_type => 'uniline',
 			   },
       'Protocol'        => { type   => 'leaf',
 			     value_type => 'enum',
@@ -41,13 +41,13 @@
 			     built_in   => 0,
 			   },
       'ZAxisMapping'    => {type   => 'leaf' ,
-			    value_type => 'string',
+			    value_type => 'uniline',
 			   },
       'SendCoreEvents'  => { type       => 'leaf',
 			     value_type => 'boolean',
 			   },
       "Buttons"         => {type   => 'leaf' ,
-			    value_type => 'string',
+			    value_type => 'uniline',
 			   },
      ],
 
