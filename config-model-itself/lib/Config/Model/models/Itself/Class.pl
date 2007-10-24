@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-10-16 11:15:38 $
+# $Date: 2007-10-24 16:00:10 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 #    Copyright (c) 2007 Dominique Dumont.
 #
@@ -49,10 +49,16 @@
 			    refer_to => '- element',
 			  } ,
 
-       [qw/class_description generated_by write_config_dir read_config_dir/]
+       'class_description'
        => { 
 	   type => 'leaf',
 	   value_type => 'string' ,
+	  },
+
+       [qw/generated_by write_config_dir read_config_dir/]
+       => { 
+	   type => 'leaf',
+	   value_type => 'uniline' ,
 	  },
 
        'read_config'
@@ -90,7 +96,7 @@
        [qw/function class/]
        => { 
 	   type => 'leaf',
-	   value_type => 'string' ,
+	   value_type => 'uniline' ,
 	  },
 
       ],

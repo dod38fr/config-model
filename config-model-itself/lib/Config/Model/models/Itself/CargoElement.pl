@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-10-16 11:15:38 $
+# $Date: 2007-10-24 16:00:10 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 #    Copyright (c) 2007 Dominique Dumont.
 #
@@ -58,7 +58,7 @@
 	   => { follow => '?type',
 		'rules' => { 'warped_node' => {level => 'normal',},}
 	      },
-	   cargo_args => { value_type => 'string' },
+	   cargo_args => { value_type => 'uniline' },
 	   description => "Specifies the path to the value elements that drive the change of this node. Each key of the has is a variable name used in the 'rules' parameter. The value of the hash is a path in the configuration tree",
 	  },
 
@@ -115,7 +115,7 @@
                             or $vt eq "reference"  '
 			   => {
 			       level => 'important',
-			       value_type => 'string',
+			       value_type => 'uniline',
 			      },
 			 ]
 		    },

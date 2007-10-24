@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-10-16 11:15:38 $
+# $Date: 2007-10-24 16:00:10 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 #    Copyright (c) 2007 Dominique Dumont.
 #
@@ -34,7 +34,7 @@
 	   type => 'hash',
 	   cargo_type => 'leaf',
 	   index_type =>'string',
-	   cargo_args => { value_type => 'string' } ,
+	   cargo_args => { value_type => 'uniline' } ,
 	   description => 'Specify with a path the configuration element that will drive the warp , i.e .the elements that control the property change. These a specified using a variable name (used in the "rules" formula) and a path to fetch the actual value. Example $country => " ! country"',
 	  },
        'rules' => {

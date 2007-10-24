@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-10-16 11:15:38 $
+# $Date: 2007-10-24 16:00:10 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 #    Copyright (c) 2007 Dominique Dumont.
 #
@@ -54,7 +54,7 @@
 		      => {
 			  value_type => 'enum',
 			  choice => [qw/boolean enum integer reference
-					enum_integer number string/],
+					enum_integer number uniline string/],
 			  level => 'normal',
 			  #mandatory => 1,
 			 }
@@ -69,7 +69,7 @@
 		       'rules'
 		       => [ '$t eq "leaf" or $ct eq "leaf"' 
 			    => {
-				value_type => 'string',
+				value_type => 'uniline',
 				level => 'normal',
 			       }
 			  ]
@@ -79,7 +79,7 @@
       [qw/follow_keys_from allow_keys_from/] 
        => { type => 'leaf',
 	    level => 'hidden',
-	    value_type => 'string' ,
+	    value_type => 'uniline' ,
 	    warp => {  follow => { 't' => '?type' , ct => '?cargo_type' },
 		       'rules'
 		       => [ '$t eq "hash" or $ct eq "hash"' 
@@ -205,7 +205,7 @@
 			      } ,
 			 ]
 		    },
-	    'cargo_args' =>  { value_type => 'string'}
+	    'cargo_args' =>  { value_type => 'uniline'}
 	  },
 
        [qw/default_list/] 
