@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2007-05-10 12:04:31 $
+# $Date: 2007-10-24 15:50:12 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 use warnings FATAL => qw(all);
 use ExtUtils::testlib;
@@ -44,11 +44,13 @@ open STDERR, ">&FH";
 
 warn "----\n";
 
+$inst->config_root->load("hash_a:foo=bar") ;
 
 if ($arg =~ /i/ ) {
     my $dialog = Config::Model::CursesUI-> new
       (
        permission => 'advanced',
+       debug => 1,
       ) ;
     $dialog->start( $model )  ;
 }

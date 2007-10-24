@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2007-05-09 12:19:13 $
+# $Date: 2007-10-24 15:50:12 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 # this file is used by test script
 
@@ -26,7 +26,7 @@
 	      ]
   ],
 
-# rather dummy class to check inheritance
+# rather dummy class to check inclusion
   [
    name => 'X_base_class2',
    element => [
@@ -39,7 +39,7 @@
 
   [
    name => 'X_base_class',
-   inherit => 'X_base_class2',
+   include => 'X_base_class2',
   ],
 
 
@@ -56,7 +56,7 @@
 			     choice     => [qw/Av Bv Cv Dv/]
 			   },
 	      ],
-   inherit => 'X_base_class',
+   include => 'X_base_class',
   ],
 
   [
@@ -86,7 +86,7 @@
 		      choice     => [qw/Av Bv Cv/]
 		    },
 	      ],
-   inherit => [ 'X_base_class', 'element' ],
+   include =>  'X_base_class',
   ],
 
 
@@ -112,7 +112,8 @@
 				  },
 	       m_string => { type => 'leaf',
 			     mandatory => 1 ,
-			     value_type => 'string'
+			     value_type => 'string',
+			     description =>'an important mandatory string',
 			   },
 	       m_int_v  => { type => 'leaf',
 			     value_type => 'integer',
@@ -212,7 +213,9 @@
 	       my_reference => { type => 'leaf',
 				 value_type => 'reference',
 				 refer_to => '- hash_a + ! hash_b',
-			       }
+			       },
+               my_uniline => { type => 'leaf', value_type => 'uniline'},
+
 	      ],
    description => [
 		   tree_macro => 'controls behavior of other elements',
