@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-05-10 11:51:10 $
+# $Date: 2007-10-24 15:49:23 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 
 #    Copyright (c) 2007 Dominique Dumont.
 #
@@ -47,9 +47,9 @@ use Exception::Class
   ) ;
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/;
 
-my @help_settings = qw/-bg green -fg black -border 1 -title HELP
+my @help_settings = qw/-bg green -fg black -border 1 
                        -titlereverse 0
                        -padbottom 1 -wrapping 1/ ;
 
@@ -59,6 +59,9 @@ sub new {
     my $self = { init_done => 0 , stack => [], debug => 0 } ;
 
     $self->{debug} = $args{debug} if defined $args{debug} ;
+    foreach my $param (qw/store load/) {
+	$self->{tree}{$param} = $args{$param} if defined $args{$param} ;
+    }
 
     $self->{cui} =  new Curses::UI (
 				    -color_support => 1,
@@ -112,8 +115,12 @@ sub init {
 
     $self->create_explanation ;
 
-    # Bind <CTRL+C> to quit.
-    $cui->set_binding( sub{ $self->{tree}{root}->instance->write_back;  exit; }, "\cQ" );
+    # Bind <CTRL+Q> to quit.
+    my $quit_sub = sub { 
+			 $self->store_config ;
+			 exit;
+		     } ;
+    $cui->set_binding( $quit_sub, "\cQ" );
 
     # Bind <CTRL+C> to quit.
     $cui->set_binding( sub {exit;}, "\cC" );
@@ -264,6 +271,9 @@ sub reset_config {
     $self->{tree}{root} 
       = $self->{model_obj}->instance(name => $inst_name)
 	-> reset_config ;
+
+    $self->{tree}{load}->() if defined  $self->{tree}{load} ;
+
     $self->{cui}->nostatus ;
     return $self->{tree}{root}  ;
 }
@@ -273,18 +283,30 @@ sub load_config {
 
     $self->{cui}->status("Loading $inst_name ...") ;
     warn "Loading config $inst_name ...\n" ;
+
     my $root = $self->{tree}{root} = 
       $self->{model_obj}->instance(name => $inst_name)->config_root ;
+
+    $self->{tree}{load}->() if defined  $self->{tree}{load} ;
+
     $self->{cui}->nostatus ;
     return $root;
 }
 
 sub store_config {
-    my ($self,$label) = @_ ;
+    my ($self) = @_ ;
 
-    $self->{cui}->status("Storing $label ...") ;
-    warn "Storing config $label ...\n" ;
-    $self->{tree}{store}->() ;
+    my $label = $self->{tree}{root}->instance->name ;
+
+    if (defined $self->{tree}{store}) {
+	warn "Storing config $label with provided store call-back...\n" ;
+	$self->{tree}{store}->() ;
+    }
+    else {
+	warn "Storing config $label with model call-back...\n" ;
+	$self->{tree}{root}->instance->write_back; 
+    }
+
     $self->{cui}->nostatus ;
 }
 
@@ -421,7 +443,7 @@ sub display_node_content {
     $win->add(undef, 'Label', '-y' => 0,
 	      -text => "Choose one of the elements:");
 
-    my $valuew = $win->add(undef, 'Label', 
+    my $valuew = $win->add(undef, 'Label', -bg => 'yellow',
 			   '-y' => 2, '-x' => 40, -width => 38 );
     my $permw  = $win->add(undef, 'Label', 
 			   '-y' => 3, '-x' => 40, -width => 38 );
@@ -429,6 +451,7 @@ sub display_node_content {
 			   '-y' => 4, '-x' => 40, -width => 38 );
     my $helpw  = $win->add(undef, 'TextViewer', 
 			   '-y' => 5, '-x' => 40, -width => 38,
+			   '-title' => 'Help on element',
 			   @help_settings);
 
     my $listbox ;
@@ -441,6 +464,7 @@ sub display_node_content {
 
     my $lb_sel_change = sub {
         my $sel = ($listbox->get_active_value)[0];
+	return unless defined $sel ; # may happen with empty node
         my $help = $node->get_help($sel) ;
         $help = "no help for $sel" unless $help ;
         $helpw->text($help)  ;
@@ -451,10 +475,18 @@ sub display_node_content {
 	    $permw->text("permission: $p");
 	}
 	my $type = $node->element_type($sel) ;
+	my $elt = $node->fetch_element($sel) ;
 	my $v_str = '' ;
 	if ($type eq 'leaf') {
-	    $v_str = 'value: '
-	           . ($node->fetch_element($sel)->fetch_no_check || '<undef>');
+	    my $v = $elt->fetch_no_check ;
+	    $v_str = 'value: ';
+	    $v_str .= defined $v ? "'$v'" : '<undef>';
+	}
+	elsif ($type =~ 'node') {
+	    $v_str = 'node: '.$elt->config_class_name ;
+	}
+	else {
+	    $v_str = 'type: '.$type ;
 	}
 	$valuew -> text ( $v_str ) ;
     };
@@ -472,6 +504,7 @@ sub display_node_content {
 		   -onchange    => $lb_change ,
 		   -onselchange => $lb_sel_change ,
 		   -values      => \@element,
+		   -selected    => 0, # automatically select first item
 		  );
 
     $listbox->focus ;
@@ -491,7 +524,7 @@ sub display_node_content {
              } ;
 
     my $help = {
-		-label => '< HELP >',
+		-label => '< Help on node >',
 		-onpress => sub {
 		    my $help= $node->get_help ;
 		    $help = "Sorry, no help available" 
@@ -506,6 +539,11 @@ sub display_node_content {
     $buttons = $self->add_std_button($win,$parent,undef,$help,$go) ;
 
     $self->wrap_screen($node) ;
+
+    # display value and help of selected element (i.e. -selected 0)
+    my $sel = ($listbox->get)[0];
+    $selw->text("selected $sel ");
+    &$lb_sel_change() ;
 }
 
 # node_element_cb
@@ -568,6 +606,8 @@ sub display_hash_element {
 
     my $win = $self->set_center_window(ucfirst($node->element_type($element)));
 
+    $self->add_debug_label($win) ;
+
     my $listbox = $self->layout_hash($win, $node,$element,@keys) ;
 
     my @but = 
@@ -593,6 +633,8 @@ sub layout_hash {
 
     $win->add(undef, 'Label', -text => "Select or add one element:");
 
+    my $lb_sel_change ;
+
     my $listbox = $win->add (
 			     'mylistbox', 'Listbox',
 			     -border     => 1,
@@ -600,9 +642,13 @@ sub layout_hash {
 			     -padbottom => 1,
 			     -width => 40 ,
 			     -title => $element.' elements',
+			     -onselchange => $lb_sel_change ,
 			     -vscrollbar => 1,
 			     -values    => \@keys,
+			     -selected    => 0, # automatically select first item
 			    );
+
+    my $hash_obj = $node->fetch_element($element) ;
 
     my $redraw 
       = sub {
@@ -617,18 +663,16 @@ sub layout_hash {
     $listbox->focus ;
 
     $win->add(undef, 'Label', 
-	      '-x' => 45, '-y' => 3,
-	      -text => "New id to add, delete\ncopy or move to:");
+	      '-x' => 41, '-y' => 2,
+	      -text => "Id to add, rm, cp, mv:");
 
     my $editor = $win -> add ( undef, 'TextEntry',
 			       -sbborder => 1,
-			       '-x' => 45,
-			       '-y' => 5,
+			       '-x' => 41,
+			       '-y' => 3,
 			       -width => 15,
 			       -text => ''
 			     );
-
-    my $hash_obj = $node->fetch_element($element) ;
 
     # $node and $element are closure
 
@@ -655,7 +699,7 @@ sub layout_hash {
 	    }
 	  else {
 	      $self->{cui}->error(-message => 
-				  "Please type in an id to delete");
+				  "Please type in an id to remove");
 	  }
       };
 
@@ -701,20 +745,51 @@ sub layout_hash {
 	  &$redraw;
       } ;
 
+    $win->add(undef, 'Label', '-x' => 41, '-y' => 4, -text => "do: " );
+
     $win->add ( undef, 'Buttonbox', 
-		'-y' => 7,
+		'-y' => 4,
 		'-x' => 45,
 		#-buttonalignment => 'left', 
 		-width => 20,
-		-vertical => 1,
+		-vertical => 0,
 		-buttons   => 
 		[ 
-		 { -label => '< add >' , -onpress => $add_sub  },
-		 { -label => '< del >' , -onpress => $del_sub  },
-		 { -label => '< copy >', -onpress => $copy_sub },
-		 {-label =>  '< move >', -onpress => $move_sub }
+		 { -label => '<add>' , -onpress => $add_sub  },
+		 { -label => '<rm>' ,  -onpress => $del_sub  },
+		 { -label => '<cp>' ,  -onpress => $copy_sub },
+		 { -label =>  '<mv>',  -onpress => $move_sub }
 		]
 	      );
+
+    $win->add(undef, 'Label', 
+	      '-x' => 41, '-y' => 5, -bg => 'yellow',
+	      -text => "Cargo type: ".$hash_obj->cargo_type );
+
+    my $value_w = $win-> add(undef, 'Label', 
+			     '-x' => 41, '-y' => 6,-width => 38,
+			     -bg => 'yellow',
+			     -text => "content: " );
+
+    $lb_sel_change = sub {
+	my $sel = ($listbox->get_active_value)[0];
+	return unless defined $sel ; # may happen with empty hash
+	my $ct = $hash_obj -> cargo_type ;
+	my $value = $ct eq 'leaf' ? $hash_obj->fetch_with_id($sel) -> fetch
+ 	          : $ct =~ /node/ ? "node " . $hash_obj->config_class_name 
+ 	          :                 "type $ct" ;
+
+         $value_w->text("content: ".$value)  ;
+    };
+
+    &$lb_sel_change ; # to display selected value ;
+
+    my $helpw  = $win->add(undef, 'TextViewer', 
+			   '-y' => 7, '-x' => 41, -width => 38,
+			   '-title' => 'Help on element',
+			   @help_settings);
+    my $help = $node->get_help($element) || "no help for $element" ;
+    $helpw->text($help)  ;
 
     return $listbox ;
 }
@@ -754,6 +829,7 @@ sub layout_checklist {
 			     '-y' => $y ,
 			     -width => 35,
 			     -text => $node->get_help($element) ,
+			     '-title' => 'Help on value',
 			     @help_settings ) ;
 
     my $help_update = sub {
@@ -1160,18 +1236,23 @@ sub layout_string_value {
     my ($self,$win,$node,$element,$index, $leaf) = @_ ;
 
     $self->add_debug_label($win) ;
+    my $v_type = $leaf->value_type;
+    my $height = $v_type eq 'uniline' ? 1 : 4 ;
 
     my ($orig_value,$current_value_widget, $help) 
-      = $self->value_info($win,$leaf, 0, 4, 75) ;
+      = $self->value_info($win,$leaf, 0, $height + 2 , 75) ;
 
     $win -> add ( undef, 'Label', '-y' => 0, -bold => 1,
                   -text => "Enter new value:") ;
 
-    my $editor = $win -> add ( undef, 'TextEntry',
+    my $editor = $win -> add ( undef,  
+			       $v_type eq 'uniline' ? 'TextEntry' : 'TextEditor',
 			       -sbborder => 1,
 			       '-y' => 1,
-			       '-height' => 1,
-			       -width => 60,
+			       '-height' => $height,
+			       -width => 70,
+			       -wrapping => 1,
+			       -showhardreturns => 1,
 			       -text => $orig_value
 			     );
 
@@ -1192,13 +1273,13 @@ sub layout_string_value {
     my $reset = sub {
 	my $reset_value = defined $orig_value ? $orig_value : '<undef>';
 	$self->set_leaf_value($leaf , $orig_value );
-	$editor->text($reset_value) ;
+	$editor->text($orig_value || '') ;
 	$current_value_widget->text($reset_value) ;
     } ;
 
     $win->add(undef,
 	      'Buttonbox',
-	      '-y' => 2 ,
+	      '-y' => $height + 1 ,
 	      '-x' => 0 ,
 	      '-width' => 40 ,
 	      -buttons   => 
@@ -1257,6 +1338,7 @@ sub value_info {
 		    '-x' => $x ,
 		    '-y' => $y + scalar @items ,
 		    -width => $width || 35,
+		    '-title' => 'Help on value',
 		    @help_settings ) ;
 
     return ($value, $cur_win, $help) ;
@@ -1890,6 +1972,20 @@ The constructor accepts the following parameters:
 Specifies the permission level of the user (default:
 C<intermediate>). The permission can be C<master advanced
 intermediate>.
+
+=item load
+
+Subroutine ref containing the code to load the configuration data from
+the configuration files. This may overrides loading mechanism
+specified in the model with L<Config::Model::AutoRead>. This sub is
+called without any arguments.
+
+=item store
+
+Subroutine ref containing the code to store the configuration data in
+the configuration files.  This may overrides writing mechanism
+specified in the model with L<Config::Model::AutoRead>. This sub is
+called without any arguments.
 
 =back
 
