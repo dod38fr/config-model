@@ -1,3 +1,7 @@
+2007-10-24  Dominique Dumont  v0.505
+
+	* Build.PL: fixed build script for system without installed Xorg
+
 2007-10-23  Dominique Dumont  v0.504
 
 	* models: changed 'string' type to 'uniline' in parameters that

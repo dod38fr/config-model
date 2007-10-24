@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-10-23 16:18:25 $
+# $Date: 2007-10-24 12:10:31 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.5 $
+# $Revision: 1.6 $
 
 #    Copyright (c) 2007 Dominique Dumont.
 #
@@ -25,7 +25,10 @@
 use Module::Build;
 use Data::Dumper ;
 use File::Copy ; # used when Xorg is not installed
+use File::Path ;
 use Config ;
+
+require 5.006 ;
 
 use warnings FATAL => qw(all) ;
 use strict ;
@@ -34,6 +37,7 @@ use Data::Dumper ;
 $Data::Dumper::Terse = 1 ;
 
 use Config ;
+use Cwd ;
 
 sub generate {
     my $builder = shift ;
@@ -47,12 +51,22 @@ sub generate {
     $builder->add_to_cleanup($out_file) ;
 }
 
+sub my_copy {
+    my $builder = shift ;
+    my $from = shift ;
+    my $to   = shift ;
+    print cwd(),": copy from $from to $to\n";
+    copy($from,$to) || die "Copy failed: $!";
+    die "Not file $to" unless -r $to ;
+    $builder->add_to_cleanup($to) ;
+}
+
 
 my $build = Module::Build->new
   (
    module_name   => 'Config::Model::Xorg',
    license       => 'lgpl',
-   dist_version  => 0.504 ,
+   dist_version  => 0.505 ,
    dist_author   => "Dominique Dumont (ddumont at cpan dot org)",
    dist_abstract => "Configuration model for xorg.conf",
    requires      => {
@@ -82,14 +96,20 @@ unless (-d $etc_xorg_dir) {
     warn "Cannot find xorg conf in $etc_xorg_dir. Is Xorg installed ?\n",
       "Fallback action: Install some models for Linux. This may not work properly ";
     my $m_dir = "lib/Config/Model/models/Xorg" ;
+    mkpath($m_dir, 1, 0755) unless -d $m_dir;
     my $opt_dir = "$m_dir/InputDevice/KeyboardOptModel" ;
-    copy("fallback_models/ConfigDir.pl", "$m_dir/ConfigDir.pl");
-    copy("fallback_models/Sgi.pl",       "$opt_dir/Sgi.pl");
-    copy("fallback_models/Sun.pl",       "$opt_dir/Sun.pl");
-    copy("fallback_models/Xorg-it.pl",   "$opt_dir/Xorg-it.pl");
-    copy("fallback_models/Xorg.pl",       "$opt_dir/Xorg.pl");
-    copy("fallback_models/KeyboardOptRules.pl",
-	 "$m_dir/InputDevice/KeyboardOptRules.pl");
+    mkpath($opt_dir, 1, 0755) unless -d $opt_dir;
+    my_copy($build,"fallback_models/ConfigDir.pl", "$m_dir/ConfigDir.pl");
+    my_copy($build,"fallback_models/Sgi.pl",       "$opt_dir/Sgi.pl");
+    my_copy($build,"fallback_models/Sun.pl",       "$opt_dir/Sun.pl");
+    my_copy($build,"fallback_models/Xorg-it.pl",   "$opt_dir/Xorg-it.pl");
+    my_copy($build,"fallback_models/Xorg.pl",      "$opt_dir/Xorg.pl");
+
+    my $kopt_dir = "$m_dir/InputDevice";
+    mkpath($kopt_dir, 1, 0755) unless -d $kopt_dir;
+    my_copy($build,"fallback_models/KeyboardOptRules.pl",
+	    "$kopt_dir/KeyboardOptRules.pl");
+
     $build->add_build_element('pl');
     $build->create_build_script;
     exit ;
