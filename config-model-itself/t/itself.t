@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2007-10-16 11:15:38 $
+# $Date: 2007-10-24 16:02:30 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 use ExtUtils::testlib;
 use Test::More tests => 13;
@@ -79,6 +79,7 @@ my $expected_map
 			   'WarpedValues'
 			  ]
     };
+
 is_deeply($expected_map, $map, "Check file class map") ;
 print Dumper $map if $trace ;
 
