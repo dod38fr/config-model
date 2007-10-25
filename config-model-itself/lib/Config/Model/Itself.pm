@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-10-16 11:15:38 $
+# $Date: 2007-10-25 12:01:29 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 #    Copyright (c) 2007 Dominique Dumont.
 #
@@ -35,9 +35,82 @@ use File::Basename ;
 
 use vars qw($VERSION) ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.1 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/;
 
 my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+=head1 NAME
+
+Config::Model::Itself - Model for Config::Model
+
+=head1 SYNOPSIS
+
+ my $meta_model = Config::Model -> new ( ) ;
+
+ # load Config::Model model
+ my $meta_inst = $model->instance (root_class_name => 'Itself::Model' ,
+                                   instance_name   => 'meta_model' ,
+                                  );
+
+ my $meta_root = $meta_inst -> config_root ;
+
+ # Itself constructor returns an object to read or write the data
+ # structure containing the model to be edited
+ my $rw_obj = Config::Model::Itself -> new(model_object => $meta_root ) ;
+
+ # now lead the model to be edited
+ $rw_obj -> read_all( conf_dir => '/path/to/model_files') ;
+
+ # For Curses UI prepare a call-back to write model
+ my $wr_back = sub { $rw_obj->write_all(conf_dir => '/path/to/model_files');
+
+ # create Curses user interface
+ my $dialog = Config::Model::CursesUI-> new
+      (
+       permission => 'advanced',
+       store => $wr_back,
+      ) ;
+
+ # start Curses dialog to edit the mode
+ $dialog->start( $meta_model )  ;
+
+ # that's it. When user quits curses interface, Curses will call
+ # $wr_back sub ref to write the modified model.
+
+=head1 DESCRIPTION
+
+The Config::Itself and its model files provide a model of Config:Model
+(hence the Itself name).
+
+Let's step back a little to explain. Any configuration data is, in
+essence, structured data. This data could be stored in an XML file. A
+configuration model is a way to describe the structure and relation of
+all items of a configuration data set.
+
+This configuration model is also expressed as structured data. This
+structure data is structured and follow a set of rules which are
+described for humans in L<Config::Model>.
+
+The structure and rules documented in L<Config::Model> are also
+expressed in a model in the files provided with
+C<Config::Model::Itself>.
+
+Hence the possibity to verify, modify configuration data provided by
+Config::Model can also be applied on configuration models. Using the
+same user interface.
+
+From a Perl point of view, Config::Model::Itself provides a class
+dedicated to read and write a set of model files.
+
+=head1 Constructor
+
+=head2 new ( model_object => ... )
+
+Creates a new read/write handler. This handler is dedicated to the
+C<model_object> passed with the constructor. This parameter must be a
+L<Config::Model::Node> class.
+
+=cut
 
 # find all .pl file in conf_dir and load them...
 
@@ -48,8 +121,22 @@ sub new {
     my $model_obj = $args{model_object}
       || croak __PACKAGE__," read_all: undefined model object";
 
+     croak __PACKAGE__," read_all: model_object is not a Config::Model::Node object"
+       unless $model_obj->isa("Config::Model::Node");
+
     bless { model_object => $model_obj }, $type ;
 }
+
+=head2 Methods
+
+=head1 read_all ( conf_dir => ...)
+
+Load all the model files contained in C<conf_dir> and all its
+subdirectories.
+
+C<read_all> returns a hash ref containing ( class_name => file_name , ...)
+
+=cut
 
 sub read_all {
     my $self = shift ;
@@ -63,9 +150,10 @@ sub read_all {
     }
 
     my @files ;
-    my $wanted = sub { push @files, $File::Find::name 
-			 if (-f $_ and not /~$/) ;
-		   } ;
+    my $wanted = sub { 
+	my $n = $File::Find::name ;
+	push @files, $n if (-f $_ and not /~$/ and $n !~ /CVS/) ;
+    } ;
     find ($wanted, $dir ) ;
 
     my $i = $model_obj->instance ;
@@ -140,6 +228,7 @@ sub read_all {
     return $self->{map} = \%class_file_map ;
 }
 
+# internal
 sub get_perl_data_model{
     my $self = shift ;
     my %args = @_ ;
@@ -174,6 +263,13 @@ sub get_perl_data_model{
     return $model ;
 }
 
+=head2 write_all ( conf_dir => ... )
+
+Will write back configuration model in the specified directory. The
+structure of the read directory is respected.
+
+=cut
+
 sub write_all {
     my $self = shift ;
     my %args = @_ ;
@@ -184,7 +280,7 @@ sub write_all {
     my $map = $self->{map} ;
 
     unless (-d $dir ) {
-	mkpath($dir, 0755) || die "Can't mkpath $dir:$!";
+	mkpath($dir,0, 0755) || die "Can't mkpath $dir:$!";
     }
 
     my $i = $model_obj->instance ;
@@ -204,7 +300,7 @@ sub write_all {
 	my $wr_file = "$dir/$file" ;
 	my $wr_dir  = dirname($wr_file) ;
 	unless (-d $wr_dir ) {
-	    mkpath($wr_dir, 0755) || die "Can't mkpath $wr_dir:$!";
+	    mkpath($wr_dir,0, 0755) || die "Can't mkpath $wr_dir:$!";
 	}
 
 	open (WR, ">$wr_file") || croak "Cannot open file $wr_file:$!" ;
@@ -216,3 +312,16 @@ sub write_all {
 
 }
 1;
+
+__END__
+
+=head1 AUTHOR
+
+Dominique Dumont, (ddumont at cpan dot org)
+
+=head1 SEE ALSO
+
+L<Config::Model>, L<Config::Model::Node>,
+
+=cut
+
