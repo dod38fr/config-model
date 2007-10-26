@@ -19,5 +19,4 @@ lib/Config/Model/models/Itself/WarpRule.pl
 lib/Config/Model/models/Itself/WarpValue.pl
 MANIFEST			This list of files
 t/itself.t
-t/itself.t.ptkdb
-t/load_write_all.t
+META.yml
