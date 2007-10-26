@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-06-07 16:46:47 $
+# $Date: 2007-10-26 12:07:46 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -29,6 +29,10 @@ use Carp ;
 use IO::File ;
 use Log::Log4perl;
 use Data::Dumper ;
+
+use vars qw($VERSION) ;
+
+$VERSION = sprintf "%d.%03d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/;
 
 my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
