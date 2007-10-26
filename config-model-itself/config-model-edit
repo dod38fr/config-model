@@ -183,17 +183,17 @@ if (defined $wr_conf_dir && ! -e $wr_conf_dir) {
     mkdir $wr_conf_dir, 0755 || die "can't create $wr_conf_dir:$!";
 }
 
-my $model = Config::Model -> new();
+my $meta_model = Config::Model -> new();
 
-my $inst = $model->instance (root_class_name => 'Itself::Model' ,
-			     instance_name   => $root_model ,
-			    );
+my $meta_inst = $meta_model->instance (root_class_name => 'Itself::Model' ,
+				       instance_name   => $root_model ,
+				      );
 
-my $root = $inst -> config_root ;
+my $meta_root = $meta_inst -> config_root ;
 
 # now load model
 
-my $rw_obj = Config::Model::Itself -> new(model_object => $root ) ;
+my $rw_obj = Config::Model::Itself -> new(model_object => $meta_root ) ;
 
 if (not defined $model_dir) {
     $model_dir =  $INC{'Config/Model.pm'} ;
@@ -206,7 +206,7 @@ $rw_obj -> read_all( conf_dir => $model_dir) ;
 if ($ui_type eq 'shell') {
     require Config::Model::TermUI;
     my $shell_ui = Config::Model::TermUI
-      -> new( root => $root ,
+      -> new( root => $meta_root ,
 	      title => $root_model.' configuration',
 	      prompt => ' >',
 	    );
@@ -225,10 +225,11 @@ elsif ($ui_type eq 'curses') {
     my $dialog = Config::Model::CursesUI-> new
       (
        permission => 'advanced',
+       store => sub { $rw_obj->write_all(conf_dir => $wr_conf_dir);},
       ) ;
 
     # engage in user interaction
-    $dialog->start( $model )  ;
+    $dialog->start( $meta_model )  ;
 
     close FH ;
 }
