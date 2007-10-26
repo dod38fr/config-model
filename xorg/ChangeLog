@@ -1,3 +1,11 @@
+2007-10-26  Dominique Dumont  v0.506
+
+	* lib/Config/Model/Xorg.pm: added some code to be able to create a
+	Xorg object.
+
+	* Build.PL: Use fallback model files if no keyboard rules are
+	found (this should fix failed tests on CPAN Tester)
+
 2007-10-24  Dominique Dumont  v0.505
 
 	* Build.PL: fixed build script for system without installed Xorg
