@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-10-24 12:10:31 $
+# $Date: 2007-10-26 11:57:20 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.6 $
+# $Revision: 1.7 $
 
 #    Copyright (c) 2007 Dominique Dumont.
 #
@@ -66,7 +66,7 @@ my $build = Module::Build->new
   (
    module_name   => 'Config::Model::Xorg',
    license       => 'lgpl',
-   dist_version  => 0.505 ,
+   dist_version  => 0.506 ,
    dist_author   => "Dominique Dumont (ddumont at cpan dot org)",
    dist_abstract => "Configuration model for xorg.conf",
    requires      => {
@@ -95,24 +95,7 @@ unless (defined $etc_xorg_dir) {
 unless (-d $etc_xorg_dir) {
     warn "Cannot find xorg conf in $etc_xorg_dir. Is Xorg installed ?\n",
       "Fallback action: Install some models for Linux. This may not work properly ";
-    my $m_dir = "lib/Config/Model/models/Xorg" ;
-    mkpath($m_dir, 1, 0755) unless -d $m_dir;
-    my $opt_dir = "$m_dir/InputDevice/KeyboardOptModel" ;
-    mkpath($opt_dir, 1, 0755) unless -d $opt_dir;
-    my_copy($build,"fallback_models/ConfigDir.pl", "$m_dir/ConfigDir.pl");
-    my_copy($build,"fallback_models/Sgi.pl",       "$opt_dir/Sgi.pl");
-    my_copy($build,"fallback_models/Sun.pl",       "$opt_dir/Sun.pl");
-    my_copy($build,"fallback_models/Xorg-it.pl",   "$opt_dir/Xorg-it.pl");
-    my_copy($build,"fallback_models/Xorg.pl",      "$opt_dir/Xorg.pl");
-
-    my $kopt_dir = "$m_dir/InputDevice";
-    mkpath($kopt_dir, 1, 0755) unless -d $kopt_dir;
-    my_copy($build,"fallback_models/KeyboardOptRules.pl",
-	    "$kopt_dir/KeyboardOptRules.pl");
-
-    $build->add_build_element('pl');
-    $build->create_build_script;
-    exit ;
+    goto FALLBACK ;
 }
 
 print "Note: xorg.conf is expected to be located in $etc_xorg_dir\n";
@@ -187,7 +170,16 @@ my %defaults = (
 		'model' => { xorg => 'pc105', 'xorg-it' => 'pc105' } ,
 	       ) ;
 
-foreach my $file (glob("$etc_xorg_dir/xkb/rules/*.lst")) {
+my $keyboard_conf_dir = "$etc_xorg_dir/xkb/rules" ;
+my @lst_files = glob("$keyboard_conf_dir/*.lst") ;
+
+if (not scalar @lst_files) {
+    warn "Cannot find xorg keyboard conf in $keyboard_conf_dir. Is Xorg installed ?\n",
+      "Fallback action: Install some models for Linux. This may not work properly ";
+    goto FALLBACK ;
+}
+
+foreach my $file (@lst_files) {
     my ($rules_name) = ($file =~ m!/([\-\w]+)\.lst!) ;
     print "Scanning rule $rules_name from $file\n";
     push @{$kbd_option_elt{XkbRules}{choice}}, $rules_name ;
@@ -314,6 +306,28 @@ my $kbd_option_rules_class =
   ] ;
 
 generate($build, $out_file, $kbd_option_rules_class) ;
+
+$build->add_build_element('pl');
+$build->create_build_script;
+
+exit ;
+
+FALLBACK:
+
+my $m_dir = "lib/Config/Model/models/Xorg" ;
+mkpath($m_dir, 1, 0755) unless -d $m_dir;
+my $opt_dir = "$m_dir/InputDevice/KeyboardOptModel" ;
+mkpath($opt_dir, 1, 0755) unless -d $opt_dir;
+my_copy($build,"fallback_models/ConfigDir.pl", "$m_dir/ConfigDir.pl");
+my_copy($build,"fallback_models/Sgi.pl",       "$opt_dir/Sgi.pl");
+my_copy($build,"fallback_models/Sun.pl",       "$opt_dir/Sun.pl");
+my_copy($build,"fallback_models/Xorg-it.pl",   "$opt_dir/Xorg-it.pl");
+my_copy($build,"fallback_models/Xorg.pl",      "$opt_dir/Xorg.pl");
+
+my $kopt_dir = "$m_dir/InputDevice";
+mkpath($kopt_dir, 1, 0755) unless -d $kopt_dir;
+my_copy($build,"fallback_models/KeyboardOptRules.pl",
+	"$kopt_dir/KeyboardOptRules.pl");
 
 $build->add_build_element('pl');
 $build->create_build_script;
