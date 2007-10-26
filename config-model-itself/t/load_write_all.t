@@ -1,11 +1,11 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2007-10-16 11:15:38 $
+# $Date: 2007-10-26 12:22:27 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 use ExtUtils::testlib;
-use Test::More tests => 7;
+use Test::More tests => 11;
 use Config::Model;
 use Log::Log4perl qw(:easy) ;
 use Data::Dumper ;
@@ -33,10 +33,10 @@ ok(1,"compiled");
 mkdir('wr_test') unless -d 'wr_test' ;
 
 my $inst = $meta_model->instance (root_class_name   => 'Itself::Model', 
-			     instance_name     => 'itself_instance',
-			     'read_directory'  => "data",
-			     'write_directory' => "wr_test",
-			    );
+				  instance_name     => 'itself_instance',
+				  'read_directory'  => "data",
+				  'write_directory' => "wr_test",
+				 );
 ok($inst,"Read Itself::Model and created instance") ;
 
 my $root = $inst -> config_root ;
@@ -47,9 +47,11 @@ my $model_dir = $INC{'Config/Model.pm'} ;
 $model_dir=~ s/\.pm//;
 $model_dir .= '/models' ;
 
-$rw_obj -> read_all( conf_dir => $model_dir) ;
+my $map = $rw_obj -> read_all( conf_dir => $model_dir) ;
 
 ok(1,"Read all models from $model_dir") ;
+
+print keys %$map ;
 
 my $cds = $root->dump_tree (full_dump => 1) ;
 
@@ -58,7 +60,7 @@ ok($cds,"dumped full tree in cds format") ;
 
 #create a 2nd empty model
 my $inst2 = $meta_model->instance (root_class_name   => 'Itself::Model', 
-			      instance_name     => 'itself_instance', );
+				   instance_name     => 'itself_instance', );
 
 my $root2 = $inst -> config_root ;
 $root2 -> load ($cds) ;
@@ -74,7 +76,7 @@ print Dumper $pdata2 if $trace ;
 # create 3rd instance 
 
 my $inst3 = $meta_model->instance (root_class_name   => 'Itself::Model', 
-			      instance_name     => 'itself_instance', );
+				   instance_name     => 'itself_instance', );
 
 my $root3 = $inst -> config_root ;
 $root3 -> load_data ($pdata2) ;
@@ -94,17 +96,14 @@ ok($dump,"Checked dump of one class");
 $rw_obj->write_all( conf_dir => 'wr_test' ) ;
 
 my $model = Config::Model->new ;
-$model -> load ('X_base_class', 'wr_test/X_base_class.pl') ;
-ok(1,"loaded X_base_class") ;
-$model -> load ('MasterModel' , 'wr_test/MasterModel.pl') ;
-ok(1,"loaded MasterModel") ;
+$model -> load ('Xorg', 'wr_test/Xorg.pl') ;
+ok(1,"loaded written Xorg") ;
 
-my $inst = $model->instance (root_class_name   => 'MasterModel', 
-			    instance_name     => 'test_instance',
-			    'read_directory'  => "wr_test",
-			    'write_directory' => "wr_test2",
-			   );
-ok($inst,"Read MasterModel and created instance") ;
+my $inst_x = $model->instance (root_class_name   => 'Xorg', 
+			     instance_name     => 'test_instance',
+			     'write_directory' => "wr_test2",
+			    );
+ok($inst_x,"Read new Xorg and created instance") ;
 
 # require Tk::ObjScanner; Tk::ObjScanner::scan_object($meta_model) ;
 
