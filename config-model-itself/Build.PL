@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-10-16 11:15:38 $
+# $Date: 2007-10-26 12:24:17 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 #    Copyright (c) 2007 Dominique Dumont.
 #
@@ -37,11 +37,11 @@ my $build = Module::Build->new
    dist_author   => "Dominique Dumont (ddumont at cpan dot org)",
    dist_abstract => "Configuration model for Config::Model",
    requires      => {
-		     'Config::Model'   => '0.610',
+		     'Config::Model'   => '0.614',
 		     'Log::Log4perl'   => 0 ,
 		    },
    recommends    => {
-		     'Config::Model::CursesUI' => 0,
+		     'Config::Model::CursesUI' => '1.004',
 		    },
    add_to_cleanup => [qw/wr_test/] ,
   );
