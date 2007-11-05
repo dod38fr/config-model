@@ -14,12 +14,13 @@ You can also run the test in interactive mode by typing:
 
    perl t/curses_ui.t i
 
+
 --------------------------------------------------------------------
 
 AUTHOR
     Copyright (c) 2007 Dominique Dumont.
 
-    This file is part of Config-Model-CursesUI.
+    This file is part of Config-Model-Itself.
 
 ---------------------------------------------------------------------
 INSTALLATION
