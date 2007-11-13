@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-10-11 11:36:02 $
+# $Date: 2007-11-13 12:14:05 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.22 $
+# $Revision: 1.23 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -29,7 +29,7 @@ use Carp;
 use strict;
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.22 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.23 $ =~ /(\d+)\.(\d+)/;
 
 use base qw/Config::Model::WarpedThing/;
 
@@ -824,19 +824,42 @@ sub fetch_all {
     return map { $self->fetch_with_id($_) ;} @keys ;
 }
 
-=head2 fetch_all_values()
+=head2 fetch_all_values( [ custom | preset | standard | default ] )
 
 Returns an array containing all values held by the hash or list.
+
+With a parameter, this method will return either:
+
+=over
+
+=item custom
+
+The value entered by the user
+
+=item preset
+
+The value entered in preset mode
+
+=item standard
+
+The value entered in preset mode or checked by default.
+
+=item default
+
+The default value (defined by the configuration model)
+
+=back
 
 =cut
 
 sub fetch_all_values {
     my $self = shift ;
+    my $mode = shift ;
 
     my @keys  = $self->get_all_indexes ;
 
     if ($self->{cargo_type} eq 'leaf') {
-	return map { $self->fetch_with_id($_)->fetch ;} @keys ;
+	return map { $self->fetch_with_id($_)->fetch($mode) ;} @keys ;
     }
     else {
 	my $info = "current keys are '".join("', '",@keys)."'." ;
