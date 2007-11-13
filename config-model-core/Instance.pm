@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-04-27 15:17:38 $
+# $Date: 2007-11-13 12:36:04 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.11 $
+# $Revision: 1.12 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -36,7 +36,7 @@ use warnings::register ;
 
 use vars qw/$VERSION/ ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.11 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.12 $ =~ /(\d+)\.(\d+)/;
 
 use Carp qw/croak confess cluck/;
 
@@ -88,6 +88,9 @@ Where to read I<and> write configuration files
 Note that C<all> directory specified within the configuration model
 will be overridden.
 
+If you need to load configuration data that are not correct, you can
+use C<< force_load => 1 >>. Then, wrong data will be discarded.
+
 =cut
 
 sub new {
@@ -104,6 +107,8 @@ sub new {
     confess __PACKAGE__," error: config_model is not a Config::Model object"
       unless $config_model->isa('Config::Model') ; 
 
+    my $force_load = $args{force_load} || 0 ;
+
     my $self 
       = {
 	 # stack used to store whether read and/or write check must 
@@ -115,8 +120,15 @@ sub new {
 	 # a unique (instance wise) placeholder for various tree objects
 	 # to store informations
 	 safe => {
-		  auto_inc => {}
 		 } ,
+
+	 # preset mode to load values found by HW scan or other
+	 # automatic scheme
+	 preset => 0,
+
+	 # mode: can be upgrade, downgrade ...
+	 mode => '',
+
 	 config_model => $config_model ,
 	 root_class_name => $root_class_name ,
 
@@ -135,7 +147,11 @@ sub new {
 
     bless $self, $class;
 
+    $self->push_no_value_check('store','fetch','type') if $force_load ;
+
     $self->reset_config ;
+
+    $self->pop_no_value_check() if $force_load ;
 
     return $self ;
 }
@@ -193,6 +209,40 @@ sub config_model {
     return shift->{config_model} ;
 }
 
+=head2 preset_start ()
+
+All values stored in preset mode are shown to the user as default
+values. This feature is usefull to enter configuration data entered by
+an automatic process (like hardware scan)
+
+=cut
+
+sub preset_start {
+    my $self = shift ;
+    $self->{preset} = 1;
+}
+
+=head2 preset_stop ()
+
+Stop preset mode
+
+=cut
+
+sub preset_stop {
+    my $self = shift ;
+    $self->{preset} = 0;
+}
+
+=head2 preset ()
+
+Get preset mode
+
+=cut
+
+sub preset {
+    my $self = shift ;
+    return $self->{preset} ;
+}
 
 =head2 push_no_value_check ( fetch | store | type , ... )
 
@@ -299,8 +349,8 @@ sub data {
     my $kind = shift || croak "undefined data kind";
     my $store = shift ;
 
-    $self->{data}{$kind} = $store if defined $store;
-    return $self->{data}{$kind} ;
+    $self->{safe}{$kind} = $store if defined $store;
+    return $self->{safe}{$kind} ;
 }
 
 
