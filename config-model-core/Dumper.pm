@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-10-11 11:36:02 $
+# $Date: 2007-11-13 12:27:31 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.16 $
+# $Revision: 1.17 $
 
 #    Copyright (c) 2006-2007 Dominique Dumont.
 #
@@ -30,7 +30,7 @@ use Config::Model::Exception ;
 use Config::Model::ObjTreeScanner ;
 
 use vars qw($VERSION);
-$VERSION = sprintf "%d.%03d", q$Revision: 1.16 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.17 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -104,11 +104,15 @@ Parameters are:
 
 =over
 
-=item full_dump
+=item mode ( full | preset )
 
-Set to 1 to dump all configuration data including default
-values. Default is 0, where the dump contains only data modified by
-the user (i.e. data differ from default values).
+C<full> will dump all configuration data including default
+values. 
+
+C<preset> will dump only value entered in preset mode.
+
+By default, the dump contains only data modified by the user
+(i.e. data differ from default or preset values).
 
 =item node
 
@@ -124,6 +128,17 @@ sub dump_tree {
 
     my %args = @_;
     my $full = delete $args{full_dump} || 0;
+    my $mode = delete $args{mode} || '';
+    if ($mode and $mode ne 'full' and $mode ne 'preset') {
+	croak "dump_tree: unexpected 'mode' value";
+    }
+
+    # mode paramter is slightly different from fetch's mode
+    my $fetch_mode = $full             ? ''
+                   : $mode eq 'full'   ? ''
+                   : $mode eq 'preset' ? $mode
+                   :                     'custom';
+
     my $node = delete $args{node} 
       || croak "dump_tree: missing 'node' parameter";
 
@@ -141,7 +156,7 @@ sub dump_tree {
         my ( $scanner, $data_r, $obj, $element, $index, $value_obj ) = @_;
 
 	# get value or only customized value
-	my $value = $full ? $value_obj->fetch : $value_obj->fetch_custom;
+	my $value = $value_obj->fetch ($fetch_mode) ;
 
 	if (    defined $value 
 	    and ($value =~ /(\s|")/ or $value eq '')
@@ -159,6 +174,21 @@ sub dump_tree {
         $$data_r .= "\n" . $pad . $name . '=' . $value if defined $value;
     };
 
+    my $check_list_cb = sub {
+        my ( $scanner, $data_r, $obj, $element, $index, $value_obj ) = @_;
+
+	# get value or only customized value
+	my $value = $value_obj->fetch ($fetch_mode) ;
+
+        my $pad = $compute_pad->($obj);
+
+        my $name = defined $index && $index =~ /\s/ ? "$element:\"$index\"" 
+	         : defined $index                   ? "$element:$index" 
+                 :                                     $element;
+
+        $$data_r .= "\n" . $pad . $name . '=' . $value if $value;
+    };
+
     my $list_element_cb = sub {
         my ( $scanner, $data_r, $obj, $element, @keys ) = @_;
 
@@ -172,8 +202,9 @@ sub dump_tree {
             }
         }
         else {
+	    no warnings "uninitialized" ;
             $$data_r .= "\n$pad$element=" 
-	      . join( ',', $list_obj->fetch_all_values ) if @keys;
+	      . join( ',', $list_obj->fetch_all_values($fetch_mode) ) if @keys;
         }
     };
 
@@ -201,6 +232,7 @@ sub dump_tree {
 		     list_element_cb => $list_element_cb,
 		     leaf_cb         => $std_cb,
 		     node_element_cb => $element_cb,
+		     check_list_element_cb => $check_list_cb,
 		     up_cb           => sub { ${$_[1]} .= ' -'; }
 		    );
 
