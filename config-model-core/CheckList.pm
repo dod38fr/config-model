@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-09-25 12:23:00 $
+# $Date: 2007-11-13 12:16:31 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.10 $
+# $Revision: 1.11 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -33,7 +33,7 @@ use strict;
 use base qw/Config::Model::WarpedThing/ ;
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.10 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.11 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -98,7 +98,7 @@ sub new {
     my $type = shift;
     my %args = @_ ;
 
-    my $self = { } ;
+    my $self = { data => {}, preset => {} } ;
     bless $self,$type;
 
     foreach my $p (qw/element_name instance config_model/) {
@@ -137,8 +137,6 @@ sub new {
 
 sub cl_init {
     my $self = shift ;
-
-    $self->{data} = {} ;
 
     $self->warp if ($self->{warp});
 
@@ -294,9 +292,12 @@ sub setup_choice {
 
     $self->{choice}  = \@choice ;
 
-    # cleanup current data if it does not fit current choices
-    foreach my $item (keys %{$self->{data}}) {
-	delete $self->{data}{$item} unless defined $self->{choice_hash}{$item} ;
+    # cleanup current preset and data if it does not fit current choices
+    foreach my $field (qw/preset data/) {
+	next unless defined $self->{$field} ; # do not create if not present
+	foreach my $item (keys %{$self->{$field}}) {
+	    delete $self->{$field}{$item} unless defined $self->{choice_hash}{$item} ;
+	}
     }
 }
 
@@ -442,7 +443,12 @@ sub store {
     my $ok = $self->{choice_hash}{$choice} || 0 ;
 
     if ($ok ) {
-	$self->{data}{$choice} = $value ;
+	if ($inst->preset) {
+	    $self->{preset}{$choice} = $value ;
+	}
+	else {
+	    $self->{data}{$choice} = $value ;
+	}
     }
     elsif ($inst->get_value_check('store'))  {
 	my $err_str = "Unknown check_list item '$choice'. Expected '"
@@ -526,16 +532,81 @@ sub get_help {
 
 =head2 clear
 
-Reset the check list 
+Reset the check list (all items are set to 0)
 
 =cut
 
 sub clear {
     my $self = shift ;
-    $self->cl_init ;
+    map { $self->store($_ , 0 ) } $self->get_choice ;
 }
 
-=head2 get_checked_list ()
+=head2 get_checked_list_as_hash ( [ custom | preset | standard | default ] )
+
+Returns a hash (or a hash ref) of all items. The boolean value is the
+value of the hash.
+
+Example:
+
+ { A => 0, B => 1, C => 0 , D => 1}
+
+
+By default, this method will return all items set by the user, or
+items set in preset mode or checked by default.
+
+With a parameter, this method will return either:
+
+=over
+
+=item custom
+
+The list entered by the user
+
+=item preset
+
+The list entered in preset mode
+
+=item standard
+
+The list set in preset mode or checked by default.
+
+=item default
+
+The default list (defined by the configuration model)
+
+=back
+
+=cut
+
+my %accept_mode = map { ( $_ => 1) } qw/custom standard preset default/;
+
+sub get_checked_list_as_hash {
+    my $self = shift ;
+    my $type = shift || '';
+
+    if ($type and not defined $accept_mode{$type}) {
+	croak "get_checked_list_as_hash: expected ", join (' or ',keys %accept_mode),
+	  "parameter, not $type" ;
+    }
+
+    # fill empty hash result missing data
+    my %h = map { $_ => 0 } $self->get_choice ;
+
+    my $dat = $self->{data} ;
+    my $pre = $self->{preset} ;
+    my $def = $self->{default_data} ;
+    # copy hash and return it
+    my %std = (%h, %$def, %$pre ) ;
+    my %result 
+      = $type eq 'custom'   ? (%h, map { $dat->{$_} && ! $std{$_} ? ($_,1) : ()} keys %$dat )
+      : $type eq 'preset'   ? (%h, %$pre )
+      : $type eq 'standard' ? %std
+      :                       (%std, %$dat );
+
+    return wantarray ? %result : \%result;
+}
+
+=head2 get_checked_list ( [ custom | preset | standard | default ] )
 
 Returns a list (or a list ref) of all checked items (i.e. all items
 set to 1). 
@@ -550,7 +621,7 @@ sub get_checked_list {
     return wantarray ? @res : \@res ;
 }
 
-=head2 fetch ()
+=head2 fetch ( [ custom | preset | standard | default ] )
 
 Returns a string listing the checked items (i.e. "A,B,C")
 
@@ -558,12 +629,17 @@ Returns a string listing the checked items (i.e. "A,B,C")
 
 sub fetch {
     my $self = shift ;
-    return join (',', $self->get_checked_list);
+    return join (',', $self->get_checked_list(@_));
 }
 
 sub fetch_custom {
     my $self = shift ;
     return join (',', $self->get_checked_list('custom'));
+}
+
+sub fetch_preset {
+    my $self = shift ;
+    return join (',', $self->get_checked_list('preset'));
 }
 
 =head2 set_checked_list ( item1, item2, ..)
@@ -584,37 +660,6 @@ sub set_checked_list {
     my $self = shift ;
     $self->clear ;
     $self->check (@_) ;
-}
-
-=head2 get_checked_list_as_hash ()
-
-Returns a hash (or a hash ref) of all items. The boolean value is the
-value of the hash.
-
-Example:
-
- { A => 0, B => 1, C => 0 , D => 1}
-
-=cut
-
-sub get_checked_list_as_hash {
-    my $self = shift ;
-    my $type = shift || '';
-
-    if ($type and $type ne 'custom' and $type ne 'standard') {
-	croak "get_checked_list_as_hash: expected custom or standard parameter, not $type" ;
-    }
-
-    # fill empty hash result missing data
-    my %h = map { $_ => 0 } $self->get_choice ;
-
-    # copy hash and return it
-    my %result 
-      = $type eq 'custom'   ? (%h,%{$self->{data}} )
-      : $type eq 'standard' ? (%h,%{$self->{default_data}})
-      :                       (%h,%{$self->{default_data}},%{$self->{data}} ) ;
-
-    return wantarray ? %result : \%result;
 }
 
 =head2 set_checked_list_as_hash ( A => 1, B => 1 )
