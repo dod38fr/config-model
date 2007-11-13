@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-10-11 11:36:02 $
+# $Date: 2007-11-13 12:38:07 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.13 $
+# $Revision: 1.14 $
 
 #    Copyright (c) 2006-2007 Dominique Dumont.
 #
@@ -29,7 +29,7 @@ use warnings ;
 use Config::Model::Exception ;
 
 use vars qw($VERSION);
-$VERSION = sprintf "%d.%03d", q$Revision: 1.13 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.14 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -116,7 +116,10 @@ fail.
 
 =item xxx=z1,z2,z3
 
-Set list element C<xxx> to list C<z1,z2,z3>.
+Set list element C<xxx> to list C<z1,z2,z3>. Use C<,,> for undef
+values, and C<""> for empty values.
+
+I.e, for a list C<('a',undef,'','c')>, use C<a,,"",c>.
 
 =item xxx:yy=zz
 
@@ -358,7 +361,7 @@ sub _walk_node {
 }
 
 sub unquote {
-    map { s/^"// && s/"$// && s/\\"/"/g;  } @_ ;
+    map { s/^"// && s/"$// && s/\\"/"/g if defined $_;  } @_ ;
 }
 
 sub _load_list {
@@ -375,6 +378,8 @@ sub _load_list {
 	print "Setting $elt_type element ",$element->name," to $cmd\n"
 	    if $::verbose ;
 	my @set = split( /,/ , $cmd ) ;
+	# replace unquoted empty values by undef
+	map { $_ = undef unless $_ } @set; 
 	unquote( @set );
 	$element->store_set( @set ) ;
 	return $node;
