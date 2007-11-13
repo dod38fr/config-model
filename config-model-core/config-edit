@@ -147,6 +147,10 @@ Provide debug infos.
 
 Provides a full stack trace when exiting on error.
 
+=item -force-load
+
+Load file even if error are found in data. Bad data are discarded
+
 =back
 
 
@@ -154,6 +158,7 @@ Provides a full stack trace when exiting on error.
 
 my $man = 0;
 my $help = 0;
+my $force_load = 0;
 
 my $result = GetOptions ("if=s"             => \$ui_type,
 			 "model_dir=s"      => \$model_dir,
@@ -163,6 +168,7 @@ my $result = GetOptions ("if=s"             => \$ui_type,
 			 "trace!"           => \$trace,
 			 "man!"             => \$man,
 			 "help!"            => \$help,
+			 "force_load!"      => \$force_load,
 			 "read_conf_dir=s"  => \$read_conf_dir,
 			 "write_conf_dir=s" => \$wr_conf_dir ,
 			);
@@ -186,6 +192,7 @@ my $inst = $model->instance (root_class_name => $root_model ,
 			     instance_name   => $root_model ,
 			     read_directory  => $read_conf_dir,
                              write_directory => $wr_conf_dir,
+			     force_load      => $force_load,
 			    );
 
 my $root = $inst -> config_root ;
