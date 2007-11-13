@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2007-09-20 11:39:37 $
+# $Date: 2007-11-13 12:43:05 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 
 use warnings FATAL => qw(all);
 
@@ -11,7 +11,7 @@ use Test::More;
 use Config::Model;
 use Data::Dumper ;
 
-BEGIN { plan tests => 43; }
+BEGIN { plan tests => 53; }
 
 use strict;
 
@@ -45,10 +45,10 @@ $model ->create_config_class
 	  },
 
        choice_list_with_default
-       => { type => 'check_list',
-	    choice     => ['A' .. 'Z'],
-	    default   => [ 'A', 'D' ],
-	    help => { A => 'A help', E => 'E help' } ,
+       => { type         => 'check_list',
+	    choice       => ['A' .. 'Z'],
+	    default_list => [ 'A', 'D' ],
+	    help         => { A => 'A help', E => 'E help' } ,
 	  },
 
        macro => { type => 'leaf',
@@ -260,3 +260,32 @@ my $rtl = $root->fetch_element("refer_to_dumb_list") ;
 is_deeply( [$rtl -> get_choice ], [qw/X Y Z a b c d e/],
 	   "check choice of refer_to_dumb_list"
 	 ) ;
+
+### test preset feature
+
+my $pinst = $model->instance (root_class_name => 'Master', 
+			      instance_name => 'preset_test');
+ok($pinst,"created dummy preset instance") ;
+
+my $p_root = $pinst -> config_root ;
+
+$pinst->preset_start ;
+ok($pinst->preset,"instance in preset mode") ;
+
+my $p_cl = $p_root->fetch_element('choice_list') ;
+$p_cl -> set_checked_list(qw/H C L/) ; # acid burn test :-)
+
+$pinst->preset_stop ;
+is($pinst->preset,0,"instance in normal mode") ;
+
+is($p_cl->fetch,"C,H,L","choice_list: read preset list") ;
+
+$p_cl -> check(qw/A S H/) ;
+is($p_cl->fetch,            "A,C,H,L,S", "choice_list: read completed preset LIST") ;
+is($p_cl->fetch('preset'),  "C,H,L",     "choice_list: read preset value as preset_value") ;
+is($p_cl->fetch('standard'),"C,H,L",     "choice_list: read preset value as standard_value") ;
+is($p_cl->fetch('custom'),  "A,S",       "choice_list: read custom_value") ;
+
+$p_cl -> set_checked_list(qw/A S H E/) ;
+is($p_cl->fetch,            "A,E,H,S", "choice_list: read overridden preset LIST") ;
+is($p_cl->fetch('custom'),  "A,E,S",       "choice_list: read custom_value after override") ;

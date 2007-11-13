@@ -1,11 +1,11 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2007-10-19 11:43:42 $
+# $Date: 2007-11-13 12:43:05 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.13 $
+# $Revision: 1.14 $
 
 use ExtUtils::testlib;
-use Test::More tests => 9;
+use Test::More tests => 11;
 use Config::Model;
 
 use warnings;
@@ -33,7 +33,16 @@ ok($inst,"created dummy instance") ;
 my $root = $inst -> config_root ;
 ok($root,"Config root created") ;
 
-my $step = 'std_id:ab X=Bv - std_id:bc X=Av - std_id:"b d " X=Av '
+$inst->preset_start ;
+
+my $step = 'std_id:ab X=Bv '
+  .'! lista=a,b listb=b ' ;
+ok( $root->load( step => $step, permission => 'intermediate' ),
+    "preset data in tree with '$step'");
+
+$inst->preset_stop ;
+
+$step = 'std_id:ab X=Bv - std_id:bc X=Av - std_id:"b d " X=Av '
   .'- a_string="toto \"titi\" tata" '
   .'lista=a,b,c,d olist:0 X=Av - olist:1 X=Bv - listb=b,c,d '
   . '! hash_a:X2=x hash_a:Y2=xy  hash_b:X3=xy my_check_list=X2,X3' ;
@@ -48,14 +57,13 @@ my $cds = $root->dump_tree;
 print "cds string:\n$cds" if $trace ;
 
 my $expect = <<'EOF' ;
-std_id:ab
-  X=Bv -
+std_id:ab -
 std_id:"b d "
   X=Av -
 std_id:bc
   X=Av -
-lista=a,b,c,d
-listb=b,c,d
+lista=,,c,d
+listb=,c,d
 hash_a:X2=x
 hash_a:Y2=xy
 hash_b:X3=xy
@@ -221,3 +229,32 @@ print "cds string:\n$cds" if $trace  ;
 $cds =~ s/\s+\n/\n/g;
 is_deeply( [split /\n/,$cds], [split /\n/,$expect], 
 	   "check dump of all values after a_string is set to ''") ;
+
+# check preset values
+
+$cds = $root->dump_tree( mode => 'preset' );
+print "cds string:\n$cds" if $trace  ;
+
+$expect = <<'EOF' ;
+std_id:ab
+  X=Bv -
+std_id:"b d " -
+std_id:bc -
+lista=a,b,,
+olist:0 -
+olist:1 -
+warp
+  sub_slave
+    sub_slave - -
+  warp2
+    sub_slave - - -
+slave_y
+  sub_slave
+    sub_slave - -
+  warp2
+    sub_slave - - - -
+EOF
+
+$cds =~ s/\s+\n/\n/g;
+is_deeply( [split /\n/,$cds], [split /\n/,$expect], 
+	   "check dump of all preset values") ;

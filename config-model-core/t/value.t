@@ -1,12 +1,12 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2007-10-19 11:43:42 $
+# $Date: 2007-11-13 12:43:05 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.5 $
+# $Revision: 1.6 $
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
-use Test::More tests => 78 ;
+use Test::More tests => 92 ;
 use Config::Model ;
 use Config::Model::Value;
 
@@ -314,3 +314,39 @@ print "normal error:\n", $@, "\n" if $trace;
 
 $uni->store("foo bar");
 is($uni->fetch, "foo bar","tested uniline value") ;
+
+
+### test preset feature
+
+my $pinst = $model->instance (root_class_name => 'Master', 
+			      instance_name => 'preset_test');
+ok($pinst,"created dummy preset instance") ;
+
+my $p_root = $pinst -> config_root ;
+
+$pinst->preset_start ;
+ok($pinst->preset,"instance in preset mode") ;
+
+my $p_scalar = $p_root->fetch_element('scalar') ;
+$p_scalar -> store(3) ;
+
+my $p_enum = $p_root->fetch_element('enum') ;
+$p_enum -> store ('B') ;
+
+$pinst->preset_stop ;
+is($pinst->preset,0,"instance in normal mode") ;
+
+is($p_scalar->fetch,3,"scalar: read preset value as value") ;
+$p_scalar -> store(4) ;
+is($p_scalar->fetch,4,"scalar: read overridden preset value as value") ;
+is($p_scalar->fetch('preset'),3,"scalar: read preset value as preset_value") ;
+is($p_scalar->fetch_standard,3,"scalar: read preset value as standard_value") ;
+is($p_scalar->fetch_custom,4,"scalar: read custom_value") ;
+
+is($p_enum->fetch,'B',"enum: read preset value as value") ;
+$p_enum -> store('C') ;
+is($p_enum->fetch,'C',"enum: read overridden preset value as value") ;
+is($p_enum->fetch('preset'),'B',"enum: read preset value as preset_value") ;
+is($p_enum->fetch_standard,'B',"enum: read preset value as standard_value") ;
+is($p_enum->fetch_custom,'C',"enum: read custom_value") ;
+is($p_enum->default,'A',"enum: read default_value") ;
