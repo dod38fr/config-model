@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-09-20 11:40:27 $
+# $Date: 2007-11-15 12:00:46 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.19 $
+# $Revision: 1.20 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -41,7 +41,7 @@ use base qw/Config::Model::AutoRead/;
 use vars qw($VERSION $AUTOLOAD @status @level
 @permission_list %permission_index );
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.19 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.20 $ =~ /(\d+)\.(\d+)/;
 
 *status           = *Config::Model::status ;
 *level            = *Config::Model::level ;
@@ -1158,7 +1158,7 @@ sub load_data {
     }
 }
 
-=head2 dump_tree ( [ full_dump => 1] )
+=head2 dump_tree ( [ mode => custom | full ] )
 
 Dumps the configuration data of the node and its siblings into a string.
 
