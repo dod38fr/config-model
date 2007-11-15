@@ -1,3 +1,38 @@
+2007-11-15  Dominique Dumont  v0.615
+
+	* config-edit: added '-force-load' option to load erronueus
+	configuration data. bad data is discarded.
+
+	* Value.pm : handle 'preset' mode to store values
+	(fetch):accept mode parameter ( [ custom | preset |
+	standard | default | non_built_in ] )
+
+	* Loader.pm (_load_list): When loading list, empty value are
+	considered as undef values. I.e 'list_a=a,,"",d' will
+	load ('a',undef,'','d') to lista element
+
+	* Instance.pm (new): added 'force_load' parameter to load
+	erronueus configuration data. In this case, wrong data will be
+	discarded.
+	(preset_start): new. Use this method, then load configuration data
+	that will be used as "preset data". You can use this feature to
+	load data discovered by an automatic mechanism, like hardware
+	scan.
+	(preset_stop): new. Stop preset mode. Then all data entered will
+	be considered as 'custom' data. These custom data can be compared
+	to 'default' or 'preset' data for audit purpose
+	(preset): new. Query if the instance is in 'preset' mode.
+
+	* Dumper.pm (dump_tree): changed 'full_dump' parameter (0|1) to 
+	'mode' (full | preset)
+	(dump_tree): if a list contain undef values, they are dumped as
+	a_list=a,b,,d. Empty values are dumped as a_list=a,b,"",d
+
+	* CheckList.pm (store): work in preset mode
+	(set_checked_list_as_hash): accept a mode parameter ([ custom |
+	preset | standard | default ]) to be able to audit config data
+	(fetch): idem
+
 2007-10-19  Dominique Dumont v0.614
 
 	* Value.pm: added 'uniline' value type for string with no embedded
