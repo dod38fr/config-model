@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-05-07 11:31:13 $
+# $Date: 2007-11-15 12:07:58 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.4 $
+# $Revision: 1.5 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -199,7 +199,7 @@
    name => "Ext2FsOpt",
 
    # all common option are part of ext2 options
-   inherit => 'CommonOptions' ,
+   include => 'CommonOptions' ,
 
    # ext2 specific elements
    'element' 
@@ -225,7 +225,7 @@
    name => "Ext3FsOpt",
 
    # ext3 feature all ext2 options
-   inherit => 'Ext2FsOpt' ,
+   include => 'Ext2FsOpt' ,
 
    'element' 
    =>  [ 
@@ -263,7 +263,7 @@
 
   [
    name => "Iso9660_Opt",
-   inherit => 'CommonOptions' ,
+   include => 'CommonOptions' ,
    'element' 
    => [ [qw/rock joliet/] => { type => 'leaf' ,
 				   value_type => 'boolean',
