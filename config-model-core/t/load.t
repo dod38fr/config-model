@@ -1,11 +1,11 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2007-11-13 12:43:05 $
+# $Date: 2007-11-15 12:03:17 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.11 $
+# $Revision: 1.12 $
 
 use ExtUtils::testlib;
-use Test::More tests => 51;
+use Test::More tests => 52;
 use Config::Model;
 
 use warnings;
@@ -62,7 +62,7 @@ eval {$root->load( step => $step, permission => 'intermediate' ); };
 ok($@,"load wrong '$step'");
 print "normal error:\n", $@, "\n" if $trace;
 
-$step = 'lista=a,b,c,d olist:0 X=Av - olist:1 X=Bv - listb=b,c,d,,f,"",h';
+$step = 'lista=a,b,c,d olist:0 X=Av - olist:1 X=Bv - listb=b,c,d,,f,"",h,0';
 ok( $root->load( step => $step, permission => 'intermediate' ),
   "load '$step'");
 
@@ -91,14 +91,14 @@ my @expect = qw/a b c d/;
 map {
     is($lista->fetch_with_id($_)->fetch, $expect[$_], 
        "check lista element $_ content") ;
-    } (0 .. 3) ;
+    } (0 .. $#expect) ;
 
 my $listb = $root->fetch_element('listb') ;
-@expect = (qw/b c d/,undef,'f','','h');
+@expect = (qw/b c d/,undef,'f','','h','0');
 map {
     is($listb->fetch_with_id($_)->fetch, $expect[$_], 
        "check listb element $_ content") ;
-    } (0 .. 6) ;
+    } (0 .. $#expect) ;
 
 $step = 'a_string="foo bar"';
 ok( $root->load( step => $step, ), "load quoted string: '$step'");

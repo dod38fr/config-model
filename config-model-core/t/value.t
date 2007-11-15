@@ -1,12 +1,12 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2007-11-13 12:43:05 $
+# $Date: 2007-11-15 12:03:17 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.6 $
+# $Revision: 1.7 $
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
-use Test::More tests => 92 ;
+use Test::More tests => 98 ;
 use Config::Model ;
 use Config::Model::Value;
 
@@ -302,8 +302,16 @@ print "Testing built_in default value\n" if $trace ;
 
 my $bi_def = $root->fetch_element('built_in_default');
 
-is( $bi_def->fetch, undef,"built_in actual value" );
-is( $bi_def->fetch_standard,'bi_def' ,"built_in actual value" );
+is( $bi_def->fetch,                undef,    "built_in actual value" );
+is( $bi_def->fetch_standard,       'bi_def' ,"built_in standard value" );
+is( $bi_def->fetch('built_in'),    'bi_def' ,"built_in actual value" );
+is( $bi_def->fetch('non_built_in'),undef ,   "non_built_in value" );
+
+$bi_def->store('yada');
+is( $bi_def->fetch('built_in'),    'bi_def' ,"after store: built_in actual value" );
+is( $bi_def->fetch('non_built_in'),'yada' ,  "after store: non_built_in value" );
+is( $bi_def->fetch,                'yada',   "after store: built_in actual value" );
+is( $bi_def->fetch('standard'),    'bi_def' ,"after store: built_in standard value" );
 
 ###
 
