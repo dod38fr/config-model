@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-11-13 12:40:10 $
+# $Date: 2007-11-15 12:02:44 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.23 $
+# $Revision: 1.24 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -37,7 +37,7 @@ use base qw/Config::Model::WarpedThing/ ;
 
 use vars qw($VERSION) ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.23 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.24 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -1195,8 +1195,9 @@ sub load_data {
 =head2 fetch_custom
 
 Returns the stored value if this value is different from a standard
-setting. In other words, returns undef if the stored value is
-identical to the default value or the computed value.
+setting or built in seting. In other words, returns undef if the
+stored value is identical to the default value or the computed value
+or the built in value.
 
 =cut
 
@@ -1279,19 +1280,33 @@ sub fetch_no_check {
     my $mode = shift || '';
 
     # always call to perform submit_to_warp
-    my $std_value = $self->_pre_fetch ;
+    my $std = $self->_pre_fetch ;
     my $data = $self->{data} ;
 
-    no warnings "uninitialized" ;
-    my $cust = ($data ne $std_value) ? $data : undef ;
-    use warnings "uninitialized" ;
 
-    return $mode eq 'custom'     ? $cust
-         : $mode eq 'preset'     ? $self->{preset}
-         : $mode eq 'default'    ? $self->{default}
-         : $mode eq 'standard'   ? $std_value 
-	 : defined $data         ? $data
-         :                         $std_value ;
+    if ($mode eq 'custom') {
+	no warnings "uninitialized" ;
+	my $cust ;
+	$cust = $data if $data ne $std and $data ne $self->{built_in} ;
+	return $cust;
+    }
+
+    if ($mode eq 'non_built_in') {
+	no warnings "uninitialized" ;
+	my $nbu = defined $data && $data ne $self->{built_in} ? $data 
+	        : defined $std  && $std  ne $self->{built_in} ? $std 
+                :                                                undef ;
+
+	return $nbu;
+    }
+
+    return $mode eq 'preset'                   ? $self->{preset}
+         : $mode eq 'default'                  ? $self->{default}
+         : $mode eq 'standard' && defined $std ? $std 
+         : $mode eq 'standard'                 ? $self->{built_in}
+	 : $mode eq 'built_in'                 ? $self->{built_in}
+	 : defined $data                       ? $data
+         :                                       $std ;
 
 }
 
@@ -1314,7 +1329,8 @@ With a parameter, this method will return either:
 
 =item custom
 
-The value entered by the user
+The value entered by the user (if different from built in, preset,
+computed or default value)
 
 =item preset
 
@@ -1322,11 +1338,21 @@ The value entered in preset mode
 
 =item standard
 
-The value entered in preset mode or checked by default.
+The preset or computed or default or built in value.
 
 =item default
 
 The default value (defined by the configuration model)
+
+=item built_in
+
+The built_in value. (defined by the configuration model)
+
+=item non_built_in
+
+The custom or preset or computed or default value. Will return undef
+if either of this value is identical to the built_in value. This
+feature is usefull to reduce data to write in configuration file.
 
 =back
 
