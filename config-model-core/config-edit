@@ -123,6 +123,17 @@ Config::Model::CursesUI is installed).
 Specify an alternate directory to find model files. Mostly useful for
 tests. 
 
+=item -instance_name
+
+Specify an instance_name. By default the instance name is copied from
+model name. 
+
+=comment 
+
+Could be useful for a backup config data feature. To be implemented
+
+=end
+
 =item -write_conf_dir
 
 Specify where to write the configuration files. (Actual default
@@ -159,11 +170,13 @@ Load file even if error are found in data. Bad data are discarded
 my $man = 0;
 my $help = 0;
 my $force_load = 0;
+my $intance_name ;
 
 my $result = GetOptions ("if=s"             => \$ui_type,
 			 "model_dir=s"      => \$model_dir,
 			 "model=s"          => \$root_model,
 			 "verbose!"         => \$verbose,
+			 "instance_name=s"  => \$instance_name,
 			 "debug!"           => \$debug,
 			 "trace!"           => \$trace,
 			 "man!"             => \$man,
@@ -187,6 +200,8 @@ if (defined $wr_conf_dir && ! -e $wr_conf_dir) {
 }
 
 my $model = Config::Model -> new(model_dir => $model_dir) ;
+
+$instance_name = $root_model unless defined $instance_name ;
 
 my $inst = $model->instance (root_class_name => $root_model ,
 			     instance_name   => $root_model ,
