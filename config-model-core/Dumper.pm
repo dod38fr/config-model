@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-11-13 12:27:31 $
+# $Date: 2007-12-04 12:32:28 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.17 $
+# $Revision: 1.18 $
 
 #    Copyright (c) 2006-2007 Dominique Dumont.
 #
@@ -30,7 +30,7 @@ use Config::Model::Exception ;
 use Config::Model::ObjTreeScanner ;
 
 use vars qw($VERSION);
-$VERSION = sprintf "%d.%03d", q$Revision: 1.17 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.18 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -119,6 +119,11 @@ By default, the dump contains only data modified by the user
 Reference to the L<Config::Model::Node> object that is dumped. All
 nodes and leaves attached to this node are also dumped.
 
+=item skip_auto_write
+
+Skip node that have a C<cds write> capabality in their model. See
+L<Config::Model::AutoRead>.
+
 =back
 
 =cut
@@ -128,6 +133,7 @@ sub dump_tree {
 
     my %args = @_;
     my $full = delete $args{full_dump} || 0;
+    my $skip_aw = delete $args{skip_auto_write} || 0 ;
     my $mode = delete $args{mode} || '';
     if ($mode and $mode ne 'full' and $mode ne 'preset') {
 	croak "dump_tree: unexpected 'mode' value";
@@ -213,7 +219,7 @@ sub dump_tree {
 
         my $type = $obj -> element_type($element);
 
-        # return if $$data_r and $next->isa('Config::Model::AutoRead');
+        return if $skip_aw and $next->is_auto_write_for_type('cds') ;
 
         my $pad = $compute_pad->($obj);
         $$data_r .= "\n$pad$element";

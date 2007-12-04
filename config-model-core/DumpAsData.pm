@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-07-26 12:16:52 $
+# $Date: 2007-12-04 12:32:06 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 #    Copyright (c) 2007 Dominique Dumont.
 #
@@ -30,7 +30,7 @@ use Config::Model::Exception ;
 use Config::Model::ObjTreeScanner ;
 
 use vars qw($VERSION);
-$VERSION = sprintf "%d.%03d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -93,6 +93,11 @@ Reference to a L<Config::Model::Node> object. Mandatory
 Also dump default values in the data structure. Useful if the dumped
 configuration data will be used by the application.
 
+=item skip_auto_write
+
+Skip node that have a C<perl write> capabality in their model. See
+L<Config::Model::AutoRead>.
+
 =back
 
 =cut
@@ -104,6 +109,7 @@ sub dump_as_data {
     my $dump_node = delete $args{node} 
       || croak "dumpribe: missing 'node' parameter";
     my $full = delete $args{full_dump} || 0;
+    my $skip_aw = delete $args{skip_auto_write} || 0 ;
 
     my $std_cb = sub {
         my ( $scanner, $data_r, $obj, $element, $index, $value_obj ) = @_;
@@ -161,6 +167,14 @@ sub dump_as_data {
 	$$data_ref = \%h  if scalar %h ;
     };
 
+    my $node_element_cb = sub {
+	my ($scanner, $data_ref,$node,$element_name,$key, $next) = @_ ;
+
+	return if $skip_aw and $next->is_auto_write_for_type('perl') ;
+
+	$scanner->scan_node($data_ref,$next);
+    } ;
+
     my @scan_args = (
 		     permission            => delete $args{permission} || 'master',
 		     fallback              => 'all',
@@ -169,6 +183,7 @@ sub dump_as_data {
 		     check_list_element_cb => $check_list_element_cb,
 		     hash_element_cb       => $hash_element_cb,
 		     leaf_cb               => $std_cb ,
+		     node_element_cb       => $node_element_cb,
 		     node_content_cb       => $node_content_cb,
 		    );
 
