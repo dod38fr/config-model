@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-11-15 12:00:46 $
+# $Date: 2007-12-04 12:34:10 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.20 $
+# $Revision: 1.21 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -41,7 +41,7 @@ use base qw/Config::Model::AutoRead/;
 use vars qw($VERSION $AUTOLOAD @status @level
 @permission_list %permission_index );
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.20 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.21 $ =~ /(\d+)\.(\d+)/;
 
 *status           = *Config::Model::status ;
 *level            = *Config::Model::level ;
@@ -1130,7 +1130,7 @@ sub load_data {
     my $self = shift ;
     my $h = dclone shift ;
 
-    if (ref ($h) ne 'HASH') {
+    if ( ref($h) ne 'HASH' and not $h->isa( 'HASH' ) ) {
 	Config::Model::Exception::LoadData
 	    -> throw (
 		      object => $self,
@@ -1181,7 +1181,9 @@ sub dump_tree {
 =head2 dump_as_data ( )
 
 Dumps the configuration data of the node and its siblings into a perl
-data structure.
+data structure. 
+
+Returns a hash ref containing the data.
 
 =cut
 
