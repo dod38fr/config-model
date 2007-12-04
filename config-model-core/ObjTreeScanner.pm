@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-10-19 11:43:41 $
+# $Date: 2007-12-04 12:34:58 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.15 $
+# $Revision: 1.16 $
 
 #    Copyright (c) 2006-2007 Dominique Dumont.
 #
@@ -29,7 +29,7 @@ use Carp;
 use warnings ;
 use UNIVERSAL qw( isa can );
 
-our $VERSION = sprintf "%d.%03d", q$Revision: 1.15 $ =~ /(\d+)\.(\d+)/;
+our $VERSION = sprintf "%d.%03d", q$Revision: 1.16 $ =~ /(\d+)\.(\d+)/;
 
 use Carp qw/croak confess cluck/;
 
@@ -328,7 +328,7 @@ C<auto_vivify> is 0.
 Example:
 
   sub my_node_content_cb {
-    my ($scanner, $data_ref,$node,$element_name,$key, $contained_node) = @_
+    my ($scanner, $data_ref,$node,$element_name,$key, $contained_node) = @_;
 
     # your custom code using $data_ref
 
