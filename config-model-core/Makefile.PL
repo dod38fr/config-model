@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-09-20 16:21:34 $
+# $Date: 2007-12-04 12:32:52 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.13 $
+# $Revision: 1.14 $
 
 #    Copyright (c) 2005-2006 Dominique Dumont.
 #
@@ -62,7 +62,10 @@ WriteMakefile
 		    'Scalar::Util'      => 0, # provided by perl 5.8.0
 		    'Exception::Class'  => 0,
 		    'Carp::Assert::More' => 0,
-		    'Error'             => 0
+		    'Error'             => 0,
+
+		    # recommended modules to get more reader/writer
+		    'Config::Tiny' => 0,
 		   },
    # cleanup required by t/auto_read.t
    # PreGrammar.pm is create by t/value_computer.t
