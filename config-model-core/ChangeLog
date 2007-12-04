@@ -1,6 +1,19 @@
+2007-12-04  Dominique Dumont  v0.616
+
+	* AutoRead.pm (read_ini): added capability to read configuration
+	data from ini file (See Config::Tiny)
+	(write_ini): can use ini files to store configuration data
+	(read_perl): added capability to read configuration data from a
+	perl data structure (see Config::Model::DumpAsData) from a .pl
+	(write_perl): can use perl file to store configuration data (.pl
+	file)
+	(auto_read_init): configuration model can specify cds (dump string
+	see Config::Model::Dumper), perl or ini with 'read_config' and
+	'write_config' parameter.
+
 2007-11-15  Dominique Dumont  v0.615
 
-	* config-edit: added '-force-load' option to load erronueus
+	* config-edit: added '-force-load' option to load erroneous
 	configuration data. bad data is discarded.
 
 	* Value.pm : handle 'preset' mode to store values
