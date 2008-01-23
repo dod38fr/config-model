@@ -1,9 +1,16 @@
 
 Config::Model - Describe and edit configuration data
 
-Config::Model provides a framework to:
-- describe the structure and constraint of your configuration
-- edit and check you configuration data.
+Config::Model enables a project developer to provide an interactive
+configuration editor to his users. For this he must:
+- describe the structure and constraint of his project's configuration
+- if the configuration data is not stored in INI file or in Perl data
+  file, he must provide some code to read and write configuration from
+  configuration files.
+
+With the elements above, the project developer will be able to provide
+his users an interactive configuration editor (with integrated help and
+data validation)
 
 How does this work ?
 --------------------
@@ -79,8 +86,7 @@ user's model and generate the relevant user screens.
 Why an old-fashioned Curses interface ?
 To be able to configure your system even if X is not running.
 
-If time permits, I may write a perl/Tk interface. Help is welcome on
-this topic (or help with any other toolkit)
+A perl/tk interface is being developed. Stay tuned.
 
 What about data storage ?
 -------------------------
