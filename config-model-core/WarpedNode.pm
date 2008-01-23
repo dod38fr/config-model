@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-09-17 12:02:44 $
+# $Date: 2008-01-23 16:37:05 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.12 $
+# $Revision: 1.13 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -32,7 +32,7 @@ use Config::Model::Exception ;
 use Data::Dumper ();
 
 use vars qw($VERSION $AUTOLOAD) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.12 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.13 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -237,7 +237,8 @@ foreach my $method (qw/fetch_element config_class_name get_element_name
 
     *$method = sub {
 	my $self= shift;
-	$self->check ;
+	# return undef if no class was warped in
+	$self->check or return undef ; 
 	return $self->{data}->$method(@_);
     } ;
 }
@@ -277,19 +278,29 @@ node is not accessible.
 sub get_actual_node {
     my $self= shift;
     $self->check ;
-    return $self->{data} ;
+    return $self->{data} ; # might be undef
 }
 
 sub check {
     my $self= shift;
 
     # must croak if element is not available
-    Config::Model::Exception::User->throw
-	(
-	 object => $self,
-	 message => "Object '$self->{element_name}' is not accessible.\n\t".
-	 $self->warp_error
-	) unless defined $self->{data};
+    if (not defined $self->{data}) {
+	# a node can be retrieved either for a store operation or for
+	# a fetch.
+	if ($self->instance->get_value_check('fetch_or_store')) {
+	    Config::Model::Exception::User->throw
+		(
+		 object => $self,
+		 message => "Object '$self->{element_name}' is not accessible.\n\t".
+		 $self->warp_error
+		) ;
+	}
+	else {
+	    return 0;
+	}
+    }
+    return 1 ;
 }
 
 sub set {
