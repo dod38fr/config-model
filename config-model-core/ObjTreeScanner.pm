@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-12-04 12:34:58 $
+# $Date: 2008-01-23 16:25:51 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.16 $
+# $Revision: 1.17 $
 
 #    Copyright (c) 2006-2007 Dominique Dumont.
 #
@@ -29,7 +29,7 @@ use Carp;
 use warnings ;
 use UNIVERSAL qw( isa can );
 
-our $VERSION = sprintf "%d.%03d", q$Revision: 1.16 $ =~ /(\d+)\.(\d+)/;
+our $VERSION = sprintf "%d.%03d", q$Revision: 1.17 $ =~ /(\d+)\.(\d+)/;
 
 use Carp qw/croak confess cluck/;
 
@@ -594,6 +594,29 @@ sub get_keys {
 		 object => $node
 		) ;
 
+}
+
+=head2 permission ( [ new_permission ] )
+
+Set or query the permission level of the scanner
+
+=cut
+
+sub permission {
+    my ($self,$new_perm) = @_ ;
+    $self->{permission} = $new_perm if defined $new_perm ;
+    return $self->{permission} ;
+}
+
+=head2 get_permission_ref ( )
+
+Get a SCALAR reference on permission. Use with care.
+
+=cut
+
+sub get_permission_ref {
+    my $self = shift ;
+    return \$self->{permission} ;
 }
 
 1;
