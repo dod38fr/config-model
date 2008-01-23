@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2008-01-16 12:10:57 $
+# $Date: 2008-01-23 11:17:36 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 #    Copyright (c) 2007 Dominique Dumont.
 #
@@ -35,7 +35,7 @@ use Tk::Multi::Text ;
 use Tk::Multi::Frame ;
 use Scalar::Util qw/weaken/;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.1 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/;
 
 Construct Tk::Widget 'ConfigModelUi';
 
@@ -122,10 +122,10 @@ sub Populate {
 
     # add entry frame, filled by call-back
     # should be a composite widget
-    $cw->{e_frame} = $eh_frame -> Frame -> pack (qw/-side top -fill x/) ;
+    $cw->{e_frame} = $eh_frame -> Frame -> pack (qw/-side top -fill both -expand 1/) ;
     $cw->{e_frame} ->Label(-text => "placeholder") -> pack ;
 
-    $eh_frame ->Adjuster()->packAfter($cw->{e_frame}, -side => 'top') ;
+    # Note: e_frame is not resised when adding editor widget if Adjuster is used
 
     # add help1 text
     require Tk::ROText;
@@ -154,10 +154,6 @@ sub Populate {
     $cw->Advertise(tree => $tree,
 		   ed_frame => $cw->{e_frame} ,
 		  );
-
-    # so that the master window update its size when a slave is hidden
-    # or shown
-    $cw->packPropagate(1);
 
     $cw->SUPER::Populate($args) ;
 }
@@ -340,8 +336,12 @@ sub disp_leaf {
     print "disp_leaf    path is $path\n";
 
     my $value_type = $leaf_object->value_type ;
-    my $value = $leaf_object->fetch ;
-    $cw->{tktree}->itemCreate($path,1,-text => $value) ;
+    my $value = $leaf_object->fetch_no_check ;
+    my @opt ;
+    if ($leaf_object->check($value) ) {
+	push @opt, -itemtype => 'imagetext' , -image => $cw->Getimage('warning') ;
+    }
+    $cw->{tktree}->itemCreate($path,1,-text => $value, @opt) ;
 
     my $std_v = $leaf_object->fetch('standard') ;
     $cw->{tktree}->itemCreate($path,2, -text => $std_v) ;

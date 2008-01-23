@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2008-01-16 12:10:57 $
+# $Date: 2008-01-23 11:17:36 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 #    Copyright (c) 2008 Dominique Dumont.
 #
@@ -31,7 +31,7 @@ use base qw/ Tk::Frame /;
 use vars qw/$VERSION/ ;
 use subs qw/menu_struct/ ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.1 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/;
 
 Construct Tk::Widget 'ConfigModelListEditor';
 
@@ -212,7 +212,7 @@ sub store {
 
 sub reload_tree {
     my $cw = shift ;
-    $cw->parent->parent->parent->parent->parent->reload ;
+    $cw->parent->parent->parent->parent->reload ;
 }
 
 sub add_info {
@@ -222,7 +222,7 @@ sub add_info {
     my $list = $cw->{list} ;
 
     my @items = ('type : '. $list->get_type 
-                         . ( $list->ordered ? '(ordered)' : ''),
+                          . ( $list->ordered ? '(ordered)' : ''),
 		 'index : '.$list->index_type ,
 		 'cargo : '.$list->cargo_type ,
 		);
