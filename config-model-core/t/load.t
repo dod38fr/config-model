@@ -1,11 +1,11 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2007-11-15 12:03:17 $
+# $Date: 2008-01-23 16:38:10 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.12 $
+# $Revision: 1.13 $
 
 use ExtUtils::testlib;
-use Test::More tests => 52;
+use Test::More tests => 54;
 use Config::Model;
 
 use warnings;
@@ -30,11 +30,19 @@ ok($inst,"created dummy instance") ;
 
 my $root = $inst -> config_root ;
 
-my $step = 'std_id:ab X=Bv - std_id:bc X=Av - a_string="titi , toto" ';
+# check with embedded \n
+my $step = qq!std_id:ab X=Bv -\na_string="titi and\ntoto" !;
+ok( $root->load( step => $step, permission => 'intermediate' ),
+  "load '$step'");
+is( $root->fetch_element('a_string')->fetch, "titi and\ntoto",
+  "check a_string");
+
+$step = 'std_id:ab X=Bv - std_id:bc X=Av - a_string="titi , toto" ';
 ok( $root->load( step => $step, permission => 'intermediate' ),
   "load '$step'");
 is( $root->fetch_element('a_string')->fetch, 'titi , toto',
   "check a_string");
+
 
 ok( $root->load( step => 'tree_macro=XZ', permission => 'advanced' ),
   "Set tree_macro to XZ");

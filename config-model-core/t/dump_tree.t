@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2007-11-13 12:43:05 $
+# $Date: 2008-01-23 16:38:10 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.14 $
+# $Revision: 1.15 $
 
 use ExtUtils::testlib;
 use Test::More tests => 11;
@@ -258,3 +258,8 @@ EOF
 $cds =~ s/\s+\n/\n/g;
 is_deeply( [split /\n/,$cds], [split /\n/,$expect], 
 	   "check dump of all preset values") ;
+
+# shake warp stuff
+my $tm = $root -> fetch_element('tree_macro') ;
+map { $tm->store($_);} qw/XY XZ mXY XY mXY XZ/;
+

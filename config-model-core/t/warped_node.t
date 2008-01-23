@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2007-05-04 11:44:59 $
+# $Date: 2008-01-23 16:38:10 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.5 $
+# $Revision: 1.6 $
 
 use warnings FATAL => qw(all);
 
@@ -123,6 +123,9 @@ my $inst = $model->instance (root_class_name => 'Master',
 ok($inst,"created dummy instance") ;
 
 my $root = $inst -> config_root ;
+
+my $tm = $root -> fetch_element('tree_macro') ;
+map { $tm->store($_);} qw/XY XZ XY W mXY XZ W AR/;
 
 is($root->fetch_element('a_warped_node')->is_accessible,0,
    'check that a_warped_node is not accessible'
