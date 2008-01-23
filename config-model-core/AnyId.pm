@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-11-13 12:14:05 $
+# $Date: 2008-01-23 16:21:29 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.23 $
+# $Revision: 1.24 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -29,7 +29,7 @@ use Carp;
 use strict;
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.23 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.24 $ =~ /(\d+)\.(\d+)/;
 
 use base qw/Config::Model::WarpedThing/;
 
@@ -138,7 +138,7 @@ Either C<integer> or C<string>. Mandatory for hash.
 
 Whether to keep the order of the hash keys (default no). (a bit like
 L<Tie::IxHash>).  The hash keys are ordered along their creation. The
-order can be modified with L<swap||Config::Model::HashId/"swap ( key1 , key2 )">,
+order can be modified with L<swap|Config::Model::HashId/"swap ( key1 , key2 )">,
 L<move_up|Config::Model::HashId/"move_up ( key )"> or
 L<move_down|Config::Model::HashId/"move_down ( key )">.
 

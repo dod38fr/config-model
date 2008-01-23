@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-10-09 11:15:06 $
+# $Date: 2008-01-23 16:21:29 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.14 $
+# $Revision: 1.15 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -31,7 +31,7 @@ use strict;
 use base qw/Config::Model::AnyId/ ;
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.14 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.15 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -348,7 +348,7 @@ sub move_down {
     Config::Model::Exception::User
 	-> throw (
 		  object => $self,
-		  message => "move_down: unknow key $key"
+		  message => "move_down: unknown key $key"
 		 )
 	  unless exists $self->{data}{$key} ;
 
