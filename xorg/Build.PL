@@ -1,9 +1,9 @@
 # $Author: ddumont $
-# $Date: 2007-10-26 11:57:20 $
+# $Date: 2008-01-28 12:31:54 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.7 $
+# $Revision: 1.8 $
 
-#    Copyright (c) 2007 Dominique Dumont.
+#    Copyright (c) 2007-2008 Dominique Dumont.
 #
 #    This file is part of Config-Model-Xorg.
 #
@@ -66,11 +66,11 @@ my $build = Module::Build->new
   (
    module_name   => 'Config::Model::Xorg',
    license       => 'lgpl',
-   dist_version  => 0.506 ,
+   dist_version  => 0.507 ,
    dist_author   => "Dominique Dumont (ddumont at cpan dot org)",
    dist_abstract => "Configuration model for xorg.conf",
    requires      => {
-		     'Config::Model'   => '0.614',
+		     'Config::Model'   => '0.617',
 		     'Log::Log4perl'   => 0 ,
 		    },
    recommends    => {
@@ -120,84 +120,124 @@ my $out_model_dir = "$out_dir/KeyboardOptModel";
 
 mkdir $out_model_dir, 0755 unless -d $out_model_dir ;
 
-my %kbd_option_elt 
-  = (
-      'XkbRules'        => {
-			    type => 'leaf',
-			    value_type  => 'enum',
-			    choice => [] ,
-			    default => 'xorg',
-			    help => { xfree86 => 'Deprecated in favor of xorg' },
-			   },
+my $xkb_rules_elt = {
+		     type => 'leaf',
+		     value_type  => 'enum',
+		     choice => [] ,
+		     default => 'base',
+		     help => { xfree86 => 'Deprecated in favor of xorg' },
+		    } ;
 
-     "XkbModel"  => {
+my $xkb_model_elt = {
 		     type => 'leaf',
 		     value_type  => 'enum',
 		     warp => {
-			      follow => '- XkbRules',
-			      rules => {} ,
+			      follow => { r => '- XkbRules' },
+			      rules => [] ,
 			     },
-		    },
+		    } ;
 
-     # See /etc/X11/xkb/rules/xorg.lst
+# See /etc/X11/xkb/rules/xorg.lst
 
-     "XkbLayout" => {
-		     type => 'leaf',
-		     value_type  => 'enum',
-		     default => 'us',
-		     warp => {
-			      follow => '- XkbRules',
-			      rules => {} ,
-			     },
-		    },
-
-     "XkbVariant" => {
+my $xkb_layout_elt = {
 		      type => 'leaf',
 		      value_type  => 'enum',
-		      warp => { follow => [ '- XkbRules', '- XkbLayout' ] ,
-				rules => [ ] ,
-			      }
-		     },
-     # needs to be refined ...
-     "XkbOptions" => {
-		      type => 'warped_node',
-		      follow => '- XkbRules',
-		      rules => { } ,
-		     }, 
+		      default => 'us',
+		      warp => {
+			       follow => { r => '- XkbRules' },
+			       rules => [] ,
+			      },
+		     };
+
+my $xkb_variant_elt = {
+		       type => 'leaf',
+		       value_type  => 'enum',
+		       warp => { follow => { r => '- XkbRules', l =>'- XkbLayout' } ,
+				 rules => [] ,
+			       }
+		      };
+
+# needs to be refined ...
+my $xkb_options_elt = {
+		       type => 'warped_node',
+		       follow => { r => '- XkbRules' },
+		       rules => [ ] ,
+		      };
+
+# use a list to ensure the order of the options
+my @kbd_option_elt 
+  = (
+     XkbRules   => $xkb_rules_elt,
+     XkbModel   => $xkb_model_elt,
+     XkbLayout  => $xkb_layout_elt,
+     XkbVariant => $xkb_variant_elt ,
+     XkbOptions => $xkb_options_elt, 
     ) ;
 
 my %defaults = (
 		'model' => { xorg => 'pc105', 'xorg-it' => 'pc105' } ,
 	       ) ;
 
-my $keyboard_conf_dir = "$etc_xorg_dir/xkb/rules" ;
+my @try_xkb_dirs = ( "/usr/share/X11/xkb/rules" ,
+		     "$etc_xorg_dir/xkb/rules"
+		   ) ;
+
+my $keyboard_conf_dir ;
+
+foreach (@try_xkb_dirs) {
+  if ( -d $_ ) {
+    $keyboard_conf_dir = $_ ;
+    last ;
+  }
+}
+
 my @lst_files = glob("$keyboard_conf_dir/*.lst") ;
 
 if (not scalar @lst_files) {
-    warn "Cannot find xorg keyboard conf in $keyboard_conf_dir. Is Xorg installed ?\n",
+    warn "Cannot find xorg keyboard conf in @try_xkb_dirs. Is Xorg installed ?\n",
       "Fallback action: Install some models for Linux. This may not work properly ";
     goto FALLBACK ;
 }
 
+# scan lst file which are link and construct the relevant warp rules
+my %warp_rule ;
 foreach my $file (@lst_files) {
     my ($rules_name) = ($file =~ m!/([\-\w]+)\.lst!) ;
-    print "Scanning rule $rules_name from $file\n";
-    push @{$kbd_option_elt{XkbRules}{choice}}, $rules_name ;
+    print "Pre-scan rule $rules_name from $file\n";
 
     if (-l $file) {
 	my $link = readlink($file) ;
 	my ($replace) =  ($link =~ m!([\-\w]+)\.lst!) ;
 	print "Rules $rules_name is replaced by $replace ($link)\n";
-	$kbd_option_elt{XkbRules}{help}{$rules_name} 
+	$warp_rule{$replace} = qq!\$r eq "$replace"! 
+	  unless defined $warp_rule{$replace};
+	$warp_rule{$replace} .= qq! or \$r eq "$rules_name"! ;
+	$xkb_rules_elt->{help}{$rules_name} 
 	  = 'Deprecated in favor of $replace' ;
 	next ;
     } 
+}
 
+# now really scan non-link files
+foreach my $file (@lst_files) {
+    my ($rules_name) = ($file =~ m!/([\-\w]+)\.lst!) ;
+    print "Scanning rule $rules_name from $file\n";
+    push @{$xkb_rules_elt->{choice}}, $rules_name ;
+
+    if (-l $file) {
+	print "Rules $rules_name skipped (link)\n";
+	next ;
+    } 
+
+    my $warp_rule = $warp_rule{$rules_name} || qq!\$r eq "$rules_name"! ;
 
     open (LST,$file ) || die "can't open $file:$!";
     my %xkb_model_elt ;
     my %xkb_model_help ;
     my %variant_rules ;
+
+    my %xkb_model_warp_effect  ;
+    my %xkb_layout_warp_effect  ;
 
     my $mode = '';
     while (<LST>) {
@@ -206,7 +246,7 @@ foreach my $file (@lst_files) {
 
 	if (/^!\s+(\w+)/) {
 	    $mode = $1;
-	    #print "rules $rules_name, mode: $mode\n";
+	    print "rules $rules_name, mode: $mode (warp_rule: $warp_rule)\n";
 	}
 	elsif (not /\w/ ){
 	    # skip empty lines
@@ -214,20 +254,20 @@ foreach my $file (@lst_files) {
 	}
 	elsif ($mode eq 'model') {
 	    my ($item, $help) = split /\s+/,$_,2 ;
-	    if (not defined $kbd_option_elt{XkbModel}{warp}{rules}{$rules_name}
-		and defined $defaults{$mode} 
-		and defined $defaults{$mode}{$rules_name}) {
-		$kbd_option_elt{XkbModel}{warp}{rules}{$rules_name}
-		  = { default =>  $defaults{$mode}{$rules_name} } ;
+	    if (    defined $defaults{$mode} 
+		and defined $defaults{$mode}{$rules_name}
+                and $defaults{$mode}{$rules_name} eq '$item' 
+	       ) {
+		$xkb_model_warp_effect{default} =  $item ;
 		#print "Adding default for $mode and $rules_name\n";
 	    }
-	    push @{ $kbd_option_elt{XkbModel}{warp}{rules}{$rules_name}{choice} }, $item ;
-	    $kbd_option_elt{XkbModel}{warp}{rules}{$rules_name}{help}{$item} = $help ;
+	    push @{ $xkb_model_warp_effect{choice} }, $item ;
+	    $xkb_model_warp_effect{help}{$item} = $help ;
 	}
 	elsif ($mode eq 'layout') {
 	    my ($item, $help) = split /\s+/,$_,2 ;
-	    push @{$kbd_option_elt{XkbLayout}{warp}{rules}{$rules_name}{choice}}, $item ;
-	    $kbd_option_elt{XkbLayout}{warp}{rules}{$rules_name}{help}{$item} = $help ;
+	    push @{$xkb_layout_warp_effect{choice}}, $item ;
+	    $xkb_layout_warp_effect{help}{$item} = $help ;
 	}
 	elsif ($mode eq 'variant') {
 	    my ($item, $layout, $help) = ( /([\-\w]+)(?:\s*(\w+):)?\s+(.*)/ ) ; #))
@@ -254,19 +294,23 @@ foreach my $file (@lst_files) {
 
     close LST;
 
-    my @layouts = @{$kbd_option_elt{XkbLayout}{warp}{rules}{$rules_name}{choice}} ;
+
+    my $all_layout_rule = join ' and ', map { qq!\$l eq "$_"! } @{$xkb_layout_warp_effect{choice}} ;
 
     my @rules = map { 
-	my $layouts = $_ eq '__all__' ? \@layouts : $_ ;
-	( [$rules_name, $layouts ] => $variant_rules{$_}) 
+	my $layout_rule = $_ eq '__all__' ? $all_layout_rule : $_ ;
+	( qq!( $warp_rule ) and \$l eq "$layout_rule" ! => $variant_rules{$_}) ;
     } keys %variant_rules ;
 
-    push @{ $kbd_option_elt{XkbVariant}{warp}{rules}} , @rules ;
-
+    push @{ $xkb_variant_elt->{warp}{rules}} , @rules ;
     my $class_name
       = 'Xorg::InputDevice::KeyboardOptModel::'. ucfirst($rules_name) ;
-    $kbd_option_elt{XkbOptions}{rules}{$rules_name}{config_class_name}
-      = $class_name ;
+
+    $xkb_options_elt->{rules} 
+      = [ $warp_rule => { config_class_name => $class_name } ] ;
+
+    push @{$xkb_model_elt->{warp}{rules}},   $warp_rule, \%xkb_model_warp_effect ; 
+    push @{$xkb_layout_elt->{warp}{rules}} , $warp_rule, \%xkb_layout_warp_effect ;
 
     my $xkb_model 
       = [ 
@@ -288,7 +332,7 @@ my $kbd_option_rules_class =
   [
    [
     name => "Xorg::InputDevice::KeyboardOptRules",
-    element => [ %kbd_option_elt ] ,
+    element => \@kbd_option_elt ,
     generated_by => $generator ,
     'description'
     => [
