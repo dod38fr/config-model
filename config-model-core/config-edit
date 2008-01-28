@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-#    Copyright (c) 2006-2007 Dominique Dumont.
+#    Copyright (c) 2006-2008 Dominique Dumont.
 #
 #    This file is part of Config-Model.
 #
@@ -50,16 +50,24 @@ Log::Log4perl::init($log4perl_conf);
 
 my $ui_type ;
 
-eval {require Config::Model::CursesUI ;} ;
+eval {require Config::Model::TkUi ; } ;
+my $has_tk = $@ ? 0 : 1 ;
 
-if ($@) {
-    warn "You should install Config::Model::CursesUI for a more friendly user interface\n";
-    $ui_type = 'shell' ;
+eval {require Config::Model::CursesUI ;} ;
+my $has_curses = $@ ? 0 : 1 ;
+
+if ($has_tk) {
+    $ui_type = 'tk';
 }
-else {
+elsif ($has_curses) {
+    warn "You should install Config::Model::TkUi for a more friendly user interface\n";
     $ui_type = 'curses';
 }
-
+else {
+    warn "You should install Config::Model::TkUi or Config::Model::CursesUI ",
+      "for a more friendly user interface\n";
+    $ui_type = 'shell' ;
+}
 
 my $model_dir ;
 my $root_model ;
@@ -128,11 +136,11 @@ tests.
 Specify an instance_name. By default the instance name is copied from
 model name. 
 
-=comment 
+=begin comment 
 
 Could be useful for a backup config data feature. To be implemented
 
-=end
+=end comment
 
 =item -write_conf_dir
 
@@ -164,13 +172,13 @@ Load file even if error are found in data. Bad data are discarded
 
 =back
 
-
 =cut
+
 
 my $man = 0;
 my $help = 0;
 my $force_load = 0;
-my $intance_name ;
+my $instance_name ;
 
 my $result = GetOptions ("if=s"             => \$ui_type,
 			 "model_dir=s"      => \$model_dir,
@@ -240,6 +248,17 @@ elsif ($ui_type eq 'curses') {
     $dialog->start( $model )  ;
 
     close FH ;
+}
+elsif ($ui_type eq 'tk') {
+    require Tk;
+    Tk->import ;
+
+    my $mw = MainWindow-> new ;
+    $mw->withdraw ;
+
+    my $cmu = $mw->ConfigModelUi (-root => $root,) ;
+
+    &MainLoop ; # Tk's
 }
 else {
     die "Unsupported user interface: $ui_type";
