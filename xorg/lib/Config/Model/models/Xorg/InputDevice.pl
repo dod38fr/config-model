@@ -1,9 +1,9 @@
 # $Author: ddumont $
-# $Date: 2007-06-07 16:49:58 $
+# $Date: 2008-01-28 12:18:58 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
-#    Copyright (c) 2005,2006 Dominique Dumont.
+#    Copyright (c) 2005-2008 Dominique Dumont.
 #
 #    This file is part of Config-Xorg.
 #
@@ -35,7 +35,8 @@
       'Driver'         => { type       => 'leaf',
 			    value_type => 'enum',
 			    mandatory  => 1 ,
-			    choice => [qw/keyboard kbd mouse/] ,
+			    choice => [qw/kbd mouse/] ,
+			    replace => { keyboard => 'kbd'} ,
 			  },
       [qw/SendCoreEvents HistorySize/]
                        => { type       => 'leaf',
@@ -45,7 +46,7 @@
 	   follow   => '- Driver',
 	   'rules' 
 	   => [
-	       [qw/keyboard kbd/] 
+	       'kbd'
 		=> { config_class_name => 'Xorg::InputDevice::KeyboardOpt' },
 		'mouse' 
 		=> { config_class_name => 'Xorg::InputDevice::MouseOpt' },
