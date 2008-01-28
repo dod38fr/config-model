@@ -1,9 +1,9 @@
 # $Author: ddumont $
-# $Date: 2007-12-04 12:33:17 $
+# $Date: 2008-01-28 11:51:00 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.47 $
+# $Revision: 1.48 $
 
-#    Copyright (c) 2005-2007 Dominique Dumont.
+#    Copyright (c) 2005-2008 Dominique Dumont.
 #
 #    This file is part of Config-Model.
 #
@@ -35,7 +35,7 @@ use Config::Model::Instance ;
 # this class holds the version number of the package
 use vars qw($VERSION @status @level @permission_list %permission_index) ;
 
-$VERSION = '0.616';
+$VERSION = '0.617';
 
 =head1 NAME
 
