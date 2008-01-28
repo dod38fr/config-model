@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2008-01-28 12:31:54 $
+# $Date: 2008-01-28 12:39:07 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.8 $
+# $Revision: 1.9 $
 
 #    Copyright (c) 2007-2008 Dominique Dumont.
 #
@@ -246,7 +246,7 @@ foreach my $file (@lst_files) {
 
 	if (/^!\s+(\w+)/) {
 	    $mode = $1;
-	    print "rules $rules_name, mode: $mode (warp_rule: $warp_rule)\n";
+	    #print "rules $rules_name, mode: $mode (warp_rule: $warp_rule)\n";
 	}
 	elsif (not /\w/ ){
 	    # skip empty lines
