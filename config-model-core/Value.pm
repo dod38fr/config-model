@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2008-01-23 16:34:27 $
+# $Date: 2008-01-28 11:47:11 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.25 $
+# $Revision: 1.26 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -37,7 +37,7 @@ use base qw/Config::Model::WarpedThing/ ;
 
 use vars qw($VERSION) ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.25 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.26 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -373,6 +373,15 @@ sub setup_enum_choice {
     } qw/data preset/;
 }
 
+=item replace
+
+Hash ref. Used for enum to substitute one value with another. This
+parameter must be used to enable user to upgrade a configuration with
+obsolete values. For instance, if the value C<foo> is obsolete and
+replaced by C<foo_better>, you will need to declare:
+
+  replace => { foo => 'foo_better' }
+
 =item refer_to
 
 Specify a path to an id element used as a reference. See L<Value
@@ -399,7 +408,7 @@ ref. Example:
 =cut
 
 my @accessible_params =  qw/min max mandatory default value_type
-                             choice convert built_in/ ;
+                             choice convert built_in replace/ ;
 
 my @allowed_warp_params = (@accessible_params, qw/level permission help/);
 
@@ -502,7 +511,7 @@ sub set {
 
 
     map { $self->{$_} =  delete $args{$_} if defined $args{$_} }
-      qw/min max mandatory help allow_compute_override/;
+      qw/min max mandatory help allow_compute_override replace/;
 
     $self->set_value_type     ( \%args );
     $self->set_default        ( \%args ) if (    exists $args{default} 
@@ -1135,6 +1144,9 @@ sub pre_store {
 
     $value = $self->{convert_sub}($value) 
       if (defined $self->{convert_sub} and defined $value) ;
+
+    $value = $self->{replace}{$value} 
+      if defined $self->{replace} and defined $self->{replace}{$value} ;
 
     my $ok = $self->store_check($value) ;
 
