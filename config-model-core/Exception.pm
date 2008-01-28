@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-07-26 12:18:00 $
+# $Date: 2008-01-28 11:46:43 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.11 $
+# $Revision: 1.12 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -28,7 +28,7 @@ use strict;
 use Data::Dumper ;
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.11 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.12 $ =~ /(\d+)\.(\d+)/;
 
 push @Exception::Class::Base::ISA, 'Error';
 
@@ -247,9 +247,10 @@ sub full_message {
     my $msg = $self->description;
     my $element = $self->element ;
     my $function = $self->function ;
+    my $unavail = $obj->fetch_element($element) ;
     $msg .= " '$element' in node '$location'.\n" ;
     $msg .= "\tError occured when calling $function.\n" if defined $function ;
-    $msg .= "\t".$obj->warp_error if $obj->can('warp_error');
+    $msg .= "\t".$unavail->warp_error if $unavail->can('warp_error');
 
     $msg .= "\t".$self->info."\n" if defined $self->info ;
     return $msg;
