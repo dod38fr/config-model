@@ -1,3 +1,23 @@
+2008-01-28  Dominique Dumont  v0.507
+
+	* Build.PL: - On Linux, fetch keyboard conf files from
+	/usr/share/X11/xkb/rules instead of /etc/X11/xkb/rules
+        - Fixed Build.PL to properly generate keyboard models 
+	  taking into account the links xfree86.lst -> base.lst and
+	  xorg.lst -> base.lst
+	
+	* lib/Config/Model/models/Xorg/InputDevice.pl: added replace => {
+	keyboard => 'kbd' } for Driver section so the 'keyboard' driver is
+	replaced by 'kbd' when loading xorg.conf file. This will enable a
+	transparent transition for xorg user from the old driver to the
+	new one.
+  
+2008-01-23  Dominique Dumont  
+
+	* lib/Config/Model/Xorg/Read.pm (parse_section): Don't fail when
+	parsing xorg.conf with wrong entries (i.e. some warped node are
+	not available due to these errors in xorg.conf)
+
 2007-10-26  Dominique Dumont  v0.506
 
 	* lib/Config/Model/Xorg.pm: added some code to be able to create a
