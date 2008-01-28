@@ -1,9 +1,9 @@
 # $Author: ddumont $
-# $Date: 2007-10-26 12:07:46 $
+# $Date: 2008-01-28 12:10:52 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.5 $
+# $Revision: 1.6 $
 
-#    Copyright (c) 2005,2006 Dominique Dumont.
+#    Copyright (c) 2005-2008 Dominique Dumont.
 #
 #    This file is part of Config-Xorg.
 #
@@ -32,7 +32,7 @@ use Log::Log4perl ;
 
 use vars qw($VERSION) ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/;
 
 my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
@@ -82,7 +82,7 @@ sub wr_std_options {
 sub wr_kbd_model_options {
     my ($scanner, $data_r ,$node,$element_name,$index, $leaf_object,$v) = @_ ;
     if ( defined $v && $v ) {
-	push @$data_r, qq(\tOption\tXkbOptions\t"$element_name:$v");
+	push @$data_r, qq(\tOption\t"XkbOptions"\t"$element_name:$v");
     }
 } ;
 
