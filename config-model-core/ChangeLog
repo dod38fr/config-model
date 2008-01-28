@@ -1,3 +1,29 @@
+2008-01-28  Dominique Dumont v0.617
+
+	* config-edit: added possibility to load Tk GUI (still under
+	development)
+
+	* Exception.pm (): Fixed misleading error message for
+	UnavailableElement exception
+
+2008-01-25  Dominique Dumont  
+
+	* Value.pm (): added "replace" parameter for enum Value. This
+	enables to specify a substitution when storing value.
+
+2008-01-23  Dominique Dumont  
+
+	* WarpedNode.pm (check): no longer die when trying to retrieve
+	warped out node, just return undef. This is necessary to be able
+	to load configuration files with important error (e.g. a xorg.conf
+	file with a wrong device driver: all driver option are no longer
+	valid.)
+
+	* Value.pm (check): Added doc for check.  
+
+	* ObjTreeScanner.pm (permission): new method to get or set the
+	permission of the scanner (after creation).
+
 2007-12-04  Dominique Dumont  v0.616
 
 	* AutoRead.pm (read_ini): added capability to read configuration
