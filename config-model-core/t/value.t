@@ -1,12 +1,12 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2007-11-15 12:03:17 $
+# $Date: 2008-01-28 11:48:59 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.7 $
+# $Revision: 1.8 $
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
-use Test::More tests => 98 ;
+use Test::More tests => 99 ;
 use Config::Model ;
 use Config::Model::Value;
 
@@ -93,6 +93,13 @@ $model ->create_config_class
 				value_type => 'uniline',
 				built_in    => 'bi_def',
 			      },
+		with_replace => {type => 'leaf',
+				 value_type => 'enum',
+				 choice     => [qw/a b c/],
+				 replace    => { a1 => 'a',
+						 c1 => 'c'
+					       },
+				},
 	      ] , # dummy class
   ) ;
 
@@ -323,6 +330,10 @@ print "normal error:\n", $@, "\n" if $trace;
 $uni->store("foo bar");
 is($uni->fetch, "foo bar","tested uniline value") ;
 
+### test replace feature
+my $wrepl =  $root->fetch_element('with_replace') ;
+$wrepl -> store ('c1') ;
+is($wrepl->fetch, "c","tested replaced value") ;
 
 ### test preset feature
 
@@ -358,3 +369,4 @@ is($p_enum->fetch('preset'),'B',"enum: read preset value as preset_value") ;
 is($p_enum->fetch_standard,'B',"enum: read preset value as standard_value") ;
 is($p_enum->fetch_custom,'C',"enum: read custom_value") ;
 is($p_enum->default,'A',"enum: read default_value") ;
+
