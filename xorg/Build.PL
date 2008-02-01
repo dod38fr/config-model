@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2008-01-28 12:39:07 $
+# $Date: 2008-02-01 16:10:38 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.9 $
+# $Revision: 1.10 $
 
 #    Copyright (c) 2007-2008 Dominique Dumont.
 #
@@ -66,7 +66,7 @@ my $build = Module::Build->new
   (
    module_name   => 'Config::Model::Xorg',
    license       => 'lgpl',
-   dist_version  => 0.507 ,
+   dist_version  => 0.508 ,
    dist_author   => "Dominique Dumont (ddumont at cpan dot org)",
    dist_abstract => "Configuration model for xorg.conf",
    requires      => {
@@ -120,11 +120,14 @@ my $out_model_dir = "$out_dir/KeyboardOptModel";
 
 mkdir $out_model_dir, 0755 unless -d $out_model_dir ;
 
+# how to choose a reasonable default value for XkbRules ? Does it
+# depend on the OS or just on available model ?
 my $xkb_rules_elt = {
 		     type => 'leaf',
 		     value_type  => 'enum',
 		     choice => [] ,
-		     default => 'base',
+		     # fails on OpenBSD
+		     # default => 'base',
 		     help => { xfree86 => 'Deprecated in favor of xorg' },
 		    } ;
 
@@ -152,7 +155,8 @@ my $xkb_layout_elt = {
 my $xkb_variant_elt = {
 		       type => 'leaf',
 		       value_type  => 'enum',
-		       warp => { follow => { r => '- XkbRules', l =>'- XkbLayout' } ,
+		       warp => { follow => { r => '- XkbRules', 
+					     l => '- XkbLayout' } ,
 				 rules => [] ,
 			       }
 		      };

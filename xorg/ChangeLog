@@ -1,3 +1,8 @@
+2008-02-01  Dominique Dumont  v0.508
+
+	* Build.PL (): Removed default value for XkbRules as figuring a
+	default value for all archies and distro is not obvious.
+
 2008-01-28  Dominique Dumont  v0.507
 
 	* Build.PL: - On Linux, fetch keyboard conf files from
