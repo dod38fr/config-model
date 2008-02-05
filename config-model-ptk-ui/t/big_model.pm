@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2008-01-16 12:10:57 $
+# $Date: 2008-02-05 17:25:07 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 # this file is used by test script
 
@@ -156,7 +156,7 @@
 	       a_boolean => { type => 'leaf',
 			     value_type => 'boolean',
 			    },
-	       [qw/a_string a_long_string/] 
+	       [qw/a_string a_long_string another_string/] 
                         => { type => 'leaf',
 			     mandatory => 1 ,
 			     value_type => 'string'

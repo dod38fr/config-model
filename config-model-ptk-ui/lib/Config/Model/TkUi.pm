@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2008-01-23 11:17:36 $
+# $Date: 2008-02-05 17:25:06 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 #    Copyright (c) 2007 Dominique Dumont.
 #
@@ -35,20 +35,40 @@ use Tk::Multi::Text ;
 use Tk::Multi::Frame ;
 use Scalar::Util qw/weaken/;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/;
+use Tk::Photo ;
+use Tk::widgets qw/JPEG PNG/;
+
+use Config::Model::Tk::LeafEditor ;
+use Config::Model::Tk::CheckListEditor ;
+use Config::Model::Tk::ListEditor ;
+
+use Config::Model::Tk::LeafViewer ;
+#use Config::Model::Tk::CheckListViewer ;
+#use Config::Model::Tk::ListViewer ;
+
+$VERSION = sprintf "%d.%03d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/;
 
 Construct Tk::Widget 'ConfigModelUi';
 
+my $warn_img ;
+my $cust_img ;
+
 sub ClassInit {
-    my ($cw, $args) = @_;
+    my ($class, $mw) = @_;
     # ClassInit is often used to define bindings and/or other
     # resources shared by all instances, e.g., images.
+
 
     # cw->Advertise(name=>$widget);
 }
 
 sub Populate { 
     my ($cw, $args) = @_;
+
+    unless (defined $warn_img) {
+	$warn_img = $cw->Photo(-file => 'dialog-warning.gif');
+	$cust_img = $cw->Photo(-file => 'go-next.gif');
+    }
 
     foreach my $parm (qw/-root/) {
 	my $attr = $parm ;
@@ -97,7 +117,9 @@ sub Populate {
     require Tk::Tree;
     my $tree = $bottom_frame 
       -> Scrolled ( qw/Tree/,
-		    -columns =>3, -header => 1,
+		    -columns => 4,
+		    -header  => 1,
+		    -selectmode => 'single',
 		    -browsecmd => sub{$cw->on_browse(@_) ;},
 		    -command   => sub{$cw->on_select(@_) ;},
 		    -opencmd   => sub{$cw->open_item(@_) ;},
@@ -111,8 +133,9 @@ sub Populate {
 
     # add headers
     $tree -> headerCreate(0, -text => "element") ;
-    $tree -> headerCreate(1, -text => "value") ;
-    $tree -> headerCreate(2, -text => "standard value") ;
+    $tree -> headerCreate(1, -text => "status") ;
+    $tree -> headerCreate(2, -text => "value") ;
+    $tree -> headerCreate(3, -text => "standard value") ;
 
     $cw->reload ;
 
@@ -122,23 +145,21 @@ sub Populate {
 
     # add entry frame, filled by call-back
     # should be a composite widget
-    $cw->{e_frame} = $eh_frame -> Frame -> pack (qw/-side top -fill both -expand 1/) ;
-    $cw->{e_frame} ->Label(-text => "placeholder") -> pack ;
+    $cw->{e_frame} = $eh_frame -> Frame 
+      -> pack (qw/-side top -fill both -expand 1/) ;
+    $cw->{e_frame} ->Label(-text => "placeholder",
+			   -width => '70',
+			  ) -> pack ;
 
     # Note: e_frame is not resised when adding editor widget if Adjuster is used
-
-    # add help1 text
-    require Tk::ROText;
-    my $help1 = $eh_frame -> ROText(-height => 10 ) 
-      -> pack (qw/-side bottom -fill both -expand 1/);
-    $help1->tagConfigure("underline", -underline =>1 );
-    $cw->{help_frame}= $help1;
 
     #$eh_frame ->  Adjuster()->packAfter($help1, -side => 'top') ;
     #my $help2 = $eh_frame -> ROText(-height => 10 ) -> pack (qw/-side top -fill x/);
 
-    # bind double click to create editor widget
-    #$tree->bind('<Double-Button-1>', sub{$cw->create_modify_widget()}) ;
+    # bind button2 as double-button-1 does not work
+    my $b2_sub = sub{my $item = $tree->nearest($tree->pointery - $tree->rooty) ;
+		     $cw->on_select($item)} ;
+    $tree->bind('<Button-2>', $b2_sub) ;
 
     $cw->ConfigSpecs
       (
@@ -190,8 +211,10 @@ sub reload {
       = sub {$cw->{scanner}->scan_node([$instance_name,$cw,@_],$cw->{root}) ;};
 
     if ($new_drawing) {
-	$tree->add($instance_name, -text => $instance_name , 
-		   -data => [ $sub,  $cw->{root} ] ); 
+	$tree->add($instance_name, -data => [ $sub,  $cw->{root} ]);
+	$tree->itemCreate( $instance_name, 0,
+			   -text => $instance_name , 
+			 ); 
 	$tree->setmode($instance_name,'close') ;
 	$tree->open($instance_name) ;
     }
@@ -206,14 +229,14 @@ sub on_browse {
     #$cw->{path}=$path ;
     my $datar = $cw->{tktree}->infoData($path) ;
     my $obj = $datar->[1] ;
-    $cw->add_help($obj) ;
     $cw->{location} = $obj->location;
+    $cw->create_element_widget('view') ;
 }
 
 sub on_select {
     my ($cw,$path) = @_ ;
     $cw->on_browse($path) ;
-    $cw->create_modify_widget() ;
+    $cw->create_element_widget('edit') ;
 }
 
 
@@ -278,7 +301,8 @@ sub disp_obj_elt {
 	    my $elt_type = $node->element_type($elt) ;
 	    my $newmode = $elt_mode{$elt_type};
 	    print "disp_obj_elt add $newpath mode $newmode type $elt_type\n";
-	    $tkt->add($newpath, -text => $elt , -data => \@data, @opt) ;
+	    $tkt->add($newpath, -data => \@data, @opt) ;
+	    $tkt->itemCreate($newpath,0, -text => $elt) ;
 	    $tkt -> setmode($newpath => $newmode) ;
 	    # hide new entry if node is not yet opened
 	    $tkt->hide(-entry => $newpath) if $mode eq 'open' ;
@@ -315,7 +339,8 @@ sub disp_hash {
 	    my $elt_type = $elt->get_cargo_type();
 	    my $newmode = $elt_mode{$elt_type};
 	    print "disp_hash add $newpath mode $newmode cargo_type $elt_type\n";
-	    $tkt->add($newpath, -text => $idx , -data => \@data, @opt) ;
+	    $tkt->add($newpath, -data => \@data, @opt) ;
+	    $tkt->itemCreate($newpath,0, -text => $idx ) ;
 	    $tkt -> setmode($newpath => $newmode) ;
 	    # hide new entry if hash is not yet opened
 	    $tkt->hide(-entry => $newpath) if $mode eq 'open' ;
@@ -330,21 +355,44 @@ sub disp_hash {
     } ;
 }
 
+sub disp_check_list {
+    my ($scanner, $data_ref,$node,$element_name,$index, $leaf_object) =@_;
+    my ($path,$cw,$opening) = @$data_ref ;
+    print "disp_check_list    path is $path\n";
+
+    my $value = $leaf_object->fetch ;
+
+    $cw->{tktree}->itemCreate($path,2,-text => $value) ;
+
+    my $std_v = $leaf_object->fetch('standard') ;
+    $cw->{tktree}->itemCreate($path,3, -text => $std_v) ;
+}
+
 sub disp_leaf {
     my ($scanner, $data_ref,$node,$element_name,$index, $leaf_object) =@_;
     my ($path,$cw,$opening) = @$data_ref ;
     print "disp_leaf    path is $path\n";
 
-    my $value_type = $leaf_object->value_type ;
-    my $value = $leaf_object->fetch_no_check ;
-    my @opt ;
-    if ($leaf_object->check($value) ) {
-	push @opt, -itemtype => 'imagetext' , -image => $cw->Getimage('warning') ;
-    }
-    $cw->{tktree}->itemCreate($path,1,-text => $value, @opt) ;
-
     my $std_v = $leaf_object->fetch('standard') ;
-    $cw->{tktree}->itemCreate($path,2, -text => $std_v) ;
+    my $value = $leaf_object->fetch_no_check ;
+
+    my $img ;
+    {
+	no warnings qw/uninitialized/ ;
+	$img = $cust_img unless $std_v eq $value ;
+	$img = $warn_img unless $leaf_object->check($value) ;
+    }
+
+    if (defined $img) {
+	$cw->{tktree}->itemCreate($path,1,
+				  -itemtype => 'image' , 
+				  -image => $img
+				 ) ;
+    }
+
+    $cw->{tktree}->itemCreate($path,2, -text => $value) ;
+
+    $cw->{tktree}->itemCreate($path,3, -text => $std_v) ;
 }
 
 sub disp_node {
@@ -374,7 +422,7 @@ sub setup_scanner {
 
        # element callback
        list_element_cb       => \&disp_hash    ,
-       check_list_element_cb => \&disp_leaf    ,
+       check_list_element_cb => \&disp_check_list ,
        hash_element_cb       => \&disp_hash    ,
        node_element_cb       => \&disp_node     ,
 
@@ -397,8 +445,22 @@ sub setup_scanner {
 
 }
 
-sub create_modify_widget {
+my %widget_table = (
+		    edit => {
+			     leaf       => 'ConfigModelLeafEditor',
+			     check_list => 'ConfigModelCheckListEditor',
+			     list       => 'ConfigModelListEditor',
+			    },
+		    view => {
+			     leaf       => 'ConfigModelLeafViewer',
+			     check_list => 'ConfigModelCheckListViewer',
+			     list       => 'ConfigModelListViewer',
+			    },
+		   ) ;
+
+sub create_element_widget {
     my $cw = shift ;
+    my $mode = shift ;
     my $item = shift ; # reserved for tests
 
     my $tree = $cw->{tktree};
@@ -428,37 +490,10 @@ sub create_modify_widget {
 
     my $frame = $cw->{e_frame} ;
 
-    if ($type eq 'leaf') {
-	require Config::Model::Tk::LeafEditor ;
-	$frame->ConfigModelLeafEditor(-leaf => $obj)->pack ;
-    }
-    elsif ($type eq 'check_list') {
-	require Config::Model::Tk::CheckListEditor ;
-	$frame->ConfigModelCheckListEditor(-leaf => $obj)->pack ;
-    }
-    elsif ($type eq 'list' or $type eq 'hash') {
-	require Config::Model::Tk::ListEditor ;
-	$frame->ConfigModelListEditor(-list => $obj)->pack ;
-    }
+    my $widget = $widget_table{$mode}{$type} ;
+    $frame->$widget(-item => $obj)->pack(-expand => 1, -fill => 'both') ;
 }
 
-sub add_help {
-    my $cw = shift ;
-    my $obj = shift ;
-
-    my $help_w = $cw->{help_frame};
-    $help_w->delete('1.0','end') ;
-
-    my $node = $obj->parent ;
-    my $class_obj = $node || $obj ;
-
-    my @help = ("class:\n", 'underline',
-		$class_obj->get_help, 'class_help') ;
-    push @help ,   "\n\n", 'sep', "element:\n", 'underline',
-      $node->get_help($obj->element_name), 'element_help'
-	if defined $node ;
-    $help_w->insert('end', @help ) ;
-}
 
 
 1;
