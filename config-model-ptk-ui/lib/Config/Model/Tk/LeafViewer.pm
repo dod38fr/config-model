@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2008-02-06 09:20:42 $
+# $Date: 2008-02-06 13:00:43 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 #    Copyright (c) 2008 Dominique Dumont.
 #
@@ -31,7 +31,7 @@ use base qw/ Tk::Frame /;
 use vars qw/$VERSION/ ;
 use subs qw/menu_struct/ ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.1 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/;
 
 Construct Tk::Widget 'ConfigModelLeafViewer';
 
@@ -58,13 +58,7 @@ sub Populate {
     print "leaf viewer for value_type $vt\n";
     my $v = $leaf->fetch ;
 
-    my $idx = $leaf->index_value ;
-    my $elt_name = $leaf->element_name ;
-    $elt_name .= ':' . $idx if defined $idx ;
-    my $class = $leaf->parent->config_class_name ;
-    $cw -> Label ( -text => "View: Class $class Element $elt_name",
-			    -anchor => 'w' )
-              -> pack (@fxe1);
+    $cw->add_header('View') ;
 
     my $lv_frame = $cw->Frame(qw/-relief raised -borderwidth 4/)->pack(@fxe1) ;
     $lv_frame -> Label(-text => 'Value') -> pack() ;
@@ -83,17 +77,10 @@ sub Populate {
     }
 
     $cw->add_info() ;
-
-    my $htop_frame = $cw->Frame(qw/-relief raised -borderwidth 4/)->pack(@fxe1) ;
-    $htop_frame -> Label(-text => 'Help', -anchor => 'w' ) ->pack() ;
-
-    $cw->{help_f} = $htop_frame->Frame(qw/-relief sunken -borderwidth 1/)->pack(@fxe1) ;
-
-
+    $cw->add_help_frame;
     $cw->add_help(class   => $leaf->parent->get_help) ;
     $cw->add_help(element => $leaf->parent->get_help($leaf->element_name)) ;
     $cw->add_help(value   => $leaf->get_help($cw->{value})) ;
-
 
     $cw->ConfigSpecs(
 		     #-fill   => [ qw/SELF fill Fill both/],
@@ -104,6 +91,19 @@ sub Populate {
            );
 
     $cw->SUPER::Populate($args) ;
+}
+
+sub add_header {
+    my ($cw,$type) = @_ ;
+
+    my $leaf = $cw->{leaf} ;
+    my $idx = $leaf->index_value ;
+    my $elt_name = $leaf->element_name ;
+    $elt_name .= ':' . $idx if defined $idx ;
+    my $class = $leaf->parent->config_class_name ;
+    $cw -> Label ( -text => "$type: Class $class Element $elt_name",
+			    -anchor => 'w' )
+              -> pack (@fxe1);
 }
 
 sub add_info {
@@ -143,6 +143,16 @@ sub add_info {
 
     my $i_frame = $frame->Frame(qw/-relief sunken -borderwidth 1/)->pack(@fxe1) ;
     map { $i_frame -> Label(-text => $_, -anchor => 'w' ) ->pack(@fxe1) } @items;
+}
+
+sub add_help_frame {
+    my $cw = shift ;
+    my $leaf = $cw->{leaf} ;
+
+    my $htop_frame = $cw->Frame(qw/-relief raised -borderwidth 4/)->pack(@fxe1) ;
+    $htop_frame -> Label(-text => 'Help', -anchor => 'w' ) ->pack() ;
+
+    $cw->{help_f} = $htop_frame->Frame(qw/-relief sunken -borderwidth 1/)->pack(@fxe1) ;
 }
 
 sub add_help {

@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2008-02-05 17:25:07 $
+# $Date: 2008-02-06 13:00:43 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 
 #    Copyright (c) 2008 Dominique Dumont.
 #
@@ -27,15 +27,16 @@ use strict;
 use warnings ;
 use Carp ;
 
-use base qw/ Tk::Frame /;
+use base qw/Config::Model::Tk::LeafViewer/;
 use vars qw/$VERSION/ ;
 use subs qw/menu_struct/ ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/;
 
 Construct Tk::Widget 'ConfigModelLeafEditor';
 
 my @fbe1 = qw/-fill both -expand 1/ ;
+my @fxe1 = qw/-fill x    -expand 1/ ;
 
 sub ClassInit {
     my ($cw, $args) = @_;
@@ -55,13 +56,19 @@ sub Populate {
 
     my $vt = $leaf -> value_type ;
     print "leaf editor for value_type $vt\n";
+
+    $cw->add_header('Edit') ;
+
     $cw->{value} = $leaf->fetch || '';
     my $vref = \$cw->{value};
 
-    my $ed_frame = $cw->Frame->pack(@fbe1);
+    my $v_frame =  $cw->Frame(qw/-relief raised -borderwidth 4/)->pack(@fxe1) ;
+    $v_frame  -> Label(-text => 'Value') -> pack() ;
+    my $ed_frame = $v_frame->Frame(qw/-relief sunken -borderwidth 1/)
+      ->pack(@fxe1) ;
 
     if ($vt eq 'string') {
-	$cw->{e_widget} = $ed_frame->Text(-height => 10 )
+	$cw->{e_widget} = $v_frame->Text(-height => 10 )
                              ->pack(@fbe1);
 	$cw->reset_value ;
     }
@@ -87,7 +94,11 @@ sub Populate {
 	}
     }
     $cw->add_info() ;
-    $cw->add_value_help() ;
+    $cw->add_help_frame() ;
+    $cw->add_help(class   => $leaf->parent->get_help) ;
+    $cw->add_help(element => $leaf->parent->get_help($leaf->element_name)) ;
+    $cw->{value_help} = '';
+    $cw->add_help(value => \$cw->{value_help});
     $cw->set_value_help ;
 
     my $bframe = $cw->Frame->pack;
@@ -101,60 +112,18 @@ sub Populate {
 			-command => sub { $cw->store},
 		      ) -> pack(-side => 'left') ;
 
-    $cw->SUPER::Populate($args) ;
+    $cw->ConfigSpecs(
+		     #-fill   => [ qw/SELF fill Fill both/],
+		     #-expand => [ qw/SELF expand Expand 1/],
+		     -relief => [qw/SELF relief Relief groove/ ],
+		     -borderwidth => [qw/SELF borderwidth Borderwidth 2/] ,
+		     DEFAULT => [ qw/SELF/ ],
+           );
+
+    # don't call directly SUPER::Populate as it's LeafViewer's populate
+    $cw->Tk::Frame::Populate($args) ;
 }
 
-sub add_info {
-    my $cw = shift ;
-
-    my $info_frame = $cw->Frame(-relief => 'groove',
-				-borderwidth => 2,
-			       )->pack;
-    my $leaf = $cw->{leaf} ;
-
-    my @items = ('current value :'.$cw->{value},
-		 'type :'.$leaf->value_type,
-		);
-
-    if (defined $leaf->built_in) {
-	push @items, "built_in value: " . $leaf->built_in ;
-    }
-    elsif (defined $leaf->fetch('standard')) {
-	push @items, "default value: " . $leaf->fetch('standard') ;
-    }
-    elsif (defined $leaf->refer_to) {
-	push @items, "reference to: " . $leaf->refer_to ;
-    }
-    elsif (defined $leaf->computed_refer_to) {
-	push @items, "computed reference to: " . $leaf->computed_refer_to ;
-    }
-
-
-    my $m = $leaf->mandatory ;
-    push @items, "is mandatory: ".($m ? 'yes':'no') if defined $m;
-
-    my @minmax ;
-    foreach my $what (qw/min max/) {
-	my $v = $leaf->$what() ;
-	push @minmax, "$what: $v" if defined $v;
-    }
-
-    push @items, join(', ',@minmax) if @minmax ;
-
-    map { $info_frame -> Label(-text => $_ )->pack } @items;
-}
-
-sub add_value_help {
-    my $cw = shift ;
-
-    my $help_frame = $cw->Frame(-relief => 'groove',
-				-borderwidth => 2,
-			       )->pack(@fbe1);
-    my $leaf = $cw->{leaf} ;
-    $help_frame->Label(-text => 'value help: ')->pack(-side => 'left');
-    $help_frame->Label(-textvariable => \$cw->{help})
-      ->pack(-side => 'left', -fill => 'x', -expand => 1);
-}
 
 sub try {
     my $cw = shift ;
@@ -202,10 +171,10 @@ sub store {
 }
 
 sub set_value_help {
-    my $cw = shift ;
-    my $v = $cw->{value} ;
-    $cw->{help}=$cw->{leaf}->get_help($v) if defined $v ;
-}
+     my $cw = shift ;
+     my $v = $cw->{value} ;
+     $cw->{value_help} = $cw->{leaf}->get_help($v) if defined $v ;
+ }
 
 sub reset_value {
     my $cw = shift ;
