@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2008-02-05 17:25:06 $
+# $Date: 2008-02-06 11:05:26 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 
 #    Copyright (c) 2007 Dominique Dumont.
 #
@@ -30,9 +30,6 @@ use Carp ;
 use base qw/ Tk::Toplevel /;
 use vars qw/$VERSION/ ;
 use subs qw/menu_struct/ ;
-use Tk::Multi::Manager ;
-use Tk::Multi::Text ;
-use Tk::Multi::Frame ;
 use Scalar::Util qw/weaken/;
 
 use Tk::Photo ;
@@ -46,7 +43,7 @@ use Config::Model::Tk::LeafViewer ;
 #use Config::Model::Tk::CheckListViewer ;
 #use Config::Model::Tk::ListViewer ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/;
 
 Construct Tk::Widget 'ConfigModelUi';
 
