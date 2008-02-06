@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2008-01-23 16:21:29 $
+# $Date: 2008-02-06 17:26:56 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.24 $
+# $Revision: 1.25 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -29,7 +29,7 @@ use Carp;
 use strict;
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.24 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.25 $ =~ /(\d+)\.(\d+)/;
 
 use base qw/Config::Model::WarpedThing/;
 
@@ -223,7 +223,7 @@ undef elements.
 
 =item warp
 
-See L<section/"Warp: dynamic value configuration"> below.
+See L</"Warp: dynamic value configuration"> below.
 
 =back
 
@@ -279,12 +279,14 @@ one instance of C<Dummy>.
 Setting C<macro> to C<B> will mean that C<warped_hash> will accept two
 instances of C<Dummy>.
 
-Like other warped class, a HashId or ListIf can have multiple warp
+Like other warped class, a HashId or ListId can have multiple warp
 masters (See L<Config::Model::WarpedThing/"Warp follow argument">:
 
-  warp => { follow => ['- macro1', '- macro2'],
-            rules  => [ [ 'A','A2' ]  => { max_nb => 1},
-                        [ 'A','B2' ] => { max_nb => 2}
+  warp => { follow => { m1 => '- macro1', 
+                        m2 => '- macro2' 
+                      },
+            rules  => [ '$m1 eq "A" and $m2 eq "A2"' => { max_nb => 1},
+                        '$m1 eq "A" and $m2 eq "B2"' => { max_nb => 2}
                       ],
           }
 
