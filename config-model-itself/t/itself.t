@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2007-10-24 16:02:30 $
+# $Date: 2008-02-07 11:35:57 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 use ExtUtils::testlib;
 use Test::More tests => 13;
@@ -22,6 +22,15 @@ $::verbose          = 1 if $arg =~ /v/;
 $::debug            = 1 if $arg =~ /d/;
 my $log             = 1 if $arg =~ /l/;
 
+my $wr_dir = 'wr_test' ;
+
+sub wr_cds {
+    my ($file,$cds) = @_ ;
+    open(CDS,"> $file") || die "can't open $file:$!" ;
+    print CDS $cds ;
+    close CDS ;
+}
+
 Log::Log4perl->easy_init($log ? $DEBUG: $WARN);
 
 my $meta_model = Config::Model -> new ( ) ;# model_dir => '.' );
@@ -30,7 +39,7 @@ Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 
 ok(1,"compiled");
 
-mkdir('wr_test') unless -d 'wr_test' ;
+mkdir($wr_dir) unless -d $wr_dir ;
 
 my $inst = $meta_model->instance (root_class_name   => 'Itself::Model', 
 			     instance_name     => 'itself_instance',
@@ -84,9 +93,12 @@ is_deeply($expected_map, $map, "Check file class map") ;
 print Dumper $map if $trace ;
 
 my $cds = $root->dump_tree (full_dump => 1) ;
+my @cds_orig = split /\n/,$cds ;
 
 print $cds if $trace ;
 ok($cds,"dumped full tree in cds format") ;
+
+wr_cds("$wr_dir/orig.cds",$cds);
 
 #create a 2nd empty model
 my $inst2 = $meta_model->instance (root_class_name   => 'Itself::Model', 
@@ -97,8 +109,9 @@ $root2 -> load ($cds) ;
 ok(1,"Created and loaded 2nd instance") ;
 
 my $cds2 = $root2 ->dump_tree (full_dump => 1) ;
+wr_cds("$wr_dir/inst2.cds",$cds2);
 
-is($cds2,$cds,"Compared the 2 full dumps") ; 
+is_deeply([split /\n/,$cds2],\@cds_orig,"Compared the 2 full dumps") ; 
 
 my $pdata2 = $root2 -> dump_as_data ;
 print Dumper $pdata2 if $trace ;
@@ -113,8 +126,9 @@ $root3 -> load_data ($pdata2) ;
 ok(1,"Created and loaded 3nd instance with perl data") ;
 
 my $cds3 = $root3 ->dump_tree (full_dump => 1) ;
+wr_cds("$wr_dir/inst3.cds",$cds3);
 
-is($cds3,$cds,"Compared the 3rd full dump with first one") ; 
+is_deeply([split /\n/,$cds3],\@cds_orig,"Compared the 3rd full dump with first one") ; 
 
 # check dump of one class
 my $dump = $rw_obj -> get_perl_data_model ( class_name => 'MasterModel' ) ;
@@ -123,7 +137,7 @@ print Dumper $dump if $trace ;
 ok($dump,"Checked dump of one class");
 
 
-$rw_obj->write_all( conf_dir => 'wr_test' ) ;
+$rw_obj->write_all( conf_dir => $wr_dir ) ;
 
 my $model = Config::Model->new ;
 $model -> load ('X_base_class', 'wr_test/X_base_class.pl') ;
