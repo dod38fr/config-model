@@ -1,9 +1,9 @@
 # $Author: ddumont $
-# $Date: 2007-10-26 12:24:17 $
+# $Date: 2008-02-07 11:29:57 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
-#    Copyright (c) 2007 Dominique Dumont.
+#    Copyright (c) 2007-2008 Dominique Dumont.
 #
 #    This file is part of Config-Model-Itself.
 #
@@ -33,16 +33,17 @@ my $build = Module::Build->new
   (
    module_name   => 'Config::Model::Itself',
    license       => 'lgpl',
-   dist_version  => 0.101 ,
+   dist_version  => 0.102 ,
    dist_author   => "Dominique Dumont (ddumont at cpan dot org)",
    dist_abstract => "Configuration model for Config::Model",
    requires      => {
-		     'Config::Model'   => '0.614',
+		     'Config::Model'   => '0.617',
 		     'Log::Log4perl'   => 0 ,
 		    },
    recommends    => {
 		     'Config::Model::CursesUI' => '1.004',
 		    },
+   script_files  => [ 'config-model-edit' ],
    add_to_cleanup => [qw/wr_test/] ,
   );
 
