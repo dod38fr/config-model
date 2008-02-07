@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-#    Copyright (c) 2007 Dominique Dumont.
+#    Copyright (c) 2007-2008 Dominique Dumont.
 #
 #    This file is part of Config-Model-Itself.
 #
@@ -29,7 +29,9 @@ use Log::Log4perl ;
 use Config::Model::Itself ;
 
 # lame tracing that will be replaced by Log4perl
-use vars qw/$verbose $debug/ ;
+use vars qw/$verbose $debug $VERSION/ ;
+
+$VERSION = sprintf "%d.%03d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/;
 
 $verbose = 0;
 $debug = 0;
@@ -51,16 +53,24 @@ Log::Log4perl::init($log4perl_conf);
 
 my $ui_type ;
 
-eval {require Config::Model::CursesUI ;} ;
+eval {require Config::Model::TkUi ; } ;
+my $has_tk = $@ ? 0 : 1 ;
 
-if ($@) {
-    warn "You should install Config::Model::CursesUI for a more friendly user interface\n";
-    $ui_type = 'shell' ;
+eval {require Config::Model::CursesUI ;} ;
+my $has_curses = $@ ? 0 : 1 ;
+
+if ($has_tk) {
+    $ui_type = 'tk';
 }
-else {
+elsif ($has_curses) {
+    warn "You should install Config::Model::TkUi for a more friendly user interface\n";
     $ui_type = 'curses';
 }
-
+else {
+    warn "You should install Config::Model::TkUi or Config::Model::CursesUI ",
+      "for a more friendly user interface\n";
+    $ui_type = 'shell' ;
+}
 
 my $model_dir ;
 my $root_model ;
@@ -232,6 +242,17 @@ elsif ($ui_type eq 'curses') {
     $dialog->start( $meta_model )  ;
 
     close FH ;
+}
+elsif ($ui_type eq 'tk') {
+    require Tk;
+    Tk->import ;
+
+    my $mw = MainWindow-> new ;
+    $mw->withdraw ;
+
+    my $cmu = $mw->ConfigModelUi (-root => $meta_root,) ;
+
+    &MainLoop ; # Tk's
 }
 else {
     die "Unsupported user interface: $ui_type";
