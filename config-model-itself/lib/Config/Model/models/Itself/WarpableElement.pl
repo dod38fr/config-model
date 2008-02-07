@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-10-24 16:00:10 $
+# $Date: 2008-02-07 11:26:33 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 #    Copyright (c) 2007 Dominique Dumont.
 #
@@ -240,6 +240,25 @@
 				     },
 				]
 		   }
+	  },
+
+       'replace'
+       => {
+	   type => 'hash',
+	   index_type => 'string',
+	   level => 'hidden',
+	   warp => {  follow => { 't' => '?type' , ct => '?cargo_type' },
+		      'rules'
+		      => [ '$t eq "leaf" or $ct eq "leaf"' 
+			   => {
+			       level => 'normal',
+			      }
+			 ]
+		   },
+	   cargo_type => 'leaf',
+	   # TBD this could be a reference if we restrict replace to
+	   # enum value...
+	   cargo_args => { value_type => 'string' } ,
 	  },
 
        'help'
