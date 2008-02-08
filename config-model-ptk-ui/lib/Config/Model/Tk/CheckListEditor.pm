@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2008-02-05 17:25:07 $
+# $Date: 2008-02-08 17:21:04 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 
 #    Copyright (c) 2008 Dominique Dumont.
 #
@@ -27,11 +27,11 @@ use strict;
 use warnings ;
 use Carp ;
 
-use base qw/ Tk::Frame /;
+use base qw/ Tk::Frame Config::Model::Tk::AnyViewer/;
 use vars qw/$VERSION/ ;
 use subs qw/menu_struct/ ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/;
 
 Construct Tk::Widget 'ConfigModelCheckListEditor';
 
@@ -56,45 +56,40 @@ sub Populate {
     my $ed_frame = $cw->Frame->pack(@fbe1);
 
     my %h = $leaf->get_checked_list_as_hash ;
-    foreach my $c (keys %h) {
-	$ed_frame->Checkbutton ( -text => $c,
-				 -variable => \$h{$c},
-				 -command => sub {$cw->set_value_help($c);} ,
-			       )
-	  ->pack(-side => 'left') ;
-    }
-    $cw->{check_list} = \%h;
+    my $lb = $ed_frame->Scrolled ( qw/Listbox -selectmode multiple/,
+				   -height => 10,
+				 ) ->pack(@fbe1) ;
+    my @choice = $leaf->get_choice ;
+    $lb->insert('end',$leaf->get_choice) ;
+    my $array_ref;
 
-    $cw->add_value_help() ;
-    $cw->set_value_help ;
+    tie $array_ref, "Tk::Listbox", $lb ;
+    @$array_ref = $leaf->get_checked_list ; # set all element in list box
+
+    $cw->add_help_frame() ;
+    $cw->add_help(value => \$cw->{help});
+
+    # mastering perl/Tk page 160
+    my $b_sub = sub { $cw->set_value_help($lb->get($lb->nearest($Tk::event->y)));} ;
+    $lb->bind('<Button-1>',$b_sub);
 
     my $bframe = $cw->Frame->pack;
     $bframe -> Button ( -text => 'Reset',
 			-command => sub { $cw->reset_value ; },
 		      ) -> pack(-side => 'left') ;
     $bframe -> Button ( -text => 'Store',
-			-command => sub { $cw->store},
+			-command => sub { $cw->store ( @$array_ref )},
 		      ) -> pack(-side => 'left') ;
 
     $cw->SUPER::Populate($args) ;
 }
 
-sub add_value_help {
-    my $cw = shift ;
-
-    my $help_frame = $cw->Frame(-relief => 'groove',
-				-borderwidth => 2,
-			       )->pack(@fbe1);
-    my $leaf = $cw->{leaf} ;
-    $help_frame->Label(-text => 'value help: ')->pack(-side => 'left');
-    $help_frame->Label(-textvariable => \$cw->{help})
-      ->pack(-side => 'left', -fill => 'x', -expand => 1);
-}
 
 sub store {
     my $cw = shift ;
+    my @set = @_ ;
 
-    eval {$cw->{leaf}->set_checked_list_as_hash(%{$cw->{check_list}}); } ;
+    eval {$cw->{leaf}->set_checked_list(@set); } ;
 
     if ($@) {
 	$cw -> Dialog ( -title => 'Value error',

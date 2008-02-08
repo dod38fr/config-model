@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2008-02-06 11:05:26 $
+# $Date: 2008-02-08 17:21:04 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.4 $
+# $Revision: 1.5 $
 
 #    Copyright (c) 2007 Dominique Dumont.
 #
@@ -37,13 +37,14 @@ use Tk::widgets qw/JPEG PNG/;
 
 use Config::Model::Tk::LeafEditor ;
 use Config::Model::Tk::CheckListEditor ;
-use Config::Model::Tk::ListEditor ;
 
 use Config::Model::Tk::LeafViewer ;
-#use Config::Model::Tk::CheckListViewer ;
+use Config::Model::Tk::CheckListViewer ;
+
+use Config::Model::Tk::ListEditor ;
 #use Config::Model::Tk::ListViewer ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/;
 
 Construct Tk::Widget 'ConfigModelUi';
 
@@ -148,15 +149,10 @@ sub Populate {
 			   -width => '70',
 			  ) -> pack ;
 
-    # Note: e_frame is not resised when adding editor widget if Adjuster is used
-
-    #$eh_frame ->  Adjuster()->packAfter($help1, -side => 'top') ;
-    #my $help2 = $eh_frame -> ROText(-height => 10 ) -> pack (qw/-side top -fill x/);
-
-    # bind button2 as double-button-1 does not work
-    my $b2_sub = sub{my $item = $tree->nearest($tree->pointery - $tree->rooty) ;
+    # bind button3 as double-button-1 does not work
+    my $b3_sub = sub{my $item = $tree->nearest($tree->pointery - $tree->rooty) ;
 		     $cw->on_select($item)} ;
-    $tree->bind('<Button-2>', $b2_sub) ;
+    $tree->bind('<Button-3>', $b3_sub) ;
 
     $cw->ConfigSpecs
       (
@@ -372,6 +368,7 @@ sub disp_leaf {
 
     my $std_v = $leaf_object->fetch('standard') ;
     my $value = $leaf_object->fetch_no_check ;
+    my $tkt = $cw->{tktree} ;
 
     my $img ;
     {
@@ -381,15 +378,19 @@ sub disp_leaf {
     }
 
     if (defined $img) {
-	$cw->{tktree}->itemCreate($path,1,
-				  -itemtype => 'image' , 
-				  -image => $img
-				 ) ;
+	$tkt->itemCreate($path,1,
+			 -itemtype => 'image' , 
+			 -image => $img
+			) ;
+    }
+    else {
+	# remove image when value is identical to standard value
+	$tkt->itemDelete($path,1) if $tkt->itemExists($path,1) ;
     }
 
-    $cw->{tktree}->itemCreate($path,2, -text => $value) ;
+    $tkt->itemCreate($path,2, -text => $value) ;
 
-    $cw->{tktree}->itemCreate($path,3, -text => $std_v) ;
+    $tkt->itemCreate($path,3, -text => $std_v) ;
 }
 
 sub disp_node {
@@ -480,7 +481,7 @@ sub create_element_widget {
 
     my $obj = $cw->{root}->grab($loc);
     my $type = $obj -> get_type ;
-    print "item $loc to modify (type $type)\n";
+    print "item $loc to $mode (type $type)\n";
 
     # cleanup existing widget contained in this frame
     map { $_ ->destroy if Tk::Exists($_) } $cw->{e_frame}->children ;
@@ -488,7 +489,8 @@ sub create_element_widget {
     my $frame = $cw->{e_frame} ;
 
     my $widget = $widget_table{$mode}{$type} ;
-    $frame->$widget(-item => $obj)->pack(-expand => 1, -fill => 'both') ;
+    $frame -> $widget(-item => $obj )
+           -> pack(-expand => 1, -fill => 'both') ;
 }
 
 

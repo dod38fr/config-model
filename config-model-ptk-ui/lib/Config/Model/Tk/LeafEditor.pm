@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2008-02-06 13:00:43 $
+# $Date: 2008-02-08 17:21:04 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.4 $
+# $Revision: 1.5 $
 
 #    Copyright (c) 2008 Dominique Dumont.
 #
@@ -29,9 +29,8 @@ use Carp ;
 
 use base qw/Config::Model::Tk::LeafViewer/;
 use vars qw/$VERSION/ ;
-use subs qw/menu_struct/ ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/;
 
 Construct Tk::Widget 'ConfigModelLeafEditor';
 
@@ -71,6 +70,7 @@ sub Populate {
 	$cw->{e_widget} = $v_frame->Text(-height => 10 )
                              ->pack(@fbe1);
 	$cw->reset_value ;
+	$cw->add_buttons($v_frame) ;
     }
     elsif ($vt eq 'boolean') {
 	$ed_frame->Checkbutton(-text => $leaf->element_name,
@@ -78,21 +78,27 @@ sub Populate {
 			 -command => sub { $cw->try},
 			)
 	  ->pack();
+	$cw->add_buttons($ed_frame) ;
     }
     elsif ($vt eq 'uniline' or $vt eq 'integer') {
 	$ed_frame -> Entry(-textvariable => $vref)
 	    -> pack(@fbe1);
+	$cw->add_buttons($ed_frame) ;
     }
     elsif ($vt eq 'enum' or $vt eq 'reference') {
-	foreach my $c ($leaf->get_choice) {
-	    $ed_frame->Radiobutton ( -text => $c,
-				     -value => $c,
-				     -variable => $vref,
-				     -command => sub {$cw->try} ,
-				   )
-                    ->pack(-side => 'left') ;
-	}
+	my $lb = $ed_frame->Scrolled ( 'Listbox',
+				       -height => 5,
+				       #-listvariable => $vref,
+				       #-selectmode => 'single',
+				     ) ->pack(@fxe1) ;
+	my @choice = $leaf->get_choice ;
+	$lb->insert('end',$leaf->get_choice) ;
+	my $idx = 0;
+	map { $lb->selectionSet($idx) if $_ eq $$vref; $idx ++}  @choice;
+	$lb->bind('<Button-1>',sub {$cw->try($lb->get($lb->curselection()))});
+	$cw->add_buttons($ed_frame) ;
     }
+
     $cw->add_info() ;
     $cw->add_help_frame() ;
     $cw->add_help(class   => $leaf->parent->get_help) ;
@@ -100,17 +106,6 @@ sub Populate {
     $cw->{value_help} = '';
     $cw->add_help(value => \$cw->{value_help});
     $cw->set_value_help ;
-
-    my $bframe = $cw->Frame->pack;
-    $bframe -> Button ( -text => 'Reset',
-			-command => sub { $cw->reset_value ; },
-		      ) -> pack(-side => 'left') ;
-    $bframe -> Button ( -text => 'Try ??',
-			-command => sub { $cw->try},
-		      ) -> pack(-side => 'left') ;
-    $bframe -> Button ( -text => 'Store',
-			-command => sub { $cw->store},
-		      ) -> pack(-side => 'left') ;
 
     $cw->ConfigSpecs(
 		     #-fill   => [ qw/SELF fill Fill both/],
@@ -124,17 +119,37 @@ sub Populate {
     $cw->Tk::Frame::Populate($args) ;
 }
 
+sub add_buttons {
+    my ($cw,$frame) = @_ ;
+    my $bframe = $frame->Frame->pack() ;
+    $bframe -> Button ( -text => 'Reset',
+			-command => sub { $cw->reset_value ; },
+		      ) -> pack(-side => 'left') ;
+    $bframe -> Button ( -text => 'Try ??',
+			-command => sub { $cw->try},
+		      ) -> pack(-side => 'left') ;
+    $bframe -> Button ( -text => 'Store',
+			-command => sub { $cw->store},
+		      ) -> pack(-side => 'left') ;
+}
+
 
 sub try {
     my $cw = shift ;
-
+    my $v = shift ;
+    if (defined $v) {
+	$cw->{value} = $v ;
+    }
+    else {
+	my $e_w = $cw->{e_widget} ;
+	# tk widget use a reference
+	$v = defined  $e_w ? $e_w->get('1.0','end')
+           :                 $cw->{value} ;
+    }
+    print "try: value $v\n" ;
     require Tk::Dialog ;
 
-    my $e_w = $cw->{e_widget} ;
-    my $v = defined  $e_w ? $e_w->get('1.0','end')
-          :                 $cw->{value} ;
-
-    my @errors = $cw->{leaf}->check($cw->{value},1) ;
+    my @errors = $cw->{leaf}->check($v,1) ;
 
     if (@errors ) {
 	$cw -> Dialog ( -title => 'Value error',
@@ -145,7 +160,7 @@ sub try {
 	return undef ;
     }
     else {
-	$cw->set_value_help ;
+	$cw->set_value_help($v) ;
 	return $v ;
     }
 }

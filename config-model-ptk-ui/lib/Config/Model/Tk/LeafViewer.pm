@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2008-02-06 13:00:43 $
+# $Date: 2008-02-08 17:21:04 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 #    Copyright (c) 2008 Dominique Dumont.
 #
@@ -27,11 +27,10 @@ use strict;
 use warnings ;
 use Carp ;
 
-use base qw/ Tk::Frame /;
+use base qw/Tk::Frame Config::Model::Tk::AnyViewer/;
 use vars qw/$VERSION/ ;
-use subs qw/menu_struct/ ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/;
 
 Construct Tk::Widget 'ConfigModelLeafViewer';
 
@@ -137,40 +136,9 @@ sub add_info {
 	push @items, "$what value: $v" if defined $v;
     }
 
-
-    my $frame = $cw->Frame(qw/-relief raised -borderwidth 4/)->pack(@fxe1) ;
-    $frame -> Label(-text => 'Info', -anchor => 'w' ) ->pack() ;
-
-    my $i_frame = $frame->Frame(qw/-relief sunken -borderwidth 1/)->pack(@fxe1) ;
-    map { $i_frame -> Label(-text => $_, -anchor => 'w' ) ->pack(@fxe1) } @items;
+    $cw->add_info_frame(@items) ;
 }
 
-sub add_help_frame {
-    my $cw = shift ;
-    my $leaf = $cw->{leaf} ;
-
-    my $htop_frame = $cw->Frame(qw/-relief raised -borderwidth 4/)->pack(@fxe1) ;
-    $htop_frame -> Label(-text => 'Help', -anchor => 'w' ) ->pack() ;
-
-    $cw->{help_f} = $htop_frame->Frame(qw/-relief sunken -borderwidth 1/)->pack(@fxe1) ;
-}
-
-sub add_help {
-    my $cw = shift ;
-    my $type = shift ;
-    my $help = shift ;
-
-    my $help_frame = $cw->{help_f}->Frame()->pack(@fxe1);
-
-    my $leaf = $cw->{leaf} ;
-    $help_frame->Label(-text => "on $type: ")->pack(-side => 'left');
-    my @text = ref $help ? ( -textvariable => $help)
-             :             ( -text => $help ) ;
-    $help_frame->Label( @text,
-		       -justify => 'left',
-		       -anchor => 'w')
-      ->pack( -fill => 'x');
-}
 
 
 1;
