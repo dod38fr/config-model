@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2008-02-08 16:46:13 $
+# $Date: 2008-02-08 17:25:51 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.12 $
+# $Revision: 1.13 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -33,7 +33,7 @@ use strict;
 use base qw/Config::Model::WarpedThing/ ;
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.12 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.13 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -237,8 +237,30 @@ the value of the C<macro> parameter:
 
 =back
 
+=head1 Introspection methods
+
+The following methods returns the checklist parameter :
+
+=over
+
+=item refer_to
+
+=item computed_refer_to
+
+=back
 
 =cut
+
+# accessor to get some fields through methods (See man perltootc)
+foreach my $datum (@accessible_params, qw/refer_to computed_refer_to/) {
+    no strict "refs";       # to register new methods in package
+    *$datum = sub {
+	my $self= shift;
+	return $self->{$datum};
+    } ;
+}
+
+
 
 # warning : call to 'set' are not cumulative. Default value are always
 # restored. Lest keeping track of what was modified with 'set' is
