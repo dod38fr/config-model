@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-11-13 12:16:31 $
+# $Date: 2008-02-08 16:46:13 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.11 $
+# $Revision: 1.12 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -33,7 +33,7 @@ use strict;
 use base qw/Config::Model::WarpedThing/ ;
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.11 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.12 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -349,7 +349,6 @@ example is admitedly convoluted):
             computed_refer_to => { formula => '- refer_to_2_list + - $var',
                                    variables { 'var' => '- indirection ' }
                                  },
-                        ],
             choice  => [qw/A1 A2 A3/],
           },
 
