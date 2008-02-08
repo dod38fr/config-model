@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2008-01-28 11:47:11 $
+# $Date: 2008-02-08 17:27:11 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.26 $
+# $Revision: 1.27 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -37,7 +37,7 @@ use base qw/Config::Model::WarpedThing/ ;
 
 use vars qw($VERSION) ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.26 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.27 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -843,8 +843,8 @@ sub reference_object {
 
 =head1 Introspection methods
 
-The following methods returns the current value of the Id object (as
-declared in the model unless they were warped):
+The following methods returns the current value of the parameter of
+the value object (as declared in the model unless they were warped):
 
 =over
 
