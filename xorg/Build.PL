@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2008-02-01 16:10:38 $
+# $Date: 2008-02-08 17:22:05 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.10 $
+# $Revision: 1.11 $
 
 #    Copyright (c) 2007-2008 Dominique Dumont.
 #
@@ -93,8 +93,7 @@ unless (defined $etc_xorg_dir) {
 }
 
 unless (-d $etc_xorg_dir) {
-    warn "Cannot find xorg conf in $etc_xorg_dir. Is Xorg installed ?\n",
-      "Fallback action: Install some models for Linux. This may not work properly ";
+    warn "Cannot find xorg conf in $etc_xorg_dir. Is Xorg installed ?\n";
     goto FALLBACK ;
 }
 
@@ -182,8 +181,9 @@ my %defaults = (
 		'model' => { xorg => 'pc105', 'xorg-it' => 'pc105' } ,
 	       ) ;
 
-my @try_xkb_dirs = ( "/usr/share/X11/xkb/rules" ,
-		     "$etc_xorg_dir/xkb/rules"
+my @try_xkb_dirs = ( "/usr/share/X11/xkb/rules" ,   # Linux path
+		     "/usr/X11/lib/X11/xkb/rules/", # tentative path for Solaris
+		     "$etc_xorg_dir/xkb/rules"      # old path (XFree86 ?)
 		   ) ;
 
 my $keyboard_conf_dir ;
@@ -195,11 +195,15 @@ foreach (@try_xkb_dirs) {
   }
 }
 
+if (not defined $keyboard_conf_dir) {
+    warn "Cannot find xorg keyboard conf directory. Is Xorg installed ?\n";
+    goto FALLBACK ;
+}
+
 my @lst_files = glob("$keyboard_conf_dir/*.lst") ;
 
 if (not scalar @lst_files) {
-    warn "Cannot find xorg keyboard conf in @try_xkb_dirs. Is Xorg installed ?\n",
-      "Fallback action: Install some models for Linux. This may not work properly ";
+    warn "Cannot find xorg keyboard conf in @try_xkb_dirs. Is Xorg installed ?\n";
     goto FALLBACK ;
 }
 
@@ -361,6 +365,9 @@ $build->create_build_script;
 exit ;
 
 FALLBACK:
+
+warn "Fallback: Installing some models for Linux. This may not work ",
+  "properly on your system\n";
 
 my $m_dir = "lib/Config/Model/models/Xorg" ;
 mkpath($m_dir, 1, 0755) unless -d $m_dir;
