@@ -1,3 +1,7 @@
+2008-02-08  Dominique Dumont  v0.509
+
+	* Build.PL (): Fixed a bug that happened on OpenSolaris 
+
 2008-02-01  Dominique Dumont  v0.508
 
 	* Build.PL (): Removed default value for XkbRules as figuring a
