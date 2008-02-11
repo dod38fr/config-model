@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2008-02-08 17:21:04 $
+# $Date: 2008-02-11 16:42:21 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.4 $
+# $Revision: 1.5 $
 
 #    Copyright (c) 2008 Dominique Dumont.
 #
@@ -31,7 +31,7 @@ use base qw/ Tk::Frame Config::Model::Tk::AnyViewer/;
 use vars qw/$VERSION/ ;
 use subs qw/menu_struct/ ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/;
 
 Construct Tk::Widget 'ConfigModelCheckListEditor';
 
@@ -53,6 +53,8 @@ sub Populate {
     my $inst = $leaf->instance ;
     $inst->push_no_value_check('fetch') ;
 
+    $cw->add_header(Edit => $leaf) ;
+
     my $ed_frame = $cw->Frame->pack(@fbe1);
 
     my %h = $leaf->get_checked_list_as_hash ;
@@ -60,11 +62,13 @@ sub Populate {
 				   -height => 10,
 				 ) ->pack(@fbe1) ;
     my @choice = $leaf->get_choice ;
-    $lb->insert('end',$leaf->get_choice) ;
-    my $array_ref;
+    $lb->insert('end',@choice) ;
 
+    my $array_ref;
+    # warning: array_ref is not a "mirror" if listbox content
     tie $array_ref, "Tk::Listbox", $lb ;
-    @$array_ref = $leaf->get_checked_list ; # set all element in list box
+    # set all element in list box
+    $array_ref = $leaf->get_checked_list ; 
 
     $cw->add_help_frame() ;
     $cw->add_help(value => \$cw->{help});

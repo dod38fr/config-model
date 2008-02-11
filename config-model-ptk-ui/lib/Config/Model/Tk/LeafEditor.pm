@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2008-02-08 17:21:04 $
+# $Date: 2008-02-11 16:42:21 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.5 $
+# $Revision: 1.6 $
 
 #    Copyright (c) 2008 Dominique Dumont.
 #
@@ -30,7 +30,7 @@ use Carp ;
 use base qw/Config::Model::Tk::LeafViewer/;
 use vars qw/$VERSION/ ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/;
 
 Construct Tk::Widget 'ConfigModelLeafEditor';
 
@@ -56,7 +56,7 @@ sub Populate {
     my $vt = $leaf -> value_type ;
     print "leaf editor for value_type $vt\n";
 
-    $cw->add_header('Edit') ;
+    $cw->add_header(Edit => $leaf) ;
 
     $cw->{value} = $leaf->fetch || '';
     my $vref = \$cw->{value};

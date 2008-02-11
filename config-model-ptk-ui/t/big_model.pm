@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2008-02-05 17:25:07 $
+# $Date: 2008-02-11 16:42:21 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 # this file is used by test script
 
@@ -167,7 +167,14 @@
 			  min        => 5,
 			  max        => 15
 			},
-	       my_check_list => { type => 'check_list',
+	       my_plain_check_list => { type => 'check_list',
+					choice => ['AA' .. 'AE'],
+					help => { AA => 'AA help',
+						  AC => 'AC help',
+						  AE => 'AE help',
+						}
+				      } ,
+	       my_ref_check_list => { type => 'check_list',
 				  refer_to => '- hash_a + ! hash_b',
 				} ,
 	       my_reference => { type => 'leaf',

@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2008-02-08 17:20:17 $
+# $Date: 2008-02-11 16:42:21 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 #    Copyright (c) 2008 Dominique Dumont.
 #
@@ -32,7 +32,7 @@ use vars qw/$VERSION/ ;
 use subs qw/menu_struct/ ;
 use Tk::ROText ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.1 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/;
 
 Construct Tk::Widget 'ConfigModelCheckListViewer';
 
@@ -54,7 +54,7 @@ sub Populate {
     my $inst = $leaf->instance ;
     $inst->push_no_value_check('fetch') ;
 
-    $cw->add_header('View') ;
+    $cw->add_header(View => $leaf) ;
 
     my $ed_frame = $cw->Frame->pack(@fbe1);
 
@@ -67,7 +67,7 @@ sub Populate {
     $cw->add_help_frame() ;
 
     my %h = $leaf->get_checked_list_as_hash ;
-    foreach my $c (keys %h) {
+    foreach my $c ($leaf->get_choice) {
 	my $tag = $h{$c} ? 'in' : 'out' ;
 	$rt->insert('end', $c."\n" , $tag) ;
 	$cw->add_help("$c", $leaf->get_help($c)) if $h{$c};

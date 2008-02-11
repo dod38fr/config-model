@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2008-02-08 17:21:04 $
+# $Date: 2008-02-11 16:42:21 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 
 #    Copyright (c) 2008 Dominique Dumont.
 #
@@ -30,7 +30,7 @@ use Carp ;
 use base qw/Tk::Frame Config::Model::Tk::AnyViewer/;
 use vars qw/$VERSION/ ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/;
 
 Construct Tk::Widget 'ConfigModelLeafViewer';
 
@@ -57,7 +57,7 @@ sub Populate {
     print "leaf viewer for value_type $vt\n";
     my $v = $leaf->fetch ;
 
-    $cw->add_header('View') ;
+    $cw->add_header(View => $leaf) ;
 
     my $lv_frame = $cw->Frame(qw/-relief raised -borderwidth 4/)->pack(@fxe1) ;
     $lv_frame -> Label(-text => 'Value') -> pack() ;
@@ -90,19 +90,6 @@ sub Populate {
            );
 
     $cw->SUPER::Populate($args) ;
-}
-
-sub add_header {
-    my ($cw,$type) = @_ ;
-
-    my $leaf = $cw->{leaf} ;
-    my $idx = $leaf->index_value ;
-    my $elt_name = $leaf->element_name ;
-    $elt_name .= ':' . $idx if defined $idx ;
-    my $class = $leaf->parent->config_class_name ;
-    $cw -> Label ( -text => "$type: Class $class Element $elt_name",
-			    -anchor => 'w' )
-              -> pack (@fxe1);
 }
 
 sub add_info {

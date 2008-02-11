@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2008-02-08 17:21:04 $
+# $Date: 2008-02-11 16:42:20 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.5 $
+# $Revision: 1.6 $
 
 #    Copyright (c) 2007 Dominique Dumont.
 #
@@ -33,7 +33,7 @@ use subs qw/menu_struct/ ;
 use Scalar::Util qw/weaken/;
 
 use Tk::Photo ;
-use Tk::widgets qw/JPEG PNG/;
+#use Tk::widgets qw/JPEG PNG/;
 
 use Config::Model::Tk::LeafEditor ;
 use Config::Model::Tk::CheckListEditor ;
@@ -41,10 +41,10 @@ use Config::Model::Tk::CheckListEditor ;
 use Config::Model::Tk::LeafViewer ;
 use Config::Model::Tk::CheckListViewer ;
 
+use Config::Model::Tk::ListViewer ;
 use Config::Model::Tk::ListEditor ;
-#use Config::Model::Tk::ListViewer ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/;
 
 Construct Tk::Widget 'ConfigModelUi';
 
@@ -448,11 +448,13 @@ my %widget_table = (
 			     leaf       => 'ConfigModelLeafEditor',
 			     check_list => 'ConfigModelCheckListEditor',
 			     list       => 'ConfigModelListEditor',
+			     hash       => 'ConfigModelListEditor',
 			    },
 		    view => {
 			     leaf       => 'ConfigModelLeafViewer',
 			     check_list => 'ConfigModelCheckListViewer',
 			     list       => 'ConfigModelListViewer',
+			     hash       => 'ConfigModelListViewer',
 			    },
 		   ) ;
 

@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2008-01-16 12:10:57 $
+# $Date: 2008-02-11 16:42:21 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
@@ -53,7 +53,9 @@ ordered_hash:x=3
 lista=a,b,c,d
 olist:0 X=Av -
 olist:1 X=Bv -
-my_check_list=toto my_reference="titi"
+my_ref_check_list=toto 
+my_reference="titi"
+my_plain_check_list=AA,AC
 warp warp2 aa2="foo bar"
 !;
 
