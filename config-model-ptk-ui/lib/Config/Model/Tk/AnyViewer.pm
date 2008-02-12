@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2008-02-11 16:42:21 $
+# $Date: 2008-02-12 17:23:35 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 #    Copyright (c) 2008 Dominique Dumont.
 #
@@ -31,7 +31,7 @@ use Tk::Photo ;
 
 use vars qw/$VERSION/ ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/;
 
 my @fbe1 = qw/-fill both -expand 1/ ;
 my @fxe1 = qw/-fill x    -expand 1/ ;
@@ -48,8 +48,7 @@ sub add_header {
 
     my $idx ;
     $idx = $item->index_value if $item->can('index_value' ) ;
-    my $elt_name = $item->element_name ;
-    $elt_name .= ':' . $idx if defined $idx ;
+    my $elt_name = $item->composite_name ;
     my $class = $item->parent->config_class_name ;
     my $f = $cw -> Frame -> pack (@fxe1);
     $f -> Label ( -text => "$type: Class $class - Element $elt_name",

@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2008-02-12 12:38:40 $
+# $Date: 2008-02-12 17:23:35 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.4 $
+# $Revision: 1.5 $
 
 #    Copyright (c) 2008 Dominique Dumont.
 #
@@ -30,8 +30,9 @@ use Carp ;
 use base qw/Config::Model::Tk::ListViewer/;
 use vars qw/$VERSION/ ;
 use subs qw/menu_struct/ ;
+use Tk::Dialog ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/;
 
 Construct Tk::Widget 'ConfigModelListEditor';
 
@@ -131,6 +132,14 @@ sub add_entry {
 
     print "add_entry: $add\n";
 
+    if ($list->exists($add)) {
+	$cw->Dialog(-title => "Add item error",
+		    -text  => "Entry $add already exists",
+		   )
+           ->Show() ;
+	return 0;
+    }
+
     # add entry in list
     eval {$list->fetch_with_id($add)} ;
 
@@ -170,6 +179,7 @@ sub add_entry {
 	}
 	$tklist->insert($idx,$add) if $idx == 0; # first entry
     }
+    return 1 ;
 }
 
 sub copy_selected_in {
@@ -179,7 +189,7 @@ sub copy_selected_in {
     my $from_idx = $tklist->curselection() ;
     my $from_name = $tklist->get($from_idx);
     my $list = $cw->{list};
-    $cw->add_entry($to_name) ;
+    $cw->add_entry($to_name) or return ;
     $list->copy($from_name,$to_name) ;
     $cw->reload_tree ;
 }
@@ -193,7 +203,7 @@ sub move_selected_to {
     print "move_selected_to: from $from_name to $to_name\n";
     my $list = $cw->{list};
     $tklist -> delete($from_idx) ;
-    $cw->add_entry($to_name) ;
+    $cw->add_entry($to_name) or return ;
     $list->move($from_name,$to_name) ;
     $cw->reload_tree ;
 }

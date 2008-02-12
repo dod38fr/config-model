@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2008-02-11 16:42:20 $
+# $Date: 2008-02-12 17:23:35 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.6 $
+# $Revision: 1.7 $
 
 #    Copyright (c) 2007 Dominique Dumont.
 #
@@ -44,7 +44,9 @@ use Config::Model::Tk::CheckListViewer ;
 use Config::Model::Tk::ListViewer ;
 use Config::Model::Tk::ListEditor ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/;
+use Config::Model::Tk::NodeViewer ;
+
+$VERSION = sprintf "%d.%03d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/;
 
 Construct Tk::Widget 'ConfigModelUi';
 
@@ -92,6 +94,7 @@ sub Populate {
     $menubar->cascade( -label => 'File', -menuitems => $file_items ) ; 
 
     my $perm_ref = $cw->{scanner}->get_permission_ref ;
+    $cw->{perm_ref} = $perm_ref ;
     my $perm_items = [
 		      map {['radiobutton',$_,'-variable', $perm_ref,
 			    -command => sub{$cw->reload ;} 
@@ -449,12 +452,14 @@ my %widget_table = (
 			     check_list => 'ConfigModelCheckListEditor',
 			     list       => 'ConfigModelListEditor',
 			     hash       => 'ConfigModelListEditor',
+			     node       => 'ConfigModelNodeViewer',
 			    },
 		    view => {
 			     leaf       => 'ConfigModelLeafViewer',
 			     check_list => 'ConfigModelCheckListViewer',
 			     list       => 'ConfigModelListViewer',
 			     hash       => 'ConfigModelListViewer',
+			     node       => 'ConfigModelNodeViewer',
 			    },
 		   ) ;
 
@@ -490,11 +495,15 @@ sub create_element_widget {
 
     my $frame = $cw->{e_frame} ;
 
-    my $widget = $widget_table{$mode}{$type} ;
+    my $widget = $widget_table{$mode}{$type} 
+      || die "Cannot find $mode widget for type $type";
     $frame -> $widget(-item => $obj )
            -> pack(-expand => 1, -fill => 'both') ;
 }
 
-
+sub get_perm {
+    my $cw = shift ;
+    return $ {$cw->{perm_ref}} ;
+}
 
 1;
