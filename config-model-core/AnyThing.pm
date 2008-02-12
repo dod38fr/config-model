@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-07-26 11:31:07 $
+# $Date: 2008-02-12 17:22:07 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.13 $
+# $Revision: 1.14 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -27,7 +27,7 @@ use Carp;
 use strict;
 
 use vars qw($VERSION);
-$VERSION = sprintf "%d.%03d", q$Revision: 1.13 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.14 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -130,25 +130,38 @@ sub location {
 
     #print "location called on $self\n" if $::debug ;
 
-    my $element = $self->element_name;
-    $element = '' unless defined $element;
-
-    my $idx = $self->index_value;
-    $idx = '"'.$idx.'"' if defined $idx && $idx =~ /\s/ ;
-
     my $str = '';
     $str .= $self->parent->location
         if defined $self->parent;
 
     $str .= ' ' if $str;
 
-    $str .= $element . ( defined $idx ? ':' . $idx : '' );
+    $str .= $self->composite_name ;
 
     return $str;
 }
 
-## Fixme: not yet tested 
-sub xpath {
+=head2 composite_name
+
+Return the element name with its index (if any). I.e. returns C<foo:bar> or
+C<foo>.
+
+=cut
+
+sub composite_name {
+    my $self = shift;
+
+    my $element = $self->element_name;
+    $element = '' unless defined $element;
+
+    my $idx = $self->index_value;
+    $idx = '"'.$idx.'"' if defined $idx && $idx =~ /\s/ ;
+
+    return $element . ( defined $idx ? ':' . $idx : '' );
+}
+
+## Fixme: not yet tested
+sub xpath { 
     my $self = shift;
 
     print "xpath called on $self\n" if $::debug;
