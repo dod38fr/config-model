@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2008-02-11 16:42:21 $
+# $Date: 2008-02-12 12:38:40 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 #    Copyright (c) 2008 Dominique Dumont.
 #
@@ -32,7 +32,7 @@ use vars qw/$VERSION/ ;
 use subs qw/menu_struct/ ;
 use Tk::ROText ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/;
 
 Construct Tk::Widget 'ConfigModelCheckListViewer';
 
@@ -56,11 +56,9 @@ sub Populate {
 
     $cw->add_header(View => $leaf) ;
 
-    my $ed_frame = $cw->Frame->pack(@fbe1);
-
-    my $rt = $ed_frame->Scrolled ( 'ROText',
-				   -height => 10,
-				 ) ->pack(@fbe1) ;
+    my $rt = $cw->Scrolled ( 'ROText',
+			     -height => 10,
+			   ) ->pack(@fbe1) ;
     $rt->tagConfigure('in',-background => 'black', -foreground => 'white') ;
 
     $cw->add_info() ;

@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2008-02-05 17:25:07 $
+# $Date: 2008-02-12 12:38:40 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 
 #    Copyright (c) 2008 Dominique Dumont.
 #
@@ -27,15 +27,16 @@ use strict;
 use warnings ;
 use Carp ;
 
-use base qw/ Tk::Frame /;
+use base qw/Config::Model::Tk::ListViewer/;
 use vars qw/$VERSION/ ;
 use subs qw/menu_struct/ ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/;
 
 Construct Tk::Widget 'ConfigModelListEditor';
 
 my @fbe1 = qw/-fill both -expand 1/ ;
+my @fxe1 = qw/-fill x    -expand 1/ ;
 
 sub ClassInit {
     my ($cw, $args) = @_;
@@ -50,58 +51,76 @@ sub Populate {
     my $list = $cw->{list} = delete $args->{-item} 
       || die "ListEditor: no -item, got ",keys %$args;
 
+    $cw->add_header(Edit => $list) ;
+
     my $inst = $list->instance ;
     $inst->push_no_value_check('fetch') ;
 
-    my $tklist = $cw -> Listbox(-selectmode => 'single')
-                     -> pack(@fbe1, -side => 'left') ;
+    my $elt_button_frame = $cw->Frame->pack(@fbe1) ;
+
+    my $elt_frame = $elt_button_frame->Frame(qw/-relief raised -borderwidth 4/)
+                                     ->pack(@fxe1,-side => 'left') ;
+    $elt_frame -> Label(-text => $list->element_name.' elements') -> pack() ;
+
+    my $tklist = $elt_frame ->Scrolled ( 'Listbox',
+					 -selectmode => 'single',
+					 -height => 8,
+				       )
+                            -> pack(@fbe1, -side => 'left') ;
     $tklist->insert( end => $list->get_all_indexes) ;
 
-    my $right_frame = $cw->Frame->pack(@fbe1, -side => 'left');
+    my $right_frame = $elt_button_frame->Frame->pack(@fxe1, -side => 'left');
 
-    $cw->add_info($right_frame) ;
+    $cw->add_info($cw) ;
+    $cw->add_help_frame() ;
+    $cw->add_help(class   => $list->parent->get_help) ;
+    $cw->add_help(element => $list->parent->get_help($list->element_name)) ;
 
     my $add_item = '';
-    my $add_frame = $right_frame->Frame->pack;
+    my $add_frame = $right_frame->Frame->pack( @fxe1);
+
     my $add_str = $list->ordered ? "after selection " : '' ;
     $add_frame -> Button(-text => "Add item $add_str:",
 			 -command => sub {$cw->add_entry($add_item);},
-			)->pack(-side => 'left');
+			 -anchor => 'e',
+			)->pack(-side => 'left', @fxe1);
     $add_frame -> Entry (-textvariable => \$add_item, -width => 10)
                -> pack  (-side => 'left') ;
 
-    my $cp_frame = $right_frame->Frame->pack;
+    my $cp_frame = $right_frame->Frame->pack( @fxe1);
     my $cp_item = '';
     $cp_frame -> Button(-text => 'Copy selected item into:',
 			-command => sub {$cw->copy_selected_in($cp_item);},
+			-anchor => 'e',
 		       )
-              -> pack(-side => 'left');
+              -> pack(-side => 'left', @fxe1);
     $cp_frame -> Entry (-textvariable => \$cp_item, -width => 10)
               -> pack  (-side => 'left') ;
 
 
-    my $mv_frame = $right_frame->Frame->pack;
+    my $mv_frame = $right_frame->Frame->pack( @fxe1);
     my $mv_item = '';
     $mv_frame -> Button(-text => 'Move selected item into:',
 			-command => sub {$cw->move_selected_to($mv_item);},
+		      	-anchor => 'e',
 		       )
-              -> pack(-side => 'left');
+              -> pack(-side => 'left', @fxe1);
     $mv_frame -> Entry (-textvariable => \$mv_item, -width => 10)
               -> pack  (-side => 'left') ;
 
     $right_frame->Button(-text => 'Delete selected',
 			 -command => sub { $cw->delete_selection ;} ,
-			)-> pack;
+			)-> pack( @fxe1);
 
-    $right_frame -> Button ( -text => 'Clear',
+    $right_frame -> Button ( -text => 'Remove all elements',
 			     -command => sub { $list->clear ; 
 					       $tklist->delete(0,'end');
 					       $cw->reload_tree;
 					   },
-			   ) -> pack(-side => 'left') ;
+			   ) -> pack(-side => 'left', @fxe1) ;
 
     $cw->{tklist} = $tklist ;
-    $cw->SUPER::Populate($args) ;
+    $cw->Tk::Frame::Populate($args) ;
 }
 
 sub add_entry {
@@ -213,32 +232,6 @@ sub store {
 sub reload_tree {
     my $cw = shift ;
     $cw->parent->parent->parent->parent->reload ;
-}
-
-sub add_info {
-    my $cw = shift ;
-    my $info_frame = shift ;
-
-    my $list = $cw->{list} ;
-
-    my @items = ('type : '. $list->get_type 
-                          . ( $list->ordered ? '(ordered)' : ''),
-		 'index : '.$list->index_type ,
-		 'cargo : '.$list->cargo_type ,
-		);
-
-    if ($list->cargo_type eq 'node') {
-	push @items, "cargo class: " . $list->config_class_name ;
-    }
-
-    foreach my $what (qw/min max max_nb/) {
-	my $v = $list->$what() ;
-	my $str = $what ;
-	$str =~ s/_/ /g;
-	push @items, "$str: $v" if defined $v;
-    }
-
-    map { $info_frame -> Label(-text => $_ )->pack(-fill => 'x') } @items;
 }
 
 
