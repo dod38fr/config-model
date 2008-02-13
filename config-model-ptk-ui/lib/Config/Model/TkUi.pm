@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2008-02-12 17:23:35 $
+# $Date: 2008-02-13 13:06:52 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.7 $
+# $Revision: 1.8 $
 
 #    Copyright (c) 2007 Dominique Dumont.
 #
@@ -27,13 +27,12 @@ use strict;
 use warnings ;
 use Carp ;
 
-use base qw/ Tk::Toplevel /;
-use vars qw/$VERSION/ ;
+use base qw/Tk::Toplevel/;
+use vars qw/$VERSION $icon_path/ ;
 use subs qw/menu_struct/ ;
 use Scalar::Util qw/weaken/;
 
 use Tk::Photo ;
-#use Tk::widgets qw/JPEG PNG/;
 
 use Config::Model::Tk::LeafEditor ;
 use Config::Model::Tk::CheckListEditor ;
@@ -46,12 +45,17 @@ use Config::Model::Tk::ListEditor ;
 
 use Config::Model::Tk::NodeViewer ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.8 $ =~ /(\d+)\.(\d+)/;
 
 Construct Tk::Widget 'ConfigModelUi';
 
 my $warn_img ;
 my $cust_img ;
+
+my $mod_file = 'Config/Model/TkUi.pm' ;
+$icon_path = $INC{'Config/Model/TkUi.pm'} ;
+$icon_path =~ s/TkUi.pm//;
+$icon_path .= 'Tk/icons/' ;
 
 sub ClassInit {
     my ($class, $mw) = @_;
@@ -66,8 +70,8 @@ sub Populate {
     my ($cw, $args) = @_;
 
     unless (defined $warn_img) {
-	$warn_img = $cw->Photo(-file => 'dialog-warning.gif');
-	$cust_img = $cw->Photo(-file => 'go-next.gif');
+	$warn_img = $cw->Photo(-file => $icon_path.'dialog-warning.gif');
+	$cust_img = $cw->Photo(-file => $icon_path.'go-next.gif');
     }
 
     foreach my $parm (qw/-root/) {

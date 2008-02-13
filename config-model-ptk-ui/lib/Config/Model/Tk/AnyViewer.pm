@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2008-02-12 17:23:35 $
+# $Date: 2008-02-13 13:06:52 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 
 #    Copyright (c) 2008 Dominique Dumont.
 #
@@ -29,21 +29,22 @@ use Carp ;
 
 use Tk::Photo ;
 
-use vars qw/$VERSION/ ;
+use vars qw/$VERSION $icon_path/ ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/;
 
 my @fbe1 = qw/-fill both -expand 1/ ;
 my @fxe1 = qw/-fill x    -expand 1/ ;
 
 my %img ;
+*icon_path = *Config::Model::TkUi::icon_path ;
 
 sub add_header {
     my ($cw,$type,$item) = @_ ;
 
     unless (%img) {
-	$img{edit} = $cw->Photo(-file => 'edit-find-replace.gif');
-	$img{view} = $cw->Photo(-file => 'system-search.gif');
+	$img{edit} = $cw->Photo(-file => $icon_path.'edit-find-replace.gif');
+	$img{view} = $cw->Photo(-file => $icon_path.'system-search.gif');
     }
 
     my $idx ;
