@@ -1,9 +1,9 @@
 # $Author: ddumont $
-# $Date: 2008-02-13 13:06:52 $
+# $Date: 2008-02-13 13:17:04 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.8 $
+# $Revision: 1.9 $
 
-#    Copyright (c) 2007 Dominique Dumont.
+#    Copyright (c) 2007,2008 Dominique Dumont.
 #
 #    This file is part of Config-Model-TkUi.
 #
@@ -45,7 +45,7 @@ use Config::Model::Tk::ListEditor ;
 
 use Config::Model::Tk::NodeViewer ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.8 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.9 $ =~ /(\d+)\.(\d+)/;
 
 Construct Tk::Widget 'ConfigModelUi';
 
@@ -96,6 +96,8 @@ sub Populate {
 
     my $file_items = [[ qw/command reload -command/, sub{ $cw->reload }]] ;
     $menubar->cascade( -label => 'File', -menuitems => $file_items ) ; 
+
+    $cw->add_help_menu($menubar) ;
 
     my $perm_ref = $cw->{scanner}->get_permission_ref ;
     $cw->{perm_ref} = $perm_ref ;
@@ -177,6 +179,20 @@ sub Populate {
 		  );
 
     $cw->SUPER::Populate($args) ;
+}
+
+sub add_help_menu {
+    my ($cw,$menubar) = @_ ;
+
+    my $about_sub = sub {
+	$cw->Dialog(-title => 'About',
+		    -text => "Config::Model::TkUi \n"
+		    ."(c) 2008 Dominique Dumont \n"
+		    ."Licensed under LGPL\n"
+		   ) -> Show ;
+    };
+    my $help_items = [[ qw/command about -command/, $about_sub ]] ;
+    $menubar->cascade( -label => 'Help', -menuitems => $help_items ) ; 
 }
 
 # Note: this callback is called by Tk::Tree *before* changing the
