@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2008-02-13 13:17:04 $
+# $Date: 2008-02-13 17:08:10 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.9 $
+# $Revision: 1.10 $
 
 #    Copyright (c) 2007,2008 Dominique Dumont.
 #
@@ -45,7 +45,7 @@ use Config::Model::Tk::ListEditor ;
 
 use Config::Model::Tk::NodeViewer ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.9 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.10 $ =~ /(\d+)\.(\d+)/;
 
 Construct Tk::Widget 'ConfigModelUi';
 
@@ -191,7 +191,17 @@ sub add_help_menu {
 		    ."Licensed under LGPL\n"
 		   ) -> Show ;
     };
-    my $help_items = [[ qw/command about -command/, $about_sub ]] ;
+
+    my $todo_sub = sub {
+	$cw->Dialog(-title => 'TODO',
+		    -text => "- add wizard \n"
+		    ."- add better navigation \n"
+		    ."- add tabular view ?\n"
+		   ) -> Show ;
+    };
+    my $help_items = [[ qw/command about -command/, $about_sub ],
+		      [ qw/command TODO  -command/, $todo_sub  ]
+		     ] ;
     $menubar->cascade( -label => 'Help', -menuitems => $help_items ) ; 
 }
 
