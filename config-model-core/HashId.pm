@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2008-01-23 16:21:29 $
+# $Date: 2008-02-14 17:11:50 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.15 $
+# $Revision: 1.16 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -31,7 +31,7 @@ use strict;
 use base qw/Config::Model::AnyId/ ;
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.15 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.16 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -407,7 +407,7 @@ Dominique Dumont, (ddumont at cpan dot org)
 
 =head1 SEE ALSO
 
-L<Config::Model::Model>, 
+L<Config::Model>, 
 L<Config::Model::Instance>, 
 L<Config::Model::AnyId>,
 L<Config::Model::ListId>,
