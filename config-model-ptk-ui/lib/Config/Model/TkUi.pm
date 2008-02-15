@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2008-02-15 12:56:57 $
+# $Date: 2008-02-15 16:47:47 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.13 $
+# $Revision: 1.14 $
 
 #    Copyright (c) 2007,2008 Dominique Dumont.
 #
@@ -47,7 +47,7 @@ use Config::Model::Tk::ListEditor ;
 
 use Config::Model::Tk::NodeViewer ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.13 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.14 $ =~ /(\d+)\.(\d+)/;
 
 Construct Tk::Widget 'ConfigModelUi';
 
@@ -177,7 +177,7 @@ sub Populate {
        #-selectbackground => [$hlist, 'selectBackground', 'SelectBackground', 
        #                      $selectbackground],
        -width  => [$tree, undef, undef, 80],
-       -height => [$tree, undef, undef, 25],
+       -height => [$tree, undef, undef, 30],
        #-oldcursor => [$hlist, undef, undef, undef],
        DEFAULT => [$tree]
       ) ;
@@ -289,6 +289,7 @@ sub quit {
 sub reload {
     my $cw =shift ;
     my $is_modif = shift || 0;
+    $logger->debug("reloading tk tree") ;
 
     my $tree = $cw->{tktree} ;
     $cw->{modified_data} = 1 if $is_modif ;
@@ -439,7 +440,7 @@ sub disp_hash {
 
 	my $idx_mode = $tkt->getmode($newpath) ;
 	$logger->trace( "disp_hash   sub path $newpath is mode $idx_mode" );
-	$scan_sub->(0) if ($opening or $idx_mode eq 'open') ;
+	$scan_sub->(0) if ($opening or $idx_mode eq 'close') ;
 
 	$prevpath = $newpath ;
     } ;
@@ -470,7 +471,7 @@ sub disp_leaf {
     my $img ;
     {
 	no warnings qw/uninitialized/ ;
-	$img = $cust_img unless $std_v eq $value ;
+	$img = $cust_img if (defined $value and $std_v ne $value) ;
 	$img = $warn_img unless $leaf_object->check($value) ;
     }
 

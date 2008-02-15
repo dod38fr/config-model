@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2008-02-15 12:56:57 $
+# $Date: 2008-02-15 16:47:47 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.6 $
+# $Revision: 1.7 $
 
 #    Copyright (c) 2008 Dominique Dumont.
 #
@@ -31,7 +31,7 @@ use Log::Log4perl ;
 use base qw/Tk::Frame Config::Model::Tk::AnyViewer/;
 use vars qw/$VERSION/ ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/;
 
 Construct Tk::Widget 'ConfigModelLeafViewer';
 
@@ -102,8 +102,12 @@ sub add_info {
 
     my $leaf = $cw->{leaf} ;
 
+    my $type = $leaf->value_type ;
+    my @choice = $type eq 'enum' ? $leaf->get_choice : () ;
+    my $choice_str = @choice ? ' ('.join(',',@choice).')' : '' ;
+
     my @items = (
-		 'type : '.$leaf->value_type,
+		 'type : '.$leaf->value_type.$choice_str,
 		);
 
     if (defined $leaf->built_in) {

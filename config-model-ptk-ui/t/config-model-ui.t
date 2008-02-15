@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2008-02-15 12:56:57 $
+# $Date: 2008-02-15 16:47:47 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.4 $
+# $Revision: 1.5 $
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
@@ -107,6 +107,7 @@ my @test
      sub { $cmu->create_element_widget('edit','test1.int_v')},
      sub { $cmu->create_element_widget('view','test1.my_plain_check_list')},
      sub { $cmu->create_element_widget('edit','test1.my_plain_check_list')},
+     sub { $cmu->create_element_widget('view','test1.my_reference')},
      sub { exit; }
     );
 

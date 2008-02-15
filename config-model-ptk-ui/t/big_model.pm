@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2008-02-11 16:42:21 $
+# $Date: 2008-02-15 16:47:47 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 
 # this file is used by test script
 
@@ -167,6 +167,10 @@
 			  min        => 5,
 			  max        => 15
 			},
+	       built_in_default => { type => 'leaf',
+			  value_type => 'integer',
+			  built_in    => '10',
+			},
 	       my_plain_check_list => { type => 'check_list',
 					choice => ['AA' .. 'AE'],
 					help => { AA => 'AA help',
@@ -185,6 +189,14 @@
    description => [
 		   tree_macro => 'controls behavior of other elements',
 		   a_long_string =>"long string with \\n in it",
+		   my_reference => "very long help:\n"
+		   ."Config::Model enables a project developer to provide an interactive
+configuration editor to his users. For this he must:
+- describe the structure and constraint of his project's configuration
+- if the configuration data is not stored in INI file or in Perl data
+  file, he must provide some code to read and write configuration from
+  configuration files.
+"
 		  ]
    ],
 ] ;

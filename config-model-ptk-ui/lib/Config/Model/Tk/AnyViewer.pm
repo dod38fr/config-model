@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2008-02-15 12:56:57 $
+# $Date: 2008-02-15 16:47:47 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.5 $
+# $Revision: 1.6 $
 
 #    Copyright (c) 2008 Dominique Dumont.
 #
@@ -28,10 +28,11 @@ use warnings ;
 use Carp ;
 
 use Tk::Photo ;
+use Tk::ROText;
 
 use vars qw/$VERSION $icon_path/ ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/;
 
 my @fbe1 = qw/-fill both -expand 1/ ;
 my @fxe1 = qw/-fill x    -expand 1/ ;
@@ -91,10 +92,23 @@ sub add_help {
     $help_frame->Label(-text => "on $type: ")->pack(-side => 'left');
     my @text = ref $help ? ( -textvariable => $help)
              :             ( -text => $help ) ;
-    $help_frame->Label( @text,
-		       -justify => 'left',
-		       -anchor => 'w')
-      ->pack( -fill => 'x');
+
+    if (    defined $help and not ref $help 
+	and ($help =~ /\n/ or length($help) > 30)) {
+	$help_frame->Scrolled('ROText',
+			      -scrollbars => 'w',
+			      -wrap => 'word',
+			      -height => 4,
+			     )
+	  ->pack( -fill => 'x')
+	    ->insert('end',$help) ;
+    }
+    else {
+	$help_frame->Label( @text,
+			    -justify => 'left',
+			    -anchor => 'w')
+	  ->pack( -fill => 'x');
+    }
 }
 
 sub add_editor_button {
