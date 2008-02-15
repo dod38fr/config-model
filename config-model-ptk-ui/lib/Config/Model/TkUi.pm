@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2008-02-13 17:08:10 $
+# $Date: 2008-02-15 11:48:15 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.10 $
+# $Revision: 1.11 $
 
 #    Copyright (c) 2007,2008 Dominique Dumont.
 #
@@ -33,6 +33,7 @@ use subs qw/menu_struct/ ;
 use Scalar::Util qw/weaken/;
 
 use Tk::Photo ;
+use Tk::DialogBox ;
 
 use Config::Model::Tk::LeafEditor ;
 use Config::Model::Tk::CheckListEditor ;
@@ -45,7 +46,7 @@ use Config::Model::Tk::ListEditor ;
 
 use Config::Model::Tk::NodeViewer ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.10 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.11 $ =~ /(\d+)\.(\d+)/;
 
 Construct Tk::Widget 'ConfigModelUi';
 
@@ -86,6 +87,7 @@ sub Populate {
 
     # initialize internal attributes
     $cw->{location} = 'foobar';
+    $cw->{modified_data} = 0;
 
     $cw->setup_scanner() ;
 
@@ -94,7 +96,10 @@ sub Populate {
     my $menubar = $cw->Menu ;
     $cw->configure(-menu => $menubar ) ;
 
-    my $file_items = [[ qw/command reload -command/, sub{ $cw->reload }]] ;
+    my $file_items = [[ qw/command reload -command/, sub{ $cw->reload }],
+		      [ qw/command save   -command/, sub{ $cw->save }],
+		      [ qw/command quit   -command/, sub{ $cw->quit }],
+		     ] ;
     $menubar->cascade( -label => 'File', -menuitems => $file_items ) ; 
 
     $cw->add_help_menu($menubar) ;
@@ -181,6 +186,22 @@ sub Populate {
     $cw->SUPER::Populate($args) ;
 }
 
+my $help_text = << 'EOF' ;
+
+Tree usage (left hand side of widget)
+
+* Click on '+' and '-' boxes to open or close content
+* Left-click on item to open a viewer widget.
+* Right-click on any item to open an editor widget
+
+Editor widget usage
+
+When clicking on store, the new data is stored in the tree represented
+on the left side of TkUi. The new data will be stored in the
+configuration file only when "File->save" menu is invoked.
+
+EOF
+
 sub add_help_menu {
     my ($cw,$menubar) = @_ ;
 
@@ -188,19 +209,32 @@ sub add_help_menu {
 	$cw->Dialog(-title => 'About',
 		    -text => "Config::Model::TkUi \n"
 		    ."(c) 2008 Dominique Dumont \n"
-		    ."Licensed under LGPL\n"
+		    ."Licensed under LGPLv2\n"
 		   ) -> Show ;
     };
 
     my $todo_sub = sub {
-	$cw->Dialog(-title => 'TODO',
-		    -text => "- add wizard \n"
-		    ."- add better navigation \n"
-		    ."- add tabular view ?\n"
-		   ) -> Show ;
+	my $db = $cw->DialogBox( -title => 'TODO');
+	my $text = $db -> add('ROText')->pack ;
+	$text ->insert('end',"- add wizard \n"
+		            ."- add better navigation \n"
+		            ."- add tabular view ?\n"
+		            ."- improve look and feel\n"
+		      ) ;
+	$db-> Show ;
     };
-    my $help_items = [[ qw/command about -command/, $about_sub ],
-		      [ qw/command TODO  -command/, $todo_sub  ]
+
+
+    my $help_sub = sub{
+	my $db = $cw->DialogBox( -title => 'help');
+	my $text = $db -> add('ROText')->pack ;
+	$text ->insert('end',$help_text) ;
+	$db-> Show ;
+    };
+
+    my $help_items = [[ qw/command About -command/, $about_sub ],
+		      [ qw/command Todo  -command/, $todo_sub  ],
+		      [ qw/command Usage -command/, $help_sub  ],
 		     ] ;
     $menubar->cascade( -label => 'Help', -menuitems => $help_items ) ; 
 }
@@ -225,9 +259,33 @@ sub open_item {
     map { $tktree->show (-entry => $_); } @children ;
 }
 
+sub save {
+    my $cw =shift ;
+    print "Saving data\n";
+    $cw->{root}->instance->write_back;
+    $cw->{modified_data} = 0 ;
+}
+
+sub quit {
+    my $cw =shift ;
+
+    if ($cw->{modified_data}) {
+	my $answer = $cw->Dialog(-title => "quit",
+				 -text  => "Save data ?",
+				 -buttons => [ qw/yes no/],
+				 -default_button => 'yes',
+				)->Show ;
+	$cw->save if $answer eq 'yes';
+    }
+    exit ;
+}
+
 sub reload {
     my $cw =shift ;
+    my $is_modif = shift || 0;
+
     my $tree = $cw->{tktree} ;
+    $cw->{modified_data} = 1 if $is_modif ;
 
     my $instance_name = $cw->{root}->instance->name ;
 
@@ -537,3 +595,48 @@ sub get_perm {
 }
 
 1;
+
+__END__
+
+=head1 NAME
+
+Config::Model::TkUi - Perl/Tk widget to edit content of Config::Model
+
+=head1 SYNOPSIS
+
+=head1 DESCRIPTION
+
+=head1 USAGE
+
+=head2 Left side tree
+
+=over
+
+=item *
+
+Click on '+' and '-' boxes to open or close content
+
+=item *
+
+Left-click on item to open a viewer widget.
+
+=item *
+
+Right-click on any item to open an editor widget
+
+=back
+
+=head2 Editor widget
+
+When clicking on store, the new data is stored in the tree represented
+on the left side of TkUi. The new data will be stored in the
+configuration file only when C<File->save> menu is invoked.
+
+=head1 AUTHOR
+
+Dominique Dumont, (ddumont at cpan dot org)
+
+=head1 SEE ALSO
+
+L<Config::Model>
+

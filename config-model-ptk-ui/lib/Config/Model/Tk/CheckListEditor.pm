@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2008-02-11 16:42:21 $
+# $Date: 2008-02-15 11:48:15 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.5 $
+# $Revision: 1.6 $
 
 #    Copyright (c) 2008 Dominique Dumont.
 #
@@ -31,7 +31,7 @@ use base qw/ Tk::Frame Config::Model::Tk::AnyViewer/;
 use vars qw/$VERSION/ ;
 use subs qw/menu_struct/ ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/;
 
 Construct Tk::Widget 'ConfigModelCheckListEditor';
 
@@ -104,7 +104,7 @@ sub store {
     }
     else {
 	# trigger redraw of Tk Tree
-	$cw->parent->parent->parent->parent->reload
+	$cw->parent->parent->parent->parent->reload(1) ;
     }
 }
 

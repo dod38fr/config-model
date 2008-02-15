@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2008-01-16 12:10:57 $
+# $Date: 2008-02-15 11:48:14 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 #    Copyright (c) 2007 Dominique Dumont.
 #
@@ -33,7 +33,7 @@ my $build = Module::Build->new
    dist_abstract => "Perl/Tk interface for Config::Model",
    dist_author  => "Dominique Dumont (ddumont at cpan dot org)",
    requires => {
-		'Config::Model'    => '0.614',
+		'Config::Model'    => '0.618',
 		'Exception::Class' => 0,
 		'Tk'               => 0,
 		'Log::Log4perl'    => 0 ,
