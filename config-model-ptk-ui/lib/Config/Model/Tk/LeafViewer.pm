@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2008-02-15 12:19:49 $
+# $Date: 2008-02-15 12:56:57 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.5 $
+# $Revision: 1.6 $
 
 #    Copyright (c) 2008 Dominique Dumont.
 #
@@ -31,7 +31,7 @@ use Log::Log4perl ;
 use base qw/Tk::Frame Config::Model::Tk::AnyViewer/;
 use vars qw/$VERSION/ ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/;
 
 Construct Tk::Widget 'ConfigModelLeafViewer';
 
@@ -51,6 +51,8 @@ sub Populate {
     my ($cw, $args) = @_;
     my $leaf = $cw->{leaf} = delete $args->{-item} 
       || die "LeafViewer: no -item, got ",keys %$args;
+    my $path = delete $args->{-path} 
+      || die "LeafViewer: no -path, got ",keys %$args;
 
     my $inst = $leaf->instance ;
     $inst->push_no_value_check('fetch') ;
@@ -82,6 +84,7 @@ sub Populate {
     $cw->add_help(class   => $leaf->parent->get_help) ;
     $cw->add_help(element => $leaf->parent->get_help($leaf->element_name)) ;
     $cw->add_help(value   => $leaf->get_help($cw->{value})) ;
+    $cw->add_editor_button($path) ;
 
     $cw->ConfigSpecs(
 		     #-fill   => [ qw/SELF fill Fill both/],

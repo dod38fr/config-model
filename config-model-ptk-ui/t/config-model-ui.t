@@ -1,12 +1,12 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2008-02-15 12:19:49 $
+# $Date: 2008-02-15 12:56:57 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
-use Test::More tests => 98 ;
+use Test::More tests => 4 ;
 use Tk;
 use Config::Model::TkUi;
 use Config::Model ;
@@ -17,10 +17,15 @@ use strict;
 
 my $arg = shift || '';
 
+my ($log,$show) = (0) x 2 ;
+
 my $trace = $arg =~ /t/ ? 1 : 0 ;
 $::verbose          = 1 if $arg =~ /v/;
 $::debug            = 1 if $arg =~ /d/;
-my $log             = 1 if $arg =~ /l/;
+$log                = 1 if $arg =~ /l/;
+$show               = 1 if $arg =~ /s/;
+
+print "You can play with the widget if you run the test with 's' argument\n";
 
 Log::Log4perl->easy_init($log ? $TRACE: $WARN);
 
@@ -78,21 +83,36 @@ my $cmu = $mw->ConfigModelUi (-root => $root,
 
 my $delay = 200 ;
 
-sub inc_d { $delay += 200 } ;
+sub inc_d { $delay += 500 } ;
 
 my $tktree= $cmu->Subwidget('tree') ;
 my $mgr   = $cmu->Subwidget('multi_mgr') ;
 
-my @test = (
-	    sub { $tktree->open('test1.std_id') },
-	    sub { $cmu->reload} ,
-	    sub { $cmu->create_modify_widget('test1.std_id')},
-	    sub { $root->load(step => "std_id:ab3") ; $cmu->reload ;} ,
-	   );
+my @test 
+  = (
+     sub { $tktree->open('test1.std_id') },
+     sub { $cmu->reload} ,
+     sub { $cmu->create_element_widget('view','test1.std_id')},
+     sub { $cmu->create_element_widget('edit','test1.std_id')},
+     sub { $tktree->open('test1.std_id.ab') },
+     sub { $cmu->create_element_widget('view','test1.std_id.ab.Z')},
+     sub { $root->load(step => "std_id:ab Z=Cv") ; $cmu->reload ;},
+     sub { $cmu->create_element_widget('edit','test1.std_id.ab.DX')},
+     sub { $root->load(step => "std_id:ab3") ; $cmu->reload ;} ,
+     sub { $cmu->create_element_widget('view','test1.string_with_def')},
+     sub { $cmu->create_element_widget('edit','test1.string_with_def')},
+     sub { $cmu->create_element_widget('view','test1.a_long_string')},
+     sub { $cmu->create_element_widget('edit','test1.a_long_string')},
+     sub { $cmu->create_element_widget('view','test1.int_v')},
+     sub { $cmu->create_element_widget('edit','test1.int_v')},
+     sub { $cmu->create_element_widget('view','test1.my_plain_check_list')},
+     sub { $cmu->create_element_widget('edit','test1.my_plain_check_list')},
+     sub { exit; }
+    );
 
-unless ($trace) {
+unless ($show) {
     foreach my $t (@test) {
-	#$mw->after($delay, $t);
+	$mw->after($delay, $t);
 	inc_d ;
     }
 }

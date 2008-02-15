@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2008-02-15 12:19:49 $
+# $Date: 2008-02-15 12:56:57 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.7 $
+# $Revision: 1.8 $
 
 #    Copyright (c) 2008 Dominique Dumont.
 #
@@ -33,7 +33,7 @@ use vars qw/$VERSION/ ;
 use subs qw/menu_struct/ ;
 use Tk::Dialog ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.8 $ =~ /(\d+)\.(\d+)/;
 
 Construct Tk::Widget 'ConfigModelListEditor';
 
@@ -53,6 +53,7 @@ sub Populate {
     my ($cw, $args) = @_;
     my $list = $cw->{list} = delete $args->{-item} 
       || die "ListEditor: no -item, got ",keys %$args;
+    delete $args->{-path} ;
 
     $cw->add_header(Edit => $list) ;
 

@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2008-02-12 17:23:35 $
+# $Date: 2008-02-15 12:56:57 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 
 #    Copyright (c) 2008 Dominique Dumont.
 #
@@ -31,7 +31,7 @@ use base qw/Tk::Frame Config::Model::Tk::AnyViewer/;
 use vars qw/$VERSION/ ;
 use subs qw/menu_struct/ ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/;
 
 Construct Tk::Widget 'ConfigModelListViewer';
 
@@ -50,6 +50,8 @@ sub Populate {
     my ($cw, $args) = @_;
     my $list = $cw->{list} = delete $args->{-item} 
       || die "ListViewer: no -item, got ",keys %$args;
+    my $path = delete $args->{-path} 
+      || die "ListViewer: no -path, got ",keys %$args;
 
     $cw->add_header(View => $list) ;
 
@@ -72,6 +74,7 @@ sub Populate {
     $cw->add_help_frame() ;
     $cw->add_help(class   => $list->parent->get_help) ;
     $cw->add_help(element => $list->parent->get_help($list->element_name)) ;
+    $cw->add_editor_button($path) ;
 
     $cw->SUPER::Populate($args) ;
 }

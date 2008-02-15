@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2008-02-15 12:19:49 $
+# $Date: 2008-02-15 12:56:57 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.8 $
+# $Revision: 1.9 $
 
 #    Copyright (c) 2008 Dominique Dumont.
 #
@@ -31,7 +31,7 @@ use Log::Log4perl;
 use base qw/Config::Model::Tk::LeafViewer/;
 use vars qw/$VERSION/ ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.8 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.9 $ =~ /(\d+)\.(\d+)/;
 
 Construct Tk::Widget 'ConfigModelLeafEditor';
 
@@ -52,6 +52,7 @@ sub Populate {
     my ($cw, $args) = @_;
     my $leaf = $cw->{leaf} = delete $args->{-item} 
       || die "LeafEditor: no -item, got ",keys %$args;
+    delete $args->{-path} ;
 
     my $inst = $leaf->instance ;
     $inst->push_no_value_check('fetch') ;

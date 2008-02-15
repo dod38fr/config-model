@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2008-02-12 12:38:40 $
+# $Date: 2008-02-15 12:56:57 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 
 #    Copyright (c) 2008 Dominique Dumont.
 #
@@ -32,7 +32,7 @@ use vars qw/$VERSION/ ;
 use subs qw/menu_struct/ ;
 use Tk::ROText ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/;
 
 Construct Tk::Widget 'ConfigModelCheckListViewer';
 
@@ -50,6 +50,8 @@ sub Populate {
     my ($cw, $args) = @_;
     my $leaf = $cw->{leaf} = delete $args->{-item} 
       || die "CheckListViewer: no -item, got ",keys %$args;
+    my $path = delete $args->{-path} 
+      || die "CheckListViewer: no -path, got ",keys %$args;
 
     my $inst = $leaf->instance ;
     $inst->push_no_value_check('fetch') ;
@@ -70,6 +72,7 @@ sub Populate {
 	$rt->insert('end', $c."\n" , $tag) ;
 	$cw->add_help("$c", $leaf->get_help($c)) if $h{$c};
     }
+    $cw->add_editor_button($path) ;
 
     $cw->SUPER::Populate($args) ;
 }

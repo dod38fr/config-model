@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2008-02-15 12:19:49 $
+# $Date: 2008-02-15 12:56:57 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.12 $
+# $Revision: 1.13 $
 
 #    Copyright (c) 2007,2008 Dominique Dumont.
 #
@@ -47,7 +47,7 @@ use Config::Model::Tk::ListEditor ;
 
 use Config::Model::Tk::NodeViewer ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.12 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.13 $ =~ /(\d+)\.(\d+)/;
 
 Construct Tk::Widget 'ConfigModelUi';
 
@@ -223,6 +223,9 @@ sub add_help_menu {
 		            ."- add better navigation \n"
 		            ."- add tabular view ?\n"
 		            ."- improve look and feel\n"
+		            ."- add search element or search value\n"
+		            ."- improve look and feel\n"
+		            ."- expand the tree at once\n"
 		      ) ;
 	$db-> Show ;
     };
@@ -557,20 +560,20 @@ my %widget_table = (
 sub create_element_widget {
     my $cw = shift ;
     my $mode = shift ;
-    my $item = shift ; # reserved for tests
+    my $tree_path = shift ; # reserved for tests
 
     my $tree = $cw->{tktree};
 
-    unless (defined $item)
+    unless (defined $tree_path)
       {
         # pointery and rooty are common widget method and must called on
         # the right widget to give accurate results
-        $item = $tree->nearest($tree->pointery - $tree->rooty) ;
+        $tree_path = $tree->nearest($tree->pointery - $tree->rooty) ;
       }
 
     $tree->selectionClear() ; # clear all
-    $tree->selectionSet($item) ;
-    my $data_ref = $tree->infoData($item);
+    $tree->selectionSet($tree_path) ;
+    my $data_ref = $tree->infoData($tree_path);
     unless (defined $data_ref->[1]) {
 	$cw->reload;
 	return;
@@ -588,7 +591,7 @@ sub create_element_widget {
 
     my $widget = $widget_table{$mode}{$type} 
       || die "Cannot find $mode widget for type $type";
-    $frame -> $widget(-item => $obj )
+    $frame -> $widget(-item => $obj, -path => $tree_path )
            -> pack(-expand => 1, -fill => 'both') ;
 }
 

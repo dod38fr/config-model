@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2008-02-15 11:48:14 $
+# $Date: 2008-02-15 12:56:56 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 #    Copyright (c) 2007 Dominique Dumont.
 #
@@ -41,5 +41,5 @@ my $build = Module::Build->new
    add_to_cleanup => [qw/stderr.log wr_data/] ,
   );
 
-$build->add_build_element('pl');
+$build->add_build_element('gif');
 $build->create_build_script;

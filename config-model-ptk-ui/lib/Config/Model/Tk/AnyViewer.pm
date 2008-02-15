@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2008-02-13 13:06:52 $
+# $Date: 2008-02-15 12:56:57 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.4 $
+# $Revision: 1.5 $
 
 #    Copyright (c) 2008 Dominique Dumont.
 #
@@ -31,7 +31,7 @@ use Tk::Photo ;
 
 use vars qw/$VERSION $icon_path/ ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/;
 
 my @fbe1 = qw/-fill both -expand 1/ ;
 my @fxe1 = qw/-fill x    -expand 1/ ;
@@ -95,6 +95,16 @@ sub add_help {
 		       -justify => 'left',
 		       -anchor => 'w')
       ->pack( -fill => 'x');
+}
+
+sub add_editor_button {
+    my ($cw,$path) = @_ ;
+
+    my $sub = sub {
+	$cw->parent->parent->parent->parent
+	  -> create_element_widget( edit => $path) ;
+	} ;
+    $cw->Button(-text => 'Edit ...', -command => $sub)-> pack ;
 }
 
 
