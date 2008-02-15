@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2008-02-11 16:42:21 $
+# $Date: 2008-02-15 12:19:49 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
@@ -10,6 +10,7 @@ use Test::More tests => 98 ;
 use Tk;
 use Config::Model::TkUi;
 use Config::Model ;
+use Log::Log4perl qw(:easy) ;
 
 
 use strict;
@@ -19,6 +20,10 @@ my $arg = shift || '';
 my $trace = $arg =~ /t/ ? 1 : 0 ;
 $::verbose          = 1 if $arg =~ /v/;
 $::debug            = 1 if $arg =~ /d/;
+my $log             = 1 if $arg =~ /l/;
+
+Log::Log4perl->easy_init($log ? $TRACE: $WARN);
+
 Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 
 ok(1,"Compilation done");

@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2008-02-11 16:42:21 $
+# $Date: 2008-02-15 12:19:49 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.4 $
+# $Revision: 1.5 $
 
 #    Copyright (c) 2008 Dominique Dumont.
 #
@@ -26,16 +26,18 @@ package Config::Model::Tk::LeafViewer ;
 use strict;
 use warnings ;
 use Carp ;
+use Log::Log4perl ;
 
 use base qw/Tk::Frame Config::Model::Tk::AnyViewer/;
 use vars qw/$VERSION/ ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/;
 
 Construct Tk::Widget 'ConfigModelLeafViewer';
 
 my @fbe1 = qw/-fill both -expand 1/ ;
 my @fxe1 = qw/-fill x    -expand 1/ ;
+my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
 sub ClassInit {
     my ($cw, $args) = @_;
@@ -54,7 +56,7 @@ sub Populate {
     $inst->push_no_value_check('fetch') ;
 
     my $vt = $leaf -> value_type ;
-    print "leaf viewer for value_type $vt\n";
+    $logger->info("Creating leaf viewer for value_type $vt");
     my $v = $leaf->fetch ;
 
     $cw->add_header(View => $leaf) ;

@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2008-02-15 11:48:15 $
+# $Date: 2008-02-15 12:19:49 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.11 $
+# $Revision: 1.12 $
 
 #    Copyright (c) 2007,2008 Dominique Dumont.
 #
@@ -31,6 +31,7 @@ use base qw/Tk::Toplevel/;
 use vars qw/$VERSION $icon_path/ ;
 use subs qw/menu_struct/ ;
 use Scalar::Util qw/weaken/;
+use Log::Log4perl;
 
 use Tk::Photo ;
 use Tk::DialogBox ;
@@ -46,7 +47,7 @@ use Config::Model::Tk::ListEditor ;
 
 use Config::Model::Tk::NodeViewer ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.11 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.12 $ =~ /(\d+)\.(\d+)/;
 
 Construct Tk::Widget 'ConfigModelUi';
 
@@ -57,6 +58,8 @@ my $mod_file = 'Config/Model/TkUi.pm' ;
 $icon_path = $INC{'Config/Model/TkUi.pm'} ;
 $icon_path =~ s/TkUi.pm//;
 $icon_path .= 'Tk/icons/' ;
+
+my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
 sub ClassInit {
     my ($class, $mw) = @_;
@@ -144,10 +147,10 @@ sub Populate {
     $bottom_frame -> Adjuster()->packAfter($tree, -side => 'left') ;
 
     # add headers
-    $tree -> headerCreate(0, -text => "element") ;
-    $tree -> headerCreate(1, -text => "status") ;
-    $tree -> headerCreate(2, -text => "value") ;
-    $tree -> headerCreate(3, -text => "standard value") ;
+    $tree -> headerCreate(0, -text => "element" ) ;
+    $tree -> headerCreate(1, -text => "status" ) ;
+    $tree -> headerCreate(2, -text => "value" ) ;
+    $tree -> headerCreate(3, -text => "standard value" ) ;
 
     $cw->reload ;
 
@@ -247,7 +250,7 @@ sub add_help_menu {
 sub open_item {
     my ($cw,$path) = @_ ;
     my $tktree = $cw->{tktree} ;
-    print "open_item on $path\n";
+    $logger->trace( "open_item on $path" );
     my $data = $tktree -> infoData($path);
 
     # invoke the scanner part (to create children)
@@ -255,13 +258,13 @@ sub open_item {
     $data->[0]->(1) ;
 
     my @children = $tktree->infoChildren($path) ;
-    print "open_item show @children\n";
+    $logger->trace( "open_item show @children" );
     map { $tktree->show (-entry => $_); } @children ;
 }
 
 sub save {
     my $cw =shift ;
-    print "Saving data\n";
+    $logger->info( "Saving data" );
     $cw->{root}->instance->write_back;
     $cw->{modified_data} = 0 ;
 }
@@ -331,7 +334,7 @@ sub from_path { my $path = shift ; $path =~ s/_|_/./g ; return $path; }
 sub prune {
     my $cw = shift ;
     my $path = shift ;
-    print "prune $path\n";
+    $logger->trace( "prune $path" );
     my %list = map { "$path." . to_path($_) => 1 } @_ ;
     # remove entries that are not part of the list
     my $tkt = $cw->{tktree} ;
@@ -339,7 +342,7 @@ sub prune {
     map { 
 	$tkt->deleteEntry($_) if $_ and not defined $list{$_} ;
     }  $tkt -> infoChildren($path) ;
-    print "prune $path done\n";
+    $logger->trace( "prune $path done" );
 }
 
 # Beware: TkTree items store tree object and not tree cds path. These
@@ -362,7 +365,7 @@ sub disp_obj_elt {
     my ($path,$cw,$opening) = @$data_ref ;
     my $tkt = $cw->{tktree} ;
     my $mode = $tkt -> getmode($path) ;
-    print "disp_obj_elt path $path mode $mode (@element_list)\n";
+    $logger->trace( "disp_obj_elt path $path mode $mode (@element_list)" );
 
     $cw->prune($path,@element_list) ;
 
@@ -384,7 +387,7 @@ sub disp_obj_elt {
 	    my @opt = $prevpath ? (-after => $prevpath) : () ;
 	    my $elt_type = $node->element_type($elt) ;
 	    my $newmode = $elt_mode{$elt_type};
-	    print "disp_obj_elt add $newpath mode $newmode type $elt_type\n";
+	    $logger->trace( "disp_obj_elt add $newpath mode $newmode type $elt_type" );
 	    $tkt->add($newpath, -data => \@data, @opt) ;
 	    $tkt->itemCreate($newpath,0, -text => $elt) ;
 	    $tkt -> setmode($newpath => $newmode) ;
@@ -403,7 +406,7 @@ sub disp_hash {
     my ($path,$cw,$opening) = @$data_ref ;
     my $tkt = $cw->{tktree} ;
     my $mode = $tkt -> getmode($path) ;
-    print "disp_hash    path is $path  mode $mode (@idx)\n";
+    $logger->trace( "disp_hash    path is $path  mode $mode (@idx)" );
 
     $cw->prune($path,@idx) ;
 
@@ -422,7 +425,7 @@ sub disp_hash {
 	    my @opt = $prevpath ? (-after => $prevpath) : () ;
 	    my $elt_type = $elt->get_cargo_type();
 	    my $newmode = $elt_mode{$elt_type};
-	    print "disp_hash add $newpath mode $newmode cargo_type $elt_type\n";
+	    $logger->trace( "disp_hash add $newpath mode $newmode cargo_type $elt_type" );
 	    $tkt->add($newpath, -data => \@data, @opt) ;
 	    $tkt->itemCreate($newpath,0, -text => $idx ) ;
 	    $tkt -> setmode($newpath => $newmode) ;
@@ -432,7 +435,7 @@ sub disp_hash {
 	}
 
 	my $idx_mode = $tkt->getmode($newpath) ;
-	print "disp_hash   sub path $newpath is mode $idx_mode\n";
+	$logger->trace( "disp_hash   sub path $newpath is mode $idx_mode" );
 	$scan_sub->(0) if ($opening or $idx_mode eq 'open') ;
 
 	$prevpath = $newpath ;
@@ -442,7 +445,7 @@ sub disp_hash {
 sub disp_check_list {
     my ($scanner, $data_ref,$node,$element_name,$index, $leaf_object) =@_;
     my ($path,$cw,$opening) = @$data_ref ;
-    print "disp_check_list    path is $path\n";
+    $logger->trace( "disp_check_list    path is $path" );
 
     my $value = $leaf_object->fetch ;
 
@@ -455,7 +458,7 @@ sub disp_check_list {
 sub disp_leaf {
     my ($scanner, $data_ref,$node,$element_name,$index, $leaf_object) =@_;
     my ($path,$cw,$opening) = @$data_ref ;
-    print "disp_leaf    path is $path\n";
+    $logger->trace( "disp_leaf    path is $path" );
 
     my $std_v = $leaf_object->fetch('standard') ;
     my $value = $leaf_object->fetch_no_check ;
@@ -487,7 +490,7 @@ sub disp_leaf {
 sub disp_node {
     my ($scanner, $data_ref,$node,$element_name,$key, $contained_node) = @_;
     my ($path,$cw,$opening) = @$data_ref ;
-    print "disp_node    path is $path\n";
+    $logger->trace( "disp_node    path is $path" );
     my $curmode = $cw->{tktree}->getmode($path);
     $cw->{tktree}->setmode($path,'open') if $curmode eq 'none';
 
@@ -576,7 +579,7 @@ sub create_element_widget {
 
     my $obj = $cw->{root}->grab($loc);
     my $type = $obj -> get_type ;
-    print "item $loc to $mode (type $type)\n";
+    $logger->trace( "item $loc to $mode (type $type)" );
 
     # cleanup existing widget contained in this frame
     map { $_ ->destroy if Tk::Exists($_) } $cw->{e_frame}->children ;

@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2008-02-15 11:48:15 $
+# $Date: 2008-02-15 12:19:49 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.6 $
+# $Revision: 1.7 $
 
 #    Copyright (c) 2008 Dominique Dumont.
 #
@@ -26,18 +26,20 @@ package Config::Model::Tk::ListEditor ;
 use strict;
 use warnings ;
 use Carp ;
+use Log::Log4perl ;
 
 use base qw/Config::Model::Tk::ListViewer/;
 use vars qw/$VERSION/ ;
 use subs qw/menu_struct/ ;
 use Tk::Dialog ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/;
 
 Construct Tk::Widget 'ConfigModelListEditor';
 
 my @fbe1 = qw/-fill both -expand 1/ ;
 my @fxe1 = qw/-fill x    -expand 1/ ;
+my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
 sub ClassInit {
     my ($cw, $args) = @_;
@@ -130,7 +132,7 @@ sub add_entry {
     my $tklist = $cw->{tklist} ;
     my $list = $cw->{list};
 
-    print "add_entry: $add\n";
+    $logger->debug("add_entry: $add");
 
     if ($list->exists($add)) {
 	$cw->Dialog(-title => "Add item error",
@@ -154,11 +156,10 @@ sub add_entry {
 	$cw->reload_tree;
     }
 
-    print "new list idx: ", join(',',$list->get_all_indexes),"\n";
+    $logger->debug( "new list idx: ". join(',',$list->get_all_indexes));
 
     # ensure correct order for ordered hash
     my @selected = $tklist->curselection() ;
-    print "add_entry for ",scalar @selected, " items\n";
     if (@selected and $list->ordered) {
 	my $idx = $tklist->get($selected[0]);
 	$list->swap($idx, $add) ;
@@ -200,7 +201,7 @@ sub move_selected_to {
     my $tklist = $cw->{tklist} ;
     my $from_idx = $tklist->curselection() ;
     my $from_name = $tklist->get($from_idx);
-    print "move_selected_to: from $from_name to $to_name\n";
+    $logger->debug( "move_selected_to: from $from_name to $to_name" );
     my $list = $cw->{list};
     $tklist -> delete($from_idx) ;
     $cw->add_entry($to_name) or return ;

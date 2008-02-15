@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2008-02-15 11:48:15 $
+# $Date: 2008-02-15 12:19:49 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.7 $
+# $Revision: 1.8 $
 
 #    Copyright (c) 2008 Dominique Dumont.
 #
@@ -26,16 +26,19 @@ package Config::Model::Tk::LeafEditor ;
 use strict;
 use warnings ;
 use Carp ;
+use Log::Log4perl;
 
 use base qw/Config::Model::Tk::LeafViewer/;
 use vars qw/$VERSION/ ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.8 $ =~ /(\d+)\.(\d+)/;
 
 Construct Tk::Widget 'ConfigModelLeafEditor';
 
 my @fbe1 = qw/-fill both -expand 1/ ;
 my @fxe1 = qw/-fill x    -expand 1/ ;
+
+my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
 sub ClassInit {
     my ($cw, $args) = @_;
@@ -54,7 +57,7 @@ sub Populate {
     $inst->push_no_value_check('fetch') ;
 
     my $vt = $leaf -> value_type ;
-    print "leaf editor for value_type $vt\n";
+    $logger->info("Creating leaf editor for value_type $vt");
 
     $cw->add_header(Edit => $leaf) ;
 
@@ -146,7 +149,7 @@ sub try {
 	$v = defined  $e_w ? $e_w->get('1.0','end')
            :                 $cw->{value} ;
     }
-    print "try: value $v\n" ;
+    $logger->debug( "try: value $v") ;
     require Tk::Dialog ;
 
     my @errors = $cw->{leaf}->check($v,1) ;

@@ -1,0 +1,5 @@
+2007-10-24  Dominique Dumont v1.004 
+
+	* lib/Config/Model/CursesUI.pm: bug fixes, interface cleanup,
+	doc update, handle "uniline" value type
+
