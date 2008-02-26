@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-12-04 12:34:10 $
+# $Date: 2008-02-26 13:32:57 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.21 $
+# $Revision: 1.22 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -41,7 +41,7 @@ use base qw/Config::Model::AutoRead/;
 use vars qw($VERSION $AUTOLOAD @status @level
 @permission_list %permission_index );
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.21 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.22 $ =~ /(\d+)\.(\d+)/;
 
 *status           = *Config::Model::status ;
 *level            = *Config::Model::level ;
@@ -1139,6 +1139,9 @@ sub load_data {
 		     ) ;
     }
 
+    print "Node load_data (",$self->location,") will load elt ",
+      join (' ',keys %$h),"\n" if $::verbose ;
+
     # data must be loaded according to the element order defined by
     # the model
     foreach my $elt ( @{$self->{model}{element_list}} ) {
@@ -1276,10 +1279,7 @@ sub get_help {
         $help = $self->{model}{class_description};
     }
 
-    return '' unless defined $help ;
-
-    $help =~ s/[\s\n]+/ /g;
-    return $help;
+    return defined $help ? $help : '';
 }
 
 1;
