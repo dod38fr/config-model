@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2008-01-28 12:10:52 $
+# $Date: 2008-02-26 17:37:39 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.6 $
+# $Revision: 1.7 $
 
 #    Copyright (c) 2005-2008 Dominique Dumont.
 #
@@ -32,7 +32,7 @@ use Log::Log4perl ;
 
 use vars qw($VERSION) ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/;
 
 my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
@@ -166,8 +166,9 @@ sub wr_section {
 
     if ($element_name eq 'InputDevice') {
 	map {
+	    my $core_v = $node->grab_value("! $_") ;
 	    push @$data_r, qq(\tOption\t"$_")
-	      if ($key eq $node->grab_value("! $_")) ;
+	      if (defined $core_v and $key eq $core_v) ;
 	} qw/CoreKeyboard CorePointer/ ;
     }
 
