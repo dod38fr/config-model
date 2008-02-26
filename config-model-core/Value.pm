@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2008-02-08 17:27:11 $
+# $Date: 2008-02-26 13:34:51 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.27 $
+# $Revision: 1.28 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -37,7 +37,7 @@ use base qw/Config::Model::WarpedThing/ ;
 
 use vars qw($VERSION) ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.27 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.28 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -1211,6 +1211,8 @@ sub load_data {
 		     ) ;
     }
     else {
+	print "Value load_data (",$self->location,") will store value $data\n"
+	  if $::verbose ;
 	$self->store($data) ;
     }
 }

@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2008-02-14 17:11:50 $
+# $Date: 2008-02-26 13:34:51 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.16 $
+# $Revision: 1.17 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -31,7 +31,7 @@ use strict;
 use base qw/Config::Model::AnyId/ ;
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.16 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.17 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -374,12 +374,16 @@ sub load_data {
     my $self = shift ;
     my $data = shift ;
     if (not $self->{ordered} and ref ($data) eq 'HASH') {
+	print "HashId load_data (",$self->location,") will load idx ",
+	  join (' ',keys %$data),"\n" if $::verbose ;
 	foreach my $elt (keys %$data ) {
 	    my $obj = $self->fetch_with_id($elt) ;
 	    $obj -> load_data($data->{$elt}) ;
 	}
     }
     elsif ( $self->{ordered} and ref ($data) eq 'ARRAY') {
+	print "HashId load_data (",$self->location,") will load idx ",
+	  "0..$#$data\n" if $::verbose ;
 	my $idx = 0 ;
 	while ( $idx < @$data ) {
 	    my $obj = $self->fetch_with_id($data->[$idx++]) ;

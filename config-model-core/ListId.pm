@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-10-11 10:49:06 $
+# $Date: 2008-02-26 13:34:51 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.13 $
+# $Revision: 1.14 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -31,7 +31,7 @@ use strict;
 use base qw/Config::Model::AnyId/ ;
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.13 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.14 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -243,12 +243,16 @@ sub load_data {
     $self->clear ;
     if (ref ($data)  eq 'ARRAY') {
 	my $idx = 0;
+	print "ListId load_data (",$self->location,") will load idx ",
+	  "0..$#$data\n" if $::verbose ;
 	foreach my $item (@$data ) {
 	    my $obj = $self->fetch_with_id($idx++) ;
 	    $obj -> load_data($item) ;
 	}
     }
     elsif (not ref ($data)) {
+	print "ListId load_data (",$self->location,") will load idx ",
+	  "0\n" if $::verbose ;
 	$self->fetch_with_id(0) -> load_data($data) ;
     }
     else {
