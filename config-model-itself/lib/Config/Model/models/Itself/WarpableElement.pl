@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2008-02-07 11:26:33 $
+# $Date: 2008-02-26 13:36:21 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 
 #    Copyright (c) 2007 Dominique Dumont.
 #
@@ -230,11 +230,12 @@
        'config_class_name'
        => {
 	   type => 'leaf',
-	    level => 'hidden',
+	   level => 'hidden',
+	   value_type => 'reference', 
 	   refer_to => '! class',
 	   warp => {  follow => { t => '?type', ct => '?cargo_type'},
 		      rules  => [ '$t eq "node" or $t eq "warped_node" or $ct eq "node"' 
-				  => { value_type => 'reference', 
+				  => { 
 				       # should be able to warp refer_to ??
 				       level => 'normal',
 				     },

@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-10-24 16:00:10 $
+# $Date: 2008-02-26 13:36:21 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 #    Copyright (c) 2007 Dominique Dumont.
 #
@@ -123,41 +123,37 @@
 	  },
 
        'computed_refer_to' 
-       => { type => 'node',
-	    level      => 'hidden' ,
-	    config_class_name => 'Itself::ComputedValue',
-	    warp => { follow => { t => '?type',
-				  vt => '?value_type',
-				  ct => '?cargo_type',
-				},
-		     'rules'
-		      => [ '   $t  eq "check_list" 
-                            or $ct eq "check_list"
-                            or $vt eq "reference"  '
-			   => {
-			       level => 'normal',
-			      },
-			 ]
+       => { type => 'warped_node',
+	    follow => { t => '?type',
+			vt => '?value_type',
+			ct => '?cargo_type',
+		      },
+	    'rules'
+	    => [ '   $t  eq "check_list" 
+                  or $ct eq "check_list"
+                  or $vt eq "reference"  '
+		 => {
+		     level => 'normal',
+		     config_class_name => 'Itself::ComputedValue',
 		    },
-	    description => "points to an array or hash element in the configuration tree using a path computed with value from several other elements in the configuration tree. The available choice of this reference value (or check list)is made from the available keys of the pointed hash element or the values of the pointed array element.",
+	       ],
+	    description => "points to an array or hash element in the configuration tree using a path computed with value from several other elements in the configuration tree. The available choice of this reference value (or check list) is made from the available keys of the pointed hash element or the values of the pointed array element.",
 	  },
 
  
        'compute' 
-       => { type => 'node',
-	    level      => 'hidden' ,
-	    config_class_name => 'Itself::ComputedValue',
+       => { type => 'warped_node',
 
-	    warp => { follow => { t => '?type',
-				  ct => '?cargo_type',
-				},
-		     'rules' => [ '   $t  eq "leaf" 
-                                      or $ct eq "leaf" '
-				  => {
-				      level => 'normal',
-				     },
-				]
-		    },
+	    follow => { t => '?type',
+			ct => '?cargo_type',
+		      },
+	    'rules' => [ '   $t  eq "leaf" 
+                          or $ct eq "leaf" '
+			 => {
+			     level => 'normal',
+			     config_class_name => 'Itself::ComputedValue',
+			    },
+		       ],
 	    description => "compute the default value according to a formula and value from other elements in the configuration tree.",
 	  },
 
