@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2008-02-15 16:47:47 $
+# $Date: 2008-02-26 13:31:34 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.14 $
+# $Revision: 1.15 $
 
 #    Copyright (c) 2007,2008 Dominique Dumont.
 #
@@ -47,7 +47,7 @@ use Config::Model::Tk::ListEditor ;
 
 use Config::Model::Tk::NodeViewer ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.14 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.15 $ =~ /(\d+)\.(\d+)/;
 
 Construct Tk::Widget 'ConfigModelUi';
 
@@ -205,6 +205,19 @@ configuration file only when "File->save" menu is invoked.
 
 EOF
 
+my $todo_text = << 'EOF' ;
+- add wizard
+- add better navigation
+- add tabular view ?
+- improve look and feel
+- add search element or search value
+- improve look and feel
+- expand the tree at once
+- add plug-in mechanism so that dedicated widget
+  can be used for some config Class (Could be handy for 
+  Xorg::ServerLayout)
+EOF
+
 sub add_help_menu {
     my ($cw,$menubar) = @_ ;
 
@@ -219,17 +232,9 @@ sub add_help_menu {
     my $todo_sub = sub {
 	my $db = $cw->DialogBox( -title => 'TODO');
 	my $text = $db -> add('ROText')->pack ;
-	$text ->insert('end',"- add wizard \n"
-		            ."- add better navigation \n"
-		            ."- add tabular view ?\n"
-		            ."- improve look and feel\n"
-		            ."- add search element or search value\n"
-		            ."- improve look and feel\n"
-		            ."- expand the tree at once\n"
-		      ) ;
+	$text ->insert('end',$todo_text) ;
 	$db-> Show ;
     };
-
 
     my $help_sub = sub{
 	my $db = $cw->DialogBox( -title => 'help');

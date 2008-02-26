@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2008-02-15 16:47:47 $
+# $Date: 2008-02-26 13:31:34 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.5 $
+# $Revision: 1.6 $
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
@@ -73,6 +73,8 @@ ok( $root->load( step => $step, permission => 'advanced' ),
   "set up data in tree");
 
 #$root->load(step => "tree_macro=XZ", permission => 'advanced') ;
+
+# use Tk::ObjScanner; Tk::ObjScanner::scan_object($root) ;
 
 my $toto ;
 my $mw = MainWindow-> new ;

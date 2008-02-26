@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2008-02-15 16:47:47 $
+# $Date: 2008-02-26 13:31:34 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.4 $
+# $Revision: 1.5 $
 
 # this file is used by test script
 
@@ -190,8 +190,7 @@
 		   tree_macro => 'controls behavior of other elements',
 		   a_long_string =>"long string with \\n in it",
 		   my_reference => "very long help:\n"
-		   ."Config::Model enables a project developer to provide an interactive
-configuration editor to his users. For this he must:
+		   ."Config::Model enables a project developer to provide an interactive configuration editor to his users. For this he must:
 - describe the structure and constraint of his project's configuration
 - if the configuration data is not stored in INI file or in Perl data
   file, he must provide some code to read and write configuration from

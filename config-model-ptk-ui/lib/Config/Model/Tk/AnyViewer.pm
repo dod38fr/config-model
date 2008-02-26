@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2008-02-15 16:47:47 $
+# $Date: 2008-02-26 13:31:34 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.6 $
+# $Revision: 1.7 $
 
 #    Copyright (c) 2008 Dominique Dumont.
 #
@@ -32,7 +32,7 @@ use Tk::ROText;
 
 use vars qw/$VERSION $icon_path/ ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/;
 
 my @fbe1 = qw/-fill both -expand 1/ ;
 my @fxe1 = qw/-fill x    -expand 1/ ;
@@ -93,6 +93,7 @@ sub add_help {
     my @text = ref $help ? ( -textvariable => $help)
              :             ( -text => $help ) ;
 
+    chomp $help if defined $help ;
     if (    defined $help and not ref $help 
 	and ($help =~ /\n/ or length($help) > 30)) {
 	$help_frame->Scrolled('ROText',
