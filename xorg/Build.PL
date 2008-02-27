@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2008-02-27 12:25:13 $
+# $Date: 2008-02-27 12:32:07 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.14 $
+# $Revision: 1.15 $
 
 #    Copyright (c) 2007-2008 Dominique Dumont.
 #
@@ -70,7 +70,7 @@ my $build = Module::Build->new
   (
    module_name   => 'Config::Model::Xorg',
    license       => 'lgpl',
-   dist_version  => 0.510 ,
+   dist_version  => '0.510' ,
    dist_author   => "Dominique Dumont (ddumont at cpan dot org)",
    dist_abstract => "Configuration model for xorg.conf",
    requires      => {
