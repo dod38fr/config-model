@@ -251,6 +251,7 @@ elsif ($ui_type eq 'curses') {
 }
 elsif ($ui_type eq 'tk') {
     require Tk;
+    require Tk::ErrorDialog;
     Tk->import ;
 
     my $mw = MainWindow-> new ;
