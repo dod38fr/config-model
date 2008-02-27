@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-11-13 12:36:04 $
+# $Date: 2008-02-27 13:40:02 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.12 $
+# $Revision: 1.13 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -36,7 +36,7 @@ use warnings::register ;
 
 use vars qw/$VERSION/ ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.12 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.13 $ =~ /(\d+)\.(\d+)/;
 
 use Carp qw/croak confess cluck/;
 
@@ -430,7 +430,8 @@ Returns directory where configuration data is written to.
 =cut
 
 sub write_directory {
-    return shift -> {write_directory} ;
+    my $self = shift ;
+    return $self -> {write_directory} ;
 }
 
 =head2 register_write_back ( sub_ref )
@@ -448,17 +449,21 @@ sub register_write_back {
     push @{$self->{write_back}}, $wb ;
 }
 
-=head2 write_back
+=head2 write_back ( [ dir ] )
 
 Run all subroutines registered with C<register_write_back> to write
 the configuration informations. (See L<Config::Model::AutoRead> for
 details).
 
+You can specify a directory to override the default directory provided
+by the configuration model.
+
 =cut
 
 sub write_back {
     my $self = shift ;
-    map { &$_ } @{$self->{write_back}} ;
+    my $dir  = shift ;
+    map { $_->($dir) ; } @{$self->{write_back}} ;
 }
 
 1;

@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-12-04 12:31:22 $
+# $Date: 2008-02-27 13:40:02 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.11 $
+# $Revision: 1.12 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -32,7 +32,7 @@ use UNIVERSAL ;
 
 use base qw/Config::Model::AnyThing/ ;
 
-our $VERSION = sprintf "%d.%03d", q$Revision: 1.11 $ =~ /(\d+)\.(\d+)/;
+our $VERSION = sprintf "%d.%03d", q$Revision: 1.12 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -274,19 +274,19 @@ sub auto_write_init {
 	  if $::debug ;
 	my $wb ;
 	if ($write eq 'xml') {
-	    $wb = sub {$self->write_xml() ;} ;
+	    $wb = sub {$self->write_xml(shift) ;} ;
 	    $self->{auto_write}{xml} = 1 ;
 	}
 	elsif ($write eq 'ini') {
-	    $wb = sub {$self->write_ini() ;} ;
+	    $wb = sub {$self->write_ini(shift) ;} ;
 	    $self->{auto_write}{ini} = 1 ;
 	}
 	elsif ($write eq 'perl') {
-	    $wb = sub {$self->write_perl() ;} ;
+	    $wb = sub {$self->write_perl(shift) ;} ;
 	    $self->{auto_write}{perl} = 1 ;
 	}
 	elsif ($write eq 'cds') {
-	    $wb = sub {$self->write_cds() ;} ;
+	    $wb = sub {$self->write_cds(shift) ;} ;
 	    $self->{auto_write}{cds} = 1 ;
 	}
 	elsif (ref($write) eq 'HASH') {
@@ -296,7 +296,8 @@ sub auto_write_init {
 	    require $file.'.pm' unless $c->can($f) ;
 	    my $safe_self = $self ; # provide a closure
 	    $wb = sub {  no strict 'refs';
-			 &{$c.'::'.$f}(conf_dir => $self->{w_dir}, 
+			 my $wr_dir = shift || $self->{w_dir} ;
+			 &{$c.'::'.$f}(conf_dir => $wr_dir, 
 				       object => $safe_self) ;
 		     };
 	    $self->{auto_write}{custom} = 1 ;
@@ -316,17 +317,19 @@ sub get_cfg_file_name
   {
     my $self = shift ;
     my $r_or_w  = shift ;
-    my $create_dir = shift || 0 ;
+    my $override_dir = shift ;
 
     my $i = $self->instance ;
-    my $dir = $r_or_w eq 'r' ? $self->{r_dir}
-            : $r_or_w eq 'w' ? $self->{w_dir}
-            :                  croak "get_cfg_file_name: expected r or w not $r_or_w" ;
+    my $dir = defined $override_dir ? $override_dir
+            : $r_or_w eq 'r'        ? $self->{r_dir}
+            : $r_or_w eq 'w'        ? $self->{w_dir}
+            :                         croak "get_cfg_file_name: expected ",
+                                            "r or w not $r_or_w" ;
 
     croak "get_cfg_file_name: no read/write directory provided by instance"
       unless defined $dir ;
 
-    mkpath ($dir,0, 0755) if $create_dir and not -d $dir ;
+    mkpath ($dir,0, 0755) if $r_or_w eq 'w' and not -d $dir ;
 
     # TBD should we use sub-directories ?? 
 
@@ -356,9 +359,10 @@ sub read_cds
 sub write_cds
   {
     my $self = shift;
+    my $wr_dir = shift ; 
 
     my $i = $self->instance ;
-    my $file_name = $self->get_cfg_file_name('w',1) . '.cds' ;
+    my $file_name = $self->get_cfg_file_name('w',$wr_dir) . '.cds' ;
     open (FOUT, ">$file_name") or die "_write_cds: Can't open $file_name: $!";
     print FOUT $self->dump_tree(skip_auto_write => 1 ) ;
     close FOUT ;
@@ -379,9 +383,10 @@ sub read_perl
 sub write_perl
   {
     my $self = shift;
+    my $wr_dir = shift ; 
 
     my $i = $self->instance ;
-    my $file_name = $self->get_cfg_file_name('w',1) . '.pl' ;
+    my $file_name = $self->get_cfg_file_name('w',$wr_dir) . '.pl' ;
 
     my $p_data = $self->dump_as_data(skip_auto_write => 1 ) ;
 
@@ -417,9 +422,10 @@ sub read_ini
 sub write_ini
   {
     my $self = shift;
+    my $wr_dir = shift ;
 
     my $i = $self->instance ;
-    my $file_name = $self->get_cfg_file_name('w',1) . '.ini' ;
+    my $file_name = $self->get_cfg_file_name('w',$wr_dir) . '.ini' ;
 
     require Config::Tiny;
     my $iniconf = Config::Tiny->new() ;
