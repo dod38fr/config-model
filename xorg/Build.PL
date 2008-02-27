@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2008-02-26 17:39:06 $
+# $Date: 2008-02-27 12:25:13 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.13 $
+# $Revision: 1.14 $
 
 #    Copyright (c) 2007-2008 Dominique Dumont.
 #
@@ -45,10 +45,12 @@ sub generate {
     print "Generating $out_file\n";
     open (KBDOPT, "> $out_file") || die "can't open $out_file to write:$!" ;
     print KBDOPT "# Generated file. Do not edit\n\n" ;
-    $Data::Dumper::Terse = 1 ;
-    print KBDOPT Dumper ( $data ) ;
-    $Data::Dumper::Terse = 0 ; # restore to avoid breaking Module::Build
+
+    # use local to avoid breaking Module::Build > 0.2808_01
+    local $Data::Dumper::Terse = 1 ;
     # see http://groups.google.com/group/perl.module.build/browse_thread/thread/c8065052b2e0d741
+
+    print KBDOPT Dumper ( $data ) ;
     close KBDOPT ;
     $builder->add_to_cleanup($out_file) ;
 }
@@ -68,7 +70,7 @@ my $build = Module::Build->new
   (
    module_name   => 'Config::Model::Xorg',
    license       => 'lgpl',
-   dist_version  => 0.509 ,
+   dist_version  => 0.510 ,
    dist_author   => "Dominique Dumont (ddumont at cpan dot org)",
    dist_abstract => "Configuration model for xorg.conf",
    requires      => {
