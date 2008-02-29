@@ -1,3 +1,18 @@
+2008-02-29  Dominique Dumont  v0.619
+
+	* Value.pm: removed kludgy enum_integer value type 
+
+2008-02-27  Dominique Dumont  
+
+	* Instance.pm (write_back): can override directory where config
+	data is written back (necessary for GUI menu like "save in dir
+	...")
+
+2008-02-26  Dominique Dumont  
+
+	* Node.pm (get_help): do not mangle description text (don't remove
+	spurious \s and \n. Leave that to user)
+
 2008-02-12  Dominique Dumont  v0.618
 
 	* AnyThing.pm (composite_name): new method to return a name

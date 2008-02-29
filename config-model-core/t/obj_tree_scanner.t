@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2007-10-19 11:43:42 $
+# $Date: 2008-02-29 12:05:00 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.13 $
+# $Revision: 1.14 $
 
 use ExtUtils::testlib;
 use Test::More tests => 9;
@@ -106,7 +106,6 @@ my $scan = Config::Model::ObjTreeScanner->new(
     node_content_cb       => \&disp_node_content,
     leaf_cb               => \&disp_leaf,
     enum_value_cb         => \&disp_leaf,
-    enum_integer_value_cb => \&disp_leaf,
     integer_value_cb      => \&disp_leaf,
     number_value_cb       => \&disp_leaf,
     boolean_value_cb      => \&disp_leaf,

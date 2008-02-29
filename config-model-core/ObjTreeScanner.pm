@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2008-01-23 16:25:51 $
+# $Date: 2008-02-29 12:05:00 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.17 $
+# $Revision: 1.18 $
 
 #    Copyright (c) 2006-2007 Dominique Dumont.
 #
@@ -29,7 +29,7 @@ use Carp;
 use warnings ;
 use UNIVERSAL qw( isa can );
 
-our $VERSION = sprintf "%d.%03d", q$Revision: 1.17 $ =~ /(\d+)\.(\d+)/;
+our $VERSION = sprintf "%d.%03d", q$Revision: 1.18 $ =~ /(\d+)\.(\d+)/;
 
 use Carp qw/croak confess cluck/;
 
@@ -80,7 +80,6 @@ Config::Model::ObjTreeScanner - Scan config tree and perform call-backs
    # leaf callback
    leaf_cb               => \&disp_leaf,
    enum_value_cb         => \&disp_leaf,
-   enum_integer_value_cb => \&disp_leaf,
    integer_value_cb      => \&disp_leaf,
    number_value_cb       => \&disp_leaf,
    boolean_value_cb      => \&disp_leaf,
@@ -147,9 +146,9 @@ listed below:
 =item leaf callback:
 
 C<leaf_cb> is a catch-all generic callback. All other are specialized
-call-back : C<enum_value_cb>, C<enum_integer_value_cb>,
-C<integer_value_cb>, C<number_value_cb>, C<boolean_value_cb>,
-C<string_value_cb>, C<uniline_value_cb>, C<reference_value_cb>
+call-back : C<enum_value_cb>, C<integer_value_cb>, C<number_value_cb>,
+C<boolean_value_cb>, C<string_value_cb>, C<uniline_value_cb>,
+C<reference_value_cb>
 
 =item node callback:
 
@@ -182,11 +181,11 @@ Optional parameter:
 
 =item fallback
 
-If set to 'node', the scanner will provide default call-back
-for node items. If set to 'leaf', the scanner will set all leaf
-callback (like enum_integer_value_cb, enum_value_cb ...) to
-string_value_cb or to the mandatory leaf_cb value. "fallback" callback
-will not override callbacks provided by the user.
+If set to 'node', the scanner will provide default call-back for node
+items. If set to 'leaf', the scanner will set all leaf callback (like
+enum_value_cb ...) to string_value_cb or to the mandatory leaf_cb
+value. "fallback" callback will not override callbacks provided by the
+user.
 
 If set to 'all', equivalent to 'node' and 'leaf'.
 
@@ -353,7 +352,7 @@ sub new {
 
     # get all call_backs
     my @value_cb = map {$_.'_value_cb'} 
-      qw/boolean enum enum_integer string uniline integer number reference/; 
+      qw/boolean enum string uniline integer number reference/; 
 
     foreach my $param (qw/node_element_cb hash_element_cb 
                           list_element_cb check_list_element_cb node_content_cb
@@ -408,7 +407,6 @@ sub create_fallback {
 
         $self->{check_list_element_cb}  ||= $l ;
         $self->{enum_value_cb}          ||= $l ;
-        $self->{enum_integer_value_cb}  ||= $l ;
         $self->{integer_value_cb}       ||= $l ;
         $self->{number_value_cb}        ||= $l ;
         $self->{boolean_value_cb}       ||= $l ;

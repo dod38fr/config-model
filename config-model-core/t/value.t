@@ -1,12 +1,12 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2008-01-28 11:48:59 $
+# $Date: 2008-02-29 12:05:00 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.8 $
+# $Revision: 1.9 $
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
-use Test::More tests => 99 ;
+use Test::More tests => 88 ;
 use Config::Model ;
 use Config::Model::Value;
 
@@ -61,14 +61,6 @@ $model ->create_config_class
 			 value_type => 'enum',
 			 default    => 'A',
 			 choice     => [qw/A B C/]},
-		enum_integer => {type => 'leaf',
-				 class => 'Config::Model::Value',
-				 value_type => 'enum_integer',
-				 choice  => 'none',
-				 default => '0',
-				 min     => -4,
-				 max     => 4
-				},
 		enum_with_help => {type => 'leaf',
 				   class => 'Config::Model::Value',
 				   value_type => 'enum',
@@ -253,35 +245,6 @@ is( $de->store('H'), 'H', "enum:  set a new value");
 
 
 ###
-
-my $ei= $root->fetch_element('enum_integer') ;
-ok($ei, "Creating enum_integer") ;
-
-is( $ei->store(1), 1, "enum_integer: store 1" );
-is( $ei->fetch, 1,"and read" );
-
-eval { $ei->store(5);};
-ok($@,"enum integer: max error") ;
-print "normal error:\n", $@, "\n" if $trace;
-
-eval { $ei->store('toto');};
-ok($@,"enum integer: string error") ;
-print "normal error:\n", $@, "\n" if $trace;
-
-is( $ei->store('none'), 'none',"enum integer: store'none' value" );
-is( $ei->fetch, 'none',"and read" );
-
-is( $ei->store(-3 ), -3 ,"enum integer: negative value");
-is( $ei->fetch, -3,"and read" );
-
-eval { $ei->store(-5);};
-ok($@,"enum integer: too negative value") ;
-print "normal error:\n", $@, "\n" if $trace;
-
-eval { $ei->store('--2');};
-ok($@,"enum integer: too many --") ;
-print "normal error:\n", $@, "\n" if $trace;
-
 
 my $uc_c = $root -> fetch_element('uc_convert');
 ok($uc_c, "testing convert => uc");

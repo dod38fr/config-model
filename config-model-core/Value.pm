@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2008-02-26 13:34:51 $
+# $Date: 2008-02-29 12:05:00 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.28 $
+# $Revision: 1.29 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -37,7 +37,7 @@ use base qw/Config::Model::WarpedThing/ ;
 
 use vars qw($VERSION) ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.28 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.29 $ =~ /(\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -163,7 +163,7 @@ A leaf element must be declared with the following parameters:
 
 =item value_type
 
-Either C<boolean>, C<enum>, C<integer>, C<enum_integer>, C<number>,
+Either C<boolean>, C<enum>, C<integer>, C<number>,
 C<uniline>, C<string>. Mandatory. See L</"Value types">.
 
 =item default
@@ -328,13 +328,11 @@ sub set_convert {
 
 =item min
 
-Specify the minimum value (optional, only for integer, number or
-enum_integer)
+Specify the minimum value (optional, only for integer, number)
 
 =item max
 
-Specify the maximum value (optional, only for integer, number or
-enum_integer)
+Specify the maximum value (optional, only for integer, number)
 
 =item mandatory
 
@@ -487,7 +485,7 @@ sub set {
 
     if ( not          defined $args{value_type} 
 	 or (         defined $args{value_type} 
-	      and     $args{value_type} =~ 'enum'
+	      and     $args{value_type} eq 'enum'
 	      and not defined $args{choice}
 	    )
        ) {
@@ -553,12 +551,6 @@ Enum choices must be specified by the C<choice> parameter.
 
 Enable positive or negative integer
 
-=item C<enum_integer>
-
-C<enum_integer> authorise the value to be an integer or a value
-specified by the C<choice> parameter. This type is used to specify a
-value which can be an integer or be disabled.
-
 =item C<number>
 
 The value can be a decimal number
@@ -601,7 +593,6 @@ sub set_value_type {
     }
     elsif (   $value_type eq 'reference' 
 	   or $value_type eq 'enum' 
-	   or $value_type eq 'enum_integer'
 	  ) {
         my $choice = delete $arg_ref->{choice} ;
         $self->setup_enum_choice($choice) if defined $choice ;
@@ -983,7 +974,6 @@ sub enum_error {
 
     my @choice = map( "'$_'", @{$self->{choice}});
     my $var = $self->{value_type} ;
-    push @choice, $var if ($var =~ s/enum_//) ;
     push @error, "$self->{value_type} type does not know '$value'. Expected ".
       join(" or ",@choice) ; 
     push @error, "Expected list is given by '".
@@ -1040,7 +1030,7 @@ sub check {
         push @error,"Type $self->{value_type}: value $value is a number ".
 	  "but not an integer";
     }
-    elsif (   $self->{value_type} =~ 'enum' 
+    elsif (   $self->{value_type} eq 'enum' 
 	   or $self->{value_type} eq 'reference'
 	  ) {
         push @error, ($quiet ? 'enum error' : $self->enum_error($value))
