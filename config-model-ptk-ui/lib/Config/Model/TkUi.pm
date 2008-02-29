@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2008-02-26 13:31:34 $
+# $Date: 2008-02-29 12:28:53 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.15 $
+# $Revision: 1.16 $
 
 #    Copyright (c) 2007,2008 Dominique Dumont.
 #
@@ -47,7 +47,7 @@ use Config::Model::Tk::ListEditor ;
 
 use Config::Model::Tk::NodeViewer ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.15 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.16 $ =~ /(\d+)\.(\d+)/;
 
 Construct Tk::Widget 'ConfigModelUi';
 
@@ -101,6 +101,8 @@ sub Populate {
 
     my $file_items = [[ qw/command reload -command/, sub{ $cw->reload }],
 		      [ qw/command save   -command/, sub{ $cw->save }],
+		      [ command => 'save in dir ...',
+                        -command => sub{ $cw->save_in_dir ;} ],
 		      [ qw/command quit   -command/, sub{ $cw->quit }],
 		     ] ;
     $menubar->cascade( -label => 'File', -menuitems => $file_items ) ; 
@@ -209,6 +211,7 @@ my $todo_text = << 'EOF' ;
 - add wizard
 - add better navigation
 - add tabular view ?
+- decide what to do with the 'Try ??' button
 - improve look and feel
 - add search element or search value
 - improve look and feel
@@ -270,10 +273,19 @@ sub open_item {
     map { $tktree->show (-entry => $_); } @children ;
 }
 
+sub save_in_dir {
+    my $cw = shift ;
+    require Tk::DirSelect ;
+    my $dir = $cw->DirSelect()->Show ;
+    $cw->save($dir) ;
+}
+
 sub save {
-    my $cw =shift ;
-    $logger->info( "Saving data" );
-    $cw->{root}->instance->write_back;
+    my $cw = shift ;
+    my $dir = shift ;
+    my $trace_dir = defined $dir ? $dir : 'default' ;
+    $logger->info( "Saving data in $trace_dir directory" );
+    $cw->{root}->instance->write_back($dir);
     $cw->{modified_data} = 0 ;
 }
 
@@ -616,7 +628,31 @@ Config::Model::TkUi - Perl/Tk widget to edit content of Config::Model
 
 =head1 SYNOPSIS
 
+ use Config::Model::TkUi;
+
+ # init trace
+ Log::Log4perl->easy_init($WARN);
+
+ # create configuration instance
+ my $model = Config::Model -> new ;
+ my $inst = $model->instance (root_class_name => 'a_config_class',
+                              instance_name   => 'test');
+ my $root = $inst -> config_root ;
+
+ # Tk part
+ my $mw = MainWindow-> new ;
+ $mw->withdraw ;
+ $mw->ConfigModelUi (-root => $root) ;
+
+ MainLoop ;
+
 =head1 DESCRIPTION
+
+This class provides a GUI for L<Config::Model>.
+
+With this class, L<Config::Model> and an actual configuration
+model (like L<Config::Model::Xorg), you get a tool to 
+edit configuration files (e.g. C</etc/X11/xorg.conf>).
 
 =head1 USAGE
 
@@ -643,6 +679,10 @@ Right-click on any item to open an editor widget
 When clicking on store, the new data is stored in the tree represented
 on the left side of TkUi. The new data will be stored in the
 configuration file only when C<File->save> menu is invoked.
+
+=head2 TODO
+
+Document widget options.
 
 =head1 AUTHOR
 
