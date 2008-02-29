@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2007-10-24 15:50:12 $
+# $Date: 2008-02-29 12:43:15 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 # this file is used by test script
 
@@ -126,11 +126,6 @@
 			     value_type => 'boolean', 
 			     mandatory => 1 
 			   },
-	       m_eint_v => { type => 'leaf',
-			    value_type => 'enum_integer', 
-			     mandatory => 1, 
-			     choice => [qw/foo/] 
-			    },
 	       int_v => { type => 'leaf',
 			  value_type => 'integer',
 			  default    => '10',

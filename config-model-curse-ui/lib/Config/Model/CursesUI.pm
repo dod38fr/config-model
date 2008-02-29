@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-10-24 15:49:23 $
+# $Date: 2008-02-29 12:43:15 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.4 $
+# $Revision: 1.5 $
 
 #    Copyright (c) 2007 Dominique Dumont.
 #
@@ -47,7 +47,7 @@ use Exception::Class
   ) ;
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/;
 
 my @help_settings = qw/-bg green -fg black -border 1 
                        -titlereverse 0
@@ -87,7 +87,6 @@ sub new {
 	 string_value_cb       => sub {shift; shift->display_string            (@_); },
 	 reference_value_cb    => sub {shift; shift->display_enum              (@_); },
 	 enum_value_cb         => sub {shift; shift->display_enum              (@_); },
-	 enum_integer_value_cb => sub {shift; shift->display_enum_int          (@_); },
 	 integer_value_cb      => sub {shift; shift->display_string            (@_); },
 	 number_value_cb       => sub {shift; shift->display_string            (@_); },
 	 boolean_value_cb      => sub {shift; shift->display_boolean           (@_); },
@@ -1034,128 +1033,6 @@ sub layout_enum_value {
     return $listbox ;
 }
 
-sub display_enum_int {
-    my ($self,$node,$element,$index, $leaf) = @_ ;
-
-    my $win = $self->set_center_window("display_enum $element");
-
-    my $listbox 
-      = $self->layout_enum_integer_value($win,$node,$element,$index, $leaf);
-
-    my $but = { -label => '< OK >',
-                -onpress => sub {$self->back} 
-	      } ;
-
-    $listbox->focus ;
-    $self->add_std_button_with_help($win,$node,$element,$but) ;
-    $self->wrap_screen($node,$element,$index);
-}
-
-sub layout_enum_integer_value {
-    my ($self,$win,$node,$element,$index, $leaf) = @_ ;
-
-    $self->add_debug_label($win) ;
-
-    my ($orig_value,$current_value_widget, $help)
-      = $self->value_info($win,$leaf, 40, 2) ;
-
-    $help -> text ( $leaf->get_help( $orig_value ) ) ;
-
-    $win -> add ( undef, 'Label',
-                  '-y' => 0,
-                  -text => "Select enum value or enter integer"
-		) ;
-
-    my ($popup, $editor) ;
-
-    my $value = $orig_value ;
-
-    my $pop_sub = sub {
-	my ($new) = $popup->get;
-	if (not defined $orig_value or $new ne $value) {
-	    $self->set_leaf_value($leaf,$new);
-	    $value = $new ;
-	    $current_value_widget->text($new) ;
-	    $editor->text('') ;
-	    $help ->text($leaf->get_help($new)) ;
-	}
-    } ;
-
-    $popup = $win -> add ( undef, 'Popupmenu',
-			   '-y'        => 2,
-			   -padbottom  => 1,
-			   -values     => [ $leaf->get_choice ],
-			   -width      => 30,
-			   -border     => 1,
-			   -title      => 'Choose enum to store',
-			   -vscrollbar => 1,
-			   -onchange   => $pop_sub ,
-			 ) ;
-
-    $win -> add ( undef, 'Label',
-                  '-y' => 6,
-                  -text => "Or enter int value to store:") ;
-
-    $editor = $win -> add ( undef, 'TextEntry',
-			    -sbborder => 1,
-			    '-y' => 7,
-			    '-height' => 1,
-			    -width => 20,
-			    -text => $orig_value
-			  );
-
-    my $set_popup_default 
-      = sub { $popup->{-selected} = $orig_value ; $popup->draw ; } ;
-    my $set_text_default =  sub {$editor->text($orig_value) ; } ;
-
-    my $set_def 
-      = defined $orig_value && $orig_value =~ /\w/ ? $set_popup_default
-      : defined $orig_value                        ? $set_text_default
-      :                                              sub {} ;
-
-    &$set_def ;
-
-    my $ed_sub = sub {
-	my ($new) = $editor->get;
-	if (not defined $orig_value or $new ne $value) {
-	    $self->set_leaf_value($leaf,$new);
-	    $value = $new ;
-	    $current_value_widget->text($new) ;
-	    undef $popup->{-selected} ; # naughty
-	    $popup->draw ;
-	    $help ->text($leaf->get_help($new)) ;
-	}
-    } ;
-
-    $win->add(undef,
-	     'Buttonbox',
-	     '-y' => 8 ,
-	     '-x' => 0 ,
-	      -buttons   => [ { -label => '< store integer >', 
-				-onpress => $ed_sub
-			      } 
-			    ]
-	     ) ;
-
-    my $reset = sub {
-	$self->set_leaf_value($leaf,$orig_value);
-	$current_value_widget->text($orig_value) ;
-	&$set_def ;
-    } ;
-
-
-    $win->add(undef,
-	      'Buttonbox',
-	      '-y' => 10 ,# $win->canvasheight - 4,
-	      '-x' => 0 ,
-	      '-width' => 40 ,
-	      -buttons   => 
-	      [ { -label => '< Reset value >', -onpress => $reset}]
-	     ) ;
-
-
-    return $popup ;
-}
 
 sub display_boolean {
     my ($self,$node,$element,$index, $leaf) = @_ ;
