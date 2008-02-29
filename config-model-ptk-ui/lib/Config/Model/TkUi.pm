@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2008-02-29 12:28:53 $
+# $Date: 2008-02-29 12:37:00 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.16 $
+# $Revision: 1.17 $
 
 #    Copyright (c) 2007,2008 Dominique Dumont.
 #
@@ -47,7 +47,7 @@ use Config::Model::Tk::ListEditor ;
 
 use Config::Model::Tk::NodeViewer ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.16 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.17 $ =~ /(\d+)\.(\d+)/;
 
 Construct Tk::Widget 'ConfigModelUi';
 
@@ -542,7 +542,6 @@ sub setup_scanner {
        # leaf callback
        leaf_cb               => \&disp_leaf,
        enum_value_cb         => \&disp_leaf,
-       enum_integer_value_cb => \&disp_leaf,
        integer_value_cb      => \&disp_leaf,
        number_value_cb       => \&disp_leaf,
        boolean_value_cb      => \&disp_leaf,
@@ -651,7 +650,7 @@ Config::Model::TkUi - Perl/Tk widget to edit content of Config::Model
 This class provides a GUI for L<Config::Model>.
 
 With this class, L<Config::Model> and an actual configuration
-model (like L<Config::Model::Xorg), you get a tool to 
+model (like L<Config::Model::Xorg>), you get a tool to 
 edit configuration files (e.g. C</etc/X11/xorg.conf>).
 
 =head1 USAGE

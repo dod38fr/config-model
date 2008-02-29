@@ -16,3 +16,4 @@ MANIFEST			This list of files
 README
 t/big_model.pm
 t/config-model-ui.t
+META.yml

@@ -1,13 +1,13 @@
 # $Author: ddumont $
-# $Date: 2008-02-15 12:56:56 $
+# $Date: 2008-02-29 12:37:00 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 
-#    Copyright (c) 2007 Dominique Dumont.
+#    Copyright (c) 2007,2008 Dominique Dumont.
 #
-#    This file is part of Config-Model-Curses-UI.
+#    This file is part of Config-Model-TkUi.
 #
-#    Config-Model-Curses-UI is free software; you can redistribute it
+#    Config-Model-TkUi is free software; you can redistribute it
 #    and/or modify it under the terms of the GNU Lesser Public License
 #    as published by the Free Software Foundation; either version 2.1
 #    of the License, or (at your option) any later version.
@@ -32,11 +32,13 @@ my $build = Module::Build->new
    license => 'lgpl',
    dist_abstract => "Perl/Tk interface for Config::Model",
    dist_author  => "Dominique Dumont (ddumont at cpan dot org)",
+   dist_version  => '0.101' ,
    requires => {
-		'Config::Model'    => '0.618',
+		'Config::Model'    => '0.619',
 		'Exception::Class' => 0,
 		'Tk'               => 0,
-		'Log::Log4perl'    => 0 ,
+		'Tk::DirSelect'    => 0,
+		'Log::Log4perl'    => 0,
 	       },
    add_to_cleanup => [qw/stderr.log wr_data/] ,
   );
