@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-10-25 12:01:29 $
+# $Date: 2008-03-04 17:43:45 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 #    Copyright (c) 2007 Dominique Dumont.
 #
@@ -35,13 +35,13 @@ use File::Basename ;
 
 use vars qw($VERSION) ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/;
 
 my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
 =head1 NAME
 
-Config::Model::Itself - Model for Config::Model
+Config::Model::Itself - Model of Config::Model
 
 =head1 SYNOPSIS
 
@@ -144,6 +144,8 @@ sub read_all {
     my $model_obj = $self->{model_object};
     my $dir = $args{conf_dir} 
       || croak __PACKAGE__," read_all: undefined config dir";
+    my $model = $args{root_model} 
+      || croak __PACKAGE__," read_all: undefined root_model";
 
     unless (-d $dir ) {
 	croak __PACKAGE__," read_all: unknown config dir $dir";
@@ -152,7 +154,9 @@ sub read_all {
     my @files ;
     my $wanted = sub { 
 	my $n = $File::Find::name ;
-	push @files, $n if (-f $_ and not /~$/ and $n !~ /CVS/) ;
+	push @files, $n if (-f $_ and not /~$/ and $n !~ /CVS/
+			    and $n =~ /\b$model/
+			   ) ;
     } ;
     find ($wanted, $dir ) ;
 
