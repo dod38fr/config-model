@@ -1,3 +1,9 @@
+2008-02-07  Dominique Dumont  
+
+	* config-model-edit: added possibity to use Tk interface.
+
+	* lib/Config/Model/models/Itself/WarpableElement.pl: added 'replace' parameter
+
 2007-10-16  Dominique Dumont v0.501
 
 	* All: first version
