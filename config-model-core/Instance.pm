@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2008-02-27 13:40:02 $
+# $Date: 2008-03-04 17:41:40 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.13 $
+# $Revision: 1.14 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -36,7 +36,7 @@ use warnings::register ;
 
 use vars qw/$VERSION/ ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.13 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.14 $ =~ /(\d+)\.(\d+)/;
 
 use Carp qw/croak confess cluck/;
 
@@ -463,6 +463,8 @@ by the configuration model.
 sub write_back {
     my $self = shift ;
     my $dir  = shift ;
+    warn "write_back: no subs registered. cannot save" 
+      unless @{$self->{write_back}} ;
     map { $_->($dir) ; } @{$self->{write_back}} ;
 }
 
