@@ -31,7 +31,7 @@ use Config::Model::Itself ;
 # lame tracing that will be replaced by Log4perl
 use vars qw/$verbose $debug $VERSION/ ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/;
 
 $verbose = 0;
 $debug = 0;
@@ -76,7 +76,7 @@ my $model_dir ;
 my $root_model ;
 my $trace = 0 ;
 my $read_conf_dir;
-my $wr_conf_dir ;
+my $wr_conf_dir = $ENV{PWD};
 
 =head1 NAME
 
@@ -84,18 +84,40 @@ config-model-edit - Edit Config::Model models
 
 =head1 SYNOPSIS
 
-  config-model-edit [options] -model Fstab
+  config-model-edit [options] -model Xorg
 
 =head1 DESCRIPTION
 
-Config-model is a general purpose configuration framework. Models
-stored in /C</etc/config-model.d> are configuration description.
+Config-model is a general purpose configuration framework based 
+on configuration models (See L<Config::Model> for detaisl).
 
-TBD
+This configuration model is also expressed as structured data. This
+structure data is structured and follow a set of rules which are
+described for humans in L<Config::Model>.
 
-The config-model-edit program will use these configuration
-descriptions to provide a user interface so user can easily and
-securely modify the configuration of their system.
+The structure and rules documented in L<Config::Model> are also expressed
+in a model in the files provided with L<Config::Model::Itself>.
+
+Hence the possibity to verify, modify configuration data provided by
+Config::Model can also be applied on configuration models. Using the
+same user interface.
+
+The model editor program is config-model-edit.
+
+=head1 USAGE
+
+By default, installed models (i.e. located in C</usr/share/perl/...>)
+will be loaded in the editor. Modified models will be saved (by
+default) in the current directory.
+
+When you specify a C<-model> options, only configuration models matching
+this options will be loaded. I.e.
+
+  config-model-edit -model Xorg
+
+will load models C<Xorg> (file C<Xorg.pl>) and all other C<Xorg::*> like
+C<Xorg::Screen> (file C<Xorg/Screen.pl>).
+
 
 =head1 Options
 
@@ -104,8 +126,8 @@ securely modify the configuration of their system.
 =item -model
 
 Mandatory option that specifies the configuration data to be
-edited. The model must be available in C</etc/config-model.d/>
-directory in a C<.pl> file. E.g. this command:
+edited. By default, installed models will be edited. If you are
+running E.g. this command:
 
   config-edit -model Fstab
 
@@ -211,7 +233,8 @@ if (not defined $model_dir) {
     $model_dir .= '/models' ;
 }
 
-$rw_obj -> read_all( conf_dir => $model_dir) ;
+$rw_obj -> read_all( conf_dir => $model_dir, 
+		     root_model => $root_model ) ;
 
 if ($ui_type eq 'shell') {
     require Config::Model::TermUI;
@@ -250,7 +273,10 @@ elsif ($ui_type eq 'tk') {
     my $mw = MainWindow-> new ;
     $mw->withdraw ;
 
-    my $cmu = $mw->ConfigModelUi (-root => $meta_root,) ;
+    # TBD need to pass a sub ref to save data (like for Curses
+    my $cmu = $mw->ConfigModelUi (-root     => $meta_root,
+				  -conf_dir => $wr_conf_dir,
+				 ) ;
 
     &MainLoop ; # Tk's
 }
