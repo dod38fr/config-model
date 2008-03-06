@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2008-02-29 12:37:00 $
+# $Date: 2008-03-06 16:33:47 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.17 $
+# $Revision: 1.18 $
 
 #    Copyright (c) 2007,2008 Dominique Dumont.
 #
@@ -47,7 +47,7 @@ use Config::Model::Tk::ListEditor ;
 
 use Config::Model::Tk::NodeViewer ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.17 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.18 $ =~ /(\d+)\.(\d+)/;
 
 Construct Tk::Widget 'ConfigModelUi';
 
@@ -300,7 +300,8 @@ sub quit {
 				)->Show ;
 	$cw->save if $answer eq 'yes';
     }
-    exit ;
+    # destroy main window to exit Tk Mainloop;
+    $cw->parent->destroy ;
 }
 
 sub reload {
