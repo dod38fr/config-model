@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-11-15 12:07:58 $
+# $Date: 2008-03-06 16:35:25 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.5 $
+# $Revision: 1.6 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -91,7 +91,7 @@
 	     mandatory => 1,
 	     value_type => 'enum',
 	     # ok, a lot of fs are missing, this is just an example
-	     choice => [qw/auto davfs ext2 ext3 swap proc iso9660 vfat ignore/],
+	     choice => [qw/auto davfs ext2 ext3 swap proc iso9660 vfat usbfs ignore/],
 	     'help'
 	     => {
 		 ext2   => 'Common Linux file system.',
@@ -103,6 +103,7 @@
 		 proc   => 'Kernel info through a special file system',
 		 vfat   => 'Older Windows file system often used on '
 		         . 'removable media',
+		 usbfs  => 'USB pseudo file system. Gives a file system view of kernel data related to usb',
 		 davfs  => 'WebDav access',
 		 ignore => 'unused disk partition',
 		},
@@ -134,6 +135,7 @@
 		 proc            => { config_class_name => 'CommonOptions'},
 		 davfs           => { config_class_name => 'CommonOptions'},
 		 swap            => { config_class_name => 'SwapOptions'  },
+		 usbfs           => { config_class_name => 'UsbFsOptions' },
 		},
 	   },
 
@@ -193,6 +195,36 @@
 	     },
       ]
   ],
+
+  [
+   name => "UsbFsOptions",
+   class_description => "usbfs options",
+
+   # all common option are part of ext2 options
+   include => 'CommonOptions' ,
+
+   'element' 
+   => [
+       [qw/devuid devgid busuid budgid listuid listgid/]
+       => { type => 'leaf' ,
+	    value_type => 'integer',
+	    built_in => '0',
+	  },
+       devmode => { type => 'leaf' ,
+		    value_type => 'integer',
+		    built_in => '0644',
+		  },
+       busmode => { type => 'leaf' ,
+		    value_type => 'integer',
+		    built_in => '0555',
+		  },
+       listmode => { type => 'leaf' ,
+		    value_type => 'integer',
+		    built_in => '0444',
+		  },
+      ]
+  ],
+
 
 # not all options are listed to keep example, err..., simple.
   [
