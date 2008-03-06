@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-07-03 15:27:21 $
+# $Date: 2008-03-06 16:36:42 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.6 $
+# $Revision: 1.7 $
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -31,6 +31,7 @@ use lib ('../../blib/lib') ;
 use Config::Model ;
 use Getopt::Long ;
 use Text::Wrap ;
+use File::Path ;
 
 use vars qw/$model/ ;
 
@@ -224,15 +225,61 @@ TAB twice to get the list of available commands.
 
 stop ;
 
+my $store = sub { 
+    my $dir = shift ;
+    mkpath ($dir,0, 0755) unless -d $dir ;
+    open(FILE,"> $dir/fstab") || die "Cannot open $dir/fstab: $!";
+    print FILE join ("\n",produce_fstab()),"\n";
+    close FILE ;
+    return "Written $dir/fstab";
+};
+
 require Config::Model::TermUI;
 my $term_ui = Config::Model::TermUI
   -> new( root => $root ,
 	  title => $fstab_file.' configuration',
 	  prompt => ' >',
+	  store_sub => $store,
 	);
 
 # engage in user interaction
 $term_ui -> run_loop ;
+
+eval {require Config::Model::TkUi} ;
+
+if ($@) {
+    print "
+
+If you want to try the Perl/Tk graphical interface, you must install 
+Config::Model::TkUi and re-run this test.
+
+" ;
+}
+else {
+    print "
+
+Now you can enter in a Tk graphical interface to check fstab
+data. Like before, data are not written back to /etc/fstab, so feel
+free to experiment
+
+" ;
+
+    stop ;
+
+    use Log::Log4perl qw(:easy) ;
+    Log::Log4perl->easy_init($WARN);
+
+    require Tk;
+    require Tk::ErrorDialog;
+    Tk->import ;
+
+    my $mw = MainWindow-> new ;
+    $mw->withdraw ;
+
+    $mw->ConfigModelUi (-root => $root,) ;
+
+    &MainLoop ; # Tk's
+}
 
 eval {require Config::Model::CursesUI} ;
 
@@ -273,6 +320,7 @@ In case of error, check $err_file
 
     close FH ;
 }
+
 
 print "\n$0 done. Feel free to send feedback to the author ",
   "(ddumont at cpan dot org)\n\n";
