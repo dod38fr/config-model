@@ -1,6 +1,6 @@
 [
  [
-  name => 'WarpedIdSlave',
+  name => 'MasterModel::WarpedIdSlave',
   element => [
 	      [qw/X Y Z/] => { type => 'leaf',
 			       value_type => 'enum',
@@ -10,7 +10,7 @@
  ],
 
  [
-  name => 'WarpedId',
+  name => 'MasterModel::WarpedId',
   'element'
   => [
       macro => { type => 'leaf',
@@ -31,7 +31,7 @@
 					       }
 				     },
 		       cargo_type => 'node',
-		       config_class_name => 'WarpedIdSlave'
+		       config_class_name => 'MasterModel::WarpedIdSlave'
 		     },
       'multi_warp' 
       => { type => 'hash',
@@ -48,7 +48,7 @@
 		  ]
 	      },
 	   cargo_type => 'node',
-	   config_class_name => 'WarpedIdSlave'
+	   config_class_name => 'MasterModel::WarpedIdSlave'
 	 },
 
       'hash_with_warped_value' 
@@ -87,7 +87,7 @@
 		   ],
 	      },
 	   cargo_type => 'node',
-	   config_class_name => 'WarpedIdSlave'
+	   config_class_name => 'MasterModel::WarpedIdSlave'
 	 }
      ]
  ]

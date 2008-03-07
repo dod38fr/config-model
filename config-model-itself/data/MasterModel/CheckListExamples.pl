@@ -1,6 +1,6 @@
 [
  [
-   name => "CheckListExamples",
+   name => "MasterModel::CheckListExamples",
    element 
    => [
        [qw/my_hash my_hash2 my_hash3/] 

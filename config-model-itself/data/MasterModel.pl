@@ -1,15 +1,15 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2007-10-16 11:15:38 $
+# $Date: 2008-03-07 13:42:08 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 
 # this file is used by test script
 
 [
   [
-   name => 'SubSlave2',
+   name => 'MasterModel::SubSlave2',
    element => [
 	       [qw/aa2 ab2 ac2 ad2 Z/] =>
 	       { type => 'leaf', value_type => 'string' }
@@ -17,18 +17,18 @@
   ],
 
   [
-   name => 'SubSlave',
+   name => 'MasterModel::SubSlave',
    element => [
 	       [qw/aa ab ac ad/] => 
 	       { type => 'leaf', value_type => 'string' },
 	       sub_slave => { type => 'node' ,
-			      config_class_name => 'SubSlave2',
+			      config_class_name => 'MasterModel::SubSlave2',
 			    }
 	      ]
   ],
 
   [
-   name => 'SlaveZ',
+   name => 'MasterModel::SlaveZ',
    element => [
 	       [qw/Z/] => { type => 'leaf',
 			      value_type => 'enum',
@@ -40,29 +40,29 @@
 			     choice     => [qw/Av Bv Cv Dv/]
 			   },
 	      ],
-   include => 'X_base_class',
+   include => 'MasterModel::X_base_class',
   ],
 
   [
-   name => 'SlaveY',
+   name => 'MasterModel::SlaveY',
    element => [
 	       std_id => {
 			  type => 'hash',
 			  index_type  => 'string',
 			  cargo_type => 'node',
-			  config_class_name => 'SlaveZ' ,
+			  config_class_name => 'MasterModel::SlaveZ' ,
 			 },
 	       sub_slave => { type => 'node' ,
-			      config_class_name => 'SubSlave',
+			      config_class_name => 'MasterModel::SubSlave',
 			    },
 	       warp2 => {
 			 type => 'warped_node',
 			 follow  => '! tree_macro',
-			 config_class_name   => 'SubSlave', 
+			 config_class_name   => 'MasterModel::SubSlave', 
 			 morph => 1 ,
 			 rules => [
-				   mXY => { config_class_name => 'SubSlave2'},
-				   XZ  => { config_class_name => 'SubSlave2'}
+				   mXY => { config_class_name => 'MasterModel::SubSlave2'},
+				   XZ  => { config_class_name => 'MasterModel::SubSlave2'}
 				  ]
 			},
 	       Y => { type => 'leaf',
@@ -70,7 +70,7 @@
 		      choice     => [qw/Av Bv Cv/]
 		    },
 	      ],
-   include => 'X_base_class',
+   include => 'MasterModel::X_base_class',
   ],
 
 
@@ -83,7 +83,7 @@
 	       std_id => { type => 'hash',
 			   index_type  => 'string',
 			   cargo_type => 'node',
-			   config_class_name => 'SlaveZ' ,
+			   config_class_name => 'MasterModel::SlaveZ' ,
 			 },
 	       [qw/lista listb/] => { type => 'list',
 				      cargo_type => 'leaf',
@@ -96,7 +96,7 @@
 			},
 	       olist => { type => 'list',
 			  cargo_type => 'node',
-			  config_class_name => 'SlaveZ' ,
+			  config_class_name => 'MasterModel::SlaveZ' ,
 			},
 	       tree_macro => { type => 'leaf',
 			       value_type => 'enum',
@@ -109,17 +109,17 @@
 	       warp_el => {
 			type => 'warped_node',
 			follow  => '! tree_macro',
-			config_class_name   => 'SlaveY', 
+			config_class_name   => 'MasterModel::SlaveY', 
 			morph => 1 ,
 			rules => [
-				  #XY => { config_class_name => 'SlaveY'},
-				  mXY => { config_class_name => 'SlaveY'},
-				  XZ  => { config_class_name => 'SlaveZ'}
+				  #XY => { config_class_name => 'MasterModel::SlaveY'},
+				  mXY => { config_class_name => 'MasterModel::SlaveY'},
+				  XZ  => { config_class_name => 'MasterModel::SlaveZ'}
 				 ]
 		       },
 
 	       'slave_y' => { type => 'node',
-			      config_class_name => 'SlaveY' ,
+			      config_class_name => 'MasterModel::SlaveY' ,
 			    },
 
 	       string_with_def => { type => 'leaf',
@@ -145,19 +145,19 @@
 			       },
 	       lot_of_checklist => {
 				    type => 'node',
-				    config_class_name => 'CheckListExamples',
+				    config_class_name => 'MasterModel::CheckListExamples',
 				   },
 	       warped_values => {
 				 type => 'node',
-				 config_class_name => 'WarpedValues',
+				 config_class_name => 'MasterModel::WarpedValues',
 				},
 	       warped_id => {
 			     type => 'node',
-			     config_class_name => 'WarpedId',
+			     config_class_name => 'MasterModel::WarpedId',
 			    },
 	       hash_id_of_values => {
 			     type => 'node',
-			     config_class_name => 'HashIdOfValues',
+			     config_class_name => 'MasterModel::HashIdOfValues',
 			    },
 	      ],
    description => [

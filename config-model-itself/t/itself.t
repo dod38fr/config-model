@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2008-02-07 11:35:57 $
+# $Date: 2008-03-07 13:42:08 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 
 use ExtUtils::testlib;
 use Test::More tests => 13;
@@ -50,42 +50,42 @@ ok($inst,"Read Itself::Model and created instance") ;
 
 my $root = $inst -> config_root ;
 
-my $rw_obj = Config::Model::Itself -> new(model_object => $root ) ;
+my $rw_obj = Config::Model::Itself -> new(model_object => $root) ;
 
 my $map = $rw_obj -> read_all( 
-		    conf_dir => 'data',
-		    test => 1
-		   ) ;
+			      conf_dir => 'data',
+			      root_model => 'MasterModel',
+			     ) ;
 
 ok(1,"Read all models in data dir") ;
 
 my $expected_map 
   = {
-     'HashIdOfValues.pl' => [
-			     'HashIdOfValues'
+     'MasterModel/HashIdOfValues.pl' => [
+			     'MasterModel::HashIdOfValues'
 			    ],
-     'CheckListExamples.pl' => [
-				'CheckListExamples'
+     'MasterModel/CheckListExamples.pl' => [
+				'MasterModel::CheckListExamples'
 			       ],
      'MasterModel.pl' => [
-			  'SubSlave2',
-			  'SubSlave',
-			  'SlaveZ',
-			  'SlaveY',
+			  'MasterModel::SubSlave2',
+			  'MasterModel::SubSlave',
+			  'MasterModel::SlaveZ',
+			  'MasterModel::SlaveY',
 			  'MasterModel'
 			 ],
-     'WarpedId.pl' => [
-		       'WarpedIdSlave',
-		       'WarpedId'
+     'MasterModel/WarpedId.pl' => [
+		       'MasterModel::WarpedIdSlave',
+		       'MasterModel::WarpedId'
 		      ],
-     'X_base_class.pl' => [
-			   'X_base_class2',
-			   'X_base_class',
+     'MasterModel/X_base_class.pl' => [
+			   'MasterModel::X_base_class2',
+			   'MasterModel::X_base_class',
 			  ],
-     'WarpedValues.pl' => [
-			   'RSlave',
-			   'Slave',
-			   'WarpedValues'
+     'MasterModel/WarpedValues.pl' => [
+			   'MasterModel::RSlave',
+			   'MasterModel::Slave',
+			   'MasterModel::WarpedValues'
 			  ]
     };
 
@@ -140,7 +140,7 @@ ok($dump,"Checked dump of one class");
 $rw_obj->write_all( conf_dir => $wr_dir ) ;
 
 my $model = Config::Model->new ;
-$model -> load ('X_base_class', 'wr_test/X_base_class.pl') ;
+$model -> load ('X_base_class', 'wr_test/MasterModel/X_base_class.pl') ;
 ok(1,"loaded X_base_class") ;
 $model -> load ('MasterModel' , 'wr_test/MasterModel.pl') ;
 ok(1,"loaded MasterModel") ;

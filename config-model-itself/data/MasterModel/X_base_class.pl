@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2008-03-07 13:20:37 $
+# $Date: 2008-03-07 13:42:08 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 
 # this file is used by test script
@@ -10,7 +10,7 @@
 [
 
   [
-   name => 'X_base_class2',
+   name => 'MasterModel::X_base_class2',
    element => [
 	       X => { type => 'leaf',
 		      value_type => 'enum',
@@ -21,8 +21,8 @@
   ],
 
   [
-   name => 'X_base_class',
-   include => 'X_base_class2',
+   name => 'MasterModel::X_base_class',
+   include => 'MasterModel::X_base_class2',
   ],
 
 ] ;

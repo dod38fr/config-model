@@ -1,6 +1,6 @@
 [
  [
-  name => "RSlave",
+  name => "MasterModel::RSlave",
   element 
   => [ 
       recursive_slave 
@@ -8,7 +8,7 @@
 	  type => 'hash',
 	  index_type => 'string',
 	  cargo_type => 'node',
-	  config_class_name => 'RSlave' ,
+	  config_class_name => 'MasterModel::RSlave' ,
 	 },
       big_compute
       => {
@@ -63,7 +63,7 @@
   ],
   
   [
-   name => "Slave",
+   name => "MasterModel::Slave",
    level => [ [qw/Comp W/] => 'hidden' ] ,
    element 
    =>  [
@@ -83,7 +83,7 @@
 	    type => 'hash',
             index_type => 'string',
 	    cargo_type => 'node',
-	    config_class_name => 'RSlave',
+	    config_class_name => 'MasterModel::RSlave',
 	   },
 	W => {
 	      type => 'leaf',
@@ -116,7 +116,7 @@
        ],
    ],
   [
-   name => "WarpedValues",
+   name => "MasterModel::WarpedValues",
    element 
    => [
        get_element => {
@@ -231,7 +231,7 @@
 
        [qw/bar foo foo2/ ] => {
 			       type => 'node',
-			       config_class_name => 'Slave'
+			       config_class_name => 'MasterModel::Slave'
 			      }
       ],
   ]

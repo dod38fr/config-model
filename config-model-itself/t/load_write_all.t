@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2007-10-26 12:22:27 $
+# $Date: 2008-03-07 13:42:08 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision: 1.3 $
 
 use ExtUtils::testlib;
 use Test::More tests => 11;
@@ -47,7 +47,9 @@ my $model_dir = $INC{'Config/Model.pm'} ;
 $model_dir=~ s/\.pm//;
 $model_dir .= '/models' ;
 
-my $map = $rw_obj -> read_all( conf_dir => $model_dir) ;
+my $map = $rw_obj -> read_all( conf_dir => $model_dir,
+			       root_model => 'Xorg',
+			     ) ;
 
 ok(1,"Read all models from $model_dir") ;
 

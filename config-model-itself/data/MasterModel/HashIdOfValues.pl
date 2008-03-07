@@ -6,7 +6,7 @@ my @element = (
 
 [
  [
-   name => "HashIdOfValues",
+   name => "MasterModel::HashIdOfValues",
    element 
    => [ 
        plain_hash 

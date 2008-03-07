@@ -1,8 +1,8 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2008-03-04 17:45:18 $
+# $Date: 2008-03-07 13:42:08 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 use ExtUtils::testlib;
 use Test::More tests => 8;
@@ -44,7 +44,9 @@ my $root = $inst -> config_root ;
 my $rw_obj = Config::Model::Itself -> new(model_object => $root ) ;
 
 my $model_dir = 'lib/Config/Model/models' ;
-my $map = $rw_obj -> read_all( conf_dir => $model_dir) ;
+my $map = $rw_obj -> read_all( conf_dir => $model_dir,
+			       root_model => 'Itself',
+			     ) ;
 
 ok(1,"Read all models from $model_dir") ;
 
