@@ -31,7 +31,7 @@ use Config::Model::Itself ;
 # lame tracing that will be replaced by Log4perl
 use vars qw/$verbose $debug $VERSION/ ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/;
 
 $verbose = 0;
 $debug = 0;
@@ -235,6 +235,7 @@ if (not defined $model_dir) {
 
 $rw_obj -> read_all( conf_dir => $model_dir, 
 		     root_model => $root_model ) ;
+my $write_sub = sub { $rw_obj->write_all(conf_dir => $wr_conf_dir);} ;
 
 if ($ui_type eq 'shell') {
     require Config::Model::TermUI;
@@ -258,7 +259,7 @@ elsif ($ui_type eq 'curses') {
     my $dialog = Config::Model::CursesUI-> new
       (
        permission => 'advanced',
-       store => sub { $rw_obj->write_all(conf_dir => $wr_conf_dir);},
+       store => $write_sub,
       ) ;
 
     # engage in user interaction
@@ -273,9 +274,8 @@ elsif ($ui_type eq 'tk') {
     my $mw = MainWindow-> new ;
     $mw->withdraw ;
 
-    # TBD need to pass a sub ref to save data (like for Curses
-    my $cmu = $mw->ConfigModelUi (-root     => $meta_root,
-				  -conf_dir => $wr_conf_dir,
+    my $cmu = $mw->ConfigModelUi (-root      => $meta_root,
+				  -store_sub => $write_sub,
 				 ) ;
 
     &MainLoop ; # Tk's
