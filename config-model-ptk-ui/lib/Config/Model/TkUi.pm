@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2008-03-07 13:34:59 $
+# $Date: 2008-03-07 16:23:45 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.19 $
+# $Revision: 1.20 $
 
 #    Copyright (c) 2007,2008 Dominique Dumont.
 #
@@ -47,7 +47,7 @@ use Config::Model::Tk::ListEditor ;
 
 use Config::Model::Tk::NodeViewer ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.19 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.20 $ =~ /(\d+)\.(\d+)/;
 
 Construct Tk::Widget 'ConfigModelUi';
 
@@ -292,6 +292,7 @@ sub save {
     my $trace_dir = defined $dir ? $dir : 'default' ;
     if (defined $cw->{store_sub}) {
 	$logger->info( "Saving data in $trace_dir directory with store call-back" );
+	$cw->{store_sub}->($dir) ;
     }
     else {
 	$logger->info( "Saving data in $trace_dir directory with instance write_back" );
