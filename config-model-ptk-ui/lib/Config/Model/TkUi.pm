@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2008-03-06 16:33:47 $
+# $Date: 2008-03-07 13:34:59 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.18 $
+# $Revision: 1.19 $
 
 #    Copyright (c) 2007,2008 Dominique Dumont.
 #
@@ -47,7 +47,7 @@ use Config::Model::Tk::ListEditor ;
 
 use Config::Model::Tk::NodeViewer ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.18 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.19 $ =~ /(\d+)\.(\d+)/;
 
 Construct Tk::Widget 'ConfigModelUi';
 
@@ -83,6 +83,12 @@ sub Populate {
 	$attr =~ s/^-//;
 	$cw->{$attr} = delete $args->{$parm} 
 	  or croak "Missing $parm arg\n";
+    }
+
+    foreach my $parm (qw/-store_sub/) {
+	my $attr = $parm ;
+	$attr =~ s/^-//;
+	$cw->{$attr} = delete $args->{$parm} ;
     }
 
     # check unknown parameters
@@ -284,8 +290,13 @@ sub save {
     my $cw = shift ;
     my $dir = shift ;
     my $trace_dir = defined $dir ? $dir : 'default' ;
-    $logger->info( "Saving data in $trace_dir directory" );
-    $cw->{root}->instance->write_back($dir);
+    if (defined $cw->{store_sub}) {
+	$logger->info( "Saving data in $trace_dir directory with store call-back" );
+    }
+    else {
+	$logger->info( "Saving data in $trace_dir directory with instance write_back" );
+	$cw->{root}->instance->write_back($dir);
+    }
     $cw->{modified_data} = 0 ;
 }
 
@@ -682,7 +693,7 @@ configuration file only when C<File->save> menu is invoked.
 
 =head2 TODO
 
-Document widget options.
+Document widget options. (-root_model and -store_sub)
 
 =head1 AUTHOR
 
