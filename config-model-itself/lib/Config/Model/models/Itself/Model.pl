@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2007-10-16 11:15:38 $
+# $Date: 2008-03-10 13:26:42 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.1 $
+# $Revision: 1.2 $
 
 #    Copyright (c) 2007 Dominique Dumont.
 #
@@ -39,8 +39,7 @@
 
    'description' 
    => [
-       class  => 'A configuration model is made of several configuration 
-                  classes.',
+       class  => 'A configuration model is made of several configuration classes.',
       ],
   ],
 
