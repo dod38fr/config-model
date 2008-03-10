@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2008-03-04 17:43:45 $
+# $Date: 2008-03-10 12:57:54 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.3 $
+# $Revision: 1.4 $
 
 #    Copyright (c) 2007 Dominique Dumont.
 #
@@ -35,7 +35,7 @@ use File::Basename ;
 
 use vars qw($VERSION) ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/;
 
 my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
@@ -289,16 +289,39 @@ sub write_all {
 
     my $i = $model_obj->instance ;
 
+    # get list of all classes loaded by the editor
+    my %loaded_classes 
+      = map { ($_ => 1); } 
+	$model_obj->fetch_element('class')->get_all_indexes ;
+
+    # remove classes that are listed in map
     foreach my $file (keys %$map) {
+	foreach my $class_name (@{$map->{$file}}) {
+	    delete $loaded_classes{$class_name} ;
+	}
+    }
+
+    # add remaining classes in map
+    my %new_map =  map { 
+	my $f = $_; 
+	$f =~ s!::!/!g; 
+	("$f.pl" => [ $_ ]) ;
+    } keys %loaded_classes ;
+
+    my %map_to_write = (%$map,%new_map) ;
+
+    foreach my $file (keys %new_map) {
 	$logger->info("writing config file $file");
 
 	my @data ;
 
-	foreach my $class_name (@{$map->{$file}}) {
+	foreach my $class_name (@{$new_map{$file}}) {
 	    $logger->info("writing class $class_name");
 	    my $model 
 	      = $self-> get_perl_data_model(class_name   => $class_name) ;
 	    push @data, $model ;
+	    # remove class name from above list
+	    delete $loaded_classes{$class_name} ;
 	}
 
 	my $wr_file = "$dir/$file" ;

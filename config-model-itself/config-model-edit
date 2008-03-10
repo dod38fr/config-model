@@ -31,7 +31,7 @@ use Config::Model::Itself ;
 # lame tracing that will be replaced by Log4perl
 use vars qw/$verbose $debug $VERSION/ ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/;
 
 $verbose = 0;
 $debug = 0;
@@ -235,7 +235,11 @@ if (not defined $model_dir) {
 
 $rw_obj -> read_all( conf_dir => $model_dir, 
 		     root_model => $root_model ) ;
-my $write_sub = sub { $rw_obj->write_all(conf_dir => $wr_conf_dir);} ;
+
+my $write_sub = sub { 
+    my $wr_dir = shift || $wr_conf_dir ;
+    $rw_obj->write_all(conf_dir => $wr_dir);
+} ;
 
 if ($ui_type eq 'shell') {
     require Config::Model::TermUI;

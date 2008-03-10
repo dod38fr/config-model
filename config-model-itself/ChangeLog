@@ -1,3 +1,10 @@
+2008-03-10  Dominique Dumont  <dominique.dumont@hp.com>
+
+	* lib/Config/Model/Itself.pm (write_all): can now write
+	configuration class created with the editor. Each class created
+	will be saved in its own file. I.e. configuration class Foo::Bar
+	will be saved in Foo/Bar.pl
+
 2008-02-07  Dominique Dumont  
 
 	* config-model-edit: added possibity to use Tk interface.

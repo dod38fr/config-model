@@ -1,11 +1,11 @@
 # -*- cperl -*-
 # $Author: ddumont $
-# $Date: 2008-03-07 13:42:08 $
+# $Date: 2008-03-10 12:57:54 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.4 $
+# $Revision: 1.5 $
 
 use ExtUtils::testlib;
-use Test::More tests => 13;
+use Test::More tests => 15;
 use Config::Model;
 use Log::Log4perl qw(:easy) ;
 use Data::Dumper ;
@@ -92,6 +92,10 @@ my $expected_map
 is_deeply($expected_map, $map, "Check file class map") ;
 print Dumper $map if $trace ;
 
+# add a new class 
+$root->load("class:Master::Created element:created1 type=leaf - element:created2 type=leaf") ;
+ok(1,"added new class Master::Created") ;
+
 my $cds = $root->dump_tree (full_dump => 1) ;
 my @cds_orig = split /\n/,$cds ;
 
@@ -136,7 +140,6 @@ my $dump = $rw_obj -> get_perl_data_model ( class_name => 'MasterModel' ) ;
 print Dumper $dump if $trace ;
 ok($dump,"Checked dump of one class");
 
-
 $rw_obj->write_all( conf_dir => $wr_dir ) ;
 
 my $model = Config::Model->new ;
@@ -144,6 +147,8 @@ $model -> load ('X_base_class', 'wr_test/MasterModel/X_base_class.pl') ;
 ok(1,"loaded X_base_class") ;
 $model -> load ('MasterModel' , 'wr_test/MasterModel.pl') ;
 ok(1,"loaded MasterModel") ;
+$model -> load ('MasterModel::Created' , 'wr_test/Master/Created.pl') ;
+ok(1,"loaded MasterModel::Created") ;
 
 my $inst4 = $model->instance (root_class_name   => 'MasterModel', 
 			    instance_name     => 'test_instance',
