@@ -21,3 +21,4 @@ MANIFEST			This list of files
 t/itself.t
 META.yml
 t/load_write_itself.t
+t/pod.t
