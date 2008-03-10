@@ -1,7 +1,7 @@
 # $Author: ddumont $
-# $Date: 2008-03-10 12:57:54 $
+# $Date: 2008-03-10 13:39:10 $
 # $Name: not supported by cvs2svn $
-# $Revision: 1.4 $
+# $Revision: 1.5 $
 
 #    Copyright (c) 2007 Dominique Dumont.
 #
@@ -35,7 +35,7 @@ use File::Basename ;
 
 use vars qw($VERSION) ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%03d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/;
 
 my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
@@ -310,12 +310,12 @@ sub write_all {
 
     my %map_to_write = (%$map,%new_map) ;
 
-    foreach my $file (keys %new_map) {
+    foreach my $file (keys %map_to_write) {
 	$logger->info("writing config file $file");
 
 	my @data ;
 
-	foreach my $class_name (@{$new_map{$file}}) {
+	foreach my $class_name (@{$map_to_write{$file}}) {
 	    $logger->info("writing class $class_name");
 	    my $model 
 	      = $self-> get_perl_data_model(class_name   => $class_name) ;
