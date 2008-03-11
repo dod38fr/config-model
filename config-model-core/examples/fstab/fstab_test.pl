@@ -1,7 +1,6 @@
-# $Author: ddumont $
-# $Date: 2008-03-06 16:36:42 $
-# $Name: not supported by cvs2svn $
-# $Revision: 1.7 $
+# $Author$
+# $Date$
+# $Revision$
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -245,13 +244,13 @@ my $term_ui = Config::Model::TermUI
 # engage in user interaction
 $term_ui -> run_loop ;
 
-eval {require Config::Model::TkUi} ;
+eval {require Config::Model::TkUI} ;
 
 if ($@) {
     print "
 
 If you want to try the Perl/Tk graphical interface, you must install 
-Config::Model::TkUi and re-run this test.
+Config::Model::TkUI and re-run this test.
 
 " ;
 }
@@ -276,7 +275,7 @@ free to experiment
     my $mw = MainWindow-> new ;
     $mw->withdraw ;
 
-    $mw->ConfigModelUi (-root => $root,) ;
+    $mw->ConfigModelUI (-root => $root,) ;
 
     &MainLoop ; # Tk's
 }

@@ -1,6 +1,5 @@
 # $Author: ddumont $
 # $Date: 2008-03-04 17:41:40 $
-# $Name: not supported by cvs2svn $
 # $Revision: 1.14 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
@@ -36,7 +35,7 @@ use warnings::register ;
 
 use vars qw/$VERSION/ ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.14 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "1.%04d", q$Revision: 1.14 $ =~ /(\d+)/;
 
 use Carp qw/croak confess cluck/;
 

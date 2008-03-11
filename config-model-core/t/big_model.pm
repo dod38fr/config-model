@@ -1,8 +1,8 @@
 # -*- cperl -*-
-# $Author: ddumont $
-# $Date: 2007-10-19 11:43:42 $
+# $Author$
+# $Date$
 # $Name: not supported by cvs2svn $
-# $Revision: 1.18 $
+# $Revision$
 
 # this file is used by test script
 

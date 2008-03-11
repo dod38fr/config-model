@@ -1,6 +1,5 @@
 # $Author: ddumont $
 # $Date: 2008-02-14 17:11:50 $
-# $Name: not supported by cvs2svn $
 # $Revision: 1.14 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
@@ -32,7 +31,7 @@ use Config::Model::Exception ;
 use Data::Dumper ();
 
 use vars qw($VERSION $AUTOLOAD) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.14 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "1.%04d", q$Revision: 1.14 $ =~ /(\d+)/;
 
 =head1 NAME
 

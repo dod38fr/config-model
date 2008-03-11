@@ -1,6 +1,5 @@
 # $Author: ddumont $
 # $Date: 2008-02-26 13:32:57 $
-# $Name: not supported by cvs2svn $
 # $Revision: 1.22 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
@@ -41,7 +40,7 @@ use base qw/Config::Model::AutoRead/;
 use vars qw($VERSION $AUTOLOAD @status @level
 @permission_list %permission_index );
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.22 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "1.%04d", q$Revision: 1.22 $ =~ /(\d+)/;
 
 *status           = *Config::Model::status ;
 *level            = *Config::Model::level ;

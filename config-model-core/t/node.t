@@ -1,8 +1,8 @@
 # -*- cperl -*-
-# $Author: ddumont $
-# $Date: 2007-09-20 11:39:37 $
+# $Author$
+# $Date$
 # $Name: not supported by cvs2svn $
-# $Revision: 1.4 $
+# $Revision$
 
 use ExtUtils::testlib;
 use Test::More tests => 45;

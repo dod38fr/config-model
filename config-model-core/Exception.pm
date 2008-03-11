@@ -1,6 +1,5 @@
 # $Author: ddumont $
 # $Date: 2008-02-14 17:11:50 $
-# $Name: not supported by cvs2svn $
 # $Revision: 1.13 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
@@ -28,7 +27,7 @@ use strict;
 use Data::Dumper ;
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.13 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "1.%04d", q$Revision: 1.13 $ =~ /(\d+)/;
 
 push @Exception::Class::Base::ISA, 'Error';
 

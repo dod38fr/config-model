@@ -1,6 +1,5 @@
 # $Author: ddumont $
 # $Date: 2007-10-19 11:43:41 $
-# $Name: not supported by cvs2svn $
 # $Revision: 1.6 $
 
 #    Copyright (c) 2007 Dominique Dumont.
@@ -31,7 +30,7 @@ use Carp ;
 
 use vars qw($VERSION) ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "1.%04d", q$Revision: 1.6 $ =~ /(\d+)/;
 
 
 =head1 NAME

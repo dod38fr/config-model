@@ -1,6 +1,5 @@
 # $Author: ddumont $
 # $Date: 2008-02-29 12:05:00 $
-# $Name: not supported by cvs2svn $
 # $Revision: 1.18 $
 
 #    Copyright (c) 2006-2007 Dominique Dumont.
@@ -29,7 +28,7 @@ use Carp;
 use warnings ;
 use UNIVERSAL qw( isa can );
 
-our $VERSION = sprintf "%d.%03d", q$Revision: 1.18 $ =~ /(\d+)\.(\d+)/;
+our $VERSION = sprintf "1.%04d", q$Revision: 1.18 $ =~ /(\d+)/;
 
 use Carp qw/croak confess cluck/;
 

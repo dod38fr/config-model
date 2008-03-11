@@ -1,6 +1,5 @@
 # $Author: ddumont $
 # $Date: 2007-01-08 12:48:22 $
-# $Name: not supported by cvs2svn $
 # $Revision: 1.6 $
 
 #    Copyright (c) 2006-2007 Dominique Dumont.
@@ -31,7 +30,7 @@ use Config::Model::ObjTreeScanner ;
 use Text::Wrap ;
 
 use vars qw($VERSION);
-$VERSION = sprintf "%d.%03d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "1.%04d", q$Revision: 1.6 $ =~ /(\d+)/;
 
 =head1 NAME
 

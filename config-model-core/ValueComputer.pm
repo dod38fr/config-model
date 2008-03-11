@@ -1,6 +1,5 @@
 # $Author: ddumont $
 # $Date: 2007-09-25 12:23:00 $
-# $Name: not supported by cvs2svn $
 # $Revision: 1.9 $
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
@@ -33,7 +32,7 @@ use Data::Dumper () ;
 
 use vars qw($VERSION $compute_grammar $compute_parser) ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.9 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "1.%04d", q$Revision: 1.9 $ =~ /(\d+)/;
 
 =head1 NAME
 

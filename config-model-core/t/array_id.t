@@ -1,8 +1,8 @@
 # -*- cperl -*-
-# $Author: ddumont $
-# $Date: 2006-12-06 12:51:59 $
+# $Author$
+# $Date$
 # $Name: not supported by cvs2svn $
-# $Revision: 1.7 $
+# $Revision$
 
 use warnings FATAL => qw(all);
 
