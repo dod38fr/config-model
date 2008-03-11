@@ -12,7 +12,7 @@ lib/Config/Model/Tk/LeafViewer.pm
 lib/Config/Model/Tk/ListEditor.pm
 lib/Config/Model/Tk/ListViewer.pm
 lib/Config/Model/Tk/NodeViewer.pm
-lib/Config/Model/TkUi.pm
+lib/Config/Model/TkUI.pm
 MANIFEST			This list of files
 README
 t/big_model.pm

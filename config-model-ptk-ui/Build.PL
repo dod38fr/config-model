@@ -1,13 +1,12 @@
 # $Author$
 # $Date$
-# $Name: not supported by cvs2svn $
 # $Revision$
 
 #    Copyright (c) 2007,2008 Dominique Dumont.
 #
-#    This file is part of Config-Model-TkUi.
+#    This file is part of Config-Model-TkUI.
 #
-#    Config-Model-TkUi is free software; you can redistribute it
+#    Config-Model-TkUI is free software; you can redistribute it
 #    and/or modify it under the terms of the GNU Lesser Public License
 #    as published by the Free Software Foundation; either version 2.1
 #    of the License, or (at your option) any later version.
@@ -28,11 +27,11 @@ require 5.006 ;
 
 my $build = Module::Build->new
   (
-   module_name => 'Config::Model::TkUi',
+   module_name => 'Config::Model::TkUI',
    license => 'lgpl',
    dist_abstract => "Perl/Tk interface for Config::Model",
    dist_author  => "Dominique Dumont (ddumont at cpan dot org)",
-   dist_version  => '0.101' ,
+   dist_version  => '0.102' ,
    requires => {
 		'Config::Model'    => '0.619',
 		'Exception::Class' => 0,

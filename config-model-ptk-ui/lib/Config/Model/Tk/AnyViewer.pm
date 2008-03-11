@@ -28,6 +28,7 @@ use Carp ;
 
 use Tk::Photo ;
 use Tk::ROText;
+use Config::Model::TkUI ;
 
 use vars qw/$VERSION $icon_path/ ;
 

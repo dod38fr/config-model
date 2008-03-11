@@ -1,5 +1,7 @@
-2008-03-07  Dominique Dumont 
+2008-03-07  Dominique Dumont v0.102
 
-	* TkUi.pm (Populate): added -store_sub option
-	
+	* Renamed TkUi.pm to TkUI.pm to fit Module list declaration
+	* TkUI.pm (Populate): added -store_sub option
+	* all: Moved to svn
+	* all: Changed keywords substitution to fit svn
 
