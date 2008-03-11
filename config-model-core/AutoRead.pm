@@ -1,6 +1,6 @@
-# $Author: ddumont $
-# $Date: 2008-02-27 13:40:02 $
-# $Revision: 1.12 $
+# $Author$
+# $Date$
+# $Revision$
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -31,7 +31,7 @@ use UNIVERSAL ;
 
 use base qw/Config::Model::AnyThing/ ;
 
-our $VERSION = sprintf "1.%04d", q$Revision: 1.12 $ =~ /(\d+)/;
+our $VERSION = sprintf "1.%04d", q$Revision$ =~ /(\d+)/;
 
 =head1 NAME
 

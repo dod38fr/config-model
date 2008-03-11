@@ -1,6 +1,6 @@
-# $Author: ddumont $
-# $Date: 2008-02-26 13:32:57 $
-# $Revision: 1.22 $
+# $Author$
+# $Date$
+# $Revision$
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -40,7 +40,7 @@ use base qw/Config::Model::AutoRead/;
 use vars qw($VERSION $AUTOLOAD @status @level
 @permission_list %permission_index );
 
-$VERSION = sprintf "1.%04d", q$Revision: 1.22 $ =~ /(\d+)/;
+$VERSION = sprintf "1.%04d", q$Revision$ =~ /(\d+)/;
 
 *status           = *Config::Model::status ;
 *level            = *Config::Model::level ;

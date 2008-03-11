@@ -1,6 +1,6 @@
-# $Author: ddumont $
-# $Date: 2008-02-06 17:26:56 $
-# $Revision: 1.25 $
+# $Author$
+# $Date$
+# $Revision$
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -28,7 +28,7 @@ use Carp;
 use strict;
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "1.%04d", q$Revision: 1.25 $ =~ /(\d+)/;
+$VERSION = sprintf "1.%04d", q$Revision$ =~ /(\d+)/;
 
 use base qw/Config::Model::WarpedThing/;
 

@@ -1,6 +1,6 @@
-# $Author: ddumont $
-# $Date: 2008-02-29 12:05:00 $
-# $Revision: 1.18 $
+# $Author$
+# $Date$
+# $Revision$
 
 #    Copyright (c) 2006-2007 Dominique Dumont.
 #
@@ -28,7 +28,7 @@ use Carp;
 use warnings ;
 use UNIVERSAL qw( isa can );
 
-our $VERSION = sprintf "1.%04d", q$Revision: 1.18 $ =~ /(\d+)/;
+our $VERSION = sprintf "1.%04d", q$Revision$ =~ /(\d+)/;
 
 use Carp qw/croak confess cluck/;
 

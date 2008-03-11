@@ -1,6 +1,6 @@
-# $Author: ddumont $
-# $Date: 2007-11-15 12:00:16 $
-# $Revision: 1.15 $
+# $Author$
+# $Date$
+# $Revision$
 
 #    Copyright (c) 2006-2007 Dominique Dumont.
 #
@@ -28,7 +28,7 @@ use warnings ;
 use Config::Model::Exception ;
 
 use vars qw($VERSION);
-$VERSION = sprintf "1.%04d", q$Revision: 1.15 $ =~ /(\d+)/;
+$VERSION = sprintf "1.%04d", q$Revision$ =~ /(\d+)/;
 
 =head1 NAME
 
