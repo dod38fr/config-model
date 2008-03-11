@@ -1,11 +1,10 @@
-# $Author: ddumont $
-# $Date: 2008-03-07 16:23:45 $
-# $Name: not supported by cvs2svn $
-# $Revision: 1.20 $
+# $Author$
+# $Date$
+# $Revision$
 
 #    Copyright (c) 2007,2008 Dominique Dumont.
 #
-#    This file is part of Config-Model-TkUi.
+#    This file is part of Config-Model-TkUI.
 #
 #    Config-Model is free software; you can redistribute it and/or
 #    modify it under the terms of the GNU Lesser Public License as
@@ -21,7 +20,7 @@
 #    along with Config-Model; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 
-package Config::Model::TkUi ;
+package Config::Model::TkUI ;
 
 use strict;
 use warnings ;
@@ -47,16 +46,16 @@ use Config::Model::Tk::ListEditor ;
 
 use Config::Model::Tk::NodeViewer ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.20 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "1.%04d", q$Revision$ =~ /(\d+)/;
 
-Construct Tk::Widget 'ConfigModelUi';
+Construct Tk::Widget 'ConfigModelUI';
 
 my $warn_img ;
 my $cust_img ;
 
-my $mod_file = 'Config/Model/TkUi.pm' ;
-$icon_path = $INC{'Config/Model/TkUi.pm'} ;
-$icon_path =~ s/TkUi.pm//;
+my $mod_file = 'Config/Model/TkUI.pm' ;
+$icon_path = $INC{'Config/Model/TkUI.pm'} ;
+$icon_path =~ s/TkUI.pm//;
 $icon_path .= 'Tk/icons/' ;
 
 my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -208,7 +207,7 @@ Tree usage (left hand side of widget)
 Editor widget usage
 
 When clicking on store, the new data is stored in the tree represented
-on the left side of TkUi. The new data will be stored in the
+on the left side of TkUI. The new data will be stored in the
 configuration file only when "File->save" menu is invoked.
 
 EOF
@@ -232,7 +231,7 @@ sub add_help_menu {
 
     my $about_sub = sub {
 	$cw->Dialog(-title => 'About',
-		    -text => "Config::Model::TkUi \n"
+		    -text => "Config::Model::TkUI \n"
 		    ."(c) 2008 Dominique Dumont \n"
 		    ."Licensed under LGPLv2\n"
 		   ) -> Show ;
@@ -636,11 +635,11 @@ __END__
 
 =head1 NAME
 
-Config::Model::TkUi - Perl/Tk widget to edit content of Config::Model
+Config::Model::TkUI - Perl/Tk widget to edit content of Config::Model
 
 =head1 SYNOPSIS
 
- use Config::Model::TkUi;
+ use Config::Model::TkUI;
 
  # init trace
  Log::Log4perl->easy_init($WARN);
@@ -654,7 +653,7 @@ Config::Model::TkUi - Perl/Tk widget to edit content of Config::Model
  # Tk part
  my $mw = MainWindow-> new ;
  $mw->withdraw ;
- $mw->ConfigModelUi (-root => $root) ;
+ $mw->ConfigModelUI (-root => $root) ;
 
  MainLoop ;
 
@@ -689,7 +688,7 @@ Right-click on any item to open an editor widget
 =head2 Editor widget
 
 When clicking on store, the new data is stored in the tree represented
-on the left side of TkUi. The new data will be stored in the
+on the left side of TkUI. The new data will be stored in the
 configuration file only when C<File->save> menu is invoked.
 
 =head2 TODO

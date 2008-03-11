@@ -1,0 +1,42 @@
+
+Config::Model::TkUi - Perl/Tk interface for Config::Model
+
+This module provides a Perl/Tk interface to Config::Model.
+
+All icons used in this application were created by Tango Desktop Project.
+They are licensed under Creative Commons Attribution Share-Alike license.
+
+-----------------------------------------------------------
+
+Legalese:
+
+
+    Copyright (c) 2008 Dominique Dumont.
+
+    This file is part of Config-Model-TkUi.
+
+    Config-Model is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Lesser Public License as
+    published by the Free Software Foundation; either version 2.1 of
+    the License, or (at your option) any later version.
+
+    Config-Model is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Lesser Public License for more details.
+
+    You should have received a copy of the GNU Lesser Public License
+    along with Config-Model; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+    02110-1301 USA
+
+---------------------------------------------------------------------
+INSTALLATION
+
+         tar zxvf <dist_file>.tar.gz
+         cd <dist_directory>
+         perl Build.PL
+         ./Build
+         ./Build test (optional)
+         ./Build install (may need root capabilities)
+

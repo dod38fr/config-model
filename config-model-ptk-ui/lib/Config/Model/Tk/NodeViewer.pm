@@ -1,7 +1,6 @@
-# $Author: ddumont $
-# $Date: 2008-02-15 12:56:57 $
-# $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Author$
+# $Date$
+# $Revision$
 
 #    Copyright (c) 2008 Dominique Dumont.
 #
@@ -31,7 +30,7 @@ use base qw/Tk::Frame Config::Model::Tk::AnyViewer/;
 use vars qw/$VERSION/ ;
 use subs qw/menu_struct/ ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "1.%04d", q$Revision$ =~ /(\d+)/;
 
 Construct Tk::Widget 'ConfigModelNodeViewer';
 

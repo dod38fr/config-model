@@ -1,11 +1,10 @@
-# $Author: ddumont $
-# $Date: 2008-02-15 16:47:47 $
-# $Name: not supported by cvs2svn $
-# $Revision: 1.7 $
+# $Author$
+# $Date$
+# $Revision$
 
 #    Copyright (c) 2008 Dominique Dumont.
 #
-#    This file is part of Config-Model-TkUi.
+#    This file is part of Config-Model-TkUI.
 #
 #    Config-Model is free software; you can redistribute it and/or
 #    modify it under the terms of the GNU Lesser Public License as
@@ -31,7 +30,7 @@ use Log::Log4perl ;
 use base qw/Tk::Frame Config::Model::Tk::AnyViewer/;
 use vars qw/$VERSION/ ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "1.%04d", q$Revision$ =~ /(\d+)/;
 
 Construct Tk::Widget 'ConfigModelLeafViewer';
 
