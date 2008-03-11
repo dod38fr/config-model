@@ -1,7 +1,6 @@
 # -*- cperl -*-
 # $Author$
 # $Date$
-# $Name: not supported by cvs2svn $
 # $Revision$
 
 use ExtUtils::testlib;

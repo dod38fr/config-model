@@ -1,6 +1,5 @@
 # -*- cperl -*-
 # $Date$
-# $Name: not supported by cvs2svn $
 # $Revision$
 
 use warnings FATAL => qw(all);
