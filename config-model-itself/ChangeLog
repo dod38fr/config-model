@@ -1,3 +1,8 @@
+2008-03-16  Domi  <domi@bilbo.maison>
+
+	* lib/Config/Model/Itself.pm (read_all): Skip svn directory when
+	reading model files
+
 2008-03-10  Dominique Dumont  <dominique.dumont@hp.com>
 
 	* lib/Config/Model/Itself.pm (write_all): can now write

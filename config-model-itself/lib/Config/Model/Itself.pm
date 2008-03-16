@@ -154,7 +154,9 @@ sub read_all {
     my @files ;
     my $wanted = sub { 
 	my $n = $File::Find::name ;
-	push @files, $n if (-f $_ and not /~$/ and $n !~ /CVS/
+	push @files, $n if (-f $_ and not /~$/ 
+			    and $n !~ /CVS/
+			    and $n !~ m!.svn!
 			    and $n =~ /\b$model/
 			   ) ;
     } ;
