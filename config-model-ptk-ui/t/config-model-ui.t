@@ -8,7 +8,7 @@ use warnings FATAL => qw(all);
 use ExtUtils::testlib;
 use Test::More tests => 4 ;
 use Tk;
-use Config::Model::TkUi;
+use Config::Model::TkUI;
 use Config::Model ;
 use Log::Log4perl qw(:easy) ;
 
@@ -80,7 +80,7 @@ my $toto ;
 my $mw = MainWindow-> new ;
 $mw->withdraw ;
 
-my $cmu = $mw->ConfigModelUi (-root => $root, 
+my $cmu = $mw->ConfigModelUI (-root => $root, 
 			     ) ;
 
 my $delay = 200 ;
