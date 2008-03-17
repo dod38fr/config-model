@@ -1,7 +1,6 @@
-# $Author: ddumont $
-# $Date: 2008-02-29 12:43:15 $
-# $Name: not supported by cvs2svn $
-# $Revision: 1.5 $
+# $Author$
+# $Date$
+# $Revision$
 
 #    Copyright (c) 2007 Dominique Dumont.
 #
@@ -47,7 +46,7 @@ use Exception::Class
   ) ;
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "%d.%03d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "1.%04d", q$Revision$ =~ /(\d+)/;
 
 my @help_settings = qw/-bg green -fg black -border 1 
                        -titlereverse 0
@@ -261,7 +260,7 @@ sub start {
 	$self->start_config(@inst_names) ;
     }
 
-    MainLoop;
+    $self->{cui}->mainloop;
 }
 
 sub reset_config {
@@ -1808,7 +1807,7 @@ __END__
 
 =head1 NAME
 
-Config::Model::CursesUI - Curses interface for configuration tree
+Config::Model::CursesUI - Curses interface to edit config data
 
 =head1 SYNOPSIS
 

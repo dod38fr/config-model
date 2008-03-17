@@ -1,3 +1,8 @@
+2008-03-17  Dominique Dumont v1.006
+
+	* lib/Config/Model/CursesUI.pm (start): adapted for Curses::UI
+	0.9603 (changed call to main loop)
+
 2008-02-29  Dominique Dumont v1.005
 
 	* lib/Config/Model/CursesUI.pm: removed kludgy enum-integer value

@@ -1,7 +1,6 @@
-# $Author: ddumont $
-# $Date: 2008-02-15 12:18:11 $
-# $Name: not supported by cvs2svn $
-# $Revision: 1.3 $
+# $Author$
+# $Date$
+# $Revision$
 
 #    Copyright (c) 2007 Dominique Dumont.
 #
@@ -30,8 +29,9 @@ my $build = Module::Build->new
   (
    module_name => 'Config::Model::CursesUI',
    license => 'lgpl',
-   dist_abstract => "Curses interface for Config::Model",
+   dist_abstract => "Curses interface to edit config data through Config::Model",
    dist_author  => "Dominique Dumont (ddumont at cpan dot org)",
+   dist_version  => '1.006' ,
    requires => {
 		'Config::Model'    => '0.614',
 		'Exception::Class' => 0,
