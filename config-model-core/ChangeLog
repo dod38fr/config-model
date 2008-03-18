@@ -1,3 +1,13 @@
+2008-03-18  Dominique Dumont  v0.620
+
+	* TermUI.pm: Fixed to work with Term::ReadLine::Gnu or
+	Term::ReadLine::Perl. Can also work in degraded mode without these
+	2 modules. 
+	The command handling part was moved to SimpleUI.pm
+
+	* config-edit: added Simple UI mode so config-edit can be used
+	with stdin and stdout
+
 2008-02-29  Dominique Dumont  v0.619
 
 	* Value.pm: removed kludgy enum_integer value type 

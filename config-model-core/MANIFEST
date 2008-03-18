@@ -26,6 +26,7 @@ ObjTreeScanner.pm
 Report.pm
 README
 Searcher.pm
+SimpleUI.pm
 TermUI.pm
 t/array_id.t
 t/auto_load_model.t
@@ -47,6 +48,7 @@ t/obj_tree_scanner.t
 t/recursive_warp_value.t
 t/report.t
 t/search_element.t
+t/simple_ui.t
 t/term_ui.t
 t/value.t
 t/value_compute.t

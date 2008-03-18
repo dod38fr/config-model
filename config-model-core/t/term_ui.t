@@ -16,7 +16,7 @@ BEGIN {
 	plan skip_all => "Cannot load Term::ReadLine" ;
     }
     else {
-	plan tests => 22 ;
+	plan tests => 10 ;
     }
 
 
@@ -50,7 +50,12 @@ ok($inst,"created dummy instance") ;
 
 my $root = $inst -> config_root ;
 
-my $step = 'std_id:ab X=Bv - std_id:bc X=Av - a_string="toto tata"';
+my $step = 'std_id:ab X=Bv - '
+         . 'std_id:bc X=Av - '
+         . 'std_id:"abc def" X=Av - '
+         . 'std_id:"abc hij" X=Av - '
+         . 'a_string="toto tata"';
+
 ok( $root->load( step => $step, permission => 'intermediate' ),
   "set up data in tree with '$step'");
 
@@ -63,36 +68,23 @@ my $term_ui = Config::Model::TermUI->new( root => $root ,
 					  prompt => $prompt,
 					);
 
-my $expected_prompt = $prompt.':$ ' ;
-
-ok($term_ui,"Created term_ui") ;
-
-my $path = $term_ui->list_cd_path ;
-
-is_deeply ($path, 
-	   [qw/std_id:ab std_id:bc tree_macro warp slave_y
-               string_with_def a_uniline a_string int_v my_check_list my_reference/] ,
-	   'check list cd path at root') ;
-
-is($term_ui->prompt, $expected_prompt ,'test prompt at root') ;
-
-my @test = ( 
-	    [ 'vf std_id:ab', "Unexpected command 'vf'", $expected_prompt  ],
-	    [ 'ls', 
-	      'std_id  lista  listb  hash_a  hash_b  ordered_hash  olist  tree_macro  warp  slave_y  string_with_def  a_uniline  a_string  int_v  my_check_list  my_reference', 
-	      $expected_prompt  ],
-	    [ 'set a_string="some value with space"', "", $expected_prompt],
-	    [ 'cd std_id:ab', "", $prompt.': std_id:ab $ '  ],
-	    [ 'set X=Av',"", $prompt.': std_id:ab $ ' ],
-	    [ 'display X',"Av", $prompt.': std_id:ab $ ' ],
-	    [ 'cd !',"",$expected_prompt],
-	    [ 'delete std_id:ab',"", $expected_prompt],
-	   ) ;
+my @test 
+  = ( # text line start ## expected completions
+     [ [ '', '',0 ], [ qw/cd delete desc description display dump help ll ls save set/] ],
+     [ [ '', 'cd ',3 ], ['!', '-', 'std_id:', 'olist:', 'warp ', 'slave_y '] ],
+     [ [ 's', 'cd s',3 ], ['std_id:', 'slave_y '] ],
+     [ [ 'sl', 'cd sl',3 ], [ 'slave_y '] ],
+     [ [ '', 'cd std_id:',10 ], [ 'ab ', '"abc def" ', '"abc hij" ','bc ' ] ],
+     [ [ '', 'cd std_id:"',11 ], [ 'ab ', 'abc def" ', 'abc hij" ','bc ' ] ],
+#     [ [ '"abc', 'cd std_id:"abc',14 ], [ ' def" ', ' hij" ' ] ],
+     [ [ 'a', 'cd std_id:a',3 ], [ 'ab '] ],
+    ) ;
 
 foreach my $a_test (@test) {
-    my ($cmd,$expect,$expect_prompt) = @$a_test ;
+    my ($input,$expect) = @$a_test ;
 
-    is($term_ui->run($cmd),$expect ,"exec $cmd, expect $expect") ;
+    my @comp = $term_ui->completion(@$input) ;
+    print Dumper (\@comp) if $trace ;
+    is_deeply(\@comp,$expect ,"exec '".join("', '",@$input)."'") ;
 
-    is($term_ui->prompt,$expect_prompt,"test prompt is $expect_prompt") ;
 }

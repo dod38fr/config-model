@@ -2,7 +2,7 @@
 # $Date$
 # $Revision$
 
-#    Copyright (c) 2006-2007 Dominique Dumont.
+#    Copyright (c) 2006-2008 Dominique Dumont.
 #
 #    This file is part of Config-Model.
 #
@@ -30,11 +30,13 @@ use warnings ;
 use Term::ReadLine;
 
 use vars qw($VERSION);
+use base qw/Config::Model::SimpleUI/ ;
+
 $VERSION = sprintf "1.%04d", q$Revision$ =~ /(\d+)/;
 
 =head1 NAME
 
-  Config::Model::TermUI - Provides Config::Model UI à la Term::ReadLine
+Config::Model::TermUI - Provides Config::Model UI à la Term::ReadLine
 
 =head1 SYNOPSIS
 
@@ -54,180 +56,21 @@ $VERSION = sprintf "1.%04d", q$Revision$ =~ /(\d+)/;
 =head1 DESCRIPTION
 
 This module provides a helper to construct pure ascii user interface
-on top of L<Term::ReadLine>.
+on top of L<Term::ReadLine>. To get better interaction you must
+install either L<Term::ReadLine::Gnu> or L<Term::ReadLine::Perl>.
+
+Depending on your installation, either L<Term::ReadLine::Gnu> or
+L<Term::ReadLine::Perl>. See L<Term::ReadLine> to override default
+choice.
 
 =head1 USER COMMAND SYNTAX
 
-=over
-
-=item cd ...
-
-Jump into node or value element. You can use C<< cd <element> >>,
-C<< cd <elt:key> >> or C<cd -> to go up one node or C<cd !> 
-to go to configuration root.
-
-=item set elt=value, elt:key=value
-
-Set a value.
-
-=item display elt elt:key
-
-Display a value
-
-=item ls
-
-Show elements of current node
-
-=item help
-
-Show available commands.
-
-=item desc[ription]
-
-Show class description of current node.
-
-=item desc(elt)
-
-Show description of element from current node.
-
-=item desc(value)
-
-Show effect of value (for enum)
-
-=back
+See L<Config::Model::SimpleUI/"USER COMMAND SYNTAX">.
 
 =cut
 
-my $syntax = '
-cd <elt> cd <elt:key>, cd - , cd !
-   -> jump into node
-set elt=value, elt:key=value
-   -> set a value
-delete elt:key
-   -> delete a value from a list or hash element
-display elt elt:key
-   -> display a value
-ls   -> show elements of current node
-help -> show available command
-desc[ription] -> show class desc of current node
-desc <element>   -> show desc of element from current node
-desc <value> -> show effect of value (for enum)
-exit -> exit shell
-';
-
-my $desc_sub = sub {
-    my $self = shift ;
-    my $obj = $self->{current_node} ;
-    my $res = '';
-
-    if (@_) {
-	my $item ;
-	while ($item = shift) {
-	    print "DEBUG: desc on $item\n" if $::debug;
-	    if ($obj->isa('Config::Model::Node')) {
-		my $type = $obj->element_type($item) ;
-		my $elt = $obj->fetch_element($item);
-		$res .= "element $item (type $type): "
-		  . $obj->get_help($item)."\n" ;
-		if ($type eq 'leaf' and $elt->value_type eq 'enum') {
-		    $res .= "  possible values: "
-		      . join(', ',$elt->get_choice) . "\n" ;
-		}
-	    }
-	}
-    }
-    else {
-	$res = $obj->get_help() ;
-    }
-    return $res ;
-} ;
-
-my $ll_sub = sub {
-    my $self = shift ;
-    my $obj = $self->{current_node} ;
-
-    my $i = $self->{current_node}->instance;
-    $i->push_no_value_check('fetch') ;
-    my $res = $obj->describe ;
-    $i->pop_no_value_check;
-    return $res ; 
-} ;
-
-my $cd_sub = sub { 
-    my $self = shift ;
-    my @cmds = @_;
-    # convert usual cd_ism ( .. /foo) to grab syntax ( - ! foo)
-    #map { s(^/)  (! ); 
-#	  s(\.\.)(-)g; 
-#	  s(/)   ( )g;
-#      } @cmds ;
-
-    my $new_node = $self->{current_node}->grab("@cmds") ;
-    my $type = $new_node -> get_type ;
-    my $name = $new_node -> element_name ;
-
-    if (defined $new_node && $type eq 'node') {
-	$self->{current_node} = $new_node;
-    }
-    elsif (defined $new_node && $type eq 'list' ) {
-	print "Can't cd in a $type, please add an index (e.g. $name:0)\n" ;
-    }
-    elsif (defined $new_node && $type eq 'hash' ) {
-	print "Can't cd in a $type, please add an index (e.g. $name:foo)\n" ;
-    }
-    elsif (defined $new_node && $type eq 'leaf' ) {
-	print "Can't cd in a $type\n" ;
-    }
-    else {
-	print "Cannot find @_\n" ;
-    }
-
-    return "" ;
-} ;
-
-my %run_dispatch =
-  (
-   help => sub{ return $syntax; } ,
-   set  => sub { 
-       my $self = shift ;
-       $self->{current_node}->load(@_) ;
-       return "" ;
-   },
-   display => sub { 
-       my $self = shift ;
-       print "Nothing to display" unless @_ ;
-       return $self->{current_node}->grab_value(@_) ;
-   },
-   ls => sub { 
-       my $self = shift ;
-       my $i = $self->{current_node}->instance;
-       $i->push_no_value_check('fetch') ;
-       my @res = $self->{current_node}->get_element_name ;
-       $i->pop_no_value_check;
-       return join('  ',@res) ;
-   },
-   dump => sub { 
-       my $self = shift ;
-       my $i = $self->{current_node}->instance;
-       $i->push_no_value_check('fetch') ;
-       my @res = $self->{current_node}-> dump_tree(full_dump => 1);
-       $i->pop_no_value_check;
-       return join('  ',@res) ;
-   },
-   delete => sub {
-       my $self = shift ;
-       my ($elt,$key) = split /:/,$_[0] ;
-       $self->{current_node}->fetch_element($elt)->delete($key);
-       return '' ;
-   },
-   ll => $ll_sub,
-   cd => $cd_sub,
-   description => $desc_sub,
-   desc => $desc_sub ,
-  ) ;
-
 my $completion_sub = sub { 
-    my ($self,$text,$start) = @_ ;
+    my ($self,$text,$line,$start) = @_ ;
 
     my @choice = $self->{current_node} -> get_element_name ;
 
@@ -237,7 +80,7 @@ my $completion_sub = sub {
 } ;
 
 my $leaf_completion_sub = sub { 
-    my ($self,$text,$start) = @_ ;
+    my ($self,$text,$line,$start) = @_ ;
 
     my @choice = $self->{current_node} 
       -> get_element_name (cargo_type => 'leaf');
@@ -247,54 +90,73 @@ my $leaf_completion_sub = sub {
     return @choice ;
 } ;
 
-my $cd_completion_sub = sub { 
-    my ($self,$text,$start) = @_ ;
+# BUG: When doing autocompletion on a hash element with an index
+# containing white space (i.e. something like std_id:"abc def",
+# readline's completion insists on adding a white space after :
+# i.e. the run command tries 'std_id: "abd def"' . This fails.  The
+# problem probably revolves around setting a readline variable like
+# rl_completer_word_break_characters, but I do not know which one.
 
+my $cd_completion_sub = sub { 
+    my ($self,$text,$line,$start) = @_ ;
+
+    #print "text '$text' line '$line' start $start\n";
     #print "  cd comp param is ",join('+',@_),"\n";
+
     # convert usual cd_ism ( '..' '/foo') to grab syntax ( '-' '! foo')
     #$text =~ s(^/)  (! ); 
     #$text =~ s(\.\.)(-)g;
     #$text =~ s(/)   ( )g;
-    my @cmds = split m(\s+),$text ;
 
-    my $last = $cmds[-1] || '';
-    #print "  cd cmd is ",join('+',@cmds),", last is $last\n";
+    # we know that text begins with 'cd '
+    my $cmd = $line;
+    $cmd =~ s/cd\s+//;
 
-    # grab in tolerant mode
-    my $new_node = $self->{current_node} 
-      -> grab(step => "@cmds", strict => 0, type => 'node', autoadd => 0);
-
-    my $name = $new_node -> element_name || '';
-
-    my @choice ;
-
-    my @cargo = $new_node -> get_element_name(cargo_type => 'node') ;
-    foreach my $elt_name (@cargo) {
-	if ($new_node->element_type($elt_name) =~ /hash|list/ ) {
-	    my @idx = $new_node -> fetch_element($elt_name)
-	      -> get_all_indexes ;
-	    #print "$elt_name @idx\n";
-	    if (@idx) {
-		my @tmp = map { qq($elt_name:$_); } @idx ;
-		#print "tmp @tmp\n";
-		push @choice, @tmp ;
-	    } 
-	    else {
-		push @choice, "$elt_name:" ;
-	    }
-	}
-	else {
-	    push @choice, "$elt_name" ;
-	}
+    my $new_item;
+    while (not defined $new_item) {
+	# grab in tolerant mode
+	#print "Grabbing $cmd\n";
+	eval {$new_item = $self->{current_node} 
+		-> grab(step => $cmd, strict => 1, autoadd => 0); };
+	chop $cmd ;
     }
 
-    my $found = scalar grep {$_ eq $last} @choice ;
+    #print "Grab got ",$new_item->location,"\n";
 
-    print "DEBUG:  cd cmd: new_node is ",$new_node->location,", name $name, ",
-      "choice @choice, found $found\n" if $::debug;
-    return () if $found ;
+    my @choice = length($line) > 3 ? () : ('!','-');
+    my $new_type = $new_item->get_type ;
 
-    return @choice ;
+    if ($new_type eq 'node') {
+	my @cargo = $new_item -> get_element_name(cargo_type => 'node') ;
+	foreach my $elt_name (@cargo) {
+	    if ($new_item->element_type($elt_name) =~ /hash|list/ ) {
+		push @choice, "$elt_name:" ;
+	    }
+	    else {
+		push @choice, "$elt_name " ;
+	    }
+	}
+    }
+    elsif ($new_type eq 'hash' or $new_type eq 'list') {
+	my @idx = $new_item -> get_all_indexes ;
+	if (@idx) {
+	    my $quote = $line =~ /"$/ ? '' : '"';
+	    my @tmp = map { /\s/ ? qq($quote$_" ) : qq($_ ); } @idx ;
+	    #print "tmp @tmp\n";
+	    push @choice, @tmp ;
+	}
+	# skip leaf items
+    }
+
+    # filter possible choices according to input
+    my @ret = grep(/^$text/, @choice) ;
+    #print "->choice +",join('+',@ret),"+ text:'$text'<-\n";
+
+    # my $name = $new_node -> element_name || '';
+    #print "DEBUG:  cd cmd: new_node is ",$new_node->location,", name $name, ",
+    #  "choice @choice\n" ;#if $::debug;
+
+    return @ret ;
 } ;
 
 
@@ -308,19 +170,19 @@ my %completion_dispatch =
 sub completion {
     my ($self,$text,$line,$start) = @_ ;
 
-    #print " comp param is ",join('+',@_),"\n";
+    #print " comp param is +$text+$line+$start+\n";
     my $space_idx = index $line,' ' ;
-    my ($main, @cmds) = split m/\s+/, $line; # /;
-    #print " comp main cmd is '$main' (space_idx $space_idx)\n";
+    my ($main, $cmd) = split m/\s+/, $line, 2; # /;
+    #warn " comp main cmd is '$main' (space_idx $space_idx)\n";
 
     if ( $space_idx > 0 and defined $completion_dispatch{$main}) {
 	my $i = $self->{current_node}->instance;
 	$i->push_no_value_check('fetch') ;
-	return $completion_dispatch{$main}->($self,"@cmds",$start) ;
+	return $completion_dispatch{$main}->($self,$text,$line,$start) ;
 	$i->pop_no_value_check;
     }
-    elsif (scalar @cmds <= 1) {
-	return keys %run_dispatch ;
+    elsif (not $cmd) {
+	return $self->simple_ui_commands() ;
     }
 
     return () ;
@@ -353,11 +215,7 @@ sub new {
     my $type = shift; 
     my %args = @_ ;
 
-    my $self = {
-		call_back_on_important => 1 ,
-		forward                => 1 ,
-		current_node           => undef ,
-	       } ;
+    my $self = {} ;
 
     foreach my $p (qw/root title prompt/) {
 	$self->{$p} = delete $args{$p} or
@@ -366,11 +224,27 @@ sub new {
 
     $self->{current_node} = $self->{root} ;
 
-    $self->{term} = new Term::ReadLine $self->{title};
+    my $term = new Term::ReadLine $self->{title};
 
-    # See Term::ReadLine::Gnu / Custom Completion
-    my $attribs = $self->{term}->Attribs ;
-    $attribs->{completion_function} = sub { $self->completion(@_) ;} ;
+    my $sub_ref = sub { $self->completion(@_) ;} ;
+
+    my $word_break_string = "\\\t\n' `\@\$><;|&{(" ;
+
+    if ($term->ReadLine eq "Term::ReadLine::Gnu") {
+	# See Term::ReadLine::Gnu / Custom Completion
+	my $attribs = $term->Attribs ;
+	$attribs->{completion_function} = $sub_ref ;
+	$attribs->{completer_word_break_characters} 
+	  = $word_break_string;
+    }
+    elsif ($term->ReadLine eq "Term::ReadLine::Perl") {
+	no warnings "once" ;
+	$readline::rl_completion_function = $sub_ref ;
+	&readline::rl_set(rl_completer_word_break_characters => $word_break_string) ;
+	# &readline::rl_set('TcshCompleteMode', 'On');
+    }
+
+    $self->{term} = $term ;
 
     foreach my $p (qw//) {
 	$self->{$p} = delete $args{$p} if defined $args{$p} ;
@@ -396,63 +270,14 @@ sub run_loop {
     my $user_cmd ;
     while ( defined ($user_cmd = $term->readline($self->prompt)) ) {
 	last if $user_cmd eq 'exit' or $user_cmd eq 'quit' ;
+	print $OUT "cmd: $user_cmd\n";
 	my $res = $self->run($user_cmd);
-	print $OUT $res, "\n" if defined $res;
-	# $term->addhistory($_) if defined $_ && /\S/;
+	print $OUT $res, "\n" if defined $res and $res;
+	## $term->addhistory($_) if defined $_ && /\S/;
     }
     print "\n";
 }
 
-sub prompt {
-     my $self = shift ;
-     my $ret = $self->{prompt}.':' ;
-     my $loc = $self->{current_node}->location ;
-     $ret .= " $loc " if $loc;
-     return $ret . '$ '  ;
-}
-
-
-sub run {
-    my ($self, $user_cmd ) = @_ ;
-
-    return '' unless $user_cmd =~ /\w/ ;
-
-    $user_cmd =~ s/^\s+// ;
-
-    my ($action,$args) = split (m/\s+/,$user_cmd, 2)  ;
-
-    print "DEBUG: run '$action' with '$args'\n" if $::debug;
-
-    if (defined $run_dispatch{$action}) {
-	my $res = eval { $run_dispatch{$action}->($self,$args) ; } ;
-	print $@ if $@ ;
-	return $res ;
-    }
-    else {
-	return "Unexpected command '$action'";
-    }
-}
-
-sub list_cd_path {
-    my $self = shift ;
-    my $c_node = $self->{current_node} ;
-
-    my @result ;
-    foreach my $elt_name ($c_node->get_element_name) {
-	my $t = $c_node->element_type($elt_name) ;
-
-	if ($t eq 'list' or $t eq 'hash') {
-	    push @result, 
-	      map { "$elt_name:$_" }
-		$c_node->fetch_element($elt_name)->get_all_indexes ;
-	}
-	else {
-	    push @result, $elt_name ;
-	}
-    }
-
-    return \@result ;
-}
 1;
 
 =head1 BUGS
@@ -467,7 +292,7 @@ Auto-completion is not complete.
 
 Auto-completion provides wrong choice when you try to C<cd> in a hash
 where the index contains a white space. I.e. the correct command is
-C<cd foo:"a b"> instead of C<cd foo:a b> as proposed by auto
+C<cd foo:"a b"> instead of C<cd foo: "a b"> as proposed by auto
 completion.
 
 =item *

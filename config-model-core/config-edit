@@ -107,7 +107,7 @@ directory in a C<.pl> file. E.g. this command:
 will look for C</etc/config-model.d/Fstab.pl> model file. See
 L<Config::Model> for more details.
 
-=item -if
+=item -ui
 
 Specify the user interface type. 
 
@@ -115,13 +115,18 @@ Specify the user interface type.
 
 =item *
 
-C<shell>: provides a shell like interface.  See L<Config::Model::TermUI>
-for details.
+C<tk>: provides a Tk graphical interface (If L<Config::Model::TkUI> is
+installed).
 
 =item *
 
 C<curses>: provides a curses user interface (If
-Config::Model::CursesUI is installed).
+L<Config::Model::CursesUI> is installed).
+
+=item *
+
+C<shell>: provides a shell like interface.  See L<Config::Model::TermUI>
+for details.
 
 =back
 
@@ -180,7 +185,7 @@ my $help = 0;
 my $force_load = 0;
 my $instance_name ;
 
-my $result = GetOptions ("if=s"             => \$ui_type,
+my $result = GetOptions ("ui|if=s"             => \$ui_type,
 			 "model_dir=s"      => \$model_dir,
 			 "model=s"          => \$root_model,
 			 "verbose!"         => \$verbose,
@@ -220,7 +225,29 @@ my $inst = $model->instance (root_class_name => $root_model ,
 
 my $root = $inst -> config_root ;
 
-if ($ui_type eq 'shell') {
+=head1 Embedding config-edit
+
+You can use config-edit from another program by using C<-ui simple>
+option. This way you will be able to send command on the standard input
+of C<config-edit> and get the results from the standard output.
+
+
+=back
+
+=cut
+
+if ($ui_type eq 'simple') {
+    require Config::Model::SimpleUI;
+    my $shell_ui = Config::Model::SimpleUI
+      -> new( root => $root ,
+	      title => $root_model.' configuration',
+	      prompt => ' >',
+	    );
+
+    # engage in user interaction
+    $shell_ui -> run_loop ;
+}
+elsif ($ui_type eq 'shell') {
     require Config::Model::TermUI;
     my $shell_ui = Config::Model::TermUI
       -> new( root => $root ,
