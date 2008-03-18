@@ -22,6 +22,8 @@
 
 package Config::Model::Instance;
 use Scalar::Util qw(weaken) ;
+use File::Path;
+
 use Config::Model::Exception ;
 use Config::Model::Node ;
 use Config::Model::Loader;
@@ -464,6 +466,7 @@ sub write_back {
     my $dir  = shift ;
     warn "write_back: no subs registered. cannot save" 
       unless @{$self->{write_back}} ;
+    mkpath($dir,0,0755) if defined $dir and not -d $dir ;
     map { $_->($dir) ; } @{$self->{write_back}} ;
 }
 
