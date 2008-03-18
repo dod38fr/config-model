@@ -367,9 +367,9 @@ sub grab {
         my ($name, $action, $arg) 
 	  = ($cmd =~ /(\w+)(?:(:)((?:"[^\"]*")|(?:[\w:\/\.\-]+)))?/);
 
-	if (defined $arg) {
-	    $arg =~ s/^"// ; # remove possible leading quote
-	    $arg =~ s/"$// ; # remove possible trailing quote
+	if (defined $arg and $arg =~ /^"/ and $arg =~ /"$/) {
+	    $arg =~ s/^"// ; # remove leading quote
+	    $arg =~ s/"$// ; # remove trailing quote
 	}
 
 	{
