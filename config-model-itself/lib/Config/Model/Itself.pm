@@ -1,6 +1,5 @@
 # $Author: ddumont $
 # $Date: 2008-03-10 13:39:10 $
-# $Name: not supported by cvs2svn $
 # $Revision: 1.5 $
 
 #    Copyright (c) 2007 Dominique Dumont.
@@ -35,7 +34,7 @@ use File::Basename ;
 
 use vars qw($VERSION) ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "1.%04d", q$Revision: 541 $ =~ /(\d+)/;
 
 my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 

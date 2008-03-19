@@ -31,7 +31,7 @@ use Config::Model::Itself ;
 # lame tracing that will be replaced by Log4perl
 use vars qw/$verbose $debug $VERSION/ ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "1.%04d", q$Revision:$ =~ /(\d+)/;
 
 $verbose = 0;
 $debug = 0;
@@ -53,7 +53,7 @@ Log::Log4perl::init($log4perl_conf);
 
 my $ui_type ;
 
-eval {require Config::Model::TkUi ; } ;
+eval {require Config::Model::TkUI ; } ;
 my $has_tk = $@ ? 0 : 1 ;
 
 eval {require Config::Model::CursesUI ;} ;
@@ -63,11 +63,11 @@ if ($has_tk) {
     $ui_type = 'tk';
 }
 elsif ($has_curses) {
-    warn "You should install Config::Model::TkUi for a more friendly user interface\n";
+    warn "You should install Config::Model::TkUI for a more friendly user interface\n";
     $ui_type = 'curses';
 }
 else {
-    warn "You should install Config::Model::TkUi or Config::Model::CursesUI ",
+    warn "You should install Config::Model::TkUI or Config::Model::CursesUI ",
       "for a more friendly user interface\n";
     $ui_type = 'shell' ;
 }
@@ -278,7 +278,7 @@ elsif ($ui_type eq 'tk') {
     my $mw = MainWindow-> new ;
     $mw->withdraw ;
 
-    my $cmu = $mw->ConfigModelUi (-root      => $meta_root,
+    my $cmu = $mw->ConfigModelUI (-root      => $meta_root,
 				  -store_sub => $write_sub,
 				 ) ;
 
