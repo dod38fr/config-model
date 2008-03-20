@@ -54,7 +54,7 @@
 		      => {
 			  value_type => 'enum',
 			  choice => [qw/boolean enum integer reference
-					enum_integer number uniline string/],
+					number uniline string/],
 			  level => 'normal',
 			  #mandatory => 1,
 			 }
@@ -165,7 +165,6 @@
                             (    ( $type eq "leaf" or $ct eq "leaf") 
                              and (    $vtype eq "integer" 
                                    or $vtype eq "number" 
-                                   or $vtype eq "enum_integer" 
                                  )
                             ) '
 			   => {

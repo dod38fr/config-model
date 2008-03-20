@@ -1,5 +1,8 @@
 2008-03-20  Dominique Dumont  <dominique.dumont@hp.com>
 
+	* lib/Config/Model/models/Itself/WarpableElement.pl: removed
+	enum_integer type
+
 	* config-model-edit: Clarified where models are read and
 	written. 
 
