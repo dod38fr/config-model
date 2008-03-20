@@ -31,7 +31,7 @@ use Config::Model::Itself ;
 # lame tracing that will be replaced by Log4perl
 use vars qw/$verbose $debug $VERSION/ ;
 
-$VERSION = sprintf "1.%04d", q$Revision: 123$ =~ /(\d+)/;
+$VERSION = sprintf "1.%04d", q$Revision$ =~ /(\d+)/;
 
 $verbose = 0;
 $debug = 0;
