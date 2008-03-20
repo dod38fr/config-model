@@ -1,3 +1,8 @@
+2008-03-20  Dominique Dumont  v0.6201
+
+	* Makefile.PL: Removed dependancy on Term::ReadLine::Gnu. This module
+	is just suggested (as well as Term::ReadLine::Perl)
+
 2008-03-18  Dominique Dumont  v0.620
 
 	* TermUI.pm: Fixed to work with Term::ReadLine::Gnu or

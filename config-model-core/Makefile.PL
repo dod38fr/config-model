@@ -42,6 +42,9 @@ $M3{"Model.pm"}= '$(INST_MAN3DIR)/Config::Model.3pm' ;
 
 #print join("\n", values %M3),"\n"; exit ;
 
+print "If you want to use the TermUI interface, you should install\n",
+  "Term::ReadLine::Perl or Term::ReadLine::Gnu\n";
+
 WriteMakefile 
   (
    NAME         => 'Config-Model',
@@ -55,8 +58,6 @@ WriteMakefile
    PREREQ_PM    => {
 		    'Test::More'        => 0, # for test
 		    'Term::ReadLine'    => 0,
-		    # not tested with Term::ReadLine::Perl
-		    'Term::ReadLine::Gnu' => 0,
 		    'Log::Log4perl'     => 0,
 		    'Parse::RecDescent' => '1.90',
 		    'Scalar::Util'      => 0, # provided by perl 5.8.0
