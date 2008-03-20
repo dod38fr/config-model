@@ -53,7 +53,7 @@ my $root = $inst -> config_root ;
 my $rw_obj = Config::Model::Itself -> new(model_object => $root) ;
 
 my $map = $rw_obj -> read_all( 
-			      conf_dir => 'data',
+			      model_dir => 'data',
 			      root_model => 'MasterModel',
 			     ) ;
 
@@ -140,7 +140,7 @@ my $dump = $rw_obj -> get_perl_data_model ( class_name => 'MasterModel' ) ;
 print Dumper $dump if $trace ;
 ok($dump,"Checked dump of one class");
 
-$rw_obj->write_all( conf_dir => $wr_dir ) ;
+$rw_obj->write_all( model_dir => $wr_dir ) ;
 
 my $model = Config::Model->new ;
 $model -> load ('X_base_class', 'wr_test/MasterModel/X_base_class.pl') ;

@@ -1,3 +1,8 @@
+2008-03-20  Dominique Dumont  <dominique.dumont@hp.com>
+
+	* config-model-edit: Clarified where models are read and
+	written. 
+
 2008-03-18  Dominique Dumont  v0.102
 
 	* config-model-edit: Now use Config::Model::TkUI instead of

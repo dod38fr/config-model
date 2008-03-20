@@ -44,7 +44,7 @@ my $root = $inst -> config_root ;
 my $rw_obj = Config::Model::Itself -> new(model_object => $root ) ;
 
 my $model_dir = 'lib/Config/Model/models' ;
-my $map = $rw_obj -> read_all( conf_dir => $model_dir,
+my $map = $rw_obj -> read_all( model_dir => $model_dir,
 			       root_model => 'Itself',
 			     ) ;
 
@@ -83,7 +83,7 @@ my $cds3 = $root3 ->dump_tree (full_dump => 1) ;
 
 is($cds3,$cds,"Compared the 3rd full dump with first one") ; 
 
-$rw_obj->write_all( conf_dir => 'wr_test' ) ;
+$rw_obj->write_all( model_dir => 'wr_test' ) ;
 
 # require Tk::ObjScanner; Tk::ObjScanner::scan_object($meta_model) ;
 

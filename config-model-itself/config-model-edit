@@ -31,7 +31,7 @@ use Config::Model::Itself ;
 # lame tracing that will be replaced by Log4perl
 use vars qw/$verbose $debug $VERSION/ ;
 
-$VERSION = sprintf "1.%04d", q$Revision:$ =~ /(\d+)/;
+$VERSION = sprintf "1.%04d", q$Revision: 123$ =~ /(\d+)/;
 
 $verbose = 0;
 $debug = 0;
@@ -72,11 +72,10 @@ else {
     $ui_type = 'shell' ;
 }
 
-my $model_dir ;
+my $dev_model_dir = 'lib/Config/Model/models/';
 my $root_model ;
 my $trace = 0 ;
-my $read_conf_dir;
-my $wr_conf_dir = $ENV{PWD};
+
 
 =head1 NAME
 
@@ -89,7 +88,7 @@ config-model-edit - Edit Config::Model models
 =head1 DESCRIPTION
 
 Config-model is a general purpose configuration framework based 
-on configuration models (See L<Config::Model> for detaisl).
+on configuration models (See L<Config::Model> for details).
 
 This configuration model is also expressed as structured data. This
 structure data is structured and follow a set of rules which are
@@ -106,9 +105,15 @@ The model editor program is config-model-edit.
 
 =head1 USAGE
 
-By default, installed models (i.e. located in C</usr/share/perl/...>)
-will be loaded in the editor. Modified models will be saved (by
-default) in the current directory.
+By default, C<config-model-edit> will try to load a model file from
+C<lib/Config/Model/models>. If no model is found, C<config-model-edit>
+will try to load installed models (i.e. located in
+C</usr/share/perl/...>). 
+
+Modified models will be saved (by default) in
+C<$PWD/lib/Config/Model/models/>.
+
+You can override this behavior with option C<-dir>.
 
 When you specify a C<-model> options, only configuration models matching
 this options will be loaded. I.e.
@@ -117,7 +122,6 @@ this options will be loaded. I.e.
 
 will load models C<Xorg> (file C<Xorg.pl>) and all other C<Xorg::*> like
 C<Xorg::Screen> (file C<Xorg/Screen.pl>).
-
 
 =head1 Options
 
@@ -152,24 +156,6 @@ Config::Model::CursesUI is installed).
 
 =back
 
-
-=item -model_dir
-
-Specify an alternate directory to find model files. Mostly useful for
-tests. 
-
-=item -write_conf_dir
-
-Specify where to write the configuration files. (Actual default
-directory and file names depends on the model (See C<-model>
-option).
-
-=item -read_conf_dir
-
-Specify where to read the configuration files. (Actual default
-directory and file names depends on the model (See C<-model>
-option).
-
 =item -verbose
 
 Be (very) verbose
@@ -189,17 +175,16 @@ Provides a full stack trace when exiting on error.
 
 my $man = 0;
 my $help = 0;
+my $model_dir ;
 
 my $result = GetOptions ("if=s"             => \$ui_type,
-			 "model_dir=s"      => \$model_dir,
+			 "dir=s"            => \$model_dir,
 			 "model=s"          => \$root_model,
 			 "verbose!"         => \$verbose,
 			 "debug!"           => \$debug,
 			 "trace!"           => \$trace,
 			 "man!"             => \$man,
 			 "help!"            => \$help,
-			 "read_conf_dir=s"  => \$read_conf_dir,
-			 "write_conf_dir=s" => \$wr_conf_dir ,
 			);
 
 pod2usage(2) if not $result ;
@@ -211,8 +196,10 @@ Config::Model::Exception::Any->Trace(1) if $trace ;
 die "Unspecified root configuration model (option -model)\n"
   unless defined $root_model ;
 
-if (defined $wr_conf_dir && ! -e $wr_conf_dir) {
-    mkdir $wr_conf_dir, 0755 || die "can't create $wr_conf_dir:$!";
+my $wr_model_dir = $model_dir || $dev_model_dir ;
+
+if (! -d $wr_model_dir) {
+    mkdir $wr_model_dir, 0755 || die "can't create $wr_model_dir:$!";
 }
 
 my $meta_model = Config::Model -> new();
@@ -227,18 +214,20 @@ my $meta_root = $meta_inst -> config_root ;
 
 my $rw_obj = Config::Model::Itself -> new(model_object => $meta_root ) ;
 
-if (not defined $model_dir) {
-    $model_dir =  $INC{'Config/Model.pm'} ;
-    $model_dir =~ s/\.pm//;
-    $model_dir .= '/models' ;
+my $read_model_dir = $model_dir || $dev_model_dir ;
+
+if (not -e $read_model_dir.'/'.$root_model.'.pl') {
+    $read_model_dir =  $INC{'Config/Model.pm'} ;
+    $read_model_dir =~ s/\.pm//;
+    $read_model_dir .= '/models' ;
 }
 
-$rw_obj -> read_all( conf_dir => $model_dir, 
+$rw_obj -> read_all( model_dir  => $read_model_dir, 
 		     root_model => $root_model ) ;
 
 my $write_sub = sub { 
-    my $wr_dir = shift || $wr_conf_dir ;
-    $rw_obj->write_all(conf_dir => $wr_dir);
+    my $wr_dir = shift || $wr_model_dir ;
+    $rw_obj->write_all(model_dir => $wr_dir);
 } ;
 
 if ($ui_type eq 'shell') {

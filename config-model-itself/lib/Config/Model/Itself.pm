@@ -111,7 +111,7 @@ L<Config::Model::Node> class.
 
 =cut
 
-# find all .pl file in conf_dir and load them...
+# find all .pl file in model_dir and load them...
 
 sub new {
     my $type = shift ;
@@ -128,9 +128,9 @@ sub new {
 
 =head2 Methods
 
-=head1 read_all ( conf_dir => ...)
+=head1 read_all ( model_dir => ...)
 
-Load all the model files contained in C<conf_dir> and all its
+Load all the model files contained in C<model_dir> and all its
 subdirectories.
 
 C<read_all> returns a hash ref containing ( class_name => file_name , ...)
@@ -141,7 +141,7 @@ sub read_all {
     my $self = shift ;
     my %args = @_ ;
     my $model_obj = $self->{model_object};
-    my $dir = $args{conf_dir} 
+    my $dir = $args{model_dir} 
       || croak __PACKAGE__," read_all: undefined config dir";
     my $model = $args{root_model} 
       || croak __PACKAGE__," read_all: undefined root_model";
@@ -175,7 +175,7 @@ sub read_all {
 	my @models = $tmp_model -> load ( 'Tmp' , $file ) ;
 
 	my $rel_file = $file ;
-	$rel_file =~ s/^$dir\///;
+	$rel_file =~ s/^$dir\/?//;
 	die "wrong reg_exp" if $file eq $rel_file ;
 	$class_file_map{$rel_file} = \@models ;
 
@@ -268,7 +268,7 @@ sub get_perl_data_model{
     return $model ;
 }
 
-=head2 write_all ( conf_dir => ... )
+=head2 write_all ( model_dir => ... )
 
 Will write back configuration model in the specified directory. The
 structure of the read directory is respected.
@@ -279,7 +279,7 @@ sub write_all {
     my $self = shift ;
     my %args = @_ ;
     my $model_obj = $self->{model_object} ;
-    my $dir = $args{conf_dir} 
+    my $dir = $args{model_dir} 
       || croak __PACKAGE__," write_all: undefined config dir";
 
     my $map = $self->{map} ;

@@ -47,7 +47,7 @@ my $model_dir = $INC{'Config/Model.pm'} ;
 $model_dir=~ s/\.pm//;
 $model_dir .= '/models' ;
 
-my $map = $rw_obj -> read_all( conf_dir => $model_dir,
+my $map = $rw_obj -> read_all( model_dir => $model_dir,
 			       root_model => 'Xorg',
 			     ) ;
 
@@ -95,7 +95,7 @@ print Dumper $dump if $trace ;
 ok($dump,"Checked dump of one class");
 
 
-$rw_obj->write_all( conf_dir => 'wr_test' ) ;
+$rw_obj->write_all( model_dir => 'wr_test' ) ;
 
 my $model = Config::Model->new ;
 $model -> load ('Xorg', 'wr_test/Xorg.pl') ;
