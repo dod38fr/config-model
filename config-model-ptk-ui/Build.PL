@@ -29,9 +29,9 @@ my $build = Module::Build->new
   (
    module_name => 'Config::Model::TkUI',
    license => 'lgpl',
-   dist_abstract => "Perl/Tk interface for Config::Model",
+   dist_abstract => "Tk GUI to edit config data through Config::Model",
    dist_author  => "Dominique Dumont (ddumont at cpan dot org)",
-   dist_version  => '0.102' ,
+   dist_version  => '0.103' ,
    requires => {
 		'Config::Model'    => '0.619',
 		'Exception::Class' => 0,

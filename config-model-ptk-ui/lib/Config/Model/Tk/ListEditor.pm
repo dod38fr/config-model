@@ -40,6 +40,8 @@ my @fbe1 = qw/-fill both -expand 1/ ;
 my @fxe1 = qw/-fill x    -expand 1/ ;
 my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
+my $entry_width = 20 ;
+
 sub ClassInit {
     my ($cw, $args) = @_;
     # ClassInit is often used to define bindings and/or other
@@ -87,7 +89,7 @@ sub Populate {
 			 -command => sub {$cw->add_entry($add_item);},
 			 -anchor => 'e',
 			)->pack(-side => 'left', @fxe1);
-    $add_frame -> Entry (-textvariable => \$add_item, -width => 10)
+    $add_frame -> Entry (-textvariable => \$add_item, -width => $entry_width)
                -> pack  (-side => 'left') ;
 
     my $cp_frame = $right_frame->Frame->pack( @fxe1);
@@ -97,7 +99,7 @@ sub Populate {
 			-anchor => 'e',
 		       )
               -> pack(-side => 'left', @fxe1);
-    $cp_frame -> Entry (-textvariable => \$cp_item, -width => 10)
+    $cp_frame -> Entry (-textvariable => \$cp_item, -width => $entry_width)
               -> pack  (-side => 'left') ;
 
 
@@ -108,7 +110,7 @@ sub Populate {
 		      	-anchor => 'e',
 		       )
               -> pack(-side => 'left', @fxe1);
-    $mv_frame -> Entry (-textvariable => \$mv_item, -width => 10)
+    $mv_frame -> Entry (-textvariable => \$mv_item, -width => $entry_width)
               -> pack  (-side => 'left') ;
 
     $right_frame->Button(-text => 'Delete selected',
@@ -123,6 +125,7 @@ sub Populate {
 			   ) -> pack(-side => 'left', @fxe1) ;
 
     $cw->{tklist} = $tklist ;
+
     $cw->Tk::Frame::Populate($args) ;
 }
 

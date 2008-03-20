@@ -1,5 +1,5 @@
 
-Config::Model::TkUi - Perl/Tk interface for Config::Model
+Config::Model::TkUi - Tk GUI to edit config data through Config::Model
 
 This module provides a Perl/Tk interface to Config::Model.
 

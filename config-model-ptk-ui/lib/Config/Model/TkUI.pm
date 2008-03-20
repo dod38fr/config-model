@@ -281,13 +281,14 @@ sub open_item {
 sub save_in_dir {
     my $cw = shift ;
     require Tk::DirSelect ;
-    my $dir = $cw->DirSelect()->Show ;
-    $cw->save($dir) ;
+    $cw->{save_dir} = $cw->DirSelect()->Show ;
+    $cw->save() ;
 }
 
 sub save {
     my $cw = shift ;
-    my $dir = shift ;
+
+    my $dir = $cw->{save_dir} ;
     my $trace_dir = defined $dir ? $dir : 'default' ;
     if (defined $cw->{store_sub}) {
 	$logger->info( "Saving data in $trace_dir directory with store call-back" );
@@ -515,6 +516,14 @@ sub disp_leaf {
 	$tkt->itemDelete($path,1) if $tkt->itemExists($path,1) ;
     }
 
+    if (defined $value) {
+	$value =~ s/\n/ /g;
+
+	if (length($value) > 15  ) {
+	    $value = substr($value,0,15) . '...' ;
+	}
+    }
+
     $tkt->itemCreate($path,2, -text => $value) ;
 
     $tkt->itemCreate($path,3, -text => $std_v) ;
@@ -635,7 +644,7 @@ __END__
 
 =head1 NAME
 
-Config::Model::TkUI - Perl/Tk widget to edit content of Config::Model
+Config::Model::TkUI - Tk GUI to edit config data through Config::Model
 
 =head1 SYNOPSIS
 

@@ -1,3 +1,13 @@
+2008-03-20  Dominique Dumont  <dominique.dumont@hp.com>
+
+	* lib/Config/Model/TkUI.pm (disp_leaf): cut long string in HList
+	display (on the left)
+
+2008-03-12  Dominique Dumont v0.103
+
+	* t/config-model-ui.t (inc_d): Fixed test to load TkUI instead of
+	TkUi
+
 2008-03-07  Dominique Dumont v0.102
 
 	* Renamed TkUi.pm to TkUI.pm to fit Module list declaration
