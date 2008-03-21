@@ -20,7 +20,7 @@
 #    along with Config-Model; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 
-package Config::Model::Tk::ListViewer ;
+package Config::Model::Tk::HashViewer ;
 
 use strict;
 use warnings ;
@@ -32,7 +32,7 @@ use subs qw/menu_struct/ ;
 
 $VERSION = sprintf "1.%04d", q$Revision$ =~ /(\d+)/;
 
-Construct Tk::Widget 'ConfigModelListViewer';
+Construct Tk::Widget 'ConfigModelHashViewer';
 
 my @fbe1 = qw/-fill both -expand 1/ ;
 my @fxe1 = qw/-fill x    -expand 1/ ;
@@ -47,32 +47,32 @@ sub ClassInit {
 
 sub Populate { 
     my ($cw, $args) = @_;
-    my $list = $cw->{list} = delete $args->{-item} 
-      || die "ListViewer: no -item, got ",keys %$args;
+    my $hash = $cw->{hash} = delete $args->{-item} 
+      || die "HashViewer: no -item, got ",keys %$args;
     my $path = delete $args->{-path} 
-      || die "ListViewer: no -path, got ",keys %$args;
+      || die "HashViewer: no -path, got ",keys %$args;
 
-    $cw->add_header(View => $list) ;
+    $cw->add_header(View => $hash) ;
 
-    my $inst = $list->instance ;
+    my $inst = $hash->instance ;
     $inst->push_no_value_check('fetch') ;
 
     my $elt_frame = $cw->Frame(qw/-relief raised -borderwidth 4/)->pack(@fxe1) ;
-    my $str =  $list->element_name.' '.$list->get_type .' elements' ;
+    my $str =  $hash->element_name.' '.$hash->get_type .' elements' ;
     $elt_frame -> Label(-text => $str) -> pack() ;
 
     my $rt = $elt_frame ->Scrolled ( 'ROText',
 				     -height => 10,
 				   ) ->pack(@fbe1) ;
 
-    foreach my $c ($list->fetch_all_values) {
+    foreach my $c ($hash->get_all_indexes) {
 	$rt->insert('end', $c."\n" ) ;
     }
 
     $cw->add_info($cw) ;
     $cw->add_help_frame() ;
-    $cw->add_help(class   => $list->parent->get_help) ;
-    $cw->add_help(element => $list->parent->get_help($list->element_name)) ;
+    $cw->add_help(class   => $hash->parent->get_help) ;
+    $cw->add_help(element => $hash->parent->get_help($hash->element_name)) ;
     $cw->add_editor_button($path) ;
 
     $cw->SUPER::Populate($args) ;
@@ -83,19 +83,20 @@ sub add_info {
     my $cw = shift ;
     my $info_frame = shift ;
 
-    my $list = $cw->{list} ;
+    my $hash = $cw->{hash} ;
 
-    my @items = ('type : '. $list->get_type ,
-		 'index : '.$list->index_type ,
-		 'cargo : '.$list->cargo_type ,
+    my @items = ('type : '. $hash->get_type 
+                          . ( $hash->ordered ? '(ordered)' : ''),
+		 'index : '.$hash->index_type ,
+		 'cargo : '.$hash->cargo_type ,
 		);
 
-    if ($list->cargo_type eq 'node') {
-	push @items, "cargo class: " . $list->config_class_name ;
+    if ($hash->cargo_type eq 'node') {
+	push @items, "cargo class: " . $hash->config_class_name ;
     }
 
-    foreach my $what (qw//) {
-	my $v = $list->$what() ;
+    foreach my $what (qw/min max max_nb/) {
+	my $v = $hash->$what() ;
 	my $str = $what ;
 	$str =~ s/_/ /g;
 	push @items, "$str: $v" if defined $v;

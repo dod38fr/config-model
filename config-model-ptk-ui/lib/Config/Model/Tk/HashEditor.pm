@@ -20,21 +20,21 @@
 #    along with Config-Model; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 
-package Config::Model::Tk::ListEditor ;
+package Config::Model::Tk::HashEditor ;
 
 use strict;
 use warnings ;
 use Carp ;
 use Log::Log4perl ;
 
-use base qw/Config::Model::Tk::ListViewer/;
+use base qw/Config::Model::Tk::HashViewer/;
 use vars qw/$VERSION/ ;
 use subs qw/menu_struct/ ;
 use Tk::Dialog ;
 
 $VERSION = sprintf "1.%04d", q$Revision$ =~ /(\d+)/;
 
-Construct Tk::Widget 'ConfigModelListEditor';
+Construct Tk::Widget 'ConfigModelHashEditor';
 
 my @fbe1 = qw/-fill both -expand 1/ ;
 my @fxe1 = qw/-fill x    -expand 1/ ;
@@ -52,70 +52,73 @@ sub ClassInit {
 
 sub Populate { 
     my ($cw, $args) = @_;
-    my $list = $cw->{list} = delete $args->{-item} 
-      || die "ListEditor: no -item, got ",keys %$args;
+    my $hash = $cw->{hash} = delete $args->{-item} 
+      || die "HashEditor: no -item, got ",keys %$args;
     delete $args->{-path} ;
 
-    $cw->add_header(Edit => $list) ;
+    $cw->add_header(Edit => $hash) ;
 
-    my $inst = $list->instance ;
+    my $inst = $hash->instance ;
     $inst->push_no_value_check('fetch') ;
 
     my $elt_button_frame = $cw->Frame->pack(@fbe1) ;
 
     my $elt_frame = $elt_button_frame->Frame(qw/-relief raised -borderwidth 4/)
                                      ->pack(@fxe1,-side => 'left') ;
-    $elt_frame -> Label(-text => $list->element_name.' elements') -> pack() ;
+    $elt_frame -> Label(-text => $hash->element_name.' elements') -> pack() ;
 
     my $tklist = $elt_frame ->Scrolled ( 'Listbox',
 					 -selectmode => 'single',
 					 -height => 8,
 				       )
                             -> pack(@fbe1, -side => 'left') ;
-
-    my $cargo_type = $list->cargo_type ;
-    my @insert = $cargo_type eq 'leaf' ? $list->fetch_all_values 
-               :                         $list->get_all_indexes ;
-    $tklist->insert( end => @insert ) ;
+    $tklist->insert( end => $hash->get_all_indexes) ;
 
     my $right_frame = $elt_button_frame->Frame->pack(@fxe1, -side => 'left');
 
     $cw->add_info($cw) ;
     $cw->add_help_frame() ;
-    $cw->add_help(class   => $list->parent->get_help) ;
-    $cw->add_help(element => $list->parent->get_help($list->element_name)) ;
+    $cw->add_help(class   => $hash->parent->get_help) ;
+    $cw->add_help(element => $hash->parent->get_help($hash->element_name)) ;
 
-    if ($cargo_type eq 'leaf') {
-	my $add_item = '';
-	my $add_frame = $right_frame->Frame->pack( @fxe1);
+    my $add_item = '';
+    my $add_frame = $right_frame->Frame->pack( @fxe1);
 
-	$add_frame -> Button(-text => "push item:",
-			     -command => sub {$cw->push_entry($add_item);},
-			     -anchor => 'e',
-			    )->pack(-side => 'left', @fxe1);
-	$add_frame -> Entry (-textvariable => \$add_item, 
-			     -width => $entry_width)
-	  -> pack  (-side => 'left') ;
-    }
-    else {
-	$right_frame->Button(-text => 'Push new $cargo_type',
-			     -command => sub { $cw->push_entry('') ;} ,
-			    )-> pack( @fxe1);
-    }
+    my $add_str = $hash->ordered ? "after selection " : '' ;
+    $add_frame -> Button(-text => "Add item $add_str:",
+			 -command => sub {$cw->add_entry($add_item);},
+			 -anchor => 'e',
+			)->pack(-side => 'left', @fxe1);
+    $add_frame -> Entry (-textvariable => \$add_item, -width => $entry_width)
+               -> pack  (-side => 'left') ;
+
+    my $cp_frame = $right_frame->Frame->pack( @fxe1);
+    my $cp_item = '';
+    $cp_frame -> Button(-text => 'Copy selected item into:',
+			-command => sub {$cw->copy_selected_in($cp_item);},
+			-anchor => 'e',
+		       )
+              -> pack(-side => 'left', @fxe1);
+    $cp_frame -> Entry (-textvariable => \$cp_item, -width => $entry_width)
+              -> pack  (-side => 'left') ;
 
 
-    $right_frame->Button(-text => 'Move selected up',
-			 -command => sub { $cw->move_up ;} ,
-			)-> pack( @fxe1);
-    $right_frame->Button(-text => 'Move selected down',
-			 -command => sub { $cw->move_down ;} ,
-			)-> pack( @fxe1);
+    my $mv_frame = $right_frame->Frame->pack( @fxe1);
+    my $mv_item = '';
+    $mv_frame -> Button(-text => 'Move selected item into:',
+			-command => sub {$cw->move_selected_to($mv_item);},
+		      	-anchor => 'e',
+		       )
+              -> pack(-side => 'left', @fxe1);
+    $mv_frame -> Entry (-textvariable => \$mv_item, -width => $entry_width)
+              -> pack  (-side => 'left') ;
+
     $right_frame->Button(-text => 'Delete selected',
 			 -command => sub { $cw->delete_selection ;} ,
 			)-> pack( @fxe1);
 
     $right_frame -> Button ( -text => 'Remove all elements',
-			     -command => sub { $list->clear ; 
+			     -command => sub { $hash->clear ; 
 					       $tklist->delete(0,'end');
 					       $cw->reload_tree;
 					   },
@@ -126,27 +129,27 @@ sub Populate {
     $cw->Tk::Frame::Populate($args) ;
 }
 
-sub push_entry {
+sub add_entry {
     my $cw = shift;
     my $add = shift;
     my $tklist = $cw->{tklist} ;
-    my $list = $cw->{list};
+    my $hash = $cw->{hash};
 
-    $logger->debug("push_entry: $add");
+    $logger->debug("add_entry: $add");
 
-    my $cargo_type = $list->cargo_type ;
-    if ($cargo_type eq 'leaf') {
-	return unless $add;
-	eval {$list->push($add) ;};
+    if ($hash->exists($add)) {
+	$cw->Dialog(-title => "Add item error",
+		    -text  => "Entry $add already exists",
+		   )
+           ->Show() ;
+	return 0;
     }
-    else {
-	# create new item in list (may auto create node object)
-	my @idx = $list -> get_all_indexes ;
-	eval {$list->fetch_with_id(scalar @idx)} ;
-    }
+
+    # add entry in hash
+    eval {$hash->fetch_with_id($add)} ;
 
     if ($@) {
-	$cw -> Dialog ( -title => 'List index error with type $cargo_type',
+	$cw -> Dialog ( -title => 'Hash index error',
 			-text  => $@,
 		      )
 	  -> Show ;
@@ -156,36 +159,43 @@ sub push_entry {
 	$cw->reload_tree;
     }
 
-    my @new_idx = $list->get_all_indexes ;
-    $logger->debug("new list idx: ". join(',',@new_idx));
+    $logger->debug( "new hash idx: ". join(',',$hash->get_all_indexes));
 
-    my $insert = $cargo_type eq 'leaf' ? $add : $#new_idx ;
-    $tklist->insert('end',$insert);
+    # ensure correct order for ordered hash
+    my @selected = $tklist->curselection() ;
+    if (@selected and $hash->ordered) {
+	my $idx = $tklist->get($selected[0]);
+	$hash->swap($idx, $add) ;
+    }
 
+    # add entry in tklist
+    if ($hash->ordered) {
+	$tklist->insert($selected[0]+1 || 0,$add) ;
+    }
+    else {
+	my $idx = 0;
+	foreach ($tklist->get(0,'end')) {
+	    if ($add lt $_) {
+		$tklist->insert($idx,$add);
+		last;
+	    }
+	    $idx ++ ;
+	}
+	$tklist->insert($idx,$add) if $idx == 0; # first entry
+    }
     return 1 ;
 }
 
-sub move_up {
+sub copy_selected_in {
     my $cw =shift;
     my $to_name = shift ;
     my $tklist = $cw->{tklist} ;
-    my $from_idx_ref = $tklist->curselection() ;
-
-    return unless @$from_idx_ref ;
-
-    my $from_idx = $from_idx_ref->[0] ;
-    return unless $from_idx ;
-
-    my $list = $cw->{list};
-    $list->move($from_idx , $from_idx - 1) ;
-
-    my $old = $tklist->get($from_idx) ;
-    $tklist->delete($from_idx) ;
-    $tklist->insert($from_idx -1, $old) ;
-    $tklist->selectionSet($from_idx  -1 ) ;
-    #$cw->add_entry($to_name) or return ;
-    #$list->copy($from_name,$to_name) ;
-    #$cw->reload_tree ;
+    my $from_idx = $tklist->curselection() ;
+    my $from_name = $tklist->get($from_idx);
+    my $hash = $cw->{hash};
+    $cw->add_entry($to_name) or return ;
+    $hash->copy($from_name,$to_name) ;
+    $cw->reload_tree ;
 }
 
 sub move_selected_to {
@@ -195,21 +205,21 @@ sub move_selected_to {
     my $from_idx = $tklist->curselection() ;
     my $from_name = $tklist->get($from_idx);
     $logger->debug( "move_selected_to: from $from_name to $to_name" );
-    my $list = $cw->{list};
+    my $hash = $cw->{hash};
     $tklist -> delete($from_idx) ;
     $cw->add_entry($to_name) or return ;
-    $list->move($from_name,$to_name) ;
+    $hash->move($from_name,$to_name) ;
     $cw->reload_tree ;
 }
 
 sub delete_selection {
     my $cw = shift ;
     my $tklist = $cw->{tklist} ;
-    my $list = $cw->{list};
+    my $hash = $cw->{hash};
 
     foreach ($tklist->curselection()) {
 	my $idx = $tklist->get($_) ;
-	$list   -> delete($idx) ;
+	$hash   -> delete($idx) ;
 	$tklist -> delete($_) ;
 	$cw->reload_tree ;
     }
@@ -218,7 +228,7 @@ sub delete_selection {
 sub store {
     my $cw = shift ;
 
-    eval {$cw->{list}->set_checked_list_as_list(%{$cw->{check_list}}); } ;
+    eval {$cw->{hash}->set_checked_list_as_list(%{$cw->{check_list}}); } ;
 
     if ($@) {
 	$cw -> Dialog ( -title => 'Value error',

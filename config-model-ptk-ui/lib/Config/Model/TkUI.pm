@@ -44,6 +44,9 @@ use Config::Model::Tk::CheckListViewer ;
 use Config::Model::Tk::ListViewer ;
 use Config::Model::Tk::ListEditor ;
 
+use Config::Model::Tk::HashViewer ;
+use Config::Model::Tk::HashEditor ;
+
 use Config::Model::Tk::NodeViewer ;
 
 $VERSION = sprintf "1.%04d", q$Revision$ =~ /(\d+)/;
@@ -583,14 +586,14 @@ my %widget_table = (
 			     leaf       => 'ConfigModelLeafEditor',
 			     check_list => 'ConfigModelCheckListEditor',
 			     list       => 'ConfigModelListEditor',
-			     hash       => 'ConfigModelListEditor',
+			     hash       => 'ConfigModelHashEditor',
 			     node       => 'ConfigModelNodeViewer',
 			    },
 		    view => {
 			     leaf       => 'ConfigModelLeafViewer',
 			     check_list => 'ConfigModelCheckListViewer',
 			     list       => 'ConfigModelListViewer',
-			     hash       => 'ConfigModelListViewer',
+			     hash       => 'ConfigModelHashViewer',
 			     node       => 'ConfigModelNodeViewer',
 			    },
 		   ) ;
@@ -629,8 +632,9 @@ sub create_element_widget {
 
     my $widget = $widget_table{$mode}{$type} 
       || die "Cannot find $mode widget for type $type";
-    $frame -> $widget(-item => $obj, -path => $tree_path )
-           -> pack(-expand => 1, -fill => 'both') ;
+    $cw->{editor} = $frame -> $widget(-item => $obj, -path => $tree_path ) ;
+    $cw->{editor}-> pack(-expand => 1, -fill => 'both') ;
+    return $cw->{editor} ;
 }
 
 sub get_perm {
