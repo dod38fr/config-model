@@ -1,6 +1,11 @@
+2008-03-22  Domi  <domi@bilbo.maison> pre 0.621
+
+	* ListId.pm (swap): new method
+	(remove): New method (equivalent to splice @list,$idx,1)
+
 2008-03-20  Dominique Dumont  v0.6201
 
-	* Makefile.PL: Removed dependancy on Term::ReadLine::Gnu. This module
+	* Makefile.PL: Removed dependency on Term::ReadLine::Gnu. This module
 	is just suggested (as well as Term::ReadLine::Perl)
 
 2008-03-18  Dominique Dumont  v0.620

@@ -200,6 +200,34 @@ sub push {
     map { $self->fetch_with_id( $idx++ )->store( $_ ) ; } @_ ;
 }
 
+=head2 swap ( ida, idb )
+
+Swap 2 elements within the array
+
+=cut
+
+sub swap {
+    my $self = shift ;
+    my $ida  = shift ;
+    my $idb  = shift ;
+
+    my $tmp = $self->{data}[$ida] ;
+    $self->{data}[$ida] = $self->{data}[$idb] ;
+    $self->{data}[$idb] = $tmp ;
+}
+
+=head2 remove ( idx )
+
+Remove an element from the list. Equivalent to C<splice @list,$idx,1>
+
+=cut
+
+sub remove {
+    my $self = shift ;
+    my $idx  = shift ;
+    splice @{$self->{data}}, $idx , 1 ;
+}
+
 #internal
 sub auto_create_elements {
     my $self = shift ;

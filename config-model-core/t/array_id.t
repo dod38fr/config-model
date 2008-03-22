@@ -9,7 +9,7 @@ use ExtUtils::testlib;
 use Test::More;
 use Config::Model;
 
-BEGIN { plan tests => 17; }
+BEGIN { plan tests => 22; }
 
 use strict;
 
@@ -99,3 +99,15 @@ is_deeply([$lds->get_all_indexes],[0 .. 5],"check list_with_several_default_keys
 my $lac = $root->fetch_element('list_with_auto_created_id');
 is_deeply([$lac->get_all_indexes],[0 .. 3],"check list_with_auto_created_id") ;
 
+$b->move(3,4) ;
+is($b->fetch_with_id(3)->fetch, undef ,"check after move") ;
+is($b->fetch_with_id(4)->fetch, 'toto',"check after move") ;
+
+$b->fetch_with_id(3)->store('titi');
+$b->swap(3,4) ;
+
+is($b->fetch_with_id(3)->fetch, 'toto',"check after swap") ;
+is($b->fetch_with_id(4)->fetch, 'titi',"check after swap") ;
+
+$b->remove(3) ;
+is($b->fetch_with_id(3)->fetch, 'titi',"check after remove") ;
