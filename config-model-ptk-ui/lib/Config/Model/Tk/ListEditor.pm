@@ -46,7 +46,6 @@ sub ClassInit {
     my ($cw, $args) = @_;
     # ClassInit is often used to define bindings and/or other
     # resources shared by all instances, e.g., images.
-
     # cw->Advertise(name=>$widget);
 }
 
@@ -86,16 +85,26 @@ sub Populate {
     $cw->add_help(element => $list->parent->get_help($list->element_name)) ;
 
     if ($cargo_type eq 'leaf') {
-	my $add_item = '';
-	my $add_frame = $right_frame->Frame->pack( @fxe1);
+	my $set_item = '';
+	my $set_frame = $right_frame->Frame->pack( @fxe1);
 
-	$add_frame -> Button(-text => "push item:",
-			     -command => sub {$cw->push_entry($add_item);},
+	$set_frame -> Button(-text => "set selected item:",
+			     -command => sub {$cw->set_entry($set_item);},
 			     -anchor => 'e',
 			    )->pack(-side => 'left', @fxe1);
-	$add_frame -> Entry (-textvariable => \$add_item, 
+	$set_frame -> Entry (-textvariable => \$set_item, 
 			     -width => $entry_width)
 	  -> pack  (-side => 'left') ;
+
+	my $push_item = '' ;
+	my $push_frame = $right_frame->Frame->pack( @fxe1);
+	$push_frame -> Button(-text => "push item:",
+			      -command => sub {$cw->push_entry($push_item);},
+			      -anchor => 'e',
+			     )->pack(-side => 'left', @fxe1);
+	$push_frame -> Entry (-textvariable => \$push_item, 
+			      -width => $entry_width)
+	    -> pack  (-side => 'left') ;
     }
     else {
 	$right_frame->Button(-text => 'Push new $cargo_type',
@@ -110,8 +119,8 @@ sub Populate {
     $right_frame->Button(-text => 'Move selected down',
 			 -command => sub { $cw->move_down ;} ,
 			)-> pack( @fxe1);
-    $right_frame->Button(-text => 'Delete selected',
-			 -command => sub { $cw->delete_selection ;} ,
+    $right_frame->Button(-text => 'Remove selected',
+			 -command => sub { $cw->remove_selection ;} ,
 			)-> pack( @fxe1);
 
     $right_frame -> Button ( -text => 'Remove all elements',
@@ -165,27 +174,71 @@ sub push_entry {
     return 1 ;
 }
 
+sub set_entry {
+    my $cw =shift;
+    my $data = shift ;
+
+    my $tklist = $cw->{tklist} ;
+    my $idx_ref = $tklist->curselection() ;
+    return unless defined $idx_ref;
+    return unless @$idx_ref ;
+
+    my $idx = $idx_ref->[0] ;
+    return unless $idx ;
+    $tklist->delete($idx) ;
+    $tklist->insert($idx, $data) ;
+    $tklist->selectionSet($idx ) ;
+    $cw->{list}->fetch_with_id($idx)->store($data) ;
+    $cw->reload_tree ;
+}
+
+
 sub move_up {
     my $cw =shift;
-    my $to_name = shift ;
+
     my $tklist = $cw->{tklist} ;
     my $from_idx_ref = $tklist->curselection() ;
 
+    return unless defined $from_idx_ref;
     return unless @$from_idx_ref ;
 
     my $from_idx = $from_idx_ref->[0] ;
     return unless $from_idx ;
 
-    my $list = $cw->{list};
-    $list->move($from_idx , $from_idx - 1) ;
+    $cw->swap($from_idx , $from_idx - 1) ;
+}
 
-    my $old = $tklist->get($from_idx) ;
-    $tklist->delete($from_idx) ;
-    $tklist->insert($from_idx -1, $old) ;
-    $tklist->selectionSet($from_idx  -1 ) ;
-    #$cw->add_entry($to_name) or return ;
-    #$list->copy($from_name,$to_name) ;
-    #$cw->reload_tree ;
+sub move_down {
+    my $cw =shift;
+
+    my $tklist = $cw->{tklist} ;
+    my $from_idx_ref = $tklist->curselection() ;
+
+    return unless defined $from_idx_ref;
+    return unless @$from_idx_ref ;
+
+    my $from_idx = $from_idx_ref->[0] ;
+
+    $cw->swap($from_idx , $from_idx + 1) ;
+}
+
+sub swap {
+    my ($cw, $ida, $idb ) = @_ ;
+
+    my $tklist = $cw->{tklist} ;
+
+    my $list = $cw->{list};
+    $list->swap($ida , $idb) ;
+
+    my $old = $tklist->get($ida) ;
+    $tklist->delete($ida) ;
+
+    while ($idb > $tklist->size) {
+	$tklist->insert('end','<undef>') ;
+    }
+    $tklist->insert($idb, $old) ;
+    $tklist->selectionSet($idb ) ;
+    $cw->reload_tree ;
 }
 
 sub move_selected_to {
@@ -202,14 +255,14 @@ sub move_selected_to {
     $cw->reload_tree ;
 }
 
-sub delete_selection {
+sub remove_selection {
     my $cw = shift ;
     my $tklist = $cw->{tklist} ;
     my $list = $cw->{list};
 
     foreach ($tklist->curselection()) {
-	my $idx = $tklist->get($_) ;
-	$list   -> delete($idx) ;
+	$logger->debug( "remove_selection: removing index $_" );
+	$list   -> remove($_) ;
 	$tklist -> delete($_) ;
 	$cw->reload_tree ;
     }

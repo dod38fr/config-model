@@ -1,3 +1,9 @@
+2008-03-22  Domi  <domi@bilbo.maison> pre v.104
+
+	* lib/Config/Model/Tk/ListEditor.pm: Reworked to provide better
+	list editor. Hash and List editor are now handled by separate
+	widgets.
+
 2008-03-20  Dominique Dumont  <dominique.dumont@hp.com>
 
 	* lib/Config/Model/TkUI.pm (disp_leaf): cut long string in HList

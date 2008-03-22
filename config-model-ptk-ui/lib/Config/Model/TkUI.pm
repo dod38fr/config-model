@@ -473,7 +473,7 @@ sub disp_hash {
 
 	my $idx_mode = $tkt->getmode($newpath) ;
 	$logger->trace( "disp_hash   sub path $newpath is mode $idx_mode" );
-	$scan_sub->(0) if ($opening or $idx_mode eq 'close') ;
+	$scan_sub->(0) if ($opening or $idx_mode ne 'open') ;
 
 	$prevpath = $newpath ;
     } ;
