@@ -105,20 +105,24 @@ sub Populate {
 	$push_frame -> Entry (-textvariable => \$push_item, 
 			      -width => $entry_width)
 	    -> pack  (-side => 'left') ;
+
+	# move up and down don't make much sense for list of nodes...
+	$right_frame->Button(-text => 'Move selected up',
+			     -command => sub { $cw->move_up ;} ,
+			    )-> pack( @fxe1);
+	$right_frame->Button(-text => 'Move selected down',
+			     -command => sub { $cw->move_down ;} ,
+			    )-> pack( @fxe1);
     }
     else {
-	$right_frame->Button(-text => 'Push new $cargo_type',
+	my $disp = $cargo_type ;
+	$disp .= ' ('.$list->config_class_name.')' if $cargo_type eq 'node' ;
+	$right_frame->Button(-text => "Push new $disp",
 			     -command => sub { $cw->push_entry('') ;} ,
 			    )-> pack( @fxe1);
     }
 
 
-    $right_frame->Button(-text => 'Move selected up',
-			 -command => sub { $cw->move_up ;} ,
-			)-> pack( @fxe1);
-    $right_frame->Button(-text => 'Move selected down',
-			 -command => sub { $cw->move_down ;} ,
-			)-> pack( @fxe1);
     $right_frame->Button(-text => 'Remove selected',
 			 -command => sub { $cw->remove_selection ;} ,
 			)-> pack( @fxe1);
@@ -238,20 +242,6 @@ sub swap {
     }
     $tklist->insert($idb, $old) ;
     $tklist->selectionSet($idb ) ;
-    $cw->reload_tree ;
-}
-
-sub move_selected_to {
-    my $cw =shift;
-    my $to_name = shift ;
-    my $tklist = $cw->{tklist} ;
-    my $from_idx = $tklist->curselection() ;
-    my $from_name = $tklist->get($from_idx);
-    $logger->debug( "move_selected_to: from $from_name to $to_name" );
-    my $list = $cw->{list};
-    $tklist -> delete($from_idx) ;
-    $cw->add_entry($to_name) or return ;
-    $list->move($from_name,$to_name) ;
     $cw->reload_tree ;
 }
 

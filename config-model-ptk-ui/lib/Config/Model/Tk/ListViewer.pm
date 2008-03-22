@@ -65,7 +65,9 @@ sub Populate {
 				     -height => 10,
 				   ) ->pack(@fbe1) ;
 
-    foreach my $c ($list->fetch_all_values) {
+    my @insert = $list->cargo_type eq 'leaf' ? $list->fetch_all_values 
+               :                         $list->get_all_indexes ;
+    foreach my $c (@insert) {
 	$rt->insert('end', $c."\n" ) ;
     }
 
