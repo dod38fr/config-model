@@ -290,6 +290,7 @@
        choice => 'Specify the possible values',
        default_list => 'Speicfy items checked by default',
        help => 'Specify help string specific to possible values. E.g for "light" value, you could write " red => \'stop\', green => \'walk\' ',
+       replace => 'Used for enum to substitute one value with another. This parameter must be used to enable user to upgrade a configuration with obsolete values. The old value is the key of the hash, the new one is the value of the hash',
       ],
   ],
 

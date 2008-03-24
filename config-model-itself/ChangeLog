@@ -1,3 +1,8 @@
+2008-03-24  Domi  <domi@bilbo.maison>
+
+	* lib/Config/Model/models/Itself/WarpableElement.pl: added
+	description for 'replace' element
+
 2008-03-20  Dominique Dumont  <dominique.dumont@hp.com>
 
 	* lib/Config/Model/models/Itself/WarpableElement.pl: removed
