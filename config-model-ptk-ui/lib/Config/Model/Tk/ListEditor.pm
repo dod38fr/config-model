@@ -86,10 +86,11 @@ sub Populate {
 
     if ($cargo_type eq 'leaf') {
 	my $set_item = '';
+	my $set_sub = sub {$cw->set_entry($set_item); $set_item = '';} ;
 	my $set_frame = $right_frame->Frame->pack( @fxe1);
 
 	$set_frame -> Button(-text => "set selected item:",
-			     -command => sub {$cw->set_entry($set_item);},
+			     -command => $set_sub ,
 			     -anchor => 'e',
 			    )->pack(-side => 'left', @fxe1);
 	$set_frame -> Entry (-textvariable => \$set_item, 
@@ -97,9 +98,10 @@ sub Populate {
 	  -> pack  (-side => 'left') ;
 
 	my $push_item = '' ;
+	my $push_sub = sub {$cw->push_entry($push_item); $push_item = '';} ;
 	my $push_frame = $right_frame->Frame->pack( @fxe1);
 	$push_frame -> Button(-text => "push item:",
-			      -command => sub {$cw->push_entry($push_item);},
+			      -command => $push_sub ,
 			      -anchor => 'e',
 			     )->pack(-side => 'left', @fxe1);
 	$push_frame -> Entry (-textvariable => \$push_item, 
