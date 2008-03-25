@@ -169,10 +169,11 @@ sub add_entry {
     }
 
     # add entry in tklist
-    if ($hash->ordered) {
+    if (@selected and $hash->ordered) {
 	$tklist->insert($selected[0]+1 || 0,$add) ;
     }
     else {
+	# without selection on ordered hash, items are simply pushed
 	my $idx = 0;
 	foreach ($tklist->get(0,'end')) {
 	    if ($add lt $_) {
@@ -193,6 +194,7 @@ sub copy_selected_in {
     my $from_idx = $tklist->curselection() ;
     my $from_name = $tklist->get($from_idx);
     my $hash = $cw->{hash};
+    $logger->debug( "copy_selected_to: from $from_name to $to_name" );
     $cw->add_entry($to_name) or return ;
     $hash->copy($from_name,$to_name) ;
     $cw->reload_tree ;
