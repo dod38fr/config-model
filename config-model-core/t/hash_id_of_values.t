@@ -6,7 +6,7 @@
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
-use Test::More tests => 47 ;
+use Test::More tests => 50 ;
 use Config::Model ;
 
 use strict;
@@ -218,9 +218,9 @@ is($ph->fetch_with_id(3)->fetch,
 
 my $oh = $root->fetch_element('ordered_hash') ;
 ok($oh,"created ordered_hash ...") ;
-$oh->fetch_with_id('z' ) -> store( 1 );
-$oh->fetch_with_id('x' ) -> store( 2 );
-$oh->fetch_with_id('a' ) -> store( 3 );
+$oh->fetch_with_id('z' ) -> store( '1z' );
+$oh->fetch_with_id('x' ) -> store( '2x' );
+$oh->fetch_with_id('a' ) -> store( '3a' );
 
 is_deeply([$oh->get_all_indexes], [qw/z x a/],
 	 "check index order of ordered_hash") ;
@@ -239,3 +239,10 @@ $oh ->move_down(qw/x/) ;
 
 is_deeply([$oh->get_all_indexes], [qw/a x z/],
 	 "check index order of ordered_hash after move_down(x)") ;
+
+is($oh->fetch_with_id('x')->fetch, '2x',"Check copied value") ;
+
+$oh->copy(qw/x d/) ;
+is_deeply([$oh->get_all_indexes], [qw/a x z d/],
+	 "check index order of ordered_hash after move(x d)") ;
+is($oh->fetch_with_id('d')->fetch, '2x',"Check copied value") ;
