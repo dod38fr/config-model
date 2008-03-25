@@ -459,7 +459,7 @@ sub disp_hash {
 	weaken($data[1]) ;
 
 	unless ($tkt->infoExists($newpath)) {
-	    my @opt = $prevpath ? (-after => $prevpath) : () ;
+	    my @opt = $prevpath ? (-after => $prevpath) : (-at => 0 ) ;
 	    my $elt_type = $elt->get_cargo_type();
 	    my $newmode = $elt_mode{$elt_type};
 	    $logger->trace( "disp_hash add $newpath mode $newmode cargo_type $elt_type" );

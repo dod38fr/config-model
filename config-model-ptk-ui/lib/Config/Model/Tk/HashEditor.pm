@@ -174,17 +174,44 @@ sub add_entry {
     }
     else {
 	# without selection on ordered hash, items are simply pushed
-	my $idx = 0;
-	foreach ($tklist->get(0,'end')) {
-	    if ($add lt $_) {
-		$tklist->insert($idx,$add);
-		last;
-	    }
-	    $idx ++ ;
-	}
-	$tklist->insert($idx,$add) if $idx == 0; # first entry
+	$cw->add_and_sort_item($add) ;
     }
     return 1 ;
+}
+
+sub add_and_sort_item {
+    my $cw  = shift;
+    my $add = shift ;
+
+    my $tklist = $cw->{tklist} ;
+    my $idx = 0;
+    my $added = 0 ;
+    foreach ($tklist->get(0,'end')) {
+	if ($add lt $_) {
+	    $tklist->insert($idx,$add);
+	    $added = 1 ;
+	    last;
+	}
+	$idx ++ ;
+    }
+    $tklist->insert('end',$add) unless $added; # last entry
+}
+
+sub add_item {
+    my $cw  = shift;
+    my $add = shift ;
+
+    my $hash = $cw->{hash};
+    my $tklist = $cw->{tklist} ;
+
+    # add entry in tklist
+    if ($hash->ordered) {
+	$tklist->insert('end',$add) ;
+    }
+    else {
+	# add the item so that items are ordered alphabetically
+	$cw->add_and_sort_item($add) ;
+    }
 }
 
 sub copy_selected_in {
@@ -193,10 +220,25 @@ sub copy_selected_in {
     my $tklist = $cw->{tklist} ;
     my $from_idx = $tklist->curselection() ;
     my $from_name = $tklist->get($from_idx);
+
+    if ($from_name eq $to_name) {
+	$cw->Dialog(-title => "copy item error",
+		    -text  => "Cannot copy in the same item ($to_name)",
+		   )
+           ->Show() ;
+	return 0;
+    }
+
     my $hash = $cw->{hash};
     $logger->debug( "copy_selected_to: from $from_name to $to_name" );
-    $cw->add_entry($to_name) or return ;
+
+    my $new_idx = $hash->exists($to_name) ? 0 : 1 ;
     $hash->copy($from_name,$to_name) ;
+
+    if ($new_idx) {
+	$cw->add_item($to_name) ;
+    }
+
     $cw->reload_tree ;
 }
 
@@ -206,11 +248,26 @@ sub move_selected_to {
     my $tklist = $cw->{tklist} ;
     my $from_idx = $tklist->curselection() ;
     my $from_name = $tklist->get($from_idx);
+
+    if ($from_name eq $to_name) {
+	$cw->Dialog(-title => "move item error",
+		    -text  => "Cannot move in the same item ($to_name)",
+		   )
+           ->Show() ;
+	return 0;
+    }
+
     $logger->debug( "move_selected_to: from $from_name to $to_name" );
     my $hash = $cw->{hash};
     $tklist -> delete($from_idx) ;
-    $cw->add_entry($to_name) or return ;
+
+    my $new_idx = $hash->exists($to_name) ? 0 : 1 ;
     $hash->move($from_name,$to_name) ;
+
+    if ($new_idx) {
+	$cw->add_item($to_name) ;
+    }
+
     $cw->reload_tree ;
 }
 
