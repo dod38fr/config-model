@@ -51,11 +51,17 @@ sub add_header {
     my $idx ;
     $idx = $item->index_value if $item->can('index_value' ) ;
     my $elt_name = $item->composite_name ;
-    my $class = $item->parent->config_class_name ;
+
+    my $parent = $item->parent ;
+    my $class = defined $parent ? $item->parent->config_class_name 
+              :                   $item->config_class_name ;
+
+    my $label = "$type: Class $class";
+    $label .= "- Element $elt_name" if defined $parent ;
     my $f = $cw -> Frame -> pack (@fxe1);
-    $f -> Label ( -text => "$type: Class $class - Element $elt_name",
-			    -anchor => 'w' )
-              -> pack (-side => 'left', @fxe1);
+
+    $f -> Label ( -text => $label, -anchor => 'w' )
+       -> pack  (-side => 'left', @fxe1);
 
     $f -> Label (-image => $img{lc($type)} , -anchor => 'e') 
       -> pack (-side => 'left');

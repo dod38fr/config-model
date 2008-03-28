@@ -71,10 +71,16 @@ sub Populate {
     }
 
     $cw->add_info($cw) ;
-    $cw->add_help_frame() ;
-    $cw->add_help(class   => $node->parent->get_help) ;
-    $cw->add_help(element => $node->parent->get_help($node->element_name)) ;
+    my $parent = $node->parent ;
 
+    $cw->add_help_frame() ;
+    if (defined $parent) {
+	$cw->add_help(class   => $parent->get_help) ;
+	$cw->add_help(element => $parent->get_help($node->element_name)) ;
+    }
+    else {
+	$cw->add_help(class   => $node->get_help) ;
+    }
     $cw->SUPER::Populate($args) ;
 }
 

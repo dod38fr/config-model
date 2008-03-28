@@ -92,6 +92,7 @@ my $mgr   = $cmu->Subwidget('multi_mgr') ;
 
 my @test 
   = (
+     sub { $cmu->create_element_widget('view','test1')},
      sub { $tktree->open('test1.lista') },
      sub { $cmu->create_element_widget('edit','test1.std_id');},
      sub { $cmu->{editor}->add_entry('e')},
