@@ -303,6 +303,45 @@ sub swap {
     }
 }
 
+=head2 move_after ( key_to_move [ , after_this_key ] )
+
+Move the first key after the second one. If the second parameter is
+omitted, the first key is placed in first position. Ignored for non
+ordered hash.
+
+=cut
+
+sub move_after {
+    my $self = shift ;
+    my ($key_to_move,$ref_key) = @_ ;
+
+    foreach my $k (@_) {
+	Config::Model::Exception::User
+	    -> throw (
+		      object => $self,
+		      message => "swap: unknow key $k"
+		     )
+	      unless exists $self->{data}{$k} ;
+    }
+
+    # remove the key to move in ordered list
+    @{$self->{list}} = grep { $_ ne $key_to_move } @{ $self->{list}} ;
+
+    my $list = $self->{list} ;
+
+    if (defined $ref_key) {
+	for (my $idx = 0; $idx <= $#$list; $idx ++ ) {
+	    if ($list->[$idx] eq $ref_key) {
+		splice @$list ,$idx+1,0, $key_to_move ;
+		last;
+	    }
+	}
+    }
+    else {
+	unshift @$list , $key_to_move ;
+    }
+}
+
 =head2 move_up ( key )
 
 Move the key up in a ordered hash. Attempt to move up the first key of

@@ -6,7 +6,7 @@
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
-use Test::More tests => 53 ;
+use Test::More tests => 56 ;
 use Config::Model ;
 
 use strict;
@@ -256,3 +256,15 @@ $oh->copy(qw/a e/) ;
 is_deeply([$oh->get_all_indexes], [qw/a z x d e/],
 	 "check index order of ordered_hash after copy(a e)") ;
 is($oh->fetch_with_id('e')->fetch, '3a',"Check copied value") ;
+
+$oh->move_after('d') ;
+is_deeply([$oh->get_all_indexes], [qw/d a z x e/],
+	 "check index order of ordered_hash after move_after(d)") ;
+
+$oh->move_after('d','z') ;
+is_deeply([$oh->get_all_indexes], [qw/a z d x e/],
+	 "check index order of ordered_hash after move_after(d z)") ;
+
+$oh->move_after('d','e') ;
+is_deeply([$oh->get_all_indexes], [qw/a z x e d/],
+	 "check index order of ordered_hash after move_after(d e)") ;
