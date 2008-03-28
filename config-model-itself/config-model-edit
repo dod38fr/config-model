@@ -204,9 +204,10 @@ if (! -d $wr_model_dir) {
 
 my $meta_model = Config::Model -> new();
 
-my $meta_inst = $meta_model->instance (root_class_name => 'Itself::Model' ,
-				       instance_name   => $root_model ,
-				      );
+my $meta_inst 
+  = $meta_model->instance (root_class_name => 'Itself::Model' ,
+			   instance_name   => $root_model.' model' ,
+			  );
 
 my $meta_root = $meta_inst -> config_root ;
 
