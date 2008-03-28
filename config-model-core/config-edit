@@ -231,9 +231,6 @@ You can use config-edit from another program by using C<-ui simple>
 option. This way you will be able to send command on the standard input
 of C<config-edit> and get the results from the standard output.
 
-
-=back
-
 =cut
 
 if ($ui_type eq 'simple') {
