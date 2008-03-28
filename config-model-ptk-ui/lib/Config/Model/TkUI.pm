@@ -57,7 +57,7 @@ my $warn_img ;
 my $cust_img ;
 
 my $mod_file = 'Config/Model/TkUI.pm' ;
-$icon_path = $INC{'Config/Model/TkUI.pm'} ;
+$icon_path = $INC{$mod_file} ;
 $icon_path =~ s/TkUI.pm//;
 $icon_path .= 'Tk/icons/' ;
 
@@ -421,7 +421,7 @@ sub disp_obj_elt {
 	weaken( $data[1] );
 
 	unless ($tkt->infoExists($newpath)) {
-	    my @opt = $prevpath ? (-after => $prevpath) : () ;
+	    my @opt = $prevpath ? (-after => $prevpath) : (-at => 0 ) ;
 	    my $elt_type = $node->element_type($elt) ;
 	    my $newmode = $elt_mode{$elt_type};
 	    $logger->trace( "disp_obj_elt add $newpath mode $newmode type $elt_type" );
@@ -458,7 +458,13 @@ sub disp_hash {
 	my @data = ( $scan_sub, $elt->fetch_with_id($idx) );
 	weaken($data[1]) ;
 
-	unless ($tkt->infoExists($newpath)) {
+	if (    $tkt->infoExists($newpath) 
+	    and $tkt->info(prev => $newpath) ne $prevpath) {
+	    # wrong order, delete the entry
+	    $tkt->delete(entry => $newpath) ;
+	}
+
+	if (not $tkt->infoExists($newpath)) {
 	    my @opt = $prevpath ? (-after => $prevpath) : (-at => 0 ) ;
 	    my $elt_type = $elt->get_cargo_type();
 	    my $newmode = $elt_mode{$elt_type};

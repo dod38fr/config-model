@@ -28,9 +28,10 @@ use Carp ;
 use Log::Log4perl ;
 
 use base qw/Config::Model::Tk::HashViewer/;
-use vars qw/$VERSION/ ;
+use vars qw/$VERSION $icon_path/ ;
 use subs qw/menu_struct/ ;
 use Tk::Dialog ;
+use Tk::Photo ;
 
 $VERSION = sprintf "1.%04d", q$Revision$ =~ /(\d+)/;
 
@@ -41,6 +42,11 @@ my @fxe1 = qw/-fill x    -expand 1/ ;
 my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
 my $entry_width = 20 ;
+
+my $up_img;
+my $down_img;
+
+*icon_path = *Config::Model::TkUI::icon_path;
 
 sub ClassInit {
     my ($cw, $args) = @_;
@@ -55,6 +61,11 @@ sub Populate {
     my $hash = $cw->{hash} = delete $args->{-item} 
       || die "HashEditor: no -item, got ",keys %$args;
     delete $args->{-path} ;
+
+    unless (defined $up_img) {
+	$up_img   = $cw->Photo(-file => $icon_path.'go-up.gif');
+	$down_img = $cw->Photo(-file => $icon_path.'go-down.gif');
+    }
 
     $cw->add_header(Edit => $hash) ;
 
@@ -113,16 +124,29 @@ sub Populate {
     $mv_frame -> Entry (-textvariable => \$mv_item, -width => $entry_width)
               -> pack  (-side => 'left') ;
 
-    $right_frame->Button(-text => 'Delete selected',
-			 -command => sub { $cw->delete_selection ;} ,
-			)-> pack( @fxe1);
+    if ($hash->ordered) {
+	my $mv_up_down_frame = $right_frame->Frame->pack( @fxe1);
+	$mv_up_down_frame->Button(-image => $up_img,
+				  -command => sub { $cw->move_selected_up ;} ,
+				 )-> pack( -side =>'left' , @fxe1);
 
-    $right_frame -> Button ( -text => 'Remove all elements',
-			     -command => sub { $hash->clear ; 
-					       $tklist->delete(0,'end');
-					       $cw->reload_tree;
-					   },
-			   ) -> pack(-side => 'left', @fxe1) ;
+	$mv_up_down_frame->Button(-image => $down_img,
+				  -command => sub { $cw->move_selected_down ;} ,
+				 )-> pack( -side =>'left' , @fxe1);
+    }
+
+    my $del_rm_frame =  $right_frame->Frame->pack( @fxe1);
+
+    $del_rm_frame->Button(-text => 'Delete selected',
+			  -command => sub { $cw->delete_selection ;} ,
+			 )-> pack( -side =>'left' , @fxe1);
+
+    $del_rm_frame -> Button ( -text => 'Remove all elements',
+			      -command => sub { $hash->clear ; 
+						$tklist->delete(0,'end');
+						$cw->reload_tree;
+					    },
+			    ) -> pack(-side => 'left', @fxe1) ;
 
     $cw->{tklist} = $tklist ;
 
@@ -153,29 +177,28 @@ sub add_entry {
 			-text  => $@,
 		      )
 	  -> Show ;
-    }
-    else {
-	# trigger redraw of Tk Tree
-	$cw->reload_tree;
+	return 0 ;
     }
 
     $logger->debug( "new hash idx: ". join(',',$hash->get_all_indexes));
 
     # ensure correct order for ordered hash
     my @selected = $tklist->curselection() ;
+
     if (@selected and $hash->ordered) {
 	my $idx = $tklist->get($selected[0]);
-	$hash->swap($idx, $add) ;
-    }
-
-    # add entry in tklist
-    if (@selected and $hash->ordered) {
+	$logger->debug("add_entry on ordered hash: swap $idx and $add");
+	$hash->move_after($add, $idx) ;
+	$logger->debug( "new hash idx: ". join(',',$hash->get_all_indexes));
 	$tklist->insert($selected[0]+1 || 0,$add) ;
     }
     else {
 	# without selection on ordered hash, items are simply pushed
 	$cw->add_and_sort_item($add) ;
     }
+
+    # trigger redraw of Tk Tree
+    $cw->reload_tree;
     return 1 ;
 }
 
@@ -218,8 +241,8 @@ sub copy_selected_in {
     my $cw =shift;
     my $to_name = shift ;
     my $tklist = $cw->{tklist} ;
-    my $from_idx = $tklist->curselection() ;
-    my $from_name = $tklist->get($from_idx);
+    my @from_idx = $tklist->curselection() ;
+    my $from_name = $tklist->get(@from_idx);
 
     if ($from_name eq $to_name) {
 	$cw->Dialog(-title => "copy item error",
@@ -246,8 +269,8 @@ sub move_selected_to {
     my $cw =shift;
     my $to_name = shift ;
     my $tklist = $cw->{tklist} ;
-    my $from_idx = $tklist->curselection() ;
-    my $from_name = $tklist->get($from_idx);
+    my @from_idx = $tklist->curselection() ;
+    my $from_name = $tklist->get(@from_idx);
 
     if ($from_name eq $to_name) {
 	$cw->Dialog(-title => "move item error",
@@ -259,7 +282,7 @@ sub move_selected_to {
 
     $logger->debug( "move_selected_to: from $from_name to $to_name" );
     my $hash = $cw->{hash};
-    $tklist -> delete($from_idx) ;
+    $tklist -> delete(@from_idx) ;
 
     my $new_idx = $hash->exists($to_name) ? 0 : 1 ;
     $hash->move($from_name,$to_name) ;
@@ -267,6 +290,51 @@ sub move_selected_to {
     if ($new_idx) {
 	$cw->add_item($to_name) ;
     }
+
+    $cw->reload_tree ;
+}
+
+sub move_selected_up {
+    my $cw =shift;
+    my $tklist = $cw->{tklist} ;
+    my @idx = $tklist->curselection() ;
+
+    return unless @idx and $idx[0] > 0;
+
+    my $name = $tklist->get(@idx);
+
+    $logger->debug( "move_selected_up: $name (@idx)" );
+    $tklist -> delete(@idx) ;
+    my $new_idx = $idx[0] - 1 ;
+    $tklist -> insert($new_idx, $name) ;
+    $tklist -> selectionSet($new_idx) ;
+
+    my $hash = $cw->{hash};
+    $hash->move_up($name) ;
+    $logger->debug( "move_up new hash idx: ". join(',',$hash->get_all_indexes));
+
+    $cw->reload_tree ;
+}
+
+sub move_selected_down {
+    my $cw =shift;
+    my $tklist = $cw->{tklist} ;
+    my @idx = $tklist->curselection() ;
+    my $hash = $cw->{hash};
+    my @h_idx =  $hash->get_all_indexes ;
+
+    return unless @idx and $idx[0] < $#h_idx;
+
+    my $name = $tklist->get(@idx);
+
+    $logger->debug( "move_selected_down: $name (@idx)" );
+    $tklist -> delete(@idx) ;
+    my $new_idx = $idx[0] + 1 ;
+    $tklist -> insert($new_idx, $name) ;
+    $tklist -> selectionSet($new_idx) ;
+
+    $hash->move_down($name) ;
+    $logger->debug( "move_down new hash idx: ". join(',',$hash->get_all_indexes));
 
     $cw->reload_tree ;
 }

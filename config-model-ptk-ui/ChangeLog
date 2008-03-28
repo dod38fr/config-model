@@ -1,6 +1,9 @@
 2008-03-28  Dominique Dumont  <dominique.dumont@hp.com>
 
-	* lib/Config/Model/TkUI.pm (disp_obj_elt): Fix bug that prevented
+	* lib/Config/Model/Tk/HashEditor.pm ():added up adn down buttons
+	for ordered hashes
+
+	* lib/Config/Model/NodeViewer.pm: Fix bug that prevented
 	view of root configuration class
 
 2008-03-22  Domi  <domi@bilbo.maison> pre v.104
