@@ -283,7 +283,6 @@ sub swap {
     my $self = shift ;
     my ($key1,$key2) = @_ ;
 
-
     foreach my $k (@_) {
 	Config::Model::Exception::User
 	    -> throw (
@@ -293,13 +292,13 @@ sub swap {
 	      unless exists $self->{data}{$k} ;
     }
 
-    my $list = $self->{list} ;
-    for (my $idx = 0; $idx < $#$list; $idx ++ ) {
-	if ($list->[$idx] eq $key1) {
-	    $list->[$idx] = $key2 ;
+    my @copy = @{$self->{list}} ;
+    for (my $idx = 0; $idx <= $#copy; $idx ++ ) {
+	if ($copy[$idx] eq $key1) {
+	    $self->{list}[$idx] = $key2 ;
 	}
-	elsif ($list->[$idx] eq $key2) {
-	     $list->[$idx] = $key1 ;
+	if ($copy[$idx] eq $key2) {
+	    $self->{list}[$idx] = $key1 ;
 	}
     }
 }

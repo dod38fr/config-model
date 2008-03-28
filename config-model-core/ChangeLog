@@ -1,3 +1,8 @@
+2008-03-28  Dominique Dumont  <dominique.dumont@hp.com>
+
+	* HashId.pm (swap): Fix swap problem which led to duplicated keys
+	in ordered hash
+
 2008-03-22  Domi  <domi@bilbo.maison> pre 0.621
 
 	* ListId.pm (swap): new method

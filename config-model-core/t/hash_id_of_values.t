@@ -6,7 +6,7 @@
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
-use Test::More tests => 50 ;
+use Test::More tests => 53 ;
 use Config::Model ;
 
 use strict;
@@ -230,19 +230,29 @@ $oh ->swap(qw/z x/) ;
 is_deeply([$oh->get_all_indexes], [qw/x z a/],
 	 "check index order of ordered_hash after swap(z x)") ;
 
-$oh ->move_up(qw/a/) ;
+$oh ->swap(qw/a z/) ;
 
 is_deeply([$oh->get_all_indexes], [qw/x a z/],
+	 "check index order of ordered_hash after swap(a z)") ;
+
+$oh ->move_up(qw/a/) ;
+
+is_deeply([$oh->get_all_indexes], [qw/a x z/],
 	 "check index order of ordered_hash after move_up(a)") ;
 
 $oh ->move_down(qw/x/) ;
 
-is_deeply([$oh->get_all_indexes], [qw/a x z/],
+is_deeply([$oh->get_all_indexes], [qw/a z x/],
 	 "check index order of ordered_hash after move_down(x)") ;
 
 is($oh->fetch_with_id('x')->fetch, '2x',"Check copied value") ;
 
 $oh->copy(qw/x d/) ;
-is_deeply([$oh->get_all_indexes], [qw/a x z d/],
-	 "check index order of ordered_hash after move(x d)") ;
+is_deeply([$oh->get_all_indexes], [qw/a z x d/],
+	 "check index order of ordered_hash after copy(x d)") ;
 is($oh->fetch_with_id('d')->fetch, '2x',"Check copied value") ;
+
+$oh->copy(qw/a e/) ;
+is_deeply([$oh->get_all_indexes], [qw/a z x d e/],
+	 "check index order of ordered_hash after copy(a e)") ;
+is($oh->fetch_with_id('e')->fetch, '3a',"Check copied value") ;
