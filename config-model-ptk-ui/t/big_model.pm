@@ -117,6 +117,12 @@
 				 cargo_type => 'leaf',
 				 cargo_args => {value_type => 'uniline'},
 			       },
+	       ordered_hash_of_nodes => { type => 'hash',
+					  index_type => 'string',
+					  ordered => 1 ,
+					  cargo_type => 'node',
+					  config_class_name => 'SlaveZ'
+					},
 	       olist => { type => 'list',
 			  cargo_type => 'node',
 			  config_class_name => 'SlaveZ' ,

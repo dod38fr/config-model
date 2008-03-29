@@ -448,27 +448,39 @@ sub disp_hash {
     $cw->prune($path,@idx) ;
 
     my $elt = $node -> fetch_element($element_name) ;
+    my $elt_type = $elt->get_cargo_type();
 
     my $prevpath = '' ;
+    my $idx_nb = 0 ; # used to keep track of tktree item order
     foreach my $idx (@idx) {
 	my $newpath = $path.'.'. to_path($idx) ;
 	my $scan_sub = sub {
 	    $scanner->scan_hash([$newpath,$cw,@_],$node, $element_name,$idx);
 	};
-	my @data = ( $scan_sub, $elt->fetch_with_id($idx) );
-	weaken($data[1]) ;
 
-	if (    $tkt->infoExists($newpath) 
-	    and $tkt->info(prev => $newpath) ne $prevpath) {
-	    # wrong order, delete the entry
-	    $tkt->delete(entry => $newpath) ;
+	my $newmode = $elt_mode{$elt_type};
+
+	if ($tkt->infoExists($newpath) ) {
+	    my $previous_data = $tkt->info(data => $newpath);
+	    my $previous_idx_nb = $previous_data->[2] ;
+	    if ($idx_nb != $previous_idx_nb) {
+		$newmode = $tkt->getmode($newpath); # will reuse mode below
+		print( "disp_hash delete $newpath mode $newmode (got idx "
+		       .$previous_idx_nb 
+		       ." expected $idx_nb)\n" );
+		$logger->trace( "disp_hash delete $newpath mode $newmode (got "
+				.$previous_idx_nb
+				." expected $idx_nb)" );
+		# wrong order, delete the entry
+		$tkt->delete(entry => $newpath) ;
+	    }
 	}
 
 	if (not $tkt->infoExists($newpath)) {
 	    my @opt = $prevpath ? (-after => $prevpath) : (-at => 0 ) ;
-	    my $elt_type = $elt->get_cargo_type();
-	    my $newmode = $elt_mode{$elt_type};
 	    $logger->trace( "disp_hash add $newpath mode $newmode cargo_type $elt_type" );
+	    my @data = ( $scan_sub, $elt->fetch_with_id($idx), $idx_nb );
+	    weaken($data[1]) ;
 	    $tkt->add($newpath, -data => \@data, @opt) ;
 	    $tkt->itemCreate($newpath,0, -text => $idx ) ;
 	    $tkt -> setmode($newpath => $newmode) ;
@@ -482,6 +494,7 @@ sub disp_hash {
 	$scan_sub->(0) if ($opening or $idx_mode ne 'open') ;
 
 	$prevpath = $newpath ;
+	$idx_nb++ ;
     } ;
 }
 

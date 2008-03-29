@@ -128,8 +128,8 @@ sub add_buttons {
     $bframe -> Button ( -text => 'Reset',
 			-command => sub { $cw->reset_value ; },
 		      ) -> pack(-side => 'left') ;
-    $bframe -> Button ( -text => 'Try ??',
-			-command => sub { $cw->try},
+    $bframe -> Button ( -text => 'Delete',
+			-command => sub { $cw->delete},
 		      ) -> pack(-side => 'left') ;
     $bframe -> Button ( -text => 'Store',
 			-command => sub { $cw->store},
@@ -168,6 +168,22 @@ sub try {
     }
 }
 
+sub delete {
+    my $cw = shift ;
+    eval {$cw->{leaf}->store(undef); } ;
+
+    if ($@) {
+	$cw -> Dialog ( -title => 'Delete error',
+			-text  => "$@",
+		      )
+            -> Show ;
+    }
+    else {
+	# trigger redraw of Tk Tree
+	$cw->parent->parent->parent->parent->reload(1) ;
+    }
+}
+
 sub store {
     my $cw = shift ;
     my $v = $cw->try ;
@@ -177,7 +193,7 @@ sub store {
 
     if ($@) {
 	$cw -> Dialog ( -title => 'Value error',
-			-text  => $@,
+			-text  => "$@",
 		      )
             -> Show ;
 	$cw->reset_value ;

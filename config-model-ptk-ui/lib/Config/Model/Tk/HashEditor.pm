@@ -192,8 +192,11 @@ sub add_entry {
 	$logger->debug( "new hash idx: ". join(',',$hash->get_all_indexes));
 	$tklist->insert($selected[0]+1 || 0,$add) ;
     }
-    else {
+    elsif ($hash->ordered) {
 	# without selection on ordered hash, items are simply pushed
+	$tklist->insert('end',$add) ;
+    }
+    else {
 	$cw->add_and_sort_item($add) ;
     }
 

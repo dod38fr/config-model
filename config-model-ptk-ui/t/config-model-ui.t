@@ -1,7 +1,6 @@
 # -*- cperl -*-
 # $Author$
 # $Date$
-# $Name: not supported by cvs2svn $
 # $Revision$
 use warnings FATAL => qw(all);
 
@@ -60,6 +59,8 @@ hash_a:"ti ti"="ti ti value"
 ordered_hash:z=1
 ordered_hash:y=2
 ordered_hash:x=3
+ordered_hash_of_nodes:N1 X=Av -
+ordered_hash_of_nodes:N2 X=Bv -
 lista=a,b,c,d
 olist:0 X=Av -
 olist:1 X=Bv -
@@ -103,6 +104,7 @@ my @test
      sub { $tktree->open('test1.std_id.ab') },
      sub { $cmu->create_element_widget('view','test1.std_id.ab.Z')},
      sub { $root->load(step => "std_id:ab Z=Cv") ; $cmu->reload ;},
+     sub { $tktree->open('test1.std_id.ab') },
      sub { $cmu->create_element_widget('edit','test1.std_id.ab.DX')},
      sub { $root->load(step => "std_id:ab3") ; $cmu->reload ;} ,
      sub { $cmu->create_element_widget('view','test1.string_with_def')},
