@@ -10,6 +10,17 @@
 "
                              ],
             'element' => [
+                           'AddressFamily',
+                           {
+                             'value_type' => 'enum',
+                             'built_in' => 'any',
+                             'type' => 'leaf',
+                             'choice' => [
+                                           'any',
+                                           'inet',
+                                           'inet6'
+                                         ]
+                           },
                            'AuthorizedKeysFile',
                            {
                              'value_type' => 'uniline',

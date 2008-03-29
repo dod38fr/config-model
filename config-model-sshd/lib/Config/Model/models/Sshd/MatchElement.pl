@@ -5,6 +5,9 @@
                                'AllowTcpForwarding',
                                "Specifies whether TCP forwarding is permitted. The default is \x{201c}yes\x{201d}.Note that disabling TCP forwarding does not improve security unless users are also denied shell access, as they can always install their own forwarders.
 ",
+                               'Banner',
+                               'In some jurisdictions, sending a warning message before authentication may be relevant for getting legal protection. The contents of the specified file are sent to the remote user before authentication is allowed. This option is only available for protocol version 2. By default, no banner is displayed.
+',
                                'ForceCommand',
                                "Forces the execution of the command specified by ForceCommand, ignoring any command supplied by the client. The command is invoked by using the user\x{2019}s login shell with the -c option. This applies to shell, command, or subsystem execution. It is most useful inside a Match block. The command originally supplied by the client is available in the SSH_ORIGINAL_COMMAND environment variable.
 
@@ -12,16 +15,23 @@
                                'GatewayPorts',
                                'Specifies whether remote hosts are allowed to connect to ports forwarded for the client.  By default, sshd(8) binds remote port forwardings to the loopback address.  This prevents other remote hosts from connecting to forwarded ports.  GatewayPorts can be used to specify that sshd should allow remote port forwardings to bind to non-loopback addresses, thus allowing other hosts to connect.
 ',
-                               'ForceCommand',
-                               "Forces the execution of the command specified by ForceCommand, ignoring any command supplied by the client. The command is invoked by using the user\x{2019}s login shell with the -c option. This applies to shell, command, or subsystem execution. It is most useful inside a Match block. The command originally supplied by the client is available in the SSH_ORIGINAL_COMMAND environment variable.
-
-"
+                               'GSSApiAuthentication',
+                               'Specifies whether user authentication based on GSSAPI is allowed. Note that this option applies to protocol version 2 only.
+',
+                               'KbdInteractiveAuthentication',
+                               'No doc found in sshd documentation
+'
                              ],
             'element' => [
                            'AllowTcpForwarding',
                            {
                              'value_type' => 'boolean',
                              'built_in' => '1',
+                             'type' => 'leaf'
+                           },
+                           'Banner',
+                           {
+                             'value_type' => 'string',
                              'type' => 'leaf'
                            },
                            'ForceCommand',
@@ -48,9 +58,28 @@
                                            'no'
                                          ]
                            },
-                           'ForceCommand',
+                           'GSSApiAuthentication',
                            {
-                             'value_type' => 'uniline',
+                             'value_type' => 'boolean',
+                             'built_in' => '0',
+                             'type' => 'leaf'
+                           },
+                           'KbdInteractiveAuthentication',
+                           {
+                             'value_type' => 'boolean',
+                             'built_in' => '0',
+                             'type' => 'leaf'
+                           },
+                           'KerberosAuthentication',
+                           {
+                             'value_type' => 'boolean',
+                             'built_in' => '0',
+                             'type' => 'leaf'
+                           },
+                           'PasswordAuthentication',
+                           {
+                             'value_type' => 'boolean',
+                             'built_in' => '0',
                              'type' => 'leaf'
                            }
                          ]
