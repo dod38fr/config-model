@@ -6,7 +6,7 @@
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
-use Test::More tests => 56 ;
+use Test::More tests => 60 ;
 use Config::Model ;
 
 use strict;
@@ -102,6 +102,20 @@ $model ->create_config_class
 	   index_type  => 'string',
 	   @element ,
 	   allow_from  => '- hash_with_several_auto_created_id',
+	  },
+       hash_with_follow_keys_from
+       => {
+	   type => 'hash',
+	   index_type  => 'string',
+	   @element ,
+	   follow_keys_from  => '- hash_with_several_auto_created_id',
+	  },
+       hash_with_follow_keys_from_unknown
+       => {
+	   type => 'hash',
+	   index_type  => 'string',
+	   @element ,
+	   follow_keys_from  => '- unknown_hash',
 	  },
        ordered_hash
        => {
@@ -214,6 +228,17 @@ $ph->fetch_with_id(2)->store('baz') ;
 ok($ph->copy(2,3),"value copy") ;
 is($ph->fetch_with_id(3)->fetch, 
    $ph->fetch_with_id(2)->fetch, "compare copied value") ;
+
+my $hwfkf =  $root->fetch_element('hash_with_follow_keys_from'); 
+ok($hwfkf,"created hash_with_follow_keys_from ...") ;
+is_deeply($hwfkf->get_default_keys,[qw/foo x y z/],
+	  'check default keys of hash_with_follow_keys_from');
+
+my $hwfkfu = $root->fetch_element('hash_with_follow_keys_from_unknown');
+ok($hwfkfu,"created hash_with_follow_keys_from_unknown ...") ;
+eval { $hwfkfu->get_default_keys ; };
+ok($@,"failed to get keys from hash_with_follow_keys_from_unknown");
+print "normal error: $@" if $trace;
 
 
 my $oh = $root->fetch_element('ordered_hash') ;

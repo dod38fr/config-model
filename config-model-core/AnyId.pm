@@ -487,11 +487,36 @@ sub get_cargo_type {
     return $self->{cargo_type} ;
 }
 
+# internal, does a grab with improved error mesage
+sub safe_typed_grab {
+  my $self  = shift ;
+  my $param = shift ;
+
+  my $res = eval {
+    $self->grab(step => $self->{$param},
+		type => $self->get_type,
+	       ) ;
+  };
+
+  if ($@) {
+    my $e = $@ ;
+    my $msg = $e ? $e->full_message : '' ;
+    Config::Model::Exception::Model
+	-> throw (
+		  object => $self,
+		  error => "'$param' parameter: "
+		  . $msg
+		 ) ;
+  }
+
+  return $res ;
+}
+
 =head2 get_default_keys
 
-Returns a list ref of the current default keys. These keys can be set
-by the C<default_keys> or C<default_with_init> parameters or by the
-other hash pointed by C<follow_keys_from> parameter.
+Returns a list (or a list ref) of the current default keys. These keys
+can be set by the C<default_keys> or C<default_with_init> parameters
+or by the other hash pointed by C<follow_keys_from> parameter.
 
 =cut
 
@@ -499,9 +524,7 @@ sub get_default_keys {
     my $self = shift ;
 
     if ($self->{follow_keys_from}) {
-	my $followed = $self->grab(step => $self->{follow_keys_from},
-				   type => $self->get_type,
-				  ) ;
+	my $followed = $self->safe_typed_grab('follow_keys_from') ;
 	return [ $followed -> get_all_indexes ];
     }
 
@@ -513,7 +536,7 @@ sub get_default_keys {
     push @res , keys %{$self->{default_with_init}}
       if defined $self->{default_with_init} ;
 
-    return \@res ;
+    return wantarray ? @res : \@res ;
 }
 
 =head2 name()
@@ -674,9 +697,7 @@ sub check {
 sub check_follow_keys_from {
     my ($self,$idx) = @_ ; 
 
-    my $followed = $self->grab(step => $self->{follow_keys_from},
-			       type => $self->get_type,
-			      ) ;
+    my $followed = $self->safe_typed_grab('follow_keys_from') ;
     if ($followed->exists($idx)) {
 	return 1;
     }
@@ -706,9 +727,7 @@ sub check_allow_keys {
 sub check_allow_keys_from {
     my ($self,$idx) = @_ ; 
 
-    my $from = $self->grab(step => $self->{allow_keys_from},
-			   type => $self->get_type,
-			  ) ;
+    my $from = $self->safe_typed_grab('allow_keys_from');
     my $ok = grep { $_ eq $idx } $from->get_all_indexes ;
 
     return 1 if $ok ;

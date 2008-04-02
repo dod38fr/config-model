@@ -9,7 +9,7 @@ use ExtUtils::testlib;
 use Test::More;
 use Config::Model ;
 
-BEGIN { plan tests => 28; }
+BEGIN { plan tests => 29; }
 
 use strict;
 
@@ -51,6 +51,11 @@ $model ->create_config_class
 		    value_type => 'string',
 		    compute    => [ '$bar', bar => '- sbv'],
 		    },
+       one_wrong_var => { type => 'leaf',
+			  class =>'Config::Model::Value',
+			  value_type => 'string',
+			  compute    => [ '$bar', bar => '- wrong_v'],
+			},
        meet_test 
        => { type => 'leaf',
 	    class =>'Config::Model::Value',
@@ -77,8 +82,8 @@ my $root = $inst -> config_root ;
 
 # order is important. Do no use sort.
 is_deeply([$root->get_element_name()],
-	  [qw/av bv compute_int sav sbv one_var meet_test 
-              compute_with_override/],
+	  [qw/av bv compute_int sav sbv one_var one_wrong_var 
+	      meet_test compute_with_override/],
 	 "check available elements");
 
 my ( $av, $bv, $compute_int );
@@ -204,3 +209,8 @@ $bv->store(2) ;
 is( $comp_over->fetch, 3, "test computed value" );
 $comp_over->store(4);
 is( $comp_over->fetch, 4, "test overridden value" );
+
+my $owv = $root->fetch_element('one_wrong_var');
+eval {$owv -> fetch ;} ;
+ok($@,"expected failure with one_wrong_var");
+print "normal error:\n", $@, "\n" if $trace;

@@ -460,8 +460,21 @@ sub get_master_object {
 		 )
 	  unless ref $master_path eq 'ARRAY' || not ref $master_path ;
 
-    my $master = $self->grab(step => $master_path, 
-			     grab_non_available => $grab_non_available);
+    my $master 
+      = eval {$self->grab(step => $master_path, 
+			  grab_non_available => $grab_non_available) ;
+	    };
+
+    if ($@) {
+      my $e = $@ ;
+      my $msg = $e ? $e->full_message : '' ;
+      Config::Model::Exception::Model
+	  -> throw (
+		    object => $self,
+		    error => "path error '$master_path':\n"
+		    . $msg
+		   ) ;
+    }
 
     Config::Model::Exception::Internal
 	-> throw (
