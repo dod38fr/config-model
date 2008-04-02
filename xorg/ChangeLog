@@ -1,3 +1,10 @@
+2008-04-02  Dominique Dumont  v0.511
+
+	* lib/Config/Model/models/Xorg/ServerLayout.pl: no longer use
+	value_type in warp mechanism
+
+	* lib/Config/Model/models/Xorg/Monitor.pl: idem
+
 2008-02-26  Dominique Dumont  v0.510
 
 	* Build.PL: Use local when setting $Data::Dumper::Terse to 0 to

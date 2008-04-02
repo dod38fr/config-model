@@ -1,13 +1,16 @@
 
-Config::Model::Xorg - Xorg model (for Config::Model)
+Config::Model::Xorg - Xorg configuration tool based on Config::Model
 
-This module provides a configuration model for Xorg.
+This module provides a Xorg configuration model. 
 
 With this module and Config::Model, you have a tool to tune the
 configuration of your favourite X server.
 
-Installing Config::Model::CursesUI is recommended as you'll have a
+Installing Config::Model::TkUI is recommended as you'll have a
 more user friendly curses based user interface.
+
+(You may also want to install Config::Model::CursesUI to get a curses
+interface in case Xorg server is down)
 
 Once this module is installed, you can run (as root, but please backup
 /etc/X11/xorg.conf before):
@@ -72,7 +75,7 @@ lib/Config/Model/models/Xorg/Device/ directory) :
 --------------------------------------------------------------------
 
 AUTHOR
-    Copyright (c) 2007 Dominique Dumont.
+    Copyright (c) 2007-2008 Dominique Dumont.
 
     This file is part of Config-Model-Xorg.
 

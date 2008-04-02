@@ -70,15 +70,16 @@ my $build = Module::Build->new
   (
    module_name   => 'Config::Model::Xorg',
    license       => 'lgpl',
-   dist_version  => '0.510' ,
+   dist_version  => '0.511' ,
    dist_author   => "Dominique Dumont (ddumont at cpan dot org)",
-   dist_abstract => "Configuration model for xorg.conf",
+   dist_abstract => "Xorg configuration tool based on Config::Model",
    requires      => {
 		     'Config::Model'   => '0.617',
 		     'Log::Log4perl'   => 0 ,
 		    },
    recommends    => {
 		     'Config::Model::CursesUI' => 0,
+		     'Config::Model::TkUI'     => 0,
 		    },
    add_to_cleanup => [qw/wr_test/] 
   );
