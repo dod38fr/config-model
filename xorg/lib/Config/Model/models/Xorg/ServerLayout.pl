@@ -1,9 +1,8 @@
 # $Author: ddumont $
 # $Date: 2007-10-23 16:18:25 $
-# $Name: not supported by cvs2svn $
 # $Revision: 1.3 $
 
-#    Copyright (c) 2005,2006 Dominique Dumont.
+#    Copyright (c) 2005,2006,2008 Dominique Dumont.
 #
 #    This file is part of Config-Xorg.
 #
@@ -104,11 +103,13 @@
 	 },
       ['x','y'] 
       => { type => 'leaf',
+	   value_type => 'integer',
+	   level => 'hidden',
 	   'warp'
 	   => { follow => '- relative_screen_location',
 		'rules' => [ 
 			    [qw/Absolute Relative/] 
-			    => { value_type => 'integer', mandatory => 1 }
+			    => {  level => 'normal', mandatory => 1 }
 			   ]
 	      }
 	 },

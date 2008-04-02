@@ -1,9 +1,8 @@
 # $Author: ddumont $
 # $Date: 2007-10-23 16:18:25 $
-# $Name: not supported by cvs2svn $
 # $Revision: 1.4 $
 
-#    Copyright (c) 2005,2006 Dominique Dumont.
+#    Copyright (c) 2006-2008 Dominique Dumont.
 #
 #    This file is part of Config-Xorg.
 #
@@ -126,21 +125,26 @@
 			      default    => 1,
 			    },
        'gamma' => { type       => 'leaf',
+		    value_type => 'number',
 		    built_in   => 1 ,
+		    level => 'hidden',
 		    warp => { follow => '- use_global_gamma',
 			      rules => {
-					1 => { value_type => 'number', }
+					1 => { level => 'normal', }
 				       }
 			    }
 
 		  },
        [qw/red_gamma green_gamma blue_gamma/]
        => { type       => 'leaf',
+	    value_type => 'number',
 	    built_in   => 1 ,
+	    level => 'hidden',
 	    warp => { follow => '- use_global_gamma',
 		      rules => {
-				0 => { value_type => 'number', 
-				       mandatory  => 1 , # all 3 are required
+				0 => { 
+				      level => 'normal',
+				      mandatory  => 1 , # all 3 are required
 				     }
 			       }
 		    }
