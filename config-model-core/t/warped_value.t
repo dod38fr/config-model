@@ -10,7 +10,7 @@ use Test::More;
 use Config::Model;
 use Config::Model::ValueComputer ;
 
-BEGIN { plan tests => 58; }
+BEGIN { plan tests => 57; }
 
 use strict;
 
@@ -114,19 +114,19 @@ $model -> create_config_class
 	   },
 	W => {
 	      type => 'leaf',
+	      value_type => 'enum',
+	      level => 'hidden',
 	      warp => {
 		       follow => '- - macro',
 		       'rules' 
 		       => {
 			   A => {
-				 value_type => 'enum',
 				 default    => 'Av',
 				 level      => 'normal',
 				 permission => 'intermediate',
 				 choice     => [qw/Av Bv Cv/],
 				},
 			   B => {
-				 value_type => 'enum',
 				 default    => 'Bv',
 				 level      => 'normal',
 				 permission => 'advanced',
@@ -164,12 +164,15 @@ $model -> create_config_class
 		 choice     => [qw/A B C D/]
 		},
        macro2 => {
-		 type => 'leaf',
+		  type => 'leaf',
+		  value_type => 'enum', 
+		  level => 'hidden',
 		  warp => {  follow => '- macro',
 			     'rules'
-			     => [ "B" 
-				  => { value_type => 'enum', 
-				       choice     => [qw/A B C D/]
+			     => [ "B"
+				  => {
+				      level => 'normal',
+				      choice     => [qw/A B C D/]
 				     },
 				]
 			  }
@@ -247,9 +250,12 @@ $model -> create_config_class
         =>{
 	   type => 'leaf',
 	   refer_to => '! class',
+	   value_type => 'reference', 
+	   level => 'hidden',
 	   warp => {  follow => { m => '- macro', m2 => '- macro2'},
 		      rules  => [ '$m eq "A" or $m2 eq "A"' 
-				  => { value_type => 'reference', 
+				  => { 
+				      level => 'normal',
 				     },
 				]
  		  }
@@ -390,11 +396,6 @@ is( $slave->is_element_available(name => 'W', permission => 'advanced'),
     1, " test W is available") ;
 
 $root->fetch_element('macro')->store('C') ;
-
-eval {$result = $slave->fetch_element('W')->fetch ;} ;
-ok($@,"reading slave->W (undef value_type error)") ;
-print "normal error: $@" if $trace;
-
 
 
 map {is($slave->fetch_element($_)->fetch , undef,

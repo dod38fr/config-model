@@ -1,10 +1,15 @@
-2008-03-28  Dominique Dumont  <dominique.dumont@hp.com>
+2008-04-02  Dominique Dumont  pre 0.621
+
+	* Value.pm (): Cannot warp value_type anymore (this feature was
+	hard to use and encouraged too complex model).
+
+2008-03-28  Dominique Dumont  
 
 	* HashId.pm (swap): Fix swap problem which led to duplicated keys
 	in ordered hash
 	(move_after): New method
 
-2008-03-22  Domi  <domi@bilbo.maison> pre 0.621
+2008-03-22  Domi  <domi@bilbo.maison> 
 
 	* ListId.pm (swap): new method
 	(remove): New method, equivalent to splice (@list,$idx,1)

@@ -404,10 +404,15 @@ ref. Example:
 
 =cut
 
-my @accessible_params =  qw/min max mandatory default value_type
+
+my @warp_accessible_params =  qw/min max mandatory default 
                              choice convert built_in replace/ ;
 
-my @allowed_warp_params = (@accessible_params, qw/level permission help/);
+my @accessible_params =  (@warp_accessible_params, 
+			  qw/index_value element_name value_type
+			     refer_to computed_refer_to/ ) ;
+
+my @allowed_warp_params = (@warp_accessible_params, qw/level permission help/);
 
 sub new {
     my $type = shift;
@@ -864,8 +869,7 @@ the value object (as declared in the model unless they were warped):
 =cut
 
 # accessor to get some fields through methods (See man perltootc)
-foreach my $datum (@accessible_params, qw/index_value element_name 
-					 refer_to computed_refer_to/) {
+foreach my $datum (@accessible_params) {
     no strict "refs";       # to register new methods in package
     *$datum = sub {
 	my $self= shift;

@@ -227,23 +227,27 @@ sub get_choice_from_refered_to {
 
 	my @path = split (/\s+/,$user_spec) ;
 
-	my $element = pop @path ;
-
-	print "get_choice_from_refered_to:\n\tpath: @path, element $element\n"
+	print "get_choice_from_refered_to:\n\tpath: @path\n"
 	  if $::debug ;
 
-	my $obj = $self->{config_elt}->grab("@path");
+	my $refered_to = 
+	  eval { 
+	    $self->{config_elt}->grab("@path"); 
+	} ;
 
-	Config::Model::Exception::UnknownElement
-	    -> throw (
-		      object => $obj,
-		      element => $element,
-		      info => "Error related to 'refer_to' element of '".
-		      $self->{config_elt}->parent->config_class_name() . "'"
-		      .$self->reference_info() 
-		     ) 
-	      unless  $obj->is_element_available(name => $element) ;
+	if ($@) {
+	    my $e = $@ ;
+	    my $msg = $e ? $e->full_message : '' ;
+	    Config::Model::Exception::Model
+		-> throw (
+			  object => $self->{config_elt},
+			  error => "'refer_to' parameter: "
+			  .$self->reference_info() . "\n". $msg
+			 ) ;
+	}
 
+	my $element = pop @path ;
+	my $obj = $refered_to -> parent ;
 	my $type = $obj->element_type($element) ;
 
 	my @choice ;
@@ -299,7 +303,7 @@ reference. This method is mostly used to construct an error messages.
 
 sub reference_info {
     my $self = shift ;
-    my $str = "Choice was retrieved with: " ;
+    my $str = "choice was retrieved with: " ;
 
     foreach my $compute_obj (@{$self->{compute}}) {
 	my $path = $compute_obj->formula ;

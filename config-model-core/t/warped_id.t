@@ -90,13 +90,7 @@ $model ->create_config_class
 			 }
 		    },
 	    cargo_args => {
-			   warp => { follow => '- macro',
-				     'rules'
-				     => { 'A' => {
-						     value_type => 'string'
-						 } ,
-					}
-				   }
+			   value_type => 'string',
 			  }
 	  },
        'multi_auto_create'
@@ -114,7 +108,7 @@ $model ->create_config_class
 	       },
 	    cargo_type => 'node',
 	    config_class_name => 'Slave'
-	  }
+	  },
       ]
   );
 
