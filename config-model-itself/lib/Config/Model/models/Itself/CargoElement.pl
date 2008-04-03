@@ -1,9 +1,8 @@
 # $Author$
 # $Date$
-# $Name: not supported by cvs2svn $
 # $Revision$
 
-#    Copyright (c) 2007 Dominique Dumont.
+#    Copyright (c) 2007-2008 Dominique Dumont.
 #
 #    This file is part of Config-Model-Itself.
 #
@@ -25,17 +24,36 @@
   [
    name => "Itself::CargoElement",
 
-   include => 'Itself::WarpableElement' ,
+   include => 'Itself::WarpableCargoElement' ,
+   include_after => 'compute',
 
    'element' 
    => [
+       'value_type' 
+       => { type => 'leaf',
+	    level => 'hidden',
+	    value_type => 'enum',
+	    'warp'
+	    => { follow => { ct => '- - cargo_type' },
+		 'rules'
+		 => [ '$ct eq "leaf"' 
+		      => {
+			  choice => [qw/boolean enum integer reference
+					number uniline string/],
+			  level => 'normal',
+			  mandatory => 1,
+			 }
+		    ]
+	       }
+	  },
+
        # node element (may be within a hash or list)
 
        # all but warped_node
        'warp' 
        => { type => 'warped_node' , # ?
 	    level => 'hidden',
-	    follow => { elt_type => '?type' } ,
+	    follow => { elt_type => '- - cargo_type' } ,
 	    rules  => [
 		       '$elt_type ne "node"' =>
 		       {
@@ -55,7 +73,7 @@
 	   index_type => 'string',
 	   level      => 'hidden' ,
 	   'warp'
-	   => { follow => '?type',
+	   => { follow => '- - cargo_type',
 		'rules' => { 'warped_node' => {level => 'normal',},}
 	      },
 	   cargo_args => { value_type => 'uniline' },
@@ -68,11 +86,11 @@
 		   level      => 'hidden' ,
 		   cargo_type => 'node',
 		   index_type => 'string',
-		   warp => { follow => '?type',
+		   warp => { follow => '- - cargo_type',
 			     'rules'
 			     => { 'warped_node' 
 				  => {
-				      config_class_name => 'Itself::WarpableElement' ,
+				      config_class_name => 'Itself::WarpableCargoElement' ,
 				      level => 'normal',
 				     }
 				}
@@ -83,13 +101,13 @@
        'morph' => 
        => {
 	   type => 'leaf',
+	   value_type => 'boolean', 
 	   level      => 'hidden' ,
 	   'warp'
-	   => { follow => '?type',
+	   => { follow => '- - cargo_type',
 		'rules'
 		=> { 'warped_node' 
 		     => {
-			 value_type => 'boolean', 
 			 level => 'normal',
 			 built_in => 0 ,
 			},
@@ -102,20 +120,19 @@
 
        # leaf element
 
+
        'refer_to' 
        => { type => 'leaf',
 	    level      => 'hidden' ,
-	    warp => { follow => { t => '?type',
-				  vt => '?value_type',
-				  ct => '?cargo_type',
+	    value_type => 'uniline',
+	    warp => { follow => { vt => '- value_type',
+				  ct => '- - cargo_type',
 				},
 		     'rules'
-		      => [ '   $t  eq "check_list"
-                            or $ct eq "check_list"
+		      => [ '   $ct eq "check_list"
                             or $vt eq "reference"  '
 			   => {
 			       level => 'important',
-			       value_type => 'uniline',
 			      },
 			 ]
 		    },
@@ -124,13 +141,11 @@
 
        'computed_refer_to' 
        => { type => 'warped_node',
-	    follow => { t => '?type',
-			vt => '?value_type',
-			ct => '?cargo_type',
+	    follow => { vt => '- value_type',
+			ct => '- - cargo_type',
 		      },
 	    'rules'
-	    => [ '   $t  eq "check_list" 
-                  or $ct eq "check_list"
+	    => [ '   $ct eq "check_list"
                   or $vt eq "reference"  '
 		 => {
 		     level => 'normal',
@@ -144,11 +159,9 @@
        'compute' 
        => { type => 'warped_node',
 
-	    follow => { t => '?type',
-			ct => '?cargo_type',
+	    follow => { ct => '- - cargo_type',
 		      },
-	    'rules' => [ '   $t  eq "leaf" 
-                          or $ct eq "leaf" '
+	    'rules' => [ '$ct eq "leaf" '
 			 => {
 			     level => 'normal',
 			     config_class_name => 'Itself::ComputedValue',
@@ -157,24 +170,6 @@
 	    description => "compute the default value according to a formula and value from other elements in the configuration tree.",
 	  },
 
-
-       # hash element
-
-       'index_type' 
-       => { type => 'leaf',
-	    level      => 'hidden' ,
-	    warp => { follow => '?type',
-		     'rules'
-		      => { 'hash' => {
-				      value_type => 'enum',
-				      level => 'important',
-				      #mandatory => 1,
-				      choice => [qw/string integer/] ,
-				     }
-			 }
-		    },
-	    description => 'Specify the type of allowed index for the hash. "String" means no restriction.',
-	  },
       ],
 
   ],

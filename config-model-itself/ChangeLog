@@ -1,3 +1,8 @@
+2008-04-03  Dominique Dumont  <dominique.dumont@hp.com>
+
+	* lib/Config/Model/models/Itself/Element.pl: Fixed element and
+	cargo models. 
+
 2008-03-24  Domi  <domi@bilbo.maison>
 
 	* lib/Config/Model/models/Itself/WarpableElement.pl: added

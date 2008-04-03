@@ -14,6 +14,7 @@ lib/Config/Model/models/Itself/Class.pl
 lib/Config/Model/models/Itself/ComputedValue.pl
 lib/Config/Model/models/Itself/Element.pl
 lib/Config/Model/models/Itself/Model.pl
+lib/Config/Model/models/Itself/WarpableCargoElement.pl
 lib/Config/Model/models/Itself/WarpableElement.pl
 lib/Config/Model/models/Itself/WarpRule.pl
 lib/Config/Model/models/Itself/WarpValue.pl

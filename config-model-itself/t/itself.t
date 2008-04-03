@@ -5,7 +5,7 @@
 # $Revision: 1.5 $
 
 use ExtUtils::testlib;
-use Test::More tests => 15;
+use Test::More tests => 19;
 use Config::Model;
 use Log::Log4perl qw(:easy) ;
 use Data::Dumper ;
@@ -41,14 +41,38 @@ ok(1,"compiled");
 
 mkdir($wr_dir) unless -d $wr_dir ;
 
-my $inst = $meta_model->instance (root_class_name   => 'Itself::Model', 
+
+my $model = Config::Model->new(model_dir => 'data' ) ;
+ok(1,"loaded Master model") ;
+
+# check that Master Model can be loaded by Config::Model
+my $inst1 = $model->instance (root_class_name   => 'MasterModel', 
+			      instance_name     => 'test_orig',
+			     );
+ok($inst1,"created master_model instance") ;
+
+my $root1 = $inst1->config_root ;
+
+$root1->load("a_string=toto lot_of_checklist macro=AD - "
+	    ."! warped_values macro=C where_is_element=get_element "
+	    ."                get_element=m_value_element m_value=Cv") ;
+ok($inst1,"loaded some data in master_model instance") ;
+
+my $dump1 = $root1->dump_tree(mode => 'full') ;
+ok($dump1,"dumped master instance") ;
+
+# ok now we can load test model in Itself
+
+my $meta_inst = $meta_model->instance (root_class_name   => 'Itself::Model', 
 			     instance_name     => 'itself_instance',
 			     'read_directory'  => "data",
 			     'write_directory' => "wr_test",
 			    );
-ok($inst,"Read Itself::Model and created instance") ;
+ok($meta_inst,"Read Itself::Model and created instance") ;
 
-my $root = $inst -> config_root ;
+
+
+my $root = $meta_inst -> config_root ;
 
 my $rw_obj = Config::Model::Itself -> new(model_object => $root) ;
 
@@ -93,7 +117,7 @@ is_deeply($expected_map, $map, "Check file class map") ;
 print Dumper $map if $trace ;
 
 # add a new class 
-$root->load("class:Master::Created element:created1 type=leaf - element:created2 type=leaf") ;
+$root->load("class:Master::Created element:created1 type=leaf value_type=number - element:created2 type=leaf value_type=uniline") ;
 ok(1,"added new class Master::Created") ;
 
 my $cds = $root->dump_tree (full_dump => 1) ;
@@ -105,10 +129,10 @@ ok($cds,"dumped full tree in cds format") ;
 wr_cds("$wr_dir/orig.cds",$cds);
 
 #create a 2nd empty model
-my $inst2 = $meta_model->instance (root_class_name   => 'Itself::Model', 
+my $meta_inst2 = $meta_model->instance (root_class_name   => 'Itself::Model', 
 			      instance_name     => 'itself_instance', );
 
-my $root2 = $inst -> config_root ;
+my $root2 = $meta_inst2 -> config_root ;
 $root2 -> load ($cds) ;
 ok(1,"Created and loaded 2nd instance") ;
 
@@ -122,10 +146,10 @@ print Dumper $pdata2 if $trace ;
 
 # create 3rd instance 
 
-my $inst3 = $meta_model->instance (root_class_name   => 'Itself::Model', 
+my $meta_inst3 = $meta_model->instance (root_class_name   => 'Itself::Model', 
 			      instance_name     => 'itself_instance', );
 
-my $root3 = $inst -> config_root ;
+my $root3 = $meta_inst3 -> config_root ;
 $root3 -> load_data ($pdata2) ;
 ok(1,"Created and loaded 3nd instance with perl data") ;
 
@@ -142,19 +166,19 @@ ok($dump,"Checked dump of one class");
 
 $rw_obj->write_all( model_dir => $wr_dir ) ;
 
-my $model = Config::Model->new ;
-$model -> load ('X_base_class', 'wr_test/MasterModel/X_base_class.pl') ;
+my $model4 = Config::Model->new ;
+$model4 -> load ('X_base_class', 'wr_test/MasterModel/X_base_class.pl') ;
 ok(1,"loaded X_base_class") ;
-$model -> load ('MasterModel' , 'wr_test/MasterModel.pl') ;
+$model4 -> load ('MasterModel' , 'wr_test/MasterModel.pl') ;
 ok(1,"loaded MasterModel") ;
-$model -> load ('MasterModel::Created' , 'wr_test/Master/Created.pl') ;
+$model4 -> load ('MasterModel::Created' , 'wr_test/Master/Created.pl') ;
 ok(1,"loaded MasterModel::Created") ;
 
-my $inst4 = $model->instance (root_class_name   => 'MasterModel', 
-			    instance_name     => 'test_instance',
-			    'read_directory'  => "wr_test",
-			    'write_directory' => "wr_test2",
-			   );
+my $inst4 = $model4->instance (root_class_name   => 'MasterModel', 
+			       instance_name     => 'test_instance',
+			       'read_directory'  => "wr_test",
+			       'write_directory' => "wr_test2",
+			      );
 ok($inst4,"Read MasterModel and created instance") ;
 
 # require Tk::ObjScanner; Tk::ObjScanner::scan_object($meta_model) ;

@@ -64,10 +64,11 @@
 			}
 		   },
 	   cargo_args => {
+			  value_type => 'string',
 			  warp => { follow => '- macro',
 				    'rules'
 				    => { 'A' => {
-						 value_type => 'string'
+						 default => 'dumb string'
 						} ,
 				       }
 				  }

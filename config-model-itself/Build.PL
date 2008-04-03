@@ -32,15 +32,15 @@ my $build = Module::Build->new
   (
    module_name   => 'Config::Model::Itself',
    license       => 'lgpl',
-   dist_version  => 0.102 ,
+   dist_version  => 0.201 ,
    dist_author   => "Dominique Dumont (ddumont at cpan dot org)",
-   dist_abstract => "Configuration model for Config::Model",
+   dist_abstract => "Configuration model editor for Config::Model",
    requires      => {
-		     'Config::Model'   => '0.617',
+		     'Config::Model'   => '0.621',
 		     'Log::Log4perl'   => 0 ,
 		    },
    recommends    => {
-		     'Config::Model::CursesUI' => '1.004',
+		     'Config::Model::TkUI' => 0,
 		    },
    script_files  => [ 'config-model-edit' ],
    add_to_cleanup => [qw/wr_test/] ,

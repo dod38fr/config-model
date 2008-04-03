@@ -1,6 +1,6 @@
-# $Author$
-# $Date$
-# $Revision$
+# $Author: ddumont $
+# $Date: 2008-03-24 15:05:19 +0100 (Mon, 24 Mar 2008) $
+# $Revision: 559 $
 
 #    Copyright (c) 2007-2008 Dominique Dumont.
 #
@@ -22,34 +22,18 @@
 
 [
   [
-   name => "Itself::WarpableElement",
+   name => "Itself::WarpableCargoElement",
 
    'element' 
    => [
 
-       'permission' 
-       => {
-	   type => 'leaf',
-	   value_type => 'enum', 
-	   choice => [qw/master advanced intermediate/] ,
-	   built_in => 'intermediate',
-	  },
-
-       'level' 
-       => {
-	   type => 'leaf',
-	   value_type => 'enum', 
-	   choice => [qw/important normal hidden/] ,
-	   built_in => 'normal',
-	  },
-
        [qw/default built_in/] 
        => { type => 'leaf',
-	    level => 'hidden',
 	    value_type => 'uniline',
-	    warp => {  follow => { 't' => '?type' },
+	    level => 'hidden',
+	    warp => {  follow => { ct => '?cargo_type' },
 		       'rules'
-		       => [ '$t eq "leaf"' 
+		       => [ '$ct eq "leaf"' 
 			    => {
 				level => 'normal',
 			       }
@@ -57,73 +41,13 @@
 		    }
 	  },
  
-      [qw/follow_keys_from allow_keys_from/] 
-       => { type => 'leaf',
-	    level => 'hidden',
-	    value_type => 'uniline' ,
-	    warp => {  follow => { 't' => '?type'},
-		       'rules'
-		       => [ '$t eq "hash"' 
-			    => {
-				level => 'normal',
-			       }
-			  ]
-		    }
-	  },
-
-      [qw/ordered/] 
-       => { type => 'leaf',
-	    level => 'hidden',
-	    value_type => 'boolean' ,
-	    warp => {  follow => { 't' => '?type' },
-		       'rules'
-		       => [ '$t eq "hash"'
-			    => {
-				level => 'normal',
-			       }
-			  ]
-		    }
-	  },
-
-
-      [qw/default_keys auto_create allow_keys/] 
-       => { type => 'list',
-	    level => 'hidden',
-	    cargo_type => 'leaf',
-	    cargo_args => { value_type => 'string'} ,
-	    warp => {  follow => { 't' => '?type' },
-		       'rules'
-		       => [ '$t eq "hash"'
-			    => {
-				level => 'normal',
-			       }
-			  ]
-		    }
-	  },
-
-      [qw/default_with_init/] 
-       => { type => 'hash',
-	    level => 'hidden',
-	    index_type => 'string',
-	    cargo_type => 'leaf',
-	    cargo_args => { value_type => 'string'} ,
-	    warp => {  follow => { 't' => '?type' },
-		       'rules'
-		       => [ '$t eq "hash"'
-			    => {
-				level => 'normal',
-			       }
-			  ]
-		    }
-	  },
-
        [qw/convert/] 
        => { type => 'leaf',
 	    value_type => 'enum',
 	    level => 'hidden',
-	    warp => {  follow => { 't' => '?type'},
+	    warp => {  follow => { ct => '?cargo_type' },
 		       'rules'
-		       => [ '$t eq "leaf"'
+		       => [ '$ct eq "leaf"' 
 			    => {
 				choice => [qw/uc lc/],
 				level => 'normal',
@@ -137,33 +61,14 @@
 	    value_type => 'integer',
 	    level => 'hidden',
 	    warp => { follow => {
-				 'type'  => '?type',
-				 'vtype' => '?value_type' ,
+				 ct    => '?cargo_type' ,
+				 vtype => '?value_type' ,
 				},
 		     'rules'
-		      => [ '$type eq "hash"
-                            or
-                            (    $type eq "leaf" 
+		      => [ '     $ct eq "leaf" 
                              and (    $vtype eq "integer" 
                                    or $vtype eq "number" 
-                                 )
-                            ) '
-			   => {
-			       level => 'normal',
-			      }
-			 ]
-		    }
-	  },
-
-       'max_nb'
-       => { type => 'leaf',
-	    level => 'hidden',
-	    value_type => 'integer',
-	    warp => { follow => {
-				 'type'  => '?type',
-				},
-		     'rules'
-		      => [ '$type eq "hash"'
+                                 ) '
 			   => {
 			       level => 'normal',
 			      }
@@ -173,9 +78,9 @@
 
        'mandatory'
        => { type => 'leaf',
-	    level => 'hidden',
 	    value_type => 'boolean',
-	    warp => { follow => '?type',
+	    level => 'hidden',
+	    warp => { follow => '?cargo_type',
 		     'rules'
 		      => { 'leaf' => {
 				      built_in   => 0,
@@ -189,26 +94,26 @@
        => { type => 'list',
 	    cargo_type => 'leaf',
 	    level => 'hidden',
-	    warp => { follow => { t  => '?type',
+	    warp => { follow => { ct => '?cargo_type',
 				  vt => '?value_type',
 				},
 		      'rules'
-		      => [ '  ($t eq "leaf" and $vt eq "enum" )
-                            or $t eq "check_list"' 
+		      => [ '  ($ct eq "leaf" and $vt eq "enum" )
+                            or $ct eq "check_list"' 
 			   => {
 			       level => 'normal',
 			      } ,
 			 ]
 		    },
-	    'cargo_args' =>  { value_type => 'uniline'},
+	    'cargo_args' =>  { value_type => 'uniline' }
 	  },
 
        [qw/default_list/] 
        => { type => 'list',
 	    level => 'hidden',
-	    warp => { follow => { t => '?type' },
+	    warp => { follow => { ct => '?cargo_type' },
 		      'rules'
-		      => [ '$t eq "check_list"' 
+		      => [ '$ct eq "check_list"' 
 			   => {
 			       level => 'normal',
 			      } ,
@@ -216,8 +121,8 @@
 		    },
 	    cargo_type => 'leaf',
 	    cargo_args => {
-			   value_type => 'reference',
 			   refer_to => '- choice',
+			   value_type => 'reference',
 			  }
 	  },
 
@@ -227,9 +132,8 @@
 	   level => 'hidden',
 	   value_type => 'reference', 
 	   refer_to => '! class',
-	   warp => {  follow => { t => '?type' , ct => '?cargo_type'},
-		      rules  => [ '  $t  eq "node" or $t  eq "warped_node"
-                                  or $ct eq "node" or $ct eq "warped_node"' 
+	   warp => {  follow => { ct => '?cargo_type'},
+		      rules  => [ '$ct eq "warped_node"' 
 				  => { 
 				       # should be able to warp refer_to ??
 				       level => 'normal',
@@ -243,9 +147,9 @@
 	   type => 'hash',
 	   index_type => 'string',
 	   level => 'hidden',
-	   warp => {  follow => { 't' => '?type' },
+	   warp => {  follow => { ct => '?cargo_type' },
 		      'rules'
-		      => [ '$t eq "leaf"'
+		      => [ '$ct eq "leaf"' 
 			   => {
 			       level => 'normal',
 			      }
@@ -260,18 +164,9 @@
 
    'description' 
    => [
-       permission => 'Used to categorize configuration elements in several "required skills". Use this feature if you need to hide a parameter to novice users',
-       level => 'Used to highlight important parameter or to hide others. Hidden parameter are mostly used to hide features that are unavailable at start time. They can be made available later using warp mechanism',
        value_type => 'specify the type of a leaf element.',
        default => 'Specify default value. This default value will be written in the configuration data',
        built_in => 'Another way to specify a default value. But this default value is considered as "built_in" the application and is not written in the configuration data (unless modified)',
-       follow_keys_from => 'this hash will contain the same keys as the hash pointed by the path string',
-       allow_keys_from =>'this hash will allow keys from the keys of the hash pointed by the path string', 
-       ordered => 'keep track of the order of the elements of this hash',
-       default_keys => 'default keys hashes.',
-       auto_create => 'always create a set of keys',
-       allow_keys => 'specify a set of allowed keys',
-       default_with_init => 'specify a set of keys to create and initialization on some elements . E.g. \' foo => "X=Av Y=Bv", bar => "Y=Av Z=Cz"\' ',
        convert => 'When stored, the value will be converted to uppercase (uc) or lowercase (lc).',
        choice => 'Specify the possible values',
        default_list => 'Specify items checked by default',

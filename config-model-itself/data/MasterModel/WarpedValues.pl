@@ -64,7 +64,6 @@
   
   [
    name => "MasterModel::Slave",
-   level => [ [qw/Comp W/] => 'hidden' ] ,
    element 
    =>  [
 	[qw/X Y Z/] => {
@@ -87,19 +86,19 @@
 	   },
 	W => {
 	      type => 'leaf',
+	      value_type => 'enum',
+	      level => 'hidden' ,
 	      warp => {
 		       follow => '- - macro',
 		       'rules' 
 		       => {
 			   A => {
-				 value_type => 'enum',
 				 default    => 'Av',
 				 level      => 'normal',
 				 permission => 'intermediate',
 				 choice     => [qw/Av Bv Cv/],
 				},
 			   B => {
-				 value_type => 'enum',
 				 default    => 'Bv',
 				 level      => 'normal',
 				 permission => 'advanced',
@@ -135,12 +134,15 @@
 		 choice     => [qw/A B C D/]
 		},
        macro2 => {
-		 type => 'leaf',
+		  type => 'leaf',
+		  value_type => 'enum', 
+		  level => 'hidden',
 		  warp => {  follow => '- macro',
 			     'rules'
 			     => [ "B" 
-				  => { value_type => 'enum', 
-				       choice     => [qw/A B C D/]
+				  => {
+				      choice     => [qw/A B C D/],
+				      level  => 'normal'
 				     },
 				]
 			  }
@@ -190,7 +192,8 @@
        => {
 	   type => 'leaf',
 	   value_type => 'string',
-	   compute    => [ 'macro is $m, my element is &element', 'm' => '!  macro' ]
+	   compute    => [ 'macro is $m, my element is &element', 
+			   'm' => '-  macro' ]
 	  },
 
        'var_path' 
@@ -201,10 +204,11 @@
 	   compute
 	   => [
 	       'get_element is $element_table{$s}, indirect value is \'$v\'',
-	       's'        => '! $where',
-	       where      => '! where_is_element',
-	       v          => '! $element_table{$s}',
-	       element_table => {qw/m_value_element m_value compute_element compute/}
+	       's'        => '- $where',
+	       where      => '- where_is_element',
+	       v          => '- $element_table{$s}',
+	       element_table => {qw/m_value_element m_value 
+				    compute_element compute/}
 	      ]
 	  },
 
@@ -218,7 +222,7 @@
         =>{
 	   type => 'leaf',
 	   value_type => 'reference', 
-	   refer_to => '! class',
+	   refer_to => '- class',
 	   level => 'hidden',
 	   warp => {  follow => { m => '- macro', m2 => '- macro2'},
 		      rules  => [ '$m eq "A" or $m2 eq "A"' 

@@ -168,6 +168,10 @@ Provide debug infos.
 
 Provides a full stack trace when exiting on error.
 
+=item -force-load
+
+Load file even if error are found in data. Bad data are discarded
+
 =back
 
 
@@ -175,6 +179,7 @@ Provides a full stack trace when exiting on error.
 
 my $man = 0;
 my $help = 0;
+my $force_load = 0;
 my $model_dir ;
 
 my $result = GetOptions ("if=s"             => \$ui_type,
@@ -185,6 +190,7 @@ my $result = GetOptions ("if=s"             => \$ui_type,
 			 "trace!"           => \$trace,
 			 "man!"             => \$man,
 			 "help!"            => \$help,
+			 "force_load!"      => \$force_load,
 			);
 
 pod2usage(2) if not $result ;
@@ -207,6 +213,7 @@ my $meta_model = Config::Model -> new();
 my $meta_inst 
   = $meta_model->instance (root_class_name => 'Itself::Model' ,
 			   instance_name   => $root_model.' model' ,
+			   force_load      => $force_load,
 			  );
 
 my $meta_root = $meta_inst -> config_root ;
