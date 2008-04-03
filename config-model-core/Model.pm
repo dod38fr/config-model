@@ -899,7 +899,7 @@ sub translate_rules_arg {
 	my $item = defined $raw_rules ? $raw_rules : '<undef>' ;
 	Config::Model::Exception::ModelDeclaration
 	    -> throw (
-		      error => "Warp rule error in object '$elt_name': "
+		      error => "Warp rule error in element '$elt_name': "
 		             . "rules must be a hash ref. Got '$item'"
 		     ) ;
     }

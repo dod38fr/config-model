@@ -630,7 +630,7 @@ value:
 	    Config::Model::Exception::Model
 		-> throw (
 			  object => $arg[0],
-			  error => "Compute argument $name, error with '$path':\n"
+			  error => "Compute argument '$name', error with '$path':\n"
                                  . $msg
 			 ) ;
          }
