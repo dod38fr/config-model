@@ -1,3 +1,7 @@
+2008-04-03  Dominique Dumont  <dominique.dumont@hp.com>
+
+	* lib/Config/Model/TkUI.pm: added File->check menu entry
+
 2008-03-28  Dominique Dumont  <dominique.dumont@hp.com>
 
 	* lib/Config/Model/Tk/HashEditor.pm ():added up adn down buttons

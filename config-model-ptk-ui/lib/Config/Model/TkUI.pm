@@ -35,6 +35,8 @@ use Log::Log4perl;
 use Tk::Photo ;
 use Tk::DialogBox ;
 
+require Tk::ErrorDialog;
+
 use Config::Model::Tk::LeafEditor ;
 use Config::Model::Tk::CheckListEditor ;
 
@@ -48,6 +50,7 @@ use Config::Model::Tk::HashViewer ;
 use Config::Model::Tk::HashEditor ;
 
 use Config::Model::Tk::NodeViewer ;
+
 
 $VERSION = sprintf "1.%04d", q$Revision$ =~ /(\d+)/;
 
@@ -108,6 +111,7 @@ sub Populate {
     $cw->configure(-menu => $menubar ) ;
 
     my $file_items = [[ qw/command reload -command/, sub{ $cw->reload }],
+		      [ qw/command check  -command/, sub{ $cw->check(1)}],
 		      [ qw/command save   -command/, sub{ $cw->save }],
 		      [ command => 'save in dir ...',
                         -command => sub{ $cw->save_in_dir ;} ],
@@ -288,11 +292,28 @@ sub save_in_dir {
     $cw->save() ;
 }
 
+sub check {
+    my $cw = shift ;
+    my $show = shift || 0 ;
+
+    # first check for errors, will die on errors
+    print $cw->{root}->dump_tree(auto_vivify => 1) ;
+
+    if ($show) {
+	$cw->Dialog(-title => 'Check',
+		    -text => "No errors found"
+		   ) -> Show ;
+    }
+}
+
 sub save {
     my $cw = shift ;
 
     my $dir = $cw->{save_dir} ;
     my $trace_dir = defined $dir ? $dir : 'default' ;
+
+    $cw->check() ;
+
     if (defined $cw->{store_sub}) {
 	$logger->info( "Saving data in $trace_dir directory with store call-back" );
 	$cw->{store_sub}->($dir) ;
