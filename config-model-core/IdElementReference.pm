@@ -241,8 +241,7 @@ sub get_choice_from_refered_to {
 	    Config::Model::Exception::Model
 		-> throw (
 			  object => $self->{config_elt},
-			  error => "'refer_to' parameter: "
-			  .$self->reference_info() . "\n". $msg
+			  error => "'refer_to' parameter: " . $msg
 			 ) ;
 	}
 
