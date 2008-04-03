@@ -4,7 +4,7 @@
 # $Revision$
 
 use ExtUtils::testlib;
-use Test::More tests => 9;
+use Test::More tests => 10;
 use Config::Model;
 use Config::Model::ObjTreeScanner ;
 
@@ -242,3 +242,26 @@ EOF
 $result =~ s/\s+\n/\n/g;
 
 is_deeply( [split /\n/,$result], [split /\n/,$expect], "check result" );
+
+# test dump of mandatory values
+
+my $model2 = Config::Model->new() ;
+$model2 ->create_config_class 
+  (
+   name => "SomeRootClass",
+   element => [ a_string => { type => 'leaf',
+			     mandatory => 1 ,
+			     value_type => 'string'
+			   },
+	      ],
+  ) ;
+
+my $inst2 = $model2->instance(root_class_name => 'SomeRootClass',
+			      instance_name => 'test',
+			     );
+
+my $root2 = $inst2->config_root ;
+
+eval{ $root2->dump_tree(auto_vivify => 1) ;};
+ok($@,"expected failure of dump with empty mandatory value") ;
+print "normal error:", $@, "\n" if $trace;

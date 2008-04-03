@@ -1371,7 +1371,7 @@ The built_in value. (defined by the configuration model)
 
 The custom or preset or computed or default value. Will return undef
 if either of this value is identical to the built_in value. This
-feature is usefull to reduce data to write in configuration file.
+feature is useful to reduce data to write in configuration file.
 
 =back
 
@@ -1385,10 +1385,8 @@ sub fetch {
 
     my $value = $self->fetch_no_check($mode) ;
 
-    if ($mode) {
-	return $value ;
-    }
-    elsif (defined $value) {
+    if (defined $value) {
+	# check validity (all modes)
         return $value if $self->check($value) ;
 
         Config::Model::Exception::WrongValue
@@ -1400,7 +1398,12 @@ sub fetch {
     }
     elsif (     $self->{mandatory}
 	    and $inst->get_value_check('fetch') 
+	    and (not $mode or $mode eq 'custom' )
+	    and (not defined $self->fetch_no_check() )
 	  ) {
+	# check only custom or "empty" mode. But undef custom value is
+	# authorized if standard value is defined (that's what is
+	# important)
         my @error ;
         push @error, "Undefined mandatory value."
           if $self->{mandatory} ;

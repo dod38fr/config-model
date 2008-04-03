@@ -1,3 +1,13 @@
+2008-04-03  Dominique Dumont  <dominique.dumont@hp.com>
+
+	* Dumper.pm (dump_tree): Added auto_vivify parameter
+
+	* DumpAsData.pm (dump_as_data): By default, now provide full
+	dump (with default values). Added auto_vivify parameter
+
+	* Value.pm (fetch): Check for mandatory values even if fetching
+	only custom values
+
 2008-04-02  Dominique Dumont  pre 0.621
 
 	* Value.pm (): Cannot warp value_type anymore (this feature was
