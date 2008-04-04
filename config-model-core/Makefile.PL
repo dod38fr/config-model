@@ -1,6 +1,5 @@
 # $Author$
 # $Date$
-# $Name: not supported by cvs2svn $
 # $Revision$
 
 #    Copyright (c) 2005-2008 Dominique Dumont.
@@ -26,7 +25,9 @@ use ExtUtils::MakeMaker;
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
 
-my @files= grep {$_ ne "Model.pm"} <*.pm> ;
+require 5.008;
+
+my @files= grep {$_ ne "Model.pm" and $_ ne "PreGrammar.pm"} <*.pm> ;
 
 my %PM = map ( ( "$_" => '$(INST_LIB)'."/Config/Model/$_" ), @files ) ;
 
@@ -69,7 +70,7 @@ WriteMakefile
 		    'Config::Tiny' => 0,
 		   },
    # cleanup required by t/auto_read.t
-   # PreGrammar.pm is create by t/value_computer.t
+   # PreGrammar.pm is created by t/value_computer.t
    clean => {FILES => "PreGrammar.pm wr_test zero_test"}
   );
 

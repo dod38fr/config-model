@@ -38,7 +38,7 @@ $VERSION = '0.621';
 
 =head1 NAME
 
-Config::Model - Model to create configuration validation tool
+Config::Model - Framework to create configuration validation tools and editors
 
 =head1 SYNOPSIS
 

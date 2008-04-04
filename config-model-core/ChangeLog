@@ -1,4 +1,4 @@
-2008-04-03  Dominique Dumont  <dominique.dumont@hp.com>
+2008-04-03  Dominique Dumont  0.621
 
 	* Dumper.pm (dump_tree): Added auto_vivify parameter
 
@@ -8,7 +8,7 @@
 	* Value.pm (fetch): Check for mandatory values even if fetching
 	only custom values
 
-2008-04-02  Dominique Dumont  pre 0.621
+2008-04-02  Dominique Dumont  
 
 	* Value.pm (): Cannot warp value_type anymore (this feature was
 	hard to use and encouraged too complex model).

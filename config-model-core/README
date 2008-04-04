@@ -2,7 +2,8 @@
 Config::Model - Describe and edit configuration data
 
 Config::Model enables a project developer to provide an interactive
-configuration editor to his users. For this he must:
+configuration editor (graphical, curses based or plain terminal) to
+his users. For this he must:
 - describe the structure and constraint of his project's configuration
 - if the configuration data is not stored in INI file or in Perl data
   file, he must provide some code to read and write configuration from
@@ -115,11 +116,14 @@ What is the status of the project ?
 
 - Most of the model handling code is Beta 
 - Terminal interface (TermUI.pm) is alpha
-- Curses interface (provided by Config::Model::CursesUI) is alpha
-- Xorg model (provided by Config::Model::Xorg) is alpha
+- Curses interface (provided by Config::Model::CursesUI) is beta
+- Perl/Tk interface (provided by Config::Model::TkUI) is beta
+- Xorg model (provided by Config::Model::Xorg) is alpha (and still
+  incomplete)
 
 Help is welcome on:
-- graphical user interface (gtk or perlTk)
+- improve graphical user interface 
+- provide web interface
 - backend storage (use Config::General or ldap maybe ?)
 - configuration model creation (if you have a configuration itch to
   scratch, you're welcome)
@@ -127,7 +131,7 @@ Help is welcome on:
 If you want to discuss Config::Model ?
 --------------------------------------
 
-Subscribe to tge config-model-users list:
+Subscribe to the config-model-users list:
 
 http://lists.sourceforge.net/mailman/listinfo/config-model-users
 
@@ -138,7 +142,7 @@ Yes, on sourceforge:
   http://config-model.wiki.sourceforge.net/
 
 What's the licence ?
-------------------
+--------------------
 
     Copyright (c) 2005-2008 Dominique Dumont.
 
