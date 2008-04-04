@@ -5,8 +5,12 @@ lib/Config/Model/Tk/CheckListEditor.pm
 lib/Config/Model/Tk/CheckListViewer.pm
 lib/Config/Model/Tk/icons/dialog-warning.gif
 lib/Config/Model/Tk/icons/edit-find-replace.gif
+lib/Config/Model/Tk/icons/go-down.gif
 lib/Config/Model/Tk/icons/go-next.gif
+lib/Config/Model/Tk/icons/go-up.gif
 lib/Config/Model/Tk/icons/system-search.gif
+lib/Config/Model/Tk/HashEditor.pm
+lib/Config/Model/Tk/HashViewer.pm
 lib/Config/Model/Tk/LeafEditor.pm
 lib/Config/Model/Tk/LeafViewer.pm
 lib/Config/Model/Tk/ListEditor.pm

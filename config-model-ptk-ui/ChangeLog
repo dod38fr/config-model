@@ -1,22 +1,22 @@
-2008-04-03  Dominique Dumont  <dominique.dumont@hp.com>
+2008-04-03  Dominique Dumont v0.104
 
 	* lib/Config/Model/TkUI.pm: added File->check menu entry
 
-2008-03-28  Dominique Dumont  <dominique.dumont@hp.com>
+2008-03-28  Dominique Dumont  
 
-	* lib/Config/Model/Tk/HashEditor.pm ():added up adn down buttons
+	* lib/Config/Model/Tk/HashEditor.pm ():added up and down buttons
 	for ordered hashes
 
 	* lib/Config/Model/NodeViewer.pm: Fix bug that prevented
 	view of root configuration class
 
-2008-03-22  Domi  <domi@bilbo.maison> pre v.104
+2008-03-22  Domi  <domi@bilbo.maison> 
 
 	* lib/Config/Model/Tk/ListEditor.pm: Reworked to provide better
 	list editor. Hash and List editor are now handled by separate
 	widgets.
 
-2008-03-20  Dominique Dumont  <dominique.dumont@hp.com>
+2008-03-20  Dominique Dumont  
 
 	* lib/Config/Model/TkUI.pm (disp_leaf): cut long string in HList
 	display (on the left)

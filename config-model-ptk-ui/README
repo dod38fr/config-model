@@ -1,7 +1,12 @@
 
 Config::Model::TkUi - Tk GUI to edit config data through Config::Model
 
-This module provides a Perl/Tk interface to Config::Model.
+This module provides a Perl/Tk interface to:
+- the configuration editor provided by Config::Model.
+- the configuration model editor provided by Config::Model::Itself
+
+For instance, with this module, Config::Model and Config::Model::Xorg,
+you get a graphical configuration editor for Xorg.
 
 All icons used in this application were created by Tango Desktop Project.
 They are licensed under Creative Commons Attribution Share-Alike license.
@@ -13,7 +18,7 @@ Legalese:
 
     Copyright (c) 2008 Dominique Dumont.
 
-    This file is part of Config-Model-TkUi.
+    This file is part of Config-Model-TkUI.
 
     Config-Model is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser Public License as
