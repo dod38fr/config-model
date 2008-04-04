@@ -31,16 +31,16 @@ Which means that you can use the same UI to edit configuration data
 (for instance Xorg configuration data from xorg.conf) and Xorg model
 (if you need to add new parameters in Xorg model)
 
--- TO BE MODIFIED BELOW
-
-Once this module is installed, you can run (as root, but please backup
-/etc/X11/xorg.conf before):
+Once this module is installed, you can run:
 
   # config-model-edit -model <model_name>
 
 For instance, if you have installed Config::Model::Xorg, you can run
 
   # config-model-edit -model Xorg
+
+If you save Xorg configuration model, it will create a lib directory and
+write the modified model there.
 
 
 --------------------------------------------------------------------

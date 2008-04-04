@@ -1,4 +1,4 @@
-2008-04-03  Dominique Dumont  <dominique.dumont@hp.com>
+2008-04-03  Dominique Dumont v0.201
 
 	* lib/Config/Model/models/Itself/Element.pl: Fixed element and
 	cargo models. 
@@ -8,7 +8,7 @@
 	* lib/Config/Model/models/Itself/WarpableElement.pl: added
 	description for 'replace' element
 
-2008-03-20  Dominique Dumont  <dominique.dumont@hp.com>
+2008-03-20  Dominique Dumont
 
 	* lib/Config/Model/models/Itself/WarpableElement.pl: removed
 	enum_integer type
