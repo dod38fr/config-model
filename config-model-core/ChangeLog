@@ -1,3 +1,8 @@
+2008-04-05  Domi  <domi@bilbo.maison>
+
+	* Value.pm (pre_store): Fix bug that prevented to load models with
+	errors even in tolerant mode.
+
 2008-04-03  Dominique Dumont  0.621
 
 	* Dumper.pm (dump_tree): Added auto_vivify parameter

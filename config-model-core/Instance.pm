@@ -315,7 +315,7 @@ sub pop_no_value_check {
     }
 }
 
-=head2 get_value_check ( fetch | store | type | fetch_or_store )
+=head2 get_value_check ( fetch | store | type | fetch_or_store | fetch_and_store )
 
 Read the check status. Returns 1 if a check is to be done. O if not. 
 When used with the C<fetch_or_store> parameter, returns a logical C<or>
@@ -327,9 +327,10 @@ sub get_value_check {
     my $self = shift ;
     my $what = shift ;
 
-    my $result =  $what eq 'fetch_or_store' 
-      ? ($self->{check_stack}[0]{fetch} or $self->{check_stack}[0]{store})
-        : $self->{check_stack}[0]{$what} ;
+    my $ref = $self->{check_stack}[0] ;
+    my $result = $what eq 'fetch_or_store'  ? ($ref->{fetch} or  $ref->{store})
+               : $what eq 'fetch_and_store' ? ($ref->{fetch} and $ref->{store})
+               :                               $ref->{$what} ;
 
     croak "get_value_check: unexpected parameter: $what, ",
       "expected 'fetch', 'type', 'store', 'fetch_or_store'" 

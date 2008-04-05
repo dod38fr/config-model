@@ -1123,10 +1123,10 @@ sub pre_store {
     }
 
     # check if the object was initialized
-    if (not defined $self->{value_type}
-        and $inst->get_value_check('type')
-       ) {
-        $self->_value_type_error ;
+    if (not defined $self->{value_type}) {
+        $self->_value_type_error if ($self->instance->get_value_check('fetch_and_store') 
+				     and $inst->get_value_check('type')) ;
+	return 0 ;
     }
 
     if ($self->{value_type} eq 'boolean' and defined $value) {
