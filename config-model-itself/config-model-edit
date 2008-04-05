@@ -230,8 +230,12 @@ if (not -e $read_model_dir.'/'.$root_model.'.pl') {
     $read_model_dir .= '/models' ;
 }
 
+$meta_inst->push_no_value_check(qw/fetch store type/) if $force_load ;
+
 $rw_obj -> read_all( model_dir  => $read_model_dir, 
 		     root_model => $root_model ) ;
+
+$meta_inst->pop_no_value_check  if $force_load ;
 
 my $write_sub = sub { 
     my $wr_dir = shift || $wr_model_dir ;
