@@ -240,11 +240,25 @@ sub add_item {
     }
 }
 
+sub get_selection {
+    my $cw =shift;
+    my $what = shift ;
+    my $tklist = $cw->{tklist} ;
+    my @from_idx = $tklist->curselection() ;
+    if (not @from_idx) {
+	$cw->Dialog(-title => "$what selection error",
+		    -text  => " Please select an item to $what",
+		   )
+           ->Show() ;
+    }
+    return @from_idx ;
+}
+
 sub copy_selected_in {
     my $cw =shift;
     my $to_name = shift ;
     my $tklist = $cw->{tklist} ;
-    my @from_idx = $tklist->curselection() ;
+    my @from_idx = $cw->get_selection('copy') or return 0 ;
     my $from_name = $tklist->get(@from_idx);
 
     if ($from_name eq $to_name) {
@@ -272,7 +286,7 @@ sub move_selected_to {
     my $cw =shift;
     my $to_name = shift ;
     my $tklist = $cw->{tklist} ;
-    my @from_idx = $tklist->curselection() ;
+    my @from_idx = $cw->get_selection('move') or return 0 ;
     my $from_name = $tklist->get(@from_idx);
 
     if ($from_name eq $to_name) {

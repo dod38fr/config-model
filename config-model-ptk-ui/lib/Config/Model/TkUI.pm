@@ -297,7 +297,7 @@ sub check {
     my $show = shift || 0 ;
 
     # first check for errors, will die on errors
-    print $cw->{root}->dump_tree(auto_vivify => 1) ;
+    $cw->{root}->dump_tree(auto_vivify => 1) ;
 
     if ($show) {
 	$cw->Dialog(-title => 'Check',
@@ -486,9 +486,6 @@ sub disp_hash {
 	    my $previous_idx_nb = $previous_data->[2] ;
 	    if ($idx_nb != $previous_idx_nb) {
 		$newmode = $tkt->getmode($newpath); # will reuse mode below
-		print( "disp_hash delete $newpath mode $newmode (got idx "
-		       .$previous_idx_nb 
-		       ." expected $idx_nb)\n" );
 		$logger->trace( "disp_hash delete $newpath mode $newmode (got "
 				.$previous_idx_nb
 				." expected $idx_nb)" );
