@@ -130,10 +130,12 @@ sub new {
 
 =head2 Methods
 
-=head1 read_all ( model_dir => ...)
+=head1 read_all ( model_dir => ... , root_model => ... , [ force_load => 1 ] )
 
 Load all the model files contained in C<model_dir> and all its
-subdirectories.
+subdirectories. C<root_model> is used to filter the classes read. 
+
+Use C<force_load> if you are trying to load a model containing errors.
 
 C<read_all> returns a hash ref containing ( class_name => file_name , ...)
 
@@ -147,6 +149,7 @@ sub read_all {
       || croak __PACKAGE__," read_all: undefined config dir";
     my $model = $args{root_model} 
       || croak __PACKAGE__," read_all: undefined root_model";
+    my $force_load = $args{force_load} || 0 ;
 
     unless (-d $dir ) {
 	croak __PACKAGE__," read_all: unknown config dir $dir";
@@ -225,12 +228,12 @@ sub read_all {
 
     #print Dumper \@read_models ;
     #require Tk::ObjScanner; Tk::ObjScanner::scan_object(\@read_models) ;
-    #$model_obj->instance->push_no_value_check(qw/store fetch type/) ;
+    $model_obj->instance->push_no_value_check(qw/store fetch type/) if $force_load;
 
     $logger->info("loading all extracted data in Config::Model::Itself");
     $model_obj->load_data( {class => \%read_models} ) ;
 
-    #$model_obj->instance->pop_no_value_check() ;
+    $model_obj->instance->pop_no_value_check() if $force_load;
 
     return $self->{map} = \%class_file_map ;
 }
