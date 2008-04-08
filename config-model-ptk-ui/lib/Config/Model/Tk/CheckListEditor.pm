@@ -70,6 +70,7 @@ sub Populate {
     tie $array_ref, "Tk::Listbox", $lb ;
     # set all element in list box
     $array_ref = $leaf->get_checked_list ; 
+    $cw->{tied} = \$array_ref ;
 
     $cw->add_help_frame() ;
     $cw->add_help(value => \$cw->{help});
@@ -79,6 +80,12 @@ sub Populate {
     $lb->bind('<Button-1>',$b_sub);
 
     my $bframe = $cw->Frame->pack;
+    $bframe -> Button ( -text => 'Clear all',
+			-command => sub { $lb->selectionClear(0,'end') ; },
+		      ) -> pack(-side => 'left') ;
+    $bframe -> Button ( -text => 'Set all',
+			-command => sub { $lb->selectionSet(0,'end') ; },
+		      ) -> pack(-side => 'left') ;
     $bframe -> Button ( -text => 'Reset',
 			-command => sub { $cw->reset_value ; },
 		      ) -> pack(-side => 'left') ;
@@ -119,6 +126,10 @@ sub reset_value {
     my $cw = shift ;
 
     my $h_ref = $cw->{leaf}->get_checked_list_as_hash ;
+
+    # reset also the content of the listbox
+    # weird behavior of tied Listbox :-/
+    ${$cw->{tied}} = $cw->{leaf}->get_checked_list ;
 
     # the CheckButtons have stored the reference of the hash *values*
     # so we must preserve them.

@@ -69,7 +69,8 @@ sub Populate {
     foreach my $c ($leaf->get_choice) {
 	my $tag = $h{$c} ? 'in' : 'out' ;
 	$rt->insert('end', $c."\n" , $tag) ;
-	$cw->add_help("$c", $leaf->get_help($c)) if $h{$c};
+	my $help_txt = $leaf->get_help($c) ;
+	$cw->add_help("$c", $help_txt) if $h{$c} and $help_txt;
     }
     $cw->add_editor_button($path) ;
 

@@ -516,6 +516,17 @@ sub disp_hash {
     } ;
 }
 
+sub trim_value {
+    my $cw = shift ;
+    my $value = shift ;
+
+    return undef unless defined $value ;
+
+    $value =~ s/\n/ /g;
+    $value = substr($value,0,15) . '...' if length($value) > 15;
+    return $value;
+}
+
 sub disp_check_list {
     my ($scanner, $data_ref,$node,$element_name,$index, $leaf_object) =@_;
     my ($path,$cw,$opening) = @$data_ref ;
@@ -523,10 +534,10 @@ sub disp_check_list {
 
     my $value = $leaf_object->fetch ;
 
-    $cw->{tktree}->itemCreate($path,2,-text => $value) ;
+    $cw->{tktree}->itemCreate($path,2,-text => $cw->trim_value($value)) ;
 
     my $std_v = $leaf_object->fetch('standard') ;
-    $cw->{tktree}->itemCreate($path,3, -text => $std_v) ;
+    $cw->{tktree}->itemCreate($path,3, -text => $cw->trim_value($std_v)) ;
 }
 
 sub disp_leaf {
@@ -556,15 +567,7 @@ sub disp_leaf {
 	$tkt->itemDelete($path,1) if $tkt->itemExists($path,1) ;
     }
 
-    if (defined $value) {
-	$value =~ s/\n/ /g;
-
-	if (length($value) > 15  ) {
-	    $value = substr($value,0,15) . '...' ;
-	}
-    }
-
-    $tkt->itemCreate($path,2, -text => $value) ;
+    $tkt->itemCreate($path,2, -text => $cw->trim_value($value)) ;
 
     $tkt->itemCreate($path,3, -text => $std_v) ;
 }

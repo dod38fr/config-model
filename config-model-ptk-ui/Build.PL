@@ -37,7 +37,7 @@ my $build = Module::Build->new
 		'Exception::Class' => 0,
 		'Tk'               => 0,
 		'Tk::DirSelect'    => 0,
-		'Log::Log4perl'    => 0,
+		'Log::Log4perl'    => '1.11', # for TRACE log level
 	       },
    add_to_cleanup => [qw/stderr.log wr_data/] ,
   );
