@@ -1,3 +1,8 @@
+2008-04-07  Dominique Dumont  <dominique.dumont@hp.com>
+
+	* lib/Config/Model/Xorg/Read.pm (parse_option): Skip wrong Options
+	when read in tolerant mode (-force option)
+
 2008-04-02  Dominique Dumont  v0.511
 
 	* lib/Config/Model/models/Xorg/ServerLayout.pl: no longer use

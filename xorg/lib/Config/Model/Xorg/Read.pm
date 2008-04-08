@@ -215,9 +215,24 @@ sub parse_option {
     }
     else {
 	# dont' work for ServerFlags
-	$logger->debug( "obj ",$obj->name, " ($line) load option '$opt' ");
-	my $opt_obj = $obj->fetch_element("Option")->fetch_element($opt) ;
-	$opt_obj->store ( @args  ? $args[0] : 1 ) if defined $opt_obj ;
+	my $opt_p_obj = $obj->fetch_element("Option") ;
+	my $opt_obj;
+	if ($opt_p_obj->has_element($opt)) {
+	    $logger->debug( "obj ",$obj->name, " ($line) load option '$opt' ");
+	    $opt_obj= $opt_p_obj->fetch_element($opt) ;
+	    $opt_obj->store ( @args  ? $args[0] : 1 ) if defined $opt_obj ;
+	}
+	elsif ($opt_p_obj->instance->get_value_check('fetch_or_store')) {
+	    Config::Model::Exception::UnknownElement
+		-> throw(
+			 object   => $opt_p_obj,
+			 where    => $opt_p_obj->location ,
+			 element  => $opt,
+			);
+	}
+	else {
+	    $logger->warn( "obj ",$obj->name, " ($line) option '$opt' is unknown");
+	}
     }
 }
 
