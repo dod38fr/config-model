@@ -156,6 +156,18 @@
 			     mandatory => 1 ,
 			     value_type => 'string'
 			   },
+	       hidden_string 
+	       => { type => 'leaf',
+		    level => 'hidden',
+		    value_type => 'string' ,
+		    warp => {
+			     follow => '! tree_macro',
+			     rules => { XZ => {
+					       level =>'normal',
+					      }
+				      }
+			    },
+		  },
 	       int_v => { type => 'leaf',
 			  value_type => 'integer',
 			  default    => '10',

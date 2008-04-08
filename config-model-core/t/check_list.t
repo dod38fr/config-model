@@ -10,7 +10,7 @@ use Test::More;
 use Config::Model;
 use Data::Dumper ;
 
-BEGIN { plan tests => 53; }
+BEGIN { plan tests => 54; }
 
 use strict;
 
@@ -57,8 +57,8 @@ $model ->create_config_class
 
        'warped_choice_list'
        => { type => 'check_list',
+	    level  => 'hidden',
 	    warp => { follow => '- macro',
-		      level  => 'hidden',
 		      rules  => { AD => { choice => [ 'A' .. 'D' ], 
 					  level => 'normal',
 					  default_list => ['A', 'B' ] },
@@ -73,6 +73,18 @@ $model ->create_config_class
        => { type => 'check_list',
             refer_to => '- my_hash'
           },
+
+       warped_refer_to_list 
+       => { type => 'check_list',
+            refer_to => '- warped_choice_list',
+	    level  => 'hidden',
+	    warp => { follow => '- macro',
+		      rules  => { AD => { choice => [ 'A' .. 'D' ], 
+					  level => 'normal',
+					},
+				},
+		    },
+	  },
 
        refer_to_2_list 
        => { type => 'check_list',
@@ -292,3 +304,9 @@ is($p_cl->fetch('custom'),  "A,S",       "choice_list: read custom_value") ;
 $p_cl -> set_checked_list(qw/A S H E/) ;
 is($p_cl->fetch,            "A,E,H,S", "choice_list: read overridden preset LIST") ;
 is($p_cl->fetch('custom'),  "A,E,S",       "choice_list: read custom_value after override") ;
+
+my $wrtl =  $p_root->fetch_element('warped_refer_to_list') ;
+ok($wrtl,"created warped_refer_to_list (hidden)") ;
+
+
+

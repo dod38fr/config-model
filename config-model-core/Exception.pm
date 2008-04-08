@@ -195,8 +195,10 @@ sub full_message {
     }
     else {
 	my $element = $obj->element_name ;
+	my $level = $obj->parent->get_element_property(element => $element, 
+						       property => 'level');
 	$msg = "In config class '" . $obj->parent->config_class_name
-	  . "', element '$element' ";
+	  . "', element '$element' (level $level) ";
     }
     $msg .= "has a ".$self->description ;
     $msg .= ":\n\t". $self->message."\n";

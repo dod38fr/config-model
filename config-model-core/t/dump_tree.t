@@ -4,7 +4,7 @@
 # $Revision$
 
 use ExtUtils::testlib;
-use Test::More tests => 11;
+use Test::More tests => 12;
 use Config::Model;
 
 use warnings;
@@ -33,6 +33,8 @@ my $root = $inst -> config_root ;
 ok($root,"Config root created") ;
 
 $inst->preset_start ;
+
+$root->fetch_element('hidden_string')->store('hidden value');
 
 my $step = 'std_id:ab X=Bv '
   .'! lista=a,b listb=b ' ;
@@ -262,3 +264,7 @@ is_deeply( [split /\n/,$cds], [split /\n/,$expect],
 my $tm = $root -> fetch_element('tree_macro') ;
 map { $tm->store($_);} qw/XY XZ mXY XY mXY XZ/;
 
+$cds = $root->dump_tree( full_dump => 1 );
+print "cds string:\n$cds" if $trace  ;
+
+like($cds,qr/hidden value/,"check that hidden value is shown (macro=XZ)") ;

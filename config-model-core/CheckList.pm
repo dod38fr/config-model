@@ -139,8 +139,12 @@ sub cl_init {
 
     $self->warp if ($self->{warp});
 
-    if (defined $self->{ref_object}) {
-	$self->{ref_object}->get_choice_from_refered_to ;
+    if (defined $self->{ref_object} ) {
+	my $level = $self->parent
+	  -> get_element_property(element => $self->{element_name},
+				  property => 'level',
+				 ) ;
+	$self->{ref_object}->get_choice_from_refered_to if $level ne 'hidden';
     }
 }
 
