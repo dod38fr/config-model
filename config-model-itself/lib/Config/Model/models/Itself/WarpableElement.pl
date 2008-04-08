@@ -204,8 +204,9 @@
 	  },
 
        [qw/default_list/] 
-       => { type => 'list',
+       => { type => 'check_list',
 	    level => 'hidden',
+	    refer_to => '- choice',
 	    warp => { follow => { t => '?type' },
 		      'rules'
 		      => [ '$t eq "check_list"' 
@@ -214,11 +215,6 @@
 			      } ,
 			 ]
 		    },
-	    cargo_type => 'leaf',
-	    cargo_args => {
-			   value_type => 'reference',
-			   refer_to => '- choice',
-			  }
 	  },
 
        'config_class_name'
