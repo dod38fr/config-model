@@ -487,6 +487,9 @@ sub set {
       Data::Dumper->Dump([\%args], ['set_arg'])
 	  if $::debug ;
 
+    # this code may be dead as warping value_type is no longer
+    # authorized. But we keep it in case this has to be authorized
+    # again.
     if ( not          defined $args{value_type} 
 	 or (         defined $args{value_type} 
 	      and     $args{value_type} eq 'enum'

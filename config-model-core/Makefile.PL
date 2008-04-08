@@ -59,7 +59,7 @@ WriteMakefile
    PREREQ_PM    => {
 		    'Test::More'        => 0, # for test
 		    'Term::ReadLine'    => 0,
-		    'Log::Log4perl'     => 0,
+		    'Log::Log4perl'     => '1.11', # for TRACE log level
 		    'Parse::RecDescent' => '1.90',
 		    'Scalar::Util'      => 0, # provided by perl 5.8.0
 		    'Exception::Class'  => 0,

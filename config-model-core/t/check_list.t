@@ -52,15 +52,19 @@ $model ->create_config_class
 
        macro => { type => 'leaf',
 		  value_type => 'enum',
-		  choice     => [qw/AD AH/],
+		  choice     => [qw/AD AH AZ/],
 		},
 
        'warped_choice_list'
        => { type => 'check_list',
 	    warp => { follow => '- macro',
+		      level  => 'hidden',
 		      rules  => { AD => { choice => [ 'A' .. 'D' ], 
+					  level => 'normal',
 					  default_list => ['A', 'B' ] },
-				  AH => { choice => [ 'A' .. 'H' ] },
+				  AH => { choice => [ 'A' .. 'H' ],
+					  level => 'normal',
+					},
 				}
 		    }
 	  },

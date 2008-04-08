@@ -273,6 +273,8 @@ sub set {
     # merge data passed to the constructor with data passed to set
     my %args = (%{$self->{backup}},@_ );
 
+    $self->set_owner_element_property ( \%args );
+
     if (defined $args{choice}) {
 	my @choice = @{ delete $args{choice} } ;
 	$self->{default_choice} = \@choice ;

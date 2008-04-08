@@ -1,3 +1,8 @@
+2008-04-08  Dominique Dumont  <dominique.dumont@hp.com>
+
+	* CheckList.pm (set): Fix bug that prevented to use level or
+	permission or status parameter with check_list elements
+
 2008-04-05  Domi  <domi@bilbo.maison>
 
 	* Value.pm (pre_store): Fix bug that prevented to load models with
