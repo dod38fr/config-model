@@ -91,6 +91,13 @@ $model ->create_config_class
 		    },
 	    cargo_args => {
 			   value_type => 'string',
+			   warp => { follow => '- macro',
+				     'rules'
+				     => { 'A' => {
+						  default => 'dumb string'
+						 } ,
+					}
+				   }
 			  }
 	  },
        'multi_auto_create'
@@ -221,9 +228,9 @@ is( $root->grab_value('multi_warp:5 X'), 'Av',
 is($root->is_element_available('hash_with_warped_value'),1,
   "check warped out hash_with_warped_value (macro is A)"); 
 
-is( $root->grab_value('hash_with_warped_value:5'), undef,
+is( $root->grab_value('hash_with_warped_value:5'), 'dumb string',
     "check hash_with_warped_value:5" );
 
-is( $root->grab_value('hash_with_warped_value:6'), undef,
+is( $root->grab_value('hash_with_warped_value:6'), 'dumb string',
     "check hash_with_warped_value:6" );
 

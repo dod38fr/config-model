@@ -498,7 +498,7 @@ sub create_config_class {
 
 sub check_class_parameters {
     my $self  = shift;
-    my $config_class_name = shift;
+    my $config_class_name = shift || die ;
     my $model = shift || die ;
     my $raw_model = shift || die ;
 
@@ -583,7 +583,8 @@ sub check_class_parameters {
 
 	    # warp can be found only in element item 
 	    if (ref $info eq 'HASH') {
-		$self->translate_legacy_info($element_names[0], $info) ;
+		$self->translate_legacy_info($config_class_name,
+					     $element_names[0], $info) ;
 	    }
 
 	    foreach my $name (@element_names) {
@@ -605,39 +606,40 @@ sub check_class_parameters {
 
 sub translate_legacy_info {
     my $self = shift ;
+    my $config_class_name = shift || die ;
     my $elt_name = shift ;
     my $info = shift ;
 
     #translate legacy warp information
     if (defined $info->{warp}) {
-	$self->translate_warp_info($elt_name, $info->{warp});
+	$self->translate_warp_info($config_class_name,$elt_name, $info->{warp});
     }
     if (    defined $info->{cargo_args} 
 	and defined $info->{cargo_args}{warp}) {
-	$self->translate_warp_info($elt_name, 
+	$self->translate_warp_info($config_class_name,$elt_name, 
 				   $info->{cargo_args}{warp});
     }
     if (defined $info->{type} && $info->{type} eq 'warped_node') {
-	$self->translate_warp_info($elt_name, $info);
+	$self->translate_warp_info($config_class_name,$elt_name, $info);
     }
 
     # compute cannot be warped
     if (defined $info->{compute}) {
-	$self->translate_compute_info($elt_name, $info,'compute');
+	$self->translate_compute_info($config_class_name,$elt_name, $info,'compute');
     }
     if (    defined $info->{cargo_args} 
 	and defined $info->{cargo_args}{compute}) {
-	$self->translate_compute_info($elt_name, 
+	$self->translate_compute_info($config_class_name,$elt_name, 
 				      $info->{cargo_args},'compute');
     }
 
     # refer_to cannot be warped
     if (defined $info->{refer_to}) {
-	$self->translate_compute_info($elt_name, $info,refer_to => 'computed_refer_to');
+	$self->translate_compute_info($config_class_name,$elt_name, $info,refer_to => 'computed_refer_to');
     }
     if (    defined $info->{cargo_args} 
 	and defined $info->{cargo_args}{refer_to}) {
-	$self->translate_compute_info($elt_name, 
+	$self->translate_compute_info($config_class_name,$elt_name, 
 				      $info->{cargo_args},refer_to => 'computed_refer_to');
     }
 
@@ -647,16 +649,16 @@ sub translate_legacy_info {
          and ($info->{type} eq 'list' or $info->{type} eq 'hash')
        ) {
 	if (defined $info->{default}) {
-	    $self->translate_id_default_info($elt_name, $info);
+	    $self->translate_id_default_info($config_class_name,$elt_name, $info);
 	} 
-	$self->translate_id_names($elt_name,$info) ;
+	$self->translate_id_names($config_class_name,$elt_name,$info) ;
 	if (defined $info->{warp} ) {
 	    my $rules_a = $info->{warp}{rules} ;
 	    my %h = @$rules_a ;
 	    foreach my $rule_effect (values %h) {
-		$self->translate_id_names($elt_name, $rule_effect) ;
+		$self->translate_id_names($config_class_name,$elt_name, $rule_effect) ;
 		next unless defined $rule_effect->{default} ;
-		$self->translate_id_default_info($elt_name, $rule_effect);
+		$self->translate_id_default_info($config_class_name,$elt_name, $rule_effect);
 	    }
 	}
     }
@@ -666,28 +668,31 @@ sub translate_legacy_info {
 
 sub translate_id_names {
     my $self = shift;
+    my $config_class_name = shift ;
     my $elt_name = shift ;
     my $info = shift;
-    $self->translate_name($elt_name, $info, 'allow',     'allow_keys') ;
-    $self->translate_name($elt_name, $info, 'allow_from','allow_keys_from') ;
-    $self->translate_name($elt_name, $info, 'follow',    'follow_keys_from') ;
+    $self->translate_name($config_class_name,$elt_name, $info, 'allow',     'allow_keys') ;
+    $self->translate_name($config_class_name,$elt_name, $info, 'allow_from','allow_keys_from') ;
+    $self->translate_name($config_class_name,$elt_name, $info, 'follow',    'follow_keys_from') ;
 }
 
 sub translate_name {
     my $self     = shift;
+    my $config_class_name = shift ;
     my $elt_name = shift ;
     my $info     = shift;
     my $from     = shift ;
     my $to       = shift ;
 
     if (defined $info->{$from}) {
-	warn "$elt_name: parameter $from is deprecated in favor of $to\n";
+	warn "$config_class_name->$elt_name: parameter $from is deprecated in favor of $to\n";
 	$info->{$to} = delete $info->{$from}  ;
     }
 }
 
 sub translate_compute_info {
     my $self = shift ;
+    my $config_class_name = shift ;
     my $elt_name = shift ;
     my $info = shift ;
     my $old_name = shift ;
@@ -699,7 +704,7 @@ sub translate_compute_info {
 	  Data::Dumper->Dump( [$compute_info ] , [qw/compute_info/ ]) ,"\n"
 	      if $::debug ;
 
-	warn "$elt_name: specifying compute info with ",
+	warn "$config_class_name->$elt_name: specifying compute info with ",
 	  "an array ref is deprecated\n"; 
 
 	my ($user_formula,%var) = @$compute_info ;
@@ -728,6 +733,7 @@ sub translate_compute_info {
 # internal: translate default information for id element
 sub translate_id_default_info {
     my $self = shift ;
+    my $config_class_name = shift || die;
     my $elt_name = shift ;
     my $info = shift ;
 
@@ -735,7 +741,7 @@ sub translate_id_default_info {
       Data::Dumper->Dump( [$info ] , [qw/info/ ]) ,"\n"
 	  if $::debug ;
 
-    my $warn = "$elt_name: 'default' parameter for list or " 
+    my $warn = "$config_class_name->$elt_name: 'default' parameter for list or " 
              . "hash element is deprecated. ";
 
     my $def_info = delete $info->{default} ;
@@ -759,6 +765,7 @@ sub translate_id_default_info {
 # internal: translate warp information into 'boolean expr' => { ... }
 sub translate_warp_info {
     my $self = shift ;
+    my $config_class_name = shift ;
     my $elt_name = shift ;
     my $warp_info = shift ;
 
@@ -766,14 +773,14 @@ sub translate_warp_info {
       Data::Dumper->Dump( [$warp_info ] , [qw/warp_info/ ]) ,"\n"
 	  if $::debug ;
 
-    my $follow = $self->translate_follow_arg($elt_name,$warp_info->{follow}) ;
+    my $follow = $self->translate_follow_arg($config_class_name,$elt_name,$warp_info->{follow}) ;
 
     # now, follow is only { w1 => 'warp1', w2 => 'warp2'}
     my @warper_items = values %$follow ;
 
     my $multi_follow =  @warper_items > 1 ? 1 : 0;
 
-    my $rules = $self->translate_rules_arg($elt_name,
+    my $rules = $self->translate_rules_arg($config_class_name,$elt_name,
 					   \@warper_items, $warp_info->{rules});
 
     $warp_info->{follow} = $follow;
@@ -786,7 +793,7 @@ sub translate_warp_info {
 
 # internal
 sub translate_multi_follow_legacy_rules {
-    my ($self,  $elt_name , $warper_items, $raw_rules) = @_ ;
+    my ($self, $config_class_name , $elt_name , $warper_items, $raw_rules) = @_ ;
     my @rules ;
 
     # we have more than one warper_items
@@ -799,7 +806,8 @@ sub translate_multi_follow_legacy_rules {
 	if ( @keys != @$warper_items and $key_set !~ / eq /) {
 	    Config::Model::Exception::ModelDeclaration
 		-> throw (
-			  error => "Warp rule error in object '$elt_name'"
+			  error => "Warp rule error in "
+                                . "'$config_class_name->$elt_name'"
 			        . ": Wrong nb of keys in set '@keys',"
 			        . " Expected " . scalar @$warper_items . " keys"
 			 )  ;
@@ -835,6 +843,7 @@ sub translate_multi_follow_legacy_rules {
 
 sub translate_follow_arg {
     my $self = shift ;
+    my $config_class_name = shift ;
     my $elt_name = shift ;
     my $raw_follow = shift ;
 
@@ -857,6 +866,7 @@ sub translate_follow_arg {
 
 sub translate_rules_arg {
     my $self = shift ;
+    my $config_class_name = shift ;
     my $elt_name = shift ;
     my $warper_items = shift ;
     my $raw_rules = shift ;
@@ -879,7 +889,7 @@ sub translate_rules_arg {
     elsif (ref($raw_rules) eq 'ARRAY') {
 	if ( $multi_follow ) {
 	    push @rules, 
-	      $self->translate_multi_follow_legacy_rules( $elt_name, 
+	      $self->translate_multi_follow_legacy_rules( $config_class_name,$elt_name, 
 							  $warper_items,
 							  $raw_rules ) ;
 	}
@@ -899,7 +909,8 @@ sub translate_rules_arg {
 	my $item = defined $raw_rules ? $raw_rules : '<undef>' ;
 	Config::Model::Exception::ModelDeclaration
 	    -> throw (
-		      error => "Warp rule error in element '$elt_name': "
+		      error => "Warp rule error in element "
+                             . "'$config_class_name->$elt_name': "
 		             . "rules must be a hash ref. Got '$item'"
 		     ) ;
     }

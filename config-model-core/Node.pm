@@ -1017,7 +1017,8 @@ sub store_element_value {
 
 
 Returns 1 if the element C<name> is available for the given
-C<permission> ('intermediate' by default). Returns 0 otherwise.
+C<permission> ('intermediate' by default) and if the element is
+not "hidden". Returns 0 otherwise.
 
 As a syntactic sugar, this method can be called with only one parameter:
 
@@ -1145,8 +1146,19 @@ sub load_data {
     # the model
     foreach my $elt ( @{$self->{model}{element_list}} ) {
 	next unless defined $h->{$elt} ;
-	my $obj = $self->fetch_element($elt) ;
-	$obj -> load_data(delete $h->{$elt}) ;
+	if ($self->is_element_available(name => $elt, permission => 'master')) {
+	    my $obj = $self->fetch_element($elt) ;
+	    $obj -> load_data(delete $h->{$elt}) ;
+	}
+	else {
+	    Config::Model::Exception::LoadData 
+		-> throw (
+			  message => "load_data: tried to load hidden "
+                                   . "element '$elt' with",
+			  wrong_data => $h->{$elt},
+			  object => $self,
+			 ) if $self->instance->get_value_check('store');
+	}
     }
 
     if (%$h) {

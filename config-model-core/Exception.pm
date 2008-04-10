@@ -176,6 +176,7 @@ sub full_message {
     my $location = defined $obj ? $obj->name :'';
     my $msg = "Configuration item ";
     $msg .= "'$location' " if $location ;
+    $msg .= "(class ".$obj->config_class_name.") ";
     $msg .= "has a ".$self->description ;
     $msg .= ":\n\t". $self->message."\n";
     $msg .= Data::Dumper->Dump([$self->wrong_data],['wrong data']) ;
