@@ -62,20 +62,31 @@ $model ->create_config_class
        'bar'
        => { type => 'hash',
 	    index_type => 'string',
-	    cargo_type => 'node',
+	    level => 'hidden', # goes normal when both m1 and m2 are defined
 	    'warp'
-	    => { follow => [ '! macro1', '- macro2' ],
-		 morph  => 1,
+	    => { follow => { m1 => '! macro1', m2 => '- macro2' },
 		 'rules'
 		 => [
-		     [qw/A C/] => {'config_class_name' => 'SlaveY'},
-		     [qw/A D/] => {'config_class_name' => 'SlaveY',
-				   permission => 'intermediate'
-				  },
-		     [qw/B C/] => {'config_class_name' => 'SlaveZ'},
-		     [qw/B D/] => {'config_class_name' => 'SlaveZ'},
+		     '$m1 eq "A" and $m2 eq "D"' 
+		     => { level => 'normal',  permission => 'intermediate' },
+		     '$m1 and $m2' => { level => 'normal',  },
+#		     '$m1 eq "A" and $m2 eq "C"' => { level => 'normal',  },
+#		     '$m1 eq "B" and $m2 eq "C"' => { level => 'normal',  },
+#		     '$m1 eq "B" and $m2 eq "D"' => { level => 'normal',  },
 		    ]
-	       }
+	       },
+	    cargo => {
+		      type => 'warped_node',
+		      follow => [ '! macro1', '- macro2' ],
+		      morph  => 1,
+		      'rules'
+		      => [
+			  [qw/A C/] => {'config_class_name' => 'SlaveY'},
+			  [qw/A D/] => {'config_class_name' => 'SlaveY'},
+			  [qw/B C/] => {'config_class_name' => 'SlaveZ'},
+			  [qw/B D/] => {'config_class_name' => 'SlaveZ'},
+			 ]
+		     }
 	  }
       ]
    );

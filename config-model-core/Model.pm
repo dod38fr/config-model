@@ -614,11 +614,19 @@ sub translate_legacy_info {
     if (defined $info->{warp}) {
 	$self->translate_warp_info($config_class_name,$elt_name, $info->{warp});
     }
-    if (    defined $info->{cargo_args} 
-	and defined $info->{cargo_args}{warp}) {
+
+    $self->translate_cargo_info($config_class_name,$elt_name, $info);
+
+    if (    defined $info->{cargo} 
+	and defined $info->{cargo}{warp}) {
 	$self->translate_warp_info($config_class_name,$elt_name, 
-				   $info->{cargo_args}{warp});
+				   $info->{cargo}{warp});
     }
+
+    if (defined $info->{cargo} && $info->{cargo}{type} eq 'warped_node') {
+	$self->translate_warp_info($config_class_name,$elt_name, $info->{cargo});
+    }
+
     if (defined $info->{type} && $info->{type} eq 'warped_node') {
 	$self->translate_warp_info($config_class_name,$elt_name, $info);
     }
@@ -627,24 +635,24 @@ sub translate_legacy_info {
     if (defined $info->{compute}) {
 	$self->translate_compute_info($config_class_name,$elt_name, $info,'compute');
     }
-    if (    defined $info->{cargo_args} 
-	and defined $info->{cargo_args}{compute}) {
+    if (    defined $info->{cargo} 
+	and defined $info->{cargo}{compute}) {
 	$self->translate_compute_info($config_class_name,$elt_name, 
-				      $info->{cargo_args},'compute');
+				      $info->{cargo},'compute');
     }
 
     # refer_to cannot be warped
     if (defined $info->{refer_to}) {
 	$self->translate_compute_info($config_class_name,$elt_name, $info,refer_to => 'computed_refer_to');
     }
-    if (    defined $info->{cargo_args} 
-	and defined $info->{cargo_args}{refer_to}) {
+    if (    defined $info->{cargo} 
+	and defined $info->{cargo}{refer_to}) {
 	$self->translate_compute_info($config_class_name,$elt_name, 
-				      $info->{cargo_args},refer_to => 'computed_refer_to');
+				      $info->{cargo},refer_to => 'computed_refer_to');
     }
 
     # translate id default param
-    # default cannot be stored in cargo_args since is applies to the id itself
+    # default cannot be stored in cargo since is applies to the id itself
     if ( defined $info->{type} 
          and ($info->{type} eq 'list' or $info->{type} eq 'hash')
        ) {
@@ -663,6 +671,35 @@ sub translate_legacy_info {
 	}
     }
 
+    print Data::Dumper->Dump([$info ] , ['translated_'.$elt_name ] ) ,"\n" if $::debug;
+}
+
+sub translate_cargo_info {
+    my $self = shift;
+    my $config_class_name = shift ;
+    my $elt_name = shift ;
+    my $info = shift;
+
+    my $c_type = delete $info->{cargo_type} ;
+    return unless defined $c_type;
+    warn "$config_class_name->$elt_name: parameter cargo_type is deprecated.\n";
+    my %cargo ;
+
+    if (defined $info->{cargo_args}) {
+       %cargo = %{ delete $info->{cargo_args}} ;
+       warn "$config_class_name->$elt_name: parameter cargo_args is deprecated.\n";
+    }
+
+    $cargo{type} = $c_type;
+
+    if (defined $info->{config_class_name}) {
+	$cargo{config_class_name} = delete $info->{config_class_name} ;
+	warn "$config_class_name->$elt_name: parameter config_class_name is ",
+	     "deprecated. This one must be specified within cargo. ",
+	     "Ie. cargo=>{config_class_name => 'FooBar'}\n";
+    }
+
+    $info->{cargo} = \%cargo ;
     print Data::Dumper->Dump([$info ] , ['translated_'.$elt_name ] ) ,"\n" if $::debug;
 }
 
@@ -803,7 +840,7 @@ sub translate_multi_follow_legacy_rules {
 	my @keys = ref($key_set) ? @$key_set : ($key_set) ;
 
 	# legacy: check the number of keys in the @rules set 
-	if ( @keys != @$warper_items and $key_set !~ / eq /) {
+	if ( @keys != @$warper_items and $key_set !~ /\$\w+/) {
 	    Config::Model::Exception::ModelDeclaration
 		-> throw (
 			  error => "Warp rule error in "
@@ -828,7 +865,7 @@ sub translate_multi_follow_legacy_rules {
 		my @expr = map { "\$f$b_idx eq '$_'" } @$key ;
 		push @bool_expr , "(" . join (" or ", @expr ). ")" ;
 	    }
-	    elsif ($key !~ / eq /) {
+	    elsif ($key !~ /\$\w+/) {
 		push @bool_expr, "\$f$b_idx eq '$key'" ;
 	    }
 	    else {
@@ -966,7 +1003,7 @@ sub include_class {
     if (defined $include_after and defined $included_raw_model->{element}) {
 	my %elt_idx ;
 	my @raw_elt = @{$raw_model->{element}} ;
-	my $idx = 0 ;
+
 	for (my $idx = 0; $idx < @raw_elt ; $idx += 2) {
 	    my $elt = $raw_elt[$idx] ;
 	    map { $elt_idx{$_} = $idx } ref $elt ? @$elt : ($elt) ;
@@ -1318,5 +1355,5 @@ L<Config::Model::Searcher>,
 L<Config::Model::TermUI>,
 L<Config::Model::WizardHelper>,
 L<Config::Model::AutoRead>,
-
+L<Config::Model::ValueComputer>,
 =cut

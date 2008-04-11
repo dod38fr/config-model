@@ -140,6 +140,17 @@ $model -> create_config_class
 		 value_type => 'string',
 		 compute    => [ 'macro is $m', 'm' => '- - macro' ],
 		},
+	find_element_name 
+	=> {
+	    type => 'leaf',
+	    value_type => 'string',
+	    warp => { 
+		     follow => { p => '-' },
+		     rules => [ '"&element($p)" eq "foo2" ' 
+				=> { default => 'found foo2 parent'}
+			      ]
+		    }
+	   }
        ]
   );
 
@@ -283,7 +294,7 @@ is_deeply( [$root->get_element_name(for => 'intermediate')],
 is_deeply( [$model->get_element_name(class => 'Slave',
 				     for => 'intermediate')
 	   ],
-	   [qw'X Y Z recursive_slave'], 
+	   [qw'X Y Z recursive_slave find_element_name'], 
 	   "Elements of Slave from the model"
 	 );
 
@@ -535,3 +546,8 @@ is($root->fetch_element('var_path')->fetch(),
    'get_element is compute, indirect value is \'macro is C, my element is compute\'',
    "reading var_path through compute element");
 
+
+my $foo2 = $root->fetch_element('foo2') ;
+my $fen  = $foo2->fetch_element('find_element_name') ;
+ok($fen,"for element find_element_name") ;
+is($fen->fetch,'found foo2 parent');

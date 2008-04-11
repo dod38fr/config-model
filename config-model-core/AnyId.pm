@@ -101,15 +101,29 @@ sub new {
 
     bless $self,$type;
 
-    foreach my $p (qw/element_name cargo_type instance config_model/) {
+    foreach my $p (qw/element_name cargo instance config_model/) {
 	$self->{$p} = delete $args_ref->{$p} or
 	  croak "$type->new: Missing $p parameter for element ".
 	    $self->{element_name} || 'unknown' ;
     }
 
+    croak "$type->new: Missing cargo->type parameter for element ".
+      $self->{element_name} || 'unknown' 
+	unless defined $self->{cargo}{type};
+
     $self->_set_parent(delete $args_ref->{parent}) ;
 
-    foreach my $p (qw/cargo_class cargo_args/) {
+    if ($self->{cargo}{type} eq 'node') {
+	$self->{config_class_name} = delete $self->{cargo}{config_class_name}
+	  or croak  "$type->new: Missing cargo->config_class_name "
+                  . "parameter for element " 
+                  . $self->{element_name} || 'unknown' ;
+    }
+    elsif ($self->{cargo}{type} eq 'hash' or $self->{cargo}{type} eq 'list') {
+	die "$type $self->{element_name}: using $self->{cargo}{type} will probably not work";
+    }
+
+    foreach my $p (qw/cargo_class/) {
 	next unless defined $args_ref->{$p} ;
 	$self->{$p} = delete $args_ref->{$p} ;
     }
@@ -127,7 +141,7 @@ A hash or list element must be declared with the following parameters:
 
 Mandatory element type. Must be C<hash> or C<list> to have a
 collection element.  The actual element type must be specified by
-C<cargo_type> (See L</"CAVEATS">).
+C<cargo => type> (See L</"CAVEATS">).
 
 =item index_type
 
@@ -141,21 +155,29 @@ order can be modified with L<swap|Config::Model::HashId/"swap ( key1 , key2 )">,
 L<move_up|Config::Model::HashId/"move_up ( key )"> or
 L<move_down|Config::Model::HashId/"move_down ( key )">.
 
-=item cargo_type
+=item cargo
 
-Specifies the type of cargo held by the hash of list. Can be C<node>
-or C<leaf> (default).
+Hash ref specifying the cargo held by the hash of list. This has must
+contain:
 
-=item cargo_args
+=over 8
 
-Constructor arguments passed to the cargo object. See
-L<Config::Model::Node> when C<cargo_type> is C<node>. See 
-L<Config::Model::Value> when C<cargo_type> is C<leaf>.
+=item type
+
+Can be C<node> or C<leaf> (default).
 
 =item config_class_name
 
 Specifies the type of configuration object held in the hash. Only
 valid when C<cargo_type> is C<node>.
+
+=item <other>
+
+Constructor arguments passed to the cargo object. See
+L<Config::Model::Node> when C<< cargo->type >> is C<node>. See 
+L<Config::Model::Value> when C<< cargo->type >> is C<leaf>.
+
+=back
 
 =item min
 
@@ -315,8 +337,7 @@ leads to a nb of items greater than the max_nb constraint.
 my @common_params =  qw/min max max_nb default_with_init default_keys
                         follow_keys_from auto_create allow_keys allow_keys_from/ ;
 
-my @allowed_warp_params 
-  = (@common_params,qw/config_class_name permission level/) ;
+my @allowed_warp_params = (@common_params,qw/permission level/) ;
 
 
 # this method can be called by the warp mechanism to alter (warp) the
@@ -378,20 +399,10 @@ sub set {
 	$self->auto_create_elements ;
     }
 
-    if (    $self->{cargo_type} eq 'node' 
-	and not defined $args{config_class_name}) {
-	$args{level} = 'hidden' ;
-	# cannot delete bluntly {data} for ListId or HashId
-        $self->clear ;
-    }
-
     $self->{current} = { level      => $args{level} ,
 			 permission => $args{permission}
 		       } ;
     $self->SUPER::set_parent_element_property(\%args) ;
-
-    # handle config_class_name warp
-    $self->set_cargo_class(\%args)  ;
 
     Config::Model::Exception::Model
 	->throw (
@@ -461,7 +472,7 @@ object (as declared in the model unless they were warped):
 
 for my $datum (qw/min max max_nb index_type default_keys default_with_init
                   follow_keys_from auto_create 
-                  cargo_type cargo_class cargo_args morph ordered
+                  morph ordered
                   config_model/) {
     no strict "refs";       # to register new methods in package
     *$datum = sub {
@@ -477,6 +488,8 @@ C<cargo_type>).
 
 =cut
 
+sub cargo_type { goto &get_cargo_type; }
+
 sub get_cargo_type {
     my $self = shift ;
     #my @ids = $self->get_all_indexes ;
@@ -484,7 +497,7 @@ sub get_cargo_type {
     # when collected type is 'warped_node'. 
     #return @ids ? $self->fetch_with_id($ids[0])->get_cargo_type
     #  : $self->{cargo_type} ;
-    return $self->{cargo_type} ;
+    return $self->{cargo}{type} ;
 }
 
 # internal, does a grab with improved error mesage
@@ -565,55 +578,6 @@ sub config_class_name
     my $self = shift ;
     return $self->{config_class_name} ;
   }
-
-# internal for cargo_type eq 'node' only. This method will deal with
-# warp when collected elements are node type. This will handle
-# morphing (i.e loose copy of configuration data from old node object
-# to new node object).
-sub set_cargo_class {
-    my $self=shift;
-    my $arg_ref = shift ;
-
-    return unless $self->{cargo_type} eq 'node' ;
-
-    my $config_class_name = delete $arg_ref->{config_class_name};
-
-    my @current_idx = $self->_get_all_indexes ;
-
-    if (not defined $config_class_name)
-      {
-	map {$self->delete($_);} @current_idx ;
-        return ;
-      }
-
-    foreach my $idx (@current_idx) {
-	# check if some action is needed
-	my $old_object = $self->_fetch_with_id( $idx ) ;
-
-	next unless defined $old_object ;
-
-	next if $old_object->config_class_name eq $config_class_name ;
-	$self->{config_class_name} = $config_class_name ;
-	$self->delete($idx) ;
-
-	my $morph = $self->{warp}{morph} ;
-	my $args = $self->{cargo_args} || [] ;
-
-	# create a new object from scratch
-	$self->auto_vivify($idx) ;
-
-	if (defined $old_object and $morph) {
-	    # there an old object that we need to translate
-	    print "morphing ",$old_object->name," from ",
-	      $old_object->config_class_name,
-		" to $config_class_name\n"
-		  if $::debug ;
-	    $self->fetch_with_id( $idx )->copy_from($old_object) ;
-	}
-    }
-
-    $self->{config_class_name} = $config_class_name ;
-}
 
 # internal. Handle model declaration arguments
 sub handle_args {
@@ -816,7 +780,7 @@ sub copy {
     my $from_obj = $self->fetch_with_id($from) ;
     my $ok = $self->check($to) ;
 
-    if ($ok && $self->{cargo_type} eq 'leaf') {
+    if ($ok && $self->{cargo}{type} eq 'leaf') {
 	$self->fetch_with_id($to)->store($from_obj->fetch()) ;
     }
     elsif ( $ok ) {
@@ -878,12 +842,12 @@ sub fetch_all_values {
 
     my @keys  = $self->get_all_indexes ;
 
-    if ($self->{cargo_type} eq 'leaf') {
+    if ($self->{cargo}{type} eq 'leaf') {
 	return map { $self->fetch_with_id($_)->fetch($mode) ;} @keys ;
     }
     else {
 	my $info = "current keys are '".join("', '",@keys)."'." ;
-	if ($self->{cargo_type} eq 'node') {
+	if ($self->{cargo}{type} eq 'node') {
 	    $info .= "config class is ".
 	      $self->fetch_with_id($keys[0])->config_class_name ;
 	}
@@ -891,7 +855,7 @@ sub fetch_all_values {
 	    ->throw(
 		    object => $self,
 		    function => 'fetch_all_values',
-		    got_type => $self->{cargo_type},
+		    got_type => $self->{cargo}{type},
 		    expected_type => 'leaf',
 		    info => $info,
 		   )
@@ -914,7 +878,7 @@ sub get_all_indexes {
 }
 
 
-# auto vivify must create according to cargo_type
+# auto vivify must create according to cargo}{type
 # node -> Node or user class
 # leaf -> Value or user class
 
@@ -923,6 +887,7 @@ sub get_all_indexes {
 
 my %element_default_class 
   = (
+     warped_node => 'WarpedNode',
      node        => 'Node',
      leaf        => 'Value',
     );
@@ -936,10 +901,10 @@ my %can_override_class
 #internal
 sub auto_vivify {
     my ($self,$idx) = @_ ;
-    my $class = $self->{cargo_class} ;
-    my $cargo_args = $self->{cargo_args} || {} ;
+    my $class = $self->{cargo_class} ; # to override class in cargo
+    my %cargo_args = %{$self->{cargo} || {}} ;
 
-    my $cargo_type = $self->{cargo_type} ;
+    my $cargo_type = delete $cargo_args{type} ;
 
     Config::Model::Exception::Model 
 	-> throw (
@@ -983,14 +948,7 @@ sub auto_vivify {
 	Config::Model::Exception::Model 
 	    -> throw (
 		      object => $self,
-		      message => "Missing 'cargo_args' parameter (hash ref)"
-		     ) 
-	      unless ref $cargo_args eq 'HASH' ;
-
-	Config::Model::Exception::Model 
-	    -> throw (
-		      object => $self,
-		      message => "missing 'config_class_name' "
+		      message => "missing 'cargo->config_class_name' "
 		      ."parameter",
 		     ) 
 	      unless defined $self->{config_class_name} ;
@@ -998,14 +956,14 @@ sub auto_vivify {
 	$item = $self->{parent} 
 	  -> new( %common_args ,
 		  config_class_name => $self->{config_class_name},
-		  %$cargo_args) ;
+		  %cargo_args) ;
     }
     else {
 	weaken($common_args{id_owner} =  $self) ;
 	$item = $el_class->new( %common_args,
 				parent => $self->{parent} ,
 				instance => $self->{instance} ,
-				%$cargo_args) ;
+				%cargo_args) ;
     }
 
     $self->_store($idx,$item) ;

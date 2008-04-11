@@ -81,17 +81,27 @@ $model ->create_config_class
     => {
 	type => 'hash',
 	index_type  => 'string',
-	cargo_type => 'node',
-	warp  =>  { follow => '! tree_macro',
-		    morph   => 1,
-		    rules => { XY  => { config_class_name => 'SlaveY', },
-			       mXY => {
-				       config_class_name   => 'SlaveY',
-				       permission => 'intermediate'
-				      },
-			       XZ => { config_class_name => 'SlaveZ' }
-			     }
-		  }
+	level => 'hidden',
+	warp => {  follow => '! tree_macro',
+		   rules => { 
+			     XY  => { level => 'normal', },
+			     mXY => {
+				     level => 'normal',
+				     permission => 'intermediate'
+				    },
+			     XZ => { level => 'normal',},
+			    }
+		  },
+	cargo => { type => 'warped_node',
+		   follow => '! tree_macro',
+		   morph   => 1,
+		   rules => { XY  => { config_class_name => 'SlaveY', },
+			      mXY => {
+				      config_class_name   => 'SlaveY',
+				     },
+			      XZ => { config_class_name => 'SlaveZ' }
+			    }
+		  },
        },
     'a_warped_node'
     => {

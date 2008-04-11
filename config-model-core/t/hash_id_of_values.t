@@ -21,10 +21,12 @@ Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 ok(1,"Compilation done");
 
 
+# new parameter style
 my @element = ( 
 	       # Value constructor args are passed in their specific array ref
-	       cargo_type => 'leaf',
-	       cargo_args => {value_type => 'string'},
+	       cargo => { type => 'leaf',
+			  value_type => 'string'
+			},
 	      ) ;
 
 # minimal set up to get things working
@@ -39,8 +41,8 @@ $model ->create_config_class
 	    # hash_class constructor args are all keys of this hash
 	    # except type and class
 	    index_type  => 'integer',
-
-	    @element
+	    cargo_type => 'leaf',
+	    cargo_args => {value_type => 'string'},
 	  },
        bounded_hash 
        => { type => 'hash',

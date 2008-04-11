@@ -233,7 +233,7 @@ sub set_compute {
 		     ) ;
     }
 
-    foreach my $item (qw/formula variables/) {
+    foreach my $item (qw/formula/) {
 	next if defined $self->{compute}{$item} ;
 	Config::Model::Exception::Model
 	    -> throw (
@@ -1500,7 +1500,7 @@ Dominique Dumont, (ddumont at cpan dot org)
 
 L<Config::Model>, L<Config::Model::Node>,
 L<Config::Model::AnyId>, L<Config::Model::WarpedThing>, L<Exception::Class>
-
+L<Config::Model::ValueComputer>,
 
 =cut
 

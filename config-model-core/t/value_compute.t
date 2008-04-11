@@ -9,7 +9,7 @@ use ExtUtils::testlib;
 use Test::More;
 use Config::Model ;
 
-BEGIN { plan tests => 29; }
+BEGIN { plan tests => 34; }
 
 use strict;
 
@@ -25,6 +25,33 @@ ok(1,"Compilation done");
 
 
 my $model = Config::Model->new() ;
+$model -> create_config_class 
+  (
+   name => "Slave",
+   level => [ [qw/Comp W/] => 'hidden' ] ,
+   element 
+   =>  [
+	find_node_element_name 
+	=> {
+	    type => 'leaf',
+	    value_type => 'string',
+            compute    => { 
+			   variables => { p => '-' },
+			   formula   => '&element($p)', 
+                          },
+	   },
+	check_node_element_name 
+	=> {
+	    type => 'leaf',
+	    value_type => 'boolean',
+            compute    => { 
+			   variables => { p => '-' },
+			   formula   => '&element($p) eq "foo2"', 
+                          },
+	   }
+       ]
+  );
+
 $model ->create_config_class 
   (
    name => "Master",
@@ -49,7 +76,7 @@ $model ->create_config_class
        one_var => { type => 'leaf',
 		    class =>'Config::Model::Value',
 		    value_type => 'string',
-		    compute    => [ '$bar', bar => '- sbv'],
+		    compute    => [ '&element().$bar', bar => '- sbv'],
 		    },
        one_wrong_var => { type => 'leaf',
 			  class =>'Config::Model::Value',
@@ -71,6 +98,17 @@ $model ->create_config_class
 	     min                    => -4,
 	     max                    => 4,
 	  },
+       compute_no_var 
+       => { type => 'leaf',
+            value_type => 'string',
+            compute    => { 
+			   formula   => '&element()', 
+                          },
+	  },
+       [qw/bar foo2/ ] => {
+			   type => 'node',
+			   config_class_name => 'Slave'
+			  }
       ]
  ) ;
 
@@ -83,7 +121,7 @@ my $root = $inst -> config_root ;
 # order is important. Do no use sort.
 is_deeply([$root->get_element_name()],
 	  [qw/av bv compute_int sav sbv one_var one_wrong_var 
-	      meet_test compute_with_override/],
+	      meet_test compute_with_override compute_no_var bar foo2/],
 	 "check available elements");
 
 my ( $av, $bv, $compute_int );
@@ -214,3 +252,15 @@ my $owv = $root->fetch_element('one_wrong_var');
 eval {$owv -> fetch ;} ;
 ok($@,"expected failure with one_wrong_var");
 print "normal error:\n", $@, "\n" if $trace;
+
+my $cnv = $root->fetch_element('compute_no_var');
+is( $cnv->fetch, 'compute_no_var', "test compute_no_var" );
+
+my $foo2 = $root->fetch_element('foo2') ;
+my $fen  = $foo2->fetch_element('find_node_element_name') ;
+ok($fen,"created element find_node_element_name") ;
+is($fen->fetch,'foo2',"did find node element name");
+
+my $cen  = $foo2->fetch_element('check_node_element_name') ;
+ok($cen,"created element check_node_element_name") ;
+is($cen->fetch,1,"did check node element name");

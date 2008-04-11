@@ -152,8 +152,10 @@ sub _sniff_class {
     foreach my $element (@elements) {
 	my $element_model = $c_model->{element}{$element};
 	my $element_type  = $element_model->{type};
-	my $c_type        = $element_model->{cargo_type} || '';
-
+	my $cargo         = $element_model->{cargo} ;
+	my $c_type        = defined $cargo ? $cargo->{type} : '';
+	my $cfg_class_name = defined $cargo ? $cargo->{config_class_name}
+	                   :                  $element_model->{config_class_name};
 	my %local_found = %$found_ref ;
 
 	if (   $element_type =~ /(warped_)?node/ 
@@ -161,7 +163,7 @@ sub _sniff_class {
 	   ) {
 	    my $tmp 
 	      = $element_type eq 'node' || $c_type eq 'node'
-		? $self->_sniff_class($element_model->{config_class_name},
+		? $self->_sniff_class($cfg_class_name,
 				      $privilege, \%local_found) 
 		: $self->_sniff_warped_node($element_model,
 					    $privilege, \%local_found);

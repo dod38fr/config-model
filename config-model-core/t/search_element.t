@@ -4,7 +4,7 @@
 # $Revision$
 
 use ExtUtils::testlib;
-use Test::More tests => 22;
+use Test::More tests => 23;
 use Config::Model;
 
 use warnings;
@@ -34,6 +34,7 @@ ok($inst,"created dummy instance") ;
 
 my $root = $inst -> config_root ;
 
+ok($root,"created root") ;
 
 Config::Model::Exception::Any->Trace(1) if $trace =~ /e/;
 

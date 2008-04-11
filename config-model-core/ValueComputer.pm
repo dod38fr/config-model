@@ -275,12 +275,14 @@ sub new {
     }
 
     # value_object is mostly used for error messages
-    foreach my $k (qw/formula variables value_type value_object/) {
+    foreach my $k (qw/formula value_type value_object/) {
 	$self->{$k} = delete $args{$k} || 
 	  croak "Config::Model::ValueComputer:new undefined parameter $k";
     }
 
-    $self->{replace} = delete $args{replace} || {} ;
+    foreach my $k (qw/variables replace/) {
+	$self->{$k} = delete $args{$k} || {} ;
+    }
 
     die "Config::Model::ValueComputer:new unexpected parameter: ",
       join(' ',keys %args) if %args ;
@@ -327,20 +329,22 @@ sub compute {
 
     return undef unless defined $formula ;
 
-    print "compute: pre_formula $pre_formula\n",
-      "compute: rule to eval $formula\n" if $::debug;
+    print "compute $self->{value_type}: pre_formula $pre_formula\n",
+      "compute $self->{value_type}: rule to eval $formula\n" if $::debug;
 
     my $result = $self->{computed_formula} = $formula ;
 
-    if ($self->{value_type} =~ /(integer|number)/) {
+    if ($self->{value_type} =~ /(integer|number|boolean)/) {
         $result = eval $formula ;
-        Config::Model::Exception::Formula
-	    -> throw (
-		      object => $self->{value_object},
-		      error => "Rule $self->{compute}[0] "
-		      . "(eval'ed as $formula) failed:\n$@"
-		     ) 
-	      if $@ ;
+	if ($@) {
+	    Config::Model::Exception::Formula
+		-> throw (
+			  object => $self->{value_object},
+			  error => "Eval of formula '$formula' failed:\n$@"
+			  . "Make sure that your element is indeed "
+			  . "'$self->{value_type}'"
+			 ) ;
+	}
     }
 
     return $result ;
@@ -379,7 +383,7 @@ sub compute_info {
 				  error => "Compute variable:\n". $msg
 				 ) ;
 		  }
-		  $val =  $obj->fetch ;
+		  $val = $obj->get_type eq 'node' ? '<node>' : $obj->fetch ;
 		}
 		$str.= "\n\t\t'$k' from path '$orig_variables->{$k}' is ";
 		$str.= defined $val ? "'$val'" : 'undef' ;
@@ -526,6 +530,12 @@ pre_value:
 		      );
      }
      # print "\&foo(...) result = ",$$return," \n";
+
+     my $vt = $arg[0]->value_type;
+     if ($vt =~ /^integer|number|boolean$/) {
+         $$return = '"'.$$return.'"';
+     }
+
      $return ;
   }
   | <skip:''> '&' /\w+/ (/\(\s*\)/)(?) {
@@ -544,6 +554,12 @@ pre_value:
          unless defined $method_name;
 
     my $result =  $arg[0]->$method_name(); 
+
+    my $vt = $arg[0]->value_type;
+    if ($vt =~ /^integer|number|boolean$/) {
+        $result = '"'.$result.'"';
+    }
+
     $return = \$result ;
 
     Config::Model::Exception::Formula

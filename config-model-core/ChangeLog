@@ -1,3 +1,14 @@
+2008-04-11  Dominique Dumont  <dominique.dumont@hp.com>
+
+	* AnyId.pm: Changed the way the cargo parameter are specified. Now
+	the cargo parameter holds all the information related to the
+	payload of the hash or list. Instead of having :
+	cargo_type => ... , cargo_args => {}, config_class_name => ...
+	you now have:
+	cargo => { type => ..., config_class_name => ..., <other_parm> => ... }
+	Model.pm provides a translation from the old wau to the new way so
+	this change is (95%) backward compatible.
+	
 2008-04-08  Dominique Dumont  <dominique.dumont@hp.com>
 
 	* CheckList.pm (set): Fix bug that prevented to use level or
