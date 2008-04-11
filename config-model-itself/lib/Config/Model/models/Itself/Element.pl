@@ -25,7 +25,7 @@
    name => "Itself::Element",
 
    include => 'Itself::WarpableElement' ,
-   include_after => 'cargo_type',
+   include_after => 'cargo',
 
    'element' 
    => [
@@ -33,9 +33,15 @@
        # structural information
        'type' => { type => 'leaf',
 		   value_type => 'enum',
-		   choice => [qw/node warped_node leaf hash list check_list/],
+		   choice => [qw/node warped_node leaf check_list/],
 		   mandatory => 1 ,
 		   description => 'specify the type of the configuration element. Leaf is used for plain value.',
+		   warp => {
+			    #follow => {p => '-'},
+			    rules => { '&element() eq "element"'
+				       => { choice => [qw/node warped_node leaf hash list check_list/], }
+				     }
+			   }
 		 },
 
        # warp often depend on this one, so list it first
@@ -55,24 +61,6 @@
 			 }
 		    ]
 	       }
-	  },
-
-       # hash or list
-       'cargo_type' 
-       => { type => 'leaf',
-	    value_type => 'enum',
-	    level => 'hidden',
-	    warp => { follow => { t => '- type' },
-		     'rules'
-		      => [ '$t eq "hash" or $t eq "list"' 
-			   => {
-			       level => 'normal',
-			       mandatory => 1,
-			       choice => [qw/node leaf/] ,
-			      },
-			 ]
-		    },
-	    description => 'Specify the type of configuration element contained in this hash or list.',
 	  },
 
        # all elements
@@ -235,14 +223,14 @@
 
 
        # hash or list
-       'cargo_args' 
+       'cargo' 
        => { type => 'warped_node',
 	    level => 'hidden',
 	    follow => { 't' => '- type' },
 	    'rules' => [ '$t eq "list" or $t eq "hash"' 
 			   => {
 			       level => 'normal',
-			       config_class_name => 'Itself::CargoElement',
+			       config_class_name => 'Itself::Element',
 			      },
 		       ],
 	    description => 'Specify the properties of the configuration element configuration in this hash or list',

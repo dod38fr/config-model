@@ -241,7 +241,7 @@
 	   level => 'hidden',
 	   warp => {  follow => { 't' => '?type' },
 		      'rules'
-		      => [ '$t eq "leaf"'
+		      => [ '$t eq "leaf" or $t eq "check_list"'
 			   => {
 			       level => 'normal',
 			      }

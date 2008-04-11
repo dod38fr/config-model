@@ -29,14 +29,23 @@
 
    'element' 
    => [
+       # structural information
+       'type' => { type => 'leaf',
+		   value_type => 'enum',
+		   choice => [qw/node warped_node leaf check_list/],
+		   mandatory => 1 ,
+		   description => 'specify the type of the cargo.',
+		 },
+
+
        'value_type' 
        => { type => 'leaf',
 	    level => 'hidden',
 	    value_type => 'enum',
 	    'warp'
-	    => { follow => { ct => '- - cargo_type' },
+	    => { follow => { t => '- type' },
 		 'rules'
-		 => [ '$ct eq "leaf"' 
+		 => [ '$t eq "leaf"' 
 		      => {
 			  choice => [qw/boolean enum integer reference
 					number uniline string/],
@@ -53,12 +62,12 @@
        'warp' 
        => { type => 'warped_node' , # ?
 	    level => 'hidden',
-	    follow => { elt_type => '- - cargo_type' } ,
+	    follow => { elt_type => '- type' } ,
 	    rules  => [
 		       '$elt_type ne "node"' =>
 		       {
 			level => 'normal',
-			config_class_name => 'Itself::WarpValue',
+			config_class_name => 'Itself::CargoWarpValue',
 		       }
 		      ] ,
 	    description => "change the properties (i.e. default value or its value_type) dynamically according to the value of another Value object locate elsewhere in the configuration tree. "
@@ -73,7 +82,7 @@
 	   index_type => 'string',
 	   level      => 'hidden' ,
 	   'warp'
-	   => { follow => '- - cargo_type',
+	   => { follow => '- type',
 		'rules' => { 'warped_node' => {level => 'normal',},}
 	      },
 	   cargo_args => { value_type => 'uniline' },
@@ -86,7 +95,7 @@
 		   level      => 'hidden' ,
 		   cargo_type => 'node',
 		   index_type => 'string',
-		   warp => { follow => '- - cargo_type',
+		   warp => { follow => '- type',
 			     'rules'
 			     => { 'warped_node' 
 				  => {
@@ -104,7 +113,7 @@
 	   value_type => 'boolean', 
 	   level      => 'hidden' ,
 	   'warp'
-	   => { follow => '- - cargo_type',
+	   => { follow => '- type',
 		'rules'
 		=> { 'warped_node' 
 		     => {
@@ -126,7 +135,7 @@
 	    level      => 'hidden' ,
 	    value_type => 'uniline',
 	    warp => { follow => { vt => '- value_type',
-				  ct => '- - cargo_type',
+				  ct => '- type',
 				},
 		     'rules'
 		      => [ '   $ct eq "check_list"
@@ -142,7 +151,7 @@
        'computed_refer_to' 
        => { type => 'warped_node',
 	    follow => { vt => '- value_type',
-			ct => '- - cargo_type',
+			ct => '- type',
 		      },
 	    'rules'
 	    => [ '   $ct eq "check_list"
@@ -159,7 +168,7 @@
        'compute' 
        => { type => 'warped_node',
 
-	    follow => { ct => '- - cargo_type',
+	    follow => { ct => '- type',
 		      },
 	    'rules' => [ '$ct eq "leaf" '
 			 => {
