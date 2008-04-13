@@ -32,17 +32,17 @@
        'follow' 
        => {
 	   type => 'hash',
-	   cargo_type => 'leaf',
 	   index_type =>'string',
-	   cargo_args => { value_type => 'uniline' } ,
+	   cargo => { type => 'leaf', value_type => 'uniline' } ,
 	   description => 'Specify with a path the configuration element that will drive the warp , i.e .the elements that control the property change. These a specified using a variable name (used in the "rules" formula) and a path to fetch the actual value. Example $country => " ! country"',
 	  },
        'rules' => {
 		   type => 'hash',
 		   ordered => 1,
 		   index_type => 'string',
-		   cargo_type => 'node',
-		   config_class_name => 'Itself::WarpableElement' ,
+		   cargo => { type => 'node',
+			      config_class_name => 'Itself::WarpableElement' ,
+			    },
 		   description => 'Specify several test (as formula using the variables defined in "follow" element) to try in sequences and their associated effects',
 		  },
       ],

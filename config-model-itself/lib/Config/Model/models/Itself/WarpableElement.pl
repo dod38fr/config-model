@@ -24,6 +24,8 @@
   [
    name => "Itself::WarpableElement",
 
+   include => 'Itself::CommonElement' ,
+
    'element' 
    => [
 
@@ -43,20 +45,6 @@
 	   built_in => 'normal',
 	  },
 
-       [qw/default built_in/] 
-       => { type => 'leaf',
-	    level => 'hidden',
-	    value_type => 'uniline',
-	    warp => {  follow => { 't' => '?type' },
-		       'rules'
-		       => [ '$t eq "leaf"' 
-			    => {
-				level => 'normal',
-			       }
-			  ]
-		    }
-	  },
- 
       [qw/follow_keys_from allow_keys_from/] 
        => { type => 'leaf',
 	    level => 'hidden',
@@ -89,8 +77,7 @@
       [qw/default_keys auto_create allow_keys/] 
        => { type => 'list',
 	    level => 'hidden',
-	    cargo_type => 'leaf',
-	    cargo_args => { value_type => 'string'} ,
+	    cargo => { type => 'leaf', value_type => 'string'} ,
 	    warp => {  follow => { 't' => '?type' },
 		       'rules'
 		       => [ '$t eq "hash"'
@@ -105,8 +92,7 @@
        => { type => 'hash',
 	    level => 'hidden',
 	    index_type => 'string',
-	    cargo_type => 'leaf',
-	    cargo_args => { value_type => 'string'} ,
+	    cargo => { type => 'leaf', value_type => 'string'} ,
 	    warp => {  follow => { 't' => '?type' },
 		       'rules'
 		       => [ '$t eq "hash"'
@@ -114,44 +100,6 @@
 				level => 'normal',
 			       }
 			  ]
-		    }
-	  },
-
-       [qw/convert/] 
-       => { type => 'leaf',
-	    value_type => 'enum',
-	    level => 'hidden',
-	    warp => {  follow => { 't' => '?type'},
-		       'rules'
-		       => [ '$t eq "leaf"'
-			    => {
-				choice => [qw/uc lc/],
-				level => 'normal',
-			       }
-			  ]
-		    }
-	  },
-
-       [qw/min max/]
-       => { type => 'leaf',
-	    value_type => 'integer',
-	    level => 'hidden',
-	    warp => { follow => {
-				 'type'  => '?type',
-				 'vtype' => '?value_type' ,
-				},
-		     'rules'
-		      => [ '$type eq "hash"
-                            or
-                            (    $type eq "leaf" 
-                             and (    $vtype eq "integer" 
-                                   or $vtype eq "number" 
-                                 )
-                            ) '
-			   => {
-			       level => 'normal',
-			      }
-			 ]
 		    }
 	  },
 
@@ -171,68 +119,7 @@
 		    }
 	  },
 
-       'mandatory'
-       => { type => 'leaf',
-	    level => 'hidden',
-	    value_type => 'boolean',
-	    warp => { follow => '?type',
-		     'rules'
-		      => { 'leaf' => {
-				      built_in   => 0,
-				      level => 'normal',
-				     }
-			 }
-		    }
-	  },
 
-       'choice'
-       => { type => 'list',
-	    cargo_type => 'leaf',
-	    level => 'hidden',
-	    warp => { follow => { t  => '?type',
-				  vt => '?value_type',
-				},
-		      'rules'
-		      => [ '  ($t eq "leaf" and $vt eq "enum" )
-                            or $t eq "check_list"' 
-			   => {
-			       level => 'normal',
-			      } ,
-			 ]
-		    },
-	    'cargo_args' =>  { value_type => 'uniline'},
-	  },
-
-       [qw/default_list/] 
-       => { type => 'check_list',
-	    level => 'hidden',
-	    refer_to => '- choice',
-	    warp => { follow => { t => '?type' },
-		      'rules'
-		      => [ '$t eq "check_list"' 
-			   => {
-			       level => 'normal',
-			      } ,
-			 ]
-		    },
-	  },
-
-       'config_class_name'
-       => {
-	   type => 'leaf',
-	   level => 'hidden',
-	   value_type => 'reference', 
-	   refer_to => '! class',
-	   warp => {  follow => { t => '?type' , ct => '?cargo_type'},
-		      rules  => [ '  $t  eq "node" or $t  eq "warped_node"
-                                  or $ct eq "node" or $ct eq "warped_node"' 
-				  => { 
-				       # should be able to warp refer_to ??
-				       level => 'normal',
-				     },
-				]
-		   }
-	  },
 
        [qw/replace help/]
        => {
@@ -247,10 +134,9 @@
 			      }
 			 ]
 		   },
-	   cargo_type => 'leaf',
 	   # TBD this could be a reference if we restrict replace to
 	   # enum value...
-	   cargo_args => { value_type => 'string' } ,
+	   cargo => { type => 'leaf', value_type => 'string' } ,
 	  },
       ],
 

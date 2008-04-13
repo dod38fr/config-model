@@ -33,10 +33,11 @@
        'element' => {
 		     type       => 'hash',
 		     level      => 'important',
-		     cargo_type => 'node',
 		     ordered    => 1,
 		     index_type => 'string',
-		     config_class_name => 'Itself::Element',
+		     cargo => { type => 'node',
+				config_class_name => 'Itself::Element',
+			      },
 		    },
 
        'include' => { type => 'leaf',
@@ -64,8 +65,9 @@
        'read_config'
        => {
 	   type => 'list',
-	   cargo_type => 'node',
-	   config_class_name => 'Itself::ConfigWR',
+	   cargo => { type => 'node',
+		      config_class_name => 'Itself::ConfigWR',
+		    },
 	  },
        'write_config'
        => {

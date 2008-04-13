@@ -1,9 +1,8 @@
 # $Author$
 # $Date$
-# $Name: not supported by cvs2svn $
 # $Revision$
 
-#    Copyright (c) 2007 Dominique Dumont.
+#    Copyright (c) 2007-2008 Dominique Dumont.
 #
 #    This file is part of Config-Model-Itself.
 #
@@ -37,9 +36,8 @@
        ['variables','replace']
        => {
 	   type => 'hash',
-	   cargo_type => 'leaf',
 	   index_type => 'string' ,
-	   cargo_args => { value_type => 'uniline' } ,
+	   cargo => { type => 'leaf', value_type => 'uniline' } ,
 	  },
       ],
 

@@ -31,8 +31,9 @@
        => {
 	   type => 'hash',
 	   index_type => 'string' , 
-	   cargo_type => 'node',
-	   config_class_name => 'Itself::Class' ,
+	   cargo => { type => 'node',
+		      config_class_name => 'Itself::Class' ,
+		    },
 	  },
 
       ],

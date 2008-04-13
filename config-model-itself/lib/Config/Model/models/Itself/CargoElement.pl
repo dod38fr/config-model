@@ -38,24 +38,6 @@
 		 },
 
 
-       'value_type' 
-       => { type => 'leaf',
-	    level => 'hidden',
-	    value_type => 'enum',
-	    'warp'
-	    => { follow => { t => '- type' },
-		 'rules'
-		 => [ '$t eq "leaf"' 
-		      => {
-			  choice => [qw/boolean enum integer reference
-					number uniline string/],
-			  level => 'normal',
-			  mandatory => 1,
-			 }
-		    ]
-	       }
-	  },
-
        # node element (may be within a hash or list)
 
        # all but warped_node
@@ -63,6 +45,7 @@
        => { type => 'warped_node' , # ?
 	    level => 'hidden',
 	    follow => { elt_type => '- type' } ,
+
 	    rules  => [
 		       '$elt_type ne "node"' =>
 		       {
@@ -75,109 +58,37 @@
 
        # warped_node: warp parameter for warped_node. They must be
        # warped out when type is not a warped_node
-       'follow' => 
-       => {
-	   type => 'hash',
-	   cargo_type => 'leaf',
-	   index_type => 'string',
-	   level      => 'hidden' ,
-	   'warp'
-	   => { follow => '- type',
-		'rules' => { 'warped_node' => {level => 'normal',},}
-	      },
-	   cargo_args => { value_type => 'uniline' },
-	   description => "Specifies the path to the value elements that drive the change of this node. Each key of the has is a variable name used in the 'rules' parameter. The value of the hash is a path in the configuration tree",
-	  },
 
        'rules' => {
                    type => 'hash',
 		   ordered => 1,
 		   level      => 'hidden' ,
-		   cargo_type => 'node',
 		   index_type => 'string',
 		   warp => { follow => '- type',
 			     'rules'
 			     => { 'warped_node' 
 				  => {
-				      config_class_name => 'Itself::WarpableCargoElement' ,
 				      level => 'normal',
 				     }
 				}
 			   },
+		   cargo => { type => 'warped_node',
+			      follow => '- type',
+			      'rules'
+			      => { 'warped_node' 
+				   => {
+				       config_class_name => 'Itself::WarpableCargoElement' ,
+				      }
+				 }
+			    },
 		   description => "Each key of a hash is a boolean expression using variables declared in the 'follow' parameters. The value of the hash specifies the effects on the node",
 		   },
-
-       'morph' => 
-       => {
-	   type => 'leaf',
-	   value_type => 'boolean', 
-	   level      => 'hidden' ,
-	   'warp'
-	   => { follow => '- type',
-		'rules'
-		=> { 'warped_node' 
-		     => {
-			 level => 'normal',
-			 built_in => 0 ,
-			},
-		   }
-	      },
-	   description => "When set, a recurse copy of the value from the old object to the new object will be attemped. When a copy is not possible, undef values will be assigned.",
-	  },
 
        # end warp elements for warped_node
 
        # leaf element
 
 
-       'refer_to' 
-       => { type => 'leaf',
-	    level      => 'hidden' ,
-	    value_type => 'uniline',
-	    warp => { follow => { vt => '- value_type',
-				  ct => '- type',
-				},
-		     'rules'
-		      => [ '   $ct eq "check_list"
-                            or $vt eq "reference"  '
-			   => {
-			       level => 'important',
-			      },
-			 ]
-		    },
-	    description => "points to an array or hash element in the configuration tree using the path syntax. The available choice of this reference value (or check list)is made from the available keys of the pointed hash element or the values of the pointed array element.",
-	  },
-
-       'computed_refer_to' 
-       => { type => 'warped_node',
-	    follow => { vt => '- value_type',
-			ct => '- type',
-		      },
-	    'rules'
-	    => [ '   $ct eq "check_list"
-                  or $vt eq "reference"  '
-		 => {
-		     level => 'normal',
-		     config_class_name => 'Itself::ComputedValue',
-		    },
-	       ],
-	    description => "points to an array or hash element in the configuration tree using a path computed with value from several other elements in the configuration tree. The available choice of this reference value (or check list) is made from the available keys of the pointed hash element or the values of the pointed array element.",
-	  },
-
- 
-       'compute' 
-       => { type => 'warped_node',
-
-	    follow => { ct => '- type',
-		      },
-	    'rules' => [ '$ct eq "leaf" '
-			 => {
-			     level => 'normal',
-			     config_class_name => 'Itself::ComputedValue',
-			    },
-		       ],
-	    description => "compute the default value according to a formula and value from other elements in the configuration tree.",
-	  },
 
       ],
 

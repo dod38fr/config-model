@@ -36,7 +36,8 @@ $VERSION = sprintf "1.%04d", q$Revision$ =~ /(\d+)/;
 $verbose = 0;
 $debug = 0;
 
-my $log4perl_conf_file = '/etc/log4config-model.conf' ;
+my $system_log4perl_conf_file = '/etc/log4config-model-edit.conf' ;
+my $user_log4perl_conf_file = 'log4config-model-edit.conf' ;
 my $fallback_conf = << 'EOC';
 log4perl.logger.ConfigModel=WARN, A1
 log4perl.appender.A1=Log::Dispatch::File
@@ -45,8 +46,10 @@ log4perl.appender.A1.mode=append
 log4perl.appender.A1.layout=Log::Log4perl::Layout::SimpleLayout
 EOC
 
-my $log4perl_conf = -e $log4perl_conf_file ? $log4perl_conf_file 
-                  :                          \$fallback_conf ;
+my $log4perl_conf 
+    = -e $user_log4perl_conf_file   ? $user_log4perl_conf_file 
+    : -e $system_log4perl_conf_file ? $system_log4perl_conf_file 
+    :                                 \$fallback_conf ;
 
 Log::Log4perl::init($log4perl_conf);
 
