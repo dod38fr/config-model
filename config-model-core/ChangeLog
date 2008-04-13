@@ -1,3 +1,7 @@
+2008-04-13  Dominique Dumont  <domi.dumont@free.fr>
+
+	* Model.pm (include_class): allow multiple includes
+
 2008-04-11  Dominique Dumont  <dominique.dumont@hp.com>
 
 	* AnyId.pm: Changed the way the cargo parameter are specified. Now
@@ -6,7 +10,7 @@
 	cargo_type => ... , cargo_args => {}, config_class_name => ...
 	you now have:
 	cargo => { type => ..., config_class_name => ..., <other_parm> => ... }
-	Model.pm provides a translation from the old wau to the new way so
+	Model.pm provides a translation from the old way to the new way so
 	this change is (95%) backward compatible.
 	
 2008-04-08  Dominique Dumont  <dominique.dumont@hp.com>

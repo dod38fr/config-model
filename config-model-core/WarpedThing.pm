@@ -255,10 +255,6 @@ sub submit_to_warp {
 	  $warper->name,"'\n"
 	    if $::debug;
 
-	# don't register if warper type is a node. Using a warper as a node
-	# is only used to get the name of the element containing this node
-        next if $warper->get_type eq 'node';
-
         # warp will register this value object in another value object
         # (the warper).  When the warper gets a new value, it will
         # modify the warped object according to the data passed by the

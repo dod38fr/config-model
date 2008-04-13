@@ -467,14 +467,13 @@ sub create_config_class {
     my $raw_copy = dclone \%raw_model ;
     my %model = ( element_list => [] );
 
-
     # add included items
     if ($self->{skip_include}) {
 	$model{include}       = delete $raw_copy->{include} ;
 	$model{include_after} = delete $raw_copy->{include_after} ;
     }
     else {
-	$self->include_class($raw_copy) ; 
+	$self->include_class($config_class_name, $raw_copy ) ; 
     }
 
 
@@ -962,6 +961,10 @@ Include element description from another class.
 
   include => 'AnotherClass' ,
 
+or
+
+  include => [qw/ClassOne ClassTwo/]
+
 In a configuration class, the order of the element is important. For
 instance if C<foo> is warped by C<bar>, you must declare C<bar>
 element before C<foo>.
@@ -983,18 +986,42 @@ Now the element of your class will be:
 =cut
 
 sub include_class {
-    my $self  = shift;
-    my $raw_model = shift || die "include_class: undefined raw_model";
+    my $self       = shift;
+    my $class_name = shift || croak "include_class: undef includer" ;
+    my $raw_model  = shift || die "include_class: undefined raw_model";
 
     my $include_class = delete $raw_model->{include} ;
 
     return () unless defined $include_class ;
 
-    my $included_raw_model = dclone $self->get_raw_model($include_class) ;
     my $include_after       = delete $raw_model->{include_after} ;
 
+    my @includes = ref $include_class ? @$include_class : ($include_class) ;
+
+    foreach my $inc (@includes) {
+	$self->include_one_class($class_name, $raw_model, $inc, $include_after) ;
+    }
+}
+
+sub include_one_class {
+    my $self          = shift;
+    my $class_name    = shift || croak "include_class: undef includer" ;
+    my $raw_model     = shift || die "include_class: undefined raw_model";
+    my $include_class = shift ;
+    my $include_after = shift ;
+
+    if (defined $include_class and 
+        defined $self->{included_class}{$class_name}{$include_class}) {
+	Config::Model::Exception::ModelDeclaration
+		-> throw (error => "Recursion error ? $include_class has "
+			         . "already been included by $class_name.") ;
+    }
+    $self->{included_class}{$class_name}{$include_class} = 1;
+
+    my $included_raw_model = dclone $self->get_raw_model($include_class) ;
+
     # takes care of recursive include
-    $self->include_class( $included_raw_model ) ;
+    $self->include_class( $class_name, $included_raw_model ) ;
 
     my %include_item = map { $_ => 1 } @legal_params ;
 
