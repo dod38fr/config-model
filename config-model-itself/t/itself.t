@@ -84,6 +84,8 @@ my $map = $rw_obj -> read_all(
 
 ok(1,"Read all models in data dir") ;
 
+print $meta_model->list_class_element if $trace ;
+
 my $expected_map 
   = {
      'MasterModel/HashIdOfValues.pl' => [

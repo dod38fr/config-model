@@ -80,7 +80,7 @@
 	    cargo => { type => 'leaf', value_type => 'string'} ,
 	    warp => {  follow => { 't' => '?type' },
 		       'rules'
-		       => [ '$t eq "hash"'
+		       => [ '$t eq "hash" or $t eq "list"'
 			    => {
 				level => 'normal',
 			       }

@@ -21,5 +21,6 @@ lib/Config/Model/models/Itself/WarpValue.pl
 MANIFEST			This list of files
 t/itself.t
 META.yml
+t/list_itself_structure.t
 t/load_write_itself.t
 t/pod.t

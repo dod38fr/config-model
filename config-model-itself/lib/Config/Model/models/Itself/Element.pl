@@ -24,8 +24,8 @@
  [
   name => "Itself::Element",
 
-  include => ['Itself::WarpableElement' ,'Itself::NonWarpableElement'],
-  include_after => 'type' ,
+  include => ['Itself::NonWarpableElement' ,'Itself::WarpableElement'],
+  include_after => 'type' , 
 
   'element' 
   => [

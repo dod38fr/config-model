@@ -40,9 +40,12 @@
 			      },
 		    },
 
-       'include' => { type => 'leaf',
-		      value_type => 'reference',
-		      refer_to => '! class',
+       'include' => { type => 'list',
+		      cargo => {
+				type => 'leaf',
+				value_type => 'reference',
+				refer_to => '! class',
+			       }
 		    } ,
 
        'include_after' => { type => 'leaf',

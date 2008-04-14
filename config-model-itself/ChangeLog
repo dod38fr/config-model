@@ -1,3 +1,8 @@
+2008-04-14  Dominique Dumont  <dominique.dumont@hp.com>
+
+	* lib/Config/Model/Itself.pm (read_all): Reworked model to fit with
+	new cargo arguments.
+
 2008-04-03  Dominique Dumont v0.201
 
 	* lib/Config/Model/models/Itself/Element.pl: Fixed element and
