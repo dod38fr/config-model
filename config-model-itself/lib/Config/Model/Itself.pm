@@ -260,7 +260,7 @@ sub get_perl_data_model{
     for (my $i = 0 ; $i < @$all_elt_data; $i ++) {
 	my $elt_name = $all_elt_data->[$i++] ;
 	my $elt_data = $all_elt_data->[$i] ;
-	foreach my $item (qw/description level permission status/) {
+	foreach my $item (qw/description/) {
 	    my $moved_data = delete $elt_data->{$item}  ;
 	    next unless defined $moved_data ;
 	    push @{$model->{$item}}, $elt_name, $moved_data ; 
