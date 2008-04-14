@@ -942,13 +942,12 @@ sub translate_rules_arg {
 	    }
 	}
     }
-    else {
-	my $item = defined $raw_rules ? $raw_rules : '<undef>' ;
+    elsif (defined $raw_rules) {
 	Config::Model::Exception::ModelDeclaration
 	    -> throw (
 		      error => "Warp rule error in element "
                              . "'$config_class_name->$elt_name': "
-		             . "rules must be a hash ref. Got '$item'"
+		             . "rules must be a hash ref. Got '$raw_rules'"
 		     ) ;
     }
 

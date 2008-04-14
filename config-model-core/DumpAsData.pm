@@ -120,12 +120,14 @@ sub dump_as_data {
     my $std_cb = sub {
         my ( $scanner, $data_r, $obj, $element, $index, $value_obj ) = @_;
 
-	$$data_r =  $full ? $value_obj->fetch : $value_obj->fetch_custom ;
+	$$data_r =  $full ? $value_obj->fetch #('non_built_in')
+                 :          $value_obj->fetch_custom ;
     };
 
     my $check_list_element_cb = sub {
         my ( $scanner, $data_r, $node, $element_name, @check_items ) = @_;
-	$$data_r = $node->fetch_element($element_name)->get_checked_list;
+	my $a_ref = $node->fetch_element($element_name)->get_checked_list;
+	$$data_r = $a_ref ;#if scalar @$a_ref ;
     };
 
     my $hash_element_cb = sub {
