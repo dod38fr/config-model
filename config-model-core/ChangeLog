@@ -1,3 +1,8 @@
+2008-04-14  Dominique Dumont  <dominique.dumont@hp.com>
+
+	* Model.pm (list_class_element): New method to help debugging of
+	configuration models
+
 2008-04-13  Dominique Dumont  <domi.dumont@free.fr>
 
 	* Model.pm (include_class): allow multiple includes

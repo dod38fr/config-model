@@ -469,7 +469,8 @@ sub create_config_class {
 
     # add included items
     if ($self->{skip_include}) {
-	$model{include}       = delete $raw_copy->{include} ;
+	my $inc = delete $raw_copy->{include} ;
+	$model{include}       =  ref $inc ? $inc : [ $inc ];
 	$model{include_after} = delete $raw_copy->{include_after} ;
     }
     else {
@@ -998,7 +999,9 @@ sub include_class {
 
     my @includes = ref $include_class ? @$include_class : ($include_class) ;
 
-    foreach my $inc (@includes) {
+    # use reverse because included classes are *inserted* in front 
+    # of the list (or inserted after $include_after
+    foreach my $inc (reverse @includes) {
 	$self->include_one_class($class_name, $raw_model, $inc, $include_after) ;
     }
 }
@@ -1297,6 +1300,60 @@ sub get_element_property {
       croak "get_element_property:: missing 'class' parameter";
 
     return $self->{model}{$class}{$prop}{$elt} ;
+}
+
+=head2 list_class_element
+
+Returns a string listing all the class and elements. Useful for
+debugging your configuration model.
+
+=cut
+
+sub list_class_element {
+    my $self = shift ;
+    my $pad  =  shift || '' ;
+
+    my $res = '';
+    foreach my $class_name (keys %{$self->{raw_model}}) {
+	$res .= $self->list_one_class_element($class_name) ;
+    }
+    return $res ;
+}
+
+sub list_one_class_element {
+    my $self = shift ;
+    my $class_name = shift ;
+    my $pad  =  shift || '' ;
+
+    my $res = $pad."Class: $class_name\n";
+    my $c_model = $self->{raw_model}{$class_name};
+    my $elts = $c_model->{element} ; # array ref
+
+    my $include = $c_model->{include} ;
+    my $inc_ref = ref $include ? $include : [ $include ] ;
+    my $inc_after = $c_model->{include_after} ;
+
+    if (defined $include and not defined $inc_after) {
+	map { $res .=$self->list_one_class_element($_,$pad.'  ') ;} @$inc_ref ;
+    }
+
+    return $res unless defined $elts ;
+
+    for (my $idx = 0; $idx < @$elts; $idx += 2) {
+	my $elt_info = $elts->[$idx] ;
+	my @elt_names = ref $elt_info ? @$elt_info : ($elt_info) ;
+	my $type = $elts->[$idx+1]{type} ;
+
+	foreach my $elt_name (@elt_names) {
+	    $res .= $pad."  - $elt_name ($type)\n";
+	    if (defined $include and defined $inc_after 
+		and $inc_after eq $elt_name
+	       ) {
+		map { $res .=$self->list_one_class_element($_,$pad.'  ') ;} @$inc_ref ;
+	    }
+	}
+    }
+    return $res ;
 }
 
 =head1 Error handling

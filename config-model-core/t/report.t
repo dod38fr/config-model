@@ -4,7 +4,7 @@
 # $Revision$
 
 use ExtUtils::testlib;
-use Test::More tests => 7;
+use Test::More tests => 8;
 use Config::Model;
 
 use warnings;
@@ -145,4 +145,8 @@ EOF
 is_deeply([split /\n/,$report ],
 	  [split /\n/,$expect ],"check dump of all values ") ;
 
+my $list =  $model->list_class_element ;
+ok($list,"check list_class_element") ;
+print $list if $trace ;
 
+#use Tk::ObjScanner; Tk::ObjScanner::scan_object($model) ;

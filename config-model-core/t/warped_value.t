@@ -427,7 +427,7 @@ my $rules = {
 };
 
 no warnings 'once' ;
-my $parser = Parse::RecDescent->new($Config::Model::ValueComputer::compute_grammar) ;
+my $parser = new Parse::RecDescent ($Config::Model::ValueComputer::compute_grammar) ;
 use warnings 'once';
 
 # the 2 next tests are used to check what going on before trying the
