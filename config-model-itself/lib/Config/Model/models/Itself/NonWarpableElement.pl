@@ -45,6 +45,24 @@
 	      }
 	 },
 
+       'permission' 
+       => {
+	   type => 'leaf',
+	   value_type => 'enum', 
+	   choice => [qw/master advanced intermediate/] ,
+	   built_in => 'intermediate',
+	   description => 'Used to categorize configuration elements in several "required skills". Use this feature if you need to hide a parameter to novice users',
+	  },
+
+       'level' 
+       => {
+	   type => 'leaf',
+	   value_type => 'enum', 
+	   choice => [qw/important normal hidden/] ,
+	   built_in => 'normal',
+	   description => 'Used to highlight important parameter or to hide others. Hidden parameter are mostly used to hide features that are unavailable at start time. They can be made available later using warp mechanism',
+	  },
+
 
       # node element (may be within a hash or list)
 
@@ -110,6 +128,7 @@
 	   follow => { t  => '- type',
 		       vt => '- value_type',
 		     },
+	   level => 'hidden',
 	   'rules'
 	   => [ '   $t  eq "check_list" 
                  or $vt eq "reference"  '

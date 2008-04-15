@@ -1,6 +1,6 @@
 # $Author: ddumont $
-# $Date: 2008-03-24 15:05:19 +0100 (Mon, 24 Mar 2008) $
-# $Revision: 559 $
+# $Date: 2008-04-14 15:57:49 +0200 (Mon, 14 Apr 2008) $
+# $Revision: 604 $
 
 #    Copyright (c) 2007-2008 Dominique Dumont.
 #
@@ -22,10 +22,34 @@
 
 [
   [
-   name => "Itself::WarpableCargoElement",
+   name => "Itself::WarpOnlyElement",
 
-   include => 'Itself::CommonElement' ,
+   include => 'Itself::WarpableElement' ,
 
+   'element' 
+   => [
+
+       'permission' 
+       => {
+	   type => 'leaf',
+	   value_type => 'enum', 
+	   choice => [qw/master advanced intermediate/] ,
+	  },
+
+       'level' 
+       => {
+	   type => 'leaf',
+	   value_type => 'enum', 
+	   choice => [qw/important normal hidden/] ,
+	  },
+
+      ],
+
+   'description' 
+   => [
+       permission => 'Used to categorize configuration elements in several "required skills". Use this feature if you need to hide a parameter to novice users',
+       level => 'Used to highlight important parameter or to hide others. Hidden parameter are mostly used to hide features that are unavailable at start time. They can be made available later using warp mechanism',
+      ],
   ],
 
 ];

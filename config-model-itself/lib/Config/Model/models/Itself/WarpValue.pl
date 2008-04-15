@@ -1,9 +1,8 @@
 # $Author$
 # $Date$
-# $Name: not supported by cvs2svn $
 # $Revision$
 
-#    Copyright (c) 2007 Dominique Dumont.
+#    Copyright (c) 2007-2008 Dominique Dumont.
 #
 #    This file is part of Config-Model-Itself.
 #
@@ -41,7 +40,7 @@
 		   ordered => 1,
 		   index_type => 'string',
 		   cargo => { type => 'node',
-			      config_class_name => 'Itself::WarpableElement' ,
+			      config_class_name => 'Itself::WarpOnlyElement' ,
 			    },
 		   description => 'Specify several test (as formula using the variables defined in "follow" element) to try in sequences and their associated effects',
 		  },

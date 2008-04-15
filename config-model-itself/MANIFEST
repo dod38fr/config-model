@@ -1,5 +1,7 @@
 Build.PL
 ChangeLog
+MANIFEST			This list of files
+META.yml
 README
 config-model-edit
 data/MasterModel.pl
@@ -10,17 +12,20 @@ data/MasterModel/WarpedValues.pl
 data/MasterModel/X_base_class.pl
 lib/Config/Model/Itself.pm
 lib/Config/Model/models/Itself/CargoElement.pl
+lib/Config/Model/models/Itself/CargoWarpRule.pl
+lib/Config/Model/models/Itself/CargoWarpValue.pl
 lib/Config/Model/models/Itself/Class.pl
+lib/Config/Model/models/Itself/CommonElement.pl
 lib/Config/Model/models/Itself/ComputedValue.pl
 lib/Config/Model/models/Itself/Element.pl
 lib/Config/Model/models/Itself/Model.pl
-lib/Config/Model/models/Itself/WarpableCargoElement.pl
-lib/Config/Model/models/Itself/WarpableElement.pl
+lib/Config/Model/models/Itself/NonWarpableElement.pl.pl
+lib/Config/Model/models/Itself/WarpOnlyElement.pl
 lib/Config/Model/models/Itself/WarpRule.pl
 lib/Config/Model/models/Itself/WarpValue.pl
-MANIFEST			This list of files
+lib/Config/Model/models/Itself/WarpableCargoElement.pl
+lib/Config/Model/models/Itself/WarpableElement.pl
 t/itself.t
-META.yml
 t/list_itself_structure.t
 t/load_write_itself.t
 t/pod.t

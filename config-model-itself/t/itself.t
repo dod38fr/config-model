@@ -42,7 +42,7 @@ ok(1,"compiled");
 mkdir($wr_dir) unless -d $wr_dir ;
 
 
-my $model = Config::Model->new(model_dir => 'data' ) ;
+my $model = Config::Model->new(legacy => 'ignore',model_dir => 'data' ) ;
 ok(1,"loaded Master model") ;
 
 # check that Master Model can be loaded by Config::Model
@@ -80,6 +80,7 @@ my $rw_obj = Config::Model::Itself -> new(model_object => $meta_root) ;
 my $map = $rw_obj -> read_all( 
 			      model_dir => 'data',
 			      root_model => 'MasterModel',
+			      legacy => 'ignore',
 			     ) ;
 
 ok(1,"Read all models in data dir") ;
@@ -183,7 +184,7 @@ ok($dump,"Checked dump of one class");
 
 $rw_obj->write_all( model_dir => $wr_dir ) ;
 
-my $model4 = Config::Model->new(model_dir => $wr_dir) ;
+my $model4 = Config::Model->new(legacy => 'ignore',model_dir => $wr_dir) ;
 #$model4 -> load ('X_base_class', 'wr_test/MasterModel/X_base_class.pl') ;
 #ok(1,"loaded X_base_class") ;
 #$model4 -> load ('MasterModel' , 'wr_test/MasterModel.pl') ;

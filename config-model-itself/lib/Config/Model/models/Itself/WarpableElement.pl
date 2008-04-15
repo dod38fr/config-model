@@ -29,22 +29,6 @@
    'element' 
    => [
 
-       'permission' 
-       => {
-	   type => 'leaf',
-	   value_type => 'enum', 
-	   choice => [qw/master advanced intermediate/] ,
-	   built_in => 'intermediate',
-	  },
-
-       'level' 
-       => {
-	   type => 'leaf',
-	   value_type => 'enum', 
-	   choice => [qw/important normal hidden/] ,
-	   built_in => 'normal',
-	  },
-
       [qw/follow_keys_from allow_keys_from/] 
        => { type => 'leaf',
 	    level => 'hidden',
@@ -142,8 +126,6 @@
 
    'description' 
    => [
-       permission => 'Used to categorize configuration elements in several "required skills". Use this feature if you need to hide a parameter to novice users',
-       level => 'Used to highlight important parameter or to hide others. Hidden parameter are mostly used to hide features that are unavailable at start time. They can be made available later using warp mechanism',
        value_type => 'specify the type of a leaf element.',
        default => 'Specify default value. This default value will be written in the configuration data',
        built_in => 'Another way to specify a default value. But this default value is considered as "built_in" the application and is not written in the configuration data (unless modified)',

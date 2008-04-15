@@ -150,6 +150,7 @@ sub read_all {
     my $model = $args{root_model} 
       || croak __PACKAGE__," read_all: undefined root_model";
     my $force_load = $args{force_load} || 0 ;
+    my $legacy = $args{legacy} ;
 
     unless (-d $dir ) {
 	croak __PACKAGE__," read_all: unknown config dir $dir";
@@ -176,7 +177,7 @@ sub read_all {
 	# now apply some translation to read model
 	# - translate legacy warp parameters
 	# - expand elements name
-	my $tmp_model = Config::Model -> new( skip_include => 1 ) ;
+	my $tmp_model = Config::Model -> new( skip_include => 1, legacy => $legacy ) ;
 	my @models = $tmp_model -> load ( 'Tmp' , $file ) ;
 
 	my $rel_file = $file ;

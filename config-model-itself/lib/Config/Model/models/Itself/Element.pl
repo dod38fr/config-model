@@ -80,7 +80,7 @@
 			     'rules'
 			     => { 'warped_node' 
 				  => {
-				      config_class_name => 'Itself::WarpableElement' ,
+				      config_class_name => 'Itself::WarpOnlyElement' ,
 				     }
 				}
 			   },
