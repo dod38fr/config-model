@@ -1008,8 +1008,8 @@ sub include_class {
 sub include_one_class {
     my $self          = shift;
     my $class_name    = shift || croak "include_class: undef includer" ;
-    my $raw_model     = shift || die "include_class: undefined raw_model";
-    my $include_class = shift ;
+    my $raw_model     = shift || croak "include_class: undefined raw_model";
+    my $include_class = shift || croak "include_class: undef include_class param" ;;
     my $include_after = shift ;
 
     if (defined $include_class and 

@@ -63,8 +63,8 @@ std_id:"b d "
   X=Av -
 std_id:bc
   X=Av -
-lista=,,c,d
-listb=,c,d
+lista=c,d
+listb=c,d
 hash_a:X2=x
 hash_a:Y2=xy
 hash_b:X3=xy
@@ -241,7 +241,7 @@ std_id:ab
   X=Bv -
 std_id:"b d " -
 std_id:bc -
-lista=a,b,,
+lista=a,b
 olist:0 -
 olist:1 -
 warp

@@ -60,6 +60,10 @@ of a configuration tree in perl data structure.
 The perl data structure is a hash of hash. Only
 L<CheckList|Config::Model::CheckList> content will be stored in an array ref.
 
+Note that undefined values are skipped for list element. I.e. if a
+list element contains C<('a',undef,'b')>, the data structure will
+contain C<'a','b'>.
+
 =head1 CONSTRUCTOR
 
 =head2 new ( )
@@ -120,14 +124,14 @@ sub dump_as_data {
     my $std_cb = sub {
         my ( $scanner, $data_r, $obj, $element, $index, $value_obj ) = @_;
 
-	$$data_r =  $full ? $value_obj->fetch #('non_built_in')
+	$$data_r =  $full ? $value_obj->fetch ('non_built_in')
                  :          $value_obj->fetch_custom ;
     };
 
     my $check_list_element_cb = sub {
         my ( $scanner, $data_r, $node, $element_name, @check_items ) = @_;
 	my $a_ref = $node->fetch_element($element_name)->get_checked_list;
-	$$data_r = $a_ref ;#if scalar @$a_ref ;
+	$$data_r = $a_ref ;
     };
 
     my $hash_element_cb = sub {
@@ -139,9 +143,11 @@ sub dump_as_data {
 	my @res = map { 
 	    my $v ;
 	    $scanner->scan_hash(\$v,$node,$element_name,$_);
-	    $h{$_} = $v if defined $v ;
-	    defined $v ? ( $_ , $v ) : () ;
+	    # create the key even if $v is undef 
+	    $h{$_} = $v ;
+	    ( $_ , $v ) ;
 	} @keys ;
+
 	if ($node->fetch_element($element_name)->ordered) {
 	    $$data_ref = \@res if @res ;
 	}

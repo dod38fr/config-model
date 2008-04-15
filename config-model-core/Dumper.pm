@@ -75,6 +75,9 @@ default values, are dumped.
 The serialized string can be used by L<Config::Model::Walker> to store
 the data back into a configuration tree.
 
+Note that undefined values are skipped for list element. I.e. if a list
+element contains C<('a',undef,'b')>, the dump will contain C<'a','b'>.
+
 =head1 CONSTRUCTOR
 
 =head2 new ( )
@@ -213,9 +216,10 @@ sub dump_tree {
             }
         }
         else {
-	    no warnings "uninitialized" ;
+	    # skip undef values
+	    my @val = grep (defined $_,$list_obj->fetch_all_values($fetch_mode)) ;
             $$data_r .= "\n$pad$element=" 
-	      . join( ',', $list_obj->fetch_all_values($fetch_mode) ) if @keys;
+	      . join( ',', @val ) if @keys;
         }
     };
 

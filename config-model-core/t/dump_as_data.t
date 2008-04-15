@@ -54,6 +54,10 @@ $step =~ s/\n/ /g;
 ok( $root->load( step => $step, permission => 'advanced' ),
   "set up data in tree with '$step'");
 
+# load some values with undef
+$root->fetch_element('hash_a')->fetch_with_id('undef_val') ;
+$root->fetch_element('lista' )->fetch_with_id(6)->store('g');
+
 $root->load_data({ listb => 'bb'}) ;
 ok (1, "loaded single array element as listb => 'bb'") ;
 
@@ -69,13 +73,14 @@ my $expect = {
 	      'my_reference' => 'titi',
 	      'hash_a' => {
 			   'toto' => 'toto_value',
-			   'titi' => 'titi_value'
+			   'titi' => 'titi_value',
+			   undef_val => undef ,
 			  },
 	      'std_id' => {
 			   'ab' => {'X' => 'Bv'},
 			   'bc' => {'X' => 'Av'}
 			  },
-	      'lista' => ['a', 'b', 'c', 'd'],
+	      'lista' => [qw/a b c d g/],
 	      'warp' => {
 			 'warp2' => {
 				     'aa2' => 'foo bar'

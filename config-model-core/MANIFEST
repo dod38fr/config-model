@@ -39,6 +39,7 @@ t/dump_tree.t
 t/grab.t
 t/hash_id_of_node.t
 t/hash_id_of_values.t
+t/include.t
 t/instance.t
 t/load.t
 t/multi_warp_object.t

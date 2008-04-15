@@ -1128,16 +1128,19 @@ the structure of the configuration model.
 
 sub load_data {
     my $self = shift ;
-    my $h = dclone shift ;
+    my $p    = shift ;
 
-    if ( ref($h) ne 'HASH' and not $h->isa( 'HASH' ) ) {
+    if ( not defined $p or (ref($p) ne 'HASH' and not $p->isa( 'HASH' )) ) {
 	Config::Model::Exception::LoadData
 	    -> throw (
 		      object => $self,
 		      message => "load_data called with non hash ref arg",
-		      wrong_data => $h,
-		     ) ;
+		      wrong_data => $p,
+		     )  if $self->instance->get_value_check('store');
+	return ;
     }
+
+    my $h = dclone $p ;
 
     print "Node load_data (",$self->location,") will load elt ",
       join (' ',keys %$h),"\n" if $::verbose ;
@@ -1161,7 +1164,7 @@ sub load_data {
 	}
     }
 
-    if (%$h) {
+    if (%$h and $self->instance->get_value_check('store')) {
 	Config::Model::Exception::LoadData 
 	    -> throw (
 		      message => "load_data: unknown elements (expected "

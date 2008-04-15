@@ -1,3 +1,9 @@
+2008-04-15  Dominique Dumont  <dominique.dumont@hp.com>
+
+	* Dumper.pm (dump_tree): skip undefined values in list element
+
+	* DumpAsData.pm (dump_as_data): idem
+
 2008-04-14  Dominique Dumont  <dominique.dumont@hp.com>
 
 	* Model.pm (list_class_element): New method to help debugging of
