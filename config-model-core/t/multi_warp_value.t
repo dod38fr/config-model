@@ -36,7 +36,7 @@ foreach my $c1 (@m1) {
 #use Data::Dumper; print Dumper \@rules ;
 
 # minimal set up to get things working
-my $model = Config::Model->new() ;
+my $model = Config::Model->new(legacy => 'ignore',) ;
 my $model_data = 
   {
    name => 'Master',

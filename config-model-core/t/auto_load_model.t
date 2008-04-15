@@ -12,7 +12,7 @@ no warnings qw(once);
 
 use strict;
 
-my $model = Config::Model -> new ;
+my $model = Config::Model -> new(legacy => 'ignore',) ;
 
 my $arg = shift || '' ;
 my $trace = $arg =~ /t/ ? 1 : 0 ;
@@ -41,7 +41,7 @@ ok( $root->load( step => $step, permission => 'intermediate' ),
 
 # check that loading a model without inheritance works
 
-my $model2 = Config::Model -> new ( skip_include => 1 ) ;
+my $model2 = Config::Model -> new ( legacy => 'ignore',skip_include => 1 ) ;
 my $inst2 = $model2->instance (root_class_name => 'Master', 
 			     model_file    => 't/big_model.pm' ,
 			     instance_name => 'test1');

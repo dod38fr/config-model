@@ -12,7 +12,7 @@ no warnings qw(once);
 
 use strict;
 
-my $model = Config::Model -> new ;
+my $model = Config::Model -> new(legacy => 'ignore',)  ;
 
 my $arg = shift || '' ;
 my $trace = $arg =~ /t/ ? 1 : 0 ;

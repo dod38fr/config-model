@@ -16,7 +16,7 @@ use strict;
 
 use vars qw/$model/;
 
-$model = Config::Model -> new ;
+$model = Config::Model -> new (legacy => 'ignore',) ;
 
 my $trace = shift || 0;
 $::verbose          = 1 if $trace =~ /v/;

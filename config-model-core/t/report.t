@@ -14,7 +14,7 @@ use strict;
 
 use vars qw/$model/;
 
-$model = Config::Model -> new ;
+$model = Config::Model -> new(legacy => 'ignore',)  ;
 
 my $arg = shift || '' ;
 my $trace = $arg =~ /t/ ? 1 : 0 ;

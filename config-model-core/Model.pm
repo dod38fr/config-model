@@ -142,15 +142,29 @@ sub new {
 
     my $skip =  $args{skip_include} || 0 ;
 
+    my $self = { model_dir => $args{model_dir},
+		 legacy    => $args{legacy}  || 'warn' ,
+	       } ;
+    bless $self,$type ;
+
     if (defined $args{skip_inheritance}) {
-	carp "skip_inheritance is deprecated, use skip_include" ;
-	$skip = $args{skip_inheritance} ;
+	$self->legacy("skip_inheritance is deprecated, use skip_include") ;
+	$self->{skip_include} = $args{skip_inheritance} ;
     }
 
-    bless {
-	   model_dir => $args{model_dir} ,
-	   skip_include => $skip,
-	  },$type;
+    return $self ;
+}
+
+sub legacy {
+    my $self = shift ;
+    my $behavior = $self->{legacy} ;
+
+    if ($behavior eq 'die') {
+	die @_,"\n";
+    }
+    elsif ($behavior eq 'warn') {
+	warn @_,"\n";
+    }
 }
 
 =head2 declaring the model
@@ -449,12 +463,12 @@ sub create_config_class {
     }
 
     if (defined $raw_model{inherit_after}) {
-	warn "Model $config_class_name: inherit_after is deprecated ",
-	  "in favor of include_after\n";
+	$self->legacy("Model $config_class_name: inherit_after is deprecated ",
+	  "in favor of include_after" );
 	$raw_model{include_after} = delete $raw_model{inherit_after} ;
     }
     if (defined $raw_model{inherit}) {
-	warn "Model $config_class_name: inherit is deprecated in favor of include\n";
+	$self->legacy("Model $config_class_name: inherit is deprecated in favor of include");
 	$raw_model{include} = delete $raw_model{inherit} ;
     }
 
@@ -682,21 +696,21 @@ sub translate_cargo_info {
 
     my $c_type = delete $info->{cargo_type} ;
     return unless defined $c_type;
-    warn "$config_class_name->$elt_name: parameter cargo_type is deprecated.\n";
+    $self->legacy("$config_class_name->$elt_name: parameter cargo_type is deprecated.");
     my %cargo ;
 
     if (defined $info->{cargo_args}) {
        %cargo = %{ delete $info->{cargo_args}} ;
-       warn "$config_class_name->$elt_name: parameter cargo_args is deprecated.\n";
+       $self->legacy("$config_class_name->$elt_name: parameter cargo_args is deprecated.");
     }
 
     $cargo{type} = $c_type;
 
     if (defined $info->{config_class_name}) {
 	$cargo{config_class_name} = delete $info->{config_class_name} ;
-	warn "$config_class_name->$elt_name: parameter config_class_name is ",
+	$self->legacy("$config_class_name->$elt_name: parameter config_class_name is ",
 	     "deprecated. This one must be specified within cargo. ",
-	     "Ie. cargo=>{config_class_name => 'FooBar'}\n";
+	     "Ie. cargo=>{config_class_name => 'FooBar'}");
     }
 
     $info->{cargo} = \%cargo ;
@@ -722,7 +736,7 @@ sub translate_name {
     my $to       = shift ;
 
     if (defined $info->{$from}) {
-	warn "$config_class_name->$elt_name: parameter $from is deprecated in favor of $to\n";
+	$self->legacy("$config_class_name->$elt_name: parameter $from is deprecated in favor of $to");
 	$info->{$to} = delete $info->{$from}  ;
     }
 }
@@ -741,8 +755,8 @@ sub translate_compute_info {
 	  Data::Dumper->Dump( [$compute_info ] , [qw/compute_info/ ]) ,"\n"
 	      if $::debug ;
 
-	warn "$config_class_name->$elt_name: specifying compute info with ",
-	  "an array ref is deprecated\n"; 
+	$self->legacy("$config_class_name->$elt_name: specifying compute info with ",
+	  "an array ref is deprecated"); 
 
 	my ($user_formula,%var) = @$compute_info ;
 	my $replace_h ;
@@ -784,15 +798,15 @@ sub translate_id_default_info {
     my $def_info = delete $info->{default} ;
     if (ref($def_info) eq 'HASH') {
 	$info->{default_with_init} = $def_info ;
-	warn $warn,"Use default_with_init\n" ;
+	$self->legacy($warn,"Use default_with_init") ;
     }
     elsif (ref($def_info) eq 'ARRAY') {
 	$info->{default_keys} = $def_info ;
-	warn $warn,"Use default_keys\n" ;
+	$self->legacy($warn,"Use default_keys") ;
     }
     else {
 	$info->{default_keys} = [ $def_info ] ;
-	warn $warn,"Use default_keys\n" ;
+	$self->legacy($warn,"Use default_keys") ;
     }
     print "translate_id_default_info $elt_name output:\n",
       Data::Dumper->Dump([$info ] , [qw/new_info/ ] ) ,"\n"

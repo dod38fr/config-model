@@ -18,7 +18,7 @@ ok(1,"Compilation done");
 
 $::verbose = 1 if $trace > 2;
 
-my $model = Config::Model->new() ;
+my $model = Config::Model->new(legacy => 'ignore',) ;
 $model ->create_config_class 
   (
    name => "Master",

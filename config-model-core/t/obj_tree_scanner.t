@@ -18,7 +18,7 @@ use Data::Dumper;
 
 use vars qw/$model/;
 
-$model = Config::Model -> new ;
+$model = Config::Model -> new (legacy => 'ignore',) ;
 
 sub disp_node_content {
     my ( $scanner, $data_r, $node, @element ) = @_;
@@ -245,7 +245,7 @@ is_deeply( [split /\n/,$result], [split /\n/,$expect], "check result" );
 
 # test dump of mandatory values
 
-my $model2 = Config::Model->new() ;
+my $model2 = Config::Model->new(legacy => 'ignore',) ;
 $model2 ->create_config_class 
   (
    name => "SomeRootClass",

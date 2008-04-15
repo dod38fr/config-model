@@ -31,7 +31,7 @@ my @args = (
     choice     => [qw/A B C/]
 );
 
-my $model = Config::Model->new() ;
+my $model = Config::Model->new(legacy => 'ignore',) ;
 $model ->create_config_class 
   (
    name => "Master",

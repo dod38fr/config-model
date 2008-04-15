@@ -22,7 +22,7 @@ Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 ok(1,"Compilation done");
 
 # minimal set up to get things working
-my $model = Config::Model->new() ;
+my $model = Config::Model->new(legacy => 'ignore',) ;
 $model ->create_config_class 
   (
    name => "Master",
