@@ -1,3 +1,8 @@
+2008-04-16  Dominique Dumont  <dominique.dumont@hp.com>
+
+	* AutoRead.pm (get_cfg_file_name): Do not use ':' in file
+	names. This breaks windows. Now use sub-directories
+
 2008-04-15  Dominique Dumont  <dominique.dumont@hp.com>
 
 	* Dumper.pm (dump_tree): skip undefined values in list element
