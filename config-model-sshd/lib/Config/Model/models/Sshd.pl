@@ -1,103 +1,27 @@
 [
           {
-            'level' => [
-                         'AcceptEnv',
-                         'normal',
-                         'AddressFamily',
-                         'normal',
-                         'AllowGroups',
-                         'normal',
-                         'AllowUsers',
-                         'normal',
-                         'AuthorizedKeysFile',
-                         'normal',
-                         'ChallengeResponseAuthentication',
-                         'normal',
-                         'Ciphers',
-                         'normal',
-                         'ClientAliveInterval',
-                         'hidden',
-                         'Match',
-                         'normal'
-                       ],
-            'status' => [
-                          'AcceptEnv',
-                          'standard',
-                          'AddressFamily',
-                          'standard',
-                          'AllowGroups',
-                          'standard',
-                          'AllowUsers',
-                          'standard',
-                          'AuthorizedKeysFile',
-                          'standard',
-                          'ChallengeResponseAuthentication',
-                          'standard',
-                          'Ciphers',
-                          'standard',
-                          'Match',
-                          'standard'
-                        ],
             'name' => 'Sshd',
-            'permission' => [
-                              'AcceptEnv',
-                              'intermediate',
-                              'AddressFamily',
-                              'intermediate',
-                              'AllowGroups',
-                              'intermediate',
-                              'AllowUsers',
-                              'intermediate',
-                              'AuthorizedKeysFile',
-                              'intermediate',
-                              'ChallengeResponseAuthentication',
-                              'intermediate',
-                              'Ciphers',
-                              'intermediate',
-                              'Match',
-                              'intermediate'
-                            ],
-            'include' => 'Sshd::MatchElement',
-            'description' => [
-                               'AcceptEnv',
-                               "Specifies what environment variables sent by the client will be copied into the session\x{2019}s environ(7).
-",
-                               'AddressFamily',
-                               'Specifies which address family should be used by sshd(8).
-',
-                               'AllowGroups',
-                               'Login is allowed only for users whose primary group or supplementary group list matches one of the patterns. Only group names are valid; a numerical group ID is not recognized. By default, login is allowed for all groups. The allow/deny directives are processed in the following order: DenyUsers, AllowUsers, DenyGroups, and finally AllowGroups.
-',
-                               'AllowUsers',
-                               'Login is allowed only for users whose primary group or supplementary group list matches one of the patterns. Only group names are valid; a numerical group ID is not recognized. By default, login is allowed for all groups. The allow/deny directives are processed in the following order: DenyUsers, AllowUsers, DenyGroups, and finally AllowGroups.
-',
-                               'AuthorizedKeysFile',
-                               'Specifies the file that contains the public keys that can be used for user authentication. AuthorizedKeysFile may contain tokens of the form %T which are substituted during connection setup.
-',
-                               'ChallengeResponseAuthentication',
-                               'Specifies whether challenge-response authentication is allowed. All authentication styles from login.conf(5) are supported.
-',
-                               'Ciphers',
-                               'Specifies the ciphers allowed for protocol version 2. By default, all ciphers are allowed.
-
-',
-                               'ClientAliveCheck',
-                               'Check if client is alive by sending client alive messages
-',
-                               'Match',
-                               ''
-                             ],
+            'include' => [
+                           'Sshd::MatchElement'
+                         ],
             'element' => [
                            'AcceptEnv',
                            {
+                             'cargo' => {
+                                          'value_type' => 'uniline',
+                                          'type' => 'leaf'
+                                        },
                              'type' => 'list',
-                             'cargo_type' => 'leaf'
+                             'description' => "Specifies what environment variables sent by the client will be copied into the session\x{2019}s environ(7).
+"
                            },
                            'AddressFamily',
                            {
                              'value_type' => 'enum',
                              'built_in' => 'any',
                              'type' => 'leaf',
+                             'description' => 'Specifies which address family should be used by sshd(8).
+',
                              'choice' => [
                                            'any',
                                            'inet',
@@ -106,35 +30,45 @@
                            },
                            'AllowGroups',
                            {
-                             'cargo_args' => {
-                                               'value_type' => 'uniline'
-                                             },
+                             'cargo' => {
+                                          'value_type' => 'uniline',
+                                          'type' => 'leaf'
+                                        },
                              'type' => 'list',
-                             'cargo_type' => 'leaf'
+                             'description' => 'Login is allowed only for users whose primary group or supplementary group list matches one of the patterns. Only group names are valid; a numerical group ID is not recognized. By default, login is allowed for all groups. The allow/deny directives are processed in the following order: DenyUsers, AllowUsers, DenyGroups, and finally AllowGroups.
+'
                            },
                            'AllowUsers',
                            {
-                             'cargo_args' => {
-                                               'value_type' => 'uniline'
-                                             },
+                             'cargo' => {
+                                          'value_type' => 'uniline',
+                                          'type' => 'leaf'
+                                        },
                              'type' => 'list',
-                             'cargo_type' => 'leaf'
+                             'description' => 'Login is allowed only for users whose primary group or supplementary group list matches one of the patterns. Only group names are valid; a numerical group ID is not recognized. By default, login is allowed for all groups. The allow/deny directives are processed in the following order: DenyUsers, AllowUsers, DenyGroups, and finally AllowGroups.
+'
                            },
                            'AuthorizedKeysFile',
                            {
                              'value_type' => 'uniline',
-                             'type' => 'leaf'
+                             'type' => 'leaf',
+                             'description' => 'Specifies the file that contains the public keys that can be used for user authentication. AuthorizedKeysFile may contain tokens of the form %T which are substituted during connection setup.
+'
                            },
                            'ChallengeResponseAuthentication',
                            {
                              'value_type' => 'boolean',
                              'built_in' => '1',
-                             'type' => 'leaf'
+                             'type' => 'leaf',
+                             'description' => 'Specifies whether challenge-response authentication is allowed. All authentication styles from login.conf(5) are supported.
+'
                            },
                            'Ciphers',
                            {
-                             'default_list' => [],
                              'type' => 'check_list',
+                             'description' => 'Specifies the ciphers allowed for protocol version 2. By default, all ciphers are allowed.
+
+',
                              'choice' => [
                                            '3des-cbc',
                                            'aes128-cbc',
@@ -154,11 +88,14 @@
                            {
                              'value_type' => 'boolean',
                              'default' => '0',
-                             'type' => 'leaf'
+                             'type' => 'leaf',
+                             'description' => 'Check if client is alive by sending client alive messages
+'
                            },
                            'ClientAliveInterval',
                            {
                              'value_type' => 'integer',
+                             'level' => 'hidden',
                              'min' => '1',
                              'warp' => {
                                          'follow' => {
@@ -176,7 +113,7 @@
                            'Match',
                            {
                              'type' => 'node',
-                             'config_class_name' => 'Sshd::MatchElement'
+                             'config_class_name' => 'Sshd::MatchBlock'
                            }
                          ]
           }
