@@ -24,7 +24,7 @@
   [
    name => "Itself::CargoElement",
 
-   include => 'Itself::WarpableCargoElement' ,
+   include => [ 'Itself::NonWarpableElement','Itself::WarpableCargoElement'] ,
    include_after => 'type',
 
    'element' 

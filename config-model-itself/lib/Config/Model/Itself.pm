@@ -228,7 +228,7 @@ sub read_all {
     map { $class_element->fetch_with_id($_) } keys %read_models ;
 
     #print Dumper \@read_models ;
-    #require Tk::ObjScanner; Tk::ObjScanner::scan_object(\@read_models) ;
+    #require Tk::ObjScanner; Tk::ObjScanner::scan_object(\%read_models) ;
     $model_obj->instance->push_no_value_check(qw/store fetch type/) if $force_load;
 
     $logger->info("loading all extracted data in Config::Model::Itself");
@@ -345,6 +345,59 @@ sub write_all {
     }
 
 }
+
+
+=head2 list_class_element
+
+Returns a string listing all the class and elements. Useful for
+debugging your configuration model.
+
+=cut
+
+sub list_class_element {
+    my $self = shift ;
+    my $pad  =  shift || '' ;
+
+    my $res = '';
+    my $meta_class = $self->{model_object}->fetch_element('class') ;
+    foreach my $class_name ($meta_class->get_all_indexes ) {
+	$res .= $self->list_one_class_element($class_name) ;
+    }
+    return $res ;
+}
+
+sub list_one_class_element {
+    my $self = shift ;
+    my $class_name = shift || return;
+    my $pad  =  shift || '' ;
+
+    my $res = $pad."Class: $class_name\n";
+    my $meta_class = $self->{model_object}->fetch_element('class')
+       -> fetch_with_id($class_name) ;
+
+    my @elts = $meta_class->fetch_element('element')->get_all_indexes ;
+
+    my @include = $meta_class->fetch_element('include')->fetch_all_values ;
+    my $inc_after = $meta_class->grab_value('include_after') ;
+
+    if (@include and not defined $inc_after) {
+	map { $res .= $self->list_one_class_element($_,$pad.'  ') ;} @include ;
+    }
+
+    return $res unless @elts ;
+
+    foreach my $elt_name ( @elts) {
+	my $type = $meta_class->grab_value("element:$elt_name type") ;
+
+	$res .= $pad."  - $elt_name ($type)\n";
+	if (@include and defined $inc_after and $inc_after eq $elt_name) {
+	    map { $res .=$self->list_one_class_element($_,$pad.'  ') ;} @include ;
+	}
+    }
+    return $res ;
+}
+
+
 1;
 
 __END__

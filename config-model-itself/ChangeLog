@@ -1,3 +1,8 @@
+2008-04-16  Dominique Dumont  <dominique.dumont@hp.com>
+
+	* lib/Config/Model/Itself.pm (list_class_element): new method to
+	help model debug
+
 2008-04-14  Dominique Dumont  <dominique.dumont@hp.com>
 
 	* lib/Config/Model/Itself.pm (read_all): Reworked model to fit with
