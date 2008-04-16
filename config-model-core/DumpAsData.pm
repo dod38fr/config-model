@@ -131,7 +131,8 @@ sub dump_as_data {
     my $check_list_element_cb = sub {
         my ( $scanner, $data_r, $node, $element_name, @check_items ) = @_;
 	my $a_ref = $node->fetch_element($element_name)->get_checked_list;
-	$$data_r = $a_ref ;
+	# don't store empty checklist
+	$$data_r = $a_ref if @$a_ref;
     };
 
     my $hash_element_cb = sub {
