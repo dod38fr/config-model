@@ -70,7 +70,6 @@ sub Populate {
     $cw->add_header(Edit => $hash) ;
 
     my $inst = $hash->instance ;
-    $inst->push_no_value_check('fetch') ;
 
     my $elt_button_frame = $cw->Frame->pack(@fbe1) ;
 
@@ -83,6 +82,7 @@ sub Populate {
 					 -height => 8,
 				       )
                             -> pack(@fbe1, -side => 'left') ;
+
     $tklist->insert( end => $hash->get_all_indexes) ;
 
     my $right_frame = $elt_button_frame->Frame->pack(@fxe1, -side => 'left');
@@ -182,6 +182,8 @@ sub add_entry {
 
     $logger->debug( "new hash idx: ". join(',',$hash->get_all_indexes));
 
+    $tklist -> selectionClear(0,'end') ;
+
     # ensure correct order for ordered hash
     my @selected = $tklist->curselection() ;
 
@@ -190,11 +192,16 @@ sub add_entry {
 	$logger->debug("add_entry on ordered hash: swap $idx and $add");
 	$hash->move_after($add, $idx) ;
 	$logger->debug( "new hash idx: ". join(',',$hash->get_all_indexes));
-	$tklist->insert($selected[0]+1 || 0,$add) ;
+	my $new_idx = $selected[0] + 1 ;
+	$tklist -> insert($new_idx,$add) ;
+	$tklist -> selectionSet($new_idx) ;
+	$tklist -> see($new_idx) ;
     }
     elsif ($hash->ordered) {
 	# without selection on ordered hash, items are simply pushed
-	$tklist->insert('end',$add) ;
+	$tklist -> insert('end',$add) ;
+	$tklist -> selectionSet('end') ;
+	$tklist -> see('end') ;
     }
     else {
 	$cw->add_and_sort_item($add) ;
@@ -212,15 +219,23 @@ sub add_and_sort_item {
     my $tklist = $cw->{tklist} ;
     my $idx = 0;
     my $added = 0 ;
+
     foreach ($tklist->get(0,'end')) {
 	if ($add lt $_) {
-	    $tklist->insert($idx,$add);
+	    $tklist -> insert($idx,$add);
+	    $tklist -> selectionSet($idx) ;
+	    $tklist -> see($idx) ;
 	    $added = 1 ;
 	    last;
 	}
 	$idx ++ ;
     }
-    $tklist->insert('end',$add) unless $added; # last entry
+
+    if (not $added) {
+	$tklist -> insert('end',$add); # last entry
+	$tklist -> selectionSet('end') ;
+	$tklist -> see('end') ;
+    }
 }
 
 sub add_item {
@@ -232,8 +247,9 @@ sub add_item {
 
     # add entry in tklist
     if ($hash->ordered) {
-	$tklist->insert('end',$add) ;
-    }
+	$tklist -> insert('end',$add) ;
+	$tklist -> selectionSet('end') ;
+	$tklist -> see('end') ;    }
     else {
 	# add the item so that items are ordered alphabetically
 	$cw->add_and_sort_item($add) ;
@@ -325,6 +341,7 @@ sub move_selected_up {
     my $new_idx = $idx[0] - 1 ;
     $tklist -> insert($new_idx, $name) ;
     $tklist -> selectionSet($new_idx) ;
+    $tklist -> see($new_idx) ;
 
     my $hash = $cw->{hash};
     $hash->move_up($name) ;
@@ -349,6 +366,7 @@ sub move_selected_down {
     my $new_idx = $idx[0] + 1 ;
     $tklist -> insert($new_idx, $name) ;
     $tklist -> selectionSet($new_idx) ;
+    $tklist -> see($new_idx) ;
 
     $hash->move_down($name) ;
     $logger->debug( "move_down new hash idx: ". join(',',$hash->get_all_indexes));

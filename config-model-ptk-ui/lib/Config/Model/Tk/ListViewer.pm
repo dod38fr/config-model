@@ -55,7 +55,6 @@ sub Populate {
     $cw->add_header(View => $list) ;
 
     my $inst = $list->instance ;
-    $inst->push_no_value_check('fetch') ;
 
     my $elt_frame = $cw->Frame(qw/-relief raised -borderwidth 4/)->pack(@fxe1) ;
     my $str =  $list->element_name.' '.$list->get_type .' elements' ;

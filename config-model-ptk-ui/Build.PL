@@ -39,6 +39,9 @@ my $build = Module::Build->new
 		'Tk::DirSelect'    => 0,
 		'Log::Log4perl'    => '1.11', # for TRACE log level
 	       },
+   recommends => {
+		  'Tk::ObjScanner' => 0, # for TkUI debug menu
+		 },
    add_to_cleanup => [qw/stderr.log wr_data/] ,
   );
 

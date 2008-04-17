@@ -52,7 +52,6 @@ sub Populate {
     delete $args->{-path} ;
 
     my $inst = $leaf->instance ;
-    $inst->push_no_value_check('fetch') ;
 
     $cw->add_header(Edit => $leaf) ;
 

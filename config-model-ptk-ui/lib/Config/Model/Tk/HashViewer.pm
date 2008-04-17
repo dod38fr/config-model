@@ -55,7 +55,6 @@ sub Populate {
     $cw->add_header(View => $hash) ;
 
     my $inst = $hash->instance ;
-    $inst->push_no_value_check('fetch') ;
 
     my $elt_frame = $cw->Frame(qw/-relief raised -borderwidth 4/)->pack(@fxe1) ;
     my $str =  $hash->element_name.' '.$hash->get_type .' elements' ;

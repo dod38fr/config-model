@@ -60,6 +60,8 @@ sub Populate {
     $logger->info("Creating leaf viewer for value_type $vt");
     my $v = $leaf->fetch ;
 
+    $inst->pop_no_value_check ;
+
     $cw->add_header(View => $leaf) ;
 
     my $lv_frame = $cw->Frame(qw/-relief raised -borderwidth 4/)->pack(@fxe1) ;

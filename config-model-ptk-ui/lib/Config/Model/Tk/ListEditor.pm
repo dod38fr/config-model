@@ -58,7 +58,6 @@ sub Populate {
     $cw->add_header(Edit => $list) ;
 
     my $inst = $list->instance ;
-    $inst->push_no_value_check('fetch') ;
 
     my $elt_button_frame = $cw->Frame->pack(@fbe1) ;
 

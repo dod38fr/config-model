@@ -1,3 +1,11 @@
+2008-04-17  Dominique Dumont  <dominique.dumont@hp.com>
+
+	* lib/Config/Model/Tk/HashEditor.pm: Select and show new items in
+	Listbox
+
+	* lib/Config/Model/TkUI.pm: Add debug menu (rely on
+	Tk::ObjScanner).  Bug fix related to configuration check
+
 2008-04-08  Dominique Dumont  <dominique.dumont@hp.com>
 
 	* TkUI CheckListEditor and Viewer: Reworked for better edition

@@ -115,6 +115,9 @@ sub Populate {
 		      [ qw/command save   -command/, sub{ $cw->save }],
 		      [ command => 'save in dir ...',
                         -command => sub{ $cw->save_in_dir ;} ],
+		      [ command => 'debug ...',
+                        -command => sub{ require Tk::ObjScanner; 
+					 Tk::ObjScanner::scan_object($cw->{root});}],
 		      [ qw/command quit   -command/, sub{ $cw->quit }],
 		     ] ;
     $menubar->cascade( -label => 'File', -menuitems => $file_items ) ; 
@@ -297,7 +300,7 @@ sub check {
     my $show = shift || 0 ;
 
     # first check for errors, will die on errors
-    $cw->{root}->dump_tree(auto_vivify => 1) ;
+    $cw->{root}->dump_tree(auto_vivify => 1, full_dump => 1) ;
 
     if ($show) {
 	$cw->Dialog(-title => 'Check',

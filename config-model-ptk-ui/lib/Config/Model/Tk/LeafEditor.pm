@@ -64,6 +64,8 @@ sub Populate {
     $cw->{value} = $leaf->fetch || '';
     my $vref = \$cw->{value};
 
+    $inst->pop_no_value_check ;
+
     my $v_frame =  $cw->Frame(qw/-relief raised -borderwidth 4/)->pack(@fxe1) ;
     $v_frame  -> Label(-text => 'Value') -> pack() ;
     my $ed_frame = $v_frame->Frame(qw/-relief sunken -borderwidth 1/)
