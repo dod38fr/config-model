@@ -37,7 +37,13 @@ $model ->create_config_class
 					    B => { default => 'Bv' }
 					  }
 				}
-		 }
+		 },
+    [qw/a_string a_long_string another_string/] 
+    => { type => 'leaf',
+	 mandatory => 1 ,
+	 value_type => 'string'
+       },
+
    ]
   );
 

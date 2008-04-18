@@ -1,3 +1,8 @@
+2008-04-18  Dominique Dumont  <dominique.dumont@hp.com>
+
+	* Node.pm (copy_from): No longer die when copying undefined
+	mandatory value.
+
 2008-04-16  Dominique Dumont  <dominique.dumont@hp.com>
 
 	* AutoRead.pm (get_cfg_file_name): Do not use ':' in file

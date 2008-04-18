@@ -1262,7 +1262,9 @@ are simply discarded.
 sub copy_from {
     my $self = shift ;
     my $from = shift ;
+    $self->instance->push_no_value_check('fetch') ;
     my $dump = $from->dump_tree() ;
+    $self->instance->pop_no_value_check ;
     print "node copy with '$dump'\n" if $::debug ;
     $self->load( step => $dump, check_store => 0 ) ;
 }
