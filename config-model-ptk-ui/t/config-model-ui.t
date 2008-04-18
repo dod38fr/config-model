@@ -75,6 +75,8 @@ ok( $root->load( step => $step, permission => 'advanced' ),
 
 #$root->load(step => "tree_macro=XZ", permission => 'advanced') ;
 
+$root->fetch_element('ordered_hash_of_mandatory')->fetch_with_id('foo') ;
+
 # use Tk::ObjScanner; Tk::ObjScanner::scan_object($root) ;
 
 my $toto ;

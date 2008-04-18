@@ -220,6 +220,7 @@ sub add_and_sort_item {
     my $idx = 0;
     my $added = 0 ;
 
+    $tklist -> selectionClear(0,'end') ;
     foreach ($tklist->get(0,'end')) {
 	if ($add lt $_) {
 	    $tklist -> insert($idx,$add);
@@ -247,6 +248,7 @@ sub add_item {
 
     # add entry in tklist
     if ($hash->ordered) {
+	$tklist -> selectionClear(0,'end') ;
 	$tklist -> insert('end',$add) ;
 	$tklist -> selectionSet('end') ;
 	$tklist -> see('end') ;    }
