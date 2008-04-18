@@ -161,6 +161,7 @@ $model -> create_config_class
        macro => {
 		 type => 'leaf',
 		 value_type => 'enum',
+		 mandatory => 1,
 		 choice     => [qw/A B C D/]
 		},
        macro2 => {

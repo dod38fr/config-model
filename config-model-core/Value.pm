@@ -1376,6 +1376,11 @@ The custom or preset or computed or default value. Will return undef
 if either of this value is identical to the built_in value. This
 feature is useful to reduce data to write in configuration file.
 
+=item allow_undef
+
+This mode will accept to return undef for mandatory values. Normally,
+trying to fetch an undefined manadatory value leads to an exception.
+
 =back
 
 
@@ -1402,6 +1407,7 @@ sub fetch {
     elsif (     $self->{mandatory}
 	    and $inst->get_value_check('fetch') 
 	    and (not $mode or $mode eq 'custom' )
+            and ($mode ne 'allow_undef')
 	    and (not defined $self->fetch_no_check() )
 	  ) {
 	# check only custom or "empty" mode. But undef custom value is

@@ -277,7 +277,7 @@ sub submit_to_warp {
 	if ($available) {
 	    # read the warp master values, so I can warp myself just
 	    # after.
-	    my $warper_value = $warper->fetch;
+	    my $warper_value = $warper->fetch('allow_undef');
 	    print "\t'$warper_name' value is: '", 
                   defined $warper_value ? $warper_value : '<undef>' ,"'\n"
 	      if $::debug;

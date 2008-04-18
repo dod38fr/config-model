@@ -1,5 +1,9 @@
 2008-04-18  Dominique Dumont  <dominique.dumont@hp.com>
 
+	* Value.pm (fetch): added 'allow_undef' mode to allow reading
+	undefined mandatory value (fix morphing warped node containing
+	undefined mandatory values)
+
 	* Node.pm (copy_from): No longer die when copying undefined
 	mandatory value.
 
