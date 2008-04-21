@@ -90,7 +90,7 @@ sub Populate {
 	  or croak "Missing $parm arg\n";
     }
 
-    foreach my $parm (qw/-store_sub/) {
+    foreach my $parm (qw/-store_sub -quit/) {
 	my $attr = $parm ;
 	$attr =~ s/^-//;
 	$cw->{$attr} = delete $args->{$parm} ;
@@ -109,6 +109,7 @@ sub Populate {
     require Tk::Menubutton ;
     my $menubar = $cw->Menu ;
     $cw->configure(-menu => $menubar ) ;
+    $cw->{my_menu} = $menubar ;
 
     my $file_items = [[ qw/command reload -command/, sub{ $cw->reload }],
 		      [ qw/command check  -command/, sub{ $cw->check(1)}],
@@ -200,6 +201,7 @@ sub Populate {
       ) ;
 
     $cw->Advertise(tree => $tree,
+		   menubar => $menubar,
 		   ed_frame => $cw->{e_frame} ,
 		  );
 
@@ -328,7 +330,7 @@ sub save {
     $cw->{modified_data} = 0 ;
 }
 
-sub quit {
+sub save_if_yes {
     my $cw =shift ;
 
     if ($cw->{modified_data}) {
@@ -339,8 +341,20 @@ sub quit {
 				)->Show ;
 	$cw->save if $answer eq 'yes';
     }
-    # destroy main window to exit Tk Mainloop;
-    $cw->parent->destroy ;
+}
+
+sub quit {
+    my $cw = shift ;
+
+    $cw->save_if_yes ;
+
+    if ($cw->{quit} eq 'soft') {
+	$cw->destroy ;
+    }
+    else {
+	# destroy main window to exit Tk Mainloop;
+	$cw->parent->destroy ;
+    }
 }
 
 sub reload {
@@ -749,7 +763,7 @@ configuration file only when C<File->save> menu is invoked.
 
 =head2 TODO
 
-Document widget options. (-root_model and -store_sub)
+Document widget options. (-root_model and -store_sub, -quit)
 
 =head1 AUTHOR
 
