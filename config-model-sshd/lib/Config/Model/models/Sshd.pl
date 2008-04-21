@@ -412,7 +412,7 @@ Alternatively, random early drop can be enabled by specifying the three colon se
                            'PermitUserEnvironment',
                            {
                              'value_type' => 'boolean',
-                             'built_in' => 'no',
+                             'built_in' => '0',
                              'type' => 'leaf',
                              'description' => "Specifies whether ~/.ssh/environment and environment= options in ~/.ssh/authorized_keys are processed by sshd(8). The default is \x{201c}no\x{201d}. Enabling environment processing may enable users to bypass access restrictions in some configurations using mechanisms such as LD_PRELOAD.
 "
