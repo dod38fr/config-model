@@ -1,3 +1,9 @@
+2008-04-21  Dominique Dumont  <dominique.dumont@hp.com>
+
+	* config-model-edit: Will now always launch Tk interface which has
+	a menu to test the configuration editor from the model under edition.
+	(some tests still to be written)
+
 2008-04-16  Dominique Dumont  <dominique.dumont@hp.com>
 
 	* lib/Config/Model/Itself.pm (list_class_element): new method to

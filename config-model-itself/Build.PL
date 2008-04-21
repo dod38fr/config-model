@@ -38,8 +38,6 @@ my $build = Module::Build->new
    requires      => {
 		     'Config::Model'   => '0.621',
 		     'Log::Log4perl'   => 0 ,
-		    },
-   recommends    => {
 		     'Config::Model::TkUI' => 0,
 		    },
    script_files  => [ 'config-model-edit' ],

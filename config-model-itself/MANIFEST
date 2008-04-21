@@ -11,6 +11,7 @@ data/MasterModel/WarpedId.pl
 data/MasterModel/WarpedValues.pl
 data/MasterModel/X_base_class.pl
 lib/Config/Model/Itself.pm
+lib/Config/Model/Itself/TkEditUI.pm
 lib/Config/Model/models/Itself/CargoElement.pl
 lib/Config/Model/models/Itself/CargoWarpRule.pl
 lib/Config/Model/models/Itself/CargoWarpValue.pl
@@ -19,7 +20,7 @@ lib/Config/Model/models/Itself/CommonElement.pl
 lib/Config/Model/models/Itself/ComputedValue.pl
 lib/Config/Model/models/Itself/Element.pl
 lib/Config/Model/models/Itself/Model.pl
-lib/Config/Model/models/Itself/NonWarpableElement.pl.pl
+lib/Config/Model/models/Itself/NonWarpableElement.pl
 lib/Config/Model/models/Itself/WarpOnlyElement.pl
 lib/Config/Model/models/Itself/WarpRule.pl
 lib/Config/Model/models/Itself/WarpValue.pl
