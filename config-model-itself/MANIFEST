@@ -27,6 +27,7 @@ lib/Config/Model/models/Itself/WarpValue.pl
 lib/Config/Model/models/Itself/WarpableCargoElement.pl
 lib/Config/Model/models/Itself/WarpableElement.pl
 t/itself.t
+t/itself-editor.t
 t/list_itself_structure.t
 t/load_write_itself.t
 t/pod.t
