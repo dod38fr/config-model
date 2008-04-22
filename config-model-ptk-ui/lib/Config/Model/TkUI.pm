@@ -228,11 +228,9 @@ my $todo_text = << 'EOF' ;
 - add wizard
 - add better navigation
 - add tabular view ?
-- decide what to do with the 'Try ??' button
 - improve look and feel
 - add search element or search value
-- improve look and feel
-- expand the tree at once
+- expand the whole tree at once
 - add plug-in mechanism so that dedicated widget
   can be used for some config Class (Could be handy for 
   Xorg::ServerLayout)
@@ -302,12 +300,43 @@ sub check {
     my $show = shift || 0 ;
 
     # first check for errors, will die on errors
-    $cw->{root}->dump_tree(auto_vivify => 1, full_dump => 1) ;
+    eval { $cw->{root}->dump_tree(auto_vivify => 1, full_dump => 1) } ;
 
-    if ($show) {
+    if ($@) {
+	$cw->handle_error($@) ;
+    } 
+    elsif ($show) {
 	$cw->Dialog(-title => 'Check',
 		    -text => "No errors found"
 		   ) -> Show ;
+    }
+}
+
+sub handle_error {
+    my $cw = shift;
+    my $e_obj = shift ;
+    my $mode = shift || '' ;
+
+    my @buttons = qw/ok/ ;
+    push @buttons, 'trace' unless $mode eq 'trace' ;
+
+    my $d = $cw->DialogBox(-title => 'Error',
+			   -buttons => \@buttons,
+			  ) ;
+
+    if ($mode eq 'trace') {
+	my $t = $d->add('ROText') -> pack;
+	$t->insert(end => $e_obj->trace->as_string);
+    }
+    else {
+	$d->add('Label',
+		-text => $e_obj-> as_string ) -> pack ;
+    }
+
+    my $answer = $d -> Show ;
+
+    if ($answer =~ /trace/) {
+	$cw->handle_error($e_obj,$answer) ;
     }
 }
 
@@ -348,7 +377,7 @@ sub quit {
 
     $cw->save_if_yes ;
 
-    if ($cw->{quit} eq 'soft') {
+    if (defined $cw->{quit} and $cw->{quit} eq 'soft') {
 	$cw->destroy ;
     }
     else {
@@ -384,7 +413,6 @@ sub reload {
     $sub->(0) ; # the parameter indicates that we are not opening the root
 }
 
-
 # call-back when Tree element is selected
 sub on_browse {
     my ($cw,$path) = @_ ;
@@ -402,9 +430,18 @@ sub on_select {
 }
 
 
-# replace dot in str by ___
+# replace dot in str by _|_
 sub to_path   { my $str  = shift ; $str  =~ s/\./_|_/g; return $str ;}
 sub from_path { my $path = shift ; $path =~ s/_|_/./g ; return $path; }
+
+sub force_element_display {
+    my $cw   = shift ;
+    my $elt_obj = shift ;
+
+    $logger->trace( "force display of ".$elt_obj->location );
+    $cw->{force_display} = $elt_obj ;
+    $cw->reload ;
+}
 
 sub prune {
     my $cw = shift ;
@@ -444,6 +481,10 @@ sub disp_obj_elt {
 
     $cw->prune($path,@element_list) ;
 
+    my $fdp ;
+    $fdp = $cw->{force_display}->location if defined $cw->{force_display};
+    my $node_loc = $node->location ;
+
     my $prevpath = '' ;
     foreach my $elt (@element_list) { 
 	my $newpath = "$path." . to_path($elt) ;
@@ -471,7 +512,11 @@ sub disp_obj_elt {
 	}
 	# counterintuitive but right: scan will be done when the entry
 	# is opened
-	$scan_sub->(0) if ($opening or $mode ne 'open') ; 
+	my $elt_loc = $node_loc ? $node_loc.' '.$elt : $elt ;
+
+	print "n fdp '$fdp' elt_loc '$elt_loc'\n" if defined $fdp;
+	$scan_sub->(0) if ($opening or $mode ne 'open'
+			  or (defined $fdp and index($fdp,$elt_loc) == 0)) ; 
 	$prevpath = $newpath ;
     } ;
 }
@@ -487,6 +532,10 @@ sub disp_hash {
 
     my $elt = $node -> fetch_element($element_name) ;
     my $elt_type = $elt->get_cargo_type();
+
+    my $fdp ;
+    $fdp = $cw->{force_display}->location if defined $cw->{force_display};
+    my $node_loc = $node->location ;
 
     my $prevpath = '' ;
     my $idx_nb = 0 ; # used to keep track of tktree item order
@@ -526,7 +575,15 @@ sub disp_hash {
 
 	my $idx_mode = $tkt->getmode($newpath) ;
 	$logger->trace( "disp_hash   sub path $newpath is mode $idx_mode" );
-	$scan_sub->(0) if ($opening or $idx_mode ne 'open') ;
+
+	my $elt_loc = $node_loc ;
+	$elt_loc .=' ' if $elt_loc;
+	$elt_loc .= $element_name.':'.($idx =~ / / ? '"'.$idx.'"' : $idx);
+	$logger->trace( "disp_hash   sub path $newpath is mode $idx_mode" );
+
+	print "h fdp '$fdp' elt_loc '$elt_loc'\n" if defined $fdp;
+	$scan_sub->(0) if ($opening or $mode ne 'open'
+			  or (defined $fdp and index($fdp,$elt_loc) == 0)) ; 
 
 	$prevpath = $newpath ;
 	$idx_nb++ ;
