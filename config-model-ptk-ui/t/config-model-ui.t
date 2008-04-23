@@ -102,6 +102,11 @@ SKIP: {
     my $tktree= $cmu->Subwidget('tree') ;
     my $mgr   = $cmu->Subwidget('multi_mgr') ;
 
+    my @force_test 
+      = (
+	 sub { $cmu->force_element_display($root->grab('std_id:dd DX')) },
+	) ;
+
     my @test 
       = (
 	 sub { $cmu->create_element_widget('view','test1')},
@@ -109,7 +114,6 @@ SKIP: {
 	 sub { $cmu->create_element_widget('edit','test1.std_id');},
 	 sub { $cmu->{editor}->add_entry('e')},
 	 sub { $tktree->open('test1.std_id') },
-	 sub { $cmu->force_element_display($root->grab('std_id:dd DX')) },
 	 sub { $cmu->reload} ,
 	 sub { $cmu->create_element_widget('view','test1.std_id')},
 	 sub { $cmu->create_element_widget('edit','test1.std_id')},
@@ -133,6 +137,11 @@ SKIP: {
 	 sub { $cmu->create_element_widget('edit','test1.my_reference')},
 	 sub { exit; }
 	);
+
+    foreach my $t (@force_test) {
+	$mw->after($delay, $t);
+	inc_d ;
+    }
 
     unless ($show) {
 	foreach my $t (@test) {
