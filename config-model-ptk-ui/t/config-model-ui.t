@@ -104,6 +104,7 @@ SKIP: {
 
     my @force_test 
       = (
+	 sub { $cmu->reload} ,
 	 sub { $cmu->force_element_display($root->grab('std_id:dd DX')) },
 	) ;
 

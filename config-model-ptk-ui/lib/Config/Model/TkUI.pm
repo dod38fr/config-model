@@ -410,22 +410,27 @@ sub reload {
 	$tree->open($instance_name) ;
     }
 
-    $sub->(0) ; # the parameter indicates that we are not opening the root
+    $sub->(1) ; # the parameter indicates that we are opening the root
 }
 
 # call-back when Tree element is selected
 sub on_browse {
     my ($cw,$path) = @_ ;
+    $cw->update_loc_bar($path) ;
+    $cw->create_element_widget('view') ;
+}
+
+sub update_loc_bar {
+    my ($cw,$path) = @_ ;
     #$cw->{path}=$path ;
     my $datar = $cw->{tktree}->infoData($path) ;
     my $obj = $datar->[1] ;
     $cw->{location} = $obj->location;
-    $cw->create_element_widget('view') ;
 }
 
 sub on_select {
     my ($cw,$path) = @_ ;
-    $cw->on_browse($path) ;
+    $cw->update_loc_bar($path) ;
     $cw->create_element_widget('edit') ;
 }
 
@@ -472,14 +477,13 @@ my %elt_mode = ( leaf => 'none',
 		 warped_node => 'open',
 	       );
 
-# TBD remove $opening stuff
-
 sub disp_obj_elt {
     my ($scanner, $data_ref,$node,@element_list) = @_ ;
     my ($path,$cw,$opening) = @$data_ref ;
     my $tkt = $cw->{tktree} ;
     my $mode = $tkt -> getmode($path) ;
-    $logger->trace( "disp_obj_elt path $path mode $mode (@element_list)" );
+    $logger->trace("disp_obj_elt path $path mode $mode opening $opening "
+		   ."(@element_list)" );
 
     $cw->prune($path,@element_list) ;
 
@@ -502,34 +506,27 @@ sub disp_obj_elt {
 	weaken( $data[1] );
 
 	my $elt_type = $node->element_type($elt) ;
-	my $newmode = $elt_mode{$elt_type};
+	my $eltmode = $elt_mode{$elt_type};
 	my $elt_loc = $node_loc ? $node_loc.' '.$elt : $elt ;
-	my $force_open = (defined $fdp and index($fdp,$elt_loc) == 0) ? 1 : 0 ; 
+	my $force_open  = (defined $fdp and index($fdp,$elt_loc) == 0) ? 1 : 0;
+	my $force_match = (defined $fdp and $fdp eq $elt_loc )         ? 1 : 0;
 
-	unless ($tkt->infoExists($newpath)) {
-	    my @opt = $prevpath ? (-after => $prevpath) : (-at => 0 ) ;
-	    $logger->trace( "disp_obj_elt add $newpath mode $newmode type $elt_type" );
-	    $tkt->add($newpath, -data => \@data, @opt) ;
-	    $tkt->itemCreate($newpath,0, -text => $elt) ;
-	    #$tkt -> setmode($newpath => $newmode) ;
-	    # hide new entry if node is not yet opened
-	    #$tkt->hide(-entry => $newpath) if ($mode eq 'open' and not $force_open) ;
-	}
-
-	if ($newmode ne 'open' or $force_open or $opening ) {
-	    $tkt->show(-entry => $newpath);
-	    $tkt -> setmode($newpath => 'close') if($force_open and $newmode ne 'none') ;
+	if ($tkt->infoExists($newpath)) {
+	    $eltmode = $tkt->getmode($newpath); # will reuse mode below
 	}
 	else {
-	    $tkt->hide( -entry => $newpath) ;
+	    my @opt = $prevpath ? (-after => $prevpath) : (-at => 0 ) ;
+	    $logger->trace( "disp_obj_elt add $newpath mode $eltmode type $elt_type" );
+	    $tkt -> add($newpath, -data => \@data, @opt) ;
+	    $tkt -> itemCreate($newpath,0, -text => $elt) ;
+	    $tkt -> setmode($newpath => $eltmode) ;
 	}
-	# counterintuitive but right: scan will be done when the entry
-	# is opened
 
-	print "n fdp '$fdp' elt_loc '$elt_loc',  opening $opening newmode $newmode force_open $force_open \n" 
-	  if defined $fdp;
-	# mode can be open, close, none
-	$scan_sub->($force_open) if ( ($newmode ne 'open') or $force_open) ; 
+	$logger->trace("node: elt_loc $elt_type '$elt_loc', opening $opening "
+		       ."eltmode $eltmode force_open $force_open" ) ;
+
+	$cw->setmode($newpath,$eltmode,$force_open,$force_match,$opening,$scan_sub) ;
+
 	$prevpath = $newpath ;
     } ;
 }
@@ -558,14 +555,14 @@ sub disp_hash {
 	    $scanner->scan_hash([$newpath,$cw,@_],$node, $element_name,$idx);
 	};
 
-	my $newmode = $elt_mode{$elt_type};
+	my $eltmode = $elt_mode{$elt_type};
 
 	if ($tkt->infoExists($newpath) ) {
 	    my $previous_data = $tkt->info(data => $newpath);
 	    my $previous_idx_nb = $previous_data->[2] ;
 	    if ($idx_nb != $previous_idx_nb) {
-		$newmode = $tkt->getmode($newpath); # will reuse mode below
-		$logger->trace( "disp_hash delete $newpath mode $newmode (got "
+		$eltmode = $tkt->getmode($newpath); # will reuse mode below
+		$logger->trace( "disp_hash delete $newpath mode $eltmode (got "
 				.$previous_idx_nb
 				." expected $idx_nb)" );
 		# wrong order, delete the entry
@@ -576,40 +573,52 @@ sub disp_hash {
 	my $elt_loc = $node_loc ;
 	$elt_loc .=' ' if $elt_loc;
 	$elt_loc .= $element_name.':'.($idx =~ / / ? '"'.$idx.'"' : $idx);
-	my $force_open = (defined $fdp and index($fdp,$elt_loc) == 0) ? 1 : 0 ; 
+	my $force_open  = (defined $fdp and index($fdp,$elt_loc) == 0) ? 1 : 0 ; 
+	my $force_match = (defined $fdp and $fdp eq $elt_loc )         ? 1 : 0;
 
 	if (not $tkt->infoExists($newpath)) {
 	    my @opt = $prevpath ? (-after => $prevpath) : (-at => 0 ) ;
-	    $logger->trace( "disp_hash add $newpath mode $newmode cargo_type $elt_type" );
+	    $logger->trace( "disp_hash add $newpath mode $eltmode cargo_type $elt_type" );
 	    my @data = ( $scan_sub, $elt->fetch_with_id($idx), $idx_nb );
 	    weaken($data[1]) ;
 	    $tkt->add($newpath, -data => \@data, @opt) ;
 	    $tkt->itemCreate($newpath,0, -text => $idx ) ;
-	    $tkt -> setmode($newpath => $newmode) ;
-	    #my $curmode = $tkt->getmode($path);
+	    $tkt -> setmode($newpath => $eltmode) ;
 	}
+
+	$logger->trace("hash: elt $elt_type '$elt_loc' , opening $opening "
+	  ."eltmode $eltmode force_open $force_open");
 
 	# hide new entry if hash is not yet opened
-	if ($newmode ne 'open' or $force_open or $opening ) {
-	    $tkt->show( -entry => $newpath);
-	    $tkt -> setmode($newpath => 'close') if($force_open and $newmode ne 'none');
-	}
-	else {
-	    #$tkt->hide( -entry => $newpath) ;
-	    $tkt->close($newpath) ;
-	}
-	#$tkt->hide(-entry => $newpath) if ($mode eq 'open' and not $force_open);
-
-	my $idx_mode = $tkt->getmode($newpath) ;
-	$logger->trace( "disp_hash   sub path $newpath is mode $idx_mode" );
-
-	print "h fdp '$fdp' elt_loc '$elt_loc', opening $opening newmode $newmode force_open $force_open\n"
-	  if defined $fdp;
-	$scan_sub->($force_open) if ( ($newmode ne 'open') or $force_open) ; 
+	$cw->setmode($newpath,$eltmode,$force_open,$force_match,$opening,$scan_sub) ;
 
 	$prevpath = $newpath ;
 	$idx_nb++ ;
     } ;
+}
+
+sub setmode {
+    my ($cw,$newpath,$eltmode,$force_open,$force_match,$opening,$scan_sub) = @_ ;
+    my $tkt = $cw->{tktree} ;
+    if ($eltmode ne 'open' or $force_open or $opening ) {
+	$tkt->show( -entry => $newpath);
+	# counter-intuitive: want to display [-] if force opening and not leaf item
+	$tkt -> setmode($newpath => 'close') if($force_open and $eltmode ne 'none');
+    }
+    else {
+	$tkt->close($newpath) ;
+    }
+
+    # counterintuitive but right: scan will be done when the entry
+    # is opened. mode can be open, close, none
+    $scan_sub->($force_open) if ( ($eltmode ne 'open') or $force_open) ; 
+
+    if ($force_match) {
+	$tkt->see($newpath);
+	$tkt->selectionSet($newpath) ;
+	$cw->update_loc_bar($newpath) ;
+	$cw->create_element_widget('edit',$newpath) ;
+    }
 }
 
 sub trim_value {
