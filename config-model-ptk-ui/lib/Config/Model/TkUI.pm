@@ -318,6 +318,10 @@ sub handle_error {
     my $mode = shift || '' ;
 
     my @buttons = qw/ok/ ;
+
+    my $conf_obj = $e_obj->object ;
+    push @buttons, 'edit' if defined $conf_obj ;
+
     push @buttons, 'trace' unless $mode eq 'trace' ;
 
     my $d = $cw->DialogBox(-title => 'Error',
@@ -335,8 +339,11 @@ sub handle_error {
 
     my $answer = $d -> Show ;
 
-    if ($answer =~ /trace/) {
+    if ($answer eq 'trace') {
 	$cw->handle_error($e_obj,$answer) ;
+    }
+    elsif ($answer eq 'edit') {
+	$cw->force_element_display($conf_obj) ;
     }
 }
 
@@ -389,7 +396,11 @@ sub quit {
 sub reload {
     my $cw =shift ;
     my $is_modif = shift || 0;
-    $logger->debug("reloading tk tree") ;
+    my $force_display_obj = shift ;
+
+    $logger->trace("reloading tk tree".
+		   (defined $force_display_obj ? " (forcedisplay)" : '' )
+		  ) ;
 
     my $tree = $cw->{tktree} ;
     $cw->{modified_data} = 1 if $is_modif ;
@@ -410,7 +421,8 @@ sub reload {
 	$tree->open($instance_name) ;
     }
 
-    $sub->(1) ; # the parameter indicates that we are opening the root
+    # the first parameter indicates that we are opening the root
+    $sub->(1,$force_display_obj) ; 
 }
 
 # call-back when Tree element is selected
@@ -444,8 +456,7 @@ sub force_element_display {
     my $elt_obj = shift ;
 
     $logger->trace( "force display of ".$elt_obj->location );
-    $cw->{force_display} = $elt_obj ;
-    $cw->reload ;
+    $cw->reload(0, $elt_obj) ;
 }
 
 sub prune {
@@ -479,7 +490,7 @@ my %elt_mode = ( leaf => 'none',
 
 sub disp_obj_elt {
     my ($scanner, $data_ref,$node,@element_list) = @_ ;
-    my ($path,$cw,$opening) = @$data_ref ;
+    my ($path,$cw,$opening,$fdp_obj) = @$data_ref ;
     my $tkt = $cw->{tktree} ;
     my $mode = $tkt -> getmode($path) ;
     $logger->trace("disp_obj_elt path $path mode $mode opening $opening "
@@ -487,8 +498,6 @@ sub disp_obj_elt {
 
     $cw->prune($path,@element_list) ;
 
-    my $fdp ;
-    $fdp = $cw->{force_display}->location if defined $cw->{force_display};
     my $node_loc = $node->location ;
 
     my $prevpath = '' ;
@@ -507,10 +516,6 @@ sub disp_obj_elt {
 
 	my $elt_type = $node->element_type($elt) ;
 	my $eltmode = $elt_mode{$elt_type};
-	my $elt_loc = $node_loc ? $node_loc.' '.$elt : $elt ;
-	my $force_open  = (defined $fdp and index($fdp,$elt_loc) == 0) ? 1 : 0;
-	my $force_match = (defined $fdp and $fdp eq $elt_loc )         ? 1 : 0;
-
 	if ($tkt->infoExists($newpath)) {
 	    $eltmode = $tkt->getmode($newpath); # will reuse mode below
 	}
@@ -522,10 +527,9 @@ sub disp_obj_elt {
 	    $tkt -> setmode($newpath => $eltmode) ;
 	}
 
-	$logger->trace("node: elt_loc $elt_type '$elt_loc', opening $opening "
-		       ."eltmode $eltmode force_open $force_open" ) ;
+	my $elt_loc = $node_loc ? $node_loc.' '.$elt : $elt ;
 
-	$cw->setmode($newpath,$eltmode,$force_open,$force_match,$opening,$scan_sub) ;
+	$cw->setmode('node',$newpath,$eltmode,$elt_loc,$fdp_obj,$opening,$scan_sub) ;
 
 	$prevpath = $newpath ;
     } ;
@@ -533,7 +537,7 @@ sub disp_obj_elt {
 
 sub disp_hash {
     my ($scanner, $data_ref,$node,$element_name,@idx) = @_ ;
-    my ($path,$cw,$opening) = @$data_ref ;
+    my ($path,$cw,$opening,$fdp_obj) = @$data_ref ;
     my $tkt = $cw->{tktree} ;
     my $mode = $tkt -> getmode($path) ;
     $logger->trace( "disp_hash    path is $path  mode $mode (@idx)" );
@@ -543,8 +547,6 @@ sub disp_hash {
     my $elt = $node -> fetch_element($element_name) ;
     my $elt_type = $elt->get_cargo_type();
 
-    my $fdp ;
-    $fdp = $cw->{force_display}->location if defined $cw->{force_display};
     my $node_loc = $node->location ;
 
     my $prevpath = '' ;
@@ -570,12 +572,6 @@ sub disp_hash {
 	    }
 	}
 
-	my $elt_loc = $node_loc ;
-	$elt_loc .=' ' if $elt_loc;
-	$elt_loc .= $element_name.':'.($idx =~ / / ? '"'.$idx.'"' : $idx);
-	my $force_open  = (defined $fdp and index($fdp,$elt_loc) == 0) ? 1 : 0 ; 
-	my $force_match = (defined $fdp and $fdp eq $elt_loc )         ? 1 : 0;
-
 	if (not $tkt->infoExists($newpath)) {
 	    my @opt = $prevpath ? (-after => $prevpath) : (-at => 0 ) ;
 	    $logger->trace( "disp_hash add $newpath mode $eltmode cargo_type $elt_type" );
@@ -586,11 +582,12 @@ sub disp_hash {
 	    $tkt -> setmode($newpath => $eltmode) ;
 	}
 
-	$logger->trace("hash: elt $elt_type '$elt_loc' , opening $opening "
-	  ."eltmode $eltmode force_open $force_open");
+	my $elt_loc = $node_loc ;
+	$elt_loc .=' ' if $elt_loc;
+	$elt_loc .= $element_name.':'.($idx =~ / / ? '"'.$idx.'"' : $idx);
 
 	# hide new entry if hash is not yet opened
-	$cw->setmode($newpath,$eltmode,$force_open,$force_match,$opening,$scan_sub) ;
+	$cw->setmode('hash',$newpath,$eltmode,$elt_loc,$fdp_obj,$opening,$scan_sub) ;
 
 	$prevpath = $newpath ;
 	$idx_nb++ ;
@@ -598,8 +595,19 @@ sub disp_hash {
 }
 
 sub setmode {
-    my ($cw,$newpath,$eltmode,$force_open,$force_match,$opening,$scan_sub) = @_ ;
+    my ($cw,$type,$newpath,$eltmode,$elt_loc,$fdp_obj,$opening,$scan_sub) = @_ ;
     my $tkt = $cw->{tktree} ;
+
+    my $fdp = defined $fdp_obj ? $fdp_obj->location : '';
+
+    my $force_open  = ($fdp and index($fdp,$elt_loc) == 0) ? 1 : 0 ; 
+    my $force_match = ($fdp and $fdp eq $elt_loc )         ? 1 : 0;
+
+    $logger->trace("$type: elt_loc '$elt_loc', opening $opening "
+		   ."eltmode $eltmode force_open $force_open "
+		   . ($fdp ? "on $fdp" : '' ) 
+		  ) ;
+
     if ($eltmode ne 'open' or $force_open or $opening ) {
 	$tkt->show( -entry => $newpath);
 	# counter-intuitive: want to display [-] if force opening and not leaf item
@@ -611,7 +619,7 @@ sub setmode {
 
     # counterintuitive but right: scan will be done when the entry
     # is opened. mode can be open, close, none
-    $scan_sub->($force_open) if ( ($eltmode ne 'open') or $force_open) ; 
+    $scan_sub->($force_open,$fdp_obj) if ( ($eltmode ne 'open') or $force_open) ; 
 
     if ($force_match) {
 	$tkt->see($newpath);
@@ -634,7 +642,7 @@ sub trim_value {
 
 sub disp_check_list {
     my ($scanner, $data_ref,$node,$element_name,$index, $leaf_object) =@_;
-    my ($path,$cw,$opening) = @$data_ref ;
+    my ($path,$cw,$opening,$fdp_obj) = @$data_ref ;
     $logger->trace( "disp_check_list    path is $path" );
 
     my $value = $leaf_object->fetch ;
@@ -647,7 +655,7 @@ sub disp_check_list {
 
 sub disp_leaf {
     my ($scanner, $data_ref,$node,$element_name,$index, $leaf_object) =@_;
-    my ($path,$cw,$opening) = @$data_ref ;
+    my ($path,$cw,$opening,$fdp_obj) = @$data_ref ;
     $logger->trace( "disp_leaf    path is $path" );
 
     my $std_v = $leaf_object->fetch('standard') ;
@@ -679,7 +687,7 @@ sub disp_leaf {
 
 sub disp_node {
     my ($scanner, $data_ref,$node,$element_name,$key, $contained_node) = @_;
-    my ($path,$cw,$opening) = @$data_ref ;
+    my ($path,$cw,$opening,$fdp_obj) = @$data_ref ;
     $logger->trace( "disp_node    path is $path" );
     my $curmode = $cw->{tktree}->getmode($path);
     $cw->{tktree}->setmode($path,'open') if $curmode eq 'none';
