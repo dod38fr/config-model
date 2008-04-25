@@ -67,7 +67,7 @@ sub Populate {
 
     my $tklist = $elt_frame ->Scrolled ( 'Listbox',
 					 -selectmode => 'single',
-					 -scrollbars => 'osoe',
+					 -scrollbars => 'oe',
 					 -height => 8,
 				       )
                             -> pack(@fbe1, -side => 'left') ;

@@ -61,6 +61,7 @@ sub Populate {
     $elt_frame -> Label(-text => $str) -> pack() ;
 
     my $rt = $elt_frame ->Scrolled ( 'ROText',
+				     -scrollbars => 'oe',
 				     -height => 10,
 				   ) ->pack(@fbe1) ;
 

@@ -60,13 +60,13 @@ sub add_header {
 
     my $label = "$type: Class $class";
     $label .= "- Element $elt_name" if defined $parent ;
-    my $f = $cw -> Frame -> pack (@fxe1);
+    my $f = $cw -> Frame -> pack (@fx);
 
-    $f -> Label ( -text => $label, -anchor => 'w' )
-       -> pack  (-side => 'left', @fxe1);
-
-    $f -> Label (-image => $img{lc($type)} , -anchor => 'e') 
+    $f -> Label (-image => $img{lc($type)} , -anchor => 'w') 
       -> pack (-side => 'left');
+
+    $f -> Label ( -text => $label, -anchor => 'e' )
+       -> pack  (-side => 'left', @fx);
 }
 
 my @top_frame_args = qw/-relief raised -borderwidth 4/ ;
@@ -95,10 +95,10 @@ sub add_info_frame {
 sub add_help_frame {
     my $cw = shift ;
 
-    my $htop_frame = $cw->Frame()->pack(@fxe1) ;
+    my $htop_frame = $cw->Frame()->pack(@fx) ;
     $htop_frame -> Label(-text => 'Help', -anchor => 'w' ) ->pack(@fx) ;
 
-    $cw->{help_f} = $htop_frame->Frame()->pack(@fxe1) ;
+    $cw->{help_f} = $htop_frame->Frame()->pack(@fx) ;
 }
 
 sub add_help {
@@ -108,7 +108,7 @@ sub add_help {
 
     my $help_frame = $cw->{help_f} -> Frame(
 					    -padx => $padx ,
-					   )->pack(@fxe1);
+					   )->pack(@fx);
 
     $help_frame->Label(-text => "on $type: ", 
 		       -font => $text_font 
