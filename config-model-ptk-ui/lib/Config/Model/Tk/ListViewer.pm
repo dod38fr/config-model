@@ -56,7 +56,7 @@ sub Populate {
 
     my $inst = $list->instance ;
 
-    my $elt_frame = $cw->Frame(qw/-relief raised -borderwidth 4/)->pack(@fxe1) ;
+    my $elt_frame = $cw->Frame(qw/-relief raised -borderwidth 2/)->pack(@fxe1) ;
     my $str =  $list->element_name.' '.$list->get_type .' elements' ;
     $elt_frame -> Label(-text => $str) -> pack() ;
 

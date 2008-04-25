@@ -57,6 +57,7 @@ sub Populate {
     $cw->add_header(View => $leaf) ;
 
     my $rt = $cw->Scrolled ( 'ROText',
+			     -scrollbars => 'osoe',
 			     -height => 10,
 			   ) ->pack(@fbe1) ;
     $rt->tagConfigure('in',-background => 'black', -foreground => 'white') ;

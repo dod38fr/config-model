@@ -61,12 +61,13 @@ sub Populate {
 
     my $elt_button_frame = $cw->Frame->pack(@fbe1) ;
 
-    my $elt_frame = $elt_button_frame->Frame(qw/-relief raised -borderwidth 4/)
+    my $elt_frame = $elt_button_frame->Frame(qw/-relief raised -borderwidth 2/)
                                      ->pack(@fxe1,-side => 'left') ;
     $elt_frame -> Label(-text => $list->element_name.' elements') -> pack() ;
 
     my $tklist = $elt_frame ->Scrolled ( 'Listbox',
 					 -selectmode => 'single',
+					 -scrollbars => 'osoe',
 					 -height => 8,
 				       )
                             -> pack(@fbe1, -side => 'left') ;

@@ -64,7 +64,7 @@ sub Populate {
 
     $cw->add_header(View => $leaf) ;
 
-    my $lv_frame = $cw->Frame(qw/-relief raised -borderwidth 4/)->pack(@fxe1) ;
+    my $lv_frame = $cw->Frame(qw/-relief raised -borderwidth 2/)->pack(@fxe1) ;
     $lv_frame -> Label(-text => 'Value') -> pack() ;
     
     if ($vt eq 'string') {

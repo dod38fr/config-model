@@ -59,6 +59,7 @@ sub Populate {
 
     my %h = $leaf->get_checked_list_as_hash ;
     my $lb = $ed_frame->Scrolled ( qw/Listbox -selectmode multiple/,
+				   -scrollbars => 'osoe',
 				   -height => 10,
 				 ) ->pack(@fbe1) ;
     my @choice = $leaf->get_choice ;
@@ -70,9 +71,6 @@ sub Populate {
     # set all element in list box
     $array_ref = $leaf->get_checked_list ; 
     $cw->{tied} = \$array_ref ;
-
-    $cw->add_help_frame() ;
-    $cw->add_help(value => \$cw->{help});
 
     # mastering perl/Tk page 160
     my $b_sub = sub { $cw->set_value_help($lb->get($lb->nearest($Tk::event->y)));} ;
@@ -91,6 +89,9 @@ sub Populate {
     $bframe -> Button ( -text => 'Store',
 			-command => sub { $cw->store ( @$array_ref )},
 		      ) -> pack(-side => 'left') ;
+
+    $cw->add_help_frame() ;
+    $cw->add_help(value => \$cw->{help});
 
     $cw->SUPER::Populate($args) ;
 }

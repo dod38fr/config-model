@@ -36,6 +36,8 @@ $VERSION = sprintf "1.%04d", q$Revision$ =~ /(\d+)/;
 
 my @fbe1 = qw/-fill both -expand 1/ ;
 my @fxe1 = qw/-fill x    -expand 1/ ;
+my @fx   = qw/-fill x             / ;
+my @e1   = qw/           -expand 1/ ;
 
 my %img ;
 *icon_path = *Config::Model::TkUI::icon_path ;
@@ -67,25 +69,35 @@ sub add_header {
       -> pack (-side => 'left');
 }
 
+my @top_frame_args = qw/-relief raised -borderwidth 4/ ;
+my @low_frame_args = qw/-relief sunken -borderwidth 1/ ;
+my $padx = 20 ;
+my $text_font = [qw/-family Arial -weight normal/] ;
+
 sub add_info_frame {
     my $cw = shift;
     my @items = @_;
 
-    my $frame = $cw->Frame(qw/-relief raised -borderwidth 4/)->pack(@fxe1) ;
-    $frame -> Label(-text => 'Info', -anchor => 'w' ) ->pack() ;
+    my $frame = $cw->Frame()->pack(@fx) ;
+    $frame -> Label(-text => 'Info', -anchor => 'w' ) ->pack(qw/-fill x/) ;
 
-    my $i_frame = $frame->Frame(qw/-relief sunken -borderwidth 1/)->pack(@fxe1) ;
-    map { $i_frame -> Label(-text => $_, -anchor => 'w' ) ->pack(@fxe1) } @items;
+    my $i_frame = $frame->Frame()->pack(@fx) ;
+    map { $i_frame -> Label(-text => $_, 
+			    -anchor => 'w',  
+			    -font => $text_font ,
+			    -padx => $padx 
+			   ) ->pack(@fx)  ;
+	} @items;
 }
 
 
 sub add_help_frame {
     my $cw = shift ;
 
-    my $htop_frame = $cw->Frame(qw/-relief raised -borderwidth 4/)->pack(@fxe1) ;
-    $htop_frame -> Label(-text => 'Help', -anchor => 'w' ) ->pack() ;
+    my $htop_frame = $cw->Frame()->pack(@fxe1) ;
+    $htop_frame -> Label(-text => 'Help', -anchor => 'w' ) ->pack(@fx) ;
 
-    $cw->{help_f} = $htop_frame->Frame(qw/-relief sunken -borderwidth 1/)->pack(@fxe1) ;
+    $cw->{help_f} = $htop_frame->Frame()->pack(@fxe1) ;
 }
 
 sub add_help {
@@ -93,9 +105,13 @@ sub add_help {
     my $type = shift ;
     my $help = shift ;
 
-    my $help_frame = $cw->{help_f}->Frame()->pack(@fxe1);
+    my $help_frame = $cw->{help_f} -> Frame()->pack(@fxe1);
 
-    $help_frame->Label(-text => "on $type: ")->pack(-side => 'left');
+    $help_frame->Label(-text => "on $type: ", 
+		       -padx => $padx ,
+		       -font => $text_font 
+		      )->pack(-side => 'left');
+
     my @text = ref $help ? ( -textvariable => $help)
              :             ( -text => $help ) ;
 
@@ -103,9 +119,9 @@ sub add_help {
     if (    defined $help and not ref $help 
 	and ($help =~ /\n/ or length($help) > 70)) {
 	$help_frame->Scrolled('ROText',
-			      -scrollbars => 'w',
+			      -scrollbars => 'ow',
 			      -wrap => 'word',
-			      -height => 4,
+			      -height => 6,
 			     )
 	  ->pack( -fill => 'x')
 	    ->insert('end',$help) ;
@@ -113,6 +129,7 @@ sub add_help {
     else {
 	$help_frame->Label( @text,
 			    -justify => 'left',
+			    -font => $text_font ,
 			    -anchor => 'w')
 	  ->pack( -fill => 'x');
     }

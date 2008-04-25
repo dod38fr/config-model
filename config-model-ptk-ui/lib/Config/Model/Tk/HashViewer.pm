@@ -56,7 +56,7 @@ sub Populate {
 
     my $inst = $hash->instance ;
 
-    my $elt_frame = $cw->Frame(qw/-relief raised -borderwidth 4/)->pack(@fxe1) ;
+    my $elt_frame = $cw->Frame(qw/-relief raised -borderwidth 2/)->pack(@fxe1) ;
     my $str =  $hash->element_name.' '.$hash->get_type .' elements' ;
     $elt_frame -> Label(-text => $str) -> pack() ;
 

@@ -66,10 +66,10 @@ sub Populate {
 
     $inst->pop_no_value_check ;
 
-    my $v_frame =  $cw->Frame(qw/-relief raised -borderwidth 4/)->pack(@fxe1) ;
+    my $v_frame =  $cw->Frame(qw/-relief raised -borderwidth 2/)->pack(@fbe1) ;
     $v_frame  -> Label(-text => 'Value') -> pack() ;
-    my $ed_frame = $v_frame->Frame(qw/-relief sunken -borderwidth 1/)
-      ->pack(@fxe1) ;
+    my $ed_frame = $v_frame->Frame()#qw/-relief sunken -borderwidth 1/)
+      ->pack(@fbe1) ;
 
     if ($vt eq 'string') {
 	$cw->{e_widget} = $v_frame->Text(-height => 10 )
@@ -93,9 +93,10 @@ sub Populate {
     elsif ($vt eq 'enum' or $vt eq 'reference') {
 	my $lb = $ed_frame->Scrolled ( 'Listbox',
 				       -height => 5,
+				       -scrollbars => 'osow',
 				       #-listvariable => $vref,
 				       #-selectmode => 'single',
-				     ) ->pack(@fxe1) ;
+				     ) ->pack(@fbe1) ;
 	my @choice = $leaf->get_choice ;
 	$lb->insert('end',$leaf->get_choice) ;
 	my $idx = 0;
