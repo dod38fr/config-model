@@ -27,32 +27,14 @@ use ExtUtils::MakeMaker;
 
 require 5.008;
 
-my @files= grep {$_ ne "Model.pm" and $_ ne "PreGrammar.pm"} <*.pm> ;
-
-my %PM = map ( ( "$_" => '$(INST_LIB)'."/Config/Model/$_" ), @files ) ;
-
-$PM{"Model.pm"} = '$(INST_LIB)'."/Config/Model.pm" ;
-
-my %M3 = map {
-    my $save = $_ ;
-    s/\.pm$/.3pm/ ;
-    ( $save => '$(INST_MAN3DIR)/Config::Model::'."$_" )
-} @files  ;
-
-$M3{"Model.pm"}= '$(INST_MAN3DIR)/Config::Model.3pm' ;
-
-#print join("\n", values %M3),"\n"; exit ;
-
 print "If you want to use the TermUI interface, you should install\n",
   "Term::ReadLine::Perl or Term::ReadLine::Gnu\n";
 
 WriteMakefile 
   (
    NAME         => 'Config-Model',
-   VERSION_FROM => 'Model.pm',
+   VERSION_FROM => 'lib/Config/Model.pm',
    dist         => {COMPRESS=>'gzip -9f', SUFFIX => 'gz'},
-   PM           => \%PM ,
-   MAN3PODS     => \%M3,
    'EXE_FILES'  => [ 'config-edit' ],
    ABSTRACT     => 'Describe and edit configuration data',
    AUTHOR       => 'Dominique Dumont (ddumont at cpan dot org)',

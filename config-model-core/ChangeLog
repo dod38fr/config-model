@@ -1,4 +1,4 @@
-2008-04-18  Dominique Dumont  <dominique.dumont@hp.com>
+2008-04-18  Dominique Dumont v0.622
 
 	* Value.pm (fetch): added 'allow_undef' mode to allow reading
 	undefined mandatory value (fix morphing warped node containing
@@ -7,27 +7,27 @@
 	* Node.pm (copy_from): No longer die when copying undefined
 	mandatory value.
 
-2008-04-16  Dominique Dumont  <dominique.dumont@hp.com>
+2008-04-16  Dominique Dumont 
 
 	* AutoRead.pm (get_cfg_file_name): Do not use ':' in file
 	names. This breaks windows. Now use sub-directories
 
-2008-04-15  Dominique Dumont  <dominique.dumont@hp.com>
+2008-04-15  Dominique Dumont 
 
 	* Dumper.pm (dump_tree): skip undefined values in list element
 
 	* DumpAsData.pm (dump_as_data): idem
 
-2008-04-14  Dominique Dumont  <dominique.dumont@hp.com>
+2008-04-14  Dominique Dumont 
 
 	* Model.pm (list_class_element): New method to help debugging of
 	configuration models
 
-2008-04-13  Dominique Dumont  <domi.dumont@free.fr>
+2008-04-13  Dominique Dumont 
 
 	* Model.pm (include_class): allow multiple includes
 
-2008-04-11  Dominique Dumont  <dominique.dumont@hp.com>
+2008-04-11  Dominique Dumont 
 
 	* AnyId.pm: Changed the way the cargo parameter are specified. Now
 	the cargo parameter holds all the information related to the
@@ -38,7 +38,7 @@
 	Model.pm provides a translation from the old way to the new way so
 	this change is (95%) backward compatible.
 	
-2008-04-08  Dominique Dumont  <dominique.dumont@hp.com>
+2008-04-08  Dominique Dumont 
 
 	* CheckList.pm (set): Fix bug that prevented to use level or
 	permission or status parameter with check_list elements
