@@ -81,11 +81,12 @@ sub add_info_frame {
     my $frame = $cw->Frame()->pack(@fx) ;
     $frame -> Label(-text => 'Info', -anchor => 'w' ) ->pack(qw/-fill x/) ;
 
-    my $i_frame = $frame->Frame()->pack(@fx) ;
+    my $i_frame = $frame->Frame(
+				-padx => $padx 
+			       )->pack(@fx) ;
     map { $i_frame -> Label(-text => $_, 
 			    -anchor => 'w',  
 			    -font => $text_font ,
-			    -padx => $padx 
 			   ) ->pack(@fx)  ;
 	} @items;
 }
@@ -105,10 +106,11 @@ sub add_help {
     my $type = shift ;
     my $help = shift ;
 
-    my $help_frame = $cw->{help_f} -> Frame()->pack(@fxe1);
+    my $help_frame = $cw->{help_f} -> Frame(
+					    -padx => $padx ,
+					   )->pack(@fxe1);
 
     $help_frame->Label(-text => "on $type: ", 
-		       -padx => $padx ,
 		       -font => $text_font 
 		      )->pack(-side => 'left');
 
