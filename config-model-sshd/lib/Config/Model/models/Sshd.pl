@@ -87,7 +87,7 @@
                            'ClientAliveCheck',
                            {
                              'value_type' => 'boolean',
-                             'default' => '0',
+                             'built_in' => '0',
                              'type' => 'leaf',
                              'description' => 'Check if client is alive by sending client alive messages
 '
@@ -454,6 +454,125 @@ Alternatively, random early drop can be enabled by specifying the three colon se
                                            '1',
                                            '2'
                                          ]
+                           },
+                           'PubkeyAuthentication',
+                           {
+                             'value_type' => 'boolean',
+                             'built_in' => '1',
+                             'type' => 'leaf',
+                             'description' => "Specifies whether public key authentication is allowed.  The default is \x{201c}yes\x{201d}.  Note that this option applies to protocol version 2 only.
+"
+                           },
+                           'ServerKeyBits',
+                           {
+                             'value_type' => 'integer',
+                             'min' => '512',
+                             'built_in' => '768',
+                             'type' => 'leaf',
+                             'description' => 'Defines the number of bits in the ephemeral protocol version 1 server key.  The minimum value is 512, and the default is 768.
+
+'
+                           },
+                           'StrictModes',
+                           {
+                             'value_type' => 'boolean',
+                             'built_in' => '1',
+                             'type' => 'leaf',
+                             'description' => "Specifies whether sshd(8) should check file modes and ownership of the user\x{2019}s files and home directory before accepting login.  This is normally desirable because novices sometimes accidentally leave their directory or files world-writable.  The default is \x{201c}yes\x{201d}.
+"
+                           },
+                           'Subsystem',
+                           {
+                             'cargo' => {
+                                          'value_type' => 'uniline',
+                                          'mandatory' => '1',
+                                          'type' => 'leaf'
+                                        },
+                             'type' => 'hash',
+                             'index_type' => 'string'
+                           },
+                           'SyslogFacility',
+                           {
+                             'value_type' => 'enum',
+                             'built_in' => 'AUTH',
+                             'type' => 'leaf',
+                             'description' => 'Gives the facility code that is used when logging messages from sshd(8). The default is AUTH.
+',
+                             'choice' => [
+                                           'DAEMON',
+                                           'USER',
+                                           'AUTH',
+                                           'LOCAL0',
+                                           'LOCAL1',
+                                           'LOCAL2',
+                                           'LOCAL3',
+                                           'LOCAL4',
+                                           'LOCAL5',
+                                           'LOCAL6',
+                                           'LOCAL7'
+                                         ]
+                           },
+                           'TCPKeepAlive',
+                           {
+                             'value_type' => 'boolean',
+                             'help' => {
+                                         '1' => 'Send TCP keepalive messages. The server will notice if the network goes down or the client host crashes. This avoids infinitely hanging sessions.
+',
+                                         '0' => 'disable TCP keepalive messages
+'
+                                       },
+                             'built_in' => '1',
+                             'type' => 'leaf',
+                             'description' => "Specifies whether the system should send TCP keepalive messages to the other side. If they are sent, death of the connection or crash of one of the machines will be properly noticed. However, this means that connections will die if the route is down temporarily, and some people find it annoying.  On the other hand, if TCP keepalives are not sent, sessions may hang indefinitely on the server, leaving \x{201c}ghost\x{201d} users and consuming server resources. This option was formerly called KeepAlive.
+
+"
+                           },
+                           'UseDNS',
+                           {
+                             'value_type' => 'boolean',
+                             'built_in' => '1',
+                             'type' => 'leaf',
+                             'description' => "Specifies whether sshd(8) should look up the remote host name and check that the resolved host name for the remote IP address maps back to the very same IP address. The default is \x{201c}yes\x{201d}
+"
+                           },
+                           'UseLogin',
+                           {
+                             'value_type' => 'boolean',
+                             'built_in' => '0',
+                             'type' => 'leaf',
+                             'description' => "Specifies whether login(1) is used for interactive login sessions.  The default is \x{201c}no\x{201d}. Note that login(1) is never used for remote command execution.  Note also, that if this is enabled, X11Forwarding will be disabled because login(1) does not know how to handle xauth(1) cookies. If UsePrivilegeSeparation is specified, it will be disabled after authentication.
+
+"
+                           },
+                           'UsePAM',
+                           {
+                             'value_type' => 'boolean',
+                             'built_in' => '0',
+                             'type' => 'leaf',
+                             'description' => "Enables the Pluggable Authentication Module interface. If set to \x{201c}yes\x{201d} this will enable PAM authentication using ChallengeResponseAuthentication and PasswordAuthentication in addition to PAM account and session module processing for all authentication types.
+
+Because PAM challenge-response authentication usually serves an equivalent role to password authentication, you should disable either PasswordAuthentication or ChallengeResponseAuthentication.
+
+If UsePAM is enabled, you will not be able to run sshd(8) as a non-root user.  The default is \x{201c}no\x{201d}.
+
+"
+                           },
+                           'UsePrivilegeSeparation',
+                           {
+                             'value_type' => 'boolean',
+                             'built_in' => '1',
+                             'type' => 'leaf',
+                             'description' => "Specifies whether sshd(8) separates privileges by creating an unprivileged child process to deal with incoming network traffic.  After successful authentication, another process will be created that has the privilege of the authenticated user. The goal of privilege separation is to prevent privilege escalation by containing any corruption within the unprivileged processes. The default is \x{201c}yes\x{201d}.
+
+"
+                           },
+                           'XAuthLocation',
+                           {
+                             'value_type' => 'uniline',
+                             'built_in' => '/usr/bin/X11/xauth',
+                             'type' => 'leaf',
+                             'description' => 'Specifies the full pathname of the xauth(1) program.
+'
                            }
                          ]
           }
