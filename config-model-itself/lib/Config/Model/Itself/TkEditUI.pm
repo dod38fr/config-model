@@ -63,7 +63,7 @@ sub test_model {
     my $cw = shift ;
 
     my $testw =  $cw -> {test_widget} ;
-    $testw->destroy if defined $testw ;
+    $testw->destroy if defined $testw and Tk::Exists($testw);
 
     my $model = Config::Model -> new(model_dir => $cw->{model_dir}) ;
 
