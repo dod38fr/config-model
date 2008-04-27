@@ -1,3 +1,9 @@
+2008-04-27  Domi  <domi@bilbo.maison>
+
+	* lib/Config/Model/Tk/ListEditor.pm (set_all_items): new method to
+	set a list with a list of words. They can be separated by commas,
+	white spaces or any non-alphanumeric character (e.g. /\W+/)
+
 2008-04-17  Dominique Dumont  <dominique.dumont@hp.com>
 
 	* lib/Config/Model/Tk/HashEditor.pm: Select and show new items in

@@ -177,6 +177,10 @@
 			    },
 	       [qw/a_string a_long_string another_string/] 
                         => { type => 'leaf',
+			     value_type => 'string'
+			   },
+	       [qw/a_mandatory_string another_mandatory_string/] 
+                        => { type => 'leaf',
 			     mandatory => 1 ,
 			     value_type => 'string'
 			   },

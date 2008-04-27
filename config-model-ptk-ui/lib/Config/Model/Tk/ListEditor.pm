@@ -108,6 +108,17 @@ sub Populate {
 			      -width => $entry_width)
 	    -> pack  (-side => 'left') ;
 
+	my $set_all_items = '' ;
+	my $set_all_sub = sub {$cw->set_all_items($set_all_items);} ;
+	my $set_all_frame = $right_frame->Frame->pack( @fxe1);
+	$set_all_frame -> Button(-text => "set all:",
+				 -command => $set_all_sub ,
+				 -anchor => 'e',
+				)->pack(-side => 'left', @fxe1);
+	$set_all_frame -> Entry (-textvariable => \$set_all_items, 
+				 -width => $entry_width)
+	    -> pack  (-side => 'left') ;
+
 	# move up and down don't make much sense for list of nodes...
 	$right_frame->Button(-text => 'Move selected up',
 			     -command => sub { $cw->move_up ;} ,
@@ -195,6 +206,21 @@ sub set_entry {
     $tklist->insert($idx, $data) ;
     $tklist->selectionSet($idx ) ;
     $cw->{list}->fetch_with_id($idx)->store($data) ;
+    $cw->reload_tree ;
+}
+
+sub set_all_items {
+    my $cw =shift;
+    my $data = shift ;
+
+    return unless $data ;
+    my $tklist = $cw->{tklist} ;
+
+    my @list = split /\W+/,$data ;
+
+    $tklist->delete(0,'end') ;
+    $tklist->insert(0, @list) ;
+    $cw->{list}->load_data(\@list) ;
     $cw->reload_tree ;
 }
 

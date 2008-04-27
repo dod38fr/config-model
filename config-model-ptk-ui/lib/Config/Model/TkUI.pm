@@ -96,6 +96,8 @@ sub Populate {
 	$cw->{$attr} = delete $args->{$parm} ;
     }
 
+    my $extra_menu = delete $args->{'-extra-menu'} || [] ;
+
     # check unknown parameters
     croak "Unknown parameter ",join(' ',keys %$args) if %$args;
 
@@ -116,6 +118,7 @@ sub Populate {
 		      [ qw/command save   -command/, sub{ $cw->save }],
 		      [ command => 'save in dir ...',
                         -command => sub{ $cw->save_in_dir ;} ],
+		      @$extra_menu ,
 		      [ command => 'debug ...',
                         -command => sub{ require Tk::ObjScanner; 
 					 Tk::ObjScanner::scan_object($cw->{root});}],
@@ -562,8 +565,8 @@ sub disp_hash {
 	if ($tkt->infoExists($newpath) ) {
 	    my $previous_data = $tkt->info(data => $newpath);
 	    my $previous_idx_nb = $previous_data->[2] ;
+	    $eltmode = $tkt->getmode($newpath); # will reuse mode below
 	    if ($idx_nb != $previous_idx_nb) {
-		$eltmode = $tkt->getmode($newpath); # will reuse mode below
 		$logger->trace( "disp_hash delete $newpath mode $eltmode (got "
 				.$previous_idx_nb
 				." expected $idx_nb)" );

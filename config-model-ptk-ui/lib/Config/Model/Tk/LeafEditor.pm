@@ -64,8 +64,6 @@ sub Populate {
     $cw->{value} = $leaf->fetch || '';
     my $vref = \$cw->{value};
 
-    $inst->pop_no_value_check ;
-
     my $v_frame =  $cw->Frame(qw/-relief raised -borderwidth 2/)->pack(@fbe1) ;
     $v_frame  -> Label(-text => 'Value') -> pack() ;
     my $ed_frame = $v_frame->Frame()#qw/-relief sunken -borderwidth 1/)
@@ -104,6 +102,8 @@ sub Populate {
 	$lb->bind('<Button-1>',sub {$cw->try($lb->get($lb->curselection()))});
 	$cw->add_buttons($ed_frame) ;
     }
+
+    $inst->pop_no_value_check ;
 
     $cw->add_info() ;
     $cw->add_help_frame() ;
@@ -173,6 +173,7 @@ sub try {
 
 sub delete {
     my $cw = shift ;
+
     eval {$cw->{leaf}->store(undef); } ;
 
     if ($@) {
@@ -183,6 +184,7 @@ sub delete {
     }
     else {
 	# trigger redraw of Tk Tree
+	$cw->reset_value ;
 	$cw->parent->parent->parent->parent->reload(1) ;
     }
 }
