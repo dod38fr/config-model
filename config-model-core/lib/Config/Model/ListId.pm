@@ -259,7 +259,7 @@ sub create_default {
 
 =head2 load_data ( list_ref )
 
-Load check_list as an array ref. 
+Load list as an array ref. 
 
 =cut
 
