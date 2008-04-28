@@ -10,7 +10,7 @@ use Test::More;
 use Config::Model;
 use Config::Model::ValueComputer ;
 
-BEGIN { plan tests => 57; }
+BEGIN { plan tests => 58; }
 
 use strict;
 
@@ -260,14 +260,38 @@ $model -> create_config_class
 				     },
 				]
  		  }
- 	 },
-       
+	  },
+
        [qw/bar foo foo2/ ] => {
 			       type => 'node',
 			       config_class_name => 'Slave'
-			      }
+			      },
+       'ClientAliveCheck',
+       {
+	'value_type' => 'boolean',
+	'built_in' => '0',
+	'type' => 'leaf',
+       },
+       'ClientAliveInterval',
+       {
+	'value_type' => 'integer',
+	'level' => 'hidden',
+	'min' => '1',
+	'warp' => {
+		   'follow' => {
+				'c_a_check' => '- ClientAliveCheck'
+			       },
+		   'rules' => [
+			       '$c_a_check == 1',
+			       {
+				'level' => 'normal'
+			       }
+			      ]
+		  },
+	'type' => 'leaf'
+       },
       ]
-   );
+  );
 
 my $inst = $model->instance (root_class_name => 'Master', 
 			     instance_name => 'test1');
@@ -276,7 +300,8 @@ ok($inst,"created dummy instance") ;
 my $root = $inst -> config_root ;
 
 is_deeply( [$root->get_element_name(for => 'intermediate')],
-	   [qw'get_element where_is_element macro compute var_path class bar foo foo2'], 
+	   [qw'get_element where_is_element macro compute var_path class bar foo foo2
+	       ClientAliveCheck'], 
 	   "Elements of Master"
 	 );
 
@@ -307,17 +332,18 @@ is($root->fetch_element('macro')->store('B'), 'B',
    "setting master->macro to B") ;
 
 is_deeply( [$root->get_element_name(for => 'intermediate')],
-	   [qw'get_element where_is_element macro macro2 
-	       m_value m_value_old compute var_path class bar foo foo2'], 
-	   "Elements of Master when macro = B"
-	 );
+	   [qw'get_element where_is_element macro macro2 m_value
+	   m_value_old compute var_path class bar foo foo2
+	   ClientAliveCheck'],
+	   "Elements of Master when macro = B" );
 
 is($root->fetch_element('macro2')->store('A'), 'A',
    "setting master->macro2 to A") ;
 
 is_deeply( [$root->get_element_name(for => 'intermediate')],
 	   [qw'get_element where_is_element macro macro2 
-	       m_value m_value_old compute var_path class warped_out_ref bar foo foo2'], 
+	       m_value m_value_old compute var_path class warped_out_ref bar 
+	       foo foo2 ClientAliveCheck'], 
 	   "Elements of Master when macro = B macro2 = A"
 	 );
 
@@ -536,3 +562,7 @@ is($root->fetch_element('var_path')->fetch(),
    'get_element is compute, indirect value is \'macro is C, my element is compute\'',
    "reading var_path through compute element");
 
+$root->fetch_element('ClientAliveCheck')-> store (0) ;
+$root->fetch_element('ClientAliveCheck')-> store (1) ;
+$root->fetch_element('ClientAliveInterval')-> store (10) ;
+is($root->fetch_element('ClientAliveInterval')-> fetch,10,"check ClientAliveInterval") ;

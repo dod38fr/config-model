@@ -391,7 +391,11 @@ sub compute_bool {
     my @init_code ;
     foreach my $warper_name (keys %$warp_value_set) {
 	my $v = $warp_value_set->{$warper_name} ;
-	$v = '' unless defined $v ;
+	if (not defined $v) {
+	    print "compute_bool: $warper_name value is undef. result:  'false'\n" 
+	      if $::debug ;
+	    return 0 ;
+	}
 	push @init_code, "my \$$warper_name = '$v' ;\n" ;
     }
 
