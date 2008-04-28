@@ -391,16 +391,22 @@ sub compute_bool {
     my @init_code ;
     foreach my $warper_name (keys %$warp_value_set) {
 	my $v = $warp_value_set->{$warper_name} ;
-	if (not defined $v) {
-	    print "compute_bool: $warper_name value is undef. result:  'false'\n" 
-	      if $::debug ;
-	    return 0 ;
-	}
-	push @init_code, "my \$$warper_name = '$v' ;\n" ;
+
+	my $code_v = (defined $v and $v =~ m/^[\d\.]$/) ? "$v"
+	           :  defined $v                        ? "'$v'"
+	           :                                      'undef' ;
+
+	push @init_code, "my \$$warper_name = $code_v ;\n" ;
     }
 
     my $perl_code = join('',@init_code)."\n$expr";
-    my $ret = eval($perl_code) ;
+
+    my $ret;
+    {
+	no warnings "uninitialized" ;
+	$ret = eval($perl_code) ;
+    }
+
     if ($@) {
         Config::Model::Exception::Model
 	    -> throw (
