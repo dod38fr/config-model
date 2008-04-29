@@ -1,3 +1,8 @@
+2008-04-29  Dominique Dumont  <dominique.dumont@hp.com>
+
+	* lib/Config/Model/Tk/HashEditor.pm (move_selected_to): Fixed move
+	within ordered hash
+
 2008-04-27  Domi  <domi@bilbo.maison>
 
 	* lib/Config/Model/Tk/ListEditor.pm (set_all_items): new method to

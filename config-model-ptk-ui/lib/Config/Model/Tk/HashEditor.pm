@@ -324,7 +324,15 @@ sub move_selected_to {
     $hash->move($from_name,$to_name) ;
 
     if ($new_idx) {
-	$cw->add_item($to_name) ;
+	if ($hash->ordered) {
+	    $tklist -> selectionClear(0,'end') ;
+	    $tklist -> insert($from_idx[0],$to_name) ;
+	    $tklist -> selectionSet($from_idx[0]) ;
+	}
+	else {
+	    # add the item so that items are ordered alphabetically
+	    $cw->add_and_sort_item($to_name) ;
+	}
     }
 
     $cw->reload_tree ;
