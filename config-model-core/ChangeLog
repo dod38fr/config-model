@@ -1,3 +1,11 @@
+2008-04-29  Dominique Dumont  <dominique.dumont@hp.com>
+
+	* lib/Config/Model/HashId.pm (move): New method to take into
+	account move within ordered hash
+
+	* lib/Config/Model/WarpedThing.pm (compute_bool): warp rule no
+	longer fail with eval $foo == 1 when $foo is undef
+
 2008-04-18  Dominique Dumont v0.622
 
 	* Value.pm (fetch): added 'allow_undef' mode to allow reading

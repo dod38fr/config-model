@@ -6,7 +6,7 @@
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
-use Test::More tests => 60 ;
+use Test::More tests => 70 ;
 use Config::Model ;
 
 use strict;
@@ -295,3 +295,38 @@ is_deeply([$oh->get_all_indexes], [qw/a z d x e/],
 $oh->move_after('d','e') ;
 is_deeply([$oh->get_all_indexes], [qw/a z x e d/],
 	 "check index order of ordered_hash after move_after(d e)") ;
+
+$oh->clear ;
+is_deeply([$oh->get_all_indexes], [],
+	 "check index order of ordered_hash after clear") ;
+
+$oh->load_data([qw/a va b vb c vc d vd e ve/]);
+is_deeply([$oh->get_all_indexes], [qw/a b c d e/],
+	 "check index order of ordered_hash after clear") ;
+
+$oh->move('e','e2') ;
+is_deeply([$oh->get_all_indexes], [qw/a b c d e2/],
+	 "check index order of ordered_hash after move(e e2)") ;
+my $v = $oh->fetch_with_id('e2')->fetch;
+is($v, 've',"Check moved value") ;
+
+$oh->move('d','e2') ;
+is_deeply([$oh->get_all_indexes], [qw/a b c e2/],
+	 "check index order of ordered_hash after move(d e2)") ;
+
+$v = $oh->fetch_with_id('e2')->fetch ;
+is($v, 'vd',"Check moved value") ;
+
+$oh->move('b','d') ;
+is_deeply([$oh->get_all_indexes], [qw/a d c e2/],
+	 "check index order of ordered_hash after move(b d)") ;
+
+$v = $oh->fetch_with_id('d')->fetch ;
+is($v, 'vb',"Check moved value") ;
+
+$oh->move('c','a') ;
+is_deeply([$oh->get_all_indexes], [qw/d a e2/],
+	 "check index order of ordered_hash after move(c a)") ;
+
+$v = $oh->fetch_with_id('a')->fetch ;
+is($v, 'vc',"Check moved value") ;

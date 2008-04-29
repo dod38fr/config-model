@@ -303,6 +303,64 @@ sub swap {
     }
 }
 
+=head2 move ( key1 , key2 )
+
+Rename key1 in key2. 
+
+=cut
+
+sub move {
+    my $self = shift ;
+    my ($from,$to) = @_ ;
+
+    Config::Model::Exception::User
+	-> throw (
+		  object => $self,
+		  message => "move: unknow key $from"
+		 )
+	  unless exists $self->{data}{$from} ;
+
+    my $ok = $self->check($to) ;
+
+    if ($ok) {
+	# this may clobber the old content of $self->{data}{$to}
+	$self->{data}{$to} = delete $self->{data}{$from} ;
+	# update index_value attribute in moved objects
+	$self->{data}{$to}->index_value($to) ;
+
+	my ($to_idx,$from_idx);
+	my $idx = 0 ;
+	my $list = $self->{list} ;
+	map { $to_idx   = $idx if $list->[$idx] eq $to;
+	      $from_idx = $idx if $list->[$idx] eq $from;
+	      $idx ++ ;
+	  } @$list ;
+
+	if (defined $to_idx) {
+	    # Since $to is clobbered, $from takes its place in the list
+	    $list->[$from_idx] = $to ;
+	    # and the $from entry is removed from the list
+	    splice @$list,$to_idx,1;
+	}
+	else {
+	    # $to is moved in the place of from in the list
+	    $list->[$from_idx] = $to ;
+	}
+
+	print "move: @$list\n";
+    }
+    else {
+	Config::Model::Exception::WrongValue 
+	    -> throw (
+		      error => join("\n\t",@{$self->{error}}),
+		      object => $self
+		     ) ;
+    }
+
+}
+
+
+
 =head2 move_after ( key_to_move [ , after_this_key ] )
 
 Move the first key after the second one. If the second parameter is
