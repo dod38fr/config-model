@@ -123,7 +123,7 @@
                                            'no'
                                          ]
                            },
-                           'DenyGroup',
+                           'DenyGroups',
                            {
                              'cargo' => {
                                           'value_type' => 'uniline',
