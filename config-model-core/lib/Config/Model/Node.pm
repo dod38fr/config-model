@@ -38,16 +38,16 @@ use Storable qw/dclone/ ;
 use base qw/Config::Model::AutoRead/;
 
 use vars qw($VERSION $AUTOLOAD @status @level
-@permission_list %permission_index );
+@experience_list %experience_index );
 
 $VERSION = sprintf "1.%04d", q$Revision$ =~ /(\d+)/;
 
 *status           = *Config::Model::status ;
 *level            = *Config::Model::level ;
-*permission_list  = *Config::Model::permission_list ;
-*permission_index = *Config::Model::permission_index ;
+*experience_list  = *Config::Model::experience_list ;
+*experience_index = *Config::Model::experience_index ;
 
-my @legal_properties= qw/status level permission/;
+my @legal_properties= qw/status level experience/;
 
 =head1 NAME
 
@@ -66,7 +66,7 @@ Config::Model::Node - Class for configuration tree node
                                choice     => [qw/Av Bv Cv/]
                              }
                         ],
-   permission        => [ Y => 'intermediate', 
+   experience        => [ Y => 'beginner', 
                           X => 'master' 
                         ],
    status            => [ X => 'deprecated' ],
@@ -141,13 +141,13 @@ Element names can be grouped to save typing:
 
 See below for details on element declaration.
 
-=item B<permission>
+=item B<experience>
 
-Optional C<list ref> of the elements whose permission are different
-from default value (C<intermediate>). Possible values are C<master>,
-C<advanced> and C<intermediate>.
+Optional C<list ref> of the elements whose experience are different
+from default value (C<beginner>). Possible values are C<master>,
+C<advanced> and C<beginner>.
 
-  permission   => [ Y => 'intermediate', 
+  experience   => [ Y => 'beginner', 
                     [qw/foo bar/] => 'master' 
                   ],
 
@@ -432,25 +432,25 @@ C<config_class_name> parameter. For instance:
 
 =cut
 
-# check validity of permission declaration. 
-# create a list to classify elements by permission
-sub check_permission {
+# check validity of experience declaration. 
+# create a list to classify elements by experience
+sub check_experience {
     my $self = shift ;
 
     # this is a bit convoluted, but the order of element for each
-    # permission must respect the order of the elements declared in
+    # experience must respect the order of the elements declared in
     # the model by the user
 
     foreach my $elt_name (@{$self->{model}{element_list}}) {
-	my $permission = $self->{model}{permission}{$elt_name} ;
+	my $experience = $self->{model}{experience}{$elt_name} ;
 
 	croak "Config class $self->{config_class_name} error: ",
-	  "Unknown permission: $permission. Expected ",
-	    join(" or ",@permission_list)
-	      unless defined $permission_index{$permission} ;
+	  "Unknown experience: $experience. Expected ",
+	    join(" or ",@experience_list)
+	      unless defined $experience_index{$experience} ;
 
 	push 
-	  @{$self->{element_by_permission}{$permission}}, $elt_name ;
+	  @{$self->{element_by_experience}{$experience}}, $elt_name ;
     }
 }
 
@@ -497,11 +497,11 @@ details.
 #    parent            : weak reference of parent node (undef for root node)
 #    element           : actual storage of configuration elements
 
-#    element_by_permission: {<permission>} = [ list of elements ]
+#    element_by_experience: {<experience>} = [ list of elements ]
 #                          e.g {
 #                                master => [ list of master elements ],
 #                                advanced => [ ...],
-#                                intermediate => [,,,]
+#                                beginner => [,,,]
 #                              }
 #  ) ;
 
@@ -550,7 +550,7 @@ sub new {
       = $self->{model} 
 	= dclone ( $self->{config_model}->get_model($class_name) );
 
-    $self->check_permission ;
+    $self->check_experience ;
 
     # setup auto_read
     if (defined $model->{read_config}) {
@@ -701,10 +701,10 @@ See L<Config::Model::AnyThing/"location()">
 
 =head1 Element property management
 
-=head2 get_element_name ( for => <permission>, ...  )
+=head2 get_element_name ( for => <experience>, ...  )
 
-Return all elements names available for C<permission>.
-If no permission is specified, will return all
+Return all elements names available for C<experience>.
+If no experience is specified, will return all
 slots available at 'master' level (I.e all elements).
 
 Optional paremeters are:
@@ -742,11 +742,16 @@ sub get_element_name {
     my $type = $args{type} ; # optional
     my $cargo_type = $args{cargo_type} ; # optional
 
-    croak "get_element_name: wrong 'for' parameter. Expected ", 
-      join (' or ', @permission_list) 
-	unless defined $permission_index{$for} ;
+    if ($for eq 'intermediate') {
+	carp "get_element_name: 'intermediate' is deprecated in favor of beginner";
+	$for = 'beginner' ;
+    }
 
-    my $for_idx = $permission_index{$for} ;
+    croak "get_element_name: wrong 'for' parameter. Expected ", 
+      join (' or ', @experience_list) 
+	unless defined $experience_index{$for} ;
+
+    my $for_idx = $experience_index{$for} ;
 
     my @result ;
 
@@ -762,7 +767,7 @@ sub get_element_name {
 	$self->create_element($elt) unless defined $self->{element}{$elt};
 
 	next if $info->{level}{$elt} eq 'hidden' ;
-	my $elt_idx =  $permission_index{$info->{permission}{$elt}} ;
+	my $elt_idx =  $experience_index{$info->{experience}{$elt}} ;
 	my $elt_type =  $self->{element}{$elt}->get_type ;
 	my $elt_cargo = $self->{element}{$elt}->get_cargo_type ;
 	if ($for_idx >= $elt_idx 
@@ -779,11 +784,11 @@ sub get_element_name {
     return wantarray ? @result : join( ' ', @result );
 }
 
-=head2 next_element ( element_name, [ permission_index ] )
+=head2 next_element ( element_name, [ experience_index ] )
 
 This method provides a way to iterate through the elements of a node.
 
-Returns the next element name for a given permission (default
+Returns the next element name for a given experience (default
 C<master>).  Returns undef if no next element is available.
 
 =cut
@@ -812,7 +817,7 @@ Retrieve a property of an element.
 
 I.e. for a model :
 
-  permission => [ X => 'master'],
+  experience => [ X => 'master'],
   status     => [ X => 'deprecated' ]
   element    => [ X => { ... } ]
 
@@ -891,10 +896,15 @@ sub check_property_args {
     my $prop = $args{property} || 
       croak "$method_name: missing 'property' parameter";
 
+    if ($prop eq 'permission') {
+	carp "check_property_args: 'permission' is deprecated in favor of 'experience'";
+	$prop = 'experience' ;
+    }
+
     my $ok = 0;
     map {$ok++ if $prop eq $_} @legal_properties ;
     confess "Unknown property in $method_name: $prop, expected status or ",
-      "level or permission"
+      "level or experience"
 	unless $ok ;
 
     return ($prop,$elt) ;
@@ -902,11 +912,11 @@ sub check_property_args {
 
 =head1 Information management
 
-=head2 fetch_element ( name  [ , user_permission ])
+=head2 fetch_element ( name  [ , user_experience ])
 
 Fetch and returns an element from a node.
 
-If user_permission is given, this method will check that the user has
+If user_experience is given, this method will check that the user has
 enough privilege to access the element. If not, a C<RestrictedElement>
 exception will be raised.
 
@@ -916,6 +926,11 @@ sub fetch_element {
     my $self = shift ;
     my $element_name = shift ;
     my $user = shift || 'master' ;
+
+    if ($user eq 'intermediate') {
+	carp "fetch_element: 'intermediate' is deprecated in favor of 'beginner'";
+	$user = 'beginner' ;
+    }
 
     my $model = $self->{model} ;
 
@@ -944,12 +959,12 @@ sub fetch_element {
 	warn "Element $element_name of node ",$self->name," is deprecated\n";
     }
 
-    # check permission
-    my $elt_level = $model->{permission}{$element_name};
-    my $elt_idx   = $permission_index{$elt_level} ;
-    my $user_idx  = $permission_index{$user} ;
+    # check experience
+    my $elt_level = $model->{experience}{$element_name};
+    my $elt_idx   = $experience_index{$elt_level} ;
+    my $user_idx  = $experience_index{$user} ;
 
-    croak "Unexpected permission '$user'" unless defined $user_idx ;
+    croak "Unexpected experience '$user'" unless defined $user_idx ;
 
     if ($user_idx < $elt_idx
 	and $self->{instance}->get_value_check('fetch_or_store')
@@ -966,11 +981,11 @@ sub fetch_element {
     return $self->{element}{$element_name} ;
 }
 
-=head2 fetch_element_value ( name  [ , user_permission ])
+=head2 fetch_element_value ( name  [ , user_experience ])
 
 Fetch and returns the I<value> of a leaf element from a node.
 
-If user_permission is given, this method will check that the user has
+If user_experience is given, this method will check that the user has
 enough privilege to access the element. If not, a C<RestrictedElement>
 exception will be raised.
 
@@ -994,11 +1009,11 @@ sub fetch_element_value {
     return $self->fetch_element($element_name,$user)->fetch() ;
 }
 
-=head2 store_element_value ( name, value  [ , user_permission ])
+=head2 store_element_value ( name, value  [ , user_experience ])
 
 Store a I<value> in a leaf element from a node.
 
-If user_permission is given, this method will check that the user has
+If user_experience is given, this method will check that the user has
 enough privilege to access the element. If not, a C<RestrictedElement>
 exception will be raised.
 
@@ -1013,11 +1028,11 @@ sub store_element_value {
     return $self->fetch_element($element_name,$user)->store( $value ) ;
 }
 
-=head2 is_element_available( name => ...,  permission => ... )
+=head2 is_element_available( name => ...,  experience => ... )
 
 
 Returns 1 if the element C<name> is available for the given
-C<permission> ('intermediate' by default) and if the element is
+C<experience> ('beginner' by default) and if the element is
 not "hidden". Returns 0 otherwise.
 
 As a syntactic sugar, this method can be called with only one parameter:
@@ -1028,14 +1043,18 @@ As a syntactic sugar, this method can be called with only one parameter:
 
 sub is_element_available {
     my $self = shift;
-    my ($elt_name, $user_permission) = (undef, 'intermediate');
+    my ($elt_name, $user_experience) = (undef, 'beginner');
     if (@_ == 1) {
 	$elt_name = shift ;
     }
     else {
 	my %args = @_ ;
 	$elt_name = $args{name} ;
-	$user_permission = $args{permission} if defined $args{permission} ;
+	$user_experience = $args{experience} if defined $args{experience} ;
+	if (defined $args{permission}) {
+	    $user_experience = $args{permission};
+	    carp "is_element_available: permission is deprecated" ;
+	}
     }
 
     croak "is_element_available: missing name parameter" 
@@ -1049,20 +1068,20 @@ sub is_element_available {
 						    element => $elt_name) ;
     return 0 if $element_level eq 'hidden' ;
 
-    my $element_perm = $self->get_element_property(property => 'permission',
+    my $element_exp = $self->get_element_property(property => 'experience',
 						   element => $elt_name) ;
 
-    croak "is_element_available: unknown permission for ",
-      "user permission: $user_permission"
-	unless defined $permission_index{$user_permission} ;
+    croak "is_element_available: unknown experience for ",
+      "user experience: $user_experience"
+	unless defined $experience_index{$user_experience} ;
 
-    croak "is_element_available: unknown permission for element",
-      " $elt_name: $$element_perm"
-	unless defined $permission_index{$element_perm} ;
+    croak "is_element_available: unknown experience for element",
+      " $elt_name: $$element_exp"
+	unless defined $experience_index{$element_exp} ;
 
     return 
-      $permission_index{$user_permission}
-	>= $permission_index{$element_perm} ? 1 : 0;
+      $experience_index{$user_experience}
+	>= $experience_index{$element_exp} ? 1 : 0;
 }
 
 =head2 is_element_defined( element_name )
@@ -1091,13 +1110,13 @@ See L<Config::Model::AnyThing/"grab_root()">.
 
 =head1 Serialisation
 
-=head2 load ( step => string [, permission => ... ] )
+=head2 load ( step => string [, experience => ... ] )
 
 Load configuration data from the string into the node and its siblings.
 
 This string follows the syntax defined in L<Config::Model::Loader>.
 See L<Config::Model::Loader/"load ( ... )"> for details on parameters.
-C<permission> is 'master' by default.
+C<experience> is 'master' by default.
 
 This method can also be called with a single parameter:
 
@@ -1149,7 +1168,7 @@ sub load_data {
     # the model
     foreach my $elt ( @{$self->{model}{element_list}} ) {
 	next unless defined $h->{$elt} ;
-	if ($self->is_element_available(name => $elt, permission => 'master')) {
+	if ($self->is_element_available(name => $elt, experience => 'master')) {
 	    my $obj = $self->fetch_element($elt) ;
 	    $obj -> load_data(delete $h->{$elt}) ;
 	}

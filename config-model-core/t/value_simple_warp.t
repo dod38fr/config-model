@@ -13,10 +13,12 @@ BEGIN { plan tests => 22; }
 
 use strict;
 
-my $trace = shift || 0;
+my $arg = shift || '';
 
-$::verbose = 1 if $trace > 2;
-$::debug   = 1 if $trace > 3;
+my $trace = $arg =~ /t/ ? 1 : 0 ;
+$::verbose          = 1 if $arg =~ /v/;
+$::debug            = 1 if $arg =~ /d/;
+Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 
 ok(1,"Compilation done");
 

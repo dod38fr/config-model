@@ -148,12 +148,12 @@ node ref of the root of the tree (of sub-root) to start the load from.
 A string or an array ref containing the steps to load. See above for a
 description of the string.
 
-=item permission
+=item experience
 
-Specify the permission level used during the load (default:
-C<master>). The permission can be C<intermediate advanced master>.
+Specify the experience level used during the load (default:
+C<master>). The experience can be C<intermediate advanced master>.
 The load will raise an exception if the step of the load string tries
-to access an element with permission higher than user's permission.
+to access an element with experience higher than user's experience.
 
 =back
 
@@ -171,7 +171,7 @@ sub load {
     my $step = delete $args{step} ;
     croak "load error: missing 'step' parameter" unless defined $step ;
 
-    my $permission = delete $args{permission} || 'master' ;
+    my $experience = delete $args{experience} || 'master' ;
     my $inst = $node->instance ;
 
     # tune value checking
@@ -209,7 +209,7 @@ sub load {
     #print "command is ",join('+',@command),"\n" ;
 
     my $ret=1 ;
-    $ret = $self->_load($node, $permission, \@command) ;
+    $ret = $self->_load($node, $experience, \@command) ;
 
     if (@command) {
         my $str = "Error: command '@command' was not executed, you may have".
@@ -237,7 +237,7 @@ my %load_dispatch = (
 		    ) ;
 
 sub _load {
-    my ($self, $node, $permission, $cmdref) = @_ ;
+    my ($self, $node, $experience, $cmdref) = @_ ;
 
     my $inst = $node->instance ;
 
@@ -301,7 +301,7 @@ sub _load {
 	}
 
         unless ($node->is_element_available(name => $element_name,
-					    permission => 'master')) {
+					    experience => 'master')) {
 	    Config::Model::Exception::UnavailableElement
 		-> throw (
 			  object => $node,
@@ -312,12 +312,12 @@ sub _load {
 	}
 
         unless ($node->is_element_available(name => $element_name, 
-					    permission => $permission)) {
+					    experience => $experience)) {
             Config::Model::Exception::RestrictedElement
 		-> throw (
 			  object => $node,
 			  element => $element_name,
-			  level => $permission,
+			  level => $experience,
 			 ) if $inst->get_value_check('fetch_or_store');
             unshift @$cmdref,$saved_cmd ;
             return 0 ;

@@ -337,7 +337,7 @@ leads to a nb of items greater than the max_nb constraint.
 my @common_params =  qw/min max max_nb default_with_init default_keys
                         follow_keys_from auto_create allow_keys allow_keys_from/ ;
 
-my @allowed_warp_params = (@common_params,qw/permission level/) ;
+my @allowed_warp_params = (@common_params,qw/experience level/) ;
 
 
 # this method can be called by the warp mechanism to alter (warp) the
@@ -400,7 +400,7 @@ sub set {
     }
 
     $self->{current} = { level      => $args{level} ,
-			 permission => $args{permission}
+			 experience => $args{experience}
 		       } ;
     $self->SUPER::set_parent_element_property(\%args) ;
 
@@ -421,8 +421,8 @@ sub set_parent_element_property {
     my $cur = $self->{current} ;
 
     # override if necessary
-    $arg_ref->{permission} = $cur->{permission} 
-      if defined $cur->{permission} ;
+    $arg_ref->{experience} = $cur->{experience} 
+      if defined $cur->{experience} ;
 
     if (    defined $cur->{level} 
 	and ( not defined $arg_ref->{level} 

@@ -66,10 +66,12 @@ $model ->create_config_class
 		  ]
   );
 
-my $trace = shift || 0;
+my $arg = shift || '';
 
-$::verbose = 1 if $trace > 1;
-$::debug = 1 if $trace > 2 ;
+my $trace = $arg =~ /t/ ? 1 : 0 ;
+$::verbose          = 1 if $arg =~ /v/;
+$::debug            = 1 if $arg =~ /d/;
+Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 
 ok(1,"Model created") ;
 
@@ -106,25 +108,26 @@ my $b = $w->fetch_element('bar');
 ok( $b, "Created Sarge" );
 
 is($b->get_element_property(property => 'permission', element => 'Y'),
-   'intermediate',"check Y permission") ;
+   'beginner',"check Y permission") ;
 is($b->get_element_property(property => 'permission',element => 'Z'),
-   'intermediate',"check Z permission") ;
+   'beginner',"check Z permission") ;
 is($b->get_element_property(property => 'permission',element => 'X'),
    'master',      "check X permission") ;
 
 is( $b->fetch_element_value('Z'), undef, "test Z value" );
 
 eval { $b->fetch_element('Z','user');} ;
-ok($@,"fetch_element with unexpected permission") ;
-like($@,qr/Unexpected permission/,"check error message") ;
+ok($@,"fetch_element with unexpected experience") ;
+like($@,qr/Unexpected experience/,"check error message") ;
 
+# translated into beginner
 eval { $b->fetch_element('X','intermediate');} ;
-ok($@,"fetch_element with unexpected permission") ;
+ok($@,"fetch_element with unexpected experience") ;
 like($@,qr/restricted element/,"check error message") ;
 
 is( $root->fetch_element('array_args')
     ->get_element_property(property => 'permission',element => 'bar'),
-    'intermediate' );
+    'beginner' );
 is( $root->fetch_element('array_args')->fetch_element('bar')
     ->get_element_property(property => 'permission',element => 'X'), 
     'master' );

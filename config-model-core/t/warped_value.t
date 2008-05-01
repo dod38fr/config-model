@@ -424,7 +424,6 @@ is( $slave->is_element_available(name => 'W', permission => 'advanced'),
 
 $root->fetch_element('macro')->store('C') ;
 
-
 map {is($slave->fetch_element($_)->fetch , undef,
 	"reading slave->$_ (undef)") ; } qw/X Z/;
 is($slave->fetch_element('Y')->fetch , 'Cv',

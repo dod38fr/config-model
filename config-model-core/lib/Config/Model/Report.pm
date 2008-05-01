@@ -147,7 +147,7 @@ sub report {
     };
 
     my @scan_args = (
-		     permission  => delete $args{permission} || 'master',
+		     experience  => delete $args{experience} || 'master',
 		     fallback    => 'all',
 		     auto_vivify => 0,
 		     leaf_cb     => $std_cb,

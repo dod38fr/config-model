@@ -70,7 +70,7 @@ for details.
 =back
 
 By default, the wizard will only scan element with an C<intermediate>
-permission.
+experience.
 
 The wizard helper supports going forward and backward during the scan
 (to support C<back> and C<next> buttons on a wizard widget).
@@ -96,9 +96,9 @@ Here are the the parameters accepted by C<wizard_helper>:
 
 Whether to call back when an important element is found (default 1).
 
-=head2 permission
+=head2 experience
 
-Specifies the permission of the element scanned by the wizard (default
+Specifies the experience of the element scanned by the wizard (default
 'intermediate').
 
 =head2 leaf_cb
@@ -148,9 +148,9 @@ sub new {
 
     bless $self, $type ;
 
-    my %user_scan_args = ( permission => 'intermediate',) ;
+    my %user_scan_args = ( experience => 'intermediate',) ;
 
-    foreach my $p (qw/permission/) {
+    foreach my $p (qw/experience/) {
 	$user_scan_args{$p} = delete $args{$p};
     }
 
@@ -185,7 +185,7 @@ sub new {
 
     $self->{scanner} = Config::Model::ObjTreeScanner
       -> new ( fallback        => 'all' ,
-	       permission      => $user_scan_args{permission} ,
+	       experience      => $user_scan_args{experience} ,
 	       hash_element_cb => sub { $self -> hash_element_cb (@_) },
 	       node_content_cb => sub { $self -> node_content_cb (@_) },
 	       leaf_cb         => sub { $self -> leaf_cb (@_) },

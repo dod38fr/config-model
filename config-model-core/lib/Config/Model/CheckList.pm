@@ -91,7 +91,7 @@ CheckList object should not be created directly.
 
 my @accessible_params =  qw/default_list choice/ ;
 
-my @allowed_warp_params = (@accessible_params, qw/level permission/);
+my @allowed_warp_params = (@accessible_params, qw/level experience/);
 
 sub new {
     my $type = shift;

@@ -357,7 +357,7 @@ sub list_cd_path {
 
 =item *
 
-UI should take into account permission.
+UI should take into account experience.
 
 =back
 

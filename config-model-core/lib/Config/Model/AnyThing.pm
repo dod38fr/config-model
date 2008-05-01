@@ -392,7 +392,7 @@ sub grab {
 
         unless ($grab_non_available 
 		or $obj->is_element_available(name => $name, 
-					      permission => 'master')) {
+					      experience => 'master')) {
             Config::Model::Exception::UnavailableElement
 		->throw (
 			 object => $obj,

@@ -272,7 +272,7 @@ sub submit_to_warp {
 	# check if the warp master is available
 	my $available 
 	  = $warper->parent->is_element_available(name => $warper->element_name,
-						  permission => 'master') ;
+						  experience => 'master') ;
 
 	if ($available) {
 	    # read the warp master values, so I can warp myself just
@@ -298,13 +298,13 @@ sub submit_to_warp {
 }
 
 # Internal. This method will change element properties (like level and
-# permission) according to the warp effect.  For instance, if a warp
+# experience) according to the warp effect.  For instance, if a warp
 # rule make a node no longer available in a model, its level must
 # change to 'hidden'
 sub set_parent_element_property {
     my ($self, $arg_ref) = @_ ;
 
-    foreach my $property_name (qw/level permission/) {
+    foreach my $property_name (qw/level experience/) {
 	my $v = delete $arg_ref->{$property_name} ;
 	if (defined $v) {
 	    $self->{parent}

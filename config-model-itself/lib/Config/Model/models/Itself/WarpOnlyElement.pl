@@ -29,11 +29,11 @@
    'element' 
    => [
 
-       'permission' 
+       'experience' 
        => {
 	   type => 'leaf',
 	   value_type => 'enum', 
-	   choice => [qw/master advanced intermediate/] ,
+	   choice => [qw/master advanced beginner/] ,
 	  },
 
        'level' 
@@ -47,7 +47,7 @@
 
    'description' 
    => [
-       permission => 'Used to categorize configuration elements in several "required skills". Use this feature if you need to hide a parameter to novice users',
+       experience => 'Used to categorize configuration elements in several "required skills". Use this feature if you need to hide a parameter to novice users',
        level => 'Used to highlight important parameter or to hide others. Hidden parameter are mostly used to hide features that are unavailable at start time. They can be made available later using warp mechanism',
       ],
   ],

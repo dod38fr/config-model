@@ -32,9 +32,9 @@ use Data::Dumper ();
 use Config::Model::Instance ;
 
 # this class holds the version number of the package
-use vars qw($VERSION @status @level @permission_list %permission_index) ;
+use vars qw($VERSION @status @level @experience_list %experience_index) ;
 
-$VERSION = '0.622';
+$VERSION = '0.623';
 
 =head1 NAME
 
@@ -268,7 +268,7 @@ Mandatory parameters
 
 =item *
 
-Targeted audience (intermediate, advance, master)
+Targeted audience (beginner, advance, master)
 
 =item *
 
@@ -357,15 +357,15 @@ several other properties:
 
 =over
 
-=item permission
+=item experience
 
-By using the C<permission> parameter, you can change the permission
-level of each element. Authorized privilege values are C<master>,
-C<advanced> and C<intermediate> (default).
+By using the C<experience> parameter, you can change the experience
+level of each element. Possible experience levels are C<master>,
+C<advanced> and C<beginner> (default).
 
 =cut
 
-@permission_list = qw/intermediate advanced master/;
+@experience_list = qw/beginner advanced master/;
 
 =item level
 
@@ -408,7 +408,7 @@ my %default_property =
   (
    status      => 'standard',
    level       => 'normal',
-   permission  => 'intermediate',
+   experience  => 'beginner',
    description => ''
   );
 
@@ -420,15 +420,15 @@ my %check;
   $idx = 0 ;
   map ($check{status}{$_}=$idx++, @status);
   $idx = 0 ;
-  map ($permission_index{$_}=$idx++, @permission_list);
+  map ($experience_index{$_}=$idx++, @experience_list);
 }
 
-$check{permission}=\%permission_index ;
+$check{experience}=\%experience_index ;
 
 # unpacked model is:
 # {
 #   element_list  => [ ... ],
-#   permission    => { element_name => <permission> },
+#   experience    => { element_name => <experience> },
 #   status        => { element_name => <status>     },
 #   description   => { element_name => <string> },
 #   element       => { element_name => element_data (left as is)    },
@@ -445,7 +445,7 @@ This parameter is currently reserved for a model editor (yet to be written).
 
 =cut
 
-my @legal_params = qw/permission status description element level config_dir 
+my @legal_params = qw/experience status description element level config_dir 
                       generated_by class_description/;
 
 sub create_config_class {
@@ -557,6 +557,8 @@ sub check_class_parameters {
 	    ) ;
     }
 
+    $self->translate_legacy_permission($config_class_name, $raw_model, $raw_model ) ;
+
     foreach my $info_name (@legal_params) {
 	# fill default info (but do not clobber already existing info)
 	map {$model->{$info_name}{$_} ||= $default_property{$info_name}; }
@@ -588,11 +590,16 @@ sub check_class_parameters {
 		    and not defined $check{$info_name}{$info} ;
 
 	    if ($info_name eq 'element') {
-		foreach my $info_to_move (qw/description level permission status/) {
+		foreach my $info_to_move (qw/description level experience status/) {
 		    my $moved_data = delete $info->{$info_to_move}  ;
 		    next unless defined $moved_data ;
 		    map {$model->{$info_to_move}{$_} = $moved_data ; }
 			 @element_names ;
+		}
+
+		if (defined $info->{permission}) {
+		    $self->translate_legacy_permission($config_class_name, 
+						       $info, $info ) ;
 		}
 	    }
 
@@ -617,6 +624,35 @@ sub check_class_parameters {
 	  if keys %$raw_model ;
 
     $model->{element_list} = \@element_list;
+}
+
+sub translate_legacy_permission {
+    my ($self, $config_class_name, $model, $raw_model ) = @_  ;
+
+    my $raw_experience = delete $raw_model -> {permission} ;
+    return unless defined $raw_experience ;
+
+    print Data::Dumper->Dump([$raw_model ] , ['permission to translate' ] ) ,"\n" 
+	if $::debug;
+
+    $self->legacy("$config_class_name: parameter permission is deprecated "
+                  ."in favor of 'experience'");
+
+    # now change intermediate in beginner
+    if (ref $raw_experience eq 'HASH') {
+	map { $_ = 'beginner' if $_ eq 'intermediate' } values %$raw_experience;
+    }
+    elsif (ref $raw_experience eq 'ARRAY') {
+	map { $_ = 'beginner' if $_ eq 'intermediate' } @$raw_experience;
+    }
+    else {
+	$raw_experience = 'beginner' if $raw_experience eq 'intermediate';
+    }
+
+    $model -> {experience} = $raw_experience ;
+
+    print Data::Dumper->Dump([$model ] , ['translated_permission' ] ) ,"\n" 
+	if $::debug;
 }
 
 sub translate_legacy_info {
@@ -966,6 +1002,11 @@ sub translate_rules_arg {
 		     ) ;
     }
 
+    for (my $idx=1; $idx < @rules ; $idx += 2) {
+	$self->translate_legacy_permission($config_class_name, $rules[$idx], $rules[$idx])
+	    if (ref $rules[$idx] eq 'HASH') ; # other cases are illegal and trapped later
+     }
+
     return \@rules ;
 }
 
@@ -1106,7 +1147,7 @@ Example:
   $model->create_config_class 
   (
    config_class_name => 'SomeRootClass',
-   permission        => [ [ qw/tree_macro warp/ ] => 'advanced'] ,
+   experience        => [ [ qw/tree_macro warp/ ] => 'advanced'] ,
    description       => [ X => 'X-ray' ],
    level             => [ 'tree_macro' => 'important' ] ,
    class_description => "SomeRootClass description",
@@ -1116,7 +1157,7 @@ Example:
 Again, see L<Config::Model::Node> for more details on configuration
 class declaration.
 
-For convenience, C<permission>, C<level> and C<description> parameters
+For convenience, C<experience>, C<level> and C<description> parameters
 can also be declared within the element declaration:
 
   $model->create_config_class 
@@ -1126,9 +1167,9 @@ can also be declared within the element declaration:
    'element'
    => [ 
         tree_macro => { level => 'important',
-                        permission => 'advanced',
+                        experience => 'advanced',
                       },
-        warp       => { permission => 'advanced', } ,
+        warp       => { experience => 'advanced', } ,
         X          => { description => 'X-ray', } ,
       ] 
   ) ;
@@ -1253,9 +1294,9 @@ sub get_raw_model {
 =head2 get_element_name( class => Foo, for => advanced )
 
 Get all names of the elements of class C<Foo> that are accessible for
-level C<advanced>. 
+experience level C<advanced>. 
 
-Level can be C<master> (default), C<advanced> or C<intermediate>.
+Level can be C<master> (default), C<advanced> or C<beginner>.
 
 =cut
 
@@ -1267,20 +1308,25 @@ sub get_element_name {
       croak "get_element_name: missing 'class' parameter" ;
     my $for = $args{for} || 'master' ;
 
-    croak "get_element_name: wrong 'for' parameter. Expected ", 
-      join (' or ', @permission_list) 
-	unless defined $permission_index{$for} ;
+    if ($for eq 'intermediate') {
+	carp "get_element_name: 'intermediate' is deprecated in favor of beginner";
+	$for = 'beginner' ;
+    }
 
-    my @permissions 
-      = @permission_list[ 0 .. $permission_index{$for} ] ;
+    croak "get_element_name: wrong 'for' parameter. Expected ", 
+      join (' or ', @experience_list) 
+	unless defined $experience_index{$for} ;
+
+    my @experiences 
+      = @experience_list[ 0 .. $experience_index{$for} ] ;
     my @array
-      = $self->get_element_with_permission($class,@permissions);
+      = $self->get_element_with_experience($class,@experiences);
 
     return wantarray ? @array : join( ' ', @array );
 }
 
 # internal
-sub get_element_with_permission {
+sub get_element_with_experience {
     my $self      = shift ;
     my $class     = shift ;
 
@@ -1291,10 +1337,10 @@ sub get_element_with_permission {
     # must respect the order of the elements declared in the model by
     # the user
     foreach my $elt (@{$model->{element_list}}) {
-	foreach my $permission (@_) {
+	foreach my $experience (@_) {
 	    push @result, $elt
 	      if $model->{level}{$elt} ne 'hidden' 
-		and $model->{permission}{$elt} eq $permission ;
+		and $model->{experience}{$elt} eq $experience ;
 	}
     }
 

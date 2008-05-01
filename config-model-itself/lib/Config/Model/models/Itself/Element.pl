@@ -48,12 +48,12 @@
 	  built_in => 'standard' ,
 	 },
 
-       'permission' 
+       'experience' 
        => {
 	   type => 'leaf',
 	   value_type => 'enum', 
-	   choice => [qw/master advanced intermediate/] ,
-	   built_in => 'intermediate',
+	   choice => [qw/master advanced beginner/] ,
+	   built_in => 'beginner',
 	   description => 'Used to categorize configuration elements in several "required skills". Use this feature if you need to hide a parameter to novice users',
 	  },
 

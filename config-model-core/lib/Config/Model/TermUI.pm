@@ -297,7 +297,7 @@ completion.
 
 =item *
 
-UI should take into account permission.
+UI should take into account experience.
 
 =back
 

@@ -1,3 +1,9 @@
+2008-05-01  Domi  <domi@bilbo.maison>
+
+	* lib/Config/Model.pm: Changed 'permission' to 'experience' and
+	'intermediate' to 'beginner' for better clarify. Changes are
+	backward compatible.
+
 2008-04-29  Dominique Dumont  <dominique.dumont@hp.com>
 
 	* lib/Config/Model/HashId.pm (move): New method to take into

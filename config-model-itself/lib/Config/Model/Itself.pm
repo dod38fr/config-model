@@ -66,7 +66,7 @@ Config::Model::Itself - Model editor for Config::Model
  # create Curses user interface
  my $dialog = Config::Model::CursesUI-> new
       (
-       permission => 'advanced',
+       experience => 'advanced',
        store => $wr_back,
       ) ;
 
@@ -185,12 +185,12 @@ sub read_all {
 	die "wrong reg_exp" if $file eq $rel_file ;
 	$class_file_map{$rel_file} = \@models ;
 
-	# - move permission, description and level status into parameter info.
+	# - move experience, description and level status into parameter info.
 	foreach my $model_name (@models) {
 	    # no need to dclone model as Config::Model object is temporary
 	    my $new_model =  $tmp_model -> get_model( $model_name ) ;
 
-	    foreach my $item (qw/description level permission status/) {
+	    foreach my $item (qw/description level experience status/) {
 		foreach my $elt_name (keys %{$new_model->{element}}) {
 		    my $moved_data = delete $new_model->{$item}{$elt_name}  ;
 		    next unless defined $moved_data ;
@@ -256,7 +256,7 @@ sub get_perl_data_model{
     # - Do NOT translate legacy warp parameters
     # - Do not compact elements name
 
-    # - move permission, description and level status back in class info.
+    # - move experience, description and level status back in class info.
     # my $all_elt_data = $model->{element} || [] ;
     # for (my $i = 0 ; $i < @$all_elt_data; $i ++) {
     # 	my $elt_name = $all_elt_data->[$i++] ;

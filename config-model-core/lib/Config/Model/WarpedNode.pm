@@ -58,7 +58,7 @@ Config::Model::WarpedNode - Node that change config class properties
                   XY  => { config_class_name => ['SlaveY'], },
                   mXY => {
                           config_class_name   => 'SlaveY',
-                          permission => 'intermediate'
+                          experience => 'intermediate'
                          },
                   XZ => { config_class_name => 'SlaveZ' }
                  }
@@ -73,7 +73,7 @@ Config::Model::WarpedNode - Node that change config class properties
                   '$tm eq "XY"'  => { config_class_name => ['SlaveY'], },
                   '$tm eq "mXY"' => {
                                     config_class_name   => 'SlaveY',
-                                    permission => 'intermediate'
+                                    experience => 'intermediate'
                                   },
                   '$tm eq "XZ"'  => { config_class_name => 'SlaveZ' }
                  ]
@@ -100,7 +100,7 @@ method.
 Warped node can alter the following properties:
 
  config_class_name
- permission
+ experience
  level
 
 =head1 Constructor
@@ -160,9 +160,9 @@ constructor arguments :
 
   XY  => { config_class_name => ['SlaveY', foo => 'bar' ], },
 
-=item B<permission>
+=item B<experience>
 
-Switch the permission of the slot when the object is warped in.
+Switch the experience of the slot when the object is warped in.
 
 =back
 
@@ -174,7 +174,7 @@ Switch the permission of the slot when the object is warped in.
 # status is not warpable either as an obsolete parameter must stay
 # obsolete
 
-my @allowed_warp_params = qw/config_class_name permission level/ ;
+my @allowed_warp_params = qw/config_class_name experience level/ ;
 
 sub new {
     my $type = shift;
@@ -403,7 +403,7 @@ __END__
 
  $model ->create_config_class 
   (
-   permission => [ bar => 'advanced'] ,
+   experience => [ bar => 'advanced'] ,
    element =>
     [
      tree_macro => { type => 'leaf',

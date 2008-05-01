@@ -231,7 +231,7 @@ sub full_message {
     my $msg = $self->description;
     my $element = $self->element ;
     my $req = $self->object
-      ->get_element_property(element => $element, property => 'permission') ;
+      ->get_element_property(element => $element, property => 'experience') ;
     $msg .= " '$element' in node '$location':" ;
     $msg .= "\n\tNeed privilege '$req' instead of '".
       $self->level."'\n";
