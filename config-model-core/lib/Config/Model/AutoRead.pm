@@ -44,8 +44,13 @@ Config::Model::AutoRead - Load on demand base class for configuration node
   (
    config_class_name => 'OneAutoReadConfigClass',
 
-   read_config  => [ 'cds', { class => 'ProcessRead' ,  function => 'read_it'} ],
-   write_config => 'cds';
+   read_config  => [ { syntax => 'cds'},
+                     { syntax => 'custom' ,
+                       class => 'ProcessRead' ,
+                       function => 'read_it'
+                     }
+                   ],
+   write_config => { syntax => 'cds' } , # can be array ref also
 
    config_dir  => '/etc/my_config_dir',
 
@@ -117,7 +122,7 @@ Currently, this class supports the following built-in formats:
 
 =item cds
 
-Config dumpt string. See L<Config::Model::Dumper>.
+Config dump string. See L<Config::Model::Dumper>.
 
 =item ini
 
@@ -154,9 +159,10 @@ classes have only leaf elements.
 A configuration class will be declared with optional C<read> or
 C<write> parameters:
 
-  read_config  => [ 'cds', 
-                    read => { class => 'Bar' ,  function => 'read_it'}, ]
-  write_config => 'cds';
+  read_config  => [ { syntax => 'cds'} , 
+                    { syntax => 'custom', class => 'Bar' ,  function => 'read_it'},
+                  ],
+  write_config => { syntax => 'cds'},
 
 The various C<read> method will be tried in order specified:
 
@@ -189,28 +195,30 @@ graceful migration from a customized format to a C<cds> format.
 
 You can choose also to read and write only customized files :
 
-  read_config  => { class => 'Bar' ,  function => 'read_it'},
-  write_config => { class => 'Bar' ,  function => 'write_it'};
+  read_config  => { syntax => 'custom', class => 'Bar' ,  function => 'read_it'},
+  write_config => { syntax => 'custom', class => 'Bar' ,  function => 'write_it'};
 
 Or to read and write only cds files :
 
-  read_config  => 'cds', 
-  write_config => 'cds' ;
+  read_config  => { syntax => 'cds'} ,
+  write_config => { syntax => 'cds'} ,
 
 =begin comment
 
 To migrate from custom format to xml:
 
-  read_config  => [ 'xml', { class => 'Bar' ,  function => 'read_it'} ],
-  write_config => 'xml';
+  read_config  => [ { syntax => 'xml' },
+                    { syntax => 'custom', class => 'Bar' ,  function => 'read_it'} ],
+  write_config => { syntax => 'xml' },
 
 =end comment
 
 To migrate from an old format to a new format:
 
-  read_config  => [ { class => 'OldFormat' ,  function => 'old_read'} ,
-                    { class => 'NewFormat' ,  function => 'new_read'} ],
-  write_config => [ { class => 'NewFormat' ,  function => 'write'   } ],
+  read_config  => [ { syntax => 'custom', class => 'OldFormat' ,  function => 'old_read'} ,
+                    { syntax => 'custom', class => 'NewFormat' ,  function => 'new_read'} 
+                  ],
+  write_config => [ { syntax => 'custom', class => 'NewFormat' ,  function => 'write'   } ],
 
 =head2 read write directory
 
@@ -237,23 +245,39 @@ sub auto_read_init {
     # overide is permitted
     $self->{r_dir} = $instance -> read_directory ||$r_dir ; 
 
-    die "auto_read_init: readlist must be array ref or scalar\n" 
-      if ref $readlist  eq 'HASH' ;
+    croak "auto_read_init: readlist must be array or hash ref\n" 
+      unless ref $readlist ;
 
     my @list = ref $readlist  eq 'ARRAY' ? @$readlist :  ($readlist) ;
     foreach my $read (@list) {
-	last if ($read eq 'xml'  and $self->read_xml()) ;
-	last if ($read eq 'ini'  and $self->read_ini()) ;
-	last if ($read eq 'perl' and $self->read_perl()) ;
-	last if ($read eq 'cds'  and $self->read_cds()) ;
-	next unless ref($read) eq 'HASH' ;
-
-	my $c = my $file = $read->{class} ;
-	$file =~ s!::!/!g;
-	my $f = $read->{function} ;
-	require $file.'.pm' unless $c->can($f);
-	no strict 'refs';
-	last if &{$c.'::'.$f}(conf_dir => $self->{r_dir}, object => $self) ;
+	my $syntax = $read->{syntax} ;
+	if (not defined $syntax or $syntax eq 'custom') {
+	    my $c = my $file = $read->{class} ;
+	    $file =~ s!::!/!g;
+	    my $f = $read->{function} ;
+	    require $file.'.pm' unless $c->can($f);
+	    no strict 'refs';
+	    last if &{$c.'::'.$f}(conf_dir => $self->{r_dir}, object => $self) ;
+	}
+	elsif ($syntax eq 'xml') {
+	    last if $self->read_xml() ;
+	}
+	elsif ($syntax eq 'perl') {
+	    last if $self->read_perl() ;
+	}
+	elsif ($syntax eq 'ini') {
+	    last if $self->read_ini() ;
+	}
+	elsif ($syntax eq 'cds') {
+	    last if $self->read_cds() ;
+	}
+	else {
+	    Config::Model::Exception::Model -> throw
+		    (
+		     error=> "auto_read error: unknown syntax '$syntax'",
+		     object => $self
+		    ) ;
+	}
     }
 }
 
@@ -272,23 +296,8 @@ sub auto_write_init {
 	print "auto_write_init: registering write cb ($write) for ",$self->name,"\n"
 	  if $::debug ;
 	my $wb ;
-	if ($write eq 'xml') {
-	    $wb = sub {$self->write_xml(shift) ;} ;
-	    $self->{auto_write}{xml} = 1 ;
-	}
-	elsif ($write eq 'ini') {
-	    $wb = sub {$self->write_ini(shift) ;} ;
-	    $self->{auto_write}{ini} = 1 ;
-	}
-	elsif ($write eq 'perl') {
-	    $wb = sub {$self->write_perl(shift) ;} ;
-	    $self->{auto_write}{perl} = 1 ;
-	}
-	elsif ($write eq 'cds') {
-	    $wb = sub {$self->write_cds(shift) ;} ;
-	    $self->{auto_write}{cds} = 1 ;
-	}
-	elsif (ref($write) eq 'HASH') {
+	my $syntax = $write->{syntax} ;
+	if (not defined $syntax or $syntax eq 'custom') {
 	    my $c = my $file = $write->{class} ;
 	    $file =~ s!::!/!g;
 	    my $f = $write->{function} ;
@@ -300,6 +309,29 @@ sub auto_write_init {
 				       object => $safe_self) ;
 		     };
 	    $self->{auto_write}{custom} = 1 ;
+	}
+	elsif ($syntax eq 'xml') {
+	    $wb = sub {$self->write_xml(shift) ;} ;
+	    $self->{auto_write}{xml} = 1 ;
+	}
+	elsif ($syntax eq 'ini') {
+	    $wb = sub {$self->write_ini(shift) ;} ;
+	    $self->{auto_write}{ini} = 1 ;
+	}
+	elsif ($syntax eq 'perl') {
+	    $wb = sub {$self->write_perl(shift) ;} ;
+	    $self->{auto_write}{perl} = 1 ;
+	}
+	elsif ($syntax eq 'cds') {
+	    $wb = sub {$self->write_cds(shift) ;} ;
+	    $self->{auto_write}{cds} = 1 ;
+	}
+	else {
+	    Config::Model::Exception::Model -> throw
+		    (
+		     error=> "auto_write error: unknown syntax '$syntax'",
+		     object => $self
+		    ) ;
 	}
 
 	$instance->register_write_back($wb) ;

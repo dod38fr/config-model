@@ -1,3 +1,13 @@
+2008-05-02  Domi  <domi@bilbo.maison>
+
+	* lib/Config/Model/AutoRead.pm: Changed the way to specify auto
+	read and write for better clarity. Now they must be specified with
+	   read_config => [ { syntax => 'ini'},
+	                    {syntax => 'custom', class => 'Mine',function=>'my_read'}]
+	instead of 
+	   read_config => [ 'ini', { class => 'Mine',function=>'my_read'}]
+	likewise for write_config
+
 2008-05-01  Domi  <domi@bilbo.maison>
 
 	* lib/Config/Model.pm: Changed 'permission' to 'experience' and

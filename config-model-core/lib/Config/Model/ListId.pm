@@ -257,9 +257,11 @@ sub create_default {
     }
 }
 
-=head2 load_data ( list_ref )
+=head2 load_data ( array_ref | data )
 
-Load list as an array ref. 
+Clear and load list from data contained in the array ref. If a scalar
+or a hash ref is passed, the list is cleared and the data is stored in
+the first element of the list.
 
 =cut
 
@@ -277,18 +279,11 @@ sub load_data {
 	    $obj -> load_data($item) ;
 	}
     }
-    elsif (not ref ($data)) {
+    else {
 	print "ListId load_data (",$self->location,") will load idx ",
 	  "0\n" if $::verbose ;
+	$self->clear ;
 	$self->fetch_with_id(0) -> load_data($data) ;
-    }
-    else {
-	Config::Model::Exception::LoadData
-	    -> throw (
-		      object => $self,
-		      message => "load_data called with non array ref arg",
-		      wrong_data => $data,
-		     ) ;
     }
 }
 

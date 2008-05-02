@@ -79,6 +79,12 @@
    permission => [ [qw/tree_macro warp/] => 'advanced'] ,
    class_description => "Master description",
    level      => [ [qw/hash_a tree_macro int_v/] => 'important' ],
+
+   read_config  => { syntax => 'cds'} ,
+   write_config => [{ syntax => 'cds'},{syntax => 'perl'} ] ,
+   read_config_dir  => 'wr_test/conf_data',
+   write_config_dir => 'wr_test/conf_data',
+
    element => [
 	       std_id => { type => 'hash',
 			   index_type  => 'string',

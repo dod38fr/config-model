@@ -1222,21 +1222,21 @@ sub load {
 
     print "Model: load model $load_file\n" if $::verbose ;
 
-    my $model = do $load_file or
-      Config::Model::Exception::ModelDeclaration
-	  -> throw (
-		    message => "model $load_model compile error in $load_file: "
-		             . ( $! || $@)
-		   );
+    my $err_msg = '';
+    my $model = do $load_file ;
 
     unless ($model) {
-	warn "couldn't parse $load_file: $@" if $@;
-	warn "couldn't do $load_file: $!"    unless defined $model;
-	warn "couldn't run $load_file"       unless $model;
+	if ($@) {$err_msg =  "couldn't parse $load_file: $@"; }
+	elsif (not defined $model) {$err_msg = "couldn't do $load_file: $!"}
+	else {$err_msg = "couldn't run $load_file" ;}
+    }
+    elsif (ref($model) ne 'ARRAY') {
+	$err_msg = "Model file $load_file does not return an array ref" ;
     }
 
-    die "Model file $load_file does not return an array ref\n"
-      unless ref($model) eq 'ARRAY';
+    Config::Model::Exception::ModelDeclaration
+	    -> throw (message => "model $load_model: $err_msg")
+		if $err_msg ;
 
     my @loaded ;
     foreach my $config_class_info (@$model) {
