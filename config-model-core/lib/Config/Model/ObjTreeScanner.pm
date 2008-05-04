@@ -344,16 +344,19 @@ sub new {
     bless $self,$type ;
 
     $self->{leaf_cb} = delete $args{leaf_cb} or
-      croak __PACKAGE__,"->new: missing leaf_cb parameter" ;
+	croak __PACKAGE__,"->new: missing leaf_cb parameter" ;
 
     # we may use leaf_cb
     $self->create_fallback(delete $args{fallback} || 'all') ;
 
-    $self->{experience} = delete $args{permission} if defined $args{permission} ;
+    if (defined $args{permission}) {
+	$self->{experience} = delete $args{permission} ;
+	carp "ObjTreeScanner new: permission is deprecated in favor of experience";
+    }
 
     # get all call_backs
     my @value_cb = map {$_.'_value_cb'} 
-      qw/boolean enum string uniline integer number reference/; 
+	qw/boolean enum string uniline integer number reference/; 
 
     foreach my $param (qw/node_element_cb hash_element_cb 
                           list_element_cb check_list_element_cb node_content_cb
