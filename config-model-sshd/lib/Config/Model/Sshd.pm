@@ -106,7 +106,7 @@ $parser = Parse::RecDescent->new($grammar) ;
     $current_node = $root unless defined $current_node ;
 
     # keys are case insensitive, try to find a match
-    if ( not $current_node->is_element_defined( $key ) ) {
+    if ( not $current_node->element_exists( $key ) ) {
 	foreach my $elt ($current_node->get_element_name(for => 'master') ) {
 	    $key = $elt if lc($key) eq lc($elt) ;
 	}

@@ -1084,6 +1084,19 @@ sub is_element_available {
 	>= $experience_index{$element_exp} ? 1 : 0;
 }
 
+=head2 element_exists( element_name )
+
+Returns 1 if the element is known in the model.
+
+=cut
+
+sub element_exists {
+    my $self= shift ;
+    my $element_name = shift ;
+
+    return defined $self->{model}{element}{$element_name} ? 1 : 0 ;
+}
+
 =head2 is_element_defined( element_name )
 
 Returns 1 if the element is defined.
