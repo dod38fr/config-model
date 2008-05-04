@@ -128,7 +128,7 @@ sub Populate {
 
     $cw->add_help_menu($menubar) ;
 
-    my $perm_ref = $cw->{scanner}->get_permission_ref ;
+    my $perm_ref = $cw->{scanner}->get_experience_ref ;
     $cw->{perm_ref} = $perm_ref ;
     my $perm_items = [
 		      map {['radiobutton',$_,'-variable', $perm_ref,
@@ -136,7 +136,7 @@ sub Populate {
 			   ] }
 		          qw/master advanced intermediate/
 		     ] ;
-    my $opt_items = [[qw/cascade permission -menuitems/, $perm_items ]] ;
+    my $opt_items = [[qw/cascade experience -menuitems/, $perm_items ]] ;
     $menubar->cascade( -label => 'Options', -menuitems => $opt_items ) ; 
 
     # create frame for location entry 

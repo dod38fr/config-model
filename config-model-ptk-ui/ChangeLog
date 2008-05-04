@@ -1,3 +1,7 @@
+2008-05-04  Domi  <domi@bilbo.maison>
+
+	* lib/Config/Model/Tk/LeafEditor.pm: Fix bug in value help display
+
 2008-04-29  Dominique Dumont  <dominique.dumont@hp.com>
 
 	* lib/Config/Model/Tk/HashEditor.pm (move_selected_to): Fixed move

@@ -85,7 +85,7 @@ sub Populate {
     }
     elsif ($vt eq 'uniline' or $vt eq 'integer') {
 	$ed_frame -> Entry(-textvariable => $vref)
-	    -> pack(@fbe1);
+	    -> pack(@fxe1);
 	$cw->add_buttons($ed_frame) ;
     }
     elsif ($vt eq 'enum' or $vt eq 'reference') {
@@ -109,8 +109,7 @@ sub Populate {
     $cw->add_help_frame() ;
     $cw->add_help(class   => $leaf->parent->get_help) ;
     $cw->add_help(element => $leaf->parent->get_help($leaf->element_name)) ;
-    $cw->{value_help} = '';
-    $cw->add_help(value => \$cw->{value_help});
+    $cw->{value_help_widget} = $cw->add_help(value => '',1);
     $cw->set_value_help ;
 
     $cw->ConfigSpecs(
@@ -212,7 +211,12 @@ sub store {
 sub set_value_help {
      my $cw = shift ;
      my $v = $cw->{value} ;
-     $cw->{value_help} = $cw->{leaf}->get_help($v) if defined $v ;
+     if (defined $v) {
+	 my $value_help = $cw->{leaf}->get_help($v);
+	 my $w = $cw->{value_help_widget};
+	 $w->delete('0.0','end');
+	 $w->insert('end',$value_help) if defined $value_help ;
+     }
  }
 
 sub reset_value {
@@ -222,7 +226,7 @@ sub reset_value {
 	$cw->{e_widget}->delete('1.0','end') ;
 	$cw->{e_widget}->insert('end',$cw->{value}) ;
     }
-    $cw->set_value_help ;
+    $cw->set_value_help if defined $cw->{value_help_widget};
 }
 
 1;

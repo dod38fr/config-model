@@ -101,10 +101,12 @@ sub add_help_frame {
     $cw->{help_f} = $htop_frame->Frame()->pack(@fx) ;
 }
 
+# returns the help widget (Label or ROText)
 sub add_help {
     my $cw = shift ;
     my $type = shift ;
-    my $help = shift ;
+    my $help = shift || '' ;
+    my $force_text_widget = shift || 0;
 
     my $help_frame = $cw->{help_f} -> Frame(
 					    -padx => $padx ,
@@ -114,27 +116,28 @@ sub add_help {
 		       -font => $text_font 
 		      )->pack(-side => 'left');
 
-    my @text = ref $help ? ( -textvariable => $help)
-             :             ( -text => $help ) ;
+    my $widget ;
+    chomp $help ;
+    if (  $force_text_widget or $help =~ /\n/ or length($help) > 50) {
+	$widget = $help_frame->Scrolled('ROText',
+					-scrollbars => 'ow',
+					-wrap => 'word',
+					-font => $text_font ,
+					-relief => 'ridge',
+					-height => 4,
+				       );
 
-    chomp $help if defined $help ;
-    if (    defined $help and not ref $help 
-	and ($help =~ /\n/ or length($help) > 70)) {
-	$help_frame->Scrolled('ROText',
-			      -scrollbars => 'ow',
-			      -wrap => 'word',
-			      -height => 6,
-			     )
-	  ->pack( -fill => 'x')
-	    ->insert('end',$help) ;
+	$widget ->pack( @fxe1 ) ->insert('end',$help) ;
     }
     else {
-	$help_frame->Label( @text,
-			    -justify => 'left',
-			    -font => $text_font ,
-			    -anchor => 'w')
-	  ->pack( -fill => 'x');
+	$widget = $help_frame->Label( -text => $help,
+				      -justify => 'left',
+				      -font => $text_font ,
+				      -anchor => 'w')
+	    ->pack( -fill => 'x');
     }
+
+    return $widget ;
 }
 
 sub add_editor_button {
