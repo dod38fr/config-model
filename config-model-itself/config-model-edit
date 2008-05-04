@@ -56,6 +56,7 @@ my $log4perl_conf
 
 Log::Log4perl::init($log4perl_conf);
 
+use lib qw/lib/ ;
 
 my $dev_model_dir = 'lib/Config/Model/models/';
 my $root_model ;
