@@ -1,5 +1,5 @@
 # $Author: ddumont $
-# $Date: 2008-01-23 11:12:16 $
+# $Date$
 # $Revision: 1.5 $
 
 #    Copyright (c) 2008 Dominique Dumont.
@@ -28,9 +28,9 @@ use warnings ;
 use Carp ;
 use IO::File ;
 use Log::Log4perl;
-use Data::Dumper ;
 
-use vars qw($VERSION) ;
+use Parse::RecDescent ;
+use vars qw($VERSION $grammar $parser) ;
 
 $VERSION = sprintf "%d.%03d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/;
 
@@ -42,7 +42,6 @@ sub read {
       || croak __PACKAGE__," read: undefined config root object";
     my $dir = $args{conf_dir} 
       || croak __PACKAGE__," read: undefined config dir";
-    my $test = $args{test} || 0;
 
     unless (-d $dir ) {
 	croak __PACKAGE__," read: unknown config dir $dir";
@@ -60,47 +59,101 @@ sub read {
     if (defined $fh) {
 	my @file = $fh->getlines ;
 	$fh->close;
-	my $idx = 0 ;
-	parse(\@file, $config_root) ;
+	# remove comments and cleanup beginning of line
+	map  { s/#.*//; s/^\s+//; } @file ;
+
+	$parser->sshd_parse(join('',@file), # text to be parsed
+			    1,              # start line
+			    $config_root    # arguments
+			   ) ;
     }
     else {
 	die __PACKAGE__," read: can't open $file:$!";
     }
 }
 
-my %dispatch 
-  = (
-     PermitOpen => \&load_list ,
-     AcceptEnv  => \&load_list ,
-     AllowGroups => \&load_list ,
-     AllowUsers => \&load_list ,
-    );
+$grammar = << 'EOG' ;
+# See Parse::RecDescent faq about newlines
+sshd_parse: <skip: qr/[^\S\n]*/> line[@arg](s) 
 
-sub load_list { 
-    my ($obj,$arg) = @_;
-    map {$obj->push($_) } split /\s+/,$arg ;
+line: match_line  | any_line
+
+match_line: /match/i arg(s) "\n"
+{
+   Config::Model::Sshd::match($arg[0],@{$item[2]}) ;
 }
 
-sub parse {
-    my ($file,$config_root) = @_ ;
+any_line: key arg(s) "\n"  
+{
+   Config::Model::Sshd::assign($arg[0],$item[1],@{$item[2]}) ;
+}
 
-    my $node = $config_root ;
-    my $instance = $config_root->instance ;
-    foreach (@$file) {
-	s/#.*//; # remove comments
-	next if /^\s*$/; # skip blank lines
-	s/^\s+//; # cleanup beginning of line
+key: /\w+/
 
-	my ($keyword, $arg) = split /\s+/,$_,2 ;
-	my $elt_obj = $node -> fetch_element($keyword)
-	  or next ; # return undef in tolerant mode if keyword is inknown
+arg: string | /\S+/
 
-	if (defined $dispatch{$keyword}) {
-	    $dispatch{$keyword}->($elt_obj,$arg) ;
-	} 
+string: '"' /[^"]+/ '"' 
+
+EOG
+
+$parser = Parse::RecDescent->new($grammar) ;
+
+{
+  my $current_node ;
+
+  sub assign {
+    my ($root, $key,@arg) = @_ ;
+    $current_node = $root unless defined $current_node ;
+
+    # keys are case insensitive, try to find a match
+    if ( not $current_node->is_element_defined( $key ) ) {
+	foreach my $elt ($current_node->get_element_name(for => 'master') ) {
+	    $key = $elt if lc($key) eq lc($elt) ;
+	}
     }
+
+    my $elt = $current_node->fetch_element($key) ;
+    my $type = $elt->get_type;
+    print "got $key type $type and ",join('+',@arg),"\n";
+    if    ($type eq 'leaf') { 
+	$elt->store( $arg[0] ) ;
+    }
+    elsif ($type eq 'list') { 
+	$elt->push ( @arg ) ;
+    }
+    elsif ($type eq 'hash') {
+        $elt->fetch_with_id($arg[0])->store( $arg[1] );
+    }
+    elsif ($type eq 'check_list') {
+	my @check = split /,/,$arg[1] ;
+        $elt->set_checked_list (@check) ;
+    }
+    else {
+       die "Sshd::assign did not expect $type for $key\n";
+    }
+  }
+
+  sub match {
+    my ($root, @pairs) = @_ ;
+
+    my $list_obj = $root->fetch_element('Match');
+
+    # create new match block
+    my $nb_of_elt = $list_obj->fetch_size;
+    my $block_obj = $list_obj->fetch_with_id($nb_of_elt) ;
+
+    while (@pairs) {
+	my $criteria = shift @pairs;
+	my $pattern  = shift @pairs;
+	$block_obj->load(qq!$criteria="$pattern"!);
+    }
+
+    $current_node = $block_obj->fetch_element('Elements');
+  }
+
+  sub clear {
+    $current_node = undef ;
+  }
 }
-
-
-
 1;
+

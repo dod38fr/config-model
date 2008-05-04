@@ -1,9 +1,24 @@
 [
           {
+            'read_config' => [
+                               {
+                                 'function' => 'read',
+                                 'class' => 'Config::Model::Sshd',
+                                 'syntax' => 'custom'
+                               }
+                             ],
             'name' => 'Sshd',
+            'write_config' => [
+                                {
+                                  'function' => 'write',
+                                  'class' => 'Config::Model::Sshd',
+                                  'syntax' => 'custom'
+                                }
+                              ],
             'include' => [
                            'Sshd::MatchElement'
                          ],
+            'read_config_dir' => '/etc/ssh',
             'element' => [
                            'AcceptEnv',
                            {
@@ -201,8 +216,11 @@
                            },
                            'HostKey',
                            {
-                             'value_type' => 'uniline',
-                             'type' => 'leaf',
+                             'cargo' => {
+                                          'value_type' => 'uniline',
+                                          'type' => 'leaf'
+                                        },
+                             'type' => 'list',
                              'description' => "Specifies a file containing a private host key used by SSH. The default is /etc/ssh/ssh_host_key for protocol version 1, and /etc/ssh/ssh_host_rsa_key and /etc/ssh/ssh_host_dsa_key for protocol version 2. Note that sshd(8) will refuse to use a file if it is group/world-accessible.  It is possible to have multiple host key files. \x{201c}rsa1\x{201d} keys are used for version 1 and \x{201c}dsa\x{201d} or \x{201c}rsa\x{201d} are used for version 2 of the SSH protocol.
 
 "
@@ -336,8 +354,14 @@ If port is not specified, sshd will listen on the address and all prior Port opt
                            },
                            'Match',
                            {
-                             'type' => 'node',
-                             'config_class_name' => 'Sshd::MatchBlock'
+                             'cargo' => {
+                                          'type' => 'node',
+                                          'config_class_name' => 'Sshd::MatchBlock'
+                                        },
+                             'type' => 'list',
+                             'description' => 'Specifies a match block. The criteria User, Group Host and Address can contain patterns. When all these criteria are satisfied (i.e. all patterns match the incoming connection), the parameters set in the block element will override the general settings.
+
+'
                            },
                            'MaxAuthTries',
                            {
