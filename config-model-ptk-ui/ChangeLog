@@ -1,3 +1,8 @@
+2008-05-07  Dominique Dumont  <dominique.dumont@hp.com>
+
+	* lib/Config/Model/TkUI.pm (): Added Edit menu with copy and paste
+	entries. (No, there won't be a 'cut' entry).
+
 2008-05-04  Domi  <domi@bilbo.maison>
 
 	* lib/Config/Model/Tk/LeafEditor.pm: Fix bug in value help display

@@ -1,3 +1,4 @@
+
 # $Author$
 # $Date$
 # $Revision$
@@ -128,6 +129,13 @@ sub Populate {
 
     $cw->add_help_menu($menubar) ;
 
+    my $edit_items = [
+		      # [ qw/command cut   -command/, sub{ $cw->edit_cut }],
+		      [ qw/command copy  -command/, sub{ $cw->edit_copy }],
+		      [ qw/command paste -command/, sub{ $cw->edit_paste }],
+		     ];
+    $menubar->cascade( -label => 'Edit', -menuitems => $edit_items ) ; 
+
     my $perm_ref = $cw->{scanner}->get_experience_ref ;
     $cw->{perm_ref} = $perm_ref ;
     my $perm_items = [
@@ -138,6 +146,7 @@ sub Populate {
 		     ] ;
     my $opt_items = [[qw/cascade experience -menuitems/, $perm_items ]] ;
     $menubar->cascade( -label => 'Options', -menuitems => $opt_items ) ; 
+
 
     # create frame for location entry 
     my $loc_frame = $cw -> Frame (-relief => 'sunken', -borderwidth => 1)
@@ -224,6 +233,11 @@ Editor widget usage
 When clicking on store, the new data is stored in the tree represented
 on the left side of TkUI. The new data will be stored in the
 configuration file only when "File->save" menu is invoked.
+
+Copy'n'paste
+
+You copy and paste content from one part of the tree to
+another. Beware, there's no "undo" operation.
 
 EOF
 
@@ -798,6 +812,64 @@ sub get_perm {
     return $ {$cw->{perm_ref}} ;
 }
 
+sub edit_copy {
+    my $cw = shift ;
+    my $tkt = $cw->{tktree} ;
+
+    my @selected = @_ ? @_ : $tkt -> info('selection');
+
+    print "edit_copy @selected\n";
+    my @res ;
+
+    foreach my $selection (@selected) {
+	my $data_ref = $tkt->infoData($selection);
+
+	my $cfg_elt = $data_ref->[1] ;
+	print "edit_copy",$cfg_elt->location, " type ", $cfg_elt->get_type,"\n";
+	push  @res, [ $cfg_elt->element_name,
+		      $cfg_elt->index_value ,
+		      $cfg_elt->composite_name,
+		      $cfg_elt->dump_as_data()] ;
+    }
+
+    $cw->{cut_buffer} = \@res ;
+
+    #use Data::Dumper; print "cut_buffer: ", Dumper( \@res ) ,"\n";
+
+    return \@res ; # for tests
+}
+
+sub edit_paste {
+    my $cw = shift ;
+    my $tkt = $cw->{tktree} ;
+
+    my @selected = @_ ? @_ : $tkt -> info('selection');
+
+    print "edit_paste in @selected\n";
+    my @res ;
+
+    my $selection = $selected[0];
+
+    my $data_ref = $tkt->infoData($selection);
+
+    my $cfg_elt = $data_ref->[1] ;
+    print "edit_paste ",$cfg_elt->location, " type ", $cfg_elt->get_type,"\n";
+    my $type = $cfg_elt->get_type ;
+
+    foreach my $data (@{$cw->{cut_buffer} || [] }) {
+	my ($name,$index,$composite,$dump) = @$data;
+	print "from '$composite'\n";
+	if (($type eq 'hash' or $type eq 'list') and defined $index) {
+	    $cfg_elt->fetch_with_id($index)->load_data($dump) ;
+	}
+	elsif ($type eq 'hash' or $type eq 'list' or $type eq 'leaf') {
+	    $cfg_elt->load_data($dump) ;
+	}
+	else {
+	    $cfg_elt->grab($composite)->load_data($data) ;
+	}
+    }
+}
 1;
 
 __END__

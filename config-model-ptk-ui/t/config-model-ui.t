@@ -106,6 +106,11 @@ SKIP: {
       = (
 	 sub { $cmu->reload} ,
 	 sub { $cmu->force_element_display($root->grab('std_id:dd DX')) },
+	 sub { $cmu->edit_copy('test1.std_id')},
+	 sub { $cmu->force_element_display($root->grab('hash_a:titi')) },
+	 sub { $cmu->edit_copy('test1.hash_a.titi')},
+	 #sub { $cmu->edit_paste('test1.hash_b')},
+	 #sub { $cmu->force_element_display($root->grab('hash_b:titi')) },
 	) ;
 
     my @test 
