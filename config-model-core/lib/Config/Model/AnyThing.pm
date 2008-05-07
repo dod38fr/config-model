@@ -540,6 +540,22 @@ sub searcher {
       -> new(model => $model, node => $self, %args ) ;
 }
 
+=head2 dump_as_data ( )
+
+Dumps the configuration data of the node and its siblings into a perl
+data structure. 
+
+Returns a hash ref containing the data.
+
+=cut
+
+sub dump_as_data {
+    my $self = shift ;
+    my $dumper = Config::Model::DumpAsData->new ;
+    $dumper->dump_as_data(node => $self, @_) ;
+}
+
+
 1;
 
 =head1 AUTHOR

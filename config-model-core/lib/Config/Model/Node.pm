@@ -1227,21 +1227,6 @@ sub dump_tree {
     $dumper->dump_tree(node => $self, @_) ;
 }
 
-=head2 dump_as_data ( )
-
-Dumps the configuration data of the node and its siblings into a perl
-data structure. 
-
-Returns a hash ref containing the data.
-
-=cut
-
-sub dump_as_data {
-    my $self = shift ;
-    my $dumper = Config::Model::DumpAsData->new ;
-    $dumper->dump_as_data(node => $self, @_) ;
-}
-
 =head2 describe ()
 
 Provides a decription of the node elements.

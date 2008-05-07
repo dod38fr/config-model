@@ -208,9 +208,25 @@ sub dump_as_data {
     # perform the scan
     my $view_scanner = Config::Model::ObjTreeScanner->new(@scan_args);
 
-    my $result = {};
+    my $obj_type = $dump_node->get_type ;
+    my $result ;
+    my $p = $dump_node->parent;
+    my $e = $dump_node->element_name ;
+    my $i = $dump_node->index_value ; # defined only for hash and list
 
-    $view_scanner->scan_node(\$result ,$dump_node);
+    if ($obj_type =~ /node/) {
+	$view_scanner->scan_node(\$result ,$dump_node);
+    }
+    elsif ( defined $i ) {
+	$view_scanner->scan_hash(\$result ,$p,$e,$i);
+    }
+    elsif (   $obj_type eq 'list' or $obj_type eq 'hash' 
+	   or $obj_type eq 'leaf' or $obj_type eq 'check_list') {
+	$view_scanner->scan_element(\$result ,$p,$e);
+    }
+    else {
+	croak "dump_as_data: unexpected type: $obj_type";
+    }
 
     return $result ;
 }

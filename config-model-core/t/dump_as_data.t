@@ -4,7 +4,7 @@
 # $Revision$
 
 use ExtUtils::testlib;
-use Test::More tests => 11;
+use Test::More tests => 19;
 use Config::Model;
 
 use warnings;
@@ -123,3 +123,22 @@ my $dump2 = $root2->dump_tree ;
 
 is($dump2, $dump1, 
    "check that dump of 2nd tree is identical to dump of the first tree") ;
+
+# try partial dumps
+
+my @tries = ( [ 'olist' => $expect->{olist}  ],
+	      [ 'olist:0' => $expect->{olist}[0] ],
+	      [ 'olist:0 DX' => $expect->{olist}[0]{DX} ],
+	      [ 'string_with_def' => $expect->{string_with_def} ],
+	      [ 'ordered_hash' => $expect->{ordered_hash} ],
+	      [ 'hash_a' => $expect->{hash_a} ],
+	      [ 'std_id:ab' => $expect->{std_id}{ab} ],
+	      [ 'my_check_list' => $expect->{my_check_list} ],
+	    );
+
+foreach my $test ( @tries ) {
+    my ($path, $expect) = @$test ;
+    my $obj = $root->grab($path) ;
+    my $dump = $obj->dump_as_data();
+    is_deeply($dump, $expect, "check data dump for '$path'") ; 
+}

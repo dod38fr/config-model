@@ -1,3 +1,9 @@
+2008-05-07  Dominique Dumont  <dominique.dumont@hp.com>
+
+	* lib/Config/Model/AnyThing.pm (dump_as_data): dump_as_data can
+	now be called on all configuration elements. (before, it could
+	only be called on nodes)
+
 2008-05-02  Domi  <domi@bilbo.maison>
 
 	* lib/Config/Model/AutoRead.pm: Changed the way to specify auto
