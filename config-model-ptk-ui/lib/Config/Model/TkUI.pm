@@ -164,7 +164,6 @@ sub Populate {
       -> Scrolled ( qw/Tree/,
 		    -columns => 4,
 		    -header  => 1,
-		    -selectmode => 'single',
 		    -browsecmd => sub{$cw->on_browse(@_) ;},
 		    -command   => sub{$cw->on_select(@_) ;},
 		    -opencmd   => sub{$cw->open_item(@_) ;},
@@ -201,13 +200,16 @@ sub Populate {
 		     $cw->on_select($item)} ;
     $tree->bind('<Button-3>', $b3_sub) ;
 
+    $cw->SUPER::Populate($args) ;
+
     $cw->ConfigSpecs
       (
        #-background => ['DESCENDANTS', 'background', 'Background', $background],
        #-selectbackground => [$hlist, 'selectBackground', 'SelectBackground', 
        #                      $selectbackground],
-       -width  => [$tree, undef, undef, 80],
-       -height => [$tree, undef, undef, 30],
+       -width  => [$tree, undef, undef, 60],
+       -height => [$tree, undef, undef, 20],
+       -selectmode => [ $tree, 'selectMode' ,'SelectMode', 'single' ], #single',
        #-oldcursor => [$hlist, undef, undef, undef],
        DEFAULT => [$tree]
       ) ;
@@ -217,7 +219,6 @@ sub Populate {
 		   ed_frame => $cw->{e_frame} ,
 		  );
 
-    $cw->SUPER::Populate($args) ;
 }
 
 my $help_text = << 'EOF' ;
@@ -385,10 +386,11 @@ sub save {
 
 sub save_if_yes {
     my $cw =shift ;
+    my $text = shift || "Save data ?" ;
 
     if ($cw->{modified_data}) {
 	my $answer = $cw->Dialog(-title => "quit",
-				 -text  => "Save data ?",
+				 -text  => $text,
 				 -buttons => [ qw/yes no/],
 				 -default_button => 'yes',
 				)->Show ;
@@ -825,7 +827,7 @@ sub edit_copy {
 	my $data_ref = $tkt->infoData($selection);
 
 	my $cfg_elt = $data_ref->[1] ;
-	print "edit_copy",$cfg_elt->location, " type ", $cfg_elt->get_type,"\n";
+	print "edit_copy ",$cfg_elt->location, " type ", $cfg_elt->get_type,"\n";
 	push  @res, [ $cfg_elt->element_name,
 		      $cfg_elt->index_value ,
 		      $cfg_elt->composite_name,
@@ -855,21 +857,29 @@ sub edit_paste {
     my $cfg_elt = $data_ref->[1] ;
     print "edit_paste ",$cfg_elt->location, " type ", $cfg_elt->get_type,"\n";
     my $type = $cfg_elt->get_type ;
+    my $t_name = $cfg_elt->element_name ;
+    my $cut_buf = $cw->{cut_buffer} || [] ;
 
-    foreach my $data (@{$cw->{cut_buffer} || [] }) {
+    foreach my $data (@$cut_buf) {
 	my ($name,$index,$composite,$dump) = @$data;
 	print "from '$composite'\n";
-	if (($type eq 'hash' or $type eq 'list') and defined $index) {
+	if ($name eq $t_name) {
+	   $cfg_elt->load_data($dump) ;
+	}
+	elsif (($type eq 'hash' or $type eq 'list') and defined $index) {
 	    $cfg_elt->fetch_with_id($index)->load_data($dump) ;
 	}
 	elsif ($type eq 'hash' or $type eq 'list' or $type eq 'leaf') {
 	    $cfg_elt->load_data($dump) ;
 	}
 	else {
-	    $cfg_elt->grab($composite)->load_data($data) ;
+	    $cfg_elt->grab($composite)->load_data($dump) ;
 	}
     }
+
+    $cw->reload(1) if @$cut_buf;
 }
+
 1;
 
 __END__

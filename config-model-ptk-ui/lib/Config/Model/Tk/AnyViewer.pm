@@ -108,6 +108,8 @@ sub add_help {
     my $help = shift || '' ;
     my $force_text_widget = shift || 0;
 
+    return undef unless $force_text_widget or $help;
+
     my $help_frame = $cw->{help_f} -> Frame(
 					    -padx => $padx ,
 					   )->pack(@fx);

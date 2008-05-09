@@ -36,6 +36,8 @@ Construct Tk::Widget 'ConfigModelLeafViewer';
 
 my @fbe1 = qw/-fill both -expand 1/ ;
 my @fxe1 = qw/-fill x    -expand 1/ ;
+my @fx   = qw/-fill x  / ;
+
 my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
 sub ClassInit {
@@ -64,12 +66,16 @@ sub Populate {
 
     $cw->add_header(View => $leaf) ;
 
-    my $lv_frame = $cw->Frame(qw/-relief raised -borderwidth 2/)->pack(@fxe1) ;
+    my @pack_args = @fx ;
+    @pack_args = @fbe1 if $vt eq 'string' or $vt eq 'enum' 
+                       or $vt eq 'reference' ;
+    my $lv_frame = $cw->Frame(qw/-relief raised -borderwidth 2/)
+      ->pack(@pack_args) ;
     $lv_frame -> Label(-text => 'Value') -> pack() ;
     
     if ($vt eq 'string') {
 	require Tk::ROText ;
-	$cw->{e_widget} = $lv_frame->ROText(-height => 10 )
+	$cw->{e_widget} = $lv_frame->ROText(-height => 5 )
                                   ->pack(@fxe1);
 	$cw->{e_widget}->insert('end',$v) ;
     }

@@ -36,6 +36,7 @@ Construct Tk::Widget 'ConfigModelLeafEditor';
 
 my @fbe1 = qw/-fill both -expand 1/ ;
 my @fxe1 = qw/-fill x    -expand 1/ ;
+my @fx   = qw/-fill x  / ;
 
 my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
@@ -64,16 +65,19 @@ sub Populate {
     $cw->{value} = $leaf->fetch || '';
     my $vref = \$cw->{value};
 
-    my $v_frame =  $cw->Frame(qw/-relief raised -borderwidth 2/)->pack(@fbe1) ;
-    $v_frame  -> Label(-text => 'Value') -> pack() ;
-    my $ed_frame = $v_frame->Frame()#qw/-relief sunken -borderwidth 1/)
-      ->pack(@fbe1) ;
+    my @pack_args = @fx ;
+    @pack_args = @fbe1 if $vt eq 'string' or $vt eq 'enum' 
+                       or $vt eq 'reference' ;
+
+    my $ed_frame =  $cw->Frame(qw/-relief raised -borderwidth 2/)
+      ->pack(@pack_args) ;
+    $ed_frame  -> Label(-text => 'Value') -> pack() ;
 
     if ($vt eq 'string') {
-	$cw->{e_widget} = $v_frame->Text(-height => 10 )
+	$cw->{e_widget} = $ed_frame->Text(-height => 5 )
                              ->pack(@fbe1);
 	$cw->reset_value ;
-	$cw->add_buttons($v_frame) ;
+	$cw->add_buttons($ed_frame) ;
     }
     elsif ($vt eq 'boolean') {
 	$ed_frame->Checkbutton(-text => $leaf->element_name,
@@ -85,7 +89,7 @@ sub Populate {
     }
     elsif ($vt eq 'uniline' or $vt eq 'integer') {
 	$ed_frame -> Entry(-textvariable => $vref)
-	    -> pack(@fxe1);
+	    -> pack(@fx);
 	$cw->add_buttons($ed_frame) ;
     }
     elsif ($vt eq 'enum' or $vt eq 'reference') {
@@ -142,6 +146,7 @@ sub add_buttons {
 sub try {
     my $cw = shift ;
     my $v = shift ;
+
     if (defined $v) {
 	$cw->{value} = $v ;
     }
@@ -151,6 +156,8 @@ sub try {
 	$v = defined  $e_w ? $e_w->get('1.0','end')
            :                 $cw->{value} ;
     }
+    chomp $v ;
+
     $logger->debug( "try: value $v") ;
     require Tk::Dialog ;
 
@@ -192,6 +199,8 @@ sub store {
     my $cw = shift ;
     my $v = $cw->try ;
     return unless defined $v;
+
+    print "Storing '$v'\n";
 
     eval {$cw->{leaf}->store($v); } ;
 

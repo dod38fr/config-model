@@ -39,6 +39,7 @@ Construct Tk::Widget 'ConfigModelHashEditor';
 
 my @fbe1 = qw/-fill both -expand 1/ ;
 my @fxe1 = qw/-fill x    -expand 1/ ;
+my @fx   = qw/-fill x    / ;
 my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
 my $entry_width = 20 ;
@@ -100,7 +101,7 @@ sub Populate {
     $add_frame -> Button(-text => "Add item $add_str:",
 			 -command => sub {$cw->add_entry($add_item);},
 			 -anchor => 'e',
-			)->pack(-side => 'left', @fxe1);
+			)->pack(-side => 'left', @fx);
     $add_frame -> Entry (-textvariable => \$add_item, -width => $entry_width)
                -> pack  (-side => 'left') ;
 
@@ -110,7 +111,7 @@ sub Populate {
 			-command => sub {$cw->copy_selected_in($cp_item);},
 			-anchor => 'e',
 		       )
-              -> pack(-side => 'left', @fxe1);
+              -> pack(-side => 'left', @fx);
     $cp_frame -> Entry (-textvariable => \$cp_item, -width => $entry_width)
               -> pack  (-side => 'left') ;
 
