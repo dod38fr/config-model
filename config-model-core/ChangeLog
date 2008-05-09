@@ -1,3 +1,8 @@
+2008-05-09  Dominique Dumont  <domi.dumont@free.fr>
+
+	* lib/Config/Model/Value.pm (submit_to_compute): resolve any
+	recursive variables definition before registration. 
+
 2008-05-07  Dominique Dumont  <dominique.dumont@hp.com>
 
 	* lib/Config/Model/AnyThing.pm (dump_as_data): dump_as_data can

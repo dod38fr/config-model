@@ -9,7 +9,7 @@ use ExtUtils::testlib;
 use Test::More;
 use Config::Model ;
 
-BEGIN { plan tests => 34; }
+BEGIN { plan tests => 36; }
 
 use strict;
 
@@ -48,7 +48,14 @@ $model -> create_config_class
 			   variables => { p => '-' },
 			   formula   => '&element($p) eq "foo2"', 
                           },
-	   }
+	   },
+       [qw/av bv/] => {type => 'leaf',
+		       value_type => 'integer',
+		       compute    => { 
+				      variables => { p => '! &element' },
+				      formula   => '$p', 
+				     },
+		      },
        ]
   );
 
@@ -264,3 +271,9 @@ is($fen->fetch,'foo2',"did find node element name");
 my $cen  = $foo2->fetch_element('check_node_element_name') ;
 ok($cen,"created element check_node_element_name") ;
 is($cen->fetch,1,"did check node element name");
+
+my $slave_av = $root->fetch_element('bar')->fetch_element('av') ;
+my $slave_bv = $root->fetch_element('bar')->fetch_element('bv') ;
+
+is($slave_av->fetch,$av->fetch,"compare slave av and av") ;
+is($slave_bv->fetch,$bv->fetch,"compare slave bv and bv") ;

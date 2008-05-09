@@ -294,7 +294,7 @@ sub new {
     $compute_parser ||= Parse::RecDescent->new($compute_grammar) ;
 
     # must make a first pass at computation to subsitute index and
-    # slot values.  leaves $xxx outside of $index or &slot untouched
+    # slot values.  leaves $xxx outside of &index or &element untouched
     my $result_r = $compute_parser
       -> pre_compute
 	(
@@ -413,12 +413,16 @@ sub compute_variables {
         my $did_something = 0 ;
         foreach my $key (keys %variables) {
             my $value = $variables{$key} ; # value may be undef
-            next unless (defined $value and $value =~ /\$/) ;
+            next unless (defined $value and $value =~ /\$|&/) ;
             #next if ref($value); # skip replacement rules
             print "key '$key', value '$value', left $var_left\n" 
 	      if $::debug;
+	    my $pre_res = $compute_parser
+	      -> pre_compute ($value, 1,$self->{value_object}, \%variables, $self->{replace});
+            print "key '$key', pre res '$pre_res', left $var_left\n" 
+	      if $::debug;
             my $res_r = $compute_parser
-	      -> compute ($value, 1,$self->{value_object}, \%variables, $self->{replace});
+	      -> compute ($pre_res, 1,$self->{value_object}, \%variables, $self->{replace});
 	    my $res = $$res_r ;
             #return undef unless defined $res ;
             $variables{$key} = $res ;

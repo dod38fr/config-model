@@ -260,7 +260,10 @@ sub submit_to_compute {
 	      value_type   => $self->{value_type}
 	     );
 
-    $self->register_in_other_value( $c_info->{variables} ) ;
+    # resolve any recursive variables before registration
+    my $v = $self->{_compute}->compute_variables ;
+
+    $self->register_in_other_value( $v ) ;
 }
 
 

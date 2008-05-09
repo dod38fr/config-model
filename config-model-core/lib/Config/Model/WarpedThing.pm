@@ -535,7 +535,7 @@ sub register_in_other_value {
 			     ) if /\W/ ;
 	    }  (%$path) ;
 	}
-        elsif (not ref $path) {
+        elsif (defined $path and not ref $path) {
 	    # is ref during test case
 	    #print "path is '$path'\n";
             next if $path =~ /\$/ ; # next if path also contain a variable
