@@ -684,12 +684,17 @@ sub translate_legacy_info {
 
     # compute cannot be warped
     if (defined $info->{compute}) {
-	$self->translate_compute_info($config_class_name,$elt_name, $info,'compute');
+	$self->translate_compute_info($config_class_name,$elt_name, $info,
+				      'compute');
+	$self->translate_allow_compute_override($config_class_name,$elt_name, 
+						$info);
     }
     if (    defined $info->{cargo} 
 	and defined $info->{cargo}{compute}) {
 	$self->translate_compute_info($config_class_name,$elt_name, 
 				      $info->{cargo},'compute');
+	$self->translate_allow_compute_override($config_class_name,$elt_name, 
+						$info->{cargo});
     }
 
     # refer_to cannot be warped
@@ -776,6 +781,20 @@ sub translate_name {
 	$self->legacy("$config_class_name->$elt_name: parameter $from is deprecated in favor of $to");
 	$info->{$to} = delete $info->{$from}  ;
     }
+}
+
+sub translate_allow_compute_override {
+    my $self = shift ;
+    my $config_class_name = shift ;
+    my $elt_name = shift ;
+    my $info = shift ;
+
+    if (defined $info->{allow_compute_override}) {
+	$self->legacy("$config_class_name->$elt_name: parameter allow_compute_override is deprecated in favor of compute -> allow_override");
+	$info->{compute}{allow_override} = delete $info->{allow_compute_override}  ;
+    }
+    
+
 }
 
 sub translate_compute_info {

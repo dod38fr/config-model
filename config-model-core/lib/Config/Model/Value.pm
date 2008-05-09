@@ -222,6 +222,9 @@ sub set_compute {
 
     my $c_ref = delete $arg_ref->{compute};
 
+    $self->{allow_compute_override} = delete $c_ref->{allow_override}
+      if defined $c_ref->{allow_override} ;
+
     if (ref($c_ref) eq 'HASH') {
 	$self->{compute} = $c_ref ;
     }
@@ -519,7 +522,7 @@ sub set {
 
 
     map { $self->{$_} =  delete $args{$_} if defined $args{$_} }
-      qw/min max mandatory help allow_compute_override replace/;
+      qw/min max mandatory help replace/;
 
     $self->set_value_type     ( \%args );
     $self->set_default        ( \%args ) if (    exists $args{default} 
@@ -1117,7 +1120,7 @@ sub pre_store {
     if (defined $self->{compute} 
 	and not $self->{allow_compute_override}) {
 	my $msg = 'assignment to a computed value is forbidden unless '
-	  .'allow_compute_override is set.' ;
+	  .'compute -> allow_override is set.' ;
 	Config::Model::Exception::Model
 	    -> throw (object => $self, message => $msg) 
 	      if $inst->get_value_check('store') ;

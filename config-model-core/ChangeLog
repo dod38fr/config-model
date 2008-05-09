@@ -2,6 +2,9 @@
 
 	* lib/Config/Model/Value.pm (submit_to_compute): Fix bug where a
 	compute variable in the form 'foo' => '- - &element' did not work
+	(new): allow_compute_override is deprecated in favor of
+	allow_override within the compute parameter (backward compatible
+	change)
 
 2008-05-07  Dominique Dumont  <dominique.dumont@hp.com>
 

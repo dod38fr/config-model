@@ -255,13 +255,15 @@ compute parameter:
    computed_value_with_override => { 
     type => 'leaf',
     value_type => 'string', 
-    allow_compute_override => 1,
     compute => { formula => '"macro is $m"' , 
-                 variables => { m => '- - macro' }
+                 variables => { m => '- - macro' } ,
+                 allow_override => 1,
                }
    }
 
 =cut
+
+# allow_override is intercepted and handled by Value object
 
 sub new {
     my $type = shift ;
