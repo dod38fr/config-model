@@ -62,6 +62,8 @@ sub Populate {
 sub test_model {
     my $cw = shift ;
 
+    $cw->save_if_yes("save model data ?") ;
+
     my $testw =  $cw -> {test_widget} ;
     $testw->destroy if defined $testw and Tk::Exists($testw);
 
