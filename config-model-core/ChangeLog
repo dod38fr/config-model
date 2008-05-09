@@ -1,7 +1,7 @@
 2008-05-09  Dominique Dumont  <domi.dumont@free.fr>
 
-	* lib/Config/Model/Value.pm (submit_to_compute): resolve any
-	recursive variables definition before registration. 
+	* lib/Config/Model/Value.pm (submit_to_compute): Fix bug where a
+	compute variable in the form 'foo' => '- - &element' did not work
 
 2008-05-07  Dominique Dumont  <dominique.dumont@hp.com>
 
