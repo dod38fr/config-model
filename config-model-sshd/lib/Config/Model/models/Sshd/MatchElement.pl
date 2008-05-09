@@ -4,21 +4,41 @@
             'element' => [
                            'AllowTcpForwarding',
                            {
+                             'compute' => {
+                                            'formula' => '$main',
+                                            'variables' => {
+                                                             'main' => '- - - &element'
+                                                           },
+                                            'allow_override' => '1'
+                                          },
                              'value_type' => 'boolean',
-                             'built_in' => '1',
                              'type' => 'leaf',
                              'description' => "Specifies whether TCP forwarding is permitted. The default is \x{201c}yes\x{201d}.Note that disabling TCP forwarding does not improve security unless users are also denied shell access, as they can always install their own forwarders.
 "
                            },
                            'Banner',
                            {
-                             'value_type' => 'string',
+                             'compute' => {
+                                            'formula' => '$main',
+                                            'variables' => {
+                                                             'main' => '- - - &element'
+                                                           },
+                                            'allow_override' => '1'
+                                          },
+                             'value_type' => 'uniline',
                              'type' => 'leaf',
                              'description' => 'In some jurisdictions, sending a warning message before authentication may be relevant for getting legal protection. The contents of the specified file are sent to the remote user before authentication is allowed. This option is only available for protocol version 2. By default, no banner is displayed.
 '
                            },
                            'ForceCommand',
                            {
+                             'compute' => {
+                                            'formula' => '$main',
+                                            'variables' => {
+                                                             'main' => '- - - &element'
+                                                           },
+                                            'allow_override' => '1'
+                                          },
                              'value_type' => 'uniline',
                              'type' => 'leaf',
                              'description' => "Forces the execution of the command specified by ForceCommand, ignoring any command supplied by the client. The command is invoked by using the user\x{2019}s login shell with the -c option. This applies to shell, command, or subsystem execution. It is most useful inside a Match block. The command originally supplied by the client is available in the SSH_ORIGINAL_COMMAND environment variable.
@@ -27,6 +47,13 @@
                            },
                            'GatewayPorts',
                            {
+                             'compute' => {
+                                            'formula' => '$main',
+                                            'variables' => {
+                                                             'main' => '- - - &element'
+                                                           },
+                                            'allow_override' => '1'
+                                          },
                              'value_type' => 'enum',
                              'help' => {
                                          'yes' => 'force remote port forwardings to bind to the wildcard address
@@ -46,8 +73,15 @@
                                            'no'
                                          ]
                            },
-                           'GSSApiAuthentication',
+                           'GSSAPIAuthentication',
                            {
+                             'compute' => {
+                                            'formula' => '$main',
+                                            'variables' => {
+                                                             'main' => '- - - &element'
+                                                           },
+                                            'allow_override' => '1'
+                                          },
                              'value_type' => 'boolean',
                              'built_in' => '0',
                              'type' => 'leaf',
@@ -56,6 +90,13 @@
                            },
                            'KbdInteractiveAuthentication',
                            {
+                             'compute' => {
+                                            'formula' => '$main',
+                                            'variables' => {
+                                                             'main' => '- - - &element'
+                                                           },
+                                            'allow_override' => '1'
+                                          },
                              'value_type' => 'boolean',
                              'built_in' => '0',
                              'type' => 'leaf',
@@ -64,12 +105,26 @@
                            },
                            'KerberosAuthentication',
                            {
+                             'compute' => {
+                                            'formula' => '$main',
+                                            'variables' => {
+                                                             'main' => '- - - &element'
+                                                           },
+                                            'allow_override' => '1'
+                                          },
                              'value_type' => 'boolean',
                              'built_in' => '0',
                              'type' => 'leaf'
                            },
                            'PasswordAuthentication',
                            {
+                             'compute' => {
+                                            'formula' => '$main',
+                                            'variables' => {
+                                                             'main' => '- - - &element'
+                                                           },
+                                            'allow_override' => '1'
+                                          },
                              'value_type' => 'boolean',
                              'built_in' => '0',
                              'type' => 'leaf'
@@ -88,6 +143,13 @@
                            },
                            'RhostsRSAAuthentication',
                            {
+                             'compute' => {
+                                            'formula' => '$main',
+                                            'variables' => {
+                                                             'main' => '- - - &element'
+                                                           },
+                                            'allow_override' => '1'
+                                          },
                              'value_type' => 'boolean',
                              'built_in' => '0',
                              'type' => 'leaf',
@@ -96,6 +158,13 @@
                            },
                            'RSAAuthentication',
                            {
+                             'compute' => {
+                                            'formula' => '$main',
+                                            'variables' => {
+                                                             'main' => '- - - &element'
+                                                           },
+                                            'allow_override' => '1'
+                                          },
                              'value_type' => 'boolean',
                              'built_in' => '1',
                              'type' => 'leaf',
@@ -104,6 +173,13 @@
                            },
                            'X11DisplayOffset',
                            {
+                             'compute' => {
+                                            'formula' => '$main',
+                                            'variables' => {
+                                                             'main' => '- - - &element'
+                                                           },
+                                            'allow_override' => '1'
+                                          },
                              'value_type' => 'integer',
                              'built_in' => '10',
                              'type' => 'leaf',
@@ -112,6 +188,13 @@
                            },
                            'X11Forwarding',
                            {
+                             'compute' => {
+                                            'formula' => '$main',
+                                            'variables' => {
+                                                             'main' => '- - - &element'
+                                                           },
+                                            'allow_override' => '1'
+                                          },
                              'value_type' => 'enum',
                              'built_in' => 'no',
                              'type' => 'leaf',
@@ -124,6 +207,13 @@
                            },
                            'X11UseLocalhost',
                            {
+                             'compute' => {
+                                            'formula' => '$main',
+                                            'variables' => {
+                                                             'main' => '- - - &element'
+                                                           },
+                                            'allow_override' => '1'
+                                          },
                              'value_type' => 'enum',
                              'built_in' => 'yes',
                              'type' => 'leaf',
