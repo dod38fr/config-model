@@ -28,6 +28,7 @@ use warnings ;
 use Carp ;
 use IO::File ;
 use Log::Log4perl;
+use File::Copy ;
 
 use Parse::RecDescent ;
 use vars qw($VERSION $grammar $parser) ;
@@ -154,6 +155,107 @@ $parser = Parse::RecDescent->new($grammar) ;
   sub clear {
     $current_node = undef ;
   }
+}
+
+# now the write part
+
+sub write {
+    my %args = @_ ;
+    my $config_root = $args{object}
+      || croak __PACKAGE__," write: undefined config root object";
+    my $dir = $args{conf_dir} 
+      || croak __PACKAGE__," write: undefined config dir";
+
+    unless (-d $dir ) {
+	croak __PACKAGE__," write: unknown config dir $dir";
+    }
+
+    my $file = "$dir/sshd_config" ;
+    if (-r "$file") {
+	my $backup = "$file.".time ;
+	$logger->info("Backing up file $file in $backup");
+	copy($file,$backup);
+    }
+
+    $logger->info("writing config file $file");
+
+    my $result = write_node_content($config_root);
+
+    print $result ;
+    open(OUT,"> $file") || die "cannot open $file:$!";
+    print OUT $result;
+    close OUT;
+}
+
+sub write_node_content {
+    my $node = shift ;
+
+    my $result = '' ;
+    my $match  = '' ;
+
+    foreach my $name ($node->get_element_name(for => 'master') ) {
+	next unless $node->is_element_defined($name) ;
+	my $elt = $node->fetch_element($name) ;
+	my $type = $elt->get_type;
+
+	#print "got $key type $type and ",join('+',@arg),"\n";
+	if    ($name eq 'Match') { 
+	    $match .= write_all_match_block($elt) ;
+	}
+	elsif    ($type eq 'leaf' or $type eq 'check_list') { 
+	    my $v = $elt->fetch ;
+	    $result .= "$name $v\n" if defined $v;
+	}
+	elsif ($type eq 'list') { 
+	    map { $result .= "$name $_ \n" ;} $elt->fetch_all_values ;
+	}
+	elsif ($type =~ /list/) { 
+	    $result .= "$name ". join(',',$elt->fetch_all_values) ."\n" ;
+	}
+	elsif ($type eq 'hash') {
+	    $result .= "$name ";
+	    foreach my $k ( $elt->get_all_indexes ) {
+		my $v = $elt->fetch_with_id($k)->fetch ;
+		$result .= "$k $v ";
+	    }
+	    $result .= "\n";
+	}
+	else {
+	    die "Sshd::write did not expect $type for $name\n";
+	}
+    }
+
+    return $result.$match ;
+}
+
+sub write_all_match_block {
+    my $match_elt = shift ;
+
+    my $result = '' ;
+    foreach my $elt ($match_elt->fetch_all() ) {
+	$result .= write_match_block($elt) ."\n";
+    }
+
+    return $result ;
+}
+
+sub write_match_block {
+    my $match_elt = shift ;
+    my $result = 'Match ' ;
+
+    foreach my $name ($match_elt->get_element_name(for => 'master') ) {
+	my $elt = $match_elt->fetch_element($name) ;
+
+	if ($name eq 'Elements') {
+	    $result .= "\n".write_node_content($elt)."\n" ;
+	}
+	else {
+	    my $v = $elt->fetch($name) ;
+	    $result .= "$name $v " if defined $v;
+	}
+    }
+
+    return $result ;
 }
 1;
 

@@ -50,3 +50,5 @@ my $root = $inst -> config_root ;
 
 #Config::Model::Sshd::read(conf_dir => 'data/example1', object => 1 ) ;
 print $root->dump_tree (mode => 'full') if $trace ;
+
+$inst->write_back('wr_test') ;
