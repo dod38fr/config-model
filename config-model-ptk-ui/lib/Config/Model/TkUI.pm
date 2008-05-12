@@ -142,7 +142,7 @@ sub Populate {
 		      map {['radiobutton',$_,'-variable', $perm_ref,
 			    -command => sub{$cw->reload ;} 
 			   ] }
-		          qw/master advanced intermediate/
+		          qw/master advanced beginner/
 		     ] ;
     my $opt_items = [[qw/cascade experience -menuitems/, $perm_items ]] ;
     $menubar->cascade( -label => 'Options', -menuitems => $opt_items ) ; 
@@ -724,7 +724,7 @@ sub setup_scanner {
       (
 
        fallback => 'node',
-       permission => 'master', #'intermediate', 
+       experience => 'master', #'beginner', 
 
        # node callback
        node_content_cb       => \&disp_obj_elt ,
