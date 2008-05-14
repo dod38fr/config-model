@@ -404,9 +404,11 @@ sub grab {
 	   last ;
 	}
 
+	my $next_obj = $obj->fetch_element($name,'master',$grab_non_available) ;
+
 	# create list or hash element only if autoadd is true
         if (defined $action and $autoadd == 0
-	    and not $obj->fetch_element($name)->exists($arg)) 
+	    and not $next_obj->exists($arg)) 
 	  {
             Config::Model::Exception::UnknownId
 		->throw (
@@ -417,8 +419,6 @@ sub grab {
 			)  if $strict;
 	    last ;
 	}
-
-	my $next_obj = $obj->fetch_element($name) ;
 
 	# action can only be :
 	$next_obj = $next_obj -> fetch_with_id($arg) if defined $action ;

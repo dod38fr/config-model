@@ -1,3 +1,8 @@
+2008-05-14  Dominique Dumont  <dominique.dumont@hp.com>
+
+	* lib/Config/Model/Node.pm (fetch_element): Bails out if element
+	is hidden (this feature was forgotten)
+
 2008-05-09  Dominique Dumont  <domi.dumont@free.fr>
 
 	* lib/Config/Model/Value.pm (submit_to_compute): Fix bug where a

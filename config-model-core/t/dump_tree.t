@@ -34,7 +34,7 @@ ok($root,"Config root created") ;
 
 $inst->preset_start ;
 
-$root->fetch_element('hidden_string')->store('hidden value');
+$root->fetch_element('hidden_string',undef,1)->store('hidden value');
 
 my $step = 'std_id:ab X=Bv '
   .'! lista=a,b listb=b ' ;

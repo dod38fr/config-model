@@ -796,9 +796,9 @@ C<master>).  Returns undef if no next element is available.
 sub next_element {
     my $self      = shift;
     my $element   = shift;
-    my $min_level = shift;
+    my $min_experience = shift;
 
-    my @elements = $self->get_element_name(for => $min_level);
+    my @elements = $self->get_element_name(for => $min_experience);
 
     return $elements[0] unless defined $element and $element ;
 
@@ -926,6 +926,7 @@ sub fetch_element {
     my $self = shift ;
     my $element_name = shift ;
     my $user = shift || 'master' ;
+    my $accept_hidden = shift || 0 ;
 
     if ($user eq 'intermediate') {
 	carp "fetch_element: 'intermediate' is deprecated in favor of 'beginner'";
@@ -934,9 +935,19 @@ sub fetch_element {
 
     my $model = $self->{model} ;
 
-    # Some element are hidden (level property) because of warp
-    # mechanism. Correct error message is not provided at this level
-    # but error will be handled below (Value or WarpedNode objects)
+    # check level
+    my $element_level 
+      = $self->get_element_property(property => 'level',
+				    element  => $element_name) ;
+
+    if ($element_level eq 'hidden' and not $accept_hidden) {
+	Config::Model::Exception::UnavailableElement
+	    ->throw(
+		    object   => $self,
+		    element  => $element_name,
+		    info     => 'hidden element',
+		   );
+    }
 
     # retrieve element (and auto-vivify if needed)
     if (not defined $self->{element}{$element_name}) {
@@ -960,8 +971,11 @@ sub fetch_element {
     }
 
     # check experience
-    my $elt_level = $model->{experience}{$element_name};
-    my $elt_idx   = $experience_index{$elt_level} ;
+    my $elt_experience = $model->{experience}{$element_name};
+    my $elt_idx   = $experience_index{$elt_experience} ; 
+    croak "Unknown experience '$elt_experience' for element ",
+      "'$element_name'. Expected ",join(' ', keys %experience_index)
+	unless defined $elt_idx ;
     my $user_idx  = $experience_index{$user} ;
 
     croak "Unexpected experience '$user'" unless defined $user_idx ;
@@ -974,10 +988,15 @@ sub fetch_element {
 		    object   => $self,
 		    element  => $element_name,
 		    level    => $user,
-		    req_level => $elt_level,
+		    req_experience => $elt_experience,
 		   );
     }
 
+    return $self->fetch_element_no_check($element_name) ;
+}
+
+sub fetch_element_no_check {
+    my ($self,$element_name) = @_ ;
     return $self->{element}{$element_name} ;
 }
 
@@ -1062,7 +1081,7 @@ sub is_element_available {
 
     # force the warp to be done (if possible) so the catalog name
     # is updated
-    my $element = $self->fetch_element($elt_name) ;
+    my $element = $self->fetch_element($elt_name,undef,1) ;
 
     my $element_level = $self->get_element_property(property => 'level',
 						    element => $elt_name) ;

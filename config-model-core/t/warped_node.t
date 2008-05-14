@@ -93,7 +93,7 @@ $model ->create_config_class
 			     XY  => { level => 'normal', },
 			     mXY => {
 				     level => 'normal',
-				     permission => 'intermediate'
+				     permission => 'beginner'
 				    },
 			     XZ => { level => 'normal',},
 			    }

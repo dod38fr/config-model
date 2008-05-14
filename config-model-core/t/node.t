@@ -17,7 +17,7 @@ my $model = Config::Model -> new(legacy => 'ignore',)  ;
 $model->create_config_class 
   (
    name => 'Sarge',
-   permission => [ [qw/Y/] => 'intermediate',  # default
+   permission => [ [qw/Y/] => 'beginner',  # default
 		   X => 'master' 
 		 ],
    status    => [ X => 'deprecated' ], #could be obsolete, standard
@@ -36,7 +36,7 @@ $model->create_config_class
 $model->create_config_class 
   (
    name => 'Captain',
-   permission => [ bar => 'intermediate' ],
+   experience => [ bar => 'beginner' ],
    element => [
 	       bar => { type => 'node', 
 			config_class_name => 'Sarge' 
@@ -47,7 +47,7 @@ $model->create_config_class
 $model ->create_config_class 
   (
    name => "Master",
-   permission => [[qw/captain many array_args hash_args/] => 'intermediate' ],
+   experience => [[qw/captain many array_args hash_args/] => 'beginner' ],
    level     => [qw/captain/ => 'important' ] ,
    element => [
 		captain => { 
@@ -86,7 +86,7 @@ ok($root,"Config root created") ;
 
 is( $root->config_class_name, 'Master', "Created Master" );
 
-is_deeply( [ sort $root->get_element_name(for => 'intermediate') ],
+is_deeply( [ sort $root->get_element_name(for => 'beginner') ],
 	   [qw/array_args captain hash_args/], "check Master elements");
 
 is_deeply( [ sort $root->get_element_name(for => 'advanced') ],
@@ -107,12 +107,12 @@ is($w->location,'captain',"test captain location") ;
 my $b = $w->fetch_element('bar');
 ok( $b, "Created Sarge" );
 
-is($b->get_element_property(property => 'permission', element => 'Y'),
-   'beginner',"check Y permission") ;
-is($b->get_element_property(property => 'permission',element => 'Z'),
-   'beginner',"check Z permission") ;
-is($b->get_element_property(property => 'permission',element => 'X'),
-   'master',      "check X permission") ;
+is($b->get_element_property(property => 'experience', element => 'Y'),
+   'beginner',"check Y experience") ;
+is($b->get_element_property(property => 'experience',element => 'Z'),
+   'beginner',"check Z experience") ;
+is($b->get_element_property(property => 'experience',element => 'X'),
+   'master',      "check X experience") ;
 
 is( $b->fetch_element_value('Z'), undef, "test Z value" );
 
@@ -121,15 +121,15 @@ ok($@,"fetch_element with unexpected experience") ;
 like($@,qr/Unexpected experience/,"check error message") ;
 
 # translated into beginner
-eval { $b->fetch_element('X','intermediate');} ;
+eval { $b->fetch_element('X','beginner');} ;
 ok($@,"fetch_element with unexpected experience") ;
 like($@,qr/restricted element/,"check error message") ;
 
 is( $root->fetch_element('array_args')
-    ->get_element_property(property => 'permission',element => 'bar'),
+    ->get_element_property(property => 'experience',element => 'bar'),
     'beginner' );
 is( $root->fetch_element('array_args')->fetch_element('bar')
-    ->get_element_property(property => 'permission',element => 'X'), 
+    ->get_element_property(property => 'experience',element => 'X'), 
     'master' );
 
 my $tested = $root->fetch_element('hash_args')->fetch_element('bar');
@@ -139,9 +139,9 @@ is($tested->element_name,'bar'  ,"test bar element_name") ;
 is($tested->name,        'hash_args bar' ,"test bar name") ;
 is($tested->location,    'hash_args bar' ,"test bar location") ;
 
-is( $tested->get_element_property(property => 'permission',element => 'X'),
+is( $tested->get_element_property(property => 'experience',element => 'X'),
     'master',
-    "checking X permission");
+    "checking X experience");
 
 my $inst2 =  $model->instance (root_class_name => 'Master', 
 			      instance_name => 'test2');

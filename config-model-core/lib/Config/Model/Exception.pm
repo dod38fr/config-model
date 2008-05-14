@@ -64,7 +64,7 @@ use Exception::Class
    'Config::Model::Exception::RestrictedElement' 
    => { isa         => 'Config::Model::Exception::User',
 	description => 'restricted element',
-	fields      => [qw/object element level req_level info/],
+	fields      => [qw/object element level req_experience info/],
       },
 
    'Config::Model::Exception::WrongType' 
@@ -87,13 +87,13 @@ use Exception::Class
    'Config::Model::Exception::UnknownElement' 
    => { isa         => 'Config::Model::Exception::User',
 	description => 'unknown element',
-	fields      => [qw/object min_level element function where info/],
+	fields      => [qw/object min_experience element function where info/],
       },
 
    'Config::Model::Exception::UnknownId' 
    => { isa         => 'Config::Model::Exception::User',
 	description => 'unknown identifier',
-	fields => [qw/object min_level element id function where/],
+	fields => [qw/object min_experience element id function where/],
       },
 
    'Config::Model::Exception::WarpError'
@@ -249,7 +249,7 @@ sub full_message {
     my $msg = $self->description;
     my $element = $self->element ;
     my $function = $self->function ;
-    my $unavail = $obj->fetch_element($element) ;
+    my $unavail = $obj->fetch_element($element,undef,1) ;
     $msg .= " '$element' in node '$location'.\n" ;
     $msg .= "\tError occured when calling $function.\n" if defined $function ;
     $msg .= "\t".$unavail->warp_error if $unavail->can('warp_error');
@@ -272,11 +272,11 @@ sub full_message {
 	unless $obj->isa('Config::Model::Node') 
 	  || $obj->isa('Config::Model::WarpedNode');
 
-    my $min_level = $self->min_level || 'master' ;
+    my $min_experience = $self->min_experience || 'master' ;
     # TBD use model instead of node
     my @elements = $obj -> config_model 
       -> get_element_name(class => $obj -> config_class_name,
-			  for => $min_level) ;
+			  for => $min_experience) ;
 
     my $msg = '';
     $msg .= "In ". $self->where .": " if 
@@ -299,7 +299,7 @@ sub full_message {
 
 	if ($parent->element_type ( $element_name ) eq 'warped_node' ) {
 	    $msg .= "\t". 
-	      $parent -> fetch_element( $element_name ) -> warp_error ;
+	      $parent -> fetch_element( $element_name,undef,1 ) -> warp_error ;
 	}
     }
 
@@ -314,7 +314,7 @@ sub full_message {
     my $self = shift;
 
     my $obj = $self->object ;
-    my $min_level = $self->min_level || 'master' ;
+    my $min_experience = $self->min_experience || 'master' ;
 
     my $element = $self->element ;
     my $id_str = "'".join("','",$obj->get_all_indexes())."'" ;

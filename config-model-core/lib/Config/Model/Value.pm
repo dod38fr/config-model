@@ -1019,7 +1019,10 @@ sub check {
 
     my @error  ;
 
-    if (not defined $value and $self->{mandatory}) {
+    if ( $self->{hidden}) {
+        push @error, "value is hidden" ;
+    }
+    elsif (not defined $value and $self->{mandatory}) {
         push @error, "Mandatory value is not defined" ;
     }
     elsif (not defined $value) {
