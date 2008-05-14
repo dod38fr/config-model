@@ -935,6 +935,11 @@ sub fetch_element {
 
     my $model = $self->{model} ;
 
+    # retrieve element (and auto-vivify if needed)
+    if (not defined $self->{element}{$element_name}) {
+	$self->create_element($element_name) ;
+    }
+
     # check level
     my $element_level 
       = $self->get_element_property(property => 'level',
@@ -947,11 +952,6 @@ sub fetch_element {
 		    element  => $element_name,
 		    info     => 'hidden element',
 		   );
-    }
-
-    # retrieve element (and auto-vivify if needed)
-    if (not defined $self->{element}{$element_name}) {
-	$self->create_element($element_name) ;
     }
 
     # check status

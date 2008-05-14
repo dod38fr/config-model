@@ -621,7 +621,7 @@ sub warp_error {
 
         my @try = sort grep { $_ ne $warper_value } @choice ;
 
-        $str .= "\t'".$warper->name. "': Try " ;
+        $str .= "\t'".$warper->location. "': Try " ;
 
         my $a = $warper->{value_type} =~ /^[aeiou]/ ? 'an' : 'a' ;
 
