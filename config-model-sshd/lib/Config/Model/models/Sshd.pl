@@ -23,6 +23,7 @@
                                           'value_type' => 'uniline',
                                           'type' => 'leaf'
                                         },
+                             'experience' => 'advanced',
                              'type' => 'list',
                              'description' => "Specifies what environment variables sent by the client will be copied into the session\x{2019}s environ(7).
 "
@@ -31,6 +32,7 @@
                            {
                              'value_type' => 'enum',
                              'built_in' => 'any',
+                             'experience' => 'advanced',
                              'type' => 'leaf',
                              'description' => 'Specifies which address family should be used by sshd(8).
 ',
@@ -46,6 +48,7 @@
                                           'value_type' => 'uniline',
                                           'type' => 'leaf'
                                         },
+                             'experience' => 'advanced',
                              'type' => 'list',
                              'description' => 'Login is allowed only for users whose primary group or supplementary group list matches one of the patterns. Only group names are valid; a numerical group ID is not recognized. By default, login is allowed for all groups. The allow/deny directives are processed in the following order: DenyUsers, AllowUsers, DenyGroups, and finally AllowGroups.
 '
@@ -56,6 +59,7 @@
                                           'value_type' => 'uniline',
                                           'type' => 'leaf'
                                         },
+                             'experience' => 'advanced',
                              'type' => 'list',
                              'description' => 'Login is allowed only for users whose primary group or supplementary group list matches one of the patterns. Only group names are valid; a numerical group ID is not recognized. By default, login is allowed for all groups. The allow/deny directives are processed in the following order: DenyUsers, AllowUsers, DenyGroups, and finally AllowGroups.
 '
@@ -71,6 +75,7 @@
                            'AuthorizedKeysFile',
                            {
                              'value_type' => 'uniline',
+                             'experience' => 'advanced',
                              'type' => 'leaf',
                              'description' => 'Specifies the file that contains the public keys that can be used for user authentication. AuthorizedKeysFile may contain tokens of the form %T which are substituted during connection setup.
 '
@@ -86,12 +91,14 @@
                            {
                              'value_type' => 'boolean',
                              'built_in' => '1',
+                             'experience' => 'advanced',
                              'type' => 'leaf',
                              'description' => 'Specifies whether challenge-response authentication is allowed. All authentication styles from login.conf(5) are supported.
 '
                            },
                            'Ciphers',
                            {
+                             'experience' => 'master',
                              'type' => 'check_list',
                              'description' => 'Specifies the ciphers allowed for protocol version 2. By default, all ciphers are allowed.
 
@@ -115,9 +122,34 @@
                            {
                              'value_type' => 'boolean',
                              'built_in' => '0',
+                             'experience' => 'advanced',
                              'type' => 'leaf',
                              'description' => 'Check if client is alive by sending client alive messages
 '
+                           },
+                           'ClientAliveCountMax',
+                           {
+                             'min' => '1',
+                             'experience' => 'advanced',
+                             'description' => 'Sets the number of client alive messages which may be sent without sshd(8) receiving any messages back from the client. If this threshold is reached while client alive messages are being sent, sshd will disconnect the client, terminating the session.  It is important to note that the use of client alive messages is very different from TCPKeepAlive. The client alive messages are sent through the encrypted channel and therefore will not be spoofable. The TCP keepalive option enabled by TCPKeepAlive is spoofable. The client alive mechanism is valuable when the client or server depend on knowing when a connection has become inactive.
+
+The default value is 3. If ClientAliveInterval is set to 15, and ClientAliveCountMax is left at the default, unresponsive SSH clients will be disconnected after approximately 45 seconds. This option applies to protocol version 2 only.
+',
+                             'value_type' => 'integer',
+                             'level' => 'hidden',
+                             'built_in' => '3',
+                             'warp' => {
+                                         'follow' => {
+                                                       'c_a_check' => '- ClientAliveCheck'
+                                                     },
+                                         'rules' => [
+                                                      '$c_a_check == 1',
+                                                      {
+                                                        'level' => 'normal'
+                                                      }
+                                                    ]
+                                       },
+                             'type' => 'leaf'
                            },
                            'ClientAliveInterval',
                            {
@@ -135,6 +167,7 @@
                                                       }
                                                     ]
                                        },
+                             'experience' => 'advanced',
                              'type' => 'leaf'
                            },
                            'Compression',

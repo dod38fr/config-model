@@ -77,11 +77,16 @@ $grammar = << 'EOG' ;
 # See Parse::RecDescent faq about newlines
 sshd_parse: <skip: qr/[^\S\n]*/> line[@arg](s) 
 
-line: match_line  | any_line
+line: match_line | client_alive_line | any_line
 
 match_line: /match/i arg(s) "\n"
 {
    Config::Model::Sshd::match($arg[0],@{$item[2]}) ;
+}
+
+client_alive_line: /clientalive\w+/i arg(s) "\n"
+{
+   Config::Model::Sshd::clientalive($arg[0],$item[1],@{$item[2]}) ;
 }
 
 any_line: key arg(s) "\n"  
@@ -132,6 +137,16 @@ $parser = Parse::RecDescent->new($grammar) ;
     else {
        die "Sshd::assign did not expect $type for $key\n";
     }
+  }
+
+  sub clientalive {
+    my ($root, $key, $arg) = @_ ;
+
+    # first set warp master parameter
+    $root->load("ClientAliveCheck=1") ;
+
+    # then we can load the parameter as usual
+    assign($root,$key,$arg) ;
   }
 
   sub match {

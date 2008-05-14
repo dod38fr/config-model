@@ -78,7 +78,8 @@ UsePAM yes
 
 AllowUsers foo bar@192.168.0.*
 
-
+ClientAliveCountMax 5
+ClientAliveInterval 300 
 
 Match User sarko Group pres.* 
 Banner /etc/bienvenue.txt
