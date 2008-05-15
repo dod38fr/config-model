@@ -63,9 +63,9 @@ sub Populate {
 				     -height => 10,
 				   ) ->pack(@fbe1) ;
 
-    my $perm = $cw->parent->parent->parent->parent->get_perm ;
+    my $exp = $cw->parent->parent->parent->parent->get_experience ;
 
-    foreach my $c ($node->get_element_name(for => $perm)) {
+    foreach my $c ($node->get_element_name(for => $exp)) {
 	$rt->insert('end', $c."\n" ) ;
     }
 

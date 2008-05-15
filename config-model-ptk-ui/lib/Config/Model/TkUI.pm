@@ -91,7 +91,7 @@ sub Populate {
 	  or croak "Missing $parm arg\n";
     }
 
-    foreach my $parm (qw/-store_sub -quit/) {
+    foreach my $parm (qw/-store_sub -quit -experience/) {
 	my $attr = $parm ;
 	$attr =~ s/^-//;
 	$cw->{$attr} = delete $args->{$parm} ;
@@ -136,15 +136,17 @@ sub Populate {
 		     ];
     $menubar->cascade( -label => 'Edit', -menuitems => $edit_items ) ; 
 
-    my $perm_ref = $cw->{scanner}->get_experience_ref ;
-    $cw->{perm_ref} = $perm_ref ;
-    my $perm_items = [
-		      map {['radiobutton',$_,'-variable', $perm_ref,
+    my $exp_ref = $cw->{scanner}->get_experience_ref ;
+    $cw->{exp_ref} = $exp_ref ;
+    $$exp_ref = $cw->{experience} ;
+
+    my $exp_items = [
+		      map {['radiobutton',$_,'-variable', $exp_ref,
 			    -command => sub{$cw->reload ;} 
 			   ] }
 		          qw/master advanced beginner/
 		     ] ;
-    my $opt_items = [[qw/cascade experience -menuitems/, $perm_items ]] ;
+    my $opt_items = [[qw/cascade experience -menuitems/, $exp_items ]] ;
     $menubar->cascade( -label => 'Options', -menuitems => $opt_items ) ; 
 
 
@@ -810,8 +812,13 @@ sub create_element_widget {
 }
 
 sub get_perm {
+    carp "get_perm is deprecated";
+    goto &get_experience ;
+}
+
+sub get_experience {
     my $cw = shift ;
-    return $ {$cw->{perm_ref}} ;
+    return $ {$cw->{exp_ref}} ;
 }
 
 sub edit_copy {
