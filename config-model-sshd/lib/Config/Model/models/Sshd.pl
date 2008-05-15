@@ -1,5 +1,6 @@
 [
           {
+            'write_config_dir' => '/etc/ssh',
             'read_config' => [
                                {
                                  'function' => 'read',
@@ -55,14 +56,13 @@
                            },
                            'AllowUsers',
                            {
+                             'level' => 'important',
                              'cargo' => {
                                           'value_type' => 'uniline',
                                           'type' => 'leaf'
                                         },
-                             'experience' => 'advanced',
                              'type' => 'list',
-                             'description' => 'Login is allowed only for users whose primary group or supplementary group list matches one of the patterns. Only group names are valid; a numerical group ID is not recognized. By default, login is allowed for all groups. The allow/deny directives are processed in the following order: DenyUsers, AllowUsers, DenyGroups, and finally AllowGroups.
-'
+                             'description' => 'List of user name patterns, separated by spaces. If specified, login is allowed only for user names that match one of the patterns. Only user names are valid; a numerical user ID is not recognized. By default, login is allowed for all users. If the pattern takes the form USER@HOST then USER and HOST are separately checked, restricting logins to particular users from particular hosts. The allow/deny directives are processed in the following order: DenyUsers, AllowUsers, DenyGroups, and finally AllowGroups.'
                            },
                            'AllowTcpForwarding',
                            {
@@ -91,7 +91,6 @@
                            {
                              'value_type' => 'boolean',
                              'built_in' => '1',
-                             'experience' => 'advanced',
                              'type' => 'leaf',
                              'description' => 'Specifies whether challenge-response authentication is allowed. All authentication styles from login.conf(5) are supported.
 '
@@ -210,6 +209,7 @@ The default value is 3. If ClientAliveInterval is set to 15, and ClientAliveCoun
                            'ForceCommand',
                            {
                              'value_type' => 'uniline',
+                             'experience' => 'advanced',
                              'type' => 'leaf',
                              'description' => "Forces the execution of the command specified by ForceCommand, ignoring any command supplied by the client. The command is invoked by using the user\x{2019}s login shell with the -c option. This applies to shell, command, or subsystem execution. It is most useful inside a Match block. The command originally supplied by the client is available in the SSH_ORIGINAL_COMMAND environment variable.
 

@@ -131,7 +131,7 @@ $parser = Parse::RecDescent->new($grammar) ;
         $elt->fetch_with_id($arg[0])->store( $arg[1] );
     }
     elsif ($type eq 'check_list') {
-	my @check = split /,/,$arg[1] ;
+	my @check = split /,/,$arg[0] ;
         $elt->set_checked_list (@check) ;
     }
     else {
