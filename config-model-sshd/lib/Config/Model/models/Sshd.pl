@@ -174,6 +174,7 @@ The default value is 3. If ClientAliveInterval is set to 15, and ClientAliveCoun
                            {
                              'value_type' => 'enum',
                              'built_in' => 'delayed',
+                             'experience' => 'advanced',
                              'type' => 'leaf',
                              'description' => 'Specifies whether compression is allowed, or delayed until the user has authenticated successfully.
 ',
@@ -189,6 +190,7 @@ The default value is 3. If ClientAliveInterval is set to 15, and ClientAliveCoun
                                           'value_type' => 'uniline',
                                           'type' => 'leaf'
                                         },
+                             'experience' => 'advanced',
                              'type' => 'list',
                              'description' => 'This keyword can be followed by a list of group name patterns, separated by spaces.  Login is disallowed for users whose primary group or supplementary group list matches one of the patterns. Only group names are valid; a numerical group ID is not recognized. By default, login is allowed for all groups.  The allow/deny directives are processed in the following order: DenyUsers, AllowUsers, DenyGroups, and finally AllowGroups.
 '
@@ -199,6 +201,7 @@ The default value is 3. If ClientAliveInterval is set to 15, and ClientAliveCoun
                                           'value_type' => 'uniline',
                                           'type' => 'leaf'
                                         },
+                             'experience' => 'advanced',
                              'type' => 'list',
                              'description' => 'This keyword can be followed by a list of user name patterns, separated by spaces.  Login is disallowed for user names that match one of
  the patterns. Only user names are valid; a numerical user ID is not recognized. By default, login is allowed for all users. If the pattern takes the form USER@HOST then USER and HOST are separately checked, restricting logins to particular users from particular hosts. The allow/deny directives are processed in the following order: DenyUsers, AllowUsers, DenyGroups, and finally AllowGroups.
@@ -224,6 +227,7 @@ The default value is 3. If ClientAliveInterval is set to 15, and ClientAliveCoun
 '
                                        },
                              'built_in' => 'no',
+                             'experience' => 'advanced',
                              'type' => 'leaf',
                              'description' => 'Specifies whether remote hosts are allowed to connect to ports forwarded for the client.  By default, sshd(8) binds remote port forwardings to the loopback address.  This prevents other remote hosts from connecting to forwarded ports.  GatewayPorts can be used to specify that sshd should allow remote port forwardings to bind to non-loopback addresses, thus allowing other hosts to connect.
 ',
@@ -237,6 +241,7 @@ The default value is 3. If ClientAliveInterval is set to 15, and ClientAliveCoun
                            {
                              'value_type' => 'boolean',
                              'built_in' => '0',
+                             'experience' => 'master',
                              'type' => 'leaf',
                              'description' => 'Specifies whether user authentication based on GSSAPI is allowed. Note that this option applies to protocol version 2 only.
 '
@@ -245,6 +250,7 @@ The default value is 3. If ClientAliveInterval is set to 15, and ClientAliveCoun
                            {
                              'value_type' => 'boolean',
                              'built_in' => '0',
+                             'experience' => 'master',
                              'type' => 'leaf',
                              'description' => "Specifies whether key exchange based on GSSAPI is allowed. GSSAPI key exchange doesn\x{2019}t rely on ssh keys to verify host identity. Note that this option applies to protocol version 2 only.
 
@@ -254,6 +260,7 @@ The default value is 3. If ClientAliveInterval is set to 15, and ClientAliveCoun
                            {
                              'value_type' => 'boolean',
                              'built_in' => '0',
+                             'experience' => 'master',
                              'type' => 'leaf',
                              'description' => "Specifies whether to automatically destroy the user\x{2019}s credentials cache on logout. Note that this option applies to protocol version 2 only.
 
@@ -270,6 +277,7 @@ The default value is 3. If ClientAliveInterval is set to 15, and ClientAliveCoun
 "
                                        },
                              'built_in' => '0',
+                             'experience' => 'master',
                              'type' => 'leaf',
                              'description' => "Determines whether to be strict about the identity of the GSSAPI acceptor a client authenticates against.This facility is provided to assist with operation on multi homed machines. Note that this option applies only to protocol version 2 GSSAPI connections, and setting it to \x{201c}no\x{201d} may only work with recent Kerberos GSSAPI libraries.
 "
@@ -278,6 +286,7 @@ The default value is 3. If ClientAliveInterval is set to 15, and ClientAliveCoun
                            {
                              'value_type' => 'boolean',
                              'built_in' => '0',
+                             'experience' => 'advanced',
                              'type' => 'leaf',
                              'description' => 'Specifies whether rhosts or /etc/hosts.equiv authentication together with successful public key client host authentication is allowed (host-based authentication). This option is similar to RhostsRSAAuthentication and applies to protocol version 2 only.
 '
@@ -292,6 +301,7 @@ The default value is 3. If ClientAliveInterval is set to 15, and ClientAliveCoun
 '
                                        },
                              'built_in' => '0',
+                             'experience' => 'master',
                              'type' => 'leaf',
                              'description' => 'Specifies whether or not the server will attempt to perform a reverse name lookup when matching the name in the ~/.shosts, ~/.rhosts, and /etc/hosts.equiv files during HostbasedAuthentication.
 '
@@ -302,6 +312,7 @@ The default value is 3. If ClientAliveInterval is set to 15, and ClientAliveCoun
                                           'value_type' => 'uniline',
                                           'type' => 'leaf'
                                         },
+                             'experience' => 'advanced',
                              'type' => 'list',
                              'description' => "Specifies a file containing a private host key used by SSH. The default is /etc/ssh/ssh_host_key for protocol version 1, and /etc/ssh/ssh_host_rsa_key and /etc/ssh/ssh_host_dsa_key for protocol version 2. Note that sshd(8) will refuse to use a file if it is group/world-accessible.  It is possible to have multiple host key files. \x{201c}rsa1\x{201d} keys are used for version 1 and \x{201c}dsa\x{201d} or \x{201c}rsa\x{201d} are used for version 2 of the SSH protocol.
 
@@ -311,6 +322,7 @@ The default value is 3. If ClientAliveInterval is set to 15, and ClientAliveCoun
                            {
                              'value_type' => 'boolean',
                              'built_in' => '1',
+                             'experience' => 'advanced',
                              'type' => 'leaf',
                              'description' => 'Specifies that .rhosts and .shosts files will not be used in RhostsRSAAuthentication or HostbasedAuthentication. /etc/hosts.equiv and /etc/ssh/shosts.equiv are still used. 
 '
@@ -319,6 +331,7 @@ The default value is 3. If ClientAliveInterval is set to 15, and ClientAliveCoun
                            {
                              'value_type' => 'boolean',
                              'built_in' => '0',
+                             'experience' => 'advanced',
                              'type' => 'leaf',
                              'description' => "Specifies whether sshd(8) should ignore the user\x{2019}s ~/.ssh/known_hosts during RhostsRSAAuthentication or HostbasedAuthentication.
 "
@@ -327,6 +340,7 @@ The default value is 3. If ClientAliveInterval is set to 15, and ClientAliveCoun
                            {
                              'value_type' => 'boolean',
                              'built_in' => '0',
+                             'experience' => 'master',
                              'type' => 'leaf',
                              'description' => 'No doc found in sshd documentation
 '
@@ -335,12 +349,14 @@ The default value is 3. If ClientAliveInterval is set to 15, and ClientAliveCoun
                            {
                              'value_type' => 'boolean',
                              'built_in' => '0',
+                             'experience' => 'master',
                              'type' => 'leaf'
                            },
                            'KerberosGetAFSToken',
                            {
                              'value_type' => 'boolean',
                              'built_in' => '0',
+                             'experience' => 'master',
                              'type' => 'leaf',
                              'description' => "If AFS is active and the user has a Kerberos 5 TGT, attempt to acquire an AFS token before accessing the user\x{2019}s home directory.
 "
@@ -349,6 +365,7 @@ The default value is 3. If ClientAliveInterval is set to 15, and ClientAliveCoun
                            {
                              'value_type' => 'boolean',
                              'built_in' => '1',
+                             'experience' => 'master',
                              'type' => 'leaf',
                              'description' => 'If password authentication through Kerberos fails then the password will be validated via any additional local mechanism such as /etc/passwd. 
 '
@@ -357,6 +374,7 @@ The default value is 3. If ClientAliveInterval is set to 15, and ClientAliveCoun
                            {
                              'value_type' => 'boolean',
                              'built_in' => '1',
+                             'experience' => 'master',
                              'type' => 'leaf',
                              'description' => "Specifies whether to automatically destroy the user\x{2019}s ticket cache file on logout.
 "
@@ -365,6 +383,7 @@ The default value is 3. If ClientAliveInterval is set to 15, and ClientAliveCoun
                            {
                              'value_type' => 'integer',
                              'built_in' => '3600',
+                             'experience' => 'master',
                              'type' => 'leaf',
                              'description' => 'In protocol version 1, the ephemeral server key is automatically regenerated after this many seconds (if it has been used). The purpose
 of regeneration is to prevent decrypting captured sessions by later breaking into the machine and stealing the keys. The key is never stored anywhere.  If the value is 0, the key is never regenerated. The default is 3600 (seconds).
@@ -374,7 +393,9 @@ of regeneration is to prevent decrypting captured sessions by later breaking int
                            {
                              'value_type' => 'integer',
                              'built_in' => '22',
-                             'type' => 'leaf'
+                             'experience' => 'advanced',
+                             'type' => 'leaf',
+                             'description' => 'Specifies the port number that sshd(8) listens on.  The default is 22.  Multiple options of this type are permitted.  See also ListenAddress.'
                            },
                            'ListenAddress',
                            {
@@ -382,6 +403,7 @@ of regeneration is to prevent decrypting captured sessions by later breaking int
                                           'value_type' => 'uniline',
                                           'type' => 'leaf'
                                         },
+                             'experience' => 'advanced',
                              'type' => 'list',
                              'description' => 'Specifies the local addresses sshd(8) should listen on. The following forms may be used:
 
@@ -396,6 +418,7 @@ If port is not specified, sshd will listen on the address and all prior Port opt
                            {
                              'value_type' => 'integer',
                              'built_in' => '120',
+                             'experience' => 'advanced',
                              'type' => 'leaf',
                              'description' => 'The server disconnects after this time if the user has not successfully logged in.  If the value is 0, there is no time limit. The default is 120 seconds.
 '
@@ -456,6 +479,7 @@ If port is not specified, sshd will listen on the address and all prior Port opt
                                           'type' => 'node',
                                           'config_class_name' => 'Sshd::MatchBlock'
                                         },
+                             'experience' => 'advanced',
                              'type' => 'list',
                              'description' => 'Specifies a match block. The criteria User, Group Host and Address can contain patterns. When all these criteria are satisfied (i.e. all patterns match the incoming connection), the parameters set in the block element will override the general settings.
 
@@ -483,8 +507,9 @@ Alternatively, random early drop can be enabled by specifying the three colon se
                            'PasswordAuthentication',
                            {
                              'value_type' => 'boolean',
-                             'built_in' => '0',
-                             'type' => 'leaf'
+                             'built_in' => '1',
+                             'type' => 'leaf',
+                             'description' => 'Specifies whether password authentication is allowed. '
                            },
                            'PermitEmptyPasswords',
                            {
@@ -494,7 +519,8 @@ Alternatively, random early drop can be enabled by specifying the three colon se
 '
                                        },
                              'built_in' => '0',
-                             'type' => 'leaf'
+                             'type' => 'leaf',
+                             'description' => "When password authentication is allowed, it specifies whether the server allows login to accounts with empty password strings.  The default is \x{201c}no\x{201d}."
                            },
                            'PermitOpen',
                            {
@@ -502,6 +528,7 @@ Alternatively, random early drop can be enabled by specifying the three colon se
                                           'value_type' => 'uniline',
                                           'type' => 'leaf'
                                         },
+                             'experience' => 'advanced',
                              'type' => 'list',
                              'description' => "Specifies the destinations to which TCP port forwarding is permitted. The forwarding specification must be one of the following forms:
 \"host:port\" or \"IPv4_addr:port\" or \"[IPv6_addr]:port\". An argument of \x{201c}any\x{201d} can be used to remove all restrictions and permit any forwarding requests. By default all port forwarding requests are permitted.
@@ -538,6 +565,7 @@ Alternatively, random early drop can be enabled by specifying the three colon se
 "
                                        },
                              'built_in' => 'no',
+                             'experience' => 'advanced',
                              'type' => 'leaf',
                              'description' => "Specifies whether tun(4) device forwarding is allowed. The argument must be \x{201c}yes\x{201d}, \x{201c}point-to-point\x{201d} (layer 3), \x{201c}ethernet\x{201d} (layer 2), or
  \x{201c}no\x{201d}.  Specifying \x{201c}yes\x{201d} permits both \x{201c}point-to-point\x{201d} and \x{201c}ethernet\x{201d}.
@@ -553,6 +581,7 @@ Alternatively, random early drop can be enabled by specifying the three colon se
                            {
                              'value_type' => 'boolean',
                              'built_in' => '0',
+                             'experience' => 'advanced',
                              'type' => 'leaf',
                              'description' => "Specifies whether ~/.ssh/environment and environment= options in ~/.ssh/authorized_keys are processed by sshd(8). The default is \x{201c}no\x{201d}. Enabling environment processing may enable users to bypass access restrictions in some configurations using mechanisms such as LD_PRELOAD.
 "
@@ -561,6 +590,7 @@ Alternatively, random early drop can be enabled by specifying the three colon se
                            {
                              'value_type' => 'uniline',
                              'built_in' => '/var/run/sshd.pid',
+                             'experience' => 'master',
                              'type' => 'leaf',
                              'description' => 'Specifies the file that contains the process ID of the SSH daemon.
 '
@@ -578,7 +608,7 @@ Alternatively, random early drop can be enabled by specifying the three colon se
                              'value_type' => 'boolean',
                              'built_in' => '1',
                              'type' => 'leaf',
-                             'description' => 'Specifies whether sshd(8) should print /etc/motd when a user logs in interactively.  (On some systems it is also printed by the shell,   /etc/profile, or equivalent.) 
+                             'description' => 'Specifies whether sshd(8) should print /etc/motd when a user logs in interactively. (On some systems it is also printed by the shell, /etc/profile, or equivalent.) 
 '
                            },
                            'Protocol',
@@ -599,6 +629,7 @@ Alternatively, random early drop can be enabled by specifying the three colon se
                            {
                              'value_type' => 'boolean',
                              'built_in' => '0',
+                             'experience' => 'master',
                              'type' => 'leaf',
                              'description' => "Specifies whether rhosts or /etc/hosts.equiv authentication together with successful RSA host authentication is allowed.  The default is \x{201c}no\x{201d}. This option applies to protocol version 1 only.
 "
@@ -607,6 +638,7 @@ Alternatively, random early drop can be enabled by specifying the three colon se
                            {
                              'value_type' => 'boolean',
                              'built_in' => '1',
+                             'experience' => 'master',
                              'type' => 'leaf',
                              'description' => 'Specifies whether pure RSA authentication is allowed. This option applies to protocol version 1 only.
 '
@@ -616,6 +648,7 @@ Alternatively, random early drop can be enabled by specifying the three colon se
                              'value_type' => 'integer',
                              'min' => '512',
                              'built_in' => '768',
+                             'experience' => 'master',
                              'type' => 'leaf',
                              'description' => 'Defines the number of bits in the ephemeral protocol version 1 server key.  The minimum value is 512, and the default is 768.
 
@@ -625,6 +658,7 @@ Alternatively, random early drop can be enabled by specifying the three colon se
                            {
                              'value_type' => 'boolean',
                              'built_in' => '1',
+                             'experience' => 'master',
                              'type' => 'leaf',
                              'description' => "Specifies whether public key authentication is allowed.  The default is \x{201c}yes\x{201d}.  Note that this option applies to protocol version 2 only.
 "
@@ -633,6 +667,7 @@ Alternatively, random early drop can be enabled by specifying the three colon se
                            {
                              'value_type' => 'boolean',
                              'built_in' => '1',
+                             'experience' => 'advanced',
                              'type' => 'leaf',
                              'description' => "Specifies whether sshd(8) should check file modes and ownership of the user\x{2019}s files and home directory before accepting login.  This is normally desirable because novices sometimes accidentally leave their directory or files world-writable.  The default is \x{201c}yes\x{201d}.
 "
@@ -644,7 +679,10 @@ Alternatively, random early drop can be enabled by specifying the three colon se
                                           'mandatory' => '1',
                                           'type' => 'leaf'
                                         },
+                             'experience' => 'advanced',
                              'type' => 'hash',
+                             'description' => "Configures an external subsystem (e.g. file transfer daemon). Keys of the hash should be a subsystem name and hash value a command (with optional arguments) to execute upon subsystem request. The command sftp-server(8) implements the \x{201c}sftp\x{201d} file transfer subsystem.  By default no subsystems are defined. Note that this option applies to protocol version 2 only.
+",
                              'index_type' => 'string'
                            },
                            'SyslogFacility',
@@ -726,6 +764,7 @@ If UsePAM is enabled, you will not be able to run sshd(8) as a non-root user.  T
                            {
                              'value_type' => 'uniline',
                              'built_in' => '/usr/bin/X11/xauth',
+                             'experience' => 'advanced',
                              'type' => 'leaf',
                              'description' => 'Specifies the full pathname of the xauth(1) program.
 '
@@ -734,6 +773,7 @@ If UsePAM is enabled, you will not be able to run sshd(8) as a non-root user.  T
                            {
                              'value_type' => 'integer',
                              'built_in' => '10',
+                             'experience' => 'advanced',
                              'type' => 'leaf',
                              'description' => "Specifies the first display number available for sshd(8)\x{2019}s X11 forwarding. This prevents sshd from interfering with real X11 servers.
 "
