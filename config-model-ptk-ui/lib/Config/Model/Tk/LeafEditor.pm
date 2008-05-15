@@ -74,7 +74,10 @@ sub Populate {
     $ed_frame  -> Label(-text => 'Value') -> pack() ;
 
     if ($vt eq 'string') {
-	$cw->{e_widget} = $ed_frame->Text(-height => 5 )
+	$cw->{e_widget} = $ed_frame->Scrolled ( 'Text',
+						-height => 5 ,
+						-scrollbars => 'ow',
+					      )
                              ->pack(@fbe1);
 	$cw->reset_value ;
 	$cw->add_buttons($ed_frame) ;

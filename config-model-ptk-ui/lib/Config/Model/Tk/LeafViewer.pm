@@ -72,11 +72,14 @@ sub Populate {
     my $lv_frame = $cw->Frame(qw/-relief raised -borderwidth 2/)
       ->pack(@pack_args) ;
     $lv_frame -> Label(-text => 'Value') -> pack() ;
-    
+
     if ($vt eq 'string') {
 	require Tk::ROText ;
-	$cw->{e_widget} = $lv_frame->ROText(-height => 5 )
-                                  ->pack(@fxe1);
+	$cw->{e_widget} = $lv_frame->Scrolled ('ROText',
+					       -height => 5,
+					       -scrollbars => 'ow',
+					      )
+	  ->pack(@fbe1);
 	$cw->{e_widget}->insert('end',$v) ;
     }
     else {
