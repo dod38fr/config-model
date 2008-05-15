@@ -350,7 +350,7 @@ sub new {
     $self->create_fallback(delete $args{fallback} || 'all') ;
 
     if (defined $args{permission}) {
-	$self->{experience} = delete $args{permission} ;
+	$args{experience} = delete $args{permission} ;
 	carp "ObjTreeScanner new: permission is deprecated in favor of experience";
     }
 
@@ -361,7 +361,8 @@ sub new {
     foreach my $param (qw/node_element_cb hash_element_cb 
                           list_element_cb check_list_element_cb node_content_cb
                           experience auto_vivify up_cb/, @value_cb) {
-        $self->{$param} = delete $args{$param} if defined $args{$param};
+        $self->{$param} = $args{$param} if defined $args{$param};
+	delete $args{$param} ; # may exists but be undefined
         croak __PACKAGE__,"->new: missing $param parameter"
           unless defined $self->{$param} ;
     }
