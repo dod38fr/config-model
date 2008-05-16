@@ -93,10 +93,10 @@
   [
    name => 'Master',
 
-   read_config => 'cds',
-   read_config_dir => 'data' ,
+   read_config => { syntax => 'cds'},
+   read_config_dir =>'data' ,
 
-   write_config => 'cds',
+   write_config =>  { syntax =>'cds'},
    write_config_dir => 'wr_data',
 
    permission => [ [qw/tree_macro warp/] => 'advanced'] ,

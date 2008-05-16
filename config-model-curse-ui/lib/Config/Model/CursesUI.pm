@@ -70,7 +70,7 @@ sub new {
 				    #-debug => 1
 				   );
 
-    $self->{permission} = $args{permission} || 'intermediate' ;
+    $self->{experience} = $args{experience} || 'beginner' ;
 
     my %cb_set 
       = (
@@ -95,7 +95,7 @@ sub new {
       $self->{scan} = Config::Model::ObjTreeScanner
 	-> new (
 		fallback   => 'all',
-		permission => $self->{permission},
+		experience => $self->{experience},
 		%cb_set ,
 	       ) ;
   };
@@ -466,11 +466,11 @@ sub display_node_content {
         my $help = $node->get_help($sel) ;
         $help = "no help for $sel" unless $help ;
         $helpw->text($help)  ;
-	if ($self->{permission} ne 'intermediate') {
+	if ($self->{experience} ne 'beginner') {
 	    my $p = $node
-	      -> get_element_property(property => 'permission',
+	      -> get_element_property(property => 'experience',
 				      element  => $sel) ;
-	    $permw->text("permission: $p");
+	    $permw->text("experience: $p");
 	}
 	my $type = $node->element_type($sel) ;
 	my $elt = $node->fetch_element($sel) ;
@@ -1538,7 +1538,7 @@ sub display_view_list {
 
     my $leaf_cb = ($select eq 'audit') ? $audit_cb : $std_cb ;
 
-    my @scan_args = ( permission       => $self->{permission},
+    my @scan_args = ( experience       => $self->{experience},
                       fallback         => 'all',
  		      hash_element_cb  => $hash_cb ,
 		      leaf_cb          => $leaf_cb ,
@@ -1777,7 +1777,7 @@ sub wiz_walk {
 	} ;
     }
 
-    my @wiz_args = (permission        => $self->{permission},
+    my @wiz_args = (experience        => $self->{experience},
 		    hash_element_cb   => $hash_element_cb ,
 		    %cb_hash 
 		   );
@@ -1822,7 +1822,7 @@ Config::Model::CursesUI - Curses interface to edit config data
  # create dialog
  my $dialog = Config::Model::CursesUI-> new
   (
-   permission => 'intermediate', # or 'advanced'
+   experience => 'beginner', # or 'advanced'
   ) ;
 
  # start never returns
@@ -1843,11 +1843,11 @@ The constructor accepts the following parameters:
 
 =over
 
-=item permission
+=item experience
 
-Specifies the permission level of the user (default:
-C<intermediate>). The permission can be C<master advanced
-intermediate>.
+Specifies the experience level of the user (default:
+C<beginner>). The experience can be C<master advanced
+beginner>.
 
 =item load
 

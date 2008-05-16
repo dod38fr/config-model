@@ -30,7 +30,7 @@ warn "You can run the GUI with 'i' argument. E.g. 'perl t/curses_ui.t i'\n";
 
 ok(1,"Config::Model::CursesUI loaded") ;
 
-my $model = Config::Model -> new ;
+my $model = Config::Model -> new ( legacy => 'ignore' );
 
 my $inst = $model->instance (root_class_name => 'Master',
 		  model_file      => 't/test_model.pm',

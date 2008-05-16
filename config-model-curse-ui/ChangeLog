@@ -1,3 +1,8 @@
+2008-05-15  Dominique Dumont  <dominique.dumont@hp.com>
+
+	* lib/Config/Model/CursesUI.pm: adapted to change permission ->
+	experience
+
 2008-03-17  Dominique Dumont v1.006
 
 	* lib/Config/Model/CursesUI.pm (start): adapted for Curses::UI
