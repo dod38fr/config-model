@@ -142,7 +142,7 @@ my $root = $inst -> config_root ;
 my $tm = $root -> fetch_element('tree_macro') ;
 map { $tm->store($_);} qw/XY XZ XY W mXY XZ W AR/;
 
-is($root->fetch_element('a_warped_node')->is_accessible,0,
+is($root->is_element_available('a_warped_node'),0,
    'check that a_warped_node is not accessible'
   ) ;
 
@@ -227,7 +227,7 @@ is($ahown->fetch_with_id(234)->element_name, 'a_hash_of_warped_nodes',
 is($ahown->fetch_with_id(234)->index_value, '234', 
    'Check index value of actual node below warped node') ;
 
-is_deeply([$root->get_element_name(for => 'intermediate')],
+is_deeply([$root->get_element_name(for => 'beginner')],
 	  [qw/v_macro b_macro tree_macro a_hash_of_warped_nodes 
               a_warped_node/],
 	 'reading elements of root') ;
@@ -235,7 +235,7 @@ is_deeply([$root->get_element_name(for => 'intermediate')],
 is($root->fetch_element('tree_macro')->store('W'),'W',
    'set master->tree_macro to W (warp out)...');
 
-is_deeply([$root->get_element_name(for => 'intermediate')],
+is_deeply([$root->get_element_name(for => 'beginner')],
 	  [qw/v_macro b_macro tree_macro/],
 	 'reading elements of root after warp out') ;
 

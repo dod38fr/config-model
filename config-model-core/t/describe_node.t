@@ -4,7 +4,7 @@
 # $Revision$
 
 use ExtUtils::testlib;
-use Test::More tests => 6;
+use Test::More tests => 7;
 use Config::Model;
 
 use warnings;
@@ -80,4 +80,13 @@ EOF
 
 is($description,$expect,"check std_id:ab description ") ;
 
+$expect = <<'EOF' ;
+name         value        type         comment
+std_id       <SlaveZ>     node hash    keys: "ab" "bc"
+EOF
 
+
+$description = $root->describe(element => 'std_id');
+$description =~ s/\s*\n/\n/g;
+print "description string:\n$description" if $trace  ;
+is($description,$expect,"check root description of std_id") ;

@@ -52,6 +52,10 @@ Config::Model::Describe - Provide a description of a node element
 
  print $root->describe ;
 
+ # or
+
+ print $root->describe(element => 'foo' ) ;
+
 =head1 DESCRIPTION
 
 This module is used directly by L<Config::Model::Node> to describe
@@ -96,6 +100,11 @@ Parameters are:
 
 Reference to a L<Config::Model::Node> object. Mandatory
 
+=item element
+
+Describe only this element from the node. Optional. All elements are
+described if omitted.
+
 =back
 
 =cut
@@ -106,6 +115,7 @@ sub describe {
     my %args = @_;
     my $desc_node = delete $args{node} 
       || croak "describe: missing 'node' parameter";
+    my $element = delete $args{element} ; # optional
 
     my $std_cb = sub {
         my ( $scanner, $data_r, $obj, $element, $index, $value_obj ) = @_;
@@ -212,7 +222,21 @@ sub describe {
 
     my @ret = [ qw/name value type comment/ ];
 
-    $view_scanner->scan_node(\@ret ,$desc_node);
+    if (defined $element and $desc_node->has_element($element)) {
+	$view_scanner->scan_element(\@ret ,$desc_node, $element);
+    }
+    elsif (defined $element) {
+	Config::Model::Exception::UnknownElement
+		->throw(
+			object   => $desc_node,
+			function => 'Describe',
+			where    => $desc_node->location || 'configuration root',
+			element     => $element,
+		       ) ;
+    }
+    else {
+	$view_scanner->scan_node(\@ret ,$desc_node);
+    }
 
     return join '', map { sprintf($format, @$_) } @ret ; 
 }

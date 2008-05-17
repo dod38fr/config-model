@@ -164,6 +164,7 @@ my %completion_dispatch =
   (
    cd => $cd_completion_sub,
    desc => $completion_sub,
+   ll   => $completion_sub,
    set => $leaf_completion_sub,
   );
 
@@ -270,7 +271,7 @@ sub run_loop {
     my $user_cmd ;
     while ( defined ($user_cmd = $term->readline($self->prompt)) ) {
 	last if $user_cmd eq 'exit' or $user_cmd eq 'quit' ;
-	print $OUT "cmd: $user_cmd\n";
+	#print $OUT "cmd: $user_cmd\n";
 	my $res = $self->run($user_cmd);
 	print $OUT $res, "\n" if defined $res and $res;
 	## $term->addhistory($_) if defined $_ && /\S/;

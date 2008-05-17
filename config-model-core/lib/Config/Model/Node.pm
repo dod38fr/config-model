@@ -1246,9 +1246,9 @@ sub dump_tree {
     $dumper->dump_tree(node => $self, @_) ;
 }
 
-=head2 describe ()
+=head2 describe ( [ element => ... ] )
 
-Provides a decription of the node elements.
+Provides a decription of the node elements or of one element.
 
 =cut
 
@@ -1256,7 +1256,7 @@ sub describe {
     my $self = shift ;
 
     my $descriptor = Config::Model::Describe->new ;
-    $descriptor->describe(node => $self) ;
+    $descriptor->describe(node => $self, @_) ;
 }
 
 =head2 report ()

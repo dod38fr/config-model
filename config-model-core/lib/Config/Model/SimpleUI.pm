@@ -109,7 +109,8 @@ delete elt:key
    -> delete a value from a list or hash element
 display elt elt:key
    -> display a value
-ls   -> show elements of current node
+ls -> show elements of current node
+ll -> show elements of current node and their value 
 help -> show available command
 desc[ription] -> show class desc of current node
 desc <element>   -> show desc of element from current node
@@ -146,11 +147,13 @@ my $desc_sub = sub {
 
 my $ll_sub = sub {
     my $self = shift ;
+    my $elt = shift ;
+
     my $obj = $self->{current_node} ;
 
     my $i = $self->{current_node}->instance;
     $i->push_no_value_check('fetch') ;
-    my $res = $obj->describe ;
+    my $res = $obj->describe(element => $elt) ;
     $i->pop_no_value_check;
     return $res ; 
 } ;
@@ -316,6 +319,7 @@ sub run {
     $user_cmd =~ s/^\s+// ;
 
     my ($action,$args) = split (m/\s+/,$user_cmd, 2)  ;
+    $args =~ s/\s+$//g; #cleanup
 
     print "DEBUG: run '$action' with '$args'\n" if $::debug;
 

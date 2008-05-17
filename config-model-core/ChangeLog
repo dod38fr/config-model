@@ -1,2201 +1,652 @@
-2008-05-15  Dominique Dumont  <dominique.dumont@hp.com>
+2008-05-17  Dominique Dumont v 0.623
+
+	* lib/Config/Model/SimpleUI.pm: Some cleanup. Added possibility to
+	add and element name to 'll' command
+
+2008-05-15  Dominique Dumont 
 
 	* config-edit: added "dev" and "experience" options. With "dev"
 	option, config-edit will add "lib" to @INC and look for models in
 	"lib"
 
-2008-05-09 15:44  ddumont
+2008-05-14  Dominique Dumont 
 
-	* ChangeLog, lib/Config/Model.pm, lib/Config/Model/Value.pm,
-	  lib/Config/Model/ValueComputer.pm: - allow_compute_override is
-	  deprecated in favor of allow_override
-	  within the compute parameter
+	* lib/Config/Model/Node.pm (fetch_element): Bails out if element
+	is hidden (this feature was forgotten)
 
-2008-05-09 14:34  ddumont
+2008-05-09  Dominique Dumont 
 
-	* ChangeLog: fixed change log
+	* lib/Config/Model/Value.pm (submit_to_compute): Fix bug where a
+	compute variable in the form 'foo' => '- - &element' did not work
+	(new): allow_compute_override is deprecated in favor of
+	allow_override within the compute parameter (backward compatible
+	change)
 
-2008-05-09 14:32  ddumont
+2008-05-07  Dominique Dumont 
 
-	* ChangeLog, lib/Config/Model/Value.pm,
-	  lib/Config/Model/ValueComputer.pm,
-	  lib/Config/Model/WarpedThing.pm, t/value_compute.t: bug fix
-	  regarding recursive variables
+	* lib/Config/Model/AnyThing.pm (dump_as_data): dump_as_data can
+	now be called on all configuration elements. (before, it could
+	only be called on nodes)
 
-2008-05-07 09:59  ddumont
+2008-05-02  Domi  <domi@bilbo.maison>
 
-	* ChangeLog, lib/Config/Model/AnyThing.pm,
-	  lib/Config/Model/DumpAsData.pm, lib/Config/Model/Node.pm,
-	  t/dump_as_data.t: can now call dump_as_data on all config
-	  elements
+	* lib/Config/Model/AutoRead.pm: Changed the way to specify auto
+	read and write for better clarity. Now they must be specified with
+	   read_config => [ { syntax => 'ini'},
+	                    { syntax => 'custom', 
+	                      class => 'Mine',
+	                      function=>'my_read'
+	                    }
+	                  ]
+	instead of 
+	   read_config => [ 'ini', { class => 'Mine',function=>'my_read'}]
+	likewise for write_config
 
-2008-05-04 09:33  ddumont
+2008-05-01  Domi  <domi@bilbo.maison>
 
-	* lib/Config/Model/Node.pm: added element_exists method
+	* lib/Config/Model.pm: Changed 'permission' to 'experience' and
+	'intermediate' to 'beginner' for better clarify. Changes are
+	backward compatible.
 
-2008-05-04 08:59  ddumont
+2008-04-29  Dominique Dumont 
 
-	* lib/Config/Model/ObjTreeScanner.pm: added deprecation warning
+	* lib/Config/Model/HashId.pm (move): New method to take into
+	account move within ordered hash
 
-2008-05-02 08:44  ddumont
+	* lib/Config/Model/WarpedThing.pm (compute_bool): warp rule no
+	longer fail with eval $foo == 1 when $foo is undef
 
-	* ChangeLog, lib/Config/Model.pm, lib/Config/Model/AutoRead.pm,
-	  lib/Config/Model/ListId.pm, t/auto_read.t: - changed the way to
-	  specify read_config and write_config
+2008-04-18  Dominique Dumont v0.622
 
-2008-05-01 14:41  ddumont
+	* Value.pm (fetch): added 'allow_undef' mode to allow reading
+	undefined mandatory value (fix morphing warped node containing
+	undefined mandatory values)
 
-	* ChangeLog, lib/Config/Model.pm, lib/Config/Model/AnyId.pm,
-	  lib/Config/Model/AnyThing.pm, lib/Config/Model/CheckList.pm,
-	  lib/Config/Model/Describe.pm, lib/Config/Model/DumpAsData.pm,
-	  lib/Config/Model/Dumper.pm, lib/Config/Model/Exception.pm,
-	  lib/Config/Model/Loader.pm, lib/Config/Model/Node.pm,
-	  lib/Config/Model/ObjTreeScanner.pm, lib/Config/Model/Report.pm,
-	  lib/Config/Model/SimpleUI.pm, lib/Config/Model/TermUI.pm,
-	  lib/Config/Model/Value.pm, lib/Config/Model/WarpedNode.pm,
-	  lib/Config/Model/WarpedThing.pm,
-	  lib/Config/Model/WizardHelper.pm, t/multi_warp_object.t,
-	  t/node.t, t/value_simple_warp.t, t/warped_value.t, t/wizard.t:
-	  changed permission to experience and intermediate to beginner
+	* Node.pm (copy_from): No longer die when copying undefined
+	mandatory value.
 
-2008-04-29 14:42  ddumont
+2008-04-16  Dominique Dumont 
 
-	* ChangeLog, lib/Config/Model/HashId.pm, t/hash_id_of_values.t: New
-	  method to take into
-	  account move within ordered hash
+	* AutoRead.pm (get_cfg_file_name): Do not use ':' in file
+	names. This breaks windows. Now use sub-directories
 
-2008-04-28 12:01  ddumont
+2008-04-15  Dominique Dumont 
 
-	* lib/Config/Model/WarpedThing.pm: - better fix for previous warp
-	  rule problem
+	* Dumper.pm (dump_tree): skip undefined values in list element
 
-2008-04-28 11:39  ddumont
+	* DumpAsData.pm (dump_as_data): idem
 
-	* lib/Config/Model/WarpedThing.pm, t/warped_value.t: - warp rule no
-	  longer fail with eval == 1 when is undef
+2008-04-14  Dominique Dumont 
 
-2008-04-27 16:28  ddumont
+	* Model.pm (list_class_element): New method to help debugging of
+	configuration models
 
-	* lib/Config/Model/ListId.pm: - small doc error
+2008-04-13  Dominique Dumont 
 
-2008-04-25 16:22  ddumont
+	* Model.pm (include_class): allow multiple includes
 
-	* AnyId.pm, AnyThing.pm, AutoRead.pm, ChangeLog, CheckList.pm,
-	  Describe.pm, DumpAsData.pm, Dumper.pm, Exception.pm, HashId.pm,
-	  IdElementReference.pm, Instance.pm, ListId.pm, Loader.pm,
-	  MANIFEST, Makefile.PL, Model.pm, Node.pm, ObjTreeScanner.pm,
-	  Report.pm, Searcher.pm, SimpleUI.pm, TermUI.pm, Value.pm,
-	  ValueComputer.pm, WarpedNode.pm, WarpedThing.pm, WizardHelper.pm,
-	  lib, lib/Config, lib/Config/Model, lib/Config/Model.pm,
-	  lib/Config/Model/AnyId.pm, lib/Config/Model/AnyThing.pm,
-	  lib/Config/Model/AutoRead.pm, lib/Config/Model/CheckList.pm,
-	  lib/Config/Model/Describe.pm, lib/Config/Model/DumpAsData.pm,
-	  lib/Config/Model/Dumper.pm, lib/Config/Model/Exception.pm,
-	  lib/Config/Model/HashId.pm,
-	  lib/Config/Model/IdElementReference.pm,
-	  lib/Config/Model/Instance.pm, lib/Config/Model/ListId.pm,
-	  lib/Config/Model/Loader.pm, lib/Config/Model/Node.pm,
-	  lib/Config/Model/ObjTreeScanner.pm, lib/Config/Model/Report.pm,
-	  lib/Config/Model/Searcher.pm, lib/Config/Model/SimpleUI.pm,
-	  lib/Config/Model/TermUI.pm, lib/Config/Model/Value.pm,
-	  lib/Config/Model/ValueComputer.pm,
-	  lib/Config/Model/WarpedNode.pm, lib/Config/Model/WarpedThing.pm,
-	  lib/Config/Model/WizardHelper.pm: v0.622
-	  - move pm files in lib
+2008-04-11  Dominique Dumont 
 
-2008-04-18 12:26  ddumont
+	* AnyId.pm: Changed the way the cargo parameter are specified. Now
+	the cargo parameter holds all the information related to the
+	payload of the hash or list. Instead of having :
+	cargo_type => ... , cargo_args => {}, config_class_name => ...
+	you now have:
+	cargo => { type => ..., config_class_name => ..., <other_parm> => ... }
+	Model.pm provides a translation from the old way to the new way so
+	this change is (95%) backward compatible.
+	
+2008-04-08  Dominique Dumont 
 
-	* ChangeLog, Value.pm, WarpedThing.pm, t/warped_value.t: added
-	  'allow_undef' mode for fetch
+	* CheckList.pm (set): Fix bug that prevented to use level or
+	permission or status parameter with check_list elements
 
-2008-04-18 11:08  ddumont
+2008-04-05  Domi  <domi@bilbo.maison>
 
-	* ChangeLog, Node.pm, t/warped_node.t: can copy undefined mandatory
-	  values
+	* Value.pm (pre_store): Fix bug that prevented to load models with
+	errors even in tolerant mode.
 
-2008-04-16 15:55  ddumont
+2008-04-03  Dominique Dumont  0.621
 
-	* DumpAsData.pm: don't store empty checklist
+	* Dumper.pm (dump_tree): Added auto_vivify parameter
 
-2008-04-16 10:18  ddumont
+	* DumpAsData.pm (dump_as_data): By default, now provide full
+	dump (with default values). Added auto_vivify parameter
 
-	* AutoRead.pm, ChangeLog, Model.pm, t/auto_read.t: Fix failure on
-	  windows
+	* Value.pm (fetch): Check for mandatory values even if fetching
+	only custom values
 
-2008-04-15 11:57  ddumont
+2008-04-02  Dominique Dumont  
 
-	* Model.pm, t/array_id.t, t/auto_load_model.t, t/auto_read.t,
-	  t/check_list.t, t/describe_node.t, t/dump_as_data.t,
-	  t/dump_tree.t, t/grab.t, t/hash_id_of_node.t,
-	  t/hash_id_of_values.t, t/instance.t, t/load.t,
-	  t/multi_warp_object.t, t/multi_warp_value.t, t/node.t,
-	  t/obj_tree_scanner.t, t/recursive_warp_value.t, t/report.t,
-	  t/search_element.t, t/simple_ui.t, t/term_ui.t, t/value.t,
-	  t/value_compute.t, t/value_refer_to.t, t/value_simple_warp.t,
-	  t/warped_id.t, t/warped_node.t, t/warped_value.t, t/wizard.t:
-	  suppress legacy warning (ignored, not fixed)
+	* Value.pm (): Cannot warp value_type anymore (this feature was
+	hard to use and encouraged too complex model).
 
-2008-04-15 11:36  ddumont
+2008-03-28  Dominique Dumont  
 
-	* ChangeLog, DumpAsData.pm, Dumper.pm, MANIFEST, Model.pm, Node.pm,
-	  t/dump_as_data.t, t/dump_tree.t: bug fix and dumpers skip
-	  undefined values in list element
+	* HashId.pm (swap): Fix swap problem which led to duplicated keys
+	in ordered hash
+	(move_after): New method
 
-2008-04-14 18:13  ddumont
+2008-03-22  Domi  <domi@bilbo.maison> 
 
-	* DumpAsData.pm, Model.pm: need to rework dump_as_data
+	* ListId.pm (swap): new method
+	(remove): New method, equivalent to splice (@list,$idx,1)
 
-2008-04-14 13:50  ddumont
+2008-03-20  Dominique Dumont  v0.6201
 
-	* ChangeLog, Exception.pm, Model.pm, t/include.t, t/report.t,
-	  t/warped_value.t: bug fix and new mthod to help debugging
+	* Makefile.PL: Removed dependency on Term::ReadLine::Gnu. This module
+	is just suggested (as well as Term::ReadLine::Perl)
 
-2008-04-13 16:23  ddumont
+2008-03-18  Dominique Dumont  v0.620
 
-	* ChangeLog, Model.pm, WarpedThing.pm, t/warped_value.t: -allow
-	  multiple includes in Model
-	  - reverted changes to WarpedThing that allowed a Node to be warp
-	  master
+	* TermUI.pm: Fixed to work with Term::ReadLine::Gnu or
+	Term::ReadLine::Perl. Can also work in degraded mode without these
+	2 modules. 
+	The command handling part was moved to SimpleUI.pm
 
-2008-04-11 16:19  ddumont
+	* config-edit: added Simple UI mode so config-edit can be used
+	with stdin and stdout
 
-	* AnyId.pm, ChangeLog, Model.pm, Searcher.pm, Value.pm,
-	  ValueComputer.pm, WarpedThing.pm, t/array_id.t,
-	  t/hash_id_of_values.t, t/multi_warp_object.t, t/search_element.t,
-	  t/value_compute.t, t/warped_node.t, t/warped_value.t: reworked
-	  how the cargo information are specified
+2008-02-29  Dominique Dumont  v0.619
 
-2008-04-10 10:55  ddumont
+	* Value.pm: removed kludgy enum_integer value type 
 
-	* Exception.pm, Model.pm, Node.pm, t/warped_id.t: Better error
-	  handling and messages
+2008-02-27  Dominique Dumont  
 
-2008-04-08 16:22  ddumont
+	* Instance.pm (write_back): can override directory where config
+	data is written back (necessary for GUI menu like "save in dir
+	...")
 
-	* CheckList.pm, Exception.pm, t/big_model.pm, t/check_list.t,
-	  t/dump_tree.t: Don't try to create choice list for hidden
-	  check_list with refer_to parameter
+2008-02-26  Dominique Dumont  
 
-2008-04-08 10:26  ddumont
+	* Node.pm (get_help): do not mangle description text (don't remove
+	spurious \s and \n. Leave that to user)
 
-	* ChangeLog, CheckList.pm, Makefile.PL, Value.pm, t/check_list.t:
-	  allow level for checklist element
+2008-02-12  Dominique Dumont  v0.618
 
-2008-04-05 17:10  ddumont
+	* AnyThing.pm (composite_name): new method to return a name
+	like element:index or element.
 
-	* ChangeLog, Instance.pm, Value.pm: Fix bug that prevented to load
-	  models with errors even in tolerant mode
+2008-02-08  Dominique Dumont  
 
-2008-04-04 10:34  ddumont
+	* CheckList.pm (): added refer_to and computed_refer_to accessors 
 
-	* ChangeLog, Makefile.PL, Model.pm, README: 0.621
+2008-01-28  Dominique Dumont v0.617
 
-2008-04-03 17:06  ddumont
+	* config-edit: added possibility to load Tk GUI (still under
+	development)
 
-	* ChangeLog, DumpAsData.pm, Dumper.pm, Value.pm, t/dump_as_data.t,
-	  t/obj_tree_scanner.t: - added auto_vivify parameter to dump_tree
-	  and dump_as_data
-	  - Value::fetch: fails for mandatory undef custom parameters
+	* Exception.pm (): Fixed misleading error message for
+	UnavailableElement exception
 
-2008-04-03 12:03  ddumont
+2008-01-25  Dominique Dumont  
 
-	* Model.pm, ValueComputer.pm: small typos in error messages
+	* Value.pm (): added "replace" parameter for enum Value. This
+	enables to specify a substitution when storing value.
 
-2008-04-03 11:13  ddumont
+2008-01-23  Dominique Dumont  
 
-	* IdElementReference.pm: simpler error message
+	* WarpedNode.pm (check): no longer die when trying to retrieve
+	warped out node, just return undef. This is necessary to be able
+	to load configuration files with important error (e.g. a xorg.conf
+	file with a wrong device driver: all driver option are no longer
+	valid.)
 
-2008-04-02 19:39  ddumont
+	* Value.pm (check): Added doc for check.  
 
-	* AnyId.pm, ValueComputer.pm, WarpedThing.pm,
-	  t/hash_id_of_values.t, t/value_compute.t: improved error messages
+	* ObjTreeScanner.pm (permission): new method to get or set the
+	permission of the scanner (after creation).
 
-2008-04-02 13:31  ddumont
+2007-12-04  Dominique Dumont  v0.616
 
-	* ChangeLog, IdElementReference.pm, Value.pm, t/value_refer_to.t,
-	  t/warped_id.t, t/warped_value.t: - Value.pm: Cannot warp
-	  value_type anymore (this feature was hard to
-	  use and encouraged too complex model)
-	  - Better error message: need to trap grab errors and add more
-	  informations to
-	  enable user to debug their model (been there, done that :-/ )
+	* AutoRead.pm (read_ini): added capability to read configuration
+	data from ini file (See Config::Tiny)
+	(write_ini): can use ini files to store configuration data
+	(read_perl): added capability to read configuration data from a
+	perl data structure (see Config::Model::DumpAsData) from a .pl
+	(write_perl): can use perl file to store configuration data (.pl
+	file)
+	(auto_read_init): configuration model can specify cds (dump string
+	see Config::Model::Dumper), perl or ini with 'read_config' and
+	'write_config' parameter.
 
-2008-03-28 16:41  ddumont
+2007-11-15  Dominique Dumont  v0.615
 
-	* ChangeLog, HashId.pm, t/hash_id_of_values.t: added move_after
-	  method
+	* config-edit: added '-force-load' option to load erroneous
+	configuration data. bad data is discarded.
 
-2008-03-28 13:11  ddumont
+	* Value.pm : handle 'preset' mode to store values
+	(fetch):accept mode parameter ( [ custom | preset |
+	standard | default | non_built_in ] )
 
-	* MANIFEST, t/pod.t: added pod tests
+	* Loader.pm (_load_list): When loading list, empty value are
+	considered as undef values. I.e 'list_a=a,,"",d' will
+	load ('a',undef,'','d') to lista element
 
-2008-03-28 13:11  ddumont
+	* Instance.pm (new): added 'force_load' parameter to load
+	erronueus configuration data. In this case, wrong data will be
+	discarded.
+	(preset_start): new. Use this method, then load configuration data
+	that will be used as "preset data". You can use this feature to
+	load data discovered by an automatic mechanism, like hardware
+	scan.
+	(preset_stop): new. Stop preset mode. Then all data entered will
+	be considered as 'custom' data. These custom data can be compared
+	to 'default' or 'preset' data for audit purpose
+	(preset): new. Query if the instance is in 'preset' mode.
 
-	* config-edit: pod fix
+	* Dumper.pm (dump_tree): changed 'full_dump' parameter (0|1) to 
+	'mode' (full | preset)
+	(dump_tree): if a list contain undef values, they are dumped as
+	a_list=a,b,,d. Empty values are dumped as a_list=a,b,"",d
 
-2008-03-28 13:10  ddumont
+	* CheckList.pm (store): work in preset mode
+	(set_checked_list_as_hash): accept a mode parameter ([ custom |
+	preset | standard | default ]) to be able to audit config data
+	(fetch): idem
 
-	* ChangeLog, HashId.pm, t/hash_id_of_values.t: Fix swap problem
-	  which led to duplicated keys in ordered hash
+2007-10-19  Dominique Dumont v0.614
 
-2008-03-25 20:21  ddumont
+	* Value.pm: added 'uniline' value type for string with no embedded
+	newline. (no "\n")
 
-	* t/hash_id_of_values.t: - some more tests related to ordered
-	  hashes
+2007-10-11  Dominique Dumont
 
-2008-03-22 17:48  ddumont
+	* Model.pm (translate_id_names): new method to translate AnyId
+	parameter changes
 
-	* ChangeLog, ListId.pm, Model.pm, t/array_id.t: added swap and
-	  remove to ListId + tests
+	* AnyId.pm: Changed some parameters: follow -> follow_keys,
+	allow -> allow_keys, allow_from -> allow_keys_from
 
-2008-03-20 07:46  ddumont
+2007-10-09  Dominique Dumont
 
-	* ChangeLog, Makefile.PL, Model.pm: removed dependency on
-	  Term::ReadLine::Gnu
+	* Model.pm (translate_id_default_info): provides backward
+	compatibility for AnyId parameter changes.
 
-2008-03-18 17:38  ddumont
+	* AnyId.pm: default parameter is replaced by 'default_keys' and
+	'default_with_init'.
 
-	* ChangeLog, MANIFEST, Model.pm, SimpleUI.pm, TermUI.pm,
-	  config-edit, t/simple_ui.t, t/term_ui.t: - fixed TermUI
-	  - moved run command handling in simple ui
+2007-09-25  Dominique Dumont  v0.613
 
-2008-03-18 17:33  ddumont
+	* IdElementReference.pm: Changes the API of IdElementReference so
+	that API is more explicit (Like the API change for
+	ValueComputer). This change is backward compatible (model
+	translation)
 
-	* AnyThing.pm: grab: remove quote only when trailing and leading
-	  quote are present
+2007-09-20  Dominique Dumont  
 
-2008-03-18 17:28  ddumont
+	* ValueComputer.pm: Now compute paramater must use explicit
+	parameters for compute formula, variables and replace.  Backward
+	compatibility is kept by translating old compute declaration in
+	Model.pm
+	
+2007-09-17  Dominique Dumont  
 
-	* Instance.pm: - write_back will create directory if needed
+	* Model.pm (include_class): permission, level and description
+	parameters can also be declared within the element declaration.
+	(i.e. at the same level than 'type' )
+	
+	* IdElementReference.pm (): A reference to a list will now take
+	into account the values of the list instead of the indexes of the
+	list. This makes more sense...
 
-2008-03-11 17:27  ddumont
+	* CheckList.pm: Change the name of 'default' parameter to
+         'default_list' ('default' is still accepted but is deprecated)
 
-	* AnyId.pm, AnyThing.pm, AutoRead.pm, CheckList.pm, Describe.pm,
-	  DumpAsData.pm, Dumper.pm, Exception.pm, HashId.pm,
-	  IdElementReference.pm, Instance.pm, ListId.pm, Loader.pm,
-	  Model.pm, Node.pm, ObjTreeScanner.pm, Report.pm, Searcher.pm,
-	  TermUI.pm, Value.pm, ValueComputer.pm, WarpedNode.pm,
-	  WarpedThing.pm, WizardHelper.pm: - activation keyword
-	  sunstitution
+2007-09-06  Dominique Dumont  
 
-2008-03-11 17:24  ddumont
+	* WarpedNode.pm: improved synopsis in doc
+	(load_data): new method (forgotten in 0.612)
 
-	* t/array_id.t, t/auto_load_model.t, t/auto_read.t, t/big_model.pm,
-	  t/check_list.t, t/describe_node.t, t/dump_as_data.t,
-	  t/dump_tree.t, t/grab.t, t/hash_id_of_node.t,
-	  t/hash_id_of_values.t, t/instance.t, t/load.t,
-	  t/multi_warp_object.t, t/multi_warp_value.t, t/node.t,
-	  t/obj_tree_scanner.t, t/recursive_warp_value.t, t/report.t,
-	  t/search_element.t, t/term_ui.t, t/value.t, t/value_compute.t,
-	  t/value_refer_to.t, t/value_simple_warp.t, t/warped_id.t,
-	  t/warped_node.t, t/warped_value.t, t/wizard.t: - fix keywords and
-	  VERSION for svn
-	  - changed TkUi to TkUI
+	* Model.pm: -doc: added synopsis
+	- inherit is deprecated in favor of include 
+	- inherit_after is deprecated in favor of include_after
+	- Raise an exception if an element is declared twice in a
+	  model (even through include mechanism: overriding an
+	  included element leads to confusion)
 
-2008-03-11 17:07  ddumont
+2007-07-26  Dominique Dumont  v0.612
 
-	* AnyId.pm, AnyThing.pm, AutoRead.pm, ChangeLog, CheckList.pm,
-	  Describe.pm, DumpAsData.pm, Dumper.pm, Exception.pm, HashId.pm,
-	  IdElementReference.pm, Instance.pm, LICENSE, ListId.pm,
-	  Loader.pm, MANIFEST, Makefile.PL, Model.pm, Node.pm,
-	  ObjTreeScanner.pm, README, Report.pm, Searcher.pm, TODO,
-	  TermUI.pm, Value.pm, ValueComputer.pm, WarpedNode.pm,
-	  WarpedThing.pm, WizardHelper.pm, config-edit,
-	  examples/fstab/Fstab.pl, examples/fstab/README,
-	  examples/fstab/fstab.sample, examples/fstab/fstab_test.pl,
-	  t/array_id.t, t/auto_load_model.t, t/auto_read.t, t/big_model.pm,
-	  t/check_list.t, t/describe_node.t, t/dump_as_data.t,
-	  t/dump_tree.t, t/grab.t, t/hash_id_of_node.t,
-	  t/hash_id_of_values.t, t/instance.t, t/load.t,
-	  t/multi_warp_object.t, t/multi_warp_value.t, t/node.t,
-	  t/obj_tree_scanner.t, t/recursive_warp_value.t, t/report.t,
-	  t/search_element.t, t/term_ui.t, t/value.t, t/value_compute.t,
-	  t/value_refer_to.t, t/value_simple_warp.t, t/warped_id.t,
-	  t/warped_node.t, t/warped_value.t, t/wizard.t: - fix keywords and
-	  VERSION for svn
-	  - Changed TkUi to TkUI
+	* HashId.pm : can preserve hash key order (when created with
+	ordered => 1). New method to manipulate hash key order are swap,
+	move_up, move_down.
 
-2008-03-06 16:36  ddumont
+	* Exception.pm :new error class  Config::Model::Exception::LoadData
 
-	* examples/fstab/fstab_test.pl: - added Tk UI
+	* AnyThing.pm (grab): added 'grab_non_available' parameter.
 
-2008-03-06 16:35  ddumont
+	* AnyId.pm: added "ordered" parameter to create ordered hash
+	elements. I.e. hashes where the order of the keys is kept (like
+	Tie::IxHash)
 
-	* examples/fstab/Fstab.pl: - added usbfs file system type
+2007-07-18  Dominique Dumont  
 
-2008-03-04 17:41  ddumont
+	* Value.pm (load_data): new method
 
-	* Instance.pm: added a warning for empty write_back
+	* Node.pm (load_data): new method
+	(dump_as_data): new method 
 
-2008-02-29 12:05  ddumont
+	* Model.pm (inherit_class): added inherit_after parameter. In a
+	model, the order of the elements is important. This parameter
+	enable a model to inherit elements from another class and to place
+	them in a specific place among the original elements.
+	(load): returns the names of the class loaded by this method.
 
-	* ChangeLog, Model.pm, ObjTreeScanner.pm, Value.pm,
-	  WizardHelper.pm, t/obj_tree_scanner.t, t/value.t: -removed kludgy
-	  enum_integer value type
-	  - v0.619
+	* ListId.pm (load_data): new method
 
-2008-02-27 13:40  ddumont
+	* HashId.pm (load_data): new method
 
-	* config-edit: added require Tk::ErrorDialog
+	* CheckList.pm (load_data): new method
 
-2008-02-27 13:40  ddumont
+2007-07-03  Dominique Dumont  v0.611
 
-	* AutoRead.pm, Instance.pm, t/auto_read.t: can override directory
-	  where config data is written back
+	* WarpedThing.pm: Modified the way to specify complex warped
+	rules. The former way based on list of lists was confusing. Now
+	you can specify boolean expressions to find the warp rule to apply.
+	
+	* Model.pm: Simplified config class inheritance mechanism: inherit
+	all or nothing. Added translation of legacy warp parameter (based
+	on list of lists) to new warp parameters (based on boolean
+	expressions). So the change done in WarpedThing is backward
+	compatible.
+	
+2007-06-06  Dominique Dumont v0.610
 
-2008-02-26 13:34  ddumont
+	* Model.pm (inherit_class): Fix configuration class inheritance
+	mechanism
 
-	* HashId.pm, ListId.pm, Value.pm: -added traces for load_data
+2007-06-04  Dominique Dumont  
 
-2008-02-26 13:32  ddumont
+	* Value.pm: can also warp help for enum value
 
-	* Node.pm: -added traces for load_data
-	  - do not mangle description text in get_help
+2007-05-09  Dominique Dumont   v0.609
 
-2008-02-14 17:11  ddumont
+	* config-edit: renamed from config-model
 
-	* CheckList.pm, Exception.pm, HashId.pm, WarpedNode.pm: fixed link
-	  in pod doc
+2007-05-07  Dominique Dumont  
 
-2008-02-14 12:52  ddumont
+	* examples/fstab/fstab_test.pl (produce_fstab): added curses
+	interface example (need to install Config::Model::CursesUI to
+	work)
 
-	* ChangeLog, Model.pm: v0.618
+2007-05-04  Dominique Dumont  
 
-2008-02-12 17:22  ddumont
+	* config-model: added possibility to use the curses interface
+	provided by Config::Model::CursesUI (if this one is installed)
 
-	* AnyThing.pm: - added composite_name method
+	* ValueComputer.pm: Modified so compute may return an undef value
+	if one of the variable (extracted from the configuration data) of
+	the formula is undefined. In other word, propagate undef instead
+	of croaking.
 
-2008-02-08 17:27  ddumont
+	* Searcher.pm: Lots of bug fixes
+	(get_searchable_elements): new method
+	(prepare): new method. Search is now done in 3 moves: create the
+	searcher object, prepare the search, and run the search
 
-	* Value.pm: - doc fix
+	* Value.pm: removed unique_value parameter which was a bad idea
+	for a check list implementation. Moved reference handling into new
+	IdElementReference class
 
-2008-02-08 17:25  ddumont
+	* IdElementReference.pm: New class extracted from Value object so
+	reference can be used also by CheckList
 
-	* CheckList.pm: added refer_to computer_refer_to accessor
+	* CheckList.pm: re-wrote as a "check_list" type and not a "list"
+	type
 
-2008-02-08 16:46  ddumont
+2007-04-27  Dominique Dumont  
 
-	* CheckList.pm: - small doc fix
+	* Instance.pm (reset_config): new method
+	(searcher): renamed search_element to
+	searcher. searcher retunrs a Config::Model::Searcher object.
+	
+	* AnyThing.pm (searcher): renamed search_element to
+	searcher. searcher retunrs a Config::Model::Searcher object.
 
-2008-02-06 17:26  ddumont
+	* AnyId.pm (copy): new method to deep-copy the content of a hash
+	or id element.
 
-	* AnyId.pm: doc update
+2007-04-13  Dominique Dumont  
 
-2008-01-28 11:51  ddumont
+	* Value.pm: moved out reference facility in
+	Config::Model::IdElementReference
 
-	* ChangeLog: - v 0.617
+2007-03-16  Dominique Dumont  
 
-2008-01-28 11:51  ddumont
+	* Value.pm (fetch_no_check): new method
 
-	* Model.pm: - modif copyright year
-	  - bumped rev number
+2007-02-23  Dominique Dumont  v0.608
 
-2008-01-28 11:50  ddumont
+	* ObjTreeScanner.pm: Clarified call-back names.
 
-	* Makefile.PL, README: - modif copyright year
+2007-01-12  Dominique Dumont  v0.607
 
-2008-01-28 11:48  ddumont
+	* t/term_ui.t: Changed tests to try to load Term::ReadLine and
+	skip tests if Term::ReadLine cannot be loaded.
 
-	* t/value.t: - test "replace" parameter
+2007-01-11  Dominique Dumont  v0.606
 
-2008-01-28 11:48  ddumont
+	* config-model: Corrected wrong doc for options.
 
-	* config-edit: - added Tk interface loader
+	* Describe.pm: Small cosmetic changes in output.
 
-2008-01-28 11:47  ddumont
+2007-01-08  Dominique Dumont  v0.605
 
-	* Value.pm: - added "replace" value parameter
+	* config-model: Now uses Log::Log4perl. (Still need to use
+	Log4perl for all *.pm files though). Now write config files back.
+	Added option to read and write config in test directories.
 
-2008-01-28 11:46  ddumont
+	* *.pm: Changed e-mail address to reduce spam.
 
-	* Exception.pm: Fixed misleading error message for
-	  UnavailableElement exception
+	* *.pm: Small bug and doc fixes.
+	
+2006-12-08  Dominique Dumont 
 
-2008-01-23 16:38  ddumont
+	* Model.pm (load): Model files are expected to be delivered as
+	Perl module and are searched using @INC. (E.g. Xorg.pl model will
+	be searched as Config/Model/models/Xorg.pl in @INC elements)
 
-	* t/dump_tree.t, t/load.t, t/warped_node.t: shake warp stuff
+	* Exception.pm (full_message): Clarified error message of
+	RestrictedElement exception
 
-2008-01-23 16:37  ddumont
+	* examples/fstab/fstab_test.pl: Clarified notifications shown to
+	user. Adapted to changes of 0.604
 
-	* WarpedNode.pm: - returns undef when retrieving a warped out node
-	  (instead of dying)
+2006-12-06  Dominique Dumont   v0.604
 
-2008-01-23 16:34  ddumont
+	* Node.pm: added check_list in possible element of a node.
 
-	* Value.pm: - check is now public
-	  - check no longer complain when value is undef and value is not
-	  mandatory
+	* Value.pm (set): Changed reference declaration: now value_type
+	must be set to 'reference' when using 'refer_to' parameter.
 
-2008-01-23 16:27  ddumont
+	* WarpedThing.pm: can group rules declaration in warp argument to
+	save typing
 
-	* README: - mention ptk interface in dev
-	  - rewrote summary
+	* WizardHelper.pm: adapted for ObjTreeScanner changes
 
-2008-01-23 16:25  ddumont
+2006-12-05  Dominique Dumont  
 
-	* ObjTreeScanner.pm: - added permission and get_permission_ref
-	  methods
+	* ObjTreeScanner.pm: Modified the callback signature so the user
+	does no longer have to play with closures.
+	- added check_list_cb for CheckList elements
+	- improved doc
+	- added callback example in doc
 
-2008-01-23 16:21  ddumont
+	* AutoRead.pm (auto_write_init): bug fix in auto_write functions
 
-	* AnyId.pm, HashId.pm: Fix doc typo
+	* AnyId.pm (new): New allow and allow_from parameters to set
+	"allowed" keys of a hash or list. This list of allowed keys can be
+	fixed or dynamic.
 
-2007-12-04 12:36  ddumont
+	* AnyThing.pm (root): new method. Returns the root node of the
+	configuration tree.
+	(grab): bug fix so hash identifier can contain white spaces when
+	calling grab (e.g. InputDevice:"Configured Mouse")
 
-	* ChangeLog: - v 0.616
+	* CheckList.pm: New class to implement a check list. 
 
-2007-12-04 12:36  ddumont
+	* Describe.pm: adapted for ObjTreeScanner changes and new
+	CheckList element type
 
-	* t/auto_read.t: added perl, ini tests
+	* Dumper.pm: idem
 
-2007-12-04 12:35  ddumont
+	* Report.pm: idem
 
-	* config-edit: - added instance_name parameter
+2006-10-19  Dominique Dumont   v0.603
 
-2007-12-04 12:34  ddumont
+	* Value.pm (set): forbids to specify both 'refer_to' and
+	'value_type' in value declaration
 
-	* ObjTreeScanner.pm: - cosmetic doc update
+2006-10-11  Dominique Dumont  
 
-2007-12-04 12:34  ddumont
+	* Loader.pm (load): Accepts now to load configuration data where
+	index can contain white space. (e.g. Monitor:"Hercules Pro")
 
-	* Node.pm: - load_data: can now now blessed hash ref.
+	* AnyId.pm: changed 'element_args' to 'cargo_args'. Changed
+	'element_class' to 'cargo_class'. Added 'follow' parameter so a
+	hash key can mimic the keys of another hash in the configuration
+	tree.
 
-2007-12-04 12:33  ddumont
+	* TermUI.pm: removed debug print. This makes auto-completion much
+	easier to understand ;-)
 
-	* Model.pm: - bumped to v 0.616
+2006-09-26  Dominique Dumont  
 
-2007-12-04 12:32  ddumont
+	* Value.pm (set_default): added built_in default
+	parameter. Built_in default parameter are not written in
+	configuration files but can be used to audit configuration data.
+	
+	* AutoRead.pm (auto_read_init): bug fix: override of read_dir was
+	not taken into account
+	(auto_write_init): idem for write_dir
 
-	* Makefile.PL: - added Config::Tiny dependency
+2006-09-22  Dominique Dumont  
 
-2007-12-04 12:32  ddumont
+	* Instance.pm: added doc for the possibility to specify where to
+	read or write the configuration files.
 
-	* DumpAsData.pm, Dumper.pm: - added skip_auto_write parameter
+2006-09-21  Dominique Dumont  
 
-2007-12-04 12:31  ddumont
+	* AnyId.pm (move): also change index value when moving items.
 
-	* AutoRead.pm: - read_ini: added capability to read configuration
-	  data from ini file
-	  (See Config::Tiny)
-	  - write_ini: can use ini files to store configuration data
-	  - read_perl: added capability to read configuration data from a
-	  perl
-	  data structure (see Config::Model::DumpAsData) from a .pl
-	  - write_perl: can use perl file to store configuration data (.pl
-	  file)
-	  - auto_read_init: configuration model can specify cds (dump
-	  string see
-	  Config::Model::Dumper), perl or ini with 'read_config' and
-	  'write_config' parameter.
+2006-09-07  Dominique Dumont   v0.602
 
-2007-11-15 12:07  ddumont
+	* config-model: added -help and -man options to command line
 
-	* examples/fstab/Fstab.pl: - changed inherit to include
+	* Model.pm (load): model file now must return an array ref and not
+	invoke Model methods. See t/big_model.pm for an example
+	(load): can load model file for model class that contain '::'. In
+	this case the model file is searched in a sub-directory just like
+	a perl class (E.g Model::Foo -> Model/Foo.pm)
 
-2007-11-15 12:03  ddumont
+	* HashId.pm (create_default): can initialise children nodes while
+	creating default keys. (Necessary to be able to write a
+	configuration model for Xorg)
 
-	* ChangeLog: - v0.615
+	* AnyId.pm (move): new method
 
-2007-11-15 12:03  ddumont
+2006-07-20  Dominique Dumont   v0.601
 
-	* t/load.t, t/value.t: test updates
+	* config-model: new program. This programs can be invoked to
+	modify configuration files (provided the corresponding model is
+	available in /etc/config-model.d). (Still shaky. Don't run as
+	root)
 
-2007-11-15 12:02  ddumont
+2006-07-19  Dominique Dumont  
 
-	* Value.pm: - doc fix
-	  - added non_built_in mode for fetch
+	* Node.pm (get_type): new method
+	(get_cargo_type): new method
+	(get_element_name): added type and cargo_type parameters to filter
+	returned element depending on their type or cargo (contained) type
+	(describe): new method. Uses new Describe.pm file
 
-2007-11-15 12:00  ddumont
+	* Value.pm (get_type): new method
+	(get_cargo_type): new method
 
-	* Node.pm: - doc fix
+2006-07-18  Dominique Dumont  
 
-2007-11-15 12:00  ddumont
+	* Model.pm (load): new method. Model can load model declaration
+	from /etc/config-model.d. The model must be valid perl script that
+	ends with an array ref containing configuraiton class declaration
+	like the one accepted by create_config_class
 
-	* Loader.pm: - small bug fix
+	* ListId.pm (get_type): new method
 
-2007-11-13 12:43  ddumont
+	* HashId.pm (get_type): new method
 
-	* Model.pm: - bumped version
+	* Exception.pm : Added WrongType exception for new grab parameters
 
-2007-11-13 12:43  ddumont
+	* AnyThing.pm (get_type): New method
+	(grab): added strict, autoadd, type parameter.
 
-	* t/check_list.t, t/dump_tree.t, t/load.t, t/value.t: adapted for
-	  preset mode
+	* AnyId.pm (get_cargo_type): new method.
+	(config_class_name): new mehtod
 
-2007-11-13 12:42  ddumont
+	* Describe.pm: New file. Provides a human readable description of
+	a configuration node.
 
-	* config-edit: - added force-load option
+2006-06-15  Dominique Dumont   v0.507
 
-2007-11-13 12:40  ddumont
+	* TermUI.pm: New file. Provides a shell like interactive user
+	interface.
 
-	* Value.pm: - fetch: accept mode parameter ( [ custom | preset |
-	  standard | default ] )
-	  - handle 'preset' mode to store values
+	* Node.pm: Now inherit AutoRead class
 
-2007-11-13 12:38  ddumont
+	* Instance.pm: Adapted for auto read/write.
 
-	* Loader.pm: - When loading list, empty value are considered as
-	  undef values. I.e
-	  'list_a=a,,"",d' will load ('a',undef,'','d') to lista element
+2006-06-12  Dominique Dumont   
 
-2007-11-13 12:36  ddumont
+	* AutoRead.pm: New file. Provides node the capabilities to load
+	config data when creating a configuration node.
 
-	* Instance.pm: - new: added 'force_load' parameter to load
-	  erronueus configuration
-	  data. In this case, wrong data will be discarded.
-	  - preset_start: new. Use this method, then load configuration
-	  data
-	  that will be used as "preset data". You can use this feature to
-	  load
-	  data discovered by an automatic mechanism, like hardware scan.
-	  - preset_stop: new. Stop preset mode. Then all data entered will
-	  be
-	  considered as 'custom' data. These custom data can be compared to
-	  'default' or 'preset' data for audit purpose
-	  - preset: new. Query if the instance is in 'preset' mode.
+2006-05-19  Dominique Dumont   v0.506
 
-2007-11-13 12:27  ddumont
+	* examples/fstab/FstabModel.pl: added Fstab example with its fstab
+	configuration model. This example includes a small program that
+	use this model to show some ways to extract configuration
+	informations.
 
-	* Dumper.pm: - changed 'full_dump' parameter (0|1) to 'mode' (full
-	  | preset)
-	  - if a list contain undef values, they are dumped as
-	  a_list=a,b,,d. Empty values are dumped as a_list=a,b,"",d
+2006-05-17  Dominique Dumont   
 
-2007-11-13 12:16  ddumont
+	* Report.pm: new file. Provides report and audit facility for
+	Node.pm
 
-	* CheckList.pm: - added 'preset' mode
-	  - get_checked_* accept a mode parameter
+	* Node.pm (report): new method
+	(audit): new method
 
-2007-11-13 12:14  ddumont
+	* Model.pm (create_config_class): added inheritance of
+	configuration models.
 
-	* AnyId.pm: - fetch_all_values accept mode parameter
+	* HashId.pm (_get_all_indexes): sort returned indexes
 
-2007-10-23 16:08  ddumont
+	* Dumper.pm (dump_tree): fix list dump which did not work
 
-	* ChangeLog, Model.pm: bumped to v0.614
+	* AnyId.pm (fetch_all_values): new method
 
-2007-10-19 11:43  ddumont
+2006-04-21  Dominique Dumont   v0.505
 
-	* ChangeLog, IdElementReference.pm, Model.pm, ObjTreeScanner.pm,
-	  Value.pm, WarpedThing.pm, WizardHelper.pm, t/big_model.pm,
-	  t/describe_node.t, t/dump_as_data.t, t/dump_tree.t,
-	  t/obj_tree_scanner.t, t/report.t, t/search_element.t,
-	  t/term_ui.t, t/value.t: added uniline value_type
+	* WizardHelper.pm: New file. This class helps to create wizard
+	widget for config models
 
-2007-10-11 11:36  ddumont
+	* Makefile.PL: ValueFormula is no longer compiled at build-time
+	but on the fly at run-time. Hopefully this will fix Windows
+	problem and ease integration downstream for a minor performance
+	penalty at start time.
 
-	* AnyId.pm, Dumper.pm, IdElementReference.pm, Loader.pm,
-	  t/dump_tree.t, t/load.t: fix bug related to quoted strings in
-	  loader and dumper
+2006-04-10  Dominique Dumont   v0.504
 
-2007-10-11 10:49  ddumont
+	* Searcher.pm: Added search element feature. This feature provides
+	a way to search for a configuration element in a configuration
+	tree. The search can be launcher from an instance or any node of a
+	configuration tree. Getting to searched target can be manual or
+	automatic (with call-backs provided by user)
 
-	* AnyId.pm, ChangeLog, ListId.pm, Model.pm, t/dump_as_data.t:
-	  Renamed some AnyId parameters
+2006-03-21  Dominique Dumont  
 
-2007-10-09 11:15  ddumont
+	* Makefile.PL: Changed grammar pre-compilation to add a "1;" at
+	the end of ValueFormulaParser.pm (Makes Windows happy)
 
-	* AnyId.pm, HashId.pm, ListId.pm, t/warped_id.t: default parameter
-	  is replaced by 'default_keys' and 'default_with_init'
+2006-03-16  Dominique Dumont   v0.503
 
-2007-10-09 11:14  ddumont
-
-	* Model.pm: provides backward compatiblity for AnyId parameter
-	  changes
-
-2007-10-01 15:49  ddumont
-
-	* Model.pm: - bumped version nb
-
-2007-10-01 15:48  ddumont
-
-	* ChangeLog: - v0.613
-
-2007-09-25 12:23  ddumont
-
-	* CheckList.pm, IdElementReference.pm, Model.pm, Value.pm,
-	  ValueComputer.pm: Change the API of IdElementReference so that
-	  API is more explicit
-
-2007-09-20 16:21  ddumont
-
-	* ChangeLog, Makefile.PL, Model.pm, Value.pm, ValueComputer.pm,
-	  t/value_compute.t: Compute replacement only allows $replace{xxx},
-	  i.e. only one set of
-	  replacement rule. This simplifies the compute specification
-
-2007-09-20 11:40  ddumont
-
-	* Node.pm: - comment and better error message
-
-2007-09-20 11:39  ddumont
-
-	* t/auto_load_model.t, t/big_model.pm, t/check_list.t,
-	  t/dump_as_data.t, t/dump_tree.t, t/multi_warp_object.t, t/node.t,
-	  t/value_compute.t, t/value_refer_to.t, t/warped_id.t,
-	  t/warped_value.t: after value computer parameter changes
-
-2007-09-20 11:39  ddumont
-
-	* Model.pm, Value.pm, ValueComputer.pm: - Now compute paramter must
-	  use explicit parameters for compute
-	  formula, variables and substitution. Backward compatibility is
-	  kept
-	  by translating old compute declaration in Model.pm
-
-2007-09-17 12:03  ddumont
-
-	* WarpedThing.pm: - New mechanism to override level and permission
-	  setting comings from
-	  a value (or maybe a warped node) with warped settings coming a
-	  warped
-	  id. Only level hidden is forwarded no matter what.
-
-2007-09-17 12:02  ddumont
-
-	* WarpedNode.pm: - New mechanism to override level and permission
-	  setting comings from
-	  a value (or maybe a warped node) with warped settings coming a
-	  warped
-	  id. Only level hidden is forwarded no matter what.
-	  - new id_owner constructor parameters for WarpedNode held by an
-	  Id object
-
-2007-09-17 12:02  ddumont
-
-	* Value.pm: - New mechanism to override level and permission
-	  setting comings from
-	  a value (or maybe a warped node) with warped settings coming a
-	  warped
-	  id. Only level hidden is forwarded no matter what.
-	  - new id_owner constructor parameters for Values hold by an Id
-	  object
-
-2007-09-17 12:00  ddumont
-
-	* Model.pm: C<permission>, C<level> and C<description> parameters
-	  can also be
-	  declared within the element declaration
-
-2007-09-17 11:53  ddumont
-
-	* IdElementReference.pm: - A reference to a list will now take into
-	  account the values of the
-	  list instead of the indexes of the list
-
-2007-09-17 11:52  ddumont
-
-	* CheckList.pm: - changed 'default' parameter to 'default_list'.
-
-2007-09-17 11:50  ddumont
-
-	* AnyId.pm: - New mechanism to override level and permission
-	  setting comings from
-	  a value (or maybe a warped node) with warped settings coming from
-	  this
-	  warped id. Only level hidden is forwarded no matter what.
-
-2007-09-06 11:30  ddumont
-
-	* WarpedThing.pm: - cleanup of set_parent_element_property
-
-2007-09-06 11:30  ddumont
-
-	* WarpedNode.pm: - improved synopsis in doc
-	  - (load_data): new method (forgotten in 0.612)
-	  - removed init_step
-
-2007-09-06 11:27  ddumont
-
-	* Value.pm: - removed set_properties method and use inherited
-	  set_parent_element_property
-
-2007-09-06 11:25  ddumont
-
-	* Node.pm: - removed 'init_step' model class parameter: too
-	  confusing
-
-2007-09-06 11:23  ddumont
-
-	* Model.pm: - doc: added synopsis
-	  - inherit is deprecated in favor of include
-	  - inherit_after is deprecated in favor of include_after
-	  - Raise an exception is an element is declared twice in a model
-	  (even
-	  through include mechanism: overriding an included element leads
-	  to
-	  confusion)
-
-2007-09-06 11:19  ddumont
-
-	* ListId.pm: - fetch_size: croak if $self->{data} is undef
-
-2007-09-06 11:18  ddumont
-
-	* Dumper.pm: - bug fix: write empty value as foo="" instead of foo=
-
-2007-09-06 11:18  ddumont
-
-	* AnyId.pm: - cargo_args is no longer a warpable parameter (too
-	  confusing)
-	  - set_cargo_class: must use clear method instead of delete
-
-2007-07-27 11:36  ddumont
-
-	* README: - added mailing list
-
-2007-07-27 11:28  ddumont
-
-	* ChangeLog, Model.pm: - v 0.612
-
-2007-07-26 12:25  ddumont
-
-	* t/warped_value.t: - added warped value with 2 cascaded warp
-	  masters ( ie one of the warp master is itself warped )
-
-2007-07-26 12:24  ddumont
-
-	* t/warped_id.t: - removed obsolete 'name' parameter
-
-2007-07-26 12:24  ddumont
-
-	* t/big_model.pm, t/describe_node.t, t/dump_as_data.t,
-	  t/hash_id_of_values.t, t/obj_tree_scanner.t, t/search_element.t,
-	  t/term_ui.t: - added ordered_hash
-
-2007-07-26 12:22  ddumont
-
-	* IdElementReference.pm, ListId.pm, Node.pm: - fixed error messages
-
-2007-07-26 12:20  ddumont
-
-	* HashId.pm: - can preserve hash key order (when created with
-	  ordered => 1). New
-	  method to manipulate hash key order are swap, move_up, move_down.
-
-2007-07-26 12:18  ddumont
-
-	* Exception.pm: - added error class
-	  Config::Model::Exception::LoadData
-
-2007-07-26 12:16  ddumont
-
-	* DumpAsData.pm: - dump ordered hash as array ref [ key1 , value1,
-	  key2, value2 ] to
-	  keep the key order
-
-2007-07-26 12:15  ddumont
-
-	* CheckList.pm: - updated error message
-
-2007-07-26 12:12  ddumont
-
-	* Value.pm: - removed name parameter (fossil from previous
-	  implementation)
-	  - minor modification related to refer_to parameter handling
-
-2007-07-26 12:09  ddumont
-
-	* WarpedThing.pm: - when warp master are unavailable, instead of
-	  returning an error:
-	  * register to the element
-	  * consider the warp master value as undef
-
-2007-07-26 11:31  ddumont
-
-	* AnyThing.pm: - added grab_non_available parameter
-
-2007-07-26 11:28  ddumont
-
-	* AnyId.pm: - added ordered parameter for hash elements
-
-2007-07-24 12:35  ddumont
-
-	* WarpedThing.pm: - first try with warped value are flagged as "non
-	  available" when any
-	  of the warp master is "not available"
-
-2007-07-19 11:29  ddumont
-
-	* ChangeLog, t/describe_node.t, t/obj_tree_scanner.t: modified to
-	  test big_model with inherit_after
-
-2007-07-19 11:29  ddumont
-
-	* t/big_model.pm: - test load with inherit_after
-
-2007-07-19 11:28  ddumont
-
-	* t/auto_load_model.t: - test load with skip_inheritance
-
-2007-07-19 11:25  ddumont
-
-	* config-edit: - fixed error message
-
-2007-07-19 11:25  ddumont
-
-	* WarpedThing.pm: - get_master_object: use grab in non-strict mode
-	  so that error occur
-	  in get_master_object instead of grab.
-
-2007-07-18 16:02  ddumont
-
-	* WarpedNode.pm: - pod fix
-	  - set morph default value to 0 instead of undef
-
-2007-07-18 16:00  ddumont
-
-	* Value.pm: - added load_data method
-
-2007-07-18 15:59  ddumont
-
-	* ObjTreeScanner.pm: - doc fix
-
-2007-07-18 15:58  ddumont
-
-	* Node.pm: - added load_data and dump_as_data methods
-
-2007-07-18 15:51  ddumont
-
-	* Model.pm: - inherit_class: added inherit_after parameter.
-	  - load: returns the names of the class loaded by this method.
-
-2007-07-18 15:42  ddumont
-
-	* MANIFEST: - added DumpAsData.pm and t/dump_as_data.t
-
-2007-07-18 15:40  ddumont
-
-	* ListId.pm: - added load_data method
-
-2007-07-18 15:34  ddumont
-
-	* HashId.pm: - fix load_data doc
-
-2007-07-18 15:33  ddumont
-
-	* CheckList.pm, HashId.pm: - added load_data method
-
-2007-07-18 15:30  ddumont
-
-	* Exception.pm: - small bug fixes
-
-2007-07-18 15:27  ddumont
-
-	* CheckList.pm: - get_checked_list return a list or a list ref
-	  depending on context
-
-2007-07-12 15:38  ddumont
-
-	* DumpAsData.pm, t/dump_as_data.t: - first version
-
-2007-07-03 15:30  ddumont
-
-	* ChangeLog: - v 0.611
-
-2007-07-03 15:29  ddumont
-
-	* Model.pm: fix handling of class_description parameter
-
-2007-07-03 15:28  ddumont
-
-	* t/big_model.pm, t/multi_warp_value.t, t/value_simple_warp.t,
-	  t/warped_value.t: adapted for new warp parameters
-
-2007-07-03 15:27  ddumont
-
-	* examples/fstab/fstab_test.pl: - fix typo
-
-2007-07-03 11:49  ddumont
-
-	* WarpedThing.pm: Forgot to remove dead code related to previous
-	  modif
-
-2007-07-03 11:45  ddumont
-
-	* Model.pm: - Simplified config class inheritance mechanism:
-	  inherit all or
-	  nothing.
-	  - Added translation of legacy warp parameter (based on list of
-	  lists)
-	  to new warp parameters (based on boolean expressions). So the
-	  change
-	  done in WarpedThing is backward compatible.
-
-2007-07-03 11:41  ddumont
-
-	* WarpedThing.pm: - Modified the way to specify complex warped
-	  rules. The former way based on list of lists was confusing. Now
-	  you can specify boolean expressions to find the warp rule to
-	  apply.
-
-2007-07-03 11:38  ddumont
-
-	* Value.pm, ValueComputer.pm, WarpedNode.pm: - do not import
-	  'Dumper' from Data::Dumper. It clashes with Config::Model::Dumper
-
-2007-07-03 11:35  ddumont
-
-	* Node.pm: - typo in doc
-
-2007-07-03 11:34  ddumont
-
-	* AnyId.pm: - pod fix
-
-2007-06-06 12:25  ddumont
-
-	* t/obj_tree_scanner.t, t/search_element.t: update tests after
-	  inheritance fix
-
-2007-06-06 12:24  ddumont
-
-	* ChangeLog: *** empty log message ***
-
-2007-06-06 12:23  ddumont
-
-	* Node.pm: - doc update
-
-2007-06-06 12:22  ddumont
-
-	* Model.pm: - fix inheritance mechanism (used to clobber some
-	  elements)
-	  - added generated_by class parameter
-
-2007-06-06 12:14  ddumont
-
-	* AutoRead.pm: - doc fix
-
-2007-06-04 11:28  ddumont
-
-	* ChangeLog: v0.610
-
-2007-06-04 11:27  ddumont
-
-	* t/warped_value.t: test warped help
-
-2007-06-04 11:27  ddumont
-
-	* WarpedThing.pm: - better error message
-
-2007-06-04 11:26  ddumont
-
-	* Value.pm: - can also warp help for enum values
-
-2007-06-04 11:25  ddumont
-
-	* Model.pm: - get_raw_model will also try to load a class file if
-	  the model is not known
-	  - bumped to v 0.610
-
-2007-05-09 11:46  ddumont
-
-	* ChangeLog, MANIFEST, Makefile.PL, README, config-model: Changed
-	  config-model to config-edit
-
-2007-05-09 11:45  ddumont
-
-	* config-edit: - first version (renamed from config-model)
-
-2007-05-07 11:39  ddumont
-
-	* ChangeLog: - v 0.609
-
-2007-05-07 11:37  ddumont
-
-	* README: - updated status
-	  - asked for help for graphical interface
-
-2007-05-07 11:31  ddumont
-
-	* examples/fstab/fstab_test.pl: - added curses example
-
-2007-05-07 11:31  ddumont
-
-	* examples/fstab/Fstab.pl: - added user_xattr to ext2
-
-2007-05-04 11:44  ddumont
-
-	* t/big_model.pm, t/check_list.t, t/describe_node.t, t/dump_tree.t,
-	  t/hash_id_of_node.t, t/hash_id_of_values.t, t/load.t,
-	  t/obj_tree_scanner.t, t/report.t, t/search_element.t,
-	  t/value_compute.t, t/warped_node.t, t/warped_value.t, t/wizard.t:
-	  lot of changes ...
-
-2007-05-04 11:43  ddumont
-
-	* Makefile.PL: - added dependency on Carp::Assert::More
-
-2007-05-04 11:42  ddumont
-
-	* config-model: - added possibility to use the curses interface
-	  provided by
-	  Config::Model::CursesUI (if this one is installed)
-
-2007-05-04 11:40  ddumont
-
-	* WizardHelper.pm: - cosmetics
-	  - adapted to rationalisation of ObjTreeScanner call-back names
-
-2007-05-04 11:39  ddumont
-
-	* WarpedThing.pm: - Moved register_in_other_value from Value in
-	  this class
-
-2007-05-04 11:38  ddumont
-
-	* WarpedNode.pm: - doc updates
-
-2007-05-04 11:37  ddumont
-
-	* ValueComputer.pm: - Modified so compute may return an undef value
-	  if one of the variable
-	  (extracted from the configuration data) of the formula is
-	  undefined. In other word, propagate undef instead of croaking.
-
-2007-05-04 11:34  ddumont
-
-	* Searcher.pm: - Lots of bug fixes
-	  - get_searchable_elements: new method
-	  - prepare: new method. Search is now done in 3 moves: create the
-	  searcher object, prepare the search, and run the search
-
-2007-05-04 11:31  ddumont
-
-	* Value.pm: - removed unique_value parameter which was a bad idea
-	  for a check list
-	  implementation
-	  - moved reference handling into new IdElementReference
-
-2007-05-04 11:27  ddumont
-
-	* ObjTreeScanner.pm: - begin to use assertions
-	  - modified to handle new checklist type
-
-2007-05-04 11:25  ddumont
-
-	* Node.pm: - doc update
-
-2007-05-04 11:24  ddumont
-
-	* Model.pm: - doc update
-	  - v 0.609
-
-2007-05-04 11:22  ddumont
-
-	* IdElementReference.pm: - first version
-	  - this part was extracted from Value object to reference can be
-	  used
-	  also by Checklist
-
-2007-05-04 11:20  ddumont
-
-	* CheckList.pm: - removed the implementation done as a List of
-	  "unique" Value object
-	  - re-wrote as a "check_list" type and not a "list" type
-	  - added lots of doc
-
-2007-04-30 15:52  ddumont
-
-	* MANIFEST: - added IdElementReference.pm
-
-2007-04-27 15:17  ddumont
-
-	* Instance.pm: - renamed search_element method to searcher
-	  - searcher returns a Config::Model::Searcher object
-	  - added reset_config method
-
-2007-04-27 15:15  ddumont
-
-	* Exception.pm: - cosmetic in error message
-
-2007-04-27 15:14  ddumont
-
-	* Describe.pm, Loader.pm: - adapted to new implementation of
-	  CheckList
-
-2007-04-27 15:12  ddumont
-
-	* AutoRead.pm: - doc update
-	  - added one sanity check
-
-2007-04-27 15:11  ddumont
-
-	* AnyThing.pm: - renamed search_element method to searcher
-	  - searcher returns a Config::Model::Searcher object
-
-2007-04-27 15:09  ddumont
-
-	* AnyId.pm: - copy: new method
-	  - doc updates
-	  - error message updates
-
-2007-04-13 10:04  ddumont
-
-	* Value.pm: - moved reference facility in
-	  Config::Model::IdElementReference
-
-2007-03-16 12:22  ddumont
-
-	* Value.pm: - updated doc
-	  - new fetch_no_check method
-
-2007-03-16 12:21  ddumont
-
-	* CheckList.pm: - added a lot of method to manage check_list
-
-2007-02-23 13:02  ddumont
-
-	* examples/fstab/fstab_test.pl: - hide my real e-mail address (I
-	  hate spam)
-
-2007-02-23 12:58  ddumont
-
-	* ObjTreeScanner.pm: - fix pod errors
-
-2007-02-23 12:55  ddumont
-
-	* ChangeLog, Describe.pm, Dumper.pm, Makefile.PL, Model.pm,
-	  Node.pm, ObjTreeScanner.pm, WizardHelper.pm,
-	  t/obj_tree_scanner.t, t/term_ui.t, t/wizard.t: Clarified
-	  ObjTreeScanner callback names
-
-2007-01-12 12:59  ddumont
-
-	* ChangeLog: v 06.07
-
-2007-01-12 12:59  ddumont
-
-	* t/term_ui.t: - skip tests is Term::ReadLine cannot be loaded
-
-2007-01-12 12:58  ddumont
-
-	* Model.pm: - v 0.607
-
-2007-01-11 12:35  ddumont
-
-	* Model.pm: - v 0.606
-
-2007-01-11 12:35  ddumont
-
-	* t/describe_node.t: - adapted to Describe.pm changes
-
-2007-01-11 12:34  ddumont
-
-	* config-model: - corrected doc regarding read and write conf dir.
-
-2007-01-11 12:33  ddumont
-
-	* TermUI.pm: - acknowledge auto-completion bug in pod doc
-
-2007-01-11 12:32  ddumont
-
-	* Makefile.PL: - changed e-mail address
-
-2007-01-11 12:32  ddumont
-
-	* Describe.pm: - cosmetic changes on description output
-
-2007-01-08 13:04  ddumont
-
-	* ChangeLog: - for v 0.605
-
-2007-01-08 13:03  ddumont
-
-	* config-model: - improved doc
-	  - added read_conf_dir and write_conf_dir options
-	  - use Log4perl for log
-
-2007-01-08 12:54  ddumont
-
-	* Makefile.PL: - now requires Log::Log4perl
-
-2007-01-08 12:53  ddumont
-
-	* README: - changed mail and copyright info
-
-2007-01-08 12:52  ddumont
-
-	* t/big_model.pm, t/describe_node.t, t/dump_tree.t, t/load.t,
-	  t/obj_tree_scanner.t, t/report.t, t/search_element.t,
-	  t/term_ui.t: improved test for various bug fixes
-
-2007-01-08 12:48  ddumont
-
-	* AnyId.pm, AnyThing.pm, AutoRead.pm, CheckList.pm, Describe.pm,
-	  Dumper.pm, Exception.pm, HashId.pm, Instance.pm, ListId.pm,
-	  Loader.pm, Model.pm, Node.pm, ObjTreeScanner.pm, Report.pm,
-	  Searcher.pm, TermUI.pm, Value.pm, ValueComputer.pm,
-	  WarpedNode.pm, WarpedThing.pm, WizardHelper.pm: bumped date in
-	  copyright
-
-2007-01-08 12:44  ddumont
-
-	* TODO: - added explatnetion regarding plugin vs load-on-demand
-
-2007-01-08 12:41  ddumont
-
-	* AnyId.pm, AnyThing.pm, AutoRead.pm, CheckList.pm, Describe.pm,
-	  Dumper.pm, Exception.pm, HashId.pm, Instance.pm, ListId.pm,
-	  Model.pm, Node.pm, Report.pm, Searcher.pm, ValueComputer.pm,
-	  WarpedThing.pm, WizardHelper.pm: changed e-mail address in AUTHOR
-	  section to reduce spam
-
-2007-01-08 12:40  ddumont
-
-	* WarpedNode.pm: - bug fix: also forward 'config_model' method to
-	  contained node
-
-2007-01-08 12:39  ddumont
-
-	* Value.pm: - clarified error message
-
-2007-01-08 12:38  ddumont
-
-	* TermUI.pm: - bug fix
-
-2007-01-08 12:36  ddumont
-
-	* Loader.pm: - bug fix: can load warp nodes which are below root
-	  - bug fix: remove quotes while loading array or hash element
-	  around
-	  indexes that contains white spaces
-
-2007-01-05 13:02  ddumont
-
-	* Dumper.pm: - bug fix: added quotes around indexes containing
-	  white space
-
-2006-12-08 13:08  ddumont
-
-	* Model.pm: - bumped V to 0.605
-	  - Search models files in @INC (As Config/Model/models/Foo.pl)
-
-2006-12-08 13:05  ddumont
-
-	* Exception.pm: - clarified error message of RestrictedElement
-
-2006-12-08 13:03  ddumont
-
-	* Loader.pm: Complain about unavailable element after trying with
-	  *master*
-	  permission. Unsufficient permission is reported with
-	  RestrictedElement
-	  exception
-
-2006-12-08 13:01  ddumont
-
-	* AutoRead.pm: - pod fix
-
-2006-12-08 13:01  ddumont
-
-	* Report.pm: - fix small bug when reporting value help
-	  - small format change of the report
-
-2006-12-08 12:59  ddumont
-
-	* examples/fstab/fstab_test.pl: - clarified the notification sent
-	  to the user
-
-2006-12-06 12:52  ddumont
-
-	* ChangeLog, t/array_id.t, t/auto_read.t, t/big_model.pm,
-	  t/check_list.t, t/describe_node.t, t/dump_tree.t, t/grab.t,
-	  t/hash_id_of_values.t, t/load.t, t/multi_warp_value.t,
-	  t/obj_tree_scanner.t, t/search_element.t, t/term_ui.t,
-	  t/value_refer_to.t, t/warped_value.t, t/wizard.t: - v 0.604
-
-2006-12-06 12:48  ddumont
-
-	* Model.pm: - version 0.604
-	  - some doc improvement in 'SEE ALSO' section
-
-2006-12-06 12:46  ddumont
-
-	* Node.pm: - added check_list in possible element of a node (for
-	  CheckList class).
-
-2006-12-06 12:44  ddumont
-
-	* Value.pm: - Changed reference declaration: now value_type must be
-	  set to
-	  'reference' when using 'refer_to' parameter.
-	  - new 'unique_value' parameter (internal), used by CheckList.
-
-2006-12-06 10:59  ddumont
-
-	* WarpedThing.pm: - can group rules declarations to save typing
-
-2006-12-06 08:38  ddumont
-
-	* WizardHelper.pm: - adapted for ObjTreeScanner 1.9
-
-2006-12-05 17:31  ddumont
-
-	* Loader.pm: - adapted for new CheckList
-
-2006-12-05 17:30  ddumont
-
-	* ListId.pm: - moved auto_create_elements from AnyId
-	  - added create_default
-
-2006-12-05 17:29  ddumont
-
-	* HashId.pm: - moved auto_create_elements from AnyId
-
-2006-12-05 17:27  ddumont
-
-	* Describe.pm, Dumper.pm, Report.pm: - adapted for ObjTreeScanner
-	  1.9 and new CheckList
-
-2006-12-05 17:23  ddumont
-
-	* ObjTreeScanner.pm: - modified the callback signature so the user
-	  does no longer have
-	  to play with closures. (This change breaks the compatibility, but
-	  I doubt that I have many users. Yet...)
-	  - added check_list_cb for CheckList elements
-	  - improved doc
-	  - added callback example in doc
-
-2006-12-05 17:16  ddumont
-
-	* AutoRead.pm: - bug fix in auto-write
-	  - doc improvements
-
-2006-12-05 17:14  ddumont
-
-	* AnyId.pm: - New allow and allow_from parameters to set "allowed"
-	  keys of a hash
-	  or list. This list of allowed keys can be fixed or dynamic.
-
-2006-12-05 17:09  ddumont
-
-	* MANIFEST: - added CheckList.pm and its test file
-
-2006-12-05 17:09  ddumont
-
-	* AnyThing.pm: - (root): new method. Returns the root node of the
-	  configuration tree.
-	  - (grab): bug fix so hash identifier can contain white spaces
-	  when
-	  calling grab (e.g. InputDevice:"Configured Mouse")
-
-2006-12-05 17:04  ddumont
-
-	* CheckList.pm: - first version
-
-2006-10-19 11:22  ddumont
-
-	* AnyId.pm: - corected typo in pod section
-
-2006-10-19 11:21  ddumont
-
-	* ChangeLog: - v 0.603
-
-2006-10-19 11:20  ddumont
-
-	* Value.pm: - clarified 'refer_to' doc
-	  - forbid to specify both 'value_type' and 'refer_to'
-
-2006-10-19 11:18  ddumont
-
-	* Model.pm: - numped version number
-
-2006-10-19 11:18  ddumont
-
-	* AnyId.pm: - doc update
-
-2006-10-11 11:58  ddumont
-
-	* TermUI.pm: - removed debug prints
-
-2006-10-11 11:55  ddumont
-
-	* t/load.t: - forgot to update nb of tests
-
-2006-10-11 11:45  ddumont
-
-	* ListId.pm, t/array_id.t, t/warped_value.t: - Changed
-	  'element_args' to 'cargo_args'.
-
-2006-10-11 11:44  ddumont
-
-	* t/load.t: - Changed 'element_args' to 'cargo_args'.
-	  - Changed 'element_class' to 'cargo_class'.
-	  - test space in indexes of hash
-
-2006-10-11 11:43  ddumont
-
-	* t/hash_id_of_values.t: - Changed 'element_args' to 'cargo_args'.
-	  - Changed 'element_class' to 'cargo_class'.
-	  - test follow parameter
-
-2006-10-11 11:43  ddumont
-
-	* t/dump_tree.t: - test indexes containing spaces
-
-2006-10-11 11:42  ddumont
-
-	* t/big_model.pm: - Changed 'element_args' to 'cargo_args'.
-	  - Changed 'element_class' to 'cargo_class'.
-
-2006-10-11 11:40  ddumont
-
-	* Loader.pm: Accepts now to load configuration data where index can
-	  contain white
-	  space. (e.g. Monitor:"Hercules Pro")
-
-2006-10-11 11:37  ddumont
-
-	* HashId.pm: - Changed 'element_args' to 'cargo_args'.
-	  - creates default keys using method get_default_keys instead of
-	  'default' attribute content
-
-2006-10-11 11:36  ddumont
-
-	* Dumper.pm: - changed compute_pad sub ref to be more robust (and
-	  cope with index
-	  value containing spaces)
-
-2006-10-11 11:34  ddumont
-
-	* AnyThing.pm: - location will return an index in quotes when this
-	  index has a space
-	  (e.g. foo:"bar baz" )
-	  - updated doc
-
-2006-10-11 11:32  ddumont
-
-	* AnyId.pm: - Changed 'element_args' to 'cargo_args'.
-	  - Changed 'element_class' to 'cargo_class'.
-	  - Added 'follow' parameter so a hash key can mimic the keys of
-	  another
-	  hash in the configuration tree.
-
-2006-10-02 11:35  ddumont
-
-	* AnyId.pm, ChangeLog, Describe.pm, Dumper.pm, HashId.pm,
-	  ListId.pm, Loader.pm, Node.pm, ObjTreeScanner.pm, Searcher.pm,
-	  examples/fstab/Fstab.pl, t/array_id.t, t/big_model.pm,
-	  t/hash_id_of_node.t, t/hash_id_of_values.t,
-	  t/multi_warp_object.t, t/value_refer_to.t, t/warped_id.t,
-	  t/warped_node.t, t/warped_value.t: changed collected_type to
-	  cargo_type
-
-2006-09-26 11:54  ddumont
-
-	* t/value.t: - added built_in parameter tests
-
-2006-09-26 11:54  ddumont
-
-	* t/instance.t: - added test for directory override
-
-2006-09-26 11:51  ddumont
-
-	* t/hash_id_of_node.t: - added test for moved index
-
-2006-09-26 11:51  ddumont
-
-	* Value.pm: - added built_in value parameter
-
-2006-09-26 11:49  ddumont
-
-	* Instance.pm: - updated doc for the possibility to specify where
-	  to read or write
-	  the configuration files.
-
-2006-09-26 11:48  ddumont
-
-	* AutoRead.pm: - actually override read_dir and write_dir
-
-2006-09-26 11:46  ddumont
-
-	* AnyThing.pm: - modify method to be able to change index_value
-
-2006-09-26 11:44  ddumont
-
-	* AnyId.pm: AnyId.pm (move): also change index value of moved
-	  items.
-
-2006-09-22 11:49  ddumont
-
-	* Instance.pm: - added doc for *directory constructor parameters
-
-2006-09-07 11:51  ddumont
-
-	* ChangeLog: - v0.602
-
-2006-09-07 11:50  ddumont
-
-	* t/array_id.t, t/hash_id_of_node.t: - test for v0.602
-
-2006-09-07 11:49  ddumont
-
-	* config-model: - added -help and -man option
-
-2006-09-07 11:48  ddumont
-
-	* Model.pm: - bumped verions number
-
-2006-09-07 11:46  ddumont
-
-	* Node.pm: - various doc enhancements
-
-2006-09-07 11:45  ddumont
-
-	* Model.pm: - model file now must return an array ref and not
-	  invoke Model
-	  methods.
-	  - can load model file for model class that contain '::'.
-
-2006-09-07 11:42  ddumont
-
-	* ListId.pm: - push method fix
-
-2006-09-07 11:40  ddumont
-
-	* Instance.pm: - pod fix
-
-2006-09-07 11:40  ddumont
-
-	* HashId.pm: - can initialise children nodes while creating default
-	  keys.
-
-2006-09-07 11:38  ddumont
-
-	* AutoRead.pm: - autoread: forgot to add the file suffix when
-	  looking for pm file
-
-2006-09-07 11:38  ddumont
-
-	* AnyId.pm: - added move method
-
-2006-07-20 12:26  ddumont
-
-	* MANIFEST: - changed model file name in fstab example
-
-2006-07-20 12:24  ddumont
-
-	* MANIFEST: - added config-model, Describe.pm and 2 tests
-
-2006-07-20 12:23  ddumont
-
-	* ChangeLog: - v 0.601
-
-2006-07-20 12:23  ddumont
-
-	* Makefile.PL: - added config-model exe file
-
-2006-07-20 12:20  ddumont
-
-	* config-model: - fist version
-
-2006-07-20 11:55  ddumont
-
-	* examples/fstab/fstab_test.pl: - adapted to new Fstab.pl model v
-	  1.2
-	  - added terminal ascii interface to example at the end
-
-2006-07-20 11:53  ddumont
-
-	* examples/fstab/Fstab.pl: - fstab entries are now stored in a hash
-	  instead of a list. This makes
-	  navigation with ascii interface much easier.
-
-2006-07-19 12:26  ddumont
-
-	* t/dump_tree.t, t/load.t, t/obj_tree_scanner.t, t/report.t,
-	  t/search_element.t, t/term_ui.t, t/wizard.t: - use model auto
-	  load
-
-2006-07-19 12:25  ddumont
-
-	* t/auto_load_model.t, t/describe_node.t: - first version
-
-2006-07-19 12:24  ddumont
-
-	* t/grab.t: - use model auto load
-	  - added grab test for advanced grab
-
-2006-07-19 12:23  ddumont
-
-	* t/big_model.pm: - changed for auto-load models
-
-2006-07-19 12:15  ddumont
-
-	* TermUI.pm: - fixed copyright
-
-2006-07-19 12:09  ddumont
-
-	* TermUI.pm: - doc update
-	  - major re-work on auto-completion
-
-2006-07-19 12:06  ddumont
-
-	* README: - added "help welcome" part
-	  - added status part
-
-2006-07-19 11:56  ddumont
-
-	* Model.pm: - bumped Version to 0.601 (beta code)
-
-2006-07-19 11:56  ddumont
-
-	* Node.pm: - (get_type): new method
-	  - (get_cargo_type): new method
-	  - (get_element_name): added type and cargo_type parameters to
-	  filter
-	  returned element depending on their type or cargo (contained)
-	  type
-	  - (describe): new method. Uses new Describe.pm file
-
-2006-07-19 11:44  ddumont
-
-	* ObjTreeScanner.pm: - fixed autovivification check which was done
-	  at the wrong place
-
-2006-07-19 10:33  ddumont
-
-	* Value.pm: - added get_type and get_cargo_type methods
-
-2006-07-19 10:31  ddumont
-
-	* WarpedNode.pm: - forward also "get_type get_cargo_type describe"
-	  methods to Node
-
-2006-07-18 16:27  ddumont
-
-	* Model.pm: - added load method. Model can load model declaration
-	  from
-	  /etc/config-model.d.
-
-2006-07-18 16:22  ddumont
-
-	* HashId.pm, ListId.pm: - added get_type method
-
-2006-07-18 16:21  ddumont
-
-	* Instance.pm: - doc fixes
-
-2006-07-18 16:20  ddumont
-
-	* Exception.pm: - added WrongType exception
-
-2006-07-18 16:11  ddumont
-
-	* Dumper.pm: - removed un-necessary code
-
-2006-07-18 12:13  ddumont
-
-	* AnyThing.pm: - added get_type method
-	  - added strict, autoadd, type parameters to grab()
-
-2006-07-18 12:09  ddumont
-
-	* AnyId.pm: - added get_cargo_type and config_class_name
-	  introspection methods
-
-2006-07-18 11:52  ddumont
-
-	* Describe.pm: - first version
-
-2006-06-26 12:04  ddumont
-
-	* examples/fstab/Fstab.pl, examples/fstab/FstabModel.pl: Renamed
-	  FstabModel.pl to Fstab.pl
-
-2006-06-26 12:01  ddumont
-
-	* examples/fstab/FstabModel.pl: - modified for new Model load
-	  method
-
-2006-06-20 12:00  ddumont
-
-	* TermUI.pm: - added forgotten $VERSION variable.
-
-2006-06-15 12:07  ddumont
-
-	* ChangeLog: v 0.507
-
-2006-06-15 12:07  ddumont
-
-	* MANIFEST: - added TermUI.pm and term_ui.t test
-
-2006-06-15 12:05  ddumont
-
-	* TermUI.pm, t/auto_read.t, t/term_ui.t: - first version
-
-2006-06-15 12:02  ddumont
-
-	* t/dump_tree.t: - changed name of dump string from 'dts' (too
-	  home-cinema) to 'cds'
-
-2006-06-15 12:00  ddumont
-
-	* Node.pm: - adapted for autoread stuff
-	  - now inherit AutoRead class
-	  - minor doc updates
-
-2006-06-15 11:59  ddumont
-
-	* Model.pm: - minor update for autoread function
-	  - bumped version number
-
-2006-06-15 11:58  ddumont
-
-	* Makefile.PL: - added cleanup for files generated by autoread
-	  tests
-
-2006-06-15 11:57  ddumont
-
-	* MANIFEST: - added AutoRead.pm and autoread test
-
-2006-06-15 11:57  ddumont
-
-	* Instance.pm: - added autoread autowrite stuff
-	  - added reagister_write_back
-	  - updated doc
-
-2006-06-15 11:55  ddumont
-
-	* AutoRead.pm: - added config dir parameter
-	  - updated doc
-	  - removed obsolete functions
-
-2006-06-12 11:35  ddumont
-
-	* Dumper.pm: - cleaned up old code
-
-2006-06-12 11:33  ddumont
-
-	* AutoRead.pm: - first version
-
-2006-05-19 13:28  ddumont
-
-	* t/report.t: - fixed test
-
-2006-05-19 12:35  ddumont
-
-	* ChangeLog, MANIFEST, TODO, examples, examples/fstab,
-	  examples/fstab/FstabModel.pl, examples/fstab/README,
-	  examples/fstab/fstab.sample, examples/fstab/fstab_test.pl,
-	  t/report.t: v 0.506
-
-2006-05-19 12:29  ddumont
-
-	* README: - modified example text
-
-2006-05-19 12:14  ddumont
-
-	* README: - added info on fstab example
-
-2006-05-18 11:40  ddumont
-
-	* WarpedNode.pm: - forward fetch_element_value to Node
-
-2006-05-18 11:36  ddumont
-
-	* Report.pm: - updated doc
-
-2006-05-17 12:05  ddumont
-
-	* t/value.t: - adapted to help -> get_help method name change
-
-2006-05-17 12:05  ddumont
-
-	* t/search_element.t: - fixed test which did not check for all
-	  elements
-
-2006-05-17 12:04  ddumont
-
-	* t/dump_tree.t: - added dump list test
-
-2006-05-17 12:03  ddumont
-
-	* t/big_model.pm: - modified to check inheritance of config model
-
-2006-05-17 12:02  ddumont
-
-	* Value.pm: - fix doc
-	  - chaged help to get_help method to be consistent with Node.pm
-
-2006-05-17 12:01  ddumont
-
-	* Searcher.pm: - by default search with 'master' privilege level to
-	  search *all* items
-
-2006-05-17 11:59  ddumont
-
-	* Report.pm: - first version
-
-2006-05-17 11:58  ddumont
-
-	* ObjTreeScanner.pm: - do not sort indexes from list or hash
-
-2006-05-17 11:58  ddumont
-
-	* Node.pm: - new report and audit methods
-
-2006-05-17 11:56  ddumont
-
-	* Model.pm: - added inheritance of configuration models.
-	  - split create_config_class methos
-	  - bumped module version number (0.506)
-
-2006-05-17 11:53  ddumont
-
-	* Loader.pm: - better exception message
-
-2006-05-17 11:52  ddumont
-
-	* HashId.pm: - _get_all_indexes: sort returned indexes
-
-2006-05-17 11:51  ddumont
-
-	* Exception.pm: - improved error messages
-
-2006-05-17 11:50  ddumont
-
-	* Dumper.pm: - fix list dump which did not work
-
-2006-05-17 11:49  ddumont
-
-	* AnyId.pm: - added fetch_all_values method
-
-2006-04-24 11:28  ddumont
-
-	* ValueFormulaGrammar.txt: Grammar is now stored in
-	  ValueComputer.pm file
-
-2006-04-21 12:24  ddumont
-
-	* ChangeLog: - version 0.505
-
-2006-04-21 12:12  ddumont
-
-	* t/value_compute.t, t/warped_value.t: - small changes done to
-	  adapt with on-the-fly compute of ValueFormula grammar
-
-2006-04-21 12:08  ddumont
-
-	* t/big_model.pm: - small changes done to help testing wizard.t
-
-2006-04-21 12:08  ddumont
-
-	* WizardHelper.pm, t/wizard.t: - first version
-
-2006-04-21 12:06  ddumont
-
-	* ValueComputer.pm: - no longer compile ValueFormula grammar at
-	  build time: the grammar
-	  from ValueFormulaGrammar.txt is now integrated in this file.
-
-2006-04-21 12:05  ddumont
-
-	* ObjTreeScanner.pm: - doc update
-	  - changed some internal variable name to improve clarity
-
-2006-04-21 12:03  ddumont
-
-	* MANIFEST: - no longer compile ValueFormula grammar at build time:
-	  removed
-	  ValueFormulaGrammar.txt which is now integrated in
-	  ValueComputer.pm
-
-2006-04-21 12:02  ddumont
-
-	* Makefile.PL: - no longer compile ValueFormula grammar at build
-	  time.
-
-2006-04-21 11:59  ddumont
-
-	* MANIFEST: - added WizardHelper.pm and t/wizard.t
-
-2006-04-21 11:59  ddumont
-
-	* Loader.pm: - fixed debug message
-
-2006-04-21 11:58  ddumont
-
-	* Instance.pm: - added wizard_helper method
-
-2006-04-21 11:51  ddumont
-
-	* Model.pm: - v 0.505
-
-2006-04-10 11:52  ddumont
-
-	* Searcher.pm, t/search_element.t: - first version
-
-2006-04-10 11:52  ddumont
-
-	* MANIFEST: - added Searcher.pm and t/search_element.t
-
-2006-04-10 11:51  ddumont
-
-	* ChangeLog: - v0.504 with search
-
-2006-04-10 11:49  ddumont
-
-	* t/big_model.pm: - added an element ('Z') to get more interesting
-	  searches
-
-2006-04-10 11:44  ddumont
-
-	* Node.pm: - added doc for inherited search_element method
-
-2006-04-10 11:43  ddumont
-
-	* AnyThing.pm: - cosmetics
-
-2006-04-10 11:40  ddumont
-
-	* Model.pm: - bumped module rev number
-
-2006-04-10 11:40  ddumont
-
-	* Model.pm: - fix typos in doc
-
-2006-04-10 11:39  ddumont
-
-	* Instance.pm: - added new search_element and config_model methods
-
-2006-04-10 11:34  ddumont
-
-	* AnyThing.pm: - added search_element method
-
-2006-03-21 11:20  ddumont
-
-	* Makefile.PL: - Changed grammar pre-compilation to add a "1;" at
-	  the end of
-	  ValueFormulaParser.pm
-
-2006-03-16 12:30  ddumont
-
-	* WarpedNode.pm: - fixed undef warning
-
-2006-03-16 12:29  ddumont
-
-	* Model.pm: - bumped version to 0.503
-
-2006-03-16 12:28  ddumont
-
-	* Makefile.PL: - Added Parse::RecDescent dependencies
-	  - Removed Struct::Compare and Pod::Usage dependencies
-	  - Commented Log::Log4perl (Will probably be used in future
-	  versions)
-
-2006-03-16 12:26  ddumont
-
-	* ChangeLog: - v 0.503
-
-2006-03-16 12:25  ddumont
-
-	* MANIFEST: - added ChangeLog
-
-2006-03-10 15:58  ddumont
-
-	* Exception.pm: - added $VERSION
-
-2006-03-10 15:57  ddumont
-
-	* Model.pm: - bumped version number
-
-2006-03-10 15:57  ddumont
-
-	* Exception.pm, Model.pm: - Corrected doc
-
-2006-03-10 13:10  ddumont
-
-	* Model.pm: - changed dist version number to a more realistic
-	  value...
-
-2006-03-10 13:08  ddumont
-
-	* t/value_compute.t: - fixed warning pb with Parse::RecDescent
-	  debug variables
-
-2006-03-10 13:03  ddumont
-
-	* AnyId.pm, Exception.pm, LICENSE, MANIFEST, Model.pm, Value.pm: -
-	  cosmetics
-
-2006-03-10 12:59  ddumont
-
-	* Dumper.pm: - fix pod error
-	  - changed fetch to fetch_with_id
-
-2006-03-10 12:31  ddumont
-
-	* TODO: - first version
-
-2006-03-10 12:31  ddumont
-
-	* README: - added sourceforge url
-
-2006-03-09 12:45  ddumont
-
-	* Value.pm: -first version
-
-2006-03-06 13:23  ddumont
-
-	* ValueComputer.pm: - first version
-
-2006-03-06 12:53  ddumont
-
-	* ListId.pm: - first version
-
-2006-02-23 13:43  ddumont
-
-	* AnyId.pm, AnyThing.pm, HashId.pm, Loader.pm, Node.pm,
-	  ObjTreeScanner.pm, WarpedNode.pm, WarpedThing.pm, t/array_id.t,
-	  t/hash_id_of_node.t, t/hash_id_of_values.t, t/load.t,
-	  t/obj_tree_scanner.t, t/warped_id.t, t/warped_node.t,
-	  t/warped_value.t: - changed Id 'fetch' in 'fetch_with id'
-	  - doc updates
-
-2006-02-23 13:24  ddumont
-
-	* AnyId.pm, HashId.pm: - first version
-
-2006-02-21 13:20  ddumont
-
-	* WarpedNode.pm: - first version
-
-2006-02-21 12:55  ddumont
-
-	* WarpedThing.pm: - first version
-
-2006-02-16 13:09  ddumont
-
-	* AnyThing.pm, Dumper.pm, Loader.pm, Model.pm, ObjTreeScanner.pm,
-	  t/array_id.t, t/big_model.pm, t/dump_tree.t, t/grab.t,
-	  t/hash_id_of_node.t, t/hash_id_of_values.t, t/load.t,
-	  t/multi_warp_object.t, t/multi_warp_value.t, t/node.t,
-	  t/obj_tree_scanner.t, t/recursive_warp_value.t, t/value.t,
-	  t/value_compute.t, t/value_refer_to.t, t/value_simple_warp.t,
-	  t/warped_id.t, t/warped_node.t, t/warped_value.t: - changed
-	  'get_element_for' in 'fetch_element'
-	  - changed 'element_type' in 'collected_type'
-
-2006-02-16 13:06  ddumont
-
-	* Node.pm: - first version
-
-2006-02-10 12:12  ddumont
-
-	* Instance.pm: - first version
-
-2006-02-09 13:38  ddumont
-
-	* Model.pm: - better doc, can consider doc as alpha ...
-
-2006-02-07 13:12  ddumont
-
-	* Model.pm: - updated doc (not finished yet)
-
-2006-02-07 12:56  ddumont
-
-	* t/node.t: - simplified create_config_class api
-
-2006-02-06 13:06  ddumont
-
-	* AnyThing.pm: - first version
-
-2006-02-06 13:05  ddumont
-
-	* Model.pm: - fixed docs
-
-2006-02-06 12:35  ddumont
-
-	* Dumper.pm: - replaced type 'class' by 'node' (bug fix)
-
-2006-02-06 12:34  ddumont
-
-	* t/array_id.t, t/hash_id_of_node.t, t/hash_id_of_values.t,
-	  t/instance.t, t/multi_warp_object.t, t/multi_warp_value.t,
-	  t/node.t, t/recursive_warp_value.t, t/value.t, t/value_compute.t,
-	  t/value_simple_warp.t, t/warped_id.t, t/warped_node.t,
-	  t/warped_value.t: - first version
-
-2006-02-03 17:46  ddumont
-
-	* t/grab.t: - first version
-
-2006-02-03 17:04  ddumont
-
-	* t/dump_tree.t: - changed 'walk' call to 'load'
-
-2006-02-02 13:00  ddumont
-
-	* t/big_model.pm, t/obj_tree_scanner.t, t/value_refer_to.t: -
-	  adapted to unified warp API
-
-2006-02-02 12:59  ddumont
-
-	* ObjTreeScanner.pm: - small bug fix
-
-2006-02-02 12:58  ddumont
-
-	* Model.pm: - some more doc
-	  - small bug fix
-
-2006-01-20 17:46  ddumont
-
-	* t/value_refer_to.t: first version
-
-2006-01-20 13:10  ddumont
-
-	* ValueFormulaGrammar.txt: - adapted to grab signature change
-
-2006-01-19 12:07  ddumont
-
-	* Loader.pm: first version
-
-2006-01-18 17:06  ddumont
-
-	* t/load.t: first version
-
-2006-01-18 17:02  ddumont
-
-	* t/big_model.pm: - added hash_a element in Master class
-
-2006-01-17 13:13  ddumont
-
-	* Dumper.pm, t/dump_tree.t: - First version
-
-2006-01-13 16:31  ddumont
-
-	* t/big_model.pm: *** empty log message ***
-
-2006-01-13 16:26  ddumont
-
-	* t, t/obj_tree_scanner.t: *** empty log message ***
-
-2006-01-13 16:20  ddumont
-
-	* ObjTreeScanner.pm: - first version
-
-2006-01-03 12:11  ddumont
-
-	* Model.pm: - first version. Doc still need to be re-worked.
-
-2006-01-03 11:54  ddumont
-
-	* ValueFormulaGrammar.txt: - first version
-
-2006-01-02 12:48  ddumont
-
-	* Makefile.PL: - fix typo
-
-2006-01-02 11:17  ddumont
-
-	* Makefile.PL: - first version
-
-2005-12-23 15:26  ddumont
-
-	* ., README: This commit was generated by cvs2svn to compensate for
-	  changes in r3,
-	  which included commits to RCS files with non-trunk default
-	  branches.
+	* Makefile.PL (MY::postamble): Corrected CPAN dependencies
 
