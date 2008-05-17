@@ -319,7 +319,7 @@ sub run {
     $user_cmd =~ s/^\s+// ;
 
     my ($action,$args) = split (m/\s+/,$user_cmd, 2)  ;
-    $args =~ s/\s+$//g; #cleanup
+    $args =~ s/\s+$//g if defined $args ; #cleanup
 
     print "DEBUG: run '$action' with '$args'\n" if $::debug;
 
