@@ -120,7 +120,7 @@ $parser = Parse::RecDescent->new($grammar) ;
 
     my $elt = $current_node->fetch_element($key) ;
     my $type = $elt->get_type;
-    print "got $key type $type and ",join('+',@arg),"\n";
+    # print "got $key type $type and ",join('+',@arg),"\n";
     if    ($type eq 'leaf') { 
 	$elt->store( $arg[0] ) ;
     }
@@ -196,10 +196,14 @@ sub write {
 
     my $result = write_node_content($config_root);
 
-    print $result ;
+    #print $result ;
     open(OUT,"> $file") || die "cannot open $file:$!";
     print OUT $result;
     close OUT;
+}
+
+sub write_line {
+    return sprintf("%-20s %s\n",@_) ;
 }
 
 sub write_node_content {
@@ -219,21 +223,16 @@ sub write_node_content {
 	}
 	elsif    ($type eq 'leaf' or $type eq 'check_list') { 
 	    my $v = $elt->fetch ;
-	    $result .= "$name $v\n" if defined $v;
+	    $result .= write_line($name,$v) if defined $v and $v;
 	}
 	elsif ($type eq 'list') { 
-	    map { $result .= "$name $_ \n" ;} $elt->fetch_all_values ;
-	}
-	elsif ($type =~ /list/) { 
-	    $result .= "$name ". join(',',$elt->fetch_all_values) ."\n" ;
+	    map { $result .= write_line($name,$_) ;} $elt->fetch_all_values ;
 	}
 	elsif ($type eq 'hash') {
-	    $result .= "$name ";
 	    foreach my $k ( $elt->get_all_indexes ) {
 		my $v = $elt->fetch_with_id($k)->fetch ;
-		$result .= "$k $v ";
+		$result .=  write_line($name,"$k $v") ;
 	    }
-	    $result .= "\n";
 	}
 	else {
 	    die "Sshd::write did not expect $type for $name\n";
@@ -266,7 +265,7 @@ sub write_match_block {
 	}
 	else {
 	    my $v = $elt->fetch($name) ;
-	    $result .= "$name $v " if defined $v;
+	    $result .= write_line($name,$v) if defined $v;
 	}
     }
 
