@@ -1,3 +1,8 @@
+2008-05-18  Dominique Dumont  <domi.dumont@free.fr>
+
+	* lib/Config/Model/models/Itself/CommonElement.pl: Added support for 
+	built in default list for check_list elements
+
 2008-04-21  Dominique Dumont  <dominique.dumont@hp.com>
 
 	* config-model-edit: Will now always launch Tk interface which has

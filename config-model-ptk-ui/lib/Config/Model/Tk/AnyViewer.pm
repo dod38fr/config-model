@@ -36,6 +36,7 @@ $VERSION = sprintf "1.%04d", q$Revision$ =~ /(\d+)/;
 
 my @fbe1 = qw/-fill both -expand 1/ ;
 my @fxe1 = qw/-fill x    -expand 1/ ;
+my @fb   = qw/-fill both          / ;
 my @fx   = qw/-fill x             / ;
 my @e1   = qw/           -expand 1/ ;
 
@@ -95,10 +96,12 @@ sub add_info_frame {
 sub add_help_frame {
     my $cw = shift ;
 
-    my $htop_frame = $cw->Frame()->pack(@fx) ;
-    $htop_frame -> Label(-text => 'Help', -anchor => 'w' ) ->pack(@fx) ;
+    # FIXME: remove this method
 
-    $cw->{help_f} = $htop_frame->Frame()->pack(@fx) ;
+    #my $htop_frame = $cw->Frame()->pack(@fb) ;
+    #$htop_frame -> Label(-text => 'Help', -anchor => 'w' ) ->pack(@f) ;
+
+    #$cw->{help_f} = $htop_frame#->Frame()->pack(@fb) ;
 }
 
 # returns the help widget (Label or ROText)
@@ -110,13 +113,11 @@ sub add_help {
 
     return undef unless $force_text_widget or $help;
 
-    my $help_frame = $cw->{help_f} -> Frame(
-					    -padx => $padx ,
-					   )->pack(@fx);
+    my $help_frame = $cw-> Frame()->pack(@fbe1);
 
-    $help_frame->Label(-text => "on $type: ", 
-		       -font => $text_font 
-		      )->pack(-side => 'left');
+    $help_frame ->Label(
+			 -text => "Help on $type: ", 
+			) ->pack(-anchor => 'w');
 
     my $widget ;
     chomp $help ;
@@ -129,13 +130,15 @@ sub add_help {
 					-height => 4,
 				       );
 
-	$widget ->pack( @fxe1 ) ->insert('end',$help) ;
+	$widget ->pack( @fbe1 ) ->insert('end',$help) ;
     }
     else {
 	$widget = $help_frame->Label( -text => $help,
 				      -justify => 'left',
 				      -font => $text_font ,
-				      -anchor => 'w')
+				      -anchor => 'w',
+				      -padx => $padx ,
+				    )
 	    ->pack( -fill => 'x');
     }
 

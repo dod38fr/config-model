@@ -175,6 +175,21 @@
 		   },
 	 },
 
+      'built_in_list'
+      => { type => 'check_list',
+	   level => 'hidden',
+	   refer_to => '- choice',
+	   description => 'Specify items checked by default in the application',
+	   warp => { follow => { t => '?type' },
+		     'rules'
+		     => [ '$t eq "check_list"' 
+			  => {
+			      level => 'normal',
+			     } ,
+			]
+		   },
+	 },
+
       # hash element
 
       'index_type' 

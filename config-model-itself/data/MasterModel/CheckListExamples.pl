@@ -23,6 +23,13 @@
 	    help => { A => 'A help', E => 'E help' } ,
 	  },
 
+       choice_list_with_built_in
+       => { type          => 'check_list',
+	    choice        => ['A' .. 'Z'],
+	    built_in_list => [ 'A', 'D' ],
+	    help          => { A => 'A help', E => 'E help' } ,
+	  },
+
        macro => { type => 'leaf',
 		  value_type => 'enum',
 		  choice     => [qw/AD AH/],

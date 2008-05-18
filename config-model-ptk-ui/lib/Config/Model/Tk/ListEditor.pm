@@ -216,7 +216,7 @@ sub set_all_items {
     return unless $data ;
     my $tklist = $cw->{tklist} ;
 
-    my @list = split /\W+/,$data ;
+    my @list = split /[^\w\-]+/,$data ;
 
     $tklist->delete(0,'end') ;
     $tklist->insert(0, @list) ;
