@@ -10,7 +10,7 @@ use Test::More;
 use Config::Model;
 use Data::Dumper ;
 
-BEGIN { plan tests => 55; }
+BEGIN { plan tests => 57; }
 
 use strict;
 
@@ -48,6 +48,13 @@ $model ->create_config_class
 	    choice       => ['A' .. 'Z'],
 	    default_list => [ 'A', 'D' ],
 	    help         => { A => 'A help', E => 'E help' } ,
+	  },
+
+       choice_list_with_built_in
+       => { type          => 'check_list',
+	    choice        => ['A' .. 'Z'],
+	    built_in_list => [ 'A', 'D' ],
+	    help          => { A => 'A help', E => 'E help' } ,
 	  },
 
        macro => { type => 'leaf',
@@ -282,6 +289,14 @@ my $rtl = $root->fetch_element("refer_to_dumb_list") ;
 is_deeply( [$rtl -> get_choice ], [qw/X Y Z a b c d e/],
 	   "check choice of refer_to_dumb_list"
 	 ) ;
+
+# test check list with built_in default
+my $bicl = $root->fetch_element("choice_list_with_built_in") ;
+@got = $bicl->get_checked_list() ;
+is_deeply (\@got, [], "test default of choice_list_with_built_in") ;
+
+@got = $bicl->get_checked_list('built_in') ;
+is_deeply (\@got, [qw/A D/], "test built_in of choice_list_with_built_in") ;
 
 ### test preset feature
 

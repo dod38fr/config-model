@@ -1,3 +1,8 @@
+2008-05-18  Dominique Dumont  <domi.dumont@free.fr>
+
+	* lib/Config/Model/CheckList.pm: added support for built_in
+	default list
+
 2008-05-17  Dominique Dumont v 0.623
 
 	* lib/Config/Model/SimpleUI.pm: Some cleanup. Added possibility to

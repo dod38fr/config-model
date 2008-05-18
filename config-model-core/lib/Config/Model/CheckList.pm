@@ -89,7 +89,7 @@ CheckList object should not be created directly.
 
 =cut
 
-my @accessible_params =  qw/default_list choice/ ;
+my @accessible_params =  qw/default_list built_in_list choice/ ;
 
 my @allowed_warp_params = (@accessible_params, qw/level experience/);
 
@@ -272,7 +272,7 @@ sub set {
     my $self = shift ;
 
     # cleanup all parameters that are handled by warp
-    map(delete $self->{$_}, qw/default_list choice/) ;
+    map(delete $self->{$_}, qw/default_list built_in_list choice/) ;
 
     # merge data passed to the constructor with data passed to set
     my %args = (%{$self->{backup}},@_ );
@@ -297,6 +297,15 @@ sub set {
     }
     else {
 	$self->{default_data} = {} ;
+    }
+
+    if (defined $args{built_in_list}) {
+	my $bi = $self->{built_in_list} = delete $args{built_in_list} ;
+	my %h = map { $_ => 1 } @{$self->{built_in_list}} ;
+	$self->{built_in_list} = \%h ;
+    }
+    else {
+	$self->{built_in_list} = {} ;
     }
 
     Config::Model::Exception::Model
@@ -538,6 +547,11 @@ sub get_default_choice {
     return @{$self->{default_choice} || [] } ;
 }
 
+sub get_built_in_choice {
+    my $self = shift ;
+    return @{$self->{built_in_data} || [] } ;
+}
+
 =head2 get_help (choice_value)
 
 Return the help string on this choice value
@@ -600,19 +614,25 @@ The list set in preset mode or checked by default.
 
 The default list (defined by the configuration model)
 
+=item built_in
+
+The built in list (defined by the configuration model)
+
 =back
 
 =cut
 
-my %accept_mode = map { ( $_ => 1) } qw/custom standard preset default/;
+my %accept_mode = map { ( $_ => 1) } 
+                      qw/custom standard preset default built_in/;
 
 sub get_checked_list_as_hash {
     my $self = shift ;
     my $type = shift || '';
 
     if ($type and not defined $accept_mode{$type}) {
-	croak "get_checked_list_as_hash: expected ", join (' or ',keys %accept_mode),
-	  "parameter, not $type" ;
+	croak "get_checked_list_as_hash: expected ", 
+	    join (' or ',keys %accept_mode),
+		"parameter, not $type" ;
     }
 
     # fill empty hash result missing data
@@ -621,11 +641,14 @@ sub get_checked_list_as_hash {
     my $dat = $self->{data} ;
     my $pre = $self->{preset} ;
     my $def = $self->{default_data} ;
+    my $bi  = $self->{built_in_list} ;
+
     # copy hash and return it
     my %std = (%h, %$def, %$pre ) ;
     my %result 
       = $type eq 'custom'   ? (%h, map { $dat->{$_} && ! $std{$_} ? ($_,1) : ()} keys %$dat )
       : $type eq 'preset'   ? (%h, %$pre )
+      : $type eq 'built_in' ? %$bi
       : $type eq 'standard' ? %std
       :                       (%std, %$dat );
 
