@@ -199,7 +199,8 @@
 					help => { AA => 'AA help',
 						  AC => 'AC help',
 						  AE => 'AE help',
-						}
+						},
+					description => 'my_plain_check_list nto so helpfull description',
 				      } ,
 	       my_ref_check_list => { type => 'check_list',
 				  refer_to => '- hash_a + ! hash_b',

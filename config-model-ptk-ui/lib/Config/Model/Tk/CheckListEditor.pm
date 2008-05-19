@@ -27,7 +27,7 @@ use strict;
 use warnings ;
 use Carp ;
 
-use base qw/ Tk::Frame Config::Model::Tk::AnyViewer/;
+use base qw/ Tk::Frame Config::Model::Tk::CheckListViewer/;
 use vars qw/$VERSION/ ;
 use subs qw/menu_struct/ ;
 
@@ -73,8 +73,8 @@ sub Populate {
     $cw->{tied} = \$array_ref ;
 
     # mastering perl/Tk page 160
-    my $b_sub = sub { $cw->set_value_help($lb->get($lb->nearest($Tk::event->y)));} ;
-    $lb->bind('<Button-1>',$b_sub);
+    my $b_sub = sub { $cw->set_value_help(@$array_ref);} ;
+    $lb->bind('<<ListboxSelect>>',$b_sub);
 
     my $bframe = $cw->Frame->pack;
     $bframe -> Button ( -text => 'Clear all',
@@ -91,9 +91,13 @@ sub Populate {
 		      ) -> pack(-side => 'left') ;
 
     $cw->add_help_frame() ;
-    $cw->add_help(value => \$cw->{help});
+    $cw->add_help(class   => $leaf->parent->get_help) ;
+    $cw->add_help(element => $leaf->parent->get_help($leaf->element_name)) ;
+    $cw->{value_help_widget} = $cw->add_help(value => '',1);
+    $b_sub->() ;
 
-    $cw->SUPER::Populate($args) ;
+    # don't call directly SUPER::Populate as it's CheckListViewer's populate
+    $cw->Tk::Frame::Populate($args) ;
 }
 
 
@@ -114,12 +118,6 @@ sub store {
 	# trigger redraw of Tk Tree
 	$cw->parent->parent->parent->parent->reload(1) ;
     }
-}
-
-sub set_value_help {
-    my $cw = shift ;
-    my $v = shift ;
-    $cw->{help} = $cw->{leaf}->get_help($v) if defined $v ;
 }
 
 sub reset_value {

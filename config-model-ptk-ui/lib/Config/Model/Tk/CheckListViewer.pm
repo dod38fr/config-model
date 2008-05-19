@@ -64,14 +64,18 @@ sub Populate {
 
     $cw->add_info() ;
     $cw->add_help_frame() ;
+    $cw->add_help(class   => $leaf->parent->get_help) ;
+    $cw->add_help(element => $leaf->parent->get_help($leaf->element_name)) ;
+    $cw->{value_help_widget} = $cw->add_help(value => '',1);
 
     my %h = $leaf->get_checked_list_as_hash ;
     foreach my $c ($leaf->get_choice) {
 	my $tag = $h{$c} ? 'in' : 'out' ;
 	$rt->insert('end', $c."\n" , $tag) ;
-	my $help_txt = $leaf->get_help($c) ;
-	$cw->add_help("$c", $help_txt) if $h{$c} and $help_txt;
     }
+
+    $cw->set_value_help($leaf->get_checked_list);
+
     $cw->add_editor_button($path) ;
 
     $cw->SUPER::Populate($args) ;
@@ -90,10 +94,17 @@ sub add_value_help {
 }
 
 sub set_value_help {
-    my $cw = shift ;
-    my $v = shift ;
-    $cw->{help} = $cw->{leaf}->get_help($v) if defined $v ;
-}
+     my $cw = shift ;
+     my @set = @_ ;
+
+     my $w = $cw->{value_help_widget};
+     $w->delete('0.0','end');
+
+     foreach my $v (@set) {
+	 my $value_help = $cw->{leaf}->get_help($v);
+	 $w->insert('end',"$v: ".$value_help."\n") if defined $value_help ;
+     }
+ }
 
 sub add_info {
     my $cw = shift ;
