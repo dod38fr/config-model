@@ -1,9 +1,13 @@
 
-o [domi] Filter element according to element in SimpleUI and TERMUI
+o [domi] Integrate Augeas project as a generic writer/parser
 
 o [domi] Add regexp check for uniline (or string) values
 
+o [domi] Filter element according to element in SimpleUI and TERMUI
+
 o [domi] Provide import/export of configuration data in free form XML
+
+o [domi] Associate comment to configuration tree ?
 
 o [domi] Add model plug-in facility
   Currently, models can be provided in modular load-on-demand
@@ -11,3 +15,6 @@ o [domi] Add model plug-in facility
    config-model. But it's not the same mechanism as plug-in. Plugin is
    necessary for application like xorg which are delivered in modular
    packages.  
+
+* A web interface. May be a Webmin integration
+

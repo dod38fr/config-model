@@ -21,38 +21,45 @@
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 #    02110-1301 USA
 
-use ExtUtils::MakeMaker;
-# See lib/ExtUtils/MakeMaker.pm for details of how to influence
-# the contents of the Makefile that is written.
+use Module::Build;
+
+use warnings FATAL => qw(all) ;
+use strict ;
 
 require 5.008;
 
 print "If you want to use the TermUI interface, you should install\n",
   "Term::ReadLine::Perl or Term::ReadLine::Gnu\n";
 
-WriteMakefile 
+my $build = Module::Build->new
   (
-   NAME         => 'Config-Model',
-   VERSION_FROM => 'lib/Config/Model.pm',
-   dist         => {COMPRESS=>'gzip -9f', SUFFIX => 'gz'},
-   'EXE_FILES'  => [ 'config-edit' ],
-   ABSTRACT     => 'Describe and edit configuration data',
-   AUTHOR       => 'Dominique Dumont (ddumont at cpan dot org)',
-   PREREQ_PM    => {
-		    'Test::More'        => 0, # for test
-		    'Term::ReadLine'    => 0,
-		    'Log::Log4perl'     => '1.11', # for TRACE log level
-		    'Parse::RecDescent' => '1.90',
-		    'Scalar::Util'      => 0, # provided by perl 5.8.0
-		    'Exception::Class'  => 0,
-		    'Carp::Assert::More' => 0,
-		    'Error'             => 0,
-
-		    # recommended modules to get more reader/writer
-		    'Config::Tiny' => 0,
-		   },
+   module_name    => 'Config::Model',
+   license        => 'lgpl',
+   script_files   => [ 'config-edit' ],
+   dist_abstract  => 'Describe and edit configuration data',
+   dist_author    => 'Dominique Dumont (ddumont at cpan dot org)',
+   requires       => {
+		      'Term::ReadLine'    => 0,
+		      'Log::Log4perl'     => '1.11', # for TRACE log level
+		      # P::RD version must be > 1.90 but a bug
+		      # prevents Module::Build to check it with
+		      # installed version (1.95.1)
+		      'Parse::RecDescent' => 0,
+		      'Scalar::Util'      => 0, # provided by perl 5.8.0
+		      'Exception::Class'  => 0,
+		      'Carp::Assert::More' => 0,
+		      'Error'             => 0,
+		     },
+   build_requires => {
+		      'Test::More'        => 0, # for test
+		     },
+   recommends => {
+		  # recommended modules to get more reader/writer
+		  'Config::Tiny' => 0,
+		 },
    # cleanup required by t/auto_read.t
    # PreGrammar.pm is created by t/value_computer.t
-   clean => {FILES => "PreGrammar.pm wr_test zero_test"}
+   add_to_cleanup => [qw/PreGrammar.pm wr_test zero_test/],
   );
 
+$build->create_build_script;

@@ -87,7 +87,7 @@ user's model and generate the relevant user screens.
 Why an old-fashioned Curses interface ?
 To be able to configure your system even if X is not running.
 
-A perl/tk interface is being developed. Stay tuned.
+A perl/tk interface is provided with Config::Model::TkUI
 
 What about data storage ?
 -------------------------
@@ -120,6 +120,7 @@ What is the status of the project ?
 - Perl/Tk interface (provided by Config::Model::TkUI) is beta
 - Xorg model (provided by Config::Model::Xorg) is alpha (and still
   incomplete)
+- Sshd model (should be release end of May 2008)
 
 Help is welcome on:
 - improve graphical user interface 
@@ -134,6 +135,10 @@ If you want to discuss Config::Model ?
 Subscribe to the config-model-users list:
 
 http://lists.sourceforge.net/mailman/listinfo/config-model-users
+
+or to the development list:
+
+http://lists.sourceforge.net/mailman/listinfo/config-model-devel
 
 Is there more documentation ?
 -----------------------------
