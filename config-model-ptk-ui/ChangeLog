@@ -1,24 +1,24 @@
-2008-05-07  Dominique Dumont  <dominique.dumont@hp.com>
+2008-05-07  Dominique Dumont v0.104
 
 	* lib/Config/Model/TkUI.pm (): Added Edit menu with copy and paste
 	entries. (No, there won't be a 'cut' entry).
 
-2008-05-04  Domi  <domi@bilbo.maison>
+2008-05-04  Domi 
 
 	* lib/Config/Model/Tk/LeafEditor.pm: Fix bug in value help display
 
-2008-04-29  Dominique Dumont  <dominique.dumont@hp.com>
+2008-04-29  Dominique Dumont 
 
 	* lib/Config/Model/Tk/HashEditor.pm (move_selected_to): Fixed move
 	within ordered hash
 
-2008-04-27  Domi  <domi@bilbo.maison>
+2008-04-27  Domi  
 
 	* lib/Config/Model/Tk/ListEditor.pm (set_all_items): new method to
 	set a list with a list of words. They can be separated by commas,
 	white spaces or any non-alphanumeric character (e.g. /\W+/)
 
-2008-04-17  Dominique Dumont  <dominique.dumont@hp.com>
+2008-04-17  Dominique Dumont 
 
 	* lib/Config/Model/Tk/HashEditor.pm: Select and show new items in
 	Listbox
@@ -26,7 +26,7 @@
 	* lib/Config/Model/TkUI.pm: Add debug menu (rely on
 	Tk::ObjScanner).  Bug fix related to configuration check
 
-2008-04-08  Dominique Dumont  <dominique.dumont@hp.com>
+2008-04-08  Dominique Dumont 
 
 	* TkUI CheckListEditor and Viewer: Reworked for better edition
 
