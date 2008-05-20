@@ -2,7 +2,7 @@
 # $Date$
 # $Revision$
 
-#    Copyright (c) 2007 Dominique Dumont.
+#    Copyright (c) 2007-2008 Dominique Dumont.
 #
 #    This file is part of Config-Model-Curses-UI.
 #
@@ -31,9 +31,9 @@ my $build = Module::Build->new
    license => 'lgpl',
    dist_abstract => "Curses interface to edit config data through Config::Model",
    dist_author  => "Dominique Dumont (ddumont at cpan dot org)",
-   dist_version  => '1.006' ,
+   dist_version  => '1.007' ,
    requires => {
-		'Config::Model'    => '0.614',
+		'Config::Model'    => '0.623',
 		'Exception::Class' => 0,
 		'Curses::UI'       => '0.95',
 		'Log::Log4perl'    => 0 ,

@@ -1,4 +1,4 @@
-2008-05-15  Dominique Dumont  <dominique.dumont@hp.com>
+2008-05-15  Dominique Dumont v1.007
 
 	* lib/Config/Model/CursesUI.pm: adapted to change permission ->
 	experience
