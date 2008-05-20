@@ -24,9 +24,9 @@ account):
   $ config-edit -model Xorg -write_directory test 
 
 If config-edit fails with your xorg.conf (See BUGS section below), you
-can try config-edit with the provided xorg.conf (but it won't be
-useful for you as this file will not match your hardware
-configuration). Note that you must run this command where you unpacked
+can try config-edit with -force option.
+
+Note that you must run this command where you unpacked
 this perl module:
 
   $ config-edit -model Xorg -read data -write wr_test

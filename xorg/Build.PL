@@ -70,11 +70,11 @@ my $build = Module::Build->new
   (
    module_name   => 'Config::Model::Xorg',
    license       => 'lgpl',
-   dist_version  => '0.511' ,
+   dist_version  => '0.512' ,
    dist_author   => "Dominique Dumont (ddumont at cpan dot org)",
    dist_abstract => "Xorg configuration tool based on Config::Model",
    requires      => {
-		     'Config::Model'   => '0.617',
+		     'Config::Model'   => '0.623',
 		     'Log::Log4perl'   => 0 ,
 		    },
    recommends    => {

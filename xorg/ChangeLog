@@ -1,4 +1,4 @@
-2008-04-07  Dominique Dumont  <dominique.dumont@hp.com>
+2008-04-07  Dominique Dumont  v0.512
 
 	* lib/Config/Model/Xorg/Read.pm (parse_option): Skip wrong Options
 	when read in tolerant mode (-force option)
