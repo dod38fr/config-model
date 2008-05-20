@@ -1,20 +1,20 @@
-2008-05-18  Dominique Dumont  <domi.dumont@free.fr>
+2008-05-18  Dominique Dumont  v0.202
 
 	* lib/Config/Model/models/Itself/CommonElement.pl: Added support for 
 	built in default list for check_list elements
 
-2008-04-21  Dominique Dumont  <dominique.dumont@hp.com>
+2008-04-21  Dominique Dumont 
 
 	* config-model-edit: Will now always launch Tk interface which has
 	a menu to test the configuration editor from the model under edition.
 	(some tests still to be written)
 
-2008-04-16  Dominique Dumont  <dominique.dumont@hp.com>
+2008-04-16  Dominique Dumont 
 
 	* lib/Config/Model/Itself.pm (list_class_element): new method to
 	help model debug
 
-2008-04-14  Dominique Dumont  <dominique.dumont@hp.com>
+2008-04-14  Dominique Dumont 
 
 	* lib/Config/Model/Itself.pm (read_all): Reworked model to fit with
 	new cargo arguments.
