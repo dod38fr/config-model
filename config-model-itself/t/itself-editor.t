@@ -94,7 +94,8 @@ SKIP: {
     $mw->withdraw ;
 
     my $cmu = $mw->ConfigModelEditUI (-root => $meta_root,
-				      -model_dir => 'data',
+				      -read_model_dir => 'data',
+				      -write_model_dir => $wr_dir,
 				      -model_name => 'MasterModel',
 				     ) ;
     my $delay = 200 ;
