@@ -27,7 +27,8 @@ $show               = 1 if $arg =~ /s/;
 
 print "You can play with the widget if you run the test with 's' argument\n";
 
-my $wr_dir = 'wr_test' ;
+my $wr_dir = 'wr_test2' ;
+my $read_dir = 'data' ;
 
 sub wr_cds {
     my ($file,$cds) = @_ ;
@@ -38,7 +39,7 @@ sub wr_cds {
 
 Log::Log4perl->easy_init($log ? $DEBUG: $WARN);
 
-my $meta_model = Config::Model -> new ( ) ;# model_dir => '.' );
+my $meta_model = Config::Model -> new ( ) ;
 
 Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 
@@ -47,7 +48,7 @@ ok(1,"compiled");
 mkdir($wr_dir) unless -d $wr_dir ;
 
 
-my $model = Config::Model->new(legacy => 'ignore',model_dir => 'data' ) ;
+my $model = Config::Model->new(legacy => 'ignore',model_dir => $read_dir ) ;
 ok(1,"loaded Master model") ;
 
 # check that Master Model can be loaded by Config::Model
@@ -66,8 +67,8 @@ ok($inst1,"loaded some data in master_model instance") ;
 
 my $meta_inst = $meta_model->instance (root_class_name   => 'Itself::Model', 
 			     instance_name     => 'itself_instance',
-			     'read_directory'  => "data",
-			     'write_directory' => "wr_test",
+			     #'read_directory'  => $read_dir,
+			     #'write_directory' => $wr_dir,
 			    );
 ok($meta_inst,"Read Itself::Model and created instance") ;
 
@@ -76,7 +77,7 @@ my $meta_root = $meta_inst -> config_root ;
 my $rw_obj = Config::Model::Itself -> new(model_object => $meta_root) ;
 
 my $map = $rw_obj -> read_all( 
-			      model_dir => 'data',
+			      model_dir => $read_dir,
 			      root_model => 'MasterModel',
 			      legacy => 'ignore',
 			     ) ;
@@ -93,8 +94,13 @@ SKIP: {
 
     $mw->withdraw ;
 
+    my $write_sub = sub { 
+	$rw_obj->write_all(model_dir => $wr_dir);
+    } ;
+
     my $cmu = $mw->ConfigModelEditUI (-root => $meta_root,
-				      -read_model_dir => 'data',
+				      -store_sub => $write_sub,
+				      -read_model_dir => $read_dir,
 				      -write_model_dir => $wr_dir,
 				      -model_name => 'MasterModel',
 				     ) ;
@@ -110,6 +116,7 @@ SKIP: {
          sub { $cmu->create_element_widget('view','itself_instance.class')},
 	 sub { $tktree->open('itself_instance.class') },
 	 sub { $tktree->open('itself_instance.class.MasterModel') },
+	 sub { $cmu -> save ;},
 	 sub { $cmu -> test_model ;},
 	 sub { $cmu -> test_model ;},
 	 sub { exit; }

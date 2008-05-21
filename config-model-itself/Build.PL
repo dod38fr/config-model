@@ -41,7 +41,7 @@ my $build = Module::Build->new
 		     'Config::Model::TkUI' => '0.105',
 		    },
    script_files  => [ 'config-model-edit' ],
-   add_to_cleanup => [qw/wr_test/] ,
+   add_to_cleanup => [qw/wr_test wr_test2/] ,
   );
 
 
