@@ -46,7 +46,8 @@ sub Populate {
     my ($cw, $args) = @_;
 
 
-    my $model_dir  = delete $args->{-model_dir} ;
+    my $r_model_dir  = delete $args->{-read_model_dir} ;
+    my $w_model_dir  = delete $args->{-write_model_dir} ;
     my $model_name = delete $args->{-model_name} ;
 
     $cw->SUPER::Populate($args) ;
@@ -55,7 +56,8 @@ sub Populate {
 		] ;
 
     my $model_menu = $cw->{my_menu}->cascade(-label => 'Model', -menuitems => $items) ;
-    $cw->{model_dir} = $model_dir ;
+    $cw->{read_model_dir} = $r_model_dir ;
+    $cw->{write_model_dir} = $w_model_dir ;
     $cw->{model_name} = $model_name ;
 }
 
@@ -67,7 +69,8 @@ sub test_model {
     my $testw =  $cw -> {test_widget} ;
     $testw->destroy if defined $testw and Tk::Exists($testw);
 
-    my $model = Config::Model -> new(model_dir => $cw->{model_dir}) ;
+    # need to read test model from where it was written...
+    my $model = Config::Model -> new(model_dir => $cw->{write_model_dir}) ;
 
     my $name = $cw->{model_name};
     my $inst = $model->instance (root_class_name => $name,

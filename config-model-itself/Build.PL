@@ -32,7 +32,7 @@ my $build = Module::Build->new
   (
    module_name   => 'Config::Model::Itself',
    license       => 'lgpl',
-   dist_version  => 0.202 ,
+   dist_version  => 0.203 ,
    dist_author   => "Dominique Dumont (ddumont at cpan dot org)",
    dist_abstract => "Editor for Config::Model data files",
    requires      => {

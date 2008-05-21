@@ -1,3 +1,8 @@
+2008-05-21  Dominique Dumont  v0.203
+
+	* config-model-edit: Fixed bug that prevented testing of the
+	configuration editor when starting from scratch.
+
 2008-05-18  Dominique Dumont  v0.202
 
 	* lib/Config/Model/models/Itself/CommonElement.pl: Added support for 

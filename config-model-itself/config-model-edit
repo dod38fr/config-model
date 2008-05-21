@@ -230,7 +230,8 @@ $mw->withdraw ;
 
 my $cmu = $mw->ConfigModelEditUI (-root      => $meta_root,
 				  -store_sub => $write_sub,
-				  -model_dir => $read_model_dir,
+ 				  -read_model_dir => $read_model_dir,
+ 				  -write_model_dir => $wr_model_dir,
 				  -model_name => $root_model,
 				 ) ;
 
