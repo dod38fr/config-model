@@ -36,6 +36,7 @@ my $build = Module::Build->new
    dist_author   => "Dominique Dumont (ddumont at cpan dot org)",
    dist_abstract => "OpenSsh Sshd configuration editor",
    requires      => {
+		     perl              => '5.8.0',
 		     'Config::Model'   => '0.623',
 		     'Log::Log4perl'   => 0 ,
 		    },
