@@ -20,7 +20,7 @@ You may want to try it safely first by writing the resulting sshd.conf
 elsewhere (in this case you can run this command with your user
 account):
 
-  $ config-edit -model Sshd -write_directory test 
+  $ config-edit -model Sshd -write_conf_dir test 
 
 If config-edit fails with your sshd.conf (See BUGS section below), you
 can try config-edit with -force option.

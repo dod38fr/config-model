@@ -1,6 +1,6 @@
 # $Author: ddumont $
 # $Date$
-# $Revision: 1.5 $
+# $Revision: 5 $
 
 #    Copyright (c) 2008 Dominique Dumont.
 #
@@ -33,7 +33,7 @@ use File::Copy ;
 use Parse::RecDescent ;
 use vars qw($VERSION $grammar $parser) ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "1.%04d", q$Revision: 615 $ =~ /(\d+)/;
 
 my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
@@ -228,6 +228,9 @@ sub write_node_content {
 	}
 	elsif    ($type eq 'leaf') { 
 	    my $v = $elt->fetch ;
+	    if (defined $v and $elt->value_type eq 'boolean') {
+		$v = $v == 1 ? 'yes':'no' ;
+	    }
 	    $result .= write_line($name,$v) if defined $v;
 	}
 	elsif    ($type eq 'check_list') { 
