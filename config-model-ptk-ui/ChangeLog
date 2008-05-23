@@ -1,4 +1,4 @@
-2008-05-07  Dominique Dumont v0.104
+2008-05-07  Dominique Dumont v0.105
 
 	* lib/Config/Model/TkUI.pm (): Added Edit menu with copy and paste
 	entries. (No, there won't be a 'cut' entry).
