@@ -41,10 +41,7 @@ my $build = Module::Build->new
    requires       => {
 		      'Term::ReadLine'    => 0,
 		      'Log::Log4perl'     => '1.11', # for TRACE log level
-		      # P::RD version must be > 1.90 but a bug
-		      # prevents Module::Build to check it with
-		      # installed version (1.95.1)
-		      'Parse::RecDescent' => 0,
+		      'Parse::RecDescent' => '1.90.0',
 		      'Scalar::Util'      => 0, # provided by perl 5.8.0
 		      'Exception::Class'  => 0,
 		      'Carp::Assert::More' => 0,
