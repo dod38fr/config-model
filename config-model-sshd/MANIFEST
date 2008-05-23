@@ -1,0 +1,9 @@
+Build.PL
+data/example1/sshd_config
+lib/Config/Model/models/Sshd.pl
+lib/Config/Model/models/Sshd/MatchBlock.pl
+lib/Config/Model/models/Sshd/MatchElement.pl
+lib/Config/Model/Sshd.pm
+MANIFEST			This list of files
+t/parse.t
+META.yml

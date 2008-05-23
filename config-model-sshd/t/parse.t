@@ -4,7 +4,7 @@
 # $Revision: 608 $
 
 use ExtUtils::testlib;
-use Test::More tests => 54;
+use Test::More tests => 5;
 use Config::Model ;
 use Log::Log4perl qw(:easy) ;
 
@@ -38,17 +38,42 @@ ok(1,"compiled");
 
 mkdir('wr_test') unless -d 'wr_test' ;
 
-my $inst = $model->instance (root_class_name   => 'Sshd',
-                             instance_name     => 'sshd_instance',
-                             'read_directory'  => "data/example1",
-                             'write_directory' => "wr_test",
+opendir(TDIR,'data') || die "cannot read dir 'data': $!";
+
+foreach my $testdir (readdir(TDIR)) {
+    next if $testdir =~ /^\./;
+    print "Test from directory $testdir\n" if $trace ;
+    my $wr_dir = "wr_test/$testdir" ;
+    mkdir($wr_dir) unless -d $wr_dir;
+
+    my $inst = $model->instance (root_class_name   => 'Sshd',
+				 instance_name     => 'sshd_instance',
+				 'read_directory'  => "data/$testdir",
+				 'write_directory' => $wr_dir,
+				);
+
+    ok($inst,"Read sshd.conf and created instance") ;
+
+    my $root = $inst -> config_root ;
+
+    my $dump =  $root->dump_tree ();
+    print $dump if $trace ;
+
+    like($dump,qr/Match:0/, "check Match section") ;
+
+    $inst->write_back($wr_dir) ;
+    ok(1,"wrote data in $wr_dir") ;
+
+    my $inst2 = $model->instance (root_class_name   => 'Sshd',
+				  instance_name     => 'sshd_instance2',
+				  'read_directory'  => $wr_dir,
+				  'write_directory' => $wr_dir.'2',
                             );
 
-ok($inst,"Read sshd.conf and created instance") ;
+    my $root2 = $inst2 -> config_root ;
+    my $dump2 = $root2 -> dump_tree ();
+    print $dump2 if $trace ;
 
-my $root = $inst -> config_root ;
-
-#Config::Model::Sshd::read(conf_dir => 'data/example1', object => 1 ) ;
-print $root->dump_tree (mode => 'full') if $trace ;
-
-$inst->write_back('wr_test') ;
+    is_deeply([split /\n/,$dump2],[split /\n/,$dump],
+	      "check if both dumps are identical") ;
+}

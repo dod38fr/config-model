@@ -57,6 +57,8 @@ sub read {
 
     my $fh = new IO::File $file, "r" ;
 
+    &clear ; # reset Match closure
+
     if (defined $fh) {
 	my @file = $fh->getlines ;
 	$fh->close;
@@ -221,7 +223,14 @@ sub write_node_content {
 	if    ($name eq 'Match') { 
 	    $match .= write_all_match_block($elt) ;
 	}
-	elsif    ($type eq 'leaf' or $type eq 'check_list') { 
+	elsif    ($name eq 'ClientAliveCheck') { 
+	    # special case that must be skipped
+	}
+	elsif    ($type eq 'leaf') { 
+	    my $v = $elt->fetch ;
+	    $result .= write_line($name,$v) if defined $v;
+	}
+	elsif    ($type eq 'check_list') { 
 	    my $v = $elt->fetch ;
 	    $result .= write_line($name,$v) if defined $v and $v;
 	}
@@ -247,7 +256,7 @@ sub write_all_match_block {
 
     my $result = '' ;
     foreach my $elt ($match_elt->fetch_all() ) {
-	$result .= write_match_block($elt) ."\n";
+	$result .= write_match_block($elt) ;
     }
 
     return $result ;
@@ -255,7 +264,7 @@ sub write_all_match_block {
 
 sub write_match_block {
     my $match_elt = shift ;
-    my $result = 'Match ' ;
+    my $result = "\nMatch " ;
 
     foreach my $name ($match_elt->get_element_name(for => 'master') ) {
 	my $elt = $match_elt->fetch_element($name) ;
@@ -265,7 +274,7 @@ sub write_match_block {
 	}
 	else {
 	    my $v = $elt->fetch($name) ;
-	    $result .= write_line($name,$v) if defined $v;
+	    $result .= " $name $v" if defined $v;
 	}
     }
 
