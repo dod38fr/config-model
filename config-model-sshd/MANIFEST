@@ -4,6 +4,7 @@ lib/Config/Model/models/Sshd.pl
 lib/Config/Model/models/Sshd/MatchBlock.pl
 lib/Config/Model/models/Sshd/MatchElement.pl
 lib/Config/Model/Sshd.pm
+README
 MANIFEST			This list of files
 t/parse.t
 META.yml
