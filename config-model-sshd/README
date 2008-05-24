@@ -43,7 +43,12 @@ are the purpose of the main files:
 AUTHOR
     Copyright (c) 2008 Dominique Dumont.
 
-    This file is part of Config-Model-Sshd.
+    This file is part of Config-Model-Sshd. License is LGPL v2.
+
+
+    All help text provided in Sshd model were extracted from
+    sshd_config(8) man page. I've slightly modified the text to better
+    suit an interactive editor. 
 
 ---------------------------------------------------------------------
 INSTALLATION

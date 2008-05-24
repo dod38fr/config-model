@@ -1,6 +1,6 @@
 # $Author: ddumont $
 # $Date$
-# $Revision: 5 $
+# $Revision$
 
 #    Copyright (c) 2008 Dominique Dumont.
 #
@@ -36,6 +36,51 @@ use vars qw($VERSION $grammar $parser) ;
 $VERSION = sprintf "1.%04d", q$Revision: 615 $ =~ /(\d+)/;
 
 my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+=head1 NAME
+
+Config::Model::Sshd - Sshd configuration editor and model
+
+=head1 SYNOPSIS
+
+ # Config::Model::Sshd is a plugin for Config::Model. You can
+ # Config::Model API to modify its content
+
+ use Config::Model ;
+ my $model = Config::Model -> new ( ) ;
+
+ my $inst = $model->instance (root_class_name   => 'Sshd',
+                              instance_name     => 'my_instance',
+                             );
+ my $root = $inst -> config_root ;
+
+ $root->load("AllowUsers=foo,bar") ;
+
+ $inst->write_back() ;
+
+=head1 DESCRIPTION
+
+This module provides a configuration model for Sshd. Then
+Config::Model provides a graphical editor program for
+F</etc/ssh/sshd_config>. See L<config-edit-sshd> for more help.
+
+This module and Config::Model can also be used to modify safely the
+content for F</etc/ssh/sshd_config> from Perl perl.
+
+Once this module is installed, you can run (as root, but please backup
+/etc/X11/xorg.conf before):
+
+=head1 Functions
+
+These functions are declared in Sshd configuration model and are
+called back.
+
+=head2 read (object => <sshd_root>, conf_dir => ...)
+
+Read F<sshd_config> in C<conf_dir> and load the data in the 
+C<sshd_root> configuration tree.
+
+=cut 
 
 sub read {
     my %args = @_ ;
@@ -174,6 +219,13 @@ $parser = Parse::RecDescent->new($grammar) ;
   }
 }
 
+=head2 write (object => <sshd_root>, conf_dir => ...)
+
+Write F<sshd_config> in C<conf_dir> from the data stored the
+C<sshd_root> configuration tree.
+
+=cut 
+
 # now the write part
 
 sub write {
@@ -283,5 +335,13 @@ sub write_match_block {
 
     return $result ;
 }
+
 1;
 
+=head1 AUTHOR
+
+Dominique Dumont, (ddumont at cpan dot org)
+
+=head1 SEE ALSO
+
+L<config-edit-sshd>, L<Config::Model>,

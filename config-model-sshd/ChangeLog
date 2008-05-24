@@ -1,0 +1,6 @@
+2008-05-24  Dominique Dumont v0.103
+
+	* lib/Config/Model/Sshd.pm (): Added doc 
+
+	* config-edit-sshd: new file
+

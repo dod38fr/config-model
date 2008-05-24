@@ -32,9 +32,10 @@ my $build = Module::Build->new
   (
    module_name   => 'Config::Model::Sshd',
    license       => 'lgpl',
-   dist_version  => 0.102 ,
+   dist_version  => 0.103 ,
    dist_author   => "Dominique Dumont (ddumont at cpan dot org)",
    dist_abstract => "OpenSsh Sshd configuration editor",
+   script_files   => [ 'config-edit-sshd' ],
    requires      => {
 		     perl              => '5.8.0',
 		     'Config::Model'   => '0.623',
