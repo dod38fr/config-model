@@ -1,6 +1,6 @@
 # $Author: ddumont $
-# $Date$
-# $Revision:$
+# $Date: 2008-05-24 17:04:16 +0200 (sam, 24 mai 2008) $
+# $Revision: 615$
 
 #    Copyright (c) 2008 Dominique Dumont.
 #
@@ -33,7 +33,7 @@ use File::Copy ;
 use Parse::RecDescent ;
 use vars qw($VERSION $grammar $parser) ;
 
-$VERSION = sprintf "1.%04d", q$Revision: 615 $ =~ /(\d+)/;
+$VERSION = sprintf "1.%04d", q$Revision$ =~ /(\d+)/;
 
 my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
