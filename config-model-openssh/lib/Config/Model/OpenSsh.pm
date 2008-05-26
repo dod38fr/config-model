@@ -4,7 +4,7 @@
 
 #    Copyright (c) 2008 Dominique Dumont.
 #
-#    This file is part of Config-Model-Sshd.
+#    This file is part of Config-Model-OpenSsh.
 #
 #    Config-Xorg is free software; you can redistribute it and/or
 #    modify it under the terms of the GNU Lesser Public License as
@@ -20,7 +20,7 @@
 #    along with Config-Model; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 
-package Config::Model::Sshd ;
+package Config::Model::OpenSsh ;
 
 use strict ; 
 use warnings ;
@@ -39,11 +39,11 @@ my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
 =head1 NAME
 
-Config::Model::Sshd - Sshd configuration editor and model
+Config::Model::OpenSsh - OpenSsh configuration editor and model
 
 =head1 SYNOPSIS
 
- # Config::Model::Sshd is a plugin for Config::Model. You can
+ # Config::Model::OpenSsh is a plugin for Config::Model. You can
  # Config::Model API to modify its content
 
  use Config::Model ;
@@ -60,7 +60,7 @@ Config::Model::Sshd - Sshd configuration editor and model
 
 =head1 DESCRIPTION
 
-This module provides a configuration model for Sshd. Then
+This module provides a configuration model for OpenSsh. Then
 Config::Model provides a graphical editor program for
 F</etc/ssh/sshd_config>. See L<config-edit-sshd> for more help.
 
@@ -128,17 +128,17 @@ line: match_line | client_alive_line | any_line
 
 match_line: /match/i arg(s) "\n"
 {
-   Config::Model::Sshd::match($arg[0],@{$item[2]}) ;
+   Config::Model::OpenSsh::match($arg[0],@{$item[2]}) ;
 }
 
 client_alive_line: /clientalive\w+/i arg(s) "\n"
 {
-   Config::Model::Sshd::clientalive($arg[0],$item[1],@{$item[2]}) ;
+   Config::Model::OpenSsh::clientalive($arg[0],$item[1],@{$item[2]}) ;
 }
 
 any_line: key arg(s) "\n"  
 {
-   Config::Model::Sshd::assign($arg[0],$item[1],@{$item[2]}) ;
+   Config::Model::OpenSsh::assign($arg[0],$item[1],@{$item[2]}) ;
 }
 
 key: /\w+/
@@ -182,7 +182,7 @@ $parser = Parse::RecDescent->new($grammar) ;
         $elt->set_checked_list (@check) ;
     }
     else {
-       die "Sshd::assign did not expect $type for $key\n";
+       die "OpenSsh::assign did not expect $type for $key\n";
     }
   }
 
@@ -299,7 +299,7 @@ sub write_node_content {
 	    }
 	}
 	else {
-	    die "Sshd::write did not expect $type for $name\n";
+	    die "OpenSsh::write did not expect $type for $name\n";
 	}
     }
 

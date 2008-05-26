@@ -1,3 +1,7 @@
+2008-05-26  Dominique Dumont
+
+	* all: changed module name from Sshd to OpenSsh
+
 2008-05-24  Dominique Dumont v0.103
 
 	* lib/Config/Model/Sshd.pm (): Added doc 

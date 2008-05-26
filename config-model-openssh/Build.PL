@@ -30,11 +30,11 @@ use strict ;
 
 my $build = Module::Build->new
   (
-   module_name   => 'Config::Model::Sshd',
+   module_name   => 'Config::Model::OpenSsh',
    license       => 'lgpl',
    dist_version  => 0.103 ,
    dist_author   => "Dominique Dumont (ddumont at cpan dot org)",
-   dist_abstract => "OpenSsh Sshd configuration editor",
+   dist_abstract => "OpenSsh configuration editor",
    script_files   => [ 'config-edit-sshd' ],
    requires      => {
 		     perl              => '5.8.0',

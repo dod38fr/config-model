@@ -4,7 +4,7 @@
             'read_config' => [
                                {
                                  'function' => 'read',
-                                 'class' => 'Config::Model::Sshd',
+                                 'class' => 'Config::Model::OpenSsh',
                                  'syntax' => 'custom'
                                }
                              ],
@@ -12,7 +12,7 @@
             'write_config' => [
                                 {
                                   'function' => 'write',
-                                  'class' => 'Config::Model::Sshd',
+                                  'class' => 'Config::Model::OpenSsh',
                                   'syntax' => 'custom'
                                 }
                               ],

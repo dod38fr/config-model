@@ -1,5 +1,5 @@
 
-Config::Model::Sshd - Sshd graphical configuration editor
+Config::Model::OpenSsh - OpenSsh graphical configuration editor
 
 This module provides a graphical configuration editor for
 /etc/ssh/sshd_config. 
@@ -35,7 +35,7 @@ are the purpose of the main files:
 - lib/Config/Model/models : directory containing Sshd model files. The
   main model is Sshd.pl. The complete sshd model is made from all
   files contained in this directory.
-- lib/Config/Model/Sshd.pm: Read and write sshd_config files
+- lib/Config/Model/OpenSsh.pm: Read and write sshd_config files
 - t/ : non-regression tests
 
 --------------------------------------------------------------------
@@ -43,12 +43,12 @@ are the purpose of the main files:
 AUTHOR
     Copyright (c) 2008 Dominique Dumont.
 
-    This file is part of Config-Model-Sshd. License is LGPL v2.
+    This file is part of Config-Model-OpenSsh. License is LGPL v2.
 
 
-    All help text provided in Sshd model were extracted from
-    sshd_config(8) man page. I've slightly modified the text to better
-    suit an interactive editor. 
+    All help text provided in OpenSsh models were extracted from
+    sshd_config(8) and ssh_config(8) man pages. I've slightly modified
+    the text to better suit an interactive editor.
 
 ---------------------------------------------------------------------
 INSTALLATION
