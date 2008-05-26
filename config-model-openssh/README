@@ -1,0 +1,63 @@
+
+Config::Model::Sshd - Sshd graphical configuration editor
+
+This module provides a graphical configuration editor for
+/etc/ssh/sshd_config. 
+
+Main dependencies:
+- Config::Model::TkUI
+- Config::Model
+
+Suggested dependencies:
+- Config::Model::CursesUI to get a curses interface for the editor
+
+Once this module is installed, you can run (as root, but please backup
+/etc/ssh/sshd_config before):
+
+  # config-edit -model Sshd
+
+You may want to try it safely first by writing the resulting sshd.conf
+elsewhere (in this case you can run this command with your user
+account):
+
+  $ config-edit -model Sshd -write_conf_dir test 
+
+If config-edit fails with your sshd.conf (See BUGS section below), you
+can try config-edit with -force option.
+
+--------------------------------------------------------------------
+MODULE CONTENT
+
+This Perl modules contains several files (listed in MANIFEST). Here
+are the purpose of the main files:
+- Build.PL : script to build the Perl module. See Module::Build(3pm)
+- data/: sample sshd_config files used with non-reg test
+- lib/Config/Model/models : directory containing Sshd model files. The
+  main model is Sshd.pl. The complete sshd model is made from all
+  files contained in this directory.
+- lib/Config/Model/Sshd.pm: Read and write sshd_config files
+- t/ : non-regression tests
+
+--------------------------------------------------------------------
+
+AUTHOR
+    Copyright (c) 2008 Dominique Dumont.
+
+    This file is part of Config-Model-Sshd. License is LGPL v2.
+
+
+    All help text provided in Sshd model were extracted from
+    sshd_config(8) man page. I've slightly modified the text to better
+    suit an interactive editor. 
+
+---------------------------------------------------------------------
+INSTALLATION
+
+   	tar zxvf <dist_file>.tar.gz 
+   	cd <dist_directory>
+   	perl Build.PL
+	./Build test
+
+If you want to install this software without packaging, type also:
+
+        ./Build install
