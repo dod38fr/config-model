@@ -1,0 +1,7 @@
+
+* Create config model from sshd_config
+
+* Create config-edit-ssh command line
+
+* Modify OpenSsh.pm to read/write ssh config files (see comments in there)
+
