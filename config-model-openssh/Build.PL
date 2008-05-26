@@ -4,7 +4,7 @@
 
 #    Copyright (c) 2008 Dominique Dumont.
 #
-#    This file is part of Config-Model-Itself.
+#    This file is part of Config-Model-OpenSsh.
 #
 #    Config-Model is free software; you can redistribute it and/or
 #    modify it under the terms of the GNU Lesser Public License as
@@ -32,9 +32,9 @@ my $build = Module::Build->new
   (
    module_name   => 'Config::Model::OpenSsh',
    license       => 'lgpl',
-   dist_version  => 0.103 ,
+   dist_version  => 0.104 ,
    dist_author   => "Dominique Dumont (ddumont at cpan dot org)",
-   dist_abstract => "OpenSsh configuration editor",
+   dist_abstract => "OpenSsh configuration files editor",
    script_files   => [ 'config-edit-sshd' ],
    requires      => {
 		     perl              => '5.8.0',

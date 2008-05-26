@@ -2,7 +2,7 @@
 Config::Model::OpenSsh - OpenSsh graphical configuration editor
 
 This module provides a graphical configuration editor for
-/etc/ssh/sshd_config. 
+/etc/ssh/sshd_config and (soon) /etc/ssh/ssh_config. 
 
 Main dependencies:
 - Config::Model::TkUI
@@ -14,16 +14,16 @@ Suggested dependencies:
 Once this module is installed, you can run (as root, but please backup
 /etc/ssh/sshd_config before):
 
-  # config-edit -model Sshd
+  # config-edit-sshd
 
 You may want to try it safely first by writing the resulting sshd.conf
 elsewhere (in this case you can run this command with your user
 account):
 
-  $ config-edit -model Sshd -write_conf_dir test 
+  $ config-edit-sshd -write_conf_dir test 
 
-If config-edit fails with your sshd.conf (See BUGS section below), you
-can try config-edit with -force option.
+If config-edit fails with your sshd.conf, you can try config-edit with
+-force option.
 
 --------------------------------------------------------------------
 MODULE CONTENT

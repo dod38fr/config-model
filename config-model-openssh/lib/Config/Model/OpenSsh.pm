@@ -39,11 +39,11 @@ my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
 =head1 NAME
 
-Config::Model::OpenSsh - OpenSsh configuration editor and model
+Config::Model::OpenSsh - OpenSsh configuration files editor
 
 =head1 SYNOPSIS
 
- # Config::Model::OpenSsh is a plugin for Config::Model. You can
+ # Config::Model::OpenSsh is a plugin for Config::Model. You can use
  # Config::Model API to modify its content
 
  use Config::Model ;
@@ -62,40 +62,62 @@ Config::Model::OpenSsh - OpenSsh configuration editor and model
 
 This module provides a configuration model for OpenSsh. Then
 Config::Model provides a graphical editor program for
-F</etc/ssh/sshd_config>. See L<config-edit-sshd> for more help.
+F</etc/ssh/sshd_config> and F</etc/ssh/ssh_config>. See
+L<config-edit-sshd> and L<config-edit-ssh> for more help.
 
 This module and Config::Model can also be used to modify safely the
-content for F</etc/ssh/sshd_config> from Perl perl.
+content for F</etc/ssh/sshd_config>, F</etc/ssh/ssh_config> or
+F<~/.ssh/config> from Perl programs.
 
 Once this module is installed, you can run (as root, but please backup
 /etc/X11/xorg.conf before):
 
+ # config-edit-sshd 
+
+Or to edit F</etc/ssh/ssh_config> configuration files:
+
+ # config-edit-ssh
+
+To edit F<~/.ssh/config>, run as a normal user:
+
+ # config-edit-ssh
+
+The Perl API is documented in L<Config::Model> and mostly in
+L<Config::Model::Node>.
+
 =head1 Functions
 
-These functions are declared in Sshd configuration model and are
+These functions are declared in OpenSsh configuration models and are
 called back.
 
-=head2 read (object => <sshd_root>, conf_dir => ...)
+=head2 sshd_read (object => <sshd_root>, conf_dir => ...)
 
 Read F<sshd_config> in C<conf_dir> and load the data in the 
 C<sshd_root> configuration tree.
 
 =cut 
 
-sub read {
+# for ssh_read:
+# if root: use /etc/ssh/ssh_config as usual
+# if normal user: load root file in "preset mode" 
+#                 load ~/.ssh/config in normal mode
+#                 write back to ~/.ssh/config
+#                 Ssh model should not specify config_dir
+
+sub sshd_read {
     my %args = @_ ;
     my $config_root = $args{object}
-      || croak __PACKAGE__," read: undefined config root object";
+      || croak __PACKAGE__," sshd_read: undefined config root object";
     my $dir = $args{conf_dir} 
-      || croak __PACKAGE__," read: undefined config dir";
+      || croak __PACKAGE__," sshd_read: undefined config dir";
 
     unless (-d $dir ) {
-	croak __PACKAGE__," read: unknown config dir $dir";
+	croak __PACKAGE__," sshd_read: unknown config dir $dir";
     }
 
     my $file = "$dir/sshd_config" ;
     unless (-r "$file") {
-	croak __PACKAGE__," read: unknown file $file";
+	croak __PACKAGE__," sshd_read: unknown file $file";
     }
 
     $logger->info("loading config file $file");
@@ -116,7 +138,7 @@ sub read {
 			   ) ;
     }
     else {
-	die __PACKAGE__," read: can't open $file:$!";
+	die __PACKAGE__," sshd_read: can't open $file:$!";
     }
 }
 
@@ -219,7 +241,7 @@ $parser = Parse::RecDescent->new($grammar) ;
   }
 }
 
-=head2 write (object => <sshd_root>, conf_dir => ...)
+=head2 sshd_write (object => <sshd_root>, conf_dir => ...)
 
 Write F<sshd_config> in C<conf_dir> from the data stored the
 C<sshd_root> configuration tree.
@@ -228,15 +250,15 @@ C<sshd_root> configuration tree.
 
 # now the write part
 
-sub write {
+sub sshd_write {
     my %args = @_ ;
     my $config_root = $args{object}
-      || croak __PACKAGE__," write: undefined config root object";
+      || croak __PACKAGE__," sshd_write: undefined config root object";
     my $dir = $args{conf_dir} 
-      || croak __PACKAGE__," write: undefined config dir";
+      || croak __PACKAGE__," sshd_write: undefined config dir";
 
     unless (-d $dir ) {
-	croak __PACKAGE__," write: unknown config dir $dir";
+	croak __PACKAGE__," sshd_write: unknown config dir $dir";
     }
 
     my $file = "$dir/sshd_config" ;
