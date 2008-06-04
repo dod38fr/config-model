@@ -3,16 +3,16 @@
             'write_config_dir' => '/etc/ssh',
             'read_config' => [
                                {
-                                 'function' => 'sshd_read',
-                                 'class' => 'Config::Model::OpenSsh',
+                                 'function' => 'read',
+                                 'class' => 'Config::Model::Sshd',
                                  'syntax' => 'custom'
                                }
                              ],
             'name' => 'Sshd',
             'write_config' => [
                                 {
-                                  'function' => 'sshd_write',
-                                  'class' => 'Config::Model::OpenSsh',
+                                  'function' => 'write',
+                                  'class' => 'Config::Model::Sshd',
                                   'syntax' => 'custom'
                                 }
                               ],
