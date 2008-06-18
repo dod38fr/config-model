@@ -59,6 +59,7 @@ Construct Tk::Widget 'ConfigModelUI';
 
 my $warn_img ;
 my $cust_img ;
+my $tool_img ;
 
 my $mod_file = 'Config/Model/TkUI.pm' ;
 $icon_path = $INC{$mod_file} ;
@@ -82,6 +83,8 @@ sub Populate {
     unless (defined $warn_img) {
 	$warn_img = $cw->Photo(-file => $icon_path.'dialog-warning.gif');
 	$cust_img = $cw->Photo(-file => $icon_path.'go-next.gif');
+	# snatched from openclip-arts-png
+	$tool_img = $cw->Photo(-file => $icon_path.'tools_nicu_buculei_01.gif');
     }
 
     foreach my $parm (qw/-root/) {
@@ -193,8 +196,9 @@ sub Populate {
     # should be a composite widget
     $cw->{e_frame} = $eh_frame -> Frame 
       -> pack (qw/-side top -fill both -expand 1/) ;
-    $cw->{e_frame} ->Label(-text => "placeholder",
-			   -width => '70',
+    $cw->{e_frame} ->Label(#-text => "placeholder",
+			   -image => $tool_img,
+			   -width => 400, # width in pixel for image
 			  ) -> pack ;
 
     # bind button3 as double-button-1 does not work
@@ -834,10 +838,13 @@ sub edit_copy {
 	my $data_ref = $tkt->infoData($selection);
 
 	my $cfg_elt = $data_ref->[1] ;
-	print "edit_copy ",$cfg_elt->location, " type ", $cfg_elt->get_type,"\n";
+	print "edit_copy '",$cfg_elt->location, 
+	      "' type '", $cfg_elt->get_type,"'\n";
+
 	push  @res, [ $cfg_elt->element_name,
 		      $cfg_elt->index_value ,
 		      $cfg_elt->composite_name,
+		      $cfg_elt->get_type,
 		      $cfg_elt->dump_as_data()] ;
     }
 
@@ -862,21 +869,23 @@ sub edit_paste {
     my $data_ref = $tkt->infoData($selection);
 
     my $cfg_elt = $data_ref->[1] ;
-    print "edit_paste ",$cfg_elt->location, " type ", $cfg_elt->get_type,"\n";
-    my $type = $cfg_elt->get_type ;
+    print "edit_paste '",$cfg_elt->location, 
+          "' type '", $cfg_elt->get_type,"'\n";
+    my $t_type = $cfg_elt->get_type ;
     my $t_name = $cfg_elt->element_name ;
     my $cut_buf = $cw->{cut_buffer} || [] ;
 
     foreach my $data (@$cut_buf) {
-	my ($name,$index,$composite,$dump) = @$data;
-	print "from '$composite'\n";
-	if ($name eq $t_name) {
+	my ($name,$index,$composite,$type, $dump) = @$data;
+	print "from composite name '$composite' type $type\n";
+	print "t_name '$t_name' t_type '$t_type'\n";
+	if ($name eq $t_name and $type eq $t_type) {
 	   $cfg_elt->load_data($dump) ;
 	}
-	elsif (($type eq 'hash' or $type eq 'list') and defined $index) {
+	elsif (($t_type eq 'hash' or $t_type eq 'list') and defined $index) {
 	    $cfg_elt->fetch_with_id($index)->load_data($dump) ;
 	}
-	elsif ($type eq 'hash' or $type eq 'list' or $type eq 'leaf') {
+	elsif ($t_type eq 'hash' or $t_type eq 'list' or $t_type eq 'leaf') {
 	    $cfg_elt->load_data($dump) ;
 	}
 	else {
@@ -959,5 +968,57 @@ Dominique Dumont, (ddumont at cpan dot org)
 
 =head1 SEE ALSO
 
+=over
+
+=item *
+
 L<Config::Model>
+
+=item *
+
+http://config-model.wiki.sourceforge.net/
+
+=item *
+
+Config::Model mailing lists on http://sourceforge.net/mail/?group_id=155650
+
+=back
+
+=head1 FEEDBACK and HELP wanted
+
+This project needs feedback from its users. Please send your
+feedbacks, comments and ideas to :
+
+  config-mode-users at lists.sourceforge.net
+
+
+This projects also needs help to improve its user interfaces:
+
+=over
+
+=item *
+
+Look and fell of Perl/Tk interface can be improved
+
+=item *
+
+A nice logo (a penguin with a wrench maybe ) would be welcomed
+
+=item *
+
+Config::Model could use a web interface
+
+=item *
+
+May be also an interface based on Gtk or Wx for better integration in
+Desktop
+
+=back
+
+If you want to help, please send a mail to:
+
+  config-mode-devel at lists.sourceforge.net
+
+=cut
+
 

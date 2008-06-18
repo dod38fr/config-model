@@ -1,3 +1,8 @@
+2008-06-18  Dominique Dumont  <dominique.dumont@hp.com>
+
+	* lib/Config/Model/TkUI.pm (Populate): Replaced "placeholder" with logo
+	(edit_copy): Bug fix that prevented copying hash elements.
+
 2008-05-07  Dominique Dumont v0.105
 
 	* lib/Config/Model/TkUI.pm (): Added Edit menu with copy and paste

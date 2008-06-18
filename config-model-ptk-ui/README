@@ -10,6 +10,28 @@ you get a graphical configuration editor for Xorg.
 
 All icons used in this application were created by Tango Desktop Project.
 They are licensed under Creative Commons Attribution Share-Alike license.
+Except tools_nicu_buculei_01.gif from OpenCliparts.
+
+-----------------------------------------------------------
+
+FEEDBACK and HELP wanted
+
+This project needs feedback from its users. Please send your
+feedbacks, comments and ideas to :
+
+  config-mode-users at lists.sourceforge.net
+
+
+This projects also needs help to improve its user interfaces:
+- Look and fell of Perl/Tk interface can be improved
+- A nice logo (a penguin with a wrench maybe ) would be welcomed
+- Config::Model could use a web interface
+- May be also an interface based on Gtk or Wx for better integration
+  in Desktop
+
+If you want to help, please send a mail to:
+
+  config-mode-devel at lists.sourceforge.net
 
 -----------------------------------------------------------
 
