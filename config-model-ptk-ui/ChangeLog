@@ -1,4 +1,4 @@
-2008-06-18  Dominique Dumont  <dominique.dumont@hp.com>
+2008-06-18  Dominique Dumont v0.201
 
 	* lib/Config/Model/TkUI.pm (Populate): Replaced "placeholder" with logo
 	(edit_copy): Bug fix that prevented copying hash elements.
