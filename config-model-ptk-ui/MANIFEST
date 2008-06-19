@@ -9,6 +9,7 @@ lib/Config/Model/Tk/icons/go-down.gif
 lib/Config/Model/Tk/icons/go-next.gif
 lib/Config/Model/Tk/icons/go-up.gif
 lib/Config/Model/Tk/icons/system-search.gif
+lib/Config/Model/Tk/icons/tools_nicu_buculei_01.gif
 lib/Config/Model/Tk/HashEditor.pm
 lib/Config/Model/Tk/HashViewer.pm
 lib/Config/Model/Tk/LeafEditor.pm
@@ -21,4 +22,5 @@ MANIFEST			This list of files
 README
 t/big_model.pm
 t/config-model-ui.t
+t/pod.t
 META.yml
