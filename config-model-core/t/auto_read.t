@@ -54,11 +54,11 @@ $model->create_config_class
    name => 'Level1',
 
    # try first to read with cds string and then custom class
-   read_config  => [ { syntax => 'cds'}, 
-		     { syntax => 'custom', class => 'Level1Read', function => 'read_it' } ],
-   write_config => [ { syntax => 'cds'},
-		     { syntax => 'perl'},
-		     { syntax => 'ini' }],
+   read_config  => [ { backend => 'cds_file'}, 
+		     { backend => 'custom', class => 'Level1Read', function => 'read_it' } ],
+   write_config => [ { backend => 'cds_file'},
+		     { backend => 'perl_file'},
+		     { backend => 'ini_file' }],
 
    read_config_dir  => $zdir,
    write_config_dir => $wr_dir,
@@ -75,14 +75,14 @@ $model->create_config_class
   (
    name => 'Master',
 
-   read_config  => [ { syntax => 'cds'},
-		     { syntax => 'perl'},
-		     { syntax => 'ini' } ,
-		     { syntax => 'custom', class => 'MasterRead', function => 'read_it' }
+   read_config  => [ { backend => 'cds_file'},
+		     { backend => 'perl_file'},
+		     { backend => 'ini_file' } ,
+		     { backend => 'custom', class => 'MasterRead', function => 'read_it' }
 		   ],
-   write_config => [ { syntax => 'cds'},
-		     { syntax => 'perl'},
-		     { syntax => 'ini' } ,
+   write_config => [ { backend => 'cds_file'},
+		     { backend => 'perl_file'},
+		     { backend => 'ini_file' } ,
 		     { class => 'MasterRead', function => 'wr_stuff'}
 		   ],
 

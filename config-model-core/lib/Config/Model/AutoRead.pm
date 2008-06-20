@@ -44,13 +44,14 @@ Config::Model::AutoRead - Load on demand base class for configuration node
   (
    config_class_name => 'OneAutoReadConfigClass',
 
-   read_config  => [ { syntax => 'cds'},
-                     { syntax => 'custom' ,
+   read_config  => [ { backend => 'cds_file'},
+                     { }
+                     { backend => 'custom' ,
                        class => 'ProcessRead' ,
                        function => 'read_it'
                      }
                    ],
-   write_config => { syntax => 'cds' } , # can be array ref also
+   write_config => { backend => 'cds_file' } , # can be array ref also
 
    config_dir  => '/etc/my_config_dir',
 
@@ -120,7 +121,7 @@ Currently, this class supports the following built-in formats:
 
 =over
 
-=item cds
+=item cds_file
 
 Config dump string. See L<Config::Model::Dumper>.
 
@@ -159,10 +160,10 @@ classes have only leaf elements.
 A configuration class will be declared with optional C<read> or
 C<write> parameters:
 
-  read_config  => [ { syntax => 'cds'} , 
-                    { syntax => 'custom', class => 'Bar' ,  function => 'read_it'},
+  read_config  => [ { backend => 'cds_file'} , 
+                    { backend => 'custom', class => 'Bar' ,  function => 'read_it'},
                   ],
-  write_config => { syntax => 'cds'},
+  write_config => { backend => 'cds_file'},
 
 The various C<read> method will be tried in order specified:
 
@@ -195,30 +196,30 @@ graceful migration from a customized format to a C<cds> format.
 
 You can choose also to read and write only customized files :
 
-  read_config  => { syntax => 'custom', class => 'Bar' ,  function => 'read_it'},
-  write_config => { syntax => 'custom', class => 'Bar' ,  function => 'write_it'};
+  read_config  => { backend => 'custom', class => 'Bar' ,  function => 'read_it'},
+  write_config => { backend => 'custom', class => 'Bar' ,  function => 'write_it'};
 
 Or to read and write only cds files :
 
-  read_config  => { syntax => 'cds'} ,
-  write_config => { syntax => 'cds'} ,
+  read_config  => { backend => 'cds_file'} ,
+  write_config => { backend => 'cds_file'} ,
 
 =begin comment
 
 To migrate from custom format to xml:
 
-  read_config  => [ { syntax => 'xml' },
-                    { syntax => 'custom', class => 'Bar' ,  function => 'read_it'} ],
-  write_config => { syntax => 'xml' },
+  read_config  => [ { backend => 'xml' },
+                    { backend => 'custom', class => 'Bar' ,  function => 'read_it'} ],
+  write_config => { backend => 'xml' },
 
 =end comment
 
 To migrate from an old format to a new format:
 
-  read_config  => [ { syntax => 'custom', class => 'OldFormat' ,  function => 'old_read'} ,
-                    { syntax => 'custom', class => 'NewFormat' ,  function => 'new_read'} 
+  read_config  => [ { backend => 'custom', class => 'OldFormat' ,  function => 'old_read'} ,
+                    { backend => 'custom', class => 'NewFormat' ,  function => 'new_read'} 
                   ],
-  write_config => [ { syntax => 'custom', class => 'NewFormat' ,  function => 'write'   } ],
+  write_config => [ { backend => 'custom', class => 'NewFormat' ,  function => 'write'   } ],
 
 =head2 read write directory
 
@@ -250,8 +251,9 @@ sub auto_read_init {
 
     my @list = ref $readlist  eq 'ARRAY' ? @$readlist :  ($readlist) ;
     foreach my $read (@list) {
-	my $syntax = $read->{syntax} ;
-	if (not defined $syntax or $syntax eq 'custom') {
+	carp $self->config_class_name," deprecated 'syntax' parameter in auto_read" if defined $read->{syntax} ;
+	my $backend = $read->{backend} || $read->{syntax};
+	if (not defined $backend or $backend eq 'custom') {
 	    my $c = my $file = $read->{class} ;
 	    $file =~ s!::!/!g;
 	    my $f = $read->{function} ;
@@ -259,22 +261,22 @@ sub auto_read_init {
 	    no strict 'refs';
 	    last if &{$c.'::'.$f}(conf_dir => $self->{r_dir}, object => $self) ;
 	}
-	elsif ($syntax eq 'xml') {
+	elsif ($backend eq 'xml') {
 	    last if $self->read_xml() ;
 	}
-	elsif ($syntax eq 'perl') {
+	elsif ($backend eq 'perl_file') {
 	    last if $self->read_perl() ;
 	}
-	elsif ($syntax eq 'ini') {
+	elsif ($backend eq 'ini_file') {
 	    last if $self->read_ini() ;
 	}
-	elsif ($syntax eq 'cds') {
-	    last if $self->read_cds() ;
+	elsif ($backend eq 'cds_file') {
+	    last if $self->read_cds_file() ;
 	}
 	else {
 	    Config::Model::Exception::Model -> throw
 		    (
-		     error=> "auto_read error: unknown syntax '$syntax'",
+		     error=> "auto_read error: unknown backend '$backend'",
 		     object => $self
 		    ) ;
 	}
@@ -296,8 +298,9 @@ sub auto_write_init {
 	print "auto_write_init: registering write cb ($write) for ",$self->name,"\n"
 	  if $::debug ;
 	my $wb ;
-	my $syntax = $write->{syntax} ;
-	if (not defined $syntax or $syntax eq 'custom') {
+	carp $self->config_class_name," deprecated 'syntax' parameter in auto_write" if defined $write->{syntax} ;
+	my $backend = $write->{backend} ;
+	if (not defined $backend or $backend eq 'custom') {
 	    my $c = my $file = $write->{class} ;
 	    $file =~ s!::!/!g;
 	    my $f = $write->{function} ;
@@ -310,26 +313,26 @@ sub auto_write_init {
 		     };
 	    $self->{auto_write}{custom} = 1 ;
 	}
-	elsif ($syntax eq 'xml') {
+	elsif ($backend eq 'xml') {
 	    $wb = sub {$self->write_xml(shift) ;} ;
 	    $self->{auto_write}{xml} = 1 ;
 	}
-	elsif ($syntax eq 'ini') {
+	elsif ($backend eq 'ini_file') {
 	    $wb = sub {$self->write_ini(shift) ;} ;
 	    $self->{auto_write}{ini} = 1 ;
 	}
-	elsif ($syntax eq 'perl') {
+	elsif ($backend eq 'perl_file') {
 	    $wb = sub {$self->write_perl(shift) ;} ;
 	    $self->{auto_write}{perl} = 1 ;
 	}
-	elsif ($syntax eq 'cds') {
-	    $wb = sub {$self->write_cds(shift) ;} ;
-	    $self->{auto_write}{cds} = 1 ;
+	elsif ($backend eq 'cds_file') {
+	    $wb = sub {$self->write_cds_file(shift) ;} ;
+	    $self->{auto_write}{cds_file} = 1 ;
 	}
 	else {
 	    Config::Model::Exception::Model -> throw
 		    (
-		     error=> "auto_write error: unknown syntax '$syntax'",
+		     error=> "auto_write error: unknown backend '$backend'",
 		     object => $self
 		    ) ;
 	}
@@ -375,7 +378,7 @@ sub get_cfg_file_name
     return $name ;
   }
 
-sub read_cds
+sub read_cds_file
   {
     my $self = shift;
     my $file_name = $self->get_cfg_file_name('r') . '.cds' ;
@@ -388,14 +391,14 @@ sub read_cds
     return 1 ;
   }
 
-sub write_cds
+sub write_cds_file
   {
     my $self = shift;
     my $wr_dir = shift ; 
 
     my $i = $self->instance ;
     my $file_name = $self->get_cfg_file_name('w',$wr_dir) . '.cds' ;
-    open (FOUT, ">$file_name") or die "_write_cds: Can't open $file_name: $!";
+    open (FOUT, ">$file_name") or die "_write_cds_file: Can't open $file_name: $!";
     print FOUT $self->dump_tree(skip_auto_write => 1 ) ;
     close FOUT ;
     return 1 ;

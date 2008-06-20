@@ -228,7 +228,7 @@ sub dump_tree {
 
         my $type = $obj -> element_type($element);
 
-        return if $skip_aw and $next->is_auto_write_for_type('cds') ;
+        return if $skip_aw and $next->is_auto_write_for_type('cds_file') ;
 
         my $pad = $compute_pad->($obj);
         $$data_r .= "\n$pad$element";

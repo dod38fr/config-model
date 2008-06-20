@@ -1,3 +1,10 @@
+2008-06-20  Dominique Dumont  <dominique.dumont@hp.com>
+
+	* lib/Config/Model/AutoRead.pm: Changed 'syntax' paramter to
+	'backend' as configuration data may be stored to files or through
+	dedicated libraries like Augeas, gconf ... Backend now can be
+	cds_file, perl_file, ini_file and custom
+
 2008-05-19  Dominique Dumont v0.623
 
 	* Build.PL: Moved from Makefile.PL to Build.PL
