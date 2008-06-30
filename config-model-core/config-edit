@@ -72,8 +72,9 @@ else {
 my $model_dir ;
 my $root_model ;
 my $trace = 0 ;
-my $read_conf_dir;
-my $wr_conf_dir ;
+my $read_root_dir;
+my $wr_root_dir ;
+my $root_dir ;
 
 =head1 NAME
 
@@ -159,17 +160,22 @@ Could be useful for a backup config data feature. To be implemented
 
 =end comment
 
-=item -write_conf_dir
+=item -write_root_dir
 
-Specify where to write the configuration files. (Actual default
-directory and file names depends on the model (See C<-model>
-option).
+Specify a pseudo root directory to write the configuration
+files. (Actual default directory and file names depends on the model
+(See C<-model> option). For instance, if you specify C<~/mytest>, the
+C</etc/ssh/sshd_config> files will be written in C<~/mytest/etc/ssh/>
+directory.
 
-=item -read_conf_dir
+=item -read_root_dir
 
-Specify where to read the configuration files. (Actual default
-directory and file names depends on the model (See C<-model>
-option).
+Specify a pseudo root to read the configuration files. (Actual default
+directory and file names depends on the model (See C<-model> option).
+
+=item -root_dir
+
+Specifies both read and write root dir at the same time.
 
 =item -verbose
 
@@ -199,7 +205,7 @@ my $dev = 0;
 my $instance_name ;
 my $experience = 'beginner' ;
 
-my $result = GetOptions ("ui|if=s"             => \$ui_type,
+my $result = GetOptions ("ui|if=s"          => \$ui_type,
 			 "model_dir=s"      => \$model_dir,
 			 "model=s"          => \$root_model,
 			 "verbose!"         => \$verbose,
@@ -211,8 +217,9 @@ my $result = GetOptions ("ui|if=s"             => \$ui_type,
 			 "help!"            => \$help,
 			 "dev!"             => \$dev,
 			 "force_load!"      => \$force_load,
-			 "read_conf_dir=s"  => \$read_conf_dir,
-			 "write_conf_dir=s" => \$wr_conf_dir ,
+			 "read_root_dir=s"  => \$read_root_dir,
+			 "write_root_dir=s" => \$wr_root_dir ,
+			 "root_dir=s"       => \$root_dir ,
 			);
 
 pod2usage(2) if not $result ;
@@ -230,8 +237,8 @@ Config::Model::Exception::Any->Trace(1) if $trace ;
 die "Unspecified root configuration model (option -model)\n"
   unless defined $root_model ;
 
-if (defined $wr_conf_dir && ! -e $wr_conf_dir) {
-    mkdir $wr_conf_dir, 0755 || die "can't create $wr_conf_dir:$!";
+if (defined $wr_root_dir && ! -e $wr_root_dir) {
+    mkdir $wr_root_dir, 0755 || die "can't create $wr_root_dir:$!";
 }
 
 my $model = Config::Model -> new(model_dir => $model_dir) ;
@@ -240,8 +247,9 @@ $instance_name = $root_model unless defined $instance_name ;
 
 my $inst = $model->instance (root_class_name => $root_model ,
 			     instance_name   => $root_model ,
-			     read_directory  => $read_conf_dir,
-                             write_directory => $wr_conf_dir,
+			     all_root_dir    => $root_dir ,
+			     read_root_dir   => $read_root_dir,
+                             write_root_dir  => $wr_root_dir,
 			     force_load      => $force_load,
 			    );
 

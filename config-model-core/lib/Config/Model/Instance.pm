@@ -59,35 +59,38 @@ This module provides an object that holds a configuration tree.
 
 =head1 CONSTRUCTOR
 
-Usually, an instance object is created by calling 
+An instance object is created by calling 
 L<instance method|Config::Model/"Configuration instance"> on 
 an existing model:
 
  my $inst = $model->instance (root_class_name => 'SomeRootClass', 
                               instance_name => 'test1');
 
-Usually, directory (or directories) holding configuration files is
+The directory (or directories) holding configuration files is
 specified within the configuration model. For test purpose you can
-specify this directory with any of these parameters :
+change the "root" directory with any of these parameters :
 
 =over
 
-=item read_directory
+=item read_root_dir
 
-Where to read the configuration files
+Pseudo root directory where to read the configuration files
 
-=item write_directory
+=item write_root_dir
 
-Where to write back the configuration files
+Pseudo root directory where to write back the configuration files
 
-=item directory
+=item root_dir
 
-Where to read I<and> write configuration files
+Pseudo root directory where to read I<and> write configuration files
 
 =back
 
 Note that C<all> directory specified within the configuration model
 will be overridden.
+
+I.e with C<< write_root_dir => '~/mytest/ >>, data read from
+C</etc/foo.conf> will be written back in C<~/mytest/etc/foo.conf>.
 
 If you need to load configuration data that are not correct, you can
 use C<< force_load => 1 >>. Then, wrong data will be discarded.
@@ -140,8 +143,8 @@ sub new {
 
 	 # used for auto_read auto_write feature
 	 name            => $args{name} ,
-	 read_directory  => $args{read_directory}  || $args{directory},
-	 write_directory => $args{write_directory} || $args{directory},
+	 read_root_dir   => $args{read_root_dir}   || $args{root_dir},
+	 write_root_dir  => $args{write_root_dir}  || $args{root_dir},
 	};
 
     weaken($self->{config_model}) ;
@@ -415,25 +418,37 @@ This feature enables you to declare with the model a way to load
 configuration data (and to write it back). See
 L<Config::Model::AutoRead> for details.
 
-=head2 read_directory()
+=head2 read_root_dir()
 
-Returns directory where configuration data is read from.
+Returns root directory where configuration data is read from.
 
 =cut
 
 sub read_directory {
-    return shift -> {read_directory} ;
+    carp "read_directory is deprecated";
+    return shift -> {read_root_dir} ;
 }
 
-=head2 write_directory()
+sub read_root_dir {
+    return shift -> {read_root_dir} ;
 
-Returns directory where configuration data is written to.
+}
+
+=head2 write_root_dir()
+
+Returns root directory where configuration data is written to.
 
 =cut
 
 sub write_directory {
     my $self = shift ;
-    return $self -> {write_directory} ;
+    carp "write_directory is deprecated";
+    return $self -> {write_root_dir} ;
+}
+
+sub write_root_dir {
+    my $self = shift ;
+    return $self -> {write_root_dir} ;
 }
 
 =head2 register_write_back ( sub_ref )
@@ -451,24 +466,37 @@ sub register_write_back {
     push @{$self->{write_back}}, $wb ;
 }
 
-=head2 write_back ( [ dir ] )
+=head2 write_back ( ... )
 
 Run all subroutines registered with C<register_write_back> to write
 the configuration informations. (See L<Config::Model::AutoRead> for
 details).
 
-You can specify a directory to override the default directory provided
-by the configuration model.
+You can specify here a pseudo root dir or another config dir to write
+configuration data back with C<root> and C<conf_dir> parameters. This
+will override the model specifications.
 
 =cut
 
 sub write_back {
     my $self = shift ;
-    my $dir  = shift ;
+    my %args = scalar @_ > 1  ? @_ 
+             : scalar @_ == 1 ? (conf_dir => $_[0]) 
+	     :                  () ; 
+
+    map {croak "write_back: wrong parameters $_" unless /^(root|conf_dir)$/ ;
+	 $args{$_} ||= '' ;
+	 $args{$_} .= '/' if $args{$_} and $args{$_} !~ m(/$) ;
+     }
+      keys %args;
+
     warn "write_back: no subs registered. cannot save" 
       unless @{$self->{write_back}} ;
-    mkpath($dir,0,0755) if defined $dir and not -d $dir ;
-    map { $_->($dir) ; } @{$self->{write_back}} ;
+
+    my $dir = $args{dir} ;
+    mkpath($dir,0,0755) if $dir and not -d $dir ;
+
+    map { $_->(%args) ; } @{$self->{write_back}} ;
 }
 
 1;

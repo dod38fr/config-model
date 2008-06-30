@@ -26,8 +26,8 @@ $model ->create_config_class
   ) ;
 
 my $inst = $model->instance (root_class_name => 'Master', 
-			     instance_name => 'test1',
-			    'directory'   => 'foobar' );
+			     instance_name   => 'test1',
+			     root_dir        => 'foobar' );
 ok($inst,"created dummy instance") ;
 
 isa_ok( $inst->config_root , 'Config::Model::Node',"test config root class" );

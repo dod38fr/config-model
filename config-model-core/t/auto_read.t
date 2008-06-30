@@ -26,11 +26,10 @@ Config::Model::Exception::Any->Trace(1) if $trace =~ /e/;
 ok(1,"compiled");
 
 # directory were input config file are read
-my $zdir = 'zero_test';
-
+my $zdir = 'zero_test/';
 
 # directory where config files are written by config-model
-my $wr_dir = 'wr_test';
+my $wr_dir = 'wr_test/';
 
 # cleanup before tests
 rmtree($wr_dir);
@@ -70,18 +69,36 @@ $model->create_config_class
 	      ]
    );
 
+$model->create_config_class 
+  (
+   name => 'SameReadWriteSpec',
+
+   # try first to read with cds string and then custom class
+   read_config  => [ { backend => 'cds_file'}, 
+		     { backend => 'custom', class => 'SameRWSpec' } ],
+
+   read_config_dir  => $zdir,
+   write_config_dir => $wr_dir,
+
+   element => [
+	       bar => { type => 'node',
+			config_class_name => 'Level2',
+		      } 
+	      ]
+   );
+
 
 $model->create_config_class 
   (
    name => 'Master',
 
-   read_config  => [ { backend => 'cds_file'},
+   read_config  => [ { backend => 'cds'},
 		     { backend => 'perl_file'},
 		     { backend => 'ini_file' } ,
 		     { backend => 'custom', class => 'MasterRead', function => 'read_it' }
 		   ],
    write_config => [ { backend => 'cds_file'},
-		     { backend => 'perl_file'},
+		     { backend => 'perl'},
 		     { backend => 'ini_file' } ,
 		     { class => 'MasterRead', function => 'wr_stuff'}
 		   ],
@@ -93,7 +110,10 @@ $model->create_config_class
 	       aa => { type => 'leaf',value_type => 'string'} ,
 	       level1 => { type => 'node',
 			   config_class_name => 'Level1',
-			 }
+			 },
+	       samerw => { type => 'node',
+			   config_class_name => 'SameReadWriteSpec',
+			 },
 	      ]
    );
 
@@ -124,6 +144,19 @@ sub read_it {
     $args{object}->load('bar X=Cv');
 }
 
+package SameRWSpec;
+
+sub read {
+    my %args = @_;
+    $result{same_rw_read} = $args{conf_dir};
+    $args{object}->load('bar Y=Cv');
+}
+
+sub write {
+    my %args = @_;
+    $result{same_rw_write} = $args{conf_dir};
+}
+
 package main;
 
 my $i_zero = $model->instance(instance_name    => 'zero_inst',
@@ -145,7 +178,14 @@ my $level1 = $master->fetch_element('level1');
 ok( $level1, "Level1 object created" );
 is( $level1->grab_value('bar X'), 'Cv', "Check level1 custom read" );
 
-is( $result{level1_read}, $zdir, "check level1 custom read conf dir" );
+is( $result{level1_read} , $zdir, "check level1 custom read conf dir" );
+
+my $same_rw = $master->fetch_element('samerw');
+
+ok( $same_rw, "SameRWSpec object created" );
+is( $same_rw->grab_value('bar Y'), 'Cv', "Check samerw custom read" );
+
+is( $result{same_rw_read}, $zdir, "check same_rw_spec custom read conf dir" );
 
 is( scalar @{ $i_zero->{write_back} }, 7, "check that write call back are present" );
 
@@ -154,25 +194,25 @@ $i_zero->write_back;
 
 # check written cds files
 foreach my $suffix (qw/cds ini pl/) {
-    map { ok( -e "$wr_dir/$_.$suffix", "check written file $_.$suffix" ); } 
+    map { ok( -e "$wr_dir$_.$suffix", "check written file $wr_dir$_.$suffix" ); } 
       ('zero_inst','zero_inst/level1') ;
 }
 
 # check called write routine
-is($result{wr_stuff},'wr_test','check custom write dir') ;
+is($result{wr_stuff},$wr_dir,'check custom write dir') ;
 is($result{wr_root_name},'Master','check custom conf root to write') ;
 
 # perform write back of dodu tree dump string in an overridden dir
-$i_zero->write_back("$wr_dir/wr_2");
+$i_zero->write_back($wr_dir.'wr_2');
 
 # check written cds files
 foreach my $suffix (qw/cds ini pl/) {
-    map { ok( -e "$wr_dir/wr_2/$_.$suffix", 
-	      "check written file $wr_dir/wr_2/$_.$suffix" ); } 
+    map { ok( -e $wr_dir."wr_2/$_.$suffix", 
+	      "check written file $ {wr_dir}/wr_2/$_.$suffix" ); } 
       ('zero_inst','zero_inst/level1') ;
 }
 
-is($result{wr_stuff},'wr_test/wr_2','check custom overridden write dir') ;
+is($result{wr_stuff},'wr_test/wr_2/','check custom overridden write dir') ;
 
 my $dump = $master->dump_tree( skip_auto_write => 1 );
 print "Master dump:\n$dump\n" if $trace;

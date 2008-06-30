@@ -552,15 +552,16 @@ sub new {
 
     $self->check_experience ;
 
-    # setup auto_read
+    # setup auto_read, read_config_dir is obsolete
     if (defined $model->{read_config}) {
 	$self->auto_read_init($model->{read_config}, 
 			      $model->{read_config_dir});
     }
 
-    # setup auto_write
+    # setup auto_write, write_config_dir is obsolete
     if (defined $model->{write_config}) {
-	$self->auto_write_init($model->{write_config}, 
+	# use read_config data if write_config is missing
+	$self->auto_write_init($model->{write_config} || $model->{read_config}, 
 			       $model->{write_config_dir});
     }
 
