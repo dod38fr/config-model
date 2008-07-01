@@ -22,10 +22,10 @@
 #define NEED_newCONSTSUB
 #include "ppport.h"
 
-#include </usr/local/include/augeas.h>
+#include <augeas.h>
 
-typedef augeas Config_Augeas ;
-typedef PerlIO *        OutputStream;
+typedef augeas   Config_Augeas ;
+typedef PerlIO*  OutputStream;
 
 MODULE = Config::Augeas PACKAGE = Config::Augeas PREFIX = aug_
 
@@ -72,10 +72,13 @@ aug_rm(Config_Augeas *aug, const char *path);
 
 void
 aug_match(Config_Augeas *aug, const char *pattern);
-    PPCODE:
+    PREINIT:
         char**  matches;
+        int i ;
+	int cnt;
+    PPCODE:
     
-        int cnt = aug_match(aug, pattern, &matches);
+        cnt = aug_match(aug, pattern, &matches);
 
         if (cnt == -1) {
             return ;
@@ -83,7 +86,6 @@ aug_match(Config_Augeas *aug, const char *pattern);
 
         // printf("match: Pattern %s matches %d times\n", pattern, cnt);
     
-        int i ;
         for (i=0; i < cnt; i++) {
             XPUSHs(sv_2mortal(newSVpv(matches[i], 0)));
             free((void*) matches[i]);
@@ -104,8 +106,10 @@ aug_save(Config_Augeas *aug);
  # See example 9 in perlxstut man page
 int
 aug_print(Config_Augeas *aug, OutputStream stream, const char* path);
+    PREINIT:
+        FILE *fp ;
     CODE:
-        FILE *fp = PerlIO_findFILE(stream);
+        fp = PerlIO_findFILE(stream);
         if (fp != (FILE*) 0) {
              RETVAL = aug_print(aug, fp, path);
          } else {

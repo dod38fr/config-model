@@ -14,11 +14,10 @@ ok(1,"Compilation done");
 my $aug_root = 'augeas-box/';
 my $lens_dir ;
 
+# work-around augeas 0.2.0. Hard-coded path will be removed
 foreach my $d ('/usr/local/share/augeas/lenses/') {
     $lens_dir = $d if -d $d;
 }
-
-#my $aug = Config::Augeas->new('/etc','/usr/local/share/augeas/lenses/', 0) ;
 
 my $aug = Config::Augeas->new( root => $aug_root, loadpath => $lens_dir ) ;
 
@@ -59,9 +58,11 @@ $ret = $aug->save ;
 ok($ret,"save done") ;
 
 $ENV{AUG_ROOT} = $aug_root;
-$ENV{AUGEAS_LENS_LIB}= $lens_dir ;
+$ENV{AUGEAS_LENS_LIB}= $lens_dir if defined $lens_dir;
 
-my $aug2 = Config::Augeas->new() ;
+# work-around: augeas 0.2.0 does not understand env variables
+# this test will fail with auges 0.2.0 installed in /usr/local
+my $aug2 = Config::Augeas->new(root => $aug_root) ;
 
 ok($aug2,"Created 2nd Augeas object");
 

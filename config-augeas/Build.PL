@@ -50,7 +50,7 @@ my $build = Module::Build->new
    extra_compiler_flags => $aug_cflags,
    extra_linker_flags   => $aug_libs,
 
-   add_to_cleanup => [qw/wr_test _build/] ,
+   add_to_cleanup => [qw!wr_test _build lib/Config/Augeas.c lib/Config/Augeas.o! ] ,
   );
 
 

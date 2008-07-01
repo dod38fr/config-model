@@ -1,0 +1,16 @@
+2008-07-01  Dominique Dumont  v0.201
+
+	* t/Config-Augeas*.t: Documented work-around Augeas 0.2.0
+	bugs. These work-around will be removed with next version of
+	Augeas.
+
+	* lib/Config/Augeas.pm: Can now work with Perl 5.8
+
+	* lib/Config/Augeas.xs: Fixed C90 compiler warning found on Rhel5.
+	Removed hardcoded path (Thanks Alan)
+
+	* README: Updated 
+
+0.01  Thu Jun 12 18:35:07 2008
+	- original version; created by h2xs 1.23 with options
+		-n Config::AugeasC /usr/local/include/augeas.h

@@ -17,12 +17,11 @@
 
 package Config::Augeas;
 
-use 5.010000;
 use strict;
 use warnings;
 use Carp;
 
-our $VERSION = '0.200';
+our $VERSION = '0.201';
 
 require XSLoader;
 XSLoader::load('Config::Augeas', $VERSION);

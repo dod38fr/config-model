@@ -1,6 +1,0 @@
-Revision history for Perl extension Config::AugeasC.
-
-0.01  Thu Jun 12 18:35:07 2008
-	- original version; created by h2xs 1.23 with options
-		-n Config::AugeasC /usr/local/include/augeas.h
-
