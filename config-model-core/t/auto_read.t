@@ -4,7 +4,7 @@
 # $Revision$
 
 use ExtUtils::testlib;
-use Test::More tests => 32;
+use Test::More tests => 35;
 use Config::Model;
 use File::Path;
 use File::Copy ;
@@ -74,11 +74,10 @@ $model->create_config_class
    name => 'SameReadWriteSpec',
 
    # try first to read with cds string and then custom class
-   read_config  => [ { backend => 'cds_file'}, 
-		     { backend => 'custom', class => 'SameRWSpec' } ],
-
-   read_config_dir  => $zdir,
-   write_config_dir => $wr_dir,
+   read_config  => [ { backend => 'cds_file', config_dir => $zdir }, 
+		     { backend => 'custom', class => 'SameRWSpec', config_dir => $zdir },
+		     { backend => 'ini_file' } 
+		   ],
 
    element => [
 	       bar => { type => 'node',
@@ -126,13 +125,13 @@ my $custom_aa = 'aa was set (custom mode)' ;
 
 sub read_it {
     my %args = @_;
-    $result{master_read} = $args{conf_dir};
+    $result{master_read} = $args{config_dir};
     $args{object}->store_element_value('aa', $custom_aa);
 }
 
 sub wr_stuff {
     my %args = @_;
-    $result{wr_stuff} = $args{conf_dir};
+    $result{wr_stuff} = $args{config_dir};
     $result{wr_root_name} = $args{object}->name ;
 }
 
@@ -140,7 +139,7 @@ package Level1Read;
 
 sub read_it {
     my %args = @_;
-    $result{level1_read} = $args{conf_dir};
+    $result{level1_read} = $args{config_dir};
     $args{object}->load('bar X=Cv');
 }
 
@@ -148,13 +147,13 @@ package SameRWSpec;
 
 sub read {
     my %args = @_;
-    $result{same_rw_read} = $args{conf_dir};
+    $result{same_rw_read} = $args{config_dir};
     $args{object}->load('bar Y=Cv');
 }
 
 sub write {
     my %args = @_;
-    $result{same_rw_write} = $args{conf_dir};
+    $result{same_rw_write} = $args{config_dir};
 }
 
 package main;
@@ -187,7 +186,8 @@ is( $same_rw->grab_value('bar Y'), 'Cv', "Check samerw custom read" );
 
 is( $result{same_rw_read}, $zdir, "check same_rw_spec custom read conf dir" );
 
-is( scalar @{ $i_zero->{write_back} }, 7, "check that write call back are present" );
+is( scalar @{ $i_zero->{write_back} }, 10, 
+    "check that write call back are present" );
 
 # perform write back of dodu tree dump string
 $i_zero->write_back;
@@ -208,18 +208,18 @@ $i_zero->write_back($wr_dir.'wr_2');
 # check written cds files
 foreach my $suffix (qw/cds ini pl/) {
     map { ok( -e $wr_dir."wr_2/$_.$suffix", 
-	      "check written file $ {wr_dir}/wr_2/$_.$suffix" ); } 
+	      "check written file $ {wr_dir}wr_2/$_.$suffix" ); } 
       ('zero_inst','zero_inst/level1') ;
 }
 
 is($result{wr_stuff},'wr_test/wr_2/','check custom overridden write dir') ;
 
-my $dump = $master->dump_tree( skip_auto_write => 1 );
+my $dump = $master->dump_tree( skip_auto_write => 'cds_file' );
 print "Master dump:\n$dump\n" if $trace;
 
 is($dump,qq!aa="$custom_aa" -\n!,"check master dump") ;
 
-$dump = $level1->dump_tree( skip_auto_write => 1 );
+$dump = $level1->dump_tree( skip_auto_write => 'cds_file' );
 print "Level1 dump:\n$dump\n" if $trace;
 is($dump,qq!  bar\n    X=Cv - -\n!,"check level1 dump") ;
 
@@ -261,7 +261,10 @@ my $expect2 = 'aa="aa was set by file"
 level1
   bar
     X=Av
-    Y=Bv - - -
+    Y=Bv - -
+samerw
+  bar
+    Y=Cv - - -
 ' ;
 is( $dump2, $expect2, "test2: check dump" );
 
@@ -278,7 +281,10 @@ ok($ini_inst,"Created instance to load ini files") ;
 my $expect_custom = 'aa="aa was set (custom mode)"
 level1
   bar
-    X=Cv - - -
+    X=Cv - -
+samerw
+  bar
+    Y=Cv - - -
 ' ;
 
 $dump = $ini_inst ->config_root->dump_tree ;

@@ -736,6 +736,20 @@ sub fetch_with_id {
     return undef ;
 }
 
+=head2 get( path,  [ custom | preset | standard | default ])
+
+Get a value from a directory like path.
+
+=cut
+
+sub get {
+    my $self = shift ;
+    my $path = shift ;
+    $path =~ s!^/!! ;
+    my ($item,$new_path) = split m!/!,$path,2 ;
+    return $self->fetch_with_id($item)->get($new_path,@_) ;
+}
+
 =head2 move ( from_index, to_index )
 
 Move an element within the hash or list.

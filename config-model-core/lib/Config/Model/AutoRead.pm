@@ -49,15 +49,14 @@ Config::Model::AutoRead - Load configuration node on demand
   (
    config_class_name => 'OneAutoReadConfigClass',
 
-   read_config  => [ { backend => 'cds_file' , dir => '/etc/cfg_dir'},
-                     { backend => 'augeas' } ,
+   read_config  => [ { backend => 'cds_file' , config_dir => '/etc/cfg_dir'},
                      { backend => 'custom' , # dir hardcoded in custom class
                        class => 'ProcessRead' 
                      }
                    ],
    # if omitted, write_config will be written using read_config specifications
    # write_confi can be array of hash ref to write several syntaxes
-   write_config => { backend => 'cds_file', dir => '/etc/cfg_dir' } ,
+   write_config => { backend => 'cds_file', config_dir => '/etc/cfg_dir' } ,
 
 
    element => ...
@@ -67,6 +66,22 @@ Config::Model::AutoRead - Load configuration node on demand
   # according to the instance name
   my $instance = $model->instance(instance_name => 'foo') ;
 
+  # use with Augeas
+  $model->create_config_class 
+  (
+   config_class_name => 'OpenSsh::Sshd',
+
+   # try Augeas and fall-back with custom method
+   read_config  => [ { backend => 'augeas' , config_file => '/etc/ssh/sshd_config'},
+                     { backend => 'custom' , # dir hardcoded in custom class
+                       class => 'Config::Model::Sshd' 
+                     }
+                   ],
+   # write_config will be written using read_config specifications
+
+
+   element => ...
+  ) ;
 
 =head1 DESCRIPTION
 
@@ -160,7 +175,7 @@ C<read> and C<write>. Then, C<MyRead::read> will be called with there
 parameters:
 
  (object => config_tree_root, root => 'filesystem root' ,
-                              conf_dir => 'config dir', )
+                              config_dir => 'config dir', )
 
 You can choose to specify yourself the read and write methods:
 
@@ -199,10 +214,10 @@ classes have only leaf elements.
 A configuration class will be declared with optional C<read> or
 C<write> parameters:
 
-  read_config  => [ { backend => 'cds_file', dir => '/etc/my_cfg/' } , 
+  read_config  => [ { backend => 'cds_file', config_dir => '/etc/my_cfg/' } , 
                     { backend => 'custom', class => 'Bar' },
                   ],
-  write_config => { backend => 'cds_file', dir => '/etc/my_cfg/' },
+  write_config => { backend => 'cds_file', config_dir => '/etc/my_cfg/' },
 
 The read backends will be tried in the specified order:
 
@@ -212,14 +227,14 @@ The read backends will be tried in the specified order:
 
 First the cds file whose name depend on the parameters used in model
 creation and instance creation:
-C<< <model:config_dir>/<instance_name>.cds >>
+C<< <model_config_dir>/<instance_name>.cds >>
 The syntax of the C<cds> file is described in  L<Config::Model::Dumper>.
 
 =item * 
 
 A call to C<Bar::read> with these parameters:
 
- (object => config_tree_root, root => 'filesystem root', conf_dir => '...')
+ (object => config_tree_root, root => 'filesystem root', config_dir => '...')
 
 =back
 
@@ -244,7 +259,7 @@ Or to read and write only cds files :
 You can also specify more paratmeters that must be passed to your
 custom class:
 
-  read_config  => { backend => 'custom', class => 'Bar', dir => '/etc/foo'},
+  read_config  => { backend => 'custom', class => 'Bar', config_dir => '/etc/foo'},
 
 =begin comment
 
@@ -266,7 +281,7 @@ To migrate from an old format to a new format:
 =head2 read write directory
 
 By default, configurations files are read from the directory specified
-by C<dir> parameter specified in the model. You may override the
+by C<config_dir> parameter specified in the model. You may override the
 C<root> directory for test.
 
 =cut
@@ -301,7 +316,7 @@ sub auto_read_init {
 	    $backend .= "_file" ;
 	}
 
-	my $read_dir = delete $read->{dir} || $r_dir || ''; # r_dir obsolete
+	my $read_dir = delete $read->{config_dir} || $r_dir || ''; # r_dir obsolete
 	$read_dir .= '/' if $read_dir and $read_dir !~ m(/$) ; 
 
 	if ($backend eq 'custom') {
@@ -313,22 +328,22 @@ sub auto_read_init {
 	    print "Read data with $ {c}::$f\n" if $::verbose;
 
 	    last if &{$c.'::'.$f}(%$read, root => $root_dir, 
-				   conf_dir => $read_dir, object => $self) ;
+				   config_dir => $read_dir, object => $self) ;
 	}
 	elsif ($backend =~ /^augeas$/i) {
-	    last if $self->read_augeas(root => $root_dir, conf_dir => $read_dir) ;
+	    last if $self->read_augeas(root => $root_dir, config_dir => $read_dir) ;
 	}
 	elsif ($backend eq 'xml') {
-	    last if $self->read_xml(root => $root_dir, conf_dir => $read_dir) ;
+	    last if $self->read_xml(root => $root_dir, config_dir => $read_dir) ;
 	}
 	elsif ($backend eq 'perl_file') {
-	    last if $self->read_perl(root => $root_dir, conf_dir => $read_dir) ;
+	    last if $self->read_perl(root => $root_dir, config_dir => $read_dir) ;
 	}
 	elsif ($backend eq 'ini_file') {
-	    last if $self->read_ini(root => $root_dir, conf_dir => $read_dir) ;
+	    last if $self->read_ini(root => $root_dir, config_dir => $read_dir) ;
 	}
 	elsif ($backend eq 'cds_file') {
-	    last if $self->read_cds_file(root => $root_dir, conf_dir => $read_dir) ;
+	    last if $self->read_cds_file(root => $root_dir, config_dir => $read_dir) ;
 	}
 	else {
 	    Config::Model::Exception::Model -> throw
@@ -367,10 +382,10 @@ sub auto_write_init {
 	      " deprecated auto_read backend $backend. Should be '$ {backend}_file'\n";
 	    $backend .= "_file" ;
 	}
-	my $write_dir = delete $write->{dir} || $w_dir || ''; # w_dir obsolete
+	my $write_dir = delete $write->{config_dir} || $w_dir || ''; # w_dir obsolete
 
 	print "auto_write_init: registering write cb ($write) for ",$self->name,"\n"
-	  if $::debug ;
+	  if $::verbose ;
 
 	my $wb ;
 	if ($backend eq 'custom') {
@@ -383,7 +398,7 @@ sub auto_write_init {
 			 # override needed for "save as" button
 			 &{$c.'::'.$f}(%$write,                # model data
 				       root => $root_dir,      #override from instance
-				       conf_dir => $write_dir, #override from instance
+				       config_dir => $write_dir, #override from instance
 				       object => $safe_self, 
 				       @_                      # override from use
 				      ) ;
@@ -392,28 +407,28 @@ sub auto_write_init {
 	}
 	elsif ($backend eq 'xml') {
 	    $wb = sub {$self->write_xml(root => $root_dir, 
-					conf_dir =>  $write_dir, @_
+					config_dir =>  $write_dir, @_
 				       ) ;
 		   } ;
 	    $self->{auto_write}{xml} = 1 ;
 	}
 	elsif ($backend eq 'ini_file') {
 	    $wb = sub {$self->write_ini(root => $root_dir, 
-					conf_dir => $write_dir, @_
+					config_dir => $write_dir, @_
 				       ) ;
 		   } ;
-	    $self->{auto_write}{ini} = 1 ;
+	    $self->{auto_write}{ini_file} = 1 ;
 	}
 	elsif ($backend eq 'perl_file') {
 	    $wb = sub {$self->write_perl(root => $root_dir, 
-					 conf_dir => $write_dir,  @_
+					 config_dir => $write_dir,  @_
 					) ;
 		   } ;
-	    $self->{auto_write}{perl} = 1 ;
+	    $self->{auto_write}{perl_file} = 1 ;
 	}
 	elsif ($backend eq 'cds_file') {
 	    $wb = sub {$self->write_cds_file(root => $root_dir, 
-					     conf_dir => $write_dir, @_,
+					     config_dir => $write_dir, @_,
 					    ) ;
 		   } ;
 	    $self->{auto_write}{cds_file} = 1 ;
@@ -439,7 +454,7 @@ sub is_auto_write_for_type {
 sub get_cfg_file_name {
     my $self = shift ; 
     my %args = @_;
-    my $dir = $args{root}.$args{conf_dir} ;
+    my $dir = $args{root}.$args{config_dir} ;
     my $w = $args{write} || 0 ;
 
     my $i = $self->instance ;
@@ -483,7 +498,7 @@ sub write_cds_file {
 
     print "Write cds data to $file_name\n" if $::verbose;
     open (FOUT, ">$file_name") or die "_write_cds_file: Can't open $file_name: $!";
-    print FOUT $self->dump_tree(skip_auto_write => 1 ) ;
+    print FOUT $self->dump_tree(skip_auto_write => 'cds_file' ) ;
     close FOUT ;
     return 1 ;
 }
@@ -505,7 +520,7 @@ sub write_perl {
     my $i = $self->instance ;
     my $file_name = $self->get_cfg_file_name(write => 1,@_) . '.pl' ;
 
-    my $p_data = $self->dump_as_data(skip_auto_write => 1 ) ;
+    my $p_data = $self->dump_as_data(skip_auto_write => 'perl_file' ) ;
 
     my $dumper = Data::Dumper->new([$p_data]) ;
     $dumper->Terse(1) ;
@@ -547,7 +562,7 @@ sub write_ini {
     require Config::Tiny;
     my $iniconf = Config::Tiny->new() ;
 
-    my $data = $self->dump_as_data(skip_auto_write => 1 ) ;
+    my $data = $self->dump_as_data(skip_auto_write => 'ini_file' ) ;
 
     foreach my $k (keys %$data) {
 	if (ref( $data->{$k} )) {
@@ -555,6 +570,22 @@ sub write_ini {
 	}
 	else {
 	    $iniconf->{_}{$k} = $data->{$k} ;
+	}
+    }
+
+    # check that iniconf structure is not too complex
+    foreach my $class_name (keys %$iniconf) {
+	my $class = $iniconf->{$class_name} ;
+	foreach my $k (keys %$class) {
+	    next unless ref $class->{$k} ;
+	    Config::Model::Exception::Model -> throw
+		    (
+		     error=> "write_ini error: class '$class_name' key '$k' data "
+		           . "is not a scalar but '$class->{$k}'. You should setup "
+		           . "write_config parameter in '$class_name' model "
+		           . "to write '$k' data in its own INI file",
+		     object => $self
+		    ) ;
 	}
     }
 
@@ -579,16 +610,28 @@ my $augeas_obj ;
 sub read_augeas
   {
     my $self = shift;
-# not good, call changed
+    my %args = @_ ; # contains root and config_dir
     return 0 unless $has_augeas ;
 
-#    $augeas_obj ||= Config::Augeas->new ; # FIXME new root ?? test ??
+    print "Read config data from Augeas\n" if $::verbose;
 
-#    my $file_name = '/files' . $self->get_cfg_file_name('w',$wr_dir) ;
-    
+    $augeas_obj ||= Config::Augeas->new(root => $args{root} ) ;
 
+    if (not defined $args{config_file}) {
+	Config::Model::Exception::Model -> throw
+	    (
+	     error=> "read_augeas error: model "
+	     . "does not specify 'config_file' for Augeas ",
+	     object => $self
+	    ) ;
+    }
 
-#    $self->load_data($conf_data) ;
+    my @found = $augeas_obj -> match('/files/'.$args{config_file}) ;
+    foreach my $path (@found) {
+	# get object
+	# set value
+    }
+    #$self->load_data($conf_data) ;
 
     return 1 ;
   }

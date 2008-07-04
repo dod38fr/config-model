@@ -691,6 +691,25 @@ sub fetch_preset {
     return join (',', $self->get_checked_list('preset'));
 }
 
+=head2 get( path  [, custom | preset | standard | default ])
+
+Get a value from a directory like path.
+
+=cut
+
+sub get {
+    my $self = shift ;
+    my $path = shift ;
+    if ($path) {
+	Config::Model::Exception::User
+	    -> throw (
+		      object => $self,
+		      message => "get() called with a value with non-empty path: '$path'"
+		     ) ;
+    }
+    return $self->fetch(@_) ;
+}
+
 =head2 set_checked_list ( item1, item2, ..)
 
 Set all passed items to checked (1). All other available items

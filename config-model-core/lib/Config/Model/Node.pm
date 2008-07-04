@@ -552,16 +552,18 @@ sub new {
 
     $self->check_experience ;
 
-    # setup auto_read, read_config_dir is obsolete
     if (defined $model->{read_config}) {
+	# setup auto_read, read_config_dir is obsolete
 	$self->auto_read_init($model->{read_config}, 
 			      $model->{read_config_dir});
     }
 
-    # setup auto_write, write_config_dir is obsolete
-    if (defined $model->{write_config}) {
-	# use read_config data if write_config is missing
-	$self->auto_write_init($model->{write_config} || $model->{read_config}, 
+    # use read_config data if write_config is missing
+    $model->{write_config} ||= dclone $model->{read_config} 
+      if defined $model->{read_config};
+    if ($model->{write_config}) {
+	# setup auto_write, write_config_dir is obsolete
+	$self->auto_write_init($model->{write_config},
 			       $model->{write_config_dir});
     }
 
@@ -1140,6 +1142,20 @@ See L<Config::Model::AnyThing/"grab_value(...)">.
 =head2 grab_root()
 
 See L<Config::Model::AnyThing/"grab_root()">.
+
+=head2 get( path  [ custom | preset | standard | default ])
+
+Get a value from a directory like path.
+
+=cut
+
+sub get {
+    my $self = shift ;
+    my $path = shift ;
+    $path =~ s!^/!! ;
+    my ($item,$new_path) = split m!/!,$path,2 ;
+    return $self->fetch_element($item)->get($new_path,@_) ;
+}
 
 =head1 Serialisation
 

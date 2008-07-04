@@ -473,7 +473,7 @@ the configuration informations. (See L<Config::Model::AutoRead> for
 details).
 
 You can specify here a pseudo root dir or another config dir to write
-configuration data back with C<root> and C<conf_dir> parameters. This
+configuration data back with C<root> and C<config_dir> parameters. This
 will override the model specifications.
 
 =cut
@@ -481,10 +481,10 @@ will override the model specifications.
 sub write_back {
     my $self = shift ;
     my %args = scalar @_ > 1  ? @_ 
-             : scalar @_ == 1 ? (conf_dir => $_[0]) 
+             : scalar @_ == 1 ? (config_dir => $_[0]) 
 	     :                  () ; 
 
-    map {croak "write_back: wrong parameters $_" unless /^(root|conf_dir)$/ ;
+    map {croak "write_back: wrong parameters $_" unless /^(root|config_dir)$/ ;
 	 $args{$_} ||= '' ;
 	 $args{$_} .= '/' if $args{$_} and $args{$_} !~ m(/$) ;
      }

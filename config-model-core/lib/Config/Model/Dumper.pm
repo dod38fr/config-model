@@ -140,7 +140,7 @@ sub dump_tree {
 
     my %args = @_;
     my $full = delete $args{full_dump} || 0;
-    my $skip_aw = delete $args{skip_auto_write} || 0 ;
+    my $skip_aw = delete $args{skip_auto_write} || '' ;
     my $auto_v  = delete $args{auto_vivify}     || 0 ;
     my $mode = delete $args{mode} || '';
     if ($mode and $mode ne 'full' and $mode ne 'preset') {
@@ -228,7 +228,7 @@ sub dump_tree {
 
         my $type = $obj -> element_type($element);
 
-        return if $skip_aw and $next->is_auto_write_for_type('cds_file') ;
+        return if $skip_aw and $next->is_auto_write_for_type($skip_aw) ;
 
         my $pad = $compute_pad->($obj);
         $$data_r .= "\n$pad$element";

@@ -118,7 +118,7 @@ sub dump_as_data {
       || croak "dumpribe: missing 'node' parameter";
     my $full = delete $args{full_dump} ;
     $full = 1 unless defined $full ;
-    my $skip_aw = delete $args{skip_auto_write} || 0 ;
+    my $skip_aw = delete $args{skip_auto_write} || '' ;
     my $auto_v  = delete $args{auto_vivify}     || 0 ;
 
     my $std_cb = sub {
@@ -185,7 +185,7 @@ sub dump_as_data {
     my $node_element_cb = sub {
 	my ($scanner, $data_ref,$node,$element_name,$key, $next) = @_ ;
 
-	return if $skip_aw and $next->is_auto_write_for_type('perl') ;
+	return if $skip_aw and $next->is_auto_write_for_type($skip_aw) ;
 
 	$scanner->scan_node($data_ref,$next);
     } ;

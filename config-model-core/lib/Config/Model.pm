@@ -1497,7 +1497,7 @@ L<Config::Model::Value> <- L<Config::Model::WarpedThing> <- L<Config::Model::Any
 
 =item *
 
-L<Config::Model::CheckList> <- L<Config::Model::ListId> <- L<Config::Model::WarpedThing> <- L<Config::Model::AnyThing> 
+L<Config::Model::CheckList> <- L<Config::Model::WarpedThing> <- L<Config::Model::AnyThing> 
 
 =item *
 

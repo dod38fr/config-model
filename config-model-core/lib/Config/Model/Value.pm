@@ -1461,6 +1461,25 @@ sub fetch_preset {
 }
 
 
+=head2 get( path , [ custom | preset | standard | default ])
+
+Get a value from a directory like path.
+
+=cut
+
+sub get {
+    my $self = shift ;
+    my $path = shift ;
+    if ($path) {
+	Config::Model::Exception::User
+	    -> throw (
+		      object => $self,
+		      message => "get() called with a value with non-empty path: '$path'"
+		     ) ;
+    }
+    return $self->fetch(@_) ;
+}
+
 #These methods are important when this leaf value is used as a warp
 #master, or a variable in a compute formula.
 
