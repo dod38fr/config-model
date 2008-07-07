@@ -342,7 +342,7 @@ my @allowed_warp_params = (@common_params,qw/experience level/) ;
 
 # this method can be called by the warp mechanism to alter (warp) the
 # feature of the Id object.
-sub set {
+sub set_properties {
     my $self= shift;
 
     # mega cleanup
@@ -350,7 +350,7 @@ sub set {
 
     my %args = (%{$self->{backup}},@_) ;
 
-    print $self->name," set called with @_\n" if $::debug;
+    print $self->name," set_properties called with @_\n" if $::debug;
 
     map { $self->{$_} =  delete $args{$_} if defined $args{$_} }
       @common_params ;
@@ -591,7 +591,7 @@ sub handle_args {
 
     %{$self->{backup}}  = %args ;
 
-    $self->set(%args) if defined $self->{index_type} ;
+    $self->set_properties(%args) if defined $self->{index_type} ;
 
     if (defined $warp_info) {
 	$self->check_warp_args( \@allowed_warp_params, $warp_info) ;
@@ -748,6 +748,20 @@ sub get {
     $path =~ s!^/!! ;
     my ($item,$new_path) = split m!/!,$path,2 ;
     return $self->fetch_with_id($item)->get($new_path,@_) ;
+}
+
+=head2 set( path, value )
+
+Set a value with a directory like path.
+
+=cut
+
+sub set {
+    my $self = shift ;
+    my $path = shift ;
+    $path =~ s!^/!! ;
+    my ($item,$new_path) = split m!/!,$path,2 ;
+    return $self->fetch_with_id($item)->set($new_path,@_) ;
 }
 
 =head2 move ( from_index, to_index )

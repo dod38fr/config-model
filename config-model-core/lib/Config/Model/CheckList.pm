@@ -121,7 +121,7 @@ sub new {
 
     $self->{backup}  = \%args ;
 
-    $self->set() ; # set will use backup data
+    $self->set_properties() ; # set will use backup data
 
     if (defined $warp_info) {
 	$self->check_warp_args( \@allowed_warp_params, $warp_info) ;
@@ -268,7 +268,7 @@ foreach my $datum (@accessible_params, qw/refer_to computed_refer_to/) {
 # warning : call to 'set' are not cumulative. Default value are always
 # restored. Lest keeping track of what was modified with 'set' is
 # too hard for the user.
-sub set {
+sub set_properties {
     my $self = shift ;
 
     # cleanup all parameters that are handled by warp
@@ -708,6 +708,25 @@ sub get {
 		     ) ;
     }
     return $self->fetch(@_) ;
+}
+
+=head2 set( path , value )
+
+Set a value with a directory like path.
+
+=cut
+
+sub set {
+    my $self = shift ;
+    my $path = shift ;
+    if ($path) {
+	Config::Model::Exception::User
+	    -> throw (
+		      object => $self,
+		      message => "set() called with a value with non-empty path: '$path'"
+		     ) ;
+    }
+    return $self->store_set(@_) ;
 }
 
 =head2 set_checked_list ( item1, item2, ..)

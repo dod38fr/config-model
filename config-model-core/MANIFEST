@@ -52,6 +52,7 @@ t/load.t
 t/multi_warp_object.t
 t/multi_warp_value.t
 t/node.t
+t/node_get_set.t
 t/obj_tree_scanner.t
 t/pod.t
 t/recursive_warp_value.t

@@ -628,6 +628,7 @@ sub read_augeas
 
     my @found = $augeas_obj -> match('/files/'.$args{config_file}) ;
     foreach my $path (@found) {
+	$args{root}->set($path) ;
 	# get object
 	# set value
     }

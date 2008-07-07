@@ -98,10 +98,10 @@ from L<Config::Model::AnyId>.
 
 =cut
 
-sub set {
+sub set_properties {
     my $self = shift ;
 
-    $self->SUPER::set(@_) ;
+    $self->SUPER::set_properties(@_) ;
 
     my $idx_type = $self->{index_type} ;
 
@@ -123,7 +123,7 @@ sub set {
     # warp mechanism
     foreach my $k (sort keys %$data) {
 	next unless $wrong->($k) ;
-	print "set: ",$self->name," deleting id $k\n" if $::debug ;
+	print "set_properties: ",$self->name," deleting id $k\n" if $::debug ;
 	delete $data->{$k}  ;
     }
 }

@@ -464,7 +464,7 @@ sub new {
 
     $self->{backup}  = \%args ;
 
-    $self->set() ; # set will use backup data
+    $self->set_properties() ; # set will use backup data
 
     if (defined $warp_info) {
 	$self->check_warp_args( \@allowed_warp_params, $warp_info) ;
@@ -480,16 +480,16 @@ sub new {
 # warning : call to 'set' are not cumulative. Default value are always
 # restored. Lest keeping track of what was modified with 'set' is
 # too confusing.
-sub set {
+sub set_properties {
     my $self = shift ;
 
     # cleanup all parameters that are handled by warp
     map(delete $self->{$_}, @allowed_warp_params ) ;
 
-    # merge data passed to the constructor with data passed to set
+    # merge data passed to the constructor with data passed to set_properties
     my %args = (%{$self->{backup}},@_ );
 
-    print "'".$self->name."' set called with \n",
+    print "'".$self->name."' set_properties called with \n",
       Data::Dumper->Dump([\%args], ['set_arg'])
 	  if $::debug ;
 
@@ -1478,6 +1478,25 @@ sub get {
 		     ) ;
     }
     return $self->fetch(@_) ;
+}
+
+=head2 set( path , value )
+
+Set a value from a directory like path.
+
+=cut
+
+sub set {
+    my $self = shift ;
+    my $path = shift ;
+    if ($path) {
+	Config::Model::Exception::User
+	    -> throw (
+		      object => $self,
+		      message => "set() called with a value with non-empty path: '$path'"
+		     ) ;
+    }
+    return $self->store(@_) ;
 }
 
 #These methods are important when this leaf value is used as a warp

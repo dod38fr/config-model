@@ -1157,6 +1157,20 @@ sub get {
     return $self->fetch_element($item)->get($new_path,@_) ;
 }
 
+=head2 set( path  , value)
+
+Set a value from a directory like path.
+
+=cut
+
+sub set {
+    my $self = shift ;
+    my $path = shift ;
+    $path =~ s!^/!! ;
+    my ($item,$new_path) = split m!/!,$path,2 ;
+    return $self->fetch_element($item)->set($new_path,@_) ;
+}
+
 =head1 Serialisation
 
 =head2 load ( step => string [, experience => ... ] )

@@ -222,19 +222,19 @@ is( $de->value_type, 'enum',"enum: check value_type" );
 
 eq_array( $de->choice , [qw/A B C/],"enum: check choice"  );
 
-ok( $de->set( default => 'B' ), "enum: warping default value" );
+ok( $de->set_properties( default => 'B' ), "enum: warping default value" );
 is( $de->default(), 'B',"enum: check new default value" );
 
-eval { $de->set( default => 'F' ) } ;
+eval { $de->set_properties( default => 'F' ) } ;
 ok($@,"enum: warped default value to wrong value") ;
 print "normal error:\n", $@, "\n" if $trace;
 
-ok( $de->set( choice => [qw/A B C D/] ),"enum: warping choice" );
+ok( $de->set_properties( choice => [qw/A B C D/] ),"enum: warping choice" );
 
-ok( $de->set( choice => [qw/A B C D/], default => 'D' ), 
+ok( $de->set_properties( choice => [qw/A B C D/], default => 'D' ), 
     "enum: warping default value to new choice" );
 
-ok( $de->set( choice => [qw/F G H/], default => undef ),
+ok( $de->set_properties( choice => [qw/F G H/], default => undef ),
   "enum: warping choice to completely different set");
 
 is( $de->default(), undef, "enum: check that new default value is undef" );

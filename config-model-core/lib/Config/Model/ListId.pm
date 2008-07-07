@@ -98,10 +98,10 @@ from L<Config::Model::AnyId>.
 
 =cut
 
-sub set {
+sub set_properties {
     my $self = shift ;
 
-    $self->SUPER::set(@_) ;
+    $self->SUPER::set_properties(@_) ;
 
     # remove unwanted items
     my $data = $self->{data} ;
@@ -112,7 +112,7 @@ sub set {
     # warp mechanism
     foreach my $k (0 .. $#{$data}) {
 	next unless  $k >  $self->{max};
-	print "set: ",$self->name," deleting index $k\n" if $::debug ;
+	print "set_properties: ",$self->name," deleting index $k\n" if $::debug ;
 	delete $data->[$k] ;
     }
 }

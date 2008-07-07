@@ -449,10 +449,10 @@ sub _do_warp {
             "\twarp rule is ", (defined $found_rule ? "" : 'not ') , "found\n";
     }
 
-    print "warp_them: call set on '",$self->name,"'\n" 
+    print "warp_them: call set_properties on '",$self->name,"'\n" 
       if $::debug;
 
-    $self->set(%$found_rule) ;
+    $self->set_properties(%$found_rule) ;
 }
 
 sub get_master_object {
