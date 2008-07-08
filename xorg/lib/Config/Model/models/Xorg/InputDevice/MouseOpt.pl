@@ -34,7 +34,7 @@
 			   },
       'Protocol'        => { type   => 'leaf',
 			     value_type => 'enum',
-			     choice => [qw!ImPS/2 IntelliMouse!] ,
+			     choice => [qw!auto ImPS/2 IntelliMouse!] ,
 			   },
       'Emulate3Buttons' => { type       => 'leaf',
 			     value_type => 'boolean',
