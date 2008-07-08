@@ -29,6 +29,7 @@ use Carp ;
 use IO::File ;
 use Log::Log4perl;
 use File::Copy ;
+use File::Path ;
 
 use Parse::RecDescent ;
 use vars qw($VERSION $grammar $parser) ;
@@ -108,8 +109,7 @@ sub sshd_read {
     my %args = @_ ;
     my $config_root = $args{object}
       || croak __PACKAGE__," sshd_read: undefined config root object";
-    my $dir = $args{conf_dir} 
-      || croak __PACKAGE__," sshd_read: undefined config dir";
+    my $dir = $args{root}.$args{config_dir} ;
 
     unless (-d $dir ) {
 	croak __PACKAGE__," sshd_read: unknown config dir $dir";
@@ -254,12 +254,9 @@ sub sshd_write {
     my %args = @_ ;
     my $config_root = $args{object}
       || croak __PACKAGE__," sshd_write: undefined config root object";
-    my $dir = $args{conf_dir} 
-      || croak __PACKAGE__," sshd_write: undefined config dir";
+    my $dir = $args{root}.$args{config_dir} ;
 
-    unless (-d $dir ) {
-	croak __PACKAGE__," sshd_write: unknown config dir $dir";
-    }
+    mkpath($dir, {mode => 0755} )  unless -d $dir ;
 
     my $file = "$dir/sshd_config" ;
     if (-r "$file") {

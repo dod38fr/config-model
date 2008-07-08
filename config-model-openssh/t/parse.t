@@ -4,7 +4,7 @@
 # $Revision: 608 $
 
 use ExtUtils::testlib;
-use Test::More tests => 5;
+use Test::More tests => 9;
 use Config::Model ;
 use Log::Log4perl qw(:easy) ;
 
@@ -48,8 +48,8 @@ foreach my $testdir (readdir(TDIR)) {
 
     my $inst = $model->instance (root_class_name   => 'Sshd',
 				 instance_name     => 'sshd_instance',
-				 'read_directory'  => "data/$testdir",
-				 'write_directory' => $wr_dir,
+				 read_root_dir     => "data/$testdir",
+				 write_root_dir    => $wr_dir,
 				);
 
     ok($inst,"Read sshd.conf and created instance") ;
@@ -61,13 +61,13 @@ foreach my $testdir (readdir(TDIR)) {
 
     like($dump,qr/Match:0/, "check Match section") ;
 
-    $inst->write_back($wr_dir) ;
+    $inst->write_back() ;
     ok(1,"wrote data in $wr_dir") ;
 
     my $inst2 = $model->instance (root_class_name   => 'Sshd',
 				  instance_name     => 'sshd_instance2',
-				  'read_directory'  => $wr_dir,
-				  'write_directory' => $wr_dir.'2',
+				  read_root_dir     => $wr_dir,
+				  write_root_dir    => $wr_dir.'2',
                             );
 
     my $root2 = $inst2 -> config_root ;
