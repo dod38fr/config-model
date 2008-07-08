@@ -300,7 +300,7 @@ sub auto_read_init {
 
     # root override is passed by the instance
     my $root_dir = $instance -> read_root_dir || '';
-    $root_dir .= '/' if $root_dir and $root_dir != m(/$) ; 
+    $root_dir .= '/' if $root_dir and $root_dir !~ m(/$) ; 
 
     croak "auto_read_init: readlist must be array or hash ref\n" 
       unless ref $readlist ;
@@ -328,6 +328,7 @@ sub auto_read_init {
 	    print "Read data with $ {c}::$f\n" if $::verbose;
 
 	    last if &{$c.'::'.$f}(%$read, root => $root_dir, 
+				  conf_dir => $read_dir, # legacy FIXME
 				   config_dir => $read_dir, object => $self) ;
 	}
 	elsif ($backend =~ /^augeas$/i) {
@@ -399,6 +400,7 @@ sub auto_write_init {
 			 &{$c.'::'.$f}(%$write,                # model data
 				       root => $root_dir,      #override from instance
 				       config_dir => $write_dir, #override from instance
+				       conf_dir => $write_dir, # legacy FIXME
 				       object => $safe_self, 
 				       @_                      # override from use
 				      ) ;

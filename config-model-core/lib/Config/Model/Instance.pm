@@ -147,6 +147,9 @@ sub new {
 	 write_root_dir  => $args{write_root_dir}  || $args{root_dir},
 	};
 
+    map { $self->{$_} .= '/' if defined $self->{$_} and $self->{$_} !~ m!/$!}
+      qw/read_root_dir write_root_dir/;
+
     weaken($self->{config_model}) ;
 
     bless $self, $class;
