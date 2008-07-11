@@ -679,6 +679,9 @@ sub read_augeas
 
     return 1 ;
   }
+
+# FIXME: deal with deleted entries while writing file through Augeas .... Ouch
+
 1;
 
 __END__
