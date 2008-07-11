@@ -58,5 +58,5 @@ is( $inst->data('test'),undef,"test empty private data ..." );
 is( $inst->data( 'test', 'coucou' ), 'coucou', "store private data" );
 is( $inst->data( 'test'), 'coucou', "retrieve private data" );
 
-is( $inst->read_directory,  'foobar', "test read directory") ;
-is( $inst->write_directory, 'foobar', "test write directory") ;
+is( $inst->read_directory,  'foobar/', "test read directory") ;
+is( $inst->write_directory, 'foobar/', "test write directory") ;

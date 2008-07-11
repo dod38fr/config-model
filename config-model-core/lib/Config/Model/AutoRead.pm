@@ -332,7 +332,10 @@ sub auto_read_init {
 				   config_dir => $read_dir, object => $self) ;
 	}
 	elsif ($backend =~ /^augeas$/i) {
-	    last if $self->read_augeas(root => $root_dir, config_dir => $read_dir) ;
+	    last if $self->read_augeas(root => $root_dir, 
+				       config_dir => $read_dir,
+				       %$read,
+				      ) ;
 	}
 	elsif ($backend eq 'xml') {
 	    last if $self->read_xml(root => $root_dir, config_dir => $read_dir) ;
@@ -384,6 +387,7 @@ sub auto_write_init {
 	    $backend .= "_file" ;
 	}
 	my $write_dir = delete $write->{config_dir} || $w_dir || ''; # w_dir obsolete
+	$write_dir .= '/' if $write_dir and $write_dir !~ m(/$) ; 
 
 	print "auto_write_init: registering write cb ($write) for ",$self->name,"\n"
 	  if $::verbose ;
@@ -395,17 +399,26 @@ sub auto_write_init {
 	    my $f = $write->{function} || 'write' ;
 	    require $file.'.pm' unless $c->can($f) ;
 	    my $safe_self = $self ; # provide a closure
-	    $wb = sub {  no strict 'refs';
-			 # override needed for "save as" button
-			 &{$c.'::'.$f}(%$write,                # model data
-				       root => $root_dir,      #override from instance
-				       config_dir => $write_dir, #override from instance
-				       conf_dir => $write_dir, # legacy FIXME
-				       object => $safe_self, 
-				       @_                      # override from use
-				      ) ;
-		     };
+	    $wb = sub 
+	      {  no strict 'refs';
+		 # override needed for "save as" button
+		 &{$c.'::'.$f}(%$write,                # model data
+			       root => $root_dir,      #override from instance
+			       config_dir => $write_dir, #override from instance
+			       conf_dir => $write_dir, # legacy FIXME
+			       object => $safe_self, 
+			       @_                      # override from use
+			      ) ;
+	     };
 	    $self->{auto_write}{custom} = 1 ;
+	}
+	elsif ($backend eq 'augeas') {
+	    $wb = sub {$self->write_augeas(root => $root_dir, 
+					   config_dir =>  $write_dir, 
+					   %$write, @_
+					  ) ;
+		   } ;
+	    $self->{auto_write}{xml} = 1 ;
 	}
 	elsif ($backend eq 'xml') {
 	    $wb = sub {$self->write_xml(root => $root_dir, 
@@ -628,13 +641,41 @@ sub read_augeas
 	    ) ;
     }
 
-    my @found = $augeas_obj -> match('/files/'.$args{config_file}) ;
-    foreach my $path (@found) {
-	$args{root}->set($path) ;
-	# get object
-	# set value
+    # work around Augeas feature where '*' matches only one hierarchy
+    # level 
+    # See https://www.redhat.com/archives/augeas-devel/2008-July/msg00016.html
+    my $mainpath = '/files'.$args{config_file} ;
+    my @worklist = ( $mainpath );
+    print "read-augeas on @worklist\n" if $::debug ;
+    my @result ;
+    while (@worklist) {
+	my $p = pop @worklist ;
+	my @newpath = $augeas_obj -> match($p . "/*") ;
+	print "read-augeas $p/* matches paths: @newpath\n" if $::debug ;
+	push @worklist, @newpath ;
+	push @result,   @newpath ;
     }
-    #$self->load_data($conf_data) ;
+
+    my @cm_path =  @result ;
+    # cleanup resulting path to remove Augeas '/files', remove the
+    # file path and plug the remaining path where it is consistent in
+    # the model. I.e if the file "root" matches a list element (like
+    # for /etc/hosts), get this element name from "plug_at" parameter
+    my $set_in = $args{set_in} || '';
+    map {
+	s!$mainpath!! ;
+	$_ = "/$set_in/$_" if $set_in;
+	s!/+!/!g;
+    } @cm_path ;
+
+    while (@result) {
+	my $aug_p = shift @result;
+	my $cm_p  = shift @cm_path;
+	my $v = $augeas_obj->get($aug_p) ;
+	next unless defined $v ;
+	print "read-augeas read $aug_p, set $cm_p with $v\n" if $::debug ;
+	$self->set($cm_p,$v) ;
+    }
 
     return 1 ;
   }

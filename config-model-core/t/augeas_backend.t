@@ -1,7 +1,9 @@
 # -*- cperl -*-
-# $Author$
-# $Date$
-# $Revision$
+# $Author: ddumont $
+# $Date: 2008-07-04 16:14:06 +0200 (Fri, 04 Jul 2008) $
+# $Revision: 707 $
+
+# test augeas backend if Config::Augeas is installed
 
 use ExtUtils::testlib;
 use Test::More tests => 35;
@@ -26,153 +28,61 @@ Config::Model::Exception::Any->Trace(1) if $trace =~ /e/;
 ok(1,"compiled");
 
 # pseudo root were input config file are read
-my $r_root = 'r_root/';
-my $r_dir  = '/etc/read/'; 
+my $r_root = 'augeas-box/';
 
 # pseudo root where config files are written by config-model
 my $wr_root = 'wr_root/';
-my $w_dir   = '/etc/write' ;
-
 
 # cleanup before tests
 rmtree($wr_root);
-rmtree($r_root);
-
-# model declaration
-$model->create_config_class 
-  (
-   name   => 'Level2',
-   element => [
-	       [qw/X Y Z/] => {
-			       type => 'leaf',
-			       value_type => 'enum',
-			       choice     => [qw/Av Bv Cv/]
-			      }
-	      ]
-  );
 
 $model->create_config_class 
   (
-   name => 'Level1',
-
-   # try first to read with cds string and then custom class
-   read_config  => [ { backend => 'cds_file'}, 
-		     { backend => 'custom', class => 'Level1Read', function => 'read_it' } ],
-   write_config => [ { backend => 'cds_file'},
-		     { backend => 'perl_file'},
-		     { backend => 'ini_file' }],
-
-   read_config_dir  => $r_dir,
-   write_config_dir => $w_dir,
+   name => 'Host',
 
    element => [
-	       bar => { type => 'node',
-			config_class_name => 'Level2',
-		      } 
-	      ]
-   );
-
-$model->create_config_class 
-  (
-   name => 'SameReadWriteSpec',
-
-   # try first to read with cds string and then custom class
-   read_config  => [ { backend => 'cds_file', config_dir => $r_dir }, 
-		     { backend => 'custom', class => 'SameRWSpec', config_dir => $r_dir },
-		     { backend => 'ini_file' } 
-		   ],
-
-   element => [
-	       bar => { type => 'node',
-			config_class_name => 'Level2',
-		      } 
+	       [qw/ipaddr canonical alias/] 
+	       => { type => 'leaf',
+		    value_type => 'uniline',
+		  } 
 	      ]
    );
 
 
 $model->create_config_class 
   (
-   name => 'Master',
+   name => 'Hosts',
 
-   read_config  => [ { backend => 'cds'},
-		     { backend => 'perl_file'},
-		     { backend => 'ini_file' } ,
-		     { backend => 'custom', class => 'MasterRead', function => 'read_it' }
+   read_config  => [ { backend => 'augeas', 
+		       config_file => '/etc/hosts',
+		       set_in => 'top',
+		     },
 		   ],
-   write_config => [ { backend => 'cds_file'},
-		     { backend => 'perl'},
-		     { backend => 'ini_file' } ,
-		     { class => 'MasterRead', function => 'wr_stuff'}
-		   ],
-
-   read_config_dir  => $r_dir,
-   write_config_dir => $w_dir,
 
    element => [
-	       aa => { type => 'leaf',value_type => 'string'} ,
-	       level1 => { type => 'node',
-			   config_class_name => 'Level1',
-			 },
-	       samerw => { type => 'node',
-			   config_class_name => 'SameReadWriteSpec',
-			 },
+	       top => { type => 'list',
+			cargo => { type => 'node',
+				   config_class_name => 'Host',
+				 } ,
+		      },
 	      ]
    );
 
-# global variable to snoop on read config action
-my %result;
 
-package MasterRead;
+my $i_hosts = $model->instance(instance_name    => 'hosts_inst',
+			       root_class_name  => 'Hosts',
+			       write_root_dir   => $wr_root ,
+			       read_root_dir    => $r_root ,
+			      );
 
-my $custom_aa = 'aa was set (custom mode)' ;
+ok( $i_hosts, "Created instance (from scratch)" );
 
-sub read_it {
-    my %args = @_;
-    $result{master_read} = $args{config_dir};
-    $args{object}->store_element_value('aa', $custom_aa);
-}
-
-sub wr_stuff {
-    my %args = @_;
-    $result{wr_stuff} = $args{config_dir};
-    $result{wr_root_name} = $args{object}->name ;
-}
-
-package Level1Read;
-
-sub read_it {
-    my %args = @_;
-    $result{level1_read} = $args{config_dir};
-    $args{object}->load('bar X=Cv');
-}
-
-package SameRWSpec;
-
-sub read {
-    my %args = @_;
-    $result{same_rw_read} = $args{config_dir};
-    $args{object}->load('bar Y=Cv');
-}
-
-sub write {
-    my %args = @_;
-    $result{same_rw_write} = $args{config_dir};
-}
-
-package main;
-
-my $i_zero = $model->instance(instance_name    => 'zero_inst',
-			      root_class_name  => 'Master',
-			      write_root_dir   => $wr_root ,
-			      read_root_dir    => $r_root ,
-			     );
-
-ok( $i_zero, "Created instance (from scratch)" );
+__END__
 
 # check that conf dir was read when instance was created
 is( $result{master_read}, $r_dir, "Master read conf dir" );
 
-my $master = $i_zero->config_root;
+my $master = $i_hosts->config_root;
 
 ok( $master, "Master node created" );
 
@@ -192,11 +102,11 @@ is( $same_rw->grab_value('bar Y'), 'Cv', "Check samerw custom read" );
 
 is( $result{same_rw_read}, $r_dir, "check same_rw_spec custom read conf dir" );
 
-is( scalar @{ $i_zero->{write_back} }, 10, 
+is( scalar @{ $i_hosts->{write_back} }, 10, 
     "check that write call back are present" );
 
 # perform write back of dodu tree dump string
-$i_zero->write_back;
+$i_hosts->write_back;
 
 # check written files
 foreach my $suffix (qw/cds ini/) {
@@ -222,7 +132,7 @@ is($result{wr_stuff},$wr_root,'check custom write dir') ;
 is($result{wr_root_name},'Master','check custom conf root to write') ;
 
 # perform write back of dodu tree dump string in an overridden dir
-$i_zero->write_back($wr_root.'wr_2');
+$i_hosts->write_back($wr_root.'wr_2');
 
 # check written files
 foreach my $suffix (qw/cds ini/) {

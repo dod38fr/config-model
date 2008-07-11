@@ -56,7 +56,7 @@ my $build = Module::Build->new
 		 },
    # cleanup required by t/auto_read.t
    # PreGrammar.pm is created by t/value_computer.t
-   add_to_cleanup => [qw/PreGrammar.pm wr_test zero_test/],
+   add_to_cleanup => [qw/PreGrammar.pm wr_root r_root/],
   );
 
 $build->create_build_script;
