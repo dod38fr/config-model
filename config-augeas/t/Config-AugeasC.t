@@ -6,8 +6,11 @@
 
 # change 'tests => 2' to 'tests => last_test_to_print';
 
-use Test::More tests => 15;
+use Test::More tests => 13;
 BEGIN { use_ok('Config::Augeas') };
+
+use strict;
+use warnings ;
 
 package Config::Augeas;
 
@@ -34,16 +37,18 @@ ok( $fail == 0 , 'Constants' );
 ok(1,"Compilation done");
 
 my $aug_root = 'augeas-box/';
-my $lens_dir ;
+my $written_file = $aug_root."etc/hosts.augnew" ;
+unlink ($written_file) if -e $written_file ;
+
+my $lens_dir = '';
 
 # work-around augeas bug. Remove after augeas >0.2.0 is released
 foreach my $d ('/usr/local/share/augeas/lenses/') {
     $lens_dir = $d if -d $d;
 }
 
-my @initargs = ($aug_root) ;
-push @initargs , $lens_dir if defined $lens_dir ;
-my $augc = Config::Augeas::init(@initargs) ;
+my $augc = Config::Augeas::init($aug_root, $lens_dir ,
+				&Config::Augeas::AUG_SAVE_NEWFILE) ;
 
 ok($augc,"Created new Augeas object");
 
@@ -56,16 +61,25 @@ $ret = $augc->set("/files/etc/hosts/2/canonical","bilbo") ;
 
 is($ret,0,"Set new host");
 
+$ret = $augc->save ;
+is($ret,0,"First save done") ;
+
+ok(-e $written_file, "File was written" ) ;
+unlink ($written_file) if -e $written_file ;
+
 $ret = $augc->get("/files/etc/hosts/2/canonical") ;
 is($ret,'bilbo',"Called get after set (returned $ret )");
 
-$augc->insert("/files/etc/hosts/1", inserted_host => 1 ) ;
+$ret = $augc->insert("/files/etc/hosts/1", inserted_host => 1 ) ;
 
-ok($augc,"insert new label");
+is($ret ,0,"insert new label");
 
 $augc->set("/files/etc/hosts/3/ipaddr","192.168.0.2") ;
 $augc->rm("/files/etc/hosts/3") ;
 ok($augc,"removed entry");
+
+$augc->set("/files/etc/hosts/3/ipaddr","192.168.0.3") ;
+$augc->set("/files/etc/hosts/3/canonical","gandalf") ;
 
 my @a = $augc->match("/files/etc/hosts/") ;
 is_deeply(\@a,["/files/etc/hosts"],"match result") ;
@@ -76,6 +90,8 @@ is($ret,1,"count_match result") ;
 $ret = $augc->save ;
 is($ret,0,"save done") ;
 
+ok(-e $written_file,"augnew file written") ;
+
 my $wr_dir = 'wr_test' ;
 my $wr_file = "$wr_dir/print_test" ;
 if (not -d $wr_dir) {
@@ -83,7 +99,7 @@ if (not -d $wr_dir) {
 }
 
 open(WR, ">$wr_file") or die "cannot open $wr_file:$!";
-$augc->print(WR, "/files/etc/") ;
+$augc->print(*WR, "/files/etc/") ;
 close WR;
 
 ok( -e $wr_file, "$wr_file exists" );
