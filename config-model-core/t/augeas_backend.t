@@ -6,10 +6,11 @@
 # test augeas backend if Config::Augeas is installed
 
 use ExtUtils::testlib;
-use Test::More tests => 35;
+use Test::More tests => 7;
 use Config::Model;
 use File::Path;
 use File::Copy ;
+use Data::Dumper ;
 
 use warnings;
 no warnings qw(once);
@@ -35,6 +36,11 @@ my $wr_root = 'wr_root/';
 
 # cleanup before tests
 rmtree($wr_root);
+mkpath($wr_root.'etc/', { mode => 0755 }) ;
+copy($r_root.'etc/hosts',$wr_root.'/etc/') ;
+
+# set_up data
+
 
 $model->create_config_class 
   (
@@ -56,6 +62,7 @@ $model->create_config_class
    read_config  => [ { backend => 'augeas', 
 		       config_file => '/etc/hosts',
 		       set_in => 'top',
+		       save   => 'backup',
 		     },
 		   ],
 
@@ -71,171 +78,64 @@ $model->create_config_class
 
 my $i_hosts = $model->instance(instance_name    => 'hosts_inst',
 			       root_class_name  => 'Hosts',
-			       write_root_dir   => $wr_root ,
-			       read_root_dir    => $r_root ,
+			       read_root_dir    => $wr_root ,
 			      );
 
 ok( $i_hosts, "Created instance (from scratch)" );
 
-__END__
+my $i_root = $i_hosts->config_root ;
 
-# check that conf dir was read when instance was created
-is( $result{master_read}, $r_dir, "Master read conf dir" );
+my $expect = "top:0
+  ipaddr=127.0.0.1
+  canonical=localhost
+  alias=localhost -
+top:1
+  ipaddr=192.168.0.1
+  canonical=bilbo - -
+" ;
 
-my $master = $i_hosts->config_root;
+my $dump = $i_root->dump_tree ;
+print $dump if $trace ;
+is( $dump , $expect,"check dump of augeas data");
 
-ok( $master, "Master node created" );
+# change data content, '~' is like a splice, 'top~0' like a "shift"
+$i_root->load("top~0 top:0 canonical=buildbot - 
+               top:1 canonical=komarr ipaddr=192.168.0.10 -
+               top:2 canonical=repoman ipaddr=192.168.0.11 -
+               top:3 canonical=goner   ipaddr=192.168.0.111") ;
 
-is( $master->fetch_element_value('aa'), $custom_aa, "Master custom read" );
+$dump = $i_root->dump_tree ;
+print $dump if $trace ;
 
-my $level1 = $master->fetch_element('level1');
+my %h = $i_root->dump_as_path('top') ;
+print Dumper \%h if $trace ;
+my $expect_h = {
+		'/1/canonical' => 'buildbot',
+		'/1/ipaddr' => '192.168.0.1',
+		'/2/canonical' => 'komarr',
+		'/2/ipaddr' => '192.168.0.10',
+		'/3/canonical' => 'repoman',
+		'/3/ipaddr' => '192.168.0.11',
+		'/4/canonical' => 'goner',
+		'/4/ipaddr' => '192.168.0.111',
+	       };
+is_deeply(\%h,$expect_h,"Check dump_as_path") ;
 
-ok( $level1, "Level1 object created" );
-is( $level1->grab_value('bar X'), 'Cv', "Check level1 custom read" );
+$i_hosts->write_back ;
+ok(-e $wr_root.'/etc/hosts.augsave',
+   "check that backup config file was written");
 
-is( $result{level1_read} , $r_dir, "check level1 custom read conf dir" );
+# check directly the content of augeas
+my $augeas_obj = $i_root->_augeas_object ;
 
-my $same_rw = $master->fetch_element('samerw');
+my $nb = $augeas_obj -> count_match("/files/etc/hosts/*") ;
+is($nb,4,"Check nb of hosts in Augeas") ;
 
-ok( $same_rw, "SameRWSpec object created" );
-is( $same_rw->grab_value('bar Y'), 'Cv', "Check samerw custom read" );
+# delete last entry
+$i_root->load("top~3");
+$i_hosts->write_back ;
 
-is( $result{same_rw_read}, $r_dir, "check same_rw_spec custom read conf dir" );
+$nb = $augeas_obj -> count_match("/files/etc/hosts/*") ;
+is($nb,3,"Check nb of hosts in Augeas after deletion") ;
 
-is( scalar @{ $i_hosts->{write_back} }, 10, 
-    "check that write call back are present" );
-
-# perform write back of dodu tree dump string
-$i_hosts->write_back;
-
-# check written files
-foreach my $suffix (qw/cds ini/) {
-    map { 
-	my $f = "$wr_root$w_dir/$_.$suffix" ;
-	ok( -e $f, "check written file $f" ); 
-    } 
-      ('zero_inst','zero_inst/level1','zero_inst/samerw') ;
-}
-
-foreach my $suffix (qw/pl/) {
-    map { 
-	my $f = "$wr_root$w_dir/$_.$suffix" ;
-	ok( -e "$f", "check written file $f" );
-    } 
-      ('zero_inst','zero_inst/level1') ;
-}
-
-__END__ 
-
-# check called write routine
-is($result{wr_stuff},$wr_root,'check custom write dir') ;
-is($result{wr_root_name},'Master','check custom conf root to write') ;
-
-# perform write back of dodu tree dump string in an overridden dir
-$i_hosts->write_back($wr_root.'wr_2');
-
-# check written files
-foreach my $suffix (qw/cds ini/) {
-    map { ok( -e $wr_root."wr_2/$_.$suffix", 
-	      "check written file $ {wr_dir}wr_2/$_.$suffix" ); } 
-      ('zero_inst','zero_inst/level1','zero_inst/samerw' ) ;
-}
-foreach my $suffix (qw/pl/) {
-    map { ok( -e $wr_root."wr_2/$_.$suffix", 
-	      "check written file $ {wr_dir}wr_2/$_.$suffix" ); } 
-      ('zero_inst','zero_inst/level1') ;
-}
-
-is($result{wr_stuff},'wr_test/wr_2/','check custom overridden write dir') ;
-
-my $dump = $master->dump_tree( skip_auto_write => 'cds_file' );
-print "Master dump:\n$dump\n" if $trace;
-
-is($dump,qq!aa="$custom_aa" -\n!,"check master dump") ;
-
-$dump = $level1->dump_tree( skip_auto_write => 'cds_file' );
-print "Level1 dump:\n$dump\n" if $trace;
-is($dump,qq!  bar\n    X=Cv - -\n!,"check level1 dump") ;
-
-
-# setup input config file dir that will be used in 2nd part of test
-mkdir( $r_root, 0755 ) unless -d $r_root;
-
-my %cds = (
-    test2 => 'aa="aa was set by file" - ',
-    'test2/level1'   => 'bar X=Av Y=Bv - '
-);
-
-mkpath("$r_root/test2",0,0755) || die "Can't mkpath $r_root/test2:$!";
-
-# write input config files
-foreach my $f ( keys %cds ) {
-    my $fout = "$r_root/$f.cds";
-    next if -r $fout;
-
-    open( FOUT, ">$fout" ) or die "can't open $fout:$!";
-    print FOUT $cds{$f};
-    close FOUT;
-}
-
-# create another instance
-my $test2_inst = $model->instance(root_class_name  => 'Master',
-			     instance_name => 'test2' );
-
-# access level1 to autoread it
-my $root_2   = $test2_inst  -> config_root ;
-my $level1_2 = $root_2 -> fetch_element('level1');
-
-is($root_2->grab_value('aa'),'aa was set by file',"test2: check that cds file was read") ;
-
-my $dump2 = $root_2->dump_tree( );
-print "Read Master dump:\n$dump2\n" if $trace;
-
-my $expect2 = 'aa="aa was set by file"
-level1
-  bar
-    X=Av
-    Y=Bv - -
-samerw
-  bar
-    Y=Cv - - -
-' ;
-is( $dump2, $expect2, "test2: check dump" );
-
-# test loading with ini files
-map { my $o = $_; s!$wr_root/zero!ini!; 
-      copy($o,"$r_root/$_") or die "can't copy $o $_:$!" } 
-  glob("$wr_root/*.ini") ;
-
-# create another instance to load ini files
-my $ini_inst = $model->instance(root_class_name  => 'Master',
-				instance_name => 'ini_inst' );
-ok($ini_inst,"Created instance to load ini files") ;
-
-my $expect_custom = 'aa="aa was set (custom mode)"
-level1
-  bar
-    X=Cv - -
-samerw
-  bar
-    Y=Cv - - -
-' ;
-
-$dump = $ini_inst ->config_root->dump_tree ;
-is( $dump, $expect_custom, "ini_test: check dump" );
-
-
-unlink(glob("$r_root/*.ini")) ;
-
-# test loading with pl files
-map { my $o = $_; s!$wr_root/zero!pl!; 
-      copy($o,"$r_root/$_") or die "can't copy $o $_:$!" 
-  } glob("$wr_root/*.pl") ;
-
-# create another instance to load pl files
-my $pl_inst = $model->instance(root_class_name  => 'Master',
-				instance_name => 'pl_inst' );
-ok($pl_inst,"Created instance to load pl files") ;
-
-$dump = $pl_inst ->config_root->dump_tree ;
-is( $dump, $expect_custom, "pl_test: check dump" );
+$augeas_obj->print(*STDOUT, '') if $trace;

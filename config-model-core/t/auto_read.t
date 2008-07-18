@@ -4,7 +4,7 @@
 # $Revision$
 
 use ExtUtils::testlib;
-use Test::More tests => 35;
+use Test::More tests => 40;
 use Config::Model;
 use File::Path;
 use File::Copy ;
@@ -25,18 +25,16 @@ Config::Model::Exception::Any->Trace(1) if $trace =~ /e/;
 
 ok(1,"compiled");
 
-# pseudo root were input config file are read
-my $r_root = 'r_root/';
-my $r_dir  = '/etc/read/'; 
 
-# pseudo root where config files are written by config-model
-my $wr_root = 'wr_root/';
-my $w_dir   = '/etc/write' ;
+# pseudo root for config files 
+my $root1 = 'test_root1/';
+my $root2 = 'test_root2/';
 
+my $conf_dir  = '/etc/test/'; 
 
 # cleanup before tests
-rmtree($wr_root);
-rmtree($r_root);
+rmtree($root1);
+rmtree($root2);
 
 # model declaration
 $model->create_config_class 
@@ -58,12 +56,11 @@ $model->create_config_class
    # try first to read with cds string and then custom class
    read_config  => [ { backend => 'cds_file'}, 
 		     { backend => 'custom', class => 'Level1Read', function => 'read_it' } ],
-   write_config => [ { backend => 'cds_file'},
-		     { backend => 'perl_file'},
-		     { backend => 'ini_file' }],
+   write_config => [ { backend => 'cds_file', config_dir => $conf_dir},
+		     { backend => 'perl_file', config_dir => $conf_dir},
+		     { backend => 'ini_file' , config_dir => $conf_dir}],
 
-   read_config_dir  => $r_dir,
-   write_config_dir => $w_dir,
+   read_config_dir  => $conf_dir,
 
    element => [
 	       bar => { type => 'node',
@@ -77,9 +74,9 @@ $model->create_config_class
    name => 'SameReadWriteSpec',
 
    # try first to read with cds string and then custom class
-   read_config  => [ { backend => 'cds_file', config_dir => $r_dir }, 
-		     { backend => 'custom', class => 'SameRWSpec', config_dir => $r_dir },
-		     { backend => 'ini_file' } 
+   read_config  => [ { backend => 'cds_file', config_dir => $conf_dir }, 
+		     { backend => 'custom', class => 'SameRWSpec', config_dir => $conf_dir },
+		     { backend => 'ini_file', config_dir => $conf_dir } 
 		   ],
 
    element => [
@@ -99,14 +96,13 @@ $model->create_config_class
 		     { backend => 'ini_file' } ,
 		     { backend => 'custom', class => 'MasterRead', function => 'read_it' }
 		   ],
-   write_config => [ { backend => 'cds_file'},
-		     { backend => 'perl'},
-		     { backend => 'ini_file' } ,
-		     { class => 'MasterRead', function => 'wr_stuff'}
+   write_config => [ { backend => 'cds_file', config_dir => $conf_dir},
+		     { backend => 'perl', config_dir => $conf_dir},
+		     { backend => 'ini_file', config_dir => $conf_dir } ,
+		     { class => 'MasterRead', function => 'wr_stuff', config_dir => $conf_dir}
 		   ],
 
-   read_config_dir  => $r_dir,
-   write_config_dir => $w_dir,
+   read_config_dir  => $conf_dir,
 
    element => [
 	       aa => { type => 'leaf',value_type => 'string'} ,
@@ -163,14 +159,14 @@ package main;
 
 my $i_zero = $model->instance(instance_name    => 'zero_inst',
 			      root_class_name  => 'Master',
-			      write_root_dir   => $wr_root ,
-			      read_root_dir    => $r_root ,
+			      write_root_dir   => $root1 ,
+			      read_root_dir    => $root1 ,
 			     );
 
 ok( $i_zero, "Created instance (from scratch)" );
 
 # check that conf dir was read when instance was created
-is( $result{master_read}, $r_dir, "Master read conf dir" );
+is( $result{master_read}, $conf_dir, "Master read conf dir" );
 
 my $master = $i_zero->config_root;
 
@@ -183,14 +179,14 @@ my $level1 = $master->fetch_element('level1');
 ok( $level1, "Level1 object created" );
 is( $level1->grab_value('bar X'), 'Cv', "Check level1 custom read" );
 
-is( $result{level1_read} , $r_dir, "check level1 custom read conf dir" );
+is( $result{level1_read} , $conf_dir, "check level1 custom read conf dir" );
 
 my $same_rw = $master->fetch_element('samerw');
 
 ok( $same_rw, "SameRWSpec object created" );
 is( $same_rw->grab_value('bar Y'), 'Cv', "Check samerw custom read" );
 
-is( $result{same_rw_read}, $r_dir, "check same_rw_spec custom read conf dir" );
+is( $result{same_rw_read}, $conf_dir, "check same_rw_spec custom read conf dir" );
 
 is( scalar @{ $i_zero->{write_back} }, 10, 
     "check that write call back are present" );
@@ -201,7 +197,7 @@ $i_zero->write_back;
 # check written files
 foreach my $suffix (qw/cds ini/) {
     map { 
-	my $f = "$wr_root$w_dir/$_.$suffix" ;
+	my $f = "$root1$conf_dir/$_.$suffix" ;
 	ok( -e $f, "check written file $f" ); 
     } 
       ('zero_inst','zero_inst/level1','zero_inst/samerw') ;
@@ -209,34 +205,33 @@ foreach my $suffix (qw/cds ini/) {
 
 foreach my $suffix (qw/pl/) {
     map { 
-	my $f = "$wr_root$w_dir/$_.$suffix" ;
+	my $f = "$root1$conf_dir/$_.$suffix" ;
 	ok( -e "$f", "check written file $f" );
     } 
       ('zero_inst','zero_inst/level1') ;
 }
 
-__END__ 
-
 # check called write routine
-is($result{wr_stuff},$wr_root,'check custom write dir') ;
+is($result{wr_stuff},$conf_dir,'check custom write dir') ;
 is($result{wr_root_name},'Master','check custom conf root to write') ;
 
 # perform write back of dodu tree dump string in an overridden dir
-$i_zero->write_back($wr_root.'wr_2');
+my $override = 'etc/wr_2/';
+$i_zero->write_back($override);
 
 # check written files
 foreach my $suffix (qw/cds ini/) {
-    map { ok( -e $wr_root."wr_2/$_.$suffix", 
-	      "check written file $ {wr_dir}wr_2/$_.$suffix" ); } 
+    map { ok( -e "$root1$override$_.$suffix", 
+	      "check written file $root1$override$_.$suffix" ); } 
       ('zero_inst','zero_inst/level1','zero_inst/samerw' ) ;
 }
 foreach my $suffix (qw/pl/) {
-    map { ok( -e $wr_root."wr_2/$_.$suffix", 
-	      "check written file $ {wr_dir}wr_2/$_.$suffix" ); } 
+    map { ok( -e "$root1$override$_.$suffix", 
+	      "check written file $root1$override$_.$suffix" ); } 
       ('zero_inst','zero_inst/level1') ;
 }
 
-is($result{wr_stuff},'wr_test/wr_2/','check custom overridden write dir') ;
+is($result{wr_stuff},$override,'check custom overridden write dir') ;
 
 my $dump = $master->dump_tree( skip_auto_write => 'cds_file' );
 print "Master dump:\n$dump\n" if $trace;
@@ -248,19 +243,19 @@ print "Level1 dump:\n$dump\n" if $trace;
 is($dump,qq!  bar\n    X=Cv - -\n!,"check level1 dump") ;
 
 
-# setup input config file dir that will be used in 2nd part of test
-mkdir( $r_root, 0755 ) unless -d $r_root;
+my $inst2 = 'second_inst' ;
 
 my %cds = (
-    test2 => 'aa="aa was set by file" - ',
-    'test2/level1'   => 'bar X=Av Y=Bv - '
+    $inst2 => 'aa="aa was set by file" - ',
+    "$inst2/level1"   => 'bar X=Av Y=Bv - '
 );
 
-mkpath("$r_root/test2",0,0755) || die "Can't mkpath $r_root/test2:$!";
+my $dir2 = "$root2/etc/test/" ;
+mkpath($dir2.$inst2,0,0755) || die "Can't mkpath $dir2.$inst2:$!";
 
 # write input config files
 foreach my $f ( keys %cds ) {
-    my $fout = "$r_root/$f.cds";
+    my $fout = "$dir2/$f.cds";
     next if -r $fout;
 
     open( FOUT, ">$fout" ) or die "can't open $fout:$!";
@@ -270,13 +265,16 @@ foreach my $f ( keys %cds ) {
 
 # create another instance
 my $test2_inst = $model->instance(root_class_name  => 'Master',
-			     instance_name => 'test2' );
+				  instance_name    => $inst2 ,
+				  root_dir         => $root2 ,);
+
+ok($inst2,"created second instance") ;
 
 # access level1 to autoread it
 my $root_2   = $test2_inst  -> config_root ;
 my $level1_2 = $root_2 -> fetch_element('level1');
 
-is($root_2->grab_value('aa'),'aa was set by file',"test2: check that cds file was read") ;
+is($root_2->grab_value('aa'),'aa was set by file',"$inst2: check that cds file was read") ;
 
 my $dump2 = $root_2->dump_tree( );
 print "Read Master dump:\n$dump2\n" if $trace;
@@ -290,12 +288,12 @@ samerw
   bar
     Y=Cv - - -
 ' ;
-is( $dump2, $expect2, "test2: check dump" );
+is( $dump2, $expect2, "$inst2: check dump" );
 
 # test loading with ini files
-map { my $o = $_; s!$wr_root/zero!ini!; 
-      copy($o,"$r_root/$_") or die "can't copy $o $_:$!" } 
-  glob("$wr_root/*.ini") ;
+map { my $o = $_; s!$root1/zero!ini!; 
+      copy($o,"$root2/$_") or die "can't copy $o $_:$!" } 
+  glob("$root1/*.ini") ;
 
 # create another instance to load ini files
 my $ini_inst = $model->instance(root_class_name  => 'Master',
@@ -315,12 +313,12 @@ $dump = $ini_inst ->config_root->dump_tree ;
 is( $dump, $expect_custom, "ini_test: check dump" );
 
 
-unlink(glob("$r_root/*.ini")) ;
+unlink(glob("$root2/*.ini")) ;
 
 # test loading with pl files
-map { my $o = $_; s!$wr_root/zero!pl!; 
-      copy($o,"$r_root/$_") or die "can't copy $o $_:$!" 
-  } glob("$wr_root/*.pl") ;
+map { my $o = $_; s!$root1/zero!pl!; 
+      copy($o,"$root2/$_") or die "can't copy $o $_:$!" 
+  } glob("$root1/*.pl") ;
 
 # create another instance to load pl files
 my $pl_inst = $model->instance(root_class_name  => 'Master',

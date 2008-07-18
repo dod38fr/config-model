@@ -55,7 +55,7 @@ Config::Model::AutoRead - Load configuration node on demand
                      }
                    ],
    # if omitted, write_config will be written using read_config specifications
-   # write_confi can be array of hash ref to write several syntaxes
+   # write_config can be array of hash ref to write several syntaxes
    write_config => { backend => 'cds_file', config_dir => '/etc/cfg_dir' } ,
 
 
@@ -179,11 +179,17 @@ parameters:
 
 You can choose to specify yourself the read and write methods:
 
-   read_config => { backend => 'custom', class => 'MyRead', function => 'my_read' }
+   read_config => { backend  => 'custom', 
+                    class    => 'MyRead', 
+                    function => 'my_read' 
+                  }
 
 and
 
-   write_config => { backend => 'custom', class => 'MyRead', function => 'my_write' }
+   write_config => { backend  => 'custom', 
+                     class    => 'MyRead', 
+                     function => 'my_write' 
+                   }
 
 =head1 Limitations depending on storage
 
@@ -206,6 +212,11 @@ A single class with hash of leaves elements.
 classes have only leaf elements.
 
 =back
+
+=head2 Augeas backend limitation
+
+The structure and element names of the Config::Model tree must match the
+structure defined in Augeas lenses.
 
 =head1 Configuration class with auto read or auto write
 
@@ -469,8 +480,16 @@ sub is_auto_write_for_type {
 sub get_cfg_file_name {
     my $self = shift ; 
     my %args = @_;
-    my $dir = $args{root}.$args{config_dir} ;
+
     my $w = $args{write} || 0 ;
+    Config::Model::Exception::Model -> throw
+	(
+	 error=> "auto_". ($w ? 'write' : 'read') 
+                 ." error: empty 'config_dir' parameter",
+	 object => $self
+	) unless $args{config_dir};
+
+    my $dir = $args{root}.$args{config_dir} ;
 
     my $i = $self->instance ;
 
@@ -492,6 +511,8 @@ sub read_cds_file {
 
     my $file_name = $self->get_cfg_file_name(@_) . '.cds' ;
 
+    print "Trying cds data from $file_name\n" if $::debug;
+
     return 0 unless -r $file_name ;
 
     print "Read cds data from $file_name\n" if $::verbose;
@@ -508,8 +529,8 @@ sub read_cds_file {
 sub write_cds_file {
     my $self = shift;
 
-    my $i = $self->instance ;
     my $file_name = $self->get_cfg_file_name(write => 1,@_) . '.cds' ;
+    $file_name =~ s!//!/!g;
 
     print "Write cds data to $file_name\n" if $::verbose;
     open (FOUT, ">$file_name") or die "_write_cds_file: Can't open $file_name: $!";
@@ -521,6 +542,7 @@ sub write_cds_file {
 sub read_perl {
     my $self = shift;
     my $file_name = $self->get_cfg_file_name(@_) . '.pl' ;
+    print "Trying Perl data from $file_name\n" if $::debug;
     return 0 unless -r $file_name ;
 
     print "Read Perl data from $file_name\n" if $::verbose;
@@ -551,6 +573,7 @@ sub write_perl {
 sub read_ini {
     my $self = shift;
     my $file_name = $self->get_cfg_file_name(@_) . '.ini' ;
+    print "Trying Ini data from $file_name\n" if $::debug;
     return 0 unless -r $file_name ;
 
     print "Read Ini data from $file_name\n" if $::verbose;
@@ -571,8 +594,8 @@ sub read_ini {
 sub write_ini {
     my $self = shift;
 
-    my $i = $self->instance ;
     my $file_name = $self->get_cfg_file_name(write => 1, @_) . '.ini' ;
+    print "Write Ini data to $file_name\n" if $::verbose;
 
     require Config::Tiny;
     my $iniconf = Config::Tiny->new() ;
@@ -620,7 +643,8 @@ sub write_xml {
     die "write_xml: not yet implemented";
 }
 
-my $augeas_obj ;
+# for tests only
+sub _augeas_object {return shift->{augeas_obj} ; } ;
 
 sub read_augeas
   {
@@ -630,7 +654,8 @@ sub read_augeas
 
     print "Read config data from Augeas\n" if $::verbose;
 
-    $augeas_obj ||= Config::Augeas->new(root => $args{root} ) ;
+    $self->{augeas_obj} ||= Config::Augeas->new(root => $args{root}, 
+						save => $args{save} ) ;
 
     if (not defined $args{config_file}) {
 	Config::Model::Exception::Model -> throw
@@ -641,12 +666,64 @@ sub read_augeas
 	    ) ;
     }
 
+    my $mainpath = '/files'.$args{config_file} ;
+
+    my @result =  $self->augeas_deep_match($mainpath) ;
+    my @cm_path = @result ;
+
+    # cleanup resulting path to remove Augeas '/files', remove the
+    # file path and plug the remaining path where it is consistent in
+    # the model. I.e if the file "root" matches a list element (like
+    # for /etc/hosts), get this element name from "set_in" parameter
+    my $set_in = $args{set_in} || '';
+    map {
+	s!$mainpath!! ;
+	$_ = "/$set_in/$_" if $set_in;
+	s!/+!/!g;
+    } @cm_path ;
+
+    my $augeas_obj = $self->{augeas_obj} ;
+
+    # this may break as data will be written in the tree in an order
+    # decided by Augeas. This may break complex model with warping as 
+    # the best writing order is indicated by the model and not Augeas.
+    while (@result) {
+	my $aug_p = shift @result;
+	my $cm_p  = shift @cm_path;
+	my $v = $augeas_obj->get($aug_p) ;
+	next unless defined $v ;
+
+	print "read-augeas read $aug_p, set $cm_p with $v\n" if $::debug ;
+	$cm_p =~ s!^/!! ;
+	my @cm_steps = split m!/!, $cm_p ;
+	my $obj = $self;
+
+	while (my $step = shift @cm_steps) {
+	    # augeas list begin at 1 not 0
+	    $step -= 1 if $obj->get_type eq 'list';
+	    if (@cm_steps) {
+		$obj = $obj->get($step) ;
+	    }
+	    else {
+		# last step
+		$obj->set($step,$v) ;
+	    }
+	}
+    }
+
+    return 1 ;
+  }
+
+sub augeas_deep_match {
+    my ($self,$mainpath) = @_ ;
+
     # work around Augeas feature where '*' matches only one hierarchy
     # level 
     # See https://www.redhat.com/archives/augeas-devel/2008-July/msg00016.html
-    my $mainpath = '/files'.$args{config_file} ;
     my @worklist = ( $mainpath );
     print "read-augeas on @worklist\n" if $::debug ;
+
+    my $augeas_obj = $self->{augeas_obj} ;
     my @result ;
     while (@worklist) {
 	my $p = pop @worklist ;
@@ -656,31 +733,113 @@ sub read_augeas
 	push @result,   @newpath ;
     }
 
-    my @cm_path =  @result ;
-    # cleanup resulting path to remove Augeas '/files', remove the
-    # file path and plug the remaining path where it is consistent in
-    # the model. I.e if the file "root" matches a list element (like
-    # for /etc/hosts), get this element name from "plug_at" parameter
-    my $set_in = $args{set_in} || '';
-    map {
-	s!$mainpath!! ;
-	$_ = "/$set_in/$_" if $set_in;
-	s!/+!/!g;
-    } @cm_path ;
+    return @result ;
+}
 
-    while (@result) {
-	my $aug_p = shift @result;
-	my $cm_p  = shift @cm_path;
-	my $v = $augeas_obj->get($aug_p) ;
-	next unless defined $v ;
-	print "read-augeas read $aug_p, set $cm_p with $v\n" if $::debug ;
-	$self->set($cm_p,$v) ;
+# FIXME: deal with deleted entries while writing file through Augeas
+# .... Ouch
+sub write_augeas
+  {
+    my $self = shift;
+    my %args = @_ ; # contains root and config_dir
+    return 0 unless $has_augeas ;
+
+    print "Write config data through Augeas\n" if $::verbose;
+
+    if (not defined $args{config_file}) {
+	Config::Model::Exception::Model -> throw
+	    (
+	     error=> "write_augeas error: model "
+	     . "does not specify 'config_file' for Augeas ",
+	     object => $self
+	    ) ;
     }
 
-    return 1 ;
-  }
+    my $set_in = $args{set_in} || '';
+    my $mainpath = '/files'.$args{config_file} ;
+    my $augeas_obj = $self->{augeas_obj} ;
 
-# FIXME: deal with deleted entries while writing file through Augeas .... Ouch
+    my %old_path = map { ($_ => 1) } $self->augeas_deep_match($mainpath) ;
+
+    my %to_set = $self->dump_as_path($set_in) ;
+    foreach my $path (keys %to_set) {
+	my $aug_path = "$mainpath$path" ;
+	my $v = $to_set{$path} ;
+	print "write-augeas $path, set $aug_path with $v\n" if $::debug ;
+	# remove all Augeas paths that are included in the path found in
+	# config-model
+	map {delete $old_path{$_} if index($aug_path,$_,0) == 0} keys %old_path ;
+	$augeas_obj->set($aug_path,$v) ;
+    }
+
+    # remove path no longer present in config-model
+    map { print "deleting aug path $_\n" if $::debug;
+	  $augeas_obj->remove($_) } reverse sort keys %old_path ;
+
+    $augeas_obj->save || warn "Augeas save failed";;
+}
+
+sub dump_as_path{
+    my $self = shift ;
+    my $set_in = shift ;
+
+    # data_ref = ( current_path, \%result ) 
+    my $std_cb = sub {
+        my ( $scanner, $data_ref, $obj, $element, $index, $value_obj ) = @_;
+	my $p = $data_ref->[0] ;
+	my $v = $value_obj->fetch () ; 
+	$data_ref->[1]{$p} = $v if defined $v ;
+    };
+
+    my $hash_element_cb = sub {
+	my ($scanner, $data_ref,$node,$element_name,@keys) = @_ ;
+	my $p = $data_ref->[0] ;
+	my $r = $data_ref->[1] ;
+
+	map {$scanner->scan_hash([$p."/$_",$r],$node,$element_name,$_)} @keys ;
+    };
+
+    my $list_element_cb = sub {
+	my ($scanner, $data_ref,$node,$element_name,@idx) = @_ ;
+	my $p = $data_ref->[0] ;
+	my $r = $data_ref->[1] ;
+
+	# Augeas lists begin at 1 not 0
+	map {$scanner->scan_list([$p.'/'.($_+1),$r],
+				 $node,$element_name,$_)} @idx ;
+    };
+
+    my $node_content_cb = sub {
+	my ($scanner, $data_ref,$node,@element) = @_ ;
+	my $p = $data_ref->[0] ;
+	my $r = $data_ref->[1] ;
+	map {
+	    # Deal with the fact that Augeas tree can start directly into
+	    # a list element
+	    my $np = $set_in eq $_ ? $p : $p."/$_" ;
+	    $scanner->scan_element([$np,$r], $node,$_)
+	} @element ;
+    };
+
+    my @scan_args = (
+		     experience            => 'master',
+		     fallback              => 'all',
+		     auto_vivify           => 0,
+		     list_element_cb       => $list_element_cb,
+		     check_list_element_cb => $std_cb,
+		     hash_element_cb       => $hash_element_cb,
+		     leaf_cb               => $std_cb ,
+		     node_content_cb       => $node_content_cb,
+		    );
+
+    # perform the scan
+    my $view_scanner = Config::Model::ObjTreeScanner->new(@scan_args);
+
+    my %result ;
+    $view_scanner->scan_node(['',\%result] ,$self);
+
+    return %result ;
+}
 
 1;
 

@@ -1,3 +1,34 @@
+2008-07-18  Dominique Dumont  <dominique.dumont@hp.com>
+
+	* lib/Config/Model/AutoRead.pm: Major changes to interface
+	Config::Model with Augeas (http://augeas.net). Changes are
+	compatible but new warnings are issued:
+	- 'syntax' is replaced by 'backend' to indicate that permanent
+	  storage of configuration data is more than a matter of writing 
+	  a configuration file.
+	- introduced 'config_dir' and 'root' paramater so a backend can 
+	  specify a configuration dir (e.g. /etc/foo) and a pseudo-root 
+	  to perform tests (so the config file can land in my_root/etc/foo).
+
+	* lib/Config/Model/Dumper.pm (new): skip_auto_write now take a
+	storage backend name as a parameter instead of a boolean (See
+	AutoRead for explanations about backends)
+
+	* lib/Config/Model/Node.pm (set): New method to emulate (part of)
+	augeas API
+	(get): New method to emulate (part of) augeas API
+
+	* lib/Config/Model/Loader.pm (): Added load command '~' which was
+	forgotten. This command can delete hash or list
+	item. I.e. load("foo~") will delete element 'a' for hash 'foo'
+	(_load_list): command '=' now clear all values before storing the
+	set of values in the list.
+
+	* lib/Config/Model/AnyId.pm (clear_values): New method to clear
+	values without destroying underlying objects.
+	(set): New method to emulate (part of) augeas API
+	(get): New method to emulate (part of) augeas API
+
 2008-06-20  Dominique Dumont  <dominique.dumont@hp.com>
 
 	* lib/Config/Model/AutoRead.pm: Changed 'syntax' paramter to
