@@ -496,10 +496,10 @@ sub write_back {
     warn "write_back: no subs registered. cannot save" 
       unless @{$self->{write_back}} ;
 
-    my $dir = $args{dir} ;
+    my $dir = $args{config_dir} ;
     mkpath($dir,0,0755) if $dir and not -d $dir ;
 
-    map { $_->(%args) ; } @{$self->{write_back}} ;
+    map { $_->(%args) ;} @{$self->{write_back}} ;
 }
 
 1;
