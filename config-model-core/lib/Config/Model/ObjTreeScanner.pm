@@ -259,6 +259,8 @@ Example:
 
      # resume exploration (if needed)
      map {$scanner->scan_list($data_ref,$node,$element_name,$_)} @idx ;
+
+     # note: scan_list and scan_hash are equivalent
   }
 
 =head2 Check list element callback
