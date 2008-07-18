@@ -121,15 +121,16 @@ By default, the dump contains only data modified by the user
 Reference to the L<Config::Model::Node> object that is dumped. All
 nodes and leaves attached to this node are also dumped.
 
-=item skip_auto_write
+=item skip_auto_write ( <backend_name> )
 
-Skip node that have a C<cds write> capabality in their model. See
-L<Config::Model::AutoRead>.
+Skip node that have a write capability matching C<backend_name> in
+their model. See L<Config::Model::AutoRead>. 
 
 =item auto_vivify
 
 Scan and create data for nodes elements even if no actual data was
 stored in them. This may be useful to trap missing mandatory values.
+(default: 0)
 
 =back
 
