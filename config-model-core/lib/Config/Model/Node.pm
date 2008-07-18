@@ -1154,7 +1154,9 @@ sub get {
     my $path = shift ;
     $path =~ s!^/!! ;
     my ($item,$new_path) = split m!/!,$path,2 ;
-    return $self->fetch_element($item)->get($new_path,@_) ;
+    my $elt = $self->fetch_element($item) ;
+    return $elt if ($elt->get_type ne 'leaf' and not defined $new_path) ;
+    return $elt->get($new_path,@_) ;
 }
 
 =head2 set( path  , value)
