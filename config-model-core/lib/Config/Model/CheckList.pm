@@ -572,7 +572,8 @@ sub get_help {
 
 =head2 clear
 
-Reset the check list (all items are set to 0)
+Reset the check list (all items are set to 0) (can also be called as
+C<clear_values>)
 
 =cut
 
@@ -580,6 +581,8 @@ sub clear {
     my $self = shift ;
     map { $self->store($_ , 0 ) } $self->get_choice ;
 }
+
+sub clear_values { goto &clear ; } 
 
 =head2 get_checked_list_as_hash ( [ custom | preset | standard | default ] )
 
