@@ -747,7 +747,9 @@ sub get {
     my $path = shift ;
     $path =~ s!^/!! ;
     my ($item,$new_path) = split m!/!,$path,2 ;
-    return $self->fetch_with_id($item)->get($new_path,@_) ;
+    my $obj = $self->fetch_with_id($item) ;
+    return $obj if ($obj->get_type ne 'leaf' and not defined $new_path) ;
+    return $obj->get($new_path,@_) ;
 }
 
 =head2 set( path, value )
@@ -1046,7 +1048,7 @@ sub delete {
 
 =head2 clear()
 
-Delete all values.
+Delete all values (also delete underlying value or node objects).
 
 =cut
 
@@ -1057,6 +1059,29 @@ sub clear {
       if ($self->{warp} and @{$self->{warp_info}{computed_master}});
 
     $self->_clear;
+  }
+
+=head2 clear_values()
+
+Delete all values (without deleting underlying value objects).
+
+=cut
+
+sub clear_values {
+    my ($self) = @_ ;
+
+    my $ct = $self->get_cargo_type ;
+    Config::Model::Exception::User
+	-> throw (
+		  object => $self,
+		  message => "clear_values() called on non leaf cargo_type: '$ct'"
+		 ) 
+	  if $ct ne 'leaf';
+
+    $self->warp 
+      if ($self->{warp} and @{$self->{warp_info}{computed_master}});
+
+    map {$self->fetch_with_id($_)->store(undef)} $self->get_all_indexes ;
   }
 
 1;
