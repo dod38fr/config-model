@@ -102,7 +102,10 @@ element with C<node> cargo_type)
 
 =item xxx~yy
 
-Delete item referenced by C<xxx> element and id C<yy>
+Delete item referenced by C<xxx> element and id C<yy>. For a list,
+this is equivalent to C<splice xxx,yy,1>. This command does not go
+down in the tree (since it has just deleted the element). I.e. a
+'C<->' is generally not needed afterwards.
 
 =item xxx=zz
 
@@ -363,6 +366,7 @@ sub unquote {
     map { s/^"// && s/"$// && s/\\"/"/g if defined $_;  } @_ ;
 }
 
+# used for list and check lists
 sub _load_list {
     my ($self,$node,$element_name,$cmd) = @_ ;
 
@@ -380,8 +384,16 @@ sub _load_list {
 	# replace unquoted empty values by undef
 	map { $_ = undef unless length($_) > 0 } @set; 
 	unquote( @set );
+	# clear the array without deleting underlying objects
+	$element->clear_values ;
 	$element->store_set( @set ) ;
 	return $node;
+    }
+    elsif ($elt_type eq 'list' and $action eq '~') {
+	# remove possible leading or trailing quote
+	unquote ($cmd) ;
+	$element->remove($cmd) ;
+	return $node ;
     }
     elsif ($elt_type eq 'list' and $action eq ':' and $cargo_type =~ /node/) {
 	# remove possible leading or trailing quote
@@ -417,6 +429,12 @@ sub _load_hash {
 	# remove possible leading or trailing quote
 	unquote ($cmd) ;
 	return $element->fetch_with_id($cmd) ;
+    }
+    elsif ($action eq '~') {
+	# remove possible leading or trailing quote
+	unquote ($cmd) ;
+	$element->delete($cmd) ;
+	return $node ;
     }
     elsif ($action eq ':' and $cargo_type =~ /leaf/) {
 	my ($id,$value) = split /=/, $cmd, 2;
