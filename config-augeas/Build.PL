@@ -20,17 +20,35 @@ use Module::Build;
 use warnings FATAL => qw(all) ;
 use strict ;
 
+# snatched from ExtUtils::PkgConfig
+# don't go any further if pkg-config cannot be found.
+my $have_pkg_config = `pkg-config --version`;
+
+if ($have_pkg_config eq "") {
+    # Warn and exit with status 0 to indicate (to the user and the CPAN
+    # testers infrastructure) that this module won't work on this machine.
+warn <<"__EOW__";
+***
+*** Config::Augeas requires the pkg-config utility, but it doesn't
+*** seem to be in your PATH.  Is it correctly installed?
+***  PATH=$ENV{PATH}
+***
+__EOW__
+    exit 0;
+}
+
 my $aug_libs   = `pkg-config --libs   augeas` ;
 my $aug_cflags = `pkg-config --cflags augeas` ;
 
-if (not defined $aug_libs or not defined $aug_cflags) {
-    die "could not run 'pkg-config' to determine compiler/linker",
-      "flags for augeas library: $!\n";
-}
-
-if (not $aug_libs or not $aug_cflags) {
-    die "'pkg-config' didn't report any compiler/linker flags for",
-      "augeas library\n";
+if (not defined $aug_libs or not defined $aug_cflags
+    or not $aug_libs or not $aug_cflags) {
+    warn << "EOW1" ;
+***
+*** 'pkg-config' did not find augeas lib or augeas header files. Config::Augeas
+*** needs both augeas library and augeas header files to be compiled.
+***
+EOW1
+    exit 0;
 }
 
 chomp($aug_cflags, $aug_libs) ;

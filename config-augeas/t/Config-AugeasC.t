@@ -6,7 +6,7 @@
 
 # change 'tests => 2' to 'tests => last_test_to_print';
 
-use Test::More tests => 13;
+use Test::More tests => 18;
 BEGIN { use_ok('Config::Augeas') };
 
 use strict;
