@@ -163,6 +163,6 @@ ok( $root->load( step => $step, ), "load : '$step'");
 is($root->fetch_element('lista')->fetch_with_id(1)->fetch ,
    undef,
    "test list value loaded by '$step'");
-my $elt = $root->fetch_element('hash_a')->fetch_with_id('a b ');
+$elt = $root->fetch_element('hash_a')->fetch_with_id('a b ');
 is($elt->fetch,undef, "test hash value loaded by '$step'");
 

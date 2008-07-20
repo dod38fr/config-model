@@ -6,7 +6,7 @@
 # test augeas backend if Config::Augeas is installed
 
 use ExtUtils::testlib;
-use Test::More tests => 7;
+use Test::More ;
 use Config::Model;
 use File::Path;
 use File::Copy ;
@@ -25,6 +25,14 @@ my $trace = shift || 0;
 $::verbose          = 1 if $trace =~ /v/;
 $::debug            = 1 if $trace =~ /d/;
 Config::Model::Exception::Any->Trace(1) if $trace =~ /e/;
+
+eval { require Config::Augeas ;} ;
+if ( $@ ) {
+    plan skip_all => 'Config::Augeas is not installed';
+}
+else {
+    plan tests => 7;
+}
 
 ok(1,"compiled");
 
