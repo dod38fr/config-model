@@ -218,6 +218,12 @@ classes have only leaf elements.
 The structure and element names of the Config::Model tree must match the
 structure defined in Augeas lenses.
 
+Sometimes, the structure of a file loaded by Augeas starts directly
+with a list of items. For instance C</etc/hosts> structure starts with
+a list of lines that specify hosts and IP adresses. The C<set_in>
+parameter specifies an element name in Config::Model root class that
+will hold the configuration data retrieved by Augeas.
+
 =head1 Configuration class with auto read or auto write
 
 =head2 read and write specification

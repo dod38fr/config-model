@@ -127,6 +127,33 @@
 	   level => 'normal',
 	  },
 
+       'save'
+       => {
+	   type => 'leaf',
+	   value_type => 'enum' ,
+	   choice => [qw/backup newfile/],
+	   level => 'hidden',
+	   description => 'Specify how to save the configuration file. Either create a newfile (with extension .augnew, and do not overwrite the original file) or move the original file into a backup file (.augsave extension)',
+	   warp => { follow => '- backend',
+		     rules => [ augeas => { level => 'normal',
+					    mandatory => 1,
+					  }
+			      ],
+		   }
+	  },
+       'set_in'
+       => {
+	   type => 'leaf',
+	   value_type => 'reference' ,
+	   refer_to => '- - element',
+	   level => 'hidden',
+	   description => 'Sometimes, the structure of a file loaded by Augeas starts directly with a list of items. For instance, /etc/hosts structure starts with a list of lines that specify hosts and IP adresses. This parameter specifies an element name in Config::Model root class that will hold the configuration data retrieved by Augeas',
+	   warp => { follow => '- backend',
+		     rules => [ augeas => { level => 'normal',
+					  }
+			      ],
+		   }
+	  },
       ],
 
   ],
