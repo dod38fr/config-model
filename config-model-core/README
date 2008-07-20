@@ -9,9 +9,10 @@ his users. For this he must:
   file, he must provide some code to read and write configuration from
   configuration files.
 
-With the elements above, the project developer will be able to provide
-his users an interactive configuration editor (with integrated help and
-data validation)
+With the elements above, Config::Model will generate interactive
+configuration editors (with integrated help and data validation).
+These editors can be graphical (with Config::Model::TkUI), curses
+based (with Config::Model::CursesUI) or based on ReadLine.
 
 How does this work ?
 --------------------
@@ -19,14 +20,18 @@ How does this work ?
 Using this project, a typical configuration editor will be made of 3
 parts :
 
-   1. The user interface (config-edit program)
+   1. The user interface (config-edit program and some other optional modules)
    2. The validation engine which is in charge of validating all the
       configuration information provided by the user. This engine is
       made of the framework provided by this module and the
-      configuration description.
+      configuration description (often refered as "configuration model").
    3. The storage facility that store the configuration information
+      (currently several backends are provided: ini files, perl files,
+      and Augeas)
 
-The important part is the validation engine. 
+The important part is the configuration model used by the validation
+engine. This model can be created or modified with a graphical editor
+(Config::Model::Iself).
 
 Don't we already have some configuration validation tools ?
 -----------------------------------------------------------
@@ -46,31 +51,31 @@ processing to handle the actual configuration data.
 What's the advantage of this project ?
 --------------------------------------
 
-The Config::Model projects provide a way to get a validation engine
-where the configuration model is completely separated from the actual
-processing instruction.
+Config::Model projects provide a way to get a validation engine where
+the configuration model is completely separated from the actual
+processing instructions.
 
-The configuration model is expressed in a declarative form (currently,
-a Perl data structure) which is always easier to maintain than a lot
-of code.
+A configuration model can be created and modified with the graphical
+interface provide by Config::Model::Itself. The model is saved in a
+declarative form (currently, a Perl data structure). Such a model is
+easier to maintain than a lot of code.
 
-The declaration specifies:
+The model specifies:
 - the structure of the configuration data (which can be queried by
   generic user interfaces)
 - the properties of each element (boundaries check, integer or string,
   enum like type ...)
 - the default values of parameters (if any)
 - mandatory parameters
-- the targeted audience (intermediate, advance, master)
+- the targeted audience (beginer, advanced, master)
 - on-line help (for each parameter or value of parameter)
-- the level of expertise of each parameter (to hide expert parameters
-  from newbie eyes)
 
 So, in the end:
 - maintenance and evolution of the configuration content is easier
 - user will see a *common* interface for *all* programs using this
   project.
-- beginners will not see advanced parameters
+- beginners will not see advanced parameters (advanved and master
+  parameters are hidden from beginners)
 - upgrade of configuration data is easier and sanity check is
   performed
 - audit of configuration is possible to check what was modified by the
@@ -79,30 +84,28 @@ So, in the end:
 What about the user interface ?
 -------------------------------
 
-Config::Model comes with a shell-like interface.
+Config::Model interface can be:
+- a shell-like interface (plain or based on Term::ReadLine).
+- Graphical with Config::Model::TkUI (Perl/Tk interface).
+- based on curses with Config::Model::CursesUI. This interface can be
+  handy if your X server is down.
 
-Config::Model::CursesUI provides a curses interface that queries the
-user's model and generate the relevant user screens.
+All these interfaces are generated from the configuration model.
 
-Why an old-fashioned Curses interface ?
-To be able to configure your system even if X is not running.
+And configuration model can be created or modified with a graphical
+user interface (with Config::Model::Itself)
 
-A perl/tk interface is provided with Config::Model::TkUI
-
-What about data storage ?
--------------------------
+What about configuration data storage ?
+---------------------------------------
 
 Since the syntax of configuration files vary wildly form one program
 to another, most people who want to use this framework will have to
 provide a dedicated parser/writer. 
 
-Nevertheless, this project can also provide a writer/parser for most
-common format: like ini style file, or provide an interface to the
-Elektra or debconf projects. This point is open for discussion.
-
-It is entirely possible for a single configuration model to use
-several parsers and writers so one model will ensure the consistency
-of several configuration files together.
+Nevertheless, this project provides a writer/parser for some common
+format: ini style file and perl file. Version 0.624 is able to use
+Augeas library to read and write some configuration files. See
+http://augeas.net for more details.
 
 Is there an example of a configuration model ?
 ----------------------------------------------
@@ -120,11 +123,12 @@ What is the status of the project ?
 - Perl/Tk interface (provided by Config::Model::TkUI) is beta
 - Xorg model (provided by Config::Model::Xorg) is alpha (and still
   incomplete)
-- Sshd model (should be release end of May 2008)
+- OpenSsh model (sshd_config model is done. ssh_config is to be done)
+- Krb5 model is being developed
 
 Help is welcome on:
 - improve graphical user interface 
-- provide web interface
+- provide web interface (or use Webmin ?)
 - backend storage (use Config::General or ldap maybe ?)
 - configuration model creation (if you have a configuration itch to
   scratch, you're welcome)

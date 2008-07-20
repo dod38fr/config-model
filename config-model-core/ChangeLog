@@ -1,4 +1,4 @@
-2008-07-18  Dominique Dumont  <dominique.dumont@hp.com>
+2008-07-18  Dominique Dumont  v0.624
 
 	* lib/Config/Model/AutoRead.pm: Major changes to interface
 	Config::Model with Augeas (http://augeas.net). Changes are
@@ -29,7 +29,7 @@
 	(set): New method to emulate (part of) augeas API
 	(get): New method to emulate (part of) augeas API
 
-2008-06-20  Dominique Dumont  <dominique.dumont@hp.com>
+2008-06-20  Dominique Dumont 
 
 	* lib/Config/Model/AutoRead.pm: Changed 'syntax' paramter to
 	'backend' as configuration data may be stored to files or through
