@@ -9,7 +9,7 @@ use ExtUtils::testlib;
 use Test::More;
 use Config::Model ;
 
-BEGIN { plan tests => 36; }
+BEGIN { plan tests => 37; }
 
 use strict;
 
