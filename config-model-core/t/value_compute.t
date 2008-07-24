@@ -115,7 +115,20 @@ $model ->create_config_class
        [qw/bar foo2/ ] => {
 			   type => 'node',
 			   config_class_name => 'Slave'
-			  }
+			  },
+
+       'url' => { type => 'leaf',
+		  value_type => 'uniline',
+		},
+       'host' 
+       => { type => 'leaf',
+	    value_type => 'uniline',
+	    compute => { formula => '$url =~ m!http://([\w\.]+)!; $1 ;' , 
+			 variables => { url => '- url' } ,
+			 use_eval => 1,
+		       },
+	  },
+
       ]
  ) ;
 
@@ -128,7 +141,7 @@ my $root = $inst -> config_root ;
 # order is important. Do no use sort.
 is_deeply([$root->get_element_name()],
 	  [qw/av bv compute_int sav sbv one_var one_wrong_var 
-	      meet_test compute_with_override compute_no_var bar foo2/],
+	      meet_test compute_with_override compute_no_var bar foo2 url host/],
 	 "check available elements");
 
 my ( $av, $bv, $compute_int );
@@ -277,3 +290,9 @@ my $slave_bv = $root->fetch_element('bar')->fetch_element('bv') ;
 
 is($slave_av->fetch,$av->fetch,"compare slave av and av") ;
 is($slave_bv->fetch,$bv->fetch,"compare slave bv and bv") ;
+
+$root->fetch_element('url')->store('http://foo.bar/baz.html');
+
+my $h = $root->fetch_element('host');
+
+is($h->fetch,'foo.bar',"check extracted host") ;

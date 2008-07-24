@@ -70,18 +70,31 @@ Config::Model::ValueComputer - Provides configuration value computation
                        },
           },
        compute_with_replace 
-       => {
-            formula   => '$replace{$who} is the $replace{$what} of $replace{$country}',
-            variables => {
-                           who   => '! who' ,
-                           what  => '! what' ,
-                           country => '- country',
-                         },
-	    replace   => { chief => 'president', 
-                            America => 'USA'
-                         },
-    ]
-      ]
+       => { type => 'leaf',
+            value_type => 'string',
+            compute => {
+               formula   => '$replace{$who} is the $replace{$what} of $replace{$country}',
+               variables => {
+                              who   => '! who' ,
+                              what  => '! what' ,
+                              country => '- country',
+                             },
+	       replace   => { chief => 'president', 
+                              America => 'USA'
+                            },
+            },
+       },
+
+       url => { type => 'leaf', value_type => 'uniline'},
+       extract_host_from_url
+       => { type => 'leaf',
+	    value_type => 'uniline',
+	    compute    => { formula => '$old =~ m!http://([\w\.]+)!; $1 ;' , 
+			    variables => { old => '- url' } ,
+			    use_eval => 1 ,
+			  },
+	  },
+     ]
  ) ;
 
 =head1 DESCRIPTION
@@ -115,6 +128,10 @@ L<grab() method|Config::Model::AnyThing/"grab(...)">
 =item *
 
 An optional set of replace rules.
+
+=item *
+
+An optional parameter to force a Perl eval of a string. 
 
 =back
 
@@ -159,6 +176,25 @@ For instance, you could have this template string:
 
    'my element is &element, my index is &index' .
     'upper element is &element($up), upper index is &index($up)',
+
+If you need to perform more complex operations than substition, like
+extraction with regular expressions, you can force an eval done by
+Perl with C<< use_eval => 1 >>. In this case, the result of the eval
+will be used as the computed value.
+
+For instance:
+
+  # extract host from url
+  compute => { formula => '$old =~ m!http://[\w\.]+(?::\d+)?(/.*)!; $1 ;', 
+	       variables => { old => '- url' } ,
+	       use_eval => 1 ,
+	     },
+
+  # capitalize
+  compute => { formula => 'uc($old)',
+	       variables => { old => '- small_caps' } ,
+	       use_eval => 1 
+             }
 
 =head2 Compute variables
 
@@ -249,7 +285,7 @@ Be sure not to specify a loop when doing recursive computation.
 
 In some case, a computed value must be interpreted as a default value
 and the user must be able to override this computed default value.  In
-this case, you must use C<< allow_compute_override => 1 >> with the
+this case, you must use C<< allow_override => 1 >> with the
 compute parameter:
 
    computed_value_with_override => { 
@@ -285,6 +321,8 @@ sub new {
     foreach my $k (qw/variables replace/) {
 	$self->{$k} = delete $args{$k} || {} ;
     }
+
+    $self->{use_eval} = delete $args{use_eval} || 0 ;
 
     die "Config::Model::ValueComputer:new unexpected parameter: ",
       join(' ',keys %args) if %args ;
@@ -324,8 +362,12 @@ sub compute {
 
     return unless defined $variables ;
 
+    my $need_quote = 0;
+    $need_quote = 1 if $self->{use_eval} and $self->{value_type} !~ /(integer|number|boolean)/;
+
     my $formula_r = $compute_parser
-      -> compute ($pre_formula, 1,$self->{value_object}, $variables, $self->{replace}) ;
+      -> compute ($pre_formula, 1,$self->{value_object}, $variables, 
+		  $self->{replace},$need_quote) ;
 
     my $formula = $$formula_r ;
 
@@ -336,7 +378,7 @@ sub compute {
 
     my $result = $self->{computed_formula} = $formula ;
 
-    if ($self->{value_type} =~ /(integer|number|boolean)/) {
+    if ($self->{use_eval} or $self->{value_type} =~ /(integer|number|boolean)/) {
         $result = eval $formula ;
 	if ($@) {
 	    Config::Model::Exception::Formula
@@ -576,6 +618,10 @@ pre_value:
                  )
 	       unless defined $result ;
   }
+  |  <skip:''> /\$\d+/ {
+     my $result = $item[-1] ;
+     $return = \$result ;
+  }
   | object {
      # print "pre_value handling \$foo\n";
      my $object = $item{object};
@@ -598,7 +644,7 @@ compute:  <skip:''> value[@arg](s) {
      # return undef if one value is undef
      foreach my $v (@values) {
 	 if (defined $v) {
-	     $result .= $v ;
+             $result .= $v ;
 	 }
 	 else {
 	     $result = undef;
@@ -633,7 +679,11 @@ value:
        }
      $return = \$result ;
     }
-  | object <commit> {
+  |  <skip:''> /\$\d+/ { 
+     my $result = $item[-1] ;
+     $return = \$result ;
+  }
+  | <skip:''> object <commit> {
      my $name=$item{object} ;
      my $path = $arg[1]->{$name} ; # can be a ref for test purpose
      my $my_res ;
@@ -660,8 +710,11 @@ value:
          # print "fetched var object '$name' with '$path', result '", defined $return ? $return : 'undef',"'\n";
 
      }
-
      # my_res stays undef if $path if not defined
+
+     # quote result if asked when calling compute
+     my $quote = $arg[3] || 0;
+     $my_res = "'$my_res'" if $quote && $my_res ;
 
      $return = \$my_res ; # So I can return undef ... or a ref to undef
     1 ;
@@ -671,7 +724,7 @@ value:
      $return = \$result ;
   }
 
-object: <skip:''> /\$/ /\w+/
+object: <skip:''> /\$/ /[a-zA-Z]\w*/
 
 function: <skip:''> '&' /\w+/
 
