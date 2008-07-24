@@ -48,7 +48,9 @@ my $build = Module::Build->new
 		      'Error'             => 0,
 		     },
    build_requires => {
-		      'Test::More'        => 0, # for test
+		      'Test::More'        => 0,
+		      'Test::Exception'   => 0,
+		      'Test::Warn'        => 0,
 		     },
    recommends => {
 		  # recommended modules to get more reader/writer

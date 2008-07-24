@@ -482,7 +482,7 @@ sub get_master_object {
       Config::Model::Exception::Model
 	  -> throw (
 		    object => $self,
-		    error => "path error '$master_path':\n"
+		    error => "path '$master_path' has error:\n"
 		    . $msg
 		   ) ;
     }

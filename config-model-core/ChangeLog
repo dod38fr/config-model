@@ -1,4 +1,15 @@
-2008-07-18  Dominique Dumont  v0.624
+2008-07-24  Dominique Dumont   v0.624
+
+	* lib/Config/Model/Value.pm and others: Modified to allow smooth
+	configuration data upgrades without requiring user input (if used
+	by packaging, this should really help in avoiding rpmsave or
+	dpkg-old files) (See migrate_from parameter)
+
+	* lib/Config/Model/ValueComputer.pm: added 'use_eval' parameter to
+	allow more complex computation like regexp in string or uniline
+	values
+  
+2008-07-18  Dominique Dumont
 
 	* lib/Config/Model/AutoRead.pm: Major changes to interface
 	Config::Model with Augeas (http://augeas.net). Changes are

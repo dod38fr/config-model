@@ -260,7 +260,8 @@ sub submit_to_compute {
 	      variables    => $c_info->{variables} ,
 	      replace      => $c_info->{replace},
 	      value_object => $self ,
-	      value_type   => $self->{value_type}
+	      value_type   => $self->{value_type},
+	      use_eval     => $c_info->{use_eval},
 	     );
 
     # resolve any recursive variables before registration
@@ -306,6 +307,75 @@ sub compute_info {
     $self->{_compute} -> compute_info ;
 }
 
+=item migrate_from
+
+This is a special parameter to cater for smooth configuration
+upgrade. This parameter can be used to copy the value of a deprecated
+parameter to its replacement. See L<"/upgrade"> for details.
+
+=cut
+
+sub set_migrate_from {
+    my ($self, $arg_ref) = @_ ;
+
+    my $mig_ref = delete $arg_ref->{migrate_from};
+
+    if (ref($mig_ref) eq 'HASH') {
+	$self->{migrate_from} = $mig_ref ;
+    }
+    else {
+	Config::Model::Exception::Model
+	    -> throw (
+		      object => $self,
+		      error => "migrate_from value must be a hash ref not $mig_ref"
+		     ) ;
+    }
+
+    $self->{_migrate_from} = Config::Model::ValueComputer
+      -> new (
+	      formula      => $mig_ref->{formula} ,
+	      variables    => $mig_ref->{variables} ,
+	      replace      => $mig_ref->{replace},
+	      use_eval     => $mig_ref->{use_eval},
+	      value_object => $self ,
+	      value_type   => $self->{value_type}
+	     );
+
+    # resolve any recursive variables before registration
+    $self->{instance}->push_no_value_check('fetch') ;
+    my $v = $self->{_migrate_from}->compute_variables ;
+    $self->{instance}->pop_no_value_check ;
+}
+
+# FIXME: should it be used only once ???
+sub migrate_value {
+    my $self = shift ;
+
+    my $i = $self->instance;
+
+    # avoid warning when reading deprecated values
+    $i->push_no_value_check('fetch') ;
+    my $result = $self->{_migrate_from} -> compute ;
+    $i ->pop_no_value_check ;
+
+    # check if the migrated result fits with the constraints of the
+    # Value object
+    my $ok = $self->check($result) ;
+
+    #print "check result: $ok\n";
+    if (not $ok) {
+        my $error =  join("\n\t",@{$self->{error}}) .
+          "\n\t".$self->{_migrate_from}->compute_info;
+
+        Config::Model::Exception::WrongValue
+	    -> throw (
+		      object => $self,
+		      error => "migrated value error:\n\t". $error 
+		     );
+    }
+
+    return $ok ? $result : undef ;
+}
 
 =item convert => [uc | lc ]
 
@@ -466,6 +536,7 @@ sub new {
 
     $self->set_properties() ; # set will use backup data
 
+
     if (defined $warp_info) {
 	$self->check_warp_args( \@allowed_warp_params, $warp_info) ;
     }
@@ -529,6 +600,9 @@ sub set_properties {
 					      or exists $args{built_in} );
     $self->set_compute        ( \%args ) if defined $args{compute};
     $self->set_convert        ( \%args ) if defined $args{convert};
+
+    # cannot be warped
+    $self->set_migrate_from   ( \%args ) if defined $args{migrate_from};
 
     Config::Model::Exception::Model
 	-> throw (
@@ -1286,9 +1360,10 @@ sub _pre_fetch {
     my $std_value ;
 
     try {
-	$std_value = defined $self->{preset}  ? $self->{preset}
-                   : defined $self->{compute} ? $self->compute 
-                   :                            $self->{default} ;
+	$std_value 
+	  = defined $self->{preset}        ? $self->{preset}
+          : defined $self->{compute}       ? $self->compute 
+          :                                  $self->{default} ;
     }
     catch Config::Model::Exception::User with { 
 	if ($self->instance->get_value_check('fetch')) {
@@ -1314,6 +1389,9 @@ sub fetch_no_check {
     my $std = $self->_pre_fetch ;
     my $data = $self->{data} ;
 
+    if (not defined $data and defined $self->{_migrate_from}) {
+	$data =  $self->migrate_value ;
+    }
 
     if ($mode eq 'custom') {
 	no warnings "uninitialized" ;
@@ -1347,6 +1425,7 @@ sub _fetch_no_check {
      return defined $self->{data}    ? $self->{data}
           : defined $self->{preset}  ? $self->{preset}
           : defined $self->{compute} ? $self->compute 
+          : defined $self->{_migrate_from} ? $self->migrate_value
           :                            $self->{default} ;
 }
 
@@ -1531,6 +1610,55 @@ sub get_depend_slave {
 
 __END__
 
+=head1 Upgrade
+
+Upgrade is a special case when the configuration of an application has
+changed. Some parameters can be removed and replaced by another
+one. To avoid trouble on the application user side, Config::Model
+offers a possibility to handle the migration of configuration data
+through a special declaration in the configuration model.
+
+This declaration must:
+
+=over
+
+=item *
+
+Declare the deprecated parameter with a C<status> set to C<deprecated>
+
+=item *
+
+Declare the new parameter with the intructions to load the semantic
+content from the deprecated parameter. These instructions are declared
+in the C<migrate_from> parameters (which is similar to the C<compute>
+parameter)
+
+=back
+
+Here an example where a url parameter is changed to a set of 2
+parameters (host and path):
+
+       'old_url' => { type => 'leaf',
+		      value_type => 'uniline',
+		      status => 'deprecated',
+		    },
+       'host' 
+       => { type => 'leaf',
+	    value_type => 'uniline',
+            # the formula must end with '$1' so the result of the capture is used
+            # as the host value
+	    migrate_from => { formula => '$old =~ m!http://([\w\.]+)!; $1 ;' , 
+			      variables => { old => '- old_url' } ,
+			      use_eval => 1 ,
+			    },
+			},
+       'path' => { type => 'leaf',
+		   value_type => 'uniline',
+		   migrate_from => { formula => '$old =~ m!http://[\w\.]+(/.*)!; $1 ;', 
+				     variables => { old => '- old_url' } ,
+				     use_eval => 1 ,
+				   },
+		 },
 
 
 =head1 EXCEPTION HANDLING

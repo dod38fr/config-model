@@ -21,7 +21,7 @@
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 
 package Config::Model::Node;
-use Carp;
+use Carp ;
 use strict;
 use warnings;
 use Config::Model::Exception;
@@ -47,7 +47,11 @@ $VERSION = sprintf "1.%04d", q$Revision$ =~ /(\d+)/;
 *experience_list  = *Config::Model::experience_list ;
 *experience_index = *Config::Model::experience_index ;
 
-my @legal_properties= qw/status level experience/;
+my %legal_properties = (
+			status => {qw/obsolete 1 deprecated 1 standard 1/ },
+			level  => {qw/important 1 normal 1 hidden 1/},
+			experience => {qw/master 1 advanced 1 beginner 1/},
+		       ) ;
 
 =head1 NAME
 
@@ -432,25 +436,27 @@ C<config_class_name> parameter. For instance:
 
 =cut
 
-# check validity of experience declaration. 
+# check validity of experience,level and status declaration. 
 # create a list to classify elements by experience
-sub check_experience {
+sub check_properties {
     my $self = shift ;
 
-    # this is a bit convoluted, but the order of element for each
-    # experience must respect the order of the elements declared in
-    # the model by the user
+    # this is a bit convoluted, but the order of element stored with
+    # the "push" for each experience must respect the order of the
+    # elements declared in the model by the user
 
     foreach my $elt_name (@{$self->{model}{element_list}}) {
-	my $experience = $self->{model}{experience}{$elt_name} ;
+	foreach my $prop (keys %legal_properties) {
+	    my $prop_v = $self->{model}{$prop}{$elt_name} ;
 
-	croak "Config class $self->{config_class_name} error: ",
-	  "Unknown experience: $experience. Expected ",
-	    join(" or ",@experience_list)
-	      unless defined $experience_index{$experience} ;
+	    croak "Config class $self->{config_class_name} error: ",
+	      "Unknown $prop: '$prop_v'. Expected ",
+		join(" or ",keys %{$self->{model}{$prop}})
+		  unless defined $legal_properties{$prop}{$prop_v} ;
 
-	push 
-	  @{$self->{element_by_experience}{$experience}}, $elt_name ;
+	    push @{$self->{element_by_experience}{$prop}}, $elt_name 
+	      if $prop eq 'experience' ;
+	}
     }
 }
 
@@ -550,7 +556,7 @@ sub new {
       = $self->{model} 
 	= dclone ( $self->{config_model}->get_model($class_name) );
 
-    $self->check_experience ;
+    $self->check_properties ;
 
     if (defined $model->{read_config}) {
 	# setup auto_read, read_config_dir is obsolete
@@ -770,6 +776,9 @@ sub get_element_name {
 	$self->create_element($elt) unless defined $self->{element}{$elt};
 
 	next if $info->{level}{$elt} eq 'hidden' ;
+	my $status = $info->{status}{$elt} ;
+	next if ($status eq 'deprecated' or $status eq 'obsolete') ;
+
 	my $elt_idx =  $experience_index{$info->{experience}{$elt}} ;
 	my $elt_type =  $self->{element}{$elt}->get_type ;
 	my $elt_cargo = $self->{element}{$elt}->get_cargo_type ;
@@ -904,11 +913,10 @@ sub check_property_args {
 	$prop = 'experience' ;
     }
 
-    my $ok = 0;
-    map {$ok++ if $prop eq $_} @legal_properties ;
+    my $prop_values = $legal_properties{$prop} ;
     confess "Unknown property in $method_name: $prop, expected status or ",
       "level or experience"
-	unless $ok ;
+	unless defined $prop_values ;
 
     return ($prop,$elt) ;
 }
@@ -959,6 +967,9 @@ sub fetch_element {
 
     # check status
     if ($model->{status}{$element_name} eq 'obsolete') {
+	# obsolete is a status not very different from a missing
+	# item. The only difference is that user will get more
+	# information
 	Config::Model::Exception::ObsoleteElement
 	    ->throw(
 		    object   => $self,
@@ -967,10 +978,11 @@ sub fetch_element {
     }
 
     if ($model->{status}{$element_name} eq 'deprecated' 
-	and $self->{instance}->get_value_check('fetch_or_store')
+	and $self->{instance}->get_value_check('fetch_and_store')
        ) {
 	# TBD elaborate more ? or include parameter description ??
-	warn "Element $element_name of node ",$self->name," is deprecated\n";
+	warn "Element '$element_name' of node '",$self->name,
+	  "' is deprecated\n";
     }
 
     # check experience

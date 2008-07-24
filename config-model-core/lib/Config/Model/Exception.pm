@@ -57,7 +57,7 @@ use Exception::Class
 
    'Config::Model::Exception::ObsoleteElement'
    => { isa         => 'Config::Model::Exception::User',
-	description => 'unavailable element',
+	description => 'Obsolete element',
 	fields      => [qw/object element info/],
       },
 
@@ -254,6 +254,24 @@ sub full_message {
     $msg .= "\tError occured when calling $function.\n" if defined $function ;
     $msg .= "\t".$unavail->warp_error if $unavail->can('warp_error');
 
+    $msg .= "\t".$self->info."\n" if defined $self->info ;
+    return $msg;
+}
+
+package Config::Model::Exception::ObsoleteElement ;
+
+sub full_message {
+    my $self = shift;
+
+    my $obj = $self->object ;
+    my $element = $self->element ;
+    my $msg = $self->description;
+
+    my $location = $obj->name ;
+    my $help = $obj->get_help($element) || '';
+
+    $msg .= " '$element' in node '$location'.\n" ;
+    $msg .= "\t$help\n" ;
     $msg .= "\t".$self->info."\n" if defined $self->info ;
     return $msg;
 }
