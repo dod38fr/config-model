@@ -124,6 +124,7 @@
 
       'compute' 
       => { type => 'warped_node',
+	   level => 'hidden',
 
 	   follow => { t  => '- type',},
 	   'rules' => [ '$t  eq "leaf"'
@@ -133,6 +134,20 @@
 			   },
 		      ],
 	   description => "compute the default value according to a formula and value from other elements in the configuration tree.",
+	 },
+
+      'migrate_from' 
+      => { type => 'warped_node',
+	   level => 'hidden',
+
+	   follow => { t  => '- type',},
+	   'rules' => [ '$t  eq "leaf"'
+			=> {
+			    level => 'normal',
+			    config_class_name => 'Itself::MigratedValue',
+			   },
+		      ],
+	   description => "Specify an upgrade path from an old value and compute the value to store in the new element.",
 	 },
 
 

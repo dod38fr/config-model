@@ -58,6 +58,13 @@
 	   value_type => 'string' ,
 	  },
 
+       [qw/write_config_dir read_config_dir/]
+       => {
+	   type => 'leaf',
+	   value_type => 'uniline' ,
+	   status => 'deprecated',
+	  },
+
        generated_by => { 
 			type => 'leaf',
 			value_type => 'uniline' ,
@@ -95,9 +102,25 @@
 
    'element' 
    => [
+
+       'syntax'  => { type => 'leaf',
+		      value_type => 'enum',
+		      choice => [qw/cds perl ini custom/],
+		      status => 'deprecated',
+		      description => 'Deprecated parameter that specified the file syntax to store permanently configuration data. Replaced by "backend"',
+		    },
+
        'backend' => { type => 'leaf',
 		      value_type => 'enum',
 		      choice => [qw/cds_file perl_file ini_file augeas custom/],
+		      migrate_from => { formula => '$old' , 
+					variables => { old => '- syntax' } ,
+					replace => { 
+						    perl => 'perl_file',
+						    ini  => 'ini_file',
+						    cds  => 'cds_file',
+						   },
+				      },
 		      description => 'specifies the backend to store permanently configuration data.',
 		      help => {
 			       cds_file => "file with config data string. This is Config::Model own serialisation format, designed to be compact and readable.",
@@ -119,12 +142,6 @@
 					  }
 			      ],
 		   }
-	  },
-       'config_dir'
-       => {
-	   type => 'leaf',
-	   value_type => 'uniline' ,
-	   level => 'normal',
 	  },
 
        'save'
@@ -176,8 +193,19 @@
 			      ],
 		   }
 	  },
-       ],
 
+       'config_dir'
+       => {
+	   type => 'leaf',
+	   value_type => 'uniline' ,
+	   level => 'normal',
+	   migrate_from => {
+			    formula => '$old' , 
+			    variables => { old => '- - read_config_dir' } ,
+			   }
+	  },
+
+       ],
   ],
 
   [
@@ -197,6 +225,16 @@
 					  }
 			      ],
 		   }
+	  },
+       'config_dir'
+       => {
+	   type => 'leaf',
+	   value_type => 'uniline' ,
+	   level => 'normal',
+	   migrate_from => {
+			    formula => '$old' , 
+			    variables => { old => '- - read_config_dir' } ,
+			   }
 	  },
       ],
   ],

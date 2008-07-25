@@ -19,6 +19,7 @@ lib/Config/Model/models/Itself/Class.pl
 lib/Config/Model/models/Itself/CommonElement.pl
 lib/Config/Model/models/Itself/ComputedValue.pl
 lib/Config/Model/models/Itself/Element.pl
+lib/Config/Model/models/Itself/MigratedValue.pl
 lib/Config/Model/models/Itself/Model.pl
 lib/Config/Model/models/Itself/NonWarpableElement.pl
 lib/Config/Model/models/Itself/WarpOnlyElement.pl

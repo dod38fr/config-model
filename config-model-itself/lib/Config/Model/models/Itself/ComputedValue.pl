@@ -23,32 +23,10 @@
 [
   [
    name => "Itself::ComputedValue",
+   include => "Itself::MigratedValue" ,
 
    'element' 
    => [
-       'variables',
-       => {
-	   type => 'hash',
-	   index_type => 'string' ,
-	   cargo => { type => 'leaf', value_type => 'uniline' } ,
-	   description => 'Specify where to find the variables using path notation. For the formula "$a + $b", you need to specify "a => \'- a_path\', b => \'! b_path\' ',
-	  },
-
-       'formula' => { type => 'leaf',
-		      value_type => 'string',
-		      # making formula mandatory makes mandatory setting the
-		      # compute parameter for a leaf. That's not a
-		      # desired behavior.
-		      # mandatory => 1 ,
-		      description => 'Specify how the computation is done. This string can a Perl expression for integer value or a template for string values. Variables have the same notation than in Perl. Example "$a + $b" ',
-		    },
-       'replace'
-       => {
-	   type => 'hash',
-	   index_type => 'string' ,
-	   cargo => { type => 'leaf', value_type => 'uniline' } ,
-	   description => 'Sometime, using the value of a tree leaf is not enough and you need to substitute a replacement for any value you can get. This replacement can be done using a hash like notation within the formula using the %replace hash. Example $replace{$who} , where "who => \'- who_elt\' ',	  
-	  },
 
        'allow_override' 
        => { type => 'leaf',

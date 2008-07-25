@@ -1,3 +1,22 @@
+2008-07-25  Dominique Dumont v0.204
+
+	* lib/Config/Model/models/Itself/*.pl: 
+	All the changes described below will be handled by the 
+	upgrade facility of Config::Model. I.e. to upgrade your 
+	configuration model, load your model in config-model-edit, 
+	save it, and you're done.
+	Changes:
+	- Changed auto read and auto write meta-model (needed by 
+	  Config::Model 0.624). 
+	- autoread autowrite 'syntax' parameter is replaced by 'backend'. 
+	- Added auto-read/write 'augeas' backend. 
+	- Added migrate_from in Class so that your own model will be able 
+	  to smoothly upgrade configuration data (See upgrade doc in 
+	  Config::Model::Value)
+	- Added use_eval for more complex string computation when the power 
+	  of Perl is needed (See Config::Model::ComputedValue documentation)
+
+
 2008-05-21  Dominique Dumont  v0.203
 
 	* config-model-edit: Fixed bug that prevented testing of the

@@ -32,11 +32,11 @@ my $build = Module::Build->new
   (
    module_name   => 'Config::Model::Itself',
    license       => 'lgpl',
-   dist_version  => 0.203 ,
+   dist_version  => 0.204 ,
    dist_author   => "Dominique Dumont (ddumont at cpan dot org)",
    dist_abstract => "Editor for Config::Model data files",
    requires      => {
-		     'Config::Model'   => '0.621',
+		     'Config::Model'   => '0.624',
 		     'Log::Log4perl'   => 0 ,
 		     'Config::Model::TkUI' => '0.105',
 		    },
