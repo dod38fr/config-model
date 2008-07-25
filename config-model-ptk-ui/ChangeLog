@@ -1,3 +1,8 @@
+2008-07-25  Dominique Dumont  <dominique.dumont@hp.com>
+
+	* lib/Config/Model/Tk/ListEditor.pm (Populate): can now move up
+	and down node list items.
+
 2008-06-18  Dominique Dumont v0.201
 
 	* lib/Config/Model/TkUI.pm (Populate): Replaced "placeholder" with logo

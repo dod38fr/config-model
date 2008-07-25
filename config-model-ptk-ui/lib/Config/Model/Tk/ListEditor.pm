@@ -119,13 +119,6 @@ sub Populate {
 				 -width => $entry_width)
 	    -> pack  (-side => 'left') ;
 
-	# move up and down don't make much sense for list of nodes...
-	$right_frame->Button(-text => 'Move selected up',
-			     -command => sub { $cw->move_up ;} ,
-			    )-> pack( @fxe1);
-	$right_frame->Button(-text => 'Move selected down',
-			     -command => sub { $cw->move_down ;} ,
-			    )-> pack( @fxe1);
     }
     else {
 	my $disp = $cargo_type ;
@@ -135,6 +128,13 @@ sub Populate {
 			    )-> pack( @fxe1);
     }
 
+
+    $right_frame->Button(-text => 'Move selected up',
+			 -command => sub { $cw->move_up ;} ,
+			)-> pack( @fxe1);
+    $right_frame->Button(-text => 'Move selected down',
+			 -command => sub { $cw->move_down ;} ,
+			)-> pack( @fxe1);
 
     $right_frame->Button(-text => 'Remove selected',
 			 -command => sub { $cw->remove_selection ;} ,
