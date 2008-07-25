@@ -150,14 +150,21 @@
 	   value_type => 'enum' ,
 	   choice => [qw/backup newfile/],
 	   level => 'hidden',
-	   description => 'Specify how to save the configuration file. Either create a newfile (with extension .augnew, and do not overwrite the original file) or move the original file into a backup file (.augsave extension)',
+	   description => 'Specify how to save the configuration file. Either create a newfile (with extension .augnew, and do not overwrite the original file) or move the original file into a backup file (.augsave extension). Configuration files are overwritten by default',
 	   warp => { follow => '- backend',
-		     rules => [ augeas => { level => 'normal',
-					    mandatory => 1,
-					  }
-			      ],
+		     rules => [ augeas => { level => 'normal',} ],
 		   }
 	  },
+       'config_file'
+       => {
+	   type => 'leaf',
+	   value_type => 'uniline' ,
+	   level => 'hidden',
+	   warp => { follow => '- backend',
+		     rules => [ augeas => { level => 'normal',}],
+		   },
+	   description => 'Specify the configuration file (with its absolute path) that will be used by Augeas',
+	   },
        'set_in'
        => {
 	   type => 'leaf',
@@ -199,6 +206,9 @@
 	   type => 'leaf',
 	   value_type => 'uniline' ,
 	   level => 'normal',
+	   warp => { follow => '- backend',
+		     rules => [ augeas => { level => 'hidden',}],
+		   },
 	   migrate_from => {
 			    formula => '$old' , 
 			    variables => { old => '- - read_config_dir' } ,
@@ -231,6 +241,9 @@
 	   type => 'leaf',
 	   value_type => 'uniline' ,
 	   level => 'normal',
+	   warp => { follow => '- backend',
+		     rules => [ augeas => { level => 'hidden',}],
+		   },
 	   migrate_from => {
 			    formula => '$old' , 
 			    variables => { old => '- - read_config_dir' } ,
