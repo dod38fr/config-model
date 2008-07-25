@@ -4,10 +4,11 @@
 # $Revision$
 
 use ExtUtils::testlib;
-use Test::More tests => 40;
+use Test::More tests => 48;
 use Config::Model;
 use File::Path;
 use File::Copy ;
+use Test::Warn ;
 
 use warnings;
 no warnings qw(once);
@@ -157,11 +158,15 @@ sub write {
 
 package main;
 
-my $i_zero = $model->instance(instance_name    => 'zero_inst',
-			      root_class_name  => 'Master',
-			      write_root_dir   => $root1 ,
-			      read_root_dir    => $root1 ,
-			     );
+my $i_zero ;
+warnings_like {
+    $i_zero = $model->instance(instance_name    => 'zero_inst',
+			       root_class_name  => 'Master',
+			       write_root_dir   => $root1 ,
+			       read_root_dir    => $root1 ,
+			      );
+    } [qr/read_config_dir is obsolete/, qr/deprecated/,qr/deprecated/],
+  "obsolete warning" ;
 
 ok( $i_zero, "Created instance (from scratch)" );
 
@@ -174,9 +179,14 @@ ok( $master, "Master node created" );
 
 is( $master->fetch_element_value('aa'), $custom_aa, "Master custom read" );
 
-my $level1 = $master->fetch_element('level1');
+my $level1;
+
+warnings_like {
+    $level1 = $master->fetch_element('level1');
+} qr/read_config_dir is obsolete/ , "obsolete warning" ;
 
 ok( $level1, "Level1 object created" );
+
 is( $level1->grab_value('bar X'), 'Cv', "Check level1 custom read" );
 
 is( $result{level1_read} , $conf_dir, "check level1 custom read conf dir" );
@@ -264,15 +274,24 @@ foreach my $f ( keys %cds ) {
 }
 
 # create another instance
-my $test2_inst = $model->instance(root_class_name  => 'Master',
-				  instance_name    => $inst2 ,
-				  root_dir         => $root2 ,);
+my $test2_inst;
+warnings_like {
+    $test2_inst = $model->instance(root_class_name  => 'Master',
+				   instance_name    => $inst2 ,
+				   root_dir         => $root2 ,);
+    } [qr/read_config_dir is obsolete/, qr/deprecated/,qr/deprecated/],
+  "obsolete warning" ;
 
 ok($inst2,"created second instance") ;
 
 # access level1 to autoread it
 my $root_2   = $test2_inst  -> config_root ;
-my $level1_2 = $root_2 -> fetch_element('level1');
+
+my $level1_2;
+warnings_like {
+    $level1_2 = $root_2 -> fetch_element('level1');
+} qr/read_config_dir is obsolete/ , "obsolete warning" ;
+
 
 is($root_2->grab_value('aa'),'aa was set by file',"$inst2: check that cds file was read") ;
 
@@ -296,8 +315,13 @@ map { my $o = $_; s!$root1/zero!ini!;
   glob("$root1/*.ini") ;
 
 # create another instance to load ini files
-my $ini_inst = $model->instance(root_class_name  => 'Master',
+my $ini_inst ;
+warnings_like {
+    $ini_inst = $model->instance(root_class_name  => 'Master',
 				instance_name => 'ini_inst' );
+} [qr/read_config_dir is obsolete/, qr/deprecated/,qr/deprecated/],
+  "obsolete warning" ;
+
 ok($ini_inst,"Created instance to load ini files") ;
 
 my $expect_custom = 'aa="aa was set (custom mode)"
@@ -309,7 +333,10 @@ samerw
     Y=Cv - - -
 ' ;
 
-$dump = $ini_inst ->config_root->dump_tree ;
+warnings_like {
+    $dump = $ini_inst ->config_root->dump_tree ;
+} qr/read_config_dir is obsolete/ , "obsolete warning" ;
+
 is( $dump, $expect_custom, "ini_test: check dump" );
 
 
@@ -321,9 +348,17 @@ map { my $o = $_; s!$root1/zero!pl!;
   } glob("$root1/*.pl") ;
 
 # create another instance to load pl files
-my $pl_inst = $model->instance(root_class_name  => 'Master',
+my $pl_inst ;
+warnings_like {
+    $pl_inst = $model->instance(root_class_name  => 'Master',
 				instance_name => 'pl_inst' );
+} [qr/read_config_dir is obsolete/, qr/deprecated/,qr/deprecated/],
+  "obsolete warning" ;
+
 ok($pl_inst,"Created instance to load pl files") ;
 
-$dump = $pl_inst ->config_root->dump_tree ;
+warnings_like {
+    $dump = $pl_inst ->config_root->dump_tree ;
+} qr/read_config_dir is obsolete/ , "obsolete warning" ;
+
 is( $dump, $expect_custom, "pl_test: check dump" );

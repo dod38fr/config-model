@@ -61,6 +61,7 @@ t/recursive_warp_value.t
 t/report.t
 t/search_element.t
 t/simple_ui.t
+t/smooth_upgrade.t
 t/term_ui.t
 t/value.t
 t/value_compute.t

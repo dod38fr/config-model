@@ -308,7 +308,7 @@ sub auto_read_init {
     my ($self, $readlist_orig, $r_dir) = @_ ;
     # r_dir is obsolete
     if (defined $r_dir) {
-	warn $self->config_class_name," : read_config_dir is obsolete";
+	warn $self->config_class_name," : read_config_dir is obsolete\n";
     }
 
     my $readlist = dclone $readlist_orig ;
@@ -324,11 +324,11 @@ sub auto_read_init {
 
     my @list = ref $readlist  eq 'ARRAY' ? @$readlist :  ($readlist) ;
     foreach my $read (@list) {
-	carp $self->config_class_name,
-	  " deprecated 'syntax' parameter in auto_read" if defined $read->{syntax} ;
+	warn $self->config_class_name,
+	  " deprecated 'syntax' parameter in auto_read\n" if defined $read->{syntax} ;
 	my $backend = delete $read->{backend} || delete $read->{syntax} || 'custom';
 	if ($backend =~ /^(perl|ini|cds)$/) {
-	    carp $self->config_class_name,
+	    warn $self->config_class_name,
 	      " deprecated auto_read backend $backend. Should be '$ {backend}_file'\n";
 	    $backend .= "_file" ;
 	}
@@ -382,7 +382,7 @@ sub auto_write_init {
 
     # w_dir is obsolete
     if (defined $w_dir) {
-	warn $self->config_class_name," : write_config_dir is obsolete";
+	warn $self->config_class_name," : write_config_dir is obsolete\n";
     }
 
     my $wrlist = dclone $wrlist_orig ;
@@ -395,11 +395,11 @@ sub auto_write_init {
     # provide a proper write back function
     my @array = ref $wrlist eq 'ARRAY' ? @$wrlist : ($wrlist) ;
     foreach my $write (@array) {
-	carp $self->config_class_name,
-	  " deprecated 'syntax' parameter in auto_write" if defined $write->{syntax} ;
+	warn $self->config_class_name,
+	  " deprecated 'syntax' parameter in auto_write\n" if defined $write->{syntax} ;
 	my $backend = delete $write->{backend} || delete $write->{syntax} || 'custom';
 	if ($backend =~ /^(perl|ini|cds)$/) {
-	    carp $self->config_class_name,
+	    warn $self->config_class_name,
 	      " deprecated auto_read backend $backend. Should be '$ {backend}_file'\n";
 	    $backend .= "_file" ;
 	}
