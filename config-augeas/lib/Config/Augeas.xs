@@ -47,31 +47,54 @@ BOOT:
   }
 
 Config_Augeas*
-aug_init(char* root = NULL ,char* loadpath = NULL ,unsigned int flags = 0)
+aug_init(root = NULL ,loadpath = NULL ,flags = 0)
+      char* root 
+      char* loadpath
+      unsigned int flags
 
 
 MODULE = Config::Augeas PACKAGE = Config::AugeasPtr PREFIX = aug_
 
 void
-aug_DESTROY(Config_Augeas* aug)
+aug_DESTROY(aug)
+      Config_Augeas* aug
     CODE:
       //printf("destroying aug object\n");
       aug_close(aug);
 
-int
-aug_get(IN Config_Augeas* aug, IN char* path, OUTLIST const char* value)
+const char*
+aug_get(aug, path)
+      Config_Augeas* aug
+      char* path
+    PREINIT:
+      int ret ;
+    CODE:
+      ret = aug_get(aug, path, &RETVAL);
+    OUTPUT:
+      RETVAL
 
 int
-aug_set(Config_Augeas* aug, const char* path, char* c_value)
+aug_set(aug, path, c_value)
+      Config_Augeas* aug
+      const char* path
+      char* c_value
 
 int 
-aug_insert(Config_Augeas* aug, const char* path, const char* label, int before)
+aug_insert(aug, path, label, before)
+      Config_Augeas* aug
+      const char* path
+      const char* label
+      int before
 
 int 
-aug_rm(Config_Augeas *aug, const char *path);
+aug_rm(aug, path);
+      Config_Augeas *aug
+      const char *path
 
 void
-aug_match(Config_Augeas *aug, const char *pattern);
+aug_match(aug, pattern);
+      Config_Augeas *aug
+      const char *pattern
     PREINIT:
         char**  matches;
         int i ;
@@ -93,7 +116,9 @@ aug_match(Config_Augeas *aug, const char *pattern);
         free(matches);
 
 int
-aug_count_match(Config_Augeas *aug, const char *pattern);
+aug_count_match(aug, pattern);
+      Config_Augeas *aug
+      const char *pattern
     CODE:
         RETVAL = aug_match(aug, pattern,NULL);
     OUTPUT:
@@ -101,11 +126,15 @@ aug_count_match(Config_Augeas *aug, const char *pattern);
 
 
 int 
-aug_save(Config_Augeas *aug);
+aug_save( aug );
+      Config_Augeas *aug
 
  # See example 9 in perlxstut man page
 int
-aug_print(Config_Augeas *aug, OutputStream stream, const char* path);
+aug_print(aug, stream, path);
+        Config_Augeas *aug
+	OutputStream stream
+	const char* path
     PREINIT:
         FILE *fp ;
     CODE:
