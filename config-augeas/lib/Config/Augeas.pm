@@ -21,7 +21,7 @@ use strict;
 use warnings;
 use Carp;
 
-our $VERSION = '0.201';
+our $VERSION = '0.202';
 
 require XSLoader;
 XSLoader::load('Config::Augeas', $VERSION);
@@ -190,7 +190,7 @@ sub insert {
     my $path   = shift || croak __PACKAGE__,"insert: undefined path";
 
     my $before = $where eq 'before' ? 1
-               : $where eq 'before' ? 0
+               : $where eq 'after'  ? 0
 	       :                      undef ;
     croak __PACKAGE__,"insert: 'where' must be 'before' or 'after' not $where"
       unless defined $before ;
