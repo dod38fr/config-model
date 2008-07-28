@@ -1,4 +1,4 @@
-2008-07-25  Dominique Dumont  <dominique.dumont@hp.com>
+2008-07-25  Dominique Dumont v0.205
 
 	* lib/Config/Model/models/Itself/Class.pl: Fixed specification of
 	Augeas parameters

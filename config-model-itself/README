@@ -1,9 +1,14 @@
 
-Config::Model::Itself - Config::Model model (for Config::Model)
+Config::Model::Itself - Model editor for Config::Model 
 
-This module provides a model of Config:Model (hence the Itself name).
-If you install also a UI module like Config::Model::TkUI, you get a
-graphical configuration model editor.
+This module provides a graphical editor to edit configuration model
+for Config:Model. 
+
+This modules also provides a model for Config::Model (hence the Itself
+name, you can also think of it as a meta-model).  The editor will use
+this meta-model to construct the graphical interface so you can edit
+the configuration model for *your* application. [ This module is the
+"eat your own dog food" principle applied to Config::Model ;-) ]
 
 Let's step back a little to explain. Any configuration data is, in
 essence, structured data. This data could be stored in an XML file. A
