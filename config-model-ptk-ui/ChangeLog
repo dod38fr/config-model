@@ -1,7 +1,8 @@
-2008-07-25  Dominique Dumont  <dominique.dumont@hp.com>
+2008-07-25  Dominique Dumont  <dominique.dumont@hp.com> v0.202
 
 	* lib/Config/Model/Tk/ListEditor.pm (Populate): can now move up
-	and down node list items.
+	and down node list items. This is handy when order of nodes is
+	important.
 
 2008-06-18  Dominique Dumont v0.201
 
