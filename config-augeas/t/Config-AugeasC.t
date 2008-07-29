@@ -40,14 +40,7 @@ my $aug_root = 'augeas-box/';
 my $written_file = $aug_root."etc/hosts.augnew" ;
 unlink ($written_file) if -e $written_file ;
 
-my $lens_dir = '';
-
-# work-around augeas bug. Remove after augeas >0.2.0 is released
-foreach my $d ('/usr/local/share/augeas/lenses/') {
-    $lens_dir = $d if -d $d;
-}
-
-my $augc = Config::Augeas::init($aug_root, $lens_dir ,
+my $augc = Config::Augeas::init($aug_root, '' ,
 				&Config::Augeas::AUG_SAVE_NEWFILE) ;
 
 ok($augc,"Created new Augeas object");
@@ -105,7 +98,6 @@ close WR;
 ok( -e $wr_file, "$wr_file exists" );
 
 $ENV{AUG_ROOT} = $aug_root;
-$ENV{AUGEAS_LENS_LIB}= $lens_dir if defined $lens_dir;
 
 # test may fail with augeas 0.2.0 installed in /usr/local
 my $augc2 = Config::Augeas::init() ;

@@ -14,12 +14,7 @@ ok(1,"Compilation done");
 my $aug_root = 'augeas-box/';
 my $lens_dir ;
 
-# work-around augeas 0.2.0. Hard-coded path will be removed
-foreach my $d ('/usr/local/share/augeas/lenses/') {
-    $lens_dir = $d if -d $d;
-}
-
-my $aug = Config::Augeas->new( root => $aug_root, loadpath => $lens_dir ) ;
+my $aug = Config::Augeas->new( root => $aug_root ) ;
 
 ok($aug,"Created new Augeas object");
 

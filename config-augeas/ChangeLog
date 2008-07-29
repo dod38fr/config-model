@@ -1,3 +1,21 @@
+2008-07-29  Dominique Dumont  <dominique.dumont@hp.com> v0.202
+
+	* t/Config-Augeas*.t: Removed hardcoded lense path now that this
+	bug is fixed in Augeas
+
+2008-07-28  Dominique Dumont  
+
+	* lib/Config/Augeas.xs: Backported for Perl 5.8
+
+	* lib/Config/Augeas.pm (insert): Can now use 'after' parameter
+
+2008-07-20  Dominique Dumont
+
+	* Fixed minor error in tests
+
+	* Fix Build.PL to avoid test failure reports when augeas library
+	is not installed.
+
 2008-07-01  Dominique Dumont  v0.201
 
 	* t/Config-Augeas*.t: Documented work-around Augeas 0.2.0
