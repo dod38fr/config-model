@@ -1,3 +1,10 @@
+2008-07-30  Dominique Dumont  <dominique.dumont@hp.com> v0.625
+
+	* lib/Config/Model/ListId.pm (swap): Swapped or moved values in a
+	list no longer provides wrong location in config
+	tree. (index_value were not updated in objects contained in List
+	after a swap or a move)
+
 2008-07-24  Dominique Dumont   v0.624
 
 	* lib/Config/Model/Value.pm and others: Modified to allow smooth

@@ -158,6 +158,10 @@ sub store_set {
     my $self = shift ;
     my $idx = 0 ;
     map { $self->fetch_with_id( $idx++ )->store( $_ ) ; } @_ ;
+
+    # and delete unused items
+    my $max = scalar @{$self->{data}} ;
+    splice @{$self->{data}}, $idx, $max - $idx ;
 }
 
 # store without any check 
@@ -211,10 +215,20 @@ sub swap {
     my $ida  = shift ;
     my $idb  = shift ;
 
-    my $tmp = $self->{data}[$ida] ;
-    $self->{data}[$ida] = $self->{data}[$idb] ;
-    $self->{data}[$idb] = $tmp ;
+    my $obja = $self->{data}[$ida] ;
+    my $objb = $self->{data}[$idb] ;
+
+    # swap the index values contained in the objects
+    my $obja_index = $obja->index_value ;
+    $obja->index_value( $objb->index_value ) ;
+    $objb->index_value( $obja_index ) ;
+
+    # then swap the objects
+    $self->{data}[$ida] = $objb ;
+    $self->{data}[$idb] = $obja ;
 }
+
+#die "check index number after wap";
 
 =head2 remove ( idx )
 

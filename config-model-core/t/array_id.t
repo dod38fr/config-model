@@ -9,7 +9,7 @@ use ExtUtils::testlib;
 use Test::More;
 use Config::Model;
 
-BEGIN { plan tests => 22; }
+BEGIN { plan tests => 53; }
 
 use strict;
 
@@ -64,8 +64,26 @@ $model ->create_config_class
 	   default    => [2..5],
 	   @element
 	  },
+       olist => {
+		 type => 'list',
+		 cargo => { type=>'node',
+			    config_class_name => 'Slave'} ,
+		}
        ]
    ) ;
+
+$model -> create_config_class 
+  (
+   name => "Slave",
+   element 
+   =>  [
+	[qw/X Y Z/] => {
+			type => 'leaf',
+			value_type => 'enum',
+			choice     => [qw/Av Bv Cv/]
+		       },
+       ]
+  );
 
 my $inst = $model->instance (root_class_name => 'Master', 
 			     instance_name => 'test1');
@@ -106,15 +124,61 @@ is_deeply([$lds->get_all_indexes],[0 .. 5],"check list_with_several_default_keys
 my $lac = $root->fetch_element('list_with_auto_created_id');
 is_deeply([$lac->get_all_indexes],[0 .. 3],"check list_with_auto_created_id") ;
 
+map{ is($b->fetch_with_id($_)->index_value, $_, 
+	"Check index value $_" ); } (0 .. 4) ;
+
 $b->move(3,4) ;
-is($b->fetch_with_id(3)->fetch, undef ,"check after move") ;
-is($b->fetch_with_id(4)->fetch, 'toto',"check after move") ;
+is($b->fetch_with_id(3)->fetch, undef ,"check after move idx 3 in 4") ;
+is($b->fetch_with_id(4)->fetch, 'toto',"check after move idx 3 in 4") ;
+map{ is($b->fetch_with_id($_)->index_value, $_, 
+	"Check moved index value $_" ); } (0 .. 4) ;
 
 $b->fetch_with_id(3)->store('titi');
 $b->swap(3,4) ;
 
-is($b->fetch_with_id(3)->fetch, 'toto',"check after swap") ;
-is($b->fetch_with_id(4)->fetch, 'titi',"check after swap") ;
+map{ is($b->fetch_with_id($_)->index_value, $_, 
+	"Check swapped index value $_" ); } (0 .. 4) ;
+
+is($b->fetch_with_id(3)->fetch, 'toto',"check value after swap") ;
+is($b->fetch_with_id(4)->fetch, 'titi',"check value after swap") ;
 
 $b->remove(3) ;
 is($b->fetch_with_id(3)->fetch, 'titi',"check after remove") ;
+
+# test move swap with node list
+my $ol = $root->fetch_element('olist') ;
+
+my @set = ( [ qw/X Av/],
+	    [ qw/X Bv/],
+	    [ qw/Y Av/],
+	    [ qw/Z Cv/],
+	    [ qw/Z Av/],
+	  );
+
+my $i = 0;
+foreach my $item (@set) {
+    my ($e,$v) = @$item;
+    $ol->fetch_with_id($i++)->fetch_element($e)->store($v)
+}
+
+$ol->move(3,4) ;
+is($ol->fetch_with_id(3)->fetch_element('Z')->fetch, undef ,
+   "check after move idx 3 in 4") ;
+is($ol->fetch_with_id(4)->fetch_element('Z')->fetch, 'Cv',
+   "check after move idx 3 in 4") ;
+map{ is($ol->fetch_with_id($_)->index_value, $_, 
+	"Check moved index value $_" ); } (0 .. 4) ;
+
+$ol->swap(0,2) ;
+is($ol->fetch_with_id(0)->fetch_element('X')->fetch, undef ,
+   "check after move idx 0 in 2") ;
+is($ol->fetch_with_id(0)->fetch_element('Y')->fetch, 'Av' ,
+   "check after move") ;
+
+is($ol->fetch_with_id(2)->fetch_element('Y')->fetch, undef ,
+   "check after move") ;
+is($ol->fetch_with_id(2)->fetch_element('X')->fetch, 'Av' ,
+   "check after move") ;
+
+map{ is($ol->fetch_with_id($_)->index_value, $_, 
+	"Check moved index value $_" ); } (0 .. 4) ;

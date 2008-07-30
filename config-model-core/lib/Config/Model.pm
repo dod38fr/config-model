@@ -34,7 +34,7 @@ use Config::Model::Instance ;
 # this class holds the version number of the package
 use vars qw($VERSION @status @level @experience_list %experience_index) ;
 
-$VERSION = '0.624';
+$VERSION = '0.625';
 
 =head1 NAME
 
@@ -674,7 +674,9 @@ sub translate_legacy_info {
 				   $info->{cargo}{warp});
     }
 
-    if (defined $info->{cargo} && $info->{cargo}{type} eq 'warped_node') {
+    if (   defined $info->{cargo} 
+        && defined $info->{cargo}{type} 
+	&& $info->{cargo}{type} eq 'warped_node') {
 	$self->translate_warp_info($config_class_name,$elt_name, $info->{cargo});
     }
 

@@ -953,6 +953,7 @@ the value object (as declared in the model unless they were warped):
 
 # accessor to get some fields through methods (See man perltootc)
 foreach my $datum (@accessible_params) {
+    next if $datum eq 'index_value' ; #provided by AnyThing
     no strict "refs";       # to register new methods in package
     *$datum = sub {
 	my $self= shift;
