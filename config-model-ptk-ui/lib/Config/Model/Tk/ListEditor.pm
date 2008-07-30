@@ -236,6 +236,7 @@ sub move_up {
 
     my $from_idx = $from_idx_ref->[0] ;
     return unless $from_idx ;
+    return unless $from_idx > 0 ;
 
     $cw->swap($from_idx , $from_idx - 1) ;
 }
@@ -250,6 +251,7 @@ sub move_down {
     return unless @$from_idx_ref ;
 
     my $from_idx = $from_idx_ref->[0] ;
+    return unless $from_idx < @$from_idx_ref ;
 
     $cw->swap($from_idx , $from_idx + 1) ;
 }
@@ -262,13 +264,20 @@ sub swap {
     my $list = $cw->{list};
     $list->swap($ida , $idb) ;
 
-    my $old = $tklist->get($ida) ;
-    $tklist->delete($ida) ;
+    my $cargo_type = $list->cargo_type ;
 
-    while ($idb > $tklist->size) {
-	$tklist->insert('end','<undef>') ;
+    $tklist->selectionClear($ida ) ;
+
+    if ($cargo_type ne 'node') {
+	my $old = $tklist->get($ida) ;
+	$tklist->delete($ida) ;
+
+	while ($idb > $tklist->size) {
+	    $tklist->insert('end','<undef>') ;
+	}
+	$tklist->insert($idb, $old) ;
     }
-    $tklist->insert($idb, $old) ;
+
     $tklist->selectionSet($idb ) ;
     $cw->reload_tree ;
 }

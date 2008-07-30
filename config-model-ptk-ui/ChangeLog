@@ -1,3 +1,10 @@
+2008-07-30  Dominique Dumont  <dominique.dumont@hp.com>
+
+	* lib/Config/Model/Tk/ListEditor.pm (swap): No more hiccups when
+	moving list items past boundaries. Indexes are no longer moved in
+	the rightmost box when moving node items in a list. It was
+	confusing to have array indexes in the wrong order.
+
 2008-07-25  Dominique Dumont  <dominique.dumont@hp.com> v0.202
 
 	* lib/Config/Model/Tk/ListEditor.pm (Populate): can now move up
