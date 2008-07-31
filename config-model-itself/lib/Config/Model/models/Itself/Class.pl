@@ -205,9 +205,13 @@
        => {
 	   type => 'leaf',
 	   value_type => 'uniline' ,
-	   level => 'normal',
-	   warp => { follow => '- backend',
-		     rules => [ augeas => { level => 'hidden',}],
+	   level => 'hidden',
+	   warp => { follow => { b => '- backend' },
+		     rules => [ '$b ne "augeas"' 
+				=> { level => 'normal',
+				     mandatory => 1,
+				   }
+			      ],
 		   },
 	   migrate_from => {
 			    formula => '$old' , 
