@@ -1,3 +1,9 @@
+2008-07-31  Dominique Dumont  <dominique.dumont@hp.com>
+
+	* lib/Config/Model.pm (create_config_class): No longer creates
+	empty include element when skip_include is true (breaks
+	Config::Itself tests)
+
 2008-07-30  Dominique Dumont  <dominique.dumont@hp.com> v0.625
 
 	* lib/Config/Model/ListId.pm (swap): Swapped or moved values in a

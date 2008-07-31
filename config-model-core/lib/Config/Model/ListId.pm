@@ -293,7 +293,8 @@ sub load_data {
 	    $obj -> load_data($item) ;
 	}
     }
-    else {
+    # do now create one element of undef data.
+    elsif (defined $data) {
 	print "ListId load_data (",$self->location,") will load idx ",
 	  "0\n" if $::verbose ;
 	$self->clear ;

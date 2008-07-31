@@ -483,10 +483,11 @@ sub create_config_class {
     my %model = ( element_list => [] );
 
     # add included items
-    if ($self->{skip_include}) {
+    if ($self->{skip_include} and defined $raw_copy->{include}) {
 	my $inc = delete $raw_copy->{include} ;
 	$model{include}       =  ref $inc ? $inc : [ $inc ];
-	$model{include_after} = delete $raw_copy->{include_after} ;
+	$model{include_after} = delete $raw_copy->{include_after}
+	  if defined $raw_copy->{include_after};
     }
     else {
 	$self->include_class($config_class_name, $raw_copy ) ; 
