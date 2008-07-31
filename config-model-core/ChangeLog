@@ -1,7 +1,10 @@
 2008-07-31  Dominique Dumont  <dominique.dumont@hp.com>
 
+	* lib/Config/Model/Value.pm (migrate_value): No longer fails when
+	a migrated value is also a mandatory value.
+
 	* lib/Config/Model.pm (create_config_class): No longer creates
-	empty include element when skip_include is true (breaks
+	empty include in model when skip_include is true (breaks
 	Config::Itself tests)
 
 2008-07-30  Dominique Dumont  <dominique.dumont@hp.com> v0.625
