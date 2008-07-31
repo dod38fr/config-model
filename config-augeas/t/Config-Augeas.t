@@ -6,15 +6,16 @@ use Config::Augeas ;
 
 use warnings ;
 use strict;
-use Test::More tests => 14 ;
-
+use Test::More tests => 13 ;
 
 ok(1,"Compilation done");
 
 my $aug_root = 'augeas-box/';
-my $lens_dir ;
 
-my $aug = Config::Augeas->new( root => $aug_root ) ;
+my $written_file = $aug_root."etc/hosts.augnew" ;
+unlink ($written_file) if -e $written_file ;
+
+my $aug = Config::Augeas->new( root => $aug_root, save => 'newfile' ) ;
 
 ok($aug,"Created new Augeas object");
 
@@ -26,21 +27,25 @@ $ret = $aug->get("/files/etc/hosts/1/canonical") ;
 
 is($ret,'localhost',"Called get (returned $ret )");
 
-$aug->set("/files/etc/hosts/2/ipaddr","192.168.0.1") ;
-$aug->set("/files/etc/hosts/2/canonical","bilbo") ;
+$aug->set("/files/etc/hosts/2/canonical","newbilbo") ;
 
 ok($aug,"Set new host");
 
 $ret = $aug->get("/files/etc/hosts/2/canonical") ;
-is($ret,'bilbo',"Called get after set (returned $ret )");
+is($ret,'newbilbo',"Called get after set (returned $ret )");
 
-$aug->insert(inserted_host => before => "/files/etc/hosts/1" ) ;
+$aug->set("/files/etc/hosts/4/ipaddr","192.168.0.4") ;
+$aug->set("/files/etc/hosts/4/canonical","gandalf") ;
 
-ok($aug,"insert new label");
+$aug->insert(3 => before => "/files/etc/hosts/4" ) ;
+
+ok($aug,"inserted new host");
+
+$aug->set("/files/etc/hosts/3/ipaddr","192.168.0.3") ;
+$aug->set("/files/etc/hosts/3/canonical","gandalf") ;
 
 
-$aug->set("/files/etc/hosts/3/ipaddr","192.168.0.2") ;
-$aug->rm("/files/etc/hosts/3") ;
+$aug->rm("/files/etc/hosts/4") ;
 ok($aug,"removed entry");
 
 my @a = $aug->match("/files/etc/hosts/") ;
@@ -52,19 +57,16 @@ is($ret,1,"count_match result") ;
 $ret = $aug->save ;
 ok($ret,"save done") ;
 
-$ENV{AUG_ROOT} = $aug_root;
-$ENV{AUGEAS_LENS_LIB}= $lens_dir if defined $lens_dir;
+ok(-e $written_file, "File was written" ) ;
 
-# work-around: augeas 0.2.0 does not understand env variables
-# this test will fail with auges 0.2.0 installed in /usr/local
-my $aug2 = Config::Augeas->new(root => $aug_root) ;
+open(SAVED,$written_file) || die "can't read $written_file";
+my @expect = ("127.0.0.1 localhost localhost",
+	      "192.168.0.1 newbilbo",
+	      "192.168.0.3 gandalf",
+	     );
+my @content = <SAVED> ;
+map{ chomp; s/\s+/ /g;} @content ;
 
-ok($aug2,"Created 2nd Augeas object");
+is_deeply(\@content,\@expect,"check written file content");
 
-$ret = $aug2->get("/files/etc/hosts/1/ipaddr") ;
 
-is($ret,'127.0.0.1',"Called get (returned $ret )");
-
-$ret = $aug2->get("/files/etc/hosts/1/canonical") ;
-
-is($ret,'localhost',"Called get (returned $ret )");

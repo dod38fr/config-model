@@ -1,3 +1,7 @@
+2008-07-30  Dominique Dumont  <dominique.dumont@hp.com> v0.203
+
+	* t/Config-Augeas.t: Fixed test that broke with Augeas 0.2.2
+
 2008-07-29  Dominique Dumont  <dominique.dumont@hp.com> v0.202
 
 	* t/Config-Augeas*.t: Removed hardcoded lense path now that this
