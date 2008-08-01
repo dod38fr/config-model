@@ -838,13 +838,16 @@ sub edit_copy {
 	my $data_ref = $tkt->infoData($selection);
 
 	my $cfg_elt = $data_ref->[1] ;
+	my $type = $cfg_elt->get_type ;
+	my $cfg_class = $type eq 'node' ? $cfg_elt->config_class_name : '';
 	print "edit_copy '",$cfg_elt->location, 
-	      "' type '", $cfg_elt->get_type,"'\n";
+	  "' type '$type' class '$cfg_class'\n";
 
 	push  @res, [ $cfg_elt->element_name,
 		      $cfg_elt->index_value ,
 		      $cfg_elt->composite_name,
-		      $cfg_elt->get_type,
+		      $type,
+		      $cfg_class ,
 		      $cfg_elt->dump_as_data()] ;
     }
 
@@ -871,15 +874,18 @@ sub edit_paste {
     my $cfg_elt = $data_ref->[1] ;
     print "edit_paste '",$cfg_elt->location, 
           "' type '", $cfg_elt->get_type,"'\n";
-    my $t_type = $cfg_elt->get_type ;
-    my $t_name = $cfg_elt->element_name ;
+    my $t_type  = $cfg_elt->get_type ;
+    my $t_class = $t_type eq 'node' ? $cfg_elt->config_class_name : '';
+    my $t_name  = $cfg_elt->element_name ;
     my $cut_buf = $cw->{cut_buffer} || [] ;
 
     foreach my $data (@$cut_buf) {
-	my ($name,$index,$composite,$type, $dump) = @$data;
+	my ($name,$index,$composite,$type, $cfg_class, $dump) = @$data;
 	print "from composite name '$composite' type $type\n";
-	print "t_name '$t_name' t_type '$t_type'\n";
-	if ($name eq $t_name and $type eq $t_type) {
+	print "t_name '$t_name' t_type '$t_type'  class '$t_class'\n";
+	if (   ($name eq $t_name and $type eq $t_type )
+	    or $t_class eq $cfg_class
+	   ) {
 	   $cfg_elt->load_data($dump) ;
 	}
 	elsif (($t_type eq 'hash' or $t_type eq 'list') and defined $index) {

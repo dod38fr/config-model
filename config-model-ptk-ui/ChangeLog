@@ -1,3 +1,8 @@
+2008-08-01  Dominique Dumont  <dominique.dumont@hp.com>
+
+	* lib/Config/Model/TkUI.pm (edit_paste): Cut'n'paste improvements
+	for list elements
+
 2008-07-30  Dominique Dumont  <dominique.dumont@hp.com>
 
 	* lib/Config/Model/Tk/ListEditor.pm (swap): No more hiccups when
