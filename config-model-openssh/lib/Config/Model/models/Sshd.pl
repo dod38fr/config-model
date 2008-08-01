@@ -1,22 +1,26 @@
 [
           {
-            'write_config_dir' => '/etc/ssh',
             'read_config' => [
                                {
                                  'function' => 'sshd_read',
+                                 'backend' => 'custom',
                                  'class' => 'Config::Model::OpenSsh',
-                                 'syntax' => 'custom'
+                                 'config_dir' => '/etc/ssh'
+                               },
+                               {
+                                 'backend' => 'augeas',
+                                 'config_file' => '/etc/ssh/sshd_config'
                                }
                              ],
             'name' => 'Sshd',
             'write_config' => [
                                 {
                                   'function' => 'sshd_write',
+                                  'backend' => 'custom',
                                   'class' => 'Config::Model::OpenSsh',
-                                  'syntax' => 'custom'
+                                  'config_dir' => '/etc/ssh'
                                 }
                               ],
-            'read_config_dir' => '/etc/ssh',
             'element' => [
                            'AcceptEnv',
                            {

@@ -1,3 +1,8 @@
+2008-08-01  Dominique Dumont  <dominique.dumont@hp.com>
+
+	* lib/Config/Model/models/Sshd.pl: Added capacity to read files
+	with Augeas (still "experimental" though)
+
 2008-05-26  Dominique Dumont
 
 	* all: changed module name from Sshd to OpenSsh
