@@ -1,3 +1,8 @@
+2008-08-01  Dominique Dumont  <dominique.dumont@hp.com>
+
+	* lib/Config/Model/models/Itself/Class.pl: Bug fix on Augeas
+	parameters
+
 2008-07-25  Dominique Dumont v0.205
 
 	* lib/Config/Model/models/Itself/Class.pl: Fixed specification of
