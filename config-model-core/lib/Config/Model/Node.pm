@@ -1182,7 +1182,12 @@ sub set {
     my $path = shift ;
     $path =~ s!^/!! ;
     my ($item,$new_path) = split m!/!,$path,2 ;
-    return $self->fetch_element($item)->set($new_path,@_) ;
+    if ($item =~ /([\w\-]+)\[(\d+)\]/) {
+	return $self->fetch_element($1)->fetch_with_id($2)->set($new_path,@_) ;
+    }
+    else {
+	return $self->fetch_element($item)->set($new_path,@_) ;
+    }
 }
 
 =head1 Serialisation

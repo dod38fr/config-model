@@ -701,7 +701,7 @@ sub read_augeas
 
 	print "read-augeas read $aug_p, set $cm_p with $v\n" if $::debug ;
 	$cm_p =~ s!^/!! ;
-	my @cm_steps = split m!/!, $cm_p ;
+	my @cm_steps = split m![/\]\[]+!, $cm_p ;
 	my $obj = $self;
 
 	while (my $step = shift @cm_steps) {
@@ -810,9 +810,13 @@ sub dump_as_path{
 	my $p = $data_ref->[0] ;
 	my $r = $data_ref->[1] ;
 
-	# Augeas lists begin at 1 not 0
-	map {$scanner->scan_list([$p.'/'.($_+1),$r],
-				 $node,$element_name,$_)} @idx ;
+
+	my $ct = $node->fetch_element($element_name)->cargo_type ;
+	my $slash = $ct =~ /node/ ? 1 : 0 ;
+	map { my $aug_idx = $_ + 1 ; # Augeas lists begin at 1 not 0
+	      my $subpath =  $slash ? "/$aug_idx" : "[$aug_idx]" ;
+	      $scanner->scan_list([$p.$subpath,$r], $node,$element_name,$_);
+	  } @idx ;
     };
 
     my $node_content_cb = sub {
@@ -822,7 +826,7 @@ sub dump_as_path{
 	map {
 	    # Deal with the fact that Augeas tree can start directly into
 	    # a list element
-	    my $np = $set_in eq $_ ? $p : $p."/$_" ;
+	    my $np = (defined $set_in and $set_in eq $_) ? $p : $p."/$_" ;
 	    $scanner->scan_element([$np,$r], $node,$_)
 	} @element ;
     };

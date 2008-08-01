@@ -31,7 +31,7 @@ if ( $@ ) {
     plan skip_all => 'Config::Augeas is not installed';
 }
 else {
-    plan tests => 7;
+    plan tests => 12;
 }
 
 ok(1,"compiled");
@@ -44,8 +44,9 @@ my $wr_root = 'wr_root/';
 
 # cleanup before tests
 rmtree($wr_root);
-mkpath($wr_root.'etc/', { mode => 0755 }) ;
+mkpath($wr_root.'etc/ssh/', { mode => 0755 }) ;
 copy($r_root.'etc/hosts',$wr_root.'/etc/') ;
+copy($r_root.'etc/ssh/sshd_config',$wr_root.'/etc/ssh/') ;
 
 # set_up data
 
@@ -83,13 +84,50 @@ $model->create_config_class
 	      ]
    );
 
+$model->create_config_class 
+  (
+   name => 'Sshd',
+
+   read_config  => [ { backend => 'augeas', 
+		       config_file => '/etc/ssh/sshd_config',
+		       save   => 'backup',
+		     },
+		   ],
+
+   element => [
+	       'HostbasedAuthentication',
+	       {
+		'value_type' => 'boolean',
+		'type' => 'leaf',
+	       },
+	       'HostKey',
+	       {
+		'cargo' => {
+			    'value_type' => 'uniline',
+			    'type' => 'leaf'
+			   },
+		'type' => 'list',
+	       },
+	       'Subsystem',
+	       {
+		'cargo' => {
+			    'value_type' => 'uniline',
+			    'mandatory' => '1',
+			    'type' => 'leaf'
+			   },
+		'type' => 'hash',
+		'index_type' => 'string'
+	       },
+	      ]
+   );
+
 
 my $i_hosts = $model->instance(instance_name    => 'hosts_inst',
 			       root_class_name  => 'Hosts',
 			       read_root_dir    => $wr_root ,
 			      );
 
-ok( $i_hosts, "Created instance (from scratch)" );
+ok( $i_hosts, "Created instance for /etc/hosts" );
 
 my $i_root = $i_hosts->config_root ;
 
@@ -147,3 +185,48 @@ $nb = $augeas_obj -> count_match("/files/etc/hosts/*") ;
 is($nb,3,"Check nb of hosts in Augeas after deletion") ;
 
 $augeas_obj->print(*STDOUT, '') if $trace;
+
+my $i_sshd = $model->instance(instance_name    => 'sshd_inst',
+			      root_class_name  => 'Sshd',
+			      read_root_dir    => $wr_root ,
+			     );
+
+ok( $i_sshd, "Created instance for sshd" );
+
+ok( $i_sshd, "Created instance for /etc/ssh/sshd_config" );
+
+my $sshd_root = $i_sshd->config_root ;
+
+$expect = "HostbasedAuthentication=0
+HostKey=/etc/ssh/ssh_host_key,/etc/ssh/ssh_host_rsa_key,/etc/ssh/ssh_host_dsa_key -
+";
+
+TODO: {
+
+local $TODO="Need to cater for Angea view of list and sequence (different notations). Pb: config-model does not make any difference";
+
+$dump = $sshd_root->dump_tree ;
+print $dump if $trace ;
+is( $dump , $expect,"check dump of augeas data");
+
+# change data content, '~' is like a splice, 'top~0' like a "shift"
+$sshd_root->load("HostbasedAuthentication=1") ;
+
+$dump = $sshd_root->dump_tree ;
+print $dump if $trace ;
+
+my %h = $sshd_root->dump_as_path() ;
+print Dumper \%h if $trace ;
+my $expect_h = { 
+		'/HostKey/1' => '/etc/ssh/ssh_host_key',
+		'/HostKey/2' => '/etc/ssh/ssh_host_rsa_key',
+		'/HostKey/3' => '/etc/ssh/ssh_host_dsa_key',
+		'/HostbasedAuthentication' => '1',
+	       };
+is_deeply(\%h,$expect_h,"Check dump_as_path") ;
+
+#$i_sshd->write_back ;
+ok(-e $wr_root.'/etc/sshd.augsave',
+   "check that backup config file was written");
+
+}
