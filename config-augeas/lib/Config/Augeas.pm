@@ -21,7 +21,7 @@ use strict;
 use warnings;
 use Carp;
 
-our $VERSION = '0.203';
+our $VERSION = '0.301';
 
 require XSLoader;
 XSLoader::load('Config::Augeas', $VERSION);
@@ -211,7 +211,7 @@ sub insert {
 
 Remove path and all its children. Returns the number of entries
 removed.  All nodes that match C<path>, and their descendants, are
-removed. 
+removed. (C<remove> can also be called with C<rm>)
 
 =cut 
 
@@ -223,8 +223,37 @@ sub remove {
     my $self   = shift ;
     my $path   = shift || croak __PACKAGE__,"remove: undefined path";
 
-    my $result ;
     return $self->{aug_c} -> rm($path) ;
+}
+
+=head2 move ( src, dest )
+
+Move the node SRC to DST. SRC must match exactly one node in the
+tree. DST must either match exactly one node in the tree, or may not
+exist yet. If DST exists already, it and all its descendants are
+deleted. If DST does not exist yet, it and all its missing ancestors
+are created.
+
+Note that the node SRC always becomes the node DST: when you move
+C</a/b> to C</x>, the node C</a/b> is now called C</x>, no matter
+whether C</x> existed initially or not. (C<move> can also be called
+with C<mv>)
+
+Returns 1 in case of success, 0 otherwise.
+
+=cut
+
+sub mv {
+    goto &move ;
+}
+
+sub move {
+    my $self   = shift ;
+    my $src    = shift || croak __PACKAGE__,"move: undefined src";
+    my $dst    = shift || croak __PACKAGE__,"move: undefined dst";
+
+    my $result = $self->{aug_c} -> mv($src,$dst) ;
+    return $result == 0 ? 1 : 0 ;
 }
 
 =head2 match ( pattern )

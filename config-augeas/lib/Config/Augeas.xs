@@ -91,6 +91,12 @@ aug_rm(aug, path);
       Config_Augeas *aug
       const char *path
 
+int 
+aug_mv(aug, src, dst);
+      Config_Augeas *aug
+      const char *src
+      const char *dst
+
 void
 aug_match(aug, pattern);
       Config_Augeas *aug

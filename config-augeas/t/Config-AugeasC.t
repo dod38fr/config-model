@@ -7,6 +7,8 @@
 # change 'tests => 2' to 'tests => last_test_to_print';
 
 use Test::More tests => 18;
+use ExtUtils::testlib;
+
 BEGIN { use_ok('Config::Augeas') };
 
 use strict;
@@ -63,16 +65,19 @@ unlink ($written_file) if -e $written_file ;
 $ret = $augc->get("/files/etc/hosts/2/canonical") ;
 is($ret,'bilbo',"Called get after set (returned $ret )");
 
-$ret = $augc->insert("/files/etc/hosts/1", inserted_host => 1 ) ;
-
-is($ret ,0,"insert new label");
+#$ret = $augc->insert("/files/etc/hosts/1", inserted_host => 1 ) ;
+# is($ret ,0,"insert new label");
 
 $augc->set("/files/etc/hosts/3/ipaddr","192.168.0.2") ;
 $augc->rm("/files/etc/hosts/3") ;
 ok($augc,"removed entry");
 
-$augc->set("/files/etc/hosts/3/ipaddr","192.168.0.3") ;
-$augc->set("/files/etc/hosts/3/canonical","gandalf") ;
+$augc->set("/files/etc/hosts/5/ipaddr","192.168.0.3") ;
+$augc->set("/files/etc/hosts/5/canonical","gandalf") ;
+
+$ret = $augc->mv("/files/etc/hosts/5","/files/etc/hosts/4") ;
+# get return value directly from Augeas
+is($ret ,0,"mv ok");
 
 my @a = $augc->match("/files/etc/hosts/") ;
 is_deeply(\@a,["/files/etc/hosts"],"match result") ;
@@ -82,6 +87,8 @@ is($ret,1,"count_match result") ;
 
 $ret = $augc->save ;
 is($ret,0,"save done") ;
+
+# $augc->print(*STDOUT,'') ;
 
 ok(-e $written_file,"augnew file written") ;
 

@@ -1,3 +1,8 @@
+2008-08-29  Dominique Dumont  <dominique.dumont@hp.com> v0.301
+
+	* lib/Config/Augeas.pm (move): New method for Augeas 0.3.0 new
+	aug_mv function. 'move' can also be called with 'mv'
+
 2008-07-30  Dominique Dumont  <dominique.dumont@hp.com> v0.203
 
 	* t/Config-Augeas.t: Fixed test that broke with Augeas 0.2.2

@@ -6,7 +6,7 @@ use Config::Augeas ;
 
 use warnings ;
 use strict;
-use Test::More tests => 13 ;
+use Test::More tests => 14 ;
 
 ok(1,"Compilation done");
 
@@ -34,8 +34,11 @@ ok($aug,"Set new host");
 $ret = $aug->get("/files/etc/hosts/2/canonical") ;
 is($ret,'newbilbo',"Called get after set (returned $ret )");
 
-$aug->set("/files/etc/hosts/4/ipaddr","192.168.0.4") ;
-$aug->set("/files/etc/hosts/4/canonical","gandalf") ;
+$aug->set("/files/etc/hosts/5/ipaddr","192.168.0.4") ;
+$aug->set("/files/etc/hosts/5/canonical","gandalf") ;
+
+$ret = $aug->move("/files/etc/hosts/5","/files/etc/hosts/4") ;
+is($ret,1,"Called move");
 
 $aug->insert(3 => before => "/files/etc/hosts/4" ) ;
 
