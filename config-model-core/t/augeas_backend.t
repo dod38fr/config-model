@@ -31,7 +31,7 @@ if ( $@ ) {
     plan skip_all => 'Config::Augeas is not installed';
 }
 else {
-    plan tests => 12;
+    plan tests => 13;
 }
 
 ok(1,"compiled");
@@ -45,8 +45,8 @@ my $wr_root = 'wr_root/';
 # cleanup before tests
 rmtree($wr_root);
 mkpath($wr_root.'etc/ssh/', { mode => 0755 }) ;
-copy($r_root.'etc/hosts',$wr_root.'/etc/') ;
-copy($r_root.'etc/ssh/sshd_config',$wr_root.'/etc/ssh/') ;
+copy($r_root.'etc/hosts',$wr_root.'etc/') ;
+copy($r_root.'etc/ssh/sshd_config',$wr_root.'etc/ssh/') ;
 
 # set_up data
 
@@ -70,17 +70,18 @@ $model->create_config_class
 
    read_config  => [ { backend => 'augeas', 
 		       config_file => '/etc/hosts',
-		       set_in => 'top',
+		       set_in => 'record',
 		       save   => 'backup',
+		       lens_with_seq => ['record'],
 		     },
 		   ],
 
    element => [
-	       top => { type => 'list',
-			cargo => { type => 'node',
-				   config_class_name => 'Host',
-				 } ,
-		      },
+	       record => { type => 'list',
+			   cargo => { type => 'node',
+				      config_class_name => 'Host',
+				    } ,
+			 },
 	      ]
    );
 
@@ -88,13 +89,24 @@ $model->create_config_class
   (
    name => 'Sshd',
 
-   read_config  => [ { backend => 'augeas', 
-		       config_file => '/etc/ssh/sshd_config',
-		       save   => 'backup',
+   'read_config'
+   => [ { backend => 'augeas', 
+	  config_file => '/etc/ssh/sshd_config',
+	  save   => 'backup',
+	  lens_with_seq => [qw/AcceptEnv AllowGroups AllowUsers 
+                                         DenyGroups  DenyUsers/],
 		     },
 		   ],
 
    element => [
+	       'AcceptEnv',
+	       {
+		'cargo' => {
+			    'value_type' => 'uniline',
+			    'type' => 'leaf'
+			   },
+		'type' => 'list',
+	       },
 	       'HostbasedAuthentication',
 	       {
 		'value_type' => 'boolean',
@@ -131,11 +143,11 @@ ok( $i_hosts, "Created instance for /etc/hosts" );
 
 my $i_root = $i_hosts->config_root ;
 
-my $expect = "top:0
+my $expect = "record:0
   ipaddr=127.0.0.1
   canonical=localhost
   alias=localhost -
-top:1
+record:1
   ipaddr=192.168.0.1
   canonical=bilbo - -
 " ;
@@ -144,32 +156,30 @@ my $dump = $i_root->dump_tree ;
 print $dump if $trace ;
 is( $dump , $expect,"check dump of augeas data");
 
-# change data content, '~' is like a splice, 'top~0' like a "shift"
-$i_root->load("top~0 top:0 canonical=buildbot - 
-               top:1 canonical=komarr ipaddr=192.168.0.10 -
-               top:2 canonical=repoman ipaddr=192.168.0.11 -
-               top:3 canonical=goner   ipaddr=192.168.0.111") ;
+# change data content, '~' is like a splice, 'record~0' like a "shift"
+$i_root->load("record~0 record:0 canonical=buildbot - 
+               record:1 canonical=komarr ipaddr=192.168.0.10 -
+               record:2 canonical=repoman ipaddr=192.168.0.11 -
+               record:3 canonical=goner   ipaddr=192.168.0.111") ;
 
 $dump = $i_root->dump_tree ;
 print $dump if $trace ;
 
-my %h = $i_root->dump_as_path('top') ;
-print Dumper \%h if $trace ;
-my $expect_h = {
-		'/1/canonical' => 'buildbot',
-		'/1/ipaddr' => '192.168.0.1',
-		'/2/canonical' => 'komarr',
-		'/2/ipaddr' => '192.168.0.10',
-		'/3/canonical' => 'repoman',
-		'/3/ipaddr' => '192.168.0.11',
-		'/4/canonical' => 'goner',
-		'/4/ipaddr' => '192.168.0.111',
-	       };
-is_deeply(\%h,$expect_h,"Check dump_as_path") ;
-
 $i_hosts->write_back ;
-ok(-e $wr_root.'/etc/hosts.augsave',
-   "check that backup config file was written");
+
+my $aug_file      = $wr_root.'etc/hosts';
+my $aug_save_file = $aug_file.'.augsave' ;
+ok(-e $aug_save_file, "check that backup config file $aug_save_file was written");
+
+my @expect = ("192.168.0.1 buildbot\n",
+	      "192.168.0.10\tkomarr\n",
+	      "192.168.0.11\trepoman\n",
+	      "192.168.0.111\tgoner\n"
+	     );
+
+open(AUG,$aug_file) || die "Can't open $aug_file:$!"; 
+is_deeply([<AUG>],\@expect,"check content of $aug_file") ;
+close AUG;
 
 # check directly the content of augeas
 my $augeas_obj = $i_root->_augeas_object ;
@@ -178,11 +188,18 @@ my $nb = $augeas_obj -> count_match("/files/etc/hosts/*") ;
 is($nb,4,"Check nb of hosts in Augeas") ;
 
 # delete last entry
-$i_root->load("top~3");
+$i_root->load("record~3");
 $i_hosts->write_back ;
 
 $nb = $augeas_obj -> count_match("/files/etc/hosts/*") ;
 is($nb,3,"Check nb of hosts in Augeas after deletion") ;
+
+pop @expect; # remove goner entry
+open(AUG,$aug_file) || die "Can't open $aug_file:$!"; 
+is_deeply([<AUG>],\@expect,"check content of $aug_file after deletion of goner") ;
+close AUG;
+
+
 
 $augeas_obj->print(*STDOUT, '') if $trace;
 
@@ -197,36 +214,47 @@ ok( $i_sshd, "Created instance for /etc/ssh/sshd_config" );
 
 my $sshd_root = $i_sshd->config_root ;
 
-$expect = "HostbasedAuthentication=0
-HostKey=/etc/ssh/ssh_host_key,/etc/ssh/ssh_host_rsa_key,/etc/ssh/ssh_host_dsa_key -
+my $ssh_augeas_obj = $sshd_root->_augeas_object ;
+
+$ssh_augeas_obj->print(*STDOUT, '/files/etc/ssh/sshd_config/*') if $trace;
+#my @aug_content = $ssh_augeas_obj->match("/files/etc/ssh/sshd_config/*") ;
+#print join("\n",@aug_content) ;
+
+$expect = "AcceptEnv=LC_PAPER,LC_NAME,LC_ADDRESS,LC_TELEPHONE,LC_MEASUREMENT,LC_IDENTIFICATION,LC_ALL
+HostbasedAuthentication=0
+HostKey=/etc/ssh/ssh_host_key,/etc/ssh/ssh_host_rsa_key,/etc/ssh/ssh_host_dsa_key
+Subsystem:internal=/usr/lib/openssh/sftp-server
+Subsystem:sftp=/usr/lib/openssh/sftp-server -
 ";
-
-TODO: {
-
-local $TODO="Need to cater for Angea view of list and sequence (different notations). Pb: config-model does not make any difference";
 
 $dump = $sshd_root->dump_tree ;
 print $dump if $trace ;
 is( $dump , $expect,"check dump of augeas data");
 
-# change data content, '~' is like a splice, 'top~0' like a "shift"
+# change data content, '~' is like a splice, 'record~0' like a "shift"
 $sshd_root->load("HostbasedAuthentication=1") ;
 
 $dump = $sshd_root->dump_tree ;
 print $dump if $trace ;
 
-my %h = $sshd_root->dump_as_path() ;
-print Dumper \%h if $trace ;
-my $expect_h = { 
-		'/HostKey/1' => '/etc/ssh/ssh_host_key',
-		'/HostKey/2' => '/etc/ssh/ssh_host_rsa_key',
-		'/HostKey/3' => '/etc/ssh/ssh_host_dsa_key',
-		'/HostbasedAuthentication' => '1',
-	       };
-is_deeply(\%h,$expect_h,"Check dump_as_path") ;
+$i_sshd->write_back ;
 
-#$i_sshd->write_back ;
-ok(-e $wr_root.'/etc/sshd.augsave',
-   "check that backup config file was written");
+my $aug_sshd_file      = $wr_root.'etc/ssh/sshd_config';
+my $aug_save_sshd_file = $aug_sshd_file.'.augsave' ;
+ok(-e $aug_save_sshd_file, 
+   "check that backup config file $aug_save_sshd_file was written");
 
-}
+my @expect = (
+"# only a few parameters for augeas tests in core module\n",
+"# leaf, list and hash elements\n",
+"AcceptEnv LC_PAPER LC_NAME LC_ADDRESS LC_TELEPHONE LC_MEASUREMENT LC_IDENTIFICATION LC_ALL\n",
+"HostbasedAuthentication 1\n",
+"HostKey              /etc/ssh/ssh_host_key\n",
+"HostKey              /etc/ssh/ssh_host_rsa_key\n",
+"HostKey              /etc/ssh/ssh_host_dsa_key\n",
+"Subsystem            internal /usr/lib/openssh/sftp-server\n",
+	     );
+
+open(AUG,$aug_sshd_file) || die "Can't open $aug_sshd_file:$!"; 
+is_deeply([<AUG>],\@expect,"check content of $aug_sshd_file") ;
+close AUG;

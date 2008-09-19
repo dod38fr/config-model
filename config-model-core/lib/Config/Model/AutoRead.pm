@@ -72,7 +72,11 @@ Config::Model::AutoRead - Load configuration node on demand
    config_class_name => 'OpenSsh::Sshd',
 
    # try Augeas and fall-back with custom method
-   read_config  => [ { backend => 'augeas' , config_file => '/etc/ssh/sshd_config'},
+   read_config  => [ { backend => 'augeas' , 
+                       config_file => '/etc/ssh/sshd_config',
+                       # declare "seq" Augeas elements 
+                       lens_with_seq => [/AcceptEnv AllowGroups [etc]/],
+                     },
                      { backend => 'custom' , # dir hardcoded in custom class
                        class => 'Config::Model::Sshd' 
                      }
@@ -649,6 +653,12 @@ sub write_xml {
     die "write_xml: not yet implemented";
 }
 
+=head1 Read and write with Augeas library
+
+
+
+=cut
+
 # for tests only
 sub _augeas_object {return shift->{augeas_obj} ; } ;
 
@@ -688,6 +698,9 @@ sub read_augeas
 	s!/+!/!g;
     } @cm_path ;
 
+    # Create a hash of lens that contain a seq lens
+    my %has_seq = map { ( $_ => 1 ) ;} @{$args{lens_with_seq} || []} ;
+
     my $augeas_obj = $self->{augeas_obj} ;
 
     # this may break as data will be written in the tree in an order
@@ -701,18 +714,34 @@ sub read_augeas
 
 	print "read-augeas read $aug_p, set $cm_p with $v\n" if $::debug ;
 	$cm_p =~ s!^/!! ;
-	my @cm_steps = split m![/\]\[]+!, $cm_p ;
+	# With 'seq' type list, we can get
+	# /files/etc/ssh/sshd_config/AcceptEnv[1]/1/ =  LC_PAPER
+	# /files/etc/ssh/sshd_config/AcceptEnv[1]/2/ =  LC_NAME
+	# /files/etc/ssh/sshd_config/AcceptEnv[2]/3/ =  LC_ADDRESS
+	# /files/etc/ssh/sshd_config/AcceptEnv[2]/4/ =  LC_TELEPHONE
+	my @cm_steps = split m!/+!, $cm_p ;
 	my $obj = $self;
 
 	while (my $step = shift @cm_steps) {
+	    my ($label,$idx) = ( $step =~ /(\w+)(?:\[(\d+)\])?/ ) ;
+
+	    # idx will be treated next iteration if needed
+	    if (    $obj->get_type eq 'node' 
+		and $obj->element_type($label) eq 'list') {
+		$idx = 1 unless defined $idx ;
+		unshift @cm_steps , $idx unless $has_seq{$label} ;
+	    }
+
 	    # augeas list begin at 1 not 0
-	    $step -= 1 if $obj->get_type eq 'list';
+	    $label -= 1 if $obj->get_type eq 'list';
 	    if (@cm_steps) {
-		$obj = $obj->get($step) ;
+		print "read-augeas: get $label ", 
+		  ( $has_seq{$label} ? 'seq' : '' ),"\n" if $::debug;
+		$obj = $obj->get($label) ;
 	    }
 	    else {
 		# last step
-		$obj->set($step,$v) ;
+		$obj->set($label,$v) ;
 	    }
 	}
     }
@@ -742,8 +771,6 @@ sub augeas_deep_match {
     return @result ;
 }
 
-# FIXME: deal with deleted entries while writing file through Augeas
-# .... Ouch
 sub write_augeas
   {
     my $self = shift;
@@ -765,69 +792,78 @@ sub write_augeas
     my $mainpath = '/files'.$args{config_file} ;
     my $augeas_obj = $self->{augeas_obj} ;
 
-    my %old_path = map { ($_ => 1) } $self->augeas_deep_match($mainpath) ;
+    my %to_set = $self->copy_in_augeas($augeas_obj,$mainpath,$set_in,
+				       $args{lens_with_seq}) ;
 
-    my %to_set = $self->dump_as_path($set_in) ;
-    foreach my $path (keys %to_set) {
-	my $aug_path = "$mainpath$path" ;
-	my $v = $to_set{$path} ;
-	print "write-augeas $path, set $aug_path with $v\n" if $::debug ;
-	# remove all Augeas paths that are included in the path found in
-	# config-model
-	map {delete $old_path{$_} if index($aug_path,$_,0) == 0} keys %old_path ;
-	$augeas_obj->set($aug_path,$v) ;
-    }
+    # foreach my $path (keys %to_set) {
+    # 	my $aug_path = "$mainpath$path" ;
+    # 	my $v = $to_set{$path} ;
+    # 	print "write-augeas $path, set $aug_path with $v\n" if $::debug ;
+    # 	# remove all Augeas paths that are included in the path found in
+    # 	# config-model
+    # 	map {delete $old_path{$_} if index($aug_path,$_,0) == 0} keys %old_path ;
+    # 	$augeas_obj->set($aug_path,$v) ;
+    # }
 
     # remove path no longer present in config-model
-    map { print "deleting aug path $_\n" if $::debug;
-	  $augeas_obj->remove($_) } reverse sort keys %old_path ;
+    #map { print "deleting aug path $_\n" if $::debug;
+    # $augeas_obj->remove($_) } reverse sort keys %old_path ;
 
     $augeas_obj->save || warn "Augeas save failed";;
 }
 
-sub dump_as_path{
+sub copy_in_augeas {
     my $self = shift ;
+    my $augeas_obj = shift ;
+    my $mainpath = shift ;
     my $set_in = shift ;
+    my $seq_list = shift || [];
+    my %has_seq = map { ( $_ => 1 ) ;} @$seq_list ;
 
-    # data_ref = ( current_path, \%result ) 
+    # cleanup the tree. This is not subtle and may be improved when the
+    # following bugs are fixed:
+    # https://fedorahosted.org/augeas/ticket/23
+    # https://fedorahosted.org/augeas/ticket/24
+
+    $augeas_obj->remove("$mainpath/*") ;
+
+    # data_ref = ( current_path ) 
     my $std_cb = sub {
         my ( $scanner, $data_ref, $obj, $element, $index, $value_obj ) = @_;
 	my $p = $data_ref->[0] ;
 	my $v = $value_obj->fetch () ; 
-	$data_ref->[1]{$p} = $v if defined $v ;
+	if (defined $v) {
+	    $augeas_obj->set($p , $v) ;
+	    print "copy_in_augeas: set $p = '$v'\n" if $::debug;
+	}
     };
 
     my $hash_element_cb = sub {
 	my ($scanner, $data_ref,$node,$element_name,@keys) = @_ ;
 	my $p = $data_ref->[0] ;
-	my $r = $data_ref->[1] ;
 
-	map {$scanner->scan_hash([$p."/$_",$r],$node,$element_name,$_)} @keys ;
+	map {$scanner->scan_hash([$p."/$_"],$node,$element_name,$_)} @keys ;
     };
 
     my $list_element_cb = sub {
 	my ($scanner, $data_ref,$node,$element_name,@idx) = @_ ;
 	my $p = $data_ref->[0] ;
-	my $r = $data_ref->[1] ;
 
-
-	my $ct = $node->fetch_element($element_name)->cargo_type ;
-	my $slash = $ct =~ /node/ ? 1 : 0 ;
+	my $seq_item = $has_seq{$element_name} || 0 ;
 	map { my $aug_idx = $_ + 1 ; # Augeas lists begin at 1 not 0
-	      my $subpath =  $slash ? "/$aug_idx" : "[$aug_idx]" ;
-	      $scanner->scan_list([$p.$subpath,$r], $node,$element_name,$_);
+	      my $subpath =  $seq_item ? "[last()]/$aug_idx" : "[$aug_idx]" ;
+	      $scanner->scan_list([$p.$subpath], $node,$element_name,$_);
 	  } @idx ;
     };
 
     my $node_content_cb = sub {
 	my ($scanner, $data_ref,$node,@element) = @_ ;
 	my $p = $data_ref->[0] ;
-	my $r = $data_ref->[1] ;
 	map {
 	    # Deal with the fact that Augeas tree can start directly into
 	    # a list element
 	    my $np = (defined $set_in and $set_in eq $_) ? $p : $p."/$_" ;
-	    $scanner->scan_element([$np,$r], $node,$_)
+	    $scanner->scan_element([$np], $node,$_)
 	} @element ;
     };
 
@@ -845,10 +881,7 @@ sub dump_as_path{
     # perform the scan
     my $view_scanner = Config::Model::ObjTreeScanner->new(@scan_args);
 
-    my %result ;
-    $view_scanner->scan_node(['',\%result] ,$self);
-
-    return %result ;
+    $view_scanner->scan_node([$mainpath] ,$self);
 }
 
 1;
@@ -862,7 +895,7 @@ Dominique Dumont, (ddumont at cpan dot org)
 =head1 SEE ALSO
 
 L<Config::Model>, L<Config::Model::Instance>,
-L<Config::Model::Node>, L<Config::Model::Dumper>
+L<Config::Model::Node>, L<Config::Model::Dumper>, L<Config::Augeas>
 
 =cut
 
