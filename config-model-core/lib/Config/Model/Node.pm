@@ -684,7 +684,17 @@ element.
 sub element_type {
     my $self= shift ;
     croak "element_type: missing element name" unless @_ ;
-    return $self->{model}{element}{$_[0]}{type} ;
+    my $element_info = $self->{model}{element}{$_[0]} ;
+
+    Config::Model::Exception::UnknownElement->throw(
+        object   => $self,
+        function => 'element_type',
+        where    => $self->location || 'configuration root',
+        element     => $_[0],
+        )
+        unless defined $element_info ;
+
+    return $element_info->{type} ;
 }
 
 =head2 element_name()
