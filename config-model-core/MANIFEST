@@ -7,6 +7,8 @@ README.augeas
 TODO
 META.yml
 augeas-box/etc/hosts
+augeas-box/etc/ssh/sshd_config
+augeas-box/etc/ssh/ssh_config
 config-edit
 examples/fstab/Fstab.pl
 examples/fstab/README
