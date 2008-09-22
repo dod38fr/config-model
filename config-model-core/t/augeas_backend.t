@@ -244,7 +244,7 @@ my $aug_save_sshd_file = $aug_sshd_file.'.augsave' ;
 ok(-e $aug_save_sshd_file, 
    "check that backup config file $aug_save_sshd_file was written");
 
-my @expect = (
+@expect = (
 "# only a few parameters for augeas tests in core module\n",
 "# leaf, list and hash elements\n",
 "AcceptEnv LC_PAPER LC_NAME LC_ADDRESS LC_TELEPHONE LC_MEASUREMENT LC_IDENTIFICATION LC_ALL\n",

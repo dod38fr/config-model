@@ -4,7 +4,9 @@
 # $Revision$
 
 use ExtUtils::testlib;
-use Test::More tests => 45;
+use Test::More tests => 44;
+use Test::Exception ;
+use Test::Warn ;
 use Config::Model;
 
 use warnings;
@@ -20,11 +22,11 @@ $model->create_config_class
    permission => [ [qw/Y/] => 'beginner',  # default
 		   X => 'master' 
 		 ],
-   status    => [ X => 'deprecated' ], #could be obsolete, standard
+   status    => [ D => 'deprecated' ], #could be obsolete, standard
    description => [ X => 'X-ray' ],
 
    element => [
-	       [qw/X Y Z/] => {
+	       [qw/D X Y Z/] => {
 			       type => 'leaf',
 			       class => 'Config::Model::Value',
 			       value_type => 'enum',
@@ -116,21 +118,24 @@ is($b->get_element_property(property => 'experience',element => 'X'),
 
 is( $b->fetch_element_value('Z'), undef, "test Z value" );
 
-eval { $b->fetch_element('Z','user');} ;
-ok($@,"fetch_element with unexpected experience") ;
-like($@,qr/Unexpected experience/,"check error message") ;
+throws_ok {$b->fetch_element('Z','user')} 
+  qr/Unexpected experience/, "fetch_element with unexpected experience" ;
 
 # translated into beginner
-eval { $b->fetch_element('X','beginner');} ;
-ok($@,"fetch_element with unexpected experience") ;
-like($@,qr/restricted element/,"check error message") ;
+throws_ok { $b->fetch_element('X','beginner'); } 
+  'Config::Model::Exception::RestrictedElement',
+  'Restricted element error';
+
+warning_like { $b->fetch_element('D'); } 
+  qr/Element 'D' of node 'captain bar' is deprecated/,
+  'Check deprecated element warning';
 
 is( $root->fetch_element('array_args')
     ->get_element_property(property => 'experience',element => 'bar'),
-    'beginner' );
+    'beginner' , "check 'bar' experience");
 is( $root->fetch_element('array_args')->fetch_element('bar')
     ->get_element_property(property => 'experience',element => 'X'), 
-    'master' );
+    'master', "check 'X' experience" );
 
 my $tested = $root->fetch_element('hash_args')->fetch_element('bar');
 
