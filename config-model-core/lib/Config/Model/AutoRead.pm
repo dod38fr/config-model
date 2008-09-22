@@ -655,6 +655,49 @@ sub write_xml {
 
 =head1 Read and write with Augeas library
 
+You can use L<Config::Augeas> to read and write data back. This way,
+the structure and commments of the original configuration file will
+preserved.
+
+To use Augeas as a backend, you must specify the following
+C<read_config> parameters:
+
+=over
+
+=item backend
+
+Use C<augeas> in this case.
+
+=item save
+
+Either C<backup> or C<newfile>. See L<Config::Augeas/Constructor> for
+details.
+
+=item config_file
+
+Name of the config_file.
+
+=item lens_with_seq
+
+This one is tricky. When an Augeas lens use the C<seq> keywords in a
+lens, a special type of list element is created (See
+L<http://augeas.net/docs/lenses.html> for details on lenses). This
+special list element must be declared so that Config::Model can use
+the correct Augeas call to write this list values. C<lens_with_seq>
+must be passed a list ref of all lens names that contains a C<seq>
+statement.
+
+=back
+
+For instance:
+
+   read_config  => [ { backend => 'augeas' , 
+                       save   => 'backup',
+                       config_file => '/etc/ssh/sshd_config',
+                       # declare "seq" Augeas elements 
+                       lens_with_seq => [/AcceptEnv AllowGroups/],
+                     },
+                   ],
 
 
 =cut

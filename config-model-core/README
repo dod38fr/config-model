@@ -4,10 +4,11 @@ Config::Model - Describe and edit configuration data
 Config::Model enables a project developer to provide an interactive
 configuration editor (graphical, curses based or plain terminal) to
 his users. For this he must:
-- describe the structure and constraint of his project's configuration
-- if the configuration data is not stored in INI file or in Perl data
-  file, he must provide some code to read and write configuration from
-  configuration files.
+- describe the structure and constraints of his project's configuration
+- find a way to read and write configuration data. This can be provided:
+  * by Config::Model (INI file or Perl data file)
+  * through RedHat's Augeas library (See README.augeas)
+  * by custom code
 
 With the elements above, Config::Model will generate interactive
 configuration editors (with integrated help and data validation).
@@ -120,10 +121,13 @@ What is the status of the project ?
 - Most of the model handling code is Beta 
 - Terminal interface (TermUI.pm) is alpha
 - Curses interface (provided by Config::Model::CursesUI) is beta
-- Perl/Tk interface (provided by Config::Model::TkUI) is beta
+- Graphical configuration editor is beta (provided by Config::Model::TkUI)
+- Graphical configuration model editor is beta (yes, you can also edit
+  configuration model the same way you edit configuration data)
 - Xorg model (provided by Config::Model::Xorg) is alpha (and still
   incomplete)
-- OpenSsh model (sshd_config model is done. ssh_config is to be done)
+- OpenSsh model is beta (sshd_config model is done. ssh_config is to
+  be done)
 - Krb5 model is being developed
 
 Help is welcome on:
