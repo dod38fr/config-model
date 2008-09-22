@@ -3,6 +3,7 @@ LICENSE
 MANIFEST			This list of files
 Build.PL
 README
+README.augeas
 TODO
 META.yml
 augeas-box/etc/hosts
