@@ -1,3 +1,14 @@
+2008-09-23  Dominique Dumont  <dominique.dumont@hp.com> v0.627
+
+	* ChangeLog: I plainly forgot to update this file for v0.626. This
+	is fixed now.
+	
+2008-09-22  Dominique Dumont  <dominique.dumont@hp.com> v0.626
+
+	* lib/Config/Model/AutoRead.pm (read_augeas): Lot of bug fix to
+	read and write through Augeas. Now, lens containing 'seq' lenses
+	must be explicitely declared.
+
 2008-07-31  Dominique Dumont  <dominique.dumont@hp.com>
 
 	* lib/Config/Model/Value.pm (migrate_value): No longer fails when
