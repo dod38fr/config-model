@@ -114,7 +114,10 @@ my $expected_map
 			   'MasterModel::RSlave',
 			   'MasterModel::Slave',
 			   'MasterModel::WarpedValues'
-			  ]
+			  ],
+     'MasterModel/SshdWithAugeas.pl' => [
+					 'MasterModel::SshdWithAugeas',
+					],
     };
 
 is_deeply($expected_map, $map, "Check file class map") ;

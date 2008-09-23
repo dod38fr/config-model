@@ -182,6 +182,18 @@
 			      ],
 		   }
 	  },
+       'lens_with_seq'
+       => {
+	   type => 'list',
+	   level => 'hidden',
+	   cargo => { type => 'leaf',
+		      value_type => 'uniline' ,
+		    },
+	   warp => { follow => { b => '- backend' },
+		     rules => [ '$b eq "augeas"' => { level => 'normal',}],
+		   },
+	   description => 'List of Augeas lenses that contain a "seq" lens.',
+	   },
       ],
 
   ],

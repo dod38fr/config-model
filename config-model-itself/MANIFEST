@@ -3,12 +3,14 @@ ChangeLog
 MANIFEST			This list of files
 META.yml
 README
+augeas_box/etc/ssh/sshd_config
 config-model-edit
 data/MasterModel.pl
 data/MasterModel/CheckListExamples.pl
 data/MasterModel/HashIdOfValues.pl
 data/MasterModel/WarpedId.pl
 data/MasterModel/WarpedValues.pl
+data/MasterModel/SshdWithAugeas.pl
 data/MasterModel/X_base_class.pl
 lib/Config/Model/Itself.pm
 lib/Config/Model/Itself/TkEditUI.pm

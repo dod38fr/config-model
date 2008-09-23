@@ -202,6 +202,11 @@
 				      use_eval => 1 ,
 				    },
 		  },
+	       'sshd_augeas' 
+	       => {
+		   type => 'node',
+		   config_class_name => 'MasterModel::SshdWithAugeas',
+		  },
 	      ],
    description => [
 		   tree_macro => 'controls behavior of other elements'
