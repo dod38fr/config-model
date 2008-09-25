@@ -28,13 +28,11 @@ same user interface.
 
 The model editor program is config-model-edit.
 
-If you install Config::Model::TkUI, you will have a GUI. Likewise, if
-you install also Config::Model::CursesUI, you can choose a curse
-interface.
-
-Which means that you can use the same UI to edit configuration data
-(for instance Xorg configuration data from xorg.conf) and Xorg model
-(if you need to add new parameters in Xorg model)
+Since the model editor and the configuration data editor are based on
+the same graphical module, you will use similar UIs to edit
+configuration data (for instance Xorg configuration data from
+xorg.conf) and Xorg model (if you need to add new parameters in Xorg
+model)
 
 Once this module is installed, you can run:
 
