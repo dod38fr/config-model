@@ -3,7 +3,7 @@
 # $Name: not supported by cvs2svn $
 # $Revision: 1.3 $
 
-#    Copyright (c) 2005,2006 Dominique Dumont.
+#    Copyright (c) 2005,2006,2008 Dominique Dumont.
 #
 #    This file is part of Config-Xorg.
 #
@@ -34,7 +34,7 @@
 			   },
       'Protocol'        => { type   => 'leaf',
 			     value_type => 'enum',
-			     choice => [qw!auto ImPS/2 IntelliMouse!] ,
+			     choice => [qw!auto PS/2 ImPS/2 IntelliMouse!] ,
 			   },
       'Emulate3Buttons' => { type       => 'leaf',
 			     value_type => 'boolean',
