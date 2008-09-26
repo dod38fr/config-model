@@ -70,7 +70,7 @@ my $build = Module::Build->new
   (
    module_name   => 'Config::Model::Xorg',
    license       => 'lgpl',
-   dist_version  => '0.512' ,
+   dist_version  => '0.513' ,
    dist_author   => "Dominique Dumont (ddumont at cpan dot org)",
    dist_abstract => "Xorg configuration tool based on Config::Model",
    requires      => {
@@ -85,20 +85,16 @@ my $build = Module::Build->new
   );
 
 
-my $etc_xorg_dir 
-  = $Config{osname} eq 'linux'   ? '/etc/X11' 
-  : $Config{osname} eq 'freebsd' ? '/usr/X11/lib/X11'
-  :                                undef ;
-
-unless (defined $etc_xorg_dir) {
-  $etc_xorg_dir = '/etc/X11' ;
-  warn "Xorg model on ".$Config{osname}." will not work if ",
-    "configuration files are not stored in /etc/X11/. ",
-      "Contact the author in case of problems.\n";
+my $etc_xorg_dir ;
+my @try_xorg_dir = qw!/etc/X11 /usr/X11/lib/X11 /usr/X11R6/lib/X11! ;
+foreach my $x_conf_dir (@try_xorg_dir) {
+    next unless -d $x_conf_dir ;
+    $etc_xorg_dir = $x_conf_dir ;
+    last;
 }
 
-unless (-d $etc_xorg_dir) {
-    warn "Cannot find xorg conf in $etc_xorg_dir. Is Xorg installed ?\n";
+unless (defined $etc_xorg_dir) {
+    warn "Cannot find xorg conf in @try_xorg_dir. Is Xorg installed ?\n";
     goto FALLBACK ;
 }
 
@@ -188,6 +184,7 @@ my %defaults = (
 
 my @try_xkb_dirs = ( "/usr/share/X11/xkb/rules" ,   # Linux path
 		     "/usr/X11/lib/X11/xkb/rules/", # tentative path for Solaris
+		     "/usr/X11R6/lib/X11/xkb/rules/", # tentative path for Solaris
 		     "$etc_xorg_dir/xkb/rules"      # old path (XFree86 ?)
 		   ) ;
 
