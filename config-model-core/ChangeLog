@@ -1,3 +1,8 @@
+2008-09-29  Dominique Dumont  <dominique.dumont@hp.com> v0.628
+
+	* lib/Config/Model.pm: Allow include of read or write config
+	parameters (required by Xorg model)
+
 2008-09-23  Dominique Dumont  <dominique.dumont@hp.com> v0.627
 
 	* ChangeLog: I plainly forgot to update this file for v0.626. This
