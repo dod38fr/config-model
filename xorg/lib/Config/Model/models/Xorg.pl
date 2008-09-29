@@ -31,11 +31,8 @@
   [
    name => "Xorg",
 
-   read_config => [ { class => 'Config::Model::Xorg::Read', function => 'read'}] ,
    # config file location is now inherited from a model generated at build time
    inherit => 'Xorg::ConfigDir',
-
-   write_config => { class => 'Config::Model::Xorg::Write', function => 'write'},
 
    'element' 
    => [

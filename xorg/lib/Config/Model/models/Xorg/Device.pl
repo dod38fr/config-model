@@ -36,7 +36,7 @@
 			    value_type => 'enum',
 			    mandatory  => 1 ,
 			    # obviously, some more work is needed here
-			    choice => [qw/radeon nvidia/] ,
+			    choice => [qw/radeon nvidia vesa/] ,
 			  },
 
       'BusID'          => { type       => 'leaf',
@@ -63,6 +63,7 @@
 	   'rules' 
 	   => { 'radeon' => { config_class_name => 'Xorg::Device::Radeon' },
 		'nvidia' => { config_class_name => 'Xorg::Device::Nvidia' },
+		'vesa'   => { config_class_name => 'Xorg::Device::Vesa' },
 	      }
 	 },
 
