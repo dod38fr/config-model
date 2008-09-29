@@ -452,9 +452,7 @@ my $rules = {
     up2 => '- -',
 };
 
-no warnings 'once' ;
 my $parser = new Parse::RecDescent ($Config::Model::ValueComputer::compute_grammar) ;
-use warnings 'once';
 
 # the 2 next tests are used to check what going on before trying the
 # real test below. But beware, the error messages for these 2 tests

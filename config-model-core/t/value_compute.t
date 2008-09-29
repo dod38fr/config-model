@@ -155,10 +155,7 @@ ok($compute_int = $root->fetch_element('compute_int'),
 
 no warnings 'once';
 
-Parse::RecDescent->Precompile($Config::Model::ValueComputer::compute_grammar, "PreGrammar");
-
-my $parser = Parse::RecDescent
-  -> new($Config::Model::ValueComputer::compute_grammar) ;
+my $parser = new Parse::RecDescent ($Config::Model::ValueComputer::compute_grammar) ;
 
 use warnings 'once';
 

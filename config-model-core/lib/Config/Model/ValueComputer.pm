@@ -586,7 +586,7 @@ pre_value:
 
      $return ;
   }
-  | <skip:''> '&' /\w+/ (/\(\s*\)/)(?) {
+  | <skip:''> '&' /\w+/ func_param(?) {
      # print "pre_value handling &foo()\n";
      my $f_name = $item[3] ;
      my $method_name = $f_name eq 'element' ? 'element_name' 
@@ -633,6 +633,8 @@ pre_value:
      my $result = $item[-1] ;
      $return = \$result ;
   }
+
+func_param: /\(\s*\)/
 
 compute:  <skip:''> value[@arg](s) { 
      # if one value is undef, return undef;
