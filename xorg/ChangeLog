@@ -1,3 +1,18 @@
+2008-09-29  Dominique Dumont  <dominique.dumont@hp.com> 0.513
+
+	* lib/Config/Model/Xorg/Read.pm (read write): Fixed to fit new
+	Config::Model::Autoread
+
+2008-09-26  Dominique Dumont  <dominique.dumont@hp.com> 
+
+	* lib/Config/Model/models/Xorg/Device/Vesa.pl: New file to provide
+	vesa driver model
+
+	* Build.PL (): Try several directories to find xorg conf
+	dir (Thanks to Slaven Rezic for the suggestion) See
+	http://rt.cpan.org/Ticket/Display.html?id=39339
+
+
 2008-04-07  Dominique Dumont  v0.512
 
 	* lib/Config/Model/Xorg/Read.pm (parse_option): Skip wrong Options

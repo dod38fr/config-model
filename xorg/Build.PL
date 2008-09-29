@@ -74,7 +74,7 @@ my $build = Module::Build->new
    dist_author   => "Dominique Dumont (ddumont at cpan dot org)",
    dist_abstract => "Xorg configuration tool based on Config::Model",
    requires      => {
-		     'Config::Model'   => '0.623',
+		     'Config::Model'   => '0.628',
 		     'Log::Log4perl'   => 0 ,
 		    },
    recommends    => {
@@ -109,7 +109,16 @@ my $xorg_config_file_model
      [
       name => 'Xorg::ConfigDir',
       generated_by => $generator ,
-      config_dir => $etc_xorg_dir ,
+      read_config => [ { class => 'Config::Model::Xorg::Read', 
+			 function => 'read',
+			 config_dir => $etc_xorg_dir ,
+		       }
+		     ] ,
+      write_config => { class => 'Config::Model::Xorg::Write', 
+			function => 'write',
+			config_dir => $etc_xorg_dir ,
+		      },
+
      ]
     ] ;
 

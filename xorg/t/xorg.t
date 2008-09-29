@@ -36,15 +36,16 @@ mkdir('wr_test') unless -d 'wr_test' ;
 
 my $inst = $model->instance (root_class_name   => 'Xorg', 
 			     instance_name     => 'xorg_instance',
-			     'read_directory'  => "data",
-			     'write_directory' => "wr_test",
+			     'read_root_dir'   => "data",
+			     'write_root_dir'  => "wr_test",
 			    );
 ok($inst,"Read xorg.conf and created instance") ;
 
 my $root = $inst -> config_root ;
 
 my $orig_data = Config::Model::Xorg::Read::read( object => $root,
-						 conf_dir => 'data',
+						 root   => 'data',
+						 config_dir => '/etc/X11',
 						 test => 1
 					       ) ;
 
@@ -71,15 +72,16 @@ $inst->write_back ;
 ok($inst,"wrote back file in wr_test") ;
 
 my $inst2 = $model->instance (root_class_name   => 'Xorg', 
-			     instance_name     => 'xorg_instance2',
-			     'read_directory'  => "wr_test",
-			     'write_directory' => "wr_test",
+			      instance_name     => 'xorg_instance2',
+			     'read_root_dir'    => "wr_test",
+			     'write_root_dir'   => "wr_test",
 			    );
 
 ok($inst2,"Read xorg.conf from wr_test and created 2nd instance" ) ;
 
 my $wr_data = Config::Model::Xorg::Read::read( object => $root,
-					       conf_dir => 'wr_test',
+					       root   => 'wr_test',
+					       config_dir => '/etc/X11',
 					       test => 1
 					     ) ;
 

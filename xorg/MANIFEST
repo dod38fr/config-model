@@ -1,6 +1,6 @@
 Build.PL
 ChangeLog
-data/xorg.conf
+data/etc/X11/xorg.conf
 fallback_models/ConfigDir.pl
 fallback_models/KeyboardOptRules.pl
 fallback_models/Sgi.pl
@@ -11,6 +11,7 @@ lib/Config/Model/models/Xorg.pl
 lib/Config/Model/models/Xorg/Device.pl
 lib/Config/Model/models/Xorg/Device/Nvidia.pl
 lib/Config/Model/models/Xorg/Device/Radeon.pl
+lib/Config/Model/models/Xorg/Device/Vesa.pl
 lib/Config/Model/models/Xorg/Files.pl
 lib/Config/Model/models/Xorg/InputDevice.pl
 lib/Config/Model/models/Xorg/InputDevice/KeyboardOpt.pl
