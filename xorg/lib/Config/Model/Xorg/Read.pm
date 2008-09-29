@@ -40,9 +40,12 @@ sub read {
     my %args = @_ ;
     my $config_root = $args{object}
       || croak __PACKAGE__," read: undefined config root object";
-    my $dir = $args{conf_dir} 
-      || croak __PACKAGE__," read: undefined config dir";
+    my $conf_dir = $args{config_dir} 
+      || croak __PACKAGE__," read: undefined config_dir";
+    my $root = $args{root} || '';
     my $test = $args{test} || 0;
+
+    my $dir = join('/',$root,$conf_dir) ;
 
     unless (-d $dir ) {
 	croak __PACKAGE__," read: unknown config dir $dir";

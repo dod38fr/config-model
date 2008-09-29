@@ -29,6 +29,7 @@ use Carp ;
 use IO::File ;
 use Config::Model::ObjTreeScanner ;
 use Log::Log4perl ;
+use File::Path ;
 
 use vars qw($VERSION) ;
 
@@ -40,11 +41,15 @@ sub write {
     my %args = @_ ;
     my $config_root = $args{object}
       || croak __PACKAGE__," write: undefined config root object";
-    my $dir = $args{conf_dir} 
-      || croak __PACKAGE__," write: undefined config dir";
+    my $conf_dir = $args{config_dir} 
+      || croak __PACKAGE__," write: undefined config_dir";
+    my $root = $args{root} || '';
+
+    my $dir = join('/',$root,$conf_dir) ;
 
     unless (-d $dir ) {
-	croak __PACKAGE__," write: unknown config dir $dir";
+	mkpath($dir,{mode => 0755 }) || 
+	  die __PACKAGE__," write: can't create dir $dir:$!";
     }
 
     my $file = "$dir/xorg.conf" ;
@@ -359,7 +364,7 @@ sub write_all {
 
     $logger->debug( "write_all called");
 
-    my @result = ("# Xorg.cong written by Xorg Config::Model",
+    my @result = ("# Xorg.conf written by Xorg Config::Model",
 		  "# do not edit", '' ) ;
 
     my $scan = Config::Model::ObjTreeScanner-> new
@@ -367,7 +372,7 @@ sub write_all {
        leaf_cb => \&wr_leaf ,
        node_element_cb => \&wr_node ,
        check_list_element_cb => \&wr_check_list ,
-       permission => 'master' ,
+       experience => 'master' ,
        fallback => 'all',
       ) ;
 
