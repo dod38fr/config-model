@@ -1,7 +1,6 @@
 # $Author: ddumont $
 # $Date: 2008-02-26 17:37:39 $
-# $Name: not supported by cvs2svn $
-# $Revision: 1.7 $
+# $Revision$
 
 #    Copyright (c) 2005-2008 Dominique Dumont.
 #
@@ -33,7 +32,7 @@ use File::Path ;
 
 use vars qw($VERSION) ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "1.%04d", q$Revision: 711 $ =~ /(\d+)/;
 
 my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 

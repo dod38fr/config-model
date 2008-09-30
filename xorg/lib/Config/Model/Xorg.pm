@@ -1,7 +1,6 @@
 # $Author: ddumont $
 # $Date: 2007-10-26 11:54:56 $
-# $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
+# $Revision$
 
 #    Copyright (c) 2005,2006 Dominique Dumont.
 #
@@ -44,7 +43,7 @@ Log::Log4perl::init($log4perl_conf) unless Log::Log4perl->initialized ;
 
 use vars qw($VERSION) ;
 
-$VERSION = sprintf "%d.%03d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/;
+$VERSION = sprintf "1.%04d", q$Revision: 711 $ =~ /(\d+)/;
 
 =head1 NAME
 
