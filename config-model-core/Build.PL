@@ -48,6 +48,7 @@ my $build = Module::Build->new
 		      'Error'             => 0,
 		     },
    build_requires => {
+		      'Config::Tiny' => 0,
 		      'Test::More'        => 0,
 		      'Test::Exception'   => 0,
 		      'Test::Warn'        => '0.11', # tests fail with 0.08
