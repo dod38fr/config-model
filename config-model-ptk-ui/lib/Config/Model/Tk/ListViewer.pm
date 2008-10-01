@@ -95,6 +95,10 @@ sub add_info {
 	push @items, "cargo class: " . $list->config_class_name ;
     }
 
+    if ($list->cargo_type eq 'leaf') {
+	push @items, "leaf value type: " . ($list->get_cargo_info('value_type') || '') ;
+    }
+
     foreach my $what (qw//) {
 	my $v = $list->$what() ;
 	my $str = $what ;

@@ -84,7 +84,8 @@ sub Populate {
     $cw->add_help(class   => $list->parent->get_help) ;
     $cw->add_help(element => $list->parent->get_help($list->element_name)) ;
 
-    if ($cargo_type eq 'leaf') {
+    my $value_type = $list->get_cargo_info('value_type') ; # may be undef
+    if ($cargo_type eq 'leaf' and $value_type ne 'enum') {
 	my $set_item = '';
 	my $set_sub = sub {$cw->set_entry($set_item); $set_item = '';} ;
 	my $set_frame = $right_frame->Frame->pack( @fxe1);
@@ -123,6 +124,7 @@ sub Populate {
     else {
 	my $disp = $cargo_type ;
 	$disp .= ' ('.$list->config_class_name.')' if $cargo_type eq 'node' ;
+	$disp .= " ($value_type)" if defined $value_type ;
 	$right_frame->Button(-text => "Push new $disp",
 			     -command => sub { $cw->push_entry('') ;} ,
 			    )-> pack( @fxe1);
@@ -161,7 +163,8 @@ sub push_entry {
     $logger->debug("push_entry: $add");
 
     my $cargo_type = $list->cargo_type ;
-    if ($cargo_type eq 'leaf') {
+    my $value_type = $list->get_cargo_info('value_type') ; # may be undef
+    if ($cargo_type eq 'leaf' and $value_type ne 'enum') {
 	return unless $add;
 	eval {$list->push($add) ;};
     }

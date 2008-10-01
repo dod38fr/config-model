@@ -1,3 +1,8 @@
+2008-10-01  Dominique Dumont  <dominique.dumont@hp.com>
+
+	* lib/Config/Model/Tk/ListEditor.pm (Populate): Better handles
+	list of enum values
+
 2008-08-01  Dominique Dumont  <dominique.dumont@hp.com>
 
 	* lib/Config/Model/TkUI.pm (edit_paste): Cut'n'paste improvements

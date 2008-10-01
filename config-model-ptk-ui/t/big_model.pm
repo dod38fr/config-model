@@ -140,6 +140,12 @@
 			  cargo_type => 'node',
 			  config_class_name => 'SlaveZ' ,
 			},
+	       enum_list => { type => 'list',
+			      cargo => { type => 'leaf',
+					 value_type => 'enum',
+					 choice => [qw/A B C/],
+				       }
+			    },
 	       tree_macro => { type => 'leaf',
 			       value_type => 'enum',
 			       choice     => [qw/XY XZ mXY/],
