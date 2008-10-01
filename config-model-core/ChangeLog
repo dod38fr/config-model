@@ -1,3 +1,7 @@
+2008-10-01  Dominique Dumont  <dominique.dumont@hp.com>
+
+	* lib/Config/Model/AnyId.pm (get_cargo_info): New method
+
 2008-09-29  Dominique Dumont  <dominique.dumont@hp.com> v0.628
 
 	* lib/Config/Model.pm: Allow include of read or write config

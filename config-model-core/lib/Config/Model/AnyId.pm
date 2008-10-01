@@ -454,13 +454,11 @@ object (as declared in the model unless they were warped):
 
 =item default_with_init 
 
+=item follow_keys_from
+
 =item auto_create 
 
-=item cargo_type 
-
-=item cargo_class 
-
-=item cargo_args 
+=item ordered
 
 =item morph
 
@@ -484,7 +482,7 @@ for my $datum (qw/min max max_nb index_type default_keys default_with_init
 =head2 get_cargo_type()
 
 Returns the object type contained by the hash or list (i.e. returns
-C<cargo_type>).
+C<< cargo -> type >>).
 
 =cut
 
@@ -498,6 +496,20 @@ sub get_cargo_type {
     #return @ids ? $self->fetch_with_id($ids[0])->get_cargo_type
     #  : $self->{cargo_type} ;
     return $self->{cargo}{type} ;
+}
+
+=head2 get_cargo_info( < what > )
+
+Returns more info on the cargo contained by the hash or list. C<what>
+may be C<value_type> or any other cargo info stored in the model. Will
+return undef if the requested info was not provided in the model.
+
+=cut
+
+sub get_cargo_info {
+    my $self = shift ;
+    my $what = shift ;
+    return $self->{cargo}{$what} ;
 }
 
 # internal, does a grab with improved error mesage

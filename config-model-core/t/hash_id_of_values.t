@@ -6,7 +6,7 @@
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
-use Test::More tests => 70 ;
+use Test::More tests => 72 ;
 use Config::Model ;
 
 use strict;
@@ -137,6 +137,10 @@ my $root = $inst -> config_root ;
 
 my $b = $root->fetch_element('bounded_hash') ;
 ok($b,"bounded hash created") ;
+
+is($b->get_cargo_type,'leaf', 'check get_cargo_type');
+is($b->get_cargo_info('value_type'),'string', 'check get_cargo_info');
+
 
 is($b->name,'Master bounded_hash id',"check hash id name");
 

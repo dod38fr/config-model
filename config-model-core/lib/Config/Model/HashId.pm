@@ -346,8 +346,6 @@ sub move {
 	    # $to is moved in the place of from in the list
 	    $list->[$from_idx] = $to ;
 	}
-
-	print "move: @$list\n";
     }
     else {
 	Config::Model::Exception::WrongValue 
@@ -356,7 +354,6 @@ sub move {
 		      object => $self
 		     ) ;
     }
-
 }
 
 
