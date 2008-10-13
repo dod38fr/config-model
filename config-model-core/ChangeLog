@@ -1,3 +1,9 @@
+2008-10-13  Dominique Dumont  <dominique.dumont@hp.com> v0.629
+
+	* lib/Config/Model/CheckList.pm (set_properties): Added ordered
+	parameter to checklist. Ordered checklist feature is required by
+	Ssh model for Ciphers list (see Config::Model::OpenSsh).
+
 2008-10-01  Dominique Dumont  <dominique.dumont@hp.com>
 
 	* lib/Config/Model/AnyId.pm (get_cargo_info): New method
