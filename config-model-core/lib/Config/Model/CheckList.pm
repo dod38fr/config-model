@@ -89,15 +89,16 @@ CheckList object should not be created directly.
 
 =cut
 
-my @accessible_params =  qw/default_list built_in_list choice/ ;
+my @introspect_params = qw/refer_to computed_refer_to/ ;
 
+my @accessible_params =  qw/default_list built_in_list choice ordered/ ;
 my @allowed_warp_params = (@accessible_params, qw/level experience/);
 
 sub new {
     my $type = shift;
     my %args = @_ ;
 
-    my $self = { data => {}, preset => {} } ;
+    my $self = { data => {}, preset => {} , ordered_data => [] } ;
     bless $self,$type;
 
     foreach my $p (qw/element_name instance config_model/) {
@@ -255,7 +256,7 @@ The following methods returns the checklist parameter :
 =cut
 
 # accessor to get some fields through methods (See man perltootc)
-foreach my $datum (@accessible_params, qw/refer_to computed_refer_to/) {
+foreach my $datum (@accessible_params, @introspect_params ) {
     no strict "refs";       # to register new methods in package
     *$datum = sub {
 	my $self= shift;
@@ -272,12 +273,14 @@ sub set_properties {
     my $self = shift ;
 
     # cleanup all parameters that are handled by warp
-    map(delete $self->{$_}, qw/default_list built_in_list choice/) ;
+    map(delete $self->{$_}, @allowed_warp_params) ;
 
     # merge data passed to the constructor with data passed to set
     my %args = (%{$self->{backup}},@_ );
 
     $self->set_owner_element_property ( \%args );
+
+    $self->{ordered} = delete $args{ordered} || 0 ;
 
     if (defined $args{choice}) {
 	my @choice = @{ delete $args{choice} } ;
@@ -341,7 +344,23 @@ sub setup_choice {
 
 =head1 Choice reference
 
-This other hash is indicated by the C<refer_to> or
+The choice items of a check_list can be given by another configuration
+element. This other element can be:
+
+=over
+
+=item *
+
+The keys of a hash
+
+=item *
+
+Another checklist. In this case only the checked items of the other
+checklist will be available.
+
+=back
+
+This other hash or other checklist is indicated by the C<refer_to> or
 C<computed_refer_to> parameter. C<refer_to> uses the syntax of the
 C<step> parameter of L<grab(...)|Config::AnyThing/"grab(...)">
 
@@ -359,6 +378,19 @@ configuration parameter:
        refer_to_list
        => { type => 'check_list',
             refer_to => '- my_hash'
+          },
+
+=item *
+
+A check list where the available choices are the checked items of
+C<other_check_list> configuration parameter:
+
+       other_check_list => { type => 'check_list', 
+                             choice => [qw/A B C/]
+                           },
+       refer_to_list
+       => { type => 'check_list',
+            refer_to => '- other_check_list'
           },
 
 =item *
@@ -484,6 +516,10 @@ sub store {
 	else {
 	    $self->{data}{$choice} = $value ;
 	}
+	if ($self->{ordered} and $value) {
+	    my $ord = $self->{ordered_data} ;
+	    push @$ord,$choice unless scalar grep {$choice eq $_} @$ord ;
+	}
     }
     elsif ($inst->get_value_check('store'))  {
 	my $err_str = "Unknown check_list item '$choice'. Expected '"
@@ -496,7 +532,7 @@ sub store {
     }
 }
 
-=head2 uncheck ( $choice )
+=head2 uncheck ( choice )
 
 Unset choice
 
@@ -509,6 +545,57 @@ sub uncheck {
     }
 
     map {$self->store($_ , 0 ) } @_ ;
+}
+
+=head2 is_checked( choice )
+
+Return 1 if the given C<choice> was set. Returns 0 otherwise.
+
+=cut
+
+my %accept_mode = map { ( $_ => 1) } 
+                      qw/custom standard preset default built_in/;
+
+
+sub is_checked {
+    my $self = shift ;
+    my $choice = shift ;
+    my $type = shift || '';
+
+    my $ok = $self->{choice_hash}{$choice} || 0 ;
+
+    if ($ok ) {
+
+	if ($type and not defined $accept_mode{$type}) {
+	    croak "is_checked: expected ", join (' or ',keys %accept_mode),
+	      "parameter, not $type" ;
+	}
+
+	my $dat = $self->{data} ;
+	my $pre = $self->{preset} ;
+	my $def = $self->{default_data} ;
+	my $bi  = $self->{built_in_list} ;
+	my $std_v = (defined $pre->{$choice} ? $pre->{$choice} : $def->{$choice}) || 0 ;
+
+	my $result 
+	  = $type eq 'custom'       ? ( $dat->{$choice} && ! $std_v ? 1 : 0 )
+          : $type eq 'preset'       ? $pre->{$choice}
+          : $type eq 'built_in'     ? $bi ->{$choice}
+          : $type eq 'standard'     ? $std_v
+          : defined $dat->{$choice} ?  $dat->{$choice}
+          :                            $std_v ;
+
+	return $result ;
+    }
+    elsif ($self->instance->get_value_check('fetch'))  {
+	my $err_str = "Unknown check_list item '$choice'. Expected '"
+                    . join("', '",@{$self->{choice}}) . "'" ;
+	$err_str .= "\n\t". $self->{ref_object}->reference_info 
+	  if defined $self->{ref_object};
+        Config::Model::Exception::WrongValue 
+	    -> throw ( error =>  $err_str ,
+		       object => $self) ;
+    }
 }
 
 =head2 get_choice
@@ -625,9 +712,6 @@ The built in list (defined by the configuration model)
 
 =cut
 
-my %accept_mode = map { ( $_ => 1) } 
-                      qw/custom standard preset default built_in/;
-
 sub get_checked_list_as_hash {
     my $self = shift ;
     my $type = shift || '';
@@ -669,7 +753,8 @@ sub get_checked_list {
     my $self = shift ;
 
     my %h = $self->get_checked_list_as_hash(@_) ;
-    my @res = grep { $h{$_} } sort keys %h ;
+    my @good_order = $self->{ordered} ? @{$self->{ordered_data}} : sort keys %h ;
+    my @res = grep { $h{$_} } @good_order ;
     return wantarray ? @res : \@res ;
 }
 
@@ -729,7 +814,7 @@ sub set {
 		      message => "set() called with a value with non-empty path: '$path'"
 		     ) ;
     }
-    return $self->store_set(@_) ;
+    return $self->set_checked_list(@_) ;
 }
 
 =head2 set_checked_list ( item1, item2, ..)
@@ -749,12 +834,14 @@ sub store_set { goto &set_checked_list }
 sub set_checked_list {
     my $self = shift ;
     $self->clear ;
+    $self->{ordered_data} = [ @_ ] ; # copy list
     $self->check (@_) ;
 }
 
 =head2 set_checked_list_as_hash ( A => 1, B => 1 )
 
-Set check_list items. Missing items in the paramaters are set to 0.
+Set check_list items. Missing items in the given list of parameters
+are set to 0.
 
 The example ( A => 1, B => 1 ) above will give :
 
@@ -798,6 +885,93 @@ sub load_data {
 		      message => "load_data called with non array ref arg",
 		      wrong_data => $data ,
 		     ) ;
+    }
+}
+
+=head1 Ordered checklist methods
+
+All the methods below are valid only for ordered checklists.
+
+=head1 swap ( choice_a, choice_b)
+
+Swap the 2 given choice in the list. Both choice must be already set.
+
+=cut
+
+sub swap {
+    my ($self,$a,$b) = @_ ;
+
+    foreach my $param ($a,$b) {
+	unless ($self->is_checked($param)) {
+	    my $err_str = "swap: choice $param must be set";
+	    Config::Model::Exception::WrongValue 
+		-> throw ( error =>  $err_str ,
+			   object => $self) ;
+	}
+    }
+
+    # perform swap in ordered list
+    foreach (@{$self->{ordered_data}}) {
+	if ($_ eq $a) {
+	    $_ = $b ;
+	}
+	elsif ($_ eq $b) {
+	    $_ = $a ;
+	}
+    }
+}
+
+=head1 move_up ( choice )
+
+Move the choice up in the checklist. 
+
+=cut
+
+sub move_up {
+    my ($self,$c) = @_ ;
+
+    unless ($self->is_checked($c)) {
+	my $err_str = "swap: choice $c must be set";
+	Config::Model::Exception::WrongValue 
+	    -> throw ( error =>  $err_str ,
+		       object => $self) ;
+    }
+
+    # perform move in ordered list
+    my $list = $self->{ordered_data} ;
+    for (my $i = 1 ; $i < @$list; $i++) {
+	if ($list->[$i] eq $c ) {
+	    $list->[$i] = $list->[$i - 1 ];
+	    $list->[$i - 1] = $c ;
+	    last;
+	}
+    }
+}
+
+=head1 move_down ( choice )
+
+Move the choice down in the checklist. 
+
+=cut
+
+sub move_down {
+    my ($self,$c) = @_ ;
+
+    unless ($self->is_checked($c)) {
+	my $err_str = "swap: choice $c must be set";
+	Config::Model::Exception::WrongValue 
+	    -> throw ( error =>  $err_str ,
+		       object => $self) ;
+    }
+
+    # perform move in ordered list
+    my $list = $self->{ordered_data} ;
+    for (my $i = 0 ; $i + 1 < @$list; $i++) {
+	if ($list->[$i] eq $c ) {
+	    $list->[$i] = $list->[$i + 1 ];
+	    $list->[$i + 1] = $c ;
+	    last;
+	}
     }
 }
 

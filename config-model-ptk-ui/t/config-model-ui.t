@@ -97,10 +97,11 @@ SKIP: {
 
     my $delay = 200 ;
     
-    sub inc_d { $delay += 200 } ;
+    sub inc_d { $delay += 400 } ;
 
     my $tktree= $cmu->Subwidget('tree') ;
     my $mgr   = $cmu->Subwidget('multi_mgr') ;
+    my $widget ; # ugly global variable. Use with care
 
     my @force_test 
       = (
@@ -109,6 +110,7 @@ SKIP: {
 	 sub { $cmu->edit_copy('test1.std_id')},
 	 sub { $cmu->force_element_display($root->grab('hash_a:titi')) },
 	 sub { $cmu->edit_copy('test1.hash_a.titi')},
+
 	 #sub { $cmu->edit_paste('test1.hash_b')},
 	 #sub { $cmu->force_element_display($root->grab('hash_b:titi')) },
 	) ;
@@ -141,6 +143,14 @@ SKIP: {
 	 sub { $cmu->create_element_widget('edit','test1.my_ref_check_list')},
 	 sub { $cmu->create_element_widget('view','test1.my_reference')},
 	 sub { $cmu->create_element_widget('edit','test1.my_reference')},
+
+	 sub { $root->load(step => "ordered_checklist=A,Z,G") ; $cmu->reload ;} ,
+	 sub { $widget = $cmu->create_element_widget('edit','test1.ordered_checklist')},
+	 sub { $widget->Subwidget('notebook')->raise('order') ;},
+	 sub { $widget->Subwidget('notebook')->raise('order') ;},
+	 sub { $widget->{order_list}->selectionSet(1,1) ;}, # Z
+	 sub { $widget->move_selected_down ;},
+
 	 sub { exit; }
 	);
 

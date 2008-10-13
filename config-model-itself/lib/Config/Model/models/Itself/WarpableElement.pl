@@ -49,7 +49,7 @@
 	    value_type => 'boolean' ,
 	    warp => {  follow => { 't' => '?type' },
 		       'rules'
-		       => [ '$t eq "hash"'
+		       => [ '$t eq "hash" or $t eq "check_list"'
 			    => {
 				level => 'normal',
 			       }

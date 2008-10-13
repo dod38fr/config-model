@@ -75,6 +75,7 @@ sub Populate {
     my $cargo_type = $list->cargo_type ;
     my @insert = $cargo_type eq 'leaf' ? $list->fetch_all_values 
                :                         $list->get_all_indexes ;
+    map { $_ = '<undef>' unless defined $_ } @insert ;
     $tklist->insert( end => @insert ) ;
 
     my $right_frame = $elt_button_frame->Frame->pack(@fxe1, -side => 'left');
@@ -85,7 +86,7 @@ sub Populate {
     $cw->add_help(element => $list->parent->get_help($list->element_name)) ;
 
     my $value_type = $list->get_cargo_info('value_type') ; # may be undef
-    if ($cargo_type eq 'leaf' and $value_type ne 'enum') {
+    if ($cargo_type eq 'leaf' and $value_type ne 'enum' and $value_type ne 'reference') {
 	my $set_item = '';
 	my $set_sub = sub {$cw->set_entry($set_item); $set_item = '';} ;
 	my $set_frame = $right_frame->Frame->pack( @fxe1);
@@ -164,7 +165,7 @@ sub push_entry {
 
     my $cargo_type = $list->cargo_type ;
     my $value_type = $list->get_cargo_info('value_type') ; # may be undef
-    if ($cargo_type eq 'leaf' and $value_type ne 'enum') {
+    if ($cargo_type eq 'leaf' and $value_type ne 'enum' and $value_type ne 'reference') {
 	return unless $add;
 	eval {$list->push($add) ;};
     }
@@ -188,7 +189,7 @@ sub push_entry {
     my @new_idx = $list->get_all_indexes ;
     $logger->debug("new list idx: ". join(',',@new_idx));
 
-    my $insert = $cargo_type eq 'leaf' ? $add : $#new_idx ;
+    my $insert = $add || $#new_idx ;
     $tklist->insert('end',$insert);
 
     return 1 ;

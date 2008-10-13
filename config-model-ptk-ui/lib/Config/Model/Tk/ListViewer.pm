@@ -67,7 +67,8 @@ sub Populate {
     my @insert = $list->cargo_type eq 'leaf' ? $list->fetch_all_values 
                :                         $list->get_all_indexes ;
     foreach my $c (@insert) {
-	$rt->insert('end', $c."\n" ) ;
+	my $line = defined $c ? $c : '<undef>' ;
+	$rt->insert('end', $line."\n" ) ;
     }
 
     $cw->add_info($cw) ;

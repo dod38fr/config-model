@@ -10,7 +10,7 @@ use Test::More;
 use Config::Model;
 use Data::Dumper ;
 
-BEGIN { plan tests => 57; }
+BEGIN { plan tests => 68; }
 
 use strict;
 
@@ -41,6 +41,19 @@ $model ->create_config_class
        => { type => 'check_list',
 	    choice     => ['A' .. 'Z'],
 	    help => { A => 'A help', E => 'E help' } ,
+	  },
+
+       ordered_checklist 
+       => { type => 'check_list',
+	    choice     => ['A' .. 'Z'],
+	    ordered => 1 ,
+	    help => { A => 'A help', E => 'E help' } ,
+	  },
+
+       ordered_checklist_refer_to
+       => { type => 'check_list',
+	    refer_to => '- ordered_checklist',
+	    ordered => 1 ,
 	  },
 
        choice_list_with_default
@@ -332,3 +345,48 @@ ok($wrtl,"created warped_refer_to_list (hidden)") ;
 
 
 
+my $ocl = $root->fetch_element('ordered_checklist') ;
+@got = $ocl->get_checked_list() ;
+is_deeply (\@got, [], "test default of ordered_checklist") ;
+
+@set = qw/A C Z V Y/ ;
+$ocl->set_checked_list(@set) ;
+@got = $ocl->get_checked_list ;
+is_deeply( \@got , \@set , "test ordered_checklist after set_checked_list") ;
+
+$ocl->swap(qw/A Y/);
+@got = $ocl->get_checked_list ;
+is_deeply( \@got , [qw/Y C Z V A/] , "test ordered_checklist after swap") ;
+
+$ocl->move_up(qw/Y/);
+@got = $ocl->get_checked_list ;
+is_deeply( \@got , [qw/Y C Z V A/] , "test ordered_checklist after move_up Y") ;
+
+$ocl->move_up(qw/V/);
+@got = $ocl->get_checked_list ;
+is_deeply( \@got , [qw/Y C V Z A/] , "test ordered_checklist after move_up V") ;
+
+$ocl->move_down(qw/A/);
+@got = $ocl->get_checked_list ;
+is_deeply( \@got , [qw/Y C V Z A/] , "test ordered_checklist after move_down A") ;
+
+$ocl->move_down(qw/C/);
+@got = $ocl->get_checked_list ;
+is_deeply( \@got , [qw/Y V C Z A/] , "test ordered_checklist after move_down C") ;
+
+$ocl->check('B');
+@got = $ocl->get_checked_list ;
+is_deeply( \@got , [qw/Y V C Z A B/] , "test ordered_checklist after check B") ;
+
+$ocl->move_up(qw/B/);
+$ocl->uncheck('B') ;
+@got = $ocl->get_checked_list ;
+is_deeply( \@got , [qw/Y V C Z A/] , "test ordered_checklist after move_up B uncheck B") ;
+
+$ocl->check('B');
+@got = $ocl->get_checked_list ;
+is_deeply( \@got , [qw/Y V C Z B A/] , "test ordered_checklist after check B") ;
+
+my $oclrt = $root->fetch_element('ordered_checklist_refer_to') ;
+@got = $oclrt->get_choice() ;
+is_deeply (\@got, [qw/Y V C Z B A/], "test default of ordered_checklist_refer_to") ;

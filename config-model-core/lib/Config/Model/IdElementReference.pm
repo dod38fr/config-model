@@ -196,7 +196,7 @@ within the host whose Id is specified by hostname:
  value_type => 'reference',
  computed_refer_to => { formula => '! host:$a lan', 
                         variables => { a => '- hostname' }
-                      {}
+                      }
 
 If you need to combine possibilities from several hash, use the "C<+>"
 token to separate 2 paths:
@@ -217,8 +217,8 @@ specified choice and the refered_to values.
 sub get_choice_from_refered_to {
     my $self = shift ;
 
-    my %enum_choice = map { ($_ => 1 ) } 
-      $self->{config_elt}->get_default_choice ;
+    my $config_elt = $self->{config_elt} ;
+    my @enum_choice = $config_elt -> get_default_choice ;
 
     foreach my $compute_obj (@{$self->{compute}}) {
 	my $user_spec = $compute_obj->compute ;
@@ -232,7 +232,7 @@ sub get_choice_from_refered_to {
 
 	my $refered_to = 
 	  eval { 
-	    $self->{config_elt}->grab("@path"); 
+	    $config_elt->grab("@path"); 
 	} ;
 
 	if ($@) {
@@ -240,7 +240,7 @@ sub get_choice_from_refered_to {
 	    my $msg = $e ? $e->full_message : '' ;
 	    Config::Model::Exception::Model
 		-> throw (
-			  object => $self->{config_elt},
+			  object => $config_elt,
 			  error => "'refer_to' parameter: " . $msg
 			 ) ;
 	}
@@ -281,14 +281,27 @@ sub get_choice_from_refered_to {
 	}
 
 	# use a hash so choices are unique
-	map { $enum_choice{$_} = 1 } @choice ;
+	push @enum_choice, @choice ;
+    }
+
+    # prune out repeated items
+    my %h ;
+    my @unique = grep { my $found = $h{$_} || 0; $h{$_} = 1; not $found ; }
+      @enum_choice ; 
+
+    my @res ;
+    if ($config_elt->value_type eq 'check_list' and $config_elt->ordered) {
+	@res = @unique ;
+    } 
+    else {
+	@res = sort @unique ;
     }
 
     print "get_choice_from_refered_to:\n\tSetting choice to '", 
-      join("','",sort keys %enum_choice),"'\n"
+      join("','",@res),"'\n"
 	if $::debug ;
 
-    $self->{config_elt}->setup_reference_choice(sort keys %enum_choice) ;
+    $config_elt->setup_reference_choice(@res) ;
 }
 
 =head1 Methods

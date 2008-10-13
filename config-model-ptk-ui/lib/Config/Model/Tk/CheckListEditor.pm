@@ -28,14 +28,22 @@ use warnings ;
 use Carp ;
 
 use base qw/ Tk::Frame Config::Model::Tk::CheckListViewer/;
-use vars qw/$VERSION/ ;
+use vars qw/$VERSION $icon_path/ ;
 use subs qw/menu_struct/ ;
+
+use Tk::NoteBook;
 
 $VERSION = sprintf "1.%04d", q$Revision$ =~ /(\d+)/;
 
 Construct Tk::Widget 'ConfigModelCheckListEditor';
 
+my $up_img;
+my $down_img;
+
+*icon_path = *Config::Model::TkUI::icon_path;
+
 my @fbe1 = qw/-fill both -expand 1/ ;
+my @fxe1 = qw/-fill    x -expand 1/ ;
 
 sub ClassInit {
     my ($cw, $args) = @_;
@@ -55,28 +63,36 @@ sub Populate {
 
     $cw->add_header(Edit => $leaf) ;
 
-    my $ed_frame = $cw->Frame->pack(@fbe1);
+    my $nb = $cw->Component('NoteBook','notebook')->pack(@fbe1);
 
-    my %h = $leaf->get_checked_list_as_hash ;
-    my $lb = $ed_frame->Scrolled ( qw/Listbox -selectmode multiple/,
+    my $lb ;
+    my @choice = $leaf->get_choice ;
+    my $raise_cmd = sub{ 
+	$lb->selectionClear(0,'end') ;
+	my %h = $leaf->get_checked_list_as_hash ;
+	for (my $i=0; $i<@choice; $i++) {
+	    $lb->selectionSet($i,$i) if $h{$choice[$i]} ;
+	}
+    } ;
+
+    my $ed_frame = $nb->add('content', -label => 'Change content',
+			    -raisecmd => $raise_cmd ,
+			   );
+
+    $lb = $ed_frame->Scrolled ( qw/Listbox -selectmode multiple/,
 				   -scrollbars => 'osoe',
 				   -height => 10,
 				 ) ->pack(@fbe1) ;
-    my @choice = $leaf->get_choice ;
     $lb->insert('end',@choice) ;
 
-    my $array_ref;
-    # warning: array_ref is not a "mirror" if listbox content
-    tie $array_ref, "Tk::Listbox", $lb ;
-    # set all element in list box
-    $array_ref = $leaf->get_checked_list ; 
-    $cw->{tied} = \$array_ref ;
+
+    my $get_selected = sub { return map { $choice[$_]} $lb->curselection ;};
 
     # mastering perl/Tk page 160
-    my $b_sub = sub { $cw->set_value_help(@$array_ref);} ;
+    my $b_sub = sub { $cw->set_value_help(&$get_selected);} ;
     $lb->bind('<<ListboxSelect>>',$b_sub);
 
-    my $bframe = $cw->Frame->pack;
+    my $bframe = $ed_frame->Frame->pack;
     $bframe -> Button ( -text => 'Clear all',
 			-command => sub { $lb->selectionClear(0,'end') ; },
 		      ) -> pack(-side => 'left') ;
@@ -87,7 +103,7 @@ sub Populate {
 			-command => sub { $cw->reset_value ; },
 		      ) -> pack(-side => 'left') ;
     $bframe -> Button ( -text => 'Store',
-			-command => sub { $cw->store ( @$array_ref )},
+			-command => sub { $cw->store ( &$get_selected )},
 		      ) -> pack(-side => 'left') ;
 
     $cw->add_help_frame() ;
@@ -96,28 +112,111 @@ sub Populate {
     $cw->{value_help_widget} = $cw->add_help(value => '',1);
     $b_sub->() ;
 
+    # Add a second page to edit the list order for ordered check list
+    if ($leaf->ordered) {
+	$cw->add_change_order_page($nb,$leaf) ;
+    }
+
     # don't call directly SUPER::Populate as it's CheckListViewer's populate
     $cw->Tk::Frame::Populate($args) ;
+}
+
+sub add_change_order_page {
+    my ($cw,$nb,$leaf) = @_ ;
+
+    my $order_list ;
+    my $raise_cmd = sub{ 
+	$order_list->delete(0,'end');
+	$order_list->insert( end => $leaf->get_checked_list) ;
+    } ;
+
+    my $order_frame = $nb->add('order', -label => 'Change order',
+			       -raisecmd => $raise_cmd ,
+			      );
+
+    $order_list = $order_frame ->Scrolled ( 'Listbox',
+					       -selectmode => 'single',
+					       -scrollbars => 'oe',
+					       -height => 6,
+					     )
+      -> pack(@fbe1) ;
+
+    $cw->{order_list} = $order_list ;
+
+    unless (defined $up_img) {
+	$up_img   = $cw->Photo(-file => $icon_path.'go-up.gif');
+	$down_img = $cw->Photo(-file => $icon_path.'go-down.gif');
+    }
+
+    my $mv_up_down_frame = $order_frame->Frame->pack( -fill => 'x');
+    $mv_up_down_frame->Button(-image => $up_img,
+			      -command => sub { $cw->move_selected_up ;} ,
+			     )-> pack( -side => 'left', @fxe1);
+
+    $mv_up_down_frame->Button(-image => $down_img,
+			      -command => sub { $cw->move_selected_down ;} ,
+			     )-> pack( -side => 'left',  @fxe1);
+}
+
+sub move_selected_up {
+    my $cw =shift;
+    my $order_list = $cw->{order_list} ;
+    my @idx = $order_list->curselection() ;
+
+    return unless @idx and $idx[0] > 0;
+
+    my $name = $order_list->get(@idx);
+
+    $order_list -> delete(@idx) ;
+    my $new_idx = $idx[0] - 1 ;
+    $order_list -> insert($new_idx, $name) ;
+    $order_list -> selectionSet($new_idx) ;
+    $order_list -> see($new_idx) ;
+
+    $cw->{leaf}->move_up($name) ;
+
+    $cw->reload_tree ;
+}
+
+sub move_selected_down {
+    my $cw =shift;
+    my $order_list = $cw->{order_list} ;
+    my @idx = $order_list->curselection() ;
+    my $leaf = $cw->{leaf};
+    my @h_idx =  $leaf->get_checked_list ;
+
+    return unless @idx and $idx[0] < $#h_idx;
+
+    my $name = $order_list->get(@idx);
+
+    $order_list -> delete(@idx) ;
+    my $new_idx = $idx[0] + 1 ;
+    $order_list -> insert($new_idx, $name) ;
+    $order_list -> selectionSet($new_idx) ;
+    $order_list -> see($new_idx) ;
+
+    $cw->{leaf}->move_down($name) ;
+
+    $cw->reload_tree ;
 }
 
 
 sub store {
     my $cw = shift ;
-    my @set = @_ ;
 
-    eval {$cw->{leaf}->set_checked_list(@set); } ;
+    my %set = map { $_ => 1 ; } @_ ;
+    my $cl = $cw->{leaf};
 
-    if ($@) {
-	$cw -> Dialog ( -title => 'Value error',
-			-text  => $@,
-		      )
-            -> Show ;
-	$cw->reset_value ;
-    }
-    else {
-	# trigger redraw of Tk Tree
-	$cw->parent->parent->parent->parent->reload(1) ;
-    }
+    map {
+	if ($set{$_} and not $cl->is_checked($_) ) {
+	    $cl->check($_) ;
+	} 
+	elsif (not $set{$_} and $cl->is_checked($_) ) {
+	    $cl->uncheck($_) ;
+	}
+    } $cw->{leaf}->get_choice;
+
+    $cw->parent->parent->parent->parent->reload(1) ;
 }
 
 sub reset_value {
@@ -133,6 +232,12 @@ sub reset_value {
     # so we must preserve them.
     map { $cw->{check_list}{$_} = $h_ref->{$_}} keys %$h_ref ;
     $cw->{help} = '' ;
+}
+
+
+sub reload_tree {
+    my $cw = shift ;
+    $cw->parent->parent->parent->parent->reload(1) ;
 }
 
 1;

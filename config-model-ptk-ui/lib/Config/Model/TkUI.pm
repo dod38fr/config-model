@@ -831,7 +831,7 @@ sub edit_copy {
 
     my @selected = @_ ? @_ : $tkt -> info('selection');
 
-    print "edit_copy @selected\n";
+    #print "edit_copy @selected\n";
     my @res ;
 
     foreach my $selection (@selected) {
@@ -840,8 +840,7 @@ sub edit_copy {
 	my $cfg_elt = $data_ref->[1] ;
 	my $type = $cfg_elt->get_type ;
 	my $cfg_class = $type eq 'node' ? $cfg_elt->config_class_name : '';
-	print "edit_copy '",$cfg_elt->location, 
-	  "' type '$type' class '$cfg_class'\n";
+	#print "edit_copy '",$cfg_elt->location, "' type '$type' class '$cfg_class'\n";
 
 	push  @res, [ $cfg_elt->element_name,
 		      $cfg_elt->index_value ,
@@ -864,7 +863,7 @@ sub edit_paste {
 
     my @selected = @_ ? @_ : $tkt -> info('selection');
 
-    print "edit_paste in @selected\n";
+    #print "edit_paste in @selected\n";
     my @res ;
 
     my $selection = $selected[0];
@@ -872,8 +871,7 @@ sub edit_paste {
     my $data_ref = $tkt->infoData($selection);
 
     my $cfg_elt = $data_ref->[1] ;
-    print "edit_paste '",$cfg_elt->location, 
-          "' type '", $cfg_elt->get_type,"'\n";
+    #print "edit_paste '",$cfg_elt->location, "' type '", $cfg_elt->get_type,"'\n";
     my $t_type  = $cfg_elt->get_type ;
     my $t_class = $t_type eq 'node' ? $cfg_elt->config_class_name : '';
     my $t_name  = $cfg_elt->element_name ;
@@ -881,8 +879,8 @@ sub edit_paste {
 
     foreach my $data (@$cut_buf) {
 	my ($name,$index,$composite,$type, $cfg_class, $dump) = @$data;
-	print "from composite name '$composite' type $type\n";
-	print "t_name '$t_name' t_type '$t_type'  class '$t_class'\n";
+	#print "from composite name '$composite' type $type\n";
+	#print "t_name '$t_name' t_type '$t_type'  class '$t_class'\n";
 	if (   ($name eq $t_name and $type eq $t_type )
 	    or $t_class eq $cfg_class
 	   ) {

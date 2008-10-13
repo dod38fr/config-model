@@ -165,11 +165,16 @@
 	   level => 'hidden',
 	   refer_to => '- choice',
 	   description => 'Specify items checked by default',
-	   warp => { follow => { t => '?type' },
+	   warp => { follow => { t => '?type', o => '?ordered' },
 		     'rules'
-		     => [ '$t eq "check_list"' 
+		     => [ '$t eq "check_list" and not $o ' 
 			  => {
 			      level => 'normal',
+			     } ,
+			  '$t eq "check_list" and $o ' 
+			  => {
+			      level => 'normal',
+			      ordered => 1 ,
 			     } ,
 			]
 		   },
@@ -180,11 +185,16 @@
 	   level => 'hidden',
 	   refer_to => '- choice',
 	   description => 'Specify items checked by default in the application',
-	   warp => { follow => { t => '?type' },
+	   warp => { follow => { t => '?type', o => '?ordered' },
 		     'rules'
-		     => [ '$t eq "check_list"' 
+		     => [ '$t eq "check_list" and not $o ' 
 			  => {
 			      level => 'normal',
+			     } ,
+			  '$t eq "check_list" and $o ' 
+			  => {
+			      level => 'normal',
+			      ordered => 1 ,
 			     } ,
 			]
 		   },
