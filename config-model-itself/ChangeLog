@@ -1,3 +1,13 @@
+2008-10-14  Dominique Dumont  <dominique.dumont@hp.com> v1.207
+
+	* lib/Config/Model/models/Itself/CommonElement.pl: Added ordered
+	parameter to checklist. Ordered checklist feature is required by
+	Ssh model for Ciphers list (see Config::Model::OpenSsh).
+
+	* Build.PL: Extract version from Config/Model/Itself.pm (hence the
+	bump to v 1.207) so that the pm file versions matches the .tgz
+	distribution version.
+
 2008-09-23  Dominique Dumont  <dominique.dumont@hp.com> v0.206
 
 	* lib/Config/Model/models/Itself/Class.pl: Added seq_with_lens

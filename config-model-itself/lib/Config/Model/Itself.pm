@@ -34,7 +34,7 @@ use File::Basename ;
 
 use vars qw($VERSION) ;
 
-$VERSION = sprintf "1.%04d", q$Revision$ =~ /(\d+)/;
+$VERSION = '1.207';
 
 my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
