@@ -1,8 +1,20 @@
 [
           {
             'class_description' => 'Model of /etc/ssh/ssh_config or ~/.ssh/config',
+            'include_after' => 'Host',
             'name' => 'Ssh',
+            'include' => [
+                           'Ssh::HostElement'
+                         ],
             'element' => [
+                           'EnableSSHKeysign',
+                           {
+                             'value_type' => 'boolean',
+                             'built_in' => '0',
+                             'type' => 'leaf',
+                             'description' => 'Setting this option to ``yes\'\' in the global client configuration file /etc/ssh/ssh_config enables the use of the helper program ssh-keysign(8) during HostbasedAuthentication.  See ssh-keysign(8)for more information.
+'
+                           },
                            'Host',
                            {
                              'cargo' => {

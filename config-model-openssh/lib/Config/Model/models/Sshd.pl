@@ -418,29 +418,21 @@ If port is not specified, sshd will listen on the address and all prior Port opt
                                            'DEBUG',
                                            'DEBUG1',
                                            'DEBUG2',
-                                           'DEBUG3.'
+                                           'DEBUG3'
                                          ]
                            },
                            'MACs',
                            {
-                             'built_in_list' => [
-                                                  'hmac-md5',
-                                                  'hmac-md5-96',
-                                                  'hmac-ripemd160',
-                                                  'hmac-sha1',
-                                                  'hmac-sha1-96',
-                                                  'umac-64@openssh.com'
-                                                ],
                              'experience' => 'master',
                              'type' => 'check_list',
                              'description' => 'Specifies the available MAC (message authentication code) algorithms. The MAC algorithm is used in protocol version 2 for data integrity protection.',
                              'choice' => [
                                            'hmac-md5',
-                                           'hmac-sha1',
-                                           'umac-64@openssh.com',
+                                           'hmac-md5-96',
                                            'hmac-ripemd160',
+                                           'hmac-sha1',
                                            'hmac-sha1-96',
-                                           'hmac-md5-96'
+                                           'umac-64@openssh.com'
                                          ]
                            },
                            'Match',
