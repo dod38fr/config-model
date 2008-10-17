@@ -1,6 +1,5 @@
 # $Author$
 # $Date$
-# $Name: not supported by cvs2svn $
 # $Revision$
 
 #    Copyright (c) 2008 Dominique Dumont.

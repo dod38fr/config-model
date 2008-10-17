@@ -31,7 +31,6 @@ my $build = Module::Build->new
    license => 'lgpl',
    dist_abstract => "Tk GUI to edit config data through Config::Model",
    dist_author  => "Dominique Dumont (ddumont at cpan dot org)",
-   dist_version  => '0.202' ,
    requires => {
 		'Config::Model'    => '0.629',
 		'Exception::Class' => 0,

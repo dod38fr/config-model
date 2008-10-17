@@ -1,3 +1,15 @@
+2008-10-13  Dominique Dumont  <dominique.dumont@hp.com> v1.203
+
+	* lib/Config/Model/Tk/CheckListEditor.pm: added Notebook tab to
+	provide 2 ways to edit an ordered checklist: change the
+	content (check or uncheck items) or change the order of the
+	items. This feature is necessary to correctly edit the Ciphers
+	list of ssh_config model (See Config::Model::OpenSsh)
+
+	* Build.PL: Extract version from Config/Model/TkUI.pm (hence the
+	bump to v 1.203) so that the pm file versions matches the
+	.tgz distribution version.
+
 2008-10-01  Dominique Dumont  <dominique.dumont@hp.com>
 
 	* lib/Config/Model/Tk/ListEditor.pm (Populate): Better handles

@@ -53,7 +53,7 @@ use Config::Model::Tk::HashEditor ;
 use Config::Model::Tk::NodeViewer ;
 
 
-$VERSION = sprintf "1.%04d", q$Revision$ =~ /(\d+)/;
+$VERSION = '1.203' ;
 
 Construct Tk::Widget 'ConfigModelUI';
 
