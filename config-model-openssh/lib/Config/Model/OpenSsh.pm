@@ -98,26 +98,23 @@ C<sshd_root> configuration tree.
 
 =cut 
 
-# for ssh_read:
-# if root: use /etc/ssh/ssh_config as usual
-# if normal user: load root file in "preset mode" 
-#                 load ~/.ssh/config in normal mode
-#                 write back to ~/.ssh/config
-#                 Ssh model should not specify config_dir
-
 sub sshd_read {
+    read_ssh_file( file => 'sshd_config', @_ ) ;
+}
+
+sub read_ssh_file {
     my %args = @_ ;
     my $config_root = $args{object}
-      || croak __PACKAGE__," sshd_read: undefined config root object";
+      || croak __PACKAGE__," read_ssh_file: undefined config root object";
     my $dir = $args{root}.$args{config_dir} ;
 
     unless (-d $dir ) {
-	croak __PACKAGE__," sshd_read: unknown config dir $dir";
+	croak __PACKAGE__," read_ssh_file: unknown config dir $dir";
     }
 
-    my $file = "$dir/sshd_config" ;
+    my $file = $dir.'/'.$args{file} ;
     unless (-r "$file") {
-	croak __PACKAGE__," sshd_read: unknown file $file";
+	croak __PACKAGE__," read_ssh_file: unknown file $file";
     }
 
     $logger->info("loading config file $file");
@@ -138,15 +135,40 @@ sub sshd_read {
 			   ) ;
     }
     else {
-	die __PACKAGE__," sshd_read: can't open $file:$!";
+	die __PACKAGE__," read_ssh_file: can't open $file:$!";
     }
 }
+
+# for ssh_read:
+# if root: use /etc/ssh/ssh_config as usual
+# if normal user: load root file in "preset mode" 
+#                 load ~/.ssh/config in normal mode
+#                 write back to ~/.ssh/config
+#                 Ssh model can only specify root config_dir
+
+sub ssh_read {
+    my %args = @_ ;
+    my $config_root = $args{object}
+      || croak __PACKAGE__," ssh_read: undefined config root object";
+    my $instance = $config_root -> instance ;
+
+    $instance -> preset_start if $> ; # regular user
+
+    read_ssh_file(file => 'ssh_config', @_) ;
+
+    if ( $> ) {
+      $instance -> preset_stop ;
+      read_ssh_file(file => 'config', @_, 
+		    config_dir => $ENV{HOME}.'/.ssh') ;
+    }
+}
+
 
 $grammar = << 'EOG' ;
 # See Parse::RecDescent faq about newlines
 sshd_parse: <skip: qr/[^\S\n]*/> line[@arg](s) 
 
-line: match_line | client_alive_line | any_line
+line: match_line | client_alive_line | host_line | any_line
 
 match_line: /match/i arg(s) "\n"
 {
@@ -156,6 +178,11 @@ match_line: /match/i arg(s) "\n"
 client_alive_line: /clientalive\w+/i arg(s) "\n"
 {
    Config::Model::OpenSsh::clientalive($arg[0],$item[1],@{$item[2]}) ;
+}
+
+host_line: /host\b/i arg(s) "\n"
+{
+   Config::Model::OpenSsh::host($arg[0],$item[1],@{$item[2]}) ;
 }
 
 any_line: key arg(s) "\n"  
@@ -234,6 +261,21 @@ $parser = Parse::RecDescent->new($grammar) ;
     }
 
     $current_node = $block_obj->fetch_element('Elements');
+  }
+
+  sub host {
+    my ($root, @patterns) = @_ ;
+
+    my $list_obj = $root->fetch_element('Host');
+
+    # create new host block
+    my $nb_of_elt = $list_obj->fetch_size;
+    my $block_obj = $list_obj->fetch_with_id($nb_of_elt) ;
+    my $pattern_obj = $block_obj->fetch_element('patterns') ;
+
+    map { $pattern_obj->push($_) ; } @patterns;
+
+    $current_node = $block_obj->fetch_element('block');
   }
 
   sub clear {
