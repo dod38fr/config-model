@@ -28,8 +28,11 @@ use strict ;
 
 require 5.008;
 
-print "If you want to use the TermUI interface, you should install\n",
-  "Term::ReadLine::Perl or Term::ReadLine::Gnu\n";
+print "\nIf you want to use the TermUI interface, you should install\n",
+  "Term::ReadLine::Perl or Term::ReadLine::Gnu\n\n";
+
+print "Note: Augeas integration tests require Config::Augeas ",
+  "and Augeas library > 0.3.1\n\n";
 
 my $build = Module::Build->new
   (
@@ -48,7 +51,7 @@ my $build = Module::Build->new
 		      'Error'             => 0,
 		     },
    build_requires => {
-		      'Config::Tiny' => 0,
+		      'Config::Tiny'      => 0,
 		      'Test::More'        => 0,
 		      'Test::Exception'   => 0,
 		      'Test::Warn'        => '0.11', # tests fail with 0.08
@@ -56,7 +59,7 @@ my $build = Module::Build->new
    recommends => {
 		  # recommended modules to get more reader/writer
 		  'Config::Tiny' => 0,
-		  'Config::Augeas' => 0,
+		  'Config::Augeas' => '0.301',
 		 },
    # cleanup required by t/auto_read.t
    # PreGrammar.pm is created by t/value_computer.t

@@ -1,3 +1,7 @@
+2008-10-21  Dominique Dumont  <dominique.dumont@hp.com> v0.630
+
+	* t/augeas_backend.t: Skip sshd_config tests if Augeas library <= 0.3.1
+
 2008-10-13  Dominique Dumont  <dominique.dumont@hp.com> v0.629
 
 	* lib/Config/Model/CheckList.pm (set_properties): Added ordered

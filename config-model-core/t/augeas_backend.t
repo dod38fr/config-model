@@ -203,6 +203,19 @@ close AUG;
 
 $augeas_obj->print(*STDOUT, '') if $trace;
 
+my $have_pkg_config = `pkg-config --version` || '';
+chomp $have_pkg_config ;
+
+my $aug_version = $have_pkg_config ? `pkg-config --modversion augeas` : '' ;
+chomp $aug_version ;
+
+my $skip =  (not $have_pkg_config)  ? 'pkgconfig is not installed'
+         :  $aug_version le '0.3.1' ? 'Need Augeas library > 0.3.1'
+         :                            '';
+
+SKIP: {
+    skip $skip , 5 if $skip ;
+
 my $i_sshd = $model->instance(instance_name    => 'sshd_inst',
 			      root_class_name  => 'Sshd',
 			      read_root_dir    => $wr_root ,
@@ -258,3 +271,5 @@ ok(-e $aug_save_sshd_file,
 open(AUG,$aug_sshd_file) || die "Can't open $aug_sshd_file:$!"; 
 is_deeply([<AUG>],\@expect,"check content of $aug_sshd_file") ;
 close AUG;
+
+}
