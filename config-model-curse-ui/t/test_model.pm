@@ -93,11 +93,7 @@
   [
    name => 'Master',
 
-   read_config => { syntax => 'cds'},
-   read_config_dir =>'data' ,
-
-   write_config =>  { syntax =>'cds'},
-   write_config_dir => 'wr_data',
+   read_config => { backend => 'cds_file', config_dir => 'data' },
 
    permission => [ [qw/tree_macro warp/] => 'advanced'] ,
    class_description => "Master description",
@@ -204,6 +200,13 @@
 	       my_ref_check_list => { type => 'check_list',
 				      refer_to => '- hash_a + ! hash_b',
 				    } ,
+
+	       'ordered_checklist'
+	       => { type => 'check_list',
+		    choice     => ['A' .. 'Z'],
+		    ordered => 1 ,
+		    help => { A => 'A help', E => 'E help' } ,
+		  },
 
 	       my_reference => { type => 'leaf',
 				 value_type => 'reference',

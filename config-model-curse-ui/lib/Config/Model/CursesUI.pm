@@ -46,7 +46,7 @@ use Exception::Class
   ) ;
 
 use vars qw($VERSION) ;
-$VERSION = sprintf "1.%04d", q$Revision$ =~ /(\d+)/;
+$VERSION = '1.101';
 
 my @help_settings = qw/-bg green -fg black -border 1 
                        -titlereverse 0
@@ -798,33 +798,51 @@ sub display_check_list_element {
 
     my $win = $self->set_center_window("Check list");
 
-    my $listbox = $self->layout_checklist($win, $node,$element,@check_items) ;
+    $self->layout_checklist($win, $node,$element) ;
 
     $self->wrap_screen($node,$element) ;
     return $win ;
 }
 
 sub layout_checklist {
-    my ($self,$win,$node,$element,@check_indexes) = @_ ;
+    my ($self,$win,$node,$element) = @_ ;
 
-    my $y = 1 ;
     my $check_list_obj = $node->fetch_element($element) ;
 
-    $win->add(undef, 'Label', '-y' => $y   , -text => "Current value :");
+    my $notebook = $win->add(undef, 'Notebook', -intellidraw => 1);
 
-    my $cur_val_w 
-      = $win->add(undef, 'Label', '-y' => $y++ , '-x' => 16 );
+    my $content_page = $notebook->add_page('edit content');
+    $self->layout_checklist_editor($content_page,$node,$element) ;
 
-    $win->add(undef, 'Label', '-y' => $y++ , 
-	      -text => "Check one or more:");
+    if ($check_list_obj -> ordered ) {
+	my $lb ;
+	my $c_sub = sub {
+	    my @values = $check_list_obj->get_checked_list ;
+	    $lb->values(\@values) ;
+	};
+	my $order_page = $notebook->add_page('change order', 
+					     -on_activate => $c_sub ) ;
+	$lb = $self->layout_checklist_order($order_page,$node,$element) ;
+    }
 
+}
 
-    my %checked_hash = $check_list_obj->get_checked_list_as_hash ;
-    my @values = sort keys %checked_hash ;
+sub layout_checklist_info {
+    my ($self,$win,$node,$element, $yr,$text) = @_ ;
+    my $check_list_obj = $node->fetch_element($element) ;
+
+    $win->add(undef, 'Label', '-y' => $$yr   , -text => "Current value :");
+
+    my $cur_val_w
+      = $win->add(undef, 'Label', '-y' => $$yr++ , '-x' => 16 );
+
+    $win->add(undef, 'Label', '-y' => $$yr++ , -text => $text);
+
+    my @values = $check_list_obj->get_choice ;
 
     my $help_w = $win -> add ( undef, 'TextViewer',
 			     '-x' => 42 ,
-			     '-y' => $y ,
+			     '-y' => $$yr ,
 			     -width => 35,
 			     -text => $node->get_help($element) ,
 			     '-title' => 'Help on value',
@@ -836,6 +854,19 @@ sub layout_checklist {
 	$help_w->text($check_list_obj->get_help($choice)) ;
     } ;
 
+    return ($cur_val_w,$help_update) ;
+}
+
+sub layout_checklist_editor {
+    my ($self,$win,$node,$element) = @_ ;
+
+    my $y = 1 ;
+    my ($cur_val_w,$help_update)
+      = $self->layout_checklist_info($win,$node,$element,\$y,
+				     "Check one or more:" ) ;
+
+    my $check_list_obj = $node->fetch_element($element) ;
+    my @values = $check_list_obj->get_choice ;
     my $listbox = $win->add (
 			     'mylistbox', 'Listbox',
 			     -border     => 1,
@@ -873,7 +904,7 @@ sub layout_checklist {
     } ;
 
     my @buttons = (
-		   { -label => '< Enter value >', -onpress => $ok_sub } 
+		   { -label => '< Store >', -onpress => $ok_sub } 
 		  ) ;
 
     $self->add_std_button_with_help($win,$node,$element, @buttons ) ;
@@ -883,6 +914,68 @@ sub layout_checklist {
     return $listbox ;
 }
 
+sub layout_checklist_order {
+    my ($self,$win,$node,$element) = @_ ;
+
+    my $y = 1;
+    my ($cur_val_w,$help_update)
+      = $self->layout_checklist_info($win,$node,$element,\$y,
+				     "Current value :");
+
+    my $check_list_obj = $node->fetch_element($element) ;
+    my @values = $check_list_obj->get_checked_list ;
+    my $listbox = $win->add (
+			     'mylistbox', 'Listbox',
+			     -border     => 1,
+			     '-y'        => $y,
+			     -padbottom  => 1,
+			     -width      => 40 ,
+			     -title      => $element.' elements',
+			     -vscrollbar => 1,
+			     -onselchange   => $help_update ,
+			     -values     => \@values ,
+			    );
+
+    my $update_value = sub {
+	my $item = shift ;
+	my @new_list = $check_list_obj->get_checked_list ;
+	$cur_val_w->text(join(",",$check_list_obj->get_checked_list)) ;
+	$listbox->values(\@new_list) ;
+	# Tk::ObjScanner::scan_object($listbox) ;
+	$listbox->draw ;
+    } ;
+
+    $win->onFocus(sub {$update_value->()} ) ; ;
+
+    my $up_sub = sub {
+	my ($item) = $listbox->get || return ; # no selection
+	my ($idx)  = $listbox->id  || return ; # first item selected
+	$check_list_obj->move_up($item) ;
+	$update_value->() ;
+	$listbox->set_selection($idx - 1) ;
+    } ;
+
+    my $down_sub = sub {
+	my ($item) = $listbox->get || return ;
+	my ($idx)  = $listbox->id ;
+	my @new_list = $check_list_obj->get_checked_list ;
+	return if $idx >= $#new_list ; # last item selected
+	$check_list_obj->move_down($item) ;
+	$update_value->() ;
+	$listbox->set_selection($idx + 1) ;
+    } ;
+
+    my @buttons = (
+		   { -label => '< up >', -onpress => $up_sub } ,
+		   { -label => '< down >', -onpress => $down_sub } ,
+		  ) ;
+
+    $self->add_std_button_with_help($win,$node,$element, @buttons ) ;
+
+    $listbox->focus ;
+
+    return $listbox ;
+}
 ## end check_list
 
 sub display_leaf {
