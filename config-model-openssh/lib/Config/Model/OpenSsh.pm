@@ -32,10 +32,12 @@ use File::Copy ;
 use File::Path ;
 
 use Parse::RecDescent ;
-use vars qw($VERSION $grammar $parser) ;
+use vars qw($VERSION $grammar $parser $__test_ssh_root_file $__test_ssh_home)  ;
 
 $VERSION = sprintf "1.%04d", q$Revision$ =~ /(\d+)/;
 
+
+$__test_ssh_root_file = 0;
 my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
 =head1 NAME
@@ -152,14 +154,20 @@ sub ssh_read {
       || croak __PACKAGE__," ssh_read: undefined config root object";
     my $instance = $config_root -> instance ;
 
-    $instance -> preset_start if $> ; # regular user
+    my $is_user = 1 ;
+
+    # $__test_root_file is a special global variable used only for tests
+    $is_user = 0 if $> or $__test_ssh_root_file ; 
+
+    $instance -> preset_start if $is_user ; # regular user
 
     read_ssh_file(file => 'ssh_config', @_) ;
 
-    if ( $> ) {
+    if ( $is_user ) {
       $instance -> preset_stop ;
+      my $home_dir = $__test_ssh_home || $ENV{HOME} ;
       read_ssh_file(file => 'config', @_, 
-		    config_dir => $ENV{HOME}.'/.ssh') ;
+		    config_dir => $home_dir.'/.ssh') ;
     }
 }
 
@@ -180,9 +188,9 @@ client_alive_line: /clientalive\w+/i arg(s) "\n"
    Config::Model::OpenSsh::clientalive($arg[0],$item[1],@{$item[2]}) ;
 }
 
-host_line: /host\b/i arg(s) "\n"
+host_line: /host\b/i arg "\n"
 {
-   Config::Model::OpenSsh::host($arg[0],$item[1],@{$item[2]}) ;
+   Config::Model::OpenSsh::host($arg[0],$item[2]) ;
 }
 
 any_line: key arg(s) "\n"  
@@ -264,9 +272,12 @@ $parser = Parse::RecDescent->new($grammar) ;
   }
 
   sub host {
-    my ($root, @patterns) = @_ ;
+    my ($root,$arg)  = @_;
+    my @patterns = split /,/,$arg ; ;
 
     my $list_obj = $root->fetch_element('Host');
+
+    $logger->info("ssh: load host patterns '".join("','", @patterns)."'");
 
     # create new host block
     my $nb_of_elt = $list_obj->fetch_size;

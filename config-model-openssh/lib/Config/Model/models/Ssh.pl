@@ -2,6 +2,14 @@
           {
             'class_description' => 'Model of /etc/ssh/ssh_config or ~/.ssh/config',
             'include_after' => 'Host',
+            'read_config' => [
+                               {
+                                 'function' => 'ssh_read',
+                                 'backend' => 'custom',
+                                 'class' => 'Config::Model::OpenSsh',
+                                 'config_dir' => '/etc/ssh'
+                               }
+                             ],
             'name' => 'Ssh',
             'include' => [
                            'Ssh::HostElement'

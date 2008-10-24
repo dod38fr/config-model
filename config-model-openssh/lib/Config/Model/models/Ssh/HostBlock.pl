@@ -9,7 +9,17 @@
                                           'type' => 'leaf'
                                         },
                              'type' => 'list',
-                             'description' => 'Specify a pattern that will be compared to the hostname argument given on the command line (i.e. the name is not converted to a canonicalized host name before matching). A single `*\' as a pattern can be used to provide global defaults for all hosts. All parameters specifed in the sub-tree will apply only to the hosts that match this pattern.
+                             'description' => 'A pattern consists of zero or more non-whitespace characters, \'*\' (a wildcard that matches zero or more characters), or \'?\' (a wildcard that matches exactly one character).  For example, to specify a set of declarations for any host in the ".co.uk" set of domains, the following pattern could be used:
+
+   Host *.co.uk
+
+The following pattern would match any host in the 192.168.0.[0-9] network range:
+
+   Host 192.168.0.?
+
+A pattern-list is a comma-separated list of patterns. Patterns within pattern-lists may be negated by preceding them with an exclamation mark (\'!\'). For example, to allow a key to be used from anywhere within an organisation except from the "dialup" pool, the following entry (in authorized_keys) could be used:
+
+   from="!*.dialup.example.com,*.example.com"
 '
                            },
                            'block',

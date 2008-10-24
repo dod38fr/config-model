@@ -36,10 +36,10 @@ Host *
 #   IdentityFile ~/.ssh/identity
 #   IdentityFile ~/.ssh/id_rsa
 #   IdentityFile ~/.ssh/id_dsa
-#   Port 22
+    Port 1022
 #   Protocol 2,1
 #   Cipher 3des
-#   Ciphers aes128-cbc,3des-cbc,blowfish-cbc,cast128-cbc,arcfour,aes192-cbc,aes256-cbc
+    Ciphers aes192-cbc,aes128-cbc,3des-cbc,blowfish-cbc,aes256-cbc
 #   MACs hmac-md5,hmac-sha1,umac-64@openssh.com,hmac-ripemd160
 #   EscapeChar ~
 #   Tunnel no
@@ -49,3 +49,7 @@ Host *
     HashKnownHosts yes
     GSSAPIAuthentication yes
     GSSAPIDelegateCredentials no
+
+Host foo.*,*.bar
+    ForwardX11 yes
+    SendEnv FOO BAR
