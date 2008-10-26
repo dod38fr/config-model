@@ -57,9 +57,9 @@ $ret = $augc->set("/files/etc/hosts/2/canonical","bilbo") ;
 is($ret,0,"Set new host");
 
 $ret = $augc->save ;
-is($ret,0,"First save done") ;
+is($ret,0,"First save done, no file written (no modif)") ;
 
-ok(-e $written_file, "File was written" ) ;
+ok((not -e $written_file), "File was not written" ) ;
 unlink ($written_file) if -e $written_file ;
 
 $ret = $augc->get("/files/etc/hosts/2/canonical") ;

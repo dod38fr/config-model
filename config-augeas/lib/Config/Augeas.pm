@@ -21,7 +21,7 @@ use strict;
 use warnings;
 use Carp;
 
-our $VERSION = '0.301';
+our $VERSION = '0.302';
 
 require XSLoader;
 XSLoader::load('Config::Augeas', $VERSION);

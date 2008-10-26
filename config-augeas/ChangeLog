@@ -1,3 +1,10 @@
+2008-10-26  Dominique Dumont  <domi.dumont@free.fr> v0.302
+
+	* t/Config-AugeasC.t: Starting from version 0.3.2, Augeas no
+	longer writes a file when its data was not modified. This change
+	of behavior broke this test. This test is now fixed to cope with
+	this change (which makes sense).
+	
 2008-08-29  Dominique Dumont  <dominique.dumont@hp.com> v0.301
 
 	* lib/Config/Augeas.pm (move): New method for Augeas 0.3.0 new
