@@ -232,13 +232,20 @@ sub dump_tree {
         return if $skip_aw and $next->is_auto_write_for_type($skip_aw) ;
 
         my $pad = $compute_pad->($obj);
-        $$data_r .= "\n$pad$element";
+
+        my $head = "\n$pad$element";
 	if ($type eq 'list' or $type eq 'hash') {
 	    $key = '"' . $key . '"' if  $key =~ /\s/;
-	    $$data_r .= ":$key" ;
+	    $head .= ":$key" ;
 	}
 
-        $scanner->scan_node($data_r, $next);
+	my $sub_data = '';
+        $scanner->scan_node(\$sub_data, $next);
+
+	# skip simple nodes that do not bring data
+	if ($sub_data or $type eq 'list' or $type eq 'hash') { 
+	    $$data_r .= $head.$sub_data.' -';
+	}
     };
 
     my @scan_args = (
@@ -249,7 +256,6 @@ sub dump_tree {
 		     leaf_cb         => $std_cb,
 		     node_element_cb => $element_cb,
 		     check_list_element_cb => $check_list_cb,
-		     up_cb           => sub { ${$_[1]} .= ' -'; }
 		    );
 
     my @left = keys %args;
@@ -262,6 +268,7 @@ sub dump_tree {
     $view_scanner->scan_node(\$ret, $node);
 
     substr( $ret, 0, 1, '' );    # remove leading \n
+    $ret .= ' -' if $ret ;
     return $ret . "\n";
 }
 

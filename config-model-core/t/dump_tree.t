@@ -72,16 +72,6 @@ olist:0
   X=Av -
 olist:1
   X=Bv -
-warp
-  sub_slave
-    sub_slave - -
-  warp2
-    sub_slave - - -
-slave_y
-  sub_slave
-    sub_slave - -
-  warp2
-    sub_slave - - -
 a_string="toto \"titi\" tata"
 my_check_list=X2,X3 -
 EOF
@@ -114,16 +104,6 @@ olist:0
 olist:1
   X=Bv
   DX=Dv -
-warp
-  sub_slave
-    sub_slave - -
-  warp2
-    sub_slave - - -
-slave_y
-  sub_slave
-    sub_slave - -
-  warp2
-    sub_slave - - -
 string_with_def="yada yada"
 a_uniline="yada yada"
 a_string="toto \"titi\" tata"
@@ -161,16 +141,6 @@ olist:0
 olist:1
   X=Bv
   DX=Dv -
-warp
-  sub_slave
-    sub_slave - -
-  warp2
-    sub_slave - - -
-slave_y
-  sub_slave
-    sub_slave - -
-  warp2
-    sub_slave - - -
 string_with_def="yada yada"
 a_uniline="yada yada"
 a_string="toto \"titi\" tata"
@@ -208,16 +178,6 @@ olist:0
 olist:1
   X=Bv
   DX=Dv -
-warp
-  sub_slave
-    sub_slave - -
-  warp2
-    sub_slave - - -
-slave_y
-  sub_slave
-    sub_slave - -
-  warp2
-    sub_slave - - -
 string_with_def="yada yada"
 a_uniline="yada yada"
 a_string=""
@@ -244,17 +204,7 @@ std_id:"b d " -
 std_id:bc -
 lista=a,b
 olist:0 -
-olist:1 -
-warp
-  sub_slave
-    sub_slave - -
-  warp2
-    sub_slave - - -
-slave_y
-  sub_slave
-    sub_slave - -
-  warp2
-    sub_slave - - - -
+olist:1 - -
 EOF
 
 $cds =~ s/\s+\n/\n/g;
