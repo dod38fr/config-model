@@ -220,7 +220,7 @@ sub dump_tree {
 	    # skip undef values
 	    my @val = grep (defined $_,$list_obj->fetch_all_values($fetch_mode)) ;
             $$data_r .= "\n$pad$element=" 
-	      . join( ',', @val ) if @keys;
+	      . join( ',', @val ) if @val;
         }
     };
 

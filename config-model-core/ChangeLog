@@ -1,3 +1,8 @@
+2008-10-29  Dominique Dumont  <dominique.dumont@hp.com>
+
+	* lib/Config/Model/Dumper.pm (dump_tree): No longer dump list
+	elements that contain only undef values
+
 2008-10-21  Dominique Dumont  <dominique.dumont@hp.com> v0.630
 
 	* t/augeas_backend.t: Skip sshd_config tests if Augeas library <= 0.3.1

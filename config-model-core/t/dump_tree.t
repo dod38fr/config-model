@@ -4,7 +4,7 @@
 # $Revision$
 
 use ExtUtils::testlib;
-use Test::More tests => 12;
+use Test::More tests => 13;
 use Config::Model;
 
 use warnings;
@@ -135,7 +135,8 @@ $cds =~ s/\s+\n/\n/g;
 is_deeply( [split /\n/,$cds], [split /\n/,$expect], 
 	   "check dump of all values ") ;
 
-$root->fetch_element('listb')->clear ;
+my $listb = $root->fetch_element('listb');
+$listb->clear ;
 
 $cds = $root->dump_tree( full_dump => 1 );
 print "cds string:\n$cds" if $trace  ;
@@ -268,3 +269,12 @@ $cds = $root->dump_tree( full_dump => 1 );
 print "cds string:\n$cds" if $trace  ;
 
 like($cds,qr/hidden value/,"check that hidden value is shown (macro=XZ)") ;
+
+
+# check that list of undef is not shown
+map { $listb->fetch_with_id($_)->store(undef) } (0 .. 3);
+
+$cds = $root->dump_tree( full_dump => 1 );
+print "Empty listb dump:\n$cds" if $trace  ;
+
+unlike($cds,qr/listb/,"check that listb containing undef values is not shown") ;

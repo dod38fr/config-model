@@ -299,6 +299,14 @@ To migrate from an old format to a new format:
                   ],
   write_config => [ { backend => 'custom', class => 'NewFormat' } ],
 
+If C<write_config> is missing, the data provided by C<read_config>
+will be used. For instance:
+
+  read_config  => { backend => 'custom', class => 'Bar', config_dir => '/etc/foo'},
+
+In this case, configuration data will be read by C<Bar::read> in
+directory C</etc/foo> and will be written back there by C<Bar::write>.
+
 =head2 read write directory
 
 By default, configurations files are read from the directory specified
