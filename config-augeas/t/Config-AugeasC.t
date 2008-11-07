@@ -6,8 +6,11 @@
 
 # change 'tests => 2' to 'tests => last_test_to_print';
 
-use Test::More tests => 18;
+use Test::More tests => 27;
 use ExtUtils::testlib;
+use File::Path ;
+use File::Copy ;
+use File::stat;
 
 BEGIN { use_ok('Config::Augeas') };
 
@@ -38,7 +41,63 @@ ok( $fail == 0 , 'Constants' );
 # its man page ( perldoc Test::More ) for help writing this test script.
 ok(1,"Compilation done");
 
-my $aug_root = 'augeas-box/';
+# pseudo root were input config file are read
+my $r_root = 'augeas-box/';
+
+# pseudo root where config files are written by config-model
+my $aug_root = 'augeas-root/';
+
+sub cleanup {
+    # cleanup before tests
+    rmtree($aug_root);
+    mkpath($aug_root.'etc/ssh/', { mode => 0755 }) ;
+    copy($r_root.'etc/hosts',$aug_root.'etc/') ;
+    copy($r_root.'etc/ssh/sshd_config',$aug_root.'etc/ssh/') ;
+}
+
+# test augeas without backup file
+cleanup;
+
+my $h_file = $aug_root."etc/hosts" ;
+my $h_size = stat($h_file)->size ;
+
+my $aug = Config::Augeas::init($aug_root, '' ,0) ;
+
+ok($aug,"Created new Augeas object without backup file");
+
+my $ret = $aug->set("/files/etc/hosts/2/canonical","bilbobackup") ;
+
+is($ret,0,"Set new host name");
+
+$ret = $aug->save ;
+is($ret,0,"Save with backup done") ;
+
+is( stat($h_file)->size , $h_size + 6 , "Check new file size") ;
+
+# test augeas with backup file
+cleanup;
+
+my $augb = Config::Augeas::init($aug_root, '' ,
+				&Config::Augeas::AUG_SAVE_BACKUP) ;
+
+ok($augb,"Created new Augeas object with backup file");
+
+$ret = $augb->set("/files/etc/hosts/2/canonical","bilbobackup") ;
+
+is($ret,0,"Set new host name");
+
+$ret = $augb->save ;
+is($ret,0,"Save with backup done") ;
+
+my $b_file = $h_file.".augsave" ;
+ok( -e $b_file , "Backup file was written" ) ;
+is( stat($b_file)->size , $h_size, "compare file sizes") ;
+
+
+
+# complete test with save file
+cleanup ;
+
 my $written_file = $aug_root."etc/hosts.augnew" ;
 unlink ($written_file) if -e $written_file ;
 
@@ -50,7 +109,6 @@ ok($augc,"Created new Augeas object");
 my $string = $augc->get("/files/etc/hosts/1/ipaddr") ;
 is($string,'127.0.0.1',"Called get (returned $string )");
 
-my $ret ;
 $ret = $augc->set("/files/etc/hosts/2/ipaddr","192.168.0.1") ;
 $ret = $augc->set("/files/etc/hosts/2/canonical","bilbo") ;
 
@@ -114,3 +172,4 @@ ok($augc2,"Created 2nd Augeas object");
 $ret = $augc2->get("/files/etc/hosts/1/ipaddr") ;
 
 is($ret,'127.0.0.1',"Called get (returned $ret )");
+

@@ -3,6 +3,8 @@
 use ExtUtils::testlib;
 
 use Config::Augeas ;
+use File::Path ;
+use File::Copy ;
 
 use warnings ;
 use strict;
@@ -10,7 +12,18 @@ use Test::More tests => 14 ;
 
 ok(1,"Compilation done");
 
-my $aug_root = 'augeas-box/';
+# pseudo root were input config file are read
+my $r_root = 'augeas-box/';
+
+# pseudo root where config files are written by config-model
+my $aug_root = 'augeas-root/';
+
+# cleanup before tests
+rmtree($aug_root);
+mkpath($aug_root.'etc/ssh/', { mode => 0755 }) ;
+copy($r_root.'etc/hosts',$aug_root.'etc/') ;
+copy($r_root.'etc/ssh/sshd_config',$aug_root.'etc/ssh/') ;
+
 
 my $written_file = $aug_root."etc/hosts.augnew" ;
 unlink ($written_file) if -e $written_file ;

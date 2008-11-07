@@ -1,3 +1,10 @@
+2008-11-07  Dominique Dumont  <dominique.dumont@hp.com> v0.303
+
+	* Build.PL: Require Augeas 0.3.4 minimum
+
+	* t/Config-AugeasC.t: Added tests cases for save with backup and
+	save without backup. Fixed sshd_config tests
+
 2008-10-26  Dominique Dumont  <domi.dumont@free.fr> v0.302
 
 	* t/Config-AugeasC.t: Starting from version 0.3.2, Augeas no
