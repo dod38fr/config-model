@@ -1,0 +1,8 @@
+augeas-box/etc/hosts
+augeas-box/etc/ssh/ssh_config
+augeas-box/etc/ssh/sshd_config
+Build.PL
+lib/Config/Model/Backend/Augeas.pm
+MANIFEST			This list of files
+README
+t/augeas_backend.t
