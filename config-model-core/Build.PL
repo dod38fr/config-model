@@ -31,15 +31,12 @@ require 5.008;
 print "\nIf you want to use the TermUI interface, you should install\n",
   "Term::ReadLine::Perl or Term::ReadLine::Gnu\n\n";
 
-print "Note: Augeas integration tests require Config::Augeas ",
-  "and Augeas library > 0.3.1\n\n";
-
 my $build = Module::Build->new
   (
    module_name    => 'Config::Model',
    license        => 'lgpl',
    script_files   => [ 'config-edit' ],
-   dist_abstract  => 'Describe and edit configuration data',
+   dist_abstract  => 'Edit and validate configuration data',
    dist_author    => 'Dominique Dumont (ddumont at cpan dot org)',
    requires       => {
 		      'Term::ReadLine'    => 0,
@@ -48,7 +45,7 @@ my $build = Module::Build->new
 		      'Scalar::Util'      => 0, # provided by perl 5.8.0
 		      'Exception::Class'  => 0,
 		      'Carp::Assert::More' => 0,
-		      'Error'             => 0,
+		      # removed Error: no longer needed
 		     },
    build_requires => {
 		      'Config::Tiny'      => 0,

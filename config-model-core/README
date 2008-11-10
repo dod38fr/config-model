@@ -104,9 +104,10 @@ to another, most people who want to use this framework will have to
 provide a dedicated parser/writer. 
 
 Nevertheless, this project provides a writer/parser for some common
-format: ini style file and perl file. Version 0.624 is able to use
-Augeas library to read and write some configuration files. See
-http://augeas.net for more details.
+format: ini style file and perl file. With the additional
+Config::Model::Backend::Augeas, Augeas library can be used to read and
+write some configuration files. See http://augeas.net for more
+details.
 
 Is there an example of a configuration model ?
 ----------------------------------------------

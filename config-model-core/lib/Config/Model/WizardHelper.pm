@@ -27,7 +27,6 @@ use warnings ;
 use Config::Model::ObjTreeScanner ;
 
 use Config::Model::Exception ;
-use Error qw(:try);
 
 use vars qw($VERSION);
 $VERSION = sprintf "1.%04d", q$Revision$ =~ /(\d+)/;
@@ -308,20 +307,19 @@ sub leaf_cb {
 
     # now need to check for errors...
     my $result;
-    try {
-	$result = $value_obj->fetch();
-    }
-    catch Config::Model::Exception::User with {
+    eval { $result = $value_obj->fetch();};
+
+    my $e ;
+    if ($e = Exception::Class->caught('Config::Model::Exception::User')) {
 	# ignore errors that has just been catched and call user call-back
-	my $error_msg = shift ;
 	warn "leaf_cb oopsed on '", $node->name,
 	  "' element $element", defined $index ? ", index $index":'', "\n" 
 	    if $::verbose;
-	$user_leaf_cb->($self,$data_r,$node,$element,$index,$value_obj , $error_msg) ;
+	$user_leaf_cb->($self,$data_r,$node,$element,$index,$value_obj , 
+			$e->error) ;
     }
-    otherwise {
-        my $oops = shift ;
-	die $oops ;
+    elsif ($e = Exception::Class->caught()) {
+	$e->rethrow;
         # does not return ...
     } ;
 

@@ -29,7 +29,6 @@ use Parse::RecDescent ;
 use Config::Model::Exception ;
 use Config::Model::ValueComputer ;
 use Config::Model::IdElementReference ;
-use Error qw(:try); 
 use Carp ;
 
 use base qw/Config::Model::WarpedThing/ ;
@@ -1380,18 +1379,23 @@ sub _pre_fetch {
     # get stored value or computed value or default value
     my $std_value ;
 
-    try {
+    eval {
 	$std_value 
 	  = defined $self->{preset}        ? $self->{preset}
           : defined $self->{compute}       ? $self->compute 
           :                                  $self->{default} ;
-    }
-    catch Config::Model::Exception::User with { 
+    };
+
+    my $e ;
+    if ($e = Exception::Class->caught('Config::Model::Exception::User')) { 
 	if ($self->instance->get_value_check('fetch')) {
-	    shift->throw ; 
+	    $e->throw ; 
 	}
 	$std_value = undef ;
-    } ;
+    }
+    elsif ($e = Exception::Class->caught()) {
+	$e->rethrow;
+    } 
 
     return $std_value ;
 }

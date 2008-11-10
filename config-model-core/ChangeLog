@@ -1,6 +1,14 @@
-2008-11-10  Dominique Dumont  <dominique.dumont@hp.com>
+2008-11-10  Dominique Dumont  <dominique.dumont@hp.com> v0.631
 
-	* t/augeas_backend.t: Fixed Augeas tests
+	* lib/Config/Model/Value.pm (_pre_fetch): removed dependency on Error
+
+	* lib/Config/Model/WizardHelper.pm : removed dependency on Error
+
+	* lib/Config/Model/AutoRead.pm (auto_write_init): Move Augeas
+	read/write feature out of Config::Model. This feature is now
+	available in an additional class:
+	Config::Model::Backend::Augeas. THis class is distributed in its
+	own Perl distribution.
 
 2008-10-29  Dominique Dumont  <dominique.dumont@hp.com>
 
