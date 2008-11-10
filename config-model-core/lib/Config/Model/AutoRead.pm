@@ -822,8 +822,7 @@ sub augeas_deep_match {
     return @result ;
 }
 
-sub write_augeas
-  {
+sub write_augeas {
     my $self = shift;
     my %args = @_ ; # contains root and config_dir
     return 0 unless $has_augeas ;

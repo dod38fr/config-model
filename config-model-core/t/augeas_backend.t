@@ -50,7 +50,6 @@ copy($r_root.'etc/ssh/sshd_config',$wr_root.'etc/ssh/') ;
 
 # set_up data
 
-
 $model->create_config_class 
   (
    name => 'Host',
@@ -236,7 +235,6 @@ $ssh_augeas_obj->print(*STDOUT, '/files/etc/ssh/sshd_config/*') if $trace;
 $expect = "AcceptEnv=LC_PAPER,LC_NAME,LC_ADDRESS,LC_TELEPHONE,LC_MEASUREMENT,LC_IDENTIFICATION,LC_ALL
 HostbasedAuthentication=0
 HostKey=/etc/ssh/ssh_host_key,/etc/ssh/ssh_host_rsa_key,/etc/ssh/ssh_host_dsa_key
-Subsystem:internal=/usr/lib/openssh/sftp-server
 Subsystem:sftp=/usr/lib/openssh/sftp-server -
 ";
 
@@ -265,7 +263,7 @@ ok(-e $aug_save_sshd_file,
 "HostKey              /etc/ssh/ssh_host_key\n",
 "HostKey              /etc/ssh/ssh_host_rsa_key\n",
 "HostKey              /etc/ssh/ssh_host_dsa_key\n",
-"Subsystem            internal /usr/lib/openssh/sftp-server\n",
+"Subsystem            sftp /usr/lib/openssh/sftp-server\n",
 	     );
 
 open(AUG,$aug_sshd_file) || die "Can't open $aug_sshd_file:$!"; 

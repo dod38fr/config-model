@@ -1,3 +1,7 @@
+2008-11-10  Dominique Dumont  <dominique.dumont@hp.com>
+
+	* t/augeas_backend.t: Fixed Augeas tests
+
 2008-10-29  Dominique Dumont  <dominique.dumont@hp.com>
 
 	* lib/Config/Model/Dumper.pm (dump_tree): No longer dump list
