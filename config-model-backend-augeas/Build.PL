@@ -29,7 +29,7 @@ use strict ;
 require 5.008;
 
 print "Note: Augeas integration tests require Config::Augeas ",
-  "and Augeas library > 0.3.1\n\n";
+  "and Augeas library > 0.3.3\n\n";
 
 my $build = Module::Build->new
   (
@@ -40,7 +40,8 @@ my $build = Module::Build->new
    requires       => {
 		      'Log::Log4perl'     => '1.11', # for TRACE log level
 		      'Exception::Class'  => 0,
-		      'Config::Augeas' => '0.301',
+		      'Config::Augeas' => '0.303',
+		      'Config::Model'  => '0.631',
 		     },
    build_requires => {
 		      'Test::More'        => 0,
