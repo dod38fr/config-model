@@ -852,7 +852,8 @@ sub fetch_all {
 
 =head2 fetch_all_values( [ custom | preset | standard | default ] )
 
-Returns an array containing all values held by the hash or list.
+Returns an array containing all defined values held by the hash or
+list. (undefined values are simply discarded)
 
 With a parameter, this method will return either:
 
@@ -885,7 +886,8 @@ sub fetch_all_values {
     my @keys  = $self->get_all_indexes ;
 
     if ($self->{cargo}{type} eq 'leaf') {
-	return map { $self->fetch_with_id($_)->fetch($mode) ;} @keys ;
+	return grep {defined $_} 
+	  map { $self->fetch_with_id($_)->fetch($mode) ;} @keys ;
     }
     else {
 	my $info = "current keys are '".join("', '",@keys)."'." ;

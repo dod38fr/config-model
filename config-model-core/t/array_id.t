@@ -9,7 +9,7 @@ use ExtUtils::testlib;
 use Test::More;
 use Config::Model;
 
-BEGIN { plan tests => 53; }
+BEGIN { plan tests => 54; }
 
 use strict;
 
@@ -114,6 +114,9 @@ $b->push('toto','titi') ;
 is($b->fetch_with_id(2)->fetch, 'bar', "check last item of table") ;
 is($b->fetch_with_id(3)->fetch, 'toto',"check pushed item") ;
 is($b->fetch_with_id(4)->fetch, 'titi',"check pushed item") ;
+
+my @all = $b->fetch_all_values ;
+is_deeply(\@all,[qw/baz bar toto titi/],"check fetch_all_values") ;
 
 my $ld1 = $root->fetch_element('list_with_default_id');
 is_deeply([$ld1->get_all_indexes],[0,1],"check list_with_default_id ids") ;
