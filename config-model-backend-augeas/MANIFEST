@@ -6,3 +6,5 @@ lib/Config/Model/Backend/Augeas.pm
 MANIFEST			This list of files
 README
 t/augeas_backend.t
+META.yml
+t/pod.t
