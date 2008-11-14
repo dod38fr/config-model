@@ -11,6 +11,14 @@
                                }
                              ],
             'name' => 'Ssh',
+            'write_config' => [
+                                {
+                                  'function' => 'ssh_write',
+                                  'backend' => 'custom',
+                                  'class' => 'Config::Model::OpenSsh',
+                                  'config_dir' => '/etc/ssh'
+                                }
+                              ],
             'include' => [
                            'Ssh::HostElement'
                          ],

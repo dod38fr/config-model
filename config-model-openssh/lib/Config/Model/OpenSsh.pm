@@ -32,13 +32,17 @@ use File::Copy ;
 use File::Path ;
 
 use Parse::RecDescent ;
-use vars qw($VERSION $grammar $parser $__test_ssh_root_file $__test_ssh_home)  ;
+use vars qw($VERSION $grammar $parser)  ;
 
 $VERSION = sprintf "1.%04d", q$Revision$ =~ /(\d+)/;
 
 
-$__test_ssh_root_file = 0;
 my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+my $__test_ssh_root_file = 0;
+sub _set_test_ssh_root_file { $__test_ssh_root_file = shift ;} 
+my $__test_ssh_home = '';
+sub _set_test_ssh_home { $__test_ssh_home = shift ;}
 
 =head1 NAME
 
@@ -104,6 +108,37 @@ sub sshd_read {
     read_ssh_file( file => 'sshd_config', @_ ) ;
 }
 
+# for ssh_read:
+# if root: use /etc/ssh/ssh_config as usual
+# if normal user: load root file in "preset mode" 
+#                 load ~/.ssh/config in normal mode
+#                 write back to ~/.ssh/config
+#                 Ssh model can only specify root config_dir
+
+sub ssh_read {
+    my %args = @_ ;
+    my $config_root = $args{object}
+      || croak __PACKAGE__," ssh_read: undefined config root object";
+    my $instance = $config_root -> instance ;
+
+    my $is_user = 1 ;
+
+    # $__test_root_file is a special global variable used only for tests
+    $is_user = 0 if ($> == 0 or $__test_ssh_root_file ); 
+    print "is user: $is_user , $>, $__test_ssh_root_file\n";
+
+    $instance -> preset_start if $is_user ; # regular user
+
+    read_ssh_file(file => 'ssh_config', @_) ;
+
+    if ( $is_user ) {
+      $instance -> preset_stop ;
+      my $home_dir = $__test_ssh_home || $ENV{HOME} ;
+      read_ssh_file(file => 'config', @_, 
+		    config_dir => $home_dir.'/.ssh') ;
+    }
+}
+
 sub read_ssh_file {
     my %args = @_ ;
     my $config_root = $args{object}
@@ -111,12 +146,14 @@ sub read_ssh_file {
     my $dir = $args{root}.$args{config_dir} ;
 
     unless (-d $dir ) {
-	croak __PACKAGE__," read_ssh_file: unknown config dir $dir";
+	$logger->info("read_ssh_file: unknown config dir $dir");
+	return ;
     }
 
     my $file = $dir.'/'.$args{file} ;
     unless (-r "$file") {
-	croak __PACKAGE__," read_ssh_file: unknown file $file";
+	$logger->info("read_ssh_file: unknown file $file");
+	return ;
     }
 
     $logger->info("loading config file $file");
@@ -138,36 +175,6 @@ sub read_ssh_file {
     }
     else {
 	die __PACKAGE__," read_ssh_file: can't open $file:$!";
-    }
-}
-
-# for ssh_read:
-# if root: use /etc/ssh/ssh_config as usual
-# if normal user: load root file in "preset mode" 
-#                 load ~/.ssh/config in normal mode
-#                 write back to ~/.ssh/config
-#                 Ssh model can only specify root config_dir
-
-sub ssh_read {
-    my %args = @_ ;
-    my $config_root = $args{object}
-      || croak __PACKAGE__," ssh_read: undefined config root object";
-    my $instance = $config_root -> instance ;
-
-    my $is_user = 1 ;
-
-    # $__test_root_file is a special global variable used only for tests
-    $is_user = 0 if $> or $__test_ssh_root_file ; 
-
-    $instance -> preset_start if $is_user ; # regular user
-
-    read_ssh_file(file => 'ssh_config', @_) ;
-
-    if ( $is_user ) {
-      $instance -> preset_stop ;
-      my $home_dir = $__test_ssh_home || $ENV{HOME} ;
-      read_ssh_file(file => 'config', @_, 
-		    config_dir => $home_dir.'/.ssh') ;
     }
 }
 
@@ -328,12 +335,53 @@ sub sshd_write {
     close OUT;
 }
 
+# for ssh_write:
+# if root: use /etc/ssh/ssh_config as usual
+# if normal user: load root file in "preset mode" 
+#                 load ~/.ssh/config in normal mode
+#                 write back to ~/.ssh/config
+#                 Ssh model can only specify root config_dir
+
+sub ssh_write {
+    my %args = @_ ;
+    my $config_root = $args{object}
+      || croak __PACKAGE__," ssh_write: undefined config root object";
+
+    my $is_user = 1 ;
+    # $__test_root_file is a special global variable used only for tests
+    $is_user = 0 if ($> == 0 or $__test_ssh_root_file ); 
+    my $home_dir = $__test_ssh_home || $ENV{HOME} ;
+
+    my $config_dir = $is_user ? $home_dir.'/.ssh' : $args{config_dir} ;
+    my $dir = $args{root}.$config_dir ;
+
+    mkpath($dir, {mode => 0755} )  unless -d $dir ;
+
+    my $file = $is_user ? "$dir/config" : "$dir/ssh_config" ;
+
+    if (-r "$file") {
+	my $backup = "$file.".time ;
+	$logger->info("Backing up file $file in $backup");
+	copy($file,$backup);
+    }
+
+    $logger->info("writing config file $file");
+
+    my $result = write_node_content($config_root,'custom');
+
+    #print $result ;
+    open(OUT,"> $file") || die "cannot open $file:$!";
+    print OUT $result;
+    close OUT;
+}
+
 sub write_line {
     return sprintf("%-20s %s\n",@_) ;
 }
 
 sub write_node_content {
     my $node = shift ;
+    my $mode = shift || '';
 
     my $result = '' ;
     my $match  = '' ;
@@ -345,28 +393,31 @@ sub write_node_content {
 
 	#print "got $key type $type and ",join('+',@arg),"\n";
 	if    ($name eq 'Match') { 
-	    $match .= write_all_match_block($elt) ;
+	    $match .= write_all_match_block($elt,$mode) ;
+	}
+	elsif    ($name eq 'Host') { 
+	    $match .= write_all_host_block($elt,$mode) ;
 	}
 	elsif    ($name eq 'ClientAliveCheck') { 
 	    # special case that must be skipped
 	}
 	elsif    ($type eq 'leaf') { 
-	    my $v = $elt->fetch ;
+	    my $v = $elt->fetch($mode) ;
 	    if (defined $v and $elt->value_type eq 'boolean') {
 		$v = $v == 1 ? 'yes':'no' ;
 	    }
 	    $result .= write_line($name,$v) if defined $v;
 	}
 	elsif    ($type eq 'check_list') { 
-	    my $v = $elt->fetch ;
+	    my $v = $elt->fetch($mode) ;
 	    $result .= write_line($name,$v) if defined $v and $v;
 	}
 	elsif ($type eq 'list') { 
-	    map { $result .= write_line($name,$_) ;} $elt->fetch_all_values ;
+	    map { $result .= write_line($name,$_) ;} $elt->fetch_all_values($mode) ;
 	}
 	elsif ($type eq 'hash') {
 	    foreach my $k ( $elt->get_all_indexes ) {
-		my $v = $elt->fetch_with_id($k)->fetch ;
+		my $v = $elt->fetch_with_id($k)->fetch($mode) ;
 		$result .=  write_line($name,"$k $v") ;
 	    }
 	}
@@ -380,10 +431,11 @@ sub write_node_content {
 
 sub write_all_match_block {
     my $match_elt = shift ;
+    my $mode = shift || '';
 
     my $result = '' ;
-    foreach my $elt ($match_elt->fetch_all() ) {
-	$result .= write_match_block($elt) ;
+    foreach my $elt ($match_elt->fetch_all($mode) ) {
+	$result .= write_match_block($elt,$mode) ;
     }
 
     return $result ;
@@ -391,16 +443,18 @@ sub write_all_match_block {
 
 sub write_match_block {
     my $match_elt = shift ;
+    my $mode = shift || '';
+
     my $result = "\nMatch " ;
 
     foreach my $name ($match_elt->get_element_name(for => 'master') ) {
 	my $elt = $match_elt->fetch_element($name) ;
 
 	if ($name eq 'Elements') {
-	    $result .= "\n".write_node_content($elt)."\n" ;
+	    $result .= "\n".write_node_content($elt,$mode)."\n" ;
 	}
 	else {
-	    my $v = $elt->fetch($name) ;
+	    my $v = $elt->fetch($mode) ;
 	    $result .= " $name $v" if defined $v;
 	}
     }
@@ -408,6 +462,39 @@ sub write_match_block {
     return $result ;
 }
 
+sub write_all_host_block {
+    my $host_elt = shift ;
+    my $mode = shift || '';
+
+    my $result = '' ;
+    foreach my $elt ($host_elt->fetch_all($mode) ) {
+	$result .= write_host_block($elt,$mode) ;
+    }
+
+    return $result ;
+}
+
+sub write_host_block {
+    my $host_elt = shift ;
+    my $result = "\nHost " ;
+
+    my $pattern_elt = $host_elt->fetch_element('patterns') ;
+    my @custom_pattern = $pattern_elt -> fetch_all_values('custom') ;
+
+    my $block_elt = $host_elt->fetch_element('block') ;
+    my $block_data = write_node_content($block_elt,'custom') ;
+
+    # write data only if custom pattern or custom data is found this
+    # is necessary to avoid writing data from /etc/ssh/ssh_config that
+    # were entered as 'preset' data
+    if (@custom_pattern or $block_data) {
+	$result .= ' '.join(',',$pattern_elt->fetch_all_values('custom'));
+	$result .= "\n$block_data\n" ;
+	return $result ;
+    }
+
+    return '';
+}
 1;
 
 =head1 AUTHOR
