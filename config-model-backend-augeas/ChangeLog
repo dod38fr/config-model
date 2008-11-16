@@ -1,3 +1,9 @@
+2008-11-16  Domi  <domi@bilbo.maison>
+
+	* lib/Config/Model/Backend/Augeas.pm (write): Fixed a bug that
+	prevented to write through Augeas even if read through Augeas was
+	not done.
+
 2008-11-13  Dominique Dumont  <dominique.dumont@hp.com> v0.101
 
 	* lib/Config/Model/Backend/Augeas.pm: First version

@@ -258,7 +258,9 @@ sub write {
 
     my $set_in = $args{set_in} || '';
     my $mainpath = '/files'.$args{config_file} ;
-    my $augeas_obj = $self->{augeas_obj} ;
+    my $augeas_obj =   $self->{augeas_obj} 
+                   ||= Config::Augeas->new(root => $args{root}, 
+					   save => $args{save} ) ;
 
     my %to_set = $self->copy_in_augeas($augeas_obj,$mainpath,$set_in,
 				       $args{lens_with_seq}) ;
@@ -301,8 +303,8 @@ sub copy_in_augeas {
 	my $p = $data_ref->[0] ;
 	my $v = $value_obj->fetch () ; 
 	if (defined $v) {
-	    $augeas_obj->set($p , $v) ;
 	    print "copy_in_augeas: set $p = '$v'\n" if $::debug;
+	    $augeas_obj->set($p , $v) ;
 	}
     };
 
