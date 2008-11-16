@@ -294,9 +294,16 @@ sub remove_selection {
     foreach ($tklist->curselection()) {
 	$logger->debug( "remove_selection: removing index $_" );
 	$list   -> remove($_) ;
-	$tklist -> delete($_) ;
 	$cw->reload_tree ;
     }
+
+    # redraw the list content
+    $tklist -> delete(0,'end') ;
+    my $cargo_type = $list->cargo_type ;
+    my @insert = $cargo_type eq 'leaf' ? $list->fetch_all_values 
+               :                         $list->get_all_indexes ;
+    map { $_ = '<undef>' unless defined $_ } @insert ;
+    $tklist->insert( end => @insert ) ;
 }
 
 sub store {
