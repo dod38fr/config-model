@@ -1,3 +1,10 @@
+2008-11-16  Domi  <domi@bilbo.maison>
+
+	* lib/Config/Model/Instance.pm (write_back): Added backend
+	parameter to specify which backend to use to write. By default,
+	all backend are tried until one succeeds. This parameter can also
+	be specified when calling the constructor
+
 2008-11-10  Dominique Dumont  <dominique.dumont@hp.com> v0.631
 
 	* lib/Config/Model/Value.pm (_pre_fetch): removed dependency on Error

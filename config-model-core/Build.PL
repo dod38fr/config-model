@@ -56,7 +56,6 @@ my $build = Module::Build->new
    recommends => {
 		  # recommended modules to get more reader/writer
 		  'Config::Tiny' => 0,
-		  'Config::Augeas' => '0.301',
 		 },
    # cleanup required by t/auto_read.t
    # PreGrammar.pm is created by t/value_computer.t

@@ -475,7 +475,7 @@ sub auto_write_init {
 	     };
 	}
 
-	$instance->register_write_back($wb) ;
+	$instance->register_write_back($backend => $wb) ;
     }
 }
 
