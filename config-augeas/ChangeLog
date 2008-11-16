@@ -1,3 +1,8 @@
+2008-11-16  Domi  <domi@bilbo.maison> v0.304
+
+	* lib/Config/Augeas.pm (set): no longer dies when trying to set a
+	value to 0. Only dies when the value to set is undefined.
+
 2008-11-07  Dominique Dumont  <dominique.dumont@hp.com> v0.303
 
 	* Build.PL: Require Augeas 0.3.4 minimum

@@ -60,6 +60,8 @@ ok($aug,"inserted new host");
 $aug->set("/files/etc/hosts/3/ipaddr","192.168.0.3") ;
 $aug->set("/files/etc/hosts/3/canonical","gandalf") ;
 
+# stupid value that tests correctly augeas
+$aug->set("/files/etc/ssh/sshd_config/Port",0) ; 
 
 $aug->rm("/files/etc/hosts/4") ;
 ok($aug,"removed entry");

@@ -21,7 +21,7 @@ use strict;
 use warnings;
 use Carp;
 
-our $VERSION = '0.303';
+our $VERSION = '0.304';
 
 require XSLoader;
 XSLoader::load('Config::Augeas', $VERSION);
@@ -113,14 +113,14 @@ sub new {
     if    ($save eq 'backup')  { $flags ||= &AUG_SAVE_BACKUP }
     elsif ($save eq 'newfile') { $flags ||= &AUG_SAVE_NEWFILE }
     elsif ($save) { 
-	croak  __PACKAGE__,"new: unexpected save value: $save. ",
+	croak  __PACKAGE__," new: unexpected save value: $save. ",
 	  "Expected backup or newfile";
     }
 
     my $check = delete $args{type_check} || 0;
     $flags ||= &AUG_TYPE_CHECK if $check ;
 
-    croak  __PACKAGE__,"new: unexpected parameters: ",
+    croak  __PACKAGE__," new: unexpected parameters: ",
       join (' ',keys %args) 
 	if %args ;
 
@@ -143,7 +143,7 @@ nodes or more than one node, returns undef.
 
 sub get {
     my $self = shift ;
-    my $path = shift || croak __PACKAGE__,"get: undefined path";
+    my $path = shift || croak __PACKAGE__," get: undefined path";
 
     return $self->{aug_c} -> get($path) ;
 }
@@ -159,15 +159,17 @@ if more than one node matches C<path>.
 
 sub set {
     my $self  = shift ;
-    my $path  = shift || croak __PACKAGE__,"set: undefined path";
-    my $value = shift || croak __PACKAGE__,"set: undefined value";
+    my $path  = shift || croak __PACKAGE__," set: undefined path";
+    my $value = shift ;
+
+    croak __PACKAGE__," set: undefined value" unless defined $value;
 
     my $result ;
     my $ret = $self->{aug_c} -> set($path,$value) ;
 
     return 1 if $ret == 0;
 
-    croak __PACKAGE__,"set: error with path $path";
+    croak __PACKAGE__," set: error with path $path";
 }
 
 =head2 insert ( label, before | after , path )
@@ -185,18 +187,18 @@ Return 1 on success, and 0 if the insertion fails.
 
 sub insert {
     my $self   = shift ;
-    my $label  = shift || croak __PACKAGE__,"insert: undefined label";
-    my $where  = shift || croak __PACKAGE__,"insert: undefined 'where'";
-    my $path   = shift || croak __PACKAGE__,"insert: undefined path";
+    my $label  = shift || croak __PACKAGE__," insert: undefined label";
+    my $where  = shift || croak __PACKAGE__," insert: undefined 'where'";
+    my $path   = shift || croak __PACKAGE__," insert: undefined path";
 
     my $before = $where eq 'before' ? 1
                : $where eq 'after'  ? 0
 	       :                      undef ;
-    croak __PACKAGE__,"insert: 'where' must be 'before' or 'after' not $where"
+    croak __PACKAGE__," insert: 'where' must be 'before' or 'after' not $where"
       unless defined $before ;
 
     if ($label =~ m![/\*]! or $label =~ /\]/ ) {
-	croak __PACKAGE__,"insert: invalid label '$label'";
+	croak __PACKAGE__," insert: invalid label '$label'";
     }
 
     my $result ;
@@ -204,7 +206,7 @@ sub insert {
 
     return 1 if $ret == 0;
 
-    croak __PACKAGE__,"insert: error with path $path";
+    croak __PACKAGE__," insert: error with path $path";
 }
 
 =head2 remove ( path )
@@ -221,7 +223,7 @@ sub rm {
 
 sub remove {
     my $self   = shift ;
-    my $path   = shift || croak __PACKAGE__,"remove: undefined path";
+    my $path   = shift || croak __PACKAGE__," remove: undefined path";
 
     return $self->{aug_c} -> rm($path) ;
 }
@@ -249,8 +251,8 @@ sub mv {
 
 sub move {
     my $self   = shift ;
-    my $src    = shift || croak __PACKAGE__,"move: undefined src";
-    my $dst    = shift || croak __PACKAGE__,"move: undefined dst";
+    my $src    = shift || croak __PACKAGE__," move: undefined src";
+    my $dst    = shift || croak __PACKAGE__," move: undefined dst";
 
     my $result = $self->{aug_c} -> mv($src,$dst) ;
     return $result == 0 ? 1 : 0 ;
@@ -266,7 +268,7 @@ that they match exactly one node in the current tree.
 
 sub match {
     my $self = shift ;
-    my $pattern = shift || croak __PACKAGE__,"match: undefined pattern";
+    my $pattern = shift || croak __PACKAGE__," match: undefined pattern";
 
     return $self->{aug_c} -> match($pattern) ;
 }
@@ -280,7 +282,7 @@ efficient than using C<scalar match( pattern )>
 
 sub count_match {
     my $self = shift ;
-    my $pattern = shift || croak __PACKAGE__,"count_match: undefined pattern";
+    my $pattern = shift || croak __PACKAGE__," count_match: undefined pattern";
 
     return $self->{aug_c} -> count_match($pattern) ;
 }
@@ -327,7 +329,8 @@ http://augeas.net/ : Augeas project page
 
 =item *
 
-L<Config::Model> : Another kind of configuration editor.
+L<Config::Model> : Another kind of configuration editor (with optional
+GUI and advanced validation).
 
 =item *
 
