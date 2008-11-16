@@ -22,7 +22,7 @@
 use strict ;
 use warnings ;
 
-my @command = (qw/config-edit -model Sshd/, @ARGV) ;
+my @command = (qw/config-edit -model Ssh/, @ARGV) ;
 
 # print "Calling @command\n";
 
@@ -33,30 +33,27 @@ __END__
 
 =head1 NAME
 
-config-edit-sshd - Edit data of /etc/ssh/sshd_config
+config-edit-ssh - Edit data of /etc/ssh/ssh_config or ~/.ssh/config
 
 =head1 SYNOPSIS
 
   # most users will want to run
-  config-edit-sshd [options] [ commands  ... ]
+  config-edit-ssh [options] [ commands  ... ]
 
   # if you don't have a X server
-  config-edit-sshd -ui curses [options] [ commands  ... ]
+  config-edit-ssh -ui curses [options] [ commands  ... ]
 
   # if you don't like curses
-  config-edit-sshd -ui shell [options] [ commands  ... ]
+  config-edit-ssh -ui shell [options] [ commands  ... ]
 
   # if you are a sys admin
-  config-edit-sshd -ui none [options]  commands  ... 
-
-  # example:
-  config-edit-sshd -ui none -write_conf_dir /tmp AllowUsers=foo,bar,baz
-  cat /tmp/sshd_config
+  config-edit-ssh -ui none [options]  commands  ... 
 
 =head1 DESCRIPTION
 
 This program will edit the configuration data contained in
-F</etc/ssh/sshd_config>.
+F</etc/ssh/ssh_config> (if you run this command as root) or the data
+contained in C<~/.ssh/config> is you are not root.
 
 You can specify commands as arguments that will be run on the
 configuration root before launching the UI. These command follow the
@@ -93,16 +90,6 @@ C<none>: No UI provided. Only command line arguments are handled.
 
 =back
 
-=item -write_conf_dir
-
-Specify where to write the configuration files. By default
-F</etc/ssh/sshd_config> will be written.
-
-=item -read_conf_dir
-
-Specify where to read the configuration files. F</etc/ssh/sshd_config>
-by default.
-
 =item -verbose
 
 Be (very) verbose
@@ -123,11 +110,10 @@ Load file even if error are found in data. Bad data are discarded
 
 =cut
 
-=head1 CAVEATS
+=head1 BUGS
 
-Original structure and comments of F</etc/sshd/config> are lost during
-edition if Config::Model::Backend::Augeas and its dependencies are
-not installed.
+Original structure and comments of F</etc/ssh/config> are
+lost. There's currently no Augeas lens for ssh config data.
 
 =head1 SUPPORT
 

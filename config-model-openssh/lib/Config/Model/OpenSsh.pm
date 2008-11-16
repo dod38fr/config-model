@@ -34,7 +34,7 @@ use File::Path ;
 use Parse::RecDescent ;
 use vars qw($VERSION $grammar $parser)  ;
 
-$VERSION = sprintf "1.%04d", q$Revision$ =~ /(\d+)/;
+$VERSION = '1.105' ;
 
 
 my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -125,7 +125,6 @@ sub ssh_read {
 
     # $__test_root_file is a special global variable used only for tests
     $is_user = 0 if ($> == 0 or $__test_ssh_root_file ); 
-    print "is user: $is_user , $>, $__test_ssh_root_file\n";
 
     $instance -> preset_start if $is_user ; # regular user
 
@@ -320,7 +319,7 @@ sub sshd_write {
 
     my $file = "$dir/sshd_config" ;
     if (-r "$file") {
-	my $backup = "$file.".time ;
+	my $backup = "$file.".time.".bak" ;
 	$logger->info("Backing up file $file in $backup");
 	copy($file,$backup);
     }

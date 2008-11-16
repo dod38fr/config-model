@@ -4,7 +4,7 @@
 # $Revision: 608 $
 
 use ExtUtils::testlib;
-use Test::More tests => 9;
+use Test::More tests => 14;
 use Config::Model ;
 use Config::Model::OpenSsh ; # required for tests
 use Log::Log4perl qw(:easy) ;
@@ -55,7 +55,7 @@ sub read_user_ssh {
     return @res ;
 }
 
-foreach my $testdir (readdir(TDIR)) {
+foreach my $testdir (sort readdir(TDIR)) {
     next if $testdir =~ /^\./;
     print "Test from directory $testdir\n" if $trace ;
     my $read_dir = "data/$testdir" ;

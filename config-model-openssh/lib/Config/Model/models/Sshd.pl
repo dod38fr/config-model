@@ -6,14 +6,22 @@
                                  'backend' => 'custom',
                                  'class' => 'Config::Model::OpenSsh',
                                  'config_dir' => '/etc/ssh'
-                               },
-                               {
-                                 'backend' => 'augeas',
-                                 'config_file' => '/etc/ssh/sshd_config'
                                }
                              ],
             'name' => 'Sshd',
             'write_config' => [
+                                {
+                                  'save' => 'backup',
+                                  'backend' => 'augeas',
+                                  'lens_with_seq' => [
+                                                       'AcceptEnv',
+                                                       'AllowGroups',
+                                                       'AllowUsers',
+                                                       'DenyGroups',
+                                                       'DenyUsers'
+                                                     ],
+                                  'config_file' => '/etc/ssh/sshd_config'
+                                },
                                 {
                                   'function' => 'sshd_write',
                                   'backend' => 'custom',

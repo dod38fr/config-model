@@ -40,7 +40,7 @@ mkdir('wr_test') unless -d 'wr_test' ;
 
 opendir(TDIR,'data') || die "cannot read dir 'data': $!";
 
-foreach my $testdir (readdir(TDIR)) {
+foreach my $testdir (sort readdir(TDIR)) {
     next if $testdir =~ /^\./;
     print "Test from directory $testdir\n" if $trace ;
     my $wr_dir = "wr_test/$testdir" ;
@@ -61,7 +61,7 @@ foreach my $testdir (readdir(TDIR)) {
 
     like($dump,qr/Match:0/, "check Match section") ;
 
-    $inst->write_back() ;
+    $inst->write_back(backend => 'augeas') ;
     ok(1,"wrote data in $wr_dir") ;
 
     my $inst2 = $model->instance (root_class_name   => 'Sshd',

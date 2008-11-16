@@ -32,18 +32,19 @@ my $build = Module::Build->new
   (
    module_name   => 'Config::Model::OpenSsh',
    license       => 'lgpl',
-   dist_version  => 0.104 ,
    dist_author   => "Dominique Dumont (ddumont at cpan dot org)",
    dist_abstract => "OpenSsh configuration files editor",
-   script_files   => [ 'config-edit-sshd' ],
+   script_files   => [ qw/config-edit-ssh config-edit-sshd/ ],
    requires      => {
 		     perl              => '5.8.0',
-		     'Config::Model'   => '0.623',
+		     'Config::Model'   => '0.632',
 		     'Log::Log4perl'   => 0 ,
 		    },
    recommends    => {
-                     'Config::Model::CursesUI' => 0,
-                     'Config::Model::TkUI'     => 0,
+                     'Config::Model::CursesUI' => 0, # Curses interface
+                     'Config::Model::TkUI'     => 0, # graphical interface
+		     # Augeas library to keep /etc/ssh/sshd_config structure and comments
+                     'Config::Model::Backend::Augeas' => 0, 
                     },
    add_to_cleanup => [qw/wr_test/] ,
   );
