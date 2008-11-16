@@ -1,3 +1,9 @@
+2008-11-16  Domi  <domi@bilbo.maison>
+
+	* lib/Config/Model/models/Sshd.pl: Added write through Augeas
+
+	* config-edit-ssh: new command line
+
 2008-08-01  Dominique Dumont  <dominique.dumont@hp.com>
 
 	* lib/Config/Model/models/Sshd.pl: Added capacity to read files
