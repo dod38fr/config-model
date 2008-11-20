@@ -1,3 +1,8 @@
+2008-11-20  Dominique Dumont  <dominique.dumont@hp.com>
+
+	* lib/Config/Model/Tk/HashEditor.pm (add_entry): Fixed bug that
+	prevented to insert a new item in the middle of an ordered hash
+
 2008-11-16  Domi  <domi@bilbo.maison>
 
 	* lib/Config/Model/Tk/ListEditor.pm (remove_selection): fixed bug

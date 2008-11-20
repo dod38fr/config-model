@@ -184,10 +184,11 @@ sub add_entry {
 
     $logger->debug( "new hash idx: ". join(',',$hash->get_all_indexes));
 
-    $tklist -> selectionClear(0,'end') ;
 
     # ensure correct order for ordered hash
     my @selected = $tklist->curselection() ;
+
+    $tklist -> selectionClear(0,'end') ;
 
     if (@selected and $hash->ordered) {
 	my $idx = $tklist->get($selected[0]);
