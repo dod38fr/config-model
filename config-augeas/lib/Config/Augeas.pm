@@ -20,6 +20,7 @@ package Config::Augeas;
 use strict;
 use warnings;
 use Carp;
+use IO::File ;
 
 our $VERSION = '0.304';
 
@@ -302,21 +303,58 @@ sub save {
     return $ret == 0 ? 1 : 0 ;
 }
 
-=head2 print ( file_descriptor , path )
+=head2 print ( [ path  , [ file ] ] )
 
-Print each node matching C<path> and its descendants to the file
-descriptor.
+Print each node matching C<path> and its descendants on STDOUT or in a file
+
+The second parameter can be :
+
+=over
+
+=item *
+
+A file name. 
+
+=item *
+
+Omitted. In this case, print to STDOUT
+
+=back
+
+If path is omitted, all Augeas nodes will be printed.
+
+Example:
+
+  $aug->print ; # print all nodes to STDOUT
+  $aug->print('/files') ; # print all file nodes to STDOUT
+  $aug->print('/augeas/','bar.txt'); # print Augeas meta data in bar.txt
+
+WARNING: The orders of the parameter are reversed compared to Augeas C
+API.
 
 =cut
 
-# accept file name ?
 sub print {
     my $self   = shift ;
-    my $ret = $self->{aug_c} -> print(@_) ;
+    my $path   = shift || '' ;
+    my $f_param     = shift ;
+
+    my $fd = IO::File->new ;
+
+    if (defined $f_param) {
+	$fd->open($f_param,"w");
+    }
+    else {
+	# stdio 
+	$fd->fdopen(fileno(STDOUT),"w");
+    } 
+
+    my $ret = $self->{aug_c} -> print($fd,$path) ;
     return $ret == 0 ? 1 : 0 ;
 }
 
 1;
+
 __END__
 
 =head1 SEE ALSO

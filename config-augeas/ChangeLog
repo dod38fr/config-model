@@ -1,4 +1,10 @@
-2008-11-16  Domi  <domi@bilbo.maison> v0.304
+2008-11-21  Dominique Dumont  <dominique.dumont@hp.com> v0.304
+
+	* lib/Config/Augeas.pm (print): Improved print method. Can now
+	print on STDOUT, in a file with a simpler call. (e.g
+	$aug_obj->print to print on STDOUT)
+
+2008-11-16  Domi  <domi@bilbo.maison> 
 
 	* lib/Config/Augeas.pm (set): no longer dies when trying to set a
 	value to 0. Only dies when the value to set is undefined.

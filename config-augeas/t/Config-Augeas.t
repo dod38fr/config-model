@@ -87,4 +87,4 @@ map{ chomp; s/\s+/ /g;} @content ;
 
 is_deeply(\@content,\@expect,"check written file content");
 
-
+#$aug->print('/files/') ; # print all nodes into $data string

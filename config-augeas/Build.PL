@@ -30,7 +30,7 @@ if ($have_pkg_config eq "") {
 warn <<"__EOW__";
 ***
 *** Config::Augeas requires the pkg-config utility, but it doesn't
-*** seem to be in your PATH.  Is it correctly installed?
+*** seem to be in your PATH.  Is pkg-config correctly installed?
 ***  PATH=$ENV{PATH}
 ***
 __EOW__
@@ -78,6 +78,10 @@ my $build = Module::Build->new
    dynamic_config       => 1,
    extra_compiler_flags => $aug_cflags,
    extra_linker_flags   => $aug_libs,
+
+   build_requires => {
+                      'Test::More'      => 0,
+		     },
 
    add_to_cleanup => [qw!wr_test _build augeas-root lib/Config/Augeas.c lib/Config/Augeas.o! ] ,
   );
