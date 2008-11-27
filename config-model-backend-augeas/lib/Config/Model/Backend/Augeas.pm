@@ -26,6 +26,7 @@ use strict;
 use warnings ;
 use Config::Model::Exception ;
 use UNIVERSAL ;
+use File::Path;
 
 my $has_augeas = 1;
 eval { require Config::Augeas ;} ;
@@ -137,21 +138,26 @@ sub read
     my %args = @_ ; # contains root and config_dir
     return 0 unless $has_augeas ;
 
-    print "Read config data from Augeas\n" if $::verbose;
-
     $self->{augeas_obj} ||= Config::Augeas->new(root => $args{root}, 
 						save => $args{save} ) ;
 
-    if (not defined $args{config_file}) {
-	Config::Model::Exception::Model -> throw
-	    (
-	     error=> "read_augeas error: model "
-	     . "does not specify 'config_file' for Augeas ",
-	     object => $self->{node}
-	    ) ;
+    foreach my $param (qw/config_dir config_file/) {
+	if (not defined $args{$param}) {
+	    Config::Model::Exception::Model -> throw
+		(
+		 error=> "read_augeas error: model "
+		 . "does not specify '$param' for Augeas ",
+		 object => $self->{node}
+		) ;
+	}
     }
 
-    my $mainpath = '/files'.$args{config_file} ;
+    my $cdir = $args{root}.$args{config_dir} ;
+    print "Read config data through Augeas in directory '$cdir' ",
+      "file $args{config_file}\n" 
+	if $::verbose;
+
+    my $mainpath = '/files'.$args{config_dir}.$args{config_file} ;
 
     my @result =  $self->augeas_deep_match($mainpath) ;
     my @cm_path = @result ;
@@ -245,19 +251,27 @@ sub write {
     my %args = @_ ; # contains root and config_dir
     return 0 unless $has_augeas ;
 
-    print "Write config data through Augeas\n" if $::verbose;
-
-    if (not defined $args{config_file}) {
-	Config::Model::Exception::Model -> throw
-	    (
-	     error=> "write_augeas error: model "
-	     . "does not specify 'config_file' for Augeas ",
-	     object => $self->{node}
-	    ) ;
+    foreach my $param (qw/config_dir config_file/) {
+	if (not defined $args{$param}) {
+	    Config::Model::Exception::Model -> throw
+		(
+		 error=> "write_augeas error: model "
+		 . "does not specify '$param' for Augeas ",
+		 object => $self->{node}
+		) ;
+	}
     }
 
+    my $cdir = $args{root}.$args{config_dir} ;
+    print "Write config data through Augeas in directory '$cdir' ",
+      "file $args{config_file}\n" 
+	if $::verbose;
+
+    # create directory if needed
+    mkpath($cdir,1,0755) unless -d $cdir ;
+
     my $set_in = $args{set_in} || '';
-    my $mainpath = '/files'.$args{config_file} ;
+    my $mainpath = '/files'.$args{config_dir}.$args{config_file} ;
     my $augeas_obj =   $self->{augeas_obj} 
                    ||= Config::Augeas->new(root => $args{root}, 
 					   save => $args{save} ) ;
@@ -279,7 +293,15 @@ sub write {
     #map { print "deleting aug path $_\n" if $::debug;
     # $augeas_obj->remove($_) } reverse sort keys %old_path ;
 
-    $augeas_obj->save || warn "Augeas save failed";;
+    $self->save($mainpath);
+}
+
+sub save {
+    my $self = shift ;
+    my $mainpath = shift ;
+
+    $self->{augeas_obj}->save || die "Augeas save failed" . 
+      $self->{augeas_obj}->print("/augeas/$mainpath/*");
 }
 
 sub copy_in_augeas {
@@ -295,16 +317,17 @@ sub copy_in_augeas {
     # https://fedorahosted.org/augeas/ticket/23
     # https://fedorahosted.org/augeas/ticket/24
 
-    $augeas_obj->remove("$mainpath/*") ;
+    # $augeas_obj->remove("$mainpath/*") ;
 
     # data_ref = ( current_path ) 
     my $std_cb = sub {
         my ( $scanner, $data_ref, $obj, $element, $index, $value_obj ) = @_;
 	my $p = $data_ref->[0] ;
 	my $v = $value_obj->fetch () ; 
-	if (defined $v) {
-	    print "copy_in_augeas: set $p = '$v'\n" if $::debug;
+	if (defined $v and $v ne '') {
+	    print "copy_in_augeas: set $p = '$v'\n" if $::verbose;
 	    $augeas_obj->set($p , $v) ;
+	    $self->save($mainpath) if $::debug ;
 	}
     };
 
@@ -312,7 +335,60 @@ sub copy_in_augeas {
 	my ($scanner, $data_ref,$node,$element_name,@keys) = @_ ;
 	my $p = $data_ref->[0] ;
 
-	map {$scanner->scan_hash([$p."/$_"],$node,$element_name,$_)} @keys ;
+	# the idea is to compare hash keys from Config::Model with the
+	# corresponding hash-like keys in Augeas tree
+	my @matches = $augeas_obj->match($p.'/*') ;
+	print "Hash path $p matches:\n\t", join("\n\t",@matches),"\n";
+	# store keys found in Augeas and their corresponding path
+	my %match = map { my ($k) = m!/([\w\[\]\-]+)$!; ($k => $_ ) } @matches ;
+
+	# sequential lens need a list index to store element. 
+	# I.e foo[1]/key1 foo[2]/key2 is ok. foo/key1 foo/key2 will fail
+        # But Augeas does return foo/key1 if only one element is present in the tree :-/
+	if ($has_seq{$element_name}) {
+	    my $replace = $element_name.'[1]';
+	    map { s/$element_name(?!\[)/$replace/ } values %match ;
+	}
+
+	use Data::Dumper; print Dumper \%match ;
+
+	# now handle keys found in Config::Model, but not in Augeas
+	# tree. New list-like nodes must be added into Augeas tree
+	# before trying to set the hash value. Non list-like nodes can
+	# be created on the fly in scan_hash below
+	if ($has_seq{$element_name}) {
+	    my $count = $augeas_obj->count_match($p) ;
+	    foreach (@keys) {
+		next if defined $match{$_} ;
+		$augeas_obj->insert(Subsystem => after => $p."[last()]" ) ;
+		print "Hash insert at $p\n";
+		$match{$_} = $p.'['.++$count."]/$_";
+	    } 
+	}
+
+	use Data::Dumper; print Dumper \%match ;
+
+	# now scan the elements stored by Config::Model hash keys to
+	# store the hash values
+	foreach (@keys) {
+	    # use Augeas path (given by match command) or the path
+	    # created for new elements
+	    my $scan_path = delete $match{$_} || die "Missing keys $_";
+	    $scanner->scan_hash([$scan_path],$node,$element_name,$_)
+	}
+
+	# cleanup keys found in Augeas but not in Config::Model
+	foreach (keys %match) {
+	    my $rm_path = $match{$_} ;
+	    print "Hash rm $_ ->$rm_path\n"; 
+	    $augeas_obj->remove($rm_path) || die "remove $rm_path failed";
+	    # check if removing parent node in Augeas is needed
+	    $rm_path =~ s!/([\w\[\]\-]+)$!! ;
+	    if ($augeas_obj->count_match($rm_path) == 1) {
+		print "Hash rm $_ ->$rm_path\n"; 
+		$augeas_obj->remove($rm_path) || die "remove $rm_path failed";
+	    }
+	}
     };
 
     my $list_element_cb = sub {
@@ -320,6 +396,11 @@ sub copy_in_augeas {
 	my $p = $data_ref->[0] ;
 
 	my $seq_item = $has_seq{$element_name} || 0 ;
+
+	# cleanup unknown elements
+	print "List path $p matches:\n\t",
+	  join("\n\t",$augeas_obj->match($seq_item ? $p.'/*' : $p)),"\n";
+
 	map { my $aug_idx = $_ + 1 ; # Augeas lists begin at 1 not 0
 	      my $subpath =  $seq_item ? "[last()]/$aug_idx" : "[$aug_idx]" ;
 	      $scanner->scan_list([$p.$subpath], $node,$element_name,$_);

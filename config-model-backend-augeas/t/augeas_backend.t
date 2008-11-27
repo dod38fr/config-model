@@ -68,7 +68,8 @@ $model->create_config_class
    name => 'Hosts',
 
    read_config  => [ { backend => 'augeas', 
-		       config_file => '/etc/hosts',
+		       config_dir => '/etc',
+		       config_file => 'hosts',
 		       set_in => 'record',
 		       save   => 'backup',
 		       lens_with_seq => ['record'],
@@ -90,10 +91,11 @@ $model->create_config_class
 
    'read_config'
    => [ { backend => 'augeas', 
-	  config_file => '/etc/ssh/sshd_config',
+	  config_dir => '/etc/ssh',
+	  config_file => 'sshd_config',
 	  save   => 'backup',
 	  lens_with_seq => [qw/AcceptEnv AllowGroups AllowUsers 
-                                         DenyGroups  DenyUsers/],
+                                         DenyGroups  DenyUsers Subsystem/],
 		     },
 		   ],
 
@@ -108,7 +110,8 @@ $model->create_config_class
 	       },
 	       'HostbasedAuthentication',
 	       {
-		'value_type' => 'boolean',
+		'value_type' => 'enum',
+		choice => [qw/no yes/],
 		'type' => 'leaf',
 	       },
 	       'HostKey',
@@ -200,7 +203,7 @@ close AUG;
 
 
 
-$augeas_obj->print(*STDOUT, '') if $trace;
+$augeas_obj->print('/') if $trace;
 
 my $have_pkg_config = `pkg-config --version` || '';
 chomp $have_pkg_config ;
@@ -228,12 +231,12 @@ my $sshd_root = $i_sshd->config_root ;
 
 my $ssh_augeas_obj = $sshd_root->{backend}{augeas}->_augeas_object ;
 
-$ssh_augeas_obj->print(*STDOUT, '/files/etc/ssh/sshd_config/*') if $trace;
+$ssh_augeas_obj->print('/files/etc/ssh/sshd_config/*') if $trace;
 #my @aug_content = $ssh_augeas_obj->match("/files/etc/ssh/sshd_config/*") ;
 #print join("\n",@aug_content) ;
 
 $expect = "AcceptEnv=LC_PAPER,LC_NAME,LC_ADDRESS,LC_TELEPHONE,LC_MEASUREMENT,LC_IDENTIFICATION,LC_ALL
-HostbasedAuthentication=0
+HostbasedAuthentication=no
 HostKey=/etc/ssh/ssh_host_key,/etc/ssh/ssh_host_rsa_key,/etc/ssh/ssh_host_dsa_key
 Subsystem:sftp=/usr/lib/openssh/sftp-server -
 ";
@@ -243,7 +246,10 @@ print $dump if $trace ;
 is( $dump , $expect,"check dump of augeas data");
 
 # change data content, '~' is like a splice, 'record~0' like a "shift"
-$sshd_root->load("HostbasedAuthentication=1") ;
+$sshd_root->load("HostbasedAuthentication=yes 
+                  Subsystem:ddftp=/home/dd/bin/ddftp
+                  Subsystem~rftp
+                  ") ;
 
 $dump = $sshd_root->dump_tree ;
 print $dump if $trace ;
