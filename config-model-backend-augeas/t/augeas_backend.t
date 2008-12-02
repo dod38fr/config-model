@@ -1,9 +1,9 @@
 # -*- cperl -*-
 # $Author: ddumont $
 # $Date: 2008-07-04 16:14:06 +0200 (Fri, 04 Jul 2008) $
-# $Revision: 707 $
+# $Revision$
 
-# test augeas backend if Config::Augeas is installed
+# test augeas backend 
 
 use ExtUtils::testlib;
 use Test::More ;
@@ -31,7 +31,7 @@ if ( $@ ) {
     plan skip_all => 'Config::Augeas is not installed';
 }
 else {
-    plan tests => 13;
+    plan tests => 15;
 }
 
 ok(1,"compiled");
@@ -72,7 +72,7 @@ $model->create_config_class
 		       config_file => 'hosts',
 		       set_in => 'record',
 		       save   => 'backup',
-		       #lens_with_seq => ['record'],
+		       #sequential_lens => ['record'],
 		     },
 		   ],
 
@@ -94,7 +94,7 @@ $model->create_config_class
 	  config_dir => '/etc/ssh',
 	  config_file => 'sshd_config',
 	  save   => 'backup',
-	  lens_with_seq => [qw/AllowGroups AllowUsers 
+	  sequential_lens => [qw/AllowGroups AllowUsers 
                                HostKey
 			       DenyGroups  DenyUsers Subsystem/],
 		     },
