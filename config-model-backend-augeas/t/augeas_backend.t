@@ -72,7 +72,7 @@ $model->create_config_class
 		       config_file => 'hosts',
 		       set_in => 'record',
 		       save   => 'backup',
-		       lens_with_seq => ['record'],
+		       #lens_with_seq => ['record'],
 		     },
 		   ],
 
@@ -94,8 +94,9 @@ $model->create_config_class
 	  config_dir => '/etc/ssh',
 	  config_file => 'sshd_config',
 	  save   => 'backup',
-	  lens_with_seq => [qw/AcceptEnv AllowGroups AllowUsers 
-                                         DenyGroups  DenyUsers Subsystem/],
+	  lens_with_seq => [qw/AllowGroups AllowUsers 
+                               HostKey
+			       DenyGroups  DenyUsers Subsystem/],
 		     },
 		   ],
 
@@ -168,6 +169,7 @@ $dump = $i_root->dump_tree ;
 print $dump if $trace ;
 
 $i_hosts->write_back ;
+ok(1,"/etc/hosts write back done") ;
 
 my $aug_file      = $wr_root.'etc/hosts';
 my $aug_save_file = $aug_file.'.augsave' ;
@@ -192,6 +194,7 @@ is($nb,4,"Check nb of hosts in Augeas") ;
 # delete last entry
 $i_root->load("record~3");
 $i_hosts->write_back ;
+ok(1,"/etc/hosts write back after deletion of record~3 (goner) done") ;
 
 $nb = $augeas_obj -> count_match("/files/etc/hosts/*") ;
 is($nb,3,"Check nb of hosts in Augeas after deletion") ;
@@ -238,7 +241,9 @@ $ssh_augeas_obj->print('/files/etc/ssh/sshd_config/*') if $trace;
 $expect = "AcceptEnv=LC_PAPER,LC_NAME,LC_ADDRESS,LC_TELEPHONE,LC_MEASUREMENT,LC_IDENTIFICATION,LC_ALL
 HostbasedAuthentication=no
 HostKey=/etc/ssh/ssh_host_key,/etc/ssh/ssh_host_rsa_key,/etc/ssh/ssh_host_dsa_key
-Subsystem:sftp=/usr/lib/openssh/sftp-server -
+Subsystem:rftp=/usr/lib/openssh/rftp-server
+Subsystem:sftp=/usr/lib/openssh/sftp-server
+Subsystem:tftp=/usr/lib/openssh/tftp-server -
 ";
 
 $dump = $sshd_root->dump_tree ;
@@ -264,12 +269,22 @@ ok(-e $aug_save_sshd_file,
 @expect = (
 "# only a few parameters for augeas tests in core module\n",
 "# leaf, list and hash elements\n",
-"AcceptEnv LC_PAPER LC_NAME LC_ADDRESS LC_TELEPHONE LC_MEASUREMENT LC_IDENTIFICATION LC_ALL\n",
-"HostbasedAuthentication 1\n",
-"HostKey              /etc/ssh/ssh_host_key\n",
+"HostbasedAuthentication yes\n",
+"\n",
+"# some comment before Hostkey\n",
 "HostKey              /etc/ssh/ssh_host_rsa_key\n",
 "HostKey              /etc/ssh/ssh_host_dsa_key\n",
+"\n",
+"# comment before Subsystem\n",
 "Subsystem            sftp /usr/lib/openssh/sftp-server\n",
+"# illegal for sshd but handy for tests\n",
+"Subsystem            tftp /usr/lib/openssh/tftp-server\n",
+"# will be removed in tests\n",
+"\n",
+"# comment before Accept env\n",
+"AcceptEnv LC_PAPER LC_NAME LC_ADDRESS LC_TELEPHONE LC_MEASUREMENT\n",
+"AcceptEnv LC_IDENTIFICATION LC_ALL\n",
+"Subsystem            ddftp /home/dd/bin/ddftp\n",
 	     );
 
 open(AUG,$aug_sshd_file) || die "Can't open $aug_sshd_file:$!"; 

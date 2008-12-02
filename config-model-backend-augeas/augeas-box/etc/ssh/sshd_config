@@ -1,9 +1,19 @@
 # only a few parameters for augeas tests in core module
 # leaf, list and hash elements
 HostbasedAuthentication no
+
+# some comment before Hostkey
 HostKey              /etc/ssh/ssh_host_key
 HostKey              /etc/ssh/ssh_host_rsa_key
 HostKey              /etc/ssh/ssh_host_dsa_key
+
+# comment before Subsystem
 Subsystem            sftp /usr/lib/openssh/sftp-server
+# illegal for sshd but handy for tests
+Subsystem            tftp /usr/lib/openssh/tftp-server
+# will be removed in tests
+Subsystem            rftp /usr/lib/openssh/rftp-server
+
+# comment before Accept env
 AcceptEnv LC_PAPER LC_NAME LC_ADDRESS LC_TELEPHONE LC_MEASUREMENT
 AcceptEnv LC_IDENTIFICATION LC_ALL
