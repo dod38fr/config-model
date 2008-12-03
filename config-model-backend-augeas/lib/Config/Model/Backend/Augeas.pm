@@ -308,7 +308,7 @@ sub read
 		and $is_seq
 	       ) {
 		$idx = 1 unless defined $idx ;
-		print "read-augeas: keep seq list idx $idx\n" if $::debug ; 
+		print "read-augeas: keep seq lens idx $idx\n" if $::debug ; 
 		unshift @cm_steps , $idx ;
 	    }
 
@@ -384,20 +384,6 @@ sub write {
     my %to_set = $self->copy_in_augeas($augeas_obj,$mainpath,$set_in,
 				       $args{sequential_lens}) ;
 
-    # foreach my $path (keys %to_set) {
-    # 	my $aug_path = "$mainpath$path" ;
-    # 	my $v = $to_set{$path} ;
-    # 	print "write-augeas $path, set $aug_path with $v\n" if $::debug ;
-    # 	# remove all Augeas paths that are included in the path found in
-    # 	# config-model
-    # 	map {delete $old_path{$_} if index($aug_path,$_,0) == 0} keys %old_path ;
-    # 	$augeas_obj->set($aug_path,$v) ;
-    # }
-
-    # remove path no longer present in config-model
-    #map { print "deleting aug path $_\n" if $::debug;
-    # $augeas_obj->remove($_) } reverse sort keys %old_path ;
-
     $self->save($mainpath);
 }
 
@@ -417,16 +403,12 @@ sub copy_in_augeas {
     my $seq_list = shift || [];
     my %is_seq_lens = map { ( $_ => 1 ) ;} @$seq_list ;
 
-    # cleanup the tree. This is not subtle and may be improved when the
+    # The callback are kludgy and may be improved when the
     # following bugs are fixed:
     # https://fedorahosted.org/augeas/ticket/23
     # https://fedorahosted.org/augeas/ticket/24
 
-    # $augeas_obj->remove("$mainpath/*") ;
-
-    # data_ref = ( current_path ) 
- 
-   my @scan_args = (
+    my @scan_args = (
 		     experience            => 'master',
 		     fallback              => 'all',
 		     auto_vivify           => 0,
@@ -446,7 +428,7 @@ sub copy_in_augeas {
 
 sub std_cb {
     my ( $scanner, $data_ref, $obj, $element, $index, $value_obj ) = @_;
-    my ($p,$augeas_obj,$set_in,$is_seq) = @$data_ref ;
+    my ($p,$augeas_obj,$set_in,$is_seq_lens) = @$data_ref ;
 
     my $v = $value_obj->fetch () ; 
     if (defined $v and $v ne '') {
@@ -462,23 +444,23 @@ sub std_cb {
 
 sub list_element_cb {
     my ($scanner, $data_ref,$node,$element_name,@idx) = @_ ;
-    my ($p,$augeas_obj,$set_in,$is_seq) = @$data_ref ;
+    my ($p,$augeas_obj,$set_in,$is_seq_lens) = @$data_ref ;
 
-    my $is_seq = $is_seq->{$element_name} || 0;
+    my $is_seq = $is_seq_lens->{$element_name} || 0;
     # the idea is to compare list indexes from Config::Model with the
     # corresponding hash-like keys in Augeas tree
 
     # find Augeas nodes matching this path
     my @matches = $augeas_obj->match($p) ;
-    #print "List path $m_p matches:\n\t", join("\n\t",@matches),"\n";
 
-    # need to find 2nd levels of sub-nodes for non-seq lists
+    # need to find 2nd levels of sub-nodes for non-seq list lenses
     @matches = sort map { $augeas_obj->match($_.'/*') ; } @matches 
       unless $is_seq ;
 
-    print "List path $p matches (seq $is_seq):\n\t",join("\n\t",@matches),"\n";
+    print "copy_in_augeas: List path $p matches (seq $is_seq):\n\t",
+      join("\n\t",@matches),"\n" if $::debug;
 
-    # store indexes found in Augeas and their corresponding path
+    # store list indexes found in Augeas and their corresponding path
     my %match = map { 
 	my ($k) = m!/([\w\[\]\-]+)$!; 
 	# need to keep only index in %match key
@@ -495,67 +477,68 @@ sub list_element_cb {
 	map { s/$element_name(?!\[)/$replace/ } values %match ;
     }
 
-    use Data::Dumper; print Dumper \%match ;
-
-    # now handle keys found in Config::Model, but not in Augeas
-    # tree. New list-like nodes must be added into Augeas tree
-    # before trying to set the hash value. Non list-like nodes can
-    # be created on the fly in scan_hash below
+    # Handle indexes found in Config::Model, but not in Augeas
+    # tree. Create a new Augeas path for sequential list lenses. This
+    # path will be used by scan_list
     if ($is_seq) {
 	my $count = $augeas_obj->count_match($p) ;
 	foreach my $i (@idx) {
 	    $i++ ; # augeas index starts at 1 not 0
 	    next if defined $match{$i} ;
-	    #$augeas_obj->insert($element_name => after => $p."[last()]" ) ;
-	    print "List insert index $i at $p\n";
-	    $match{$i} = $p.'['.++$count."]/$i";
+
+	    my $np = $match{$i} = $p.'['.++$count."]/$i";
+	    print "copy_in_augeas: New list path $np for index $i\n"
+	      if $::debug;
 	} 
     }
-
-    use Data::Dumper; print Dumper \%match ;
 
     # now scan the elements stored by Config::Model hash keys to
     # store the hash values
     foreach my $i (@idx) {
 	# use Augeas path (given by match command) or the path
-	# created for new elements
+	# created for unknown non-seq list elements
 	my $scan_path = delete $match{$i+1} || $p.'/'.($i+1);
-	$scanner->scan_list([$scan_path,$augeas_obj,$set_in,$is_seq], 
+	$scanner->scan_list([$scan_path,$augeas_obj,$set_in,$is_seq_lens], 
 			    $node,$element_name,$i);
     }
 
     # cleanup indexes found in Augeas but not in Config::Model
     foreach (keys %match) {
 	my $rm_path = $match{$_} ;
-	print "List rm $_ ->$rm_path\n"; 
+
+	print "copy_in_augeas: List rm $_ ->$rm_path\n" if $::debug; 
 	$augeas_obj->remove($rm_path) || die "remove $rm_path failed";
+
 	# check if removing parent node in Augeas is needed
-	$rm_path =~ s!/([\w\[\]\-]+)$!! ;
+	$rm_path =~ s!/([\w\[\]\-]+)$!! ; # chomp last "step" of the path
 	if ($augeas_obj->count_match($rm_path) == 1
-	    and $set_in ne $element_name and $rm_path =~ /$element_name$/
+	    and $set_in ne $element_name 
+	    and $rm_path =~ /$element_name$/
 	   ) {
-	    print "List rm $_ ->$rm_path\n"; 
+	    print "copy_in_augeas: List rm parent node $_ ->$rm_path\n" 
+	      if $::debug; 
 	    $augeas_obj->remove($rm_path) || die "remove $rm_path failed";
 	}
     }
 }
 
+# this callback is similar but not identical to the list callback.
 sub hash_element_cb {
     my ($scanner, $data_ref,$node,$element_name,@keys) = @_ ;
-    my ($p,$augeas_obj,$set_in,$is_seq) = @$data_ref ;
-    my $is_seq = $is_seq->{$element_name} || 0;
+    my ($p,$augeas_obj,$set_in,$is_seq_lens) = @$data_ref ;
+    my $is_seq = $is_seq_lens->{$element_name} || 0;
 
     # the idea is to compare hash keys from Config::Model with the
     # corresponding hash-like keys in Augeas tree
 
     # find Augeas nodes matching this path
     my @matches = $augeas_obj->match($p) ;
-    #print "List path $m_p matches:\n\t", join("\n\t",@matches),"\n";
 
     # need to find 2nd levels of sub-nodes 
     @matches = sort map { $augeas_obj->match($_.'/*') ; } @matches ;
 
-    print "Hash path $p matches (seq $is_seq):\n\t", join("\n\t",@matches),"\n";
+    print "copy_in_augeas: Hash path $p matches (seq $is_seq):\n\t", 
+      join("\n\t",@matches),"\n" if $::debug;
 
     # store indexes found in Augeas and their corresponding path
     my %match = map { 
@@ -574,46 +557,42 @@ sub hash_element_cb {
 	map { s/$element_name(?!\[)/$replace/ } values %match ;
     }
 
-    use Data::Dumper; print Dumper \%match ;
-
-    # now handle keys found in Config::Model, but not in Augeas
-    # tree. New list-like nodes must be added into Augeas tree
-    # before trying to set the hash value. Non list-like nodes can
-    # be created on the fly in scan_hash below
+    # Handle keys found in Config::Model, but not in Augeas
+    # tree. Create a new Augeas path for sequential hash lenses. This
+    # path will be used by scan_list
     if ($is_seq) {
 	my $count = $augeas_obj->count_match($p) ;
 	foreach (@keys) {
 	    next if defined $match{$_} ;
-	    print "Hash insert at $p (elt count $count) for key $_\n";
-	    #$augeas_obj->insert($element_name => after => $p. "[last()]" ) 
-	    #  || $augeas_obj->print('/augeas');
-	    $match{$_} = $p.'['.++$count."]/$_";
+	    my $np = $match{$_} = $p.'['.++$count."]/$_";
+	    print "copy_in_augeas: New hash path $np for key $_\n"
+	      if $::debug;
 	} 
     }
-
-    use Data::Dumper; print Dumper \%match ;
 
     # now scan the elements stored by Config::Model hash keys to
     # store the hash values
     foreach (@keys) {
-	# use Augeas path (given by match command) or the path
-	# created for new elements
-	my $scan_path = delete $match{$_} || die "Missing keys $_";
-	$scanner->scan_hash([$scan_path,$augeas_obj,$set_in,$is_seq],
+	# use Augeas path (given by match command) or a new path for
+	# new elements
+	my $scan_path = delete $match{$_} || $p."/$_" ;
+	$scanner->scan_hash([$scan_path,$augeas_obj,$set_in,$is_seq_lens],
 			    $node,$element_name,$_)
     }
 
     # cleanup keys found in Augeas but not in Config::Model
     foreach (keys %match) {
 	my $rm_path = $match{$_} ;
-	print "Hash rm $_ ->$rm_path\n"; 
+	print "copy_in_augeas: Hash rm $_ ->$rm_path\n" if $::debug; 
 	$augeas_obj->remove($rm_path) || die "remove $rm_path failed";
+
 	# check if removing parent node in Augeas is needed
 	$rm_path =~ s!/([\w\[\]\-]+)$!! ;
 	if (    $augeas_obj->count_match($rm_path) == 1 
 	    and $set_in ne $element_name and $is_seq
 	   ) {
-	    print "Hash rm $_ ->$rm_path\n"; 
+	    print "copy_in_augeas: Hash rm parent $_ ->$rm_path\n" 
+	      if $::debug; 
 	    $augeas_obj->remove($rm_path) || die "remove $rm_path failed";
 	}
     }
@@ -621,22 +600,24 @@ sub hash_element_cb {
 
 sub node_content_cb {
     my ($scanner, $data_ref,$node,@element) = @_ ;
-    my ($p,$augeas_obj,$set_in,$is_seq) = @$data_ref ;
+    my ($p,$augeas_obj,$set_in,$is_seq_lens) = @$data_ref ;
 
+    # See set_in parameter (who said kludge ?)
     if (scalar @element == 1 and $element[0] eq $set_in) {
 	# Augeas tree is stored below element[0]
-	print "Augeas tree set in node path $p\n";
-	$scanner->scan_element([$p,$augeas_obj,$set_in,$is_seq], 
+	print "copy_in_augeas: Augeas tree set in node path $p\n" if $::debug;
+	$scanner->scan_element([$p,$augeas_obj,$set_in,$is_seq_lens], 
 			       $node,$element[0]);
     }
     else {
 	my @matches = $augeas_obj->match($p.'/*') ;
-	print "Node path $p matches:\n\t", join("\n\t",@matches),"\n";
+	print "copy_in_augeas: Node path $p matches:\n\t", 
+	  join("\n\t",@matches),"\n" if $::debug;
+
 	# store keys found in Augeas and their corresponding path
 	my %match = map { s/\[\d+\]+//; 
 			  my ($k) = m!/([\w\-]+)$!; 
 			  ($k => $_ ) } @matches ;
-	use Data::Dumper; print Dumper \%match ;
 
 	# now scan the elements stored by Config::Model elements to
 	# store the children nodes
@@ -644,15 +625,15 @@ sub node_content_cb {
 	    # use Augeas path (given by match command) or the path
 	    # created for new elements
 	    my $scan_path = delete $match{$_} || $p.'/'.$_ ;
-	    print "Node scan $scan_path\n";
-	    $scanner->scan_element([$scan_path,$augeas_obj,$set_in,$is_seq],
+	    print "copy_in_augeas: Node scan $scan_path\n" if $::debug;
+	    $scanner->scan_element([$scan_path,$augeas_obj,$set_in,$is_seq_lens],
 				   $node,$_)
 	}
 
 	# cleanup keys found in Augeas but not in Config::Model
 	foreach (keys %match) {
 	    my $rm_path = $match{$_} ;
-	    print "Node rm $_ ->$rm_path\n"; 
+	    print "copy_in_augeas: Node rm $_ ->$rm_path\n" if $::debug; 
 	    $augeas_obj->remove($rm_path) || die "remove $rm_path failed";
 	}
     }
