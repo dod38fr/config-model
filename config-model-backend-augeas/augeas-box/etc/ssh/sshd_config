@@ -17,3 +17,6 @@ Subsystem            rftp /usr/lib/openssh/rftp-server
 # comment before Accept env
 AcceptEnv LC_PAPER LC_NAME LC_ADDRESS LC_TELEPHONE LC_MEASUREMENT
 AcceptEnv LC_IDENTIFICATION LC_ALL
+
+AllowUsers foo bar@192.168.0.*
+

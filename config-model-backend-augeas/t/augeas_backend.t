@@ -94,14 +94,20 @@ $model->create_config_class
 	  config_dir => '/etc/ssh',
 	  config_file => 'sshd_config',
 	  save   => 'backup',
-	  sequential_lens => [qw/AllowGroups AllowUsers 
-                               HostKey
-			       DenyGroups  DenyUsers Subsystem/],
-		     },
-		   ],
+	  sequential_lens => [qw/HostKey Subsystem/],
+	},
+      ],
 
    element => [
 	       'AcceptEnv',
+	       {
+		'cargo' => {
+			    'value_type' => 'uniline',
+			    'type' => 'leaf'
+			   },
+		'type' => 'list',
+	       },
+	       'AllowUsers',
 	       {
 		'cargo' => {
 			    'value_type' => 'uniline',
@@ -239,6 +245,7 @@ $ssh_augeas_obj->print('/files/etc/ssh/sshd_config/*') if $trace;
 #print join("\n",@aug_content) ;
 
 $expect = "AcceptEnv=LC_PAPER,LC_NAME,LC_ADDRESS,LC_TELEPHONE,LC_MEASUREMENT,LC_IDENTIFICATION,LC_ALL
+AllowUsers=foo,bar\@192.168.0.*
 HostbasedAuthentication=no
 HostKey=/etc/ssh/ssh_host_key,/etc/ssh/ssh_host_rsa_key,/etc/ssh/ssh_host_dsa_key
 Subsystem:rftp=/usr/lib/openssh/rftp-server
@@ -284,6 +291,9 @@ ok(-e $aug_save_sshd_file,
 "# comment before Accept env\n",
 "AcceptEnv LC_PAPER LC_NAME LC_ADDRESS LC_TELEPHONE LC_MEASUREMENT\n",
 "AcceptEnv LC_IDENTIFICATION LC_ALL\n",
+"\n",
+"AllowUsers foo bar\@192.168.0.*\n",
+"\n",
 "Subsystem            ddftp /home/dd/bin/ddftp\n",
 	     );
 

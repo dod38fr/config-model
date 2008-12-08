@@ -145,8 +145,8 @@ Augeas will have this tree:
  /files/etc/ssh/sshd_config/AcceptEnv[1]/1
  /files/etc/ssh/sshd_config/AcceptEnv[1]/2
  /files/etc/ssh/sshd_config/AcceptEnv[1]/3
+ /files/etc/ssh/sshd_config/AcceptEnv[2]/4
  /files/etc/ssh/sshd_config/AcceptEnv[2]/5
- /files/etc/ssh/sshd_config/AcceptEnv[2]/6
 
 Note that the first index between squarekeeps track of how are grouped
 the C<AcceptEnv> data, but the I<real> list index is after the slash.
@@ -154,7 +154,7 @@ the C<AcceptEnv> data, but the I<real> list index is after the slash.
 Augeas does not require new elements to create C<AcceptEnv[3]>. A new
 element can be added as :
 
- /files/etc/ssh/sshd_config/AcceptEnv[2]/7
+ /files/etc/ssh/sshd_config/AcceptEnv[2]/6
 
 So this lens is not sequential.
 
@@ -275,7 +275,7 @@ sub read
 	my $v = $augeas_obj->get($aug_p) ;
 	next unless defined $v ;
 
-	print "read-augeas read $aug_p, set $cm_p with $v\n" if $::debug ;
+	print "read-augeas $aug_p, will set C::M path $cm_p with $v\n" if $::debug ;
 	$cm_p =~ s!^/!! ;
 	# With some list, we can get
 	# /files/etc/ssh/sshd_config/AcceptEnv[1]/1/ =  LC_PAPER
@@ -298,9 +298,10 @@ sub read
 
 	while (my $step = shift @cm_steps) {
 	    my ($label,$idx) = ( $step =~ /(\w+)(?:\[(\d+)\])?/ ) ;
-	    my $is_seq = $is_seq_lens{$label} ;
-	    print "read-augeas: step label $label idx $idx (is_seq $is_seq)\n"
-	      if $::debug ; 
+	    my $is_seq = $is_seq_lens{$label} || 0 ;
+	    print "read-augeas: step label $label ",
+	      defined $idx ? "idx $idx ": '', "(is_seq $is_seq)\n"
+		if $::debug ; 
 
 	    # idx will be treated next iteration if needed
 	    if (    $obj->get_type eq 'node' 
@@ -310,6 +311,16 @@ sub read
 		$idx = 1 unless defined $idx ;
 		print "read-augeas: keep seq lens idx $idx\n" if $::debug ; 
 		unshift @cm_steps , $idx ;
+	    }
+
+	    if ($label =~ /\[/) {
+		Config::Model::Exception::Model -> throw
+		    (
+		     error=> "read_augeas error: can't use $label with "
+		     ."Augeas index in Config::Model. $label should "
+		     . "probably be listed as 'sequential_lens'",
+		     object => $self->{node}
+		    ) ;
 	    }
 
 	    # augeas list begin at 1 not 0
@@ -322,6 +333,15 @@ sub read
 		# last step
 		print "read-augeas: set $label $v\n" if $::debug ; 
 		$obj->set($label,$v) ;
+	    }
+
+	    if (not defined $obj) {
+		Config::Model::Exception::Model -> throw
+		    (
+		     error=> "read_augeas error: '$cm_p' led to undef object. "
+		     . "Check for errors in 'sequential_lens' specification",
+		     object => $self->{node}
+		    ) ;
 	    }
 	}
     }
@@ -641,3 +661,40 @@ sub node_content_cb {
 
 
 1;
+
+=head1 SEE ALSO
+
+=over 
+
+=item * 
+
+http://augeas.net/ : Augeas project page
+
+=item *
+
+L<Config::Model> 
+
+=item *
+
+Augeas mailing list: http://augeas.net/developers.html
+
+=item *
+
+Config::Model mailing list : http://sourceforge.net/mail/?group_id=155650
+
+=back
+
+=head1 AUTHOR
+
+Dominique Dumont, E<lt>ddumont at cpan dot org@<gt>
+
+=head1 COPYRIGHT
+
+Copyright (C) 2008 by Dominique Dumont
+
+=head1 LICENSE
+
+This library is free software; you can redistribute it and/or modify
+it under the LGPL terms.
+
+=cut
