@@ -193,6 +193,11 @@ Provides a full stack trace when exiting on error.
 
 Load file even if error are found in data. Bad data are discarded
 
+=item -backend
+
+Specify a read/write backend. The actual backend name depends on the model
+passed to C<-model> option. See L<Config::Model::AutoRead> for details.
+
 =back
 
 =cut
@@ -203,6 +208,7 @@ my $help = 0;
 my $force_load = 0;
 my $dev = 0;
 my $instance_name ;
+my $backend ;
 my $experience = 'beginner' ;
 
 my $result = GetOptions ("ui|if=s"          => \$ui_type,
@@ -220,6 +226,7 @@ my $result = GetOptions ("ui|if=s"          => \$ui_type,
 			 "read_root_dir=s"  => \$read_root_dir,
 			 "write_root_dir=s" => \$wr_root_dir ,
 			 "root_dir=s"       => \$root_dir ,
+			 "backend=s"        => \$backend,
 			);
 
 pod2usage(2) if not $result ;
@@ -251,6 +258,7 @@ my $inst = $model->instance (root_class_name => $root_model ,
 			     read_root_dir   => $read_root_dir,
                              write_root_dir  => $wr_root_dir,
 			     force_load      => $force_load,
+			     backend         => $backend,
 			    );
 
 my $root = $inst -> config_root ;

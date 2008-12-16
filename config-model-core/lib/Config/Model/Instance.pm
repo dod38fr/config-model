@@ -440,7 +440,17 @@ sub read_directory {
 
 sub read_root_dir {
     return shift -> {read_root_dir} ;
+}
 
+=head2 backend()
+
+Get the preferred backend method for this instance (as passed to the
+constructor).
+
+=cut
+
+sub backend {
+    return shift -> {backend} ;
 }
 
 =head2 write_root_dir()
@@ -520,7 +530,10 @@ sub write_back {
 	    or  $force_backend eq $backend 
 	    or  $force_backend eq 'all' ) {
 	    # exit when write is successfull
-	    last if ($wb->(%args) and not $force_backend); 
+	    my $res = $wb->(%args) ; 
+	    print "write_back called with $backend backend, result is $res\n"
+	      if $::verbose;
+	    last if ($res and not $force_backend); 
 	}
     }
 }

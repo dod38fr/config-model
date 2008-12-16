@@ -4,11 +4,12 @@
 # $Revision$
 
 use ExtUtils::testlib;
-use Test::More tests => 48;
+use Test::More tests => 49;
 use Config::Model;
 use File::Path;
 use File::Copy ;
 use Test::Warn ;
+use Test::Exception ;
 
 use warnings;
 no warnings qw(once);
@@ -92,18 +93,18 @@ $model->create_config_class
   (
    name => 'Master',
 
-   read_config  => [ { backend => 'cds'},
-		     { backend => 'perl_file'},
-		     { backend => 'ini_file' } ,
-		     { backend => 'custom', class => 'MasterRead', function => 'read_it' }
+   read_config  => [ { backend => 'cds_file', config_dir => $conf_dir},
+		     { backend => 'perl_file', config_dir => $conf_dir},
+		     { backend => 'ini_file', config_dir => $conf_dir } ,
+		     { backend => 'custom', class => 'MasterRead', 
+		       config_dir => $conf_dir, function => 'read_it' }
 		   ],
    write_config => [ { backend => 'cds_file', config_dir => $conf_dir},
 		     { backend => 'perl', config_dir => $conf_dir},
 		     { backend => 'ini_file', config_dir => $conf_dir } ,
-		     { class => 'MasterRead', function => 'wr_stuff', config_dir => $conf_dir}
+		     { class => 'MasterRead', function => 'wr_stuff', 
+		       config_dir => $conf_dir}
 		   ],
-
-   read_config_dir  => $conf_dir,
 
    element => [
 	       aa => { type => 'leaf',value_type => 'string'} ,
@@ -158,15 +159,23 @@ sub write {
 
 package main;
 
-my $i_zero ;
-warnings_like {
-    $i_zero = $model->instance(instance_name    => 'zero_inst',
+throws_ok {
+    my $i_fail = $model->instance(instance_name    => 'zero_inst',
 			       root_class_name  => 'Master',
 			       write_root_dir   => $root1 ,
 			       read_root_dir    => $root1 ,
+			       backend => 'perl_file',
 			      );
-    } [qr/read_config_dir is obsolete/, qr/deprecated/,qr/deprecated/],
-  "obsolete warning" ;
+    } qr/'perl_file' backend/,  "read with forced perl_file backend fails (normal: no perl file)"  ;
+
+my $i_zero ;
+warnings_like {
+$i_zero = $model->instance(instance_name    => 'zero_inst',
+			   root_class_name  => 'Master',
+			   write_root_dir   => $root1 ,
+			   read_root_dir    => $root1 ,
+			  );
+} qr/deprecated auto_read/ , "obsolete warning" ;
 
 ok( $i_zero, "Created instance (from scratch)" );
 
@@ -279,7 +288,7 @@ warnings_like {
     $test2_inst = $model->instance(root_class_name  => 'Master',
 				   instance_name    => $inst2 ,
 				   root_dir         => $root2 ,);
-    } [qr/read_config_dir is obsolete/, qr/deprecated/,qr/deprecated/],
+    } [qr/deprecated/],
   "obsolete warning" ;
 
 ok($inst2,"created second instance") ;
@@ -319,7 +328,7 @@ my $ini_inst ;
 warnings_like {
     $ini_inst = $model->instance(root_class_name  => 'Master',
 				instance_name => 'ini_inst' );
-} [qr/read_config_dir is obsolete/, qr/deprecated/,qr/deprecated/],
+} [qr/deprecated/],
   "obsolete warning" ;
 
 ok($ini_inst,"Created instance to load ini files") ;
@@ -352,7 +361,7 @@ my $pl_inst ;
 warnings_like {
     $pl_inst = $model->instance(root_class_name  => 'Master',
 				instance_name => 'pl_inst' );
-} [qr/read_config_dir is obsolete/, qr/deprecated/,qr/deprecated/],
+} [qr/deprecated/],
   "obsolete warning" ;
 
 ok($pl_inst,"Created instance to load pl files") ;

@@ -1,3 +1,9 @@
+2008-12-16  Dominique Dumont  <dominique.dumont@hp.com> v0.632
+
+	* config-edit: added -backend parameter so (advanced) user can
+	specify which read/write backend to use. The actual backed to use
+	depends on the model loaded with -model option
+
 2008-11-16  Domi  <domi@bilbo.maison>
 
 	* lib/Config/Model/Instance.pm (write_back): Added backend
@@ -13,9 +19,8 @@
 
 	* lib/Config/Model/AutoRead.pm (auto_write_init): Move Augeas
 	read/write feature out of Config::Model. This feature is now
-	available in an additional class:
-	Config::Model::Backend::Augeas. THis class is distributed in its
-	own Perl distribution.
+	available in an additional class: Config::Model::Backend::Augeas.
+	This class is distributed in its own Perl distribution.
 
 2008-10-29  Dominique Dumont  <dominique.dumont@hp.com>
 
