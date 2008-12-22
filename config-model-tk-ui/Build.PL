@@ -36,6 +36,7 @@ my $build = Module::Build->new
 		'Exception::Class' => 0,
 		'Tk'               => 0,
 		'Tk::DirSelect'    => 0,
+		'Tk::Tree'         => 0,
 		'Log::Log4perl'    => '1.11', # for TRACE log level
 	       },
    recommends => {
