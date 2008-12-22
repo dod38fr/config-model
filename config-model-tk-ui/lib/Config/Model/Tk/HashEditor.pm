@@ -64,8 +64,8 @@ sub Populate {
     delete $args->{-path} ;
 
     unless (defined $up_img) {
-	$up_img   = $cw->Photo(-file => $icon_path.'go-up.gif');
-	$down_img = $cw->Photo(-file => $icon_path.'go-down.gif');
+	$up_img   = $cw->Photo(-file => $icon_path.'up.png');
+	$down_img = $cw->Photo(-file => $icon_path.'down.png');
     }
 
     $cw->add_header(Edit => $hash) ;

@@ -143,8 +143,8 @@ sub add_change_order_page {
     $cw->{order_list} = $order_list ;
 
     unless (defined $up_img) {
-	$up_img   = $cw->Photo(-file => $icon_path.'go-up.gif');
-	$down_img = $cw->Photo(-file => $icon_path.'go-down.gif');
+	$up_img   = $cw->Photo(-file => $icon_path.'up.png');
+	$down_img = $cw->Photo(-file => $icon_path.'down.png');
     }
 
     my $mv_up_down_frame = $order_frame->Frame->pack( -fill => 'x');

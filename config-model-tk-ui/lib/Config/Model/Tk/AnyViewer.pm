@@ -47,8 +47,8 @@ sub add_header {
     my ($cw,$type,$item) = @_ ;
 
     unless (%img) {
-	$img{edit} = $cw->Photo(-file => $icon_path.'edit-find-replace.gif');
-	$img{view} = $cw->Photo(-file => $icon_path.'system-search.gif');
+	$img{edit} = $cw->Photo(-file => $icon_path.'wizard.png');
+	$img{view} = $cw->Photo(-file => $icon_path.'viewmag.png');
     }
 
     my $idx ;

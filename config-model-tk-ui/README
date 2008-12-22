@@ -8,9 +8,10 @@ This module provides a Perl/Tk interface to:
 For instance, with this module, Config::Model and Config::Model::Xorg,
 you get a graphical configuration editor for Xorg.
 
-All icons used in this application were created by Tango Desktop Project.
-They are licensed under Creative Commons Attribution Share-Alike license.
-Except tools_nicu_buculei_01.gif from OpenCliparts.
+All icons used in this application were created by Crystal Project.
+They are licensed under LGPL. http://www.everaldo.com/crystal/
+
+Except tools_nicu_buculei_01.png from OpenCliparts.
 
 -----------------------------------------------------------
 

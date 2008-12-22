@@ -34,6 +34,7 @@ use Scalar::Util qw/weaken/;
 use Log::Log4perl;
 
 use Tk::Photo ;
+use Tk::PNG ; # required for Tk::Photo to be able to load pngs
 use Tk::DialogBox ;
 
 require Tk::ErrorDialog;
@@ -81,10 +82,10 @@ sub Populate {
     my ($cw, $args) = @_;
 
     unless (defined $warn_img) {
-	$warn_img = $cw->Photo(-file => $icon_path.'dialog-warning.gif');
-	$cust_img = $cw->Photo(-file => $icon_path.'go-next.gif');
+	$warn_img = $cw->Photo(-file => $icon_path.'stop.png');
+	$cust_img = $cw->Photo(-file => $icon_path.'next.png');
 	# snatched from openclip-arts-png
-	$tool_img = $cw->Photo(-file => $icon_path.'tools_nicu_buculei_01.gif');
+	$tool_img = $cw->Photo(-file => $icon_path.'tools_nicu_buculei_01.png');
     }
 
     foreach my $parm (qw/-root/) {

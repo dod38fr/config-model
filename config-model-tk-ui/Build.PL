@@ -45,5 +45,5 @@ my $build = Module::Build->new
    add_to_cleanup => [qw/stderr.log wr_data/] ,
   );
 
-$build->add_build_element('gif');
+$build->add_build_element('png');
 $build->create_build_script;
