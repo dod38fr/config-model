@@ -1,3 +1,11 @@
+2008-12-23  Dominique Dumont  <dominique.dumont@hp.com> v0.633
+
+	* lib/Config/Model/AutoRead.pm : Added -allow_empty parameter so
+	starting a configuration from scratch can be allowed by
+	configuration model designer. No longer die if 'augeas'
+	backend (or any other optional backend) is not found. Just emit a
+	warning.
+
 2008-12-16  Dominique Dumont  <dominique.dumont@hp.com> v0.632
 
 	* config-edit: added -backend parameter so (advanced) user can

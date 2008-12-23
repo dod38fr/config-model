@@ -51,7 +51,8 @@ Config::Model::AutoRead - Load configuration node on demand
 
    read_config  => [ { backend => 'cds_file' , config_dir => '/etc/cfg_dir'},
                      { backend => 'custom' , # dir hardcoded in custom class
-                       class => 'ProcessRead' 
+                       class => 'ProcessRead' ,
+                       allow_empty => 1,     # optional
                      }
                    ],
    # if omitted, write_config will be written using read_config specifications
@@ -200,8 +201,8 @@ classes have only leaf elements.
 
 =head2 read and write specification
 
-A configuration class will be declared with optional C<read> or
-C<write> parameters:
+A configuration class will be declared with optional C<read_config> or
+C<write_config> parameters:
 
   read_config  => [ { backend => 'cds_file', config_dir => '/etc/my_cfg/' } , 
                     { backend => 'custom', class => 'Bar' },
@@ -228,7 +229,18 @@ A call to C<Bar::read> with these parameters:
 =back
 
 When a read operation is successful, the remaining read methods will
-be skipped.
+be skipped. By default, an exception is thrown if no read was
+successfull. This behavior can be overridden by specifying 
+C<< allow_empty => 1 >> in one of the backend specification. For instance:
+
+    read_config  => [ { backend => 'cds_file', config_dir => '/etc/my_cfg/' } , 
+                    { backend => 'custom', class => 'Bar' ,
+                      allow_empty => 1
+                    },
+                  ],
+
+This feature is necessary if you want to be able to create a
+configuration from scratch.
 
 When necessary (or required by the user), all configuration
 informations are written back using B<all> the write method passed.
@@ -305,6 +317,7 @@ sub auto_read_init {
     my @list = ref $readlist  eq 'ARRAY' ? @$readlist :  ($readlist) ;
     my $pref_backend = $instance->backend || '' ;
     my $read_done = 0;
+    my $allow_empty = 0;
 
     foreach my $read (@list) {
 	warn $self->config_class_name,
@@ -318,8 +331,10 @@ sub auto_read_init {
 
 	next if ($pref_backend and $backend ne $pref_backend) ;
 
-	my $read_dir = delete $read->{config_dir} || $r_dir || ''; # r_dir obsolete
+	my $read_dir = delete $read->{config_dir} || $r_dir || ''; # $r_dir obsolete
 	$read_dir .= '/' if $read_dir and $read_dir !~ m(/$) ; 
+
+	$allow_empty ||= delete $read->{allow_empty} if defined $read->{allow_empty};
 
 	if ($backend eq 'custom') {
 	    my $c = my $file = delete $read->{class} ;
@@ -368,12 +383,9 @@ sub auto_read_init {
 	    my $f = delete $read->{function} || 'read' ;
 	    eval {require $file.'.pm' unless $c->can($f); } ;
 	    if ($@) {
-		Config::Model::Exception::Model -> throw
-		    (
-		     error=> "auto_read error: unknown backend '$backend'".
-		     ", cannot load Perl class $c: $@",
-		     object => $self
-		    ) ;
+		warn "auto_read: unknown backend '$backend'".
+		     ", cannot load Perl class $c: $@\n";
+		next ;
 	    }
 	    no strict 'refs';
 	    my $backend_obj = $self->{backend}{$backend} = $c->new(node => $self) ;
@@ -387,7 +399,7 @@ sub auto_read_init {
 	}
     }
 
-    if (not $read_done) {
+    if (not $read_done and not $allow_empty) {
 	Config::Model::Exception::Model -> throw
 	    (
 	     error => "auto_read error: could not read config file "
@@ -413,6 +425,7 @@ sub auto_write_init {
 
     # root override is passed by the instance
     my $root_dir = $instance -> write_root_dir || '';
+    my $registered_backend = 0;
 
     # provide a proper write back function
     my @array = ref $wrlist eq 'ARRAY' ? @$wrlist : ($wrlist) ;
@@ -486,12 +499,9 @@ sub auto_write_init {
 	    my $f = $write->{function} || 'write' ;
 	    eval {require $file.'.pm' unless $c->can($f); } ;
 	    if ($@) {
-		Config::Model::Exception::Model -> throw
-		    (
-		     error=> "auto_write error: unknown backend '$backend'".
-		     ", cannot load Perl class $c: $@",
-		     object => $self
-		    ) ;
+		warn "auto_write: unknown backend '$backend'".
+		     ", cannot load Perl class $c: $@" unless $registered_backend;
+		next ;
 	    }
 
 	    my $safe_self = $self ; # provide a closure
@@ -510,6 +520,7 @@ sub auto_write_init {
 	}
 
 	$instance->register_write_back($backend => $wb) ;
+	$registered_backend ++ ;
     }
 }
 

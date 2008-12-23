@@ -4,7 +4,7 @@
 # $Revision$
 
 use ExtUtils::testlib;
-use Test::More tests => 49;
+use Test::More tests => 51;
 use Config::Model;
 use File::Path;
 use File::Copy ;
@@ -29,14 +29,15 @@ ok(1,"compiled");
 
 
 # pseudo root for config files 
-my $root1 = 'test_root1/';
-my $root2 = 'test_root2/';
+my $wr_root = 'wr_root' ;
+my $root1 = "$wr_root/test1/";
+my $root2 = "$wr_root/test2/";
+my $root3 = "$wr_root/test3/";
 
 my $conf_dir  = '/etc/test/'; 
 
 # cleanup before tests
-rmtree($root1);
-rmtree($root2);
+rmtree($wr_root);
 
 # model declaration
 $model->create_config_class 
@@ -57,7 +58,9 @@ $model->create_config_class
 
    # try first to read with cds string and then custom class
    read_config  => [ { backend => 'cds_file'}, 
-		     { backend => 'custom', class => 'Level1Read', function => 'read_it' } ],
+		     { backend => 'custom', 
+		       class => 'Level1Read', 
+		       function => 'read_it' } ],
    write_config => [ { backend => 'cds_file', config_dir => $conf_dir},
 		     { backend => 'perl_file', config_dir => $conf_dir},
 		     { backend => 'ini_file' , config_dir => $conf_dir}],
@@ -114,6 +117,19 @@ $model->create_config_class
 	       samerw => { type => 'node',
 			   config_class_name => 'SameReadWriteSpec',
 			 },
+	      ]
+   );
+
+$model->create_config_class 
+  (
+   name => 'FromScratch',
+
+   read_config  => [ { backend => 'cds_file', config_dir => $conf_dir,
+		       allow_empty => 1},
+		   ],
+
+   element => [
+	       aa => { type => 'leaf',value_type => 'string'} ,
 	      ]
    );
 
@@ -371,3 +387,14 @@ warnings_like {
 } qr/read_config_dir is obsolete/ , "obsolete warning" ;
 
 is( $dump, $expect_custom, "pl_test: check dump" );
+
+#create from scratch instance
+my $scratch_i = $model->instance(root_class_name  => 'FromScratch',
+				 instance_name => 'scratch_inst',
+				 root_dir => $root3 ,
+				);
+ok($scratch_i,"Created instance from scratch to load cds files") ;
+
+$scratch_i->config_root->load("aa=toto") ;
+$scratch_i -> write_back ;
+ok ( -e "$root3/$conf_dir/scratch_inst.cds", "wrote cds config file") ;

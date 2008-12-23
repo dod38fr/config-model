@@ -34,7 +34,7 @@ use Config::Model::Instance ;
 # this class holds the version number of the package
 use vars qw($VERSION @status @level @experience_list %experience_index) ;
 
-$VERSION = '0.632';
+$VERSION = '0.633';
 
 =head1 NAME
 
@@ -1475,10 +1475,6 @@ implemented.
 
 Dominique Dumont, (ddumont at cpan dot org)
 
-=head1 SEE ALSO
-
-L<Config::Model::Instance>, 
-
 =head1 LICENSE
 
     Copyright (c) 2005-2008 Dominique Dumont.
@@ -1499,6 +1495,10 @@ L<Config::Model::Instance>,
     along with Config-Model; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
     02110-1301 USA
+
+=head1 SEE ALSO
+
+L<Config::Model::Instance>, 
 
 =head2 Model elements
 
