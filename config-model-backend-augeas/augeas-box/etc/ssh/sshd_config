@@ -20,3 +20,16 @@ AcceptEnv LC_IDENTIFICATION LC_ALL
 
 AllowUsers foo bar@192.168.0.*
 
+# Match parsing block is broken and depend on resolution of
+# https://fedorahosted.org/augeas/ticket/7
+
+Match  User domi
+AllowTcpForwarding   yes
+
+# un commentaire
+Match User sarko Group pres.* 
+Banner /etc/bienvenue.txt
+
+# some comment
+Match User bush Group pres.* Host white.house.*
+Banner /etc/welcome.txt

@@ -94,7 +94,7 @@ $model->create_config_class
 	  config_dir => '/etc/ssh',
 	  config_file => 'sshd_config',
 	  save   => 'backup',
-	  sequential_lens => [qw/HostKey Subsystem/],
+	  sequential_lens => [qw/HostKey Subsystem Match/],
 	},
       ],
 
@@ -139,8 +139,79 @@ $model->create_config_class
 		'type' => 'hash',
 		'index_type' => 'string'
 	       },
-	      ]
+	       'Match',
+	       {
+		'cargo' => {
+			    'type' => 'node',
+			    'config_class_name' => 'Sshd::MatchBlock'
+			   },
+		'type' => 'list',
+	       },
+ 	      ]
    );
+
+$model->create_config_class 
+  (
+   'name' => 'Sshd::MatchBlock',
+   'element' => [
+		 'Condition',
+		 {
+		  'type' => 'node',
+		  'config_class_name' => 'Sshd::MatchCondition'
+		 },
+		 'Settings',
+		 {
+		  'type' => 'node',
+		  'config_class_name' => 'Sshd::MatchElement'
+		 }
+		]
+  );
+
+$model->create_config_class 
+  (
+   'name' => 'Sshd::MatchCondition',
+   'element' => [
+		 'User',
+		 {
+		  'value_type' => 'uniline',
+		  'type' => 'leaf',
+		 },
+		 'Group',
+		 {
+		  'value_type' => 'uniline',
+		  'type' => 'leaf',
+		 },
+		 'Host',
+		 {
+		  'value_type' => 'uniline',
+		  'type' => 'leaf',
+		 },
+		 'Address',
+		 {
+		  'value_type' => 'uniline',
+		  'type' => 'leaf',
+		 }
+		]
+  );
+
+
+$model->create_config_class 
+  (
+   'name' => 'Sshd::MatchElement',
+   'element' => [
+		 'AllowTcpForwarding',
+		 {
+		  'value_type' => 'enum',
+		  'type' => 'leaf',
+		  'choice' => ['no', 'yes']
+		 },
+		 'Banner',
+		 {
+		  'value_type' => 'uniline',
+		  'type' => 'leaf',
+		 },
+		 ]
+  );
 
 
 my $i_hosts = $model->instance(instance_name    => 'hosts_inst',
@@ -236,6 +307,12 @@ ok( $i_sshd, "Created instance for sshd" );
 
 ok( $i_sshd, "Created instance for /etc/ssh/sshd_config" );
 
+open(SSHD,"$wr_root/etc/ssh/sshd_config")
+  || die "can't open file: $!";
+
+my @sshd_orig = <SSHD> ;
+close SSHD ;
+
 my $sshd_root = $i_sshd->config_root ;
 
 my $ssh_augeas_obj = $sshd_root->{backend}{augeas}->_augeas_object ;
@@ -273,32 +350,13 @@ my $aug_save_sshd_file = $aug_sshd_file.'.augsave' ;
 ok(-e $aug_save_sshd_file, 
    "check that backup config file $aug_save_sshd_file was written");
 
-@expect = (
-"# only a few parameters for augeas tests in core module\n",
-"# leaf, list and hash elements\n",
-"HostbasedAuthentication yes\n",
-"\n",
-"# some comment before Hostkey\n",
-"HostKey              /etc/ssh/ssh_host_rsa_key\n",
-"HostKey              /etc/ssh/ssh_host_dsa_key\n",
-"\n",
-"# comment before Subsystem\n",
-"Subsystem            sftp /usr/lib/openssh/sftp-server\n",
-"# illegal for sshd but handy for tests\n",
-"Subsystem            tftp /usr/lib/openssh/tftp-server\n",
-"# will be removed in tests\n",
-"\n",
-"# comment before Accept env\n",
-"AcceptEnv LC_PAPER LC_NAME LC_ADDRESS LC_TELEPHONE LC_MEASUREMENT\n",
-"AcceptEnv LC_IDENTIFICATION LC_ALL\n",
-"\n",
-"AllowUsers foo bar\@192.168.0.*\n",
-"\n",
-"Subsystem            ddftp /home/dd/bin/ddftp\n",
-	     );
+my @mod = @sshd_orig;
+$mod[2] = "HostbasedAuthentication yes\n";
+splice @mod,14,1 ;
+$mod[34] = "Subsystem            ddftp /home/dd/bin/ddftp\n";
 
 open(AUG,$aug_sshd_file) || die "Can't open $aug_sshd_file:$!"; 
-is_deeply([<AUG>],\@expect,"check content of $aug_sshd_file") ;
+is_deeply([<AUG>],\@mod,"check content of $aug_sshd_file") ;
 close AUG;
 
 }

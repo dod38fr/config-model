@@ -477,7 +477,7 @@ sub list_element_cb {
     @matches = sort map { $augeas_obj->match($_.'/*') ; } @matches 
       unless $is_seq ;
 
-    print "copy_in_augeas: List path $p matches (seq $is_seq):\n\t",
+    print "copy_in_augeas: List (@idx) path $p matches (seq $is_seq):\n\t",
       join("\n\t",@matches),"\n" if $::debug;
 
     # store list indexes found in Augeas and their corresponding path
@@ -502,8 +502,9 @@ sub list_element_cb {
     # path will be used by scan_list
     if ($is_seq) {
 	my $count = $augeas_obj->count_match($p) ;
-	foreach my $i (@idx) {
-	    $i++ ; # augeas index starts at 1 not 0
+	foreach my $idx (@idx) {
+	    # augeas index starts at 1 not 0
+	    my $i = $idx + 1; 
 	    next if defined $match{$i} ;
 
 	    my $np = $match{$i} = $p.'['.++$count."]/$i";
@@ -518,6 +519,8 @@ sub list_element_cb {
 	# use Augeas path (given by match command) or the path
 	# created for unknown non-seq list elements
 	my $scan_path = delete $match{$i+1} || $p.'/'.($i+1);
+	print "copy_in_augeas: scan list called on $scan_path index $i\n"
+	      if $::debug;
 	$scanner->scan_list([$scan_path,$augeas_obj,$set_in,$is_seq_lens], 
 			    $node,$element_name,$i);
     }
