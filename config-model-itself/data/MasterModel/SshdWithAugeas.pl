@@ -3,12 +3,16 @@
   name => 'MasterModel::SshdWithAugeas',
 
   'read_config'
-  => [ { backend => 'augeas', 
-	 config_file => '/etc/ssh/sshd_config',
-	 save   => 'backup',
-	 lens_with_seq => [qw/AcceptEnv AllowGroups AllowUsers 
-			      DenyGroups  DenyUsers/],
-       },
+  => [ 
+      { backend => 'augeas', 
+	 config_dir  => '/etc/ssh',
+	 config_file => 'sshd_config',
+	 sequential_lens => [qw/HostKey Subsystem Match/],
+      },
+      { backend => 'perl_file', 
+	config_dir  => '/etc/ssh',
+	allow_empty => 1,
+      },
      ],
 
   element => [

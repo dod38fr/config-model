@@ -10,6 +10,8 @@ use Log::Log4perl qw(:easy) ;
 use Data::Dumper ;
 use Config::Model::Itself ;
 use Tk ;
+use File::Path ;
+use File::Copy ;
 use Config::Model::Itself::TkEditUI;
 
 use warnings;
@@ -27,7 +29,9 @@ $show               = 1 if $arg =~ /s/;
 
 print "You can play with the widget if you run the test with 's' argument\n";
 
-my $wr_dir = 'wr_test2' ;
+my $wr_test = 'wr_test' ;
+my $wr_conf1 = "$wr_test/wr_conf1";
+my $wr_model1 = "$wr_test/wr_model1";
 my $read_dir = 'data' ;
 
 sub wr_cds {
@@ -45,8 +49,10 @@ Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 
 ok(1,"compiled");
 
-mkdir($wr_dir) unless -d $wr_dir ;
+rmtree($wr_test) if -d $wr_test ;
 
+mkpath($wr_conf1, $wr_model1, "$wr_conf1/etc/ssh/",{mode => 0755}) ;
+copy('augeas_box/etc/ssh/sshd_config', "$wr_conf1/etc/ssh/") ;
 
 my $model = Config::Model->new(legacy => 'ignore',model_dir => $read_dir ) ;
 ok(1,"loaded Master model") ;
@@ -54,6 +60,7 @@ ok(1,"loaded Master model") ;
 # check that Master Model can be loaded by Config::Model
 my $inst1 = $model->instance (root_class_name   => 'MasterModel', 
 			      instance_name     => 'test_orig',
+			      root_dir          => $wr_conf1,
 			     );
 ok($inst1,"created master_model instance") ;
 
@@ -67,8 +74,6 @@ ok($inst1,"loaded some data in master_model instance") ;
 
 my $meta_inst = $meta_model->instance (root_class_name   => 'Itself::Model', 
 			     instance_name     => 'itself_instance',
-			     #'read_directory'  => $read_dir,
-			     #'write_directory' => $wr_dir,
 			    );
 ok($meta_inst,"Read Itself::Model and created instance") ;
 
@@ -95,13 +100,14 @@ SKIP: {
     $mw->withdraw ;
 
     my $write_sub = sub { 
-	$rw_obj->write_all(model_dir => $wr_dir);
+	$rw_obj->write_all(model_dir => $wr_model1);
     } ;
 
     my $cmu = $mw->ConfigModelEditUI (-root => $meta_root,
+				      -root_dir => $wr_conf1,
 				      -store_sub => $write_sub,
 				      -read_model_dir => $read_dir,
-				      -write_model_dir => $wr_dir,
+				      -write_model_dir => $wr_model1,
 				      -model_name => 'MasterModel',
 				     ) ;
     my $delay = 200 ;

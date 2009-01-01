@@ -80,9 +80,11 @@
    class_description => "Master description",
    level      => [ [qw/hash_a tree_macro int_v/] => 'important' ],
 
-   read_config  =>  { backend => 'cds_file',  config_dir  => 'wr_test/conf_data'},
-   write_config => [{ backend => 'cds_file',  config_dir  => 'wr_test/conf_data'},
-		    { backend => 'perl_file', config_dir  => 'wr_test/conf_data'}],
+   read_config  =>  { backend => 'cds_file',  config_dir  => 'conf_data',
+		      allow_empty => 1 
+		    },
+   write_config => [{ backend => 'cds_file',  config_dir  => 'conf_data'},
+		    { backend => 'perl_file', config_dir  => 'conf_data'}],
 
    element => [
 	       std_id => { type => 'hash',
@@ -209,11 +211,12 @@
 				      use_eval => 1 ,
 				    },
 		  },
+	       ## too difficult to correctly test Augeas here
 	       'sshd_augeas' 
 	       => {
-		   type => 'node',
-		   config_class_name => 'MasterModel::SshdWithAugeas',
-		  },
+	            type => 'node',
+	            config_class_name => 'MasterModel::SshdWithAugeas',
+	          },
 	      ],
    description => [
 		   tree_macro => 'controls behavior of other elements'

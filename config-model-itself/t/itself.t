@@ -9,6 +9,8 @@ use Test::More tests => 18;
 use Config::Model;
 use Log::Log4perl qw(:easy) ;
 use Data::Dumper ;
+use File::Path ;
+use File::Copy ;
 use Config::Model::Itself ;
 
 use warnings;
@@ -22,7 +24,9 @@ $::verbose          = 1 if $arg =~ /v/;
 $::debug            = 1 if $arg =~ /d/;
 my $log             = 1 if $arg =~ /l/;
 
-my $wr_dir = 'wr_test' ;
+my $wr_test = 'wr_test' ;
+my $wr_conf1 = "$wr_test/wr_conf1";
+my $wr_model1 = "$wr_test/wr_model1";
 
 sub wr_cds {
     my ($file,$cds) = @_ ;
@@ -39,7 +43,16 @@ Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 
 ok(1,"compiled");
 
-mkdir($wr_dir) unless -d $wr_dir ;
+rmtree($wr_test) if -d $wr_test ;
+
+mkpath($wr_conf1, $wr_model1, "$wr_conf1/etc/ssh/",{mode => 0755}) ;
+copy('augeas_box/etc/ssh/sshd_config', "$wr_conf1/etc/ssh/") ;
+
+#mkdir("$wr_dir/conf_data") ;
+#open(OUT,"> $wr_dir/conf_data/test_orig.cds");
+#print OUT "\n";
+#close OUT;
+
 
 
 my $model = Config::Model->new(legacy => 'ignore',model_dir => 'data' ) ;
@@ -48,6 +61,7 @@ ok(1,"loaded Master model") ;
 # check that Master Model can be loaded by Config::Model
 my $inst1 = $model->instance (root_class_name   => 'MasterModel', 
 			      instance_name     => 'test_orig',
+			      root_dir          => $wr_conf1,
 			     );
 ok($inst1,"created master_model instance") ;
 
@@ -67,7 +81,7 @@ ok($dump1,"dumped master instance") ;
 my $meta_inst = $meta_model->instance (root_class_name   => 'Itself::Model', 
 			     instance_name     => 'itself_instance',
 			     'read_directory'  => "data",
-			     'write_directory' => "wr_test",
+			     'write_directory' => $wr_model1,
 			    );
 ok($meta_inst,"Read Itself::Model and created instance") ;
 
@@ -147,7 +161,7 @@ ok($cds,"dumped full tree in cds format") ;
 
 #like($cds,qr/dumb/,"check for a peculiar warp effet") ;
 
-wr_cds("$wr_dir/orig.cds",$cds);
+wr_cds("$wr_conf1/orig.cds",$cds);
 
 #create a 2nd empty model
 my $meta_inst2 = $meta_model->instance (root_class_name   => 'Itself::Model', 
@@ -158,7 +172,7 @@ $meta_root2 -> load ($cds) ;
 ok(1,"Created and loaded 2nd instance") ;
 
 my $cds2 = $meta_root2 ->dump_tree (full_dump => 1) ;
-wr_cds("$wr_dir/inst2.cds",$cds2);
+wr_cds("$wr_conf1/inst2.cds",$cds2);
 
 is_deeply([split /\n/,$cds2],\@cds_orig,"Compared the 2 full dumps") ; 
 
@@ -175,7 +189,7 @@ $meta_root3 -> load_data ($pdata2) ;
 ok(1,"Created and loaded 3nd instance with perl data") ;
 
 my $cds3 = $meta_root3 ->dump_tree (full_dump => 1) ;
-wr_cds("$wr_dir/inst3.cds",$cds3);
+wr_cds("$wr_conf1/inst3.cds",$cds3);
 
 is_deeply([split /\n/,$cds3],\@cds_orig,"Compared the 3rd full dump with first one") ; 
 
@@ -185,9 +199,9 @@ my $dump = $rw_obj -> get_perl_data_model ( class_name => 'MasterModel' ) ;
 print Dumper $dump if $trace ;
 ok($dump,"Checked dump of one class");
 
-$rw_obj->write_all( model_dir => $wr_dir ) ;
+$rw_obj->write_all( model_dir => $wr_model1 ) ;
 
-my $model4 = Config::Model->new(legacy => 'ignore',model_dir => $wr_dir) ;
+my $model4 = Config::Model->new(legacy => 'ignore',model_dir => $wr_model1) ;
 #$model4 -> load ('X_base_class', 'wr_test/MasterModel/X_base_class.pl') ;
 #ok(1,"loaded X_base_class") ;
 #$model4 -> load ('MasterModel' , 'wr_test/MasterModel.pl') ;
@@ -197,8 +211,8 @@ my $model4 = Config::Model->new(legacy => 'ignore',model_dir => $wr_dir) ;
 
 my $inst4 = $model4->instance (root_class_name   => 'MasterModel', 
 			       instance_name     => 'test_instance',
-			       'read_directory'  => "wr_test",
-			       'write_directory' => "wr_test2",
+			       'root_dir'  => $wr_conf1,
+
 			      );
 ok($inst4,"Read MasterModel and created instance") ;
 
