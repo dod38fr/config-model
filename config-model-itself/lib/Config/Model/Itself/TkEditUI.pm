@@ -48,7 +48,8 @@ sub Populate {
 
     my $r_model_dir  = delete $args->{-read_model_dir} ;
     my $w_model_dir  = delete $args->{-write_model_dir} ;
-    my $model_name = delete $args->{-model_name} ;
+    my $model_name   = delete $args->{-model_name} ;
+    my $root_dir     = delete $args->{-root_dir} ;
 
     $cw->SUPER::Populate($args) ;
 
@@ -59,6 +60,7 @@ sub Populate {
     $cw->{read_model_dir} = $r_model_dir ;
     $cw->{write_model_dir} = $w_model_dir ;
     $cw->{model_name} = $model_name ;
+    $cw->{root_dir} = $root_dir ;
 }
 
 sub test_model {
@@ -74,7 +76,9 @@ sub test_model {
 
     my $name = $cw->{model_name};
     my $inst = $model->instance (root_class_name => $name,
-				 instance_name => "test $name model");
+				 instance_name => "test $name model",
+				 root_dir => $cw->{root_dir} ,
+				);
 
     my $root = $inst -> config_root ;
 

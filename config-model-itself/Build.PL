@@ -40,7 +40,7 @@ my $build = Module::Build->new
 		     'Config::Model::TkUI' => '1.203',
 		    },
    script_files  => [ 'config-model-edit' ],
-   add_to_cleanup => [qw/wr_test wr_test2/] ,
+   add_to_cleanup => [qw/wr_test/] ,
   );
 
 

@@ -406,6 +406,15 @@ __END__
 
 Dominique Dumont, (ddumont at cpan dot org)
 
+=head1 COPYRIGHT
+
+Copyright (C) 2008 by Dominique Dumont
+
+=head1 LICENSE
+
+This library is free software; you can redistribute it and/or modify
+it under the LGPL terms.
+
 =head1 SEE ALSO
 
 L<Config::Model>, L<Config::Model::Node>,

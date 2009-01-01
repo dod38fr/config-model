@@ -161,13 +161,13 @@
 	   value_type => 'uniline' ,
 	   level => 'hidden',
 	   warp => { follow => { b => '- backend' },
-		     rules => [ '$b eq "augeas"'
+		     rules => [ '$b eq "augeas" or $b eq "ini_file"'
 				=> { level => 'normal',
 				     mandatory => 1,
 				   }
 			      ],
 		   },
-	   description => 'Specify the configuration file (with its absolute path) that will store configuration information',
+	   description => 'Specify the configuration file (without path) that will store configuration information',
 	   },
        'set_in'
        => {
@@ -182,7 +182,7 @@
 			      ],
 		   }
 	  },
-       'lens_with_seq'
+       'sequential_lens'
        => {
 	   type => 'list',
 	   level => 'hidden',
@@ -192,7 +192,7 @@
 	   warp => { follow => { b => '- backend' },
 		     rules => [ '$b eq "augeas"' => { level => 'normal',}],
 		   },
-	   description => 'List of Augeas lenses that contain a "seq" lens.',
+	   description => 'List of hash or list Augeas lenses where value are stored in sequential Augeas nodes. See Config::Model::Backend::Augeas for details.',
 	   },
       ],
 
@@ -221,18 +221,20 @@
        => {
 	   type => 'leaf',
 	   value_type => 'uniline' ,
-	   level => 'hidden',
-	   warp => { follow => { b => '- backend' },
-		     rules => [ 'defined $b and $b ne "augeas"' 
-				=> { level => 'normal',
-				     mandatory => 1,
-				   }
-			      ],
-		   },
+	   level => 'normal',
+	   mandatory => 1,
 	   migrate_from => {
 			    formula => '$old' , 
 			    variables => { old => '- - read_config_dir' } ,
 			   }
+	  },
+
+       'allow_empty'
+       => {
+	   type => 'leaf',
+	   value_type => 'boolean' ,
+	   level => 'normal',
+	   built_in => 0,
 	  },
 
        ],
@@ -260,14 +262,8 @@
        => {
 	   type => 'leaf',
 	   value_type => 'uniline' ,
-	   level => 'hidden',
-	   warp => { follow => { b => '- backend' },
-		     rules => [ 'defined $b and $b ne "augeas"' 
-				=> { level => 'normal',
-				     mandatory => 1,
-				   }
-			      ],
-		   },
+	   level => 'normal',
+	   mandatory => 1,
 	   migrate_from => {
 			    formula => '$old' , 
 			    variables => { old => '- - write_config_dir' } ,
