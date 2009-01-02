@@ -1,4 +1,4 @@
-#    Copyright (c) 2008 Dominique Dumont.
+#    Copyright (c) 2008-2009 Dominique Dumont.
 #
 #    This library is free software; you can redistribute it and/or
 #    modify it under the terms of the GNU Lesser Public License as
@@ -22,7 +22,7 @@ use warnings;
 use Carp;
 use IO::File ;
 
-our $VERSION = '0.304';
+our $VERSION = '0.305';
 
 require XSLoader;
 XSLoader::load('Config::Augeas', $VERSION);

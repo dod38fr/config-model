@@ -1,3 +1,9 @@
+2009-01-02  Domi  <domi@bilbo.maison> v0.305
+
+	* t/Config-AugeasC.t: Removed test involving AUGROOT environment
+	variable (Lead to FTBS on Debian amd64). The removed tests are
+	already performed passing augeas root through aug_init.
+ 	
 2008-11-21  Dominique Dumont  <dominique.dumont@hp.com> v0.304
 
 	* lib/Config/Augeas.pm (print): Improved print method. Can now

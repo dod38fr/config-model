@@ -6,7 +6,7 @@
 
 # change 'tests => 2' to 'tests => last_test_to_print';
 
-use Test::More tests => 27;
+use Test::More tests => 25;
 use ExtUtils::testlib;
 use File::Path ;
 use File::Copy ;
@@ -161,15 +161,4 @@ $augc->print(*WR, "/files/etc/") ;
 close WR;
 
 ok( -e $wr_file, "$wr_file exists" );
-
-$ENV{AUG_ROOT} = $aug_root;
-
-# test may fail with augeas 0.2.0 installed in /usr/local
-my $augc2 = Config::Augeas::init() ;
-
-ok($augc2,"Created 2nd Augeas object");
-
-$ret = $augc2->get("/files/etc/hosts/1/ipaddr") ;
-
-is($ret,'127.0.0.1',"Called get (returned $ret )");
 
