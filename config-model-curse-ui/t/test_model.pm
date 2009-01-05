@@ -93,7 +93,8 @@
   [
    name => 'Master',
 
-   read_config => { backend => 'cds_file', config_dir => 'data' },
+   read_config => { backend => 'cds_file', config_dir => 'data',
+		    allow_empty => 1},
 
    permission => [ [qw/tree_macro warp/] => 'advanced'] ,
    class_description => "Master description",

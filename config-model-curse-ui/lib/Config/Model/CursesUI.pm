@@ -2,25 +2,6 @@
 # $Date$
 # $Revision$
 
-#    Copyright (c) 2007-2008 Dominique Dumont.
-#
-#    This file is part of Config-Model-Curses-UI.
-#
-#    Config-Model-Curses-UI is free software; you can redistribute it
-#    and/or modify it under the terms of the GNU Lesser Public License
-#    as published by the Free Software Foundation; either version 2.1
-#    of the License, or (at your option) any later version.
-#
-#    Config-Model is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#    Lesser Public License for more details.
-#
-#    You should have received a copy of the GNU Lesser Public License
-#    along with Config-Model; if not, write to the Free Software
-#    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-#    02110-1301 USA
-
 my $verb_wiz = 1 ;
 
 package Config::Model::CursesUI ;
@@ -29,7 +10,6 @@ use strict ;
 use Config::Model::Exception ;
 use Carp;
 use warnings FATAL => "all";
-use Error qw(:try);
 
 use Config::Model::ObjTreeScanner ;
 use Curses::UI ;
@@ -46,7 +26,7 @@ use Exception::Class
   ) ;
 
 use vars qw($VERSION) ;
-$VERSION = '1.101';
+$VERSION = '1.102';
 
 my @help_settings = qw/-bg green -fg black -border 1 
                        -titlereverse 0
@@ -1009,21 +989,22 @@ sub set_leaf_value {
 sub try_it {
     my ($self,$sub) = @_ ;
 
-    try {
+    eval {
         &$sub ;
 	warn "try_it: call to sub succeeded\n" if $verb_wiz ;
-    } 
-    catch Config::Model::Exception::User with {
-	my $oops = shift ;
+    } ;
+
+    my $e ;
+    if ($e = Config::Model::Exception::User->caught()) {
+	my $oops = $e->error ;
 	$oops =~ s/\t//g;
 	chomp($oops) ;
 	$self->{cui}->error(-message => $oops ) ;
         return undef;
     }
-    otherwise {
-        my $oops = shift ;
-	warn "oops" ;
-        $self->{cui}->fatalerror("try_it: $oops") ;
+    elsif ($@) {
+	warn $@ ;
+        $self->{cui}->fatalerror("try_it: $@") ;
         # does not return ...
     } ;
 }
@@ -1214,7 +1195,7 @@ sub layout_string_value {
                   -text => "Enter new value:") ;
 
     my $editor = $win -> add ( undef,  
-			       $v_type eq 'uniline' ? 'TextEntry' : 'TextEditor',
+			       $v_type eq 'string' ? 'TextEditor' : 'TextEntry',
 			       -sbborder => 1,
 			       '-y' => 1,
 			       '-height' => $height,
@@ -1640,16 +1621,16 @@ sub display_view_list {
     my $view_scanner = Config::Model::ObjTreeScanner->new (@scan_args);
 
     my @leaves ;
-    try {
+    eval {
 	# perform the scan that fills @leaves
         $root->instance->push_no_value_check('fetch','store','type') ;
         $view_scanner-> scan_node(\@leaves, $root) ;
         $root->instance->pop_no_value_check ;
-    }
-    otherwise {
-        my $oops = shift ;
-	warn "$oops" ;
-        $self->{cui}->fatalerror("display_view_list: $oops") ;
+    } ;
+
+    if ($@) {
+	warn "$@" ;
+        $self->{cui}->fatalerror("display_view_list: $@") ;
     };
 
     my $idx = 0;
@@ -1726,16 +1707,16 @@ sub wizard {
     # reset location label
     $self->{loc_label}->text('') ;
 
-    try {
+    eval {
 	$self->wiz_walk( $stop_on_important , $root) ;
-    }
-    catch Config::Model::CursesUI::AbortWizard with {
+    } ;
+
+    if (Config::Model::CursesUI::AbortWizard->caught()) {
 	# ignored
     }
-    otherwise {
-	my $oops = shift ;
-	warn "$oops" ;
-	$self->{cui}->fatalerror("search: $oops") ;
+    elsif ($@) {
+	warn "$@" ;
+	$self->{cui}->fatalerror("search: $@") ;
     } ;
 
     $self->{start_config}->() ;
@@ -1878,18 +1859,16 @@ sub wiz_walk {
     $self->{wizard} = $root->instance->wizard_helper (@wiz_args);
 
     my $result;
-    try {
-      $self->{wizard}->start ;
+    eval {$self->{wizard}->start ;} ;
+
+    if (my $e = Config::Model::CursesUI::AbortWizard->caught()) {
+	$e -> throw ; # propagate up
     }
-    catch Config::Model::CursesUI::AbortWizard with {
-	shift -> throw ; # propagate up
-    }
-    otherwise {
+    elsif ($@) {
 	# really die
-        my $oops = shift ;
-	warn "$oops" ;
-	$self->{cui}->fatalerror("display_view_list: $oops") ;
-      };
+	warn "$@" ;
+	$self->{cui}->fatalerror("display_view_list: $@") ;
+    }
 
     return $result ;
   }
@@ -1960,6 +1939,27 @@ called without any arguments.
 =head1 AUTHOR
 
 Dominique Dumont, (ddumont at cpan dot org)
+
+=head1 LICENSE
+
+    Copyright (c) 2007-2009 Dominique Dumont.
+
+    This file is part of Config-Model.
+
+    Config-Model is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Lesser Public License as
+    published by the Free Software Foundation; either version 2.1 of
+    the License, or (at your option) any later version.
+
+    Config-Model is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Lesser Public License for more details.
+
+    You should have received a copy of the GNU Lesser Public License
+    along with Config-Model; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+    02110-1301 USA
 
 =head1 SEE ALSO
 

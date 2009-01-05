@@ -31,12 +31,11 @@ my $build = Module::Build->new
    license => 'lgpl',
    dist_abstract => "Curses interface to edit config data through Config::Model",
    dist_author  => "Dominique Dumont (ddumont at cpan dot org)",
-   dist_version  => '1.007' ,
    requires => {
-		'Config::Model'    => '0.623',
+		'Config::Model'    => '0.633',
 		'Exception::Class' => 0,
-		'Curses::UI'       => '0.95',
-		'Log::Log4perl'    => 0 ,
+		'Curses::UI'       => '0.9606',
+		# not yet 'Log::Log4perl'    => 0 ,
 	       },
    add_to_cleanup => [qw/stderr.log wr_data/] ,
   );
