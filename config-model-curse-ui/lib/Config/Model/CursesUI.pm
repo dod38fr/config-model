@@ -937,11 +937,12 @@ sub layout_checklist_order {
 			    );
 
     my $update_value = sub {
-	my $item = shift ;
+	my $set  = shift ;
 	my @new_list = $check_list_obj->get_checked_list ;
 	$cur_val_w->text(join(",",$check_list_obj->get_checked_list)) ;
 	$listbox->values(\@new_list) ;
 	# Tk::ObjScanner::scan_object($listbox) ;
+	$listbox->set_selection($set) if defined $set ;
 	$listbox->draw ;
     } ;
 
@@ -951,8 +952,7 @@ sub layout_checklist_order {
 	my ($item) = $listbox->get || return ; # no selection
 	my ($idx)  = $listbox->id  || return ; # first item selected
 	$check_list_obj->move_up($item) ;
-	$update_value->() ;
-	$listbox->set_selection($idx - 1) ;
+	$update_value->($idx - 1) ;
     } ;
 
     my $down_sub = sub {
@@ -961,8 +961,7 @@ sub layout_checklist_order {
 	my @new_list = $check_list_obj->get_checked_list ;
 	return if $idx >= $#new_list ; # last item selected
 	$check_list_obj->move_down($item) ;
-	$update_value->() ;
-	$listbox->set_selection($idx + 1) ;
+	$update_value->($idx + 1) ;
     } ;
 
     my @buttons = (
