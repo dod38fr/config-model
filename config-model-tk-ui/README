@@ -5,8 +5,9 @@ This module provides a Perl/Tk interface to:
 - the configuration editor provided by Config::Model.
 - the configuration model editor provided by Config::Model::Itself
 
-For instance, with this module, Config::Model and Config::Model::Xorg,
-you get a graphical configuration editor for Xorg.
+For instance, with this module, Config::Model and
+Config::Model::OpenSsh, you get a graphical configuration editor for
+sshd_config.
 
 All icons used in this application were created by Crystal Project.
 They are licensed under LGPL. http://www.everaldo.com/crystal/
