@@ -1,5 +1,9 @@
-This module provides a Curses interface for all configuration
-descriptions created for Config::Model.
+This module provides a Curses interface to the configuration editor
+provided by Config::Model.
+
+For instance, with this module, Config::Model and
+Config::Model::OpenSsh, you get a curses configuration editor for
+sshd_config.
 
 This interface is used by config-edit program provided by
 Config::Model.
