@@ -22,7 +22,7 @@ use strict ;
 
 # snatched from ExtUtils::PkgConfig
 # don't go any further if pkg-config cannot be found.
-my $have_pkg_config = `pkg-config --version`;
+my $have_pkg_config = eval {`pkg-config --version`; };
 
 if ($have_pkg_config eq "") {
     # Warn and exit with status 0 to indicate (to the user and the CPAN
