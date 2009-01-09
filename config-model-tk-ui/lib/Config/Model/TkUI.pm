@@ -315,8 +315,10 @@ sub open_item {
 
 sub save_in_dir {
     my $cw = shift ;
-    require Tk::DirSelect ;
+    require Tk::DirSelect ; 
     $cw->{save_dir} = $cw->DirSelect()->Show ;
+    # chooseDirectory does not work correctly.
+    #$cw->{save_dir} = $cw->chooseDirectory(-mustexist => 'no') ;
     $cw->save() ;
 }
 
