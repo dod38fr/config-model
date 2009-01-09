@@ -327,7 +327,25 @@ HostbasedAuthentication=no
 HostKey=/etc/ssh/ssh_host_key,/etc/ssh/ssh_host_rsa_key,/etc/ssh/ssh_host_dsa_key
 Subsystem:rftp=/usr/lib/openssh/rftp-server
 Subsystem:sftp=/usr/lib/openssh/sftp-server
-Subsystem:tftp=/usr/lib/openssh/tftp-server -
+Subsystem:tftp=/usr/lib/openssh/tftp-server
+Match:0
+  Condition
+    User=domi -
+  Settings
+    AllowTcpForwarding=yes - -
+Match:1
+  Condition
+    User=sarko
+    Group=pres.* -
+  Settings
+    Banner=/etc/bienvenue.txt - -
+Match:2
+  Condition
+    User=bush
+    Group=pres.*
+    Host=white.house.* -
+  Settings
+    Banner=/etc/welcome.txt - - -
 ";
 
 $dump = $sshd_root->dump_tree ;
@@ -352,11 +370,11 @@ ok(-e $aug_save_sshd_file,
 
 my @mod = @sshd_orig;
 $mod[2] = "HostbasedAuthentication yes\n";
-splice @mod,14,1 ;
-$mod[34] = "Subsystem            ddftp /home/dd/bin/ddftp\n";
+
+$mod[14] = "Subsystem            ddftp /home/dd/bin/ddftp\n";
 
 open(AUG,$aug_sshd_file) || die "Can't open $aug_sshd_file:$!"; 
 is_deeply([<AUG>],\@mod,"check content of $aug_sshd_file") ;
 close AUG;
 
-}
+} # end SKIP section

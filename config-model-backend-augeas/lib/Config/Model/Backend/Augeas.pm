@@ -411,6 +411,8 @@ sub save {
     my $self = shift ;
     my $mainpath = shift ;
 
+    $self->{augeas_obj}->print() if $::debug ;
+
     $self->{augeas_obj}->save || die "Augeas save failed" . 
       $self->{augeas_obj}->print("/augeas/$mainpath/*");
 }
@@ -477,16 +479,10 @@ sub list_element_cb {
     @matches = sort map { $augeas_obj->match($_.'/*') ; } @matches 
       unless $is_seq ;
 
-    print "copy_in_augeas: List (@idx) path $p matches (seq $is_seq):\n\t",
-      join("\n\t",@matches),"\n" if $::debug;
-
-    # store list indexes found in Augeas and their corresponding path
-    my %match = map { 
-	my ($k) = m!/([\w\[\]\-]+)$!; 
-	# need to keep only index in %match key
-	$k =~ s/\w+\[(\d+)\]/$1/ if $is_seq ;
-	($k => $_ ) ;
-    } @matches ;
+    # Depending on the syntax, list can be in the form:
+    # /files/etc/ssh/sshd_config/AcceptEnv[2]/3/   non-seq  use [last()]/idx/
+    # /files/etc/hosts/4/                          non-seq  use [last()]/idx/
+    # /files/etc/ssh/sshd_config/HostKey[2]         is-seq  use [idx]
 
     if ($is_seq) {
 	# sequential lens need a list index to store list element.
@@ -494,8 +490,19 @@ sub list_element_cb {
 	# fail. But Augeas does return foo/1 if only one element is
 	# present in the tree :-/
 	my $replace = $element_name.'[1]';
-	map { s/$element_name(?!\[)/$replace/ } values %match ;
+	map { s/$element_name(?!\[)/$replace/ } @matches ;
     }
+
+    print "copy_in_augeas: List (@idx) path $p matches (seq $is_seq):\n\t",
+      join("\n\t",@matches),"\n" if $::debug;
+
+    # store list indexes found in Augeas and their corresponding path
+    my %match = map { 
+	my ($k) = m!/([\w\[\]\-]+)$!; 
+	# need to keep only index in %match key
+	$k =~ s/\w+\[(\d+)\]$/$1/ if $is_seq ;
+	($k => $_ ) ;
+    } @matches ;
 
     # Handle indexes found in Config::Model, but not in Augeas
     # tree. Create a new Augeas path for sequential list lenses. This
@@ -560,6 +567,15 @@ sub hash_element_cb {
     # need to find 2nd levels of sub-nodes 
     @matches = sort map { $augeas_obj->match($_.'/*') ; } @matches ;
 
+    # sequential lens need a list index to store element.  I.e
+    # foo[1]/key1 foo[2]/key2 is ok. foo/key1 foo/key2 will fail But
+    # Augeas does return foo/key1 if only one element is present in
+    # the tree :-/
+    if ($is_seq) {
+	my $replace = $element_name.'[1]';
+	map { s/$element_name(?!\[)/$replace/ } @matches ;
+    }
+
     print "copy_in_augeas: Hash path $p matches (seq $is_seq):\n\t", 
       join("\n\t",@matches),"\n" if $::debug;
 
@@ -567,18 +583,9 @@ sub hash_element_cb {
     my %match = map { 
 	my ($k) = m!/([\w\[\]\-]+)$!; 
 	# need to keep only index in %match key
-	$k =~ s/\w+\[(\d+)\]/$1/ if $is_seq ;
+	$k =~ s/\w+\[(\d+)\]$/$1/ if $is_seq ;
 	($k => $_ ) ;
     } @matches ;
-
-    # sequential lens need a list index to store element.  I.e
-    # foo[1]/key1 foo[2]/key2 is ok. foo/key1 foo/key2 will fail But
-    # Augeas does return foo/key1 if only one element is present in
-    # the tree :-/
-    if ($is_seq) {
-	my $replace = $element_name.'[1]';
-	map { s/$element_name(?!\[)/$replace/ } values %match ;
-    }
 
     # Handle keys found in Config::Model, but not in Augeas
     # tree. Create a new Augeas path for sequential hash lenses. This
@@ -587,6 +594,12 @@ sub hash_element_cb {
 	my $count = $augeas_obj->count_match($p) ;
 	foreach (@keys) {
 	    next if defined $match{$_} ;
+
+	    my $ip = $p.'[last()]';
+	    print "inserting $element_name after $ip\n" if $::debug ;
+	    $augeas_obj->insert($element_name, after => $ip ) 
+	      || die "augeas insert $element_name after $ip failed";
+
 	    my $np = $match{$_} = $p.'['.++$count."]/$_";
 	    print "copy_in_augeas: New hash path $np for key $_\n"
 	      if $::debug;
@@ -638,7 +651,7 @@ sub node_content_cb {
 	  join("\n\t",@matches),"\n" if $::debug;
 
 	# store keys found in Augeas and their corresponding path
-	my %match = map { s/\[\d+\]+//; 
+	my %match = map { s/\[\d+\]+$//; 
 			  my ($k) = m!/([\w\-]+)$!; 
 			  ($k => $_ ) } @matches ;
 
@@ -648,7 +661,8 @@ sub node_content_cb {
 	    # use Augeas path (given by match command) or the path
 	    # created for new elements
 	    my $scan_path = delete $match{$_} || $p.'/'.$_ ;
-	    print "copy_in_augeas: Node scan $scan_path\n" if $::debug;
+	    print "copy_in_augeas: Node scan $scan_path for element $_\n" 
+	      if $::debug;
 	    $scanner->scan_element([$scan_path,$augeas_obj,$set_in,$is_seq_lens],
 				   $node,$_)
 	}
