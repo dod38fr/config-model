@@ -90,6 +90,7 @@ Name of the config_file.
 This one is tricky. Set to one when new Augeas list or hash node must
 be created for each new list or hash element. See L</Sequential lens>
 for details.
+
 =back
 
 For instance:
