@@ -2,7 +2,7 @@
 # $Date$
 # $Revision$
 
-#    Copyright (c) 2007-2008 Dominique Dumont.
+#    Copyright (c) 2007-2009 Dominique Dumont.
 #
 #    This file is part of Config-Model-Itself.
 #
@@ -34,7 +34,7 @@ use File::Basename ;
 
 use vars qw($VERSION) ;
 
-$VERSION = '1.207';
+$VERSION = '1.208';
 
 my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
@@ -408,7 +408,7 @@ Dominique Dumont, (ddumont at cpan dot org)
 
 =head1 COPYRIGHT
 
-Copyright (C) 2008 by Dominique Dumont
+Copyright (C) 2007-2009 by Dominique Dumont
 
 =head1 LICENSE
 

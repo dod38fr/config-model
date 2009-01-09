@@ -1,7 +1,7 @@
-2009-01-01  Dominique Dumont  <dominique.dumont@hp.com>
+2009-01-09  Dominique Dumont  <dominique.dumont@hp.com> v1.208
 
 	* lib/Config/Model/models/Itself/Class.pl: Added allow_empty
-	parameter. Minor corrections related to Augeas
+	parameter. Minor corrections related to Augeas integration.
 
 2008-10-14  Dominique Dumont  <dominique.dumont@hp.com> v1.207
 
