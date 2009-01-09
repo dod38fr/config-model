@@ -6,26 +6,36 @@
                                  'backend' => 'custom',
                                  'class' => 'Config::Model::OpenSsh',
                                  'config_dir' => '/etc/ssh'
+                               },
+                               {
+                                 'save' => 'backup',
+                                 'backend' => 'augeas',
+                                 'sequential_lens' => [
+                                                        'HostKey',
+                                                        'Subsystem',
+                                                        'Match'
+                                                      ],
+                                 'config_file' => 'sshd_config',
+                                 'config_dir' => '/etc/ssh'
                                }
                              ],
             'name' => 'Sshd',
             'write_config' => [
                                 {
-                                  'save' => 'backup',
-                                  'backend' => 'augeas',
-                                  'lens_with_seq' => [
-                                                       'AcceptEnv',
-                                                       'AllowGroups',
-                                                       'AllowUsers',
-                                                       'DenyGroups',
-                                                       'DenyUsers'
-                                                     ],
-                                  'config_file' => '/etc/ssh/sshd_config'
-                                },
-                                {
                                   'function' => 'sshd_write',
                                   'backend' => 'custom',
                                   'class' => 'Config::Model::OpenSsh',
+                                  'config_dir' => '/etc/ssh'
+                                },
+                                {
+                                  'save' => 'backup',
+                                  'backend' => 'augeas',
+                                  'sequential_lens' => [
+                                                         'HostKey',
+                                                         'Subsystem',
+                                                         'Match'
+                                                       ],
+                                  'config_file' => 'sshd_config',
                                   'config_dir' => '/etc/ssh'
                                 }
                               ],
@@ -75,10 +85,14 @@
                            },
                            'AllowTcpForwarding',
                            {
-                             'value_type' => 'boolean',
-                             'built_in' => '1',
+                             'value_type' => 'enum',
+                             'built_in' => 'yes',
                              'type' => 'leaf',
-                             'description' => 'Specifies whether TCP forwarding is permitted. The default is "yes".Note that disabling TCP forwarding does not improve security unless users are also denied shell access, as they can always install their own forwarders.'
+                             'description' => 'Specifies whether TCP forwarding is permitted. The default is "yes".Note that disabling TCP forwarding does not improve security unless users are also denied shell access, as they can always install their own forwarders.',
+                             'choice' => [
+                                           'no',
+                                           'yes'
+                                         ]
                            },
                            'AuthorizedKeysFile',
                            {
@@ -95,10 +109,14 @@
                            },
                            'ChallengeResponseAuthentication',
                            {
-                             'value_type' => 'boolean',
-                             'built_in' => '1',
+                             'value_type' => 'enum',
+                             'built_in' => 'yes',
                              'type' => 'leaf',
-                             'description' => 'Specifies whether challenge-response authentication is allowed. All authentication styles from login.conf(5) are supported.'
+                             'description' => 'Specifies whether challenge-response authentication is allowed. All authentication styles from login.conf(5) are supported.',
+                             'choice' => [
+                                           'no',
+                                           'yes'
+                                         ]
                            },
                            'Ciphers',
                            {
@@ -134,53 +152,21 @@
                                            'cast128-cbc'
                                          ]
                            },
-                           'ClientAliveCheck',
-                           {
-                             'value_type' => 'boolean',
-                             'built_in' => '0',
-                             'experience' => 'advanced',
-                             'type' => 'leaf',
-                             'description' => 'Check if client is alive by sending client alive messages'
-                           },
                            'ClientAliveCountMax',
                            {
+                             'value_type' => 'integer',
                              'min' => '1',
+                             'built_in' => '3',
                              'experience' => 'advanced',
+                             'type' => 'leaf',
                              'description' => 'Sets the number of client alive messages which may be sent without sshd(8) receiving any messages back from the client. If this threshold is reached while client alive messages are being sent, sshd will disconnect the client, terminating the session.  It is important to note that the use of client alive messages is very different from TCPKeepAlive. The client alive messages are sent through the encrypted channel and therefore will not be spoofable. The TCP keepalive option enabled by TCPKeepAlive is spoofable. The client alive mechanism is valuable when the client or server depend on knowing when a connection has become inactive.
 
-The default value is 3. If ClientAliveInterval is set to 15, and ClientAliveCountMax is left at the default, unresponsive SSH clients will be disconnected after approximately 45 seconds. This option applies to protocol version 2 only.',
-                             'value_type' => 'integer',
-                             'level' => 'hidden',
-                             'built_in' => '3',
-                             'warp' => {
-                                         'follow' => {
-                                                       'c_a_check' => '- ClientAliveCheck'
-                                                     },
-                                         'rules' => [
-                                                      '$c_a_check == 1',
-                                                      {
-                                                        'level' => 'normal'
-                                                      }
-                                                    ]
-                                       },
-                             'type' => 'leaf'
+The default value is 3. If ClientAliveInterval is set to 15, and ClientAliveCountMax is left at the default, unresponsive SSH clients will be disconnected after approximately 45 seconds. This option applies to protocol version 2 only.'
                            },
                            'ClientAliveInterval',
                            {
                              'value_type' => 'integer',
-                             'level' => 'hidden',
                              'min' => '1',
-                             'warp' => {
-                                         'follow' => {
-                                                       'c_a_check' => '- ClientAliveCheck'
-                                                     },
-                                         'rules' => [
-                                                      '$c_a_check == 1',
-                                                      {
-                                                        'level' => 'normal'
-                                                      }
-                                                    ]
-                                       },
                              'experience' => 'advanced',
                              'type' => 'leaf'
                            },
@@ -245,59 +231,83 @@ The default value is 3. If ClientAliveInterval is set to 15, and ClientAliveCoun
                            },
                            'GSSAPIAuthentication',
                            {
-                             'value_type' => 'boolean',
-                             'built_in' => '0',
+                             'value_type' => 'enum',
+                             'built_in' => 'no',
                              'experience' => 'master',
                              'type' => 'leaf',
-                             'description' => 'Specifies whether user authentication based on GSSAPI is allowed. Note that this option applies to protocol version 2 only.'
+                             'description' => 'Specifies whether user authentication based on GSSAPI is allowed. Note that this option applies to protocol version 2 only.',
+                             'choice' => [
+                                           'no',
+                                           'yes'
+                                         ]
                            },
                            'GSSAPIKeyExchange',
                            {
-                             'value_type' => 'boolean',
-                             'built_in' => '0',
+                             'value_type' => 'enum',
+                             'built_in' => 'no',
                              'experience' => 'master',
                              'type' => 'leaf',
-                             'description' => 'Specifies whether key exchange based on GSSAPI is allowed. GSSAPI key exchange doesn\'t rely on ssh keys to verify host identity. Note that this option applies to protocol version 2 only.'
+                             'description' => 'Specifies whether key exchange based on GSSAPI is allowed. GSSAPI key exchange doesn\'t rely on ssh keys to verify host identity. Note that this option applies to protocol version 2 only.',
+                             'choice' => [
+                                           'no',
+                                           'yes'
+                                         ]
                            },
                            'GSSAPICleanupCredentials',
                            {
-                             'value_type' => 'boolean',
-                             'built_in' => '0',
+                             'value_type' => 'enum',
+                             'built_in' => 'no',
                              'experience' => 'master',
                              'type' => 'leaf',
-                             'description' => 'Specifies whether to automatically destroy the user\'s credentials cache on logout. Note that this option applies to protocol version 2 only.'
+                             'description' => 'Specifies whether to automatically destroy the user\'s credentials cache on logout. Note that this option applies to protocol version 2 only.',
+                             'choice' => [
+                                           'no',
+                                           'yes'
+                                         ]
                            },
                            'GSSAPIStrictAcceptorCheck',
                            {
-                             'value_type' => 'boolean',
+                             'value_type' => 'enum',
                              'help' => {
-                                         '1' => 'the client must authenticate against the host service on the current hostname.',
-                                         '0' => 'the client may authenticate against any service key stored in the machine\'s default store'
+                                         'yes' => 'the client must authenticate against the host service on the current hostname.',
+                                         'no' => 'the client may authenticate against any service key stored in the machine\'s default store'
                                        },
-                             'built_in' => '0',
+                             'built_in' => 'no',
                              'experience' => 'master',
                              'type' => 'leaf',
-                             'description' => 'Determines whether to be strict about the identity of the GSSAPI acceptor a client authenticates against.This facility is provided to assist with operation on multi homed machines. Note that this option applies only to protocol version 2 GSSAPI connections, and setting it to "no" may only work with recent Kerberos GSSAPI libraries.'
+                             'description' => 'Determines whether to be strict about the identity of the GSSAPI acceptor a client authenticates against.This facility is provided to assist with operation on multi homed machines. Note that this option applies only to protocol version 2 GSSAPI connections, and setting it to "no" may only work with recent Kerberos GSSAPI libraries.',
+                             'choice' => [
+                                           'no',
+                                           'yes'
+                                         ]
                            },
                            'HostbasedAuthentication',
                            {
-                             'value_type' => 'boolean',
-                             'built_in' => '0',
+                             'value_type' => 'enum',
+                             'built_in' => 'no',
                              'experience' => 'advanced',
                              'type' => 'leaf',
-                             'description' => 'Specifies whether rhosts or /etc/hosts.equiv authentication together with successful public key client host authentication is allowed (host-based authentication). This option is similar to RhostsRSAAuthentication and applies to protocol version 2 only.'
+                             'description' => 'Specifies whether rhosts or /etc/hosts.equiv authentication together with successful public key client host authentication is allowed (host-based authentication). This option is similar to RhostsRSAAuthentication and applies to protocol version 2 only.',
+                             'choice' => [
+                                           'no',
+                                           'yes'
+                                         ]
                            },
                            'HostbasedUsesNameFromPacketOnly',
                            {
-                             'value_type' => 'boolean',
+                             'value_type' => 'enum',
                              'help' => {
-                                         '1' => 'sshd(8) uses the name supplied by the client',
-                                         '0' => 'sshd(8) attempts to resolve the name from the TCP connection itself.'
+                                         'yes' => 'sshd(8) uses the name supplied by the client',
+                                         'no' => 'sshd(8) attempts to resolve the name from the TCP connection itself.'
                                        },
-                             'built_in' => '0',
+                             'built_in' => 'no',
                              'experience' => 'master',
                              'type' => 'leaf',
-                             'description' => 'Specifies whether or not the server will attempt to perform a reverse name lookup when matching the name in the ~/.shosts, ~/.rhosts, and /etc/hosts.equiv files during HostbasedAuthentication.'
+                             'description' => 'Specifies whether or not the server will attempt to perform a reverse name lookup when matching the name in the ~/.shosts, ~/.rhosts, and /etc/hosts.equiv files during HostbasedAuthentication.',
+                             'choice' => [
+                                           'no',
+                                           'yes'
+                                         ]
                            },
                            'HostKey',
                            {
@@ -311,59 +321,87 @@ The default value is 3. If ClientAliveInterval is set to 15, and ClientAliveCoun
                            },
                            'IgnoreRhosts',
                            {
-                             'value_type' => 'boolean',
-                             'built_in' => '1',
+                             'value_type' => 'enum',
+                             'built_in' => 'yes',
                              'experience' => 'advanced',
                              'type' => 'leaf',
-                             'description' => 'Specifies that .rhosts and .shosts files will not be used in RhostsRSAAuthentication or HostbasedAuthentication. /etc/hosts.equiv and /etc/ssh/shosts.equiv are still used. '
+                             'description' => 'Specifies that .rhosts and .shosts files will not be used in RhostsRSAAuthentication or HostbasedAuthentication. /etc/hosts.equiv and /etc/ssh/shosts.equiv are still used. ',
+                             'choice' => [
+                                           'no',
+                                           'yes'
+                                         ]
                            },
                            'IgnoreUserKnownHosts',
                            {
-                             'value_type' => 'boolean',
-                             'built_in' => '0',
+                             'value_type' => 'enum',
+                             'built_in' => 'no',
                              'experience' => 'advanced',
                              'type' => 'leaf',
-                             'description' => 'Specifies whether sshd(8) should ignore the user\'s ~/.ssh/known_hosts during RhostsRSAAuthentication or HostbasedAuthentication.'
+                             'description' => 'Specifies whether sshd(8) should ignore the user\'s ~/.ssh/known_hosts during RhostsRSAAuthentication or HostbasedAuthentication.',
+                             'choice' => [
+                                           'no',
+                                           'yes'
+                                         ]
                            },
                            'KbdInteractiveAuthentication',
                            {
-                             'value_type' => 'boolean',
-                             'built_in' => '0',
+                             'value_type' => 'enum',
+                             'built_in' => 'no',
                              'experience' => 'master',
                              'type' => 'leaf',
-                             'description' => 'No doc found in sshd documentation'
+                             'description' => 'No doc found in sshd documentation',
+                             'choice' => [
+                                           'no',
+                                           'yes'
+                                         ]
                            },
                            'KerberosAuthentication',
                            {
-                             'value_type' => 'boolean',
-                             'built_in' => '0',
+                             'value_type' => 'enum',
+                             'built_in' => 'no',
                              'experience' => 'master',
                              'type' => 'leaf',
-                             'description' => 'Specifies whether the password provided by the user for PasswordAuthentication will be validated through the Kerberos KDC. To use this option, the server needs a Kerberos servtab which allows the verification of the KDC\'s identity. The default is "no".'
+                             'description' => 'Specifies whether the password provided by the user for PasswordAuthentication will be validated through the Kerberos KDC. To use this option, the server needs a Kerberos servtab which allows the verification of the KDC\'s identity. The default is "no".',
+                             'choice' => [
+                                           'no',
+                                           'yes'
+                                         ]
                            },
                            'KerberosGetAFSToken',
                            {
-                             'value_type' => 'boolean',
-                             'built_in' => '0',
+                             'value_type' => 'enum',
+                             'built_in' => 'no',
                              'experience' => 'master',
                              'type' => 'leaf',
-                             'description' => 'If AFS is active and the user has a Kerberos 5 TGT, attempt to acquire an AFS token before accessing the user\'s home directory.'
+                             'description' => 'If AFS is active and the user has a Kerberos 5 TGT, attempt to acquire an AFS token before accessing the user\'s home directory.',
+                             'choice' => [
+                                           'no',
+                                           'yes'
+                                         ]
                            },
                            'KerberosOrLocalPasswd',
                            {
-                             'value_type' => 'boolean',
-                             'built_in' => '1',
+                             'value_type' => 'enum',
+                             'built_in' => 'yes',
                              'experience' => 'master',
                              'type' => 'leaf',
-                             'description' => 'If password authentication through Kerberos fails then the password will be validated via any additional local mechanism such as /etc/passwd.'
+                             'description' => 'If password authentication through Kerberos fails then the password will be validated via any additional local mechanism such as /etc/passwd.',
+                             'choice' => [
+                                           'no',
+                                           'yes'
+                                         ]
                            },
                            'KerberosTicketCleanup',
                            {
-                             'value_type' => 'boolean',
-                             'built_in' => '1',
+                             'value_type' => 'enum',
+                             'built_in' => 'yes',
                              'experience' => 'master',
                              'type' => 'leaf',
-                             'description' => 'Specifies whether to automatically destroy the user\'s ticket cache file on logout.'
+                             'description' => 'Specifies whether to automatically destroy the user\'s ticket cache file on logout.',
+                             'choice' => [
+                                           'no',
+                                           'yes'
+                                         ]
                            },
                            'KeyRegenerationInterval',
                            {
@@ -471,20 +509,28 @@ Alternatively, random early drop can be enabled by specifying the three colon se
                            },
                            'PasswordAuthentication',
                            {
-                             'value_type' => 'boolean',
-                             'built_in' => '1',
+                             'value_type' => 'enum',
+                             'built_in' => 'yes',
                              'type' => 'leaf',
-                             'description' => 'Specifies whether password authentication is allowed.'
+                             'description' => 'Specifies whether password authentication is allowed.',
+                             'choice' => [
+                                           'no',
+                                           'yes'
+                                         ]
                            },
                            'PermitEmptyPasswords',
                            {
-                             'value_type' => 'boolean',
+                             'value_type' => 'enum',
                              'help' => {
-                                         '1' => 'So, you want your machine to be part of a botnet ? ;-)'
+                                         'yes' => 'So, you want your machine to be part of a botnet ? ;-)'
                                        },
-                             'built_in' => '0',
+                             'built_in' => 'no',
                              'type' => 'leaf',
-                             'description' => 'When password authentication is allowed, it specifies whether the server allows login to accounts with empty password strings.  The default is "no".'
+                             'description' => 'When password authentication is allowed, it specifies whether the server allows login to accounts with empty password strings.  The default is "no".',
+                             'choice' => [
+                                           'no',
+                                           'yes'
+                                         ]
                            },
                            'PermitOpen',
                            {
@@ -534,11 +580,15 @@ Alternatively, random early drop can be enabled by specifying the three colon se
                            },
                            'PermitUserEnvironment',
                            {
-                             'value_type' => 'boolean',
-                             'built_in' => '0',
+                             'value_type' => 'enum',
+                             'built_in' => 'no',
                              'experience' => 'advanced',
                              'type' => 'leaf',
-                             'description' => 'Specifies whether ~/.ssh/environment and environment= options in ~/.ssh/authorized_keys are processed by sshd(8). The default is "no". Enabling environment processing may enable users to bypass access restrictions in some configurations using mechanisms such as LD_PRELOAD.'
+                             'description' => 'Specifies whether ~/.ssh/environment and environment= options in ~/.ssh/authorized_keys are processed by sshd(8). The default is "no". Enabling environment processing may enable users to bypass access restrictions in some configurations using mechanisms such as LD_PRELOAD.',
+                             'choice' => [
+                                           'no',
+                                           'yes'
+                                         ]
                            },
                            'PidFile',
                            {
@@ -550,17 +600,25 @@ Alternatively, random early drop can be enabled by specifying the three colon se
                            },
                            'PrintLastLog',
                            {
-                             'value_type' => 'boolean',
-                             'built_in' => '1',
+                             'value_type' => 'enum',
+                             'built_in' => 'yes',
                              'type' => 'leaf',
-                             'description' => 'Specifies whether sshd(8) should print the date and time of the last user login when a user logs in interactively.'
+                             'description' => 'Specifies whether sshd(8) should print the date and time of the last user login when a user logs in interactively.',
+                             'choice' => [
+                                           'no',
+                                           'yes'
+                                         ]
                            },
                            'PrintMotd',
                            {
-                             'value_type' => 'boolean',
-                             'built_in' => '1',
+                             'value_type' => 'enum',
+                             'built_in' => 'yes',
                              'type' => 'leaf',
-                             'description' => 'Specifies whether sshd(8) should print /etc/motd when a user logs in interactively. (On some systems it is also printed by the shell, /etc/profile, or equivalent.)'
+                             'description' => 'Specifies whether sshd(8) should print /etc/motd when a user logs in interactively. (On some systems it is also printed by the shell, /etc/profile, or equivalent.)',
+                             'choice' => [
+                                           'no',
+                                           'yes'
+                                         ]
                            },
                            'Protocol',
                            {
@@ -577,19 +635,27 @@ Alternatively, random early drop can be enabled by specifying the three colon se
                            },
                            'RhostsRSAAuthentication',
                            {
-                             'value_type' => 'boolean',
-                             'built_in' => '0',
+                             'value_type' => 'enum',
+                             'built_in' => 'no',
                              'experience' => 'master',
                              'type' => 'leaf',
-                             'description' => 'Specifies whether rhosts or /etc/hosts.equiv authentication together with successful RSA host authentication is allowed.  The default is "no". This option applies to protocol version 1 only.'
+                             'description' => 'Specifies whether rhosts or /etc/hosts.equiv authentication together with successful RSA host authentication is allowed.  The default is "no". This option applies to protocol version 1 only.',
+                             'choice' => [
+                                           'no',
+                                           'yes'
+                                         ]
                            },
                            'RSAAuthentication',
                            {
-                             'value_type' => 'boolean',
-                             'built_in' => '1',
+                             'value_type' => 'enum',
+                             'built_in' => 'yes',
                              'experience' => 'master',
                              'type' => 'leaf',
-                             'description' => 'Specifies whether pure RSA authentication is allowed. This option applies to protocol version 1 only.'
+                             'description' => 'Specifies whether pure RSA authentication is allowed. This option applies to protocol version 1 only.',
+                             'choice' => [
+                                           'no',
+                                           'yes'
+                                         ]
                            },
                            'ServerKeyBits',
                            {
@@ -602,26 +668,34 @@ Alternatively, random early drop can be enabled by specifying the three colon se
                            },
                            'PubkeyAuthentication',
                            {
-                             'value_type' => 'boolean',
-                             'built_in' => '1',
+                             'value_type' => 'enum',
+                             'built_in' => 'yes',
                              'experience' => 'master',
                              'type' => 'leaf',
-                             'description' => 'Specifies whether public key authentication is allowed.  The default is "yes". Note that this option applies to protocol version 2 only.'
+                             'description' => 'Specifies whether public key authentication is allowed.  The default is "yes". Note that this option applies to protocol version 2 only.',
+                             'choice' => [
+                                           'no',
+                                           'yes'
+                                         ]
                            },
                            'StrictModes',
                            {
-                             'value_type' => 'boolean',
-                             'built_in' => '1',
+                             'value_type' => 'enum',
+                             'built_in' => 'yes',
                              'experience' => 'advanced',
                              'type' => 'leaf',
                              'description' => 'Specifies whether sshd(8) should check file modes and ownership of the user\'s files and home directory before accepting login.  This is normally desirable because novices sometimes accidentally leave their directory or files world-writable.  The default is "yes".
-'
+',
+                             'choice' => [
+                                           'no',
+                                           'yes'
+                                         ]
                            },
                            'Subsystem',
                            {
                              'cargo' => {
                                           'value_type' => 'uniline',
-                                          'mandatory' => '1',
+                                          'mandatory' => 1,
                                           'type' => 'leaf'
                                         },
                              'experience' => 'advanced',
@@ -651,46 +725,66 @@ Alternatively, random early drop can be enabled by specifying the three colon se
                            },
                            'TCPKeepAlive',
                            {
-                             'value_type' => 'boolean',
+                             'value_type' => 'enum',
                              'help' => {
-                                         '1' => 'Send TCP keepalive messages. The server will notice if the network goes down or the client host crashes. This avoids infinitely hanging sessions.',
-                                         '0' => 'disable TCP keepalive messages'
+                                         'yes' => 'Send TCP keepalive messages. The server will notice if the network goes down or the client host crashes. This avoids infinitely hanging sessions.',
+                                         'no' => 'disable TCP keepalive messages'
                                        },
-                             'built_in' => '1',
+                             'built_in' => 'yes',
                              'type' => 'leaf',
-                             'description' => 'Specifies whether the system should send TCP keepalive messages to the other side. If they are sent, death of the connection or crash of one of the machines will be properly noticed. However, this means that connections will die if the route is down temporarily, and some people find it annoying.  On the other hand, if TCP keepalives are not sent, sessions may hang indefinitely on the server, leaving "ghost" users and consuming server resources. This option was formerly called KeepAlive.'
+                             'description' => 'Specifies whether the system should send TCP keepalive messages to the other side. If they are sent, death of the connection or crash of one of the machines will be properly noticed. However, this means that connections will die if the route is down temporarily, and some people find it annoying.  On the other hand, if TCP keepalives are not sent, sessions may hang indefinitely on the server, leaving "ghost" users and consuming server resources. This option was formerly called KeepAlive.',
+                             'choice' => [
+                                           'no',
+                                           'yes'
+                                         ]
                            },
                            'UseDNS',
                            {
-                             'value_type' => 'boolean',
-                             'built_in' => '1',
+                             'value_type' => 'enum',
+                             'built_in' => 'yes',
                              'type' => 'leaf',
-                             'description' => 'Specifies whether sshd(8) should look up the remote host name and check that the resolved host name for the remote IP address maps back to the very same IP address. The default is "yes"'
+                             'description' => 'Specifies whether sshd(8) should look up the remote host name and check that the resolved host name for the remote IP address maps back to the very same IP address. The default is "yes"',
+                             'choice' => [
+                                           'no',
+                                           'yes'
+                                         ]
                            },
                            'UseLogin',
                            {
-                             'value_type' => 'boolean',
-                             'built_in' => '0',
+                             'value_type' => 'enum',
+                             'built_in' => 'no',
                              'type' => 'leaf',
-                             'description' => 'Specifies whether login(1) is used for interactive login sessions.  The default is "no". Note that login(1) is never used for remote command execution.  Note also, that if this is enabled, X11Forwarding will be disabled because login(1) does not know how to handle xauth(1) cookies. If UsePrivilegeSeparation is specified, it will be disabled after authentication'
+                             'description' => 'Specifies whether login(1) is used for interactive login sessions.  The default is "no". Note that login(1) is never used for remote command execution.  Note also, that if this is enabled, X11Forwarding will be disabled because login(1) does not know how to handle xauth(1) cookies. If UsePrivilegeSeparation is specified, it will be disabled after authentication',
+                             'choice' => [
+                                           'no',
+                                           'yes'
+                                         ]
                            },
                            'UsePAM',
                            {
-                             'value_type' => 'boolean',
-                             'built_in' => '0',
+                             'value_type' => 'enum',
+                             'built_in' => 'no',
                              'type' => 'leaf',
                              'description' => 'Enables the Pluggable Authentication Module interface. If set to "yes" this will enable PAM authentication using ChallengeResponseAuthentication and PasswordAuthentication in addition to PAM account and session module processing for all authentication types.
 
 Because PAM challenge-response authentication usually serves an equivalent role to password authentication, you should disable either PasswordAuthentication or ChallengeResponseAuthentication.
 
-If UsePAM is enabled, you will not be able to run sshd(8) as a non-root user.  The default is "no".'
+If UsePAM is enabled, you will not be able to run sshd(8) as a non-root user.  The default is "no".',
+                             'choice' => [
+                                           'no',
+                                           'yes'
+                                         ]
                            },
                            'UsePrivilegeSeparation',
                            {
-                             'value_type' => 'boolean',
-                             'built_in' => '1',
+                             'value_type' => 'enum',
+                             'built_in' => 'yes',
                              'type' => 'leaf',
-                             'description' => 'Specifies whether sshd(8) separates privileges by creating an unprivileged child process to deal with incoming network traffic.  After successful authentication, another process will be created that has the privilege of the authenticated user. The goal of privilege separation is to prevent privilege escalation by containing any corruption within the unprivileged processes. The default is "yes".'
+                             'description' => 'Specifies whether sshd(8) separates privileges by creating an unprivileged child process to deal with incoming network traffic.  After successful authentication, another process will be created that has the privilege of the authenticated user. The goal of privilege separation is to prevent privilege escalation by containing any corruption within the unprivileged processes. The default is "yes".',
+                             'choice' => [
+                                           'no',
+                                           'yes'
+                                         ]
                            },
                            'XAuthLocation',
                            {

@@ -356,13 +356,6 @@ It is possible to have multiple identity files specified in con figuration files
                              'type' => 'list',
                              'description' => 'Specifies the list of methods to use in keyboard-interactive authentication.  Multiple method names must be comma-separated. The default is to use the server specified list. The methods available vary depending on what the server supports. For an OpenSSH server, it may be zero or more of: ``bsdauth\'\', ``pam\'\', and ``skey\'\'.'
                            },
-                           'LocalCommand',
-                           {
-                             'value_type' => 'uniline',
-                             'experience' => 'advanced',
-                             'type' => 'leaf',
-                             'description' => 'Specifies a command to execute on the local machine after successfully connecting to the server. The command string extends to the end of the line, and is executed with the user\'s shell. The following escape character substitutions will be performed: \'%d\' (local user\'s home directory), \'%h\' (remote host name), \'%l\' (local host name), \'%n\' (host name as provided on the command line), \'%p\' (remote port), \'%r\' (remote user name) or \'%u\' (local user name). This directive is ignored unless PermitLocalCommand has been enabled.'
-                           },
                            'LocalForward',
                            {
                              'value_type' => 'uniline',
@@ -439,8 +432,16 @@ It is possible to have multiple identity files specified in con figuration files
                            {
                              'value_type' => 'boolean',
                              'built_in' => '0',
+                             'experience' => 'advanced',
                              'type' => 'leaf',
                              'description' => 'Allow local command execution via the LocalCommand option or using the !command escape sequence in ssh(1).'
+                           },
+                           'LocalCommand',
+                           {
+                             'value_type' => 'uniline',
+                             'experience' => 'advanced',
+                             'type' => 'leaf',
+                             'description' => 'Specifies a command to execute on the local machine after successfully connecting to the server. The command string extends to the end of the line, and is executed with the user\'s shell. The following escape character substitutions will be performed: \'%d\' (local user\'s home directory), \'%h\' (remote host name), \'%l\' (local host name), \'%n\' (host name as provided on the command line), \'%p\' (remote port), \'%r\' (remote user name) or \'%u\' (local user name). This directive is ignored unless PermitLocalCommand has been enabled.'
                            },
                            'Port',
                            {

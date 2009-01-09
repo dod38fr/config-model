@@ -11,9 +11,13 @@
                                                            },
                                             'allow_override' => '1'
                                           },
-                             'value_type' => 'boolean',
+                             'value_type' => 'enum',
                              'type' => 'leaf',
-                             'description' => 'Specifies whether TCP forwarding is permitted. The default is "yes".Note that disabling TCP forwarding does not improve security unless users are also denied shell access, as they can always install their own forwarders.'
+                             'description' => 'Specifies whether TCP forwarding is permitted. The default is "yes".Note that disabling TCP forwarding does not improve security unless users are also denied shell access, as they can always install their own forwarders.',
+                             'choice' => [
+                                           'no',
+                                           'yes'
+                                         ]
                            },
                            'Banner',
                            {
@@ -74,10 +78,14 @@
                                                            },
                                             'allow_override' => '1'
                                           },
-                             'value_type' => 'boolean',
-                             'built_in' => '0',
+                             'value_type' => 'enum',
+                             'built_in' => 'no',
                              'type' => 'leaf',
-                             'description' => 'Specifies whether user authentication based on GSSAPI is allowed. Note that this option applies to protocol version 2 only.'
+                             'description' => 'Specifies whether user authentication based on GSSAPI is allowed. Note that this option applies to protocol version 2 only.',
+                             'choice' => [
+                                           'no',
+                                           'yes'
+                                         ]
                            },
                            'KbdInteractiveAuthentication',
                            {
@@ -88,10 +96,14 @@
                                                            },
                                             'allow_override' => '1'
                                           },
-                             'value_type' => 'boolean',
-                             'built_in' => '0',
+                             'value_type' => 'enum',
+                             'built_in' => 'no',
                              'type' => 'leaf',
-                             'description' => 'No doc found in sshd documentation'
+                             'description' => 'No doc found in sshd documentation',
+                             'choice' => [
+                                           'no',
+                                           'yes'
+                                         ]
                            },
                            'KerberosAuthentication',
                            {
@@ -102,10 +114,14 @@
                                                            },
                                             'allow_override' => '1'
                                           },
-                             'value_type' => 'boolean',
-                             'built_in' => '0',
+                             'value_type' => 'enum',
+                             'built_in' => 'no',
                              'type' => 'leaf',
-                             'description' => 'Specifies whether the password provided by the user for PasswordAuthentication will be validated through the Kerberos KDC. To use this option, the server needs a Kerberos servtab which allows the verification of the KDC\'s identity. The default is "no".'
+                             'description' => 'Specifies whether the password provided by the user for PasswordAuthentication will be validated through the Kerberos KDC. To use this option, the server needs a Kerberos servtab which allows the verification of the KDC\'s identity. The default is "no".',
+                             'choice' => [
+                                           'no',
+                                           'yes'
+                                         ]
                            },
                            'PasswordAuthentication',
                            {
@@ -116,10 +132,14 @@
                                                            },
                                             'allow_override' => '1'
                                           },
-                             'value_type' => 'boolean',
-                             'built_in' => '0',
+                             'value_type' => 'enum',
+                             'built_in' => 'no',
                              'type' => 'leaf',
-                             'description' => 'Specifies whether password authentication is allowed.'
+                             'description' => 'Specifies whether password authentication is allowed.',
+                             'choice' => [
+                                           'no',
+                                           'yes'
+                                         ]
                            },
                            'PermitOpen',
                            {
@@ -139,10 +159,14 @@
                                                            },
                                             'allow_override' => '1'
                                           },
-                             'value_type' => 'boolean',
-                             'built_in' => '0',
+                             'value_type' => 'enum',
+                             'built_in' => 'no',
                              'type' => 'leaf',
-                             'description' => 'Specifies whether rhosts or /etc/hosts.equiv authentication together with successful RSA host authentication is allowed.  The default is "no". This option applies to protocol version 1 only.'
+                             'description' => 'Specifies whether rhosts or /etc/hosts.equiv authentication together with successful RSA host authentication is allowed.  The default is "no". This option applies to protocol version 1 only.',
+                             'choice' => [
+                                           'no',
+                                           'yes'
+                                         ]
                            },
                            'RSAAuthentication',
                            {
@@ -153,10 +177,14 @@
                                                            },
                                             'allow_override' => '1'
                                           },
-                             'value_type' => 'boolean',
-                             'built_in' => '1',
+                             'value_type' => 'enum',
+                             'built_in' => 'yes',
                              'type' => 'leaf',
-                             'description' => 'Specifies whether pure RSA authentication is allowed. This option applies to protocol version 1 only.'
+                             'description' => 'Specifies whether pure RSA authentication is allowed. This option applies to protocol version 1 only.',
+                             'choice' => [
+                                           'no',
+                                           'yes'
+                                         ]
                            },
                            'X11DisplayOffset',
                            {

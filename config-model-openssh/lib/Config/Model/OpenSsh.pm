@@ -126,16 +126,24 @@ sub ssh_read {
     # $__test_root_file is a special global variable used only for tests
     $is_user = 0 if ($> == 0 or $__test_ssh_root_file ); 
 
+    my $home_dir = $__test_ssh_home || $ENV{HOME} ;
+
+    $logger->info("ssh_read: reading ".($is_user ? 'user' :'root').
+		 " ssh config in ". ($is_user ? $home_dir : $args{config_dir}));
+
     $instance -> preset_start if $is_user ; # regular user
 
-    read_ssh_file(file => 'ssh_config', @_) ;
+    my $ret = read_ssh_file(file => 'ssh_config', @_) ;
 
-    if ( $is_user ) {
-      $instance -> preset_stop ;
-      my $home_dir = $__test_ssh_home || $ENV{HOME} ;
-      read_ssh_file(file => 'config', @_, 
-		    config_dir => $home_dir.'/.ssh') ;
+    $instance -> preset_stop if $is_user ;
+
+    if ( $is_user) {
+	# don't croak if user config file is missing
+	 read_ssh_file(file => 'config', @_, 
+		       config_dir => $home_dir.'/.ssh') ;
     }
+
+    return $ret ;
 }
 
 sub read_ssh_file {
@@ -146,13 +154,13 @@ sub read_ssh_file {
 
     unless (-d $dir ) {
 	$logger->info("read_ssh_file: unknown config dir $dir");
-	return ;
+	return 0;
     }
 
     my $file = $dir.'/'.$args{file} ;
     unless (-r "$file") {
 	$logger->info("read_ssh_file: unknown file $file");
-	return ;
+	return 0;
     }
 
     $logger->info("loading config file $file");
@@ -164,6 +172,7 @@ sub read_ssh_file {
     if (defined $fh) {
 	my @file = $fh->getlines ;
 	$fh->close;
+
 	# remove comments and cleanup beginning of line
 	map  { s/#.*//; s/^\s+//; } @file ;
 
@@ -175,6 +184,7 @@ sub read_ssh_file {
     else {
 	die __PACKAGE__," read_ssh_file: can't open $file:$!";
     }
+    return 1;
 }
 
 
@@ -182,17 +192,18 @@ $grammar = << 'EOG' ;
 # See Parse::RecDescent faq about newlines
 sshd_parse: <skip: qr/[^\S\n]*/> line[@arg](s) 
 
-line: match_line | client_alive_line | host_line | any_line
+#line: match_line | client_alive_line | host_line | any_line
+line: match_line | host_line | any_line
 
 match_line: /match/i arg(s) "\n"
 {
    Config::Model::OpenSsh::match($arg[0],@{$item[2]}) ;
 }
 
-client_alive_line: /clientalive\w+/i arg(s) "\n"
-{
-   Config::Model::OpenSsh::clientalive($arg[0],$item[1],@{$item[2]}) ;
-}
+#client_alive_line: /clientalive\w+/i arg(s) "\n"
+#{
+#   Config::Model::OpenSsh::clientalive($arg[0],$item[1],@{$item[2]}) ;
+#}
 
 host_line: /host\b/i arg "\n"
 {
@@ -230,7 +241,7 @@ $parser = Parse::RecDescent->new($grammar) ;
 
     my $elt = $current_node->fetch_element($key) ;
     my $type = $elt->get_type;
-    # print "got $key type $type and ",join('+',@arg),"\n";
+    #print "got $key type $type and ",join('+',@arg),"\n";
     if    ($type eq 'leaf') { 
 	$elt->store( $arg[0] ) ;
     }
@@ -249,15 +260,15 @@ $parser = Parse::RecDescent->new($grammar) ;
     }
   }
 
-  sub clientalive {
-    my ($root, $key, $arg) = @_ ;
-
-    # first set warp master parameter
-    $root->load("ClientAliveCheck=1") ;
-
-    # then we can load the parameter as usual
-    assign($root,$key,$arg) ;
-  }
+#  sub clientalive {
+#    my ($root, $key, $arg) = @_ ;
+#
+#    # first set warp master parameter
+#    $root->load("ClientAliveCheck=1") ;
+#
+#    # then we can load the parameter as usual
+#    assign($root,$key,$arg) ;
+#  }
 
   sub match {
     my ($root, @pairs) = @_ ;
@@ -271,10 +282,10 @@ $parser = Parse::RecDescent->new($grammar) ;
     while (@pairs) {
 	my $criteria = shift @pairs;
 	my $pattern  = shift @pairs;
-	$block_obj->load(qq!$criteria="$pattern"!);
+	$block_obj->load(qq!Condition $criteria="$pattern"!);
     }
 
-    $current_node = $block_obj->fetch_element('Elements');
+    $current_node = $block_obj->fetch_element('Settings');
   }
 
   sub host {
@@ -397,9 +408,9 @@ sub write_node_content {
 	elsif    ($name eq 'Host') { 
 	    $match .= write_all_host_block($elt,$mode) ;
 	}
-	elsif    ($name eq 'ClientAliveCheck') { 
-	    # special case that must be skipped
-	}
+#	elsif    ($name eq 'ClientAliveCheck') { 
+#	    # special case that must be skipped
+#	}
 	elsif    ($type eq 'leaf') { 
 	    my $v = $elt->fetch($mode) ;
 	    if (defined $v and $elt->value_type eq 'boolean') {
@@ -449,13 +460,30 @@ sub write_match_block {
     foreach my $name ($match_elt->get_element_name(for => 'master') ) {
 	my $elt = $match_elt->fetch_element($name) ;
 
-	if ($name eq 'Elements') {
+	if ($name eq 'Settings') {
 	    $result .= "\n".write_node_content($elt,$mode)."\n" ;
 	}
-	else {
-	    my $v = $elt->fetch($mode) ;
-	    $result .= " $name $v" if defined $v;
+	elsif ($name eq 'Condition') {
+	    $result .= write_match_condition($elt,$mode) ."\n" ;
 	}
+	else {
+	    die "write_match_block: unexpected element: $name";
+	}
+    }
+
+    return $result ;
+}
+
+sub write_match_condition {
+    my $cond_elt = shift ;
+    my $mode = shift || '';
+
+    my $result = '' ;
+
+    foreach my $name ($cond_elt->get_element_name(for => 'master') ) {
+	my $elt = $cond_elt->fetch_element($name) ;
+	my $v = $elt->fetch($mode) ;
+	$result .= " $name $v" if defined $v;
     }
 
     return $result ;

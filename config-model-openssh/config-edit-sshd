@@ -119,6 +119,24 @@ Provides a full stack trace when exiting on error.
 
 Load file even if error are found in data. Bad data are discarded
 
+=item -backend
+
+Read/Write backend to use. Currently 2 backends are possible:
+
+=over
+
+=item *
+
+C<custom> backend. Supported, but this backend will discard all
+comments in F<sshd_config>
+
+=item *
+
+C<augeas>: Will keep comments. Requires
+Config::Model::Backend::Augeas.
+
+=back
+
 =back
 
 =cut
@@ -128,6 +146,10 @@ Load file even if error are found in data. Bad data are discarded
 Original structure and comments of F</etc/sshd/config> are lost during
 edition if Config::Model::Backend::Augeas and its dependencies are
 not installed.
+
+=head1 BUGS
+
+Augeas backend will probably fail with C<sshd> Match blocks.
 
 =head1 SUPPORT
 
