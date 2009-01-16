@@ -27,8 +27,8 @@ Match  User domi
 AllowTcpForwarding   yes
 
 # un commentaire
-Match User sarko Group pres.* 
-Banner /etc/bienvenue.txt
+Match User Chirac Group pres.*
+Banner /etc/bienvenue1.txt
 
 # some comment
 Match User bush Group pres.* Host white.house.*

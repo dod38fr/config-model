@@ -515,8 +515,9 @@ sub list_element_cb {
 	    my $i = $idx + 1; 
 	    next if defined $match{$i} ;
 
-	    my $np = $match{$i} = $p.'['.++$count."]/$i";
-	    print "copy_in_augeas: New list path $np for index $i\n"
+	    $match{$i} = $p.'['.++$count."]" . ($is_seq ? '' : "/$i");
+
+	    print "copy_in_augeas: New list path $match{$i} for index $i\n"
 	      if $::debug;
 	} 
     }

@@ -31,7 +31,7 @@ if ( $@ ) {
     plan skip_all => 'Config::Augeas is not installed';
 }
 else {
-    plan tests => 15;
+    plan tests => 17;
 }
 
 ok(1,"compiled");
@@ -335,10 +335,10 @@ Match:0
     AllowTcpForwarding=yes - -
 Match:1
   Condition
-    User=sarko
+    User=Chirac
     Group=pres.* -
   Settings
-    Banner=/etc/bienvenue.txt - -
+    Banner=/etc/bienvenue1.txt - -
 Match:2
   Condition
     User=bush
@@ -376,5 +376,30 @@ $mod[14] = "Subsystem            ddftp /home/dd/bin/ddftp\n";
 open(AUG,$aug_sshd_file) || die "Can't open $aug_sshd_file:$!"; 
 is_deeply([<AUG>],\@mod,"check content of $aug_sshd_file") ;
 close AUG;
+
+$sshd_root->load("Match~1") ;
+
+$i_sshd->write_back ;
+
+my @lines = splice @mod,29,4 ;
+push @mod, @lines[2,3] ;
+
+open(AUG,$aug_sshd_file) || die "Can't open $aug_sshd_file:$!"; 
+is_deeply([<AUG>],\@mod,"check content of $aug_sshd_file after Match~1") ;
+close AUG;
+
+$sshd_root->load("Match:2 Condition User=sarko Group=pres.* -
+                          Settings  Banner=/etc/bienvenue2.txt") ;
+
+$i_sshd->write_back ;
+
+
+push @mod,"Match User sarko Group pres.*\n","Banner /etc/bienvenue2.txt\n";
+
+
+open(AUG,$aug_sshd_file) || die "Can't open $aug_sshd_file:$!"; 
+is_deeply([<AUG>],\@mod,"check content of $aug_sshd_file after Match:2 ...") ;
+close AUG;
+
 
 } # end SKIP section
