@@ -79,9 +79,7 @@ Config::Model::Itself - Model editor for Config::Model
 =head1 DESCRIPTION
 
 The Config::Itself and its model files provide a model of Config:Model
-(hence the Itself name). If you install also Config::Model::TkUI, you
-get a graphical configuration model editor. In others words, you get a
-GUI to edit configuration models like Xorg model.
+(hence the Itself name).
 
 Let's step back a little to explain. Any configuration data is, in
 essence, structured data. This data could be stored in an XML file. A
