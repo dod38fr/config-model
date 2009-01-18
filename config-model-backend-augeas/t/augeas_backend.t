@@ -11,6 +11,9 @@ use Config::Model;
 use File::Path;
 use File::Copy ;
 use Data::Dumper ;
+use POSIX qw(locale_h);
+
+setlocale (LANG => 'C') ;
 
 use warnings;
 no warnings qw(once);
@@ -31,7 +34,7 @@ if ( $@ ) {
     plan skip_all => 'Config::Augeas is not installed';
 }
 else {
-    plan tests => 17;
+    plan tests => 18;
 }
 
 ok(1,"compiled");
@@ -399,6 +402,17 @@ push @mod,"Match User sarko Group pres.*\n","Banner /etc/bienvenue2.txt\n";
 
 open(AUG,$aug_sshd_file) || die "Can't open $aug_sshd_file:$!"; 
 is_deeply([<AUG>],\@mod,"check content of $aug_sshd_file after Match:2 ...") ;
+close AUG;
+
+$sshd_root->load("Match:2 Condition User=sarko Group=pres.* -
+                          Settings  AllowTcpForwarding=yes") ;
+
+$i_sshd->write_back ;
+
+splice @mod,35,0,"AllowTcpForwarding yes\n";
+
+open(AUG,$aug_sshd_file) || die "Can't open $aug_sshd_file:$!"; 
+is_deeply([<AUG>],\@mod,"check content of $aug_sshd_file after Match:2 AllowTcpForwarding=yes") ;
 close AUG;
 
 
