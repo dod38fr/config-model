@@ -30,19 +30,19 @@ The model editor program is config-model-edit.
 
 Since the model editor and the configuration data editor are based on
 the same graphical module, you will use similar UIs to edit
-configuration data (for instance Xorg configuration data from
-xorg.conf) and Xorg model (if you need to add new parameters in Xorg
-model)
+configuration data (for instance OpenSsh configuration data from
+sshd_config) and OpenSsh model (if you need to add new parameters in
+OpenSsh model)
 
 Once this module is installed, you can run:
 
   # config-model-edit -model <model_name>
 
-For instance, if you have installed Config::Model::Xorg, you can run
+For instance, if you have installed Config::Model::OpenSsh, you can run
 
-  # config-model-edit -model Xorg
+  # config-model-edit -model OpenSsh
 
-If you save Xorg configuration model, it will create a lib directory and
+If you save OpenSsh configuration model, it will create a lib directory and
 write the modified model there.
 
 

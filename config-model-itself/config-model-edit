@@ -65,7 +65,7 @@ my $trace = 0 ;
 
 =head1 NAME
 
-config-model-edit - Edit Config::Model models
+config-model-edit -  Graphical model editor for Config::Model
 
 =head1 SYNOPSIS
 
@@ -73,8 +73,11 @@ config-model-edit - Edit Config::Model models
 
 =head1 DESCRIPTION
 
-Config-model is a general purpose configuration framework based 
-on configuration models (See L<Config::Model> for details).
+config-model-edit will provides a Perl/Tk graphical interface to edit
+configuration models that will be used by Config::Model.
+
+Config::Model is a general purpose configuration framework based on
+configuration models (See L<Config::Model> for details).
 
 This configuration model is also expressed as structured data. This
 structure data is structured and follow a set of rules which are
@@ -84,8 +87,8 @@ The structure and rules documented in L<Config::Model> are also expressed
 in a model in the files provided with L<Config::Model::Itself>.
 
 Hence the possibity to verify, modify configuration data provided by
-Config::Model can also be applied on configuration models. Using the
-same user interface.
+Config::Model can also be applied on configuration models using the
+same user interface as L<config-edit>.
 
 The model editor program is config-model-edit.
 
