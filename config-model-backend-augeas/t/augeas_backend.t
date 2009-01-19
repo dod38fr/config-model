@@ -11,9 +11,6 @@ use Config::Model;
 use File::Path;
 use File::Copy ;
 use Data::Dumper ;
-use POSIX qw(locale_h);
-
-setlocale (LANG => 'C') ;
 
 use warnings;
 no warnings qw(once);
