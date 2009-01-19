@@ -1,4 +1,9 @@
-2008-11-16  Domi  <domi@bilbo.maison>
+2009-01-19  Dominique Dumont  <dominique.dumont@hp.com> v0.102
+
+	* lib/Config/Model/Backend/Augeas.pm: Lots of improvement to deal
+	with sshd_config lenses
+
+2008-11-16  Domi  <domi@bilbo.maison> 
 
 	* lib/Config/Model/Backend/Augeas.pm (write): Fixed a bug that
 	prevented to write through Augeas even if read through Augeas was

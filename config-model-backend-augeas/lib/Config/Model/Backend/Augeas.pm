@@ -32,7 +32,7 @@ my $has_augeas = 1;
 eval { require Config::Augeas ;} ;
 $has_augeas = 0 if $@ ;
 
-our $VERSION = '0.101';
+our $VERSION = '0.102';
 
 =head1 NAME
 
@@ -709,7 +709,7 @@ Dominique Dumont, E<lt>ddumont at cpan dot org@<gt>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2008 by Dominique Dumont
+Copyright (C) 2008-2009 by Dominique Dumont
 
 =head1 LICENSE
 

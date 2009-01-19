@@ -1,10 +1,10 @@
 With Config::Model::Backend::Augeas, Config::Model now provides a way
 to load and save data through RedHat's Augeas library.
 
-Augeas is also a configuration editing tool. It parses configuration
-files in their native formats and transforms them into a
-tree. Configuration changes are made by manipulating this tree and
-saving it back into native config files.
+Config::Model and Augeas are both configuration editing tool.  Both
+parse configuration files in their native formats and transforms them
+into a tree. Configuration changes are made by manipulating this tree
+and saving it back into native config files.
 
 Both Augeas and Config::Model rely on a tree to represent
 configuration data. 
@@ -41,3 +41,55 @@ well as Augeas will still keep track of the original file structure.
 
 See Config::Model::Backend::Augeas to use Augeas with your
 configuration model.
+
+For more details on Config::Model see:
+
+   http://config-model.wiki.sourceforge.net/
+
+For more details on Augeas, see:
+
+   http://augeas.net
+
+----------------------------------------------------------------------
+
+BUGS
+
+Augeas 0.3.5 does not handle properly locale on 64 bits
+architecture. This is currently being fixed. In the meantime, you must
+set either environment variables to "C" locale:
+  LANG=C
+  LC_COLLATE=C
+
+----------------------------------------------------------------------
+
+    Copyright (c) 2008-2009 Dominique Dumont.
+
+    This file is part of Config-Model-Backend-Augeas.
+
+    Config-Model-Backend-Augeas is free software; you can redistribute
+    it and/or modify it under the terms of the GNU Lesser Public
+    License as published by the Free Software Foundation; either
+    version 2.1 of the License, or (at your option) any later version.
+
+    Config-Model is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Lesser Public License for more details.
+
+    You should have received a copy of the GNU Lesser Public License
+    along with Config-Model; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+    02110-1301 USA
+
+----------------------------------------------------------------------
+
+INSTALLATION
+
+        tar zxvf <dist_file>.tar.gz
+        cd <dist_directory>
+        perl Build.PL
+        ./Build test
+
+If you want to install this software without packaging, type also:
+
+        ./Build install
