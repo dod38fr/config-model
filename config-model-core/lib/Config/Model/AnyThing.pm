@@ -545,7 +545,8 @@ sub searcher {
 Dumps the configuration data of the node and its siblings into a perl
 data structure. 
 
-Returns a hash ref containing the data.
+Returns a hash ref containing the data. See
+L<Config::Model::DumpAsData> for details.
 
 =cut
 
