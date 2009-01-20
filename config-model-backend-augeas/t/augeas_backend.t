@@ -129,6 +129,12 @@ $model->create_config_class
 			   },
 		'type' => 'list',
 	       },
+	       'Protocol',
+	       {
+		'default_list' => ['1', '2'],
+		'type' => 'check_list',
+		'choice' => ['1', '2']
+	       },
 	       'Subsystem',
 	       {
 		'cargo' => {
@@ -370,8 +376,9 @@ ok(-e $aug_save_sshd_file,
 
 my @mod = @sshd_orig;
 $mod[2] = "HostbasedAuthentication yes\n";
+splice @mod, 8,0,"Protocol 1,2\n";
 
-$mod[14] = "Subsystem            ddftp /home/dd/bin/ddftp\n";
+$mod[15] = "Subsystem            ddftp /home/dd/bin/ddftp\n";
 
 open(AUG,$aug_sshd_file) || die "Can't open $aug_sshd_file:$!"; 
 is_deeply([<AUG>],\@mod,"check content of $aug_sshd_file") ;
@@ -381,7 +388,7 @@ $sshd_root->load("Match~1") ;
 
 $i_sshd->write_back ;
 
-my @lines = splice @mod,29,4 ;
+my @lines = splice @mod,30,4 ;
 push @mod, @lines[2,3] ;
 
 open(AUG,$aug_sshd_file) || die "Can't open $aug_sshd_file:$!"; 

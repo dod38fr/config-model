@@ -198,8 +198,10 @@ For these examples, the augeas backend declaration must feature:
 
 =head2 Augeas backend limitation
 
-The structure and element names of the Config::Model tree must match the
-structure defined in Augeas lenses.
+The structure and element names of the Config::Model tree must match
+the structure defined in Augeas lenses. I.e. the order of the element
+declared in Config::Model must match the order required by Augeas
+lenses.
 
 Sometimes, the structure of a file loaded by Augeas starts directly
 with a list of items. For instance C</etc/hosts> structure starts with
@@ -649,13 +651,44 @@ sub node_content_cb {
     }
     else {
 	my @matches = $augeas_obj->match($p.'/*') ;
+	# cleanup indexes are we don't handle them now with element
+	# (later in lists and hashes)
+	map { s/\[\d+\]+$//;  } @matches ;
 	print "copy_in_augeas: Node path $p matches:\n\t", 
 	  join("\n\t",@matches),"\n" if $::debug;
 
-	# store keys found in Augeas and their corresponding path
-	my %match = map { s/\[\d+\]+$//; 
-			  my ($k) = m!/([\w\-]+)$!; 
-			  ($k => $_ ) } @matches ;
+	# store elements found in Augeas and their corresponding path
+	my %match = map { 
+			  my ($elt) = m!/([\w\-]+)$!; 
+			  ($elt => $_ ) } @matches ;
+
+	# Handle element found in Config::Model, but not in Augeas
+	# tree. Create a new Augeas path for new elements respecting
+	# the order of the elements declared in Config::Model. This
+	# path will be used by scan_element. This insertion is not
+	# necessary if no elements are already present in Augeas tree.
+	if (@matches) {
+	    my $previous_match = '';
+	    foreach (@element) {
+		if (defined $match{$_}) {
+		    $previous_match = $_ ;
+		}
+		else {
+		    my ($direction,$ip) 
+		      = $previous_match 
+                          ? (after  => $p.'/'.$previous_match.'[last()]')
+		          : (before => $matches[0]     ) ;
+
+		    print "inserting $_ $direction $ip\n" if $::debug ;
+		    $augeas_obj->insert($_, $direction => $ip ) 
+		      || die "augeas insert $_ $direction $ip failed";
+
+		    my $np = $match{$_} = "$p/$_";
+		    print "copy_in_augeas: New hash path $np for element $_\n"
+		      if $::debug;
+		}
+	    } 
+	}
 
 	# now scan the elements stored by Config::Model elements to
 	# store the children nodes
