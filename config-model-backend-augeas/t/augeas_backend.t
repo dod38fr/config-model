@@ -115,6 +115,11 @@ $model->create_config_class
 			   },
 		'type' => 'list',
 	       },
+	       'ForceCommand',
+	       {
+		'value_type' => 'uniline',
+		'type' => 'leaf',
+	       },
 	       'HostbasedAuthentication',
 	       {
 		'value_type' => 'enum',
@@ -122,6 +127,14 @@ $model->create_config_class
 		'type' => 'leaf',
 	       },
 	       'HostKey',
+	       {
+		'cargo' => {
+			    'value_type' => 'uniline',
+			    'type' => 'leaf'
+			   },
+		'type' => 'list',
+	       },
+	       'DenyUSers',
 	       {
 		'cargo' => {
 			    'value_type' => 'uniline',

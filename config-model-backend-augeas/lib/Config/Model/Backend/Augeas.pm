@@ -673,7 +673,9 @@ sub node_content_cb {
 		if (defined $match{$_}) {
 		    $previous_match = $_ ;
 		}
-		else {
+		elsif ($node->fetch_element($_)->dump_as_data) {
+		    # insert in Augeas only if the element contains
+		    # something interesting
 		    my ($direction,$ip) 
 		      = $previous_match 
                           ? (after  => $p.'/'.$previous_match.'[last()]')
