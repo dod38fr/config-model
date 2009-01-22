@@ -593,8 +593,9 @@ sub hash_element_cb {
 
     # Handle keys found in Config::Model, but not in Augeas
     # tree. Create a new Augeas path for sequential hash lenses. This
-    # path will be used by scan_list
-    if ($is_seq) {
+    # path will be used by scan_list. This insertion cannot be done if
+    # no elements are already present in Augeas tree.
+    if ($is_seq and @matches) {
 	my $count = $augeas_obj->count_match($p) ;
 	foreach (@keys) {
 	    next if defined $match{$_} ;
@@ -665,8 +666,8 @@ sub node_content_cb {
 	# Handle element found in Config::Model, but not in Augeas
 	# tree. Create a new Augeas path for new elements respecting
 	# the order of the elements declared in Config::Model. This
-	# path will be used by scan_element. This insertion is not
-	# necessary if no elements are already present in Augeas tree.
+	# path will be used by scan_element. This insertion cannot
+	# be done if no elements are already present in Augeas tree.
 	if (@matches) {
 	    my $previous_match = '';
 	    foreach (@element) {
