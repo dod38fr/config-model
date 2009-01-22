@@ -4,7 +4,7 @@
 # $Revision: 608 $
 
 use ExtUtils::testlib;
-use Test::More tests => 6;
+use Test::More ;
 use Config::Model ;
 use Log::Log4perl qw(:easy) ;
 use File::Path ;
@@ -31,6 +31,13 @@ Log::Log4perl->easy_init($log ? $TRACE: $WARN);
 #$::RD_WARN   = 1 ;  # unless undefined, also report non-fatal problems
 #$::RD_HINT   = 1 ;  # if defined, also suggestion remedies
 $::RD_TRACE  = 1 if $arg =~ /p/;
+
+if (eval {require Config::Model::Backend::Augeas; } ) {
+    plan tests => 6 ;
+}
+else {
+    plan skip_all => "Config::Model::Backend::Augeas is not installed";
+}
 
 my $model = Config::Model -> new ( ) ;
 
@@ -71,12 +78,12 @@ print "$testdir dump:\n",$dump if $trace ;
 $inst->write_back(backend => 'augeas') ;
 ok(1,"wrote data in $wr_dir directory") ;
 
-open(SSHD2,"$wr_dir/etc/ssh/sshd_config")
-  || die "can't open file: $!";
+my $wr_file = "$wr_dir/etc/ssh/sshd_config";
+open(SSHD2,$wr_file) || die "can't open file $wr_file: $!";
 my @new = <SSHD2> ;
 close SSHD2 ;
 
-is_deeply(\@new,\@orig,"check written file (no modif)") ;
+is_deeply(\@new,\@orig,"check written file $wr_file (no modif)") ;
 
 $root->load("HostbasedAuthentication=yes 
              Subsystem:ddftp=/home/dd/bin/ddftp
@@ -85,17 +92,16 @@ $root->load("HostbasedAuthentication=yes
 $inst->write_back(backend => 'augeas') ;
 ok(1,"wrote data in $wr_dir") ;
 
-open(SSHD2,"$wr_dir/etc/ssh/sshd_config")
-  || die "can't open file: $!";
+open(SSHD2, $wr_file) || die "can't open file $wr_file: $!";
 
 my @new2 = <SSHD2> ;
 close SSHD2 ;
 
 my @mod = @orig;
 $mod[38] = "HostbasedAuthentication yes\n";
-$mod[84] = "Subsystem ddftp /home/dd/bin/ddftp\n";
+splice @mod, 76,0, "Subsystem ddftp /home/dd/bin/ddftp\n";
 
-is_deeply(\@new2,\@mod,"check written file (with modifs)") ;
+is_deeply(\@new2,\@mod,"check written file $wr_file (with modifs)") ;
 
 __DATA__
 

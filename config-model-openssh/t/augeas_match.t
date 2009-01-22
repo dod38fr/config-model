@@ -4,7 +4,7 @@
 # $Revision: 608 $
 
 use ExtUtils::testlib;
-use Test::More skip_all => "Blocking bug in Augeas" ;
+use Test::More ;
 use Config::Model ;
 use Log::Log4perl qw(:easy) ;
 use File::Path ;
@@ -24,6 +24,13 @@ $::verbose          = 1 if $arg =~ /v/;
 $::debug            = 1 if $arg =~ /d/;
 $log                = 1 if $arg =~ /l/;
 $show               = 1 if $arg =~ /s/;
+
+if (eval {require Config::Model::Backend::Augeas; } ) {
+    plan tests => 6 ;
+}
+else {
+    plan skip_all => "Config::Model::Backend::Augeas is not installed";
+}
 
 Log::Log4perl->easy_init($log ? $TRACE: $WARN);
 
@@ -78,6 +85,7 @@ close SSHD2 ;
 
 is_deeply(\@new,\@orig,"check written file (no modif)") ;
 
+exit ;
 $root->load("HostbasedAuthentication=yes 
              Subsystem:ddftp=/home/dd/bin/ddftp
             ") ;

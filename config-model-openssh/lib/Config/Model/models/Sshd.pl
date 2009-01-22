@@ -2,12 +2,6 @@
           {
             'read_config' => [
                                {
-                                 'function' => 'sshd_read',
-                                 'backend' => 'custom',
-                                 'class' => 'Config::Model::OpenSsh',
-                                 'config_dir' => '/etc/ssh'
-                               },
-                               {
                                  'save' => 'backup',
                                  'backend' => 'augeas',
                                  'sequential_lens' => [
@@ -17,16 +11,16 @@
                                                       ],
                                  'config_file' => 'sshd_config',
                                  'config_dir' => '/etc/ssh'
+                               },
+                               {
+                                 'function' => 'sshd_read',
+                                 'backend' => 'custom',
+                                 'class' => 'Config::Model::OpenSsh',
+                                 'config_dir' => '/etc/ssh'
                                }
                              ],
             'name' => 'Sshd',
             'write_config' => [
-                                {
-                                  'function' => 'sshd_write',
-                                  'backend' => 'custom',
-                                  'class' => 'Config::Model::OpenSsh',
-                                  'config_dir' => '/etc/ssh'
-                                },
                                 {
                                   'save' => 'backup',
                                   'backend' => 'augeas',
@@ -36,6 +30,12 @@
                                                          'Match'
                                                        ],
                                   'config_file' => 'sshd_config',
+                                  'config_dir' => '/etc/ssh'
+                                },
+                                {
+                                  'function' => 'sshd_write',
+                                  'backend' => 'custom',
+                                  'class' => 'Config::Model::OpenSsh',
                                   'config_dir' => '/etc/ssh'
                                 }
                               ],
@@ -481,16 +481,6 @@ If port is not specified, sshd will listen on the address and all prior Port opt
                                            'umac-64@openssh.com'
                                          ]
                            },
-                           'Match',
-                           {
-                             'cargo' => {
-                                          'type' => 'node',
-                                          'config_class_name' => 'Sshd::MatchBlock'
-                                        },
-                             'experience' => 'advanced',
-                             'type' => 'list',
-                             'description' => 'Specifies a match block. The criteria User, Group Host and Address can contain patterns. When all these criteria are satisfied (i.e. all patterns match the incoming connection), the parameters set in the block element will override the general settings.'
-                           },
                            'MaxAuthTries',
                            {
                              'value_type' => 'integer',
@@ -622,10 +612,10 @@ Alternatively, random early drop can be enabled by specifying the three colon se
                            },
                            'Protocol',
                            {
-                             'default_list' => [
-                                                 '1',
-                                                 '2'
-                                               ],
+                             'built_in_list' => [
+                                                  '1',
+                                                  '2'
+                                                ],
                              'type' => 'check_list',
                              'description' => 'Specifies the protocol versions sshd(8) supports.  Note that the order of the protocol list does not indicate preference, because the client selects among multiple protocol versions offered by the server.',
                              'choice' => [
@@ -823,6 +813,16 @@ If UsePAM is enabled, you will not be able to run sshd(8) as a non-root user.  T
                                            'yes',
                                            'no'
                                          ]
+                           },
+                           'Match',
+                           {
+                             'cargo' => {
+                                          'type' => 'node',
+                                          'config_class_name' => 'Sshd::MatchBlock'
+                                        },
+                             'experience' => 'advanced',
+                             'type' => 'list',
+                             'description' => 'Specifies a match block. The criteria User, Group Host and Address can contain patterns. When all these criteria are satisfied (i.e. all patterns match the incoming connection), the parameters set in the block element will override the general settings.'
                            }
                          ]
           }
