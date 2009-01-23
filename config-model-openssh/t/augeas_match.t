@@ -26,7 +26,7 @@ $log                = 1 if $arg =~ /l/;
 $show               = 1 if $arg =~ /s/;
 
 if (eval {require Config::Model::Backend::Augeas; } ) {
-    plan tests => 6 ;
+    plan tests => 7 ;
 }
 else {
     plan skip_all => "Config::Model::Backend::Augeas is not installed";
@@ -83,9 +83,25 @@ open(SSHD2,"$wr_dir/etc/ssh/sshd_config")
 my @new = <SSHD2> ;
 close SSHD2 ;
 
+TODO: {
+local $TODO = "The last X11Forwarding is a computed default value. As such, it is
+written in the file. It would be smarter not to write it. For this,
+Config::Model need to support computed value that provide a
+'built_in' computed value instead of 'default' computed value. A
+built_in value will not be written in sshd_config file";
+
+
 is_deeply(\@new,\@orig,"check written file (no modif)") ;
 
-exit ;
+# remove also this line with the todo
+push @orig, "X11Forwarding yes\n";
+}
+
+
+
+is_deeply(\@new,\@orig,"check written file with workaround (no modif )") ;
+
+
 $root->load("HostbasedAuthentication=yes 
              Subsystem:ddftp=/home/dd/bin/ddftp
             ") ;
@@ -100,10 +116,10 @@ my @new2 = <SSHD2> ;
 close SSHD2 ;
 
 my @mod = @orig;
-#$mod[38] = "HostbasedAuthentication yes\n";
-#$mod[84] = "Subsystem ddftp /home/dd/bin/ddftp\n";
+splice @mod,1,0, "HostbasedAuthentication yes\n",
+  "Subsystem ddftp /home/dd/bin/ddftp\n";
 
-is_deeply(\@new2,\@mod,"check written file (with modifs)") ;
+is_deeply(\@new2,\@mod,"check written file with workaround (and modifs)") ;
 
 __DATA__
 

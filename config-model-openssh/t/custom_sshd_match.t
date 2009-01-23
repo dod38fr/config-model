@@ -103,12 +103,12 @@ ok($inst2,"Read $wr_dir2/etc/ssh/sshd_config and created instance") ;
 
 my $root2 = $inst2 -> config_root ;
 my $dump2 = $root2 -> dump_tree ();
-print "Second $testdir dump:",$dump2 if $trace ;
+print "Second $testdir dump:\n",$dump2 if $trace ;
 
 my @mod = split /\n/,$dump ;
 unshift @mod, 'HostbasedAuthentication=yes', 'Port=2222';
-splice @mod,11,1,'    Group=pres.*','    Host=elysee.* -';
-splice @mod,22,0,'Subsystem:ddftp=/home/dd/bin/ddftp';
+splice @mod,2,0,'Subsystem:ddftp=/home/dd/bin/ddftp';
+splice @mod,13,1,'    Group=pres.*','    Host=elysee.* -';
 is_deeply([split /\n/,$dump2],\@mod, "check if both dumps are consistent") ;
 
 
