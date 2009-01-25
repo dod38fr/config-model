@@ -31,16 +31,8 @@ in Config::Model and Augeas lens are quite close together:
 - Both structures must be very close. Each Config::Model node must
   have a corresponsing lens.
 
-Last, but not least, Config::Model will write data back in Augeas in a
-rather crude way: all Augeas data for the saved file are wiped out and
-written back from Config::Model data. This ensures that data removed
-from Config::Model by the user are also removed from Augeas.
-
-Nevertheless, reading and writing through Augeas should work quite
-well as Augeas will still keep track of the original file structure.
-
-See Config::Model::Backend::Augeas to use Augeas with your
-configuration model.
+See Config::Model::Backend::Augeas documentation to use Augeas with
+your configuration model.
 
 For more details on Config::Model see:
 
