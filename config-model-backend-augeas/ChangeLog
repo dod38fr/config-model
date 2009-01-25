@@ -1,3 +1,9 @@
+2009-01-25  Dominique Dumont  <domi.dumont@free.fr> v0.103
+
+	* t/augeas_backend.t: Added workaround Augeas locale bug so that
+	tests can be run on amd64 arch. The workaround re-run tests with
+	LANG=C environment
+
 2009-01-19  Dominique Dumont  <dominique.dumont@hp.com> v0.102
 
 	* lib/Config/Model/Backend/Augeas.pm: Lots of improvement to deal

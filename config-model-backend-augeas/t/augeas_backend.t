@@ -5,6 +5,12 @@
 
 # test augeas backend 
 
+# workaround Augeas locale bug
+if ($ENV{LANG} ne 'C') {
+  $ENV{LANG} = 'C';
+  exec("perl $0 @ARGV");
+}
+
 use ExtUtils::testlib;
 use Test::More ;
 use Config::Model;

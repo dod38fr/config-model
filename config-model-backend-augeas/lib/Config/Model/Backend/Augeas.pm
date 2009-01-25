@@ -1,8 +1,8 @@
-# $Author: ddumont $
-# $Date: 2008-11-10 10:12:20 +0100 (Mon, 10 Nov 2008) $
+# $Author$
+# $Date$
 # $Revision$
 
-#    Copyright (c) 2008 Dominique Dumont.
+#    Copyright (c) 2008-2009 Dominique Dumont.
 #
 #    This file is part of Config-Model-Backend-Augeas.
 #
@@ -32,7 +32,7 @@ my $has_augeas = 1;
 eval { require Config::Augeas ;} ;
 $has_augeas = 0 if $@ ;
 
-our $VERSION = '0.102';
+our $VERSION = '0.103';
 
 =head1 NAME
 
