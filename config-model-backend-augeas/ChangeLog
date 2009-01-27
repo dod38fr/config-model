@@ -1,3 +1,9 @@
+2009-01-27  Dominique Dumont  <dominique.dumont@hp.com> v0.104
+
+	* lib/Config/Model/Backend/Augeas.pm (write): Do no create
+	directory to store config files. Creating dir for file is Augeas
+	problem in this backend.
+
 2009-01-25  Dominique Dumont  <domi.dumont@free.fr> v0.103
 
 	* t/augeas_backend.t: Added workaround Augeas locale bug so that

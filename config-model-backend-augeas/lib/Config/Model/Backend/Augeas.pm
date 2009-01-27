@@ -32,7 +32,7 @@ my $has_augeas = 1;
 eval { require Config::Augeas ;} ;
 $has_augeas = 0 if $@ ;
 
-our $VERSION = '0.103';
+our $VERSION = '0.104';
 
 =head1 NAME
 
@@ -394,9 +394,6 @@ sub write {
     print "Write config data through Augeas in directory '$cdir' ",
       "file $args{config_file}\n" 
 	if $::verbose;
-
-    # create directory if needed
-    mkpath($cdir,1,0755) unless -d $cdir ;
 
     my $set_in = $args{set_in} || '';
     my $mainpath = '/files'.$args{config_dir}.$args{config_file} ;
