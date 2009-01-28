@@ -6,8 +6,8 @@
 # test augeas backend 
 
 # workaround Augeas locale bug
-if ($ENV{LANG} ne 'C') {
-  $ENV{LANG} = 'C';
+if ($ENV{LC_ALL} ne 'C' or $ENV{LANG} ne 'C') {
+  $ENV{LC_ALL} = $ENV{LANG} = 'C';
   exec("perl $0 @ARGV");
 }
 
