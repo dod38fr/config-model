@@ -26,6 +26,11 @@ my @command = (qw/config-edit -model Sshd/, @ARGV) ;
 
 # print "Calling @command\n";
 
+# workaround Augeas locale bug
+if ($ENV{LC_ALL} ne 'C' or $ENV{LANG} ne 'C') {
+  $ENV{LC_ALL} = $ENV{LANG} = 'C';
+}
+
 exec(@command)
   or die "Cannot call config-edit: $!\nIs Config::Model installed ?\n";
 

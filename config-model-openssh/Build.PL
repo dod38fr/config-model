@@ -2,7 +2,7 @@
 # $Date: 2008-02-07 11:29:57 $
 # $Revision: 1.3 $
 
-#    Copyright (c) 2008 Dominique Dumont.
+#    Copyright (c) 2008-2009 Dominique Dumont.
 #
 #    This file is part of Config-Model-OpenSsh.
 #

@@ -1,8 +1,8 @@
 # $Author: ddumont $
 # $Date: 2008-05-24 17:04:16 +0200 (sam, 24 mai 2008) $
-# $Revision$
+# $Revision: 836 $
 
-#    Copyright (c) 2008 Dominique Dumont.
+#    Copyright (c) 2008-2009 Dominique Dumont.
 #
 #    This file is part of Config-Model-OpenSsh.
 #
@@ -34,7 +34,7 @@ use File::Path ;
 use Parse::RecDescent ;
 use vars qw($VERSION $grammar $parser)  ;
 
-$VERSION = '1.105' ;
+$VERSION = '1.201' ;
 
 
 my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -205,9 +205,9 @@ match_line: /match/i arg(s) "\n"
 #   Config::Model::OpenSsh::clientalive($arg[0],$item[1],@{$item[2]}) ;
 #}
 
-host_line: /host\b/i arg "\n"
+host_line: /host\b/i arg(s) "\n"
 {
-   Config::Model::OpenSsh::host($arg[0],$item[2]) ;
+   Config::Model::OpenSsh::host($arg[0],@{$item[2]}) ;
 }
 
 any_line: key arg(s) "\n"  
@@ -289,8 +289,7 @@ $parser = Parse::RecDescent->new($grammar) ;
   }
 
   sub host {
-    my ($root,$arg)  = @_;
-    my @patterns = split /,/,$arg ; ;
+    my ($root,@patterns)  = @_;
 
     my $list_obj = $root->fetch_element('Host');
 
@@ -515,7 +514,7 @@ sub write_host_block {
     # is necessary to avoid writing data from /etc/ssh/ssh_config that
     # were entered as 'preset' data
     if (@custom_pattern or $block_data) {
-	$result .= ' '.join(',',$pattern_elt->fetch_all_values('custom'));
+	$result .= ' '.join(' ',$pattern_elt->fetch_all_values('custom'));
 	$result .= "\n$block_data\n" ;
 	return $result ;
     }

@@ -1,4 +1,13 @@
-2008-11-16  Domi  <domi@bilbo.maison> v0.201
+2009-01-29  Dominique Dumont  <dominique.dumont@hp.com> v1.201
+
+	* config-edit-sshd: added workaround Augeas locale bug
+
+	* Sshd files: Major bug fixes for Augeas integration
+
+	* lib/Config/Model/OpenSsh.pm (read_ssh_file): Fix:  Host names 
+	  are separated by white spaces and not comma
+
+2008-11-16  Domi  <domi@bilbo.maison> 
 
 	* lib/Config/Model/models/Sshd.pl: Added write through Augeas so
 	comment in /etc/ssh/sshd_config can be preserved (requires Augeas and 
@@ -6,11 +15,6 @@
 	
 	* config-edit-ssh: new command line to edit ~/.ssh/config file (as
 	normal user) or /etc/ssh/ssh_config (as root)
-
-2008-08-01  Dominique Dumont  <dominique.dumont@hp.com>
-
-	* lib/Config/Model/models/Sshd.pl: Added capacity to read files
-	with Augeas (still "experimental" though)
 
 2008-05-26  Dominique Dumont v0.104
 
