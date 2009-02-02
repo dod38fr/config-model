@@ -1,3 +1,8 @@
+2009-02-02  Dominique Dumont  <dominique.dumont@hp.com> v1.202
+
+	* t/augeas*.t : Changed Augeas locale workaround to reduce the
+	number of test failures in CPAN tests.
+
 2009-01-29  Dominique Dumont  <dominique.dumont@hp.com> v1.201
 
 	* config-edit-sshd: added workaround Augeas locale bug

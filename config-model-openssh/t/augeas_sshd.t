@@ -16,9 +16,13 @@ no warnings qw(once);
 use strict;
 
 # workaround Augeas locale bug
-if ($ENV{LC_ALL} ne 'C' or $ENV{LANG} ne 'C') {
-  $ENV{LC_ALL} = $ENV{LANG} = 'C';
-  exec("perl $0 @ARGV");
+{ 
+    no warnings qw/uninitialized/;
+    if ($ENV{LC_ALL} ne 'C' or $ENV{LANG} ne 'C') {
+	$ENV{LC_ALL} = $ENV{LANG} = 'C';
+	my $inc = join(' ',map("-I$_",@INC)) ;
+	exec("perl $inc $0 @ARGV");
+    }
 }
 
 my $arg = shift || '';
