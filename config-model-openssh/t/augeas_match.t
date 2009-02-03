@@ -15,15 +15,6 @@ no warnings qw(once);
 
 use strict;
 
-# workaround Augeas locale bug
-{ 
-    no warnings qw/uninitialized/;
-    if ($ENV{LC_ALL} ne 'C' or $ENV{LANG} ne 'C') {
-	$ENV{LC_ALL} = $ENV{LANG} = 'C';
-	my $inc = join(' ',map("-I$_",@INC)) ;
-	exec("perl $inc $0 @ARGV");
-    }
-}
 
 my $arg = shift || '';
 
@@ -36,6 +27,13 @@ $log                = 1 if $arg =~ /l/;
 $show               = 1 if $arg =~ /s/;
 
 if (eval {require Config::Model::Backend::Augeas; } ) {
+    # workaround Augeas locale bug
+    no warnings qw/uninitialized/;
+    if ($ENV{LC_ALL} ne 'C' or $ENV{LANG} ne 'C') {
+	$ENV{LC_ALL} = $ENV{LANG} = 'C';
+	my $inc = join(' ',map("-I$_",@INC)) ;
+	exec("$^X $inc $0 @ARGV");
+    }
     plan tests => 7 ;
 }
 else {

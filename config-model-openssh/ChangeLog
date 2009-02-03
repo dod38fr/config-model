@@ -1,3 +1,8 @@
+2009-02-03  Dominique Dumont  <dominique.dumont@hp.com> v1.203
+
+	* t/augeas_*.t: Do the exec only if Augeas part can be tested. Use
+	$^X in exec instead of 'perl'. This should also fix tests in CPAN.
+
 2009-02-02  Dominique Dumont  <dominique.dumont@hp.com> v1.202
 
 	* t/augeas*.t : Changed Augeas locale workaround to reduce the
