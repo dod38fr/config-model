@@ -22,7 +22,7 @@ use warnings;
 use Carp;
 use IO::File ;
 
-our $VERSION = '0.305';
+our $VERSION = '0.400';
 
 require XSLoader;
 XSLoader::load('Config::Augeas', $VERSION);
@@ -170,6 +170,7 @@ sub set {
 
     return 1 if $ret == 0;
 
+    $self -> print('/augeas') ;
     croak __PACKAGE__," set: error with path $path";
 }
 
@@ -207,6 +208,7 @@ sub insert {
 
     return 1 if $ret == 0;
 
+    $self->print('/augeas') ;
     croak __PACKAGE__," insert: error with path $path";
 }
 
@@ -271,7 +273,10 @@ sub match {
     my $self = shift ;
     my $pattern = shift || croak __PACKAGE__," match: undefined pattern";
 
+    # Augeas 0.4.0 is a little picky about trailing slashes
+    $pattern =~ s!/$!!;
     return $self->{aug_c} -> match($pattern) ;
+
 }
 
 =head2 count_match ( pattern )
@@ -285,6 +290,8 @@ sub count_match {
     my $self = shift ;
     my $pattern = shift || croak __PACKAGE__," count_match: undefined pattern";
 
+    # Augeas 0.4.0 is a little picky about trailing slashes
+    $pattern =~ s!/$!!;
     return $self->{aug_c} -> count_match($pattern) ;
 }
 

@@ -1,3 +1,12 @@
+2009-02-17  Dominique Dumont  <dominique.dumont@hp.com> v0.400
+
+	* lib/Config/Augeas.xs (match): dies if aug_match returns -1. Perl
+	programmer can choose to trap this failure with eval or Error
+	module.
+
+	* lib/Config/Augeas.pm (match): cleanup trailing slashes in
+	path (required by new behavior of Augeas 0.4.0)
+
 2009-01-02  Domi  <domi@bilbo.maison> v0.305
 
 	* t/Config-AugeasC.t: Removed test involving AUGROOT environment

@@ -22,6 +22,8 @@
 #define NEED_newCONSTSUB
 #include "ppport.h"
 
+#include <string.h>
+#include <stdio.h>
 #include <augeas.h>
 
 typedef augeas   Config_Augeas ;
@@ -102,15 +104,28 @@ aug_match(aug, pattern);
       Config_Augeas *aug
       const char *pattern
     PREINIT:
-        char**  matches;
+        char** matches;
+        char** err_matches;
+        const char*  err_string ;
         int i ;
+        int ret ;
 	int cnt;
+	char die_msg[1024] ;
+	char tmp_msg[128];
     PPCODE:
     
         cnt = aug_match(aug, pattern, &matches);
 
         if (cnt == -1) {
-            return ;
+	   sprintf(die_msg, "aug_match error with pattern '%s':\n",pattern);
+    	   cnt = aug_match(aug,"/augeas//error/descendant-or-self::*",&err_matches);
+	   for (i=0; i < cnt; i++) {
+               ret = aug_get(aug, err_matches[i], &err_string) ;
+	       sprintf(tmp_msg,"%s = %s\n", err_matches[i], err_string );
+	       if (strlen(die_msg) + strlen(tmp_msg) < 1024 )
+	       	       strcat(die_msg,tmp_msg);
+	   }
+	   croak (die_msg);
         }
 
         // printf("match: Pattern %s matches %d times\n", pattern, cnt);

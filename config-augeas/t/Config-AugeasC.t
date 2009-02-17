@@ -137,10 +137,10 @@ $ret = $augc->mv("/files/etc/hosts/5","/files/etc/hosts/4") ;
 # get return value directly from Augeas
 is($ret ,0,"mv ok");
 
-my @a = $augc->match("/files/etc/hosts/") ;
+my @a = $augc->match("/files/etc/hosts") ;
 is_deeply(\@a,["/files/etc/hosts"],"match result") ;
 
-$ret = $augc->count_match("/files/etc/hosts/") ;
+$ret = $augc->count_match("/files/etc/hosts") ;
 is($ret,1,"count_match result") ;
 
 $ret = $augc->save ;
