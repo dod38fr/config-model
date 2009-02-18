@@ -42,7 +42,8 @@ sub generate {
     my $builder = shift ;
     my $out_file = shift ;
     my $data = shift ;
-    print "Generating $out_file\n";
+    my $pad = shift || '';
+    print $pad,"Generating $out_file\n";
     open (KBDOPT, "> $out_file") || die "can't open $out_file to write:$!" ;
     print KBDOPT "# Generated file. Do not edit\n\n" ;
 
@@ -70,11 +71,10 @@ my $build = Module::Build->new
   (
    module_name   => 'Config::Model::Xorg',
    license       => 'lgpl',
-   dist_version  => '0.513' ,
    dist_author   => "Dominique Dumont (ddumont at cpan dot org)",
    dist_abstract => "Xorg configuration tool based on Config::Model",
    requires      => {
-		     'Config::Model'   => '0.628',
+		     'Config::Model'   => '0.633',
 		     'Log::Log4perl'   => 0 ,
 		    },
    recommends    => {
@@ -109,15 +109,16 @@ my $xorg_config_file_model
      [
       name => 'Xorg::ConfigDir',
       generated_by => $generator ,
-      read_config => [ { class => 'Config::Model::Xorg::Read', 
-			 function => 'read',
+      read_config => [ { backend => 'custom',
+			 class => 'Config::Model::Xorg::Read', 
 			 config_dir => $etc_xorg_dir ,
 		       }
 		     ] ,
-      write_config => { class => 'Config::Model::Xorg::Write', 
-			function => 'write',
-			config_dir => $etc_xorg_dir ,
-		      },
+      write_config => [ { backend => 'custom',
+			  class => 'Config::Model::Xorg::Write', 
+			  config_dir => $etc_xorg_dir ,
+			}
+		      ] ,
 
      ]
     ] ;
@@ -219,15 +220,17 @@ if (not scalar @lst_files) {
 }
 
 # scan lst file which are link and construct the relevant warp rules
+print "\nStage 1: look for linked lst files\n";
 my %warp_rule ;
 foreach my $file (@lst_files) {
     my ($rules_name) = ($file =~ m!/([\-\w]+)\.lst!) ;
-    print "Pre-scan rule $rules_name from $file\n";
+    print "  Pre-scan rule $rules_name from $file\n";
 
     if (-l $file) {
 	my $link = readlink($file) ;
 	my ($replace) =  ($link =~ m!([\-\w]+)\.lst!) ;
-	print "Rules $rules_name is replaced by $replace ($link)\n";
+	print "    Rules $rules_name is replaced by $replace ",
+	  "($rules_name.lst is symlinked to $link)\n";
 	$warp_rule{$replace} = qq!\$r eq "$replace"! 
 	  unless defined $warp_rule{$replace};
 	$warp_rule{$replace} .= qq! or \$r eq "$rules_name"! ;
@@ -237,14 +240,15 @@ foreach my $file (@lst_files) {
     } 
 }
 
+print "\nStage 2: scan non-linked lst files\n";
 # now really scan non-link files
 foreach my $file (@lst_files) {
     my ($rules_name) = ($file =~ m!/([\-\w]+)\.lst!) ;
-    print "Scanning rule $rules_name from $file\n";
+    print "  Scanning rule $rules_name from $file\n";
     push @{$xkb_rules_elt->{choice}}, $rules_name ;
 
     if (-l $file) {
-	print "Rules $rules_name skipped (link)\n";
+	print "    Rules $rules_name skipped (link)\n";
 	next ;
     } 
 
@@ -325,8 +329,8 @@ foreach my $file (@lst_files) {
     my $class_name
       = 'Xorg::InputDevice::KeyboardOptModel::'. ucfirst($rules_name) ;
 
-    $xkb_options_elt->{rules} 
-      = [ $warp_rule => { config_class_name => $class_name } ] ;
+    push @{$xkb_options_elt->{rules} } ,
+         $warp_rule => { config_class_name => $class_name } ;
 
     push @{$xkb_model_elt->{warp}{rules}},   $warp_rule, \%xkb_model_warp_effect ; 
     push @{$xkb_layout_elt->{warp}{rules}} , $warp_rule, \%xkb_layout_warp_effect ;
@@ -342,7 +346,7 @@ foreach my $file (@lst_files) {
 	] ;
 
     my $out_file = "$out_model_dir/" . ucfirst($rules_name) . ".pl" ;
-    generate($build, $out_file, $xkb_model) ;
+    generate($build, $out_file, $xkb_model,'    ') ;
 }
 
 my $out_file = "$out_dir/KeyboardOptRules.pl" ;
@@ -368,7 +372,11 @@ my $kbd_option_rules_class =
     ]
   ] ;
 
-generate($build, $out_file, $kbd_option_rules_class) ;
+print "\nStage 3: generate Keyboart option rules\n";
+
+generate($build, $out_file, $kbd_option_rules_class,'  ') ;
+
+print "\n";
 
 $build->add_build_element('pl');
 $build->create_build_script;

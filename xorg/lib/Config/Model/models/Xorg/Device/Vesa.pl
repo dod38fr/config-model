@@ -26,7 +26,7 @@
 
 [
  [
-  name => "Xorg::Device::Nvidia",
+  name => "Xorg::Device::Vesa",
   'element' 
   => [ 
       ['ShadowFB', 'ModeSetClearScreen']

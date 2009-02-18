@@ -47,12 +47,14 @@ sub read {
     my $dir = join('/',$root,$conf_dir) ;
 
     unless (-d $dir ) {
-	croak __PACKAGE__," read: unknown config dir $dir";
+	warn __PACKAGE__," read: unknown config dir $dir";
+	return 0;
     }
 
     my $file = "$dir/xorg.conf" ;
     unless (-r "$file") {
-	croak __PACKAGE__," read: unknown file $file";
+	warn __PACKAGE__," read: unknown file $file";
+	return 0;
     }
 
     my $i = $config_root->instance ;
@@ -77,6 +79,7 @@ sub read {
 	#print Dumper($data); exit ;
 
 	parse_all($data, $config_root) ;
+	return 1 ;
     }
     else {
 	die __PACKAGE__," read: can't open $file:$!";
