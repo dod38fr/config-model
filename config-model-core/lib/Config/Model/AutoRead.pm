@@ -152,7 +152,11 @@ Use Augeas library. See L<Config::Model::Backend::Augeas> for details.
 Custom backend must be specified with a class name that will features
 the methods used to write and read the configuration files:
 
-  read_config  => [ { backend => 'custom' , class => 'MyRead' } ]
+  read_config  => [ { backend => 'custom' , class => 'MyRead',
+                      config_dir => '/etc/foo'
+                    } ]
+
+Note that C<config_dir> specification is optional.
 
 The C<MyRead> class that you will provide must have the methods
 C<read> and C<write>. Then, C<MyRead::read> will be called with there

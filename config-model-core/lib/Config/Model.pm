@@ -721,6 +721,9 @@ sub translate_legacy_info {
 	if (defined $info->{default}) {
 	    $self->translate_id_default_info($config_class_name,$elt_name, $info);
 	} 
+	if (defined $info->{auto_create}) {
+	    $self->translate_id_auto_create($config_class_name,$elt_name, $info);
+	} 
 	$self->translate_id_names($config_class_name,$elt_name,$info) ;
 	if (defined $info->{warp} ) {
 	    my $rules_a = $info->{warp}{rules} ;
@@ -875,6 +878,40 @@ sub translate_id_default_info {
 	  if $::debug ;
 }
 
+# internal: translate auto_create information for id element
+sub translate_id_auto_create {
+    my $self = shift ;
+    my $config_class_name = shift || die;
+    my $elt_name = shift ;
+    my $info = shift ;
+
+    print "translate_id_auto_create $elt_name input:\n", 
+      Data::Dumper->Dump( [$info ] , [qw/info/ ]) ,"\n"
+	  if $::debug ;
+
+    my $warn = "$config_class_name->$elt_name: 'auto_create' parameter for list or " 
+             . "hash element is deprecated. ";
+
+    my $ac_info = delete $info->{auto_create} ;
+    if ($info->{type} eq 'hash') {
+	$info->{auto_create_keys} 
+	  = ref($ac_info) eq 'ARRAY' ? $ac_info : [ $ac_info ] ;
+	$self->legacy($warn,"Use auto_create_keys") ;
+    }
+    elsif ($info->{type} eq 'list') {
+	$info->{auto_create_ids} = $ac_info ;
+	$self->legacy($warn,"Use auto_create_ids") ;
+    }
+    else {
+	die "Unexpected element ($elt_name) type $info->{type} ",
+	  "for translate_id_auto_create";
+    }
+
+    print "translate_id_default_info $elt_name output:\n",
+      Data::Dumper->Dump([$info ] , [qw/new_info/ ] ) ,"\n"
+	  if $::debug ;
+}
+
 # internal: translate warp information into 'boolean expr' => { ... }
 sub translate_warp_info {
     my $self = shift ;
@@ -931,7 +968,7 @@ sub translate_multi_follow_legacy_rules {
 	# i.e. [ [ f1a, f1b] , b1 ] => { ... }
 	# is equivalent to 
 	# [ f1a, b1 ] => { ... }, [  f1b , b1 ] => { ... }
-	
+
 	# now translate [ [ f1a, f1b] , b1 ] => { ... }
 	# into "( $f1 eq f1a or $f1 eq f1b ) and $f2 eq b1)" => { ... }
 	my @bool_expr ;
@@ -1538,6 +1575,7 @@ L<Config::Model::WarpedNode> <- <- L<Config::Model::WarpedThing> <- L<Config::Mo
 
 L<Config::Model::Describe>,
 L<Config::Model::Dumper>,
+L<Config::Model::DumpAsData>,
 L<Config::Model::Loader>,
 L<Config::Model::ObjTreeScanner>,
 L<Config::Model::Report>,

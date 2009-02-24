@@ -246,7 +246,16 @@ sub remove {
 sub auto_create_elements {
     my $self = shift ;
 
-    my $auto_p = $self->{auto_create} - 1;
+    my $auto_nb = $self->{auto_create_ids} ;
+
+    Config::Model::Exception::Model
+	->throw (
+		 object => $self,
+		 error => "Wrong auto_create argument for list: $auto_nb"
+		) unless $auto_nb =~ /^\d+$/;
+
+    my $auto_p = $auto_nb - 1;
+
     # create empty slots
     map {
 	$self->{data}[$_] = undef unless defined $self->{data}[$_];

@@ -1,3 +1,8 @@
+2009-02-19  Dominique Dumont  <dominique.dumont@hp.com>
+
+	* lib/Config/Model/ListId.pm (auto_create_elements): Trap wrong
+	auto_create argument (avoid massive memory consumption)
+
 2008-12-23  Dominique Dumont  <dominique.dumont@hp.com> v0.633
 
 	* lib/Config/Model/AutoRead.pm : Added -allow_empty parameter so

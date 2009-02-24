@@ -7,9 +7,10 @@ use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
 use Test::More;
+use Test::Exception ;
 use Config::Model;
 
-BEGIN { plan tests => 54; }
+BEGIN { plan tests => 55; }
 
 use strict;
 
@@ -50,6 +51,12 @@ $model ->create_config_class
        => {
 	   type => 'list',
 	   auto_create => 4,
+	   @element
+	  },
+       list_with_wrong_auto_create
+       => {
+	   type => 'list',
+	   auto_create => [ 'foo' ],
 	   @element
 	  },
        [qw/list_with_default_id list_with_default_id_2/]
@@ -98,9 +105,11 @@ is($b->fetch_with_id(1)->store('foo'),'foo',"stored in 1") ;
 is($b->fetch_with_id(0)->store('baz'),'baz',"stored in 0") ;
 is($b->fetch_with_id(2)->store('bar'),'bar',"stored in 2") ;
 
-eval { $b->fetch_with_id(124)->store('baz') ;} ;
-ok($@,"max error") ;
-print "normal error:", $@, "\n" if $trace;
+throws_ok { $b->fetch_with_id(124)->store('baz') ;} 
+  qr/Index 124 > max limit 123/,'max error caught';
+
+throws_ok { $root->fetch_element('list_with_wrong_auto_create') ;} 
+  qr/Wrong auto_create argument for list/,'wrong auto_create caught';
 
 is_deeply([$b->get_all_indexes],[0,1,2],"check ids") ;
 

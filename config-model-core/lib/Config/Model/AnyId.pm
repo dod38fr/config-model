@@ -230,17 +230,20 @@ by C<allow_keys_from> specified the authorized keys for this hash.
 
   allow_keys_from => '- another_hash'
 
-=item auto_create
+=item auto_create_keys
 
-When set, the default parameter (or set of parameters) are 
-used as keys hashes and created automatically.
+When set, the default parameter (or set of parameters) are used as
+keys hashes and created automatically. (valid only for hash elements)
 
 Called with C<< auto_create => 'foo' >>, or 
 C<< auto_create => ['foo', 'bar'] >>.
 
-For list, C<auto_create> indicated the number of elements to
-create. E.g.  C<< auto_create => 4 >> will initialize the list with 4
-undef elements.
+
+=item auto_create_ids
+
+Specifies the number of elements to create automatically. E.g.  C<<
+auto_create => 4 >> will initialize the list with 4 undef elements.
+(valid only for list elements)
 
 =item warp
 
@@ -311,11 +314,12 @@ masters (See L<Config::Model::WarpedThing/"Warp follow argument">:
                       ],
           }
 
-=head2 Warp and auto_create
+=head2 Warp and auto_create_ids or auto_create_keys
 
-When a warp is applied with C<auto_create> parameter, the auto_created
-items are created if they are not already present. But this warp will
-never remove items that were previously auto created.
+When a warp is applied with C<auto_create_keys> or C<auto_create_ids>
+parameter, the auto_created items are created if they are not already
+present. But this warp will never remove items that were previously
+auto created.
 
 For instance, if a tied hash is created with 
 C<< auto_create => [a,b,c] >>, the hash contains C<(a,b,c)>.
@@ -335,7 +339,8 @@ leads to a nb of items greater than the max_nb constraint.
 =cut
 
 my @common_params =  qw/min max max_nb default_with_init default_keys
-                        follow_keys_from auto_create allow_keys allow_keys_from/ ;
+                        follow_keys_from auto_create_ids auto_create_keys
+                        allow_keys allow_keys_from/ ;
 
 my @allowed_warp_params = (@common_params,qw/experience level/) ;
 
@@ -395,7 +400,7 @@ sub set_properties {
 	}
     }
 
-    if (defined $self->{auto_create}) {
+    if (defined $self->{auto_create_keys} or defined $self->{auto_create_ids}) {
 	$self->auto_create_elements ;
     }
 
@@ -456,7 +461,9 @@ object (as declared in the model unless they were warped):
 
 =item follow_keys_from
 
-=item auto_create 
+=item auto_create_ids
+
+=item auto_create_keys
 
 =item ordered
 
@@ -469,7 +476,7 @@ object (as declared in the model unless they were warped):
 =cut
 
 for my $datum (qw/min max max_nb index_type default_keys default_with_init
-                  follow_keys_from auto_create 
+                  follow_keys_from auto_create_keys auto_create_ids
                   morph ordered
                   config_model/) {
     no strict "refs";       # to register new methods in package

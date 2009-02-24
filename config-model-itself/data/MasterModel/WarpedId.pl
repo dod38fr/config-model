@@ -83,8 +83,8 @@
 	   'warp'
 	   => { follow => [ '- version', '- macro' ],
 		'rules'
-		=> [ [ '2', 'C' ] => { max => 7, auto_create => [ 0 .. 7 ] },
-		     [ '2', 'A' ] => { max => 7, auto_create => [ 0 .. 7 ] }
+		=> [ [ '2', 'C' ] => { max => 7, auto_create_keys => [ 0 .. 7 ] },
+		     [ '2', 'A' ] => { max => 7, auto_create_keys => [ 0 .. 7 ] }
 		   ],
 	      },
 	   cargo_type => 'node',

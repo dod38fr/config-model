@@ -186,7 +186,7 @@ sub _defined {
 sub auto_create_elements {
     my $self = shift ;
 
-    my $auto_p = $self->{auto_create} ;
+    my $auto_p = $self->{auto_create_keys} ;
     # create empty slots
     map {
 	$self->_store($_, undef) unless exists $self->{data}{$_};

@@ -1,3 +1,9 @@
+2009-02-24  Dominique Dumont  <dominique.dumont@hp.com>
+
+	* lib/Config/Model/models/Itself/WarpableElement.pl: changed
+	auto_create in auto_create_keys and auto_create_ids (required by
+	Config::Model 0.634)
+
 2009-01-09  Dominique Dumont  <dominique.dumont@hp.com> v1.208
 
 	* lib/Config/Model/models/Itself/Class.pl: Added allow_empty

@@ -58,13 +58,27 @@
 	  },
 
 
-      [qw/default_keys auto_create allow_keys/] 
+      [qw/default_keys auto_create_keys allow_keys/] 
        => { type => 'list',
 	    level => 'hidden',
 	    cargo => { type => 'leaf', value_type => 'string'} ,
 	    warp => {  follow => { 't' => '?type' },
 		       'rules'
-		       => [ '$t eq "hash" or $t eq "list"'
+		       => [ '$t eq "hash"'
+			    => {
+				level => 'normal',
+			       }
+			  ]
+		    }
+	  },
+
+      [qw/auto_create_ids/] 
+       => { type => 'leaf',
+	    level => 'hidden',
+	    value_type => 'string' ,
+	    warp => {  follow => { 't' => '?type' },
+		       'rules'
+		       => [ '$t eq "list"'
 			    => {
 				level => 'normal',
 			       }
@@ -133,7 +147,8 @@
        allow_keys_from =>'this hash will allow keys from the keys of the hash pointed by the path string', 
        ordered => 'keep track of the order of the elements of this hash',
        default_keys => 'default keys hashes.',
-       auto_create => 'always create a set of keys',
+       auto_create_keys => 'always create a set of keys specified in this list',
+       auto_create_ids  => 'always create the number of id specified in this integer',
        allow_keys => 'specify a set of allowed keys',
        default_with_init => 'specify a set of keys to create and initialization on some elements . E.g. \' foo => "X=Av Y=Bv", bar => "Y=Av Z=Cz"\' ',
        convert => 'When stored, the value will be converted to uppercase (uc) or lowercase (lc).',

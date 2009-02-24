@@ -1,5 +1,9 @@
 
-o [domi] Integrate Augeas project as a generic writer/parser
+
+o [domi] Update compute so that a built-in value can also be computed. This
+   is required to fix a bug is sshd_config where match element values
+   are needlessly written to files
+
 
 o [domi] Add regexp check for uniline (or string) values
 

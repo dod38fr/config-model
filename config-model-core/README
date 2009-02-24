@@ -180,11 +180,11 @@ What's the licence ?
 ---------------------------------------------------------------------
 INSTALLATION
 
-   	 tar zxvf <dist_file>.tar.gz 
-   	 cd <dist_directory>
-   	 perl Makefile.PL
-   	 make test          
+        tar zxvf <dist_file>.tar.gz
+        cd <dist_directory>
+        perl Build.PL
+        ./Build test
 
 If you want to install this software without packaging, type also:
 
-   	 make install
+        ./Build install
