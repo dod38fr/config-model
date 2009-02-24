@@ -1,5 +1,6 @@
 Build.PL
 ChangeLog
+config-edit-xorg
 fallback_models/ConfigDir.pl
 fallback_models/KeyboardOptRules.pl
 fallback_models/Sgi.pl

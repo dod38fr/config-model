@@ -1,3 +1,10 @@
+2009-02-24  Dominique Dumont  <dominique.dumont@hp.com>
+
+	* config-edit-xorg: new file to ease firing up xorg.conf editor
+
+	* lib/Config/Model/models/: all model files are now edited and
+	written by Config::Model::Itself
+
 2008-09-29  Dominique Dumont  <dominique.dumont@hp.com> 0.513
 
 	* lib/Config/Model/Xorg/Read.pm (read write): Fixed to fit new
