@@ -120,6 +120,8 @@ sub parse_raw_section {
     my $xorg_lines = shift ;
 
     my %data ;
+    $logger->debug( "parse_raw_section: called");
+
     while (@$xorg_lines) {
 	my $line_data = shift @$xorg_lines ;
 	my ($line_nb,$line) = @$line_data ;
@@ -191,31 +193,31 @@ sub parse_option {
     my $opt = shift @args;
 
     if ($obj->config_class_name eq 'Xorg::ServerFlags') {
-	$logger->debug( "obj ",$obj->name, " ($line) load option '$opt' ");
+	$logger->debug( "parse_option: obj ",$obj->name, " ($line) load option '$opt' ");
 	my $opt_obj = $obj->fetch_element($opt) ;
 	$opt_obj->store ( @args  ? $args[0] : 1 ) ;
     }
     elsif ($opt =~ /Core(Keyboard|Pointer)/ ) {
 	my $id = $obj -> index_value ;
-	$logger->debug( "($line) Load top level $opt to '$id'");
+	$logger->debug( "parse_option: ($line) Load top level $opt to '$id'");
 	$obj->load( qq(! $opt="$id") ) ;
     }
     elsif (    $obj->config_class_name eq 'Xorg::InputDevice' 
 	   and $opt eq 'AutoRepeat') {
-	$logger->debug( "obj ",$obj->name, " ($line) load option '$opt' with '",
+	$logger->debug( "parse_option: obj ",$obj->name, " ($line) load option '$opt' with '",
 			join('+',@args),"' ");
 	my @v = split / /,$args[0] ;
 	my $load = sprintf ( "Option AutoRepeat delay=%s rate=%s", @v);
-	$logger->debug( $obj->name," load '$load'");
+	$logger->debug( "parse_option: ",$obj->name," load '$load'");
 	$obj->load($load) ;
     }
     elsif (     $obj->config_class_name eq 'Xorg::InputDevice'
 	    and $opt eq 'XkbOptions' ) {
-	$logger->debug( "obj ",$obj->name, " ($line) load option '$opt' with '",
+	$logger->debug( "parse_option: obj ",$obj->name, " ($line) load option '$opt' with '",
 			join('+',@args),"' ");
 	my @v = split /:/,$args[0] ;
 	my $load = sprintf ( "Option XkbOptions %s=%s", @v);
-	$logger->debug( $obj->name," load '$load'");
+	$logger->debug( "parse_option: ",$obj->name," load '$load'");
 	$obj->load($load) ;
     }
     else {
@@ -223,7 +225,7 @@ sub parse_option {
 	my $opt_p_obj = $obj->fetch_element("Option") ;
 	my $opt_obj;
 	if ($opt_p_obj->has_element($opt)) {
-	    $logger->debug( "obj ",$obj->name, " ($line) load option '$opt' ");
+	    $logger->debug( "parse_option: obj ",$obj->name, " ($line) load option '$opt' ");
 	    $opt_obj= $opt_p_obj->fetch_element($opt) ;
 	    $opt_obj->store ( @args  ? $args[0] : 1 ) if defined $opt_obj ;
 	}
@@ -236,7 +238,7 @@ sub parse_option {
 			);
 	}
 	else {
-	    $logger->warn( "obj ",$obj->name, " ($line) option '$opt' is unknown");
+	    $logger->warn( "parse_option: obj ",$obj->name, " ($line) option '$opt' is unknown");
 	}
     }
 }
@@ -263,7 +265,7 @@ sub parse_mode_line {
     $load .= "Flags " . join (' ', map {$mode_flags{$_} || "$_=1" } @m ) . ' - ' 
       if @m ;
 
-    $logger->debug( "($line) load '$load'");
+    $logger->debug( "parse_mode_line: ($line) load '$load'");
     $obj->load($load) ;
 }
 
@@ -271,7 +273,7 @@ sub parse_modes_list {
     my ($obj, $trash, $line_nb, @modes) = @_ ;
 
     my $load = "Modes=".join(',',@modes);
-    $logger->debug( "($line_nb))load '$load'");
+    $logger->debug( "parse_modes_list: ($line_nb))load '$load'");
     $obj->load($load) ;
 }
 
@@ -298,7 +300,7 @@ sub parse_layout_screen {
 
 	$load = "Screen:$num screen_id=\"$screen_id\" ";
 
-	$logger->debug( "Screen load '$load'");
+	$logger->debug( "parse_layout_screen: screen load '$load'");
 
 	if (@args) {
 	    # there's a position information
@@ -322,10 +324,10 @@ sub parse_layout_screen {
 	    }
 	    $load .= "position relative_screen_location=$pos $relative_spec ";
 	}
-	$logger->debug( "Screen ($line) load '$load' ");
+	$logger->debug( "parse_layout_screen: Screen ($line) load '$load' ");
     }
 
-    $logger->debug( $obj->config_class_name," load '$load'");
+    $logger->debug( "parse_layout_screen:", $obj->config_class_name," load '$load'");
     $obj->load($load) ;
 }
 
@@ -342,7 +344,7 @@ sub parse_input_device {
 	    $dev->fetch_element($opt)->store(1) ;
 	}
 	elsif ($opt =~ /Core(Keyboard|Pointer)/) {
-	    $logger->debug( "Load '! $opt=\"$id\"'");
+	    $logger->debug( "parse_input_device: Load '! $opt=\"$id\"'");
 	    $obj->load("! $opt=\"$id\"") ;
 	}
 	else {
