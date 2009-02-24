@@ -178,8 +178,7 @@ package main;
 throws_ok {
     my $i_fail = $model->instance(instance_name    => 'zero_inst',
 			       root_class_name  => 'Master',
-			       write_root_dir   => $root1 ,
-			       read_root_dir    => $root1 ,
+			       root_dir   => $root1 ,
 			       backend => 'perl_file',
 			      );
     } qr/'perl_file' backend/,  "read with forced perl_file backend fails (normal: no perl file)"  ;
@@ -188,8 +187,7 @@ my $i_zero ;
 warnings_like {
 $i_zero = $model->instance(instance_name    => 'zero_inst',
 			   root_class_name  => 'Master',
-			   write_root_dir   => $root1 ,
-			   read_root_dir    => $root1 ,
+			   root_dir   => $root1 ,
 			  );
 } qr/deprecated auto_read/ , "obsolete warning" ;
 

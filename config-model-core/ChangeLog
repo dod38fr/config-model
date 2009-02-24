@@ -1,3 +1,15 @@
+2009-02-24  Dominique Dumont  <dominique.dumont@hp.com>
+
+	* config-edit: removed kludgy read_root_dir and write_root_dir
+	options. For test, only one root_dir can be specified (like Augeas)
+
+	* lib/Config/Model/ListId.pm: auto_create parameter is replaced by
+	auto_create_ids (still trap wrong parameter to avoid memory
+	problems)
+ 
+	* lib/Config/Model/HashId.pm: auto_create parameter is replaced by
+	auto_create_keys
+
 2009-02-19  Dominique Dumont  <dominique.dumont@hp.com>
 
 	* lib/Config/Model/ListId.pm (auto_create_elements): Trap wrong

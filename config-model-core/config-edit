@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-#    Copyright (c) 2006-2008 Dominique Dumont.
+#    Copyright (c) 2006-2009 Dominique Dumont.
 #
 #    This file is part of Config-Model.
 #
@@ -72,8 +72,6 @@ else {
 my $model_dir ;
 my $root_model ;
 my $trace = 0 ;
-my $read_root_dir;
-my $wr_root_dir ;
 my $root_dir ;
 
 =head1 NAME
@@ -160,22 +158,13 @@ Could be useful for a backup config data feature. To be implemented
 
 =end comment
 
-=item -write_root_dir
+=item -root_dir
 
-Specify a pseudo root directory to write the configuration
+Specify a pseudo root directory to read and write the configuration
 files. (Actual default directory and file names depends on the model
 (See C<-model> option). For instance, if you specify C<~/mytest>, the
 C</etc/ssh/sshd_config> files will be written in C<~/mytest/etc/ssh/>
 directory.
-
-=item -read_root_dir
-
-Specify a pseudo root to read the configuration files. (Actual default
-directory and file names depends on the model (See C<-model> option).
-
-=item -root_dir
-
-Specifies both read and write root dir at the same time.
 
 =item -verbose
 
@@ -223,8 +212,6 @@ my $result = GetOptions ("ui|if=s"          => \$ui_type,
 			 "help!"            => \$help,
 			 "dev!"             => \$dev,
 			 "force_load!"      => \$force_load,
-			 "read_root_dir=s"  => \$read_root_dir,
-			 "write_root_dir=s" => \$wr_root_dir ,
 			 "root_dir=s"       => \$root_dir ,
 			 "backend=s"        => \$backend,
 			);
@@ -244,8 +231,8 @@ Config::Model::Exception::Any->Trace(1) if $trace ;
 die "Unspecified root configuration model (option -model)\n"
   unless defined $root_model ;
 
-if (defined $wr_root_dir && ! -e $wr_root_dir) {
-    mkdir $wr_root_dir, 0755 || die "can't create $wr_root_dir:$!";
+if (defined $root_dir && ! -e $root_dir) {
+    mkdir $root_dir, 0755 || die "can't create $root_dir:$!";
 }
 
 my $model = Config::Model -> new(model_dir => $model_dir) ;
@@ -254,9 +241,7 @@ $instance_name = $root_model unless defined $instance_name ;
 
 my $inst = $model->instance (root_class_name => $root_model ,
 			     instance_name   => $root_model ,
-			     all_root_dir    => $root_dir ,
-			     read_root_dir   => $read_root_dir,
-                             write_root_dir  => $wr_root_dir,
+			     root_dir        => $root_dir ,
 			     force_load      => $force_load,
 			     backend         => $backend,
 			    );
