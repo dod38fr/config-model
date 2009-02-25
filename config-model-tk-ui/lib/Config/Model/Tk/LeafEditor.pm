@@ -80,7 +80,10 @@ sub Populate {
 					      )
                              ->pack(@fbe1);
 	$cw->reset_value ;
-	$cw->add_buttons($ed_frame) ;
+	my $bframe = $cw->add_buttons($ed_frame) ;
+	$bframe -> Button ( -text => 'Cleanup',
+			    -command => sub { $cw->cleanup},
+			  ) -> pack(-side => 'left') ;
     }
     elsif ($vt eq 'boolean') {
 	$ed_frame->Checkbutton(-text => $leaf->element_name,
@@ -108,6 +111,7 @@ sub Populate {
 	map { $lb->selectionSet($idx) if $_ eq $$vref; $idx ++}  @choice;
 	$lb->bind('<Button-1>',sub {$cw->try($lb->get($lb->curselection()))});
 	$cw->add_buttons($ed_frame) ;
+
     }
 
     $inst->pop_no_value_check ;
@@ -131,6 +135,16 @@ sub Populate {
     $cw->Tk::Frame::Populate($args) ;
 }
 
+sub cleanup {
+    my ($cw) = @_ ;
+    my $text_widget = $cw->{e_widget} || return ;
+    my $text = $text_widget -> Contents ;
+    $text =~ s/^\s+//gm;
+    $text =~ s/\s+$//gm;
+    $text =~ s/[ \t]+/ /g;
+    $text_widget -> Contents($text) ;
+}
+
 sub add_buttons {
     my ($cw,$frame) = @_ ;
     my $bframe = $frame->Frame->pack() ;
@@ -143,6 +157,7 @@ sub add_buttons {
     $bframe -> Button ( -text => 'Store',
 			-command => sub { $cw->store},
 		      ) -> pack(-side => 'left') ;
+    return $bframe ;
 }
 
 
