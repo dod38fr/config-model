@@ -33,6 +33,12 @@
                              'default' => 1,
                              'type' => 'leaf'
                            },
+                           'i2c',
+                           {
+                             'value_type' => 'boolean',
+                             'default' => '0',
+                             'type' => 'leaf'
+                           },
                            'int10',
                            {
                              'value_type' => 'boolean',

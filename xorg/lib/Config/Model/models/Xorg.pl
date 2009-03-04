@@ -117,6 +117,12 @@
                              'type' => 'node',
                              'description' => 'DRI-specific configuration',
                              'config_class_name' => 'Xorg::DRI'
+                           },
+                           'Extensions',
+                           {
+                             'type' => 'node',
+                             'description' => 'DRI-specific configuration',
+                             'config_class_name' => 'Xorg::Extensions'
                            }
                          ]
           },

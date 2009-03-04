@@ -177,6 +177,28 @@
                                            'Never',
                                            'WhenNeeded'
                                          ]
+                           },
+                           'AIGLX',
+                           {
+                             'value_type' => 'enum',
+                             'built_in' => 'on',
+                             'type' => 'leaf',
+                             'description' => 'enable or disable AIGLX.',
+                             'choice' => [
+                                           'off',
+                                           'on'
+                                         ]
+                           },
+                           'UseDefaultFontPath',
+                           {
+                             'value_type' => 'enum',
+                             'built_in' => 'on',
+                             'type' => 'leaf',
+                             'description' => 'Include the default font path even if other paths are specified in xorg.conf. If enabled, other font paths are included as well.',
+                             'choice' => [
+                                           'off',
+                                           'on'
+                                         ]
                            }
                          ]
           }
