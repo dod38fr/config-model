@@ -138,11 +138,17 @@ sub Populate {
 sub cleanup {
     my ($cw) = @_ ;
     my $text_widget = $cw->{e_widget} || return ;
-    my $text = $text_widget -> Contents ;
+    my $selected = $text_widget -> getSelected ;
+    my $text = $selected || $text_widget -> Contents ;
     $text =~ s/^\s+//gm;
     $text =~ s/\s+$//gm;
-    $text =~ s/[ \t]+/ /g;
-    $text_widget -> Contents($text) ;
+    $text =~ s/\s+/ /g;
+
+    if ($selected) {
+	$text_widget -> Insert ($text) ;
+    } else {
+	$text_widget -> Contents($text) ;
+    }
 }
 
 sub add_buttons {
