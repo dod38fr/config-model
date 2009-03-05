@@ -1,4 +1,4 @@
-2009-02-24  Dominique Dumont  <dominique.dumont@hp.com>
+2009-02-24  Dominique Dumont  <dominique.dumont@hp.com> v0.634
 
 	* config-edit: removed kludgy read_root_dir and write_root_dir
 	options. For test, only one root_dir can be specified (like Augeas)

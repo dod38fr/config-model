@@ -33,7 +33,8 @@ use vars qw/$verbose $debug/ ;
 $verbose = 0;
 $debug = 0;
 
-my $log4perl_conf_file = '/etc/log4config-model.conf' ;
+my $log4perl_syst_conf_file = '/etc/log4config-model.conf' ;
+my $log4perl_user_conf_file = $ENV{HOME}.'/.log4config-model' ;
 my $fallback_conf = << 'EOC';
 log4perl.logger.ConfigModel=WARN, A1
 log4perl.appender.A1=Log::Dispatch::File
@@ -42,8 +43,10 @@ log4perl.appender.A1.mode=append
 log4perl.appender.A1.layout=Log::Log4perl::Layout::SimpleLayout
 EOC
 
-my $log4perl_conf = -e $log4perl_conf_file ? $log4perl_conf_file 
-                  :                          \$fallback_conf ;
+my $log4perl_conf 
+  = -e $log4perl_user_conf_file ?  $log4perl_user_conf_file
+  : -e $log4perl_syst_conf_file ?  $log4perl_syst_conf_file
+  :                               \$fallback_conf ;
 
 Log::Log4perl::init($log4perl_conf);
 
@@ -326,6 +329,32 @@ else {
 }
 
 $inst->write_back if scalar @ARGV;
+
+=head1 LOGGING
+
+All Config::Model logging is (slowly) moved from klunky debug and
+verbose prints to L<Log::Log4perl>. Use can configure logging in the
+following files:
+
+=over
+
+=item * 
+
+ /etc/log4config-model.conf
+
+=item *
+
+ ~/.log4config-model
+
+=back
+
+Without these files, the following Log4perl config is used:
+
+  log4perl.logger.ConfigModel=WARN, A1
+  log4perl.appender.A1=Log::Dispatch::File
+  log4perl.appender.A1.filename=/tmp/ConfigModel.log
+  log4perl.appender.A1.mode=append
+  log4perl.appender.A1.layout=Log::Log4perl::Layout::SimpleLayout
 
 =head1 SUPPORT
 
