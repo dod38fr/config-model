@@ -20,6 +20,9 @@ $::verbose          = 1 if $arg =~ /v/;
 $::debug            = 1 if $arg =~ /d/;
 Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 
+use Log::Log4perl qw(:easy) ;
+Log::Log4perl->easy_init($arg =~ /l/ ? $TRACE: $WARN);
+
 ok(1,"compiled");
 
 my $inst = $model->instance (root_class_name => 'Master', 

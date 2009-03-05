@@ -19,11 +19,17 @@ use vars qw/$model/;
 
 $model = Config::Model -> new(legacy => 'ignore',)  ;
 
-my $trace = shift || 0;
-$::verbose          = 1 if $trace =~ /v/;
-$::debug            = 1 if $trace =~ /d/;
+my $arg = shift || '';
+
+my $trace = $arg =~ /t/ ? 1 : 0 ;
+$::verbose          = 1 if $arg =~ /v/;
+$::debug            = 1 if $arg =~ /d/;
+Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 
 $Data::Dumper::Indent = 1 ;
+
+use Log::Log4perl qw(:easy) ;
+Log::Log4perl->easy_init($arg =~ /l/ ? $TRACE: $WARN);
 
 ok(1,"compiled");
 
