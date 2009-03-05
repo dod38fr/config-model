@@ -2,7 +2,7 @@
 # $Date$
 # $Revision$
 
-#    Copyright (c) 2005-2008 Dominique Dumont.
+#    Copyright (c) 2005-2009 Dominique Dumont.
 #
 #    This file is part of Config-Model.
 #
@@ -28,13 +28,16 @@ use warnings FATAL => qw(all);
 use vars qw/@ISA @EXPORT @EXPORT_OK $VERSION/;
 use Storable ('dclone') ;
 use Data::Dumper ();
+use Log::Log4perl qw(get_logger :levels);
+
 
 use Config::Model::Instance ;
 
 # this class holds the version number of the package
 use vars qw($VERSION @status @level @experience_list %experience_index) ;
 
-$VERSION = '0.633';
+$VERSION = '0.634';
+
 
 =head1 NAME
 
@@ -458,6 +461,8 @@ sub create_config_class {
     my $config_class_name = delete $raw_model{name} or
       croak "create_one_config_class: no config class name" ;
 
+    get_logger("Model")->info("Creating class $config_class_name") ;
+
     if (exists $self->{model}{$config_class_name}) {
 	Config::Model::Exception::ModelDeclaration->throw
 	    (
@@ -802,8 +807,6 @@ sub translate_allow_compute_override {
 	$self->legacy("$config_class_name->$elt_name: parameter allow_compute_override is deprecated in favor of compute -> allow_override");
 	$info->{compute}{allow_override} = delete $info->{allow_compute_override}  ;
     }
-    
-
 }
 
 sub translate_compute_info {
@@ -1282,7 +1285,7 @@ sub load {
     $load_file ||=  ($self->{model_dir} || 'Config/Model/models') 
                  . '/'. $load_path ;
 
-    print "Model: load model $load_file\n" if $::verbose ;
+    get_logger("Model::Loader")-> info("load model $load_file") ;
 
     my $err_msg = '';
     my $model = do $load_file ;
