@@ -356,6 +356,18 @@ Without these files, the following Log4perl config is used:
   log4perl.appender.A1.mode=append
   log4perl.appender.A1.layout=Log::Log4perl::Layout::SimpleLayout
 
+Log4perl uses the following categories
+
+=over
+
+=item Model
+
+=item Model::Load
+
+=back
+
+More categories will come.
+
 =head1 SUPPORT
 
 For support, please check the following ressources:
