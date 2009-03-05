@@ -118,6 +118,10 @@ my %dispatch_leaf
      'Xorg::Device' => \&wr_std_leaf ,
      'Xorg::Device::Radeon' => \&wr_std_options ,
      'Xorg::Device::Nvidia' => \&wr_std_options ,
+     'Xorg::Device::Fglrx' => \&wr_std_options ,
+     'Xorg::Device::Vesa' => \&wr_std_options ,
+     'Xorg::Extensions' => \&wr_std_options ,
+     'Xorg::Extensions::Option' => \&wr_std_options ,
      'Xorg::Monitor' => \&wr_std_leaf ,
      'Xorg::Monitor::Option' => \&wr_std_options ,
      'Xorg::Monitor::Mode' => \&push_value ,
@@ -297,6 +301,7 @@ sub wr_device_kbd_autorepeat {
 my %dispatch_node 
   = ( 
      'Xorg' => 1 ,
+     'Xorg::Extensions' => \&wr_section,
      'Xorg::Files' => \&wr_section,
      'Xorg::Module' => \&wr_section,
      'Xorg::InputDevice' => \&wr_section,
