@@ -1,3 +1,10 @@
+2009-03-09  Dominique Dumont  <dominique.dumont@hp.com> v1.204
+
+	* t/ssh_config.t: Removed unused options that broke with
+	Config::Model 0.634
+
+	* config-edit-ssh: Update documentation
+
 2009-02-03  Dominique Dumont  <dominique.dumont@hp.com> v1.203
 
 	* t/augeas_*.t: Do the exec only if Augeas part can be tested. Use

@@ -55,8 +55,8 @@ config-edit-sshd - Edit data of /etc/ssh/sshd_config
   config-edit-sshd -ui none [options]  commands  ... 
 
   # example:
-  config-edit-sshd -ui none -write_conf_dir /tmp AllowUsers=foo,bar,baz
-  cat /tmp/sshd_config
+  config-edit-sshd -ui none AllowUsers=foo,bar,baz
+  cat /etc/ssh/sshd_config
 
 =head1 DESCRIPTION
 
@@ -98,15 +98,10 @@ C<none>: No UI provided. Only command line arguments are handled.
 
 =back
 
-=item -write_conf_dir
+=item -root_dir
 
-Specify where to write the configuration files. By default
-F</etc/ssh/sshd_config> will be written.
-
-=item -read_conf_dir
-
-Specify where to read the configuration files. F</etc/ssh/sshd_config>
-by default.
+Specify a root directory to read or write the configuration
+files. F</> by default so F</etc/ssh/sshd_config> is used.
 
 =item -verbose
 

@@ -100,8 +100,7 @@ ok(1,"wrote ssh_config data in $wr_dir") ;
 
 my $inst2 = $model->instance (root_class_name   => 'Ssh',
 			      instance_name     => 'root_ssh_instance2',
-			      read_root_dir     => $wr_dir,
-			      write_root_dir    => $wr_dir.'2',
+			      root_dir          => $wr_dir,
 			     );
 
 my $root2 = $inst2 -> config_root ;
@@ -116,8 +115,7 @@ is_deeply([split /\n/,$dump2],[split /\n/,$dump],
 
 my $user_inst = $model->instance (root_class_name   => 'Ssh',
 				  instance_name     => 'user_ssh_instance',
-				  read_root_dir     => $wr_dir,
-				  write_root_dir    => $wr_dir,
+				  root_dir          => $wr_dir,
 				 );
 
 ok($user_inst,"Read user .ssh/config and created instance") ;
