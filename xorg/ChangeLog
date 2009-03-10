@@ -1,9 +1,10 @@
-2009-02-24  Dominique Dumont  <dominique.dumont@hp.com>
+2009-02-24  Dominique Dumont  <dominique.dumont@hp.com> 1.101
 
 	* config-edit-xorg: new file to ease firing up xorg.conf editor
 
 	* lib/Config/Model/models/: all model files are now edited and
-	written by Config::Model::Itself
+	written by Config::Model::Itself. Added Fglrx model. Added
+	Extensions model. 
 
 2008-09-29  Dominique Dumont  <dominique.dumont@hp.com> 0.513
 

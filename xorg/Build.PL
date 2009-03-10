@@ -1,9 +1,8 @@
-# $Author: ddumont $
-# $Date: 2008-02-27 12:32:07 $
-# $Name: not supported by cvs2svn $
-# $Revision: 1.15 $
+# $Author$
+# $Date$
+# $Revision$
 
-#    Copyright (c) 2007-2008 Dominique Dumont.
+#    Copyright (c) 2007-2009 Dominique Dumont.
 #
 #    This file is part of Config-Model-Xorg.
 #

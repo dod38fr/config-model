@@ -2,7 +2,7 @@
 # $Date: 2008-02-26 17:37:39 $
 # $Revision$
 
-#    Copyright (c) 2005-2008 Dominique Dumont.
+#    Copyright (c) 2005-2009 Dominique Dumont.
 #
 #    This file is part of Config-Xorg.
 #
@@ -53,7 +53,7 @@ sub write {
 
     my $file = "$dir/xorg.conf" ;
 
-    $logger->warn( __PACKAGE__." write: writing config file $file\n");
+    $logger->info( __PACKAGE__." write: writing config file $file\n");
 
     open (CONF,"> $file ") || die __PACKAGE__," write: can't open $file:$!";
 

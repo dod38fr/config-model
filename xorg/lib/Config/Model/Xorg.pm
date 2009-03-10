@@ -1,8 +1,8 @@
-# $Author: ddumont $
-# $Date: 2007-10-26 11:54:56 $
+# $Author$
+# $Date$
 # $Revision$
 
-#    Copyright (c) 2005,2006 Dominique Dumont.
+#    Copyright (c) 2005-2009 Dominique Dumont.
 #
 #    This file is part of Config-Xorg.
 #
@@ -43,7 +43,7 @@ Log::Log4perl::init($log4perl_conf) unless Log::Log4perl->initialized ;
 
 use vars qw($VERSION) ;
 
-$VERSION = sprintf "1.%04d", q$Revision: 711 $ =~ /(\d+)/;
+$VERSION = '1.101' ;
 
 =head1 NAME
 

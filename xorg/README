@@ -68,14 +68,14 @@ This model is quite young and is incomplete.
 
 So far, the following video cards have a model (see
 lib/Config/Model/models/Xorg/Device/ directory) :
-- ATI card (rather complete Radeon.pl model for radeon driver)
+- ATI card (rather complete Radeon.pl model for radeon driver and Fglrx model)
 - Nvidia card (very preliminary Nvidia.pl model for Nvidia proprietary
   driver)
 
 --------------------------------------------------------------------
 
 AUTHOR
-    Copyright (c) 2007-2008 Dominique Dumont.
+    Copyright (c) 2007-2009 Dominique Dumont.
 
     This file is part of Config-Model-Xorg.
 
