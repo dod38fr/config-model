@@ -52,7 +52,8 @@ ok(1,"compiled");
 
 rmtree($wr_test) if -d $wr_test ;
 
-mkpath($wr_conf1, $wr_model1, "$wr_conf1/etc/ssh/",{mode => 0755}) ;
+# "modern" API of File::Path does not work with perl 5.8.8
+mkpath( [$wr_conf1, $wr_model1, "$wr_conf1/etc/ssh/"] , 0, 0755) ;
 copy('augeas_box/etc/ssh/sshd_config', "$wr_conf1/etc/ssh/") ;
 
 # copy test model

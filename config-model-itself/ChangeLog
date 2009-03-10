@@ -1,4 +1,8 @@
-2009-02-24  Dominique Dumont  <dominique.dumont@hp.com> v1.209
+2009-03-10  Dominique Dumont  <dominique.dumont@hp.com>  v1.209
+
+	* t/*.t: Backported to File::Path delivered by perl 5.8.8
+
+2009-02-24  Dominique Dumont  <dominique.dumont@hp.com>
 
 	* lib/Config/Model/models/Itself/WarpableElement.pl: changed
 	auto_create in auto_create_keys and auto_create_ids (required by

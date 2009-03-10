@@ -57,7 +57,7 @@ ok(1,"compiled");
 
 rmtree($wr_test) if -d $wr_test ;
 
-mkpath($wr_conf1, $wr_model1, "$wr_conf1/etc/ssh/",{mode => 0755}) ;
+mkpath([$wr_conf1, $wr_model1, "$wr_conf1/etc/ssh/"], 0, 0755) ;
 copy('augeas_box/etc/ssh/sshd_config', "$wr_conf1/etc/ssh/") ;
 
 my $model = Config::Model->new(legacy => 'ignore',model_dir => $read_dir ) ;

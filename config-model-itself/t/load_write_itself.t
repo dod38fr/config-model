@@ -41,7 +41,7 @@ mkdir($wr_test) ;
 my $wanted = sub { 
     return if /svn|data$|~$/ ;
     s!data/!! ;
-    -d $File::Find::name && mkpath( "$wr_test/$_", {mode => 0755}) ;
+    -d $File::Find::name && mkpath( ["$wr_test/$_"], 0, 0755) ;
     -f $File::Find::name && copy($File::Find::name,"$wr_test/$_") ;
 };
 find ({ wanted =>$wanted, no_chdir=>1} ,'data') ;
