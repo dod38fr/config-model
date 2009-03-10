@@ -10,6 +10,9 @@ use Config::Model;
 use Log::Log4perl qw(:easy) ;
 use Data::Dumper ;
 use Config::Model::Itself ;
+use File::Path ;
+use File::Find ;
+use File::Copy ;
 
 use warnings;
 no warnings qw(once);
@@ -30,12 +33,22 @@ Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 
 ok(1,"compiled");
 
-mkdir('wr_test') unless -d 'wr_test' ;
+my $wr_test = "wr_test" ;
+rmtree($wr_test) if -d $wr_test ;
+mkdir($wr_test) ;
+
+# copy test model
+my $wanted = sub { 
+    return if /svn|data$|~$/ ;
+    s!data/!! ;
+    -d $File::Find::name && mkpath( "$wr_test/$_", {mode => 0755}) ;
+    -f $File::Find::name && copy($File::Find::name,"$wr_test/$_") ;
+};
+find ({ wanted =>$wanted, no_chdir=>1} ,'data') ;
 
 my $inst = $meta_model->instance (root_class_name   => 'Itself::Model', 
 				  instance_name     => 'itself_instance',
-				  'read_directory'  => "data",
-				  'write_directory' => "wr_test",
+				  root_dir          => $wr_test,
 				 );
 ok($inst,"Read Itself::Model and created instance") ;
 

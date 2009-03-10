@@ -31,16 +31,16 @@ ok(1,"compiled");
 
 mkdir('wr_test') unless -d 'wr_test' ;
 
-my $inst = $meta_model->instance (root_class_name   => 'Itself::Model', 
-				  instance_name     => 'itself_instance',
-				  'read_directory'  => "data",
-				  'write_directory' => "wr_test",
-				 );
-ok($inst,"Read Itself::Model and created instance") ;
+my $meta_inst = $meta_model
+  -> instance (root_class_name   => 'Itself::Model', 
+	       instance_name     => 'itself_instance',
+	       root_dir          => "data",
+	      );
+ok($meta_inst,"Read Itself::Model and created instance") ;
 
-my $root = $inst -> config_root ;
+my $meta_root = $meta_inst -> config_root ;
 
-my $rw_obj = Config::Model::Itself -> new(model_object => $root ) ;
+my $rw_obj = Config::Model::Itself -> new(model_object => $meta_root ) ;
 
 my $model_dir = 'lib/Config/Model/models' ;
 my $map = $rw_obj -> read_all( model_dir => $model_dir,
