@@ -2,7 +2,7 @@
 # $Date$
 # $Revision$
 
-#    Copyright (c) 2008 Dominique Dumont.
+#    Copyright (c) 2008-2009 Dominique Dumont.
 #
 #    This file is part of Config-Model-TkUI.
 #
@@ -162,7 +162,7 @@ sub add_buttons {
 		      ) -> pack(-side => 'left') ;
     $bframe -> Button ( -text => 'Store',
 			-command => sub { $cw->store},
-		      ) -> pack(-side => 'left') ;
+		      ) -> pack(-side => 'right') ;
     return $bframe ;
 }
 
