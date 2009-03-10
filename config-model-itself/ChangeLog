@@ -1,6 +1,7 @@
 2009-03-10  Dominique Dumont  <dominique.dumont@hp.com>  v1.209
 
-	* t/*.t: Backported to File::Path delivered by perl 5.8.8
+	* t/*.t: Backported mkpath calls to File::Path delivered by perl
+	5.8.8
 
 2009-02-24  Dominique Dumont  <dominique.dumont@hp.com>
 
