@@ -1,3 +1,8 @@
+2009-03-11  Dominique Dumont  <domi.dumont@free.fr> v1.206
+
+	* lib/Config/Model/Tk/*.pm: Correctly set svn Id keyword so CPAN
+	does not complain about lower version of new files.
+
 2009-02-25  Dominique Dumont  <dominique.dumont@hp.com> v1.205
 
 	* lib/Config/Model/Tk/LeafEditor.pm (cleanup): new method (and
