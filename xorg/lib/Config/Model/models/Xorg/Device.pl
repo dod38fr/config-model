@@ -10,10 +10,11 @@
                              'type' => 'leaf',
                              'description' => 'name of the driver to use for this graphics device',
                              'choice' => [
-                                           'radeon',
-                                           'nvidia',
                                            'vesa',
-                                           'fglrx'
+                                           'ati',
+                                           'radeon',
+                                           'fglrx',
+                                           'nvidia'
                                          ]
                            },
                            'BusID',
@@ -91,6 +92,10 @@ PCI:bus:device:function (e.g., \x{201c}PCI:1:0:0\x{201d} might be appropriate fo
                                           '$f1 eq \'fglrx\'',
                                           {
                                             'config_class_name' => 'Xorg::Device::Fglrx'
+                                          },
+                                          '$f1 eq \'ati\'',
+                                          {
+                                            'config_class_name' => 'Xorg::Device::Ati'
                                           }
                                         ],
                              'description' => 'Option flags may be specified in the Device sections. These include driver-specific options and driver-independent options.'

@@ -39,3 +39,4 @@ t/xorg-files/vesa.conf
 t/xorg-files/xorg-ati.conf
 t/xorg.t
 META.yml
+lib/Config/Model/models/Xorg/Device/Ati.pl
