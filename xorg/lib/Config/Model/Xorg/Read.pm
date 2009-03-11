@@ -160,7 +160,7 @@ sub parse_all {
     my $root = shift ;
 
     # important sections must be parsed in a specific order
-    my @sections = qw/InputDevice Device Monitor Screen ServerLayout
+    my @sections = qw/InputDevice Monitor Device Screen ServerLayout
                       ServerFlags/ ;
 
     foreach my $section_name (@sections) {
