@@ -1,6 +1,6 @@
-# $Author$
-# $Date$
-# $Revision$
+# $Author: ddumont $
+# $Date: 2008-12-22 14:36:03 +0100 (lun 22 déc 2008) $
+# $Revision: 818 $
 
 #    Copyright (c) 2008 Dominique Dumont.
 #
@@ -32,7 +32,7 @@ use subs qw/menu_struct/ ;
 
 use Tk::NoteBook;
 
-$VERSION = sprintf "1.%04d", q$Revision$ =~ /(\d+)/;
+$VERSION = sprintf "1.%04d", q$Revision: 818 $ =~ /(\d+)/;
 
 Construct Tk::Widget 'ConfigModelCheckListEditor';
 
