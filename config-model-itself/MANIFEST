@@ -11,6 +11,7 @@ data/MasterModel/HashIdOfValues.pl
 data/MasterModel/WarpedId.pl
 data/MasterModel/WarpedValues.pl
 data/MasterModel/SshdWithAugeas.pl
+data/MasterModel/References.pl
 data/MasterModel/X_base_class.pl
 lib/Config/Model/Itself.pm
 lib/Config/Model/Itself/TkEditUI.pm

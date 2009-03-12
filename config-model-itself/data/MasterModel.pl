@@ -216,6 +216,11 @@
 				      use_eval => 1 ,
 				    },
 		  },
+	       'reference_stuff' 
+	       => {
+	            type => 'node',
+	            config_class_name => 'MasterModel::References',
+	          },
 	       ## too difficult to correctly test Augeas here
 	       'sshd_augeas' 
 	       => {

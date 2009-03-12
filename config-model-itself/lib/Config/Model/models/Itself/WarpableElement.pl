@@ -152,7 +152,6 @@
        allow_keys => 'specify a set of allowed keys',
        default_with_init => 'specify a set of keys to create and initialization on some elements . E.g. \' foo => "X=Av Y=Bv", bar => "Y=Av Z=Cz"\' ',
        convert => 'When stored, the value will be converted to uppercase (uc) or lowercase (lc).',
-       choice => 'Specify the possible values',
        help => 'Specify help string specific to possible values. E.g for "light" value, you could write " red => \'stop\', green => \'walk\' ',
        replace => 'Used for enum to substitute one value with another. This parameter must be used to enable user to upgrade a configuration with obsolete values. The old value is the key of the hash, the new one is the value of the hash',
       ],

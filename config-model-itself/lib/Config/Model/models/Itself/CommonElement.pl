@@ -80,8 +80,10 @@
 				 vt => '?value_type',
 			       },
 		     'rules'
-		     => [ '  ($t eq "leaf" and $vt eq "enum" )
-                            or $t eq "check_list"' 
+		     => [ '  ($t eq "leaf" and (   $vt eq "enum" 
+                                                or $vt eq "reference")
+                             )
+                           or $t eq "check_list"' 
 			  => {
 			      level => 'normal',
 			     } ,
