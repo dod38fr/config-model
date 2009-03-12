@@ -53,7 +53,7 @@ use Config::Model::Tk::HashEditor ;
 use Config::Model::Tk::NodeViewer ;
 
 
-$VERSION = '1.206' ;
+$VERSION = '1.207' ;
 
 Construct Tk::Widget 'ConfigModelUI';
 

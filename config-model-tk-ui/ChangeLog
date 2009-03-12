@@ -1,14 +1,9 @@
-2009-03-11  Dominique Dumont  <domi.dumont@free.fr> v1.206
-
-	* lib/Config/Model/Tk/*.pm: Correctly set svn Id keyword so CPAN
-	does not complain about lower version of new files.
-
-2009-02-25  Dominique Dumont  <dominique.dumont@hp.com> v1.205
+2009-03-12  Dominique Dumont  <dominique.dumont@hp.com> v1.207
 
 	* lib/Config/Model/Tk/LeafEditor.pm (cleanup): new method (and
 	Text editor button) to normalize white space in a string. Useful
-	when filling configuratio parameter description from a man page
-	cut'n'paste.
+	when filling configuration parameter description from a man page
+	with cut'n'paste.
 
 2008-12-22  Dominique Dumont  <dominique.dumont@hp.com> v1.204
 
