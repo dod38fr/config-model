@@ -1,6 +1,6 @@
-# $Author: ddumont $
-# $Date: 2008-11-16 16:33:09 +0100 (dim 16 nov 2008) $
-# $Revision: 798 $
+# $Author$
+# $Date$
+# $Revision$
 
 #    Copyright (c) 2008 Dominique Dumont.
 #
@@ -32,7 +32,7 @@ use vars qw/$VERSION/ ;
 use subs qw/menu_struct/ ;
 use Tk::Dialog ;
 
-$VERSION = sprintf "1.%04d", q$Revision: 798 $ =~ /(\d+)/;
+$VERSION = sprintf "1.%04d", q$Revision$ =~ /(\d+)/;
 
 Construct Tk::Widget 'ConfigModelListEditor';
 

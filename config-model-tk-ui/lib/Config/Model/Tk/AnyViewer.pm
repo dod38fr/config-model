@@ -1,6 +1,6 @@
-# $Author: ddumont $
-# $Date: 2008-12-22 14:36:03 +0100 (lun 22 déc 2008) $
-# $Revision: 818 $
+# $Author$
+# $Date$
+# $Revision$
 
 #    Copyright (c) 2008 Dominique Dumont.
 #
@@ -32,7 +32,7 @@ use Config::Model::TkUI ;
 
 use vars qw/$VERSION $icon_path/ ;
 
-$VERSION = sprintf "1.%04d", q$Revision: 818 $ =~ /(\d+)/;
+$VERSION = sprintf "1.%04d", q$Revision$ =~ /(\d+)/;
 
 my @fbe1 = qw/-fill both -expand 1/ ;
 my @fxe1 = qw/-fill x    -expand 1/ ;
