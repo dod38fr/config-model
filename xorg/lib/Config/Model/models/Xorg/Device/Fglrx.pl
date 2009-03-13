@@ -270,9 +270,7 @@ FireGL X1 and the VGA port on all other cards.'
                            {
                              'value_type' => 'integer',
                              'type' => 'leaf',
-                             'description' => '
-           Needs to be documented. (DRM buffer size, default 65536 Byte, value
-           in Byte)'
+                             'description' => 'Needs to be documented. (DRM buffer size, default 65536 Byte, value in Byte)'
                            },
                            'EnableDepthMoves',
                            {
@@ -314,9 +312,7 @@ FireGL X1 and the VGA port on all other cards.'
                            {
                              'value_type' => 'enum',
                              'type' => 'leaf',
-                             'description' => '
-           Enable a depth 8 PseudoColor visual in the overlay planes that does
-           not reserve index 255 for transparency.',
+                             'description' => 'Enable a depth 8 PseudoColor visual in the overlay planes that does not reserve index 255 for transparency.',
                              'choice' => [
                                            'yes',
                                            'no'
@@ -363,10 +359,7 @@ FireGL X1 and the VGA port on all other cards.'
                            {
                              'value_type' => 'enum',
                              'type' => 'leaf',
-                             'description' => '
-           By default the Full scene Anti Aliasing (FSAA) gamma is set to 2.2,
-           which is typical for CRT displays. Use this option to disable FSAA
-           gamma. The default is: "no".',
+                             'description' => 'By default the Full scene Anti Aliasing (FSAA) gamma is set to 2.2, which is typical for CRT displays. Use this option to disable FSAA gamma. The default is: "no".',
                              'choice' => [
                                            'yes',
                                            'no'
@@ -376,13 +369,7 @@ FireGL X1 and the VGA port on all other cards.'
                            {
                              'value_type' => 'enum',
                              'type' => 'leaf',
-                             'description' => '
-           Do not use EDID data for mode validation, but DDC is still used for
-           monitor detection. This is different from Option "NoDDC". The
-           default is: "off".
-
-           If the server is ignoring your modlines, set this option to "on"
-           and try again.',
+                             'description' => 'Do not use EDID data for mode validation, but DDC is still used for monitor detection. This is different from Option "NoDDC". The default is: "off". If the server is ignoring your modlines, set this option to "on" and try again.',
                              'choice' => [
                                            'yes',
                                            'no'
@@ -392,8 +379,7 @@ FireGL X1 and the VGA port on all other cards.'
                            {
                              'value_type' => 'integer',
                              'type' => 'leaf',
-                             'description' => '
-           Configure the ATI AGP GART (Graphic Address Remapping Table) size.'
+                             'description' => 'Configure the ATI AGP GART (Graphic Address Remapping Table) size.'
                            },
                            'Mode2',
                            {
@@ -408,10 +394,7 @@ FireGL X1 and the VGA port on all other cards.'
                            {
                              'value_type' => 'enum',
                              'type' => 'leaf',
-                             'description' => '
-           Enable or disable DRI Memory Type Range Registers (MTRR) mapper. Be
-           aware, that the driver has its own code for MTRR. The default is:
-           "off".',
+                             'description' => 'Enable or disable DRI Memory Type Range Registers (MTRR) mapper. Be aware, that the driver has its own code for MTRR. The default is: "off".',
                              'choice' => [
                                            'on',
                                            'off'
@@ -421,9 +404,7 @@ FireGL X1 and the VGA port on all other cards.'
                            {
                              'value_type' => 'enum',
                              'type' => 'leaf',
-                             'description' => '
-           Enables or disables all hardware acceleration (XAA). The default
-           is: "off".',
+                             'description' => 'Enables or disables all hardware acceleration (XAA). The default is: "off".',
                              'choice' => [
                                            'on',
                                            'off'
@@ -433,8 +414,7 @@ FireGL X1 and the VGA port on all other cards.'
                            {
                              'value_type' => 'enum',
                              'type' => 'leaf',
-                             'description' => '
-           Enables or disables DRI extension. The default is: "off".',
+                             'description' => 'Enables or disables DRI extension. The default is: "off".',
                              'choice' => [
                                            'on',
                                            'off'
@@ -444,9 +424,7 @@ FireGL X1 and the VGA port on all other cards.'
                            {
                              'value_type' => 'enum',
                              'type' => 'leaf',
-                             'description' => '
-           Disable probing of DDC-information from your monitor. The default
-           is: "off".',
+                             'description' => 'Disable probing of DDC-information from your monitor. The default is: "off".',
                              'choice' => [
                                            'on',
                                            'off'
@@ -466,9 +444,7 @@ FireGL X1 and the VGA port on all other cards.'
                            {
                              'value_type' => 'enum',
                              'type' => 'leaf',
-                             'description' => '
-           If you enable this option, Option "VideoOverlay" will be disabled
-           automatically.',
+                             'description' => 'If you enable this option, Option "VideoOverlay" will be disabled automatically.',
                              'choice' => [
                                            'on',
                                            'off'
@@ -478,12 +454,11 @@ FireGL X1 and the VGA port on all other cards.'
                            {
                              'value_type' => 'enum',
                              'type' => 'leaf',
-                             'description' => '
-           "0"   PBuffer area disabled.
-           "1"   Size of PBuffer area 1280x1024.
-           "2"   Size of PBuffer area 1600x1200.
-           "3"   Size of PBuffer area 1920x1200.
-           "4"   Size of PBuffer area 2048x1536.',
+                             'description' => '"0" PBuffer area disabled. 
+"1" Size of PBuffer area 1280x1024. 
+"2" Size of PBuffer area 1600x1200. 
+"3" Size of PBuffer area 1920x1200. 
+"4" Size of PBuffer area 2048x1536.',
                              'choice' => [
                                            0,
                                            1,
@@ -500,11 +475,9 @@ FireGL X1 and the VGA port on all other cards.'
                            'PseudoColorVisuals',
                            {
                              'value_type' => 'enum',
+                             'built_in' => 'off',
                              'type' => 'leaf',
-                             'description' => '
-           Enabling this options allows the usage of pseudo color visuals at
-           the same time with true color visuals using the overlay technique.
-           The default is: "off".',
+                             'description' => 'Enabling this options allows the usage of pseudo color visuals at the same time with true color visuals using the overlay technique. The default is: "off".',
                              'choice' => [
                                            'on',
                                            'off'
@@ -514,27 +487,19 @@ FireGL X1 and the VGA port on all other cards.'
                            {
                              'value_type' => 'integer',
                              'type' => 'leaf',
-                             'description' => '
-           Needs to be documented. (ring buffer size, default = "1", values in
-           MB)'
+                             'description' => 'Needs to be documented. (ring buffer size, default = "1", values in MB)'
                            },
                            'ScreenOverlap',
                            {
                              'value_type' => 'integer',
                              'type' => 'leaf',
-                             'description' => '
-           This option is intended to allow image overlapping with e.g. two
-           video projectors. It only applies to big desktops (see Option
-           "DesktopSetup").'
+                             'description' => 'This option is intended to allow image overlapping with e.g. two video projectors. It only applies to big desktops (see Option "DesktopSetup").'
                            },
                            'SilkenMouse',
                            {
                              'value_type' => 'enum',
                              'type' => 'leaf',
-                             'description' => '
-           Enable or disable the hardware cursor to be updated asynchronously
-           by the signal handler associated with mouse events. The default is:
-           "on".',
+                             'description' => 'Enable or disable the hardware cursor to be updated asynchronously by the signal handler associated with mouse events. The default is: "on".',
                              'choice' => [
                                            'on',
                                            'off'
@@ -544,19 +509,7 @@ FireGL X1 and the VGA port on all other cards.'
                            {
                              'value_type' => 'enum',
                              'type' => 'leaf',
-                             'description' => '
-           To enable Stereo mode of Quad Buffer Stereo ("Active Stereo")
-           capable cards, set this value to "on" and disable Option
-           "VideoOverlay" and Option "OpenGLOverlay". The default is: "off".
-
-           If you enable Stereo Quad Buffering then you should not use virtual
-           desktops bigger than the selected resolution. Further the stereo
-           feature will only initialize if your adapter is in text-mode when
-           launching X and the respective display mode. The adapter can not
-           switch between multiple resolutions while keeping the stereo setup.
-           For that reason it is highly recommended that you have only one
-           single modes in your config file at Section "Screen" -> SubSection
-           "Display".',
+                             'description' => 'To enable Stereo mode of Quad Buffer Stereo ("Active Stereo") capable cards, set this value to "on" and disable Option "VideoOverlay" and Option "OpenGLOverlay". The default is: "off". If you enable Stereo Quad Buffering then you should not use virtual desktops bigger than the selected resolution. Further the stereo feature will only initialize if your adapter is in text-mode when launching X and the respective display mode. The adapter can not switch between multiple resolutions while keeping the stereo setup. For that reason it is highly recommended that you have only one single modes in your config file at Section "Screen" -> SubSection "Display".',
                              'choice' => [
                                            'on',
                                            'off'
@@ -571,9 +524,7 @@ FireGL X1 and the VGA port on all other cards.'
                            {
                              'value_type' => 'enum',
                              'type' => 'leaf',
-                             'description' => '
-           Disable or enable the use of a software cursor. The default is:
-           "off".',
+                             'description' => 'Disable or enable the use of a software cursor. The default is: "off".',
                              'choice' => [
                                            'on',
                                            'off'
@@ -583,12 +534,7 @@ FireGL X1 and the VGA port on all other cards.'
                            {
                              'value_type' => 'enum',
                              'type' => 'leaf',
-                             'description' => '
-           Internal TMDS transmitter can be programmed in 2 different ways to
-           get best signal qualities depending on connected transmitter chips
-           in the panel. The noise must appear in 1600x1200 mode, but can also
-           come up in 1280x1024x75Hz. You can enable or disable the coherent
-           mode using this option. The default is: "on".',
+                             'description' => 'Internal TMDS transmitter can be programmed in 2 different ways to get best signal qualities depending on connected transmitter chips in the panel. The noise must appear in 1600x1200 mode, but can also come up in 1280x1024x75Hz. You can enable or disable the coherent mode using this option. The default is: "on".',
                              'choice' => [
                                            'on',
                                            'off'
@@ -630,14 +576,9 @@ FireGL X1 and the VGA port on all other cards.'
                            'TVOverscan',
                            {
                              'value_type' => 'enum',
+                             'built_in' => 'on',
                              'type' => 'leaf',
-                             'description' => '
-           Enable or disable TV overscan. Available values are: on, off. The
-           default is: "on".
-
-           Note
-           Not all TV formats support overscan. Try to toggle overscan off
-           before changing Option "TVFormat" if an error occurs.',
+                             'description' => 'Enable or disable TV overscan. Available values are: on, off. The default is: "on". Note: Not all TV formats support overscan. Try to toggle overscan off before changing Option "TVFormat" if an error occurs.',
                              'choice' => [
                                            'on',
                                            'off'
