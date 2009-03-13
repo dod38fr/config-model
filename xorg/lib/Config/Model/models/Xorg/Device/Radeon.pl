@@ -82,6 +82,21 @@
                              'value_type' => 'reference',
                              'type' => 'leaf',
                              'refer_to' => '! Monitor'
+                           },
+                           'IgnoreEDID',
+                           {
+                             'value_type' => 'enum',
+                             'type' => 'leaf',
+                             'description' => 'Do not use EDID data for mode validation, but DDC is still used for monitor detection. This is different from Option "NoDDC". The default is: "off". If the server is ignoring your modlines, set this option to "on" and try again.',
+                             'choice' => [
+                                           'off',
+                                           'on'
+                                         ]
+                           },
+                           'PanelSize',
+                           {
+                             'value_type' => 'uniline',
+                             'type' => 'leaf'
                            }
                          ]
           }

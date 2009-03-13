@@ -5,7 +5,6 @@
                            'Device',
                            {
                              'value_type' => 'reference',
-                             'mandatory' => 1,
                              'type' => 'leaf',
                              'description' => 'specifies the Device section to be used for this
        screen. This is what ties a specific graphics card to a

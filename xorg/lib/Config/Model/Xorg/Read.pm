@@ -107,7 +107,7 @@ sub parse_raw_xorg {
 	my $line_data = shift @$xorg_lines ;
 	my ($line_nb,$line) = @$line_data ;
 	my ($key,$value) = split /\s+/,$line,2;
-	if ($key eq 'Section') {
+	if ($key =~ /\bsection\b/i) {
 	    $value =~ s/"//g;
 	    push @{$data{$value}}, 
 	      [ $line_nb, parse_raw_section($xorg_lines) ] ;
@@ -126,11 +126,12 @@ sub parse_raw_section {
 	my $line_data = shift @$xorg_lines ;
 	my ($line_nb,$line) = @$line_data ;
 	my ($key,$value) = split /\s+/,$line,2;
-	if ($key eq 'EndSection' or $key eq 'EndSubSection') {
+	if ($key =~ /EndSection/i or $key =~ /EndSubSection/i) {
 	    return \%data ;
 	}
-	elsif ($key eq 'SubSection') {
+	elsif ($key =~ /subsection/i) {
 	    $value =~ s/"//g;
+	    $logger->debug( "parse_raw_section: SubSection $value line $line_nb");
 	    push @{$data{$value}}, [ $line_nb, parse_raw_section($xorg_lines) ];
 	}
 	else {
@@ -438,7 +439,7 @@ sub parse_section {
     foreach my $important (qw/Driver Monitor/) {
 	if ($tmp_obj->has_element($important)) {
 	    my $item = delete $section_data->{$important};
-	    $logger->debug( $obj->name," loads $important with ",$item->[0][1]);
+	    $logger->debug( $tmp_obj->name," loads $important with ",$item->[0][1]);
 	    $tmp_obj->fetch_element($important)->store($item->[0][1]) ;
 	}
     }

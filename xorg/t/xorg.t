@@ -19,18 +19,16 @@ no warnings qw(once);
 
 use strict;
 
-use vars qw/$model/;
-
 
 my $arg = shift || '' ;
+my $want_test = shift || '' ;
+
 my $trace = $arg =~ /t/ ? 1 : 0 ;
 $::verbose          = 1 if $arg =~ /v/;
 $::debug            = 1 if $arg =~ /d/;
 my $log             = 1 if $arg =~ /l/;
 
 Log::Log4perl->easy_init($log ? $DEBUG: $WARN);
-
-$model = Config::Model -> new ( ) ;# model_dir => '.' );
 
 Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 
@@ -49,9 +47,13 @@ my $wr_root = 'wr_test';
 # cleanup before tests
 rmtree($wr_root);
 
+my $model = Config::Model -> new ( ) ;# model_dir => '.' );
+
 foreach my $file (@test_files) {
     my $test = $file ;
     $test =~ s/.conf//;
+    next if $want_test && $want_test ne $test ;
+
 
     my $wr_dir = "$wr_root/$test" ;
     my $confdir = $wr_dir.'/etc/X11' ;
@@ -98,7 +100,7 @@ foreach my $file (@test_files) {
     ok($inst,"$test: wrote back file in $wr_dir") ;
 
     my $inst2 = $model->instance (root_class_name   => 'Xorg', 
-				  instance_name     => 'xorg_instance2',
+				  instance_name     => "test_2_$test",
 				  root_dir          =>  $wr_dir,
 				 );
 
