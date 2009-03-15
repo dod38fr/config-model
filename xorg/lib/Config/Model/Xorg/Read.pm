@@ -245,12 +245,12 @@ sub parse_option {
 }
 
 my %mode_flags = (
-	     '+HSync' => "HSyncPolarity=positive",
-	     '-HSync' => "HSyncPolarity=negative",
-	     '+VSync' => "VSyncPolarity=positive",
-	     '-VSync' => "VSyncPolarity=negative",
-	     '+CSync' => "CSyncPolarity=positive",
-	     '-CSync' => "CSyncPolarity=negative",
+	     '+hsync' => "HSyncPolarity=positive",
+	     '-hsync' => "HSyncPolarity=negative",
+	     '+vsync' => "VSyncPolarity=positive",
+	     '-vsync' => "VSyncPolarity=negative",
+	     '+csync' => "CSyncPolarity=positive",
+	     '-csync' => "CSyncPolarity=negative",
 	    );
 
 sub parse_mode_line {
@@ -263,7 +263,7 @@ sub parse_mode_line {
     $load .= "HTimings disp=$v[1] syncstart=$v[2] syncend=$v[3] total=$v[4] - ";
     $load .= "VTimings disp=$v[5] syncstart=$v[6] syncend=$v[7] total=$v[8] - ";
 
-    $load .= "Flags " . join (' ', map {$mode_flags{$_} || "$_=1" } @m ) . ' - ' 
+    $load .= "Flags " . join (' ', map {$mode_flags{lc($_)} || "$_=1" } @m ) . ' - ' 
       if @m ;
 
     $logger->debug( "parse_mode_line: ($line) load '$load'");
@@ -448,30 +448,41 @@ sub parse_section {
     foreach my $key (keys %$section_data) {
 	my $a2_r = $section_data->{$key}; # array of array ref ;
 
+    SECTION_LINE:
 	foreach my $arg (@$a2_r) {
 	    if (defined $parse_line{$key}) {
 		$parse_line{$key} -> ($tmp_obj, $key, @$arg) ;
+		next SECTION_LINE;
 	    }
-	    else {
-		if (ref $arg->[1] eq 'HASH') {
-		    # we have a subsection
-		    $logger->debug( $tmp_obj->name, " subsection $key ");
-		    parse_section($arg,$tmp_obj->fetch_element($key)) ;
-		}
-		elsif ($tmp_obj->has_element($key) ) {
-		    my $line = shift @$arg ;
-		    my $val = "@$arg" ; 
-		    $logger->debug( $tmp_obj->name, 
-				    " ($line) store $key = '$val'");
-		    $tmp_obj->fetch_element($key)->store($val)
-		}
-		else {
-		    my $line = shift @$arg ;
-		    $logger->warn( "parse_section $line: unexpected '$key' "
-				   ."element for ",
-				   $tmp_obj->name, " (@$arg)") ;
+
+	    # test for parse_line argument with different case
+	    foreach my $official_key (keys %parse_line) {
+		if ($key =~ /$official_key/i) {
+		    $parse_line{$official_key} -> ($tmp_obj, $key, @$arg) ;
+		    next SECTION_LINE ;
 		}
 	    }
+
+	    if (ref $arg->[1] eq 'HASH') {
+		# we have a subsection
+		$logger->debug( $tmp_obj->name, " subsection $key ");
+		parse_section($arg,$tmp_obj->fetch_element($key)) ;
+		next SECTION_LINE;
+	    }
+
+	    if ($tmp_obj->has_element($key) ) {
+		my $line = shift @$arg ;
+		my $val = "@$arg" ; 
+		$logger->debug( $tmp_obj->name, 
+				" ($line) store $key = '$val'");
+		$tmp_obj->fetch_element($key)->store($val);
+		next SECTION_LINE;
+	    }
+
+	    my $line = shift @$arg ;
+	    $logger->warn( "parse_section $line: unexpected '$key' "
+			   ."element for ",
+			   $tmp_obj->name, " (@$arg)") ;
 	}
 
     }

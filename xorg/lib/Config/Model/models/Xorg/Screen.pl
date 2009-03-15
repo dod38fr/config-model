@@ -14,7 +14,6 @@
                            'Monitor',
                            {
                              'value_type' => 'reference',
-                             'mandatory' => 1,
                              'type' => 'leaf',
                              'description' => 'specifies which monitor description is to be used
               for this screen. If a Monitor name is not specified, a

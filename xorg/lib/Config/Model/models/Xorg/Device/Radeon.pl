@@ -83,6 +83,12 @@
                              'type' => 'leaf',
                              'refer_to' => '! Monitor'
                            },
+                           'Monitor-LVDS',
+                           {
+                             'value_type' => 'reference',
+                             'type' => 'leaf',
+                             'refer_to' => '! Monitor'
+                           },
                            'IgnoreEDID',
                            {
                              'value_type' => 'enum',

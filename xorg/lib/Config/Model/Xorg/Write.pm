@@ -116,6 +116,7 @@ my %dispatch_leaf
      'Xorg::InputDevice::MouseOpt' => \&wr_std_options ,
      'Xorg::InputDevice::KeyboardOpt' => \&wr_std_options ,
      'Xorg::Device' => \&wr_std_leaf ,
+     'Xorg::Device::Ati' => \&wr_std_options ,
      'Xorg::Device::Radeon' => \&wr_std_options ,
      'Xorg::Device::Nvidia' => \&wr_std_options ,
      'Xorg::Device::Fglrx' => \&wr_std_options ,
