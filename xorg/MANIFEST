@@ -39,5 +39,6 @@ t/xorg-files/modern.conf
 t/xorg-files/vesa.conf
 t/xorg-files/xorg-ati.conf
 t/xorg.t
+t/pod.t
 META.yml
 lib/Config/Model/models/Xorg/Device/Ati.pl
