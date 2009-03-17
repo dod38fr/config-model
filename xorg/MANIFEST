@@ -35,6 +35,7 @@ MANIFEST			This list of files
 README
 t/xorg-files/xorg.conf
 t/xorg-files/fglrx.conf
+t/xorg-files/modern.conf
 t/xorg-files/vesa.conf
 t/xorg-files/xorg-ati.conf
 t/xorg.t
