@@ -37,7 +37,7 @@ opendir(DIR,$data_dir) || die "can't open dir $data_dir:$!";
 my @test_files = grep  {/\.conf$/ }  readdir(DIR);
 closedir(DIR) ;
 
-plan tests => scalar @test_files * 6 + 1;
+plan tests => scalar @test_files * 7 + 1;
 
 ok(1,"compiled");
 
@@ -53,14 +53,16 @@ foreach my $file (@test_files) {
     my $test = $file ;
     $test =~ s/.conf//;
     next if $want_test && $want_test ne $test ;
-
+ 
 
     my $wr_dir = "$wr_root/$test" ;
     my $confdir = $wr_dir.'/etc/X11' ;
     mkpath($confdir, { mode => 0755 }) || die "can't mkpath $confdir: $!";
 
     my $f = "$data_dir/$file";
-    print "Copy $f in $confdir\n" ;
+
+    ok(1,"Begin $test test with $f") ;
+
     copy($f,"$confdir/xorg.conf") || die "can't copy file $f:$!";;
 
     my $inst = $model->instance (root_class_name   => 'Xorg', 

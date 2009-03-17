@@ -1,3 +1,10 @@
+2009-03-17  Dominique Dumont  <dominique.dumont@hp.com> 1.102
+
+	* lib/Config/Model/Xorg/Read.pm: Is now insentive to case for
+	keywords (like Xorg). 
+	* Fixed tests that were not correct in 1.101 
+	* Hence a lot of bugs were fixed.
+
 2009-02-24  Dominique Dumont  <dominique.dumont@hp.com> 1.101
 
 	* config-edit-xorg: new file to ease firing up xorg.conf editor

@@ -12,12 +12,6 @@
                              'description' => 'File pathnames',
                              'config_class_name' => 'Xorg::Files'
                            },
-                           'ServerFlags',
-                           {
-                             'type' => 'node',
-                             'description' => 'Server flags used to specify some global Xorg server options.',
-                             'config_class_name' => 'Xorg::ServerFlags'
-                           },
                            'Module',
                            {
                              'type' => 'node',
@@ -60,16 +54,6 @@
                              'type' => 'leaf',
                              'description' => 'Set this to one if you plan to use more than 1 display'
                            },
-                           'Device',
-                           {
-                             'cargo' => {
-                                          'type' => 'node',
-                                          'config_class_name' => 'Xorg::Device'
-                                        },
-                             'type' => 'hash',
-                             'description' => 'Graphics device description',
-                             'index_type' => 'string'
-                           },
                            'Monitor',
                            {
                              'cargo' => {
@@ -78,6 +62,16 @@
                                         },
                              'type' => 'hash',
                              'description' => 'Monitor description',
+                             'index_type' => 'string'
+                           },
+                           'Device',
+                           {
+                             'cargo' => {
+                                          'type' => 'node',
+                                          'config_class_name' => 'Xorg::Device'
+                                        },
+                             'type' => 'hash',
+                             'description' => 'Graphics device description',
                              'index_type' => 'string'
                            },
                            'Modes',
@@ -111,6 +105,12 @@
        (Screen sections) and one or more input devices (InputDevice
        sections) to form a complete configuration.',
                              'index_type' => 'string'
+                           },
+                           'ServerFlags',
+                           {
+                             'type' => 'node',
+                             'description' => 'Server flags used to specify some global Xorg server options.',
+                             'config_class_name' => 'Xorg::ServerFlags'
                            },
                            'DRI',
                            {

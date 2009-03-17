@@ -43,7 +43,7 @@ Log::Log4perl::init($log4perl_conf) unless Log::Log4perl->initialized ;
 
 use vars qw($VERSION) ;
 
-$VERSION = '1.101' ;
+$VERSION = '1.102' ;
 
 =head1 NAME
 

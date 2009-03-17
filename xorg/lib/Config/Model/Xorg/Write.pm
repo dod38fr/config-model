@@ -1,5 +1,5 @@
-# $Author: ddumont $
-# $Date: 2008-02-26 17:37:39 $
+# $Author$
+# $Date$
 # $Revision$
 
 #    Copyright (c) 2005-2009 Dominique Dumont.
@@ -32,7 +32,7 @@ use File::Path ;
 
 use vars qw($VERSION) ;
 
-$VERSION = sprintf "1.%04d", q$Revision: 711 $ =~ /(\d+)/;
+$VERSION = sprintf "1.%04d", q$Revision$ =~ /(\d+)/;
 
 my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
@@ -170,20 +170,24 @@ sub wr_section {
     my ($scanner, $data_r, $node,$element_name,$key,$next_node) = @_;
     #print "wr_section called on ",$node->name," $element_name,$key\n";
 
-    push @$data_r, qq(Section "$element_name") ;
-    push @$data_r, qq(\tIdentifier\t"$key") if defined $key ;
+    my @section_lines ;
+    push @section_lines, qq(\tIdentifier\t"$key") if defined $key ;
 
     if ($element_name eq 'InputDevice') {
 	map {
 	    my $core_v = $node->grab_value("! $_") ;
-	    push @$data_r, qq(\tOption\t"$_")
+	    push @section_lines, qq(\tOption\t"$_")
 	      if (defined $core_v and $key eq $core_v) ;
 	} qw/CoreKeyboard CorePointer/ ;
     }
 
-    $scanner->scan_node($data_r,$next_node) ;
-    push @$data_r, "EndSection" , '' ;
-} ;
+    $scanner->scan_node(\@section_lines,$next_node) ;
+
+    if (@section_lines) {
+	push @$data_r, qq(Section "$element_name"), @section_lines,
+	  "EndSection" , '' ;
+    }
+}
 
 sub wr_mode_line {
     my ($scanner, $data_r, $node,$element_name,$key,$next_node) = @_;
@@ -341,7 +345,7 @@ sub wr_node {
 sub wr_mode_list {
     my ($scanner, $data_ref,$node,$element_name,@indexes) = @_ ;
     my @list = $node->fetch_element($element_name)->fetch_all_values ;
-    push @$data_ref, qq(\t\tModes\t").join('" "',@list).'"';
+    push @$data_ref, qq(\t\tModes\t").join('" "',@list).'"' if @list;
 }
 
 my %dispatch_list = ( 'Xorg::Screen::Display' => \&wr_mode_list );
@@ -361,7 +365,7 @@ sub wr_check_list {
     my ($scanner, $data_ref,$node,$element_name,@indexes) = @_ ;
     #warn "wr_check_list called on node ".$node->name." element $element_name\n";
     my @list = $node->fetch_element($element_name)->get_checked_list ;
-    push @$data_ref, qq(\t\t$element_name\t").join('" "',@list).'"';
+    push @$data_ref, qq(\t\t$element_name\t").join('" "',@list).'"' if @list;
 }
 
 sub write_all {

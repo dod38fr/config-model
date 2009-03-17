@@ -1,8 +1,8 @@
-# $Author: ddumont $
-# $Date: 2008-01-23 11:12:16 $
+# $Author$
+# $Date$
 # $Revision$
 
-#    Copyright (c) 2005,2006 Dominique Dumont.
+#    Copyright (c) 2005-2009 Dominique Dumont.
 #
 #    This file is part of Config-Xorg.
 #
@@ -31,7 +31,7 @@ use Data::Dumper ;
 
 use vars qw($VERSION) ;
 
-$VERSION = sprintf "1.%04d", q$Revision: 711 $ =~ /(\d+)/;
+$VERSION = sprintf "1.%04d", q$Revision$ =~ /(\d+)/;
 
 my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
@@ -106,13 +106,16 @@ sub parse_raw_xorg {
     while (@$xorg_lines) {
 	my $line_data = shift @$xorg_lines ;
 	my ($line_nb,$line) = @$line_data ;
-	my ($key,$value) = split /\s+/,$line,2;
-	if ($key =~ /\bsection\b/i) {
-	    $value =~ s/"//g;
-	    push @{$data{$value}}, 
+	my ($raw_key,$value) = split /\s+/,$line,2;
+	my $key = lc($raw_key) ;
+	if ($key eq 'section') {
+	    # Section names are insensitive to '_' and ' '
+	    $value =~ s/["_ ]+//g;
+	    push @{$data{lc($value)}}, 
 	      [ $line_nb, parse_raw_section($xorg_lines) ] ;
 	}
     }
+
     return \%data ;
 }
 
@@ -120,19 +123,24 @@ sub parse_raw_section {
     my $xorg_lines = shift ;
 
     my %data ;
-    $logger->debug( "parse_raw_section: called");
+    $logger->debug( "parse_raw_section: called on xorg file $xorg_lines->[0][0]");
 
     while (@$xorg_lines) {
 	my $line_data = shift @$xorg_lines ;
 	my ($line_nb,$line) = @$line_data ;
-	my ($key,$value) = split /\s+/,$line,2;
-	if ($key =~ /EndSection/i or $key =~ /EndSubSection/i) {
+	my ($raw_key,$value) = split /\s+/,$line,2;
+
+	my $key = lc($raw_key) ; # keys are case insensitive
+	$key =~ s/_+//g;  # keys are insensitive to '_'
+
+	if ($key =~ /end(sub)?section/) {
 	    return \%data ;
 	}
-	elsif ($key =~ /subsection/i) {
-	    $value =~ s/"//g;
-	    $logger->debug( "parse_raw_section: SubSection $value line $line_nb");
-	    push @{$data{$value}}, [ $line_nb, parse_raw_section($xorg_lines) ];
+	elsif ($key eq 'subsection') {
+	    $value =~ s/["_ ]//g;
+	    my $store = lc($value) ; # subsection name is case insensitive
+	    $logger->debug("parse_raw_section: SubSection $value $line_nb");
+	    push @{$data{$store}}, [ $line_nb, parse_raw_section($xorg_lines) ];
 	}
 	else {
 	    my @store = ( $line_nb ) ;
@@ -159,28 +167,19 @@ sub parse_raw_section {
 sub parse_all {
     my $xorg_conf = shift;
     my $root = shift ;
+    $logger->debug("parse_all: called on ".join(' ', keys %$xorg_conf));
 
-    # important sections must be parsed in a specific order
-    my @sections = qw/InputDevice Monitor Device Screen ServerLayout
-                      ServerFlags/ ;
+    # parse section data according to model elements order
+    foreach my $section_name ($root->get_element_name) {
+	my $lc_section_name = lc($section_name) ;
 
-    foreach my $section_name (@sections) {
-	foreach	my $section_data (@{$xorg_conf->{$section_name}}) {
-	    $logger->debug( "parse_all: important section '$section_name'");
-	    parse_section($section_data,$root->fetch_element($section_name)) ;
-	}
-	delete $xorg_conf->{$section_name} ;
-    }
+	my $section_data_ref = delete $xorg_conf->{$lc_section_name} ;
+	next unless defined $section_data_ref ;
 
-    # try to parse remaining sections
-    foreach my $section_name (keys %$xorg_conf) {
-	next unless $root->has_element($section_name) ;
-
-	foreach	my $section_data (@{$xorg_conf->{$section_name}}) {
+	foreach	my $section_data (@$section_data_ref) {
 	    $logger->debug( "parse_all: section '$section_name'");
 	    parse_section($section_data,$root->fetch_element($section_name)) ;
 	}
-	delete $xorg_conf->{$section_name} ;
     }
 
     if (keys %$xorg_conf) {
@@ -192,6 +191,7 @@ sub parse_all {
 sub parse_option {
     my ($obj, $trash, $line, @args) = @_ ;
     my $opt = shift @args;
+    $logger->debug( "parse_option: called on option $opt $line");
 
     if ($obj->config_class_name eq 'Xorg::ServerFlags') {
 	$logger->debug( "parse_option: obj ",$obj->name, " ($line) load option '$opt' ");
@@ -392,17 +392,17 @@ sub parse_gamma {
 
 my %parse_line 
   = (
-     'FontPath' => sub { $_[0]->fetch_element($_[1])->push($_[3]) ;} ,
-     'Load'     => sub { $_[0]->fetch_element($_[3])->store(1)    ;} ,
-     'ModeLine' => \&parse_mode_line,
-     'Option'   => \&parse_option ,
-     'Modes'    => \&parse_modes_list,
-     'Screen'   => \&parse_layout_screen,
-     'InputDevice' => \&parse_input_device,
-     'DisplaySize' => \&parse_display_size ,
-     'ViewPort' => \&parse_view_port ,
-     'Virtual'  => \&parse_virtual ,
-     'Gamma'    => \&parse_gamma ,
+     'fontpath' => sub { $_[0]->fetch_element($_[1])->push($_[3]) ;} ,
+     'load'     => sub { $_[0]->fetch_element($_[3])->store(1)    ;} ,
+     'modeline' => \&parse_mode_line,
+     'option'   => \&parse_option ,
+     'modes'    => \&parse_modes_list,
+     'screen'   => \&parse_layout_screen,
+     'inputdevice' => \&parse_input_device,
+     'displaysize' => \&parse_display_size ,
+     'viewport' => \&parse_view_port ,
+     'virtual'  => \&parse_virtual ,
+     'gamma'    => \&parse_gamma ,
     ) ;
 
 sub parse_section {
@@ -421,13 +421,12 @@ sub parse_section {
 
     # first get the identifier and create the object. 
     if ($has_id) {
-	my $id_rr =  delete $section_data->{Identifier}
-	          || delete $section_data->{Depth} ;
+	my $id_rr =  delete $section_data->{identifier}
+	          || delete $section_data->{depth} ;
 	if (not defined $id_rr) {
 	    $logger->debug( "parse_section can't find identifier for ",$obj->name );
 	    return ;
 	}
-
 
 	my ($line,$id) = @{$id_rr->[0]}  ;
 	$logger->debug( "parse_section $line: found id '$id' for '",
@@ -435,56 +434,49 @@ sub parse_section {
 	$tmp_obj = $obj->fetch_with_id($id) ;
     }
 
-    # get driver or other important (warp master) element
-    foreach my $important (qw/Driver Monitor/) {
-	if ($tmp_obj->has_element($important)) {
-	    my $item = delete $section_data->{$important};
-	    $logger->debug( $tmp_obj->name," loads $important with ",$item->[0][1]);
-	    $tmp_obj->fetch_element($important)->store($item->[0][1]) ;
-	}
-    }
+    # parse special cases and section data according to model elements order
+    # special case: modeline must be parsed first
+    foreach my $elt_name ('modeline',$tmp_obj->get_element_name) {
+	my $lc_name = lc($elt_name) ;
+	my $a2_r = delete $section_data->{$lc_name}; # array of array ref ;
 
-    # then fill remaining data;
-    foreach my $key (keys %$section_data) {
-	my $a2_r = $section_data->{$key}; # array of array ref ;
+	next unless defined $a2_r ;
 
-    SECTION_LINE:
+	$logger->debug( "parse_section: parse section data key '$lc_name'");
+
 	foreach my $arg (@$a2_r) {
-	    if (defined $parse_line{$key}) {
-		$parse_line{$key} -> ($tmp_obj, $key, @$arg) ;
-		next SECTION_LINE;
+	    if (defined $parse_line{$lc_name}) {
+		$parse_line{$lc_name} -> ($tmp_obj, $elt_name, @$arg) ;
 	    }
-
-	    # test for parse_line argument with different case
-	    foreach my $official_key (keys %parse_line) {
-		if ($key =~ /$official_key/i) {
-		    $parse_line{$official_key} -> ($tmp_obj, $key, @$arg) ;
-		    next SECTION_LINE ;
-		}
-	    }
-
-	    if (ref $arg->[1] eq 'HASH') {
+	    elsif (ref $arg->[1] eq 'HASH') {
 		# we have a subsection
-		$logger->debug( $tmp_obj->name, " subsection $key ");
-		parse_section($arg,$tmp_obj->fetch_element($key)) ;
-		next SECTION_LINE;
+		$logger->debug( $tmp_obj->name, " subsection $elt_name ");
+		parse_section($arg,$tmp_obj->fetch_element($elt_name)) ;
 	    }
-
-	    if ($tmp_obj->has_element($key) ) {
+	    else {
 		my $line = shift @$arg ;
 		my $val = "@$arg" ; 
 		$logger->debug( $tmp_obj->name, 
-				" ($line) store $key = '$val'");
-		$tmp_obj->fetch_element($key)->store($val);
-		next SECTION_LINE;
+				" ($line) store $elt_name = '$val'");
+		$tmp_obj->fetch_element($elt_name)->store($val);
 	    }
-
-	    my $line = shift @$arg ;
-	    $logger->warn( "parse_section $line: unexpected '$key' "
-			   ."element for ",
-			   $tmp_obj->name, " (@$arg)") ;
 	}
+    }
 
+    if ( %$section_data ) {
+	foreach my $lc_name (keys %$section_data) {
+	    if (defined $parse_line{$lc_name}) {
+		my $a2_r = delete $section_data->{$lc_name};
+		foreach my $arg (@$a2_r) {
+		    $parse_line{$lc_name} -> ($tmp_obj, $lc_name, @$arg) ;
+		}
+	    }
+	    else {
+		$logger->warn( "parse_section: unexpected '$lc_name' "
+			       ."element for ", $tmp_obj->name) ;
+		die ;
+	    }
+	}
     }
 }
 1;
