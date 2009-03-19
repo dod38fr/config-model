@@ -187,10 +187,6 @@ my @kbd_option_elt
      XkbOptions => $xkb_options_elt, 
     ) ;
 
-my %defaults = (
-		'model' => { xorg => 'pc105', 'xorg-it' => 'pc105' } ,
-	       ) ;
-
 my @try_xkb_dirs = ( "/usr/share/X11/xkb/rules" ,   # Linux path
 		     "/usr/X11/lib/X11/xkb/rules/", # tentative path for Solaris
 		     "/usr/X11R6/lib/X11/xkb/rules/", # tentative path for Solaris
@@ -276,13 +272,6 @@ foreach my $file (@lst_files) {
 	}
 	elsif ($mode eq 'model') {
 	    my ($item, $help) = split /\s+/,$_,2 ;
-	    if (    defined $defaults{$mode} 
-		and defined $defaults{$mode}{$rules_name}
-                and $defaults{$mode}{$rules_name} eq '$item' 
-	       ) {
-		$xkb_model_warp_effect{default} =  $item ;
-		#print "Adding default for $mode and $rules_name\n";
-	    }
 	    push @{ $xkb_model_warp_effect{choice} }, $item ;
 	    $xkb_model_warp_effect{help}{$item} = $help ;
 	}
@@ -320,8 +309,8 @@ foreach my $file (@lst_files) {
     my $all_layout_rule = join ' and ', map { qq!\$l eq "$_"! } @{$xkb_layout_warp_effect{choice}} ;
 
     my @rules = map { 
-	my $layout_rule = $_ eq '__all__' ? $all_layout_rule : $_ ;
-	( qq!( $warp_rule ) and \$l eq "$layout_rule" ! => $variant_rules{$_}) ;
+	my $layout_rule = $_ eq '__all__' ? $all_layout_rule : qq!"\$l eq $_"! ;
+	( qq!( $warp_rule ) and $layout_rule ! => $variant_rules{$_}) ;
     } keys %variant_rules ;
 
     push @{ $xkb_variant_elt->{warp}{rules}} , @rules ;
