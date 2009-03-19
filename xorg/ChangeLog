@@ -1,3 +1,8 @@
+2009-03-19  Dominique Dumont  <dominique.dumont@hp.com> 1.103
+
+	* Build.PL: Fix generated parts of Xorg model: Removed default
+	values for keyboard models. Fixed wrong keyboard layout warp rule.
+
 2009-03-17  Dominique Dumont  <dominique.dumont@hp.com> 1.102
 
 	* lib/Config/Model/Xorg/Read.pm: Is now insentive to case for
