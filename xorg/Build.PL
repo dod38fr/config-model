@@ -27,7 +27,7 @@ use File::Copy ; # used when Xorg is not installed
 use File::Path ;
 use Config ;
 
-require 5.006 ;
+require 5.008 ;
 
 use warnings FATAL => qw(all) ;
 use strict ;
