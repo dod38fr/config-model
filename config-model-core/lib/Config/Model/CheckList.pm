@@ -654,7 +654,7 @@ sub get_help {
     my $on_value = shift ;
     return $help->{$on_value} if defined $help and defined $on_value ;
 
-    return undef ;
+    return ;
 }
 
 =head2 clear

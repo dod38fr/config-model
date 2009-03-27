@@ -371,7 +371,7 @@ sub compute {
 
     my $formula = $$formula_r ;
 
-    return undef unless defined $formula ;
+    return unless defined $formula ;
 
     print "compute $self->{value_type}: pre_formula $pre_formula\n",
       "compute $self->{value_type}: rule to eval $formula\n" if $::debug;

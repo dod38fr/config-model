@@ -237,7 +237,7 @@ my %run_dispatch =
   ) ;
 
 sub simple_ui_commands {
-    return sort keys %run_dispatch ;
+    sort keys %run_dispatch ;
 }
 
 =head1 CONSTRUCTOR

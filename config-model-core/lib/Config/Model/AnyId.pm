@@ -752,7 +752,7 @@ sub fetch_with_id {
 		     ) ;
     }
 
-    return undef ;
+    return ;
 }
 
 =head2 get( path,  [ custom | preset | standard | default ])

@@ -1039,7 +1039,7 @@ sub get_help {
     my $on_value = shift ;
     return $help->{$on_value} if defined $help and defined $on_value ;
 
-    return undef ;
+    return ;
 }
 
 # internal
@@ -1538,7 +1538,7 @@ sub fetch {
 		     );
     }
 
-    return undef ;
+    return ;
 }
 
 =head2 user_value

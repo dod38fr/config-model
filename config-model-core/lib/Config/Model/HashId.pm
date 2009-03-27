@@ -270,7 +270,7 @@ sub nextkey {
     # reset list for next call to next_keys
     $self->{each_list} = [ $self->_get_all_indexes  ] ;
 
-    return undef ;
+    return ;
 }
 
 =head2 swap ( key1 , key2 )

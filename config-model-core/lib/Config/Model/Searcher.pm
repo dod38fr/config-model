@@ -211,7 +211,7 @@ configuration tree.
 
 sub get_searchable_elements {
     my $self= shift ;
-    return sort keys %{$self->{data}} ;
+    sort keys %{$self->{data}} ;
 }
 
 =head2 prepare(element => ...)
