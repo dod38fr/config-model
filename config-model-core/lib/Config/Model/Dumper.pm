@@ -106,7 +106,7 @@ Parameters are:
 
 =over
 
-=item mode ( full | preset )
+=item mode ( full | preset | custom )
 
 C<full> will dump all configuration data including default
 values. 
@@ -114,7 +114,7 @@ values.
 C<preset> will dump only value entered in preset mode.
 
 By default, the dump contains only data modified by the user
-(i.e. data differ from default or preset values).
+(i.e. C<custom> data that differ from default or preset values).
 
 =item node
 
@@ -144,14 +144,14 @@ sub dump_tree {
     my $skip_aw = delete $args{skip_auto_write} || '' ;
     my $auto_v  = delete $args{auto_vivify}     || 0 ;
     my $mode = delete $args{mode} || '';
-    if ($mode and $mode ne 'full' and $mode ne 'preset') {
-	croak "dump_tree: unexpected 'mode' value";
+    if ($mode and $mode !~ /full|preset|custom/) {
+	croak "dump_tree: unexpected 'mode' value: $mode";
     }
 
-    # mode paramter is slightly different from fetch's mode
+    # mode parameter is slightly different from fetch's mode
     my $fetch_mode = $full             ? ''
                    : $mode eq 'full'   ? ''
-                   : $mode eq 'preset' ? $mode
+                   : $mode             ? $mode
                    :                     'custom';
 
     my $node = delete $args{node} 

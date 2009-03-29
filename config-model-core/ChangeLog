@@ -1,3 +1,7 @@
+2009-03-29  Dominique Dumont  <dominique.dumont@hp.com> 
+
+	* config-edit: added -dump and -load options
+	
 2009-02-24  Dominique Dumont  <dominique.dumont@hp.com> v0.634
 
 	* config-edit: removed kludgy read_root_dir and write_root_dir

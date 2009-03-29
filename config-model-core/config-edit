@@ -190,6 +190,18 @@ Load file even if error are found in data. Bad data are discarded
 Specify a read/write backend. The actual backend name depends on the model
 passed to C<-model> option. See L<Config::Model::AutoRead> for details.
 
+=item -dump [ full | preset | custom ]
+
+Dump configuration content on STDOUT with Config::Model syntax. 
+By default, dump only custom values, i.e. different from application 
+built-in values or model default values.
+
+=item -load <file_to_load>
+
+Load configuration data in model (typically done with -dump option). 
+If used with C<-ui none>, this option will load configuration data, 
+validate it and save it in configuration file (if no error was found).
+
 =back
 
 =cut
@@ -202,6 +214,8 @@ my $dev = 0;
 my $instance_name ;
 my $backend ;
 my $experience = 'beginner' ;
+my $dump;
+my $load;
 
 my $result = GetOptions ("ui|if=s"          => \$ui_type,
 			 "model_dir=s"      => \$model_dir,
@@ -217,6 +231,8 @@ my $result = GetOptions ("ui|if=s"          => \$ui_type,
 			 "force_load!"      => \$force_load,
 			 "root_dir=s"       => \$root_dir ,
 			 "backend=s"        => \$backend,
+                         "dump:s"           => \$dump,
+                         "load=s"           => \$load,
 			);
 
 pod2usage(2) if not $result ;
@@ -258,6 +274,18 @@ option. This way you will be able to send command on the standard input
 of C<config-edit> and get the results from the standard output.
 
 =cut
+
+if (defined $dump) {
+    print $root->dump_tree( mode => $dump || 'custom' ) ;
+    exit ;
+}
+
+if (defined $load) {
+    open(LOAD,$load) || die "cannot open load file $load:$!";
+    my @data = <LOAD> ;
+    close LOAD; 
+    print $root->load(@data);
+}
 
 if (@ARGV) {
     $root->load("@ARGV") ;
@@ -393,6 +421,7 @@ Dominique Dumont, ddumont at cpan dot org
 
 L<Config::Model::Model>, 
 L<Config::Model::Instance>, 
+L<Config::Model::Node>, 
 L<Config::Model::HashId>,
 L<Config::Model::ListId>,
 L<Config::Model::WarpedNode>,
