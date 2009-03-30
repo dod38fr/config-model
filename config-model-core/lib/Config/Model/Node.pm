@@ -2,7 +2,7 @@
 # $Date$
 # $Revision$
 
-#    Copyright (c) 2005-2007 Dominique Dumont.
+#    Copyright (c) 2005-2009 Dominique Dumont.
 #
 #    This file is part of Config-Model.
 #
@@ -62,6 +62,8 @@ Config::Model::Node - Class for configuration tree node
  $model->create_config_class 
   (
    name              => 'OneConfigClass',
+   class_description => "OneConfigClass detailed description",
+
    element           => [
                           [qw/X Y Z/] 
                           => {
@@ -70,12 +72,13 @@ Config::Model::Node - Class for configuration tree node
                                choice     => [qw/Av Bv Cv/]
                              }
                         ],
+
    experience        => [ Y => 'beginner', 
                           X => 'master' 
                         ],
    status            => [ X => 'deprecated' ],
-   description       => [ X => 'X-ray' ],
-   class_description => "OneConfigClass detailed description",
+   description       => [ X => 'X-ray description (can be long)' ],
+   summary           => [ X => 'X-ray' ],
 
   );
 
@@ -184,6 +187,11 @@ element will raise an exception (See L<Config::Model::Exception>.
 Optional C<list ref> of element description. These descriptions will
 be used when generating user interfaces.
 
+=item B<description>
+
+Optional C<list ref> of element summray. These descriptions will be
+used when generating user interfaces or as comment when writing
+configuration files.
 
 =item B<read_config>
 
@@ -1367,7 +1375,7 @@ sub copy_from {
 
 =head1 Help management
 
-=head2 get_help ( [ element_name ] )
+=head2 get_help ( [ [ description | summary ] => element_name ] )
 
 If called without element, returns the description of the class
 (Stored in C<class_description> attribute of a node declaration).
@@ -1375,17 +1383,29 @@ If called without element, returns the description of the class
 If called with an element name, returns the description of the
 element (Stored in C<description> attribute of a node declaration).
 
+If called with 2 argument, either return the C<summary> or the
+C<description> of the element.
+
 Returns an empty string if no description was found.
 
 =cut
 
 sub get_help {
     my $self  = shift;
-    my $element_name = shift;
 
     my $help;
-    if ( defined $element_name ) {
-        $help = $self->{model}{description}{$element_name};
+    if ( scalar @_ > 1 ) {
+	my ($tag,$elt_name) = @_ ;
+
+	if ($tag !~ /summary|description/) {
+	    croak "get_help: wrong argument $tag, expected ",
+	      "'description' or 'summary'";
+	}
+
+	$help = $self->{model}{$tag}{$elt_name};
+    }
+    elsif ( @_ ) {
+        $help = $self->{model}{description}{$_[0]};
     }
     else {
         $help = $self->{model}{class_description};

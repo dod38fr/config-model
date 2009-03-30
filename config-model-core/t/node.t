@@ -4,7 +4,7 @@
 # $Revision$
 
 use ExtUtils::testlib;
-use Test::More tests => 45;
+use Test::More tests => 47;
 use Test::Exception ;
 use Test::Warn ;
 use Config::Model;
@@ -26,16 +26,17 @@ Log::Log4perl->easy_init($arg =~ /l/ ? $TRACE: $WARN);
 
 ok(1,"compiled") ;
 
-my $model = Config::Model -> new(legacy => 'ignore',)  ;
+my $model = Config::Model -> new()  ;
 
 $model->create_config_class 
   (
    name => 'Sarge',
-   permission => [ [qw/Y/] => 'beginner',  # default
+   experience => [ [qw/Y/] => 'beginner',  # default
 		   X => 'master' 
 		 ],
    status    => [ D => 'deprecated' ], #could be obsolete, standard
-   description => [ X => 'X-ray' ],
+   description => [ X => 'X-ray (long description)' ],
+   summary     => [ X => 'X-ray (summary)' ],
 
    element => [
 	       [qw/D X Y Z/] => {
@@ -172,7 +173,13 @@ is( $root->get_help('captain'), "officer", "Test master slot help captain" );
 is( $root->get_help('hash_args'),
     '', "Test master slot help hash_args" );
 
-is( $tested->get_help('X'), "X-ray", "Test sarge slot help X" );
+is( $tested->get_help('X'), "X-ray (long description)", "Test sarge slot help X" );
+
+is( $tested->get_help(description => 'X'), 
+    "X-ray (long description)", "Test sarge slot help X (description)" );
+
+is( $tested->get_help(summary => 'X'), 
+    "X-ray (summary)", "Test sarge slot help X (summary)" );
 
 is($root->has_element('daughter'), 0 ,"Non-existing element" );
 

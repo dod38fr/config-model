@@ -1,3 +1,13 @@
+2009-03-30  Dominique Dumont  <dominique.dumont@hp.com> unreleased v0.635
+
+	* lib/Config/Model.pm (check_class_parameters): Accept summary
+	parameter. Summary is optional and will be used either to generate
+	user interface or may be used to provide comments in saved
+	configuration files.
+
+	* lib/Config/Model/Node.pm (get_help): added options to get either
+	summary or description of an element
+
 2009-03-29  Dominique Dumont  <dominique.dumont@hp.com> 
 
 	* config-edit: added -dump and -load options

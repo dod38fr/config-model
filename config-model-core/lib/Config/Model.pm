@@ -36,7 +36,7 @@ use Config::Model::Instance ;
 # this class holds the version number of the package
 use vars qw($VERSION @status @level @experience_list %experience_index) ;
 
-$VERSION = '0.634';
+$VERSION = '0.635';
 
 
 =head1 NAME
@@ -146,7 +146,7 @@ sub new {
     my $skip =  $args{skip_include} || 0 ;
 
     my $self = { model_dir => $args{model_dir},
-		 legacy    => $args{legacy}  || 'warn' ,
+		 legacy    => $args{legacy}  || 'die' ,
 		 skip_include => $skip ,
 	       } ;
     bless $self,$type ;
@@ -399,6 +399,12 @@ element will raise an exception.
 Description of the element. This description will be used when
 generating user interfaces.
 
+=item summary
+
+Summary of the element. This description will be used when generating
+user interfaces and may be used in comments when writing the
+configuration file.
+
 =item class_description
 
 Description of the configuration class. This description will be used
@@ -412,7 +418,8 @@ my %default_property =
    status      => 'standard',
    level       => 'normal',
    experience  => 'beginner',
-   description => ''
+   summary     => '',
+   description => '',
   );
 
 my %check;
@@ -434,6 +441,7 @@ $check{experience}=\%experience_index ;
 #   experience    => { element_name => <experience> },
 #   status        => { element_name => <status>     },
 #   description   => { element_name => <string> },
+#   summary       => { element_name => <string> },
 #   element       => { element_name => element_data (left as is)    },
 #   class_description => <class description string>,
 #   level         => { element_name => <level like important or normal..> },
@@ -449,7 +457,7 @@ L<Config::Model::Itself> model editor.
 
 =cut
 
-my @legal_params = qw/experience status description element level
+my @legal_params = qw/experience status description summary element level
                       config_dir generated_by class_description
                       read_config read_config_dir write_config
                       write_config_dir/;
@@ -599,7 +607,8 @@ sub check_class_parameters {
 		    and not defined $check{$info_name}{$info} ;
 
 	    if ($info_name eq 'element') {
-		foreach my $info_to_move (qw/description level experience status/) {
+		foreach my $info_to_move (qw/description level summary experience status/) {
+		    # FIXME: Should we consider this as legacy ?
 		    my $moved_data = delete $info->{$info_to_move}  ;
 		    next unless defined $moved_data ;
 		    map {$model->{$info_to_move}{$_} = $moved_data ; }
