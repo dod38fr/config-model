@@ -1,3 +1,8 @@
+2009-03-30  Dominique Dumont  <dominique.dumont@hp.com>
+
+	* lib/Config/Model/models/Itself/Element.pl: Added summary model
+	parameter (Config::Model 0.635)
+
 2009-03-12  Dominique Dumont  <dominique.dumont@hp.com>
 
 	* lib/Config/Model/models/Itself/CommonElement.pl: 'choice' is

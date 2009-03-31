@@ -188,7 +188,7 @@ sub read_all {
 	    # no need to dclone model as Config::Model object is temporary
 	    my $new_model =  $tmp_model -> get_model( $model_name ) ;
 
-	    foreach my $item (qw/description level experience status/) {
+	    foreach my $item (qw/description summary level experience status/) {
 		foreach my $elt_name (keys %{$new_model->{element}}) {
 		    my $moved_data = delete $new_model->{$item}{$elt_name}  ;
 		    next unless defined $moved_data ;

@@ -66,11 +66,18 @@
 	   description => 'Used to highlight important parameter or to hide others. Hidden parameter are mostly used to hide features that are unavailable at start time. They can be made available later using warp mechanism',
 	  },
 
+      'summary' 
+      => {
+	  type => 'leaf',
+	  value_type => 'uniline', 
+	  description => 'enter short information regarding this element',
+	 },
+
       'description' 
       => {
 	  type => 'leaf',
 	  value_type => 'string', 
-	  description => 'enter help information regarding this element',
+	  description => 'enter detailed help information regarding this element',
 	 },
 
       # all but warped_node

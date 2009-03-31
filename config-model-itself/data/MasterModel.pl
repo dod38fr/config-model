@@ -118,6 +118,7 @@
 	       tree_macro => { type => 'leaf',
 			       value_type => 'enum',
 			       choice     => [qw/XY XZ mXY/],
+			       summary => 'macro parameter for tree',
 			       help => { XY  => 'XY help',
 					 XZ  => 'XZ help',
 					 mXY => 'mXY help',
