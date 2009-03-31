@@ -27,10 +27,15 @@ use vars qw/$model/;
 
 $model = Config::Model -> new (legacy => 'ignore',) ;
 
-my $trace = shift || 0;
-$::verbose          = 1 if $trace =~ /v/;
-$::debug            = 1 if $trace =~ /d/;
-Config::Model::Exception::Any->Trace(1) if $trace =~ /e/;
+my $arg = shift || '';
+
+my $trace = $arg =~ /t/ ? 1 : 0 ;
+$::verbose          = 1 if $arg =~ /v/;
+$::debug            = 1 if $arg =~ /d/;
+Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
+
+use Log::Log4perl qw(:easy) ;
+Log::Log4perl->easy_init($arg =~ /l/ ? $TRACE: $WARN);
 
 eval { require Config::Augeas ;} ;
 if ( $@ ) {
@@ -59,7 +64,7 @@ do "t/test_model.pl" ;
 
 my $i_hosts = $model->instance(instance_name    => 'hosts_inst',
 			       root_class_name  => 'Hosts',
-			       read_root_dir    => $wr_root ,
+			       root_dir    => $wr_root ,
 			      );
 
 ok( $i_hosts, "Created instance for /etc/hosts" );
@@ -143,7 +148,7 @@ SKIP: {
 
 my $i_sshd = $model->instance(instance_name    => 'sshd_inst',
 			      root_class_name  => 'Sshd',
-			      read_root_dir    => $wr_root ,
+			      root_dir    => $wr_root ,
 			     );
 
 ok( $i_sshd, "Created instance for sshd" );

@@ -1,3 +1,8 @@
+2009-03-31  Dominique Dumont  <dominique.dumont@hp.com> v0.106
+
+	* t/*.t: fixed tests that broke with Config::Model 0.634
+	(Fixes Debian bug #521968)
+
 2009-01-28  Dominique Dumont  <dominique.dumont@hp.com> v0.105
 
 	* t/augeas*.t: Sometimes the Augeas locale bug workaround also

@@ -25,12 +25,17 @@ if ($ENV{LC_ALL} ne 'C' or $ENV{LANG} ne 'C') {
   exec("perl $0 @ARGV");
 }
 
-$model = Config::Model -> new (legacy => 'ignore',) ;
+my $arg = shift || '';
 
-my $trace = shift || 0;
-$::verbose          = 1 if $trace =~ /v/;
-$::debug            = 1 if $trace =~ /d/;
-Config::Model::Exception::Any->Trace(1) if $trace =~ /e/;
+my $trace = $arg =~ /t/ ? 1 : 0 ;
+$::verbose          = 1 if $arg =~ /v/;
+$::debug            = 1 if $arg =~ /d/;
+Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
+
+use Log::Log4perl qw(:easy) ;
+Log::Log4perl->easy_init($arg =~ /l/ ? $TRACE: $WARN);
+
+$model = Config::Model -> new (legacy => 'ignore',) ;
 
 eval { require Config::Augeas ;} ;
 if ( $@ ) {
@@ -67,7 +72,7 @@ SKIP: {
 
 my $i_sshd = $model->instance(instance_name    => 'sshd_inst',
 			      root_class_name  => 'Sshd',
-			      read_root_dir    => $wr_root ,
+			      root_dir         => $wr_root ,
 			     );
 
 ok( $i_sshd, "Created instance for sshd" );
