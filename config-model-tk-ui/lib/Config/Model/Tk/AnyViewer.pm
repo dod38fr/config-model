@@ -2,7 +2,7 @@
 # $Date$
 # $Revision$
 
-#    Copyright (c) 2008 Dominique Dumont.
+#    Copyright (c) 2008-2009 Dominique Dumont.
 #
 #    This file is part of Config-Model-TkUi.
 #
@@ -93,21 +93,10 @@ sub add_info_frame {
 }
 
 
-sub add_help_frame {
-    my $cw = shift ;
-
-    # FIXME: remove this method
-
-    #my $htop_frame = $cw->Frame()->pack(@fb) ;
-    #$htop_frame -> Label(-text => 'Help', -anchor => 'w' ) ->pack(@f) ;
-
-    #$cw->{help_f} = $htop_frame#->Frame()->pack(@fb) ;
-}
-
 # returns the help widget (Label or ROText)
 sub add_help {
     my $cw = shift ;
-    my $type = shift ;
+    my $help_label = shift ;
     my $help = shift || '' ;
     my $force_text_widget = shift || 0;
 
@@ -116,7 +105,7 @@ sub add_help {
     my $help_frame = $cw-> Frame()->pack(@fbe1);
 
     $help_frame ->Label(
-			 -text => "Help on $type: ", 
+			 -text => $help_label, 
 			) ->pack(-anchor => 'w');
 
     my $widget ;
@@ -143,6 +132,16 @@ sub add_help {
     }
 
     return $widget ;
+}
+
+sub add_summary_and_description {
+    my ($cw, $elt_obj) = @_ ;
+
+    my $p    = $elt_obj->parent ;
+    my $name = $elt_obj->element_name ;
+    foreach my $topic (qw/summary description/) {
+	$cw->add_help( ucfirst($topic), $p->get_help($topic => $name)) ;
+    }
 }
 
 sub add_editor_button {

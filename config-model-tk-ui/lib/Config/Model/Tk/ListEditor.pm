@@ -81,9 +81,7 @@ sub Populate {
     my $right_frame = $elt_button_frame->Frame->pack(@fxe1, -side => 'left');
 
     $cw->add_info($cw) ;
-    $cw->add_help_frame() ;
-    $cw->add_help(class   => $list->parent->get_help) ;
-    $cw->add_help(element => $list->parent->get_help($list->element_name)) ;
+    $cw->add_summary_and_description($list) ;
 
     my $value_type = $list->get_cargo_info('value_type') ; # may be undef
     if ($cargo_type eq 'leaf' and $value_type ne 'enum' and $value_type ne 'reference') {

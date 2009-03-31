@@ -70,9 +70,7 @@ sub Populate {
     }
 
     $cw->add_info($cw) ;
-    $cw->add_help_frame() ;
-    $cw->add_help(class   => $hash->parent->get_help) ;
-    $cw->add_help(element => $hash->parent->get_help($hash->element_name)) ;
+    $cw->add_summary_and_description($hash) ;
     $cw->add_editor_button($path) ;
 
     $cw->SUPER::Populate($args) ;

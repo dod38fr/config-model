@@ -72,9 +72,7 @@ sub Populate {
     }
 
     $cw->add_info($cw) ;
-    $cw->add_help_frame() ;
-    $cw->add_help(class   => $list->parent->get_help) ;
-    $cw->add_help(element => $list->parent->get_help($list->element_name)) ;
+    $cw->add_summary_and_description($list) ;
     $cw->add_editor_button($path) ;
 
     $cw->SUPER::Populate($args) ;

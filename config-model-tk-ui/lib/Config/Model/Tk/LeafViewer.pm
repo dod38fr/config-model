@@ -90,9 +90,7 @@ sub Populate {
     }
 
     $cw->add_info() ;
-    $cw->add_help_frame;
-    $cw->add_help(class   => $leaf->parent->get_help) ;
-    $cw->add_help(element => $leaf->parent->get_help($leaf->element_name)) ;
+    $cw->add_summary_and_description($leaf) ;
     $cw->add_help(value   => $leaf->get_help($cw->{value})) ;
     $cw->add_editor_button($path) ;
 

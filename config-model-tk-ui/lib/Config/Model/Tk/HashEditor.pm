@@ -90,9 +90,7 @@ sub Populate {
     my $right_frame = $elt_button_frame->Frame->pack(@fxe1, -side => 'left');
 
     $cw->add_info($cw) ;
-    $cw->add_help_frame() ;
-    $cw->add_help(class   => $hash->parent->get_help) ;
-    $cw->add_help(element => $hash->parent->get_help($hash->element_name)) ;
+    $cw->add_summary_and_description($hash) ;
 
     my $add_item = '';
     my $add_frame = $right_frame->Frame->pack( @fxe1);

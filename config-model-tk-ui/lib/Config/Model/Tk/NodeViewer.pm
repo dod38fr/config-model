@@ -70,12 +70,9 @@ sub Populate {
     }
 
     $cw->add_info($cw) ;
-    my $parent = $node->parent ;
 
-    $cw->add_help_frame() ;
-    if (defined $parent) {
-	$cw->add_help(class   => $parent->get_help) ;
-	$cw->add_help(element => $parent->get_help($node->element_name)) ;
+    if ($node->parent) {
+	$cw->add_summary_and_description($node) ;
     }
     else {
 	$cw->add_help(class   => $node->get_help) ;

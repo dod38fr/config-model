@@ -117,9 +117,7 @@ sub Populate {
     $inst->pop_no_value_check ;
 
     $cw->add_info() ;
-    $cw->add_help_frame() ;
-    $cw->add_help(class   => $leaf->parent->get_help) ;
-    $cw->add_help(element => $leaf->parent->get_help($leaf->element_name)) ;
+    $cw->add_summary_and_description($leaf) ;
     $cw->{value_help_widget} = $cw->add_help(value => '',1);
     $cw->set_value_help ;
 

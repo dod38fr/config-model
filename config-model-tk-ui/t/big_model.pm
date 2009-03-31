@@ -1,7 +1,6 @@
 # -*- cperl -*-
 # $Author$
 # $Date$
-# $Name: not supported by cvs2svn $
 # $Revision$
 
 # this file is used by test script
@@ -216,11 +215,13 @@
 		    choice     => ['A' .. 'Z'],
 		    ordered => 1 ,
 		    help => { A => 'A help', E => 'E help' } ,
+		    summary => 'will checklist be served ? ;-) ',
 		  },
 
 	       my_reference => { type => 'leaf',
 				 value_type => 'reference',
 				 refer_to => '- hash_a + ! hash_b',
+				 summary => 'justify a long help ;-) ',
 			       }
 	      ],
    description => [

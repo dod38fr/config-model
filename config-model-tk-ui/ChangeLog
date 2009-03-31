@@ -1,3 +1,7 @@
+2009-03-31  Dominique Dumont  <dominique.dumont@hp.com> unreleased
+
+	* lib/Config/Model/Tk/*.pm (): Added display of summary 
+
 2009-03-12  Dominique Dumont  <dominique.dumont@hp.com> v1.207
 
 	* lib/Config/Model/Tk/LeafEditor.pm (cleanup): new method (and
