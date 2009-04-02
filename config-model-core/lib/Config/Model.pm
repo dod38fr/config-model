@@ -1208,6 +1208,20 @@ sub include_one_class {
 	}
     }
 
+    # check that elements are not clobbered
+    my %elt_name ;
+    my @raw_elt = @{$raw_model->{element}} ;
+    for (my $idx = 0; $idx < @raw_elt ; $idx += 2) {
+	my $elt = $raw_elt[$idx] ;
+	if (defined $elt_name{$elt})  {
+	    Config::Model::Exception::ModelDeclaration->throw
+		(
+		 error => "Cannot clobber element '$elt' in $class_name"
+		 . " (included from $include_class)"
+		) ;
+	}
+	$elt_name{$elt} = 1;
+    }
 }
 
 

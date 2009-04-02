@@ -1,4 +1,9 @@
-2009-03-30  Dominique Dumont  <dominique.dumont@hp.com> unreleased v0.635
+2009-04-02  Dominique Dumont  <dominique.dumont@hp.com> unreleased v0.635
+
+	* lib/Config/Model.pm (include_one_class): Can no longer clobber
+	element with 'include' class feature.
+
+2009-03-30  Dominique Dumont  <dominique.dumont@hp.com>
 
 	* lib/Config/Model.pm (check_class_parameters): Accept summary
 	parameter. Summary is optional and will be used either to generate

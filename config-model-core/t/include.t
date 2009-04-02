@@ -7,10 +7,11 @@ use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
 use Test::More;
+use Test::Exception ;
 use Config::Model;
 use Data::Dumper ;
 
-BEGIN { plan tests => 3; }
+BEGIN { plan tests => 4; }
 
 use strict;
 
@@ -94,3 +95,13 @@ my $root = $inst -> config_root ;
 
 my @elt = $root->get_element_name() ;
 is_deeply(\@elt,[qw/one two three four/],"check multiple include order") ;
+
+my @bad_class = 
+  (
+   name => "EvilMaster",
+   include => [qw/Master/] ,
+   element => [one => { type => 'leaf', value_type => 'string',},]
+  ) ;
+
+throws_ok {$model ->create_config_class(@bad_class);}
+  qr/cannot clobber/i , "Check that include does not clobber elements";
