@@ -1,3 +1,11 @@
+2009-04-03  Dominique Dumont  <dominique.dumont@hp.com> unreleased v1.210
+
+	* config-model-edit: new -dot_diagram option to get a dot file to
+	reprensent the structure of the configuration model
+
+	* lib/Config/Model/models/Itself/Element.pl: index_type is now
+	mandatory for hash types
+
 2009-03-30  Dominique Dumont  <dominique.dumont@hp.com>
 
 	* lib/Config/Model/models/Itself/Element.pl: Added summary model

@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-#    Copyright (c) 2007-2008 Dominique Dumont.
+#    Copyright (c) 2007-2009 Dominique Dumont.
 #
 #    This file is part of Config-Model-Itself.
 #
@@ -127,24 +127,6 @@ running E.g. this command:
 will look for C</etc/config-model.d/Fstab.pl> model file. See
 L<Config::Model> for more details.
 
-=item -if
-
-Specify the user interface type. 
-
-=over
-
-=item *
-
-C<shell>: provides a shell like interface.  See L<Config::Model::TermUI>
-for details.
-
-=item *
-
-C<curses>: provides a curses user interface (If
-Config::Model::CursesUI is installed).
-
-=back
-
 =item -verbose
 
 Be (very) verbose
@@ -161,6 +143,13 @@ Provides a full stack trace when exiting on error.
 
 Load file even if error are found in data. Bad data are discarded
 
+=item -dot_diagram
+
+Returns a dot file that represent the stucture of the configuration
+model. C<include> are represented by solid lines. Class usage
+(i.e. C<config_class_name> parameter) is represented by dashed
+lines. The name of the element is attached to the dashed line.
+
 =back
 
 
@@ -170,6 +159,7 @@ my $man = 0;
 my $help = 0;
 my $force_load = 0;
 my $model_dir ;
+my $do_dot = 0;
 
 my $result = GetOptions (
 			 "dir=s"            => \$model_dir,
@@ -180,6 +170,7 @@ my $result = GetOptions (
 			 "man!"             => \$man,
 			 "help!"            => \$help,
 			 "force_load!"      => \$force_load,
+			 "dot_diagram!"     => \$do_dot ,
 			);
 
 pod2usage(2) if not $result ;
@@ -221,7 +212,14 @@ if (not -e $read_model_dir.'/'.$root_model.'.pl') {
 
 $rw_obj -> read_all( model_dir  => $read_model_dir, 
 		     force_load => $force_load ,
-		     root_model => $root_model ) ;
+		     root_model => $root_model,
+		     legacy =>'ignore',
+		   ) ;
+
+if ($do_dot) {
+    print $meta_model->get_dot_diagram ;
+    exit ;
+}
 
 my $write_sub = sub { 
     my $wr_dir = shift || $wr_model_dir ;
