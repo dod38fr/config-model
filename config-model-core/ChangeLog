@@ -1,3 +1,9 @@
+2009-04-03  Dominique Dumont  <dominique.dumont@hp.com>
+
+	* lib/Config/Model.pm (get_dot_diagram): New method to draw a
+	diagram of the configuration class with "include" and
+	usage ("config_class_name" parameter)
+
 2009-04-02  Dominique Dumont  <dominique.dumont@hp.com> unreleased v0.635
 
 	* lib/Config/Model.pm (include_one_class): Can no longer clobber
