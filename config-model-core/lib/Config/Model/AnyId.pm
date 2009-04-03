@@ -2,7 +2,7 @@
 # $Date$
 # $Revision$
 
-#    Copyright (c) 2005-2007 Dominique Dumont.
+#    Copyright (c) 2005-2009 Dominique Dumont.
 #
 #    This file is part of Config-Model.
 #
@@ -57,21 +57,26 @@ Config::Model::AnyId - Base class for hash or list element
 
             # hash boundaries
             min => 1, max => 123, max_nb => 2 ,
-            cargo_type => 'leaf',
-            cargo_args => {value_type => 'string'},
+
+            # specify cargo held by hash
+            cargo => { type => 'leaf',
+                       value_type => 'string'
+                     },
           },
       bounded_list 
        => { type => 'list',                 # list id
 
             max => 123, 
-            cargo_type => 'leaf',
-            cargo_args => {value_type => 'string'},
+            cargo => { type => 'leaf',
+                       value_type => 'string'
+                     },
           },
       hash_of_nodes 
       => { type => 'hash',                 # hash id
            index_type  => 'integer',
-           cargo_type => 'node',
-           config_class_name => 'Foo' ,
+           cargo => { type => 'node',
+                      config_class_name => 'Foo'
+                    },
          },
       ]
   ) ;
@@ -169,7 +174,7 @@ Can be C<node> or C<leaf> (default).
 =item config_class_name
 
 Specifies the type of configuration object held in the hash. Only
-valid when C<cargo_type> is C<node>.
+valid when C<cargo> C<type> is C<node>.
 
 =item <other>
 
@@ -291,8 +296,9 @@ For instance, with this model:
                                                   B => { max_nb => 2 }
                                                 }
                                       },
-                        cargo_type => 'node',
-                        config_class_name => 'Dummy'
+                        cargo => { type => 'node',
+                                   config_class_name => 'Dummy'
+                                 }
                       },
      ]
   );
@@ -588,7 +594,7 @@ sub name
 Returns the config_class_name of collected elements. Valid only
 for collection of nodes.
 
-This method will return undef if C<cargo_type> is not C<node>.
+This method will return undef if C<cargo> C<type> is not C<node>.
 
 =cut
 
@@ -960,7 +966,7 @@ sub auto_vivify {
     Config::Model::Exception::Model 
 	-> throw (
 		  object => $self,
-		  message => "unknown '$cargo_type' cargo_type:  "
+		  message => "unknown '$cargo_type' cargo type:  "
 		  ."in cargo_args. Expected "
 		  .join (' or ',keys %element_default_class)
 		 ) 
@@ -1095,7 +1101,7 @@ sub clear_values {
     Config::Model::Exception::User
 	-> throw (
 		  object => $self,
-		  message => "clear_values() called on non leaf cargo_type: '$ct'"
+		  message => "clear_values() called on non leaf cargo type: '$ct'"
 		 ) 
 	  if $ct ne 'leaf';
 
