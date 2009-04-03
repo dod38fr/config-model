@@ -204,22 +204,6 @@
 
       # hash element
 
-      'index_type' 
-      => { type => 'leaf',
-	   value_type => 'enum',
-	   level      => 'hidden' ,
-	   warp => { follow => '?type',
-		     'rules'
-		     => { 'hash' => {
-				     level => 'important',
-				     #mandatory => 1,
-				     choice => [qw/string integer/] ,
-				    }
-			}
-		   },
-	   description => 'Specify the type of allowed index for the hash. "String" means no restriction.',
-	 },
-
       # list element
 
 

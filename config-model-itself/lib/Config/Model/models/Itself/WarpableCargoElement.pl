@@ -26,6 +26,7 @@
 
    include => 'Itself::CommonElement' ,
 
+   class_description => 'attributes that can be warped within cargo of a hash or list element',
   ],
 
 ];

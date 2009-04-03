@@ -118,6 +118,22 @@
 		  description => "Each key of a hash is a boolean expression using variables declared in the 'follow' parameters. The value of the hash specifies the effects on the node",
 		 },
       # hash or list
+      'index_type' 
+      => { type => 'leaf',
+	   value_type => 'enum',
+	   level      => 'hidden' ,
+	   warp => { follow => '?type',
+		     'rules'
+		     => { 'hash' => {
+				     level => 'important',
+				     mandatory => 1,
+				     choice => [qw/string integer/] ,
+				    }
+			}
+		   },
+	   description => 'Specify the type of allowed index for the hash. "String" means no restriction.',
+	 },
+
       'cargo' 
       => { type => 'warped_node',
 	   level => 'hidden',
@@ -130,6 +146,7 @@
 		      ],
 	   description => 'Specify the properties of the configuration element configuration in this hash or list',
 	 },
+
      ],
  ],
 ];

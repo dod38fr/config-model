@@ -24,7 +24,7 @@
   [
    name => "Itself::CargoWarpRule",
 
-   class_description => 'Specify one condition and one effect to be applied on the warped object (used for cargo of a hashor list element)',
+   class_description => 'Specify one condition and one effect to be applied on the warped object (used for cargo of a hash or list element)',
 
    'element' 
    => [

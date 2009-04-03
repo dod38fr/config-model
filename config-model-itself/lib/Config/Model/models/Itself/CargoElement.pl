@@ -47,7 +47,7 @@
 	    follow => { elt_type => '- type' } ,
 
 	    rules  => [
-		       '$elt_type ne "node"' =>
+		       '$elt_type ne "warped_node"' =>
 		       {
 			level => 'normal',
 			config_class_name => 'Itself::CargoWarpValue',
