@@ -30,6 +30,7 @@ lib/Config/Model/models/Itself/WarpRule.pl
 lib/Config/Model/models/Itself/WarpValue.pl
 lib/Config/Model/models/Itself/WarpableCargoElement.pl
 lib/Config/Model/models/Itself/WarpableElement.pl
+t/dot_graph.t
 t/itself.t
 t/itself-editor.t
 t/list_itself_structure.t

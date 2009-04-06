@@ -395,6 +395,93 @@ sub list_one_class_element {
     return $res ;
 }
 
+=head2 get_dot_diagram
+
+Returns a graphviz dot file that represents the strcuture of the
+configuration model:
+
+=over
+
+=item *
+
+C<include> are represented by solid lines
+
+=item *
+
+Class usage (i.e. C<config_class_name> parameter) is represented by
+dashed lines. The name of the element is attached to the dashed line.
+
+=back
+
+=cut
+
+sub get_dot_diagram {
+    my $self = shift ;
+    my $dot = "digraph model {\n" ;
+
+    my $meta_class = $self->{model_object}->fetch_element('class') ;
+    foreach my $class_name ($meta_class->get_all_indexes ) {
+	my $c_model = $self->{model_object}->config_model->get_raw_model($class_name);
+	my $elts = $c_model->{element} || []; # array ref
+
+	my $d_class = $class_name ;
+	$d_class =~ s/::/__/g;
+
+	my $elt_list = '';
+	my $use = '';
+	for (my $idx = 0; $idx < @$elts; $idx += 2) {
+	    my $elt_info = $elts->[$idx] ;
+	    my @elt_names = ref $elt_info ? @$elt_info : ($elt_info) ;
+	    my $type = $elts->[$idx+1]{type} ;
+
+	    foreach my $elt_name (@elt_names) {
+		$elt_list .= "- $elt_name ($type)\\n";
+		$use .= $self->scan_used_class($d_class,$elt_name,
+					       $elts->[$idx+1]);
+	    }
+	}
+
+	$dot .= $d_class 
+             .  qq! [shape=box label="$class_name\\n$elt_list"];\n!
+	     .  $use . "\n";
+
+	my $include = $c_model->{include} ;
+	if (defined $include) {
+	    my $inc_ref = ref $include ? $include : [ $include ] ;
+	    foreach my $t (@$inc_ref) {
+		$t =~ s/::/__/g;
+		$dot.= qq!$d_class -> $t ;\n!;
+	    }
+	}
+    }
+
+    $dot .="}\n";
+
+    return $dot ;
+}
+
+sub scan_used_class {
+    my ($self,$d_class,$elt_name,$ref) = @_ ;
+    my $res = '' ;
+
+    if (ref($ref) eq 'HASH') {
+	foreach my $k (keys %$ref) {
+	    my $v = $ref->{$k} ;
+	    if ($k eq 'config_class_name') {
+		$v =~ s/::/__/g;
+		$res .= qq!$d_class -> $v !
+		      . qq![ style=dashed, label="$elt_name" ];\n!;
+	    }
+	    if (ref $v) {
+		$res .= $self->scan_used_class($d_class,$elt_name,$v);
+	    }
+	}
+    }
+    elsif (ref($ref) eq 'ARRAY') {
+	map {$res .= $self->scan_used_class($d_class,$elt_name,$_);} @$ref ;
+    }
+    return $res ;
+}
 
 1;
 

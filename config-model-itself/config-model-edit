@@ -217,7 +217,7 @@ $rw_obj -> read_all( model_dir  => $read_model_dir,
 		   ) ;
 
 if ($do_dot) {
-    print $meta_model->get_dot_diagram ;
+    print $rw_obj->get_dot_diagram ;
     exit ;
 }
 

@@ -3,6 +3,10 @@
 	* config-model-edit: new -dot_diagram option to get a dot file to
 	reprensent the structure of the configuration model
 
+	* lib/Config/Model/Iself.pm (get_dot_diagram): New method to draw a
+	diagram of the configuration class with "include" and
+	usage (e.g. with "config_class_name" parameter).
+
 	* lib/Config/Model/models/Itself/Element.pl: index_type is now
 	mandatory for hash types
 
