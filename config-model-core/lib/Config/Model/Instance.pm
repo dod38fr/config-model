@@ -206,7 +206,7 @@ sub reset_config {
 
 =head2 config_model()
 
-Returns the model of the configuration tree.
+Returns the model (L<Config::Model> object) of the configuration tree.
 
 =cut
 

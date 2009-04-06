@@ -620,11 +620,11 @@ sub is_accessible {
 
 =head2 config_model
 
-Returns the B<entire> configuration model.
+Returns the B<entire> configuration model (L<Config::Model> object).
 
 =head2 model
 
-Returns the configuration model of this node.
+Returns the configuration model of this node (data structure).
 
 =head2 config_class_name
 
