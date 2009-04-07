@@ -32,6 +32,7 @@ use vars qw/$VERSION $icon_path/ ;
 use subs qw/menu_struct/ ;
 use Tk::Dialog ;
 use Tk::Photo ;
+use Tk::Balloon ;
 
 $VERSION = sprintf "1.%04d", q$Revision$ =~ /(\d+)/;
 
@@ -42,7 +43,7 @@ my @fxe1 = qw/-fill x    -expand 1/ ;
 my @fx   = qw/-fill x    / ;
 my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-my $entry_width = 20 ;
+my $entry_width = 15 ;
 
 my $up_img;
 my $down_img;
@@ -92,37 +93,59 @@ sub Populate {
     $cw->add_info($cw) ;
     $cw->add_summary_and_description($hash) ;
 
-    my $add_item = '';
-    my $add_frame = $right_frame->Frame->pack( @fxe1);
+    my $item_frame = $right_frame->Frame(-relief => 'groove',-bd => 4 )
+      ->pack( @fxe1);
 
-    my $add_str = $hash->ordered ? "after selection " : '' ;
-    $add_frame -> Button(-text => "Add item $add_str:",
-			 -command => sub {$cw->add_entry($add_item);},
-			 -anchor => 'e',
-			)->pack(-side => 'left', @fx);
-    $add_frame -> Entry (-textvariable => \$add_item, -width => $entry_width)
-               -> pack  (-side => 'left') ;
+    my $balloon = $cw->Balloon(-state => 'balloon') ;
 
-    my $cp_frame = $right_frame->Frame->pack( @fxe1);
-    my $cp_item = '';
-    $cp_frame -> Button(-text => 'Copy selected item into:',
-			-command => sub {$cw->copy_selected_in($cp_item);},
-			-anchor => 'e',
-		       )
-              -> pack(-side => 'left', @fx);
-    $cp_frame -> Entry (-textvariable => \$cp_item, -width => $entry_width)
-              -> pack  (-side => 'left') ;
+    my $item = '';
+    my $keep = 0 ;
+    my $label_frame = $item_frame->Frame->pack( @fxe1);
+    $label_frame -> Label (-text => 'Item:')->pack(@fxe1,-side => 'left') ;
+    my $keep_b = $label_frame -> Checkbutton (-variable => \$keep, 
+					    -text => 'keep')
+      -> pack  (-side => 'left') ;
+    $balloon->attach($keep_b, 
+		     -msg => 'keep entry in widget after add, move or copy');
+
+    my $entry = $item_frame -> Entry (-textvariable => \$item )
+      -> pack  (@fxe1) ;
+    $balloon -> attach($entry, 
+		       -msg => 'enter item name to add, copy to, or move to') ;
+
+    my $button_frame = $item_frame->Frame->pack( );
+
+    my $addb = $button_frame 
+      -> Button(-text => "Add",
+		-command => sub { $cw->add_entry($item); 
+				  $item = '' unless $keep;
+			      },
+		-anchor => 'e',
+	       )->pack(-side => 'left');
+    my $add_str = $hash->ordered ? " after selection" : '' ;
+    $balloon->attach($addb,
+		     -msg => "add entry".$add_str);
+
+    my $cp_b = $button_frame 
+      -> Button(-text => 'Copy',
+		-command => sub { $cw->copy_selected_in($item); 
+				  $item = '' unless $keep;},
+		-anchor => 'e',
+	       )
+	-> pack(-side => 'left');
+    $balloon->attach($cp_b,
+		     -msg => "copy selected item in entry");
 
 
-    my $mv_frame = $right_frame->Frame->pack( @fxe1);
-    my $mv_item = '';
-    $mv_frame -> Button(-text => 'Move selected item into:',
-			-command => sub {$cw->move_selected_to($mv_item);},
-		      	-anchor => 'e',
-		       )
-              -> pack(-side => 'left', @fxe1);
-    $mv_frame -> Entry (-textvariable => \$mv_item, -width => $entry_width)
-              -> pack  (-side => 'left') ;
+    my $mv_b = $button_frame 
+      -> Button(-text => 'Move',
+		-command => sub { $cw->move_selected_to($item); 
+				  $item = '' unless $keep; },
+		-anchor => 'e',
+	       )
+	-> pack(-side => 'left');
+    $balloon->attach($mv_b,
+		     -msg => "move selected item in entry");
 
     if ($hash->ordered) {
 	my $mv_up_down_frame = $right_frame->Frame->pack( @fxe1);
@@ -138,13 +161,15 @@ sub Populate {
     my $del_rm_frame =  $right_frame->Frame->pack( @fxe1);
 
     $del_rm_frame->Button(-text => 'Delete selected',
-			  -command => sub { $cw->delete_selection ;} ,
+			  -command => sub { $cw->delete_selection; 
+					    $item = '' unless $keep;} ,
 			 )-> pack( -side =>'left' , @fxe1);
 
-    $del_rm_frame -> Button ( -text => 'Remove all elements',
+    $del_rm_frame -> Button ( -text => 'Remove all',
 			      -command => sub { $hash->clear ; 
 						$tklist->delete(0,'end');
 						$cw->reload_tree;
+						$item = '';
 					    },
 			    ) -> pack(-side => 'left', @fxe1) ;
 
