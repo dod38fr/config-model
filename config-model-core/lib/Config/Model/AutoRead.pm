@@ -50,9 +50,11 @@ Config::Model::AutoRead - Load configuration node on demand
    config_class_name => 'OneAutoReadConfigClass',
 
    read_config  => [ { backend => 'cds_file' , config_dir => '/etc/cfg_dir'},
-                     { backend => 'custom' , # dir hardcoded in custom class
+                     { backend => 'custom' , 
                        class => 'ProcessRead' ,
-                       allow_empty => 1,     # optional
+                       config_dir => '/etc/foo', # optional
+                       file  => 'foo.conf',      # optional
+                       allow_empty => 1,         # optional
                      }
                    ],
    # if omitted, write_config will be written using read_config specifications
@@ -87,38 +89,39 @@ Idea: sub-files name could be <instance>%<location>.cds
 
 =end comment
 
-This load/store can be done with:
+This load/store can be done with any of these C<backend>:
 
 =over
 
-=item *
+=item cds_file
 
 Config dump string (cds) in a file. I.e. a string that describes the
 content of a configuration tree is loaded from or saved in a text
 file. See L<Config::Model::Dumper>.
 
-=item *
+=item ini_file
 
 Ini files (written with L<Config::Tiny>. See limitations in 
 L</"Limitations depending on storage">.
 
-=item *
+=item perl_file
 
 Perl data structure (perl) in a file. See L<Config::Model::DumpAsData>
 for details on the data structure.
 
-=item *
+=item xml_file
 
 XML. Not yet implemented (ask the author if you're interested)
 
-=item *
+=item custom
 
 Any format when the user provides a dedicated class and function to
 read and load the configuration tree.
 
-=item *
+=item augeas
 
-Data can be loaded or stored using RedHat's Augeas library.
+Data can be loaded or stored using RedHat's Augeas library. See
+L<Config::Model::Backend::Augeas> for details.
 
 =back
 
@@ -127,57 +130,70 @@ instance. Then the user can call the C<write_back> method on the
 instance (See L<Config::Model::Instance>) to store all configuration
 informations back.
 
-=head2 Built-in read write format
+=head2 Built-in backend
 
-Currently, this class supports the following built-in formats:
+C<cds_file>, C<ini_file> and C<perl_file> backend must be specified with
+mandatory C<config_dir> parameter. For instance:
 
-=over
+   read_config  => { backend    => 'cds_file' , 
+                     config_dir => '/etc/cfg_dir'},
 
-=item cds_file
-
-Config dump string. See L<Config::Model::Dumper>.
-
-=item ini_file
-
-Ini files written by L<Config::Tiny>.
-
-=item augeas
-
-Use Augeas library. See L<Config::Model::Backend::Augeas> for details.
-
-=back
 
 =head2 Custom backend
 
 Custom backend must be specified with a class name that will features
 the methods used to write and read the configuration files:
 
-  read_config  => [ { backend => 'custom' , class => 'MyRead',
-                      config_dir => '/etc/foo'
+  read_config  => [ { backend => 'custom' , 
+                      class => 'MyRead',
+                      config_dir => '/etc/foo', # optional
+                      file => 'foo.conf',       # optional
                     } ]
 
-Note that C<config_dir> specification is optional.
+C<custom> backend parameters are:
 
-The C<MyRead> class that you will provide must have the methods
-C<read> and C<write>. Then, C<MyRead::read> will be called with there
-parameters:
+=over
 
- (object => config_tree_root, root => 'filesystem root' ,
-                              config_dir => 'config dir', )
+=item class
 
-You can choose to specify yourself the read and write methods:
+Specify the class that contain the read method
 
-   read_config => { backend  => 'custom', 
-                    class    => 'MyRead', 
-                    function => 'my_read' 
-                  }
+=item config_dir
 
-and
+Specify configuration directory. This parameter is optional as the
+directory can be hardcoded in the custom class.
 
-   write_config => { backend  => 'custom', 
-                     class    => 'MyRead', 
-                     function => 'my_write' 
-                   }
+=item file
+
+optional. This may not apply if the configuration is stored in several
+files. 
+
+=item function
+
+Function name that will be called back to read the file. 
+See L</"read callback"> for details. (default is C<read>)
+
+=item allow_empty
+
+By default, an exception is thrown if no read was
+successfull. This behavior can be overridden by specifying 
+C<< allow_empty => 1 >> in one of the backend specification. For instance:
+
+    read_config  => [ { backend => 'cds_file', config_dir => '/etc/my_cfg/' } , 
+                    { backend => 'custom', class => 'Bar' ,
+                      allow_empty => 1
+                    },
+                  ],
+
+This feature is necessary to create a configuration from scratch
+(valid only for read backend).
+
+=item auto_create
+
+For write backend only. When set, missing directory and files will be
+created with current umask. Default is false. 
+
+=back
 
 =head1 Limitations depending on storage
 
@@ -203,15 +219,14 @@ classes have only leaf elements.
 
 =head1 Configuration class with auto read or auto write
 
-=head2 read and write specification
+=head2 read specification
 
-A configuration class will be declared with optional C<read_config> or
-C<write_config> parameters:
+A configuration class will be declared with optional C<read_config>
+parameter:
 
   read_config  => [ { backend => 'cds_file', config_dir => '/etc/my_cfg/' } , 
                     { backend => 'custom', class => 'Bar' },
                   ],
-  write_config => { backend => 'cds_file', config_dir => '/etc/my_cfg/' },
 
 The read backends will be tried in the specified order:
 
@@ -226,32 +241,39 @@ The syntax of the C<cds> file is described in  L<Config::Model::Dumper>.
 
 =item * 
 
-A call to C<Bar::read> with these parameters:
-
- (object => config_tree_root, root => 'filesystem root', config_dir => '...')
+A callback to C<Bar::read>. See L</"read callback> for details.
 
 =back
 
 When a read operation is successful, the remaining read methods will
-be skipped. By default, an exception is thrown if no read was
-successfull. This behavior can be overridden by specifying 
-C<< allow_empty => 1 >> in one of the backend specification. For instance:
+be skipped.
 
-    read_config  => [ { backend => 'cds_file', config_dir => '/etc/my_cfg/' } , 
-                    { backend => 'custom', class => 'Bar' ,
-                      allow_empty => 1
-                    },
-                  ],
 
-This feature is necessary if you want to be able to create a
-configuration from scratch.
+=head2 write specification
+
+A configuration class will be declared with optional C<write_config>
+parameters (along with C<read_config> parameter):
+
+  write_config => [ { backend => 'cds_file', config_dir => '/etc/my_cfg/' },
+                    { backend => 'custom', class => 'NewFormat' } ],
 
 When necessary (or required by the user), all configuration
-informations are written back using B<all> the write method passed.
+informations are written back using B<all> the write specifications.
 
-In the example above, only a C<cds> file is written. But, both custom
+The write class declared witn C<custom> backend must provide a call-back.
+See L</"write callback"> for details.
+
+=head2 Combining read and write
+
+In the example below, only a C<cds> file is written. But, both custom
 format and C<cds> file are tried for read. This is also an example of
 a graceful migration from a customized format to a C<cds> format.
+
+  read_config  => [ { backend => 'cds_file', config_dir => '/etc/my_cfg/' } , 
+                    { backend => 'custom', class => 'Bar' },
+                  ],
+  write_config => { backend => 'cds_file', config_dir => '/etc/my_cfg/' },
+
 
 You can choose also to read and write only customized files:
 
@@ -261,10 +283,11 @@ Or to read and write only cds files :
 
   read_config  => { backend => 'cds_file'} ,
 
-You can also specify more paratmeters that must be passed to your
+You can also specify more parameters that must be passed to your
 custom class:
 
-  read_config  => { backend => 'custom', class => 'Bar', config_dir => '/etc/foo'},
+  read_config  => { backend => 'custom', class => 'Bar', 
+                    config_dir => '/etc/foo'},
 
 =begin comment
 
@@ -296,6 +319,34 @@ directory C</etc/foo> and will be written back there by C<Bar::write>.
 By default, configurations files are read from the directory specified
 by C<config_dir> parameter specified in the model. You may override the
 C<root> directory for test.
+
+=head2 read callback
+
+Read callback function will be called with these parameters:
+
+  object     => $obj,         # Config::Model::Node object 
+  root       => './my_test',  # fake root directory, userd for tests
+  config_dir => /etc/foo',    # absolute path 
+  file       => 'foo.conf',   # file name
+  io_handle  => $io           # IO::File object
+
+The L<IO::File> object is undef if the file cannot be read.
+
+The callback must return 0 on failure and 1 on succesfull read.
+
+=head2 write callback
+
+Write callback function will be called with these parameters:
+
+  object     => $obj,         # Config::Model::Node object 
+  root       => './my_test',  # fake root directory, userd for tests
+  config_dir => /etc/foo',    # absolute path 
+  file       => 'foo.conf',   # file name
+  io_handle  => $io           # IO::File object opened in write mode
+
+The L<IO::File> object is undef if the file cannot be written to.
+
+The callback must return 0 on failure and 1 on succesfull write.
 
 =cut
 
