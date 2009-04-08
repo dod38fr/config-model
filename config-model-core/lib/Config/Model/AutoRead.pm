@@ -702,7 +702,7 @@ The L<IO::File> object is undef if the file cannot be written to.
 
 The callback must return 0 on failure and 1 on succesfull write.
 
-=head2 Combining read and write
+=head1 EXAMPLES
 
 In the example below, only a C<cds> file is written. But, both custom
 format and C<cds> file are tried for read. This is also an example of
@@ -740,15 +740,27 @@ To migrate from custom format to xml:
 
 To migrate from an old format to a new format:
 
-  read_config  => [ { backend => 'custom', class => 'OldFormat',  function => 'old_read'} ,
-                    { backend => 'custom', class => 'NewFormat',  function => 'new_read'} 
+  read_config  => [ { backend => 'custom',
+                      class => 'OldFormat',
+                      function => 'old_read'
+                    } ,
+                    { backend => 'custom',
+                      class => 'NewFormat',
+                      function => 'new_read'
+                    }
                   ],
-  write_config => [ { backend => 'custom', class => 'NewFormat' } ],
+  write_config => [ { backend => 'custom',
+                      class => 'NewFormat'
+                     }
+                  ],
 
 If C<write_config> is missing, the data provided by C<read_config>
 will be used. For instance:
 
-  read_config  => { backend => 'custom', class => 'Bar', config_dir => '/etc/foo'},
+  read_config  => { backend => 'custom',
+                    class => 'Bar',
+                    config_dir => '/etc/foo'
+                  },
 
 In this case, configuration data will be read by C<Bar::read> in
 directory C</etc/foo> and will be written back there by C<Bar::write>.
