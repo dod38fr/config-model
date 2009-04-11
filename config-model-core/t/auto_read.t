@@ -4,7 +4,7 @@
 # $Revision$
 
 use ExtUtils::testlib;
-use Test::More tests => 51;
+use Test::More tests => 56;
 use Config::Model;
 use File::Path;
 use File::Copy ;
@@ -67,7 +67,8 @@ $model->create_config_class
 		       class => 'Level1Read', 
 		       function => 'read_it' } ],
    write_config => [ { backend => 'cds_file', config_dir => $conf_dir},
-		     { backend => 'perl_file', config_dir => $conf_dir},
+		     { backend => 'perl_file', config_dir => $conf_dir,
+		       auto_create => 1},
 		     { backend => 'ini_file' , config_dir => $conf_dir}],
 
    read_config_dir  => $conf_dir,
@@ -212,7 +213,7 @@ package SimpleRW ;
 sub read {
     my %args = @_;
     $result{simple_rw}{file} = $args{file};
-    my $io = $result{simple_rw}{iohandle} = $args{io_handle} ;
+    my $io = $args{io_handle} ;
     return 0 unless defined $io ;
     $args{object}->load($io->getlines);
     return 1 ;
@@ -221,6 +222,11 @@ sub read {
 sub write {
     my %args = @_;
     #$result{same_rw_write} = $args{config_dir};
+
+    my $io = $args{io_handle} ;
+    return 0 unless defined $io ;
+    my $dump = $args{object}->dump_tree() ;
+    $io->print($dump);
 }
 
 
@@ -452,16 +458,37 @@ ok ( -e "$root3/$conf_dir/scratch_inst.cds", "wrote cds config file") ;
 # create model for simple RW class
 
 my $cdswf = $model->instance(root_class_name  => 'CdsWithFile',
-				 instance_name => 'cds_with_file_inst',
-				 root_dir => $root3 ,
-				);
+			     instance_name => 'cds_with_file_inst',
+			     root_dir => $root3 ,
+			    );
 ok($cdswf,"Created instance to load custom cds file") ;
 
-my $expect = '
+$cdswf->config_root->load("aa=toto2") ;
+my $expect = 'aa=toto2 -
 ' ;
 is($cdswf->config_root->dump_tree, $expect, "check dump" );
 
+$cdswf -> write_back ;
 
-#$cdswf->config_root->load("aa=toto") ;
-#$cdswf -> write_back ;
+my $toto_conf  = "$root3/$conf_dir/toto.conf" ;
+copy("$root3/$conf_dir/scratch_inst.cds", $toto_conf)
+  or die "can't copy scratch_inst.cds to toto.conf:$!" ;
+
+my $ctoto = $model->instance(root_class_name  => 'SimpleRW',
+			     instance_name => 'custom_toto',
+			     root_dir => $root3 ,
+			    );
+ok($ctoto,"Created instance to load custom custom toto file") ;
+
+is($ctoto->config_root->dump_tree, $expect, "check dump" );
+$ctoto->config_root->load("aa=toto3") ;
+
+$ctoto -> write_back ;
+
+open(TOTO,$toto_conf) || die "Can't open $toto_conf:$!" ;
+my @totolines= <TOTO> ;
+close TOTO;
+
+is_deeply(\@totolines,["aa=toto3 -\n"],"checked file written by simpleRW") ;
+
 

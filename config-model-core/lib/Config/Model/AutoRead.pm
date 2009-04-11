@@ -69,22 +69,26 @@ sub get_cfg_file_name {
 
     return $dir.$args{file} if $args{file};
 
+    return if not defined $suffix_table{$args{backend}} ;
+
     my $i = $self->instance ;
     my $name = $dir. $i->name ;
 
     # append ":foo bar" if not root object
     my $loc = $self->location ; # not good
     if ($loc) {
-	get_logger('AutoWrite')
-	  ->info("get_cfg_file_name: auto_write create subdirectory ",
-		 "$name (location $loc)" );
-	mkpath ($name,0, 0755) if ($w and not -d $name and $args{auto_create}) ;
+	if (($w and not -d $name and $args{auto_create})) {
+	  get_logger('AutoWrite')
+	    ->info("get_cfg_file_name: auto_write create subdirectory ",
+		   "$name (location $loc)" );
+	  mkpath ($name,0, 0755);
+	}
 	$name .= '/'.$loc ;
     }
 
     croak "get_cfg_file_name: undefined backend" 
       unless defined $args{backend} ;
-    return $name. ( $suffix_table{$args{backend}} || ''); ;
+    return $name. ( $suffix_table{$args{backend}} );
 }
 
 # called at configuration node creation
@@ -283,12 +287,8 @@ sub auto_write_init {
 	    my $safe_self = $self ; # provide a closure
 	    $wb = sub 
 	      {  no strict 'refs';
-		 my $file_name = $self->get_cfg_file_name(@wr_args,@_);
-		 if (defined $file_name) {
-		     get_logger("AutoWrite")
-		       ->debug("init: registering write cb ($backend) for ",$self->name);
-		     $fh ->open("> $file_name");
-		 }
+		 my $file_name 
+		   = $safe_self-> open_file_to_write($backend,$fh,@wr_args,@_) ;
 		 # override needed for "save as" button
 		 &{$c.'::'.$f}(@wr_args,
 			       file       => $file_name,
@@ -296,38 +296,43 @@ sub auto_write_init {
 			       object => $safe_self, 
 			       @_                      # override from user
 			      ) ;
+		 $fh->close if defined $file_name;
 	     };
 	    $self->{auto_write}{custom} = 1 ;
 	}
 	elsif ($backend eq 'xml') {
 	    $wb = sub {
-		my $file_name = $self->get_cfg_file_name(@wr_args,@_);
-		$fh ->open("> $file_name") if defined $file_name;
+		my $file_name 
+		   = $self-> open_file_to_write($backend,$fh,@wr_args,@_) ;
 		$self->write_xml(@wr_args, file => $file_name, @_) ;
+		$fh->close if defined $file_name;
 	    } ;
 	    $self->{auto_write}{xml} = 1 ;
 	}
 	elsif ($backend eq 'ini_file') {
 	    $wb = sub {
-		my $file_name = $self->get_cfg_file_name(@wr_args,@_);
-		$fh ->open("> $file_name") if defined $file_name;
+		my $file_name 
+		   = $self-> open_file_to_write($backend,$fh,@wr_args,@_) ;
 		$self->write_ini(@wr_args, file => $file_name, @_) ;
+		$fh->close if defined $file_name;
 	    } ;
 	    $self->{auto_write}{ini_file} = 1 ;
 	}
 	elsif ($backend eq 'perl_file') {
 	    $wb = sub {
-		my $file_name = $self->get_cfg_file_name(@wr_args,@_);
-		$fh ->open("> $file_name") if defined $file_name;
+		my $file_name 
+		   = $self-> open_file_to_write($backend,$fh,@wr_args,@_) ;
 		$self->write_perl(@wr_args, file => $file_name,  @_) ;
+		$fh->close if defined $file_name;
 	    } ;
 	    $self->{auto_write}{perl_file} = 1 ;
 	}
 	elsif ($backend eq 'cds_file') {
 	    $wb = sub {
-		my $file_name = $self->get_cfg_file_name(@wr_args,@_);
-		$fh ->open("> $file_name") if defined $file_name;
+		my $file_name 
+		   = $self-> open_file_to_write($backend,$fh,@wr_args,@_) ;
 		$self->write_cds_file(@wr_args, file => $file_name, @_,) ;
+		$fh->close if defined $file_name;
 	    } ;
 	    $self->{auto_write}{cds_file} = 1 ;
 	}
@@ -348,20 +353,33 @@ sub auto_write_init {
 	      {  no strict 'refs';
 		 my $backend_obj =  $self->{backend}{$backend}
 		                 || $c->new(node => $self) ;
-		 my $file_name = $self->get_cfg_file_name(@wr_args,@_);
-		 $fh ->open("> $file_name") if defined $file_name;
+		 my $file_name 
+		   = $self-> open_file_to_write($backend,$fh,@wr_args,@_) ;
 		 # override needed for "save as" button
 		 $backend_obj->$f(@wr_args, 
 				  file => $file_name,
 				  object => $safe_self, 
 				  @_                      # override from use
 				 ) ;
+		 $fh->close if defined $file_name;
 	     };
 	}
 
 	$instance->register_write_back($backend => $wb) ;
 	$registered_backend ++ ;
     }
+}
+
+sub open_file_to_write {
+  my ($self, $backend, $fh, @args) = @_ ;
+
+  my $file_name = $self->get_cfg_file_name(@args);
+  if (defined $file_name) {
+    get_logger("AutoWrite")
+      ->debug("$backend backend opened file $file_name to write");
+    $fh ->open("> $file_name");
+  }
+  return $file_name ;
 }
 
 sub is_auto_write_for_type {
