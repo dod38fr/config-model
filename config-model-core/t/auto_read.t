@@ -86,7 +86,8 @@ $model->create_config_class
    # try first to read with cds string and then custom class
    read_config  => [ { backend => 'cds_file', config_dir => $conf_dir }, 
 		     { backend => 'custom', class => 'SameRWSpec', config_dir => $conf_dir },
-		     { backend => 'ini_file', config_dir => $conf_dir } 
+		     { backend => 'ini_file', config_dir => $conf_dir,
+		       auto_create => 1} 
 		   ],
 
    element => [
@@ -111,7 +112,7 @@ $model->create_config_class
 		     { backend => 'perl', config_dir => $conf_dir},
 		     { backend => 'ini_file', config_dir => $conf_dir } ,
 		     { class => 'MasterRead', function => 'wr_stuff', 
-		       config_dir => $conf_dir}
+		       config_dir => $conf_dir, auto_create => 1}
 		   ],
 
    element => [
@@ -130,7 +131,7 @@ $model->create_config_class
    name => 'FromScratch',
 
    read_config  => [ { backend => 'cds_file', config_dir => $conf_dir,
-		       allow_empty => 1},
+		       auto_create => 1},
 		   ],
 
    element => [
@@ -138,7 +139,35 @@ $model->create_config_class
 	      ]
    );
 
-# global variable to snoop on read config action
+$model->create_config_class 
+  (
+   name => 'CdsWithFile',
+
+   read_config  => [ { backend => 'cds_file', config_dir => $conf_dir,
+		       file => 'scratch_inst.cds'},
+		   ],
+
+   element => [
+	       aa => { type => 'leaf',value_type => 'string'} ,
+	      ]
+   );
+
+$model->create_config_class 
+  (
+   name => 'SimpleRW',
+
+   read_config  => [ { backend => 'custom', config_dir => $conf_dir,
+		       class => 'SimpleRW',
+		       file => 'toto.conf'
+		     },
+		   ],
+
+   element => [
+	       aa => { type => 'leaf',value_type => 'string'} ,
+	      ]
+   );
+
+#global variable to snoop on read config action
 my %result;
 
 package MasterRead;
@@ -177,6 +206,24 @@ sub write {
     my %args = @_;
     $result{same_rw_write} = $args{config_dir};
 }
+
+package SimpleRW ;
+
+sub read {
+    my %args = @_;
+    $result{simple_rw}{file} = $args{file};
+    my $io = $result{simple_rw}{iohandle} = $args{io_handle} ;
+    return 0 unless defined $io ;
+    $args{object}->load($io->getlines);
+    return 1 ;
+}
+
+sub write {
+    my %args = @_;
+    #$result{same_rw_write} = $args{config_dir};
+}
+
+
 
 package main;
 
@@ -401,3 +448,20 @@ ok($scratch_i,"Created instance from scratch to load cds files") ;
 $scratch_i->config_root->load("aa=toto") ;
 $scratch_i -> write_back ;
 ok ( -e "$root3/$conf_dir/scratch_inst.cds", "wrote cds config file") ;
+
+# create model for simple RW class
+
+my $cdswf = $model->instance(root_class_name  => 'CdsWithFile',
+				 instance_name => 'cds_with_file_inst',
+				 root_dir => $root3 ,
+				);
+ok($cdswf,"Created instance to load custom cds file") ;
+
+my $expect = '
+' ;
+is($cdswf->config_root->dump_tree, $expect, "check dump" );
+
+
+#$cdswf->config_root->load("aa=toto") ;
+#$cdswf -> write_back ;
+
