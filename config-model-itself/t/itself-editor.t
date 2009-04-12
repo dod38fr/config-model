@@ -4,7 +4,7 @@
 # $Revision: 1.5 $
 
 use ExtUtils::testlib;
-use Test::More tests => 7;
+use Test::More ;
 use Config::Model;
 use Log::Log4perl qw(:easy) ;
 use Data::Dumper ;
@@ -46,6 +46,17 @@ if (not  eval {require Config::Model::Backend::Augeas; } ) {
     # do not use Test::Warnings with this
     $SIG{__WARN__} = sub { warn $_[0] unless $_[0] =~ /unknown backend/};
 }
+else {
+    # workaround Augeas locale bug
+    no warnings qw/uninitialized/;
+    if ($ENV{LC_ALL} ne 'C' or $ENV{LANG} ne 'C') {
+	$ENV{LC_ALL} = $ENV{LANG} = 'C';
+	my $inc = join(' ',map("-I$_",@INC)) ;
+	exec("$^X $inc $0 @ARGV");
+    }
+}
+
+plan tests => 7 ; # avoid double print of plan when exec is run
 
 Log::Log4perl->easy_init($log ? $DEBUG: $WARN);
 
