@@ -1,3 +1,8 @@
+2009-04-11  Dominique Dumont  <domi.dumont@free.fr>
+
+	* lib/Config/Model/OpenSsh.pm (read_ssh_file): fix bug that breaks
+	with Config::Model 0.635
+
 2009-03-09  Dominique Dumont  <dominique.dumont@hp.com> v1.204
 
 	* t/ssh_config.t: Removed unused options that broke with

@@ -130,6 +130,11 @@ sub auto_read_init {
 	my $read_dir = delete $read->{config_dir} || $r_dir || ''; # $r_dir obsolete
 	$read_dir .= '/' if $read_dir and $read_dir !~ m(/$) ; 
 
+	if (defined $read->{allow_empty}) {
+	  warn "backend $backend: allow_empty is deprecated. Use auto_create";
+	  $auto_create ||= delete $read->{allow_empty} ;
+	}
+
 	$auto_create ||= delete $read->{auto_create} if defined $read->{auto_create};
 
 	my $file_name = $self->get_cfg_file_name(%$read,
@@ -204,8 +209,7 @@ sub auto_read_init {
 	    my $backend_obj = $self->{backend}{$backend} = $c->new(node => $self) ;
 	    get_logger("AutoRead")->info( "Read with $backend $ {c}::$f");
 
-	    if ($backend_obj->$f(%$read, root => $root_dir, 
-				 config_dir => $read_dir)) {
+	    if ($backend_obj->$f(@read_args)) {
 		$read_done = 1 ;
 		last;
 	    }
@@ -271,11 +275,11 @@ sub auto_write_init {
 
 	my @wr_args = (%$write,                  # model data
 		       auto_create => $auto_create,
-		       backend => $backend,
-		       config_dir => $write_dir, # override from instance
-		       io_handle  => $fh,
-		       write      => 1,          # for get_cfg_file_name
-		       root       => $root_dir,  # override from instance
+		       backend     => $backend,
+		       config_dir  => $write_dir, # override from instance
+		       io_handle   => $fh,
+		       write       => 1,          # for get_cfg_file_name
+		       root        => $root_dir,  # override from instance
 		      );
 
 	my $wb ;
@@ -331,7 +335,7 @@ sub auto_write_init {
 	    $wb = sub {
 		my $file_name 
 		   = $self-> open_file_to_write($backend,$fh,@wr_args,@_) ;
-		$self->write_cds_file(@wr_args, file => $file_name, @_,) ;
+		$self->write_cds_file(@wr_args, file => $file_name, @_) ;
 		$fh->close if defined $file_name;
 	    } ;
 	    $self->{auto_write}{cds_file} = 1 ;
@@ -359,7 +363,7 @@ sub auto_write_init {
 		 $backend_obj->$f(@wr_args, 
 				  file => $file_name,
 				  object => $safe_self, 
-				  @_                      # override from use
+				  @_                      # override from user
 				 ) ;
 		 $fh->close if defined $file_name;
 	     };

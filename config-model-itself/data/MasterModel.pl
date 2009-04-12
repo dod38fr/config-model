@@ -81,9 +81,9 @@
    level      => [ [qw/hash_a tree_macro int_v/] => 'important' ],
 
    read_config  =>  { backend => 'cds_file',  config_dir  => 'conf_data',
-		      allow_empty => 1 
+		      auto_create => 1,
 		    },
-   write_config => [{ backend => 'cds_file',  config_dir  => 'conf_data'},
+   write_config => [{ backend => 'cds_file',  config_dir  => 'conf_data', file => 'mymaster.cds' },
 		    { backend => 'perl_file', config_dir  => 'conf_data'}],
 
    element => [

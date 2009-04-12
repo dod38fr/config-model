@@ -131,6 +131,15 @@
 			      }
 		    },
 
+       'file'
+       => {
+	   type => 'leaf',
+	   value_type => 'uniline' ,
+	   level => 'normal',
+	   summary =>  'target configuration file name',
+	   description => 'specify the configuration file name. This parameter may not be applicable depending on your application. It may also be hardcoded in a custom backend. If not specified, the instance name will be used as base name for your configuration file.', 
+	  },
+
        'class'
        => {
 	   type => 'leaf',
@@ -229,12 +238,26 @@
 			   }
 	  },
 
-       'allow_empty'
+       'auto_create'
        => {
 	   type => 'leaf',
 	   value_type => 'boolean' ,
 	   level => 'normal',
 	   built_in => 0,
+	   summary => 'Creates configuration files as needed',
+	   migrate_from => { formula => '$old' ,
+			     variables => { old => '- allow_empty' } ,
+			   },
+	  },
+
+       'allow_empty'
+       => {
+	   type => 'leaf',
+	   value_type => 'boolean' ,
+	   level => 'normal',
+	   status => 'deprecated',
+	   built_in => 0,
+	   summary => 'deprecated in favor of auto_create',
 	  },
 
        ],
@@ -269,6 +292,17 @@
 			    variables => { old => '- - write_config_dir' } ,
 			   }
 	  },
+
+       # move to ConfigRW when removing legacy allow_empty
+       'auto_create'
+       => {
+	   type => 'leaf',
+	   value_type => 'boolean' ,
+	   level => 'normal',
+	   built_in => 0,
+	   summary => 'Creates configuration files as needed',
+	  },
+
       ],
   ],
 

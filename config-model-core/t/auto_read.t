@@ -4,7 +4,7 @@
 # $Revision$
 
 use ExtUtils::testlib;
-use Test::More tests => 56;
+use Test::More tests => 58;
 use Config::Model;
 use File::Path;
 use File::Copy ;
@@ -212,7 +212,7 @@ package SimpleRW ;
 
 sub read {
     my %args = @_;
-    $result{simple_rw}{file} = $args{file};
+    $result{simple_rw}{rfile} = $args{file};
     my $io = $args{io_handle} ;
     return 0 unless defined $io ;
     $args{object}->load($io->getlines);
@@ -221,7 +221,7 @@ sub read {
 
 sub write {
     my %args = @_;
-    #$result{same_rw_write} = $args{config_dir};
+    $result{simple_rw}{wfile} = $args{file};
 
     my $io = $args{io_handle} ;
     return 0 unless defined $io ;
@@ -483,7 +483,13 @@ ok($ctoto,"Created instance to load custom custom toto file") ;
 is($ctoto->config_root->dump_tree, $expect, "check dump" );
 $ctoto->config_root->load("aa=toto3") ;
 
+
+
 $ctoto -> write_back ;
+
+map {is($result{simple_rw}{$_},'wr_root/test3//etc/test/toto.conf',
+	"Check Simple_Rw cb file argument ($_)")} 
+  qw/rfile wfile/ ;
 
 open(TOTO,$toto_conf) || die "Can't open $toto_conf:$!" ;
 my @totolines= <TOTO> ;

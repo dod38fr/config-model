@@ -11,7 +11,7 @@
       },
       { backend => 'perl_file', 
 	config_dir  => '/etc/ssh',
-	allow_empty => 1,
+	auto_create => 1,
       },
      ],
 

@@ -1,3 +1,10 @@
+2009-04-12  Dominique Dumont  <domi.dumont@free.fr>
+
+	* lib/Config/Model/models/Itself/Class.pl: Added auto_create and
+	file parameter to read/write spec (Req by Config::Model
+	0.635). Parameter allow_empty is deprecated and will be replaced
+	by auto_create when you run config-edit-model
+
 2009-04-03  Dominique Dumont  <dominique.dumont@hp.com> unreleased v1.210
 
 	* config-model-edit: new -dot_diagram option to get a dot file to

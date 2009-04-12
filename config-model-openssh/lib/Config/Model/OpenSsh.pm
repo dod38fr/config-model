@@ -105,7 +105,7 @@ C<sshd_root> configuration tree.
 =cut 
 
 sub sshd_read {
-    read_ssh_file( file => 'sshd_config', @_ ) ;
+    read_ssh_file( @_,  file => 'sshd_config',) ;
 }
 
 # for ssh_read:
@@ -133,13 +133,13 @@ sub ssh_read {
 
     $instance -> preset_start if $is_user ; # regular user
 
-    my $ret = read_ssh_file(file => 'ssh_config', @_) ;
+    my $ret = read_ssh_file( @_, file => 'ssh_config' ) ;
 
     $instance -> preset_stop if $is_user ;
 
     if ( $is_user) {
 	# don't croak if user config file is missing
-	 read_ssh_file(file => 'config', @_, 
+	 read_ssh_file( @_ , file => 'config',
 		       config_dir => $home_dir.'/.ssh') ;
     }
 
