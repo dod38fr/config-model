@@ -1,0 +1,146 @@
+#!/usr/bin/perl
+
+#    Copyright (c) 2009 Dominique Dumont.
+#
+#    This file is part of Config-Model-Approx.
+#
+#    Config-Model is free software; you can redistribute it and/or
+#    modify it under the terms of the GNU Lesser Public License as
+#    published by the Free Software Foundation; either version 2.1 of
+#    the License, or (at your option) any later version.
+#
+#    Config-Model is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#    Lesser Public License for more details.
+#
+#    You should have received a copy of the GNU Lesser Public License
+#    along with Config-Model; if not, write to the Free Software
+#    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+#    02110-1301 USA
+
+use strict ;
+use warnings ;
+
+my @command = (qw/config-edit -model Approx/, @ARGV) ;
+
+# print "Calling @command\n";
+
+exec(@command)
+  or die "Cannot call config-edit: $!\nIs Config::Model installed ?\n";
+
+__END__
+
+=head1 NAME
+
+config-edit-approx - Edit data of /etc/approx/approx.conf
+
+=head1 SYNOPSIS
+
+  # most users will want to run
+  config-edit-approx [options] [ commands  ... ]
+
+  # if you don't have a X server
+  config-edit-approx -ui curses [options] [ commands  ... ]
+
+  # if you don't like curses
+  config-edit-approx -ui shell [options] [ commands  ... ]
+
+  # if you are a sys admin
+  config-edit-approx -ui none [options]  commands  ...
+
+=head1 DESCRIPTION
+
+This program will edit the configuration data contained in
+F</etc/approx/approx.conf> (as root).
+
+You can specify commands as arguments that will be run on the
+configuration root before launching the UI. These command follow the
+syntax defined in L<Config::Model::Loader>.
+
+=head1 Options
+
+=over
+
+=item -ui
+
+Specify the user interface type. 
+
+=over
+
+=item *
+
+C<tk>: provides a Tk graphical interface (If L<Config::Model::TkUI> is
+installed).
+
+=item *
+
+C<curses>: provides a curses user interface (If
+L<Config::Model::CursesUI> is installed).
+
+=item *
+
+C<shell>: provides a shell like interface.  See L<Config::Model::TermUI>
+for details.
+
+=item *
+
+C<none>: No UI provided. Only command line arguments are handled.
+
+=back
+
+=item -verbose
+
+Be (very) verbose
+
+=item -debug
+
+Provide debug infos.
+
+=item -trace
+
+Provides a full stack trace when exiting on error.
+
+=item -force-load
+
+Load file even if error are found in data. Bad data are discarded
+
+=back
+
+=cut
+
+=head1 BUGS
+
+Original structure and comments of F</etc/approx/approx.conf> are
+lost. There's currently no Augeas lens for approx config data.
+
+=head1 SUPPORT
+
+For support, please check the following ressources:
+
+=over
+
+=item *
+
+The config-model wiki: L<http://config-model.wiki.sourceforge.net/>
+
+=item *
+
+The config-model users mailing list:
+L<http://lists.sourceforge.net/mailman/listinfo/config-model-users>
+
+=back
+
+=head1 AUTHOR
+
+Dominique Dumont, ddumont at cpan dot org
+
+=head1 SEE ALSO
+
+L<config-edit>, L<Config::Model>
+
+=cut
+
+
+
+
