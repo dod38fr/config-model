@@ -1,5 +1,13 @@
 [
           {
+            'read_config' => [
+                               {
+                                 'file' => 'approx.conf',
+                                 'backend' => 'custom',
+                                 'class' => 'Config::Model::Approx',
+                                 'config_dir' => '/etc/approx'
+                               }
+                             ],
             'name' => 'Approx',
             'element' => [
                            'max_rate',
