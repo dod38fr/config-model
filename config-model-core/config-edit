@@ -25,7 +25,7 @@ use warnings ;
 use Config::Model;
 use Getopt::Long ;
 use Pod::Usage ;
-use Log::Log4perl ;
+use Log::Log4perl qw(get_logger :levels);
 
 # lame tracing that will be replaced by Log4perl
 use vars qw/$verbose $debug/ ;
@@ -36,11 +36,11 @@ $debug = 0;
 my $log4perl_syst_conf_file = '/etc/log4config-model.conf' ;
 my $log4perl_user_conf_file = $ENV{HOME}.'/.log4config-model' ;
 my $fallback_conf = << 'EOC';
-log4perl.logger.ConfigModel=WARN, A1
-log4perl.appender.A1=Log::Dispatch::File
-log4perl.appender.A1.filename=/tmp/ConfigModel.log
-log4perl.appender.A1.mode=append
-log4perl.appender.A1.layout=Log::Log4perl::Layout::SimpleLayout
+log4perl.logger=WARN, Screen
+log4perl.appender.Screen        = Log::Log4perl::Appender::Screen
+log4perl.appender.Screen.stderr = 0
+log4perl.appender.Screen.layout = Log::Log4perl::Layout::PatternLayout
+log4perl.appender.Screen.layout.ConversionPattern = %d %m %n
 EOC
 
 my $log4perl_conf 
@@ -284,7 +284,8 @@ if (defined $load) {
     open(LOAD,$load) || die "cannot open load file $load:$!";
     my @data = <LOAD> ;
     close LOAD; 
-    print $root->load(@data);
+    get_logger("ConfigModel")->info("Loading $load");
+    $root->load("@data");
 }
 
 if (@ARGV) {
@@ -356,7 +357,7 @@ else {
     die "Unsupported user interface: $ui_type";
 }
 
-$inst->write_back if scalar @ARGV;
+$inst->write_back if ($load or scalar @ARGV);
 
 =head1 LOGGING
 
@@ -378,11 +379,11 @@ following files:
 
 Without these files, the following Log4perl config is used:
 
-  log4perl.logger.ConfigModel=WARN, A1
-  log4perl.appender.A1=Log::Dispatch::File
-  log4perl.appender.A1.filename=/tmp/ConfigModel.log
-  log4perl.appender.A1.mode=append
-  log4perl.appender.A1.layout=Log::Log4perl::Layout::SimpleLayout
+ log4perl.logger=WARN, Screen
+ log4perl.appender.Screen        = Log::Log4perl::Appender::Screen
+ log4perl.appender.Screen.stderr = 0
+ log4perl.appender.Screen.layout = Log::Log4perl::Layout::PatternLayout
+ log4perl.appender.Screen.layout.ConversionPattern = %d %m %n
 
 Log4perl uses the following categories
 
@@ -391,6 +392,10 @@ Log4perl uses the following categories
 =item Model
 
 =item Model::Load
+
+=item AutoRead
+
+=item AutoWrite
 
 =back
 

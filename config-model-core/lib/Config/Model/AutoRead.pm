@@ -216,13 +216,18 @@ sub auto_read_init {
 	}
     }
 
-    if (not $read_done and not $auto_create) {
+    if (not $read_done) {
+	my $msg = "could not read config file with ";
+	$msg .= $pref_backend ? "'$pref_backend'" : 'any' ;
+	$msg .= " backend";
+
 	Config::Model::Exception::Model -> throw
 	    (
-	     error => "auto_read error: could not read config file "
-	            . ($pref_backend ? "with '$pref_backend' backend" : ''),
+	     error => "auto_read error: $msg" ,
 	     object => $self,
-	    ) ;
+	    ) unless $auto_create ;
+
+	get_logger("AutoRead")->warn("Warning: $msg");
     }
 
 }
@@ -381,7 +386,7 @@ sub open_file_to_write {
   if (defined $file_name) {
     get_logger("AutoWrite")
       ->debug("$backend backend opened file $file_name to write");
-    $fh ->open("> $file_name");
+    $fh ->open("> $file_name") || die "Cannot open $file_name:$!";
   }
   return $file_name ;
 }

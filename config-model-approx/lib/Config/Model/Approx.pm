@@ -40,7 +40,7 @@ sub read {
     # keys are object , root,  config_dir, io_handle, file
     my %args = @_ ;
 
-    $logger->info("loading config file $args{file}");
+    $logger->info("loading config file $args{file}") if defined $args{file};
 
     foreach ($args{io_handle}->getlines) {
 	chomp;

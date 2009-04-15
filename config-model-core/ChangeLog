@@ -1,3 +1,7 @@
+2009-04-15  Dominique Dumont  <dominique.dumont@hp.com>
+
+	* config-edit: Fix broken Log4Perl default config
+
 2009-04-11  Dominique Dumont  <domi.dumont@free.fr>
 
 	* lib/Config/Model/AutoRead.pm (): Reworked doc. Aligned read and
