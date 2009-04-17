@@ -1,5 +1,7 @@
 2009-04-17  Dominique Dumont  <dominique.dumont@hp.com>
 
+	* config-edit: added -dumpfile option 
+
 	* lib/Config/Model/Instance.pm (new): Added skip_read parameter
 
 	* lib/Config/Model/Node.pm (new): Added skip_read parameter

@@ -196,6 +196,10 @@ Dump configuration content on STDOUT with Config::Model syntax.
 By default, dump only custom values, i.e. different from application 
 built-in values or model default values.
 
+=item -dumpfile ...
+
+Dump in a file instead of dumpint on STDOUT.
+
 =item -load <cds_file_to_load>
 
 Load configuration data in model from cds file (using Config::Model
@@ -218,6 +222,7 @@ my $instance_name ;
 my $backend ;
 my $experience = 'beginner' ;
 my $dump;
+my $dumpfile;
 my $load;
 
 my $result = GetOptions ("ui|if=s"          => \$ui_type,
@@ -235,6 +240,7 @@ my $result = GetOptions ("ui|if=s"          => \$ui_type,
 			 "root_dir=s"       => \$root_dir ,
 			 "backend=s"        => \$backend,
                          "dump:s"           => \$dump,
+                         "dumpfile:s"       => \$dumpfile,
                          "load=s"           => \$load,
 			);
 
@@ -280,7 +286,15 @@ of C<config-edit> and get the results from the standard output.
 =cut
 
 if (defined $dump) {
-    print $root->dump_tree( mode => $dump || 'custom' ) ;
+    my $dump_string = $root->dump_tree( mode => $dump || 'custom' ) ;
+    if (defined $dumpfile) {
+	open(DUMP,">$dumpfile") or die "cannot dump in $file:$!";
+	print DUMP $dump_string ;
+	close DUMP;
+    }
+    else {
+	print $dump_string ;
+    }
     exit ;
 }
 
