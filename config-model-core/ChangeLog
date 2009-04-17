@@ -1,6 +1,7 @@
 2009-04-17  Dominique Dumont  <dominique.dumont@hp.com>
 
-	* config-edit: added -dumpfile option 
+	* config-edit: added -dumptype option. -dump can now be used to
+	specify a file name
 
 	* lib/Config/Model/Instance.pm (new): Added skip_read parameter
 

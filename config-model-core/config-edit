@@ -190,15 +190,19 @@ Load file even if error are found in data. Bad data are discarded
 Specify a read/write backend. The actual backend name depends on the model
 passed to C<-model> option. See L<Config::Model::AutoRead> for details.
 
-=item -dump [ full | preset | custom ]
+=item -dump [ file ]
 
-Dump configuration content on STDOUT with Config::Model syntax. 
-By default, dump only custom values, i.e. different from application 
-built-in values or model default values.
+Dump configuration content on STDOUT or in the specified with
+Config::Model syntax.
 
-=item -dumpfile ...
+By default, dump only custom values, i.e. different from application
+built-in values or model default values. See -dumptype option for
+other types of dump
 
-Dump in a file instead of dumpint on STDOUT.
+=item -dumptype [ full | preset | custom ]
+
+Choose to dump every values (full), only preset values or only
+customized values (default)
 
 =item -load <cds_file_to_load>
 
@@ -222,7 +226,7 @@ my $instance_name ;
 my $backend ;
 my $experience = 'beginner' ;
 my $dump;
-my $dumpfile;
+my $dumptype;
 my $load;
 
 my $result = GetOptions ("ui|if=s"          => \$ui_type,
@@ -240,7 +244,7 @@ my $result = GetOptions ("ui|if=s"          => \$ui_type,
 			 "root_dir=s"       => \$root_dir ,
 			 "backend=s"        => \$backend,
                          "dump:s"           => \$dump,
-                         "dumpfile:s"       => \$dumpfile,
+                         "dumptype:s"       => \$dumptype,
                          "load=s"           => \$load,
 			);
 
@@ -286,9 +290,9 @@ of C<config-edit> and get the results from the standard output.
 =cut
 
 if (defined $dump) {
-    my $dump_string = $root->dump_tree( mode => $dump || 'custom' ) ;
-    if (defined $dumpfile) {
-	open(DUMP,">$dumpfile") or die "cannot dump in $file:$!";
+    my $dump_string = $root->dump_tree( mode => $dumptype || 'custom' ) ;
+    if ($dump) {
+	open(DUMP,">$dump") or die "cannot dump in $dump:$!";
 	print DUMP $dump_string ;
 	close DUMP;
     }
