@@ -196,9 +196,12 @@ Dump configuration content on STDOUT with Config::Model syntax.
 By default, dump only custom values, i.e. different from application 
 built-in values or model default values.
 
-=item -load <file_to_load>
+=item -load <cds_file_to_load>
 
-Load configuration data in model (typically done with -dump option). 
+Load configuration data in model from cds file (using Config::Model
+serialisation format, typically done with -dump option). When this
+option is used, the usual configuration files will not be read.
+
 If used with C<-ui none>, this option will load configuration data, 
 validate it and save it in configuration file (if no error was found).
 
@@ -262,6 +265,7 @@ my $inst = $model->instance (root_class_name => $root_model ,
 			     instance_name   => $root_model ,
 			     root_dir        => $root_dir ,
 			     force_load      => $force_load,
+			     skip_read       => $load ? 1 : 0,
 			     backend         => $backend,
 			    );
 
@@ -385,7 +389,7 @@ Without these files, the following Log4perl config is used:
  log4perl.appender.Screen.layout = Log::Log4perl::Layout::PatternLayout
  log4perl.appender.Screen.layout.ConversionPattern = %d %m %n
 
-Log4perl uses the following categories
+Log4perl uses the following categories:
 
 =over
 
@@ -393,13 +397,22 @@ Log4perl uses the following categories
 
 =item Model::Load
 
-=item AutoRead
+=item Data::Read
 
-=item AutoWrite
+=item Data::Write
 
 =back
 
 More categories will come.
+
+=for comment
+Tree
+Tree::Node
+Tree::Element
+Tree::Element::Value
+Tree::Element::Value::Compute
+Tree::Element::Hash
+Tree::Element::List
 
 =head1 SUPPORT
 

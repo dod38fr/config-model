@@ -549,6 +549,7 @@ sub new {
     weaken($self->{config_model}) ;
 
     $self->{index_value} = delete $args{index_value} ;
+    my $skip_read = delete $args{skip_read} ;
 
     my @left = keys %args ;
     croak "Node->new: unexpected parameter: @left" if @left ;
@@ -566,7 +567,7 @@ sub new {
 
     $self->check_properties ;
 
-    if (defined $model->{read_config}) {
+    if (defined $model->{read_config} and not $skip_read) {
 	# setup auto_read, read_config_dir is obsolete
 	$self->auto_read_init($model->{read_config}, 
 			      $model->{read_config_dir});
@@ -575,6 +576,7 @@ sub new {
     # use read_config data if write_config is missing
     $model->{write_config} ||= dclone $model->{read_config} 
       if defined $model->{read_config};
+
     if ($model->{write_config}) {
 	# setup auto_write, write_config_dir is obsolete
 	$self->auto_write_init($model->{write_config},

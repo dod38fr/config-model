@@ -55,13 +55,13 @@ sub get_cfg_file_name {
 
     my $dir = $args{root}.$args{config_dir} ;
     if (not -d $dir and $w and $args{auto_create}) {
-	get_logger('AutoWrite')
+	get_logger('Data::Write')
 	  ->info("get_cfg_file_name: auto_write create directory $dir" );
 	mkpath ($dir,0, 0755);
     }
 
     unless (-d $dir) { 
-	get_logger($w ? 'AutoWrite' : 'AutoRead')
+	get_logger($w ? 'Data::Write' : 'Data::Read')
 	  ->info("get_cfg_file_name: auto_". ($w ? 'write' : 'read') 
 		 ." $args{backend} no directory $dir" );
 	return;
@@ -78,7 +78,7 @@ sub get_cfg_file_name {
     my $loc = $self->location ; # not good
     if ($loc) {
 	if (($w and not -d $name and $args{auto_create})) {
-	  get_logger('AutoWrite')
+	  get_logger('Data::Write')
 	    ->info("get_cfg_file_name: auto_write create subdirectory ",
 		   "$name (location $loc)" );
 	  mkpath ($name,0, 0755);
@@ -159,7 +159,7 @@ sub auto_read_init {
 	    require $file.'.pm' unless $c->can($f);
 	    no strict 'refs';
 
-	    get_logger("AutoRead")
+	    get_logger("Data::Read")
 	      ->info("Read with custom backend $ {c}::$f in dir $read_dir");
 
 	    my $res = &{$c.'::'.$f}(@read_args, 
@@ -207,7 +207,7 @@ sub auto_read_init {
 	    }
 	    no strict 'refs';
 	    my $backend_obj = $self->{backend}{$backend} = $c->new(node => $self) ;
-	    get_logger("AutoRead")->info( "Read with $backend $ {c}::$f");
+	    get_logger("Data::Read")->info( "Read with $backend $ {c}::$f");
 
 	    if ($backend_obj->$f(@read_args)) {
 		$read_done = 1 ;
@@ -227,7 +227,7 @@ sub auto_read_init {
 	     object => $self,
 	    ) unless $auto_create ;
 
-	get_logger("AutoRead")->warn("Warning: $msg");
+	get_logger("Data::Read")->warn("Warning: $msg");
     }
 
 }
@@ -275,7 +275,7 @@ sub auto_write_init {
 	my $fh ;
 	$fh = new IO::File ; # opened in write callback
 
-	get_logger("AutoWrite")
+	get_logger("Data::Write")
 	  ->debug("init: registering write cb ($backend) for ",$self->name);
 
 	my @wr_args = (%$write,                  # model data
@@ -384,7 +384,7 @@ sub open_file_to_write {
 
   my $file_name = $self->get_cfg_file_name(@args);
   if (defined $file_name) {
-    get_logger("AutoWrite")
+    get_logger("Data::Write")
       ->debug("$backend backend opened file $file_name to write");
     $fh ->open("> $file_name") || die "Cannot open $file_name:$!";
   }
@@ -402,7 +402,7 @@ sub read_cds_file {
     my %args = @_ ;
 
     my $file_name = $args{file} ;
-    get_logger("AutoRead")->info( "Read cds data from $file_name");
+    get_logger("Data::Read")->info( "Read cds data from $file_name");
 
     $self->load( step => [ $args{io_handle}->getlines ] ) ;
     return 1 ;
@@ -412,7 +412,7 @@ sub write_cds_file {
     my $self = shift;
     my %args = @_ ;
     my $file_name = $args{file} ;
-    get_logger("AutoWrite")->info("Write cds data to $file_name");
+    get_logger("Data::Write")->info("Write cds data to $file_name");
 
     $args{io_handle}->print( $self->dump_tree(skip_auto_write => 'cds_file' )) ;
     return 1 ;
@@ -423,7 +423,7 @@ sub read_perl {
     my %args = @_ ;
 
     my $file_name = $args{file} ;
-    get_logger("AutoRead")->info("Read Perl data from $file_name");
+    get_logger("Data::Read")->info("Read Perl data from $file_name");
 
     my $pdata = do $file_name || die "Cannot open $file_name:$!";
     $self->load_data( $pdata ) ;
@@ -434,7 +434,7 @@ sub write_perl {
     my $self = shift;
     my %args = @_ ;
     my $file_name = $args{file} ;
-    get_logger("AutoWrite")->info("Write perl data to $file_name");
+    get_logger("Data::Write")->info("Write perl data to $file_name");
 
     my $p_data = $self->dump_as_data(skip_auto_write => 'perl_file' ) ;
     my $dumper = Data::Dumper->new([$p_data]) ;
@@ -449,7 +449,7 @@ sub read_ini {
     my %args = @_ ;
     my $file_name = $args{file} ;
 
-    get_logger("AutoRead")->info("Read Ini data from $file_name");
+    get_logger("Data::Read")->info("Read Ini data from $file_name");
     require Config::Tiny;
     my $iniconf = Config::Tiny->new();
     my $conf_data = $iniconf -> read($file_name) ;
@@ -469,7 +469,7 @@ sub write_ini {
     my %args = @_ ;
 
     my $file_name = $args{file} ;
-    get_logger("AutoWrite")->info("Write Ini data to $file_name");
+    get_logger("Data::Write")->info("Write Ini data to $file_name");
 
     require Config::Tiny;
     my $iniconf = Config::Tiny->new() ;

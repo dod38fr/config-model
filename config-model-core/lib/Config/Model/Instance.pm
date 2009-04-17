@@ -80,6 +80,11 @@ Pseudo root directory where to read I<and> write configuration files
 
 Specify which backend to use. See L</write_back ( ... )> for details
 
+=item skip_read
+
+When set, configuration files will not be read when creating
+configuration tree.
+
 =back
 
 Note that the root directory specified within the configuration model
@@ -139,6 +144,7 @@ sub new {
 	 root_dir        =>  delete $args{root_dir},
 
 	 backend         =>  delete $args{backend} || '',
+	 skip_read       =>  delete $args{skip_read} || 0,
 	};
 
     my @left = keys %args ;
@@ -197,7 +203,8 @@ sub reset_config {
     $self->{tree} = Config::Model::Node
       -> new ( config_class_name =>$self->{root_class_name},
 	       instance => $self,
-	       config_model => $self->{config_model}
+	       config_model => $self->{config_model},
+	       skip_read  => $self->{skip_read},
 	     );
 
     return $self->{tree} ;

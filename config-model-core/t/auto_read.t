@@ -4,7 +4,7 @@
 # $Revision$
 
 use ExtUtils::testlib;
-use Test::More tests => 58;
+use Test::More tests => 56;
 use Config::Model;
 use File::Path;
 use File::Copy ;
@@ -28,7 +28,7 @@ $::debug            = 1 if $arg =~ /d/;
 Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 
 use Log::Log4perl qw(:easy) ;
-Log::Log4perl->easy_init($arg =~ /l/ ? $TRACE: $WARN);
+Log::Log4perl->easy_init($arg =~ /l/ ? $TRACE: $ERROR);
 
 ok(1,"compiled");
 
@@ -110,7 +110,7 @@ $model->create_config_class
 		       config_dir => $conf_dir, function => 'read_it' }
 		   ],
    write_config => [ { backend => 'cds_file', config_dir => $conf_dir},
-		     { backend => 'perl', config_dir => $conf_dir},
+		     { backend => 'perl_file', config_dir => $conf_dir},
 		     { backend => 'ini_file', config_dir => $conf_dir } ,
 		     { class => 'MasterRead', function => 'wr_stuff', 
 		       config_dir => $conf_dir, auto_create => 1}
@@ -241,13 +241,20 @@ throws_ok {
 			      );
     } qr/'perl_file' backend/,  "read with forced perl_file backend fails (normal: no perl file)"  ;
 
-my $i_zero ;
-warnings_like {
-$i_zero = $model->instance(instance_name    => 'zero_inst',
-			   root_class_name  => 'Master',
-			   root_dir   => $root1 ,
-			  );
-} qr/deprecated auto_read/ , "obsolete warning" ;
+my $i_no_read = $model->instance(instance_name    => 'no_read_inst',
+				 root_class_name  => 'Master',
+				 root_dir   => $root1 ,
+				 skip_read => 1,
+				);
+ok( $i_no_read, "Created instance (from scratch without read)-> no warning" );
+
+# check that conf dir was NOT read when instance was created
+is( $result{master_read}, undef, "Master read conf dir" );
+
+my $i_zero = $model->instance(instance_name    => 'zero_inst',
+			      root_class_name  => 'Master',
+			      root_dir   => $root1 ,
+			     );
 
 ok( $i_zero, "Created instance (from scratch)" );
 
@@ -355,15 +362,11 @@ foreach my $f ( keys %cds ) {
 }
 
 # create another instance
-my $test2_inst;
-warnings_like {
-    $test2_inst = $model->instance(root_class_name  => 'Master',
+my $test2_inst = $model->instance(root_class_name  => 'Master',
 				   instance_name    => $inst2 ,
 				   root_dir         => $root2 ,);
-    } [qr/deprecated/],
-  "obsolete warning" ;
 
-ok($inst2,"created second instance") ;
+ok($test2_inst,"created second instance") ;
 
 # access level1 to autoread it
 my $root_2   = $test2_inst  -> config_root ;
@@ -396,12 +399,8 @@ map { my $o = $_; s!$root1/zero!ini!;
   glob("$root1/*.ini") ;
 
 # create another instance to load ini files
-my $ini_inst ;
-warnings_like {
-    $ini_inst = $model->instance(root_class_name  => 'Master',
+my $ini_inst = $model->instance(root_class_name  => 'Master',
 				instance_name => 'ini_inst' );
-} [qr/deprecated/],
-  "obsolete warning" ;
 
 ok($ini_inst,"Created instance to load ini files") ;
 
@@ -429,12 +428,8 @@ map { my $o = $_; s!$root1/zero!pl!;
   } glob("$root1/*.pl") ;
 
 # create another instance to load pl files
-my $pl_inst ;
-warnings_like {
-    $pl_inst = $model->instance(root_class_name  => 'Master',
+my $pl_inst = $model->instance(root_class_name  => 'Master',
 				instance_name => 'pl_inst' );
-} [qr/deprecated/],
-  "obsolete warning" ;
 
 ok($pl_inst,"Created instance to load pl files") ;
 
@@ -449,6 +444,7 @@ my $scratch_i = $model->instance(root_class_name  => 'FromScratch',
 				 instance_name => 'scratch_inst',
 				 root_dir => $root3 ,
 				);
+
 ok($scratch_i,"Created instance from scratch to load cds files") ;
 
 $scratch_i->config_root->load("aa=toto") ;

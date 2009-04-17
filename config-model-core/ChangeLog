@@ -1,12 +1,18 @@
+2009-04-17  Dominique Dumont  <dominique.dumont@hp.com>
+
+	* lib/Config/Model/Instance.pm (new): Added skip_read parameter
+
+	* lib/Config/Model/Node.pm (new): Added skip_read parameter
+
 2009-04-15  Dominique Dumont  <dominique.dumont@hp.com>
 
-	* config-edit: Fix broken Log4Perl default config
+	* config-edit: Fix broken Log4Perl default config. Added -load option
 
 2009-04-11  Dominique Dumont  <domi.dumont@free.fr>
 
 	* lib/Config/Model/AutoRead.pm (): Reworked doc. Aligned read and
 	write specs (now have same parameters). Read and write callback
-	are passed an opened file handle if possible.
+	are passed an opened file handle if possible. Now use Log::Log4perl.
 
 2009-04-02  Dominique Dumont  <dominique.dumont@hp.com> unreleased v0.635
 
