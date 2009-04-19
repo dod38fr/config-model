@@ -1,4 +1,4 @@
-2009-04-11  Dominique Dumont  <domi.dumont@free.fr>
+2009-04-11  Dominique Dumont  <domi.dumont@free.fr> v1.205
 
 	* lib/Config/Model/OpenSsh.pm (read_ssh_file): fix bug that breaks
 	with Config::Model 0.635
