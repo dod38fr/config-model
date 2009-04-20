@@ -306,7 +306,7 @@ if (defined $load) {
     open(LOAD,$load) || die "cannot open load file $load:$!";
     my @data = <LOAD> ;
     close LOAD; 
-    get_logger("ConfigModel")->info("Loading $load");
+    get_logger("Data")->info("Skipping config file and loading $load");
     $root->load("@data");
 }
 

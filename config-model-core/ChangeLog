@@ -1,4 +1,4 @@
-2009-04-17  Dominique Dumont  <dominique.dumont@hp.com>
+2009-04-17  Dominique Dumont  <dominique.dumont@hp.com> v0.635
 
 	* config-edit: added -dumptype option. -dump can now be used to
 	specify a file name
@@ -17,7 +17,7 @@
 	write specs (now have same parameters). Read and write callback
 	are passed an opened file handle if possible. Now use Log::Log4perl.
 
-2009-04-02  Dominique Dumont  <dominique.dumont@hp.com> unreleased v0.635
+2009-04-02  Dominique Dumont  <dominique.dumont@hp.com>
 
 	* lib/Config/Model.pm (include_one_class): Can no longer clobber
 	element with 'include' class feature.
