@@ -1,4 +1,4 @@
-2009-04-07  Dominique Dumont  <dominique.dumont@hp.com> unreleased v1.208
+2009-04-07  Dominique Dumont  <dominique.dumont@hp.com> v1.208
 
 	* lib/Config/Model/Tk/HashEditor.pm (Populate): Improved widget
 	ergonomy. Added some balloon help.
