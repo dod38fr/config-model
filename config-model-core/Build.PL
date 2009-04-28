@@ -45,7 +45,9 @@ my $build = Module::Build->new
 		      'Scalar::Util'      => 0, # provided by perl 5.8.0
 		      'Exception::Class'  => 0,
 		      'Carp::Assert::More' => 0,
-		      # removed Error: no longer needed
+		      # should be part of core perl since perl5.003007
+		      # but some do not have it 
+		      'IO::File'          => 0, 
 		     },
    build_requires => {
 		      'Config::Tiny'      => 0,
