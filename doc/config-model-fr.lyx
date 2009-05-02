@@ -1,0 +1,1106 @@
+#LyX 1.6.2 created this file. For more info see http://www.lyx.org/
+\lyxformat 345
+\begin_document
+\begin_header
+\textclass beamer
+\begin_preamble
+\usetheme{Warsaw}
+% or ...
+
+\setbeamercovered{transparent}
+% or whatever (possibly just delete it)
+\end_preamble
+\use_default_options false
+\language english
+\inputencoding auto
+\font_roman times
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_amsmath 2
+\use_esint 0
+\cite_engine basic
+\use_bibtopic false
+\paperorientation portrait
+\secnumdepth 2
+\tocdepth 2
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\author "" 
+\author "" 
+\end_header
+
+\begin_body
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+Copyright 2009, Dominique Dumont <domi.dumont@free.fr>.
+ 
+\end_layout
+
+\begin_layout Plain Layout
+This file can be redistributed and/or modified under the terms of the GNU
+ Public License, version 2.
+ 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Title
+Faciliter la configuration d'un logiciel avec Config::Model
+\begin_inset OptArg
+status open
+
+\begin_layout Plain Layout
+Short Paper Title 
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+optional, use only with long paper titles
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subtitle
+Include Only If Paper Has a Subtitle
+\end_layout
+
+\begin_layout Author
+Dominique
+\begin_inset space ~
+\end_inset
+
+Dumont
+\end_layout
+
+\begin_layout Institute
+\begin_inset Flex InstituteMark
+status collapsed
+
+\begin_layout Plain Layout
+1
+\end_layout
+
+\end_inset
+
+Hewlett-Packard
+\end_layout
+
+\begin_layout Date
+French Perl Workshop, Paris 2009
+\begin_inset OptArg
+status open
+
+\begin_layout Plain Layout
+FPW 2009
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+The following causes the table of contents to be shown at the beginning
+ of every subsection.
+ Delete this, if you do not want it.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+AtBeginSubsection[]{
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+  
+\backslash
+frame<beamer>{ 
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+frametitle{Outline}   
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\backslash
+tableofcontents[currentsection,currentsubsection] 
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+  }
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+If you wish to uncover everything in a step-wise fashion, uncomment the
+ following command:
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+%
+\backslash
+beamerdefaultoverlayspecification{<+->}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout BeginFrame
+Outline
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset toc
+LatexCommand tableofcontents
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+Structuring a talk is a difficult task and the following structure may not
+ be suitable.
+ Here are some rules that apply for this solution: 
+\end_layout
+
+\begin_layout Plain Layout
+- Exactly two or three sections (other than the summary).
+ 
+\end_layout
+
+\begin_layout Plain Layout
+- At *most* three subsections per section.
+ 
+\end_layout
+
+\begin_layout Plain Layout
+- Talk about 30s to 2min per frame.
+ So there should be between about 15 and 30 frames, all told.
+\end_layout
+
+\begin_layout Plain Layout
+- A conference audience is likely to know very little of what you are going
+ to talk about.
+ So *simplify*! 
+\end_layout
+
+\begin_layout Plain Layout
+- In a 20min talk, getting the main ideas across is hard enough.
+ Leave out details, even if it means being less precise than you think necessary.
+ 
+\end_layout
+
+\begin_layout Plain Layout
+- If you omit details that are vital to the proof/implementation, just say
+ so once.
+ Everybody will be happy with that.
+ 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Motivation
+\end_layout
+
+\begin_layout Subsection
+The Basic Problem That We Studied
+\begin_inset OptArg
+status open
+
+\begin_layout Plain Layout
+Basic Problem
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout BeginFrame
+La config, c'est pénible !
+\end_layout
+
+\begin_layout FrameSubtitle
+Ennuyeux ou mystérieux, c'est selon
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+- A title should summarize the slide in an understandable fashion for anyone
+ how does not follow everything on the slide itself.
+ 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Pour un dévelopeur, optimiser la configuration est souvent ennuyeux
+\end_layout
+
+\begin_deeper
+\begin_layout Pause
+
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Pour les utilisateurs non-avertis, c'est souvent difficile:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+édition d'un fichier texte
+\end_layout
+
+\begin_layout Itemize
+lectures de pages de manuel
+\end_layout
+
+\begin_layout Itemize
+assurer la cohérence
+\end_layout
+
+\begin_layout Itemize
+Encore plus délicat lors des mises-à-jour de paquets
+\end_layout
+
+\end_deeper
+\begin_layout BeginFrame
+Objectif 1: faciliter la configuration pour les utilisateurs
+\end_layout
+
+\begin_layout Itemize
+Pour les novices: une interface graphique avec:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+aide intégrée
+\end_layout
+
+\begin_layout Itemize
+rappel des valeurs par défaut
+\end_layout
+
+\begin_layout Itemize
+validation du contenu
+\end_layout
+
+\end_deeper
+\begin_layout Pause
+
+\end_layout
+
+\begin_layout Itemize
+Tout ceci existe plus ou moins:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Webmin
+\end_layout
+
+\begin_layout Pause
+
+\end_layout
+
+\begin_layout Itemize
+Windows registry
+\end_layout
+
+\begin_layout Pause
+
+\end_layout
+
+\begin_layout Itemize
+Elektra
+\end_layout
+
+\end_deeper
+\begin_layout BeginFrame
+Objectif 2: ne pas compliquer la vie des dévelopeurs
+\end_layout
+
+\begin_layout Itemize
+La logique de validation des données de config soit rester maintenable:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Eviter de faire code dédié pour valider les données (e.g.
+ Webmin)
+\end_layout
+
+\begin_layout Itemize
+Baser la validation sur des données: le modèle de la configuration
+\end_layout
+
+\begin_layout Itemize
+Générer les interfaces à partir du modèle
+\end_layout
+
+\begin_layout Itemize
+Fournir une GUI pour créer le modèle
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Minimiser le code requis pour lire ou écrire les fichiers de configuration:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Utiliser les librairies existantes (Config::Ini, Augeas...)
+\end_layout
+
+\begin_layout Itemize
+Sinon, fournir des classes pour aider à la lecture et écriture 
+\end_layout
+
+\end_deeper
+\begin_layout BeginFrame
+Make Titles Informative.
+ 
+\end_layout
+
+\begin_layout Itemize
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+<1->
+\end_layout
+
+\end_inset
+
+You can also use overlay specifications to create overlays.
+\end_layout
+
+\begin_layout Itemize
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+<3->
+\end_layout
+
+\end_inset
+
+This allows you to present things in any order.
+\end_layout
+
+\begin_layout Itemize
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+<2->
+\end_layout
+
+\end_inset
+
+This is shown second.
+\end_layout
+
+\begin_layout BeginFrame
+Make Titles Informative.
+\end_layout
+
+\begin_layout Block
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+<1->
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Untitled block.
+\end_layout
+
+\begin_layout Itemize
+Shown on all slides.
+\end_layout
+
+\end_deeper
+\begin_layout ExampleBlock
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+<2->
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\end_inset
+
+Some Example Block Title
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+\begin_inset Formula $e^{i\pi}=-1$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Formula $e^{i\pi/2}=i$
+\end_inset
+
+.
+\end_layout
+
+\end_deeper
+\begin_layout Subsection
+Previous Work
+\end_layout
+
+\begin_layout BeginFrame
+Make Titles Informative.
+ 
+\end_layout
+
+\begin_layout Example
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+<1->
+\end_layout
+
+\end_inset
+
+On first slide.
+ 
+\end_layout
+
+\begin_layout Separator
+
+\end_layout
+
+\begin_layout Example
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+<2->
+\end_layout
+
+\end_inset
+
+On second slide.
+\end_layout
+
+\begin_layout Section
+Config::Model
+\end_layout
+
+\begin_layout Subsection
+Créer un modèle de configuration
+\end_layout
+
+\begin_layout BeginFrame
+Modèle: analyse
+\end_layout
+
+\begin_layout Itemize
+Lire les pages de manuel de l'application:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+trouver la structure 
+\end_layout
+
+\begin_layout Itemize
+trouver les paramètres, leur contraintes et relations
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Trouver plusieurs exemples valides:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+permet de vérifier qu'on a compris la doc
+\end_layout
+
+\begin_layout Itemize
+prépare les tests de non-régression
+\end_layout
+
+\end_deeper
+\begin_layout BeginFrame
+Modèle: déclaration
+\end_layout
+
+\begin_layout Standard
+En gros, on traduit la doc en un format compréhensible par Config::Model:
+\end_layout
+
+\begin_layout Itemize
+La structure va se traduire en 
+\emph on
+classes de configuration
+\end_layout
+
+\begin_layout Itemize
+Les paramètres de configuration en éléments
+\end_layout
+
+\begin_layout Itemize
+Les contraintes en attributs des éléments
+\end_layout
+
+\begin_layout ColumnsTopAligned
+
+\end_layout
+
+\begin_deeper
+\begin_layout Column
+6cm
+\end_layout
+
+\end_deeper
+\begin_layout LyX-Code
+
+\size footnotesize
+name => 'Ssh',
+\end_layout
+
+\begin_layout LyX-Code
+
+\size footnotesize
+element => [
+\end_layout
+
+\begin_layout LyX-Code
+
+\size footnotesize
+  EnableSSHKeysign => { 
+\end_layout
+
+\begin_layout LyX-Code
+
+\size footnotesize
+    type => 'leaf',
+\end_layout
+
+\begin_layout LyX-Code
+
+\size footnotesize
+    value_type => 'boolean', 
+\end_layout
+
+\begin_layout LyX-Code
+
+\size footnotesize
+    built_in => '0',
+\end_layout
+
+\begin_layout LyX-Code
+
+\size footnotesize
+    description => 'Setting ...',
+\end_layout
+
+\begin_layout LyX-Code
+
+\size footnotesize
+  },
+\end_layout
+
+\begin_layout LyX-Code
+
+\size footnotesize
+] 
+\end_layout
+
+\begin_layout BeginFrame
+Make Titles Informative.
+ 
+\end_layout
+
+\begin_layout ColumnsTopAligned
+
+\end_layout
+
+\begin_deeper
+\begin_layout Column
+5cm
+\end_layout
+
+\begin_layout Theorem
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+<1->
+\end_layout
+
+\end_inset
+
+In left column.
+\end_layout
+
+\begin_layout Column
+5cm
+\end_layout
+
+\begin_layout Corollary
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+<2->
+\end_layout
+
+\end_inset
+
+In right column.
+\begin_inset Newline newline
+\end_inset
+
+New line
+\end_layout
+
+\end_deeper
+\begin_layout Subsection
+Basic Ideas for Proofs/Implementations
+\end_layout
+
+\begin_layout Section*
+Summary
+\end_layout
+
+\begin_layout BeginFrame
+Summary
+\end_layout
+
+\begin_layout Itemize
+The
+\color none
+ 
+\color red
+first main message
+\color none
+ of your talk in one or two lines.
+\end_layout
+
+\begin_layout Itemize
+The
+\color none
+ 
+\color red
+second main message
+\color none
+ of your talk in one or two lines.
+\end_layout
+
+\begin_layout Itemize
+Perhaps a
+\color none
+ 
+\color red
+third message
+\color none
+, but not more than that.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+An outlook is always optional.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+vskip0pt plus.5fill
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Outlook
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+What we have not done yet.
+\end_layout
+
+\begin_layout Itemize
+Even more stuff.
+\end_layout
+
+\end_deeper
+\begin_layout EndFrame
+
+\end_layout
+
+\begin_layout Section*
+\start_of_appendix
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+All of the following is optional and typically not needed.
+\end_layout
+
+\end_inset
+
+Appendix
+\end_layout
+
+\begin_layout Subsection*
+For Further Reading
+\end_layout
+
+\begin_layout BeginFrame
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+[allowframebreaks]
+\end_layout
+
+\end_inset
+
+For Further Reading
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+beamertemplatebookbibitems
+\end_layout
+
+\end_inset
+
+
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+Start with overview books.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "Author1990"
+
+\end_inset
+
+A.
+ Author.
+ 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+newblock
+\end_layout
+
+\end_inset
+
+
+\emph on
+Handbook of Everything
+\emph default
+.
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+newblock
+\end_layout
+
+\end_inset
+
+ Some Press, 1990.
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+beamertemplatearticlebibitems
+\end_layout
+
+\end_inset
+
+
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+Followed by interesting articles.
+ Keep the list short.
+ 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "Someone2002"
+
+\end_inset
+
+S.
+ Someone.
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+newblock
+\end_layout
+
+\end_inset
+
+ On this and that
+\emph on
+.
+
+\emph default
+ 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+newblock
+\end_layout
+
+\end_inset
+
+
+\emph on
+Journal on This and That
+\emph default
+.
+ 2(1):50--100, 2000.
+\end_layout
+
+\begin_layout EndFrame
+
+\end_layout
+
+\end_body
+\end_document
