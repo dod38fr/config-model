@@ -26,7 +26,7 @@
 \paperfontsize default
 \spacing single
 \use_hyperref false
-\papersize default
+\papersize a4paper
 \use_geometry false
 \use_amsmath 2
 \use_esint 0
@@ -325,7 +325,7 @@ Basic Problem
 \end_layout
 
 \begin_layout BeginFrame
-La config, c'est pénible !
+La config, c'est souvent pénible !
 \end_layout
 
 \begin_layout FrameSubtitle
@@ -345,7 +345,7 @@ status open
 \end_layout
 
 \begin_layout Itemize
-Pour un dévelopeur, optimiser la configuration est souvent ennuyeux
+Pour un dévelopeur, optimiser la configuration est souvent ennuyeuse
 \end_layout
 
 \begin_deeper
@@ -381,20 +381,31 @@ Objectif 1: faciliter la configuration pour les utilisateurs
 \end_layout
 
 \begin_layout Itemize
-Pour les novices: une interface graphique avec:
+Pour les novices: fournir une interface graphique avec:
 \end_layout
 
 \begin_deeper
 \begin_layout Itemize
-aide intégrée
+Aide intégrée
 \end_layout
 
 \begin_layout Itemize
-rappel des valeurs par défaut
+Rappel des valeurs par défaut
 \end_layout
 
 \begin_layout Itemize
-validation du contenu
+Validation des données de configuration
+\end_layout
+
+\begin_layout Itemize
+Géstion des mises-à-jour
+\end_layout
+
+\begin_layout Itemize
+Differents niveaux d'expertise 
+\shape italic
+\size footnotesize
+(du débutant au grand maître)
 \end_layout
 
 \end_deeper
@@ -438,23 +449,27 @@ La logique de validation des données de config soit rester maintenable:
 
 \begin_deeper
 \begin_layout Itemize
-Eviter de faire code dédié pour valider les données (e.g.
+Eviter du code dédié à la validation des données (e.g.
  Webmin)
 \end_layout
 
 \begin_layout Itemize
-Baser la validation sur des données: le modèle de la configuration
+Baser la validation sur des «méta-données»: le modèle de configuration
 \end_layout
 
 \begin_layout Itemize
-Générer les interfaces à partir du modèle
+Générer les interfaces (graphiques ou pas) à partir du modèle
 \end_layout
 
 \begin_layout Itemize
-Fournir une GUI pour créer le modèle
+Faciliter les mises-à-jour
 \end_layout
 
 \end_deeper
+\begin_layout Pause
+
+\end_layout
+
 \begin_layout Itemize
 Minimiser le code requis pour lire ou écrire les fichiers de configuration:
 \end_layout
@@ -466,6 +481,117 @@ Utiliser les librairies existantes (Config::Ini, Augeas...)
 
 \begin_layout Itemize
 Sinon, fournir des classes pour aider à la lecture et écriture 
+\end_layout
+
+\end_deeper
+\begin_layout BeginFrame
+Schéma de Config::Model
+\end_layout
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename /home/domi/perlDev/articles/magazines/Modules/config-model/3_tier.png
+	width 10cm
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout BeginFrame
+C'est quoi un modèle ?
+\end_layout
+
+\begin_layout ColumnsCenterAligned
+
+\end_layout
+
+\begin_deeper
+\begin_layout Column
+5cm
+\end_layout
+
+\begin_layout Standard
+Un modèle définie la structure :
+\end_layout
+
+\begin_layout Itemize
+Les paramètres sont groupés en classes
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Chaque classe a 
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+un ensemble d'éléments (les paramètres)
+\end_layout
+
+\begin_layout Itemize
+une description
+\end_layout
+
+\begin_layout Itemize
+une spécification optionnelle pour l'accès au fichier de conf (
+\emph on
+backend)
+\end_layout
+
+\end_deeper
+\end_deeper
+\begin_layout Column
+5cm
+\end_layout
+
+\begin_layout ColumnsCenterAligned
+\begin_inset Graphics
+	filename class.png
+	width 5cm
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout BeginFrame
+Un élément
+\end_layout
+
+\begin_layout Itemize
+Chaque élément a:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+un type (leaf, hash ou list, node pour l'imbrication)
+\end_layout
+
+\begin_layout Itemize
+des contraintes (entier, max, mini ...
+ )
+\end_layout
+
+\begin_layout Itemize
+une valeur par défaut
+\end_layout
+
+\begin_layout Itemize
+une description et un résumé (pour l'aide en ligne)
+\end_layout
+
+\begin_layout Itemize
+un niveau d'expérience (
+\emph on
+beginner, advanced master
+\emph default
+)
+\end_layout
+
+\begin_layout Itemize
+un status (normal ou obsolete)
 \end_layout
 
 \end_deeper
