@@ -490,7 +490,7 @@ Schéma de Config::Model
 
 \begin_layout Standard
 \begin_inset Graphics
-	filename /home/domi/perlDev/articles/magazines/Modules/config-model/3_tier.png
+	filename 3_tier.png
 	width 10cm
 
 \end_inset
@@ -560,6 +560,15 @@ backend)
 Un élément
 \end_layout
 
+\begin_layout ColumnsCenterAligned
+
+\end_layout
+
+\begin_deeper
+\begin_layout Column
+5cm
+\end_layout
+
 \begin_layout Itemize
 Chaque élément a:
 \end_layout
@@ -592,6 +601,20 @@ beginner, advanced master
 
 \begin_layout Itemize
 un status (normal ou obsolete)
+\end_layout
+
+\end_deeper
+\begin_layout Column
+5cm
+\end_layout
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename element.png
+
+\end_inset
+
+
 \end_layout
 
 \end_deeper
