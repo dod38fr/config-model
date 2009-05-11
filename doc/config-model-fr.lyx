@@ -10,6 +10,7 @@
 \setbeamercovered{transparent}
 % or whatever (possibly just delete it)
 \end_preamble
+\options handout
 \use_default_options false
 \language english
 \inputencoding auto
@@ -311,17 +312,7 @@ Motivation
 \end_layout
 
 \begin_layout Subsection
-The Basic Problem That We Studied
-\begin_inset OptArg
-status open
-
-\begin_layout Plain Layout
-Basic Problem
-\end_layout
-
-\end_inset
-
-
+Les problèmes classiques de la configuration
 \end_layout
 
 \begin_layout BeginFrame
@@ -330,18 +321,6 @@ La config, c'est souvent pénible !
 
 \begin_layout FrameSubtitle
 Ennuyeux ou mystérieux, c'est selon
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-- A title should summarize the slide in an understandable fashion for anyone
- how does not follow everything on the slide itself.
- 
-\end_layout
-
-\end_inset
-
-
 \end_layout
 
 \begin_layout Itemize
@@ -376,6 +355,10 @@ Encore plus délicat lors des mises-à-jour de paquets
 \end_layout
 
 \end_deeper
+\begin_layout Subsection
+Objectifs
+\end_layout
+
 \begin_layout BeginFrame
 Objectif 1: faciliter la configuration pour les utilisateurs
 \end_layout
@@ -476,7 +459,7 @@ Minimiser le code requis pour lire ou écrire les fichiers de configuration:
 
 \begin_deeper
 \begin_layout Itemize
-Utiliser les librairies existantes (Config::Ini, Augeas...)
+Utiliser les librairies existantes (Config::Ini, Config::Augeas...)
 \end_layout
 
 \begin_layout Itemize
@@ -484,6 +467,10 @@ Sinon, fournir des classes pour aider à la lecture et écriture
 \end_layout
 
 \end_deeper
+\begin_layout Section
+Les principes de Config::Model
+\end_layout
+
 \begin_layout BeginFrame
 Schéma de Config::Model
 \end_layout
@@ -491,7 +478,7 @@ Schéma de Config::Model
 \begin_layout Standard
 \begin_inset Graphics
 	filename 3_tier.png
-	width 10cm
+	width 90page%
 
 \end_inset
 
@@ -512,19 +499,21 @@ C'est quoi un modèle ?
 \end_layout
 
 \begin_layout Standard
-Un modèle définie la structure :
+Un modèle définie une structure en arbre:
 \end_layout
 
 \begin_layout Itemize
-Les paramètres sont groupés en classes
+Chaque noeud est une classe
 \end_layout
 
-\begin_deeper
 \begin_layout Itemize
-Chaque classe a 
+Chaque feuille est un paramètre
 \end_layout
 
-\begin_deeper
+\begin_layout Standard
+Chaque classe contient :
+\end_layout
+
 \begin_layout Itemize
 un ensemble d'éléments (les paramètres)
 \end_layout
@@ -539,16 +528,14 @@ une spécification optionnelle pour l'accès au fichier de conf (
 backend)
 \end_layout
 
-\end_deeper
-\end_deeper
 \begin_layout Column
 5cm
 \end_layout
 
-\begin_layout ColumnsCenterAligned
+\begin_layout Standard
 \begin_inset Graphics
 	filename class.png
-	width 5cm
+	width 100col%
 
 \end_inset
 
@@ -566,20 +553,27 @@ Un élément
 
 \begin_deeper
 \begin_layout Column
-5cm
+6cm
 \end_layout
 
-\begin_layout Itemize
+\begin_layout Standard
 Chaque élément a:
 \end_layout
 
-\begin_deeper
 \begin_layout Itemize
-un type (leaf, hash ou list, node pour l'imbrication)
+un type (
+\emph on
+leaf, hash, list, node
+\emph default
+)
 \end_layout
 
 \begin_layout Itemize
-des contraintes (entier, max, mini ...
+des contraintes (
+\emph on
+entier, max, mini
+\emph default
+ ...
  )
 \end_layout
 
@@ -603,7 +597,6 @@ beginner, advanced master
 un status (normal ou obsolete)
 \end_layout
 
-\end_deeper
 \begin_layout Column
 5cm
 \end_layout
@@ -611,6 +604,7 @@ un status (normal ou obsolete)
 \begin_layout Standard
 \begin_inset Graphics
 	filename element.png
+	width 100col%
 
 \end_inset
 
@@ -618,6 +612,198 @@ un status (normal ou obsolete)
 \end_layout
 
 \end_deeper
+\begin_layout BeginFrame
+Elément complexe
+\end_layout
+
+\begin_layout Standard
+Un modèle de configuration peut aussi définir des interactions entre les
+ éléments:
+\end_layout
+
+\begin_layout Itemize
+déformation du modèle (exemple: avec Xorg, les options d'un pilote changent
+ en fonction du pilote)
+\end_layout
+
+\begin_layout Itemize
+calcul simples (utiles pour les mises-à-jour)
+\end_layout
+
+\begin_layout Itemize
+FIXME: plus déveloper ? ou des exemple ?
+\end_layout
+
+\begin_layout Section
+Créer un modèle de configuration
+\end_layout
+
+\begin_layout BeginFrame
+Modèle: analyse
+\end_layout
+
+\begin_layout Itemize
+Lire les pages de manuel de l'application:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+trouver la structure 
+\end_layout
+
+\begin_layout Itemize
+trouver les paramètres, leur contraintes et relations
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Trouver plusieurs exemples valides:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+pour vérifier qu'on a compris la doc
+\end_layout
+
+\begin_layout Itemize
+pour les tests de non-régression
+\end_layout
+
+\end_deeper
+\begin_layout BeginFrame
+Modèle: déclaration
+\end_layout
+
+\begin_layout Standard
+En gros, on traduit la doc en un format compréhensible par Config::Model:
+\end_layout
+
+\begin_layout Itemize
+La structure va se traduire en 
+\emph on
+classes de configuration
+\end_layout
+
+\begin_layout Itemize
+Les paramètres de configuration en éléments
+\end_layout
+
+\begin_layout Itemize
+Les contraintes en attributs des éléments
+\end_layout
+
+\begin_layout ColumnsTopAligned
+
+\end_layout
+
+\begin_deeper
+\begin_layout Column
+6cm
+\end_layout
+
+\end_deeper
+\begin_layout LyX-Code
+
+\size footnotesize
+name => 'Ssh',
+\end_layout
+
+\begin_layout LyX-Code
+
+\size footnotesize
+element => [
+\end_layout
+
+\begin_layout LyX-Code
+
+\size footnotesize
+  EnableSSHKeysign => { 
+\end_layout
+
+\begin_layout LyX-Code
+
+\size footnotesize
+    type => 'leaf',
+\end_layout
+
+\begin_layout LyX-Code
+
+\size footnotesize
+    value_type => 'boolean', 
+\end_layout
+
+\begin_layout LyX-Code
+
+\size footnotesize
+    built_in => '0',
+\end_layout
+
+\begin_layout LyX-Code
+
+\size footnotesize
+    description => 'Setting ...',
+\end_layout
+
+\begin_layout LyX-Code
+
+\size footnotesize
+  },
+\end_layout
+
+\begin_layout LyX-Code
+
+\size footnotesize
+] 
+\end_layout
+
+\begin_layout BeginFrame
+Déclaration (en plus facile)
+\end_layout
+
+\begin_layout Standard
+La GUI
+\end_layout
+
+\begin_layout BeginFrame
+Premiers tests
+\end_layout
+
+\begin_layout Standard
+De la GUI
+\end_layout
+
+\begin_layout BeginFrame
+Comment lire les fichiers
+\end_layout
+
+\begin_layout BeginFrame
+Comment écrire les fichiers
+\end_layout
+
+\begin_layout BeginFrame
+Prévoir pour les mises-à-jour des config
+\end_layout
+
+\begin_layout BeginFrame
+Etat des lieux: les modèles disponibles
+\end_layout
+
+\begin_layout BeginFrame
+Les futurs projets
+\end_layout
+
+\begin_layout Standard
+Interface web
+\end_layout
+
+\begin_layout Standard
+upgrade des packages sous Debian
+\end_layout
+
+\begin_layout BeginFrame
+Liens
+\end_layout
+
 \begin_layout BeginFrame
 Make Titles Informative.
  
@@ -807,132 +993,6 @@ status collapsed
 \end_inset
 
 On second slide.
-\end_layout
-
-\begin_layout Section
-Config::Model
-\end_layout
-
-\begin_layout Subsection
-Créer un modèle de configuration
-\end_layout
-
-\begin_layout BeginFrame
-Modèle: analyse
-\end_layout
-
-\begin_layout Itemize
-Lire les pages de manuel de l'application:
-\end_layout
-
-\begin_deeper
-\begin_layout Itemize
-trouver la structure 
-\end_layout
-
-\begin_layout Itemize
-trouver les paramètres, leur contraintes et relations
-\end_layout
-
-\end_deeper
-\begin_layout Itemize
-Trouver plusieurs exemples valides:
-\end_layout
-
-\begin_deeper
-\begin_layout Itemize
-permet de vérifier qu'on a compris la doc
-\end_layout
-
-\begin_layout Itemize
-prépare les tests de non-régression
-\end_layout
-
-\end_deeper
-\begin_layout BeginFrame
-Modèle: déclaration
-\end_layout
-
-\begin_layout Standard
-En gros, on traduit la doc en un format compréhensible par Config::Model:
-\end_layout
-
-\begin_layout Itemize
-La structure va se traduire en 
-\emph on
-classes de configuration
-\end_layout
-
-\begin_layout Itemize
-Les paramètres de configuration en éléments
-\end_layout
-
-\begin_layout Itemize
-Les contraintes en attributs des éléments
-\end_layout
-
-\begin_layout ColumnsTopAligned
-
-\end_layout
-
-\begin_deeper
-\begin_layout Column
-6cm
-\end_layout
-
-\end_deeper
-\begin_layout LyX-Code
-
-\size footnotesize
-name => 'Ssh',
-\end_layout
-
-\begin_layout LyX-Code
-
-\size footnotesize
-element => [
-\end_layout
-
-\begin_layout LyX-Code
-
-\size footnotesize
-  EnableSSHKeysign => { 
-\end_layout
-
-\begin_layout LyX-Code
-
-\size footnotesize
-    type => 'leaf',
-\end_layout
-
-\begin_layout LyX-Code
-
-\size footnotesize
-    value_type => 'boolean', 
-\end_layout
-
-\begin_layout LyX-Code
-
-\size footnotesize
-    built_in => '0',
-\end_layout
-
-\begin_layout LyX-Code
-
-\size footnotesize
-    description => 'Setting ...',
-\end_layout
-
-\begin_layout LyX-Code
-
-\size footnotesize
-  },
-\end_layout
-
-\begin_layout LyX-Code
-
-\size footnotesize
-] 
 \end_layout
 
 \begin_layout BeginFrame
