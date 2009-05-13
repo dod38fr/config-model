@@ -41,7 +41,7 @@ our $VERSION = sprintf "1.%04d", q$Revision$ =~ /(\d+)/;
 
 my %suffix_table = qw/cds_file .cds perl_file .pl ini_file .ini xml_file .xml/ ;
 
-sub get_cfg_file_name {
+sub get_cfg_file_path {
     my $self = shift ; 
     my %args = @_;
 
@@ -56,13 +56,13 @@ sub get_cfg_file_name {
     my $dir = $args{root}.$args{config_dir} ;
     if (not -d $dir and $w and $args{auto_create}) {
 	get_logger('Data::Write')
-	  ->info("get_cfg_file_name: auto_write create directory $dir" );
+	  ->info("get_cfg_file_path: auto_write create directory $dir" );
 	mkpath ($dir,0, 0755);
     }
 
     unless (-d $dir) { 
 	get_logger($w ? 'Data::Write' : 'Data::Read')
-	  ->info("get_cfg_file_name: auto_". ($w ? 'write' : 'read') 
+	  ->info("get_cfg_file_path: auto_". ($w ? 'write' : 'read') 
 		 ." $args{backend} no directory $dir" );
 	return;
     }
@@ -79,14 +79,14 @@ sub get_cfg_file_name {
     if ($loc) {
 	if (($w and not -d $name and $args{auto_create})) {
 	  get_logger('Data::Write')
-	    ->info("get_cfg_file_name: auto_write create subdirectory ",
+	    ->info("get_cfg_file_path: auto_write create subdirectory ",
 		   "$name (location $loc)" );
 	  mkpath ($name,0, 0755);
 	}
 	$name .= '/'.$loc ;
     }
 
-    croak "get_cfg_file_name: undefined backend" 
+    croak "get_cfg_file_path: undefined backend" 
       unless defined $args{backend} ;
     return $name. ( $suffix_table{$args{backend}} );
 }
@@ -137,19 +137,19 @@ sub auto_read_init {
 
 	$auto_create ||= delete $read->{auto_create} if defined $read->{auto_create};
 
-	my $file_name = $self->get_cfg_file_name(%$read,
+	my $file_path = $self->get_cfg_file_path(%$read,
 						 root => $root_dir,
 						 config_dir => $read_dir,
 						 backend => $backend,
 						) ;
 
 	next if $backend =~ /_file$/ 
-	        and (not defined $file_name or not -r $file_name) ;
+	        and (not defined $file_path or not -r $file_path) ;
 
 	my $fh = new IO::File;
-	$fh->open($file_name) if (defined $file_name and -e $file_name) ;
+	$fh->open($file_path) if (defined $file_path and -e $file_path) ;
 
-	my @read_args = (%$read,root => $root_dir, file => $file_name,
+	my @read_args = (%$read, root => $root_dir, file_path => $file_path,
 			 config_dir => $read_dir, io_handle => $fh);
 
 	if ($backend eq 'custom') {
@@ -283,7 +283,7 @@ sub auto_write_init {
 		       backend     => $backend,
 		       config_dir  => $write_dir, # override from instance
 		       io_handle   => $fh,
-		       write       => 1,          # for get_cfg_file_name
+		       write       => 1,          # for get_cfg_file_path
 		       root        => $root_dir,  # override from instance
 		      );
 
@@ -296,52 +296,52 @@ sub auto_write_init {
 	    my $safe_self = $self ; # provide a closure
 	    $wb = sub 
 	      {  no strict 'refs';
-		 my $file_name 
+		 my $file_path 
 		   = $safe_self-> open_file_to_write($backend,$fh,@wr_args,@_) ;
 		 # override needed for "save as" button
 		 &{$c.'::'.$f}(@wr_args,
-			       file       => $file_name,
+			       file_path => $file_path,
 			       conf_dir => $write_dir, # legacy FIXME
 			       object => $safe_self, 
 			       @_                      # override from user
 			      ) ;
-		 $fh->close if defined $file_name;
+		 $fh->close if defined $file_path;
 	     };
 	    $self->{auto_write}{custom} = 1 ;
 	}
 	elsif ($backend eq 'xml') {
 	    $wb = sub {
-		my $file_name 
+		my $file_path 
 		   = $self-> open_file_to_write($backend,$fh,@wr_args,@_) ;
-		$self->write_xml(@wr_args, file => $file_name, @_) ;
-		$fh->close if defined $file_name;
+		$self->write_xml(@wr_args, file_path => $file_path, @_) ;
+		$fh->close if defined $file_path;
 	    } ;
 	    $self->{auto_write}{xml} = 1 ;
 	}
 	elsif ($backend eq 'ini_file') {
 	    $wb = sub {
-		my $file_name 
+		my $file_path 
 		   = $self-> open_file_to_write($backend,$fh,@wr_args,@_) ;
-		$self->write_ini(@wr_args, file => $file_name, @_) ;
-		$fh->close if defined $file_name;
+		$self->write_ini(@wr_args, file_path => $file_path, @_) ;
+		$fh->close if defined $file_path;
 	    } ;
 	    $self->{auto_write}{ini_file} = 1 ;
 	}
 	elsif ($backend eq 'perl_file') {
 	    $wb = sub {
-		my $file_name 
+		my $file_path 
 		   = $self-> open_file_to_write($backend,$fh,@wr_args,@_) ;
-		$self->write_perl(@wr_args, file => $file_name,  @_) ;
-		$fh->close if defined $file_name;
+		$self->write_perl(@wr_args, file_path => $file_path,  @_) ;
+		$fh->close if defined $file_path;
 	    } ;
 	    $self->{auto_write}{perl_file} = 1 ;
 	}
 	elsif ($backend eq 'cds_file') {
 	    $wb = sub {
-		my $file_name 
+		my $file_path 
 		   = $self-> open_file_to_write($backend,$fh,@wr_args,@_) ;
-		$self->write_cds_file(@wr_args, file => $file_name, @_) ;
-		$fh->close if defined $file_name;
+		$self->write_cds_file(@wr_args, file_path => $file_path, @_) ;
+		$fh->close if defined $file_path;
 	    } ;
 	    $self->{auto_write}{cds_file} = 1 ;
 	}
@@ -362,15 +362,15 @@ sub auto_write_init {
 	      {  no strict 'refs';
 		 my $backend_obj =  $self->{backend}{$backend}
 		                 || $c->new(node => $self) ;
-		 my $file_name 
+		 my $file_path 
 		   = $self-> open_file_to_write($backend,$fh,@wr_args,@_) ;
 		 # override needed for "save as" button
 		 $backend_obj->$f(@wr_args, 
-				  file => $file_name,
+				  file_path => $file_path,
 				  object => $safe_self, 
 				  @_                      # override from user
 				 ) ;
-		 $fh->close if defined $file_name;
+		 $fh->close if defined $file_path;
 	     };
 	}
 
@@ -382,13 +382,13 @@ sub auto_write_init {
 sub open_file_to_write {
   my ($self, $backend, $fh, @args) = @_ ;
 
-  my $file_name = $self->get_cfg_file_name(@args);
-  if (defined $file_name) {
+  my $file_path = $self->get_cfg_file_path(@args);
+  if (defined $file_path) {
     get_logger("Data::Write")
-      ->debug("$backend backend opened file $file_name to write");
-    $fh ->open("> $file_name") || die "Cannot open $file_name:$!";
+      ->debug("$backend backend opened file $file_path to write");
+    $fh ->open("> $file_path") || die "Cannot open $file_path:$!";
   }
-  return $file_name ;
+  return $file_path ;
 }
 
 sub is_auto_write_for_type {
@@ -401,8 +401,8 @@ sub read_cds_file {
     my $self = shift;
     my %args = @_ ;
 
-    my $file_name = $args{file} ;
-    get_logger("Data::Read")->info( "Read cds data from $file_name");
+    my $file_path = $args{file_path} ;
+    get_logger("Data::Read")->info( "Read cds data from $file_path");
 
     $self->load( step => [ $args{io_handle}->getlines ] ) ;
     return 1 ;
@@ -411,8 +411,8 @@ sub read_cds_file {
 sub write_cds_file {
     my $self = shift;
     my %args = @_ ;
-    my $file_name = $args{file} ;
-    get_logger("Data::Write")->info("Write cds data to $file_name");
+    my $file_path = $args{file_path} ;
+    get_logger("Data::Write")->info("Write cds data to $file_path");
 
     $args{io_handle}->print( $self->dump_tree(skip_auto_write => 'cds_file' )) ;
     return 1 ;
@@ -422,10 +422,10 @@ sub read_perl {
     my $self = shift;
     my %args = @_ ;
 
-    my $file_name = $args{file} ;
-    get_logger("Data::Read")->info("Read Perl data from $file_name");
+    my $file_path = $args{file_path} ;
+    get_logger("Data::Read")->info("Read Perl data from $file_path");
 
-    my $pdata = do $file_name || die "Cannot open $file_name:$!";
+    my $pdata = do $file_path || die "Cannot open $file_path:$!";
     $self->load_data( $pdata ) ;
     return 1 ;
 }
@@ -433,8 +433,8 @@ sub read_perl {
 sub write_perl {
     my $self = shift;
     my %args = @_ ;
-    my $file_name = $args{file} ;
-    get_logger("Data::Write")->info("Write perl data to $file_name");
+    my $file_path = $args{file_path} ;
+    get_logger("Data::Write")->info("Write perl data to $file_path");
 
     my $p_data = $self->dump_as_data(skip_auto_write => 'perl_file' ) ;
     my $dumper = Data::Dumper->new([$p_data]) ;
@@ -447,12 +447,12 @@ sub write_perl {
 sub read_ini {
     my $self = shift;
     my %args = @_ ;
-    my $file_name = $args{file} ;
+    my $file_path = $args{file_path} ;
 
-    get_logger("Data::Read")->info("Read Ini data from $file_name");
+    get_logger("Data::Read")->info("Read Ini data from $file_path");
     require Config::Tiny;
     my $iniconf = Config::Tiny->new();
-    my $conf_data = $iniconf -> read($file_name) ;
+    my $conf_data = $iniconf -> read($file_path) ;
 
     # load root properties
     if (defined $conf_data->{_}) {
@@ -468,8 +468,8 @@ sub write_ini {
     my $self = shift;
     my %args = @_ ;
 
-    my $file_name = $args{file} ;
-    get_logger("Data::Write")->info("Write Ini data to $file_name");
+    my $file_path = $args{file_path} ;
+    get_logger("Data::Write")->info("Write Ini data to $file_path");
 
     require Config::Tiny;
     my $iniconf = Config::Tiny->new() ;
@@ -501,7 +501,7 @@ sub write_ini {
 	}
     }
 
-    $iniconf -> write($file_name) ;
+    $iniconf -> write($file_path) ;
 
     return 1 ;
 }
@@ -758,6 +758,7 @@ Read callback function will be called with these parameters:
   root       => './my_test',  # fake root directory, userd for tests
   config_dir => /etc/foo',    # absolute path 
   file       => 'foo.conf',   # file name
+  file_path  => './my_test/etc/foo/foo.conf' 
   io_handle  => $io           # IO::File object
 
 The L<IO::File> object is undef if the file cannot be read.
@@ -772,6 +773,7 @@ Write callback function will be called with these parameters:
   root        => './my_test',  # fake root directory, userd for tests
   config_dir  => /etc/foo',    # absolute path 
   file        => 'foo.conf',   # file name
+  file_path  => './my_test/etc/foo/foo.conf' 
   io_handle   => $io           # IO::File object opened in write mode
   auto_create => 1             # create dir as needed
 

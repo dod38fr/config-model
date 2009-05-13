@@ -212,7 +212,7 @@ package SimpleRW ;
 
 sub read {
     my %args = @_;
-    $result{simple_rw}{rfile} = $args{file};
+    $result{simple_rw}{rfile} = $args{file_path};
     my $io = $args{io_handle} ;
     return 0 unless defined $io ;
     $args{object}->load($io->getlines);
@@ -221,7 +221,7 @@ sub read {
 
 sub write {
     my %args = @_;
-    $result{simple_rw}{wfile} = $args{file};
+    $result{simple_rw}{wfile} = $args{file_path};
 
     my $io = $args{io_handle} ;
     return 0 unless defined $io ;

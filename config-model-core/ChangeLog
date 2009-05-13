@@ -1,3 +1,9 @@
+2009-05-13  Dominique Dumont  <dominique.dumont@hp.com> unreleased v0.636
+
+	* lib/Config/Model/AutoRead.pm: When calling backend, file
+	contains configuration file name without path and file_path
+	contains complete path and file name
+
 2009-04-17  Dominique Dumont  <dominique.dumont@hp.com> v0.635
 
 	* config-edit: added -dumptype option. -dump can now be used to

@@ -213,6 +213,10 @@ option is used, the usual configuration files will not be read.
 If used with C<-ui none>, this option will load configuration data, 
 validate it and save it in configuration file (if no error was found).
 
+=item -save
+
+Force re-writing the configuration. (useful for configuration upgrade)
+
 =back
 
 =cut
@@ -228,6 +232,7 @@ my $experience = 'beginner' ;
 my $dump;
 my $dumptype;
 my $load;
+my $force_save = 0;
 
 my $result = GetOptions ("ui|if=s"          => \$ui_type,
 			 "model_dir=s"      => \$model_dir,
@@ -246,6 +251,7 @@ my $result = GetOptions ("ui|if=s"          => \$ui_type,
                          "dump:s"           => \$dump,
                          "dumptype:s"       => \$dumptype,
                          "load=s"           => \$load,
+			 'save!'            => \$force_save ,
 			);
 
 pod2usage(2) if not $result ;
@@ -325,8 +331,6 @@ if ($ui_type eq 'simple') {
 
     # engage in user interaction
     $shell_ui -> run_loop ;
-
-    $inst->write_back; 
 }
 elsif ($ui_type eq 'shell') {
     # experience not yet implemented
@@ -339,8 +343,6 @@ elsif ($ui_type eq 'shell') {
 
     # engage in user interaction
     $shell_ui -> run_loop ;
-
-    $inst->write_back; 
 }
 elsif ($ui_type eq 'curses') {
     my $err_file = '/tmp/config-edit-error.log' ;
@@ -379,7 +381,34 @@ else {
     die "Unsupported user interface: $ui_type";
 }
 
-$inst->write_back if ($load or scalar @ARGV);
+$inst->write_back if ($force_save or $load or scalar @ARGV);
+
+=head1 Saving configuration data
+
+Configuration data are saved only when :
+
+=over
+
+=item *
+
+Requested through the user interface
+
+=item *
+
+When commands are specified with arguments
+
+=item *
+
+When C<-load> option is used
+
+=item *
+
+When C<-save> option is used
+
+=back
+
+You can run safely C<config-edit -ui none> to test a configuration,
+configuration files will not be modified in this case.
 
 =head1 LOGGING
 
