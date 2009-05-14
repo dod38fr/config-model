@@ -705,7 +705,7 @@ Les contraintes en attributs des éléments
 \begin_layout LyX-Code
 
 \size footnotesize
-name => 'Ssh', # class name
+name => 'Ssh',             # class name
 \end_layout
 
 \begin_layout LyX-Code
@@ -717,7 +717,7 @@ element => [
 \begin_layout LyX-Code
 
 \size footnotesize
-  EnableSSHKeysign => {  # element name
+  EnableSSHKeysign => {    # element name
 \end_layout
 
 \begin_layout LyX-Code
@@ -735,7 +735,7 @@ element => [
 \begin_layout LyX-Code
 
 \size footnotesize
-    built_in => '0',     # default value
+    built_in => '0',       # default value
 \end_layout
 
 \begin_layout LyX-Code
@@ -812,10 +812,6 @@ Dès que les premiers éléments sont mis en place, on peut avoir un aperçu
 Comment lire les fichiers
 \end_layout
 
-\begin_layout Itemize
-Déclarer dans le modèle comment lire le fichier de configuration 
-\end_layout
-
 \begin_layout ColumnsTopAligned
 
 \end_layout
@@ -825,14 +821,13 @@ Déclarer dans le modèle comment lire le fichier de configuration
 5cm
 \end_layout
 
-\end_deeper
 \begin_layout Block
 \begin_inset ERT
 status open
 
 \begin_layout Plain Layout
 
-{méthode spécifique}
+{Dans le modèle}
 \end_layout
 
 \end_inset
@@ -840,6 +835,137 @@ status open
 
 \end_layout
 
+\begin_deeper
+\begin_layout Itemize
+Déclarer la méthode
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Fournie (fichier Perl, Ini...)
+\end_layout
+
+\begin_layout Itemize
+Plug-in (C::M::Backend::*)
+\end_layout
+
+\begin_layout Itemize
+Spécifique ( call-back à écrire )
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Les paramètres
+\end_layout
+
+\end_deeper
+\begin_layout Column
+6cm
+\end_layout
+
+\begin_layout Block
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+{Exemple}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+
+\size scriptsize
+read_config => [
+\end_layout
+
+\begin_layout LyX-Code
+
+\size scriptsize
+ {
+\end_layout
+
+\begin_layout LyX-Code
+
+\size scriptsize
+  backend     => 'augeas',
+\end_layout
+
+\begin_layout LyX-Code
+
+\size scriptsize
+  save        => 'backup',
+\end_layout
+
+\begin_layout LyX-Code
+
+\size scriptsize
+  config_file => 'sshd_config',
+\end_layout
+
+\begin_layout LyX-Code
+
+\size scriptsize
+  config_dir  => '/etc/ssh'
+\end_layout
+
+\begin_layout LyX-Code
+
+\size scriptsize
+ },
+\end_layout
+
+\begin_layout LyX-Code
+
+\size scriptsize
+ {
+\end_layout
+
+\begin_layout LyX-Code
+
+\size scriptsize
+  backend    => 'custom',
+\end_layout
+
+\begin_layout LyX-Code
+
+\size scriptsize
+  class      => 'C::M::OpenSsh',
+\end_layout
+
+\begin_layout LyX-Code
+
+\size scriptsize
+  function   => 'sshd_read',
+\end_layout
+
+\begin_layout LyX-Code
+
+\size scriptsize
+  config_dir => '/etc/ssh'
+\end_layout
+
+\begin_layout LyX-Code
+
+\size scriptsize
+ }
+\end_layout
+
+\begin_layout LyX-Code
+
+\size scriptsize
+],
+\size default
+ 
+\end_layout
+
+\end_deeper
+\end_deeper
 \begin_layout BeginFrame
 Comment écrire les fichiers
 \end_layout
