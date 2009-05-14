@@ -705,7 +705,7 @@ Les contraintes en attributs des éléments
 \begin_layout LyX-Code
 
 \size footnotesize
-name => 'Ssh',
+name => 'Ssh', # class name
 \end_layout
 
 \begin_layout LyX-Code
@@ -717,7 +717,7 @@ element => [
 \begin_layout LyX-Code
 
 \size footnotesize
-  EnableSSHKeysign => { 
+  EnableSSHKeysign => {  # element name
 \end_layout
 
 \begin_layout LyX-Code
@@ -735,7 +735,7 @@ element => [
 \begin_layout LyX-Code
 
 \size footnotesize
-    built_in => '0',
+    built_in => '0',     # default value
 \end_layout
 
 \begin_layout LyX-Code
@@ -761,7 +761,25 @@ Déclaration (en plus facile)
 \end_layout
 
 \begin_layout Standard
-La GUI
+Comme écrire une structure de donnée n'est pas drôle (même en Perl).
+ On peut créer le modèle avec une GUI:
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace medskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename edit-model.png
+	width 100text%
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout BeginFrame
@@ -769,11 +787,57 @@ Premiers tests
 \end_layout
 
 \begin_layout Standard
-De la GUI
+Dès que les premiers éléments sont mis en place, on peut avoir un aperçu
+ de l'outil proposé à l'utilisateur:
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace medskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename edit-config-test.png
+	width 100text%
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout BeginFrame
 Comment lire les fichiers
+\end_layout
+
+\begin_layout Itemize
+Déclarer dans le modèle comment lire le fichier de configuration 
+\end_layout
+
+\begin_layout ColumnsTopAligned
+
+\end_layout
+
+\begin_deeper
+\begin_layout Column
+5cm
+\end_layout
+
+\end_deeper
+\begin_layout Block
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+{méthode spécifique}
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout BeginFrame
