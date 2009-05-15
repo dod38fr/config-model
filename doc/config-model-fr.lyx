@@ -837,7 +837,11 @@ status open
 
 \begin_deeper
 \begin_layout Itemize
-Déclarer la méthode
+Déclarer la méthode (
+\emph on
+backend
+\emph default
+)
 \end_layout
 
 \begin_deeper
@@ -855,7 +859,7 @@ Spécifique ( call-back à écrire )
 
 \end_deeper
 \begin_layout Itemize
-Les paramètres
+Les paramètres 
 \end_layout
 
 \end_deeper
@@ -881,7 +885,77 @@ status open
 \begin_layout LyX-Code
 
 \size scriptsize
-read_config => [
+\begin_inset Graphics
+	filename read-config.png
+	width 80col%
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\end_deeper
+\begin_layout BeginFrame
+Comment écrire les fichiers
+\end_layout
+
+\begin_layout ColumnsTopAligned
+
+\end_layout
+
+\begin_deeper
+\begin_layout Column
+5cm
+\end_layout
+
+\begin_layout Block
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+{Dans le modèle}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Inutile si la spec est identique à celle de la lecture
+\end_layout
+
+\begin_layout Itemize
+Même paramètres que pour la lecture
+\end_layout
+
+\end_deeper
+\begin_layout Column
+6cm
+\end_layout
+
+\begin_layout Block
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+{Exemple}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+
+\size scriptsize
+write_config => [
 \end_layout
 
 \begin_layout LyX-Code
@@ -905,13 +979,13 @@ read_config => [
 \begin_layout LyX-Code
 
 \size scriptsize
-  config_file => 'sshd_config',
+  config_dir  => '/etc/ssh',
 \end_layout
 
 \begin_layout LyX-Code
 
 \size scriptsize
-  config_dir  => '/etc/ssh'
+  file        => 'sshd_config',
 \end_layout
 
 \begin_layout LyX-Code
@@ -941,7 +1015,7 @@ read_config => [
 \begin_layout LyX-Code
 
 \size scriptsize
-  function   => 'sshd_read',
+  function   => 'sshd_write',
 \end_layout
 
 \begin_layout LyX-Code
@@ -967,11 +1041,138 @@ read_config => [
 \end_deeper
 \end_deeper
 \begin_layout BeginFrame
-Comment écrire les fichiers
+Prévoir pour les mises-à-jour des config
 \end_layout
 
 \begin_layout BeginFrame
-Prévoir pour les mises-à-jour des config
+Utilisation
+\end_layout
+
+\begin_layout FrameSubtitle
+interface graphique
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Graphics
+	filename config-edit-sshd-tk.png
+	width 80text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout BeginFrame
+Utilisation
+\end_layout
+
+\begin_layout FrameSubtitle
+interface curses
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Graphics
+	filename config-edit-sshd-curses.png
+	width 60text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout BeginFrame
+Utilisation
+\end_layout
+
+\begin_layout FrameSubtitle
+interface shell
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Graphics
+	filename config-edit-sshd-shell.png
+	width 80text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout BeginFrame
+Utilisation
+\end_layout
+
+\begin_layout FrameSubtitle
+Pour les programmes
+\end_layout
+
+\begin_layout Itemize
+En ligne de commande:
+\end_layout
+
+\begin_layout LyX-Code
+
+\size footnotesize
+$ sudo config-edit-sshd -ui none PermitRootLogin=no 
+\end_layout
+
+\begin_layout LyX-Code
+
+\size footnotesize
+2009/05/15 14:03:28 load model Config/Model/models/Sshd.pl  
+\end_layout
+
+\begin_layout LyX-Code
+
+\size footnotesize
+2009/05/15 14:03:28 Creating class Sshd
+\end_layout
+
+\begin_layout LyX-Code
+
+\size footnotesize
+2009/05/15 14:03:29 Backing up file /etc/ssh//sshd_config
+\end_layout
+
+\begin_layout LyX-Code
+
+\size footnotesize
+2009/05/15 14:03:29 writing config file /etc/ssh//sshd_config 
+\end_layout
+
+\begin_layout Itemize
+En Perl:
+\end_layout
+
+\begin_layout LyX-Code
+
+\size footnotesize
+$ sudo perl -MConfig::Model -e '
+\end_layout
+
+\begin_layout LyX-Code
+
+\size footnotesize
+  my $i = Config::Model -> new -> instance(root_class_name=>"Sshd");
+\end_layout
+
+\begin_layout LyX-Code
+
+\size footnotesize
+  $i->config_root->load("PermitRootLogin=no");
+\end_layout
+
+\begin_layout LyX-Code
+
+\size footnotesize
+  $i->write_back;'
+\end_layout
+
+\begin_layout LyX-Code
+
 \end_layout
 
 \begin_layout BeginFrame
@@ -1001,7 +1202,7 @@ Make Titles Informative.
 
 \begin_layout Itemize
 \begin_inset ERT
-status collapsed
+status open
 
 \begin_layout Plain Layout
 
