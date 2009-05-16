@@ -12,7 +12,7 @@
 \end_preamble
 \options handout
 \use_default_options false
-\language english
+\language american
 \inputencoding auto
 \font_roman times
 \font_sans default
@@ -38,7 +38,7 @@
 \tocdepth 2
 \paragraph_separation indent
 \defskip medskip
-\quotes_language english
+\quotes_language french
 \papercolumns 1
 \papersides 1
 \paperpagestyle default
@@ -72,30 +72,6 @@ This file can be redistributed and/or modified under the terms of the GNU
 
 \begin_layout Title
 Faciliter la configuration d'un logiciel avec Config::Model
-\begin_inset OptArg
-status open
-
-\begin_layout Plain Layout
-Short Paper Title 
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-optional, use only with long paper titles
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Subtitle
-Include Only If Paper Has a Subtitle
 \end_layout
 
 \begin_layout Author
@@ -107,15 +83,6 @@ Dumont
 \end_layout
 
 \begin_layout Institute
-\begin_inset Flex InstituteMark
-status collapsed
-
-\begin_layout Plain Layout
-1
-\end_layout
-
-\end_inset
-
 Hewlett-Packard
 \end_layout
 
@@ -433,7 +400,7 @@ La logique de validation des données de config soit rester maintenable:
 \begin_deeper
 \begin_layout Itemize
 Eviter du code dédié à la validation des données (e.g.
- Webmin)
+ ne pas refaire un Webmin)
 \end_layout
 
 \begin_layout Itemize
@@ -445,7 +412,7 @@ Générer les interfaces (graphiques ou pas) à partir du modèle
 \end_layout
 
 \begin_layout Itemize
-Faciliter les mises-à-jour
+Faciliter les mises-à-jour de la configuration des utilisateurs
 \end_layout
 
 \end_deeper
@@ -631,7 +598,7 @@ calcul simples (utiles pour les mises-à-jour)
 \end_layout
 
 \begin_layout Itemize
-FIXME: plus déveloper ? ou des exemple ?
+FIXME: plus déveloper ? ou des exemples ?
 \end_layout
 
 \begin_layout Section
@@ -652,7 +619,7 @@ trouver la structure
 \end_layout
 
 \begin_layout Itemize
-trouver les paramètres, leur contraintes et relations
+idetntifier les paramètres, leur contraintes et relations
 \end_layout
 
 \end_deeper
@@ -773,39 +740,18 @@ Comme écrire une structure de donnée n'est pas drôle (même en Perl).
 \end_layout
 
 \begin_layout Standard
+\align center
 \begin_inset Graphics
 	filename edit-model.png
-	width 100text%
+	width 80text%
 
 \end_inset
 
 
 \end_layout
 
-\begin_layout BeginFrame
-Premiers tests
-\end_layout
-
 \begin_layout Standard
-Dès que les premiers éléments sont mis en place, on peut avoir un aperçu
- de l'outil proposé à l'utilisateur:
-\end_layout
-
-\begin_layout Standard
-\begin_inset VSpace medskip
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Graphics
-	filename edit-config-test.png
-	width 100text%
-
-\end_inset
-
-
+Ne pas oublier Menu → Model → test ☺
 \end_layout
 
 \begin_layout BeginFrame
@@ -1044,6 +990,153 @@ write_config => [
 Prévoir pour les mises-à-jour des config
 \end_layout
 
+\begin_layout Subtitle
+Pour des évolutions transparentes
+\end_layout
+
+\begin_layout Standard
+Pour les concepteurs d'application:
+\end_layout
+
+\begin_layout Enumerate
+Pas de nouveaux paramètres
+\begin_inset Note Greyedout
+status open
+
+\begin_layout Plain Layout
+↔ pas de nouveaux problèmes
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Pause
+
+\end_layout
+
+\begin_layout Enumerate
+Choix des noms et valeurs
+\begin_inset Note Greyedout
+status open
+
+\begin_layout Plain Layout
+Un bon paramètre vaut mieux que 3 pages de doc
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Pause
+
+\end_layout
+
+\begin_layout Enumerate
+Valeur par défaut
+\begin_inset Note Greyedout
+status open
+
+\begin_layout Plain Layout
+Fonctionne même avec un fichier vide
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Pause
+
+\end_layout
+
+\begin_layout Standard
+Mais, si il le faut, le modèle peut spécifier:
+\end_layout
+
+\begin_layout Itemize
+comment remplacer une valeur
+\begin_inset Note Greyedout
+status open
+
+\begin_layout Plain Layout
+
+\emph on
+replace
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Pause
+
+\end_layout
+
+\begin_layout Itemize
+des paramètres obsolètes
+\begin_inset Note Greyedout
+status open
+
+\begin_layout Plain Layout
+
+\emph on
+status
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Pause
+
+\end_layout
+
+\begin_layout Itemize
+comment migrer une valeur
+\begin_inset Note Greyedout
+status open
+
+\begin_layout Plain Layout
+
+\emph on
+migrate
+\emph default
+ avec une formule de calcul
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Pause
+
+\end_layout
+
+\begin_layout Standard
+Pour plus d'info sur les migrations, voir 
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+http://wiki.debian.org/PackageConfigUpgrade
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Vu de l'utilisateur
+\end_layout
+
 \begin_layout BeginFrame
 Utilisation
 \end_layout
@@ -1061,6 +1154,14 @@ interface graphique
 \end_inset
 
 
+\end_layout
+
+\begin_layout Standard
+Note: Menu 
+\emph on
+Option → experience
+\emph default
+ pour révéler plus de paramètres
 \end_layout
 
 \begin_layout BeginFrame
@@ -1109,7 +1210,7 @@ Utilisation
 Pour les programmes
 \end_layout
 
-\begin_layout Itemize
+\begin_layout Standard
 En ligne de commande:
 \end_layout
 
@@ -1134,40 +1235,40 @@ $ sudo config-edit-sshd -ui none PermitRootLogin=no
 \begin_layout LyX-Code
 
 \size footnotesize
-2009/05/15 14:03:29 Backing up file /etc/ssh//sshd_config
+2009/05/15 14:03:29 Backing up file /etc/ssh/sshd_config
 \end_layout
 
 \begin_layout LyX-Code
 
 \size footnotesize
-2009/05/15 14:03:29 writing config file /etc/ssh//sshd_config 
+2009/05/15 14:03:29 writing config file /etc/ssh/sshd_config 
 \end_layout
 
-\begin_layout Itemize
+\begin_layout Standard
 En Perl:
 \end_layout
 
 \begin_layout LyX-Code
 
-\size footnotesize
+\size scriptsize
 $ sudo perl -MConfig::Model -e '
 \end_layout
 
 \begin_layout LyX-Code
 
-\size footnotesize
+\size scriptsize
   my $i = Config::Model -> new -> instance(root_class_name=>"Sshd");
 \end_layout
 
 \begin_layout LyX-Code
 
-\size footnotesize
+\size scriptsize
   $i->config_root->load("PermitRootLogin=no");
 \end_layout
 
 \begin_layout LyX-Code
 
-\size footnotesize
+\size scriptsize
   $i->write_back;'
 \end_layout
 
@@ -1176,104 +1277,114 @@ $ sudo perl -MConfig::Model -e '
 \end_layout
 
 \begin_layout BeginFrame
-Etat des lieux: les modèles disponibles
+Etat des lieux
 \end_layout
 
-\begin_layout BeginFrame
-Les futurs projets
+\begin_layout ColumnsCenterAligned
+
 \end_layout
 
-\begin_layout Standard
-Interface web
+\begin_deeper
+\begin_layout Column
+5cm
 \end_layout
 
-\begin_layout Standard
-upgrade des packages sous Debian
+\begin_layout Block
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+{Modèles dispos
+}
 \end_layout
 
-\begin_layout BeginFrame
-Liens
+\end_inset
+
+
 \end_layout
 
-\begin_layout BeginFrame
-Make Titles Informative.
- 
+\begin_deeper
+\begin_layout Itemize
+OpenSsh
 \end_layout
 
 \begin_layout Itemize
+Approx
+\end_layout
+
+\begin_layout Itemize
+Config::Model
+\end_layout
+
+\begin_layout Itemize
+Xorg
+\end_layout
+
+\end_deeper
+\begin_layout Pause
+
+\end_layout
+
+\begin_layout Column
+5cm
+\end_layout
+
+\begin_layout Block
 \begin_inset ERT
 status open
 
 \begin_layout Plain Layout
 
-<1->
+{Backend}
 \end_layout
 
 \end_inset
 
-You can also use overlay specifications to create overlays.
+
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Windows INI
 \end_layout
 
 \begin_layout Itemize
-\begin_inset ERT
-status collapsed
-
-\begin_layout Plain Layout
-
-<3->
-\end_layout
-
-\end_inset
-
-This allows you to present things in any order.
+Perl
 \end_layout
 
 \begin_layout Itemize
-\begin_inset ERT
-status collapsed
+cds
+\begin_inset Note Greyedout
+status open
 
 \begin_layout Plain Layout
-
-<2->
+ (spécifique Config::Model)
 \end_layout
 
 \end_inset
 
-This is shown second.
+
 \end_layout
 
-\begin_layout BeginFrame
-Make Titles Informative.
+\begin_layout Itemize
+Augeas
 \end_layout
 
+\end_deeper
+\begin_layout Pause
+
+\end_layout
+
+\end_deeper
 \begin_layout Block
 \begin_inset ERT
-status collapsed
-
-\begin_layout Plain Layout
-
-<1->
-\end_layout
-
-\end_inset
-
-
-\begin_inset ERT
-status collapsed
+status open
 
 \begin_layout Plain Layout
 
 {
-\end_layout
-
-\end_inset
-
-
-\begin_inset ERT
-status collapsed
-
-\begin_layout Plain Layout
-
+\lang american
+Communauté
 }
 \end_layout
 
@@ -1284,111 +1395,28 @@ status collapsed
 
 \begin_deeper
 \begin_layout Itemize
-Untitled block.
+Paquets Debian
 \end_layout
 
 \begin_layout Itemize
-Shown on all slides.
+Paquets Rpm en préparation
+\end_layout
+
+\begin_layout Itemize
+Proposition pour 
+\emph on
+dh_config 
+\emph default
+(mise-à-jour paquets)
+\end_layout
+
+\begin_layout Itemize
+article dans GNULinux Mag
 \end_layout
 
 \end_deeper
-\begin_layout ExampleBlock
-\begin_inset ERT
-status collapsed
-
-\begin_layout Plain Layout
-
-<2->
-\end_layout
-
-\end_inset
-
-
-\begin_inset ERT
-status collapsed
-
-\begin_layout Plain Layout
-
-{
-\end_layout
-
-\end_inset
-
-Some Example Block Title
-\begin_inset ERT
-status collapsed
-
-\begin_layout Plain Layout
-
-}
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_deeper
-\begin_layout Itemize
-\begin_inset Formula $e^{i\pi}=-1$
-\end_inset
-
-.
-\end_layout
-
-\begin_layout Itemize
-\begin_inset Formula $e^{i\pi/2}=i$
-\end_inset
-
-.
-\end_layout
-
-\end_deeper
-\begin_layout Subsection
-Previous Work
-\end_layout
-
 \begin_layout BeginFrame
-Make Titles Informative.
- 
-\end_layout
-
-\begin_layout Example
-\begin_inset ERT
-status collapsed
-
-\begin_layout Plain Layout
-
-<1->
-\end_layout
-
-\end_inset
-
-On first slide.
- 
-\end_layout
-
-\begin_layout Separator
-
-\end_layout
-
-\begin_layout Example
-\begin_inset ERT
-status collapsed
-
-\begin_layout Plain Layout
-
-<2->
-\end_layout
-
-\end_inset
-
-On second slide.
-\end_layout
-
-\begin_layout BeginFrame
-Make Titles Informative.
- 
+Les futurs projets
 \end_layout
 
 \begin_layout ColumnsTopAligned
@@ -1400,306 +1428,115 @@ Make Titles Informative.
 5cm
 \end_layout
 
-\begin_layout Theorem
+\begin_layout Block
 \begin_inset ERT
-status collapsed
-
-\begin_layout Plain Layout
-
-<1->
-\end_layout
-
-\end_inset
-
-In left column.
-\end_layout
-
-\begin_layout Column
-5cm
-\end_layout
-
-\begin_layout Corollary
-\begin_inset ERT
-status collapsed
-
-\begin_layout Plain Layout
-
-<2->
-\end_layout
-
-\end_inset
-
-In right column.
-\begin_inset Newline newline
-\end_inset
-
-New line
-\end_layout
-
-\end_deeper
-\begin_layout Subsection
-Basic Ideas for Proofs/Implementations
-\end_layout
-
-\begin_layout Section*
-Summary
-\end_layout
-
-\begin_layout BeginFrame
-Summary
-\end_layout
-
-\begin_layout Itemize
-The
-\color none
- 
-\color red
-first main message
-\color none
- of your talk in one or two lines.
-\end_layout
-
-\begin_layout Itemize
-The
-\color none
- 
-\color red
-second main message
-\color none
- of your talk in one or two lines.
-\end_layout
-
-\begin_layout Itemize
-Perhaps a
-\color none
- 
-\color red
-third message
-\color none
-, but not more than that.
-\end_layout
-
-\begin_layout Standard
-\begin_inset Note Note
 status open
 
 \begin_layout Plain Layout
-An outlook is always optional.
+
+{Interfaces}
 \end_layout
 
 \end_inset
 
 
-\end_layout
-
-\begin_layout Standard
-\begin_inset ERT
-status collapsed
-
-\begin_layout Plain Layout
-
-
-\backslash
-vskip0pt plus.5fill
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Itemize
-Outlook
 \end_layout
 
 \begin_deeper
 \begin_layout Itemize
-What we have not done yet.
+Interface web
 \end_layout
 
 \begin_layout Itemize
-Even more stuff.
+
+\emph on
+Wizard
+\emph default
+ pour la GUI
+\end_layout
+
+\begin_layout Pause
+
 \end_layout
 
 \end_deeper
-\begin_layout EndFrame
-
+\begin_layout Column
+5cm
 \end_layout
 
-\begin_layout Section*
-\start_of_appendix
-\begin_inset Note Note
+\begin_layout Block
+\begin_inset ERT
 status open
 
 \begin_layout Plain Layout
-All of the following is optional and typically not needed.
+
+{backend}
 \end_layout
 
 \end_inset
 
-Appendix
+
 \end_layout
 
-\begin_layout Subsection*
-For Further Reading
+\begin_deeper
+\begin_layout Itemize
+JSON
+\end_layout
+
+\begin_layout Itemize
+XML
+\end_layout
+
+\end_deeper
+\end_deeper
+\begin_layout Block
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+{Et vous ?}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+Config::Model a besoin d'aide:
+\end_layout
+
+\begin_layout Itemize
+Nouveaux modèles et backends pour vos projets
+\end_layout
+
+\begin_layout Itemize
+Intégration dans les distros
+\end_layout
+
+\begin_layout Itemize
+Configuration multi-niveaux 
+\begin_inset Note Greyedout
+status open
+
+\begin_layout Plain Layout
+projet Debian pure-blend
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout BeginFrame
+Liens
 \end_layout
 
 \begin_layout BeginFrame
-\begin_inset ERT
-status collapsed
-
-\begin_layout Plain Layout
-
-[allowframebreaks]
-\end_layout
-
-\end_inset
-
-For Further Reading
-\end_layout
-
-\begin_layout Standard
-\begin_inset ERT
-status collapsed
-
-\begin_layout Plain Layout
-
-
-\backslash
-beamertemplatebookbibitems
-\end_layout
-
-\end_inset
-
-
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-Start with overview books.
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Bibliography
-\begin_inset CommandInset bibitem
-LatexCommand bibitem
-key "Author1990"
-
-\end_inset
-
-A.
- Author.
- 
-\begin_inset ERT
-status collapsed
-
-\begin_layout Plain Layout
-
-
-\backslash
-newblock
-\end_layout
-
-\end_inset
-
-
-\emph on
-Handbook of Everything
-\emph default
-.
-\begin_inset ERT
-status collapsed
-
-\begin_layout Plain Layout
-
-
-\backslash
-newblock
-\end_layout
-
-\end_inset
-
- Some Press, 1990.
-\begin_inset ERT
-status collapsed
-
-\begin_layout Plain Layout
-
-
-\backslash
-beamertemplatearticlebibitems
-\end_layout
-
-\end_inset
-
-
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-Followed by interesting articles.
- Keep the list short.
- 
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Bibliography
-\begin_inset CommandInset bibitem
-LatexCommand bibitem
-key "Someone2002"
-
-\end_inset
-
-S.
- Someone.
-\begin_inset ERT
-status collapsed
-
-\begin_layout Plain Layout
-
-
-\backslash
-newblock
-\end_layout
-
-\end_inset
-
- On this and that
-\emph on
-.
-
-\emph default
- 
-\begin_inset ERT
-status collapsed
-
-\begin_layout Plain Layout
-
-
-\backslash
-newblock
-\end_layout
-
-\end_inset
-
-
-\emph on
-Journal on This and That
-\emph default
-.
- 2(1):50--100, 2000.
-\end_layout
-
-\begin_layout EndFrame
-
+Démo ?
 \end_layout
 
 \end_body
