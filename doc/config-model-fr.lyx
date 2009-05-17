@@ -41,7 +41,7 @@
 \quotes_language french
 \papercolumns 1
 \papersides 1
-\paperpagestyle default
+\paperpagestyle plain
 \tracking_changes false
 \output_changes false
 \author "" 
@@ -286,42 +286,28 @@ Les problèmes classiques de la configuration
 La config, c'est souvent pénible !
 \end_layout
 
-\begin_layout FrameSubtitle
-Ennuyeux ou mystérieux, c'est selon
+\begin_layout Standard
+Pour un utilisateur, éditer la configuration est souvent difficile:
 \end_layout
 
 \begin_layout Itemize
-Pour un dévelopeur, optimiser la configuration est souvent ennuyeuse
-\end_layout
-
-\begin_deeper
-\begin_layout Pause
-
-\end_layout
-
-\end_deeper
-\begin_layout Itemize
-Pour les utilisateurs non-avertis, c'est souvent difficile:
-\end_layout
-
-\begin_deeper
-\begin_layout Itemize
-édition d'un fichier texte
+Edition d'un fichier texte en dehors de 
+\family roman
+/home
 \end_layout
 
 \begin_layout Itemize
-lectures de pages de manuel
+Lecture de pages de manuel
 \end_layout
 
 \begin_layout Itemize
-assurer la cohérence
+Assurer la cohérence
 \end_layout
 
 \begin_layout Itemize
 Encore plus délicat lors des mises-à-jour de paquets
 \end_layout
 
-\end_deeper
 \begin_layout Subsection
 Objectifs
 \end_layout
@@ -330,11 +316,10 @@ Objectifs
 Objectif 1: faciliter la configuration pour les utilisateurs
 \end_layout
 
-\begin_layout Itemize
-Pour les novices: fournir une interface graphique avec:
+\begin_layout Standard
+Fournir une interface graphique avec:
 \end_layout
 
-\begin_deeper
 \begin_layout Itemize
 Aide intégrée
 \end_layout
@@ -348,7 +333,7 @@ Validation des données de configuration
 \end_layout
 
 \begin_layout Itemize
-Géstion des mises-à-jour
+Géstion des mises-à-jour (config upgrade)
 \end_layout
 
 \begin_layout Itemize
@@ -358,7 +343,6 @@ Differents niveaux d'expertise
 (du débutant au grand maître)
 \end_layout
 
-\end_deeper
 \begin_layout Pause
 
 \end_layout
@@ -370,6 +354,21 @@ Tout ceci existe plus ou moins:
 \begin_deeper
 \begin_layout Itemize
 Webmin
+\begin_inset Note Greyedout
+status open
+
+\begin_layout Plain Layout
+Interface web commune avec une API définie.
+ Mais ça ne fournit que la partie interface.
+ Toute la validation (le code métier) est spécifique à chaque application.
+ Ce qui risque de poser des problèmes de synchronisation avec l'application
+ cible et des soucis de maintenance.
+ 
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Pause
@@ -1294,8 +1293,8 @@ Etat des lieux
 status open
 
 \begin_layout Plain Layout
-{Modèles dispos
-}
+
+{Modèles dispos}
 \end_layout
 
 \end_inset
@@ -1382,10 +1381,7 @@ status open
 
 \begin_layout Plain Layout
 
-{
-\lang american
-Communauté
-}
+{Communauté}
 \end_layout
 
 \end_inset
