@@ -12,7 +12,7 @@
 \end_preamble
 \options handout
 \use_default_options false
-\language american
+\language french
 \inputencoding auto
 \font_roman times
 \font_sans default
@@ -102,7 +102,7 @@ FPW 2009
 
 \begin_layout Standard
 \begin_inset Note Note
-status open
+status collapsed
 
 \begin_layout Plain Layout
 The following causes the table of contents to be shown at the beginning
@@ -184,7 +184,7 @@ tableofcontents[currentsection,currentsubsection]
 
 \begin_layout Standard
 \begin_inset Note Note
-status open
+status collapsed
 
 \begin_layout Plain Layout
 If you wish to uncover everything in a step-wise fashion, uncomment the
@@ -227,7 +227,7 @@ LatexCommand tableofcontents
 
 \begin_layout Standard
 \begin_inset Note Note
-status open
+status collapsed
 
 \begin_layout Plain Layout
 Structuring a talk is a difficult task and the following structure may not
@@ -333,14 +333,18 @@ Validation des données de configuration
 \end_layout
 
 \begin_layout Itemize
-Géstion des mises-à-jour (config upgrade)
+Gestion des mises-à-jour (config upgrade)
 \end_layout
 
 \begin_layout Itemize
-Differents niveaux d'expertise 
+Différents niveaux d'expertise 
 \shape italic
 \size footnotesize
 (du débutant au grand maître)
+\end_layout
+
+\begin_layout Itemize
+Recherche
 \end_layout
 
 \begin_layout Pause
@@ -354,8 +358,8 @@ Tout ceci existe plus ou moins:
 \begin_deeper
 \begin_layout Itemize
 Webmin
-\begin_inset Note Greyedout
-status open
+\begin_inset Note Note
+status collapsed
 
 \begin_layout Plain Layout
 Interface web commune avec une API définie.
@@ -385,25 +389,48 @@ Windows registry
 
 \begin_layout Itemize
 Elektra
+\begin_inset Note Note
+status collapsed
+
+\begin_layout Plain Layout
+Elektra force les projets à adopter une API commune pour accéder aux fichiers
+ de config.
+ C'est beaucoup trop intrusif pour être accepté par les projets, même en
+ fournissant les patches qui vont bien.
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \end_deeper
 \begin_layout BeginFrame
-Objectif 2: ne pas compliquer la vie des dévelopeurs
+Objectif 2: ne pas compliquer la vie des développeurs
 \end_layout
 
 \begin_layout Itemize
-La logique de validation des données de config soit rester maintenable:
+La logique de validation des données de config soit rester facile à maintenir:
 \end_layout
 
 \begin_deeper
 \begin_layout Itemize
-Eviter du code dédié à la validation des données (e.g.
+Éviter le code dédié à la validation des données (e.g.
  ne pas refaire un Webmin)
 \end_layout
 
 \begin_layout Itemize
 Baser la validation sur des «méta-données»: le modèle de configuration
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+Les données sont beaucoup plus facile à maintenir que du code
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Itemize
@@ -412,6 +439,16 @@ Générer les interfaces (graphiques ou pas) à partir du modèle
 
 \begin_layout Itemize
 Faciliter les mises-à-jour de la configuration des utilisateurs
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+Non à la prolifération des fichiers rpmsave !
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \end_deeper
@@ -429,7 +466,7 @@ Utiliser les librairies existantes (Config::Ini, Config::Augeas...)
 \end_layout
 
 \begin_layout Itemize
-Sinon, fournir des classes pour aider à la lecture et écriture 
+Fournir des classes pour aider à la lecture et écriture 
 \end_layout
 
 \end_deeper
@@ -465,11 +502,11 @@ C'est quoi un modèle ?
 \end_layout
 
 \begin_layout Standard
-Un modèle définie une structure en arbre:
+Un modèle définit une structure en arbre:
 \end_layout
 
 \begin_layout Itemize
-Chaque noeud est une classe
+Chaque nœud est une classe
 \end_layout
 
 \begin_layout Itemize
@@ -560,7 +597,7 @@ beginner, advanced master
 \end_layout
 
 \begin_layout Itemize
-un status (normal ou obsolete)
+un statut (normal ou obsolète)
 \end_layout
 
 \begin_layout Column
@@ -579,7 +616,7 @@ un status (normal ou obsolete)
 
 \end_deeper
 \begin_layout BeginFrame
-Elément complexe
+Élément complexe
 \end_layout
 
 \begin_layout Standard
@@ -597,7 +634,7 @@ calcul simples (utiles pour les mises-à-jour)
 \end_layout
 
 \begin_layout Itemize
-FIXME: plus déveloper ? ou des exemples ?
+FIXME: plus développer ? ou des exemples ?
 \end_layout
 
 \begin_layout Section
@@ -618,7 +655,7 @@ trouver la structure
 \end_layout
 
 \begin_layout Itemize
-idetntifier les paramètres, leur contraintes et relations
+identifier les paramètres, leur contraintes et relations
 \end_layout
 
 \end_deeper
@@ -628,7 +665,7 @@ Trouver plusieurs exemples valides:
 
 \begin_deeper
 \begin_layout Itemize
-pour vérifier qu'on a compris la doc
+pour vérifier qu'on a compris la documentation
 \end_layout
 
 \begin_layout Itemize
@@ -641,7 +678,8 @@ Modèle: déclaration
 \end_layout
 
 \begin_layout Standard
-En gros, on traduit la doc en un format compréhensible par Config::Model:
+En gros, on traduit la documentation en un format compréhensible par Config::Mod
+el:
 \end_layout
 
 \begin_layout Itemize
@@ -870,7 +908,7 @@ status open
 
 \begin_deeper
 \begin_layout Itemize
-Inutile si la spec est identique à celle de la lecture
+Inutile si la spécification est identique à celle de la lecture
 \end_layout
 
 \begin_layout Itemize
@@ -1276,7 +1314,7 @@ $ sudo perl -MConfig::Model -e '
 \end_layout
 
 \begin_layout BeginFrame
-Etat des lieux
+État des lieux
 \end_layout
 
 \begin_layout ColumnsCenterAligned
