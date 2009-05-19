@@ -220,6 +220,7 @@ status open
 
 \begin_layout Plain Layout
 
+
 \backslash
 setbeameroption{show notes}
 \end_layout
@@ -1106,7 +1107,7 @@ write_config => [
 Prévoir pour les mises-à-jour des config
 \end_layout
 
-\begin_layout Subtitle
+\begin_layout FrameSubtitle
 Pour des évolutions transparentes
 \end_layout
 
