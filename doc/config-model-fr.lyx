@@ -41,7 +41,7 @@
 \quotes_language french
 \papercolumns 1
 \papersides 1
-\paperpagestyle plain
+\paperpagestyle default
 \tracking_changes false
 \output_changes false
 \author "" 
@@ -72,6 +72,26 @@ This file can be redistributed and/or modified under the terms of the GNU
 
 \begin_layout Title
 Faciliter la configuration d'un logiciel avec Config::Model
+\begin_inset OptArg
+status open
+
+\begin_layout Plain Layout
+Config::Model
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+(facultatif, à utiliser uniquement si le titre de l'article est trop long)
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Author
@@ -102,7 +122,7 @@ FPW 2009
 
 \begin_layout Standard
 \begin_inset Note Note
-status collapsed
+status open
 
 \begin_layout Plain Layout
 The following causes the table of contents to be shown at the beginning
@@ -175,6 +195,33 @@ tableofcontents[currentsection,currentsubsection]
 \begin_layout Plain Layout
 
 }
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status collapsed
+
+\begin_layout Plain Layout
+Creates new slides with notes.
+ Can use also {show only notes}.
+ See beameruserguide p187
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+\backslash
+setbeameroption{show notes}
 \end_layout
 
 \end_inset
@@ -358,21 +405,15 @@ Tout ceci existe plus ou moins:
 \begin_deeper
 \begin_layout Itemize
 Webmin
-\begin_inset Note Note
-status collapsed
+\end_layout
 
-\begin_layout Plain Layout
-Interface web commune avec une API définie.
+\begin_layout NoteItem
+Webmin: Interface web commune avec une API définie.
  Mais ça ne fournit que la partie interface.
  Toute la validation (le code métier) est spécifique à chaque application.
  Ce qui risque de poser des problèmes de synchronisation avec l'application
  cible et des soucis de maintenance.
  
-\end_layout
-
-\end_inset
-
-
 \end_layout
 
 \begin_layout Pause
@@ -389,22 +430,20 @@ Windows registry
 
 \begin_layout Itemize
 Elektra
-\begin_inset Note Note
-status collapsed
+\end_layout
 
-\begin_layout Plain Layout
+\begin_layout NoteItem
 Elektra force les projets à adopter une API commune pour accéder aux fichiers
  de config.
  C'est beaucoup trop intrusif pour être accepté par les projets, même en
  fournissant les patches qui vont bien.
 \end_layout
 
-\end_inset
-
+\end_deeper
+\begin_layout EndFrame
 
 \end_layout
 
-\end_deeper
 \begin_layout BeginFrame
 Objectif 2: ne pas compliquer la vie des développeurs
 \end_layout
@@ -421,36 +460,28 @@ La logique de validation des données de config soit rester facile à maintenir:
 
 \begin_layout Itemize
 Baser la validation sur des «méta-données»: le modèle de configuration
-\begin_inset Note Note
-status open
+\end_layout
 
-\begin_layout Plain Layout
+\begin_deeper
+\begin_layout NoteItem
 Les données sont beaucoup plus facile à maintenir que du code
 \end_layout
 
-\end_inset
-
-
-\end_layout
-
+\end_deeper
 \begin_layout Itemize
 Générer les interfaces (graphiques ou pas) à partir du modèle
 \end_layout
 
 \begin_layout Itemize
 Faciliter les mises-à-jour de la configuration des utilisateurs
-\begin_inset Note Note
-status open
+\end_layout
 
-\begin_layout Plain Layout
+\begin_deeper
+\begin_layout NoteItem
 Non à la prolifération des fichiers rpmsave !
 \end_layout
 
-\end_inset
-
-
-\end_layout
-
+\end_deeper
 \end_deeper
 \begin_layout Pause
 
@@ -481,7 +512,7 @@ Schéma de Config::Model
 \begin_layout Standard
 \begin_inset Graphics
 	filename 3_tier.png
-	width 90page%
+	width 80page%
 
 \end_inset
 
@@ -522,11 +553,7 @@ un ensemble d'éléments (les paramètres)
 \end_layout
 
 \begin_layout Itemize
-une description
-\end_layout
-
-\begin_layout Itemize
-une spécification optionnelle pour l'accès au fichier de conf (
+en option: une spécification pour l'accès au fichier de conf (
 \emph on
 backend)
 \end_layout
@@ -625,16 +652,35 @@ Un modèle de configuration peut aussi définir des interactions entre les
 \end_layout
 
 \begin_layout Itemize
-déformation du modèle (exemple: avec Xorg, les options d'un pilote changent
- en fonction du pilote)
+Déformation du modèle (exemple: avec Xorg, les options d'un pilote changent
+ en fonction du pilote déclaré) (
+\emph on
+warp
+\emph default
+)
 \end_layout
 
 \begin_layout Itemize
-calcul simples (utiles pour les mises-à-jour)
+Calcul simples à partir d'autres paramètres (utiles pour les mises-à-jour)
+ (
+\emph on
+compute
+\emph default
+ et 
+\emph on
+migrate_from
+\emph default
+)
 \end_layout
 
 \begin_layout Itemize
-FIXME: plus développer ? ou des exemples ?
+Des références (exemple: dans Xorg::Device::Radeon, Monitor-DVI-0 doit choisir
+ un des moniteurs déclarés dans la section Monitor)
+\end_layout
+
+\begin_layout NoteItem
+Les exemple Xorg s'appuient sur Xorg 1.4 et peuvent ne plus être valables
+ pour Xorg 1.5 ou 1.6
 \end_layout
 
 \begin_layout Section
@@ -651,11 +697,11 @@ Lire les pages de manuel de l'application:
 
 \begin_deeper
 \begin_layout Itemize
-trouver la structure 
+Trouver la structure 
 \end_layout
 
 \begin_layout Itemize
-identifier les paramètres, leur contraintes et relations
+Identifier les paramètres, leur contraintes et relations
 \end_layout
 
 \end_deeper
@@ -665,11 +711,11 @@ Trouver plusieurs exemples valides:
 
 \begin_deeper
 \begin_layout Itemize
-pour vérifier qu'on a compris la documentation
+Pour vérifier qu'on a comprit la documentation
 \end_layout
 
 \begin_layout Itemize
-pour les tests de non-régression
+Pour les tests de non-régression
 \end_layout
 
 \end_deeper
@@ -696,16 +742,14 @@ Les paramètres de configuration en éléments
 Les contraintes en attributs des éléments
 \end_layout
 
-\begin_layout ColumnsTopAligned
-
+\begin_layout NoteItem
+Certaines contraintes révèlent que la config a une structure plus complexe
+ qu'un arbre.
+ Cette structure ressemble plus à un graph.
+ La déclaration de valeur de type référence peut être nécessaire pour ces
+ structures plus complexes.
 \end_layout
 
-\begin_deeper
-\begin_layout Column
-6cm
-\end_layout
-
-\end_deeper
 \begin_layout LyX-Code
 
 \size footnotesize
@@ -788,14 +832,14 @@ Comme écrire une structure de donnée n'est pas drôle (même en Perl).
 \end_layout
 
 \begin_layout Standard
-Ne pas oublier Menu → Model → test ☺
+Ne pas oublier, de temps en temps, Menu → Model → test ☺
 \end_layout
 
 \begin_layout BeginFrame
 Comment lire les fichiers
 \end_layout
 
-\begin_layout ColumnsTopAligned
+\begin_layout ColumnsCenterAligned
 
 \end_layout
 
@@ -833,11 +877,19 @@ Fournie (fichier Perl, Ini...)
 \end_layout
 
 \begin_layout Itemize
-Plug-in (C::M::Backend::*)
+Plug-in (classe 
+\emph on
+Backend
+\emph default
+)
 \end_layout
 
 \begin_layout Itemize
-Spécifique ( call-back à écrire )
+Spécifique (
+\emph on
+custom
+\emph default
+ → call-back à écrire )
 \end_layout
 
 \end_deeper
@@ -845,9 +897,13 @@ Spécifique ( call-back à écrire )
 Les paramètres 
 \end_layout
 
+\begin_layout Itemize
+Les spécifications sont essayées dans l'ordre
+\end_layout
+
 \end_deeper
 \begin_layout Column
-6cm
+5cm
 \end_layout
 
 \begin_layout Block
@@ -883,7 +939,7 @@ status open
 Comment écrire les fichiers
 \end_layout
 
-\begin_layout ColumnsTopAligned
+\begin_layout ColumnsCenterAligned
 
 \end_layout
 
@@ -915,7 +971,30 @@ Inutile si la spécification est identique à celle de la lecture
 Même paramètres que pour la lecture
 \end_layout
 
+\begin_layout Itemize
+Essayées dans l'ordre jusqu'au premier succès
+\end_layout
+
 \end_deeper
+\begin_layout ExampleBlock
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+{A noter}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout ExampleBlock
+Ces spécifications permettent de migrer une configuration d'une syntaxe
+ à une autre
+\end_layout
+
 \begin_layout Column
 6cm
 \end_layout
@@ -1156,7 +1235,8 @@ migrate
 \end_layout
 
 \begin_layout Standard
-Pour plus d'info sur les migrations, voir 
+Pour plus d'informations sur les migrations appliquées aux paquets, voir
+ 
 \begin_inset Flex URL
 status collapsed
 
@@ -1354,7 +1434,14 @@ Config::Model
 \end_layout
 
 \begin_layout Itemize
-Xorg
+
+\family typewriter
+\size scriptsize
+Xorg 
+\end_layout
+
+\begin_layout NoteItem
+Out: exim (langage) et autres formats très complexes
 \end_layout
 
 \end_deeper
@@ -1523,7 +1610,7 @@ XML
 
 \end_deeper
 \end_deeper
-\begin_layout Block
+\begin_layout ExampleBlock
 \begin_inset ERT
 status open
 
@@ -1543,10 +1630,6 @@ Config::Model a besoin d'aide:
 \end_layout
 
 \begin_layout Itemize
-Nouveaux modèles et backends pour vos projets
-\end_layout
-
-\begin_layout Itemize
 Intégration dans les distros
 \end_layout
 
@@ -1557,6 +1640,35 @@ status open
 
 \begin_layout Plain Layout
 projet Debian pure-blend
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Mécanisme de plug-in pour les modèles
+\begin_inset Note Greyedout
+status open
+
+\begin_layout Plain Layout
+pour les application avec plug-in
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Mécanisme a définir pour les applications qui injectent de la config dans
+ un framework
+\begin_inset Note Greyedout
+status open
+
+\begin_layout Plain Layout
+Exemple: mercurial dans apache
 \end_layout
 
 \end_inset
