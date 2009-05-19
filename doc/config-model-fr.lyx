@@ -1129,10 +1129,12 @@ status open
 
 \end_layout
 
+\begin_deeper
 \begin_layout Pause
 
 \end_layout
 
+\end_deeper
 \begin_layout Enumerate
 Choix des noms et valeurs
 \begin_inset Note Greyedout
@@ -1147,10 +1149,12 @@ Un bon paramètre vaut mieux que 3 pages de doc
 
 \end_layout
 
+\begin_deeper
 \begin_layout Pause
 
 \end_layout
 
+\end_deeper
 \begin_layout Enumerate
 Valeur par défaut
 \begin_inset Note Greyedout
@@ -1189,10 +1193,12 @@ replace
 
 \end_layout
 
+\begin_deeper
 \begin_layout Pause
 
 \end_layout
 
+\end_deeper
 \begin_layout Itemize
 des paramètres obsolètes
 \begin_inset Note Greyedout
@@ -1209,10 +1215,12 @@ status
 
 \end_layout
 
+\begin_deeper
 \begin_layout Pause
 
 \end_layout
 
+\end_deeper
 \begin_layout Itemize
 comment migrer une valeur
 \begin_inset Note Greyedout
@@ -1394,8 +1402,12 @@ $ sudo perl -MConfig::Model -e '
 
 \end_layout
 
-\begin_layout BeginFrame
+\begin_layout Section
 État des lieux
+\end_layout
+
+\begin_layout BeginFrame
+État du projet
 \end_layout
 
 \begin_layout ColumnsCenterAligned
@@ -1442,6 +1454,11 @@ Xorg
 \end_layout
 
 \begin_layout NoteItem
+Xorg est tout petit car il est toujours en alpha.
+ Xorg bouge trop vite pour suivre.
+\end_layout
+
+\begin_layout NoteItem
 Out: exim (langage) et autres formats très complexes
 \end_layout
 
@@ -1470,31 +1487,31 @@ status open
 
 \begin_deeper
 \begin_layout Itemize
-Windows INI
+syntaxe INI
 \end_layout
 
 \begin_layout Itemize
-Perl
+Structure de donnée en Perl
 \end_layout
 
-\begin_layout Itemize
-cds
-\begin_inset Note Greyedout
-status open
-
-\begin_layout Plain Layout
- (spécifique Config::Model)
+\begin_deeper
+\begin_layout NoteItem
+Format de sérialisation spécifique (cds)
 \end_layout
 
-\end_inset
-
-
-\end_layout
-
+\end_deeper
 \begin_layout Itemize
 Augeas
 \end_layout
 
+\begin_deeper
+\begin_layout NoteItem
+Augeas fournit beaucoup de possiblités pour lire et écrire des fichiers
+ de configuration mais l'adaptation entre Config::Model et Augeas est assez
+ délicate
+\end_layout
+
+\end_deeper
 \end_deeper
 \begin_layout Pause
 
@@ -1541,13 +1558,13 @@ article dans GNULinux Mag
 Les futurs projets
 \end_layout
 
-\begin_layout ColumnsTopAligned
+\begin_layout ColumnsCenterAligned
 
 \end_layout
 
 \begin_deeper
 \begin_layout Column
-5cm
+7cm
 \end_layout
 
 \begin_layout Block
@@ -1566,15 +1583,19 @@ status open
 
 \begin_deeper
 \begin_layout Itemize
-Interface web
-\end_layout
-
-\begin_layout Itemize
 
 \emph on
 Wizard
 \emph default
  pour la GUI
+\end_layout
+
+\begin_layout Itemize
+Recherche de paramètres et valeurs
+\end_layout
+
+\begin_layout Itemize
+Annotations
 \end_layout
 
 \begin_layout Pause
@@ -1583,7 +1604,7 @@ Wizard
 
 \end_deeper
 \begin_layout Column
-5cm
+4cm
 \end_layout
 
 \begin_layout Block
@@ -1611,6 +1632,10 @@ XML
 
 \end_deeper
 \end_deeper
+\begin_layout Pause
+
+\end_layout
+
 \begin_layout ExampleBlock
 \begin_inset ERT
 status open
@@ -1636,32 +1661,24 @@ Intégration dans les distros
 
 \begin_layout Itemize
 Configuration multi-niveaux 
-\begin_inset Note Greyedout
-status open
+\end_layout
 
-\begin_layout Plain Layout
+\begin_deeper
+\begin_layout NoteItem
 projet Debian pure-blend
 \end_layout
 
-\end_inset
-
-
-\end_layout
-
+\end_deeper
 \begin_layout Itemize
 Mécanisme de plug-in pour les modèles
-\begin_inset Note Greyedout
-status open
+\end_layout
 
-\begin_layout Plain Layout
+\begin_deeper
+\begin_layout NoteItem
 pour les application avec plug-in
 \end_layout
 
-\end_inset
-
-
-\end_layout
-
+\end_deeper
 \begin_layout Itemize
 Mécanisme a définir pour les applications qui injectent de la config dans
  un framework
@@ -1682,8 +1699,65 @@ Exemple: mercurial dans apache
 Liens
 \end_layout
 
-\begin_layout BeginFrame
-Démo ?
+\begin_layout Itemize
+Site Config::Model 
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+http://config-model.wiki.sourceforge.net
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Config::Model sur CPAN 
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+http://search.cpan.org/dist/Config-Model/
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Proposition pour l'integration de Config::Model pour gérer les configuration
+ pendant la mise à jour des paquets Debian 
+\begin_inset Flex URL
+status open
+
+\begin_layout Plain Layout
+
+http://wiki.debian.org/PackageConfigUpgrade
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Projet Augeas 
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+http://augeas.net
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout EndFrame
