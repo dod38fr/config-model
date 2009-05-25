@@ -71,12 +71,20 @@ This file can be redistributed and/or modified under the terms of the GNU
 \end_layout
 
 \begin_layout Title
-Faciliter la configuration d'un logiciel avec Config::Model
+Faciliter la configuration d'un logiciel avec 
+\lang american
+Config::Model
+\lang french
+
 \begin_inset OptArg
 status open
 
 \begin_layout Plain Layout
+
+\lang american
 Config::Model
+\lang french
+
 \begin_inset Note Note
 status open
 
@@ -507,7 +515,9 @@ Les principes de Config::Model
 \end_layout
 
 \begin_layout BeginFrame
-Schéma de Config::Model
+Schéma de 
+\lang american
+Config::Model
 \end_layout
 
 \begin_layout Standard
@@ -712,7 +722,7 @@ Trouver plusieurs exemples valides:
 
 \begin_deeper
 \begin_layout Itemize
-Pour vérifier qu'on a comprit la documentation
+Pour vérifier qu'on a compris la documentation
 \end_layout
 
 \begin_layout Itemize
@@ -725,8 +735,11 @@ Modèle: déclaration
 \end_layout
 
 \begin_layout Standard
-En gros, on traduit la documentation en un format compréhensible par Config::Mod
-el:
+En gros, on traduit la documentation en un format compréhensible par 
+\lang american
+Config::Model
+\lang french
+:
 \end_layout
 
 \begin_layout Itemize
@@ -1136,12 +1149,12 @@ status open
 
 \end_deeper
 \begin_layout Enumerate
-Choix des noms et valeurs
+Choix des noms et valeurs de paramètres 
 \begin_inset Note Greyedout
 status open
 
 \begin_layout Plain Layout
-Un bon paramètre vaut mieux que 3 pages de doc
+Un bon nom vaut mieux que 3 pages de doc
 \end_layout
 
 \end_inset
@@ -1174,7 +1187,7 @@ Fonctionne même avec un fichier vide
 \end_layout
 
 \begin_layout Standard
-Mais, si il le faut, le modèle peut spécifier:
+Mais, s'il le faut, le modèle peut spécifier:
 \end_layout
 
 \begin_layout Itemize
@@ -1443,6 +1456,8 @@ Approx
 \end_layout
 
 \begin_layout Itemize
+
+\lang american
 Config::Model
 \end_layout
 
@@ -1507,8 +1522,11 @@ Augeas
 \begin_deeper
 \begin_layout NoteItem
 Augeas fournit beaucoup de possiblités pour lire et écrire des fichiers
- de configuration mais l'adaptation entre Config::Model et Augeas est assez
- délicate
+ de configuration mais l'adaptation entre 
+\lang american
+Config::Model
+\lang french
+ et Augeas est assez délicate
 \end_layout
 
 \end_deeper
@@ -1652,7 +1670,14 @@ status open
 
 \begin_deeper
 \begin_layout Standard
-Config::Model a besoin d'aide:
+
+\color green
+Le projet 
+\color inherit
+\lang american
+Config::Model
+\lang french
+ a besoin d'aide:
 \end_layout
 
 \begin_layout Itemize
@@ -1680,7 +1705,7 @@ pour les application avec plug-in
 
 \end_deeper
 \begin_layout Itemize
-Mécanisme a définir pour les applications qui injectent de la config dans
+Mécanisme à définir pour les applications qui injectent de la config dans
  un framework
 \begin_inset Note Greyedout
 status open
@@ -1700,7 +1725,11 @@ Liens
 \end_layout
 
 \begin_layout Itemize
-Site Config::Model 
+Site 
+\lang american
+Config::Model
+\lang french
+ 
 \begin_inset Flex URL
 status collapsed
 
@@ -1715,7 +1744,11 @@ http://config-model.wiki.sourceforge.net
 \end_layout
 
 \begin_layout Itemize
-Config::Model sur CPAN 
+
+\lang american
+Config::Model
+\lang french
+ sur CPAN 
 \begin_inset Flex URL
 status collapsed
 
@@ -1730,8 +1763,12 @@ http://search.cpan.org/dist/Config-Model/
 \end_layout
 
 \begin_layout Itemize
-Proposition pour l'integration de Config::Model pour gérer les configuration
- pendant la mise à jour des paquets Debian 
+Proposition pour l'integration de 
+\lang american
+Config::Model
+\lang french
+ pour gérer les configuration pendant la mise à jour des paquets Debian
+ 
 \begin_inset Flex URL
 status open
 
