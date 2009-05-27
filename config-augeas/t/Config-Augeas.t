@@ -8,7 +8,7 @@ use File::Copy ;
 
 use warnings ;
 use strict;
-use Test::More tests => 14 ;
+use Test::More tests => 18 ;
 
 ok(1,"Compilation done");
 
@@ -88,3 +88,18 @@ map{ chomp; s/\s+/ /g;} @content ;
 is_deeply(\@content,\@expect,"check written file content");
 
 #$aug->print('/files/') ; # print all nodes into $data string
+
+$ret = $aug->defvar(etc => '/files/etc/*') ;
+is($ret,2,"defvar /files/etc/*") ;
+
+$ret = $aug->defvar(etc2 => '/files/etc') ;
+is($ret,1,"defvar etc2 /files/etc/*") ;
+
+$ret = $aug->get('$etc2/hosts/2/canonical') ;
+is($ret,'newbilbo',"Called get defvar (returned $ret )");
+
+my $v = '$etc2/hosts/1/ipaddr';
+@a =  $aug->defnode(local => $v,'127.0.0.2') ;
+is_deeply(\@a,[1,0],"defnode $v") ;
+
+#$aug->print('') ;

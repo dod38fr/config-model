@@ -54,11 +54,11 @@ EOW1
 my $aug_version = `pkg-config --modversion augeas` ;
 chomp($aug_cflags, $aug_libs, $aug_version) ;
 
-if (   not defined $aug_version or ( $aug_version lt '0.4.0')) {
+if (   not defined $aug_version or ( $aug_version lt '0.5.0')) {
     warn << "EOW2" ;
 ***
 *** 'pkg-config' did find augeas version $aug_version but 
-*** version 0.4.0 minimum is required
+*** version 0.5.0 minimum is required
 ***
 EOW2
     exit 0;

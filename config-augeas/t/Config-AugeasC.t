@@ -21,8 +21,9 @@ package Config::Augeas;
 
 # constants are not exported so we switch package
 my $fail = 0;
-foreach my $constname (qw(
-	AUG_NONE AUG_SAVE_BACKUP AUG_SAVE_NEWFILE AUG_TYPE_CHECK)) {
+foreach my $constname (qw(AUG_NONE AUG_SAVE_BACKUP AUG_SAVE_NEWFILE 
+			  AUG_TYPE_CHECK AUG_NO_STDINC AUG_SAVE_NOOP
+			  AUG_NO_LOAD)) {
   next if (eval "my \$a = $constname; 1");
   if ($@ =~ /^Your vendor has not defined Config::Augeas macro $constname/) {
     print "# pass: $@";

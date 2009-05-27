@@ -46,6 +46,9 @@ BOOT:
     newCONSTSUB(stash, "AUG_SAVE_BACKUP",  newSViv(AUG_SAVE_BACKUP));
     newCONSTSUB(stash, "AUG_SAVE_NEWFILE", newSViv(AUG_SAVE_NEWFILE));
     newCONSTSUB(stash, "AUG_TYPE_CHECK",   newSViv(AUG_TYPE_CHECK));
+    newCONSTSUB(stash, "AUG_NO_STDINC",    newSViv(AUG_NO_STDINC));
+    newCONSTSUB(stash, "AUG_SAVE_NOOP",    newSViv(AUG_SAVE_NOOP));
+    newCONSTSUB(stash, "AUG_NO_LOAD",      newSViv(AUG_NO_LOAD));
   }
 
 Config_Augeas*
@@ -63,6 +66,30 @@ aug_DESTROY(aug)
     CODE:
       //printf("destroying aug object\n");
       aug_close(aug);
+
+int
+aug_defvar(aug, name, expr)
+      Config_Augeas* aug
+      const char* name
+      const char* expr
+
+ # returns an array ( return value, created ) 
+int
+aug_defnode(aug, name, expr, value)
+      Config_Augeas* aug
+      const char* name
+      const char* expr
+      const char* value
+    INIT:
+      int created ;
+      int ret ;
+    PPCODE:
+      created = 1 ;
+      ret = aug_defnode(aug, name, expr, value, &created ) ;
+      if (ret >= 0 ) {
+        XPUSHs(sv_2mortal(newSVnv(ret)));
+        XPUSHs(sv_2mortal(newSVnv(created)));
+      }
 
 const char*
 aug_get(aug, path)

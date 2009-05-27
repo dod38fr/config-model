@@ -22,7 +22,7 @@ use warnings;
 use Carp;
 use IO::File ;
 
-our $VERSION = '0.400';
+our $VERSION = '0.500';
 
 require XSLoader;
 XSLoader::load('Config::Augeas', $VERSION);
@@ -87,16 +87,26 @@ Use C<root> as the filesystem root. If not specified, use the value of
 the environment variable C<AUGEAS_ROOT>. If that doesn't exist either,
 use "C</>".
 
-=item save => backup | newfile
+=item save => backup | newfile | noop
 
 Specify how to save the configuration file. Either create a newfile
 (with extension C<.augnew>, and do not overwrite the original file) or
-move the original file into a backup file (C<.augsave> extension)
+move the original file into a backup file (C<.augsave> extension).
+C<noop> make saves a no-op process, just record what would have
+changed
 
 =item type_check => 1
 
 Typecheck lenses; since it can be very expensive it is not done by
 default.
+
+=item no_std_inc
+
+Do not use the builtin load path for modules
+
+=item no_load
+
+Do not load the tree from AUG_INIT
 
 =back
 
@@ -113,13 +123,15 @@ sub new {
     my $save = delete $args{save} || '';
     if    ($save eq 'backup')  { $flags ||= &AUG_SAVE_BACKUP }
     elsif ($save eq 'newfile') { $flags ||= &AUG_SAVE_NEWFILE }
+    elsif ($save =~ 'noop')    { $flags ||= &AUG_SAVE_NOOP }
     elsif ($save) { 
 	croak  __PACKAGE__," new: unexpected save value: $save. ",
 	  "Expected backup or newfile";
     }
 
-    my $check = delete $args{type_check} || 0;
-    $flags ||= &AUG_TYPE_CHECK if $check ;
+    $flags ||= &AUG_TYPE_CHECK if ( delete $args{type_check} || 0 );
+    $flags ||= &AUG_NO_STDINC  if ( delete $args{no_std_inc} || 0 ) ;
+    $flags ||= &AUG_NO_LOAD    if ( delete $args{no_load}    || 0 ) ;
 
     croak  __PACKAGE__," new: unexpected parameters: ",
       join (' ',keys %args) 
@@ -133,6 +145,70 @@ sub new {
 }
 
 =head1 Methods
+
+=head2 defvar( name, [ expr ])
+
+Define a variable C<name> whose value is the result of evaluating
+C<expr>. If a variable C<name> already exists, its name will be replaced
+with the result of evaluating C<expr>.
+
+If C<expr> is omitted, the variable C<name> will be removed if it is
+defined.
+
+Path variables can be used in path expressions later on by prefixing
+them with '$'.
+
+Returns -1 on error; on success, returns 0 if C<expr> evaluates to anything
+other than a nodeset, and the number of nodes if C<expr> evaluates to a
+nodeset
+
+=cut
+
+sub defvar {
+    my $self = shift ;
+    my $name = shift || croak __PACKAGE__," defvar: undefined name";
+    my $expr = shift || 0 ;
+
+    return $self->{aug_c} -> defvar($name, $expr) ;
+}
+
+=head2 defnode ( name, expr, value )
+
+Define a variable C<name> whose value is the result of evaluating
+C<expr>, which must evaluate to a nodeset. If a variable C<name>
+already exists, its name will be replaced with the result of
+evaluating C<expr>.
+
+If C<expr> evaluates to an empty nodeset, a node is created, equivalent to
+calling C<set( expr, value)> and C<name> will be the nodeset containing
+that single node.
+
+Returns undef on error
+
+Returns an array containing:
+
+=over
+
+=item *
+
+the number of nodes in the nodeset
+
+=item *
+
+1 if a node was created, and 0 if it already existed.
+
+=back
+
+=cut
+
+sub defnode {
+    my $self = shift ;
+    my $name = shift || croak __PACKAGE__," defnode: undefined name";
+    my $expr = shift || croak __PACKAGE__," defnode: undefined expr";
+    my $value = shift || croak __PACKAGE__," defnode: undefined value";
+
+    return ($self->{aug_c} -> defnode($name, $expr, $value)) ;
+}
 
 =head2 get( path )
 

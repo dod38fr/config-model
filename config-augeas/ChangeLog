@@ -1,3 +1,10 @@
+2009-05-27  Dominique Dumont  <dominique.dumont@hp.com> v 0.500
+
+	* lib/Config/Augeas.pm (new): added no_load, save => noop,
+	no_std_inc options
+	(defvar): new method for Augeas 0.5.0
+	(defnode): new method for Augeas 0.5.0
+
 2009-02-17  Dominique Dumont  <dominique.dumont@hp.com> v0.400
 
 	* lib/Config/Augeas.xs (match): dies if aug_match returns -1. Perl
