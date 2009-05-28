@@ -18,8 +18,8 @@ $model->create_config_class
    name => 'Hosts',
 
    read_config  => [ { backend => 'augeas', 
-		       config_dir => '/etc',
-		       config_file => 'hosts',
+		       config_dir => '/etc/',
+		       file => 'hosts',
 		       set_in => 'record',
 		       save   => 'backup',
 		       #sequential_lens => ['record'],
@@ -41,8 +41,8 @@ $model->create_config_class
 
    'read_config'
    => [ { backend => 'augeas', 
-	  config_dir => '/etc/ssh',
-	  config_file => 'sshd_config',
+	  config_dir => '/etc/ssh/',
+	  file => 'sshd_config',
 	  save   => 'backup',
 	  sequential_lens => [qw/HostKey Subsystem Match/],
 	},

@@ -1,3 +1,8 @@
+2009-05-28  Dominique Dumont  <dominique.dumont@hp.com> v0.107 (unreleased)
+
+	* lib/Config/Model/Backend/Augeas.pm: replaced obsolete
+	config_file paramter with file (Config::Model 0.636)
+
 2009-03-31  Dominique Dumont  <dominique.dumont@hp.com> v0.106
 
 	* t/*.t: fixed tests that broke with Config::Model 0.634

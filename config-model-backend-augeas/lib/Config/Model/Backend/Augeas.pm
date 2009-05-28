@@ -32,7 +32,7 @@ my $has_augeas = 1;
 eval { require Config::Augeas ;} ;
 $has_augeas = 0 if $@ ;
 
-our $VERSION = '0.106';
+our $VERSION = '0.107';
 
 =head1 NAME
 
@@ -47,7 +47,7 @@ Config::Model::Backend::Augeas - Read and write config data through Augeas
 
    # try Augeas and fall-back with custom method
    read_config  => [ { backend => 'augeas' , 
-                       config_file => '/etc/ssh/sshd_config',
+                       file => '/etc/ssh/sshd_config',
                        # declare "seq" Augeas elements 
                        sequential_lens => [/AcceptEnv AllowGroups [etc]/],
                      },
@@ -81,9 +81,9 @@ Use C<augeas> (or C<Augeas>)in this case.
 Either C<backup> or C<newfile>. See L<Config::Augeas/Constructor> for
 details.
 
-=item config_file
+=item file
 
-Name of the config_file.
+Name of the configuration file.
 
 =item sequential_lens
 
@@ -97,7 +97,7 @@ For instance:
 
    read_config  => [ { backend => 'augeas' , 
                        save   => 'backup',
-                       config_file => '/etc/ssh/sshd_config',
+                       file => '/etc/ssh/sshd_config',
                        # declare "seq" Augeas elements 
                        sequential_lens => [/AcceptEnv AllowGroups/],
                      },
@@ -231,7 +231,12 @@ sub read
     $self->{augeas_obj} ||= Config::Augeas->new(root => $args{root}, 
 						save => $args{save} ) ;
 
-    foreach my $param (qw/config_dir config_file/) {
+    if (defined $args{config_file}) { 
+	warn "Augeas::read : deprecated config_file parameter, use file instead\n";
+	$args{file}||= delete $args{config_file} ; 
+    }
+
+    foreach my $param (qw/config_dir file/) {
 	if (not defined $args{$param}) {
 	    Config::Model::Exception::Model -> throw
 		(
@@ -244,10 +249,10 @@ sub read
 
     my $cdir = $args{root}.$args{config_dir} ;
     print "Read config data through Augeas in directory '$cdir' ",
-      "file $args{config_file}\n" 
+      "file $args{file}\n" 
 	if $::verbose;
 
-    my $mainpath = '/files'.$args{config_dir}.$args{config_file} ;
+    my $mainpath = '/files'.$args{config_dir}.$args{file} ;
 
     my @result =  $self->augeas_deep_match($mainpath) ;
     my @cm_path = @result ;
@@ -374,12 +379,23 @@ sub augeas_deep_match {
     return @result ;
 }
 
+# this is a bit of a hack. This function is called by Autoread to
+# check whether the configuration file should be opened before calling
+# write or not. If the config file is opened before augeas writes in
+# it, all comments and structure is lost.
+sub skip_open { 1;}
+
 sub write {
     my $self = shift;
     my %args = @_ ; # contains root and config_dir
     return 0 unless $has_augeas ;
 
-    foreach my $param (qw/config_dir config_file/) {
+    if (defined $args{config_file}) { 
+	warn "Augeas::write : deprecated config_file parameter, use file instead\n";
+	$args{file}||= delete $args{config_file} ; 
+    }
+
+    foreach my $param (qw/config_dir file/) {
 	if (not defined $args{$param}) {
 	    Config::Model::Exception::Model -> throw
 		(
@@ -392,11 +408,11 @@ sub write {
 
     my $cdir = $args{root}.$args{config_dir} ;
     print "Write config data through Augeas in directory '$cdir' ",
-      "file $args{config_file}\n" 
+      "file $args{file}\n" 
 	if $::verbose;
 
     my $set_in = $args{set_in} || '';
-    my $mainpath = '/files'.$args{config_dir}.$args{config_file} ;
+    my $mainpath = '/files'.$args{config_dir}.$args{file} ;
     my $augeas_obj =   $self->{augeas_obj} 
                    ||= Config::Augeas->new(root => $args{root}, 
 					   save => $args{save} ) ;

@@ -41,7 +41,7 @@ my $build = Module::Build->new
 		      'Log::Log4perl'     => '1.11', # for TRACE log level
 		      'Exception::Class'  => 0,
 		      'Config::Augeas' => '0.303',
-		      'Config::Model'  => '0.631',
+		      'Config::Model'  => '0.636',
 		     },
    build_requires => {
 		      'Test::More'        => 0,
