@@ -2,6 +2,7 @@
 
 	* lib/Config/Model/Backend/Augeas.pm: replaced obsolete
 	config_file paramter with file (Config::Model 0.636)
+	(all): ignore Augeas #comment nodes
 
 2009-03-31  Dominique Dumont  <dominique.dumont@hp.com> v0.106
 

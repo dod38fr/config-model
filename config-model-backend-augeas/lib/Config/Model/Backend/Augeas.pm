@@ -370,7 +370,9 @@ sub augeas_deep_match {
     my @result ;
     while (@worklist) {
 	my $p = pop @worklist ;
-	my @newpath = $augeas_obj -> match($p . "/*") ;
+	# filter out comments 
+	# see http://augeas.net/page/Path_expressions
+	my @newpath = $augeas_obj -> match($p . "/*[label() != '#comment']") ;
 	print "read-augeas $p/* matches paths: @newpath\n" if $::debug ;
 	push @worklist, @newpath ;
 	push @result,   @newpath ;
@@ -489,10 +491,12 @@ sub list_element_cb {
     # corresponding hash-like keys in Augeas tree
 
     # find Augeas nodes matching this path
-    my @matches = $augeas_obj->match($p) ;
+    my @matches = $augeas_obj->match($p."[label() != '#comment']") ;
 
     # need to find 2nd levels of sub-nodes for non-seq list lenses
-    @matches = sort map { $augeas_obj->match($_.'/*') ; } @matches 
+    @matches = sort map { 
+	$augeas_obj->match($_."/*[label() != '#comment']") ; 
+    } @matches 
       unless $is_seq ;
 
     # Depending on the syntax, list can be in the form:
@@ -524,7 +528,7 @@ sub list_element_cb {
     # tree. Create a new Augeas path for sequential list lenses. This
     # path will be used by scan_list
     if ($is_seq) {
-	my $count = $augeas_obj->count_match($p) ;
+	my $count = $augeas_obj->count_match($p."[label() != '#comment']") ;
 	foreach my $idx (@idx) {
 	    # augeas index starts at 1 not 0
 	    my $i = $idx + 1; 
@@ -558,7 +562,7 @@ sub list_element_cb {
 
 	# check if removing parent node in Augeas is needed
 	$rm_path =~ s!/([\w\[\]\-]+)$!! ; # chomp last "step" of the path
-	if ($augeas_obj->count_match($rm_path) == 1
+	if ($augeas_obj->count_match($rm_path."[label() != '#comment']") == 1
 	    and $set_in ne $element_name 
 	    and $rm_path =~ /$element_name$/
 	   ) {
@@ -579,10 +583,12 @@ sub hash_element_cb {
     # corresponding hash-like keys in Augeas tree
 
     # find Augeas nodes matching this path
-    my @matches = $augeas_obj->match($p) ;
+    my @matches = $augeas_obj->match($p."[label() != '#comment']") ;
 
     # need to find 2nd levels of sub-nodes 
-    @matches = sort map { $augeas_obj->match($_.'/*') ; } @matches ;
+    @matches = sort map { 
+	$augeas_obj->match($_."/*[label() != '#comment']") ; 
+    } @matches ;
 
     # sequential lens need a list index to store element.  I.e
     # foo[1]/key1 foo[2]/key2 is ok. foo/key1 foo/key2 will fail But
@@ -609,7 +615,7 @@ sub hash_element_cb {
     # path will be used by scan_list. This insertion cannot be done if
     # no elements are already present in Augeas tree.
     if ($is_seq and @matches) {
-	my $count = $augeas_obj->count_match($p) ;
+	my $count = $augeas_obj->count_match($p."[label() != '#comment']") ;
 	foreach (@keys) {
 	    next if defined $match{$_} ;
 
@@ -642,7 +648,7 @@ sub hash_element_cb {
 
 	# check if removing parent node in Augeas is needed
 	$rm_path =~ s!/([\w\[\]\-]+)$!! ;
-	if (    $augeas_obj->count_match($rm_path) == 1 
+	if (    $augeas_obj->count_match($rm_path."[label() != '#comment']") == 1 
 	    and $set_in ne $element_name and $is_seq
 	   ) {
 	    print "copy_in_augeas: Hash rm parent $_ ->$rm_path\n" 
@@ -664,7 +670,7 @@ sub node_content_cb {
 			       $node,$element[0]);
     }
     else {
-	my @matches = $augeas_obj->match($p.'/*') ;
+	my @matches = $augeas_obj->match($p."/*[label() != '#comment']") ;
 	# cleanup indexes are we don't handle them now with element
 	# (later in lists and hashes)
 	map { s/\[\d+\]+$//;  } @matches ;
@@ -729,6 +735,16 @@ sub node_content_cb {
 
 
 1;
+
+=head1 CAVEATS
+
+=over
+
+=item *
+
+Augeas C<#comment> nodes are ignored
+
+=back
 
 =head1 SEE ALSO
 
