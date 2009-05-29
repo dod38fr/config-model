@@ -27,6 +27,7 @@ use warnings ;
 use Config::Model::Exception ;
 use UNIVERSAL ;
 use File::Path;
+use Log::Log4perl qw(get_logger :levels);
 
 my $has_augeas = 1;
 eval { require Config::Augeas ;} ;
@@ -248,9 +249,9 @@ sub read
     }
 
     my $cdir = $args{root}.$args{config_dir} ;
-    print "Read config data through Augeas in directory '$cdir' ",
-      "file $args{file}\n" 
-	if $::verbose;
+    my $logger =  get_logger('Data::Read') ;
+    $logger->info( "Read config data through Augeas in directory '$cdir' ".
+		   "file $args{file}");
 
     my $mainpath = '/files'.$args{config_dir}.$args{file} ;
 
@@ -283,7 +284,8 @@ sub read
 	my $v = $augeas_obj->get($aug_p) ;
 	next unless defined $v ;
 
-	print "read-augeas $aug_p, will set C::M path $cm_p with $v\n" if $::debug ;
+	$logger->debug("read-augeas $aug_p, will set C::M path $cm_p with $v");
+
 	$cm_p =~ s!^/!! ;
 	# With some list, we can get
 	# /files/etc/ssh/sshd_config/AcceptEnv[1]/1/ =  LC_PAPER
@@ -307,9 +309,9 @@ sub read
 	while (my $step = shift @cm_steps) {
 	    my ($label,$idx) = ( $step =~ /(\w+)(?:\[(\d+)\])?/ ) ;
 	    my $is_seq = $is_seq_lens{$label} || 0 ;
-	    print "read-augeas: step label $label ",
-	      defined $idx ? "idx $idx ": '', "(is_seq $is_seq)\n"
-		if $::debug ; 
+	    $logger
+	      ->debug("read-augeas: step label $label ".
+		      (defined $idx ? "idx $idx ": '') . "(is_seq $is_seq)");
 
 	    # idx will be treated next iteration if needed
 	    if (    $obj->get_type eq 'node' 
@@ -317,7 +319,8 @@ sub read
 		and $is_seq
 	       ) {
 		$idx = 1 unless defined $idx ;
-		print "read-augeas: keep seq lens idx $idx\n" if $::debug ; 
+		$logger
+		  ->debug("read-augeas: keep seq lens idx $idx") ; 
 		unshift @cm_steps , $idx ;
 	    }
 
@@ -334,12 +337,12 @@ sub read
 	    # augeas list begin at 1 not 0
 	    $label -= 1 if $obj->get_type eq 'list';
 	    if (scalar @cm_steps > 0) {
-		print "read-augeas: get $label\n" if $::debug;
+		$logger ->debug("read-augeas: get $label");
 		$obj = $obj->get($label) ;
 	    }
 	    else {
 		# last step
-		print "read-augeas: set $label $v\n" if $::debug ; 
+		$logger->debug("read-augeas: set $label $v"); 
 		$obj->set($label,$v) ;
 	    }
 
@@ -364,7 +367,8 @@ sub augeas_deep_match {
     # level 
     # See https://www.redhat.com/archives/augeas-devel/2008-July/msg00016.html
     my @worklist = ( $mainpath );
-    print "read-augeas on @worklist\n" if $::debug ;
+    my $logger = get_logger('Data::Read') ;
+    $logger ->debug("read-augeas on @worklist") ;
 
     my $augeas_obj = $self->{augeas_obj} ;
     my @result ;
@@ -373,7 +377,8 @@ sub augeas_deep_match {
 	# filter out comments 
 	# see http://augeas.net/page/Path_expressions
 	my @newpath = $augeas_obj -> match($p . "/*[label() != '#comment']") ;
-	print "read-augeas $p/* matches paths: @newpath\n" if $::debug ;
+	$logger
+	  ->debug("read-augeas $p/* matches paths: @newpath") ;
 	push @worklist, @newpath ;
 	push @result,   @newpath ;
     }
@@ -409,9 +414,9 @@ sub write {
     }
 
     my $cdir = $args{root}.$args{config_dir} ;
-    print "Write config data through Augeas in directory '$cdir' ",
-      "file $args{file}\n" 
-	if $::verbose;
+    get_logger("Data::Write")
+      ->info("Write config data through Augeas in directory '$cdir' ".
+	     "file $args{file}");
 
     my $set_in = $args{set_in} || '';
     my $mainpath = '/files'.$args{config_dir}.$args{file} ;
@@ -429,7 +434,8 @@ sub save {
     my $self = shift ;
     my $mainpath = shift ;
 
-    $self->{augeas_obj}->print() if $::debug ;
+    # can't use augeas print directly in logging system...
+    $self->{augeas_obj}->print() if get_logger('Data::Write')->is_debug ;
 
     $self->{augeas_obj}->save || die "Augeas save failed" . 
       $self->{augeas_obj}->print("/augeas/$mainpath/*");
@@ -472,7 +478,7 @@ sub std_cb {
 
     my $v = $value_obj->fetch () ; 
     if (defined $v and $v ne '') {
-	print "copy_in_augeas: set $p = '$v'\n" if $::verbose;
+	get_logger("Data::Write")->info("copy_in_augeas: set $p = '$v'");
 	$augeas_obj->set($p , $v) ;
 	#$self->save($mainpath) if $::debug ;
     }
@@ -513,8 +519,9 @@ sub list_element_cb {
 	map { s/$element_name(?!\[)/$replace/ } @matches ;
     }
 
-    print "copy_in_augeas: List (@idx) path $p matches (seq $is_seq):\n\t",
-      join("\n\t",@matches),"\n" if $::debug;
+    my $logger = get_logger("Data::Write") ;
+    $logger->debug("copy_in_augeas: List (@idx) path $p matches (seq $is_seq):\n\t".
+	      join("\n\t",@matches));
 
     # store list indexes found in Augeas and their corresponding path
     my %match = map { 
@@ -536,8 +543,8 @@ sub list_element_cb {
 
 	    $match{$i} = $p.'['.++$count."]" . ($is_seq ? '' : "/$i");
 
-	    print "copy_in_augeas: New list path $match{$i} for index $i\n"
-	      if $::debug;
+	    $logger->debug("copy_in_augeas: New list path $match{$i} "
+			   ."for index $i");
 	} 
     }
 
@@ -547,8 +554,7 @@ sub list_element_cb {
 	# use Augeas path (given by match command) or the path
 	# created for unknown non-seq list elements
 	my $scan_path = delete $match{$i+1} || $p.'/'.($i+1);
-	print "copy_in_augeas: scan list called on $scan_path index $i\n"
-	      if $::debug;
+	$logger->debug("copy_in_augeas: scan list called on $scan_path index $i");
 	$scanner->scan_list([$scan_path,$augeas_obj,$set_in,$is_seq_lens], 
 			    $node,$element_name,$i);
     }
@@ -557,7 +563,7 @@ sub list_element_cb {
     foreach (keys %match) {
 	my $rm_path = $match{$_} ;
 
-	print "copy_in_augeas: List rm $_ ->$rm_path\n" if $::debug; 
+	$logger->debug("copy_in_augeas: List rm $_ ->$rm_path"); 
 	$augeas_obj->remove($rm_path) || die "remove $rm_path failed";
 
 	# check if removing parent node in Augeas is needed
@@ -566,8 +572,7 @@ sub list_element_cb {
 	    and $set_in ne $element_name 
 	    and $rm_path =~ /$element_name$/
 	   ) {
-	    print "copy_in_augeas: List rm parent node $_ ->$rm_path\n" 
-	      if $::debug; 
+	    $logger->debug("copy_in_augeas: List rm parent node $_ ->$rm_path");
 	    $augeas_obj->remove($rm_path) || die "remove $rm_path failed";
 	}
     }
@@ -599,8 +604,9 @@ sub hash_element_cb {
 	map { s/$element_name(?!\[)/$replace/ } @matches ;
     }
 
-    print "copy_in_augeas: Hash path $p matches (seq $is_seq):\n\t", 
-      join("\n\t",@matches),"\n" if $::debug;
+    my $logger = get_logger('Data::Write') ;
+    $logger->debug("copy_in_augeas: Hash path $p matches (seq $is_seq):\n\t". 
+		   join("\n\t",@matches));
 
     # store indexes found in Augeas and their corresponding path
     my %match = map { 
@@ -620,13 +626,12 @@ sub hash_element_cb {
 	    next if defined $match{$_} ;
 
 	    my $ip = $p.'[last()]';
-	    print "inserting $element_name after $ip\n" if $::debug ;
+	    $logger->debug("inserting $element_name after $ip\n");
 	    $augeas_obj->insert($element_name, after => $ip ) 
 	      || die "augeas insert $element_name after $ip failed";
 
 	    my $np = $match{$_} = $p.'['.++$count."]/$_";
-	    print "copy_in_augeas: New hash path $np for key $_\n"
-	      if $::debug;
+	    $logger->debug("copy_in_augeas: New hash path $np for key $_");
 	} 
     }
 
@@ -643,7 +648,7 @@ sub hash_element_cb {
     # cleanup keys found in Augeas but not in Config::Model
     foreach (keys %match) {
 	my $rm_path = $match{$_} ;
-	print "copy_in_augeas: Hash rm $_ ->$rm_path\n" if $::debug; 
+	$logger->debug("copy_in_augeas: Hash rm $_ ->$rm_path"); 
 	$augeas_obj->remove($rm_path) || die "remove $rm_path failed";
 
 	# check if removing parent node in Augeas is needed
@@ -651,8 +656,7 @@ sub hash_element_cb {
 	if (    $augeas_obj->count_match($rm_path."[label() != '#comment']") == 1 
 	    and $set_in ne $element_name and $is_seq
 	   ) {
-	    print "copy_in_augeas: Hash rm parent $_ ->$rm_path\n" 
-	      if $::debug; 
+	    $logger->debug("copy_in_augeas: Hash rm parent $_ ->$rm_path");
 	    $augeas_obj->remove($rm_path) || die "remove $rm_path failed";
 	}
     }
@@ -662,10 +666,12 @@ sub node_content_cb {
     my ($scanner, $data_ref,$node,@element) = @_ ;
     my ($p,$augeas_obj,$set_in,$is_seq_lens) = @$data_ref ;
 
+    my $logger = get_logger('Data::Write') ;
+
     # See set_in parameter (who said kludge ?)
     if (scalar @element == 1 and $element[0] eq $set_in) {
 	# Augeas tree is stored below element[0]
-	print "copy_in_augeas: Augeas tree set in node path $p\n" if $::debug;
+	$logger->debug("copy_in_augeas: Augeas tree set in node path $p");
 	$scanner->scan_element([$p,$augeas_obj,$set_in,$is_seq_lens], 
 			       $node,$element[0]);
     }
@@ -674,8 +680,8 @@ sub node_content_cb {
 	# cleanup indexes are we don't handle them now with element
 	# (later in lists and hashes)
 	map { s/\[\d+\]+$//;  } @matches ;
-	print "copy_in_augeas: Node path $p matches:\n\t", 
-	  join("\n\t",@matches),"\n" if $::debug;
+	$logger->debug("copy_in_augeas: Node path $p matches:\n\t". 
+		       join("\n\t",@matches),);
 
 	# store elements found in Augeas and their corresponding path
 	my %match = map { 
@@ -701,13 +707,12 @@ sub node_content_cb {
                           ? (after  => $p.'/'.$previous_match.'[last()]')
 		          : (before => $matches[0]     ) ;
 
-		    print "inserting $_ $direction $ip\n" if $::debug ;
+		    $logger->debug("inserting $_ $direction $ip");
 		    $augeas_obj->insert($_, $direction => $ip ) 
 		      || die "augeas insert $_ $direction $ip failed";
 
 		    my $np = $match{$_} = "$p/$_";
-		    print "copy_in_augeas: New hash path $np for element $_\n"
-		      if $::debug;
+		    $logger->debug("copy_in_augeas: New hash path $np for element $_");
 		}
 	    } 
 	}
@@ -718,8 +723,7 @@ sub node_content_cb {
 	    # use Augeas path (given by match command) or the path
 	    # created for new elements
 	    my $scan_path = delete $match{$_} || $p.'/'.$_ ;
-	    print "copy_in_augeas: Node scan $scan_path for element $_\n" 
-	      if $::debug;
+	    $logger->debug("copy_in_augeas: Node scan $scan_path for element $_");
 	    $scanner->scan_element([$scan_path,$augeas_obj,$set_in,$is_seq_lens],
 				   $node,$_)
 	}
@@ -727,7 +731,7 @@ sub node_content_cb {
 	# cleanup keys found in Augeas but not in Config::Model
 	foreach (keys %match) {
 	    my $rm_path = $match{$_} ;
-	    print "copy_in_augeas: Node rm $_ ->$rm_path\n" if $::debug; 
+	    $logger->debug("copy_in_augeas: Node rm $_ ->$rm_path");
 	    $augeas_obj->remove($rm_path) || die "remove $rm_path failed";
 	}
     }
@@ -735,6 +739,11 @@ sub node_content_cb {
 
 
 1;
+
+=head1 Log and trace
+
+This module use L<Log::Log4perl> to log debug and info trace with
+C<Data::Read> and C<Data::Write> categories.
 
 =head1 CAVEATS
 
