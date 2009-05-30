@@ -377,7 +377,8 @@ L<Config::Model::Loader> for more details
 sub load {
     my $self = shift ;
     my $loader = Config::Model::Loader->new ;
-    $loader->load(node => $self->{tree}, @_) ;
+    my %args = @_ eq 1 ? (step => $_[0]) : @_ ;
+    $loader->load(node => $self->{tree}, %args) ;
 }
 
 =head2 searcher ( )

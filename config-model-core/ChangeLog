@@ -1,8 +1,17 @@
-2009-05-13  Dominique Dumont  <dominique.dumont@hp.com> unreleased v0.636
+2009-05-30  Dominique Dumont  <dominique.dumont@hp.com> v0.636
 
-	* lib/Config/Model/AutoRead.pm: When calling backend, file
-	contains configuration file name without path and file_path
-	contains complete path and file name
+	* lib/Config/Model/AutoRead.pm: Added skip_open to avoid opening
+	config target file when the open must be done by the
+	backend (e.g. for Augeas backend)
+
+	* lib/Config/Model.pm (instance): name parameter is no longer
+	mandatory. Uses 'default' as default instance name.
+
+2009-05-13  Dominique Dumont  <dominique.dumont@hp.com> 
+
+	* lib/Config/Model/AutoRead.pm: When calling backend, 'file'
+	parameter contains configuration file name without path and
+	'file_path' parameter contains complete path and file name
 
 2009-04-17  Dominique Dumont  <dominique.dumont@hp.com> v0.635
 
