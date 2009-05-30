@@ -53,7 +53,7 @@ use Config::Model::Tk::HashEditor ;
 use Config::Model::Tk::NodeViewer ;
 
 
-$VERSION = '1.208' ;
+$VERSION = '1.209' ;
 
 Construct Tk::Widget 'ConfigModelUI';
 
@@ -101,6 +101,9 @@ sub Populate {
     }
 
     my $extra_menu = delete $args->{'-extra-menu'} || [] ;
+
+    my $title = delete $args->{'-title'} 
+              || "config-edit ".$cw->{root}->config_class_name ;
 
     # check unknown parameters
     croak "Unknown parameter ",join(' ',keys %$args) if %$args;
@@ -206,6 +209,7 @@ sub Populate {
 		     $cw->on_select($item)} ;
     $tree->bind('<Button-3>', $b3_sub) ;
 
+    $args->{-title} = $title;
     $cw->SUPER::Populate($args) ;
 
     $cw->ConfigSpecs

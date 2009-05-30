@@ -1,9 +1,14 @@
+2009-05-30  Dominique Dumont  <dominique.dumont@hp.com> v1.209
+
+	* lib/Config/Model/TkUI.pm (Populate): added -title option so the
+	application can set the title of the TkUI window
+
 2009-04-07  Dominique Dumont  <dominique.dumont@hp.com> v1.208
 
 	* lib/Config/Model/Tk/HashEditor.pm (Populate): Improved widget
 	ergonomy. Added some balloon help.
 
-2009-03-31  Dominique Dumont  <dominique.dumont@hp.com> unreleased
+2009-03-31  Dominique Dumont  <dominique.dumont@hp.com>
 
 	* lib/Config/Model/Tk/*.pm (): Added display of summary 
 
