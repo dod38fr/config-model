@@ -150,6 +150,11 @@ model. C<include> are represented by solid lines. Class usage
 (i.e. C<config_class_name> parameter) is represented by dashed
 lines. The name of the element is attached to the dashed line.
 
+=item -save
+
+Force a save of the model even if no edition was done. This option is
+useful to migrate a model when Config::Model model feature changes.
+
 =back
 
 
@@ -160,6 +165,7 @@ my $help = 0;
 my $force_load = 0;
 my $model_dir ;
 my $do_dot = 0;
+my $save = 0;
 
 my $result = GetOptions (
 			 "dir=s"            => \$model_dir,
@@ -170,6 +176,7 @@ my $result = GetOptions (
 			 "man!"             => \$man,
 			 "help!"            => \$help,
 			 "force_load!"      => \$force_load,
+			 "save!"            => \$save,
 			 "dot_diagram!"     => \$do_dot ,
 			);
 
@@ -225,6 +232,11 @@ my $write_sub = sub {
     my $wr_dir = shift || $wr_model_dir ;
     $rw_obj->write_all(model_dir => $wr_dir);
 } ;
+
+if ($save) {
+    &$write_sub ;
+    exit ;
+}
 
 my $mw = MainWindow-> new ;
 $mw->withdraw ;

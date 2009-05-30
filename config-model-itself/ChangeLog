@@ -1,3 +1,10 @@
+2009-05-30  Dominique Dumont  <dominique.dumont@hp.com> v1.211
+
+	* config-model-edit: added -save option.
+
+	* lib/Config/Model/models/Itself/Class.pl: Changed config_file
+	parameter to file (Req by Config::Model 0.636)
+
 2009-04-20  Dominique Dumont  <dominique.dumont@hp.com> v1.210
 
 	* config-model-edit: Fixed Log::Log4perl default configuration

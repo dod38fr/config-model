@@ -51,6 +51,8 @@ sub Populate {
     my $model_name   = delete $args->{-model_name} ;
     my $root_dir     = delete $args->{-root_dir} ;
 
+    $args->{'-title'} ||= "config-model-edit $model_name" ;
+
     $cw->SUPER::Populate($args) ;
 
     my $items = [[ qw/command test -command/, sub{ $cw->test_model }],

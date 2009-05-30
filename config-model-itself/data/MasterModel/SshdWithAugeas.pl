@@ -6,7 +6,7 @@
   => [ 
       { backend => 'augeas', 
 	 config_dir  => '/etc/ssh',
-	 config_file => 'sshd_config',
+	 file => 'sshd_config',
 	 sequential_lens => [qw/HostKey Subsystem Match/],
       },
       { backend => 'perl_file', 
