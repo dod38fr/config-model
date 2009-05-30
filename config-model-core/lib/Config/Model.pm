@@ -303,12 +303,15 @@ configuration class that is used by the root node of the tree.
    element => [ ...  ]
   ) ;
 
+ # instance name is 'default' 
+ my $inst = $model->instance (root_class_name => 'SomeRootClass');
+
+You can create several separated instances from a model using 
+C<name> option:
+
+ # instance name is 'default' 
  my $inst = $model->instance (root_class_name => 'SomeRootClass', 
-                              instance_name => 'test1');
-
-You can create several separated instances from a model.
-
-When using autoread or autowrite feature
+                              name            => 'test1');
 
 =cut
 
@@ -316,10 +319,8 @@ sub instance {
     my $self = shift ;
     my %args = @_ ;
 
-    my $instance_name =  delete $args{instance_name} || delete $args{name} ;
-
-    croak "Model: can't create or retrieve instance without instance_name"
-      unless defined $instance_name ;
+    my $instance_name =  delete $args{instance_name} || delete $args{name} 
+      || 'default';
 
     if (defined $self->{instance}{$instance_name}) {
 	return $self->{instance}{$instance_name} ;
@@ -1596,18 +1597,58 @@ L<Config::Model::WarpedNode> <- <- L<Config::Model::WarpedThing> <- L<Config::Mo
 
 =back
 
+=head2 command line
+
+L<config-edit>
 
 =head2 Model utilities
 
-L<Config::Model::Describe>,
-L<Config::Model::Dumper>,
-L<Config::Model::DumpAsData>,
-L<Config::Model::Loader>,
-L<Config::Model::ObjTreeScanner>,
-L<Config::Model::Report>,
-L<Config::Model::Searcher>,
-L<Config::Model::TermUI>,
-L<Config::Model::WizardHelper>,
-L<Config::Model::AutoRead>,
-L<Config::Model::ValueComputer>,
+=over
+
+=item * 
+
+L<Config::Model::Describe>
+
+=item * 
+
+L<Config::Model::Dumper>
+
+=item * 
+
+L<Config::Model::DumpAsData>
+
+=item * 
+
+L<Config::Model::Loader>
+
+=item * 
+
+L<Config::Model::ObjTreeScanner>
+
+=item * 
+
+L<Config::Model::Report>
+
+=item * 
+
+L<Config::Model::Searcher>
+
+=item * 
+
+L<Config::Model::TermUI>
+
+=item * 
+
+L<Config::Model::WizardHelper>
+
+=item * 
+
+L<Config::Model::AutoRead>
+
+=item * 
+
+L<Config::Model::ValueComputer>
+
+=back
+
 =cut
