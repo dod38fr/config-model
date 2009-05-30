@@ -296,8 +296,9 @@ sub auto_write_init {
 	    my $safe_self = $self ; # provide a closure
 	    $wb = sub 
 	      {  no strict 'refs';
-		 my $file_path 
-		   = $safe_self-> open_file_to_write($backend,$fh,@wr_args,@_) ;
+		 my $file_path ;
+		 $file_path = $self-> open_file_to_write($backend,$fh,@wr_args,@_) 
+		   unless ($c->can('skip_open') and $c->skip_open) ;
 		 # override needed for "save as" button
 		 &{$c.'::'.$f}(@wr_args,
 			       file_path => $file_path,
@@ -362,8 +363,9 @@ sub auto_write_init {
 	      {  no strict 'refs';
 		 my $backend_obj =  $self->{backend}{$backend}
 		                 || $c->new(node => $self) ;
-		 my $file_path 
-		   = $self-> open_file_to_write($backend,$fh,@wr_args,@_) ;
+		 my $file_path ;
+		 $file_path = $self-> open_file_to_write($backend,$fh,@wr_args,@_) 
+		   unless ($c->can('skip_open') and $c->skip_open) ;
 		 # override needed for "save as" button
 		 $backend_obj->$f(@wr_args, 
 				  file_path => $file_path,
@@ -738,8 +740,9 @@ parameters (along with C<read_config> parameter):
                       auto_create => 1, },
                     { backend => 'custom', class => 'NewFormat' } ],
 
-When necessary (or required by the user), all configuration
-informations are written back using B<all> the write specifications.
+When required by the user, all configuration informations are written
+back using B<all> the write specifications. See
+L<Config::Model::Instance/write_back ( ... )> for details.
 
 The write class declared witn C<custom> backend must provide a call-back.
 See L</"write callback"> for details.
@@ -780,6 +783,30 @@ Write callback function will be called with these parameters:
 The L<IO::File> object is undef if the file cannot be written to.
 
 The callback must return 0 on failure and 1 on succesfull write.
+
+=head1 CAVEATS
+
+When both C<config_dir> and C<file> are specified, this class will
+write-open the configuration file (and thus clobber it) before calling
+the C<write> call-back and pass the file handle with C<io_handle>
+parameter. C<write> should use this handle to write data in the target
+configuration file.
+
+If this behavior causes problem (e.g. with augeas backend), the
+solution is to:
+
+=over
+
+=item *
+
+Skip either C<file> or C<config_dir> parameter in the C<write_config>
+specification.
+
+=item *
+
+Create a C<skip_open> function in your backend class that returns C<1>
+
+=back
 
 =head1 EXAMPLES
 
