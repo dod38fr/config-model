@@ -20,7 +20,7 @@ use strict;
 use vars qw/$model/;
 
 # workaround Augeas locale bug
-if ($ENV{LC_ALL} ne 'C' or $ENV{LANG} ne 'C') {
+if (not defined $ENV{LC_ALL} or $ENV{LC_ALL} ne 'C' or $ENV{LANG} ne 'C') {
   $ENV{LC_ALL} = $ENV{LANG} = 'C';
   exec("perl $0 @ARGV");
 }
