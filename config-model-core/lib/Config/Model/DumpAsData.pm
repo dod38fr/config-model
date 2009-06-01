@@ -124,7 +124,7 @@ sub dump_as_data {
     my $std_cb = sub {
         my ( $scanner, $data_r, $obj, $element, $index, $value_obj ) = @_;
 
-	$$data_r =  $full ? $value_obj->fetch ('non_built_in')
+	$$data_r =  $full ? $value_obj->fetch ('non_builtin_default')
                  :          $value_obj->fetch_custom ;
     };
 

@@ -225,22 +225,22 @@ is( $de->value_type, 'enum',"enum: check value_type" );
 
 eq_array( $de->choice , [qw/A B C/],"enum: check choice"  );
 
-ok( $de->set_properties( default => 'B' ), "enum: warping default value" );
-is( $de->default(), 'B',"enum: check new default value" );
+ok( $de->set_properties( configfile_default => 'B' ), "enum: warping default value" );
+is( $de->configfile_default(), 'B',"enum: check new default value" );
 
-eval { $de->set_properties( default => 'F' ) } ;
+eval { $de->set_properties( configfile_default => 'F' ) } ;
 ok($@,"enum: warped default value to wrong value") ;
 print "normal error:\n", $@, "\n" if $trace;
 
 ok( $de->set_properties( choice => [qw/A B C D/] ),"enum: warping choice" );
 
-ok( $de->set_properties( choice => [qw/A B C D/], default => 'D' ), 
+ok( $de->set_properties( choice => [qw/A B C D/], configfile_default => 'D' ), 
     "enum: warping default value to new choice" );
 
-ok( $de->set_properties( choice => [qw/F G H/], default => undef ),
+ok( $de->set_properties( choice => [qw/F G H/], configfile_default => undef ),
   "enum: warping choice to completely different set");
 
-is( $de->default(), undef, "enum: check that new default value is undef" );
+is( $de->configfile_default(), undef, "enum: check that new default value is undef" );
 
 is( $de->fetch, undef, "enum: check that new current value is undef" );
 
@@ -278,12 +278,12 @@ my $bi_def = $root->fetch_element('built_in_default');
 
 is( $bi_def->fetch,                undef,    "built_in actual value" );
 is( $bi_def->fetch_standard,       'bi_def' ,"built_in standard value" );
-is( $bi_def->fetch('built_in'),    'bi_def' ,"built_in actual value" );
-is( $bi_def->fetch('non_built_in'),undef ,   "non_built_in value" );
+is( $bi_def->fetch('builtin_default'),    'bi_def' ,"built_in actual value" );
+is( $bi_def->fetch('non_builtin_default'),undef ,   "non_built_in value" );
 
 $bi_def->store('yada');
-is( $bi_def->fetch('built_in'),    'bi_def' ,"after store: built_in actual value" );
-is( $bi_def->fetch('non_built_in'),'yada' ,  "after store: non_built_in value" );
+is( $bi_def->fetch('builtin_default'),    'bi_def' ,"after store: built_in actual value" );
+is( $bi_def->fetch('non_builtin_default'),'yada' ,  "after store: non_built_in value" );
 is( $bi_def->fetch,                'yada',   "after store: built_in actual value" );
 is( $bi_def->fetch('standard'),    'bi_def' ,"after store: built_in standard value" );
 
@@ -335,5 +335,5 @@ is($p_enum->fetch,'C',"enum: read overridden preset value as value") ;
 is($p_enum->fetch('preset'),'B',"enum: read preset value as preset_value") ;
 is($p_enum->fetch_standard,'B',"enum: read preset value as standard_value") ;
 is($p_enum->fetch_custom,'C',"enum: read custom_value") ;
-is($p_enum->default,'A',"enum: read default_value") ;
+is($p_enum->configfile_default,'A',"enum: read default_value") ;
 

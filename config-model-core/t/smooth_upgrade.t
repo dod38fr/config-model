@@ -139,7 +139,7 @@ is( $nfd->fetch, 'ini_file', "old is 'ini' and new is 'ini_file'");
 
 is( $nfd->fetch_custom, 'ini_file', "likewise for custom_value");
 
-is( $nfd->fetch('non_built_in'), 'ini_file', "likewise for non_built_in");
+is( $nfd->fetch('non_builtin_default'), 'ini_file', "likewise for non_builtin_default");
 
 is( $nfd->fetch_standard, undef, "but standard value is undef");
 
@@ -158,7 +158,7 @@ is( $nfd->fetch, 'perl_file', "overridden value is 'perl_file'");
 
 is( $nfd->fetch_custom, 'perl_file', "likewise for custom_value");
 
-is( $nfd->fetch('non_built_in'), 'perl_file', "likewise for non_built_in");
+is( $nfd->fetch('non_builtin_default'), 'perl_file', "likewise for non_builtin_default");
 
 is( $nfd->fetch_standard, undef, "but standard value is undef");
 
