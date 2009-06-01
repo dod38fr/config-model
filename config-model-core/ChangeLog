@@ -1,3 +1,9 @@
+2009-06-01  Dominique Dumont  <domi.dumont@free.fr> v0.637 (unreleased)
+
+	* lib/Config/Model/Value.pm: As suggested by Jonas Smedegaard,
+	replaced 'built_in' parameter by 'builtin_default' and 'default'
+	by 'configfile_default'.
+
 2009-05-30  Dominique Dumont  <dominique.dumont@hp.com> v0.636
 
 	* lib/Config/Model/AutoRead.pm: Added skip_open to avoid opening

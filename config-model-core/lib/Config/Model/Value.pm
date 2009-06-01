@@ -77,15 +77,16 @@ a number, an integer or a string
 =item *
 
 default parameter: a value can have a default value specified during
-the construction.
+the construction. This default value will be written in the target
+configuration file. (C<configfile_default> parameter)
 
 =item *
 
-built-in default parameter: specifies the default value that is built
-in the application to be configured. This built-in default value will
-not written in the configuration files. Only the C<fetch_standard>
-method will return the built-in default value. This may be used for
-audit purpose.
+builtin parameter: specifies a default value that is built in the
+application to be configured. This builtin value will not written in
+the configuration files. Only the C<fetch_standard> method will return
+the builtin value. This may be used for audit
+purpose. (C<builtin_default> parameter)
 
 =item *
 
@@ -119,12 +120,12 @@ From the lowest default level to the "highest":
 
 =item *
 
-C<built_in>: The value is knows in the application, but is not written
-in the configuration file.
+C<builtin_default>: The value is knows in the application, but is not
+written in the configuration file.
 
 =item *
 
-C<default>: The value is known by the model, but not by the
+C<configfile_default>: The value is known by the model, but not by the
 application. This value must be written in the configuration file.
 
 =item *
@@ -164,11 +165,11 @@ A leaf element must be declared with the following parameters:
 Either C<boolean>, C<enum>, C<integer>, C<number>,
 C<uniline>, C<string>. Mandatory. See L</"Value types">.
 
-=item default
+=item configfile_default
 
 Specify the default value (optional)
 
-=item built_in
+=item builtin_default
 
 Specify a built in default value (optional)
 
@@ -178,16 +179,30 @@ Specify a built in default value (optional)
 sub set_default {
     my ($self,$arg_ref) = @_ ;
 
-    if (defined $arg_ref->{default} and defined $arg_ref->{built_in}) {
+    if (exists $arg_ref->{default}) {
+      $arg_ref->{configfile_default} = delete $arg_ref->{default};
+      warn $self->name," warning: deprecated default parameter, ",
+	"use configfile_default\n";
+    }
+
+    if (exists $arg_ref->{built_in}) {
+      $arg_ref->{builtin_default} = delete $arg_ref->{built_in};
+      warn $self->name," warning: deprecated built_in parameter, ",
+	"use builtin_default\n";
+    }
+
+    if (    defined $arg_ref->{configfile_default} 
+	and defined $arg_ref->{builtin_default}
+       ) {
 	Config::Model::Exception::Model
 	    -> throw (
 		      object => $self,
-		      error => "Cannot specify both 'built_in' and "
-		      ."'default' parameters",
+		      error => "Cannot specify both 'builtin_default' and "
+		      ."'configfile_default' parameters",
 		     ) 
     }
 
-    foreach my $item (qw/built_in default/) {
+    foreach my $item (qw/builtin_default configfile_default/) {
 	my $def    = delete $arg_ref->{$item} ;
 
 	next unless defined $def ;
@@ -480,8 +495,8 @@ ref. Example:
 =cut
 
 
-my @warp_accessible_params =  qw/min max mandatory default 
-                             choice convert built_in replace/ ;
+my @warp_accessible_params =  qw/min max mandatory configfile_default 
+                             choice convert builtin_default replace/ ;
 
 my @accessible_params =  (@warp_accessible_params, 
 			  qw/index_value element_name value_type
@@ -595,8 +610,7 @@ sub set_properties {
       qw/min max mandatory help replace/;
 
     $self->set_value_type     ( \%args );
-    $self->set_default        ( \%args ) if (    exists $args{default} 
-					      or exists $args{built_in} );
+    $self->set_default        ( \%args );
     $self->set_compute        ( \%args ) if defined $args{compute};
     $self->set_convert        ( \%args ) if defined $args{convert};
 
@@ -729,10 +743,10 @@ For instance if you declare 2 C<Value> element this way:
        value_type => 'enum',
        choice => [qw/PAL NTSC SECAM/]  
        warp => { follow => '- country', # this points to the warp master
-                 rules => { US     => { default => 'NTSC'  },
-                            France => { default => 'SECAM' },
-                            Japan  => { default => 'NTSC'  },
-                            Europe => { default => 'PAL'   },
+                 rules => { US     => { configfile_default => 'NTSC'  },
+                            France => { configfile_default => 'SECAM' },
+                            Japan  => { configfile_default => 'NTSC'  },
+                            Europe => { configfile_default => 'PAL'   },
                           }
                }
        ],
@@ -741,7 +755,7 @@ For instance if you declare 2 C<Value> element this way:
   );
 
 Setting C<country> element to C<US> will mean that C<tv_standard> has
-a default value set to C<NTSC> by the warp mechanism.
+a configfile_default value set to C<NTSC> by the warp mechanism.
 
 Likewise, the warp mechanism enables you to dynamically change the
 possible values of an enum element:
@@ -764,17 +778,17 @@ As syntactic sugar, similar rules can be grouped within an array ref
 instead of a hash ref. I.e., you can specify
 
                  rules => [ 
-                            [qw/UK Germany Italy/] => { default => 'PAL'  },
-                            US     => { default => 'NTSC'  },
+                            [qw/UK Germany Italy/] => { configfile_default => 'PAL'  },
+                            US     => { configfile_default => 'NTSC'  },
                           ]
 
 instead of :
 
                  rules => { 
-                            UK      => { default => 'PAL'  },
-                            Germany => { default => 'PAL'  },
-                            Italy   => { default => 'PAL'  },
-                            US      => { default => 'NTSC'  },
+                            UK      => { configfile_default => 'PAL'  },
+                            Germany => { configfile_default => 'PAL'  },
+                            Italy   => { configfile_default => 'PAL'  },
+                            US      => { configfile_default => 'NTSC'  },
                           }
 
 =cut
@@ -937,9 +951,9 @@ the value object (as declared in the model unless they were warped):
 
 =item value_type 
 
-=item default 
+=item configfile_default 
 
-=item built_in
+=item builtin_default
 
 =item index_value
 
@@ -958,6 +972,11 @@ foreach my $datum (@accessible_params) {
 	my $self= shift;
 	return $self->{$datum};
     } ;
+}
+
+sub default { 
+  carp "warning: default sub is deprecated, use configfile_default";
+  goto &configfile_default ;
 }
 
 =head2 name()
@@ -1321,7 +1340,7 @@ sub load_data {
 
 Returns the stored value if this value is different from a standard
 setting or built in seting. In other words, returns undef if the
-stored value is identical to the default value or the computed value
+stored value is identical to the configfile_default value or the computed value
 or the built in value.
 
 =cut
@@ -1340,14 +1359,14 @@ sub fetch_custom {
 
 Returns the standard value as defined by the configuration model. The
 standard value can be either a preset value, a computed value, a
-default value or a built-in default value.
+configfile_default value or a built-in default value.
 
 =cut
 
 sub fetch_standard {
     my $self = shift ;
     my $pre_fetch = $self->_pre_fetch ;
-    return defined $pre_fetch ? $pre_fetch : $self->{built_in} ;
+    return defined $pre_fetch ? $pre_fetch : $self->{builtin_default} ;
 }
 
 sub _init {
@@ -1376,14 +1395,14 @@ sub _pre_fetch {
         $self->_value_type_error ;
     }
 
-    # get stored value or computed value or default value
+    # get stored value or computed value or configfile_default value
     my $std_value ;
 
     eval {
 	$std_value 
 	  = defined $self->{preset}        ? $self->{preset}
           : defined $self->{compute}       ? $self->compute 
-          :                                  $self->{default} ;
+          :                                  $self->{configfile_default} ;
     };
 
     my $e ;
@@ -1406,6 +1425,11 @@ Fetch value from leaf element without checking the value.
 
 =cut
 
+my %old_mode = ( built_in => 'builtin_default',
+		 non_built_in => 'non_builtin_default',
+		 default => 'configfile_default',
+	       );
+
 sub fetch_no_check {
     my $self = shift ;
     my $mode = shift || '';
@@ -1421,24 +1445,31 @@ sub fetch_no_check {
     if ($mode eq 'custom') {
 	no warnings "uninitialized" ;
 	my $cust ;
-	$cust = $data if $data ne $std and $data ne $self->{built_in} ;
+	$cust = $data if $data ne $std and $data ne $self->{builtin_default} ;
 	return $cust;
     }
 
-    if ($mode eq 'non_built_in') {
+    foreach my $k (keys %old_mode) {
+	next unless $mode eq $k;
+	$mode = $old_mode{$k} ;
+	carp $self->location," warning: deprecated mode parameter: $k, ",
+	    "expected $mode\n";
+    }
+
+    if ($mode eq 'non_builtin_default') {
 	no warnings "uninitialized" ;
-	my $nbu = defined $data && $data ne $self->{built_in} ? $data 
-	        : defined $std  && $std  ne $self->{built_in} ? $std 
-                :                                                undef ;
+	my $nbu = defined $data && $data ne $self->{builtin_default} ? $data 
+	        : defined $std  && $std  ne $self->{builtin_default} ? $std 
+                :                                                      undef ;
 
 	return $nbu;
     }
 
     return $mode eq 'preset'                   ? $self->{preset}
-         : $mode eq 'default'                  ? $self->{default}
+         : $mode eq 'configfile_default'       ? $self->{configfile_default}
          : $mode eq 'standard' && defined $std ? $std 
-         : $mode eq 'standard'                 ? $self->{built_in}
-	 : $mode eq 'built_in'                 ? $self->{built_in}
+         : $mode eq 'standard'                 ? $self->{builtin_default}
+	 : $mode eq 'builtin_default'          ? $self->{builtin_default}
 	 : defined $data                       ? $data
          :                                       $std ;
 
@@ -1451,10 +1482,10 @@ sub _fetch_no_check {
           : defined $self->{preset}  ? $self->{preset}
           : defined $self->{compute} ? $self->compute 
           : defined $self->{_migrate_from} ? $self->migrate_value
-          :                            $self->{default} ;
+          :                            $self->{configfile_default} ;
 }
 
-=head2 fetch( [ custom | preset | standard | default ] )
+=head2 fetch( [ custom | preset | standard | configfile_default ] )
 
 Check and fetch value from leaf element.
 
@@ -1465,7 +1496,7 @@ With a parameter, this method will return either:
 =item custom
 
 The value entered by the user (if different from built in, preset,
-computed or default value)
+computed or configfile_default value)
 
 =item preset
 
@@ -1473,20 +1504,20 @@ The value entered in preset mode
 
 =item standard
 
-The preset or computed or default or built in value.
+The preset or computed or configfile_default or built in value.
 
-=item default
+=item configfile_default
 
-The default value (defined by the configuration model)
+The configfile_default value (defined by the configuration model)
 
-=item built_in
+=item builtin_default
 
-The built_in value. (defined by the configuration model)
+The builtin_default value. (defined by the configuration model)
 
-=item non_built_in
+=item non_builtin_default
 
-The custom or preset or computed or default value. Will return undef
-if either of this value is identical to the built_in value. This
+The custom or preset or computed or configfile_default value. Will return undef
+if either of this value is identical to the builtin_default value. This
 feature is useful to reduce data to write in configuration file.
 
 =item allow_undef
@@ -1530,7 +1561,7 @@ sub fetch {
         push @error, "Undefined mandatory value."
           if $self->{mandatory} ;
         push @error, $self->warp_error 
-          if defined $self->{warped_attribute}{default} ;
+          if defined $self->{warped_attribute}{configfile_default} ;
         Config::Model::Exception::WrongValue
 	    -> throw (
 		      object => $self,
@@ -1543,7 +1574,7 @@ sub fetch {
 
 =head2 user_value
 
-Returns the value entered by the user. Does not use the default or
+Returns the value entered by the user. Does not use the configfile_default or
 computed value. Returns undef unless a value was actually stored.
 
 =cut
@@ -1554,7 +1585,7 @@ sub user_value {
 
 =head2 fetch_preset
 
-Returns the value entered in preset mode. Does not use the default or
+Returns the value entered in preset mode. Does not use the configfile_default or
 computed value. Returns undef unless a value was actually stored in
 preset mode.
 
@@ -1565,7 +1596,7 @@ sub fetch_preset {
 }
 
 
-=head2 get( path , [ custom | preset | standard | default ])
+=head2 get( path , [ custom | preset | standard | configfile_default ])
 
 Get a value from a directory like path.
 
