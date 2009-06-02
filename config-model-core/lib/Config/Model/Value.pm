@@ -25,10 +25,10 @@ use warnings ;
 use strict;
 use Scalar::Util qw(weaken) ;
 use Data::Dumper ();
-use Parse::RecDescent ;
 use Config::Model::Exception ;
 use Config::Model::ValueComputer ;
 use Config::Model::IdElementReference ;
+use Log::Log4perl qw(get_logger :levels);
 use Carp ;
 
 use base qw/Config::Model::WarpedThing/ ;
@@ -217,7 +217,8 @@ sub set_default {
 		     ) 
 	      unless $ok ;
 
-	print "Set $item value for ",$self->name,"\n" if $::debug ;
+	get_logger("Tree::Element::Value")
+	  ->debug("Set $item value for ",$self->name,"") ;
 
 	$self->{$item} = $def ;
     }
@@ -441,9 +442,8 @@ sub setup_enum_choice {
 
     my @choice = ref $_[0] ? @{$_[0]} : @_ ;
 
-    print $self->name, " setup_enum_choice:\n\twith '", 
-      join("','",@choice),"'\n"
-	if $::debug ;
+    get_logger("Tree::Element::Value")
+      ->debug($self->name, " setup_enum_choice:\n\twith '",join("','",@choice));
 
     # store all enum values in a hash. This way, checking
     # whether a value is present in the enum set is easier
@@ -574,9 +574,11 @@ sub set_properties {
     # merge data passed to the constructor with data passed to set_properties
     my %args = (%{$self->{backup}},@_ );
 
-    print "'".$self->name."' set_properties called with \n",
-      Data::Dumper->Dump([\%args], ['set_arg'])
-	  if $::debug ;
+    my $logger = get_logger("Tree::Element::Value") ;
+    if ($logger->is_debug) {
+	$logger->debug("'".$self->name."' set_properties called with \n",
+		       Data::Dumper->Dump([\%args], ['set_arg']));
+    }
 
     # this code may be dead as warping value_type is no longer
     # authorized. But we keep it in case this has to be authorized
@@ -839,10 +841,9 @@ sub warp_them
         next unless defined $warped ; # $warped is a weak ref and may vanish
 
         # pure warp of object
-        print "warp_them: (value ", 
-          defined $value ? $value : 'undefined',
-            ") warping '",$warped->name,"'\n" 
-              if $::debug;
+        get_logger("Tree::Element::Warper")
+	  ->debug("warp_them: (value ", (defined $value ? $value : 'undefined'),
+		  ") warping '",$warped->name );
         $warped->warp($value,$warp_index) ;
       }
   }
@@ -1329,8 +1330,10 @@ sub load_data {
 		     ) ;
     }
     else {
-	print "Value load_data (",$self->location,") will store value $data\n"
-	  if $::verbose ;
+	my $l = get_logger("Tree::Element::Value");
+	if ($l->is_info) {
+	    $l->info("Value load_data (",$self->location,") will store value $data");
+	}
 	$self->store($data) ;
     }
 }

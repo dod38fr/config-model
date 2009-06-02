@@ -448,6 +448,10 @@ Log4perl uses the following categories:
 
 =item Data::Write
 
+=item Tree::Element::Value
+
+=item Tree::Element::Warper
+
 =back
 
 More categories will come.
@@ -456,7 +460,6 @@ More categories will come.
 Tree
 Tree::Node
 Tree::Element
-Tree::Element::Value
 Tree::Element::Value::Compute
 Tree::Element::Hash
 Tree::Element::List
