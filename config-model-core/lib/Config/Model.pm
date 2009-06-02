@@ -146,7 +146,7 @@ sub new {
     my $skip =  $args{skip_include} || 0 ;
 
     my $self = { model_dir => $args{model_dir},
-		 legacy    => $args{legacy}  || 'die' ,
+		 legacy    => $args{legacy}  || 'warn' ,
 		 skip_include => $skip ,
 	       } ;
     bless $self,$type ;

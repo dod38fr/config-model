@@ -980,6 +980,11 @@ sub default {
   goto &configfile_default ;
 }
 
+sub built_in { 
+  carp "warning: built_in sub is deprecated, use builtin_default";
+  goto &builtin_default ;
+}
+
 =head2 name()
 
 Returns the object name. 
