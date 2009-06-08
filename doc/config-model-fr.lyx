@@ -9,6 +9,7 @@
 
 \setbeamercovered{transparent}
 % or whatever (possibly just delete it)
+% \setbeameroption{show only notes}
 \end_preamble
 \options handout
 \use_default_options false
@@ -203,34 +204,6 @@ tableofcontents[currentsection,currentsubsection]
 \begin_layout Plain Layout
 
 }
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Note Note
-status collapsed
-
-\begin_layout Plain Layout
-Creates new slides with notes.
- Can use also {show only notes}.
- See beameruserguide p187
-\end_layout
-
-\end_inset
-
-
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-
-\backslash
-setbeameroption{show notes}
 \end_layout
 
 \end_inset
