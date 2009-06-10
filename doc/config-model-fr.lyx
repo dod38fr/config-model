@@ -1102,19 +1102,12 @@ Pour les concepteurs d'application:
 \end_layout
 
 \begin_layout Enumerate
-Pas de nouveaux paramètres
-\begin_inset Note Greyedout
-status open
-
-\begin_layout Plain Layout
+Pas de nouveaux paramètres 
+\color green
+\lang english
 ↔ pas de nouveaux problèmes
 \end_layout
 
-\end_inset
-
-
-\end_layout
-
 \begin_deeper
 \begin_layout Pause
 
@@ -1122,19 +1115,12 @@ status open
 
 \end_deeper
 \begin_layout Enumerate
-Choix des noms et valeurs de paramètres 
-\begin_inset Note Greyedout
-status open
-
-\begin_layout Plain Layout
+Choix des noms et valeurs de paramètres : 
+\color green
+\lang english
 Un bon nom vaut mieux que 3 pages de doc
 \end_layout
 
-\end_inset
-
-
-\end_layout
-
 \begin_deeper
 \begin_layout Pause
 
@@ -1142,17 +1128,10 @@ Un bon nom vaut mieux que 3 pages de doc
 
 \end_deeper
 \begin_layout Enumerate
-Valeur par défaut
-\begin_inset Note Greyedout
-status open
-
-\begin_layout Plain Layout
+Valeur par défaut : 
+\color green
+\lang english
 Fonctionne même avec un fichier vide
-\end_layout
-
-\end_inset
-
-
 \end_layout
 
 \begin_layout Pause
@@ -1164,21 +1143,13 @@ Mais, s'il le faut, le modèle peut spécifier:
 \end_layout
 
 \begin_layout Itemize
-comment remplacer une valeur
-\begin_inset Note Greyedout
-status open
-
-\begin_layout Plain Layout
-
+comment remplacer une valeur 
 \emph on
+\color green
+\lang english
 replace
 \end_layout
 
-\end_inset
-
-
-\end_layout
-
 \begin_deeper
 \begin_layout Pause
 
@@ -1186,21 +1157,13 @@ replace
 
 \end_deeper
 \begin_layout Itemize
-des paramètres obsolètes
-\begin_inset Note Greyedout
-status open
-
-\begin_layout Plain Layout
-
+des paramètres obsolètes 
 \emph on
+\color green
+\lang english
 status
 \end_layout
 
-\end_inset
-
-
-\end_layout
-
 \begin_deeper
 \begin_layout Pause
 
@@ -1208,21 +1171,17 @@ status
 
 \end_deeper
 \begin_layout Itemize
-comment migrer une valeur
-\begin_inset Note Greyedout
-status open
-
-\begin_layout Plain Layout
-
+comment migrer une valeur 
 \emph on
+\color green
+\lang english
 migrate
 \emph default
- avec une formule de calcul
-\end_layout
-
+ 
+\begin_inset space ~
 \end_inset
 
-
+avec une formule de calcul
 \end_layout
 
 \begin_layout Pause
@@ -1679,17 +1638,9 @@ pour les application avec plug-in
 \end_deeper
 \begin_layout Itemize
 Mécanisme à définir pour les applications qui injectent de la config dans
- un framework
-\begin_inset Note Greyedout
-status open
-
-\begin_layout Plain Layout
-Exemple: mercurial dans apache
-\end_layout
-
-\end_inset
-
-
+ un framework 
+\lang english
+(Exemple: mercurial viewer dans apache)
 \end_layout
 
 \end_deeper
@@ -1733,6 +1684,18 @@ http://search.cpan.org/dist/Config-Model/
 \end_inset
 
 
+\end_layout
+
+\begin_layout Itemize
+GNU/Linux Mag n°117 
+\begin_inset Quotes fld
+\end_inset
+
+
+\lang english
+Config::Model
+\lang french
+ - Créer un éditeur graphique de configuration avec Perl (1ère partie)»
 \end_layout
 
 \begin_layout Itemize
