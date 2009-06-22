@@ -3,11 +3,8 @@
 	* lib/Config/Model/Value.pm: use Log::Log4perl with categories
 	Tree::Element::Value and Tree::Element::Warper
 
-2009-06-01  Dominique Dumont  <domi.dumont@free.fr>
-
 	* lib/Config/Model/Value.pm: As suggested by Jonas Smedegaard,
-	replaced 'built_in' parameter by 'builtin_default' and 'default'
-	by 'configfile_default'.
+	replaced 'built_in' parameter by 'upstream_default'.
 
 2009-05-30  Dominique Dumont  <dominique.dumont@hp.com> v0.636
 

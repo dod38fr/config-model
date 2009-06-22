@@ -27,6 +27,7 @@ use warnings FATAL => qw/all/;
 use Config::Model::Exception ;
 use Data::Dumper ;
 use File::Path ;
+use IO::File ;
 use UNIVERSAL ;
 use Storable qw/dclone/ ;
 use Log::Log4perl qw(get_logger :levels);

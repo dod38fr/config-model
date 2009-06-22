@@ -66,7 +66,7 @@ $model ->create_config_class
 	    help         => { A => 'A help', E => 'E help' } ,
 	  },
 
-       choice_list_with_built_in
+       choice_list_with_upstream_default
        => { type          => 'check_list',
 	    choice        => ['A' .. 'Z'],
 	    built_in_list => [ 'A', 'D' ],
@@ -307,12 +307,12 @@ is_deeply( [$rtl -> get_choice ], [qw/X Y Z a b c d e/],
 	 ) ;
 
 # test check list with built_in default
-my $bicl = $root->fetch_element("choice_list_with_built_in") ;
-@got = $bicl->get_checked_list() ;
-is_deeply (\@got, [], "test default of choice_list_with_built_in") ;
+my $wud = $root->fetch_element("choice_list_with_upstream_default") ;
+@got = $wud->get_checked_list() ;
+is_deeply (\@got, [], "test default of choice_list_with_upstream_default") ;
 
-@got = $bicl->get_checked_list('built_in') ;
-is_deeply (\@got, [qw/A D/], "test built_in of choice_list_with_built_in") ;
+@got = $wud->get_checked_list('upstream_default') ;
+is_deeply (\@got, [qw/A D/], "test upstream_default of choice_list_with_upstream_default") ;
 
 ### test preset feature
 

@@ -487,11 +487,11 @@ is( $big_compute_obj->fetch,
     'reading slave->big_compute(b1)'
 );
 
-is( $rslave1->fetch_element('big_replace')->fetch('br1'),
+is( $rslave1->fetch_element('big_replace')->fetch(),
     'trad idx level1',
     'reading rslave1->big_replace(br1)');
 
-is( $rslave2->fetch_element('big_replace')->fetch('br1'),
+is( $rslave2->fetch_element('big_replace')->fetch(),
     'trad idx level2',
     'reading rslave2->big_replace(br1)');
 

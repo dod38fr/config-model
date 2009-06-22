@@ -91,7 +91,7 @@ CheckList object should not be created directly.
 
 my @introspect_params = qw/refer_to computed_refer_to/ ;
 
-my @accessible_params =  qw/default_list built_in_list choice ordered/ ;
+my @accessible_params =  qw/default_list upstream_default_list choice ordered/ ;
 my @allowed_warp_params = (@accessible_params, qw/level experience/);
 
 sub new {
@@ -302,13 +302,13 @@ sub set_properties {
 	$self->{default_data} = {} ;
     }
 
-    if (defined $args{built_in_list}) {
-	my $bi = $self->{built_in_list} = delete $args{built_in_list} ;
-	my %h = map { $_ => 1 } @{$self->{built_in_list}} ;
-	$self->{built_in_list} = \%h ;
+    if (defined $args{upstream_default_list}) {
+	$self->{upstream_default_list} = delete $args{upstream_default_list} ;
+	my %h = map { $_ => 1 } @{$self->{upstream_default_list}} ;
+	$self->{upstream_default_list} = \%h ;
     }
     else {
-	$self->{built_in_list} = {} ;
+	$self->{upstream_default_list} = {} ;
     }
 
     Config::Model::Exception::Model
@@ -554,7 +554,7 @@ Return 1 if the given C<choice> was set. Returns 0 otherwise.
 =cut
 
 my %accept_mode = map { ( $_ => 1) } 
-                      qw/custom standard preset default built_in/;
+                      qw/custom standard preset default upstream_default/;
 
 
 sub is_checked {
@@ -574,16 +574,16 @@ sub is_checked {
 	my $dat = $self->{data} ;
 	my $pre = $self->{preset} ;
 	my $def = $self->{default_data} ;
-	my $bi  = $self->{built_in_list} ;
+	my $ud  = $self->{upstream_default_list} ;
 	my $std_v = (defined $pre->{$choice} ? $pre->{$choice} : $def->{$choice}) || 0 ;
 
 	my $result 
-	  = $type eq 'custom'       ? ( $dat->{$choice} && ! $std_v ? 1 : 0 )
-          : $type eq 'preset'       ? $pre->{$choice}
-          : $type eq 'built_in'     ? $bi ->{$choice}
-          : $type eq 'standard'     ? $std_v
-          : defined $dat->{$choice} ?  $dat->{$choice}
-          :                            $std_v ;
+	  = $type eq 'custom'           ? ( $dat->{$choice} && ! $std_v ? 1 : 0 )
+          : $type eq 'preset'           ? $pre->{$choice}
+          : $type eq 'upstream_default' ? $ud ->{$choice}
+          : $type eq 'standard'         ? $std_v
+          : defined $dat->{$choice}     ? $dat->{$choice}
+          :                               $std_v ;
 
 	return $result ;
     }
@@ -634,9 +634,14 @@ sub get_default_choice {
     return @{$self->{default_choice} || [] } ;
 }
 
-sub get_built_in_choice {
+sub get_builtin_choice {
+    carp "get_builtin_choice is deprecated, use get_upstream_default_choice";
+    goto &get_upstream_default_choice ;
+}
+
+sub get_upstream_default_choice {
     my $self = shift ;
-    return @{$self->{built_in_data} || [] } ;
+    return @{$self->{upstream_default_data} || [] } ;
 }
 
 =head2 get_help (choice_value)
@@ -704,22 +709,33 @@ The list set in preset mode or checked by default.
 
 The default list (defined by the configuration model)
 
-=item built_in
+=item upstream_default
 
-The built in list (defined by the configuration model)
+The list implemented by upstream project (defined in the configuration
+model)
 
 =back
 
 =cut
 
+my %old_mode = ( built_in_list => 'upstream_default_list',
+	       );
+
 sub get_checked_list_as_hash {
     my $self = shift ;
-    my $type = shift || '';
+    my $mode = shift || '';
 
-    if ($type and not defined $accept_mode{$type}) {
+    foreach my $k (keys %old_mode) {
+	next unless $mode eq $k;
+	$mode = $old_mode{$k} ;
+	carp $self->location," warning: deprecated mode parameter: $k, ",
+	    "expected $mode\n";
+    }
+
+    if ($mode and not defined $accept_mode{$mode}) {
 	croak "get_checked_list_as_hash: expected ", 
 	    join (' or ',keys %accept_mode),
-		"parameter, not $type" ;
+		" parameter, not $mode" ;
     }
 
     # fill empty hash result missing data
@@ -728,15 +744,15 @@ sub get_checked_list_as_hash {
     my $dat = $self->{data} ;
     my $pre = $self->{preset} ;
     my $def = $self->{default_data} ;
-    my $bi  = $self->{built_in_list} ;
+    my $ud  = $self->{upstream_default_list} ;
 
     # copy hash and return it
     my %std = (%h, %$def, %$pre ) ;
     my %result 
-      = $type eq 'custom'   ? (%h, map { $dat->{$_} && ! $std{$_} ? ($_,1) : ()} keys %$dat )
-      : $type eq 'preset'   ? (%h, %$pre )
-      : $type eq 'built_in' ? %$bi
-      : $type eq 'standard' ? %std
+      = $mode eq 'custom'   ? (%h, map { $dat->{$_} && ! $std{$_} ? ($_,1) : ()} keys %$dat )
+      : $mode eq 'preset'   ? (%h, %$pre )
+      : $mode eq 'upstream_default' ? %$ud
+      : $mode eq 'standard' ? %std
       :                       (%std, %$dat );
 
     return wantarray ? %result : \%result;

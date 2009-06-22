@@ -752,8 +752,11 @@ sub translate_legacy_info {
     }
 
     if ( defined $info->{type} and ($info->{type} eq 'leaf')) {
-	$self->translate_legacy_default($config_class_name, $info, $info, );
 	$self->translate_legacy_builtin($config_class_name, $info, $info, );
+    }
+
+    if ( defined $info->{type} and ($info->{type} eq 'check_list')) {
+	$self->translate_legacy_built_in_list($config_class_name, $info, $info, );
     }
 
     print Data::Dumper->Dump([$info ] , ['translated_'.$elt_name ] ) ,"\n" if $::debug;
@@ -1080,29 +1083,10 @@ sub translate_rules_arg {
 	next unless (ref $rules[$idx] eq 'HASH') ; # other cases are illegal and trapped later
 	$self->translate_legacy_permission($config_class_name, $rules[$idx], $rules[$idx]);
 	next unless defined $type and $type eq 'leaf';
-	$self->translate_legacy_default($config_class_name, $rules[$idx], $rules[$idx]);
 	$self->translate_legacy_builtin($config_class_name, $rules[$idx], $rules[$idx]);
      }
 
     return \@rules ;
-}
-
-sub translate_legacy_default {
-    my ($self, $config_class_name, $model, $raw_model ) = @_  ;
-
-    my $raw_configfile_default = delete $raw_model -> {default} ;
-    return unless defined $raw_configfile_default ;
-
-    print Data::Dumper->Dump([$raw_model ] , ['configfile default to translate' ] ) ,"\n" 
-	if $::debug;
-
-    $self->legacy("$config_class_name: parameter 'default' is deprecated "
-                  ."in favor of 'configfile_default'");
-
-    $model -> {configfile_default} = $raw_configfile_default ;
-
-    print Data::Dumper->Dump([$model ] , ['translated_default' ] ) ,"\n" 
-	if $::debug;
 }
 
 sub translate_legacy_builtin {
@@ -1114,12 +1098,30 @@ sub translate_legacy_builtin {
     print Data::Dumper->Dump([$raw_model ] , ['builtin to translate' ] ) ,"\n" 
 	if $::debug;
 
-    $self->legacy("$config_class_name: parameter 'builtin' is deprecated "
-                  ."in favor of 'builtin_default'");
+    $self->legacy("$config_class_name: parameter 'built_in' is deprecated "
+                  ."in favor of 'upstream_default'");
 
-    $model -> {builtin_default} = $raw_builtin_default ;
+    $model -> {upstream_default} = $raw_builtin_default ;
 
     print Data::Dumper->Dump([$model ] , ['translated_builtin' ] ) ,"\n" 
+	if $::debug;
+}
+
+sub translate_legacy_built_in_list {
+    my ($self, $config_class_name, $model, $raw_model ) = @_  ;
+
+    my $raw_builtin_default = delete $raw_model -> {built_in_list} ;
+    return unless defined $raw_builtin_default ;
+
+    print Data::Dumper->Dump([$raw_model ] , ['built_in_list to translate' ] ) ,"\n" 
+	if $::debug;
+
+    $self->legacy("$config_class_name: parameter 'built_in_list' is deprecated "
+                  ."in favor of 'upstream_default_list'");
+
+    $model -> {upstream_default_list} = $raw_builtin_default ;
+
+    print Data::Dumper->Dump([$model ] , ['translated_built_in_list' ] ) ,"\n" 
 	if $::debug;
 }
 

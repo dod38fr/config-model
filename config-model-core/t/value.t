@@ -80,13 +80,13 @@ $model ->create_config_class
 				value_type => 'string',
 				convert    => 'lc',
 			      },
-		built_in_default => { type => 'leaf',
+		upstream_default => { type => 'leaf',
 				      value_type => 'string',
-				      built_in    => 'bi_def',
+				      built_in    => 'up_def',
 				    },
 		a_uniline  => { type => 'leaf',
 				value_type => 'uniline',
-				built_in    => 'bi_def',
+				built_in    => 'a_uniline_def',
 			      },
 		with_replace => {type => 'leaf',
 				 value_type => 'enum',
@@ -225,22 +225,22 @@ is( $de->value_type, 'enum',"enum: check value_type" );
 
 eq_array( $de->choice , [qw/A B C/],"enum: check choice"  );
 
-ok( $de->set_properties( configfile_default => 'B' ), "enum: warping default value" );
-is( $de->configfile_default(), 'B',"enum: check new default value" );
+ok( $de->set_properties( default => 'B' ), "enum: warping default value" );
+is( $de->default(), 'B',"enum: check new default value" );
 
-eval { $de->set_properties( configfile_default => 'F' ) } ;
+eval { $de->set_properties( default => 'F' ) } ;
 ok($@,"enum: warped default value to wrong value") ;
 print "normal error:\n", $@, "\n" if $trace;
 
 ok( $de->set_properties( choice => [qw/A B C D/] ),"enum: warping choice" );
 
-ok( $de->set_properties( choice => [qw/A B C D/], configfile_default => 'D' ), 
+ok( $de->set_properties( choice => [qw/A B C D/], default => 'D' ), 
     "enum: warping default value to new choice" );
 
-ok( $de->set_properties( choice => [qw/F G H/], configfile_default => undef ),
+ok( $de->set_properties( choice => [qw/F G H/], default => undef ),
   "enum: warping choice to completely different set");
 
-is( $de->configfile_default(), undef, "enum: check that new default value is undef" );
+is( $de->default(), undef, "enum: check that new default value is undef" );
 
 is( $de->fetch, undef, "enum: check that new current value is undef" );
 
@@ -272,20 +272,20 @@ is( $value_with_help->get_help('b'), undef ,"test undef help");
 
 is( $value_with_help->fetch, undef, "test undef enum") ;
 
-print "Testing built_in default value\n" if $trace ;
+print "Testing upstream default value\n" if $trace ;
 
-my $bi_def = $root->fetch_element('built_in_default');
+my $up_def = $root->fetch_element('upstream_default');
 
-is( $bi_def->fetch,                undef,    "built_in actual value" );
-is( $bi_def->fetch_standard,       'bi_def' ,"built_in standard value" );
-is( $bi_def->fetch('builtin_default'),    'bi_def' ,"built_in actual value" );
-is( $bi_def->fetch('non_builtin_default'),undef ,   "non_built_in value" );
+is( $up_def->fetch,                undef,    "upstream actual value" );
+is( $up_def->fetch_standard,       'up_def' ,"upstream standard value" );
+is( $up_def->fetch('upstream_default'),    'up_def' ,"upstream actual value" );
+is( $up_def->fetch('non_upstream_default'),undef ,   "non_upstream value" );
 
-$bi_def->store('yada');
-is( $bi_def->fetch('builtin_default'),    'bi_def' ,"after store: built_in actual value" );
-is( $bi_def->fetch('non_builtin_default'),'yada' ,  "after store: non_built_in value" );
-is( $bi_def->fetch,                'yada',   "after store: built_in actual value" );
-is( $bi_def->fetch('standard'),    'bi_def' ,"after store: built_in standard value" );
+$up_def->store('yada');
+is( $up_def->fetch('upstream_default'),    'up_def' ,"after store: upstream actual value" );
+is( $up_def->fetch('non_upstream_default'),'yada' ,  "after store: non_upstream value" );
+is( $up_def->fetch,                'yada',   "after store: upstream actual value" );
+is( $up_def->fetch('standard'),    'up_def' ,"after store: upstream standard value" );
 
 ###
 
@@ -335,5 +335,5 @@ is($p_enum->fetch,'C',"enum: read overridden preset value as value") ;
 is($p_enum->fetch('preset'),'B',"enum: read preset value as preset_value") ;
 is($p_enum->fetch_standard,'B',"enum: read preset value as standard_value") ;
 is($p_enum->fetch_custom,'C',"enum: read custom_value") ;
-is($p_enum->configfile_default,'A',"enum: read default_value") ;
+is($p_enum->default,'A',"enum: read default_value") ;
 
