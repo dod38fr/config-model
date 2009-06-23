@@ -4,7 +4,11 @@
 	Tree::Element::Value and Tree::Element::Warper
 
 	* lib/Config/Model/Value.pm: As suggested by Jonas Smedegaard,
-	replaced 'built_in' parameter by 'upstream_default'.
+	replaced 'built_in' parameter with 'upstream_default'. This change
+	will trigger warnings but no errors with existing model. To get
+	rid of the warnings, the easiest solution is to update the model
+	by running "config-model-edit -model Foo -save" (config-model-edit
+	is provided by Config::Model::Itself)
 
 2009-05-30  Dominique Dumont  <dominique.dumont@hp.com> v0.636
 
