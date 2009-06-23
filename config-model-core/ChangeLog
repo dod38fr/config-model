@@ -1,7 +1,4 @@
-2009-06-02  Dominique Dumont  <dominique.dumont@hp.com> v0.637
-
-	* lib/Config/Model/Value.pm: use Log::Log4perl with categories
-	Tree::Element::Value and Tree::Element::Warper
+2009-06-23  Dominique Dumont  <dominique.dumont@hp.com>  v0.637
 
 	* lib/Config/Model/Value.pm: As suggested by Jonas Smedegaard,
 	replaced 'built_in' parameter with 'upstream_default'. This change
@@ -9,6 +6,14 @@
 	rid of the warnings, the easiest solution is to update the model
 	by running "config-model-edit -model Foo -save" (config-model-edit
 	is provided by Config::Model::Itself)
+
+	* lib/Config/Model/CheckList.pm: replaced 'built_in_list'
+	parameter with 'upstream_default_list'. This change may also
+	trigger warnings. These warnings will also be fixed by running the
+	config-model-edit command described above.
+
+	* lib/Config/Model/Value.pm: use Log::Log4perl with categories
+	Tree::Element::Value and Tree::Element::Warper
 
 2009-05-30  Dominique Dumont  <dominique.dumont@hp.com> v0.636
 
