@@ -23,7 +23,7 @@
 
 use Module::Build;
 
-require 5.006 ;
+require 5.008 ;
 
 my $build = Module::Build->new
   (
@@ -32,7 +32,7 @@ my $build = Module::Build->new
    dist_abstract => "Tk GUI to edit config data through Config::Model",
    dist_author  => "Dominique Dumont (ddumont at cpan dot org)",
    requires => {
-		'Config::Model'    => '0.635',
+		'Config::Model'    => '0.637',
 		'Exception::Class' => 0,
 		'Tk'               => 0,
 		'Tk::DirSelect'    => 0,
