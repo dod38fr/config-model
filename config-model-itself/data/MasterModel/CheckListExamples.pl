@@ -23,10 +23,10 @@
 	    help => { A => 'A help', E => 'E help' } ,
 	  },
 
-       choice_list_with_built_in
+       choice_list_with_upstream_default_list
        => { type          => 'check_list',
 	    choice        => ['A' .. 'Z'],
-	    built_in_list => [ 'A', 'D' ],
+	    upstream_default_list => [ 'A', 'D' ],
 	    help          => { A => 'A help', E => 'E help' } ,
 	  },
 

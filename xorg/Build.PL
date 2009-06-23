@@ -73,7 +73,7 @@ my $build = Module::Build->new
    dist_author   => "Dominique Dumont (ddumont at cpan dot org)",
    dist_abstract => "Xorg configuration tool based on Config::Model",
    requires      => {
-		     'Config::Model'   => '0.633',
+		     'Config::Model'   => '0.637',
 		     'Log::Log4perl'   => 0 ,
 		    },
    recommends    => {

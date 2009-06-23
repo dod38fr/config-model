@@ -142,7 +142,7 @@
                                          'rules' => [
                                                       '$f1 eq \'8\'',
                                                       {
-                                                        'built_in' => 'PseudoColor',
+                                                        'upstream_default' => 'PseudoColor',
                                                         'choice' => [
                                                                       'StaticGray',
                                                                       'GrayScale',
@@ -154,14 +154,14 @@
                                                       },
                                                       '$f1 eq \'1\'',
                                                       {
-                                                        'built_in' => 'StaticGray',
+                                                        'upstream_default' => 'StaticGray',
                                                         'choice' => [
                                                                       'StaticGray'
                                                                     ]
                                                       },
                                                       '$f1 eq \'4\'',
                                                       {
-                                                        'built_in' => 'StaticColor',
+                                                        'upstream_default' => 'StaticColor',
                                                         'choice' => [
                                                                       'StaticGray',
                                                                       'GrayScale',
@@ -171,7 +171,7 @@
                                                       },
                                                       '$f1 eq \'24\'',
                                                       {
-                                                        'built_in' => 'TrueColor',
+                                                        'upstream_default' => 'TrueColor',
                                                         'choice' => [
                                                                       'TrueColor',
                                                                       'DirectColor'
@@ -179,7 +179,7 @@
                                                       },
                                                       '$f1 eq \'16\'',
                                                       {
-                                                        'built_in' => 'TrueColor',
+                                                        'upstream_default' => 'TrueColor',
                                                         'choice' => [
                                                                       'TrueColor',
                                                                       'DirectColor'
@@ -187,7 +187,7 @@
                                                       },
                                                       '$f1 eq \'15\'',
                                                       {
-                                                        'built_in' => 'TrueColor',
+                                                        'upstream_default' => 'TrueColor',
                                                         'choice' => [
                                                                       'TrueColor',
                                                                       'DirectColor'

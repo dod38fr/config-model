@@ -32,7 +32,7 @@
        => { type => 'leaf',
 
 	    value_type => 'boolean',
-	    built_in   => 0,
+	    upstream_default   => 0,
 	    level => 'normal',
 	    description => "Allow user to override computed value (ignored if no computation is used for this variable).",
 	 },

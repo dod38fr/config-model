@@ -5,7 +5,7 @@
                            'TwinView',
                            {
                              'value_type' => 'boolean',
-                             'built_in' => 0,
+                             'upstream_default' => 0,
                              'type' => 'leaf'
                            },
                            'MetaModes',

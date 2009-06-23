@@ -17,7 +17,7 @@
                            'HorizSync',
                            {
                              'value_type' => 'uniline',
-                             'built_in' => '28-33kHz',
+                             'upstream_default' => '28-33kHz',
                              'type' => 'leaf',
                              'description' => 'gives the range(s) of horizontal sync
               frequencies supported by the monitor.  horizsync-range
@@ -35,7 +35,7 @@
                            'VertRefresh',
                            {
                              'value_type' => 'uniline',
-                             'built_in' => '43-72Hz',
+                             'upstream_default' => '43-72Hz',
                              'type' => 'leaf',
                              'description' => 'gives the range(s) of vertical refresh
               frequencies supported by the monitor.  vertrefresh-range
@@ -130,7 +130,7 @@
                                                       }
                                                     ]
                                        },
-                             'built_in' => 1,
+                             'upstream_default' => 1,
                              'type' => 'leaf'
                            },
                            'red_gamma',
@@ -149,7 +149,7 @@
                                                       }
                                                     ]
                                        },
-                             'built_in' => 1,
+                             'upstream_default' => 1,
                              'type' => 'leaf'
                            },
                            'green_gamma',
@@ -168,7 +168,7 @@
                                                       }
                                                     ]
                                        },
-                             'built_in' => 1,
+                             'upstream_default' => 1,
                              'type' => 'leaf'
                            },
                            'blue_gamma',
@@ -187,7 +187,7 @@
                                                       }
                                                     ]
                                        },
-                             'built_in' => 1,
+                             'upstream_default' => 1,
                              'type' => 'leaf'
                            }
                          ]

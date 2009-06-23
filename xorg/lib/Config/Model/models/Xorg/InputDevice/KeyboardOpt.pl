@@ -5,14 +5,14 @@
                            'delay',
                            {
                              'value_type' => 'integer',
-                             'built_in' => '500',
+                             'upstream_default' => '500',
                              'type' => 'leaf',
                              'description' => 'time in milliseconds before a key starts repeating'
                            },
                            'rate',
                            {
                              'value_type' => 'integer',
-                             'built_in' => '30',
+                             'upstream_default' => '30',
                              'type' => 'leaf',
                              'description' => 'number of times a key repeats per second'
                            }
@@ -27,7 +27,7 @@
                            'Protocol',
                            {
                              'value_type' => 'enum',
-                             'built_in' => 'Standard',
+                             'upstream_default' => 'Standard',
                              'type' => 'leaf',
                              'description' => 'Specify the keyboard protocol. Not all protocols are supported on all platforms.',
                              'choice' => [
@@ -56,7 +56,7 @@
                            {
                              'value_type' => 'boolean',
                              'status' => 'deprecated',
-                             'built_in' => 0,
+                             'upstream_default' => 0,
                              'type' => 'leaf'
                            }
                          ]

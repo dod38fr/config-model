@@ -118,8 +118,8 @@ sub add_info {
 		 'type : '.$leaf->value_type.$choice_str,
 		);
 
-    if (defined $leaf->built_in) {
-	push @items, "built_in value: " . $leaf->built_in ;
+    if (defined $leaf->upstream_default) {
+	push @items, "upstream_default value: " . $leaf->upstream_default ;
     }
     elsif (defined $leaf->fetch('standard')) {
 	push @items, "default value: " . $leaf->fetch('standard') ;

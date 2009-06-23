@@ -53,7 +53,7 @@
        'use_eval'
        => { type => 'leaf',
 	    value_type => 'boolean',
-	    built_in   => 0,
+	    upstream_default   => 0,
 	    description => 'Set to 1 if you need to perform more complex operations than substition, like extraction with regular expressions. This will force an eval by Perl when computing the formula. The result of the eval will be used as the computed value.'
 	  },
 

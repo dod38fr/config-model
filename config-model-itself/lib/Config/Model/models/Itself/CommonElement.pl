@@ -35,7 +35,7 @@
 	   warp => { follow => '?type',
 		     'rules'
 		     => { 'leaf' => {
-				     built_in   => 0,
+				     upstream_default   => 0,
 				     level => 'normal',
 				    }
 			}
@@ -130,7 +130,7 @@
 		   }
 	 },
 
-      'built_in'
+      'upstream_default'
       => { type => 'leaf',
 	   level => 'hidden',
 	   value_type => 'uniline',
@@ -182,7 +182,7 @@
 		   },
 	 },
 
-      'built_in_list'
+      'upstream_default_list'
       => { type => 'check_list',
 	   level => 'hidden',
 	   refer_to => '- choice',

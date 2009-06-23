@@ -11,7 +11,7 @@
                            'SWcursor',
                            {
                              'value_type' => 'enum',
-                             'built_in' => 'off',
+                             'upstream_default' => 'off',
                              'type' => 'leaf',
                              'description' => 'Selects software cursor.',
                              'choice' => [
@@ -22,7 +22,7 @@
                            'NoAccel',
                            {
                              'value_type' => 'enum',
-                             'built_in' => 'on',
+                             'upstream_default' => 'on',
                              'type' => 'leaf',
                              'description' => 'Enables or disables all hardware acceleration.',
                              'choice' => [
@@ -33,7 +33,7 @@
                            'Dac6Bit',
                            {
                              'value_type' => 'enum',
-                             'built_in' => 'off',
+                             'upstream_default' => 'off',
                              'type' => 'leaf',
                              'description' => '
            Enables or disables the use of 6 bits per color component when in 8
@@ -47,7 +47,7 @@
                            'VideoKey',
                            {
                              'value_type' => 'uniline',
-                             'built_in' => '0x1E',
+                             'upstream_default' => '0x1E',
                              'type' => 'leaf',
                              'description' => 'This overrides the default pixel value for the YUV video overlay key.
               The default value is 0x1E.

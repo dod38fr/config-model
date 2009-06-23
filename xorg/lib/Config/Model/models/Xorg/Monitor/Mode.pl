@@ -30,7 +30,7 @@
                            'Interlace',
                            {
                              'value_type' => 'boolean',
-                             'built_in' => 0,
+                             'upstream_default' => 0,
                              'type' => 'leaf',
                              'description' => 'be used to specify composite sync on hardware
       where this is supported.'
@@ -38,7 +38,7 @@
                            'DoubleScan',
                            {
                              'value_type' => 'boolean',
-                             'built_in' => 0,
+                             'upstream_default' => 0,
                              'type' => 'leaf',
                              'description' => 'be used to specify composite sync on hardware
       where this is supported.'
@@ -46,7 +46,7 @@
                            'Composite',
                            {
                              'value_type' => 'boolean',
-                             'built_in' => 0,
+                             'upstream_default' => 0,
                              'type' => 'leaf',
                              'description' => 'be used to specify composite sync on hardware
       where this is supported.'

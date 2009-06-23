@@ -46,7 +46,7 @@ Important: It is used in addition to Option "AGPMask". That means, that you turn
                            'BackingStore',
                            {
                              'value_type' => 'enum',
-                             'built_in' => 'off',
+                             'upstream_default' => 'off',
                              'type' => 'leaf',
                              'description' => 'Enable or disable the "Backing store" mechanism. If this option is enabled, the X-server stores (parts of) the window content.',
                              'choice' => [
@@ -475,7 +475,7 @@ FireGL X1 and the VGA port on all other cards.'
                            'PseudoColorVisuals',
                            {
                              'value_type' => 'enum',
-                             'built_in' => 'off',
+                             'upstream_default' => 'off',
                              'type' => 'leaf',
                              'description' => 'Enabling this options allows the usage of pseudo color visuals at the same time with true color visuals using the overlay technique. The default is: "off".',
                              'choice' => [
@@ -576,7 +576,7 @@ FireGL X1 and the VGA port on all other cards.'
                            'TVOverscan',
                            {
                              'value_type' => 'enum',
-                             'built_in' => 'on',
+                             'upstream_default' => 'on',
                              'type' => 'leaf',
                              'description' => 'Enable or disable TV overscan. Available values are: on, off. The default is: "on". Note: Not all TV formats support overscan. Try to toggle overscan off before changing Option "TVFormat" if an error occurs.',
                              'choice' => [
@@ -655,7 +655,7 @@ FireGL X1 and the VGA port on all other cards.'
                some 10% slower and uses a less limited resource. Preferred for
                Wine(X), emulators and other VM manipulating programs.'
                                        },
-                             'built_in' => 'off',
+                             'upstream_default' => 'off',
                              'type' => 'leaf',
                              'description' => 'Use this option to set the method to maintain the so called Thread Local Storage (TLS) locations. The default is: "off".
 

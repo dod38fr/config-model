@@ -47,7 +47,7 @@ FIXME: use available Modes + vesa standard'
                            'Ignore',
                            {
                              'value_type' => 'enum',
-                             'built_in' => 'false',
+                             'upstream_default' => 'false',
                              'type' => 'leaf',
                              'description' => 'This optional entry specifies whether the monitor should be turned on at startup. By default, the server will attempt to enable all connected monitors. (RandR 1.2-supporting drivers only)',
                              'choice' => [

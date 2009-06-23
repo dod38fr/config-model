@@ -1,3 +1,9 @@
+2009-06-23  Dominique Dumont  <dominique.dumont@hp.com> v1.206 unreleased
+
+	* lib/Config/Model/models/**.pl: replaced deprecated built_in
+	parameter with upstream_default with 
+	"config-model-edit -model Ssh -save"
+
 2009-04-11  Dominique Dumont  <domi.dumont@free.fr> v1.205
 
 	* lib/Config/Model/OpenSsh.pm (read_ssh_file): fix bug that breaks

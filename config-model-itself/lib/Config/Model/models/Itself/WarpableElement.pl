@@ -142,7 +142,6 @@
    => [
        value_type => 'specify the type of a leaf element.',
        default => 'Specify default value. This default value will be written in the configuration data',
-       built_in => 'Another way to specify a default value. But this default value is considered as "built_in" the application and is not written in the configuration data (unless modified)',
        follow_keys_from => 'this hash will contain the same keys as the hash pointed by the path string',
        allow_keys_from =>'this hash will allow keys from the keys of the hash pointed by the path string', 
        ordered => 'keep track of the order of the elements of this hash',

@@ -26,7 +26,7 @@
                            'EnableSSHKeysign',
                            {
                              'value_type' => 'boolean',
-                             'built_in' => '0',
+                             'upstream_default' => '0',
                              'type' => 'leaf',
                              'description' => 'Setting this option to ``yes\'\' in the global client configuration file /etc/ssh/ssh_config enables the use of the helper program ssh-keysign(8) during HostbasedAuthentication.  See ssh-keysign(8)for more information.
 '

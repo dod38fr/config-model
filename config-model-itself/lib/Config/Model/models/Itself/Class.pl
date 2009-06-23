@@ -217,7 +217,7 @@
 	   level => 'hidden',
 	   warp => { follow => '- backend',
 		     rules => [ custom => { level => 'normal',
-					    built_in => 'read',
+					    upstream_default => 'read',
 					  }
 			      ],
 		   }
@@ -240,7 +240,7 @@
 	   type => 'leaf',
 	   value_type => 'boolean' ,
 	   level => 'normal',
-	   built_in => 0,
+	   upstream_default => 0,
 	   summary => 'Creates configuration files as needed',
 	   migrate_from => { formula => '$old' ,
 			     variables => { old => '- allow_empty' } ,
@@ -253,7 +253,7 @@
 	   value_type => 'boolean' ,
 	   level => 'normal',
 	   status => 'deprecated',
-	   built_in => 0,
+	   upstream_default => 0,
 	   summary => 'deprecated in favor of auto_create',
 	  },
 
@@ -273,7 +273,7 @@
 	   level => 'hidden',
 	   warp => { follow => '- backend',
 		     rules => [ custom => { level => 'normal',
-					    built_in => 'write',
+					    upstream_default => 'write',
 					  }
 			      ],
 		   }
@@ -296,7 +296,7 @@
 	   type => 'leaf',
 	   value_type => 'boolean' ,
 	   level => 'normal',
-	   built_in => 0,
+	   upstream_default => 0,
 	   summary => 'Creates configuration files as needed',
 	  },
 

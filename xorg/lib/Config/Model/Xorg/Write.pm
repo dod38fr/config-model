@@ -73,7 +73,7 @@ sub wr_module {
 
 sub wr_std_options {
     my ($scanner, $data_r ,$node,$element_name,$index, $leaf_object,$v) = @_ ;
-    my $b_in = $leaf_object->built_in ;
+    my $b_in = $leaf_object->upstream_default ;
     if ( defined $v && (   (not defined $b_in) 
 			|| (defined $b_in && $v && $v ne $b_in) )
        ) {

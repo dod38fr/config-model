@@ -32,7 +32,7 @@ Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 
 ok(1,"Compilation done");
 
-my $model = Config::Model -> new (legacy => 'ignore') ;
+my $model = Config::Model -> new () ;
 
 my $inst = $model->instance (root_class_name => 'Master',
                              model_file => 't/big_model.pm',

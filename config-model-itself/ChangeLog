@@ -1,4 +1,9 @@
-2009-05-30  Dominique Dumont  <dominique.dumont@hp.com> v1.211
+2009-06-23  Dominique Dumont  <dominique.dumont@hp.com> v1.211 unreleased
+
+	* lib/Config/Model/models/Itself/*.pl: Changed built_in parameter
+	to upstream_default and built_in_list to upstream_default_list
+
+2009-05-30  Dominique Dumont  <dominique.dumont@hp.com>
 
 	* config-model-edit: added -save option.
 

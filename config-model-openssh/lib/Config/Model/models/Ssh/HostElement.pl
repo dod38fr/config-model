@@ -5,7 +5,7 @@
                            'AddressFamily',
                            {
                              'value_type' => 'enum',
-                             'built_in' => 'any',
+                             'upstream_default' => 'any',
                              'experience' => 'advanced',
                              'type' => 'leaf',
                              'description' => 'Specifies which address family to use when connecting.',
@@ -18,7 +18,7 @@
                            'BatchMode',
                            {
                              'value_type' => 'boolean',
-                             'built_in' => '0',
+                             'upstream_default' => '0',
                              'type' => 'leaf',
                              'description' => "If set to \x{201c}yes\x{201d}, passphrase/password querying will be disabled. In addition, the ServerAliveInterval option will be set to 300 seconds by default. This option is useful in scripts and other batch jobs where no user is present to supply the password, and where it is desirable to detect a broken network swiftly. "
                            },
@@ -32,21 +32,21 @@
                            'ChallengeResponseAuthentication',
                            {
                              'value_type' => 'boolean',
-                             'built_in' => '1',
+                             'upstream_default' => '1',
                              'type' => 'leaf',
                              'description' => 'Specifies whether to use challenge-response authentication.'
                            },
                            'CheckHostIP',
                            {
                              'value_type' => 'boolean',
-                             'built_in' => '1',
+                             'upstream_default' => '1',
                              'type' => 'leaf',
                              'description' => 'If enabled, ssh(1) will additionally check the host IP address in the known_hosts file. This allows ssh to detect if a host key changed due to DNS spoofing. If disbled, the check will not be executed.'
                            },
                            'Cipher',
                            {
                              'value_type' => 'enum',
-                             'built_in' => '3des',
+                             'upstream_default' => '3des',
                              'experience' => 'advanced',
                              'type' => 'leaf',
                              'description' => 'Specifies the cipher to use for encrypting the session in protocol version 1. "des" is only supported in the ssh(1) client for interoperability with legacy protocol 1 implementations that do not support the 3des cipher. Its use is strongly discouraged due to cryptographic weaknesses.',
@@ -58,22 +58,22 @@
                            },
                            'Ciphers',
                            {
-                             'built_in_list' => [
-                                                  '3des-cbc',
-                                                  'aes128-cbc',
-                                                  'aes128-ctr',
-                                                  'aes192-cbc',
-                                                  'aes192-ctr',
-                                                  'aes256-cbc',
-                                                  'aes256-ctr',
-                                                  'arcfour',
-                                                  'arcfour128',
-                                                  'arcfour256',
-                                                  'blowfish-cbc',
-                                                  'cast128-cbc'
-                                                ],
                              'ordered' => '1',
                              'experience' => 'master',
+                             'upstream_default_list' => [
+                                                          '3des-cbc',
+                                                          'aes128-cbc',
+                                                          'aes128-ctr',
+                                                          'aes192-cbc',
+                                                          'aes192-ctr',
+                                                          'aes256-cbc',
+                                                          'aes256-ctr',
+                                                          'arcfour',
+                                                          'arcfour128',
+                                                          'arcfour256',
+                                                          'blowfish-cbc',
+                                                          'cast128-cbc'
+                                                        ],
                              'type' => 'check_list',
                              'description' => 'Specifies the ciphers allowed for protocol version 2 in order of preference. By default, all ciphers are allowed.',
                              'choice' => [
@@ -94,7 +94,7 @@
                            'ClearAllForwardings',
                            {
                              'value_type' => 'boolean',
-                             'built_in' => '0',
+                             'upstream_default' => '0',
                              'experience' => 'advanced',
                              'type' => 'leaf',
                              'description' => 'Specifies that all local, remote, and dynamic port forwardings specified in the configuration files or on the command line be cleared. This option is primarily useful when used from the ssh(1) command line to clear port forwardings set in configuration files, and is automatically set by scp(1) and sftp(1).'
@@ -102,18 +102,18 @@
                            'Compression',
                            {
                              'value_type' => 'boolean',
-                             'built_in' => '0',
+                             'upstream_default' => '0',
                              'type' => 'leaf',
                              'description' => 'Specifies whether to use compression.'
                            },
                            'CompressionLevel',
                            {
                              'min' => '1',
+                             'upstream_default' => '6',
                              'max' => '9',
                              'experience' => 'advanced',
                              'value_type' => 'integer',
                              'level' => 'hidden',
-                             'built_in' => '6',
                              'warp' => {
                                          'follow' => {
                                                        'compression' => '- Compression'
@@ -131,7 +131,7 @@
                            {
                              'value_type' => 'integer',
                              'min' => '1',
-                             'built_in' => '1',
+                             'upstream_default' => '1',
                              'experience' => 'advanced',
                              'type' => 'leaf',
                              'description' => 'Specifies the number of tries (one per second) to make before exiting. The argument must be an integer. This may be useful in scripts if the connection sometimes fails.'
@@ -147,7 +147,7 @@
                            'ControlMaster',
                            {
                              'value_type' => 'enum',
-                             'built_in' => 'no',
+                             'upstream_default' => 'no',
                              'experience' => 'master',
                              'type' => 'leaf',
                              'description' => 'Enables the sharing of multiple sessions over a single network connection. When set to ``yes\'\', ssh(1) will listen for connections on a control socket specified using the ControlPath argument. Additional sessions can connect to this socket using the same ControlPath with ControlMaster set to ``no\'\' (the default). These sessions will try to reuse the master instance\'s network connection rather than initiating new ones, but will fall back to connecting normally if the control socket does not exist, or is not listening.
@@ -192,7 +192,7 @@ Currently the SOCKS4 and SOCKS5 protocols are supported, and ssh(1) will act as 
                            'EscapeChar',
                            {
                              'value_type' => 'uniline',
-                             'built_in' => '~',
+                             'upstream_default' => '~',
                              'type' => 'leaf',
                              'description' => 'Sets the escape character (default: `~\'). The escape character can also be set on the command line.  The argument should be a single character, `^\' followed by a letter, or ``none\'\' to disable the escape character entirely (making the connection transparent for binary data).
 '
@@ -200,7 +200,7 @@ Currently the SOCKS4 and SOCKS5 protocols are supported, and ssh(1) will act as 
                            'ExitOnForwardFailure',
                            {
                              'value_type' => 'boolean',
-                             'built_in' => '0',
+                             'upstream_default' => '0',
                              'experience' => 'advanced',
                              'type' => 'leaf',
                              'description' => 'Specifies whether ssh(1) should terminate the connection if it cannot set up all requested dynamic, tunnel, local, and remote port forwardings.'
@@ -208,7 +208,7 @@ Currently the SOCKS4 and SOCKS5 protocols are supported, and ssh(1) will act as 
                            'ForwardAgent',
                            {
                              'value_type' => 'boolean',
-                             'built_in' => '0',
+                             'upstream_default' => '0',
                              'type' => 'leaf',
                              'description' => 'Specifies whether the connection to the authentication agent (if any) will be forwarded to the remote machine. 
 
@@ -218,7 +218,7 @@ Agent forwarding should be enabled with caution.  Users with the ability to bypa
                            'ForwardX11',
                            {
                              'value_type' => 'boolean',
-                             'built_in' => '0',
+                             'upstream_default' => '0',
                              'type' => 'leaf',
                              'description' => 'Specifies whether X11 connections will be automatically redirected over the secure channel and DISPLAY set.
 
@@ -228,7 +228,7 @@ X11 forwarding should be enabled with caution.  Users with the ability to bypass
                            'ForwardX11Trusted',
                            {
                              'value_type' => 'boolean',
-                             'built_in' => '0',
+                             'upstream_default' => '0',
                              'type' => 'leaf',
                              'description' => 'If this option is set, remote X11 clients will have full access to the original X11 display.
 
@@ -240,21 +240,21 @@ See the X11 SECURITY extension specification for full details on the restriction
                            'GatewayPorts',
                            {
                              'value_type' => 'boolean',
-                             'built_in' => '0',
+                             'upstream_default' => '0',
                              'type' => 'leaf',
                              'description' => 'Specifies whether remote hosts are allowed to connect to local forwarded ports. By default, ssh(1) binds local port forwardings to the loopback address. This prevents other remote hosts from connecting to forwarded ports. GatewayPorts can be used to specify that ssh should bind local port forwardings to the wildcard address, thus allowing remote hosts to connect to forwarded ports. '
                            },
                            'GlobalKnownHostsFile',
                            {
                              'value_type' => 'uniline',
-                             'built_in' => '/etc/ssh/ssh_known_hosts',
+                             'upstream_default' => '/etc/ssh/ssh_known_hosts',
                              'type' => 'leaf',
                              'description' => 'Specifies a file to use for the global host key database'
                            },
                            'GSSAPIAuthentication',
                            {
                              'value_type' => 'boolean',
-                             'built_in' => '0',
+                             'upstream_default' => '0',
                              'experience' => 'master',
                              'type' => 'leaf',
                              'description' => 'Specifies whether user authentication based on GSSAPI is allowed. Note that this option applies to protocol version 2 only.'
@@ -262,7 +262,7 @@ See the X11 SECURITY extension specification for full details on the restriction
                            'GSSAPIDelegateCredentials',
                            {
                              'value_type' => 'boolean',
-                             'built_in' => '0',
+                             'upstream_default' => '0',
                              'experience' => 'master',
                              'type' => 'leaf',
                              'description' => 'Forward (delegate) credentials to the server. Note that this option applies to protocol version 2 only.
@@ -271,7 +271,7 @@ See the X11 SECURITY extension specification for full details on the restriction
                            'HashKnownHosts',
                            {
                              'value_type' => 'boolean',
-                             'built_in' => '0',
+                             'upstream_default' => '0',
                              'experience' => 'advanced',
                              'type' => 'leaf',
                              'description' => 'Indicates that ssh(1) should hash host names and addresses when they are added to ~/.ssh/known_hosts. These hashed names may be used normally by ssh(1) and sshd(8), but they do not reveal identifying information should the file\'s contents be disclosed. Note that existing names and addresses in known hosts files will not be converted automatically, but may be manually hashed using ssh-keygen(1).
@@ -280,7 +280,7 @@ See the X11 SECURITY extension specification for full details on the restriction
                            'HostbasedAuthentication',
                            {
                              'value_type' => 'boolean',
-                             'built_in' => '0',
+                             'upstream_default' => '0',
                              'experience' => 'advanced',
                              'type' => 'leaf',
                              'description' => 'Specifies whether to try rhosts based authentication with public key authentication. This option applies to protocol version 2 only and is similar to RhostsRSAAuthentication.
@@ -288,12 +288,12 @@ See the X11 SECURITY extension specification for full details on the restriction
                            },
                            'HostKeyAlgorithms',
                            {
-                             'built_in_list' => [
-                                                  'ssh-rsa',
-                                                  'ssh-dss'
-                                                ],
                              'ordered' => '1',
                              'experience' => 'master',
+                             'upstream_default_list' => [
+                                                          'ssh-rsa',
+                                                          'ssh-dss'
+                                                        ],
                              'type' => 'check_list',
                              'description' => 'Specifies the protocol version 2 host key algorithms that the client wants to use in order of preference.',
                              'choice' => [
@@ -318,7 +318,7 @@ See the X11 SECURITY extension specification for full details on the restriction
                            'IdentitiesOnly',
                            {
                              'value_type' => 'boolean',
-                             'built_in' => '0',
+                             'upstream_default' => '0',
                              'experience' => 'advanced',
                              'type' => 'leaf',
                              'description' => 'Specifies that ssh(1) should only use the authentication identity files configured in the ssh_config files, even if ssh-agent(1) offers more identities. This option is intended for situations where ssh-agent offers many different identities.'
@@ -341,7 +341,7 @@ It is possible to have multiple identity files specified in con figuration files
                            'KbdInteractiveAuthentication',
                            {
                              'value_type' => 'boolean',
-                             'built_in' => '1',
+                             'upstream_default' => '1',
                              'type' => 'leaf',
                              'description' => 'Specifies whether to use keyboard-interactive authentication.
 '
@@ -366,7 +366,7 @@ It is possible to have multiple identity files specified in con figuration files
                            'LogLevel',
                            {
                              'value_type' => 'enum',
-                             'built_in' => 'INFO',
+                             'upstream_default' => 'INFO',
                              'type' => 'leaf',
                              'description' => 'Gives the verbosity level that is used when logging messages from ssh(1).  The possible values are: SILENT, QUIET, FATAL, ERROR, INFO, VERBOSE, DEBUG, DEBUG1, DEBUG2, and DEBUG3.  The default is INFO.  DEBUG and DEBUG1 are equivalent.  DEBUG2 and DEBUG3 each specify higher levels of verbose output.',
                              'choice' => [
@@ -384,16 +384,16 @@ It is possible to have multiple identity files specified in con figuration files
                            },
                            'MACs',
                            {
-                             'built_in_list' => [
-                                                  'hmac-md5',
-                                                  'hmac-sha1',
-                                                  'umac-64@openssh.com',
-                                                  'hmac-ripemd160',
-                                                  'hmac-sha1-96',
-                                                  'hmac-md5-96'
-                                                ],
                              'ordered' => '1',
                              'experience' => 'master',
+                             'upstream_default_list' => [
+                                                          'hmac-md5',
+                                                          'hmac-sha1',
+                                                          'umac-64@openssh.com',
+                                                          'hmac-ripemd160',
+                                                          'hmac-sha1-96',
+                                                          'hmac-md5-96'
+                                                        ],
                              'type' => 'check_list',
                              'description' => 'Specifies the MAC (message authentication code) algorithms in order of preference. The MAC algorithm is used in protocol version 2 for data integrity protection.',
                              'choice' => [
@@ -408,7 +408,7 @@ It is possible to have multiple identity files specified in con figuration files
                            'NoHostAuthenticationForLocalhost',
                            {
                              'value_type' => 'boolean',
-                             'built_in' => '0',
+                             'upstream_default' => '0',
                              'experience' => 'advanced',
                              'type' => 'leaf',
                              'description' => 'This option can be used if the home directory is shared across machines. In this case localhost will refer to a different machine on each of the machines and the user will get many warn ings about changed host keys. However, this option disables host authentication for localhost. The default is to check the host key for localhost.'
@@ -416,7 +416,7 @@ It is possible to have multiple identity files specified in con figuration files
                            'NumberOfPasswordPrompts',
                            {
                              'value_type' => 'integer',
-                             'built_in' => '3',
+                             'upstream_default' => '3',
                              'experience' => 'advanced',
                              'type' => 'leaf',
                              'description' => 'Specifies the number of password prompts before giving up.'
@@ -424,14 +424,14 @@ It is possible to have multiple identity files specified in con figuration files
                            'PasswordAuthentication',
                            {
                              'value_type' => 'boolean',
-                             'built_in' => '1',
+                             'upstream_default' => '1',
                              'type' => 'leaf',
                              'description' => 'Specifies whether to use password authentication.'
                            },
                            'PermitLocalCommand',
                            {
                              'value_type' => 'boolean',
-                             'built_in' => '0',
+                             'upstream_default' => '0',
                              'experience' => 'advanced',
                              'type' => 'leaf',
                              'description' => 'Allow local command execution via the LocalCommand option or using the !command escape sequence in ssh(1).'
@@ -446,22 +446,22 @@ It is possible to have multiple identity files specified in con figuration files
                            'Port',
                            {
                              'value_type' => 'integer',
-                             'built_in' => '22',
+                             'upstream_default' => '22',
                              'experience' => 'advanced',
                              'type' => 'leaf',
                              'description' => 'Specifies the port number to connect on the remote host.'
                            },
                            'PreferredAuthentications',
                            {
-                             'built_in_list' => [
-                                                  'gssapi-with-mic',
-                                                  'hostbased',
-                                                  'publickey',
-                                                  'keyboard-interactive',
-                                                  'password'
-                                                ],
                              'ordered' => '1',
                              'experience' => 'advanced',
+                             'upstream_default_list' => [
+                                                          'gssapi-with-mic',
+                                                          'hostbased',
+                                                          'publickey',
+                                                          'keyboard-interactive',
+                                                          'password'
+                                                        ],
                              'type' => 'check_list',
                              'description' => 'Specifies the order in which the client should try protocol 2 authentication methods.  This allows a client to prefer one method (e.g. keyboard-interactive) over another method (e.g. password).',
                              'choice' => [
@@ -474,11 +474,11 @@ It is possible to have multiple identity files specified in con figuration files
                            },
                            'Protocol',
                            {
-                             'built_in_list' => [
-                                                  '2',
-                                                  '1'
-                                                ],
                              'ordered' => '1',
+                             'upstream_default_list' => [
+                                                          '2',
+                                                          '1'
+                                                        ],
                              'type' => 'check_list',
                              'description' => 'Specifies the protocol versions ssh(1) should support in order of preference.  The default is "2,1".  This means that ssh tries version 2 and falls back to version 1 if version 2 is not available.',
                              'choice' => [
@@ -500,7 +500,7 @@ This directive is useful in conjunction with nc(1) and its proxy support. For ex
                            'PubkeyAuthentication',
                            {
                              'value_type' => 'boolean',
-                             'built_in' => '1',
+                             'upstream_default' => '1',
                              'experience' => 'advanced',
                              'type' => 'leaf',
                              'description' => 'Specifies whether to try public key authentication. This option applies to protocol version 2 only.'
@@ -523,14 +523,14 @@ If the bind_address is not specified, the default is to only bind to loopback ad
                            'RhostsRSAAuthentication',
                            {
                              'value_type' => 'boolean',
-                             'built_in' => '0',
+                             'upstream_default' => '0',
                              'type' => 'leaf',
                              'description' => 'Specifies whether to try rhosts based authentication with RSA host authentication. This option applies to protocol version 1 only and requires ssh(1) to be setuid root.'
                            },
                            'RSAAuthentication',
                            {
                              'value_type' => 'boolean',
-                             'built_in' => '1',
+                             'upstream_default' => '1',
                              'experience' => 'advanced',
                              'type' => 'leaf',
                              'description' => 'Specifies whether to try RSA authentication. RSA authentication will only be attempted if the identity file exists, or an authentication agent is running. Note that this option applies to protocol version 1 only.'
@@ -549,7 +549,7 @@ See PATTERNS in ssh_config(5) for more information on patterns.'
                            'ServerAliveCountMax',
                            {
                              'value_type' => 'integer',
-                             'built_in' => '3',
+                             'upstream_default' => '3',
                              'type' => 'leaf',
                              'description' => 'Sets the number of server alive messages (see below) which may be sent without ssh(1) receiving any messages back from the server. If this threshold is reached while server alive messages are being sent, ssh will disconnect from the server, terminating the session.  It is important to note that the use of server alive messages is very different from TCPKeepAlive.  The server alive messages are sent through the encrypted channel and there fore will not be spoofable. The TCP keepalive option enabled by TCPKeepAlive is spoofable. The server alive mechanism is valuable when the client or server depend on knowing when a connec tion has become inactive.
 
@@ -565,11 +565,11 @@ The default value is 3. If, for example, ServerAliveInterval is set to 15 and Se
                                          'rules' => [
                                                       '$batch_mode eq \'1\'',
                                                       {
-                                                        'built_in' => '300'
+                                                        'upstream_default' => '300'
                                                       }
                                                     ]
                                        },
-                             'built_in' => '0',
+                             'upstream_default' => '0',
                              'type' => 'leaf',
                              'description' => 'Sets a timeout interval in seconds after which if no data has been received from the server, ssh(1) will send a message through the encrypted channel to request a response from the server.  The default is 0, indicating that these messages will not be sent to the server, or 300 if the BatchMode option is set.  This option applies to protocol version 2 only.  ProtocolKeepAlives and SetupTimeOut are Debian-specific compatibility aliases for this option.'
                            },
@@ -583,7 +583,7 @@ The default value is 3. If, for example, ServerAliveInterval is set to 15 and Se
                            'StrictHostKeyChecking',
                            {
                              'value_type' => 'enum',
-                             'built_in' => 'ask',
+                             'upstream_default' => 'ask',
                              'type' => 'leaf',
                              'description' => 'If this flag is set to "yes", ssh(1) will never automatically add host keys to the ~/.ssh/known_hosts file, and refuses to connect to hosts whose host key has changed.  This provides maximum protection against trojan horse attacks, though it can be annoying when the /etc/ssh/ssh_known_hosts file is poorly maintained or when connections to new hosts are frequently made.  This option forces the user to manually add all new hosts.  If this flag is set to "no", ssh will automatically add new host keys to the user known hosts files.  If this flag is set to "ask", new host keys will be added to the user known host files only after the user has confirmed that is what they really want to do, and ssh will refuse to connect to hosts whose host key has changed.  The host keys of known hosts will be verified automatically in all cases. The argument must be "yes", "no", or "ask".  The default is "ask".',
                              'choice' => [
@@ -595,7 +595,7 @@ The default value is 3. If, for example, ServerAliveInterval is set to 15 and Se
                            'TCPKeepAlive',
                            {
                              'value_type' => 'boolean',
-                             'built_in' => '1',
+                             'upstream_default' => '1',
                              'type' => 'leaf',
                              'description' => 'Specifies whether the system should send TCP keepalive messages to the other side.  If they are sent, death of the connection or crash of one of the machines will be properly noticed.  This option only uses TCP keepalives (as opposed to using ssh level keepalives), so takes a long time to notice when the connection dies.  As such, you probably want the ServerAliveInterval option as well.  However, this means that connections will die if the route is down temporarily, and some people find it annoying. The default is "yes" (to send TCP keepalive messages), and the client will notice if the network goes down or the remote host dies.  This is important in scripts, and many users want it too.
 
@@ -604,7 +604,7 @@ To disable TCP keepalive messages, the value should be set to "no".'
                            'Tunnel',
                            {
                              'value_type' => 'enum',
-                             'built_in' => 'no',
+                             'upstream_default' => 'no',
                              'type' => 'leaf',
                              'description' => 'Request tun(4) device forwarding between the client and the server.  The argument must be "yes", "point-to-point" (layer 3), "ethernet" (layer 2), or "no".  Specifying "yes" requests the default tunnel mode, which is "point-to-point".  The default is "no".',
                              'choice' => [
@@ -617,7 +617,7 @@ To disable TCP keepalive messages, the value should be set to "no".'
                            'TunnelDevice',
                            {
                              'value_type' => 'uniline',
-                             'built_in' => 'any:any',
+                             'upstream_default' => 'any:any',
                              'experience' => 'advanced',
                              'type' => 'leaf',
                              'description' => 'Specifies the tun(4) devices to open on the client (local_tun) and the server (remote_tun).
@@ -627,7 +627,7 @@ To disable TCP keepalive messages, the value should be set to "no".'
                            'UseBlacklistedKeys',
                            {
                              'value_type' => 'boolean',
-                             'built_in' => '0',
+                             'upstream_default' => '0',
                              'experience' => 'advanced',
                              'type' => 'leaf',
                              'description' => 'Specifies whether ssh(1) should use keys recorded in its blacklist of known-compromised keys (see ssh-vulnkey(1)) for authentication.  If "yes", then attempts to use compromised keys for authentication will be logged but accepted.  It is strongly recommended that this be used only to install new authorized keys on the remote system, and even then only with the utmost care.  If "no", then attempts to use compromised keys for authentication will be prevented.  The default is "no".'
@@ -635,7 +635,7 @@ To disable TCP keepalive messages, the value should be set to "no".'
                            'UsePrivilegedPort',
                            {
                              'value_type' => 'boolean',
-                             'built_in' => '0',
+                             'upstream_default' => '0',
                              'experience' => 'advanced',
                              'type' => 'leaf',
                              'description' => 'Specifies whether to use a privileged port for outgoing connections.  The argument must be "yes" or "no".  The default is "no". If set to "yes", ssh(1) must be setuid root.  Note that this option must be set to "yes" for RhostsRSAAuthentication with older servers.'
@@ -655,7 +655,7 @@ To disable TCP keepalive messages, the value should be set to "no".'
                            'VerifyHostKeyDNS',
                            {
                              'value_type' => 'enum',
-                             'built_in' => 'no',
+                             'upstream_default' => 'no',
                              'experience' => 'advanced',
                              'type' => 'leaf',
                              'description' => 'Specifies whether to verify the remote key using DNS and SSHFP resource records.  If this option is set to "yes", the client will implicitly trust keys that match a secure fingerprint from DNS.  Insecure fingerprints will be handled as if this option was set to "ask".  If this option is set to "ask", information on fingerprint match will be displayed, but the user will still need to confirm new host keys according to the StrictHostKeyChecking option.  The argument must be "yes", "no", or "ask".  The default is "no".  Note that this option applies to protocol version 2 only. 
@@ -669,14 +669,14 @@ See also VERIFYING HOST KEYS in ssh(1).',
                            'VisualHostKey',
                            {
                              'value_type' => 'boolean',
-                             'built_in' => '0',
+                             'upstream_default' => '0',
                              'type' => 'leaf',
                              'description' => 'If this flag is set to "yes", an ASCII art representation of the remote host key fingerprint is printed additionally to the hex fingerprint string.  If this flag is set to "no", only the hex fingerprint string will be printed.  The default is "no".'
                            },
                            'XAuthLocation',
                            {
                              'value_type' => 'uniline',
-                             'built_in' => '/usr/X11R6/bin/xauth',
+                             'upstream_default' => '/usr/X11R6/bin/xauth',
                              'type' => 'leaf',
                              'description' => 'Specifies the full pathname of the xauth(1) program.  The default is /usr/bin/X11/xauth.'
                            }

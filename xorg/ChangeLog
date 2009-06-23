@@ -1,3 +1,12 @@
+2009-06-23  Dominique Dumont  <dominique.dumont@hp.com> 1.104 unreleased
+
+	* lib/Config/Model/models/**.pl: replaced deprecated built_in
+	parameter with upstream_default with 
+	"config-model-edit -model Xorg -save"
+
+	* lib/Config/Model/Xorg/Write.pm (wr_std_options): replaced
+	deprecated built_in method with upstream_default
+
 2009-03-19  Dominique Dumont  <dominique.dumont@hp.com> 1.103
 
 	* Build.PL: Fix generated parts of Xorg model: Removed default
