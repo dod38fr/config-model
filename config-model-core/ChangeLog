@@ -1,4 +1,4 @@
-2009-06-02  Dominique Dumont  <dominique.dumont@hp.com> v0.637 (unreleased)
+2009-06-02  Dominique Dumont  <dominique.dumont@hp.com> v0.637
 
 	* lib/Config/Model/Value.pm: use Log::Log4perl with categories
 	Tree::Element::Value and Tree::Element::Warper
