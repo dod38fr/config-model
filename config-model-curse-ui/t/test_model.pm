@@ -19,14 +19,13 @@
    name => 'SubSlave',
    element => [
 	       [qw/aa ab ac ad/] => 
-	       { type => 'leaf', value_type => 'string' },
+	       { type => 'leaf', value_type => 'uniline' },
 	       sub_slave => { type => 'node' ,
 			      config_class_name => 'SubSlave2',
 			    }
 	      ]
   ],
 
-# rather dummy class to check inclusion
   [
    name => 'X_base_class2',
    element => [
@@ -35,6 +34,7 @@
 		      choice     => [qw/Av Bv Cv/]
 		    },
 	      ],
+   class_description => 'rather dummy class to check include feature',
   ],
 
   [
@@ -57,6 +57,7 @@
 			   },
 	      ],
    include => 'X_base_class',
+   include_after => 'Z',
   ],
 
   [
@@ -65,12 +66,19 @@
 	       std_id => {
 			  type => 'hash',
 			  index_type  => 'string',
-			  cargo_type => 'node',
-			  config_class_name => 'SlaveZ' ,
+			  cargo => {
+				    type => 'node',
+				    config_class_name => 'SlaveZ'
+				   } ,
 			 },
 	       sub_slave => { type => 'node' ,
 			      config_class_name => 'SubSlave',
 			    },
+	       [qw/a_string a_long_string another_string/] 
+                        => { type => 'leaf',
+			     mandatory => 1 ,
+			     value_type => 'string'
+			   },
 	       warp2 => {
 			 type => 'warped_node',
 			 follow  => '! tree_macro',
@@ -86,19 +94,15 @@
 		      choice     => [qw/Av Bv Cv/]
 		    },
 	      ],
-   include =>  'X_base_class',
+   include => 'X_base_class',
   ],
 
 
   [
    name => 'Master',
-
-   read_config => { backend => 'cds_file', config_dir => 'data',
-		    allow_empty => 1},
-
-   permission => [ [qw/tree_macro warp/] => 'advanced'] ,
+   experience => [ [qw/tree_macro warp/] => 'advanced'] ,
    class_description => "Master description",
-   level      => [ [qw/hash_a tree_macro/] => 'important' ],
+   level      => [ [qw/hash_a tree_macro int_v/] => 'important' ],
    element => [
 	       a_string => { type => 'leaf',
 			     value_type => 'string'
@@ -129,30 +133,63 @@
 			  min        => 5,
 			  max        => 15
 			},
-	       int_v_built_in => { type => 'leaf',
-				   value_type => 'integer',
-				   built_in    => '5',
-				   min        => 5,
-				   max        => 15
-				 },
+	       int_v_upstream_default => { type => 'leaf',
+					   value_type => 'integer',
+					   upstream_default    => '5',
+					   min        => 5,
+					   max        => 15
+					 },
 	       std_id => { type => 'hash',
 			   index_type  => 'string',
-			   cargo_type => 'node',
-			   config_class_name => 'SlaveZ' ,
+			   cargo => { type => 'node',
+				      config_class_name => 'SlaveZ'
+				    } ,
 			 },
 	       [qw/lista listb/] => { type => 'list',
-				      cargo_type => 'leaf',
-				      cargo_args => {value_type => 'string'},
+				      cargo => { type => 'leaf',
+						 value_type => 'uniline'
+					       },
 				    },
 	       [qw/hash_a hash_b/] => { type => 'hash',
 			  index_type => 'string',
-			  cargo_type => 'leaf',
-			  cargo_args => {value_type => 'string'},
+			  cargo => { type => 'leaf',
+				     value_type => 'uniline'
+				   },
 			},
+	       ordered_hash => { type => 'hash',
+				 index_type => 'string',
+				 ordered => 1 ,
+				 cargo => { type => 'leaf',
+					    value_type => 'uniline'
+					  },
+			       },
+	       ordered_hash_of_mandatory => { type => 'hash',
+				 index_type => 'string',
+				 ordered => 1 ,
+				 cargo => { type => 'leaf',
+					    value_type => 'uniline',
+					    mandatory => 1,
+					  },
+			       },
+	       'ordered_hash_of_nodes'
+	       => { type => 'hash',
+		    index_type => 'string',
+		    ordered => 1 ,
+		    cargo => { type => 'node',
+			       config_class_name => 'SlaveZ'
+			     },
+		  },
 	       olist => { type => 'list',
-			  cargo_type => 'node',
-			  config_class_name => 'SlaveZ' ,
+			  cargo => { type => 'node',
+				     config_class_name => 'SlaveZ' ,
+				   },
 			},
+	       enum_list => { type => 'list',
+			      cargo => { type => 'leaf',
+					 value_type => 'enum',
+					 choice => [qw/A B C/],
+				       }
+			    },
 	       tree_macro => { type => 'leaf',
 			       value_type => 'enum',
 			       choice     => [qw/XY XZ mXY/],
@@ -161,30 +198,17 @@
 					 mXY => 'mXY help',
 				       }
 			     },
-	       'a_warped_node'
-	       => {
-		   type => 'warped_node',
-		   follow  => '! tree_macro',
-		   config_class_name   => 'SlaveY', 
-		   morph => 1 ,
-		   rules => [
-			     #XY => { config_class_name => 'SlaveY'},
-			     mXY => { config_class_name => 'SlaveY'},
-			     XZ  => { config_class_name => 'SlaveZ'}
-			    ]
-		  },
-
-	       'a_warped_out_node'
-	       => {
-		   type => 'warped_node',
-		   follow  => '! tree_macro',
-		   morph => 1 ,
-		   rules => [
-			     XY => { config_class_name => 'SlaveY'},
-			     mXY => { config_class_name => 'SlaveY'},
-			     XZ  => { config_class_name => 'SlaveZ'}
-			    ]
-		  },
+	       warp => {
+			type => 'warped_node',
+			follow  => '! tree_macro',
+			config_class_name   => 'SlaveY', 
+			morph => 1 ,
+			rules => [
+				  #XY => { config_class_name => 'SlaveY'},
+				  mXY => { config_class_name => 'SlaveY'},
+				  XZ  => { config_class_name => 'SlaveZ'}
+				 ]
+		       },
 
 	       'slave_y' => { type => 'node',
 			      config_class_name => 'SlaveY' ,

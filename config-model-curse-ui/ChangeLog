@@ -1,3 +1,11 @@
+2009-06-24  Dominique Dumont  <domi.dumont@free.fr> v1.103
+
+	* Build.PL: depends on Config::Model 0.637. Added build dependency
+	on Log::Log4perl
+
+	* lib/Config/Model/CursesUI.pm: changed built_in call to
+	upstream_default
+
 2009-01-05  Dominique Dumont  <dominique.dumont@hp.com> v1.102
 
 	* lib/Config/Model/CursesUI.pm (layout_string_value): use

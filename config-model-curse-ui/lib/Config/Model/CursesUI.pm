@@ -26,7 +26,7 @@ use Exception::Class
   ) ;
 
 use vars qw($VERSION) ;
-$VERSION = '1.102';
+$VERSION = '1.103';
 
 my @help_settings = qw/-bg green -fg black -border 1 
                        -titlereverse 0
@@ -1258,8 +1258,8 @@ sub value_info {
 		    '-x' => $x + 15, '-y' => $y++ ) ;
 
     my @items = ();
-    if (defined $leaf->built_in) {
-	push @items, "built_in value: " . $leaf->built_in ;
+    if (defined $leaf->upstream_default) {
+	push @items, "upstream_default value: " . $leaf->upstream_default ;
     }
     elsif (defined $leaf->fetch_standard) {
 	push @items, "default value: " . $leaf->fetch_standard ;
