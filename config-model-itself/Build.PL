@@ -35,9 +35,9 @@ my $build = Module::Build->new
    dist_author   => "Dominique Dumont (ddumont at cpan dot org)",
    dist_abstract => "Graphical model editor for Config::Model",
    requires      => {
-		     'Config::Model'   => '0.636',
+		     'Config::Model'   => '0.637',
 		     'Log::Log4perl'   => 0 ,
-		     'Config::Model::TkUI' => '1.209',
+		     'Config::Model::TkUI' => '1.210',
 		    },
    script_files  => [ 'config-model-edit' ],
    add_to_cleanup => [qw/wr_test/] ,

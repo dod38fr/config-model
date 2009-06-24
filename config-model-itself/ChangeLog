@@ -1,4 +1,8 @@
-2009-06-23  Dominique Dumont  <dominique.dumont@hp.com> v1.211 unreleased
+2009-06-24  Dominique Dumont  <domi.dumont@free.fr> v1.211
+
+	* Build.PL: depend on Config::Model 0.637 and C::M::TkUI 1.210
+
+2009-06-23  Dominique Dumont  <dominique.dumont@hp.com>
 
 	* lib/Config/Model/models/Itself/*.pl: Changed built_in parameter
 	to upstream_default and built_in_list to upstream_default_list
