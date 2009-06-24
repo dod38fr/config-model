@@ -1,8 +1,14 @@
-2009-06-23  Dominique Dumont  <dominique.dumont@hp.com> v1.206 unreleased
+2009-06-24  Dominique Dumont  <domi.dumont@free.fr> v1.206
 
-	* lib/Config/Model/models/**.pl: replaced deprecated built_in
-	parameter with upstream_default with 
-	"config-model-edit -model Ssh -save"
+	* Build.PL: added forgotten dependency on
+	Parse::RecDescent. Depends on Config::Model 0.637
+
+2009-06-23  Dominique Dumont  <dominique.dumont@hp.com>
+
+	* lib/Config/Model/models/**.pl: replaced deprecated 'built_in'
+	model parameter with 'upstream_default'. The trick is to run
+	"config-model-edit -model Ssh -save" (from Config::Model::Itself)
+	and that's it.
 
 2009-04-11  Dominique Dumont  <domi.dumont@free.fr> v1.205
 

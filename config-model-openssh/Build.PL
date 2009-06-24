@@ -33,12 +33,13 @@ my $build = Module::Build->new
    module_name   => 'Config::Model::OpenSsh',
    license       => 'lgpl',
    dist_author   => "Dominique Dumont (ddumont at cpan dot org)",
-   dist_abstract => "OpenSsh configuration files editor",
+   dist_abstract => "OpenSsh configuration files graphical editor",
    script_files   => [ qw/config-edit-ssh config-edit-sshd/ ],
    requires      => {
 		     perl              => '5.8.0',
 		     'Config::Model'   => '0.637',
 		     'Log::Log4perl'   => 0 ,
+		     'Parse::RecDescent' => 0,
 		    },
    recommends    => {
                      'Config::Model::CursesUI' => 0, # Curses interface
