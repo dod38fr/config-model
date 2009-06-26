@@ -1,4 +1,4 @@
-#LyX 1.6.2 created this file. For more info see http://www.lyx.org/
+#LyX 1.6.3 created this file. For more info see http://www.lyx.org/
 \lyxformat 345
 \begin_document
 \begin_header
@@ -1577,6 +1577,10 @@ JSON
 \end_layout
 
 \begin_layout Itemize
+YAML
+\end_layout
+
+\begin_layout Itemize
 XML
 \end_layout
 
@@ -1609,7 +1613,7 @@ Le projet
 \lang american
 Config::Model
 \lang french
- a besoin d'aide:
+ a besoin de votre aide:
 \end_layout
 
 \begin_layout Itemize
@@ -1627,7 +1631,7 @@ projet Debian pure-blend
 
 \end_deeper
 \begin_layout Itemize
-Mécanisme de plug-in pour les modèles
+Mécanisme de plug-in pour les modèles (pilotes Xorg)
 \end_layout
 
 \begin_deeper
@@ -1637,10 +1641,9 @@ pour les application avec plug-in
 
 \end_deeper
 \begin_layout Itemize
-Mécanisme à définir pour les applications qui injectent de la config dans
- un framework 
+Mécanisme à définir pour les injections de config 
 \lang english
-(Exemple: mercurial viewer dans apache)
+(mercurial viewer dans apache)
 \end_layout
 
 \end_deeper
@@ -1679,6 +1682,23 @@ status collapsed
 \begin_layout Plain Layout
 
 http://search.cpan.org/dist/Config-Model/
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Liste des utilisateurs de 
+\lang english
+Config::Model 
+\begin_inset Flex URL
+status open
+
+\begin_layout Plain Layout
+
+https://lists.sourceforge.net/lists/listinfo/config-model-users
 \end_layout
 
 \end_inset
