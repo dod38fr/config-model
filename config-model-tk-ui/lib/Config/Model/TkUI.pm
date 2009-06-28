@@ -382,6 +382,7 @@ sub save {
 
     my $dir = $cw->{save_dir} ;
     my $trace_dir = defined $dir ? $dir : 'default' ;
+    my @wb_args =  defined $dir ? (config_dir => $dir) : () ;
 
     $cw->check() ;
 
@@ -391,7 +392,7 @@ sub save {
     }
     else {
 	$logger->info( "Saving data in $trace_dir directory with instance write_back" );
-	$cw->{root}->instance->write_back($dir);
+	$cw->{root}->instance->write_back(@wb_args);
     }
     $cw->{modified_data} = 0 ;
 }

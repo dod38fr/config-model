@@ -1,3 +1,8 @@
+2009-06-28  Dominique Dumont  <domi@ylum.gre.hp.com>
+
+	* lib/Config/Model/TkUI.pm (save): don't pass undefined dir
+	parameter to avoid breaking write back function
+
 2009-06-23  Dominique Dumont  <dominique.dumont@hp.com> v1.210
 
 	* lib/Config/Model/Tk/LeafViewer.pm (add_info): use
