@@ -21,7 +21,7 @@
                            {
                              'value_type' => 'integer',
                              'summary' => 'maximum number of HTTP redirections',
-                             'built_in' => '5',
+                             'upstream_default' => '5',
                              'type' => 'leaf',
                              'description' => 'Specifies the maximum number of HTTP redirections that will be followed when downloading a remote file'
                            },
@@ -29,35 +29,35 @@
                            {
                              'value_type' => 'uniline',
                              'summary' => 'user that owns the files in the approx cache',
-                             'built_in' => 'approx',
+                             'upstream_default' => 'approx',
                              'type' => 'leaf'
                            },
                            'group',
                            {
                              'value_type' => 'uniline',
                              'summary' => 'group that owns the files in the approx cache',
-                             'built_in' => 'approx',
+                             'upstream_default' => 'approx',
                              'type' => 'leaf'
                            },
                            'syslog',
                            {
                              'value_type' => 'uniline',
                              'summary' => 'syslog(3) facility to use when logging',
-                             'built_in' => 'daemon',
+                             'upstream_default' => 'daemon',
                              'type' => 'leaf'
                            },
                            'pdiffs',
                            {
                              'value_type' => 'boolean',
                              'summary' => 'support IndexFile diffs',
-                             'built_in' => '1',
+                             'upstream_default' => '1',
                              'type' => 'leaf'
                            },
                            'offline',
                            {
                              'value_type' => 'boolean',
                              'summary' => 'use cached files when offline',
-                             'built_in' => '0',
+                             'upstream_default' => '0',
                              'type' => 'leaf',
                              'description' => 'Specifies whether to deliver (possibly out-of-date) cached files when they cannot be downloaded from remote repositories'
                            },
@@ -65,21 +65,21 @@
                            {
                              'value_type' => 'integer',
                              'summary' => 'max wait for concurrent file download',
-                             'built_in' => '10',
+                             'upstream_default' => '10',
                              'type' => 'leaf',
                              'description' => 'Specifies how many seconds an approx(8) process will wait for a concurrent download of a file to complete, before attempting to download the file itself'
                            },
                            'verbose',
                            {
                              'value_type' => 'boolean',
-                             'built_in' => '0',
+                             'upstream_default' => '0',
                              'type' => 'leaf',
                              'description' => 'Specifies whether informational messages should be printed in the log'
                            },
                            'debug',
                            {
                              'value_type' => 'boolean',
-                             'built_in' => '0',
+                             'upstream_default' => '0',
                              'type' => 'leaf',
                              'description' => 'Specifies whether debug messages should be printed in the log'
                            },
