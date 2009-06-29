@@ -218,7 +218,7 @@ is_deeply( [split /\n/,$cds], [split /\n/,$expect],
 my $tm = $root -> fetch_element('tree_macro') ;
 map { $tm->store($_);} qw/XY XZ mXY XY mXY XZ/;
 
-$cds = $root->dump_tree( full_dump => 1 );
+$cds = $root->dump_tree( full_dump => 1 ,skip_auto_write => 'cds_file');
 print "cds string:\n$cds" if $trace  ;
 
 like($cds,qr/hidden value/,"check that hidden value is shown (macro=XZ)") ;

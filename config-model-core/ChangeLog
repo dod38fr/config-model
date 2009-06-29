@@ -1,3 +1,9 @@
+2009-06-29  Dominique Dumont  <dominique.dumont@hp.com> v0.638 (unreleased)
+
+	* lib/Config/Model/WarpedNode.pm (is_auto_write_for_type): Added
+	new method that need to be forwarded to Node to avoid write
+	cds_file bug.
+
 2009-06-23  Dominique Dumont  <dominique.dumont@hp.com>  v0.637
 
 	* lib/Config/Model/Value.pm: As suggested by Jonas Smedegaard,

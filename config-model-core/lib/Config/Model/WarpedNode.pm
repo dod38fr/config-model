@@ -395,6 +395,11 @@ sub load_data {
 
 }
 
+sub is_auto_write_for_type {
+    my $self = shift ;
+    $self->get_actual_node->is_auto_write_for_type(@_) ;
+}
+
 1;
 
 __END__
