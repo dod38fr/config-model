@@ -22,7 +22,7 @@ my $trace = $arg =~ /t/ ? 1 : 0 ;
 $::verbose          = 1 if $arg =~ /v/;
 $::debug            = 1 if $arg =~ /d/;
 $log                = 1 if $arg =~ /l/;
-$show               = 1 if $arg =~ /s/;
+$show               = 1 if $arg =~ /s|i/;
 
 print "You can play with the widget if you run the test with 's' argument\n";
 
@@ -36,7 +36,9 @@ my $model = Config::Model -> new () ;
 
 my $inst = $model->instance (root_class_name => 'Master',
                              model_file => 't/big_model.pm',
-                             instance_name => 'test1');
+			     instance_name => 'test1',
+			     root_dir   => 'wr_data',
+			    );
 
 ok($inst,"created dummy instance") ;
 
@@ -72,6 +74,11 @@ warp warp2 aa2="foo bar"
 
 ok( $root->load( step => $step, permission => 'advanced' ),
   "set up data in tree");
+
+my $load_fix = "a_mandatory_string=foo1 another_mandatory_string=foo2 
+                ordered_hash_of_mandatory:foo=hashfoo 
+                warp a_string=warpfoo a_long_string=longfoo another_string=anotherfoo -
+                slave_y a_string=slave_y_foo a_long_string=sylongfoo another_string=sy_anotherfoo" ;
 
 #$root->load(step => "tree_macro=XZ", permission => 'advanced') ;
 
@@ -110,7 +117,6 @@ SKIP: {
 	 sub { $cmu->edit_copy('test1.std_id')},
 	 sub { $cmu->force_element_display($root->grab('hash_a:titi')) },
 	 sub { $cmu->edit_copy('test1.hash_a.titi')},
-
 	 #sub { $cmu->edit_paste('test1.hash_b')},
 	 #sub { $cmu->force_element_display($root->grab('hash_b:titi')) },
 	) ;
@@ -150,6 +156,11 @@ SKIP: {
 	 sub { $widget->Subwidget('notebook')->raise('order') ;},
 	 sub { $widget->{order_list}->selectionSet(1,1) ;}, # Z
 	 sub { $widget->move_selected_down ;},
+	 sub { $cmu->save()},
+	 sub {
+	     for ($cmu->children) { $_->destroy if $_->name =~ /dialog/i; } ;
+	     $root->load($load_fix);},
+	 sub { $cmu->save()},
 
 	 sub { exit; }
 	);

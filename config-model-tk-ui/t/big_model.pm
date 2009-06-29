@@ -102,6 +102,8 @@
    experience => [ [qw/tree_macro warp/] => 'advanced'] ,
    class_description => "Master description",
    level      => [ [qw/hash_a tree_macro int_v/] => 'important' ],
+   write_config  => [ { backend => 'cds_file' , config_dir => '/foo', auto_create => 1},
+		    ],
    element => [
 	       std_id => { type => 'hash',
 			   index_type  => 'string',
