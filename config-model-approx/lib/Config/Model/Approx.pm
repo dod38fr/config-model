@@ -68,8 +68,8 @@ sub write {
 
 	# write some documentation in comments
 	$ioh->print("# $elt:", $node->get_help(summary => $elt));
-	my $built_in = $node->fetch_element($elt) -> fetch('built_in') ;
-	$ioh->print(" ($built_in)") if defined $built_in;
+	my $upstream_default = $node->fetch_element($elt) -> fetch('upstream_default') ;
+	$ioh->print(" ($upstream_default)") if defined $upstream_default;
 	$ioh->print("\n") ;
 
 	# write value
