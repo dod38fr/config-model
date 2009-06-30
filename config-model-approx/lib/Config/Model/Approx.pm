@@ -1,17 +1,13 @@
-# $Author$
-# $Date$
-# $Revision$
-
 #    Copyright (c) 2009 Dominique Dumont.
 #
 #    This file is part of Config-Model-Approx.
 #
-#    Config-Approx is free software; you can redistribute it and/or
+#    Config-Model-Approx is free software; you can redistribute it and/or
 #    modify it under the terms of the GNU Lesser Public License as
 #    published by the Free Software Foundation; either version 2.1 of
 #    the License, or (at your option) any later version.
 #
-#    Config-Approx is distributed in the hope that it will be useful,
+#    Config-Model-Approx is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 #    Lesser Public License for more details.
@@ -61,14 +57,29 @@ sub write {
     my $node = $args{object} ;
     my $ioh  = $args{io_handle} ;
 
+    $ioh->print("# This file was written by Config::Model with Approx model\n");
+    $ioh->print("# You may modify the content of this file. Configuration \n");
+    $ioh->print("# modification will be preserved. Modification in the comments\n");
+    $ioh->print("# will be discarded\n\n");
+
     # Using Config::Model::ObjTreeScanner would be overkill
     foreach my $elt ($node->get_element_name) {
 	next if $elt eq 'distributions';
+
+	# write some documentation in comments
+	$ioh->print("# $elt:", $node->get_help(summary => $elt));
+	my $built_in = $node->fetch_element($elt) -> fetch('built_in') ;
+	$ioh->print(" ($built_in)") if defined $built_in;
+	$ioh->print("\n") ;
+
+	# write value
 	my $v = $node->grab_value($elt) ;
 	$ioh->printf("\$%-10s %s\n",$elt,$v) if defined $v ;
+	$ioh->print("\n") ;
     }
 
     my $h = $node->fetch_element('distributions') ;
+    $ioh->print("# ", $node->get_help(summary => 'distributions'),"\n");
     foreach my $dname ($h->get_all_indexes) {
 	$ioh->printf("%-10s %s\n",$dname,
 		     $node->grab_value("distributions:$dname")
