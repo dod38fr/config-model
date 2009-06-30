@@ -1,7 +1,8 @@
-2009-06-28  Dominique Dumont  <domi@ylum.gre.hp.com> v1.211 (unreleased)
+2009-06-28  Dominique Dumont  <domi@ylum.gre.hp.com> v1.211
 
 	* lib/Config/Model/TkUI.pm (save): don't pass undefined dir
-	parameter to avoid breaking write back function
+	parameter to avoid breaking write back function. (Fixes save
+	problem Config::Mode::OpenSsh 1.206)
 
 2009-06-23  Dominique Dumont  <dominique.dumont@hp.com> v1.210
 
