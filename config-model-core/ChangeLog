@@ -1,4 +1,4 @@
-2009-06-29  Dominique Dumont  <dominique.dumont@hp.com> v0.638 (unreleased)
+2009-06-29  Dominique Dumont  <dominique.dumont@hp.com> v0.638
 
 	* lib/Config/Model/WarpedNode.pm (is_auto_write_for_type): Added
 	new method that need to be forwarded to Node to avoid write
