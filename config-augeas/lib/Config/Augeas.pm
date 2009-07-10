@@ -22,7 +22,7 @@ use warnings;
 use Carp;
 use IO::File ;
 
-our $VERSION = '0.500';
+our $VERSION = '0.501';
 
 require XSLoader;
 XSLoader::load('Config::Augeas', $VERSION);

@@ -74,13 +74,13 @@ aug_defvar(aug, name, expr)
       const char* expr
 
  # returns an array ( return value, created ) 
-int
+void
 aug_defnode(aug, name, expr, value)
       Config_Augeas* aug
       const char* name
       const char* expr
       const char* value
-    INIT:
+    PREINIT:
       int created ;
       int ret ;
     PPCODE:
@@ -152,7 +152,7 @@ aug_match(aug, pattern);
 	       if (strlen(die_msg) + strlen(tmp_msg) < 1024 )
 	       	       strcat(die_msg,tmp_msg);
 	   }
-	   croak (die_msg);
+	   croak ("%s",die_msg);
         }
 
         // printf("match: Pattern %s matches %d times\n", pattern, cnt);
