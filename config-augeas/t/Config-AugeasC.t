@@ -51,9 +51,10 @@ my $aug_root = 'augeas-root/';
 sub cleanup {
     # cleanup before tests
     rmtree($aug_root);
-    mkpath($aug_root.'etc/ssh/', { mode => 0755 }) ;
-    copy($r_root.'etc/hosts',$aug_root.'etc/') ;
-    copy($r_root.'etc/ssh/sshd_config',$aug_root.'etc/ssh/') ;
+    mkpath($aug_root.'etc/ssh/', { mode => 0755 }) || die "Can't mkpath:$!" ;
+    copy($r_root.'etc/hosts',$aug_root.'etc/') || die "Can't copy etc/hosts:$!";
+    copy($r_root.'etc/ssh/sshd_config',$aug_root.'etc/ssh/') 
+      || die "Can't copy etc/ssh/sshd_config:$!" ;
 }
 
 # test augeas without backup file
