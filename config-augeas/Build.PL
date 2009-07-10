@@ -1,4 +1,4 @@
-#    Copyright (c) 2008 Dominique Dumont.
+#    Copyright (c) 2008-2009 Dominique Dumont.
 #
 #    This library is free software; you can redistribute it and/or
 #    modify it under the terms of the GNU Lesser Public License as
@@ -76,7 +76,7 @@ my $build = Module::Build->new
    dist_abstract => "Edit configuration files through Augeas C library",
 
    dynamic_config       => 1,
-   extra_compiler_flags => $aug_cflags,
+   extra_compiler_flags => $aug_cflags . ' -Wall -Wformat -Werror=format-security',
    extra_linker_flags   => $aug_libs,
 
    build_requires => {
