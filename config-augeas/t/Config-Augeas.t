@@ -26,6 +26,13 @@ copy($r_root.'etc/ssh/sshd_config',$aug_root.'etc/ssh/')
   || die "Can't copy etc/ssh/sshd_config:$!" ;
 
 
+# check that files were written
+foreach my $f (qw!hosts ssh/sshd_config!) {
+    my $testfile = $aug_root."etc/$f" ;
+    next if -r $testfile ;
+    die "Cannot test: file $testfile was not written";
+}
+
 my $written_file = $aug_root."etc/hosts.augnew" ;
 unlink ($written_file) if -e $written_file ;
 

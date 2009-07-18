@@ -55,6 +55,12 @@ sub cleanup {
     copy($r_root.'etc/hosts',$aug_root.'etc/') || die "Can't copy etc/hosts:$!";
     copy($r_root.'etc/ssh/sshd_config',$aug_root.'etc/ssh/') 
       || die "Can't copy etc/ssh/sshd_config:$!" ;
+
+    foreach my $f (qw!hosts ssh/sshd_config!) {
+	my $testfile = $aug_root."etc/$f" ;
+	next if -r $testfile ;
+	die "Cannot test: file $testfile was not written";
+    }
 }
 
 # test augeas without backup file
