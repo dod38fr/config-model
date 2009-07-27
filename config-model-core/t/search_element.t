@@ -52,88 +52,95 @@ my @data
       'Z',
       "std_id:foo",
       {
-       'Z' => {'next_step' => 'Z'},
-       'X' => {'next_step' => 'X'},
-       'DX' => {'next_step' => 'DX'}
+       'Z' => {'next_step' => { 'Z' => '' }},
+       'X' => {'next_step' => { 'X' => '' }},
+       'DX' => {'next_step' => { 'DX' => '' }}
       }
      ],
      [
       'ab2',
       'warp',
       {
-       'ab2' => {'next_step' => {'warp2' => {'next_class' => {'SubSlave2' => {'next_step' => 'ab2'}}}, 'sub_slave' => {'next_step' => {'sub_slave' => {'next_step' => 'ab2'}}}}},
-
-       'aa2' => {'next_step' => {'warp2' => {'next_class' => {'SubSlave2' => {'next_step' => 'aa2'}}}, 'sub_slave' => {'next_step' => {'sub_slave' => {'next_step' => 'aa2'}}}}}, 
-
-       'X' => {'next_step' => 'X'},
-       'ac' => {'next_step' => {'sub_slave' => {'next_step' => 'ac'}}},
-       'Y' => {'next_step' => 'Y'},
-       'DX' => {'next_step' => {'std_id' => {'next_step' => 'DX'}}},
-
-       'Z' => {'next_step' => {'warp2' => {'next_class' => {'SubSlave2' => {'next_step' => 'Z'}}}, 'std_id' => {'next_step' => 'Z'}, 'sub_slave' => {'next_step' => {'sub_slave' => {'next_step' => 'Z'}}}}},
-
-
-       'ab' => {'next_step' => {'sub_slave' => {'next_step' => 'ab'}}},
-
-         'ad2' => {'next_step' => {'warp2' => {'next_class' => {'SubSlave2' => {'next_step' => 'ad2'}}}, 'sub_slave' => {'next_step' => {'sub_slave' => {'next_step' => 'ad2'}}}}}, 
-
-       'ad' => {'next_step' => {'sub_slave' => {'next_step' => 'ad'}}},
-       'aa' => {'next_step' => {'sub_slave' => {'next_step' => 'aa'}}},
-       'ac2' => {'next_step' => {'warp2' => {'next_class' => {'SubSlave2' => {'next_step' => 'ac2'}}}, 'sub_slave' => {'next_step' => {'sub_slave' => {'next_step' => 'ac2'}}}}},
-
-
+       'ab2' => {'next_step' => {'warp2' => {'next_class' => {'SubSlave2' => {'next_step' => {'ab2' => ''}}}},
+				 'sub_slave' => {'next_step' => {'sub_slave' => {'next_step' => {'ab2' => ''}}}}}},
+       'aa2' => {'next_step' => {'warp2' => {'next_class' => {'SubSlave2' => {'next_step' => {'aa2' => ''}}}},
+				 'sub_slave' => {'next_step' => {'sub_slave' => {'next_step' => {'aa2' => ''}}}}}},
+       'X' => {'next_step' => {'X' => '', 'std_id' => {'next_step' => {'X' => ''}}}},
+       'ac' => {'next_step' => {'sub_slave' => {'next_step' => {'ac' => ''}}}},
+       'Y' => {'next_step' => {'Y' => ''}},
+       'DX' => {'next_step' => {'std_id' => {'next_step' => {'DX' => ''}}}},
+       'Z' => {'next_step' => {'warp2' => {'next_class' => {'SubSlave2' => {'next_step' => {'Z' => ''}}}},
+			       'std_id' => {'next_step' => {'Z' => ''}},
+			       'sub_slave' => {'next_step' => {'sub_slave' => {'next_step' => {'Z' => ''}}}}}},
+       'ab' => {'next_step' => {'sub_slave' => {'next_step' => {'ab' => ''}}}},
+       'ad2' => {'next_step' => {'warp2' => {'next_class' => {'SubSlave2' => {'next_step' => {'ad2' => ''}}}},
+				 'sub_slave' => {'next_step' => {'sub_slave' => {'next_step' => {'ad2' => ''}}}}}},
+       'ad' => {'next_step' => {'sub_slave' => {'next_step' => {'ad' => ''}}}},
+       'aa' => {'next_step' => {'sub_slave' => {'next_step' => {'aa' => ''}}}},
+       'ac2' => {'next_step' => {'warp2' => {'next_class' => {'SubSlave2' => {'next_step' => {'ac2' => ''}}}},
+				 'sub_slave' => {'next_step' => {'sub_slave' => {'next_step' => {'ac2' => ''}}}}}}
       }
      ], 
 
      ['Z', '!', 
       {
-       'string_with_def' => {'next_step' => 'string_with_def'},
-
-       'a_uniline' => {'next_step' => 'a_uniline'},
-
-       'aa2' => {'next_step' => {'slave_y' => {'next_step' => {'warp2' => {'next_class' => {'SubSlave2' => {'next_step' => 'aa2'}}}, 'sub_slave' => {'next_step' => {'sub_slave' => {'next_step' => 'aa2'}}}}}, 'warp' => {'next_class' => {'SlaveY' => {'next_step' => {'warp2' => {'next_class' => {'SubSlave2' => {'next_step' => 'aa2'}}}, 'sub_slave' => {'next_step' => {'sub_slave' => {'next_step' => 'aa2'}}}}}}}}},
-
-       'Y' => {'next_step' => {'slave_y' => {'next_step' => 'Y'}, 'warp' => {'next_class' => {'SlaveY' => {'next_step' => 'Y'}}}}},
-
-       'DX' => {'next_step' => {'slave_y' => {'next_step' => {'std_id' => {'next_step' => 'DX'}}}, 'olist' => {'next_step' => 'DX'}, 'warp' => {'next_class' => {'SlaveZ' => {'next_step' => 'DX'}, 'SlaveY' => {'next_step' => {'std_id' => {'next_step' => 'DX'}}}}}, 'std_id' => {'next_step' => 'DX'}}},
-
-       'Z' => {'next_step' => {'slave_y' => {'next_step' => {'warp2' => {'next_class' => {'SubSlave2' => {'next_step' => 'Z'}}}, 'std_id' => {'next_step' => 'Z'}, 'sub_slave' => {'next_step' => {'sub_slave' => {'next_step' => 'Z'}}}}}, 'olist' => {'next_step' => 'Z'}, 'warp' => {'next_class' => {'SlaveZ' => {'next_step' => 'Z'}, 'SlaveY' => {'next_step' => {'warp2' => {'next_class' => {'SubSlave2' => {'next_step' => 'Z'}}}, 'std_id' => {'next_step' => 'Z'}, 'sub_slave' => {'next_step' => {'sub_slave' => {'next_step' => 'Z'}}}}}}}, 'std_id' => {'next_step' => 'Z'}}},
-
-       'ad2' => {'next_step' => {'slave_y' => {'next_step' => {'warp2' => {'next_class' => {'SubSlave2' => {'next_step' => 'ad2'}}}, 'sub_slave' => {'next_step' => {'sub_slave' => {'next_step' => 'ad2'}}}}}, 'warp' => {'next_class' => {'SlaveY' => {'next_step' => {'warp2' => {'next_class' => {'SubSlave2' => {'next_step' => 'ad2'}}}, 'sub_slave' => {'next_step' => {'sub_slave' => {'next_step' => 'ad2'}}}}}}}}},
-
-       'tree_macro' => {'next_step' => 'tree_macro'},
-
-       'a_string' => {'next_step' => 'a_string'},
-
-       'ad' => {'next_step' => {'slave_y' => {'next_step' => {'sub_slave' => {'next_step' => 'ad'}}}, 'warp' => {'next_class' => {'SlaveY' => {'next_step' => {'sub_slave' => {'next_step' => 'ad'}}}}}}},
-
-       'aa' => {'next_step' => {'slave_y' => {'next_step' => {'sub_slave' => {'next_step' => 'aa'}}}, 'warp' => {'next_class' => {'SlaveY' => {'next_step' => {'sub_slave' => {'next_step' => 'aa'}}}}}}},
-
-       'ac2' => {'next_step' => {'slave_y' => {'next_step' => {'warp2' => {'next_class' => {'SubSlave2' => {'next_step' => 'ac2'}}}, 'sub_slave' => {'next_step' => {'sub_slave' => {'next_step' => 'ac2'}}}}}, 'warp' => {'next_class' => {'SlaveY' => {'next_step' => {'warp2' => {'next_class' => {'SubSlave2' => {'next_step' => 'ac2'}}}, 'sub_slave' => {'next_step' => {'sub_slave' => {'next_step' => 'ac2'}}}}}}}}},
-
-       'lista' => {'next_step' => 'lista'},
-
-       'hash_b' => {'next_step' => 'hash_b'},
-
-       'ordered_hash' => {'next_step' => 'ordered_hash'},
-
-       'ab2' => {'next_step' => {'slave_y' => {'next_step' => {'warp2' => {'next_class' => {'SubSlave2' => {'next_step' => 'ab2'}}}, 'sub_slave' => {'next_step' => {'sub_slave' => {'next_step' => 'ab2'}}}}}, 'warp' => {'next_class' => {'SlaveY' => {'next_step' => {'warp2' => {'next_class' => {'SubSlave2' => {'next_step' => 'ab2'}}}, 'sub_slave' => {'next_step' => {'sub_slave' => {'next_step' => 'ab2'}}}}}}}}},
-
-       'int_v' => {'next_step' => 'int_v'},
-
-       'listb' => {'next_step' => 'listb'},
-
-       'my_reference' => {'next_step' => 'my_reference'},
-
-       'X' => {'next_step' => {'slave_y' => {'next_step' => 'X' }, 'olist' => {'next_step' => 'X'}, 'warp' => {'next_class' => {'SlaveZ' => {'next_step' => 'X'}, 'SlaveY' => {'next_step' => 'X' }}}, 'std_id' => {'next_step' => 'X'}}},
-
-       'ac' => {'next_step' => {'slave_y' => {'next_step' => {'sub_slave' => {'next_step' => 'ac'}}}, 'warp' => {'next_class' => {'SlaveY' => {'next_step' => {'sub_slave' => {'next_step' => 'ac'}}}}}}},
-
-       'ab' => {'next_step' => {'slave_y' => {'next_step' => {'sub_slave' => {'next_step' => 'ab'}}}, 'warp' => {'next_class' => {'SlaveY' => {'next_step' => {'sub_slave' => {'next_step' => 'ab'}}}}}}},
-
-       'my_check_list' => {'next_step' => 'my_check_list'},
-      
-       'hash_a' => {'next_step' => 'hash_a'},
+       'string_with_def' => {'next_step' => {'string_with_def' => ''}},
+       'aa2' => {'next_step' => {'slave_y' => {'next_step' => {'warp2' => {'next_class' => {'SubSlave2' => {'next_step' => {'aa2' => ''}}}},
+							       'sub_slave' => {'next_step' => {'sub_slave' => {'next_step' => {'aa2' => ''}}}}}},
+				 'warp' => {'next_class' => {'SlaveY' => {'next_step' => {'warp2' => {'next_class' => {'SubSlave2' => {'next_step' => {'aa2' => ''}}}},
+											  'sub_slave' => {'next_step' => {'sub_slave' => {'next_step' => {'aa2' => ''}}}}}}}}}},
+       'Y' => {'next_step' => {'slave_y' => {'next_step' => {'Y' => ''}},
+			       'warp' => {'next_class' => {'SlaveY' => {'next_step' => {'Y' => ''}}}}}},
+       'DX' => {'next_step' => {'slave_y' => {'next_step' => {'std_id' => {'next_step' => {'DX' => ''}}}},
+				'olist' => {'next_step' => {'DX' => ''}},
+				'warp' => {'next_class' => {'SlaveZ' => {'next_step' => {'DX' => ''}},
+							    'SlaveY' => {'next_step' => {'std_id' => {'next_step' => {'DX' => ''}}}}}},
+				'std_id' => {'next_step' => {'DX' => ''}}}},
+       'Z' => {'next_step' => {'slave_y' => {'next_step' => {'warp2' => {'next_class' => {'SubSlave2' => {'next_step' => {'Z' => ''}}}},
+							     'std_id' => {'next_step' => {'Z' => ''}},
+							     'sub_slave' => {'next_step' => {'sub_slave' => {'next_step' => {'Z' => ''}}}}}},
+			       'olist' => {'next_step' => {'Z' => ''}},
+			       'warp' => {'next_class' => {'SlaveZ' => {'next_step' => {'Z' => ''}},
+							   'SlaveY' => {'next_step' => {'warp2' => {'next_class' => {'SubSlave2' => {'next_step' => {'Z' => ''}}}},
+											'std_id' => {'next_step' => {'Z' => ''}},
+											'sub_slave' => {'next_step' => {'sub_slave' => {'next_step' => {'Z' => ''}}}}}}}},
+			       'std_id' => {'next_step' => {'Z' => ''}}}},
+       'ad2' => {'next_step' => {'slave_y' => {'next_step' => {'warp2' => {'next_class' => {'SubSlave2' => {'next_step' => {'ad2' => ''}}}},
+							       'sub_slave' => {'next_step' => {'sub_slave' => {'next_step' => {'ad2' => ''}}}}}},
+				 'warp' => {'next_class' => {'SlaveY' => {'next_step' => {'warp2' => {'next_class' => {'SubSlave2' => {'next_step' => {'ad2' => ''}}}},
+											  'sub_slave' => {'next_step' => {'sub_slave' => {'next_step' => {'ad2' => ''}}}}}}}}}},
+       'tree_macro' => {'next_step' => {'tree_macro' => ''}},
+       'a_string' => {'next_step' => {'a_string' => ''}},
+       'ad' => {'next_step' => {'slave_y' => {'next_step' => {'sub_slave' => {'next_step' => {'ad' => ''}}}},
+				'warp' => {'next_class' => {'SlaveY' => {'next_step' => {'sub_slave' => {'next_step' => {'ad' => ''}}}}}}}},
+       'ordered_hash' => {'next_step' => {'ordered_hash' => ''}},
+       'aa' => {'next_step' => {'slave_y' => {'next_step' => {'sub_slave' => {'next_step' => {'aa' => ''}}}},
+				'warp' => {'next_class' => {'SlaveY' => {'next_step' => {'sub_slave' => {'next_step' => {'aa' => ''}}}}}}}},
+       'ac2' => {'next_step' => {'slave_y' => {'next_step' => {'warp2' => {'next_class' => {'SubSlave2' => {'next_step' => {'ac2' => ''}}}},
+							       'sub_slave' => {'next_step' => {'sub_slave' => {'next_step' => {'ac2' => ''}}}}}},
+				 'warp' => {'next_class' => {'SlaveY' => {'next_step' => {'warp2' => {'next_class' => {'SubSlave2' => {'next_step' => {'ac2' => ''}}}},
+											  'sub_slave' => {'next_step' => {'sub_slave' => {'next_step' => {'ac2' => ''}}}}}}}}}},
+       'lista' => {'next_step' => {'lista' => ''}},
+       'hash_b' => {'next_step' => {'hash_b' => ''}},
+       'ab2' => {'next_step' => {'slave_y' => {'next_step' => {'warp2' => {'next_class' => {'SubSlave2' => {'next_step' => {'ab2' => ''}}}},
+							       'sub_slave' => {'next_step' => {'sub_slave' => {'next_step' => {'ab2' => ''}}}}}},
+				 'warp' => {'next_class' => {'SlaveY' => {'next_step' => {'warp2' => {'next_class' => {'SubSlave2' => {'next_step' => {'ab2' => ''}}}},
+											  'sub_slave' => {'next_step' => {'sub_slave' => {'next_step' => {'ab2' => ''}}}}}}}}}},
+       'int_v' => {'next_step' => {'int_v' => ''}},
+       'listb' => {'next_step' => {'listb' => ''}},
+       'my_reference' => {'next_step' => {'my_reference' => ''}},
+       'X' => {'next_step' => {'slave_y' => {'next_step' => {'X' => '', 'std_id' => {'next_step' => {'X' => ''}}}},
+			       'olist' => {'next_step' => {'X' => ''}},
+			       'warp' => {'next_class' => {'SlaveZ' => {'next_step' => {'X' => ''}},
+							   'SlaveY' => {'next_step' => {'X' => '', 'std_id' => {'next_step' => {'X' => ''}}}}}},
+			       'std_id' => {'next_step' => {'X' => ''}}}},
+       'ac' => {'next_step' => {'slave_y' => {'next_step' => {'sub_slave' => {'next_step' => {'ac' => ''}}}},
+				'warp' => {'next_class' => {'SlaveY' => {'next_step' => {'sub_slave' => {'next_step' => {'ac' => ''}}}}}}}},
+       'a_uniline' => {'next_step' => {'a_uniline' => ''}},
+       'ab' => {'next_step' => {'slave_y' => {'next_step' => {'sub_slave' => {'next_step' => {'ab' => ''}}}},
+				'warp' => {'next_class' => {'SlaveY' => {'next_step' => {'sub_slave' => {'next_step' => {'ab' => ''}}}}}}}},
+       'my_check_list' => {'next_step' => {'my_check_list' => ''}},
+       'hash_a' => {'next_step' => {'hash_a' => ''}}
       }
      ]
     ) ;

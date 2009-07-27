@@ -2,7 +2,7 @@
 # $Date$
 # $Revision$
 
-#    Copyright (c) 2006-2007 Dominique Dumont.
+#    Copyright (c) 2006-2009 Dominique Dumont.
 #
 #    This file is part of Config-Model.
 #
@@ -21,6 +21,7 @@
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 
 package Config::Model::Searcher;
+use Log::Log4perl qw(get_logger :levels);
 use Carp;
 use strict;
 use warnings ;
@@ -29,6 +30,8 @@ use Config::Model::Exception ;
 
 use vars qw($VERSION);
 $VERSION = sprintf "1.%04d", q$Revision$ =~ /(\d+)/;
+
+my $logger = get_logger("Model::Searcher") ;
 
 =head1 NAME
 
@@ -71,7 +74,7 @@ configuration tree.
 
 For instance, suppose that you have a xorg.conf model and you know
 that you need to tune the C<MergedXinerama> parameter, but you don't
-remember where is this paramter in the configuration tree. This module
+remember where is this parameter in the configuration tree. This module
 will guide you through the tree to the(s) node(s) that contain this
 parameter.
 
@@ -136,9 +139,7 @@ sub _sniff_class {
     my $model =  $self->{model} ;
     my $c_model = $model->get_model($class) ;
 
-    print "sniffing config class $class\n" if $::debug ;
-
-    no strict 'refs' ;
+    $logger->debug("sniffing config class $class") ;
 
     croak "Recursive config class $class detected, aborting..."
       if defined $found_ref -> {$class} ;
@@ -172,9 +173,10 @@ sub _sniff_class {
 	    map { $h{$_}{next_step}{$element} = $tmp->{$_} ; } keys %$tmp ;
 	}
 	else {
-	    $h{$element}{next_step} = $element ;
+	    $h{$element}{next_step}{$element} = '' ;
 	}
     }
+    $logger->debug("done sniffing config class $class") ;
     return \%h ;
 }
 
@@ -300,7 +302,7 @@ sub next_step {
 	my $next_step = $self->{search_tree}{next_step} ;
 
 	@result =  ref     $next_step ? sort keys %$next_step 
-	        :  defined $next_step ? ($next_step)
+	        :  defined $next_step ? die "next_step error"
 		:                       ()                    ;
     }
 	#my $name = $self->{current}{element_name} ;
@@ -324,7 +326,7 @@ sub next_choice {
 
     while (1) {
 	$result = $self->next_step ;
-	print "next_choice: result is @$result\n" if $::debug ;
+	$logger->debug("next_choice: result is @$result") ;
 	return $result if  scalar @$result != 1 ;
 
 	$self->choose(@$result) ;
@@ -394,7 +396,7 @@ sub choose_from_node {
     my $next_node = $node->fetch_element($choice); 
 
     # $next is a scalar for leaf element of a ref for node element
-    if (ref($next)) {
+    if ($next->{$choice}) {
 	my $data = $next->{$choice} ;
 
 	# gobble next_class for warped_node element
