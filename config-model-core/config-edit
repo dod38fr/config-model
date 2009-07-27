@@ -369,6 +369,8 @@ elsif ($ui_type eq 'tk') {
 
     my $mw = MainWindow-> new ;
     $mw->withdraw ;
+    # Thanks to Jerome Quelin for the tip
+    $mw->optionAdd('*BorderWidth' => 1);
 
     my $cmu = $mw->ConfigModelUI (-root => $root, -experience => $experience) ;
 
@@ -448,9 +450,13 @@ Log4perl uses the following categories:
 
 =item Data::Write
 
+=item Model::Searcher
+
 =item Tree::Element::Value
 
 =item Tree::Element::Warper
+
+=item Tree::Element::Warped
 
 =back
 

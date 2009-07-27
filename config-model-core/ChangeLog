@@ -1,3 +1,14 @@
+2009-07-27  Dominique Dumont  <dominique.dumont@hp.com> v0.639 unreleased
+
+	* config-edit: Tk cosmetic improvement. Thanks to Jerome Quelin
+	for the suggestion
+
+	* lib/Config/Model/WarpedThing.pm (_do_warp): Use
+	Log4Perl. Improved error message
+
+	* lib/Config/Model/Searcher.pm (): replace prints with
+	Log4perl. Fixed data structure bug
+
 2009-06-29  Dominique Dumont  <dominique.dumont@hp.com> v0.638
 
 	* lib/Config/Model/WarpedNode.pm (is_auto_write_for_type): Added
