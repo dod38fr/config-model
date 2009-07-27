@@ -2,7 +2,7 @@
 # $Date$
 # $Revision$
 
-#    Copyright (c) 2005-2007 Dominique Dumont.
+#    Copyright (c) 2005-2009 Dominique Dumont.
 #
 #    This file is part of Config-Model.
 #
@@ -24,9 +24,9 @@ package Config::Model::WarpedThing ;
 use strict;
 use Scalar::Util qw(weaken) ;
 use Data::Dumper ;
-#use Storable qw(dclone) ;
 use Config::Model::ValueComputer ;
 use Config::Model::Exception ;
+use Log::Log4perl qw(get_logger :levels);
 use Carp;
 
 use warnings FATAL => qw(all);
@@ -35,6 +35,8 @@ use vars qw($VERSION) ;
 $VERSION = sprintf "1.%04d", q$Revision$ =~ /(\d+)/;
 
 use base qw/Config::Model::AnyThing/ ;
+
+my $logger = get_logger("Tree::Element::Warped") ;
 
 =head1 NAME
 
@@ -246,14 +248,13 @@ sub submit_to_warp {
 
     foreach my $warper_name (keys %$follow) {
 	my $warper_path = $follow -> {$warper_name} ;
-        print ref($self).' '.$self->name
-	  . " is warped by $warper_name => '$warper_path'\n"
-	    if $::debug;
-
 	my $warper = $self->get_warper_object($warper_path,1);
-        print "\t$warper_name ($warper_path) location in tree is: '",
-	  $warper->name,"'\n"
-	    if $::debug;
+
+        $logger->debug( ref($self),' ',$self->name,
+			" is warped by $warper_name => '$warper_path'\n,",
+			"\t$warper_name ($warper_path) location in tree is: '",
+			$warper->name,"'");
+
 
         # warp will register this value object in another value object
         # (the warper).  When the warper gets a new value, it will
@@ -278,16 +279,15 @@ sub submit_to_warp {
 	    # read the warp master values, so I can warp myself just
 	    # after.
 	    my $warper_value = $warper->fetch('allow_undef');
-	    print "\t'$warper_name' value is: '", 
-                  defined $warper_value ? $warper_value : '<undef>' ,"'\n"
-	      if $::debug;
+	    $logger->debug("\t'$warper_name' value is: '", 
+			   defined $warper_value ? $warper_value : '<undef>',
+			   "'");
 	     $value{$warper_name} = $warper_value ;
 	}
 	else {
 	    # consider that the warp master value is undef
 	    $value{$warper_name} = undef ;
-	    print "\t'$warper_name' is not available\n"
-	      if $::debug;
+	    $logger->debug("\t'$warper_name' is not available");
 	}
     }
 
@@ -343,9 +343,10 @@ sub warp {
 
     if (@_) {
         my ($value,$warp_name) = @_ ;
-        print "Warp called with value '", defined $value ? $value : '<undef>',
-	  "name $warp_name\n"
-	    if $::debug;
+        get_logger("Tree::Element::Warped")
+	  ->debug( "Warp called with value '", 
+		   defined $value ? $value : '<undef>',
+		   "'name $warp_name");
         $warp_value_set->{$warp_name} = $value ;
     }
 
@@ -366,10 +367,10 @@ sub warp {
 
     if ($same) {
 	no warnings "uninitialized" ;
-        print "Warp skipped because no change in value set ",
-	  "(old: '",join("' '", %old_value_set),"' new: '",
-	    join("' '",%$warp_value_set),"')\n"
-	      if $::debug;
+        get_logger("Tree::Element::Warped")
+	  ->debug("Warp skipped because no change in value set ",
+		  "(old: '",join("' '", %old_value_set),"' new: '",
+		  join("' '",%$warp_value_set),"')");
         return ;
     }
 
@@ -382,11 +383,11 @@ sub compute_bool {
     my $self = shift ;
     my $expr = shift ;
 
-    print "compute_bool: called for '$expr'\n" if $::debug ;
+    $logger ->debug("compute_bool: called for '$expr'") ;
 
     my $warp_value_set = $self->{warp_info}{value}   ;
-    print "compute_bool: data:\n", 
-      Data::Dumper->Dump([$warp_value_set],['data']),"\n" if $::debug ;
+    $logger ->debug("compute_bool: data:\n", 
+		    Data::Dumper->Dump([$warp_value_set],['data']));
 
     my @init_code ;
     foreach my $warper_name (keys %$warp_value_set) {
@@ -416,8 +417,7 @@ sub compute_bool {
 		     ) 
     }
 
-    print "compute_bool: eval result: ", ($ret ? 'true' : 'false'),
-      "\n" if $::debug ;
+    $logger->debug("compute_bool: eval result: ", ($ret ? 'true' : 'false'));
     return $ret ;
 }
 
@@ -430,29 +430,44 @@ sub _do_warp {
     # correct rule
 
     my $found_rule ;
+    my $found_bool ='' ; # this variable may be used later in error message
+
     foreach my $bool_expr (@$rules) {
 	next if ref($bool_expr) ; # it's a rule not a bool expr
 	my $res = $self -> compute_bool( $bool_expr );
 	next unless $res ;
+	$found_bool = $bool_expr ;
 	$found_rule = $self->{warp_info}{rule_hash}{$bool_expr} ;
-	print "_do_warp found rule for '$bool_expr':\n", 
-	  Data::Dumper->Dump ([$found_rule],['found_rule']),"\n"
-	  if $::debug ;
+	$logger->debug("_do_warp found rule for '$bool_expr':\n", 
+		       Data::Dumper->Dump ([$found_rule],['found_rule']));
 	last;
     }
 
-    if ($::verbose) {
+    if ($logger->is_info) {
         my @warp_str = map { defined $_ ? $_ : 'undef' } keys %$warp_value_set ;
 
-        print "warp called on '",$self->name,
-          "' with '",join("','",@warp_str),"', \n",
-            "\twarp rule is ", (defined $found_rule ? "" : 'not ') , "found\n";
+        $logger->info("warp called from '$found_bool' on '",$self->name,
+		      "' with elements '",join("','",@warp_str),
+		      "', warp rule is ", (defined $found_rule ? "" : 'not ') , 
+		      "found");
     }
 
-    print "warp_them: call set_properties on '",$self->name,"'\n" 
-      if $::debug;
+    $logger->debug("warp_them: call set_properties on '",$self->name,"'");
 
-    $self->set_properties(%$found_rule) ;
+    eval { $self->set_properties(%$found_rule) ; };
+
+    if ($@) {
+        my @warp_str = map { defined $_ ? $_ : 'undef' } keys %$warp_value_set ;
+	my $e = $@ ;
+	my $msg = $e ? $e->error : '' ;
+	Config::Model::Exception::Model
+	    -> throw (
+		      object => $self,
+		      error => "Warp failed when following '" . join("','",@warp_str)
+		             . "' from \"$found_bool\". Check model rules:\n\t"
+		             . $msg
+		     ) ;
+    }
 }
 
 sub get_master_object {
@@ -460,8 +475,8 @@ sub get_master_object {
 
     $grab_non_available = 0 unless defined $grab_non_available ;
 
-    print "Retrieving master object from '", $self->name, 
-      "' with path '$master_path'\n" if $::debug;
+    $logger->debug("Retrieving master object from '", $self->name, 
+		   "' with path '$master_path'");
 
     Config::Model::Exception::Internal
 	-> throw (
@@ -493,10 +508,9 @@ sub get_master_object {
 		  error => "Could not find master object with '$master_path'"
 		 ) unless defined $master ;
 
-    print "Found master object '",$master->name || '???' ,"' with ",
-      "'$master_path' ".
-        "from object '",$self->name , "'\n"
-	  if $::debug ;
+    $logger->debug( "Found master object '",$master->name || '???' ,
+		    "' with '$master_path' ".
+		    "from object '",$self->name , "'");
 
     return $master ;
 }
