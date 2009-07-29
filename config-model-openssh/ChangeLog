@@ -1,3 +1,11 @@
+2009-07-29  Dominique Dumont  <dominique.dumont@hp.com> v1.207
+
+	* t/ssh_config.t: When run as root, skip the tests that must be
+	run as regular user. (Fix Debian FTBS #502033)
+
+	* lib/Config/Model/models/Ssh/HostElement.pl: Fix model error:
+	ServerAliveInterval is an integer, not a boolean
+
 2009-06-24  Dominique Dumont  <domi.dumont@free.fr> v1.206
 
 	* Build.PL: added forgotten dependency on

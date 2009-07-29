@@ -557,7 +557,7 @@ The default value is 3. If, for example, ServerAliveInterval is set to 15 and Se
                            },
                            'ServerAliveInterval',
                            {
-                             'value_type' => 'boolean',
+                             'value_type' => 'integer',
                              'warp' => {
                                          'follow' => {
                                                        'batch_mode' => '?BatchMode'

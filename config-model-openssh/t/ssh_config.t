@@ -9,6 +9,7 @@ use Config::Model ;
 use Config::Model::OpenSsh ; # required for tests
 use Log::Log4perl qw(:easy) ;
 use File::Path ;
+use English;
 
 use warnings;
 #no warnings qw(once);
@@ -110,44 +111,49 @@ print $dump2 if $trace ;
 is_deeply([split /\n/,$dump2],[split /\n/,$dump],
 	  "check if both root_ssh dumps are identical") ;
 
-# now test reading user configuration file on top of root file
-&Config::Model::OpenSsh::_set_test_ssh_root_file(0);
+SKIP: {
+    skip "user tests when test is run as root", 8
+       unless $EUID > 0 ;
 
-my $user_inst = $model->instance (root_class_name   => 'Ssh',
-				  instance_name     => 'user_ssh_instance',
-				  root_dir          => $wr_dir,
-				 );
 
-ok($user_inst,"Read user .ssh/config and created instance") ;
+    # now test reading user configuration file on top of root file
+    &Config::Model::OpenSsh::_set_test_ssh_root_file(0);
 
-my $user_cfg = $user_inst -> config_root ;
+    my $user_inst = $model->instance (root_class_name   => 'Ssh',
+				      instance_name     => 'user_ssh_instance',
+				      root_dir          => $wr_dir,
+				     );
 
-$dump =  $user_cfg->dump_tree (mode => 'full' );
-print $dump if $trace ;
+    ok($user_inst,"Read user .ssh/config and created instance") ;
 
-like($dump,qr/Host:1/, "check Host section") ;
-like($dump,qr/patterns=foo\.\*,\*\.bar/,"check root Host pattern") ;
-like($dump,qr/patterns=mine.bar/,"check user Host pattern") ;
+    my $user_cfg = $user_inst -> config_root ;
 
-#require Tk::ObjScanner; Tk::ObjScanner::scan_object($user_cfg) ;
-$user_inst->write_back() ;
-my $joe_file = $wr_dir.$joe_home.'/.ssh/config' ;
-ok(1,"wrote user .ssh/config data in $joe_file") ;
+    $dump =  $user_cfg->dump_tree (mode => 'full' );
+    print $dump if $trace ;
 
-ok(-e $joe_file,"Found $joe_file") ;
+    like($dump,qr/Host:1/, "check Host section") ;
+    like($dump,qr/patterns=foo\.\*,\*\.bar/,"check root Host pattern") ;
+    like($dump,qr/patterns=mine.bar/,"check user Host pattern") ;
 
-# compare original and written file
-my @joe_orig    = read_user_ssh($wr_dir.$joe_home.'/.ssh/config') ;
-my @joe_written = read_user_ssh($joe_file) ;
-is_deeply(\@joe_written,\@joe_orig,"check user .ssh/config files") ;
+    #require Tk::ObjScanner; Tk::ObjScanner::scan_object($user_cfg) ;
+    $user_inst->write_back() ;
+    my $joe_file = $wr_dir.$joe_home.'/.ssh/config' ;
+    ok(1,"wrote user .ssh/config data in $joe_file") ;
 
-# write some data
-$user_cfg->load('EnableSSHKeysign=1') ;
-$user_inst->write_back() ;
-unshift @joe_orig,'EnableSSHKeysign yes';
-@joe_written = read_user_ssh($joe_file) ;
-is_deeply(\@joe_written,\@joe_orig,"check user .ssh/config files after modif") ;
+    ok(-e $joe_file,"Found $joe_file") ;
 
+    # compare original and written file
+    my @joe_orig    = read_user_ssh($wr_dir.$joe_home.'/.ssh/config') ;
+    my @joe_written = read_user_ssh($joe_file) ;
+    is_deeply(\@joe_written,\@joe_orig,"check user .ssh/config files") ;
+
+    # write some data
+    $user_cfg->load('EnableSSHKeysign=1') ;
+    $user_inst->write_back() ;
+    unshift @joe_orig,'EnableSSHKeysign yes';
+    @joe_written = read_user_ssh($joe_file) ;
+    is_deeply(\@joe_written,\@joe_orig,"check user .ssh/config files after modif") ;
+}
 
 __END__
 
