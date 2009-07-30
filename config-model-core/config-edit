@@ -458,6 +458,8 @@ Log4perl uses the following categories:
 
 =item Tree::Element::Warped
 
+=item Wizard::Helper
+
 =back
 
 More categories will come.

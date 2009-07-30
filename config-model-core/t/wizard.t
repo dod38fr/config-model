@@ -4,8 +4,9 @@
 # $Revision$
 
 use ExtUtils::testlib;
-use Test::More tests => 14;
+use Test::More tests => 20;
 use Config::Model;
+use Log::Log4perl qw(get_logger :levels) ;
 
 use warnings;
 no warnings qw(once);
@@ -22,12 +23,18 @@ $model = Config::Model -> new (legacy => 'ignore',) ;
 my $arg = shift || '';
 
 my $trace = $arg =~ /t/ ? 1 : 0 ;
+my $log   = $arg =~ /l/ ? 1 : 0 ;
 $::verbose          = 1 if $arg =~ /v/;
 $::debug            = 1 if $arg =~ /d/;
 Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 
-use Log::Log4perl qw(:easy) ;
-Log::Log4perl->easy_init($arg =~ /l/ ? $TRACE: $WARN);
+my $log4perl_user_conf_file = $ENV{HOME}.'/.log4config-model' ;
+if (-r $log4perl_user_conf_file) {
+    Log::Log4perl::init($log4perl_user_conf_file);
+}
+else {
+    Log::Log4perl->easy_init($log ? $TRACE: $WARN);
+}
 
 ok(1,"compiled");
 
@@ -40,17 +47,46 @@ my $root = $inst -> config_root ;
 
 Config::Model::Exception::Any->Trace(1) if $trace =~ /e/;
 
+
+my $step = qq!
+std_id:ab X=Bv -
+std_id:ab2 -
+std_id:bc X=Av -
+std_id:"a b" X=Av -
+std_id:"a b.c" X=Av -
+tree_macro=mXY
+hash_a:toto=toto_value
+hash_a:titi=titi_value
+hash_a:"ti ti"="ti ti value"
+ordered_hash:z=1
+ordered_hash:y=2
+ordered_hash:x=3
+lista=a,b,c,d
+olist:0 X=Av -
+olist:1 X=Bv -
+my_reference="titi"
+warp warp2 aa2="foo bar"
+!;
+
+ok( $root->load( step => $step, permission => 'advanced' ),
+  "set up data in tree");
+
 my @expected = (
-		[ ''    , 'Master hash_a id'],
-		[ ''    , 'Master tree_macro' ],
-		[ ''    , 'Master a_string' ] ,
-		[ 'back', 'Master int_v' ] ,
-		[ ''    , 'Master a_string' ] ,
-		[ ''    , 'Master tree_macro' ],
-		[ 'for' , 'Master hash_a id'],
-		[ ''    , 'Master tree_macro' ],
-		[ ''    , 'Master a_string' ] ,
-		[ ''    , 'Master int_v' ] ,
+		[ ''    , 'hash_a'],
+		[ ''    , 'hash_a:"ti ti"'],
+		[ ''    , 'hash_a:titi'],
+		[ ''    , 'hash_a:toto'],
+		[ ''    , 'tree_macro' ],
+		[ ''    , 'a_string' ] ,
+		[ 'back', 'int_v' ] ,
+		[ ''    , 'a_string' ] ,
+		[ ''    , 'tree_macro' ],
+		[ ''    , 'hash_a:toto'],
+		[ 'for' , 'hash_a:titi'],
+		[ ''    , 'hash_a:toto'],
+		[ ''    , 'tree_macro' ],
+		[ ''    , 'a_string' ] ,
+		[ ''    , 'int_v' ] ,
 	       ) ;
 
 my $steer = sub {
@@ -63,27 +99,27 @@ my $steer = sub {
 
 my $leaf_element_cb = sub {
     my ($wiz, $data_r,$node,$element,$index, $leaf_object) = @_ ;
-    print "test: leaf_element_cb called for ",$leaf_object->name,"\n" 
-      if $::trace ;
+    print "test: leaf_element_cb called for ",$leaf_object->location,"\n" 
+      if $trace ;
     my $expect = $steer->($wiz,shift @expected) ;
-    is( $leaf_object->name, $expect, "leaf_element_cb got $expect" ) ;
+    is( $leaf_object->location, $expect, "leaf_element_cb got $expect" ) ;
 };
 
 my $int_cb = sub {
     my ($wiz, $data_r,$node,$element,$index, $leaf_object) = @_ ;
-    print "test: int_cb called for ",$leaf_object->name,"\n" 
-      if $::trace ;
+    print "test: int_cb called for ",$leaf_object->location,"\n" 
+      if $trace ;
     my $expect = $steer->($wiz,shift @expected) ;
-    is( $leaf_object->name, $expect, "int_cb got $expect" ) ;
+    is( $leaf_object->location, $expect, "int_cb got $expect" ) ;
 };
 
 my $hash_element_cb = sub {
     my ($wiz, $data_r,$node,$element,@keys) = @_ ;
-    print "test: hash_element_cb called for ",$node->name," element $element\n" 
-      if $::trace ;
+    print "test: hash_element_cb called for ",$node->location," element $element\n" 
+      if $trace ;
     my $obj = $node->fetch_element($element) ;
     my $expect = $steer->($wiz,shift @expected) ;
-    is( $obj->name, $expect, "hash_element_cb got $expect" ) ;
+    is( $obj->location, $expect, "hash_element_cb got $expect" ) ;
 };
 
 my $wizard = $inst->wizard_helper(leaf_cb          => $leaf_element_cb, 

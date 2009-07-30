@@ -2,7 +2,7 @@
 # $Date$
 # $Revision$
 
-#    Copyright (c) 2006-2007 Dominique Dumont.
+#    Copyright (c) 2006-2009 Dominique Dumont.
 #
 #    This file is part of Config-Model.
 #
@@ -25,6 +25,7 @@ use Carp;
 use strict;
 use warnings ;
 use Config::Model::ObjTreeScanner ;
+use Log::Log4perl qw(get_logger :levels);
 
 use Config::Model::Exception ;
 
@@ -126,6 +127,7 @@ C<list_element_cb>
 
 =cut
 
+my $logger = get_logger("Wizard::Helper") ;
 
 sub new {
     my $type = shift; 
@@ -212,16 +214,15 @@ sub start {
 sub node_content_cb {
     my ($self,$scanner, $data_r, $node,@element) = @_ ;
 
-    warn "wiz_walk, node_content_cb called on '", $node->name,
-      "' element: @element\n" if $::verbose;
+    $logger->info("node_content_cb called on '", $node->name,
+		  "' element: @element");
 
     my $i = $self->{forward} == 1 ? 0 : $#element ;
 
     while ($i >= 0 and $i < @element) {
 	my $element = $element[$i] ;
-	warn "wiz_walk, node_content_cb calls scan_element ",
-	  "on element $element\n"
-	    if $::verbose;
+	$logger->info( "node_content_cb calls scan_element ",
+		       "on element $element");
 	$self->{scanner}->scan_element($data_r,$node,$element) ;
 	$i += $self->{forward} ;
     }
@@ -244,8 +245,11 @@ sub hash_element_cb {
     my ($self,$scanner, $data_r,$node,$element) = splice @_,0,5 ;
     my @keys = sort @_ ;
 
-    warn "wiz_walk, hash_element_cb (element $element) called on '", $node->name,
-      "' keys: '@keys' \n" if $::verbose;
+    my $level 
+      = $node->get_element_property(element => $element, property => 'level');
+
+    $logger->info( "hash_element_cb (element $element) called on '", 
+		   $node->location, "' level $level, keys: '@keys'");
 
     # get the call-back to use
     my $cb = $self->get_cb( $node -> element_type($element) . '_element') ;
@@ -253,8 +257,6 @@ sub hash_element_cb {
     # use the same algorithm for check_important and
     # scan_element pseudo elements
     my $i = $self->{forward} == 1 ? 0 : 1 ;
-    my $level 
-      = $node->get_element_property(element => $element, property => 'level');
 
     while ($i >= 0 and $i < 2) {
 	if ($self->{call_back_on_important} and $i == 0 and $level eq 'important') {
@@ -267,8 +269,8 @@ sub hash_element_cb {
 	    my $j = $self->{forward} == 1 ? 0 : $#keys ;
 	    while ($j >= 0 and $j < @keys) {
 		my $k = $keys[$j] ;
-		warn "wiz_walk, hash_element_cb (element $element) calls ",
-		  "scan_hash on key $k\n" if $::verbose;
+		$logger->info( "hash_element_cb (element $element) calls ",
+			       "scan_hash on key $k");
 		$self->{scanner}->scan_hash($data_r,$node,$element,$k) ;
 		$j += $self->{forward} ;
 	    }
@@ -285,13 +287,13 @@ sub hash_element_cb {
 sub leaf_cb {
     my ($self,$scanner, $data_r,$node,$element,$index,$value_obj) = @_ ;
 
-    warn "wiz_walk,leaf_cb called on '", $node->name,
-      "' element '$element'", defined $index ? ", index $index":'', "\n" 
-	if $::verbose;
+    $logger->info( "leaf_cb called on '", $node->name,
+		   "' element '$element'", 
+		   defined $index ? ", index $index":'');
 
     my $elt_type = $node -> element_type($element) ;
-    my $key = $elt_type eq 'leaf' ? $value_obj -> value_type . '_value'
-            :                       $elt_type.'_element' ;
+    my $key = $elt_type eq 'check_list' ? 'check_list_element' 
+            :                             $value_obj -> value_type . '_value';
 
     my $user_leaf_cb = $self->get_cb( $key) ;
 
@@ -299,9 +301,9 @@ sub leaf_cb {
       = $node->get_element_property(element => $element, property => 'level');
 
     if ($self->{call_back_on_important} and $level eq 'important') {
-	warn "leaf_cb found important elt: '", $node->name,
-	  "' element $element", defined $index ? ", index $index":'', "\n" 
-	    if $::verbose;
+	$logger->info( "leaf_cb found important elt: '", $node->name,
+		       "' element $element", 
+		       defined $index ? ", index $index":'');
 	$user_leaf_cb->($self,$data_r,$node,$element,$index,$value_obj) ;
     }
 
@@ -312,9 +314,8 @@ sub leaf_cb {
     my $e ;
     if ($e = Exception::Class->caught('Config::Model::Exception::User')) {
 	# ignore errors that has just been catched and call user call-back
-	warn "leaf_cb oopsed on '", $node->name,
-	  "' element $element", defined $index ? ", index $index":'', "\n" 
-	    if $::verbose;
+	$logger->info( "leaf_cb oopsed on '", $node->name, "' element $element", 
+		       defined $index ? ", index $index":'');
 	$user_leaf_cb->($self,$data_r,$node,$element,$index,$value_obj , 
 			$e->error) ;
     }
@@ -333,8 +334,7 @@ Set wizard in forward (default) mode.
 
 sub go_forward {
     my $self = shift ;
-    warn "WizardHelper: going forward\n" 
-      if $::verbose && $self ->{forward} == -1 ;
+    $logger->info("Going forward") if $self ->{forward} == -1 ;
     $self ->{forward} = 1 ; 
 }
 
@@ -346,8 +346,7 @@ Set wizard in backward mode.
 
 sub go_backward {
     my $self = shift ;
-    warn "WizardHelper:: going backward\n" 
-      if $::verbose && $self ->{forward} == 1 ;
+    $logger->info("Going backward") if $self ->{forward} == 1 ;
     $self ->{forward} = -1 ; 
 }
 
