@@ -240,6 +240,8 @@ if ($save) {
 
 my $mw = MainWindow-> new ;
 $mw->withdraw ;
+# Thanks to Jerome Quelin for the tip
+$mw->optionAdd('*BorderWidth' => 1);
 
 my $cmu = $mw->ConfigModelEditUI (-root      => $meta_root,
 				  -store_sub => $write_sub,
