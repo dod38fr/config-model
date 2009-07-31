@@ -2,24 +2,6 @@
 # $Date$
 # $Revision$
 
-#    Copyright (c) 2007,2009 Dominique Dumont.
-#
-#    This file is part of Config-Model-TkUI.
-#
-#    Config-Model is free software; you can redistribute it and/or
-#    modify it under the terms of the GNU Lesser Public License as
-#    published by the Free Software Foundation; either version 2.1 of
-#    the License, or (at your option) any later version.
-#
-#    Config-Model is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#    Lesser Public License for more details.
-#
-#    You should have received a copy of the GNU Lesser Public License
-#    along with Config-Model; if not, write to the Free Software
-#    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-
 package Config::Model::TkUI ;
 
 use strict;
@@ -51,6 +33,8 @@ use Config::Model::Tk::HashViewer ;
 use Config::Model::Tk::HashEditor ;
 
 use Config::Model::Tk::NodeViewer ;
+
+use Config::Model::Tk::Wizard ;
 
 
 $VERSION = '1.211' ;
@@ -109,7 +93,7 @@ sub Populate {
     croak "Unknown parameter ",join(' ',keys %$args) if %$args;
 
     # initialize internal attributes
-    $cw->{location} = 'foobar';
+    $cw->{location} = '';
     $cw->{modified_data} = 0;
 
     $cw->setup_scanner() ;
@@ -120,7 +104,8 @@ sub Populate {
     $cw->configure(-menu => $menubar ) ;
     $cw->{my_menu} = $menubar ;
 
-    my $file_items = [[ qw/command reload -command/, sub{ $cw->reload }],
+    my $file_items = [[ qw/command wizard -command/, sub{ $cw->wizard }],
+		      [ qw/command reload -command/, sub{ $cw->reload }],
 		      [ qw/command check  -command/, sub{ $cw->check(1)}],
 		      [ qw/command save   -command/, sub{ $cw->save }],
 		      [ command => 'save in dir ...',
@@ -817,7 +802,9 @@ sub create_element_widget {
 
     my $widget = $widget_table{$mode}{$type} 
       || die "Cannot find $mode widget for type $type";
-    $cw->{editor} = $frame -> $widget(-item => $obj, -path => $tree_path ) ;
+    $cw->{editor} = $frame -> $widget(-item => $obj, -path => $tree_path,
+				      -store_cb => sub {$cw->reload} ,
+				     ) ;
     $cw->{editor}-> pack(-expand => 1, -fill => 'both') ;
     return $cw->{editor} ;
 }
@@ -907,6 +894,17 @@ sub edit_paste {
     $cw->reload(1) if @$cut_buf;
 }
 
+sub wizard {
+    my $cw = shift ;
+    my $tree = $cw->{tktree} ;
+
+    my $wiz = $cw->ConfigModelWizard (
+				      -root => $cw->{root}, 
+				      -store_cb => sub{ $cw->force_element_display(@_)},
+				     ) ;
+    $wiz->start_wizard ;
+}
+
 1;
 
 __END__
@@ -979,7 +977,7 @@ Dominique Dumont, (ddumont at cpan dot org)
 
 =head1 LICENSE
 
-    Copyright (c) 2008 Dominique Dumont.
+    Copyright (c) 2008-2009 Dominique Dumont.
 
     This file is part of Config-Model.
 
@@ -997,24 +995,6 @@ Dominique Dumont, (ddumont at cpan dot org)
     along with Config-Model; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
     02110-1301 USA
-
-=head1 SEE ALSO
-
-=over
-
-=item *
-
-L<Config::Model>
-
-=item *
-
-http://config-model.wiki.sourceforge.net/
-
-=item *
-
-Config::Model mailing lists on http://sourceforge.net/mail/?group_id=155650
-
-=back
 
 =head1 FEEDBACK and HELP wanted
 
@@ -1051,6 +1031,23 @@ If you want to help, please send a mail to:
 
   config-mode-devel at lists.sourceforge.net
 
-=cut
+=head1 SEE ALSO
+
+=over
+
+=item *
+
+L<Config::Model>
+
+=item *
+
+http://config-model.wiki.sourceforge.net/
+
+=item *
+
+Config::Model mailing lists on http://sourceforge.net/mail/?group_id=155650
+
+=back
+
 
 

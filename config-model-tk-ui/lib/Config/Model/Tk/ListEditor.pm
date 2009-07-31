@@ -54,6 +54,7 @@ sub Populate {
     my $list = $cw->{list} = delete $args->{-item} 
       || die "ListEditor: no -item, got ",keys %$args;
     delete $args->{-path} ;
+    $cw->{store_cb} = delete $args->{-store_cb} || die __PACKAGE__,"no -store_cb" ;
 
     $cw->add_header(Edit => $list) ;
 
@@ -324,7 +325,7 @@ sub store {
 
 sub reload_tree {
     my $cw = shift ;
-    $cw->parent->parent->parent->parent->reload(1) ;
+    $cw->{store_cb}->() ;
 }
 
 

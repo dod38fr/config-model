@@ -53,6 +53,7 @@ sub Populate {
     my $leaf = $cw->{leaf} = delete $args->{-item} 
       || die "LeafEditor: no -item, got ",keys %$args;
     delete $args->{-path} ;
+    $cw->{store_cb} = delete $args->{-store_cb} || die __PACKAGE__,"no -store_cb" ;
 
     my $inst = $leaf->instance ;
     $inst->push_no_value_check('fetch') ;
@@ -235,7 +236,7 @@ sub store {
     }
     else {
 	# trigger redraw of Tk Tree
-	$cw->parent->parent->parent->parent->reload(1) ;
+	$cw->{store_cb}->($cw->{leaf}) ;
     }
 }
 

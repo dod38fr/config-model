@@ -63,6 +63,7 @@ sub Populate {
     my $hash = $cw->{hash} = delete $args->{-item} 
       || die "HashEditor: no -item, got ",keys %$args;
     delete $args->{-path} ;
+    $cw->{store_cb} = delete $args->{-store_cb} || die __PACKAGE__,"no -store_cb" ;
 
     unless (defined $up_img) {
 	$up_img   = $cw->Photo(-file => $icon_path.'up.png');
@@ -443,7 +444,7 @@ sub store {
 
 sub reload_tree {
     my $cw = shift ;
-    $cw->parent->parent->parent->parent->reload(1) ;
+    $cw->{store_cb}->() ;
 }
 
 

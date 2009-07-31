@@ -57,6 +57,7 @@ sub Populate {
     my $leaf = $cw->{leaf} = delete $args->{-item} 
       || die "CheckListEditor: no -item, got ",keys %$args;
     delete $args->{-path} ;
+    $cw->{store_cb} = delete $args->{-store_cb} || die __PACKAGE__,"no -store_cb" ;
 
     my $inst = $leaf->instance ;
 
@@ -213,7 +214,7 @@ sub store {
 	}
     } $cw->{leaf}->get_choice;
 
-    $cw->parent->parent->parent->parent->reload(1) ;
+    $cw->{store_cb}->() ;
 }
 
 sub reset_value {
