@@ -111,7 +111,8 @@ SKIP: {
     foreach (1 .. 2 ) {
 	push @test, sub {$cmw->{keep_wiz} = 0 ; $cmw->{wizard}->go_backward;} ;
     }
-    foreach (1 .. 10 ) {
+    # no problem if too many subs are defined: programs will exit
+    foreach (1 .. 100 ) {
 	push @test, sub {$cmw->{keep_wiz} = 0 ; $cmw->{wizard}->go_forward; } ;
     }
 
