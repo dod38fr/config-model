@@ -21,6 +21,10 @@ Construct Tk::Widget 'ConfigModelWizard';
 
 my $logger = Log::Log4perl::get_logger('Tk::Wizard');
 
+my @fbe1 = qw/-fill both -expand 1/ ;
+my @fxe1 = qw/-fill x    -expand 1/ ;
+my @fx   = qw/-fill x    / ;
+
 sub ClassInit {
     my ($class, $mw) = @_;
     # ClassInit is often used to define bindings and/or other
@@ -60,30 +64,10 @@ sub Populate {
       ->pack  (qw/-pady 0 -fill both -expand 1/ ) ;
     $cw->{ed_frame}->packPropagate(0) ;
 
-    my $button_f  = $cw->Frame 
-      ->pack  (qw/-pady 0 -fill x -expand 1/ ) ;
-
-    my $back = $button_f -> Button(-text => 'Back', 
-				   -command => sub {
-				       $cw->{keep_wiz} = 0 ;
-				       $cw->{wizard}->go_backward;
-				   } 
-				  );
-    $back -> pack(-side => 'left') ;
-    my $forw = $button_f -> Button(-text => 'Next', 
-				   -command => sub {
-				       $cw->{keep_wiz} = 0 ;
-				       $cw->{wizard}->go_forward;;
-				   } 
-				  );
-    $forw-> pack(-side => 'right') ;
-
     $args->{-title} = $title;
     $cw->SUPER::Populate($args) ;
 
-    $cw->Advertise(ed_frame => $ed ,
-		   go_back => $back,
-		   go_forward => $forw,
+    $cw->Advertise(ed_frame   => $ed ,
 		  );
 
     $cw->ConfigSpecs
@@ -112,7 +96,7 @@ sub leaf_cb {
     # cleanup existing widget contained in this frame
     $cw->{ed_frame}->ConfigModelLeafEditor(-item => $leaf_object, 
 					   -store_cb => $cw->{store_cb},
-					  )->pack ;
+					  )->pack(@fbe1) ;
 }
 
 sub list_element_cb {
@@ -121,7 +105,7 @@ sub list_element_cb {
     my $obj = $node->fetch_element($element_name) ;
     $cw->{ed_frame}->ConfigModelListEditor(-item => $obj, 
 					   -store_cb => $cw->{store_cb},
-					  )->pack ;
+					  )->pack(@fbe1) ;
 }
 
 sub hash_element_cb {
@@ -130,7 +114,7 @@ sub hash_element_cb {
     my $obj = $node->fetch_element($element_name) ;
     $cw->{ed_frame}->ConfigModelHashEditor(-item => $obj, 
 					   -store_cb => $cw->{store_cb},
-					  )->pack ;
+					  )->pack(@fbe1) ;
 }
 sub check_list_element_cb {
     my ($cw,$scanner, $data_ref,$node,$element_name,@items) = @_ ;
@@ -138,11 +122,67 @@ sub check_list_element_cb {
     my $obj = $node->fetch_element($element_name) ;
     $cw->{ed_frame}->ConfigModelCheckListEditor(-item => $obj, 
 						-store_cb => $cw->{store_cb},
-					       )->pack ;
+					       )->pack(@fbe1) ;
 }
 
 sub start_wizard {
-    my ($cw) = @_ ;
+    my ($cw,$exp) = @_ ;
+
+    my $text = 'The wizard will scan all configuration items and stop on "important" items or on error (like missing mandatory values). If no "important" item and no error are found, the wizard will exit immediately' ;
+
+    my $edf = $cw->{ed_frame} ;
+
+    my $textw = $edf
+      -> ROText(qw/-relief flat -wrap word -height 12/,
+		-font => [ -family => 'Arial' ]
+	       );
+    $textw -> insert(end => $text) ;
+    $textw -> pack(-side => 'top', @fbe1) ;
+
+
+    $edf->Label(-text => 'Choose experience for the wizard :'.$exp)
+      ->pack(qw/-side top -anchor w/);
+
+    map { $edf->Radiobutton(-text => $_ ,
+			    -variable => \$exp,
+			    -value => $_
+			   )->pack(qw/-side top -anchor w/);
+      } qw/master advanced beginner/ ;
+
+    $edf->Button(-text => 'OK',
+		 -command => sub {$cw->_start_wizard($exp)}
+		) -> pack (-side => 'right') ;
+    $edf->Button(-text => 'cancel',
+		 -command => sub {$cw->destroy()}
+		) -> pack (-side => 'left') ;
+}
+
+sub _start_wizard {
+    my ($cw,$exp) = @_ ;
+
+    my $button_f  = $cw->Frame 
+      ->pack  (qw/-pady 0 -fill x -expand 1/ ) ;
+
+    my $back = $button_f -> Button(-text => 'Back', 
+				   -command => sub {
+				       $cw->{keep_wiz} = 0 ;
+				       $cw->{wizard}->go_backward;
+				   } 
+				  );
+    $back -> pack(qw/-side left -fill x -expand 1/) ;
+
+    my $stop = $button_f -> Button(-text => 'Stop', 
+				   -command => sub {$cw->destroy;} 
+				  );
+    $stop -> pack(qw/-side left -fill x -expand 1/) ;
+
+    my $forw = $button_f -> Button(-text => 'Next', 
+				   -command => sub {
+				       $cw->{keep_wiz} = 0 ;
+				       $cw->{wizard}->go_forward;
+				   } 
+				  );
+    $forw-> pack(qw/-side right -fill x -expand 1/) ;
 
     my ($sort_element, $sort_idx) ;
     $cw->{keep_wiz} = 1 ;
@@ -167,7 +207,7 @@ sub start_wizard {
     }
 
 
-    my @wiz_args = (experience        => $cw->{experience},
+    my @wiz_args = (experience        => $exp,
 		    %cb_table 
 		   );
 
@@ -182,5 +222,4 @@ sub start_wizard {
   }
 
 1;
-__END__
 

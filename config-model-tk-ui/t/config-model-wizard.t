@@ -123,9 +123,7 @@ SKIP: {
  	}
     }
 
-    $cmw->start_wizard() ;
-
-
+    $cmw->_start_wizard('master') ;
 
     ok(1,"wizard done") ;
 

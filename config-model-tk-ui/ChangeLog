@@ -1,3 +1,14 @@
+2009-09-01  Dominique Dumont  <dominique.dumont@hp.com> 1.301
+
+	* lib/Config/Model/TkUI.pm (Populate): Use 'beginner' as default
+	experience level
+
+2009-08-31  Dominique Dumont  <dominique.dumont@hp.com>
+
+	* lib/Config/Model/Tk/Wizard.pm: New file. Provides generic wizard
+	for configuration edition. This wizard can be run at different
+	experience (beginner, advanced or master).
+
 2009-06-28  Dominique Dumont  <domi@ylum.gre.hp.com> v1.211
 
 	* lib/Config/Model/TkUI.pm (save): don't pass undefined dir
@@ -9,7 +20,7 @@
 	* lib/Config/Model/Tk/LeafViewer.pm (add_info): use
 	upstream_default() method instead of deprecated built_in().
 
-2009-05-30  Dominique Dumont  <dominique.dumont@hp.com> 
+2009-05-30  Dominique Dumont  <dominique.dumont@hp.com>
 
 	* lib/Config/Model/TkUI.pm (Populate): added -title option so the
 	application can set the title of the TkUI window
@@ -21,7 +32,7 @@
 
 2009-03-31  Dominique Dumont  <dominique.dumont@hp.com>
 
-	* lib/Config/Model/Tk/*.pm (): Added display of summary 
+	* lib/Config/Model/Tk/*.pm (): Added display of summary
 
 2009-03-12  Dominique Dumont  <dominique.dumont@hp.com> v1.207
 

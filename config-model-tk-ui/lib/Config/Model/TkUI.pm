@@ -37,7 +37,7 @@ use Config::Model::Tk::NodeViewer ;
 use Config::Model::Tk::Wizard ;
 
 
-$VERSION = '1.211' ;
+$VERSION = '1.301' ;
 
 Construct Tk::Widget 'ConfigModelUI';
 
@@ -67,7 +67,7 @@ sub Populate {
     unless (defined $warn_img) {
 	$warn_img = $cw->Photo(-file => $icon_path.'stop.png');
 	$cust_img = $cw->Photo(-file => $icon_path.'next.png');
-	# snatched from openclip-arts-png
+	# snatched from openclipart-png
 	$tool_img = $cw->Photo(-file => $icon_path.'tools_nicu_buculei_01.png');
     }
 
@@ -78,12 +78,13 @@ sub Populate {
 	  or croak "Missing $parm arg\n";
     }
 
-    foreach my $parm (qw/-store_sub -quit -experience/) {
+    foreach my $parm (qw/-store_sub -quit/) {
 	my $attr = $parm ;
 	$attr =~ s/^-//;
 	$cw->{$attr} = delete $args->{$parm} ;
     }
 
+    $cw->{experience} = delete $args->{'-experience'} || 'beginner' ;
     my $extra_menu = delete $args->{'-extra-menu'} || [] ;
 
     my $title = delete $args->{'-title'} 
@@ -187,7 +188,10 @@ sub Populate {
     $cw->{e_frame} ->Label(#-text => "placeholder",
 			   -image => $tool_img,
 			   -width => 400, # width in pixel for image
-			  ) -> pack ;
+			  ) -> pack(-side => 'top') ;
+    $cw->{e_frame} ->Button(-text => "Run Wizard !",
+			    -command => sub { $cw->wizard}
+			  ) -> pack(-side => 'bottom') ;
 
     # bind button3 as double-button-1 does not work
     my $b3_sub = sub{my $item = $tree->nearest($tree->pointery - $tree->rooty) ;
@@ -238,7 +242,6 @@ another. Beware, there's no "undo" operation.
 EOF
 
 my $todo_text = << 'EOF' ;
-- add wizard
 - add better navigation
 - add tabular view ?
 - improve look and feel
@@ -255,7 +258,7 @@ sub add_help_menu {
     my $about_sub = sub {
 	$cw->Dialog(-title => 'About',
 		    -text => "Config::Model::TkUI \n"
-		    ."(c) 2008 Dominique Dumont \n"
+		    ."(c) 2008-2009 Dominique Dumont \n"
 		    ."Licensed under LGPLv2\n"
 		   ) -> Show ;
     };
@@ -802,9 +805,9 @@ sub create_element_widget {
 
     my $widget = $widget_table{$mode}{$type} 
       || die "Cannot find $mode widget for type $type";
+    my @store = $mode eq 'edit' ? (-store_cb => sub {$cw->reload} ) : () ;
     $cw->{editor} = $frame -> $widget(-item => $obj, -path => $tree_path,
-				      -store_cb => sub {$cw->reload} ,
-				     ) ;
+				      @store ) ;
     $cw->{editor}-> pack(-expand => 1, -fill => 'both') ;
     return $cw->{editor} ;
 }
@@ -902,7 +905,7 @@ sub wizard {
 				      -root => $cw->{root}, 
 				      -store_cb => sub{ $cw->force_element_display(@_)},
 				     ) ;
-    $wiz->start_wizard ;
+    $wiz->start_wizard($cw->{experience}) ;
 }
 
 1;
@@ -941,6 +944,9 @@ With this class, L<Config::Model> and an actual configuration
 model (like L<Config::Model::Xorg>), you get a tool to 
 edit configuration files (e.g. C</etc/X11/xorg.conf>).
 
+Be default, only items with C<beginner> experience are shown. You can
+change the C<experience> level in C<< Options -> experience >> menu.
+
 =head1 USAGE
 
 =head2 Left side tree
@@ -966,6 +972,15 @@ Right-click on any item to open an editor widget
 When clicking on store, the new data is stored in the tree represented
 on the left side of TkUI. The new data will be stored in the
 configuration file only when C<File->save> menu is invoked.
+
+=head2 Wizard
+
+A wizard can be launched either with C<< File -> Wizard >> menu entry
+or with C<Run Wizard> button.
+
+The wizard will scan the configuration tree and stop on all items
+flagged as important in the model. It will also stop on all erroneous
+items (mostly missing mandatory values).
 
 =head2 TODO
 
