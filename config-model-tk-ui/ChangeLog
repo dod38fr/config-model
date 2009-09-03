@@ -1,4 +1,9 @@
-2009-09-01  Dominique Dumont  <dominique.dumont@hp.com> 1.301
+2009-09-03  Dominique Dumont  <dominique.dumont@hp.com> unreleased 1.301
+
+	* lib/Config/Model/Tk/NodeViewer.pm (Populate): Provide more
+	details (type and if possible value) on node elements.
+
+2009-09-01  Dominique Dumont  <dominique.dumont@hp.com>
 
 	* lib/Config/Model/TkUI.pm (Populate): Use 'beginner' as default
 	experience level

@@ -2,7 +2,7 @@
 # $Date$
 # $Revision$
 
-#    Copyright (c) 2008 Dominique Dumont.
+#    Copyright (c) 2008-2009 Dominique Dumont.
 #
 #    This file is part of Config-Model-TkUi.
 #
@@ -55,18 +55,40 @@ sub Populate {
 
     my $inst = $node->instance ;
 
-    my $elt_frame = $cw->Frame(qw/-relief raised -borderwidth 4/)->pack(@fxe1) ;
+    my $elt_frame = $cw->Frame(qw/-relief flat/)->pack(@fbe1) ;
 
     $elt_frame -> Label(-text => $node->composite_name.' node elements') -> pack() ;
 
-    my $rt = $elt_frame ->Scrolled ( 'ROText',
+    my $hl = $elt_frame ->Scrolled ( 'HList',
+				     -scrollbars => 'osow',
+				     -columns => 3, 
+				     -header => 1,
 				     -height => 10,
 				   ) ->pack(@fbe1) ;
+    $hl->headerCreate(0, -text => 'name') ;
+    $hl->headerCreate(1, -text => 'type') ;
+    $hl->headerCreate(2, -text => 'value') ;
 
     my $exp = $cw->parent->parent->parent->parent->get_experience ;
 
     foreach my $c ($node->get_element_name(for => $exp)) {
-	$rt->insert('end', $c."\n" ) ;
+	$hl->add($c) ;
+	$hl->itemCreate($c,0, -text => $c) ;
+	my $type = $node->element_type($c) ;
+	$hl->itemCreate($c,1, -text => $type) ;
+
+	if ($type eq 'leaf') {
+	    my $v = eval {$node->fetch_element_value($c)} ;
+	    if ($@) {
+		$hl->itemCreate($c,2, 
+				-itemtype => 'image' , 
+				-image => $Config::Model::TkUI::warn_img) ;
+	    }
+	    elsif (defined $v) {
+		substr ($v,15) = '...' if length($v) > 15;
+		$hl->itemCreate($c,2, -text => $v) ;
+	    }
+	}
     }
 
     $cw->add_info($cw) ;

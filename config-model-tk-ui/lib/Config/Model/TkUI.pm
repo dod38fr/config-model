@@ -9,7 +9,7 @@ use warnings ;
 use Carp ;
 
 use base qw/Tk::Toplevel/;
-use vars qw/$VERSION $icon_path/ ;
+use vars qw/$VERSION $icon_path $warn_img/ ;
 use subs qw/menu_struct/ ;
 use Scalar::Util qw/weaken/;
 use Log::Log4perl;
@@ -41,7 +41,6 @@ $VERSION = '1.301' ;
 
 Construct Tk::Widget 'ConfigModelUI';
 
-my $warn_img ;
 my $cust_img ;
 my $tool_img ;
 
