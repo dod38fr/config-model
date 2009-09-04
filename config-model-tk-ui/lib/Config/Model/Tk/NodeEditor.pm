@@ -27,6 +27,7 @@ use warnings ;
 use Carp ;
 
 use Tk::Pane ;
+use Tk::Balloon;
 
 use base qw/Tk::Frame Config::Model::Tk::AnyViewer/;
 use vars qw/$VERSION/ ;
@@ -73,8 +74,11 @@ sub Populate {
 	my $type = $node->element_type($c) ;
 	my $f = $elt_pane->Frame(-relief=> 'groove', -borderwidth => 1)
 	  ->pack(-side =>'top',@fxe1) ;
-	$f -> Label(-text => $c,-width=> 22, -anchor => 'w') 
-	  ->pack(qw/-side left -fill x -anchor w/);
+	my $label = $f -> Label(-text => $c,-width=> 22, -anchor => 'w') ;
+	$label->pack(qw/-side left -fill x -anchor w/);
+
+	$cw->Balloon(-state => 'balloon') 
+	  ->attach($label, -msg => $node->get_help(summary => $c)) ;
 
 	if ($type eq 'leaf') {
 	    my $leaf = $node->fetch_element($c) ;
@@ -84,8 +88,14 @@ sub Populate {
 
 	    if ($v_type =~ /integer|number|uniline/ ) {
 		my $e = $f->Entry(-textvariable => \$v)
-		  ->pack(qw/-side right -anchor w/,@fxe1) ;
+		  ->pack(qw/-side left -anchor w/,@fxe1) ;
 		$e->bind("<Return>" => $store_sub) ;
+		next ;
+	    }
+
+	    if ($v_type =~ /boolean/ ) {
+		my $e = $f->Checkbutton(-variable => \$v, -command => $store_sub)
+		  ->pack(qw/-side left -anchor w/) ;
 		next ;
 	    }
 
@@ -95,7 +105,7 @@ sub Populate {
 		my $e = $f->BrowseEntry(-variable => \$v,
 					-browsecmd => $store_sub,
 					-choices => \@choices)
-		  ->pack(qw/-side right -anchor w/,@fxe1) ;
+		  ->pack(qw/-side left -anchor w/,@fxe1) ;
 		next ;
 	    }
 	}
