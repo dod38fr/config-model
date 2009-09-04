@@ -28,6 +28,7 @@ use Carp ;
 
 use Tk::Pane ;
 use Tk::Balloon;
+use Text::Wrap;
 
 use base qw/Tk::Frame Config::Model::Tk::AnyViewer/;
 use vars qw/$VERSION/ ;
@@ -78,7 +79,7 @@ sub Populate {
 	$label->pack(qw/-side left -fill x -anchor w/);
 
 	my $help = $node->get_help(summary => $c) || $node->get_help(description => $c);
- 	$cw->Balloon(-state => 'balloon') ->attach($label, -msg => $help) ;
+ 	$cw->Balloon(-state => 'balloon') ->attach($label, -msg => wrap('','',$help)) ;
 
 	if ($type eq 'leaf') {
 	    my $leaf = $node->fetch_element($c) ;
