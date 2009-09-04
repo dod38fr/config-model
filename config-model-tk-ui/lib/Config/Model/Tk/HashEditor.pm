@@ -90,19 +90,20 @@ sub Populate {
 
     $tklist->insert( end => $hash->get_all_indexes) ;
 
-    my $right_frame = $elt_button_frame->Frame->pack(@fxe1, -side => 'left');
+    my $right_frame = $elt_button_frame->Frame
+      ->pack(@fxe1, qw/-side right -anchor n/);
 
-    $cw->add_info($cw) ;
+    $cw->add_info() ;
     $cw->add_summary_and_description($hash) ;
 
-    my $item_frame = $right_frame->Frame(-relief => 'groove',-bd => 4 )
+    my $item_frame = $right_frame->Frame(qw/-borderwidth 1 -relief groove/)
       ->pack( @fxe1);
 
     my $balloon = $cw->Balloon(-state => 'balloon') ;
 
     my $item = '';
     my $keep = 0 ;
-    my $label_frame = $item_frame->Frame->pack( @fxe1);
+    my $label_frame = $item_frame->Frame->pack( @fxe1, qw/-side top -anchor n/);
     $label_frame -> Label (-text => 'Item:')->pack(@fxe1,-side => 'left') ;
     my $keep_b = $label_frame -> Checkbutton (-variable => \$keep, 
 					    -text => 'keep')
@@ -111,11 +112,11 @@ sub Populate {
 		     -msg => 'keep entry in widget after add, move or copy');
 
     my $entry = $item_frame -> Entry (-textvariable => \$item )
-      -> pack  (@fxe1) ;
+      -> pack  (@fxe1, qw/-side top -anchor n/) ;
     $balloon -> attach($entry, 
 		       -msg => 'enter item name to add, copy to, or move to') ;
 
-    my $button_frame = $item_frame->Frame->pack( );
+    my $button_frame = $item_frame->Frame->pack( qw/-side top -anchor n/ );
 
     my $addb = $button_frame 
       -> Button(-text => "Add",
@@ -123,7 +124,7 @@ sub Populate {
 				  $item = '' unless $keep;
 			      },
 		-anchor => 'e',
-	       )->pack(-side => 'left');
+	       )->pack(qw/-side left/);
     my $add_str = $hash->ordered ? " after selection" : '' ;
     $balloon->attach($addb,
 		     -msg => "add entry".$add_str);
@@ -134,7 +135,7 @@ sub Populate {
 				  $item = '' unless $keep;},
 		-anchor => 'e',
 	       )
-	-> pack(-side => 'left');
+	-> pack(qw/-side right/);
     $balloon->attach($cp_b,
 		     -msg => "copy selected item in entry");
 
@@ -160,7 +161,7 @@ sub Populate {
 				 )-> pack( -side =>'left' , @fxe1);
     }
 
-    my $del_rm_frame =  $right_frame->Frame->pack( @fxe1);
+    my $del_rm_frame =  $right_frame->Frame->pack( @fxe1, qw/-side top -anchor n/);
 
     $del_rm_frame->Button(-text => 'Delete selected',
 			  -command => sub { $cw->delete_selection; 
