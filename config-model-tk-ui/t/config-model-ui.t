@@ -113,16 +113,15 @@ SKIP: {
     my @force_test 
       = (
 	 sub { $cmu->reload} ,
-	 sub { $cmu->force_element_display($root->grab('std_id:dd DX')) },
-	 sub { $cmu->edit_copy('test1.std_id')},
-	 sub { $cmu->force_element_display($root->grab('hash_a:titi')) },
-	 sub { $cmu->edit_copy('test1.hash_a.titi')},
-	 #sub { $cmu->edit_paste('test1.hash_b')},
-	 #sub { $cmu->force_element_display($root->grab('hash_b:titi')) },
 	) ;
 
     my @test 
       = (
+	 sub { $cmu->create_element_widget('edit','test1')},
+	 sub { $cmu->force_element_display($root->grab('std_id:dd DX')) },
+	 sub { $cmu->edit_copy('test1.std_id')},
+	 sub { $cmu->force_element_display($root->grab('hash_a:titi')) },
+	 sub { $cmu->edit_copy('test1.hash_a.titi')},
 	 sub { $cmu->create_element_widget('view','test1')},
 	 sub { $tktree->open('test1.lista') },
 	 sub { $cmu->create_element_widget('edit','test1.std_id');},

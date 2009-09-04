@@ -33,6 +33,7 @@ use Config::Model::Tk::HashViewer ;
 use Config::Model::Tk::HashEditor ;
 
 use Config::Model::Tk::NodeViewer ;
+use Config::Model::Tk::NodeEditor ;
 
 use Config::Model::Tk::Wizard ;
 
@@ -759,7 +760,7 @@ my %widget_table = (
 			     check_list => 'ConfigModelCheckListEditor',
 			     list       => 'ConfigModelListEditor',
 			     hash       => 'ConfigModelHashEditor',
-			     node       => 'ConfigModelNodeViewer',
+			     node       => 'ConfigModelNodeEditor',
 			    },
 		    view => {
 			     leaf       => 'ConfigModelLeafViewer',
