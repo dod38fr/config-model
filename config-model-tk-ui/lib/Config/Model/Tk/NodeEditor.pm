@@ -77,8 +77,8 @@ sub Populate {
 	my $label = $f -> Label(-text => $c,-width=> 22, -anchor => 'w') ;
 	$label->pack(qw/-side left -fill x -anchor w/);
 
-	$cw->Balloon(-state => 'balloon') 
-	  ->attach($label, -msg => $node->get_help(summary => $c)) ;
+	my $help = $node->get_help(summary => $c) || $node->get_help(description => $c);
+ 	$cw->Balloon(-state => 'balloon') ->attach($label, -msg => $help) ;
 
 	if ($type eq 'leaf') {
 	    my $leaf = $node->fetch_element($c) ;
