@@ -67,8 +67,7 @@ sub Populate {
     $cw->add_header(View => $leaf) ;
 
     my @pack_args = @fx ;
-    @pack_args = @fbe1 if $vt eq 'string' or $vt eq 'enum' 
-                       or $vt eq 'reference' ;
+    @pack_args = @fbe1 if $vt eq 'string' ;
     my $lv_frame = $cw->Frame(qw/-relief raised -borderwidth 2/)
       ->pack(@pack_args) ;
     $lv_frame -> Label(-text => 'Value') -> pack() ;
