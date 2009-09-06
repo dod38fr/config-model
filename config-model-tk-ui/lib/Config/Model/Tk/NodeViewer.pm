@@ -49,7 +49,7 @@ sub Populate {
     my ($cw, $args) = @_;
     my $node = $cw->{node} = delete $args->{-item} 
       || die "NodeViewer: no -item, got ",keys %$args;
-    delete $args->{-path} ;
+    my $path = delete $args->{-path} ;
 
     $cw->add_header(View => $node) ;
 
@@ -63,7 +63,7 @@ sub Populate {
 				     -scrollbars => 'osow',
 				     -columns => 3, 
 				     -header => 1,
-				     -height => 10,
+				     -height => 8,
 				   ) ->pack(@fbe1) ;
     $hl->headerCreate(0, -text => 'name') ;
     $hl->headerCreate(1, -text => 'type') ;
@@ -99,6 +99,9 @@ sub Populate {
     else {
 	$cw->add_help(class   => $node->get_help) ;
     }
+
+    $cw->add_editor_button($path) ;
+
     $cw->SUPER::Populate($args) ;
 }
 
