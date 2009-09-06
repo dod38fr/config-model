@@ -154,5 +154,7 @@ sub add_editor_button {
     $cw->Button(-text => 'Edit ...', -command => $sub)-> pack ;
 }
 
+# do nothing by default 
+sub reload { }
 
 1;

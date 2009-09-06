@@ -415,8 +415,9 @@ sub quit {
 
 sub reload {
     my $cw =shift ;
-    my $is_modif = shift || 0;
-    my $force_display_obj = shift ;
+    my $is_modif          = shift || 0; # whether values where modified
+    my $force_display_obj = shift ;     # force open editor
+    my $path              = shift ;     # force tree to show this path
 
     $logger->trace("reloading tk tree".
 		   (defined $force_display_obj ? " (forcedisplay)" : '' )
@@ -443,6 +444,8 @@ sub reload {
 
     # the first parameter indicates that we are opening the root
     $sub->(1,$force_display_obj) ; 
+    $tree->see($path) if $path and $tree->info(exists => $path);
+    $cw->{editor}->reload if defined $cw->{editor};
 }
 
 # call-back when Tree element is selected
@@ -799,13 +802,14 @@ sub create_element_widget {
     $logger->trace( "item $loc to $mode (type $type)" );
 
     # cleanup existing widget contained in this frame
+    delete $cw->{editor} ;
     map { $_ ->destroy if Tk::Exists($_) } $cw->{e_frame}->children ;
 
     my $frame = $cw->{e_frame} ;
 
     my $widget = $widget_table{$mode}{$type} 
       || die "Cannot find $mode widget for type $type";
-    my @store = $mode eq 'edit' ? (-store_cb => sub {$cw->reload} ) : () ;
+    my @store = $mode eq 'edit' ? (-store_cb => sub {$cw->reload(@_)} ) : () ;
     $cw->{editor} = $frame -> $widget(-item => $obj, -path => $tree_path,
 				      @store ) ;
     $cw->{editor}-> pack(-expand => 1, -fill => 'both') ;

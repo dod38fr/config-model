@@ -55,26 +55,63 @@ sub Populate {
     my ($cw, $args) = @_;
     my $node = $cw->{node} = delete $args->{-item} 
       || die "NodeViewer: no -item, got ",keys %$args;
-    my $path = delete $args->{-path} ;
+    $cw->{path} = delete $args->{-path} ;
     $cw->{store_cb} = delete $args->{-store_cb} || die __PACKAGE__,"no -store_cb" ;
 
     $cw->add_header(Edit => $node) ;
 
-    my $inst = $node->instance ;
-
     $cw -> Label(-text => $node->composite_name.' node elements') -> pack() ;
 
-    my $elt_pane = $cw->Scrolled(qw/Pane -scrollbars osow -sticky senw/)
-      ->pack(@fbe1) ;
+    $cw->{pane} = $cw->Scrolled(qw/Pane -scrollbars osow -sticky senw/);
+    $cw->{pane}->pack(@fbe1) ;
+
+    $cw->fill_pane ;
+
+    # add adjuster
+    #require Tk::Adjuster;
+    #$cw -> Adjuster()->pack(-fill => 'x' , -side => 'top') ;
+
+    $cw->add_info($cw) ;
+
+    if ($node->parent) {
+	$cw->add_summary_and_description($node) ;
+    }
+    else {
+	$cw->add_help(class   => $node->get_help) ;
+    }
+    $cw->SUPER::Populate($args) ;
+}
+
+sub reload {
+    goto &fill_pane ;
+}
+
+sub fill_pane {
+    my $cw = shift ;
+
+    my $node = $cw->{node} ;
+    my $elt_pane = $cw->{pane} ;
 
     my $exp = $cw->parent->parent->parent->parent->get_experience ;
 
+    my %old_elt = map { ($_ => 1) } keys %{$cw->{elt_widgets}|| {} } ;
+
     my %values;
     my %modified ;
+    my $old_f ;
+
     foreach my $c ($node->get_element_name(for => $exp)) {
+	next if delete $old_elt{$c} ;
+
 	my $type = $node->element_type($c) ;
+	my $elt_path = $cw->{path}.'.'.$c ;
+
+	my @after = $old_f ? ( -after => $old_f ) : () ;
 	my $f = $elt_pane->Frame(-relief=> 'groove', -borderwidth => 1)
-	  ->pack(-side =>'top',@fxe1) ;
+	  ->pack(-side =>'top',@fxe1,@after) ;
+	$old_f = $f ;
+
+	$cw->{elt_widgets}{$c} = $f ;
 	my $label = $f -> Label(-text => $c,-width=> 22, -anchor => 'w') ;
 	$label->pack(qw/-side left -fill x -anchor w/);
 
@@ -84,7 +121,10 @@ sub Populate {
 	if ($type eq 'leaf') {
 	    my $leaf = $node->fetch_element($c) ;
 	    my $v = eval {$node->fetch_element_value($c)} ;
-	    my $store_sub = sub {$leaf->store($v); $cw->{store_cb}->($leaf)};
+	    my $store_sub = sub {$leaf->store($v); 
+				 $cw->{store_cb}->(1,undef,$elt_path);
+				 $cw->fill_pane;
+			     };
 	    my $v_type = $leaf->value_type ;
 
 	    if ($v_type =~ /integer|number|uniline/ ) {
@@ -114,24 +154,16 @@ sub Populate {
 	# add button to launch dedicated editor
 	my $edit_sub = sub {
 	    $cw->parent->parent->parent->parent
-	      ->create_element_widget('edit',"$path.$c") ;
+	      ->create_element_widget('edit',$elt_path) ;
 	};
 	$f->Button(-text => '...',-font =>[ -size => 6 ],
 		   -command => $edit_sub) 
 	  -> pack(-anchor => 'w');
     }
 
-    $cw->add_info($cw) ;
-
-    if ($node->parent) {
-	$cw->add_summary_and_description($node) ;
-    }
-    else {
-	$cw->add_help(class   => $node->get_help) ;
-    }
-    $cw->SUPER::Populate($args) ;
+    # destroy leftover widgets (may occur with warp mechanism)
+    map {my $w = delete $cw->{elt_widgets}{$_};$w->destroy } keys %old_elt ;
 }
-
 
 sub add_info {
     my $cw = shift ;

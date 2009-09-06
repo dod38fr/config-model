@@ -64,15 +64,52 @@ sub Populate {
 				     -columns => 3, 
 				     -header => 1,
 				     -height => 8,
-				   ) ->pack(@fbe1) ;
+				   ) -> pack(@fbe1) ;
     $hl->headerCreate(0, -text => 'name') ;
     $hl->headerCreate(1, -text => 'type') ;
     $hl->headerCreate(2, -text => 'value') ;
+    $cw->{hlist}=$hl ;
+    $cw->reload ;
+
+    # add adjuster. Buggy behavior on destroy...
+    #require Tk::Adjuster;
+    #$cw->{adjust} = $cw -> Adjuster();
+    #$cw->{adjust}->packAfter($hl, -side => 'top') ;
+
+    $cw->add_info($cw) ;
+
+    if ($node->parent) {
+	$cw->add_summary_and_description($node) ;
+    }
+    else {
+	$cw->add_help(class   => $node->get_help) ;
+    }
+
+    $cw->add_editor_button($path) ;
+
+    $cw->SUPER::Populate($args) ;
+}
+
+#sub DESTROY {
+#    my $cw = shift ;
+#    $cw->{adjust}->packForget(1);
+#}
+
+sub reload {
+    my $cw = shift ;
 
     my $exp = $cw->parent->parent->parent->parent->get_experience ;
+    my $node = $cw->{node};
+    my $hl=$cw->{hlist} ;
+
+    my %old_elt = %{$cw->{elt_path}|| {} } ;
 
     foreach my $c ($node->get_element_name(for => $exp)) {
+	next if delete $old_elt{$c} ;
+
 	$hl->add($c) ;
+	$cw->{elt_path}{$c} = 1 ;
+
 	$hl->itemCreate($c,0, -text => $c) ;
 	my $type = $node->element_type($c) ;
 	$hl->itemCreate($c,1, -text => $type) ;
@@ -91,20 +128,9 @@ sub Populate {
 	}
     }
 
-    $cw->add_info($cw) ;
-
-    if ($node->parent) {
-	$cw->add_summary_and_description($node) ;
-    }
-    else {
-	$cw->add_help(class   => $node->get_help) ;
-    }
-
-    $cw->add_editor_button($path) ;
-
-    $cw->SUPER::Populate($args) ;
+    # destroy leftover widgets (may occur with warp mechanism)
+    map {$hl->delete(entry => $_); } keys %old_elt ;
 }
-
 
 sub add_info {
     my $cw = shift ;
