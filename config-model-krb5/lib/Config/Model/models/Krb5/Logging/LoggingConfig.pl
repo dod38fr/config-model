@@ -45,7 +45,7 @@
 
             'logging_config' => {
                 type          => 'warped_node',
-                'experienced' => 'advanced',
+                'experience' => 'advanced',
                 follow        => '- logging_type',
                 'rules'       => {
                     'FILE'    => { config_class_name => 'Krb5::Logging::LoggingConfig::File' },
