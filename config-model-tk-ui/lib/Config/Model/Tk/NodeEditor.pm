@@ -152,13 +152,20 @@ sub fill_pane {
 	}
 
 	# add button to launch dedicated editor
+	my $obj = $node->fetch_element($c) ;
 	my $edit_sub = sub {
 	    $cw->parent->parent->parent->parent
-	      ->create_element_widget('edit',$elt_path) ;
+	      ->create_element_widget('edit',$elt_path,$obj) ;
 	};
-	$f->Button(-text => '...',-font =>[ -size => 6 ],
-		   -command => $edit_sub) 
-	  -> pack(-anchor => 'w');
+	my $edb = $f->Button(-text => '...',-font =>[ -size => 6 ],
+		    -command => $edit_sub) ;
+	$edb -> pack(-anchor => 'w');
+
+	my $content = $type eq 'leaf' ? $obj->fetch_no_check || ''
+	            : $type eq 'node' ? $node->config_class_name
+	            :                   $type ;
+ 	$cw->Balloon(-state => 'balloon') 
+	  ->attach($edb, -msg => wrap('','',$content)) ;
     }
 
     # destroy leftover widgets (may occur with warp mechanism)

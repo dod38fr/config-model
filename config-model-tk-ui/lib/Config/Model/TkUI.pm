@@ -777,7 +777,8 @@ my %widget_table = (
 sub create_element_widget {
     my $cw = shift ;
     my $mode = shift ;
-    my $tree_path = shift ; # reserved for tests
+    my $tree_path = shift ; # optional
+    my $obj       = shift ; # optional if tree is not opened to path
 
     my $tree = $cw->{tktree};
 
@@ -788,16 +789,21 @@ sub create_element_widget {
         $tree_path = $tree->nearest($tree->pointery - $tree->rooty) ;
       }
 
-    $tree->selectionClear() ; # clear all
-    $tree->selectionSet($tree_path) ;
-    my $data_ref = $tree->infoData($tree_path);
-    unless (defined $data_ref->[1]) {
-	$cw->reload;
-	return;
-    }
-    my $loc = $data_ref->[1]->location;
+    if ($tree->info(exists => $tree_path)) {
+	$tree->selectionClear() ; # clear all
+	$tree->selectionSet($tree_path) ;
+	my $data_ref = $tree->infoData($tree_path);
+	unless (defined $data_ref->[1]) {
+	    $cw->reload;
+	    return;
+	}
+	$obj = $data_ref->[1] ;
+	#my $loc = $data_ref->[1]->location;
 
-    my $obj = $cw->{root}->grab($loc);
+	#$obj = $cw->{root}->grab($loc);
+    }
+
+    my $loc  = $obj ->location;
     my $type = $obj -> get_type ;
     $logger->trace( "item $loc to $mode (type $type)" );
 

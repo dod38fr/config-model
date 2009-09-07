@@ -1,4 +1,4 @@
-2009-09-04  Dominique Dumont  <dominique.dumont@hp.com>  unreleased 1.301
+2009-09-04  Dominique Dumont  <dominique.dumont@hp.com> 1.301
 
 	* lib/Config/Model/Tk/NodeEditor.pm: New widget to edit several
 	config items in the same widget.
