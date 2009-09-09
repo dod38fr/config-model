@@ -163,7 +163,8 @@ sub new {
     }
 
     # handle optional list_element_cb parameter
-    $cb_hash{list_element_cb} = delete $args{list_element_cb} || $cb_hash{hash_element_cb} ;
+    $cb_hash{list_element_cb} =  delete $args{list_element_cb} 
+                              || $cb_hash{hash_element_cb} ;
 
     # optional call-back parameter
     $cb_hash{check_list_element_cb} 
@@ -188,6 +189,7 @@ sub new {
       -> new ( fallback        => 'all' ,
 	       experience      => $user_scan_args{experience} ,
 	       hash_element_cb => sub { $self -> hash_element_cb (@_) },
+	       list_element_cb => sub { $self -> hash_element_cb (@_) },
 	       node_content_cb => sub { $self -> node_content_cb (@_) },
 	       leaf_cb         => sub { $self -> leaf_cb (@_) },
 	     );

@@ -94,7 +94,7 @@
    name => 'Master',
    permission => [ [qw/tree_macro warp/] => 'advanced'] ,
    class_description => "Master description",
-   level      => [ [qw/hash_a tree_macro int_v/] => 'important' ],
+   level      => [ [qw/lista hash_a tree_macro int_v/] => 'important' ],
    element => [
 	       std_id => { type => 'hash',
 			   index_type  => 'string',

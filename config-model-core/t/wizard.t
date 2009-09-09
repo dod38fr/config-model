@@ -4,7 +4,7 @@
 # $Revision$
 
 use ExtUtils::testlib;
-use Test::More tests => 20;
+use Test::More tests => 29;
 use Config::Model;
 use Log::Log4perl qw(get_logger :levels) ;
 
@@ -72,6 +72,15 @@ ok( $root->load( step => $step, permission => 'advanced' ),
   "set up data in tree");
 
 my @expected = (
+		[ ''    , 'lista'],
+		[ ''    , 'lista:0'],
+		[ 'back', 'lista:1'],
+		[ ''    , 'lista:0'],
+		[ 'for' , 'lista'],
+		[ ''    , 'lista:0'],
+		[ ''    , 'lista:1'],
+		[ ''    , 'lista:2'],
+		[ ''    , 'lista:3'],
 		[ ''    , 'hash_a'],
 		[ ''    , 'hash_a:"ti ti"'],
 		[ ''    , 'hash_a:titi'],
@@ -122,9 +131,19 @@ my $hash_element_cb = sub {
     is( $obj->location, $expect, "hash_element_cb got $expect" ) ;
 };
 
+my $list_element_cb = sub {
+    my ($wiz, $data_r,$node,$element,@idx) = @_ ;
+    print "test: list_element_cb called for ",$node->location," element $element\n" 
+      if $trace ;
+    my $obj = $node->fetch_element($element) ;
+    my $expect = $steer->($wiz,shift @expected) ;
+    is( $obj->location, $expect, "list_element_cb got $expect" ) ;
+};
+
 my $wizard = $inst->wizard_helper(leaf_cb          => $leaf_element_cb, 
 				  integer_value_cb => $int_cb,
 				  hash_element_cb  => $hash_element_cb,
+				  list_element_cb  => $list_element_cb,
 				  experience       => 'advanced') ;
 ok($wizard,"created wizard helper") ;
 
