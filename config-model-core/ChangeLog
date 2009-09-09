@@ -1,10 +1,10 @@
-2009-07-30  Dominique Dumont  <dominique.dumont@hp.com>
+2009-07-30  Dominique Dumont  <dominique.dumont@hp.com> v0.639
 
 	* lib/Config/Model/WizardHelper.pm (leaf_element_cb): bug fix:
 	scan correctly leaf elements of a hash.
 	* lib/Config/Model/WizardHelper.pm: use Log4perl
 
-2009-07-27  Dominique Dumont  <dominique.dumont@hp.com> v0.639 unreleased
+2009-07-27  Dominique Dumont  <dominique.dumont@hp.com>
 
 	* config-edit: Tk cosmetic improvement. Thanks to Jerome Quelin
 	for the suggestion
