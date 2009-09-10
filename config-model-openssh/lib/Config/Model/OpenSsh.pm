@@ -18,7 +18,7 @@ use File::Path ;
 use Parse::RecDescent ;
 use vars qw($VERSION $grammar $parser)  ;
 
-$VERSION = '1.207' ;
+$VERSION = '1.208' ;
 
 
 my $logger = Log::Log4perl::get_logger(__PACKAGE__);

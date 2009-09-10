@@ -33,6 +33,7 @@
                            },
                            'Host',
                            {
+                             'level' => 'important',
                              'cargo' => {
                                           'type' => 'node',
                                           'config_class_name' => 'Ssh::HostBlock'

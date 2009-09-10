@@ -795,6 +795,7 @@ If UsePAM is enabled, you will not be able to run sshd(8) as a non-root user.  T
                            'X11Forwarding',
                            {
                              'value_type' => 'enum',
+                             'level' => 'important',
                              'upstream_default' => 'no',
                              'type' => 'leaf',
                              'description' => 'Specifies whether X11 forwarding is permitted. Note that disabling X11 forwarding does not prevent users from forwarding X11 traffic, as users can always install their own forwarders. X11 forwarding is automatically disabled if UseLogin is enabled.',

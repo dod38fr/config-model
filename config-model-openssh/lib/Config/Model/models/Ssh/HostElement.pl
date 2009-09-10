@@ -218,6 +218,7 @@ Agent forwarding should be enabled with caution.  Users with the ability to bypa
                            'ForwardX11',
                            {
                              'value_type' => 'boolean',
+                             'level' => 'important',
                              'upstream_default' => '0',
                              'type' => 'leaf',
                              'description' => 'Specifies whether X11 connections will be automatically redirected over the secure channel and DISPLAY set.
@@ -361,7 +362,7 @@ It is possible to have multiple identity files specified in con figuration files
                              'value_type' => 'uniline',
                              'experience' => 'advanced',
                              'type' => 'leaf',
-                             'description' => 'Specifies that a TCP port on the local machine be forwarded over the secure channel to the specified host and port from the remote machine. The first argument must be [bind_address:]port and the second argument must be host:hostport. IPv6 addresses can be specified by enclosing addresses in square brackets or by using an alternative syntax: [bind_address/]port and host/hostport. Multiple forwardings may be specified, and additional forwardings can be given on the command line. Only the superuser can forward privileged ports. By default, the local port is bound in accordance with the GatewayPorts setting.  However, an explicit bind_address may be used to bind the connection to a specific address.  The bind_address of "localhost" indicates that the listening port be bound for local use only, while an empty address or \'*\' indicates that the port should be available from all interfaces.'
+                             'description' => 'Specifies that a TCP port on the local machine be forwarded over the secure channel to the specified host and port from the remote machine. The first argument must be [bind_address:]port and the second argument must be host:hostport. IPv6 addresses can be specified by enclosing addresses in square brackets or by using an alternative syntax: [bind_address/]port and host/hostport. Multiple forwardings may be specified, and additional forwardings can be given on the command line. Only the superuser can forward privileged ports. By default, the local port is bound in accordance with the GatewayPorts setting. However, an explicit bind_address may be used to bind the connection to a specific address. The bind_address of "localhost" indicates that the listening port be bound for local use only, while an empty address or \'*\' indicates that the port should be available from all interfaces.'
                            },
                            'LogLevel',
                            {
@@ -515,6 +516,8 @@ This directive is useful in conjunction with nc(1) and its proxy support. For ex
                            'RemoteForward',
                            {
                              'value_type' => 'uniline',
+                             'level' => 'important',
+                             'experience' => 'advanced',
                              'type' => 'leaf',
                              'description' => 'Specifies that a TCP port on the remote machine be forwarded over the secure channel to the specified host and port from the local machine.  The first argument must be [bind_address:]port and the second argument must be host:hostport.  IPv6 addresses can be specified by enclosing addresses in square brackets or by using an alternative syntax: [bind_address/]port and host/hostport. Multiple forwardings may be specified, and additional forwardings can be given on the command line.  Only the superuser can forward privileged ports.
 
@@ -643,6 +646,7 @@ To disable TCP keepalive messages, the value should be set to "no".'
                            'User',
                            {
                              'value_type' => 'uniline',
+                             'level' => 'important',
                              'type' => 'leaf',
                              'description' => 'Specifies the user to log in as.  This can be useful when a dif ferent user name is used on different machines.  This saves the trouble of having to remember to give the user name on the command line.'
                            },

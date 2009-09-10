@@ -1,3 +1,9 @@
+2009-09-10  Dominique Dumont  <dominique.dumont@hp.com> v1.208
+
+	* lib/Config/Model/models/**.pl: Changed 'level' of some elements
+	to 'important' so the new wizard provided by C::M::TkUI will show
+	the most imporant ssh and sshd configuration parameters.
+
 2009-07-29  Dominique Dumont  <dominique.dumont@hp.com> v1.207
 
 	* t/ssh_config.t: When run as root, skip the tests that must be
@@ -14,9 +20,9 @@
 2009-06-23  Dominique Dumont  <dominique.dumont@hp.com>
 
 	* lib/Config/Model/models/**.pl: replaced deprecated 'built_in'
-	model parameter with 'upstream_default'. The trick is to run
-	"config-model-edit -model Ssh -save" (from Config::Model::Itself)
-	and that's it.
+	model parameter with 'upstream_default'. (In fact I just had to
+	run "config-model-edit -model Ssh -save" (from
+	Config::Model::Itself))
 
 2009-04-11  Dominique Dumont  <domi.dumont@free.fr> v1.205
 

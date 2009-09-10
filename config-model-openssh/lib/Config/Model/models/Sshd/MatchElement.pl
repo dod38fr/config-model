@@ -12,6 +12,7 @@
                                             'allow_override' => '1'
                                           },
                              'value_type' => 'enum',
+                             'level' => 'important',
                              'type' => 'leaf',
                              'description' => 'Specifies whether TCP forwarding is permitted. The default is "yes".Note that disabling TCP forwarding does not improve security unless users are also denied shell access, as they can always install their own forwarders.',
                              'choice' => [
@@ -133,6 +134,7 @@
                                             'allow_override' => '1'
                                           },
                              'value_type' => 'enum',
+                             'level' => 'important',
                              'upstream_default' => 'no',
                              'type' => 'leaf',
                              'description' => 'Specifies whether password authentication is allowed.',
@@ -210,6 +212,7 @@
                                             'allow_override' => '1'
                                           },
                              'value_type' => 'enum',
+                             'level' => 'important',
                              'upstream_default' => 'no',
                              'type' => 'leaf',
                              'description' => 'Specifies whether X11 forwarding is permitted. Note that disabling X11 forwarding does not prevent users from forwarding X11 traffic, as users can always install their own forwarders. X11 forwarding is automatically disabled if UseLogin is enabled.',

@@ -4,6 +4,7 @@
             'element' => [
                            'patterns',
                            {
+                             'level' => 'important',
                              'cargo' => {
                                           'value_type' => 'uniline',
                                           'type' => 'leaf'
@@ -24,6 +25,7 @@ A pattern-list is a comma-separated list of patterns. Patterns within pattern-li
                            },
                            'block',
                            {
+                             'level' => 'important',
                              'type' => 'node',
                              'description' => 'Specifies the parameters that apply to the host that match one of the pattern given above',
                              'config_class_name' => 'Ssh::HostElement'
