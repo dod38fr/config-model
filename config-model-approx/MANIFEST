@@ -1,7 +1,9 @@
 Build.PL
+ChangeLog
+MANIFEST			This list of files
+META.yml
+README
 config-edit-approx
 lib/Config/Model/Approx.pm
 lib/Config/Model/models/Approx.pl
-MANIFEST			This list of files
 t/approx_config.t
-META.yml

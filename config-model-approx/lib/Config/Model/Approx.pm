@@ -88,3 +88,5 @@ sub write {
     return 1;
 
 }
+
+1;
