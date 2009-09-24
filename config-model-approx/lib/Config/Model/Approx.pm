@@ -1,3 +1,7 @@
+# $Author$
+# $Date$
+# $Revision$
+
 #    Copyright (c) 2009 Dominique Dumont.
 #
 #    This file is part of Config-Model-Approx.

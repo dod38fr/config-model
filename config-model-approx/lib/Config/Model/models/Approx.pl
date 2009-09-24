@@ -85,6 +85,7 @@
                            },
                            'distributions',
                            {
+                             'level' => 'important',
                              'cargo' => {
                                           'value_type' => 'uniline',
                                           'type' => 'leaf'
