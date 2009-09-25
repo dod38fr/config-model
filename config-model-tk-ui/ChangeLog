@@ -1,10 +1,11 @@
 2009-09-25  Dominique Dumont  <domi.dumont@free.fr>
 
 	* examples/model.pl: Simple model and graphical interface
-	example. Thanks to Alexander Becker.
+	example. Thanks to Alexander Becker. (RT 49999)
 
 	* lib/Config/Model/Tk/LeafEditor.pm (try): Avoid warnings
-
+	(RT 49999)
+	
 	* lib/Config/Model/TkUI.pm (save): trap write_back error.
 
 2009-09-04  Dominique Dumont  <dominique.dumont@hp.com> 1.301
