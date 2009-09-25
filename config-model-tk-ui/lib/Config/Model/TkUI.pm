@@ -380,7 +380,13 @@ sub save {
     }
     else {
 	$logger->info( "Saving data in $trace_dir directory with instance write_back" );
-	$cw->{root}->instance->write_back(@wb_args);
+	eval { $cw->{root}->instance->write_back(@wb_args); } ;
+	if ($@) {
+	  $cw -> Dialog ( -title => 'Save error',
+			  -text  => "$@",
+			)
+            -> Show ;
+	}
     }
     $cw->{modified_data} = 0 ;
 }
@@ -870,6 +876,7 @@ sub edit_paste {
 
     my @selected = @_ ? @_ : $tkt -> info('selection');
 
+    return unless @selected ;
     #print "edit_paste in @selected\n";
     my @res ;
 

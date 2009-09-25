@@ -1,3 +1,12 @@
+2009-09-25  Dominique Dumont  <domi.dumont@free.fr>
+
+	* examples/model.pl: Simple model and graphical interface
+	example. Thanks to Alexander Becker.
+
+	* lib/Config/Model/Tk/LeafEditor.pm (try): Avoid warnings
+
+	* lib/Config/Model/TkUI.pm (save): trap write_back error.
+
 2009-09-04  Dominique Dumont  <dominique.dumont@hp.com> 1.301
 
 	* lib/Config/Model/Tk/NodeEditor.pm: New widget to edit several

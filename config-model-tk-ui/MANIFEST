@@ -1,5 +1,6 @@
 Build.PL
 ChangeLog
+examples/model.pl
 lib/Config/Model/Tk/AnyViewer.pm
 lib/Config/Model/Tk/CheckListEditor.pm
 lib/Config/Model/Tk/CheckListViewer.pm

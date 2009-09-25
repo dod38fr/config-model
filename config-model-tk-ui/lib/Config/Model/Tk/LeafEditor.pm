@@ -63,7 +63,7 @@ sub Populate {
 
     $cw->add_header(Edit => $leaf) ;
 
-    $cw->{value} = $leaf->fetch || '';
+    $cw->{value} = $leaf->fetch ;
     my $vref = \$cw->{value};
 
     my @pack_args = @fx ;
@@ -109,7 +109,9 @@ sub Populate {
 	my @choice = $leaf->get_choice ;
 	$lb->insert('end',$leaf->get_choice) ;
 	my $idx = 0;
-	map { $lb->selectionSet($idx) if $_ eq $$vref; $idx ++}  @choice;
+	if (defined $$vref) {
+	  map { $lb->selectionSet($idx) if $_ eq $$vref; $idx ++}  @choice;
+	}
 	$lb->bind('<Button-1>',sub {$cw->try($lb->get($lb->curselection()))});
 	$cw->add_buttons($ed_frame) ;
 
@@ -179,6 +181,8 @@ sub try {
 	$v = defined  $e_w ? $e_w->get('1.0','end')
            :                 $cw->{value} ;
     }
+
+    return unless defined $v;
     chomp $v ;
 
     $logger->debug( "try: value $v") ;
@@ -192,7 +196,7 @@ sub try {
 		      )
             -> Show ;
 	$cw->reset_value ;
-	return undef ;
+	return ;
     }
     else {
 	$cw->set_value_help($v) ;
