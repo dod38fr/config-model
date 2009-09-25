@@ -1,3 +1,8 @@
+2009-09-25  Dominique Dumont  <domi.dumont@free.fr>
+
+	* lib/Config/Model/Instance.pm (write_back): Croak if no
+	write_back callbacks were registered
+
 2009-09-09  Dominique Dumont  <dominique.dumont@hp.com> v0.640
 
 	* lib/Config/Model/WizardHelper.pm (new): Correctly scan list

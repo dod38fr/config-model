@@ -501,6 +501,8 @@ For instance, C<< backend => 'augeas' >> or C<< backend => 'custom' >>.
 You can force to use all backend to write the files by specifying 
 C<< backend => 'all' >>.
 
+C<write_back> will croak if no write call-back are known.
+
 =cut
 
 sub write_back {
@@ -518,7 +520,7 @@ sub write_back {
      }
       keys %args;
 
-    warn "write_back: no subs registered. cannot save" 
+    croak "write_back: no subs registered. cannot save data\n" 
       unless @{$self->{write_back}} ;
 
     my $dir = $args{config_dir} ;
