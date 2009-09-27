@@ -34,8 +34,8 @@ are the purpose of the main files:
 AUTHOR
     Copyright (c) 2009 Dominique Dumont.
 
-    This file is part of Config-Model-Approx. License is LGPL v2.
-
+    This file is part of Config-Model-Approx. License is LGPL v2.1 or
+    any later version.
 
     All help text provided in Approx models were extracted from
     approx.conf(5) man page. I've slightly modified the text to better

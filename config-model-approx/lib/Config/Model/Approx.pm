@@ -32,7 +32,7 @@ use File::Path ;
 
 use vars qw($VERSION)  ;
 
-$VERSION = '1.001' ;
+$VERSION = '1.002' ;
 
 my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
@@ -94,3 +94,78 @@ sub write {
 }
 
 1;
+
+=head1 NAME
+
+Config::Model::Approx - Approx configuration file editor
+
+=head1 SYNOPSIS
+
+ use Config::Model ;
+ my $model = Config::Model -> new ( ) ;
+
+ my $inst = $model->instance (root_class_name   => 'Approx');
+ my $root = $inst -> config_root ;
+
+ $root->load("distribution:multimedia=http://www.debian-multimedia.org") ;
+
+ $inst->write_back() ;
+
+=head1 DESCRIPTION
+
+This module provides a configuration model for Approx. Then
+Config::Model provides a graphical editor program for
+F</etc/approx/approx.conf>. See L<config-edit-approx> more help.
+
+This module and Config::Model can also be used from Perl programs to
+modify safely the content of F</etc/approx/approx.conf>.
+
+Once this module is installed, you can run:
+
+ # config-edit-approx
+
+The Perl API is documented in L<Config::Model> and mostly in
+L<Config::Model::Node>.
+
+=head1 Functions
+
+These functions are declared in Approx configuration models and are
+called back.
+
+=head2 read (object => approx_root>, io_handle => ...)
+
+Read F<approx.conf> and load the data in the C<approx_root>
+configuration tree.
+
+=head2 write (object => approx_root>, io_handle => ...)
+
+Write data from the C<approx_root> configuration tree into
+F<approx.conf>.
+
+=head1 AUTHOR
+
+Dominique Dumont, (ddumont at cpan dot org)
+
+=head1 LICENSE
+
+   Copyright (c) 2009 Dominique Dumont.
+
+   This file is part of Config-Model-Approx.
+
+   Config-Model-Approx is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser Public License as
+   published by the Free Software Foundation; either version 2.1 of
+   the License, or (at your option) any later version.
+
+   Config-Xorg is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser Public License for more details.
+
+   You should have received a copy of the GNU Lesser Public License
+   along with Config-Model; if not, write to the Free Software
+   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+
+=head1 SEE ALSO
+
+L<config-edit-approx>, L<Config::Model>,

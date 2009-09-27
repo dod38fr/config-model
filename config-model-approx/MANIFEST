@@ -7,3 +7,4 @@ config-edit-approx
 lib/Config/Model/Approx.pm
 lib/Config/Model/models/Approx.pl
 t/approx_config.t
+t/pod.t

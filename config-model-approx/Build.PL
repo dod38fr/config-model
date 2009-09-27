@@ -40,6 +40,7 @@ my $build = Module::Build->new
 		     'Config::Model'   => '0.637',
 		     'Log::Log4perl'   => 0 ,
 		    },
+   build_requires => { 'Test::Pod' => 0 },
    recommends    => {
                      'Config::Model::CursesUI' => 0, # Curses interface
                      'Config::Model::TkUI'     => 0, # graphical interface
