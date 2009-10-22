@@ -4,7 +4,7 @@
 # $Revision: 608 $
 
 use ExtUtils::testlib;
-use Test::More tests => 4;
+use Test::More tests => 5;
 use Config::Model ;
 use Log::Log4perl qw(:easy) ;
 use File::Path ;
@@ -64,6 +64,7 @@ print $dump if $trace ;
 my $expect = 'max_rate=100K
 verbose=1
 distributions:debian=http://ftp.debian.org/debian
+distributions:local=file:///my/local/repo
 distributions:security=http://security.debian.org/debian-security -
 ';
 
@@ -78,12 +79,16 @@ my $approxlines = join('',<APPROX>) ;
 close APPROX;
 
 like($approxlines,qr/200K/,"checked written approx file") ;
+like($approxlines,qr/\$verbose/,"new approx file contains new style param") ;
 
 __END__
 
 
 $max_rate 100K
-$verbose  1
+
+# old style parameter (before approx 2.9.0)
+verbose  1
 
 debian          http://ftp.debian.org/debian
 security        http://security.debian.org/debian-security
+local           file:///my/local/repo
