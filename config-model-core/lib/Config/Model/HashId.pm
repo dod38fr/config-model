@@ -2,7 +2,7 @@
 # $Date$
 # $Revision$
 
-#    Copyright (c) 2005-2007 Dominique Dumont.
+#    Copyright (c) 2005-2009 Dominique Dumont.
 #
 #    This file is part of Config-Model.
 #
@@ -26,6 +26,9 @@ use Scalar::Util qw(weaken) ;
 use warnings ;
 use Carp;
 use strict;
+use Log::Log4perl qw(get_logger :levels);
+
+my $logger = get_logger("Tree::Element::Hash");
 
 use base qw/Config::Model::AnyId/ ;
 
@@ -123,7 +126,7 @@ sub set_properties {
     # warp mechanism
     foreach my $k (sort keys %$data) {
 	next unless $wrong->($k) ;
-	print "set_properties: ",$self->name," deleting id $k\n" if $::debug ;
+	$logger->debug("set_properties: ",$self->name," deleting id $k");
 	delete $data->{$k}  ;
     }
 }
@@ -457,25 +460,27 @@ sub move_down {
 
 =head2 load_data ( hash_ref | array_ref)
 
-Load check_list as a hash ref for standard hash.
-Ordered hash must be loaded with a array ref.
+Load check_list as a hash ref for standard hash.  Ordered hash should
+be loaded with an array ref.
 
 =cut
 
 sub load_data {
     my $self = shift ;
     my $data = shift ;
-    if (not $self->{ordered} and ref ($data) eq 'HASH') {
-	print "HashId load_data (",$self->location,") will load idx ",
-	  join (' ',keys %$data),"\n" if $::verbose ;
-	foreach my $elt (keys %$data ) {
+
+    if (ref ($data) eq 'HASH') {
+	my @load_keys = sort  keys %$data ;
+	$logger->info("HashId load_data (".$self->location.
+		      ") will load idx @load_keys from hash ref");
+	foreach my $elt (@load_keys) {
 	    my $obj = $self->fetch_with_id($elt) ;
 	    $obj -> load_data($data->{$elt}) ;
 	}
     }
     elsif ( $self->{ordered} and ref ($data) eq 'ARRAY') {
-	print "HashId load_data (",$self->location,") will load idx ",
-	  "0..$#$data\n" if $::verbose ;
+	$logger->info("HashId load_data (".$self->location
+		      .") will load idx 0..$#$data from array ref") ;
 	my $idx = 0 ;
 	while ( $idx < @$data ) {
 	    my $obj = $self->fetch_with_id($data->[$idx++]) ;

@@ -454,6 +454,8 @@ Log4perl uses the following categories:
 
 =item Tree::Element::Value
 
+=item Tree::Element::Hash
+
 =item Tree::Element::Warper
 
 =item Tree::Element::Warped

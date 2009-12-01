@@ -1,3 +1,8 @@
+2009-12-01  Dominique Dumont  <dominique.dumont@hp.com>
+
+	* lib/Config/Model/HashId.pm: Ported to
+	Log4Perl (Tree::Element::Hash class)
+
 2009-09-25  Dominique Dumont  <domi.dumont@free.fr>
 
 	* lib/Config/Model/Instance.pm (write_back): Croak if no

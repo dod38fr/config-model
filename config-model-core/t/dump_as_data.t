@@ -4,7 +4,7 @@
 # $Revision$
 
 use ExtUtils::testlib;
-use Test::More tests => 19;
+use Test::More tests => 28;
 use Config::Model;
 
 use warnings;
@@ -103,7 +103,6 @@ $expect->{olist}[1]{DX} = 'Dv' ;
 $expect->{std_id}{ab}{DX} = 'Dv' ;
 $expect->{std_id}{bc}{DX} = 'Dv' ;
 $expect->{a_uniline} = 'yada yada';
-
 my $full_data = $root->dump_as_data() ;
 
 is_deeply($full_data, $expect, "check full data dump") ;
@@ -145,3 +144,29 @@ foreach my $test ( @tries ) {
     my $dump = $obj->dump_as_data();
     is_deeply($dump, $expect, "check data dump for '$path'") ; 
 }
+
+# test ordered hash load with hash ref instead of array ref
+my $inst3 = $model->instance (root_class_name => 'Master', 
+			      instance_name => 'test3');
+ok($inst,"created 3rd dummy instance") ;
+my $root3= $inst3->config_root ;
+$data->{ordered_hash} = { @{$expect->{ordered_hash}}} ;
+$root3->load_data($data); 
+
+@tries    = ( [ 'olist' => $expect->{olist}  ],
+	      [ 'olist:0' => $expect->{olist}[0] ],
+	      [ 'olist:0 DX' => $expect->{olist}[0]{DX} ],
+	      [ 'string_with_def' => $expect->{string_with_def} ],
+	      [ 'ordered_hash' =>  [qw/x 3 y 2 z 1/] ],
+	      [ 'hash_a' => $expect->{hash_a} ],
+	      [ 'std_id:ab' => $expect->{std_id}{ab} ],
+	      [ 'my_check_list' => $expect->{my_check_list} ],
+	    );
+
+foreach my $test ( @tries ) {
+    my ($path, $expect) = @$test ;
+    my $obj = $root3->grab($path) ;
+    my $dump = $obj->dump_as_data();
+    is_deeply($dump, $expect, "check data dump for '$path'") ; 
+}
+
