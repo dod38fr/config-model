@@ -41,7 +41,7 @@ MODULE = Config::Augeas PACKAGE = Config::Augeas PREFIX = aug_
 BOOT:
   {
     HV *stash;
-    stash = gv_stashpv("Config::Augeas", TRUE);
+    stash	       = gv_stashpv("Config::Augeas", TRUE);
     newCONSTSUB(stash, "AUG_NONE",         newSViv(AUG_NONE));
     newCONSTSUB(stash, "AUG_SAVE_BACKUP",  newSViv(AUG_SAVE_BACKUP));
     newCONSTSUB(stash, "AUG_SAVE_NEWFILE", newSViv(AUG_SAVE_NEWFILE));
@@ -49,6 +49,18 @@ BOOT:
     newCONSTSUB(stash, "AUG_NO_STDINC",    newSViv(AUG_NO_STDINC));
     newCONSTSUB(stash, "AUG_SAVE_NOOP",    newSViv(AUG_SAVE_NOOP));
     newCONSTSUB(stash, "AUG_NO_LOAD",      newSViv(AUG_NO_LOAD));
+    newCONSTSUB(stash, "AUG_NO_MODL_AUTOLOAD", newSViv(AUG_NO_MODL_AUTOLOAD));
+
+
+    /* Error reporting */
+    newCONSTSUB(stash, "AUG_NOERROR",   newSViv(AUG_NOERROR));
+    newCONSTSUB(stash, "AUG_ENOMEM",    newSViv(AUG_ENOMEM));
+    newCONSTSUB(stash, "AUG_EINTERNAL", newSViv(AUG_EINTERNAL));
+    newCONSTSUB(stash, "AUG_EPATHX",    newSViv(AUG_EPATHX));
+    newCONSTSUB(stash, "AUG_ENOMATCH",  newSViv(AUG_ENOMATCH));
+    newCONSTSUB(stash, "AUG_EMMATCH",   newSViv(AUG_EMMATCH));
+    newCONSTSUB(stash, "AUG_ESYNTAX",   newSViv(AUG_ESYNTAX));
+
   }
 
 Config_Augeas*
@@ -177,6 +189,11 @@ int
 aug_save( aug );
       Config_Augeas *aug
 
+int 
+aug_load( aug );
+      Config_Augeas *aug
+
+
  # See example 9 in perlxstut man page
 int
 aug_print(aug, stream, path);
@@ -194,3 +211,22 @@ aug_print(aug, stream, path);
          }
     OUTPUT:
         RETVAL
+
+
+ # Error reporting
+
+int 
+aug_error( aug );
+      Config_Augeas *aug
+
+const char*
+aug_error_message(aug)
+      Config_Augeas* aug
+
+const char*
+aug_error_minor_message(aug)
+      Config_Augeas* aug
+
+const char*
+aug_error_details(aug)
+      Config_Augeas* aug

@@ -22,7 +22,7 @@ use warnings;
 use Carp;
 use IO::File ;
 
-our $VERSION = '0.501';
+our $VERSION = '0.601';
 
 require XSLoader;
 XSLoader::load('Config::Augeas', $VERSION);
@@ -386,6 +386,43 @@ sub save {
     return $ret == 0 ? 1 : 0 ;
 }
 
+=head2 load
+
+Load files into the tree. Which files to load and what lenses to use on
+them is specified under C</augeas/load> in the tree; each entry
+C</augeas/load/NAME> specifies a 'transform', by having itself exactly one
+child 'lens' and any number of children labelled 'incl' and 'excl'. The
+value of NAME has no meaning.
+
+The 'lens' grandchild of C</augeas/load> specifies which lens to use, and
+can either be the fully qualified name of a lens 'Module.lens' or
+'C<@Module>'. The latter form means that the lens from the transform marked
+for autoloading in C<MODULE> should be used.
+
+The 'incl' and 'excl' grandchildren of C</augeas/load> indicate which files
+to transform. Their value are used as glob patterns. Any file that
+matches at least one 'incl' pattern and no 'excl' pattern is
+transformed. The order of 'incl' and 'excl' entries is irrelevant.
+
+When L<init> is first called, it populates C</augeas/load> with the
+transforms marked for autoloading in all the modules it finds.
+
+Before loading any files, C<load> will remove everything underneath
+C</augeas/files> and C</files>, regardless of whether any entries have been
+modified or not.
+
+Returns 0 on error, 1 on success. Note that success includes the case
+where some files could not be loaded. Details of such files can be found
+as 'C</augeas//error>'.
+
+=cut
+
+sub load {
+    my $self   = shift ;
+    my $ret = $self->{aug_c} -> load() ;
+    return $ret == 0 ? 1 : 0 ;
+}
+
 =head2 print ( [ path  , [ file ] ] )
 
 Print each node matching C<path> and its descendants on STDOUT or in a file
@@ -412,8 +449,7 @@ Example:
   $aug->print('/files') ; # print all file nodes to STDOUT
   $aug->print('/augeas/','bar.txt'); # print Augeas meta data in bar.txt
 
-WARNING: The orders of the parameter are reversed compared to Augeas C
-API.
+WARNING: The parameter order is reversed compared to Augeas C API.
 
 =cut
 
@@ -436,9 +472,69 @@ sub print {
     return $ret == 0 ? 1 : 0 ;
 }
 
+=head1 Error reporting
+
+=head2 error
+
+Returns the error code from the last API call as a short string:
+noerror, nomem, internal, pathx, nomatch, manymatch, syntax
+
+=cut
+
+my @errcode = qw/noerror nomem internal pathx nomatch manymatch syntax/;
+
+sub error {
+    my $self   = shift ;
+    my $code = $self->{aug_c} -> error() ;
+    return $errcode[$code] ;
+}
+
+=head2 error_message
+
+Return a human-readable message for the error code.
+
+=cut
+
+sub error_message {
+  my $self   = shift ;
+  $self->{aug_c} -> error_message() ;
+}
+
+=head2 error_minor_message
+
+Return a human-readable message elaborating the error code; might be
+undef. For example, when the error code is C<pathx>, this will explain
+how the path expression is invalid.
+
+=cut
+
+sub error_minor_message {
+  my $self   = shift ;
+  $self->{aug_c} -> error_minor_message() ;
+}
+
+=head2 error_details
+
+Return details about the error, which might be undef. For example, for
+C<pathx>, indicates where in the path expression the error
+occurred. The returned value can only be used until the next API call
+
+=cut
+
+sub error_details {
+  my $self   = shift ;
+  $self->{aug_c} -> error_details() ;
+}
+
 1;
 
 __END__
+
+=head1 CAVEATS
+
+Object oriented design would suggest to use a new class to represent
+Augeas errors, but this would stray too far from current Augeas design
+and API.
 
 =head1 SEE ALSO
 

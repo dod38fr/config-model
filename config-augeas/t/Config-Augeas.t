@@ -8,7 +8,7 @@ use File::Copy ;
 
 use warnings ;
 use strict;
-use Test::More tests => 18 ;
+use Test::More tests => 23 ;
 
 ok(1,"Compilation done");
 
@@ -109,5 +109,18 @@ is($ret,'newbilbo',"Called get defvar (returned $ret )");
 my $v = '$etc2/hosts/1/ipaddr';
 @a =  $aug->defnode(local => $v,'127.0.0.2') ;
 is_deeply(\@a,[1,0],"defnode $v") ;
+
+my $ec= $aug->error ;
+is($ec, 'noerror', "no error found") ;
+my $emsg= $aug->error_minor_message ;
+is($emsg, undef, "no error message") ;
+
+$ret = $aug->get('/files/[blast]') ;
+$ec= $aug->error ;
+is($ec, 'pathx', "found path error") ;
+$emsg= $aug->error_minor_message ;
+ok($emsg, "error_minor_message: $emsg") ;
+$emsg= $aug->error_details ;
+ok($emsg, "error_details: $emsg") ;
 
 #$aug->print('') ;

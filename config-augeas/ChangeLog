@@ -1,7 +1,15 @@
+2009-12-21  Dominique Dumont  <domi.dumont@free.fr> v0.601
+
+	* lib/Config/Augeas.pm : Added methods load, error, error_message,
+	error_minor_message and error_details
+
+	* lib/Config/Augeas.xs : Added interface for aug_load and
+	aug_error* from Augeas 0.6.0
+
 2009-07-10  Dominique Dumont  <dominique.dumont@hp.com> v0.501
 
 	* Build.PL: modified gcc options to issue more warnings (and fixed
-	them 
+	them
 
 	* lib/Config/Augeas.xs: Fixed compiler warnings (Thanks to
 	Guillaume Rousse)
@@ -27,7 +35,7 @@
 	* t/Config-AugeasC.t: Removed test involving AUGROOT environment
 	variable (Lead to FTBS on Debian amd64). The removed tests are
 	already performed passing augeas root through aug_init.
- 	
+
 2008-11-21  Dominique Dumont  <dominique.dumont@hp.com> v0.304
 
 	* lib/Config/Augeas.pm (print): Improved print method. Can now
