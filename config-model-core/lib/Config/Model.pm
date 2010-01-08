@@ -2,23 +2,7 @@
 # $Date$
 # $Revision$
 
-#    Copyright (c) 2005-2009 Dominique Dumont.
-#
-#    This file is part of Config-Model.
-#
-#    Config-Model is free software; you can redistribute it and/or
-#    modify it under the terms of the GNU Lesser Public License as
-#    published by the Free Software Foundation; either version 2.1 of
-#    the License, or (at your option) any later version.
-#
-#    Config-Model is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#    Lesser Public License for more details.
-#
-#    You should have received a copy of the GNU Lesser Public License
-#    along with Config-Model; if not, write to the Free Software
-#    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+# copyright at the end of the file in the pod section
 
 package Config::Model ;
 require Exporter;
@@ -82,21 +66,31 @@ made of 3 parts :
 
 =item 1
 
-The user interface
+A reader and writer that will parse the configuration file and transform in a tree representation within Config::Model. The values contained in this configuration tree can be written back in the configuraiton file(s).
 
 =item 2
 
-The validation engine which is in charge of validating all the
-configuration information provided by the user.
+A validation engine which is in charge of validating the content and
+structure of configuration stored in the configuration tree. This
+validation engine will follow the structure and constraint declared in
+a configuration model. This model is a kind of schema for the
+configuration tree.
 
 =item 3
 
-The storage facility that store the configuration information
+A user interface to modify the content of the configuration tree. A
+modification will be validated instantly by the validation engine.
 
 =back
 
-C<Config::Model> provides a B<validation engine> according to a set of
-rules.
+=head1 Reader and writer
+
+See L<Config::Model::AutoRead> for details
+
+=head1 Validation engine
+
+C<Config::Model> provides a way to get a validation engine from a set
+of rules. This set of rules is called the configuration model. 
 
 =head1 User interface
 
@@ -105,31 +99,9 @@ configuration values. More importantly, a generic user interface will
 need to explore the configuration model to be able to generate at
 run-time relevant configuration screens.
 
-A generic Curses interface is under development. More on this later.
+Simple text interface if provided in this module. Curses and Tk interfaces are provided by L<Config::Model::CursesUI> and L<Config::Model::TkUI>.
 
-One can also consider to use Webmin (L<http://www.webmin.com>) on top
-of config model.
-
-=head1 Storage
-
-The storage will often be a way to store configuration in usual
-configuration files, like C</etc/X11/xorg.conf>
-
-One can also consider storing configuration data in a database, ldap
-directory or using elektra project L<http://www.libelektra.org/>
-
-=head1 Validation engine
-
-C<Config::Model> provides a way to get a validation engine from a set
-of rules. This set of rules is now called the configuration model. 
-
-=head1 Configuration Model
-
-Before talking about a configuration tree, we must create a
-configuration model that will set all the properties of the validation
-engine you want to create.
-
-=head2 Constructor
+=head1 Constructor
 
 Simply call new without parameters:
 
@@ -171,27 +143,31 @@ sub legacy {
     }
 }
 
-=head2 declaring the model
+=head1 Configuration Model
+
+To validate a configuration tree, we must create a configuration model
+that will set all the properties of the validation engine you want to
+create.
 
 The configuration model is expressed in a declarative form (i.e. a
 Perl data structure which is always easier to maintain than a lot of
-code.)
+code)
 
-Each node of the configuration tree is attached to a configuration
-class whose properties you must declare by calling
-L</"create_config_class">.
-
-Each configuration class contains mostly 2 types of elements:
+Each configuration class contains a set of:
 
 =over
 
 =item *
 
-A node type element that will refer to another configuration class
+node element that will refer to another configuration class
 
 =item *
 
-A value element that will contains actual configuration data
+value element that will contains actual configuration data
+
+=item *
+
+List or hash of node or value elements
 
 =back
 
@@ -254,6 +230,28 @@ Each configuration class declaration specifies:
 
 =item *
 
+The C<name> of the class (mandatory)
+
+=item *
+
+A C<class_description> used in user interfaces (optional)
+
+=item *
+
+Optional include specification to avoid duplicate declaration of elements.
+
+=item *
+
+The class elements
+
+=back
+
+Each element will feature:
+
+=over
+
+=item 8
+
 Most importantly, the type of the element (mostly C<leaf>, or C<node>)
 
 =item *
@@ -287,8 +285,34 @@ from newbie eyes)
 See L<Config::Model::Node> for details on how to declare a
 configuration class.
 
-=cut
+Example:
 
+ $ cat lib/Config/Model/models/Xorg.pl
+ [
+   {
+     name => 'Xorg',
+     class_description => 'Top level Xorg configuration.',
+     include => [ 'Xorg::ConfigDir'],
+     element => [
+                 Files => {
+                           type => 'node',
+                           description => 'File pathnames',
+                           config_class_name => 'Xorg::Files'
+                          },
+                 # snip
+                ]
+   },
+   {
+     name => 'Xorg::DRI',
+     element => [
+                 Mode => {
+                          type => 'leaf',
+                          value_type => 'uniline',
+                          description => 'DRI mode, usually set to 0666'
+                         }
+                ]
+   }
+ ];
 
 =head1 Configuration instance
 
@@ -1580,7 +1604,7 @@ Dominique Dumont, (ddumont at cpan dot org)
 
 =head1 LICENSE
 
-    Copyright (c) 2005-2008 Dominique Dumont.
+    Copyright (c) 2005-2010 Dominique Dumont.
 
     This file is part of Config-Model.
 
@@ -1602,6 +1626,8 @@ Dominique Dumont, (ddumont at cpan dot org)
 =head1 SEE ALSO
 
 L<Config::Model::Instance>, 
+
+http://sourceforge.net/apps/mediawiki/config-model/index.php?title=Creating_a_model
 
 =head2 Model elements
 
