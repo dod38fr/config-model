@@ -3,7 +3,6 @@ ChangeLog
 config-edit-ssh
 config-edit-sshd
 lib/Config/Model/models/Ssh.pl
-lib/Config/Model/models/Ssh/HostBlock.pl
 lib/Config/Model/models/Ssh/HostElement.pl
 lib/Config/Model/models/Sshd.pl
 lib/Config/Model/models/Sshd/MatchBlock.pl

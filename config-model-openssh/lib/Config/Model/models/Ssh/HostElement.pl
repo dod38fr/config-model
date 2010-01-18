@@ -359,10 +359,24 @@ It is possible to have multiple identity files specified in con figuration files
                            },
                            'LocalForward',
                            {
-                             'value_type' => 'uniline',
+                             'cargo' => {
+                                          'value_type' => 'uniline',
+                                          'type' => 'leaf'
+                                        },
+                             'summary' => 'Local port forwarding',
                              'experience' => 'advanced',
-                             'type' => 'leaf',
-                             'description' => 'Specifies that a TCP port on the local machine be forwarded over the secure channel to the specified host and port from the remote machine. The first argument must be [bind_address:]port and the second argument must be host:hostport. IPv6 addresses can be specified by enclosing addresses in square brackets or by using an alternative syntax: [bind_address/]port and host/hostport. Multiple forwardings may be specified, and additional forwardings can be given on the command line. Only the superuser can forward privileged ports. By default, the local port is bound in accordance with the GatewayPorts setting. However, an explicit bind_address may be used to bind the connection to a specific address. The bind_address of "localhost" indicates that the listening port be bound for local use only, while an empty address or \'*\' indicates that the port should be available from all interfaces.'
+                             'type' => 'list',
+                             'description' => 'Specifies that a TCP port on the local machine be forwarded over the secure channel to the specified host and port from the remote machine. The first argument must be [bind_address:]port and the second argument must be host:hostport. 
+
+IPv6 addresses can be specified by enclosing addresses in square brackets or by using an alternative syntax: [bind_address/]port and host/hostport. 
+
+Multiple forwardings may be specified, and additional forwardings can be given on the command line. Only the superuser can forward privileged ports. 
+
+By default, the local port is bound in accordance with the GatewayPorts setting. However, an explicit bind_address may be used to bind the connection to a specific address. The bind_address of "localhost" indicates that the listening port be bound for local use only, while an empty address or \'*\' indicates that the port should be available from all interfaces.
+
+Example:
+   LocalForward 20000 192.168.0.66:80
+'
                            },
                            'LogLevel',
                            {
@@ -515,10 +529,14 @@ This directive is useful in conjunction with nc(1) and its proxy support. For ex
                            },
                            'RemoteForward',
                            {
-                             'value_type' => 'uniline',
                              'level' => 'important',
+                             'cargo' => {
+                                          'value_type' => 'uniline',
+                                          'type' => 'leaf'
+                                        },
+                             'summary' => 'remote port forward to local',
                              'experience' => 'advanced',
-                             'type' => 'leaf',
+                             'type' => 'list',
                              'description' => 'Specifies that a TCP port on the remote machine be forwarded over the secure channel to the specified host and port from the local machine.  The first argument must be [bind_address:]port and the second argument must be host:hostport.  IPv6 addresses can be specified by enclosing addresses in square brackets or by using an alternative syntax: [bind_address/]port and host/hostport. Multiple forwardings may be specified, and additional forwardings can be given on the command line.  Only the superuser can forward privileged ports.
 
 If the bind_address is not specified, the default is to only bind to loopback addresses.  If the bind_address is \'*\' or an empty string, then the forwarding is requested to listen on all inter faces.  Specifying a remote bind_address will only succeed if the server\'s GatewayPorts option is enabled (see sshd_config(5)).'

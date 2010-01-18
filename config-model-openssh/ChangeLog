@@ -1,3 +1,25 @@
+2010-01-18  Dominique Dumont  <dominique.dumont@hp.com> v1.209
+
+	* lib/Config/Model/models/Sshd.pl: Added automatic migration of
+	data from deprecated KeepAlive parameter to TCPKeepAlive
+	parameter. This enables an automatic migration from old sshd
+	config to new syntax.
+
+	* lib/Config/Model/models/Ssh/HostElement.pl: Since ssh_config doc
+	mentions that LocalForward and RemoteForward can be specified
+	several times, these 2 parameters are changed from leaf to a list
+	of leaf.
+
+	* lib/Config/Model/models/Ssh.pl: As specifying Host block as list
+	of patterns and content was not practical, the Host element in Ssh
+	model was changed from list of HostBlock nodes to hash of
+	HostElement. The Host patterns is used as the key of the
+	hash. This enables a better view of shh configuration in the GUI.
+
+	* lib/Config/Model/OpenSsh.pm (assign): Store value in uniline
+	leaf even with embedded white spaces.
+	(write_all_host_block): adapted to Host structure change in model
+
 2009-09-10  Dominique Dumont  <dominique.dumont@hp.com> v1.208
 
 	* lib/Config/Model/models/**.pl: Changed 'level' of some elements

@@ -18,7 +18,7 @@ use File::Path ;
 use Parse::RecDescent ;
 use vars qw($VERSION $grammar $parser)  ;
 
-$VERSION = '1.208' ;
+$VERSION = '1.209' ;
 
 
 my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -227,7 +227,7 @@ $parser = Parse::RecDescent->new($grammar) ;
     my $type = $elt->get_type;
     #print "got $key type $type and ",join('+',@arg),"\n";
     if    ($type eq 'leaf') { 
-	$elt->store( $arg[0] ) ;
+	$elt->store( join(' ',@arg) ) ;
     }
     elsif ($type eq 'list') { 
 	$elt->push ( @arg ) ;
@@ -275,18 +275,11 @@ $parser = Parse::RecDescent->new($grammar) ;
   sub host {
     my ($root,@patterns)  = @_;
 
-    my $list_obj = $root->fetch_element('Host');
+    my $hash_obj = $root->fetch_element('Host');
 
     $logger->info("ssh: load host patterns '".join("','", @patterns)."'");
 
-    # create new host block
-    my $nb_of_elt = $list_obj->fetch_size;
-    my $block_obj = $list_obj->fetch_with_id($nb_of_elt) ;
-    my $pattern_obj = $block_obj->fetch_element('patterns') ;
-
-    map { $pattern_obj->push($_) ; } @patterns;
-
-    $current_node = $block_obj->fetch_element('block');
+    $current_node = $hash_obj->fetch_with_id("@patterns");
   }
 
   sub clear {
@@ -477,33 +470,19 @@ sub write_all_host_block {
     my $mode = shift || '';
 
     my $result = '' ;
-    foreach my $elt ($host_elt->fetch_all($mode) ) {
-	$result .= write_host_block($elt,$mode) ;
-    }
 
+    foreach my $pattern ( $host_elt->get_all_indexes) {
+	my $block_elt = $host_elt->fetch_with_id($pattern) ;
+	my $block_data = write_node_content($block_elt,'custom') ;
+
+	# write data only if custom pattern or custom data is found this
+	# is necessary to avoid writing data from /etc/ssh/ssh_config that
+	# were entered as 'preset' data
+	if ($block_data) {
+	    $result .= "Host $pattern\n$block_data\n" ;
+	}
+    }
     return $result ;
-}
-
-sub write_host_block {
-    my $host_elt = shift ;
-    my $result = "\nHost " ;
-
-    my $pattern_elt = $host_elt->fetch_element('patterns') ;
-    my @custom_pattern = $pattern_elt -> fetch_all_values('custom') ;
-
-    my $block_elt = $host_elt->fetch_element('block') ;
-    my $block_data = write_node_content($block_elt,'custom') ;
-
-    # write data only if custom pattern or custom data is found this
-    # is necessary to avoid writing data from /etc/ssh/ssh_config that
-    # were entered as 'preset' data
-    if (@custom_pattern or $block_data) {
-	$result .= ' '.join(' ',$pattern_elt->fetch_all_values('custom'));
-	$result .= "\n$block_data\n" ;
-	return $result ;
-    }
-
-    return '';
 }
 1;
 
@@ -513,7 +492,7 @@ Dominique Dumont, (ddumont at cpan dot org)
 
 =head1 LICENSE
 
-   Copyright (c) 2008-2009 Dominique Dumont.
+   Copyright (c) 2008-2010 Dominique Dumont.
 
    This file is part of Config-Model-OpenSsh.
 

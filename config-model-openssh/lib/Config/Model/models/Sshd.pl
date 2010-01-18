@@ -713,6 +713,16 @@ Alternatively, random early drop can be enabled by specifying the three colon se
                                            'LOCAL7'
                                          ]
                            },
+                           'KeepAlive',
+                           {
+                             'value_type' => 'enum',
+                             'status' => 'deprecated',
+                             'type' => 'leaf',
+                             'choice' => [
+                                           'no',
+                                           'yes'
+                                         ]
+                           },
                            'TCPKeepAlive',
                            {
                              'value_type' => 'enum',
@@ -721,6 +731,12 @@ Alternatively, random early drop can be enabled by specifying the three colon se
                                          'no' => 'disable TCP keepalive messages'
                                        },
                              'upstream_default' => 'yes',
+                             'migrate_from' => {
+                                                 'formula' => '$keep_alive',
+                                                 'variables' => {
+                                                                  'keep_alive' => '- KeepAlive'
+                                                                }
+                                               },
                              'type' => 'leaf',
                              'description' => 'Specifies whether the system should send TCP keepalive messages to the other side. If they are sent, death of the connection or crash of one of the machines will be properly noticed. However, this means that connections will die if the route is down temporarily, and some people find it annoying.  On the other hand, if TCP keepalives are not sent, sessions may hang indefinitely on the server, leaving "ghost" users and consuming server resources. This option was formerly called KeepAlive.',
                              'choice' => [

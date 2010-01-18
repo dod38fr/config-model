@@ -4,7 +4,7 @@
 # $Revision: 608 $
 
 use ExtUtils::testlib;
-use Test::More tests => 14;
+use Test::More tests => 12;
 use Config::Model ;
 use Config::Model::OpenSsh ; # required for tests
 use Log::Log4perl qw(:easy) ;
@@ -93,8 +93,7 @@ my $root_cfg = $root_inst -> config_root ;
 my $dump =  $root_cfg->dump_tree ();
 print $dump if $trace ;
 
-like($dump,qr/Host:1/, "check Host section") ;
-like($dump,qr/patterns=foo\.\*,\*\.bar/,"check Host pattern") ;
+like($dump,qr/Host:foo\.\*,\*\.bar/, "check Host pattern") ;
 
 $root_inst->write_back() ;
 ok(1,"wrote ssh_config data in $wr_dir") ;
@@ -131,9 +130,8 @@ SKIP: {
     $dump =  $user_cfg->dump_tree (mode => 'full' );
     print $dump if $trace ;
 
-    like($dump,qr/Host:1/, "check Host section") ;
-    like($dump,qr/patterns=foo\.\*,\*\.bar/,"check root Host pattern") ;
-    like($dump,qr/patterns=mine.bar/,"check user Host pattern") ;
+    like($dump,qr/Host:foo\.\*,\*\.bar/,"check root Host pattern") ;
+    like($dump,qr/Host:mine.bar/,"check user Host pattern") ;
 
     #require Tk::ObjScanner; Tk::ObjScanner::scan_object($user_cfg) ;
     $user_inst->write_back() ;
