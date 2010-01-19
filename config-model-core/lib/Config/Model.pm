@@ -20,7 +20,7 @@ use Config::Model::Instance ;
 # this class holds the version number of the package
 use vars qw($VERSION @status @level @experience_list %experience_index) ;
 
-$VERSION = '0.640';
+$VERSION = '0.641';
 
 
 =head1 NAME
@@ -83,7 +83,7 @@ modification will be validated instantly by the validation engine.
 
 =back
 
-=head1 Reader and writer
+=head1 Storage backend, configuration reader and writer
 
 See L<Config::Model::AutoRead> for details
 

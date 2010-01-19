@@ -2,7 +2,7 @@
 # $Date$
 # $Revision$
 
-#    Copyright (c) 2005-2009 Dominique Dumont.
+#    Copyright (c) 2005-2010 Dominique Dumont.
 #
 #    This file is part of Config-Model.
 #
@@ -30,7 +30,7 @@ use Config::Model::Dumper;
 use Config::Model::DumpAsData;
 use Config::Model::Report;
 use Config::Model::Describe;
-# use Log::Log4perl ;
+use Log::Log4perl qw(get_logger :levels);
 use UNIVERSAL;
 use Scalar::Util qw/weaken/;
 use Storable qw/dclone/ ;
@@ -52,6 +52,8 @@ my %legal_properties = (
 			level  => {qw/important 1 normal 1 hidden 1/},
 			experience => {qw/master 1 advanced 1 beginner 1/},
 		       ) ;
+
+my $logger = get_logger("Tree::Node") ;
 
 =head1 NAME
 
@@ -559,7 +561,7 @@ sub new {
       ? $self->{parent}->name : 'user' ;
 
     my $class_name = $self->{config_class_name} ;
-    print "New $class_name requested by $caller_class\n" if $::verbose;
+    $logger->info( "New $class_name requested by $caller_class");
 
     my $model 
       = $self->{model} 
@@ -748,13 +750,10 @@ C<hash>, C<leaf>,...). By default return elements of any type.
 =item *
 
 B<cargo_type>: Returns only element which contain requested type.
- E.g. if C<get_element_name> is called with C<< cargo_type => leaf >>,
- C<get_element_name> will return simple leaf elements, but also hash
- or list element that contain L<leaf|Config::Model::Value> object. By
- default return elements of any type.
-
-
-
+E.g. if C<get_element_name> is called with C<< cargo_type => leaf >>,
+C<get_element_name> will return simple leaf elements, but also hash
+or list element that contain L<leaf|Config::Model::Value> object. By
+default return elements of any type.
 
 =back
 
@@ -810,8 +809,7 @@ sub get_element_name {
 	}
     }
 
-    print "get_element_name: got @result for level $for\n"
-      if $::debug ;
+    $logger->debug( "get_element_name: got @result for level $for");
 
     return wantarray ? @result : join( ' ', @result );
 }
@@ -885,8 +883,7 @@ sub set_element_property {
     my $new_value = $args{value} || 
       croak "set_element_property:: missing 'value' parameter";
 
-    print "Node ",$self->name,": set $elt property $prop to $new_value\n"
-      if $::debug;
+    $logger->debug("Node ",$self->name,": set $elt property $prop to $new_value");
 
    return $self->{model}{$prop}{$elt} = $new_value ;
 }
@@ -910,9 +907,8 @@ sub reset_element_property {
 			       %args
 			      );
 
-    print "Node ",$self->name,
-      ": reset $elt property $prop to $original_value\n"
-	if $::debug;
+    $logger->debug( "Node ",$self->name,
+      ": reset $elt property $prop to $original_value");
 
     return $self->{model}{$prop}{$elt} = $original_value ;
 }
@@ -1263,8 +1259,8 @@ sub load_data {
 
     my $h = dclone $p ;
 
-    print "Node load_data (",$self->location,") will load elt ",
-      join (' ',keys %$h),"\n" if $::verbose ;
+    $logger->info("Node load_data (",$self->location,") will load elt ",
+		  join (' ',keys %$h));
 
     # data must be loaded according to the element order defined by
     # the model
@@ -1371,7 +1367,7 @@ sub copy_from {
     $self->instance->push_no_value_check('fetch') ;
     my $dump = $from->dump_tree() ;
     $self->instance->pop_no_value_check ;
-    print "node copy with '$dump'\n" if $::debug ;
+    $logger->debug( "node copy with '$dump'");
     $self->load( step => $dump, check_store => 0 ) ;
 }
 

@@ -2,7 +2,7 @@
 # $Date$
 # $Revision$
 
-#    Copyright (c) 2005-2009 Dominique Dumont.
+#    Copyright (c) 2005-2010 Dominique Dumont.
 #
 #    This file is part of Config-Model.
 #
@@ -574,7 +574,7 @@ Idea: sub-files name could be <instance>%<location>.cds
 
 =end comment
 
-This load/store can be done with any of these C<backend>:
+This load/store can be done with different C<backend>:
 
 =over
 
@@ -621,8 +621,76 @@ C<cds_file>, C<ini_file> and C<perl_file> backend must be specified with
 mandatory C<config_dir> parameter. For instance:
 
    read_config  => { backend    => 'cds_file' , 
-                     config_dir => '/etc/cfg_dir'},
+                     config_dir => '/etc/cfg_dir',
+                     file       => 'cfg_file.cds', #optional
+                   },
 
+If C<file> is not specified, a file name will be constructed with
+C<< <config_class_name>.<suffix> >> where suffix is C<pl> or C<ini> or C<cds>.
+
+
+=head2 Plugin backend classes
+
+A backend class can also be specified:
+
+  read_config  => { backend    => 'foo' , 
+                    config_dir => '/etc/cfg_dir'}
+
+In this case, this class will try to load C<Config::Model::Backend::Foo>.
+
+C<read_config> can also have custom parameters that will passed
+verbatim to C::M::B::Foo methods:
+
+  read_config  => { backend    => 'foo' , 
+                    config_dir => '/etc/cfg_dir',
+                    my_param   => 'my_value',
+                  }
+
+
+This C::M::B::Foo class is expected to provide the following methods:
+
+=over
+
+=item new
+
+with parameters:
+
+ node => ref_to_config_model_node
+
+C<new()> must return the newly created object
+
+=item read
+
+with parameters:
+
+ %custom_parameters,      # model data
+ root => $root_dir,       # mostly used for tests
+ config_dir => $read_dir, # path below root
+ file_path => $full_name, # full file name (root+path+file)
+ io_handle => $io_file    # IO::File object
+
+Must return 1 if the read was successful, 0 otherwise.
+
+Following the C<my_param> example above, C<%custom_parameters> will contain 
+C< ( 'my_param' , 'my_value' ) >, so C<read()> will also be called with
+C<root>, C<config_dir>, C<file_path>, C<io_handle> B<and>
+C<<  my_param   => 'my_value' >>.
+
+=item write
+
+with parameters:
+
+ %$write,                     # model data
+ auto_create => $auto_create, # from model
+ backend     => $backend,     # backend name
+ config_dir  => $write_dir,   # override from instance
+ io_handle   => $fh,          # IO::File object
+ write       => 1,            # always
+ root        => $root_dir,
+
+Must return 1 if the write was successful, 0 otherwise
+
+=back
 
 =head2 Custom backend
 

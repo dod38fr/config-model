@@ -2,7 +2,7 @@
 # $Date$
 # $Revision$
 
-#    Copyright (c) 2006-2007 Dominique Dumont.
+#    Copyright (c) 2006-2010 Dominique Dumont.
 #
 #    This file is part of Config-Model.
 #
@@ -91,6 +91,17 @@ sub new {
     bless {}, shift ;
 }
 
+sub quote {
+    foreach (@_) {
+	if (    defined $_ 
+		and ( /(\s|")/ or $_ eq '')
+	   ) {
+	    s/"/\\"/g ; # escape present quotes
+	    $_ = '"' . $_ . '"' ; # add my quotes
+	}
+    }
+}
+
 =head1 Methods
 
 =head2 dump_tree
@@ -172,19 +183,12 @@ sub dump_tree {
 
 	# get value or only customized value
 	my $value = $value_obj->fetch ($fetch_mode) ;
-
-	if (    defined $value 
-	    and ($value =~ /(\s|")/ or $value eq '')
-	   ) {
-	    $value =~ s/"/\\"/g ; # escape present quotes
-	    $value = '"' . $value . '"' ; # add my quotes
-	}
+	quote($index,$value) ;
 
         my $pad = $compute_pad->($obj);
 
-        my $name = defined $index && $index =~ /\s/ ? "$element:\"$index\"" 
-	         : defined $index                   ? "$element:$index" 
-                 :                                     $element;
+        my $name = defined $index ? "$element:$index" 
+                 :                   $element;
 
         $$data_r .= "\n" . $pad . $name . '=' . $value if defined $value;
     };
@@ -194,14 +198,14 @@ sub dump_tree {
 
 	# get value or only customized value
 	my $value = $value_obj->fetch ($fetch_mode) ;
-
+	my $qvalue = $value ;
+	quote($index,$qvalue) ;
         my $pad = $compute_pad->($obj);
 
-        my $name = defined $index && $index =~ /\s/ ? "$element:\"$index\"" 
-	         : defined $index                   ? "$element:$index" 
-                 :                                     $element;
+        my $name = defined $index ? "$element:$index" 
+                 :                   $element;
 
-        $$data_r .= "\n" . $pad . $name . '=' . $value if $value;
+        $$data_r .= "\n" . $pad . $name . '=' . $qvalue if $value;
     };
 
     my $list_element_cb = sub {
@@ -219,8 +223,8 @@ sub dump_tree {
         else {
 	    # skip undef values
 	    my @val = grep (defined $_,$list_obj->fetch_all_values($fetch_mode)) ;
-            $$data_r .= "\n$pad$element=" 
-	      . join( ',', @val ) if @val;
+	    quote(@val) ;
+            $$data_r .= "\n$pad$element=" . join( ',', @val ) if @val;
         }
     };
 
@@ -235,7 +239,7 @@ sub dump_tree {
 
         my $head = "\n$pad$element";
 	if ($type eq 'list' or $type eq 'hash') {
-	    $key = '"' . $key . '"' if  $key =~ /\s/;
+	    quote($key) ;
 	    $head .= ":$key" ;
 	}
 
