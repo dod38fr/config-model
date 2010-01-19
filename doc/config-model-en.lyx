@@ -1,4 +1,4 @@
-#LyX 1.6.4 created this file. For more info see http://www.lyx.org/
+#LyX 1.6.5 created this file. For more info see http://www.lyx.org/
 \lyxformat 345
 \begin_document
 \begin_header
@@ -10,7 +10,13 @@
 \setbeamercovered{transparent}
 % or whatever (possibly just delete it)
 % \setbeameroption{show only notes}
+
+\usepackage{ifthen}
+\newcommand{\showotherui}{false}
+\newcommand{\showadvanced}{false}
+\newcommand{\showaugeas}{false}
 \end_preamble
+\options handout
 \use_default_options false
 \language american
 \inputencoding utf8
@@ -469,7 +475,15 @@ What is a model?
 \end_layout
 
 \begin_layout Standard
-A model defines a tree structure:
+Config is represented in a tree.
+\end_layout
+
+\begin_layout Pause
+
+\end_layout
+
+\begin_layout Standard
+The model defines its structure:
 \end_layout
 
 \begin_layout Itemize
@@ -564,6 +578,30 @@ a status (normal or obsolete)
 \end_layout
 
 \end_deeper
+\begin_layout EndFrame
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ifthenelse{
+\backslash
+equal{
+\backslash
+showadvanced}{true}}{
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
 \begin_layout BeginFrame
 Complex elements
 \end_layout
@@ -600,6 +638,24 @@ References (example: Xorg::Device::Radeon, Monitor-DVI-0 must refer to one
 
 \begin_layout NoteItem
 Xorg examples are based on Xorg 1.4 and may not be valid for Xorg 1.5 or 1.6
+\end_layout
+
+\begin_layout EndFrame
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+}{} % showadvanced
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Subsection
@@ -1133,6 +1189,30 @@ Graphical interface
 Note: Menu Option --> experience to show more parameters
 \end_layout
 
+\begin_layout EndFrame
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ifthenelse{
+\backslash
+equal{
+\backslash
+showotherui}{true}}{
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
 \begin_layout BeginFrame
 Wizard
 \end_layout
@@ -1244,6 +1324,35 @@ $ sudo perl -MConfig::Model -e '
   $i->write_back;'
 \end_layout
 
+\begin_layout EndFrame
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+}{} %showotherui
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+ifthenelse{
+\backslash
+eq{
+\backslash
+showaugeas}{true}}{
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
 \begin_layout Subsection
 Relation with Augeas project
 \end_layout
@@ -1258,10 +1367,7 @@ status open
 
 \begin_layout Plain Layout
 
-{
-\lang american
-Augeas is
-}
+{Augeas is}
 \end_layout
 
 \end_inset
@@ -1298,10 +1404,7 @@ status open
 
 \begin_layout Plain Layout
 
-{
-\lang american
-Lens
-}
+{Lens}
 \end_layout
 
 \end_inset
@@ -1447,13 +1550,7 @@ status open
 
 \begin_layout Plain Layout
 
-{
-\lang american
-User get
-s
-\lang american
- best of both worlds
-}
+{User gets best of both worlds}
 \end_layout
 
 \end_inset
@@ -1481,10 +1578,7 @@ status open
 
 \begin_layout Plain Layout
 
-{
-\lang american
-Developer is not no lucky
-}
+{Developer is not no lucky}
 \end_layout
 
 \end_inset
@@ -1510,6 +1604,24 @@ Declare Augeas backend in model (can be tricky)
 \end_layout
 
 \end_deeper
+\begin_layout EndFrame
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+}{} %showaugeas
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
 \begin_layout Section
 Package upgrades
 \end_layout
@@ -1558,10 +1670,7 @@ status open
 
 \begin_layout Plain Layout
 
-{
-\lang american
-In all cases
-}
+{In all cases}
 \end_layout
 
 \end_inset
@@ -1588,6 +1697,7 @@ Towards a solution ?
 status open
 
 \begin_layout Plain Layout
+
 {Proposal}
 \end_layout
 
@@ -1697,12 +1807,6 @@ TCPKeepAlive => { value_type => 'enum',
 \begin_layout LyX-Code
 
 \size scriptsize
-                  status     => 'deprecated',
-\end_layout
-
-\begin_layout LyX-Code
-
-\size scriptsize
                   type       => 'leaf',
 \end_layout
 
@@ -1715,7 +1819,7 @@ TCPKeepAlive => { value_type => 'enum',
 \begin_layout LyX-Code
 
 \size scriptsize
-                  compute 
+                  migrate_from 
 \end_layout
 
 \begin_layout LyX-Code
@@ -1728,12 +1832,6 @@ TCPKeepAlive => { value_type => 'enum',
 
 \size scriptsize
                        variables => { keep_alive => '- KeepAlive' },
-\end_layout
-
-\begin_layout LyX-Code
-
-\size scriptsize
-                       allow_override => 1 
 \end_layout
 
 \begin_layout LyX-Code
@@ -1994,7 +2092,7 @@ Wizard for the GUI (done)
 \end_layout
 
 \begin_layout Itemize
-Search parameters and values
+Search parameters, values and help
 \end_layout
 
 \begin_layout Itemize
