@@ -1,3 +1,10 @@
+2010-01-19  Dominique Dumont  <dominique.dumont@hp.com> v1.210
+
+	* lib/Config/Model/OpenSsh.pm (read_ssh_file): Bug fix to parse
+	correctly LocalForward lines
+
+	* Build.PL: Tests depend on Config::Model 0.641
+
 2010-01-18  Dominique Dumont  <dominique.dumont@hp.com> v1.209
 
 	* lib/Config/Model/models/Sshd.pl: Added automatic migration of

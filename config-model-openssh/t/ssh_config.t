@@ -4,7 +4,7 @@
 # $Revision: 608 $
 
 use ExtUtils::testlib;
-use Test::More tests => 12;
+use Test::More tests => 13;
 use Config::Model ;
 use Config::Model::OpenSsh ; # required for tests
 use Log::Log4perl qw(:easy) ;
@@ -94,6 +94,8 @@ my $dump =  $root_cfg->dump_tree ();
 print $dump if $trace ;
 
 like($dump,qr/Host:foo\.\*,\*\.bar/, "check Host pattern") ;
+like($dump,qr/LocalForward="20022 +10.3.244.4:22","22080 +10.3.244.4:80"/,
+     "check user LocalForward pattern") ;
 
 $root_inst->write_back() ;
 ok(1,"wrote ssh_config data in $wr_dir") ;
@@ -194,3 +196,22 @@ Host *
 Host foo.*,*.bar
     ForwardX11 yes
     SendEnv FOO BAR
+
+Host *.gre.hp.com
+ForwardX11           yes
+User                 tester
+
+Host picosgw
+ForwardAgent         yes
+HostName             sshgw.truc.bidule
+IdentityFile         ~/.ssh/%r
+LocalForward         20022         10.3.244.4:22
+LocalForward         22080       10.3.244.4:80
+User                 k0013
+
+Host picos
+ForwardX11           yes
+HostName             localhost
+Port                 20022
+User                 ocad
+

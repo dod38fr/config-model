@@ -18,7 +18,7 @@ use File::Path ;
 use Parse::RecDescent ;
 use vars qw($VERSION $grammar $parser)  ;
 
-$VERSION = '1.209' ;
+$VERSION = '1.210' ;
 
 
 my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -177,7 +177,7 @@ $grammar = << 'EOG' ;
 sshd_parse: <skip: qr/[^\S\n]*/> line[@arg](s) 
 
 #line: match_line | client_alive_line | host_line | any_line
-line: match_line | host_line | any_line
+line: match_line | host_line | single_arg_line | any_line
 
 match_line: /match/i arg(s) "\n"
 {
@@ -192,6 +192,11 @@ match_line: /match/i arg(s) "\n"
 host_line: /host\b/i arg(s) "\n"
 {
    Config::Model::OpenSsh::host($arg[0],@{$item[2]}) ;
+}
+
+single_arg_line: /localcommand|remoteforward|localforward/i /[^\n]+/ "\n"
+{
+   Config::Model::OpenSsh::assign($arg[0],$item[1],$item[2]) ;
 }
 
 any_line: key arg(s) "\n"  
