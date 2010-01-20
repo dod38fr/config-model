@@ -1,4 +1,4 @@
-2010-01-19  Dominique Dumont  <dominique.dumont@hp.com>
+2010-01-19  Dominique Dumont  <dominique.dumont@hp.com> v0.641
 
 	* lib/Config/Model/Node.pm: Ported to Log4Perl (Tree::Node class)
 
