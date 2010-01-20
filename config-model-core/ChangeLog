@@ -3,7 +3,7 @@
 	* lib/Config/Model/Node.pm: Ported to Log4Perl (Tree::Node class)
 
 	* lib/Config/Model/AutoRead.pm: Doc updates on plugin mechanism
-	for read/wrote classes
+	for read/write classes
 
 	* lib/Config/Model/Value.pm: model example updates
 
