@@ -672,7 +672,7 @@ Read the application man pages:
 
 \begin_deeper
 \begin_layout Itemize
-Find the structure 
+Find the structure of the tree
 \end_layout
 
 \begin_layout Itemize
@@ -1144,7 +1144,7 @@ status
 \begin_layout Itemize
 How to migrate a value 
 \color green
-migrate with a computation formula
+migrate with a formula (migrate_from)
 \end_layout
 
 \begin_layout Pause
@@ -1343,7 +1343,7 @@ status open
 \backslash
 ifthenelse{
 \backslash
-eq{
+equal{
 \backslash
 showaugeas}{true}}{
 \end_layout
@@ -1838,6 +1838,154 @@ TCPKeepAlive => { value_type => 'enum',
 
 \size scriptsize
                      }, 
+\end_layout
+
+\begin_layout BeginFrame
+Hairy upgrade example
+\end_layout
+
+\begin_layout Standard
+Migrate from 
+\emph on
+url
+\emph default
+ to 
+\emph on
+host
+\emph default
+ and 
+\emph on
+path:
+\end_layout
+
+\begin_layout LyX-Code
+
+\size scriptsize
+url => { type => 'leaf', 
+\end_layout
+
+\begin_layout LyX-Code
+
+\size scriptsize
+         value_type => 'uniline', 
+\end_layout
+
+\begin_layout LyX-Code
+
+\size scriptsize
+         status => 'deprecated'},
+\end_layout
+
+\begin_layout Pause
+
+\end_layout
+
+\begin_layout LyX-Code
+
+\size scriptsize
+host => { type => 'leaf', 
+\end_layout
+
+\begin_layout LyX-Code
+
+\size scriptsize
+          value_type => 'uniline',
+\end_layout
+
+\begin_layout LyX-Code
+
+\size scriptsize
+          migrate_from => { 
+\end_layout
+
+\begin_layout LyX-Code
+
+\size scriptsize
+            formula => '$old =~ m!http://([
+\backslash
+w
+\backslash
+.]+)!; $1 ;' ,
+\end_layout
+
+\begin_layout LyX-Code
+
+\size scriptsize
+            variables => { old => '- url' }
+\end_layout
+
+\begin_layout LyX-Code
+
+\size scriptsize
+            use_eval => 1 ,
+\end_layout
+
+\begin_layout LyX-Code
+
+\size scriptsize
+            },
+\end_layout
+
+\begin_layout LyX-Code
+
+\size scriptsize
+        }, 
+\end_layout
+
+\begin_layout Pause
+
+\end_layout
+
+\begin_layout LyX-Code
+
+\size scriptsize
+path => { type => 'leaf', 
+\end_layout
+
+\begin_layout LyX-Code
+
+\size scriptsize
+          value_type => 'uniline',
+\end_layout
+
+\begin_layout LyX-Code
+
+\size scriptsize
+          migrate_from => { 
+\end_layout
+
+\begin_layout LyX-Code
+
+\size scriptsize
+            formula => '$old =~ m!http://[
+\backslash
+w
+\backslash
+.]+(/.*)!; $1 ;',
+\end_layout
+
+\begin_layout LyX-Code
+
+\size scriptsize
+            variables => { old => '- url' }
+\end_layout
+
+\begin_layout LyX-Code
+
+\size scriptsize
+            use_eval => 1 ,
+\end_layout
+
+\begin_layout LyX-Code
+
+\size scriptsize
+            },
+\end_layout
+
+\begin_layout LyX-Code
+
+\size scriptsize
+        }, 
 \end_layout
 
 \begin_layout BeginFrame
