@@ -2,7 +2,7 @@
 # $Date$
 # $Revision$
 
-#    Copyright (c) 2008 Dominique Dumont.
+#    Copyright (c) 2008-2010 Dominique Dumont.
 #
 #    This file is part of Config-Model-TkUI.
 #
@@ -171,7 +171,7 @@ sub Populate {
     $del_rm_frame -> Button ( -text => 'Remove all',
 			      -command => sub { $hash->clear ; 
 						$tklist->delete(0,'end');
-						$cw->reload_tree;
+						$cw->reload_tree(1);
 						$item = '';
 					    },
 			    ) -> pack(-side => 'left', @fxe1) ;

@@ -1009,7 +1009,7 @@ Dominique Dumont, (ddumont at cpan dot org)
 
 =head1 LICENSE
 
-    Copyright (c) 2008-2009 Dominique Dumont.
+    Copyright (c) 2008-2010 Dominique Dumont.
 
     This file is part of Config-Model.
 

@@ -1,3 +1,11 @@
+2010-01-21  Dominique Dumont  <dominique.dumont@hp.com> 1.302
+
+	* lib/Config/Model/Tk/NodeViewer.pm (reload): Correctly update
+	value column when called
+
+	* lib/Config/Model/Tk/HashEditor.pm (Populate): Mark data as
+	modified when deleting all items of a hash.
+
 2009-09-25  Dominique Dumont  <domi.dumont@free.fr>
 
 	* examples/model.pl: Simple model and graphical interface
@@ -5,7 +13,7 @@
 
 	* lib/Config/Model/Tk/LeafEditor.pm (try): Avoid warnings
 	(RT 49999)
-	
+
 	* lib/Config/Model/TkUI.pm (save): trap write_back error.
 
 2009-09-04  Dominique Dumont  <dominique.dumont@hp.com> 1.301
