@@ -1,3 +1,8 @@
+2010-01-21  Dominique Dumont  <dominique.dumont@hp.com>
+
+	* lib/Config/Model/WarpedNode.pm: added get_help to methods
+	forwarded to Node object
+
 2010-01-19  Dominique Dumont  <dominique.dumont@hp.com> v0.641
 
 	* lib/Config/Model/Node.pm: Ported to Log4Perl (Tree::Node class)

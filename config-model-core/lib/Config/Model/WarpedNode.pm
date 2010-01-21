@@ -230,7 +230,7 @@ get_cargo_type describe config_model
 foreach my $method (qw/fetch_element config_class_name get_element_name
                        has_element is_element_available element_type load
 		       fetch_element_value get_type get_cargo_type 
-                       describe config_model/
+                       describe config_model get_help/
 		   ) {
     # to register new methods in package
     no strict "refs"; 
