@@ -1,7 +1,8 @@
-2010-01-21  Dominique Dumont  <dominique.dumont@hp.com>
+2010-01-21  Dominique Dumont  <dominique.dumont@hp.com> v0.642
 
 	* lib/Config/Model/WarpedNode.pm: added get_help to methods
-	forwarded to Node object
+	forwarded to Node object to avoid breaking the graphical model
+	editor
 
 2010-01-19  Dominique Dumont  <dominique.dumont@hp.com> v0.641
 
