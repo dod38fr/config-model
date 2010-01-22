@@ -1,3 +1,11 @@
+2010-01-22  Dominique Dumont  <dominique.dumont@hp.com> v1.211
+
+	* lib/Config/Model/OpenSsh.pm: Modified to read and write Port
+	forward information from PortForward config class.
+
+	* lib/Config/Model/models/Ssh/PortForward.pl: New configuration
+	class to make port forwarding configuration easier.
+
 2010-01-19  Dominique Dumont  <dominique.dumont@hp.com> v1.210
 
 	* lib/Config/Model/OpenSsh.pm (read_ssh_file): Bug fix to parse

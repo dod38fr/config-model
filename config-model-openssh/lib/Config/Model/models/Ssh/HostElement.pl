@@ -238,13 +238,6 @@ If this option is not set, remote X11 clients will be considered untrusted and p
 See the X11 SECURITY extension specification for full details on the restrictions imposed on untrusted clients.
 '
                            },
-                           'GatewayPorts',
-                           {
-                             'value_type' => 'boolean',
-                             'upstream_default' => '0',
-                             'type' => 'leaf',
-                             'description' => 'Specifies whether remote hosts are allowed to connect to local forwarded ports. By default, ssh(1) binds local port forwardings to the loopback address. This prevents other remote hosts from connecting to forwarded ports. GatewayPorts can be used to specify that ssh should bind local port forwardings to the wildcard address, thus allowing remote hosts to connect to forwarded ports. '
-                           },
                            'GlobalKnownHostsFile',
                            {
                              'value_type' => 'uniline',
@@ -357,11 +350,19 @@ It is possible to have multiple identity files specified in con figuration files
                              'type' => 'list',
                              'description' => 'Specifies the list of methods to use in keyboard-interactive authentication.  Multiple method names must be comma-separated. The default is to use the server specified list. The methods available vary depending on what the server supports. For an OpenSSH server, it may be zero or more of: ``bsdauth\'\', ``pam\'\', and ``skey\'\'.'
                            },
+                           'GatewayPorts',
+                           {
+                             'value_type' => 'boolean',
+                             'upstream_default' => '0',
+                             'experience' => 'advanced',
+                             'type' => 'leaf',
+                             'description' => 'Specifies whether remote hosts are allowed to connect to local forwarded ports. By default, ssh(1) binds local port forwardings to the loopback address. This prevents other remote hosts from connecting to forwarded ports. GatewayPorts can be used to specify that ssh should bind local port forwardings to the wildcard address, thus allowing remote hosts to connect to forwarded ports. '
+                           },
                            'LocalForward',
                            {
                              'cargo' => {
-                                          'value_type' => 'uniline',
-                                          'type' => 'leaf'
+                                          'type' => 'node',
+                                          'config_class_name' => 'Ssh::PortForward'
                                         },
                              'summary' => 'Local port forwarding',
                              'experience' => 'advanced',
@@ -531,15 +532,15 @@ This directive is useful in conjunction with nc(1) and its proxy support. For ex
                            {
                              'level' => 'important',
                              'cargo' => {
-                                          'value_type' => 'uniline',
-                                          'type' => 'leaf'
+                                          'type' => 'node',
+                                          'config_class_name' => 'Ssh::PortForward'
                                         },
                              'summary' => 'remote port forward to local',
                              'experience' => 'advanced',
                              'type' => 'list',
-                             'description' => 'Specifies that a TCP port on the remote machine be forwarded over the secure channel to the specified host and port from the local machine.  The first argument must be [bind_address:]port and the second argument must be host:hostport.  IPv6 addresses can be specified by enclosing addresses in square brackets or by using an alternative syntax: [bind_address/]port and host/hostport. Multiple forwardings may be specified, and additional forwardings can be given on the command line.  Only the superuser can forward privileged ports.
+                             'description' => 'Specifies that a TCP port on the remote machine be forwarded over the secure channel to the specified host and port from the local machine. Multiple forwardings may be specified, and additional forwardings can be given on the command line. Only the superuser can forward privileged ports.
 
-If the bind_address is not specified, the default is to only bind to loopback addresses.  If the bind_address is \'*\' or an empty string, then the forwarding is requested to listen on all inter faces.  Specifying a remote bind_address will only succeed if the server\'s GatewayPorts option is enabled (see sshd_config(5)).'
+If the bind_address is not specified, the default is to only bind to loopback addresses. If the bind_address is \'*\' or an empty string, then the forwarding is requested to listen on all inter faces. Specifying a remote bind_address will only succeed if the server\'s GatewayPorts option is enabled (see sshd_config(5)).'
                            },
                            'RhostsRSAAuthentication',
                            {

@@ -4,7 +4,7 @@
 # $Revision: 608 $
 
 use ExtUtils::testlib;
-use Test::More tests => 13;
+use Test::More tests => 17;
 use Config::Model ;
 use Config::Model::OpenSsh ; # required for tests
 use Log::Log4perl qw(:easy) ;
@@ -94,11 +94,14 @@ my $dump =  $root_cfg->dump_tree ();
 print $dump if $trace ;
 
 like($dump,qr/Host:foo\.\*,\*\.bar/, "check Host pattern") ;
-like($dump,qr/LocalForward="20022 +10.3.244.4:22","22080 +10.3.244.4:80"/,
-     "check user LocalForward pattern") ;
+like($dump,qr/LocalForward:0\s+port=20022/, "check user LocalForward port") ;
+like($dump,qr/host=10.3.244.4/, "check user LocalForward host") ;
+like($dump,qr/LocalForward:1\s+ipv6=1/, "check user LocalForward ipv6") ;
+like($dump,qr/port=22080/, "check user LocalForward port ipv6") ;
+like($dump,qr/host=2001:0db8:85a3:0000:0000:8a2e:0370:7334/, 
+     "check user LocalForward host ipv6") ;
 
-$root_inst->write_back() ;
-ok(1,"wrote ssh_config data in $wr_dir") ;
+$root_inst->write_back() ; ok(1,"wrote ssh_config data in $wr_dir") ;
 
 my $inst2 = $model->instance (root_class_name   => 'Ssh',
 			      instance_name     => 'root_ssh_instance2',
@@ -206,7 +209,8 @@ ForwardAgent         yes
 HostName             sshgw.truc.bidule
 IdentityFile         ~/.ssh/%r
 LocalForward         20022         10.3.244.4:22
-LocalForward         22080       10.3.244.4:80
+# IPv6 example
+LocalForward         all.com/22080       2001:0db8:85a3:0000:0000:8a2e:0370:7334/80
 User                 k0013
 
 Host picos

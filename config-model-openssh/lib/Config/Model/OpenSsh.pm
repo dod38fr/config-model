@@ -177,7 +177,7 @@ $grammar = << 'EOG' ;
 sshd_parse: <skip: qr/[^\S\n]*/> line[@arg](s) 
 
 #line: match_line | client_alive_line | host_line | any_line
-line: match_line | host_line | single_arg_line | any_line
+line: match_line | host_line | forward_line | single_arg_line | any_line
 
 match_line: /match/i arg(s) "\n"
 {
@@ -194,7 +194,12 @@ host_line: /host\b/i arg(s) "\n"
    Config::Model::OpenSsh::host($arg[0],@{$item[2]}) ;
 }
 
-single_arg_line: /localcommand|remoteforward|localforward/i /[^\n]+/ "\n"
+forward_line: /(local|remote)forward/i arg(s) "\n"
+{
+   Config::Model::OpenSsh::forward($arg[0],$item[1],@{$item[2]}) ;
+}
+
+single_arg_line: /localcommand/i /[^\n]+/ "\n"
 {
    Config::Model::OpenSsh::assign($arg[0],$item[1],$item[2]) ;
 }
@@ -285,6 +290,39 @@ $parser = Parse::RecDescent->new($grammar) ;
     $logger->info("ssh: load host patterns '".join("','", @patterns)."'");
 
     $current_node = $hash_obj->fetch_with_id("@patterns");
+  }
+
+  sub forward {
+    my ($root,$key,@args)  = @_;
+    $current_node = $root unless defined $current_node ;
+
+    my $elt_name = $key =~ /local/i ? 'Localforward' : 'RemoteForward' ;
+    my $size = $current_node->fetch_element($key)->fetch_size;
+
+    $logger->info("ssh: load $key '".join("','", @args)."'");
+
+    my $v6 = ($args[1] =~ m![/\[\]]!) ? 1 : 0;
+
+    # cleanup possible square brackets used for IPv6
+    foreach (@args) {s/[\[\]]+//g;}
+
+    # reverse enable to assign string to port even if no bind_adress
+    # is specified
+    my $re = $v6 ? qr!/! : qr!:! ; 
+    my ($port,$bind_adr ) = reverse split $re,$args[0] ;
+    my ($host,$host_port) = split $re,$args[1] ;
+
+    my $load_str = '';
+    $load_str .= "GatewayPorts=1 " if $bind_adr ;
+
+    $load_str .= "$key:$size ";
+
+    $load_str .= 'ipv6=1 ' if $v6 ;
+
+    $load_str .= "bind_address=$bind_adr " if defined $bind_adr ;
+    $load_str .= "port=$port host=$host hostport=$host_port";
+
+    $current_node -> load($load_str) ;
   }
 
   sub clear {
@@ -389,6 +427,9 @@ sub write_node_content {
 	elsif    ($name eq 'Host') { 
 	    $match .= write_all_host_block($elt,$mode) ;
 	}
+	elsif    ($name =~ /^(Local|Remote)Forward$/) { 
+	    map { $result .= write_forward($_,$mode) ;} $elt->fetch_all() ;
+	}
 #	elsif    ($name eq 'ClientAliveCheck') { 
 #	    # special case that must be skipped
 #	}
@@ -488,6 +529,29 @@ sub write_all_host_block {
 	}
     }
     return $result ;
+}
+
+sub write_forward {
+    my $forward_elt = shift ;
+    my $mode = shift || '';
+
+    my $result = '' ;
+
+    my $v6 = $forward_elt->grab_value('ipv6') ;
+    my $sep = $v6 ? '/' : ':';
+
+    my $line = '';
+    foreach my $name ($forward_elt->get_element_name(for => 'master') ) {
+	next if $name eq 'ipv6' ;
+	my $elt = $forward_elt->fetch_element($name) ;
+	my $v = $elt->fetch($mode) ;
+	next unless defined $v;
+	$line .=  $name =~ /bind|host$/ ? "$v$sep"
+	       :  $name eq 'port'       ? "$v "
+	       :                           $v ;
+    }
+
+    return write_line($forward_elt->element_name,$line) ;
 }
 1;
 
