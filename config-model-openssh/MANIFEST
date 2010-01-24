@@ -4,6 +4,7 @@ config-edit-ssh
 config-edit-sshd
 lib/Config/Model/models/Ssh.pl
 lib/Config/Model/models/Ssh/HostElement.pl
+lib/Config/Model/models/Ssh/PortForward.pl
 lib/Config/Model/models/Sshd.pl
 lib/Config/Model/models/Sshd/MatchBlock.pl
 lib/Config/Model/models/Sshd/MatchCondition.pl
