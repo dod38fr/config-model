@@ -37,7 +37,7 @@ my $build = Module::Build->new
    script_files   => [ qw/config-edit-ssh config-edit-sshd/ ],
    requires      => {
 		     perl              => '5.8.0',
-		     'Config::Model'   => '0.641',
+		     'Config::Model'   => '0.637',
 		     'Log::Log4perl'   => 0 ,
 		     'Parse::RecDescent' => 0,
 		    },
