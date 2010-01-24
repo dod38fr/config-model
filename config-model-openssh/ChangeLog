@@ -1,3 +1,7 @@
+2010-01-24  Dominique Dumont  <domi.dumont@free.fr>
+
+	* lib/Config/Model/models/Ssh/PortForward.pl: host and hostport are mandatory
+
 2010-01-22  Dominique Dumont  <dominique.dumont@hp.com> v1.210
 
 	* lib/Config/Model/OpenSsh.pm: Modified to read and write Port

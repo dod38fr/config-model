@@ -42,12 +42,14 @@ The bind_address of \x{201c}localhost\x{201d} indicates that the listening port 
                            {
                              'value_type' => 'uniline',
                              'summary' => 'host name or address',
+                             'mandatory' => '1',
                              'type' => 'leaf'
                            },
                            'hostport',
                            {
                              'value_type' => 'uniline',
                              'summary' => 'destination port',
+                             'mandatory' => '1',
                              'type' => 'leaf',
                              'description' => 'Port number to connect the tunnel to.'
                            }
