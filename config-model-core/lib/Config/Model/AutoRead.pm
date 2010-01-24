@@ -746,6 +746,16 @@ with current umask. Default is false.
 
 =back
 
+Write specification is similar to read_specification. Except that the
+default value for C<function> is C<write>. Here's an example:
+
+   write_config  => [ { backend => 'cds_file', config_dir => '/etc/my_cfg/' } , 
+                      { backend => 'custom', class => 'Bar' ,
+                        function => 'my_write',
+                      },
+                    ],
+
+
 =head1 Limitations depending on storage
 
 Some storage system will limit the structure of the model you can map
