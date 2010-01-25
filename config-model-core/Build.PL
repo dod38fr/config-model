@@ -2,7 +2,7 @@
 # $Date$
 # $Revision$
 
-#    Copyright (c) 2005-2008 Dominique Dumont.
+#    Copyright (c) 2005-2010 Dominique Dumont.
 #
 #    This file is part of Config-Model.
 #
@@ -58,7 +58,8 @@ my $build = Module::Build->new
    recommends => {
 		  # recommended modules to get more reader/writer
 		  'Config::Tiny' => 0,
-		 },
+		  'YAML::Any'    => '0.303',
+ 		 },
    # cleanup required by t/auto_read.t
    # PreGrammar.pm is created by t/value_computer.t
    add_to_cleanup => [qw/PreGrammar.pm wr_root r_root/],
