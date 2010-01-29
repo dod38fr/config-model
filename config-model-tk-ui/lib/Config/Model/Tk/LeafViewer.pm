@@ -79,7 +79,9 @@ sub Populate {
 					       -scrollbars => 'ow',
 					      )
 	  ->pack(@fbe1);
-	$cw->{e_widget}->insert('end',$v) ;
+	$cw->{e_widget}->insert('end',$v,'value') ;
+	$cw->{e_widget}
+	  ->tagConfigure(qw/value -lmargin1 2 -lmargin2 2 -rmargin 2/);
     }
     else {
 	my $v_frame = $lv_frame->Frame(qw/-relief sunken -borderwidth 1/)

@@ -119,7 +119,9 @@ sub add_help {
 					-height => 4,
 				       );
 
-	$widget ->pack( @fbe1 ) ->insert('end',$help) ;
+	$widget ->pack( @fbe1 ) ->insert('end',$help,'help') ;
+	$widget
+	  ->tagConfigure(qw/help -lmargin1 2 -lmargin2 2 -rmargin 2/);
     }
     else {
 	$widget = $help_frame->Label( -text => $help,

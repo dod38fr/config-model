@@ -1,3 +1,8 @@
+2010-01-29  Dominique Dumont  <dominique.dumont@hp.com>
+
+	* lib/Config/Model/Tk/AnyViewer.pm (add_help): padding some
+	padding aroung help text.
+
 2010-01-21  Dominique Dumont  <dominique.dumont@hp.com> 1.302
 
 	* lib/Config/Model/Tk/NodeViewer.pm (reload): Correctly update
