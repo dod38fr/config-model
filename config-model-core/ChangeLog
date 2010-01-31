@@ -1,4 +1,4 @@
-2010-01-31  Dominique Dumont  <domi.dumont@free.fr>
+2010-01-31  Dominique Dumont  <domi.dumont@free.fr> pre 0.643
 
 	* lib/Config/Model/Value.pm: allow description and summary warp
 
