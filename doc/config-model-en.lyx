@@ -15,6 +15,7 @@
 \newcommand{\showotherui}{false}
 \newcommand{\showadvanced}{false}
 \newcommand{\showaugeas}{false}
+\newcommand{\showreadwrite}{false}
 \end_preamble
 \options handout
 \use_default_options false
@@ -77,7 +78,7 @@ This file can be redistributed and/or modified under the terms of the GNU
 \end_layout
 
 \begin_layout Title
-Create software configuration tools with Config::Model
+Config::Model and configuration upgrades during package upgrade
 \begin_inset OptArg
 status open
 
@@ -99,11 +100,11 @@ Dumont
 \end_layout
 
 \begin_layout Institute
-Hewlett-Packard
+Debian Perl Group
 \end_layout
 
 \begin_layout Date
-SCI & OSL Technical Excellence Symposium 09
+FOSDEM 2010
 \end_layout
 
 \begin_layout Standard
@@ -301,7 +302,7 @@ Why
 \end_layout
 
 \begin_layout Subsection
-Usual configuration problems
+Configuration upgrade problems
 \end_layout
 
 \begin_layout BeginFrame
@@ -309,7 +310,11 @@ Configuration is often painful !
 \end_layout
 
 \begin_layout Standard
-Configuration is often difficult for a user:
+Configuration upgrade is often difficult for a user:
+\end_layout
+
+\begin_layout Itemize
+Surprise question during upgrade
 \end_layout
 
 \begin_layout Itemize
@@ -327,7 +332,15 @@ Ensure consistency
 \end_layout
 
 \begin_layout Itemize
-Even more difficult during package upgrades
+Leave spurious files
+\end_layout
+
+\begin_layout Pause
+
+\end_layout
+
+\begin_layout Standard
+Basic configuration may also be difficult...
 \end_layout
 
 \begin_layout Subsection
@@ -335,7 +348,15 @@ Objectives
 \end_layout
 
 \begin_layout BeginFrame
-Objective 1: Make configuration easy for users
+Objective 1: Make configuration easier for users
+\end_layout
+
+\begin_layout Standard
+Handle configuration upgrade smoothly (mostly no interaction)
+\end_layout
+
+\begin_layout Pause
+
 \end_layout
 
 \begin_layout Standard
@@ -365,20 +386,12 @@ Several levels of skills
 Search
 \end_layout
 
-\begin_layout Pause
-
-\end_layout
-
-\begin_layout Standard
-Handle configuration upgrade smoothly (mostly no interaction)
-\end_layout
-
 \begin_layout BeginFrame
 Objectif 2: Make maintenance easy for developers
 \end_layout
 
 \begin_layout Itemize
-The configuration validation must be easy to maintain:
+Configuration tool and upgrader must be easy to maintain:
 \end_layout
 
 \begin_deeper
@@ -396,7 +409,9 @@ meta-data
 \begin_inset Quotes srd
 \end_inset
 
-: the configuration model
+: the 
+\emph on
+configuration model
 \end_layout
 
 \begin_deeper
@@ -410,7 +425,11 @@ Generate interfaces (graphicals or not) from the model
 \end_layout
 
 \begin_layout Itemize
-Cater for configuration upgrade
+Model contains properties to upgrade configuration
+\end_layout
+
+\begin_layout Itemize
+GUI to create and maintain models
 \end_layout
 
 \begin_deeper
@@ -520,6 +539,11 @@ optional: a specification to access configuration file (backend)
 
 \end_layout
 
+\begin_layout Standard
+\align center
+model GUI
+\end_layout
+
 \end_deeper
 \begin_layout BeginFrame
 Simple elements
@@ -575,6 +599,11 @@ a status (normal or obsolete)
 \end_inset
 
 
+\end_layout
+
+\begin_layout Standard
+\align center
+Model GUI
 \end_layout
 
 \end_deeper
@@ -690,7 +719,7 @@ To verify that the documentation was understood
 \end_layout
 
 \begin_layout Itemize
-For the non-regression test
+For the non-regression tests
 \end_layout
 
 \end_deeper
@@ -777,6 +806,22 @@ element => [
 ] 
 \end_layout
 
+\begin_layout Standard
+See 
+\begin_inset Flex URL
+status open
+
+\begin_layout Plain Layout
+
+http://sourceforge.net/apps/mediawiki/config-model/index.php?title=Creating_a_mode
+l
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
 \begin_layout BeginFrame
 Declaration (easier mode)
 \end_layout
@@ -806,6 +851,30 @@ Since writing a data structure is not fun (even with Perl), a model can
 
 \begin_layout Standard
 From time to time, do a Menu → Model → test 
+\end_layout
+
+\begin_layout EndFrame
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ifthenelse{
+\backslash
+equal{
+\backslash
+showreadwrite}{true}}{
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout BeginFrame
@@ -1067,6 +1136,24 @@ write_config => [
 
 \end_deeper
 \end_deeper
+\begin_layout EndFrame
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+}{} %showreadwrite
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
 \begin_layout BeginFrame
 Prepare configuration updates
 \end_layout
@@ -1106,7 +1193,7 @@ A good name is better than 3 pages of doc
 \begin_layout Enumerate
 Default values : 
 \color green
-Application can work even with an empty configuration file
+Application can work with an empty config file
 \end_layout
 
 \begin_layout Pause
@@ -1114,13 +1201,13 @@ Application can work even with an empty configuration file
 \end_layout
 
 \begin_layout Standard
-But, if needed, a model can specify:
+But, if needed, model and backend can specify:
 \end_layout
 
 \begin_layout Itemize
 How to replace a value 
 \color green
-replace
+(replace)
 \end_layout
 
 \begin_deeper
@@ -1132,7 +1219,7 @@ replace
 \begin_layout Itemize
 Obsolete parameters 
 \color green
-status
+(status)
 \end_layout
 
 \begin_deeper
@@ -1144,7 +1231,17 @@ status
 \begin_layout Itemize
 How to migrate a value 
 \color green
-migrate with a formula (migrate_from)
+(migrate_from + formula)
+\end_layout
+
+\begin_layout Pause
+
+\end_layout
+
+\begin_layout Itemize
+Migration from one syntax with another 
+\color green
+(backends)
 \end_layout
 
 \begin_layout Pause
@@ -1171,7 +1268,7 @@ User point of view
 \end_layout
 
 \begin_layout BeginFrame
-Graphical interface 
+Configuration GUI 
 \end_layout
 
 \begin_layout Standard
@@ -2236,10 +2333,6 @@ status open
 
 \begin_deeper
 \begin_layout Itemize
-Wizard for the GUI (done)
-\end_layout
-
-\begin_layout Itemize
 Search parameters, values and help
 \end_layout
 
@@ -2277,6 +2370,10 @@ JSON
 
 \begin_layout Itemize
 XML
+\end_layout
+
+\begin_layout Itemize
+Other ?
 \end_layout
 
 \end_deeper
@@ -2384,29 +2481,15 @@ https://lists.sourceforge.net/lists/listinfo/config-model-users
 \end_layout
 
 \begin_layout Itemize
-GNU/Linux Mag France n°117 
+GNU/Linux Mag France n°117 and n°120 
 \begin_inset Quotes sld
 \end_inset
 
-Config::Model - Créer un éditeur graphique de configuration avec Perl (1ère
- partie)
+Config::Model - Créer un éditeur graphique de configuration avec Perl
 \begin_inset Quotes srd
 \end_inset
 
-
-\end_layout
-
-\begin_layout Itemize
-GNU/Linux Mag France n°120 
-\begin_inset Quotes sld
-\end_inset
-
-Config::Model - Créer un éditeur graphique de configuration avec Perl (2e
- partie)
-\begin_inset Quotes srd
-\end_inset
-
-
+ (2 parts)
 \end_layout
 
 \begin_layout Itemize
