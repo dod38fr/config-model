@@ -504,7 +504,8 @@ my @accessible_params =  (@warp_accessible_params,
 			  qw/index_value element_name value_type
 			     refer_to computed_refer_to/ ) ;
 
-my @allowed_warp_params = (@warp_accessible_params, qw/level experience help/);
+my @allowed_warp_params = (@warp_accessible_params, 
+			   qw/level experience help summary description/);
 
 sub new {
     my $type = shift;
