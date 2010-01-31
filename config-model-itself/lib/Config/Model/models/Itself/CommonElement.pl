@@ -101,15 +101,19 @@
 				'vtype' => '?value_type' ,
 			       },
 		     'rules'
-		     => [ '$type eq "hash"
-                            or
-                            (    $type eq "leaf" 
+		     => [ '$type eq "hash"'
+			  => {
+			      level => 'normal',
+			      description => 'minimum number of keys',
+			     },
+                            '    $type eq "leaf" 
                              and (    $vtype eq "integer" 
                                    or $vtype eq "number" 
                                  )
-                            ) '
+                            '
 			  => {
 			      level => 'normal',
+			      description => 'minimum value',
 			     }
 			]
 		   }
