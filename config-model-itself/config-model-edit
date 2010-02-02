@@ -69,7 +69,7 @@ config-model-edit -  Graphical model editor for Config::Model
 
 =head1 SYNOPSIS
 
-  config-model-edit [options] -model Xorg
+  config-model-edit [options] -model Sshd [ PermitRootLogin=no ... ]
 
 =head1 DESCRIPTION
 
@@ -144,6 +144,29 @@ model. C<include> are represented by solid lines. Class usage
 (i.e. C<config_class_name> parameter) is represented by dashed
 lines. The name of the element is attached to the dashed line.
 
+=item -dump [ file ]
+
+Dump configuration content on STDOUT or in the specified with
+Config::Model syntax.
+
+By default, dump only custom values, i.e. different from application
+built-in values or model default values. See -dumptype option for
+other types of dump
+
+=item -dumptype [ full | preset | custom ]
+
+Choose to dump every values (full), only preset values or only
+customized values (default)
+
+=item -load <cds_file_to_load>
+
+Load configuration data in model from cds file (using Config::Model
+serialisation format, typically done with -dump option). When this
+option is used, the usual configuration files will not be read.
+
+If used with C<-ui none>, this option will load configuration data, 
+validate it and save it in configuration file (if no error was found).
+
 =item -save
 
 Force a save of the model even if no edition was done. This option is
@@ -159,7 +182,11 @@ my $help = 0;
 my $force_load = 0;
 my $model_dir ;
 my $do_dot = 0;
+my $do_dump;
+my $dumptype;
+#my $do_yaml = 0;
 my $save = 0;
+my $load ;
 
 my $result = GetOptions (
 			 "dir=s"            => \$model_dir,
@@ -172,6 +199,10 @@ my $result = GetOptions (
 			 "force_load!"      => \$force_load,
 			 "save!"            => \$save,
 			 "dot_diagram!"     => \$do_dot ,
+			 "dump!"            => \$do_dump ,
+                         "dumptype:s"       => \$dumptype,
+                         "load=s"           => \$load,
+			 #"dump_yaml!"       => \$do_yaml ,
 			);
 
 pod2usage(2) if not $result ;
@@ -217,10 +248,41 @@ $rw_obj -> read_all( model_dir  => $read_model_dir,
 		     legacy =>'ignore',
 		   ) ;
 
+if (defined $load) {
+    open(LOAD,$load) || die "cannot open load file $load:$!";
+    my @data = <LOAD> ;
+    close LOAD; 
+    get_logger("Data")->info("Skipping config file and loading $load");
+    $meta_root->load("@data");
+}
+
+if (@ARGV) {
+    $meta_root->load("@ARGV") ;
+}
+
 if ($do_dot) {
     print $rw_obj->get_dot_diagram ;
     exit ;
 }
+
+if (defined $do_dump) {
+    my $dump_string = $meta_root->dump_tree( mode => $dumptype || 'custom' ) ;
+    if ($do_dump) {
+	open(DUMP,">$do_dump") or die "cannot dump in $do_dump:$!";
+	print DUMP $dump_string ;
+	close DUMP;
+    }
+    else {
+	print $dump_string ;
+    }
+    exit ;
+}
+
+# use YAML::Tiny qw/Dump/;
+# if ($do_yaml) {
+#     print Dump($meta_root->dump_as_data) ;
+#     exit ;
+# }
 
 my $write_sub = sub { 
     my $wr_dir = shift || $wr_model_dir ;

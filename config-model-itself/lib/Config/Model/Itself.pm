@@ -2,7 +2,7 @@
 # $Date$
 # $Revision$
 
-#    Copyright (c) 2007-2009 Dominique Dumont.
+#    Copyright (c) 2007-2010 Dominique Dumont.
 #
 #    This file is part of Config-Model-Itself.
 #
@@ -493,7 +493,7 @@ Dominique Dumont, (ddumont at cpan dot org)
 
 =head1 COPYRIGHT
 
-Copyright (C) 2007-2009 by Dominique Dumont
+Copyright (C) 2007-2010 by Dominique Dumont
 
 =head1 LICENSE
 

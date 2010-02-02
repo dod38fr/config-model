@@ -2,7 +2,7 @@
 # $Date: 2008-04-11 18:20:21 +0200 (ven, 11 avr 2008) $
 # $Revision: 600 $
 
-#    Copyright (c) 2007-2008 Dominique Dumont.
+#    Copyright (c) 2007-2010 Dominique Dumont.
 #
 #    This file is part of Config-Model-Itself.
 #
@@ -104,16 +104,16 @@
 		     => [ '$type eq "hash"'
 			  => {
 			      level => 'normal',
-			      description => 'minimum number of keys',
+			      # description => 'minimum number of keys',
 			     },
-                            '    $type eq "leaf" 
-                             and (    $vtype eq "integer" 
-                                   or $vtype eq "number" 
-                                 )
-                            '
+                          '    $type eq "leaf" 
+                           and (    $vtype eq "integer" 
+                                 or $vtype eq "number" 
+                               )
+                          '
 			  => {
 			      level => 'normal',
-			      description => 'minimum value',
+			      # description => 'minimum value',
 			     }
 			]
 		   }

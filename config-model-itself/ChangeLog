@@ -1,3 +1,8 @@
+2010-02-02  Dominique Dumont  <dominique.dumont@hp.com> pre 1.212
+
+	* config-model-edit: added -dump -dump_type -load options. Non
+	options args are now interpreted as model modifications
+
 2010-01-31  Dominique Dumont  <domi.dumont@free.fr>
 
 	* lib/Config/Model/models/Itself/CommonElement.pl: warp out min and max
