@@ -362,6 +362,8 @@ sub sshd_write {
     open(OUT,"> $file") || die "cannot open $file:$!";
     print OUT $result;
     close OUT;
+
+    return 1;
 }
 
 # for ssh_write:
@@ -402,6 +404,8 @@ sub ssh_write {
     open(OUT,"> $file") || die "cannot open $file:$!";
     print OUT $result;
     close OUT;
+
+    return 1;
 }
 
 sub write_line {
