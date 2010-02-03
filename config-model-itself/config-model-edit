@@ -69,7 +69,7 @@ config-model-edit -  Graphical model editor for Config::Model
 
 =head1 SYNOPSIS
 
-  config-model-edit [options] -model Sshd [ PermitRootLogin=no ... ]
+  config-model-edit [options] -model Sshd [ class:Sshd element:Foo ... ]
 
 =head1 DESCRIPTION
 
