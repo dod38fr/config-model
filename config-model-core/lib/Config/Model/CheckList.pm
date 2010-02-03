@@ -273,7 +273,7 @@ sub set_properties {
     my $self = shift ;
 
     # cleanup all parameters that are handled by warp
-    map(delete $self->{$_}, @allowed_warp_params) ;
+    map(delete $self->{$_}, @allowed_warp_params ) ;
 
     # merge data passed to the constructor with data passed to set
     my %args = (%{$self->{backup}},@_ );
@@ -295,21 +295,18 @@ sub set_properties {
 
     if (defined $args{default_list}) {
 	$self->{default_list} = delete $args{default_list} ;
-	my %h = map { $_ => 1 } @{$self->{default_list}} ;
-	$self->{default_data} = \%h ;
     }
-    else {
-	$self->{default_data} = {} ;
-    }
+
+    # store default data in a hash (more convenient)
+    $self->{default_data} = { map { $_ => 1 } @{$self->{default_list}} } ;
 
     if (defined $args{upstream_default_list}) {
 	$self->{upstream_default_list} = delete $args{upstream_default_list} ;
-	my %h = map { $_ => 1 } @{$self->{upstream_default_list}} ;
-	$self->{upstream_default_list} = \%h ;
     }
-    else {
-	$self->{upstream_default_list} = {} ;
-    }
+
+    # store upstream default data in a hash (more convenient)
+    $self->{upstream_default_data} = 
+      { map { $_ => 1 } @{$self->{upstream_default_list}} } ;
 
     Config::Model::Exception::Model
 	-> throw (
@@ -574,13 +571,14 @@ sub is_checked {
 	my $dat = $self->{data} ;
 	my $pre = $self->{preset} ;
 	my $def = $self->{default_data} ;
-	my $ud  = $self->{upstream_default_list} ;
+	my $ud  = $self->{upstream_default_data} ;
 	my $std_v = (defined $pre->{$choice} ? $pre->{$choice} : $def->{$choice}) || 0 ;
 
 	my $result 
 	  = $type eq 'custom'           ? ( $dat->{$choice} && ! $std_v ? 1 : 0 )
           : $type eq 'preset'           ? $pre->{$choice}
           : $type eq 'upstream_default' ? $ud ->{$choice}
+          : $type eq 'default'          ? $def->{$choice}
           : $type eq 'standard'         ? $std_v
           : defined $dat->{$choice}     ? $dat->{$choice}
           :                               $std_v ;
@@ -744,7 +742,7 @@ sub get_checked_list_as_hash {
     my $dat = $self->{data} ;
     my $pre = $self->{preset} ;
     my $def = $self->{default_data} ;
-    my $ud  = $self->{upstream_default_list} ;
+    my $ud  = $self->{upstream_default_data} ;
 
     # copy hash and return it
     my %std = (%h, %$def, %$pre ) ;
@@ -752,6 +750,7 @@ sub get_checked_list_as_hash {
       = $mode eq 'custom'   ? (%h, map { $dat->{$_} && ! $std{$_} ? ($_,1) : ()} keys %$dat )
       : $mode eq 'preset'   ? (%h, %$pre )
       : $mode eq 'upstream_default' ? %$ud
+      : $mode eq 'default'          ? %$def
       : $mode eq 'standard' ? %std
       :                       (%std, %$dat );
 

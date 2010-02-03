@@ -1,4 +1,9 @@
-2010-01-31  Dominique Dumont  <domi.dumont@free.fr> pre 0.643
+2010-02-03  Dominique Dumont  <domi.dumont@free.fr>  pre 0.643
+
+	* lib/Config/Model/CheckList.pm: Fixed default and upstream
+	default handling
+
+2010-01-31  Dominique Dumont  <domi.dumont@free.fr>
 
 	* lib/Config/Model/Value.pm: allow description and summary warp
 
