@@ -2,7 +2,7 @@
 # $Date$
 # $Revision$
 
-#    Copyright (c) 2006-2007 Dominique Dumont.
+#    Copyright (c) 2006-2008,2010 Dominique Dumont.
 #
 #    This file is part of Config-Model.
 #
@@ -115,6 +115,8 @@ with a quoted string. (For C<leaf> element)
 For instance C<foo="a quoted string">. Note that you cannot embed
 double quote in this string. I.e C<foo="a \"quoted\" string"> will
 fail.
+
+C<foo=''> will set foo to C<undef>.
 
 =item xxx=z1,z2,z3
 
