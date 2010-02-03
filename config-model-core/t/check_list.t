@@ -10,7 +10,7 @@ use Test::More;
 use Config::Model;
 use Data::Dumper ;
 
-BEGIN { plan tests => 70; }
+BEGIN { plan tests => 71; }
 
 use strict;
 
@@ -327,7 +327,10 @@ my $wudad = $root->fetch_element("choice_list_with_default_and_upstream_default"
 is_deeply (\@got, [qw/A C/], "test default of choice_list_with_default_and_upstream_default") ;
 
 @got = $wudad->get_checked_list() ;
-is_deeply (\@got, [qw/A C/], "test default of choice_list_with_default_and_upstream_default") ;
+is_deeply (\@got, [qw/A C/], "test choice_list_with_default_and_upstream_default") ;
+
+is_deeply ($wudad->fetch(), 'A,C', 
+	   "test fetch choice_list_with_default_and_upstream_default") ;
 
 ### test preset feature
 
