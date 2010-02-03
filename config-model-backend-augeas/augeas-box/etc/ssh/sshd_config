@@ -20,6 +20,9 @@ AcceptEnv LC_IDENTIFICATION LC_ALL
 
 AllowUsers foo bar@192.168.0.*
 
+# test checklist 
+Ciphers arcfour256,aes192-cbc,aes192-ctr,aes256-cbc,aes256-ctr
+
 # Match parsing block is broken and depend on resolution of
 # https://fedorahosted.org/augeas/ticket/7
 
@@ -33,3 +36,4 @@ Banner /etc/bienvenue1.txt
 # some comment
 Match User bush Group pres.* Host white.house.*
 Banner /etc/welcome.txt
+

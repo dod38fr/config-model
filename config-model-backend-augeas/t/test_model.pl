@@ -116,6 +116,24 @@ $model->create_config_class
 			   },
 		'type' => 'list',
 	       },
+	       'Ciphers',
+	       {
+		'experience' => 'master',
+		'upstream_default_list' => [
+					    'aes256-cbc',
+					    'aes256-ctr',
+					    'arcfour256'
+					   ],
+		'type' => 'check_list',
+		'description' => 'Specifies the ciphers allowed for protocol version 2. By default, all ciphers are allowed.',
+		'choice' => [
+			     'arcfour256',
+			     'aes192-cbc',
+			     'aes192-ctr',
+			     'aes256-cbc',
+			     'aes256-ctr'
+			    ]
+	       },
  	      ]
    );
 
