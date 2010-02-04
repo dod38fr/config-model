@@ -514,6 +514,10 @@ A class is represented by a node
 A parameter is represented by a leaf
 \end_layout
 
+\begin_layout Pause
+
+\end_layout
+
 \begin_layout Standard
 Each class contains :
 \end_layout
@@ -710,6 +714,10 @@ Identify configuration parameters, their constraints and relations
 \end_layout
 
 \end_deeper
+\begin_layout Pause
+
+\end_layout
+
 \begin_layout Itemize
 Find several valid examples:
 \end_layout
@@ -1008,6 +1016,10 @@ Same parameters as read spec
 
 \begin_layout Itemize
 Tried in order until first success
+\end_layout
+
+\begin_layout Pause
+
 \end_layout
 
 \end_deeper
@@ -1740,6 +1752,10 @@ Package upgrade:
 RedHat: Configuration evolutions leave rpm.new or rpm.save file
 \end_layout
 
+\begin_layout Pause
+
+\end_layout
+
 \begin_layout Itemize
 Debian: Configuration evolution either:
 \end_layout
@@ -1894,6 +1910,10 @@ KeepAlive => { value_type => 'enum',
 
 \size scriptsize
              }, 
+\end_layout
+
+\begin_layout Pause
+
 \end_layout
 
 \begin_layout LyX-Code
@@ -2148,7 +2168,11 @@ status open
 
 \begin_deeper
 \begin_layout Standard
-In postinst:
+In package build instructions (
+\emph on
+debian/rules
+\emph default
+ file):
 \end_layout
 
 \begin_layout LyX-Code
@@ -2380,7 +2404,8 @@ Search parameters, values and help
 \end_layout
 
 \begin_layout Itemize
-Annotations
+Annotations (e.g.
+ comments)
 \end_layout
 
 \begin_layout Pause
