@@ -11,7 +11,6 @@
 % or whatever (possibly just delete it)
 % \setbeameroption{show only notes}
 \end_preamble
-\options handout
 \use_default_options false
 \language french
 \inputencoding auto

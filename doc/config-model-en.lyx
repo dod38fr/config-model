@@ -16,6 +16,7 @@
 \newcommand{\showadvanced}{false}
 \newcommand{\showaugeas}{false}
 \newcommand{\showreadwrite}{false}
+\newcommand{\showhairyupgrade}{false}
 \end_preamble
 \options handout
 \use_default_options false
@@ -1937,6 +1938,30 @@ TCPKeepAlive => { value_type => 'enum',
                      }, 
 \end_layout
 
+\begin_layout EndFrame
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ifthenelse{
+\backslash
+equal{
+\backslash
+showhairyupgrade}{true}}{
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
 \begin_layout BeginFrame
 Hairy upgrade example
 \end_layout
@@ -2083,6 +2108,24 @@ w
 
 \size scriptsize
         }, 
+\end_layout
+
+\begin_layout EndFrame
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+}{} % hairyupgrade
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout BeginFrame
