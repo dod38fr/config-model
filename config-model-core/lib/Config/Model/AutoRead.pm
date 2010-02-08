@@ -36,11 +36,11 @@ use base qw/Config::Model::AnyThing/ ;
 
 our $VERSION = sprintf "1.%04d", q$Revision$ =~ /(\d+)/;
 
-my %suffix_table = qw/cds_file .cds perl_file .pl ini_file .ini xml_file .xml/ ;
-
 sub get_cfg_file_path {
     my $self = shift ; 
     my %args = @_;
+
+    #print Dumper(\%args);
 
     my $w = $args{write} || 0 ;
     Config::Model::Exception::Model -> throw
@@ -66,13 +66,13 @@ sub get_cfg_file_path {
 
     return $dir.$args{file} if $args{file};
 
-    return if not defined $suffix_table{$args{backend}} ;
+    return if not defined $args{suffix} ;
 
     my $i = $self->instance ;
     my $name = $dir. $i->name ;
 
     # append ":foo bar" if not root object
-    my $loc = $self->location ; # not good
+    my $loc = $self->location ; # not very good
     if ($loc) {
 	if (($w and not -d $name and $args{auto_create})) {
 	  get_logger('Data::Write')
@@ -83,9 +83,22 @@ sub get_cfg_file_path {
 	$name .= '/'.$loc ;
     }
 
-    croak "get_cfg_file_path: undefined backend" 
-      unless defined $args{backend} ;
-    return $name. ( $suffix_table{$args{backend}} );
+    return $name. ( $args{suffix} );
+}
+
+sub open_read_file {
+    my $self = shift ;
+    my %args = @_ ;
+
+    my $file_path = $self->get_cfg_file_path(%args);
+
+    # not very clean
+    return if $args{backend} =~ /_file$/
+	and (not defined $file_path or not -r $file_path) ;
+
+    my $fh = new IO::File;
+    $fh->open($file_path) if (defined $file_path and -e $file_path) ;
+    return ($file_path,$fh) ;
 }
 
 # called at configuration node creation
@@ -134,20 +147,8 @@ sub auto_read_init {
 
 	$auto_create ||= delete $read->{auto_create} if defined $read->{auto_create};
 
-	my $file_path = $self->get_cfg_file_path(%$read,
-						 root => $root_dir,
-						 config_dir => $read_dir,
-						 backend => $backend,
-						) ;
-
-	next if $backend =~ /_file$/ 
-	        and (not defined $file_path or not -r $file_path) ;
-
-	my $fh = new IO::File;
-	$fh->open($file_path) if (defined $file_path and -e $file_path) ;
-
-	my @read_args = (%$read, root => $root_dir, file_path => $file_path,
-			 config_dir => $read_dir, io_handle => $fh);
+	my @read_args = (%$read, root => $root_dir, config_dir => $read_dir,
+			backend => $backend);
 
 	if ($backend eq 'custom') {
 	    my $c = my $file = delete $read->{class} ;
@@ -159,34 +160,48 @@ sub auto_read_init {
 	    get_logger("Data::Read")
 	      ->info("Read with custom backend $ {c}::$f in dir $read_dir");
 
+	    my ($file_path,$fh) = $self->open_read_file(@read_args);
 	    my $res = &{$c.'::'.$f}(@read_args, 
-				    conf_dir => $read_dir, # legacy FIXME
+				    file_path => $file_path,
+				    io_handle => $fh,
 				    object => $self) ;
 	    if ($res) { 
 		$read_done = 1 ;
 		last;
 	    }
 	}
-	elsif ($backend eq 'xml_file') {
-	    if ($self->read_xml(@read_args)) {
-		$read_done = 1 ;
-		last;
-	    }
-	}
 	elsif ($backend eq 'perl_file') {
-	    if ($self->read_perl(@read_args)) {
+	    my ($file_path,$fh) = $self->open_read_file(@read_args,
+						       suffix => '.pl');
+	    next unless defined $file_path ;
+	    my $res = $self->read_perl(@read_args, 
+				       file_path => $file_path,
+				       io_handle => $fh);
+	    if ($res) {
 		$read_done = 1 ;
 		last;
 	    }
 	}
 	elsif ($backend eq 'ini_file') {
-	    if ($self->read_ini(@read_args)) {
+	    my ($file_path,$fh) = $self->open_read_file(@read_args,
+							suffix => '.ini');
+	    next unless defined $file_path ;
+	    my $res = $self->read_ini(@read_args, 
+				      file_path => $file_path,
+				      io_handle => $fh,);
+	    if ($res) {
 		$read_done = 1 ;
 		last;
 	    }
 	}
 	elsif ($backend eq 'cds_file') {
-	    if ($self->read_cds_file(@read_args)) {
+	    my ($file_path,$fh) = $self->open_read_file(@read_args,
+							suffix => '.cds');
+	    next unless defined $file_path ;
+	    my $res = $self->read_cds_file(@read_args, 
+					   file_path => $file_path,
+					   io_handle => $fh,);
+	    if ($res) {
 		$read_done = 1 ;
 		last;
 	    }
@@ -204,9 +219,16 @@ sub auto_read_init {
 	    }
 	    no strict 'refs';
 	    my $backend_obj = $self->{backend}{$backend} = $c->new(node => $self) ;
+	    my $suffix = $backend_obj->suffix ;
+	    my ($file_path,$fh) = $self->open_read_file(@read_args,
+							suffix => $suffix);
 	    get_logger("Data::Read")->info( "Read with $backend $ {c}::$f");
 
-	    if ($backend_obj->$f(@read_args)) {
+	    my $res = $backend_obj->$f(@read_args, 
+				       file_path => $file_path,
+				       io_handle => $fh,
+				      );
+	    if ($res) {
 		$read_done = 1 ;
 		last;
 	    }
@@ -307,19 +329,11 @@ sub auto_write_init {
 	     };
 	    $self->{auto_write}{custom} = 1 ;
 	}
-	elsif ($backend eq 'xml') {
-	    $wb = sub {
-		my $file_path 
-		   = $self-> open_file_to_write($backend,$fh,@wr_args,@_) ;
-		$self->write_xml(@wr_args, file_path => $file_path, @_) ;
-		$fh->close if defined $file_path;
-	    } ;
-	    $self->{auto_write}{xml} = 1 ;
-	}
 	elsif ($backend eq 'ini_file') {
 	    $wb = sub {
 		my $file_path 
-		   = $self-> open_file_to_write($backend,$fh,@wr_args,@_) ;
+		   = $self-> open_file_to_write($backend,$fh,
+						suffix => '.ini',@wr_args,@_) ;
 		$self->write_ini(@wr_args, file_path => $file_path, @_) ;
 		$fh->close if defined $file_path;
 	    } ;
@@ -328,7 +342,8 @@ sub auto_write_init {
 	elsif ($backend eq 'perl_file') {
 	    $wb = sub {
 		my $file_path 
-		   = $self-> open_file_to_write($backend,$fh,@wr_args,@_) ;
+		   = $self-> open_file_to_write($backend,$fh,
+						suffix => '.pl',@wr_args,@_) ;
 		$self->write_perl(@wr_args, file_path => $file_path,  @_) ;
 		$fh->close if defined $file_path;
 	    } ;
@@ -337,7 +352,8 @@ sub auto_write_init {
 	elsif ($backend eq 'cds_file') {
 	    $wb = sub {
 		my $file_path 
-		   = $self-> open_file_to_write($backend,$fh,@wr_args,@_) ;
+		   = $self-> open_file_to_write($backend,$fh,
+						suffix => '.cds',@wr_args,@_) ;
 		$self->write_cds_file(@wr_args, file_path => $file_path, @_) ;
 		$fh->close if defined $file_path;
 	    } ;
@@ -361,8 +377,11 @@ sub auto_write_init {
 		 my $backend_obj =  $self->{backend}{$backend}
 		                 || $c->new(node => $self) ;
 		 my $file_path ;
-		 $file_path = $self-> open_file_to_write($backend,$fh,@wr_args,@_) 
-		   unless ($c->can('skip_open') and $c->skip_open) ;
+		 my $suffix = $backend_obj->suffix ;
+		 $file_path = $self-> open_file_to_write($backend,$fh,
+							 suffix => $suffix,
+							 @wr_args,@_) 
+		     unless ($c->can('skip_open') and $c->skip_open) ;
 		 # override needed for "save as" button
 		 $backend_obj->$f(@wr_args, 
 				  file_path => $file_path,
@@ -505,16 +524,6 @@ sub write_ini {
     return 1 ;
 }
 
-sub read_xml {
-    my $self = shift;
-    die "read_xml: not yet implemented";
-}
-
-sub write_xml {
-    my $self = shift;
-    die "write_xml: not yet implemented";
-}
-
 1;
 
 __END__
@@ -528,7 +537,7 @@ Config::Model::AutoRead - Load configuration node on demand
   # top level config file name matches instance name
   $model->create_config_class 
   (
-   config_class_name => 'OneAutoReadConfigClass',
+   name => 'OneAutoReadConfigClass',
 
    read_config  => [ { backend => 'cds_file' , config_dir => '/etc/cfg_dir'},
                      { backend => 'custom' , 
@@ -590,10 +599,6 @@ L</"Limitations depending on storage">.
 Perl data structure (perl) in a file. See L<Config::Model::DumpAsData>
 for details on the data structure.
 
-=item xml_file
-
-XML. Not yet implemented (ask the author if you're interested)
-
 =item custom
 
 Any format when the user provides a dedicated class and function to
@@ -631,6 +636,7 @@ A plugin backend class can also be specified with:
 
   read_config  => [ { backend    => 'foo' , 
                       config_dir => '/etc/cfg_dir'
+                      file       => 'foo.conf', # optional
                     }
                   ]
 
@@ -914,16 +920,6 @@ custom class:
 
   read_config  => [{ backend => 'custom', class => 'Bar', 
                     config_dir => '/etc/foo'}],
-
-=begin comment
-
-To migrate from custom format to xml:
-
-  read_config  => [ { backend => 'xml' },
-                    { backend => 'custom', class => 'Bar' } ],
-  write_config => { backend => 'xml' },
-
-=end comment
 
 To migrate from an old format to a new format:
 

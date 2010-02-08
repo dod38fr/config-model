@@ -337,6 +337,12 @@ C<name> option:
  my $inst = $model->instance (root_class_name => 'SomeRootClass', 
                               name            => 'test1');
 
+
+Usually, model files will be loaded automatically depending on
+C<root_class_name>. But you can choose to specify the file containing
+the model with C<model_file> parameter. This is mostly useful for
+tests.
+
 =cut
 
 sub instance {

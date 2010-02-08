@@ -47,6 +47,7 @@ do "t/test_model.pl" ;
 my $i_hosts = $model->instance(instance_name    => 'hosts_inst',
 			       root_class_name  => 'Hosts',
 			       root_dir    => $wr_root ,
+			       model_file       => 't/test_yaml_model.pl',
 			      );
 
 ok( $i_hosts, "Created instance for /etc/hosts" );

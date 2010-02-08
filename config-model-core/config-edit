@@ -460,7 +460,11 @@ Log4perl uses the following categories:
 
 =item Tree::Element::Warped
 
+=item Tree::Element::CheckList
+
 =item Tree::Node
+
+=item Backend::Yaml
 
 =item Wizard::Helper
 

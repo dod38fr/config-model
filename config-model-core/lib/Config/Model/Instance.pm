@@ -128,9 +128,6 @@ sub new {
 	 # automatic scheme
 	 preset => 0,
 
-	 # mode: can be upgrade, downgrade ...
-	 mode => '',
-
 	 config_model => $config_model ,
 	 root_class_name => $root_class_name ,
 
