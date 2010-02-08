@@ -22,17 +22,17 @@
 
 package Config::Model::CheckList ;
 use Config::Model::Exception ;
-use Scalar::Util qw(weaken) ;
 use warnings ;
 use Carp;
 use strict;
-
-
+use Log::Log4perl qw(get_logger :levels);
 
 use base qw/Config::Model::WarpedThing/ ;
 
 use vars qw($VERSION) ;
 $VERSION = sprintf "1.%04d", q$Revision$ =~ /(\d+)/;
+
+my $logger = get_logger("Tree::Element::CheckList") ;
 
 =head1 NAME
 
@@ -132,6 +132,7 @@ sub new {
 
     $self->cl_init ;
 
+    $logger->info("Created check_list element $self->{element_name}");
     return $self ;
 }
 
@@ -275,6 +276,12 @@ sub set_properties {
     # cleanup all parameters that are handled by warp
     map(delete $self->{$_}, @allowed_warp_params ) ;
 
+    if ($logger->is_debug()) {
+      my %h = @_;
+      my $keys = join(',',keys %h) ;
+      $logger->debug("set_properties called on $self->{element_name} with $keys");
+    }
+
     # merge data passed to the constructor with data passed to set
     my %args = (%{$self->{backup}},@_ );
 
@@ -320,7 +327,7 @@ sub setup_choice {
     my $self = shift ;
     my @choice = ref $_[0] ? @{$_[0]} : @_ ;
 
-    print "CheckList: setup_choice with @choice\n" if $::debug ;
+    $logger->debug("CheckList $self->{element_name}: setup_choice with @choice");
     # store all enum values in a hash. This way, checking
     # whether a value is present in the enum set is easier
     delete $self->{choice_hash} if defined $self->{choice_hash} ;
@@ -813,15 +820,20 @@ sub get {
     return $self->fetch(@_) ;
 }
 
-=head2 set( path , value )
+=head2 set( path , values )
 
-Set a value with a directory like path.
+Set a checklist with a directory like path. Since a checklist is a leaf, the path
+should be empty. The values are a comma separated list of checked items.
+
+Example : C<< $leaf->set('','A,C,Z') ; >>
 
 =cut
 
 sub set {
     my $self = shift ;
     my $path = shift ;
+    my $list = shift ;
+
     if ($path) {
 	Config::Model::Exception::User
 	    -> throw (
@@ -829,7 +841,8 @@ sub set {
 		      message => "set() called with a value with non-empty path: '$path'"
 		     ) ;
     }
-    return $self->set_checked_list(@_) ;
+
+    return $self->set_checked_list(split /,/,$list) ;
 }
 
 =head2 set_checked_list ( item1, item2, ..)

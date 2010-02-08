@@ -10,7 +10,7 @@ use Test::More;
 use Config::Model;
 use Data::Dumper ;
 
-BEGIN { plan tests => 71; }
+BEGIN { plan tests => 74; }
 
 use strict;
 
@@ -170,6 +170,13 @@ is_deeply( $hr , \%expect ,
 
 # check help
 is($cl->get_help('A'),'A help',"test help") ;
+
+# test with the polymorphic 'set' method
+$cl->set('','A,Z,Y,B');
+ok(1, "test set method") ;
+@got = $cl->get_checked_list ;
+is (scalar @got, 4, "test nb of elt in check_list after set") ;
+is_deeply( \@got , [qw/A B Y Z/] , "test get_checked_list after set") ;
 
 my @set = sort qw/A C Z V Y/ ;
 $cl->set_checked_list(@set) ;

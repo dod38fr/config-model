@@ -1,4 +1,10 @@
-2010-02-03  Dominique Dumont  <domi.dumont@free.fr>  pre 0.643
+2010-02-05  Dominique Dumont  <domi.dumont@free.fr>   pre 0.643
+
+	* lib/Config/Model/CheckList.pm (set): buf fix: split input value
+	to get the list of checked items.
+	Migrated to Log4perl
+
+2010-02-03  Dominique Dumont  <domi.dumont@free.fr>
 
 	* lib/Config/Model/CheckList.pm: Fixed default and upstream
 	default handling
