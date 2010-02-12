@@ -97,8 +97,13 @@ sub open_read_file {
 	and (not defined $file_path or not -r $file_path) ;
 
     my $fh = new IO::File;
-    $fh->open($file_path) if (defined $file_path and -e $file_path) ;
-    return ($file_path,$fh) ;
+    if (defined $file_path and -e $file_path) {
+	$fh->open($file_path);
+	return ($file_path,$fh) ;
+    }
+    else {
+	return $file_path ;
+    }
 }
 
 # called at configuration node creation
@@ -242,7 +247,8 @@ sub auto_read_init {
 
 	Config::Model::Exception::Model -> throw
 	    (
-	     error => "auto_read error: $msg" ,
+	     error => "auto_read error: $msg. May be add "
+	            . "'auto_create' parameter in configuration model" ,
 	     object => $self,
 	    ) unless $auto_create ;
 

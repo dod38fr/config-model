@@ -487,7 +487,8 @@ sub load_data {
 	    $obj -> load_data($data->[$idx++]) ;
 	}
     }
-    else {
+    elsif (defined $data) {
+	# we can skip undefined data
 	my $expected = $self->{ordered} ? 'array' : 'hash' ;
 	Config::Model::Exception::LoadData
 	    -> throw (

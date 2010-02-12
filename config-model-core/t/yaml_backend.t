@@ -50,7 +50,7 @@ my $i_hosts = $model->instance(instance_name    => 'hosts_inst',
 			       model_file       => 't/test_yaml_model.pl',
 			      );
 
-ok( $i_hosts, "Created instance for /etc/hosts" );
+ok( $i_hosts, "Created instance" );
 
 __END__
 

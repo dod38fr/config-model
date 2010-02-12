@@ -17,6 +17,7 @@
   read_config  => [ { backend => 'yaml', 
 		      config_dir => '/yaml/',
 		      file => 'hosts.yml',
+		      auto_create => 1,
 		    },
 		  ],
 

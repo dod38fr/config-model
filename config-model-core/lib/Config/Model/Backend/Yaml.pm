@@ -51,11 +51,14 @@ sub read {
     # file_path  => './my_test/etc/foo/foo.conf' 
     # io_handle  => $io           # IO::File object
 
+    return 0 unless defined $args{io_handle} ; # no file to read
+
     # load yaml file
     my $yaml = join ('',$args{io_handle}->getlines) ;
 
     # convert to perl data
-    my $perl_data = Load $yaml ;
+    my $perl_data = Load $yaml 
+      || croak "No data found in YAML file $args{file_path}";
 
     # load perl data in tree
     $self->{node}->load_data($perl_data) ;
