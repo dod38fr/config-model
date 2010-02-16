@@ -223,7 +223,8 @@ sub auto_read_init {
 		next ;
 	    }
 	    no strict 'refs';
-	    my $backend_obj = $self->{backend}{$backend} = $c->new(node => $self) ;
+	    my $backend_obj = $self->{backend}{$backend} 
+	      = $c->new(node => $self, name => $backend) ;
 	    my $suffix = $backend_obj->suffix ;
 	    my ($file_path,$fh) = $self->open_read_file(@read_args,
 							suffix => $suffix);
@@ -381,7 +382,7 @@ sub auto_write_init {
 	    $wb = sub 
 	      {  no strict 'refs';
 		 my $backend_obj =  $self->{backend}{$backend}
-		                 || $c->new(node => $self) ;
+		                 || $c->new(node => $self, name => $backend) ;
 		 my $file_path ;
 		 my $suffix = $backend_obj->suffix ;
 		 $file_path = $self-> open_file_to_write($backend,$fh,

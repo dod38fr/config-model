@@ -62,6 +62,29 @@ sub read {
 
     # load perl data in tree
     $self->{node}->load_data($perl_data) ;
+    return 1 ;
+}
+
+sub write {
+    my $self = shift ;
+    my %args = @_ ;
+
+    # args is:
+    # object     => $obj,         # Config::Model::Node object 
+    # root       => './my_test',  # fake root directory, userd for tests
+    # config_dir => /etc/foo',    # absolute path 
+    # file       => 'foo.conf',   # file name
+    # file_path  => './my_test/etc/foo/foo.conf' 
+    # io_handle  => $io           # IO::File object
+
+    return 0 unless defined $args{io_handle} ; # no file to write
+
+    my $perl_data = $self->{node}->dump_as_data() ;
+    my $yaml = Dump $perl_data ;
+
+    $args{io_handle} -> print ($yaml) ;
+
+    return 1;
 }
 
 1;

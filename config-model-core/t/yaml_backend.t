@@ -29,7 +29,7 @@ Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 use Log::Log4perl qw(:easy) ;
 Log::Log4perl->easy_init($arg =~ /l/ ? $TRACE: $WARN);
 
-plan tests => 18;
+plan tests => 7 ;
 
 ok(1,"compiled");
 
@@ -52,11 +52,10 @@ my $i_hosts = $model->instance(instance_name    => 'hosts_inst',
 
 ok( $i_hosts, "Created instance" );
 
-__END__
 
 my $i_root = $i_hosts->config_root ;
 
-my $expect = "record:0
+my $load = "record:0
   ipaddr=127.0.0.1
   canonical=localhost
   alias=localhost -
@@ -65,186 +64,41 @@ record:1
   canonical=bilbo - -
 " ;
 
-my $dump = $i_root->dump_tree ;
-print $dump if $trace ;
-is( $dump , $expect,"check dump of augeas data");
-
-# change data content, '~' is like a splice, 'record~0' like a "shift"
-$i_root->load("record~0 record:0 canonical=buildbot - 
-               record:1 canonical=komarr ipaddr=192.168.0.10 -
-               record:2 canonical=repoman ipaddr=192.168.0.11 -
-               record:3 canonical=goner   ipaddr=192.168.0.111") ;
-
-$dump = $i_root->dump_tree ;
-print $dump if $trace ;
+$i_root->load($load) ;
 
 $i_hosts->write_back ;
-ok(1,"/etc/hosts write back done") ;
+ok(1,"yaml write back done") ;
 
-my $aug_file      = $wr_root.'etc/hosts';
-my $aug_save_file = $aug_file.'.augsave' ;
-ok(-e $aug_save_file, "check that backup config file $aug_save_file was written");
 
-my @expect = ("192.168.0.1 buildbot\n",
-	      "192.168.0.10\tkomarr\n",
-	      "192.168.0.11\trepoman\n",
-	      "192.168.0.111\tgoner\n"
+
+my $yaml_file      = $wr_root.'yaml/hosts.yml';
+ok(-e $yaml_file, "check that config file $yaml_file was written");
+
+my @expect = (
+	      "---\n",
+	      "record:\n",
+	      "- alias: localhost\n",
+	      "  canonical: localhost\n",
+	      "  ipaddr: 127.0.0.1\n",
+	      "- canonical: bilbo\n",
+	      "  ipaddr: 192.168.0.1\n",
 	     );
 
-open(AUG,$aug_file) || die "Can't open $aug_file:$!"; 
-is_deeply([<AUG>],\@expect,"check content of $aug_file") ;
-close AUG;
+open(YAML,$yaml_file) || die "Can't open $yaml_file:$!"; 
+is_deeply([<YAML>],\@expect,"check content of $yaml_file") ;
+close YAML;
 
-# check directly the content of augeas
-my $augeas_obj = $i_root->{backend}{augeas}->_augeas_object ;
+# create another instance to read the yaml that was just written
+my $i2_hosts = $model->instance(instance_name    => 'hosts_inst2',
+				root_class_name  => 'Hosts',
+				root_dir    => $wr_root ,
+			       );
 
-my $nb = $augeas_obj -> count_match("/files/etc/hosts/*") ;
-is($nb,4,"Check nb of hosts in Augeas") ;
-
-# delete last entry
-$i_root->load("record~3");
-$i_hosts->write_back ;
-ok(1,"/etc/hosts write back after deletion of record~3 (goner) done") ;
-
-$nb = $augeas_obj -> count_match("/files/etc/hosts/*") ;
-is($nb,3,"Check nb of hosts in Augeas after deletion") ;
-
-pop @expect; # remove goner entry
-open(AUG,$aug_file) || die "Can't open $aug_file:$!"; 
-is_deeply([<AUG>],\@expect,"check content of $aug_file after deletion of goner") ;
-close AUG;
+ok( $i2_hosts, "Created instance" );
 
 
+my $i2_root = $i2_hosts->config_root ;
 
-$augeas_obj->print('/') if $trace;
+my $p2_dump = $i2_root->dump_tree ;
 
-my $have_pkg_config = `pkg-config --version` || '';
-chomp $have_pkg_config ;
-
-my $aug_version = $have_pkg_config ? `pkg-config --modversion augeas` : '' ;
-chomp $aug_version ;
-
-my $skip =  (not $have_pkg_config)  ? 'pkgconfig is not installed'
-         :  $aug_version le '0.3.1' ? 'Need Augeas library > 0.3.1'
-         :                            '';
-
-SKIP: {
-    skip $skip , 5 if $skip ;
-
-my $i_sshd = $model->instance(instance_name    => 'sshd_inst',
-			      root_class_name  => 'Sshd',
-			      root_dir    => $wr_root ,
-			     );
-
-ok( $i_sshd, "Created instance for sshd" );
-
-ok( $i_sshd, "Created instance for /etc/ssh/sshd_config" );
-
-open(SSHD,"$wr_root/etc/ssh/sshd_config")
-  || die "can't open file: $!";
-
-my @sshd_orig = <SSHD> ;
-close SSHD ;
-
-my $sshd_root = $i_sshd->config_root ;
-
-my $ssh_augeas_obj = $sshd_root->{backend}{augeas}->_augeas_object ;
-
-$ssh_augeas_obj->print('/files/etc/ssh/sshd_config/*') if $trace;
-#my @aug_content = $ssh_augeas_obj->match("/files/etc/ssh/sshd_config/*") ;
-#print join("\n",@aug_content) ;
-
-$expect = "AcceptEnv=LC_PAPER,LC_NAME,LC_ADDRESS,LC_TELEPHONE,LC_MEASUREMENT,LC_IDENTIFICATION,LC_ALL
-AllowUsers=foo,bar\@192.168.0.*
-HostbasedAuthentication=no
-HostKey=/etc/ssh/ssh_host_key,/etc/ssh/ssh_host_rsa_key,/etc/ssh/ssh_host_dsa_key
-Subsystem:rftp=/usr/lib/openssh/rftp-server
-Subsystem:sftp=/usr/lib/openssh/sftp-server
-Subsystem:tftp=/usr/lib/openssh/tftp-server
-Match:0
-  Condition
-    User=domi -
-  Settings
-    AllowTcpForwarding=yes - -
-Match:1
-  Condition
-    User=Chirac
-    Group=pres.* -
-  Settings
-    Banner=/etc/bienvenue1.txt - -
-Match:2
-  Condition
-    User=bush
-    Group=pres.*
-    Host=white.house.* -
-  Settings
-    Banner=/etc/welcome.txt - - -
-";
-
-$dump = $sshd_root->dump_tree ;
-print $dump if $trace ;
-is( $dump , $expect,"check dump of augeas data");
-
-# change data content, '~' is like a splice, 'record~0' like a "shift"
-$sshd_root->load("HostbasedAuthentication=yes 
-                  Subsystem:ddftp=/home/dd/bin/ddftp
-                  Subsystem~rftp
-                  ") ;
-
-$dump = $sshd_root->dump_tree ;
-print $dump if $trace ;
-
-$i_sshd->write_back ;
-
-my $aug_sshd_file      = $wr_root.'etc/ssh/sshd_config';
-my $aug_save_sshd_file = $aug_sshd_file.'.augsave' ;
-ok(-e $aug_save_sshd_file, 
-   "check that backup config file $aug_save_sshd_file was written");
-
-my @mod = @sshd_orig;
-$mod[2] = "HostbasedAuthentication yes\n";
-splice @mod, 8,0,"Protocol 1,2\n";
-
-$mod[15] = "Subsystem            ddftp /home/dd/bin/ddftp\n";
-
-open(AUG,$aug_sshd_file) || die "Can't open $aug_sshd_file:$!"; 
-is_deeply([<AUG>],\@mod,"check content of $aug_sshd_file") ;
-close AUG;
-
-$sshd_root->load("Match~1") ;
-
-$i_sshd->write_back ;
-
-my @lines = splice @mod,30,4 ;
-push @mod, @lines[2,3] ;
-
-open(AUG,$aug_sshd_file) || die "Can't open $aug_sshd_file:$!"; 
-is_deeply([<AUG>],\@mod,"check content of $aug_sshd_file after Match~1") ;
-close AUG;
-
-$sshd_root->load("Match:2 Condition User=sarko Group=pres.* -
-                          Settings  Banner=/etc/bienvenue2.txt") ;
-
-$i_sshd->write_back ;
-
-
-push @mod,"Match User sarko Group pres.*\n","Banner /etc/bienvenue2.txt\n";
-
-
-open(AUG,$aug_sshd_file) || die "Can't open $aug_sshd_file:$!"; 
-is_deeply([<AUG>],\@mod,"check content of $aug_sshd_file after Match:2 ...") ;
-close AUG;
-
-$sshd_root->load("Match:2 Condition User=sarko Group=pres.* -
-                          Settings  AllowTcpForwarding=yes") ;
-
-$i_sshd->write_back ;
-
-splice @mod,35,0,"AllowTcpForwarding yes\n";
-
-open(AUG,$aug_sshd_file) || die "Can't open $aug_sshd_file:$!"; 
-is_deeply([<AUG>],\@mod,"check content of $aug_sshd_file after Match:2 AllowTcpForwarding=yes") ;
-close AUG;
-
-
-} # end SKIP section
+is($p2_dump,$load,"compare original data with 2nd instance data") ;
