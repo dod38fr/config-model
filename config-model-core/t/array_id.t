@@ -109,7 +109,7 @@ is($b->fetch_with_id(0)->store('baz'),'baz',"stored in 0") ;
 is($b->fetch_with_id(2)->store('bar'),'bar',"stored in 2") ;
 
 throws_ok { $b->fetch_with_id(124)->store('baz') ;} 
-  qr/Index 124 > max limit 123/,'max error caught';
+  qr/Index 124 > max_index limit 123/,'max error caught';
 
 throws_ok { $root->fetch_element('list_with_wrong_auto_create') ;} 
   qr/Wrong auto_create argument for list/,'wrong auto_create caught';
@@ -120,7 +120,7 @@ $b->delete(1) ;
 is($b->fetch_with_id(1)->fetch, undef,"check deleted id") ;
 
 is($b->index_type,'integer','check list index_type') ;
-is($b->max,123,'check list max boundary') ;
+is($b->max_index,123,'check list max boundary') ;
 
 $b->push('toto','titi') ;
 is($b->fetch_with_id(2)->fetch, 'bar', "check last item of table") ;

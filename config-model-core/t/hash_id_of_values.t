@@ -174,7 +174,7 @@ ok( $b->delete(2), "delete id 2" );
 is( $b->exists(2), '', "deleted id does not exist" );
 
 is( $b->index_type, 'integer',"reading value_type" );
-is( $b->max, 123,"reading max boundary" );
+is( $b->max_index, 123,"reading max boundary" );
 
 my $ac = $root->fetch_element('hash_with_auto_created_id') ;
 ok($ac,"created hash_with_auto_created_id") ;

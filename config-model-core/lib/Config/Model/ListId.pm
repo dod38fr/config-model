@@ -45,7 +45,7 @@ Config::Model::ListId - Handle list element for configuration model
    => [ 
        bounded_list 
        => { type => 'list',
-            max => 123, 
+            max_index => 123, 
             max_nb => 2 ,
             cargo_type => 'leaf',
             cargo_args => {value_type => 'string'},
@@ -82,8 +82,8 @@ sub new {
     Config::Model::Exception::Model->throw 
         (
          object => $self,
-         error => "Cannot use min with ".$self->get_type." element"
-        ) if defined $args{min};
+         error => "Cannot use min_index with ".$self->get_type." element"
+        ) if defined $args{min_index};
 
     # Supply the mandatory parameter
     $self->handle_args(%args, index_type => 'integer') ;
@@ -106,12 +106,12 @@ sub set_properties {
     # remove unwanted items
     my $data = $self->{data} ;
 
-    return unless defined $self->{max} ;
+    return unless defined $self->{max_index} ;
 
     # delete entries that no longer fit the constraints imposed by the
     # warp mechanism
     foreach my $k (0 .. $#{$data}) {
-	next unless  $k >  $self->{max};
+	next unless  $k >  $self->{max_index};
 	print "set_properties: ",$self->name," deleting index $k\n" if $::debug ;
 	delete $data->[$k] ;
     }

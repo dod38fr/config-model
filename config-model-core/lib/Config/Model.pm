@@ -769,12 +769,14 @@ sub translate_legacy_info {
 	if (defined $info->{auto_create}) {
 	    $self->translate_id_auto_create($config_class_name,$elt_name, $info);
 	} 
+	$self->translate_id_min_max($config_class_name,$elt_name, $info);
 	$self->translate_id_names($config_class_name,$elt_name,$info) ;
 	if (defined $info->{warp} ) {
 	    my $rules_a = $info->{warp}{rules} ;
 	    my %h = @$rules_a ;
 	    foreach my $rule_effect (values %h) {
 		$self->translate_id_names($config_class_name,$elt_name, $rule_effect) ;
+	$self->translate_id_min_max($config_class_name,$elt_name, $rule_effect);
 		next unless defined $rule_effect->{default} ;
 		$self->translate_id_default_info($config_class_name,$elt_name, $rule_effect);
 	    }
@@ -961,6 +963,26 @@ sub translate_id_auto_create {
     print "translate_id_default_info $elt_name output:\n",
       Data::Dumper->Dump([$info ] , [qw/new_info/ ] ) ,"\n"
 	  if $::debug ;
+}
+
+sub translate_id_min_max {
+    my $self = shift ;
+    my $config_class_name = shift || die;
+    my $elt_name = shift ;
+    my $info = shift ;
+
+    foreach my $bad ( qw/min max/) {
+	next unless defined $info->{$bad} ;
+
+	print "translate_id_min_max $elt_name $bad:\n"
+	    if $::debug ;
+
+	my $good = $bad.'_index' ;
+	my $warn = "$config_class_name->$elt_name: '$bad' parameter for list or " 
+	    . "hash element is deprecated. Use '$good'";
+
+	$info->{$good} = delete $info->{$bad} ;
+    }
 }
 
 # internal: translate warp information into 'boolean expr' => { ... }

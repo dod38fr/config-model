@@ -2,7 +2,7 @@
 # $Date$
 # $Revision$
 
-#    Copyright (c) 2005-2009 Dominique Dumont.
+#    Copyright (c) 2005-2010 Dominique Dumont.
 #
 #    This file is part of Config-Model.
 #
@@ -56,7 +56,7 @@ Config::Model::AnyId - Base class for hash or list element
             index_type  => 'integer',
 
             # hash boundaries
-            min => 1, max => 123, max_nb => 2 ,
+            min_index => 1, max_index => 123, max_nb => 2 ,
 
             # specify cargo held by hash
             cargo => { type => 'leaf',
@@ -66,7 +66,7 @@ Config::Model::AnyId - Base class for hash or list element
       bounded_list 
        => { type => 'list',                 # list id
 
-            max => 123, 
+            max_index => 123, 
             cargo => { type => 'leaf',
                        value_type => 'string'
                      },
@@ -184,11 +184,11 @@ L<Config::Model::Value> when C<< cargo->type >> is C<leaf>.
 
 =back
 
-=item min
+=item min_index
 
 Specify the minimum value (optional, only for hash and for integer index)
 
-=item max
+=item max_index
 
 Specify the maximum value (optional, only for integer index)
 
@@ -271,7 +271,7 @@ to modify this behavior.
 
 The Warp functionnality enables an L<HashId|Config::Model::HashId> or
 L<ListId|Config::Model::ListId> object to change its default settings
-(e.g. C<min>, C<max> or C<max_nb> parameters) dynamically according to
+(e.g. C<min_index>, C<max_index> or C<max_nb> parameters) dynamically according to
 the value of another C<Value> object. (See
 L<Config::Model::WarpedThing> for explanation on warp mechanism)
 
@@ -337,14 +337,14 @@ auto_create are not removed.
 =head2 Warp and max_nb
 
 When a warp is applied, the items that do not fit the constraint
-(e.g. min, max) are removed.
+(e.g. min_index, max_index) are removed.
 
 For the max_nb constraint, an exception will be raised if a warp 
 leads to a nb of items greater than the max_nb constraint.
 
 =cut
 
-my @common_params =  qw/min max max_nb default_with_init default_keys
+my @common_params =  qw/min_index max_index max_nb default_with_init default_keys
                         follow_keys_from auto_create_ids auto_create_keys
                         allow_keys allow_keys_from/ ;
 
@@ -453,9 +453,9 @@ object (as declared in the model unless they were warped):
 
 =over
 
-=item min 
+=item min_index 
 
-=item max 
+=item max_index 
 
 =item max_nb 
 
@@ -481,7 +481,7 @@ object (as declared in the model unless they were warped):
 
 =cut
 
-for my $datum (qw/min max max_nb index_type default_keys default_with_init
+for my $datum (qw/min_index max_index max_nb index_type default_keys default_with_init
                   follow_keys_from auto_create_keys auto_create_ids
                   morph ordered
                   config_model/) {
@@ -490,6 +490,18 @@ for my $datum (qw/min max max_nb index_type default_keys default_with_init
         my $self= shift; 
         return $self->{$datum};
     } ;
+}
+
+sub max {
+    my $self=shift ;
+    carp $self->name,": max param is deprecated, use max_index\n";
+    $self->max_index ;
+}
+
+sub min {
+    my $self=shift ;
+    carp $self->name,": min param is deprecated, use min_index\n";
+    $self->min_index ;
 }
 
 =head2 get_cargo_type()
@@ -661,11 +673,11 @@ sub check {
     elsif ($self->{index_type} eq 'integer' and $idx =~ /\D/) {
 	push @error,"Index is not integer ($idx)";
     }
-    elsif (defined $self->{max} and $idx > $self->{max}) {
-        push @error,"Index $idx > max limit $self->{max}" ;
+    elsif (defined $self->{max_index} and $idx > $self->{max_index}) {
+        push @error,"Index $idx > max_index limit $self->{max_index}" ;
     }
-    elsif ( defined $self->{min} and $idx < $self->{min}) {
-        push @error,"Index $idx < min limit $self->{min}";
+    elsif ( defined $self->{min_index} and $idx < $self->{min_index}) {
+        push @error,"Index $idx < min_index limit $self->{min_index}";
     }
 
     push @error,"Too many instances ($new_nb) limit $self->{max_nb}, ".

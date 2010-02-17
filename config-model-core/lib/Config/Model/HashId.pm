@@ -2,7 +2,7 @@
 # $Date$
 # $Revision$
 
-#    Copyright (c) 2005-2009 Dominique Dumont.
+#    Copyright (c) 2005-2010 Dominique Dumont.
 #
 #    This file is part of Config-Model.
 #
@@ -49,8 +49,8 @@ Config::Model::HashId - Handle hash element for configuration model
        bounded_hash 
        => { type => 'hash',
             index_type  => 'integer',
-            min => 1, 
-            max => 123, 
+            min_index => 1, 
+            max_index => 123, 
             max_nb => 2 ,
             cargo_type => 'leaf',
             cargo_args => {value_type => 'string'},
@@ -115,8 +115,8 @@ sub set_properties {
     my $wrong = sub {
         my $k = shift ;
         if ($idx_type eq 'integer') {
-            return 1 if defined $self->{max} and $k > $self->{max} ;
-            return 1 if defined $self->{min} and $k < $self->{min} ;
+            return 1 if defined $self->{max_index} and $k > $self->{max_index} ;
+            return 1 if defined $self->{min_index} and $k < $self->{min_index} ;
 	}
         return 1 if defined $self->{max_nb} and $idx++ > $self->{max_nb};
         return 0 ;

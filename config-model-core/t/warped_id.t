@@ -176,11 +176,11 @@ is_deeply( [ $warped_hash->get_all_indexes ], [qw/1 2/],
 
 my $multi_warp = $root->fetch_element('multi_warp') ;
 
-is( $multi_warp->max, 3, "check multi_warp default max" );
+is( $multi_warp->max_index, 3, "check multi_warp default max_index" );
 
 my $multi_auto_create = $root->fetch_element('multi_auto_create') ;
-is( $multi_auto_create->max,
-    3, "check multi_auto_create default max" );
+is( $multi_auto_create->max_index,
+    3, "check multi_auto_create default max_index" );
 
 is( $root->fetch_element('version')->store(2), 2, 'set version to 2') ;
 is( $macro->store('C'),'C','set macro to C') ;
@@ -202,7 +202,7 @@ $root->load(step => 'multi_warp:5 X=Av') ;
 is($root->grab_value('multi_warp:5 X'),'Av','check X value') ;
 
 
-is( $multi_warp->max, 7, "check multi_warp warped_hash max" );
+is( $multi_warp->max_index, 7, "check multi_warp warped_hash max_index" );
 
 is_deeply( [ sort $multi_auto_create->get_all_indexes ],
 	   [0 .. 7],
@@ -214,8 +214,8 @@ $root->load(step => 'multi_auto_create:5 X=Av');
 
 is( $root->grab_value('multi_auto_create:5 X'), 'Av', "check X value" );
 
-is( $multi_auto_create->max,
-    7, "check multi_auto_create warped_hash max" );
+is( $multi_auto_create->max_index,
+    7, "check multi_auto_create warped_hash max_index" );
 
 # remove one item to avoid error when setting macro to A
 $warped_hash->delete('2') ;

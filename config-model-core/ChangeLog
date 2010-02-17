@@ -1,5 +1,10 @@
 2010-02-17  Dominique Dumont  <domi.dumont@free.fr> v 0.643
 
+	* lib/Config/Model/AnyId.pm: For better clarity, Hash and List
+	parameter max and min are changed to max_index and
+	min_index. Backward compatibility is kept, but warning will be
+	displayed on the terminal when the old parameters are used.
+
 	* lib/Config/Model/Backend/Yaml.pm: New backend to read and write
 	YAML configuration files.
 
