@@ -452,6 +452,8 @@ Log4perl uses the following categories:
 
 =item Model::Searcher
 
+=item Instance
+
 =item Tree::Element::Value
 
 =item Tree::Element::Hash

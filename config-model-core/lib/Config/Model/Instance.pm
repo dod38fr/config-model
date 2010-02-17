@@ -23,6 +23,7 @@
 package Config::Model::Instance;
 use Scalar::Util qw(weaken) ;
 use File::Path;
+use Log::Log4perl qw(get_logger :levels);
 
 use Config::Model::Exception ;
 use Config::Model::Node ;
@@ -40,6 +41,8 @@ use vars qw/$VERSION/ ;
 $VERSION = sprintf "1.%04d", q$Revision$ =~ /(\d+)/;
 
 use Carp qw/croak confess cluck/;
+
+my $logger = get_logger("Backend::Yaml") ;
 
 =head1 NAME
 
@@ -239,6 +242,7 @@ Stop preset mode
 
 sub preset_stop {
     my $self = shift ;
+    $logger->info("Stopping preset mode");
     $self->{preset} = 0;
 }
 
@@ -250,6 +254,7 @@ Get preset mode
 
 sub preset {
     my $self = shift ;
+    $logger->info("Starting preset mode");
     return $self->{preset} ;
 }
 
@@ -530,8 +535,7 @@ sub write_back {
 	    or  $force_backend eq 'all' ) {
 	    # exit when write is successfull
 	    my $res = $wb->(%args) ; 
-	    print "write_back called with $backend backend, result is $res\n"
-	      if $::verbose;
+	    $logger->info("write_back called with $backend backend, result is $res");
 	    last if ($res and not $force_backend); 
 	}
     }
