@@ -2,7 +2,7 @@
 # $Date: 2010-02-03 16:34:07 +0100 (Wed, 03 Feb 2010) $
 # $Revision: 1071 $
 
-#    Copyright (c) 2005-2007 Dominique Dumont.
+#    Copyright (c) 2010 Dominique Dumont.
 #
 #    This file is part of Config-Model.
 #
@@ -88,11 +88,26 @@ Config::Model::Backend::Any - Virtual class for other backends
 
 This module is to be inherited by other backend plugin classes
 
+See L<Config::Model::AutoRead/"read callback"> and
+L<Config::Model::AutoRead/"write callback"> for more details on the
+method that must be provided by any backend classes.
 
 =head1 CONSTRUCTOR
 
-=head2 new ( node => $node_obj)
+=head2 new ( node => $node_obj, name => backend_name )
 
 The constructor should be used only by
 L<Config::Model::Node>.
 
+=head1 AUTHOR
+
+Dominique Dumont, (ddumont at cpan dot org)
+
+=head1 SEE ALSO
+
+L<Config::Model>, 
+L<Config::Model::AutoRead>, 
+L<Config::Model::Node>, 
+L<Config::Model::Backend::Yaml>, 
+
+=cut

@@ -48,6 +48,8 @@ my $build = Module::Build->new
 		      # should be part of core perl since perl5.003007
 		      # but some do not have it 
 		      'IO::File'          => 0, 
+		      # YAML backend
+		      'YAML::Any'         => '0.303',
 		     },
    build_requires => {
 		      'Config::Tiny'      => 0,
@@ -58,7 +60,6 @@ my $build = Module::Build->new
    recommends => {
 		  # recommended modules to get more reader/writer
 		  'Config::Tiny' => 0,
-		  'YAML::Any'    => '0.303',
  		 },
    # cleanup required by t/auto_read.t
    # PreGrammar.pm is created by t/value_computer.t

@@ -2,7 +2,7 @@
 # $Date: 2010-02-03 16:34:07 +0100 (Wed, 03 Feb 2010) $
 # $Revision: 1071 $
 
-#    Copyright (c) 2005-2007 Dominique Dumont.
+#    Copyright (c) 2010 Dominique Dumont.
 #
 #    This file is part of Config-Model.
 #
@@ -77,7 +77,8 @@ sub write {
     # file_path  => './my_test/etc/foo/foo.conf' 
     # io_handle  => $io           # IO::File object
 
-    return 0 unless defined $args{io_handle} ; # no file to write
+    croak "Undefined file handle to write"
+      unless defined $args{io_handle} ;
 
     my $perl_data = $self->{node}->dump_as_data() ;
     my $yaml = Dump $perl_data ;
@@ -125,10 +126,37 @@ contain C<'a','b'>.
 
 =head1 CONSTRUCTOR
 
-=head2 new ( )
+=head2 new ( node => $node_obj, name => 'yaml' ) ;
 
-No parameter. The constructor should be used only by
-L<Config::Model::Node>.
+Inherited from L<Config::Model::Backend::Any>. The constructor will be
+called by L<Config::Model::AutoRead>.
+
+=head2 read ( io_handle => ... )
+
+Of all parameters passed to this read call-back, only C<io_handle> is
+used. This parameter must be L<IO::File> object already opened for
+read. 
+
+It can also be undef. In this case, C<read()> will return 0.
+
+When a file is read,  C<read()> will return 1.
+
+=head2 write ( io_handle => ... )
+
+Of all parameters passed to this write call-back, only C<io_handle> is
+used. This parameter must be L<IO::File> object alwritey opened for
+write. 
+
+C<write()> will return 1.
+
+=head1 AUTHOR
+
+Dominique Dumont, (ddumont at cpan dot org)
+
+=head1 SEE ALSO
+
+L<Config::Model>, 
+L<Config::Model::AutoRead>, 
+L<Config::Model::Backend::Any>, 
 
 =cut
-
