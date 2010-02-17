@@ -14,6 +14,8 @@ lib/Config/Model.pm
 lib/Config/Model/AnyId.pm
 lib/Config/Model/AnyThing.pm
 lib/Config/Model/AutoRead.pm
+lib/Config/Model/Backend/Any.pm
+lib/Config/Model/Backend/Yaml.pm
 lib/Config/Model/CheckList.pm
 lib/Config/Model/Describe.pm
 lib/Config/Model/DumpAsData.pm
@@ -61,6 +63,7 @@ t/search_element.t
 t/simple_ui.t
 t/smooth_upgrade.t
 t/term_ui.t
+t/test_yaml_model.pl
 t/value.t
 t/value_compute.t
 t/value_refer_to.t
@@ -69,3 +72,4 @@ t/warped_id.t
 t/warped_node.t
 t/warped_value.t
 t/wizard.t
+t/yaml_backend.t

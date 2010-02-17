@@ -1,4 +1,9 @@
-2010-02-05  Dominique Dumont  <domi.dumont@free.fr>   pre 0.643
+2010-02-17  Dominique Dumont  <domi.dumont@free.fr> v 0.643
+
+	* lib/Config/Model/Backend/Yaml.pm: New backend to read and write
+	YAML configuration files.
+
+2010-02-05  Dominique Dumont  <domi.dumont@free.fr>
 
 	* lib/Config/Model/CheckList.pm (set): buf fix: split input value
 	to get the list of checked items.
@@ -8,10 +13,6 @@
 
 	* lib/Config/Model/CheckList.pm: Fixed default and upstream
 	default handling
-
-2010-01-31  Dominique Dumont  <domi.dumont@free.fr>
-
-	* lib/Config/Model/Value.pm: allow description and summary warp
 
 2010-01-21  Dominique Dumont  <dominique.dumont@hp.com> v0.642
 
