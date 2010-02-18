@@ -93,7 +93,7 @@ sub add_info {
 	push @items, "cargo class: " . $hash->config_class_name ;
     }
 
-    foreach my $what (qw/min max max_nb/) {
+    foreach my $what (qw/min_index max_index max_nb/) {
 	my $v = $hash->$what() ;
 	my $str = $what ;
 	$str =~ s/_/ /g;

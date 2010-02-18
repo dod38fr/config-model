@@ -98,7 +98,7 @@ sub add_info {
 	push @items, "leaf value type: " . ($list->get_cargo_info('value_type') || '') ;
     }
 
-    foreach my $what (qw//) {
+    foreach my $what (qw/min_index max_index/) {
 	my $v = $list->$what() ;
 	my $str = $what ;
 	$str =~ s/_/ /g;

@@ -92,29 +92,72 @@
 	   cargo => { type => 'leaf', value_type => 'uniline'},
 	 },
 
-      [qw/min max/]
+      'min'
       => { type => 'leaf',
 	   value_type => 'integer',
 	   level => 'hidden',
+	   description => 'minimum value',
 	   warp => { follow => {
 				'type'  => '?type',
 				'vtype' => '?value_type' ,
 			       },
 		     'rules'
-		     => [ '$type eq "hash"'
-			  => {
-			      level => 'normal',
-			      # description => 'minimum number of keys',
-			     },
-                          '    $type eq "leaf" 
+		     => [ '    $type eq "leaf" 
                            and (    $vtype eq "integer" 
                                  or $vtype eq "number" 
                                )
                           '
 			  => {
 			      level => 'normal',
-			      # description => 'minimum value',
 			     }
+			]
+		   }
+	 },
+
+      'max'
+      => { type => 'leaf',
+	   value_type => 'integer',
+	   level => 'hidden',
+	   description => 'maximum value',
+	   warp => { follow => {
+				'type'  => '?type',
+				'vtype' => '?value_type' ,
+			       },
+		     'rules'
+		     => [ '    $type eq "leaf" 
+                           and (    $vtype eq "integer" 
+                                 or $vtype eq "number" 
+                               )
+                          '
+			  => {
+			      level => 'normal',
+			     }
+			]
+		   }
+	 },
+
+      'min_index'
+      => { type => 'leaf',
+	   value_type => 'integer',
+	   level => 'hidden',
+	   description => 'minimum number of indexes',
+	   warp => { follow => {'type'  => '?type',},
+		     'rules'
+		     => [ '$type eq "hash" or $type eq "list"'
+			  => {level => 'normal',},
+			]
+		   }
+	 },
+
+      'max_index'
+      => { type => 'leaf',
+	   value_type => 'integer',
+	   level => 'hidden',
+	   description => 'maximum number of keys',
+	   warp => { follow => {'type'  => '?type',},
+		     'rules'
+		     => [ '$type eq "hash" or $type eq "list"'
+			  => {level => 'normal',},
 			]
 		   }
 	 },

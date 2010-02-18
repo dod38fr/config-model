@@ -2,7 +2,7 @@
 # $Date$
 # $Revision$
 
-#    Copyright (c) 2005-2007 Dominique Dumont.
+#    Copyright (c) 2005-2010 Dominique Dumont.
 #
 #    This file is part of Config-Model.
 #
@@ -189,6 +189,10 @@ details. (optional)
 
 List ref to specify the check list items which are "on" by default.
 (optional)
+
+=item ordered
+
+Specify whether the order of checked items must be preserved. 
 
 =item help
 

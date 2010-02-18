@@ -225,7 +225,8 @@ sub auto_read_init {
 	    no strict 'refs';
 	    my $backend_obj = $self->{backend}{$backend} 
 	      = $c->new(node => $self, name => $backend) ;
-	    my $suffix = $backend_obj->suffix ;
+	    my $suffix ;
+	    $suffix = $backend_obj->suffix if $backend_obj->can('suffix');
 	    my ($file_path,$fh) = $self->open_read_file(@read_args,
 							suffix => $suffix);
 	    get_logger("Data::Read")->info( "Read with $backend $ {c}::$f");
@@ -384,7 +385,8 @@ sub auto_write_init {
 		 my $backend_obj =  $self->{backend}{$backend}
 		                 || $c->new(node => $self, name => $backend) ;
 		 my $file_path ;
-		 my $suffix = $backend_obj->suffix ;
+		 my $suffix ;
+		 $suffix = $backend_obj->suffix if $backend_obj->can('suffix');
 		 $file_path = $self-> open_file_to_write($backend,$fh,
 							 suffix => $suffix,
 							 @wr_args,@_) 
