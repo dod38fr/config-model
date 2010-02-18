@@ -1,4 +1,4 @@
-//    Copyright (c) 2008 Dominique Dumont.
+//    Copyright (c) 2008-2010 Dominique Dumont.
 // 
 //    This library is free software; you can redistribute it and/or
 //    modify it under the terms of the GNU Lesser Public License as
@@ -60,6 +60,8 @@ BOOT:
     newCONSTSUB(stash, "AUG_ENOMATCH",  newSViv(AUG_ENOMATCH));
     newCONSTSUB(stash, "AUG_EMMATCH",   newSViv(AUG_EMMATCH));
     newCONSTSUB(stash, "AUG_ESYNTAX",   newSViv(AUG_ESYNTAX));
+    newCONSTSUB(stash, "AUG_ENOLENS",   newSViv(AUG_ENOLENS));
+    newCONSTSUB(stash, "AUG_EMXFM",     newSViv(AUG_EMXFM));
 
   }
 
@@ -110,6 +112,7 @@ aug_get(aug, path)
     PREINIT:
       int ret ;
     CODE:
+      RETVAL = NULL ;
       ret = aug_get(aug, path, &RETVAL);
     OUTPUT:
       RETVAL

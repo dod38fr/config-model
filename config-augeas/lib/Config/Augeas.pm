@@ -1,4 +1,4 @@
-#    Copyright (c) 2008-2009 Dominique Dumont.
+#    Copyright (c) 2008-2010 Dominique Dumont.
 #
 #    This library is free software; you can redistribute it and/or
 #    modify it under the terms of the GNU Lesser Public License as
@@ -22,7 +22,7 @@ use warnings;
 use Carp;
 use IO::File ;
 
-our $VERSION = '0.601';
+our $VERSION = '0.701';
 
 require XSLoader;
 XSLoader::load('Config::Augeas', $VERSION);
@@ -477,11 +477,13 @@ sub print {
 =head2 error
 
 Returns the error code from the last API call as a short string:
-noerror, nomem, internal, pathx, nomatch, manymatch, syntax
+noerror, nomem, internal, pathx, nomatch, manymatch, syntax, nolens,
+multiple_transforms
 
 =cut
 
-my @errcode = qw/noerror nomem internal pathx nomatch manymatch syntax/;
+my @errcode = qw/noerror nomem internal pathx nomatch manymatch syntax nolens 
+		multiple_transforms/;
 
 sub error {
     my $self   = shift ;
@@ -561,7 +563,7 @@ Dominique Dumont, E<lt>ddumont at cpan dot org@<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2008 by Dominique Dumont
+Copyright (C) 2008-2010 by Dominique Dumont
 
 This library is free software; you can redistribute it and/or modify
 it under the LGPL terms.

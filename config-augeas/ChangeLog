@@ -1,3 +1,11 @@
+2010-02-18  Dominique Dumont  <domi.dumont@free.fr> v0.701
+
+	* lib/Config/Augeas.pm: Added new error strings from Augeas 0.7.0
+
+	* lib/Config/Augeas.xs: fix core dump in get (initialise RETVAL
+	before calling aug_get). Added new error constants from Augeas
+	0.7.0
+
 2009-12-21  Dominique Dumont  <domi.dumont@free.fr> v0.601
 
 	* lib/Config/Augeas.pm : Added methods load, error, error_message,
