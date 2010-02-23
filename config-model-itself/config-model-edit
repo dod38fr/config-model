@@ -184,7 +184,7 @@ my $model_dir ;
 my $do_dot = 0;
 my $do_dump;
 my $dumptype;
-#my $do_yaml = 0;
+my $do_yaml = 0;
 my $save = 0;
 my $load ;
 
@@ -202,7 +202,7 @@ my $result = GetOptions (
 			 "dump!"            => \$do_dump ,
                          "dumptype:s"       => \$dumptype,
                          "load=s"           => \$load,
-			 #"dump_yaml!"       => \$do_yaml ,
+			 "dump_yaml!"       => \$do_yaml ,
 			);
 
 pod2usage(2) if not $result ;
@@ -278,11 +278,12 @@ if (defined $do_dump) {
     exit ;
 }
 
-# use YAML::Tiny qw/Dump/;
-# if ($do_yaml) {
-#     print Dump($meta_root->dump_as_data) ;
-#     exit ;
-# }
+if ($do_yaml) {
+    require YAML::Tiny;
+    import YAML::Tiny qw/Dump/;
+    print Dump($meta_root->dump_as_data(ordered_hash_as_list => 0)) ;
+    exit ;
+}
 
 my $write_sub = sub { 
     my $wr_dir = shift || $wr_model_dir ;

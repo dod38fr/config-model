@@ -36,8 +36,8 @@
       'multi_warp' 
       => { type => 'hash',
 	   index_type => 'integer',
-	   min        => 0,
-	   max        => 3,
+	   min_index  => 0,
+	   max_index  => 3,
 	   default    => [ 0 .. 3 ],
 	   warp
 	   => {
@@ -77,8 +77,8 @@
        'multi_auto_create'
       => { type => 'hash',
 	   index_type  => 'integer',
-	   min         => 0,
-	   max         => 3,
+	   min_index   => 0,
+	   max_index   => 3,
 	   auto_create => [ 0 .. 3 ],
 	   'warp'
 	   => { follow => [ '- version', '- macro' ],

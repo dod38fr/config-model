@@ -1,4 +1,9 @@
-2010-02-02  Dominique Dumont  <dominique.dumont@hp.com> pre 1.212
+2010-02-23  Dominique Dumont  <dominique.dumont@hp.com> pre 1.212
+
+	* config-model-edit: added dump_yaml option to dump models as YAML
+	file.
+
+2010-02-02  Dominique Dumont  <dominique.dumont@hp.com>
 
 	* config-model-edit: added -dump -dump_type -load options. Non
 	options args are now interpreted as model modifications

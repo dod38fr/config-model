@@ -2,7 +2,7 @@
 # $Date: 2008-02-07 11:29:57 $
 # $Revision: 1.3 $
 
-#    Copyright (c) 2007-2009 Dominique Dumont.
+#    Copyright (c) 2007-2010 Dominique Dumont.
 #
 #    This file is part of Config-Model-Itself.
 #
@@ -35,7 +35,7 @@ my $build = Module::Build->new
    dist_author   => "Dominique Dumont (ddumont at cpan dot org)",
    dist_abstract => "Graphical model editor for Config::Model",
    requires      => {
-		     'Config::Model'   => '0.637',
+		     'Config::Model'   => '0.643',
 		     'Log::Log4perl'   => 0 ,
 		     'Config::Model::TkUI' => '1.210',
 		    },
