@@ -4,7 +4,7 @@
 # $Revision$
 
 use ExtUtils::testlib;
-use Test::More tests => 28;
+use Test::More tests => 29;
 use Config::Model;
 
 use warnings;
@@ -23,7 +23,7 @@ $::debug            = 1 if $arg =~ /d/;
 Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 
 use Log::Log4perl qw(:easy) ;
-Log::Log4perl->easy_init($arg =~ /l/ ? $TRACE: $WARN);
+Log::Log4perl->easy_init($arg =~ /l/ ? $TRACE: $ERROR);
 
 ok(1,"compiled");
 
@@ -144,6 +144,13 @@ foreach my $test ( @tries ) {
     my $dump = $obj->dump_as_data();
     is_deeply($dump, $expect, "check data dump for '$path'") ; 
 }
+
+# try dump of ordered hash as hash
+my $ohah_dump = $root->grab('ordered_hash')
+  -> dump_as_data(ordered_hash_as_list => 0);
+is_deeply($ohah_dump, { __order => [qw/z y x/],'z', '1', 'y', '2', 'x', '3'},
+	  "check dump of ordered hash as hash") ; 
+
 
 # test ordered hash load with hash ref instead of array ref
 my $inst3 = $model->instance (root_class_name => 'Master', 

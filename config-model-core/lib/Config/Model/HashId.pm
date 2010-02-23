@@ -460,8 +460,16 @@ sub move_down {
 
 =head2 load_data ( hash_ref | array_ref)
 
-Load check_list as a hash ref for standard hash.  Ordered hash should
-be loaded with an array ref.
+Load check_list as a hash ref for standard hash. 
+
+Ordered hash should be loaded with an array ref or with a hash
+containing a special C<__order> element. E.g. loaded with either:
+
+  [ a => 'foo', b => 'bar' ]
+
+or
+
+  { __order => ['a','b'], b => 'bar', a => 'foo' }
 
 =cut
 
@@ -470,9 +478,23 @@ sub load_data {
     my $data = shift ;
 
     if (ref ($data) eq 'HASH') {
-	my @load_keys = sort  keys %$data ;
+	my @load_keys ;
+	my $from = ''; ;
+	if ($self->{ordered} and defined $data->{__order}) {
+	    @load_keys = @{ delete $data->{__order} };
+	    $from = ' with __order' ;
+	}
+	elsif ($self->{ordered}) {
+	    $logger->warn("HashId ".$self->location.": loading ordered "
+		."hash from hash ref without special key '__order'. Element "
+		."order is not defined");
+	    $from = ' without __order' ;
+	}
+
+	@load_keys = sort keys %$data unless @load_keys;
+
 	$logger->info("HashId load_data (".$self->location.
-		      ") will load idx @load_keys from hash ref");
+		      ") will load idx @load_keys from hash ref".$from);
 	foreach my $elt (@load_keys) {
 	    my $obj = $self->fetch_with_id($elt) ;
 	    $obj -> load_data($data->{$elt}) ;

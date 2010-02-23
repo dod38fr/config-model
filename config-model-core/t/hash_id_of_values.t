@@ -6,7 +6,7 @@
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
-use Test::More tests => 72 ;
+use Test::More tests => 73 ;
 use Config::Model ;
 
 use strict;
@@ -310,6 +310,12 @@ is_deeply([$oh->get_all_indexes], [],
 $oh->load_data([qw/a va b vb c vc d vd e ve/]);
 is_deeply([$oh->get_all_indexes], [qw/a b c d e/],
 	 "check index order of ordered_hash after clear") ;
+
+$oh->clear ;
+$oh->load_data({ __order => [qw/a b c d e/],
+		 qw/a va b vb c vc d vd e ve/});
+is_deeply([$oh->get_all_indexes], [qw/a b c d e/],
+	 "check index order of ordered_hash loaded with hash and __order") ;
 
 $oh->move('e','e2') ;
 is_deeply([$oh->get_all_indexes], [qw/a b c d e2/],
