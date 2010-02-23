@@ -129,8 +129,6 @@ open(AUG,$aug_file) || die "Can't open $aug_file:$!";
 is_deeply([<AUG>],\@expect,"check content of $aug_file after deletion of goner") ;
 close AUG;
 
-
-
 $augeas_obj->print('/') if $trace;
 
 my $have_pkg_config = `pkg-config --version` || '';
@@ -193,7 +191,8 @@ Match:2
     Group=pres.*
     Host=white.house.* -
   Settings
-    Banner=/etc/welcome.txt - - -
+    Banner=/etc/welcome.txt - -
+Ciphers=arcfour256,aes192-cbc,aes192-ctr,aes256-cbc,aes256-ctr -
 ";
 
 $dump = $sshd_root->dump_tree ;
@@ -228,10 +227,16 @@ close AUG;
 
 $sshd_root->load("Match~1") ;
 
+$dump = $sshd_root->dump_tree ;
+print $dump if $trace ;
 $i_sshd->write_back ;
 
-my @lines = splice @mod,30,4 ;
-push @mod, @lines[2,3] ;
+my $i=0;
+print "mod--\n",map { $i++ . ': '. $_} @mod,"---\n" if $trace ;
+
+my @lines = splice @mod,37,2 ;
+splice @mod, 33,2, @lines ;
+pop @mod ;
 
 open(AUG,$aug_sshd_file) || die "Can't open $aug_sshd_file:$!"; 
 is_deeply([<AUG>],\@mod,"check content of $aug_sshd_file after Match~1") ;
@@ -255,7 +260,9 @@ $sshd_root->load("Match:2 Condition User=sarko Group=pres.* -
 
 $i_sshd->write_back ;
 
-splice @mod,35,0,"AllowTcpForwarding yes\n";
+$i=0;
+print "mod--\n",map { $i++ . ': '. $_} @mod,"---\n" if $trace ;
+splice @mod,38,0,"AllowTcpForwarding yes\n";
 
 open(AUG,$aug_sshd_file) || die "Can't open $aug_sshd_file:$!"; 
 is_deeply([<AUG>],\@mod,"check content of $aug_sshd_file after Match:2 AllowTcpForwarding=yes") ;

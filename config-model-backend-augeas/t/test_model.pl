@@ -124,6 +124,7 @@ $model->create_config_class
 					    'aes256-ctr',
 					    'arcfour256'
 					   ],
+		ordered => 1,
 		'type' => 'check_list',
 		'description' => 'Specifies the ciphers allowed for protocol version 2. By default, all ciphers are allowed.',
 		'choice' => [
