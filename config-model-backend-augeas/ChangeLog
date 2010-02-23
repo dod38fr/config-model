@@ -1,9 +1,9 @@
-2009-05-29  Dominique Dumont  <dominique.dumont@hp.com> v0.107 (unreleased)
+2009-05-29  Dominique Dumont  <dominique.dumont@hp.com> v0.107
 
 	* lib/Config/Model/Backend/Augeas.pm (all): Use Log::Log4perl for
 	trace with Data::Read and Data::Write categories
 
-2009-05-28  Dominique Dumont  <dominique.dumont@hp.com> 
+2009-05-28  Dominique Dumont  <dominique.dumont@hp.com>
 
 	* lib/Config/Model/Backend/Augeas.pm: replaced obsolete
 	config_file parameter with file (Config::Model 0.636)
