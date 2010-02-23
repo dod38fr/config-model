@@ -175,7 +175,7 @@ sub dump_as_data {
 	    $$data_ref = \@res if @res ;
 	}
 	else {
-	    $h{__order} = \@keys if $ordered_hash;
+	    $h{__order} = \@keys if $ordered_hash and @keys;
 	    $$data_ref = \%h if scalar %h ;
 	}
     };
