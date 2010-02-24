@@ -177,6 +177,22 @@ useful to migrate a model when Config::Model model feature changes.
 
 =cut
 
+sub load_data {
+    my $load_file = shift ;
+
+    my @data ;
+    if ( $load_file eq '-' ) {
+	@data = <STDIN> ;
+    }
+    else {
+	open(LOAD,$load_file) || die "cannot open load file $load_file:$!";
+	@data = <LOAD> ;
+	close LOAD; 
+    }
+
+    return wantarray ? @data : join('',@data);
+}
+
 my $man = 0;
 my $help = 0;
 my $force_load = 0;
@@ -185,6 +201,7 @@ my $do_dot = 0;
 my $do_dump;
 my $dumptype;
 my $do_yaml = 0;
+my $load_yaml ;
 my $save = 0;
 my $load ;
 
@@ -202,6 +219,7 @@ my $result = GetOptions (
 			 "dump!"            => \$do_dump ,
                          "dumptype:s"       => \$dumptype,
                          "load=s"           => \$load,
+                         "load_yaml=s"      => \$load_yaml,
 			 "dump_yaml!"       => \$do_yaml ,
 			);
 
@@ -249,11 +267,16 @@ $rw_obj -> read_all( model_dir  => $read_model_dir,
 		   ) ;
 
 if (defined $load) {
-    open(LOAD,$load) || die "cannot open load file $load:$!";
-    my @data = <LOAD> ;
-    close LOAD; 
-    get_logger("Data")->info("Skipping config file and loading $load");
-    $meta_root->load("@data");
+    my $data = load_data($load) ;
+    $meta_root->load($data);
+}
+
+if (defined $load_yaml) {
+    my $yaml = load_data($load) ;
+    require YAML::Tiny;
+    import YAML::Tiny qw/Load/;
+    my $pdata = Load $yaml ;
+    $meta_root->load_data($pdata) ;
 }
 
 if (@ARGV) {
