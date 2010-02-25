@@ -9,17 +9,23 @@ use Test::More ;
 # this block is necessary to avoid failure on some automatic cpan
 # testers setup which fail while loading Term::ReadLine
 BEGIN { 
-    eval { require Term::ReadLine ;
-	   my $test = new Term::ReadLine 'Test' ;
-       } ;
-    if ($@) {
-	plan skip_all => "Cannot load Term::ReadLine" ;
-    }
-    else {
+    my $ok 
+      = eval { require Term::ReadLine ;
+	       my $test = new Term::ReadLine 'Test' ;
+	       1;
+	   } 
+      and (
+	      eval {require Term::ReadLine::Gnu  ; 1;} 
+	   or eval {require Term::ReadLine::Perl ; 1;} 
+	  );
+
+
+    if ($ok) {
 	plan tests => 10 ;
     }
-
-
+    else {
+	plan skip_all => "Cannot load Term::ReadLine" ;
+    }
 }
 
 use Config::Model;
