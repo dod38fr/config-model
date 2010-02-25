@@ -1,4 +1,9 @@
-2010-02-23  Dominique Dumont  <dominique.dumont@hp.com> pre 1.212
+2010-02-25  Dominique Dumont  <dominique.dumont@hp.com> 1.212
+
+	* config-model-edit: added load_yaml option to load model from a
+	YAML file.
+
+2010-02-23  Dominique Dumont  <dominique.dumont@hp.com>
 
 	* config-model-edit: added dump_yaml option to dump models as YAML
 	file.
@@ -39,7 +44,7 @@
 	0.635). Parameter allow_empty is deprecated and will be replaced
 	by auto_create when you run config-edit-model
 
-2009-04-03  Dominique Dumont  <dominique.dumont@hp.com> 
+2009-04-03  Dominique Dumont  <dominique.dumont@hp.com>
 
 	* config-model-edit: new -dot_diagram option to get a dot file to
 	reprensent the structure of the configuration model

@@ -158,14 +158,19 @@ other types of dump
 Choose to dump every values (full), only preset values or only
 customized values (default)
 
-=item -load <cds_file_to_load>
+=item -load <cds_file_to_load> | -
+
+Load model from cds file (using Config::Model serialisation format,
+typically done with -dump option). This option can be used with
+C<-save> to directly save a model loaded from the cds file or from
+STDIN.
+
+=item -load_yaml <yaml_file_to_load> | -
 
 Load configuration data in model from cds file (using Config::Model
-serialisation format, typically done with -dump option). When this
-option is used, the usual configuration files will not be read.
-
-If used with C<-ui none>, this option will load configuration data, 
-validate it and save it in configuration file (if no error was found).
+serialisation format, typically done with -dump_yaml option). This
+option can be used with C<-save> to directly save a model loaded from
+the YAML file or from STDIN.
 
 =item -save
 
@@ -272,10 +277,10 @@ if (defined $load) {
 }
 
 if (defined $load_yaml) {
-    my $yaml = load_data($load) ;
+    my $yaml = load_data($load_yaml) ;
     require YAML::Tiny;
     import YAML::Tiny qw/Load/;
-    my $pdata = Load $yaml ;
+    my $pdata = Load($yaml) ;
     $meta_root->load_data($pdata) ;
 }
 

@@ -34,7 +34,7 @@ use File::Basename ;
 
 use vars qw($VERSION) ;
 
-$VERSION = '1.211';
+$VERSION = '1.212';
 
 my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
