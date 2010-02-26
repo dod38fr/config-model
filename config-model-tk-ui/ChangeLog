@@ -1,3 +1,12 @@
+2010-02-26  Dominique Dumont  <dominique.dumont@hp.com> 1.303
+
+	* Build.PL: Depends on Config::Model 0.643
+
+2010-02-18  Dominique Dumont  <dominique.dumont@hp.com>
+
+	* lib/Config/Model/Tk/HashViewer.pm (): Changed min and max calls
+	to min_index and max_index
+
 2010-01-29  Dominique Dumont  <dominique.dumont@hp.com>
 
 	* lib/Config/Model/Tk/AnyViewer.pm (add_help): added some
