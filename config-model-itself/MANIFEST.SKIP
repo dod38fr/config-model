@@ -37,3 +37,4 @@
 \B\._
 # Avoid archives of this distribution
 \bConfig-Model-Itself-[\d\.\_]+
+^MYMETA.yml$

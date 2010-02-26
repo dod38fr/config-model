@@ -1,4 +1,8 @@
-2010-02-25  Dominique Dumont  <dominique.dumont@hp.com> 1.212
+2010-02-26  Dominique Dumont  <dominique.dumont@hp.com>  1.212
+
+	* Build.PL: depend on Config::Model 0.643
+
+2010-02-25  Dominique Dumont  <dominique.dumont@hp.com>
 
 	* config-model-edit: added load_yaml option to load model from a
 	YAML file.
