@@ -1,7 +1,7 @@
 2010-02-23  Dominique Dumont  <dominique.dumont@hp.com>  v0.643
 
-	* lib/Config/Model/DumpAsData.pm (dump_as_data): Can't dump
-	ordered hash in hash ref with __order key to specify order of hash
+	* lib/Config/Model/DumpAsData.pm (dump_as_data): Can dump ordered
+	hash in hash ref with __order key to specify order of hash
 	elements
 
 	* lib/Config/Model/HashId.pm (load_data): Accept hash ref with
