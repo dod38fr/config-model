@@ -9,8 +9,9 @@
 
 2010-01-29  Dominique Dumont  <dominique.dumont@hp.com>
 
-	* lib/Config/Model/Tk/AnyViewer.pm (add_help): added some
-	padding aroung help text.
+	* lib/Config/Model/Tk/AnyViewer.pm (add_help): added some padding
+	aroung help text. Thanks to Eva Ganglbauer for the usability
+	advice. (More advices are left to implement :-p )
 
 2010-01-21  Dominique Dumont  <dominique.dumont@hp.com> 1.302
 
