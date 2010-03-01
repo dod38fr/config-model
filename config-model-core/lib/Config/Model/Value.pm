@@ -89,7 +89,7 @@ configuration file. (C<default> parameter)
 =item *
 
 upstream default parameter: specifies a default value that will be
-used by the application when no informations is provided in the
+used by the application when no information is provided in the
 configuration file. This upstream_default value will not written in
 the configuration files. Only the C<fetch_standard> method will return
 the builtin value. This parameter was previously refered as
@@ -1081,7 +1081,7 @@ Check the consistency of the value. Does not check for undefined
 mandatory values.
 
 When the 2nd parameter is non null, check will not try to get extra
-informations from the tree. This is required in some cases to avoid
+information from the tree. This is required in some cases to avoid
 loops in check, get_info, get_warp_info, re-check ...
 
 In scalar context, return 0 or 1.

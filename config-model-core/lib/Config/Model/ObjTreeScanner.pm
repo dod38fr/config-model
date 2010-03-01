@@ -454,7 +454,7 @@ sub scan_node {
     my @element_list= $node->get_element_name(for => $self->{experience}) ;
 
     # we could add here a "last element" call-back, but it's not
-    # very usefull if the last element is a hash.
+    # very useful if the last element is a hash.
     $self->{node_content_cb}->($self, $data_r,$node,@element_list) ;
 
     $self->{up_cb}->($self, $data_r,$node) ;

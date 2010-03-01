@@ -213,13 +213,13 @@ See L<Config::Model::AutoRead> for details.
 =head2 Element type
 
 Each element is declared with a list ref that contains all necessary
-informations:
+information:
 
   element => [ 
                foo => { ... }
              ]
 
-This most important informations from this hash ref is the mandatory 
+This most important information from this hash ref is the mandatory
 B<type> parameter. The I<type> type can be:
 
 =cut
@@ -1418,7 +1418,7 @@ sub get_help {
 
 As configuration model are getting bigger, the load time of a tree
 gets longer. The L<Config::Model::AutoRead> class provides a way to
-load the configuration informations only when needed.
+load the configuration information only when needed.
 
 TBD
 

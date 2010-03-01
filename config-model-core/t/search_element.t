@@ -170,10 +170,10 @@ my $step = $searcher->next_step() ;
 is_deeply($step, [qw/olist slave_y std_id warp/],'check first step') ;
 
 my $obj = $searcher->choose('warp') ;
-is($obj->name,'warp', 'check choosen object') ;
+is($obj->name,'warp', 'check chosen object') ;
 
 my $target = $searcher->auto_choose(sub{}, sub {}) ;
-is($target->name,'warp X', 'check auto choosen object for X') ;
+is($target->name,'warp X', 'check auto chosen object for X') ;
 
 $step = $searcher->next_step() ;
 is_deeply($step, [],'check that no more steps are left') ;
@@ -183,7 +183,7 @@ $root->load("tree_macro=XY") ;
 $searcher = $root->searcher->prepare(element => 'aa');
 $searcher->choose('warp') ;
 $target = $searcher->auto_choose(sub{}, sub {}) ;
-is($target->name,'warp sub_slave aa', 'check auto choosen object for aa') ;
+is($target->name,'warp sub_slave aa', 'check auto chosen object for aa') ;
 
 # try choose_next
 $searcher = $root->searcher->prepare(element => 'aa');
@@ -191,7 +191,7 @@ $searcher->choose('warp') ;
 $step = $searcher->next_choice() ;
 is_deeply($step, [],'check that no more steps are left after next_choice') ;
 $target = $searcher->current_object ;
-is($target->name,'warp sub_slave aa', 'check choosen object for aa') ;
+is($target->name,'warp sub_slave aa', 'check chosen object for aa') ;
 
 
 $searcher = $root->searcher->prepare(element => 'DX');
@@ -206,7 +206,7 @@ my $cb1 = sub {
 } ;
 
 $target = $searcher->auto_choose($cb1, sub{}) ;
-is($target->name,'warp DX', 'check auto choosen object for DX (warp)') ;
+is($target->name,'warp DX', 'check auto chosen object for DX (warp)') ;
 
 # restart and try through olist
 $searcher->reset ;

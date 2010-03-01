@@ -196,7 +196,7 @@ Specify whether the order of checked items must be preserved.
 
 =item help
 
-Hash ref to provide informations on the check list items.
+Hash ref to provide information on the check list items.
 
 =item warp
 

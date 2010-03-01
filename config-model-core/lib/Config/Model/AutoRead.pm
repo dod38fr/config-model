@@ -574,7 +574,7 @@ This class provides a way to specify how to load or store
 configuration data within the model (instead of writing dedicated perl
 code).
 
-With these specifications, all the configuration information are read
+With these specifications, all the configuration information is read
 during creation of a node.
 
 =begin comment
@@ -623,7 +623,7 @@ L<Config::Model::Backend::Augeas> for details.
 After loading the data, the object registers itself to the
 instance. Then the user can call the C<write_back> method on the
 instance (See L<Config::Model::Instance>) to store all configuration
-informations back.
+information back.
 
 =head2 Built-in backend
 
@@ -836,7 +836,7 @@ parameters (along with C<read_config> parameter):
 
 By default, the specifications are tried in order, until the first succeeds.
 
-When required by the user, all configuration informations are written
+When required by the user, all configuration information is written
 back using B<all> the write specifications. See
 L<Config::Model::Instance/write_back ( ... )> for details.
 

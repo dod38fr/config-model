@@ -97,7 +97,7 @@ have to decide the next step.
 =item *
 
 An automatic search where you provide call-back that will resolve the
-ambuguities in case of multiple paths.
+ambiguities in case of multiple paths.
 
 =back
 
@@ -334,9 +334,9 @@ sub next_choice {
 
 }
 
-=head2 choose( <choosen_element_name> )
+=head2 choose( <chosen_element_name> )
 
-Tell the search engine your choice. The choosen element name must be
+Tell the search engine your choice. The chosen element name must be
 one of the possibilities given by L</"next_step()">.
 
 =cut
@@ -401,8 +401,8 @@ sub choose_from_node {
 
 	# gobble next_class for warped_node element
 	if (defined $data->{next_class}) {
-	    my $choosen_class = $next_node->config_class_name ;
-	    $data = $data->{next_class}{$choosen_class} ;
+	    my $chosen_class = $next_node->config_class_name ;
+	    $data = $data->{next_class}{$chosen_class} ;
 	    unless (defined $data) {
 		Config::Model::Exception::User
 		    -> throw (
