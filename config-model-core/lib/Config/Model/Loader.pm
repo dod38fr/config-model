@@ -26,9 +26,12 @@ use strict;
 use warnings ;
 
 use Config::Model::Exception ;
+use Log::Log4perl qw(get_logger :levels);
 
 use vars qw($VERSION);
 $VERSION = sprintf "1.%04d", q$Revision$ =~ /(\d+)/;
+
+my $logger = get_logger("Loader") ;
 
 =head1 NAME
 
@@ -248,7 +251,7 @@ sub _load {
 
     my $cmd ;
     while ($cmd = shift @$cmdref) {
-        print "_load:Executing cmd '$cmd' on node $node\n" if $::debug;
+        $logger->debug("_load:Executing cmd '$cmd' on node $node");
 	my $saved_cmd = $cmd ;
 
         next if $cmd =~ /^\s*$/ ;
@@ -358,8 +361,7 @@ sub _walk_node {
 		     ) ;
     }
 
-    print "Opening node element ", $element->name, "\n"
-      if $::verbose ;
+    $logger->info("Opening node element ", $element->name);
 
     return $element;
 }
@@ -380,8 +382,7 @@ sub _load_list {
 
     if ($action eq '=' and $cargo_type eq 'leaf') {
 	# valid for check_list or list
-	print "Setting $elt_type element ",$element->name," to $cmd\n"
-	    if $::verbose ;
+	$logger->info("Setting $elt_type element ",$element->name," to $cmd");
 	my @set = split( /,/ , $cmd ) ;
 	# replace unquoted empty values by undef
 	map { $_ = undef unless length($_) > 0 } @set; 
