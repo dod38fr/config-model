@@ -103,6 +103,11 @@ Go down using C<xxx> element. (For C<node> type element)
 Go down using C<xxx> element and id C<yy> (For C<hash> or C<list>
 element with C<node> cargo_type)
 
+=item xxx=~/yy/
+
+Go down using C<xxx> element and loop over the ids that match the regex.
+(For C<hash> or C<list>)
+
 =item xxx~yy
 
 Delete item referenced by C<xxx> element and id C<yy>. For a list,
@@ -132,6 +137,13 @@ I.e, for a list C<('a',undef,'','c')>, use C<a,,"",c>.
 
 For C<hash> element containing C<leaf> cargo_type. Set the leaf
 identified by key C<yy> to value C<zz>.
+
+Using C<xxx=~/yy/=zz> is also possible.
+
+=item xxx.=zzz
+
+Will append C<zzz> value to current values. C<.=> can be used anywhere
+C<=> is valid.
 
 =back
 
