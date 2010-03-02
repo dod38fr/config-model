@@ -466,6 +466,8 @@ Log4perl uses the following categories:
 
 =item Tree::Node
 
+=item Loader
+
 =item Backend::Yaml
 
 =item Wizard::Helper

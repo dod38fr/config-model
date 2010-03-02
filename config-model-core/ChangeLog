@@ -1,3 +1,8 @@
+2010-03-01  Dominique Dumont  <dominique.dumont@hp.com>
+
+	* all: Applied spelling corrections done by Debian Perl
+	team (thanks gregoa)
+
 2010-02-23  Dominique Dumont  <dominique.dumont@hp.com>  v0.643
 
 	* lib/Config/Model/DumpAsData.pm (dump_as_data): Can dump ordered
