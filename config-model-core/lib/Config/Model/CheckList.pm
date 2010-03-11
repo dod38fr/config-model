@@ -849,6 +849,13 @@ sub set {
     return $self->set_checked_list(split /,/,$list) ;
 }
 
+sub load {
+    my ($self,$string) = @_ ;
+    my @set = split /,/,$string;
+    foreach (@set) { s/^"|"$//g; s/\\"/"/g ;}
+    $self->set_checked_list(@set) ;
+}
+
 =head2 set_checked_list ( item1, item2, ..)
 
 Set all passed items to checked (1). All other available items

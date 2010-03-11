@@ -10,14 +10,13 @@ use Test::More;
 use Test::Exception ;
 use Config::Model;
 
-BEGIN { plan tests => 55; }
+BEGIN { plan tests => 62; }
 
 use strict;
 
 my $arg = shift || '';
 
 my $trace = $arg =~ /t/ ? 1 : 0 ;
-$::verbose          = 1 if $arg =~ /v/;
 $::debug            = 1 if $arg =~ /d/;
 Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 
@@ -197,3 +196,20 @@ is($ol->fetch_with_id(2)->fetch_element('X')->fetch, 'Av' ,
 
 map{ is($ol->fetch_with_id($_)->index_value, $_, 
 	"Check moved index value $_" ); } (0 .. 4) ;
+
+
+# test store 
+my @test = ( [         a1 => ['a1']       ],
+	     [ '"a","b"'  => [ qw/a b/  ] ],
+	     [ 'a,b'      => [ qw/a b/  ] ],
+	     [ '"a\"a",b' => [ qw/a"a b/] ],
+	     [ '"a,a",b'  => [ 'a,a', 'b'] ],
+	     [    '",a1"' => [ ',a1']     ],
+	   ) ;
+foreach my $l (@test) {
+    $b->load($l->[0]) ;
+    is_deeply( [$b->fetch_all_values], $l->[1], "test store $l->[0]");
+}
+
+throws_ok { $b->load('a,,b');} "Config::Model::Exception::Load",
+  "fails load 'a,,b'" ;

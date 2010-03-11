@@ -106,7 +106,13 @@ element with C<node> cargo_type)
 =item xxx=~/yy/
 
 Go down using C<xxx> element and loop over the ids that match the regex.
-(For C<hash> or C<list>)
+(For C<hash>)
+
+For instance, with OpenSsh model, you could do 
+
+ Host=~/.*.debian.org/ user='foo-guest'
+
+to set "foo-user" users for all your debian accounts.
 
 =item xxx~yy
 
@@ -142,8 +148,7 @@ Using C<xxx=~/yy/=zz> is also possible.
 
 =item xxx.=zzz
 
-Will append C<zzz> value to current values. C<.=> can be used anywhere
-C<=> is valid.
+Will append C<zzz> value to current values (valid for C<leaf> elements).
 
 =back
 
@@ -246,6 +251,43 @@ sub load {
     return $ret ;
 }
 
+# returns elt action id subaction value
+sub _split_cmd {
+    my $cmd = shift ;
+
+        # do a split on ' ' but take quoted string into account
+    my @command = 
+      ( 
+       $cmd =~ 
+       m!
+	 (\w+)          # element name can be alone
+	 (?:
+            (:|=~|~)       # action
+            ( /[^/]+/      # regexp
+	      |            # or
+	       "           # quote
+               (?: \\" | [^"] )* # escaped quote or non quote
+               "           # quote
+              |
+	       [^"=\.~]+    # non action chars
+            )
+         )?
+	 (?:
+            (=|.=)         # assign or append
+	    ( 
+              (?:
+                " (?: \\" | [^"] )* "  # quoted string
+                | [^\s]                # or non whitespace
+              )+                       # many
+            )
+	 )?
+         !gx
+       ) ; 
+    unquote (@command) ;
+
+    return wantarray ? @command : \@command ;
+}
+
 my %load_dispatch = (
 		     node        => \&_walk_node,
 		     warped_node => \&_walk_node,
@@ -266,8 +308,11 @@ sub _load {
 
     my $cmd ;
     while ($cmd = shift @$cmdref) {
-        $logger->debug("_load: Executing cmd '$cmd' on node $node_name");
-	my $saved_cmd = $cmd ;
+	if ($logger->is_debug) {
+	    my $msg = $cmd ;
+	    $msg =~ s/\n/\\n/g;
+	    $logger->debug("_load: Executing cmd '$msg' on node $node_name");
+	}
 
         next if $cmd =~ /^\s*$/ ;
 
@@ -280,13 +325,13 @@ sub _load {
 	    return 'up';
 	}
 
-	$cmd =~ s!^(\w+)!! ; # grab the first keyword
-	my $element_name = $1 ;
+	my @instructions = _split_cmd($cmd);
+	my $element_name = $instructions[0] ;
 
         unless (defined $element_name) {
 	    Config::Model::Exception::Load
 		-> throw (
-			  command => $saved_cmd ,
+			  command => $cmd ,
 			  error => 'Syntax error: cannot find '
 			  .'element in command'
 			 );
@@ -295,7 +340,7 @@ sub _load {
         unless (defined $node) {
 	    Config::Model::Exception::Load
 		-> throw (
-			  command => $saved_cmd ,
+			  command => $cmd ,
 			  error => "Error: Got undefined node"
 			 );
 	}
@@ -304,7 +349,7 @@ sub _load {
 		or $node->isa("Config::Model::WarpedNode")) {
 	    Config::Model::Exception::Load
 		-> throw (
-			  command => $saved_cmd ,
+			  command => $cmd ,
 			  error => "Error: Expected a node (even a warped node), got '"
 			  .$node -> name. "'"
 			 );
@@ -318,7 +363,7 @@ sub _load {
 			  object => $node,
 			  element => $element_name,
 			 ) if $inst->get_value_check('store');
-            unshift @$cmdref,$saved_cmd ;
+            unshift @$cmdref,$cmd ;
             return 'error' ;
 	}
 
@@ -329,7 +374,7 @@ sub _load {
 			  object => $node,
 			  element => $element_name
 			 ) if $inst->get_value_check('fetch_or_store') ;
-            unshift @$cmdref,$saved_cmd ;
+            unshift @$cmdref,$cmd ;
             return 'error';
 	}
 
@@ -341,7 +386,7 @@ sub _load {
 			  element => $element_name,
 			  level => $experience,
 			 ) if $inst->get_value_check('fetch_or_store');
-            unshift @$cmdref,$saved_cmd ;
+            unshift @$cmdref,$cmd ;
             return 'error' ;
 	}
 
@@ -352,7 +397,8 @@ sub _load {
 	croak "_load: unexpected element type '$element_type' for $element_name"
 	  unless defined $method ;
 
-	my $ret = $self->$method($node,$experience,$element_name,$cmd,$cmdref) ;
+	my $ret = $self->$method($node,$experience,
+				 \@instructions,$cmdref) ;
 
 	if ($ret eq 'error' or $ret eq 'done') { return $ret; }
 	return 'root' if $ret eq 'root' and not $is_root ;
@@ -364,15 +410,17 @@ sub _load {
 
 
 sub _walk_node {
-    my ($self,$node,$experience,$element_name,$cmd,$cmdref) = @_ ;
+    my ($self,$node,$experience,$inst,$cmdref) = @_ ;
 
+    my $element_name = shift @$inst ;
     my $element = $node -> fetch_element($element_name) ;
 
-    unless ($cmd =~ /^\s*$/) {
+    my @left = grep {defined $_} @$inst ;
+    if (@left) {
 	Config::Model::Exception::Load
 	    -> throw (
-		      command => $cmd,
-		      error => "Don't know what to do with '$cmd' ".
+		      command => $inst,
+		      error => "Don't know what to do with '@left' ".
 		      "for node element" . $element -> element_name
 		     ) ;
     }
@@ -388,113 +436,161 @@ sub unquote {
 
 # used for list and check lists
 sub _load_list {
-    my ($self,$node,$experience,$element_name,$cmd,$cmdref) = @_ ;
+    my ($self,$node,$experience,$inst,$cmdref) = @_ ;
+    my ($element_name,$action,$id,$subaction,$value) = @$inst ;
 
     my $element = $node -> fetch_element($element_name) ;
-    my $action = substr ($cmd,0,1,'') ;
 
     my $elt_type   = $node -> element_type( $element_name ) ;
     my $cargo_type = $element->cargo_type ;
 
-    if ($action eq '=' and $cargo_type eq 'leaf') {
+    if (not defined $action and $subaction eq '=' 
+	and $cargo_type eq 'leaf'
+       ) {
 	# valid for check_list or list
-	$logger->info("Setting $elt_type element ",$element->name," to $cmd");
-	my @set = split( /,/ , $cmd ) ;
-	# replace unquoted empty values by undef
-	map { $_ = undef unless length($_) > 0 } @set; 
-	unquote( @set );
-	# clear the array without deleting underlying objects
-	$element->clear_values ;
-	$element->store_set( @set ) ;
+	$logger->info("Setting $elt_type element ",$element->name,
+		      " with '$value'");
+	$element->load( $value ) ;
 	return 'ok';
     }
-    elsif ($elt_type eq 'list' and $action eq '~') {
+
+    if ($elt_type eq 'list' and $action eq '~') {
 	# remove possible leading or trailing quote
-	unquote ($cmd) ;
-	$element->remove($cmd) ;
+	unquote ($id) ;
+	$element->remove($id) ;
 	return 'ok' ;
     }
-    elsif ($elt_type eq 'list' and $action eq ':' and $cargo_type =~ /node/) {
+
+    if ($elt_type eq 'list' and $action eq ':' and $cargo_type =~ /node/) {
 	# remove possible leading or trailing quote
-	unquote ($cmd) ;
-	my $newnode = $element->fetch_with_id($cmd) ;
+	unquote ($id) ;
+	my $newnode = $element->fetch_with_id($id) ;
 	return $self->_load($newnode, $experience, $cmdref);
     }
-    elsif ($elt_type eq 'list' and $action eq ':' and $cargo_type =~ /leaf/) {
-	my ($id,$value) = ($cmd =~ m/(\w+)=(.*)/) ;
+
+    if ($elt_type eq 'list' and $action eq ':' and $cargo_type =~ /leaf/) {
 	unquote($value) ;
-	$element->fetch_with_id($id)->store($value) ;
-	return 'ok' ;
+	$self->_load_value($element->fetch_with_id($id),$subaction,$value) 
+	  and return 'ok';
     }
-    else {
-	Config::Model::Exception::Load
-	    -> throw (
-		      object => $element,
-                      command => $cmd ,
-		      error => "Wrong assignment with '$action$cmd' on "
-		      ."element type: $elt_type, cargo_type: $cargo_type"
-		     ) ;
-    }
+
+
+    Config::Model::Exception::Load
+	-> throw (
+		  object => $element,
+		  command => join('',@$inst) ,
+		  error => "Wrong assignment with '$action' on "
+		  ."element type: $elt_type, cargo_type: $cargo_type"
+		 ) ;
+
 }
 
 sub _load_hash {
-    my ($self,$node,$experience,$element_name,$cmd,$cmdref) = @_ ;
+    my ($self,$node,$experience,$inst,$cmdref) = @_ ;
+    my ($element_name,$action,$id,$subaction,$value) = @$inst ;
 
     my $element = $node -> fetch_element($element_name) ;
-    my $action = substr ($cmd,0,1,'') ;
-
     my $cargo_type = $element->cargo_type ;
+
+    if ($action eq '=~') {
+	my @keys = $element->get_all_indexes;
+	my $ret ;
+	$logger->debug("_load_hash: looping with regex $id");
+	$id =~ s!^/!!; 
+	$id =~ s!/$!! ;
+	my @saved_cmd = @$cmdref ;
+	foreach my $loop_id (grep /$id/,@keys) {
+	    @$cmdref = @saved_cmd ; # restore command before loop
+	    $logger->debug("_load_hash: loop on id $loop_id");
+	    my $sub_elt =  $element->fetch_with_id($loop_id) ;
+	    if ($cargo_type =~ /node/) {
+		# remove possible leading or trailing quote
+		$ret = $self->_load($sub_elt, $experience, $cmdref);
+	    }
+	    elsif ($cargo_type =~ /leaf/) {
+		$ret = $self->_load_value($sub_elt,$subaction,$value) ;
+	    }
+	    else {
+		Config::Model::Exception::Load
+		    -> throw (
+			      object => $element,
+			      command => join('',@$inst) ,
+			      error => "Hash assignment with '$action' on unexpected "
+			      ."cargo_type: $cargo_type"
+			     ) ;
+	    }
+
+	    if ($ret eq 'error' or $ret eq 'done') { return $ret; }
+	}
+	return $ret ;
+    }
+
+
+    if ($action eq '~') {
+	# remove possible leading or trailing quote
+	unquote ($id) ;
+	$element->delete($id) ;
+	return 'ok' ;
+    }
 
     if ($action eq ':' and $cargo_type =~ /node/) {
 	# remove possible leading or trailing quote
-	unquote ($cmd) ;
-	my $newnode = $element->fetch_with_id($cmd) ;
+	unquote ($id) ;
+	my $newnode = $element->fetch_with_id($id) ;
 	return $self->_load($newnode, $experience, $cmdref);
     }
-    elsif ($action eq '~') {
-	# remove possible leading or trailing quote
-	unquote ($cmd) ;
-	$element->delete($cmd) ;
-	return 'ok' ;
-    }
     elsif ($action eq ':' and $cargo_type =~ /leaf/) {
-	my ($id,$value) = split /=/, $cmd, 2;
-	unquote( $id,$value) ;
-	#print "_load_hash: id is '$id', value is '$value' ($cmd)\n";
-	$element->fetch_with_id($id)->store($value) ;
-	return 'ok'
+	unquote($id,$value) ;
+	$self->_load_value($element->fetch_with_id($id),$subaction,$value) 
+	  and return 'ok';
     }
     else {
 	Config::Model::Exception::Load
 	    -> throw (
 		      object => $element,
-                      command => $cmd ,
-		      error => "Hash assignment with $action$cmd on unexpected "
+                      command => join('',@$inst) ,
+		      error => "Hash assignment with '$action' on unexpected "
 		      ."cargo_type: $cargo_type"
 		     ) ;
     }
 }
 
 sub _load_leaf {
-    my ($self,$node,$experience,$element_name,$cmd,$cmdref) = @_ ;
+    my ($self,$node,$experience,$inst,$cmdref) = @_ ;
+    my ($element_name,$action,$id,$subaction,$value) = @$inst ;
 
     my $element = $node -> fetch_element($element_name) ;
-    my $action = substr ($cmd,0,1,'') ;
+    unquote($value) ;
+
+    if ($logger->is_debug) {
+	my $msg = $value ;
+	$msg =~ s/\n/\\n/g;
+	$logger->debug("_load_leaf: action '$subaction' value '$msg'");
+    }
+
+    return $self->_load_value($element,$subaction,$value)
+      or Config::Model::Exception::Load
+	-> throw (
+		  object => $element,
+		  command => $inst ,
+		  error => "Load error on leaf with "
+		  ."'$element_name$subaction$value' command "
+		  ."(element '".$element->name."')"
+		 ) ;
+}
+
+sub _load_value {
+    my ($self,$element,$action,$value) = @_ ;
 
     if ($action eq '=' and $element->isa('Config::Model::Value')) {
-	my $value = $cmd;
-	unquote($value) ;
 	$element->store($value) ;
     }
+    elsif ($action eq '.=' and $element->isa('Config::Model::Value')) {
+	my $orig = $element->fetch() ;
+	$element->store($orig.$value) ;
+    }
     else {
-	Config::Model::Exception::Load
-	    -> throw (
-		      object => $element,
-                      command => $cmd ,
-		      error => "Load error on leaf with "
-		      ."'$element_name$action$cmd' command "
-		      ."(element '".$element->name."')"
-		     ) ;
+	return undef ;
     }
 
     return 'ok' ;

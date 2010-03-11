@@ -1,3 +1,9 @@
+2010-03-11  Dominique Dumont  <dominique.dumont@hp.com>
+
+	* lib/Config/Model/Loader.pm (load): Load string now support:
+	- '.=' operator to append to config values.
+	- '=~' to loop configurations instruction over list or hash elements
+
 2010-03-01  Dominique Dumont  <dominique.dumont@hp.com>
 
 	* all: Applied spelling corrections done by Debian Perl

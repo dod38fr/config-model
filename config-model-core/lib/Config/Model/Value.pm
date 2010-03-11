@@ -445,7 +445,7 @@ sub setup_enum_choice {
     my @choice = ref $_[0] ? @{$_[0]} : @_ ;
 
     get_logger("Tree::Element::Value")
-      ->debug($self->name, " setup_enum_choice:\n\twith '",join("','",@choice));
+      ->debug($self->name, " setup_enum_choice with '",join("','",@choice));
 
     # store all enum values in a hash. This way, checking
     # whether a value is present in the enum set is easier
@@ -578,8 +578,8 @@ sub set_properties {
 
     my $logger = get_logger("Tree::Element::Value") ;
     if ($logger->is_debug) {
-	$logger->debug("'".$self->name."' set_properties called with \n",
-		       Data::Dumper->Dump([\%args], ['set_arg']));
+	$logger->debug("Leaf '".$self->name."' set_properties called with '",
+		       join("','",sort keys %args),"'");
     }
 
     # this code may be dead as warping value_type is no longer

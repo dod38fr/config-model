@@ -15,7 +15,6 @@ use strict;
 my $arg = shift || '';
 
 my $trace = $arg =~ /t/ ? 1 : 0 ;
-$::verbose          = 1 if $arg =~ /v/;
 $::debug            = 1 if $arg =~ /d/;
 Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 
