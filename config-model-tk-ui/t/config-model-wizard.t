@@ -19,7 +19,6 @@ my $arg = shift || '';
 my ($log,$show) = (0) x 2 ;
 
 my $trace = $arg =~ /t/ ? 1 : 0 ;
-$::verbose          = 1 if $arg =~ /v/;
 $::debug            = 1 if $arg =~ /d/;
 $log                = 1 if $arg =~ /l/;
 $show               = 1 if $arg =~ /s|i/;
