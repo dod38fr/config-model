@@ -1,3 +1,8 @@
+2010-03-12  Dominique Dumont  <dominique.dumont@hp.com> 1.304
+
+	* lib/Config/Model/TkUI.pm (disp_hash): Fix bug that messed tk
+	tree content after deletion of list elements
+
 2010-02-26  Dominique Dumont  <dominique.dumont@hp.com> 1.303
 
 	* Build.PL: Depends on Config::Model 0.643

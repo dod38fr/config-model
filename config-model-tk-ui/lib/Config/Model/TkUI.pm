@@ -38,7 +38,7 @@ use Config::Model::Tk::NodeEditor ;
 use Config::Model::Tk::Wizard ;
 
 
-$VERSION = '1.303' ;
+$VERSION = '1.304' ;
 
 Construct Tk::Widget 'ConfigModelUI';
 
@@ -579,7 +579,6 @@ sub disp_hash {
     my $node_loc = $node->location ;
 
     my $prevpath = '' ;
-    my $idx_nb = 0 ; # used to keep track of tktree item order
     foreach my $idx (@idx) {
 	my $newpath = $path.'.'. to_path($idx) ;
 	my $scan_sub = sub {
@@ -587,15 +586,20 @@ sub disp_hash {
 	};
 
 	my $eltmode = $elt_mode{$elt_type};
+	my $sub_elt =  $elt->fetch_with_id($idx) ;
 
 	if ($tkt->infoExists($newpath) ) {
 	    my $previous_data = $tkt->info(data => $newpath);
-	    my $previous_idx_nb = $previous_data->[2] ;
+	    my $previous_elt  = $previous_data->[1] ;
 	    $eltmode = $tkt->getmode($newpath); # will reuse mode below
-	    if ($idx_nb != $previous_idx_nb) {
+	    $logger->trace("disp_hash reuse $newpath mode $eltmode cargo_type $elt_type"
+			   ." obj $previous_elt" );
+
+	    # string comparison of objects is intentional to check that the tree
+	    # refers to the correct Config::Model object
+	    if ($sub_elt ne $previous_elt) {
 		$logger->trace( "disp_hash delete $newpath mode $eltmode (got "
-				.$previous_idx_nb
-				." expected $idx_nb)" );
+				. "$previous_elt expected $sub_elt)" );
 		# wrong order, delete the entry
 		$tkt->delete(entry => $newpath) ;
 	    }
@@ -603,8 +607,9 @@ sub disp_hash {
 
 	if (not $tkt->infoExists($newpath)) {
 	    my @opt = $prevpath ? (-after => $prevpath) : (-at => 0 ) ;
-	    $logger->trace( "disp_hash add $newpath mode $eltmode cargo_type $elt_type" );
-	    my @data = ( $scan_sub, $elt->fetch_with_id($idx), $idx_nb );
+	    $logger->trace( "disp_hash add $newpath mode $eltmode cargo_type $elt_type"
+			    ." elt $sub_elt" );
+	    my @data = ( $scan_sub, $sub_elt );
 	    weaken($data[1]) ;
 	    $tkt->add($newpath, -data => \@data, @opt) ;
 	    $tkt->itemCreate($newpath,0, -text => $idx ) ;
@@ -619,7 +624,6 @@ sub disp_hash {
 	$cw->setmode('hash',$newpath,$eltmode,$elt_loc,$fdp_obj,$opening,$scan_sub) ;
 
 	$prevpath = $newpath ;
-	$idx_nb++ ;
     } ;
 }
 
@@ -804,6 +808,7 @@ sub create_element_widget {
 	    return;
 	}
 	$obj = $data_ref->[1] ;
+	weaken($obj) ;
 	#my $loc = $data_ref->[1]->location;
 
 	#$obj = $cw->{root}->grab($loc);
