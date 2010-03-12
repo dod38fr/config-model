@@ -143,6 +143,11 @@ Scan and create data for nodes elements even if no actual data was
 stored in them. This may be useful to trap missing mandatory values.
 (default: 0)
 
+=item experience ( ... )
+
+Restrict dump to C<beginner> or C<intermediate> parameters. Default is
+to dump all parameters (C<master> level)
+
 =back
 
 =cut

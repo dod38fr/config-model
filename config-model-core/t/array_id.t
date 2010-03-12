@@ -10,7 +10,7 @@ use Test::More;
 use Test::Exception ;
 use Config::Model;
 
-BEGIN { plan tests => 62; }
+BEGIN { plan tests => 64; }
 
 use strict;
 
@@ -55,12 +55,6 @@ $model ->create_config_class
 	   auto_create => 4,
 	   @element
 	  },
-       list_with_wrong_auto_create
-       => {
-	   type => 'list',
-	   auto_create => [ 'foo' ],
-	   @element
-	  },
        [qw/list_with_default_id list_with_default_id_2/]
        => {
 	   type => 'list',
@@ -80,6 +74,20 @@ $model ->create_config_class
 		}
        ]
    ) ;
+
+$model ->create_config_class 
+  (
+   name => "Bogus",
+   element 
+   => [ 
+       list_with_wrong_auto_create
+       => {
+	   type => 'list',
+	   auto_create => [ 'foo' ],
+	   @element
+	  },
+       ]
+  ) ;
 
 $model -> create_config_class 
   (
@@ -110,7 +118,8 @@ is($b->fetch_with_id(2)->store('bar'),'bar',"stored in 2") ;
 throws_ok { $b->fetch_with_id(124)->store('baz') ;} 
   qr/Index 124 > max_index limit 123/,'max error caught';
 
-throws_ok { $root->fetch_element('list_with_wrong_auto_create') ;} 
+my $bogus_root = $model->instance(root_class_name =>'Bogus')->config_root;
+throws_ok { $bogus_root->fetch_element('list_with_wrong_auto_create') ;} 
   qr/Wrong auto_create argument for list/,'wrong auto_create caught';
 
 is_deeply([$b->get_all_indexes],[0,1,2],"check ids") ;
@@ -196,7 +205,14 @@ is($ol->fetch_with_id(2)->fetch_element('X')->fetch, 'Av' ,
 
 map{ is($ol->fetch_with_id($_)->index_value, $_, 
 	"Check moved index value $_" ); } (0 .. 4) ;
+print $root->dump_tree(experience => 'beginner' ) if $trace;
 
+is($ol->fetch_with_id(0)->fetch_element('X')->fetch, undef ,
+   "check before move") ;
+$ol->remove(0) ;
+print $root->dump_tree(experience => 'beginner' ) if $trace;
+is($ol->fetch_with_id(0)->fetch_element('X')->fetch, 'Bv' ,
+   "check after move") ;
 
 # test store 
 my @test = ( [         a1 => ['a1']       ],

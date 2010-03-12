@@ -1292,9 +1292,10 @@ sub load_data {
     }
 }
 
-=head2 dump_tree ( [ mode => custom | full ] )
+=head2 dump_tree ( ... )
 
-Dumps the configuration data of the node and its siblings into a string.
+Dumps the configuration data of the node and its siblings into a
+string.  See L<Config::Model::Dumper/dump_tree> for parameter details.
 
 This string follows the syntax defined in
 L<Config::Model::Loader>. The string produced by C<dump_tree> can be
