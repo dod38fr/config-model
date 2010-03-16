@@ -38,7 +38,7 @@ use Config::Model::Tk::NodeEditor ;
 use Config::Model::Tk::Wizard ;
 
 
-$VERSION = '1.304' ;
+$VERSION = '1.305' ;
 
 Construct Tk::Widget 'ConfigModelUI';
 
@@ -197,6 +197,16 @@ sub Populate {
     my $b3_sub = sub{my $item = $tree->nearest($tree->pointery - $tree->rooty) ;
 		     $cw->on_select($item)} ;
     $tree->bind('<Button-3>', $b3_sub) ;
+
+    # bind button2 to get cut buffer content and try to store cut buffer content
+    my $b2_sub = sub{my $item = $tree->nearest($tree->pointery - $tree->rooty) ;
+		     $cw->on_cut_buffer_dump($item)} ;
+    $tree->bind('<Button-2>', $b2_sub) ;
+
+    # bind button2 to get cut buffer content and try to store cut buffer content
+    #my $key_sub = sub{my $item = $tree->nearest($tree->pointery - $tree->rooty) ;
+    #$cw->on_key_press($item)} ;
+    #$tree->bind('<KeyPress>', $key_sub) ;
 
     $args->{-title} = $title;
     $cw->SUPER::Populate($args) ;
@@ -475,6 +485,32 @@ sub on_select {
     $cw->create_element_widget('edit') ;
 }
 
+sub on_cut_buffer_dump {
+    my ($cw,$tree_path) = @_ ;
+    $cw->update_loc_bar($tree_path) ;
+
+    # get cut buffer content, See Perl/Tk book p297
+    my $sel = eval { $cw->SelectionGet ;} ;
+
+    return if $@ ; # no selection
+
+    my $obj = $cw->{tktree}->infoData($tree_path)->[1];
+
+    if ($obj->isa('Config::Model::Value')) {
+	# if leaf store content 
+	$obj->store($sel)
+    }
+    elsif ($obj->isa('Config::Model::HashId')) {
+	# if hash create keys
+	my @keys = ($sel =~ /\n/m) ? split(/\n/,$sel) : ($sel) ;
+	map{ $obj->fetch_with_id($_) } @keys ;
+    }
+    # else ignore
+
+    # display result
+    $cw->reload ;
+    $cw->create_element_widget('view') ;
+}
 
 # replace dot in str by _|_
 sub to_path   { my $str  = shift ; $str  =~ s/\./_|_/g; return $str ;}

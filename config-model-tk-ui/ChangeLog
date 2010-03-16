@@ -1,3 +1,17 @@
+2010-03-16  Dominique Dumont  <dominique.dumont@hp.com>
+
+	* lib/Config/Model/TkUI.pm (on_cut_buffer_dump): When button-2 is
+	pressed above a lead, store cut buffer content in the leaf. When
+	pressed above a hash, creates a new hash key for each line in the
+	cut buffer.
+
+	* lib/Config/Model/Tk/AnyViewer.pm (add_info_frame): display
+	config parameter location in the tree on the top of all editor and
+	viewer widgets. This will make the wizard easier to use.
+
+	* lib/Config/Model/Tk/NodeEditor.pm (fill_pane): Stored entered
+	data when widget looses keyboard focus
+
 2010-03-12  Dominique Dumont  <dominique.dumont@hp.com> 1.304
 
 	* lib/Config/Model/TkUI.pm (disp_hash): Fix bug that messed tk
