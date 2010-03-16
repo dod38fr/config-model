@@ -1,4 +1,9 @@
-2010-03-11  Dominique Dumont  <dominique.dumont@hp.com>
+2010-03-16  Dominique Dumont  <dominique.dumont@hp.com>
+
+	* lib/Config/Model/Node.pm (load_data): can load data in hidden
+	element when store check is ignored.
+
+2010-03-11  Dominique Dumont  <dominique.dumont@hp.com> v0.644
 
 	* lib/Config/Model/Loader.pm (load): Load string now support:
 	- '.=' operator to append to config values.

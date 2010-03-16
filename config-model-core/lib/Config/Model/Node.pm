@@ -1247,13 +1247,15 @@ sub load_data {
     my $self = shift ;
     my $p    = shift ;
 
+    my $check = $self->instance->get_value_check('store') ;
+
     if ( not defined $p or (ref($p) ne 'HASH' and not $p->isa( 'HASH' )) ) {
 	Config::Model::Exception::LoadData
 	    -> throw (
 		      object => $self,
 		      message => "load_data called with non hash ref arg",
 		      wrong_data => $p,
-		     )  if $self->instance->get_value_check('store');
+		     )  if $check ;
 	return ;
     }
 
@@ -1266,8 +1268,10 @@ sub load_data {
     # the model
     foreach my $elt ( @{$self->{model}{element_list}} ) {
 	next unless defined $h->{$elt} ;
-	if ($self->is_element_available(name => $elt, experience => 'master')) {
-	    my $obj = $self->fetch_element($elt) ;
+	if ($self->is_element_available(name => $elt, experience => 'master')
+	    or not $check
+	   ) {
+	    my $obj = $self->fetch_element($elt,'master', not $check) ;
 	    $obj -> load_data(delete $h->{$elt}) ;
 	}
 	else {
@@ -1277,11 +1281,11 @@ sub load_data {
                                    . "element '$elt' with",
 			  wrong_data => $h->{$elt},
 			  object => $self,
-			 ) if $self->instance->get_value_check('store');
+			 ) ;
 	}
     }
 
-    if (%$h and $self->instance->get_value_check('store')) {
+    if (%$h and $check) {
 	Config::Model::Exception::LoadData 
 	    -> throw (
 		      message => "load_data: unknown elements (expected "
