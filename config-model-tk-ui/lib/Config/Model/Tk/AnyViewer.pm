@@ -59,8 +59,10 @@ sub add_header {
     my $class = defined $parent ? $item->parent->config_class_name 
               :                   $item->config_class_name ;
 
-    my $label = "$type: Class $class";
-    $label .= "- Element $elt_name" if defined $parent ;
+    $cw->{config_class_name} = $class ;
+
+    my $label = "$type: ";
+    $label .= $item->location || "Class $class" ;
     my $f = $cw -> Frame -> pack (@fx);
 
     $f -> Label (-image => $img{lc($type)} , -anchor => 'w') 
@@ -77,7 +79,7 @@ my $text_font = [qw/-family Arial -weight normal/] ;
 
 sub add_info_frame {
     my $cw = shift;
-    my @items = @_;
+    my @items = ( "Config class: ". $cw->{config_class_name}, @_ );
 
     my $frame = $cw->Frame()->pack(@fx) ;
     $frame -> Label(-text => 'Info', -anchor => 'w' ) ->pack(qw/-fill x/) ;
