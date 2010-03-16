@@ -131,6 +131,7 @@ sub fill_pane {
 		my $e = $f->Entry(-textvariable => \$v)
 		  ->pack(qw/-side left -anchor w/,@fxe1) ;
 		$e->bind("<Return>" => $store_sub) ;
+		$e->bind("<FocusOut>" => $store_sub) ;
 		next ;
 	    }
 
