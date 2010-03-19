@@ -1,6 +1,3 @@
-# $Author: ddumont $
-# $Date: 2009-04-07 13:16:38 +0200 (mar 07 avr 2009) $
-# $Revision: 920 $
 
 #    Copyright (c) 2009 Dominique Dumont.
 #
@@ -26,7 +23,7 @@ use strict;
 use warnings ;
 use Carp ;
 
-use vars qw/$VERSION/ ;
+# use vars qw/$VERSION/ ;
 
 use Log::Log4perl;
 

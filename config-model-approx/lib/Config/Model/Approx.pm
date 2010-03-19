@@ -1,6 +1,3 @@
-# $Author$
-# $Date$
-# $Revision$
 
 #    Copyright (c) 2009 Dominique Dumont.
 #
@@ -30,9 +27,7 @@ use Log::Log4perl;
 use File::Copy ;
 use File::Path ;
 
-use vars qw($VERSION)  ;
-
-$VERSION = '1.003' ;
+our $VERSION = '1.003' ;
 
 my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 

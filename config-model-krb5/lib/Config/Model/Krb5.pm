@@ -1,6 +1,3 @@
-# $Author:$
-# $Date:$
-# $Revision:$
 
 #    Copyright (c) 2008 Peter Knowles.
 #
@@ -31,9 +28,8 @@ use Log::Log4perl;
 use File::Copy;
 
 #use Parse::RecDescent ;
-use vars qw($VERSION);    # $grammar $parser) ;
+# use vars qw($VERSION);    # $grammar $parser) ;
 
-$VERSION = sprintf "1.%04d", q$Revision: 696 $ =~ /(\d+)/;
 
 my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 

@@ -1,6 +1,3 @@
-# $Author$
-# $Date$
-# $Revision$
 
 #    Copyright (c) 2006-2008 Dominique Dumont.
 #
@@ -29,10 +26,9 @@ use warnings ;
 
 use Term::ReadLine;
 
-use vars qw($VERSION);
+# use vars qw($VERSION);
 use base qw/Config::Model::SimpleUI/ ;
 
-$VERSION = sprintf "1.%04d", q$Revision$ =~ /(\d+)/;
 
 =head1 NAME
 

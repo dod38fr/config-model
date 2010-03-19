@@ -1,6 +1,3 @@
-# $Author$
-# $Date$
-# $Revision$
 
 my $verb_wiz = 1 ;
 
@@ -25,8 +22,7 @@ use Exception::Class
       },
   ) ;
 
-use vars qw($VERSION) ;
-$VERSION = '1.103';
+our $VERSION = '1.103';
 
 my @help_settings = qw/-bg green -fg black -border 1 
                        -titlereverse 0

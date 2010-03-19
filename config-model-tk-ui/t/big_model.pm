@@ -1,7 +1,4 @@
 # -*- cperl -*-
-# $Author$
-# $Date$
-# $Revision$
 
 # this file is used by test script
 

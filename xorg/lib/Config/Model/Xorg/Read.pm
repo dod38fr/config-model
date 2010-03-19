@@ -1,6 +1,3 @@
-# $Author$
-# $Date$
-# $Revision$
 
 #    Copyright (c) 2005-2009 Dominique Dumont.
 #
@@ -29,9 +26,8 @@ use IO::File ;
 use Log::Log4perl;
 use Data::Dumper ;
 
-use vars qw($VERSION) ;
+# use vars qw($VERSION) ;
 
-$VERSION = sprintf "1.%04d", q$Revision$ =~ /(\d+)/;
 
 my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 

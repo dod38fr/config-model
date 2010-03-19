@@ -1,6 +1,3 @@
-# $Author$
-# $Date$
-# $Revision$
 
 package Config::Model::Xorg ;
 
@@ -23,9 +20,9 @@ Log::Log4perl::init($log4perl_conf) unless Log::Log4perl->initialized ;
 
 # dummy package so CPAN can collect information regarding this module
 
-use vars qw($VERSION) ;
+# use vars qw($VERSION) ;
 
-$VERSION = '1.104' ;
+# $VERSION = '1.104' ;
 
 =head1 NAME
 

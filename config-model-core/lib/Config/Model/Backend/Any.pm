@@ -1,6 +1,3 @@
-# $Author: ddumont $
-# $Date: 2010-02-03 16:34:07 +0100 (Wed, 03 Feb 2010) $
-# $Revision: 1071 $
 
 #    Copyright (c) 2010 Dominique Dumont.
 #
@@ -30,7 +27,6 @@ use UNIVERSAL ;
 use File::Path;
 use Log::Log4perl qw(get_logger :levels);
 
-our $VERSION = sprintf "1.%04d", q$Revision: 1071 $ =~ /(\d+)/;
 
 my $logger = get_logger("Backend::Any") ;
 

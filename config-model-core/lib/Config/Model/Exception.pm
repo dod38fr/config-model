@@ -1,6 +1,3 @@
-# $Author$
-# $Date$
-# $Revision$
 
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
@@ -25,8 +22,7 @@ use warnings ;
 use strict;
 use Data::Dumper ;
 
-use vars qw($VERSION) ;
-$VERSION = sprintf "1.%04d", q$Revision$ =~ /(\d+)/;
+# use vars qw($VERSION) ;
 
 use Exception::Class 
   (

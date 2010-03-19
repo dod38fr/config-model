@@ -1,6 +1,3 @@
-# $Author$
-# $Date$
-# $Revision$
 
 #    Copyright (c) 2006-2009 Dominique Dumont.
 #
@@ -28,8 +25,7 @@ use warnings ;
 
 use Config::Model::Exception ;
 
-use vars qw($VERSION);
-$VERSION = sprintf "1.%04d", q$Revision$ =~ /(\d+)/;
+# use vars qw($VERSION);
 
 my $logger = get_logger("Model::Searcher") ;
 

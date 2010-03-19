@@ -1,6 +1,3 @@
-# $Author$
-# $Date$
-# $Revision$
 
 #    Copyright (c) 2006-2009 Dominique Dumont.
 #
@@ -29,8 +26,7 @@ use Log::Log4perl qw(get_logger :levels);
 
 use Config::Model::Exception ;
 
-use vars qw($VERSION);
-$VERSION = sprintf "1.%04d", q$Revision$ =~ /(\d+)/;
+# use vars qw($VERSION);
 
 =head1 NAME
 

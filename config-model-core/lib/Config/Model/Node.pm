@@ -1,7 +1,3 @@
-# $Author$
-# $Date$
-# $Revision$
-
 #    Copyright (c) 2005-2010 Dominique Dumont.
 #
 #    This file is part of Config-Model.
@@ -37,10 +33,8 @@ use Storable qw/dclone/ ;
 
 use base qw/Config::Model::AutoRead/;
 
-use vars qw($VERSION $AUTOLOAD @status @level
+use vars qw($AUTOLOAD @status @level
 @experience_list %experience_index );
-
-$VERSION = sprintf "1.%04d", q$Revision$ =~ /(\d+)/;
 
 *status           = *Config::Model::status ;
 *level            = *Config::Model::level ;

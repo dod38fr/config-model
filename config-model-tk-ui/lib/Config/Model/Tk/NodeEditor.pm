@@ -1,6 +1,3 @@
-# $Author: ddumont $
-# $Date: 2009-09-03 14:05:31 +0200 (Thu, 03 Sep 2009) $
-# $Revision: 1013 $
 
 #    Copyright (c) 2009-2010 Dominique Dumont.
 #
@@ -31,10 +28,8 @@ use Tk::Balloon;
 use Text::Wrap;
 
 use base qw/Tk::Frame Config::Model::Tk::AnyViewer/;
-use vars qw/$VERSION/ ;
 use subs qw/menu_struct/ ;
 
-$VERSION = sprintf "1.%04d", q$Revision: 1013 $ =~ /(\d+)/;
 
 Construct Tk::Widget 'ConfigModelNodeEditor';
 

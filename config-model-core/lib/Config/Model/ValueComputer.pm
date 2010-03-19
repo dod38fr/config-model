@@ -1,7 +1,3 @@
-# $Author$
-# $Date$
-# $Revision$
-
 #    Copyright (c) 2005-2007 Dominique Dumont.
 #
 #    This file is part of Config-Model.
@@ -30,9 +26,7 @@ use Carp ;
 use Parse::RecDescent ;
 use Data::Dumper () ;
 
-use vars qw($VERSION $compute_grammar $compute_parser) ;
-
-$VERSION = sprintf "1.%04d", q$Revision$ =~ /(\d+)/;
+use vars qw($compute_grammar $compute_parser) ;
 
 =head1 NAME
 
@@ -497,7 +491,6 @@ sub compute_variables {
 $compute_grammar = << 'END_OF_GRAMMAR' ;
 
 {
-# $Revision$
 
 # This grammar is compatible with Parse::RecDescent < 1.90 or >= 1.90
 use strict;

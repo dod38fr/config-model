@@ -1,7 +1,3 @@
-# $Author$
-# $Date$
-# $Revision$
-
 #    Copyright (c) 2005-2010 Dominique Dumont.
 #
 #    This file is part of Config-Model.
@@ -33,9 +29,8 @@ use Carp ;
 
 use base qw/Config::Model::WarpedThing/ ;
 
-use vars qw($VERSION) ;
+# use vars qw($VERSION) ;
 
-$VERSION = sprintf "1.%04d", q$Revision$ =~ /(\d+)/;
 
 my $logger = get_logger("Tree::Element::Value") ;
 

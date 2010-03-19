@@ -1,6 +1,4 @@
-# $Author$
-# $Date$
-# $Revision$
+# copyright at the end of the file in the pod section
 
 package Config::Model::TkUI ;
 
@@ -9,7 +7,7 @@ use warnings ;
 use Carp ;
 
 use base qw/Tk::Toplevel/;
-use vars qw/$VERSION $icon_path $warn_img/ ;
+use vars qw/$icon_path $warn_img/ ;
 use subs qw/menu_struct/ ;
 use Scalar::Util qw/weaken/;
 use Log::Log4perl;
@@ -38,6 +36,7 @@ use Config::Model::Tk::NodeEditor ;
 use Config::Model::Tk::Wizard ;
 
 
+use vars qw/$VERSION/ ;
 $VERSION = '1.305' ;
 
 Construct Tk::Widget 'ConfigModelUI';

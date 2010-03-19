@@ -1,6 +1,3 @@
-# $Author$
-# $Date$
-# $Revision$
 
 #    Copyright (c) 2008-2009 Dominique Dumont.
 #
@@ -30,9 +27,8 @@ use Tk::Photo ;
 use Tk::ROText;
 use Config::Model::TkUI ;
 
-use vars qw/$VERSION $icon_path/ ;
+use vars qw/$icon_path/ ;
 
-$VERSION = sprintf "1.%04d", q$Revision$ =~ /(\d+)/;
 
 my @fbe1 = qw/-fill both -expand 1/ ;
 my @fxe1 = qw/-fill x    -expand 1/ ;

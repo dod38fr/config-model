@@ -1,6 +1,3 @@
-# $Author: ddumont $
-# $Date: 2008-05-24 17:04:16 +0200 (sam, 24 mai 2008) $
-# $Revision: 836 $
 
 # See license at bottom of pod
 

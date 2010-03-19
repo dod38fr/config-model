@@ -1,6 +1,3 @@
-# $Author: ddumont $
-# $Date: 2009-06-24 12:48:54 +0200 (Wed, 24 Jun 2009) $
-# $Revision: 987 $
 
 package Config::Model::Tk::Wizard ;
 
@@ -9,7 +6,7 @@ use warnings ;
 use Carp ;
 
 use base qw/Tk::Toplevel/;
-use vars qw/$VERSION $icon_path/ ;
+use vars qw/$icon_path/ ;
 use Log::Log4perl;
 
 use Config::Model::Tk::LeafEditor ;

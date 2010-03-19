@@ -1,6 +1,3 @@
-# $Author$
-# $Date$
-# $Revision$
 
 #    Copyright (c) 2008 Dominique Dumont.
 #
@@ -28,11 +25,9 @@ use Carp ;
 use Log::Log4perl ;
 
 use base qw/Config::Model::Tk::ListViewer/;
-use vars qw/$VERSION/ ;
 use subs qw/menu_struct/ ;
 use Tk::Dialog ;
 
-$VERSION = sprintf "1.%04d", q$Revision$ =~ /(\d+)/;
 
 Construct Tk::Widget 'ConfigModelListEditor';
 

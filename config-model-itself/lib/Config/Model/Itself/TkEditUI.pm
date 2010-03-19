@@ -1,6 +1,3 @@
-# $Author: ddumont $
-# $Date: 2008-04-17 15:38:28 +0200 (Thu, 17 Apr 2008) $
-# $Revision: 615 $
 
 #    Copyright (c) 2008 Dominique Dumont.
 #
@@ -27,9 +24,8 @@ use warnings ;
 use Carp ;
 
 use base qw/Config::Model::TkUI/;
-use vars qw/$VERSION/ ;
+# use vars qw/$VERSION/ ;
 
-$VERSION = sprintf "1.%04d", q$Revision: 615 $ =~ /(\d+)/;
 
 Construct Tk::Widget 'ConfigModelEditUI';
 

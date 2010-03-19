@@ -1,6 +1,3 @@
-# $Author$
-# $Date$
-# $Revision$
 
 #    Copyright (c) 2005-2010 Dominique Dumont.
 #
@@ -29,8 +26,7 @@ use Log::Log4perl qw(get_logger :levels);
 
 use base qw/Config::Model::WarpedThing/ ;
 
-use vars qw($VERSION) ;
-$VERSION = sprintf "1.%04d", q$Revision$ =~ /(\d+)/;
+# use vars qw($VERSION) ;
 
 my $logger = get_logger("Tree::Element::CheckList") ;
 

@@ -1,6 +1,3 @@
-# $Author$
-# $Date$
-# $Revision$
 
 #    Copyright (c) 2007-2010 Dominique Dumont.
 #
@@ -32,9 +29,7 @@ use File::Find ;
 use File::Path ;
 use File::Basename ;
 
-use vars qw($VERSION) ;
-
-$VERSION = '1.213';
+our $VERSION = '1.213';
 
 my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 

@@ -1,6 +1,3 @@
-# $Author$
-# $Date$
-# $Revision$
 
 #    Copyright (c) 2005-2010 Dominique Dumont.
 #
@@ -34,7 +31,6 @@ use Log::Log4perl qw(get_logger :levels);
 
 use base qw/Config::Model::AnyThing/ ;
 
-our $VERSION = sprintf "1.%04d", q$Revision$ =~ /(\d+)/;
 
 sub get_cfg_file_path {
     my $self = shift ; 

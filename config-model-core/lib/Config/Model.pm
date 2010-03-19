@@ -1,7 +1,3 @@
-# $Author$
-# $Date$
-# $Revision$
-
 # copyright at the end of the file in the pod section
 
 package Config::Model ;
@@ -9,7 +5,6 @@ require Exporter;
 use Carp;
 use strict;
 use warnings FATAL => qw(all);
-use vars qw/@ISA @EXPORT @EXPORT_OK $VERSION/;
 use Storable ('dclone') ;
 use Data::Dumper ();
 use Log::Log4perl qw(get_logger :levels);
@@ -21,7 +16,6 @@ use Config::Model::Instance ;
 use vars qw($VERSION @status @level @experience_list %experience_index) ;
 
 $VERSION = '0.645';
-
 
 =head1 NAME
 
