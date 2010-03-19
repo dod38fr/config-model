@@ -54,51 +54,52 @@ $SIG{KILL} = sub { kill "QUIT",$pid } ;
 print "Copying ssh model\n";
 system("cp -r ../lib .") ;
 
-print "Upstream change: KeepAlive is changed to TCPKeepAlive\n";
+print "Upstream upgrade: KeepAlive is changed to TCPKeepAlive\n";
 my_system("config-edit -model Sshd -model_dir lib/Config/Model/models",
 	 "-root_dir . -ui none -backend custom -save") ;
 
-print "User set up: Modify IgnoreRhosts with wrong keyword\n";
-my_system("config-edit -model Sshd -model_dir lib/Config/Model/models",
-	 "-root_dir . -ui none -backend custom IgnoreRhosts=oui") ;
-
-print "User set up: Modify IgnoreRhosts correctly\n";
-my_system("config-edit -model Sshd -model_dir lib/Config/Model/models",
-	 "-root_dir . -ui none -backend custom IgnoreRhosts=yes") ;
-
-print "Add distro policy: Patch model...\n";
+print "Add distro policy: Debian dev patches OpenSsh model...\n";
 my_system("config-model-edit -model Sshd -save ",
 	  qq!class:Sshd element:PermitRootLogin default=no upstream_default=''!) ;
 
 print "Add distro policy: show the diff...\n";
 my_system("diff -Naur ../lib lib") ;
 
-print "package upgrade: PermitRootLogin is updated\n";
+print "Package upgrade: PermitRootLogin is updated\n";
 my_system("config-edit -model Sshd -model_dir lib/Config/Model/models",
 	 "-root_dir . -ui none -backend custom -save") ;
 
-print "Add distro policy: Patch model: gentle advice for cipher list...\n";
+print "Add another distro policy: Patch model: reduced default cipher list...\n";
 my_system("config-model-edit -model Sshd -save ",
 	  qq!class:Sshd element:Ciphers !,
 	  qq!default_list=aes128-cbc,aes128-ctr,aes192-cbc,aes192-ctr,aes256-cbc,aes256-ctr!) ;
 
-print "package upgrade: Ciphers is updated\n";
+print "Package upgrade: Ciphers is added in config file\n";
 my_system("config-edit -model Sshd -model_dir lib/Config/Model/models",
 	 "-root_dir . -ui none -backend custom -save") ;
 
-print "May be system room policy: Patch model: hard restriction on cipher list...\n";
-my_system("config-model-edit -model Sshd -save ",
-	  'class:Sshd element:Ciphers ',
-	  'choice=arcfour256,aes192-cbc,aes192-ctr,aes256-cbc,aes256-ctr',
-	  'default_list=aes192-cbc,aes192-ctr,aes256-cbc,aes256-ctr') ;
+# print "May be system room policy: Patch model: hard restriction on cipher list...\n";
+# my_system("config-model-edit -model Sshd -save ",
+# 	  'class:Sshd element:Ciphers ',
+# 	  'choice=arcfour256,aes192-cbc,aes192-ctr,aes256-cbc,aes256-ctr',
+# 	  'default_list=aes192-cbc,aes192-ctr,aes256-cbc,aes256-ctr') ;
 
-print "cluster upgrade: Ciphers restriction leads to error\n";
-my_system("config-edit -model Sshd -model_dir lib/Config/Model/models",
-	 "-root_dir . -ui none -backend custom -save") ;
+# print "cluster upgrade: Ciphers restriction leads to error\n";
+# my_system("config-edit -model Sshd -model_dir lib/Config/Model/models",
+# 	 "-root_dir . -ui none -backend custom -save") ;
 
-print "cluster upgrade: use -force to override\n";
+# print "cluster upgrade: use -force to override\n";
+# my_system("config-edit -model Sshd -model_dir lib/Config/Model/models",
+# 	 "-root_dir . -ui none -backend custom -force -save") ;
+
+# print "User set up: Modify IgnoreRhosts with wrong keyword\n";
+# my_system("config-edit -model Sshd -model_dir lib/Config/Model/models",
+# 	 "-root_dir . -ui none -backend custom IgnoreRhosts=oui") ;
+# 
+
+print "Config edition can be scripted: Modify IgnoreRhosts\n";
 my_system("config-edit -model Sshd -model_dir lib/Config/Model/models",
-	 "-root_dir . -ui none -backend custom -force -save") ;
+	 "-root_dir . -ui none -backend custom IgnoreRhosts=yes") ;
 
 print "And the user ? -> GUI\n";
 my_system("config-edit -model Sshd -model_dir lib/Config/Model/models",
