@@ -5,8 +5,6 @@ o [domi] Update compute so that a built-in value can also be computed. This
    are needlessly written to files
 
 
-o [domi] Add regexp check for uniline (or string) values
-
 o [domi] Filter element according to element in SimpleUI and TERMUI
 
 o [domi] Provide import/export of configuration data in free form XML

@@ -6,7 +6,8 @@
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
-use Test::More tests => 89 ;
+use Test::More tests => 91 ;
+use Test::Exception ;
 use Config::Model ;
 use Config::Model::Value;
 
@@ -94,6 +95,10 @@ $model ->create_config_class
 						 c1 => 'c'
 					       },
 				},
+		match => { type => 'leaf',
+			   value_type => 'string',
+			   match => '^foo\d{2}$',
+			 }
 	      ] , # dummy class
   ) ;
 
@@ -105,8 +110,8 @@ my $root = $inst -> config_root ;
 
 my $result ;
 
-eval {$root->fetch_element('crooked') ; } ;
-ok( $@,"test create expected failure");
+throws_ok {$root->fetch_element('crooked') ; } 'Config::Model::Exception::Model',
+    "test create expected failure" ;
 print "normal error:\n", $@, "\n" if $trace;
 
 my $i = $root->fetch_element('scalar') ;
@@ -115,16 +120,16 @@ ok($i,"test create bounded integer") ;
 ok( $i->store( 1),"store test" );
 is( $i->fetch, 1, "fetch test" );
 
-eval { $i->store(  5); } ;
-ok( $@ ,"bounded integer: max error" );
+throws_ok { $i->store(  5); }  'Config::Model::Exception::User',
+    "bounded integer: max error" ;
 print "normal error:\n", $@, "\n" if $trace;
 
-eval { $i->store( 'toto'); } ;
-ok( $@ , "bounded integer: string error");
+throws_ok { $i->store( 'toto'); }  'Config::Model::Exception::User',
+    "bounded integer: string error";
 print "normal error:\n", $@, "\n" if $trace;
 
-eval { $i->store( 1.5 ); } ;
-ok($@ , "bounded integer: number error");
+throws_ok { $i->store( 1.5 ); }  'Config::Model::Exception::User',
+    "bounded integer: number error";
 print "normal error:\n", $@, "\n" if $trace;
 
 
@@ -134,8 +139,8 @@ ok($nb,"created ".$nb->name) ;
 ok($nb->store(1)  ,"assign 1") ;
 ok($nb->store(1.5),"assign 1.5") ;
 
-eval { $i->store( 'toto' ); } ;
-ok($@ , "bounded integer: string error");
+throws_ok { $i->store( 'toto' ); }  'Config::Model::Exception::User',
+    "bounded integer: string error";
 print "normal error:\n", $@, "\n" if $trace;
 
 $nb->store(undef);
@@ -145,8 +150,8 @@ ok( defined $nb->fetch() ? 0: 1  ,"store undef") ;
 my $ms = $root->fetch_element('mandatory_string') ;
 ok($ms,"created mandatory_string") ;
 
-eval { my $v = $ms->fetch; } ;
-ok( $@, "mandatory string: undef error") ;
+throws_ok { my $v = $ms->fetch; }  'Config::Model::Exception::User',
+    "mandatory string: undef error" ;
 print "normal error:\n", $@, "\n" if $trace;
 
 ok( $ms->store('toto'),"mandatory_string: store" );
@@ -156,16 +161,16 @@ is($ms->fetch,'toto'  ,"and read");
 my $mb = $root->fetch_element('mandatory_boolean') ;
 ok($mb,"created mandatory_boolean") ;
 
-eval { my $v = $mb->fetch; } ;
-ok( $@, "mandatory bounded: undef error") ;
+throws_ok { my $v = $mb->fetch; }  'Config::Model::Exception::User',
+    "mandatory bounded: undef error" ;
 print "normal error:\n", $@, "\n" if $trace;
 
-eval { $mb->store('toto'); } ;
-ok( $@, "mandatory bounded: store string error" );
+throws_ok { $mb->store('toto'); }  'Config::Model::Exception::User',
+    "mandatory bounded: store string error" ;
 print "normal error:\n", $@, "\n" if $trace;
 
-eval { $mb->store(2); } ;
-ok( $@, "mandatory bounded: store 2 error" );
+throws_ok { $mb->store(2); }  'Config::Model::Exception::User',
+    "mandatory bounded: store 2 error" ;
 print "normal error:\n", $@, "\n" if $trace;
 
 ok( $mb->store(1), "mandatory boolean: set to 1" );
@@ -196,8 +201,9 @@ print "mandatory boolean: set to False\n" if $trace;
 is( $mb->store('False'), 0, "mandatory boolean: set to False" );
 is( $mb->fetch,0, "and read" );
 
-eval {$root->fetch_element('crooked_enum') ; } ;
-ok( $@,"test create expected failure with enum with wrong default");
+throws_ok {$root->fetch_element('crooked_enum') ; } 
+    'Config::Model::Exception::Model',
+    "test create expected failure with enum with wrong default";
 print "normal error:\n", $@, "\n" if $trace;
 
 
@@ -205,8 +211,8 @@ print "normal error:\n", $@, "\n" if $trace;
 my $de = $root->fetch_element('enum') ;
 ok($de,"Created enum with correct default") ;
 
-eval { $mb->store('toto'); } ;
-ok( $@, "enum: store 'toto' error" );
+throws_ok { $mb->store('toto'); }  'Config::Model::Exception::User',
+    "enum: store 'toto' error" ;
 print "normal error:\n", $@, "\n" if $trace;
 
 is( $de->fetch, 'A' ,"enum with default: read default value" );
@@ -227,8 +233,9 @@ eq_array( $de->choice , [qw/A B C/],"enum: check choice"  );
 ok( $de->set_properties( default => 'B' ), "enum: warping default value" );
 is( $de->default(), 'B',"enum: check new default value" );
 
-eval { $de->set_properties( default => 'F' ) } ;
-ok($@,"enum: warped default value to wrong value") ;
+throws_ok { $de->set_properties( default => 'F' )}
+    'Config::Model::Exception::Model',
+    "enum: warped default value to wrong value" ;
 print "normal error:\n", $@, "\n" if $trace;
 
 ok( $de->set_properties( choice => [qw/A B C D/] ),"enum: warping choice" );
@@ -289,8 +296,8 @@ is( $up_def->fetch('standard'),    'up_def' ,"after store: upstream standard val
 ###
 
 my $uni = $root->fetch_element('a_uniline') ;
-eval { $uni->store("foo\nbar");};
-ok($@,"uniline: tried to store a multi line") ;
+throws_ok { $uni->store("foo\nbar");} 'Config::Model::Exception::User',
+    "uniline: tried to store a multi line" ;
 print "normal error:\n", $@, "\n" if $trace;
 
 $uni->store("foo bar");
@@ -336,3 +343,10 @@ is($p_enum->fetch_standard,'B',"enum: read preset value as standard_value") ;
 is($p_enum->fetch_custom,'C',"enum: read custom_value") ;
 is($p_enum->default,'A',"enum: read default_value") ;
 
+### test match regexp
+my $match = $root->fetch_element('match') ;
+throws_ok { $match->store('bar');} 'Config::Model::Exception::WrongValue',
+    'match value: test for non matching value';
+
+$match->store('foo42') ;
+is($match->fetch, 'foo42',"test stored matching value") ;

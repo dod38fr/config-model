@@ -1,3 +1,9 @@
+2010-03-17  Dominique Dumont  <domi.dumont@free.fr>
+
+	* lib/Config/Model/Value.pm (setup_match_regexp): added new
+	'match' parameter to validate a value against a Perl regular
+	expression.
+
 2010-03-16  Dominique Dumont  <dominique.dumont@hp.com>
 
 	* lib/Config/Model/Node.pm (load_data): can load data in hidden
