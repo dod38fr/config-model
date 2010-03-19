@@ -222,6 +222,10 @@
 	            type => 'node',
 	            config_class_name => 'MasterModel::References',
 	          },
+		match => { type => 'leaf',
+			   value_type => 'string',
+			   match => '^foo\d{2}$',
+			 },
 	       ## too difficult to correctly test Augeas here
 	       'sshd_augeas' 
 	       => {

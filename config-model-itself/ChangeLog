@@ -1,3 +1,8 @@
+2010-03-17  Dominique Dumont  <domi.dumont@free.fr>
+
+	* lib/Config/Model/models/Itself/CommonElement.pl: add match
+	parameter from Config::Model 0.645
+
 2010-03-16  Dominique Dumont  <dominique.dumont@hp.com>
 
 	* config-model-edit (): can use -force_load when loading data or

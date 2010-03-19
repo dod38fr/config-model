@@ -209,6 +209,28 @@
 	 },
 
 
+      'match'
+      => { type => 'leaf',
+	   value_type => 'uniline',
+	   level => 'hidden',
+	   description => 'Perl regular expression to assert the validity of the value.',
+	   warp => {  follow => { 'type' => '?type',
+				  'vtype' => '?value_type' ,
+				},
+		      'rules'
+		      => [ '    $type eq "leaf" 
+                            and (    $vtype eq "uniline" 
+                                  or $vtype eq "string" 
+                                )
+                          '
+			  => {
+			      level => 'normal',
+			     }
+			 ]
+		   },
+	 },
+
+
       'default_list'
       => { type => 'check_list',
 	   level => 'hidden',
