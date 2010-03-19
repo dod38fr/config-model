@@ -92,7 +92,7 @@ sub Populate {
 
     $cw->add_info() ;
     $cw->add_summary_and_description($leaf) ;
-    $cw->add_help(value   => $leaf->get_help($cw->{value})) ;
+    $cw->add_help('value help'   => $leaf->get_help($cw->{value})) ;
     $cw->add_editor_button($path) ;
 
     $cw->ConfigSpecs(
