@@ -821,18 +821,42 @@ sub next_element {
     my $self      = shift;
     my $element   = shift;
     my $min_experience = shift;
+    my $find_previous = shift || 0 ;
 
-    my @elements = $self->get_element_name(for => $min_experience);
+    my @elements = @{$self->{model}{element_list}} ;
+    @elements = reverse @elements if $find_previous ;
 
-    return $elements[0] unless defined $element and $element ;
+    # if element is empty, start from first element
+    my $found_elt = (defined $element and $element) ? 0 : 1 ;
 
-    my $i     = 0;
-    while (@elements) {
-        croak "next_element: element $element is unknown. Expected @elements"
-            unless defined $elements[$i];
-        last if $element eq $elements[ $i++ ];
+    while (my $name = shift @elements) {
+      if ($found_elt) {
+	return $name 
+	  if $self->is_element_available(name => $name, 
+					 experience => $min_experience);
+      }
+      $found_elt = 1 if $element eq $name ;
     }
-    return $elements[$i];
+
+    croak "next_element: element $element is unknown. Expected @elements" 
+      unless $found_elt;
+    return;
+}
+
+=head2 previous_element ( element_name, [ experience_index ] )
+
+This method provides a way to iterate through the elements of a node.
+
+Returns the previous element name for a given experience (default
+C<master>).  Returns undef if no previous element is available.
+
+=cut
+
+sub previous_element {
+    my $self      = shift;
+    my $element   = shift;
+    my $min_experience = shift;
+    $self->next_element($element,$min_experience,1) ;
 }
 
 =head2 get_element_property ( element => ..., property => ... )

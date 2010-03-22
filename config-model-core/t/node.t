@@ -1,10 +1,7 @@
 # -*- cperl -*-
-# $Author$
-# $Date$
-# $Revision$
 
 use ExtUtils::testlib;
-use Test::More tests => 47;
+use Test::More tests => 50;
 use Test::Exception ;
 use Test::Warn ;
 use Config::Model;
@@ -211,6 +208,8 @@ map {
     my $key_label = defined $_->[0] ? $_->[0] : 'undef';
     is( $root->next_element($_->[0]), $_->[1], 
 	"test next_element ($key_label)" );
+    is( $root->previous_element($_->[1]), $_->[0], 
+	"test previous_element ($key_label)" ) unless (defined $_->[0] and $_->[0] eq '');
 } ( [ undef, 'captain'] ,
     [ '',    'captain'] ,
     [ qw/captain array_args/ ],

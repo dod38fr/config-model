@@ -1,3 +1,8 @@
+2010-03-22  Dominique Dumont  <domi.dumont@free.fr>
+
+	* lib/Config/Model/Node.pm (previous_element): new method to
+	iterate through availalble node elements
+
 2010-03-17  Dominique Dumont  <domi.dumont@free.fr>
 
 	* lib/Config/Model/Value.pm (setup_match_regexp): added new
