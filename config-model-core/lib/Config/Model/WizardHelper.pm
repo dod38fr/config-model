@@ -215,14 +215,19 @@ sub node_content_cb {
     $logger->info("node_content_cb called on '", $node->name,
 		  "' element: @element");
 
-    my $i = $self->{forward} == 1 ? 0 : $#element ;
+    my $experience = $self->{user_scan_args}{experience} ;
+    my $element ;
 
-    while ($i >= 0 and $i < @element) {
-	my $element = $element[$i] ;
+    while (1) {
+	my $reverse = 1 - $self->{forward} ;
+	$element = $node->next_element($element,$experience,$reverse);
+
+	last unless defined $element ;
+
 	$logger->info( "node_content_cb calls scan_element ",
 		       "on element $element");
+
 	$self->{scanner}->scan_element($data_r,$node,$element) ;
-	$i += $self->{forward} ;
     }
 }
 

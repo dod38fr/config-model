@@ -1,5 +1,8 @@
 2010-03-22  Dominique Dumont  <domi.dumont@free.fr>
 
+	* lib/Config/Model/WizardHelper.pm (node_content_cb): no longer
+	forget to scan element that are warped in while scanning the node.
+
 	* lib/Config/Model/Node.pm (previous_element): new method to
 	iterate through availalble node elements
 
