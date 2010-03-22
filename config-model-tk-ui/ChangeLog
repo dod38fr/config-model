@@ -1,3 +1,8 @@
+2010-03-22  Dominique Dumont  <domi.dumont@free.fr>
+
+	* lib/Config/Model/Tk/Wizard.pm: Force tree to show item to edit
+	when displaying the wizard page for the item.
+
 2010-03-16  Dominique Dumont  <dominique.dumont@hp.com>
 
 	* lib/Config/Model/TkUI.pm (on_cut_buffer_dump): When button-2 is

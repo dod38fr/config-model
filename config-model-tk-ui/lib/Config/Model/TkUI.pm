@@ -958,10 +958,13 @@ sub wizard {
     my $cw = shift ;
     my $tree = $cw->{tktree} ;
 
-    my $wiz = $cw->ConfigModelWizard (
-				      -root => $cw->{root}, 
-				      -store_cb => sub{ $cw->force_element_display(@_)},
-				     ) ;
+    my $wiz = $cw->ConfigModelWizard 
+      (
+       -root => $cw->{root}, 
+       -store_cb => sub{ $cw->force_element_display(@_)},
+       -show_cb => sub{ $cw->force_element_display(@_)},
+      ) ;
+
     $wiz->start_wizard($cw->{experience}) ;
 }
 

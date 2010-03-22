@@ -41,13 +41,14 @@ sub Populate {
 	  or croak "Missing $parm arg\n";
     }
 
-    foreach my $parm (qw/-from_widget -stop_on_important -store_cb/) {
+    foreach my $parm (qw/-from_widget -stop_on_important -store_cb -show_cb/) {
 	my $attr = $parm ;
 	$attr =~ s/^-//;
 	$cw->{$attr} = delete $args->{$parm} ;
     }
 
     $logger->info("Creating wizard widget");
+    $cw->{show_cb} ||= sub {} ;
 
     my $title = delete $args->{'-title'} 
               || "config wizard ".$cw->{root}->config_class_name ;
@@ -91,6 +92,7 @@ sub save {
 sub leaf_cb {
     my ($cw,$scanner, $data_ref,$node,$element_name,$index, $leaf_object) = @_ ;
     # cleanup existing widget contained in this frame
+    $cw->{show_cb}->($leaf_object) ;
     $cw->{ed_frame}->ConfigModelLeafEditor(-item => $leaf_object, 
 					   -store_cb => $cw->{store_cb},
 					  )->pack(@fbe1) ;
@@ -100,6 +102,7 @@ sub list_element_cb {
     my ($cw,$scanner, $data_ref,$node,$element_name,@indexes) = @_ ;
     # cleanup existing widget contained in this frame
     my $obj = $node->fetch_element($element_name) ;
+    $cw->{show_cb}->($obj) ;
     $cw->{ed_frame}->ConfigModelListEditor(-item => $obj, 
 					   -store_cb => $cw->{store_cb},
 					  )->pack(@fbe1) ;
@@ -109,6 +112,7 @@ sub hash_element_cb {
     my ($cw,$scanner, $data_ref,$node,$element_name,@keys) = @_ ;
     # cleanup existing widget contained in this frame
     my $obj = $node->fetch_element($element_name) ;
+    $cw->{show_cb}->($obj) ;
     $cw->{ed_frame}->ConfigModelHashEditor(-item => $obj, 
 					   -store_cb => $cw->{store_cb},
 					  )->pack(@fbe1) ;
@@ -117,6 +121,7 @@ sub check_list_element_cb {
     my ($cw,$scanner, $data_ref,$node,$element_name,@items) = @_ ;
     # cleanup existing widget contained in this frame
     my $obj = $node->fetch_element($element_name) ;
+    $cw->{show_cb}->($obj) ;
     $cw->{ed_frame}->ConfigModelCheckListEditor(-item => $obj, 
 						-store_cb => $cw->{store_cb},
 					       )->pack(@fbe1) ;
