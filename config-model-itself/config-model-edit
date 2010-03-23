@@ -32,9 +32,7 @@ use Config::Model::TkUI ;
 use Config::Model::Itself::TkEditUI ;
 
 # lame tracing that will be replaced by Log4perl
-use vars qw/$verbose $debug $VERSION/ ;
-
-$VERSION = sprintf "1.%04d", q$Revision$ =~ /(\d+)/;
+use vars qw/$verbose $debug/ ;
 
 $verbose = 0;
 $debug = 0;
