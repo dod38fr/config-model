@@ -444,12 +444,14 @@ sub setup_enum_choice {
     $logger
       ->debug($self->name, " setup_enum_choice with '",join("','",@choice));
 
+    $self->{choice}  = \@choice ;
+
     # store all enum values in a hash. This way, checking
     # whether a value is present in the enum set is easier
     delete $self->{choice_hash} if defined $self->{choice_hash} ;
-    map {$self->{choice_hash}{$_} =  1;} @choice ;
 
-    $self->{choice}  = \@choice ;
+    # call get_choice so subclassing may work there
+    map {$self->{choice_hash}{$_} =  1;} $self->get_choice ;
 
     # delete the current value if it does not fit in the new
     # choice
@@ -1098,7 +1100,7 @@ sub enum_error {
         return @error ;
     }
 
-    my @choice = map( "'$_'", @{$self->{choice}});
+    my @choice = map( "'$_'", $self->get_choice);
     my $var = $self->{value_type} ;
     push @error, "$self->{value_type} type does not know '$value'. Expected ".
       join(" or ",@choice) ; 
@@ -1181,9 +1183,12 @@ sub check_value {
         # accepted, no more check
     }
     else {
+	my $choice_msg = '';
+	$choice_msg .= ", choice ". join(" ",$self->get_choice).")"
+	    if defined $self->{choice};
+
 	my $msg = "Cannot check value_type '".
-	  $self->{value_type}. "' (value '$value'".
-	    (defined $self->{choice} ? ", choice @{$self->{choice}})" : ')');
+	    $self->{value_type}. "' (value '$value'$choice_msg)";
         Config::Model::Exception::Model 
 	    -> throw (object => $self, message => $msg) ;
     }

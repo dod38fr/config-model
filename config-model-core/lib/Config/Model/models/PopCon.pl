@@ -1,5 +1,12 @@
 [
           {
+            'read_config' => [
+                               {
+                                 'file' => 'popularity-contest.conf',
+                                 'backend' => 'ini_file',
+                                 'config_dir' => 'etc/'
+                               }
+                             ],
             'name' => 'PopCon',
             'element' => [
                            'PARTICIPATE',

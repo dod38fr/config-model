@@ -142,7 +142,7 @@ SKIP: {
 	 sub { $cmu -> save ;},
 	 sub { $cmu -> test_model ;},
 	 sub { $cmu -> test_model ;},
-	 sub { exit; }
+	 #sub { exit; }
         );
 
     unless ($show) {

@@ -1,0 +1,8 @@
+/debian/
+libconfig-
+/blib/
+/_build/
+~$
+/wr_
+META.yml
+Build$

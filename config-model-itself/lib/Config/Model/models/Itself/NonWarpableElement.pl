@@ -1,8 +1,4 @@
-# $Author: ddumont $
-# $Date: 2008-04-11 18:20:21 +0200 (ven, 11 avr 2008) $
-# $Revision: 600 $
-
-#    Copyright (c) 2007-2008 Dominique Dumont.
+#    Copyright (c) 2007-2010 Dominique Dumont.
 #
 #    This file is part of Config-Model-Itself.
 #
@@ -40,6 +36,24 @@
 				       number uniline string/],
 			 level => 'normal',
 			 mandatory => 1,
+			}
+		   ]
+	      }
+	 },
+
+      'class' 
+      => { type => 'leaf',
+	   level => 'hidden',
+	   value_type => 'uniline',
+	   summary => "Override Config::Model::Value:",
+	   description => "Perl class name of a child of Config::Model::Value",
+	   experience => 'master',
+	   'warp'
+	   => { follow => { 't' => '- type' },
+		'rules'
+		=> [ '$t eq "leaf"' 
+		     => {
+			 level => 'normal',
 			}
 		   ]
 	      }
