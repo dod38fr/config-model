@@ -20,11 +20,11 @@ no warnings qw(once);
 use strict;
 
 my ($log,$show) = (0) x 2 ;
-my $arg = shift || '' ;
+my $arg = $ARGV[0] || '' ;
 my $trace = $arg =~ /t/ ? 1 : 0 ;
 $::verbose          = 1 if $arg =~ /v/;
 $::debug            = 1 if $arg =~ /d/;
-$log             = 1 if $arg =~ /l/;
+$log                = 1 if $arg =~ /l/;
 $show               = 1 if $arg =~ /s/;
 
 print "You can play with the widget if you run the test with 's' argument\n";
@@ -142,7 +142,7 @@ SKIP: {
 	 sub { $cmu -> save ;},
 	 sub { $cmu -> test_model ;},
 	 sub { $cmu -> test_model ;},
-	 #sub { exit; }
+	 sub { exit; }
         );
 
     unless ($show) {

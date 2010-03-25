@@ -1,9 +1,8 @@
-
 #    Copyright (c) 2007-2010 Dominique Dumont.
 #
 #    This file is part of Config-Model-Itself.
 #
-#    Config-Xorg is free software; you can redistribute it and/or
+#    Config-Model-Itself is free software; you can redistribute it and/or
 #    modify it under the terms of the GNU Lesser Public License as
 #    published by the Free Software Foundation; either version 2.1 of
 #    the License, or (at your option) any later version.
@@ -73,7 +72,7 @@ Config::Model::Itself - Model editor for Config::Model
 
 =head1 DESCRIPTION
 
-The Config::Itself and its model files provide a model of Config:Model
+Config::Itself module and its model files provide a model of Config:Model
 (hence the Itself name).
 
 Let's step back a little to explain. Any configuration data is, in

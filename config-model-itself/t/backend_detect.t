@@ -1,7 +1,7 @@
 # -*- cperl -*-
 
 use ExtUtils::testlib;
-use Test::More ;
+use Test::More tests => 4 ;
 use Config::Model;
 use Log::Log4perl qw(:easy) ;
 use Data::Dumper ;
@@ -27,11 +27,10 @@ $model ->create_config_class
    'element'
    => [ 
        'backend' => { type => 'leaf',
-		      class => 'Config::Model::Itself::Backend' ,
+		      class => 'Config::Model::Itself::BackendDetector' ,
 		      value_type => 'enum',
 		      choice => [qw/cds_file perl_file ini_file augeas custom/],
 
-		      # TBD fill help from POD ?
 		       help => {
 			       cds_file => "file ...",
 			       ini_file => "Ini file ...",
@@ -43,10 +42,20 @@ $model ->create_config_class
       ],
   );
 
+ok(1,"test class created") ;
+
 my $root = $model->instance(root_class_name => 'Master') -> config_root ;
 
 my $backend = $root->fetch_element('backend') ;
 
 my @choices = $backend->get_choice ;
 
-print "@choices\n";
+ok( (scalar grep { $_ eq 'Yaml'} @choices), "Yaml plugin backend was found") ;
+
+
+my $help = $backend->get_help('Yaml') ;
+is($help,"Read and write config as a YAML data structure provided by Config::Model::Backend::Yaml",
+   "Found Yaml NAME section from pod") ;
+
+$help = $backend->get_help('cds_file') ;
+is($help,"file ...", "cds_file help was kept") ;

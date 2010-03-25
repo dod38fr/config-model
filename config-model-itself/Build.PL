@@ -1,7 +1,3 @@
-# $Author: ddumont $
-# $Date: 2008-02-07 11:29:57 $
-# $Revision: 1.3 $
-
 #    Copyright (c) 2007-2010 Dominique Dumont.
 #
 #    This file is part of Config-Model-Itself.
@@ -38,6 +34,7 @@ my $build = Module::Build->new
 		     'Config::Model'   => '0.645',
 		     'Log::Log4perl'   => 0 ,
 		     'Config::Model::TkUI' => '1.210',
+		     'Pod::POM'        => 0,
 		    },
    script_files  => [ 'config-model-edit' ],
    add_to_cleanup => [qw/wr_test/] ,

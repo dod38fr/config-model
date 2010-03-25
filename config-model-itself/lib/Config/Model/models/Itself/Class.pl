@@ -107,7 +107,7 @@
 		    },
 
        'backend' => { type => 'leaf',
-		      class => 'Config::Model::Itself::Backend' ,
+		      class => 'Config::Model::Itself::BackendDetector' ,
 		      value_type => 'enum',
 		      choice => [qw/cds_file perl_file ini_file augeas custom/],
 		      migrate_from => { formula => '$old' , 

@@ -450,8 +450,7 @@ sub setup_enum_choice {
     # whether a value is present in the enum set is easier
     delete $self->{choice_hash} if defined $self->{choice_hash} ;
 
-    # call get_choice so subclassing may work there
-    map {$self->{choice_hash}{$_} =  1;} $self->get_choice ;
+    map {$self->{choice_hash}{$_} =  1;} @choice ;
 
     # delete the current value if it does not fit in the new
     # choice
@@ -647,8 +646,9 @@ sub set_properties {
 
 
     map { $self->{$_} =  delete $args{$_} if defined $args{$_} }
-      qw/min max mandatory help replace/;
+      qw/min max mandatory replace/;
 
+    $self->set_help           ( \%args );
     $self->set_value_type     ( \%args );
     $self->set_default        ( \%args );
     $self->set_compute        ( \%args ) if defined $args{compute};
@@ -671,6 +671,13 @@ sub set_properties {
     }
 
     return $self; 
+}
+
+# simple but may be overridden
+sub set_help {
+    my ($self,$args) = @_ ;
+    return unless defined $args->{help} ;
+    $self->{help} =  delete $args->{help};
 }
 
 =head2 Value types
