@@ -54,7 +54,7 @@ ok( (scalar grep { $_ eq 'Yaml'} @choices), "Yaml plugin backend was found") ;
 
 
 my $help = $backend->get_help('Yaml') ;
-is($help,"Read and write config as a YAML data structure provided by Config::Model::Backend::Yaml",
+like($help,qr/provided by Config::Model::Backend::Yaml/,
    "Found Yaml NAME section from pod") ;
 
 $help = $backend->get_help('cds_file') ;
