@@ -27,6 +27,7 @@ use Getopt::Long ;
 use Pod::Usage ;
 use Log::Log4perl ;
 use Config::Model::Itself ;
+use YAML::Any;
 use Tk ;
 use Config::Model::TkUI ;
 use Config::Model::Itself::TkEditUI ;
@@ -278,8 +279,6 @@ if (defined $load) {
 
 if (defined $load_yaml) {
     my $yaml = load_data($load_yaml) ;
-    require YAML::Tiny;
-    import YAML::Tiny qw/Load/;
     my $pdata = Load($yaml) ;
     $meta_root->load_data($pdata) ;
 }
@@ -383,7 +382,4 @@ L<Config::Model::WarpedNode>,
 L<Config::Model::Value>
 
 =cut
-
-
-
 

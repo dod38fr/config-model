@@ -35,6 +35,7 @@ my $build = Module::Build->new
 		     'Log::Log4perl'   => 0 ,
 		     'Config::Model::TkUI' => '1.210',
 		     'Pod::POM'        => 0,
+		     'YAML::Any'       => 0,
 		    },
    script_files  => [ 'config-model-edit' ],
    add_to_cleanup => [qw/wr_test/] ,
