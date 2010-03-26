@@ -3,7 +3,7 @@
             'read_config' => [
                                {
                                  'file' => 'popularity-contest.conf',
-                                 'backend' => 'ini_file',
+                                 'backend' => 'ShellVar',
                                  'config_dir' => 'etc/'
                                }
                              ],
@@ -24,7 +24,7 @@
                            {
                              'value_type' => 'uniline',
                              'summary' => 'survey e-mail',
-                             'default' => 'survey@popcon.debian.org',
+                             'upstream_default' => 'survey@popcon.debian.org',
                              'type' => 'leaf',
                              'description' => 'specifies the address to e-mail statistics to each week.'
                            },
@@ -41,14 +41,14 @@ If your MTA is misconfigured or impossible to configure correctly, and it always
                            {
                              'value_type' => 'uniline',
                              'summary' => 'list of urls to submit data to',
-                             'default' => 'http://popcon.debian.org/cgi-bin/popcon.cgi',
+                             'upstream_default' => 'http://popcon.debian.org/cgi-bin/popcon.cgi',
                              'type' => 'leaf',
                              'description' => 'Space separated list of where to submit popularity-contest reports using http.'
                            },
                            'USEHTTP',
                            {
                              'value_type' => 'enum',
-                             'default' => 'yes',
+                             'upstream_default' => 'yes',
                              'type' => 'leaf',
                              'description' => 'enables http reporting.   Set this to \\\'yes\\\' to enable it.',
                              'choice' => [
@@ -70,6 +70,14 @@ If your MTA is misconfigured or impossible to configure correctly, and it always
                              'description' => 'secret number that the popularity-contest receiver uses to keep track of your submissions.  Whenever you send in a new entry, it overwrites the last one that had the same HOSTID.
 
 This key was generated automatically so you should normally just leave it alone. '
+                           },
+                           'DAY',
+                           {
+                             'value_type' => 'integer',
+                             'summary' => 'day of week',
+                             'max' => '6',
+                             'type' => 'leaf',
+                             'description' => 'Only run on the given day, to spread the load on the server a bit. 0 is sunday, 6 is saturday. '
                            }
                          ]
           }

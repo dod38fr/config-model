@@ -62,4 +62,5 @@ my $build = Module::Build->new
    add_to_cleanup => [qw/PreGrammar.pm wr_root r_root/],
   );
 
+$build->add_build_element('pl');
 $build->create_build_script;

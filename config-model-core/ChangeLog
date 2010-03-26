@@ -1,3 +1,8 @@
+2010-03-26  Dominique Dumont  <dominique.dumont@hp.com>
+
+	* lib/Config/Model/Backend/ShellVar.pm : New backend to read and
+	write configuration files used by shells (sourced by scripts)
+
 2010-03-22  Dominique Dumont  <domi.dumont@free.fr>
 
 	* lib/Config/Model/WizardHelper.pm (node_content_cb): no longer

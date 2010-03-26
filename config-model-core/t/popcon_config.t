@@ -1,7 +1,7 @@
 # -*- cperl -*-
 
 use ExtUtils::testlib;
-use Test::More skip_all => 'unfinished';#tests => 5;
+use Test::More tests => 4;
 use Config::Model ;
 use Log::Log4perl qw(:easy) ;
 use File::Path ;
@@ -15,7 +15,6 @@ my $arg = shift || '';
 my ($log,$show) = (0) x 2 ;
 
 my $trace = $arg =~ /t/ ? 1 : 0 ;
-$::verbose          = 1 if $arg =~ /v/;
 $::debug            = 1 if $arg =~ /d/;
 $log                = 1 if $arg =~ /l/;
 $show               = 1 if $arg =~ /s/;
@@ -58,16 +57,14 @@ my $cfg = $inst -> config_root ;
 my $dump =  $cfg->dump_tree ();
 print $dump if $trace ;
 
-my $expect = 'max_rate=100K
-verbose=1
-distributions:debian=http://ftp.debian.org/debian
-distributions:local=file:///my/local/repo
-distributions:security=http://security.debian.org/debian-security -
+my $expect = 'PARTICIPATE=yes
+MY_HOSTID=aaaaaaaaaaaaaaaaaaaa
+DAY=6 -
 ';
 
 is ($dump,$expect,"check data read from popcon.conf") ;
 
-$cfg->load("max_rate=200K") ;
+$cfg->load("MY_HOSTID=bbbbbbbb") ;
 
 $inst->write_back ;
 
@@ -75,8 +72,7 @@ open(POPCON,$conf_file) || die "Can't open $conf_file:$!" ;
 my $popconlines = join('',<POPCON>) ;
 close POPCON;
 
-like($popconlines,qr/200K/,"checked written popcon file") ;
-like($popconlines,qr/\$verbose/,"new popcon file contains new style param") ;
+like($popconlines,qr/bbbbbbbb/,"checked written popcon file") ;
 
 __END__
 
