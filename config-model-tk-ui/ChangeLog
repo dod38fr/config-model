@@ -1,3 +1,11 @@
+2010-03-27  Dominique Dumont  <domi.dumont@free.fr>
+
+	* Build.PL: depends on Pod::POM
+
+	* lib/Config/Model/TkUI.pm (Populate): bound Ctrl-C and Ctrl-V to
+	copy and paste in configuration tree widget.
+	(Populate): use Pod::POM to display help from pod documentation
+
 2010-03-22  Dominique Dumont  <domi.dumont@free.fr>
 
 	* lib/Config/Model/Tk/Wizard.pm: Force tree to show item to edit

@@ -38,6 +38,7 @@ my $build = Module::Build->new
 		'Tk::DirSelect'    => 0,
 		'Tk::Tree'         => 0,
 		'Log::Log4perl'    => '1.11', # for TRACE log level
+		'Pod::POM'         => 0,
 	       },
    recommends => {
 		  'Tk::ObjScanner' => 0, # for TkUI debug menu
