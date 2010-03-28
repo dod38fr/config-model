@@ -1,3 +1,13 @@
+2010-03-28  Dominique Dumont  <domi.dumont@free.fr>
+
+	* Build.PL (process_tmpl_files): Build depends on
+	Text::Template. Generates config-edit-popcon
+
+	* config-edit.tmpl: New file to create dedicated config-edit-foo
+	commands
+
+	* lib/Config/Model.pm: Version bumped to 1.001
+
 2010-03-26  Dominique Dumont  <dominique.dumont@hp.com>
 
 	* lib/Config/Model/Backend/ShellVar.pm : New backend to read and

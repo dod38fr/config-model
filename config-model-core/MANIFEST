@@ -5,7 +5,9 @@ Build.PL
 README
 TODO
 META.yml
+MODELS
 config-edit
+config-edit.tmpl
 examples/fstab/Fstab.pl
 examples/fstab/README
 examples/fstab/fstab.sample
