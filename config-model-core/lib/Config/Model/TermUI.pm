@@ -22,6 +22,7 @@ package Config::Model::TermUI ;
 
 use Carp;
 use strict ;
+our $VERSION="1.201";
 use warnings ;
 
 use Term::ReadLine;

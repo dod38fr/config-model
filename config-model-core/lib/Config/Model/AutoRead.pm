@@ -20,6 +20,7 @@
 package Config::Model::AutoRead ;
 use Carp;
 use strict;
+our $VERSION="1.201";
 use warnings FATAL => qw/all/;
 use Config::Model::Exception ;
 use Data::Dumper ;

@@ -19,6 +19,7 @@
 
 package Config::Model::WarpedThing ;
 use strict;
+our $VERSION="1.201";
 use Scalar::Util qw(weaken) ;
 use Data::Dumper ;
 use Config::Model::ValueComputer ;

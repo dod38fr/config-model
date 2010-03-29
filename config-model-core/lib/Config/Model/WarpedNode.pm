@@ -21,6 +21,7 @@ package Config::Model::WarpedNode ;
 
 use Carp qw(cluck croak);
 use strict;
+our $VERSION="1.201";
 use warnings ;
 use Scalar::Util qw(weaken) ;
 

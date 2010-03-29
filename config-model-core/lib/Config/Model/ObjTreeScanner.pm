@@ -19,6 +19,7 @@
 
 package Config::Model::ObjTreeScanner ;
 use strict ;
+our $VERSION="1.201";
 use Config::Model::Exception ;
 use Carp::Assert::More ;
 use Carp;

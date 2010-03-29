@@ -22,6 +22,7 @@ use Config::Model::Exception ;
 use warnings ;
 use Carp;
 use strict;
+our $VERSION="1.201";
 use Log::Log4perl qw(get_logger :levels);
 
 use base qw/Config::Model::WarpedThing/ ;

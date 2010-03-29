@@ -29,6 +29,7 @@ use Config::Model::Searcher;
 use Config::Model::WizardHelper;
 
 use strict ;
+our $VERSION="1.201";
 use Carp;
 use warnings FATAL => qw(all);
 use warnings::register ;

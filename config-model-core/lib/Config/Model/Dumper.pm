@@ -20,6 +20,7 @@
 package Config::Model::Dumper;
 use Carp;
 use strict;
+our $VERSION="1.201";
 use warnings ;
 
 use Config::Model::Exception ;
