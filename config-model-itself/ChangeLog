@@ -1,16 +1,17 @@
-2010-03-25  Dominique Dumont  <dominique.dumont@hp.com>
+2010-03-25  Dominique Dumont  <dominique.dumont@hp.com> 1.213
 
 	* lib/Config/Model/Itself/BackendDetector.pm (): New class derived
 	from Config::Model::Value so config-model-edit can detect
 	available read/write plugin backend and propose relevant choice
 	for 'backend' model specification.
 
-	* Build.PL: Added dedendency on Pod::POM
+	* Build.PL: Added dedendency on Pod::POM, depends on Config::Model
+	1.001
 
 2010-03-17  Dominique Dumont  <domi.dumont@free.fr>
 
 	* lib/Config/Model/models/Itself/CommonElement.pl: add match
-	parameter from Config::Model 0.645
+	parameter from Config::Model 1.001
 
 2010-03-16  Dominique Dumont  <dominique.dumont@hp.com>
 

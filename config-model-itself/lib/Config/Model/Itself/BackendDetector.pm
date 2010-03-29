@@ -23,8 +23,9 @@ use Pod::POM ;
 use base qw/Config::Model::Value/ ;
 
 use strict ;
-
 use warnings ;
+
+our $VERSION="1.001";
 
 sub setup_enum_choice {
     my $self = shift ;
