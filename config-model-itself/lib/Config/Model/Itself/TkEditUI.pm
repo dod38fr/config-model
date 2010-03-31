@@ -41,10 +41,10 @@ sub Populate {
     my ($cw, $args) = @_;
 
 
-    my $r_model_dir  = delete $args->{-read_model_dir} ;
-    my $w_model_dir  = delete $args->{-write_model_dir} ;
+    my $model_dir    = delete $args->{-model_dir} ;
     my $model_name   = delete $args->{-model_name} ;
     my $root_dir     = delete $args->{-root_dir} ;
+    my $modified     = delete $args->{-model_modified} || 0;
 
     $args->{'-title'} ||= "config-model-edit $model_name" ;
 
@@ -55,10 +55,10 @@ sub Populate {
 
     my $model_menu = $cw->{my_menu}->cascade(-label => 'Model',
 					     -menuitems => $items) ;
-    $cw->{read_model_dir} = $r_model_dir ;
-    $cw->{write_model_dir} = $w_model_dir ;
+    $cw->{model_dir} = $model_dir ;
     $cw->{model_name} = $model_name ;
     $cw->{root_dir} = $root_dir ;
+    $cw->{modified_data} = $modified ;
 }
 
 sub test_model {
@@ -70,7 +70,7 @@ sub test_model {
     $testw->destroy if defined $testw and Tk::Exists($testw);
 
     # need to read test model from where it was written...
-    my $model = Config::Model -> new(model_dir => $cw->{write_model_dir}) ;
+    my $model = Config::Model -> new(model_dir => $cw->{model_dir}) ;
 
     my $name = $cw->{model_name};
     my $inst = $model->instance (root_class_name => $name,

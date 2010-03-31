@@ -1,3 +1,8 @@
+2010-03-31  Dominique Dumont  <domi.dumont@free.fr> 1.214
+
+	* config-model-edit (): ensure that model modified by loading data
+	or YAML is saved later on by the GUI.
+
 2010-03-25  Dominique Dumont  <dominique.dumont@hp.com> 1.213
 
 	* lib/Config/Model/Itself/BackendDetector.pm (): New class derived
