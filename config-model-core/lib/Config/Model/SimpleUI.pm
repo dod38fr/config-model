@@ -22,6 +22,7 @@ package Config::Model::SimpleUI ;
 
 use Carp;
 use strict ;
+our $VERSION="1.201";
 use warnings ;
 
 # use vars qw($VERSION);

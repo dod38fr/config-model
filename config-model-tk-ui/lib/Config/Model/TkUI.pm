@@ -38,7 +38,7 @@ use Config::Model::Tk::NodeEditor ;
 
 use Config::Model::Tk::Wizard ;
 
-our $VERSION = '1.305' ;
+our $VERSION = '1.306' ;
 
 Construct Tk::Widget 'ConfigModelUI';
 

@@ -20,6 +20,7 @@
 package Config::Model::Tk::NodeViewer ;
 
 use strict;
+our $VERSION="1.305";
 use warnings ;
 use Carp ;
 

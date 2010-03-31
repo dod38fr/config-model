@@ -1,3 +1,10 @@
+2010-03-29  Dominique Dumont  <dominique.dumont@hp.com> 1.306
+
+	* Build.PL: Depends on Config::Model 1.001
+
+	* lib/Config/Model/Tk/*.pm: Put back VERSION number and bumped
+	them all to 1.305 to make CPAN indexer happy
+
 2010-03-27  Dominique Dumont  <domi.dumont@free.fr> 1.305
 
 	* Build.PL: depends on Pod::POM and on Config::Model >= 1.001

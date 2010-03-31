@@ -21,6 +21,7 @@ package Config::Model::AnyThing;
 use Scalar::Util qw(weaken);
 use Carp;
 use strict;
+our $VERSION="1.201";
 
 # use vars qw($VERSION);
 

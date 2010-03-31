@@ -20,6 +20,7 @@
 package Config::Model::Exception ;
 use warnings ;
 use strict;
+our $VERSION="1.201";
 use Data::Dumper ;
 
 # use vars qw($VERSION) ;

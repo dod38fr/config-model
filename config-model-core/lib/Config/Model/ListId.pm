@@ -23,6 +23,7 @@ use Scalar::Util qw(weaken) ;
 use warnings ;
 use Carp;
 use strict;
+our $VERSION="1.201";
 
 use base qw/Config::Model::AnyId/ ;
 

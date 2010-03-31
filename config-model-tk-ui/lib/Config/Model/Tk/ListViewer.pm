@@ -20,6 +20,7 @@
 package Config::Model::Tk::ListViewer ;
 
 use strict;
+our $VERSION="1.305";
 use warnings ;
 use Carp ;
 
