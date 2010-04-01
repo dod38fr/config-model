@@ -1,7 +1,4 @@
 # -*- cperl -*-
-# $Author: ddumont $
-# $Date: 2008-03-10 12:57:54 $
-# $Revision: 1.5 $
 
 use ExtUtils::testlib;
 use Test::More ;
@@ -56,7 +53,7 @@ else {
     }
 }
 
-plan tests => 7 ; # avoid double print of plan when exec is run
+plan tests => 14 ; # avoid double print of plan when exec is run
 
 Log::Log4perl->easy_init($log ? $DEBUG: $ERROR);
 
@@ -123,31 +120,37 @@ SKIP: {
     my $cmu = $mw->ConfigModelEditUI (-root => $meta_root,
 				      -root_dir => $wr_conf1,
 				      -store_sub => $write_sub,
-				      -read_model_dir => $read_dir,
-				      -write_model_dir => $wr_model1,
+				      -model_dir => $wr_model1,
 				      -model_name => 'MasterModel',
+				      -model_modified => 1,
 				     ) ;
     my $delay = 200 ;
 
-    sub inc_d { $delay += 1000 } ;
+    sub inc_d { $delay += 2000 } ;
 
     my $tktree= $cmu->Subwidget('tree') ;
     my $mgr   = $cmu->Subwidget('multi_mgr') ;
 
     my @test
       = (
-         sub { $cmu->create_element_widget('view','itself_instance.class')},
-	 sub { $tktree->open('itself_instance.class') },
-	 sub { $tktree->open('itself_instance.class.MasterModel') },
-	 sub { $cmu -> save ;},
-	 sub { $cmu -> test_model ;},
-	 sub { $cmu -> test_model ;},
-	 sub { exit; }
+         view => sub { $cmu->create_element_widget('view','itself_instance.class');},
+	 open_class => sub { $tktree->open('itself_instance.class');1;},
+	 open_instance => sub{$tktree->open('itself_instance.class.MasterModel');1;},
+	 # save step is mandatory to avoid interaction
+	 save => sub { $cmu -> save ; 1;},
+	 'open test window' => sub { $cmu -> test_model ; },
+	 'reopen test window' => sub { $cmu -> test_model ; },
+	 exit => sub { $cmu->quit ; 1;}
         );
 
     unless ($show) {
-        foreach my $t (@test) {
-            $mw->after($delay, $t);
+	my $step = 0;
+
+        while (@test) {
+	    my $k = shift @test ;
+	    my $t = shift @test ;
+	    my $s = sub { my $res = &$t; ok($res,"Step ".$step++." $k done") };
+            $mw->after($delay, $s);
             inc_d ;
         }
     }

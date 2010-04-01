@@ -7,7 +7,7 @@
 
 2010-03-27  Dominique Dumont  <domi.dumont@free.fr> 1.305
 
-	* Build.PL: depends on Pod::POM
+	* Build.PL: depends on Pod::POM and on Config::Model >= 1.001
 
 	* lib/Config/Model/TkUI.pm (Populate): bound Ctrl-C and Ctrl-V to
 	copy and paste in configuration tree widget.

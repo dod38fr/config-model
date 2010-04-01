@@ -176,6 +176,10 @@ the YAML file or from STDIN.
 Force a save of the model even if no edition was done. This option is
 useful to migrate a model when Config::Model model feature changes.
 
+=item -model_dir
+
+Directory where to read and write model
+
 =back
 
 
@@ -208,6 +212,7 @@ my $do_yaml = 0;
 my $load_yaml ;
 my $save = 0;
 my $load ;
+my $model_modified = 0;
 
 my $result = GetOptions (
 			 "dir=s"            => \$model_dir,
@@ -275,16 +280,19 @@ $meta_inst->push_no_value_check(qw/store type/) if $force_load ;
 if (defined $load) {
     my $data = load_data($load) ;
     $meta_root->load($data);
+    $model_modified = 1;
 }
 
 if (defined $load_yaml) {
     my $yaml = load_data($load_yaml) ;
     my $pdata = Load($yaml) ;
     $meta_root->load_data($pdata) ;
+    $model_modified = 1;
 }
 
 if (@ARGV) {
     $meta_root->load("@ARGV") ;
+    $model_modified = 1;
 }
 
 $meta_inst->pop_no_value_check() if $force_load ;
@@ -330,11 +338,14 @@ $mw->withdraw ;
 # Thanks to Jerome Quelin for the tip
 $mw->optionAdd('*BorderWidth' => 1);
 
+$model_modified = 1 if $wr_model_dir ne $read_model_dir ;
+
+
 my $cmu = $mw->ConfigModelEditUI (-root      => $meta_root,
 				  -store_sub => $write_sub,
- 				  -read_model_dir => $read_model_dir,
- 				  -write_model_dir => $wr_model_dir,
+  				  -model_dir => $wr_model_dir,
 				  -model_name => $root_model,
+				  -model_modified => $model_modified,
 				 ) ;
 
 &MainLoop ; # Tk's
