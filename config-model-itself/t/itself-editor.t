@@ -124,9 +124,7 @@ SKIP: {
 				      -model_name => 'MasterModel',
 				      -model_modified => 1,
 				     ) ;
-    my $delay = 200 ;
-
-    sub inc_d { $delay += 2000 } ;
+    my $delay = 2000 ;
 
     my $tktree= $cmu->Subwidget('tree') ;
     my $mgr   = $cmu->Subwidget('multi_mgr') ;
@@ -146,13 +144,21 @@ SKIP: {
     unless ($show) {
 	my $step = 0;
 
+	my $oldsub ;
         while (@test) {
-	    my $k = shift @test ;
-	    my $t = shift @test ;
-	    my $s = sub { my $res = &$t; ok($res,"Step ".$step++." $k done") };
-            $mw->after($delay, $s);
-            inc_d ;
+	    # iterate through test list in reverse order
+	    my $t = pop @test ;
+	    my $k = pop @test ;
+	    my $next_sub = $oldsub ;
+	    my $s = sub { 
+		my $res = &$t; 
+		ok($res,"Step ".$step++." $k done");
+		$mw->after($delay, $next_sub) if defined $next_sub;
+	    };
+	    $oldsub = $s ;
         }
+
+	$mw->after($delay, $oldsub) ; # will launch first test
     }
 
     ok(1,"window launched") ;
