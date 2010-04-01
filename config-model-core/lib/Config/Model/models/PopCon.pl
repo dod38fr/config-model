@@ -4,7 +4,7 @@
                                {
                                  'file' => 'popularity-contest.conf',
                                  'backend' => 'ShellVar',
-                                 'config_dir' => 'etc/'
+                                 'config_dir' => '/etc'
                                }
                              ],
             'name' => 'PopCon',
@@ -14,7 +14,7 @@
                              'value_type' => 'enum',
                              'upstream_default' => 'no',
                              'type' => 'leaf',
-                             'description' => 'If you don\\\'t want to participate in the contest, say "no" and we won\\\'t send messages. ',
+                             'description' => 'If you don\'t want to participate in the contest, say "no" and we won\'t send messages.',
                              'choice' => [
                                            'no',
                                            'yes'
@@ -26,7 +26,7 @@
                              'summary' => 'survey e-mail',
                              'upstream_default' => 'survey@popcon.debian.org',
                              'type' => 'leaf',
-                             'description' => 'specifies the address to e-mail statistics to each week.'
+                             'description' => 'Specifies the address to e-mail statistics to each week.'
                            },
                            'MAILFROM',
                            {
@@ -50,7 +50,7 @@ If your MTA is misconfigured or impossible to configure correctly, and it always
                              'value_type' => 'enum',
                              'upstream_default' => 'yes',
                              'type' => 'leaf',
-                             'description' => 'enables http reporting.   Set this to \\\'yes\\\' to enable it.',
+                             'description' => 'enables http reporting. Set this to \'yes\' to enable it.',
                              'choice' => [
                                            'no',
                                            'yes'
@@ -60,14 +60,14 @@ If your MTA is misconfigured or impossible to configure correctly, and it always
                            {
                              'value_type' => 'uniline',
                              'type' => 'leaf',
-                             'description' => 'allows to specify an HTTP proxy server, the syntax is "http://proxy:port". This overrides the environment variable http_proxy.'
+                             'description' => 'Allows to specify an HTTP proxy server, the syntax is "http://proxy:port". This overrides the environment variable http_proxy.'
                            },
                            'MY_HOSTID',
                            {
                              'value_type' => 'uniline',
                              'experience' => 'master',
                              'type' => 'leaf',
-                             'description' => 'secret number that the popularity-contest receiver uses to keep track of your submissions.  Whenever you send in a new entry, it overwrites the last one that had the same HOSTID.
+                             'description' => 'Secret number that the popularity-contest receiver uses to keep track of your submissions. Whenever you send in a new entry, it overwrites the last one that had the same HOSTID.
 
 This key was generated automatically so you should normally just leave it alone. '
                            },

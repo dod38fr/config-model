@@ -1,9 +1,14 @@
+2010-04-01  Dominique Dumont  <dominique.dumont@hp.com>
+
+	* lib/Config/Model/models/PopCon.pl: Fixed PopCon config
+	directory. Cosmetic improvements for descriptions.
+
 2010-03-29  Dominique Dumont  <dominique.dumont@hp.com>
 
 	* lib/Config/Model/*.pm: Put back VERSION number and bumped them
 	all to 1.201 to make CPAN indexer happy
 
-2010-03-28  Dominique Dumont  <domi.dumont@free.fr>
+2010-03-28  Dominique Dumont  <domi.dumont@free.fr> 1.001
 
 	* Build.PL (process_tmpl_files): Build depends on
 	Text::Template. Generates config-edit-popcon
