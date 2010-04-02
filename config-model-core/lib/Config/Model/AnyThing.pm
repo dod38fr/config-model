@@ -1,5 +1,4 @@
-
-#    Copyright (c) 2005-2007 Dominique Dumont.
+#    Copyright (c) 2005-2010 Dominique Dumont.
 #
 #    This file is part of Config-Model.
 #
@@ -21,7 +20,7 @@ package Config::Model::AnyThing;
 use Scalar::Util qw(weaken);
 use Carp;
 use strict;
-our $VERSION="1.201";
+our $VERSION="1.202";
 
 # use vars qw($VERSION);
 
@@ -175,6 +174,20 @@ sub xpath {
     $str .= '/' . $element . ( defined $idx ? "[\@id=$idx]" : '' ) if $element;
 
     return $str;
+}
+
+=head1 Annotation
+
+Annotation is a way to store miscellaneous information associated to
+each node. (Yeah... comments) These comments will be saved outside of
+the configuration file and restored the next time the command is run.
+
+=cut
+
+sub annotation {
+    my $self = shift ;
+    $self->{annotation} = shift if @_;
+    return $self->{annotation} ;
 }
 
 =head1 Information management

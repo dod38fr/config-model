@@ -28,17 +28,15 @@ use Config::Model::Searcher;
 use Config::Model::WizardHelper;
 
 use strict ;
-our $VERSION="1.201";
 use Carp;
 use warnings FATAL => qw(all);
 use warnings::register ;
 
-# use vars qw/$VERSION/ ;
-
+our $VERSION="1.202";
 
 use Carp qw/croak confess cluck/;
 
-my $logger = get_logger("Backend::Yaml") ;
+my $logger = get_logger("Instance") ;
 
 =head1 NAME
 

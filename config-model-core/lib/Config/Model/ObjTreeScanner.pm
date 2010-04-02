@@ -1,5 +1,4 @@
-
-#    Copyright (c) 2006-2007 Dominique Dumont.
+#    Copyright (c) 2006-2010 Dominique Dumont.
 #
 #    This file is part of Config-Model.
 #
@@ -19,13 +18,13 @@
 
 package Config::Model::ObjTreeScanner ;
 use strict ;
-our $VERSION="1.201";
 use Config::Model::Exception ;
 use Carp::Assert::More ;
 use Carp;
 use warnings ;
 use UNIVERSAL qw( isa can );
 
+our $VERSION="1.202";
 
 use Carp qw/croak confess cluck/;
 
@@ -183,7 +182,8 @@ enum_value_cb ...) to string_value_cb or to the mandatory leaf_cb
 value. "fallback" callback will not override callbacks provided by the
 user.
 
-If set to 'all', equivalent to 'node' and 'leaf'.
+If set to 'all', equivalent to 'node' and 'leaf'. By default, no
+fallback is provided.
 
 =item experience
 
