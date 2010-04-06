@@ -109,7 +109,7 @@ SKIP: {
     my $mw = eval {MainWindow-> new ; };
 
     # cannot create Tk window
-    skip "Cannot create Tk window",1 if $@;
+    skip "Cannot create Tk window",8 if $@;
 
     $mw->withdraw ;
 
