@@ -1,3 +1,11 @@
+2010-04-07  Dominique Dumont  <domi.dumont@free.fr>
+
+	* lib/Config/Model/AnyThing.pm (annotation): new accessor method
+	for annotations.
+
+	* lib/Config/Model/Annotation.pm : New file to load and save
+	configuration annotations (just like comments with a structure)
+
 2010-04-01  Dominique Dumont  <dominique.dumont@hp.com>
 
 	* lib/Config/Model/models/PopCon.pl: Fixed PopCon config

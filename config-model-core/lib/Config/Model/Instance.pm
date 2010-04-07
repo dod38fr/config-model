@@ -21,6 +21,7 @@ use Scalar::Util qw(weaken) ;
 use File::Path;
 use Log::Log4perl qw(get_logger :levels);
 
+use Config::Model::Annotation;
 use Config::Model::Exception ;
 use Config::Model::Node ;
 use Config::Model::Loader;
@@ -187,7 +188,7 @@ sub config_root {
 =head2 reset_config
 
 Destroy current configuration tree (with data) and returns a new tree with
-data loaded from disk.
+data (and annotations) loaded from disk.
 
 =cut
 
@@ -195,11 +196,19 @@ sub reset_config {
     my $self= shift ;
 
     $self->{tree} = Config::Model::Node
-      -> new ( config_class_name =>$self->{root_class_name},
+      -> new ( config_class_name => $self->{root_class_name},
 	       instance => $self,
 	       config_model => $self->{config_model},
 	       skip_read  => $self->{skip_read},
 	     );
+
+    $self->{annotation_saver} = Config::Model::Annotation
+      -> new (
+	      config_class_name => $self->{root_class_name},
+	      instance => $self ,
+	      root_dir => $self->{root_dir} ,
+	     ) ;
+    $self->{annotation_saver}->load ;
 
     return $self->{tree} ;
 }
@@ -213,6 +222,18 @@ Returns the model (L<Config::Model> object) of the configuration tree.
 
 sub config_model {
     return shift->{config_model} ;
+}
+
+=head2 annotation_saver()
+
+Returns the object loading and saving annotations. See
+L<Config::Model::Annotation> for details.
+
+=cut
+
+sub annotation_saver {
+    my $self = shift ;
+    return $self->{annotation_saver} ;
 }
 
 =head2 preset_start ()

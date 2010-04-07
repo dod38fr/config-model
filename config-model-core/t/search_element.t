@@ -1,7 +1,4 @@
 # -*- cperl -*-
-# $Author$
-# $Date$
-# $Revision$
 
 use ExtUtils::testlib;
 use Test::More tests => 23;

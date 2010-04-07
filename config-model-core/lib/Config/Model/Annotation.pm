@@ -19,8 +19,11 @@
 package Config::Model::Annotation;
 
 use Moose ;
+use English ;
 
 use File::Path;
+use IO::File ;
+use Data::Dumper ;
 #use Log::Log4perl qw(get_logger :levels);
 
 use Config::Model::Exception ;
@@ -61,11 +64,13 @@ saved in:
 
 =item * 
 
-C<< /var/lib/config-model/annotation/<model_name> >> for root (EUID == 0)
+C<< /var/lib/config-model/<model_name>-note.yml >> for root (EUID == 0)
 
 =item *
 
-C<< ~/.config-model/annotation/<model_name> >> for normal user (EUID > 0)
+C<< ~/.config-model/<model_name>-note.yml >> for normal user (EUID > 0)
+
+=back
 
 =head1 CONSTRUCTOR
 
@@ -76,6 +81,24 @@ object.
 =cut
 
 has 'instance' => ( is => 'ro', isa => 'Config::Model::Instance' );
+has 'config_class_name' => ( is => 'ro', isa => 'Str' ) ;
+has 'file'     => ( is => 'ro', isa => 'Str', lazy =>1, builder => '_set_file' ) ;
+has 'dir'      => ( is => 'ro', isa => 'Str', lazy =>1, builder => '_set_dir' ) ;
+has 'root_dir'     => ( is => 'ro', isa => 'Str|Undef', default => '') ;
+
+sub _set_file {
+    my $self = shift ;
+    return $self->dir.$self->config_class_name . '-note.pl' ; 
+}
+
+sub _set_dir {
+    my $self = shift ;
+    my $dir = $self->root_dir ? $self->root_dir 
+             :  $EUID       ? "/var/lib/" 
+             :                "~/." ;
+    $dir .= "config-model/" ;
+    return $dir ;
+}
 
 #sub new {
 #    my $proto = shift ;
@@ -96,9 +119,22 @@ has 'instance' => ( is => 'ro', isa => 'Config::Model::Instance' );
 
 =head2 save()
 
-Save annotations
+Save annotations in a file (See L<DESCRIPTION>)
 
 =cut
+
+sub save {
+    my $self = shift ;
+
+    my $dir = $self->dir ;
+    mkpath ($dir, { mode => 0755, verbose => 0}) unless -d $dir ;
+    my $h = $self->get_annotation_hash ;
+    my $data = Dumper($h) ;
+    my $io = IO::File->new($self->file, 'w',0644) 
+      || croak "Can't open $dir".$self->file.": $!";
+    print $io $data ;
+    $io->close ;
+}
 
 sub get_annotation_hash {
     my $self = shift ;
@@ -110,7 +146,7 @@ sub get_annotation_hash {
 	    hash_element_cb => \&my_hash_element_cb,
 	    fallback        => 'all',
 	   ) ;
-    my $root = $self->{instance}->config_root ;
+    my $root = $self->instance->config_root ;
 
     $scanner->scan_node(\%data,$root) ;
     return \%data ;
@@ -140,6 +176,26 @@ sub my_leaf_cb {
     if ($note) {
 	my $key = $leaf_object -> location ;
 	$data_ref->{$key} = $note ;
+    }
+}
+
+=head2 load()
+
+Loads annotations from a file (See L<DESCRIPTION>)
+
+=cut
+
+sub load {
+    my $self = shift ;
+    my $f = $self->file ;
+    return unless -e $f ;
+    my $hash = do $f || croak "can't do $f:$!";
+    my $root = $self->instance->config_root ;
+
+    foreach my $path (keys %$hash ) {
+	my $obj = eval {$root ->grab(step => $path, autoadd => 0) } ;
+	next if $@ ; # skip annotation of unknown elements 
+	$obj->annotation($hash->{$path}) ;
     }
 }
 
