@@ -147,6 +147,10 @@ Using C<xxx=~/yy/=zz> is also possible.
 
 Will append C<zzz> value to current values (valid for C<leaf> elements).
 
+=item xxx#zzz or xxx:yyy#zzz
+
+Element annotation. Can be quoted or not quoted.
+
 =back
 
 =head1 Methods
@@ -266,11 +270,11 @@ sub _split_cmd {
                (?: \\" | [^"] )* # escaped quote or non quote
                "           # quote
               |
-	       [^"=\.~]+    # non action chars
+	       [^"#=\.~]+    # non action chars
             )
          )?
 	 (?:
-            (=|.=)         # assign or append
+            (=|.=|\#)         # assign or append or annotation
 	    ( 
               (?:
                 " (?: \\" | [^"] )* "  # quoted string
@@ -323,7 +327,12 @@ sub _load {
 	}
 
 	my @instructions = _split_cmd($cmd);
-	my $element_name = $instructions[0] ;
+	my ($element_name,$action,$id,$subaction,$value) = @instructions ;
+
+	if ($logger->is_debug) {
+	    my @disp = map { defined $_ ? "'$_'" : '<undef>'} @instructions;
+	    $logger->debug("_load instructions: @disp");
+	}
 
         unless (defined $element_name) {
 	    Config::Model::Exception::Load
@@ -387,6 +396,12 @@ sub _load {
             return 'error' ;
 	}
 
+	if (not defined $action and defined $subaction and $subaction eq '#') {
+	    # load an annotation
+	    $node->fetch_element($element_name)->annotation($value);
+	    next;
+	}
+
 	my $element_type = $node -> element_type($element_name) ;
 
 	my $method = $load_dispatch{$element_type} ;
@@ -394,6 +409,7 @@ sub _load {
 	croak "_load: unexpected element type '$element_type' for $element_name"
 	  unless defined $method ;
 
+	$logger->debug("_load: calling $element_type loader on element $element_name") ;
 	my $ret = $self->$method($node,$experience,
 				 \@instructions,$cmdref) ;
 
@@ -444,6 +460,7 @@ sub _load_list {
     if (not defined $action and $subaction eq '=' 
 	and $cargo_type eq 'leaf'
        ) {
+	$logger->debug("_load_list: set whole list");
 	# valid for check_list or list
 	$logger->info("Setting $elt_type element ",$element->name,
 		      " with '$value'");
@@ -453,6 +470,7 @@ sub _load_list {
 
     if ($elt_type eq 'list' and $action eq '~') {
 	# remove possible leading or trailing quote
+	$logger->debug("_load_list: removing id $id");
 	unquote ($id) ;
 	$element->remove($id) ;
 	return 'ok' ;
@@ -460,12 +478,14 @@ sub _load_list {
 
     if ($elt_type eq 'list' and $action eq ':' and $cargo_type =~ /node/) {
 	# remove possible leading or trailing quote
+	$logger->debug("_load_list: calling _load on node id $id");
 	unquote ($id) ;
 	my $newnode = $element->fetch_with_id($id) ;
 	return $self->_load($newnode, $experience, $cmdref);
     }
 
     if ($elt_type eq 'list' and $action eq ':' and $cargo_type =~ /leaf/) {
+	$logger->debug("_load_list: calling _load_value on $cargo_type id $id");
 	unquote($value) ;
 	$self->_load_value($element->fetch_with_id($id),$subaction,$value) 
 	  and return 'ok';
@@ -525,18 +545,28 @@ sub _load_hash {
 
     if ($action eq '~') {
 	# remove possible leading or trailing quote
+	$logger->debug("_load_hash: deleting $id");
 	unquote ($id) ;
 	$element->delete($id) ;
 	return 'ok' ;
     }
 
-    if ($action eq ':' and $cargo_type =~ /node/) {
+    if ($action eq ':' and defined $subaction and $subaction eq '#') {
 	# remove possible leading or trailing quote
+	$logger->debug("_load_hash: calling annotation on element $id");
+	unquote ($id) ;
+	$element->fetch_with_id($id)->annotation($value) ;
+	return 'ok';
+    }
+    elsif ($action eq ':' and $cargo_type =~ /node/) {
+	# remove possible leading or trailing quote
+	$logger->debug("_load_hash: calling _load on node $id");
 	unquote ($id) ;
 	my $newnode = $element->fetch_with_id($id) ;
 	return $self->_load($newnode, $experience, $cmdref);
     }
     elsif ($action eq ':' and $cargo_type =~ /leaf/) {
+	$logger->debug("_load_hash: calling _load_value on leaf $id");
 	unquote($id,$value) ;
 	$self->_load_value($element->fetch_with_id($id),$subaction,$value) 
 	  and return 'ok';
@@ -577,12 +607,16 @@ sub _load_leaf {
 }
 
 sub _load_value {
-    my ($self,$element,$action,$value) = @_ ;
+    my ($self,$element,$subaction,$value) = @_ ;
+    $logger->debug("_load_value: action '$subaction' value '$value'");
 
-    if ($action eq '=' and $element->isa('Config::Model::Value')) {
+    if ($subaction eq '#' and $element->isa('Config::Model::Value')) {
+	$element->annotation($value) ;
+    }
+    elsif ($subaction eq '=' and $element->isa('Config::Model::Value')) {
 	$element->store($value) ;
     }
-    elsif ($action eq '.=' and $element->isa('Config::Model::Value')) {
+    elsif ($subaction eq '.=' and $element->isa('Config::Model::Value')) {
 	my $orig = $element->fetch() ;
 	$element->store($orig.$value) ;
     }

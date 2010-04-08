@@ -1,10 +1,7 @@
 # -*- cperl -*-
-# $Author$
-# $Date$
-# $Revision$
 
 use ExtUtils::testlib;
-use Test::More tests => 74;
+use Test::More tests => 81;
 use Test::Exception ;
 use Config::Model;
 use Data::Dumper ;
@@ -28,19 +25,23 @@ Log::Log4perl->easy_init($arg =~ /l/ ? $TRACE: $WARN);
 ok(1,"compiled");
 
 # test mega regexp, 'x' means undef
-my @regexp_test = (
-		   [ 'a'		,  [qw/a x x x x/	] ],
-		   [ 'a=b'		,  [qw/a x x = b/	] ],
-		   [ 'a.=b'		,  [qw/a x x .= b/	] ],
-		   [ 'a="b=c"'		,  [qw/a x x = b=c/	] ],
-		   [ 'a="b=\"c\""'	,  [qw/a x x = b="c"/	] ],
-		   [ 'a:b=c'		,  [qw/a : b = c/	] ],
-		   [ 'a:"b\""="\"c"'    ,  [qw/a : b" = "c/	] ],
-		   [ 'a=~/b.*/'		,  [qw!a =~ /b.*/ x x!	] ],
-		   [ 'a=~/b.*/.="\"a"'  ,  [qw!a =~ /b.*/ .= "a!] ],
-		   [ 'a=b,c,d'          ,  [qw/a x x =/, 'b,c,d'] ],
-		   [ 'm=a,"a b "'       ,  [qw/m x x =/, 'a,"a b "']],
- ) ;
+my @regexp_test 
+  = (
+     [ 'a'               , ['a','x' ,  'x'    ,'x' , 'x'       ]],
+     [ 'a=b'             , ['a','x' ,  'x'    ,'=' , 'b'       ]],
+     [ 'a#B'             , ['a','x' ,  'x'    ,'#' , 'B'       ]],
+     [ 'a.=b'            , ['a','x' ,  'x'    ,'.=','b'        ]],
+     [ 'a="b=c"'         , ['a','x' ,  'x'    ,'=' , 'b=c'     ]],
+     [ 'a#"b=c"'         , ['a','x' ,  'x'    ,'#' , 'b=c'     ]],
+     [ 'a="b=\"c\""'     , ['a','x' ,  'x'    ,'=' , 'b="c"'   ]],
+     [ 'a:b=c'           , ['a',':' ,  'b'    ,'=' , 'c'       ]],
+     [ 'a:"b\""="\"c"'   , ['a',':' ,  'b"'   ,'=' ,'"c'       ]],
+     [ 'a:"b\""#"\"c"'   , ['a',':' ,  'b"'   ,'#' ,'"c'       ]],
+     [ 'a=~/b.*/'        , ['a','=~', '/b.*/' ,'x' ,'x'        ]],
+     [ 'a=~/b.*/.="\"a"' , ['a','=~', '/b.*/' ,'.=','"a'       ]],
+     [ 'a=b,c,d'         , ['a','x' ,  'x'    ,'=' , 'b,c,d'   ]],
+     [ 'm=a,"a b "'      , ['m','x' ,  'x'    ,'=' , 'a,"a b "']],
+    ) ;
 
 foreach my $subtest (@regexp_test) {
     my ($cmd, $ref) = @$subtest ;
@@ -215,3 +216,15 @@ $root->load('std_id=~/^\w+$/ DX=Bv - int_v=9') ;
 is($root->grab_value('std_id:ab DX'),'Bv',"check looped assign 1") ;
 is($root->grab_value('std_id:bc DX'),'Bv',"check looped assign 2") ;
 isnt($root->grab_value('std_id:"a b" DX'),'Bv',"check out of loop left alone") ;
+
+# test annotation setting
+my @anno_test = ( 'std_id',
+          'std_id:ab',
+          'lista',
+          'lista:0',
+        );
+foreach my $path (@anno_test) {
+    $root->load(qq!$path#"$path annotation"!) ;
+    is($root->grab($path)->annotation,"$path annotation",
+       "fetch $path annotation") ;
+}
