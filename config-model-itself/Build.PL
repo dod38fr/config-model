@@ -36,6 +36,9 @@ my $build = Module::Build->new
 		     'Config::Model::TkUI' => '1.210',
 		     'Pod::POM'        => 0,
 		     'YAML::Any'       => 0,
+
+		     # avoid failures on CPAN smoke tests
+		     'Tk'              => 0, 
 		    },
    script_files  => [ 'config-model-edit' ],
    add_to_cleanup => [qw/wr_test/] ,

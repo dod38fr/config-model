@@ -1,3 +1,8 @@
+2010-04-10  Dominique Dumont  <domi.dumont@free.fr>
+
+	* Build.PL: added dependency on Tk to avoid CPAN smoke test
+	failure
+
 2010-04-06  Dominique Dumont  <dominique.dumont@hp.com> 1.215
 
 	* t/itself.t: Fix skip part to avoid failures when X is not
