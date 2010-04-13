@@ -1,4 +1,3 @@
-
 #    Copyright (c) 2006-2008,2010 Dominique Dumont.
 #
 #    This file is part of Config-Model.
@@ -20,13 +19,12 @@
 package Config::Model::Loader;
 use Carp;
 use strict;
-our $VERSION="1.201";
 use warnings ;
 
 use Config::Model::Exception ;
 use Log::Log4perl qw(get_logger :levels);
 
-# use vars qw($VERSION);
+our $VERSION="1.202";
 
 my $logger = get_logger("Loader") ;
 
@@ -256,7 +254,10 @@ sub load {
 sub _split_cmd {
     my $cmd = shift ;
 
-        # do a split on ' ' but take quoted string into account
+    my $quoted_regexp = qr/"(?: \\" | [^"] )* "/x;  # quoted string
+
+
+    # do a split on ' ' but take quoted string into account
     my @command = 
       ( 
        $cmd =~ 
@@ -266,18 +267,25 @@ sub _split_cmd {
             (:|=~|~)       # action
             ( /[^/]+/      # regexp
 	      |            # or
-	       "           # quote
-               (?: \\" | [^"] )* # escaped quote or non quote
-               "           # quote
+		$quoted_regexp
               |
-	       [^"#=\.~]+    # non action chars
+	      [^"#=\.~]+    # non action chars
             )
          )?
 	 (?:
-            (=|.=|\#)         # assign or append or annotation
+            (=|.=)          # assign or append
 	    ( 
               (?:
-                " (?: \\" | [^"] )* "  # quoted string
+                $quoted_regexp
+                | [^#\s]                # or non whitespace
+              )+                       # many
+            )
+	 )?
+	 (?:
+            \#              # optional annotation
+	    ( 
+              (?:
+                 $quoted_regexp
                 | [^\s]                # or non whitespace
               )+                       # many
             )
@@ -327,7 +335,7 @@ sub _load {
 	}
 
 	my @instructions = _split_cmd($cmd);
-	my ($element_name,$action,$id,$subaction,$value) = @instructions ;
+	my ($element_name,$action,$id,$subaction,$value,$note) = @instructions ;
 
 	if ($logger->is_debug) {
 	    my @disp = map { defined $_ ? "'$_'" : '<undef>'} @instructions;
@@ -450,12 +458,20 @@ sub unquote {
 # used for list and check lists
 sub _load_list {
     my ($self,$node,$experience,$inst,$cmdref) = @_ ;
-    my ($element_name,$action,$id,$subaction,$value) = @$inst ;
+    my ($element_name,$action,$id,$subaction,$value,$note) = @$inst ;
 
     my $element = $node -> fetch_element($element_name) ;
 
     my $elt_type   = $node -> element_type( $element_name ) ;
     my $cargo_type = $element->cargo_type ;
+
+    if (defined $note and not defined $action and not defined $subaction
+	and $cargo_type eq 'leaf'
+       ) {
+	$logger->debug("_load_list: set annotation on $elt_type");
+	$element->annotation( $note ) ;
+	return 'ok';
+    }
 
     if (not defined $action and $subaction eq '=' 
 	and $cargo_type eq 'leaf'
@@ -487,7 +503,7 @@ sub _load_list {
     if ($elt_type eq 'list' and $action eq ':' and $cargo_type =~ /leaf/) {
 	$logger->debug("_load_list: calling _load_value on $cargo_type id $id");
 	unquote($value) ;
-	$self->_load_value($element->fetch_with_id($id),$subaction,$value) 
+	$self->_load_value($element->fetch_with_id($id),$subaction,$value,$note) 
 	  and return 'ok';
     }
 
@@ -504,9 +520,17 @@ sub _load_list {
 
 sub _load_hash {
     my ($self,$node,$experience,$inst,$cmdref) = @_ ;
-    my ($element_name,$action,$id,$subaction,$value) = @$inst ;
+    my ($element_name,$action,$id,$subaction,$value,$note) = @$inst ;
 
     my $element = $node -> fetch_element($element_name) ;
+
+    if (not defined $action and defined $note) {
+	# remove possible leading or trailing quote
+	$logger->debug("_load_hash: calling annotation");
+	$element->annotation($note) ;
+	return 'ok';
+    }
+
     my $cargo_type = $element->cargo_type ;
 
     if ($action eq '=~') {
@@ -551,14 +575,14 @@ sub _load_hash {
 	return 'ok' ;
     }
 
-    if ($action eq ':' and defined $subaction and $subaction eq '#') {
+    if ($action eq ':' and $note) {
 	# remove possible leading or trailing quote
 	$logger->debug("_load_hash: calling annotation on element $id");
 	unquote ($id) ;
-	$element->fetch_with_id($id)->annotation($value) ;
-	return 'ok';
+	$element->fetch_with_id($id)->annotation($note) ;
     }
-    elsif ($action eq ':' and $cargo_type =~ /node/) {
+
+    if ($action eq ':' and $cargo_type =~ /node/) {
 	# remove possible leading or trailing quote
 	$logger->debug("_load_hash: calling _load on node $id");
 	unquote ($id) ;
@@ -568,10 +592,10 @@ sub _load_hash {
     elsif ($action eq ':' and $cargo_type =~ /leaf/) {
 	$logger->debug("_load_hash: calling _load_value on leaf $id");
 	unquote($id,$value) ;
-	$self->_load_value($element->fetch_with_id($id),$subaction,$value) 
+	$self->_load_value($element->fetch_with_id($id),$subaction,$value,$note)
 	  and return 'ok';
     }
-    else {
+    elsif ($action) {
 	Config::Model::Exception::Load
 	    -> throw (
 		      object => $element,
@@ -584,18 +608,20 @@ sub _load_hash {
 
 sub _load_leaf {
     my ($self,$node,$experience,$inst,$cmdref) = @_ ;
-    my ($element_name,$action,$id,$subaction,$value) = @$inst ;
+    my ($element_name,$action,$id,$subaction,$value,$note) = @$inst ;
 
     my $element = $node -> fetch_element($element_name) ;
     unquote($value) ;
 
     if ($logger->is_debug) {
-	my $msg = $value ;
+	my $msg = $value ? "value '$value'" 
+                : $note  ? "annotation '$note'"
+                :          '_load_leaf error';
 	$msg =~ s/\n/\\n/g;
-	$logger->debug("_load_leaf: action '$subaction' value '$msg'");
+	$logger->debug("_load_leaf: action '$subaction' $msg");
     }
 
-    return $self->_load_value($element,$subaction,$value)
+    return $self->_load_value($element,$subaction,$value,$note)
       or Config::Model::Exception::Load
 	-> throw (
 		  object => $element,
@@ -607,13 +633,16 @@ sub _load_leaf {
 }
 
 sub _load_value {
-    my ($self,$element,$subaction,$value) = @_ ;
-    $logger->debug("_load_value: action '$subaction' value '$value'");
+    my ($self,$element,$subaction,$value,$note) = @_ ;
 
-    if ($subaction eq '#' and $element->isa('Config::Model::Value')) {
-	$element->annotation($value) ;
+    if (defined $note and $element->isa('Config::Model::Value')) {
+	$logger->debug("_load_value: set annotation");
+	$element->annotation($note) ;
+	return 'ok' unless defined $subaction ;
     }
-    elsif ($subaction eq '=' and $element->isa('Config::Model::Value')) {
+
+    $logger->debug("_load_value: action '$subaction' value '$value'");
+    if ($subaction eq '=' and $element->isa('Config::Model::Value')) {
 	$element->store($value) ;
     }
     elsif ($subaction eq '.=' and $element->isa('Config::Model::Value')) {
