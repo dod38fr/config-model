@@ -326,11 +326,13 @@ sub _load {
         next if $cmd =~ /^\s*$/ ;
 
         if ($cmd eq '!') {
+	    $logger->debug("_load: going to root");
 	    next if $is_root ;
 	    return 'root' ;
 	}
 
 	if ($cmd eq '-') {
+	    $logger->debug("_load: going up");
 	    return 'up';
 	}
 
@@ -404,12 +406,6 @@ sub _load {
             return 'error' ;
 	}
 
-	if (not defined $action and defined $subaction and $subaction eq '#') {
-	    # load an annotation
-	    $node->fetch_element($element_name)->annotation($value);
-	    next;
-	}
-
 	my $element_type = $node -> element_type($element_name) ;
 
 	my $method = $load_dispatch{$element_type} ;
@@ -418,8 +414,24 @@ sub _load {
 	  unless defined $method ;
 
 	$logger->debug("_load: calling $element_type loader on element $element_name") ;
+	my $target_obj ;
 	my $ret = $self->$method($node,$experience,
-				 \@instructions,$cmdref) ;
+				 \@instructions,$cmdref,\$target_obj) ;
+
+	# apply note on target object
+	if (defined $note) {
+	    if (defined $target_obj) {
+		$target_obj->annotation($note) ;
+	    }
+	    else {
+		Config::Model::Exception::Load
+		    -> throw (
+			      command => $cmd ,
+			      error => "Error: cannot set annotation with '".
+			      join("','", grep {defined $_ } @instructions)."'"
+			     );
+	    }
+	}
 
 	if ($ret eq 'error' or $ret eq 'done') { return $ret; }
 	return 'root' if $ret eq 'root' and not $is_root ;
@@ -431,10 +443,10 @@ sub _load {
 
 
 sub _walk_node {
-    my ($self,$node,$experience,$inst,$cmdref) = @_ ;
+    my ($self,$node,$experience,$inst,$cmdref,$target_ref) = @_ ;
 
     my $element_name = shift @$inst ;
-    my $element = $node -> fetch_element($element_name) ;
+    my $element = $$target_ref = $node -> fetch_element($element_name) ;
 
     my @left = grep {defined $_} @$inst ;
     if (@left) {
@@ -457,19 +469,16 @@ sub unquote {
 
 # used for list and check lists
 sub _load_list {
-    my ($self,$node,$experience,$inst,$cmdref) = @_ ;
-    my ($element_name,$action,$id,$subaction,$value,$note) = @$inst ;
+    my ($self,$node,$experience,$inst,$cmdref,$target_ref) = @_ ;
+    my ($element_name,$action,$id,$subaction,$value) = @$inst ;
 
     my $element = $node -> fetch_element($element_name) ;
 
     my $elt_type   = $node -> element_type( $element_name ) ;
     my $cargo_type = $element->cargo_type ;
 
-    if (defined $note and not defined $action and not defined $subaction
-	and $cargo_type eq 'leaf'
-       ) {
-	$logger->debug("_load_list: set annotation on $elt_type");
-	$element->annotation( $note ) ;
+    unless (defined $action or defined $subaction) {
+	$$target_ref = $element ;
 	return 'ok';
     }
 
@@ -481,6 +490,7 @@ sub _load_list {
 	$logger->info("Setting $elt_type element ",$element->name,
 		      " with '$value'");
 	$element->load( $value ) ;
+	$$target_ref = $element ;
 	return 'ok';
     }
 
@@ -492,19 +502,24 @@ sub _load_list {
 	return 'ok' ;
     }
 
-    if ($elt_type eq 'list' and $action eq ':' and $cargo_type =~ /node/) {
-	# remove possible leading or trailing quote
-	$logger->debug("_load_list: calling _load on node id $id");
-	unquote ($id) ;
-	my $newnode = $element->fetch_with_id($id) ;
-	return $self->_load($newnode, $experience, $cmdref);
-    }
+    if ($elt_type eq 'list' and $action eq ':') {
+	my $obj = $$target_ref = $element->fetch_with_id($id) ;
 
-    if ($elt_type eq 'list' and $action eq ':' and $cargo_type =~ /leaf/) {
-	$logger->debug("_load_list: calling _load_value on $cargo_type id $id");
-	unquote($value) ;
-	$self->_load_value($element->fetch_with_id($id),$subaction,$value,$note) 
-	  and return 'ok';
+	if ($cargo_type =~ /node/) {
+	    # remove possible leading or trailing quote
+	    $logger->debug("_load_list: calling _load on node id $id");
+	    unquote ($id) ;
+	    return $self->_load($obj, $experience, $cmdref);
+	}
+
+	return 'ok' unless defined $subaction ;
+
+	if ($cargo_type =~ /leaf/) {
+	    $logger->debug("_load_list: calling _load_value on $cargo_type id $id");
+	    unquote($value) ;
+	    $self->_load_value($obj,$subaction,$value) 
+	      and return 'ok';
+	}
     }
 
 
@@ -519,19 +534,16 @@ sub _load_list {
 }
 
 sub _load_hash {
-    my ($self,$node,$experience,$inst,$cmdref) = @_ ;
-    my ($element_name,$action,$id,$subaction,$value,$note) = @$inst ;
+    my ($self,$node,$experience,$inst,$cmdref,$target_ref) = @_ ;
+    my ($element_name,$action,$id,$subaction,$value) = @$inst ;
 
     my $element = $node -> fetch_element($element_name) ;
+    my $cargo_type = $element->cargo_type ;
 
-    if (not defined $action and defined $note) {
-	# remove possible leading or trailing quote
-	$logger->debug("_load_hash: calling annotation");
-	$element->annotation($note) ;
+    unless (defined $action) {
+	$$target_ref = $element ;
 	return 'ok';
     }
-
-    my $cargo_type = $element->cargo_type ;
 
     if ($action eq '=~') {
 	my @keys = $element->get_all_indexes;
@@ -575,24 +587,18 @@ sub _load_hash {
 	return 'ok' ;
     }
 
-    if ($action eq ':' and $note) {
-	# remove possible leading or trailing quote
-	$logger->debug("_load_hash: calling annotation on element $id");
-	unquote ($id) ;
-	$element->fetch_with_id($id)->annotation($note) ;
-    }
+    my $obj = $$target_ref = $element->fetch_with_id($id) ;
 
     if ($action eq ':' and $cargo_type =~ /node/) {
 	# remove possible leading or trailing quote
 	$logger->debug("_load_hash: calling _load on node $id");
 	unquote ($id) ;
-	my $newnode = $element->fetch_with_id($id) ;
-	return $self->_load($newnode, $experience, $cmdref);
+	return $self->_load($obj, $experience, $cmdref);
     }
     elsif ($action eq ':' and $cargo_type =~ /leaf/) {
 	$logger->debug("_load_hash: calling _load_value on leaf $id");
 	unquote($id,$value) ;
-	$self->_load_value($element->fetch_with_id($id),$subaction,$value,$note)
+	$self->_load_value($obj,$subaction,$value)
 	  and return 'ok';
     }
     elsif ($action) {
@@ -607,21 +613,21 @@ sub _load_hash {
 }
 
 sub _load_leaf {
-    my ($self,$node,$experience,$inst,$cmdref) = @_ ;
-    my ($element_name,$action,$id,$subaction,$value,$note) = @$inst ;
+    my ($self,$node,$experience,$inst,$cmdref,$target_ref) = @_ ;
+    my ($element_name,$action,$id,$subaction,$value) = @$inst ;
 
-    my $element = $node -> fetch_element($element_name) ;
+    my $element = $$target_ref = $node -> fetch_element($element_name) ;
     unquote($value) ;
 
+    return 'ok' unless defined $subaction ;
+
     if ($logger->is_debug) {
-	my $msg = $value ? "value '$value'" 
-                : $note  ? "annotation '$note'"
-                :          '_load_leaf error';
-	$msg =~ s/\n/\\n/g;
-	$logger->debug("_load_leaf: action '$subaction' $msg");
+        my $msg = $value ;
+        $msg =~ s/\n/\\n/g;
+        $logger->debug("_load_leaf: action '$subaction' value '$msg'");
     }
 
-    return $self->_load_value($element,$subaction,$value,$note)
+    return $self->_load_value($element,$subaction,$value)
       or Config::Model::Exception::Load
 	-> throw (
 		  object => $element,
@@ -633,13 +639,7 @@ sub _load_leaf {
 }
 
 sub _load_value {
-    my ($self,$element,$subaction,$value,$note) = @_ ;
-
-    if (defined $note and $element->isa('Config::Model::Value')) {
-	$logger->debug("_load_value: set annotation");
-	$element->annotation($note) ;
-	return 'ok' unless defined $subaction ;
-    }
+    my ($self,$element,$subaction,$value) = @_ ;
 
     $logger->debug("_load_value: action '$subaction' value '$value'");
     if ($subaction eq '=' and $element->isa('Config::Model::Value')) {
@@ -656,64 +656,6 @@ sub _load_value {
     return 'ok' ;
 }
 
-
-# @arg: ( node_ref )
-our $loader_grammar = << 'END_OF_GRAMMAR' ;
-
-all_steps: step[@arg](s)
-
-step: up[@arg] | root[@arg] | command[@arg]
-
-
-command: element[@arg] action_id[$item[1]](?) subaction_value[$item[1]](?) note[@arg](?)
-
-action_id: select_id[@arg] | remove_id[@arg] | match_id[@arg]
-
-remove_id: '~' id
-  {
-     my $id = $item{id} ;
-     $logger->debug("_load_hash: deleting $id");
-     ${$arg[2]}->delete($id) ;
-     ${$arg[2]} = undef ;
-  }
-
-select_id:
-
-  {
-    my @ids = ( $item{id} );
-    if ($item->{action} eq '=~') {
-        my $regexp = $item->{id} ;
-	$logger->debug("_load_hash: looping with regex $regex");
-	$regex =~ s!^/!!; 
-	$regex =~ s!/$!! ;
-	@ids = grep /$regex/, $element->get_all_indexes;
-    }
-    $return = [ $action , @ids ] ;
-  }
-
-subaction_value: subaction value
-
-up: '-'  
-  {
-   ${$arg[0]} = ${$arg[0]}->parent || $ {$arg[0]}->root ;
-  }
-root: '!' 
-  {
-   ${$arg[0]} = $ {$arg[0]}->root ;
-  }
-
-element: /\w+/
-  {
-    my $element = ${$arg[2]} = ${$arg[0]} -> fetch_element($item[0]) ;
-    ${$arg[0]} = $element if $element->get_type =~ /node/;
-  }
-
-id: regexp | quote | /\w+/
-subaction: /=|.=/
-value: quote | /[^\s]+/
-quote: '"' /(\"|[^"])+/ '"' { $return = $item[2] ; }
-
-END_OF_GRAMMAR
 
 1;
 

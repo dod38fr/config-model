@@ -1,7 +1,7 @@
 # -*- cperl -*-
 
 use ExtUtils::testlib;
-use Test::More tests => 81;
+use Test::More tests => 91;
 use Test::Exception ;
 use Config::Model;
 use Data::Dumper ;
@@ -27,20 +27,23 @@ ok(1,"compiled");
 # test mega regexp, 'x' means undef
 my @regexp_test 
   = (
-     [ 'a'               , ['a','x' ,  'x'    ,'x' , 'x'       ]],
-     [ 'a=b'             , ['a','x' ,  'x'    ,'=' , 'b'       ]],
-     [ 'a#B'             , ['a','x' ,  'x'    ,'#' , 'B'       ]],
-     [ 'a.=b'            , ['a','x' ,  'x'    ,'.=','b'        ]],
-     [ 'a="b=c"'         , ['a','x' ,  'x'    ,'=' , 'b=c'     ]],
-     [ 'a#"b=c"'         , ['a','x' ,  'x'    ,'#' , 'b=c'     ]],
-     [ 'a="b=\"c\""'     , ['a','x' ,  'x'    ,'=' , 'b="c"'   ]],
-     [ 'a:b=c'           , ['a',':' ,  'b'    ,'=' , 'c'       ]],
-     [ 'a:"b\""="\"c"'   , ['a',':' ,  'b"'   ,'=' ,'"c'       ]],
-     [ 'a:"b\""#"\"c"'   , ['a',':' ,  'b"'   ,'#' ,'"c'       ]],
-     [ 'a=~/b.*/'        , ['a','=~', '/b.*/' ,'x' ,'x'        ]],
-     [ 'a=~/b.*/.="\"a"' , ['a','=~', '/b.*/' ,'.=','"a'       ]],
-     [ 'a=b,c,d'         , ['a','x' ,  'x'    ,'=' , 'b,c,d'   ]],
-     [ 'm=a,"a b "'      , ['m','x' ,  'x'    ,'=' , 'a,"a b "']],
+     [ 'a'               , ['a', 'x' ,  'x'    ,'x' , 'x'     , 'x'  ]],
+     [ 'a=b'             , ['a', 'x' ,  'x'    ,'=' , 'b'     , 'x'  ]],
+     [ 'a.=b'            , ['a', 'x' ,  'x'    ,'.=','b'      , 'x'  ]],
+     [ 'a="b=c"'         , ['a', 'x' ,  'x'    ,'=' , 'b=c'   , 'x'  ]],
+     [ 'a="b=\"c\""'     , ['a', 'x' ,  'x'    ,'=' , 'b="c"' , 'x'  ]],
+     [ 'a:b=c'           , ['a', ':' ,  'b'    ,'=' , 'c'     , 'x'  ]],
+     [ 'a:"b\""="\"c"'   , ['a', ':' ,  'b"'   ,'=' ,'"c'     , 'x'  ]],
+     [ 'a=~/b.*/'        , ['a', '=~', '/b.*/' ,'x' , 'x'     , 'x'  ]],
+     [ 'a=~/b.*/.="\"a"' , ['a', '=~', '/b.*/' ,'.=','"a'     , 'x'  ]],
+     [ 'a=b,c,d'         , ['a', 'x' ,  'x'    ,'=' , 'b,c,d' , 'x'  ]],
+     [ 'm=a,"a b "'      , ['m', 'x' ,  'x'    ,'=' , 'a,"a b "', 'x'  ]],
+     [ 'a#B'             , ['a', 'x' ,  'x'    ,'x' , 'x'     , 'B'  ]],
+     [ 'a#"b=c"'         , ['a', 'x' ,  'x'    ,'x' , 'x'     , 'b=c']],
+     [ 'a:"b\""#"\"c"'   , ['a', ':' ,  'b"'   ,'x' , 'x'     ,'"c'  ]],
+     [ 'a=b#B'           , ['a', 'x' ,  'x'    ,'=' , 'b'     , 'B'  ]],
+     [ 'a:b=c#C'         , ['a', ':' ,  'b'    ,'=' , 'c'     , 'C'  ]],
+     [ 'a:b#C'           , ['a', ':' ,  'b'    ,'x' , 'x'     , 'C'  ]],
     ) ;
 
 foreach my $subtest (@regexp_test) {
@@ -227,4 +230,26 @@ foreach my $path (@anno_test) {
     $root->load(qq!$path#"$path annotation"!) ;
     is($root->grab($path)->annotation,"$path annotation",
        "fetch $path annotation") ;
+}
+
+# test combination of annotation plus load
+$step = 'std_id:ab#std_id_note X=Bv X#X_note 
+      - std_id:bc X=Av X#X2_note '
+  .'- a_string="toto \"titi\" tata" a_string#string_note '
+  .'lista=a,b,c,d olist:0 - olist:0#olist0_note X=Av - olist:1 X=Bv - listb=b,"c c2",d '
+  . '! hash_a:X2=x#x_note hash_a:Y2=xy  hash_b:X3=xy my_check_list=X2,X3' ;
+
+ok( $root->load( step => $step, permission => 'intermediate' ),
+  "set up data in tree with combination of load and annotations");
+
+my @to_check = ( 
+		 [ 'std_id:ab','std_id_note' ],
+		 [ 'std_id:ab X','X_note' ],
+		 [ 'std_id:bc X','X2_note' ],
+		 [ 'a_string','string_note'],
+		 [ 'olist:0','olist0_note'],
+		 [ 'hash_a:X2','x_note'],
+	       ) ;
+foreach (@to_check) {
+    is($root->grab($_->[0])->annotation,$_->[1],"Check annotation for '$_->[0]'") ;
 }
