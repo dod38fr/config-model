@@ -657,6 +657,64 @@ sub _load_value {
 }
 
 
+# @arg: ( node_ref )
+our $loader_grammar = << 'END_OF_GRAMMAR' ;
+
+all_steps: step[@arg](s)
+
+step: up[@arg] | root[@arg] | command[@arg]
+
+
+command: element[@arg] action_id[$item[1]](?) subaction_value[$item[1]](?) note[@arg](?)
+
+action_id: select_id[@arg] | remove_id[@arg] | match_id[@arg]
+
+remove_id: '~' id
+  {
+     my $id = $item{id} ;
+     $logger->debug("_load_hash: deleting $id");
+     ${$arg[2]}->delete($id) ;
+     ${$arg[2]} = undef ;
+  }
+
+select_id:
+
+  {
+    my @ids = ( $item{id} );
+    if ($item->{action} eq '=~') {
+        my $regexp = $item->{id} ;
+	$logger->debug("_load_hash: looping with regex $regex");
+	$regex =~ s!^/!!; 
+	$regex =~ s!/$!! ;
+	@ids = grep /$regex/, $element->get_all_indexes;
+    }
+    $return = [ $action , @ids ] ;
+  }
+
+subaction_value: subaction value
+
+up: '-'  
+  {
+   ${$arg[0]} = ${$arg[0]}->parent || $ {$arg[0]}->root ;
+  }
+root: '!' 
+  {
+   ${$arg[0]} = $ {$arg[0]}->root ;
+  }
+
+element: /\w+/
+  {
+    my $element = ${$arg[2]} = ${$arg[0]} -> fetch_element($item[0]) ;
+    ${$arg[0]} = $element if $element->get_type =~ /node/;
+  }
+
+id: regexp | quote | /\w+/
+subaction: /=|.=/
+value: quote | /[^\s]+/
+quote: '"' /(\"|[^"])+/ '"' { $return = $item[2] ; }
+
+END_OF_GRAMMAR
+
 1;
 
 =head1 AUTHOR
@@ -668,3 +726,5 @@ Dominique Dumont, (ddumont at cpan dot org)
 L<Config::Model>,L<Config::Model::Node>,L<Config::Model::Dumper>
 
 =cut
+
+
