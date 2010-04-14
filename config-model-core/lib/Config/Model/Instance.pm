@@ -246,6 +246,7 @@ an automatic process (like hardware scan)
 
 sub preset_start {
     my $self = shift ;
+    $logger->info("Starting preset mode");
     $self->{preset} = 1;
 }
 
@@ -269,7 +270,6 @@ Get preset mode
 
 sub preset {
     my $self = shift ;
-    $logger->info("Starting preset mode");
     return $self->{preset} ;
 }
 
