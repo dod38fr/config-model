@@ -180,46 +180,60 @@ sub dump_tree {
         return '  ' x $depth;
     };
 
+    my $add_note = sub {
+	my ($obj,$data_r) = @_ ;
+	my $note = $obj->annotation ;
+	quote($note) ;
+	$$data_r .= '#'.$note if defined $data_r and $note ;
+	return $note ;
+    } ;
+
     my $std_cb = sub {
-        my ( $scanner, $data_r, $obj, $element, $index, $value_obj ) = @_;
+        my ( $scanner, $data_r, $node, $element, $index, $value_obj ) = @_;
 
 	# get value or only customized value
 	my $value = $value_obj->fetch ($fetch_mode) ;
 	quote($index,$value) ;
 
-        my $pad = $compute_pad->($obj);
+        my $pad = $compute_pad->($node);
 
         my $name = defined $index ? "$element:$index" 
                  :                   $element;
 
+	# add annotation for obj contained in hash or list
         $$data_r .= "\n" . $pad . $name . '=' . $value if defined $value;
+	$add_note->($value_obj,$data_r) ;
     };
 
     my $check_list_cb = sub {
-        my ( $scanner, $data_r, $obj, $element, $index, $value_obj ) = @_;
+        my ( $scanner, $data_r, $node, $element, $index, $value_obj ) = @_;
 
 	# get value or only customized value
 	my $value = $value_obj->fetch ($fetch_mode) ;
 	my $qvalue = $value ;
 	quote($index,$qvalue) ;
-        my $pad = $compute_pad->($obj);
+        my $pad = $compute_pad->($node);
 
         my $name = defined $index ? "$element:$index" 
                  :                   $element;
 
         $$data_r .= "\n" . $pad . $name . '=' . $qvalue if $value;
+	$add_note->($value_obj,$data_r) ;
     };
 
     my $list_element_cb = sub {
-        my ( $scanner, $data_r, $obj, $element, @keys ) = @_;
+        my ( $scanner, $data_r, $node, $element, @keys ) = @_;
 
-        my $pad      = $compute_pad->($obj);
-	my $list_obj = $obj->fetch_element($element) ;
-        my $elt_type = $list_obj->cargo_type ;
+	my $pad      = $compute_pad->($node);
+	my $list_obj = $node->fetch_element($element) ;
 
-        if ( $elt_type eq 'node' ) {
+	# add annotation for list element
+	my $note  = $add_note->($list_obj) ;
+	$$data_r .= "\n$pad$element#$note" if $note ;
+
+        if ( $list_obj->cargo_type eq 'node' ) {
             foreach my $k ( @keys ) {
-                $scanner->scan_hash( $data_r, $obj, $element, $k );
+                $scanner->scan_list( $data_r, $node, $element, $k );
             }
         }
         else {
@@ -227,22 +241,41 @@ sub dump_tree {
 	    my @val = grep (defined $_,$list_obj->fetch_all_values($fetch_mode)) ;
 	    quote(@val) ;
             $$data_r .= "\n$pad$element=" . join( ',', @val ) if @val;
+	    $add_note->($list_obj,$data_r) ;
         }
     };
 
-    my $element_cb = sub {
-        my ( $scanner, $data_r, $obj, $element, $key, $next ) = @_;
+    my $hash_element_cb = sub {
+        my ( $scanner, $data_r, $node, $element, @keys ) = @_;
 
-        my $type = $obj -> element_type($element);
+	my $pad      = $compute_pad->($node);
+	my $hash_obj = $node->fetch_element($element) ;
+
+	# add annotation for list or hash element
+	my $note  = $add_note->($hash_obj) ;
+	$$data_r .= "\n$pad$element#$note" if $note ;
+
+	# resume exploration
+	map {
+	    $scanner->scan_hash($data_r,$node,$element,$_);
+	} @keys ;
+    };
+
+    # called for nodes contained in nodes (not root)
+    my $element_cb = sub {
+        my ( $scanner, $data_r, $node, $element, $key, $next ) = @_;
+
+        my $type = $node -> element_type($element);
 
         return if $skip_aw and $next->is_auto_write_for_type($skip_aw) ;
 
-        my $pad = $compute_pad->($obj);
+        my $pad = $compute_pad->($node);
 
-        my $head = "\n$pad$element";
+	my $head = "\n$pad$element";
 	if ($type eq 'list' or $type eq 'hash') {
-	    quote($key) ;
+ 	    quote($key) ;
 	    $head .= ":$key" ;
+	    $add_note->($node->fetch_element($element),\$head);
 	}
 
 	my $sub_data = '';
@@ -259,6 +292,7 @@ sub dump_tree {
 		     fallback        => 'all',
 		     auto_vivify     => $auto_v,
 		     list_element_cb => $list_element_cb,
+		     hash_element_cb => $hash_element_cb,
 		     leaf_cb         => $std_cb,
 		     node_element_cb => $element_cb,
 		     check_list_element_cb => $check_list_cb,

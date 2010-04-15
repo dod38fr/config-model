@@ -1,10 +1,7 @@
 # -*- cperl -*-
-# $Author$
-# $Date$
-# $Revision$
 
 use ExtUtils::testlib;
-use Test::More tests => 13;
+use Test::More tests => 17;
 use Config::Model;
 
 use warnings;
@@ -51,7 +48,7 @@ $step = 'std_id:ab X=Bv - std_id:bc X=Av - std_id:"b d " X=Av '
   .'lista=a,b,c,d olist:0 X=Av - olist:1 X=Bv - listb=b,"c c2",d '
   . '! hash_a:X2=x hash_a:Y2=xy  hash_b:X3=xy my_check_list=X2,X3' ;
 ok( $root->load( step => $step, permission => 'intermediate' ),
-  "set up data in tree with '$step'");
+  "set up data in tree");
 
 is_deeply([ sort $root->fetch_element('std_id')->get_all_indexes ],
 	  ['ab','b d ','bc'], "check std_id keys" ) ;
@@ -231,3 +228,38 @@ $cds = $root->dump_tree( full_dump => 1 );
 print "Empty listb dump:\n$cds" if $trace  ;
 
 unlike($cds,qr/listb/,"check that listb containing undef values is not shown") ;
+
+# annotation tests
+
+my $root2 = $model->instance (root_class_name => 'Master', 
+			      instance_name => 'test2') -> config_root ;
+
+$step = '     std_id:ab#std_id_ab_note 
+         X=Bv X#std_id_ab_X_note 
+      - std_id#std_id_note std_id:bc X=Av X#std_id_bc_X_note '
+  .'- a_string="toto \"titi\" tata" a_string#a_string_note '
+  .'lista=a,b,c,d olist:0#olist_0_note X=Av - olist:1 X=Bv - listb=b,"c c2",d '
+  . '! hash_a:X2=x#hash_a_X2 hash_a:Y2=xy#"hash_a Y2 note"  hash_b:X3=xy#hash_b_X3
+     my_check_list=X2,X3' ;
+ok( $root2->load( step => $step, permission => 'intermediate' ),
+  "set up data in tree annotation");
+
+my $expect_count = scalar( $step =~ /(#)/g) ;
+
+$cds = $root2->dump_tree( full_dump => 1 );
+print "Dump with annotations:\n$cds" if $trace  ;
+
+is( scalar($cds =~ /(#)/),$expect_count ,
+  "check that $expect_count annotation are found");
+
+my $root3 = $model->instance (root_class_name => 'Master', 
+			      instance_name => 'test3')
+  -> config_root ;
+
+ok($root3->load ( step => $cds, permission => 'intermediate' ),
+   "set up data in tree with dumped data+annotation");
+
+my $cds2 = $root3->dump_tree( full_dump => 1 );
+print "Dump second instance with annotations:\n$cds2" if $trace  ;
+
+is($cds2,$cds,"check both dumps") ;

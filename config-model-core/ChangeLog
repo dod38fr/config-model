@@ -1,3 +1,10 @@
+2010-04-15  Dominique Dumont  <domi.dumont@free.fr>
+
+	* lib/Config/Model/Loader.pm (load): Can load string with annotations
+
+	* lib/Config/Model/Dumper.pm (dump_tree): Dumps annotations in
+	data string
+
 2010-04-07  Dominique Dumont  <domi.dumont@free.fr>
 
 	* lib/Config/Model/AnyThing.pm (annotation): new accessor method

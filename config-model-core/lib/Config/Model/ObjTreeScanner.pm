@@ -312,7 +312,8 @@ Example:
 =head2 Node element callback
 
 C<node_element_cb> is called for each node contained within a node
-(i.e not with root node):
+(i.e not with root node). This node can be held by a plain element or
+a hash element or a list element:
 
  ($scanner, $data_ref,$node,$element_name,$key, $contained_node)
 
