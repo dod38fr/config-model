@@ -1,7 +1,7 @@
 # -*- cperl -*-
 
 use ExtUtils::testlib;
-use Test::More tests => 92;
+use Test::More tests => 94;
 use Test::Exception ;
 use Config::Model;
 use Data::Dumper ;
@@ -28,6 +28,8 @@ ok(1,"compiled");
 my @regexp_test 
   = (
      [ 'a'               , ['a', 'x' ,  'x'    ,'x' , 'x'     , 'x'  ]],
+     [ '#C'              , ['x', 'x' ,  'x'    ,'x' , 'x'     , 'C'  ]],
+     [ '#"m C"'          , ['x', 'x' ,  'x'    ,'x' , 'x'     , 'm C']],
      [ 'a=b'             , ['a', 'x' ,  'x'    ,'=' , 'b'     , 'x'  ]],
      [ 'a.=b'            , ['a', 'x' ,  'x'    ,'.=','b'      , 'x'  ]],
      [ 'a="b=c"'         , ['a', 'x' ,  'x'    ,'=' , 'b=c'   , 'x'  ]],
@@ -62,7 +64,7 @@ ok($inst,"created dummy instance") ;
 my $root = $inst -> config_root ;
 
 # check with embedded \n
-my $step = qq!std_id:ab X=Bv -\na_string="titi and\ntoto" !;
+my $step = qq!#"root cooment" std_id:ab X=Bv -\na_string="titi and\ntoto" !;
 ok( $root->load( step => $step, permission => 'intermediate' ),
   "load steps with embedded \\n");
 is( $root->fetch_element('a_string')->fetch, "titi and\ntoto",

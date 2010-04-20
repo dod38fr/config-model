@@ -1,7 +1,7 @@
 # -*- cperl -*-
 
 use ExtUtils::testlib;
-use Test::More tests => 4;
+use Test::More tests => 9;
 use Config::Model ;
 use Log::Log4perl qw(:easy) ;
 use File::Path ;
@@ -30,7 +30,6 @@ ok(1,"compiled");
 # pseudo root where config files are written by config-model
 my $wr_root = 'wr_root';
 
-my $testdir = 'popcon_test' ;
 
 # cleanup before tests
 rmtree($wr_root);
@@ -38,7 +37,8 @@ rmtree($wr_root);
 
 my @orig = <DATA> ;
 
-my $wr_dir = $wr_root.'/'.$testdir ;
+my $test1 = 'popcon1' ;
+my $wr_dir = $wr_root.'/'.$test1 ;
 my $conf_file = "$wr_dir/etc/popularity-contest.conf" ;
 
 mkpath($wr_dir.'/etc', { mode => 0755 }) 
@@ -57,7 +57,12 @@ my $cfg = $inst -> config_root ;
 my $dump =  $cfg->dump_tree ();
 print $dump if $trace ;
 
-my $expect = 'PARTICIPATE=yes
+my $expect = '#"Config file for Debian\'s popularity-contest package.
+
+To change this file, use:
+       dpkg-reconfigure popularity-contest"
+PARTICIPATE=yes#"we participate"
+USEHTTP#"always http"
 MY_HOSTID=aaaaaaaaaaaaaaaaaaaa
 DAY=6 -
 ';
@@ -73,21 +78,55 @@ my $popconlines = join('',<POPCON>) ;
 close POPCON;
 
 like($popconlines,qr/bbbbbbbb/,"checked written popcon file") ;
+like($popconlines,qr/dpkg-reconfigure/,"checked commentns in written popcon file") ;
+
+# test instance loaded with saved config file
+my $test2 = 'popcon2' ;
+my $inst2 = $model->instance (root_class_name   => 'PopCon',
+			     instance_name     => $test2 ,
+			     root_dir          => $wr_dir,
+			    );
+ok($inst2,"Created 2nd instance") ;
+
+my $cfg2 = $inst2 -> config_root ;
+$cfg2->load("MY_HOSTID=aaaaaaaaaaaaaaaaaaaa") ;
+is($cfg2->dump_tree , $expect, "check data read from new popcon.conf") ;
+
+
+## test instance loaded with dump string
+my $test3 = 'popcon3' ;
+my $wr_dir3 = $wr_root.'/'.$test3 ;
+
+mkpath($wr_dir3.'/etc', { mode => 0755 }) 
+  || die "can't mkpath: $!";
+
+my $conf_file3 = "$wr_dir3/etc/popularity-contest.conf" ;
+open(CONF,"> $conf_file3" ) || die "can't open $conf_file3: $!";
+print CONF "## 3 nd test" ;
+close CONF ;
+
+my $inst3 = $model->instance (root_class_name   => 'PopCon',
+			     instance_name     => $test3 ,
+			     root_dir          => $wr_dir3,
+			    );
+ok($inst3,"Created 3nd instance") ;
+
+my $cfg3 = $inst3 -> config_root ;
+$cfg3->load($dump) ;
+ok(1,"loaded 3nd instance with dump from 1st instance");
+$cfg2->load("MY_HOSTID=bbbbbbbb") ;
+
 
 __END__
-
-
 # Config file for Debian's popularity-contest package.
 #
 # To change this file, use:
 #        dpkg-reconfigure popularity-contest
-#
-# You can also edit it by hand, if you so choose.
-#
-# See /usr/share/popularity-contest/default.conf for more info
-# on the options.
+
+## should be removed
 
 MY_HOSTID="aaaaaaaaaaaaaaaaaaaa"
+# we participate
 PARTICIPATE="yes"
-USEHTTP="yes"
+USEHTTP="yes" # always http
 DAY="6"

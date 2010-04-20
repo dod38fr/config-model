@@ -23,17 +23,19 @@ use Carp;
 use strict;
 use warnings ;
 use Config::Model::Exception ;
-use UNIVERSAL ;
+use Moose ;
+
 use File::Path;
 use Log::Log4perl qw(get_logger :levels);
 
+our $VERSION = '1.202';
 
 my $logger = get_logger("Backend::Any") ;
 
-sub new {
-    my $type = shift ;
-    bless { name => 'unknown', @_ }, $type ;
-}
+has 'name'       => ( is => 'ro', default => 'unknown',) ;
+has 'annotation' => ( is => 'ro', isa => 'Bool', default => 0 ) ;
+has 'node'       => ( is => 'ro', isa => 'Config::Model::Node', 
+		      weak_ref => 1, required => 1 ) ;
 
 sub suffix {
     my $self = shift ;
@@ -53,6 +55,9 @@ sub write {
     $logger->error($err) ;
     croak $err;
 }
+
+no Moose ;
+__PACKAGE__->meta->make_immutable ;
 
 1;
 
@@ -94,6 +99,11 @@ method that must be provided by any backend classes.
 
 The constructor should be used only by
 L<Config::Model::Node>.
+
+=head2 annotation
+
+Whether the backend supports to read and write annotation. Default i s
+0. Override if your backend supports annotations
 
 =head1 AUTHOR
 

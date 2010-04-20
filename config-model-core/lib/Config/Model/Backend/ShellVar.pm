@@ -32,6 +32,8 @@ my $logger = get_logger("Backend::ShellVar") ;
 
 sub suffix { return '.conf' ; }
 
+sub annotation { return 1 ;}
+
 sub read {
     my $self = shift ;
     my %args = @_ ;
@@ -46,11 +48,39 @@ sub read {
 
     return 0 unless defined $args{io_handle} ; # no file to read
 
-    # load shellvar file
-    my $shellvar = join ('', map { s/#.*//; $_} $args{io_handle}->getlines) ;
+    # try to get global comments (comments before a blank line)
+    my @global_comments ;
+    my @comments ;
+    my $global_zone = 1 ;
 
-    # normally, shell variables can be loaded directly
-    $self->{node}->load($shellvar) ;
+    foreach ($args{io_handle}->getlines) {
+	next if /^##/ ; # remove comments added by Config::Model
+	chomp ;
+
+	my ($data,$comment) = split /\s*#\s?/ ;
+
+	push @global_comments, $comment if defined $comment and $global_zone;
+	push @comments, $comment        if defined $comment and not $global_zone;
+
+	if ($global_zone and /^\s*$/ and @global_comments) {
+	    $self->node->annotation(@global_comments);
+	    $logger->debug("Setting global comment with @global_comments") ;
+	    $global_zone = 0 ;
+	}
+
+	# stop global comment at first blank line
+	$global_zone = 0 if /^\s*$/ ;
+
+	if (defined $data and $data ) {
+	    $global_zone = 0 ;
+	    $data .= '#"'.join("\n",@comments).'"' if @comments ;
+	    $logger->debug("Loading:$data\n");
+	    $self->node->load($data) ;
+	    @comments = () ;
+	}
+    }
+
+
     return 1 ;
 }
 
@@ -71,24 +101,39 @@ sub write {
 
     croak "Undefined file handle to write" unless defined $ioh;
 
-    $ioh->print("# This file was written by Config::Model\n");
-    $ioh->print("# You may modify the content of this file. Configuration \n");
-    $ioh->print("# modifications will be preserved. Modifications in\n");
-    $ioh->print("# comments will be discarded\n\n");
+    $ioh->print("## This file was written by Config::Model\n");
+    $ioh->print("## You may modify the content of this file. Configuration \n");
+    $ioh->print("## modifications will be preserved. Modifications in\n");
+    $ioh->print("## comments may be mangled.\n##\n");
+
+    # write global comment
+    my $global_note = $node->annotation ;
+    if ($global_note) {
+	map { $ioh->print("# $_\n") } split /\n/,$global_note ;
+	$ioh->print("\n") ;
+    }
 
     # Using Config::Model::ObjTreeScanner would be overkill
     foreach my $elt ($node->get_element_name) {
+	my $obj =  $node->fetch_element($elt) ;
+        my $v = $node->grab_value($elt) ;
+
         # write some documentation in comments
-        $ioh->print("# $elt:", $node->get_help(summary => $elt));
-        my $upstream_default 
-	  = $node->fetch_element($elt) -> fetch('upstream_default') ;
-        $ioh->print(" ($upstream_default)") if defined $upstream_default;
-        $ioh->print("\n") ;
+	my $help = $node->get_help(summary => $elt);
+        my $upstream_default = $obj -> fetch('upstream_default') ;
+        $help .=" ($upstream_default)" if defined $upstream_default;
+        $ioh->print("## $elt: $help\n") if $help;
+
+
+	# write annotation
+	my $note = $obj->annotation ;
+	if ($note) {
+	    map { $ioh->print("# $_\n") } split /\n/,$note ;
+	}
 
         # write value
-        my $v = $node->grab_value($elt) ;
-        $ioh->print(qq!$elt="$v"!) if defined $v ;
-        $ioh->print("\n") ;
+        $ioh->print(qq!$elt="$v"\n!) if defined $v ;
+        $ioh->print("\n") if defined $v or $help;
     }
 
     return 1;

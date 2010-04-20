@@ -261,8 +261,8 @@ sub _split_cmd {
     my @command = 
       ( 
        $cmd =~ 
-       m!
-	 (\w+)          # element name can be alone
+       m!^
+	 (\w+)? # element name can be alone
 	 (?:
             (:|=~|~)       # action
             ( /[^/]+/      # regexp
@@ -344,7 +344,7 @@ sub _load {
 	    $logger->debug("_load instructions: @disp");
 	}
 
-        unless (defined $element_name) {
+	if (not defined $element_name and not defined $note) {
 	    Config::Model::Exception::Load
 		-> throw (
 			  command => $cmd ,
@@ -371,6 +371,11 @@ sub _load {
 			 );
 	    # below, has_element method from WarpedNode will raise
 	    # exception if warped_node is not available
+	}
+
+	if (not defined $element_name and defined $note) {
+	    $node->annotation($note);
+	    next ;
 	}
 
         unless ($node->has_element($element_name)) {

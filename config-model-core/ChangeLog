@@ -1,3 +1,7 @@
+2010-04-19  Dominique Dumont  <domi.dumont@free.fr>
+
+	* lib/Config/Model/AnyThing.pm (grab_annotation): new method
+
 2010-04-15  Dominique Dumont  <domi.dumont@free.fr>
 
 	* lib/Config/Model/Loader.pm (load): Can load string with annotations

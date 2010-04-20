@@ -186,7 +186,7 @@ the configuration file and restored the next time the command is run.
 
 sub annotation {
     my $self = shift ;
-    $self->{annotation} = shift if @_;
+    $self->{annotation} = join("\n",@_) if @_;
     return $self->{annotation} ;
 }
 
@@ -483,6 +483,21 @@ sub grab_value {
 	  unless ref $obj && $obj->isa("Config::Model::Value");
 
     return $obj->fetch ;
+}
+
+=head2 grab_annotation(...)
+
+Like L</grab(...)>, but will return the annotation of an object.
+
+=cut
+
+sub grab_annotation {
+    my $self = shift ;
+    my @args = scalar @_ == 1 ? ( step => $_[0] ) : @_ ;
+
+    my $obj = $self->grab(@args) ;
+
+    return $obj->annotation ;
 }
 
 =head2 grab_root()

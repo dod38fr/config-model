@@ -1,4 +1,4 @@
-
+#
 #    Copyright (c) 2005-2010 Dominique Dumont.
 #
 #    This file is part of Config-Model.
@@ -20,7 +20,6 @@
 package Config::Model::AutoRead ;
 use Carp;
 use strict;
-our $VERSION="1.201";
 use warnings FATAL => qw/all/;
 use Config::Model::Exception ;
 use Data::Dumper ;
@@ -32,6 +31,7 @@ use Log::Log4perl qw(get_logger :levels);
 
 use base qw/Config::Model::AnyThing/ ;
 
+our $VERSION="1.201";
 
 sub get_cfg_file_path {
     my $self = shift ; 

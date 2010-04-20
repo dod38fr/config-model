@@ -202,13 +202,13 @@ sub reset_config {
 	       skip_read  => $self->{skip_read},
 	     );
 
-    $self->{annotation_saver} = Config::Model::Annotation
-      -> new (
-	      config_class_name => $self->{root_class_name},
-	      instance => $self ,
-	      root_dir => $self->{root_dir} ,
-	     ) ;
-    $self->{annotation_saver}->load ;
+    # $self->{annotation_saver} = Config::Model::Annotation
+    #   -> new (
+    # 	      config_class_name => $self->{root_class_name},
+    # 	      instance => $self ,
+    # 	      root_dir => $self->{root_dir} ,
+    # 	     ) ;
+    # $self->{annotation_saver}->load ;
 
     return $self->{tree} ;
 }
@@ -231,10 +231,10 @@ L<Config::Model::Annotation> for details.
 
 =cut
 
-sub annotation_saver {
-    my $self = shift ;
-    return $self->{annotation_saver} ;
-}
+# sub annotation_saver {
+#     my $self = shift ;
+#     return $self->{annotation_saver} ;
+#}
 
 =head2 preset_start ()
 
