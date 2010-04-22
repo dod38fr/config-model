@@ -5,6 +5,7 @@ use Test::More tests => 14;
 use Config::Model;
 use Config::Model::Annotation;
 use File::Path ;
+use Data::Dumper ; 
 
 use warnings;
 no warnings qw(once);
@@ -60,7 +61,12 @@ foreach (@annotate) {
     ok(1,"set annotation of $l") ;
 }
 
-my $annotate_saver = $inst->annotation_saver ;
+my $annotate_saver = Config::Model::Annotation
+  -> new (
+	  config_class_name => 'Master',
+	  instance => $inst ,
+	  root_dir => $wr_root ,
+	 ) ;
 ok($annotate_saver,"created annotation read/write object") ;
 
 my $yaml_dir = $annotate_saver->dir;
@@ -71,13 +77,13 @@ is($yaml_file,'wr_root/config-model/Master-note.pl',"check saved file") ;
 
 my $h_ref = $annotate_saver->get_annotation_hash() ;
 
-#use Data::Dumper ; print Dumper ( $h_ref ) ;
+print Dumper ( $h_ref ) if $trace ;
 
 is_deeply ($h_ref,\%expect ,"check annotation data") ;
 
 $annotate_saver->save ;
 
-ok(-e $yaml_file,"check yaml file exists" );
+ok(-e $yaml_file,"check annotation file exists" );
 
 
 my $inst2 = $model->instance (root_class_name => 'Master', 
@@ -86,16 +92,25 @@ my $inst2 = $model->instance (root_class_name => 'Master',
 
 my $root2 = $inst2 -> config_root ;
 
-my $h2_ref = $inst2->annotation_saver->get_annotation_hash() ;
+my $saver2 = Config::Model::Annotation
+  -> new (
+	  config_class_name => 'Master',
+	  instance => $inst2 ,
+	  root_dir => $wr_root ,
+	 ) ; 
+$saver2->load ;
+my $h2_ref = $saver2->get_annotation_hash() ;
 
 #use Data::Dumper ; print Dumper ( $h_ref ) ;
+print Dumper ( $h2_ref ) if $trace ;
 my %expect2 = %expect ;
 delete $expect2{'std_id:bc X'} ;
 
 is_deeply ($h2_ref,\%expect2 ,"check loaded annotation data with empty tree") ;
 
 $root2->load( step => $step, permission => 'intermediate' ) ;
-$inst2->annotation_saver->load ;
+$saver2->load ;
 
-my $h3_ref = $inst2->annotation_saver->get_annotation_hash() ;
+my $h3_ref = $saver2->get_annotation_hash() ;
+print Dumper ( $h3_ref ) if $trace ;
 is_deeply ($h3_ref,\%expect ,"check loaded annotation data with non-empty tree") ;

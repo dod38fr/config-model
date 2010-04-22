@@ -1694,6 +1694,10 @@ L<config-edit>
 
 =item * 
 
+L<Config::Model::Annotation>
+
+=item * 
+
 L<Config::Model::Describe>
 
 =item * 

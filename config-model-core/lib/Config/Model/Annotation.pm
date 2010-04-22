@@ -46,7 +46,11 @@ Config::Model::Annotation - Read and write configuration annotations
 
 =head1 SYNOPSIS
 
- my $arw = Config::Model::Annotation->new($instance) ;
+ my $arw = Config::Model::Annotation 
+          -> new (
+                  config_class_name => $self->{root_class_name},
+                  instance => $self ,
+                 ) ;
 
  $arw->load;
 
@@ -80,8 +84,8 @@ object.
 
 =cut
 
-has 'instance' => ( is => 'ro', isa => 'Config::Model::Instance' );
-has 'config_class_name' => ( is => 'ro', isa => 'Str' ) ;
+has 'instance' => ( is => 'ro', isa => 'Config::Model::Instance', required => 1 );
+has 'config_class_name' => ( is => 'ro', isa => 'Str', required => 1 ) ;
 has 'file'     => ( is => 'ro', isa => 'Str', lazy =>1, builder => '_set_file' ) ;
 has 'dir'      => ( is => 'ro', isa => 'Str', lazy =>1, builder => '_set_dir' ) ;
 has 'root_dir'     => ( is => 'ro', isa => 'Str|Undef', default => '') ;
