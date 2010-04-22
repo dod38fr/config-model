@@ -15,7 +15,7 @@ use Config::Model::Instance ;
 # this class holds the version number of the package
 use vars qw(@status @level @experience_list %experience_index) ;
 
-our $VERSION = '1.201';
+our $VERSION = '1.202';
 
 =head1 NAME
 

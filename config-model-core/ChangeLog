@@ -1,3 +1,28 @@
+2010-04-22  Dominique Dumont  <domi.dumont@free.fr> v1.202
+
+	SUMMARY:
+
+	* New core feature: user can store annotation (e.g. structured
+	comments) with each configuration object of the configuration
+	tree, be it node, leaf, hash or list. Read backend can parse
+	confguration file comments and store them in annotations.
+
+	For instance ShellVar read backend will parse comments and store
+	them in the configuration tree. ShellVar write backend will put
+	them back in the configuration file.
+
+	* PopCon editor preserve comments in configuration file.
+
+	* Code: Uses Moose for C::M::Annotation and C::M::Backend::Any. Moose
+	looks good. I may use Moose for all other Config::Model classes later.
+
+2010-04-22  Dominique Dumont  <domi.dumont@free.fr>
+
+	* lib/Config/Model/Backend/ShellVar.pm (read): Tries its best to
+	read user comments and store them in annotations.
+	(write): Write annotation as comments. Write model documentation
+	as comments starting with '##'
+
 2010-04-19  Dominique Dumont  <domi.dumont@free.fr>
 
 	* lib/Config/Model/AnyThing.pm (grab_annotation): new method
@@ -16,6 +41,8 @@
 
 	* lib/Config/Model/Annotation.pm : New file to load and save
 	configuration annotations (just like comments with a structure)
+
+	* Build.PL: added dependency on Moose
 
 2010-04-01  Dominique Dumont  <dominique.dumont@hp.com>
 
