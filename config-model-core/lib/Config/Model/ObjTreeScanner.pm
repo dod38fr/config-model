@@ -19,10 +19,10 @@
 package Config::Model::ObjTreeScanner ;
 use strict ;
 use Config::Model::Exception ;
+use Scalar::Util qw/blessed/ ;
 use Carp::Assert::More ;
 use Carp;
 use warnings ;
-use UNIVERSAL qw( isa can );
 
 our $VERSION="1.202";
 
@@ -441,7 +441,7 @@ sub scan_node {
 	-> throw (
 		  error => "'$node' is not a Config::Model object" 
 		 ) 
-	  unless isa($node, "Config::Model::AnyThing") ;
+	  unless blessed($node) and $node->isa("Config::Model::AnyThing") ;
 
     # skip exploration of warped out node
     if ($node->isa('Config::Model::WarpedNode')) {
