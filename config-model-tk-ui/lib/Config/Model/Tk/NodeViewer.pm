@@ -1,5 +1,4 @@
-
-#    Copyright (c) 2008-2009 Dominique Dumont.
+#    Copyright (c) 2008-2010 Dominique Dumont.
 #
 #    This file is part of Config-Model-TkUi.
 #
@@ -20,7 +19,6 @@
 package Config::Model::Tk::NodeViewer ;
 
 use strict;
-our $VERSION="1.305";
 use warnings ;
 use Carp ;
 
@@ -72,6 +70,7 @@ sub Populate {
     #$cw->{adjust} = $cw -> Adjuster();
     #$cw->{adjust}->packAfter($hl, -side => 'top') ;
 
+    $cw->add_annotation($node);
     $cw->add_info($cw) ;
 
     if ($node->parent) {

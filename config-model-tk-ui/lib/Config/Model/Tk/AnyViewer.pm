@@ -1,5 +1,4 @@
-
-#    Copyright (c) 2008-2009 Dominique Dumont.
+#    Copyright (c) 2008-2010 Dominique Dumont.
 #
 #    This file is part of Config-Model-TkUi.
 #
@@ -20,7 +19,6 @@
 package Config::Model::Tk::AnyViewer ;
 
 use strict;
-our $VERSION="1.305";
 use warnings ;
 use Carp ;
 
@@ -30,6 +28,7 @@ use Config::Model::TkUI ;
 
 use vars qw/$icon_path/ ;
 
+our $VERSION="1.305";
 
 my @fbe1 = qw/-fill both -expand 1/ ;
 my @fxe1 = qw/-fill x    -expand 1/ ;
@@ -76,6 +75,7 @@ my $text_font = [qw/-family Arial -weight normal/] ;
 
 sub add_info_frame {
     my $cw = shift;
+
     my @items = ( "Config class: ". $cw->{config_class_name}, @_ );
 
     my $frame = $cw->Frame()->pack(@fx) ;
@@ -143,6 +143,12 @@ sub add_summary_and_description {
     foreach my $topic (qw/summary description/) {
 	$cw->add_help( ucfirst($topic), $p->get_help($topic => $name)) ;
     }
+}
+
+sub add_annotation {
+    my ($cw, $obj) = @_ ;
+
+    $cw->add_help('Note', $obj->annotation) ;
 }
 
 sub add_editor_button {

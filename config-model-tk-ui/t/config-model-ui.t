@@ -46,15 +46,18 @@ ok($root,"Config root created") ;
 
 
 my $step = qq!
+#"class comment\nbig\nreally big"
+std_id#"std_id comment"
 std_id:ab X=Bv -
 std_id:ab2 -
 std_id:bc X=Av -
 std_id:"a b" X=Av -
 std_id:"a b.c" X=Av -
-tree_macro=mXY
+tree_macro=mXY#"big lever here"
 a_string="toto tata"
 a_long_string="a very long string with\nembedded return"
 hash_a:toto=toto_value
+hash_a:toto#"index comment"
 hash_a:titi=titi_value
 hash_a:"ti ti"="ti ti value"
 ordered_hash:z=1

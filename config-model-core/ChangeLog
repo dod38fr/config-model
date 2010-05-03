@@ -1,3 +1,8 @@
+2010-05-03  Dominique Dumont  <domi.dumont@free.fr> v1.203 unreleased
+
+	* lib/Config/Model/Loader.pm (_load_hash): Bug fix: can load
+	annotation tied to hash values (node or leaf).
+
 2010-04-22  Dominique Dumont  <domi.dumont@free.fr> v1.202
 
 	SUMMARY:

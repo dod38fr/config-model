@@ -1,5 +1,4 @@
-
-#    Copyright (c) 2008 Dominique Dumont.
+#    Copyright (c) 2008-2010 Dominique Dumont.
 #
 #    This file is part of Config-Model-TkUI.
 #
@@ -20,7 +19,6 @@
 package Config::Model::Tk::LeafViewer ;
 
 use strict;
-our $VERSION="1.305";
 use warnings ;
 use Carp ;
 use Log::Log4perl ;
@@ -85,6 +83,7 @@ sub Populate {
 	    -> pack(@fxe1, -side => 'left');
     }
 
+    $cw->add_annotation($leaf) ;
     $cw->add_info() ;
     $cw->add_summary_and_description($leaf) ;
     $cw->add_help('value help'   => $leaf->get_help($cw->{value})) ;

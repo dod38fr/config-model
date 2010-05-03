@@ -1,5 +1,4 @@
-
-#    Copyright (c) 2008 Dominique Dumont.
+#    Copyright (c) 2008-2010 Dominique Dumont.
 #
 #    This file is part of Config-Model-TkUI.
 #
@@ -20,13 +19,11 @@
 package Config::Model::Tk::HashViewer ;
 
 use strict;
-our $VERSION="1.305";
 use warnings ;
 use Carp ;
 
 use base qw/Tk::Frame Config::Model::Tk::AnyViewer/;
 use subs qw/menu_struct/ ;
-
 
 Construct Tk::Widget 'ConfigModelHashViewer';
 
@@ -65,6 +62,7 @@ sub Populate {
 	$rt->insert('end', $c."\n" ) ;
     }
 
+    $cw->add_annotation($hash);
     $cw->add_info($cw) ;
     $cw->add_summary_and_description($hash) ;
     $cw->add_editor_button($path) ;
