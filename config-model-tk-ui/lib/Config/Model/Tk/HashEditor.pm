@@ -20,7 +20,6 @@
 package Config::Model::Tk::HashEditor ;
 
 use strict;
-our $VERSION="1.305";
 use warnings ;
 use Carp ;
 use Log::Log4perl ;
@@ -31,7 +30,7 @@ use subs qw/menu_struct/ ;
 use Tk::Dialog ;
 use Tk::Photo ;
 use Tk::Balloon ;
-
+use Config::Model::Tk::NoteEditor ;
 
 Construct Tk::Widget 'ConfigModelHashEditor';
 
@@ -88,7 +87,7 @@ sub Populate {
     $tklist->insert( end => $hash->get_all_indexes) ;
 
     my $right_frame = $elt_button_frame->Frame
-      ->pack(@fxe1, qw/-side right -anchor n/);
+      ->pack(@fbe1, qw/-side right -anchor n/);
 
     $cw->add_info() ;
     $cw->add_summary_and_description($hash) ;
@@ -172,6 +171,8 @@ sub Populate {
 						$item = '';
 					    },
 			    ) -> pack(-side => 'left', @fxe1) ;
+
+    $right_frame->ConfigModelNoteEditor( -object => $hash )->pack;
 
     $cw->{tklist} = $tklist ;
 

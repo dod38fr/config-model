@@ -28,6 +28,7 @@ use Log::Log4perl ;
 use base qw/Config::Model::Tk::ListViewer/;
 use subs qw/menu_struct/ ;
 use Tk::Dialog ;
+use Config::Model::Tk::NoteEditor ;
 
 
 Construct Tk::Widget 'ConfigModelListEditor';
@@ -59,7 +60,7 @@ sub Populate {
     my $elt_button_frame = $cw->Frame->pack(@fbe1) ;
 
     my $elt_frame = $elt_button_frame->Frame(qw/-relief raised -borderwidth 2/)
-                                     ->pack(@fxe1,-side => 'left') ;
+                                     ->pack(@fbe1,-side => 'left') ;
     $elt_frame -> Label(-text => $list->element_name.' elements') -> pack() ;
 
     my $tklist = $elt_frame ->Scrolled ( 'Listbox',
@@ -67,7 +68,8 @@ sub Populate {
 					 -scrollbars => 'oe',
 					 -height => 8,
 				       )
-                            -> pack(@fbe1, -side => 'left') ;
+                            -> pack(@fbe1) ;
+
 
     my $cargo_type = $list->cargo_type ;
     my @insert = $cargo_type eq 'leaf' ? $list->fetch_all_values 
@@ -77,6 +79,7 @@ sub Populate {
 
     my $right_frame = $elt_button_frame->Frame->pack(@fxe1, -side => 'left');
 
+    $cw->ConfigModelNoteEditor( -object => $list )->pack ;
     $cw->add_info($cw) ;
     $cw->add_summary_and_description($list) ;
 

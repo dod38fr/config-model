@@ -19,6 +19,7 @@ lib/Config/Model/Tk/ListEditor.pm
 lib/Config/Model/Tk/ListViewer.pm
 lib/Config/Model/Tk/NodeEditor.pm
 lib/Config/Model/Tk/NodeViewer.pm
+lib/Config/Model/Tk/NoteEditor.pm
 lib/Config/Model/Tk/Wizard.pm
 lib/Config/Model/TkUI.pm
 MANIFEST			This list of files

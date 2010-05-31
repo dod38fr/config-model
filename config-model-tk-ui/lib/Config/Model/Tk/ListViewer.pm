@@ -101,6 +101,7 @@ sub add_info {
 	push @items, "$str: $v" if defined $v;
     }
 
+    $cw->add_annotation($list) ;
     $cw->add_info_frame(@items) ;
 }
 

@@ -54,10 +54,11 @@ sub Populate {
 
     my $rt = $cw->Scrolled ( 'ROText',
 			     -scrollbars => 'osoe',
-			     -height => 10,
+			     -height => 6,
 			   ) ->pack(@fbe1) ;
     $rt->tagConfigure('in',-background => 'black', -foreground => 'white') ;
 
+    $cw->add_annotation($leaf) ;
     $cw->add_info() ;
     $cw->add_summary_and_description($leaf) ;
     $cw->{value_help_widget} = $cw->add_help(value => '',1);

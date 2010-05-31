@@ -1,3 +1,9 @@
+2010-05-31  Dominique Dumont  <domi.dumont@free.fr>
+
+	* MANIFEST: added CommentEditor widget
+	* Added Note viewer and editor for Leaf, List, CheckList, Node,
+	Hash viewers and editors
+
 2010-03-29  Dominique Dumont  <dominique.dumont@hp.com> 1.306
 
 	* Build.PL: Depends on Config::Model 1.001

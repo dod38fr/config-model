@@ -24,6 +24,7 @@ our $VERSION="1.305";
 use warnings ;
 use Carp ;
 use Log::Log4perl;
+use Config::Model::Tk::NoteEditor ;
 
 use base qw/Config::Model::Tk::LeafViewer/;
 
@@ -117,6 +118,7 @@ sub Populate {
 
     $inst->pop_no_value_check ;
 
+    $cw->ConfigModelNoteEditor( -object => $leaf )->pack;
     $cw->add_info() ;
     $cw->add_summary_and_description($leaf) ;
     $cw->{value_help_widget} = $cw->add_help(value => '',1);

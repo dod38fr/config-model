@@ -83,7 +83,6 @@ sub Populate {
 	    -> pack(@fxe1, -side => 'left');
     }
 
-    $cw->add_annotation($leaf) ;
     $cw->add_info() ;
     $cw->add_summary_and_description($leaf) ;
     $cw->add_help('value help'   => $leaf->get_help($cw->{value})) ;
@@ -135,6 +134,7 @@ sub add_info {
 	push @items, "$what value: $v" if defined $v;
     }
 
+    $cw->add_annotation($leaf);
     $cw->add_info_frame(@items) ;
 }
 

@@ -29,7 +29,7 @@ use vars qw/$icon_path/ ;
 use subs qw/menu_struct/ ;
 
 use Tk::NoteBook;
-
+use Config::Model::Tk::NoteEditor ;
 
 Construct Tk::Widget 'ConfigModelCheckListEditor';
 
@@ -78,7 +78,7 @@ sub Populate {
 
     $lb = $ed_frame->Scrolled ( qw/Listbox -selectmode multiple/,
 				   -scrollbars => 'osoe',
-				   -height => 10,
+				   -height => 5,
 				 ) ->pack(@fbe1) ;
     $lb->insert('end',@choice) ;
 
@@ -103,6 +103,7 @@ sub Populate {
 			-command => sub { $cw->store ( &$get_selected )},
 		      ) -> pack(-side => 'left') ;
 
+    $cw->ConfigModelNoteEditor( -object => $leaf )->pack(@fbe1) ;
     $cw->add_summary_and_description($leaf) ;
     $cw->{value_help_widget} = $cw->add_help(value => '',1);
     $b_sub->() ;

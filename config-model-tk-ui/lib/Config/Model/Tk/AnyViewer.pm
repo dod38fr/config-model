@@ -28,8 +28,6 @@ use Config::Model::TkUI ;
 
 use vars qw/$icon_path/ ;
 
-our $VERSION="1.305";
-
 my @fbe1 = qw/-fill both -expand 1/ ;
 my @fxe1 = qw/-fill x    -expand 1/ ;
 my @fb   = qw/-fill both          / ;
