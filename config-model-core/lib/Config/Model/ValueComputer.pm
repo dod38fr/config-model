@@ -20,11 +20,9 @@ package Config::Model::ValueComputer ;
 
 use warnings ;
 use strict;
-our $VERSION="1.201";
-
 use Scalar::Util qw(weaken) ;
 use Carp ;
-use Parse::RecDescent ;
+use Parse::RecDescent 1.90 ;
 use Data::Dumper () ;
 
 use vars qw($compute_grammar $compute_parser) ;

@@ -91,7 +91,14 @@ my $build = $class->new
    recommends => {
 		  # recommended modules to get more reader/writer
 		  'Config::Tiny' => 0,
- 		 },
+   },
+   meta_merge => {
+                  resources => {
+                    homepage => 'http://config-model.wiki.sourceforge.net',
+                    MailingList => 'https://lists.sourceforge.net/lists/listinfo/config-model-users',
+                    repository => 'http://config-model.hg.sourceforge.net:8000/hgroot/config-model/config-model',
+                  },
+  },
    # cleanup required by t/auto_read.t
    # PreGrammar.pm is created by t/value_computer.t
    add_to_cleanup => [qw/PreGrammar.pm wr_root r_root/],

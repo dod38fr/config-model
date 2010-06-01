@@ -7,15 +7,13 @@ use strict;
 use warnings FATAL => qw(all);
 use Storable ('dclone') ;
 use Data::Dumper ();
-use Log::Log4perl qw(get_logger :levels);
+use Log::Log4perl 1.11 qw(get_logger :levels);
 
 
 use Config::Model::Instance ;
 
 # this class holds the version number of the package
 use vars qw(@status @level @experience_list %experience_index) ;
-
-our $VERSION = '1.202';
 
 =head1 NAME
 
