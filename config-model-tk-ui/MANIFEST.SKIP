@@ -1,0 +1,4 @@
+debian/
+~$
+\.old$
+dist.ini

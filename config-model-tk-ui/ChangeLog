@@ -1,6 +1,5 @@
-2010-05-31  Dominique Dumont  <domi.dumont@free.fr>
+2010-05-31  Dominique Dumont  <domi.dumont@free.fr> 1.307
 
-	* MANIFEST: added CommentEditor widget
 	* Added Note viewer and editor for Leaf, List, CheckList, Node,
 	Hash viewers and editors
 
