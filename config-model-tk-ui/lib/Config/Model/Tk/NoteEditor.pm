@@ -11,7 +11,7 @@ use subs qw/menu_struct/ ;
 use Tk::Dialog ;
 use Tk::Photo ;
 use Tk::Balloon ;
-
+use Tk; # Needed to import Ev function
 
 Construct Tk::Widget 'ConfigModelNoteEditor';
 
@@ -36,19 +36,25 @@ sub Populate {
       || croak "NoteEditor: no -object option, got ",
 	join(',', keys %$args);
 
-    $cw->Label( -text => 'Edit note')->pack() ;
+    my $label = 'Edit Note' ;
+    my $status = $label;
+    $cw->Label( -textvariable => \$status )->pack() ;
     my $note_w = $cw->Scrolled ( 'Text',
-				    -height => 5 ,
-				    -scrollbars => 'ow',
-				  )
+				 -height => 5 ,
+				 -scrollbars => 'ow',
+			       )
       ->pack(@fbe1);
 
     # read annotation and set up a callback to save user's entry at
     # every return
     $note_w ->  Contents($obj->annotation);
     $note_w -> bind('<Return>',
-		       sub { $obj->annotation($note_w-> Contents ) ;}
+		       sub { $obj->annotation($note_w-> Contents ) ; $status = $label ;}
 		      );
+    $note_w -> bind ('<KeyPress>', 
+		     sub { my $k = Ev('k') ; 
+			   $status = $label.'(* hit enter to save)' if $k =~/\w/ ;},
+		    );
     #$cw->Button(label=>'ok');
 }
 1;
