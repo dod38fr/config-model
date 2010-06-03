@@ -2,3 +2,6 @@ debian/
 ~$
 \.old$
 dist.ini
+libconfig
+_build
+\.orig\$

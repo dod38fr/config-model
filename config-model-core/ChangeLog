@@ -1,4 +1,9 @@
-2010-05-03  Dominique Dumont  <domi.dumont@free.fr> v1.203 unreleased
+2010-06-03  Dominique Dumont  <domi.dumont@free.fr> v1.204
+
+	* MANIFEST.SKIP: Prompt re-release because 1.203 tarball contains
+	debian packages used for tests (oops)
+
+2010-06-03  Dominique Dumont  <domi.dumont@free.fr> v1.203
 
 	* lib/Config/Model/Loader.pm (_load_hash): Bug fix: can load
 	annotation tied to hash values (node or leaf).
