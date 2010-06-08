@@ -1,3 +1,8 @@
+2010-06-04  Dominique Dumont  <domi.dumont@free.fr> 1.205
+
+	* t/node.t: patch by Niko Tyni to avoid Carp::Heavy failure. Fix
+	Debian FTBS bug #582915 and countless CPAN smoke tests failures
+
 2010-06-03  Dominique Dumont  <domi.dumont@free.fr> v1.204
 
 	* MANIFEST.SKIP: Prompt re-release because 1.203 tarball contains

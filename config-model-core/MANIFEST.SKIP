@@ -4,4 +4,6 @@ debian/
 dist.ini
 libconfig
 _build
-\.orig\$
+\.orig$
+^MYMETA.yml$
+

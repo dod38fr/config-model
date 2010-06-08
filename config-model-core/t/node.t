@@ -121,8 +121,10 @@ is($b->get_element_property(property => 'experience',element => 'X'),
 
 is( $b->fetch_element_value('Z'), undef, "test Z value" );
 
-throws_ok {$b->fetch_element('Z','user')} 
-  qr/Unexpected experience/, "fetch_element with unexpected experience" ;
+# patch by Niko Tyni tp avoid Carp::Heavy failure. See 
+# http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=582915
+eval {$b->fetch_element('Z','user')};
+like($@, qr/Unexpected experience/, "fetch_element with unexpected experience" );
 
 # translated into beginner
 throws_ok { $b->fetch_element('X','beginner'); } 
