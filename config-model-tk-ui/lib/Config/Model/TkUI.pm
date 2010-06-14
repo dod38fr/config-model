@@ -218,7 +218,7 @@ sub Populate {
        #-background => ['DESCENDANTS', 'background', 'Background', $background],
        #-selectbackground => [$hlist, 'selectBackground', 'SelectBackground', 
        #                      $selectbackground],
-       -tree_width  => ['METHOD', undef, undef, 120],
+       -tree_width  => ['METHOD', undef, undef, 80],
        -tree_height => ['METHOD', undef, undef, 40],
        -width   => [ $eh_frame , qw/width Width 1280/],
        -height  => [ $eh_frame, qw/height Height 1024/],

@@ -11,6 +11,7 @@ use subs qw/menu_struct/ ;
 use Tk::Dialog ;
 use Tk::Photo ;
 use Tk::Balloon ;
+use Tk::ErrorDialog ;
 use Config::Model::Tk::NoteEditor ;
 
 Construct Tk::Widget 'ConfigModelHashEditor';
@@ -34,6 +35,18 @@ sub ClassInit {
 
     # cw->Advertise(name=>$widget);
 }
+
+# list of widget that must be activated (0 in this table) when 
+# item is selected in listbox or entry is not empty
+
+my %widget_activation_table = ( add  => { tklist => 1, entry => 0 },
+				mv   => { tklist => 0, entry => 0 },
+				cp   => { tklist => 0, entry => 0 },
+				up   => { tklist => 0, entry => 1 },
+				down => { tklist => 0, entry => 1 },
+				del  => { tklist => 0, entry => 1 },
+			      );
+
 
 sub Populate { 
     my ($cw, $args) = @_;
@@ -62,10 +75,11 @@ sub Populate {
 					 -selectmode => 'single',
 					 -scrollbars => 'oe',
 					 -height => 6,
-				       )
-                            -> pack(@fbe1, -side => 'left') ;
+				       );
+    $tklist-> pack(@fbe1, -side => 'left') ;
 
     $tklist->insert( end => $hash->get_all_indexes) ;
+    $cw->Advertise( tklist => $tklist) ;
 
     my $right_frame = $elt_button_frame->Frame
       ->pack(@fbe1, qw/-side right -anchor n/);
@@ -88,62 +102,89 @@ sub Populate {
     $balloon->attach($keep_b, 
 		     -msg => 'keep entry in widget after add, move or copy');
 
-    my $entry = $item_frame -> Entry (-textvariable => \$item )
-      -> pack  (@fxe1, qw/-side top -anchor n/) ;
+    # Entry
+    my $entry = $item_frame -> Entry (-textvariable => \$item);
+    $entry -> pack  (@fxe1, qw/-side top -anchor n/) ;
     $balloon -> attach($entry, 
 		       -msg => 'enter item name to add, copy to, or move to') ;
+    $cw->Advertise(entry => $entry );
 
+    # bind btoh entries to update correctly the state of all buttons
+    my $bound_sub = sub { $cw->update_state(entry => $item , tklist => $tklist->curselection) };
+    $entry -> bind( '<KeyPress>'       , $bound_sub );
+    $tklist-> bind( '<<ListboxSelect>>', $bound_sub );
+
+    # frame for all buttons
     my $button_frame = $item_frame->Frame->pack( qw/-side top -anchor n/ );
 
+    # add button
     my $addb = $button_frame 
       -> Button(-text => "Add",
 		-command => sub { $cw->add_entry($item); 
 				  $item = '' unless $keep;
+				  &$bound_sub ;
 			      },
 		-anchor => 'e',
-	       )->pack(qw/-side left/);
+	       );
+    $addb -> pack(qw/-side left/);
+    $cw->Advertise( add    => $addb) ;
     my $add_str = $hash->ordered ? " after selection" : '' ;
     $balloon->attach($addb,
-		     -msg => "add entry".$add_str);
+		     -msg => "fill field above and click to add new entry".$add_str);
 
+    # copy button
     my $cp_b = $button_frame 
       -> Button(-text => 'Copy',
 		-command => sub { $cw->copy_selected_in($item); 
-				  $item = '' unless $keep;},
+				  $item = '' unless $keep;
+				  &$bound_sub ;
+			      },
 		-anchor => 'e',
-	       )
-	-> pack(qw/-side right/);
-    $balloon->attach($cp_b,
-		     -msg => "copy selected item in entry");
+	       );
+    $cp_b -> pack(qw/-side right/);
+    $cw->Advertise( cp     => $cp_b) ;
+    $balloon->attach($cp_b, -msg => "copy selected item in entry");
 
-
+    # move button
     my $mv_b = $button_frame 
       -> Button(-text => 'Move',
 		-command => sub { $cw->move_selected_to($item); 
-				  $item = '' unless $keep; },
+				  $item = '' unless $keep;
+				  &$bound_sub,
+			      },
 		-anchor => 'e',
-	       )
-	-> pack(-side => 'left');
+	       );
+    $mv_b -> pack(-side => 'left');
+    $cw->Advertise( mv     => $mv_b) ;
     $balloon->attach($mv_b,
 		     -msg => "move selected item in entry");
 
     if ($hash->ordered) {
 	my $mv_up_down_frame = $right_frame->Frame->pack( @fxe1);
-	$mv_up_down_frame->Button(-image => $up_img,
-				  -command => sub { $cw->move_selected_up ;} ,
-				 )-> pack( -side =>'left' , @fxe1);
+	my $up_b = $mv_up_down_frame->Button(-image => $up_img,
+					     -command => sub { $cw->move_selected_up ;} ,
+					    );
 
-	$mv_up_down_frame->Button(-image => $down_img,
-				  -command => sub { $cw->move_selected_down ;} ,
-				 )-> pack( -side =>'left' , @fxe1);
+	my $down_b = $mv_up_down_frame->Button(-image => $down_img,
+					       -command => sub { $cw->move_selected_down ;} ,
+					      );
+	$up_b -> pack( -side =>'left' , @fxe1);
+	$down_b -> pack( -side =>'left' , @fxe1);
+
+	$cw->Advertise( up => $up_b ) ;
+	$cw->Advertise( down => $down_b ) ;
     }
 
     my $del_rm_frame =  $right_frame->Frame->pack( @fxe1, qw/-side top -anchor n/);
 
-    $del_rm_frame->Button(-text => 'Delete selected',
-			  -command => sub { $cw->delete_selection; 
-					    $item = '' unless $keep;} ,
-			 )-> pack( -side =>'left' , @fxe1);
+    my $del_b = $del_rm_frame->Button(-text => 'Delete selected',
+				      -command => sub { $cw->delete_selection; 
+							$item = '' unless $keep;
+							&$bound_sub;
+						    } ,
+				     ) ;
+    $del_b -> pack( -side =>'left' , @fxe1);
+    $cw->Advertise( del => $del_b ) ;
 
     $del_rm_frame -> Button ( -text => 'Remove all',
 			      -command => sub { $hash->clear ; 
@@ -155,15 +196,34 @@ sub Populate {
 
     $right_frame->ConfigModelNoteEditor( -object => $hash )->pack;
 
-    $cw->{tklist} = $tklist ;
+    # set all buttons to their default state
+    $cw->update_state(tklist => '', entry => '') ;
 
     $cw->Tk::Frame::Populate($args) ;
 }
 
+# update buttons state according to entry and list widget
+# this method is called whenever one of them changes its content
+sub update_state {
+    my ($cw,%content) = @_ ;
+
+    my $wat = \%widget_activation_table ;
+
+    foreach my $button (keys %$wat) {
+	my $new = 1 ;
+	foreach my $c (keys %content) {
+	    $new &&= $wat->{$button}{$c} || $content{$c} ;
+	}
+	my $subwidget = $cw->Subwidget($button) || next;
+	$subwidget->configure( -state => $new ? 'normal':'disabled') ;
+    }
+}
+
+
 sub add_entry {
     my $cw = shift;
     my $add = shift;
-    my $tklist = $cw->{tklist} ;
+    my $tklist = $cw->Subwidget('tklist') ;
     my $hash = $cw->{hash};
 
     $logger->debug("add_entry: $add");
@@ -224,7 +284,7 @@ sub add_and_sort_item {
     my $cw  = shift;
     my $add = shift ;
 
-    my $tklist = $cw->{tklist} ;
+    my $tklist = $cw->Subwidget('tklist') ;
     my $idx = 0;
     my $added = 0 ;
 
@@ -252,7 +312,7 @@ sub add_item {
     my $add = shift ;
 
     my $hash = $cw->{hash};
-    my $tklist = $cw->{tklist} ;
+    my $tklist = $cw->Subwidget('tklist') ;
 
     # add entry in tklist
     if ($hash->ordered) {
@@ -269,7 +329,7 @@ sub add_item {
 sub get_selection {
     my $cw =shift;
     my $what = shift ;
-    my $tklist = $cw->{tklist} ;
+    my $tklist = $cw->Subwidget('tklist') ;
     my @from_idx = $tklist->curselection() ;
     if (not @from_idx) {
 	$cw->Dialog(-title => "$what selection error",
@@ -283,7 +343,7 @@ sub get_selection {
 sub copy_selected_in {
     my $cw =shift;
     my $to_name = shift ;
-    my $tklist = $cw->{tklist} ;
+    my $tklist = $cw->Subwidget('tklist') ;
     my @from_idx = $cw->get_selection('copy') or return 0 ;
     my $from_name = $tklist->get(@from_idx);
 
@@ -311,7 +371,7 @@ sub copy_selected_in {
 sub move_selected_to {
     my $cw =shift;
     my $to_name = shift ;
-    my $tklist = $cw->{tklist} ;
+    my $tklist = $cw->Subwidget('tklist') ;
     my @from_idx = $cw->get_selection('move') or return 0 ;
     my $from_name = $tklist->get(@from_idx);
 
@@ -347,7 +407,7 @@ sub move_selected_to {
 
 sub move_selected_up {
     my $cw =shift;
-    my $tklist = $cw->{tklist} ;
+    my $tklist = $cw->Subwidget('tklist') ;
     my @idx = $tklist->curselection() ;
 
     return unless @idx and $idx[0] > 0;
@@ -370,7 +430,7 @@ sub move_selected_up {
 
 sub move_selected_down {
     my $cw =shift;
-    my $tklist = $cw->{tklist} ;
+    my $tklist = $cw->Subwidget('tklist') ;
     my @idx = $tklist->curselection() ;
     my $hash = $cw->{hash};
     my @h_idx =  $hash->get_all_indexes ;
@@ -394,7 +454,7 @@ sub move_selected_down {
 
 sub delete_selection {
     my $cw = shift ;
-    my $tklist = $cw->{tklist} ;
+    my $tklist = $cw->Subwidget('tklist') ;
     my $hash = $cw->{hash};
 
     foreach ($tklist->curselection()) {
