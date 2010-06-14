@@ -1,3 +1,9 @@
+2010-06-14  Dominique Dumont  <domi.dumont@free.fr>
+
+	* lib/Config/Model/Tk/HashEditor.pm (Populate): Following
+	Krzystof's usability suggestion (http://tyszecki.org/), buttons
+	are disabled when list selection or entry are empty.
+
 2010-05-31  Dominique Dumont  <domi.dumont@free.fr> 1.307
 
 	* Added Note viewer and editor for Leaf, List, CheckList, Node,
