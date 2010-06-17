@@ -15,6 +15,7 @@ Construct Tk::Widget 'ConfigModelListEditor';
 
 my @fbe1 = qw/-fill both -expand 1/ ;
 my @fxe1 = qw/-fill x    -expand 1/ ;
+my @fx   = qw/-fill    x / ;
 my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
 my $entry_width = 20 ;
@@ -33,7 +34,7 @@ sub Populate {
     delete $args->{-path} ;
     $cw->{store_cb} = delete $args->{-store_cb} || die __PACKAGE__,"no -store_cb" ;
 
-    $cw->add_header(Edit => $list) ;
+    $cw->add_header(Edit => $list)->pack(@fx) ;
 
     my $inst = $list->instance ;
 
@@ -61,7 +62,9 @@ sub Populate {
 
     $cw->ConfigModelNoteEditor( -object => $list )->pack ;
     $cw->add_info($cw) ;
-    $cw->add_summary_and_description($list) ;
+    $cw->add_summary($list)->pack(@fx) ;
+    $cw->add_description($list)->pack(@fx) ;
+
 
     my $value_type = $list->get_cargo_info('value_type') ; # may be undef
     if ($cargo_type eq 'leaf' and $value_type ne 'enum' and $value_type ne 'reference') {

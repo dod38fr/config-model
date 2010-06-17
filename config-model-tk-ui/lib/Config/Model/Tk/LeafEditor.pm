@@ -38,7 +38,7 @@ sub Populate {
     my $vt = $leaf -> value_type ;
     $logger->info("Creating leaf editor for value_type $vt");
 
-    $cw->add_header(Edit => $leaf) ;
+    $cw->add_header(Edit => $leaf)->pack(@fx) ;
 
     $cw->{value} = $leaf->fetch ;
     my $vref = \$cw->{value};
@@ -100,8 +100,9 @@ sub Populate {
 
     $cw->ConfigModelNoteEditor( -object => $leaf )->pack;
     $cw->add_info() ;
-    $cw->add_summary_and_description($leaf) ;
-    $cw->{value_help_widget} = $cw->add_help(value => '',1);
+    $cw->add_summary($leaf)->pack(@fx) ;
+    $cw->add_description($leaf)->pack(@fx) ;
+    $cw->{value_help_widget} = $cw->add_help(value => '',1)->pack(@fx);
     $cw->set_value_help ;
 
     $cw->ConfigSpecs(

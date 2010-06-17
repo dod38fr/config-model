@@ -39,7 +39,7 @@ sub Populate {
 
     $inst->pop_no_value_check ;
 
-    $cw->add_header(View => $leaf) ;
+    $cw->add_header(View => $leaf)->pack(@fx) ;
 
     my @pack_args = @fx ;
     @pack_args = @fbe1 if $vt eq 'string' ;
@@ -66,9 +66,10 @@ sub Populate {
     }
 
     $cw->add_info() ;
-    $cw->add_summary_and_description($leaf) ;
-    $cw->add_help('value help'   => $leaf->get_help($cw->{value})) ;
-    $cw->add_editor_button($path) ;
+    $cw->add_summary($leaf)->pack(@fx) ;
+    $cw->add_description($leaf)->pack(@fx) ;
+    $cw->add_help('value help'   => $leaf->get_help($cw->{value}))->pack(@fx) ;
+    $cw->add_editor_button($path)-> pack ;
 
     $cw->ConfigSpecs(
 		     #-fill   => [ qw/SELF fill Fill both/],
@@ -116,8 +117,8 @@ sub add_info {
 	push @items, "$what value: $v" if defined $v;
     }
 
-    $cw->add_annotation($leaf);
-    $cw->add_info_frame(@items) ;
+    $cw->add_annotation($leaf)->pack(@fx);
+    $cw->add_info_button($cw,@items) -> pack;
 }
 
 

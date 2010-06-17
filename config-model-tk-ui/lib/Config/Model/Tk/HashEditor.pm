@@ -60,7 +60,7 @@ sub Populate {
 	$down_img = $cw->Photo(-file => $icon_path.'down.png');
     }
 
-    $cw->add_header(Edit => $hash) ;
+    $cw->add_header(Edit => $hash)->pack(@fx) ;
 
     my $inst = $hash->instance ;
 
@@ -84,8 +84,9 @@ sub Populate {
     my $right_frame = $elt_button_frame->Frame
       ->pack(@fbe1, qw/-side right -anchor n/);
 
-    $cw->add_info() ;
-    $cw->add_summary_and_description($hash) ;
+    $cw->add_info($right_frame) ;
+    $cw->add_summary($hash)->pack(@fx) ;
+    $cw->add_description($hash)->pack(@fx) ;
 
     my $item_frame = $right_frame->Frame(qw/-borderwidth 1 -relief groove/)
       ->pack( @fxe1);

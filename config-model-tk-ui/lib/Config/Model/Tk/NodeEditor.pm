@@ -35,7 +35,7 @@ sub Populate {
     $cw->{path} = delete $args->{-path} ;
     $cw->{store_cb} = delete $args->{-store_cb} || die __PACKAGE__,"no -store_cb" ;
 
-    $cw->add_header(Edit => $node) ;
+    $cw->add_header(Edit => $node)->pack(@fx) ;
 
     $cw -> Label(-text => $node->composite_name.' node elements') -> pack() ;
 
@@ -51,10 +51,11 @@ sub Populate {
     $cw->add_info($cw) ;
 
     if ($node->parent) {
-	$cw->add_summary_and_description($node) ;
+	$cw->add_summary($node)->pack(@fx) ;
+	$cw->add_description($node)->pack(@fx) ;
     }
     else {
-	$cw->add_help(class   => $node->get_help) ;
+	$cw->add_help(class   => $node->get_help)->pack(@fx) ;
     }
     $cw->SUPER::Populate($args) ;
 }
@@ -160,7 +161,7 @@ sub add_info {
 		 'class name : '.$node->config_class_name ,
 		);
 
-    $cw->add_info_frame(@items) ;
+    $cw->add_info_button($info_frame,@items)-> pack ;
 }
 
 

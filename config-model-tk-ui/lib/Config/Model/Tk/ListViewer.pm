@@ -12,6 +12,7 @@ Construct Tk::Widget 'ConfigModelListViewer';
 
 my @fbe1 = qw/-fill both -expand 1/ ;
 my @fxe1 = qw/-fill x    -expand 1/ ;
+my @fx   = qw/-fill    x / ;
 
 sub ClassInit {
     my ($cw, $args) = @_;
@@ -28,7 +29,7 @@ sub Populate {
     my $path = delete $args->{-path} 
       || die "ListViewer: no -path, got ",keys %$args;
 
-    $cw->add_header(View => $list) ;
+    $cw->add_header(View => $list)->pack(@fx) ;
 
     my $inst = $list->instance ;
 
@@ -48,8 +49,9 @@ sub Populate {
     }
 
     $cw->add_info($cw) ;
-    $cw->add_summary_and_description($list) ;
-    $cw->add_editor_button($path) ;
+    $cw->add_summary($list)->pack(@fx) ;
+    $cw->add_description($list)->pack(@fx) ;
+    $cw->add_editor_button($path)-> pack ;
 
     $cw->SUPER::Populate($args) ;
 }
@@ -81,8 +83,8 @@ sub add_info {
 	push @items, "$str: $v" if defined $v;
     }
 
-    $cw->add_annotation($list) ;
-    $cw->add_info_frame(@items) ;
+    $cw->add_annotation($list)->pack(@fx) ;
+    $cw->add_info_button($info_frame,@items)-> pack ;
 }
 
 

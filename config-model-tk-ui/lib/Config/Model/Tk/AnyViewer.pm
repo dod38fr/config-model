@@ -24,6 +24,7 @@ use Carp ;
 
 use Tk::Photo ;
 use Tk::ROText;
+use Tk::Dialog ;
 use Config::Model::TkUI ;
 
 use vars qw/$icon_path/ ;
@@ -57,13 +58,15 @@ sub add_header {
 
     my $label = "$type: ";
     $label .= $item->location || "Class $class" ;
-    my $f = $cw -> Frame -> pack (@fx);
+    my $f = $cw -> Frame ;
 
     $f -> Label (-image => $img{lc($type)} , -anchor => 'w') 
       -> pack (-side => 'left');
 
     $f -> Label ( -text => $label, -anchor => 'e' )
        -> pack  (-side => 'left', @fx);
+
+    return $f ;
 }
 
 my @top_frame_args = qw/-relief raised -borderwidth 4/ ;
@@ -71,35 +74,34 @@ my @low_frame_args = qw/-relief sunken -borderwidth 1/ ;
 my $padx = 20 ;
 my $text_font = [qw/-family Arial -weight normal/] ;
 
-sub add_info_frame {
-    my $cw = shift;
+sub add_info_button {
+    my $cw = shift ;
+    my $frame = shift ;
 
-    my @items = ( "Config class: ". $cw->{config_class_name}, @_ );
-
-    my $frame = $cw->Frame()->pack(@fx) ;
-    $frame -> Label(-text => 'Info', -anchor => 'w' ) ->pack(qw/-fill x/) ;
-
-    my $i_frame = $frame->Frame(
-				-padx => $padx 
-			       )->pack(@fx) ;
-    map { $i_frame -> Label(-text => $_, 
-			    -anchor => 'w',  
-			    -font => $text_font ,
-			   ) ->pack(@fx)  ;
-	} @items;
+    my $dialog = $cw->Dialog (
+			      -title => "Info on ". $cw->{config_class_name},
+			      -text => join("\n",@_),
+			      -font => $text_font ,
+			      -width => 40,
+			     );
+    my $button = $frame 
+      -> Button(-text => "info ...",
+		-command => sub {$dialog -> Show; }
+	       ) ;
+    return $button ; # to be packed by caller
 }
 
 
-# returns the help widget (Label or ROText)
+# returns the help widget (Label or ROText) which must be packed by caller
 sub add_help {
     my $cw = shift ;
     my $help_label = shift ;
     my $help = shift || '' ;
     my $force_text_widget = shift || 0;
 
-    return undef unless $force_text_widget or $help;
+    my $help_frame = $cw-> Frame();
 
-    my $help_frame = $cw-> Frame()->pack(@fbe1);
+    return $help_frame unless $force_text_widget or $help;
 
     $help_frame ->Label(
 			 -text => $help_label, 
@@ -133,16 +135,23 @@ sub add_help {
     return $widget ;
 }
 
-sub add_summary_and_description {
+sub add_summary {
     my ($cw, $elt_obj) = @_ ;
 
     my $p    = $elt_obj->parent ;
     my $name = $elt_obj->element_name ;
-    foreach my $topic (qw/summary description/) {
-	$cw->add_help( ucfirst($topic), $p->get_help($topic => $name)) ;
-    }
+    $cw->add_help( Summary => $p->get_help(summary => $name)) ;
 }
 
+sub add_description {
+    my ($cw, $elt_obj) = @_ ;
+
+    my $p    = $elt_obj->parent ;
+    my $name = $elt_obj->element_name ;
+    $cw->add_help( Description => $p->get_help(description => $name)) ;
+}
+
+# returns a widget that must be packed
 sub add_annotation {
     my ($cw, $obj) = @_ ;
 
@@ -156,7 +165,7 @@ sub add_editor_button {
 	$cw->parent->parent->parent->parent
 	  -> create_element_widget( edit => $path) ;
 	} ;
-    $cw->Button(-text => 'Edit ...', -command => $sub)-> pack ;
+    $cw->Button(-text => 'Edit ...', -command => $sub) ;
 }
 
 # do nothing by default 

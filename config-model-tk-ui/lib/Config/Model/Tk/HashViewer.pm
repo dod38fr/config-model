@@ -11,6 +11,7 @@ Construct Tk::Widget 'ConfigModelHashViewer';
 
 my @fbe1 = qw/-fill both -expand 1/ ;
 my @fxe1 = qw/-fill x    -expand 1/ ;
+my @fx   = qw/-fill    x / ;
 
 sub ClassInit {
     my ($cw, $args) = @_;
@@ -27,11 +28,12 @@ sub Populate {
     my $path = delete $args->{-path} 
       || die "HashViewer: no -path, got ",keys %$args;
 
-    $cw->add_header(View => $hash) ;
+    $cw->add_header(View => $hash)->pack(@fx) ;
 
     my $inst = $hash->instance ;
 
-    my $elt_frame = $cw->Frame(qw/-relief raised -borderwidth 2/)->pack(@fxe1) ;
+    my $elt_frame = $cw->Frame(qw/-relief raised -borderwidth 2/)
+      -> pack(@fbe1) ;
     my $str =  $hash->element_name.' '.$hash->get_type .' elements' ;
     $elt_frame -> Label(-text => $str) -> pack() ;
 
@@ -44,18 +46,18 @@ sub Populate {
 	$rt->insert('end', $c."\n" ) ;
     }
 
-    $cw->add_annotation($hash);
-    $cw->add_info($cw) ;
-    $cw->add_summary_and_description($hash) ;
-    $cw->add_editor_button($path) ;
+    $cw->add_annotation($hash)->pack(@fx);
+    $cw->add_summary($hash)->pack(@fx) ;
+    $cw->add_description($hash)->pack(@fx) ;
+    $cw->add_info_button($cw,$cw->get_info)-> pack(-side => 'left',@fxe1) ;
+    $cw->add_editor_button($path)-> pack(-side => 'right', @fxe1) ;
 
     $cw->SUPER::Populate($args) ;
 }
 
 
-sub add_info {
+sub get_info {
     my $cw = shift ;
-    my $info_frame = shift ;
 
     my $hash = $cw->{hash} ;
 
@@ -76,7 +78,7 @@ sub add_info {
 	push @items, "$str: $v" if defined $v;
     }
 
-    $cw->add_info_frame(@items) ;
+    return @items ;
 }
 
 

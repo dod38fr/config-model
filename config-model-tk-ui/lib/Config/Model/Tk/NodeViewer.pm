@@ -12,6 +12,7 @@ Construct Tk::Widget 'ConfigModelNodeViewer';
 
 my @fbe1 = qw/-fill both -expand 1/ ;
 my @fxe1 = qw/-fill x    -expand 1/ ;
+my @fx   = qw/-fill    x / ;
 
 sub ClassInit {
     my ($cw, $args) = @_;
@@ -27,7 +28,7 @@ sub Populate {
       || die "NodeViewer: no -item, got ",keys %$args;
     my $path = delete $args->{-path} ;
 
-    $cw->add_header(View => $node) ;
+    $cw->add_header(View => $node)->pack(@fx) ;
 
     my $inst = $node->instance ;
 
@@ -52,17 +53,18 @@ sub Populate {
     #$cw->{adjust} = $cw -> Adjuster();
     #$cw->{adjust}->packAfter($hl, -side => 'top') ;
 
-    $cw->add_annotation($node);
+    $cw->add_annotation($node)->pack(@fx);
     $cw->add_info($cw) ;
 
     if ($node->parent) {
-	$cw->add_summary_and_description($node) ;
+	$cw->add_summary($node)->pack(@fx) ;
+	$cw->add_description($node)->pack(@fx) ;
     }
     else {
-	$cw->add_help(class   => $node->get_help) ;
+	$cw->add_help(class   => $node->get_help)->pack(@fx) ;
     }
 
-    $cw->add_editor_button($path) ;
+    $cw->add_editor_button($path)-> pack ;
 
     $cw->SUPER::Populate($args) ;
 }
@@ -131,7 +133,7 @@ sub add_info {
 		 'class name : '.$node->config_class_name ,
 		);
 
-    $cw->add_info_frame(@items) ;
+    $cw->add_info_button($info_frame,@items)-> pack ;
 }
 
 

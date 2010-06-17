@@ -12,6 +12,7 @@ use Tk::ROText ;
 Construct Tk::Widget 'ConfigModelCheckListViewer';
 
 my @fbe1 = qw/-fill both -expand 1/ ;
+my @fx   = qw/-fill x/ ;
 
 sub ClassInit {
     my ($cw, $args) = @_;
@@ -30,7 +31,7 @@ sub Populate {
 
     my $inst = $leaf->instance ;
 
-    $cw->add_header(View => $leaf) ;
+    $cw->add_header(View => $leaf)->pack(@fx) ;
 
     my $rt = $cw->Scrolled ( 'ROText',
 			     -scrollbars => 'osoe',
@@ -38,10 +39,11 @@ sub Populate {
 			   ) ->pack(@fbe1) ;
     $rt->tagConfigure('in',-background => 'black', -foreground => 'white') ;
 
-    $cw->add_annotation($leaf) ;
+    $cw->add_annotation($leaf)->pack(@fx) ;
     $cw->add_info() ;
-    $cw->add_summary_and_description($leaf) ;
-    $cw->{value_help_widget} = $cw->add_help(value => '',1);
+    $cw->add_summary($leaf)->pack(@fx) ;
+    $cw->add_description($leaf)->pack(@fx) ;
+    $cw->{value_help_widget} = $cw->add_help(value => '',1)->pack(@fx);
 
     my %h = $leaf->get_checked_list_as_hash ;
     foreach my $c ($leaf->get_choice) {
@@ -51,7 +53,7 @@ sub Populate {
 
     $cw->set_value_help($leaf->get_checked_list);
 
-    $cw->add_editor_button($path) ;
+    $cw->add_editor_button($path) -> pack;
 
     $cw->SUPER::Populate($args) ;
 }
@@ -89,7 +91,7 @@ sub add_info {
     if (defined $leaf->refer_to) {
 	push @items, "refer_to: ".$leaf->refer_to ;
     }
-    $cw->add_info_frame(@items) if @items ;
+    $cw->add_info_button($cw,@items)-> pack if @items ;
 }
 
 1;

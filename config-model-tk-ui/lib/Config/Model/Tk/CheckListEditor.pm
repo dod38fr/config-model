@@ -20,6 +20,7 @@ my $down_img;
 
 my @fbe1 = qw/-fill both -expand 1/ ;
 my @fxe1 = qw/-fill    x -expand 1/ ;
+my @fx   = qw/-fill    x / ;
 
 sub ClassInit {
     my ($cw, $args) = @_;
@@ -38,7 +39,7 @@ sub Populate {
 
     my $inst = $leaf->instance ;
 
-    $cw->add_header(Edit => $leaf) ;
+    $cw->add_header(Edit => $leaf)->pack(@fx) ;
 
     my $nb = $cw->Component('NoteBook','notebook')->pack(@fbe1);
 
@@ -84,8 +85,9 @@ sub Populate {
 		      ) -> pack(-side => 'left') ;
 
     $cw->ConfigModelNoteEditor( -object => $leaf )->pack(@fbe1) ;
-    $cw->add_summary_and_description($leaf) ;
-    $cw->{value_help_widget} = $cw->add_help(value => '',1);
+    $cw->add_summary($leaf)->pack(@fx) ;
+    $cw->add_description($leaf)->pack(@fx) ;
+    $cw->{value_help_widget} = $cw->add_help(value => '',1)->pack(@fx);
     $b_sub->() ;
 
     # Add a second page to edit the list order for ordered check list
