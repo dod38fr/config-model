@@ -12,6 +12,7 @@ use Tk::ROText ;
 Construct Tk::Widget 'ConfigModelCheckListViewer';
 
 my @fbe1 = qw/-fill both -expand 1/ ;
+my @fxe1 = qw/-fill x    -expand 1/ ;
 my @fx   = qw/-fill x/ ;
 
 sub ClassInit {
@@ -39,21 +40,22 @@ sub Populate {
 			   ) ->pack(@fbe1) ;
     $rt->tagConfigure('in',-background => 'black', -foreground => 'white') ;
 
-    $cw->add_annotation($leaf)->pack(@fx) ;
-    $cw->add_info() ;
-    $cw->add_summary($leaf)->pack(@fx) ;
-    $cw->add_description($leaf)->pack(@fx) ;
-    $cw->{value_help_widget} = $cw->add_help(value => '',1)->pack(@fx);
-
     my %h = $leaf->get_checked_list_as_hash ;
     foreach my $c ($leaf->get_choice) {
 	my $tag = $h{$c} ? 'in' : 'out' ;
 	$rt->insert('end', $c."\n" , $tag) ;
     }
 
+    $cw->add_annotation($leaf)->pack(@fx) ;
+    $cw->add_summary($leaf)->pack(@fx) ;
+
+    $cw->{value_help_widget} = $cw->add_help(value => '',1)->pack(@fx);
     $cw->set_value_help($leaf->get_checked_list);
 
-    $cw->add_editor_button($path) -> pack;
+    $cw->add_description($leaf)->pack(@fx) ;
+
+    $cw->add_info_button()->pack(@fxe1, -side => 'left') ;
+    $cw->add_editor_button($path)-> pack(@fxe1, -side => 'right') ;
 
     $cw->SUPER::Populate($args) ;
 }
@@ -83,7 +85,7 @@ sub set_value_help {
      }
  }
 
-sub add_info {
+sub get_info {
     my $cw = shift ;
 
     my @items = () ;
@@ -91,7 +93,8 @@ sub add_info {
     if (defined $leaf->refer_to) {
 	push @items, "refer_to: ".$leaf->refer_to ;
     }
-    $cw->add_info_button($cw,@items)-> pack if @items ;
+    push @items, "ordered: ". ($leaf->ordered ? 'yes' : 'no');
+    return $leaf->element_name, @items ;
 }
 
 1;

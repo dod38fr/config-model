@@ -65,11 +65,12 @@ sub Populate {
 	    -> pack(@fxe1, -side => 'left');
     }
 
-    $cw->add_info() ;
+    $cw->add_annotation($leaf)->pack(@fx);
     $cw->add_summary($leaf)->pack(@fx) ;
     $cw->add_description($leaf)->pack(@fx) ;
     $cw->add_help('value help'   => $leaf->get_help($cw->{value}))->pack(@fx) ;
-    $cw->add_editor_button($path)-> pack ;
+    $cw->add_info_button()       -> pack(@fxe1, -side => 'left' , -anchor => 'n') ;
+    $cw->add_editor_button($path)-> pack(@fxe1, -side => 'right', -anchor => 'n') ;
 
     $cw->ConfigSpecs(
 		     #-fill   => [ qw/SELF fill Fill both/],
@@ -82,7 +83,7 @@ sub Populate {
     $cw->SUPER::Populate($args) ;
 }
 
-sub add_info {
+sub get_info {
     my $cw = shift ;
 
     my $leaf = $cw->{leaf} ;
@@ -108,7 +109,6 @@ sub add_info {
 	push @items, "computed reference to: " . $leaf->computed_refer_to ;
     }
 
-
     my $m = $leaf->mandatory ;
     push @items, "is mandatory: ".($m ? 'yes':'no') if defined $m;
 
@@ -117,8 +117,7 @@ sub add_info {
 	push @items, "$what value: $v" if defined $v;
     }
 
-    $cw->add_annotation($leaf)->pack(@fx);
-    $cw->add_info_button($cw,@items) -> pack;
+    return $leaf->element_name, @items;
 }
 
 

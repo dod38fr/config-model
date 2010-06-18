@@ -76,13 +76,17 @@ my $text_font = [qw/-family Arial -weight normal/] ;
 
 sub add_info_button {
     my $cw = shift ;
-    my $frame = shift ;
+    my $frame = shift || $cw ;
+
+    my ($elt_name,@items) = $cw->get_info ;
+
+    my $title = "Info on ". $cw->{config_class_name};
+    $title .= ':'.$elt_name if $elt_name;
 
     my $dialog = $cw->Dialog (
-			      -title => "Info on ". $cw->{config_class_name},
-			      -text => join("\n",@_),
+			      -title => $title,
+			      -text => join("\n",$title,@items),
 			      -font => $text_font ,
-			      -width => 40,
 			     );
     my $button = $frame 
       -> Button(-text => "info ...",

@@ -33,7 +33,7 @@ sub Populate {
 
     my $inst = $list->instance ;
 
-    my $elt_frame = $cw->Frame(qw/-relief raised -borderwidth 2/)->pack(@fxe1) ;
+    my $elt_frame = $cw->Frame(qw/-relief raised -borderwidth 2/)->pack(@fbe1) ;
     my $str =  $list->element_name.' '.$list->get_type .' elements' ;
     $elt_frame -> Label(-text => $str) -> pack() ;
 
@@ -48,16 +48,18 @@ sub Populate {
 	$rt->insert('end', $line."\n" ) ;
     }
 
-    $cw->add_info($cw) ;
+    $cw->add_annotation($list)->pack(@fx) ;
     $cw->add_summary($list)->pack(@fx) ;
     $cw->add_description($list)->pack(@fx) ;
-    $cw->add_editor_button($path)-> pack ;
+
+    $cw->add_info_button()-> pack(-side => 'left',@fxe1) ;
+    $cw->add_editor_button($path)-> pack(-side => 'right', @fxe1) ;
 
     $cw->SUPER::Populate($args) ;
 }
 
 
-sub add_info {
+sub get_info {
     my $cw = shift ;
     my $info_frame = shift ;
 
@@ -83,8 +85,7 @@ sub add_info {
 	push @items, "$str: $v" if defined $v;
     }
 
-    $cw->add_annotation($list)->pack(@fx) ;
-    $cw->add_info_button($info_frame,@items)-> pack ;
+    return $list->element_name, @items ;
 }
 
 

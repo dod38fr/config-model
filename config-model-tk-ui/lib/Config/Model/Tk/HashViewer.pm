@@ -46,10 +46,11 @@ sub Populate {
 	$rt->insert('end', $c."\n" ) ;
     }
 
-    $cw->add_annotation($hash)->pack(@fx);
-    $cw->add_summary($hash)->pack(@fx) ;
-    $cw->add_description($hash)->pack(@fx) ;
-    $cw->add_info_button($cw,$cw->get_info)-> pack(-side => 'left',@fxe1) ;
+    $cw->add_annotation($hash) -> pack(@fx);
+    $cw->add_summary($hash)    -> pack(@fx) ;
+    $cw->add_description($hash)-> pack(@fx) ;
+
+    $cw->add_info_button()-> pack(-side => 'left',@fxe1) ;
     $cw->add_editor_button($path)-> pack(-side => 'right', @fxe1) ;
 
     $cw->SUPER::Populate($args) ;
@@ -78,7 +79,7 @@ sub get_info {
 	push @items, "$str: $v" if defined $v;
     }
 
-    return @items ;
+    return ($hash->element_name, @items) ;
 }
 
 

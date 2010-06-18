@@ -54,7 +54,6 @@ sub Populate {
     #$cw->{adjust}->packAfter($hl, -side => 'top') ;
 
     $cw->add_annotation($node)->pack(@fx);
-    $cw->add_info($cw) ;
 
     if ($node->parent) {
 	$cw->add_summary($node)->pack(@fx) ;
@@ -64,7 +63,8 @@ sub Populate {
 	$cw->add_help(class   => $node->get_help)->pack(@fx) ;
     }
 
-    $cw->add_editor_button($path)-> pack ;
+    $cw->add_info_button()->pack(@fxe1, -side => 'left') ;
+    $cw->add_editor_button($path)-> pack (@fxe1, -side => 'right');
 
     $cw->SUPER::Populate($args) ;
 }
@@ -123,9 +123,8 @@ sub reload {
     map {$hl->delete(entry => $_); } keys %old_elt ;
 }
 
-sub add_info {
+sub get_info {
     my $cw = shift ;
-    my $info_frame = shift ;
 
     my $node = $cw->{node} ;
 
@@ -133,7 +132,7 @@ sub add_info {
 		 'class name : '.$node->config_class_name ,
 		);
 
-    $cw->add_info_button($info_frame,@items)-> pack ;
+    return $node->element_name,@items ;
 }
 
 
