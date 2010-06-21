@@ -60,46 +60,41 @@ sub Populate {
 	$down_img = $cw->Photo(-file => $icon_path.'down.png');
     }
 
-    $cw->add_header(Edit => $hash)->pack(@fx) ;
+    $cw->add_header(Edit => $hash)->pack(@fx, -anchor => 'n') ;
 
     my $inst = $hash->instance ;
 
-    my $elt_button_frame = $cw->Frame->pack(@fbe1) ;
+    # frame for element list
+    my $elt_frame = $cw->Frame(qw/-relief raised -borderwidth 2/)
+      ->pack(@fbe1,-side => 'left', -anchor => 'w') ;
 
-    my $elt_frame = $elt_button_frame->Frame(qw/-relief raised -borderwidth 2/)
-                                     ->pack(@fbe1,-side => 'left') ;
     $elt_frame -> Label(-text => $hash->element_name.' elements')
       -> pack(@fx) ;
 
+    # element list
     my $tklist = $elt_frame ->Scrolled ( 'Listbox',
 					 -selectmode => 'single',
 					 -scrollbars => 'oe',
 					 -height => 6,
 				       );
     $tklist-> pack(@fbe1, -side => 'left') ;
-
     $tklist->insert( end => $hash->get_all_indexes) ;
     $cw->Advertise( tklist => $tklist) ;
 
-    my $right_frame = $elt_button_frame->Frame
-      ->pack(@fbe1, qw/-side right -anchor n/);
-
-    $cw->add_info($right_frame) ;
-    $cw->add_summary($hash)->pack(@fx) ;
-    $cw->add_description($hash)->pack(@fx) ;
-
-    my $item_frame = $right_frame->Frame(qw/-borderwidth 1 -relief groove/)
-      ->pack( @fxe1);
+    my $item_frame = $cw->Frame(qw/-borderwidth 1 -relief groove/)
+      ->pack( @fx, -anchor => 'n');
 
     my $balloon = $cw->Balloon(-state => 'balloon') ;
 
+    my $label_keep_frame = $item_frame->Frame->pack(@fxe1) ;
     my $item = '';
     my $keep = 0 ;
-    my $label_frame = $item_frame->Frame->pack( @fxe1, qw/-side top -anchor n/);
-    $label_frame -> Label (-text => 'Item:')->pack(@fxe1,-side => 'left') ;
-    my $keep_b = $label_frame -> Checkbutton (-variable => \$keep, 
+    $label_keep_frame -> Label (-text => 'Item:')
+      -> pack(-side => 'left', -anchor => 'w') ;
+
+    my $keep_b = $label_keep_frame -> Checkbutton (-variable => \$keep, 
 					    -text => 'keep')
-      -> pack  (-side => 'left') ;
+      -> pack  (qw/-side right -anchor e/) ;
     $balloon->attach($keep_b, 
 		     -msg => 'keep entry in widget after add, move or copy');
 
@@ -110,13 +105,15 @@ sub Populate {
 		       -msg => 'enter item name to add, copy to, or move to') ;
     $cw->Advertise(entry => $entry );
 
-    # bind btoh entries to update correctly the state of all buttons
-    my $bound_sub = sub { $cw->update_state(entry => $item , tklist => $tklist->curselection) };
+    # bind both entries to update correctly the state of all buttons
+    my $bound_sub = sub { 
+	$cw->update_state(entry => $item , tklist => $tklist->curselection) 
+    };
     $entry -> bind( '<KeyPress>'       , $bound_sub );
     $tklist-> bind( '<<ListboxSelect>>', $bound_sub );
 
     # frame for all buttons
-    my $button_frame = $item_frame->Frame->pack( qw/-side top -anchor n/ );
+    my $button_frame = $item_frame->Frame->pack(@fxe1,qw/-anchor n/ );
 
     # add button
     my $addb = $button_frame 
@@ -127,7 +124,7 @@ sub Populate {
 			      },
 		-anchor => 'e',
 	       );
-    $addb -> pack(qw/-side left/);
+    $addb -> pack(@fxe1, qw/-side left/);
     $cw->Advertise( add    => $addb) ;
     my $add_str = $hash->ordered ? " after selection" : '' ;
     $balloon->attach($addb,
@@ -143,7 +140,7 @@ sub Populate {
 		-anchor => 'e',
 	       );
     $cp_b -> pack(qw/-side right/);
-    $cw->Advertise( cp     => $cp_b) ;
+    $cw->Advertise(@fxe1, cp     => $cp_b) ;
     $balloon->attach($cp_b, -msg => "copy selected item in entry");
 
     # move button
@@ -155,13 +152,13 @@ sub Populate {
 			      },
 		-anchor => 'e',
 	       );
-    $mv_b -> pack(-side => 'left');
+    $mv_b -> pack(@fxe1, -side => 'left');
     $cw->Advertise( mv     => $mv_b) ;
     $balloon->attach($mv_b,
 		     -msg => "move selected item in entry");
 
     if ($hash->ordered) {
-	my $mv_up_down_frame = $right_frame->Frame->pack( @fxe1);
+	my $mv_up_down_frame = $item_frame->Frame->pack( @fx, qw/-anchor n/);
 	my $up_b = $mv_up_down_frame->Button(-image => $up_img,
 					     -command => sub { $cw->move_selected_up ;} ,
 					    );
@@ -176,15 +173,15 @@ sub Populate {
 	$cw->Advertise( down => $down_b ) ;
     }
 
-    my $del_rm_frame =  $right_frame->Frame->pack( @fxe1, qw/-side top -anchor n/);
+    my $del_rm_frame =  $item_frame->Frame->pack( @fx, qw/-side top -anchor n/);
 
-    my $del_b = $del_rm_frame->Button(-text => 'Delete selected',
+    my $del_b = $del_rm_frame->Button(-text => 'Remove selected',
 				      -command => sub { $cw->delete_selection; 
 							$item = '' unless $keep;
 							&$bound_sub;
 						    } ,
 				     ) ;
-    $del_b -> pack( -side =>'left' , @fxe1);
+    $del_b -> pack( -side => 'left' , @fxe1);
     $cw->Advertise( del => $del_b ) ;
 
     $del_rm_frame -> Button ( -text => 'Remove all',
@@ -195,10 +192,14 @@ sub Populate {
 					    },
 			    ) -> pack(-side => 'left', @fxe1) ;
 
-    $right_frame->ConfigModelNoteEditor( -object => $hash )->pack;
+    $cw->ConfigModelNoteEditor( -object => $hash )->pack( qw/-anchor n/);
 
     # set all buttons to their default state
     $cw->update_state(tklist => '', entry => '') ;
+
+    $cw->add_info_button()->pack( @fx,qw/-anchor n/) ;
+    $cw->add_summary($hash)->pack(@fx) ;
+    $cw->add_description($hash)->pack(@fx) ;
 
     $cw->Tk::Frame::Populate($args) ;
 }

@@ -219,7 +219,7 @@ sub Populate {
        #-selectbackground => [$hlist, 'selectBackground', 'SelectBackground', 
        #                      $selectbackground],
        -tree_width  => ['METHOD', undef, undef, 80],
-       -tree_height => ['METHOD', undef, undef, 40],
+       -tree_height => ['METHOD', undef, undef, 30],
        -width   => [ $eh_frame , qw/width Width 1280/],
        -height  => [ $eh_frame, qw/height Height 1024/],
        -selectmode => [ $tree, 'selectMode' ,'SelectMode', 'single' ], #single',
