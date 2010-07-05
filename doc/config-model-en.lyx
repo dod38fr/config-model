@@ -1,4 +1,4 @@
-#LyX 1.6.5 created this file. For more info see http://www.lyx.org/
+#LyX 1.6.6 created this file. For more info see http://www.lyx.org/
 \lyxformat 345
 \begin_document
 \begin_header
@@ -14,8 +14,9 @@
 \usepackage{ifthen}
 \newcommand{\showotherui}{false}
 \newcommand{\showadvanced}{false}
-\newcommand{\showaugeas}{false}
+\newcommand{\showaugeas}{true}
 \newcommand{\showreadwrite}{false}
+\newcommand{\showpackageupgrade}{false}
 \newcommand{\showhairyupgrade}{false}
 \end_preamble
 \options handout
@@ -1727,6 +1728,17 @@ status open
 }{} %showaugeas
 \end_layout
 
+\begin_layout Plain Layout
+
+
+\backslash
+ifthenelse{
+\backslash
+equal{
+\backslash
+showpackageupgrade}{true}}{
+\end_layout
+
 \end_inset
 
 
@@ -2210,6 +2222,20 @@ config-edit --model Sshd -ui none -save
 \end_layout
 
 \end_deeper
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+}{} % showpackageupgrade
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
 \begin_layout Section
 Status
 \end_layout
