@@ -12,11 +12,11 @@
 % \setbeameroption{show only notes}
 
 \usepackage{ifthen}
-\newcommand{\showotherui}{false}
+\newcommand{\showotherui}{true}
 \newcommand{\showadvanced}{false}
-\newcommand{\showaugeas}{true}
-\newcommand{\showreadwrite}{false}
-\newcommand{\showpackageupgrade}{false}
+\newcommand{\showaugeas}{false}
+\newcommand{\showreadwrite}{true}
+\newcommand{\showpackageupgrade}{true}
 \newcommand{\showhairyupgrade}{false}
 \end_preamble
 \options handout
@@ -64,7 +64,7 @@
 status open
 
 \begin_layout Plain Layout
-Copyright 2009, Dominique Dumont <domi.dumont@free.fr>.
+Copyright 2009-2010, Dominique Dumont <domi.dumont@free.fr>.
  
 \end_layout
 
@@ -106,7 +106,7 @@ Debian Perl Group
 \end_layout
 
 \begin_layout Date
-FOSDEM 2010
+July 2010
 \end_layout
 
 \begin_layout Standard
@@ -2335,7 +2335,7 @@ Perl data structure
 \end_layout
 
 \begin_layout Itemize
-YAML (on-going)
+YAML
 \end_layout
 
 \begin_deeper
@@ -2394,6 +2394,10 @@ Proposal and patches for dh_config (package upgrades)
 
 \begin_layout Itemize
 Article in GNULinux Mag France
+\end_layout
+
+\begin_layout Itemize
+2010 GSoC project based on Config::Model
 \end_layout
 
 \end_deeper

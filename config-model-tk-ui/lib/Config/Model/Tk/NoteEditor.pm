@@ -45,6 +45,11 @@ sub Populate {
 			       )
       ->pack(@fbe1);
 
+    my $balloon = $cw->Balloon(-state => 'balloon') ;
+    $balloon->attach($note_w, 
+		     -msg => 'You may enter a comment here');
+
+
     # read annotation and set up a callback to save user's entry at
     # every return
     $note_w ->  Contents($obj->annotation);

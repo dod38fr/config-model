@@ -623,7 +623,8 @@ sub disp_hash {
 
 	if ($tkt->infoExists($newpath) ) {
 	    my $previous_data = $tkt->info(data => $newpath);
-	    my $previous_elt  = $previous_data->[1] ;
+	    # $previous_data is an object (or an empty string to avoid warnings)
+	    my $previous_elt  = $previous_data->[1] || '';
 	    $eltmode = $tkt->getmode($newpath); # will reuse mode below
 	    $logger->trace("disp_hash reuse $newpath mode $eltmode cargo_type $elt_type"
 			   ." obj $previous_elt" );
