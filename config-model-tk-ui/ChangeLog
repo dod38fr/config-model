@@ -1,3 +1,8 @@
+2010-07-13  Dominique Dumont  <domi.dumont@free.fr>
+
+	* lib/Config/Model/Tk/ListEditor.pm (move_down): fixed to move
+	past element nb 2.
+
 2010-06-14  Dominique Dumont  <domi.dumont@free.fr>
 
 	* lib/Config/Model/Tk/HashEditor.pm (Populate): Following

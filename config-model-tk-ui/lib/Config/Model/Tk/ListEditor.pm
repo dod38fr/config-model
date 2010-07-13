@@ -295,7 +295,8 @@ sub move_down {
     return unless @$from_idx_ref ;
 
     my $from_idx = $from_idx_ref->[0] ;
-    return unless $from_idx < @$from_idx_ref ;
+    my $max_idx = $cw->{list}->fetch_size - 1;
+    return unless $from_idx < $max_idx ;
 
     $cw->swap($from_idx , $from_idx + 1) ;
 }
