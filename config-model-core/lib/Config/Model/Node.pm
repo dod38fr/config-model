@@ -1,4 +1,4 @@
-#    Copyright (c) 2005-2010 Dominique Dumont.
+#    Copyright (c) 2005-2010 Dominique Dumont, Krzysztof Tyszecki.
 #
 #    This file is part of Config-Model.
 #
@@ -1255,17 +1255,20 @@ sub load {
     }
 }
 
-=head2 load_data ( hash_ref )
+=head2 load_data ( hash_ref, hash_ref )
 
-Load configuration data with a hash ref. The hash ref key must match
+Load configuration data with a hash ref (first parameter). The hash ref key must match
 the available elements of the node. The hash ref structure must match
 the structure of the configuration model.
+
+The second parameter is optional and contains annotations for elements
 
 =cut
 
 sub load_data {
     my $self = shift ;
     my $p    = shift ;
+    my $a    = shift ;
 
     my $check = $self->instance->get_value_check('store') ;
 
@@ -1280,6 +1283,7 @@ sub load_data {
     }
 
     my $h = dclone $p ;
+    my $ca = dclone $a if defined $a;
 
     $logger->info("Node load_data (",$self->location,") will load elt ",
 		  join (' ',keys %$h));
@@ -1292,7 +1296,16 @@ sub load_data {
 	    or not $check
 	   ) {
 	    my $obj = $self->fetch_element($elt,'master', not $check) ;
-	    $obj -> load_data(delete $h->{$elt}) ;
+
+	    if (defined $a && defined $ca->{$elt}){
+		    #FIXME: The following line 'does not meet my personal code quality expectations'
+		    #It makes wrong assumption that every annotation is an array
+		    $obj -> annotation(@{$ca->{$elt}});
+		    $obj -> load_data(delete $h->{$elt}, delete $ca->{$elt}) ;
+	    }
+	    else{
+		    $obj -> load_data(delete $h->{$elt}) ;
+	    }
 	}
 	else {
 	    Config::Model::Exception::LoadData 
@@ -1462,4 +1475,3 @@ L<Config::Model::WarpedNode>,
 L<Config::Model::Value>
 
 =cut
-

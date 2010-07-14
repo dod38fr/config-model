@@ -62,12 +62,18 @@ sub read {
 
 
     my $data = {};
+    my $annot = {};
+    my @comments;
 
     my $section;
 
     foreach ($args{io_handle}->getlines) {
-	next if /^[;#]/ ; # remove comments added by Config::Model
 	chomp ;
+	if (/^[;#]/){
+		push @comments, $_;
+		next;
+	}
+
 	next if/^\s*$/;
 
 	#Update section name
@@ -80,10 +86,14 @@ sub read {
 
 	#Get the 'right' ref
 	my $r = $data;
+	my $a = $annot;
 
 	if (defined $section){
 		$data->{$section} |= {};
-		$r = $data->{$section} 
+		$r = $data->{$section};
+
+		$annot->{$section} |= {};
+		$a = $annot->{$section};
 	}
 	
 	if (defined $r->{$name}){
@@ -92,12 +102,14 @@ sub read {
 	}
 	else{
 		$r->{$name} = $val;
+		$a->{$name} = [@comments];
+		@comments = ();
 	}
 
     }
-    #use Data::Dumper;
-    #print Dumper($data);
-    $self->node->load_data($data);
+    use Data::Dumper;
+    print Dumper($annot);
+    $self->node->load_data($data,$annot);
 
     return 1 ;
 }
@@ -127,6 +139,9 @@ sub write_r {
     foreach my $elt ($node->get_element_name) {
 	my $obj =  $node->fetch_element($elt) ;
 
+	my $note = $obj->annotation;
+	
+	map { $ioh->print("$_\n") } $note if $note;
 	if ($node->element_type($elt) eq 'node'){
 		$ioh->print("[$elt]\n");
 		my %na = %args;
