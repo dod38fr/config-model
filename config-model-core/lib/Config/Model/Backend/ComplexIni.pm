@@ -69,6 +69,8 @@ sub read {
 
     foreach ($args{io_handle}->getlines) {
 	chomp ;
+	# FIXME: what about comments located after value ? I.e :
+	# ipaddress = 192.168.0.1 # new address
 	if (/^[;#]/){
 		push @comments, $_;
 		next;
@@ -102,7 +104,8 @@ sub read {
 	}
 	else{
 		$r->{$name} = $val;
-		$a->{$name} = [@comments];
+		# no need to store empty comments
+		$a->{$name} = [@comments] if scalar @comments;
 		@comments = ();
 	}
 
@@ -117,6 +120,7 @@ sub write {
     &write_r;
 }
 
+# FIXME: missing comment write back
 sub write_r {
     my %args = @_ ;
 
