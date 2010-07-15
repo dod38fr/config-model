@@ -107,8 +107,6 @@ sub read {
 	}
 
     }
-    use Data::Dumper;
-    print Dumper($annot);
     $self->node->load_data($data,$annot);
 
     return 1 ;
