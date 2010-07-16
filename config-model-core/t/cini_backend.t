@@ -45,10 +45,10 @@ mkpath($wr_root.'cini/', { mode => 0755 }) ;
 do "t/test_model.pl" ;
 
 my $i_hosts = $model->instance(instance_name    => 'hosts_inst',
-			       root_class_name  => 'Host',
-			       root_dir    => $wr_root ,
-			       model_file       => 't/test_cini_model.pl',
-			      );
+                   root_class_name  => 'Host',
+                   root_dir    => $wr_root ,
+                   model_file       => 't/test_cini_model.pl',
+                  );
 
 ok( $i_hosts, "Created instance" );
 
@@ -72,9 +72,9 @@ ok(-e $cini_file, "check that config file $cini_file was written");
 
 # create another instance to read the ComplexIni that was just written
 my $i2_hosts = $model->instance(instance_name    => 'hosts_inst2',
-				root_class_name  => 'Host',
-				root_dir    => $wr_root ,
-			       );
+                root_class_name  => 'Host',
+                root_dir    => $wr_root ,
+                   );
 
 ok( $i2_hosts, "Created instance" );
 

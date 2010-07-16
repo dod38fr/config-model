@@ -67,47 +67,55 @@ sub read {
 
     my $section;
 
+    #FIXME: Is it possible to store the comments with their location in the file?
+    #It would be nice if comments that are after values in input file, 
+    #would be written in the same way in the output file. 
+    #Also, comments at the end of file are being ignored now.
     foreach ($args{io_handle}->getlines) {
-	chomp ;
-	# FIXME: what about comments located after value ? I.e :
-	# ipaddress = 192.168.0.1 # new address
-	if (/^[;#]/){
-		push @comments, $_;
-		next;
-	}
+        chomp ;
+        
+        if (/^[;#]/){
+            push @comments, $_;
+            next;
+        }
 
-	next if/^\s*$/;
+        next if/^\s*$/;
 
-	#Update section name
-	if(/\[(.*)\]/){
-		$section = $1;
-		next;
-	}
+        #Update section name
+        if(/\[(.*)\]/){
+            $section = $1;
+            next;
+        }
 
-	my ($name,$val) = split(/\s*=\s*/);
+        #Comments after value
+        my ($vdata,$del,$comment) = split(/\s*([;#])\s?/);
+        push @comments,$del.$comment if defined $comment;
 
-	#Get the 'right' ref
-	my $r = $data;
-	my $a = $annot;
+        
+        my ($name,$val) = split(/\s*=\s*/, $vdata);
 
-	if (defined $section){
-		$data->{$section} |= {};
-		$r = $data->{$section};
+        #Get the 'right' ref
+        my $r = $data;
+        my $a = $annot;
 
-		$annot->{$section} |= {};
-		$a = $annot->{$section};
-	}
-	
-	if (defined $r->{$name}){
-		$r->{$name} = [$r->{$name}] if ref($r->{$name}) ne 'ARRAY';
-		push @{$r->{$name}}, $val;
-	}
-	else{
-		$r->{$name} = $val;
-		# no need to store empty comments
-		$a->{$name} = [@comments] if scalar @comments;
-		@comments = ();
-	}
+        if (defined $section){
+            $data->{$section} |= {};
+            $r = $data->{$section};
+
+            $annot->{$section} |= {};
+            $a = $annot->{$section};
+        }
+        
+        if (defined $r->{$name}){
+            $r->{$name} = [$r->{$name}] if ref($r->{$name}) ne 'ARRAY';
+            push @{$r->{$name}}, $val;
+        }
+        else{
+            $r->{$name} = $val;
+            # no need to store empty comments
+            $a->{$name} = [@comments] if scalar @comments;
+            @comments = ();
+        }
 
     }
     $self->node->load_data($data,$annot);
@@ -115,13 +123,9 @@ sub read {
     return 1 ;
 }
 
-sub write {
-    shift;
-    &write_r;
-}
 
-# FIXME: missing comment write back
-sub write_r {
+sub write {
+    my $this = shift;
     my %args = @_ ;
 
     # args is:
@@ -139,29 +143,30 @@ sub write_r {
 
     # Using Config::Model::ObjTreeScanner would be overkill
     foreach my $elt ($node->get_element_name) {
-	my $obj =  $node->fetch_element($elt) ;
+        my $obj =  $node->fetch_element($elt) ;
 
-	my $note = $obj->annotation;
-	
-	map { $ioh->print("$_\n") } $note if $note;
-	if ($node->element_type($elt) eq 'node'){
-		$ioh->print("[$elt]\n");
-		my %na = %args;
-		$na{object} = $obj;
-		write_r(%na);
-	}
+        my $note = $obj->annotation;
+        
+        map { $ioh->print("$_\n") } $note if $note;
 
-	elsif ($node->element_type($elt) eq 'list'){
-		$ioh->print("$elt=$_\n") foreach ($obj->fetch_all_values('custom'));
-		$ioh->print("\n");
-	}
+        if ($node->element_type($elt) eq 'node'){
+            $ioh->print("[$elt]\n");
+            my %na = %args;
+            $na{object} = $obj;
+            $this->write(%na);
+        }
 
-	else{
-		my $v = $node->grab_value($elt) ;
+        elsif ($node->element_type($elt) eq 'list'){
+            $ioh->print("$elt=$_\n") foreach ($obj->fetch_all_values('custom'));
+            $ioh->print("\n");
+        }
 
-		# write value
-		$ioh->print("$elt=$v\n\n") if defined $v ;
-	}
+        else{
+            my $v = $node->grab_value($elt) ;
+
+            # write value
+            $ioh->print("$elt=$v\n\n") if defined $v ;
+        }
     }
 
     return 1;
