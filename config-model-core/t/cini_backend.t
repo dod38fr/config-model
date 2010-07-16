@@ -1,7 +1,5 @@
 # -*- cperl -*-
 # $Author: ddumont, random_nick $
-# $Date: 2008-07-04 16:14:06 +0200 (Fri, 04 Jul 2008) $
-# $Revision: 971 $
 
 use ExtUtils::testlib;
 use Test::More ;
@@ -36,13 +34,11 @@ ok(1,"compiled");
 # pseudo root where config files are written by config-model
 my $wr_root = 'wr_root/';
 
-
 # cleanup before tests
 rmtree($wr_root);
 mkpath($wr_root.'cini/', { mode => 0755 }) ;
 
 # set_up data
-do "t/test_model.pl" ;
 
 my $i_hosts = $model->instance(instance_name    => 'hosts_inst',
                    root_class_name  => 'Host',

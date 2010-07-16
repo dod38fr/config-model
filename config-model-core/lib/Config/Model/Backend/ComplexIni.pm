@@ -63,61 +63,65 @@ sub read {
 
     my $data = {};
     my $annot = {};
+    # try to get global comments (comments before a blank line)
+    my @global_comments ;
     my @comments;
+    my $global_zone = 1 ;
 
     my $section;
 
-    #FIXME: Is it possible to store the comments with their location in the file?
-    #It would be nice if comments that are after values in input file, 
-    #would be written in the same way in the output file. 
-    #Also, comments at the end of file are being ignored now.
+    #FIXME: Is it possible to store the comments with their location
+    #in the file?  It would be nice if comments that are after values
+    #in input file, would be written in the same way in the output
+    #file.  Also, comments at the end of file are being ignored now.
     foreach ($args{io_handle}->getlines) {
-        chomp ;
-        
-        if (/^[;#]/){
-            push @comments, $_;
-            next;
-        }
+		next if /^##/ ;		  # remove comments added by Config::Model
+		chomp ;
 
-        next if/^\s*$/;
+		my ($vdata,$comment) = split /\s*#\s?/ ;
+		push @global_comments, $comment if defined $comment and $global_zone;
+		push @comments, $comment        if defined $comment and not $global_zone;
 
-        #Update section name
-        if(/\[(.*)\]/){
-            $section = $1;
-            next;
-        }
+		if ($global_zone and /^\s*$/ and @global_comments) {
+			$self->node->annotation(@global_comments);
+			$logger->debug("Setting global comment with @global_comments") ;
+			$global_zone = 0 ;
+		}
 
-        #Comments after value
-        my ($vdata,$del,$comment) = split(/\s*([;#])\s?/);
-        push @comments,$del.$comment if defined $comment;
+		# stop global comment at first blank line
+		$global_zone = 0 if /^\s*$/ ;
 
-        
-        my ($name,$val) = split(/\s*=\s*/, $vdata);
+		if (defined $vdata and $vdata ) {
+			# Update section name
+			if($vdata =~ /\[(.*)\]/){
+				$section = $1;
+				next;
+			}
 
-        #Get the 'right' ref
-        my $r = $data;
-        my $a = $annot;
+			my ($name,$val) = split(/\s*=\s*/, $vdata);
 
-        if (defined $section){
-            $data->{$section} |= {};
-            $r = $data->{$section};
+			#Get the 'right' ref
+			my $r = $data;
+			my $a = $annot;
 
-            $annot->{$section} |= {};
-            $a = $annot->{$section};
-        }
-        
-        if (defined $r->{$name}){
-            $r->{$name} = [$r->{$name}] if ref($r->{$name}) ne 'ARRAY';
-            push @{$r->{$name}}, $val;
-        }
-        else{
-            $r->{$name} = $val;
-            # no need to store empty comments
-            $a->{$name} = [@comments] if scalar @comments;
-            @comments = ();
-        }
+			if (defined $section){
+				$r = $data ->{$section} ||= {};
+				$a = $annot->{$section} ||= {};
+			}
 
+			if (defined $r->{$name}){
+				$r->{$name} = [$r->{$name}] if ref($r->{$name}) ne 'ARRAY';
+				push @{$r->{$name}}, $val;
+			}
+			else{
+				$r->{$name} = $val;
+				# no need to store empty comments
+				$a->{$name} = join("\n",@comments) if scalar @comments;
+				@comments = ();
+			}
+		}
     }
+
     $self->node->load_data($data,$annot);
 
     return 1 ;
