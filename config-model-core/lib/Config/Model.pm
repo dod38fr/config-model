@@ -1,3 +1,4 @@
+package Config::Model;
 require Exporter;
 use Carp;
 use strict;
