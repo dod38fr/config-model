@@ -55,6 +55,10 @@ my $logger = get_logger("Tree::Node") ;
 
 Config::Model::Node - Class for configuration tree node
 
+=head1 VERSION
+
+version 1.205
+
 =head1 SYNOPSIS
 
  $model->create_config_class 
@@ -982,10 +986,13 @@ sub fetch_element {
 
     my $model = $self->{model} ;
 
+
     # retrieve element (and auto-vivify if needed)
     if (not defined $self->{element}{$element_name}) {
 	$self->create_element($element_name) ;
     }
+
+
 
     # check level
     my $element_level 
@@ -1000,6 +1007,7 @@ sub fetch_element {
 		    info     => 'hidden element',
 		   );
     }
+
 
     # check status
     if ($model->{status}{$element_name} eq 'obsolete') {
@@ -1264,7 +1272,6 @@ the structure of the configuration model.
 The second parameter is optional and contains annotations for elements
 
 =cut
-
 sub load_data {
     my $self = shift ;
     my $p    = shift ;
@@ -1281,6 +1288,8 @@ sub load_data {
 		     )  if $check ;
 	return ;
     }
+
+
 
     my $h = dclone $p ;
     my $ca = dclone $a if defined $a;
@@ -1317,6 +1326,50 @@ sub load_data {
 			 ) ;
 	}
     }
+
+
+    #Load elements matched by accept parameter
+    if(defined $self->{model}{accept}){
+    
+        foreach my $acc (@{$self->{model}{accept}}){
+            my $mr = eval {qr/$acc->{match}/; };
+            
+            my $nvh = dclone $acc;
+            delete $nvh->{match};
+
+            #Now, $h contains all elements not yet parsed
+            foreach my $elt (keys %$h){
+
+                if ($elt =~ $mr){
+                    #add element...
+                    $self->{model}{element}{$elt} = $nvh;
+                    $self->create_element($elt);
+
+                    #add to element list...
+                    push @{$self->{model}{element_list}}, $elt;
+
+                    $self->{model}{experience}{$elt} = 'beginner';
+                    $self->{model}{summary}{$elt} = '';
+                    $self->{model}{level}{$elt} = 'normal';
+                    $self->{model}{description}{$elt} = '';
+                    $self->{model}{status}{$elt} = 'standard';
+
+                    #Setup 'original' values. These are extracted by reset_element_property.
+                    #Without these two lines, aforementioned method would set experience and level for 
+                    #elements added here to 'undef' - rendering model uneditable.
+
+                    $self->{config_model}{model}{$self->config_class_name}{level}{$elt} = 'normal'; 
+                    $self->{config_model}{model}{$self->config_class_name}{experience}{$elt} = 'beginner'; 
+
+                    #load value
+                    #TODO: annotations
+                    my $obj = $self->fetch_element($elt,'master', not $check) ;
+                    $obj ->load_data(delete $h->{$elt}) ;
+                }
+            }
+        }
+    }
+
 
     if (%$h and $check) {
 	Config::Model::Exception::LoadData 
