@@ -931,6 +931,8 @@ sub reset_element_property {
 			       %args
 			      );
 
+    use Data::Dumper;
+    print Dumper($self->name)." -> $prop\n" if not defined $original_value;
     $logger->debug( "Node ",$self->name,
       ": reset $elt property $prop to $original_value");
 
@@ -989,7 +991,50 @@ sub fetch_element {
 
     # retrieve element (and auto-vivify if needed)
     if (not defined $self->{element}{$element_name}) {
-	$self->create_element($element_name) ;
+            
+
+            #We need to check if element name is matched by any of 'accept' parameters
+            #If yes, modify the model adding the new parameter
+
+            #Hash of new element, to be inserted in $self->{model}{element}{$element_name}
+            my $neh;
+
+            if(defined $self->{model}{accept}){
+                foreach my $acc (@{$self->{model}{accept}}){
+                    my $mr = eval {qr/$acc->{match}/; };
+                    
+                    if($element_name =~ $mr){
+                        $neh = dclone $acc;
+                        delete $neh->{match};
+                        last;
+                    }
+                }
+            }
+
+            #If $neh is defined, that means the element is not yet 
+            #in the tree and it is matched by some 'accept' parameter
+
+            $self->{model}{element}{$element_name} = $neh if defined $neh; 
+
+            $self->create_element($element_name) ;
+
+            if (defined $neh){
+                #add to element list...
+                push @{$self->{model}{element_list}}, $element_name;
+
+                $self->{model}{experience}{$element_name} ||= 'beginner';
+                $self->{model}{summary}{$element_name} ||= '';
+                $self->{model}{level}{$element_name} ||= 'normal';
+                $self->{model}{description}{$element_name} ||= '';
+                $self->{model}{status}{$element_name} ||= 'standard';
+
+                #Setup 'original' values. These are extracted by reset_element_property.
+                #Without these two lines, aforementioned method would set experience and level for 
+                #elements added here to 'undef' - rendering model uneditable.
+
+                $self->{config_model}{model}{$self->config_class_name}{level}{$element_name} ||= 'normal'; 
+                $self->{config_model}{model}{$self->config_class_name}{experience}{$element_name} ||= 'beginner'; 
+            }
     }
 
 
@@ -1309,7 +1354,7 @@ sub load_data {
 	    if (defined $a && defined $ca->{$elt}){
 		    #FIXME: The following line 'does not meet my personal code quality expectations'
 		    #It makes wrong assumption that every annotation is an array
-		    $obj -> annotation(@{$ca->{$elt}});
+		    #$obj -> annotation(@{$ca->{$elt}});
 		    $obj -> load_data(delete $h->{$elt}, delete $ca->{$elt}) ;
 	    }
 	    else{
@@ -1330,37 +1375,14 @@ sub load_data {
 
     #Load elements matched by accept parameter
     if(defined $self->{model}{accept}){
-    
         foreach my $acc (@{$self->{model}{accept}}){
-            my $mr = eval {qr/$acc->{match}/; };
-            
-            my $nvh = dclone $acc;
-            delete $nvh->{match};
+            my $mr = qr/$acc->{match}/ ; 
+            print $mr;
 
             #Now, $h contains all elements not yet parsed
             foreach my $elt (keys %$h){
 
                 if ($elt =~ $mr){
-                    #add element...
-                    $self->{model}{element}{$elt} = $nvh;
-                    $self->create_element($elt);
-
-                    #add to element list...
-                    push @{$self->{model}{element_list}}, $elt;
-
-                    $self->{model}{experience}{$elt} = 'beginner';
-                    $self->{model}{summary}{$elt} = '';
-                    $self->{model}{level}{$elt} = 'normal';
-                    $self->{model}{description}{$elt} = '';
-                    $self->{model}{status}{$elt} = 'standard';
-
-                    #Setup 'original' values. These are extracted by reset_element_property.
-                    #Without these two lines, aforementioned method would set experience and level for 
-                    #elements added here to 'undef' - rendering model uneditable.
-
-                    $self->{config_model}{model}{$self->config_class_name}{level}{$elt} = 'normal'; 
-                    $self->{config_model}{model}{$self->config_class_name}{experience}{$elt} = 'beginner'; 
-
                     #load value
                     #TODO: annotations
                     my $obj = $self->fetch_element($elt,'master', not $check) ;
@@ -1369,6 +1391,9 @@ sub load_data {
             }
         }
     }
+
+    #HACK:
+    $h = {};
 
 
     if (%$h and $check) {
