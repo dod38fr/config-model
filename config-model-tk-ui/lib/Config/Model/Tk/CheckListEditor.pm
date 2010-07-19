@@ -88,6 +88,7 @@ sub Populate {
     $cw->add_summary($leaf)->pack(@fx) ;
     $cw->add_description($leaf)->pack(@fx) ;
     $cw->{value_help_widget} = $cw->add_help(value => '',1)->pack(@fx);
+    $cw->add_info_button()->pack(@fxe1) ;
     $b_sub->() ;
 
     # Add a second page to edit the list order for ordered check list

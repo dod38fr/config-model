@@ -41,7 +41,7 @@ sub Populate {
 	  or croak "Missing $parm arg\n";
     }
 
-    foreach my $parm (qw/-from_widget -stop_on_important -store_cb -show_cb/) {
+    foreach my $parm (qw/-from_widget -stop_on_important -store_cb -show_cb -end_cb/) {
 	my $attr = $parm ;
 	$attr =~ s/^-//;
 	$cw->{$attr} = delete $args->{$parm} ;
@@ -59,7 +59,7 @@ sub Populate {
       -> pack ;
 
     my $ed = $cw->{ed_frame} = $cw->Frame 
-      ->pack  (qw/-pady 0 -fill both -expand 1/ ) ;
+      ->pack  (qw/-pady 0 -fill both -expand 1 -anchor n/ ) ;
     $cw->{ed_frame}->packPropagate(0) ;
 
     $args->{-title} = $title;
@@ -135,11 +135,11 @@ sub start_wizard {
     my $edf = $cw->{ed_frame} ;
 
     my $textw = $edf
-      -> ROText(qw/-relief flat -wrap word -height 12/,
+      -> ROText(qw/-relief flat -wrap word -height 8/,
 		-font => [ -family => 'Arial' ]
 	       );
     $textw -> insert(end => $text) ;
-    $textw -> pack(-side => 'top', @fbe1) ;
+    $textw -> pack(qw/-side top -anchor n/, @fxe1) ;
 
 
     $edf->Label(-text => 'Choose experience for the wizard :'.$exp)
@@ -153,10 +153,10 @@ sub start_wizard {
 
     $edf->Button(-text => 'OK',
 		 -command => sub {$cw->_start_wizard($exp)}
-		) -> pack (-side => 'right') ;
+		) -> pack (qw/-side right -anchor e/) ;
     $edf->Button(-text => 'cancel',
-		 -command => sub {$cw->destroy()}
-		) -> pack (-side => 'left') ;
+		 -command => sub {$cw->destroy_wizard()}
+		) -> pack (qw/-side left -anchor w/) ;
 }
 
 sub _start_wizard {
@@ -174,7 +174,7 @@ sub _start_wizard {
     $back -> pack(qw/-side left -fill x -expand 1/) ;
 
     my $stop = $button_f -> Button(-text => 'Stop', 
-				   -command => sub {$cw->destroy;} 
+				   -command => sub {$cw->destroy_wizard;} 
 				  );
     $stop -> pack(qw/-side left -fill x -expand 1/) ;
 
@@ -217,11 +217,24 @@ sub _start_wizard {
     #Tk::ObjScanner::scan_object(\@wiz_args) ;
     $cw->{wizard} = $cw->{root}->instance->wizard_helper (@wiz_args);
 
-    # exits when wizard is done
+    # exits when wizard is done (but not when stopped)
     $cw->{wizard}->start ;
+    $cw->destroy_wizard ;
+}
 
+sub destroy_wizard{
+    my $cw = shift ;
+
+    delete $cw->{wizard} ;
+
+    if (defined $cw->{end_cb}) {
+        $logger->debug("Calling end_cb");
+        $cw->{end_cb}->() ;
+    }
+
+    $logger->debug("Destroying wizard");
     $cw->destroy ;
-  }
+}
 
 1;
 

@@ -1,3 +1,9 @@
+2010-07-19  Dominique Dumont  <domi.dumont@free.fr>
+
+	* lib/Config/Model/Tk/Wizard.pm (destroy_wizard): correctly
+	destroy wizard widget when quitting. Also main window is hidden
+	while wizard is running
+
 2010-07-13  Dominique Dumont  <domi.dumont@free.fr>
 
 	* lib/Config/Model/Tk/ListEditor.pm (move_down): fixed to move

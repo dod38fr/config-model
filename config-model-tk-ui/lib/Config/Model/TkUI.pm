@@ -672,7 +672,7 @@ sub setmode {
 
     $logger->trace("$type: elt_loc '$elt_loc', opening $opening "
 		   ."eltmode $eltmode force_open $force_open "
-		   . ($fdp ? "on $fdp" : '' ) 
+		   . ($fdp ? "on $fdp" : '' ) . "force_match $force_match"
 		  ) ;
 
     if ($eltmode ne 'open' or $force_open or $opening ) {
@@ -959,13 +959,20 @@ sub wizard {
     my $cw = shift ;
     my $tree = $cw->{tktree} ;
 
+    # when wizard is run, there's no need to update editor window in 
+    # main widget
     my $wiz = $cw->ConfigModelWizard 
       (
-       -root => $cw->{root}, 
-       -store_cb => sub{ $cw->force_element_display(@_)},
-       -show_cb => sub{ $cw->force_element_display(@_)},
+	-root     => $cw->{root}, 
+	-store_cb => sub{ $cw->force_element_display(@_)},
+	-end_cb   => sub{ $cw->deiconify; $cw->raise ; },
+       # -show_cb => sub{ $cw->force_element_display(@_)},
       ) ;
 
+    # hide main window while wizard is running
+    # end_cb callback will raise the main window
+    $cw->withdraw ;
+    
     $wiz->start_wizard($cw->{experience}) ;
 }
 

@@ -99,7 +99,7 @@ sub Populate {
     $inst->pop_no_value_check ;
 
     $cw->ConfigModelNoteEditor( -object => $leaf )->pack;
-    $cw->add_info() ;
+    $cw->add_info_button()->pack( @fx,qw/-anchor n/) ;
     $cw->add_summary($leaf)->pack(@fx) ;
     $cw->add_description($leaf)->pack(@fx) ;
     $cw->{value_help_widget} = $cw->add_help(value => '',1)->pack(@fx);
