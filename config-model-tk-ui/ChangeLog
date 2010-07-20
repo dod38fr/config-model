@@ -1,4 +1,4 @@
-2010-07-19  Dominique Dumont  <domi.dumont@free.fr>
+2010-07-19  Dominique Dumont  <domi.dumont@free.fr> 1.307
 
 	* lib/Config/Model/Tk/Wizard.pm (destroy_wizard): correctly
 	destroy wizard widget when quitting. Also main window is hidden
@@ -15,10 +15,11 @@
 	Krzystof's usability suggestion (http://tyszecki.org/), buttons
 	are disabled when list selection or entry are empty.
 
-2010-05-31  Dominique Dumont  <domi.dumont@free.fr> 1.307
+2010-05-31  Dominique Dumont  <domi.dumont@free.fr> 
 
-	* Added Note viewer and editor for Leaf, List, CheckList, Node,
-	Hash viewers and editors
+	* Added annotations viewer and editor for Leaf, List, CheckList, Node,
+	and Hash. This enable to view and edit comments in configuration files when 
+	the backend support reading and writing comments into Config::Model annotations
 
 2010-03-29  Dominique Dumont  <dominique.dumont@hp.com> 1.306
 

@@ -48,7 +48,7 @@ sub Populate {
     #require Tk::Adjuster;
     #$cw -> Adjuster()->pack(-fill => 'x' , -side => 'top') ;
 
-    $cw->add_info($cw) ;
+    $cw->add_info_button()->pack(@fxe1, qw/-anchor n/) ;
 
     if ($node->parent) {
 	$cw->add_summary($node)->pack(@fx) ;
@@ -151,9 +151,8 @@ sub fill_pane {
     map {my $w = delete $cw->{elt_widgets}{$_};$w->destroy } keys %old_elt ;
 }
 
-sub add_info {
+sub get_info {
     my $cw = shift ;
-    my $info_frame = shift ;
 
     my $node = $cw->{node} ;
 
@@ -161,7 +160,7 @@ sub add_info {
 		 'class name : '.$node->config_class_name ,
 		);
 
-    $cw->add_info_button($info_frame,@items)-> pack ;
+    return $node->element_name,@items ;
 }
 
 

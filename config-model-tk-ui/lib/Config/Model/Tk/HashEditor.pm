@@ -143,19 +143,19 @@ sub Populate {
     $cw->Advertise(@fxe1, cp     => $cp_b) ;
     $balloon->attach($cp_b, -msg => "copy selected item in entry");
 
-    # move button
-    my $mv_b = $button_frame 
-      -> Button(-text => 'Move',
+    # rename button
+    my $rename_b = $button_frame 
+      -> Button(-text => 'Rename',
 		-command => sub { $cw->move_selected_to($item); 
 				  $item = '' unless $keep;
 				  &$bound_sub,
 			      },
 		-anchor => 'e',
 	       );
-    $mv_b -> pack(@fxe1, -side => 'left');
-    $cw->Advertise( mv     => $mv_b) ;
-    $balloon->attach($mv_b,
-		     -msg => "move selected item in entry");
+    $rename_b -> pack(@fxe1, -side => 'left');
+    $cw->Advertise( mv     => $rename_b) ;
+    $balloon->attach($rename_b,
+		     -msg => "rename selected item in entry");
 
     if ($hash->ordered) {
 	my $mv_up_down_frame = $item_frame->Frame->pack( @fx, qw/-anchor n/);
@@ -185,11 +185,7 @@ sub Populate {
     $cw->Advertise( del => $del_b ) ;
 
     $del_rm_frame -> Button ( -text => 'Remove all',
-			      -command => sub { $hash->clear ; 
-						$tklist->delete(0,'end');
-						$cw->reload_tree(1);
-						$item = '';
-					    },
+			      -command => sub {	$cw->remove_all_elements; $item = '';},
 			    ) -> pack(-side => 'left', @fxe1) ;
 
     $cw->ConfigModelNoteEditor( -object => $hash )->pack( qw/-anchor n/);
@@ -202,6 +198,20 @@ sub Populate {
     $cw->add_description($hash)->pack(@fx) ;
 
     $cw->Tk::Frame::Populate($args) ;
+}
+
+sub remove_all_elements {
+    my $cw = shift;
+    my $dialog = $cw->Dialog(-title => "Delete ?",
+	-text => "Are you sure you want to delete all elements ?",
+	-buttons => [qw/Yes No/],
+	-default_button => 'Yes',
+	) ;
+    my $answer = $dialog->Show ;
+    return unless $answer eq 'Yes';
+    $cw->{hash}->clear ; 
+    $cw->Subwidget('tklist')->delete(0,'end');
+    $cw->reload_tree(1);
 }
 
 # update buttons state according to entry and list widget
