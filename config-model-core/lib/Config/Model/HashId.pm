@@ -23,7 +23,7 @@ use Scalar::Util qw(weaken) ;
 use warnings ;
 use Carp;
 use strict;
-our $VERSION="1.201";
+
 use Log::Log4perl qw(get_logger :levels);
 
 my $logger = get_logger("Tree::Element::Hash");
@@ -114,7 +114,7 @@ sub set_properties {
         if ($idx_type eq 'integer') {
             return 1 if defined $self->{max_index} and $k > $self->{max_index} ;
             return 1 if defined $self->{min_index} and $k < $self->{min_index} ;
-	}
+        }
         return 1 if defined $self->{max_nb} and $idx++ > $self->{max_nb};
         return 0 ;
     } ;
@@ -122,9 +122,9 @@ sub set_properties {
     # delete entries that no longer fit the constraints imposed by the
     # warp mechanism
     foreach my $k (sort keys %$data) {
-	next unless $wrong->($k) ;
-	$logger->debug("set_properties: ",$self->name," deleting id $k");
-	delete $data->{$k}  ;
+        next unless $wrong->($k) ;
+        $logger->debug("set_properties: ",$self->name," deleting id $k");
+        delete $data->{$k}  ;
     }
 }
 
@@ -155,7 +155,7 @@ sub fetch_size {
 sub _get_all_indexes {
     my $self = shift;
     return $self->{ordered} ? @{$self->{list}}
-         :                    sort keys %{$self->{data}} ;
+      :                    sort keys %{$self->{data}} ;
 }
 
 # fetch without any check 
@@ -189,7 +189,7 @@ sub auto_create_elements {
     my $auto_p = $self->{auto_create_keys} ;
     # create empty slots
     map {
-	$self->_store($_, undef) unless exists $self->{data}{$_};
+        $self->_store($_, undef) unless exists $self->{data}{$_};
     }  (ref $auto_p ? @$auto_p : ($auto_p)) ;
 }
 
@@ -205,10 +205,10 @@ sub create_default {
     map {$self->_store($_,undef) } @$def ;
 
     if (defined $self->{default_with_init}) {
-	my $h = $self->{default_with_init} ;
-	foreach my $def_key (keys %$h) {
-	    $self->fetch_with_id($def_key)->load($h->{$def_key}) ;
-	}
+        my $h = $self->{default_with_init} ;
+        foreach my $def_key (keys %$h) {
+            $self->fetch_with_id($def_key)->load($h->{$def_key}) ;
+        }
     }
 }
 
@@ -284,22 +284,22 @@ sub swap {
     my ($key1,$key2) = @_ ;
 
     foreach my $k (@_) {
-	Config::Model::Exception::User
-	    -> throw (
-		      object => $self,
-		      message => "swap: unknow key $k"
-		     )
-	      unless exists $self->{data}{$k} ;
+        Config::Model::Exception::User
+            -> throw (
+                      object => $self,
+                      message => "swap: unknow key $k"
+                     )
+              unless exists $self->{data}{$k} ;
     }
 
     my @copy = @{$self->{list}} ;
     for (my $idx = 0; $idx <= $#copy; $idx ++ ) {
-	if ($copy[$idx] eq $key1) {
-	    $self->{list}[$idx] = $key2 ;
-	}
-	if ($copy[$idx] eq $key2) {
-	    $self->{list}[$idx] = $key1 ;
-	}
+        if ($copy[$idx] eq $key1) {
+            $self->{list}[$idx] = $key2 ;
+        }
+        if ($copy[$idx] eq $key2) {
+            $self->{list}[$idx] = $key1 ;
+        }
     }
 }
 
@@ -314,45 +314,43 @@ sub move {
     my ($from,$to) = @_ ;
 
     Config::Model::Exception::User
-	-> throw (
-		  object => $self,
-		  message => "move: unknow key $from"
-		 )
-	  unless exists $self->{data}{$from} ;
+        -> throw (
+                  object => $self,
+                  message => "move: unknow key $from"
+                 )
+          unless exists $self->{data}{$from} ;
 
     my $ok = $self->check($to) ;
 
     if ($ok) {
-	# this may clobber the old content of $self->{data}{$to}
-	$self->{data}{$to} = delete $self->{data}{$from} ;
-	# update index_value attribute in moved objects
-	$self->{data}{$to}->index_value($to) ;
+        # this may clobber the old content of $self->{data}{$to}
+        $self->{data}{$to} = delete $self->{data}{$from} ;
+        # update index_value attribute in moved objects
+        $self->{data}{$to}->index_value($to) ;
 
-	my ($to_idx,$from_idx);
-	my $idx = 0 ;
-	my $list = $self->{list} ;
-	map { $to_idx   = $idx if $list->[$idx] eq $to;
-	      $from_idx = $idx if $list->[$idx] eq $from;
-	      $idx ++ ;
-	  } @$list ;
+        my ($to_idx,$from_idx);
+        my $idx = 0 ;
+        my $list = $self->{list} ;
+        map { $to_idx   = $idx if $list->[$idx] eq $to;
+              $from_idx = $idx if $list->[$idx] eq $from;
+              $idx ++ ;
+          } @$list ;
 
-	if (defined $to_idx) {
-	    # Since $to is clobbered, $from takes its place in the list
-	    $list->[$from_idx] = $to ;
-	    # and the $from entry is removed from the list
-	    splice @$list,$to_idx,1;
-	}
-	else {
-	    # $to is moved in the place of from in the list
-	    $list->[$from_idx] = $to ;
-	}
-    }
-    else {
-	Config::Model::Exception::WrongValue 
-	    -> throw (
-		      error => join("\n\t",@{$self->{error}}),
-		      object => $self
-		     ) ;
+        if (defined $to_idx) {
+            # Since $to is clobbered, $from takes its place in the list
+            $list->[$from_idx] = $to ;
+            # and the $from entry is removed from the list
+            splice @$list,$to_idx,1;
+        } else {
+            # $to is moved in the place of from in the list
+            $list->[$from_idx] = $to ;
+        }
+    } else {
+        Config::Model::Exception::WrongValue 
+            -> throw (
+                      error => join("\n\t",@{$self->{error}}),
+                      object => $self
+                     ) ;
     }
 }
 
@@ -371,12 +369,12 @@ sub move_after {
     my ($key_to_move,$ref_key) = @_ ;
 
     foreach my $k (@_) {
-	Config::Model::Exception::User
-	    -> throw (
-		      object => $self,
-		      message => "swap: unknow key $k"
-		     )
-	      unless exists $self->{data}{$k} ;
+        Config::Model::Exception::User
+            -> throw (
+                      object => $self,
+                      message => "swap: unknow key $k"
+                     )
+              unless exists $self->{data}{$k} ;
     }
 
     # remove the key to move in ordered list
@@ -385,15 +383,14 @@ sub move_after {
     my $list = $self->{list} ;
 
     if (defined $ref_key) {
-	for (my $idx = 0; $idx <= $#$list; $idx ++ ) {
-	    if ($list->[$idx] eq $ref_key) {
-		splice @$list ,$idx+1,0, $key_to_move ;
-		last;
-	    }
-	}
-    }
-    else {
-	unshift @$list , $key_to_move ;
+        for (my $idx = 0; $idx <= $#$list; $idx ++ ) {
+            if ($list->[$idx] eq $ref_key) {
+                splice @$list ,$idx+1,0, $key_to_move ;
+                last;
+            }
+        }
+    } else {
+        unshift @$list , $key_to_move ;
     }
 }
 
@@ -409,20 +406,20 @@ sub move_up {
     my ($key) = @_ ;
 
     Config::Model::Exception::User
-	-> throw (
-		  object => $self,
-		  message => "move_up: unknow key $key"
-		 )
-	  unless exists $self->{data}{$key} ;
+        -> throw (
+                  object => $self,
+                  message => "move_up: unknow key $key"
+                 )
+          unless exists $self->{data}{$key} ;
 
     my $list = $self->{list} ;
     # we start from 1 as we can't move up idx 0
     for (my $idx = 1; $idx < scalar @$list; $idx ++ ) {
-	if ($list->[$idx] eq $key) {
-	    $list->[$idx]   = $list->[$idx-1];
-	    $list->[$idx-1] = $key ;
-	    last ;
-	}
+        if ($list->[$idx] eq $key) {
+            $list->[$idx]   = $list->[$idx-1];
+            $list->[$idx-1] = $key ;
+            last ;
+        }
     }
 }
 
@@ -438,24 +435,24 @@ sub move_down {
     my ($key) = @_ ;
 
     Config::Model::Exception::User
-	-> throw (
-		  object => $self,
-		  message => "move_down: unknown key $key"
-		 )
-	  unless exists $self->{data}{$key} ;
+        -> throw (
+                  object => $self,
+                  message => "move_down: unknown key $key"
+                 )
+          unless exists $self->{data}{$key} ;
 
     my $list = $self->{list} ;
     # we end at $#$list -1  as we can't move down last idx
     for (my $idx = 0; $idx < scalar @$list - 1 ; $idx ++ ) {
-	if ($list->[$idx] eq $key) {
-	    $list->[$idx]   = $list->[$idx+1];
-	    $list->[$idx+1] = $key ;
-	    last ;
-	}
+        if ($list->[$idx] eq $key) {
+            $list->[$idx]   = $list->[$idx+1];
+            $list->[$idx+1] = $key ;
+            last ;
+        }
     }
 }
 
-=head2 load_data ( hash_ref | array_ref)
+=head2 load_data ( hash_ref | array_ref , [ note hash ref ] )
 
 Load check_list as a hash ref for standard hash. 
 
@@ -473,48 +470,46 @@ or
 sub load_data {
     my $self = shift ;
     my $data = shift ;
+    my $note = shift || {} ;
 
     if (ref ($data) eq 'HASH') {
-	my @load_keys ;
-	my $from = ''; ;
-	if ($self->{ordered} and defined $data->{__order}) {
-	    @load_keys = @{ delete $data->{__order} };
-	    $from = ' with __order' ;
-	}
-	elsif ($self->{ordered}) {
-	    $logger->warn("HashId ".$self->location.": loading ordered "
-		."hash from hash ref without special key '__order'. Element "
-		."order is not defined");
-	    $from = ' without __order' ;
-	}
+        my @load_keys ;
+        my $from = ''; ;
+        if ($self->{ordered} and defined $data->{__order}) {
+            @load_keys = @{ delete $data->{__order} };
+            $from = ' with __order' ;
+        } elsif ($self->{ordered}) {
+            $logger->warn("HashId ".$self->location.": loading ordered "
+                          ."hash from hash ref without special key '__order'. Element "
+                          ."order is not defined");
+            $from = ' without __order' ;
+        }
 
-	@load_keys = sort keys %$data unless @load_keys;
+        @load_keys = sort keys %$data unless @load_keys;
 
-	$logger->info("HashId load_data (".$self->location.
-		      ") will load idx @load_keys from hash ref".$from);
-	foreach my $elt (@load_keys) {
-	    my $obj = $self->fetch_with_id($elt) ;
-	    $obj -> load_data($data->{$elt}) ;
-	}
-    }
-    elsif ( $self->{ordered} and ref ($data) eq 'ARRAY') {
-	$logger->info("HashId load_data (".$self->location
-		      .") will load idx 0..$#$data from array ref") ;
-	my $idx = 0 ;
-	while ( $idx < @$data ) {
-	    my $obj = $self->fetch_with_id($data->[$idx++]) ;
-	    $obj -> load_data($data->[$idx++]) ;
-	}
-    }
-    elsif (defined $data) {
-	# we can skip undefined data
-	my $expected = $self->{ordered} ? 'array' : 'hash' ;
-	Config::Model::Exception::LoadData
-	    -> throw (
-		      object => $self,
-		      message => "load_data called with non $expected ref arg",
-		      wrong_data => $data ,
-		     ) ;
+        $logger->info("HashId load_data (".$self->location.
+                      ") will load idx @load_keys from hash ref".$from);
+        foreach my $elt (@load_keys) {
+            my $obj = $self->fetch_with_id($elt) ;
+            $obj -> load_data($data->{$elt}) ;
+        }
+    } elsif ( $self->{ordered} and ref ($data) eq 'ARRAY') {
+        $logger->info("HashId load_data (".$self->location
+                      .") will load idx 0..$#$data from array ref") ;
+        my $idx = 0 ;
+        while ( $idx < @$data ) {
+            my $obj = $self->fetch_with_id($data->[$idx++]) ;
+            $obj -> load_data($data->[$idx++]) ;
+        }
+    } elsif (defined $data) {
+        # we can skip undefined data
+        my $expected = $self->{ordered} ? 'array' : 'hash' ;
+        Config::Model::Exception::LoadData
+            -> throw (
+                      object => $self,
+                      message => "load_data called with non $expected ref arg",
+                      wrong_data => $data ,
+                     ) ;
     }
 }
 
