@@ -1,4 +1,5 @@
 debian/
+libconfig
 ~$
 \.old$
 dist.ini
