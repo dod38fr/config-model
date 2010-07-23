@@ -349,6 +349,7 @@ the first element of the list.
 sub load_data {
     my $self = shift ;
     my $data = shift ;
+    my $annot = shift ;
 
     $self->clear ;
     if (ref ($data)  eq 'ARRAY') {
@@ -367,6 +368,20 @@ sub load_data {
 	$self->clear ;
 	$self->fetch_with_id(0) -> load_data($data) ;
     }
+
+    return unless defined $annot;
+    
+    my @annot = ref ($annot)  eq 'ARRAY' ? @$annot : ($annot) ; 	
+    my $idx = 0;
+    print "ListId load_data (",$self->location,") will load annotation idx ",
+	  "0..#$annot\n" if $::verbose ;
+    foreach my $item (@annot ) {
+	my $obj = $self->fetch_with_id($idx++) ;
+	$obj -> annotation($item) if $item ; # do not store undef
+    }
+
+    
+    
 }
 
 1;

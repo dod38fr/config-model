@@ -4,28 +4,40 @@
  {
   read_config  => [
                     {   backend => 'ComplexIni', 
-                        config_dir => '/cini/',
-                        file => 'hosts.ini',
+                        config_dir => '/etc/',
+                        file => 'test.ini',
                         auto_create => 1,
                     },
                   ],
 
-  name => 'Host',
+  name => 'Cini',
 
   element =>      [
-                    [qw/ipaddr id/] => { 
-                                type => 'leaf',
-                                value_type => 'uniline',
-                           },
+                    [qw/foo bar/] => { 
+									  type => 'list',
+									  cargo => {
+												type => 'leaf',
+												value_type => 'uniline',
+												}
+									 },
 
-                    aliases => { 
-                                type => 'list',
-                                cargo => { 
-                                            type => 'leaf',
-                                            value_type => 'string',
-                                         } ,
-                           },
-         ]
+                    [qw/class1 class2/] => { 
+											type => 'node',
+											config_class_name => 'Cini::Class'
+										   }
+				  ]
+  },
+ {
+  name => 'Cini::Class',
+  element => [
+			  [qw/lista listb/] => {
+									type => 'list',
+									cargo => { 
+											  type => 'leaf',
+											  value_type => 'uniline',
+											 } ,
+								   },
+			 ]
  }
 ];
 
