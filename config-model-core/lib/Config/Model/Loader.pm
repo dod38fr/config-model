@@ -75,7 +75,8 @@ sub new {
 
 =head1 load string syntax
 
-The string is made of the following items separated by spaces:
+The string is made of the following items (also called C<actions>)
+separated by spaces:
 
 =over 8
 
@@ -145,7 +146,11 @@ Will append C<zzz> value to current values (valid for C<leaf> elements).
 
 =item xxx#zzz or xxx:yyy#zzz
 
-Element annotation. Can be quoted or not quoted.
+Element annotation. Can be quoted or not quoted. Note that annotations are
+always placed at the end of an action item.
+
+I.e. C<foo#comment>, C<foo:bar#comment> or C<foo:bar=baz#comment> are valid.
+C<foo#comment:bar> is B<not> valid.
 
 =back
 

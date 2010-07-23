@@ -2,6 +2,8 @@
 
 	* lib/Config/Model/Loader.pm (_walk_node): bug fix to load node 
 	element annotation
+	* lib/Config/Model/Dumper.pm (): bug fix to dump hash and list 
+	element annotations
 	
 2010-06-04  Dominique Dumont  <domi.dumont@free.fr> 1.205
 
