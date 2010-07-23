@@ -57,7 +57,7 @@ foreach my $subtest (@regexp_test) {
 }
 
 my $inst = $model->instance (root_class_name => 'Master', 
-                 model_file => 't/big_model.pm',
+                 model_file => 't/dump_load_model.pm',
                  instance_name => 'test1');
 ok($inst,"created dummy instance") ;
 

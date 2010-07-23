@@ -34,7 +34,7 @@ use Storable qw/dclone/ ;
 use base qw/Config::Model::AutoRead/;
 
 use vars qw($AUTOLOAD @status @level
-@experience_list %experience_index );
+            @experience_list %experience_index );
 
 *status           = *Config::Model::status ;
 *level            = *Config::Model::level ;
@@ -42,10 +42,10 @@ use vars qw($AUTOLOAD @status @level
 *experience_index = *Config::Model::experience_index ;
 
 my %legal_properties = (
-            status => {qw/obsolete 1 deprecated 1 standard 1/ },
-            level  => {qw/important 1 normal 1 hidden 1/},
-            experience => {qw/master 1 advanced 1 beginner 1/},
-               ) ;
+                        status => {qw/obsolete 1 deprecated 1 standard 1/ },
+                        level  => {qw/important 1 normal 1 hidden 1/},
+                        experience => {qw/master 1 advanced 1 beginner 1/},
+                       ) ;
 
 my $logger = get_logger("Tree::Node") ;
 
@@ -238,34 +238,34 @@ sub create_element {
     my $element_info = $self->{model}{element}{$element_name}  ;
 
     Config::Model::Exception::UnknownElement->throw(
-        object   => $self,
-        function => 'create_element',
-        where    => $self->location || 'configuration root',
-        element     => $element_name,
-        )
+                                                    object   => $self,
+                                                    function => 'create_element',
+                                                    where    => $self->location || 'configuration root',
+                                                    element     => $element_name,
+                                                   )
         unless defined $element_info ;
 
     Config::Model::Exception::Model->throw
         (
          error=> "element '$element_name' error: "
-           . "passed information is not a hash ref",
+         . "passed information is not a hash ref",
          object => $self
         ) 
-      unless ref($element_info) eq 'HASH' ;
+          unless ref($element_info) eq 'HASH' ;
 
     Config::Model::Exception::Model->throw
         (
          error=> "create element '$element_name' error: "
-             . "missing 'type' parameter",
+         . "missing 'type' parameter",
          object => $self
         )
-      unless defined $element_info->{type} ;
+          unless defined $element_info->{type} ;
 
     my $method = $create_sub_for{$element_info->{type}} ;
 
     croak $self->{config_class_name},
       " error: no create method for element type $element_info->{type}"
-    unless defined $method ;
+        unless defined $method ;
 
     $self->$method($element_name) ;
 }
@@ -292,14 +292,14 @@ sub create_node {
     Config::Model::Exception::Model->throw
         (
          error=> "create node '$element_name' error: "
-             ."missing config class name parameter",
+         ."missing config class name parameter",
          object => $self
         )
-      unless defined $element_info->{config_class_name} ;
+          unless defined $element_info->{config_class_name} ;
 
     my @args = (config_class_name => $element_info->{config_class_name},
-        instance          => $self->{instance},
-        element_name      => $element_name) ;
+                instance          => $self->{instance},
+                element_name      => $element_name) ;
 
     $self->{element}{$element_name} = $self->new(@args) ;
 }
@@ -320,9 +320,9 @@ sub create_warped_node {
     my $element_info = dclone($self->{model}{element}{$element_name}) ; 
 
     my @args = (instance          => $self->{instance},
-        element_name      => $element_name,
-        parent            => $self
-           ) ;
+                element_name      => $element_name,
+                parent            => $self
+               ) ;
 
     require Config::Model::WarpedNode ;
 
@@ -346,9 +346,9 @@ sub create_leaf {
     my $leaf_class = delete $element_info->{class} || 'Config::Model::Value' ;
 
     if (not defined *{$leaf_class.'::'}) {
-    my $file = $leaf_class.'.pm';
-    $file =~ s!::!/!g;
-    require $file ;
+        my $file = $leaf_class.'.pm';
+        $file =~ s!::!/!g;
+        require $file ;
     }
 
     $element_info->{parent}       = $self ;
@@ -382,10 +382,10 @@ check_list. See L<CheckList>.
 =cut
 
 my %id_class_hash = (
-             hash       => 'HashId',
-             list       => 'ListId',
-             check_list => 'CheckList' ,
-            ) ;
+                     hash       => 'HashId',
+                     list       => 'ListId',
+                     check_list => 'CheckList' ,
+                    ) ;
 
 sub create_id {
     my $self = shift ;
@@ -395,12 +395,12 @@ sub create_id {
     my $type = delete $element_info->{type} ;
 
     Config::Model::Exception::Model
-    ->throw (
-         error=> "create $type element '$element_name' error"
-         .": missing 'type' parameter",
-         object => $self
-        )
-      unless defined $type ;
+        ->throw (
+                 error=> "create $type element '$element_name' error"
+                 .": missing 'type' parameter",
+                 object => $self
+                )
+          unless defined $type ;
 
     croak "Undefined id_class for type '$type'" 
       unless defined $id_class_hash{$type};
@@ -409,9 +409,9 @@ sub create_id {
       || 'Config::Model::'.$id_class_hash{$type} ;
 
     if (not defined *{$id_class.'::'}) {
-    my $file = $id_class.'.pm';
-    $file =~ s!::!/!g;
-    require $file ;
+        my $file = $id_class.'.pm';
+        $file =~ s!::!/!g;
+        require $file ;
     }
 
     $element_info->{parent}       = $self ;
@@ -450,17 +450,17 @@ sub check_properties {
     # elements declared in the model by the user
 
     foreach my $elt_name (@{$self->{model}{element_list}}) {
-    foreach my $prop (keys %legal_properties) {
-        my $prop_v = $self->{model}{$prop}{$elt_name} ;
+        foreach my $prop (keys %legal_properties) {
+            my $prop_v = $self->{model}{$prop}{$elt_name} ;
 
-        croak "Config class $self->{config_class_name} error: ",
-          "Unknown $prop: '$prop_v'. Expected ",
-        join(" or ",keys %{$self->{model}{$prop}})
-          unless defined $legal_properties{$prop}{$prop_v} ;
+            croak "Config class $self->{config_class_name} error: ",
+              "Unknown $prop: '$prop_v'. Expected ",
+                join(" or ",keys %{$self->{model}{$prop}})
+                  unless defined $legal_properties{$prop}{$prop_v} ;
 
-        push @{$self->{element_by_experience}{$prop}}, $elt_name 
-          if $prop eq 'experience' ;
-    }
+            push @{$self->{element_by_experience}{$prop}}, $elt_name 
+              if $prop eq 'experience' ;
+        }
     }
 }
 
@@ -525,20 +525,19 @@ sub new {
     my @mandatory_parameters = qw/config_class_name instance/;
 
     if (ref($caller)) {
-    $self->_set_parent($caller) ;
+        $self->_set_parent($caller) ;
 
-    $self->{config_model} = $caller->config_model ;
-    push @mandatory_parameters, 'element_name' ;
-    } 
-    else {
-    push @mandatory_parameters, 'config_model' ;
+        $self->{config_model} = $caller->config_model ;
+        push @mandatory_parameters, 'element_name' ;
+    } else {
+        push @mandatory_parameters, 'config_model' ;
     }
 
     my %args = @_ ;
 
     foreach my $p (@mandatory_parameters) {
-    $self->{$p} = delete $args{$p} or
-      croak "Node->new: Missing $p parameter" ;
+        $self->{$p} = delete $args{$p} or
+          croak "Node->new: Missing $p parameter" ;
     }
 
     weaken($self->{instance}) ;
@@ -559,14 +558,14 @@ sub new {
 
     my $model 
       = $self->{model} 
-    = dclone ( $self->{config_model}->get_model($class_name) );
+        = dclone ( $self->{config_model}->get_model($class_name) );
 
     $self->check_properties ;
 
     if (defined $model->{read_config} and not $skip_read) {
-    # setup auto_read, read_config_dir is obsolete
-    $self->auto_read_init($model->{read_config}, 
-                  $model->{read_config_dir});
+        # setup auto_read, read_config_dir is obsolete
+        $self->auto_read_init($model->{read_config}, 
+                              $model->{read_config_dir});
     }
 
     # use read_config data if write_config is missing
@@ -574,9 +573,9 @@ sub new {
       if defined $model->{read_config};
 
     if ($model->{write_config}) {
-    # setup auto_write, write_config_dir is obsolete
-    $self->auto_write_init($model->{write_config},
-                   $model->{write_config_dir});
+        # setup auto_write, write_config_dir is obsolete
+        $self->auto_write_init($model->{write_config},
+                               $model->{write_config_dir});
     }
 
     return $self ;
@@ -636,7 +635,7 @@ L<Config::Model::AnyThing>
 =cut
 
 for my $datum (qw/config_model model config_class_name/) {
-    no strict "refs";       # to register new methods in package
+    no strict "refs";			# to register new methods in package
     *$datum = sub {
         my $self= shift; 
         return $self->{$datum};
@@ -693,11 +692,11 @@ sub element_type {
     my $element_info = $self->{model}{element}{$_[0]} ;
 
     Config::Model::Exception::UnknownElement->throw(
-        object   => $self,
-        function => 'element_type',
-        where    => $self->location || 'configuration root',
-        element     => $_[0],
-        )
+                                                    object   => $self,
+                                                    function => 'element_type',
+                                                    where    => $self->location || 'configuration root',
+                                                    element     => $_[0],
+                                                   )
         unless defined $element_info ;
 
     return $element_info->{type} ;
@@ -761,17 +760,17 @@ sub get_element_name {
     my %args = @_ ;
 
     my $for  = $args{for} || 'master' ;
-    my $type = $args{type} ; # optional
+    my $type = $args{type} ;			 # optional
     my $cargo_type = $args{cargo_type} ; # optional
 
     if ($for eq 'intermediate') {
-    carp "get_element_name: 'intermediate' is deprecated in favor of beginner";
-    $for = 'beginner' ;
+        carp "get_element_name: 'intermediate' is deprecated in favor of beginner";
+        $for = 'beginner' ;
     }
 
     croak "get_element_name: wrong 'for' parameter. Expected ", 
       join (' or ', @experience_list) 
-    unless defined $experience_index{$for} ;
+        unless defined $experience_index{$for} ;
 
     my $for_idx = $experience_index{$for} ;
 
@@ -784,23 +783,23 @@ sub get_element_name {
     # must respect the order of the elements declared in the model by
     # the user
     foreach my $elt (@element_list) {
-    # create element if they don't exist, this enables warp stuff
-    # to kick in
-    $self->create_element($elt) unless defined $self->{element}{$elt};
+        # create element if they don't exist, this enables warp stuff
+        # to kick in
+        $self->create_element($elt) unless defined $self->{element}{$elt};
 
-    next if $info->{level}{$elt} eq 'hidden' ;
-    my $status = $info->{status}{$elt} ;
-    next if ($status eq 'deprecated' or $status eq 'obsolete') ;
+        next if $info->{level}{$elt} eq 'hidden' ;
+        my $status = $info->{status}{$elt} ;
+        next if ($status eq 'deprecated' or $status eq 'obsolete') ;
 
-    my $elt_idx =  $experience_index{$info->{experience}{$elt}} ;
-    my $elt_type =  $self->{element}{$elt}->get_type ;
-    my $elt_cargo = $self->{element}{$elt}->get_cargo_type ;
-    if ($for_idx >= $elt_idx 
-        and (not defined $type       or $type       eq $elt_type)
-        and (not defined $cargo_type or $cargo_type eq $elt_cargo)
-       ) {
-        push @result, $elt ;
-    }
+        my $elt_idx =  $experience_index{$info->{experience}{$elt}} ;
+        my $elt_type =  $self->{element}{$elt}->get_type ;
+        my $elt_cargo = $self->{element}{$elt}->get_cargo_type ;
+        if ($for_idx >= $elt_idx 
+            and (not defined $type       or $type       eq $elt_type)
+            and (not defined $cargo_type or $cargo_type eq $elt_cargo)
+           ) {
+            push @result, $elt ;
+        }
     }
 
     $logger->debug( "get_element_name: got @result for level $for");
@@ -830,12 +829,12 @@ sub next_element {
     my $found_elt = (defined $element and $element) ? 0 : 1 ;
 
     while (my $name = shift @elements) {
-      if ($found_elt) {
-    return $name 
-      if $self->is_element_available(name => $name, 
-                     experience => $min_experience);
-      }
-      $found_elt = 1 if $element eq $name ;
+        if ($found_elt) {
+            return $name 
+              if $self->is_element_available(name => $name, 
+                                             experience => $min_experience);
+        }
+        $found_elt = 1 if $element eq $name ;
     }
 
     croak "next_element: element $element is unknown. Expected @elements" 
@@ -903,7 +902,7 @@ sub set_element_property {
 
     $logger->debug("Node ",$self->name,": set $elt property $prop to $new_value");
 
-   return $self->{model}{$prop}{$elt} = $new_value ;
+    return $self->{model}{$prop}{$elt} = $new_value ;
 }
 
 =head2 reset_element_property ( element => ... )
@@ -921,14 +920,14 @@ sub reset_element_property {
 
     my $original_value = $self->{config_model} 
       -> get_element_property (
-                   class => $self->{config_class_name},
-                   %args
-                  );
+                               class => $self->{config_class_name},
+                               %args
+                              );
 
     use Data::Dumper;
     print Dumper($self->name)." -> $prop\n" if not defined $original_value;
     $logger->debug( "Node ",$self->name,
-      ": reset $elt property $prop to $original_value");
+                    ": reset $elt property $prop to $original_value");
 
     return $self->{model}{$prop}{$elt} = $original_value ;
 }
@@ -945,14 +944,14 @@ sub check_property_args {
       croak "$method_name: missing 'property' parameter";
 
     if ($prop eq 'permission') {
-    carp "check_property_args: 'permission' is deprecated in favor of 'experience'";
-    $prop = 'experience' ;
+        carp "check_property_args: 'permission' is deprecated in favor of 'experience'";
+        $prop = 'experience' ;
     }
 
     my $prop_values = $legal_properties{$prop} ;
     confess "Unknown property in $method_name: $prop, expected status or ",
       "level or experience"
-    unless defined $prop_values ;
+        unless defined $prop_values ;
 
     return ($prop,$elt) ;
 }
@@ -976,8 +975,8 @@ sub fetch_element {
     my $accept_hidden = shift || 0 ;
 
     if ($user eq 'intermediate') {
-    carp "fetch_element: 'intermediate' is deprecated in favor of 'beginner'";
-    $user = 'beginner' ;
+        carp "fetch_element: 'intermediate' is deprecated in favor of 'beginner'";
+        $user = 'beginner' ;
     }
 
     my $model = $self->{model} ;
@@ -987,48 +986,48 @@ sub fetch_element {
     if (not defined $self->{element}{$element_name}) {
             
 
-            #We need to check if element name is matched by any of 'accept' parameters
-            #If yes, modify the model adding the new parameter
+        #We need to check if element name is matched by any of 'accept' parameters
+        #If yes, modify the model adding the new parameter
 
-            #Hash of new element, to be inserted in $self->{model}{element}{$element_name}
-            my $neh;
+        #Hash of new element, to be inserted in $self->{model}{element}{$element_name}
+        my $neh;
 
-            if(defined $self->{model}{accept}){
-                foreach my $acc (@{$self->{model}{accept}}){
-                    my $mr = eval {qr/$acc->{match}/; };
+        if (defined $self->{model}{accept}) {
+            foreach my $acc (@{$self->{model}{accept}}) {
+                my $mr = eval {qr/$acc->{match}/; };
                     
-                    if($element_name =~ $mr){
-                        $neh = dclone $acc;
-                        delete $neh->{match};
-                        last;
-                    }
+                if ($element_name =~ $mr) {
+                    $neh = dclone $acc;
+                    delete $neh->{match};
+                    last;
                 }
             }
+        }
 
-            #If $neh is defined, that means the element is not yet 
-            #in the tree and it is matched by some 'accept' parameter
+        #If $neh is defined, that means the element is not yet 
+        #in the tree and it is matched by some 'accept' parameter
 
-            $self->{model}{element}{$element_name} = $neh if defined $neh; 
+        $self->{model}{element}{$element_name} = $neh if defined $neh; 
 
-            $self->create_element($element_name) ;
+        $self->create_element($element_name) ;
 
-            if (defined $neh){
-                #add to element list...
-                push @{$self->{model}{element_list}}, $element_name;
+        if (defined $neh) {
+            #add to element list...
+            push @{$self->{model}{element_list}}, $element_name;
 
-                $self->{model}{experience}{$element_name} ||= 'beginner';
-                $self->{model}{summary}{$element_name} ||= '';
-                $self->{model}{level}{$element_name} ||= 'normal';
-                $self->{model}{description}{$element_name} ||= '';
-                $self->{model}{status}{$element_name} ||= 'standard';
+            $self->{model}{experience}{$element_name} ||= 'beginner';
+            $self->{model}{summary}{$element_name} ||= '';
+            $self->{model}{level}{$element_name} ||= 'normal';
+            $self->{model}{description}{$element_name} ||= '';
+            $self->{model}{status}{$element_name} ||= 'standard';
 
-                #Setup 'original' values. These are extracted by reset_element_property.
-                #Without these two lines, aforementioned method would set experience and level for 
-                #elements added here to 'undef' - rendering model uneditable.
+            #Setup 'original' values. These are extracted by reset_element_property.
+            #Without these two lines, aforementioned method would set experience and level for 
+            #elements added here to 'undef' - rendering model uneditable.
 
-                $self->{config_model}{model}{$self->config_class_name}{level}{$element_name} ||= 'normal'; 
-                $self->{config_model}{model}{$self->config_class_name}{experience}{$element_name} ||= 'beginner'; 
-            }
+            $self->{config_model}{model}{$self->config_class_name}{level}{$element_name} ||= 'normal'; 
+            $self->{config_model}{model}{$self->config_class_name}{experience}{$element_name} ||= 'beginner'; 
+        }
     }
 
 
@@ -1036,36 +1035,36 @@ sub fetch_element {
     # check level
     my $element_level 
       = $self->get_element_property(property => 'level',
-                    element  => $element_name) ;
+                                    element  => $element_name) ;
 
     if ($element_level eq 'hidden' and not $accept_hidden) {
-    Config::Model::Exception::UnavailableElement
-        ->throw(
-            object   => $self,
-            element  => $element_name,
-            info     => 'hidden element',
-           );
+        Config::Model::Exception::UnavailableElement
+            ->throw(
+                    object   => $self,
+                    element  => $element_name,
+                    info     => 'hidden element',
+                   );
     }
 
 
     # check status
     if ($model->{status}{$element_name} eq 'obsolete') {
-    # obsolete is a status not very different from a missing
-    # item. The only difference is that user will get more
-    # information
-    Config::Model::Exception::ObsoleteElement
-        ->throw(
-            object   => $self,
-            element  => $element_name,
-           );
+        # obsolete is a status not very different from a missing
+        # item. The only difference is that user will get more
+        # information
+        Config::Model::Exception::ObsoleteElement
+            ->throw(
+                    object   => $self,
+                    element  => $element_name,
+                   );
     }
 
     if ($model->{status}{$element_name} eq 'deprecated' 
-    and $self->{instance}->get_value_check('fetch_and_store')
+        and $self->{instance}->get_value_check('fetch_and_store')
        ) {
-    # TBD elaborate more ? or include parameter description ??
-    warn "Element '$element_name' of node '",$self->name,
-      "' is deprecated\n";
+        # TBD elaborate more ? or include parameter description ??
+        warn "Element '$element_name' of node '",$self->name,
+          "' is deprecated\n";
     }
 
     # check experience
@@ -1073,21 +1072,21 @@ sub fetch_element {
     my $elt_idx   = $experience_index{$elt_experience} ; 
     croak "Unknown experience '$elt_experience' for element ",
       "'$element_name'. Expected ",join(' ', keys %experience_index)
-    unless defined $elt_idx ;
+        unless defined $elt_idx ;
     my $user_idx  = $experience_index{$user} ;
 
     croak "Unexpected experience '$user'" unless defined $user_idx ;
 
     if ($user_idx < $elt_idx
-    and $self->{instance}->get_value_check('fetch_or_store')
+        and $self->{instance}->get_value_check('fetch_or_store')
        ) {
-    Config::Model::Exception::RestrictedElement
-        ->throw(
-            object   => $self,
-            element  => $element_name,
-            level    => $user,
-            req_experience => $elt_experience,
-           );
+        Config::Model::Exception::RestrictedElement
+            ->throw(
+                    object   => $self,
+                    element  => $element_name,
+                    level    => $user,
+                    req_experience => $elt_experience,
+                   );
     }
 
     return $self->fetch_element_no_check($element_name) ;
@@ -1114,13 +1113,13 @@ sub fetch_element_value {
     my $user = shift || 'master' ;
 
     if ($self->element_type($element_name)  ne 'leaf') {
-    Config::Model::Exception::WrongType
-        ->throw(
-            object   => $self->fetch_element($element_name),
-            function => 'fetch_element_value',
-            got_type => $self->element_type($element_name),
-            expected_type => 'leaf',
-           );
+        Config::Model::Exception::WrongType
+            ->throw(
+                    object   => $self->fetch_element($element_name),
+                    function => 'fetch_element_value',
+                    got_type => $self->element_type($element_name),
+                    expected_type => 'leaf',
+                   );
     }
 
     return $self->fetch_element($element_name,$user)->fetch() ;
@@ -1162,16 +1161,15 @@ sub is_element_available {
     my $self = shift;
     my ($elt_name, $user_experience) = (undef, 'beginner');
     if (@_ == 1) {
-    $elt_name = shift ;
-    }
-    else {
-    my %args = @_ ;
-    $elt_name = $args{name} ;
-    $user_experience = $args{experience} if defined $args{experience} ;
-    if (defined $args{permission}) {
-        $user_experience = $args{permission};
-        carp "is_element_available: permission is deprecated" ;
-    }
+        $elt_name = shift ;
+    } else {
+        my %args = @_ ;
+        $elt_name = $args{name} ;
+        $user_experience = $args{experience} if defined $args{experience} ;
+        if (defined $args{permission}) {
+            $user_experience = $args{permission};
+            carp "is_element_available: permission is deprecated" ;
+        }
     }
 
     croak "is_element_available: missing name parameter" 
@@ -1182,23 +1180,23 @@ sub is_element_available {
     my $element = $self->fetch_element($elt_name,undef,1) ;
 
     my $element_level = $self->get_element_property(property => 'level',
-                            element => $elt_name) ;
+                                                    element => $elt_name) ;
     return 0 if $element_level eq 'hidden' ;
 
     my $element_exp = $self->get_element_property(property => 'experience',
-                           element => $elt_name) ;
+                                                  element => $elt_name) ;
 
     croak "is_element_available: unknown experience for ",
       "user experience: $user_experience"
-    unless defined $experience_index{$user_experience} ;
+        unless defined $experience_index{$user_experience} ;
 
     croak "is_element_available: unknown experience for element",
       " $elt_name: $$element_exp"
-    unless defined $experience_index{$element_exp} ;
+        unless defined $experience_index{$element_exp} ;
 
     return 
       $experience_index{$user_experience}
-    >= $experience_index{$element_exp} ? 1 : 0;
+        >= $experience_index{$element_exp} ? 1 : 0;
 }
 
 =head2 element_exists( element_name )
@@ -1266,10 +1264,9 @@ sub set {
     $path =~ s!^/!! ;
     my ($item,$new_path) = split m!/!,$path,2 ;
     if ($item =~ /([\w\-]+)\[(\d+)\]/) {
-    return $self->fetch_element($1)->fetch_with_id($2)->set($new_path,@_) ;
-    }
-    else {
-    return $self->fetch_element($item)->set($new_path,@_) ;
+        return $self->fetch_element($1)->fetch_with_id($2)->set($new_path,@_) ;
+    } else {
+        return $self->fetch_element($item)->set($new_path,@_) ;
     }
 }
 
@@ -1295,10 +1292,9 @@ sub load {
 
     my %args = @_ eq 1 ? (step => $_[0]) : @_ ;
     if (defined $args{step}) {
-    $loader->load(node => $self, %args) ;
-    }
-    elsif (defined $args{ref}) {
-    $self->load_data($args{ref}) ;
+        $loader->load(node => $self, %args) ;
+    } elsif (defined $args{ref}) {
+        $self->load_data($args{ref}) ;
     }
 }
 
@@ -1308,75 +1304,90 @@ Load configuration data with a hash ref (first parameter). The hash ref key must
 the available elements of the node. The hash ref structure must match
 the structure of the configuration model.
 
-The second parameter is optional and contains annotations for elements
+The second parameter is optional and contains annotations for
+elements. A standard hash of hash (or list) may contain annotation
+only for leaf elements. In order to support annotation for nodes or
+other elements, hash keys can also contain annotations like "foo# foo
+note".  Also the special key '__' will store the annotation in the
+containing object.
 
 =cut
 sub load_data {
     my $self = shift ;
     my $p    = shift ;
-    my $a    = shift ;
+    my $a    = shift || {};
 
     my $check = $self->instance->get_value_check('store') ;
 
     if ( not defined $p or (ref($p) ne 'HASH' and not $p->isa( 'HASH' )) ) {
-    Config::Model::Exception::LoadData
-        -> throw (
-              object => $self,
-              message => "load_data called with non hash ref arg",
-              wrong_data => $p,
-             )  if $check ;
-    return ;
+        Config::Model::Exception::LoadData
+            -> throw (
+                      object => $self,
+                      message => "load_data called with non hash ref arg",
+                      wrong_data => $p,
+                     )  if $check ;
+        return ;
     }
-
 
 
     my $h = dclone $p ;
     my $ca = dclone $a if defined $a;
 
     $logger->info("Node load_data (",$self->location,") will load elt ",
-          join (' ',keys %$h));
+                  join (' ',keys %$h));
+
+    # handle special '__' element to store annotation in containing node
+    my $node_annotation = delete $ca->{__} ;
+    if (defined $node_annotation) {
+        $logger->debug("Node load_data annotation from '__': $node_annotation");
+        $self->annotation($node_annotation);
+    }
+
+    # store annotation found in hash keys
+    my %elt_note ;
+    foreach my $k (keys %$ca) {
+        my ($elt,$note) = split (/#\s*/,$k);
+        next unless $note ;
+        $elt_note{$elt} = $note ;
+        $ca->{$elt} = delete $ca->{$k} ;
+    }
 
     # data must be loaded according to the element order defined by
     # the model
     foreach my $elt ( @{$self->{model}{element_list}} ) {
-    next unless defined $h->{$elt} ;
-    if ($self->is_element_available(name => $elt, experience => 'master')
-        or not $check
-       ) {
-        my $obj = $self->fetch_element($elt,'master', not $check) ;
+        next unless defined $h->{$elt} ;
 
-        if (defined $a && defined $ca->{$elt}){
-            #FIXME: The following line 'does not meet my personal code quality expectations'
-            #It makes wrong assumption that every annotation is an array
-            #$obj -> annotation(@{$ca->{$elt}});
+        if ($self->is_element_available(name => $elt, experience => 'master')
+            or not $check
+           ) {
+            my $obj = $self->fetch_element($elt,'master', not $check) ;
+
+            # store annotation that was found in hash key
+            $obj->annotation($elt_note{$elt}) if defined $elt_note{$elt} ;
+
             $obj -> load_data(delete $h->{$elt}, delete $ca->{$elt}) ;
+        } else {
+            Config::Model::Exception::LoadData 
+                -> throw (
+                          message => "load_data: tried to load hidden "
+                          . "element '$elt' with",
+                          wrong_data => $h->{$elt},
+                          object => $self,
+                         ) ;
         }
-        else{
-            $obj -> load_data(delete $h->{$elt}) ;
-        }
-    }
-    else {
-        Config::Model::Exception::LoadData 
-        -> throw (
-              message => "load_data: tried to load hidden "
-                                   . "element '$elt' with",
-              wrong_data => $h->{$elt},
-              object => $self,
-             ) ;
-    }
     }
 
 
     #Load elements matched by accept parameter
-    if(defined $self->{model}{accept}){
-        foreach my $acc (@{$self->{model}{accept}}){
+    if (defined $self->{model}{accept}) {
+        foreach my $acc (@{$self->{model}{accept}}) {
             my $mr = qr/$acc->{match}/ ; 
             print $mr;
 
             #Now, $h contains all elements not yet parsed
-            foreach my $elt (keys %$h){
+            foreach my $elt (keys %$h) {
 
-                if ($elt =~ $mr){
+                if ($elt =~ $mr) {
                     #load value
                     #TODO: annotations
                     my $obj = $self->fetch_element($elt,'master', not $check) ;
@@ -1391,13 +1402,13 @@ sub load_data {
 
 
     if (%$h and $check) {
-    Config::Model::Exception::LoadData 
-        -> throw (
-              message => "load_data: unknown elements (expected "
-             . join(' ' ,@{$self->{model}{element_list}} ). ") ",
+        Config::Model::Exception::LoadData 
+            -> throw (
+                      message => "load_data: unknown elements (expected "
+                      . join(' ' ,@{$self->{model}{element_list}} ). ") ",
                       wrong_data => $h,
-              object => $self,
-             ) ;
+                      object => $self,
+                     ) ;
     }
 }
 
@@ -1503,19 +1514,17 @@ sub get_help {
 
     my $help;
     if ( scalar @_ > 1 ) {
-    my ($tag,$elt_name) = @_ ;
+        my ($tag,$elt_name) = @_ ;
 
-    if ($tag !~ /summary|description/) {
-        croak "get_help: wrong argument $tag, expected ",
-          "'description' or 'summary'";
-    }
+        if ($tag !~ /summary|description/) {
+            croak "get_help: wrong argument $tag, expected ",
+              "'description' or 'summary'";
+        }
 
-    $help = $self->{model}{$tag}{$elt_name};
-    }
-    elsif ( @_ ) {
+        $help = $self->{model}{$tag}{$elt_name};
+    } elsif ( @_ ) {
         $help = $self->{model}{description}{$_[0]};
-    }
-    else {
+    } else {
         $help = $self->{model}{class_description};
     }
 

@@ -28,7 +28,7 @@ Log::Log4perl->easy_init($arg =~ /l/ ? $TRACE: $ERROR);
 ok(1,"compiled");
 
 my $inst = $model->instance (root_class_name => 'Master', 
-			     model_file => 't/big_model.pm',
+			     model_file => 't/dump_load_model.pm',
 			     instance_name => 'test1');
 ok($inst,"created dummy instance") ;
 
@@ -109,7 +109,6 @@ is_deeply($full_data, $expect, "check full data dump") ;
 
 
 my $inst2 = $model->instance (root_class_name => 'Master', 
-			      #model_file => 't/big_model.pm',
 			      instance_name => 'test2');
 ok($inst,"created 2nd dummy instance") ;
 
