@@ -472,9 +472,15 @@ sub load_data {
     my $data = shift ;
     my $note = shift || {} ;
 
+	my %annot ;
+
     if (ref ($data) eq 'HASH') {
         my @load_keys ;
         my $from = ''; ;
+		if (defined $data->{__}) {
+			$self->annotation(delete $data->{__}) ;
+		}
+
         if ($self->{ordered} and defined $data->{__order}) {
             @load_keys = @{ delete $data->{__order} };
             $from = ' with __order' ;
@@ -487,21 +493,31 @@ sub load_data {
 
         @load_keys = sort keys %$data unless @load_keys;
 
+		foreach (@load_keys) {
+			my ($k,$c) = split /#\s*/;
+			$annot{$k} = $c;
+			$_ = $k ;
+		}
+
         $logger->info("HashId load_data (".$self->location.
                       ") will load idx @load_keys from hash ref".$from);
         foreach my $elt (@load_keys) {
             my $obj = $self->fetch_with_id($elt) ;
             $obj -> load_data($data->{$elt}) ;
         }
-    } elsif ( $self->{ordered} and ref ($data) eq 'ARRAY') {
+    }
+	elsif ( $self->{ordered} and ref ($data) eq 'ARRAY') {
         $logger->info("HashId load_data (".$self->location
                       .") will load idx 0..$#$data from array ref") ;
         my $idx = 0 ;
         while ( $idx < @$data ) {
-            my $obj = $self->fetch_with_id($data->[$idx++]) ;
+			my ($elt,$c) = split /#\s*/,$data->[$idx++];
+			$annot{$elt} = $c if defined $c ;
+            my $obj = $self->fetch_with_id($elt) ;
             $obj -> load_data($data->[$idx++]) ;
         }
-    } elsif (defined $data) {
+    }
+	elsif (defined $data) {
         # we can skip undefined data
         my $expected = $self->{ordered} ? 'array' : 'hash' ;
         Config::Model::Exception::LoadData
@@ -511,6 +527,10 @@ sub load_data {
                       wrong_data => $data ,
                      ) ;
     }
+
+	foreach my $elt (keys %annot) {
+		$elt->annotation($annot{$elt}) ;
+	}
 }
 
 1;
