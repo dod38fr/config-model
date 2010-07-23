@@ -1,3 +1,8 @@
+2010-07-23  Dominique Dumont  <domi.dumont@free.fr> 
+
+	* lib/Config/Model/Loader.pm (_walk_node): bug fix to load node 
+	element annotation
+	
 2010-06-04  Dominique Dumont  <domi.dumont@free.fr> 1.205
 
 	* t/node.t: patch by Niko Tyni to avoid Carp::Heavy failure. Fix

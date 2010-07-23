@@ -24,8 +24,6 @@ use warnings ;
 use Config::Model::Exception ;
 use Log::Log4perl qw(get_logger :levels);
 
-our $VERSION="1.203";
-
 my $logger = get_logger("Loader") ;
 
 =head1 NAME
@@ -452,6 +450,10 @@ sub _walk_node {
 
     my $element_name = shift @$inst ;
     my $element = $$target_ref = $node -> fetch_element($element_name) ;
+    
+    # note is handled in _load, just avoid failing if it is set
+    my $note = pop @$inst ;
+
 
     my @left = grep {defined $_} @$inst ;
     if (@left) {
@@ -459,7 +461,7 @@ sub _walk_node {
 	    -> throw (
 		      command => $inst,
 		      error => "Don't know what to do with '@left' ".
-		      "for node element" . $element -> element_name
+		      "for node element " . $element -> element_name
 		     ) ;
     }
 

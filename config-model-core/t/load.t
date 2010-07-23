@@ -1,7 +1,7 @@
 # -*- cperl -*-
 
 use ExtUtils::testlib;
-use Test::More tests => 94;
+use Test::More tests => 95;
 use Test::Exception ;
 use Config::Model;
 use Data::Dumper ;
@@ -237,9 +237,10 @@ foreach my $path (@anno_test) {
 # test combination of annotation plus load
 $step = 'std_id:ab#std_id_ab_note X=Bv X#X_note 
       - std_id#std_id_note std_id:bc X=Av X#X2_note '
-  .'- a_string="toto \"titi\" tata" a_string#string_note '
-  .'lista=a,b,c,d olist:0 - olist:0#olist0_note X=Av - olist:1 X=Bv - listb=b,"c c2",d '
-  . '! hash_a:X2=x#x_note hash_a:Y2=xy  hash_b:X3=xy my_check_list=X2,X3' ;
+  . '- a_string="toto \"titi\" tata" a_string#string_note '
+  . 'lista=a,b,c,d olist:0 - olist:0#olist0_note X=Av - olist:1 X=Bv - listb=b,"c c2",d '
+  . '! hash_a:X2=x#x_note hash_a:Y2=xy  hash_b:X3=xy my_check_list=X2,X3 '
+  . 'plain_object#"plain comment" aa2=aa2_value' ;
 
 ok( $root->load( step => $step, permission => 'intermediate' ),
   "set up data in tree with combination of load and annotations");
@@ -252,6 +253,7 @@ my @to_check = (
 		 [ 'a_string','string_note'],
 		 [ 'olist:0','olist0_note'],
 		 [ 'hash_a:X2','x_note'],
+		 [ 'plain_object', 'plain comment' ],
 	       ) ;
 foreach (@to_check) {
     is($root->grab($_->[0])->annotation,$_->[1],
