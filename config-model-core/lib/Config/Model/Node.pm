@@ -652,7 +652,18 @@ Returns 1 if the class model has the element declared.
 sub has_element {
     my $self= shift ;
     croak "has_element: missing element name" unless @_ ;
-    return defined $self->{model}{element}{$_[0]} ? 1 : 0 ;
+
+    my $accepted = 0;
+    if(defined $self->{model}{accept}){
+        foreach my $acc (@{$self->{model}{accept}}){
+            my $mr = qr/$acc->{match}/ ; 
+            if ($_[0] =~ $mr){
+                $accepted = 1;
+                last;
+            }
+        }
+    }
+    return defined ($self->{model}{element}{$_[0]} || $accepted) ? 1 : 0 ;
 }
 
 =head2 searcher ()
