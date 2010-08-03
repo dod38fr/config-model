@@ -64,6 +64,9 @@ my $i_root = $i_test->config_root ;
 is($i_root->annotation,"some global comment","check global comment");
 is($i_root->fetch_element("class1")->annotation,"class1 comment",
    "check class1 comment");
+is($i_root->fetch_element("class1")->fetch_element('lista')->annotation,
+   "class1 comment",
+   "check class1 comment");
 
 my $orig = $i_root->dump_tree ;
 print $orig if $trace ;
@@ -108,4 +111,7 @@ bar = bar1
 # class1 comment
 [class1]
 lista=lista1 #lista1 comment
-lista    =    lista2
+# lista2 comment
+lista    =    lista2 
+# lista3 comment
+lista    =    lista3 

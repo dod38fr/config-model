@@ -644,26 +644,18 @@ for my $datum (qw/config_model model config_class_name/) {
 
 =head2 has_element ( element_name )
 
-Returns 1 if the class model has the element declared. 
+Returns 1 if the class model has the element declared or if the element 
+is match by C<accept> parameter. 
 
 =cut
 
 # should I autovivify this element: NO
 sub has_element {
-    my $self= shift ;
-    croak "has_element: missing element name" unless @_ ;
+    my ($self,$name) = @_ ;
+    croak "has_element: missing element name" unless defined $name ;
 
-    my $accepted = 0;
-    if(defined $self->{model}{accept}){
-        foreach my $acc (@{$self->{model}{accept}}){
-            my $mr = qr/$acc->{match}/ ; 
-            if ($_[0] =~ $mr){
-                $accepted = 1;
-                last;
-            }
-        }
-    }
-    return defined ($self->{model}{element}{$_[0]} || $accepted) ? 1 : 0 ;
+    $self->accept_element($name);
+    return !! $self->{model}{element}{$name};
 }
 
 =head2 searcher ()
@@ -918,7 +910,7 @@ sub set_element_property {
 
 =head2 reset_element_property ( element => ... )
 
-Reset a property of an element according to the model.
+Reset a property of an element according to the original model.
 
 =cut
 
@@ -995,50 +987,9 @@ sub fetch_element {
 
     # retrieve element (and auto-vivify if needed)
     if (not defined $self->{element}{$element_name}) {
-            
-
-        #We need to check if element name is matched by any of 'accept' parameters
-        #If yes, modify the model adding the new parameter
-
-        #Hash of new element, to be inserted in $self->{model}{element}{$element_name}
-        my $neh;
-
-        if (defined $self->{model}{accept}) {
-            foreach my $acc (@{$self->{model}{accept}}) {
-                my $mr = eval {qr/$acc->{match}/; };
-                    
-                if ($element_name =~ $mr) {
-                    $neh = dclone $acc;
-                    delete $neh->{match};
-                    last;
-                }
-            }
-        }
-
-        #If $neh is defined, that means the element is not yet 
-        #in the tree and it is matched by some 'accept' parameter
-
-        $self->{model}{element}{$element_name} = $neh if defined $neh; 
-
+        # We also need to check if element name is matched by any of 'accept' parameters
+        $self->accept_element($element_name);
         $self->create_element($element_name) ;
-
-        if (defined $neh) {
-            #add to element list...
-            push @{$self->{model}{element_list}}, $element_name;
-
-            $self->{model}{experience}{$element_name} ||= 'beginner';
-            $self->{model}{summary}{$element_name} ||= '';
-            $self->{model}{level}{$element_name} ||= 'normal';
-            $self->{model}{description}{$element_name} ||= '';
-            $self->{model}{status}{$element_name} ||= 'standard';
-
-            #Setup 'original' values. These are extracted by reset_element_property.
-            #Without these two lines, aforementioned method would set experience and level for 
-            #elements added here to 'undef' - rendering model uneditable.
-
-            $self->{config_model}{model}{$self->config_class_name}{level}{$element_name} ||= 'normal'; 
-            $self->{config_model}{model}{$self->config_class_name}{experience}{$element_name} ||= 'beginner'; 
-        }
     }
 
 
@@ -1210,6 +1161,66 @@ sub is_element_available {
         >= $experience_index{$element_exp} ? 1 : 0;
 }
 
+=head2 accept_element( name )
+
+Checks and returns the appropriate model of an acceptable element 
+(be it explicetely declared, or part of an C<accept> declaration).
+Returns undef if the element cannot be accepted.
+
+=cut
+
+sub accept_element {
+    my ($self,$name) = @_;
+
+    my $model_data = $self->{model}{element};
+    
+    return $model_data->{$name} if defined $model_data->{$name} ;
+    
+    return unless defined $self->{model}{accept};
+    
+    foreach my $acc ( @{$self->{model}{accept}} ) {
+        if ($name =~ /^$acc->{match}$/) {
+            return $self->reset_accepted_element_model ($name,$acc);
+        }
+    }
+    
+    return;
+}
+
+=head2 accept_regexp( name )
+
+Returns the list of regular expressions used to check for acceptable parameters. 
+Useful for diagnostics.
+
+=cut
+
+sub accept_regexp {
+    my ($self) = @_;
+
+    return map { $_->{match} } @{$self->{model}{accept} || []};
+}
+
+
+sub reset_accepted_element_model {
+    my ($self,$element_name,$accept_model) = @_;
+
+    my $model = dclone $accept_model ;
+    delete $model->{match} ;
+    
+    foreach my $info_to_move (qw/description level summary experience status/) {
+	my $moved_data = delete $model->{$info_to_move}  ;
+        next unless defined $moved_data ;
+	$self->{model}{$info_to_move}{$element_name} = $moved_data ;
+    }
+
+    $self->{model}{element}{$element_name} = $model ;
+
+    #add to element list...
+    push @{$self->{model}{element_list}}, $element_name;
+
+    return ($model);
+}
+
 =head2 element_exists( element_name )
 
 Returns 1 if the element is known in the model.
@@ -1348,13 +1359,14 @@ sub load_data {
                   join (' ',keys %$h));
 
     # handle special '__' element to store annotation in containing node
+    # this is mostly useful for root node
     my $node_annotation = delete $ca->{__} ;
     if (defined $node_annotation) {
         $logger->debug("Node load_data annotation from '__': $node_annotation");
         $self->annotation($node_annotation);
     }
 
-    # store annotation found in hash keys
+    # store annotation found in annotation hash keys (i.e. key like "foo#comment")
     my %elt_note ;
     foreach my $k (keys %$ca) {
         my ($elt,$note) = split (/#\s*/,$k);
@@ -1371,11 +1383,16 @@ sub load_data {
         if ($self->is_element_available(name => $elt, experience => 'master')
             or not $check
            ) {
+            $logger->debug("Node load_data for element $elt");
             my $obj = $self->fetch_element($elt,'master', not $check) ;
 
             # store annotation that was found in hash key
             $obj->annotation($elt_note{$elt}) if defined $elt_note{$elt} ;
 
+            # store simple annotation
+            $obj->annotation($elt_note{$elt}) if defined $ca->{$elt} and
+                not ref($ca->{$elt} );
+            # FIXME: skip transmitting simple annotation    
             $obj -> load_data(delete $h->{$elt}, delete $ca->{$elt}) ;
         } else {
             Config::Model::Exception::LoadData 
@@ -1402,7 +1419,7 @@ sub load_data {
                     #load value
                     #TODO: annotations
                     my $obj = $self->fetch_element($elt,'master', not $check) ;
-                    $obj ->load_data(delete $h->{$elt}) ;
+                    $obj ->load_data(delete $h->{$elt}, $ca->{$elt}) ;
                 }
             }
         }

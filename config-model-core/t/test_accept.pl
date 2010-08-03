@@ -14,7 +14,7 @@
 
   accept =>      [
                     { 
-                            match => 'list*',
+                            match => 'list.*',
                             type => 'list',
                             cargo => { 
                                         type => 'leaf',
@@ -22,7 +22,7 @@
                                      } ,
                      },
                      { 
-                            match => 'str*',
+                            match => 'str.*',
                             type => 'leaf',
                             value_type => 'uniline'
                      },

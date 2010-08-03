@@ -20,6 +20,8 @@
 package Config::Model::ListId ;
 use Config::Model::Exception ;
 use Scalar::Util qw(weaken) ;
+use Log::Log4perl qw(get_logger :levels);
+
 use warnings ;
 use Carp;
 use strict;
@@ -28,6 +30,7 @@ our $VERSION="1.201";
 use base qw/Config::Model::AnyId/ ;
 
 # use vars qw($VERSION) ;
+my $logger = get_logger("Tree::Element::List") ;
 
 =head1 NAME
 
@@ -109,7 +112,7 @@ sub set_properties {
     # warp mechanism
     foreach my $k (0 .. $#{$data}) {
 	next unless  $k >  $self->{max_index};
-	print "set_properties: ",$self->name," deleting index $k\n" if $::debug ;
+	$logger->debug("set_properties: ",$self->name," deleting index $k") ;
 	delete $data->[$k] ;
     }
 }
@@ -348,34 +351,32 @@ the first element of the list.
 
 sub load_data {
     my $self = shift ;
-    my $data = shift ;
-    my $annot = shift ;
+    my $raw_data = shift ;
+    my $raw_annot = shift ;
+
+    my ($data,$annot) 
+	= map {   ref($_) eq 'ARRAY' ? $_ 
+	        : defined $_         ? [ $_ ] 
+	        :                  	undef; } ($raw_data,$raw_annot);
 
     $self->clear ;
-    if (ref ($data)  eq 'ARRAY') {
-	my $idx = 0;
-	print "ListId load_data (",$self->location,") will load idx ",
-	  "0..$#$data\n" if $::verbose ;
-	foreach my $item (@$data ) {
-	    my $obj = $self->fetch_with_id($idx++) ;
-	    $obj -> load_data($item) ;
-	}
-    }
-    # do now create one element of undef data.
-    elsif (defined $data) {
-	print "ListId load_data (",$self->location,") will load idx ",
-	  "0\n" if $::verbose ;
-	$self->clear ;
-	$self->fetch_with_id(0) -> load_data($data) ;
+
+    my $idx = 0;
+    $logger->info("ListId load_data (",$self->location,") will load idx ",
+	"0..$#$data");
+    foreach my $item (@$data ) {
+	my $obj = $self->fetch_with_id($idx) ;
+	my @args = ($item);
+	CORE::push (@args,$annot->[$idx]) if defined $annot ;
+	$idx++ ;
+	$obj -> load_data(@args) ;
     }
 
-    return unless defined $annot;
-    
-    my @annot = ref ($annot)  eq 'ARRAY' ? @$annot : ($annot) ; 	
-    my $idx = 0;
-    print "ListId load_data (",$self->location,") will load annotation idx ",
-	  "0..#$annot\n" if $::verbose ;
-    foreach my $item (@annot ) {
+    return unless defined $annot ;
+    $idx = 0;
+    $logger->info("ListId load_data (",$self->location,") will load annotation idx ",
+	  "0..$#$annot") ;
+    foreach my $item (@$annot ) {
 	my $obj = $self->fetch_with_id($idx++) ;
 	$obj -> annotation($item) if $item ; # do not store undef
     }

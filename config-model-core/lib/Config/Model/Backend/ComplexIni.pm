@@ -107,8 +107,11 @@ sub read {
             my ($name,$val) = split(/\s*=\s*/, $vdata);
 
             if (defined $r->{$name}){
-                $r->{$name} = [$r->{$name}] if ref($r->{$name}) ne 'ARRAY';
+                map {$_->{$name} = [$_->{$name}] if ref($_->{$name}) ne 'ARRAY';} ( $r,$a ) ;
+                
                 push @{$r->{$name}}, $val;
+                push @{$a->{$name}}, '"'.join("\n",@comments).'"' if scalar @comments;
+                @comments = ();
             }
             else{
                 $r->{$name} = $val;

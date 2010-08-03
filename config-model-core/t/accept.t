@@ -3,6 +3,7 @@
 
 use ExtUtils::testlib;
 use Test::More ;
+use Test::Exception ;
 use Config::Model;
 use File::Path;
 use File::Copy ;
@@ -27,7 +28,7 @@ Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 use Log::Log4perl qw(:easy) ;
 Log::Log4perl->easy_init($arg =~ /l/ ? $TRACE: $ERROR);
 
-plan tests => 7 ;
+plan tests => 8 ;
 
 ok(1,"compiled");
 
@@ -90,3 +91,6 @@ my $spdump = join(' ',sort(split(/\s/,$p2_dump)));
 
 
 is($spdump,$spload,"compare original data with 2nd instance data") ;
+
+throws_ok { $i_root->load("foo=bar"); } "Config::Model::Exception::UnknownElement", 'caught unacceptable parameter';
+
