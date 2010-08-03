@@ -1335,50 +1335,59 @@ containing object.
 
 =cut
 sub load_data {
-    my $self = shift ;
-    my $p    = shift ;
-    my $a    = shift || {};
+    my $self                = shift ;
+    my $raw_perl_data       = shift ;
+    my $raw_annotation_data = shift || {};
 
     my $check = $self->instance->get_value_check('store') ;
 
-    if ( not defined $p or (ref($p) ne 'HASH' and not $p->isa( 'HASH' )) ) {
+    if (    not defined $raw_perl_data 
+        or (ref($raw_perl_data) ne 'HASH' 
+        and not $raw_perl_data->isa( 'HASH' )) ) {
         Config::Model::Exception::LoadData
             -> throw (
                       object => $self,
                       message => "load_data called with non hash ref arg",
-                      wrong_data => $p,
+                      wrong_data => $raw_perl_data,
                      )  if $check ;
         return ;
     }
 
 
-    my $h = dclone $p ;
-    my $ca = dclone $a if defined $a;
+    my $perl_data       = dclone $raw_perl_data ;
+    my $annotation_data = dclone $raw_annotation_data ;
 
     $logger->info("Node load_data (",$self->location,") will load elt ",
-                  join (' ',keys %$h));
+                  join (' ',keys %$perl_data));
 
     # handle special '__' element to store annotation in containing node
     # this is mostly useful for root node
-    my $node_annotation = delete $ca->{__} ;
+    my $node_annotation = delete $annotation_data->{__} ;
     if (defined $node_annotation) {
         $logger->debug("Node load_data annotation from '__': $node_annotation");
         $self->annotation($node_annotation);
     }
 
-    # store annotation found in annotation hash keys (i.e. key like "foo#comment")
+    # put aside annotation to be stored later directly in elements
+    # i.e. scalar values and contained in key like "foo#comment"
     my %elt_note ;
-    foreach my $k (keys %$ca) {
+
+    foreach my $k (keys %$annotation_data) {
         my ($elt,$note) = split (/#\s*/,$k);
         next unless $note ;
         $elt_note{$elt} = $note ;
-        $ca->{$elt} = delete $ca->{$k} ;
+        $annotation_data->{$elt} = delete $annotation_data->{$k} ;
+    }
+
+    foreach my $k (keys %$annotation_data) {
+        next if ref( $annotation_data->{$k} );
+        $elt_note{$k} = delete $annotation_data->{$k} ;
     }
 
     # data must be loaded according to the element order defined by
-    # the model
+    # the model. This will not load not yet accepted parameters
     foreach my $elt ( @{$self->{model}{element_list}} ) {
-        next unless defined $h->{$elt} ;
+        next unless defined $perl_data->{$elt} ;
 
         if ($self->is_element_available(name => $elt, experience => 'master')
             or not $check
@@ -1386,55 +1395,46 @@ sub load_data {
             $logger->debug("Node load_data for element $elt");
             my $obj = $self->fetch_element($elt,'master', not $check) ;
 
-            # store annotation that was found in hash key
-            $obj->annotation($elt_note{$elt}) if defined $elt_note{$elt} ;
-
-            # store simple annotation
-            $obj->annotation($elt_note{$elt}) if defined $ca->{$elt} and
-                not ref($ca->{$elt} );
-            # FIXME: skip transmitting simple annotation    
-            $obj -> load_data(delete $h->{$elt}, delete $ca->{$elt}) ;
+            $obj -> load_data(delete $perl_data->{$elt}, 
+                              delete $annotation_data->{$elt}) ;
         } else {
             Config::Model::Exception::LoadData 
                 -> throw (
                           message => "load_data: tried to load hidden "
                           . "element '$elt' with",
-                          wrong_data => $h->{$elt},
+                          wrong_data => $perl_data->{$elt},
                           object => $self,
                          ) ;
         }
     }
 
 
-    #Load elements matched by accept parameter
+    # Load elements matched by accept parameter
     if (defined $self->{model}{accept}) {
-        foreach my $acc (@{$self->{model}{accept}}) {
-            my $mr = qr/$acc->{match}/ ; 
-            print $mr;
-
-            #Now, $h contains all elements not yet parsed
-            foreach my $elt (keys %$h) {
-
-                if ($elt =~ $mr) {
-                    #load value
-                    #TODO: annotations
-                    my $obj = $self->fetch_element($elt,'master', not $check) ;
-                    $obj ->load_data(delete $h->{$elt}, $ca->{$elt}) ;
-                }
+        #Now, $perl_data contains all elements not yet parsed
+        foreach my $elt (keys %$perl_data) {
+            #load value
+            #TODO: annotations
+            my $obj = $self->fetch_element($elt,'master', not $check) ;
+            $obj ->load_data(delete $perl_data->{$elt}, 
+                             delete $annotation_data->{$elt}
+                             ) if defined $obj;
             }
-        }
     }
 
-    #HACK:
-    $h = {};
+    # now load annotations that were put aside
+    foreach my $elt (keys %elt_note) {
+        my $obj = $self->fetch_element($elt,'master', not $check) ;
+        $logger->debug("Node load_data: store element $elt annotation: $elt_note{$elt}");
+        $obj -> annotation($elt_note{$elt}) if defined $obj;
+        }
 
-
-    if (%$h and $check) {
+    if (%$perl_data and $check) {
         Config::Model::Exception::LoadData 
             -> throw (
                       message => "load_data: unknown elements (expected "
                       . join(' ' ,@{$self->{model}{element_list}} ). ") ",
-                      wrong_data => $h,
+                      wrong_data => $perl_data,
                       object => $self,
                      ) ;
     }

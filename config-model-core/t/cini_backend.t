@@ -27,7 +27,7 @@ Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 use Log::Log4perl qw(:easy) ;
 Log::Log4perl->easy_init($arg =~ /l/ ? $TRACE: $ERROR);
 
-plan tests => 8 ;
+plan tests => 12 ;
 
 ok(1,"compiled");
 
@@ -64,9 +64,15 @@ my $i_root = $i_test->config_root ;
 is($i_root->annotation,"some global comment","check global comment");
 is($i_root->fetch_element("class1")->annotation,"class1 comment",
    "check class1 comment");
-is($i_root->fetch_element("class1")->fetch_element('lista')->annotation,
-   "class1 comment",
-   "check class1 comment");
+
+my $lista_obj = $i_root->fetch_element("class1")->fetch_element('lista');
+is($lista_obj->annotation, undef,"check lista comment"); 
+
+foreach my $i (1 .. 3) {
+    my $elt = $lista_obj->fetch_with_id($i - 1) ;
+    is($elt->annotation,
+       "lista$i comment","check lista[$i] comment");
+    } 
 
 my $orig = $i_root->dump_tree ;
 print $orig if $trace ;

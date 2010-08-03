@@ -110,19 +110,19 @@ sub read {
                 map {$_->{$name} = [$_->{$name}] if ref($_->{$name}) ne 'ARRAY';} ( $r,$a ) ;
                 
                 push @{$r->{$name}}, $val;
-                push @{$a->{$name}}, '"'.join("\n",@comments).'"' if scalar @comments;
+                push @{$a->{$name}}, join("\n",@comments) if scalar @comments;
                 @comments = ();
             }
             else{
                 $r->{$name} = $val;
                 # no need to store empty comments
-                $a->{$name} = '"'.join("\n",@comments).'"' if scalar @comments;
+                $a->{$name} = join("\n",@comments) if scalar @comments;
                 @comments = ();
             }
         }
     }
 
-    use Data::Dumper; print Dumper(\%annot) ;
+    # use Data::Dumper; print Dumper(\%annot) ;
 
     $self->node->load_data(\%data,\%annot);
 
@@ -177,15 +177,22 @@ sub _write {
         }
 
         elsif ($node->element_type($elt) eq 'list'){
-            $ioh->print("$elt=$_\n") foreach ($obj->fetch_all_values('custom'));
-            $ioh->print("\n");
+            foreach my $item ($obj->fetch_all('custom')) {
+                my $note = $item->annotation;
+                my $v = $item->fetch ;
+                $ioh->print("# $note\n") if $note ;
+                $ioh->print("$elt=$v\n") ;
+                $ioh->print("\n");
+            }
         }
-
-        else{
-            my $v = $node->grab_value($elt) ;
-
+        else {
+            my $v_obj = $node->grab($elt) ;
+            my $note = $v_obj->annotation;
+            $ioh->print("# $note\n") if $note ;
+            my $v = $v_obj->fetch ;
             # write value
-            $ioh->print("$elt=$v\n\n") if defined $v ;
+            $ioh->print("$elt=$v\n") if defined $v ;
+            $ioh->print("\n");
         }
     }
 
