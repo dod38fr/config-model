@@ -655,7 +655,7 @@ sub has_element {
     croak "has_element: missing element name" unless defined $name ;
 
     $self->accept_element($name);
-    return !! $self->{model}{element}{$name};
+    return defined $self->{model}{element}{$name} ? 1 : 0 ;
 }
 
 =head2 searcher ()
