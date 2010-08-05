@@ -26,67 +26,67 @@
    => [
 
        'element' => {
-		     type       => 'hash',
-		     level      => 'important',
-		     ordered    => 1,
-		     index_type => 'string',
-		     cargo => { type => 'node',
-				config_class_name => 'Itself::Element',
-			      },
-		    },
+                     type       => 'hash',
+                     level      => 'important',
+                     ordered    => 1,
+                     index_type => 'string',
+                     cargo => { type => 'node',
+                                config_class_name => 'Itself::Element',
+                              },
+                    },
 
        'include' => { type => 'list',
-		      cargo => {
-				type => 'leaf',
-				value_type => 'reference',
-				refer_to => '! class',
-			       }
-		    } ,
+                      cargo => {
+                                type => 'leaf',
+                                value_type => 'reference',
+                                refer_to => '! class',
+                               }
+                    } ,
 
        'include_after' => { type => 'leaf',
-			    value_type => 'reference',
-			    refer_to => '- element',
-			  } ,
+                            value_type => 'reference',
+                            refer_to => '- element',
+                          } ,
 
        'class_description'
        => { 
-	   type => 'leaf',
-	   value_type => 'string' ,
-	  },
+           type => 'leaf',
+           value_type => 'string' ,
+          },
 
        [qw/write_config_dir read_config_dir/]
        => {
-	   type => 'leaf',
-	   value_type => 'uniline' ,
-	   status => 'deprecated',
-	  },
+           type => 'leaf',
+           value_type => 'uniline' ,
+           status => 'deprecated',
+          },
 
        generated_by => { 
-			type => 'leaf',
-			value_type => 'uniline' ,
-		       },
+                        type => 'leaf',
+                        value_type => 'uniline' ,
+                       },
        'read_config'
        => {
-	   type => 'list',
-	   cargo => { type => 'node',
-		      config_class_name => 'Itself::ConfigRead',
-		    },
-	  },
+           type => 'list',
+           cargo => { type => 'node',
+                      config_class_name => 'Itself::ConfigRead',
+                    },
+          },
 
        'write_config'
        => {
-	   type => 'list',
-	   cargo => { type => 'node',
-		      config_class_name => 'Itself::ConfigWrite',
-		    },
-	  },
+           type => 'list',
+           cargo => { type => 'node',
+                      config_class_name => 'Itself::ConfigWrite',
+                    },
+          },
        'accept'
        => {
-	   type => 'list',
-	   cargo => { type => 'node',
-		      config_class_name => 'Itself::ConfigAccept',
-		    },
-	  },
+           type => 'list',
+           cargo => { type => 'node',
+                      config_class_name => 'Itself::ConfigAccept',
+                    },
+          },
       ],
    'description' 
    => [
@@ -108,103 +108,103 @@
    => [
 
        'syntax'  => { type => 'leaf',
-		      value_type => 'enum',
-		      choice => [qw/cds perl ini custom/],
-		      status => 'deprecated',
-		      description => 'Deprecated parameter that specified the file syntax to store permanently configuration data. Replaced by "backend"',
-		    },
+                      value_type => 'enum',
+                      choice => [qw/cds perl ini custom/],
+                      status => 'deprecated',
+                      description => 'Deprecated parameter that specified the file syntax to store permanently configuration data. Replaced by "backend"',
+                    },
 
        'backend' => { type => 'leaf',
-		      class => 'Config::Model::Itself::BackendDetector' ,
-		      value_type => 'enum',
-		      choice => [qw/cds_file perl_file ini_file augeas custom/],
-		      migrate_from => { formula => '$old' , 
-					variables => { old => '- syntax' } ,
-					replace => { 
-						    perl => 'perl_file',
-						    ini  => 'ini_file',
-						    cds  => 'cds_file',
-						   },
-				      },
-		      description => 'specifies the backend to store permanently configuration data.',
-		      help => {
-			       cds_file => "file with config data string. This is Config::Model own serialisation format, designed to be compact and readable. Configuration filename is made with instance name",
-			       ini_file => "Ini file format. Beware that the structure of your model must match the limitations of the INI file format, i.e only a 2 levels hierarchy. Configuration filename is made with instance name",
-			       perl_file => "file with a perl data structure. Configuration filename is made with instance name",
-			       custom => "Custom format. You must specify your own class and method to perform the read or write function. See Config::Model::AutoRead doc for more details",
-			       augeas => "Experimental backend with RedHat's Augeas library. See http://augeas.net for details",
-			      }
-		    },
+                      class => 'Config::Model::Itself::BackendDetector' ,
+                      value_type => 'enum',
+                      choice => [qw/cds_file perl_file ini_file augeas custom/],
+                      migrate_from => { formula => '$old' , 
+                                        variables => { old => '- syntax' } ,
+                                        replace => { 
+                                                    perl => 'perl_file',
+                                                    ini  => 'ini_file',
+                                                    cds  => 'cds_file',
+                                                   },
+                                      },
+                      description => 'specifies the backend to store permanently configuration data.',
+                      help => {
+                               cds_file => "file with config data string. This is Config::Model own serialisation format, designed to be compact and readable. Configuration filename is made with instance name",
+                               ini_file => "Ini file format. Beware that the structure of your model must match the limitations of the INI file format, i.e only a 2 levels hierarchy. Configuration filename is made with instance name",
+                               perl_file => "file with a perl data structure. Configuration filename is made with instance name",
+                               custom => "Custom format. You must specify your own class and method to perform the read or write function. See Config::Model::AutoRead doc for more details",
+                               augeas => "Experimental backend with RedHat's Augeas library. See http://augeas.net for details",
+                              }
+                    },
 
        'file'
        => {
-	   type => 'leaf',
-	   value_type => 'uniline' ,
-	   level => 'normal',
-	   summary =>  'target configuration file name',
-	   description => 'specify the configuration file name. This parameter may not be applicable depending on your application. It may also be hardcoded in a custom backend. If not specified, the instance name will be used as base name for your configuration file.', 
-	   migrate_from => { variables => { old => '- config_file'},
-			     formula  => '$old',
-			   }
-	  },
+           type => 'leaf',
+           value_type => 'uniline' ,
+           level => 'normal',
+           summary =>  'target configuration file name',
+           description => 'specify the configuration file name. This parameter may not be applicable depending on your application. It may also be hardcoded in a custom backend. If not specified, the instance name will be used as base name for your configuration file.', 
+           migrate_from => { variables => { old => '- config_file'},
+                             formula  => '$old',
+                           }
+          },
 
        'class'
        => {
-	   type => 'leaf',
-	   value_type => 'uniline' ,
-	   level => 'hidden',
-	   warp => { follow => '- backend',
-		     rules => [ custom => { level => 'normal',
-					    mandatory => 1,
-					  }
-			      ],
-		   }
-	  },
+           type => 'leaf',
+           value_type => 'uniline' ,
+           level => 'hidden',
+           warp => { follow => '- backend',
+                     rules => [ custom => { level => 'normal',
+                                            mandatory => 1,
+                                          }
+                              ],
+                   }
+          },
 
        'save'
        => {
-	   type => 'leaf',
-	   value_type => 'enum' ,
-	   choice => [qw/backup newfile/],
-	   level => 'hidden',
-	   description => 'Specify how to save the configuration file. Either create a newfile (with extension .augnew, and do not overwrite the original file) or move the original file into a backup file (.augsave extension). Configuration files are overwritten by default',
-	   warp => { follow => '- backend',
-		     rules => [ augeas => { level => 'normal',} ],
-		   }
-	  },
+           type => 'leaf',
+           value_type => 'enum' ,
+           choice => [qw/backup newfile/],
+           level => 'hidden',
+           description => 'Specify how to save the configuration file. Either create a newfile (with extension .augnew, and do not overwrite the original file) or move the original file into a backup file (.augsave extension). Configuration files are overwritten by default',
+           warp => { follow => '- backend',
+                     rules => [ augeas => { level => 'normal',} ],
+                   }
+          },
        'config_file'
        => {
-	   type => 'leaf',
-	   value_type => 'uniline' ,
-	   status => 'deprecated',
-	   level => 'normal',
-	   description => 'Specify the configuration file (without path) that will store configuration information',
-	   },
+           type => 'leaf',
+           value_type => 'uniline' ,
+           status => 'deprecated',
+           level => 'normal',
+           description => 'Specify the configuration file (without path) that will store configuration information',
+           },
        'set_in'
        => {
-	   type => 'leaf',
-	   value_type => 'reference' ,
-	   refer_to => '- - element',
-	   level => 'hidden',
-	   description => 'Sometimes, the structure of a file loaded by Augeas starts directly with a list of items. For instance, /etc/hosts structure starts with a list of lines that specify hosts and IP adresses. This parameter specifies an element name in Config::Model root class that will hold the configuration data retrieved by Augeas',
-	   warp => { follow => '- backend',
-		     rules => [ augeas => { level => 'normal',
-					  }
-			      ],
-		   }
-	  },
+           type => 'leaf',
+           value_type => 'reference' ,
+           refer_to => '- - element',
+           level => 'hidden',
+           description => 'Sometimes, the structure of a file loaded by Augeas starts directly with a list of items. For instance, /etc/hosts structure starts with a list of lines that specify hosts and IP adresses. This parameter specifies an element name in Config::Model root class that will hold the configuration data retrieved by Augeas',
+           warp => { follow => '- backend',
+                     rules => [ augeas => { level => 'normal',
+                                          }
+                              ],
+                   }
+          },
        'sequential_lens'
        => {
-	   type => 'list',
-	   level => 'hidden',
-	   cargo => { type => 'leaf',
-		      value_type => 'uniline' ,
-		    },
-	   warp => { follow => { b => '- backend' },
-		     rules => [ '$b eq "augeas"' => { level => 'normal',}],
-		   },
-	   description => 'List of hash or list Augeas lenses where value are stored in sequential Augeas nodes. See Config::Model::Backend::Augeas for details.',
-	   },
+           type => 'list',
+           level => 'hidden',
+           cargo => { type => 'leaf',
+                      value_type => 'uniline' ,
+                    },
+           warp => { follow => { b => '- backend' },
+                     rules => [ '$b eq "augeas"' => { level => 'normal',}],
+                   },
+           description => 'List of hash or list Augeas lenses where value are stored in sequential Augeas nodes. See Config::Model::Backend::Augeas for details.',
+           },
       ],
 
   ],
@@ -217,50 +217,50 @@
    => [
        'function'
        => {
-	   type => 'leaf',
-	   value_type => 'uniline' ,
-	   level => 'hidden',
-	   warp => { follow => '- backend',
-		     rules => [ custom => { level => 'normal',
-					    upstream_default => 'read',
-					  }
-			      ],
-		   }
-	  },
+           type => 'leaf',
+           value_type => 'uniline' ,
+           level => 'hidden',
+           warp => { follow => '- backend',
+                     rules => [ custom => { level => 'normal',
+                                            upstream_default => 'read',
+                                          }
+                              ],
+                   }
+          },
 
        'config_dir'
        => {
-	   type => 'leaf',
-	   value_type => 'uniline' ,
-	   level => 'normal',
-	   mandatory => 1,
-	   migrate_from => {
-			    formula => '$old' , 
-			    variables => { old => '- - read_config_dir' } ,
-			   }
-	  },
+           type => 'leaf',
+           value_type => 'uniline' ,
+           level => 'normal',
+           mandatory => 1,
+           migrate_from => {
+                            formula => '$old' , 
+                            variables => { old => '- - read_config_dir' } ,
+                           }
+          },
 
        'auto_create'
        => {
-	   type => 'leaf',
-	   value_type => 'boolean' ,
-	   level => 'normal',
-	   upstream_default => 0,
-	   summary => 'Creates configuration files as needed',
-	   migrate_from => { formula => '$old' ,
-			     variables => { old => '- allow_empty' } ,
-			   },
-	  },
+           type => 'leaf',
+           value_type => 'boolean' ,
+           level => 'normal',
+           upstream_default => 0,
+           summary => 'Creates configuration files as needed',
+           migrate_from => { formula => '$old' ,
+                             variables => { old => '- allow_empty' } ,
+                           },
+          },
 
        'allow_empty'
        => {
-	   type => 'leaf',
-	   value_type => 'boolean' ,
-	   level => 'normal',
-	   status => 'deprecated',
-	   upstream_default => 0,
-	   summary => 'deprecated in favor of auto_create',
-	  },
+           type => 'leaf',
+           value_type => 'boolean' ,
+           level => 'normal',
+           status => 'deprecated',
+           upstream_default => 0,
+           summary => 'deprecated in favor of auto_create',
+          },
 
        ],
   ],
@@ -273,37 +273,37 @@
    => [
        'function'
        => {
-	   type => 'leaf',
-	   value_type => 'uniline' ,
-	   level => 'hidden',
-	   warp => { follow => '- backend',
-		     rules => [ custom => { level => 'normal',
-					    upstream_default => 'write',
-					  }
-			      ],
-		   }
-	  },
+           type => 'leaf',
+           value_type => 'uniline' ,
+           level => 'hidden',
+           warp => { follow => '- backend',
+                     rules => [ custom => { level => 'normal',
+                                            upstream_default => 'write',
+                                          }
+                              ],
+                   }
+          },
        'config_dir'
        => {
-	   type => 'leaf',
-	   value_type => 'uniline' ,
-	   level => 'normal',
-	   mandatory => 1,
-	   migrate_from => {
-			    formula => '$old' , 
-			    variables => { old => '- - write_config_dir' } ,
-			   }
-	  },
+           type => 'leaf',
+           value_type => 'uniline' ,
+           level => 'normal',
+           mandatory => 1,
+           migrate_from => {
+                            formula => '$old' , 
+                            variables => { old => '- - write_config_dir' } ,
+                           }
+          },
 
        # move to ConfigRW when removing legacy allow_empty
        'auto_create'
        => {
-	   type => 'leaf',
-	   value_type => 'boolean' ,
-	   level => 'normal',
-	   upstream_default => 0,
-	   summary => 'Creates configuration files as needed',
-	  },
+           type => 'leaf',
+           value_type => 'boolean' ,
+           level => 'normal',
+           upstream_default => 0,
+           summary => 'Creates configuration files as needed',
+          },
 
       ],
   ],
@@ -311,16 +311,16 @@
   [
    name => 'Itself::ConfigAccept',
 
-   include => "Itself::Class",
+   include => "Itself::Element",
    'element' 
    => [
-       'match'
+       'name_match'
        => {
-	   type => 'leaf',
-	   value_type => 'uniline' ,
-	   level => 'normal',
-	   mandatory => 1,
-	  },
+           type => 'leaf',
+           value_type => 'uniline' ,
+           level => 'normal',
+           mandatory => 1,
+          },
 
       ],
   ],

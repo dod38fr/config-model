@@ -151,7 +151,7 @@ is($root->is_element_available('a_warped_node'),0,
 is($root->is_element_available('a_hash_of_warped_nodes'),0,
    'check that a_hash_of_warped_nodes is not available'
   ) ;
-
+die;
 eval { $root->fetch_element('a_hash_of_warped_nodes')->fetch_with_id(1) 
 	 -> fetch_element('X')->store('coucou');} ;
 ok($@,'test stored on a warped node element (should fail)') ;

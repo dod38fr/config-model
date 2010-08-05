@@ -37,7 +37,7 @@ $model->create_config_class(
 
   accept =>      [
                     { 
-                            match => 'list.*',
+                            name_match => 'list.*',
                             type => 'list',
                             cargo => { 
                                         type => 'leaf',
@@ -45,7 +45,7 @@ $model->create_config_class(
                                      } ,
                      },
                      { 
-                            match => 'str.*',
+                            name_match => 'str.*',
                             type => 'leaf',
                             value_type => 'uniline'
                      },

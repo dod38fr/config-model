@@ -450,8 +450,16 @@ sub check_properties {
     # elements declared in the model by the user
 
     foreach my $elt_name (@{$self->{model}{element_list}}) {
+        foreach my $prop (qw/summary description/) {
+            my $info_to_move = $self->{model}{element}{$elt_name}{$prop} ;
+            $self->{model}{$prop}{$elt_name} = $info_to_move if defined $info_to_move;
+        }
+
         foreach my $prop (keys %legal_properties) {
-            my $prop_v = $self->{model}{$prop}{$elt_name} ;
+            my $prop_v =  $self->{model}{element}{$elt_name}{$prop} ;
+            $prop_v = $Config::Model::default_property{$prop} unless defined $prop_v;
+                print $self->name," $elt_name $prop $prop_v\n" ;
+            $self->{model}{$prop}{$elt_name} = $prop_v ;
 
             croak "Config class $self->{config_class_name} error: ",
               "Unknown $prop: '$prop_v'. Expected ",
@@ -559,8 +567,10 @@ sub new {
     my $model 
       = $self->{model} 
         = dclone ( $self->{config_model}->get_model($class_name) );
-
+        
     $self->check_properties ;
+    use Data::Dumper; print Dumper( $model);
+
 
     if (defined $model->{read_config} and not $skip_read) {
         # setup auto_read, read_config_dir is obsolete
@@ -645,7 +655,7 @@ for my $datum (qw/config_model model config_class_name/) {
 =head2 has_element ( element_name )
 
 Returns 1 if the class model has the element declared or if the element 
-is match by C<accept> parameter. 
+name is matched by the optional C<accept> parameter. 
 
 =cut
 
@@ -1179,7 +1189,8 @@ sub accept_element {
     return unless defined $self->{model}{accept};
     
     foreach my $acc ( @{$self->{model}{accept}} ) {
-        if ($name =~ /^$acc->{match}$/) {
+        my $accept_regexp = $acc->{name_match} ;
+        if (not defined $accept_regexp or $name =~ /^$accept_regexp$/) {
             return $self->reset_accepted_element_model ($name,$acc);
         }
     }
@@ -1197,7 +1208,7 @@ Useful for diagnostics.
 sub accept_regexp {
     my ($self) = @_;
 
-    return map { $_->{match} } @{$self->{model}{accept} || []};
+    return map { $_->{name_match} } @{$self->{model}{accept} || []};
 }
 
 
@@ -1205,12 +1216,14 @@ sub reset_accepted_element_model {
     my ($self,$element_name,$accept_model) = @_;
 
     my $model = dclone $accept_model ;
-    delete $model->{match} ;
+    delete $model->{name_match} ;
     
     foreach my $info_to_move (qw/description level summary experience status/) {
-	my $moved_data = delete $model->{$info_to_move}  ;
+        $self->reset_element_property(element => $element_name, 
+                                      property => $info_to_move) ;
+        my $moved_data = delete $model->{$info_to_move}  ;
         next unless defined $moved_data ;
-	$self->{model}{$info_to_move}{$element_name} = $moved_data ;
+        $self->{model}{$info_to_move}{$element_name} = $moved_data ;
     }
 
     $self->{model}{element}{$element_name} = $model ;

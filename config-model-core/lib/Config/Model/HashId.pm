@@ -1,4 +1,3 @@
-
 #    Copyright (c) 2005-2010 Dominique Dumont.
 #
 #    This file is part of Config-Model.
@@ -26,7 +25,7 @@ use strict;
 
 use Log::Log4perl qw(get_logger :levels);
 
-my $logger = get_logger("Tree::Element::Hash");
+my $logger = get_logger("Tree::Element::Id::Hash");
 
 use base qw/Config::Model::AnyId/ ;
 

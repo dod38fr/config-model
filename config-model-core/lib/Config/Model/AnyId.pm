@@ -1,4 +1,3 @@
-
 #    Copyright (c) 2005-2010 Dominique Dumont.
 #
 #    This file is part of Config-Model.
@@ -23,11 +22,11 @@ use Scalar::Util qw(weaken) ;
 use warnings ;
 use Carp;
 use strict;
-our $VERSION="1.201";
-
-# use vars qw($VERSION) ;
+use Log::Log4perl qw(get_logger :levels);
 
 use base qw/Config::Model::WarpedThing/;
+
+my $logger = get_logger("Tree::Element::Id") ;
 
 # Some idea for improvement
 
@@ -104,30 +103,30 @@ sub new {
     bless $self,$type;
 
     foreach my $p (qw/element_name cargo instance config_model/) {
-	$self->{$p} = delete $args_ref->{$p} or
-	  croak "$type->new: Missing $p parameter for element ".
-	    $self->{element_name} || 'unknown' ;
+        $self->{$p} = delete $args_ref->{$p} or
+          croak "$type->new: Missing $p parameter for element ".
+            $self->{element_name} || 'unknown' ;
     }
 
     croak "$type->new: Missing cargo->type parameter for element ".
       $self->{element_name} || 'unknown' 
-	unless defined $self->{cargo}{type};
+        unless defined $self->{cargo}{type};
 
     $self->_set_parent(delete $args_ref->{parent}) ;
 
     if ($self->{cargo}{type} eq 'node') {
-	$self->{config_class_name} = delete $self->{cargo}{config_class_name}
-	  or croak  "$type->new: Missing cargo->config_class_name "
+        $self->{config_class_name} = delete $self->{cargo}{config_class_name}
+          or croak  "$type->new: Missing cargo->config_class_name "
                   . "parameter for element " 
                   . $self->{element_name} || 'unknown' ;
     }
     elsif ($self->{cargo}{type} eq 'hash' or $self->{cargo}{type} eq 'list') {
-	die "$type $self->{element_name}: using $self->{cargo}{type} will probably not work";
+        die "$type $self->{element_name}: using $self->{cargo}{type} will probably not work";
     }
 
     foreach my $p (qw/cargo_class/) {
-	next unless defined $args_ref->{$p} ;
-	$self->{$p} = delete $args_ref->{$p} ;
+        next unless defined $args_ref->{$p} ;
+        $self->{$p} = delete $args_ref->{$p} ;
     }
 
     return $self ;
@@ -208,7 +207,7 @@ or C<< default_keys => ['foo', 'bar'] >>.
 To perform special set-up on children nodes you can also use 
 
    default_with_init =>  { 'foo' => 'X=Av Y=Bv'  ,
-		           'bar' => 'Y=Av Z=Cv' }
+                           'bar' => 'Y=Av Z=Cv' }
 
 
 =item follow_keys_from
@@ -358,65 +357,65 @@ sub set_properties {
 
     my %args = (%{$self->{backup}},@_) ;
 
-    print $self->name," set_properties called with @_\n" if $::debug;
+    $logger->debug($self->name," set_properties called with @_");
 
     map { $self->{$_} =  delete $args{$_} if defined $args{$_} }
       @common_params ;
 
     Config::Model::Exception::Model
-	->throw (
-		 object => $self,
-		 error => "Undefined index_type"
-		) unless defined $self->{index_type};
+        ->throw (
+                 object => $self,
+                 error => "Undefined index_type"
+                ) unless defined $self->{index_type};
 
     Config::Model::Exception::Model
-	->throw (
-		 object => $self,
-		 error => "Unexpected index_type $self->{index_type}"
-		) unless ($self->{index_type} eq 'integer' or 
-			  $self->{index_type} eq 'string');
+        ->throw (
+                 object => $self,
+                 error => "Unexpected index_type $self->{index_type}"
+                ) unless ($self->{index_type} eq 'integer' or 
+                          $self->{index_type} eq 'string');
 
     my @current_idx = $self->_get_all_indexes( );
     if (@current_idx) {
-	my $first_idx = shift @current_idx ;
-	my $last_idx  = pop   @current_idx ;
+        my $first_idx = shift @current_idx ;
+        my $last_idx  = pop   @current_idx ;
 
-	foreach my $idx ( ($first_idx, $last_idx)) {
-	    my $ok = $self->check($first_idx) ;
-	    next if $ok ;
+        foreach my $idx ( ($first_idx, $last_idx)) {
+            my $ok = $self->check($first_idx) ;
+            next if $ok ;
 
-	    # here a user input may trigger an exception even if fetch
-	    # or set value check is disabled. That's mostly because,
-	    # we cannot enforce more strict settings without random
-	    # deletion of data. For instance, if a hash contains 5
-	    # items and the max_nb of items is reduced to 3. Which 2
-	    # items should we remove ?
+            # here a user input may trigger an exception even if fetch
+            # or set value check is disabled. That's mostly because,
+            # we cannot enforce more strict settings without random
+            # deletion of data. For instance, if a hash contains 5
+            # items and the max_nb of items is reduced to 3. Which 2
+            # items should we remove ?
 
-	    # Since we cannot choose, we must raise an exception in
-	    # all cases.
-	    Config::Model::Exception::WrongValue 
-		-> throw (
-			  error => "Error while setting id property:".
-			  join("\n\t",@{$self->{error}}),
-			  object => $self
-			 ) ;
-	}
+            # Since we cannot choose, we must raise an exception in
+            # all cases.
+            Config::Model::Exception::WrongValue 
+                -> throw (
+                          error => "Error while setting id property:".
+                          join("\n\t",@{$self->{error}}),
+                          object => $self
+                         ) ;
+        }
     }
 
     if (defined $self->{auto_create_keys} or defined $self->{auto_create_ids}) {
-	$self->auto_create_elements ;
+        $self->auto_create_elements ;
     }
 
     $self->{current} = { level      => $args{level} ,
-			 experience => $args{experience}
-		       } ;
+                         experience => $args{experience}
+                       } ;
     $self->SUPER::set_parent_element_property(\%args) ;
 
     Config::Model::Exception::Model
-	->throw (
-		 object => $self,
-		 error => "Unexpected parameters :". join(' ', keys %args)
-		) if scalar keys %args ;
+        ->throw (
+                 object => $self,
+                 error => "Unexpected parameters :". join(' ', keys %args)
+                ) if scalar keys %args ;
 }
 
 # this method will overide setting comings from a value (or maybe a
@@ -433,11 +432,11 @@ sub set_parent_element_property {
       if defined $cur->{experience} ;
 
     if (    defined $cur->{level} 
-	and ( not defined $arg_ref->{level} 
-	      or $arg_ref->{level} ne 'hidden'
-	    )
+        and ( not defined $arg_ref->{level} 
+              or $arg_ref->{level} ne 'hidden'
+            )
        ) {
-	$arg_ref->{level} = $cur->{level} ;
+        $arg_ref->{level} = $cur->{level} ;
     }
 
     $self->SUPER::set_parent_element_property($arg_ref) ;
@@ -541,19 +540,19 @@ sub safe_typed_grab {
 
   my $res = eval {
     $self->grab(step => $self->{$param},
-		type => $self->get_type,
-	       ) ;
+                type => $self->get_type,
+               ) ;
   };
 
   if ($@) {
     my $e = $@ ;
     my $msg = $e ? $e->full_message : '' ;
     Config::Model::Exception::Model
-	-> throw (
-		  object => $self,
-		  error => "'$param' parameter: "
-		  . $msg
-		 ) ;
+        -> throw (
+                  object => $self,
+                  error => "'$param' parameter: "
+                  . $msg
+                 ) ;
   }
 
   return $res ;
@@ -571,8 +570,8 @@ sub get_default_keys {
     my $self = shift ;
 
     if ($self->{follow_keys_from}) {
-	my $followed = $self->safe_typed_grab('follow_keys_from') ;
-	return [ $followed -> get_all_indexes ];
+        my $followed = $self->safe_typed_grab('follow_keys_from') ;
+        return [ $followed -> get_all_indexes ];
     }
 
     my @res ;
@@ -628,7 +627,7 @@ sub handle_args {
     $self->set_properties(%args) if defined $self->{index_type} ;
 
     if (defined $warp_info) {
-	$self->check_warp_args( \@allowed_warp_params, $warp_info) ;
+        $self->check_warp_args( \@allowed_warp_params, $warp_info) ;
     }
 
     $self->submit_to_warp($self->{warp}) if $self->{warp} ;
@@ -643,15 +642,15 @@ sub check {
     my @error  ;
 
     if ($self->{follow_keys_from}) {
-	$self->check_follow_keys_from($idx) or return 0 ;
+        $self->check_follow_keys_from($idx) or return 0 ;
     }
 
     if ($self->{allow_keys}) {
-	$self->check_allow_keys($idx) or return 0 ;
+        $self->check_allow_keys($idx) or return 0 ;
     }
 
     if ($self->{allow_keys_from}) {
-	$self->check_allow_keys_from($idx) or return 0 ;
+        $self->check_allow_keys_from($idx) or return 0 ;
     }
 
     my $nb =  $self->fetch_size ;
@@ -659,16 +658,16 @@ sub check {
     $new_nb++ unless $self->_exists($idx) ;
 
     Config::Model::Exception::Internal
-	-> throw (
-		  object => $self,
-		  error => "check method: key or index is not defined"
-		 ) unless defined $idx ;
+        -> throw (
+                  object => $self,
+                  error => "check method: key or index is not defined"
+                 ) unless defined $idx ;
 
     if ($idx eq '') {
         push @error,"Index is empty";
     }
     elsif ($self->{index_type} eq 'integer' and $idx =~ /\D/) {
-	push @error,"Index is not integer ($idx)";
+        push @error,"Index is not integer ($idx)";
     }
     elsif (defined $self->{max_index} and $idx > $self->{max_index}) {
         push @error,"Index $idx > max_index limit $self->{max_index}" ;
@@ -679,10 +678,10 @@ sub check {
 
     push @error,"Too many instances ($new_nb) limit $self->{max_nb}, ".
       "rejected id '$idx'"
-	if defined $self->{max_nb} and $new_nb > $self->{max_nb};
+        if defined $self->{max_nb} and $new_nb > $self->{max_nb};
 
     if (scalar @error) {
-	my @a = $self->get_all_indexes ;
+        my @a = $self->get_all_indexes ;
         push @error, "Instance ids are '".join(',', @a)."'" ,
           $self->warp_error  ;
     }
@@ -697,14 +696,14 @@ sub check_follow_keys_from {
 
     my $followed = $self->safe_typed_grab('follow_keys_from') ;
     if ($followed->exists($idx)) {
-	return 1;
+        return 1;
     }
 
     $self->{error} = ["key '$idx' does not exists in '".$followed->name 
-		      . "'. Expected '"
-		      . join("', '", $followed->get_all_indexes)
-		      . "'"
-		     ] ;
+                      . "'. Expected '"
+                      . join("', '", $followed->get_all_indexes)
+                      . "'"
+                     ] ;
     return 0 ;
 }
 
@@ -717,7 +716,7 @@ sub check_allow_keys {
     return 1 if $ok ;
 
     $self->{error} = ["Unexpected key '$idx'. Expected '".
-		      join("', '",@{$self->{allow_keys}} ). "'"]   ;
+                      join("', '",@{$self->{allow_keys}} ). "'"]   ;
     return 0 ;
 }
 
@@ -731,9 +730,9 @@ sub check_allow_keys_from {
     return 1 if $ok ;
 
     $self->{error} = ["key '$idx' does not exists in '"
-		      . $from->name 
-		      . "'. Expected '"
-		      . join( "', '", $from->get_all_indexes). "'" ] ;
+                      . $from->name 
+                      . "'. Expected '"
+                      . join( "', '", $from->get_all_indexes). "'" ] ;
 
     return 0 ;
 }
@@ -756,15 +755,15 @@ sub fetch_with_id {
     my $ok = $self->check($idx) ;
 
     if ($ok) {
-	$self->auto_vivify($idx) unless $self->_defined($idx) ;
+        $self->auto_vivify($idx) unless $self->_defined($idx) ;
         return $self->_fetch_with_id($idx) ;
       }
     elsif ($self->instance->get_value_check('fetch')) {
         Config::Model::Exception::WrongValue 
-	    -> throw (
-		      error => join("\n\t",@{$self->{error}}),
-		      object => $self
-		     ) ;
+            -> throw (
+                      error => join("\n\t",@{$self->{error}}),
+                      object => $self
+                     ) ;
     }
 
     return ;
@@ -814,19 +813,19 @@ sub move {
 
     my $ok = $self->check($to) ;
     if ($ok) {
-	$self->_store($to, $moved) ;
-	$moved->index_value($to) ;
+        $self->_store($to, $moved) ;
+        $moved->index_value($to) ;
     }
     else {
-	# restore moved item where it came from
-	$self->_store($from, $moved) ;
-	if ($self->instance->get_value_check('fetch')) {
-	    Config::Model::Exception::WrongValue 
-		-> throw (
-			  error => join("\n\t",@{$self->{error}}),
-			  object => $self
-			 ) ;
-	}
+        # restore moved item where it came from
+        $self->_store($from, $moved) ;
+        if ($self->instance->get_value_check('fetch')) {
+            Config::Model::Exception::WrongValue 
+                -> throw (
+                          error => join("\n\t",@{$self->{error}}),
+                          object => $self
+                         ) ;
+        }
     }
 }
 
@@ -845,18 +844,18 @@ sub copy {
     my $ok = $self->check($to) ;
 
     if ($ok && $self->{cargo}{type} eq 'leaf') {
-	$self->fetch_with_id($to)->store($from_obj->fetch()) ;
+        $self->fetch_with_id($to)->store($from_obj->fetch()) ;
     }
     elsif ( $ok ) {
-	# node object 
-	$self->fetch_with_id($to)->copy_from($from_obj) ;
+        # node object 
+        $self->fetch_with_id($to)->copy_from($from_obj) ;
     }
     elsif ($self->instance->get_value_check('fetch')) {
-	Config::Model::Exception::WrongValue 
-	    -> throw (
-		      error => join("\n\t",@{$self->{error}}),
-		      object => $self
-		     ) ;
+        Config::Model::Exception::WrongValue 
+            -> throw (
+                      error => join("\n\t",@{$self->{error}}),
+                      object => $self
+                     ) ;
     }
 }
 
@@ -908,23 +907,23 @@ sub fetch_all_values {
     my @keys  = $self->get_all_indexes ;
 
     if ($self->{cargo}{type} eq 'leaf') {
-	return grep {defined $_} 
-	  map { $self->fetch_with_id($_)->fetch($mode) ;} @keys ;
+        return grep {defined $_} 
+          map { $self->fetch_with_id($_)->fetch($mode) ;} @keys ;
     }
     else {
-	my $info = "current keys are '".join("', '",@keys)."'." ;
-	if ($self->{cargo}{type} eq 'node') {
-	    $info .= "config class is ".
-	      $self->fetch_with_id($keys[0])->config_class_name ;
-	}
-	Config::Model::Exception::WrongType
-	    ->throw(
-		    object => $self,
-		    function => 'fetch_all_values',
-		    got_type => $self->{cargo}{type},
-		    expected_type => 'leaf',
-		    info => $info,
-		   )
+        my $info = "current keys are '".join("', '",@keys)."'." ;
+        if ($self->{cargo}{type} eq 'node') {
+            $info .= "config class is ".
+              $self->fetch_with_id($keys[0])->config_class_name ;
+        }
+        Config::Model::Exception::WrongType
+            ->throw(
+                    object => $self,
+                    function => 'fetch_all_values',
+                    got_type => $self->{cargo}{type},
+                    expected_type => 'leaf',
+                    info => $info,
+                   )
     }
 }
 
@@ -938,8 +937,8 @@ are sorted alphabetically, except for ordered hashed.
 sub get_all_indexes {
     my $self = shift;
     $self->create_default if (   defined $self->{default_keys}
-			      or defined $self->{default_with_init}
-			      or defined $self->{follow_keys_from});
+                              or defined $self->{default_with_init}
+                              or defined $self->{follow_keys_from});
     return $self->_get_all_indexes ;
 }
 
@@ -973,63 +972,63 @@ sub auto_vivify {
     my $cargo_type = delete $cargo_args{type} ;
 
     Config::Model::Exception::Model 
-	-> throw (
-		  object => $self,
-		  message => "unknown '$cargo_type' cargo type:  "
-		  ."in cargo_args. Expected "
-		  .join (' or ',keys %element_default_class)
-		 ) 
-	      unless defined $element_default_class{$cargo_type} ;
+        -> throw (
+                  object => $self,
+                  message => "unknown '$cargo_type' cargo type:  "
+                  ."in cargo_args. Expected "
+                  .join (' or ',keys %element_default_class)
+                 ) 
+              unless defined $element_default_class{$cargo_type} ;
 
     my $el_class = 'Config::Model::'
       . $element_default_class{$cargo_type} ;
 
     if (defined $class) {
-	Config::Model::Exception::Model 
-	    -> throw (
-		      object => $self,
-		      message => "$cargo_type class "
-		      ."cannot be overidden by '$class'"
-		     ) 
-	      unless $can_override_class{$cargo_type} ;
-	$el_class = $class;
+        Config::Model::Exception::Model 
+            -> throw (
+                      object => $self,
+                      message => "$cargo_type class "
+                      ."cannot be overidden by '$class'"
+                     ) 
+              unless $can_override_class{$cargo_type} ;
+        $el_class = $class;
     }
 
     if (not defined *{$el_class.'::new'}) {
-	my $file = $el_class.'.pm';
-	$file =~ s!::!/!g;
-	require $file ;
+        my $file = $el_class.'.pm';
+        $file =~ s!::!/!g;
+        require $file ;
     }
 
     my %common_args = (
-		       element_name => $self->{element_name},
-		       index_value  => $idx,
-		       instance     => $self->{instance} ,
-		      );
+                       element_name => $self->{element_name},
+                       index_value  => $idx,
+                       instance     => $self->{instance} ,
+                      );
 
     my $item ;
 
     # check parameters passed by the user
     if ($cargo_type eq 'node') {
-	Config::Model::Exception::Model 
-	    -> throw (
-		      object => $self,
-		      message => "missing 'cargo->config_class_name' "
-		      ."parameter",
-		     ) 
-	      unless defined $self->{config_class_name} ;
+        Config::Model::Exception::Model 
+            -> throw (
+                      object => $self,
+                      message => "missing 'cargo->config_class_name' "
+                      ."parameter",
+                     ) 
+              unless defined $self->{config_class_name} ;
 
-	$item = $self->{parent} 
-	  -> new( %common_args ,
-		  config_class_name => $self->{config_class_name},
-		  %cargo_args) ;
+        $item = $self->{parent} 
+          -> new( %common_args ,
+                  config_class_name => $self->{config_class_name},
+                  %cargo_args) ;
     }
     else {
-	weaken($common_args{id_owner} =  $self) ;
-	$item = $el_class->new( %common_args,
-				parent => $self->{parent} ,
-				instance => $self->{instance} ,
-				%cargo_args) ;
+        weaken($common_args{id_owner} =  $self) ;
+        $item = $el_class->new( %common_args,
+                                parent => $self->{parent} ,
+                                instance => $self->{instance} ,
+                                %cargo_args) ;
     }
 
     $self->_store($idx,$item) ;
@@ -1108,11 +1107,11 @@ sub clear_values {
 
     my $ct = $self->get_cargo_type ;
     Config::Model::Exception::User
-	-> throw (
-		  object => $self,
-		  message => "clear_values() called on non leaf cargo type: '$ct'"
-		 ) 
-	  if $ct ne 'leaf';
+        -> throw (
+                  object => $self,
+                  message => "clear_values() called on non leaf cargo type: '$ct'"
+                 ) 
+          if $ct ne 'leaf';
 
     $self->warp 
       if ($self->{warp} and @{$self->{warp_info}{computed_master}});
