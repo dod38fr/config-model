@@ -29,20 +29,20 @@ $model->create_config_class
   (
    name => 'Sarge',
    experience => [ [qw/Y/] => 'beginner',  # default
-		   X => 'master' 
-		 ],
+                   X => 'master' 
+                 ],
    status    => [ D => 'deprecated' ], #could be obsolete, standard
    description => [ X => 'X-ray (long description)' ],
    summary     => [ X => 'X-ray (summary)' ],
 
    element => [
-	       [qw/D X Y Z/] => {
-			       type => 'leaf',
-			       class => 'Config::Model::Value',
-			       value_type => 'enum',
-			       choice     => [qw/Av Bv Cv/]
-			      }
-	      ],
+               [qw/D X Y Z/] => {
+                               type => 'leaf',
+                               class => 'Config::Model::Value',
+                               value_type => 'enum',
+                               choice     => [qw/Av Bv Cv/]
+                              }
+              ],
   );
 
 $model->create_config_class 
@@ -50,38 +50,38 @@ $model->create_config_class
    name => 'Captain',
    experience => [ bar => 'beginner' ],
    element => [
-	       bar => { type => 'node', 
-			config_class_name => 'Sarge' 
-		      }
-	      ]
+               bar => { type => 'node', 
+                        config_class_name => 'Sarge' 
+                      }
+              ]
   );
 
 $model ->create_config_class 
   (
    name => "Master",
-   experience => [[qw/captain many array_args hash_args/] => 'beginner' ],
+   experience => [[qw/captain array_args hash_args/] => 'beginner' ],
    level     => [qw/captain/ => 'important' ] ,
    element => [
-		captain => { 
-			 type => 'node',
-			 config_class_name => 'Captain',
-			},
-		[qw/array_args hash_args/] 
-		=> { type => 'node',
-		     config_class_name => 'Captain',
-		   },
-	       ],
+                captain => { 
+                         type => 'node',
+                         config_class_name => 'Captain',
+                        },
+                [qw/array_args hash_args/] 
+                => { type => 'node',
+                     config_class_name => 'Captain',
+                   },
+               ],
    class_description => "Master description",
    description => [
-		   captain       => "officer",
-		   array_args => 'not officer'
-		  ]
+                   captain       => "officer",
+                   array_args => 'not officer'
+                  ]
   );
 
 ok(1,"Model created") ;
 
 my $instance = $model->instance (root_class_name => 'Master', 
-				 instance_name => 'test1');
+                                 instance_name => 'test1');
 
 ok(1,"Instance created") ;
 
@@ -92,13 +92,13 @@ ok($root,"Config root created") ;
 is( $root->config_class_name, 'Master', "Created Master" );
 
 is_deeply( [ sort $root->get_element_name(for => 'beginner') ],
-	   [qw/array_args captain hash_args/], "check Master elements");
+           [qw/array_args captain hash_args/], "check Master elements");
 
 is_deeply( [ sort $root->get_element_name(for => 'advanced') ],
-	   [qw/array_args captain hash_args/], "check Master elements");
+           [qw/array_args captain hash_args/], "check Master elements");
 
 is_deeply( [ sort $root->get_element_name(for => 'master') ],
-	   [qw/array_args captain hash_args/], "check Master elements");
+           [qw/array_args captain hash_args/], "check Master elements");
 
 my $w = $root->fetch_element('captain') ;
 ok( $w, "Created Captain" );
@@ -154,7 +154,7 @@ is( $tested->get_element_property(property => 'experience',element => 'X'),
     "checking X experience");
 
 my $inst2 =  $model->instance (root_class_name => 'Master', 
-			      instance_name => 'test2');
+                              instance_name => 'test2');
 
 isa_ok( $inst2, 'Config::Model::Instance',
         "Created 2nd Master" );
@@ -194,7 +194,7 @@ is( $root->get_element_property(property => 'level',element => 'captain' ),
     "test importance" );
 
 is( $root->set_element_property( property => 'level',element =>'captain',
-				 value => 'hidden'), 
+                                 value => 'hidden'), 
     'hidden',
     "test importance" );
 
@@ -209,9 +209,9 @@ is( $root->reset_element_property( property => 'level',element =>'captain'),
 map {
     my $key_label = defined $_->[0] ? $_->[0] : 'undef';
     is( $root->next_element($_->[0]), $_->[1], 
-	"test next_element ($key_label)" );
+        "test next_element ($key_label)" );
     is( $root->previous_element($_->[1]), $_->[0], 
-	"test previous_element ($key_label)" ) unless (defined $_->[0] and $_->[0] eq '');
+        "test previous_element ($key_label)" ) unless (defined $_->[0] and $_->[0] eq '');
 } ( [ undef, 'captain'] ,
     [ '',    'captain'] ,
     [ qw/captain array_args/ ],

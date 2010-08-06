@@ -34,12 +34,13 @@ use Storable qw/dclone/ ;
 use base qw/Config::Model::AutoRead/;
 
 use vars qw($AUTOLOAD @status @level
-            @experience_list %experience_index );
+            @experience_list %experience_index %default_property);
 
 *status           = *Config::Model::status ;
 *level            = *Config::Model::level ;
 *experience_list  = *Config::Model::experience_list ;
 *experience_index = *Config::Model::experience_index ;
+*default_property = *Config::Model::default_property ;
 
 my %legal_properties = (
                         status => {qw/obsolete 1 deprecated 1 standard 1/ },
@@ -185,7 +186,7 @@ be used when generating user interfaces.
 
 =item B<description>
 
-Optional C<list ref> of element summray. These descriptions will be
+Optional C<list ref> of element summary. These descriptions will be
 used when generating user interfaces or as comment when writing
 configuration files.
 
@@ -445,25 +446,36 @@ C<config_class_name> parameter. For instance:
 sub check_properties {
     my $self = shift ;
 
+    # a model should no longer contain attributes attached to 
+    # an element (like description, level ...). There are copied here
+    # because Node needs them as hash or lists
+    foreach my $bad (qw/description summary level experience status permission/) {
+        die $self->config_class_name,": illegal '$bad' parameter in model ",
+            "(Should be handled by Config::Model directly)" 
+                if defined $self->{model}{$bad};
+    }
+
     # this is a bit convoluted, but the order of element stored with
     # the "push" for each experience must respect the order of the
     # elements declared in the model by the user
 
     foreach my $elt_name (@{$self->{model}{element_list}}) {
+
         foreach my $prop (qw/summary description/) {
-            my $info_to_move = $self->{model}{element}{$elt_name}{$prop} ;
-            $self->{model}{$prop}{$elt_name} = $info_to_move if defined $info_to_move;
+            my $info_to_move = delete $self->{model}{element}{$elt_name}{$prop} ;
+            $self->{$prop}{$elt_name} = $info_to_move 
+                if defined $info_to_move;
         }
 
         foreach my $prop (keys %legal_properties) {
-            my $prop_v =  $self->{model}{element}{$elt_name}{$prop} ;
-            $prop_v = $Config::Model::default_property{$prop} unless defined $prop_v;
-                print $self->name," $elt_name $prop $prop_v\n" ;
-            $self->{model}{$prop}{$elt_name} = $prop_v ;
+            my $prop_v =  delete $self->{model}{element}{$elt_name}{$prop} ;
+            $prop_v = $Config::Model::default_property{$prop} 
+                unless defined $prop_v;
+            $self->{$prop}{$elt_name} = $prop_v ;
 
             croak "Config class $self->{config_class_name} error: ",
               "Unknown $prop: '$prop_v'. Expected ",
-                join(" or ",keys %{$self->{model}{$prop}})
+                join(" or ",keys %{$self->{$prop}})
                   unless defined $legal_properties{$prop}{$prop_v} ;
 
             push @{$self->{element_by_experience}{$prop}}, $elt_name 
@@ -569,8 +581,6 @@ sub new {
         = dclone ( $self->{config_model}->get_model($class_name) );
         
     $self->check_properties ;
-    use Data::Dumper; print Dumper( $model);
-
 
     if (defined $model->{read_config} and not $skip_read) {
         # setup auto_read, read_config_dir is obsolete
@@ -800,11 +810,13 @@ sub get_element_name {
         # to kick in
         $self->create_element($elt) unless defined $self->{element}{$elt};
 
-        next if $info->{level}{$elt} eq 'hidden' ;
-        my $status = $info->{status}{$elt} ;
+        next if $self->{level}{$elt} eq 'hidden' ;
+
+        my $status = $self->{status}{$elt} || $default_property{status};
         next if ($status eq 'deprecated' or $status eq 'obsolete') ;
 
-        my $elt_idx =  $experience_index{$info->{experience}{$elt}} ;
+        my $experience = $self->{experience}{$elt} || $default_property{experience} ;
+        my $elt_idx =  $experience_index{$experience} ;
         my $elt_type =  $self->{element}{$elt}->get_type ;
         my $elt_cargo = $self->{element}{$elt}->get_cargo_type ;
         if ($for_idx >= $elt_idx 
@@ -894,7 +906,7 @@ sub get_element_property {
     my ($prop,$elt) 
       = $self->check_property_args('get_element_property',%args) ;
 
-    return $self->{model}{$prop}{$elt} ;
+    return $self->{$prop}{$elt} || $default_property{$prop};
 }
 
 =head2 set_element_property ( element => ..., property => ... )
@@ -915,7 +927,7 @@ sub set_element_property {
 
     $logger->debug("Node ",$self->name,": set $elt property $prop to $new_value");
 
-    return $self->{model}{$prop}{$elt} = $new_value ;
+    return $self->{$prop}{$elt} = $new_value ;
 }
 
 =head2 reset_element_property ( element => ... )
@@ -937,12 +949,10 @@ sub reset_element_property {
                                %args
                               );
 
-    use Data::Dumper;
-    print Dumper($self->name)." -> $prop\n" if not defined $original_value;
     $logger->debug( "Node ",$self->name,
                     ": reset $elt property $prop to $original_value");
 
-    return $self->{model}{$prop}{$elt} = $original_value ;
+    return $self->{$prop}{$elt} = $original_value ;
 }
 
 # internal: called by the proterty methods to check their arguments
@@ -1020,7 +1030,7 @@ sub fetch_element {
 
 
     # check status
-    if ($model->{status}{$element_name} eq 'obsolete') {
+    if ($self->{status}{$element_name} eq 'obsolete') {
         # obsolete is a status not very different from a missing
         # item. The only difference is that user will get more
         # information
@@ -1031,7 +1041,7 @@ sub fetch_element {
                    );
     }
 
-    if ($model->{status}{$element_name} eq 'deprecated' 
+    if ($self->{status}{$element_name} eq 'deprecated' 
         and $self->{instance}->get_value_check('fetch_and_store')
        ) {
         # TBD elaborate more ? or include parameter description ??
@@ -1040,7 +1050,7 @@ sub fetch_element {
     }
 
     # check experience
-    my $elt_experience = $model->{experience}{$element_name};
+    my $elt_experience = $self->{experience}{$element_name};
     my $elt_idx   = $experience_index{$elt_experience} ; 
     croak "Unknown experience '$elt_experience' for element ",
       "'$element_name'. Expected ",join(' ', keys %experience_index)
@@ -1562,9 +1572,9 @@ sub get_help {
               "'description' or 'summary'";
         }
 
-        $help = $self->{model}{$tag}{$elt_name};
+        $help = $self->{$tag}{$elt_name};
     } elsif ( @_ ) {
-        $help = $self->{model}{description}{$_[0]};
+        $help = $self->{description}{$_[0]};
     } else {
         $help = $self->{model}{class_description};
     }
