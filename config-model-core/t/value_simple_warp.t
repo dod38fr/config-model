@@ -1,15 +1,13 @@
 # -*- cperl -*-
-# $Author$
-# $Date$
-# $Revision$
 
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
 use Test::More;
 use Config::Model ;
+use Data::Dumper ;
 
-BEGIN { plan tests => 22; }
+BEGIN { plan tests => 23; }
 
 use strict;
 
@@ -42,38 +40,52 @@ $model ->create_config_class
    element 
    => [
        enum => {type => 'leaf',
-		class => 'Config::Model::Value',
-		value_type => 'enum',
-		choice =>[qw/F G H/], 
-		default => undef
-	       },
+                class => 'Config::Model::Value',
+                value_type => 'enum',
+                choice =>[qw/F G H/], 
+                default => undef
+               },
        wrong_syntax_rule => {type => 'leaf',
-			     class => 'Config::Model::Value',
-			     warp => { follow => '- enum', 
-				      rules  => [ F => [ default => 'F' ]] },
-			     @args
-			    },
+                             class => 'Config::Model::Value',
+                             warp => { follow => '- enum', 
+                                      rules  => [ F => [ default => 'F' ]] },
+                             @args
+                            },
        warped_object => { type => 'leaf',
-			  class =>'Config::Model::Value', 
-			  @args, 
-			  warp => { follow => '- enum' , 
-				    rules  => \@rules  }
-			},
+                          class =>'Config::Model::Value', 
+                          @args, 
+                          warp => { follow => '- enum' , 
+                                    rules  => \@rules  }
+                        },
        recursive_warped_object 
        => { type => 'leaf',
-	    class => 'Config::Model::Value', @args, 
-	    warp => { follow => '- warped_object' , rules  => \@rules }
-	  },
+            class => 'Config::Model::Value', @args, 
+            warp => { follow => '- warped_object' , rules  => \@rules }
+          },
        [qw/w2 w3/] => { type => 'leaf',
-			class => 'Config::Model::Value', 
-			@args, 
-			warp =>  { follow => '- enum', rules  => \@rules },
-		      },
+                        class => 'Config::Model::Value', 
+                        @args, 
+                        warp =>  { follow => '- enum', rules  => \@rules },
+                      },
       ] , # dummy class
   ) ;
 
+# check model content
+my $canonical_model = $model->get_element_model('Master','warped_object') ;
+is_deeply($canonical_model->{warp},
+   {
+   'follow' => { 'f1' => '- enum' }, 
+   'rules' => [ '$f1 eq \'F\'', { 'default' => 'F', 
+                                  'choice' => [ 'A', 'B', 'C', 'F', 'F2' ] }, 
+                '$f1 eq \'G\'', { 'default' => 'G', 
+                                  'choice' => [ 'A', 'B', 'C', 'G', 'G2' ] } 
+              ] 
+   }, 
+   "check munged warp arguments"
+   );
+
 my $inst = $model->instance (root_class_name => 'Master', 
-			     instance_name => 'test1');
+                             instance_name => 'test1');
 ok($inst,"created dummy instance") ;
 
 my $root = $inst -> config_root ;

@@ -628,17 +628,18 @@ sub check_class_parameters {
 
             # move element informations (handled first)
             if ($info_name eq 'element') {
-                map {$model->{element}{$_} = dclone($info) ;} @element_names;
 
                 # warp can be found only in element item 
-                if (ref $info eq 'HASH') {
-                    $self->translate_legacy_info($config_class_name,
-                                                $element_names[0], $info) ;
-                }
+                $self->translate_legacy_info($config_class_name,
+                                             $element_names[0], $info) ;
+
                 if (defined $info->{permission}) {
                     $self->translate_legacy_permission($config_class_name, 
                                                        $info, $info ) ;
                 }
+
+                # copy in element data *after* legacy translation
+                map {$model->{element}{$_} = dclone($info) ;} @element_names;
             }
 
             # move some information into element declaration (without clobberring)
