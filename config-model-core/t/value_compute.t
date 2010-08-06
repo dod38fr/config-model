@@ -1,7 +1,4 @@
 # -*- cperl -*-
-# $Author$
-# $Date$
-# $Revision$
 
 use warnings FATAL => qw(all);
 
@@ -29,34 +26,33 @@ my $model = Config::Model->new(legacy => 'ignore',) ;
 $model -> create_config_class 
   (
    name => "Slave",
-   level => [ [qw/Comp W/] => 'hidden' ] ,
    element 
    =>  [
-	find_node_element_name 
-	=> {
-	    type => 'leaf',
-	    value_type => 'string',
+        find_node_element_name 
+        => {
+            type => 'leaf',
+            value_type => 'string',
             compute    => { 
-			   variables => { p => '-' },
-			   formula   => '&element($p)', 
+                           variables => { p => '-' },
+                           formula   => '&element($p)', 
                           },
-	   },
-	check_node_element_name 
-	=> {
-	    type => 'leaf',
-	    value_type => 'boolean',
+           },
+        check_node_element_name 
+        => {
+            type => 'leaf',
+            value_type => 'boolean',
             compute    => { 
-			   variables => { p => '-' },
-			   formula   => '&element($p) eq "foo2"', 
+                           variables => { p => '-' },
+                           formula   => '&element($p) eq "foo2"', 
                           },
-	   },
+           },
        [qw/av bv/] => {type => 'leaf',
-		       value_type => 'integer',
-		       compute    => { 
-				      variables => { p => '! &element' },
-				      formula   => '$p', 
-				     },
-		      },
+                       value_type => 'integer',
+                       compute    => { 
+                                      variables => { p => '! &element' },
+                                      formula   => '$p', 
+                                     },
+                      },
        ]
   );
 
@@ -66,84 +62,84 @@ $model ->create_config_class
    element 
    => [
        [qw/av bv/] => {type => 'leaf',
-		       class => 'Config::Model::Value',
-		       value_type => 'integer',
-		      },
+                       class => 'Config::Model::Value',
+                       value_type => 'integer',
+                      },
        compute_int 
        => { type => 'leaf',
-	    class =>'Config::Model::Value',
-	    value_type => 'integer',
-	    compute    => [ '$a + $b', a => '- av', b => '- bv' ],
-	    min        => -4,
-	    max        => 4,
-	  },
+            class =>'Config::Model::Value',
+            value_type => 'integer',
+            compute    => [ '$a + $b', a => '- av', b => '- bv' ],
+            min        => -4,
+            max        => 4,
+          },
        [qw/sav sbv/] => {type => 'leaf',
-			 class => 'Config::Model::Value',
-			 value_type => 'string',
-		      },
+                         class => 'Config::Model::Value',
+                         value_type => 'string',
+                      },
        one_var => { type => 'leaf',
-		    class =>'Config::Model::Value',
-		    value_type => 'string',
-		    compute    => [ '&element().$bar', bar => '- sbv'],
-		    },
+                    class =>'Config::Model::Value',
+                    value_type => 'string',
+                    compute    => [ '&element().$bar', bar => '- sbv'],
+                    },
        one_wrong_var => { type => 'leaf',
-			  class =>'Config::Model::Value',
-			  value_type => 'string',
-			  compute    => [ '$bar', bar => '- wrong_v'],
-			},
+                          class =>'Config::Model::Value',
+                          value_type => 'string',
+                          compute    => [ '$bar', bar => '- wrong_v'],
+                        },
        meet_test 
        => { type => 'leaf',
-	    class =>'Config::Model::Value',
-	    value_type => 'string',
-	    compute => [ 'meet $a and $b', a => '- sav', b => '- sbv' ],
-	  },
+            class =>'Config::Model::Value',
+            value_type => 'string',
+            compute => [ 'meet $a and $b', a => '- sav', b => '- sbv' ],
+          },
        compute_with_override 
        => {  type => 'leaf',
-	    class => 'Config::Model::Value',
-	     value_type             => 'integer',
-	     allow_compute_override => 1,
-	     compute                => [ '$a + $b', a => '- av', b => '- bv' ],
-	     min                    => -4,
-	     max                    => 4,
-	  },
+            class => 'Config::Model::Value',
+             value_type             => 'integer',
+             allow_compute_override => 1,
+             compute                => [ '$a + $b', a => '- av', b => '- bv' ],
+             min                    => -4,
+             max                    => 4,
+          },
        compute_no_var 
        => { type => 'leaf',
             value_type => 'string',
             compute    => { 
-			   formula   => '&element()', 
+                           formula   => '&element()', 
                           },
-	  },
+          },
        [qw/bar foo2/ ] => {
-			   type => 'node',
-			   config_class_name => 'Slave'
-			  },
+                           type => 'node',
+                           config_class_name => 'Slave'
+                          },
 
        'url' => { type => 'leaf',
-		  value_type => 'uniline',
-		},
+                  value_type => 'uniline',
+                },
        'host' 
        => { type => 'leaf',
-	    value_type => 'uniline',
-	    compute => { formula => '$url =~ m!http://([\w\.]+)!; $1 ;' , 
-			 variables => { url => '- url' } ,
-			 use_eval => 1,
-		       },
-	  },
+            value_type => 'uniline',
+            compute => { formula => '$url =~ m!http://([\w\.]+)!; $1 ;' , 
+                         variables => { url => '- url' } ,
+                         use_eval => 1,
+                       },
+          },
 
       ]
  ) ;
 
 my $inst = $model->instance (root_class_name => 'Master', 
-			     instance_name => 'test1');
+                             instance_name => 'test1');
 ok($inst,"created dummy instance") ;
 
 my $root = $inst -> config_root ;
 
 # order is important. Do no use sort.
 is_deeply([$root->get_element_name()],
-	  [qw/av bv compute_int sav sbv one_var one_wrong_var 
-	      meet_test compute_with_override compute_no_var bar foo2 url host/],
-	 "check available elements");
+          [qw/av bv compute_int sav sbv one_var one_wrong_var 
+              meet_test compute_with_override compute_no_var bar foo2 url host/],
+         "check available elements");
 
 my ( $av, $bv, $compute_int );
 $av=$root->fetch_element('av') ;
@@ -168,11 +164,11 @@ use warnings 'once';
 
 my $object = $root->fetch_element('one_var') ;
 my $rules =  { 
-	      bar => '- sbv',
-	     } ;
+              bar => '- sbv',
+             } ;
 my $srules = {
-	       bv => 'rbv' 
-	     };
+               bv => 'rbv' 
+             };
 
 my $ref = $parser->pre_value( '$bar', 1, $object, $rules , $srules );
 is( $$ref, '$bar' , "test pre_compute parser on a very small formula: '\$bar'");
