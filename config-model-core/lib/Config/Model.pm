@@ -461,7 +461,7 @@ when generating user interfaces.
 #   include       => 'class_name',
 #   include_after => 'element_name',
 # }
-# description, experience, summary, level, status, permission are moved
+# description, experience, summary, level, status are moved
 # into element description.
 
 =item generated_by
