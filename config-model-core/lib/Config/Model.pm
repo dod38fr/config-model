@@ -1541,10 +1541,11 @@ sub get_element_with_experience {
     # must respect the order of the elements declared in the model by
     # the user
     foreach my $elt (@{$model->{element_list}}) {
+        my $elt_data = $model->{element}{$elt} ;
+        my $l = $elt_data->{level} || $default_property{level} ;
         foreach my $experience (@_) {
-            push @result, $elt
-              if $model->{level}{$elt} ne 'hidden' 
-                and $model->{experience}{$elt} eq $experience ;
+            my $xp = $elt_data->{experience} || $default_property{experience} ;
+            push @result, $elt if ($l ne 'hidden' and $xp eq $experience );
         }
     }
 
