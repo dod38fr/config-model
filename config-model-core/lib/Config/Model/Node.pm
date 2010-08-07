@@ -1228,12 +1228,15 @@ sub reset_accepted_element_model {
     my $model = dclone $accept_model ;
     delete $model->{name_match} ;
     
-    foreach my $info_to_move (qw/description level summary experience status/) {
-        $self->reset_element_property(element => $element_name, 
-                                      property => $info_to_move) ;
+    foreach my $info_to_move (qw/description summary/) {
         my $moved_data = delete $model->{$info_to_move}  ;
         next unless defined $moved_data ;
-        $self->{model}{$info_to_move}{$element_name} = $moved_data ;
+        $self->{$info_to_move}{$element_name} = $moved_data ;
+    }
+
+    foreach my $info_to_move (qw/level experience status/) {
+        $self->reset_element_property(element => $element_name, 
+                                      property => $info_to_move) ;
     }
 
     $self->{model}{element}{$element_name} = $model ;
