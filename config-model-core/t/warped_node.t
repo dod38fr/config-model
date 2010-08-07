@@ -1,7 +1,4 @@
 # -*- cperl -*-
-# $Author$
-# $Date$
-# $Revision$
 
 use warnings FATAL => qw(all);
 
@@ -30,20 +27,20 @@ $model ->create_config_class
    element =>
    [
     [qw/X Y/] => { 
-		  type => 'leaf',
-		  value_type => 'enum',
-		  choice     => [qw/Av Bv Cv/],
-		  warp       => {
-				 follow => '- - v_macro',
-				 rules => { A => { default => 'Av' },
-					    B => { default => 'Bv' }
-					  }
-				}
-		 },
+                  type => 'leaf',
+                  value_type => 'enum',
+                  choice     => [qw/Av Bv Cv/],
+                  warp       => {
+                                 follow => '- - v_macro',
+                                 rules => { A => { default => 'Av' },
+                                            B => { default => 'Bv' }
+                                          }
+                                }
+                 },
     [qw/a_string a_long_string another_string/] 
     => { type => 'leaf',
-	 mandatory => 1 ,
-	 value_type => 'string'
+         mandatory => 1 ,
+         value_type => 'string'
        },
 
    ]
@@ -55,88 +52,87 @@ $model ->create_config_class
    element =>
    [
     [qw/X Z/] => { 
-		  type => 'leaf',
-		  value_type => 'enum',
-		  choice     => [qw/Av Bv Cv/],
-		  warp       => {
-				 follow => '! v_macro',
-				 rules => { A => { default => 'Av' },
-					    B => { default => 'Bv' }
-					  }
-				}
-		 }
+                  type => 'leaf',
+                  value_type => 'enum',
+                  choice     => [qw/Av Bv Cv/],
+                  warp       => {
+                                 follow => '! v_macro',
+                                 rules => { A => { default => 'Av' },
+                                            B => { default => 'Bv' }
+                                          }
+                                }
+                 }
    ]
   );
 
 $model ->create_config_class 
   (
    name => 'Master',
-   permission => [ bar => 'advanced'] ,
    element =>
    [
     v_macro => { 
-		type => 'leaf',
-		value_type => 'enum',
-		choice     => [qw/A B/]
-	       },
+                type => 'leaf',
+                value_type => 'enum',
+                choice     => [qw/A B/]
+               },
     b_macro    => {type => 'leaf',value_type => 'boolean' },
     tree_macro => {type => 'leaf',
-		   value_type => 'enum',
-		   choice     => [qw/XY XZ mXY W AR/]
-		  },
+                   value_type => 'enum',
+                   choice     => [qw/XY XZ mXY W AR/]
+                  },
 
     'a_hash_of_warped_nodes'
     => {
-	type => 'hash',
-	index_type  => 'string',
-	level => 'hidden',
-	warp => {  follow => '! tree_macro',
-		   rules => { 
-			     XY  => { level => 'normal', },
-			     mXY => {
-				     level => 'normal',
-				     permission => 'beginner'
-				    },
-			     XZ => { level => 'normal',},
-			    }
-		  },
-	cargo => { type => 'warped_node',
-		   follow => '! tree_macro',
-		   morph   => 1,
-		   rules => { XY  => { config_class_name => 'SlaveY', },
-			      mXY => {
-				      config_class_name   => 'SlaveY',
-				     },
-			      XZ => { config_class_name => 'SlaveZ' }
-			    }
-		  },
+        type => 'hash',
+        index_type  => 'string',
+        level => 'hidden',
+        warp => {  follow => '! tree_macro',
+                   rules => { 
+                             XY  => { level => 'normal', },
+                             mXY => {
+                                     level => 'normal',
+                                     permission => 'beginner'
+                                    },
+                             XZ => { level => 'normal',},
+                            }
+                  },
+        cargo => { type => 'warped_node',
+                   follow => '! tree_macro',
+                   morph   => 1,
+                   rules => { XY  => { config_class_name => 'SlaveY', },
+                              mXY => {
+                                      config_class_name   => 'SlaveY',
+                                     },
+                              XZ => { config_class_name => 'SlaveZ' }
+                            }
+                  },
        },
     'a_warped_node'
     => {
-	type => 'warped_node',
-	follow  => '! tree_macro',
-	morph   => 1,
-	rules => {
-		  XY  => { config_class_name => ['SlaveY'], },
-		  mXY => {
-			  config_class_name   => 'SlaveY',
-			  permission => 'intermediate'
-			 },
-		  XZ => { config_class_name => 'SlaveZ' }
-		 }
+        type => 'warped_node',
+        follow  => '! tree_macro',
+        morph   => 1,
+        rules => {
+                  XY  => { config_class_name => ['SlaveY'], },
+                  mXY => {
+                          config_class_name   => 'SlaveY',
+                          permission => 'intermediate'
+                         },
+                  XZ => { config_class_name => 'SlaveZ' }
+                 }
        },
     bool_object => {
-		    type => 'warped_node',
-		    follow  => '! b_macro',
-		    rules => { 1 => { config_class_name => 'SlaveY' }, }
-		   },
+                    type => 'warped_node',
+                    follow  => '! b_macro',
+                    rules => { 1 => { config_class_name => 'SlaveY' }, }
+                   },
    ]
   );
 
 ok(1,"compiled");
 
 my $inst = $model->instance (root_class_name => 'Master', 
-				 instance_name => 'test1');
+                                 instance_name => 'test1');
 ok($inst,"created dummy instance") ;
 
 my $root = $inst -> config_root ;
@@ -153,7 +149,7 @@ is($root->is_element_available('a_hash_of_warped_nodes'),0,
   ) ;
 
 eval { $root->fetch_element('a_hash_of_warped_nodes')->fetch_with_id(1) 
-	 -> fetch_element('X')->store('coucou');} ;
+         -> fetch_element('X')->store('coucou');} ;
 ok($@,'test stored on a warped node element (should fail)') ;
 print "Normal error:\n", $@ if $trace ;
 
@@ -230,20 +226,20 @@ is($ahown->fetch_with_id(234)->index_value, '234',
    'Check index value of actual node below warped node') ;
 
 is_deeply([$root->get_element_name(for => 'beginner')],
-	  [qw/v_macro b_macro tree_macro a_hash_of_warped_nodes 
+          [qw/v_macro b_macro tree_macro a_hash_of_warped_nodes 
               a_warped_node/],
-	 'reading elements of root') ;
+         'reading elements of root') ;
 
 is($root->fetch_element('tree_macro')->store('W'),'W',
    'set master->tree_macro to W (warp out)...');
 
 is_deeply([$root->get_element_name(for => 'beginner')],
-	  [qw/v_macro b_macro tree_macro/],
-	 'reading elements of root after warp out') ;
+          [qw/v_macro b_macro tree_macro/],
+         'reading elements of root after warp out') ;
 
 is_deeply([$root->get_element_name(for => 'advanced')],
-	  [qw/v_macro b_macro tree_macro/],
-	 'reading elements of root after warp out') ;
+          [qw/v_macro b_macro tree_macro/],
+         'reading elements of root after warp out') ;
 
 
 is($root->fetch_element('b_macro')->store(1),1,

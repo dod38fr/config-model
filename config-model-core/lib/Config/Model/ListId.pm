@@ -1,4 +1,3 @@
-
 #    Copyright (c) 2005-2010 Dominique Dumont.
 #
 #    This file is part of Config-Model.
@@ -30,7 +29,7 @@ our $VERSION="1.201";
 use base qw/Config::Model::AnyId/ ;
 
 # use vars qw($VERSION) ;
-my $logger = get_logger("Tree::Element::List") ;
+my $logger = get_logger("Tree::Element::Id::List") ;
 
 =head1 NAME
 
@@ -111,9 +110,9 @@ sub set_properties {
     # delete entries that no longer fit the constraints imposed by the
     # warp mechanism
     foreach my $k (0 .. $#{$data}) {
-	next unless  $k >  $self->{max_index};
-	$logger->debug("set_properties: ",$self->name," deleting index $k") ;
-	delete $data->[$k] ;
+        next unless  $k >  $self->{max_index};
+        $logger->debug("set_properties: ",$self->name," deleting index $k") ;
+        delete $data->[$k] ;
     }
 }
 
@@ -168,7 +167,7 @@ sub load {
     my $cmd = $string ;
     my $regex = qr/^(
                     (?:
-       	              "
+                             "
                         (?: \\" | [^"] )*?
                       "
                     )
@@ -178,25 +177,25 @@ sub load {
                   /x;
 
     while (length($string)) {
-	#print "string: $string\n";
-	$string =~ s/$regex// or last;
-	my $tmp = $1 ;
-	#print "tmp: $tmp\n";
-	$tmp =~ s/^"|"$//g if defined $tmp; 
-	$tmp =~ s/\\"/"/g  if defined $tmp; 
-	push @set,$tmp ;
+        #print "string: $string\n";
+        $string =~ s/$regex// or last;
+        my $tmp = $1 ;
+        #print "tmp: $tmp\n";
+        $tmp =~ s/^"|"$//g if defined $tmp; 
+        $tmp =~ s/\\"/"/g  if defined $tmp; 
+        push @set,$tmp ;
 
-	last unless length($string) ;
+        last unless length($string) ;
     }
     continue {
-	$string =~ s/^,// or last ;
+        $string =~ s/^,// or last ;
     }
 
     if (length($string)) {
-	Config::Model::Exception::Load
-	    -> throw ( object => $self, 
-		       command => $cmd,
-		       message => "unexpected load command '$cmd', left '$cmd'" ) ;
+        Config::Model::Exception::Load
+            -> throw ( object => $self, 
+                       command => $cmd,
+                       message => "unexpected load command '$cmd', left '$cmd'" ) ;
     }
 
     $self->store_set(@set ) ;
@@ -212,12 +211,12 @@ sub store_set {
     my $self = shift ;
     my $idx = 0 ;
     foreach (@_) { 
-	if (defined $_) {
-	    $self->fetch_with_id( $idx++ )->store( $_ );
-	}
-	else {
-	    $self->{data}[$idx] = undef ; # detruit l'objet pas bon!
-	}
+        if (defined $_) {
+            $self->fetch_with_id( $idx++ )->store( $_ );
+        }
+        else {
+            $self->{data}[$idx] = undef ; # detruit l'objet pas bon!
+        }
     } ;
 
     # and delete unused items
@@ -310,16 +309,16 @@ sub auto_create_elements {
     my $auto_nb = $self->{auto_create_ids} ;
 
     Config::Model::Exception::Model
-	->throw (
-		 object => $self,
-		 error => "Wrong auto_create argument for list: $auto_nb"
-		) unless $auto_nb =~ /^\d+$/;
+        ->throw (
+                 object => $self,
+                 error => "Wrong auto_create argument for list: $auto_nb"
+                ) unless $auto_nb =~ /^\d+$/;
 
     my $auto_p = $auto_nb - 1;
 
     # create empty slots
     map {
-	$self->{data}[$_] = undef unless defined $self->{data}[$_];
+        $self->{data}[$_] = undef unless defined $self->{data}[$_];
     }  (0 .. $auto_p ) ;
 }
 
@@ -335,9 +334,9 @@ sub create_default {
     map {$self->{data}[$_] = undef } @$def ;
 
     if (defined $self->{default_with_init}) {
-	foreach my $def_key (keys %{$self->{default_with_init}}) {
-	    $self->fetch_with_id($def_key)->load($def->{$def_key}) ;
-	}
+        foreach my $def_key (keys %{$self->{default_with_init}}) {
+            $self->fetch_with_id($def_key)->load($def->{$def_key}) ;
+        }
     }
 }
 
@@ -355,30 +354,30 @@ sub load_data {
     my $raw_annot = shift ;
 
     my ($data,$annot) 
-	= map {   ref($_) eq 'ARRAY' ? $_ 
-	        : defined $_         ? [ $_ ] 
-	        :                  	undef; } ($raw_data,$raw_annot);
+        = map {   ref($_) eq 'ARRAY' ? $_ 
+                : defined $_         ? [ $_ ] 
+                :                  	undef; } ($raw_data,$raw_annot);
 
     $self->clear ;
 
     my $idx = 0;
     $logger->info("ListId load_data (",$self->location,") will load idx ",
-	"0..$#$data");
+        "0..$#$data");
     foreach my $item (@$data ) {
-	my $obj = $self->fetch_with_id($idx) ;
-	my @args = ($item);
-	CORE::push (@args,$annot->[$idx]) if defined $annot ;
-	$idx++ ;
-	$obj -> load_data(@args) ;
+        my $obj = $self->fetch_with_id($idx) ;
+        my @args = ($item);
+        CORE::push (@args,$annot->[$idx]) if defined $annot ;
+        $idx++ ;
+        $obj -> load_data(@args) ;
     }
 
     return unless defined $annot ;
     $idx = 0;
     $logger->info("ListId load_data (",$self->location,") will load annotation idx ",
-	  "0..$#$annot") ;
+          "0..$#$annot") ;
     foreach my $item (@$annot ) {
-	my $obj = $self->fetch_with_id($idx++) ;
-	$obj -> annotation($item) if $item ; # do not store undef
+        my $obj = $self->fetch_with_id($idx++) ;
+        $obj -> annotation($item) if $item ; # do not store undef
     }
 
     
