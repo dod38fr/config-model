@@ -46,21 +46,21 @@ sub Populate {
     my $lb ;
     my @choice = $leaf->get_choice ;
     my $raise_cmd = sub{ 
-	$lb->selectionClear(0,'end') ;
-	my %h = $leaf->get_checked_list_as_hash ;
-	for (my $i=0; $i<@choice; $i++) {
-	    $lb->selectionSet($i,$i) if $h{$choice[$i]} ;
-	}
+        $lb->selectionClear(0,'end') ;
+        my %h = $leaf->get_checked_list_as_hash ;
+        for (my $i=0; $i<@choice; $i++) {
+            $lb->selectionSet($i,$i) if $h{$choice[$i]} ;
+        }
     } ;
 
     my $ed_frame = $nb->add('content', -label => 'Change content',
-			    -raisecmd => $raise_cmd ,
-			   );
+                            -raisecmd => $raise_cmd ,
+                           );
 
     $lb = $ed_frame->Scrolled ( qw/Listbox -selectmode multiple/,
-				   -scrollbars => 'osoe',
-				   -height => 5,
-				 ) ->pack(@fbe1) ;
+                                   -scrollbars => 'osoe',
+                                   -height => 5,
+                                 ) ->pack(@fbe1) ;
     $lb->insert('end',@choice) ;
 
 
@@ -72,28 +72,30 @@ sub Populate {
 
     my $bframe = $ed_frame->Frame->pack;
     $bframe -> Button ( -text => 'Clear all',
-			-command => sub { $lb->selectionClear(0,'end') ; },
-		      ) -> pack(-side => 'left') ;
+                        -command => sub { $lb->selectionClear(0,'end') ; },
+                      ) -> pack(-side => 'left') ;
     $bframe -> Button ( -text => 'Set all',
-			-command => sub { $lb->selectionSet(0,'end') ; },
-		      ) -> pack(-side => 'left') ;
+                        -command => sub { $lb->selectionSet(0,'end') ; },
+                      ) -> pack(-side => 'left') ;
     $bframe -> Button ( -text => 'Reset',
-			-command => sub { $cw->reset_value ; },
-		      ) -> pack(-side => 'left') ;
+                        -command => sub { $cw->reset_value ; },
+                      ) -> pack(-side => 'left') ;
     $bframe -> Button ( -text => 'Store',
-			-command => sub { $cw->store ( &$get_selected )},
-		      ) -> pack(-side => 'left') ;
+                        -command => sub { $cw->store ( &$get_selected )},
+                      ) -> pack(-side => 'left') ;
 
     $cw->ConfigModelNoteEditor( -object => $leaf )->pack(@fbe1) ;
     $cw->add_summary($leaf)->pack(@fx) ;
     $cw->add_description($leaf)->pack(@fx) ;
-    $cw->{value_help_widget} = $cw->add_help(value => '',1)->pack(@fx);
+    my ($help_frame, $help_widget) = $cw->add_help(value => '',1);
+    $help_frame->pack(@fx);
+    $cw->{value_help_widget} = $help_widget ; 
     $cw->add_info_button()->pack(@fxe1) ;
     $b_sub->() ;
 
     # Add a second page to edit the list order for ordered check list
     if ($leaf->ordered) {
-	$cw->add_change_order_page($nb,$leaf) ;
+        $cw->add_change_order_page($nb,$leaf) ;
     }
 
     # don't call directly SUPER::Populate as it's CheckListViewer's populate
@@ -105,36 +107,36 @@ sub add_change_order_page {
 
     my $order_list ;
     my $raise_cmd = sub{ 
-	$order_list->delete(0,'end');
-	$order_list->insert( end => $leaf->get_checked_list) ;
+        $order_list->delete(0,'end');
+        $order_list->insert( end => $leaf->get_checked_list) ;
     } ;
 
     my $order_frame = $nb->add('order', -label => 'Change order',
-			       -raisecmd => $raise_cmd ,
-			      );
+                               -raisecmd => $raise_cmd ,
+                              );
 
     $order_list = $order_frame ->Scrolled ( 'Listbox',
-					       -selectmode => 'single',
-					       -scrollbars => 'oe',
-					       -height => 6,
-					     )
+                                               -selectmode => 'single',
+                                               -scrollbars => 'oe',
+                                               -height => 6,
+                                             )
       -> pack(@fbe1) ;
 
     $cw->{order_list} = $order_list ;
 
     unless (defined $up_img) {
-	$up_img   = $cw->Photo(-file => $icon_path.'up.png');
-	$down_img = $cw->Photo(-file => $icon_path.'down.png');
+        $up_img   = $cw->Photo(-file => $icon_path.'up.png');
+        $down_img = $cw->Photo(-file => $icon_path.'down.png');
     }
 
     my $mv_up_down_frame = $order_frame->Frame->pack( -fill => 'x');
     $mv_up_down_frame->Button(-image => $up_img,
-			      -command => sub { $cw->move_selected_up ;} ,
-			     )-> pack( -side => 'left', @fxe1);
+                              -command => sub { $cw->move_selected_up ;} ,
+                             )-> pack( -side => 'left', @fxe1);
 
     $mv_up_down_frame->Button(-image => $down_img,
-			      -command => sub { $cw->move_selected_down ;} ,
-			     )-> pack( -side => 'left',  @fxe1);
+                              -command => sub { $cw->move_selected_down ;} ,
+                             )-> pack( -side => 'left',  @fxe1);
 }
 
 sub move_selected_up {
@@ -187,12 +189,12 @@ sub store {
     my $cl = $cw->{leaf};
 
     map {
-	if ($set{$_} and not $cl->is_checked($_) ) {
-	    $cl->check($_) ;
-	} 
-	elsif (not $set{$_} and $cl->is_checked($_) ) {
-	    $cl->uncheck($_) ;
-	}
+        if ($set{$_} and not $cl->is_checked($_) ) {
+            $cl->check($_) ;
+        } 
+        elsif (not $set{$_} and $cl->is_checked($_) ) {
+            $cl->uncheck($_) ;
+        }
     } $cw->{leaf}->get_choice;
 
     $cw->{store_cb}->() ;

@@ -42,8 +42,8 @@ sub add_header {
     my ($cw,$type,$item) = @_ ;
 
     unless (%img) {
-	$img{edit} = $cw->Photo(-file => $icon_path.'wizard.png');
-	$img{view} = $cw->Photo(-file => $icon_path.'viewmag.png');
+        $img{edit} = $cw->Photo(-file => $icon_path.'wizard.png');
+        $img{view} = $cw->Photo(-file => $icon_path.'viewmag.png');
     }
 
     my $idx ;
@@ -84,14 +84,14 @@ sub add_info_button {
     $title .= ':'.$elt_name if $elt_name;
 
     my $dialog = $cw->Dialog (
-			      -title => $title,
-			      -text => join("\n",$title,@items),
-			      -font => $text_font ,
-			     );
+                              -title => $title,
+                              -text => join("\n",$title,@items),
+                              -font => $text_font ,
+                             );
     my $button = $frame 
       -> Button(-text => "info ...",
-		-command => sub {$dialog -> Show; }
-	       ) ;
+                -command => sub {$dialog -> Show; }
+               ) ;
     return $button ; # to be packed by caller
 }
 
@@ -108,35 +108,35 @@ sub add_help {
     return $help_frame unless $force_text_widget or $help;
 
     $help_frame ->Label(
-			 -text => $help_label, 
-			) ->pack(-anchor => 'w');
+                         -text => $help_label, 
+                        ) ->pack(-anchor => 'w');
 
     my $widget ;
     chomp $help ;
     if (  $force_text_widget or $help =~ /\n/ or length($help) > 50) {
-	$widget = $help_frame->Scrolled('ROText',
-					-scrollbars => 'ow',
-					-wrap => 'word',
-					-font => $text_font ,
-					-relief => 'ridge',
-					-height => 4,
-				       );
+        $widget = $help_frame->Scrolled('ROText',
+                                        -scrollbars => 'ow',
+                                        -wrap => 'word',
+                                        -font => $text_font ,
+                                        -relief => 'ridge',
+                                        -height => 4,
+                                       );
 
-	$widget ->pack( @fbe1 ) ->insert('end',$help,'help') ;
-	$widget
-	  ->tagConfigure(qw/help -lmargin1 2 -lmargin2 2 -rmargin 2/);
+        $widget ->pack( @fbe1 ) ->insert('end',$help,'help') ;
+        $widget
+          ->tagConfigure(qw/help -lmargin1 2 -lmargin2 2 -rmargin 2/);
     }
     else {
-	$widget = $help_frame->Label( -text => $help,
-				      -justify => 'left',
-				      -font => $text_font ,
-				      -anchor => 'w',
-				      -padx => $padx ,
-				    )
-	    ->pack( -fill => 'x');
+        $widget = $help_frame->Label( -text => $help,
+                                      -justify => 'left',
+                                      -font => $text_font ,
+                                      -anchor => 'w',
+                                      -padx => $padx ,
+                                    )
+            ->pack( -fill => 'x');
     }
 
-    return $widget ;
+    return wantarray ? ($help_frame,$widget) : $help_frame ;
 }
 
 sub add_summary {
@@ -144,7 +144,7 @@ sub add_summary {
 
     my $p    = $elt_obj->parent ;
     my $name = $elt_obj->element_name ;
-    $cw->add_help( Summary => $p->get_help(summary => $name)) ;
+    return $cw->add_help( Summary => $p->get_help(summary => $name)) ;
 }
 
 sub add_description {
@@ -152,24 +152,24 @@ sub add_description {
 
     my $p    = $elt_obj->parent ;
     my $name = $elt_obj->element_name ;
-    $cw->add_help( Description => $p->get_help(description => $name)) ;
+    return $cw->add_help( Description => $p->get_help(description => $name)) ;
 }
 
 # returns a widget that must be packed
 sub add_annotation {
     my ($cw, $obj) = @_ ;
 
-    $cw->add_help('Note', $obj->annotation) ;
+    return $cw->add_help('Note', $obj->annotation) ;
 }
 
 sub add_editor_button {
     my ($cw,$path) = @_ ;
 
     my $sub = sub {
-	$cw->parent->parent->parent->parent
-	  -> create_element_widget( edit => $path) ;
-	} ;
-    $cw->Button(-text => 'Edit ...', -command => $sub) ;
+        $cw->parent->parent->parent->parent
+          -> create_element_widget( edit => $path) ;
+        } ;
+    return $cw->Button(-text => 'Edit ...', -command => $sub) ;
 }
 
 # do nothing by default 
