@@ -25,7 +25,7 @@ Log::Log4perl->easy_init($arg =~ /l/ ? $TRACE: $WARN);
 ok(1,"compiled");
 
 my $inst = $model->instance (root_class_name => 'Master', 
-			     model_file => 't/big_model.pm',
+			     model_file => 't/dump_load_model.pm',
 			     instance_name => 'test1');
 ok($inst,"created dummy instance") ;
 
@@ -240,17 +240,17 @@ $step = '     std_id:ab#std_id_ab_note
   .'- a_string="toto \"titi\" tata" a_string#a_string_note '
   .'lista=a,b,c,d olist:0#olist_0_note X=Av - olist:1 X=Bv - listb=b,"c c2",d '
   . '! hash_a:X2=x#hash_a_X2 hash_a:Y2=xy#"hash_a Y2 note"  hash_b:X3=xy#hash_b_X3
-     my_check_list=X2,X3' ;
+     my_check_list=X2,X3 plain_object#"plain comment" aa2=aa2_value' ;
 ok( $root2->load( step => $step, permission => 'intermediate' ),
   "set up data in tree annotation");
 
-my $expect_count = scalar( $step =~ /(#)/g) ;
+my $expect_count = scalar grep {/#/} split //,$step ;
 
 $cds = $root2->dump_tree( full_dump => 1 );
 print "Dump with annotations:\n$cds" if $trace  ;
 
-is( scalar($cds =~ /(#)/),$expect_count ,
-  "check that $expect_count annotation are found");
+is( (scalar grep {/#/} split //,$cds) ,$expect_count ,
+  "check that $expect_count annotations are found");
 
 my $root3 = $model->instance (root_class_name => 'Master', 
 			      instance_name => 'test3')

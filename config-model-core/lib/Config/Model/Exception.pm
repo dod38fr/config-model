@@ -304,6 +304,12 @@ sub full_message {
         . " (configuration class '".$obj -> config_class_name ."')\n"
           . "\tExpected: '". join("','",@elements)."'\n" ;
 
+    my @match_keys = $obj->accept_regexp();
+    if (@match_keys) {
+      $msg .= "\tor an acceptable parameter matching '"
+            . join("','",@match_keys)."'\n" ;
+    }
+
     # inform about available elements after a change of warp master value
     if (defined $obj->parent) {
 	my $parent       = $obj->parent ;

@@ -182,11 +182,18 @@ Annotation is a way to store miscellaneous information associated to
 each node. (Yeah... comments) These comments will be saved outside of
 the configuration file and restored the next time the command is run.
 
+=head2 annotation( [ note1, [ note2 , ... ] ] )
+
+Without argument, return a string containing the object's annotation.
+
+With several arguments, join the arguments with "\n", store the annotations 
+and return the resulting string.
+
 =cut
 
 sub annotation {
     my $self = shift ;
-    $self->{annotation} = join("\n",@_) if @_;
+    $self->{annotation} = join("\n", grep (defined $_,@_)) if @_;
     return $self->{annotation} ;
 }
 
@@ -597,4 +604,3 @@ L<Config::Model::Loader>,
 L<Config::Model::Dumper>
 
 =cut
-

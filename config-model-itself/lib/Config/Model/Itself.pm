@@ -145,17 +145,17 @@ sub read_all {
     my $legacy = $args{legacy} ;
 
     unless (-d $dir ) {
-	croak __PACKAGE__," read_all: unknown config dir $dir";
+        croak __PACKAGE__," read_all: unknown config dir $dir";
     }
 
     my @files ;
     my $wanted = sub { 
-	my $n = $File::Find::name ;
-	push @files, $n if (-f $_ and not /~$/ 
-			    and $n !~ /CVS/
-			    and $n !~ m!.svn!
-			    and $n =~ /\b$model/
-			   ) ;
+        my $n = $File::Find::name ;
+        push @files, $n if (-f $_ and not /~$/ 
+                            and $n !~ /CVS/
+                            and $n !~ m!.svn!
+                            and $n =~ /\b$model/
+                           ) ;
     } ;
     find ($wanted, $dir ) ;
 
@@ -164,53 +164,53 @@ sub read_all {
     my %class_file_map ;
 
     for my $file (@files) {
-	$logger->info("loading config file $file");
+        $logger->info("loading config file $file");
 
-	# now apply some translation to read model
-	# - translate legacy warp parameters
-	# - expand elements name
-	my $tmp_model = Config::Model -> new( skip_include => 1, legacy => $legacy ) ;
-	my @models = $tmp_model -> load ( 'Tmp' , $file ) ;
+        # now apply some translation to read model
+        # - translate legacy warp parameters
+        # - expand elements name
+        my $tmp_model = Config::Model -> new( skip_include => 1, legacy => $legacy ) ;
+        my @models = $tmp_model -> load ( 'Tmp' , $file ) ;
 
-	my $rel_file = $file ;
-	$rel_file =~ s/^$dir\/?//;
-	die "wrong reg_exp" if $file eq $rel_file ;
-	$class_file_map{$rel_file} = \@models ;
+        my $rel_file = $file ;
+        $rel_file =~ s/^$dir\/?//;
+        die "wrong reg_exp" if $file eq $rel_file ;
+        $class_file_map{$rel_file} = \@models ;
 
-	# - move experience, description and level status into parameter info.
-	foreach my $model_name (@models) {
-	    # no need to dclone model as Config::Model object is temporary
-	    my $new_model =  $tmp_model -> get_model( $model_name ) ;
+        # - move experience, description and level status into parameter info.
+        foreach my $model_name (@models) {
+            # no need to dclone model as Config::Model object is temporary
+            my $new_model =  $tmp_model -> get_model( $model_name ) ;
 
-	    foreach my $item (qw/description summary level experience status/) {
-		foreach my $elt_name (keys %{$new_model->{element}}) {
-		    my $moved_data = delete $new_model->{$item}{$elt_name}  ;
-		    next unless defined $moved_data ;
-		    $new_model->{element}{$elt_name}{$item} = $moved_data ; 
-		}
-		delete $new_model->{$item} ;
-	    }
+            foreach my $item (qw/description summary level experience status/) {
+                foreach my $elt_name (keys %{$new_model->{element}}) {
+                    my $moved_data = delete $new_model->{$item}{$elt_name}  ;
+                    next unless defined $moved_data ;
+                    $new_model->{element}{$elt_name}{$item} = $moved_data ; 
+                }
+                delete $new_model->{$item} ;
+            }
 
-	    # cleanup
+            # cleanup
 
-	    # Since the element are stored in a ordered hash,
-	    # load_data expects a array ref instead of a hash ref.
-	    # Build this array ref taking the element order into
-	    # account
-	    my $list  = delete $new_model -> {element_list} ;
-	    my $elt_h = delete $new_model -> {element} ;
-	    $new_model -> {element} = [] ;
-	    map { 
-		push @{$new_model->{element}}, $_, $elt_h->{$_} 
-	    } @$list ;
+            # Since the element are stored in a ordered hash,
+            # load_data expects a array ref instead of a hash ref.
+            # Build this array ref taking the element order into
+            # account
+            my $list  = delete $new_model -> {element_list} ;
+            my $elt_h = delete $new_model -> {element} ;
+            $new_model -> {element} = [] ;
+            map { 
+                push @{$new_model->{element}}, $_, $elt_h->{$_} 
+            } @$list ;
 
 
-	    # remove hash key with undefined values
-	    map { delete $new_model->{$_} unless defined $new_model->{$_} 
-		                          and $new_model->{$_} ne ''
-	      } keys %$new_model ;
-	    $read_models{$model_name} = $new_model ;
-	}
+            # remove hash key with undefined values
+            map { delete $new_model->{$_} unless defined $new_model->{$_} 
+                                          and $new_model->{$_} ne ''
+              } keys %$new_model ;
+            $read_models{$model_name} = $new_model ;
+        }
 
     }
 
@@ -283,7 +283,7 @@ sub write_all {
     my $map = $self->{map} ;
 
     unless (-d $dir ) {
-	mkpath($dir,0, 0755) || die "Can't mkpath $dir:$!";
+        mkpath($dir,0, 0755) || die "Can't mkpath $dir:$!";
     }
 
     my $i = $model_obj->instance ;
@@ -291,49 +291,49 @@ sub write_all {
     # get list of all classes loaded by the editor
     my %loaded_classes 
       = map { ($_ => 1); } 
-	$model_obj->fetch_element('class')->get_all_indexes ;
+        $model_obj->fetch_element('class')->get_all_indexes ;
 
     # remove classes that are listed in map
     foreach my $file (keys %$map) {
-	foreach my $class_name (@{$map->{$file}}) {
-	    delete $loaded_classes{$class_name} ;
-	}
+        foreach my $class_name (@{$map->{$file}}) {
+            delete $loaded_classes{$class_name} ;
+        }
     }
 
     # add remaining classes in map
     my %new_map =  map { 
-	my $f = $_; 
-	$f =~ s!::!/!g; 
-	("$f.pl" => [ $_ ]) ;
+        my $f = $_; 
+        $f =~ s!::!/!g; 
+        ("$f.pl" => [ $_ ]) ;
     } keys %loaded_classes ;
 
     my %map_to_write = (%$map,%new_map) ;
 
     foreach my $file (keys %map_to_write) {
-	$logger->info("writing config file $file");
+        $logger->info("writing config file $file");
 
-	my @data ;
+        my @data ;
 
-	foreach my $class_name (@{$map_to_write{$file}}) {
-	    $logger->info("writing class $class_name");
-	    my $model 
-	      = $self-> get_perl_data_model(class_name   => $class_name) ;
-	    push @data, $model ;
-	    # remove class name from above list
-	    delete $loaded_classes{$class_name} ;
-	}
+        foreach my $class_name (@{$map_to_write{$file}}) {
+            $logger->info("writing class $class_name");
+            my $model 
+              = $self-> get_perl_data_model(class_name   => $class_name) ;
+            push @data, $model ;
+            # remove class name from above list
+            delete $loaded_classes{$class_name} ;
+        }
 
-	my $wr_file = "$dir/$file" ;
-	my $wr_dir  = dirname($wr_file) ;
-	unless (-d $wr_dir ) {
-	    mkpath($wr_dir,0, 0755) || die "Can't mkpath $wr_dir:$!";
-	}
+        my $wr_file = "$dir/$file" ;
+        my $wr_dir  = dirname($wr_file) ;
+        unless (-d $wr_dir ) {
+            mkpath($wr_dir,0, 0755) || die "Can't mkpath $wr_dir:$!";
+        }
 
-	open (WR, ">$wr_file") || croak "Cannot open file $wr_file:$!" ;
-	my $dumper = Data::Dumper->new([\@data]) ;
-	$dumper->Terse(1) ;
-	print WR $dumper->Dump , ";\n";
-	close WR ;
+        open (WR, ">$wr_file") || croak "Cannot open file $wr_file:$!" ;
+        my $dumper = Data::Dumper->new([\@data]) ;
+        $dumper->Terse(1) ;
+        print WR $dumper->Dump , ";\n";
+        close WR ;
     }
 
 }
@@ -353,7 +353,7 @@ sub list_class_element {
     my $res = '';
     my $meta_class = $self->{model_object}->fetch_element('class') ;
     foreach my $class_name ($meta_class->get_all_indexes ) {
-	$res .= $self->list_one_class_element($class_name) ;
+        $res .= $self->list_one_class_element($class_name) ;
     }
     return $res ;
 }
@@ -373,18 +373,18 @@ sub list_one_class_element {
     my $inc_after = $meta_class->grab_value('include_after') ;
 
     if (@include and not defined $inc_after) {
-	map { $res .= $self->list_one_class_element($_,$pad.'  ') ;} @include ;
+        map { $res .= $self->list_one_class_element($_,$pad.'  ') ;} @include ;
     }
 
     return $res unless @elts ;
 
     foreach my $elt_name ( @elts) {
-	my $type = $meta_class->grab_value("element:$elt_name type") ;
+        my $type = $meta_class->grab_value("element:$elt_name type") ;
 
-	$res .= $pad."  - $elt_name ($type)\n";
-	if (@include and defined $inc_after and $inc_after eq $elt_name) {
-	    map { $res .=$self->list_one_class_element($_,$pad.'  ') ;} @include ;
-	}
+        $res .= $pad."  - $elt_name ($type)\n";
+        if (@include and defined $inc_after and $inc_after eq $elt_name) {
+            map { $res .=$self->list_one_class_element($_,$pad.'  ') ;} @include ;
+        }
     }
     return $res ;
 }
@@ -415,38 +415,38 @@ sub get_dot_diagram {
 
     my $meta_class = $self->{model_object}->fetch_element('class') ;
     foreach my $class_name ($meta_class->get_all_indexes ) {
-	my $c_model = $self->{model_object}->config_model->get_raw_model($class_name);
-	my $elts = $c_model->{element} || []; # array ref
+        my $c_model = $self->{model_object}->config_model->get_raw_model($class_name);
+        my $elts = $c_model->{element} || []; # array ref
 
-	my $d_class = $class_name ;
-	$d_class =~ s/::/__/g;
+        my $d_class = $class_name ;
+        $d_class =~ s/::/__/g;
 
-	my $elt_list = '';
-	my $use = '';
-	for (my $idx = 0; $idx < @$elts; $idx += 2) {
-	    my $elt_info = $elts->[$idx] ;
-	    my @elt_names = ref $elt_info ? @$elt_info : ($elt_info) ;
-	    my $type = $elts->[$idx+1]{type} ;
+        my $elt_list = '';
+        my $use = '';
+        for (my $idx = 0; $idx < @$elts; $idx += 2) {
+            my $elt_info = $elts->[$idx] ;
+            my @elt_names = ref $elt_info ? @$elt_info : ($elt_info) ;
+            my $type = $elts->[$idx+1]{type} ;
 
-	    foreach my $elt_name (@elt_names) {
-		$elt_list .= "- $elt_name ($type)\\n";
-		$use .= $self->scan_used_class($d_class,$elt_name,
-					       $elts->[$idx+1]);
-	    }
-	}
+            foreach my $elt_name (@elt_names) {
+                $elt_list .= "- $elt_name ($type)\\n";
+                $use .= $self->scan_used_class($d_class,$elt_name,
+                                               $elts->[$idx+1]);
+            }
+        }
 
-	$dot .= $d_class 
+        $dot .= $d_class 
              .  qq! [shape=box label="$class_name\\n$elt_list"];\n!
-	     .  $use . "\n";
+             .  $use . "\n";
 
-	my $include = $c_model->{include} ;
-	if (defined $include) {
-	    my $inc_ref = ref $include ? $include : [ $include ] ;
-	    foreach my $t (@$inc_ref) {
-		$t =~ s/::/__/g;
-		$dot.= qq!$d_class -> $t ;\n!;
-	    }
-	}
+        my $include = $c_model->{include} ;
+        if (defined $include) {
+            my $inc_ref = ref $include ? $include : [ $include ] ;
+            foreach my $t (@$inc_ref) {
+                $t =~ s/::/__/g;
+                $dot.= qq!$d_class -> $t ;\n!;
+            }
+        }
     }
 
     $dot .="}\n";
@@ -459,20 +459,20 @@ sub scan_used_class {
     my $res = '' ;
 
     if (ref($ref) eq 'HASH') {
-	foreach my $k (keys %$ref) {
-	    my $v = $ref->{$k} ;
-	    if ($k eq 'config_class_name') {
-		$v =~ s/::/__/g;
-		$res .= qq!$d_class -> $v !
-		      . qq![ style=dashed, label="$elt_name" ];\n!;
-	    }
-	    if (ref $v) {
-		$res .= $self->scan_used_class($d_class,$elt_name,$v);
-	    }
-	}
+        foreach my $k (keys %$ref) {
+            my $v = $ref->{$k} ;
+            if ($k eq 'config_class_name') {
+                $v =~ s/::/__/g;
+                $res .= qq!$d_class -> $v !
+                      . qq![ style=dashed, label="$elt_name" ];\n!;
+            }
+            if (ref $v) {
+                $res .= $self->scan_used_class($d_class,$elt_name,$v);
+            }
+        }
     }
     elsif (ref($ref) eq 'ARRAY') {
-	map {$res .= $self->scan_used_class($d_class,$elt_name,$_);} @$ref ;
+        map {$res .= $self->scan_used_class($d_class,$elt_name,$_);} @$ref ;
     }
     return $res ;
 }

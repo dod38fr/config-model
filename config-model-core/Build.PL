@@ -58,11 +58,13 @@ sub process_tmpl_files {
 EOF
 
 my $class = Module::Build->subclass(code => $code);
+my @version_info = @ARGV ? (dist_version => $ARGV[0]) : () ;
 
 
 my $build = $class->new
   (
    module_name    => 'Config::Model',
+   @version_info,
    license        => 'lgpl',
    script_files   => [ 'config-edit' ],
    dist_abstract  => 'Describe, edit and validate configuration data',

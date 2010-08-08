@@ -262,7 +262,8 @@ sub dump_tree {
 	} @keys ;
     };
 
-    # called for nodes contained in nodes (not root)
+    # called for nodes contained in nodes (not root).
+    # This node can be held by a plain element or a hash element or a list element
     my $element_cb = sub {
         my ( $scanner, $data_r, $node, $element, $key, $next ) = @_;
 
@@ -271,19 +272,25 @@ sub dump_tree {
         return if $skip_aw and $next->is_auto_write_for_type($skip_aw) ;
 
         my $pad = $compute_pad->($node);
-	my $node_note = $node->annotation ;
+        my $elt = $node->fetch_element($element);
+	# load string can feature only one comment per element_type
+	# ie foo#comment foo:bar#comment foo:bar=val#comment are fine
+	# but foo#comment:bar if not valid
+
+	my $note = $elt->annotation ;
 
 	my $head = "\n$pad$element";
+	
 	if ($type eq 'list' or $type eq 'hash') {
-	    $head.="#$node_note$head" if $node_note ;
 	    $head .= ':'.quote($key) ;
-	    # add list of hash annotation
-	    my $note = $node->fetch_element($element)->annotation ;
-	    $head.="#$note" if $note;
+	    if ($elt->get_cargo_type eq 'leaf') {
+		# add list of hash value annotation
+		my $value_note = $elt->fetch_with_id($key)->annotation ;
+	        $note = $value_note if $value_note;
+	    }
 	}
-	elsif ($node_note) {
-	    $head.="#$node_note";
-	}
+
+	$head.='#'.quote($note) if $note;
 
 	my $sub_data = '';
         $scanner->scan_node(\$sub_data, $next);
@@ -312,8 +319,8 @@ sub dump_tree {
     my $view_scanner = Config::Model::ObjTreeScanner->new(@scan_args);
 
     my $ret = '';
-    my $note = quote($node->annotation) ;
-    $ret .="\n#$note" if $note ;
+    my $root_note = quote($node->annotation) ;
+    $ret .="\n#$root_note" if $root_note ;
     $view_scanner->scan_node(\$ret, $node);
 
     substr( $ret, 0, 1, '' );    # remove leading \n

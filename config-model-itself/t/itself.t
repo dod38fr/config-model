@@ -42,9 +42,9 @@ else {
     # workaround Augeas locale bug
     no warnings qw/uninitialized/;
     if ($ENV{LC_ALL} ne 'C' or $ENV{LANG} ne 'C') {
-	$ENV{LC_ALL} = $ENV{LANG} = 'C';
-	my $inc = join(' ',map("-I$_",@INC)) ;
-	exec("$^X $inc $0 @ARGV");
+        $ENV{LC_ALL} = $ENV{LANG} = 'C';
+        my $inc = join(' ',map("-I$_",@INC)) ;
+        exec("$^X $inc $0 @ARGV");
     }
 }
 
@@ -77,17 +77,17 @@ ok(1,"loaded Master model") ;
 
 # check that Master Model can be loaded by Config::Model
 my $inst1 = $model->instance (root_class_name   => 'MasterModel', 
-			      instance_name     => 'test_orig',
-			      root_dir          => $wr_conf1,
-			     );
+                              instance_name     => 'test_orig',
+                              root_dir          => $wr_conf1,
+                             );
 ok($inst1,"created master_model instance") ;
 
 my $root1 = $inst1->config_root ;
 my @elt1 = $root1->get_element_name ;
 
 $root1->load("a_string=toto lot_of_checklist macro=AD - "
-	    ."! warped_values macro=C where_is_element=get_element "
-	    ."                get_element=m_value_element m_value=Cv") ;
+            ."! warped_values macro=C where_is_element=get_element "
+            ."                get_element=m_value_element m_value=Cv") ;
 ok($inst1,"loaded some data in master_model instance") ;
 
 my $dump1 = $root1->dump_tree(mode => 'full') ;
@@ -97,9 +97,9 @@ ok($dump1,"dumped master instance") ;
 
 my $meta_inst = $meta_model
   -> instance (root_class_name   => 'Itself::Model', 
-	       instance_name     => 'itself_instance',
-	       root_dir          => $wr_model1,
-	      );
+               instance_name     => 'itself_instance',
+               root_dir          => $wr_model1,
+              );
 ok($meta_inst,"Read Itself::Model and created instance") ;
 
 
@@ -109,10 +109,10 @@ my $meta_root = $meta_inst -> config_root ;
 my $rw_obj = Config::Model::Itself -> new(model_object => $meta_root) ;
 
 my $map = $rw_obj -> read_all( 
-			      model_dir => 'data',
-			      root_model => 'MasterModel',
-			      legacy => 'ignore',
-			     ) ;
+                              model_dir => 'data',
+                              root_model => 'MasterModel',
+                              legacy => 'ignore',
+                             ) ;
 
 ok(1,"Read all models in data dir") ;
 
@@ -121,41 +121,42 @@ print $meta_model->list_class_element if $trace ;
 my $expected_map 
   = {
      'MasterModel/HashIdOfValues.pl' => [
-			     'MasterModel::HashIdOfValues'
-			    ],
+                             'MasterModel::HashIdOfValues'
+                            ],
      'MasterModel/CheckListExamples.pl' => [
-				'MasterModel::CheckListExamples'
-			       ],
+                                'MasterModel::CheckListExamples'
+                               ],
      'MasterModel.pl' => [
-			  'MasterModel::SubSlave2',
-			  'MasterModel::SubSlave',
-			  'MasterModel::SlaveZ',
-			  'MasterModel::SlaveY',
-			  'MasterModel'
-			 ],
+                          'MasterModel::SubSlave2',
+                          'MasterModel::SubSlave',
+                          'MasterModel::SlaveZ',
+                          'MasterModel::SlaveY',
+                          'MasterModel::TolerantNode',
+                          'MasterModel'
+                         ],
      'MasterModel/WarpedId.pl' => [
-		       'MasterModel::WarpedIdSlave',
-		       'MasterModel::WarpedId'
-		      ],
+                       'MasterModel::WarpedIdSlave',
+                       'MasterModel::WarpedId'
+                      ],
      'MasterModel/X_base_class.pl' => [
-			   'MasterModel::X_base_class2',
-			   'MasterModel::X_base_class',
-			  ],
+                           'MasterModel::X_base_class2',
+                           'MasterModel::X_base_class',
+                          ],
      'MasterModel/WarpedValues.pl' => [
-			   'MasterModel::RSlave',
-			   'MasterModel::Slave',
-			   'MasterModel::WarpedValues'
-			  ],
+                           'MasterModel::RSlave',
+                           'MasterModel::Slave',
+                           'MasterModel::WarpedValues'
+                          ],
      'MasterModel/SshdWithAugeas.pl' => [
-					 'MasterModel::SshdWithAugeas',
-					],
+                                         'MasterModel::SshdWithAugeas',
+                                        ],
      'MasterModel/References.pl' => [
-				     'MasterModel::References::Host',
-				     'MasterModel::References::If',
-				     'MasterModel::References::Lan',
-				     'MasterModel::References::Node',
-				     'MasterModel::References'
-				    ],
+                                     'MasterModel::References::Host',
+                                     'MasterModel::References::If',
+                                     'MasterModel::References::Lan',
+                                     'MasterModel::References::Node',
+                                     'MasterModel::References'
+                                    ],
     };
 
 is_deeply($expected_map, $map, "Check file class map") ;
@@ -189,7 +190,7 @@ wr_cds("$wr_conf1/orig.cds",$cds);
 
 #create a 2nd empty model
 my $meta_inst2 = $meta_model->instance (root_class_name   => 'Itself::Model', 
-			      instance_name     => 'itself_instance', );
+                              instance_name     => 'itself_instance', );
 
 my $meta_root2 = $meta_inst2 -> config_root ;
 $meta_root2 -> load ($cds) ;
@@ -206,7 +207,7 @@ print Dumper $pdata2 if $trace ;
 # create 3rd instance 
 
 my $meta_inst3 = $meta_model->instance (root_class_name   => 'Itself::Model', 
-			      instance_name     => 'itself_instance', );
+                              instance_name     => 'itself_instance', );
 
 my $meta_root3 = $meta_inst3 -> config_root ;
 $meta_root3 -> load_data ($pdata2) ;
@@ -234,10 +235,10 @@ my $model4 = Config::Model->new(legacy => 'ignore',model_dir => $wr_model1) ;
 #ok(1,"loaded MasterModel::Created") ;
 
 my $inst4 = $model4->instance (root_class_name   => 'MasterModel', 
-			       instance_name     => 'test_instance',
-			       'root_dir'  => $wr_conf1,
+                               instance_name     => 'test_instance',
+                               'root_dir'  => $wr_conf1,
 
-			      );
+                              );
 ok($inst4,"Read MasterModel and created instance") ;
 
 my $root4 = $inst4->config_root ;
