@@ -1,4 +1,9 @@
-2010-07-22  Dominique Dumont  <domi.dumont@free.fr>
+2010-08-08  Dominique Dumont  <domi.dumont@free.fr> 1.309
+
+	* lib/Config/Model/Tk/AnyViewer.pm (add_help): Fix bug that hid
+	summary and help text
+
+2010-07-22  Dominique Dumont  <domi.dumont@free.fr> 1.308
 
 	* MANIFEST.SKIP: added libconfig to avoid accidental upload of
 	Debian test packages
