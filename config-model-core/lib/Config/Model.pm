@@ -28,10 +28,6 @@ use vars qw(@status @level @experience_list %experience_index
 
 Config::Model - Framework to create configuration validation tools and editors
 
-=head1 VERSION
-
-version 1.205
-
 =head1 SYNOPSIS
 
  # create new Model object

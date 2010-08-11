@@ -69,32 +69,10 @@ my $build = $class->new
    script_files   => [ 'config-edit' ],
    dist_abstract  => 'Describe, edit and validate configuration data',
    dist_author    => 'Dominique Dumont (ddumont at cpan dot org)',
-   requires       => {
-		      'Term::ReadLine'    => 0,
-		      'Log::Log4perl'     => '1.11', # for TRACE log level
-		      'Parse::RecDescent' => '1.90.0',
-		      'Scalar::Util'      => 0, # provided by perl 5.8.0
-		      'Exception::Class'  => 0,
-		      'Carp::Assert::More' => 0,
-                      'Moose'             => 0,
-		      # should be part of core perl since perl5.003007
-		      # but some do not have it 
-		      'IO::File'          => 0, 
-		      # YAML backend
-		      'YAML::Any'         => '0.303',
-		     },
-   build_requires => {
-		      'Config::Tiny'      => 0,
-                      'Text::Template'    => 0,
-		      'Test::More'        => 0,
-		      'Test::Exception'   => 0,
-		      'Test::Warn'        => '0.11', # tests fail with 0.08
-		     },
-   recommends => {
-		  # recommended modules to get more reader/writer
-		  'Config::Tiny' => 0,
-   },
-   meta_merge => {
+
+##{ $plugin->get_prereqs ##}
+
+    meta_merge => {
                   resources => {
                     homepage => 'http://config-model.wiki.sourceforge.net',
                     MailingList => 'https://lists.sourceforge.net/lists/listinfo/config-model-users',

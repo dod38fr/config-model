@@ -207,10 +207,6 @@ __END__
 
 Config::Model::Backend::ComplexIni - Read and write config as a INI file
 
-=head1 VERSION
-
-version 1.205
-
 =head1 SYNOPSIS
 
   # model declaration
