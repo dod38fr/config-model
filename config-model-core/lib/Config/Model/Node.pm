@@ -77,6 +77,12 @@ Config::Model::Node - Class for configuration tree node
    description       => [ X => 'X-ray description (can be long)' ],
    summary           => [ X => 'X-ray' ],
 
+   accept            => [ { name_match => 'ip.*',
+                            type => 'leaf',
+                            value_type => 'uniline',
+                            summary => 'ip address',
+                          }
+                        ]
   );
 
  my $instance = $model->instance (root_class_name => 'OneConfigClass', 
@@ -199,9 +205,36 @@ configuration files.
 Parameters used to load on demand configuration data. 
 See L<Config::Model::AutoRead> for details.
 
+=item B<accept>
+
+Optional list of criteria to accept unknown parameters. Each criteria will have
+a list of specification that will enable C<Config::Model> to create a model
+snippet for the unknown element.
+
+Example:
+
+  accept =>      [
+                    {
+                            name_match => 'list.*',
+                            type => 'list',
+                            cargo => {
+                                        type => 'leaf',
+                                        value_type => 'string',
+                                     } ,
+                     },
+                     {
+                            name_match => 'str.*',
+                            type => 'leaf',
+                            value_type => 'uniline'
+                     },
+                  ]
+
+All C<element> parameter and C<name_match> can be used for C<accept>.
+
+=for html
+<p>For more information, see <a href="http://ddumont.wordpress.com/2010/05/19/improve-config-upgrade-ep-02-minimal-model-for-opensshs-sshd_config/">this blog<\a>.</p>
+
 =back
-
-
 
 =head1 Element declaration
 

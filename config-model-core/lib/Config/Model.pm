@@ -100,7 +100,9 @@ configuration values. More importantly, a generic user interface will
 need to explore the configuration model to be able to generate at
 run-time relevant configuration screens.
 
-Simple text interface if provided in this module. Curses and Tk interfaces are provided by L<Config::Model::CursesUI> and L<Config::Model::TkUI>.
+Simple text interface if provided in this module. Curses and Tk
+interfaces are provided by L<Config::Model::CursesUI> and
+L<Config::Model::TkUI>.
 
 =head1 Constructor
 
@@ -247,7 +249,7 @@ The class elements
 
 =back
 
-Each element will feature:
+Each element will specify:
 
 =over
 
@@ -266,20 +268,17 @@ The default values of parameters (if any)
 
 =item *
 
-Mandatory parameters
+Whether the parameter is mandatory
 
 =item *
 
-Targeted audience (beginner, advance, master)
+Targeted audience (beginner, advance, master), i.e. the level of
+expertise required to tinker a parameter (to hide expert parameters
+from newbie eyes)
 
 =item *
 
 On-line help (for each parameter or value of parameter)
-
-=item *
-
-The level of expertise of each parameter (to hide expert parameters
-from newbie eyes)
 
 =back
 
@@ -573,22 +572,11 @@ sub check_class_parameters {
         'generated_by',
         'class_description',
     ) ;
- 
+
     foreach my $info (@info_to_move) {
         next unless defined $raw_model->{$info} ;
         $model->{$info} = delete $raw_model->{$info} ;
     }
-
-    # get accept parameter
-    #if (defined $raw_model->{accept}) {
-    #    $model->{accept} = delete $raw_model->{accept};
-        # foreach my $acc (@{$model->{accept}}){
-            # foreach my $dprop (keys %default_property) {
-                # $acc->{$dprop} ||= $default_property{$dprop} ;
-            # }
-        # }
-    #}
-
 
     # check for duplicate in @element_list.
     my %check_list ;
@@ -654,7 +642,6 @@ sub check_class_parameters {
                 die "Unexpected element $item in $config_class_name model";
             }
 
- 
         }
     }
 
@@ -744,7 +731,8 @@ sub translate_legacy_info {
 
     # refer_to cannot be warped
     if (defined $info->{refer_to}) {
-        $self->translate_compute_info($config_class_name,$elt_name, $info,refer_to => 'computed_refer_to');
+        $self->translate_compute_info($config_class_name,$elt_name, $info,
+									  refer_to => 'computed_refer_to');
     }
     if (    defined $info->{cargo} 
         and defined $info->{cargo}{refer_to}) {
@@ -1723,6 +1711,24 @@ L<Config::Model::WarpedNode> <- <- L<Config::Model::WarpedThing> <- L<Config::Mo
 =head2 command line
 
 L<config-edit>
+
+=head2 Read and write backends
+
+=over
+
+=item *
+
+L<Config::Model::Backend::IniFile> <- L<Config::Model::Backend::Any>
+
+=item *
+
+L<Config::Model::Backend::ShellVar> <- L<Config::Model::Backend::Any>
+
+=item *
+
+L<Config::Model::Backend::Yaml> <- L<Config::Model::Backend::Any>
+
+=back
 
 =head2 Model utilities
 

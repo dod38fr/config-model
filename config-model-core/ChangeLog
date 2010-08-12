@@ -1,5 +1,21 @@
-2010-07-23  Dominique Dumont  <domi.dumont@free.fr>
+2010-07-23  Dominique Dumont  <domi.dumont@free.fr> 1.206
 
+	First version to feature code written during Google Summer of Code 2010.
+	For this GSoC, Krzysztof Tyszecki has provided:
+	* a new backend for INI file that can:
+	    * read and write comments to and from annotations. This way
+	      users comments are preserved
+	    * read and write parameters that are repeated in the INI file. This
+	      repeated parameters will be loaded in list elements
+	* the capacity to load annotation from perl data structure
+	* a new model feature to accept unknown element. This will enable
+	loading and writing configuration files even if parameters are
+	unknown. This feature is required to create models targeted for
+	configuration upgrades: only upgrade and migration specifications
+	need to be specified in a model. Parameters that don't change from
+	one version to another need not to be specified in the model.
+
+	Other changes:
 	* lib/Config/Model/Loader.pm (_walk_node): bug fix to load node
 	element annotation
 	* lib/Config/Model/Dumper.pm (): bug fix to dump hash and list
