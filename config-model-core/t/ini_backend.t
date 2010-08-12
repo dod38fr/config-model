@@ -40,7 +40,7 @@ rmtree($wr_root);
 # set_up data
 my @orig = <DATA> ;
 
-my $test1 = 'cini1' ;
+my $test1 = 'ini1' ;
 my $wr_dir = $wr_root.'/'.$test1 ;
 my $conf_file = "$wr_dir/etc/test.ini" ;
 
@@ -51,9 +51,9 @@ print CONF @orig ;
 close CONF ;
 
 my $i_test = $model->instance(instance_name    => 'test_inst',
-                   root_class_name  => 'Cini',
+                   root_class_name  => 'IniTest',
                    root_dir    => $wr_dir ,
-                   model_file       => 't/test_cini_model.pl',
+                   model_file       => 't/test_ini_backend_model.pl',
                   );
 
 ok( $i_test, "Created instance" );
@@ -78,19 +78,19 @@ my $orig = $i_root->dump_tree ;
 print $orig if $trace ;
 
 $i_test->write_back ;
-ok(1,"ComplexIni write back done") ;
+ok(1,"IniFile write back done") ;
 
-my $cini_file      = $wr_dir.'/etc/test.ini';
-ok(-e $cini_file, "check that config file $cini_file was written");
+my $ini_file      = $wr_dir.'/etc/test.ini';
+ok(-e $ini_file, "check that config file $ini_file was written");
 
-# create another instance to read the ComplexIni that was just written
-my $wr_dir2 = $wr_root.'/cini2' ;
+# create another instance to read the IniFile that was just written
+my $wr_dir2 = $wr_root.'/ini2' ;
 mkpath($wr_dir2.'/etc',{ mode => 0755 })   || die "can't mkpath: $!";
 copy($wr_dir.'/etc/test.ini',$wr_dir2.'/etc/') 
   or die "can't copy from test1 to test2: $!";
 
 my $i2_test = $model->instance(instance_name    => 'test_inst2',
-                               root_class_name  => 'Cini',
+                               root_class_name  => 'IniTest',
                                root_dir    => $wr_dir2 ,
                               );
 

@@ -446,6 +446,8 @@ Log4perl uses the following categories:
 
 =item Model::Load
 
+=item Data
+
 =item Data::Read
 
 =item Data::Write

@@ -1,8 +1,3 @@
-# 
-# This file is part of Config-Model
-# 
-# This software is Copyright (c) 2010 by Dominique Dumont.
-# 
 # This is free software, licensed under:
 # 
 #   The GNU Lesser General Public License, Version 2.1, February 1999
@@ -25,7 +20,7 @@
 #    along with Config-Model; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 
-package Config::Model::Backend::ComplexIni ;
+package Config::Model::Backend::IniFile ;
 
 use Carp;
 use strict;
@@ -37,7 +32,7 @@ use Log::Log4perl qw(get_logger :levels);
 
 use base qw/Config::Model::Backend::Any/;
 
-my $logger = get_logger("Backend::ComplexIni") ;
+my $logger = get_logger("Backend::IniFile") ;
 
 sub suffix { return '.ini' ; }
 
@@ -205,7 +200,7 @@ __END__
 
 =head1 NAME
 
-Config::Model::Backend::ComplexIni - Read and write config as a INI file
+Config::Model::Backend::IniFile - Read and write config as a INI file
 
 =head1 SYNOPSIS
 
@@ -213,7 +208,7 @@ Config::Model::Backend::ComplexIni - Read and write config as a INI file
   name => 'FooConfig',
 
   read_config  => [
-                    { backend => 'ComplexIni',
+                    { backend => 'IniFile',
                       config_dir => '/etc/foo',
                       file  => 'foo.conf',      # optional
                       auto_create => 1,         # optional

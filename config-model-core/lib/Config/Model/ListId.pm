@@ -24,11 +24,8 @@ use Log::Log4perl qw(get_logger :levels);
 use warnings ;
 use Carp;
 use strict;
-our $VERSION="1.201";
-
 use base qw/Config::Model::AnyId/ ;
 
-# use vars qw($VERSION) ;
 my $logger = get_logger("Tree::Element::Id::List") ;
 
 =head1 NAME

@@ -20,9 +20,6 @@ package Config::Model::AnyThing;
 use Scalar::Util qw(weaken);
 use Carp;
 use strict;
-our $VERSION="1.202";
-
-# use vars qw($VERSION);
 
 =head1 NAME
 
