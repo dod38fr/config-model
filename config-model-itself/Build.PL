@@ -30,16 +30,9 @@ my $build = Module::Build->new
    license       => 'lgpl',
    dist_author   => "Dominique Dumont (ddumont at cpan dot org)",
    dist_abstract => "Graphical model editor for Config::Model",
-   requires      => {
-		     'Config::Model'   => '1.001',
-		     'Log::Log4perl'   => 0 ,
-		     'Config::Model::TkUI' => '1.210',
-		     'Pod::POM'        => 0,
-		     'YAML::Any'       => 0,
 
-		     # avoid failures on CPAN smoke tests
-		     'Tk'              => 0, 
-		    },
+##{ $plugin->get_prereqs ##}
+
    script_files  => [ 'config-model-edit' ],
    add_to_cleanup => [qw/wr_test/] ,
   );

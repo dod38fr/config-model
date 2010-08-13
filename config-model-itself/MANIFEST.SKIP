@@ -29,6 +29,7 @@
 \#$
 \.#
 \.rej$
+\.orig$
 
 # Avoid OS-specific files/dirs
 #   Mac OSX metadata
@@ -38,3 +39,7 @@
 # Avoid archives of this distribution
 \bConfig-Model-Itself-[\d\.\_]+
 ^MYMETA.yml$
+
+# avoid debian packages
+^debian
+dist.ini

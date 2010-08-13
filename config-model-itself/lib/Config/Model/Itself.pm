@@ -28,8 +28,6 @@ use File::Find ;
 use File::Path ;
 use File::Basename ;
 
-our $VERSION = '1.215';
-
 my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
 =head1 NAME
