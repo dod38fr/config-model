@@ -1,8 +1,4 @@
-# $Author$
-# $Date$
-# $Revision$
-
-#    Copyright (c) 2005,2006 Dominique Dumont.
+#    Copyright (c) 2005,2006,2010 Dominique Dumont.
 #
 #    This file is part of Config-Model.
 #
@@ -35,10 +31,10 @@ use File::Path ;
 use vars qw/$model/ ;
 
 
-my $use_sample = 0;
-GetOptions ("use_sample" => \$use_sample);
+my $use_etc = 1;
+GetOptions ("use_etc" => \$use_etc);
 
-my $fstab_file = $use_sample ? 'fstab.sample' : '/etc/fstab' ;
+my $fstab_file = $use_etc ?  '/etc/fstab' : 'fstab.sample'  ;
 
 $model = Config::Model -> new(model_dir => '.') ;
 
@@ -49,10 +45,10 @@ my $instance = $model -> instance( root_class_name => 'Fstab',
 my $root= $instance -> config_root ;
 
 print "
-The first part of this example program will read your $fstab_file.
-Bear in mind that the Fstab model provided in this example is far from
-being complete.  If this program fails to read your /etc/fstab, please
-re-run it with '-use_sample' option.
+The first part of this example program will read a sample fstab file. You
+can run this program with -use_etc to load /etc/fstab.
+Just bear in mind that the Fstab model provided in this example is far from
+being complete and may fail to read your file.
 
 ";
 

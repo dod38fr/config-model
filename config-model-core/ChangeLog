@@ -20,6 +20,7 @@
 	element annotation
 	* lib/Config/Model/Dumper.pm (): bug fix to dump hash and list
 	element annotations
+	* Fixed Fstab example
 
 2010-06-04  Dominique Dumont  <domi.dumont@free.fr> 1.205
 

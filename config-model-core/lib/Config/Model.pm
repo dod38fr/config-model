@@ -1552,7 +1552,7 @@ sub get_element_property {
     if (not defined $self->{model}{$class}{element}{$prop} ) {
         foreach my $acc ( @{$self->{model}{$class}{accept}} ) {
             return $acc->{$prop} || $default_property{$prop} 
-                if $elt =~ /$acc->{name_match}/;
+                if not defined $acc->{name_match} or $elt =~ /$acc->{name_match}/;
         }
     }
     
