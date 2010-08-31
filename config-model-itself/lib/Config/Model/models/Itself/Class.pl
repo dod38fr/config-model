@@ -180,6 +180,17 @@
            level => 'normal',
            description => 'Specify the configuration file (without path) that will store configuration information',
            },
+       'comment_delimiter'
+       => {
+           type => 'leaf',
+           value_type => 'uniline' ,
+           level => 'hidden',
+           description => 'comment starts with this character',
+           upstream_default => '#',
+           warp => { follow => '- backend',
+                     rules => [ ini_file => { level => 'normal', } ],
+                   }
+          },
        'set_in'
        => {
            type => 'leaf',
