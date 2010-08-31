@@ -65,16 +65,17 @@ sub read {
     #Get the 'right' ref
     my $r = \%data;
     my $a = \%annot;
+    my $delimiter = $args{comment_delimiter} || '#' ;
 
     #FIXME: Is it possible to store the comments with their location
     #in the file?  It would be nice if comments that are after values
     #in input file, would be written in the same way in the output
     #file.  Also, comments at the end of file are being ignored now.
     foreach ($args{io_handle}->getlines) {
-        next if /^##/ ;		  # remove comments added by Config::Model
+        next if /^$delimiter$delimiter/ ;		  # remove comments added by Config::Model
         chomp ;
 
-        my ($vdata,$comment) = split /\s*#\s?/ ;
+        my ($vdata,$comment) = split /\s*$delimiter\s?/ ;
 
         push @global_comments, $comment if defined $comment and $global_zone;
         push @comments, $comment        if (defined $comment and not $global_zone);
@@ -139,12 +140,13 @@ sub write {
 
     my $ioh = $args{io_handle} ;
     my $node = $args{object} ;
+    my $delimiter = $args{comment_delimiter} || '#' ;
 
     croak "Undefined file handle to write" unless defined $ioh;
     
-    $ioh->print("## file written by Config::Model\n");
+    $ioh->print($delimiter x 2 ." file written by Config::Model\n");
     my $global_comment = $node->annotation ;
-    $ioh->print("# $global_comment\n\n") if $global_comment ;
+    $ioh->print("$delimiter $global_comment\n\n") if $global_comment ;
 
     $self->_write(@_) ;
 }
@@ -155,6 +157,7 @@ sub _write {
 
     my $ioh = $args{io_handle} ;
     my $node = $args{object} ;
+    my $delimiter = $args{comment_delimiter} || '#' ;
 
     # Using Config::Model::ObjTreeScanner would be overkill
     foreach my $elt ($node->get_element_name) {
@@ -162,7 +165,7 @@ sub _write {
 
         my $note = $obj->annotation;
         
-        map { $ioh->print("# $_\n") } $note if $note;
+        map { $ioh->print("$delimiter $_\n") } $note if $note;
 
         if ($node->element_type($elt) eq 'node'){
             $ioh->print("[$elt]\n");
@@ -175,7 +178,7 @@ sub _write {
             foreach my $item ($obj->fetch_all('custom')) {
                 my $note = $item->annotation;
                 my $v = $item->fetch ;
-                $ioh->print("# $note\n") if $note ;
+                $ioh->print("$delimiter $note\n") if $note ;
                 $ioh->print("$elt=$v\n") ;
                 $ioh->print("\n");
             }
@@ -183,7 +186,7 @@ sub _write {
         else {
             my $v_obj = $node->grab($elt) ;
             my $note = $v_obj->annotation;
-            $ioh->print("# $note\n") if $note ;
+            $ioh->print("$delimiter $note\n") if $note ;
             my $v = $v_obj->fetch ;
             # write value
             $ioh->print("$elt=$v\n") if defined $v ;
@@ -212,6 +215,7 @@ Config::Model::Backend::IniFile - Read and write config as a INI file
                       config_dir => '/etc/foo',
                       file  => 'foo.conf',      # optional
                       auto_create => 1,         # optional
+                      comment_delimiter => ';', # optional, default is '#'
                     }
                   ],
 
@@ -224,6 +228,10 @@ Config::Model::Backend::IniFile - Read and write config as a INI file
 This module is used directly by L<Config::Model> to read or write the
 content of a configuration tree written with INI syntax in
 C<Config::Model> configuration tree.
+
+This INI file can have arbitrary comment delimeter. See the example 
+in the SYNOPSIS that sets a semi-column as comment delimeter. 
+By default the comment delimeter is '#' like in Shell or Perl.
 
 Note that undefined values are skipped for list element. I.e. if a
 list element contains C<('a',undef,'b')>, the data structure will
