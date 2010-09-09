@@ -8,6 +8,7 @@ use warnings FATAL => qw(all);
 use ExtUtils::testlib;
 use Test::More tests => 73 ;
 use Config::Model ;
+use Test::Exception ;
 
 use strict;
 
@@ -106,6 +107,13 @@ $model ->create_config_class
 	   index_type  => 'string',
 	   @element ,
 	   allow_from  => '- hash_with_several_auto_created_id',
+	  },
+       hash_with_allow_keys_matching
+       => {
+	   type => 'hash',
+	   index_type  => 'string',
+	   @element ,
+	   allow_keys_matching  => '^foo\d{2}$',
 	  },
        hash_with_follow_keys_from
        => {
@@ -342,3 +350,9 @@ is_deeply([$oh->get_all_indexes], [qw/d a e2/],
 
 $v = $oh->fetch_with_id('a')->fetch ;
 is($v, 'vc',"Check moved value") ;
+
+my $hwakm = $root->fetch_element('hash_with_allow_keys_matching') ;
+throws_ok { $hwakm->fetch_with_id('bar2') ;} 'Config::Model::Exception::WrongValue',
+   "check not matching key" ;
+
+ok($hwakm->fetch_with_id('foo22'),"check matching key") ;
