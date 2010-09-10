@@ -6,7 +6,7 @@
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
-use Test::More tests => 73 ;
+use Test::More tests => 75 ;
 use Config::Model ;
 use Test::Exception ;
 

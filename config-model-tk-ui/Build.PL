@@ -20,10 +20,12 @@
 use Module::Build;
 
 require 5.008 ;
+my @version_info = @ARGV ? (dist_version => $ARGV[0]) : () ;
 
 my $build = Module::Build->new
   (
    module_name => 'Config::Model::TkUI',
+   @version_info,
    license => 'lgpl',
    dist_abstract => "Tk GUI to edit config data through Config::Model",
    dist_author  => "Dominique Dumont (ddumont at cpan dot org)",

@@ -80,6 +80,7 @@
       'warp' 
       => { type => 'warped_node' , # ?
            level => 'hidden',
+           experience => 'advanced',
            follow => { elt_type => '- type' } ,
            rules  => [
                       '$elt_type ne "node"' =>

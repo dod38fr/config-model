@@ -107,7 +107,7 @@ sub Populate {
 
     # bind both entries to update correctly the state of all buttons
     my $bound_sub = sub { 
-	$cw->update_state(entry => $item , tklist => $tklist->curselection) 
+	$cw->update_state(entry => $item , tklist => $tklist->curselection || 0) 
     };
     $entry -> bind( '<KeyPress>'       , $bound_sub );
     $tklist-> bind( '<<ListboxSelect>>', $bound_sub );

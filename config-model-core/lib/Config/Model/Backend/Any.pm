@@ -39,7 +39,7 @@ has 'node'       => ( is => 'ro', isa => 'Config::Model::Node',
 
 sub suffix {
     my $self = shift ;
-    $logger->error("Internal error: suffix called for backend $self->{name}. But this method should be overloaded") ;
+    $logger->warn("Internal warning: suffix called for backend $self->{name}.This method can be overloaded") ;
 }
 
 sub read {

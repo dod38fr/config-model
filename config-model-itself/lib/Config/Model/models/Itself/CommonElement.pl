@@ -97,6 +97,7 @@
 	   value_type => 'integer',
 	   level => 'hidden',
 	   description => 'minimum value',
+	   experience => 'advanced',
 	   warp => { follow => {
 				'type'  => '?type',
 				'vtype' => '?value_type' ,
@@ -119,6 +120,7 @@
 	   value_type => 'integer',
 	   level => 'hidden',
 	   description => 'maximum value',
+	   experience => 'advanced',
 	   warp => { follow => {
 				'type'  => '?type',
 				'vtype' => '?value_type' ,
@@ -140,6 +142,7 @@
       => { type => 'leaf',
 	   value_type => 'integer',
 	   level => 'hidden',
+	   experience => 'advanced',
 	   description => 'minimum number of indexes',
 	   warp => { follow => {'type'  => '?type',},
 		     'rules'
@@ -153,6 +156,7 @@
       => { type => 'leaf',
 	   value_type => 'integer',
 	   level => 'hidden',
+	   experience => 'advanced',
 	   description => 'maximum number of keys',
 	   warp => { follow => {'type'  => '?type',},
 		     'rules'
@@ -196,6 +200,7 @@
       => { type => 'leaf',
 	   value_type => 'enum',
 	   level => 'hidden',
+	   experience => 'advanced',
 	   description => 'When stored, the value will be converted to uppercase (uc) or lowercase (lc).',
 	   warp => {  follow => { 't' => '?type'},
 		      'rules'
@@ -213,7 +218,30 @@
       => { type => 'leaf',
 	   value_type => 'uniline',
 	   level => 'hidden',
+	   experience => 'advanced',
 	   description => 'Perl regular expression to assert the validity of the value.',
+	   warp => {  follow => { 'type' => '?type',
+				  'vtype' => '?value_type' ,
+				},
+		      'rules'
+		      => [ '    $type eq "leaf" 
+                            and (    $vtype eq "uniline" 
+                                  or $vtype eq "string" 
+                                )
+                          '
+			  => {
+			      level => 'normal',
+			     }
+			 ]
+		   },
+	 },
+
+      'grammar'
+      => { type => 'leaf',
+	   value_type => 'string',
+	   level => 'hidden',
+	   experience => 'advanced',
+	   description => "Feed this grammar to Parse::RecDescent to perform validation",
 	   warp => {  follow => { 'type' => '?type',
 				  'vtype' => '?value_type' ,
 				},

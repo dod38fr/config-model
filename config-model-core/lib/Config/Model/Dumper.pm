@@ -89,7 +89,7 @@ sub quote {
     my @res = @_ ;
     foreach (@res) {
 	if (    defined $_ 
-		and ( /(\s|")/ or $_ eq '')
+		and ( /(\s|"|\*)/ or $_ eq '')
 	   ) {
 	    s/"/\\"/g ; # escape present quotes
 	    $_ = '"' . $_ . '"' ; # add my quotes

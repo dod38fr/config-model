@@ -263,7 +263,10 @@ my $rw_obj = Config::Model::Itself -> new(model_object => $meta_root ) ;
 
 my $read_model_dir = $model_dir || $dev_model_dir ;
 
-if (not -e $read_model_dir.'/'.$root_model.'.pl') {
+my $root_model_file = $root_model ;
+$root_model_file =~ s!::!/!g ;
+
+if (not -e $read_model_dir.'/'.$root_model_file.'.pl') {
     $read_model_dir =  $INC{'Config/Model.pm'} ;
     $read_model_dir =~ s/\.pm//;
     $read_model_dir .= '/models' ;

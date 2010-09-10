@@ -1269,7 +1269,7 @@ sub check_value {
     if (defined $self->{validation_parser} and defined $value) {
 	my $prd = $self->{validation_parser};
 	push @error,"value '$value' does not match grammar " .$self->{grammar} 
-		unless $prd->check ( $value,1);
+		unless $prd->check ( $value,1,$self);
     }
 
     $self->{error} = \@error ;

@@ -250,6 +250,7 @@ sub auto_read_init {
             my $res = $backend_obj->$f(@read_args, 
                                        file_path => $file_path,
                                        io_handle => $fh,
+                                       object => $self,
                                       );
             if ($res) {
                 $read_done = 1 ;

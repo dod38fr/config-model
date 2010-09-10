@@ -1,3 +1,8 @@
+2010-09-10  Dominique Dumont  <domi.dumont@free.fr> 1.310
+
+	* lib/Config/Model/Tk/HashEditor.pm (Populate): Fix bug that messed up 
+	  effects of 'add' and 'move_down' buttons.
+
 2010-08-08  Dominique Dumont  <domi.dumont@free.fr> 1.309
 
 	* lib/Config/Model/Tk/AnyViewer.pm (add_help): Fix bug that hid

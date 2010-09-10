@@ -29,6 +29,7 @@
        => { type => 'leaf',
             level => 'hidden',
             value_type => 'uniline' ,
+	    experience => 'advanced',
             warp => {  follow => { 't' => '?type'},
                        'rules'
                        => [ '$t eq "hash"' 
@@ -58,6 +59,7 @@
        => { type => 'list',
             level => 'hidden',
             cargo => { type => 'leaf', value_type => 'string'} ,
+	    experience => 'advanced',
             warp => {  follow => { 't' => '?type' },
                        'rules'
                        => [ '$t eq "hash"'
@@ -72,6 +74,7 @@
        => { type => 'leaf',
             level => 'hidden',
             value_type => 'string' ,
+	    experience => 'advanced',
             warp => {  follow => { 't' => '?type' },
                        'rules'
                        => [ '$t eq "list"'
@@ -115,7 +118,26 @@
 
 
 
-       [qw/replace help/]
+       'replace'
+       => {
+           type => 'hash',
+           index_type => 'string',
+           level => 'hidden',
+	   experience => 'advanced',
+           warp => {  follow => { 't' => '?type' },
+                      'rules'
+                      => [ '$t eq "leaf" or $t eq "check_list"'
+                           => {
+                               level => 'normal',
+                              }
+                         ]
+                   },
+           # TBD this could be a reference if we restrict replace to
+           # enum value...
+           cargo => { type => 'leaf', value_type => 'string' } ,
+          },
+
+       help
        => {
            type => 'hash',
            index_type => 'string',

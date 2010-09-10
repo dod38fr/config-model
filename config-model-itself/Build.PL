@@ -23,6 +23,7 @@ use Data::Dumper ;
 use warnings FATAL => qw(all) ;
 use strict ;
 
+my @version_info = @ARGV ? (dist_version => $ARGV[0]) : () ;
 
 my $build = Module::Build->new
   (
@@ -30,6 +31,7 @@ my $build = Module::Build->new
    license       => 'lgpl',
    dist_author   => "Dominique Dumont (ddumont at cpan dot org)",
    dist_abstract => "Graphical model editor for Config::Model",
+   @version_info,
 
 ##{ $plugin->get_prereqs ##}
 
