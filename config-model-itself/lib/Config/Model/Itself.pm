@@ -431,7 +431,10 @@ sub get_dot_diagram {
             my $type = $elts->[$idx+1]{type} ;
 
             foreach my $elt_name (@elt_names) {
-                $elt_list .= "- $elt_name ($type)\\n";
+                my $of = '';
+                my $cargo = $elts->[$idx+1]{cargo}{type} ;
+                $of = " of $cargo" if defined $cargo ;
+                $elt_list .= "- $elt_name ($type$of)\\n";
                 $use .= $self->scan_used_class($d_class,$elt_name,
                                                $elts->[$idx+1]);
             }
