@@ -166,10 +166,13 @@ STDIN.
 
 =item -load_yaml <yaml_file_to_load> | -
 
-Load configuration data in model from cds file (using Config::Model
-serialisation format, typically done with -dump_yaml option). This
+Load configuration data in model from YAML file. This
 option can be used with C<-save> to directly save a model loaded from
 the YAML file or from STDIN.
+
+=item -dump_yaml 
+
+Dump a model in YAML format
 
 =item -save
 
