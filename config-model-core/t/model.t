@@ -105,6 +105,7 @@ $class_name = $model ->create_config_class
    name => "Master",
    experience => [[qw/captain array_args hash_args/] => 'beginner' ],
    level     => [qw/captain/ => 'important' ] ,
+   force_element_order => [qw/captain array_args hash_args/],
    element => [
                 captain => { 
                          type => 'node',
