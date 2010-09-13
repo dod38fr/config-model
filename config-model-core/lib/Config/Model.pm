@@ -556,6 +556,30 @@ sub check_class_parameters {
         push @element_list, ref($item) ? @$item : ($item) ;
     }
 
+    # optional parameter to force element order. Useful when parameters declarations 
+    # are grouped. Although interaction with include may be tricky. Let's not advertise it.
+    # yet.
+    
+    if (defined $raw_model->{force_element_order}) {
+        my @forced_list = @{delete $raw_model->{force_element_order}} ;
+        my %forced = map { ($_ => 1 ) } @forced_list ;
+        foreach (@element_list) {
+            next if delete $forced{$_};
+            Config::Model::Exception::ModelDeclaration->throw
+            (
+             error=> "class $config_class_name: element $_ is not in force_element_order list"
+            ) ;
+        }
+        if (%forced) {
+            Config::Model::Exception::ModelDeclaration->throw
+            (
+             error=> "class $config_class_name: force_element_order list has unknown elements "
+                . join(' ',keys %forced)
+            ) ;
+        }
+    }
+ 
+
 
     # get data read/write information (if any)
     $model->{read_config_dir} = $model->{write_config_dir}
