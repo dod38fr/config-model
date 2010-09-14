@@ -1,10 +1,11 @@
-2010-08-13  Dominique Dumont  <domi.dumont@free.fr> 1.217
+2010-09-14  Dominique Dumont  <domi.dumont@free.fr> 1.217
 
 	* Added allow_keys_matching parameter in ItselfWarpableElement.pl
 	(requires Config::Model 1.207)
 	* config-model-edit :doc fix
-	* lib/Config/Model/Itself.pm: display hash or list cargo type
-	in dot diagram"
+	* Itself.pm: display hash or list cargo type in dot diagram"
+	* BackendDetector.pm: Fixed to handle backend names with embedded
+	:: (e.g. Debian::Dep5)
 
 2010-08-13  Dominique Dumont  <domi.dumont@free.fr> 1.216
 
