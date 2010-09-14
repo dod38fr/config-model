@@ -175,8 +175,8 @@ $tests[$i++]{check} = [
 my $idx = 0 ;
 foreach my $t (@tests) {
    my $wr_dir = $wr_root.'/dep5-'.$idx ;
-   mkpath($wr_dir, { mode => 0755 }) ;
-   my $license_file = "$wr_dir/license" ;
+   mkpath($wr_dir."/debian/", { mode => 0755 }) ;
+   my $license_file = "$wr_dir/debian/copyright" ;
 
    open(LIC,"> $license_file" ) || die "can't open $license_file: $!";
    print LIC $t->{text} ;
@@ -199,78 +199,3 @@ foreach my $t (@tests) {
    }
 }
 
-__END__
-
-my $expect = '#"Config file for Debian\'s popularity-contest package.
-
-To change this file, use:
-       dpkg-reconfigure popularity-contest"
-PARTICIPATE=yes#"we participate"
-USEHTTP#"always http"
-MY_HOSTID=aaaaaaaaaaaaaaaaaaaa
-DAY=6 -
-';
-
-is ($dump,$expect,"check data read from popcon.conf") ;
-
-$cfg->load("MY_HOSTID=bbbbbbbb") ;
-
-$inst->write_back ;
-
-open(POPCON,$conf_file) || die "Can't open $conf_file:$!" ;
-my $popconlines = join('',<POPCON>) ;
-close POPCON;
-
-like($popconlines,qr/bbbbbbbb/,"checked written popcon file") ;
-like($popconlines,qr/dpkg-reconfigure/,"checked commentns in written popcon file") ;
-
-# test instance loaded with saved config file
-my $test2 = 'popcon2' ;
-my $inst2 = $model->instance (root_class_name   => 'PopCon',
-			     instance_name     => $test2 ,
-			     root_dir          => $wr_dir,
-			    );
-ok($inst2,"Created 2nd instance") ;
-
-my $cfg2 = $inst2 -> config_root ;
-$cfg2->load("MY_HOSTID=aaaaaaaaaaaaaaaaaaaa") ;
-is($cfg2->dump_tree , $expect, "check data read from new popcon.conf") ;
-
-
-## test instance loaded with dump string
-my $test3 = 'popcon3' ;
-my $wr_dir3 = $wr_root.'/'.$test3 ;
-
-mkpath($wr_dir3.'/etc', { mode => 0755 }) 
-  || die "can't mkpath: $!";
-
-my $conf_file3 = "$wr_dir3/etc/popularity-contest.conf" ;
-open(CONF,"> $conf_file3" ) || die "can't open $conf_file3: $!";
-print CONF "## 3 nd test" ;
-close CONF ;
-
-my $inst3 = $model->instance (root_class_name   => 'PopCon',
-			     instance_name     => $test3 ,
-			     root_dir          => $wr_dir3,
-			    );
-ok($inst3,"Created 3nd instance") ;
-
-my $cfg3 = $inst3 -> config_root ;
-$cfg3->load($dump) ;
-ok(1,"loaded 3nd instance with dump from 1st instance");
-$cfg2->load("MY_HOSTID=bbbbbbbb") ;
-
-
-__END__
-# Config file for Debian's popularity-contest package.
-#
-# To change this file, use:
-#        dpkg-reconfigure popularity-contest
-
-## should be removed
-
-MY_HOSTID="aaaaaaaaaaaaaaaaaaaa"
-# we participate
-PARTICIPATE="yes"
-USEHTTP="yes" # always http
-DAY="6"
