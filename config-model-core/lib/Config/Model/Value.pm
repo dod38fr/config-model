@@ -443,7 +443,7 @@ sub setup_enum_choice {
     my @choice = ref $_[0] ? @{$_[0]} : @_ ;
 
     $logger
-      ->debug($self->name, " setup_enum_choice with '",join("','",@choice));
+      ->debug($self->name, " setup_enum_choice with '",join("','",@choice),"'");
 
     $self->{choice}  = \@choice ;
 
