@@ -1,6 +1,14 @@
+2010-08-13  Dominique Dumont  <domi.dumont@free.fr> 1.217
+
+	* Added allow_keys_matching parameter in ItselfWarpableElement.pl
+	(requires Config::Model 1.207)
+	* config-model-edit :doc fix
+	* lib/Config/Model/Itself.pm: display hash or list cargo type
+	in dot diagram"
+
 2010-08-13  Dominique Dumont  <domi.dumont@free.fr> 1.216
 
-	* Added accept parameter in Itself/Class.pl 
+	* Added accept parameter in Itself/Class.pl
 	(requires Config::Model 1.206)
 	* Build.PL: added dependency on Tk to avoid CPAN smoke test
 	failure
