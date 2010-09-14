@@ -24,8 +24,6 @@ use Carp ;
 
 use base qw/Config::Model::TkUI/;
 
-our $VERSION="1.212";
-
 Construct Tk::Widget 'ConfigModelEditUI';
 
 sub ClassInit {

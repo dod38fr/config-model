@@ -26,8 +26,6 @@ use base qw/Config::Model::Value/ ;
 use strict ;
 use warnings ;
 
-our $VERSION="1.001";
-
 sub setup_enum_choice {
     my $self = shift ;
     my @choices = ref $_[0] ? @{$_[0]} : @_ ;
