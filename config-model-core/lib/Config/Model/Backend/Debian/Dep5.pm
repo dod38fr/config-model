@@ -78,7 +78,9 @@ sub read {
             next if $lic_name =~ /\s/ ; # complex license
             next unless @lic_text; # no text to store
             $logger->debug("adding license text '@lic_text'");
-            $root->grab("License:$lic_name")->store(join("\n", @lic_text)) ;
+            my $lic_obj = $root->grab("License:$lic_name");
+            # lic_obj may not be defined in -force mode
+            $lic_obj->store(join("\n", @lic_text)) if defined $lic_obj ;
         }
     }
 
@@ -89,21 +91,21 @@ sub read {
         $logger->info("reading key $key from $args{file} control file");
         $logger->debug("$key value: $v");
         if ($key =~ /files/i) {
-            $file = $root->fetch_element($key)->fetch_with_id($v) ;
+            $file = $root->fetch_element('Files')->fetch_with_id($v) ;
             $object = $file ;
         }
         elsif ($key =~ /license/i and $object eq $root) {
             # skip license text stored in first pass
         }
         elsif ($key =~ /license/i) {
-            $object = $file->fetch_element($key) ;
+            $object = $file->fetch_element('License') ;
             my @lic_text = split /\n/,$v ;
             $object->fetch_element('abbrev')->store(shift @lic_text);
             # FIXME: license exception stuff
             $object = $root ;
         }
-        else { 
-            $object->fetch_element($key)->store($v) ;
+        elsif (my $found = $object->find_element($key, case => 'any')) { 
+            $object->fetch_element($found)->store($v) ;
         }
     }
 
