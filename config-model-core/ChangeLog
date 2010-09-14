@@ -1,7 +1,11 @@
-2010-09-13 Dominique Dumont  <domi.dumont@free.fr> 1.207
-	* Added Debian's Dep-5 model
-	* Value.pm: Added validation of value based on a Parse::RecDescent grammar
-	* AnyId.pm: Authorized keys can also be based of a  Parse::RecDescent grammar
+2010-09-14 Dominique Dumont  <domi.dumont@free.fr> 1.207
+	* Added Debian's Dep-5 model (with config-edit-dep5 CLI)
+	* Value.pm: Added validation of value based on a Parse::RecDescent
+	grammar
+	* AnyId.pm: Authorized keys can also be based of a
+	Parse::RecDescent grammar
+	* Node.pm (find_element): returns the element name (if known). Can
+	also find the element in a case insensitive manner
 
 2010-07-23  Dominique Dumont  <domi.dumont@free.fr> 1.206
 
