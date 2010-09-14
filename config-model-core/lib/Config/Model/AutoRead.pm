@@ -78,7 +78,13 @@ sub get_cfg_file_path {
         $name .= '/'.$loc ;
     }
 
-    return $name. ( $args{suffix} );
+    $name .= $args{suffix} ;
+
+    get_logger($w ? 'Data::Write' : 'Data::Read')
+          ->info("get_cfg_file_path: auto_". ($w ? 'write' : 'read') 
+                 ." $args{backend} target file is $name" );
+
+    return $name;
 }
 
 sub open_read_file {
