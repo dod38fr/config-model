@@ -31,7 +31,9 @@ print "\nIf you want to use the TermUI interface, you should install\n",
 my $code = << 'EOF';
 
 use Text::Template ;
-my %models = ( popcon => [ 'PopCon', '/etc/popularity-contest.conf']) ;
+my %models = ( popcon => [ 'PopCon', '/etc/popularity-contest.conf'],
+               dep5   => [ 'Debian::Dep5', 'License'],
+             ) ;
 
 sub process_tmpl_files {
   my $self = shift;
