@@ -711,6 +711,35 @@ sub has_element {
     return defined $self->{model}{element}{$name} ? 1 : 0 ;
 }
 
+=head2 find_element ( element_name , [ case => any ])
+
+Returns $name if the class model has the element declared or if the element 
+name is matched by the optional C<accept> parameter. 
+
+If case is set to any, has_element will return the element name who match the passed
+name in a case-insensitive manner.
+
+Returns empty if no matching element is found.
+
+=cut
+
+# should I autovivify this element: NO
+sub find_element {
+    my ($self,$name, %args ) = @_ ;
+    croak "find_element: missing element name" unless defined $name ;
+
+    $self->accept_element($name);
+    return $name if defined $self->{model}{element}{$name} ;
+
+    # now look for a close element playing with cases;
+    if (defined $args{case} and $args{case} eq 'any') {
+        foreach my $elt (keys %{$self->{model}{element}}) {
+            return $elt if lc($elt) eq lc ($name) ;
+        }
+    }
+    return ;
+}
+
 =head2 searcher ()
 
 Returns an object dedicated to search an element in the configuration
