@@ -3,6 +3,9 @@ Debian's config file locations) :
 
 - /etc/popularity-contest.conf (for Popcon)
 
+Models for users:
+- ./debian/copyright (to build Debian packages)
+
 Other models:
 
 - /etc/approx/approx.conf in Config::Model::Approx
