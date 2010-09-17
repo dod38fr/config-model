@@ -1,7 +1,7 @@
 # -*- cperl -*-
 
 use ExtUtils::testlib;
-use Test::More tests => 15;
+use Test::More tests => 18;
 use Config::Model ;
 use Log::Log4perl qw(:easy) ;
 use File::Path ;
@@ -171,6 +171,23 @@ EOD4
 $tests[$i++]{check} = [ 
                       'Files:"planet/vendor/compat_logging/*" License abbrev',"MIT",
                     ];
+
+$tests[$i]{text} = <<'EOD5' ;
+Format-Specification: http://svn.debian.org/wsvn/dep/web/deps/dep5.mdwn?op=file&amp;rev=135
+Files: *
+Copyright: 1993, John Doe
+           1993, Joe Average
+License: GPL-2+ with OpenSSL exception
+  This program is free software; you can redistribute it
+  and/or modify it under the terms of the [snip]
+
+EOD5
+
+$tests[$i++]{check} = [ 
+                      'Files:"*" License abbrev',"GPL-2+",
+                      'Files:"*" License exception',"OpenSSL",
+                    ];
+
 
 my $idx = 0 ;
 foreach my $t (@tests) {

@@ -100,8 +100,12 @@ sub read {
         elsif ($key =~ /license/i) {
             $object = $file->fetch_element('License') ;
             my @lic_text = split /\n/,$v ;
-            $object->fetch_element('abbrev')->store(shift @lic_text);
-            # FIXME: license exception stuff
+            my $lic_line = shift @lic_text ;
+            if ($lic_line =~ /with\s+(\w+)\s+exception/) {
+                $object->fetch_element('exception')->store($1);
+                $lic_line =~ s/\s+with\s+\w+\s+exception//;
+            }
+            $object->fetch_element('abbrev')->store($lic_line);
             $object = $root ;
         }
         elsif (my $found = $object->find_element($key, case => 'any')) { 
