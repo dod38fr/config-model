@@ -32,6 +32,9 @@ sub parse {
 	    push @res, $field, $text ;
 	    $store_ref = \$res[$#res] ;
         }
+        elsif (/^\s+\.$/) {
+            $$store_ref .= "\n" ;
+        }
         elsif (s/^\s//) {
             $$store_ref .= $_ ;
         }
@@ -101,6 +104,7 @@ sub read {
             $object = $file->fetch_element('License') ;
             my @lic_text = split /\n/,$v ;
             my $lic_line = shift @lic_text ;
+            # too much hackish is bad for health
             if ($lic_line =~ /with\s+(\w+)\s+exception/) {
                 $object->fetch_element('exception')->store($1);
                 $lic_line =~ s/\s+with\s+\w+\s+exception//;
@@ -110,6 +114,10 @@ sub read {
         }
         elsif (my $found = $object->find_element($key, case => 'any')) { 
             $object->fetch_element($found)->store($v) ;
+        }
+        else {
+            # try anyway to trigger an error message
+            $object->fetch_element($key)->store($v) ;
         }
     }
 
@@ -131,12 +139,72 @@ sub write {
     croak "Undefined file handle to write"
       unless defined $args{io_handle} ;
 
-    my $perl_data = $self->{node}->dump_as_data() ;
-    my $dpkgctrl = Dump $perl_data ;
+    my $node = $args{object} ;
+    my $ioh = $args{io_handle} ;
 
-    $args{io_handle} -> print ($dpkgctrl) ;
+    foreach my $elt ($node->get_element_name ) {
+        my $type = $node->element_type($elt) ;
+        my $elt_obj = $node->fetch_element($elt) ;
 
+        if ($type eq 'hash') {
+            $self->write_licenses($ioh,$elt_obj) if $elt eq 'License';
+            $self->write_files($ioh,$elt_obj)    if $elt eq 'Files';
+        }
+        else {
+            my $v = $node->fetch_element_value($elt) ;
+            if ($v) {
+                $ioh->print ("$elt:") ;
+                $self->write_text($ioh,$v) ;
+            }
+        }
+    }
+    
     return 1;
+}
+
+sub write_licenses {
+    my ($self, $ioh, $hash_obj) = @_ ;
+    foreach my $name ($hash_obj->get_all_indexes) {
+        $ioh->print ("License: $name\n") ;
+        $self->write_text($ioh,$hash_obj->fetch_with_id($name)->fetch) ;
+    }
+}
+
+sub write_files {
+    my ($self, $ioh, $hash_obj) = @_ ;
+    foreach my $name ($hash_obj->get_all_indexes) {
+        $ioh->print ("\nFiles: $name\n") ;
+        $self->write_file($ioh,$hash_obj->fetch_with_id($name)) ;
+    }
+}
+
+
+sub write_file {
+    my ($self, $ioh, $node) = @_ ;
+    $ioh->print("Copyright:");
+    $self->write_text($ioh,$node->fetch_element_value('Copyright')) ;
+    $self->write_file_lic($ioh,$node->fetch_element('License')) ;
+}
+
+sub write_file_lic {
+    my ($self, $ioh, $node) = @_ ;
+    
+    $ioh->print ("License: ".$node->fetch_element_value('abbrev')) ;
+    my $exception = $node->fetch_element_value('exception') ;
+    $ioh->print (" with $exception exception" )if defined $exception ;
+    $ioh->print ("\n");
+
+    $self->write_text($ioh,$node->fetch_element_value('full_license')) ;
+}
+
+sub write_text {
+     my ($self, $ioh, $text) = @_ ;
+
+    return unless $text ;
+    foreach (split /\n/,$text) {
+        $ioh->print ( /\S/ ? " $_\n" : " .\n") ;
+    }
+  
 }
 
 1;
@@ -153,9 +221,9 @@ Config::Model::Backend::Debian::Dep5 - Read and write Debian DEP-5 License infor
   name => 'FooConfig',
 
   read_config  => [
-                    { backend => 'dpkgctrl' , 
-                      config_dir => '/etc/foo',
-                      file  => 'foo.conf',      # optional
+                    { backend => 'Debian::Dep5' , 
+                      config_dir => 'debian',
+                      file  => 'copyright',      # optional
                       auto_create => 1,         # optional
                     }
                   ],
@@ -167,17 +235,12 @@ Config::Model::Backend::Debian::Dep5 - Read and write Debian DEP-5 License infor
 =head1 DESCRIPTION
 
 This module is used directly by L<Config::Model> to read or write the
-content of a configuration tree written with dpkgctrl syntax in
+content of a configuration tree written with Debian Dep-5 syntax in
 C<Config::Model> configuration tree.
-
-Note that undefined values are skipped for list element. I.e. if a
-list element contains C<('a',undef,'b')>, the data structure will
-contain C<'a','b'>.
-
 
 =head1 CONSTRUCTOR
 
-=head2 new ( node => $node_obj, name => 'dpkgctrl' ) ;
+=head2 new ( node => $node_obj, name => 'Debian::Dep5' ) ;
 
 Inherited from L<Config::Model::Backend::Any>. The constructor will be
 called by L<Config::Model::AutoRead>.
