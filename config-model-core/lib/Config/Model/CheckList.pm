@@ -26,7 +26,6 @@ use Log::Log4perl qw(get_logger :levels);
 
 use base qw/Config::Model::WarpedThing/ ;
 
-our $VERSION="1.202";
 
 my $logger = get_logger("Tree::Element::CheckList") ;
 

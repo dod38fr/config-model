@@ -21,12 +21,10 @@ package Config::Model::Searcher;
 use Log::Log4perl qw(get_logger :levels);
 use Carp;
 use strict;
-our $VERSION="1.201";
 use warnings ;
 
 use Config::Model::Exception ;
 
-# use vars qw($VERSION);
 
 my $logger = get_logger("Model::Searcher") ;
 

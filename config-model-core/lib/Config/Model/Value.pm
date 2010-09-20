@@ -19,7 +19,6 @@
 package Config::Model::Value ;
 use warnings ;
 use strict;
-our $VERSION="1.201";
 use Scalar::Util qw(weaken) ;
 use Data::Dumper ();
 use Config::Model::Exception ;
@@ -29,9 +28,6 @@ use Log::Log4perl qw(get_logger :levels);
 use Carp ;
 
 use base qw/Config::Model::WarpedThing/ ;
-
-# use vars qw($VERSION) ;
-
 
 my $logger = get_logger("Tree::Element::Value") ;
 

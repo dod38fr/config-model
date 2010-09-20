@@ -20,14 +20,12 @@
 package Config::Model::Report;
 use Carp;
 use strict;
-our $VERSION="1.201";
 use warnings ;
 
 use Config::Model::Exception ;
 use Config::Model::ObjTreeScanner ;
 use Text::Wrap ;
 
-# use vars qw($VERSION);
 
 =head1 NAME
 

@@ -24,7 +24,6 @@ use Carp::Assert::More ;
 use Carp;
 use warnings ;
 
-our $VERSION="1.202";
 
 use Carp qw/croak confess cluck/;
 

@@ -34,7 +34,6 @@ use Config::Model::ObjTreeScanner;
 use Carp;
 #use warnings FATAL => qw(all);
 
-our $VERSION="1.202";
 
 use Carp qw/croak confess cluck/;
 

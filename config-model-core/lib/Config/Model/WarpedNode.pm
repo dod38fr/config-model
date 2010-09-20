@@ -21,7 +21,6 @@ package Config::Model::WarpedNode ;
 
 use Carp qw(cluck croak);
 use strict;
-our $VERSION="1.201";
 use warnings ;
 use Scalar::Util qw(weaken) ;
 
@@ -29,7 +28,6 @@ use base qw/Config::Model::WarpedThing/ ;
 use Config::Model::Exception ;
 use Data::Dumper ();
 
-# use vars qw($VERSION $AUTOLOAD) ;
 
 =head1 NAME
 

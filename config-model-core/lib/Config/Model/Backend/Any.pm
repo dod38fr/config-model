@@ -28,8 +28,6 @@ use Moose ;
 use File::Path;
 use Log::Log4perl qw(get_logger :levels);
 
-our $VERSION = '1.202';
-
 my $logger = get_logger("Backend::Any") ;
 
 has 'name'       => ( is => 'ro', default => 'unknown',) ;

@@ -493,7 +493,6 @@ $compute_grammar = << 'END_OF_GRAMMAR' ;
 
 # This grammar is compatible with Parse::RecDescent < 1.90 or >= 1.90
 use strict;
-our $VERSION="1.201";
 use warnings ;
 }
 
