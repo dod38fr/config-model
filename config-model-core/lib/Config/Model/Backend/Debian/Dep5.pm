@@ -19,18 +19,24 @@ sub suffix { return '' ; }
 sub parse {
     my $self = shift ;
     my $fh = shift;
-    my @res ;
+    my @res ; # list of list (section, [keyword, value])
 
     my $field;
     my $store_ref ;
+    my $store_list = [] ;
 
     foreach (<$fh>) {
         if (/^([\w\-]+):/) {
             my ($field,$text) = split /\s*:\s*/,$_,2 ;
 
 	    $text = "other\n" if $field =~ /license/i and $text =~ /^\s*$/;
-	    push @res, $field, $text ;
-	    $store_ref = \$res[$#res] ;
+	    push @$store_list, $field, $text ;
+	    chomp $$store_ref if defined $$store_ref; # remove trailing \n 
+	    $store_ref = \$store_list->[$#$store_list] ;
+        }
+        elsif (/^\s*$/) {
+            push @res, $store_list ; 
+            $store_list = [] ;
         }
         elsif (/^\s+\.$/) {
             $$store_ref .= "\n" ;
@@ -42,10 +48,14 @@ sub parse {
             $logger->error("Invalid line: $_\n");
         }
     }
+
+    # store last section if not empty
+    push @res, $store_list if @$store_list;
     $fh->close ;
 
-    $logger->debug("Parse result:\n'".join("','",@res)."'") ;
-    chomp @res ;
+    if ($logger->is_debug ) {
+        map { $logger->debug("Parse result section:\n'".join("','",@$_)."'") ;} @res ;
+    }
     return \@res ;   
 }
 
@@ -72,52 +82,61 @@ sub read {
     my $object = $root ;
     
     $logger->info("First pass to read license text from $args{file} control file");
-    for (my $i=0; $i < @$c ; $i += 2 ) {
-        my $key = $c->[$i];
-        if ($key =~ /license/i) {
-            my @lic_text = split /\n/,$c->[$i+1] ;
-            my $lic_name = shift @lic_text ;
-            $logger->debug("adding license text for $lic_name");
-            next if $lic_name =~ /\s/ ; # complex license
-            next unless @lic_text; # no text to store
-            $logger->debug("adding license text '@lic_text'");
-            my $lic_obj = $root->grab("License:$lic_name");
-            # lic_obj may not be defined in -force mode
-            $lic_obj->store(join("\n", @lic_text)) if defined $lic_obj ;
+    foreach my $section (@$c) {
+        for (my $i=0; $i < @$section ; $i += 2 ) {
+            my $key = $section->[$i];
+            my $v = $section->[$i+1];
+            if ($key =~ /license/i) {
+                my @lic_text = split /\n/,$v ;
+                my $lic_name = shift @lic_text ;
+                $logger->debug("adding license text for $lic_name");
+                next if $lic_name =~ /\s/ ; # complex license
+                next unless @lic_text; # no text to store
+                $logger->debug("adding license text '@lic_text'");
+                my $lic_obj = $root->grab("License:$lic_name");
+                # lic_obj may not be defined in -force mode
+                $lic_obj->store(join("\n", @lic_text)) if defined $lic_obj ;
+            }
         }
     }
 
     $logger->info("Second pass to read other info from $args{file} control file");
-    for (my $i=0; $i < @$c ; $i += 2 ) {
-        my $key = $c->[$i];
-        my $v = $c->[$i+1];
-        $logger->info("reading key $key from $args{file} control file");
-        $logger->debug("$key value: $v");
-        if ($key =~ /files/i) {
-            $file = $root->fetch_element('Files')->fetch_with_id($v) ;
-            $object = $file ;
-        }
-        elsif ($key =~ /license/i and $object eq $root) {
-            # skip license text stored in first pass
-        }
-        elsif ($key =~ /license/i) {
-            $object = $file->fetch_element('License') ;
-            my @lic_text = split /\n/,$v ;
-            my $lic_line = shift @lic_text ;
-            # too much hackish is bad for health
-            if ($lic_line =~ /with\s+(\w+)\s+exception/) {
-                $object->fetch_element('exception')->store($1);
-                $lic_line =~ s/\s+with\s+\w+\s+exception//;
+    foreach my $section (@$c) {
+        for (my $i=0; $i < @$section ; $i += 2 ) {
+            my $key = $section->[$i];
+            my $v = $section->[$i+1];
+            $logger->info("reading key $key from $args{file} control file");
+            $logger->debug("$key value: $v");
+            if ($key =~ /files/i) {
+                $file = $root->fetch_element('Files')->fetch_with_id($v) ;
+                $object = $file ;
             }
-            $object->fetch_element('abbrev')->store($lic_line);
-            $object = $root ;
-        }
-        elsif (my $found = $object->find_element($key, case => 'any')) { 
-            $object->fetch_element($found)->store($v) ;
-        }
-        else {
-            # try anyway to trigger an error message
-            $object->fetch_element($key)->store($v) ;
+            elsif ($key =~ /copyright/i) {
+                my @v = split /\s*\n\s*/,$v ;
+                $object->fetch_element('Copyright')->store_set(@v);
+            }
+            elsif ($key =~ /license/i and $object eq $root) {
+                # skip license text stored in first pass
+            }
+            elsif ($key =~ /license/i) {
+                $object = $file->fetch_element('License') ;
+                my @lic_text = split /\n/,$v ;
+                my $lic_line = shift @lic_text ;
+                # too much hackish is bad for health
+                if ($lic_line =~ /with\s+(\w+)\s+exception/) {
+                    $object->fetch_element('exception')->store($1);
+                    $lic_line =~ s/\s+with\s+\w+\s+exception//;
+                }
+                $object->fetch_element('abbrev')->store($lic_line);
+                $object = $root ;
+            }
+            elsif (my $found = $object->find_element($key, case => 'any')) { 
+                $object->fetch_element($found)->store($v) ;
+            }
+            else {
+                # try anyway to trigger an error message
+                $object->fetch_element($key)->store($v) ;
+            }
         }
     }
 
@@ -142,13 +161,20 @@ sub write {
     my $node = $args{object} ;
     my $ioh = $args{io_handle} ;
 
+    # write in 2 passes to handle correctly sections
     foreach my $elt ($node->get_element_name ) {
         my $type = $node->element_type($elt) ;
         my $elt_obj = $node->fetch_element($elt) ;
 
         if ($type eq 'hash') {
-            $self->write_licenses($ioh,$elt_obj) if $elt eq 'License';
-            $self->write_files($ioh,$elt_obj)    if $elt eq 'Files';
+            # handled in 2nd passes
+            next ;
+        }
+        elsif ($type eq 'list') {
+            my $label = "$elt: " ;
+            my $l = length ($label) ;
+            my @v = $elt_obj->fetch_all_values ;
+            $ioh->print ("$label ".join( "\n". ' ' x $l , @v ) . "\n") if @v;
         }
         else {
             my $v = $node->fetch_element_value($elt) ;
@@ -156,6 +182,17 @@ sub write {
                 $ioh->print ("$elt:") ;
                 $self->write_text($ioh,$v) ;
             }
+        }
+    }
+
+    foreach my $elt ($node->get_element_name ) {
+        my $type = $node->element_type($elt) ;
+        my $elt_obj = $node->fetch_element($elt) ;
+
+        if ($type eq 'hash') {
+            $ioh->print ("\n") ; # blank line to separate sections
+            $self->write_licenses($ioh,$elt_obj) if $elt eq 'License';
+            $self->write_files($ioh,$elt_obj)    if $elt eq 'Files';
         }
     }
     
@@ -167,13 +204,14 @@ sub write_licenses {
     foreach my $name ($hash_obj->get_all_indexes) {
         $ioh->print ("License: $name\n") ;
         $self->write_text($ioh,$hash_obj->fetch_with_id($name)->fetch) ;
+        $ioh->print ("\n") ;
     }
 }
 
 sub write_files {
     my ($self, $ioh, $hash_obj) = @_ ;
     foreach my $name ($hash_obj->get_all_indexes) {
-        $ioh->print ("\nFiles: $name\n") ;
+        $ioh->print ("Files: $name\n") ;
         $self->write_file($ioh,$hash_obj->fetch_with_id($name)) ;
     }
 }
@@ -181,8 +219,10 @@ sub write_files {
 
 sub write_file {
     my ($self, $ioh, $node) = @_ ;
-    $ioh->print("Copyright:");
-    $self->write_text($ioh,$node->fetch_element_value('Copyright')) ;
+    my $label = "Copyright: " ;
+    my $l = length ($label) ;
+    my @c = $node -> fetch_element('Copyright') -> fetch_all_values ;
+    $ioh -> print ("$label ".join( "\n". ' ' x $l , @c ) . "\n");
     $self->write_file_lic($ioh,$node->fetch_element('License')) ;
 }
 

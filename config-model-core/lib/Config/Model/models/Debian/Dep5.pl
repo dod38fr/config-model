@@ -57,18 +57,12 @@
                            },
                            'Copyright',
                            {
-                             'value_type' => 'string',
-                             'type' => 'leaf'
-                           },
-                           'License',
-                           {
                              'cargo' => {
-                                          'value_type' => 'string',
+                                          'value_type' => 'uniline',
+                                          'match' => '[\\d\\-\\,]+, .*',
                                           'type' => 'leaf'
                                         },
-                             'allow_keys_matching' => '^(?i:Apache|Artistic|BSD|FreeBSD|ISC|CC-BY|CC-BY-SA|CC-BY-ND|CC-BY-NC|CC-BY-NC-SA|CC-BY-NC-ND|CC0|CDDL|CPL|Eiffel|Expat|GPL|LGPL|GFDL|GFDL-NIV|LPPL|MIT|MPL|Perl|PSF|QPL|W3C-Software|ZLIB|Zope|other)[\\d\\.\\-]*\\+?$',
-                             'type' => 'hash',
-                             'index_type' => 'string'
+                             'type' => 'list'
                            },
                            'Files',
                            {
@@ -82,6 +76,16 @@
   stanza, this is equivalent to a value of \'*\'.
 o Syntax: List of patterns indicating files having the same license
   and sharing copyright holders. See "File patterns" below',
+                             'index_type' => 'string'
+                           },
+                           'License',
+                           {
+                             'cargo' => {
+                                          'value_type' => 'string',
+                                          'type' => 'leaf'
+                                        },
+                             'allow_keys_matching' => '^(?i:Apache|Artistic|BSD|FreeBSD|ISC|CC-BY|CC-BY-SA|CC-BY-ND|CC-BY-NC|CC-BY-NC-SA|CC-BY-NC-ND|CC0|CDDL|CPL|Eiffel|Expat|GPL|LGPL|GFDL|GFDL-NIV|LPPL|MIT|MPL|Perl|PSF|QPL|W3C-Software|ZLIB|Zope|other)[\\d\\.\\-]*\\+?$',
+                             'type' => 'hash',
                              'index_type' => 'string'
                            }
                          ]
