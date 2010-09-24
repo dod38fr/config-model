@@ -184,13 +184,14 @@ sub write {
             }
         }
     }
+   
+    $ioh->print ("\n") ; # blank line to separate sections
 
     foreach my $elt ($node->get_element_name ) {
         my $type = $node->element_type($elt) ;
         my $elt_obj = $node->fetch_element($elt) ;
 
         if ($type eq 'hash') {
-            $ioh->print ("\n") ; # blank line to separate sections
             $self->write_licenses($ioh,$elt_obj) if $elt eq 'License';
             $self->write_files($ioh,$elt_obj)    if $elt eq 'Files';
         }
@@ -213,6 +214,7 @@ sub write_files {
     foreach my $name ($hash_obj->get_all_indexes) {
         $ioh->print ("Files: $name\n") ;
         $self->write_file($ioh,$hash_obj->fetch_with_id($name)) ;
+        $ioh->print ("\n") ;
     }
 }
 
@@ -222,7 +224,7 @@ sub write_file {
     my $label = "Copyright: " ;
     my $l = length ($label) ;
     my @c = $node -> fetch_element('Copyright') -> fetch_all_values ;
-    $ioh -> print ("$label ".join( "\n". ' ' x $l , @c ) . "\n");
+    $ioh -> print ($label.join( "\n". ' ' x $l , @c ) . "\n");
     $self->write_file_lic($ioh,$node->fetch_element('License')) ;
 }
 
