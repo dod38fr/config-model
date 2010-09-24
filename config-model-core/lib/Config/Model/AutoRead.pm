@@ -113,37 +113,44 @@ sub open_read_file {
 #
 sub load_backend_class {
     my $backend = shift;
-    my $f = shift ;
+    my $function = shift ;
 
-    my $c = my $file = "Config::Model::Backend::".ucfirst($backend) ;
-    $file =~ s!::!/!g;
+    my %c ;
 
-    return $c if $c->can($f) ; # no need to load class    get_logger("Data")->debug("load_backend_class: loading class $c, $file.pm");
-    eval {require $file.'.pm'; } ;
-
-    return $c unless $@ ;
-
+    my $k = "Config::Model::Backend::".ucfirst($backend) ;
+    my $f = $k.'.pm';
+    $f =~ s!::!/!g;
+    $c{$k} = $f ;
+    
     # try another class
-    my $err = $@ ;
-    my $file2 = $file ;
-    my $c2 = $c;
-    $c2 =~ s/_(\w)/uc($1)/ge;
-    $file2 =~ s/_(\w)/uc($1)/ge;
+    $k =~ s/_(\w)/uc($1)/ge;
+    $f =~ s/_(\w)/uc($1)/ge;
+    $c{$k} = $f ;
 
-    return $c2 if $c2->can($f) ; # no need to load class
-
-    return if $c eq $c2 ; # no need to try to load the same class
-    
-    get_logger("Data")->debug("load_backend_class: loading class $c2, $file2.pm");
-    eval {require $file2.'.pm' ; } ;
-    
-    if ($@) {
-        warn "auto_read: unknown backend '$backend'".
-             ", cannot load Perl class $c: $err$@\n";
-        return ;
+    foreach my $c (keys %c) { 
+        return $c if $c->can($function) ; # no need to load class  
     }
 
-    return $c2;
+        
+    # look for file to load 
+    my $class_to_load ;
+    foreach my $c (keys %c) { 
+        foreach my $prefix (@INC) {
+            my $realfilename = "$prefix/$c{$c}";
+            $class_to_load = $c if -f $realfilename ;
+        }
+    }
+
+    return unless defined $class_to_load ;
+    my $file_to_load = $c{$class_to_load} ;
+
+    get_logger("Data")->debug("load_backend_class: loading class $class_to_load, $file_to_load");
+    eval {require $file_to_load; } ;
+
+    if ($@) {
+            die "Could not parse $file_to_load: $@\n";
+    } 
+    return $class_to_load ;
 }
 
 sub auto_read_init {
