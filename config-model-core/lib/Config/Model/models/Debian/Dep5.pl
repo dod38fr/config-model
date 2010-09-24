@@ -1,7 +1,6 @@
 [
           {
-            'class_description' => 'Machine-readable debian/copyright
-',
+            'class_description' => 'Machine-readable debian/copyright',
             'accept' => [
                           {
                             'value_type' => 'string',
@@ -31,29 +30,25 @@
                            {
                              'value_type' => 'string',
                              'type' => 'leaf',
-                             'description' => 'Line(s) containing the preferred address(es) to reach current upstream maintainer(s). May be free-form text, but by convention will usually be written as a list of RFC2822 addresses or URIs.
-'
+                             'description' => 'Line(s) containing the preferred address(es) to reach current upstream maintainer(s). May be free-form text, but by convention will usually be written as a list of RFC2822 addresses or URIs.'
                            },
                            'Source',
                            {
                              'value_type' => 'string',
                              'type' => 'leaf',
-                             'description' => 'One or more URIs, one per line, indicating the primary point of distribution of the software.
-'
+                             'description' => 'One or more URIs, one per line, indicating the primary point of distribution of the software.'
                            },
                            'Name',
                            {
                              'value_type' => 'uniline',
                              'type' => 'leaf',
-                             'description' => 'Single line (in most cases a single word), containing the name of the software.
-'
+                             'description' => 'Single line (in most cases a single word), containing the name of the software.'
                            },
                            'Disclaimer',
                            {
                              'value_type' => 'string',
                              'type' => 'leaf',
-                             'description' => 'Free-form text. On Debian systems, this field can be used in the case of non-free and contrib packages (see Policy_12.5)
-'
+                             'description' => 'Free-form text. On Debian systems, this field can be used in the case of non-free and contrib packages (see Policy_12.5)'
                            },
                            'Copyright',
                            {
