@@ -1,6 +1,6 @@
 [
           {
-            'name' => 'Debian::Dep5::License',
+            'name' => 'Debian::Dpkg::Copyright::License',
             'element' => [
                            'abbrev',
                            {

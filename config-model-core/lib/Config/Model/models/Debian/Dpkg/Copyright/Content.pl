@@ -1,6 +1,6 @@
 [
           {
-            'name' => 'Debian::Dep5::Content',
+            'name' => 'Debian::Dpkg::Copyright::Content',
             'element' => [
                            'Copyright',
                            {
@@ -17,7 +17,7 @@
                            'License',
                            {
                              'type' => 'node',
-                             'config_class_name' => 'Debian::Dep5::License'
+                             'config_class_name' => 'Debian::Dpkg::Copyright::License'
                            }
                          ]
           }

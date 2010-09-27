@@ -12,11 +12,11 @@
                                {
                                  'auto_create' => '1',
                                  'file' => 'copyright',
-                                 'backend' => 'Debian::Dep5',
+                                 'backend' => 'Debian::Dpkg::Copyright',
                                  'config_dir' => 'debian'
                                }
                              ],
-            'name' => 'Debian::Dep5',
+            'name' => 'Debian::Dpkg::Copyright',
             'element' => [
                            'Format-Specification',
                            {
@@ -63,7 +63,7 @@
                            {
                              'cargo' => {
                                           'type' => 'node',
-                                          'config_class_name' => 'Debian::Dep5::Content'
+                                          'config_class_name' => 'Debian::Dpkg::Copyright::Content'
                                         },
                              'ordered' => '1',
                              'type' => 'hash',
@@ -79,8 +79,13 @@ o Syntax: List of patterns indicating files having the same license
                                           'value_type' => 'string',
                                           'type' => 'leaf'
                                         },
-                             'allow_keys_matching' => '^(?i:Apache|Artistic|BSD|FreeBSD|ISC|CC-BY|CC-BY-SA|CC-BY-ND|CC-BY-NC|CC-BY-NC-SA|CC-BY-NC-ND|CC0|CDDL|CPL|Eiffel|Expat|GPL|LGPL|GFDL|GFDL-NIV|LPPL|MIT|MPL|Perl|PSF|QPL|W3C-Software|ZLIB|Zope|other)[\\d\\.\\-]*\\+?$',
+                             'allow_keys_matching' => '^[\\w\\-\\.]+$',
                              'type' => 'hash',
+                             'description' => 'key should match the following regexp:
+
+^(?i:Apache|Artistic|BSD|FreeBSD|ISC|CC-BY|CC-BY-SA|CC-BY-ND|CC-BY-NC|CC-BY-NC-SA|CC-BY-NC-ND|CC0|CDDL|CPL|Eiffel|Expat|GPL|LGPL|GFDL|GFDL-NIV|LPPL|MIT|MPL|Perl|PSF|QPL|W3C-Software|ZLIB|Zope|other)[\\d\\.\\-]*\\+?$
+
+Future version of Config::Model will provde a way to emit a warning if this regecp is not matched.',
                              'index_type' => 'string'
                            }
                          ]

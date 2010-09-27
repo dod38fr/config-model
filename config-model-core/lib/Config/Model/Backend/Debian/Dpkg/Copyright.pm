@@ -1,5 +1,5 @@
 
-package Config::Model::Backend::Debian::Dep5 ;
+package Config::Model::Backend::Debian::Dpkg::Copyright ;
 
 use Carp;
 use strict;
@@ -12,7 +12,7 @@ use Log::Log4perl qw(get_logger :levels);
 use base qw/Config::Model::Backend::Any/;
 
 
-my $logger = get_logger("Backend::Debian::Dep5") ;
+my $logger = get_logger("Backend::Debian::Dpkg::Copyright") ;
 
 sub suffix { return '' ; }
 
@@ -255,7 +255,7 @@ __END__
 
 =head1 NAME
 
-Config::Model::Backend::Debian::Dep5 - Read and write Debian DEP-5 License information
+Config::Model::Backend::Debian::Dpkg::Copyright - Read and write Debian Dpkg License information
 
 =head1 SYNOPSIS
 
@@ -263,7 +263,7 @@ Config::Model::Backend::Debian::Dep5 - Read and write Debian DEP-5 License infor
   name => 'FooConfig',
 
   read_config  => [
-                    { backend => 'Debian::Dep5' , 
+                    { backend => 'Debian::Dpkg::Copyright' , 
                       config_dir => 'debian',
                       file  => 'copyright',      # optional
                       auto_create => 1,         # optional
@@ -278,11 +278,12 @@ Config::Model::Backend::Debian::Dep5 - Read and write Debian DEP-5 License infor
 
 This module is used directly by L<Config::Model> to read or write the
 content of a configuration tree written with Debian Dep-5 syntax in
-C<Config::Model> configuration tree.
+C<Config::Model> configuration tree. This syntax is used to specify 
+license information in Debian source pacakge format.
 
 =head1 CONSTRUCTOR
 
-=head2 new ( node => $node_obj, name => 'Debian::Dep5' ) ;
+=head2 new ( node => $node_obj, name => 'Debian::Dpkg::Copyright' ) ;
 
 Inherited from L<Config::Model::Backend::Any>. The constructor will be
 called by L<Config::Model::AutoRead>.
