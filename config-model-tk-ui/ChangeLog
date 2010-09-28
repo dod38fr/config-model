@@ -1,3 +1,8 @@
+2010-09-10  Dominique Dumont  <domi.dumont@free.fr> 
+
+	* lib/Config/Model/Tk/HashEditor.pm (Populate): usability improvement:
+	  copy selected entry text into item when keep is set
+
 2010-09-10  Dominique Dumont  <domi.dumont@free.fr> 1.310
 
 	* lib/Config/Model/Tk/HashEditor.pm (Populate): Fix bug that messed up 
