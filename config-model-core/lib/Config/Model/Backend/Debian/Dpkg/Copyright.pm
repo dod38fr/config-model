@@ -1,63 +1,22 @@
 
 package Config::Model::Backend::Debian::Dpkg::Copyright ;
 
+use Moose ;
+
+extends 'Config::Model::Backend::Any';
+
+with 'Config::Model::Backend::Debian::DpkgSyntax';
+
 use Carp;
-use strict;
-use warnings ;
 use Config::Model::Exception ;
-use UNIVERSAL ;
 use File::Path;
 use Log::Log4perl qw(get_logger :levels);
 
-use base qw/Config::Model::Backend::Any/;
 
 
 my $logger = get_logger("Backend::Debian::Dpkg::Copyright") ;
 
 sub suffix { return '' ; }
-
-sub parse {
-    my $self = shift ;
-    my $fh = shift;
-    my @res ; # list of list (section, [keyword, value])
-
-    my $field;
-    my $store_ref ;
-    my $store_list = [] ;
-
-    foreach (<$fh>) {
-        if (/^([\w\-]+):/) {
-            my ($field,$text) = split /\s*:\s*/,$_,2 ;
-
-	    $text = "other\n" if $field =~ /license/i and $text =~ /^\s*$/;
-	    push @$store_list, $field, $text ;
-	    chomp $$store_ref if defined $$store_ref; # remove trailing \n 
-	    $store_ref = \$store_list->[$#$store_list] ;
-        }
-        elsif (/^\s*$/) {
-            push @res, $store_list ; 
-            $store_list = [] ;
-        }
-        elsif (/^\s+\.$/) {
-            $$store_ref .= "\n" ;
-        }
-        elsif (s/^\s//) {
-            $$store_ref .= $_ ;
-        }
-        else {
-            $logger->error("Invalid line: $_\n");
-        }
-    }
-
-    # store last section if not empty
-    push @res, $store_list if @$store_list;
-    $fh->close ;
-
-    if ($logger->is_debug ) {
-        map { $logger->debug("Parse result section:\n'".join("','",@$_)."'") ;} @res ;
-    }
-    return \@res ;   
-}
 
 sub read {
     my $self = shift ;
@@ -75,7 +34,7 @@ sub read {
 
     $logger->info("Parsing $args{file} control file");
     # load dpkgctrl file
-    my $c = $self -> parse ($args{io_handle}) ;
+    my $c = $self -> parse_dpkg_file ($args{io_handle}) ;
     
     my $root = $args{object} ;
     my $file;
@@ -160,8 +119,10 @@ sub write {
 
     my $node = $args{object} ;
     my $ioh = $args{io_handle} ;
+    my @section1 ;
 
-    # write in 2 passes to handle correctly sections
+    # handle data in 2 passes to handle correctly sections
+    # here, we fill first section
     foreach my $elt ($node->get_element_name ) {
         my $type = $node->element_type($elt) ;
         my $elt_obj = $node->fetch_element($elt) ;
@@ -171,83 +132,67 @@ sub write {
             next ;
         }
         elsif ($type eq 'list') {
-            my $label = "$elt: " ;
-            my $l = length ($label) ;
             my @v = $elt_obj->fetch_all_values ;
-            $ioh->print ("$label ".join( "\n". ' ' x $l , @v ) . "\n") if @v;
+            push @section1, $elt , \@v if @v;
         }
         else {
             my $v = $node->fetch_element_value($elt) ;
-            if ($v) {
-                $ioh->print ("$elt:") ;
-                $self->write_text($ioh,$v) ;
-            }
+            push @section1, $elt , $v if $v ;
         }
     }
-   
-    $ioh->print ("\n") ; # blank line to separate sections
 
+    my @sections = (\@section1) ;
     foreach my $elt ($node->get_element_name ) {
         my $type = $node->element_type($elt) ;
         my $elt_obj = $node->fetch_element($elt) ;
 
         if ($type eq 'hash') {
-            $self->write_licenses($ioh,$elt_obj) if $elt eq 'License';
-            $self->write_files($ioh,$elt_obj)    if $elt eq 'Files';
+            push @sections, $self->licenses($ioh,$elt_obj) if $elt eq 'License';
+            push @sections, $self->files($ioh,$elt_obj)    if $elt eq 'Files';
         }
     }
+
+    $self->write_dpkg_file($ioh, \@sections ) ;
     
     return 1;
 }
 
-sub write_licenses {
+sub licenses {
     my ($self, $ioh, $hash_obj) = @_ ;
+
+    my @res ;
     foreach my $name ($hash_obj->get_all_indexes) {
-        $ioh->print ("License: $name\n") ;
-        $self->write_text($ioh,$hash_obj->fetch_with_id($name)->fetch) ;
-        $ioh->print ("\n") ;
+        my @lic_section = qw/License/;
+        push @lic_section , "$name\n" . $hash_obj->fetch_with_id($name)->fetch ;
+        push @res, \@lic_section ;
     }
+    return @res ;
 }
 
-sub write_files {
+sub files {
     my ($self, $ioh, $hash_obj) = @_ ;
+
+    my @res ;
     foreach my $name ($hash_obj->get_all_indexes) {
-        $ioh->print ("Files: $name\n") ;
-        $self->write_file($ioh,$hash_obj->fetch_with_id($name)) ;
-        $ioh->print ("\n") ;
+        my @file_section = (Files => $name );
+
+        my $node = $hash_obj->fetch_with_id($name) ;
+        push @file_section, 'Copyright', [ $node -> fetch_element('Copyright') -> fetch_all_values ] ;
+        
+        my $lic_node = $node -> fetch_element('License') ;
+        my $lic_text = $lic_node->fetch_element_value('abbrev') ;
+        my $exception = $lic_node->fetch_element_value('exception') ;
+        $lic_text .= " with $exception exception" if defined $exception ;
+        
+        my $full_lic_text = $lic_node->fetch_element_value('full_license') ;
+        $lic_text .= $full_lic_text if defined $full_lic_text ;
+        push @file_section, License => $lic_text ;
+
+        push @res, \@file_section ;
     }
+    return @res ;
 }
 
-
-sub write_file {
-    my ($self, $ioh, $node) = @_ ;
-    my $label = "Copyright: " ;
-    my $l = length ($label) ;
-    my @c = $node -> fetch_element('Copyright') -> fetch_all_values ;
-    $ioh -> print ($label.join( "\n". ' ' x $l , @c ) . "\n");
-    $self->write_file_lic($ioh,$node->fetch_element('License')) ;
-}
-
-sub write_file_lic {
-    my ($self, $ioh, $node) = @_ ;
-    
-    $ioh->print ("License: ".$node->fetch_element_value('abbrev')) ;
-    my $exception = $node->fetch_element_value('exception') ;
-    $ioh->print (" with $exception exception" )if defined $exception ;
-    $ioh->print ("\n");
-
-    $self->write_text($ioh,$node->fetch_element_value('full_license')) ;
-}
-
-sub write_text {
-     my ($self, $ioh, $text) = @_ ;
-
-    return unless $text ;
-    foreach (split /\n/,$text) {
-        $ioh->print ( /\S/ ? " $_\n" : " .\n") ;
-    }
-  
-}
 
 1;
 
