@@ -152,7 +152,7 @@ sub write {
         }
     }
 
-    $self->write_dpkg_file($ioh, \@sections ) ;
+    $self->write_dpkg_file($ioh, \@sections, "\n" ) ;
     
     return 1;
 }

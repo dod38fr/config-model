@@ -38,32 +38,70 @@ sub read {
     
     my $root = $args{object} ;
     my $file;
-    my $object = $root ;
     
-    $logger->info("Read info from $args{file} control file");
-    # first section is source package, following sections are binary package
-    my @section_nodes = map { $root->fetch_element($_); } qw/source binary/ ;
-    my $node ;
-    
-    foreach my $section (@$c) {
-        $node = shift @section_nodes if @section_nodes ;
+    $logger->debug("Reading control source info");
 
-        for (my $i=0; $i < @$section ; $i += 2 ) {
-            my $key = $section->[$i];
-            my $v = $section->[$i+1];
-            $logger->info("reading key '$key' from $args{file} control file");
-            $logger->debug("$key value: $v");
-            if (my $found = $object->find_element($key, case => 'any')) { 
-                $node->fetch_element($found)->store($v) ;
-            }
-            else {
-                # try anyway to trigger an error message
-                $node->fetch_element($key)->store($v) ;
-            }
+    # first section is source package, following sections are binary package
+    my $node = $root->fetch_element('source') ;
+    $self->read_section ($node, shift @$c);
+
+    $logger->debug("Reading binary package names");
+    # we assume that package name is the first item in the section data
+    
+    while (my $section = shift @$c ) {
+        my $package_name;
+        foreach (my $i = 0; $i < $#$section; $i += 2) {
+            next unless $section->[$i] =~ /^package$/i;
+            $package_name = $section->[$i+1 ];
+            splice @$section,$i,2 ;
+            last ;
         }
+        
+        if (not defined $package_name) {
+            # FIXME: die with a clear error message if not found
+        } 
+        
+        $node = $root->grab("binary:$package_name") ;
+        $self->read_section ($node, $section);
     }
+    # first section is source package, following sections are binary package
+    #my @section_nodes = map { $root->fetch_element($_); } qw/source binary/ ;
+    #my $node ;
+    
+    #$self->read_section ($node, $c, \@section_nodes);
 
     return 1 ;
+}
+
+#
+# New subroutine "read_section" extracted - Tue Sep 28 17:19:44 2010.
+#
+sub read_section {
+    my $self = shift ;
+    my $node = shift;
+    my $section = shift;
+
+    for (my $i=0; $i < @$section ; $i += 2 ) {
+        my $key = $section->[$i];
+        my $v = $section->[$i+1];
+        $logger->info("reading key '$key' from control file (for node " .$node->location.")"); #<--- Global symbol "%args" requires explicit package name at (eval 677) line 15.
+        $logger->debug("$key value: $v");
+        my $type = $node->element_type($key) ;
+        my $elt_obj = $node->fetch_element($key) ;
+
+        if ($type eq 'list') {
+            my @v = split /[\s\n]*,[\s\n]*/, $v ;
+            $elt_obj->store_set(@v) ;
+        }
+        elsif (my $found = $node->find_element($key, case => 'any')) { 
+            $logger->debug("found $key value: $v");
+            $node->fetch_element($found)->store($v) ;
+        }
+        else {
+            # try anyway to trigger an error message
+            $node->fetch_element($key)->store($v) ;
+        }
+    }
 }
 
 sub write {
@@ -82,79 +120,43 @@ sub write {
       unless defined $args{io_handle} ;
 
     my $node = $args{object} ;
-    my $ioh = $args{io_handle} ;
-    my @section1 ;
+    my $ioh  = $args{io_handle} ;
+    my @sections = [ $self-> package_spec($node->fetch_element('source')) ];
 
-    # handle data in 2 passes to handle correctly sections
-    # here, we fill first section
-    foreach my $elt ($node->get_element_name ) {
-        my $type = $node->element_type($elt) ;
-        my $elt_obj = $node->fetch_element($elt) ;
-
-        if ($type eq 'hash') {
-            # handled in 2nd passes
-            next ;
-        }
-        elsif ($type eq 'list') {
-            my @v = $elt_obj->fetch_all_values ;
-            push @section1, $elt , \@v if @v;
-        }
-        else {
-            my $v = $node->fetch_element_value($elt) ;
-            push @section1, $elt , $v if $v ;
-        }
+    my $binary_hash = $node->fetch_element('binary') ;
+    foreach my $binary_name ( $binary_hash -> get_all_indexes ) {
+        my $ref = [ Package => $binary_name ,
+                    $self->package_spec($binary_hash->fetch_with_id($binary_name)) ];
+        
+        push @sections, $ref ;
     }
 
-    my @sections = (\@section1) ;
-    foreach my $elt ($node->get_element_name ) {
-        my $type = $node->element_type($elt) ;
-        my $elt_obj = $node->fetch_element($elt) ;
-
-        if ($type eq 'hash') {
-            push @sections, $self->licenses($ioh,$elt_obj) if $elt eq 'License';
-            push @sections, $self->files($ioh,$elt_obj)    if $elt eq 'Files';
-        }
-    }
-
-    $self->write_dpkg_file($ioh, \@sections ) ;
+    $self->write_dpkg_file($ioh, \@sections,",\n" ) ;
     
     return 1;
 }
 
-sub licenses {
-    my ($self, $ioh, $hash_obj) = @_ ;
+sub package_spec {
+    my ( $self, $node ) = @_ ;
 
-    my @res ;
-    foreach my $name ($hash_obj->get_all_indexes) {
-        my @lic_section = qw/License/;
-        push @lic_section , "$name\n" . $hash_obj->fetch_with_id($name)->fetch ;
-        push @res, \@lic_section ;
+    my @section ;
+    foreach my $elt ($node->get_element_name ) {
+        my $type = $node->element_type($elt) ;
+        my $elt_obj = $node->fetch_element($elt) ;
+
+        if ($type eq 'hash') {
+            die "package_spec: unexpected hash type in ".$node->name." element $elt\n" ;
+        }
+        elsif ($type eq 'list') {
+            my @v = $elt_obj->fetch_all_values ;
+            push @section, $elt , \@v if @v;
+        }
+        else {
+            my $v = $node->fetch_element_value($elt) ;
+            push @section, $elt , $v if $v ;
+        }
     }
-    return @res ;
-}
-
-sub files {
-    my ($self, $ioh, $hash_obj) = @_ ;
-
-    my @res ;
-    foreach my $name ($hash_obj->get_all_indexes) {
-        my @file_section = (Files => $name );
-
-        my $node = $hash_obj->fetch_with_id($name) ;
-        push @file_section, 'Copyright', [ $node -> fetch_element('Copyright') -> fetch_all_values ] ;
-        
-        my $lic_node = $node -> fetch_element('License') ;
-        my $lic_text = $lic_node->fetch_element_value('abbrev') ;
-        my $exception = $lic_node->fetch_element_value('exception') ;
-        $lic_text .= " with $exception exception" if defined $exception ;
-        
-        my $full_lic_text = $lic_node->fetch_element_value('full_license') ;
-        $lic_text .= $full_lic_text if defined $full_lic_text ;
-        push @file_section, License => $lic_text ;
-
-        push @res, \@file_section ;
-    }
-    return @res ;
+    return @section ;
 }
 
 

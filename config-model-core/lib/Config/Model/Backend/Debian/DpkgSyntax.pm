@@ -57,13 +57,13 @@ sub parse_dpkg_file {
 
 # input is [ section [ keyword => value | value_list ] ]
 sub write_dpkg_file {
-    my ($self, $ioh, $array_ref) = @_ ;
+    my ($self, $ioh, $array_ref,$list_sep) = @_ ;
 
-    map { $self->write_dpkg_section($ioh,$_) } @$array_ref ;
+    map { $self->write_dpkg_section($ioh,$_,$list_sep) } @$array_ref ;
 }
 
 sub write_dpkg_section {
-    my ($self, $ioh, $array_ref) = @_ ;
+    my ($self, $ioh, $array_ref,$list_sep) = @_ ;
 
     my $i = 0;
     foreach (my $i=0; $i < @$array_ref; $i += 2 ) {
@@ -72,7 +72,7 @@ sub write_dpkg_section {
         my $label = "$name: " ;
         my $l = length ($label) ;
         if (ref ($value)) {
-            $ioh -> print ($label.join( "\n". ' ' x $l , @$value ) . "\n");
+            $ioh -> print ($label.join( $list_sep . ' ' x $l , @$value ) . "\n");
         }
         else {
             $ioh->print ($label) ;

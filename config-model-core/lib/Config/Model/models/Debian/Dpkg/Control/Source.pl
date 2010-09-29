@@ -67,6 +67,14 @@ The archive area and section for each package should be specified in the package
                                         },
                              'type' => 'list'
                            },
+                           'Build-Depends-Indep',
+                           {
+                             'cargo' => {
+                                          'value_type' => 'uniline',
+                                          'type' => 'leaf'
+                                        },
+                             'type' => 'list'
+                           },
                            'Standards-Version',
                            {
                              'value_type' => 'uniline',

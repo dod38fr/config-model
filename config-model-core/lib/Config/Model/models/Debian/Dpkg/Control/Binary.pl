@@ -2,14 +2,6 @@
           {
             'name' => 'Debian::Dpkg::Control::Binary',
             'element' => [
-                           'Package',
-                           {
-                             'value_type' => 'uniline',
-                             'summary' => 'binary package name',
-                             'match' => '\\w[\\w+\\-\\.]{1,}',
-                             'mandatory' => '1',
-                             'type' => 'leaf'
-                           },
                            'Architecture',
                            {
                              'value_type' => 'uniline',
