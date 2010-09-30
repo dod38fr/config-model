@@ -1,3 +1,13 @@
+2010-09-30 Dominique Dumont  <domi.dumont@free.fr> 1.210
+	* renamed config-edit-dep5 in config-edit-dpkg-copyright
+	* renamed Debian::Dep5 model to Debian::Dpkg::Copyright
+	* renamed Config::Model::Backend::Debian::Dep5 backend to 
+	  Config::Model::Backend::Debian::Dpkg::Copyright
+	* Factored out code to read/write control files in 
+	  Config::Model::Backend::Debian::DpkgSyntax
+	* Created model and backend for Debian control files
+	* added config-edit-dpkg-control command line
+
 2010-09-20 Dominique Dumont  <domi.dumont@free.fr> 1.209
 	* Fixed Debian::Dep5 parser: fixed read issue and added write
 	capability

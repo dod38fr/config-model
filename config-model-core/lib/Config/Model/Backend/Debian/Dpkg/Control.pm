@@ -58,17 +58,14 @@ sub read {
         }
         
         if (not defined $package_name) {
-            # FIXME: die with a clear error message if not found
+            my $msg = "Cannot find package_name in section @$section";
+            Config::Model::Exception::User
+	    -> throw (object => $root,  error => $msg) ;
         } 
         
         $node = $root->grab("binary:$package_name") ;
         $self->read_section ($node, $section);
     }
-    # first section is source package, following sections are binary package
-    #my @section_nodes = map { $root->fetch_element($_); } qw/source binary/ ;
-    #my $node ;
-    
-    #$self->read_section ($node, $c, \@section_nodes);
 
     return 1 ;
 }

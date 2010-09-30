@@ -10,7 +10,7 @@
                            },
                            'Section',
                            {
-                             'value_type' => 'enum',
+                             'value_type' => 'uniline',
                              'type' => 'leaf'
                            },
                            'Priority',
@@ -39,11 +39,51 @@
                                         },
                              'type' => 'list'
                            },
+                           'Breaks',
+                           {
+                             'cargo' => {
+                                          'value_type' => 'uniline',
+                                          'type' => 'leaf'
+                                        },
+                             'type' => 'list'
+                           },
+                           'Replaces',
+                           {
+                             'cargo' => {
+                                          'value_type' => 'uniline',
+                                          'type' => 'leaf'
+                                        },
+                             'type' => 'list'
+                           },
                            'Description',
                            {
                              'value_type' => 'string',
                              'mandatory' => '1',
                              'type' => 'leaf'
+                           },
+                           'Conflicts',
+                           {
+                             'cargo' => {
+                                          'value_type' => 'uniline',
+                                          'type' => 'leaf'
+                                        },
+                             'type' => 'list'
+                           },
+                           'Provides',
+                           {
+                             'cargo' => {
+                                          'value_type' => 'uniline',
+                                          'type' => 'leaf'
+                                        },
+                             'type' => 'list'
+                           },
+                           'Suggests',
+                           {
+                             'cargo' => {
+                                          'value_type' => 'uniline',
+                                          'type' => 'leaf'
+                                        },
+                             'type' => 'list'
                            },
                            'Homepage',
                            {

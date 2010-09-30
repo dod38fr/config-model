@@ -31,7 +31,7 @@ sub parse_dpkg_file {
 	    $store_ref = \$store_list->[$#$store_list] ;
         }
         elsif (/^\s*$/) {
-            push @res, $store_list ; 
+            push @res, $store_list if @$store_list ; # don't store empty sections 
             $store_list = [] ;
         }
         elsif (/^\s+\.$/) {
