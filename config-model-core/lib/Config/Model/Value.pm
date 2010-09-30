@@ -672,20 +672,6 @@ sub set_properties {
 		       join("','",sort keys %args),"'");
     }
 
-    # this code may be dead as warping value_type is no longer
-    # authorized. But we keep it in case this has to be authorized
-    # again.
-    if ( not          defined $args{value_type} 
-	 or (         defined $args{value_type} 
-	      and     $args{value_type} eq 'enum'
-	      and not defined $args{choice}
-	    )
-       ) {
-	$args{level} = 'hidden';
-	$self->set_owner_element_property ( \%args );
-	return ;
-    }
-
     $self->set_owner_element_property ( \%args );
 
     if ($args{value_type} eq 'reference' and not defined $self->{refer_to}
@@ -1199,10 +1185,7 @@ sub check_value {
 
     my @error  ;
 
-    if ( $self->{hidden}) {
-        push @error, "value is hidden" ;
-    }
-    elsif (not defined $value) {
+    if (not defined $value) {
 	# accept with no other check
     }
     elsif (not defined $self->{value_type} ) {
@@ -1285,7 +1268,7 @@ sub check {
 
     my @error = $self->check_value($value,$quiet) ;
 
-    if (not $self->{hidden} and not defined $value and $self->{mandatory}) {
+    if (not defined $value and $self->{mandatory}) {
         push @error, "Mandatory value is not defined" ;
     }
 

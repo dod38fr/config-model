@@ -183,6 +183,7 @@ $model -> create_config_class
        'm_value' => {
 		     type => 'leaf',
 		     value_type => 'enum',
+		     level => 'hidden',
 		     'warp'
 		     => {
 			 follow => { m => '- macro' },
@@ -190,12 +191,15 @@ $model -> create_config_class
 			 => [
 			     '$m eq "A" or $m eq "D"'
 			     => { choice => [qw/Av Bv/],
+                                  level => 'normal',
 				  help => { Av => 'Av help'} ,
 				},
 			     '$m eq "B"' => { choice => [qw/Bv Cv/],
+                                            level => 'normal',
 					    help   => { Bv => 'Bv help'} ,
 					  },
 			     '$m eq "C"' => { choice => [qw/Cv/],
+                                            level => 'normal',
 					    help   => { Cv => 'Cv help' } ,
 					  }
 			    ]
@@ -204,18 +208,22 @@ $model -> create_config_class
        'm_value_old' => {
 		     type => 'leaf',
 		     value_type => 'enum',
+		     level => 'hidden',
 		     'warp'
 		     => {
 			 follow => '- macro',
 			 'rules' 
 			 => [
 			     [qw/A D/] => { choice => [qw/Av Bv/],
+                                  level => 'normal',
 					    help => { Av => 'Av help'} ,
 					  },
 			     B => { choice => [qw/Bv Cv/],
+                                  level => 'normal',
 				    help   => { Bv => 'Bv help'} ,
 				  },
 			     C => { choice => [qw/Cv/],
+                                  level => 'normal',
 				    help   => { Cv => 'Cv help' } ,
 				  }
 			    ]
