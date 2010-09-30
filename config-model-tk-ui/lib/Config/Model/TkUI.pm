@@ -621,13 +621,21 @@ sub disp_hash {
 	my $eltmode = $elt_mode{$elt_type};
 	my $sub_elt =  $elt->fetch_with_id($idx) ;
 
+	# check for display order mismatch
+	if ($tkt->infoExists($newpath) and $prevpath) {
+	    my $tkprevpath = $tkt->info( prev => $newpath );
+	    $logger->trace("disp_hash deleting mismatching $newpath mode $eltmode cargo_type $elt_type" );
+	    $tkt->delete(entry => $newpath) ;
+	}
+
+	# check for content mismatch
 	if ($tkt->infoExists($newpath) ) {
 	    my $previous_data = $tkt->info(data => $newpath);
 	    # $previous_data is an object (or an empty string to avoid warnings)
 	    my $previous_elt  = $previous_data->[1] || '';
 	    $eltmode = $tkt->getmode($newpath); # will reuse mode below
 	    $logger->trace("disp_hash reuse $newpath mode $eltmode cargo_type $elt_type"
-			   ." obj $previous_elt" );
+			   ." obj $previous_elt (expect $sub_elt)" );
 
 	    # string comparison of objects is intentional to check that the tree
 	    # refers to the correct Config::Model object

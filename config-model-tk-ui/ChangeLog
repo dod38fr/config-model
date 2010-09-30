@@ -2,6 +2,8 @@
 
 	* lib/Config/Model/Tk/HashEditor.pm (Populate): usability improvement:
 	  copy selected entry text into item when keep is set
+	* lib/Config/Model/TkUI.pm (disp_hash): Synchronize ordered hash display in
+	tree with respect to the hash editor
 
 2010-09-10  Dominique Dumont  <domi.dumont@free.fr> 1.310
 
