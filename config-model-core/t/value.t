@@ -25,7 +25,7 @@ Log::Log4perl->easy_init($arg =~ /l/ ? $TRACE: $WARN);
 ok(1,"Compilation done");
 
 # minimal set up to get things working
-my $model = Config::Model->new(legacy => 'ignore',) ;
+my $model = Config::Model->new();
 $model ->create_config_class 
   (
    name => "Master",
@@ -82,11 +82,11 @@ $model ->create_config_class
 			      },
 		upstream_default => { type => 'leaf',
 				      value_type => 'string',
-				      built_in    => 'up_def',
+				      upstream_default    => 'up_def',
 				    },
 		a_uniline  => { type => 'leaf',
 				value_type => 'uniline',
-				built_in    => 'a_uniline_def',
+				upstream_default    => 'a_uniline_def',
 			      },
 		with_replace => {type => 'leaf',
 				 value_type => 'enum',
