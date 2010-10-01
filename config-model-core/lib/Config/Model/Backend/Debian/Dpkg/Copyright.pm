@@ -224,7 +224,7 @@ Config::Model::Backend::Debian::Dpkg::Copyright - Read and write Debian Dpkg Lic
 This module is used directly by L<Config::Model> to read or write the
 content of a configuration tree written with Debian Dep-5 syntax in
 C<Config::Model> configuration tree. This syntax is used to specify 
-license information in Debian source pacakge format.
+license information in Debian source package format.
 
 =head1 CONSTRUCTOR
 
