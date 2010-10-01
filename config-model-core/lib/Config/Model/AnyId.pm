@@ -348,7 +348,8 @@ leads to a nb of items greater than the max_nb constraint.
 
 my @common_params =  qw/min_index max_index max_nb default_with_init default_keys
                         follow_keys_from auto_create_ids auto_create_keys
-                        allow_keys allow_keys_from allow_keys_matching/ ;
+                        allow_keys allow_keys_from allow_keys_matching
+                        warn_if_key_match warn_unless_key_match/ ;
 
 my @allowed_warp_params = (@common_params,qw/experience level/) ;
 
@@ -420,7 +421,7 @@ sub set_properties {
     Config::Model::Exception::Model
         ->throw (
                  object => $self,
-                 error => "Unexpected parameters :". join(' ', keys %args)
+                 error => "Unexpected parameters: ". join(' ', keys %args)
                 ) if scalar keys %args ;
 }
 
@@ -641,37 +642,32 @@ sub handle_args {
     return $self ;
 }
 
+my %check_dispatch = map { ($_ => 'check_'.$_) ;}
+    qw/follow_keys_from allow_keys allow_keys_from allow_keys_matching
+        warn_if_key_match warn_unless_key_match/;
+
 # internal function to check the validity of the index
 sub check {
     my ($self,$idx) = @_ ; 
-
-    my @error  ;
-
-    if ($self->{follow_keys_from}) {
-        $self->check_follow_keys_from($idx) or return 0 ;
-    }
-
-    if ($self->{allow_keys}) {
-        $self->check_allow_keys($idx) or return 0 ;
-    }
-
-    if ($self->{allow_keys_from}) {
-        $self->check_allow_keys_from($idx) or return 0 ;
-    }
-
-    if ($self->{allow_keys_matching}) {
-        $self->check_allow_keys_matching($idx) or return 0 ;
-    }
-
-    my $nb =  $self->fetch_size ;
-    my $new_nb = $nb ;
-    $new_nb++ unless $self->_exists($idx) ;
 
     Config::Model::Exception::Internal
         -> throw (
                   object => $self,
                   error => "check method: key or index is not defined"
                  ) unless defined $idx ;
+
+    my @error ;
+    my @warn ;
+
+    foreach my $key_check_name (keys %check_dispatch) {
+        next unless $self->{$key_check_name} ;
+        my $method = $check_dispatch{$key_check_name} ;
+        $self->$method($idx,\@error,\@warn) ;
+    }
+
+    my $nb =  $self->fetch_size ;
+    my $new_nb = $nb ;
+    $new_nb++ unless $self->_exists($idx) ;
 
     if ($idx eq '') {
         push @error,"Index is empty";
@@ -697,68 +693,73 @@ sub check {
     }
 
     $self->{error} = \@error ;
-    return not scalar @error ;
+    $self->{warn} = \@warn ;
+
+    warn(@warn) if @warn ;
+    
+    return scalar @error ? 0 : 1 ;
 }
 
 #internal
 sub check_follow_keys_from {
-    my ($self,$idx) = @_ ; 
+    my ($self,$idx,$error) = @_ ; 
 
     my $followed = $self->safe_typed_grab('follow_keys_from') ;
-    if ($followed->exists($idx)) {
-        return 1;
-    }
+    return if $followed->exists($idx) ;
 
-    $self->{error} = ["key '$idx' does not exists in '".$followed->name 
-                      . "'. Expected '"
-                      . join("', '", $followed->get_all_indexes)
-                      . "'"
-                     ] ;
-    return 0 ;
+    push @$error, "key '$idx' does not exists in '".$followed->name 
+              . "'. Expected '" . join("', '", $followed->get_all_indexes) . "'" ;
 }
 
 #internal
 sub check_allow_keys {
-    my ($self,$idx) = @_ ; 
+    my ($self,$idx,$error) = @_ ; 
 
     my $ok = grep { $_ eq $idx } @{$self->{allow_keys}} ;
 
-    return 1 if $ok ;
-
-    $self->{error} = ["Unexpected key '$idx'. Expected '".
-                      join("', '",@{$self->{allow_keys}} ). "'"]   ;
-    return 0 ;
+    push @$error, "Unexpected key '$idx'. Expected '".
+                      join("', '",@{$self->{allow_keys}} ). "'" 
+        unless $ok ;
 }
 
 #internal
 sub check_allow_keys_matching {
-    my ($self,$idx) = @_ ; 
+    my ($self,$idx,$error) = @_ ; 
     my $match = $self->{allow_keys_matching} ;
-    my $ok = ($idx =~ /$match/) ;
 
-    return 1 if $ok ;
-
-    $self->{error} = ["Unexpected key '$idx'. Key must match $match"]   ;
-    return 0 ;
+    push @$error,"Unexpected key '$idx'. Key must match $match" 
+        unless $idx =~ /$match/;
 }
 
 #internal
 sub check_allow_keys_from {
-    my ($self,$idx) = @_ ; 
+    my ($self,$idx,$error) = @_ ; 
 
     my $from = $self->safe_typed_grab('allow_keys_from');
     my $ok = grep { $_ eq $idx } $from->get_all_indexes ;
 
-    return 1 if $ok ;
+    return if $ok ;
 
-    $self->{error} = ["key '$idx' does not exists in '"
+    push @$error, "key '$idx' does not exists in '"
                       . $from->name 
                       . "'. Expected '"
-                      . join( "', '", $from->get_all_indexes). "'" ] ;
+                      . join( "', '", $from->get_all_indexes). "'"  ;
 
-    return 0 ;
 }
 
+sub check_warn_if_key_match {
+    my ($self,$idx,$error,$warn) = @_ ; 
+    my $re = $self->{warn_if_key_match} ;
+
+    push @$warn, "Warning: key $idx should not match $re\n" if $idx =~ /$re/ ;
+}
+
+sub check_warn_unless_key_match {
+    my ($self,$idx,$error,$warn) = @_ ; 
+    my $re = $self->{warn_unless_key_match} ;
+
+    push @$warn, "Warning: key $idx should match $re\n" unless $idx =~ /$re/;
+}
 
 =head1 Informations management
 
