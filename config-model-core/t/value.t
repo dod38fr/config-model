@@ -1,13 +1,11 @@
 # -*- cperl -*-
-# $Author$
-# $Date$
-# $Revision$
 
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
-use Test::More tests => 96 ;
+use Test::More tests => 98 ;
 use Test::Exception ;
+use Test::Warn ;
 use Config::Model ;
 use Config::Model::Value;
 
@@ -112,6 +110,14 @@ $model ->create_config_class
 			                       }
                                            ^,
 			 },
+		warn_if => { type => 'leaf',
+                             value_type => 'string',
+			     warn_if_match => 'foo',
+			   },
+		warn_unless => { type => 'leaf',
+                                 value_type => 'string',
+			         warn_unless_match => 'foo',
+			   },
 	      ] , # dummy class
   ) ;
 
@@ -376,3 +382,11 @@ foreach my $prd_test (('Perl','Perl and CC-BY', 'Perl and CC-BY or Apache')) {
     $prd_match->store($prd_test) ;
     is($prd_match->fetch, $prd_test,"test stored prd value $prd_test") ;
 }
+
+### test warn_if parameter
+my $wip = $root->fetch_element('warn_if') ;
+warning_like {$wip->store('foobar');} qr/should not match/, "test warn_if condition" ;
+
+### test warn_unless parameter
+my $wup = $root->fetch_element('warn_unless') ;
+warning_like {$wup->store('bar');} qr/should match/, "test warn_unless condition" ;

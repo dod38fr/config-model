@@ -464,12 +464,25 @@ assert its validity. Example C<< match => '^foo' >> means that the
 parameter value must begin with "foo". Valid only for C<string> or
 C<uniline> values.
 
+=item warn_if_match
+
+Perl regular expression. A warning will be issued when the value match the 
+passed regular expression. Valid only for C<string> or
+C<uniline> values.
+
+=item warn_unless_match
+
+Perl regular expression. A warning will be issued when the value does not match the 
+passed regular expression. Valid only for C<string> or
+C<uniline> values.
+
+
 =cut
 
-sub setup_match_regexp {
-    my ($self,$ref) = @_ ;
+sub setup_validation_regexp {
+    my ($self,$what,$ref) = @_ ;
 
-    my $str = $self->{match} = delete $ref->{match} ;
+    my $str = $self->{$what} = delete $ref->{$what} ;
     return unless defined $str ;
     my $vt = $self->{value_type} ; 
 
@@ -477,19 +490,19 @@ sub setup_match_regexp {
 	Config::Model::Exception::Model
 		-> throw (
 			  object => $self,
-			  error => "Can't use match regexp with $vt, "
+			  error => "Can't use $what regexp with $vt, "
 			         . "expected 'uniline' or 'string'"
 			 ) ;
     }
 
-    $logger -> debug($self->name, " setup_match_regexp with '$str'");
-    $self->{regexp} = eval { qr/$str/ ;} ;
+    $logger -> debug($self->name, " setup $what regexp with '$str'");
+    $self->{$what.'_regexp'} = eval { qr/$str/ ;} ;
 
     if ($@) {
 	Config::Model::Exception::Model
 		-> throw (
 			  object => $self,
-			  error => "Unvalid match regexp for '$str': $@"
+			  error => "Unvalid $what regexp for '$str': $@"
 			 ) ;
     }
 }
@@ -694,7 +707,9 @@ sub set_properties {
     $self->set_default        ( \%args );
     $self->set_compute        ( \%args ) if defined $args{compute};
     $self->set_convert        ( \%args ) if defined $args{convert};
-    $self->setup_match_regexp ( \%args ) if defined $args{match};
+    foreach (qw/match warn_if_match warn_unless_match/) {
+	$self->setup_validation_regexp ( $_ =>  \%args ) if defined $args{$_};
+    }
     $self->setup_grammar_check( \%args ) if defined $args{grammar};
 
     # cannot be warped
@@ -703,7 +718,7 @@ sub set_properties {
     Config::Model::Exception::Model
 	-> throw (
 		  object => $self,
-		  error => "Unexpected parameters :".join(' ', keys %args )
+		  error => "Unexpected parameters: ".join(' ', keys %args )
 		 ) 
 	  if scalar keys %args ;
 
@@ -1183,7 +1198,8 @@ sub check_value {
 
     $quiet = 0 unless defined $quiet ;
 
-    my @error  ;
+    my @error ;
+    my @warn ;
 
     if (not defined $value) {
 	# accept with no other check
@@ -1239,10 +1255,21 @@ sub check_value {
 	    -> throw (object => $self, message => $msg) ;
     }
 
-    if (defined $self->{regexp} and defined $value) {
+    if (defined $self->{match_regexp} and defined $value) {
 	push @error,"value '$value' does not match regexp "
 	    .$self->{match} 
-		unless $value =~ $self->{regexp} ;
+		unless $value =~ $self->{match_regexp} ;
+    }
+
+    foreach my $t (qw/warn_if warn_unless/) {
+	my $k = $t.'_match_regexp' ;
+	next unless defined $self->{$k} and defined $value ;
+	my $rxp = $self->{$k} ;
+
+	push @warn,"value '$value' should not match regexp $rxp"  
+	    if $t =~ /if/ and $value =~ $rxp ;
+	push @warn,"value '$value' should match regexp $rxp"  
+	    if $t =~ /unless/ and $value !~ $rxp;
     }
 
     if (defined $self->{validation_parser} and defined $value) {
@@ -1252,6 +1279,8 @@ sub check_value {
     }
 
     $self->{error} = \@error ;
+    $self->{warn} = \@warn ;
+    warn @warn if @warn ;
     return wantarray ? @error : not scalar @error ;
 }
 

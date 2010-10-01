@@ -1,3 +1,8 @@
+2010-10-01 Dominique Dumont  <domi.dumont@free.fr> 
+	* Value.pm: added warn_if_match and warn_unless_match parameters.
+	Value will issue a warning if the stored value match (or does not) 
+	match a Perl regular expression specified in the model.
+
 2010-09-30 Dominique Dumont  <domi.dumont@free.fr> 1.210
 	* renamed config-edit-dep5 in config-edit-dpkg-copyright
 	* renamed Debian::Dep5 model to Debian::Dpkg::Copyright
