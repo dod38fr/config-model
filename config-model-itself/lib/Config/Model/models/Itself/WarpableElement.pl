@@ -25,7 +25,8 @@
    'element' 
    => [
 
-      [qw/allow_keys_from allow_keys_matching follow_keys_from/] 
+      [qw/allow_keys_from allow_keys_matching follow_keys_from 
+          warn_if_key_match warn_unless_key_match/] 
        => { type => 'leaf',
             level => 'hidden',
             value_type => 'uniline' ,
@@ -169,6 +170,8 @@
        default_with_init => 'specify a set of keys to create and initialization on some elements . E.g. \' foo => "X=Av Y=Bv", bar => "Y=Av Z=Cz"\' ',
        help => 'Specify help string specific to possible values. E.g for "light" value, you could write " red => \'stop\', green => \'walk\' ',
        replace => 'Used for enum to substitute one value with another. This parameter must be used to enable user to upgrade a configuration with obsolete values. The old value is the key of the hash, the new one is the value of the hash',
+       warn_if_key_match => 'Warn user if a key is created matching this regular expression',   
+       warn_unless_key_match => 'Warn user if a key is created not matching this regular expression',   
       ],
   ],
 

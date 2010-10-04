@@ -1,7 +1,4 @@
 # $Author: ddumont $
-# $Date: 2008-04-11 18:20:21 +0200 (ven, 11 avr 2008) $
-# $Revision: 600 $
-
 #    Copyright (c) 2007-2010 Dominique Dumont.
 #
 #    This file is part of Config-Model-Itself.
@@ -19,6 +16,25 @@
 #    You should have received a copy of the GNU Lesser Public License
 #    along with Config-Model-Itself; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+
+my @warp_in_uniline_or_string = 
+ (
+ 	   warp => {  follow => { 'type' => '?type',
+				  'vtype' => '?value_type' ,
+				},
+		      'rules'
+		      => [ '    $type eq "leaf" 
+                            and (    $vtype eq "uniline" 
+                                  or $vtype eq "string" 
+                                )
+                          '
+			  => {
+			      level => 'normal',
+			     }
+			 ]
+		   },
+
+ ) ;
 
 [
  [
@@ -220,19 +236,35 @@
 	   level => 'hidden',
 	   experience => 'advanced',
 	   description => 'Perl regular expression to assert the validity of the value.',
-	   warp => {  follow => { 'type' => '?type',
-				  'vtype' => '?value_type' ,
-				},
-		      'rules'
-		      => [ '    $type eq "leaf" 
-                            and (    $vtype eq "uniline" 
-                                  or $vtype eq "string" 
-                                )
-                          '
-			  => {
-			      level => 'normal',
-			     }
-			 ]
+	   @warp_in_uniline_or_string,
+	 },
+
+      'warn_if_match'
+      => { type => 'leaf',
+	   value_type => 'uniline',
+	   level => 'hidden',
+	   experience => 'advanced',
+	   description => 'Warn user if value matches the regular expression',
+	   @warp_in_uniline_or_string,
+	 },
+
+      'warn_unless_match'
+      => { type => 'leaf',
+	   value_type => 'uniline',
+	   level => 'hidden',
+	   experience => 'advanced',
+	   description => 'Warn user if value does not match the regular expression',
+	   @warp_in_uniline_or_string,
+	 },
+
+      'warn'
+      => { type => 'leaf',
+	   value_type => 'uniline',
+	   level => 'hidden',
+	   experience => 'advanced',
+	   description => 'Unconditionaly issue a warning with this string when this paramater is used. This should be used mostly with "accept"',
+	   warp => { follow => { t => '?type' },
+		     'rules' => [ '$t eq "leaf"' => { level => 'normal', } , ]
 		   },
 	 },
 
@@ -242,20 +274,7 @@
 	   level => 'hidden',
 	   experience => 'advanced',
 	   description => "Feed this grammar to Parse::RecDescent to perform validation",
-	   warp => {  follow => { 'type' => '?type',
-				  'vtype' => '?value_type' ,
-				},
-		      'rules'
-		      => [ '    $type eq "leaf" 
-                            and (    $vtype eq "uniline" 
-                                  or $vtype eq "string" 
-                                )
-                          '
-			  => {
-			      level => 'normal',
-			     }
-			 ]
-		   },
+	   @warp_in_uniline_or_string,
 	 },
 
 
