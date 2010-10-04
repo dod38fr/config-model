@@ -4,6 +4,7 @@
 use ExtUtils::testlib;
 use Test::More ;
 use Test::Exception ;
+use Test::Warn ;
 use Config::Model;
 use File::Path;
 use File::Copy ;
@@ -28,7 +29,7 @@ Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 use Log::Log4perl qw(:easy) ;
 Log::Log4perl->easy_init($arg =~ /l/ ? $TRACE: $ERROR);
 
-plan tests => 10 ;
+plan tests => 11 ;
 
 ok(1,"compiled");
 
@@ -48,6 +49,12 @@ $model->create_config_class(
                             name_match => 'str.*',
                             type => 'leaf',
                             value_type => 'uniline'
+                     },
+                     { 
+                            name_match => 'bad.*',
+                            type => 'leaf',
+                            value_type => 'uniline',
+                            warn => 'gotcha',
                      },
                      #TODO: Some advanced structures, hashes, etc.
          ],
@@ -73,7 +80,7 @@ ok( $i_hosts, "Created instance" );
 
 my $i_root = $i_hosts->config_root ;
 
-is_deeply([$i_root->accept_regexp],[qw/list.* str.*/],
+is_deeply([$i_root->accept_regexp],[qw/list.* str.* bad.*/],
        "check accept_regexp");
        
 is_deeply([$i_root->get_element_name],[qw/id/],
@@ -104,3 +111,6 @@ foreach my $oops (qw/foo=bar vlistB=test/) {
    "caught unacceptable parameter: $oops";
 }
 
+### test always_warn parameter
+my $bad = $i_root->fetch_element('badbad') ;
+warning_like {$bad->store('whatever');} qr/gotcha/, "test unconditional warn" ;

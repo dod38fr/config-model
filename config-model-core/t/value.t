@@ -3,7 +3,7 @@
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
-use Test::More tests => 98 ;
+use Test::More tests => 99 ;
 use Test::Exception ;
 use Test::Warn ;
 use Config::Model ;
@@ -117,6 +117,10 @@ $model ->create_config_class
 		warn_unless => { type => 'leaf',
                                  value_type => 'string',
 			         warn_unless_match => 'foo',
+			   },
+		always_warn => { type => 'leaf',
+                                 value_type => 'string',
+			         warn => 'Always warn whenever used',
 			   },
 	      ] , # dummy class
   ) ;
@@ -390,3 +394,7 @@ warning_like {$wip->store('foobar');} qr/should not match/, "test warn_if condit
 ### test warn_unless parameter
 my $wup = $root->fetch_element('warn_unless') ;
 warning_like {$wup->store('bar');} qr/should match/, "test warn_unless condition" ;
+
+### test always_warn parameter
+my $aw = $root->fetch_element('always_warn') ;
+warning_like {$aw->store('whatever');} qr/always/i, "test unconditional warn" ;
