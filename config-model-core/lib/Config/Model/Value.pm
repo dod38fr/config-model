@@ -1277,6 +1277,7 @@ sub check_value {
 	    if $t =~ /unless/ and $value !~ $rxp;
     }
     
+    # unconditional warn
     push @warn, $self->{warn} if $self->{warn};
 
     if (defined $self->{validation_parser} and defined $value) {
@@ -1287,7 +1288,7 @@ sub check_value {
 
     $self->{error_string} = \@error ;
     $self->{warn_string} = \@warn ;
-    warn @warn if @warn ;
+    warn(map { "Warning in '".$self->location."': $_\n"} @warn) if @warn ;
     return wantarray ? @error : not scalar @error ;
 }
 

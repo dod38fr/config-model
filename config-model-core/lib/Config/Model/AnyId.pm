@@ -695,7 +695,7 @@ sub check {
     $self->{error} = \@error ;
     $self->{warn} = \@warn ;
 
-    warn(@warn) if @warn ;
+    warn(map { "Warning in '".$self->location."': $_\n"} @warn) if @warn ;
     
     return scalar @error ? 0 : 1 ;
 }
@@ -751,14 +751,14 @@ sub check_warn_if_key_match {
     my ($self,$idx,$error,$warn) = @_ ; 
     my $re = $self->{warn_if_key_match} ;
 
-    push @$warn, "Warning: key $idx should not match $re\n" if $idx =~ /$re/ ;
+    push @$warn, "key '$idx' should not match $re\n" if $idx =~ /$re/ ;
 }
 
 sub check_warn_unless_key_match {
     my ($self,$idx,$error,$warn) = @_ ; 
     my $re = $self->{warn_unless_key_match} ;
 
-    push @$warn, "Warning: key $idx should match $re\n" unless $idx =~ /$re/;
+    push @$warn, "key '$idx' should match $re\n" unless $idx =~ /$re/;
 }
 
 =head1 Informations management

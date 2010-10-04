@@ -1,11 +1,12 @@
 # -*- cperl -*-
 
 use ExtUtils::testlib;
-use Test::More tests => 36;
+use Test::More tests => 41 ;
 use Config::Model ;
 use Log::Log4perl qw(:easy) ;
 use File::Path ;
 use File::Copy ;
+use Test::Warn ;
 
 use warnings;
 
@@ -13,13 +14,13 @@ use strict;
 
 my $arg = shift || '';
 
-my ($log,$show,$one) = (0) x 3 ;
+my ($log,$show,$do) = (0) x 3 ;
 
 my $trace = $arg =~ /t/ ? 1 : 0 ;
 $::debug            = 1 if $arg =~ /d/;
 $log                = 1 if $arg =~ /l/;
 $show               = 1 if $arg =~ /s/;
-$one                = 1 if $arg =~ /1/;
+$do                 = $1 if $arg =~ /(\d)/;
 
 Log::Log4perl->easy_init($log ? $TRACE: $WARN);
 
@@ -111,6 +112,7 @@ $tests[$i++]{check} = [ 'License:MPL-1.1',"[MPL-1.1 LICENSE TEXT]" ,
                       'Files:"src/js/fdlibm/*" License abbrev',"MPL-1.1",
                     ];
 
+# the empty license will default to 'other'
 $tests[$i]{text} = <<'EOD4' ;
 Format-Specification: http://svn.debian.org/wsvn/dep/web/deps/dep5.mdwn?op=file&rev=135
 Name: Planet Venus
@@ -123,14 +125,6 @@ Copyright: 2008, John Doe <jdoe@example.com>
            2007, J. Random User <jr@users.example.com>
 License: PSF-2
  [LICENSE TEXT]
-
-Files: debian/*
-Copyright: 2008, Dan Developer <dan@debian.example.com>
-License:
- Copying and distribution of this package, with or without
- modification, are permitted in any medium without royalty
- provided the copyright notice and this notice are
- preserved.
 
 Files: debian/patches/theme-diveintomark.patch
 Copyright: 2008, Joe Hacker <hack@example.org>
@@ -198,9 +192,10 @@ $tests[$i++]{check} = [
                       'Files:"*" License exception',"OpenSSL",
                     ];
 
-
 my $idx = 0 ;
 foreach my $t (@tests) {
+   if ($do and $do ne $idx) { $idx ++; next; }
+   
    my $wr_dir = $wr_root.'/test-'.$idx ;
    mkpath($wr_dir."/debian/", { mode => 0755 }) ;
    my $license_file = "$wr_dir/debian/copyright" ;
@@ -247,7 +242,10 @@ foreach my $t (@tests) {
 
    is($p2_dump,$dump,"compare original data with 2nd instance data") ;
    
+   # test license warnings
+   warning_like { $i2_root->load('License:YADA="yada license"') ; }
+    qr/should match/, "test license warning" ;
+   
    $idx++ ;
-   last if $one ;
 }
 
