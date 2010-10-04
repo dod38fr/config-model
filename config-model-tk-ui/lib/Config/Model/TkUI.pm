@@ -624,8 +624,10 @@ sub disp_hash {
 	# check for display order mismatch
 	if ($tkt->infoExists($newpath) and $prevpath) {
 	    my $tkprevpath = $tkt->info( prev => $newpath );
-	    $logger->trace("disp_hash deleting mismatching $newpath mode $eltmode cargo_type $elt_type" );
-	    $tkt->delete(entry => $newpath) ;
+	    if ($prevpath ne $tkprevpath) {
+		$logger->trace("disp_hash deleting mismatching $newpath mode $eltmode cargo_type $elt_type" );
+		$tkt->delete(entry => $newpath) ;
+	    }
 	}
 
 	# check for content mismatch

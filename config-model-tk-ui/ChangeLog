@@ -1,3 +1,9 @@
+2010-10-04  Dominique Dumont  <domi.dumont@free.fr> 1.312
+
+	* lib/Config/Model/TkUI.pm (disp_hash): Fixed the synchronize ordered 
+	hash display. It used to close displayed hash elements when modifying a value
+	well below the hash :-( .
+
 2010-09-10  Dominique Dumont  <domi.dumont@free.fr> 1.311
 
 	* lib/Config/Model/Tk/HashEditor.pm (Populate): usability improvement:
