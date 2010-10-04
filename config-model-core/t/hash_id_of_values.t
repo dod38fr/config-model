@@ -374,9 +374,9 @@ ok($hwakm->fetch_with_id('foo22'),"check matching key") ;
 
 # test warnings with keys
 my $hwwikm = $root->fetch_element('hash_with_warn_if_key_match') ;
-warning_like { $hwwikm->fetch_with_id('foo2') ;} qr/key foo2 should not match/,
+warning_like { $hwwikm->fetch_with_id('foo2') ;} qr/key 'foo2' should not match/,
    "warn if matching key" ;
 
 my $hwwukm = $root->fetch_element('hash_with_warn_unless_key_match') ;
-warning_like { $hwwukm->fetch_with_id('bar2') ;} qr/key bar2 should match foo/,
+warning_like { $hwwukm->fetch_with_id('bar2') ;} qr/key 'bar2' should match foo/,
    "warn unless matching key" ;
