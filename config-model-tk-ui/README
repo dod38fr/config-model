@@ -12,7 +12,11 @@ sshd_config.
 All icons used in this application were created by Crystal Project.
 They are licensed under LGPL. http://www.everaldo.com/crystal/
 
-Except tools_nicu_buculei_01.png from OpenCliparts.
+Except:
+- tools_nicu_buculei_01.png from OpenCliparts.
+- dialog_warning.png from oxygen-icon-theme (GPL v3) See
+  /usr/share/doc/oxygen-icon-theme/copyright
+  
 
 -----------------------------------------------------------
 

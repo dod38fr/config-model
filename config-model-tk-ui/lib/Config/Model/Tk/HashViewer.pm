@@ -72,7 +72,7 @@ sub get_info {
 	push @items, "cargo class: " . $hash->config_class_name ;
     }
 
-    foreach my $what (qw/min_index max_index max_nb/) {
+    foreach my $what (qw/min_index max_index max_nb warn_if_key_match warn_unless_key_match/) {
 	my $v = $hash->$what() ;
 	my $str = $what ;
 	$str =~ s/_/ /g;

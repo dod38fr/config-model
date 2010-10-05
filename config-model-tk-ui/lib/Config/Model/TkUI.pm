@@ -7,7 +7,7 @@ use warnings ;
 use Carp ;
 
 use base qw/Tk::Toplevel/;
-use vars qw/$icon_path $warn_img/ ;
+use vars qw/$icon_path $error_img $warn_img/ ;
 use subs qw/menu_struct/ ;
 use Scalar::Util qw/weaken/;
 use Log::Log4perl;
@@ -62,9 +62,11 @@ sub ClassInit {
 sub Populate { 
     my ($cw, $args) = @_;
 
-    unless (defined $warn_img) {
-	$warn_img = $cw->Photo(-file => $icon_path.'stop.png');
+    unless (defined $error_img) {
+	$error_img = $cw->Photo(-file => $icon_path.'stop.png');
 	$cust_img = $cw->Photo(-file => $icon_path.'next.png');
+	# snatched from oxygen-icon-theme
+	$warn_img = $cw->Photo(-file => $icon_path.'dialog-warning.png');
 	# snatched from openclipart-png
 	$tool_img = $cw->Photo(-file => $icon_path.'tools_nicu_buculei_01.png');
     }
@@ -668,7 +670,28 @@ sub disp_hash {
 	$cw->setmode('hash',$newpath,$eltmode,$elt_loc,$fdp_obj,$opening,$scan_sub) ;
 
 	$prevpath = $newpath ;
-    } ;
+    }
+    
+    $cw->update_hash_image($elt,$path) ;
+}
+
+sub update_hash_image {
+    my ($cw,$elt,$path) = @_ ;
+    my $tkt = $cw->{tktree} ;
+    
+    # check hash status and set warning image if necessary
+    my $img ;
+    {
+	no warnings qw/uninitialized/ ;
+	$img = $warn_img if $elt->warning_msg ;
+    }
+    
+    if (defined $img) {
+	$tkt->itemCreate($path,1, -itemtype => 'image' , -image => $img ) ;
+    }
+    else {
+	$tkt->itemDelete($path,1) if $tkt->itemExists($path,1) ;
+    }
 }
 
 sub setmode {
@@ -743,7 +766,8 @@ sub disp_leaf {
     {
 	no warnings qw/uninitialized/ ;
 	$img = $cust_img if (defined $value and $std_v ne $value) ;
-	$img = $warn_img unless $leaf_object->check($value) ;
+	$img = $warn_img if $leaf_object->warning_msg ;
+	$img = $error_img unless $leaf_object->check($value) ;
     }
 
     if (defined $img) {

@@ -231,7 +231,24 @@
                                  value_type => 'reference',
                                  refer_to => '- hash_a + ! hash_b',
                                  summary => 'justify a long help ;-) ',
-                               }
+                               },
+               
+		warn_unless => { type => 'leaf',
+                                 value_type => 'string',
+			         warn_unless_match => 'foo',
+			   },
+		always_warn => { type => 'leaf',
+                                 value_type => 'string',
+			         warn => 'Always warn whenever used',
+			   },
+                hash_with_warn_unless_key_match
+                  => {
+                      type => 'hash',
+                      index_type  => 'string',
+                      cargo => { type => 'leaf', value_type => 'string' },
+                      warn_unless_key_match => 'foo',
+                     },
+
               ],
    description => [
                    tree_macro => 'controls behavior of other elements',
