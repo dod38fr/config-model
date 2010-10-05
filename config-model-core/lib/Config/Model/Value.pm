@@ -209,7 +209,7 @@ sub set_default {
 	    -> throw (
 		      object => $self,
 		      error => "Wrong $item value\n\t".
-		      join("\n\t",@{$self->{error_string}})
+		      join("\n\t",@{$self->{error_list}})
 		     ) 
 	      unless $ok ;
 
@@ -299,7 +299,7 @@ sub compute {
 
     #print "check result: $ok\n";
     if (not $ok) {
-        my $error =  join("\n\t",@{$self->{error_string}}) .
+        my $error =  join("\n\t",@{$self->{error_list}}) .
           "\n\t".$self->compute_info;
 
         Config::Model::Exception::WrongValue
@@ -375,7 +375,7 @@ sub migrate_value {
 
     #print "check result: $ok\n";
     if (not $ok) {
-        my $error =  join("\n\t",@{$self->{error_string}}) .
+        my $error =  join("\n\t",@{$self->{error_list}}) .
           "\n\t".$self->{_migrate_from}->compute_info;
 
         Config::Model::Exception::WrongValue
@@ -1155,7 +1155,22 @@ sub get_help {
 
 # internal
 sub error_msg {
-    return join("\n\t",@{ shift ->{error_string}}) ;
+    my $self = shift ;
+    return unless $self->{errror_list} ;
+    return wantarray ? @{$self->{error_list}} : join("\n\t",@{ $self ->{error_list}}) ;
+}
+
+=head2 warning_msg
+
+Returns warning concerning this value. Returns a list in list 
+context and a string in scalar context.
+
+=cut
+
+sub warning_msg {
+    my $self = shift ;
+    return unless $self->{warning_list} ;
+    return wantarray ? @{$self->{warning_list}} : join("\n\t",@{ $self ->{warning_list}})
 }
 
 # construct an error message for enum types
@@ -1278,7 +1293,7 @@ sub check_value {
     }
     
     # unconditional warn
-    push @warn, $self->{warn} if $self->{warn};
+    push @warn, $self->{warn} if defined $value and $self->{warn};
 
     if (defined $self->{validation_parser} and defined $value) {
 	my $prd = $self->{validation_parser};
@@ -1286,8 +1301,8 @@ sub check_value {
 		unless $prd->check ( $value,1,$self);
     }
 
-    $self->{error_string} = \@error ;
-    $self->{warn_string} = \@warn ;
+    $self->{error_list} = \@error ;
+    $self->{warning_list} = \@warn ;
     warn(map { "Warning in '".$self->location."': $_\n"} @warn) if @warn ;
     return wantarray ? @error : not scalar @error ;
 }
@@ -1309,7 +1324,7 @@ sub check {
         push @error, "Mandatory value is not defined" ;
     }
 
-    $self->{error_string} = \@error ;
+    $self->{error_list} = \@error ;
     return wantarray ? @error : not scalar @error ;
 }
 
@@ -1337,7 +1352,7 @@ sub store {
     }
     elsif ($self->instance->get_value_check('store')) {
         Config::Model::Exception::WrongValue 
-	    -> throw ( error => join("\n\t",@{$self->{error_string}}),
+	    -> throw ( error => join("\n\t",@{$self->{error_list}}),
 		       object => $self) ;
     }
 
@@ -1681,7 +1696,7 @@ sub fetch {
         Config::Model::Exception::WrongValue
 	    -> throw (
 		      object => $self,
-		      error => join("\n\t",@{$self->{error_string}})
+		      error => join("\n\t",@{$self->{error_list}})
 		     ) 
 	      if $inst->get_value_check('fetch') ;
     }

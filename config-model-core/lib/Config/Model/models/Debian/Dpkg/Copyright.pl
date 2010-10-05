@@ -67,9 +67,7 @@
                                         },
                              'ordered' => '1',
                              'type' => 'hash',
-                             'description' => 'o Required for all but the first stanza. If omitted from the first
-  stanza, this is equivalent to a value of \'*\'.
-o Syntax: List of patterns indicating files having the same license
+                             'description' => 'Patterns indicating files having the same license
   and sharing copyright holders. See "File patterns" below',
                              'index_type' => 'string'
                            },

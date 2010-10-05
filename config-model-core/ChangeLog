@@ -1,4 +1,4 @@
-2010-10-01 Dominique Dumont  <domi.dumont@free.fr> 
+2010-10-01 Dominique Dumont  <domi.dumont@free.fr> 1.211
 	* Value.pm: added warn_if_match and warn_unless_match parameters.
 	Value will issue a warning if the stored value match (or does not) 
 	match a Perl regular expression specified in the model.

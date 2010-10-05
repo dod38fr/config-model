@@ -98,7 +98,7 @@ sub new {
     # args hash is modified for arg check in derived class constructor
     my $args_ref = shift ; 
 
-    my $self= { } ;
+    my $self= { warning_hash => { } } ;
 
     bless $self,$type;
 
@@ -245,6 +245,13 @@ keys hashes and created automatically. (valid only for hash elements)
 Called with C<< auto_create => 'foo' >>, or 
 C<< auto_create => ['foo', 'bar'] >>.
 
+=item warn_if_key_match
+
+Issue a warning if the key matches the specified regular expression
+
+=item warn_unless_key_match
+
+Issue a warning unless the key matches the specified regular expression
 
 =item auto_create_ids
 
@@ -486,7 +493,7 @@ object (as declared in the model unless they were warped):
 
 for my $datum (qw/min_index max_index max_nb index_type default_keys default_with_init
                   follow_keys_from auto_create_keys auto_create_ids
-                  morph ordered
+                  morph ordered warn_unless_key_match warn_if_key_match
                   config_model/) {
     no strict "refs";       # to register new methods in package
     *$datum = sub {
@@ -693,12 +700,16 @@ sub check {
     }
 
     $self->{error} = \@error ;
-    $self->{warn} = \@warn ;
 
-    warn(map { "Warning in '".$self->location."': $_\n"} @warn) if @warn ;
-    
+    if (@warn) {
+        $self->{warning_hash}{$idx} = \@warn ;
+        warn(map { "Warning in '".$self->location."': $_\n"} @warn) ;
+    }
+        
     return scalar @error ? 0 : 1 ;
 }
+
+
 
 #internal
 sub check_follow_keys_from {
@@ -822,35 +833,6 @@ sub set {
     return $self->fetch_with_id($item)->set($new_path,@_) ;
 }
 
-=head2 move ( from_index, to_index )
-
-Move an element within the hash or list.
-
-=cut
-
-sub move {
-    my ($self,$from, $to) = @_ ;
-
-    my $moved = $self->fetch_with_id($from) ;
-    $self->_delete($from);
-
-    my $ok = $self->check($to) ;
-    if ($ok) {
-        $self->_store($to, $moved) ;
-        $moved->index_value($to) ;
-    }
-    else {
-        # restore moved item where it came from
-        $self->_store($from, $moved) ;
-        if ($self->instance->get_value_check('fetch')) {
-            Config::Model::Exception::WrongValue 
-                -> throw (
-                          error => join("\n\t",@{$self->{error}}),
-                          object => $self
-                         ) ;
-        }
-    }
-}
 
 =head2 copy ( from_index, to_index )
 
@@ -1101,6 +1083,7 @@ sub delete {
     $self->warp 
       if ($self->{warp} and @{$self->{warp_info}{computed_master}});
 
+    delete $self->{warning_hash}{$idx}  ;
     return $self->_delete($idx);
   }
 
@@ -1115,7 +1098,7 @@ sub clear {
 
     $self->warp 
       if ($self->{warp} and @{$self->{warp_info}{computed_master}});
-
+    $self->{warning_hash} = {} ;
     $self->_clear;
   }
 
@@ -1141,6 +1124,20 @@ sub clear_values {
 
     map {$self->fetch_with_id($_)->store(undef)} $self->get_all_indexes ;
   }
+
+=head2 warning_msg ( [index] )
+
+Returns warnings concerning indexes of this hash. 
+Without parameter, returns a hash ref or undef. With an index, return the warnings
+concerning this index or undef.
+
+=cut
+
+sub warning_msg {
+    my ($self,$idx) = @_ ;
+    return unless scalar %{$self->{warning_hash}};
+    return defined $idx ? $self->{warning_hash}{$idx} : $self->{warning_hash} ;
+}
 
 1;
 

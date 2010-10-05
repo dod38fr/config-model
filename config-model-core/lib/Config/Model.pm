@@ -1727,7 +1727,7 @@ L<Config::Model::CheckList> <- L<Config::Model::WarpedThing> <- L<Config::Model:
 
 =item *
 
-L<Config::Model::WarpedNode> <- <- L<Config::Model::WarpedThing> <- L<Config::Model::AnyThing> 
+L<Config::Model::WarpedNode> <- L<Config::Model::WarpedThing> <- L<Config::Model::AnyThing> 
 
 
 =back

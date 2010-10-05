@@ -322,6 +322,7 @@ sub move {
     if ($ok) {
         # this may clobber the old content of $self->{data}{$to}
         $self->{data}{$to} = delete $self->{data}{$from} ;
+        delete $self->{warning_hash}{$from} ;
         # update index_value attribute in moved objects
         $self->{data}{$to}->index_value($to) ;
 
