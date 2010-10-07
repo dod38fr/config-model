@@ -155,6 +155,57 @@ sub add_description {
     return $cw->add_help( Description => $p->get_help(description => $name)) ;
 }
 
+sub add_warning {
+    my ($cw, $elt_obj) = @_ ;
+
+    my $msg = $elt_obj->warning_msg ;
+
+    my $frame = $cw -> Frame ; # packed by caller 
+    my $inner_frame = $frame->Frame ; # packed by update_warning
+    $inner_frame ->Label(
+                         -text => 'Warning', 
+                        ) ->pack(-anchor => 'w');
+
+    my $warn_widget = $inner_frame->Scrolled('ROText',
+                                        -scrollbars => 'ow',
+                                        -wrap => 'word',
+                                        -font => $text_font ,
+                                        -relief => 'ridge',
+                                        -height => 4,
+                                       );
+
+    $warn_widget ->pack( @fbe1 ) ->insert('end',$msg,'warning') ;
+    $warn_widget ->tagConfigure(qw/warning -lmargin1 2 -lmargin2 2 -rmargin 2 -background orange/);
+
+    $cw->Advertise(warn_widget => $warn_widget) ;
+    $cw->Advertise(warn_frame  => $inner_frame ) ;
+
+    $cw->update_warning($elt_obj) ;
+    
+    return $frame ;
+}
+
+sub update_warning {
+    my ($cw, $elt_obj) = @_ ;
+
+    my $msg = $elt_obj->warning_msg ;
+    if (ref ($msg) eq 'HASH') {
+        $msg = join('', map { join("\n\t",@{$msg->{$_}}) } sort keys %$msg ) ;
+    }
+
+    my $wf = $cw->Subwidget('warn_frame') ;
+    my $ww = $cw->Subwidget('warn_widget') ;
+
+    if ($msg) {
+        $ww->delete('0.0', 'end') ;
+        $ww->insert('end',$msg,'warning') ;
+        $wf->pack(@fbe1) ;
+    }
+    else {
+        $wf->packForget ;
+    }
+}
+
 # returns a widget that must be packed
 sub add_annotation {
     my ($cw, $obj) = @_ ;

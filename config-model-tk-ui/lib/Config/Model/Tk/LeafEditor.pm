@@ -99,6 +99,7 @@ sub Populate {
     $inst->pop_no_value_check ;
 
     $cw->ConfigModelNoteEditor( -object => $leaf )->pack;
+    $cw->add_warning($leaf)->pack(@fx) ;
     $cw->add_info_button()->pack( @fx,qw/-anchor n/) ;
     $cw->add_summary($leaf)->pack(@fx) ;
     $cw->add_description($leaf)->pack(@fx) ;
@@ -201,6 +202,7 @@ sub delete {
     else {
         # trigger redraw of Tk Tree
         $cw->reset_value ;
+        $cw->update_warning($cw->{leaf}) ;
         $cw->parent->parent->parent->parent->reload(1) ;
     }
 }
@@ -224,6 +226,7 @@ sub store {
     else {
         # trigger redraw of Tk Tree
         $cw->{store_cb}->($cw->{leaf}) ;
+        $cw->update_warning($cw->{leaf}) ;
     }
 }
 

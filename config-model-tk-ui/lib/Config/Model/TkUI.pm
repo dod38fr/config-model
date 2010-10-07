@@ -59,7 +59,7 @@ sub ClassInit {
     # cw->Advertise(name=>$widget);
 }
 
-sub Populate { 
+sub Populate {
     my ($cw, $args) = @_;
 
     unless (defined $error_img) {
@@ -74,7 +74,7 @@ sub Populate {
     foreach my $parm (qw/-root/) {
 	my $attr = $parm ;
 	$attr =~ s/^-//;
-	$cw->{$attr} = delete $args->{$parm} 
+	$cw->{$attr} = delete $args->{$parm}
 	  or croak "Missing $parm arg\n";
     }
 
@@ -87,7 +87,7 @@ sub Populate {
     $cw->{experience} = delete $args->{'-experience'} || 'beginner' ;
     my $extra_menu = delete $args->{'-extra-menu'} || [] ;
 
-    my $title = delete $args->{'-title'} 
+    my $title = delete $args->{'-title'}
               || "config-edit ".$cw->{root}->config_class_name ;
 
     # check unknown parameters
@@ -113,21 +113,21 @@ sub Populate {
                         -command => sub{ $cw->save_in_dir ;} ],
 		      @$extra_menu ,
 		      [ command => 'debug ...',
-                        -command => sub{ require Tk::ObjScanner; 
+                        -command => sub{ require Tk::ObjScanner;
 					 Tk::ObjScanner::scan_object($cw->{root});}],
 		      [ qw/command quit   -command/, sub{ $cw->quit }],
 		     ] ;
-    $menubar->cascade( -label => 'File', -menuitems => $file_items ) ; 
+    $menubar->cascade( -label => 'File', -menuitems => $file_items ) ;
 
     $cw->add_help_menu($menubar) ;
 
-    my $edit_items 
+    my $edit_items
       = [
 	 # [ qw/command cut   -command/, sub{ $cw->edit_cut }],
 	 [ command => 'copy (Ctrl-C)', '-command', sub{ $cw->edit_copy }],
 	 [ command => 'paste (Ctrl-V)','-command', sub{ $cw->edit_paste }],
 	];
-    $menubar->cascade( -label => 'Edit', -menuitems => $edit_items ) ; 
+    $menubar->cascade( -label => 'Edit', -menuitems => $edit_items ) ;
 
     my $exp_ref = $cw->{scanner}->get_experience_ref ;
     $cw->{exp_ref} = $exp_ref ;
@@ -135,27 +135,27 @@ sub Populate {
 
     my $exp_items = [
 		      map {['radiobutton',$_,'-variable', $exp_ref,
-			    -command => sub{$cw->reload ;} 
+			    -command => sub{$cw->reload ;}
 			   ] }
 		          qw/master advanced beginner/
 		     ] ;
     my $opt_items = [[qw/cascade experience -menuitems/, $exp_items ]] ;
-    $menubar->cascade( -label => 'Options', -menuitems => $opt_items ) ; 
+    $menubar->cascade( -label => 'Options', -menuitems => $opt_items ) ;
 
 
-    # create frame for location entry 
+    # create frame for location entry
     my $loc_frame = $cw -> Frame (-relief => 'sunken', -borderwidth => 1)
                         -> pack  (-pady => 0,  -fill => 'x' ) ;
     $loc_frame->Label(-text => 'location :') -> pack ( -side => 'left');
     $loc_frame->Label(-textvariable => \$cw->{location}) -> pack ( -side => 'left');
 
-    # add bottom frame 
-    my $bottom_frame = $cw->Frame 
+    # add bottom frame
+    my $bottom_frame = $cw->Frame
       ->pack  (qw/-pady 0 -fill both -expand 1/ ) ;
 
-    # create the widget for tree navigation 
+    # create the widget for tree navigation
     require Tk::Tree;
-    my $tree = $bottom_frame 
+    my $tree = $bottom_frame
       -> Scrolled ( qw/Tree/,
 		    -columns => 4,
 		    -header  => 1,
@@ -179,12 +179,12 @@ sub Populate {
     $cw->reload ;
 
     # add frame on the right for entry and help
-    my $eh_frame = $bottom_frame -> Frame 
+    my $eh_frame = $bottom_frame -> Frame
       -> pack (qw/-fill both -expand 1 -side right/) ;
 
     # add entry frame, filled by call-back
     # should be a composite widget
-    my $e_frame = $eh_frame -> Frame 
+    my $e_frame = $eh_frame -> Frame
       -> pack (qw/-side top -fill both -expand 1/) ;
     $e_frame -> Label( #-text => "placeholder",
 		      -image => $tool_img,
@@ -218,7 +218,7 @@ sub Populate {
     $cw->ConfigSpecs
       (
        #-background => ['DESCENDANTS', 'background', 'Background', $background],
-       #-selectbackground => [$hlist, 'selectBackground', 'SelectBackground', 
+       #-selectbackground => [$hlist, 'selectBackground', 'SelectBackground',
        #                      $selectbackground],
        -tree_width  => ['METHOD', undef, undef, 80],
        -tree_height => ['METHOD', undef, undef, 30],
@@ -250,7 +250,7 @@ sub tree_height {
 my $parser = Pod::POM->new();
 
 # parse from my documentation
-my $pom = $parser->parse_file(__FILE__) 
+my $pom = $parser->parse_file(__FILE__)
   || die $parser->error();
 
 my $help_text;
@@ -290,7 +290,7 @@ sub add_help_menu {
 		      [ qw/command Todo  -command/, $todo_sub  ],
 		      [ qw/command Usage -command/, $help_sub  ],
 		     ] ;
-    $menubar->cascade( -label => 'Help', -menuitems => $help_items ) ; 
+    $menubar->cascade( -label => 'Help', -menuitems => $help_items ) ;
 }
 
 # Note: this callback is called by Tk::Tree *before* changing the
@@ -315,7 +315,7 @@ sub open_item {
 
 sub save_in_dir {
     my $cw = shift ;
-    require Tk::DirSelect ; 
+    require Tk::DirSelect ;
     $cw->{save_dir} = $cw->DirSelect()->Show ;
     # chooseDirectory does not work correctly.
     #$cw->{save_dir} = $cw->chooseDirectory(-mustexist => 'no') ;
@@ -331,7 +331,7 @@ sub check {
 
     if ($@) {
 	$cw->handle_error($@) ;
-    } 
+    }
     elsif ($show) {
 	$cw->Dialog(-title => 'Check',
 		    -text => "No errors found"
@@ -445,20 +445,20 @@ sub reload {
 
     my $new_drawing = not $tree->infoExists($instance_name) ;
 
-    my $sub 
+    my $sub
       = sub {$cw->{scanner}->scan_node([$instance_name,$cw,@_],$cw->{root}) ;};
 
     if ($new_drawing) {
 	$tree->add($instance_name, -data => [ $sub,  $cw->{root} ]);
 	$tree->itemCreate( $instance_name, 0,
-			   -text => $instance_name , 
-			 ); 
+			   -text => $instance_name ,
+			 );
 	$tree->setmode($instance_name,'close') ;
 	$tree->open($instance_name) ;
     }
 
     # the first parameter indicates that we are opening the root
-    $sub->(1,$force_display_obj) ; 
+    $sub->(1,$force_display_obj) ;
     $tree->see($path) if $path and $tree->info(exists => $path);
     $cw->{editor}->reload if defined $cw->{editor};
 }
@@ -496,7 +496,7 @@ sub on_cut_buffer_dump {
     my $obj = $cw->{tktree}->infoData($tree_path)->[1];
 
     if ($obj->isa('Config::Model::Value')) {
-	# if leaf store content 
+	# if leaf store content
 	$obj->store($sel)
     }
     elsif ($obj->isa('Config::Model::HashId')) {
@@ -531,7 +531,7 @@ sub prune {
     # remove entries that are not part of the list
     my $tkt = $cw->{tktree} ;
 
-    map { 
+    map {
 	$tkt->deleteEntry($_) if $_ and not defined $list{$_} ;
     }  $tkt -> infoChildren($path) ;
     $logger->trace( "prune $path done" );
@@ -565,9 +565,9 @@ sub disp_obj_elt {
     my $node_loc = $node->location ;
 
     my $prevpath = '' ;
-    foreach my $elt (@element_list) { 
+    foreach my $elt (@element_list) {
 	my $newpath = "$path." . to_path($elt) ;
-	my $scan_sub = sub { 
+	my $scan_sub = sub {
 	    $scanner->scan_element([$newpath,$cw,@_], $node,$elt) ;
 	} ;
 	my @data = ( $scan_sub, $node -> fetch_element($elt) );
@@ -594,6 +594,10 @@ sub disp_obj_elt {
 	my $elt_loc = $node_loc ? $node_loc.' '.$elt : $elt ;
 
 	$cw->setmode('node',$newpath,$eltmode,$elt_loc,$fdp_obj,$opening,$scan_sub) ;
+
+	if ($elt_type eq 'hash') {
+	    $cw->update_hash_image($node->fetch_element($elt), $newpath) ;
+	}
 
 	$prevpath = $newpath ;
     } ;
@@ -671,21 +675,19 @@ sub disp_hash {
 
 	$prevpath = $newpath ;
     }
-    
-    $cw->update_hash_image($elt,$path) ;
 }
 
 sub update_hash_image {
     my ($cw,$elt,$path) = @_ ;
     my $tkt = $cw->{tktree} ;
-    
+
     # check hash status and set warning image if necessary
     my $img ;
     {
 	no warnings qw/uninitialized/ ;
 	$img = $warn_img if $elt->warning_msg ;
     }
-    
+
     if (defined $img) {
 	$tkt->itemCreate($path,1, -itemtype => 'image' , -image => $img ) ;
     }
@@ -700,7 +702,7 @@ sub setmode {
 
     my $fdp = defined $fdp_obj ? $fdp_obj->location : '';
 
-    my $force_open  = ($fdp and index($fdp,$elt_loc) == 0) ? 1 : 0 ; 
+    my $force_open  = ($fdp and index($fdp,$elt_loc) == 0) ? 1 : 0 ;
     my $force_match = ($fdp and $fdp eq $elt_loc )         ? 1 : 0;
 
     $logger->trace("$type: elt_loc '$elt_loc', opening $opening "
@@ -719,7 +721,7 @@ sub setmode {
 
     # counterintuitive but right: scan will be done when the entry
     # is opened. mode can be open, close, none
-    $scan_sub->($force_open,$fdp_obj) if ( ($eltmode ne 'open') or $force_open) ; 
+    $scan_sub->($force_open,$fdp_obj) if ( ($eltmode ne 'open') or $force_open) ;
 
     if ($force_match) {
 	$tkt->see($newpath);
@@ -772,7 +774,7 @@ sub disp_leaf {
 
     if (defined $img) {
 	$tkt->itemCreate($path,1,
-			 -itemtype => 'image' , 
+			 -itemtype => 'image' ,
 			 -image => $img
 			) ;
     }
@@ -793,7 +795,7 @@ sub disp_node {
     my $curmode = $cw->{tktree}->getmode($path);
     $cw->{tktree}->setmode($path,'open') if $curmode eq 'none';
 
-    # explore next node 
+    # explore next node
     $scanner->scan_node($data_ref,$contained_node);
 }
 
@@ -802,11 +804,11 @@ sub setup_scanner {
     my ($cw) = @_ ;
     require Config::Model::ObjTreeScanner ;
 
-    my $scanner = Config::Model::ObjTreeScanner->new 
+    my $scanner = Config::Model::ObjTreeScanner->new
       (
 
        fallback => 'node',
-       experience => 'master', #'beginner', 
+       experience => 'master', #'beginner',
 
        # node callback
        node_content_cb       => \&disp_obj_elt ,
@@ -893,7 +895,7 @@ sub create_element_widget {
     map { $_ ->destroy if Tk::Exists($_) } $e_frame->children ;
 
 
-    my $widget = $widget_table{$mode}{$type} 
+    my $widget = $widget_table{$mode}{$type}
       || die "Cannot find $mode widget for type $type";
     my @store = $mode eq 'edit' ? (-store_cb => sub {$cw->reload(@_)} ) : () ;
     $cw->{editor} = $e_frame -> $widget(-item => $obj, -path => $tree_path,
@@ -934,7 +936,7 @@ sub edit_copy {
 		      $cfg_elt->composite_name,
 		      $type,
 		      $cfg_class ,
-		      $cfg_elt->dump_as_data() 
+		      $cfg_elt->dump_as_data()
 		    ] ;
     }
 
@@ -993,11 +995,11 @@ sub wizard {
     my $cw = shift ;
     my $tree = $cw->{tktree} ;
 
-    # when wizard is run, there's no need to update editor window in 
+    # when wizard is run, there's no need to update editor window in
     # main widget
-    my $wiz = $cw->ConfigModelWizard 
+    my $wiz = $cw->ConfigModelWizard
       (
-	-root     => $cw->{root}, 
+	-root     => $cw->{root},
 	-store_cb => sub{ $cw->force_element_display(@_)},
 	-end_cb   => sub{ $cw->deiconify; $cw->raise ; },
        # -show_cb => sub{ $cw->force_element_display(@_)},
@@ -1006,7 +1008,7 @@ sub wizard {
     # hide main window while wizard is running
     # end_cb callback will raise the main window
     $cw->withdraw ;
-    
+
     $wiz->start_wizard($cw->{experience}) ;
 }
 
@@ -1043,7 +1045,7 @@ Config::Model::TkUI - Tk GUI to edit config data through Config::Model
 This class provides a GUI for L<Config::Model>.
 
 With this class, L<Config::Model> and an actual configuration
-model (like L<Config::Model::Xorg>), you get a tool to 
+model (like L<Config::Model::Xorg>), you get a tool to
 edit configuration files (e.g. C</etc/X11/xorg.conf>).
 
 Be default, only items with C<beginner> experience are shown. You can
@@ -1069,7 +1071,7 @@ Right-click on any item to open an editor widget
 
 =item *
 
-Use Ctrl-C to copy configuration data in an internal buffer 
+Use Ctrl-C to copy configuration data in an internal buffer
 
 =item *
 
@@ -1109,7 +1111,7 @@ items (mostly missing mandatory values).
 - add search element or search value
 - expand the whole tree at once
 - add plug-in mechanism so that dedicated widget
-  can be used for some config Class (Could be handy for 
+  can be used for some config Class (Could be handy for
   Xorg::ServerLayout)
 
 =head1 AUTHOR
