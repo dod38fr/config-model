@@ -55,7 +55,7 @@ else {
 
 plan tests => 14 ; # avoid double print of plan when exec is run
 
-Log::Log4perl->easy_init($log ? $DEBUG: $ERROR);
+Log::Log4perl->easy_init($log ? $TRACE: $ERROR);
 
 my $meta_model = Config::Model -> new ( ) ;
 

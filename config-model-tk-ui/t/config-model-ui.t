@@ -106,7 +106,7 @@ SKIP: {
 
     my $delay = 200 ;
     
-    sub inc_d { $delay += 400 } ;
+    sub inc_d { $delay += 500 } ;
 
     my $tktree= $cmu->Subwidget('tree') ;
     my $mgr   = $cmu->Subwidget('multi_mgr') ;
@@ -162,6 +162,17 @@ SKIP: {
 	     for ($cmu->children) { $_->destroy if $_->name =~ /dialog/i; } ;
 	     $root->load($load_fix);},
 	 sub { $cmu->save()},
+	 sub { $cmu->create_element_widget('edit','test1.always_warn');
+		$cmu -> force_element_display($root->grab('always_warn')) ; 
+	    },
+	 sub { $root->load("always_warn=foo") ; $cmu->reload ;},
+	 sub { $root->load('always_warn~') ; $cmu->reload ;},
+
+	 sub { $cmu->create_element_widget('edit','test1.warn_unless');
+		$cmu -> force_element_display($root->grab('warn_unless')) ; 
+	    },
+	 sub { $root->load("warn_unless=bar") ; $cmu->reload ;},
+	 sub { $root->load('warn_unless=foo2') ; $cmu->reload ;},
 
 	 sub { exit; }
 	);
