@@ -153,6 +153,9 @@
 			     mandatory => 1 ,
 			     value_type => 'string'
 			   },
+	       another_string => { type => 'leaf',
+			     value_type => 'string'
+			   },
 	       hidden_string 
 	       => { type => 'leaf',
 		    level => 'hidden',

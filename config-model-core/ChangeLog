@@ -7,6 +7,8 @@
 	* Value.pm: added warn parameter. Unconditionaly issue a warning with
 	a string specified in the model. Mostly usefull for deprecated or accept'ed 
 	parameters
+	* Loader.pm: load string can now undef a leaf with '~' action. 
+	E.g load("foo~") will set foo parameter to undef.
 	* Copyright model: warn if unknown license is used.
 
 2010-09-30 Dominique Dumont  <domi.dumont@free.fr> 1.210

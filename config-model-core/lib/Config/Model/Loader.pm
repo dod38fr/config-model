@@ -39,7 +39,7 @@ Config::Model::Loader - Load serialized data into config tree
  $model->create_config_class( ... ) ;
 
  # create instance
- my $inst = $model->instance (root_class_name => 'FooBar', 
+ my $inst = $model->instance (root_class_name => 'FooBar',
 			      instance_name => 'test1');
 
  # create root of config
@@ -102,7 +102,7 @@ element with C<node> cargo_type)
 Go down using C<xxx> element and loop over the ids that match the regex.
 (For C<hash>)
 
-For instance, with OpenSsh model, you could do 
+For instance, with OpenSsh model, you could do
 
  Host=~/.*.debian.org/ user='foo-guest'
 
@@ -124,7 +124,9 @@ For instance C<foo="a quoted string">. Note that you cannot embed
 double quote in this string. I.e C<foo="a \"quoted\" string"> will
 fail.
 
-C<foo=''> will set foo to C<undef>.
+=item xxx~
+
+Undef element C<xxx>
 
 =item xxx=z1,z2,z3
 
@@ -202,8 +204,8 @@ sub load {
     my $inst = $node->instance ;
 
     # tune value checking
-    my $tune_check 
-      = defined $args{check_store} 
+    my $tune_check
+      = defined $args{check_store}
 	and $args{check_store} == 0 ? 1 : 0 ;
     $inst->push_no_value_check('store') if $tune_check ;
 
@@ -211,14 +213,14 @@ sub load {
     my $huge_string = ref $step ? join( ' ', @$step) : $step ;
 
     # do a split on ' ' but take quoted string into account
-    my @command = 
-      ( 
-       $huge_string =~ 
+    my @command =
+      (
+       $huge_string =~
        m/
          (         # begin of *one* command
           (?:        # group parts of a command (e.g ...:...=... )
            [^\s"]+  # match anything but a space and a quote
-           (?:        # begin quoted group 
+           (?:        # begin quoted group
              "         # begin of a string
               (?:        # begin group
                 \\"       # match an escaped quote
@@ -261,9 +263,9 @@ sub _split_cmd {
 
 
     # do a split on ' ' but take quoted string into account
-    my @command = 
-      ( 
-       $cmd =~ 
+    my @command =
+      (
+       $cmd =~
        m!^
 	 (\w+)? # element name can be alone
 	 (?:
@@ -273,11 +275,11 @@ sub _split_cmd {
 		$quoted_regexp
               |
 	      [^"#=\.~]+    # non action chars
-            )
+            )?
          )?
 	 (?:
             (=|.=)          # assign or append
-	    ( 
+	    (
               (?:
                 $quoted_regexp
                 | [^#\s]                # or non whitespace
@@ -286,7 +288,7 @@ sub _split_cmd {
 	 )?
 	 (?:
             \#              # optional annotation
-	    ( 
+	    (
               (?:
                  $quoted_regexp
                 | [^\s]                # or non whitespace
@@ -294,7 +296,7 @@ sub _split_cmd {
             )
 	 )?
          !gx
-       ) ; 
+       ) ;
     unquote (@command) ;
 
     return wantarray ? @command : \@command ;
@@ -364,7 +366,7 @@ sub _load {
 			 );
 	}
 
-        unless (   $node->isa("Config::Model::Node") 
+        unless (   $node->isa("Config::Model::Node")
 		or $node->isa("Config::Model::WarpedNode")) {
 	    Config::Model::Exception::Load
 		-> throw (
@@ -402,7 +404,7 @@ sub _load {
             return 'error';
 	}
 
-        unless ($node->is_element_available(name => $element_name, 
+        unless ($node->is_element_available(name => $element_name,
 					    experience => $experience)) {
             Config::Model::Exception::RestrictedElement
 		-> throw (
@@ -443,7 +445,7 @@ sub _load {
 
 	if ($ret eq 'error' or $ret eq 'done') { return $ret; }
 	return 'root' if $ret eq 'root' and not $is_root ;
-	# ret eq up or ok -> go on with the loop 
+	# ret eq up or ok -> go on with the loop
     }
 
     return 'done' ;
@@ -455,7 +457,7 @@ sub _walk_node {
 
     my $element_name = shift @$inst ;
     my $element = $$target_ref = $node -> fetch_element($element_name) ;
-    
+
     # note is handled in _load, just avoid failing if it is set
     my $note = pop @$inst ;
 
@@ -494,7 +496,7 @@ sub _load_list {
 	return 'ok';
     }
 
-    if (not defined $action and $subaction eq '=' 
+    if (not defined $action and $subaction eq '='
 	and $cargo_type eq 'leaf'
        ) {
 	$logger->debug("_load_list: set whole list");
@@ -529,7 +531,7 @@ sub _load_list {
 	if ($cargo_type =~ /leaf/) {
 	    $logger->debug("_load_list: calling _load_value on $cargo_type id $id");
 	    unquote($value) ;
-	    $self->_load_value($obj,$subaction,$value) 
+	    $self->_load_value($obj,$subaction,$value)
 	      and return 'ok';
 	}
     }
@@ -561,7 +563,7 @@ sub _load_hash {
 	my @keys = $element->get_all_indexes;
 	my $ret ;
 	$logger->debug("_load_hash: looping with regex $id");
-	$id =~ s!^/!!; 
+	$id =~ s!^/!!;
 	$id =~ s!/$!! ;
 	my @saved_cmd = @$cmdref ;
 	foreach my $loop_id (grep /$id/,@keys) {
@@ -635,10 +637,15 @@ sub _load_leaf {
     my $element = $$target_ref = $node -> fetch_element($element_name) ;
     unquote($value) ;
 
+    if (defined $action and $action eq '~' and $element->isa('Config::Model::Value')) {
+        $logger->debug("_load_leaf: action '$action' deleting value");
+	$element->store(undef) ;
+    }
+
     return 'ok' unless defined $subaction ;
 
     if ($logger->is_debug) {
-        my $msg = $value ;
+        my $msg = defined $value ? $value : '<undef>';
         $msg =~ s/\n/\\n/g;
         $logger->debug("_load_leaf: action '$subaction' value '$msg'");
     }
@@ -684,5 +691,3 @@ Dominique Dumont, (ddumont at cpan dot org)
 L<Config::Model>,L<Config::Model::Node>,L<Config::Model::Dumper>
 
 =cut
-
-

@@ -1,7 +1,7 @@
 # -*- cperl -*-
 
 use ExtUtils::testlib;
-use Test::More tests => 95;
+use Test::More tests => 99;
 use Test::Exception ;
 use Config::Model;
 use Data::Dumper ;
@@ -46,6 +46,8 @@ my @regexp_test
      [ 'a=b#B'           , ['a', 'x' ,  'x'    ,'=' , 'b'     , 'B'  ]],
      [ 'a:b=c#C'         , ['a', ':' ,  'b'    ,'=' , 'c'     , 'C'  ]],
      [ 'a:b#C'           , ['a', ':' ,  'b'    ,'x' , 'x'     , 'C'  ]],
+     [ 'a~b'             , ['a', '~' ,  'b'    ,'x' , 'x'     , 'x'  ]],
+     [ 'a~'              , ['a', '~' ,  'x'    ,'x' , 'x'     , 'x'  ]],
     ) ;
 
 foreach my $subtest (@regexp_test) {
@@ -259,3 +261,11 @@ foreach (@to_check) {
     is($root->grab($_->[0])->annotation,$_->[1],
        "Check annotation for '$_->[0]'") ;
 }
+
+# test deletion of leaf items
+$step = 'another_string=foobar another_string~';
+ok( $root->load( step => $step, permission => 'intermediate' ),
+  "set up data then delete it");
+  
+is($root->grab_value('another_string'),undef,"check that another_string was undef'ed");
+
