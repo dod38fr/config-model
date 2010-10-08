@@ -1,11 +1,10 @@
 # -*- cperl -*-
-# $Author$
-# $Date$
-# $Revision$
+
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
-use Test::More tests => 5 ;
+use Test::More tests => 53 ;
+use Test::Warn ;
 use Tk;
 use Config::Model::TkUI;
 use Config::Model ;
@@ -88,9 +87,6 @@ $root->fetch_element('ordered_hash_of_mandatory')->fetch_with_id('foo') ;
 
 # use Tk::ObjScanner; Tk::ObjScanner::scan_object($root) ;
 
-my $toto ;
-
-
 # TBD eval this and skip test in case of failure.
 SKIP: {
 
@@ -111,70 +107,77 @@ SKIP: {
     my $tktree= $cmu->Subwidget('tree') ;
     my $mgr   = $cmu->Subwidget('multi_mgr') ;
     my $widget ; # ugly global variable. Use with care
+    my $idx = 1 ;
 
     my @force_test 
       = (
-	 sub { $cmu->reload} ,
+	 sub { $cmu->reload ; ok(1,"forced test: reload") } ,
 	) ;
 
     my @test 
       = (
-	 sub { $cmu->create_element_widget('edit','test1')},
-	 sub { $cmu->force_element_display($root->grab('std_id:dd DX')) },
-	 sub { $cmu->edit_copy('test1.std_id')},
-	 sub { $cmu->force_element_display($root->grab('hash_a:titi')) },
-	 sub { $cmu->edit_copy('test1.hash_a.titi')},
-	 sub { $cmu->create_element_widget('view','test1')},
-	 sub { $tktree->open('test1.lista') },
-	 sub { $cmu->create_element_widget('edit','test1.std_id');},
-	 sub { $cmu->{editor}->add_entry('e')},
-	 sub { $tktree->open('test1.std_id') },
-	 sub { $cmu->reload} ,
-	 sub { $cmu->create_element_widget('view','test1.std_id')},
-	 sub { $cmu->create_element_widget('edit','test1.std_id')},
-	 sub { $tktree->open('test1.std_id.ab') },
-	 sub { $cmu->create_element_widget('view','test1.std_id.ab.Z')},
-	 sub { $root->load(step => "std_id:ab Z=Cv") ; $cmu->reload ;},
-	 sub { $tktree->open('test1.std_id.ab') },
-	 sub { $cmu->create_element_widget('edit','test1.std_id.ab.DX')},
-	 sub { $root->load(step => "std_id:ab3") ; $cmu->reload ;} ,
-	 sub { $cmu->create_element_widget('view','test1.string_with_def')},
-	 sub { $cmu->create_element_widget('edit','test1.string_with_def')},
-	 sub { $cmu->create_element_widget('view','test1.a_long_string')},
-	 sub { $cmu->create_element_widget('edit','test1.a_long_string')},
-	 sub { $cmu->create_element_widget('view','test1.int_v')},
-	 sub { $cmu->create_element_widget('edit','test1.int_v')},
-	 sub { $cmu->create_element_widget('view','test1.my_plain_check_list')},
-	 sub { $cmu->create_element_widget('edit','test1.my_plain_check_list')},
-	 sub { $cmu->create_element_widget('view','test1.my_ref_check_list')},
-	 sub { $cmu->create_element_widget('edit','test1.my_ref_check_list')},
-	 sub { $cmu->create_element_widget('view','test1.my_reference')},
-	 sub { $cmu->create_element_widget('edit','test1.my_reference')},
+	 sub { $cmu->create_element_widget('edit','test1'); ok(1,"test ".$idx++)},
+	 sub { $cmu->force_element_display($root->grab('std_id:dd DX')) ; ok(1,"test ".$idx++)},
+	 sub { $cmu->edit_copy('test1.std_id'); ok(1,"test ".$idx++)},
+	 sub { $cmu->force_element_display($root->grab('hash_a:titi')) ; ok(1,"test ".$idx++)},
+	 sub { $cmu->edit_copy('test1.hash_a.titi'); ok(1,"test ".$idx++)},
+	 sub { $cmu->create_element_widget('view','test1'); ok(1,"test ".$idx++)},
+	 sub { $tktree->open('test1.lista') ; ok(1,"test ".$idx++)},
+	 sub { $cmu->create_element_widget('edit','test1.std_id');; ok(1,"test ".$idx++)},
+	 sub { $cmu->{editor}->add_entry('e'); ok(1,"test ".$idx++)},
+	 sub { $tktree->open('test1.std_id') ; ok(1,"test ".$idx++)},
+	 sub { $cmu->reload; ok(1,"test ".$idx++)} ,
+	 sub { $cmu->create_element_widget('view','test1.std_id'); ok(1,"test ".$idx++)},
+	 sub { $cmu->create_element_widget('edit','test1.std_id'); ok(1,"test ".$idx++)},
+	 sub { $tktree->open('test1.std_id.ab') ; ok(1,"test ".$idx++)},
+	 sub { $cmu->create_element_widget('view','test1.std_id.ab.Z'); ok(1,"test ".$idx++)},
+	 sub { $root->load(step => "std_id:ab Z=Cv") ; $cmu->reload ;; ok(1,"test ".$idx++)},
+	 sub { $tktree->open('test1.std_id.ab') ; ok(1,"test ".$idx++)},
+	 sub { $cmu->create_element_widget('edit','test1.std_id.ab.DX'); ok(1,"test ".$idx++)},
+	 sub { $root->load(step => "std_id:ab3") ; $cmu->reload ;; ok(1,"test ".$idx++)} ,
+	 sub { $cmu->create_element_widget('view','test1.string_with_def'); ok(1,"test ".$idx++)},
+	 sub { $cmu->create_element_widget('edit','test1.string_with_def'); ok(1,"test ".$idx++)},
+	 sub { $cmu->create_element_widget('view','test1.a_long_string'); ok(1,"test ".$idx++)},
+	 sub { $cmu->create_element_widget('edit','test1.a_long_string'); ok(1,"test ".$idx++)},
+	 sub { $cmu->create_element_widget('view','test1.int_v'); ok(1,"test ".$idx++)},
+	 sub { $cmu->create_element_widget('edit','test1.int_v'); ok(1,"test ".$idx++)},
+	 sub { $cmu->create_element_widget('view','test1.my_plain_check_list'); ok(1,"test ".$idx++)},
+	 sub { $cmu->create_element_widget('edit','test1.my_plain_check_list'); ok(1,"test ".$idx++)},
+	 sub { $cmu->create_element_widget('view','test1.my_ref_check_list'); ok(1,"test ".$idx++)},
+	 sub { $cmu->create_element_widget('edit','test1.my_ref_check_list'); ok(1,"test ".$idx++)},
+	 sub { $cmu->create_element_widget('view','test1.my_reference'); ok(1,"test ".$idx++)},
+	 sub { $cmu->create_element_widget('edit','test1.my_reference'); ok(1,"test ".$idx++)},
 
-	 sub { $root->load(step => "ordered_checklist=A,Z,G") ; $cmu->reload ;} ,
-	 sub { $widget = $cmu->create_element_widget('edit','test1.ordered_checklist')},
-	 sub { $widget->Subwidget('notebook')->raise('order') ;},
-	 sub { $widget->Subwidget('notebook')->raise('order') ;},
-	 sub { $widget->{order_list}->selectionSet(1,1) ;}, # Z
-	 sub { $widget->move_selected_down ;},
-	 sub { $cmu->save()},
+	 sub { $root->load(step => "ordered_checklist=A,Z,G") ; $cmu->reload ;; ok(1,"test ".$idx++)} ,
+	 sub { $widget = $cmu->create_element_widget('edit','test1.ordered_checklist'); ok(1,"test ".$idx++)},
+	 sub { $widget->Subwidget('notebook')->raise('order') ;; ok(1,"test ".$idx++)},
+	 sub { $widget->Subwidget('notebook')->raise('order') ;; ok(1,"test ".$idx++)},
+	 sub { $widget->{order_list}->selectionSet(1,1) ;; ok(1,"test ".$idx++)}, # Z
+	 sub { $widget->move_selected_down ;; ok(1,"test ".$idx++)},
+	 sub { $cmu->save(); ok(1,"test ".$idx++)},
 	 sub {
 	     for ($cmu->children) { $_->destroy if $_->name =~ /dialog/i; } ;
-	     $root->load($load_fix);},
-	 sub { $cmu->save()},
+	     $root->load($load_fix);; ok(1,"test ".$idx++)},
+	 sub { $cmu->save(); ok(1,"test ".$idx++)},
 	 sub { $cmu->create_element_widget('edit','test1.always_warn');
 		$cmu -> force_element_display($root->grab('always_warn')) ; 
-	    },
-	 sub { $root->load("always_warn=foo") ; $cmu->reload ;},
-	 sub { $root->load('always_warn~') ; $cmu->reload ;},
+	    ; ok(1,"test ".$idx++)},
+	 sub { warnings_like { $root->load("always_warn=foo") ; $cmu->reload ;}
+	       [ qr/always/ , qr/always/] ,"warn test ".$idx++ ;
+	     },
+	 sub { $root->load('always_warn~') ; $cmu->reload ;; ok(1,"test ".$idx++)},
 
 	 sub { $cmu->create_element_widget('edit','test1.warn_unless');
-		$cmu -> force_element_display($root->grab('warn_unless')) ; 
-	    },
-	 sub { $root->load("warn_unless=bar") ; $cmu->reload ;},
-	 sub { $root->load('warn_unless=foo2') ; $cmu->reload ;},
+	       $cmu -> force_element_display($root->grab('warn_unless')) ; 
+	       ok(1,"test ".$idx++);
+	     },
 
-	 sub { exit; }
+	 sub { warnings_like { $root->load("warn_unless=bar") ; $cmu->reload ;}
+	       [ qr/warn_unless/ , qr/warn_unless/] ,"warn test ".$idx++ ;
+	     },
+	 sub { $root->load('warn_unless=foo2') ; $cmu->reload ;; ok(1,"test ".$idx++)},
+
+	 sub { $mw->destroy; }
 	);
 
     foreach my $t (@force_test) {
@@ -194,3 +197,5 @@ SKIP: {
     MainLoop ; # Tk's
 
 }
+
+ok(1,"All tests are done");
