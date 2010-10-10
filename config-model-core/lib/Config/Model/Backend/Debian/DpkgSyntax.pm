@@ -70,9 +70,10 @@ sub write_dpkg_section {
     foreach (my $i=0; $i < @$array_ref; $i += 2 ) {
         my $name  = $array_ref->[$i] ;
         my $value = $array_ref->[$i + 1];
-        my $label = "$name: " ;
-        my $l = length ($label) ;
+        my $label = "$name:" ;
         if (ref ($value)) {
+            $label .= ' ';
+            my $l = length ($label) ;
             $ioh -> print ($label.join( $list_sep . ' ' x $l , @$value ) . "\n");
         }
         else {
