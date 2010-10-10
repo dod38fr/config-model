@@ -26,6 +26,12 @@
                              'type' => 'leaf',
                              'description' => 'URI of the format specification, such as: http://svn.debian.org/wsvn/dep/web/deps/dep5.mdwn?op=file&amp;rev=REVISION'
                            },
+                           'Name',
+                           {
+                             'value_type' => 'uniline',
+                             'type' => 'leaf',
+                             'description' => 'Single line (in most cases a single word), containing the name of the software.'
+                           },
                            'Maintainer',
                            {
                              'value_type' => 'string',
@@ -37,12 +43,6 @@
                              'value_type' => 'string',
                              'type' => 'leaf',
                              'description' => 'One or more URIs, one per line, indicating the primary point of distribution of the software.'
-                           },
-                           'Name',
-                           {
-                             'value_type' => 'uniline',
-                             'type' => 'leaf',
-                             'description' => 'Single line (in most cases a single word), containing the name of the software.'
                            },
                            'Disclaimer',
                            {
@@ -77,9 +77,9 @@
                                           'value_type' => 'string',
                                           'type' => 'leaf'
                                         },
+                             'warn_unless_key_match' => '^(?i:Apache|Artistic|BSD|FreeBSD|ISC|CC-BY|CC-BY-SA|CC-BY-ND|CC-BY-NC|CC-BY-NC-SA|CC-BY-NC-ND|CC0|CDDL|CPL|Eiffel|Expat|GPL|LGPL|GFDL|GFDL-NIV|LPPL|MIT|MPL|Perl|PSF|QPL|W3C-Software|ZLIB|Zope)[\\d\\.\\-]*\\+?$',
                              'allow_keys_matching' => '^[\\w\\-\\.]+$',
                              'type' => 'hash',
-                             'warn_unless_key_match' => '^(?i:Apache|Artistic|BSD|FreeBSD|ISC|CC-BY|CC-BY-SA|CC-BY-ND|CC-BY-NC|CC-BY-NC-SA|CC-BY-NC-ND|CC0|CDDL|CPL|Eiffel|Expat|GPL|LGPL|GFDL|GFDL-NIV|LPPL|MIT|MPL|Perl|PSF|QPL|W3C-Software|ZLIB|Zope)[\\d\\.\\-]*\\+?$',
                              'index_type' => 'string'
                            }
                          ]
