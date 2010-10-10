@@ -788,11 +788,11 @@ sub fetch_with_id {
 
     my $ok = $self->check($idx) ;
 
-    if ($ok) {
+    if ($ok or not $self->instance->get_value_check('fetch')) {
         $self->auto_vivify($idx) unless $self->_defined($idx) ;
         return $self->_fetch_with_id($idx) ;
       }
-    elsif ($self->instance->get_value_check('fetch')) {
+    else {
         Config::Model::Exception::WrongValue 
             -> throw (
                       error => join("\n\t",@{$self->{error}}),

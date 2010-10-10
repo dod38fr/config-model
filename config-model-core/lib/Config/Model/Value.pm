@@ -1297,7 +1297,7 @@ sub check_value {
 
     if (defined $self->{validation_parser} and defined $value) {
 	my $prd = $self->{validation_parser};
-	push @error,"value '$value' does not match grammar " .$self->{grammar} 
+	push @error,"value '$value' does not match grammar:\n" .$self->{grammar} 
 		unless $prd->check ( $value,1,$self);
     }
 
@@ -1342,7 +1342,8 @@ sub store {
 
     my ($ok,$value) = $self->pre_store(@_) ;
 
-    if ($ok) {
+    # we let store the value even if wrong when check is disabled
+    if ($ok or not $self->instance->get_value_check('store')) {
 	if ($self->instance->preset) {
 	    $self->{preset} = $value ;
 	} 
@@ -1350,7 +1351,7 @@ sub store {
 	    $self->{data} = $value ; # may be undef
 	}
     }
-    elsif ($self->instance->get_value_check('store')) {
+    else {
         Config::Model::Exception::WrongValue 
 	    -> throw ( error => join("\n\t",@{$self->{error_list}}),
 		       object => $self) ;
