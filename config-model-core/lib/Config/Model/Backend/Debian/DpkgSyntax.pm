@@ -53,6 +53,8 @@ sub parse_dpkg_file {
         map { $logger->debug("Parse result section:\n'".join("','",@$_)."'") ;} @res ;
     }
     
+    warn "No section found\n" unless @res ;
+    
     return wantarray ? @res : \@res ;   
 }
 

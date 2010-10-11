@@ -32,7 +32,7 @@ sub read {
 
     return 0 unless defined $args{io_handle} ;
 
-    $logger->info("Parsing $args{file} control file");
+    $logger->info("Parsing control file");
     # load dpkgctrl file
     my $c = $self -> parse_dpkg_file ($args{io_handle}) ;
     
@@ -81,7 +81,7 @@ sub read_section {
     for (my $i=0; $i < @$section ; $i += 2 ) {
         my $key = $section->[$i];
         my $v = $section->[$i+1];
-        $logger->info("reading key '$key' from control file (for node " .$node->location.")"); #<--- Global symbol "%args" requires explicit package name at (eval 677) line 15.
+        $logger->info("reading key '$key' from control file (for node " .$node->location.")");
         $logger->debug("$key value: $v");
         my $type = $node->element_type($key) ;
         my $elt_obj = $node->fetch_element($key) ;
