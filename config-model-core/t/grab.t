@@ -39,7 +39,7 @@ my $root = $inst -> config_root ;
 Config::Model::Exception::Any->Trace(1) if $trace =~ /e/;
 
 my $step = 'std_id:ab X=Bv - std_id:bc X=Av - std_id:"b c" X=Av - a_string="titi , toto" ';
-ok( $root->load( step => $step, permission => 'intermediate' ),
+ok( $root->load( step => $step, experience => 'advanced' ),
   "load '$step'");
 
 my $grabbed = $root->grab('olist:0' ) ;

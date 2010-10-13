@@ -147,9 +147,7 @@ my $ll_sub = sub {
     my $obj = $self->{current_node} ;
 
     my $i = $self->{current_node}->instance;
-    $i->push_no_value_check('fetch') ;
-    my $res = $obj->describe(element => $elt) ;
-    $i->pop_no_value_check;
+    my $res = $obj->describe(element => $elt, check =>'no') ;
     return $res ; 
 } ;
 
@@ -201,17 +199,13 @@ my %run_dispatch =
    ls => sub { 
        my $self = shift ;
        my $i = $self->{current_node}->instance;
-       $i->push_no_value_check('fetch') ;
        my @res = $self->{current_node}->get_element_name ;
-       $i->pop_no_value_check;
        return join('  ',@res) ;
    },
    dump => sub { 
        my $self = shift ;
        my $i = $self->{current_node}->instance;
-       $i->push_no_value_check('fetch') ;
        my @res = $self->{current_node}-> dump_tree(full_dump => 1);
-       $i->pop_no_value_check;
        return join('  ',@res) ;
    },
    delete => sub {

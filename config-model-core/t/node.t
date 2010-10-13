@@ -123,11 +123,11 @@ is( $b->fetch_element_value('Z'), undef, "test Z value" );
 
 # patch by Niko Tyni tp avoid Carp::Heavy failure. See 
 # http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=582915
-eval {$b->fetch_element('Z','user')};
+eval {$b->fetch_element(qw/name Z experience user/)};
 like($@, qr/Unexpected experience/, "fetch_element with unexpected experience" );
 
 # translated into beginner
-throws_ok { $b->fetch_element('X','beginner'); } 
+throws_ok { $b->fetch_element(qw/name X experience beginner/); } 
   'Config::Model::Exception::RestrictedElement',
   'Restricted element error';
 

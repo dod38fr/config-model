@@ -144,6 +144,10 @@ stored in them. This may be useful to trap missing mandatory values.
 Restrict dump to C<beginner> or C<intermediate> parameters. Default is
 to dump all parameters (C<master> level)
 
+=item check
+
+Check value before dumping. Valid check are 'yes', 'no' and 'skip'.
+
 =back
 
 =cut
@@ -156,8 +160,14 @@ sub dump_tree {
     my $skip_aw = delete $args{skip_auto_write} || '' ;
     my $auto_v  = delete $args{auto_vivify}     || 0 ;
     my $mode = delete $args{mode} || '';
+    
     if ($mode and $mode !~ /full|preset|custom/) {
 	croak "dump_tree: unexpected 'mode' value: $mode";
+    }
+
+    my $check = delete $args{check} || 'yes' ;
+    if ($check !~ /yes|no|skip/) {
+	croak "dump_tree: unexpected 'check' value: $check";
     }
 
     # mode parameter is slightly different from fetch's mode
@@ -183,7 +193,7 @@ sub dump_tree {
         my ( $scanner, $data_r, $node, $element, $index, $value_obj ) = @_;
 
 	# get value or only customized value
-	my $value = quote($value_obj->fetch ($fetch_mode)) ;
+	my $value = quote($value_obj->fetch (mode => $fetch_mode, check => $check)) ;
 	$index = quote($index) ;
 
         my $pad = $compute_pad->($node);
@@ -202,7 +212,7 @@ sub dump_tree {
         my ( $scanner, $data_r, $node, $element, $index, $value_obj ) = @_;
 
 	# get value or only customized value
-	my $value = $value_obj->fetch ($fetch_mode) ;
+	my $value = $value_obj->fetch (mode => $fetch_mode, check => $check) ;
 	my $qvalue = quote($value) ;
 	$index = quote($index) ;
         my $pad = $compute_pad->($node);
@@ -235,7 +245,8 @@ sub dump_tree {
         else {
 	    # skip undef values
 	    my @val = quote( grep (defined $_, 
-				   $list_obj->fetch_all_values($fetch_mode))) ;
+				   $list_obj->fetch_all_values(mode => $fetch_mode, 
+							       check => $check))) ;
 	    my $note = quote($list_obj->annotation) ;
             $$data_r .= "\n$pad$element"        if @val or $note ;
 	    $$data_r .= "=" . join( ',', @val ) if @val;
@@ -307,6 +318,7 @@ sub dump_tree {
 		     leaf_cb         => $std_cb,
 		     node_element_cb => $element_cb,
 		     check_list_element_cb => $check_list_cb,
+		     check           => $check,
 		    );
 
     my @left = keys %args;

@@ -152,11 +152,7 @@ sub new {
 
     bless $self, $class;
 
-    $self->push_no_value_check('store','fetch','type') if $force_load ;
-
-    $self->reset_config ;
-
-    $self->pop_no_value_check() if $force_load ;
+    $self->reset_config(check => $force_load ? 'no' : 'yes' ) ;
 
     return $self ;
 }
@@ -192,13 +188,14 @@ data (and annotations) loaded from disk.
 =cut
 
 sub reset_config {
-    my $self= shift ;
+    my ($self, %args ) = @_ ;
 
     $self->{tree} = Config::Model::Node
       -> new ( config_class_name => $self->{root_class_name},
 	       instance => $self,
 	       config_model => $self->{config_model},
 	       skip_read  => $self->{skip_read},
+	       check => $args{check} ,
 	     );
 
     # $self->{annotation_saver} = Config::Model::Annotation
@@ -270,100 +267,6 @@ Get preset mode
 sub preset {
     my $self = shift ;
     return $self->{preset} ;
-}
-
-=head2 push_no_value_check ( fetch | store | type , ... )
-
-Tune C<Config::Model::Value> to perform check on read (fetch) or write
-(store) or verify the value according to its C<value_type>.  The
-passed parameters are stacked. Parameters are :
-
-=over 8
-
-=item store
-
-Skip write check.
-
-=item fetch
-
-Skip read check.
-
-=item type
-
-Skip value_type check (See L<Config::Model::Value> for details). 
-I.e L<Config::Model::Value> will not enforce type checking.
-
-=back
-
-Note that these values are stacked. They can be read by
-get_value_check until the next push_no_value_check or
-pop_no_value_check call.
-
-Example:
-
-  $i->push_no_value_check('fetch') ;
-  $i->push_no_value_check('fetch','type') ;
-
-=cut
-
-sub push_no_value_check {
-    my $self = shift ;
-    my %h = ( fetch => 1, store => 1, type  => 1 ) ;
-
-    foreach my $w (@_) {
-        if (defined $h{$w}) {
-            $h{$w} = 0;
-	}
-        else {
-            croak "push_no_value_check: cannot relax $w value check";
- 	}
-    }
-
-    unshift @{ $self->{check_stack} }, \%h ;
-}
-
-=head2 pop_no_value_check()
-
-Pop off the check stack the last check set entered with
-C<push_no_value_check>.
-
-=cut
-
-sub pop_no_value_check {
-    my $self = shift ;
-    my $h = $self->{check_stack} ;
-
-    if (@$h > 1) {
-      # always leave the original value
-        shift @$h ;
-    }
-    else {
-        carp "pop_no_value_check: empty check stack";
-    }
-}
-
-=head2 get_value_check ( fetch | store | type | fetch_or_store | fetch_and_store )
-
-Read the check status. Returns 1 if a check is to be done. O if not. 
-When used with the C<fetch_or_store> parameter, returns a logical C<or>
-or the check values, i.e. C<read_check || write_check>
-
-=cut
-
-sub get_value_check {
-    my $self = shift ;
-    my $what = shift ;
-
-    my $ref = $self->{check_stack}[0] ;
-    my $result = $what eq 'fetch_or_store'  ? ($ref->{fetch} or  $ref->{store})
-               : $what eq 'fetch_and_store' ? ($ref->{fetch} and $ref->{store})
-               :                               $ref->{$what} ;
-
-    croak "get_value_check: unexpected parameter: $what, ",
-      "expected 'fetch', 'type', 'store', 'fetch_or_store'" 
-        unless defined $result;
-
-    return $result ;
 }
 
 =head2 data( kind, [data] )

@@ -67,33 +67,34 @@ my $root = $inst -> config_root ;
 
 # check with embedded \n
 my $step = qq!#"root cooment" std_id:ab X=Bv -\na_string="titi and\ntoto" !;
-ok( $root->load( step => $step, permission => 'intermediate' ),
+ok( $root->load( step => $step, experience => 'advanced' ),
   "load steps with embedded \\n");
 is( $root->fetch_element('a_string')->fetch, "titi and\ntoto",
   "check a_string");
 
 $step = 'std_id:ab X=Bv - std_id:bc X=Av - a_string="titi , toto" ';
-ok( $root->load( step => $step, permission => 'intermediate' ),
+ok( $root->load( step => $step, experience => 'advanced' ),
   "load '$step'");
 is( $root->fetch_element('a_string')->fetch, 'titi , toto',
   "check a_string");
 
 
-ok( $root->load( step => 'tree_macro=XZ', permission => 'advanced' ),
+ok( $root->load( step => 'tree_macro=XZ', experience => 'advanced' ),
   "Set tree_macro to XZ");
 
 # test load with warped_node below root (used to fail)
 $step = 'slave_y warp2 aa2="foo bar baz"';
-ok( $root->load( step => $step, permission => 'intermediate' ),
+ok( $root->load( step => $step, experience => 'advanced' ),
   "load '$step'");
 
-ok( $root->load( step => 'tree_macro=XY', permission => 'advanced' ),
+# this will warp out slave_y warp2
+ok( $root->load( step => 'tree_macro=XY', experience => 'advanced' ),
   "Set tree_macro to XY");
 
 # use indexes with white spaces
 
 $step = 'std_id:"a b" X=Bv - std_id:" b  c " X=Av " ';
-ok( $root->load( step => $step, permission => 'intermediate' ),
+ok( $root->load( step => $step, experience => 'advanced' ),
   "load '$step'");
 
 is_deeply([ $root->fetch_element('std_id')->get_all_indexes ],
@@ -101,15 +102,15 @@ is_deeply([ $root->fetch_element('std_id')->get_all_indexes ],
       "check indexes");
 
 $step = 'std_id:ab ZZX=Bv - std_id:bc X=Bv';
-throws_ok {$root->load( step => $step, permission => 'intermediate' );}
+throws_ok {$root->load( step => $step, experience => 'advanced' );}
   "Config::Model::Exception::UnknownElement", "load wrong '$step'";
 
 $step = 'lista=a,b,c,d olist:0 X=Av - olist:1 X=Bv - listb=b,c,d,,f,"",h,0';
-throws_ok { $root->load( step => $step, permission => 'intermediate');} 
+throws_ok { $root->load( step => $step, experience => 'advanced');} 
   qr/comma/, "load wrong '$step'";
 
 $step = 'listb=b,c,d,f,"",h,0';
-ok ( $root->load( step => $step, permission => 'intermediate'),
+ok ( $root->load( step => $step, experience => 'advanced'),
      "load '$step'");
 
 # perform some checks
@@ -244,7 +245,7 @@ $step = 'std_id:ab#std_id_ab_note X=Bv X#X_note
   . '! hash_a:X2=x#x_note hash_a:Y2=xy  hash_b:X3=xy my_check_list=X2,X3 '
   . 'plain_object#"plain comment" aa2=aa2_value' ;
 
-ok( $root->load( step => $step, permission => 'intermediate' ),
+ok( $root->load( step => $step, experience => 'advanced' ),
   "set up data in tree with combination of load and annotations");
 
 my @to_check = ( 
@@ -264,7 +265,7 @@ foreach (@to_check) {
 
 # test deletion of leaf items
 $step = 'another_string=foobar another_string~';
-ok( $root->load( step => $step, permission => 'intermediate' ),
+ok( $root->load( step => $step, experience => 'advanced' ),
   "set up data then delete it");
   
 is($root->grab_value('another_string'),undef,"check that another_string was undef'ed");

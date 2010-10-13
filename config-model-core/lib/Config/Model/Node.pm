@@ -598,6 +598,7 @@ sub new {
 
     $self->{index_value} = delete $args{index_value} ;
     my $skip_read = delete $args{skip_read} ;
+    my $check = $self->_check_check(delete $args{check}) ;
 
     my @left = keys %args ;
     croak "Node->new: unexpected parameter: @left" if @left ;
@@ -617,8 +618,9 @@ sub new {
 
     if (defined $model->{read_config} and not $skip_read) {
         # setup auto_read, read_config_dir is obsolete
-        $self->auto_read_init($model->{read_config}, 
-                              $model->{read_config_dir});
+        $self->auto_read_init($model->{read_config}, $check,
+                              $model->{read_config_dir}
+                              );
     }
 
     # use read_config data if write_config is missing
@@ -1043,7 +1045,7 @@ sub check_property_args {
 
 =head1 Information management
 
-=head2 fetch_element ( name  [ , user_experience ])
+=head2 fetch_element ( name => ..  [ , user_experience => .. ] , [ check => ..] )
 
 Fetch and returns an element from a node.
 
@@ -1051,13 +1053,22 @@ If user_experience is given, this method will check that the user has
 enough privilege to access the element. If not, a C<RestrictedElement>
 exception will be raised.
 
+check can be set to yes, no or skip
+
 =cut
 
 sub fetch_element {
     my $self = shift ;
-    my $element_name = shift ;
-    my $user = shift || 'master' ;
-    my $accept_hidden = shift || 0 ;
+    my %args = @_ > 1 ? @_ : ( name => shift ) ;
+    my $element_name = $args{name} ;
+    
+    Config::Model::Exception::Internal -> throw (
+        error => "fetch_element: missing name" 
+    ) unless defined $element_name ;
+    
+    my $user = $args{experience} || 'master' ;
+    my $check = $self->_check_check($args{check}) ;
+    my $accept_hidden = $args{accept_hidden} || 0 ;
 
     if ($user eq 'intermediate') {
         carp "fetch_element: 'intermediate' is deprecated in favor of 'beginner'";
@@ -1066,15 +1077,12 @@ sub fetch_element {
 
     my $model = $self->{model} ;
 
-
     # retrieve element (and auto-vivify if needed)
     if (not defined $self->{element}{$element_name}) {
         # We also need to check if element name is matched by any of 'accept' parameters
         $self->accept_element($element_name);
         $self->create_element($element_name) ;
     }
-
-
 
     # check level
     my $element_level 
@@ -1104,9 +1112,9 @@ sub fetch_element {
     }
 
     if ($self->{status}{$element_name} eq 'deprecated' 
-        and $self->{instance}->get_value_check('fetch_and_store')
+        and $check ne 'no'
        ) {
-        # TBD elaborate more ? or include parameter description ??
+        # FIXME elaborate more ? or include parameter description ??
         warn "Element '$element_name' of node '",$self->name,
           "' is deprecated\n";
     }
@@ -1121,9 +1129,7 @@ sub fetch_element {
 
     croak "Unexpected experience '$user'" unless defined $user_idx ;
 
-    if ($user_idx < $elt_idx
-        and $self->{instance}->get_value_check('fetch_or_store')
-       ) {
+    if ($user_idx < $elt_idx and $check eq 'yes') {
         Config::Model::Exception::RestrictedElement
             ->throw(
                     object   => $self,
@@ -1141,7 +1147,7 @@ sub fetch_element_no_check {
     return $self->{element}{$element_name} ;
 }
 
-=head2 fetch_element_value ( name  [ , user_experience ])
+=head2 fetch_element_value ( name => ... [ check => ...] )
 
 Fetch and returns the I<value> of a leaf element from a node.
 
@@ -1153,8 +1159,10 @@ exception will be raised.
 
 sub fetch_element_value {
     my $self = shift ;
-    my $element_name = shift ;
-    my $user = shift || 'master' ;
+    my %args = @_ > 1 ? @_ : (name => $_[0]) ;
+    my $element_name = $args{name} ;
+    my $user = $args{experience} || 'master' ;
+    my $check = $self->_check_check($args{check}) ;
 
     if ($self->element_type($element_name)  ne 'leaf') {
         Config::Model::Exception::WrongType
@@ -1166,12 +1174,14 @@ sub fetch_element_value {
                    );
     }
 
-    return $self->fetch_element($element_name,$user)->fetch() ;
+    return $self->fetch_element(%args)->fetch( check => $check ) ;
 }
 
-=head2 store_element_value ( name, value  [ , user_experience ])
+=head2 store_element_value ( name, value )
 
 Store a I<value> in a leaf element from a node.
+
+Can be invoked with named parameters (name, value, experience, check)
 
 If user_experience is given, this method will check that the user has
 enough privilege to access the element. If not, a C<RestrictedElement>
@@ -1181,11 +1191,9 @@ exception will be raised.
 
 sub store_element_value {
     my $self = shift ;
-    my $element_name = shift ;
-    my $value = shift;
-    my $user = shift || 'master' ;
+    my %args = @_ > 2 ? @_ : (name => $_[0] , value => $_[1]) ;
 
-    return $self->fetch_element($element_name,$user)->store( $value ) ;
+    return $self->fetch_element( %args )->store( %args ) ;
 }
 
 =head2 is_element_available( name => ...,  experience => ... )
@@ -1221,7 +1229,8 @@ sub is_element_available {
 
     # force the warp to be done (if possible) so the catalog name
     # is updated
-    my $element = $self->fetch_element($elt_name,undef,1) ;
+    my $element = $self->fetch_element(name => $elt_name,
+        experience => 'master', check => 'no', accept_hidden => 1) ;
 
     my $element_level = $self->get_element_property(property => 'level',
                                                     element => $elt_name) ;
@@ -1408,7 +1417,7 @@ sub load {
     }
 }
 
-=head2 load_data ( hash_ref, hash_ref )
+=head2 load_data ( hash_ref, hash_ref,[ $check  ])
 
 Load configuration data with a hash ref (first parameter). The hash ref key must match
 the available elements of the node. The hash ref structure must match
@@ -1427,7 +1436,7 @@ sub load_data {
     my $raw_perl_data       = shift ;
     my $raw_annotation_data = shift || {};
 
-    my $check = $self->instance->get_value_check('store') ;
+    my $check = $self->_check_check(shift) ;
 
     if (    not defined $raw_perl_data 
         or (ref($raw_perl_data) ne 'HASH' 
@@ -1437,7 +1446,7 @@ sub load_data {
                       object => $self,
                       message => "load_data called with non hash ref arg",
                       wrong_data => $raw_perl_data,
-                     )  if $check ;
+                     )  if $check eq 'yes' ;
         return ;
     }
 
@@ -1478,14 +1487,15 @@ sub load_data {
         next unless defined $perl_data->{$elt} ;
 
         if ($self->is_element_available(name => $elt, experience => 'master')
-            or not $check
+            or $check eq 'no'
            ) {
             $logger->debug("Node load_data for element $elt");
-            my $obj = $self->fetch_element($elt,'master', not $check) ;
+            my $obj = $self->fetch_element(name => $elt, experience => 'master', 
+                                           check => $check) ;
 
             $obj -> load_data(delete $perl_data->{$elt}, 
                               delete $annotation_data->{$elt}) ;
-        } else {
+        } elsif ($check ne 'skip')  {
             Config::Model::Exception::LoadData 
                 -> throw (
                           message => "load_data: tried to load hidden "
@@ -1503,7 +1513,7 @@ sub load_data {
         foreach my $elt (keys %$perl_data) {
             #load value
             #TODO: annotations
-            my $obj = $self->fetch_element($elt,'master', not $check) ;
+            my $obj = $self->fetch_element($elt,'master', $check) ;
             $obj ->load_data(delete $perl_data->{$elt}, 
                              delete $annotation_data->{$elt}
                              ) if defined $obj;
@@ -1512,12 +1522,12 @@ sub load_data {
 
     # now load annotations that were put aside
     foreach my $elt (keys %elt_note) {
-        my $obj = $self->fetch_element($elt,'master', not $check) ;
+        my $obj = $self->fetch_element($elt,'master', $check) ;
         $logger->debug("Node load_data: store element $elt annotation: $elt_note{$elt}");
         $obj -> annotation($elt_note{$elt}) if defined $obj;
         }
 
-    if (%$perl_data and $check) {
+    if (%$perl_data and $check eq 'yes') {
         Config::Model::Exception::LoadData 
             -> throw (
                       message => "load_data: unknown elements (expected "
@@ -1601,11 +1611,9 @@ are simply discarded.
 sub copy_from {
     my $self = shift ;
     my $from = shift ;
-    $self->instance->push_no_value_check('fetch') ;
-    my $dump = $from->dump_tree() ;
-    $self->instance->pop_no_value_check ;
+    my $dump = $from->dump_tree(check => 'no') ;
     $logger->debug( "node copy with '$dump'");
-    $self->load( step => $dump, check_store => 0 ) ;
+    $self->load( step => $dump, check => 'skip' ) ;
 }
 
 =head1 Help management

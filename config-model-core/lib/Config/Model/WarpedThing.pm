@@ -1,5 +1,5 @@
 
-#    Copyright (c) 2005-2009 Dominique Dumont.
+#    Copyright (c) 2005-2010 Dominique Dumont.
 #
 #    This file is part of Config-Model.
 #
@@ -341,7 +341,7 @@ sub warp {
         get_logger("Tree::Element::Warped")
 	  ->debug( "Warp called with value '", 
 		   defined $value ? $value : '<undef>',
-		   "'name $warp_name");
+		   "' name $warp_name");
         $warp_value_set->{$warp_name} = $value ;
     }
 
@@ -424,7 +424,7 @@ sub _do_warp {
     # try all boolean expression with warp_value_set to get the
     # correct rule
 
-    my $found_rule ;
+    my $found_rule = {};
     my $found_bool ='' ; # this variable may be used later in error message
 
     foreach my $bool_expr (@$rules) {
@@ -432,7 +432,7 @@ sub _do_warp {
 	my $res = $self -> compute_bool( $bool_expr );
 	next unless $res ;
 	$found_bool = $bool_expr ;
-	$found_rule = $self->{warp_info}{rule_hash}{$bool_expr} ;
+	$found_rule = $self->{warp_info}{rule_hash}{$bool_expr} || {};
 	$logger->debug("_do_warp found rule for '$bool_expr':\n", 
 		       Data::Dumper->Dump ([$found_rule],['found_rule']));
 	last;
@@ -441,20 +441,21 @@ sub _do_warp {
     if ($logger->is_info) {
         my @warp_str = map { defined $_ ? $_ : 'undef' } keys %$warp_value_set ;
 
-        $logger->info("warp called from '$found_bool' on '",$self->name,
+        $logger->info("_do_warp: warp called from '$found_bool' on '",$self->name,
 		      "' with elements '",join("','",@warp_str),
-		      "', warp rule is ", (defined $found_rule ? "" : 'not ') , 
+		      "', warp rule is ", (scalar %$found_rule ? "" : 'not ') , 
 		      "found");
     }
 
-    $logger->debug("warp_them: call set_properties on '",$self->name,"'");
+    $logger->debug("warp_them: call set_properties on '",$self->name,"' with ",
+	Data::Dumper->Dump ([$found_rule],['found_rule']));
 
     eval { $self->set_properties(%$found_rule) ; };
 
     if ($@) {
         my @warp_str = map { defined $_ ? $_ : 'undef' } keys %$warp_value_set ;
 	my $e = $@ ;
-	my $msg = $e ? $e->error : '' ;
+	my $msg = ref $e ? $e->as_string : $e ;
 	Config::Model::Exception::Model
 	    -> throw (
 		      object => $self,

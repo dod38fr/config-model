@@ -1,3 +1,13 @@
+	* Value and AnyId: store wrong values when store check is disabled 
+	(i.e. config-edit is run with -force option).
+	* Debian::Dpkg::Copyright: cosmetic improvements on written file
+	* Instance.pm: Removed all overengineered push_no_value_check, pop_no_value_check. 
+	This stuff had too many drawbacks of global variables.
+	An optional check parameter was added to a lot of calls on Config::Model. The API
+	was also sanitized with some positional parameters replaced by named parameters. Most of 
+	these changes should be internal. The main impact is that Backend must not explicitely
+	pass this check parameter lest the force_load will not work.
+
 2010-10-01 Dominique Dumont  <domi.dumont@free.fr> 1.211
 	* Value.pm: added warn_if_match and warn_unless_match parameters.
 	Value will issue a warning if the stored value match (or does not) 

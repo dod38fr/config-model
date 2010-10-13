@@ -6,7 +6,7 @@ use ExtUtils::testlib;
 use Test::More;
 use Config::Model ;
 
-BEGIN { plan tests => 37; }
+BEGIN { plan tests => 35; }
 
 use strict;
 
@@ -232,14 +232,8 @@ eval { $result = $compute_int->fetch; };
 ok($@,"computed integer: computed value error");
 print "normal error:\n", $@, "\n" if $trace;
 
-ok($inst->push_no_value_check('fetch'),
-   "disable fetch value check");
-
-is($compute_int->fetch, undef, 
+is($compute_int->fetch(check => 0), undef, 
    "test result :  computed integer is undef (a: 1, b: -2)");
-
-ok($inst->pop_no_value_check,
-   "enable fetch value check");
 
 my $s = $root->fetch_element('meet_test') ;
 $result = $s->fetch ;

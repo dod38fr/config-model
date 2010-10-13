@@ -265,17 +265,6 @@ See L</"Warp: dynamic value configuration"> below.
 
 =back
 
-=head1 About checking value
-
-By default, value checking is done while setting or reading a value.
-
-You can use 
-L<push_no_value_check()|Config::Model::Instance/"push_no_value_check ( [fetch] , [store], [type] )">
-or 
-L<pop_no_value_check()|Config::Model::Instance/"pop_no_value_check()">
-from L<Config::Model::Instance>
-to modify this behavior.
-
 =head1 Warp: dynamic value configuration
 
 The Warp functionality enables an L<HashId|Config::Model::HashId> or
@@ -774,21 +763,25 @@ sub check_warn_unless_key_match {
 
 =head1 Informations management
 
-=head2 fetch_with_id ( index )
+=head2 fetch_with_id ( index => $idx , [ check => 'no' ])
 
-Fetch the collected element held by the hash or list.
+Fetch the collected element held by the hash or list. Index check is 'yes' by default.
+Can be called with one parameter: idx.
 
 =cut
 
 sub fetch_with_id {
-    my ($self,$idx) = @_ ;
+    my $self = shift ;
+    my %args = @_ > 1 ? @_ : ( index => shift ) ;
+    my $check = $self->_check_check($args{check}) ;    
+    my $idx = $args{index} ;
 
     $self->warp 
       if ($self->{warp} and @{$self->{warp_info}{computed_master}});
 
     my $ok = $self->check($idx) ;
 
-    if ($ok or not $self->instance->get_value_check('fetch')) {
+    if ($ok or $check eq 'no') {
         $self->auto_vivify($idx) unless $self->_defined($idx) ;
         return $self->_fetch_with_id($idx) ;
       }
@@ -855,7 +848,7 @@ sub copy {
         # node object 
         $self->fetch_with_id($to)->copy_from($from_obj) ;
     }
-    elsif ($self->instance->get_value_check('fetch')) {
+    else {
         Config::Model::Exception::WrongValue 
             -> throw (
                       error => join("\n\t",@{$self->{error}}),
@@ -876,12 +869,12 @@ sub fetch_all {
     return map { $self->fetch_with_id($_) ;} @keys ;
 }
 
-=head2 fetch_all_values( [ custom | preset | standard | default ] )
+=head2 fetch_all_values( mode => ..., check => ...)
 
 Returns an array containing all defined values held by the hash or
 list. (undefined values are simply discarded)
 
-With a parameter, this method will return either:
+With C<mode> parameter, this method will return either:
 
 =over
 
@@ -907,13 +900,15 @@ The default value (defined by the configuration model)
 
 sub fetch_all_values {
     my $self = shift ;
-    my $mode = shift ;
-
+    my %args = @_ > 1 ? @_ : ( mode => shift ) ;
+    my $mode = $args{mode};
+    my $check = $self->_check_check($args{check}) ;
+    
     my @keys  = $self->get_all_indexes ;
 
     if ($self->{cargo}{type} eq 'leaf') {
         return grep {defined $_} 
-          map { $self->fetch_with_id($_)->fetch($mode) ;} @keys ;
+          map { $self->fetch_with_id($_)->fetch(check => $check, mode => $mode) ;} @keys ;
     }
     else {
         my $info = "current keys are '".join("', '",@keys)."'." ;

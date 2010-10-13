@@ -54,7 +54,7 @@ warp warp2 aa2="foo bar"
 
 $step =~ s/\n/ /g;
 
-ok( $root->load( step => $step, permission => 'advanced' ),
+ok( $root->load( step => $step, experience => 'advanced' ),
   "set up data in tree with '$step'");
 
 # load some values with undef

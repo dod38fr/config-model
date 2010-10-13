@@ -226,7 +226,7 @@ is_deeply($step, [qw/olist slave_y std_id warp/],'next_choice 1') ;
 
 $searcher->choose('std_id') ;
 ok(1, "std_id choice done") ;
-$root->instance->push_no_value_check('fetch') ;
+
 #print $root->dump_tree(full_dump =>1) ;
 
 $step = $searcher->next_choice() ;

@@ -281,8 +281,8 @@ considered when going up the tree.
 
 sub grab {
     my $self = shift ;
-    my ($step,$strict,$autoadd, $type, $grab_non_available)
-      = (undef, 1, 1, undef, 0 ) ;
+    my ($step,$strict,$autoadd, $type, $grab_non_available,$check)
+      = (undef, 1, 1, undef, 0, 'yes' ) ;
     if ( @_ > 1 ) {
 	my %args = @_;
 	$step    = $args{step};
@@ -291,6 +291,7 @@ sub grab {
 	$grab_non_available = $args{grab_non_available} 
 	  if defined $args{grab_non_available};
 	$type    = $args{type} ; # node, leaf or undef
+	$check = $self->_check_check($args{check}) ;
     }
     elsif (@_ == 1) {
 	$step = shift ;
@@ -418,7 +419,8 @@ sub grab {
 	   last ;
 	}
 
-	my $next_obj = $obj->fetch_element($name,'master',$grab_non_available) ;
+	my $next_obj = $obj->fetch_element( name => $name,
+	    experience => 'master', check => $check, accept_hidden => $grab_non_available) ;
 
 	# create list or hash element only if autoadd is true
         if (defined $action and $autoadd == 0
@@ -583,6 +585,18 @@ sub dump_as_data {
     my $self = shift ;
     my $dumper = Config::Model::DumpAsData->new ;
     $dumper->dump_as_data(node => $self, @_) ;
+}
+
+# hum, check if the check information is valid
+sub _check_check {
+    my $self = shift ;
+    my $p = shift ;
+
+    return 'yes' if not defined $p or $p eq '1' or $p eq 'yes';
+    return 'no'  if $p eq '0' or $p eq 'no' ;
+    return $p    if $p eq 'skip' ;
+
+    croak "Internal error: Unvalid check value: $p" ;
 }
 
 

@@ -240,7 +240,8 @@ sub full_message {
     my $msg = $self->description;
     my $element = $self->element ;
     my $function = $self->function ;
-    my $unavail = $obj->fetch_element($element,undef,1) ;
+    my $unavail = $obj->fetch_element(name => $element, experience => 'master',	
+				      check => 'no', accept_hidden => 1) ;
     $msg .= " '$element' in node '$location'.\n" ;
     $msg .= "\tError occured when calling $function.\n" if defined $function ;
     $msg .= "\t".$unavail->warp_error if $unavail->can('warp_error');
@@ -314,7 +315,8 @@ sub full_message {
 
 	if ($parent->element_type ( $element_name ) eq 'warped_node' ) {
 	    $msg .= "\t". 
-	      $parent -> fetch_element( $element_name,undef,1 ) -> warp_error ;
+	      $parent -> fetch_element( name => $element_name,
+		qw/experience master check no accept_hidden 1/ ) -> warp_error ;
 	}
     }
 

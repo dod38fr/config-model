@@ -1,7 +1,4 @@
 # -*- cperl -*-
-# $Author$
-# $Date$
-# $Revision$
 
 use warnings FATAL => qw(all);
 
@@ -10,7 +7,7 @@ use Test::More;
 use Test::Exception ;
 use Config::Model;
 
-BEGIN { plan tests => 64; }
+BEGIN { plan tests => 68; }
 
 use strict;
 
@@ -49,6 +46,7 @@ $model ->create_config_class
 	    cargo_type => 'leaf',
 	    cargo_args => {value_type => 'string'},
 	  },
+       plain_list => { type => 'list' , @element } ,
        list_with_auto_created_id
        => {
 	   type => 'list',
@@ -110,6 +108,7 @@ my $root = $inst -> config_root ;
 
 my $b = $root->fetch_element('bounded_list');
 ok($b,"bounded list created") ;
+
 
 is($b->fetch_with_id(1)->store('foo'),'foo',"stored in 1") ;
 is($b->fetch_with_id(0)->store('baz'),'baz',"stored in 0") ;
@@ -229,3 +228,19 @@ foreach my $l (@test) {
 
 throws_ok { $b->load('a,,b');} "Config::Model::Exception::Load",
   "fails load 'a,,b'" ;
+
+# test preset mode
+$inst->preset_start ;
+my $pl = $root->fetch_element('plain_list') ;
+
+$pl->fetch_with_id(0)->store('prefoo') ;
+$pl->fetch_with_id(1)->store('prebar') ;
+$inst->preset_stop ;
+ok(1,"filled preset values");
+
+is_deeply( [ $pl->fetch_all_values], ['prefoo','prebar'],"check that preset values are read") ;
+$pl->fetch_with_id(2)->store('bar') ;
+
+is_deeply( [ $pl->fetch_all_values], ['prefoo','prebar','bar'],"check that values are read") ;
+
+is_deeply( [ $pl->fetch_all_values(mode => 'custom')], ['bar'],"check that custom values are read") ;

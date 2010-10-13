@@ -209,6 +209,7 @@ sub dump_as_data {
 
     my @scan_args = (
 		     experience            => delete $args{experience} || 'master',
+		     check                 => delete $args{check} || 'yes' ,
 		     fallback              => 'all',
 		     auto_vivify           => $auto_v,
 		     list_element_cb       => $list_element_cb,

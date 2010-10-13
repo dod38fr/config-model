@@ -3,7 +3,7 @@
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
-use Test::More tests => 34 ;
+use Test::More tests => 36 ;
 use Config::Model ;
 
 use strict;
@@ -91,7 +91,7 @@ $model ->create_config_class
                              XY  => { level => 'normal', },
                              mXY => {
                                      level => 'normal',
-                                     permission => 'beginner'
+                                     experience => 'beginner'
                                     },
                              XZ => { level => 'normal',},
                             }
@@ -116,7 +116,7 @@ $model ->create_config_class
                   XY  => { config_class_name => ['SlaveY'], },
                   mXY => {
                           config_class_name   => 'SlaveY',
-                          permission => 'intermediate'
+                          experience => 'advanced'
                          },
                   XZ => { config_class_name => 'SlaveZ' }
                  }
@@ -226,9 +226,18 @@ is($ahown->fetch_with_id(234)->index_value, '234',
    'Check index value of actual node below warped node') ;
 
 is_deeply([$root->get_element_name(for => 'beginner')],
+          [qw/v_macro b_macro tree_macro a_hash_of_warped_nodes/],
+         'reading elements of root for experience beginner') ;
+
+is_deeply([$root->get_element_name(for => 'advanced')],
           [qw/v_macro b_macro tree_macro a_hash_of_warped_nodes 
               a_warped_node/],
-         'reading elements of root') ;
+         'reading elements of root for experience advanced') ;
+
+is_deeply([$root->get_element_name(for => 'master')],
+          [qw/v_macro b_macro tree_macro a_hash_of_warped_nodes 
+              a_warped_node/],
+         'reading elements of root for experience master') ;
 
 is($root->fetch_element('tree_macro')->store('W'),'W',
    'set master->tree_macro to W (warp out)...');

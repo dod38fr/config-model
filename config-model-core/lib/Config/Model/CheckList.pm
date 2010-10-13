@@ -482,23 +482,34 @@ sub cargo_type {
     return 'leaf' ;
 }
 
-=head2 check ( $choice )
+=head2 check ( ... )
 
-Set choice.
+Set choice. Parameter is either a list of choices to set or 
+a list ref and some optional parmeter. I.e:
+
+  check (\@list, check => 'skip') ;
+
+C<check> parameter decide on behavior in case of unvalid
+choice value: either die (if yes) or discard bad value (if skip)
 
 =cut
 
 sub check {
     my $self = shift ;
+    my @list = ref $_[0] eq 'ARRAY' ? @{$_[0]} : @_ ;
+    my %args = ref $_[0] eq 'ARRAY' ? @_[1,$#_] : (check => 'yes') ;
+    my $check = $self->_check_check ($args{check}) ;
+    
     if (defined $self->{ref_object}) {
 	$self->{ref_object}->get_choice_from_refered_to ;
     }
 
-    map {$self->store($_ , 1 ) } @_ ;
+    map {$self->store($_ , 1, $check ) } @list ;
 }
 
+# internal
 sub store {
-    my ($self, $choice, $value) = @_;
+    my ($self, $choice, $value, $check) = @_;
 
     my $inst = $self->instance ;
 
@@ -524,35 +535,49 @@ sub store {
 	    push @$ord,$choice unless scalar grep {$choice eq $_} @$ord ;
 	}
     }
-    elsif ($inst->get_value_check('store'))  {
+    elsif ($check eq 'yes')  {
 	my $err_str = "Unknown check_list item '$choice'. Expected '"
                     . join("', '",@{$self->{choice}}) . "'" ;
 	$err_str .= "\n\t". $self->{ref_object}->reference_info 
 	  if defined $self->{ref_object};
         Config::Model::Exception::WrongValue 
-	    -> throw ( error =>  $err_str ,
-		       object => $self) ;
+	    -> throw ( error =>  $err_str , object => $self) ;
     }
 }
 
-=head2 uncheck ( choice )
+=head2 uncheck (...)
 
-Unset choice
+Unset choice. Parameter is either a list of choices to unset or 
+a list ref and some optional parmeter. I.e:
+
+  uncheck (\@list, check => 'skip') ;
+
+C<check> parameter decide on behavior in case of unvalid
+choice value: either die (if yes) or discard bad value (if skip)
 
 =cut
 
 sub uncheck {
     my $self = shift ;
+    my @list = ref $_[0] eq 'ARRAY' ? @{$_[0]} : @_ ;
+    my %args = ref $_[0] eq 'ARRAY' ? @_[1,$#_] : (check => 'yes') ;
+    my $check = $self->_check_check ($args{check}) ;
+
     if (defined $self->{ref_object}) {
 	$self->{ref_object}->get_choice_from_refered_to ;
     }
 
-    map {$self->store($_ , 0 ) } @_ ;
+    map {$self->store($_ , 0 , $check) } @list ;
 }
 
-=head2 is_checked( choice )
+=head2 is_checked( choice, [ check => yes|skip ] , [ mode => ... ])
 
 Return 1 if the given C<choice> was set. Returns 0 otherwise.
+
+C<check> parameter decide on behavior in case of unvalid
+choice value: either die (if yes) or discard bad value (if skip)
+
+C<mode> is either: custom standard preset default upstream_default
 
 =cut
 
@@ -563,7 +588,9 @@ my %accept_mode = map { ( $_ => 1) }
 sub is_checked {
     my $self = shift ;
     my $choice = shift ;
-    my $type = shift || '';
+    my %args = @_ ;
+    my $type = $args{mode} || '';
+    my $check = $self->_check_check($args{check}) ;
 
     my $ok = $self->{choice_hash}{$choice} || 0 ;
 
@@ -591,7 +618,7 @@ sub is_checked {
 
 	return $result ;
     }
-    elsif ($self->instance->get_value_check('fetch'))  {
+    elsif ($check eq 'yes')  {
 	my $err_str = "Unknown check_list item '$choice'. Expected '"
                     . join("', '",@{$self->{choice}}) . "'" ;
 	$err_str .= "\n\t". $self->{ref_object}->reference_info 
@@ -727,7 +754,8 @@ my %old_mode = ( built_in_list => 'upstream_default_list',
 
 sub get_checked_list_as_hash {
     my $self = shift ;
-    my $mode = shift || '';
+    my %args = @_ > 1 ? @_ : (mode => $_[0]) ;
+    my $mode = $args{mode}|| '';
 
     foreach my $k (keys %old_mode) {
 	next unless $mode eq $k;

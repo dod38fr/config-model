@@ -1,7 +1,4 @@
 # -*- cperl -*-
-# $Author$
-# $Date$
-# $Revision$
 
 use ExtUtils::testlib;
 use Test::More tests => 5;
@@ -37,7 +34,7 @@ ok($root,"Config root created") ;
 
 my $step = 'std_id:ab X=Bv - std_id:bc X=Av - a_string="toto tata" '
   .'lista=a,b,c,d olist:0 X=Av - olist:1 X=Bv - listb=b,c,d';
-ok( $root->load( step => $step, permission => 'intermediate' ),
+ok( $root->load( step => $step, experience => 'advanced' ),
   "set up data in tree with '$step'");
 
 # no need to check more. The above command would have failed if

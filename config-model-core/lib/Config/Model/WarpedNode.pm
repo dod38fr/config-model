@@ -1,5 +1,5 @@
 
-#    Copyright (c) 2005-2007 Dominique Dumont.
+#    Copyright (c) 2005-2010 Dominique Dumont.
 #
 #    This file is part of Config-Model.
 #
@@ -27,6 +27,9 @@ use Scalar::Util qw(weaken) ;
 use base qw/Config::Model::WarpedThing/ ;
 use Config::Model::Exception ;
 use Data::Dumper ();
+use Log::Log4perl qw(get_logger :levels);
+
+my $logger = get_logger("Tree::Node::Warped") ;
 
 
 =head1 NAME
@@ -278,12 +281,13 @@ sub get_actual_node {
 
 sub check {
     my $self= shift;
+    my $check = shift || 'yes ';
 
     # must croak if element is not available
     if (not defined $self->{data}) {
 	# a node can be retrieved either for a store operation or for
 	# a fetch.
-	if ($self->instance->get_value_check('fetch_or_store')) {
+	if ($check eq 'yes') {
 	    Config::Model::Exception::User->throw
 		(
 		 object => $self,
@@ -306,9 +310,8 @@ sub set_properties {
     # mega cleanup
     map(delete $self->{$_}, @allowed_warp_params) ;
 
-    print $self->name." set_properties called with \n", 
-      Data::Dumper->Dump([\%args],['set_properties_args'])
-	  if $::debug ;
+    $logger->debug($self->name." set_properties called with ", 
+      Data::Dumper->Dump([\%args],['set_properties_args'])) ;
 
     my $config_class_name = delete $args{config_class_name};
 

@@ -1,7 +1,4 @@
 # -*- cperl -*-
-# $Author$
-# $Date$
-# $Revision$
 
 use warnings FATAL => qw(all);
 
@@ -287,7 +284,7 @@ ok( $@ ,"fetch_element without warp set (macro=undef): which is an error" );
 print "normal error:\n", $@, "\n" if $trace;
 
 # force read of hidden element
-$warp_list= $root->fetch_element('warped_choice_list',undef,1) ;
+$warp_list= $root->fetch_element(name => 'warped_choice_list',  accept_hidden => 1) ;
 
 ok($warp_list, "created warped_choice_list") ;
 
@@ -367,7 +364,7 @@ $p_cl -> set_checked_list(qw/A S H E/) ;
 is($p_cl->fetch,            "A,E,H,S", "choice_list: read overridden preset LIST") ;
 is($p_cl->fetch('custom'),  "A,E,S",       "choice_list: read custom_value after override") ;
 
-my $wrtl =  $p_root->fetch_element('warped_refer_to_list',undef,1) ;
+my $wrtl =  $p_root->fetch_element(name => 'warped_refer_to_list', accept_hidden => 1) ;
 ok($wrtl,"created warped_refer_to_list (hidden)") ;
 
 

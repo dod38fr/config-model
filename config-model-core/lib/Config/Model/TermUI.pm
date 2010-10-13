@@ -173,9 +173,7 @@ sub completion {
 
     if ( $space_idx > 0 and defined $completion_dispatch{$main}) {
 	my $i = $self->{current_node}->instance;
-	$i->push_no_value_check('fetch') ;
 	return $completion_dispatch{$main}->($self,$text,$line,$start) ;
-	$i->pop_no_value_check;
     }
     elsif (not $cmd) {
 	return $self->simple_ui_commands() ;

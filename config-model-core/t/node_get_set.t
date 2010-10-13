@@ -1,7 +1,4 @@
 # -*- cperl -*-
-# $Author: ddumont $
-# $Date: 2008-04-15 13:57:49 +0200 (Tue, 15 Apr 2008) $
-# $Revision: 608 $
 
 use ExtUtils::testlib;
 use Test::More tests => 6;
@@ -34,7 +31,7 @@ my $root = $inst -> config_root ;
 
 # check with embedded \n
 my $step = qq!std_id:ab X=Bv - std_id:bc X=Av - a_string="titi and toto" !;
-ok( $root->load( step => $step, permission => 'intermediate' ),
+ok( $root->load( step => $step, experience => 'advanced' ),
   "load '$step'");
 
 foreach (["/std_id/cc/X","Bv" ],
