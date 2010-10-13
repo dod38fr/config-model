@@ -113,7 +113,7 @@ sub get_info {
     my $m = $leaf->mandatory ;
     push @items, "is mandatory: ".($m ? 'yes':'no') if defined $m;
 
-    foreach my $what (qw/min max warn_if_match warn_unless_match warn/) {
+    foreach my $what (qw/min max warn_if_match warn_unless_match warn grammar/) {
 	my $v = $leaf->$what() ;
 	push @items, "$what value: $v" if defined $v;
     }

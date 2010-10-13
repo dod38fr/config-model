@@ -57,7 +57,7 @@ sub Populate {
     my $elt_button_frame = $cw->Frame(qw/-relief raised -borderwidth 2/)
                                      ->pack(@fbe1) ;
     my $frame_title = $list->element_name ;
-    $frame_title .= ($value_type =~ /node/) ? 'elements' : 'values' ;
+    $frame_title .= (defined $value_type and $value_type =~ /node/) ? 'elements' : 'values' ;
     $elt_button_frame -> Label(-text => $frame_title) -> pack() ; 
 
     my $tklist = $elt_button_frame ->Scrolled ( 'Listbox',
@@ -196,8 +196,8 @@ sub push_entry {
     }
 
     if ($@) {
-	$cw -> Dialog ( -title => 'List index error with type $cargo_type',
-			-text  => $@,
+	$cw -> Dialog ( -title => "List index error with type $cargo_type",
+			-text  => $@->as_string,
 		      )
 	  -> Show ;
     }
@@ -354,7 +354,7 @@ sub store {
 
     if ($@) {
 	$cw -> Dialog ( -title => 'Value error',
-			-text  => $@,
+			-text  => $@->as_string,
 		      )
             -> Show ;
 	$cw->reset_value ;

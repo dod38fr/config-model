@@ -31,7 +31,7 @@ use File::Path ;
 use vars qw/$model/ ;
 
 
-my $use_etc = 1;
+my $use_etc = 0;
 GetOptions ("use_etc" => \$use_etc);
 
 my $fstab_file = $use_etc ?  '/etc/fstab' : 'fstab.sample'  ;

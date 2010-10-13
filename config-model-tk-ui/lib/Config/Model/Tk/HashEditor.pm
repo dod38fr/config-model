@@ -261,7 +261,7 @@ sub add_entry {
 
     if ($@) {
 	$cw -> Dialog ( -title => 'Hash index error',
-			-text  => $@,
+			-text  => $@->as_string,
 		      )
 	  -> Show ;
 	return 0 ;
@@ -492,7 +492,7 @@ sub store {
 
     if ($@) {
 	$cw -> Dialog ( -title => 'Value error',
-			-text  => $@,
+			-text  => $@ -> as_string,
 		      )
             -> Show ;
 	$cw->reset_value ;

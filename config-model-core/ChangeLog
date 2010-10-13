@@ -5,7 +5,7 @@
 	This stuff had too many drawbacks of global variables.
 	An optional check parameter was added to a lot of calls on Config::Model. The API
 	was also sanitized with some positional parameters replaced by named parameters. Most of 
-	these changes should be internal. The main impact is that Backend must not explicitely
+	these changes should be internal. The main impact is that Backend must now explicitely
 	pass this check parameter lest the force_load will not work.
 
 2010-10-01 Dominique Dumont  <domi.dumont@free.fr> 1.211

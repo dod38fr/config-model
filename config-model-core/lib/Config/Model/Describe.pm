@@ -111,7 +111,7 @@ sub describe {
     my $desc_node = delete $args{node} 
       || croak "describe: missing 'node' parameter";
     my $element = delete $args{element} ; # optional
-    my $check = $args{check} || 'yes' ;
+    my $check = delete $args{check} || 'yes' ;
 
     my $std_cb = sub {
         my ( $scanner, $data_r, $obj, $element, $index, $value_obj ) = @_;

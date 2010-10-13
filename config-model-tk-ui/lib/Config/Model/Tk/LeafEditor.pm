@@ -33,14 +33,12 @@ sub Populate {
     $cw->{store_cb} = delete $args->{-store_cb} || die __PACKAGE__,"no -store_cb" ;
 
     my $inst = $leaf->instance ;
-    $inst->push_no_value_check('fetch') ;
-
     my $vt = $leaf -> value_type ;
     $logger->info("Creating leaf editor for value_type $vt");
 
     $cw->add_header(Edit => $leaf)->pack(@fx) ;
 
-    $cw->{value} = $leaf->fetch ;
+    $cw->{value} = $leaf->fetch_no_check ;
     my $vref = \$cw->{value};
 
     my @pack_args = @fx ;
@@ -95,8 +93,6 @@ sub Populate {
         $cw->add_buttons($ed_frame) ;
 
     }
-
-    $inst->pop_no_value_check ;
 
     $cw->ConfigModelNoteEditor( -object => $leaf )->pack;
     $cw->add_warning($leaf)->pack(@fx) ;
@@ -195,7 +191,7 @@ sub delete {
 
     if ($@) {
         $cw -> Dialog ( -title => 'Delete error',
-                        -text  => "$@",
+                        -text  => $@->as_string,
                       )
             -> Show ;
     }
@@ -218,7 +214,7 @@ sub store {
 
     if ($@) {
         $cw -> Dialog ( -title => 'Value error',
-                        -text  => "$@",
+                        -text  => $@->as_string,
                       )
             -> Show ;
         $cw->reset_value ;
@@ -243,7 +239,7 @@ sub set_value_help {
 
 sub reset_value {
     my $cw = shift ;
-    $cw->{value} = $cw->{leaf}->fetch ;
+    $cw->{value} = $cw->{leaf}->fetch_no_check ;
     if (defined $cw->{e_widget}) {
         $cw->{e_widget}->delete('1.0','end') ;
         $cw->{e_widget}->insert('end',$cw->{value},'value') ;

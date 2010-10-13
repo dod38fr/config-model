@@ -19,8 +19,6 @@ use Tk::Photo ;
 use Tk::PNG ; # required for Tk::Photo to be able to load pngs
 use Tk::DialogBox ;
 
-require Tk::ErrorDialog;
-
 use Config::Model::Tk::LeafEditor ;
 use Config::Model::Tk::CheckListEditor ;
 
@@ -49,6 +47,19 @@ $icon_path =~ s/TkUI.pm//;
 $icon_path .= 'Tk/icons/' ;
 
 my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+no warnings "redefine" ;
+
+sub Tk::Error {
+    my ($cw,$error,@locations) = @_;
+    my $msg = ref($error) ? $error->as_string : $error ;
+    $msg .= "stack: \n@locations\n";
+    $cw -> Dialog ( -title => 'Config::Model error',
+                    -text  => $msg,
+                  ) ;
+}
+
+use warnings "redefine" ;
 
 sub ClassInit {
     my ($class, $mw) = @_;
@@ -392,7 +403,7 @@ sub save {
 	eval { $cw->{root}->instance->write_back(@wb_args); } ;
 	if ($@) {
 	  $cw -> Dialog ( -title => 'Save error',
-			  -text  => "$@",
+			  -text  => $@->as_string,
 			)
             -> Show ;
 	}
@@ -617,6 +628,17 @@ sub disp_hash {
 
     my $node_loc = $node->location ;
 
+    # need to keep track myself of previous sibling as 
+    # $tkt->entrycget($path,'-after') dies
+    # and $tkt->info('prev',$path) return the path above in the displayed tree, which
+    # is not necessarily a sibling :-(
+    my $prev_sibling = '';
+    my %tk_previous_path ;
+    foreach ($tkt->info('children', $path )) {
+	$tk_previous_path{$_} = $prev_sibling ;
+	$prev_sibling = $_ ;
+    }
+
     my $prevpath = '' ;
     foreach my $idx (@idx) {
 	my $newpath = $path.'.'. to_path($idx) ;
@@ -628,9 +650,8 @@ sub disp_hash {
 	my $sub_elt =  $elt->fetch_with_id($idx) ;
 
 	# check for display order mismatch
-	if ($tkt->infoExists($newpath) and $prevpath) {
-	    my $tkprevpath = $tkt->info( prev => $newpath );
-	    if ($prevpath ne $tkprevpath) {
+	if ($tkt->infoExists($newpath)) {
+	    if ($prevpath ne $tk_previous_path{$newpath}) {
 		$logger->trace("disp_hash deleting mismatching $newpath mode $eltmode cargo_type $elt_type" );
 		$tkt->delete(entry => $newpath) ;
 	    }
