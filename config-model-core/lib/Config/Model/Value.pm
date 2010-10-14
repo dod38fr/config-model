@@ -204,7 +204,7 @@ sub set_default {
 	next unless defined $def ;
 
 	# will check default value
-	my $ok = $self->check($def,0) ;
+	my $ok = $self->check($def) ;
 	Config::Model::Exception::Model
 	    -> throw (
 		      object => $self,
@@ -449,7 +449,7 @@ sub setup_enum_choice {
     # choice
     map {
 	delete $self->{$_}
-	  if (defined  $self->{$_} and not $self->check($self->{$_},1)) ;
+	  if (defined  $self->{$_} and not $self->check(value => $self->{$_}, quiet => 1)) ;
     } qw/data preset/;
 }
 
@@ -1192,14 +1192,29 @@ sub enum_error {
     return @error ;
 }
 
-=head2 check_value ( value , [ 0 | 1 ] )
+=head2 check_value ( value )
 
 Check the consistency of the value. Does not check for undefined
 mandatory values.
 
-When the 2nd parameter is non null, check will not try to get extra
+C<check_value> also accepts named parameters:
+
+=over 4
+
+=item value
+
+=item quiet
+
+When non null, check will not try to get extra
 information from the tree. This is required in some cases to avoid
 loops in check, get_info, get_warp_info, re-check ...
+
+=item silent
+
+Don't display value warning on STDOUT. User is expected to retrieve them witj
+L<warning_msg>.
+
+=back
 
 In scalar context, return 0 or 1.
 
@@ -1210,9 +1225,11 @@ to the user.
 =cut
 
 sub check_value {
-    my ($self,$value,$quiet) = @_ ;
-
-    $quiet = 0 unless defined $quiet ;
+    my $self = shift ;
+    my %args = @_ > 1 ? @_ : (value => $_[0]) ;
+    my $value = $args{value} ;
+    my $quiet = $args{quiet} || 0 ;
+    my $silent = $args{silent} || 0 ;
 
     my @error ;
     my @warn ;
@@ -1299,22 +1316,24 @@ sub check_value {
 
     $self->{error_list} = \@error ;
     $self->{warning_list} = \@warn ;
-    warn(map { "Warning in '".$self->location."': $_\n"} @warn) if @warn ;
+
+    warn(map { "Warning in '".$self->location."': $_\n"} @warn) if @warn and not $silent;
+
     return wantarray ? @error : not scalar @error ;
 }
 
-=head2 check( value , [ 0 | 1 ] )
+=head2 check( value  )
 
 Like L</check_value>. Also ensure that mandatory value are defined
 
 =cut
 
 sub check {
-    my ($self,$value,$quiet) = @_ ;
+    my $self = shift ;
+    my %args = @_ > 1 ? @_ : (value => $_[0]) ;
+    my $value = $args{value} ;
 
-    $quiet = 0 unless defined $quiet ;
-
-    my @error = $self->check_value($value,$quiet) ;
+    my @error = $self->check_value(%args) ;
 
     if (not defined $value and $self->{mandatory}) {
         push @error, "Mandatory value is not defined" ;
@@ -1343,7 +1362,7 @@ sub store {
              : @_ ;
     my $check = $self->_check_check($args{check}) ;
 
-    my ($ok,$value) = $self->pre_store($args{value}, $check ) ;
+    my ($ok,$value) = $self->pre_store(value => $args{value}, check => $check ) ;
 
     # we let store the value even if wrong when check is disabled
     if ($ok or $check eq 'no') {
@@ -1366,7 +1385,10 @@ sub store {
 # internal. return ( 1|0, value)
 # May return an undef value if actual store should be skipped
 sub pre_store {
-    my ($self,$value,$check) = @_ ;
+    my $self = shift ;
+    my %args = @_ > 1 ? @_ : (value => $_[0]) ;
+    my $value = $args{value} ;
+    my $check = $args{check} || 0 ;
 
     my $inst = $self->instance ;
 
@@ -1616,6 +1638,12 @@ sub _fetch {
 
 }
 
+sub fetch_no_check {
+    my $self = shift ;
+    carp "fetch_no_check is deprecated. Use fetch (check => 'no')";
+    $self->fetch(check => 'no') ;
+}
+
 # likewise but without any warp, etc related check
 sub _fetch_no_check {
     my $self = shift ;
@@ -1657,6 +1685,11 @@ Perform check and return undef for bad values
 Do not check and return values even if bad
 
 =back
+
+=item silent
+
+When set to 1, warning are not displayed on STDOUT. User is expected to read warnings
+with L<warning_msg>.
 
 =back
 
@@ -1709,6 +1742,7 @@ sub fetch {
 
     my %args =  @_ > 1 ? @_ : (mode => $_[0]) ;
     my $mode = $args{mode} || '';
+    my $silent = $args{silent} || 0 ;
     my $check = $self->_check_check($args{check}); 
     
     my $inst = $self->instance ;
@@ -1723,7 +1757,7 @@ sub fetch {
 
     if (defined $value) {
 	# check validity (all modes)
-	my $ok = $self->check($value) ;
+	my $ok = $self->check(value => $value, silent => $silent) ;
 	if ($ok or $check eq 'no') {
 	    return $value ;
 	}

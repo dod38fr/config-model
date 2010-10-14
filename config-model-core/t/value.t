@@ -177,7 +177,7 @@ throws_ok { my $v = $ms->fetch; }  'Config::Model::Exception::User',
     "mandatory string: undef error" ;
 print "normal error:\n", $@, "\n" if $trace;
 
-ok( $ms->store('toto'),"mandatory_string: store" );
+is( $ms->store('toto'),'toto',"mandatory_string: store" );
 is($ms->fetch,'toto'  ,"and read");
 
 
