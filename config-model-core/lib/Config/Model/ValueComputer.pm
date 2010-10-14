@@ -1,4 +1,4 @@
-#    Copyright (c) 2005-2007 Dominique Dumont.
+#    Copyright (c) 2005-2010 Dominique Dumont.
 #
 #    This file is part of Config-Model.
 #
@@ -22,7 +22,7 @@ use warnings ;
 use strict;
 use Scalar::Util qw(weaken) ;
 use Carp ;
-use Parse::RecDescent 1.90 ;
+use Parse::RecDescent ;
 use Data::Dumper () ;
 
 use vars qw($compute_grammar $compute_parser) ;
