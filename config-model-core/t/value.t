@@ -3,7 +3,7 @@
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
-use Test::More tests => 99 ;
+use Test::More tests => 100 ;
 use Test::Exception ;
 use Test::Warn ;
 use Config::Model ;
@@ -398,3 +398,8 @@ warning_like {$wup->store('bar');} qr/should match/, "test warn_unless condition
 ### test always_warn parameter
 my $aw = $root->fetch_element('always_warn') ;
 warning_like {$aw->store('whatever');} qr/always/i, "test unconditional warn" ;
+
+# test unicode
+my $smiley = "\x{263A}" ; # See programming perl chapter 15
+$wip -> store($smiley) ;
+is($wip->fetch,$smiley,"check utf-8 string");
