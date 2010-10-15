@@ -1,11 +1,13 @@
+2010-10-15 Dominique Dumont  <domi.dumont@free.fr> 1.212
+
 	* Value and AnyId: store wrong values when store check is disabled 
 	(i.e. config-edit is run with -force option).
 	* Debian::Dpkg::Copyright: cosmetic improvements on written file
 	* Instance.pm: Removed all overengineered push_no_value_check, pop_no_value_check. 
-	This stuff had too many drawbacks of global variables.
-	An optional check parameter was added to a lot of calls on Config::Model. The API
-	was also sanitized with some positional parameters replaced by named parameters. Most of 
-	these changes should be internal. The main impact is that Backend must now explicitely
+	This stuff had too many drawbacks of global variables. An optional check parameter 
+	was added to a lot of calls on Config::Model. The API was also sanitized with some 
+	positional parameters replaced by named parameters. Most of these changes should 
+	be internal. The main impact is that read/write backends must now explicitely
 	pass this check parameter lest the force_load will not work.
 	* ValueComputer: Remove req on Parse::RecDescent version. (Debian bug #597795)
 	* Value.pm: added silent parameter to fetch method to avoid displaying warnings on STDOUT
