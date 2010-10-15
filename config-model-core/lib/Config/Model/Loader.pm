@@ -509,6 +509,16 @@ sub _load_list {
 	return 'ok';
     }
 
+    if (not defined $action and defined $subaction ) {
+	Config::Model::Exception::Load
+	-> throw (
+		  object => $element,
+		  command => join('',grep (defined $_,@$inst)) ,
+		  error => "Wrong assignment with '$subaction' on "
+		  ."element type: $elt_type, cargo_type: $cargo_type"
+		 ) ;
+    }
+
     if ($elt_type eq 'list' and $action eq '~') {
 	# remove possible leading or trailing quote
 	$logger->debug("_load_list: removing id $id");
