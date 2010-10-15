@@ -140,7 +140,7 @@ sub fill_pane {
 		    -command => $edit_sub) ;
 	$edb -> pack(-anchor => 'w');
 
-	my $content = $type eq 'leaf' ? $obj->fetch_no_check || ''
+	my $content = $type eq 'leaf' ? $obj->fetch( check => 'no') || ''
 	            : $type eq 'node' ? $node->config_class_name
 	            :                   $type ;
  	$cw->Balloon(-state => 'balloon') 

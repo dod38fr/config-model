@@ -31,13 +31,10 @@ sub Populate {
       || die "LeafViewer: no -path, got ",keys %$args;
 
     my $inst = $leaf->instance ;
-    $inst->push_no_value_check('fetch') ;
 
     my $vt = $leaf -> value_type ;
     $logger->info("Creating leaf viewer for value_type $vt");
-    my $v = $leaf->fetch ;
-
-    $inst->pop_no_value_check ;
+    my $v = $leaf->fetch( check => 'no' ) ;
 
     $cw->add_header(View => $leaf)->pack(@fx) ;
 

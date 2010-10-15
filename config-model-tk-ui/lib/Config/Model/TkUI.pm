@@ -782,7 +782,7 @@ sub disp_leaf {
     $logger->trace( "disp_leaf    path is $path" );
 
     my $std_v = $leaf_object->fetch('standard') ;
-    my $value = $leaf_object->fetch_no_check ;
+    my $value = $leaf_object->fetch(check => 'no', silent => 1) ;
     my $tkt = $cw->{tktree} ;
 
     my $img ;

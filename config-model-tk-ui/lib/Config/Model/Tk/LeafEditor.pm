@@ -38,7 +38,7 @@ sub Populate {
 
     $cw->add_header(Edit => $leaf)->pack(@fx) ;
 
-    $cw->{value} = $leaf->fetch_no_check ;
+    $cw->{value} = $leaf->fetch ( check => 'no');
     my $vref = \$cw->{value};
 
     my @pack_args = @fx ;
@@ -239,7 +239,7 @@ sub set_value_help {
 
 sub reset_value {
     my $cw = shift ;
-    $cw->{value} = $cw->{leaf}->fetch_no_check ;
+    $cw->{value} = $cw->{leaf}->fetch (check => 'no') ;
     if (defined $cw->{e_widget}) {
         $cw->{e_widget}->delete('1.0','end') ;
         $cw->{e_widget}->insert('end',$cw->{value},'value') ;
