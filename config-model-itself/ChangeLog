@@ -1,6 +1,10 @@
-	* removed obsolete push/pop_no_value_check calls (Config::Model 1.211)
+2010-10-15 Dominique Dumont  <domi.dumont@free.fr> 1.219
+
+	* removed obsolete push/pop_no_value_check calls 
+	* requires Config::Model 1.212
 
 2010-09-16 Dominique Dumont  <domi.dumont@free.fr> 1.218
+
 	* Fixed missing dependencies in Build.PL (Building from hg
 	requires Dist::Zilla and Dist-Zilla-Plugins-CJM >= 3.01)
 

@@ -134,7 +134,8 @@ Provides a full stack trace when exiting on error.
 
 =item -force_load
 
-Load file even if error are found in data. Bad data are discarded
+Load file even if error are found in data. Bad data are loaded, but should be cleaned up 
+before saving the model. See menu C<< File -> check >> in the GUI.
 
 =item -dot_diagram
 
