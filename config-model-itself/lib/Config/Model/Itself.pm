@@ -222,13 +222,10 @@ sub read_all {
 
     #print Dumper \@read_models ;
     #require Tk::ObjScanner; Tk::ObjScanner::scan_object(\%read_models) ;
-    $model_obj->instance->push_no_value_check(qw/store fetch type/) if $force_load;
 
     $logger->info("loading all extracted data in Config::Model::Itself");
     # load with a array ref to avoid warnings about missing order
-    $model_obj->load_data( {class => [ %read_models ] } ) ;
-
-    $model_obj->instance->pop_no_value_check() if $force_load;
+    $model_obj->load_data( {class => [ %read_models ] }, undef, $force_load ? 'no' : 'yes' ) ;
 
     return $self->{map} = \%class_file_map ;
 }
