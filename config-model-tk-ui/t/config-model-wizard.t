@@ -1,7 +1,5 @@
 # -*- cperl -*-
-# $Author: ddumont $
-# $Date: 2009-06-29 14:41:07 +0200 (Mon, 29 Jun 2009) $
-# $Revision: 994 $
+
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
@@ -77,7 +75,7 @@ my_plain_check_list=AA,AC
 warp warp2 aa2="foo bar"
 !;
 
-ok( $root->load( step => $step, permission => 'advanced' ),
+ok( $root->load( step => $step, experience => 'advanced' ),
   "set up data in tree");
 
 # use Tk::ObjScanner; Tk::ObjScanner::scan_object($root) ;

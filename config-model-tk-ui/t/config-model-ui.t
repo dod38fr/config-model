@@ -53,7 +53,7 @@ std_id:bc X=Av -
 std_id:"a b" X=Av -
 std_id:"a b.c" X=Av -
 tree_macro=mXY#"big lever here"
-a_string="toto tata"
+a_string="utf8 smiley \x{263A}"
 a_long_string="a very long string with\nembedded return"
 hash_a:toto=toto_value
 hash_a:toto#"index comment"
@@ -73,7 +73,7 @@ my_plain_check_list=AA,AC
 warp warp2 aa2="foo bar"
 !;
 
-ok( $root->load( step => $step, permission => 'advanced' ),
+ok( $root->load( step => $step, experience => 'advanced' ),
   "set up data in tree");
 
 my $load_fix = "a_mandatory_string=foo1 another_mandatory_string=foo2 
@@ -81,7 +81,7 @@ my $load_fix = "a_mandatory_string=foo1 another_mandatory_string=foo2
                 warp a_string=warpfoo a_long_string=longfoo another_string=anotherfoo -
                 slave_y a_string=slave_y_foo a_long_string=sylongfoo another_string=sy_anotherfoo" ;
 
-#$root->load(step => "tree_macro=XZ", permission => 'advanced') ;
+#$root->load(step => "tree_macro=XZ", experience => 'advanced') ;
 
 $root->fetch_element('ordered_hash_of_mandatory')->fetch_with_id('foo') ;
 
@@ -162,6 +162,8 @@ SKIP: {
 	 sub { $cmu->create_element_widget('edit','test1.always_warn');
 		$cmu -> force_element_display($root->grab('always_warn')) ; 
 	    ; ok(1,"test ".$idx++)},
+
+	 # warn test
 	 sub { warnings_like { $root->load("always_warn=foo") ; $cmu->reload ;}
 	       [ qr/always/ , qr/always/] ,"warn test ".$idx++ ;
 	     },
