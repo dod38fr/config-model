@@ -1412,8 +1412,15 @@ sub load {
     my %args = @_ eq 1 ? (step => $_[0]) : @_ ;
     if (defined $args{step}) {
         $loader->load(node => $self, %args) ;
-    } elsif (defined $args{ref}) {
-        $self->load_data($args{ref}) ;
+#    } elsif (defined $args{ref}) {
+#        $self->load_data($args{ref}) ; # 
+    }
+    else {
+        Config::Model::Exception::Load
+            -> throw (
+                      object => $self,
+                      message => "load called with no 'step' parameter",
+                     )  ;
     }
 }
 
