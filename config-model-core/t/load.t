@@ -1,7 +1,7 @@
 # -*- cperl -*-
 
 use ExtUtils::testlib;
-use Test::More tests => 106;
+use Test::More tests => 107;
 use Test::Exception ;
 use Config::Model;
 use Data::Dumper ;

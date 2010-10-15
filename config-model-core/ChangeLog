@@ -9,6 +9,7 @@
 	pass this check parameter lest the force_load will not work.
 	* ValueComputer: Remove req on Parse::RecDescent version. (Debian bug #597795)
 	* Value.pm: added silent parameter to fetch method to avoid displaying warnings on STDOUT
+	* Enable read and write of utf8 characters
 
 2010-10-01 Dominique Dumont  <domi.dumont@free.fr> 1.211
 	* Value.pm: added warn_if_match and warn_unless_match parameters.
