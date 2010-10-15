@@ -1,3 +1,9 @@
+2010-10-15  Dominique Dumont  <domi.dumont@free.fr> 1.314
+
+	* removed stuff obsoleted by Config::Model 1.212
+	* Depends on Config::Model 1.212
+	* added utf8 characters in tests
+	
 2010-10-08  Dominique Dumont  <domi.dumont@free.fr> 1.313
 
 	* Added display of configuration warnings provided by
