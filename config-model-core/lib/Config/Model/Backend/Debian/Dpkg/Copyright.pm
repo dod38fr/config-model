@@ -29,6 +29,7 @@ sub read {
     # file       => 'foo.conf',   # file name
     # file_path  => './my_test/etc/foo/foo.conf' 
     # io_handle  => $io           # IO::File object
+    # check      => yes|no|skip
 
     return 0 unless defined $args{io_handle} ;
 
@@ -37,6 +38,7 @@ sub read {
     my $c = $self -> parse_dpkg_file ($args{io_handle}) ;
     
     my $root = $args{object} ;
+    my $check = $args{check} ;
     my $file;
     my $object = $root ;
     
@@ -52,9 +54,9 @@ sub read {
                 next if $lic_name =~ /\s/ ; # complex license
                 next unless @lic_text; # no text to store
                 $logger->debug("adding license text '@lic_text'");
-                my $lic_obj = $root->grab("License:$lic_name");
+                my $lic_obj = $root->grab(step => "License:$lic_name", check => $check);
                 # lic_obj may not be defined in -force mode
-                $lic_obj->store(join("\n", @lic_text)) if defined $lic_obj ;
+                $lic_obj->store(value => join("\n", @lic_text), check => $check) if defined $lic_obj ;
             }
         }
     }
@@ -67,12 +69,12 @@ sub read {
             $logger->info("reading key $key from $args{file} control file");
             $logger->debug("$key value: $v");
             if ($key =~ /files/i) {
-                $file = $root->fetch_element('Files')->fetch_with_id($v) ;
+                $file = $root->fetch_element('Files')->fetch_with_id(index => $v, check => $check) ;
                 $object = $file ;
             }
             elsif ($key =~ /copyright/i) {
                 my @v = split /\s*\n\s*/,$v ;
-                $object->fetch_element('Copyright')->store_set(@v);
+                $object->fetch_element('Copyright')->store_set(\@v, check => $check);
             }
             elsif ($key =~ /license/i and $object eq $root) {
                 # skip license text stored in first pass
@@ -83,14 +85,14 @@ sub read {
                 my $lic_line = shift @lic_text ;
                 # too much hackish is bad for health
                 if ($lic_line =~ /with\s+(\w+)\s+exception/) {
-                    $object->fetch_element('exception')->store($1);
+                    $object->fetch_element('exception')->store(value => $1, check => $check);
                     $lic_line =~ s/\s+with\s+\w+\s+exception//;
                 }
-                $object->fetch_element('abbrev')->store($lic_line);
+                $object->fetch_element('abbrev')->store(value => $lic_line, check => $check);
                 $object = $root ;
             }
             elsif (my $found = $object->find_element($key, case => 'any')) { 
-                $object->fetch_element($found)->store($v) ;
+                $object->fetch_element($found)->store(value => $v, check => $check) ;
             }
             else {
                 # try anyway to trigger an error message

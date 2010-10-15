@@ -29,6 +29,7 @@ sub read {
     # file       => 'foo.conf',   # file name
     # file_path  => './my_test/etc/foo/foo.conf' 
     # io_handle  => $io           # IO::File object
+    # check      => yes|no|skip  
 
     return 0 unless defined $args{io_handle} ;
 
@@ -64,7 +65,7 @@ sub read {
         } 
         
         $node = $root->grab("binary:$package_name") ;
-        $self->read_section ($node, $section);
+        $self->read_section ($node, $section, $args{check});
     }
 
     return 1 ;
@@ -77,6 +78,7 @@ sub read_section {
     my $self = shift ;
     my $node = shift;
     my $section = shift;
+    my $check = shift ;
 
     for (my $i=0; $i < @$section ; $i += 2 ) {
         my $key = $section->[$i];
@@ -92,11 +94,11 @@ sub read_section {
         }
         elsif (my $found = $node->find_element($key, case => 'any')) { 
             $logger->debug("found $key value: $v");
-            $node->fetch_element($found)->store($v) ;
+            $node->fetch_element($found)->store(value => $v, check => $check ) ;
         }
         else {
             # try anyway to trigger an error message
-            $node->fetch_element($key)->store($v) ;
+            $node->fetch_element($key)->store(value => $v, check => $check ) ;
         }
     }
 }

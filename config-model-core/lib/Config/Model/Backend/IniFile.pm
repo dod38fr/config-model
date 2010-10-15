@@ -49,6 +49,7 @@ sub read {
     # file       => 'foo.conf',   # file name
     # file_path  => './my_test/etc/foo/foo.conf' 
     # io_handle  => $io           # IO::File object
+    # check      => yes|no|skip
 
     return 0 unless defined $args{io_handle} ; # no file to read
 
@@ -120,7 +121,7 @@ sub read {
 
     # use Data::Dumper; print Dumper(\%annot) ;
 
-    $self->node->load_data(\%data,\%annot);
+    $self->node->load_data(\%data,\%annot, $args{check});
 
     return 1 ;
 }
@@ -137,6 +138,7 @@ sub write {
     # file       => 'foo.conf',   # file name
     # file_path  => './my_test/etc/foo/foo.conf' 
     # io_handle  => $io           # IO::File object
+    # check      => yes|no|skip
 
     my $ioh = $args{io_handle} ;
     my $node = $args{object} ;

@@ -28,6 +28,7 @@ sub read {
     # file       => 'foo.conf',   # file name
     # file_path  => './my_test/etc/foo/foo.conf' 
     # io_handle  => $io           # IO::File object
+    # check      => yes|no|skip
 
     return 0 unless defined $args{io_handle} ; # no file to read
 
@@ -39,7 +40,7 @@ sub read {
       || croak "No data found in YAML file $args{file_path}";
 
     # load perl data in tree
-    $self->{node}->load_data($perl_data) ;
+    $self->{node}->load_data($perl_data, undef, $args{check}) ;
     return 1 ;
 }
 
@@ -54,6 +55,7 @@ sub write {
     # file       => 'foo.conf',   # file name
     # file_path  => './my_test/etc/foo/foo.conf' 
     # io_handle  => $io           # IO::File object
+    # check      => yes|no|skip
 
     croak "Undefined file handle to write"
       unless defined $args{io_handle} ;

@@ -45,6 +45,7 @@ sub read {
     # file       => 'foo.conf',   # file name
     # file_path  => './my_test/etc/foo/foo.conf' 
     # io_handle  => $io           # IO::File object
+    # check      => yes|no|skip
 
     return 0 unless defined $args{io_handle} ; # no file to read
 
@@ -75,7 +76,7 @@ sub read {
 			$global_zone = 0 ;
 			$data .= '#"'.join("\n",@comments).'"' if @comments ;
 			$logger->debug("Loading:$data\n");
-			$self->node->load($data) ;
+			$self->node->load(step => $data, check => $args{check}) ;
 			@comments = () ;
 		}
     }
@@ -95,6 +96,7 @@ sub write {
     # file       => 'foo.conf',   # file name
     # file_path  => './my_test/etc/foo/foo.conf' 
     # io_handle  => $io           # IO::File object
+    # check      => yes|no|skip
 
     my $ioh = $args{io_handle} ;
     my $node = $args{object} ;
