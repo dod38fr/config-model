@@ -9,7 +9,7 @@
 oper: \'and\' | \'or\' 
 license: /[\\w\\-\\.\\+]+/i
    { # PRD action to check if the license text is provided
-     $return = $arg[0]->grab("! License")->defined($item[0]);
+     $return = $arg[0]->grab("! License")->defined($item[1]);
    } ',
                              'help' => {
                                          'Zope' => 'Zope Public License. For versions, consult Zope.org',

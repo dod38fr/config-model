@@ -452,7 +452,7 @@ sub write_back {
 	    or  $force_backend eq 'all' ) {
 	    # exit when write is successfull
 	    my $res = $wb->(%args) ; 
-	    $logger->info("write_back called with $backend backend, result is $res");
+	    $logger->info("write_back called with $backend backend, result is ", defined $res ? $res : '<undef>' );
 	    last if ($res and not $force_backend); 
 	}
     }

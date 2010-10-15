@@ -176,7 +176,7 @@ sub _exists {
 
 sub _defined {
     my ($self,$key) = @_ ;
-    return defined $self->{data}{$key};
+    return defined $self->{data}{$key} ? 1 : 0;
 }
 
 #internal

@@ -49,12 +49,13 @@ sub read {
             my $v = $section->[$i+1];
             if ($key =~ /license/i) {
                 my @lic_text = split /\n/,$v ;
-                my $lic_name = shift @lic_text ;
-                $logger->debug("adding license text for $lic_name");
+                # get rid of potential 'with XXX exception'
+                my ($lic_name) = split /\s+/ , shift @lic_text ;
+                $logger->debug("adding license text for '$lic_name'");
                 next if $lic_name =~ /\s/ ; # complex license
                 next unless @lic_text; # no text to store
                 $logger->debug("adding license text '@lic_text'");
-                my $lic_obj = $root->grab(step => "License:$lic_name", check => $check);
+                my $lic_obj = $root->grab(step => qq!License:"$lic_name"!, check => $check);
                 # lic_obj may not be defined in -force mode
                 $lic_obj->store(value => join("\n", @lic_text), check => $check) if defined $lic_obj ;
             }
@@ -83,6 +84,7 @@ sub read {
                 $object = $file->fetch_element('License') ;
                 my @lic_text = split /\n/,$v ;
                 my $lic_line = shift @lic_text ;
+                $lic_line  =~ s/\s+$//;
                 # too much hackish is bad for health
                 if ($lic_line =~ /with\s+(\w+)\s+exception/) {
                     $object->fetch_element('exception')->store(value => $1, check => $check);

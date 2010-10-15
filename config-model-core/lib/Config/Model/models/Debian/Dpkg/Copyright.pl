@@ -78,7 +78,7 @@
                                           'type' => 'leaf'
                                         },
                              'warn_unless_key_match' => '^(?i:Apache|Artistic|BSD|FreeBSD|ISC|CC-BY|CC-BY-SA|CC-BY-ND|CC-BY-NC|CC-BY-NC-SA|CC-BY-NC-ND|CC0|CDDL|CPL|Eiffel|Expat|GPL|LGPL|GFDL|GFDL-NIV|LPPL|MIT|MPL|Perl|PSF|QPL|W3C-Software|ZLIB|Zope)[\\d\\.\\-]*\\+?$',
-                             'allow_keys_matching' => '^[\\w\\-\\.]+$',
+                             'allow_keys_matching' => '^[\\w\\-\\.+]+$',
                              'type' => 'hash',
                              'index_type' => 'string'
                            }

@@ -675,7 +675,7 @@ sub _load_leaf {
 sub _load_value {
     my ($self,$element,$check,$subaction,$value) = @_ ;
 
-    $logger->debug("_load_value: action '$subaction' value '$value'");
+    $logger->debug("_load_value: action '$subaction' value '$value' check $check");
     if ($subaction eq '=' and $element->isa('Config::Model::Value')) {
 	$element->store(value => $value, check => $check) ;
     }

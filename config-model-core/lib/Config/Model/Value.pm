@@ -549,7 +549,7 @@ sub setup_grammar_check {
     my @lines = split /\n/,$str ;
     chomp @lines ;
     if ($lines[0] !~ /^check:/) {
-	$lines[0] = 'check: '.$lines[0].' /^\Z/ {$return = 1;}';
+	$lines[0] = 'check: '.$lines[0].' /^\Z/ {$return = $item[1];}';
     }	
 
     my $actual_grammar = join("\n",@lines) . "\n";
@@ -1310,8 +1310,10 @@ sub check_value {
 
     if (defined $self->{validation_parser} and defined $value) {
 	my $prd = $self->{validation_parser};
+	my $prd_check = $prd->check ( $value,1,$self) ? 1 : 0; 
+	$logger->debug("grammar check on $value returned $prd_check");
 	push @error,"value '$value' does not match grammar:\n" .$self->{grammar} 
-		unless $prd->check ( $value,1,$self);
+		unless $prd_check ;
     }
 
     $self->{error_list} = \@error ;
@@ -1319,7 +1321,7 @@ sub check_value {
 
     warn(map { "Warning in '".$self->location."': $_\n"} @warn) if @warn and not $silent;
 
-    return wantarray ? @error : not scalar @error ;
+    return wantarray ? @error : scalar @error ? 0 : 1 ;
 }
 
 =head2 check( value  )
@@ -1364,6 +1366,8 @@ sub store {
 
     my ($ok,$value) = $self->pre_store(value => $args{value}, check => $check ) ;
 
+    $logger->debug("value store $value, ok '$ok', check $check") if $logger->is_debug;
+
     # we let store the value even if wrong when check is disabled
     if ($ok or $check eq 'no') {
 	if ($self->instance->preset) {
@@ -1388,7 +1392,7 @@ sub pre_store {
     my $self = shift ;
     my %args = @_ > 1 ? @_ : (value => $_[0]) ;
     my $value = $args{value} ;
-    my $check = $args{check} || 0 ;
+    my $check = $args{check} || 'yes' ;
 
     my $inst = $self->instance ;
 
@@ -1750,7 +1754,7 @@ sub fetch {
     my $value = $self->_fetch($mode,$check) ;
 
     if ($mode and not defined $accept_mode{$mode}) {
-	croak "fetch: expected ", 
+	croak "fetch: expected ", not scalar
 	    join (' or ',keys %accept_mode),
 		" parameter, not $mode" ;
     }

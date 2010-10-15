@@ -3,7 +3,7 @@
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
-use Test::More tests => 100 ;
+use Test::More tests => 101 ;
 use Test::Exception ;
 use Test::Warn ;
 use Config::Model ;
@@ -106,7 +106,7 @@ $model ->create_config_class
 			                    oper: 'and' | 'or'
 			                    token: 'Apache' | 'CC-BY' | 'Perl' 
 			                       {my $v = $arg[0]->grab("! prd_test_action")->fetch ;
-			                        $return = ($v =~ /$item[0]/) ; 
+			                        $return = ($v =~ /$item[1]/) ; 
 			                       }
                                            ^,
 			 },
@@ -381,6 +381,9 @@ throws_ok { $match->store('bar');} 'Config::Model::Exception::WrongValue',
 throws_ok { $match->store('Perl');} 'Config::Model::Exception::WrongValue',
     'match value: test for non matching grammar';
 $root->fetch_element('prd_test_action')->store('Perl CC-BY Apache');
+
+throws_ok { $match->store('bar');} 'Config::Model::Exception::WrongValue',
+    'match value: test for non matching grammar';
 
 foreach my $prd_test (('Perl','Perl and CC-BY', 'Perl and CC-BY or Apache')) {
     $prd_match->store($prd_test) ;
