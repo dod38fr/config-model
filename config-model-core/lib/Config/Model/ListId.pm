@@ -215,9 +215,15 @@ If tinkering with check is required, use the following way :
 
 sub store_set {
     my $self = shift ;
-    my $r = $_[0] ;
-    my @v    = ref $r eq 'ARRAY' ? @$r : @_ ;
-    my %args = ref $r eq 'ARRAY' ? @$r[1,$#$r] : (check => 'yes');
+    my @v = @_ ;
+    my $r = shift ;
+    my %args = (check => 'yes');
+    
+    if (ref $r eq 'ARRAY') {
+        @v = @$r ;
+        %args = @_; # note that $r was shifted out of @_
+    }
+
     my $check = $self->_check_check($args{check});
     
     my $idx = 0 ;
