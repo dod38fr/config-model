@@ -168,7 +168,7 @@ License: GPL-2+
  .
  On Debian systems, the full text of the GNU General Public
  License version 2 can be found in the file
- `/usr/share/common-licenses/GPL-2'.
+ ‘/usr/share/common-licenses/GPL-2’.
 
 EOD4
 
