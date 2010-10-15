@@ -67,6 +67,8 @@ foreach my $test_class (sort keys %test_setup) {
 
 
    my $i_root = $i_test->config_root ;
+   
+   $i_root->load("bar:0=\x{263A}") ; # utf8 smiley
 
    is($i_root->annotation,"some global comment","check global comment");
    is($i_root->fetch_element("class1")->annotation,"class1 comment",
@@ -121,7 +123,7 @@ foo = foo1
 
 foo = foo2 # foo2 comment
 
-bar = bar1 
+bar = bar1
 
 # class1 comment
 [class1]

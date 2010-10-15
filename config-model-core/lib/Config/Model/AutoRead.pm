@@ -100,6 +100,7 @@ sub open_read_file {
     my $fh = new IO::File;
     if (defined $file_path and -e $file_path) {
         $fh->open($file_path);
+        $fh->binmode(":utf8");
         return ($file_path,$fh) ;
     }
     else {
@@ -427,6 +428,7 @@ sub open_file_to_write {
     get_logger("Data::Write")
       ->debug("$backend backend opened file $file_path to write");
     $fh ->open("> $file_path") || die "Cannot open $file_path:$!";
+    $fh->binmode(':utf8');
   }
   return $file_path ;
 }
@@ -812,7 +814,7 @@ Read callback function will be called with these parameters:
   config_dir => /etc/foo',    # absolute path 
   file       => 'foo.conf',   # file name
   file_path  => './my_test/etc/foo/foo.conf' 
-  io_handle  => $io           # IO::File object
+  io_handle  => $io           # IO::File object with binmode :utf8
   check      => [yes|no|skip]
 
 The L<IO::File> object is undef if the file cannot be read.
@@ -828,7 +830,8 @@ Write callback function will be called with these parameters:
   config_dir  => /etc/foo',    # absolute path 
   file        => 'foo.conf',   # file name
   file_path  => './my_test/etc/foo/foo.conf' 
-  io_handle   => $io           # IO::File object opened in write mode
+  io_handle   => $io           # IO::File object opened in write mode 
+                               # with binmode :utf8
   auto_create => 1             # create dir as needed
   check      => [yes|no|skip]
 

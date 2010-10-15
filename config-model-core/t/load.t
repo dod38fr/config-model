@@ -1,7 +1,7 @@
 # -*- cperl -*-
 
 use ExtUtils::testlib;
-use Test::More tests => 99;
+use Test::More tests => 106;
 use Test::Exception ;
 use Config::Model;
 use Data::Dumper ;
@@ -22,6 +22,13 @@ Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 use Log::Log4perl qw(:easy) ;
 Log::Log4perl->easy_init($arg =~ /l/ ? $TRACE: $WARN);
 
+# See caveats in Test::More doc
+my $builder = Test::More->builder;
+binmode $builder->output,         ":utf8";
+binmode $builder->failure_output, ":utf8";
+binmode $builder->todo_output,    ":utf8";
+
+
 ok(1,"compiled");
 
 # test mega regexp, 'x' means undef
@@ -31,7 +38,9 @@ my @regexp_test
      [ '#C'              , ['x', 'x' ,  'x'    ,'x' , 'x'     , 'C'  ]],
      [ '#"m C"'          , ['x', 'x' ,  'x'    ,'x' , 'x'     , 'm C']],
      [ 'a=b'             , ['a', 'x' ,  'x'    ,'=' , 'b'     , 'x'  ]],
+     [ "a=\x{263A}"      , ['a', 'x' ,  'x'    ,'=' , "\x{263A}" , 'x'  ]], # utf8 smiley
      [ 'a.=b'            , ['a', 'x' ,  'x'    ,'.=','b'      , 'x'  ]],
+     [ "a.=\x{263A}"     , ['a', 'x' ,  'x'    ,'.=', "\x{263A}" , 'x'  ]], # utf8 smiley
      [ 'a="b=c"'         , ['a', 'x' ,  'x'    ,'=' , 'b=c'   , 'x'  ]],
      [ 'a="b=\"c\""'     , ['a', 'x' ,  'x'    ,'=' , 'b="c"' , 'x'  ]],
      [ 'a:b=c'           , ['a', ':' ,  'b'    ,'=' , 'c'     , 'x'  ]],
@@ -66,11 +75,20 @@ ok($inst,"created dummy instance") ;
 my $root = $inst -> config_root ;
 
 # check with embedded \n
-my $step = qq!#"root cooment" std_id:ab X=Bv -\na_string="titi and\ntoto" !;
+my $step = qq!#"root cooment " std_id:ab X=Bv -\na_string="titi and\ntoto" !;
 ok( $root->load( step => $step, experience => 'advanced' ),
   "load steps with embedded \\n");
 is( $root->fetch_element('a_string')->fetch, "titi and\ntoto",
   "check a_string");
+
+# check with embedded utf8
+$step = qq!#"root cooment \x{263A} " std_id:\x{263A} X=Bv -\na_string="titi and\ntoto and \x{263A}" !;
+ok( $root->load( step => $step, experience => 'advanced' ),
+  "load steps with embedded \x{263A}");
+is( $root->fetch_element('a_string')->fetch, "titi and\ntoto and \x{263A}",
+  "check a_string");
+is( $root->fetch_element('std_id')->fetch_with_id("\x{263A}")->fetch_element_value('X'), 'Bv',
+  "check hash with utf8 index");
 
 $step = 'std_id:ab X=Bv - std_id:bc X=Av - a_string="titi , toto" ';
 ok( $root->load( step => $step, experience => 'advanced' ),
@@ -98,7 +116,7 @@ ok( $root->load( step => $step, experience => 'advanced' ),
   "load '$step'");
 
 is_deeply([ $root->fetch_element('std_id')->get_all_indexes ],
-      [ ' b  c ', 'a b','ab','bc'],
+      [ ' b  c ', 'a b','ab','bc',"\x{263A}"],
       "check indexes");
 
 $step = 'std_id:ab ZZX=Bv - std_id:bc X=Bv';
@@ -168,7 +186,7 @@ map {
 $step = 'std_id:"f/o/o:b.ar" X=Bv' ;
 ok( $root->load( step => $step, ), "load : '$step'");
 is_deeply( [sort $root->fetch_element('std_id')->get_all_indexes ],
-       [' b  c ', 'a b',qw!ab bc f/o/o:b.ar!],
+       [' b  c ', 'a b',qw!ab bc f/o/o:b.ar!,"\x{263A}"],
        "check result after load '$step'" );
 
 $step = 'hash_a:a=z hash_a:b=z2 hash_a:"a b "="z 1"' ;
@@ -209,6 +227,9 @@ is($elt->fetch,undef, "test hash value loaded by '$step'");
 # test append mode
 $root->load('a_string.=c');
 is($root->fetch_element_value('a_string'), 'a "b" c', "test append on list");
+# test append mode with utf8
+$root->load("a_string.=\x{263A}");
+is($root->fetch_element_value('a_string'), 'a "b" c'."\x{263A}", "test append on list with utf8");
 
 $root->load('lista:0.=" b c"');
 is($root->fetch_element('lista')->fetch_with_id(0)->fetch ,
@@ -237,13 +258,13 @@ foreach my $path (@anno_test) {
        "fetch $path annotation") ;
 }
 
-# test combination of annotation plus load
+# test combination of annotation plus load and some utf8
 $step = 'std_id:ab#std_id_ab_note X=Bv X#X_note 
       - std_id#std_id_note std_id:bc X=Av X#X2_note '
   . '- a_string="toto \"titi\" tata" a_string#string_note '
   . 'lista=a,b,c,d olist:0 - olist:0#olist0_note X=Av - olist:1 X=Bv - listb=b,"c c2",d '
   . '! hash_a:X2=x#x_note hash_a:Y2=xy  hash_b:X3=xy my_check_list=X2,X3 '
-  . 'plain_object#"plain comment" aa2=aa2_value' ;
+  . 'plain_object#"plain comment" aa2="aa2_value '."\x{263A}\"" ;
 
 ok( $root->load( step => $step, experience => 'advanced' ),
   "set up data in tree with combination of load and annotations");
@@ -263,6 +284,10 @@ foreach (@to_check) {
        "Check annotation for '$_->[0]'") ;
 }
 
+# check utf8 value
+is($root->grab_value('plain_object aa2'), "aa2_value \x{263A}","utf8 value") ;
+
+
 # test deletion of leaf items
 $step = 'another_string=foobar another_string~';
 ok( $root->load( step => $step, experience => 'advanced' ),
@@ -270,3 +295,5 @@ ok( $root->load( step => $step, experience => 'advanced' ),
   
 is($root->grab_value('another_string'),undef,"check that another_string was undef'ed");
 
+$root->load("lista:0.=\x{263A}") ;
+is($root->grab_value('lista:0'),"a\x{263A}","check that list append work");
