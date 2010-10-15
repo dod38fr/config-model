@@ -101,6 +101,9 @@ sub open_read_file {
     if (defined $file_path and -e $file_path) {
         $fh->open($file_path);
         $fh->binmode(":utf8");
+        # store a backup in memory in case there's a problem
+        $self->{file_backup} = [ $fh-> getlines ] ;
+        $fh->seek(0,0) ; # go back to beginning of file
         return ($file_path,$fh) ;
     }
     else {
@@ -357,25 +360,29 @@ sub auto_write_init {
               {  no strict 'refs';
                  my $file_path ;
                  $file_path = $self-> open_file_to_write($backend,$fh,@wr_args,@_) 
-                   unless ($c->can('skip_open') and $c->skip_open) ;
-                 # override needed for "save as" button
-                 &{$c.'::'.$f}(@wr_args,
-                               file_path => $file_path,
-                               conf_dir => $write_dir, # legacy FIXME
-                               object => $safe_self, 
-                               @_                      # override from user
-                              ) ;
-                 $fh->close if defined $file_path;
+                    unless ($c->can('skip_open') and $c->skip_open) ;
+                 eval {
+                    # override needed for "save as" button
+                    &{$c.'::'.$f}(@wr_args,
+                                  file_path => $file_path,
+                                  conf_dir => $write_dir, # legacy FIXME
+                                  object => $safe_self, 
+                                  @_                      # override from user
+                                 ) ;
+                 };
+                 $self->close_file_to_write($@,$fh,$file_path) ;
              };
             $self->{auto_write}{custom} = 1 ;
         }
         elsif ($backend eq 'perl_file') {
             $wb = sub {
                 my $file_path 
-                   = $self-> open_file_to_write($backend,$fh,
+                    = $self-> open_file_to_write($backend,$fh,
                                                 suffix => '.pl',@wr_args,@_) ;
-                $self->write_perl(@wr_args, file_path => $file_path,  @_) ;
-                $fh->close if defined $file_path;
+                eval {
+                    $self->write_perl(@wr_args, file_path => $file_path,  @_) ;
+                };
+                $self->close_file_to_write($@,$fh,$file_path) ;
             } ;
             $self->{auto_write}{perl_file} = 1 ;
         }
@@ -384,8 +391,10 @@ sub auto_write_init {
                 my $file_path 
                    = $self-> open_file_to_write($backend,$fh,
                                                 suffix => '.cds',@wr_args,@_) ;
-                $self->write_cds_file(@wr_args, file_path => $file_path, @_) ;
-                $fh->close if defined $file_path;
+                eval {
+                    $self->write_cds_file(@wr_args, file_path => $file_path, @_) ;
+                };
+                $self->close_file_to_write($@,$fh,$file_path) ;
             } ;
             $self->{auto_write}{cds_file} = 1 ;
         }
@@ -405,13 +414,15 @@ sub auto_write_init {
                                                          suffix => $suffix,
                                                          @wr_args,@_) 
                      unless ($c->can('skip_open') and $c->skip_open) ;
-                 # override needed for "save as" button
-                 $backend_obj->$f(@wr_args, 
-                                  file_path => $file_path,
-                                  object => $safe_self, 
-                                  @_                      # override from user
-                                 ) ;
-                 $fh->close if defined $file_path;
+                 eval {
+                    # override needed for "save as" button
+                    $backend_obj->$f( @wr_args, 
+                                      file_path => $file_path,
+                                      object => $safe_self, 
+                                      @_                      # override from user
+                                    ) ;
+                 } ;
+                 $self->close_file_to_write($@,$fh,$file_path) ;
              };
         }
 
@@ -421,16 +432,36 @@ sub auto_write_init {
 }
 
 sub open_file_to_write {
-  my ($self, $backend, $fh, @args) = @_ ;
+    my ($self, $backend, $fh, @args) = @_ ;
 
-  my $file_path = $self->get_cfg_file_path(@args);
-  if (defined $file_path) {
-    get_logger("Data::Write")
-      ->debug("$backend backend opened file $file_path to write");
-    $fh ->open("> $file_path") || die "Cannot open $file_path:$!";
-    $fh->binmode(':utf8');
-  }
-  return $file_path ;
+    my $file_path = $self->get_cfg_file_path(@args);
+    if (defined $file_path) {
+        get_logger("Data::Write")
+            ->debug("$backend backend opened file $file_path to write");
+        $fh ->open("> $file_path") || die "Cannot open $file_path:$!";
+        $fh->binmode(':utf8');
+    }
+
+    return $file_path ;
+}
+
+sub close_file_to_write {
+    my ($self,$error,$fh,$file_path) = @_ ;
+    
+    return unless defined $file_path ;
+    
+    if ($error) {
+        # restore backup and display error
+        my $data = $self->{file_backup} ;
+        get_logger("Data::Write")
+            ->debug("Error during write, restoring backup in $file_path with ".scalar @$data." lines");
+        $fh->seek(0,0) ; # go back to beginning of file
+        $fh->print(@$data);
+        $fh->close;
+        $error->rethrow ;
+    }
+
+    $fh->close;
 }
 
 sub is_auto_write_for_type {

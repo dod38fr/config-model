@@ -1,12 +1,13 @@
 # -*- cperl -*-
 
 use ExtUtils::testlib;
-use Test::More tests => 41 ;
+use Test::More tests => 56 ;
 use Config::Model ;
 use Log::Log4perl qw(:easy) ;
 use File::Path ;
 use File::Copy ;
 use Test::Warn ;
+use Test::Exception ;
 
 use warnings;
 
@@ -194,58 +195,69 @@ $tests[$i++]{check} = [
 
 my $idx = 0 ;
 foreach my $t (@tests) {
-   if ($do and $do ne $idx) { $idx ++; next; }
+    if ($do and $do ne $idx) { $idx ++; next; }
    
-   my $wr_dir = $wr_root.'/test-'.$idx ;
-   mkpath($wr_dir."/debian/", { mode => 0755 }) ;
-   my $license_file = "$wr_dir/debian/copyright" ;
+    my $wr_dir = $wr_root.'/test-'.$idx ;
+    mkpath($wr_dir."/debian/", { mode => 0755 }) ;
+    my $license_file = "$wr_dir/debian/copyright" ;
 
-   open(LIC,"> $license_file" ) || die "can't open $license_file: $!";
-   print LIC $t->{text} ;
-   close LIC ;
+    open(LIC,"> $license_file" ) || die "can't open $license_file: $!";
+    print LIC $t->{text} ;
+    close LIC ;
 
-   my $inst = $model->instance (root_class_name   => 'Debian::Dpkg::Copyright',
-                                root_dir          => $wr_dir,
-                                instance_name => "deptest".$idx,
-                               );  
-   ok($inst,"Read $license_file and created instance") ;
+    my $inst = $model->instance (root_class_name   => 'Debian::Dpkg::Copyright',
+                                 root_dir          => $wr_dir,
+                                 instance_name => "deptest".$idx,
+                                );  
+    ok($inst,"Read $license_file and created instance") ;
 
-   my $lic = $inst -> config_root ;
+    my $lic = $inst -> config_root ;
 
-   my $dump =  $lic->dump_tree ();
-   print $dump if $trace ;
+    my $dump =  $lic->dump_tree ();
+    rint $dump if $trace ;
    
-   while (@{$t->{check}}) { 
-     my ($path,$v) = splice @{$t->{check}},0,2 ;
-     is($lic->grab_value($path),$v,"check $path value");
-   }
+    while (@{$t->{check}}) { 
+       my ($path,$v) = splice @{$t->{check}},0,2 ;
+       is($lic->grab_value($path),$v,"check $path value");
+    }
    
-   $inst->write_back ;
-   ok(1,"Dep-5 write back done") ;
+    $inst->write_back ;
+    ok(1,"Dep-5 write back done") ;
 
-   # create another instance to read the IniFile that was just written
-   my $wr_dir2 = $wr_dir.'-w' ;
-   mkpath($wr_dir2.'/debian',{ mode => 0755 })   || die "can't mkpath: $!";
-   copy($wr_dir.'/debian/copyright',$wr_dir2.'/debian/') 
-      or die "can't copy from $wr_dir to $wr_dir2: $!";
+    # create another instance to read the IniFile that was just written
+    my $wr_dir2 = $wr_dir.'-w' ;
+    mkpath($wr_dir2.'/debian',{ mode => 0755 })   || die "can't mkpath: $!";
+    copy($wr_dir.'/debian/copyright',$wr_dir2.'/debian/') 
+        or die "can't copy from $wr_dir to $wr_dir2: $!";
 
-   my $i2_test = $model->instance(root_class_name   => 'Debian::Dpkg::Copyright',
-                                  root_dir    => $wr_dir2 ,
-                                  instance_name => "deptest".$idx."-w",
-                                 );
+    my $i2_test = $model->instance(root_class_name   => 'Debian::Dpkg::Copyright',
+                                   root_dir    => $wr_dir2 ,
+                                   instance_name => "deptest".$idx."-w",
+                                  );
 
-   ok( $i2_test, "Created instance $idx-w" );
+    ok( $i2_test, "Created instance $idx-w" );
 
-   my $i2_root = $i2_test->config_root ;
+    my $i2_root = $i2_test->config_root ;
 
-   my $p2_dump = $i2_root->dump_tree ;
+    my $p2_dump = $i2_root->dump_tree ;
 
-   is($p2_dump,$dump,"compare original data with 2nd instance data") ;
+    is($p2_dump,$dump,"compare original data with 2nd instance data") ;
    
-   # test license warnings
-   warning_like { $i2_root->load('License:YADA="yada license"') ; }
-    qr/should match/, "test license warning" ;
+    # test license warnings
+    warning_like { $i2_root->load('License:YADA="yada license"') ; }
+       qr/should match/, "test license warning" ;
    
-   $idx++ ;
+    my $elt = $i2_root->grab("! License") ;
+    is($elt->defined('foobar'),0,"test defined method");
+
+    # test backups, load a wrong value
+    $i2_root->load(step => "Files:foobar License abbrev=XYZ", check => 'no');
+    # then try to write backups
+    throws_ok {$i2_test->write_back} 'Config::Model::Exception::WrongValue',
+        "check that write back is aborted with bad values" ;
+
+    ok( -s $wr_dir2.'/debian/copyright',"check that original file was not clobbered");
+   
+    $idx++ ;
 }
 
