@@ -3,7 +3,7 @@
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
-use Test::More tests => 101 ;
+use Test::More tests => 105 ;
 use Test::Exception ;
 use Test::Warn ;
 use Config::Model ;
@@ -105,7 +105,7 @@ $model ->create_config_class
 			       grammar => q^token (oper token)(s?) 
 			                    oper: 'and' | 'or'
 			                    token: 'Apache' | 'CC-BY' | 'Perl' 
-			                       {my $v = $arg[0]->grab("! prd_test_action")->fetch ;
+			                       {my $v = $arg[0]->grab("! prd_test_action")->fetch || '';
 			                        $return = ($v =~ /$item[1]/) ; 
 			                       }
                                            ^,
@@ -374,16 +374,23 @@ throws_ok { $match->store('bar');} 'Config::Model::Exception::WrongValue',
 $match->store('foo42') ;
 is($match->fetch, 'foo42',"test stored matching value") ;
 
+### test match and check stuff
+is($match->store(qw/value bar check no/),'bar',"force storage of wrong value");
+is($match->fetch(qw/check no silent 1/),'bar',"read forced wrong value");
+
 ### test Parse::RecDescent validation
 my $prd_match = $root->fetch_element('prd_match') ;
-throws_ok { $match->store('bar');} 'Config::Model::Exception::WrongValue',
+throws_ok { $prd_match->store('bar');} 'Config::Model::Exception::WrongValue',
     'match value: test for non matching grammar';
-throws_ok { $match->store('Perl');} 'Config::Model::Exception::WrongValue',
+throws_ok { $prd_match->store('Perl');} 'Config::Model::Exception::WrongValue',
     'match value: test for non matching grammar';
 $root->fetch_element('prd_test_action')->store('Perl CC-BY Apache');
 
-throws_ok { $match->store('bar');} 'Config::Model::Exception::WrongValue',
+throws_ok { $prd_match->store('bar');} 'Config::Model::Exception::WrongValue',
     'match value: test for non matching grammar';
+is($prd_match->store(qw/value bar check no/),'bar',"force storage of wrong value");
+is($prd_match->fetch(qw/check no silent 1/),'bar',"read forced wrong value");
+
 
 foreach my $prd_test (('Perl','Perl and CC-BY', 'Perl and CC-BY or Apache')) {
     $prd_match->store($prd_test) ;
