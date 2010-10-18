@@ -48,6 +48,7 @@ sub read {
     # check      => yes|no|skip
 
     return 0 unless defined $args{io_handle} ; # no file to read
+    my $check = $args{check} || 'yes' ;
 
     # try to get global comments (comments before a blank line)
     my @global_comments ;
@@ -76,7 +77,7 @@ sub read {
 			$global_zone = 0 ;
 			$data .= '#"'.join("\n",@comments).'"' if @comments ;
 			$logger->debug("Loading:$data\n");
-			$self->node->load(step => $data, check => $args{check}) ;
+			$self->node->load(step => $data, check => $check) ;
 			@comments = () ;
 		}
     }

@@ -102,11 +102,12 @@ $model ->create_config_class
                                    } ,
 		prd_match => { type => 'leaf',
                                value_type => 'string',
-			       grammar => q^token (oper token)(s?) 
+			       grammar => q^check: <rulevar: local $failed = 0>
+			                    check: token (oper token)(s?) <reject:$failed>
 			                    oper: 'and' | 'or'
 			                    token: 'Apache' | 'CC-BY' | 'Perl' 
 			                       {my $v = $arg[0]->grab("! prd_test_action")->fetch || '';
-			                        $return = ($v =~ /$item[1]/) ; 
+			                        $failed++ unless $v =~ /$item[1]/ ; 
 			                       }
                                            ^,
 			 },

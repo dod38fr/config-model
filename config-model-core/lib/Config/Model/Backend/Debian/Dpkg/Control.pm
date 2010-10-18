@@ -78,7 +78,7 @@ sub read_section {
     my $self = shift ;
     my $node = shift;
     my $section = shift;
-    my $check = shift ;
+    my $check = shift || 'yes';
 
     for (my $i=0; $i < @$section ; $i += 2 ) {
         my $key = $section->[$i];

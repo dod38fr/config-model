@@ -38,7 +38,7 @@ sub read {
     my $c = $self -> parse_dpkg_file ($args{io_handle}) ;
     
     my $root = $args{object} ;
-    my $check = $args{check} ;
+    my $check = $args{check} || 'yes';
     my $file;
     my $object = $root ;
     
@@ -49,8 +49,11 @@ sub read {
             my $v = $section->[$i+1];
             if ($key =~ /license/i) {
                 my @lic_text = split /\n/,$v ;
+                my ($lic_name) = shift @lic_text ;
                 # get rid of potential 'with XXX exception'
-                my ($lic_name) = split /\s+/ , shift @lic_text ;
+                $lic_name =~ s/\s+with\s+\w+\s+exception//g ;
+                # get rid of '+' to use the real license name
+                $lic_name =~ s/\+//g ;
                 $logger->debug("adding license text for '$lic_name'");
                 next if $lic_name =~ /\s/ ; # complex license
                 next unless @lic_text; # no text to store

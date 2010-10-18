@@ -5,12 +5,17 @@
                            'abbrev',
                            {
                              'value_type' => 'uniline',
-                             'grammar' => 'license (oper license)(s?) 
+                             'grammar' => 'check: <rulevar: local $failed = 0>
+check: license alternate(s?) <reject:$failed>
+alternate: oper license 
 oper: \'and\' | \'or\' 
 license: /[\\w\\-\\.\\+]+/i
    { # PRD action to check if the license text is provided
-     $return = $arg[0]->grab("! License")->defined($item[1]);
-   } ',
+     my $abbrev = $item[1] ;
+     $abbrev =~ s/\\+$//g;
+     $failed++ unless $arg[0]->grab("! License")->defined($abbrev);
+   } 
+',
                              'help' => {
                                          'Zope' => 'Zope Public License. For versions, consult Zope.org',
                                          'MPL' => 'Mozilla Public License. For versions, consult Mozilla.org',

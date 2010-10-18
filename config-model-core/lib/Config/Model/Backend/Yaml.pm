@@ -40,7 +40,7 @@ sub read {
       || croak "No data found in YAML file $args{file_path}";
 
     # load perl data in tree
-    $self->{node}->load_data($perl_data, undef, $args{check}) ;
+    $self->{node}->load_data($perl_data, undef, $args{check} || 'yes' ) ;
     return 1 ;
 }
 

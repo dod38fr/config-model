@@ -121,7 +121,7 @@ sub read {
 
     # use Data::Dumper; print Dumper(\%annot) ;
 
-    $self->node->load_data(\%data,\%annot, $args{check});
+    $self->node->load_data(\%data,\%annot, $args{check} || 'yes' );
 
     return 1 ;
 }

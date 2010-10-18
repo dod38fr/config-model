@@ -549,7 +549,7 @@ sub setup_grammar_check {
     my @lines = split /\n/,$str ;
     chomp @lines ;
     if ($lines[0] !~ /^check:/) {
-	$lines[0] = 'check: '.$lines[0].' /^\Z/ {$return = $item[1];}';
+	$lines[0] = 'check: '.$lines[0].' /\s*\Z/ ';
     }	
 
     my $actual_grammar = join("\n",@lines) . "\n";
@@ -1310,10 +1310,11 @@ sub check_value {
 
     if (defined $self->{validation_parser} and defined $value) {
 	my $prd = $self->{validation_parser};
-	my $prd_check = $prd->check ( $value,1,$self) ? 1 : 0; 
-	$logger->debug("grammar check on $value returned $prd_check");
+	my $prd_check = $prd->check ( $value,1,$self) ; 
+	my $prd_result = defined $prd_check ? 1 : 0; 
+	$logger->debug("grammar check on $value returned ", defined $prd_check ? $prd_check : '<undef>');
 	push @error,"value '$value' does not match grammar:\n" .$self->{grammar} 
-		unless $prd_check ;
+		unless $prd_result ;
     }
 
     $self->{error_list} = \@error ;
