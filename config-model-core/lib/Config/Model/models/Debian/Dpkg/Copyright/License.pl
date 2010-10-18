@@ -2,6 +2,13 @@
           {
             'name' => 'Debian::Dpkg::Copyright::License',
             'element' => [
+                           'full_license',
+                           {
+                             'value_type' => 'string',
+                             'type' => 'leaf',
+                             'description' => "if left blank here, the file must include a stand-alone License section matching each license short name listed on the first line (see the Standalone License Section section). Otherwise, this field should either include the full text of the license(s) or include a pointer to the license file under /usr/share/common-licenses. This field should include all text needed in order to fulfill both Debian Policy\x{2019}s requirement for including a copy of the software\x{2019}s distribution license (\x{a7}12.5), and any license requirements to include warranty disclaimers or other notices with the binary package.
+"
+                           },
                            'abbrev',
                            {
                              'value_type' => 'uniline',
@@ -13,7 +20,9 @@ license: /[\\w\\-\\.\\+]+/i
    { # PRD action to check if the license text is provided
      my $abbrev = $item[1] ;
      $abbrev =~ s/\\+$//g;
-     $failed++ unless $arg[0]->grab("! License")->defined($abbrev);
+     $failed++ unless 
+         $arg[0]->grab("! License")->defined($abbrev)
+         or $arg[0]->grab("- full_license")->fetch;
    } 
 ',
                              'help' => {
@@ -50,6 +59,8 @@ license: /[\\w\\-\\.\\+]+/i
                              'default' => 'other',
                              'type' => 'leaf',
                              'description' => 'abbreviated name for the license. If empty, it is given the default value \'other\'. Only one license per file can use this default value; if there is more than one license present in the package without a standard short name, an arbitrary short name may be assigned for these licenses. These arbitrary names are only guaranteed to be unique within a single copyright file.
+
+The name given must match a License described in License element in root node
 '
                            },
                            'exception',
@@ -86,13 +97,6 @@ license: /[\\w\\-\\.\\+]+/i
                                            'Font',
                                            'OpenSSL'
                                          ]
-                           },
-                           'full_license',
-                           {
-                             'value_type' => 'string',
-                             'type' => 'leaf',
-                             'description' => "if left blank here, the file must include a stand-alone License section matching each license short name listed on the first line (see the Standalone License Section section). Otherwise, this field should either include the full text of the license(s) or include a pointer to the license file under /usr/share/common-licenses. This field should include all text needed in order to fulfill both Debian Policy\x{2019}s requirement for including a copy of the software\x{2019}s distribution license (\x{a7}12.5), and any license requirements to include warranty disclaimers or other notices with the binary package.
-"
                            }
                          ]
           }

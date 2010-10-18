@@ -192,7 +192,7 @@ sub files {
         $lic_text .= " with $exception exception" if defined $exception ;
         
         my $full_lic_text = $lic_node->fetch_element_value('full_license') ;
-        $lic_text .= $full_lic_text if defined $full_lic_text ;
+        $lic_text .= "\n ".$full_lic_text if defined $full_lic_text ;
         push @file_section, License => $lic_text ;
 
         push @res, \@file_section ;
