@@ -72,7 +72,7 @@ sub Populate {
 		             . 'an action on the right');
 
     my $cargo_type = $list->cargo_type ;
-    my @insert = $cargo_type eq 'leaf' ? $list->fetch_all_values 
+    my @insert = $cargo_type eq 'leaf' ? $list->fetch_all_values (check => 'no')
                :                         $list->get_all_indexes ;
     map { $_ = '<undef>' unless defined $_ } @insert ;
     $tklist->insert( end => @insert ) ;
@@ -100,7 +100,7 @@ sub Populate {
 			)-> pack( @fxe1);
 
     if ($cargo_type eq 'leaf' and $value_type ne 'enum' and $value_type ne 'reference') {
-	$cw->add_set_entry  ($right_frame, $balloon)->pack( @fxe1) ;
+	$cw->add_set_entry  ($right_frame, $balloon, $tklist)->pack( @fxe1) ;
 	$right_frame->Frame(-borderwidth => 2, -relief => 'groove') -> pack( @fxe1) ;
 	$cw->add_push_entry ($right_frame, $balloon)->pack( @fxe1) ;
 	$cw->add_set_all_b ($right_frame, $balloon)->pack( @fxe1) ;
@@ -133,7 +133,7 @@ sub Populate {
 }
 
 sub add_set_entry {
-    my ($cw,$right_frame, $balloon) = @_ ;
+    my ($cw,$right_frame, $balloon,$tklist) = @_ ;
 
     my $set_item = '';
     my $set_sub = sub {$cw->set_entry($set_item); $set_item = '';} ;
@@ -151,6 +151,13 @@ sub add_set_entry {
 		     -msg => 'enter a value, select an element on the left '
 		           . 'and click the button to replace the selected '
 		           . 'element with this value.');
+
+    my $b_sub = sub { 
+	my $idx = $tklist->curselection ;
+	$set_item = $tklist->get($idx) if $idx ;
+    };
+
+    $tklist->bind('<<ListboxSelect>>',$b_sub);
 
     return $set_frame ;
 }
@@ -237,30 +244,38 @@ sub add_set_all_b {
     my ($cw,$right_frame, $balloon) = @_ ;
 
     my $set_all_items = '' ;
-    my $set_all_sub = sub {$cw->set_all_items($set_all_items);} ;
+    my $regexp = '\s*,\s*' ;
+    my $set_all_sub = sub {$cw->set_all_items($set_all_items,$regexp);} ;
     my $set_all_frame = $right_frame->Frame;
-    $set_all_frame -> Button(-text => "set all:",
-			     -command => $set_all_sub ,
-			     -anchor => 'e',
-			    )->pack(-side => 'left', @fxe1);
+    my $set_top    = $set_all_frame->Frame->pack(@fxe1) ;
+    my $set_bottom = $set_all_frame->Frame->pack(@fxe1) ;
+    
+    $set_top -> Button(-text => "set all:",
+		       -command => $set_all_sub ,
+		       -anchor => 'e',
+		      )->pack(-side => 'left', @fx);
     my $set_all_entry 
-      = $set_all_frame -> Entry (-textvariable => \$set_all_items, 
-				 -width => $entry_width)
-	-> pack  (-side => 'left') ;
+      = $set_top -> Entry (-textvariable => \$set_all_items,)
+	-> pack  (-side => 'left',@fxe1) ;
     $balloon->attach($set_all_entry, 
-		     -msg => 'set all elements with a single string of '
-		     . 'comma separated values. I.e. "foo,bar,baz"');
+		     -msg => 'set all elements with a single string that '
+		     . 'will be split by the regexp displayed below');
+
+    $set_bottom-> Label(-text => 'split regexp') -> pack(-side => 'left', @fxe1);
+    $set_bottom-> Entry(-textvariable => \$regexp )
+	-> pack(-side => 'left',@fxe1);
     return $set_all_frame ;
 }
 
 sub set_all_items {
     my $cw =shift;
     my $data = shift ;
+    my $regexp = shift ;
 
     return unless $data ;
     my $tklist = $cw->{tklist} ;
 
-    my @list = split /[^\w\-]+/,$data ;
+    my @list = split /$regexp/,$data ;
 
     $tklist->delete(0,'end') ;
     $tklist->insert(0, @list) ;
@@ -341,7 +356,7 @@ sub remove_selection {
     # redraw the list content
     $tklist -> delete(0,'end') ;
     my $cargo_type = $list->cargo_type ;
-    my @insert = $cargo_type eq 'leaf' ? $list->fetch_all_values 
+    my @insert = $cargo_type eq 'leaf' ? $list->fetch_all_values (check => 'no')
                :                         $list->get_all_indexes ;
     map { $_ = '<undef>' unless defined $_ } @insert ;
     $tklist->insert( end => @insert ) ;
