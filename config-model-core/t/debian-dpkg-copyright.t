@@ -1,7 +1,7 @@
 # -*- cperl -*-
 
 use ExtUtils::testlib;
-use Test::More tests => 56 ;
+use Test::More tests => 57 ;
 use Config::Model ;
 use Log::Log4perl qw(:easy) ;
 use File::Path ;
@@ -15,7 +15,8 @@ use strict;
 
 my $arg = shift || '';
 
-my ($log,$show,$do) = (0) x 3 ;
+my ($log,$show) = (0) x 2 ;
+my $do ;
 
 my $trace = $arg =~ /t/ ? 1 : 0 ;
 $::debug            = 1 if $arg =~ /d/;
@@ -58,7 +59,7 @@ License: PsF
 EOD0
 
 $tests[$i++]{check} 
-   = [ 'License:PsF',           "[PSF LICENSE TEXT]" ,
+   = [ 'Files:"*" License full_license',           "[PSF LICENSE TEXT]\n" ,
        'Files:"*" Copyright:0', "2008, John Doe <john.doe\@example.com>",
        'Files:"*" Copyright:1', "2007, Jane Smith <jane.smith\@example.com>",
        'Files:"*" License abbrev',"PsF",
@@ -121,6 +122,7 @@ Name: Planet Venus
 Maintainer: John Doe <jdoe@example.com>
 Source: http://www.example.com/code/venus
 
+Files: *
 Copyright: 2008, John Doe <jdoe@example.com>
            2007, Jane Smith <jsmith@example.org>
            2007, Joe Average <joe@example.org>
@@ -184,7 +186,7 @@ Files: *
 Copyright: 1993, John Doe
            1993, Joe Average
 License: GPL-2+ with OpenSSL exception
-  This program is free software; you can redistribute it
+ This program is free software; you can redistribute it
   and/or modify it under the terms of the [snip]
 
 EOD4
@@ -192,11 +194,14 @@ EOD4
 $tests[$i++]{check} = [ 
                       'Files:"*" License abbrev',"GPL-2+",
                       'Files:"*" License exception',"OpenSSL",
-                    ];
+                      'Files:"*" License full_license',
+                      "This program is free software; you can redistribute it\n"
+                      ." and/or modify it under the terms of the [snip]\n",
+                   ];
 
 my $idx = 0 ;
 foreach my $t (@tests) {
-    if ($do and $do ne $idx) { $idx ++; next; }
+    if (defined $do and $do ne $idx) { $idx ++; next; }
    
     my $wr_dir = $wr_root.'/test-'.$idx ;
     mkpath($wr_dir."/debian/", { mode => 0755 }) ;

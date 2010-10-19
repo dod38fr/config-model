@@ -12,6 +12,7 @@ use Config::Model::Exception ;
 use File::Path;
 use Log::Log4perl qw(get_logger :levels);
 
+use Config::Model::Exception ;
 
 
 my $logger = get_logger("Backend::Debian::Dpkg::Copyright") ;
@@ -42,35 +43,29 @@ sub read {
     my $file;
     my $object = $root ;
     
-    $logger->info("First pass to read license text from $args{file} control file");
+    $logger->info("First pass to read license sections from $args{file} control file");
     foreach my $section (@$c) {
-        for (my $i=0; $i < @$section ; $i += 2 ) {
-            my $key = $section->[$i];
-            my $v = $section->[$i+1];
-            if ($key =~ /license/i) {
-                my @lic_text = split /\n/,$v ;
-                my ($lic_name) = shift @lic_text ;
-                # get rid of potential 'with XXX exception'
-                $lic_name =~ s/\s+with\s+\w+\s+exception//g ;
-                # get rid of '+' to use the real license name
-                $lic_name =~ s/\+//g ;
-                $logger->debug("adding license text for '$lic_name'");
-                next if $lic_name =~ /\s/ ; # complex license
-                next unless @lic_text; # no text to store
-                $logger->debug("adding license text '@lic_text'");
-                my $lic_obj = $root->grab(step => qq!License:"$lic_name"!, check => $check);
-                # lic_obj may not be defined in -force mode
-                $lic_obj->store(value => join("\n", @lic_text), check => $check) if defined $lic_obj ;
-            }
-        }
+        next unless $section->[0] =~ /license/i;
+        my ($key,$v) =  @$section ;
+        my @lic_text = split /\n/,$v ;
+        my ($lic_name) = shift @lic_text ;
+        # get rid of potential 'with XXX exception'
+        $lic_name =~ s/\s+with\s+\w+\s+exception//g ;
+        # get rid of '+' to use the real license name
+        $lic_name =~ s/\+//g ;
+        $logger->debug("adding license text for '$lic_name': '@lic_text'");
+        my $lic_obj = $root->grab(step => qq!License:"$lic_name"!, check => $check);
+        # lic_obj may not be defined in -force mode
+        $lic_obj->store(value => join("\n", @lic_text), check => $check) if defined $lic_obj ;
     }
 
-    $logger->info("Second pass to read other info from $args{file} control file");
+    $logger->info("Second pass to read other sections from $args{file} control file");
     foreach my $section (@$c) {
+        next if $section->[0] =~ /license/i; # skip pure license sections
         for (my $i=0; $i < @$section ; $i += 2 ) {
             my $key = $section->[$i];
             my $v = $section->[$i+1];
-            $logger->info("reading key $key from $args{file} control file");
+            $logger->info("reading key $key from $args{file} control file for ".$object->name);
             $logger->debug("$key value: $v");
             if ($key =~ /files/i) {
                 $file = $root->fetch_element('Files')->fetch_with_id(index => $v, check => $check) ;
@@ -81,18 +76,26 @@ sub read {
                 $object->fetch_element('Copyright')->store_set(\@v, check => $check);
             }
             elsif ($key =~ /license/i and $object eq $root) {
-                # skip license text stored in first pass
+                Config::Model::Exception::Syntax
+                ->throw( 
+                    object => $self ,
+                    error => "Unexpected License declaration (no Files ?) in section number ".$i/2) ;
             }
             elsif ($key =~ /license/i) {
                 $object = $file->fetch_element('License') ;
-                my @lic_text = split /\n/,$v ;
-                my $lic_line = shift @lic_text ;
+                my ($lic_line,$lic_text) = split /\n/,$v,2 ;
                 $lic_line  =~ s/\s+$//;
                 # too much hackish is bad for health
                 if ($lic_line =~ /with\s+(\w+)\s+exception/) {
-                    $object->fetch_element('exception')->store(value => $1, check => $check);
+                    my $exception = $1 ;
+                    $object->fetch_element('exception')->store(value => $exception , check => $check);
                     $lic_line =~ s/\s+with\s+\w+\s+exception//;
+                    $logger->debug("license exception: $exception");
                 }
+                $logger->debug("license abrrev: $lic_line");
+                $logger->debug("license full_license: $lic_text") if $lic_text;
+                $object->fetch_element('full_license')->store(value => $lic_text, check => $check)
+                    if $lic_text;
                 $object->fetch_element('abbrev')->store(value => $lic_line, check => $check);
                 $object = $root ;
             }
@@ -192,7 +195,7 @@ sub files {
         $lic_text .= " with $exception exception" if defined $exception ;
         
         my $full_lic_text = $lic_node->fetch_element_value('full_license') ;
-        $lic_text .= "\n ".$full_lic_text if defined $full_lic_text ;
+        $lic_text .= "\n".$full_lic_text if defined $full_lic_text ;
         push @file_section, License => $lic_text ;
 
         push @res, \@file_section ;

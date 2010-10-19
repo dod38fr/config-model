@@ -24,6 +24,12 @@ use Data::Dumper ;
 
 use Exception::Class 
   (
+   'Config::Model::Exception::Syntax' 
+   => { description => 'config error' ,
+	fields      =>  'object' ,
+	description => 'syntax error in configuration file',
+      },
+
    'Config::Model::Exception::Any' 
    => { description => 'config error' ,
 	fields      =>  'object' ,
@@ -129,6 +135,19 @@ use Exception::Class
   );
 
 Config::Model::Exception::Internal->Trace(1);
+
+package Config::Model::Exception::Syntax ;
+
+sub full_message {
+    my $self = shift;
+
+    my $obj = $self->object ;
+    my $msg = "File of type ".ref ($obj) ." ";
+    $msg .= "has a ".$self->description ;
+    $msg .= ":\n\t". $self->message."\n";
+
+    return $msg;
+}
 
 package Config::Model::Exception::Any ;
 

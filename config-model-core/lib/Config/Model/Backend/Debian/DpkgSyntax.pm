@@ -9,7 +9,6 @@ use Log::Log4perl qw(get_logger :levels);
 
 use base qw/Config::Model::Backend::Any/;
 
-
 my $logger = get_logger("Backend::Debian::Dpkg") ;
 
 sub parse_dpkg_file {
@@ -50,7 +49,8 @@ sub parse_dpkg_file {
     $fh->close ;
 
     if ($logger->is_debug ) {
-        map { $logger->debug("Parse result section:\n'".join("','",@$_)."'") ;} @res ;
+        my $i = 1 ;
+        map { $logger->debug("Parse result section ".$i++.":\n'".join("','",@$_)."'") ;} @res ;
     }
     
     warn "No section found\n" unless @res ;
