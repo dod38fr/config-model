@@ -458,6 +458,10 @@ sub write_back {
     }
 }
 
+sub push_no_value_check { carp "push_no_value_check is deprecated";}
+sub pop_no_value_check  { carp "pop_no_value_check is deprecated";}
+sub get_value_check { carp "get_value_check is deprecated";}
+
 1;
 
 =head1 AUTHOR

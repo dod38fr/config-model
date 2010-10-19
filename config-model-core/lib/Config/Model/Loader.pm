@@ -200,7 +200,11 @@ sub load {
     my $step = delete $args{step} ;
     croak "load error: missing 'step' parameter" unless defined $step ;
 
-    my $experience = delete $args{experience} || 'master' ;
+    if (defined $args{permission}) {
+	carp "load: permission parameter is deprecated. Use experience";
+    }
+
+    my $experience = delete $args{experience} || delete $args{permission} || 'master' ;
     my $inst = $node->instance ;
 
     # tune value checking
