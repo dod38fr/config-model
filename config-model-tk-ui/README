@@ -9,13 +9,21 @@ For instance, with this module, Config::Model and
 Config::Model::OpenSsh, you get a graphical configuration editor for
 sshd_config.
 
-All icons used in this application were created by Crystal Project.
-They are licensed under LGPL. http://www.everaldo.com/crystal/
-
-Except:
-- tools_nicu_buculei_01.png from OpenCliparts.
-- dialog_warning.png from oxygen-icon-theme (GPL v3) See
-  /usr/share/doc/oxygen-icon-theme/copyright
+Copyright:
+- All *.png used in this application were created by Crystal Project.
+  They are licensed under LGPL. http://www.everaldo.com/crystal/
+  (c) 2003-2007 Everaldo Coelho
+- tools_nicu_buculei_01.png from OpenCliparts is public domain.
+- dialog_warning.png from oxygen-icon-theme is GPL v3:
+    Copyright (C) 2007-2009 David Vignoni <david@icon-king.com>
+    Copyright (C) 2007-2009 Johann Ollivier Lapeyre <johann@oxygen-icons.org>
+    Copyright (C) 2007-2009 Kenneth Wimer <kwwii@bootsplash.org>
+    Copyright (C) 2007-2009 Nuno Fernades Pinheiro <nf.pinheiro@gmail.com>
+    Copyright (C) 2007-2009 Riccardo Iaconelli <riccardo@oxygen-icons.org>
+    Copyright (C) 2007-2009 David Miller <miller@oxygen-icons.org>
+    and others.
+  See /usr/share/doc/oxygen-icon-theme/copyright on a Debian machine
+  
 
 
 -----------------------------------------------------------
