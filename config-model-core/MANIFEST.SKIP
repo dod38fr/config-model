@@ -7,4 +7,5 @@ libconfig
 _build
 \.orig$
 ^MYMETA.yml$
-
+blib
+wr_root
