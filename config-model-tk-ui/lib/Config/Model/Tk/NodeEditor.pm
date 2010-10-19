@@ -98,7 +98,7 @@ sub fill_pane {
 
 	if ($type eq 'leaf') {
 	    my $leaf = $node->fetch_element($c) ;
-	    my $v = eval {$node->fetch_element_value($c)} ;
+	    my $v = $node->fetch_element_value(name => $c, check  => 'no') ;
 	    my $store_sub = sub {$leaf->store($v); 
 				 $cw->{store_cb}->(1,undef,$elt_path);
 				 $cw->fill_pane;

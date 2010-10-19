@@ -94,11 +94,12 @@ sub get_info {
 		 'type : '.$leaf->value_type.$choice_str,
 		);
 
+    my $std = $leaf->fetch(qw/mode standard check no/) ;
     if (defined $leaf->upstream_default) {
 	push @items, "upstream_default value: " . $leaf->upstream_default ;
     }
-    elsif (defined $leaf->fetch('standard')) {
-	push @items, "default value: " . $leaf->fetch('standard') ;
+    elsif (defined $std) {
+	push @items, "default value: $std"  ;
     }
     elsif (defined $leaf->refer_to) {
 	push @items, "reference to: " . $leaf->refer_to ;
