@@ -1,4 +1,4 @@
-#LyX 1.6.6 created this file. For more info see http://www.lyx.org/
+#LyX 1.6.7 created this file. For more info see http://www.lyx.org/
 \lyxformat 345
 \begin_document
 \begin_header
@@ -106,7 +106,7 @@ Debian Perl Group
 \end_layout
 
 \begin_layout Date
-July 2010
+Oct 2010
 \end_layout
 
 \begin_layout Standard
@@ -2277,7 +2277,7 @@ Approx
 \end_layout
 
 \begin_layout Itemize
-Config::Model
+Dpkg Control Copyright
 \end_layout
 
 \begin_layout Itemize
@@ -2338,6 +2338,10 @@ Perl data structure
 YAML
 \end_layout
 
+\begin_layout Itemize
+Dpkg control
+\end_layout
+
 \begin_deeper
 \begin_layout NoteItem
 Specific serialized format (cds)
@@ -2381,11 +2385,7 @@ Debian packages
 \end_layout
 
 \begin_layout Itemize
-Rpm packages (under constructions)
-\end_layout
-
-\begin_layout Itemize
-Mandriva packages
+Rpm packages 
 \end_layout
 
 \begin_layout Itemize
@@ -2435,7 +2435,7 @@ Search parameters, values and help
 
 \begin_layout Itemize
 Annotations (e.g.
- comments)
+ comments) on-going
 \end_layout
 
 \begin_layout Pause

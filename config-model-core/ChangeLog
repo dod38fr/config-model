@@ -1,3 +1,7 @@
+2010-10-19 Dominique Dumont  <domi.dumont@free.fr> 1.214
+
+	* Instance.pm and Loader.pm: added some stub to preserve backwards compatibility 
+
 2010-10-19 Dominique Dumont  <domi.dumont@free.fr> 1.213
 
 	* AutoRead.pm: do not clobber configuration file when trying to write erroneous data

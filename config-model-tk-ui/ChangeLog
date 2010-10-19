@@ -1,3 +1,7 @@
+	* Do no check value when creating widgets. Values will be checked 
+	  when saving file
+	* ListEditor: update 'set selected' entry when a list item is selected"
+
 2010-10-15  Dominique Dumont  <domi.dumont@free.fr> 1.314
 
 	* removed stuff obsoleted by Config::Model 1.212
