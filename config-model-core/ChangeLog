@@ -1,3 +1,11 @@
+2010-10-19 Dominique Dumont  <domi.dumont@free.fr> 1.213
+
+	* AutoRead.pm: do not clobber configuration file when trying to write erroneous data
+	* Value.pm: fix value check based on Parse::RecDescent
+	* Dpkg::Copyright: fix bugs masked by above problem
+	* Dpkg::Copyright: Fix read/write issues with License that can be stored either 
+	  in Files section or their own sections
+
 2010-10-15 Dominique Dumont  <domi.dumont@free.fr> 1.212
 
 	* Value and AnyId: store wrong values when store check is disabled 
