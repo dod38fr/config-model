@@ -29,18 +29,9 @@ my $build = Module::Build->new
    license => 'lgpl',
    dist_abstract => "Tk GUI to edit config data through Config::Model",
    dist_author  => "Dominique Dumont (ddumont at cpan dot org)",
-   requires => {
-		'Config::Model'    => '1.202',
-		'Exception::Class' => 0,
-		'Tk'               => 0,
-		'Tk::DirSelect'    => 0,
-		'Tk::Tree'         => 0,
-		'Log::Log4perl'    => '1.11', # for TRACE log level
-		'Pod::POM'         => 0,
-	       },
-   recommends => {
-		  'Tk::ObjScanner' => 0, # for TkUI debug menu
-		 },
+
+##{ $plugin->get_prereqs ##}
+
    add_to_cleanup => [qw/stderr.log wr_data/] ,
   );
 
