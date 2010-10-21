@@ -1,8 +1,4 @@
-# $Author$
-# $Date$
-# $Revision$
-
-#    Copyright (c) 2007-2009 Dominique Dumont.
+#    Copyright (c) 2007-2010 Dominique Dumont.
 #
 #    This file is part of Config-Model-Xorg.
 #
@@ -72,6 +68,9 @@ my $build = Module::Build->new
    license       => 'lgpl',
    dist_author   => "Dominique Dumont (ddumont at cpan dot org)",
    dist_abstract => "Xorg configuration tool based on Config::Model",
+
+##{ $plugin->get_prereqs ##}
+
    requires      => {
 		     'Config::Model'   => '0.637',
 		     'Log::Log4perl'   => 0 ,
