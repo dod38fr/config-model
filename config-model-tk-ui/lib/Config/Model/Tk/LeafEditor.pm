@@ -168,7 +168,7 @@ sub try {
     $logger->debug( "try: value $v") ;
     require Tk::Dialog ;
 
-    my @errors = $cw->{leaf}->check($v,1) ;
+    my @errors = $cw->{leaf}->check(value => $v,quiet => 1) ;
 
     if (@errors ) {
         $cw -> Dialog ( -title => 'Value error',
