@@ -1,0 +1,8 @@
+debian/
+libconfig
+~$
+\.old$
+\.orig$
+_build
+dist.ini
+blib
