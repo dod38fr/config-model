@@ -1,3 +1,5 @@
+        * Control.pl: fixed control fields order to be less confusing (thanks to ansgar for the advice)
+
 2010-10-19 Dominique Dumont  <domi.dumont@free.fr> 1.215
 
 	* Instance.pm and Loader.pm: added some stub to preserve backwards compatibility 
