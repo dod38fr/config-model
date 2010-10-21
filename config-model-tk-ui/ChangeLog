@@ -1,3 +1,8 @@
+2010-10-19  Dominique Dumont  <domi.dumont@free.fr> 1.316
+
+	* dist.ini/Buil.PL: added missing test dependency
+	* LeadEditor: fix check call
+
 2010-10-19  Dominique Dumont  <domi.dumont@free.fr> 1.315
 
 	* Do no check value when creating widgets. Values will be checked 

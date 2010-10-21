@@ -21,7 +21,7 @@
 	positional parameters replaced by named parameters. Most of these changes should 
 	be internal. The main impact is that read/write backends must now explicitely
 	pass this check parameter lest the force_load will not work.
-	* ValueComputer: Remove req on Parse::RecDescent version. (Debian bug #597795)
+	* ValueComputer: Remove req on Parse::RecDescent version. (Debian bug #597794)
 	* Value.pm: added silent parameter to fetch method to avoid displaying warnings on STDOUT
 	* Enable read and write of utf8 characters
 
