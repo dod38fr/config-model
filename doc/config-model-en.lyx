@@ -13,7 +13,8 @@
 
 \usepackage{ifthen}
 \newcommand{\showotherui}{true}
-\newcommand{\showadvanced}{false}
+\newcommand{\showadvanced}{true}
+%\newcommand{\showadvanced}{false}
 \newcommand{\showaugeas}{false}
 \newcommand{\showreadwrite}{true}
 \newcommand{\showpackageupgrade}{true}
@@ -693,6 +694,124 @@ status open
 
 \end_layout
 
+\begin_layout BeginFrame
+Unknown elements
+\end_layout
+
+\begin_layout ColumnsTopAligned
+
+\end_layout
+
+\begin_deeper
+\begin_layout Column
+5cm
+\end_layout
+
+\begin_layout Block
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+{Murphy's law}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+software evolve
+\end_layout
+
+\begin_layout Itemize
+you don't know everything
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Flex CharStyle:Structure
+status collapsed
+
+\begin_layout Plain Layout
+X-*
+\end_layout
+
+\end_inset
+
+ parameters
+\end_layout
+
+\end_deeper
+\begin_layout Pause
+
+\end_layout
+
+\begin_layout Block
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+{Declare a fallback}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+Declare condition where an unknown element can be 
+\emph on
+accepted
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+
+\emph on
+New feature introduced with GSoC 2010.
+ Thanks to Krzysztof Tyszecki and Google
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Column
+5cm
+\end_layout
+
+\begin_layout Block
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+{accept specification}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Block
+\begin_inset Graphics
+	filename accept-spec.png
+	width 80col%
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
 \begin_layout Subsection
 Configuration model creation
 \end_layout
