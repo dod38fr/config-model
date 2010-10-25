@@ -67,7 +67,9 @@ made of 3 parts :
 
 =item 1
 
-A reader and writer that will parse the configuration file and transform in a tree representation within Config::Model. The values contained in this configuration tree can be written back in the configuraiton file(s).
+A reader and writer that will parse the configuration file and transform 
+in a tree representation within Config::Model. The values contained in this 
+configuration tree can be written back in the configuraiton file(s).
 
 =item 2
 
@@ -83,6 +85,14 @@ A user interface to modify the content of the configuration tree. A
 modification will be validated instantly by the validation engine.
 
 =back
+
+=head1 STOP
+
+The documentation below is quite detailed and is more a reference doc regarding
+C<Config::Model> class.
+
+For an introduction to model creation, please check:
+L<http://sourceforge.net/apps/mediawiki/config-model/index.php?title=Creating_a_model>
 
 =head1 Storage backend, configuration reader and writer
 
