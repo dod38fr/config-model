@@ -162,21 +162,18 @@ sub _write {
     my $delimiter = $args{comment_delimiter} || '#' ;
 
     # Using Config::Model::ObjTreeScanner would be overkill
+    
+    # first write list and element, then classes
     foreach my $elt ($node->get_element_name) {
+        my $type = $node->element_type($elt) ;
+        next if $type eq 'node' ;
+        
         my $obj =  $node->fetch_element($elt) ;
 
         my $note = $obj->annotation;
-        
         map { $ioh->print("$delimiter $_\n") } $note if $note;
 
-        if ($node->element_type($elt) eq 'node'){
-            $ioh->print("[$elt]\n");
-            my %na = %args;
-            $na{object} = $obj;
-            $self->_write(%na);
-        }
-
-        elsif ($node->element_type($elt) eq 'list'){
+        if ($node->element_type($elt) eq 'list'){
             foreach my $item ($obj->fetch_all('custom')) {
                 my $note = $item->annotation;
                 my $v = $item->fetch ;
@@ -194,6 +191,21 @@ sub _write {
             $ioh->print("$elt=$v\n") if defined $v ;
             $ioh->print("\n");
         }
+    }
+
+    foreach my $elt ($node->get_element_name) {
+        my $type = $node->element_type($elt) ;
+        next unless $type eq 'node' ;
+        my $obj =  $node->fetch_element($elt) ;
+
+        my $note = $obj->annotation;
+        
+        map { $ioh->print("$delimiter $_\n") } $note if $note;
+
+        $ioh->print("[$elt]\n");
+        my %na = %args;
+        $na{object} = $obj;
+        $self->_write(%na);
     }
 
     return 1;
@@ -246,6 +258,17 @@ contain C<'a','b'>.
 
 Inherited from L<Config::Model::Backend::Any>. The constructor will be
 called by L<Config::Model::AutoRead>.
+
+The constructor will be passed the optional parameters declared in the 
+model:
+
+=over
+
+=item comment_delimiter
+
+Change the character that starts comments in the INI file. Default is 'C<#>'.
+
+=back
 
 =head2 read ( io_handle => ... )
 
