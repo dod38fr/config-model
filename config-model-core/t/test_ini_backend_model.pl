@@ -64,7 +64,39 @@
                                              } ,
                                    },
              ]
- }
+  }, 
+   {
+     name => 'AutoIni',
+    read_config  => [
+                    {   backend => 'IniFile', 
+                        config_dir => '/etc/',
+                        file => 'test.ini',
+                        auto_create => 1,
+                    },
+                  ],
+     accept => [
+                      {
+                        'name_match' => 'class.*',
+                        'type' => 'node',
+                        'config_class_name' => 'AutoIniClass'
+                      },
+                      {
+                        'type' => 'list',
+                        cargo => { qw/type leaf value_type uniline/ },
+                      }
+                    ],
+      },
+      {
+        name => 'AutoIniClass',
+        accept => [
+                      {
+                       'type' => 'list',
+                        cargo => { qw/type leaf value_type uniline/ },
+                     }
+                    ],
+      }
+
+
 ];
 
 

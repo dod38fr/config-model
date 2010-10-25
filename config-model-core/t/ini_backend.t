@@ -13,9 +13,6 @@ no warnings qw(once);
 
 use strict;
 
-use vars qw/$model/;
-
-$model = Config::Model -> new () ;
 
 my $arg = shift || '';
 
@@ -27,7 +24,7 @@ Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 use Log::Log4perl qw(:easy) ;
 Log::Log4perl->easy_init($arg =~ /l/ ? $TRACE: $ERROR);
 
-plan tests => 23 ;
+plan tests => 34 ;
 
 ok(1,"compiled");
 
@@ -39,78 +36,81 @@ my @with_semi_column_comment = my @with_hash_comment = <DATA> ;
 # change delimiter comments
 map {s/#/;/;} @with_semi_column_comment ;
 my %test_setup = ( IniTest  => \@with_hash_comment, 
-                   IniTest2 => \@with_semi_column_comment);
+                   IniTest2 => \@with_semi_column_comment,
+                   AutoIni  => \@with_hash_comment,
+                 );
 
 foreach my $test_class (sort keys %test_setup) {
-   my @orig = @{$test_setup{$test_class}} ;
+    my $model = Config::Model -> new () ;
+    my @orig = @{$test_setup{$test_class}} ;
 
-   # cleanup before tests
-   rmtree($wr_root);
+    # cleanup before tests
+    rmtree($wr_root);
 
-   my $test1 = 'ini1' ;
-   my $wr_dir = $wr_root.'/'.$test1 ;
-   my $conf_file = "$wr_dir/etc/test.ini" ;
+    my $test1 = 'ini1' ;
+    my $wr_dir = $wr_root.'/'.$test1 ;
+    my $conf_file = "$wr_dir/etc/test.ini" ;
 
-   mkpath($wr_dir.'/etc', { mode => 0755 }) 
-      || die "can't mkpath: $!";
-   open(CONF,"> $conf_file" ) || die "can't open $conf_file: $!";
-   print CONF @orig ;
-   close CONF ;
+    mkpath($wr_dir.'/etc', { mode => 0755 }) 
+        || die "can't mkpath: $!";
+    open(CONF,"> $conf_file" ) || die "can't open $conf_file: $!";
+    print CONF @orig ;
+    close CONF ;
 
-   my $i_test = $model->instance(instance_name    => 'test_inst',
-                                 root_class_name  => $test_class,
-                                 root_dir    => $wr_dir ,
-                                 model_file       => 't/test_ini_backend_model.pl',
+    my $i_test = $model->instance(  instance_name    => 'test_inst',
+                                    root_class_name  => $test_class,
+                                    root_dir    => $wr_dir ,
+                                    model_file       => 't/test_ini_backend_model.pl',
                                  );
 
-   ok( $i_test, "Created $test_class instance" );
+    ok( $i_test, "Created $test_class instance" );
 
 
-   my $i_root = $i_test->config_root ;
+    my $i_root = $i_test->config_root ;
    
-   $i_root->load("bar:0=\x{263A}") ; # utf8 smiley
+    $i_root->load("bar:0=\x{263A}") ; # utf8 smiley
 
-   is($i_root->annotation,"some global comment","check global comment");
-   is($i_root->fetch_element("class1")->annotation,"class1 comment",
-      "check class1 comment");
+    is($i_root->annotation,"some global comment","check global comment");
+    is($i_root->fetch_element("class1")->annotation,"class1 comment",
+        "check class1 comment");
 
-   my $lista_obj = $i_root->fetch_element("class1")->fetch_element('lista');
-   is($lista_obj->annotation, undef,"check lista comment"); 
+    my $lista_obj = $i_root->fetch_element("class1")->fetch_element('lista');
+    is($lista_obj->annotation, undef,"check lista comment"); 
 
-   foreach my $i (1 .. 3) {
-      my $elt = $lista_obj->fetch_with_id($i - 1) ;
-      is($elt->annotation,
-         "lista$i comment","check lista[$i] comment");
-      } 
+    foreach my $i (1 .. 3) {
+        my $elt = $lista_obj->fetch_with_id($i - 1) ;
+        is($elt->annotation,
+            "lista$i comment","check lista[$i] comment");
+    } 
 
-   my $orig = $i_root->dump_tree ;
-   print $orig if $trace ;
+    my $orig = $i_root->dump_tree ;
+    print $orig if $trace ;
 
-   $i_test->write_back ;
-   ok(1,"IniFile write back done") ;
+    $i_test->write_back ;
+    ok(1,"IniFile write back done") ;
 
-   my $ini_file      = $wr_dir.'/etc/test.ini';
-   ok(-e $ini_file, "check that config file $ini_file was written");
+    my $ini_file      = $wr_dir.'/etc/test.ini';
+    ok(-e $ini_file, "check that config file $ini_file was written");
 
-   # create another instance to read the IniFile that was just written
-   my $wr_dir2 = $wr_root.'/ini2' ;
-   mkpath($wr_dir2.'/etc',{ mode => 0755 })   || die "can't mkpath: $!";
-   copy($wr_dir.'/etc/test.ini',$wr_dir2.'/etc/') 
-      or die "can't copy from test1 to test2: $!";
+    # create another instance to read the IniFile that was just written
+    my $wr_dir2 = $wr_root.'/ini2' ;
+    mkpath($wr_dir2.'/etc',{ mode => 0755 })   || die "can't mkpath: $!";
+    copy($wr_dir.'/etc/test.ini',$wr_dir2.'/etc/') 
+        or die "can't copy from test1 to test2: $!";
 
-   my $i2_test = $model->instance(instance_name    => 'test_inst2',
-                                  root_class_name  => $test_class,
-                                  root_dir    => $wr_dir2 ,
-                                 );
+    my $i2_test = $model->instance(instance_name    => 'test_inst2',
+                                   root_class_name  => $test_class,
+                                   root_dir    => $wr_dir2 ,
+                                  );
 
-   ok( $i2_test, "Created instance" );
+    ok( $i2_test, "Created instance" );
 
 
-   my $i2_root = $i2_test->config_root ;
+    my $i2_root = $i2_test->config_root ;
 
-   my $p2_dump = $i2_root->dump_tree ;
+    my $p2_dump = $i2_root->dump_tree ;
 
-   is($p2_dump,$orig,"compare original data with 2nd instance data") ;
+    is($p2_dump,$orig,"compare original data with 2nd instance data") ;
 
 }
 
