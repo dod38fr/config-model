@@ -310,7 +310,7 @@ Configuration upgrade problems
 \end_layout
 
 \begin_layout BeginFrame
-Configuration is often painful !
+Configuration is often painful!
 \end_layout
 
 \begin_layout Standard
@@ -391,7 +391,7 @@ Search
 \end_layout
 
 \begin_layout BeginFrame
-Objectif 2: Make maintenance easy for developers
+Objective 2: Make maintenance easy for developers
 \end_layout
 
 \begin_layout Itemize
@@ -522,7 +522,7 @@ A parameter is represented by a leaf
 \end_layout
 
 \begin_layout Standard
-Each class contains :
+Each class contains:
 \end_layout
 
 \begin_layout Itemize
@@ -835,7 +835,7 @@ Identify configuration parameters, their constraints and relations
 \end_layout
 
 \begin_layout Itemize
-Decide what to do with unknown parameters (error or accept ?)
+Decide what to do with unknown parameters (error or accept?)
 \end_layout
 
 \begin_layout Itemize
@@ -866,7 +866,7 @@ Model declaration
 \end_layout
 
 \begin_layout Standard
-In summary, configuration documentation is translated in a format usable
+In summary, configuration documentation is translated into a format usable
  by Config::Model:
 \end_layout
 
@@ -988,6 +988,9 @@ Since writing a data structure is not fun (even with Perl), a model can
 \end_layout
 
 \begin_layout Standard
+
+\size footnotesize
+\color blue
 From time to time, do a Menu → Model → test 
 \end_layout
 
@@ -1434,7 +1437,18 @@ Configuration GUI
 \end_layout
 
 \begin_layout Standard
-Note: Menu Option --> experience to show more parameters
+
+\size footnotesize
+\color blue
+Note: In the menu, change 
+\begin_inset Quotes sld
+\end_inset
+
+Option → experience
+\begin_inset Quotes srd
+\end_inset
+
+ to show more parameters
 \end_layout
 
 \begin_layout EndFrame
@@ -1952,7 +1966,7 @@ Configuration and package upgrades
 \end_layout
 
 \begin_layout Subtitle
-Towards a solution ?
+Towards a solution?
 \end_layout
 
 \begin_layout Block
@@ -1971,7 +1985,7 @@ status open
 
 \begin_deeper
 \begin_layout Standard
-Use Config::Model to merge :
+Use Config::Model to merge:
 \end_layout
 
 \begin_layout Itemize
@@ -2730,7 +2744,7 @@ XML
 \end_layout
 
 \begin_layout Itemize
-Other ?
+Other?
 \end_layout
 
 \end_deeper
