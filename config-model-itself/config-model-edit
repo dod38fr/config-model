@@ -180,7 +180,7 @@ Dump a model in YAML format
 Force a save of the model even if no edition was done. This option is
 useful to migrate a model when Config::Model model feature changes.
 
-=item -model_dir
+=item -dir
 
 Directory where to read and write model
 

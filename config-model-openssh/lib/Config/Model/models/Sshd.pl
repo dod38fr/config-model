@@ -1,5 +1,13 @@
 [
           {
+            'accept' => [
+                          {
+                            'value_type' => 'uniline',
+                            'summary' => 'boilerplate parameter that may hide a typo',
+                            'warn' => 'Unknow parameter please make sure there\'s no typo and contact the author',
+                            'type' => 'leaf'
+                          }
+                        ],
             'read_config' => [
                                {
                                  'save' => 'backup',

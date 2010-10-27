@@ -12,9 +12,10 @@
 % \setbeameroption{show only notes}
 
 \usepackage{ifthen}
-\newcommand{\showotherui}{true}
-\newcommand{\showadvanced}{true}
-%\newcommand{\showadvanced}{false}
+%\newcommand{\showotherui}{true}
+\newcommand{\showotherui}{false}
+%\newcommand{\showadvanced}{true}
+\newcommand{\showadvanced}{false}
 \newcommand{\showaugeas}{false}
 \newcommand{\showreadwrite}{true}
 \newcommand{\showpackageupgrade}{true}
@@ -309,7 +310,7 @@ Configuration upgrade problems
 \end_layout
 
 \begin_layout BeginFrame
-Configuration is often painful !
+Configuration is often painful!
 \end_layout
 
 \begin_layout Standard
@@ -390,7 +391,7 @@ Search
 \end_layout
 
 \begin_layout BeginFrame
-Objectif 2: Make maintenance easy for developers
+Objective 2: Make maintenance easy for developers
 \end_layout
 
 \begin_layout Itemize
@@ -521,7 +522,7 @@ A parameter is represented by a leaf
 \end_layout
 
 \begin_layout Standard
-Each class contains :
+Each class contains:
 \end_layout
 
 \begin_layout Itemize
@@ -723,11 +724,11 @@ status open
 
 \begin_deeper
 \begin_layout Itemize
-software evolve
+Software evolve
 \end_layout
 
 \begin_layout Itemize
-you don't know everything
+You don't know everything
 \end_layout
 
 \begin_layout Itemize
@@ -833,6 +834,14 @@ Find the structure of the tree
 Identify configuration parameters, their constraints and relations
 \end_layout
 
+\begin_layout Itemize
+Decide what to do with unknown parameters (error or accept?)
+\end_layout
+
+\begin_layout Itemize
+Identify potential upgrade issues (deprecated parameters mentioned in doc)
+\end_layout
+
 \end_deeper
 \begin_layout Pause
 
@@ -857,7 +866,7 @@ Model declaration
 \end_layout
 
 \begin_layout Standard
-In summary, configuration documentation is translated in a format usable
+In summary, configuration documentation is translated into a format usable
  by Config::Model:
 \end_layout
 
@@ -979,6 +988,9 @@ Since writing a data structure is not fun (even with Perl), a model can
 \end_layout
 
 \begin_layout Standard
+
+\size footnotesize
+\color blue
 From time to time, do a Menu → Model → test 
 \end_layout
 
@@ -1381,6 +1393,15 @@ Migration from one syntax with another
 
 \end_layout
 
+\begin_layout Itemize
+How to 
+\color green
+accept
+\color inherit
+ unknown parameters (e.g.
+ leaf or list ?)
+\end_layout
+
 \begin_layout Standard
 For more information on migration applied to software packages, see 
 \begin_inset Flex URL
@@ -1416,7 +1437,18 @@ Configuration GUI
 \end_layout
 
 \begin_layout Standard
-Note: Menu Option --> experience to show more parameters
+
+\size footnotesize
+\color blue
+Note: In the menu, change 
+\begin_inset Quotes sld
+\end_inset
+
+Option → experience
+\begin_inset Quotes srd
+\end_inset
+
+ to show more parameters
 \end_layout
 
 \begin_layout EndFrame
@@ -1934,7 +1966,7 @@ Configuration and package upgrades
 \end_layout
 
 \begin_layout Subtitle
-Towards a solution ?
+Towards a solution?
 \end_layout
 
 \begin_layout Block
@@ -1953,7 +1985,7 @@ status open
 
 \begin_deeper
 \begin_layout Standard
-Use Config::Model to merge :
+Use Config::Model to merge:
 \end_layout
 
 \begin_layout Itemize
@@ -2005,7 +2037,7 @@ http://wiki.debian.org/PackageConfigUpgrade
 \end_layout
 
 \begin_layout BeginFrame
-Configuration upgrade example
+Migration example
 \end_layout
 
 \begin_layout Standard
@@ -2089,6 +2121,118 @@ TCPKeepAlive => { value_type => 'enum',
                      }, 
 \end_layout
 
+\begin_layout BeginFrame
+Coping with new parameter
+\end_layout
+
+\begin_layout ColumnsTopAligned
+
+\end_layout
+
+\begin_deeper
+\begin_layout Column
+9cm 
+\end_layout
+
+\begin_layout Standard
+sshd_config: Accept new parameters, but emit a warning
+\end_layout
+
+\begin_layout LyX-Code
+
+\size scriptsize
+{
+\end_layout
+
+\begin_layout LyX-Code
+
+\size scriptsize
+  name => 'Sshd',
+\end_layout
+
+\begin_layout LyX-Code
+
+\size scriptsize
+  ...
+\end_layout
+
+\begin_layout LyX-Code
+
+\size scriptsize
+  accept => [ { 
+\end_layout
+
+\begin_layout LyX-Code
+
+\size scriptsize
+    name_match => '.*',  # default will match /^.*$/
+\end_layout
+
+\begin_layout LyX-Code
+
+\size scriptsize
+    type       => 'leaf',
+\end_layout
+
+\begin_layout LyX-Code
+
+\size scriptsize
+    value_type => 'uniline',
+\end_layout
+
+\begin_layout LyX-Code
+
+\size scriptsize
+    summary => 'boilerplate parameter that may hide a typo',
+\end_layout
+
+\begin_layout LyX-Code
+
+\size scriptsize
+    warn => 'Unknow parameter: please make sure there
+\backslash
+'s '
+\end_layout
+
+\begin_layout LyX-Code
+
+\size scriptsize
+          .
+ 'no typo and contact the author'
+\end_layout
+
+\begin_layout LyX-Code
+
+\size scriptsize
+   }
+\end_layout
+
+\begin_layout LyX-Code
+ ],
+\end_layout
+
+\begin_layout LyX-Code
+
+\size scriptsize
+}, 
+\end_layout
+
+\begin_layout Column
+3cm
+\end_layout
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename gsoc2010.png
+	lyxscale 20
+	width 100col%
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
 \begin_layout EndFrame
 
 \end_layout
@@ -2446,18 +2590,26 @@ status open
 
 \begin_deeper
 \begin_layout Itemize
+
+\size small
 INI syntax
 \end_layout
 
 \begin_layout Itemize
-Perl data structure
+
+\size small
+Perl 
 \end_layout
 
 \begin_layout Itemize
+
+\size small
 YAML
 \end_layout
 
 \begin_layout Itemize
+
+\size small
 Dpkg control
 \end_layout
 
@@ -2468,6 +2620,8 @@ Specific serialized format (cds)
 
 \end_deeper
 \begin_layout Itemize
+
+\size small
 Augeas
 \end_layout
 
@@ -2590,7 +2744,7 @@ XML
 \end_layout
 
 \begin_layout Itemize
-Other ?
+Other?
 \end_layout
 
 \end_deeper

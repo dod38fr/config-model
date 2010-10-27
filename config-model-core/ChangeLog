@@ -1,4 +1,11 @@
-        * Control.pl: fixed control fields order to be less confusing (thanks to ansgar for the advice)
+2010-10-26 Dominique Dumont  <domi.dumont@free.fr> 1.216
+
+        * Control.pl: fixed control fields order to be less confusing (thanks to ansgar
+	  for the advice)
+        * Backend IniFile: Bug fix to write top level parameters before the first INI class
+        * Node.pm: Bug fix when calling fetch_element with accepted parameters
+        * Model.pm: updated doc to point to overview and introduction on SourceForge wiki
+	* example/fstab/Fstab.pl: Fix model so it can be loaded by config-model-edit
 
 2010-10-19 Dominique Dumont  <domi.dumont@free.fr> 1.215
 
