@@ -6,16 +6,29 @@ use warnings;
 use Text::Wrap ;
 use File::Path qw(make_path remove_tree);
 
-sub my_system{
-    print "Will run: @_\n";
-    print "(Y/n/q)?";
+
+
+sub go_on {
+    print "continue (Y/n/q)?";
     my $ans =  <STDIN>;
     exit if $ans =~ /^q/i;
     return if $ans =~ /^n/i ;
-    system("@_") ;
+}
+
+sub done {
     print "Done. hit return to continue ... ";
-    $ans =  <STDIN>;
-    print "\n\n";
+    my $ans =  <STDIN>;
+    print "\n";
+}
+
+sub my_system {
+    my $run = shift ;
+    my $show = shift || 0 ;
+    print "Will run: $run\n" if $show ;
+    go_on ;
+    system($run) ;
+    done ;
+    print "\n";
 }
 
 print wrap('','',
@@ -44,45 +57,47 @@ my $pid = fork ;
 if (not $pid) {
     # child
     die "Cannot fork: $!" unless defined $pid ;
-    exec ("xterm -e watch cat etc/ssh/sshd_config") ;
+    exec ("xterm -e watch -n 1 cat etc/ssh/sshd_config") ;
 }
 
 print "Forked terminal with pid $pid\n";
 
 $SIG{KILL} = sub { kill "QUIT",$pid } ;
 
-print "Copying ssh model\n";
-system("cp -r ../lib .") ;
+die "Must be run in demo directory\n" unless -d "../lib" ;
+
+print "Copying ssh model\n\n\n";
+system("cp -r ../lib .") ; # required to be able to modify the model for the demo
 
 my $postinst = "config-edit -model Sshd -model_dir lib/Config/Model/models "
 	 . "-root_dir . -ui none -backend custom -save";
 
 print "Upstream changelog: KeepAlive is changed to TCPKeepAlive\n";
-print "User file have to be updated. Package postinst will run something like \n";
+print "User file is updated by package posinst...\n";
 my_system($postinst) ;
-
-print "Maintainer changelog: new policy, PermitRootLogin should be set to 'no'\n";
 
 print "Changing model to reflect maintainer's work. Please wait ..." ;
 system("config-model-edit -model Sshd -save ".
 	  qq!class:Sshd element:PermitRootLogin default=no upstream_default~!) ;
-print "done\n";
+print "done\n\n";
 
+print "Maintainer changelog: new policy, PermitRootLogin should be set to 'no'\n";
 print "Package upgrade triggers same postinst script\n";
 my_system($postinst) ;
 
-print "Maintainer changelog: reduced default cipher list...\n";
 print "Changing model to reflect maintainer's work. Please wait ..." ;
 system("config-model-edit -model Sshd -save ".
 	  qq!class:Sshd element:Ciphers !.
 	  qq!default_list=aes128-cbc,aes128-ctr,aes192-cbc,aes192-ctr,aes256-cbc,aes256-ctr!) ;
-print "done\n";
+print "done\n\n";
+
+print "Maintainer changelog: reduced default cipher list...\n";
 
 print "Package upgrade: same postinst, Cipher list is added in config file\n";
 my_system($postinst) ;
 
-print "What if user wants to tinker with config ? -> GUI\n";
-my_system("config-edit -model Sshd -model_dir lib/Config/Model/models",
+print "What if user wants to tinker with config ? -> GUI with config-edit-ssh\n";
+my_system("config-edit -model Sshd -model_dir lib/Config/Model/models ".
 	 "-root_dir . -backend custom ") ;
 
 END {

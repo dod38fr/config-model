@@ -13,7 +13,7 @@ sub my_system{
     exit if $ans =~ /^q/i;
     return if $ans =~ /^n/i ;
     system("@_") ;
-    print "continue ... ";
+    print "Done. hit return to continue ... ";
     $ans =  <STDIN>;
     print "\n\n";
 }
@@ -60,7 +60,7 @@ my_system("config-edit -model Sshd -model_dir lib/Config/Model/models",
 
 print "Add distro policy: Debian dev patches OpenSsh model...\n";
 my_system("config-model-edit -model Sshd -save ",
-	  qq!class:Sshd element:PermitRootLogin default=no upstream_default=''!) ;
+	  qq!class:Sshd element:PermitRootLogin default=no upstream_default~!) ;
 
 print "Add distro policy: show the diff...\n";
 my_system("diff -Naur ../lib lib") ;
