@@ -96,7 +96,12 @@ print "Maintainer changelog: reduced default cipher list...\n";
 print "Package upgrade: same postinst, Cipher list is added in config file\n";
 my_system($postinst) ;
 
-print "What if user wants to tinker with config ? -> GUI with config-edit-ssh\n";
+print "Even command line is safe for users: try to modify IgnoreRhosts with bad value\n";
+print "Run: 'config-edit-sshd -ui none IgnoreRhosts=oui'\n";
+my_system("config-edit -model Sshd -model_dir lib/Config/Model/models ".
+ 	 "-root_dir . -ui none -backend custom IgnoreRhosts=oui") ;
+
+print "Better let beginner use a GUI with config-edit-ssh\n";
 my_system("config-edit -model Sshd -model_dir lib/Config/Model/models ".
 	 "-root_dir . -backend custom ") ;
 
