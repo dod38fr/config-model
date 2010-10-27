@@ -1,7 +1,4 @@
 # -*- cperl -*-
-# $Author: ddumont $
-# $Date: 2008-04-15 13:57:49 +0200 (mar, 15 avr 2008) $
-# $Revision: 608 $
 
 use ExtUtils::testlib;
 use Test::More tests => 5;
@@ -108,7 +105,7 @@ print "Second $testdir dump:\n",$dump2 if $trace ;
 my @mod = split /\n/,$dump ;
 unshift @mod, 'HostbasedAuthentication=yes', 'Port=2222';
 splice @mod,2,0,'Subsystem:ddftp=/home/dd/bin/ddftp';
-splice @mod,13,1,'    Group=pres.*','    Host=elysee.* -';
+splice @mod,13,1,'    Group="pres.*"','    Host="elysee.*" -';
 is_deeply([split /\n/,$dump2],\@mod, "check if both dumps are consistent") ;
 
 

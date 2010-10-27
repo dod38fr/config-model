@@ -1,7 +1,4 @@
 # -*- cperl -*-
-# $Author: ddumont $
-# $Date: 2008-04-15 13:57:49 +0200 (mar, 15 avr 2008) $
-# $Revision: 608 $
 
 use ExtUtils::testlib;
 use Test::More tests => 17;
@@ -21,7 +18,6 @@ my $arg = shift || '';
 my ($log,$show) = (0) x 2 ;
 
 my $trace = $arg =~ /t/ ? 1 : 0 ;
-$::verbose          = 1 if $arg =~ /v/;
 $::debug            = 1 if $arg =~ /d/;
 $log                = 1 if $arg =~ /l/;
 $show               = 1 if $arg =~ /s/;
@@ -93,7 +89,7 @@ my $root_cfg = $root_inst -> config_root ;
 my $dump =  $root_cfg->dump_tree ();
 print $dump if $trace ;
 
-like($dump,qr/Host:foo\.\*,\*\.bar/, "check Host pattern") ;
+like($dump,qr/Host:"foo\.\*,\*\.bar"/, "check Host pattern") ;
 like($dump,qr/LocalForward:0\s+port=20022/, "check user LocalForward port") ;
 like($dump,qr/host=10.3.244.4/, "check user LocalForward host") ;
 like($dump,qr/LocalForward:1\s+ipv6=1/, "check user LocalForward ipv6") ;
@@ -135,7 +131,7 @@ SKIP: {
     $dump =  $user_cfg->dump_tree (mode => 'full' );
     print $dump if $trace ;
 
-    like($dump,qr/Host:foo\.\*,\*\.bar/,"check root Host pattern") ;
+    like($dump,qr/Host:"foo\.\*,\*\.bar"/,"check root Host pattern") ;
     like($dump,qr/Host:mine.bar/,"check user Host pattern") ;
 
     #require Tk::ObjScanner; Tk::ObjScanner::scan_object($user_cfg) ;

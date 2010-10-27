@@ -1,3 +1,5 @@
+	* *.t: fixed tests 
+
 2010-02-02  Dominique Dumont  <dominique.dumont@hp.com>
 
 	* demo/demo.pl (my_system): new demo (requires Config::Model::Itself)
