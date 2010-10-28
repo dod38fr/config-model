@@ -5,6 +5,7 @@ use warnings;
 
 use Text::Wrap ;
 use File::Path qw(make_path remove_tree);
+use Config::Model::OpenSsh ; # to get path
 
 
 
@@ -67,7 +68,11 @@ $SIG{KILL} = sub { kill "QUIT",$pid } ;
 die "Must be run in demo directory\n" unless -d "../lib" ;
 
 print "Copying ssh model\n\n\n";
-system("cp -r ../lib .") ; # required to be able to modify the model for the demo
+my $mod_file = 'Config/Model/OpenSsh.pm' ;
+my $lib_path = $INC{$mod_file} ;
+$lib_path =~ s/OpenSsh.pm/models/;
+make_path('lib/Config/Model/') ;
+system("cp -r $lib_path lib/Config/Model/") ; # required to be able to modify the model for the demo
 
 my $postinst = "config-edit -model Sshd -model_dir lib/Config/Model/models "
 	 . "-root_dir . -ui none -backend custom -save";
