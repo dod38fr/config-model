@@ -17,7 +17,7 @@ sub go_on {
 }
 
 sub done {
-    print "Done. hit return to continue ... ";
+    print "Done.\nHit return to continue ... ";
     my $ans =  <STDIN>;
     print "\n";
 }
@@ -106,7 +106,8 @@ print "Run: 'config-edit-sshd -ui none IgnoreRhosts=oui'\n";
 my_system("config-edit -model Sshd -model_dir lib/Config/Model/models ".
  	 "-root_dir . -ui none -backend custom IgnoreRhosts=oui") ;
 
-print "Better let beginner use a GUI with config-edit-ssh\n";
+print "Better let beginner use a GUI\n";
+print "Run: config-edit-sshd\n";
 my_system("config-edit -model Sshd -model_dir lib/Config/Model/models ".
 	 "-root_dir . -backend custom ") ;
 

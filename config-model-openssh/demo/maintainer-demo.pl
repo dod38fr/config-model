@@ -16,7 +16,7 @@ sub go_on {
 }
 
 sub done {
-    print "Done. hit return to continue ... ";
+    print "Done.\nHit return to continue ... ";
     my $ans =  <STDIN>;
     print "\n";
 }
