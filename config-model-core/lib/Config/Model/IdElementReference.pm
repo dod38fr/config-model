@@ -209,6 +209,8 @@ specified choice and the refered_to values.
 
 
 # internal
+
+# FIXME: do not call back value object -> may recurse
 sub get_choice_from_refered_to {
     my $self = shift ;
 

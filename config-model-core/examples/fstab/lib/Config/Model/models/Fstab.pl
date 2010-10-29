@@ -14,6 +14,6 @@
                              'index_type' => 'string'
                            }
                          ]
-          },
+          }
         ]
 ;

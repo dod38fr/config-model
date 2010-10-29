@@ -1,7 +1,4 @@
 # -*- cperl -*-
-# $Author$
-# $Date$
-# $Revision$
 
 use warnings FATAL => qw(all);
 
@@ -186,6 +183,10 @@ my $hac = $root->fetch_element('host_and_choice') ;
 is_deeply([$hac->get_choice],['A','B','bar','foo'],
 	 "check that default choice and refer_to add up");
 
+# choice needs to be recomputed for references
+$root->load("host~B") ;
+is_deeply([$hac->get_choice],['A','bar','foo'],
+	 "check that default choice and refer_to add up");
 
 # test reference to list values
 $root->load("dumb_list=a,b,c,d,e") ;

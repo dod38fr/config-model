@@ -21,7 +21,6 @@
 \newcommand{\showpackageupgrade}{true}
 \newcommand{\showhairyupgrade}{false}
 \end_preamble
-\options handout
 \use_default_options false
 \language american
 \inputencoding utf8
@@ -805,7 +804,7 @@ status open
 \begin_layout Block
 \begin_inset Graphics
 	filename accept-spec.png
-	width 80col%
+	width 100col%
 
 \end_inset
 
@@ -966,7 +965,7 @@ Declaration (easier mode)
 
 \begin_layout Standard
 Since writing a data structure is not fun (even with Perl), a model can
- be create with a GUI:
+ be created with a GUI:
 \end_layout
 
 \begin_layout Standard
@@ -1097,6 +1096,7 @@ status open
 
 \begin_deeper
 \begin_layout LyX-Code
+\noindent
 
 \size scriptsize
 \begin_inset Graphics
@@ -1399,7 +1399,7 @@ How to
 accept
 \color inherit
  unknown parameters (e.g.
- leaf or list ?)
+ leaf or list?)
 \end_layout
 
 \begin_layout Standard

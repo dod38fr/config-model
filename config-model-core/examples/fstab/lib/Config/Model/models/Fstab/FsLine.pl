@@ -5,7 +5,7 @@
             'element' => [
                            'fs_spec',
                            {
-                             'value_type' => 'string',
+                             'value_type' => 'uniline',
                              'warp' => {
                                          'follow' => {
                                                        'f1' => '- fs_vfstype'
@@ -53,7 +53,7 @@
                            },
                            'fs_file',
                            {
-                             'value_type' => 'string',
+                             'value_type' => 'uniline',
                              'warp' => {
                                          'follow' => {
                                                        'f1' => '- fs_vfstype'
