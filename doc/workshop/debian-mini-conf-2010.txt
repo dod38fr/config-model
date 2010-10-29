@@ -1,0 +1,79 @@
+Debian mini conf workshop for Config::Model
+-------------------------------------------
+
+Suggested topic:
+- improve fstab demo to support ext4 and other file systems (if time 
+permits)
+
+Attendess are free to suggest other configuration models to work on.
+
+Current status of the demo file:
+- provided with Config::Model in /usr/share/doc/libconfig-model-perl/examples/fstab/
+
+- copy demo from thumb drive or network
+
+
+- Fallback: Copy demo in your work directory:
+  $ cp  -r /usr/share/doc/libconfig-model-perl/examples/fstab/ .
+  $ gunzip fstab/*.gz
+
+- open file fstab/Fstab.pl with favorite text editor
+  note:
+  - model was written manually
+  - no backend specified. Read and write are handled in test script (old demo)
+ 
+-open editor
+  config-model-edit -model Fstab -dir fstab
+
+- explore class Fs -> element -> fs -> type
+                                       cargo -> config_class_name
+  What does this mean ? Which class is to be explored next ?
+
+- explore next class (FsLine)
+   Fs -> element -> fs_vfstype -> type
+                                  value_type
+                                  choice
+   What are there choices ? Connection with fstab(5) man page ?
+
+- In fsLine, what is the element representing the mount options ?
+
+- explore this element:
+  note type: what does this mean ?
+  open follow: explain f1 field
+  open rules: explain formulas
+             related to ext3 
+             look for updated parameter
+
+- open class -> edit
+  select ext3 class
+  click on keep
+  s/3/4/
+  click copy
+  
+-open ext4 class -> element
+
+- open mkfs.ext4 man page 
+  check extended_options
+  3 integer parameters
+  2 booleans
+
+  create these elements:
+
+-  open/edit Ext4options->element
+  select journalling-mode click 'remove selected'
+  type 'stride' in entry click add, repeat for other elements
+  
+  open/edit stride
+  type drop-down box -> leaf
+  value_type box -> integer
+  cut'n'paste description from man page, paste on description in tree,
+   click edit , cleanup, store (in tree)
+  
+-  open/edit Ext4options->element
+  select stride
+  enter stripe-width -> copy
+  open/edit sripeiwith/description, click delete
+  cut'n'paste man page in value field, cleanup, store
+
+- click Model test
+

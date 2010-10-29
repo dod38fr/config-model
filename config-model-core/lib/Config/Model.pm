@@ -1505,7 +1505,7 @@ sub get_raw_model {
     my $config_class_name = shift ;
 
     $self->load($config_class_name) 
-      unless defined $self->{model}{$config_class_name} ;
+      unless defined $self->{raw_model}{$config_class_name} ;
 
     my $model = $self->{raw_model}{$config_class_name} ||
       croak "get_raw_model error: unknown config class name: $config_class_name";
