@@ -238,8 +238,12 @@ sub get_perl_data_model{
     my $class_name = $args{class_name}
       || croak __PACKAGE__," read: undefined class name";
 
-    my $class_elt = $model_obj->fetch_element('class')
-      ->fetch_with_id($class_name) ;
+    my $class_element = $model_obj->fetch_element('class') ; 
+
+    # skip if class was deleted during edition
+    return unless $class_element->defined($class_name) ;
+    
+    my $class_elt = $class_element -> fetch_with_id($class_name) ;
 
     my $model = $class_elt->dump_as_data ;
 
@@ -316,8 +320,8 @@ sub write_all {
         foreach my $class_name (@{$map_to_write{$file}}) {
             $logger->info("writing class $class_name");
             my $model 
-              = $self-> get_perl_data_model(class_name   => $class_name) ;
-            push @data, $model ;
+              = $self-> get_perl_data_model(class_name => $class_name) ;
+            push @data, $model if defined $model;
             # remove class name from above list
             delete $loaded_classes{$class_name} ;
         }
