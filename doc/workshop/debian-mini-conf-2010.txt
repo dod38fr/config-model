@@ -10,10 +10,7 @@ Attendess are free to suggest other configuration models to work on.
 Current status of the demo file:
 - provided with Config::Model in /usr/share/doc/libconfig-model-perl/examples/fstab/
 
-- copy demo from thumb drive or network
-
-
-- Fallback: Copy demo in your work directory:
+- Copy demo in your work directory:
   $ cp  -r /usr/share/doc/libconfig-model-perl/examples/fstab/ .
   $ gunzip fstab/*.gz
 
@@ -75,5 +72,18 @@ Current status of the demo file:
   open/edit sripeiwith/description, click delete
   cut'n'paste man page in value field, cleanup, store
 
+- Now it's time to offer the relevant choice
+  open/edit class Fsline element fs_fstype choice 
+  enter 'ext4' in entry beside 'push item'. click 'push item'
+
+- And enter the relevant rules in fs_mntopts
+   open/edit class Fsline element fs_mntopts rules
+   select copy ext3 entry in ext4 
+   (if bug -> close and open tree)
+
 - click Model test
+  open fs -> empty, which is normal -> no fstab file is read
+
+  add a new file system to test ext4
+
 
