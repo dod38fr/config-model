@@ -1,3 +1,5 @@
+        * Fix class deletion issue
+
 2010-10-15 Dominique Dumont  <domi.dumont@free.fr> 1.219
 
 	* removed obsolete push/pop_no_value_check calls 
