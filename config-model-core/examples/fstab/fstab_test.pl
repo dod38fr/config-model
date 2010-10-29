@@ -36,7 +36,7 @@ GetOptions ("use_etc" => \$use_etc);
 
 my $fstab_file = $use_etc ?  '/etc/fstab' : 'fstab.sample'  ;
 
-$model = Config::Model -> new(model_dir => '.') ;
+$model = Config::Model -> new(model_dir => 'lib/Config/Model/models') ;
 
 my $instance = $model -> instance( root_class_name => 'Fstab',
 				   instance_name => 'test',
