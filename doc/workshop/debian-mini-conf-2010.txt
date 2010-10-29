@@ -47,7 +47,7 @@ Current status of the demo file:
   s/3/4/
   click copy
   
--open ext4 class -> element
+- open ext4 class -> element
 
 - open mkfs.ext4 man page 
   check extended_options
@@ -85,5 +85,18 @@ Current status of the demo file:
   open fs -> empty, which is normal -> no fstab file is read
 
   add a new file system to test ext4
+  
+not printed below !!!!!
+
+if problem with Model->test, 
+run config-edit -model Fstab -model_dir lib/Config/Model/models
+
+  add a new label (suggests mount point): home
+  open label
+  edit fs_spec -> /dev/sda1
+  fs_vfstype -> ext3 or ext4
+  fs_file /home
+
+Remember: it's a demo, there's no code to write back fstab.. yet
 
 
