@@ -3,7 +3,7 @@
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
-use Test::More tests => 17 ;
+use Test::More tests => 18 ;
 use Config::Model ;
 
 use strict;
@@ -186,7 +186,7 @@ is_deeply([$hac->get_choice],['A','B','bar','foo'],
 # choice needs to be recomputed for references
 $root->load("host~B") ;
 is_deeply([$hac->get_choice],['A','bar','foo'],
-	 "check that default choice and refer_to add up");
+	 "check that default choice and refer_to follow removed elements");
 
 # test reference to list values
 $root->load("dumb_list=a,b,c,d,e") ;

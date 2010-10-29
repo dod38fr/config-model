@@ -1116,16 +1116,17 @@ empty).
 =cut
 
 sub get_default_choice {
-    goto &get_choice ;
+    my $self = shift ;
+    return @{$self->{backup}{choice} || [] } ;
 }
 
 sub get_choice {
     my $self = shift ;
 
-# does not fix -> deep recursion
-#    if (defined $self->{refer_to} or defined $self->{computed_refer_to}) {
-	#$self->{ref_object}->get_choice_from_refered_to ;
-#    }
+    # just in case the reference_object has been changed
+    if (defined $self->{refer_to} or defined $self->{computed_refer_to}) {
+	$self->{ref_object}->get_choice_from_refered_to ;
+    }
 
     return @{$self->{choice} || [] } ;
 }

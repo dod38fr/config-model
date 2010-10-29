@@ -1,3 +1,5 @@
+        * Fix issue where value reference did not follow refered to parameters after creation.
+
 2010-10-26 Dominique Dumont  <domi.dumont@free.fr> 1.216
 
         * Control.pl: fixed control fields order to be less confusing (thanks to ansgar
