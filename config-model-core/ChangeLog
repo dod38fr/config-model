@@ -1,4 +1,9 @@
-        * Fix issue where value reference did not follow refered to parameters after creation.
+2010-10-26 Dominique Dumont  <domi.dumont@free.fr> 1.217
+
+        * Fix issue where value reference did not follow refered
+	  to parameters after creation.
+	* Fstab example: split the model for the Debian mini-debconf
+	workshop
 
 2010-10-26 Dominique Dumont  <domi.dumont@free.fr> 1.216
 
