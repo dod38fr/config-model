@@ -26,21 +26,57 @@
                              'type' => 'leaf',
                              'description' => 'URI of the format specification, such as: http://svn.debian.org/wsvn/dep/web/deps/dep5.mdwn?op=file&amp;rev=REVISION'
                            },
+                           'Upstream-Name',
+                           {
+                             'value_type' => 'string',
+                             'status' => 'deprecated',
+                             'type' => 'leaf'
+                           },
                            'Name',
                            {
-                             'value_type' => 'uniline',
+                             'value_type' => 'string',
+                             'migrate_from' => {
+                                                 'formula' => '$old_name',
+                                                 'variables' => {
+                                                                  'old_name' => '- Upstream-Name'
+                                                                }
+                                               },
                              'type' => 'leaf',
                              'description' => 'Single line (in most cases a single word), containing the name of the software.'
+                           },
+                           'Upstream-Maintainer',
+                           {
+                             'value_type' => 'string',
+                             'status' => 'deprecated',
+                             'type' => 'leaf'
                            },
                            'Maintainer',
                            {
                              'value_type' => 'string',
+                             'migrate_from' => {
+                                                 'formula' => '$old_maintainer',
+                                                 'variables' => {
+                                                                  'old_maintainer' => '- Upstream-Maintainer'
+                                                                }
+                                               },
                              'type' => 'leaf',
                              'description' => 'Line(s) containing the preferred address(es) to reach current upstream maintainer(s). May be free-form text, but by convention will usually be written as a list of RFC2822 addresses or URIs.'
+                           },
+                           'Upstream-Source',
+                           {
+                             'value_type' => 'string',
+                             'status' => 'deprecated',
+                             'type' => 'leaf'
                            },
                            'Source',
                            {
                              'value_type' => 'string',
+                             'migrate_from' => {
+                                                 'formula' => '$old',
+                                                 'variables' => {
+                                                                  'old' => '- Upstream-Source'
+                                                                }
+                                               },
                              'type' => 'leaf',
                              'description' => 'One or more URIs, one per line, indicating the primary point of distribution of the software.'
                            },

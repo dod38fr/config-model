@@ -1,3 +1,8 @@
+	* Copyright: added depreceted parameters (Upstream-Name
+	Upstream-Maintainer Upstream-Source). Added migrate_from
+	instruction to migrate user data from old parameters to new
+	parmaters.
+
 2010-10-26 Dominique Dumont  <domi.dumont@free.fr> 1.217
 
         * Fix issue where value reference did not follow refered
