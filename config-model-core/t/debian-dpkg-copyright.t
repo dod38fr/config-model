@@ -1,7 +1,7 @@
 # -*- cperl -*-
 
 use ExtUtils::testlib;
-use Test::More tests => 57 ;
+use Test::More tests => 67 ;
 use Config::Model ;
 use Log::Log4perl qw(:easy) ;
 use File::Path ;
@@ -79,17 +79,17 @@ License: MPL-1.1 or GPL-2+ or LGPL-2.1+
 License: MPL-1.1
  [MPL-1.1 LICENSE TEXT]
 
-License: GPL-2
+License: GPL-2+
  [GPL-2 LICENSE TEXT]
 
-License: LGPL-2.1
- [LGPL-2.1 LICENSE TEXT]
+License: LGPL-2.1+
+ [LGPL-2.1 plus LICENSE TEXT]
 
 EOD1
 
 $tests[$i++]{check} = [ 'License:MPL-1.1',"[MPL-1.1 LICENSE TEXT]" ,
-                        'License:GPL-2', "[GPL-2 LICENSE TEXT]",
-                        'License:LGPL-2.1', "[LGPL-2.1 LICENSE TEXT]",
+                        'License:"GPL-2+"', "[GPL-2 LICENSE TEXT]",
+                        'License:"LGPL-2.1+"', "[LGPL-2.1 plus LICENSE TEXT]",
                       'Files:"src/js/editline/*" License abbrev',"MPL-1.1 or GPL-2+ or LGPL-2.1+"
                     ];
 
@@ -199,6 +199,35 @@ $tests[$i++]{check} = [
                       ." and/or modify it under the terms of the [snip]\n",
                    ];
 
+$tests[$i]{text} = <<'EOD5' ;
+Format-Specification:
+    http://wiki.debian.org/Proposals/CopyrightFormat?action=recall&rev=196
+Upstream-Maintainer: Dominique Dumont (ddumont at cpan dot org)
+Upstream-Source: http://search.cpan.org/dist/Config-Model-CursesUI/
+Upstream-Name: Config-Model-CursesUI
+
+Files: *
+Copyright: 2007-2009, Dominique Dumont (ddumont@cpan.org)
+License:  LGPL-2+
+
+Files: debian/*
+Copyright: 2009, Dominique Dumont <dominique.dumont@hp.com>
+License:  LGPL-2+
+
+License: LGPL-2+
+    [snip]either version 2.1 of
+    the License, or (at your option) any later version.
+    [snip again]
+EOD5
+
+$tests[$i++]{check} = [ 
+                      'Files:"*" License abbrev',"LGPL-2+",
+                      'License:"LGPL-2+"',
+                      "   [snip]either version 2.1 of\n   the License, or (at your option) any later version.\n"
+                     ."   [snip again]",
+                   ];
+
+
 my $idx = 0 ;
 foreach my $t (@tests) {
     if (defined $do and $do ne $idx) { $idx ++; next; }
@@ -211,16 +240,19 @@ foreach my $t (@tests) {
     print LIC $t->{text} ;
     close LIC ;
 
-    my $inst = $model->instance (root_class_name   => 'Debian::Dpkg::Copyright',
-                                 root_dir          => $wr_dir,
-                                 instance_name => "deptest".$idx,
-                                );  
-    ok($inst,"Read $license_file and created instance") ;
+    my $warns = $idx == 5 ? [ ( qr/Upstream/ ) x 3 ] : []; 
+    my $inst;
+    warnings_like {
+         $inst  = $model->instance (root_class_name   => 'Debian::Dpkg::Copyright',
+                                    root_dir          => $wr_dir,
+                                    instance_name => "deptest".$idx,
+                                   ); 
+     } $warns , "Read $license_file and created instance" ;
 
     my $lic = $inst -> config_root ;
 
     my $dump =  $lic->dump_tree ();
-    rint $dump if $trace ;
+    print $dump if $trace ;
    
     while (@{$t->{check}}) { 
        my ($path,$v) = splice @{$t->{check}},0,2 ;

@@ -2,6 +2,7 @@
 	Upstream-Maintainer Upstream-Source). Added migrate_from
 	instruction to migrate user data from old parameters to new
 	parmaters.
+	* Copyright: Removed fuzziness around trailing '+' in licence names
 
 2010-10-26 Dominique Dumont  <domi.dumont@free.fr> 1.217
 

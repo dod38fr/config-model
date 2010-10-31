@@ -51,8 +51,6 @@ sub read {
         my ($lic_name) = shift @lic_text ;
         # get rid of potential 'with XXX exception'
         $lic_name =~ s/\s+with\s+\w+\s+exception//g ;
-        # get rid of '+' to use the real license name
-        $lic_name =~ s/\+//g ;
         $logger->debug("adding license text for '$lic_name': '@lic_text'");
         my $lic_obj = $root->grab(step => qq!License:"$lic_name"!, check => $check);
         # lic_obj may not be defined in -force mode
@@ -65,6 +63,7 @@ sub read {
         for (my $i=0; $i < @$section ; $i += 2 ) {
             my $key = $section->[$i];
             my $v = $section->[$i+1];
+            $v =~ s/^\s+//; # remove all leading spaces 
             $logger->info("reading key $key from $args{file} control file for ".$object->name);
             $logger->debug("$key value: $v");
             if ($key =~ /files/i) {

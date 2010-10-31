@@ -19,10 +19,11 @@ oper: \'and\' | \'or\'
 license: /[\\w\\-\\.\\+]+/i
    { # PRD action to check if the license text is provided
      my $abbrev = $item[1] ;
-     $abbrev =~ s/\\+$//g;
-     $failed++ unless 
-         $arg[0]->grab("! License")->defined($abbrev)
-         or $arg[0]->grab("- full_license")->fetch;
+     my $elt = $arg[0]->grab("! License") ;
+     unless ($elt->defined($abbrev) or $arg[0]->grab("- full_license")->fetch) {
+         $failed ++;
+         ${$arg[1]} .= "license $abbrev is not declared in main Licence section. Expected ".join(" ",$elt->get_all_indexes) ;
+     }
    } 
 ',
                              'help' => {
