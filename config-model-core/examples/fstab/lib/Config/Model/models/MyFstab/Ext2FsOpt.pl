@@ -7,9 +7,9 @@
                             'description' => 'unknown parameter'
                           }
                         ],
-            'name' => 'Fstab::Ext2FsOpt',
+            'name' => 'MyFstab::Ext2FsOpt',
             'include' => [
-                           'Fstab::CommonOptions'
+                           'MyFstab::CommonOptions'
                          ],
             'element' => [
                            'acl',

@@ -1,8 +1,8 @@
 [
           {
-            'name' => 'Fstab::Iso9660_Opt',
+            'name' => 'MyFstab::Iso9660_Opt',
             'include' => [
-                           'Fstab::CommonOptions'
+                           'MyFstab::CommonOptions'
                          ],
             'element' => [
                            'rock',

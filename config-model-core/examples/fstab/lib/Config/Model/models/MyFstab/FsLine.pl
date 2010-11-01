@@ -1,7 +1,7 @@
 [
           {
             'class_description' => 'data of one /etc/fstab line',
-            'name' => 'Fstab::FsLine',
+            'name' => 'MyFstab::FsLine',
             'element' => [
                            'fs_spec',
                            {
@@ -82,39 +82,39 @@
                              'rules' => [
                                           '$f1 eq \'proc\'',
                                           {
-                                            'config_class_name' => 'Fstab::CommonOptions'
+                                            'config_class_name' => 'MyFstab::CommonOptions'
                                           },
                                           '$f1 eq \'auto\'',
                                           {
-                                            'config_class_name' => 'Fstab::CommonOptions'
+                                            'config_class_name' => 'MyFstab::CommonOptions'
                                           },
                                           '$f1 eq \'vfat\'',
                                           {
-                                            'config_class_name' => 'Fstab::CommonOptions'
+                                            'config_class_name' => 'MyFstab::CommonOptions'
                                           },
                                           '$f1 eq \'swap\'',
                                           {
-                                            'config_class_name' => 'Fstab::SwapOptions'
+                                            'config_class_name' => 'MyFstab::SwapOptions'
                                           },
                                           '$f1 eq \'ext3\'',
                                           {
-                                            'config_class_name' => 'Fstab::Ext3FsOpt'
+                                            'config_class_name' => 'MyFstab::Ext3FsOpt'
                                           },
                                           '$f1 eq \'usbfs\'',
                                           {
-                                            'config_class_name' => 'Fstab::UsbFsOptions'
+                                            'config_class_name' => 'MyFstab::UsbFsOptions'
                                           },
                                           '$f1 eq \'davfs\'',
                                           {
-                                            'config_class_name' => 'Fstab::CommonOptions'
+                                            'config_class_name' => 'MyFstab::CommonOptions'
                                           },
                                           '$f1 eq \'iso9660\'',
                                           {
-                                            'config_class_name' => 'Fstab::Iso9660_Opt'
+                                            'config_class_name' => 'MyFstab::Iso9660_Opt'
                                           },
                                           '$f1 eq \'ext2\'',
                                           {
-                                            'config_class_name' => 'Fstab::Ext2FsOpt'
+                                            'config_class_name' => 'MyFstab::Ext2FsOpt'
                                           }
                                         ],
                              'description' => 'mount options associated with the filesystem'

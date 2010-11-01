@@ -1,9 +1,9 @@
 [
           {
             'class_description' => 'usbfs options',
-            'name' => 'Fstab::UsbFsOptions',
+            'name' => 'MyFstab::UsbFsOptions',
             'include' => [
-                           'Fstab::CommonOptions'
+                           'MyFstab::CommonOptions'
                          ],
             'element' => [
                            'devuid',

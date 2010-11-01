@@ -1,7 +1,7 @@
 [
           {
             'class_description' => 'Swap options',
-            'name' => 'Fstab::SwapOptions',
+            'name' => 'MyFstab::SwapOptions',
             'element' => [
                            'sw',
                            {

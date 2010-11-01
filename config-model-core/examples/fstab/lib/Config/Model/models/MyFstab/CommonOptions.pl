@@ -1,7 +1,7 @@
 [
           {
             'class_description' => 'options valid for all types of file systems.',
-            'name' => 'Fstab::CommonOptions',
+            'name' => 'MyFstab::CommonOptions',
             'element' => [
                            'async',
                            {

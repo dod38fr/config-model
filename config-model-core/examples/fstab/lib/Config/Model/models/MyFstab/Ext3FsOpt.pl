@@ -1,8 +1,8 @@
 [
           {
-            'name' => 'Fstab::Ext3FsOpt',
+            'name' => 'MyFstab::Ext3FsOpt',
             'include' => [
-                           'Fstab::Ext2FsOpt'
+                           'MyFstab::Ext2FsOpt'
                          ],
             'element' => [
                            'journalling_mode',
