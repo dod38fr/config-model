@@ -3,6 +3,7 @@
 	instruction to migrate user data from old parameters to new
 	parmaters.
 	* Copyright: Removed fuzziness around trailing '+' in licence names
+	* AnyThing.pm: grab() : accept '+' without surrounding quotes in argument
 
 2010-10-26 Dominique Dumont  <domi.dumont@free.fr> 1.217
 

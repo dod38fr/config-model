@@ -336,12 +336,14 @@ sub add_item {
 
     # add entry in tklist
     if ($hash->ordered) {
+        $logger->debug("add_item: adding $add in ordered hash");
 	$tklist -> selectionClear(0,'end') ;
 	$tklist -> insert('end',$add) ;
 	$tklist -> selectionSet('end') ;
 	$tklist -> see('end') ;    }
     else {
 	# add the item so that items are ordered alphabetically
+	$logger->debug("add_item: adding $add in plain hash");
 	$cw->add_and_sort_item($add) ;
     }
 }
@@ -376,12 +378,15 @@ sub copy_selected_in {
     }
 
     my $hash = $cw->{hash};
-    $logger->debug( "copy_selected_to: from $from_name to $to_name" );
 
     my $new_idx = $hash->exists($to_name) ? 0 : 1 ;
+    $logger->debug( "copy_selected_to: from $from_name to $to_name (is new index: $new_idx)" );
     $hash->copy($from_name,$to_name) ;
+    # FIXME: not run cpy must bail out
+    $logger->debug( "copy_selected_to: copy done" );
 
     if ($new_idx) {
+        $logger->debug( "copy_selected_to: add_item $to_name" );
 	$cw->add_item($to_name) ;
     }
 
