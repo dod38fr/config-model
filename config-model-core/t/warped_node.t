@@ -3,7 +3,7 @@
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
-use Test::More tests => 36 ;
+use Test::More tests => 37 ;
 use Config::Model ;
 
 use strict;
@@ -239,6 +239,12 @@ is_deeply([$root->get_element_name(for => 'master')],
               a_warped_node/],
          'reading elements of root for experience master') ;
 
+$ahown->copy(234,2345) ;
+print $root->dump_tree(check => 'no') if $trace ;
+is( $ahown->fetch_with_id( 234)->fetch_element_value('X'), 
+    $ahown->fetch_with_id(2345)->fetch_element_value('X'), 
+    "check that has copy works on warped_node") ;
+
 is($root->fetch_element('tree_macro')->store('W'),'W',
    'set master->tree_macro to W (warp out)...');
 
@@ -261,3 +267,4 @@ is($root->fetch_element('bool_object')->config_class_name,
    'check theorical bool_object type...');
 
 
+#die "test copy_from on warped nodes" ; 

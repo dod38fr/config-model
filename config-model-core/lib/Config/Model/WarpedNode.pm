@@ -225,9 +225,9 @@ get_cargo_type describe config_model
 =cut
 
 # Forward selected methods (See man perltootc)
-foreach my $method (qw/fetch_element config_class_name get_element_name
+foreach my $method (qw/fetch_element config_class_name copy_from get_element_name
                        has_element is_element_available element_type load
-		       fetch_element_value get_type get_cargo_type 
+		       fetch_element_value get_type get_cargo_type dump_tree
                        describe config_model get_help/
 		   ) {
     # to register new methods in package
