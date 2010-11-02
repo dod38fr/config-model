@@ -33,7 +33,7 @@ use Storable qw/dclone/ ;
 
 use base qw/Config::Model::AutoRead/;
 
-use vars qw($AUTOLOAD @status @level
+use vars qw(@status @level
             @experience_list %experience_index %default_property);
 
 *status           = *Config::Model::status ;
@@ -1619,8 +1619,8 @@ are simply discarded.
 sub copy_from {
     my $self = shift ;
     my $from = shift ;
+    $logger->debug("node ".$self->location." copy from ".$from->location);
     my $dump = $from->dump_tree(check => 'no') ;
-    $logger->debug( "node copy with '$dump'");
     $self->load( step => $dump, check => 'skip' ) ;
 }
 
