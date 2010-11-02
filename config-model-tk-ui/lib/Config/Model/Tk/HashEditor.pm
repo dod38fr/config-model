@@ -11,7 +11,6 @@ use subs qw/menu_struct/ ;
 use Tk::Dialog ;
 use Tk::Photo ;
 use Tk::Balloon ;
-use Tk::ErrorDialog ;
 use Config::Model::Tk::NoteEditor ;
 
 Construct Tk::Widget 'ConfigModelHashEditor';
@@ -382,8 +381,6 @@ sub copy_selected_in {
     my $new_idx = $hash->exists($to_name) ? 0 : 1 ;
     $logger->debug( "copy_selected_to: from $from_name to $to_name (is new index: $new_idx)" );
     $hash->copy($from_name,$to_name) ;
-    # FIXME: not run cpy must bail out
-    $logger->debug( "copy_selected_to: copy done" );
 
     if ($new_idx) {
         $logger->debug( "copy_selected_to: add_item $to_name" );
