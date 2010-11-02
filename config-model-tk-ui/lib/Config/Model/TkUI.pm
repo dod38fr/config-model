@@ -52,11 +52,11 @@ no warnings "redefine" ;
 
 sub Tk::Error {
     my ($cw,$error,@locations) = @_;
-    my $msg = ref($error) ? $error->as_string : $error ;
-    $msg .= "stack: \n@locations\n";
+    my $msg = (ref($error) && $error->can('as_string')) ? $error->as_string : $error ;
+    $msg .= "Tk stack: \n@locations\n";
     $cw -> Dialog ( -title => 'Config::Model error',
                     -text  => $msg,
-                  ) ;
+                  )-> Show ;
 }
 
 use warnings "redefine" ;
