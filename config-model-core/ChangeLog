@@ -1,10 +1,11 @@
-	* Copyright: added depreceted parameters (Upstream-Name
+	* Copyright: added deprecated parameters (Upstream-Name
 	Upstream-Maintainer Upstream-Source). Added migrate_from
 	instruction to migrate user data from old parameters to new
 	parmaters.
 	* Copyright: Removed fuzziness around trailing '+' in licence names
 	* AnyThing.pm: grab() : accept '+' without surrounding quotes in argument
-	* WarpedNode: deletages copy_from and dump_tree to Node (fixes hash copy with warped nodes)
+	* WarpedNode: delegates copy_from and dump_tree to Node (fixes hash 
+	  copy with warped nodes)
 
 2010-10-26 Dominique Dumont  <domi.dumont@free.fr> 1.217
 

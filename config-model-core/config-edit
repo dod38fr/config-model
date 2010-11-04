@@ -217,6 +217,12 @@ validate it and save it in configuration file (if no error was found).
 
 Force re-writing the configuration. (useful for configuration upgrade)
 
+=item -open_item 'path'
+
+In graphical mode, force the UI to open the node specified. E.g.
+
+ -open_item 'foo bar'
+
 =back
 
 =cut
@@ -233,7 +239,8 @@ my $dump;
 my $dumptype;
 my $load;
 my $force_save = 0;
-
+my $open_item = '';
+ 
 my $result = GetOptions ("ui|if=s"          => \$ui_type,
 			 "model_dir=s"      => \$model_dir,
 			 "model=s"          => \$root_model,
@@ -252,6 +259,7 @@ my $result = GetOptions ("ui|if=s"          => \$ui_type,
                          "dumptype:s"       => \$dumptype,
                          "load=s"           => \$load,
 			 'save!'            => \$force_save ,
+			 "open_item=s"      => \$open_item ,
 			);
 
 pod2usage(2) if not $result ;
@@ -373,6 +381,11 @@ elsif ($ui_type eq 'tk') {
     $mw->optionAdd('*BorderWidth' => 1);
 
     my $cmu = $mw->ConfigModelUI (-root => $root, -experience => $experience) ;
+
+    if ($open_item) {
+        my $obj = $meta_root->grab($open_item) ;
+        $cmu->force_element_display($obj) ;
+    }
 
     &MainLoop ; # Tk's
 }
