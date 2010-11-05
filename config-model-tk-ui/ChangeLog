@@ -1,3 +1,5 @@
+2010-11-05  Dominique Dumont  <domi.dumont@free.fr> 1.317
+
         * TkUi.pm: in Tk::Error call Show on Dialog to avoid masking errors
 
 2010-10-19  Dominique Dumont  <domi.dumont@free.fr> 1.316
