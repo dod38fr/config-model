@@ -27,6 +27,12 @@ require 5.008;
 print "\nIf you want to use the TermUI interface, you should install\n",
   "Term::ReadLine::Perl or Term::ReadLine::Gnu\n\n";
 
+# The code below will be fed to subclass method of Module::Build.
+# This will create a new Module::Build class that can handle 
+# config-edit.tmpl template file to generate scripts dedicated
+# to models included within this distribution (e.g. config-edit-popcon ...)
+# For more details see 
+# http://search.cpan.org/~dagolden/Module-Build-0.3607/lib/Module/Build/Authoring.pod#SUBCLASSING
 
 my $code = << 'EOF';
 
