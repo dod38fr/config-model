@@ -148,7 +148,7 @@ __END__
 
 =head1 NAME
 
-Config::Model::Backend::Shellvar - Read and write config as a SHELLVAR data structure
+Config::Model::Backend::ShellVar - Read and write config as a SHELLVAR data structure
 
 =head1 SYNOPSIS
 
