@@ -1,11 +1,17 @@
+2010-11-05 Dominique Dumont  <domi.dumont@free.fr> 1.218
+
+        * Moved doc from README into model.pm
 	* Copyright: added deprecated parameters (Upstream-Name
-	Upstream-Maintainer Upstream-Source). Added migrate_from
-	instruction to migrate user data from old parameters to new
-	parmaters.
+	  Upstream-Maintainer Upstream-Source). Added migrate_from
+	  instruction to migrate user data from old parameters to new
+	  parameters.
 	* Copyright: Removed fuzziness around trailing '+' in licence names
 	* AnyThing.pm: grab() : accept '+' without surrounding quotes in argument
 	* WarpedNode: delegates copy_from and dump_tree to Node (fixes hash 
 	  copy with warped nodes)
+	* config-edit: added -open_item option
+	* Build.PL: configure_depends on Text::Template to avoid CPANPLUS 
+	  installation failure
 
 2010-10-26 Dominique Dumont  <domi.dumont@free.fr> 1.217
 
