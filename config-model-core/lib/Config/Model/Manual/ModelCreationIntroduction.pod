@@ -1,0 +1,1002 @@
+=pod
+
+=head1 NAME
+
+Introduction to model creation with Config::Model
+
+=head1 Introduction
+
+This page describes how to write a simple configuration
+model. Creation of more complex models are descfribed in 
+L<Creating a model with advanced features|Config::Model::Manual::ModelCreationAdvanced>.
+
+A tutorial is available in 
+L<Creating a model from config file documentation|Config::Model::Tutorial>.
+
+Note that this document will show a lot of Perl data structure to
+highlight the content of a model. A Perl data structure is very
+similar to a JSON structure. The only thing you need to know are:
+
+=over 
+
+=item *
+
+Curly braces C<{ ... }> contain a dictionary of key, value pairs (a
+I<hash> in Perl land))
+
+=item *
+
+Square brackets C<[ ... ]> contain a list of items (I<array> or
+I<list> in Perl land)
+
+=back
+
+=head1 Some definitions
+
+=over
+
+=item configuration file
+
+Text file where configuration data are stored. This configuration file
+will be used by an application -- the I<target application>
+
+=item configuration tree
+
+The semantic content of the configuration file stored in a tree
+representation
+
+=item configuration model
+
+Structure and constraints of the configuration tree. Like a schema for
+the configuration tree
+
+=item target application
+
+The application that will use the configuration file
+
+=item end user
+
+User of the target application
+
+=item application developer
+
+Target application developer
+
+=item model developer
+
+People developing the configuration model. Not necessarily the
+application developer
+
+=back
+
+=head1 What is a configuration tree?
+
+Most configuration files are actually organized mostly as a tree
+structure. Depending on the syntax of the file, this structure may be
+obvious to see (e.g. for XML, Apache) or not so obvious (Xorg syntax,
+INI syntax).
+
+For some files like C<approx.conf> or C<adduser.conf>, this tree
+structure is quite flat.  It looks much like a rake than a tree, but
+still, it's a tree.
+
+For instance, this C<approx.conf>:
+
+ $pdiffs     1
+ $max_wait   14
+ debian     http://ftp.fr.debian.org/debian
+
+can have this tree representation:
+
+ root
+ |--pdiff=1
+ |--max_wait=14
+ `--distrib(debian)=http://ftp.fr.debian.org/debian
+
+Other configuration files like C<apache2.conf> or C<xorg.conf> have a
+structure that look more like a tree.
+
+For instance, consider this C<xorg.conf> snippet:
+
+ Section "Device"
+    Identifier     "Device0"
+    Driver         "nvidia"
+ EndSection
+ 
+ Section "Screen"
+    Identifier     "Screen0"
+    Device         "Device0"
+    Option         "AllowGLXWithComposite" "True"
+    Option         "DynamicTwinView" "True"
+    SubSection     "Display"
+        Depth       24
+    EndSubSection
+ EndSection
+
+
+Knowing that Xorg.conf can have several Device or Screen sections
+identified by their I<Identifiers>, the configuration can be
+represented in this tree as:
+
+ root
+ |--Device(Device0)
+ |  `--Driver=nvidia
+ `--Screen(Screen0)
+    |--Device=Device0
+    |--Option
+    |  |--AllowGLXWithComposite=True
+    |  `--DynamicTwinView=True
+    `--Display
+       `--Depth=24
+
+Some will argue that some Xorg parameter refer to others
+(i.e.I<Device> and I<Monitor> value in I<Screen> section) and so they
+cannot be represented as a tree. That's right, there are some more
+complex relations that are added to the tree structure. This will be
+covered in more details when dealing with complex models.
+
+In some other case, the structure of a tree is not fixed. For
+instance, I<Device> options in C<Xorg.conf> are different depending on
+the value of the I<Device Driver>. In this case, the structure of the
+configuration tree must be adapted (morphed) depending on a parameter
+value.
+
+Just like XML data can have Schema to validate their content, the
+configuration tree structure needs to have its own schema to validate
+its content. Since the tree structure cannot be represented as a
+static tree without reference, XML like schema are not enough to
+validate configuration data.
+
+L<Config::Model> provides a kind of schema for configuration data that
+takes care of the cross references mentioned above and of the dynamic
+nature of the configuration tree required for Xorg (and others).
+
+=head1 What is a model?
+
+A configuration model defines the configuration tree structure:
+
+=over
+
+=item *
+
+A model defines one or more configuration class
+
+=item *
+
+At least one class is required to define the configuration tree root
+
+=item *
+
+Each class contains several elements. An element can be:
+
+=over
+
+=item * 
+
+A leaf to represent one configuration parameter
+
+=item * 
+
+A list of hash of leaves to represent several parameter
+
+=item * 
+
+A node to hold a node of a configuration tree
+
+=item * 
+
+A list or hash of nodes 
+
+=back
+
+=back
+
+These basic relations enable to define the main parts of a
+configuration tree.
+
+If we refer to the C<approx.conf> example mentioned above, one only
+class is required (let's say the I<Approx> class). This class will
+contain (see approx.conf man page): 
+
+=over
+
+=item *
+
+A boolean leaf for C<pdiff> (1 if not specified) 
+
+=item *
+
+An integer leaf for C<max_wait> (10 seconds unless specified
+otherwise)
+
+=item *
+
+A hash of string leaves for C<distrib> (no default).
+
+=back
+
+In terms of models, the model will be stored this way by Config::Model:
+
+ {
+  'name' => 'Approx',
+  'element' 
+  => [
+      'pdiffs'       , { type => 'leaf', value_type => 'boolean', upstream_default => '1'      },
+      'max_wait'     , { type => 'leaf', value_type => 'integer', upstream_default => '10'     },
+      'distributions', { type => 'hash', index_type => 'string' ,
+                         cargo => { value_type => 'uniline', type => 'leaf',},
+                       }
+      ]
+ }
+
+The Xorg example will lead to a slightly more complex model with several classes:
+
+=over
+
+=item * 
+
+I<Xorg> (root class)
+
+=item * 
+
+I<Xorg::Device>
+
+=item * 
+
+I<Xorg::Screen>
+
+=item * 
+
+I<Xorg::Screen::Option> for the Screen options
+
+=item * 
+
+I<Xorg::Screen::Display> for theI<Display> subsection
+
+=back
+
+The root class will be declared this way:
+
+ {
+  name => 'Xorg',
+  element => [
+              Device => {
+                         type => 'hash',
+                         index_type => 'string'
+                         cargo => {
+                                    type => 'node',
+                                    config_class_name => 'Xorg::Device'
+                                  },
+                        },
+              Screen => {
+                         type => 'hash',
+                         index_type => 'string'
+                         cargo => {
+                                   type => 'node',
+                                   config_class_name => 'Xorg::Screen'
+                                  },
+                        },
+           ]
+ }
+
+TheI<Xorg::Screen> class will be:
+
+ {
+  name => 'Xorg::Screen',
+  element => [
+               Device => {
+                           type' => 'leaf',
+                           value_type => 'uniline',
+                         },
+               Display => {
+                            type => 'hash',
+                            index_type => 'integer'
+                            cargo => {
+                                       type => 'node',
+                                       config_class_name => 'Xorg::Screen::Display'
+                                     },
+                          }
+              Option => {
+                          type => 'node',
+                          config_class_name => 'Xorg::Screen::Option'
+                        },
+              ]
+  }
+
+
+It's now time to detail how the elements of a class are constructed.
+
+=head1 Model analysis
+
+To define the configuration classes that will be required, you will
+have to read the documentation of the target application to :
+
+=over
+
+
+=item *
+
+Find the structure of the configuration tree 
+
+=item *
+
+Identify configuration parameters, their constraints and relations
+
+=back
+
+Last but not least, you will also have to find several valid
+examples. These examples be used as non-regression tests and verify
+that the documentation was understood.
+
+=head1 Model declaration
+
+=head2 Configuration class declaration
+
+In summary, configuration documentation is translated in a format
+usable by Config::Model:
+
+=over
+
+=item *
+
+The structure is translated into configuration classes
+
+=item *
+
+Configuration parameters are translated into elements
+
+=item *
+
+Constraints are translated into element attributes
+
+=back
+
+All models files must be written in a specific directory. For
+instance, for model I<Xorg>, you must create
+C<./lib/Config/Model/models/Xorg.pl>. Other classes
+likeI<Xorg::Screen> can be stored in their own file
+C<./lib/Config/Model/models/Xorg/Screen.pl> or included in C<Xorg.pl>
+
+A model file is a Perl file containing an array for hash ref. Each
+Hash ref contains a class declaration:
+
+ [ { name => 'Xorg', ... } , { name => 'Xorg::Screen', ... } ] ;
+
+A class can have the following parameters:
+
+=over
+
+=item *
+
+name: mandatory name of the class
+
+=item *
+
+class_description: Description of the configuration class. 
+
+=item *
+
+generated_by: Mention with a descriptive string if this class was
+generated by a program. This parameter is currently reserved
+for I<Config::Model::Itself> model editor.
+
+=item *
+
+include: Include element description from another class.
+
+=back
+
+For more details, see L<Config::Model/Configuration_Model>.
+
+For instance:
+
+ $ cat lib/Config/Model/models/Xorg.pl
+ [
+   {
+     name => 'Xorg',
+     class_description => 'Top level Xorg configuration.',
+     include => [ 'Xorg::ConfigDir'],
+     element => [
+                 Files => {
+                           type => 'node',
+                           description => 'File pathnames',
+                           config_class_name => 'Xorg::Files'
+                          },
+                 # snip
+                ]
+   },
+   {
+     name => 'Xorg::DRI',
+     element => [
+                 Mode => {
+                          type => 'leaf',
+                          value_type => 'uniline',
+                          description => 'DRI mode, usually set to 0666'
+                         }
+                ]
+   }
+ ];
+
+=head2 Configuration class declaration (easier way)
+
+Since writing a data structure is not fun (even with Perl), you are
+encouraged to use the model editor provided by L<config-model-edit>
+from L<Config::Model::Itself> module. You will get this type of GUI
+shown on the right with the command C<config-model-edit -model Xorg>
+
+=head2 Common attributes for all elements
+
+This first set of attributes will help the user by providing guidance
+(with I<level> and I<status> and I<experience>) and documentation
+(I<summary> andI<description>).
+
+All elements (simple or complex) can have the following attributes:
+
+=over
+
+=item *
+
+I<description>: full length description of the attribute
+
+=item *
+
+I<summary>: one line summary of the above description
+
+=item *
+
+I<level>: is I<important>, I<normal> or I<hidden>. The level is used
+to set how configuration data is presented to the user in browsing
+mode. Important elements will be shown to the user no matter
+what. hidden elements will be explained with the warp notion.
+
+=item *
+
+I<status>: is I<obsolete>, I<deprecated> or I<standard>
+(default). Using a deprecated element will issue a warning. Using an
+obsolete element will raise an exception.
+
+=item *
+
+I<experience>: By using the experience parameter, you can change the
+experience level of each element. Possible experience levels are
+I<master>, I<advanced> and I<beginner> (default).
+
+=back
+
+See L<Config::Model/Configuration_class> for details.
+
+=head2 Simple leaf elements
+
+Simple leaf elements will be used most often for configuration
+files. A leaf element will represent a specific configuration
+parameter.
+
+In more details, a leaf element have the following attributes (See 
+L<Config::Model::Value/Value_model_declaration> doc):
+
+=over
+
+=item type
+
+Set to I<leaf> (mandatory)
+
+=item value_type
+
+Either I<boolean>, I<integer>, I<number>, I<enum>, I<string>,
+I<uniline> (i.e. a string without "\n") (mandatory)
+
+=item min
+
+Mininum value (for I<integer> or I<number>)
+
+=item <max
+
+Maximum value (for I<integer> or I<number>)
+
+=item choice
+
+Possible values for an enum
+
+=item mandatory
+
+Whether the value is mandatory or not
+
+=item default
+
+Default value that must be written in the configuration file
+
+=item upstream_default
+
+Default value that is known by the target application and thus does
+not need to be written in the configuration file.
+
+=back
+
+To know which attributes to use, you will have to read the
+documentation of the target application.
+
+For instance, I<AddressFamily> parameter (sshd_config(5)) is specified
+with I<Specifies which address family should be used by sshd(8).
+Valid arguments are "any", "inet" (use IPv4 only), or "inet6" (use
+IPv6 only).  The default is "any".>
+
+For Config::Model, I<AddressFamily> is a type I<leaf> element,
+value_type I<enum> and the application will use I<any> if this
+parameter is left blank in C<sshd_config> file.
+
+Thus the model of this element will be :
+
+ AddressFamily => {
+   type             => 'leaf',
+   value_type       => 'enum',
+   upstream_default => 'any',
+   description      => 'Specifies which address family should be used by sshd(8).',
+   choice           => [ 'any', 'inet', 'inet6' ]
+ }
+
+=head2 Simple list or hash element
+
+Some configuration parameters are in fact a list or a hash of
+parameters. For instance, C<approx.conf> can feature a list of remote
+repositories:
+
+ # remote repositories
+ debian     http://ftp.fr.debian.org/debian
+ multimedia http://www.debian-multimedia.org
+
+These repositories must be stored as a hash where the key will be
+I<debian> or I<multimedia> and the associated value will a URL. But
+this hash must have something which is not explicit in C<approx.conf>
+file: a parameter name. Approx man page mentions that 
+I<The name/value pairs [not beginning with '$' are used to map distribution names to remote repositories.>.
+So let's use I<distribution> as a parameter name.
+
+The example will be stored this way in the configuration tree:
+
+ root
+ |--distrib(debian)=http://ftp.fr.debian.org/debian
+ `--distrib(multimedia)=http://www.debian-multimedia.org
+
+The model will need to declare that I<distrib> is:
+
+=over
+
+=item *
+
+a type I<hash> parameter
+
+=item *
+
+the hash key is a string
+
+=item *
+
+the values of the hash are of type I<leaf> and value_type I<uniline>
+
+=back
+
+ distribution => {
+                   type => 'hash',
+                   index_type => 'string',
+                   cargo => {
+                              type => 'leaf',
+                              value_type => 'uniline',
+                            },
+                   summary => 'remote repositories',
+                   description => 'The other name/value pairs are ...',
+                 }
+
+For more details on list and hash elements, see
+L<hash or list model declaration|Config::Model::AnyId/Hash_or_list_model_declaration> man page.
+
+=head2 node element
+
+A node element is necessary if the configuration file has more than a
+list of variable. In this case, the tree is deeper than a rake and a
+node element if necessary to provide a new node within the tree.
+
+In the Xorg example above, the options of I<Xorg::Screen> need their
+own subranch in the tree:
+
+ Screen(Screen0)
+   `--Option
+      |--AllowGLXWithComposite=True
+      `--DynamicTwinView=True
+
+For this, a new dedicated class is necessary>Xorg::Screen::Option>
+(see its declaration above). This new class must be tied to the Screen
+class with a node element.
+
+A node element has the following parameters:
+
+=over
+
+=item *
+
+type (set to I<node>)
+
+=item *
+
+the name of the configuration class name (>config_class_name>)
+
+=back
+
+So the I<Option> node element is declared with:
+
+ Option => {
+             type => 'node',
+             config_class_name => 'Xorg::Screen::Option'
+           },
+
+=head2 Hash or list of nodes
+
+Some configuration files can feature a set of rather complex
+configuration entities. For instance C<Xorg.pl> can feature several
+Screen or Device definitions. These definitions are identified by the
+I<Identifier> parameter:
+
+ Section "Device"
+   Identifier     "Device0"
+   Driver         "nvidia"
+   BusID          "PCI:3:0:1"
+ EndSection
+ 
+ Section "Screen"
+   Identifier     "Screen0"
+   Device         "Device0"
+   DefaultDepth    24
+ EndSection
+
+The Xorg configuration tree will feature 2 elements (Screen and
+Device) that will use the Identifier parameters as hash keys:
+
+ root
+ |--Device(Device0)
+ |  |--Driver=nvidia
+ |  `--BusId=PCI:3:0:1
+ `--Screen(Screen0)
+    |--Device=Device0
+    `--DefaultDepth=24
+
+And the Xorg model must define these 2 parameters as I<hash>. The
+cargo of this hash will of type I<node> and will refer to 2 different
+configuration classes, one for I<Device> (C<Xorg::Device>) and one for
+I<Screen> (C<Xorg::Screen>):
+
+ {
+ name => 'Xorg',
+ element => [
+             Device => {
+                        type => 'hash',
+                        index_type => 'string'
+                        cargo => {
+                                   type => 'node',
+                                   config_class_name => 'Xorg::Device'
+                                 },
+                       },
+             Screen => {
+                        type => 'hash',
+                        index_type => 'string'
+                        cargo => {
+                                  type => 'node',
+                                  config_class_name => 'Xorg::Screen'
+                                 },
+                       },
+          ]
+ }
+
+
+=head1 Configuration wizard
+
+Both Perl/Tk and Curses interfaces feature a configuration wizard
+generated from a configuration model.
+
+The wizard works by exploring the configuration tree and stopping on
+each I<important> element and on each error (mostly missing mandatory
+parameter). The exploration will also respect the I<experience>
+parameter. I.e. a wizard run with I<master> experience (see
+Option->Experience menu in the Perl/Tk interface) will show more
+parameters than running the interface with I<beginner> experience.
+
+When designing a model, you will have to think about each element:
+
+=over
+
+=item *
+
+The expertise required to tinker with this parameter and set
+I<experience> to the right level, either master, advanced or beginner
+(default).
+
+=item *
+
+The importance level of the parameter (important, normal or
+hidden). I<level> is used to set how configuration data is presented
+to the user in wizard and browsing mode. Important elements will be
+shown in the wizard. hidden elements will be explained with the warp
+notion in L<Creating a model with advanced features|Config::Model::Manual::ModelCreationAdvanced>.
+
+=back
+
+=head1 Reading configuration files
+
+Once the model is specified, Config::Model can generate a nice user
+interface, but there's still no way to load or write the configuration
+file.
+
+For Config::Model to read the file, the model designer must declare in
+the model how to read the file (the read backend).
+
+The read method can use one or more of the following mechanisms:
+
+=over
+
+=item *
+
+Built-in, e.g Perl file, Ini file...
+
+=item *
+
+A plugin, i.e. a Perl C<Config::Model::Backend::*> class like C<Config::Model::Backend::Augeas>
+
+=item *
+
+A custom class where a read call-back must be provided
+
+=back
+
+For more details, see L<Config::Model::AutoRead>.
+
+The name of the backend parameter must be specified in all cases.
+
+=head2 Using built-in read mechanism
+
+C<Config::Model> comes with 3 read/write built in mechanisms:
+
+=over
+
+=item perl_file
+
+A perl data structure (like the ones produced by L<Data::Dumper>). 
+See L<Config::Model::DumpAsData> for details.
+
+=item ini_file
+
+Windows INI file (note that only simple tree structure can use this backend)
+
+=item cds_file
+
+Config::Model own serialisation format (a bit like YAML). 
+See L<Config::Model::Dumper> for details.
+
+=back
+
+With the backend name, the following parameters must be defined:
+
+=over
+
+=item config_dir
+
+The configuration directory
+
+=item file
+
+Config file name (optional). defaults to C<< <config_class_name>.[pl|ini|cds] >>
+
+=back
+
+   read_config  => [ { backend    => 'cds_file' , 
+                       config_dir => '/etc/cfg_dir',
+                       file       => 'cfg_file.cds', # optional
+                   } ],
+
+See L<Config::Model::AutoRead.pm/Built-in_backend> for details
+
+Note that these parameters can also be set with the graphical
+configuration model editor.
+
+=head2 Using a plugin read mechanism
+
+A plugin backend class can also be specified with:
+
+  read_config  => [ { backend    => 'foo' , 
+                      config_dir => '/etc/cfg_dir'
+                  } ]
+
+In this case, Config::Model will try to load C<Config::Model::Backend::Foo>.
+(The class name is constructed with C<ucfirst($backend_name)>)
+
+C<read_config> can also have custom parameters that will passed
+verbatim to C<Config::Model::Backend::Foo> methods:
+
+  read_config  => [ { backend    => 'foo' , 
+                      config_dir => '/etc/cfg_dir',
+                      my_param   => 'my_value',
+                  } ]
+
+This C<Config::Model::Backend::Foo> class is expected to provide the following methods:
+
+=over
+
+=item  new
+
+=item  read
+
+=item  write
+
+=back
+
+Their signatures are explained in 
+L<Config::Model::AutoRead doc on plugin backends|Config::Model::AutoRead/Plugin_backend_classes>
+
+=head2 Using a custom class
+
+In case the plugin mechanism is not possible, a class with an
+arbitrary name can be specified:
+
+    read_config  => [ { backend => 'custom' , 
+                        class => 'MyRead',
+                        config_dir => '/etc/foo', # optional
+                        file => 'foo.conf',       # optional
+                    } ]
+
+Even the read method can haave an arbitrary name by specifying a
+C<function> parameters.
+
+For more details on available parameters on custom backends, see 
+L<Config::Model::AutoRead doc on custom backends|Config::Model::AutoRead/Custom_backend>
+
+=head2 Using several read mechanisms
+
+Several read mechanism can be specified to enable:
+
+=over
+
+=item *
+
+Migration from one syntax to another
+
+=item *
+
+Usage of different librairies (e.g. L<Augeas|http://augeas.net> or pure Perl backend)
+
+=back
+
+For instance, to try Augeas and fall back on a custom class in acse of problem, specify:
+
+  read_config => [ {
+                     save => 'backup',
+                     file => 'sshd_config',
+                     backend => 'augeas',
+                     config_dir => '/etc/ssh'
+                   },
+                   {
+                     function => 'sshd_read',
+                     backend => 'custom',
+                     class => 'Config::Model::OpenSsh',
+                     config_dir => '/etc/ssh'
+                 } ],
+
+
+Both specifications are tried in order. If Augeas backend fails
+(e.g. Augeas is not installed), the custom backend will be used.
+
+An exception will be raised if both methods fails. This behavior is
+correct for OpenSsh, but it can be a problem if you want to use
+Config::Model to create a configuration file from scratch. In this
+case you will also have to specify the C<auto_create> parameter:
+
+ read_config => [ { backend => 'custom' , 
+                    class => 'ProcessRead' ,
+                    config_dir => '/etc/foo',
+                    file  => 'foo.conf',
+                    auto_create => 1,
+                } ],
+
+=head1 Writing configuration files
+
+Read and write specifications were designed to be very similar. Most
+of the times, the I<read> and I<write> specification will be
+identical. In this case, there's no need to enter them: the data
+specified in the I<read> specification will be used to write the
+configuration file.
+
+Here's an example:
+
+  write_config => [ { backend => 'custom', 
+                      class => 'NewFormat' 
+                      function => 'my_write',
+                    } 
+                  ],
+
+
+Several I<write> specification can be used. They are tried in order,
+until the first succeeds.
+
+For more information, see 
+L<write specification doc|Config::Model::AutoRead.pm/write_specification>
+
+=head1 Syntax migration example
+
+By combining multiple read specification with I<'one>' write
+specification, a configuration file can be migrated from old to new
+syntax. The following example will migrate a configuration file from a
+custom syntax to a perl data file:
+
+  { 
+  name => 'Example',
+  element => [ ... ] ,
+  read_config  => [ { backend => 'perl_file', 
+                      config_dir => '/etc/my_cfg/' 
+                    } , 
+                    { backend => 'custom', 
+                      class => 'Bar' 
+                    }, 
+                  ],
+  write_config => [ { backend => 'perl_file', 
+                      config_dir => '/etc/my_cfg/' 
+                    }
+                  ],
+
+How does this work ? Here's the sequence:
+
+=over
+
+=item 1.
+
+Configuration is stored in old file C</etc/my_cfg/bar.conf>
+
+=item 1.
+
+Config::Model tries to read the config with I<perl_file> read backend
+and looks for C</etc/my_cfg/example.pl>. This file is not found so the
+read fails.
+
+=item 1.
+
+Config::Model tries the second backend which succeeds and load
+configuration data in the configuration tree
+
+=item 1.
+
+Config::Model writes data back from configuration tree using
+I<write_config> backend which writes C</etc/my_cfg/example.pl>
+
+=item 1.
+
+At the next invocation, the first I<read> backend will successfully
+read the perl configuration file. The old file is left alone and can
+be removed later by the sys admin.
+
+=back
+
+Thanks to this mechanism, this operation is idempotent so it can
+safely be scripted in package scriplets.
+
+=head1 SEE ALSO
+
+=over
+
+=item *
+
+More complex models: L<Config::Model::Manual::ModelCreationAdvanced>
+
+=item *
+
+L<Config::Model::Manual::ModelForUpgrade>: Writing a model for configuration upgrades
+
+=item *
+
+L<Configuration upgrades within Debian packages|http://wiki.debian.org/PackageConfigUpgrade>
+
+=back
+
+=head1 Feedback welcome
+
+Feel free to send comments and suggestion about this page at
+
+ config-model-users at lists dot sourceforge dot net.
+
+=head1 AUTHORS
+
+Dominique Dumont <ddumont at cpan.org>
