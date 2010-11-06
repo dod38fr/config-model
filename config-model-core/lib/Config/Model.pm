@@ -29,7 +29,9 @@ use vars qw(@status @level @experience_list %experience_index
 Config::Model - Create tools to validate, migrate and edit configuration files
 
 =head1 SYNOPSIS
-  
+
+=head2 Perl program
+
  use Config::Model;
  use Log::Log4perl qw(:easy) ;
  Log::Log4perl->easy_init($WARN);
@@ -61,6 +63,31 @@ Config::Model - Create tools to validate, migrate and edit configuration files
  $instance -> write_back;
 
  # now look for new mini.ini file un current directory
+
+=head2 More convenient
+
+ $ mkdir -p lib/Config/Model/models/
+ $ echo "[ { name => 'MiniModel',
+             element => [ [qw/foo bar baz/ ] => { type => 'leaf', value_type => 'uniline' }, ],
+             read_config => { backend => 'IniFile', auto_create => 1,
+                              config_dir => '.', file => 'mini.ini',
+                            }
+           }
+         ] ; " > lib/Config/Model/models/MiniModel.pl
+ $ config-edit -model MiniModel -model_dir lib/Config/Model/models/ -ui none bar=BARV foo=FOOV baz=BAZV
+ $ cat mini.ini
+
+=head2 Look Ma, no Perl
+
+ $ echo "Make sure that Config::Model::Itself is installed"
+ $ mkdir -p lib/Config/Model/models/
+ $ config-model-edit -model MiniModel -save \
+   class:MiniModel element:foo type=leaf value_type=uniline - \
+   element:bar type=leaf value_type=uniline - \
+   element:baz type=leaf value_type=uniline - \
+   read_config:0 backend=IniFile file=mini.ini config_dir=. auto_create=1 - - -
+ $ config-edit -model MiniModel -model_dir lib/Config/Model/models/ -ui none bar=BARV foo=FOOV baz=BAZV
+ $ cat mini.ini
 
 =head1 DESCRIPTION
 
@@ -121,13 +148,13 @@ will be made of 3 parts :
 
 =over
 
-=item 1
+=item 1.
 
 A reader and writer that will parse the configuration file and transform
 in a tree representation within Config::Model. The values contained in this
 configuration tree can be written back in the configuration file(s).
 
-=item 2
+=item 2.
 
 A validation engine which is in charge of validating the content and
 structure of configuration stored in the configuration tree. This
@@ -135,7 +162,7 @@ validation engine will follow the structure and constraint declared in
 a configuration model. This model is a kind of schema for the
 configuration tree.
 
-=item 3
+=item 3.
 
 A user interface to modify the content of the configuration tree. A
 modification will be validated instantly by the validation engine.
@@ -191,7 +218,7 @@ enum like type, default value ...)
 
 The targeted audience (beginer, advanced, master)
 
--=item *
+=item *
 
 The on-line help
 
@@ -432,7 +459,7 @@ classes). But they must be declared as a DAG (directed acyclic graph).
 
 Each configuration class declaration specifies:
 
-=over 8
+=over
 
 =item *
 
@@ -456,7 +483,7 @@ Each element will specify:
 
 =over
 
-=item 8
+=item *
 
 Most importantly, the type of the element (mostly C<leaf>, or C<node>)
 
@@ -1900,7 +1927,7 @@ Dominique Dumont, (ddumont at cpan dot org)
 
 L<Config::Model::Instance>,
 
-http://sourceforge.net/apps/mediawiki/config-model/index.php?title=Creating_a_model
+L<http://sourceforge.net/apps/mediawiki/config-model/index.php?title=Creating_a_model>
 
 =head2 Model elements
 

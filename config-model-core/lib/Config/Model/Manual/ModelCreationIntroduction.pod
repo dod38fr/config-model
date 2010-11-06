@@ -923,7 +923,7 @@ specification, a configuration file can be migrated from old to new
 syntax. The following example will migrate a configuration file from a
 custom syntax to a perl data file:
 
-  { 
+ { 
   name => 'Example',
   element => [ ... ] ,
   read_config  => [ { backend => 'perl_file', 
@@ -937,6 +937,7 @@ custom syntax to a perl data file:
                       config_dir => '/etc/my_cfg/' 
                     }
                   ],
+ }
 
 How does this work ? Here's the sequence:
 
