@@ -1868,6 +1868,43 @@ sub list_one_class_element {
     return $res ;
 }
 
+=head1 Available models
+
+=cut
+
+sub available_models {
+    my $self = shift ; 
+    
+    my $path = $INC{"Config/Model.pm"} ;
+    $path =~ s/\.pm// ;
+    my (%categories, %models ) ;
+
+    get_logger("Model")->trace("available_models: path is $path");
+    foreach my $dir (glob("$path/*.d")) {
+        my ($cat) = ( $dir =~ m!.*/([\w\-]+)\.d! );
+        
+        get_logger("Model")->trace("available_models: category dir $dir");
+        
+        foreach my $file (sort glob("$dir/*")) {
+            next if $file =~ m!/README! ;
+            my ($name) = ($file =~ m!.*/([\w\-]+)! );
+            get_logger("Model")->debug("available_models: opening file $file");
+            open (F, $file) || die "Can't open file $file:$!" ;
+            while (<F>) {
+                chomp ;
+                s/^\s+// ;
+                s/\s+$// ;
+                s/#.*// ;
+                my ($k,$v) = split /\s*=\s*/ ;
+                next unless $v ;
+                push @{$categories{$cat}} , $name if $k =~ /model/i;
+                $models{$name}{$k} = $v ; 
+            }
+        }
+    }
+    return \%categories, \%models ;
+}
+
 =head1 Error handling
 
 Errors are handled with an exception mechanism (See

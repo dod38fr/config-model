@@ -1,7 +1,7 @@
 # -*- cperl -*-
 
 use ExtUtils::testlib;
-use Test::More tests => 7;
+use Test::More tests => 11 ;
 use Test::Exception ;
 use Test::Warn ;
 use Config::Model;
@@ -25,6 +25,13 @@ Log::Log4perl->easy_init($arg =~ /l/ ? $TRACE: $WARN);
 ok(1,"compiled") ;
 
 my $model = Config::Model -> new()  ;
+
+my ($cat,$models) = $model->available_models ;
+
+is_deeply($cat->{system},['popcon'],"check available system models");
+is($models->{popcon}{model},'Popcon',"check available popcon");
+is_deeply($cat->{application}, ['dpkg-control', 'dpkg-copyright' ] ,"check available application models");
+is($models->{'dpkg-copyright'}{model},'Debian::Dpkg::Copyright',"check available dpkg-copyright");
 
 my $class_name = $model->create_config_class 
   (

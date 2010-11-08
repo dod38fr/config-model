@@ -274,19 +274,31 @@ if ($> and $dev) {
 
 Config::Model::Exception::Any->Trace(1) if $trace ;
 
-die "Unspecified root configuration model (option -model)\n"
-  unless defined $root_model ;
-
 if (defined $root_dir && ! -e $root_dir) {
     mkdir $root_dir, 0755 || die "can't create $root_dir:$!";
 }
 
 my $model = Config::Model -> new(model_dir => $model_dir) ;
 
+my ($categories,$models) = $model->available_models ;
+
+if (not defined $root_model or $root_model eq 'help') {
+    print "Please specify one of the following models with -model option:\n";
+    foreach my $cat (keys %$categories) {
+        my $names = $categories->{$cat} || [];
+        next unless @$names ;
+        print "$cat:\n\t",join ("\n\t", @$names),"\n";
+    }       
+    exit 1;
+}
+
 $instance_name = $root_model unless defined $instance_name ;
 
+# use name found by available_models if found
+$root_model = $models->{$root_model}{model} || $root_model ;
+
 my $inst = $model->instance (root_class_name => $root_model ,
-			     instance_name   => $root_model ,
+			     instance_name   => $instance_name ,
 			     root_dir        => $root_dir ,
 			     force_load      => $force_load,
 			     skip_read       => $load ? 1 : 0,
@@ -383,7 +395,7 @@ elsif ($ui_type eq 'tk') {
     my $cmu = $mw->ConfigModelUI (-root => $root, -experience => $experience) ;
 
     if ($open_item) {
-        my $obj = $meta_root->grab($open_item) ;
+        my $obj = $root->grab($open_item) ;
         $cmu->force_element_display($obj) ;
     }
 
