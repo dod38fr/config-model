@@ -1873,11 +1873,10 @@ sub list_one_class_element {
 =cut
 
 sub available_models {
-    my $self = shift ; 
-    
+   
     my $path = $INC{"Config/Model.pm"} ;
     $path =~ s/\.pm// ;
-    my (%categories, %models ) ;
+    my (%categories, %model_info, %models ) ;
 
     get_logger("Model")->trace("available_models: path is $path");
     foreach my $dir (glob("$path/*.d")) {
@@ -1898,11 +1897,12 @@ sub available_models {
                 my ($k,$v) = split /\s*=\s*/ ;
                 next unless $v ;
                 push @{$categories{$cat}} , $name if $k =~ /model/i;
-                $models{$name}{$k} = $v ; 
+                $model_info{$name}{$k} = $v ; 
+                $models{$name} = $v if $k =~ /model/i; 
             }
         }
     }
-    return \%categories, \%models ;
+    return \%categories, \%model_info, \%models ;
 }
 
 =head1 Error handling

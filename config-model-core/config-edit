@@ -240,6 +240,7 @@ my $dumptype;
 my $load;
 my $force_save = 0;
 my $open_item = '';
+my $list_models = 0 ;
  
 my $result = GetOptions ("ui|if=s"          => \$ui_type,
 			 "model_dir=s"      => \$model_dir,
@@ -260,11 +261,18 @@ my $result = GetOptions ("ui|if=s"          => \$ui_type,
                          "load=s"           => \$load,
 			 'save!'            => \$force_save ,
 			 "open_item=s"      => \$open_item ,
+			 "list_models"      => \$list_models ,
 			);
 
 pod2usage(2) if not $result ;
 pod2usage(1) if $help;
 pod2usage(-verbose => 2) if $man;
+
+if ($list_models) {
+    my @i = Config::Model::available_models ;
+    print join( ' ',  %{$i[2]} ),"\n";
+    exit ;
+}
 
 # ignore $dev if run as root
 if ($> and $dev) {
