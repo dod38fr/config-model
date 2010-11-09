@@ -1,3 +1,10 @@
+2010-11-09 Dominique Dumont  <domi.dumont@free.fr> 1.219
+
+        * config-edit: fixed syntax error
+        * replaced command lines generated from template by bash-autocompletion.
+        * Removed dependency on Text::Template
+        * Added Config::Model::Manual::ModelCreationIntroduction doc from SF wiki
+
 2010-11-05 Dominique Dumont  <domi.dumont@free.fr> 1.218
 
         * Moved doc from README into model.pm

@@ -184,8 +184,13 @@ useful to migrate a model when Config::Model model feature changes.
 
 Directory where to read and write model
 
-=back
+=item -open_item 'path'
 
+In graphical mode, force the UI to open the node specified. E.g.
+
+ -open_item 'class:Fstab::FsLine element:fs_mntopts rules'
+
+=back
 
 =cut
 
@@ -217,6 +222,7 @@ my $load_yaml ;
 my $save = 0;
 my $load ;
 my $model_modified = 0;
+my $open_item = '';
 
 my $result = GetOptions (
 			 "dir=s"            => \$model_dir,
@@ -234,6 +240,7 @@ my $result = GetOptions (
                          "load=s"           => \$load,
                          "load_yaml=s"      => \$load_yaml,
 			 "dump_yaml!"       => \$do_yaml ,
+			 "open_item=s"      => \$open_item ,
 			);
 
 pod2usage(2) if not $result ;
@@ -354,6 +361,11 @@ my $cmu = $mw->ConfigModelEditUI (-root      => $meta_root,
 				  -model_name => $root_model,
 				  -model_modified => $model_modified,
 				 ) ;
+
+if ($open_item) {
+    my $obj = $meta_root->grab($open_item) ;
+    $cmu->force_element_display($obj) ;
+}
 
 &MainLoop ; # Tk's
 
