@@ -1,0 +1,46 @@
+# config-edit(1) completion
+#
+
+_config-edit_models()
+{
+   MODELS=$(perl -Ilib config-edit -list)
+   COMPREPLY=( $( compgen -W "$MODELS" -- $cur ) )
+}
+
+_config-edit_options()
+{
+    COMPREPLY=( $( compgen -W '-model -ui -dev -model_dir -root_dir -force_load -backend -dump -dumptype -load -save' -- $cur ) )
+}
+
+_config-edit()
+{
+    local cur
+
+    COMPREPLY=()
+    _get_comp_words_by_ref -n : cur prev
+    
+    case $prev in
+        -model)
+            _config-edit_models
+            ;;
+        -ui)
+            compgen -W 'none tk curses shell' -- $cur
+            ;;
+        -model_dir|-root_dir)
+            _filedir -d
+            ;;
+        -dumptype)
+            compgen -W 'full preset custom' -- $cur
+            ;;
+        -load)
+            _filedir '.cds'
+            ;;
+    esac
+    
+    if [[ $COMP_CWORD -eq 1 ]] ; then
+        _config-edit_options
+    else
+        return 0
+    fi
+}
+complete -F _config-edit config-edit
