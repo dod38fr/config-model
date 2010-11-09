@@ -947,23 +947,23 @@ How does this work ? Here's the sequence:
 
 Configuration is stored in old file C</etc/my_cfg/bar.conf>
 
-=item 1.
+=item 2.
 
 Config::Model tries to read the config with I<perl_file> read backend
 and looks for C</etc/my_cfg/example.pl>. This file is not found so the
 read fails.
 
-=item 1.
+=item 3.
 
 Config::Model tries the second backend which succeeds and load
 configuration data in the configuration tree
 
-=item 1.
+=item 4.
 
 Config::Model writes data back from configuration tree using
 I<write_config> backend which writes C</etc/my_cfg/example.pl>
 
-=item 1.
+=item 5.
 
 At the next invocation, the first I<read> backend will successfully
 read the perl configuration file. The old file is left alone and can
