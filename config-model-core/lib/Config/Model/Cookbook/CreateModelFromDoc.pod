@@ -1,0 +1,272 @@
+=pod
+
+=head1 NAME
+
+Create a configuration model for application documentation
+
+=head1 Introduction
+
+This page shows step by step how was created Popcon's model from
+Popcon documentation provided as comments in Popcon's sample
+configuration file.
+
+=head1 Popcon configuration file
+
+A quick looks in C</etc> directory shows that Popcon's configuration
+is stored in C</etc/popularity-contest.conf</t>:
+
+ # Config file for Debian's popularity-contest package.
+ #
+ # To change this file, use:
+ #        dpkg-reconfigure popularity-contest
+ #
+ # You can also edit it by hand, if you so choose.
+ #
+ # See /usr/share/popularity-contest/default.conf for more info
+ # on the options.
+ 
+ MY_HOSTID="172921501FFFFFAAAA6897etc"
+ PARTICIPATE="yes"
+ USEHTTP="yes"
+ DAY="5"
+
+The important part is the mention of C<default.conf> which contains
+all the required information to create Popcon's configuration model.
+
+=head1 Popcon documentation
+
+Let's start from C<default.conf> file. Since this file is loaded
+by popconf I<before> loading C</etc/popularity-contest.conf</t>,
+all values there can be used as application default values (aka
+I<upstream_default>):
+
+ # Default config file for Debian's popularity-contest package.
+ #
+ # Local overrides are in /etc/popularity-contest.conf
+ 
+ # PARTICIPATE can be one of "yes" or "no".
+ # If you don't want to participate in the contest, say "no"
+ # and we won't send messages.
+ #
+ # If this option is missing, the default is "no".
+ #
+ PARTICIPATE="no"
+ 
+ # MAILTO specifies the address to e-mail statistics to each week.
+ #
+ MAILTO="survey@popcon.debian.org"
+ 
+ # MAILFROM is the forged sender email address you want to use in
+ # email submitted to the popularity-contest.  If this is commented
+ # out, no From: or Sender: lines will be added to the outgoing mail,
+ # and it will be your MTA's job to add them.  This is usually what
+ # you want.
+ #
+ # If your MTA is misconfigured or impossible to configure correctly,
+ # and it always generates invalid From: and/or Sender: lines, you
+ # can force different results by setting MAILFROM here.  This can
+ # cause problems with spam bouncers, so most people should leave it
+ # commented out.
+ #
+ #MAILFROM="root@example.org"
+ 
+ # SUBMITURLS is a space separated list of where to submit
+ # popularity-contest reports using http.
+ SUBMITURLS="http://popcon.debian.org/cgi-bin/popcon.cgi"
+ 
+ # USEHTTP enables http reporting.   Set this to 'yes' to enable it.
+ USEHTTP="yes"
+ 
+ # HTTP_PROXY allows to specify an HTTP proxy server, the syntax is
+ # HTTP_PROXY="http://proxy:port". This overrides the environment
+ # variable http_proxy.
+ 
+ # MY_HOSTID is a secret number that the popularity-contest receiver
+ # uses to keep track of your submissions.  Whenever you send in a
+ # new entry, it overwrites the last one that had the same HOSTID.
+ #
+ # This key was generated automatically so you should normally just
+ # leave it alone.
+ #
+ #MY_HOSTID="_ID_"
+
+This file contains everything we need:
+
+=over
+
+=item *
+
+Parameter names
+
+=item *
+
+Documentation 
+
+=item *
+
+Default values
+
+=back
+
+Now, we will use our favorite editor to edit this file and add YAML
+tags that can be understood by C<config-model-edit>
+
+=head1 Creating the YAML skeleton
+
+C<config-model-edit> is able to load a model described in
+YAML. To do this the above file needs to be translated in YAML. That's
+not as complicated as it may sound.
+
+First, a YAML file must begin with B<--->. Then the class must be declared:
+
+ ---
+ class:
+   PopCon:
+
+Note that, like with Python language, the indentation is important to
+define the structure of the file. Here, the PopCon class is followed by
+a ':' as it defines a new hierarchical level to describes the
+configuration elements of this class:
+
+     element:
+
+Now we can deal with the configuration parameters. Let's detail the
+C<PARTICIPATE> element. Here's the spec in from C<default.conf>:
+
+ # PARTICIPATE can be one of "yes" or "no".
+ # If you don't want to participate in the contest, say "no"
+ # and we won't send messages.
+ #
+ # If this option is missing, the default is "no".
+ #
+ PARTICIPATE="no"
+
+In the YAML file, the comments are moved in the C<description> field and
+the value in the file is used as upstream default:
+
+      PARTICIPATE:
+        upstream_default: no
+        description: >
+         If you don't want to participate in the contest, 
+         say "no" and we won't send messages.
+
+Likewise for the remaining parameters:
+
+      MAILTO:
+        description: >
+         specifies the address to e-mail statistics to each week.
+        default: 'survey@popcon.debian.org'
+      MAILFROM:
+        description: >-
+         MAILFROM is the forged sender email address you want to use
+         in email submitted to the popularity-contest.  If this is
+         commented out, no From: or Sender: lines will be added to the
+         outgoing mail, and it will be your MTA's job to add them.  This
+         is usually what you want. 
+  
+  
+         If your MTA is misconfigured or
+         impossible to configure correctly, and it always generates
+         invalid From: and/or Sender: lines, you can force different
+         results by setting MAILFROM here.  This can cause problems with
+         spam bouncers, so most people should leave it commented out.
+
+In the description above, the chimping marker '-' after '>' is used to
+keep paragraph formatting in the help.
+
+      SUBMITURLS:
+        description: >
+         Space separated list of where to submit popularity-contest 
+         reports using http.
+        default: >
+         http://popcon.debian.org/cgi-bin/popcon.cgi
+        
+      USEHTTP:
+        description: >
+         enables http reporting.   Set this to 'yes' to enable it.
+        default: "yes"
+        
+      HTTP_PROXY:
+        description: >
+         allows to specify an HTTP proxy server, the syntax is 
+         "http://proxy:port". This overrides the environment variable 
+         http_proxy.
+        
+      MY_HOSTID:
+        description: >
+         secret number that the popularity-contest receiver uses to 
+         keep track of your submissions.  Whenever you send in a new 
+         entry, it overwrites the last one that had the same HOSTID.
+  
+         This key was generated automatically so you should normally 
+         just leave it alone.
+
+=head1 Loading the YAML skeleton
+
+Now that the YAML file was created, you can turn it into a model and
+load it in the model editor GUI with the following command:
+
+ config-model-edit -model PopCon -load_yaml popcon.yml -force
+
+Note that the model is incomplete: some mandatory parameters are
+missing from the YAML file so the I<-force> option must be used. These
+missing parameters are also flagged with a red cross in the GUI.
+
+=head1 Completing missing model parts
+
+To complete the model, the easiest way is to run the wizard to
+complete the missing values. In the GUI, you can use the menu
+C<< File -> wizard >> to launch the wizard. 
+Then click on the 'OK' button in
+the new window.
+
+The wizard will first stop on the parameter list (not because there's
+an error, but because the parameter list is flagged as I<important>)
+
+There, you can re-order the parameters by selecting one and clicking
+on one of the blue arrows to move it up or down. Once you're
+satisfied, click on I<Next>. 
+
+The widget will now stop on the first missing information. Just select
+the correct type ('leaf' here), click 'store' and 'Next'.
+
+You can repeat these steps until the wizard exits.
+
+=head1 Specifying read and write backend
+
+Once the model is complete, it's time to specify how to read and write the file. In
+Popcon class specification:
+
+=over
+
+=item * right-click on I<read_config>
+
+=item * click on I<push new node> to create a new read specification
+
+=item * right-click on the created item (I<0>)
+
+=back
+
+You will get a window showing you the parameters to fill to specify
+the read backend.
+
+Now fill the blank on the right side. The backend to use is
+I<ShellVar> since I<popularity-contest.conf> is made of shell
+variables.
+
+Since the write specification is identical, there's no need to specify
+it. Config::Model will do the right thing.
+
+=head1 Testing the model
+
+You can test the model by clicking on menu C<< Test -> Model >>. You
+will be shown the Popcon configuration editor GUI. The same that your
+users will get.
+
+If everything is fine, you can quit the model editor (menu File->quit)
+
+=head1 Specify the installation
+
+
+
+=head1 The resulting editor
