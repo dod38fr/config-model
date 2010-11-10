@@ -29,12 +29,15 @@ print "\nIf you want to use the TermUI interface, you should install\n",
 
 my @version_info = @ARGV ? (dist_version => $ARGV[0]) : () ;
 
+my %model_files = map { ($_, $_ ) } glob("lib/Config/Model/*.d/*") ;
+
 my $build = Module::Build -> new
   (
    module_name    => 'Config::Model',
    @version_info,
    license        => 'lgpl',
    script_files   => [ 'config-edit' ],
+   model_files => \%model_files ,
    dist_abstract  => 'Describe, edit and validate configuration data',
    dist_author    => 'Dominique Dumont (ddumont at cpan dot org)',
 
@@ -52,6 +55,7 @@ my $build = Module::Build -> new
    add_to_cleanup => [qw/PreGrammar.pm wr_root r_root/],
   );
 
-$build->add_build_element('tmpl');
 $build->add_build_element('pl');
+$build->add_build_element('model');
+
 $build->create_build_script;
