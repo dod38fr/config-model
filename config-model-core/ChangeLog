@@ -1,6 +1,7 @@
 2010-11-10 Dominique Dumont  <domi.dumont@free.fr> 1.220
 
 	* Fix Build.PL to install files found in lib/Config/Model/*.d
+	* Added Cookbook::CreateModelFromDoc from SF wiki
 
 2010-11-09 Dominique Dumont  <domi.dumont@free.fr> 1.219
 
