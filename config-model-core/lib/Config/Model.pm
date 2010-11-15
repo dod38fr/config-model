@@ -296,7 +296,7 @@ details.
 
 The "example" directory contains a configuration model example for the
 /etc/fstab file. This example includes a small program that use this
-model to show some ways to extract configuration informations.
+model to show some ways to extract configuration information.
 
 =head1 Mailing lists
 

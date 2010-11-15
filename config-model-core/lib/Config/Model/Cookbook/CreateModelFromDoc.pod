@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-Create a configuration model for application documentation
+Config::Model::Cookbook::CreateModelFromDoc - Create a configuration model for application documentation
 
 =head1 Introduction
 

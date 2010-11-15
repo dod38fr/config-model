@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-Introduction to model creation with Config::Model
+Config::Model::Manual::ModelCreationIntroduction - Introduction to model creation with Config::Model
 
 =head1 Introduction
 
