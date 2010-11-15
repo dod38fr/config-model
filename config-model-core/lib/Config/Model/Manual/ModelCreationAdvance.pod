@@ -1,0 +1,233 @@
+=pod
+
+=head1 NAME
+
+Config::Model::Manual::ModelCreationAdvanced - Creating a model with advanced features
+
+=head1 Introduction
+
+The page L<Config::Model::Manual::ModelCreationIntroduction> explains
+what is a configuration tree and a configuration model and how to
+create a simple configuration model.
+
+But a configuration model can be more complex and define interactions
+between elements with the following features:
+
+=over
+
+=item *
+
+Model warp. For instance, Xorg driver options change depending on
+driver name (I<nvidia>, I<radeon>...)
+
+=item *
+
+Simple computation from other elements (used for upgrades)
+
+=item *
+
+References. For instance, in C<Xorg::Device::Radeon>, I<Monitor-DVI-0>
+name must refer to one of the monitors declared in I<Monitor> section.
+
+=back
+
+Caveat: Xorg examples are based on Xorg 1.4 and may not be valid for
+Xorg 1.5 or 1.6
+
+=head1 Model warp
+
+From a user's point of view, model warp will look like the structure
+or properties of the configuration is changing (or adapting)
+dynamically depending on the values being entered. For instance, when
+changing a driver name from I<fglrx> to I<radeon>, some options will
+disappear from the GUI and some other options will pop-in.
+
+Model warping need not be that spectacular and can have more subtle
+effect like changing a default value.
+
+Of course, there's no magic, model warp properties needs to be
+prepared and declared in the model.
+
+=head2 Warped value
+
+Let's start simple with value warp: the properties of a single value
+is changed dynamically. Let's imagine a configuration file with 2
+values: I<size> which can be set to I<big> or I<small> and I<length>
+whose maximum value is 10 when size is small and 50 when size is
+big. (this may be dumb, but it's for the sake of the example).
+
+So the basic model without warp will be
+
+ element => [
+              size => { type => 'leaf',
+                        value_type => 'enum',
+                        choice     => ['big','small'],
+                      },
+              length => { type => 'leaf',
+                          value_type => 'integer',
+                          max => '10',
+                        },
+            ]
+
+Now we need to declare the relationship between I<size> and I<length> to
+be able to change dynamically the I<max> property.
+
+This setup is made of 2 specifications:
+
+=over
+
+=item *
+
+what is the element that will trigger the change (called I<warp master>
+in the doc)
+
+=item *
+
+what is the effect of the warp master change
+
+=back
+
+The first is done with a declaration of the I<path> to I<follow> to find
+the warp master (associated to a variable). The second is a set of
+value properties:
+
+ element => [ 
+   size => { 
+     type => 'leaf',
+     value_type => 'enum',
+     choice     => ['big','small'],
+   },
+
+   length => { 
+     type => 'leaf',
+     value_type => 'integer',
+     warp => {                         # change specification
+       follow => {                     # declare what trigger the change
+         size_type => '- size'         # size_type: go 1 level above and fetch
+                                       #            size value
+       },
+       rules  => {                     # how to apply change
+         '$size_type eq "small"' => {  # set max to 10 when size is small
+            max => 10 
+         },
+         '$size_type eq "big" ' => {   # set max to 50 when size is big
+             max => 50 },
+         },
+       },
+     }
+  ]
+
+=head2 Warp in or warp out an element
+
+Here's a real use case scenario from OpenSsh.
+
+C<ssh_config> enables a user to set up a tunnel through ssh. The input
+of this tunnel can listen to localhost (default) or to other hosts.
+These other hosts are specified by the I<bind_adress> part of the
+I<LocalForward> parameter.
+
+But this bind address is ignored if I<GatewayPorts> is false (which is
+the default).
+
+In order to present only meaningful parameters to the user,
+I<bind_address> parameter must be hidden when I<GatewayPorts> is false
+and shown when I<GatewayPorts> is true.
+
+Here's the recipe. First creeate a boolean element for C<GatewayPorts>:
+
+ GatewayPorts => {
+    type => 'leaf',
+    value_type => 'boolean',
+    upstream_default => 0,
+ },
+
+And I<LocalForward> that will provide I<bind_address> parameter:
+
+ LocalForward => {
+   type => 'list',
+   cargo => {
+     type => 'node',
+     config_class_name => 'Ssh::PortForward'
+   },
+   summary => 'Local port forwarding',
+   experience => 'advanced',
+ }
+
+In I<Ssh::PortForward> configuration class, declate I<bind_address> with the warp
+instructions:
+
+ bind_address => {
+   type => 'leaf',
+   value_type => 'uniline',
+   level => 'hidden',             # by default, is hidden from user
+   warp => {                      # instructions to show bind_address
+     follow => {                  # specify what does trigger the change
+        gp => '- - GatewayPorts'  # gp: go to 2 levels above in tree ('- -') and
+                                  #     fetch GatewayPorts value
+     },
+     rules => [                   # specify how to apply the change triggered by gp
+       '$gp' => {                 # apply change when $gp is true
+           level => 'normal'      # set level to normal (instead of 'hidden'). This change
+                                  #     will show this parameter in the UI
+       }
+     ]
+   },
+ },
+
+=head2 warped node
+
+Sometimes, warping a value line by line is not practical. For
+instance, in C</etc/fstab> the mount options of a file system change
+drastically from one file system to another. In this case, it's better
+to swap a configuration class with another.
+
+For instance, swap C<vfat> mount options with C<ext3> mount options
+when a file system is changed from C<vfat> to C<ext3>.
+
+Here's how this can be done. First declare the fstype parameter:
+
+ fs_vfstype => {
+   type => 'leaf',
+   mandatory => 1,
+   value_type => 'enum',
+   choice => [ 'auto', 'davfs', 'vfat', 'ext2', 'ext3', ] , # etc ...
+ }
+
+Then declare C<mntopts> as a B<warped_node> (not a simple C<node>))
+that will use C<fs_vfstype> to swap one config class with another:
+
+ fs_mntopts => {
+   type => 'warped_node', # a shape-shifting node
+   follow => {
+     f1 => '- fs_vfstype' , # use fs_vfstype as a trigger
+   },
+   rules => [
+     # condition     => effect: config class to swap in
+
+     "$f1 eq 'proc'" => { config_class_name => 'Fstab::CommonOptions' },
+     "$f1 eq 'auto'" => { config_class_name => 'Fstab::CommonOptions' },
+     "$f1 eq 'vfat'" => { config_class_name => 'Fstab::CommonOptions' },
+     "$f1 eq 'swap'" => { config_class_name => 'Fstab::SwapOptions'   },
+     "$f1 eq 'ext3'" => { config_class_name => 'Fstab::Ext3FsOpt'     },
+     # etc ...
+   ]
+  }
+
+=head1 References
+
+=head1 Computation and migrations
+
+=head2 Cascaded warp
+
+Config::Model also supports cascaded warps: A warped value is
+dependent on another value which is itself a warped value.
+
+=head1 Feedback welcome
+
+Feel free to send comments and suggestion about this page at
+
+ config-model-users at lists dot sourceforge dot net.
+
+=head1 AUTHORS
+
+Dominique Dumont <ddumont at cpan.org>
