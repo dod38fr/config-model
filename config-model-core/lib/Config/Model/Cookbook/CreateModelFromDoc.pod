@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-Config::Model::Cookbook::CreateModelFromDoc - Create a configuration model for application documentation
+Config::Model::Cookbook::CreateModelFromDoc - Create a configuration model from application documentation
 
 =head1 Introduction
 
@@ -243,7 +243,7 @@ Popcon class specification:
 
 =item * click on I<push new node> to create a new read specification
 
-=item * right-click on the created item (I<0>)
+=item * right-click on the created item (shown at index "I<0>")
 
 =back
 
@@ -265,8 +265,20 @@ users will get.
 
 If everything is fine, you can quit the model editor (menu File->quit)
 
-=head1 Specify the installation
+=head1 The resulting model
 
+The model you have just created is stored in C<lib/Config/Model/models/Popcon.pl>.
 
+You can test directly this model with :
 
-=head1 The resulting editor
+  config-edit -dev -model Popcon
+
+=head1 Feedback welcome
+
+Feel free to send comments and suggestion about this page at
+
+ config-model-users at lists dot sourceforge dot net.
+
+=head1 AUTHORS
+
+Dominique Dumont <ddumont at cpan.org>
