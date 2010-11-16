@@ -108,12 +108,14 @@ sub Populate {
 
     }
     else {
-	my $disp = $cargo_type ;
-	$disp .= ' ('.$list->config_class_name.')' if $cargo_type eq 'node' ;
-	$disp .= " ($value_type)" if defined $value_type ;
-	$right_frame->Button(-text => "Push new $disp",
-			     -command => sub { $cw->push_entry('') ;} ,
-			    )-> pack( @fxe1);
+        my $elt_name = $list->element_name ;
+	my $disp = "$elt_name ( $cargo_type ";
+	$disp .=  $list->config_class_name.' )' if $cargo_type eq 'node' ;
+	$disp .= " $value_type )" if defined $value_type ;
+	my $b = $right_frame->Button(-text => "Push new $disp",
+                                     -command => sub { $cw->push_entry('') ;} ,
+                                    )-> pack( @fxe1);
+        $balloon->attach($b, -msg => "add a new $elt_name at the end of the list");
     }
 
 

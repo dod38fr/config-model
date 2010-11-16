@@ -1,3 +1,5 @@
+	* ListEditor: changed label of push button (minor)
+
 2010-11-05  Dominique Dumont  <domi.dumont@free.fr> 1.317
 
         * TkUi.pm: in Tk::Error call Show on Dialog to avoid masking errors
@@ -9,7 +11,7 @@
 
 2010-10-19  Dominique Dumont  <domi.dumont@free.fr> 1.315
 
-	* Do no check value when creating widgets. Values will be checked 
+	* Do no check value when creating widgets. Values will be checked
 	  when saving file
 	* ListEditor: update 'set selected' entry when a list item is selected"
 
@@ -18,7 +20,7 @@
 	* removed stuff obsoleted by Config::Model 1.212
 	* Depends on Config::Model 1.212
 	* added utf8 characters in tests
-	
+
 2010-10-08  Dominique Dumont  <domi.dumont@free.fr> 1.313
 
 	* Added display of configuration warnings provided by
