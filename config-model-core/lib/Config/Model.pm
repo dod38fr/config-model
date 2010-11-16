@@ -1876,7 +1876,7 @@ sub available_models {
    
     my $path = $INC{"Config/Model.pm"} ;
     $path =~ s/\.pm// ;
-    my (%categories, %model_info, %models ) ;
+    my (%categories, %appli_info, %applications ) ;
 
     get_logger("Model")->trace("available_models: path is $path");
     foreach my $dir (glob("$path/*.d")) {
@@ -1886,7 +1886,7 @@ sub available_models {
         
         foreach my $file (sort glob("$dir/*")) {
             next if $file =~ m!/README! ;
-            my ($name) = ($file =~ m!.*/([\w\-]+)! );
+            my ($appli) = ($file =~ m!.*/([\w\-]+)! );
             get_logger("Model")->debug("available_models: opening file $file");
             open (F, $file) || die "Can't open file $file:$!" ;
             while (<F>) {
@@ -1896,13 +1896,13 @@ sub available_models {
                 s/#.*// ;
                 my ($k,$v) = split /\s*=\s*/ ;
                 next unless $v ;
-                push @{$categories{$cat}} , $name if $k =~ /model/i;
-                $model_info{$name}{$k} = $v ; 
-                $models{$name} = $v if $k =~ /model/i; 
+                push @{$categories{$cat}} , $appli if $k =~ /model/i;
+                $appli_info{$appli}{$k} = $v ; 
+                $applications{$appli} = $v if $k =~ /model/i; 
             }
         }
     }
-    return \%categories, \%model_info, \%models ;
+    return \%categories, \%appli_info, \%applications ;
 }
 
 =head1 Error handling
@@ -1934,6 +1934,12 @@ Set C<$::verbose> to 1 to get verbose messages on STDOUT.
 
 Depending on available time, a better log/error system may be
 implemented.
+
+=head1 BUGS
+
+Given Murphy's law, the author is fairly confident that you will find bugs or miss some features. Please report thems 
+config-model at rt.cpan.org, or through the web interface at https://rt.cpan.org/Public/Bug/Report.html?Queue=config-model .
+The author will be notified, and then you'll automatically be notified of progress on your bug.
 
 =head1 AUTHOR
 

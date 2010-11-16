@@ -83,34 +83,67 @@ config-edit - Edit data of configuration managed by Config::Model
 
 =head1 SYNOPSIS
 
-  config-edit [options] -model Fstab [ commands  ... ]
+  config-edit [options] ( -application popcon | -model Popcon ) [ ... ] [ commands  ... ]
 
 =head1 DESCRIPTION
 
-Config-model is a general purpose configuration framework.
-
-The config-edit program will use Config::Model configuration
-descriptions to provide a user interface so user can easily and
-securely modify the configuration of their system.
+C<config-edit> program will use Config::Model configuration
+descriptions to validate or modify the configuration file of an application.
 
 You can specify commands as arguments that will be run on the
 configuration root before launching the UI. These command follow the
 syntax defined in L<Config::Model::Loader>.
 
+C<config-edit> can be run in several modes depending on your needs.
+
+=head2 Graphical interface
+
+  config-edit -application popcon
+
+Provides a user interface so user can easily and
+securely modify the configuration of their system.
+
+=head2 Curses interface
+
+  config-edit -ui curses -application popcon
+
+Provides a curses user interface
+
+=head2 Shell like interface
+
+  config-edit -ui shell -application popcon
+  
+Provides a shell like interface
+
+=head2 upgrade mode
+
+  config-edit -ui none -application popcon -saved
+
+Loads configuration date, perform validation and migration of old data 
+(if specified by the model) and save the new configuration file.
+
+=head2 Direct modification of configuration data
+
+  config-edit -ui none -application popcon PARTICIPATE=yes
+
+Loads old configuration data, update C<PARTICIPATE> data, checks the modification 
+and save the configuration back. Option C<-save> is not needed as the data was modified
+by the command line.
+
+
+
 =head1 Options
 
 =over
 
+=item application
+
+Application name to be configured. 
+
 =item -model
 
-Mandatory option that specifies the configuration data to be
-edited. The model must be available in C</etc/config-model.d/>
-directory in a C<.pl> file. E.g. this command:
-
-  config-edit -model Fstab
-
-will look for C</etc/config-model.d/Fstab.pl> model file. See
-L<Config::Model> for more details.
+Specifies the model used to edit configuration data. 
+This option is ignored when C<-application> is specified
 
 =item -ui
 
@@ -241,9 +274,11 @@ my $load;
 my $force_save = 0;
 my $open_item = '';
 my $list_models = 0 ;
+my $application ;
  
 my $result = GetOptions ("ui|if=s"          => \$ui_type,
 			 "model_dir=s"      => \$model_dir,
+			 "application=s"    => \$application,
 			 "model=s"          => \$root_model,
 			 "verbose!"         => \$verbose,
 			 "experience=s"     => \$experience ,
@@ -278,6 +313,7 @@ if ($list_models) {
 if ($> and $dev) {
     unshift @INC,'lib' ;
     $model_dir = 'lib/Config/Model/models/' ;
+    warn "-dev option is ignored when run as root\n" ;
 }
 
 Config::Model::Exception::Any->Trace(1) if $trace ;
@@ -288,10 +324,12 @@ if (defined $root_dir && ! -e $root_dir) {
 
 my $model = Config::Model -> new(model_dir => $model_dir) ;
 
-my ($categories,$models) = $model->available_models ;
+my ($categories,$appli_info,$appli_map) = $model->available_models ;
+
+$root_model = $appli_map->{$application} if defined $application and defined $appli_map->{$application} ;
 
 if (not defined $root_model or $root_model eq 'help') {
-    print "Please specify one of the following models with -model option:\n";
+    print "Please specify one of the following application with -application option:\n";
     foreach my $cat (keys %$categories) {
         my $names = $categories->{$cat} || [];
         next unless @$names ;
@@ -303,7 +341,7 @@ if (not defined $root_model or $root_model eq 'help') {
 $instance_name = $root_model unless defined $instance_name ;
 
 # use name found by available_models if found
-$root_model = $models->{$root_model}{model} || $root_model ;
+$root_model = $appli_info->{$root_model}{model} || $root_model ;
 
 my $inst = $model->instance (root_class_name => $root_model ,
 			     instance_name   => $instance_name ,
@@ -530,12 +568,13 @@ For support, please check the following ressources:
 
 =item *
 
-The config-model wiki: L<http://config-model.wiki.sourceforge.net/>
+The config-model users mailing list:
+
+ config-model-users at lists.sourceforge.net
 
 =item *
 
-The config-model users mailing list:
-L<http://lists.sourceforge.net/mailman/listinfo/config-model-users>
+The config-model wiki: L<http://config-model.wiki.sourceforge.net/>
 
 =back
 

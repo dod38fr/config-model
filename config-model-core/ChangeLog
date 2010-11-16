@@ -1,4 +1,6 @@
         * Fix pod spelling errors (RT #62947). Thanks to carnil for the report and patches.
+        * added config-edit test (build requires Test::Command)
+        * config-edit: added application option
 
 2010-11-10 Dominique Dumont  <domi.dumont@free.fr> 1.220
 
