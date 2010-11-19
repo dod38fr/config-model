@@ -299,7 +299,7 @@ C<@element_list> contains all the element names of the node.
 
 Example:
 
-  sub my_node_element_cb = { 
+  sub my_content_cb = { 
      my ($scanner, $data_ref,$node,@element) = @_ ;
 
      # custom code using $data_ref
@@ -324,7 +324,7 @@ C<auto_vivify> is 0.
 
 Example:
 
-  sub my_node_content_cb {
+  sub my_node_element_cb {
     my ($scanner, $data_ref,$node,$element_name,$key, $contained_node) = @_;
 
     # your custom code using $data_ref

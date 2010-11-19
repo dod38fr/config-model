@@ -1,3 +1,5 @@
+        * Annotation: can now save annotation for node and list objects
+
 2010-11-18 Dominique Dumont  <domi.dumont@free.fr> 1.221
 
         * Fix pod spelling errors (RT #62947). Thanks to carnil for the report and patches.

@@ -147,6 +147,8 @@ sub get_annotation_hash {
       ->new(
 	    leaf_cb         => \&my_leaf_cb ,
 	    hash_element_cb => \&my_hash_element_cb,
+	    list_element_cb => \&my_list_element_cb,
+	    node_element_cb => \&my_node_element_cb,
 	    fallback        => 'all',
 	   ) ;
     my $root = $self->instance->config_root ;
@@ -160,26 +162,52 @@ sub my_hash_element_cb {
     my ($scanner, $data_ref,$node,$element_name,@keys) = @_ ;
 
     # custom code using $data_ref
-    my $obj = $node->fetch_element($element_name) ;
-    my $note = $obj -> annotation ;
-    if ($note) {
-	my $key = $obj -> location ;
-	$data_ref->{$key} = $note ;
-    }
+    store_note_in_data($data_ref, $node->fetch_element($element_name) ) ;
 
     # resume exploration
     map {$scanner->scan_hash($data_ref,$node,$element_name,$_)} @keys ;
 }
 
+# WARNING: not a method
+sub my_node_element_cb {
+    my ($scanner, $data_ref,$node,$element_name,$key, $contained_node) = @_;
+
+    # your custom code using $data_ref
+    store_note_in_data($data_ref, $contained_node ) ;
+
+    # explore next node 
+    $scanner->scan_node($data_ref,$contained_node);
+}
+
+# WARNING: not a method
+sub my_list_element_cb {
+     my ($scanner, $data_ref,$node,$element_name,@idx) = @_ ;
+
+     # custom code using $data_ref
+    store_note_in_data($data_ref, $node->fetch_element($element_name) ) ;
+
+    # resume exploration (if needed)
+     map {$scanner->scan_list($data_ref,$node,$element_name,$_)} @idx ;
+
+     # note: scan_list and scan_hash are equivalent
+  }
+
 
 # WARNING: not a method
 sub my_leaf_cb {
     my ($scanner, $data_ref,$node,$element_name,$index, $leaf_object) = @_ ;
-    my $note = $leaf_object -> annotation ;
-    if ($note) {
-	my $key = $leaf_object -> location ;
-	$data_ref->{$key} = $note ;
-    }
+    store_note_in_data($data_ref, $leaf_object) ;
+}
+
+# WARNING: not a method
+sub store_note_in_data {
+    my ($data_ref,$obj) = @_ ;
+
+    my $note = $obj -> annotation ;
+    return unless $note ;
+    
+    my $key = $obj -> location ;
+    $data_ref->{$key} = $note ;
 }
 
 =head2 load()
