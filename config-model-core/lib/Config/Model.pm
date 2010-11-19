@@ -1,5 +1,4 @@
 package Config::Model;
-require Exporter;
 use Carp;
 use strict;
 use warnings FATAL => qw(all);
@@ -183,7 +182,7 @@ and work fine, but they have their set of drawbacks.
 Usually, the validation of configuration data is done with a script
 which performs semantic validation and often ends up being quite
 complex (e.g. 2500 lines for Debian's xserver-xorg.config script which
-handles xorg.conf file). 
+handles xorg.conf file).
 
 In most cases, the configuration model is expressed in instructions
 (whatever programming language is used) and interspersed with a lot of
@@ -284,7 +283,7 @@ user interface (with Config::Model::Itself)
 
 Since the syntax of configuration files vary wildly form one application
 to another, people who want to use this framework may have to
-provide a dedicated parser/writer. 
+provide a dedicated parser/writer.
 
 To help with this task, this project provides writer/parsers for common
 format: ini style file and perl file. With the additional
@@ -294,15 +293,45 @@ details.
 
 =head2 Is there an example of a configuration model ?
 
-The "example" directory contains a configuration model example for the
-/etc/fstab file. This example includes a small program that use this
-model to show some ways to extract configuration information.
+The "example" directory contains a configuration model example for
+C</etc/fstab> file. This example includes a small program that use
+this model to show some ways to extract configuration information.
 
 =head1 Mailing lists
 
 For more question, please send a mail to:
 
  config-model-users at lists.sourceforge.net
+
+=head1 Suggested reads to start
+
+=head2 Beginners
+
+=over
+
+=item *
+
+L<Config::Model::Manual::ModelCreationIntroduction>:
+
+=item *
+
+L<Config::Model::Cookbook::CreateModelFromDoc>
+
+=back
+
+=head2 Advanced 
+
+=over
+
+=item *
+
+L<Config::Model::Manual::ModelCreationIntroductionAdvanced>
+
+=back
+
+=head2 Masters
+
+use the source, Luke
 
 =head1 STOP
 

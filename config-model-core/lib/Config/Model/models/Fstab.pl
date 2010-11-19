@@ -1,6 +1,13 @@
 [
           {
             'class_description' => 'static information about the filesystems',
+            'read_config' => [
+                               {
+                                 'file' => 'fstab',
+                                 'backend' => 'Fstab',
+                                 'config_dir' => 'etc'
+                               }
+                             ],
             'name' => 'Fstab',
             'element' => [
                            'fs',

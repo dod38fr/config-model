@@ -48,6 +48,10 @@
                                            'iso9660',
                                            'vfat',
                                            'usbfs',
+                                           'ignore',
+                                           'nfs',
+                                           'nfs4',
+                                           'none',
                                            'ignore'
                                          ]
                            },
@@ -115,6 +119,18 @@
                                           '$f1 eq \'ext2\'',
                                           {
                                             'config_class_name' => 'Fstab::Ext2FsOpt'
+                                          },
+                                          '$f1 eq \'nfs\'',
+                                          {
+                                            'config_class_name' => 'Fstab::CommonOptions'
+                                          },
+                                          '$f1 eq \'nfs4\'',
+                                          {
+                                            'config_class_name' => 'Fstab::CommonOptions'
+                                          },
+                                          '$f1 eq \'none\'',
+                                          {
+                                            'config_class_name' => 'Fstab::NoneOptions'
                                           }
                                         ],
                              'description' => 'mount options associated with the filesystem'
