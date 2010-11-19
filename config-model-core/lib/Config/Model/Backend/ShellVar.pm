@@ -19,14 +19,13 @@
 package Config::Model::Backend::ShellVar ;
 
 use Carp;
-use strict;
-use warnings ;
+use Moose;
 use Config::Model::Exception ;
 use UNIVERSAL ;
 use File::Path;
 use Log::Log4perl qw(get_logger :levels);
 
-use base qw/Config::Model::Backend::Any/;
+extends 'Config::Model::Backend::Any';
 
 my $logger = get_logger("Backend::ShellVar") ;
 
@@ -38,7 +37,7 @@ sub read {
     my $self = shift ;
     my %args = @_ ;
 
-    # args is:
+    # args are:
     # object     => $obj,         # Config::Model::Node object 
     # root       => './my_test',  # fake root directory, userd for tests
     # config_dir => /etc/foo',    # absolute path 
@@ -51,37 +50,24 @@ sub read {
     my $check = $args{check} || 'yes' ;
 
     # try to get global comments (comments before a blank line)
-    my @global_comments ;
-    my @comments ;
-    my $global_zone = 1 ;
+    $self->read_global_comments($args{io_handle},'#') ;
 
+    my @comments ;
     foreach ($args{io_handle}->getlines) {
         next if /^##/ ;		  # remove comments added by Config::Model
         chomp ;
 
         my ($data,$comment) = split /\s*#\s?/ ;
 
-        push @global_comments, $comment if defined $comment and $global_zone;
-        push @comments, $comment        if defined $comment and not $global_zone;
-
-        if ($global_zone and /^\s*$/ and @global_comments) {
-            $self->node->annotation(@global_comments);
-            $logger->debug("Setting global comment with @global_comments") ;
-            $global_zone = 0 ;
-        }
-
-        # stop global comment at first blank line
-        $global_zone = 0 if /^\s*$/ ;
+        push @comments, $comment        if defined $comment ;
 
         if (defined $data and $data ) {
-            $global_zone = 0 ;
             $data .= '#"'.join("\n",@comments).'"' if @comments ;
             $logger->debug("Loading:$data\n");
             $self->node->load(step => $data, check => $check) ;
             @comments = () ;
         }
     }
-
 
     return 1 ;
 }
@@ -90,7 +76,7 @@ sub write {
     my $self = shift ;
     my %args = @_ ;
 
-    # args is:
+    # args are:
     # object     => $obj,         # Config::Model::Node object 
     # root       => './my_test',  # fake root directory, userd for tests
     # config_dir => /etc/foo',    # absolute path 
@@ -141,6 +127,9 @@ sub write {
 
     return 1;
 }
+
+no Moose ;
+__PACKAGE__->meta->make_immutable ;
 
 1;
 

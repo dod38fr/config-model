@@ -28,7 +28,7 @@ use Moose ;
 use File::Path;
 use Log::Log4perl qw(get_logger :levels);
 
-my $logger = get_logger("Backend::Any") ;
+my $logger = get_logger("Backend") ;
 
 has 'name'       => ( is => 'ro', default => 'unknown',) ;
 has 'annotation' => ( is => 'ro', isa => 'Bool', default => 0 ) ;
@@ -54,6 +54,32 @@ sub write {
     croak $err;
 }
 
+sub read_global_comments {
+    my $self = shift ;
+    my $ioh = shift ;
+    my $cc = shift ; # comment character
+
+    my @global_comments ;
+
+    while (defined ( $_ = $ioh->getline ) ) {
+        next if /^$cc$cc/ ; # remove comments added by Config::Model
+        chomp ;
+
+        my ($data,$comment) = split /\s*$cc\s?/ ;
+
+        push @global_comments, $comment if defined $comment ;
+
+        if (/^\s*$/ or /^\s*[^$cc]/) {
+            if (@global_comments) {
+                $self->node->annotation(@global_comments);
+                $logger->debug("Setting global comment with @global_comments") ;
+            }
+            # stop global comment at first blank or non comment line
+            last;
+        }
+    }
+}
+
 no Moose ;
 __PACKAGE__->meta->make_immutable ;
 
@@ -68,24 +94,75 @@ Config::Model::Backend::Any - Virtual class for other backends
 =head1 SYNOPSIS
 
  package Config::Model::Backend::Foo ;
- use base qw/Config::Model::Backend::Any/;
+ use Moose ;
+ use Log::Log4perl qw(get_logger :levels);
 
+ extends 'Config::Model::Backend::Any';
+
+ # optional
  sub suffix { 
-   # optional
    return '.foo';
  }
 
+ # mandatory
  sub read {
-   # mandatory
+    my $self = shift ;
+    my %args = @_ ;
+
+    # args are:
+    # root       => './my_test',  # fake root directory, userd for tests
+    # config_dir => /etc/foo',    # absolute path 
+    # file       => 'foo.conf',   # file name
+    # file_path  => './my_test/etc/foo/foo.conf' 
+    # io_handle  => $io           # IO::File object
+    # check      => yes|no|skip
+
+    return 0 unless defined $args{io_handle} ; # or die?
+
+    foreach ($args{io_handle}->getlines) {
+        chomp ;
+        s/#.*/ ;
+        next unless /\S/; # skip blank line
+
+        # $data is 'foo=bar' which is compatible with load 
+        $self->node->load(step => $_, check => $args{check} ) ;
+    }
+    return 1 ;
  }
 
+ # mandatory
  sub write {
-   # mandatory
+    my $self = shift ;
+    my %args = @_ ;
+
+    # args are:
+    # root       => './my_test',  # fake root directory, userd for tests
+    # config_dir => /etc/foo',    # absolute path 
+    # file       => 'foo.conf',   # file name
+    # file_path  => './my_test/etc/foo/foo.conf' 
+    # io_handle  => $io           # IO::File object
+    # check      => yes|no|skip
+
+    my $ioh = $args{io_handle} ;
+
+    foreach my $elt ($self->node->get_element_name) {
+        my $obj =  $self->node->fetch_element($elt) ;
+        my $v   = $self->node->grab_value($elt) ;
+
+        # write value
+        $ioh->print(qq!$elt="$v"\n!) if defined $v ;
+        $ioh->print("\n")            if defined $v ;
+    }
+
+    return 1;
  }
+
+ no Moose ;
+ __PACKAGE__->meta->make_immutable ;
 
 =head1 DESCRIPTION
 
-This module is to be inherited by other backend plugin classes
+This L<Moose> class is to be inherited by other backend plugin classes
 
 See L<Config::Model::AutoRead/"read callback"> and
 L<Config::Model::AutoRead/"write callback"> for more details on the
@@ -98,10 +175,19 @@ method that must be provided by any backend classes.
 The constructor should be used only by
 L<Config::Model::Node>.
 
+=head1 Methods to override
+
 =head2 annotation
 
 Whether the backend supports to read and write annotation. Default i s
 0. Override if your backend supports annotations
+
+=head1 Methods
+
+=head2 read_global_comments( io_handle, comment_char)
+
+Read the global comments (i.e. the first block of comments until the first blank or non comment line) and
+store them as root node annotation.
 
 =head1 AUTHOR
 
