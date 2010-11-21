@@ -49,11 +49,12 @@ sub read {
     return 0 unless defined $args{io_handle} ; # no file to read
     my $check = $args{check} || 'yes' ;
 
+    my @lines = $args{io_handle}->getlines ;
     # try to get global comments (comments before a blank line)
-    $self->read_global_comments($args{io_handle},'#') ;
+    $self->read_global_comments(\@lines,'#') ;
 
     my @comments ;
-    foreach ($args{io_handle}->getlines) {
+    foreach (@lines) {
         next if /^##/ ;		  # remove comments added by Config::Model
         chomp ;
 

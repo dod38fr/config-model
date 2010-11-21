@@ -56,12 +56,12 @@ sub write {
 
 sub read_global_comments {
     my $self = shift ;
-    my $ioh = shift ;
+    my $lines = shift ;
     my $cc = shift ; # comment character
 
     my @global_comments ;
 
-    while (defined ( $_ = $ioh->getline ) ) {
+    while (defined ( $_ = shift @$lines ) ) {
         next if /^$cc$cc/ ; # remove comments added by Config::Model
         chomp ;
 
@@ -69,11 +69,12 @@ sub read_global_comments {
 
         push @global_comments, $comment if defined $comment ;
 
-        if (/^\s*$/ or /^\s*[^$cc]/) {
+        if (/^\s*$/ or $data) {
             if (@global_comments) {
                 $self->node->annotation(@global_comments);
                 $logger->debug("Setting global comment with @global_comments") ;
             }
+            unshift @$lines,$_ unless /^\s*$/ ; # put back any data and comment
             # stop global comment at first blank or non comment line
             last;
         }
@@ -184,11 +185,10 @@ Whether the backend supports to read and write annotation. Default i s
 
 =head1 Methods
 
-=head2 read_global_comments( io_handle, comment_char)
+=head2 read_global_comments( lines , comment_char)
 
 Read the global comments (i.e. the first block of comments until the first blank or non comment line) and
-store them as root node annotation.
-
+store them as root node annotation. lines is an array ref containing file lines.
 =head1 AUTHOR
 
 Dominique Dumont, (ddumont at cpan dot org)

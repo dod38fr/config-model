@@ -3,7 +3,7 @@
 use ExtUtils::testlib;
 use Test::More tests => 67 ;
 use Config::Model ;
-use Log::Log4perl qw(:easy) ;
+use Log::Log4perl qw(:easy :levels) ;
 use File::Path ;
 use File::Copy ;
 use Test::Warn ;
@@ -66,14 +66,17 @@ gandalf:/mnt/video4/  /mnt/video4 nfs  user,noauto,rw    0    2
 EOD0
 
 $tests[$i++]{check} 
-   = [ 'fs:proc fs_spec',           "proc" ,
-       'fs:proc fs_file',           "/proc" ,
+   = [ 'fs:/proc fs_spec',           "proc" ,
+       'fs:/proc fs_file',           "/proc" ,
+       'fs:/home fs_file',          "/home",
+       'fs:/home fs_spec',          "UUID=18e71d5c-436a-4b88-aa16-308ebfa2eef8",
      ];
+
+if (0) {
 
 $tests[$i]{text} = <<'EOD1' ;
 
 EOD1
-if (0) {
 $tests[$i++]{check} = [ 'License:MPL-1.1',"[MPL-1.1 LICENSE TEXT]" ,
                         'License:"GPL-2+"', "[GPL-2 LICENSE TEXT]",
                         'License:"LGPL-2.1+"', "[LGPL-2.1 plus LICENSE TEXT]",
