@@ -12,13 +12,19 @@
 
 _config-edit_models()
 {
-   MODELS=$(perl -Ilib config-edit -list)
+   MODELS=$(perl config-edit -list models)
+   COMPREPLY=( $( compgen -W "$MODELS" -- $cur ) )
+}
+
+_config-edit_appli()
+{
+   MODELS=$(perl config-edit -list applications)
    COMPREPLY=( $( compgen -W "$MODELS" -- $cur ) )
 }
 
 _config-edit_options()
 {
-    COMPREPLY=( $( compgen -W '-model -ui -dev -model_dir -root_dir -force_load -backend -dump -dumptype -load -save' -- $cur ) )
+    COMPREPLY=( $( compgen -W '-application -model -ui -dev -model_dir -root_dir -force_load -backend -dump -dumptype -load -save' -- $cur ) )
 }
 
 _config-edit()
