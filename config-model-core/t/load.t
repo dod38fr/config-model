@@ -259,14 +259,19 @@ foreach my $path (@anno_test) {
 }
 
 # test combination of annotation plus load and some utf8
-$step = 'std_id:ab#std_id_ab_note X=Bv X#X_note 
-      - std_id#std_id_note std_id:bc X=Av X#X2_note '
+$step = 'std_id#std_id_note ! std_id:ab#std_id_ab_note X=Bv X#X_note 
+      - std_id:bc X=Av X#X2_note '
   . '- a_string="toto \"titi\" tata" a_string#string_note '
   . 'lista=a,b,c,d olist:0 - olist:0#olist0_note X=Av - olist:1 X=Bv - listb=b,"c c2",d '
   . '! hash_a:X2=x#x_note hash_a:Y2=xy  hash_b:X3=xy my_check_list=X2,X3 '
   . 'plain_object#"plain comment" aa2="aa2_value '."\x{263A}\"" ;
 
-ok( $root->load( step => $step, experience => 'advanced' ),
+my $inst2 = $model->instance (root_class_name => 'Master', 
+                              instance_name => 'test2');
+
+my $root2 = $inst2 -> config_root ;
+
+ok( $root2->load( step => $step, experience => 'advanced' ),
   "set up data in tree with combination of load and annotations");
 
 my @to_check = ( 
@@ -280,20 +285,20 @@ my @to_check = (
 		 [ 'plain_object', 'plain comment' ],
 	       ) ;
 foreach (@to_check) {
-    is($root->grab($_->[0])->annotation,$_->[1],
+    is($root2->grab($_->[0])->annotation,$_->[1],
        "Check annotation for '$_->[0]'") ;
 }
 
 # check utf8 value
-is($root->grab_value('plain_object aa2'), "aa2_value \x{263A}","utf8 value") ;
+is($root2->grab_value('plain_object aa2'), "aa2_value \x{263A}","utf8 value") ;
 
 
 # test deletion of leaf items
 $step = 'another_string=foobar another_string~';
-ok( $root->load( step => $step, experience => 'advanced' ),
+ok( $root2->load( step => $step, experience => 'advanced' ),
   "set up data then delete it");
   
-is($root->grab_value('another_string'),undef,"check that another_string was undef'ed");
+is($root2->grab_value('another_string'),undef,"check that another_string was undef'ed");
 
-$root->load("lista:0.=\x{263A}") ;
-is($root->grab_value('lista:0'),"a\x{263A}","check that list append work");
+$root2->load("lista:0.=\x{263A}") ;
+is($root2->grab_value('lista:0'),"a\x{263A}","check that list append work");
