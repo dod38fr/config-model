@@ -1,7 +1,4 @@
 # -*- cperl -*-
-# $Author$
-# $Date$
-# $Revision$
 
 use warnings FATAL => qw(all);
 
@@ -9,28 +6,31 @@ use ExtUtils::testlib;
 use Test::More tests => 17 ;
 use Config::Model ;
 use Data::Dumper ;
+use Log::Log4perl qw(:easy :levels) ;
 
 use strict;
 
 my $arg = shift || '';
+my ($log,$show) = (0) x 2 ;
 
 my $trace = $arg =~ /t/ ? 1 : 0 ;
 $::debug            = 1 if $arg =~ /d/;
-Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
+$log                = 1 if $arg =~ /l/;
+$show               = 1 if $arg =~ /s/;
 
-use Log::Log4perl qw(:easy) ;
-Log::Log4perl->easy_init($arg =~ /l/ ? $TRACE: $WARN);
+Log::Log4perl->easy_init($log ? $TRACE: $WARN);
+
+Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 
 ok(1,"Compilation done");
 
 my @element = ( 
 	       # Value constructor args are passed in their specific array ref
-	       cargo_type => 'node',
-	       config_class_name => 'Slave' ,
+	       cargo => { type => 'node', config_class_name => 'Slave' } ,
 	      ) ;
 
 # minimal set up to get things working
-my $model = Config::Model->new(legacy => 'ignore',) ;
+my $model = Config::Model->new() ;
 $model ->create_config_class 
   (
    name => "Master",
@@ -59,7 +59,7 @@ $model ->create_config_class
        'hash_with_default_and_init'
        => { type => 'hash',
 	    index_type  => 'string',
-	    default => { 'def_1' => 'X=Av Y=Bv'  ,
+	    default_with_init => { 'def_1' => 'X=Av Y=Bv'  ,
 			 'def_2' => 'Y=Av Z=Cv' } ,
 	    @element
 	  },
