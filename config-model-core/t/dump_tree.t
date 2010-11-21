@@ -1,7 +1,7 @@
 # -*- cperl -*-
 
 use ExtUtils::testlib;
-use Test::More tests => 18;
+use Test::More tests => 21;
 use Config::Model;
 
 use warnings;
@@ -237,17 +237,21 @@ unlike($cds,qr/listb/,"check that listb containing undef values is not shown") ;
 my $root2 = $model->instance (root_class_name => 'Master', 
 			      instance_name => 'test2') -> config_root ;
 
-$step = '     std_id:ab#std_id_ab_note 
-         X=Bv X#std_id_ab_X_note 
+$step = ' std_id:ab#std_id_ab_note 
+                                    X=Bv X#std_id_ab_X_note 
       - std_id#std_id_note std_id:bc X=Av X#std_id_bc_X_note '
   .'- a_string="toto \"titi\" tata" a_string#a_string_note '
-  .'lista=a,b,c,d olist:0#olist_0_note X=Av - olist:1 X=Bv - listb=b,"c c2",d '
+  .'lista=a,b,c,d olist#o_list_note olist:0#olist_0_note X=Av - olist:1#olist1_c X=Bv - listb=b,"c c2",d '
   . '! hash_a:X2=x#hash_a_X2 hash_a:Y2=xy#"hash_a Y2 note"  hash_b:X3=xy#hash_b_X3
      my_check_list=X2,X3 plain_object#"plain comment" aa2=aa2_value' ;
 ok( $root2->load( step => $step, experience => 'advanced' ),
   "set up data in tree annotation");
 
-my $expect_count = scalar grep {/#/} split //,$step ;
+is($root2->fetch_element('std_id')->annotation,'std_id_note',"check annotation for std_id");
+is($root2->grab('std_id:ab')->annotation,'std_id_ab_note',"check annotation for std_id:ab");
+is($root2->grab('olist:0')->annotation,'olist_0_note',"check annotation for olist:0");
+
+my $expect_count = scalar grep {/#/} split //, $step ;
 
 $cds = $root2->dump_tree( full_dump => 1 );
 print "Dump with annotations:\n$cds" if $trace  ;

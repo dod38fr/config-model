@@ -189,7 +189,7 @@ sub dump_tree {
         return '  ' x $depth;
     };
 
-   my $std_cb = sub {
+   my $leaf_cb = sub {
         my ( $scanner, $data_r, $node, $element, $index, $value_obj ) = @_;
 
 	# get value or only customized value
@@ -234,8 +234,8 @@ sub dump_tree {
 	my $list_obj = $node->fetch_element($element) ;
 
 	# add annotation for list element
-	my $note  = quote($list_obj->annotation) ;
-	$$data_r .= "\n$pad$element#$note" if $note ;
+	my $list_note  = quote($list_obj->annotation) ;
+	$$data_r .= "\n$pad$element#$list_note" if $list_note ;
 
         if ( $list_obj->cargo_type eq 'node' ) {
             foreach my $k ( @keys ) {
@@ -272,40 +272,35 @@ sub dump_tree {
 
     # called for nodes contained in nodes (not root).
     # This node can be held by a plain element or a hash element or a list element
-    my $element_cb = sub {
-        my ( $scanner, $data_r, $node, $element, $key, $next ) = @_;
+    my $node_element_cb = sub {
+        my ( $scanner, $data_r, $node, $element, $key, $contained_node ) = @_;
 
         my $type = $node -> element_type($element);
 
-        return if $skip_aw and $next->is_auto_write_for_type($skip_aw) ;
+        return if $skip_aw and $contained_node->is_auto_write_for_type($skip_aw) ;
 
         my $pad = $compute_pad->($node);
         my $elt = $node->fetch_element($element);
 	# load string can feature only one comment per element_type
 	# ie foo#comment foo:bar#comment foo:bar=val#comment are fine
-	# but foo#comment:bar if not valid
-
-	my $note = $elt->annotation ;
+	# but foo#comment:bar if not valid -> foo#commaent foo:bar
 
 	my $head = "\n$pad$element";
+        my $node_note = quote($contained_node->annotation) ;
 	
 	if ($type eq 'list' or $type eq 'hash') {
 	    $head .= ':'.quote($key) ;
-	    if ($elt->get_cargo_type eq 'leaf') {
-		# add list of hash value annotation
-		my $value_note = $elt->fetch_with_id($key)->annotation ;
-	        $note = $value_note if $value_note;
-	    }
+	    $head .= '#'.$node_note if $node_note ;
+            my $sub_data = '';
+            $scanner->scan_node(\$sub_data, $contained_node);
+            $$data_r .= $head.$sub_data.' -';
 	}
-
-	$head.='#'.quote($note) if $note;
-
-	my $sub_data = '';
-        $scanner->scan_node(\$sub_data, $next);
-
-	# skip simple nodes that do not bring data
-	if ($sub_data or $type eq 'list' or $type eq 'hash') { 
-	    $$data_r .= $head.$sub_data.' -';
+        else {
+	    $head .= '#'.$node_note if $node_note ;
+            my $sub_data = '';
+            $scanner->scan_node(\$sub_data, $contained_node);
+            # skip simple nodes that do not bring data
+	    $$data_r .= $head.$sub_data.' -' if $sub_data;
 	}
     };
 
@@ -315,8 +310,8 @@ sub dump_tree {
 		     auto_vivify     => $auto_v,
 		     list_element_cb => $list_element_cb,
 		     hash_element_cb => $hash_element_cb,
-		     leaf_cb         => $std_cb,
-		     node_element_cb => $element_cb,
+		     leaf_cb         => $leaf_cb,
+		     node_element_cb => $node_element_cb,
 		     check_list_element_cb => $check_list_cb,
 		     check           => $check,
 		    );
