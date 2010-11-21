@@ -21,40 +21,6 @@
                              'type' => 'leaf',
                              'description' => 'block special device or remote filesystem to be mounted'
                            },
-                           'fs_vfstype',
-                           {
-                             'value_type' => 'enum',
-                             'help' => {
-                                         'proc' => 'Kernel info through a special file system',
-                                         'auto' => 'file system type is probed by the kernel when mounting the device',
-                                         'vfat' => 'Older Windows file system often used on removable media',
-                                         'ext3' => 'Common Linux file system with journalling  (recommended)',
-                                         'usbfs' => 'USB pseudo file system. Gives a file system view of kernel data related to usb',
-                                         'iso9660' => 'CD-ROM or DVD file system',
-                                         'ignore' => 'unused disk partition',
-                                         'ext2' => 'Common Linux file system.',
-                                         'davfs' => 'WebDav access'
-                                       },
-                             'mandatory' => 1,
-                             'type' => 'leaf',
-                             'description' => 'file system type',
-                             'choice' => [
-                                           'auto',
-                                           'davfs',
-                                           'ext2',
-                                           'ext3',
-                                           'swap',
-                                           'proc',
-                                           'iso9660',
-                                           'vfat',
-                                           'usbfs',
-                                           'ignore',
-                                           'nfs',
-                                           'nfs4',
-                                           'none',
-                                           'ignore'
-                                         ]
-                           },
                            'fs_file',
                            {
                              'value_type' => 'uniline',
@@ -76,6 +42,42 @@
                              'mandatory' => 1,
                              'type' => 'leaf',
                              'description' => 'mount point for the filesystem'
+                           },
+                           'fs_vfstype',
+                           {
+                             'value_type' => 'enum',
+                             'help' => {
+                                         'proc' => 'Kernel info through a special file system',
+                                         'auto' => 'file system type is probed by the kernel when mounting the device',
+                                         'vfat' => 'Older Windows file system often used on removable media',
+                                         'ext3' => 'Common Linux file system with journalling ',
+                                         'usbfs' => 'USB pseudo file system. Gives a file system view of kernel data related to usb',
+                                         'iso9660' => 'CD-ROM or DVD file system',
+                                         'ignore' => 'unused disk partition',
+                                         'ext2' => 'Common Linux file system.',
+                                         'davfs' => 'WebDav access'
+                                       },
+                             'mandatory' => 1,
+                             'type' => 'leaf',
+                             'description' => 'file system type',
+                             'choice' => [
+                                           'auto',
+                                           'davfs',
+                                           'ext2',
+                                           'ext3',
+                                           'ext4',
+                                           'swap',
+                                           'proc',
+                                           'iso9660',
+                                           'vfat',
+                                           'usbfs',
+                                           'ignore',
+                                           'nfs',
+                                           'nfs4',
+                                           'none',
+                                           'ignore',
+                                           'debugfs'
+                                         ]
                            },
                            'fs_mntopts',
                            {
@@ -100,9 +102,17 @@
                                           {
                                             'config_class_name' => 'Fstab::SwapOptions'
                                           },
+                                          '$f1 eq \'ext2\'',
+                                          {
+                                            'config_class_name' => 'Fstab::Ext2FsOpt'
+                                          },
                                           '$f1 eq \'ext3\'',
                                           {
                                             'config_class_name' => 'Fstab::Ext3FsOpt'
+                                          },
+                                          '$f1 eq \'ext4\'',
+                                          {
+                                            'config_class_name' => 'Fstab::Ext4FsOpt'
                                           },
                                           '$f1 eq \'usbfs\'',
                                           {
@@ -116,10 +126,6 @@
                                           {
                                             'config_class_name' => 'Fstab::Iso9660_Opt'
                                           },
-                                          '$f1 eq \'ext2\'',
-                                          {
-                                            'config_class_name' => 'Fstab::Ext2FsOpt'
-                                          },
                                           '$f1 eq \'nfs\'',
                                           {
                                             'config_class_name' => 'Fstab::CommonOptions'
@@ -131,6 +137,10 @@
                                           '$f1 eq \'none\'',
                                           {
                                             'config_class_name' => 'Fstab::NoneOptions'
+                                          },
+                                          '$f1 eq \'debugfs\'',
+                                          {
+                                            'config_class_name' => 'Fstab::CommonOptions'
                                           }
                                         ],
                              'description' => 'mount options associated with the filesystem'

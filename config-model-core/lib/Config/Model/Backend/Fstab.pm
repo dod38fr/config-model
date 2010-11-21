@@ -43,16 +43,20 @@ sub read {
     foreach (@lines) {
         next if /^##/ ;		  # remove comments added by Config::Model
         chomp ;
+        s/\s+$//;
 
         my ($data,$comment) = split /\s*#\s?/ ;
 
         push @comments, $comment        if defined $comment ;
+        $logger->debug("Fstab: line $. '$_'\n");
 
         if (defined $data and $data ) {
             my ($device,$mount_point,$type,$options, $dump, $pass) = split /\s+/,$data ;
 
-            my ($dev_name) = ($device =~ /(\w+)$/) ;
-            my $label = $type eq 'swap' ? "swap-on-$dev_name" : $mount_point; 
+            my $swap_idx = 0;
+            my $label = $device =~ /LABEL=(\w+)$/  ? $1 
+                      : $type eq 'swap'            ? "swap-".$swap_idx++ 
+                      :                              $mount_point; 
 
             my $fs_obj = $self->node->fetch_element('fs')->fetch_with_id($label) ;
 
@@ -76,7 +80,7 @@ sub read {
             } @options ;
             
             $logger->debug("Loading:@options");
-            $fs_obj->fetch_element('fs_mntopts')->load (step => \@options, check => $check) ;
+            $fs_obj->fetch_element('fs_mntopts')->load (step => "@options", check => $check) ;
 
             @comments = () ;
         }
@@ -116,29 +120,42 @@ sub write {
     }
 
     # Using Config::Model::ObjTreeScanner would be overkill
-    foreach my $elt ($node->get_element_name) {
-        my $obj =  $node->fetch_element($elt) ;
-        my $v = $node->grab_value($elt) ;
-
-        # write some documentation in comments
-        my $help = $node->get_help(summary => $elt);
-        my $upstream_default = $obj -> fetch('upstream_default') ;
-        $help .=" ($upstream_default)" if defined $upstream_default;
-        $ioh->print("## $elt: $help\n") if $help;
-
-
-        # write annotation
-        my $note = $obj->annotation ;
+    foreach my $line_obj ($node->fetch_element('fs')->fetch_all ) {
+        # write line annotation
+        my $note = $line_obj->annotation ;
         if ($note) {
-            map { $ioh->print("# $_\n") } split /\n/,$note ;
+            map { $ioh->print("\n# $_") } split /\n/,$note ;
+            $ioh->print("\n");
         }
 
-        # write value
-        $ioh->print(qq!$elt="$v"\n!) if defined $v ;
-        $ioh->print("\n") if defined $v or $help;
+        $ioh->printf("%-30s %-25s %-6s %-10s %d %d\n",
+                     map ($line_obj->fetch_element_value($_), qw/fs_spec fs_file fs_vfstype/),
+                     $self->option_string($line_obj->fetch_element('fs_mntopts')) ,
+                     map ($line_obj->fetch_element_value($_) , qw/fs_freq fs_passno/),
+                    );
     }
 
     return 1;
+}
+
+my %rev_opt_r_translate = reverse %opt_r_translate ;
+
+sub option_string {
+    my ($self,$obj) = @_ ;
+    
+    my @options ;
+    foreach my $opt ($obj->get_element_name ) {
+        my $v = $obj->fetch_element_value($opt) ;
+        next unless defined $v ;
+        my $key = "$opt=$v" ;
+        my $str = defined $rev_opt_r_translate{$key} ? $rev_opt_r_translate{$key} 
+                : "$v" eq '0'                        ? 'no'.$opt 
+                : "$v" eq '1'                        ? $opt 
+                :                                      $key ;
+        push @options , $str ;
+    }
+    
+    return join',',@options ;
 }
 
 no Moose ;

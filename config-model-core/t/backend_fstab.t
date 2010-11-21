@@ -1,7 +1,7 @@
 # -*- cperl -*-
 
 use ExtUtils::testlib;
-use Test::More tests => 67 ;
+use Test::More tests => 17 ;
 use Config::Model ;
 use Log::Log4perl qw(:easy :levels) ;
 use File::Path ;
@@ -72,17 +72,50 @@ $tests[$i++]{check}
        'fs:/home fs_spec',          "UUID=18e71d5c-436a-4b88-aa16-308ebfa2eef8",
      ];
 
-if (0) {
-
 $tests[$i]{text} = <<'EOD1' ;
+# /etc/fstab: static file system information.
+#
+# <file system> <mount point>   <type>  <options>       <dump>  <pass>
+LABEL=root      /               ext3    defaults,relatime,errors=remount-ro 0 1
+LABEL=home       /home           ext3    defaults,relatime        0       2
+LABEL=video1       /mnt/video      ext3    defaults,relatime        0       2
+LABEL=video2       /mnt/video2     ext3    defaults,relatime        0 2
+LABEL=video3       /mnt/video3     ext3    defaults,relatime        0 2
+LABEL=video4       /mnt/video4     ext3    defaults,relatime        0 2
+
+proc            /proc           proc    defaults        0       0
+# /dev/sdd2       none            swap    sw              0       0
+UUID=5333e0e6-11d0-47a5-97af-44880a732e19  none swap sw 0 0
+
+# 320GB usb disk (maxtor) 
+LABEL=USB320 /mnt/usb-320gb ext3 rw,user,relatime,noauto 0 0
+
+# 200GB Maxtor disk IEEE1394 through USB 
+LABEL=Maxtor120 /mnt/maxtor120  ext3 rw,user,relatime,noauto 0 0
+
+# 2To external disk (USB or e-sata)
+LABEL=ext-2To /mnt/ext-2To ext4 rw,user,relatime,noauto 0 0
+
+# sysfs entry for powernowd (and others)
+#sysfs /sys sysfs defaults 0 0
+
+# to enable usbmon
+debugfs /sys/kernel/debug debugfs defaults 0 2
+                                                                                                              
+/dev  /var/chroot/testing-i386/dev  none bind 0 0                                                          
+/home /var/chroot/testing-i386/home none bind 0 0                                                          
+/proc /var/chroot/testing-i386/proc none bind 0 0                                                          
+/tmp  /var/chroot/testing-i386/tmp  none bind 0 0
 
 EOD1
-$tests[$i++]{check} = [ 'License:MPL-1.1',"[MPL-1.1 LICENSE TEXT]" ,
-                        'License:"GPL-2+"', "[GPL-2 LICENSE TEXT]",
-                        'License:"LGPL-2.1+"', "[LGPL-2.1 plus LICENSE TEXT]",
-                      'Files:"src/js/editline/*" License abbrev',"MPL-1.1 or GPL-2+ or LGPL-2.1+"
-                    ];
 
+$tests[$i++]{check} = [ 
+                        'fs:root fs_spec',           "LABEL=root" ,
+                        'fs:root fs_file',           "/" ,
+                      ];
+
+
+if (0) {
 
 $tests[$i]{text} = <<'EOD2' ;
 
