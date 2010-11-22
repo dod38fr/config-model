@@ -521,9 +521,7 @@ Log4perl uses the following categories:
 
 =item Data
 
-=item Data::Read
-
-=item Data::Write
+Used by read and write handler (L<Config::Model::AutoRead>)
 
 =item Model::Searcher
 
