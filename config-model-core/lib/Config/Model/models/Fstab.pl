@@ -5,7 +5,7 @@
                                {
                                  'file' => 'fstab',
                                  'backend' => 'Fstab',
-                                 'config_dir' => 'etc'
+                                 'config_dir' => '/etc'
                                }
                              ],
             'name' => 'Fstab',
