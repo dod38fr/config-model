@@ -12,13 +12,13 @@
 
 _config-edit_models()
 {
-   MODELS=$(perl config-edit -list models)
+   MODELS=$(config-edit -list models)
    COMPREPLY=( $( compgen -W "$MODELS" -- $cur ) )
 }
 
 _config-edit_appli()
 {
-   MODELS=$(perl config-edit -list applications)
+   MODELS=$(config-edit -list applications)
    COMPREPLY=( $( compgen -W "$MODELS" -- $cur ) )
 }
 
@@ -35,6 +35,9 @@ _config-edit()
     _get_comp_words_by_ref -n : cur prev
     
     case $prev in
+        -application)
+            _config-edit_appli
+            ;;
         -model)
             _config-edit_models
             ;;
