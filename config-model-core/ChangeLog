@@ -1,12 +1,19 @@
+2010-11-22 Dominique Dumont  <domi.dumont@free.fr> 1.222
+
+	* bash-completion: fixed missing application option
+	* Fstab model: specify '/etc' dir inst
+
 2010-11-21 Dominique Dumont  <domi.dumont@free.fr> 1.221
 
         * Annotation: can now save annotation for node and list objects
-        * Added new Fstab model and backend. Supports ext2 to ext4 and other file systems.
-          Please contact the author if options are missing. 
-        * Fix pod spelling errors (RT #62947). Thanks to carnil for the report and patches.
+        * Added new Fstab model and backend. Supports ext2 to ext4 and
+	other file systems.  Please contact the author if options are
+	missing.
+        * Fix pod spelling errors (RT #62947). Thanks to carnil for the
+	report and patches.
         * added config-edit test (build requires Test::Command)
-        * config-edit: added -application option, added -list model|applications 
-          option
+        * config-edit: added -application option, added -list
+  	model|applications option
 	* Model.pm: updated doc
 	* bash_completion.config-edit: is now *not* executable
 
