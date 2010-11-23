@@ -1,3 +1,5 @@
+        * Debian/Dpkg/Copyright: removed restrictions on copyright format
+
 2010-11-22 Dominique Dumont  <domi.dumont@free.fr> 1.222
 
 	* bash-completion: fixed missing application option

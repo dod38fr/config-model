@@ -90,7 +90,6 @@
                            {
                              'cargo' => {
                                           'value_type' => 'uniline',
-                                          'match' => '[\\d\\-\\,]+, .*',
                                           'type' => 'leaf'
                                         },
                              'type' => 'list'
