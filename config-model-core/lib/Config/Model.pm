@@ -1694,9 +1694,22 @@ sub load {
     return @loaded
 }
 
-# TBD: For a proper model plugin, scan directory <model_name>.d and
-# load in merge mode all pieces of model found there merge mode: model
-# data is added to main model before running create_config_class
+=head1 Model plugin
+
+TBD: For a proper model plugin, scan directory <model_name>.d and
+load in merge mode all pieces of model found there merge mode: model
+data is added to main model before running create_config_class
+
+=head2 augment_config_class (name => '...', ... )
+
+=cut
+
+sub augment_config_class {
+    my ($self,%args) = @_ ;
+    # %args must contain existing class name to augment 
+    # plus other data to merge to raw model
+
+}
 
 =head1 Model query
 
