@@ -1,12 +1,11 @@
 package Config::Model;
+use Moose ;
+use Moose::Util::TypeConstraints;
+
 use Carp;
-use strict;
-use warnings FATAL => qw(all);
 use Storable ('dclone') ;
 use Data::Dumper ();
 use Log::Log4perl 1.11 qw(get_logger :levels);
-
-
 use Config::Model::Instance ;
 
 # this class holds the version number of the package
@@ -21,6 +20,31 @@ use vars qw(@status @level @experience_list %experience_index
    summary     => '',
    description => '',
   );
+
+enum LegacyTreament => qw/die warn ignore/;
+
+has skip_include => ( isa => 'Bool', is => 'ro', default => 0 ) ;
+has model_dir    => ( isa => 'Str',  is => 'ro', default => 'Config/Model/models' );
+has legacy       => ( isa => 'LegacyTreament', is => 'ro', default => 'warn' ) ;
+
+has skip_inheritance => ( 
+    isa => 'Bool', is => 'ro', default => 0,
+    trigger => sub { 
+        my $self = shift ;
+        $self->show_legacy_issue("skip_inheritance is deprecated, use skip_include") ;
+        $self->skip_include = $self->skip_inheritance ;
+    }
+) ;
+
+around BUILDARGS => sub {
+    my $orig = shift;
+    my $class = shift;
+
+    my %args = @_ ;
+    my %new = map { defined $args{$_} ? ( $_ => $args{$_} ) : () } keys %args ;
+
+    return $class->$orig(%new);
+  };
 
 
 =head1 NAME
@@ -373,29 +397,9 @@ This will create an empty shell for your model.
 
 =cut
 
-sub new {
-    my $type = shift ;
-    my %args = @_;
-
-    my $skip =  $args{skip_include} || 0 ;
-
-    my $self = { model_dir => $args{model_dir},
-                 legacy    => $args{legacy}  || 'warn' ,
-                 skip_include => $skip ,
-               } ;
-    bless $self,$type ;
-
-    if (defined $args{skip_inheritance}) {
-        $self->legacy("skip_inheritance is deprecated, use skip_include") ;
-        $self->{skip_include} = $args{skip_inheritance} ;
-    }
-
-    return $self ;
-}
-
-sub legacy {
+sub show_legacy_issue {
     my $self = shift ;
-    my $behavior = $self->{legacy} ;
+    my $behavior = $self->legacy ;
 
     if ($behavior eq 'die') {
         die @_,"\n";
@@ -749,12 +753,12 @@ sub create_config_class {
     }
 
     if (defined $raw_model{inherit_after}) {
-        $self->legacy("Model $config_class_name: inherit_after is deprecated ",
+        $self->show_legacy_issue("Model $config_class_name: inherit_after is deprecated ",
           "in favor of include_after" );
         $raw_model{include_after} = delete $raw_model{inherit_after} ;
     }
     if (defined $raw_model{inherit}) {
-        $self->legacy("Model $config_class_name: inherit is deprecated in favor of include");
+        $self->show_legacy_issue("Model $config_class_name: inherit is deprecated in favor of include");
         $raw_model{include} = delete $raw_model{inherit} ;
     }
 
@@ -769,13 +773,14 @@ sub create_config_class {
     my %model = ( element_list => [] );
 
     # add included items
-    if ($self->{skip_include} and defined $raw_copy->{include}) {
+    if ($self->skip_include and defined $raw_copy->{include}) {
         my $inc = delete $raw_copy->{include} ;
         $model{include}       =  ref $inc ? $inc : [ $inc ];
         $model{include_after} = delete $raw_copy->{include_after}
           if defined $raw_copy->{include_after};
     }
     else {
+        # include class in raw_copy, raw_model is left as is
         $self->include_class($config_class_name, $raw_copy ) ;
     }
 
@@ -948,7 +953,7 @@ sub translate_legacy_permission {
     print Data::Dumper->Dump([$raw_model ] , ['permission to translate' ] ) ,"\n"
         if $::debug;
 
-    $self->legacy("$config_class_name: parameter permission is deprecated "
+    $self->show_legacy_issue("$config_class_name: parameter permission is deprecated "
                   ."in favor of 'experience'");
 
     # now change intermediate in beginner
@@ -1067,19 +1072,19 @@ sub translate_cargo_info {
 
     my $c_type = delete $info->{cargo_type} ;
     return unless defined $c_type;
-    $self->legacy("$config_class_name->$elt_name: parameter cargo_type is deprecated.");
+    $self->show_legacy_issue("$config_class_name->$elt_name: parameter cargo_type is deprecated.");
     my %cargo ;
 
     if (defined $info->{cargo_args}) {
        %cargo = %{ delete $info->{cargo_args}} ;
-       $self->legacy("$config_class_name->$elt_name: parameter cargo_args is deprecated.");
+       $self->show_legacy_issue("$config_class_name->$elt_name: parameter cargo_args is deprecated.");
     }
 
     $cargo{type} = $c_type;
 
     if (defined $info->{config_class_name}) {
         $cargo{config_class_name} = delete $info->{config_class_name} ;
-        $self->legacy("$config_class_name->$elt_name: parameter config_class_name is ",
+        $self->show_legacy_issue("$config_class_name->$elt_name: parameter config_class_name is ",
              "deprecated. This one must be specified within cargo. ",
              "Ie. cargo=>{config_class_name => 'FooBar'}");
     }
@@ -1107,7 +1112,7 @@ sub translate_name {
     my $to       = shift ;
 
     if (defined $info->{$from}) {
-        $self->legacy("$config_class_name->$elt_name: parameter $from is deprecated in favor of $to");
+        $self->show_legacy_issue("$config_class_name->$elt_name: parameter $from is deprecated in favor of $to");
         $info->{$to} = delete $info->{$from}  ;
     }
 }
@@ -1119,7 +1124,7 @@ sub translate_allow_compute_override {
     my $info = shift ;
 
     if (defined $info->{allow_compute_override}) {
-        $self->legacy("$config_class_name->$elt_name: parameter allow_compute_override is deprecated in favor of compute -> allow_override");
+        $self->show_legacy_issue("$config_class_name->$elt_name: parameter allow_compute_override is deprecated in favor of compute -> allow_override");
         $info->{compute}{allow_override} = delete $info->{allow_compute_override}  ;
     }
 }
@@ -1138,7 +1143,7 @@ sub translate_compute_info {
           Data::Dumper->Dump( [$compute_info ] , [qw/compute_info/ ]) ,"\n"
               if $::debug ;
 
-        $self->legacy("$config_class_name->$elt_name: specifying compute info with ",
+        $self->show_legacy_issue("$config_class_name->$elt_name: specifying compute info with ",
           "an array ref is deprecated");
 
         my ($user_formula,%var) = @$compute_info ;
@@ -1181,15 +1186,15 @@ sub translate_id_default_info {
     my $def_info = delete $info->{default} ;
     if (ref($def_info) eq 'HASH') {
         $info->{default_with_init} = $def_info ;
-        $self->legacy($warn,"Use default_with_init") ;
+        $self->show_legacy_issue($warn,"Use default_with_init") ;
     }
     elsif (ref($def_info) eq 'ARRAY') {
         $info->{default_keys} = $def_info ;
-        $self->legacy($warn,"Use default_keys") ;
+        $self->show_legacy_issue($warn,"Use default_keys") ;
     }
     else {
         $info->{default_keys} = [ $def_info ] ;
-        $self->legacy($warn,"Use default_keys") ;
+        $self->show_legacy_issue($warn,"Use default_keys") ;
     }
     print "translate_id_default_info $elt_name output:\n",
       Data::Dumper->Dump([$info ] , [qw/new_info/ ] ) ,"\n"
@@ -1214,11 +1219,11 @@ sub translate_id_auto_create {
     if ($info->{type} eq 'hash') {
         $info->{auto_create_keys}
           = ref($ac_info) eq 'ARRAY' ? $ac_info : [ $ac_info ] ;
-        $self->legacy($warn,"Use auto_create_keys") ;
+        $self->show_legacy_issue($warn,"Use auto_create_keys") ;
     }
     elsif ($info->{type} eq 'list') {
         $info->{auto_create_ids} = $ac_info ;
-        $self->legacy($warn,"Use auto_create_ids") ;
+        $self->show_legacy_issue($warn,"Use auto_create_ids") ;
     }
     else {
         die "Unexpected element ($elt_name) type $info->{type} ",
@@ -1415,7 +1420,7 @@ sub translate_legacy_builtin {
     print Data::Dumper->Dump([$raw_model ] , ['builtin to translate' ] ) ,"\n"
         if $::debug;
 
-    $self->legacy("$config_class_name: parameter 'built_in' is deprecated "
+    $self->show_legacy_issue("$config_class_name: parameter 'built_in' is deprecated "
                   ."in favor of 'upstream_default'");
 
     $model -> {upstream_default} = $raw_builtin_default ;
@@ -1433,7 +1438,7 @@ sub translate_legacy_built_in_list {
     print Data::Dumper->Dump([$raw_model ] , ['built_in_list to translate' ] ) ,"\n"
         if $::debug;
 
-    $self->legacy("$config_class_name: parameter 'built_in_list' is deprecated "
+    $self->show_legacy_issue("$config_class_name: parameter 'built_in_list' is deprecated "
                   ."in favor of 'upstream_default_list'");
 
     $model -> {upstream_default_list} = $raw_builtin_default ;
@@ -1662,8 +1667,7 @@ sub load {
     my $load_path = $load_model . '.pl' ;
     $load_path =~ s/::/\//g;
 
-    $load_file ||=  ($self->{model_dir} || 'Config/Model/models')
-                 . '/'. $load_path ;
+    $load_file ||=  $self->model_dir . '/' . $load_path ;
 
     get_logger("Model::Loader")-> info("load model $load_file") ;
 
@@ -1912,6 +1916,26 @@ sub list_one_class_element {
 
 =head1 Available models
 
+Returns an array of 3 hash refs:
+
+=over 
+
+=item *
+
+category (system or user or application) => application list. E.g. 
+
+ { system => [ 'popcon' , 'fstab'] }
+ 
+ =item *
+
+application => { model => 'model_name', ... }
+
+=item *
+
+applicaiton => model_name
+
+=back
+
 =cut
 
 sub available_models {
@@ -1946,6 +1970,11 @@ sub available_models {
     }
     return \%categories, \%appli_info, \%applications ;
 }
+
+no Moose ;
+__PACKAGE__->meta->make_immutable ;
+
+1;
 
 =head1 Error handling
 
