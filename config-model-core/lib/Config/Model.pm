@@ -1,6 +1,7 @@
 package Config::Model;
 use Moose ;
 use Moose::Util::TypeConstraints;
+use MooseX::StrictConstructor ;
 
 use Carp;
 use Storable ('dclone') ;
@@ -26,6 +27,33 @@ enum LegacyTreament => qw/die warn ignore/;
 has skip_include => ( isa => 'Bool', is => 'ro', default => 0 ) ;
 has model_dir    => ( isa => 'Str',  is => 'ro', default => 'Config/Model/models' );
 has legacy       => ( isa => 'LegacyTreament', is => 'ro', default => 'warn' ) ;
+has instances    => ( isa => 'HashRef[Config::Model::Instance]', is => 'ro', default => sub { {} } ) ;
+
+has models => ( 
+    isa => 'HashRef', 
+    is => 'ro' , 
+    default => sub { {} } ,
+    traits  => [ 'Hash' ],
+    handles => {
+        model_exists => 'exists',
+        model_defined => 'defined',
+        model => 'get',
+    },
+)  ;
+
+has raw_models => ( 
+    isa => 'HashRef', 
+    is => 'ro' , 
+    default => sub { {} } ,
+    traits  => [ 'Hash' ],
+    handles => {
+        raw_model_exists => 'exists',
+        raw_model_defined => 'defined',
+        raw_model => 'get',
+        raw_model_names => 'keys',
+    },
+)  ;
+
 
 has skip_inheritance => ( 
     isa => 'Bool', is => 'ro', default => 0,
@@ -615,8 +643,10 @@ sub instance {
     my $instance_name =  delete $args{instance_name} || delete $args{name}
       || 'default';
 
-    if (defined $self->{instance}{$instance_name}) {
-        return $self->{instance}{$instance_name} ;
+    # could add more syntactic suger with 'hash' trait
+    # see Moose::Meta::Attribute::Native
+    if (defined $self->instances->{$instance_name}) {
+        return $self->instances->{$instance_name} ;
     }
 
     my $root_class_name = delete $args{root_class_name}
@@ -635,13 +665,13 @@ sub instance {
               %args                 # for optional parameters like *directory
              ) ;
 
-    $self->{instance}{$instance_name} = $i ;
+    $self->instances->{$instance_name} = $i ;
     return $i ;
 }
 
 sub instance_names {
     my $self = shift ;
-    return keys %{$self->{instance}} ;
+    return keys %{$self->instances} ;
 }
 
 =head1 Configuration class
@@ -744,7 +774,7 @@ sub create_config_class {
 
     get_logger("Model")->info("Creating class $config_class_name") ;
 
-    if (exists $self->{model}{$config_class_name}) {
+    if ($self->model_exists($config_class_name)) {
         Config::Model::Exception::ModelDeclaration->throw
             (
              error=> "create_one_config_class: attempt to clobber $config_class_name".
@@ -762,7 +792,7 @@ sub create_config_class {
         $raw_model{include} = delete $raw_model{inherit} ;
     }
 
-    $self->{raw_model}{$config_class_name} = \%raw_model ;
+    $self->raw_models->{$config_class_name} = \%raw_model ;
 
     # perform some syntax and rule checks and expand compacted
     # elements ie  [qw/foo bar/] => {...} is transformed into
@@ -798,7 +828,7 @@ sub create_config_class {
           if @left_params ;
 
 
-    $self->{model}{$config_class_name} = \%model ;
+    $self->models->{$config_class_name} = \%model ;
 
     return $config_class_name ;
 }
@@ -1729,9 +1759,9 @@ sub get_model {
       || die "Model::get_model: missing config class name argument" ;
 
     $self->load($config_class_name)
-      unless defined $self->{model}{$config_class_name} ;
+      unless defined $self->model($config_class_name) ;
 
-    my $model = $self->{model}{$config_class_name} ||
+    my $model = $self->model($config_class_name) ||
       croak "get_model error: unknown config class name: $config_class_name";
 
     return dclone($model) ;
@@ -1752,9 +1782,9 @@ sub get_element_model {
       || die "Model::get_element_model: missing element name argument" ;
 
     $self->load($config_class_name)
-      unless defined $self->{model}{$config_class_name} ;
+      unless $self->model_defined($config_class_name) ;
 
-    my $model = $self->{model}{$config_class_name} ||
+    my $model = $self->model($config_class_name) ||
       croak "get_element_model error: unknown config class name: $config_class_name";
 
     my $element_m = $model->{element}{$element_name} ||
@@ -1771,9 +1801,9 @@ sub get_raw_model {
     my $config_class_name = shift ;
 
     $self->load($config_class_name)
-      unless defined $self->{raw_model}{$config_class_name} ;
+      unless defined $self->raw_model($config_class_name) ;
 
-    my $model = $self->{raw_model}{$config_class_name} ||
+    my $model = $self->raw_model($config_class_name) ||
       croak "get_raw_model error: unknown config class name: $config_class_name";
 
     return dclone($model) ;
@@ -1849,14 +1879,14 @@ sub get_element_property {
       croak "get_element_property:: missing 'class' parameter";
 
     # must take into account 'accept' model parameter
-    if (not defined $self->{model}{$class}{element}{$prop} ) {
-        foreach my $acc ( @{$self->{model}{$class}{accept}} ) {
+    if (not defined $self->model($class)->{element}{$prop} ) {
+        foreach my $acc ( @{$self->model($class)->{accept}} ) {
             return $acc->{$prop} || $default_property{$prop}
                 if not defined $acc->{name_match} or $elt =~ /$acc->{name_match}/;
         }
     }
 
-    return $self->{model}{$class}{element}{$elt}{$prop}
+    return $self->model($class)->{element}{$elt}{$prop}
         || $default_property{$prop} ;
 }
 
@@ -1872,7 +1902,7 @@ sub list_class_element {
     my $pad  =  shift || '' ;
 
     my $res = '';
-    foreach my $class_name (keys %{$self->{raw_model}}) {
+    foreach my $class_name ($self->raw_model_names) {
         $res .= $self->list_one_class_element($class_name) ;
     }
     return $res ;
@@ -1884,7 +1914,7 @@ sub list_one_class_element {
     my $pad  =  shift || '' ;
 
     my $res = $pad."Class: $class_name\n";
-    my $c_model = $self->{raw_model}{$class_name};
+    my $c_model = $self->raw_model($class_name);
     my $elts = $c_model->{element} ; # array ref
 
     my $include = $c_model->{include} ;
