@@ -769,8 +769,21 @@ sub create_config_class {
     my $self=shift ;
     my %raw_model = @_ ;
 
+    my ($config_class_name, $model, $raw_copy) = $self->load_raw_model (%raw_model);
+
+    $self->_create_config_class ($config_class_name, $model, $raw_copy);
+    return $config_class_name ;
+}
+
+#
+# New subroutine "load_raw_model" extracted - Sat Nov 27 17:01:30 2010.
+#
+sub load_raw_model {
+    my $self = shift;
+    my %raw_model = @_ ;
+
     my $config_class_name = delete $raw_model{name} or
-      croak "create_one_config_class: no config class name" ;
+        croak "create_one_config_class: no config class name" ; 
 
     get_logger("Model")->info("Creating class $config_class_name") ;
 
@@ -813,24 +826,35 @@ sub create_config_class {
         # include class in raw_copy, raw_model is left as is
         $self->include_class($config_class_name, $raw_copy ) ;
     }
+    return ($config_class_name, \%model, $raw_copy);
+}
 
+#
+# New subroutine "_create_config_class" extracted - Sat Nov 27 17:06:42 2010.
+#
+sub _create_config_class {
+    my $self = shift;
+    my $config_class_name = shift;
+    my $model = shift;
+    my $raw_copy = shift;
 
+    
     # check config class parameters and fill %model
-    $self->check_class_parameters($config_class_name, \%model, $raw_copy) ;
+    $self->check_class_parameters($config_class_name, $model, $raw_copy) ;
 
     my @left_params = keys %$raw_copy ;
     Config::Model::Exception::ModelDeclaration->throw
         (
          error=> "create class $config_class_name: unknown ".
          "parameter '" . join("', '",@left_params)."', expected '".
-         join("', '",@legal_params,qw/class_description/)."'"
+         join("', '",@legal_params,qw/class_description/)."'" #<--- Global symbol "@legal_params" requires explicit package name at (eval 696) line 18.
         )
           if @left_params ;
 
 
-    $self->models->{$config_class_name} = \%model ;
+    $self->models->{$config_class_name} = $model ;
 
-    return $config_class_name ;
+    return (\@left_params);
 }
 
 sub check_class_parameters {
@@ -1688,7 +1712,7 @@ will return C<( 'Foo::Bar' , 'Foo::Bar2' )>.
 
 =cut
 
-
+# load a mode from file
 sub load {
     my $self = shift ;
     my $load_model = shift ;
