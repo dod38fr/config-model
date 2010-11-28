@@ -1717,22 +1717,64 @@ do not put C<1;> at the end or C<load> will not work
 If a model name contain a C<::> (e.g C<Foo::Bar>), C<load> will look for
 a file named C<Foo/Bar.pl>.
 
-Returns a list containining the names of the loaded classes. For instance, if
+This method will also look in C<Foo/Bar.d> directory for additional model information. 
+Model snippet found there will be loaded with L<augment_config_class>.
+
+Returns a list containing the names of the loaded classes. For instance, if
 C<Foo/Bar.pl> contains a model for C<Foo::Bar> and C<Foo::Bar2>, C<load>
 will return C<( 'Foo::Bar' , 'Foo::Bar2' )>.
 
+
+
 =cut
 
-# load a mode from file
+# load a model from file
 sub load {
     my $self = shift ;
-    my $load_model = shift ;
-    my $load_file = shift ;
+    my $load_model = shift ; # model name like Foo::Bar
+    my $load_file = shift ;  # model file (override model name), used for tests
 
-    my $load_path = $load_model . '.pl' ;
+    my $load_path = $load_model ;
     $load_path =~ s/::/\//g;
 
-    $load_file ||=  $self->model_dir . '/' . $load_path ;
+    $load_file ||=  $self->model_dir . '/' . $load_path  . '.pl';
+
+    my $model = $self->_do_model_file ($load_model,$load_file);
+
+    my @loaded ;
+    foreach my $config_class_info (@$model) {
+        my @data = ref $config_class_info eq 'HASH' ? %$config_class_info
+                 : ref $config_class_info eq 'ARRAY' ? @$config_class_info
+                 : croak "load $load_file: config_class_info is not a ref" ;
+        push @loaded, $self->create_config_class(@data) ;
+    }
+
+    # look for additional model information
+    my $snippet_dir =  $self->model_dir . '/' . $load_path  . '.d';
+    get_logger("Model::Loader")-> info("looking for snippet in $snippet_dir") ;
+    if (-d $snippet_dir) {
+        foreach my $snippet_file (glob ("$snippet_dir/*.pl")) {
+            get_logger("Model::Loader")-> info("Found snippet $snippet_file") ;
+            my $snippet_model = $self->_do_model_file ($load_model,$snippet_file);
+            foreach my $snippet_info (@$snippet_model) {
+                my @data = ref $snippet_info eq 'HASH'  ? %$snippet_info
+                         : ref $snippet_info eq 'ARRAY' ? @$snippet_info
+                         : croak "load $load_file: config_class_info is not a ref" ;
+                $self->augment_config_class(@data) ;
+            }
+        }
+    }
+
+    return @loaded
+}
+
+
+#
+# New subroutine "_do_model_file" extracted - Sun Nov 28 17:25:35 2010.
+#
+# $load_model is used only for error message
+sub _do_model_file {
+    my ($self,$load_model,$load_file) = @_ ;
 
     get_logger("Model::Loader")-> info("load model $load_file") ;
 
@@ -1745,23 +1787,16 @@ sub load {
         else {$err_msg = "couldn't run $load_file" ;}
     }
     elsif (ref($model) ne 'ARRAY') {
-        $err_msg = "Model file $load_file does not return an array ref" ;
+        $model = [ $model ];
     }
 
     Config::Model::Exception::ModelDeclaration
             -> throw (message => "model $load_model: $err_msg")
                 if $err_msg ;
 
-    my @loaded ;
-    foreach my $config_class_info (@$model) {
-        my @data = ref $config_class_info eq 'HASH' ? %$config_class_info
-                 : ref $config_class_info eq 'ARRAY' ? @$config_class_info
-                 : croak "load $load_file: config_class_info is not a ref" ;
-        push @loaded, $self->create_config_class(@data) ;
-    }
-
-    return @loaded
+    return $model;
 }
+
 
 =head1 Model plugin
 

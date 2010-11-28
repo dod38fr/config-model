@@ -1,5 +1,8 @@
         * Debian/Dpkg/Copyright: removed restrictions on copyright format
         * dist.ini: added build dependency on Probe::Perl (to run tests that invoke config-edit)
+        * Model.pm: can now load model snippet from Foo.d directory. I.e. *.pl files found in Foo.d 
+          are used to augment Foo model. This will be useful to agregate models coming from several
+          teams. FOr instance any team can extends the Fstab model provided in this distribution.
 
 2010-11-22 Dominique Dumont  <domi.dumont@free.fr> 1.222
 
