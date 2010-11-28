@@ -1,6 +1,7 @@
 use strict ;
 use warnings ;
 use File::Path ;
+use Probe::Perl ;
 
 use Test::Command tests => 5;
 
@@ -12,7 +13,11 @@ my $wr_root = 'wr_root';
 # cleanup before tests
 rmtree($wr_root);
 
-my $oops = Test::Command->new( cmd => 'perl -Ilib config-edit -appli popcon -ui none PARITICIPATE=yes');
+my $path = Probe::Perl->find_perl_interpreter();
+
+my $perl_cmd = $path . ' ' .join(' ',map { "-I$_" } Probe::Perl->perl_inc());
+
+my $oops = Test::Command->new( cmd => "$perl_cmd -Ilib config-edit -appli popcon -ui none PARITICIPATE=yes");
 
 exit_is_num($oops, 2);
 stderr_like($oops, qr/auto_read error/, 'check auto_read_error') ;
@@ -30,12 +35,12 @@ open(CONF,"> $conf_file" ) || die "can't open $conf_file: $!";
 print CONF @orig ;
 close CONF ;
 
-$oops = Test::Command->new( cmd => "perl -Ilib config-edit -root_dir $wr_dir -appli popcon -ui none PARITICIPATE=yes");
+$oops = Test::Command->new( cmd => "$perl_cmd -Ilib config-edit -root_dir $wr_dir -appli popcon -ui none PARITICIPATE=yes");
 exit_is_num($oops, 255);
 stderr_like($oops, qr/unknown element/, 'check unknown element') ;
 
 
-my $ok = Test::Command->new( cmd => "perl config-edit -root_dir $wr_dir -ui none -appli popcon PARTICIPATE=yes");
+my $ok = Test::Command->new( cmd => "$perl_cmd config-edit -root_dir $wr_dir -ui none -appli popcon PARTICIPATE=yes");
 exit_is_num($ok, 0);
 
 __END__

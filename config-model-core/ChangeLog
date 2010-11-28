@@ -1,4 +1,5 @@
         * Debian/Dpkg/Copyright: removed restrictions on copyright format
+        * dist.ini: added build dependency on Probe::Perl (to run tests that invoke config-edit)
 
 2010-11-22 Dominique Dumont  <domi.dumont@free.fr> 1.222
 
