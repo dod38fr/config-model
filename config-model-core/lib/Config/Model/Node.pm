@@ -908,7 +908,8 @@ polymorphic for all non-leaf objects of the configuration tree.
 =cut
 
 sub children {
-    goto &get_element_name ;
+    my $self = shift ;
+    return $self-> get_element_name ;
 }
 
 =head2 next_element ( element_name, [ experience_index ] )

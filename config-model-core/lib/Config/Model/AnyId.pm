@@ -956,7 +956,8 @@ polymorphic for all non-leaf objects of the configuration tree.
 =cut
 
 sub children {
-    goto &get_all_indexes ;
+    my $self = shift ;
+    return $self->get_all_indexes ;
 }
 
 
