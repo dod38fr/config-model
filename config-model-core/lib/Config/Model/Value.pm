@@ -1834,7 +1834,7 @@ sub fetch_preset {
 }
 
 
-=head2 get( path , [ custom | preset | standard | default ])
+=head2 get( path => ..., mode => ... ,  check => ... )
 
 Get a value from a directory like path.
 
@@ -1842,7 +1842,8 @@ Get a value from a directory like path.
 
 sub get {
     my $self = shift ;
-    my $path = shift ;
+    my %args = @_ > 1 ? @_ : ( path => $_[0] ) ;
+    my $path = delete $args{path} ;
     if ($path) {
 	Config::Model::Exception::User
 	    -> throw (
@@ -1850,7 +1851,7 @@ sub get {
 		      message => "get() called with a value with non-empty path: '$path'"
 		     ) ;
     }
-    return $self->fetch(@_) ;
+    return $self->fetch(%args) ;
 }
 
 =head2 set( path , value )

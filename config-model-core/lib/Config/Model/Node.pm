@@ -267,10 +267,14 @@ my %create_sub_for =
 
 sub create_element {
     my $self= shift ;
-    my $element_name = shift ;
+    my %args = @_ > 1 ? @_ : ( name => shift ) ;
+    my $element_name = $args{name} ;
+    my $check = $args{check} || 'yes' ;
 
     my $element_info = $self->{model}{element}{$element_name}  ;
 
+    return if $check eq 'skip' and not defined $element_info;
+     
     Config::Model::Exception::UnknownElement->throw(
                                                     object   => $self,
                                                     function => 'create_element',
@@ -896,6 +900,17 @@ sub get_element_name {
     return wantarray ? @result : join( ' ', @result );
 }
 
+=head2 children 
+
+Like get_element_name without parameters. Returns the list of elements. This method is
+polymorphic for all non-leaf objects of the configuration tree.
+
+=cut
+
+sub children {
+    goto &get_element_name ;
+}
+
 =head2 next_element ( element_name, [ experience_index ] )
 
 This method provides a way to iterate through the elements of a node.
@@ -1081,7 +1096,7 @@ sub fetch_element {
     if (not defined $self->{element}{$element_name}) {
         # We also need to check if element name is matched by any of 'accept' parameters
         $self->accept_element($element_name);
-        $self->create_element($element_name) ;
+        $self->create_element(name => $element_name, check => $check ) or return ;
     }
 
     # check level
@@ -1355,7 +1370,7 @@ See L<Config::Model::AnyThing/"grab_value(...)">.
 
 See L<Config::Model::AnyThing/"grab_root()">.
 
-=head2 get( path  [ custom | preset | standard | default ])
+=head2 get( path => ..., mode => ... ,  check => ... )
 
 Get a value from a directory like path.
 
@@ -1363,12 +1378,15 @@ Get a value from a directory like path.
 
 sub get {
     my $self = shift ;
-    my $path = shift ;
+    my %args = @_ > 1 ? @_ : ( path => $_[0] ) ;
+    my $path = delete $args{path} ;
     $path =~ s!^/!! ;
+    return $self unless length($path) ;
     my ($item,$new_path) = split m!/!,$path,2 ;
-    my $elt = $self->fetch_element($item) ;
+    my $elt = $self->fetch_element(name => $item, %args) ;
+    return unless defined $elt ;
     return $elt if ($elt->get_type ne 'leaf' and not defined $new_path) ;
-    return $elt->get($new_path,@_) ;
+    return $elt->get(path => $new_path, %args) ;
 }
 
 =head2 set( path  , value)

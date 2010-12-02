@@ -796,7 +796,7 @@ sub fetch_with_id {
     return ;
 }
 
-=head2 get( path,  [ custom | preset | standard | default ])
+=head2 get( path => ..., mode => ... ,  check => ... )
 
 Get a value from a directory like path.
 
@@ -804,12 +804,13 @@ Get a value from a directory like path.
 
 sub get {
     my $self = shift ;
-    my $path = shift ;
+    my %args = @_ > 1 ? @_ : ( path => $_[0] ) ;
+    my $path = delete $args{path} ;
     $path =~ s!^/!! ;
     my ($item,$new_path) = split m!/!,$path,2 ;
-    my $obj = $self->fetch_with_id($item) ;
+    my $obj = $self->fetch_with_id($item, %args) ;
     return $obj if ($obj->get_type ne 'leaf' and not defined $new_path) ;
-    return $obj->get($new_path,@_) ;
+    return $obj->get(path => $new_path,%args) ;
 }
 
 =head2 set( path, value )
@@ -945,6 +946,17 @@ sub get_all_indexes {
                               or defined $self->{default_with_init}
                               or defined $self->{follow_keys_from});
     return $self->_get_all_indexes ;
+}
+
+=head2 children 
+
+Like get_all_indexes. This method is
+polymorphic for all non-leaf objects of the configuration tree.
+
+=cut
+
+sub children {
+    goto &get_all_indexes ;
 }
 
 
