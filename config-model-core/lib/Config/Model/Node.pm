@@ -1371,9 +1371,11 @@ See L<Config::Model::AnyThing/"grab_value(...)">.
 
 See L<Config::Model::AnyThing/"grab_root()">.
 
-=head2 get( path => ..., mode => ... ,  check => ... )
+=head2 get( path => ..., mode => ... ,  check => ... , get_obj => 1|0)
 
-Get a value from a directory like path.
+Get a value from a directory like path. If C<get_obj> is 1, C<get> will return leaf object
+instead of returning their value.
+
 
 =cut
 
@@ -1381,13 +1383,16 @@ sub get {
     my $self = shift ;
     my %args = @_ > 1 ? @_ : ( path => $_[0] ) ;
     my $path = delete $args{path} ;
+    my $get_obj = delete $args{get_obj} || 0 ;
     $path =~ s!^/!! ;
     return $self unless length($path) ;
     my ($item,$new_path) = split m!/!,$path,2 ;
+    $logger->debug("get: path $path, item $item");
     my $elt = $self->fetch_element(name => $item, %args) ;
+    
     return unless defined $elt ;
-    return $elt if ($elt->get_type ne 'leaf' and not defined $new_path) ;
-    return $elt->get(path => $new_path, %args) ;
+    return $elt if ( ($elt->get_type ne 'leaf' or $get_obj) and not defined $new_path) ;
+    return $elt->get(path => $new_path, get_obj => $get_obj, %args) ;
 }
 
 =head2 set( path  , value)

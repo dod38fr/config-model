@@ -1,7 +1,7 @@
 # -*- cperl -*-
 
 use ExtUtils::testlib;
-use Test::More tests => 7;
+use Test::More tests => 8;
 use Config::Model;
 
 use warnings;
@@ -46,6 +46,11 @@ foreach (["/std_id/bc/X","Av" ],
     my ($path,$exp) = @$_ ;
     is($root->get($path),$exp,"Test get $path") ;
 }
+
+is ($root->get(path => "/std_id/bc/X", get_obj => 1),
+    $root->grab("std_id:bc X"),
+    "test get with get_obj"
+    );
 
 is($root->get(path => '/BDMV', check => 'skip'), undef,"get with check skip does not die");
 

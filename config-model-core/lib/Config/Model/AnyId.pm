@@ -796,7 +796,7 @@ sub fetch_with_id {
     return ;
 }
 
-=head2 get( path => ..., mode => ... ,  check => ... )
+=head2 get( path => ..., mode => ... ,  check => ... , get_obj => 1|0)
 
 Get a value from a directory like path.
 
@@ -806,11 +806,13 @@ sub get {
     my $self = shift ;
     my %args = @_ > 1 ? @_ : ( path => $_[0] ) ;
     my $path = delete $args{path} ;
+    my $get_obj = delete $args{get_obj} || 0 ;
     $path =~ s!^/!! ;
     my ($item,$new_path) = split m!/!,$path,2 ;
-    my $obj = $self->fetch_with_id($item, %args) ;
-    return $obj if ($obj->get_type ne 'leaf' and not defined $new_path) ;
-    return $obj->get(path => $new_path,%args) ;
+    $logger->debug("get: path $path, item $item");
+    my $obj = $self->fetch_with_id(index => $item, %args) ;
+    return $obj if (($get_obj or $obj->get_type ne 'leaf') and not defined $new_path) ;
+    return $obj->get(path => $new_path,get_obj => $get_obj, %args) ;
 }
 
 =head2 set( path, value )
