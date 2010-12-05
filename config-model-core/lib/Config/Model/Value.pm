@@ -1270,7 +1270,7 @@ sub check_value {
             defined $self->{choice_hash}{$value} ;
     }
     elsif ($self->{value_type} eq 'boolean') {
-        push @error, "boolean error: $value' is not '1' or '0'" 
+        push @error, "boolean error: '$value' is not '1' or '0'" 
           unless $value =~ /^[01]$/ ;
     }
     elsif (   $self->{value_type} =~ /integer/ 

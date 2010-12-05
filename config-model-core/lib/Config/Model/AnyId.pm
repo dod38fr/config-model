@@ -796,7 +796,7 @@ sub fetch_with_id {
     return ;
 }
 
-=head2 get( path => ..., mode => ... ,  check => ... , get_obj => 1|0)
+=head2 get( path => ..., mode => ... ,  check => ... , get_obj => 1|0, autoadd => 1|0)
 
 Get a value from a directory like path.
 
@@ -806,10 +806,16 @@ sub get {
     my $self = shift ;
     my %args = @_ > 1 ? @_ : ( path => $_[0] ) ;
     my $path = delete $args{path} ;
+    my $autoadd = 1 ;
+    $autoadd = $args{autoadd} if defined $args{autoadd};
     my $get_obj = delete $args{get_obj} || 0 ;
     $path =~ s!^/!! ;
     my ($item,$new_path) = split m!/!,$path,2 ;
+
+    return unless ($self->exists($item) or $autoadd) ;
+
     $logger->debug("get: path $path, item $item");
+    
     my $obj = $self->fetch_with_id(index => $item, %args) ;
     return $obj if (($get_obj or $obj->get_type ne 'leaf') and not defined $new_path) ;
     return $obj->get(path => $new_path,get_obj => $get_obj, %args) ;

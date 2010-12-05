@@ -59,6 +59,9 @@ my $has_tk = $@ ? 0 : 1 ;
 eval {require Config::Model::CursesUI ;} ;
 my $has_curses = $@ ? 0 : 1 ;
 
+eval {require Config::Model::FuseUI ;} ;
+my $has_fuse = $@ ? 0 : 1 ;
+
 if ($has_tk) {
     $ui_type = 'tk';
 }
@@ -168,6 +171,11 @@ for details.
 
 =item *
 
+C<fuse>: provides an interface through a FUSE virtual file system. You must give a directory where
+the virtaul file system will be mounted with option C<-fuse_dir>
+
+=item *
+
 C<none>: No UI provided. Only command line arguments are handled.
 
 =back
@@ -256,6 +264,10 @@ In graphical mode, force the UI to open the node specified. E.g.
 
  -open_item 'foo bar'
 
+=item -fuse_dir
+
+Directory where the FUSE virtual file system will be mounted (with C<-ui fuse>)
+
 =back
 
 =cut
@@ -275,6 +287,8 @@ my $force_save = 0;
 my $open_item = '';
 my $list = '' ;
 my $application ;
+my $fuse_dir ;
+my $fuse_debug = 0;
  
 my $result = GetOptions ("ui|if=s"          => \$ui_type,
 			 "model_dir=s"      => \$model_dir,
@@ -297,6 +311,8 @@ my $result = GetOptions ("ui|if=s"          => \$ui_type,
 			 'save!'            => \$force_save ,
 			 "open_item=s"      => \$open_item ,
 			 "list=s"           => \$list ,
+			 "fuse_dir=s"       => \$fuse_dir,
+			 "dfuse!"           => \$fuse_debug,
 			);
 
 pod2usage(2) if not $result ;
@@ -449,6 +465,18 @@ elsif ($ui_type eq 'tk') {
 
     &MainLoop ; # Tk's
 }
+elsif ( $ui_type eq 'fuse' ) {
+    die "could not load Config::Model::FuseUI. Is Fuse installed ?\n" unless $has_fuse ;
+    die "Missing -fuse_dir option\n" unless defined $fuse_dir ;
+    die "Directory $fuse_dir does not exists\n" unless -d $fuse_dir ;
+
+    my $ui = Config::Model::FuseUI->new(
+        root => $root , 
+        mountpoint => "$fuse_dir",
+    );       
+    $ui->run_loop($fuse_debug) ;
+    $force_save = 1;
+}
 elsif ( $ui_type =~ /^no/i ) {
     # let go
 }
@@ -457,6 +485,15 @@ else {
 }
 
 $inst->write_back if ($force_save or $load or scalar @ARGV);
+
+END {
+    # cleanup
+    if ($ui_type eq 'fuse') {
+        sleep 1 ;
+        system("fusermount -u $fuse_dir")  ;
+    }
+    
+}
 
 =head1 Saving configuration data
 

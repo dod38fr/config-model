@@ -1371,7 +1371,7 @@ See L<Config::Model::AnyThing/"grab_value(...)">.
 
 See L<Config::Model::AnyThing/"grab_root()">.
 
-=head2 get( path => ..., mode => ... ,  check => ... , get_obj => 1|0)
+=head2 get( path => ..., mode => ... ,  check => ... , get_obj => 1|0, autoadd => 1|0)
 
 Get a value from a directory like path. If C<get_obj> is 1, C<get> will return leaf object
 instead of returning their value.
