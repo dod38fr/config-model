@@ -1,14 +1,23 @@
 # -*- cperl -*-
 
 use ExtUtils::testlib;
-use Test::More tests => 11 ;
+use Test::More ;
 use Path::Class ;
 
 use Config::Model;
-use Config::Model::FuseUI ;
+
+eval { require Config::Model::FuseUI ;} ;
+if ( $@ ) {
+    plan skip_all => "Config::Model::FuseUI or Fuse is not installed";
+}
+else {
+    plan tests => 11;
+}
 
 use warnings FATAL => qw(all);
 use strict;
+
+# required to handle warnings in forked process
 local $SIG{__WARN__} = sub { die $_[0] };
 
 use Data::Dumper;
@@ -93,13 +102,13 @@ $a_string_fhw->close ;
 
 is( $fused->file('a_string')->slurp , "foo bar", "check new a_string content");
 
-$std_id->subdir('cd')->mkpath(mode => 0755) ;
+$std_id->subdir('cd')->mkpath() ;
 @content = sort map { $_->relative($std_id) ; } $std_id-> children ;
 is_deeply( \@content ,  [ @std_id_elements, 'cd' ] ,"check $std_id new content (@content)");
 
 $std_id->subdir('cd')->rmtree() ;
 @content = sort map { $_->relative($std_id) ; } $std_id-> children ;
-is_deeply( \@content ,  \@std_id_elements ,"check $std_id content after rmdir(@content)");
+is_deeply( \@content ,  \@std_id_elements ,"check $std_id content after rmdir (@content)");
 
 
 END {
