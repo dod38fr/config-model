@@ -141,7 +141,7 @@ sub fetch_size {
 sub _get_all_indexes {
     my $self =shift ;
     my $data = $self->{data} ;
-    return (0 .. $#$data ) ;
+    return scalar @$data ? (0 .. $#$data ) : () ;
 }
 
 # fetch without any check 

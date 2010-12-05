@@ -7,7 +7,7 @@ use Test::More;
 use Test::Exception ;
 use Config::Model;
 
-BEGIN { plan tests => 68; }
+BEGIN { plan tests => 69; }
 
 use strict;
 
@@ -106,9 +106,11 @@ ok($inst,"created dummy instance") ;
 
 my $root = $inst -> config_root ;
 
+is_deeply([$root->fetch_element('olist')->get_all_indexes],[],"check index list of empty list");
+
+
 my $b = $root->fetch_element('bounded_list');
 ok($b,"bounded list created") ;
-
 
 is($b->fetch_with_id(1)->store('foo'),'foo',"stored in 1") ;
 is($b->fetch_with_id(0)->store('baz'),'baz',"stored in 0") ;
