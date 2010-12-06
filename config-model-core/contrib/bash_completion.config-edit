@@ -24,7 +24,7 @@ _config-edit_appli()
 
 _config-edit_options()
 {
-    COMPREPLY=( $( compgen -W '-application -model -ui -dev -model_dir -root_dir -force_load -backend -dump -dumptype -load -save' -- $cur ) )
+    COMPREPLY=( $( compgen -W '-application -model -ui -dev -model_dir -root_dir -force_load -backend -dump -dumptype -load -save -fuse_dir' -- $cur ) )
 }
 
 _config-edit()
@@ -42,9 +42,9 @@ _config-edit()
             _config-edit_models
             ;;
         -ui)
-            compgen -W 'none tk curses shell' -- $cur
+            compgen -W 'none tk curses shell fuse' -- $cur
             ;;
-        -model_dir|-root_dir)
+        -model_dir|-root_dir|-fuse_dir)
             _filedir -d
             ;;
         -dumptype)
