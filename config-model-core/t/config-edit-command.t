@@ -19,7 +19,7 @@ my $conf_file = "$wr_dir/etc/popularity-contest.conf" ;
 
 my $path = Probe::Perl->find_perl_interpreter();
 
-my $perl_cmd = $path . ' ' .join(' ',map { "-I$_" } Probe::Perl->perl_inc());
+my $perl_cmd = $path . ' -Iblib/lib ' .join(' ',map { "-I$_" } Probe::Perl->perl_inc());
 
 my $oops = Test::Command->new( cmd => "$perl_cmd -Ilib config-edit -root_dir $wr_dir -appli popcon -ui none PARITICIPATE=yes");
 
