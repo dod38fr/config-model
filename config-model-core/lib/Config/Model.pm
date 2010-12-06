@@ -191,11 +191,11 @@ will be made of 3 parts :
 
 
   GUI <--------> |---------------|
-                 | |---------|   |
+  CursesUI <---> | |---------|   |
                  | | Model   |   |
-  CursesUI <---> | |---------|   |<-----read-backend------- |-------------|
+  ShellUI <----> | |---------|   |<-----read-backend------- |-------------|
                  |               |----write-backend-------> | config file |
-  ShellUI <----> | Config::Model |                          |-------------|
+  FuseUI <-----> | Config::Model |                          |-------------|
                  |---------------|
 
 =over
@@ -324,6 +324,11 @@ Graphical with L<Config::Model::TkUI> (Perl/Tk interface).
 
 based on curses with L<Config::Model::CursesUI>. This interface can be
 handy if your X server is down.
+
+=item *
+
+Through a virtual file system where every configuration parameter is mapped to a file.
+(Linux only)
 
 =back
 

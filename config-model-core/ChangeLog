@@ -1,5 +1,10 @@
-        Node AnyId Value: get() now accepts check parameter" 
-        Node AnyId: added children method
+2010-12-06 Dominique Dumont  <domi.dumont@free.fr> 1.224
+
+        * Node AnyId Value: get() now accepts check parameter, autoadd parameter 
+        * Node AnyId: added children method
+        * Added Fuse interface: configuration tree is mapped to a virtual directory. 
+          Use config-edit -ui fuse -fuse_dir some/where to use. 
+          Stop with 'fusermount -u some/where'
         
 2010-11-28 Dominique Dumont  <domi.dumont@free.fr> 1.223
 

@@ -172,7 +172,10 @@ for details.
 =item *
 
 C<fuse>: provides an interface through a FUSE virtual file system. You must give a directory where
-the virtaul file system will be mounted with option C<-fuse_dir>
+the virtual file system will be mounted with option C<-fuse_dir>. 
+To stop (and write the configuration data back to the configuration file), 
+run C<< fusermount -u <mounted_fuse_dir> >>. (This is experimental. Mount point 
+specification may change in the future)
 
 =item *
 
