@@ -283,7 +283,7 @@ sub auto_read_init {
     if (not $read_done) {
         my $msg = "could not read config file with ";
         $msg .= $pref_backend ? "'$pref_backend'" : 'any' ;
-        $msg .= " backend";
+        $msg .= " backend ($!)";
 
         Config::Model::Exception::Model -> throw
             (
