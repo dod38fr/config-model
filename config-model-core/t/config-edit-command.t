@@ -13,21 +13,22 @@ my $wr_root = 'wr_root';
 # cleanup before tests
 rmtree($wr_root);
 
+my $test1 = 'popcon1' ;
+my $wr_dir = $wr_root.'/'.$test1 ;
+my $conf_file = "$wr_dir/etc/popularity-contest.conf" ;
+
 my $path = Probe::Perl->find_perl_interpreter();
 
 my $perl_cmd = $path . ' ' .join(' ',map { "-I$_" } Probe::Perl->perl_inc());
 
-my $oops = Test::Command->new( cmd => "$perl_cmd -Ilib config-edit -appli popcon -ui none PARITICIPATE=yes");
+my $oops = Test::Command->new( cmd => "$perl_cmd -Ilib config-edit -root_dir $wr_dir -appli popcon -ui none PARITICIPATE=yes");
 
-exit_is_num($oops, 2);
+exit_cmp_ok($oops, '>',0,'missing config file detected');
 stderr_like($oops, qr/auto_read error/, 'check auto_read_error') ;
 
 # put popcon data in place
 my @orig = <DATA> ;
 
-my $test1 = 'popcon1' ;
-my $wr_dir = $wr_root.'/'.$test1 ;
-my $conf_file = "$wr_dir/etc/popularity-contest.conf" ;
 
 mkpath($wr_dir.'/etc', { mode => 0755 }) 
   || die "can't mkpath: $!";
@@ -36,12 +37,12 @@ print CONF @orig ;
 close CONF ;
 
 $oops = Test::Command->new( cmd => "$perl_cmd -Ilib config-edit -root_dir $wr_dir -appli popcon -ui none PARITICIPATE=yes");
-exit_is_num($oops, 255);
+exit_is_num($oops, 255,'wrong parameter detected');
 stderr_like($oops, qr/unknown element/, 'check unknown element') ;
 
 
 my $ok = Test::Command->new( cmd => "$perl_cmd config-edit -root_dir $wr_dir -ui none -appli popcon PARTICIPATE=yes");
-exit_is_num($ok, 0);
+exit_is_num($ok, 0,'all went well');
 
 __END__
 # Config file for Debian's popularity-contest package.
