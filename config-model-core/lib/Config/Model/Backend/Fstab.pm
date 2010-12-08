@@ -167,18 +167,17 @@ __END__
 
 =head1 NAME
 
-Config::Model::Backend::ShellVar - Read and write config as a SHELLVAR data structure
+Config::Model::Backend::Fstab - Read and write config from fstab file
 
 =head1 SYNOPSIS
 
   # model declaration
-  name => 'FooConfig',
+  name => 'Fstab',
 
   read_config  => [
-                    { backend => 'shellvar' , 
-                      config_dir => '/etc/foo',
-                      file  => 'foo.conf',      # optional
-                      auto_create => 1,         # optional
+                    { backend => 'fstab' , 
+                      config_dir => '/etc/',
+                      file  => 'fstab', 
                     }
                   ],
 
@@ -189,17 +188,18 @@ Config::Model::Backend::ShellVar - Read and write config as a SHELLVAR data stru
 =head1 DESCRIPTION
 
 This module is used directly by L<Config::Model> to read or write the
-content of a configuration tree written with SHELLVAR syntax in
-C<Config::Model> configuration tree.
+content of a configuration tree written with fstab syntax in
+C<Config::Model> configuration tree. Typically this backend will 
+be used to read and write C</etc/fstab>.
 
-Note that undefined values are skipped for list element. I.e. if a
-list element contains C<('a',undef,'b')>, the data structure will
-contain C<'a','b'>.
+=head1 STOP
 
+The documentation below describes methods that are currently used only by 
+L<Config::Model>. You don't need to read it to write a model.
 
 =head1 CONSTRUCTOR
 
-=head2 new ( node => $node_obj, name => 'shellvar' ) ;
+=head2 new ( node => $node_obj, name => 'fstab' ) ;
 
 Inherited from L<Config::Model::Backend::Any>. The constructor will be
 called by L<Config::Model::AutoRead>.

@@ -2,6 +2,7 @@
 
         * config-edit: mount fuse file system in the background. (like sshfs)
         * FuseUI: Improved doc
+        * C::M::Backend::Fstab: improved doc
 
 2010-12-06 Dominique Dumont  <domi.dumont@free.fr> 1.225
 
