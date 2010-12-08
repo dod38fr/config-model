@@ -76,7 +76,7 @@ my $pid = fork ;
 
 if (defined $pid and $pid == 0) {
     # child process, just run fuse and wait for exit
-    $ui->run_loop($fuse_debug) ;
+    $ui->run_loop(debug => $fuse_debug) ;
     exit ;
 }
 
