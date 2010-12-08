@@ -6,11 +6,12 @@ use Fuse qw(fuse_get_context);
 use Fcntl ':mode';
 use POSIX qw(ENOENT EISDIR EINVAL);
 use Log::Log4perl qw(get_logger :levels);
+use English qw( -no_match_vars ) ;
 
 use MooseX::Singleton;
-has model       => ( is => 'rw', isa => 'Config::Model');
-has root        => ( is => 'ro', isa => 'Config::Model::Node', required => 1 );
-has mountpoint  => ( is => 'ro', isa => 'Str'          , required => 1 );
+has model         => ( is => 'rw', isa => 'Config::Model');
+has root          => ( is => 'ro', isa => 'Config::Model::Node', required => 1 );
+has mountpoint    => ( is => 'ro', isa => 'Str'          , required => 1 );
 
 my $logger = get_logger("FuseUI") ;
 
@@ -33,13 +34,6 @@ sub getdir {
     return ( @c , 0 ) ;
 }
 
-sub filename_fixup {
-	my ($file) = shift;
-	$file =~ s,^/,,;
-	$file = '.' unless length($file);
-	return $file;
-}
-
 my %files ;
 
 sub getattr {
@@ -60,20 +54,21 @@ sub getattr {
     
     my $mode ;
     if ($type eq 'leaf' or $type eq 'check_list') {
-        $mode = S_IFREG | 0666  ;
+        $mode = S_IFREG | 0644  ;
     }
     else {
         $mode = S_IFDIR | 0755 ;
     }
 
-    my ($dev, $ino, $rdev, $blocks, $gid, $uid, $nlink, $blksize) = (0,0,0,1,0,0,1,1024);
+    my ($dev, $ino, $rdev, $blocks, $gid, $uid, $nlink, $blksize) = (0,0,0,1,$EGID,$EUID,1,1024);
     my ($atime, $ctime, $mtime);
     $atime = $ctime = $mtime = time ;
 	# 2 possible types of return values:
 	#return -ENOENT(); # or any other error you care to
 	#print(join(",",($dev,$ino,$modes,$nlink,$uid,$gid,$rdev,$size,$atime,$mtime,$ctime,$blksize,$blocks)),"\n");
     my @r = ($dev,$ino,$mode,$nlink,$uid,$gid,$rdev,$size,$atime,$mtime,$ctime,$blksize,$blocks);
-        $logger->trace(__PACKAGE__."::getattr returns '".join("','",@r)."'");
+    $logger->trace(__PACKAGE__."::getattr returns '".join("','",@r)."'");
+
     return @r ;
 }
 
@@ -227,34 +222,113 @@ sub unlink {
  
 sub statfs { return 255, 1, 1, 1, 1, 2 }
 
-=head1 Methods
+my @methods = map { ( $_ => __PACKAGE__."::$_" ) } 
+    qw/getattr getdir open read write statfs truncate unlink mkdir rmdir/ ;
 
-=head2 run_loop()
-
-Engage in user interaction until user enters '^D' (CTRL-D).
-
-=cut
-
-my @methods = map { ( $_ => __PACKAGE__."::$_" ) } qw/getattr getdir open read write statfs truncate unlink mkdir rmdir/ ;
-
-# FIXME: mkdir rmdir unlink truncate flush release 
+# FIXME: flush release 
 # maybe also: readlink mknod symlink rename link chmod chown utime
 
 sub run_loop {
-    my ($self,$debug) = @_ ;
+    my ($self,%args) = @_ ;
+    my $debug = $args{debug} || 0 ;
 
-    # If you run the script directly, it will run fusermount, which will in turn
-    # re-run this script.  Hence the funky semantics.
     Fuse::main(
-            mountpoint => $self->mountpoint,
-            @methods ,
-            debug    => $debug || 0,
-            threaded => 0 ,
+        mountpoint => $self->mountpoint,
+        @methods ,
+        debug    => $debug || 0,
+        threaded => 0 ,
     );
 }
 
 1;
 
+=head1 NAME
+
+Config::Model::FuseUI - Fuse virtual file interface for Config::Model
+
+=head1 SYNOPSIS
+
+ # command line
+ mkdir fuse_dir
+ config-edit -application popcon -ui fuse -fuse_dir fusedir 
+ ll fuse_dir
+ fusermount -u fuse_dir
+ 
+ # programmatic
+ use Config::Model ;
+ use Config::Model::FuseUI ;
+ use Log::Log4perl qw(:easy) ; 
+ 
+ Log::Log4perl->easy_init($WARN); 
+ my $model = Config::Model -> new; 
+ my $root = $model -> instance (root_class_name => "PopCon") -> config_root ; 
+ my $ui = Config::Model::FuseUI->new( root => $root, mountpoint => "fuse_dir" ); 
+ $ui -> run_loop ;  # blocking call
+ 
+ # explore fuse_dir in another terminal then umount fuse_dir directory
+ 
+
+=head1 DESCRIPTION
+
+This module provides a virtual file system interface for you configuration data. Each possible 
+parameter of your configuration file is mapped to a file. 
+
+=head1 Example 
+
+ $ perl -Ilib config-edit -ui fuse -fuse_dir fused -appli popcon 
+ Mounting config on fused in background.
+ Use command 'fusermount -u fused' to unmount
+ $ ll fused
+ total 4
+ -rw-r--r-- 1 domi domi  1 Dec  8 19:27 DAY
+ -rw-r--r-- 1 domi domi  0 Dec  8 19:27 HTTP_PROXY
+ -rw-r--r-- 1 domi domi  0 Dec  8 19:27 MAILFROM
+ -rw-r--r-- 1 domi domi  0 Dec  8 19:27 MAILTO
+ -rw-r--r-- 1 domi domi 32 Dec  8 19:27 MY_HOSTID
+ -rw-r--r-- 1 domi domi  3 Dec  8 19:27 PARTICIPATE
+ -rw-r--r-- 1 domi domi  0 Dec  8 19:27 SUBMITURLS
+ -rw-r--r-- 1 domi domi  3 Dec  8 19:27 USEHTTP
+ $ fusermount -u fuse_dir
+
+=head1 BUGS
+
+For some configuration, mapping each parameter to a file may lead to a high number of files.
+
+=head1 constructor
+
+=head1 new (...)
+
+parameters are:
+
+=over 
+
+=item model
+
+Config::Model object
+
+=item root
+
+Root of the configuration tree (C<Config::Model::Node> object )
+
+=item mountpoint
+
+=back
+
+=head1 Methods
+
+=head2 run_loop( fork_in_loop => 1|0, debug => 1|0)
+
+Mount the file system either in the current process or fork a new process before mounting the file system.
+In the former case, the call is blocking. In the latter, the call will return after forking a process that
+will perform the mount. Debug parameter is passed to Fuse system to get Fuse traces.
+
+=head2 fuse_mount
+
+Mount the fuse file system. This method will block until the file system is 
+unmounted (with C<fusermount -u mount_point> command)
+
+=cut
+
 =head1 SEE ALSO
 
-L<Fuse>
+L<Fuse>, L<Config::Model>
