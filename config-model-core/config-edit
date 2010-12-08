@@ -26,6 +26,7 @@ use Config::Model;
 use Getopt::Long ;
 use Pod::Usage ;
 use Log::Log4perl qw(get_logger :levels);
+use POSIX qw/setsid/ ;
 
 # lame tracing that will be replaced by Log4perl
 use vars qw/$verbose $debug/ ;
@@ -477,8 +478,20 @@ elsif ( $ui_type eq 'fuse' ) {
         root => $root , 
         mountpoint => "$fuse_dir",
     );       
-    $ui->run_loop($fuse_debug) ;
-    $force_save = 1;
+
+    print "Mounting config on $fuse_dir in background.\nUse command 'fusermount -u $fuse_dir' to unmount\n";
+
+    # now fork 
+    my $pid = fork ;
+
+    if (defined $pid and $pid == 0) {
+        # child process, just run fuse and wait for exit
+        $ui->run_loop(debug => $fuse_debug) ;
+        $force_save = 1;
+    }
+    else {
+        exit ; # don't save data in parent process
+    }
 }
 elsif ( $ui_type =~ /^no/i ) {
     # let go
@@ -488,15 +501,6 @@ else {
 }
 
 $inst->write_back if ($force_save or $load or scalar @ARGV);
-
-END {
-    # cleanup
-    if ($ui_type eq 'fuse') {
-        sleep 1 ;
-        system("fusermount -u $fuse_dir")  ;
-    }
-    
-}
 
 =head1 Saving configuration data
 
