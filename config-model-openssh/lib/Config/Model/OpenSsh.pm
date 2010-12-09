@@ -13,10 +13,7 @@ use File::Copy ;
 use File::Path ;
 
 use Parse::RecDescent ;
-use vars qw($VERSION $grammar $parser)  ;
-
-$VERSION = '1.210' ;
-
+use vars qw($grammar $parser)  ;
 
 my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
@@ -31,52 +28,87 @@ Config::Model::OpenSsh - OpenSsh configuration files editor
 
 =head1 SYNOPSIS
 
- # Config::Model::OpenSsh is a plugin for Config::Model. You can use
- # Config::Model API to modify its content
+=head2 invoke editor
+
+This command will launch a graphical editor (if L<Config::Model::TkUI>
+is installed):
+
+ config-edit -application sshd 
+
+=head2 command line
+
+This command will add a C<Host Foo> section in C<~/.ssh/config>: 
+
+ config-edit -application ssh -ui none Host:Foo ForwardX11=yes
+ 
+=head2 programmatic
+
+This code snippet will remove the C<Host Foo> section added above:
 
  use Config::Model ;
+ use Log::Log4perl qw(:easy) ;
  my $model = Config::Model -> new ( ) ;
-
- my $inst = $model->instance (root_class_name   => 'Sshd',
-                              instance_name     => 'my_instance',
-                             );
- my $root = $inst -> config_root ;
-
- $root->load("AllowUsers=foo,bar") ;
-
+ my $inst = $model->instance (root_class_name => 'Ssh');
+ $inst -> config_root ->load("Host~Foo") ;
  $inst->write_back() ;
 
 =head1 DESCRIPTION
 
-This module provides a configuration model for OpenSsh. Then
-Config::Model provides a graphical editor program for
-F</etc/ssh/sshd_config> and F</etc/ssh/ssh_config>. See
-L<config-edit-sshd> and L<config-edit-ssh> for more help.
+This module provides a configuration editors (and models) for the 
+configuration files of OpenSsh. (C</etc/ssh/sshd_config>, F</etc/ssh/ssh_config>
+and C<~/.ssh/config>).
 
-This module and Config::Model can also be used to modify safely the
-content for F</etc/ssh/sshd_config>, F</etc/ssh/ssh_config> or
-F<~/.ssh/config> from Perl programs.
+This module can also be used to modify safely the
+content of these configuration files from a Perl programs.
 
-Once this module is installed, you can run (as root, but please backup
-/etc/X11/xorg.conf before):
+Once this module is installed, you can edit C</etc/ssh/sshd_config> 
+with run (as root) :
 
- # config-edit-sshd 
+ # config-edit -application sshd 
 
-Or to edit F</etc/ssh/ssh_config> configuration files:
+To edit F</etc/ssh/ssh_config>, run (as root):
 
- # config-edit-ssh
+ # config-edit -application ssh
 
 To edit F<~/.ssh/config>, run as a normal user:
 
- # config-edit-ssh
+ # config-edit -application ssh
 
-The Perl API is documented in L<Config::Model> and mostly in
-L<Config::Model::Node>.
+=head1 user interfaces
+
+As mentioned in L<config-edit>, several user interfaces are available:
+
+=over
+
+=item *
+
+A graphical interface is proposed by default if L<Config::Model::TkUI> is installed.
+
+=item *
+
+A Curses interface with option C<-ui curses> if L<Config::Model::CursesUI> is installed.
+
+=item *
+
+A Shell like interface with option C<-ui term>.
+
+=item *
+
+A L<Fuse> virtual file system with option C<< -ui fuse -fuse_dir <mountpoint> >> 
+if L<Fuse> is installed (Linux only)
+
+=back
+
+=head1 STOP
+
+The documentation provides on the reader and writer of OpenSsh configuration files.
+These details are not needed for the basic usages explained above.
 
 =head1 Functions
 
-These functions are declared in OpenSsh configuration models and are
-called back.
+These read/write functions are part of OpenSsh read/write backend. Theyr are 
+declared in OpenSsh configuration models and are called back when needed to read the 
+configuration file and write it back.
 
 =head2 sshd_read (object => <sshd_root>, conf_dir => ...)
 
