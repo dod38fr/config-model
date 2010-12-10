@@ -1,5 +1,7 @@
 	* *.t: fixed tests 
-	* demo: split user and maintainer demo FIXME: MANIFEST
+	* demo: split user and maintainer demo
+	* removed config-edit-*. config-edit now has auto-completion and 
+	can be invoked with '-application ssh' or '-application sshd'
 
 2010-02-02  Dominique Dumont  <dominique.dumont@hp.com>
 
