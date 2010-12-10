@@ -15,7 +15,7 @@ use File::Path ;
 use Parse::RecDescent ;
 use vars qw($grammar $parser)  ;
 
-my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+my $logger = Log::Log4perl::get_logger("OpenSsh");
 
 my $__test_ssh_root_file = 0;
 sub _set_test_ssh_root_file { $__test_ssh_root_file = shift ;} 
@@ -24,13 +24,13 @@ sub _set_test_ssh_home { $__test_ssh_home = shift ;}
 
 =head1 NAME
 
-Config::Model::OpenSsh - OpenSsh configuration files editor
+Config::Model::OpenSsh - OpenSsh config editor
 
 =head1 SYNOPSIS
 
 =head2 invoke editor
 
-This command will launch a graphical editor (if L<Config::Model::TkUI>
+The following will launch a graphical editor (if L<Config::Model::TkUI>
 is installed):
 
  config-edit -application sshd 
@@ -106,7 +106,7 @@ These details are not needed for the basic usages explained above.
 
 =head1 Functions
 
-These read/write functions are part of OpenSsh read/write backend. Theyr are 
+These read/write functions are part of OpenSsh read/write backend. They are 
 declared in OpenSsh configuration models and are called back when needed to read the 
 configuration file and write it back.
 
