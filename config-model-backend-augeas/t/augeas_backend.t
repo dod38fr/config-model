@@ -167,8 +167,8 @@ $ssh_augeas_obj->print('/files/etc/ssh/sshd_config/*') if $trace;
 #my @aug_content = $ssh_augeas_obj->match("/files/etc/ssh/sshd_config/*") ;
 #print join("\n",@aug_content) ;
 
-$expect = "AcceptEnv=LC_PAPER,LC_NAME,LC_ADDRESS,LC_TELEPHONE,LC_MEASUREMENT,LC_IDENTIFICATION,LC_ALL
-AllowUsers=foo,bar\@192.168.0.*
+$expect = qq(AcceptEnv=LC_PAPER,LC_NAME,LC_ADDRESS,LC_TELEPHONE,LC_MEASUREMENT,LC_IDENTIFICATION,LC_ALL
+AllowUsers=foo,"bar\@192.168.0.*"
 HostbasedAuthentication=no
 HostKey=/etc/ssh/ssh_host_key,/etc/ssh/ssh_host_rsa_key,/etc/ssh/ssh_host_dsa_key
 Subsystem:rftp=/usr/lib/openssh/rftp-server
@@ -182,18 +182,18 @@ Match:0
 Match:1
   Condition
     User=Chirac
-    Group=pres.* -
+    Group="pres.*" -
   Settings
     Banner=/etc/bienvenue1.txt - -
 Match:2
   Condition
     User=bush
-    Group=pres.*
-    Host=white.house.* -
+    Group="pres.*"
+    Host="white.house.*" -
   Settings
     Banner=/etc/welcome.txt - -
 Ciphers=arcfour256,aes192-cbc,aes192-ctr,aes256-cbc,aes256-ctr -
-";
+);
 
 $dump = $sshd_root->dump_tree ;
 print $dump if $trace ;

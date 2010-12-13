@@ -2,7 +2,7 @@
 # $Date$
 # $Revision$
 
-#    Copyright (c) 2008 Dominique Dumont.
+#    Copyright (c) 2008-2010 Dominique Dumont.
 #
 #    This file is part of Config-Model-Backend-Augead.
 #
@@ -41,7 +41,7 @@ my $build = Module::Build->new
 		      'Log::Log4perl'     => '1.11', # for TRACE log level
 		      'Exception::Class'  => 0,
 		      'Config::Augeas' => '0.303',
-		      'Config::Model'  => '0.636',
+		      'Config::Model'  => '1.207',
 		     },
    build_requires => {
 		      'Test::More'        => 0,

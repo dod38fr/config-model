@@ -1,5 +1,4 @@
-
-#    Copyright (c) 2008-2009 Dominique Dumont.
+#    Copyright (c) 2008-2010 Dominique Dumont.
 #
 #    This file is part of Config-Model-Backend-Augeas.
 #
@@ -30,7 +29,7 @@ my $has_augeas = 1;
 eval { require Config::Augeas ;} ;
 $has_augeas = 0 if $@ ;
 
-our $VERSION = '0.107';
+our $VERSION = '0.108';
 
 =head1 NAME
 
@@ -38,9 +37,8 @@ Config::Model::Backend::Augeas - Read and write config data through Augeas
 
 =head1 SYNOPSIS
 
-  # use with Augeas
-  $model->create_config_class 
-  (
+  # model specification with augeas backend
+  {
    config_class_name => 'OpenSsh::Sshd',
 
    # try Augeas and fall-back with custom method
@@ -57,7 +55,7 @@ Config::Model::Backend::Augeas - Read and write config data through Augeas
 
 
    element => ...
-  ) ;
+  }
 
 =head1 DESCRIPTION
 
@@ -780,7 +778,7 @@ Dominique Dumont, E<lt>ddumont at cpan dot org@<gt>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2008-2009 by Dominique Dumont
+Copyright (C) 2008-2010 by Dominique Dumont
 
 =head1 LICENSE
 
