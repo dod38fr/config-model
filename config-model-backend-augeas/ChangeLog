@@ -1,3 +1,8 @@
+2010-12-13  Dominique Dumont  <dominique.dumont@hp.com> v0.108
+
+        * updated tests to work with Config::Model 1.207
+        * C::M::B::Augeas: synopsis is now a model snippet
+        
 2009-05-29  Dominique Dumont  <dominique.dumont@hp.com> v0.107
 
 	* lib/Config/Model/Backend/Augeas.pm (all): Use Log::Log4perl for
