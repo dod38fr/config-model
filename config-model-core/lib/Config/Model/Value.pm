@@ -472,6 +472,10 @@ Perl regular expression. A warning will be issued when the value does not match 
 passed regular expression. Valid only for C<string> or
 C<uniline> values.
 
+=item warn_message
+
+String. Message to show the user if one of the above condition is met.
+
 =item warn
 
 String. Issue a warning to user with the specified string any time a value is set or read.
@@ -703,7 +707,7 @@ sub set_properties {
 
 
     map { $self->{$_} =  delete $args{$_} if defined $args{$_} }
-      qw/min max mandatory replace warn/;
+      qw/min max mandatory replace warn warn_message/ ;
 
     $self->set_help           ( \%args );
     $self->set_value_type     ( \%args );
@@ -1307,9 +1311,9 @@ sub check_value {
 	next unless defined $self->{$k} and defined $value ;
 	my $rxp = $self->{$k} ;
 
-	push @warn,"value '$value' should not match regexp $rxp"  
+	push @warn, $self->{warn_message} || "value '$value' should not match regexp $rxp"  
 	    if $t =~ /if/ and $value =~ $rxp ;
-	push @warn,"value '$value' should match regexp $rxp"  
+	push @warn, $self->{warn_message} || "value '$value' should match regexp $rxp"  
 	    if $t =~ /unless/ and $value !~ $rxp;
     }
     

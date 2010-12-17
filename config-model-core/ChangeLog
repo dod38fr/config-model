@@ -1,3 +1,8 @@
+        * Model.pm: deprecated name_match parameter in accept
+          specification. The regexp should now be specified as a
+          key of a hash
+
+
 2010-12-08 Dominique Dumont  <domi.dumont@free.fr> 1.226
 
         * config-edit: mount fuse file system in the background. (like sshfs)

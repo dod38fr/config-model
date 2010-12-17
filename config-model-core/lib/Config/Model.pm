@@ -135,8 +135,8 @@ Config::Model - Create tools to validate, migrate and edit configuration files
  $ mkdir -p lib/Config/Model/models/
  $ config-model-edit -model MiniModel -save \
    class:MiniModel element:foo type=leaf value_type=uniline - \
-   element:bar type=leaf value_type=uniline - \
-   element:baz type=leaf value_type=uniline - \
+                   element:bar type=leaf value_type=uniline - \
+                   element:baz type=leaf value_type=uniline - \
    read_config:0 backend=IniFile file=mini.ini config_dir=. auto_create=1 - - -
  $ config-edit -model MiniModel -model_dir lib/Config/Model/models/ -ui none bar=BARV foo=FOOV baz=BAZV
  $ cat mini.ini
@@ -928,11 +928,22 @@ sub check_class_parameters {
     my @accept_list ;
     my %accept_hash ;
     my $accept_info = delete $raw_model->{'accept'} || [] ;
-    foreach my $accept_item (@$accept_info) {
-        my $name_match = delete $accept_item->{name_match} || '.*';
+    while (@$accept_info) {
+        my $name_match = shift @$accept_info ; # should be a regexp
+
+        # handle legacy
+        if (ref $name_match) {
+            my $implicit = defined $name_match->{name_match} ? '' :'implicit ';
+            unshift @$accept_info, $name_match; # put data back in list
+            $name_match  = delete $name_match->{name_match} || '.*' ;
+            warn "class $config_class_name: name_match ($implicit$name_match)",
+                " in accept is deprecated\n" ;
+        }
+        
         push @accept_list, $name_match ;
-        $accept_hash{$name_match} = $accept_item ;
+        $accept_hash{$name_match} = shift @$accept_info;
     }
+
     $model->{accept}  = \%accept_hash ;
     $model->{accept_list}  = \@accept_list ;
 
@@ -2096,8 +2107,8 @@ Returns an array of 3 hash refs:
 category (system or user or application) => application list. E.g. 
 
  { system => [ 'popcon' , 'fstab'] }
- 
- =item *
+
+=item *
 
 application => { model => 'model_name', ... }
 

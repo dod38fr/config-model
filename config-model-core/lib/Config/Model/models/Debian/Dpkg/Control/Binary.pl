@@ -83,7 +83,9 @@
                            {
                              'value_type' => 'string',
                              'mandatory' => '1',
-                             'type' => 'leaf'
+                             'type' => 'leaf' ,
+                             warn_if_match => '\n[\-\*]' ,
+                             warn_message => 'lintian like possible-unindented-list-in-extended-description. i.e. "-" or "*" without leading white space'
                            }
                          ]
           }
