@@ -192,19 +192,18 @@ sub read_all {
                 delete $new_model->{$item} ;
             }
 
-            # cleanup
-
-            # Since the element are stored in a ordered hash,
+            # Since accept specs and elements are stored in a ordered hash,
             # load_data expects a array ref instead of a hash ref.
-            # Build this array ref taking the element order into
+            # Build this array ref taking the order into
             # account
-            my $list  = delete $new_model -> {element_list} ;
-            my $elt_h = delete $new_model -> {element} ;
-            $new_model -> {element} = [] ;
-            map { 
-                push @{$new_model->{element}}, $_, $elt_h->{$_} 
-            } @$list ;
-
+            foreach my $what (qw/element accept/) {
+                my $list  = delete $new_model -> {$what.'_list'} ;
+                my $h     = delete $new_model -> {$what} ;
+                $new_model -> {$what} = [] ;
+                map { 
+                    push @{$new_model->{$what}}, $_, $h->{$_} 
+                } @$list ;
+            }
 
             # remove hash key with undefined values
             map { delete $new_model->{$_} unless defined $new_model->{$_} 
@@ -220,7 +219,6 @@ sub read_all {
     my $class_element = $model_obj->fetch_element('class') ;
     map { $class_element->fetch_with_id($_) } keys %read_models ;
 
-    #print Dumper \@read_models ;
     #require Tk::ObjScanner; Tk::ObjScanner::scan_object(\%read_models) ;
 
     $logger->info("loading all extracted data in Config::Model::Itself");

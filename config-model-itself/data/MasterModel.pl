@@ -72,16 +72,14 @@
   [
     name => 'MasterModel::TolerantNode',
     accept =>      [
-                    { 
-                            name_match => 'list.*',
+                    'list.*' => { 
                             type => 'list',
                             cargo => { 
                                         type => 'leaf',
                                         value_type => 'string',
                                      } ,
                      },
-                     { 
-                            name_match => 'str.*',
+                     'str.*' => { 
                             type => 'leaf',
                             value_type => 'uniline'
                      },

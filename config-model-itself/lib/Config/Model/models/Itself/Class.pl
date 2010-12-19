@@ -82,7 +82,9 @@
           },
        'accept'
        => {
-           type => 'list',
+           type => 'hash',
+           index_type => 'string',
+           ordered => 1 ,
            cargo => { type => 'node',
                       config_class_name => 'Itself::ConfigAccept',
                     },

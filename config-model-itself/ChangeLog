@@ -1,4 +1,6 @@
         * Fix class deletion issue
+        * Adapted model and test to new style of accept specification
+          (require Config::Model 1.227)
 
 2010-10-15 Dominique Dumont  <domi.dumont@free.fr> 1.219
 
