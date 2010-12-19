@@ -2,9 +2,9 @@
           {
             'class_description' => 'Machine-readable debian/copyright',
             'accept' => [
+                          'X-.*',
                           {
                             'value_type' => 'string',
-                            'name_match' => 'X-.*',
                             'type' => 'leaf'
                           }
                         ],

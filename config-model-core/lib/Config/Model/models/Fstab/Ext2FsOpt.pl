@@ -1,6 +1,7 @@
 [
           {
             'accept' => [
+                          '.*',
                           {
                             'value_type' => 'uniline',
                             'type' => 'leaf',
