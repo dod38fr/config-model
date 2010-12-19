@@ -36,38 +36,42 @@ my $file = "$wr_root/Master.pl" ;
 my $fh = IO::File->new($file ,'>') or die "can't open write $file:$!" ;
 
 my $str = << 'EOF' ;
-[ {
-    name => "Master",
+[
+    {
+        name => "Master",
 
-    accept => [ 
-        { 
-            type => 'leaf',
-            value_type => 'uniline',
-        }
-    ],
+        accept => [
+            '.*' => {
+                type       => 'leaf',
+                value_type => 'uniline',
+            }
+        ],
 
-    element => [
-        one => {        
-            type => 'leaf',
-            value_type => 'string',
-	},
-	fs_vfstype => {
-            type => 'leaf',
-            value_type => 'enum',
-            choice => [ qw/auto ext2 ext3/ ],
-        },
-        fs_mntopts => {
-            type => 'warped_node',
-            follow => { 'f1' => '- fs_vfstype' },
-            rules => [
-                '$f1 eq \'auto\'', { 'config_class_name' => 'Fstab::CommonOptions' },
-                '$f1 eq \'ext2\'', { 'config_class_name' => 'Fstab::Ext2FsOpt' },
-                '$f1 eq \'ext3\'', { 'config_class_name' => 'Fstab::Ext3FsOpt' }, 
-            ],
-        }
-    ]
-}
-] ;
+        element => [
+            one => {
+                type       => 'leaf',
+                value_type => 'string',
+            },
+            fs_vfstype => {
+                type       => 'leaf',
+                value_type => 'enum',
+                choice     => [qw/auto ext2 ext3/],
+            },
+            fs_mntopts => {
+                type   => 'warped_node',
+                follow => { 'f1' => '- fs_vfstype' },
+                rules  => [
+                    '$f1 eq \'auto\'',
+                    { 'config_class_name' => 'Fstab::CommonOptions' },
+                    '$f1 eq \'ext2\'',
+                    { 'config_class_name' => 'Fstab::Ext2FsOpt' },
+                    '$f1 eq \'ext3\'',
+                    { 'config_class_name' => 'Fstab::Ext3FsOpt' },
+                ],
+            }
+        ]
+    }
+];
 EOF
 
 $fh->print($str) ;
@@ -95,33 +99,31 @@ $fh = IO::File->new($file ,'>') or die "can't open write $file:$!" ;
 
 $str = << 'EOF' ;
 {
-    name => "Master",
+    name    => "Master",
     include => 'Two',
 
-    accept => [ 
-        { description => "catchall" },
-        { 
-            name_match => 'ip.*',
-            type => 'leaf',
+    accept => [
+        '.*'   => { description => "catchall" },
+        'ip.*' => {
+            type       => 'leaf',
             value_type => 'uniline',
         }
     ],
 
     element => [
-        three => { 
-            type => 'leaf',
+        three => {
+            type       => 'leaf',
             value_type => 'string',
         },
-	fs_vfstype => {
-            choice => [ qw/ext4/ ],
-        },
+        fs_vfstype => { choice => [qw/ext4/], },
         fs_mntopts => {
             rules => [
-                q!$f1 eq 'ext4'!, { 'config_class_name' => 'Fstab::Ext4FsOpt' }, 
+                q!$f1 eq 'ext4'!,
+                { 'config_class_name' => 'Fstab::Ext4FsOpt' },
             ],
         },
     ]
-} ;
+};
 EOF
 
 $fh->print($str) ;

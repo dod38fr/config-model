@@ -26,37 +26,40 @@ ok(1,"Compilation done");
 # minimal set up to get things working
 my $model = Config::Model->new() ;
 
-$model ->create_config_class (
+$model->create_config_class(
     name => "Master",
 
-    accept => [ 
-        { 
-            type => 'leaf',
+    accept => [
+        '.*' => {
+            type       => 'leaf',
             value_type => 'uniline',
         }
     ],
 
     element => [
-        one => {        
-            type => 'leaf',
+        one => {
+            type       => 'leaf',
             value_type => 'string',
-	},
-	fs_vfstype => {
-            type => 'leaf',
+        },
+        fs_vfstype => {
+            type       => 'leaf',
             value_type => 'enum',
-            choice => [ qw/auto ext2 ext3/ ],
+            choice     => [qw/auto ext2 ext3/],
         },
         fs_mntopts => {
-            type => 'warped_node',
+            type   => 'warped_node',
             follow => { 'f1' => '- fs_vfstype' },
-            rules => [
-                '$f1 eq \'auto\'', { 'config_class_name' => 'Fstab::CommonOptions' },
-                '$f1 eq \'ext2\'', { 'config_class_name' => 'Fstab::Ext2FsOpt' },
-                '$f1 eq \'ext3\'', { 'config_class_name' => 'Fstab::Ext3FsOpt' }, 
+            rules  => [
+                '$f1 eq \'auto\'',
+                { 'config_class_name' => 'Fstab::CommonOptions' },
+                '$f1 eq \'ext2\'',
+                { 'config_class_name' => 'Fstab::Ext2FsOpt' },
+                '$f1 eq \'ext3\'',
+                { 'config_class_name' => 'Fstab::Ext3FsOpt' },
             ],
         }
     ]
-) ;
+);
 
 $model ->create_config_class (
     name => "Two",
@@ -64,34 +67,32 @@ $model ->create_config_class (
 ) ;
 
 
-$model ->augment_config_class (
-    name => "Master",
+$model->augment_config_class(
+    name    => "Master",
     include => 'Two',
 
-    accept => [ 
-        { description => "catchall" },
-        { 
-            name_match => 'ip.*',
-            type => 'leaf',
+    accept => [
+        '.*'   => { description => "catchall" },
+        'ip.*' => {
+            type       => 'leaf',
             value_type => 'uniline',
         }
     ],
 
     element => [
-        three => { 
-            type => 'leaf',
+        three => {
+            type       => 'leaf',
             value_type => 'string',
         },
-	fs_vfstype => {
-            choice => [ qw/ext4/ ],
-        },
+        fs_vfstype => { choice => [qw/ext4/], },
         fs_mntopts => {
             rules => [
-                q!$f1 eq 'ext4'!, { 'config_class_name' => 'Fstab::Ext4FsOpt' }, 
+                q!$f1 eq 'ext4'!,
+                { 'config_class_name' => 'Fstab::Ext4FsOpt' },
             ],
         },
     ]
-) ;
+);
 
 my $inst = $model->instance (root_class_name => 'Master', 
 			     instance_name => 'test1');

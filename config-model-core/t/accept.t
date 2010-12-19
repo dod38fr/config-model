@@ -34,39 +34,35 @@ plan tests => 11 ;
 ok(1,"compiled");
 
 $model->create_config_class(
-  name => 'Host',
+    name => 'Host',
 
-  accept =>      [
-                    { 
-                            name_match => 'list.*',
-                            type => 'list',
-                            cargo => { 
-                                        type => 'leaf',
-                                        value_type => 'string',
-                                     } ,
-                     },
-                     { 
-                            name_match => 'str.*',
-                            type => 'leaf',
-                            value_type => 'uniline'
-                     },
-                     { 
-                            name_match => 'bad.*',
-                            type => 'leaf',
-                            value_type => 'uniline',
-                            warn => 'gotcha',
-                     },
-                     #TODO: Some advanced structures, hashes, etc.
-         ],
-  element =>      [
-                    id => { 
-                                type => 'leaf',
-                                value_type => 'uniline',
-                           },
+    accept => [
+        'list.*' => {
+            type  => 'list',
+            cargo => {
+                type       => 'leaf',
+                value_type => 'string',
+            },
+        },
+        'str.*' => {
+            type       => 'leaf',
+            value_type => 'uniline'
+        },
+        'bad.*' => {
+            type       => 'leaf',
+            value_type => 'uniline',
+            warn       => 'gotcha',
+        },
 
-         ]
-
-) ;
+        #TODO: Some advanced structures, hashes, etc.
+    ],
+    element => [
+        id => {
+            type       => 'leaf',
+            value_type => 'uniline',
+        },
+    ]
+);
 
 ok( 1, "Created new class with accept parameter" );
 
