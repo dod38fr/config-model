@@ -1,8 +1,4 @@
-# $Author$
-# $Date$
-# $Revision$
-
-#    Copyright (c) 2007-2008 Dominique Dumont.
+#    Copyright (c) 2007-2010 Dominique Dumont.
 #
 #    This file is part of Config-Model-Itself.
 #
@@ -21,77 +17,77 @@
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 
 [
-  [
-   name => "Itself::CargoElement",
+    [
+        name => "Itself::CargoElement",
 
-   include => [ 'Itself::NonWarpableElement','Itself::WarpableCargoElement'] ,
-   include_after => 'type',
+        include =>
+          [ 'Itself::NonWarpableElement', 'Itself::WarpableCargoElement' ],
+        include_after => 'type',
 
-   'element' 
-   => [
-       # structural information
-       'type' => { type => 'leaf',
-		   value_type => 'enum',
-		   choice => [qw/node warped_node leaf check_list/],
-		   mandatory => 1 ,
-		   description => 'specify the type of the cargo.',
-		 },
+        'element' => [
 
+            # structural information
+            'type' => {
+                type        => 'leaf',
+                value_type  => 'enum',
+                choice      => [qw/node warped_node leaf check_list/],
+                mandatory   => 1,
+                description => 'specify the type of the cargo.',
+            },
 
-       # node element (may be within a hash or list)
+            # node element (may be within a hash or list)
 
-       # all but warped_node
-       'warp' 
-       => { type => 'warped_node' , # ?
-	    level => 'hidden',
-	    follow => { elt_type => '- type' } ,
+            # all but warped_node
+            'warp' => {
+                type   => 'warped_node',              # ?
+                level  => 'hidden',
+                follow => { elt_type => '- type' },
 
-	    rules  => [
-		       '$elt_type ne "warped_node"' =>
-		       {
-			level => 'normal',
-			config_class_name => 'Itself::CargoWarpValue',
-		       }
-		      ] ,
-	    description => "change the properties (i.e. default value or its value_type) dynamically according to the value of another Value object locate elsewhere in the configuration tree. "
-	  },
+                rules => [
+                    '$elt_type ne "warped_node"' => {
+                        level             => 'normal',
+                        config_class_name => 'Itself::CargoWarpValue',
+                    }
+                ],
+                description =>
+                    "change the properties (i.e. default value or its value_type) "
+                  . "dynamically according to the value of another Value object locate "
+                  . "elsewhere in the configuration tree. "
 
-       # warped_node: warp parameter for warped_node. They must be
-       # warped out when type is not a warped_node
+            },
 
-       'rules' => {
-                   type => 'hash',
-		   ordered => 1,
-		   level      => 'hidden' ,
-		   index_type => 'string',
-		   warp => { follow => '- type',
-			     'rules'
-			     => { 'warped_node' 
-				  => {
-				      level => 'normal',
-				     }
-				}
-			   },
-		   cargo => { type => 'warped_node',
-			      follow => '- type',
-			      'rules'
-			      => { 'warped_node' 
-				   => {
-				       config_class_name => 'Itself::WarpableCargoElement' ,
-				      }
-				 }
-			    },
-		   description => "Each key of a hash is a boolean expression using variables declared in the 'follow' parameters. The value of the hash specifies the effects on the node",
-		   },
+            # warped_node: warp parameter for warped_node. They must be
+            # warped out when type is not a warped_node
 
-       # end warp elements for warped_node
+            'rules' => {
+                type       => 'hash',
+                ordered    => 1,
+                level      => 'hidden',
+                index_type => 'string',
+                warp       => {
+                    follow  => '- type',
+                    'rules' => { 'warped_node' => { level => 'normal', } }
+                },
+                cargo => {
+                    type    => 'warped_node',
+                    follow  => '- type',
+                    'rules' => {
+                        'warped_node' => {
+                            config_class_name => 'Itself::WarpableCargoElement',
+                        }
+                    }
+                },
+                description =>
+                    "Each key of a hash is a boolean expression using variables declared "
+                    . "in the 'follow' parameters. The value of the hash specifies the effects on the node",
+            },
 
-       # leaf element
+            # end warp elements for warped_node
 
+            # leaf element
 
+        ],
 
-      ],
-
-  ],
+    ],
 
 ];

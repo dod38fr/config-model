@@ -1,8 +1,4 @@
-# $Author: ddumont $
-# $Date: 2008-03-20 14:26:46 +0100 (Thu, 20 Mar 2008) $
-# $Revision: 552 $
-
-#    Copyright (c) 2007-2008 Dominique Dumont.
+#    Copyright (c) 2007-2010 Dominique Dumont.
 #
 #    This file is part of Config-Model-Itself.
 #
@@ -21,29 +17,28 @@
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 
 [
-  [
-   name => "Itself::CargoWarpValue",
+    [
+        name => "Itself::CargoWarpValue",
 
-   class_description => 'Warp functionality enable a Value object to change its properties (i.e. default value or its type) dynamically according to the value of another Value object locate elsewhere in the configuration tree. This class is to be used within cargo of a hash or list element',
+        class_description => 'Warp functionality enable a Value object to change its properties (i.e. default value or its type) dynamically according to the value of another Value object locate elsewhere in the configuration tree. This class is to be used within cargo of a hash or list element',
 
-   'element' 
-   => [
-       'follow' 
-       => {
-	   type => 'hash',
-	   index_type =>'string',
-	   cargo => { type => 'leaf', value_type => 'uniline' } ,
-	   description => 'Specify with a path the configuration element that will drive the warp , i.e .the elements that control the property change. These a specified using a variable name (used in the "rules" formula) and a path to fetch the actual value. Example $country => " ! country"',
-	  },
-       'rules' => {
-		   type => 'hash',
-		   ordered => 1,
-		   index_type => 'string',
-		   cargo => { type => 'node',
-			      config_class_name => 'Itself::WarpableCargoElement' ,
-			    },
-		   description => 'Specify several test (as formula using the variables defined in "follow" element) to try in sequences and their associated effects',
-		  },
-      ],
-  ],
+        'element' => [
+            'follow' => {
+                type       => 'hash',
+                index_type => 'string',
+                cargo      => { type => 'leaf', value_type => 'uniline' },
+                description => 'Specify with a path the configuration element that will drive the warp , i.e .the elements that control the property change. These a specified using a variable name (used in the "rules" formula) and a path to fetch the actual value. Example $country => " ! country"',
+            },
+            'rules' => {
+                type       => 'hash',
+                ordered    => 1,
+                index_type => 'string',
+                cargo      => {
+                    type              => 'node',
+                    config_class_name => 'Itself::WarpableCargoElement',
+                },
+                description => 'Specify several test (as formula using the variables defined in "follow" element) to try in sequences and their associated effects',
+            },
+        ],
+    ],
 ];

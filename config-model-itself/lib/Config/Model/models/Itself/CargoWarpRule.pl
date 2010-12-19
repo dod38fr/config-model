@@ -1,8 +1,4 @@
-# $Author: ddumont $
-# $Date: 2008-03-20 14:26:46 +0100 (Thu, 20 Mar 2008) $
-# $Revision: 552 $
-
-#    Copyright (c) 2007-2008 Dominique Dumont.
+#    Copyright (c) 2007-2010 Dominique Dumont.
 #
 #    This file is part of Config-Model-Itself.
 #
@@ -21,27 +17,27 @@
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 
 [
-  [
-   name => "Itself::CargoWarpRule",
+    [
+        name => "Itself::CargoWarpRule",
 
-   class_description => 'Specify one condition and one effect to be applied on the warped object (used for cargo of a hash or list element)',
+        class_description => 'Specify one condition and one effect to be applied on the warped object (used for cargo of a hash or list element)',
 
-   'element' 
-   => [
+        'element' => [
 
-       'condition' => { type => 'leaf',
-			value_type => 'string',
-			mandatory => 1 ,
-			description => 'boolean expression using variables. E.g.\'$m1 eq "A" && $m2 eq "C"\' ',
-		      },
+            'condition' => {
+                type       => 'leaf',
+                value_type => 'string',
+                mandatory  => 1,
+                description => 'boolean expression using variables. E.g.\'$m1 eq "A" && $m2 eq "C"\' ',
+            },
 
-       'effect' => {
-		    type => 'node',
-		    config_class_name => 'Itself::WarpableElement',
-		    description => 'Specified the property changes to be applied when the associated condition is true',
-		   },
-      ],
+            'effect' => {
+                type              => 'node',
+                config_class_name => 'Itself::WarpableElement',
+                description => 'Specified the property changes to be applied when the associated condition is true',
+            },
+        ],
 
-  ],
+    ],
 
 ];
