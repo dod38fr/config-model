@@ -1,3 +1,4 @@
+        * CommonElement: added warn_message parameter
         * Fix class deletion issue
         * Adapted model and test to new style of accept specification
           (require Config::Model 1.227)
