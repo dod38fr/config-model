@@ -1,4 +1,8 @@
+2010-12-21  Dominique Dumont  <domi.dumont@free.fr> 1.318
+
 	* ListEditor: changed label of push button (minor)
+	* Run-time depends on File::Slurp
+	* LeafEditor: added external editor button
 
 2010-11-05  Dominique Dumont  <domi.dumont@free.fr> 1.317
 

@@ -5,6 +5,9 @@ use warnings ;
 use Carp ;
 use Log::Log4perl;
 use Config::Model::Tk::NoteEditor ;
+use File::Temp ;
+use File::Slurp ;
+use Tk::Balloon ;
 
 use base qw/Config::Model::Tk::LeafViewer/;
 
@@ -49,6 +52,8 @@ sub Populate {
       ->pack(@pack_args) ;
     $ed_frame  -> Label(-text => 'Value') -> pack() ;
 
+    my $balloon = $cw->Balloon(-state => 'balloon') ;
+
     if ($vt eq 'string') {
         $cw->{e_widget} = $ed_frame->Scrolled ( 'Text',
                                                 -height => 5 ,
@@ -62,6 +67,15 @@ sub Populate {
         $bframe -> Button ( -text => 'Cleanup',
                             -command => sub { $cw->cleanup},
                           ) -> pack(-side => 'left') ;
+        my $ext_ed_b = $bframe -> Button ( 
+            -text => 'Ext editor',
+            -command => sub { $cw->exec_external_editor},
+            -state => defined $ENV{EDITOR} ? 'normal' : 'disabled' ,
+        ) -> pack( -side => 'left') ;
+        $balloon->attach(
+            $ext_ed_b,
+            -msg => "Run external editor (if EDITOR environment variable is set"
+        );
     }
     elsif ($vt eq 'boolean') {
         $ed_frame->Checkbutton(-text => $leaf->element_name,
@@ -205,7 +219,7 @@ sub delete {
 
 sub store {
     my $cw = shift ;
-    my $v = $cw->try ;
+    my $v = $cw->try(@_) ;
     return unless defined $v;
 
     print "Storing '$v'\n";
@@ -246,5 +260,61 @@ sub reset_value {
     }
     $cw->set_value_help if defined $cw->{value_help_widget};
 }
+
+sub exec_external_editor {
+    my $cw = shift ;
+
+    my $fh = File::Temp->new ; ;
+    die "Can't open temp file:$!" unless defined $fh ;
+    binmode($fh,":utf8");
+    $fh->print($cw->{value});
+    $fh->close ;
+
+    # See mastering Perl/Tk p382
+    my $h = $cw->{ed_handle} = IO::Handle->new;
+    die "IO::Handle->new failed." unless defined $h;
+
+    my $ed = $ENV{EDITOR}.' '.$fh->filename ;
+    $cw->{ed_pid} = open $h, $ed . ' 2>&1 |';
+
+    if (not defined $cw->{ed_pid}) {
+	$cw -> Dialog ( -title => 'External editor error',
+                        -text  => "'$ed' : $!",
+                      )
+            -> Show ;
+ 	return;
+    }
+    $h->autoflush(1);
+    $cw->fileevent($h, 'readable' => [\&_read_stdout, $cw]);
+
+    $cw->waitVariable(\$cw->{ed_done});
+    my $new_v = read_file($fh->filename) ;
+    print "exec_external_editor done with '$new_v'\n";
+    $cw->store($new_v);
+    $cw->reset_value ;
+}
+
+# also from Mastering Perl/Tk
+sub _read_stdout {
+
+    # Called when input is available for the output window.  Also checks
+    # to see if the user has clicked Cancel.
+    print "_read_stdout called\n";
+    my ($cw) = @_;
+
+    my $h = $cw->{ed_handle};
+    die "External editor handle is udefined!\n" unless defined $h;
+    my $stat;
+    
+    if ( $stat = sysread $h, $_, 4096 ) {
+	print ;
+    } elsif ( $stat == 0 ) {
+        print "edition done\n";
+        $h->close ;
+	$cw->{ed_done} = 1;
+    } else {
+        die "External editor sysread error: $!";
+    }
+} # end _read_stdout
 
 1;
