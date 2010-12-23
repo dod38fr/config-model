@@ -462,28 +462,25 @@ C<uniline> values.
 
 =item warn_if_match
 
-Perl regular expression. A warning will be issued when the value match the 
-passed regular expression. Valid only for C<string> or
-C<uniline> values.
+Hash ref. Keys are made of Perl regular expression. Value are the
+warning message (leave empty or undefined for default warning message).
+A warning will be issued when the value match the passed regular
+expression. Valid only for C<string> or C<uniline> values.
+
 
 =item warn_unless_match
 
-Perl regular expression. A warning will be issued when the value does not match the 
-passed regular expression. Valid only for C<string> or
+Hash ref like above. A warning will be issued when the value does not
+match the passed regular expression. Valid only for C<string> or
 C<uniline> values.
-
-=item warn_message
-
-String. Message to show the user if one of the above condition is met.
 
 =item warn
 
 String. Issue a warning to user with the specified string any time a value is set or read.
 
-
 =cut
 
-sub setup_validation_regexp {
+sub setup_match_regexp {
     my ($self,$what,$ref) = @_ ;
 
     my $str = $self->{$what} = delete $ref->{$what} ;
@@ -511,6 +508,44 @@ sub setup_validation_regexp {
     }
 }
 
+sub check_validation_regexp {
+    my ($self,$what,$ref) = @_ ;
+
+    my $regexp_info =  delete $ref->{$what} ;
+    return unless defined $regexp_info ;
+
+    $self->{$what} = $regexp_info ;
+    
+    my $vt = $self->{value_type} ; 
+
+    if ($vt ne 'uniline' and $vt ne 'string') {
+	Config::Model::Exception::Model
+		-> throw (
+			  object => $self,
+			  error => "Can't use $what regexp with $vt, "
+			         . "expected 'uniline' or 'string'"
+			 ) ;
+    }
+
+    if (not ref $regexp_info and $what ne 'warn') {
+        warn $self->name,": depreceated $what style. Use a hash ref\n";
+    }
+
+    my $h = ref $regexp_info ? $regexp_info : { $regexp_info => '' } ;
+
+    foreach my $regexp (keys %$h) {
+        $logger -> debug($self->name, " hash $what regexp with '$regexp'");
+        eval { qr/$regexp/ ;} ;
+
+        if ($@) {
+            Config::Model::Exception::Model -> throw (
+		object => $self,
+		error => "Unvalid $what regexp '$regexp': $@"
+            ) ;
+        }
+    }
+}
+
 =item grammar
 
 Setup a L<Parse::RecDescent> grammar to perform validation.
@@ -531,8 +566,10 @@ will be changed to
   oper: 'and' | 'or'
   token: 'Apache' | 'CC-BY' | 'Perl'
 
-The rule is called with Value object and a string reference. So, in the actions you may need to define,
-you can call the value object as C<$arg[0]> and store error message in C<${$arg[1]}}>.
+The rule is called with Value object and a string reference. So, in the
+actions you may need to define, you can call the value object as
+C<$arg[0]>, store error message in C<${$arg[1]}}> and store warnings in
+C<${$arg[2]}}>.
 
 =cut
 
@@ -707,15 +744,16 @@ sub set_properties {
 
 
     map { $self->{$_} =  delete $args{$_} if defined $args{$_} }
-      qw/min max mandatory replace warn warn_message/ ;
+      qw/min max mandatory replace warn/ ;
 
     $self->set_help           ( \%args );
     $self->set_value_type     ( \%args );
     $self->set_default        ( \%args );
     $self->set_compute        ( \%args ) if defined $args{compute};
     $self->set_convert        ( \%args ) if defined $args{convert};
-    foreach (qw/match warn_if_match warn_unless_match/) {
-	$self->setup_validation_regexp ( $_ =>  \%args ) if defined $args{$_};
+    $self->setup_match_regexp ( match =>  \%args ) if defined $args{match};
+    foreach (qw/warn_if_match warn_unless_match/) {
+	$self->check_validation_regexp ( $_ =>  \%args ) if defined $args{$_};
     }
     $self->setup_grammar_check( \%args ) if defined $args{grammar};
 
@@ -1223,7 +1261,7 @@ loops in check, get_info, get_warp_info, re-check ...
 
 =item silent
 
-Don't display value warning on STDOUT. User is expected to retrieve them witj
+Don't display value warning on STDOUT. User is expected to retrieve them with
 L<warning_msg>.
 
 =back
@@ -1306,15 +1344,19 @@ sub check_value {
 		unless $value =~ $self->{match_regexp} ;
     }
 
-    foreach my $t (qw/warn_if warn_unless/) {
-	my $k = $t.'_match_regexp' ;
-	next unless defined $self->{$k} and defined $value ;
-	my $rxp = $self->{$k} ;
+    foreach my $t (qw/warn_if_match warn_unless_match/) {
+        my $w_info = $self->{$t} ;
 
-	push @warn, $self->{warn_message} || "value '$value' should not match regexp $rxp"  
-	    if $t =~ /if/ and $value =~ $rxp ;
-	push @warn, $self->{warn_message} || "value '$value' should match regexp $rxp"  
-	    if $t =~ /unless/ and $value !~ $rxp;
+        next unless defined $w_info and defined $value ;
+        my $h = ref $w_info ? $w_info : { $w_info => '' } ;
+
+        foreach my $rxp ( keys %$h ) {
+            my $msg = $h->{$rxp} ;
+            push @warn, $msg || "value '$value' should not match regexp $rxp"  
+                if $t =~ /if/ and $value =~ /$rxp/ ;
+            push @warn, $msg || "value '$value' should match regexp $rxp"  
+                if $t =~ /unless/ and $value !~ /$rxp/;
+        }
     }
     
     # unconditional warn
@@ -1322,12 +1364,13 @@ sub check_value {
 
     if (defined $self->{validation_parser} and defined $value) {
 	my $prd = $self->{validation_parser};
-	my $msg = '';
-	my $prd_check = $prd->check ( $value,1,$self, \$msg) ; 
+	my ($err_msg,$warn_msg) = ('','');
+	my $prd_check = $prd->check ( $value,1,$self, \$err_msg, \$warn_msg) ; 
 	my $prd_result = defined $prd_check ? 1 : 0; 
 	$logger->debug("grammar check on $value returned ", defined $prd_check ? $prd_check : '<undef>');
-	push @error,$msg || "value '$value' does not match grammar:\n" .$self->{grammar} 
+	push @error,$err_msg || "value '$value' does not match grammar:\n" .$self->{grammar} 
 		unless $prd_result ;
+        push @warn, $warn_msg if $warn_msg ;
     }
 
     $self->{error_list} = \@error ;
@@ -1707,7 +1750,7 @@ Do not check and return values even if bad
 =item silent
 
 When set to 1, warning are not displayed on STDOUT. User is expected to read warnings
-with L<warning_msg>.
+with L<warning_msg> method.
 
 =back
 
