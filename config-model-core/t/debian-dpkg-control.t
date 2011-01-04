@@ -410,26 +410,26 @@ my $idx = 0 ;
 foreach my $t (@tests) {
    my $wr_dir = $wr_root.'/test-'.$idx ;
    mkpath($wr_dir."/debian/", { mode => 0755 }) ;
-   my $license_file = "$wr_dir/debian/control" ;
+   my $control_file = "$wr_dir/debian/control" ;
 
-   open(LIC,"> $license_file" ) || die "can't open $license_file: $!";
-   print LIC $t->{text} ;
-   close LIC ;
+   open(my $control_h,"> $control_file" ) || die "can't open $control_file: $!";
+   print $control_h $t->{text} ;
+   close $control_h ;
 
    my $inst = $model->instance (root_class_name   => 'Debian::Dpkg::Control',
                                 root_dir          => $wr_dir,
                                 instance_name => "deptest".$idx,
                                );  
-   ok($inst,"Read $license_file and created instance") ;
+   ok($inst,"Read $control_file and created instance") ;
 
-   my $lic = $inst -> config_root ;
+   my $control = $inst -> config_root ;
 
-   my $dump =  $lic->dump_tree ();
+   my $dump =  $control->dump_tree ();
    print $dump if $trace ;
    
    while (@{$t->{check}}) { 
      my ($path,$v) = splice @{$t->{check}},0,2 ;
-     is($lic->grab_value($path),$v,"check $path value");
+     is($control->grab_value($path),$v,"check $path value");
    }
    
    $inst->write_back ;

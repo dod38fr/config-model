@@ -27,7 +27,8 @@
                            {
                              'cargo' => {
                                           'value_type' => 'uniline',
-                                          'type' => 'leaf'
+                                          'type' => 'leaf',
+                                          class => 'Config::Model::Debian::Dependency',
                                         },
                              'type' => 'list'
                            },
@@ -82,11 +83,13 @@
                            'Description',
                            {
                              'value_type' => 'string',
+                             'warn_if_match' => { 
+                                 '\\n[\\-\\*]' => 'lintian like possible-unindented-list-in-extended-description. i.e. "-" or "*" without leading white space',
+                                 'Debian GNU/Linux' => 'deprecated in favor of Debian GNU',
+                             },
                              'mandatory' => '1',
-                             'type' => 'leaf' ,
-                             warn_if_match => '\n[\-\*]' ,
-                             warn_message => 'lintian like possible-unindented-list-in-extended-description. i.e. "-" or "*" without leading white space'
-                           }
+                             'type' => 'leaf',
+                            }
                          ]
           }
         ]

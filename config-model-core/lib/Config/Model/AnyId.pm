@@ -992,8 +992,8 @@ my %can_override_class
 #internal
 sub auto_vivify {
     my ($self,$idx) = @_ ;
-    my $class = $self->{cargo_class} ; # to override class in cargo
     my %cargo_args = %{$self->{cargo} || {}} ;
+    my $class = delete $cargo_args{class} ; # to override class in cargo
 
     my $cargo_type = delete $cargo_args{type} ;
 
