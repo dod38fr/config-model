@@ -1,4 +1,20 @@
 # -*- cperl -*-
+BEGIN {
+    # dirty trick to create a Memoize cache so that test will use this instead
+    # of getting values through the internet
+    my $sep = chr(28);
+    %Config::Model::Debian::Dependency::cache = (
+        'libcpan-meta-perl' . $sep . '2.101550' => '',
+        'libdist-zilla-perl' . $sep . '3'       => '',
+        'libfile-homedir-perl' . $sep . '0.81'  => 'lenny',
+        'libmoose-autobox-perl' . $sep . '0.09' => '',
+        'libmoose-perl' . $sep . '0.65'         => 'lenny',
+        'lsb-base' . $sep . '1.3-9ubuntu2'      => '',
+        'perl' . $sep . '5.10.1'                => 'lenny',
+        'xkb-data' . $sep . '1.4'               => 'lenny',
+    );
+}
+
 
 use ExtUtils::testlib;
 use Test::More tests => 26;

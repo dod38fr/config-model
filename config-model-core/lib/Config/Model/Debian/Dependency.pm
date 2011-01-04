@@ -29,23 +29,30 @@ my $vs = $_system->versioning;
 # end black magic
 
 use base qw/Config::Model::Value/ ;
+use vars qw/%cache/ ;
 
 # Set up persistence
 my $cache_file_name = $ENV{HOME}.'/.config_model_depend_cache' ;
-tie my %disk_cache, 'DB_File', $cache_file_name, O_CREAT|O_RDWR, 0640 or die $!;
-
-# required to write data back to DB_File
-END { untie %disk_cache; }
-
-#use Data::Dumper; print Dumper(\%disk_cache) ;
+my @tie_args = ( 'DB_File', $cache_file_name, O_CREAT|O_RDWR, 0640 ) ;
 
 # Set up expiration policy, supplying persistent hash as a target
-tie my %cache => 'Memoize::Expire',
+# Memoire::Expire doc is wrong
+tie %cache => 'Memoize::Expire',
     LIFETIME => 60 * 60 * 24 * 30,    # roughly one month , in seconds
-    HASH => \%disk_cache;
+    TIE => \@tie_args 
+       unless %cache; # this condition is used during tests
+
+
+# Memoize::Expire is lacking methods for Data::Dumper to work
+#use Data::Dumper; print Dumper(\%cache) ;
+
+# required to write data back to DB_File
+END { 
+    untie %cache ;
+}
 
 # Set up memoization, supplying expiring persistent hash for cache
-memoize 'has_older_version' , SCALAR_CACHE => [HASH => \%disk_cache];
+memoize 'has_older_version' , SCALAR_CACHE => [HASH => \%cache];
 
 my $grammar = << 'EOG' ;
 
@@ -105,6 +112,7 @@ sub check_dep {
 
     # check if Debian has version older than required version
     my $has_older = has_older_version($pkg,$vers) ;
+    #    print "\t'$pkg'.\$sep.'$vers' => '$has_older',\n";
     my $msg = "unnecessary versioned dependency: $oper $vers" ;
 
     $logger->debug("check_dep on $pkg $oper $vers has_older is $has_older");
