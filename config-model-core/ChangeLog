@@ -1,8 +1,9 @@
         * Model.pm: deprecated name_match parameter in accept
           specification. The regexp should now be specified as a
           key of a hash
-        * model Debian::Dpkg::Control: Depends element specifies 
+        * model Debian::Dpkg::Control::Binary: Depends element specifies 
           Perl cargo class Config::Model::Debian::Dependency (see below)
+        * Likewise for Debian::Dpkg::Control::Source Build-Depends*
         * Debian::Dependency: new class derived from Value to provide checks specific
           to Debian dependencies.
 

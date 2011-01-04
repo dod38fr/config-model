@@ -4,6 +4,7 @@ BEGIN {
     # of getting values through the internet
     my $sep = chr(28);
     %Config::Model::Debian::Dependency::cache = (
+        'debhelper'.$sep.'7' => '',
         'libcpan-meta-perl' . $sep . '2.101550' => '',
         'libdist-zilla-perl' . $sep . '3'       => '',
         'libfile-homedir-perl' . $sep . '0.81'  => 'lenny',

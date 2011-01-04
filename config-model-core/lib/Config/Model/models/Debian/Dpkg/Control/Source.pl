@@ -63,15 +63,17 @@ The archive area and section for each package should be specified in the package
                            {
                              'cargo' => {
                                           'value_type' => 'uniline',
-                                          'type' => 'leaf'
-                                        },
+                                          'type' => 'leaf',
+                                           class => 'Config::Model::Debian::Dependency',
+                                       },
                              'type' => 'list'
                            },
                            'Build-Depends-Indep',
                            {
                              'cargo' => {
                                           'value_type' => 'uniline',
-                                          'type' => 'leaf'
+                                          'type' => 'leaf',
+                                          class => 'Config::Model::Debian::Dependency',
                                         },
                              'type' => 'list'
                            },
