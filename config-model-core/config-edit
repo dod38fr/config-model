@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-#    Copyright (c) 2006-2010 Dominique Dumont.
+#    Copyright (c) 2006-2011 Dominique Dumont.
 #
 #    This file is part of Config-Model.
 #
@@ -621,6 +621,12 @@ The config-model users mailing list:
 The config-model wiki: L<http://config-model.wiki.sourceforge.net/>
 
 =back
+
+=head1 FEEDBACKS
+
+Feedback from users are highly desired. If you find this module useful, please
+share your use cases, success stories with the author or with the config-model-
+users mailing list. 
 
 =head1 AUTHOR
 

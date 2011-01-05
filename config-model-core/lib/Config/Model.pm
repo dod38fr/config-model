@@ -2190,9 +2190,18 @@ implemented.
 
 =head1 BUGS
 
-Given Murphy's law, the author is fairly confident that you will find bugs or miss some features. Please report thems 
-config-model at rt.cpan.org, or through the web interface at https://rt.cpan.org/Public/Bug/Report.html?Queue=config-model .
-The author will be notified, and then you'll automatically be notified of progress on your bug.
+Given Murphy's law, the author is fairly confident that you will find
+bugs or miss some features. Please report thems config-model at
+rt.cpan.org, or through the web interface at 
+https://rt.cpan.org/Public/Bug/Report.html?Queue=config-model . 
+The author will be notified, and then you'll automatically be
+notified of progress on your bug.
+
+=head1 FEEDBACKS
+
+Feedback from users are highly desired. If you find this module useful, please
+share your use cases, success stories with the author or with the config-model-
+users mailing list. 
 
 =head1 AUTHOR
 
@@ -2200,7 +2209,7 @@ Dominique Dumont, (ddumont at cpan dot org)
 
 =head1 LICENSE
 
-    Copyright (c) 2005-2010 Dominique Dumont.
+    Copyright (c) 2005-2011 Dominique Dumont.
 
     This file is part of Config-Model.
 

@@ -148,3 +148,61 @@ sub has_older_version {
 }
 1;
 
+=head1 NAME
+
+Config::Model::Debian::Dependency - Checks Debian dependency in control files
+
+=head1 SYNOPSIS
+
+    # in a model (this could also be applied to a simple leaf element): 
+    Depends => {
+        'type' => 'list',
+        'cargo' => {
+            'value_type' => 'uniline',
+            'type'       => 'leaf',
+            class => 'Config::Model::Debian::Dependency',
+        },
+    },
+
+=head1 DESCRIPTION
+
+This class is derived from L<Config::Model::Value>. Its purpose is to
+check the value of a Debian package dependency for the following:
+
+=over 
+
+=item *
+
+syntax as described in http://www.debian.org/doc/debian-policy/ch-relationships.html
+
+=item *
+
+Whether the version specified with C<< > >> or C<< >= >> is necessary. This module will check 
+with Debian server whether older versions can be found in Debian stable or not. If no older version 
+can be found, a warning will be issued. 
+
+=head1 Cache
+
+Queries to Debian server are cached in C<~/.config_model_depend_cache> for about one month.
+
+=head1 BUGS
+
+More advanced checks can probably be implemented. The author is open to
+new ideas. He's even more open to patches (with tests).
+
+=head1 AUTHOR
+
+Dominique Dumont, ddumont [AT] cpan [DOT] org
+
+=head1 SEE ALSO
+
+L<Config::Model>,
+L<Config::Model::Instance>,
+L<Config::Model::Node>,
+L<Config::Model::WarpedNode>,
+L<Config::Model::HashId>,
+L<Config::Model::ListId>,
+L<Config::Model::CheckList>,
+L<Config::Model::Value>
+
+=cut
