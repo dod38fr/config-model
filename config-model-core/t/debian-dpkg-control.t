@@ -3,6 +3,7 @@ BEGIN {
     # dirty trick to create a Memoize cache so that test will use this instead
     # of getting values through the internet
     my $sep = chr(28);
+    no warnings 'once' ;
     %Config::Model::Debian::Dependency::cache = (
         'debhelper'.$sep.'7' => '',
         'libcpan-meta-perl' . $sep . '2.101550' => '',

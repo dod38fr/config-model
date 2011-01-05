@@ -533,6 +533,7 @@ sub check_validation_regexp {
 
     my $h = ref $regexp_info ? $regexp_info : { $regexp_info => '' } ;
 
+    # just check the regexp. values are checked later in &check_value
     foreach my $regexp (keys %$h) {
         $logger -> debug($self->name, " hash $what regexp with '$regexp'");
         eval { qr/$regexp/ ;} ;
@@ -1216,7 +1217,7 @@ context and a string in scalar context.
 sub warning_msg {
     my $self = shift ;
     return unless $self->{warning_list} ;
-    return wantarray ? @{$self->{warning_list}} : join("\n\t",@{ $self ->{warning_list}})
+    return wantarray ? @{$self->{warning_list}} : join("\n",@{ $self ->{warning_list}})
 }
 
 # construct an error message for enum types

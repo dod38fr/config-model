@@ -97,8 +97,6 @@ sub check_value {
 
     # see http://www.debian.org/doc/debian-policy/ch-relationships.html
     
-    # errors and warnings are array ref
-    
     # to get package list
     # wget -q -O - 'http://qa.debian.org/cgi-bin/madison.cgi?package=perl-doc&text=on'
 
@@ -112,7 +110,7 @@ sub check_dep {
 
     # check if Debian has version older than required version
     my $has_older = has_older_version($pkg,$vers) ;
-    #    print "\t'$pkg'.\$sep.'$vers' => '$has_older',\n";
+    # print "\t'$pkg'.\$sep.'$vers' => '$has_older',\n";
     my $msg = "unnecessary versioned dependency: $oper $vers" ;
 
     $logger->debug("check_dep on $pkg $oper $vers has_older is $has_older");
@@ -131,8 +129,10 @@ sub has_older_version {
 
     $logger->debug("has_older_version called on $pkg_name, $version");
 
-    my $res = get("http://qa.debian.org/cgi-bin/madison.cgi?package=$pkg_name&text=on") ;
+    print "Connecting to qa.debian.org to check $pkg_name versions. Please wait ...\n" ;
 
+    my $res = get("http://qa.debian.org/cgi-bin/madison.cgi?package=$pkg_name&text=on") ;
+    
     die "cannot get data for package $pkg_name. Check your proxy ?\n" unless defined $res ;
 
     foreach my $line (split /\n/, $res) {
@@ -180,6 +180,8 @@ syntax as described in http://www.debian.org/doc/debian-policy/ch-relationships.
 Whether the version specified with C<< > >> or C<< >= >> is necessary. This module will check 
 with Debian server whether older versions can be found in Debian stable or not. If no older version 
 can be found, a warning will be issued. 
+
+=back
 
 =head1 Cache
 
