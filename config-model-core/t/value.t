@@ -3,7 +3,7 @@
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
-use Test::More tests => 105 ;
+use Test::More tests => 109 ;
 use Test::Exception ;
 use Test::Warn ;
 use Config::Model ;
@@ -113,11 +113,11 @@ $model ->create_config_class
 			 },
 		warn_if => { type => 'leaf',
                              value_type => 'string',
-			     warn_if_match => { 'foo' => '' },
+			     warn_if_match => { 'foo' => { fix =>'$_ = uc;' }},
 			   },
 		warn_unless => { type => 'leaf',
                                  value_type => 'string',
-			         warn_unless_match => { 'foo' => ''},
+			         warn_unless_match => { foo => { msg => '', fix =>'$_ = "foo".$_;' }},
 			   },
 		always_warn => { type => 'leaf',
                                  value_type => 'string',
@@ -402,9 +402,19 @@ foreach my $prd_test (('Perl','Perl and CC-BY', 'Perl and CC-BY or Apache')) {
 my $wip = $root->fetch_element('warn_if') ;
 warning_like {$wip->store('foobar');} qr/should not match/, "test warn_if condition" ;
 
+### test fix included in model
+is($wip -> has_fixes,1,"test has_fixes") ;
+$wip->apply_fixes ;
+is($wip -> fetch,'FOOBAR',"test if fixes were applied") ;
+
+
 ### test warn_unless parameter
 my $wup = $root->fetch_element('warn_unless') ;
 warning_like {$wup->store('bar');} qr/should match/, "test warn_unless condition" ;
+
+is($wup -> has_fixes,1,"test has_fixes") ;
+$wup->apply_fixes ;
+is($wup -> fetch,'foobar',"test if fixes were applied") ;
 
 ### test always_warn parameter
 my $aw = $root->fetch_element('always_warn') ;

@@ -464,11 +464,18 @@ C<uniline> values.
 
 =item warn_if_match
 
-Hash ref. Keys are made of Perl regular expression. Value are the
-warning message (leave empty or undefined for default warning message).
-A warning will be issued when the value match the passed regular
-expression. Valid only for C<string> or C<uniline> values.
+Hash ref. Keys are made of Perl regular expression. The value can
+specify a warning message (leave empty or undefined for default warning
+message) and instructions to fix the value. A warning will be issued
+when the value match the passed regular expression. Valid only for
+C<string> or C<uniline> values. The fix instructions will be eval'ed
+when L<apply_fixes> is called. C<$_> will contain the value to fix.
+C<$_> will be stored as the new value once the instructions are done.
 
+
+In the example below, any value matching 'foo' will be converted in uppercase:
+
+  warn_if_match => { 'foo' => { fix =>'uc;' }},
 
 =item warn_unless_match
 
@@ -546,6 +553,13 @@ sub check_validation_regexp {
 		error => "Unvalid $what regexp '$regexp': $@"
             ) ;
         }
+        
+        my $v = $h->{$regexp} ;
+        Config::Model::Exception::Model -> throw (
+	    object => $self,
+	    error => "value of $what regexp '$regexp' is not a hash ref but '$v'"
+        ) unless ref $v eq 'HASH' ;
+        
     }
 }
 
@@ -1341,6 +1355,8 @@ sub check_value {
 		unless $value =~ $self->{match_regexp} ;
     }
 
+    $self->{fixes} = [] ;
+
     foreach my $t (qw/warn_if_match warn_unless_match/) {
         my $w_info = $self->{$t} ;
 
@@ -1348,11 +1364,16 @@ sub check_value {
         my $h = ref $w_info ? $w_info : { $w_info => '' } ;
 
         foreach my $rxp ( keys %$h ) {
-            my $msg = $h->{$rxp} ;
-            push @warn, $msg || "value '$value' should not match regexp $rxp"  
-                if $t =~ /if/ and $value =~ /$rxp/ ;
-            push @warn, $msg || "value '$value' should match regexp $rxp"  
-                if $t =~ /unless/ and $value !~ /$rxp/;
+            my $msg = $h->{$rxp}{msg} ;
+            my $fix = $h->{$rxp}{fix} ;
+            if ($t =~ /if/ and $value =~ /$rxp/) {
+                push @warn, $msg || "value '$value' should not match regexp $rxp"  ;
+                push @{$self->{fixes}}, $fix if defined $fix ;
+            } 
+            if ($t =~ /unless/ and $value !~ /$rxp/) {
+                push @warn, $msg || "value '$value' should match regexp $rxp"  ;
+                push @{$self->{fixes}}, $fix if defined $fix ;
+            }
         }
     }
     
@@ -1374,6 +1395,44 @@ sub check_value {
     $self->{warning_list} = \@warn ;
 
     return wantarray ? @error : scalar @error ? 0 : 1 ;
+}
+
+=head2 has_fixes
+
+Returns the number of fixes that can be applied to the current value. 
+
+=cut
+
+sub has_fixes {
+    my $self = shift; 
+    return scalar @{$self->{fixes}} ;
+}
+
+=head2 apply_fixes
+
+Applies the fixes to suppress the current warnings.
+
+=cut
+
+sub apply_fixes {
+    my $self = shift ; 
+    my $count = 0;
+    while ( @{$self->{fixes} || [] } ) {
+        local $_ ;
+        $_ = $self->fetch(silent => 1) ;
+        eval ( $self->{fixes}[0] ) ;
+        if ($@) { 	
+            Config::Model::Exception::Model -> throw (
+                object => $self, 
+                message => "Eval of fix  $self->{fixes}[0] failed : $@" 
+            );
+        }
+        $self->store($_) ; # will update $self->{fixes} 
+        Config::Model::Exception::Model -> throw (
+            object => $self, 
+            message => "apply_fixes: too many tries to fix, bailing out\n"
+        ) if $count ++ > 50 ;
+    } ;
 }
 
 =head2 check( value  )

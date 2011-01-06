@@ -84,8 +84,14 @@
                            {
                              'value_type' => 'string',
                              'warn_if_match' => { 
-                                 '\\n[\\-\\*]' => 'lintian like possible-unindented-list-in-extended-description. i.e. "-" or "*" without leading white space',
-                                 'Debian GNU/Linux' => 'deprecated in favor of Debian GNU',
+                                 '\\n[\\-\\*]' => {
+                                     msg => 'lintian like possible-unindented-list-in-extended-description. i.e. "-" or "*" without leading white space',
+                                     fix => 's/\n([\-\*])/\n $1/g; $_ ;',
+                                 },
+                                 'Debian GNU/Linux' => {
+                                     msg => 'deprecated in favor of Debian GNU',
+                                     fix => 's!Debian GNU/Linux!Debian GNU!g;'
+                                 },
                              },
                              'mandatory' => '1',
                              'type' => 'leaf',
