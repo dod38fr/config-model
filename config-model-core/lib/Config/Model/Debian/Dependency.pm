@@ -120,6 +120,7 @@ sub check_dep {
     }
     else {
         push @{$self->{warning_list}} , $msg ;
+        push @{$self->{fixes}} , 's/\s*\(.*\)\s*//;' ;
         return $msg ;
     }
 }

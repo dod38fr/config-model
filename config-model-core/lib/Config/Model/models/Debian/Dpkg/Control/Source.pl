@@ -67,7 +67,7 @@ The archive area and section for each package should be specified in the package
                                            warn_if_match => { 
                                                'perl.*\|\s*libmodule-build-perl' => { 
                                                     msg => 'lenny has perl 5.10 which includes libmodule-build-perl',
-                                                    fix => ' "perl" ;',
+                                                    fix => '$_ = "perl" ;',
                                                 },
                                             },
                                            class => 'Config::Model::Debian::Dependency',
@@ -82,7 +82,7 @@ The archive area and section for each package should be specified in the package
                                           warn_if_match => { 
                                               'perl.*\|\s*libmodule-build-perl' => { 
                                                     msg => => 'lenny has perl 5.10 which includes libmodule-build-perl',
-                                                     fix => ' "perl" ;',
+                                                     fix => '$_ = "perl" ;',
                                                 },
                                             },
                                          class => 'Config::Model::Debian::Dependency',
