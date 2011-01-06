@@ -24,6 +24,7 @@ use Config::Model ;
 use Log::Log4perl qw(:easy) ;
 use File::Path ;
 use File::Copy ;
+use Config::Model::Value ;
 
 use warnings;
 
@@ -44,6 +45,7 @@ Log::Log4perl->easy_init($log ? $TRACE: $WARN);
 my $model = Config::Model -> new ( ) ;
 
 Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
+$Config::Model::Value::nowarning =  1 unless $trace ;
 
 ok(1,"compiled");
 

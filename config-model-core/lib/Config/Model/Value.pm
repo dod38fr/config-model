@@ -31,6 +31,8 @@ use base qw/Config::Model::WarpedThing/ ;
 
 my $logger = get_logger("Tree::Element::Value") ;
 
+our $nowarning = 0; # global variable to silence warnings. Only used for tests
+
 =head1 NAME
 
 Config::Model::Value - Strongly typed configuration value
@@ -1260,11 +1262,6 @@ When non null, check will not try to get extra
 information from the tree. This is required in some cases to avoid
 loops in check, get_info, get_warp_info, re-check ...
 
-=item silent
-
-Don't display value warning on STDOUT. User is expected to retrieve them with
-L<warning_msg>.
-
 =back
 
 In scalar context, return 0 or 1.
@@ -1280,7 +1277,6 @@ sub check_value {
     my %args = @_ > 1 ? @_ : (value => $_[0]) ;
     my $value = $args{value} ;
     my $quiet = $args{quiet} || 0 ;
-    my $silent = $args{silent} || 0 ;
 
     my @error ;
     my @warn ;
@@ -1377,8 +1373,6 @@ sub check_value {
     $self->{error_list} = \@error ;
     $self->{warning_list} = \@warn ;
 
-    warn(map { "Warning in '".$self->location."': $_\n"} @warn) if @warn and not $silent;
-
     return wantarray ? @error : scalar @error ? 0 : 1 ;
 }
 
@@ -1386,18 +1380,28 @@ sub check_value {
 
 Like L</check_value>. Also ensure that mandatory value are defined
 
+Will also disply warnings on STDTOUT unless C<silent> parameter is set to 1.
+In this case,user is expected to retrieve them with
+L<warning_msg>.
+
 =cut
 
 sub check {
     my $self = shift ;
     my %args = @_ > 1 ? @_ : (value => $_[0]) ;
     my $value = $args{value} ;
+    my $silent = $args{silent} || 0 ;
 
     my @error = $self->check_value(%args) ;
 
     if (not defined $value and $self->{mandatory}) {
         push @error, "Mandatory value is not defined" ;
     }
+
+    my $warn = $self->{warning_list} ;
+    warn(join ('', map { "Warning in '".$self->location."' value '$value': $_\n"} @$warn)) 
+        if @$warn and not $nowarning and not $silent;
+
 
     $self->{error_list} = \@error ;
     return wantarray ? @error : not scalar @error ;

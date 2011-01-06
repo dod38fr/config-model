@@ -224,12 +224,10 @@ sub store_set {
         %args = @_; # note that $r was shifted out of @_
     }
 
-    my $check = $self->_check_check($args{check});
-    
     my $idx = 0 ;
     foreach (@v) { 
         if (defined $_) {
-            $self->fetch_with_id( $idx++ )->store( $_ , check => $check);
+            $self->fetch_with_id( $idx++ )->store(%args, value => $_);
         }
         else {
             $self->{data}[$idx] = undef ; # detruit l'objet pas bon!
