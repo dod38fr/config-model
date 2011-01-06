@@ -3,6 +3,7 @@
           key of a hash. 
         * Value.pm: warn_if_match and warn_unless_match can speficy instructions to "fix"
           the value.
+        * WizardHelper: can be set to stop on items with warnings
         * model Debian::Dpkg::Control::Binary: Depends element specifies 
           Perl cargo class Config::Model::Debian::Dependency (see below)
         * Likewise for Debian::Dpkg::Control::Source Build-Depends*

@@ -1858,7 +1858,10 @@ Then, the merged model will feature C<fs_vfstype> with choice C<ext2 ext4 ext4>.
 Likewise, C<fs_mntopts> will feature rules for the 3 filesystems. 
 
 
-=head2 augment_config_class (name => '...', ... )
+=head2 augment_config_class (name => '...', class_data )
+
+Enhance the feature of a configuration class. This method uses the same parameters
+as L<create_config_class>.
 
 =cut
 

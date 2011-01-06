@@ -321,7 +321,7 @@ sub full_message {
         . " (configuration class '".$obj -> config_class_name ."')\n"
           . "\tExpected: '". join("','",@elements)."'\n" ;
 
-    my @match_keys = $obj->accept_regexp();
+    my @match_keys = $obj->can('accept_regexp') ? $obj->accept_regexp() : () ;
     if (@match_keys) {
       $msg .= "\tor an acceptable parameter matching '"
             . join("','",@match_keys)."'\n" ;

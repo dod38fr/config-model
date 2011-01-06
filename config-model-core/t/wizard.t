@@ -1,11 +1,9 @@
 # -*- cperl -*-
-# $Author$
-# $Date$
-# $Revision$
 
 use ExtUtils::testlib;
-use Test::More tests => 29;
+use Test::More tests => 30;
 use Config::Model;
+use Config::Model::Value ;
 use Log::Log4perl qw(get_logger :levels) ;
 
 use warnings;
@@ -38,8 +36,25 @@ else {
 
 ok(1,"compiled");
 
+$model->load(Master => 't/big_model.pm') ;
+
+$model->augment_config_class(
+    name => 'Master' ,
+    element => [ 
+        warn_if => { 
+            type => 'leaf',
+            value_type => 'string',
+            warn_if_match => { 'foo' => { fix =>'$_ = uc;' }},
+        },
+	warn_unless => { 
+	    type => 'leaf',
+            value_type => 'string',
+            warn_unless_match => { foo => { msg => '', fix =>'$_ = "foo".$_;' }},
+        },
+    ]
+);
+
 my $inst = $model->instance (root_class_name => 'Master', 
-			     model_file => 't/big_model.pm',
 			     instance_name => 'test1');
 ok($inst,"created dummy instance") ;
 
@@ -49,6 +64,7 @@ Config::Model::Exception::Any->Trace(1) if $trace =~ /e/;
 
 
 my $step = qq!
+warn_if=foobar
 std_id:ab X=Bv -
 std_id:ab2 -
 std_id:bc X=Av -
@@ -68,6 +84,7 @@ my_reference="titi"
 warp warp2 aa2="foo bar"
 !;
 
+$Config::Model::Value::nowarning=1;
 ok( $root->load( step => $step, experience => 'advanced' ),
   "set up data in tree");
 
@@ -96,6 +113,7 @@ my @expected = (
 		[ ''    , 'tree_macro' ],
 		[ ''    , 'a_string' ] ,
 		[ ''    , 'int_v' ] ,
+		[ ''    , 'warn_if' ],
 	       ) ;
 
 my $steer = sub {
@@ -140,12 +158,15 @@ my $list_element_cb = sub {
     is( $obj->location, $expect, "list_element_cb got $expect" ) ;
 };
 
-my $wizard = $inst->wizard_helper(leaf_cb          => $leaf_element_cb, 
-				  integer_value_cb => $int_cb,
-				  hash_element_cb  => $hash_element_cb,
-				  list_element_cb  => $list_element_cb,
-				  experience       => 'advanced') ;
-ok($wizard,"created wizard helper") ;
+my $wizard = $inst->wizard_helper(
+    leaf_cb              => $leaf_element_cb,
+    integer_value_cb     => $int_cb,
+    hash_element_cb      => $hash_element_cb,
+    list_element_cb      => $list_element_cb,
+    experience           => 'advanced',
+    call_back_on_warning => 1,
+);
+ok( $wizard, "created wizard helper" );
 
 $wizard->start ;
 

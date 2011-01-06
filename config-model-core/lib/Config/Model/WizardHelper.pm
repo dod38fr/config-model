@@ -1,5 +1,5 @@
 
-#    Copyright (c) 2006-2009 Dominique Dumont.
+#    Copyright (c) 2006-2009,2011 Dominique Dumont.
 #
 #    This file is part of Config-Model.
 #
@@ -91,6 +91,10 @@ Here are the the parameters accepted by C<wizard_helper>:
 
 Whether to call back when an important element is found (default 1).
 
+=head2 call_back_on_warning
+
+Whether to call back when an item with warnings is found (default 0).
+
 =head2 experience
 
 Specifies the experience of the element scanned by the wizard (default
@@ -138,7 +142,7 @@ sub new {
 	  croak "WizardHelper->new: Missing $p parameter" ;
     }
 
-    foreach my $p (qw/call_back_on_important/) {
+    foreach my $p (qw/call_back_on_important call_back_on_warning/) {
 	$self->{$p} = delete $args{$p} if defined $args{$p} ;
     }
 
@@ -176,6 +180,10 @@ sub new {
 
     $self->{dispatch_cb}    = \%cb_hash ;
     $self->{user_scan_args} = \%user_scan_args ;
+    
+    if (%args) {
+        die "WizardHelper->new: unexpected parameters: ",join(' ', keys %args),"\n";
+    }
 
     # user call-back are *not* passed to ObjTreeScanner. They will be
     # called indirectly through wizard-helper own call-backs
@@ -304,6 +312,13 @@ sub leaf_cb {
 
     if ($self->{call_back_on_important} and $level eq 'important') {
 	$logger->info( "leaf_cb found important elt: '", $node->name,
+		       "' element $element", 
+		       defined $index ? ", index $index":'');
+	$user_leaf_cb->($self,$data_r,$node,$element,$index,$value_obj) ;
+    }
+
+    if ($self->{call_back_on_warning} and $value_obj->warning_msg) {
+	$logger->info( "leaf_cb found elt with warning: '", $node->name,
 		       "' element $element", 
 		       defined $index ? ", index $index":'');
 	$user_leaf_cb->($self,$data_r,$node,$element,$index,$value_obj) ;

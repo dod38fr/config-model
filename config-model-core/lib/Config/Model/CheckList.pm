@@ -1037,6 +1037,9 @@ sub move_down {
     }
 }
 
+# dummy to match Value call
+sub warning_msg { '' } 
+
 1;
 
 __END__
