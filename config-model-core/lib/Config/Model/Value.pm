@@ -674,7 +674,7 @@ sub new {
     my $type = shift;
     my %args = @_ ;
 
-    my $self={} ;
+    my $self={ fixes => [] } ;
     bless $self,$type;
 
     $self->{mandatory} = $self->{allow_compute_override} = 0 ;
