@@ -235,7 +235,7 @@
                
 		warn_unless => { type => 'leaf',
                                  value_type => 'string',
-			         warn_unless_match => 'foo',
+			         warn_unless_match => { foo => { msg => '', fix =>'$_ = "foo".$_;' }},
 			   },
 		always_warn => { type => 'leaf',
                                  value_type => 'string',
