@@ -20,6 +20,9 @@ package Config::Model::AnyThing;
 use Scalar::Util qw(weaken);
 use Carp;
 use strict;
+use Log::Log4perl qw(get_logger :levels);
+
+my $logger = get_logger("Anything") ;
 
 =head1 NAME
 
@@ -120,8 +123,6 @@ conforms with the syntax defined by L</grab()> method.
 sub location {
     my $self = shift;
 
-    #print "location called on $self\n" if $::debug ;
-
     my $str = '';
     $str .= $self->parent->location
         if defined $self->parent;
@@ -156,7 +157,7 @@ sub composite_name {
 sub xpath { 
     my $self = shift;
 
-    print "xpath called on $self\n" if $::debug;
+    $logger->debug("xpath called on $self");
 
     my $element = $self->element_name;
     $element = '' unless defined $element;
@@ -333,17 +334,14 @@ sub grab {
 
     my @saved = @command ;
 
-    print "grab: executing '",join("' '",@command),
-      "' on object '",$self->name, "'\n"
-          if $::debug;
+    $logger->debug( "grab: executing '",join("' '",@command), "' on object '",$self->name, "'");
 
     my @found = ($self) ;
 
   COMMAND:
     while( my $cmd = shift @command) {
 	my $obj = $found[-1] ;
-        print "grab: executing cmd '$cmd' on object '",$obj->name,
-          "($obj)'\n" if $::debug;
+        $logger->debug( "grab: executing cmd '$cmd' on object '",$obj->name, "($obj)'");
 
         if ($cmd eq '!') { 
             push @found, $obj->grab_root ;
@@ -363,8 +361,7 @@ sub grab {
                 next ;
               } 
             else {
-                print "grab: ",$obj->name," has no parent\n" 
-		  if $::debug;
+                $logger->debug("grab: ",$obj->name," has no parent");
                 return $strict ? undef : $obj ;
               }
           }
@@ -389,8 +386,7 @@ sub grab {
 
 	{
 	  no warnings "uninitialized" ;
-	  print "grab: cmd '$cmd' -> name '$name', action '$action', arg '$arg'\n" 
-	    if $::debug;
+	  $logger->debug("grab: cmd '$cmd' -> name '$name', action '$action', arg '$arg'");
 	}
 
         unless ($obj->has_element($name)) {
@@ -458,8 +454,7 @@ sub grab {
     }
 
     my $return = $found[-1] ;
-    print "grab: returning object '",$return->name,
-      "($return)'\n" if $::debug;
+    $logger->debug("grab: returning object '",$return->name, "($return)'");
     return $return;
 }
 
@@ -526,8 +521,8 @@ sub grab_ancestor_with_element_named {
     my $obj = $self ;
 
     while (1) { 
-	print "grab_ancestor_with_element_named: executing cmd '?$search' on object ",
-	  ,$obj->name,"\n" if $::debug;
+	$logger->debug("grab_ancestor_with_element_named: executing cmd '?$search' on object "
+	  .$obj->name);
 
 	my $obj_element_name = $obj->element_name ;
 
@@ -597,6 +592,12 @@ sub _check_check {
     return $p    if $p eq 'skip' ;
 
     croak "Internal error: Unvalid check value: $p" ;
+}
+
+sub has_fixes {
+    my $self = shift ;
+    $logger->debug("dummy has_fixes called on ".$self->name);
+    return 0;
 }
 
 
