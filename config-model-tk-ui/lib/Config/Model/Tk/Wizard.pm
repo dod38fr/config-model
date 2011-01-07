@@ -49,6 +49,7 @@ sub Populate {
 
     $logger->info("Creating wizard widget");
     $cw->{show_cb} ||= sub {} ;
+    $cw->{store_cb} ||= sub {} ;
 
     my $title = delete $args->{'-title'} 
               || "config wizard ".$cw->{root}->config_class_name ;
@@ -90,41 +91,51 @@ sub save {
 }
 
 sub leaf_cb {
-    my ($cw,$scanner, $data_ref,$node,$element_name,$index, $leaf_object) = @_ ;
+    my ( $cw, $scanner, $data_ref, $node, $element_name, $index, $leaf_object )
+      = @_;
+
     # cleanup existing widget contained in this frame
-    $cw->{show_cb}->($leaf_object) ;
-    $cw->{ed_frame}->ConfigModelLeafEditor(-item => $leaf_object, 
-					   -store_cb => $cw->{store_cb},
-					  )->pack(@fbe1) ;
+    $cw->{show_cb}->($leaf_object);
+    $cw->{ed_w} = $cw->{ed_frame}->ConfigModelLeafEditor(
+        -item     => $leaf_object,
+        -store_cb => $cw->{store_cb},
+    )->pack(@fbe1);
 }
 
 sub list_element_cb {
-    my ($cw,$scanner, $data_ref,$node,$element_name,@indexes) = @_ ;
+    my ( $cw, $scanner, $data_ref, $node, $element_name, @indexes ) = @_;
+
     # cleanup existing widget contained in this frame
-    my $obj = $node->fetch_element($element_name) ;
-    $cw->{show_cb}->($obj) ;
-    $cw->{ed_frame}->ConfigModelListEditor(-item => $obj, 
-					   -store_cb => $cw->{store_cb},
-					  )->pack(@fbe1) ;
+    my $obj = $node->fetch_element($element_name);
+    $cw->{show_cb}->($obj);
+    $cw->{ed_w} = $cw->{ed_frame}->ConfigModelListEditor(
+        -item     => $obj,
+        -store_cb => $cw->{store_cb},
+    )->pack(@fbe1);
 }
 
 sub hash_element_cb {
-    my ($cw,$scanner, $data_ref,$node,$element_name,@keys) = @_ ;
+    my ( $cw, $scanner, $data_ref, $node, $element_name, @keys ) = @_;
+
     # cleanup existing widget contained in this frame
-    my $obj = $node->fetch_element($element_name) ;
-    $cw->{show_cb}->($obj) ;
-    $cw->{ed_frame}->ConfigModelHashEditor(-item => $obj, 
-					   -store_cb => $cw->{store_cb},
-					  )->pack(@fbe1) ;
+    my $obj = $node->fetch_element($element_name);
+    $cw->{show_cb}->($obj);
+    $cw->{ed_w} = $cw->{ed_frame}->ConfigModelHashEditor(
+        -item     => $obj,
+        -store_cb => $cw->{store_cb},
+    )->pack(@fbe1);
 }
+
 sub check_list_element_cb {
-    my ($cw,$scanner, $data_ref,$node,$element_name,@items) = @_ ;
+    my ( $cw, $scanner, $data_ref, $node, $element_name, @items ) = @_;
+
     # cleanup existing widget contained in this frame
-    my $obj = $node->fetch_element($element_name) ;
-    $cw->{show_cb}->($obj) ;
-    $cw->{ed_frame}->ConfigModelCheckListEditor(-item => $obj, 
-						-store_cb => $cw->{store_cb},
-					       )->pack(@fbe1) ;
+    my $obj = $node->fetch_element($element_name);
+    $cw->{show_cb}->($obj);
+    $cw->{ed_w} = $cw->{ed_frame}->ConfigModelCheckListEditor(
+        -item     => $obj,
+        -store_cb => $cw->{store_cb},
+    )->pack(@fbe1);
 }
 
 sub start_wizard {
@@ -145,14 +156,19 @@ sub start_wizard {
     $edf->Label(-text => 'Choose experience for the wizard :'.$exp)
       ->pack(qw/-side top -anchor w/);
 
-    map { $edf->Radiobutton(-text => $_ ,
-			    -variable => \$exp,
-			    -value => $_
-			   )->pack(qw/-side top -anchor w/);
-      } qw/master advanced beginner/ ;
+    map {
+        $edf->Radiobutton(
+            -text     => $_,
+            -variable => \$exp,
+            -value    => $_
+        )->pack(qw/-side top -anchor w/);
+    } qw/master advanced beginner/;
+      
+    my $stop_on_warn = 0 ;
+    $edf->Checkbutton (-text => 'stop on warning', -variable => \$stop_on_warn )->pack(qw/-side top -anchor w/);
 
     $edf->Button(-text => 'OK',
-		 -command => sub {$cw->_start_wizard($exp)}
+		 -command => sub {$cw->_start_wizard($exp,$stop_on_warn)}
 		) -> pack (qw/-side right -anchor e/) ;
     $edf->Button(-text => 'cancel',
 		 -command => sub {$cw->destroy_wizard()}
@@ -160,71 +176,83 @@ sub start_wizard {
 }
 
 sub _start_wizard {
-    my ($cw,$exp) = @_ ;
+    my ( $cw, $exp, $stop_on_warn ) = @_;
 
-    my $button_f  = $cw->Frame 
-      ->pack  (qw/-pady 0 -fill x -expand 1/ ) ;
+    my $button_f = $cw->Frame->pack(qw/-pady 0 -fill x -expand 1/);
 
-    my $back = $button_f -> Button(-text => 'Back', 
-				   -command => sub {
-				       $cw->{keep_wiz} = 0 ;
-				       $cw->{wizard}->go_backward;
-				   } 
-				  );
-    $back -> pack(qw/-side left -fill x -expand 1/) ;
+    my $back = $button_f->Button(
+        -text    => 'Back',
+        -command => sub {
+            $cw->{keep_wiz_editor} = 0;
+            $cw->{ed_w} -> store if $cw->{ed_w}->can('store');
+            $cw->{wizard}->go_backward;
+        }
+    );
+    $back->pack(qw/-side left -fill x -expand 1/);
 
-    my $stop = $button_f -> Button(-text => 'Stop', 
-				   -command => sub {$cw->destroy_wizard;} 
-				  );
-    $stop -> pack(qw/-side left -fill x -expand 1/) ;
+    my $stop = $button_f->Button(
+        -text    => 'Stop',
+        -command => sub {
+            $cw->{ed_w} -> store if $cw->{ed_w}->can('store');
+            $cw->{keep_wiz_editor} = 0;
+            $cw->{wizard}->bail_out;
+        }
+    );
+    $stop->pack(qw/-side left -fill x -expand 1/);
 
-    my $forw = $button_f -> Button(-text => 'Next', 
-				   -command => sub {
-				       $cw->{keep_wiz} = 0 ;
-				       $cw->{wizard}->go_forward;
-				   } 
-				  );
-    $forw-> pack(qw/-side right -fill x -expand 1/) ;
+    my $forw = $button_f->Button(
+        -text    => 'Next',
+        -command => sub {
+            $cw->{keep_wiz_editor} = 0;
+            $cw->{ed_w} -> store if $cw->{ed_w}->can('store');
+            $cw->{wizard}->go_forward;
+        }
+    );
+    $forw->pack(qw/-side right -fill x -expand 1/);
 
-    my ($sort_element, $sort_idx) ;
-    $cw->{keep_wiz} = 1 ;
+    my ( $sort_element, $sort_idx );
+    $cw->{keep_wiz_editor} = 1;
 
-    my %cb_table ;
+    my %cb_table;
+
     # a local event loop is run within the call-back
-    foreach my $cb_key (qw/leaf_cb check_list_element_cb 
-			   list_element_cb hash_element_cb/) {
-	$cb_table{$cb_key} = sub 
-	  {
-	      my ($scanner, $data_ref,$node,$element_name) = @_ ;
-	      $logger->info("$cb_key (element $element_name) called on '", 
-			    $node->name,"'->'$element_name'");
-	      map { $_ ->destroy if Tk::Exists($_) } $cw->{ed_frame}->children ;
-	      $cw->{keep_wiz} = 1 ;
-	      $cw->$cb_key(@_) ;
-	      my $loop_c = 0;
-	      $logger->debug("$cb_key wizard entered local loop ",++$loop_c);
-	      $cw->DoOneEvent() while $cw->{keep_wiz};
-	      $logger->debug("$cb_key wizard exited local loop ",$loop_c);
-	  } ;
+    foreach my $cb_key (
+        qw/leaf_cb check_list_element_cb
+        list_element_cb hash_element_cb/
+      )
+    {
+        $cb_table{$cb_key} = sub {
+            my ( $scanner, $data_ref, $node, $element_name ) = @_;
+            $logger->info( "$cb_key (element $element_name) called on '",
+                $node->name, "'->'$element_name'" );
+            map { $_->destroy if Tk::Exists($_) } $cw->{ed_frame}->children;
+            $cw->{keep_wiz_editor} = 1;
+            $cw->$cb_key(@_);
+            my $loop_c = 0;
+            $logger->debug( "$cb_key wizard entered local loop ", ++$loop_c );
+            $cw->DoOneEvent() while $cw->{keep_wiz_editor};
+            $logger->debug( "$cb_key wizard exited local loop ", $loop_c );
+        };
     }
 
-
-    my @wiz_args = (experience        => $exp,
-		    %cb_table 
-		   );
-
+    my @wiz_args = (
+        experience           => $exp,
+        call_back_on_warning => $stop_on_warn,
+        %cb_table
+    );
 
     #Tk::ObjScanner::scan_object(\@wiz_args) ;
-    $cw->{wizard} = $cw->{root}->instance->wizard_helper (@wiz_args);
+    $cw->{wizard} = $cw->{root}->instance->wizard_helper(@wiz_args);
 
     # exits when wizard is done (but not when stopped)
-    $cw->{wizard}->start ;
-    $cw->destroy_wizard ;
+    $cw->{wizard}->start;
+    $cw->destroy_wizard;
 }
 
 sub destroy_wizard{
     my $cw = shift ;
 
+    delete $cw->{ed_w} ;
     delete $cw->{wizard} ;
 
     if (defined $cw->{end_cb}) {

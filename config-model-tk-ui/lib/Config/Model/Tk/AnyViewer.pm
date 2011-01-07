@@ -158,9 +158,8 @@ sub add_description {
 sub add_warning {
     my ($cw, $elt_obj) = @_ ;
 
-    my $msg = $elt_obj->warning_msg . "with " . $elt_obj->has_fixes." fixes";
-    print "new: $msg\n" ;
-
+    my $msg = $elt_obj->warning_msg || ''  . "with " . $elt_obj->has_fixes." fixes";
+ 
     my $frame = $cw -> Frame ; # packed by caller 
     my $inner_frame = $frame->Frame ; # packed by update_warning
 
@@ -220,7 +219,7 @@ sub update_warning {
                 $elt_obj -> apply_fixes ;
                 $cw->reset_value ;
                 $cw->update_warning($elt_obj) ;
-                $cw->parent->parent->parent->parent->reload(1) ;
+                $cw->{store_cb}->() ;
             }  ,
             -state => $nb_fixes ? 'normal' : 'disabled' 
         ) ;

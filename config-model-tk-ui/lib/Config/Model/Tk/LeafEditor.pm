@@ -217,6 +217,7 @@ sub delete {
     }
 }
 
+# can be used without parameters to store value from widget into config tree
 sub store {
     my $cw = shift ;
     my $v = $cw->try(@_) ;
@@ -317,4 +318,9 @@ sub _read_stdout {
     }
 } # end _read_stdout
 
+sub reload {
+    my $cw = shift;
+    $cw -> reset_value ;
+    $cw->update_warning ($cw->{leaf});
+}
 1;

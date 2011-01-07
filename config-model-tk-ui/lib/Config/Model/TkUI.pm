@@ -1021,8 +1021,8 @@ sub wizard {
     my $wiz = $cw->ConfigModelWizard
       (
 	-root     => $cw->{root},
-	-store_cb => sub{ $cw->force_element_display(@_)},
-	-end_cb   => sub{ $cw->deiconify; $cw->raise ; },
+	-store_cb => sub{ $cw->{modified_data} = 1 ;},
+	-end_cb   => sub{ $cw->deiconify; $cw->raise ; $cw->reload ;},
        # -show_cb => sub{ $cw->force_element_display(@_)},
       ) ;
 

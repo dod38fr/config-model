@@ -487,24 +487,6 @@ sub delete_selection {
     }
 }
 
-sub store {
-    my $cw = shift ;
-
-    eval {$cw->{hash}->set_checked_list_as_list(%{$cw->{check_list}}); } ;
-
-    if ($@) {
-	$cw -> Dialog ( -title => 'Value error',
-			-text  => $@ -> as_string,
-		      )
-            -> Show ;
-	$cw->reset_value ;
-    }
-    else {
-	# trigger redraw of Tk Tree
-	$cw->reload_tree ;
-    }
-}
-
 sub reload_tree {
     my $cw = shift ;
     $cw->update_warning($cw->{hash}) ;

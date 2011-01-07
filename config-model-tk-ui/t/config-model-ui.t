@@ -163,9 +163,9 @@ SKIP: {
 		$cmu -> force_element_display($root->grab('always_warn')) ; 
 	    ; ok(1,"test ".$idx++)},
 
-	 # warn test
+	 # warn test, 3 warnings: load, fetch for hlist, fetch for editor
 	 sub { warnings_like { $root->load("always_warn=foo") ; $cmu->reload ;}
-	       [ qr/always/ , qr/always/] ,"warn test ".$idx++ ;
+	       [ qr/always/ , qr/always/, qr/always/] ,"warn test ".$idx++ ;
 	     },
 	 sub { $root->load('always_warn~') ; $cmu->reload ;; ok(1,"test ".$idx++)},
 
@@ -175,7 +175,7 @@ SKIP: {
 	     },
 
 	 sub { warnings_like { $root->load("warn_unless=bar") ; $cmu->reload ;}
-	       [ qr/warn_unless/ , qr/warn_unless/] ,"warn test ".$idx++ ;
+	       [ qr/warn_unless/ , qr/warn_unless/, qr/warn_unless/] ,"warn test ".$idx++ ;
 	     },
 	 sub { $root->load('warn_unless=foo2') ; $cmu->reload ;; ok(1,"test ".$idx++)},
 

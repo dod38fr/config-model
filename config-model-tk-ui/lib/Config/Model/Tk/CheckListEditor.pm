@@ -63,11 +63,11 @@ sub Populate {
                                  ) ->pack(@fbe1) ;
     $lb->insert('end',@choice) ;
 
-
-    my $get_selected = sub { return map { $choice[$_]} $lb->curselection ;};
-
     # mastering perl/Tk page 160
-    my $b_sub = sub { $cw->set_value_help(&$get_selected);} ;
+    my $b_sub = sub { 
+        my @selected = map { $choice[$_]} $lb->curselection ;
+        $cw->set_value_help(@selected);
+    } ;
     $lb->bind('<<ListboxSelect>>',$b_sub);
 
     my $bframe = $ed_frame->Frame->pack;
@@ -81,7 +81,7 @@ sub Populate {
                         -command => sub { $cw->reset_value ; },
                       ) -> pack(-side => 'left') ;
     $bframe -> Button ( -text => 'Store',
-                        -command => sub { $cw->store ( &$get_selected )},
+                        -command => sub { $cw->store ( )},
                       ) -> pack(-side => 'left') ;
 
     $cw->ConfigModelNoteEditor( -object => $leaf )->pack(@fbe1) ;
@@ -97,6 +97,8 @@ sub Populate {
     if ($leaf->ordered) {
         $cw->add_change_order_page($nb,$leaf) ;
     }
+
+    $cw->Advertise('listbox' => $lb ) ;
 
     # don't call directly SUPER::Populate as it's CheckListViewer's populate
     $cw->Tk::Frame::Populate($args) ;
@@ -185,7 +187,10 @@ sub move_selected_down {
 sub store {
     my $cw = shift ;
 
-    my %set = map { $_ => 1 ; } @_ ;
+    my $lb = $cw->Subwidget('listbox') ;
+    my @choice = $cw->{leaf}->get_choice ;
+    
+    my %set = map { $_ => 1 ; } map { $choice[$_]} $lb->curselection ;
     my $cl = $cw->{leaf};
 
     map {
@@ -195,7 +200,7 @@ sub store {
         elsif (not $set{$_} and $cl->is_checked($_) ) {
             $cl->uncheck($_) ;
         }
-    } $cw->{leaf}->get_choice;
+    } @choice;
 
     $cw->{store_cb}->() ;
 }
