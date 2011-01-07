@@ -106,14 +106,14 @@ SKIP: {
 
     my @test ;
     foreach (1 .. 4 ) {
-	push @test, sub {$cmw->{keep_wiz} = 0 ; $cmw->{wizard}->go_forward; } ;
+	push @test, sub {$cmw->{keep_wiz_editor} = 0 ; $cmw->{wizard}->go_forward; } ;
     }
     foreach (1 .. 2 ) {
-	push @test, sub {$cmw->{keep_wiz} = 0 ; $cmw->{wizard}->go_backward;} ;
+	push @test, sub {$cmw->{keep_wiz_editor} = 0 ; $cmw->{wizard}->go_backward;} ;
     }
     # no problem if too many subs are defined: programs will exit
     foreach (1 .. 100 ) {
-	push @test, sub {$cmw->{keep_wiz} = 0 ; $cmw->{wizard}->go_forward; } ;
+	push @test, sub {$cmw->{keep_wiz_editor} = 0 ; $cmw->{wizard}->go_forward; } ;
     }
 
 
