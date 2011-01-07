@@ -211,7 +211,20 @@ when the scan is completely done.
 
 sub start {
     my $self = shift ;
+    $self->{bail_out} = 0 ;
     $self->{scanner}->scan_node(undef, $self->{root}) ;
+}
+
+=head2 bail_out
+
+When called, a variable is set so that all call_backs will return as soon as possible. Used to
+abort wizard.
+
+=cut
+
+sub bail_out {
+    my $self = shift ;
+    $self->{bail_out} = 1 ;
 }
 
 # internal. This call-back is passed to ObjTreeScanner. It will call
@@ -235,6 +248,7 @@ sub node_content_cb {
 		       "on element $element");
 
 	$self->{scanner}->scan_element($data_r,$node,$element) ;
+	return if $self->{bail_out} ;
     }
 }
 
@@ -271,6 +285,7 @@ sub hash_element_cb {
     while ($i >= 0 and $i < 2) {
 	if ($self->{call_back_on_important} and $i == 0 and $level eq 'important') {
 	    $cb->($self,$data_r,$node,$element,@keys) ;
+            return if $self->{bail_out} ; # may be modified in callback
 	    # recompute keys as they may have been modified during call-back
 	    @keys = $self->{scanner}->get_keys($node,$element) ;
 	}

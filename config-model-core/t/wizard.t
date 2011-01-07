@@ -1,7 +1,7 @@
 # -*- cperl -*-
 
 use ExtUtils::testlib;
-use Test::More tests => 30;
+use Test::More tests => 31;
 use Config::Model;
 use Config::Model::Value ;
 use Log::Log4perl qw(get_logger :levels) ;
@@ -113,31 +113,33 @@ my @expected = (
 		[ ''    , 'tree_macro' ],
 		[ ''    , 'a_string' ] ,
 		[ ''    , 'int_v' ] ,
-		[ ''    , 'warn_if' ],
+		[ 'back'    , 'warn_if' ],
+		[ 'bail' , 'int_v' ], 
 	       ) ;
 
 my $steer = sub {
     my ($wiz, $item) = @_;
     my ($dir,$expect) = @$item ;
+    $wiz->bail_out    if $dir eq 'bail' ;
     $wiz->go_forward  if $dir eq 'for' ;
     $wiz->go_backward if $dir eq 'back' ;
-    return $expect ;
+    return @$item ;
 } ;
 
 my $leaf_element_cb = sub {
     my ($wiz, $data_r,$node,$element,$index, $leaf_object) = @_ ;
     print "test: leaf_element_cb called for ",$leaf_object->location,"\n" 
       if $trace ;
-    my $expect = $steer->($wiz,shift @expected) ;
-    is( $leaf_object->location, $expect, "leaf_element_cb got $expect" ) ;
+    my ($dir, $expect) = $steer->($wiz,shift @expected) ;
+    is( $leaf_object->location, $expect, "leaf_element_cb got $expect and '$dir'" ) ;
 };
 
 my $int_cb = sub {
     my ($wiz, $data_r,$node,$element,$index, $leaf_object) = @_ ;
     print "test: int_cb called for ",$leaf_object->location,"\n" 
       if $trace ;
-    my $expect = $steer->($wiz,shift @expected) ;
-    is( $leaf_object->location, $expect, "int_cb got $expect" ) ;
+    my ($dir, $expect) = $steer->($wiz,shift @expected) ;
+    is( $leaf_object->location, $expect, "int_cb got $expect and '$dir'" ) ;
 };
 
 my $hash_element_cb = sub {
@@ -145,8 +147,8 @@ my $hash_element_cb = sub {
     print "test: hash_element_cb called for ",$node->location," element $element\n" 
       if $trace ;
     my $obj = $node->fetch_element($element) ;
-    my $expect = $steer->($wiz,shift @expected) ;
-    is( $obj->location, $expect, "hash_element_cb got $expect" ) ;
+    my ($dir, $expect) = $steer->($wiz,shift @expected) ;
+    is( $obj->location, $expect, "hash_element_cb got $expect and '$dir'" ) ;
 };
 
 my $list_element_cb = sub {
@@ -154,8 +156,8 @@ my $list_element_cb = sub {
     print "test: list_element_cb called for ",$node->location," element $element\n" 
       if $trace ;
     my $obj = $node->fetch_element($element) ;
-    my $expect = $steer->($wiz,shift @expected) ;
-    is( $obj->location, $expect, "list_element_cb got $expect" ) ;
+    my ($dir, $expect) = $steer->($wiz,shift @expected) ;
+    is( $obj->location, $expect, "list_element_cb got $expect and '$dir'" ) ;
 };
 
 my $wizard = $inst->wizard_helper(
