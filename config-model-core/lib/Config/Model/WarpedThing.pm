@@ -250,6 +250,12 @@ sub submit_to_warp {
 			"\t$warper_name ($warper_path) location in tree is: '",
 			$warper->name,"'");
 
+        Config::Model::Exception::Model
+	    -> throw (
+		      object => $self,
+		      error => "warper $warper_name => '$warper_path' is not a leaf"
+		     ) 
+	      unless ref($warper)->isa('Config::Model::Value') ;
 
         # warp will register this value object in another value object
         # (the warper).  When the warper gets a new value, it will
