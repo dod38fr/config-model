@@ -1,4 +1,6 @@
-        * Model.pm: deprecated name_match parameter in accept
+2011-01-07 Dominique Dumont  <domi.dumont@free.fr> 1.227
+
+         * Model.pm: deprecated name_match parameter in accept
           specification. The regexp should now be specified as a
           key of a hash. 
         * Value.pm: warn_if_match and warn_unless_match can speficy instructions to "fix"
@@ -9,7 +11,8 @@
           Perl cargo class Config::Model::Debian::Dependency (see below)
         * Likewise for Debian::Dpkg::Control::Source Build-Depends*
         * Debian::Dependency: new class derived from Value to provide checks specific
-          to Debian dependencies.
+          to Debian dependencies (syntax, whether a "(>= vers)" is necessary or not, ... )
+        * New dependency: LWP::Simple
 
 
 2010-12-08 Dominique Dumont  <domi.dumont@free.fr> 1.226
