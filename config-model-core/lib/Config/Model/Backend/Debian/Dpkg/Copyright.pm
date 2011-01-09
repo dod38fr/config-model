@@ -95,7 +95,7 @@ sub read {
                 $logger->debug("license full_license: $lic_text") if $lic_text;
                 $object->fetch_element('full_license')->store(value => $lic_text, check => $check)
                     if $lic_text;
-                $object->fetch_element('abbrev')->store(value => $lic_line, check => $check);
+                $object->fetch_element('short_name')->store(value => $lic_line, check => $check);
                 $object = $root ;
             }
             elsif (my $found = $object->find_element($key, case => 'any')) { 
@@ -189,7 +189,7 @@ sub files {
         push @file_section, 'Copyright', [ $node -> fetch_element('Copyright') -> fetch_all_values ] ;
         
         my $lic_node = $node -> fetch_element('License') ;
-        my $lic_text = $lic_node->fetch_element_value('abbrev') ;
+        my $lic_text = $lic_node->fetch_element_value('short_name') ;
         my $exception = $lic_node->fetch_element_value('exception') ;
         $lic_text .= " with $exception exception" if defined $exception ;
         
