@@ -1,3 +1,5 @@
+2011-01-09  Dominique Dumont  <domi.dumont@free.fr> 1.319
+
         * LeafEditor: added fix button to fix warnings (if model provides a fix)
         * Wizard: clicking on next or previous does save value from wizard. 'stop' button
           will use new bail_out method from WizardHelper.
