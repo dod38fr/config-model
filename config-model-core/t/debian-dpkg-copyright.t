@@ -62,7 +62,7 @@ $tests[$i++]{check}
    = [ 'Files:"*" License full_license',           "[PSF LICENSE TEXT]\n" ,
        'Files:"*" Copyright:0', "2008, John Doe <john.doe\@example.com>",
        'Files:"*" Copyright:1', "2007, Jane Smith <jane.smith\@example.com>",
-       'Files:"*" License abbrev',"PsF",
+       'Files:"*" License short_name',"PsF",
        '"X-test"' ,                 "yada yada\n\nyada",
      ];
 
@@ -90,7 +90,7 @@ EOD1
 $tests[$i++]{check} = [ 'License:MPL-1.1',"[MPL-1.1 LICENSE TEXT]" ,
                         'License:"GPL-2+"', "[GPL-2 LICENSE TEXT]",
                         'License:"LGPL-2.1+"', "[LGPL-2.1 plus LICENSE TEXT]",
-                      'Files:"src/js/editline/*" License abbrev',"MPL-1.1 or GPL-2+ or LGPL-2.1+"
+                      'Files:"src/js/editline/*" License short_name',"MPL-1.1 or GPL-2+ or LGPL-2.1+"
                     ];
 
 
@@ -100,6 +100,7 @@ Files: src/js/editline/*
 Copyright: 1993, John Doe
            1993, Joe Average
 License: MPL-1.1
+Source: http:/some.where.com
 
 Files: src/js/fdlibm/*
 Copyright: 1993, J-Random Corporation
@@ -111,8 +112,8 @@ License: MPL-1.1
 EOD2
 
 $tests[$i++]{check} = [ 'License:MPL-1.1',"[MPL-1.1 LICENSE TEXT]" ,
-                      'Files:"src/js/editline/*" License abbrev',"MPL-1.1",
-                      'Files:"src/js/fdlibm/*" License abbrev',"MPL-1.1",
+                      'Files:"src/js/editline/*" License short_name',"MPL-1.1",
+                      'Files:"src/js/fdlibm/*" License short_name',"MPL-1.1",
                     ];
 
 # the empty license will default to 'other'
@@ -177,7 +178,7 @@ License: GPL-2
 EOD3
 
 $tests[$i++]{check} = [ 
-                      'Files:"planet/vendor/compat_logging/*" License abbrev',"MIT",
+                      'Files:"planet/vendor/compat_logging/*" License short_name',"MIT",
                     ];
 
 $tests[$i]{text} = <<'EOD4' ;
@@ -188,11 +189,12 @@ Copyright: 1993, John Doe
 License: GPL-2+ with OpenSSL exception
  This program is free software; you can redistribute it
   and/or modify it under the terms of the [snip]
+Source: http:/some.where.com
 
 EOD4
 
 $tests[$i++]{check} = [ 
-                      'Files:"*" License abbrev',"GPL-2+",
+                      'Files:"*" License short_name',"GPL-2+",
                       'Files:"*" License exception',"OpenSSL",
                       'Files:"*" License full_license',
                       "This program is free software; you can redistribute it\n"
@@ -221,7 +223,7 @@ License: LGPL-2+
 EOD5
 
 $tests[$i++]{check} = [ 
-                      'Files:"*" License abbrev',"LGPL-2+",
+                      'Files:"*" License short_name',"LGPL-2+",
                       'License:"LGPL-2+"',
                       "   [snip]either version 2.1 of\n   the License, or (at your option) any later version.\n"
                      ."   [snip again]",
@@ -322,9 +324,119 @@ license: BSD
 EOD6
 
 $tests[$i++]{check} = [ 
-                      'Files:"Embedded_Display/remoteview.cpp Embedded_Display/remoteview.h" License abbrev',"GPL-2",
+                      'Files:"Embedded_Display/remoteview.cpp Embedded_Display/remoteview.h" License short_name',"GPL-2",
                    ];
 
+# example from CANDIDATE DEP-5 spec 
+$tests[$i]{text} = <<'EOD' ;
+Format: http://svn.debian.org/wsvn/dep/web/deps/dep5.mdwn?op=file&rev=135
+Upstream-Name: X Solitaire
+Source: ftp://ftp.example.com/pub/games
+
+Files:*
+Copyright: Copyright 1998 John Doe <jdoe@example.com>
+License: GPL-2+
+ This program is free software; you can redistribute it
+ and/or modify it under the terms of the GNU General Public
+ License as published by the Free Software Foundation; either
+ version 2 of the License, or (at your option) any later
+ version.
+ .
+ This program is distributed in the hope that it will be
+ useful, but WITHOUT ANY WARRANTY; without even the implied
+ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+ PURPOSE.  See the GNU General Public License for more
+ details.
+ .
+ You should have received a copy of the GNU General Public
+ License along with this package; if not, write to the Free
+ Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+ Boston, MA  02110-1301 USA
+ .
+ On Debian systems, the full text of the GNU General Public
+ License version 2 can be found in the file
+ `/usr/share/common-licenses/GPL-2'.
+
+Files: debian/*
+Copyright: Copyright 1998 Jane Smith <jsmith@example.net>
+License:
+ [LICENSE TEXT]
+
+EOD
+$tests[$i++]{check} = [ 
+                      
+                   ];
+
+$tests[$i]{text} = <<'EOD' ;
+Format: http://svn.debian.org/wsvn/dep/web/deps/dep5.mdwn?op=file&rev=135
+Upstream-Name: Planet Venus
+Upstream-Contact: John Doe <jdoe@example.com>
+Source: http://www.example.com/code/venus
+
+Files: *
+Copyright: 2008, John Doe <jdoe@example.com>
+           2007, Jane Smith <jsmith@example.org>
+           2007, Joe Average <joe@example.org>
+           2007, J. Random User <jr@users.example.com>
+License: PSF-2
+ [LICENSE TEXT]
+
+Files: debian/*
+Copyright: 2008, Dan Developer <dan@debian.example.com>
+License:
+ Copying and distribution of this package, with or without
+ modification, are permitted in any medium without royalty
+ provided the copyright notice and this notice are
+ preserved.
+
+Files: debian/patches/theme-diveintomark.patch
+Copyright: 2008, Joe Hacker <hack@example.org>
+License: GPL-2+
+ [LICENSE TEXT]
+
+Files: planet/vendor/compat_logging/*
+Copyright: 2002, Mark Smith <msmith@example.org>
+License: MIT
+ [LICENSE TEXT]
+
+Files: planet/vendor/httplib2/*
+Copyright: 2006, John Brown <brown@example.org>
+License: MIT2
+ Unspecified MIT style license.
+
+Files: planet/vendor/feedparser.py
+Copyright: 2007, Mike Smith <mike@example.org>
+License: PSF-2
+ [LICENSE TEXT]
+
+Files: planet/vendor/htmltmpl.py
+Copyright: 2004, Thomas Brown <coder@example.org>
+License: GPL-2+
+ This program is free software; you can redistribute it
+ and/or modify it under the terms of the GNU General Public
+ License as published by the Free Software Foundation; either
+ version 2 of the License, or (at your option) any later
+ version.
+ .
+ This program is distributed in the hope that it will be
+ useful, but WITHOUT ANY WARRANTY; without even the implied
+ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+ PURPOSE.  See the GNU General Public License for more
+ details.
+ .
+ You should have received a copy of the GNU General Public
+ License along with this package; if not, write to the Free
+ Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+ Boston, MA  02110-1301 USA
+ .
+ On Debian systems, the full text of the GNU General Public
+ License version 2 can be found in the file
+ `/usr/share/common-licenses/GPL-2'.
+
+EOD
+$tests[$i++]{check} = [ 
+                      
+                   ];
 my $idx = 0 ;
 foreach my $t (@tests) {
     if (defined $do and $do ne $idx) { $idx ++; next; }
@@ -386,7 +498,7 @@ foreach my $t (@tests) {
     is($elt->defined('foobar'),0,"test defined method");
 
     # test backups, load a wrong value
-    $i2_root->load(step => qq!Files:foobar License abbrev="FOO or BAR"!, check => 'no');
+    $i2_root->load(step => qq!Files:foobar License short_name="FOO or BAR"!, check => 'no');
     # then try to write backups
     throws_ok {$i2_test->write_back} 'Config::Model::Exception::WrongValue',
         "check that write back is aborted with bad values" ;

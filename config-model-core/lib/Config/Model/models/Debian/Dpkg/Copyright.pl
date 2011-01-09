@@ -18,7 +18,7 @@
                              ],
             'name' => 'Debian::Dpkg::Copyright',
             'element' => [
-                           'Format-Specification',
+                           'Format',
                            {
                              'value_type' => 'uniline',
                              'default' => 'http://svn.debian.org/wsvn/dep/web/deps/dep5.mdwn?op=file&rev=153',
@@ -32,7 +32,7 @@
                              'migrate_from' => {
                                                  'formula' => '$name',
                                                  'variables' => {
-                                                                  'name' => '- name'
+                                                                  'name' => '- Name'
                                                                 }
                                                },
                              'type' => 'leaf',
@@ -110,16 +110,19 @@
                              'type' => 'hash',
                              'index_type' => 'string'
                            },
+                           'Format-Specification',
+                           {
+                             'value_type' => 'uniline',
+                             'status' => 'deprecated',
+                             'default' => 'http://svn.debian.org/wsvn/dep/web/deps/dep5.mdwn?op=file&rev=153',
+                             'mandatory' => '1',
+                             'type' => 'leaf',
+                             'description' => 'URI of the format specification, such as: http://svn.debian.org/wsvn/dep/web/deps/dep5.mdwn?op=file&amp;rev=REVISION'
+                           },
                            'Name',
                            {
                              'value_type' => 'string',
                              'status' => 'deprecated',
-                             'migrate_from' => {
-                                                 'formula' => '$old_name',
-                                                 'variables' => {
-                                                                  'old_name' => '- Upstream-Name'
-                                                                }
-                                               },
                              'type' => 'leaf'
                            },
                            'Maintainer',
