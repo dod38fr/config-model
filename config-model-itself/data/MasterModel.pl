@@ -293,6 +293,17 @@
                                             token: 'Apache' | 'CC-BY' | 'Perl'
                                            !,
             },
+            warn_if => {
+                type          => 'leaf',
+                value_type    => 'string',
+                warn_if_match => { 'foo' => { fix => '$_ = uc;' } },
+            },
+            warn_unless => {
+                type       => 'leaf',
+                value_type => 'string',
+                warn_unless_match =>
+                  { foo => { msg => '', fix => '$_ = "foo".$_;' } },
+            },
             ## too difficult to correctly test Augeas here
             'sshd_augeas' => {
                 type              => 'node',

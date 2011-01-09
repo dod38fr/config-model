@@ -1,4 +1,4 @@
-#    Copyright (c) 2007-2010 Dominique Dumont.
+#    Copyright (c) 2007-2011 Dominique Dumont.
 #
 #    This file is part of Config-Model-Itself.
 #
@@ -34,7 +34,36 @@ my @warp_in_uniline_or_string = (
 
 );
 
+my %warn_if_payload = (
+    type       => 'hash',
+    index_type => 'string',
+    level      => 'hidden',
+    experience => 'advanced',
+    cargo      => {
+        type              => 'node',
+        config_class_name => 'CommonElement::WarnIf',
+    },
+    @warp_in_uniline_or_string,
+);
+
 [
+    [
+        name    => 'CommonElement::WarnIf',
+        element => [
+            msg => {
+                type       => 'leaf',
+                value_type => 'string',
+                description =>
+'Warning message to show user. Leave blank or undef to use generated message',
+            },
+            fix => {
+                type       => 'leaf',
+                value_type => 'string',
+                description =>
+'Perl instructions to fix the value. These instructions may be triggered by user. $_ will contain the value to fix.  $_ will be stored as the new value once the instructions are done.',
+            },
+        ],
+    ],
     [
         name => 'Itself::CommonElement',
 
@@ -185,7 +214,8 @@ my @warp_in_uniline_or_string = (
                 type       => 'leaf',
                 level      => 'hidden',
                 value_type => 'uniline',
-                description => 'Specify default value. This default value will be written in the configuration data',
+                description =>
+'Specify default value. This default value will be written in the configuration data',
                 warp => {
                     follow  => { 't'            => '?type' },
                     'rules' => [ '$t eq "leaf"' => { level => 'normal', } ]
@@ -196,7 +226,8 @@ my @warp_in_uniline_or_string = (
                 type       => 'leaf',
                 level      => 'hidden',
                 value_type => 'uniline',
-                description => 'Another way to specify a default value. But this default value is considered as "built_in" the application and is not written in the configuration data (unless modified)',
+                description =>
+'Another way to specify a default value. But this default value is considered as "built_in" the application and is not written in the configuration data (unless modified)',
                 warp => {
                     follow  => { 't'            => '?type' },
                     'rules' => [ '$t eq "leaf"' => { level => 'normal', } ]
@@ -208,7 +239,8 @@ my @warp_in_uniline_or_string = (
                 value_type => 'enum',
                 level      => 'hidden',
                 experience => 'advanced',
-                description => 'When stored, the value will be converted to uppercase (uc) or lowercase (lc).',
+                description =>
+'When stored, the value will be converted to uppercase (uc) or lowercase (lc).',
                 warp => {
                     follow  => { 't' => '?type' },
                     'rules' => [
@@ -225,58 +257,35 @@ my @warp_in_uniline_or_string = (
                 value_type => 'uniline',
                 level      => 'hidden',
                 experience => 'advanced',
-                description => 'Perl regular expression to assert the validity of the value.',
+                description =>
+'Perl regular expression to assert the validity of the value.',
                 @warp_in_uniline_or_string,
             },
 
             'warn_if_match' => {
-                type       => 'leaf',
-                value_type => 'uniline',
-                level      => 'hidden',
-                experience => 'advanced',
+                %warn_if_payload,
                 description =>
                   'Warn user if value matches the regular expression',
-                @warp_in_uniline_or_string,
             },
 
             'warn_unless_match' => {
-                type       => 'leaf',
-                value_type => 'uniline',
-                level      => 'hidden',
-                experience => 'advanced',
+                %warn_if_payload,
                 description =>
                   'Warn user if value does not match the regular expression',
-                @warp_in_uniline_or_string,
             },
 
-            'warn_message' => {
-                type       => 'leaf',
-                value_type => 'uniline',
-                level      => 'hidden',
-                experience => 'advanced',
-                description => 'Custom message to display with warn_if_match or warn_unless_match',
-                warp => {
-                    follow => {
-                        warn_if => '?warn_if_match',
-                        warn_unless => '?warn_unless_match',
-                    },
-                    'rules' => [ '$warn_if ne "" or $warn_unless ne ""' 
-                                    => { level => 'normal', }, 
-                    ]
-                },
-            },
             'warn' => {
                 type       => 'leaf',
                 value_type => 'uniline',
                 level      => 'hidden',
                 experience => 'advanced',
-                description => 'Unconditionaly issue a warning with this string when this parameter is used. This should be used mostly with "accept"',
+                description =>
+'Unconditionaly issue a warning with this string when this parameter is used. This should be used mostly with "accept"',
                 warp => {
                     follow  => { t              => '?type' },
                     'rules' => [ '$t eq "leaf"' => { level => 'normal', }, ]
                 },
             },
-
 
             'grammar' => {
                 type       => 'leaf',
@@ -331,4 +340,4 @@ my @warp_in_uniline_or_string = (
 
         ],
     ],
-];
+    ];
