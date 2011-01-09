@@ -1,6 +1,11 @@
+2011-01-09 Dominique Dumont  <domi.dumont@free.fr> 1.228
+
+        * Specifically require DB_File as this module is not available by default on Ubuntu
+        * Skip Debian dependency tests when AptPkg::Config is not available (non Debian systems)
+
 2011-01-07 Dominique Dumont  <domi.dumont@free.fr> 1.227
 
-         * Model.pm: deprecated name_match parameter in accept
+        * Model.pm: deprecated name_match parameter in accept
           specification. The regexp should now be specified as a
           key of a hash. 
         * Value.pm: warn_if_match and warn_unless_match can speficy instructions to "fix"
