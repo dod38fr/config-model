@@ -28,7 +28,7 @@ use File::Find ;
 use File::Path ;
 use File::Basename ;
 
-my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+my $logger = Log::Log4perl::get_logger("Backend::Itself");
 
 =head1 NAME
 
@@ -155,7 +155,7 @@ sub read_all {
         push @files, $n if (-f $_ and not /~$/ 
                             and $n !~ /CVS/
                             and $n !~ m!.svn!
-                            and $n =~ /\b$root_model_file/
+                            and $n =~ m!models/$root_model_file!
                            ) ;
     } ;
     find ($wanted, $dir ) ;
@@ -491,7 +491,7 @@ Dominique Dumont, (ddumont at cpan dot org)
 
 =head1 COPYRIGHT
 
-Copyright (C) 2007-2010 by Dominique Dumont
+Copyright (C) 2007-2011 by Dominique Dumont
 
 =head1 LICENSE
 
