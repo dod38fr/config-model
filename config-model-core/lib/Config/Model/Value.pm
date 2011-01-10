@@ -634,6 +634,13 @@ replaced by C<foo_better>, you will need to declare:
 
   replace => { foo => 'foo_better' }
 
+The hash key can also be a regular expression for wider range replacement. 
+The regexp must match the whole value:
+
+  replace => ( 'foo.*' => 'better_foo' }
+  
+In this case, a value will be replaced by C<better_foo> if the C</^foo.*$/> regexp matches. 
+
 =item refer_to
 
 Specify a path to an id element used as a reference. See L<Value
@@ -1556,8 +1563,19 @@ sub pre_store {
     $value = $self->{convert_sub}($value) 
       if (defined $self->{convert_sub} and defined $value) ;
 
-    $value = $self->{replace}{$value} 
-      if defined $self->{replace} and defined $self->{replace}{$value} ;
+    if (defined $self->{replace}) {
+        if (defined $self->{replace}{$value}) {
+            $value = $self->{replace}{$value} ;
+        }
+        else {
+            foreach my $k (keys %{$self->{replace}}) {
+                if ( $value =~ /^$k$/ ) {
+                    $value = $self->{replace}{$k} ;
+                    last;
+                }
+            }
+        }
+    }
 
     my $ok = $self->store_check($value) ;
 

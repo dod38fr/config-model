@@ -1,4 +1,5 @@
         * config-edit: added -apply-fixes option
+        * Value: can specify wider replace instruction by using regexp as key of the 'replace' parameter
 
 2011-01-09 Dominique Dumont  <domi.dumont@free.fr> 1.228
 

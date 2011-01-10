@@ -3,7 +3,7 @@
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
-use Test::More tests => 110 ;
+use Test::More tests => 111 ;
 use Test::Exception ;
 use Test::Warn ;
 use Config::Model ;
@@ -90,7 +90,8 @@ $model ->create_config_class
 				 value_type => 'enum',
 				 choice     => [qw/a b c/],
 				 replace    => { a1 => 'a',
-						 c1 => 'c'
+						 c1 => 'c',
+						 'foo/.*' => 'b',
 					       },
 				},
 		match => { type => 'leaf',
@@ -331,6 +332,9 @@ is($uni->fetch, "foo bar","tested uniline value") ;
 my $wrepl =  $root->fetch_element('with_replace') ;
 $wrepl -> store ('c1') ;
 is($wrepl->fetch, "c","tested replaced value") ;
+
+$wrepl -> store ('foo/bar') ;
+is($wrepl->fetch, "b","tested replaced value with regexp") ;
 
 ### test preset feature
 
