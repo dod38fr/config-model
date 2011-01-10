@@ -233,7 +233,8 @@ Load file even if error are found in data. Bad data are discarded
 =item -apply-fixes
 
 Apply fixes mentioned in model description. 
-For details, see C<warn_if_match> or C<warn_unless_match> in L<Config::Model::Value/
+For details, see C<warn_if_match> or C<warn_unless_match> 
+in L<Config::Model::Value/>.
 
 =item -backend
 
