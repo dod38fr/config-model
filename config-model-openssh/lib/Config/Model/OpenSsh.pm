@@ -15,7 +15,7 @@ use File::Path ;
 use Parse::RecDescent ;
 use vars qw($grammar $parser)  ;
 
-my $logger = Log::Log4perl::get_logger("OpenSsh");
+my $logger = Log::Log4perl::get_logger("Backend::OpenSsh");
 
 my $__test_ssh_root_file = 0;
 sub _set_test_ssh_root_file { $__test_ssh_root_file = shift ;} 
@@ -187,7 +187,7 @@ sub read_ssh_file {
 	$fh->close;
 
 	# remove comments and cleanup beginning of line
-	map  { s/#.*//; s/^\s+//; } @file ;
+	#map  { s/#.*//; s/^\s+//; } @file ;
 
 	$parser->sshd_parse(join('',@file), # text to be parsed
 			    1,              # start line
@@ -208,34 +208,46 @@ sshd_parse: <skip: qr/[^\S\n]*/> line[@arg](s)
 #line: match_line | client_alive_line | host_line | any_line
 line: match_line | host_line | forward_line | single_arg_line | any_line
 
-match_line: /match/i arg(s) "\n"
+comment: '#' /.*\n/
+
+match_line: comment(s) /match/i arg(s) ( comment | "\n" )
 {
-   Config::Model::OpenSsh::match($arg[0],@{$item[2]}) ;
+   my $c = join ( "" , @{$item[1] } , $item{4} ) ;
+   chomp $c ;
+   Config::Model::OpenSsh::match($arg[0],$item[3],$c) ;
 }
 
-#client_alive_line: /clientalive\w+/i arg(s) "\n"
+#client_alive_line: /clientalive\w+/i arg(s) ( comment | "\n" )
 #{
 #   Config::Model::OpenSsh::clientalive($arg[0],$item[1],@{$item[2]}) ;
 #}
 
-host_line: /host\b/i arg(s) "\n"
+host_line: comment(s?) /host\b/i arg(s) ( comment | "\n" )
 {
-   Config::Model::OpenSsh::host($arg[0],@{$item[2]}) ;
+    my $c = join ( "" , @{$item[1] } , $item{4} ) ;
+    chomp $c ;
+    Config::Model::OpenSsh::host($arg[0],$item[3],$c) ;
 }
 
-forward_line: /(local|remote)forward/i arg(s) "\n"
+forward_line: comment(s?) /(local|remote)forward/i arg(s) ( comment | "\n" )
 {
-   Config::Model::OpenSsh::forward($arg[0],$item[1],@{$item[2]}) ;
+    my $c = join ( "" , @{$item[1] } , $item{4} ) ;
+    chomp $c ;
+    Config::Model::OpenSsh::forward($arg[0],$item[2],$item[3],$c) ;
 }
 
-single_arg_line: /localcommand/i /[^\n]+/ "\n"
+single_arg_line: comment(s?) /localcommand/i /[^\n]+/ ( comment | "\n" )
 {
-   Config::Model::OpenSsh::assign($arg[0],$item[1],$item[2]) ;
+    my $c = join ( "" , @{$item[1] } , $item{4} ) ;
+    chomp $c ;
+    Config::Model::OpenSsh::assign($arg[0],$item[2],$item[3],$c) ;
 }
 
-any_line: key arg(s) "\n"  
+any_line: comment(s?) key arg(s) ( comment | "\n" )  
 {
-   Config::Model::OpenSsh::assign($arg[0],$item[1],@{$item[2]}) ;
+   my $c = join ( "" , @{$item[1] } , $item{4} ) ;
+   chomp $c ;
+   Config::Model::OpenSsh::assign($arg[0],$item[2],$item[3],$c) ;
 }
 
 key: /\w+/
@@ -252,7 +264,8 @@ $parser = Parse::RecDescent->new($grammar) ;
   my $current_node ;
 
   sub assign {
-    my ($root, $key,@arg) = @_ ;
+    my ($root, $key,$arg,$comment) = @_ ;
+    $logger->debug("assign: $key @$arg # $comment");
     $current_node = $root unless defined $current_node ;
 
     # keys are case insensitive, try to find a match
@@ -264,18 +277,18 @@ $parser = Parse::RecDescent->new($grammar) ;
 
     my $elt = $current_node->fetch_element($key) ;
     my $type = $elt->get_type;
-    #print "got $key type $type and ",join('+',@arg),"\n";
+    #print "got $key type $type and ",join('+',@$arg),"\n";
     if    ($type eq 'leaf') { 
-	$elt->store( join(' ',@arg) ) ;
+	$elt->store( join(' ',@$arg) ) ;
     }
     elsif ($type eq 'list') { 
-	$elt->push ( @arg ) ;
+	$elt->push ( @$arg ) ;
     }
     elsif ($type eq 'hash') {
-        $elt->fetch_with_id($arg[0])->store( $arg[1] );
+        $elt->fetch_with_id($arg->[0])->store( $arg->[1] );
     }
     elsif ($type eq 'check_list') {
-	my @check = split /,/,$arg[0] ;
+	my @check = split /,/,$arg->[0] ;
         $elt->set_checked_list (@check) ;
     }
     else {
@@ -294,17 +307,17 @@ $parser = Parse::RecDescent->new($grammar) ;
 #  }
 
   sub match {
-    my ($root, @pairs) = @_ ;
-
+    my ($root, $pairs,$comment) = @_ ;
+    $logger->debug("match: @$pairs # $comment");
     my $list_obj = $root->fetch_element('Match');
 
     # create new match block
     my $nb_of_elt = $list_obj->fetch_size;
     my $block_obj = $list_obj->fetch_with_id($nb_of_elt) ;
 
-    while (@pairs) {
-	my $criteria = shift @pairs;
-	my $pattern  = shift @pairs;
+    while (@$pairs) {
+	my $criteria = shift @$pairs;
+	my $pattern  = shift @$pairs;
 	$block_obj->load(qq!Condition $criteria="$pattern"!);
     }
 
@@ -312,34 +325,35 @@ $parser = Parse::RecDescent->new($grammar) ;
   }
 
   sub host {
-    my ($root,@patterns)  = @_;
-
+    my ($root,$patterns,$comment)  = @_;
+    $logger->debug("host: pattern @$patterns # $comment");
     my $hash_obj = $root->fetch_element('Host');
 
-    $logger->info("ssh: load host patterns '".join("','", @patterns)."'");
+    $logger->info("ssh: load host patterns '".join("','", @$patterns)."'");
 
-    $current_node = $hash_obj->fetch_with_id("@patterns");
+    $current_node = $hash_obj->fetch_with_id("@$patterns");
   }
 
   sub forward {
-    my ($root,$key,@args)  = @_;
+    my ($root,$key,$args,$comment)  = @_;
+    $logger->debug("forward: $key @$args # $comment");
     $current_node = $root unless defined $current_node ;
 
     my $elt_name = $key =~ /local/i ? 'Localforward' : 'RemoteForward' ;
     my $size = $current_node->fetch_element($key)->fetch_size;
 
-    $logger->info("ssh: load $key '".join("','", @args)."'");
+    $logger->info("ssh: load $key '".join("','", @$args)."'");
 
-    my $v6 = ($args[1] =~ m![/\[\]]!) ? 1 : 0;
+    my $v6 = ($args->[1] =~ m![/\[\]]!) ? 1 : 0;
 
     # cleanup possible square brackets used for IPv6
-    foreach (@args) {s/[\[\]]+//g;}
+    foreach (@$args) {s/[\[\]]+//g;}
 
     # reverse enable to assign string to port even if no bind_adress
     # is specified
     my $re = $v6 ? qr!/! : qr!:! ; 
-    my ($port,$bind_adr ) = reverse split $re,$args[0] ;
-    my ($host,$host_port) = split $re,$args[1] ;
+    my ($port,$bind_adr ) = reverse split $re,$args->[0] ;
+    my ($host,$host_port) = split $re,$args->[1] ;
 
     my $load_str = '';
     $load_str .= "GatewayPorts=1 " if $bind_adr ;
