@@ -1219,7 +1219,7 @@ sub get_help {
 # internal
 sub error_msg {
     my $self = shift ;
-    return unless $self->{errror_list} ;
+    return unless $self->{error_list} ;
     return wantarray ? @{$self->{error_list}} : join("\n\t",@{ $self ->{error_list}}) ;
 }
 
@@ -1439,7 +1439,7 @@ sub apply_fixes {
 
 Like L</check_value>. Also ensure that mandatory value are defined
 
-Will also disply warnings on STDTOUT unless C<silent> parameter is set to 1.
+Will also display warnings on STDTOUT unless C<silent> parameter is set to 1.
 In this case,user is expected to retrieve them with
 L<warning_msg>.
 
@@ -1484,10 +1484,11 @@ sub store {
              : @_ == 3 ? ( 'value' , @_ ) 
              : @_ ;
     my $check = $self->_check_check($args{check}) ;
+    my $silent = $args{silent} || 0 ;
 
     my ($ok,$value) = $self->pre_store(value => $args{value}, check => $check ) ;
 
-    $logger->debug("value store $value, ok '$ok', check $check") if $logger->is_debug;
+    $logger->debug("value store $value, ok '$ok', check is $check") if $logger->is_debug;
 
     # we let store the value even if wrong when check is disabled
     if ($ok or $check eq 'no') {
@@ -1498,7 +1499,12 @@ sub store {
 	    $self->{data} = $value ; # may be undef
 	}
     }
-    elsif ($check ne 'skip') {
+    elsif ($check eq 'skip') {
+        my $msg = $self->error_msg;
+        warn "Warning: skipping value $value because of the following errors:\n$msg\n\n"
+          if not $silent and $msg;
+    }
+    else {
         Config::Model::Exception::WrongValue 
 	    -> throw ( error => join("\n\t",@{$self->{error_list}}),
 		       object => $self) ;
@@ -1887,6 +1893,9 @@ sub fetch {
 	    return $value ;
 	}
 	elsif ($check eq 'skip') {
+	    my $msg = $self->error_msg ;
+	    warn "Warning: skipping value $value because of the following errors:\n$msg\n\n" 
+                if not $silent and $msg;
 	    return undef ;
 	}
 	

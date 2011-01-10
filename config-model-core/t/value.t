@@ -3,7 +3,7 @@
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
-use Test::More tests => 109 ;
+use Test::More tests => 110 ;
 use Test::Exception ;
 use Test::Warn ;
 use Config::Model ;
@@ -366,6 +366,9 @@ is($p_enum->fetch('preset'),'B',"enum: read preset value as preset_value") ;
 is($p_enum->fetch_standard,'B',"enum: read preset value as standard_value") ;
 is($p_enum->fetch_custom,'C',"enum: read custom_value") ;
 is($p_enum->default,'A',"enum: read default_value") ;
+
+warning_like { $p_enum->store('foobar', check => 'skip' ) ; } 
+    qr/skipping value/, "test that errors are displayed as warnings with check = skip" ;
 
 ### test match regexp
 my $match = $root->fetch_element('match') ;
