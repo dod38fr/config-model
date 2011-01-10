@@ -39,7 +39,7 @@ Config::Model::ObjTreeScanner - Scan config tree and perform call-backs
  my $root = ... ;
 
  # define leaf call back
- my disp_leaf = sub { 
+ my $disp_leaf = sub { 
       my ($scanner, $data_ref, $node,$element_name,$index, $leaf_object) = @_ ;
       $$data_ref .= "$element_name = ", $leaf_object->fetch ;
     } ;
