@@ -458,6 +458,27 @@ sub write_back {
     }
 }
 
+=head2 apply_fixes
+
+Scan the tree and apply fixes that are attached to warning specifications. 
+See C<warn_if_match> or C<warn_unless_match> in L<Config::Model::Value/
+
+=cut
+
+sub apply_fixes {
+    my $self = shift ;
+
+    # define leaf call back
+    my $fix_leaf = sub { 
+      my ($scanner, $data_ref, $node,$element_name,$index, $leaf_object) = @_ ;
+      $leaf_object->apply_fixes ;
+    } ;
+
+    my $scan = Config::Model::ObjTreeScanner-> new ( leaf_cb => $fix_leaf ) ;
+
+    $scan->scan_node(undef, $self->config_root) ;
+}
+
 sub push_no_value_check { carp "push_no_value_check is deprecated";}
 sub pop_no_value_check  { carp "pop_no_value_check is deprecated";}
 sub get_value_check { carp "get_value_check is deprecated";}

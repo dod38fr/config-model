@@ -230,6 +230,11 @@ Provides a full stack trace when exiting on error.
 
 Load file even if error are found in data. Bad data are discarded
 
+=item -apply-fixes
+
+Apply fixes mentioned in model description. 
+For details, see C<warn_if_match> or C<warn_unless_match> in L<Config::Model::Value/
+
 =item -backend
 
 Specify a read/write backend. The actual backend name depends on the model
@@ -293,6 +298,7 @@ my $list = '' ;
 my $application ;
 my $fuse_dir ;
 my $fuse_debug = 0;
+my $apply_fixes = 0 ;
  
 my $result = GetOptions ("ui|if=s"          => \$ui_type,
 			 "model_dir=s"      => \$model_dir,
@@ -317,6 +323,7 @@ my $result = GetOptions ("ui|if=s"          => \$ui_type,
 			 "list=s"           => \$list ,
 			 "fuse_dir=s"       => \$fuse_dir,
 			 "dfuse!"           => \$fuse_debug,
+			 "apply-fixes!"     => \$apply_fixes ,
 			);
 
 pod2usage(2) if not $result ;
@@ -402,6 +409,10 @@ if (defined $load) {
     close LOAD; 
     get_logger("Data")->info("Skipping config file and loading $load");
     $root->load("@data");
+}
+
+if ($apply_fixes) {
+    $inst->apply_fixes ;
 }
 
 if (@ARGV) {
@@ -500,7 +511,7 @@ else {
     die "Unsupported user interface: $ui_type";
 }
 
-$inst->write_back if ($force_save or $load or scalar @ARGV);
+$inst->write_back if ($force_save or $apply_fixes or $load or scalar @ARGV);
 
 =head1 Saving configuration data
 

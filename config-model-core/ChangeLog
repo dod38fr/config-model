@@ -1,3 +1,5 @@
+        * config-edit: added -apply-fixes option
+
 2011-01-09 Dominique Dumont  <domi.dumont@free.fr> 1.228
 
         * Specifically require DB_File as this module is not available by default on Ubuntu
