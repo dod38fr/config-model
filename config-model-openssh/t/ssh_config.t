@@ -8,6 +8,7 @@ use Log::Log4perl qw(:easy) ;
 use File::Path ;
 use English;
 
+
 use warnings;
 #no warnings qw(once);
 
@@ -22,7 +23,15 @@ $::debug            = 1 if $arg =~ /d/;
 $log                = 1 if $arg =~ /l/;
 $show               = 1 if $arg =~ /s/;
 
-Log::Log4perl->easy_init($log ? $TRACE: $WARN);
+my $log4perl_user_conf_file = $ENV{HOME}.'/.log4config-model' ;
+
+if (-e $log4perl_user_conf_file ) {
+    Log::Log4perl::init($log4perl_user_conf_file);
+}
+else {
+    Log::Log4perl->easy_init($arg =~ /l/ ? $DEBUG: $WARN);
+}
+
 
 #$::RD_ERRORS = 1 ;  
 #$::RD_WARN   = 1 ;  # unless undefined, also report non-fatal problems
