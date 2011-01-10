@@ -461,7 +461,7 @@ sub write_back {
 =head2 apply_fixes
 
 Scan the tree and apply fixes that are attached to warning specifications. 
-See C<warn_if_match> or C<warn_unless_match> in L<Config::Model::Value/
+See C<warn_if_match> or C<warn_unless_match> in L<Config::Model::Value/>.
 
 =cut
 

@@ -21,7 +21,10 @@
                            'Format',
                            {
                              'value_type' => 'uniline',
-                             'default' => 'http://svn.debian.org/wsvn/dep/web/deps/dep5.mdwn?op=file&rev=153',
+                             'replace' => {
+                                            'http://svn.*' => 'http://dep.debian.net/deps/dep5/'
+                                          },
+                             'default' => 'http://dep.debian.net/deps/dep5/',
                              'mandatory' => '1',
                              'type' => 'leaf',
                              'description' => 'URI of the format specification, such as: http://svn.debian.org/wsvn/dep/web/deps/dep5.mdwn?op=file&amp;rev=REVISION'

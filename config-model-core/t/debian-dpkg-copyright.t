@@ -1,7 +1,7 @@
 # -*- cperl -*-
 
 use ExtUtils::testlib;
-use Test::More tests => 76 ;
+use Test::More tests => 99 ;
 use Config::Model ;
 use Log::Log4perl qw(:easy) ;
 use File::Path ;
@@ -13,7 +13,8 @@ use warnings;
 
 use strict;
 
-my $arg = shift || '';
+my $arg = shift ;
+$arg = '' unless defined $arg ;
 
 my ($log,$show) = (0) x 2 ;
 my $do ;
@@ -50,7 +51,6 @@ X-test: yada yada
  .
  yada
 
-Files: *
 Copyright: 2008, John Doe <john.doe@example.com>
            2007, Jane Smith <jane.smith@example.com>
 License: PsF
@@ -58,13 +58,17 @@ License: PsF
 
 EOD0
 
-$tests[$i++]{check} 
-   = [ 'Files:"*" License full_license',           "[PSF LICENSE TEXT]\n" ,
-       'Files:"*" Copyright:0', "2008, John Doe <john.doe\@example.com>",
-       'Files:"*" Copyright:1', "2007, Jane Smith <jane.smith\@example.com>",
-       'Files:"*" License short_name',"PsF",
-       '"X-test"' ,                 "yada yada\n\nyada",
-     ];
+$tests[$i]{warnings} = [ ( qr/deprecated/ ) x 3 , qr/Missing/ ] ;
+
+$tests[$i++]{check} = [ 
+    'Files:"*" License full_license',           "[PSF LICENSE TEXT]\n" ,
+    'Files:"*" Copyright:0', "2008, John Doe <john.doe\@example.com>",
+    'Files:"*" Copyright:1', "2007, Jane Smith <jane.smith\@example.com>",
+    'Files:"*" License short_name',"PsF",
+    '"X-test"' ,                 "yada yada\n\nyada",
+    '"Upstream-Name"',           "xyz",
+    '"Upstream-Contact"',        "Jane Smith <jane.smith\@example.com>",
+];
 
 $tests[$i]{text} = <<'EOD1' ;
 Format-specification: http://svn.debian.org/wsvn/dep/web/deps/dep5.mdwn?op=file&amp;rev=135
@@ -86,6 +90,8 @@ License: LGPL-2.1+
  [LGPL-2.1 plus LICENSE TEXT]
 
 EOD1
+
+$tests[$i]{warnings} = [ ( qr/deprecated/ ) x 3 ] ;
 
 $tests[$i++]{check} = [ 'License:MPL-1.1',"[MPL-1.1 LICENSE TEXT]" ,
                         'License:"GPL-2+"', "[GPL-2 LICENSE TEXT]",
@@ -110,6 +116,8 @@ License: MPL-1.1
  [MPL-1.1 LICENSE TEXT]
 
 EOD2
+
+$tests[$i]{warnings} = [ ( qr/deprecated/ ) x 1 ] ;
 
 $tests[$i++]{check} = [ 'License:MPL-1.1',"[MPL-1.1 LICENSE TEXT]" ,
                       'Files:"src/js/editline/*" License short_name',"MPL-1.1",
@@ -177,23 +185,29 @@ License: GPL-2
 
 EOD3
 
+$tests[$i]{warnings} = [ ( qr/deprecated/ ) x 3 ] ;
+
 $tests[$i++]{check} = [ 
                       'Files:"planet/vendor/compat_logging/*" License short_name',"MIT",
                     ];
 
 $tests[$i]{text} = <<'EOD4' ;
 Format-Specification: http://svn.debian.org/wsvn/dep/web/deps/dep5.mdwn?op=file&amp;rev=135
+Source: http:/some.where.com
+
 Files: *
 Copyright: 1993, John Doe
            1993, Joe Average
 License: GPL-2+ with OpenSSL exception
  This program is free software; you can redistribute it
   and/or modify it under the terms of the [snip]
-Source: http:/some.where.com
 
 EOD4
 
+$tests[$i]{warnings} = [ ( qr/deprecated/ ) x 1 ] ;
+
 $tests[$i++]{check} = [ 
+                      'Source', "http:/some.where.com",
                       'Files:"*" License short_name',"GPL-2+",
                       'Files:"*" License exception',"OpenSSL",
                       'Files:"*" License full_license',
@@ -222,12 +236,14 @@ License: LGPL-2+
     [snip again]
 EOD5
 
+$tests[$i]{warnings} = [ ( qr/deprecated/ ) x 3 ] ;
 $tests[$i++]{check} = [ 
-                      'Files:"*" License short_name',"LGPL-2+",
-                      'License:"LGPL-2+"',
-                      "   [snip]either version 2.1 of\n   the License, or (at your option) any later version.\n"
-                     ."   [snip again]",
-                   ];
+    'Files:"*" License short_name',"LGPL-2+",
+    'Source', 'http://search.cpan.org/dist/Config-Model-CursesUI/',
+    'License:"LGPL-2+"',
+        "   [snip]either version 2.1 of\n   the License, or (at your option) any later version.\n"
+        ."   [snip again]",
+];
 
 $tests[$i]{text} = <<'EOD6' ;
 Format-Specification: http://svn.debian.org/wsvn/dep/web/deps/dep5.mdwn?op=file&rev=135
@@ -323,17 +339,19 @@ license: BSD
    THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 EOD6
 
-$tests[$i++]{check} = [ 
-                      'Files:"Embedded_Display/remoteview.cpp Embedded_Display/remoteview.h" License short_name',"GPL-2",
-                   ];
+$tests[$i]{warnings} = [ ( qr/deprecated/ ) x 3 ] ;
 
-# example from CANDIDATE DEP-5 spec 
+$tests[$i++]{check} = [ 
+    'Upstream-Contact' , 'Ignace Mouzannar <mouzannar at gmail.com>',
+    'Files:"Embedded_Display/remoteview.cpp Embedded_Display/remoteview.h" License short_name',"GPL-2",
+];
+
+# example from CANDIDATE DEP-5 spec (nb 7)
 $tests[$i]{text} = <<'EOD' ;
 Format: http://svn.debian.org/wsvn/dep/web/deps/dep5.mdwn?op=file&rev=135
 Upstream-Name: X Solitaire
 Source: ftp://ftp.example.com/pub/games
 
-Files:*
 Copyright: Copyright 1998 John Doe <jdoe@example.com>
 License: GPL-2+
  This program is free software; you can redistribute it
@@ -363,10 +381,12 @@ License:
  [LICENSE TEXT]
 
 EOD
+$tests[$i]{warnings} = [ ( qr/Adding/ ) x 1 ] ;
 $tests[$i++]{check} = [ 
-                      
-                   ];
+    Format => "http://dep.debian.net/deps/dep5/" ,
+];
 
+# test nb 8
 $tests[$i]{text} = <<'EOD' ;
 Format: http://svn.debian.org/wsvn/dep/web/deps/dep5.mdwn?op=file&rev=135
 Upstream-Name: Planet Venus
@@ -434,9 +454,11 @@ License: GPL-2+
  `/usr/share/common-licenses/GPL-2'.
 
 EOD
-$tests[$i++]{check} = [ 
-                      
-                   ];
+
+$tests[ $i++ ]{check} = [
+    Format => "http://dep.debian.net/deps/dep5/",
+];
+
 my $idx = 0 ;
 foreach my $t (@tests) {
     if (defined $do and $do ne $idx) { $idx ++; next; }
@@ -449,18 +471,18 @@ foreach my $t (@tests) {
     print LIC $t->{text} ;
     close LIC ;
 
-    my $warns = $idx == 5 ? [ ( qr/Upstream/ ) x 3 ] : []; 
     my $inst;
     warnings_like {
          $inst  = $model->instance (root_class_name   => 'Debian::Dpkg::Copyright',
                                     root_dir          => $wr_dir,
                                     instance_name => "deptest".$idx,
+                                    force_load => 1 ,
                                    ); 
-     } $warns , "Read $license_file and created instance" ;
+     } $t->{warnings} , "Read $license_file and created instance" ;
 
     my $lic = $inst -> config_root ;
 
-    my $dump =  $lic->dump_tree ();
+    my $dump =  $lic->dump_tree (full_dump => 1);
     print $dump if $trace ;
    
     while (@{$t->{check}}) { 
@@ -486,7 +508,7 @@ foreach my $t (@tests) {
 
     my $i2_root = $i2_test->config_root ;
 
-    my $p2_dump = $i2_root->dump_tree ;
+    my $p2_dump = $i2_root->dump_tree(full_dump => 1) ;
 
     is($p2_dump,$dump,"compare original data with 2nd instance data") ;
    

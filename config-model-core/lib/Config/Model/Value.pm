@@ -1565,11 +1565,13 @@ sub pre_store {
 
     if (defined $self->{replace}) {
         if (defined $self->{replace}{$value}) {
+            $logger->debug("store replacing value $value with $self->{replace}{$value}") ;
             $value = $self->{replace}{$value} ;
         }
         else {
             foreach my $k (keys %{$self->{replace}}) {
                 if ( $value =~ /^$k$/ ) {
+                    $logger->debug("store replacing value $value (matched /$k/) with $self->{replace}{$k}") ;
                     $value = $self->{replace}{$k} ;
                     last;
                 }

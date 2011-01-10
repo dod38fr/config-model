@@ -58,7 +58,11 @@ sub read {
     }
 
     $logger->info("Second pass to read other sections from $args{file} control file");
+    my $section_nb = 0;
     foreach my $section (@$c) {
+        $section_nb ++ ;
+        $logger->debug("2ns pass: reading section $section_nb");
+
         next if $section->[0] =~ /license/i; # skip pure license sections
         for (my $i=0; $i < @$section ; $i += 2 ) {
             my $key = $section->[$i];
@@ -66,19 +70,30 @@ sub read {
             $v =~ s/^\s+//; # remove all leading spaces 
             $logger->info("reading key $key from $args{file} control file for ".$object->name);
             $logger->debug("$key value: $v");
+
+            if ($section_nb != 1 and $key !~ /files/i and $object eq $root) {
+                if ($root->fetch_element('Files')->exists('*')) {
+                    Config::Model::Exception::Syntax ->throw( 
+                        object => $self ,
+                        error => "Missing 'Files:' specification at top of section number $section_nb"
+                    ) ;
+                }
+                else {
+                    warn "Missing 'Files:' specification at top of section number $section_nb. Adding 'Files: *' spec\n";
+                    $logger->debug("Creating missing Files:* element for key $key");
+                    $file = $root->fetch_element('Files')->fetch_with_id(index => '*', check => $check) ;
+                    $object = $file ;
+                }
+            }
+
             if ($key =~ /files/i) {
+                $logger->debug("Creating Files:$v element");
                 $file = $root->fetch_element('Files')->fetch_with_id(index => $v, check => $check) ;
                 $object = $file ;
             }
             elsif ($key =~ /copyright/i) {
                 my @v = split /\s*\n\s*/,$v ;
                 $object->fetch_element('Copyright')->store_set(\@v, check => $check);
-            }
-            elsif ($key =~ /license/i and $object eq $root) {
-                Config::Model::Exception::Syntax
-                ->throw( 
-                    object => $self ,
-                    error => "Unexpected License declaration (no Files ?) in section number ".$i/2) ;
             }
             elsif ($key =~ /license/i) {
                 $object = $file->fetch_element('License') ;

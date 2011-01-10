@@ -1,5 +1,8 @@
         * config-edit: added -apply-fixes option
         * Value: can specify wider replace instruction by using regexp as key of the 'replace' parameter
+        * Debian::Dpkg::Copyright: updtead to new CANDIDATE DEP-5 specification. Copyright files 
+          written for older specifications are migrated to new one. This should save a lot of typing
+          from my fellow Debian packagers. Feedbacks are welcome.
 
 2011-01-09 Dominique Dumont  <domi.dumont@free.fr> 1.228
 
