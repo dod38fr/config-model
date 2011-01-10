@@ -23,7 +23,7 @@ BEGIN {
 use ExtUtils::testlib;
 use Test::More ;
 use Config::Model ;
-use Config::Model::Debian::Dependency ;
+#use Config::Model::Debian::Dependency ;
 use Log::Log4perl qw(:easy) ;
 use File::Path ;
 use File::Copy ;
@@ -36,9 +36,6 @@ if ( $@ ) {
 else {
     plan tests => 19;
 }
-
-# available only in debian
-use AptPkg::Version ;
 
 use warnings;
 
