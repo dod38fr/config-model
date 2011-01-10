@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-#    Copyright (c) 2007-2010 Dominique Dumont.
+#    Copyright (c) 2007-2011 Dominique Dumont.
 #
 #    This file is part of Config-Model-Itself.
 #
@@ -38,8 +38,8 @@ use vars qw/$verbose $debug/ ;
 $verbose = 0;
 $debug = 0;
 
-my $system_log4perl_conf_file = '/etc/log4config-model-edit.conf' ;
-my $user_log4perl_conf_file = 'log4config-model-edit.conf' ;
+my $log4perl_syst_conf_file = '/etc/log4config-model.conf' ;
+my $log4perl_user_conf_file = $ENV{HOME}.'/.log4config-model' ;
 my $fallback_conf = << 'EOC';
 log4perl.logger=WARN, Screen
 log4perl.appender.Screen        = Log::Log4perl::Appender::Screen
@@ -49,9 +49,9 @@ log4perl.appender.Screen.layout.ConversionPattern = %d %m %n
 EOC
 
 my $log4perl_conf 
-    = -e $user_log4perl_conf_file   ?  $user_log4perl_conf_file 
-    : -e $system_log4perl_conf_file ?  $system_log4perl_conf_file 
-    :                                 \$fallback_conf ;
+  = -e $log4perl_user_conf_file ?  $log4perl_user_conf_file
+  : -e $log4perl_syst_conf_file ?  $log4perl_syst_conf_file
+  :                               \$fallback_conf ;
 
 Log::Log4perl::init($log4perl_conf);
 
@@ -273,6 +273,7 @@ my $meta_root = $meta_inst -> config_root ;
 my $rw_obj = Config::Model::Itself -> new(model_object => $meta_root ) ;
 
 my $read_model_dir = $model_dir || $dev_model_dir ;
+$read_model_dir =~ s!/$!!;
 
 my $root_model_file = $root_model ;
 $root_model_file =~ s!::!/!g ;
