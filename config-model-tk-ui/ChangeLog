@@ -1,3 +1,8 @@
+2011-01-11  Dominique Dumont  <domi.dumont@free.fr> 1.320
+
+        * LeafViewer: removed 'apply fix' button. This one is reserved for 
+        LeafEditor
+        
 2011-01-09  Dominique Dumont  <domi.dumont@free.fr> 1.319
 
         * LeafEditor: added fix button to fix warnings (if model provides a fix)

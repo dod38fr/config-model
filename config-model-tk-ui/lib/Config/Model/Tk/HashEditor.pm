@@ -199,7 +199,7 @@ sub Populate {
     # set all buttons to their default state
     $cw->update_state(tklist => '', entry => '') ;
 
-    $cw->add_warning($hash)->pack(@fx) ;
+    $cw->add_warning($hash,'edit')->pack(@fx) ;
     $cw->add_info_button()->pack( @fx,qw/-anchor n/) ;
     $cw->add_summary($hash)->pack(@fx) ;
     $cw->add_description($hash)->pack(@fx) ;

@@ -109,7 +109,7 @@ sub Populate {
     }
 
     $cw->ConfigModelNoteEditor( -object => $leaf )->pack;
-    $cw->add_warning($leaf)->pack(@fx) ;
+    $cw->add_warning($leaf, 'edit')->pack(@fx) ;
     $cw->add_info_button()->pack( @fx,qw/-anchor n/) ;
     $cw->add_summary($leaf)->pack(@fx) ;
     $cw->add_description($leaf)->pack(@fx) ;

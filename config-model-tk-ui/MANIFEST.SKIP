@@ -6,3 +6,4 @@ libconfig
 _build
 dist.ini
 blib
+wr_data
