@@ -22,7 +22,7 @@ my $trace = $arg =~ /t/ ? 1 : 0 ;
 $::verbose          = 1 if $arg =~ /v/;
 $::debug            = 1 if $arg =~ /d/;
 $log                = 1 if $arg =~ /l/;
-$show               = 1 if $arg =~ /s/;
+$show               = 1 if $arg =~ /[si]/;
 
 print "You can play with the widget if you run the test with 's' argument\n";
 

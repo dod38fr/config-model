@@ -155,7 +155,7 @@ sub read_all {
         push @files, $n if (-f $_ and not /~$/ 
                             and $n !~ /CVS/
                             and $n !~ m!.svn!
-                            and $n =~ m!models/$root_model_file!
+                            and $n =~ m!$dir/$root_model_file!
                            ) ;
     } ;
     find ($wanted, $dir ) ;
