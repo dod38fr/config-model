@@ -1,3 +1,7 @@
+2011-01-09 Dominique Dumont  <domi.dumont@free.fr> 1.221
+
+	* Remove unwanted test package file (oops)
+
 2011-01-09 Dominique Dumont  <domi.dumont@free.fr> 1.220
 
 	* config-model-edit: use same log4perl config files as config-edit

@@ -43,6 +43,7 @@
 # avoid debian packages
 ^debian
 dist.ini
+libconfig*
 
 # avoid tests results
 wr_test
