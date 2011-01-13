@@ -63,19 +63,6 @@ my $has_curses = $@ ? 0 : 1 ;
 eval {require Config::Model::FuseUI ;} ;
 my $has_fuse = $@ ? 0 : 1 ;
 
-if ($has_tk) {
-    $ui_type = 'tk';
-}
-elsif ($has_curses) {
-    warn "You should install Config::Model::TkUI for a more friendly user interface\n";
-    $ui_type = 'curses';
-}
-else {
-    warn "You should install Config::Model::TkUI or Config::Model::CursesUI ",
-      "for a more friendly user interface\n";
-    $ui_type = 'shell' ;
-}
-
 my $model_dir ;
 my $root_model ;
 my $trace = 0 ;
@@ -420,6 +407,21 @@ if (@ARGV) {
     $root->load("@ARGV") ;
 }
 
+if (not defined $ui_type) {
+    if ($has_tk) {
+        $ui_type = 'tk' ;
+    }
+    elsif ($has_curses) {
+        warn "You should install Config::Model::TkUI for a more friendly user interface\n";
+        $ui_type = 'curses';
+    }
+    else {
+        warn "You should install Config::Model::TkUI or Config::Model::CursesUI ",
+            "for a more friendly user interface\n";
+        $ui_type = 'shell' ;
+    }
+}
+
 if ($ui_type eq 'simple') {
     # experience not yet implemented
     require Config::Model::SimpleUI;
@@ -445,6 +447,8 @@ elsif ($ui_type eq 'shell') {
     $shell_ui -> run_loop ;
 }
 elsif ($ui_type eq 'curses') {
+    die "cannot run curses interface: Config::Model::CursesUI is not installedn"
+        unless $has_curses ;
     my $err_file = '/tmp/config-edit-error.log' ;
 
     print "In case of error, check $err_file\n";
@@ -463,6 +467,9 @@ elsif ($ui_type eq 'curses') {
     close FH ;
 }
 elsif ($ui_type eq 'tk') {
+    die "cannot run Tk interface: Config::Model::CursesUI is not installedn"
+        unless $has_tk ;
+
     require Tk;
     require Tk::ErrorDialog;
     Tk->import ;
