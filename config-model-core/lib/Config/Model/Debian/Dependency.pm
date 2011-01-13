@@ -108,6 +108,9 @@ sub check_dep {
     $logger->debug("check_dep on @_");
     return 1 unless defined $oper and $oper =~ />/ ;
 
+    # special case to keep lintian happy
+    return 1 if $pkg eq 'debhelper' ;
+
     # check if Debian has version older than required version
     my $has_older = has_older_version($pkg,$vers) ;
     # print "\t'$pkg'.\$sep.'$vers' => '$has_older',\n";
