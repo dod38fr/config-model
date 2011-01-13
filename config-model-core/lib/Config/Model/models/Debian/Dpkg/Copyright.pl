@@ -120,7 +120,7 @@ To upgrade your file from an old spec, run:
                                           'value_type' => 'string',
                                           'type' => 'leaf'
                                         },
-                             'warn_unless_key_match' => '^(?i:Apache|Artistic|BSD|FreeBSD|ISC|CC-BY|CC-BY-SA|CC-BY-ND|CC-BY-NC|CC-BY-NC-SA|CC-BY-NC-ND|CC0|CDDL|CPL|Eiffel|Expat|GPL|LGPL|GFDL|GFDL-NIV|LPPL|MIT|MPL|Perl|PSF|QPL|W3C-Software|ZLIB|Zope)[\\d\\.\\-]*\\+?$',
+                             'warn_unless_key_match' => '^(?i:Apache|Artistic|BSD-[234]-clause]|FreeBSD|ISC|CC-BY|CC-BY-SA|CC-BY-ND|CC-BY-NC|CC-BY-NC-SA|CC-BY-NC-ND|CC0|CDDL|CPL|EFL|Expat|GPL|LGPL|GFDL|GFDL-NIV|LPPL|MPL|Perl|Python-CNRI|QPL|W3C|Zlib|Zope)[\\d\\.\\-]*\\+?$',
                              'allow_keys_matching' => '^[\\w\\-\\.+]+$',
                              'type' => 'hash',
                              'index_type' => 'string'
