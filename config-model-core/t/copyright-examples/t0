@@ -1,0 +1,14 @@
+Format-Specification: http://svn.debian.org/wsvn/dep/web/deps/dep5.mdwn?op=file&amp;rev=135
+Name: xyz
+Maintainer: Jane Smith <jane.smith@example.com>
+Source: http://www.example.com/gitwww
+X-test: yada yada
+ .
+ yada
+
+Copyright: 2008, John Doe <john.doe@example.com>
+           2007, Jane Smith <jane.smith@example.com>
+License: PsF
+ [PSF LICENSE TEXT]
+
+EOD0

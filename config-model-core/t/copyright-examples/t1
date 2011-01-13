@@ -1,0 +1,18 @@
+Format-specification: http://svn.debian.org/wsvn/dep/web/deps/dep5.mdwn?op=file&amp;rev=135
+Name: SOFTware
+Maintainer: John Doe <john.doe@example.com>
+Source: http://www.example.com/software/project
+Files: src/js/editline/*
+Copyright: 1993, John Doe
+           1993, Joe Average
+License: MPL-1.1 or GPL-2+ or LGPL-2.1+
+
+License: MPL-1.1
+ [MPL-1.1 LICENSE TEXT]
+
+License: GPL-2+
+ [GPL-2 LICENSE TEXT]
+
+License: LGPL-2.1+
+ [LGPL-2.1 plus LICENSE TEXT]
+
