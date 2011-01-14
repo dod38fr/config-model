@@ -459,7 +459,8 @@ sub close_file_to_write {
         $fh->seek(0,0) ; # go back to beginning of file
         $fh->print(@$data);
         $fh->close;
-        $error->rethrow ;
+        $error->rethrow if ref ($error);
+        die $error ;
     }
 
     $fh->close;
