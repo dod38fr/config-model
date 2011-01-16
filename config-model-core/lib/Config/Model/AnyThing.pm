@@ -339,7 +339,8 @@ sub grab {
     my @found = ($self) ;
 
   COMMAND:
-    while( my $cmd = shift @command) {
+    while ( @command ) {
+	my $cmd = shift @command ;
 	my $obj = $found[-1] ;
         $logger->debug( "grab: executing cmd '$cmd' on object '",$obj->name, "($obj)'");
 
