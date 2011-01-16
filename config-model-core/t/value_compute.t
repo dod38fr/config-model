@@ -6,7 +6,7 @@ use ExtUtils::testlib;
 use Test::More;
 use Config::Model ;
 
-BEGIN { plan tests => 35; }
+BEGIN { plan tests => 37; }
 
 use strict;
 
@@ -17,117 +17,172 @@ $::debug            = 1 if $arg =~ /d/;
 Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 
 use Log::Log4perl qw(:easy) ;
-Log::Log4perl->easy_init($arg =~ /l/ ? $TRACE: $WARN);
+my $log4perl_user_conf_file = $ENV{HOME}.'/.log4config-model' ;
+
+if (-e $log4perl_user_conf_file ) {
+    Log::Log4perl::init($log4perl_user_conf_file);
+}
+else {
+    Log::Log4perl->easy_init($arg =~ /l/ ? $DEBUG: $WARN);
+}
 
 ok(1,"Compilation done");
 
 
-my $model = Config::Model->new(legacy => 'ignore',) ;
-$model -> create_config_class 
-  (
-   name => "Slave",
-   element 
-   =>  [
-        find_node_element_name 
-        => {
-            type => 'leaf',
+my $model = Config::Model->new() ;
+$model->create_config_class(
+    name    => "Slave",
+    element => [
+        find_node_element_name => {
+            type       => 'leaf',
             value_type => 'string',
-            compute    => { 
-                           variables => { p => '-' },
-                           formula   => '&element($p)', 
-                          },
-           },
-        check_node_element_name 
-        => {
-            type => 'leaf',
+            compute    => {
+                variables => { p => '-' },
+                formula   => '&element($p)',
+            },
+        },
+        check_node_element_name => {
+            type       => 'leaf',
             value_type => 'boolean',
-            compute    => { 
-                           variables => { p => '-' },
-                           formula   => '&element($p) eq "foo2"', 
-                          },
-           },
-       [qw/av bv/] => {type => 'leaf',
-                       value_type => 'integer',
-                       compute    => { 
-                                      variables => { p => '! &element' },
-                                      formula   => '$p', 
-                                     },
-                      },
-       ]
-  );
-
-$model ->create_config_class 
-  (
-   name => "Master",
-   element 
-   => [
-       [qw/av bv/] => {type => 'leaf',
-                       class => 'Config::Model::Value',
-                       value_type => 'integer',
-                      },
-       compute_int 
-       => { type => 'leaf',
-            class =>'Config::Model::Value',
+            compute    => {
+                variables => { p => '-' },
+                formula   => '&element($p) eq "foo2"',
+            },
+        },
+        [qw/av bv/] => {
+            type       => 'leaf',
             value_type => 'integer',
-            compute    => [ '$a + $b', a => '- av', b => '- bv' ],
-            min        => -4,
-            max        => 4,
-          },
-       [qw/sav sbv/] => {type => 'leaf',
-                         class => 'Config::Model::Value',
-                         value_type => 'string',
-                      },
-       one_var => { type => 'leaf',
-                    class =>'Config::Model::Value',
-                    value_type => 'string',
-                    compute    => [ '&element().$bar', bar => '- sbv'],
-                    },
-       one_wrong_var => { type => 'leaf',
-                          class =>'Config::Model::Value',
-                          value_type => 'string',
-                          compute    => [ '$bar', bar => '- wrong_v'],
-                        },
-       meet_test 
-       => { type => 'leaf',
-            class =>'Config::Model::Value',
-            value_type => 'string',
-            compute => [ 'meet $a and $b', a => '- sav', b => '- sbv' ],
-          },
-       compute_with_override 
-       => {  type => 'leaf',
-            class => 'Config::Model::Value',
-             value_type             => 'integer',
-             allow_compute_override => 1,
-             compute                => [ '$a + $b', a => '- av', b => '- bv' ],
-             min                    => -4,
-             max                    => 4,
-          },
-       compute_no_var 
-       => { type => 'leaf',
-            value_type => 'string',
-            compute    => { 
-                           formula   => '&element()', 
-                          },
-          },
-       [qw/bar foo2/ ] => {
-                           type => 'node',
-                           config_class_name => 'Slave'
-                          },
+            compute    => {
+                variables => { p => '! &element' },
+                formula   => '$p',
+            },
+        },
+    ]
+);
 
-       'url' => { type => 'leaf',
-                  value_type => 'uniline',
-                },
-       'host' 
-       => { type => 'leaf',
+$model->create_config_class(
+    name    => "Master",
+    element => [
+        [qw/av bv/] => {
+            type       => 'leaf',
+            class      => 'Config::Model::Value',
+            value_type => 'integer',
+        },
+        compute_int => {
+            type       => 'leaf',
+            class      => 'Config::Model::Value',
+            value_type => 'integer',
+            compute    => {
+                formula   => '$a + $b',
+                variables => { a => '- av', b => '- bv' }
+            },
+            min => -4,
+            max => 4,
+        },
+        [qw/sav sbv/] => {
+            type       => 'leaf',
+            class      => 'Config::Model::Value',
+            value_type => 'string',
+        },
+        one_var => {
+            type       => 'leaf',
+            class      => 'Config::Model::Value',
+            value_type => 'string',
+            compute    => {
+                formula   => '&element().$bar',
+                variables => { bar => '- sbv' }
+            },
+          },
+        one_wrong_var => {
+            type       => 'leaf',
+            class      => 'Config::Model::Value',
+            value_type => 'string',
+            compute    => {
+                formula   => '$bar',
+                variables => { bar => '- wrong_v' }
+            },
+        },
+        meet_test => {
+            type       => 'leaf',
+            class      => 'Config::Model::Value',
+            value_type => 'string',
+            compute    => {
+                formula   => 'meet $a and $b',
+                variables => { a => '- sav', b => '- sbv' }
+            },
+        },
+        compute_with_override => {
+            type       => 'leaf',
+            class      => 'Config::Model::Value',
+            value_type => 'integer',
+            compute    => {
+                formula        => '$a + $b',
+                variables      => { a => '- av', b => '- bv' },
+                allow_override => 1,
+            },
+            min => -4,
+            max => 4,
+        },
+        compute_no_var => {
+            type       => 'leaf',
+            value_type => 'string',
+            compute    => { formula => '&element()', },
+        },
+        [qw/bar foo2/] => {
+            type              => 'node',
+            config_class_name => 'Slave'
+        },
+
+        'url' => {
+            type       => 'leaf',
             value_type => 'uniline',
-            compute => { formula => '$url =~ m!http://([\w\.]+)!; $1 ;' , 
-                         variables => { url => '- url' } ,
-                         use_eval => 1,
-                       },
-          },
-
-      ]
- ) ;
+        },
+        'host' => {
+            type       => 'leaf',
+            value_type => 'uniline',
+            compute    => {
+                formula   => '$url =~ m!http://([\w\.]+)!; $1 ;',
+                variables => { url => '- url' },
+                use_eval  => 1,
+            },
+        },
+        'Upstream-Contact' => {
+            'cargo' => {
+                'value_type'   => 'uniline',
+                'migrate_from' => {
+                    'formula'   => '$maintainer',
+                    'variables' => {
+                        'maintainer' => '- Upstream-Maintainer:&index'
+                    }
+                },
+                'type' => 'leaf'
+            },
+            'type' => 'list',
+        },
+        'Upstream-Maintainer' => {
+            'cargo' => {
+                'value_type'   => 'uniline',
+                'migrate_from' => {
+                    'formula'   => '$maintainer',
+                    'variables' => {
+                        'maintainer' => '- Maintainer:&index'
+                    }
+                },
+                'type' => 'leaf'
+            },
+            'status' => 'deprecated',
+            'type'   => 'list'
+        },
+        'Maintainer' => {
+            'cargo' => {
+                'value_type' => 'uniline',
+                'type'       => 'leaf'
+            },
+            'status' => 'deprecated',
+            'type'   => 'list',
+        },
+    ]
+);
 
 my $inst = $model->instance (root_class_name => 'Master', 
                              instance_name => 'test1');
@@ -138,7 +193,8 @@ my $root = $inst -> config_root ;
 # order is important. Do no use sort.
 is_deeply([$root->get_element_name()],
           [qw/av bv compute_int sav sbv one_var one_wrong_var 
-              meet_test compute_with_override compute_no_var bar foo2 url host/],
+              meet_test compute_with_override compute_no_var bar 
+              foo2 url host Upstream-Contact/],
          "check available elements");
 
 my ( $av, $bv, $compute_int );
@@ -284,3 +340,8 @@ $root->fetch_element('url')->store('http://foo.bar/baz.html');
 my $h = $root->fetch_element('host');
 
 is($h->fetch,'foo.bar',"check extracted host") ;
+
+$root->fetch_element(name => 'Maintainer', check => 'no')->store_set([qw/foo bar baz/] );
+is($root->grab_value(step => 'Upstream-Maintainer:0'),'foo',"check compute with index in variable");
+is($root->grab_value(step => 'Upstream-Contact:0'   ),'foo',"check compute with index in variable");
+

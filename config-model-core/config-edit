@@ -612,6 +612,10 @@ Used by read and write handler (L<Config::Model::AutoRead>)
 
 =item Wizard::Helper
 
+=item Anything
+
+=item ValueComputer
+
 =back
 
 More categories will come.

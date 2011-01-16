@@ -302,10 +302,10 @@ sub new {
     my %args = @_ ;
     my $self= {} ;
 
-    if ($::debug) {
+    if ($logger->is_debug) {
 	my %show = %args ;
 	delete $show{value_object} ;
-	print Data::Dumper->Dump([\%show],['Computedvalue_new_args']) ;
+	$logger->debug(Data::Dumper->Dump([\%show],['Computed_value_new_args'])) ;
     }
 
     # value_object is mostly used for error messages
@@ -330,7 +330,7 @@ sub new {
     $compute_parser ||= Parse::RecDescent->new($compute_grammar) ;
 
     # must make a first pass at computation to subsitute index and
-    # slot values.  leaves $xxx outside of &index or &element untouched
+    # element values.  leaves $xxx outside of &index or &element untouched
     my $result_r = $compute_parser
       -> pre_compute
 	(
@@ -355,7 +355,7 @@ sub compute {
     my $check = $args{check} || 'yes' ;
 
     my $pre_formula = $self->{pre_formula};
-
+    $logger->debug("compute from pre_formula: $pre_formula");
     my $variables = $self->compute_variables(check => $check) ;
 
     return unless defined $variables ;
@@ -371,8 +371,8 @@ sub compute {
 
     return unless defined $formula ;
 
-    print "compute $self->{value_type}: pre_formula $pre_formula\n",
-      "compute $self->{value_type}: rule to eval $formula\n" if $::debug;
+    $logger->debug("compute $self->{value_type}: pre_formula $pre_formula\n",
+      "compute $self->{value_type}: rule to eval $formula");
 
     my $result = $self->{computed_formula} = $formula ;
 
@@ -396,7 +396,8 @@ sub compute_info {
     my $self = shift;
     my %args = @_ ;
     my $check = $args{check} || 'yes' ;
-
+    $logger->debug("compute_info called with $self->{formula}" );
+    
     my $orig_variables = $self->{variables} ;
     my $variables = $self->compute_variables ;
     my $str = "value is computed from '$self->{formula}'";
@@ -450,36 +451,41 @@ sub compute_variables {
     # a shallow copy should be enough as we don't allow
     # replace in replacement rules
     my %variables = %{$self->{variables}} ;
+    $logger->debug("compute_variables called on ", join (" ",%variables)) ;
 
     # apply a compute on all variables until no $var is left
     my $var_left = scalar (keys %variables) + 1 ;
 
+    my $i = 0;
     while ($var_left) {
+        print "loop ",$i++ ,"\n";
         my $old_var_left= $var_left ;
-        my $did_something = 0 ;
         foreach my $key (keys %variables) {
             my $value = $variables{$key} ; # value may be undef
             next unless (defined $value and $value =~ /\$|&/) ;
             #next if ref($value); # skip replacement rules
-            print "key '$key', value '$value', left $var_left\n" 
-	      if $::debug;
-	    my $pre_res = $compute_parser
-	      -> pre_compute ($value, 1,$self->{value_object}, \%variables, $self->{replace},$check);
-            print "key '$key', pre res '$pre_res', left $var_left\n" 
-	      if $::debug;
-            my $res_r = $compute_parser
-	      -> compute ($pre_res, 1,$self->{value_object}, \%variables, $self->{replace},$check);
-	    my $res = $$res_r ;
-            #return undef unless defined $res ;
-            $variables{$key} = $res ;
+            $logger->debug("compute_variables: key '$key', value '$value', left $var_left)"); 
+	    my $pre_res_r = $compute_parser
+                -> pre_compute ($value, 1,$self->{value_object}, \%variables, $self->{replace},$check);
+            $logger->debug( "compute_variables: key '$key', pre res '$$pre_res_r', left $var_left\n");
+            $variables{$key} = $$pre_res_r ;
+	    $logger->debug("variable after pre_compute: ", join (" ",%variables)) ;
+
+            if ($$pre_res_r =~ /\$/) { ;
+                # variables needs to be evaluated
+                my $res_ref = $compute_parser
+                    -> compute ($$pre_res_r, 1,$self->{value_object}, \%variables, $self->{replace},$check);
+                #return undef unless defined $res ;
+                $variables{$key} = $$res_ref ;
+                $logger->debug("variable after compute: ", join (" ",%variables)) ;
+            }
 	    {
 		no warnings "uninitialized" ;
-		print "\tresult '$res' left $var_left, did $did_something\n" 
-		  if $::debug;
+		$logger->debug( "compute_variables:\tresult '$variables{$key}' left $var_left");
 	    }
 	}
 
-        my @var_left =  grep {defined $variables{$_} && $variables{$_} =~ /\$/} 
+        my @var_left =  grep {defined $variables{$_} && $variables{$_} =~ /[\$&]/} 
 	  sort keys %variables;
 
         $var_left = @var_left ;
@@ -528,11 +534,11 @@ sub _replace {
 }
 
 sub _function_on_object {
-
-    # print "pre_value handling &foo(...)\n";
     my ( $object, $function, $return, $value_object, $variables_h, $replace_h,
         $check, $need_quote )
       = @_;
+
+    $logger->debug("_function_on_object: handling &$function(...) ");
 
     # get now the object refered
     my $fetch_str = $variables_h->{$object};
@@ -595,7 +601,7 @@ sub _function_alone {
         $need_quote )
       = @_;
 
-    # print "pre_value handling &foo()\n";
+    $logger->debug("_function_alone: handling $f_name"); 
 
     my $method_name =
         $f_name eq 'element' ? 'element_name'
@@ -657,18 +663,20 @@ sub _value_from_object {
     my $path = $variables_h->{$name};    # can be a ref for test purpose
     my $my_res;
 
-    # print "value: replace \$$name with path $path...\n";
+    $logger->debug("_value_from_object: replace \$$name with path $path...");
 
-    if ( defined $path and $path =~ /\$/ ) {
-
-        # print "compute rule skip name $name path '$path'\n";
+    if ( defined $path and $path =~ /[\$&]/ ) {
+        $logger->trace("_value_from_object: skip name $name path '$path'");
         $my_res = "\$$name";             # restore name that contain '$var'
     }
     elsif ( defined $path ) {
 
-        # print "fetching var object '$name' with '$path'\n";
-        $my_res =
-          eval { $value_object->grab_value( step => $path, check => $check ); };
+        $logger->trace("_value_from_object: fetching var object '$name' with '$path', check $check");
+        
+        $my_res = eval { 
+            $value_object->grab_value( step => $path, check => $check ); 
+        };
+        
         if ($@) {
             my $e = $@;
             my $msg = $e ? $e->full_message : '';
@@ -679,7 +687,10 @@ sub _value_from_object {
             );
         }
 
-# print "fetched var object '$name' with '$path', result '", defined $return ? $return : 'undef',"'\n";
+        $logger->trace(
+            "_value_from_object: fetched var object '$name' with '$path', result '", 
+            defined $my_res ? $my_res : 'undef',"'"
+        );
 
     }
 
