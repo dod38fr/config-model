@@ -671,7 +671,7 @@ sub _value_from_object {
     }
     elsif ( defined $path ) {
 
-        $logger->trace("_value_from_object: fetching var object '$name' with '$path', check $check");
+        $logger->trace("_value_from_object: fetching var object '$name' with '$path'");
         
         $my_res = eval { 
             $value_object->grab_value( step => $path, check => $check ); 
