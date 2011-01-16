@@ -456,9 +456,7 @@ sub compute_variables {
     # apply a compute on all variables until no $var is left
     my $var_left = scalar (keys %variables) + 1 ;
 
-    my $i = 0;
     while ($var_left) {
-        print "loop ",$i++ ,"\n";
         my $old_var_left= $var_left ;
         foreach my $key (keys %variables) {
             my $value = $variables{$key} ; # value may be undef
