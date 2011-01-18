@@ -467,7 +467,7 @@ sub compute_variables {
                 -> pre_compute ($value, 1,$self->{value_object}, \%variables, $self->{replace},$check);
             $logger->debug( "compute_variables: key '$key', pre res '$$pre_res_r', left $var_left\n");
             $variables{$key} = $$pre_res_r ;
-	    $logger->debug("variable after pre_compute: ", join (" ",%variables)) ;
+	    $logger->debug("variable after pre_compute: ", join (" ",%variables)) if $logger->is_debug ;
 
             if ($$pre_res_r =~ /\$/) { ;
                 # variables needs to be evaluated
@@ -475,7 +475,7 @@ sub compute_variables {
                     -> compute ($$pre_res_r, 1,$self->{value_object}, \%variables, $self->{replace},$check);
                 #return undef unless defined $res ;
                 $variables{$key} = $$res_ref ;
-                $logger->debug("variable after compute: ", join (" ",%variables)) ;
+                $logger->debug("variable after compute: ", join (" ",%variables))  if $logger->is_debug;
             }
 	    {
 		no warnings "uninitialized" ;
@@ -661,7 +661,7 @@ sub _value_from_object {
     my $path = $variables_h->{$name};    # can be a ref for test purpose
     my $my_res;
 
-    $logger->debug("_value_from_object: replace \$$name with path $path...");
+    $logger->debug("_value_from_object: replace \$$name with path $path...") if $logger->is_debug;
 
     if ( defined $path and $path =~ /[\$&]/ ) {
         $logger->trace("_value_from_object: skip name $name path '$path'");
