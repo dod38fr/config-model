@@ -1,6 +1,8 @@
 
         * AnyId: added migrate_keys_from to migrate list or hash content 
           during updgrades.
+        * ObjTreeScanner: Added node_dispatch_cb parameter to setup callback
+          dedicated to specific configuration classes.
         * Debian::Dependency: don't check debhelper
         * Will fix debian bug #609889
         

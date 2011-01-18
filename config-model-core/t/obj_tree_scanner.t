@@ -25,6 +25,14 @@ sub disp_node_content {
     map { $scanner->scan_element(  $data_r, $node, $_ ) } @element;
 }
 
+sub disp_dispatch_node_sub_slave2 {
+    my ( $scanner, $data_r, $node, @element ) = @_;
+
+    $$data_r .= "disp_dispatch_node_sub_slave2 " . $node->name . " element: @element\n";
+
+    map { $scanner->scan_element(  $data_r, $node, $_ ) } @element;
+}
+
 sub disp_node_elt {
     my ( $scanner, $data_r, $node, $element, $key, $next ) = @_;
 
@@ -105,6 +113,7 @@ my $scan = Config::Model::ObjTreeScanner->new(
     hash_element_cb       => \&disp_hash,
     node_element_cb       => \&disp_node_elt,
     node_content_cb       => \&disp_node_content,
+    node_dispatch_cb      => { SubSlave2 => \&disp_dispatch_node_sub_slave2,},
     leaf_cb               => \&disp_leaf,
     enum_value_cb         => \&disp_leaf,
     integer_value_cb      => \&disp_leaf,
@@ -153,7 +162,7 @@ disp_leaf slave_y sub_slave element ab
 disp_leaf slave_y sub_slave element ac
 disp_leaf slave_y sub_slave element ad
 disp_node_elt slave_y sub_slave element: sub_slave
-disp_node_content slave_y sub_slave sub_slave element: aa2 ab2 ac2 ad2 Z
+disp_dispatch_node_sub_slave2 slave_y sub_slave sub_slave element: aa2 ab2 ac2 ad2 Z
 disp_leaf slave_y sub_slave sub_slave element aa2
 disp_leaf slave_y sub_slave sub_slave element ab2
 disp_leaf slave_y sub_slave sub_slave element ac2
@@ -168,7 +177,7 @@ disp_leaf slave_y warp2 element ab
 disp_leaf slave_y warp2 element ac
 disp_leaf slave_y warp2 element ad
 disp_node_elt slave_y warp2 element: sub_slave
-disp_node_content slave_y warp2 sub_slave element: aa2 ab2 ac2 ad2 Z
+disp_dispatch_node_sub_slave2 slave_y warp2 sub_slave element: aa2 ab2 ac2 ad2 Z
 disp_leaf slave_y warp2 sub_slave element aa2
 disp_leaf slave_y warp2 sub_slave element ab2
 disp_leaf slave_y warp2 sub_slave element ac2
