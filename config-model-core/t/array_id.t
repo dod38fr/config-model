@@ -7,7 +7,7 @@ use Test::More;
 use Test::Exception ;
 use Config::Model;
 
-BEGIN { plan tests => 69; }
+BEGIN { plan tests => 70; }
 
 use strict;
 
@@ -38,8 +38,6 @@ $model ->create_config_class
    => [ 
        bounded_list 
        => { type => 'list',
-	    # hash_class constructor args are all keys of this hash
-	    # except type and class
 	    list_class => 'Config::Model::ListId', # default
 
 	    max => 123, 
@@ -64,6 +62,12 @@ $model ->create_config_class
 	   type => 'list',
 	   default    => [2..5],
 	   @element
+	  },
+       list_with_migrate_keys_from
+       => {
+	   type => 'list',
+	   @element ,
+	   migrate_keys_from  => '- list_with_several_default_keys',
 	  },
        olist => {
 		 type => 'list',
@@ -246,3 +250,8 @@ $pl->fetch_with_id(2)->store('bar') ;
 is_deeply( [ $pl->fetch_all_values], ['prefoo','prebar','bar'],"check that values are read") ;
 
 is_deeply( [ $pl->fetch_all_values(mode => 'custom')], ['bar'],"check that custom values are read") ;
+
+# test key migration
+my $lwmkf = $root->fetch_element('list_with_migrate_keys_from') ;
+my @to_migrate = $root->fetch_element('list_with_several_default_keys')->get_all_indexes ;
+is_deeply( [ $lwmkf->get_all_indexes ] , \@to_migrate ,"check ids of list_with_migrate_keys_from");

@@ -1,12 +1,9 @@
 # -*- cperl -*-
-# $Author$
-# $Date$
-# $Revision$
 
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
-use Test::More tests => 77 ;
+use Test::More tests => 78 ;
 use Config::Model ;
 use Test::Exception ;
 use Test::Warn ;
@@ -122,6 +119,13 @@ $model ->create_config_class
 	   index_type  => 'string',
 	   @element ,
 	   follow_keys_from  => '- hash_with_several_auto_created_id',
+	  },
+       hash_with_migrate_keys_from
+       => {
+	   type => 'hash',
+	   index_type  => 'string',
+	   @element ,
+	   migrate_keys_from  => '- hash_with_several_auto_created_id',
 	  },
        hash_with_follow_keys_from_unknown
        => {
@@ -380,3 +384,8 @@ warning_like { $hwwikm->fetch_with_id('foo2') ;} qr/key 'foo2' should not match/
 my $hwwukm = $root->fetch_element('hash_with_warn_unless_key_match') ;
 warning_like { $hwwukm->fetch_with_id('bar2') ;} qr/key 'bar2' should match foo/,
    "warn unless matching key" ;
+
+# test key migration
+my $hwmkf = $root->fetch_element('hash_with_migrate_keys_from') ;
+my @to_migrate = $root->fetch_element('hash_with_several_auto_created_id')->get_all_indexes ;
+is_deeply( [ $hwmkf->get_all_indexes ] , \@to_migrate ,"check ids of hash_with_migrate_keys_from");

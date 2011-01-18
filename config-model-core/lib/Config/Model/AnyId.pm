@@ -1,4 +1,4 @@
-#    Copyright (c) 2005-2010 Dominique Dumont.
+#    Copyright (c) 2005-2011 Dominique Dumont.
 #
 #    This file is part of Config-Model.
 #
@@ -210,6 +210,13 @@ To perform special set-up on children nodes you can also use
                            'bar' => 'Y=Av Z=Cv' }
 
 
+=item migrate_keys_from
+
+Specifies that the keys of the hash or list are copied from another hash or list in
+the configuration tree only when the hash is created. 
+
+   migrate_keys_from => '- another_hash_or_list'
+
 =item follow_keys_from
 
 Specifies that the keys of the hash follow the keys of another hash in
@@ -343,7 +350,8 @@ leads to a nb of items greater than the max_nb constraint.
 =cut
 
 my @common_params =  qw/min_index max_index max_nb default_with_init default_keys
-                        follow_keys_from auto_create_ids auto_create_keys
+                        follow_keys_from migrate_keys_from 
+                        auto_create_ids auto_create_keys
                         allow_keys allow_keys_from allow_keys_matching
                         warn_if_key_match warn_unless_key_match/ ;
 
@@ -574,10 +582,16 @@ sub get_default_keys {
 
     if ($self->{follow_keys_from}) {
         my $followed = $self->safe_typed_grab('follow_keys_from') ;
-        return [ $followed -> get_all_indexes ];
+        my @res = $followed -> get_all_indexes ;
+        return wantarray ? @res : \@res ;
     }
 
     my @res ;
+
+    if ($self->{migrate_keys_from}) {
+        my $followed = $self->safe_typed_grab('migrate_keys_from') ;
+        push @res , $followed -> get_all_indexes ;
+    }
 
     push @res , @{ $self->{default_keys} }
       if defined $self->{default_keys} ;
@@ -952,6 +966,7 @@ sub get_all_indexes {
     my $self = shift;
     $self->create_default if (   defined $self->{default_keys}
                               or defined $self->{default_with_init}
+                              or defined $self->{migrate_keys_from}
                               or defined $self->{follow_keys_from});
     return $self->_get_all_indexes ;
 }

@@ -1,3 +1,9 @@
+
+        * AnyId: added migrate_keys_from to migrate list or hash content 
+          during updgrades.
+        * Debian::Dependency: don't check debhelper
+        * Will fix debian bug #609889
+        
 2011-01-10 Dominique Dumont  <domi.dumont@free.fr> 1.229
 
         * config-edit: added -apply-fixes option
