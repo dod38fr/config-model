@@ -547,11 +547,13 @@ sub get_cargo_info {
 # internal, does a grab with improved error mesage
 sub safe_typed_grab {
   my $self  = shift ;
-  my $param = shift ;
+  my %args = @_ ;
+  my $param = $args{param} || croak "safe_typed_grab: missing param" ;
 
   my $res = eval {
     $self->grab(step => $self->{$param},
                 type => $self->get_type,
+                check => $args{check} || 'yes' ,
                ) ;
   };
 
@@ -581,7 +583,7 @@ sub get_default_keys {
     my $self = shift ;
 
     if ($self->{follow_keys_from}) {
-        my $followed = $self->safe_typed_grab('follow_keys_from') ;
+        my $followed = $self->safe_typed_grab(param => 'follow_keys_from') ;
         my @res = $followed -> get_all_indexes ;
         return wantarray ? @res : \@res ;
     }
@@ -589,7 +591,7 @@ sub get_default_keys {
     my @res ;
 
     if ($self->{migrate_keys_from}) {
-        my $followed = $self->safe_typed_grab('migrate_keys_from') ;
+        my $followed = $self->safe_typed_grab(param => 'migrate_keys_from', check => 'no') ;
         push @res , $followed -> get_all_indexes ;
     }
 
@@ -718,7 +720,7 @@ sub check {
 sub check_follow_keys_from {
     my ($self,$idx,$error) = @_ ; 
 
-    my $followed = $self->safe_typed_grab('follow_keys_from') ;
+    my $followed = $self->safe_typed_grab(param => 'follow_keys_from') ;
     return if $followed->exists($idx) ;
 
     push @$error, "key '$idx' does not exists in '".$followed->name 
@@ -749,7 +751,7 @@ sub check_allow_keys_matching {
 sub check_allow_keys_from {
     my ($self,$idx,$error) = @_ ; 
 
-    my $from = $self->safe_typed_grab('allow_keys_from');
+    my $from = $self->safe_typed_grab(param => 'allow_keys_from');
     my $ok = grep { $_ eq $idx } $from->get_all_indexes ;
 
     return if $ok ;
