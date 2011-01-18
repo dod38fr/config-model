@@ -30,7 +30,7 @@ my @element = (
 	      ) ;
 
 # minimal set up to get things working
-my $model = Config::Model->new(legacy => 'ignore',) ;
+my $model = Config::Model->new() ;
 $model ->create_config_class 
   (
    name => "Master",
@@ -41,26 +41,28 @@ $model ->create_config_class
 	    list_class => 'Config::Model::ListId', # default
 
 	    max => 123, 
-	    cargo_type => 'leaf',
-	    cargo_args => {value_type => 'string'},
+	    cargo => {  
+	        type => 'leaf',
+                value_type => 'string'
+            },
 	  },
        plain_list => { type => 'list' , @element } ,
        list_with_auto_created_id
        => {
 	   type => 'list',
-	   auto_create => 4,
+	   auto_create_ids => 4,
 	   @element
 	  },
        [qw/list_with_default_id list_with_default_id_2/]
        => {
 	   type => 'list',
-	   default    => 1 ,
+	   default_keys    =>  [1] ,
 	   @element
 	  },
        list_with_several_default_keys
        => {
 	   type => 'list',
-	   default    => [2..5],
+	   default_keys    => [2..5],
 	   @element
 	  },
        list_with_migrate_keys_from
@@ -85,7 +87,7 @@ $model ->create_config_class
        list_with_wrong_auto_create
        => {
 	   type => 'list',
-	   auto_create => [ 'foo' ],
+	   auto_create_ids => [ 'foo' ],
 	   @element
 	  },
        ]
