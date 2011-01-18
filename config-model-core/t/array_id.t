@@ -7,7 +7,7 @@ use Test::More;
 use Test::Exception ;
 use Config::Model;
 
-BEGIN { plan tests => 70; }
+BEGIN { plan tests => 68; }
 
 use strict;
 
@@ -53,23 +53,11 @@ $model ->create_config_class
 	   auto_create_ids => 4,
 	   @element
 	  },
-       [qw/list_with_default_id list_with_default_id_2/]
-       => {
-	   type => 'list',
-	   default_keys    =>  [1] ,
-	   @element
-	  },
-       list_with_several_default_keys
-       => {
-	   type => 'list',
-	   default_keys    => [2..5],
-	   @element
-	  },
-       list_with_migrate_keys_from
+      list_with_migrate_keys_from
        => {
 	   type => 'list',
 	   @element ,
-	   migrate_keys_from  => '- list_with_several_default_keys',
+	   migrate_keys_from  => '- list_with_auto_created_id',
 	  },
        olist => {
 		 type => 'list',
@@ -144,12 +132,6 @@ is($b->fetch_with_id(4)->fetch, 'titi',"check pushed item") ;
 
 my @all = $b->fetch_all_values ;
 is_deeply(\@all,[qw/baz bar toto titi/],"check fetch_all_values") ;
-
-my $ld1 = $root->fetch_element('list_with_default_id');
-is_deeply([$ld1->get_all_indexes],[0,1],"check list_with_default_id ids") ;
-
-my $lds = $root->fetch_element('list_with_several_default_keys');
-is_deeply([$lds->get_all_indexes],[0 .. 5],"check list_with_several_default_keys") ;
 
 my $lac = $root->fetch_element('list_with_auto_created_id');
 is_deeply([$lac->get_all_indexes],[0 .. 3],"check list_with_auto_created_id") ;
@@ -255,5 +237,5 @@ is_deeply( [ $pl->fetch_all_values(mode => 'custom')], ['bar'],"check that custo
 
 # test key migration
 my $lwmkf = $root->fetch_element('list_with_migrate_keys_from') ;
-my @to_migrate = $root->fetch_element('list_with_several_default_keys')->get_all_indexes ;
-is_deeply( [ $lwmkf->get_all_indexes ] , \@to_migrate ,"check ids of list_with_migrate_keys_from");
+my @to_migrate = $root->fetch_element('list_with_auto_created_id')->get_all_indexes ;
+is_deeply( [ $lwmkf->get_all_indexes ] , \@to_migrate ,"check migrated ids (@to_migrate)");

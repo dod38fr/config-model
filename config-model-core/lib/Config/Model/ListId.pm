@@ -69,17 +69,13 @@ sub new {
 
     $self->{data} = [] ;
 
-    Config::Model::Exception::Model->throw 
-        (
-         object => $self,
-         error =>  "Cannot use max_nb with ".$self->get_type." element"
-        ) if defined $args{max_nb};
-
-    Config::Model::Exception::Model->throw 
-        (
-         object => $self,
-         error => "Cannot use min_index with ".$self->get_type." element"
-        ) if defined $args{min_index};
+    foreach my $wrong (qw/max_nb min_index default_keys/) {
+        Config::Model::Exception::Model->throw 
+            (
+            object => $self,
+            error =>  "Cannot use $wrong with ".$self->get_type." element"
+        ) if defined $args{$wrong};
+    }
 
     # Supply the mandatory parameter
     $self->handle_args(%args, index_type => 'integer') ;
