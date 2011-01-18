@@ -249,8 +249,8 @@ Keys must match the specified regular expression. For instance:
 When set, the default parameter (or set of parameters) are used as
 keys hashes and created automatically. (valid only for hash elements)
 
-Called with C<< auto_create => 'foo' >>, or 
-C<< auto_create => ['foo', 'bar'] >>.
+Called with C<< auto_create_keys => ['foo'] >>, or 
+C<< auto_create_keys => ['foo', 'bar'] >>.
 
 =item warn_if_key_match
 
@@ -263,7 +263,7 @@ Issue a warning unless the key matches the specified regular expression
 =item auto_create_ids
 
 Specifies the number of elements to create automatically. E.g.  C<<
-auto_create => 4 >> will initialize the list with 4 undef elements.
+auto_create_ids => 4 >> will initialize the list with 4 undef elements.
 (valid only for list elements)
 
 =item warp
@@ -335,9 +335,9 @@ auto created.
 For instance, if a tied hash is created with 
 C<< auto_create => [a,b,c] >>, the hash contains C<(a,b,c)>.
 
-Then if a warp is applied with C<< auto_create => [c,d,e] >>, the hash
+Then if a warp is applied with C<< auto_create_keys => [c,d,e] >>, the hash
 will contain C<(a,b,c,d,e)>. The items created by the first
-auto_create are not removed.
+auto_create_keys are not removed.
 
 =head2 Warp and max_nb
 
