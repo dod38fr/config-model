@@ -266,7 +266,7 @@ is($ph->fetch_with_id(3)->fetch,
 
 my $hwfkf =  $root->fetch_element('hash_with_follow_keys_from'); 
 ok($hwfkf,"created hash_with_follow_keys_from ...") ;
-is_deeply($hwfkf->get_default_keys,[qw/foo x y z/],
+is_deeply([$hwfkf->get_default_keys],[qw/foo x y z/],
 	  'check default keys of hash_with_follow_keys_from');
 
 my $hwfkfu = $root->fetch_element('hash_with_follow_keys_from_unknown');
