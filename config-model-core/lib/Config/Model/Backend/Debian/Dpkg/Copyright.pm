@@ -9,15 +9,20 @@ with 'Config::Model::Backend::Debian::DpkgSyntax';
 
 use Carp;
 use Config::Model::Exception ;
+use Config::Model::ObjTreeScanner ;
 use File::Path;
 use Log::Log4perl qw(get_logger :levels);
-
-use Config::Model::Exception ;
-
 
 my $logger = get_logger("Backend::Debian::Dpkg::Copyright") ;
 
 sub suffix { return '' ; }
+
+my %store_dispath = (
+    list    => \&_store_line_based_list,
+    #string  => \&_store_line,
+    string  => \&_store_text_no_synopsis,
+    uniline => \&_store_line,
+);
 
 sub read {
     my $self = shift ;
@@ -41,11 +46,9 @@ sub read {
     my $root = $args{object} ;
     my $check = $args{check} || 'yes';
     my $file;
-    my $object = $root ;
-    
-    $logger->info("First pass to read license sections from $args{file} control file");
+    $logger->info("First pass to read pure license sections from $args{file} control file");
     foreach my $section (@$c) {
-        next unless $section->[0] =~ /license/i;
+        next unless $section->[0] =~ /licen[sc]e/i;
         my ($key,$v) =  @$section ;
         my @lic_text = split /\n/,$v ;
         my ($lic_name) = shift @lic_text ;
@@ -62,14 +65,15 @@ sub read {
     foreach my $section (@$c) {
         $section_nb ++ ;
         $logger->debug("2ns pass: reading section $section_nb");
-
-        next if $section->[0] =~ /license/i; # skip pure license sections
+        my $object = $root ;
+   
+        next if $section->[0] =~ /^licen[sc]e$/i; # skip pure license sections
         for (my $i=0; $i < @$section ; $i += 2 ) {
             my $key = $section->[$i];
             my $v = $section->[$i+1];
-            $v =~ s/^\s+//; # remove all leading spaces 
+            #$v =~ s/^\s+//; # remove all leading spaces 
             $logger->info("reading key $key from $args{file} control file for ".$object->name);
-            $logger->debug("$key value: $v");
+            $logger->debug("$key value: '$v'");
 
             if ($section_nb != 1 and $key !~ /files/i and $object eq $root) {
                 if ($root->fetch_element('Files')->exists('*')) {
@@ -86,35 +90,22 @@ sub read {
                 }
             }
 
+
             if ($key =~ /files/i) {
                 $logger->debug("Creating Files:$v element");
+                $v =~ s/\s*,\s*/ /g;
                 $file = $root->fetch_element('Files')->fetch_with_id(index => $v, check => $check) ;
                 $object = $file ;
             }
-            elsif ($key =~ /copyright/i) {
-                my @v = split /\s*\n\s*/,$v ;
-                $object->fetch_element('Copyright')->store_set(\@v, check => $check);
-            }
-            elsif ($key =~ /license/i) {
-                $object = $file->fetch_element('License') ;
-                my ($lic_line,$lic_text) = split /\n/,$v,2 ;
-                $lic_line  =~ s/\s+$//;
-                # too much hackish is bad for health
-                if ($lic_line =~ /with\s+(\w+)\s+exception/) {
-                    my $exception = $1 ;
-                    $object->fetch_element('exception')->store(value => $exception , check => $check);
-                    $lic_line =~ s/\s+with\s+\w+\s+exception//;
-                    $logger->debug("license exception: $exception");
-                }
-                $logger->debug("license abrrev: $lic_line");
-                $logger->debug("license full_license: $lic_text") if $lic_text;
-                $object->fetch_element('full_license')->store(value => $lic_text, check => $check)
-                    if $lic_text;
-                $object->fetch_element('short_name')->store(value => $lic_line, check => $check);
-                $object = $root ;
+            elsif ($key =~ /licen[sc]e/i) {
+                _store_file_license ($file->fetch_element('License'), $v ,$check);
             }
             elsif (my $found = $object->find_element($key, case => 'any')) { 
-                $object->fetch_element($found)->store(value => $v, check => $check) ;
+                my $target = $object->fetch_element($found) ;
+                my $type = $target->get_type ;
+                my $dispatcher = $type eq 'leaf' ? $target->value_type : $type ;
+                my $f =  $store_dispath{$dispatcher} || die "unknown dispatcher for $key";
+                $f->($target,$v,$check) ;
             }
             else {
                 # try anyway to trigger an error message
@@ -126,95 +117,160 @@ sub read {
     return 1 ;
 }
 
+sub _store_line_based_list {
+    my ($object,$v,$check) = @_ ;
+    my @v = split /\s*\n\s*/,$v ;
+    $logger->debug("_store_line_based_list with check $check on ".$object->name." = ('".join("','",@v),"')");
+    $object->store_set(\@v, check => $check);
+}
+
+sub _store_text_no_synopsis {
+    my ($object,$v,$check) = @_ ;
+    #$v =~ s/^\s*\n// ;
+    chomp $v ;
+    $logger->debug("_store_text_no_synopsis with check $check on ".$object->name." = '$v'");
+    $object->store(value => $v, check => $check) ; 
+}
+
+sub _store_line {
+    my ($object,$v,$check) = @_ ;
+    $v =~ s/^\s*\n// ; # remove leading blank line for uniline values
+    chomp $v ;
+    $logger->debug("_store_line with check $check ".$object->name." = $v");
+    $object->store(value => $v, check => $check) ; 
+}
+
+sub _store_file_license {
+    my ($lic_object, $v, $check) = @_ ;
+
+    chomp $v ;
+    my ( $lic_line, $lic_text ) = split /\n/, $v, 2 ;
+    $lic_line =~ s/\s+$//;
+
+    # too much hackish is bad for health
+    if ( $lic_line =~ /with\s+(\w+)\s+exception/ ) {
+        my $exception = $1;
+        $lic_object->fetch_element('exception') -> store( value => $exception, check => $check );
+        $lic_line =~ s/\s+with\s+\w+\s+exception//;
+        $logger->debug("license exception: $exception");
+    }
+    
+    $lic_line =~ s/\s*\|\s*/ or /g; # old way of expressing or condition
+    $lic_line ||= 'other' ;
+    $logger->debug("license abbrev: $lic_line");
+    $logger->debug("license full_license: $lic_text") if $lic_text;
+    
+    $lic_object->fetch_element('full_license')
+      ->store( value => $lic_text, check => $check )
+      if $lic_text;
+    
+    $lic_object->fetch_element('short_name') ->store( value => $lic_line, check => $check );
+}
+
 sub write {
-    my $self = shift ;
-    my %args = @_ ;
+    my $self = shift;
+    my %args = @_;
 
     # args is:
-    # object     => $obj,         # Config::Model::Node object 
+    # object     => $obj,         # Config::Model::Node object
     # root       => './my_test',  # fake root directory, userd for tests
-    # config_dir => /etc/foo',    # absolute path 
+    # config_dir => /etc/foo',    # absolute path
     # file       => 'foo.conf',   # file name
-    # file_path  => './my_test/etc/foo/foo.conf' 
+    # file_path  => './my_test/etc/foo/foo.conf'
     # io_handle  => $io           # IO::File object
 
     croak "Undefined file handle to write"
-      unless defined $args{io_handle} ;
+      unless defined $args{io_handle};
 
-    my $node = $args{object} ;
-    my $ioh = $args{io_handle} ;
-    my @section1 ;
+    my $node = $args{object};
+    my $ioh  = $args{io_handle};
 
-    # handle data in 2 passes to handle correctly sections
-    # here, we fill first section
-    foreach my $elt ($node->get_element_name ) {
-        my $type = $node->element_type($elt) ;
-        my $elt_obj = $node->fetch_element($elt) ;
+    my $my_leaf_cb = sub {
+        my ( $scanner, $data_ref, $node, $element_name, $key, $leaf_object ) =
+          @_;
+        my $v = $leaf_object->fetch;
+        return unless defined $v ;
+        $logger->debug("my_leaf_cb: on $element_name ". (defined $key ? " key $key ":'') . "value $v");
+        my $prefix = defined $key ? "$key\n" : '' ;
+        push @{$data_ref->{one}}, $element_name, $prefix.$v ;
+    };
 
-        if ($type eq 'hash') {
-            # handled in 2nd passes
-            next ;
+    my $my_string_cb = sub {
+        my ( $scanner, $data_ref, $node, $element_name, $index, $leaf_object ) = @_;
+        my $v = $leaf_object->fetch;
+        return unless defined $v ;
+        $logger->debug("my_string_cb: on $element_name value $v");
+        push @{$data_ref->{one}}, $element_name, "\n$v";    # text without synopsis
+    };
+
+    my $my_list_element_cb = sub {
+        my ( $scanner, $data_ref, $node, $element_name, @idx ) = @_;
+        my @v = $node->fetch_element($element_name)->fetch_all_values;
+        $logger->debug("my_list_element_cb: on $element_name value @v");
+        push @{$data_ref->{one}}, $element_name, \@v if @v;
+    };
+
+    # called for license
+    my $my_hash_element_cb = sub {
+        my ( $scanner, $data_ref, $node, $element_name, @keys ) = @_;
+
+        # each hash element defined a new section
+        foreach my $k (@keys) {
+            my @section ;
+            $logger->debug("my_hash_element_cb: on $element_name key $k call scan_hash");
+            $scanner->scan_hash( { one => \@section, all => $data_ref->{all} }, $node, $element_name, $k );
+            push @{$data_ref->{all}}, \@section;
         }
-        elsif ($type eq 'list') {
-            my @v = $elt_obj->fetch_all_values ;
-            push @section1, $elt , \@v if @v;
-        }
-        else {
-            my $v = $node->fetch_element_value($elt) ;
-            push @section1, $elt , $v if $v ;
-        }
-    }
+    };
 
-    my @sections = (\@section1) ;
-    foreach my $elt ($node->get_element_name ) {
-        my $type = $node->element_type($elt) ;
-        my $elt_obj = $node->fetch_element($elt) ;
+    my $file_license_cb = sub {
+        my ($scanner, $data_ref,$node,@element_list) = @_;
 
-        if ($type eq 'hash') {
-            push @sections, $self->licenses($ioh,$elt_obj) if $elt eq 'License';
-            push @sections, $self->files($ioh,$elt_obj)    if $elt eq 'Files';
+        # your custom code using $data_ref
+        $logger->debug("file_license_cb called on ",$node->name);
+        my $lic_text  = $node->fetch_element_value('short_name');
+        my $exception = $node->fetch_element_value('exception');
+        $lic_text .= " with $exception exception" if defined $exception;
+        my $full_lic_text = $node->fetch_element_value('full_license');
+        $lic_text .= "\n" . $full_lic_text if defined $full_lic_text;
+        push @{$data_ref->{one}}, License => $lic_text;
+    };
+
+    my $file_cb = sub {
+        my ($scanner, $data_ref,$node,@element_list) = @_;
+        my @section = ( $node->element_name, $node->index_value );
+        $logger->debug("file_cb called on ",$node->name);
+        # resume exploration
+        my $local_data_ref = { one => \@section, all => $data_ref->{all} } ;
+        foreach (@element_list) { 
+            $scanner->scan_element($local_data_ref, $node,$_);
         }
-    }
-
-    $self->write_dpkg_file($ioh, \@sections, "\n" ) ;
+        push @{$data_ref->{all}}, \@section;
+    };
     
+    my $scan = Config::Model::ObjTreeScanner->new(
+        experience      => 'master',              # consider all values
+        leaf_cb         => $my_leaf_cb,
+        #string_value_cb => $my_string_cb,
+        list_element_cb => $my_list_element_cb,
+        hash_element_cb => $my_hash_element_cb,
+        #node_element_cb => $my_node_element_cb,
+        node_dispatch_cb => {
+            'Debian::Dpkg::Copyright::License' => $file_license_cb ,
+            'Debian::Dpkg::Copyright::Content' => $file_cb,
+        }
+    );
+
+    my @sections;
+    my @section1 ;
+    $scan->scan_node( { one => \@section1, all => \@sections } , $node );
+
+    unshift @sections, \@section1 ;
+    
+    #use Data::Dumper ; print Dumper \@sections ; exit ;
+    $self->write_dpkg_file( $ioh, \@sections, "\n" );
+
     return 1;
-}
-
-sub licenses {
-    my ($self, $ioh, $hash_obj) = @_ ;
-
-    my @res ;
-    foreach my $name ($hash_obj->get_all_indexes) {
-        my @lic_section = qw/License/;
-        push @lic_section , "$name\n" . $hash_obj->fetch_with_id($name)->fetch ;
-        push @res, \@lic_section ;
-    }
-    return @res ;
-}
-
-sub files {
-    my ($self, $ioh, $hash_obj) = @_ ;
-
-    my @res ;
-    foreach my $name ($hash_obj->get_all_indexes) {
-        my @file_section = (Files => $name );
-
-        my $node = $hash_obj->fetch_with_id($name) ;
-        push @file_section, 'Copyright', [ $node -> fetch_element('Copyright') -> fetch_all_values ] ;
-        
-        my $lic_node = $node -> fetch_element('License') ;
-        my $lic_text = $lic_node->fetch_element_value('short_name') ;
-        my $exception = $lic_node->fetch_element_value('exception') ;
-        $lic_text .= " with $exception exception" if defined $exception ;
-        
-        my $full_lic_text = $lic_node->fetch_element_value('full_license') ;
-        $lic_text .= "\n".$full_lic_text if defined $full_lic_text ;
-        push @file_section, License => $lic_text ;
-
-        push @res, \@file_section ;
-    }
-    return @res ;
 }
 
 

@@ -311,8 +311,6 @@ root node).
 
 C<@element_list> contains all the element names of the node.
 
-=fixme 
-
 Example:
 
   sub my_content_cb = { 

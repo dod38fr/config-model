@@ -14,7 +14,7 @@ To upgrade your file from an old spec, run:
     config-edit -application dpkg-copyright -ui none -save
 ',
             'accept' => [
-                          'X-.*',
+                          '.*',
                           {
                             'value_type' => 'string',
                             'type' => 'leaf'
@@ -55,14 +55,18 @@ To upgrade your file from an old spec, run:
                            },
                            'Upstream-Contact',
                            {
-                             'value_type' => 'string',
-                             'migrate_from' => {
-                                                 'formula' => '$old_maintainer',
-                                                 'variables' => {
-                                                                  'old_maintainer' => '- Maintainer'
-                                                                }
-                                               },
-                             'type' => 'leaf',
+                             'migrate_keys_from' => '- Upstream-Maintainer',
+                             'cargo' => {
+                                          'value_type' => 'uniline',
+                                          'migrate_from' => {
+                                                              'formula' => '$maintainer',
+                                                              'variables' => {
+                                                                               'maintainer' => '- Upstream-Maintainer:&index'
+                                                                             }
+                                                            },
+                                          'type' => 'leaf'
+                                        },
+                             'type' => 'list',
                              'description' => '* Syntax: line based list
 * The preferred address(es) to reach the upstream project. May be free-form text, but by convention will usually be written as a list of RFC5822 addresses or URIs.'
                            },
@@ -71,8 +75,11 @@ To upgrade your file from an old spec, run:
                              'value_type' => 'string',
                              'mandatory' => '1',
                              'migrate_from' => {
-                                                 'formula' => '$old',
+                                                 'undef_is' => '\'\'',
+                                                 'use_eval' => '1',
+                                                 'formula' => '$old || $older ;',
                                                  'variables' => {
+                                                                  'older' => '- Original-Source-Location',
                                                                   'old' => '- Upstream-Source'
                                                                 }
                                                },
@@ -120,7 +127,6 @@ To upgrade your file from an old spec, run:
                                           'value_type' => 'string',
                                           'type' => 'leaf'
                                         },
-                             'warn_unless_key_match' => '^(?i:Apache|Artistic|BSD-[234]-clause]|FreeBSD|ISC|CC-BY|CC-BY-SA|CC-BY-ND|CC-BY-NC|CC-BY-NC-SA|CC-BY-NC-ND|CC0|CDDL|CPL|EFL|Expat|GPL|LGPL|GFDL|GFDL-NIV|LPPL|MPL|Perl|Python-CNRI|QPL|W3C|Zlib|Zope)[\\d\\.\\-]*\\+?$',
                              'allow_keys_matching' => '^[\\w\\-\\.+]+$',
                              'type' => 'hash',
                              'index_type' => 'string'
@@ -136,30 +142,43 @@ To upgrade your file from an old spec, run:
                            },
                            'Name',
                            {
-                             'value_type' => 'string',
+                             'value_type' => 'uniline',
                              'status' => 'deprecated',
                              'type' => 'leaf'
                            },
                            'Maintainer',
                            {
-                             'value_type' => 'string',
+                             'cargo' => {
+                                          'value_type' => 'uniline',
+                                          'type' => 'leaf'
+                                        },
                              'status' => 'deprecated',
-                             'migrate_from' => {
-                                                 'formula' => '$old_maintainer',
-                                                 'variables' => {
-                                                                  'old_maintainer' => '- Upstream-Maintainer'
-                                                                }
-                                               },
-                             'type' => 'leaf',
+                             'type' => 'list',
                              'description' => 'Line(s) containing the preferred address(es) to reach current upstream maintainer(s). May be free-form text, but by convention will usually be written as a list of RFC2822 addresses or URIs.'
                            },
                            'Upstream-Maintainer',
+                           {
+                             'migrate_keys_from' => '- Maintainer',
+                             'cargo' => {
+                                          'value_type' => 'uniline',
+                                          'migrate_from' => {
+                                                              'formula' => '$maintainer',
+                                                              'variables' => {
+                                                                               'maintainer' => '- Maintainer:&index'
+                                                                             }
+                                                            },
+                                          'type' => 'leaf'
+                                        },
+                             'status' => 'deprecated',
+                             'type' => 'list'
+                           },
+                           'Upstream-Source',
                            {
                              'value_type' => 'string',
                              'status' => 'deprecated',
                              'type' => 'leaf'
                            },
-                           'Upstream-Source',
+                           'Original-Source-Location',
                            {
                              'value_type' => 'string',
                              'status' => 'deprecated',

@@ -17,30 +17,38 @@ sub parse_dpkg_file {
     my @res ; # list of list (section, [keyword, value])
 
     my $field;
-    my $store_ref ;
-    my $store_list = [] ;
+    my $store_ref ;       # hold field data
+    my $store_list = [] ; # holds sections
 
-    foreach (<$fh>) {
-        if (/^([\w\-]+):/) {
+    my $key = '';
+    while (<$fh>) {
+        chomp ;
+        if (/^([\w\-]+)\s*:/) {  # keyword: 
             my ($field,$text) = split /\s*:\s*/,$_,2 ;
+            $key = $field ;
+            $logger->trace("start new field $key with '$text'");
 
-	    $text = "other\n" if $field =~ /license/i and $text =~ /^\s*$/;
-	    push @$store_list, $field, $text ;
+	    push @$store_list, $field, "$text\n" ;
 	    chomp $$store_ref if defined $$store_ref; # remove trailing \n 
 	    $store_ref = \$store_list->[$#$store_list] ;
         }
-        elsif (/^\s*$/) {
+        elsif (/^\s*$/) {     # empty line
+            $logger->trace("empty line: starting new section");
+            $key = '';
             push @res, $store_list if @$store_list ; # don't store empty sections 
             $store_list = [] ;
+            undef $store_ref ; # to ensure that next line contains a keyword
         }
-        elsif (/^\s+\.$/) {
-            $$store_ref .= "\n" ;
+        elsif (/^\s+\.$/) {   # line with a single dot
+            $logger->trace("dot line: adding blank line to field $key");
+            _store_line($store_ref,"\n") ;
         }
-        elsif (s/^\s//) {
-            $$store_ref .= $_ ;
+        elsif (s/^\s//) {     # non empty line
+            $logger->trace("text line: adding '$_' to field $key");
+            _store_line($store_ref,"$_\n" );
         }
         else {
-            $logger->error("Invalid line: $_\n");
+            $logger->error("DpkgSyntax error: Invalid line $. (missing ':' ?) : $_\n");
         }
     }
 
@@ -52,10 +60,22 @@ sub parse_dpkg_file {
         my $i = 1 ;
         map { $logger->debug("Parse result section ".$i++.":\n'".join("','",@$_)."'") ;} @res ;
     }
-    
+
     warn "No section found\n" unless @res ;
     
     return wantarray ? @res : \@res ;   
+}
+
+sub _store_line {
+    my ($store_ref,$line) = @_ ;
+    if (defined $store_ref) {
+        $$store_ref .= $line ;
+    }
+    else {
+        my $l = $. ;
+        $logger->error("DpkgSyntax error: missing keyword before line $l : $_\n");
+    }
+    
 }
 
 # input is [ section [ keyword => value | value_list ] ]
@@ -90,7 +110,9 @@ sub write_dpkg_text {
      my ($self, $ioh, $text) = @_ ;
 
     return unless $text ;
-    foreach (split /\n/,$text) {
+    my @lines = split /\n/,$text ;
+    $ioh->print ( ' ' . shift (@lines) . "\n" ) ;
+    foreach (@lines) {
         $ioh->print ( /\S/ ? " $_\n" : " .\n") ;
     }
 }

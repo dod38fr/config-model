@@ -5,54 +5,56 @@
                            'short_name',
                            {
                              'value_type' => 'uniline',
-                             'grammar' => 'check: <rulevar: local $failed = 0>
-check: license alternate(s?) <reject:$failed>
+                             'grammar' => 'check: <rulevar: local $found = 0> <rulevar: local $ok = 1 >
+check: license alternate(s?) <reject: $text or not $found or not $ok >
 alternate: oper license 
 oper: \'and\' | \'or\' 
 license: /[\\w\\-\\.\\+]+/i
    { # PRD action to check if the license text is provided
      my $abbrev = $item[1] ;
+     $found++ ;
      my $elt = $arg[0]->grab("! License") ;
-     unless ($elt->defined($abbrev) or $arg[0]->grab("- full_license")->fetch) {
-         $failed ++;
+     if ($elt->defined($abbrev) or $arg[0]->grab("- full_license")->fetch) {
+        $ok &&= 1;
+     }
+     else { 
+     	 $ok = 0 ;
          ${$arg[1]} .= "license $abbrev is not declared in main Licence section. Expected ".join(" ",$elt->get_all_indexes) ;
      }
-   } 
-',
+   } ',
                              'help' => {
-                                         'Apache' => 'Apache license. For versions, consult the Apache_Software_Foundation.',
-                                         'Artistic' => 'Artistic license. For versions, consult the Perl_Foundation',
-                                         'BSD-2-clause' => 'Berkeley software distribution license, 2-clause version',
-                                         'BSD-3-clause' => 'Berkeley software distribution license, 3-clause version',
-                                         'BSD-4-clause' => 'Berkeley software distribution license, 4-clause version',
-                                         'CC-BY' => 'Creative Commons Attribution license',
-                                         'CC-BY-NC' => 'Creative Commons Attribution Non-Commercial',
-                                         'CC-BY-NC-ND' => 'Creative Commons Attribution Non-Commercial No Derivatives',
-                                         'CC-BY-NC-SA' => 'Creative Commons Attribution Non-Commercial Share Alike',
-                                         'CC-BY-ND' => 'Creative Commons Attribution No Derivatives',
-                                         'CC-BY-SA' => 'Creative Commons Attribution Share Alike license',
-                                         'CC0' => 'Creative Commons Universal waiver',
-                                         'CDDL' => 'Common Development and Distribution License. For versions, consult Sun Microsystems.',
-                                         'CPL' => 'IBM Common Public License. For versions, consult the IBM_Common_Public License_(CPL)_Frequently_asked_questions.',
-                                         'EFL' => 'The Eiffel Forum License. For versions, consult the Open_Source_Initiative',
-                                         'Expat' => 'The Expat license',
-                                         'FreeBSD' => 'FreeBSD Project license',
-                                         'GFDL' => 'GNU Free Documentation License',
-                                         'GFDL-NIV' => 'GNU Free Documentation License, with no invariant sections',
-                                         'GPL' => 'GNU General Public License',
-                                         'ISC' => "Internet_Software_Consortium\x{2019}s license, sometimes also known as the OpenBSD License",
-                                         'LGPL' => 'GNU Lesser General Public License, (GNU Library General Public License for versions lower than 2.1)',
-                                         'LPPL' => 'LaTeX Project Public License',
-                                         'MPL' => 'Mozilla Public License. For versions, consult Mozilla.org',
-                                         'Python-CNRI' => 'Python Software Foundation license. For versions, consult the Python_Software Foundation',
-                                         'Perl' => 'Perl license (equates to "GPL-1+ or Artistic-1")',
-                                         'QPL' => 'Q Public License',
-                                         'W3C' => 'W3C Software License. For more information, consult the W3C IntellectualRights FAQ and the 20021231 W3C_Software_notice_and_license',
-                                         'ZLIB' => 'zlib/libpng_license',
                                          'Zope' => 'Zope Public License. For versions, consult Zope.org',
-                                         'other' => 'Any other custom license. License notice text must be copied verbatim.',
+                                         'MPL' => 'Mozilla Public License. For versions, consult Mozilla.org',
+                                         'LGPL' => 'GNU Lesser General Public License, (GNU Library General Public License for versions lower than 2.1)',
+                                         'Perl' => 'Perl license (equates to "GPL-1+ or Artistic-1")',
+                                         'Artistic' => 'Artistic license. For versions, consult the Perl_Foundation',
+                                         'CC-BY' => 'Creative Commons Attribution license',
+                                         'ZLIB' => 'zlib/libpng_license',
+                                         'Expat' => 'The Expat license',
+                                         'EFL' => 'The Eiffel Forum License. For versions, consult the Open_Source_Initiative',
+                                         'BSD-3-clause' => 'Berkeley software distribution license, 3-clause version',
+                                         'LPPL' => 'LaTeX Project Public License',
+                                         'CC-BY-NC-SA' => 'Creative Commons Attribution Non-Commercial Share Alike',
+                                         'BSD-4-clause' => 'Berkeley software distribution license, 4-clause version',
+                                         'CC-BY-SA' => 'Creative Commons Attribution Share Alike license',
+                                         'GPL' => 'GNU General Public License',
+                                         'GFDL' => 'GNU Free Documentation License',
+                                         'CC0' => 'Creative Commons Universal waiver',
+                                         'Python-CNRI' => 'Python Software Foundation license. For versions, consult the Python_Software Foundation',
+                                         'FreeBSD' => 'FreeBSD Project license',
+                                         'CC-BY-NC' => 'Creative Commons Attribution Non-Commercial',
+                                         'CDDL' => 'Common Development and Distribution License. For versions, consult Sun Microsystems.',
+                                         'ISC' => "Internet_Software_Consortium\x{2019}s license, sometimes also known as the OpenBSD License",
+                                         'CC-BY-NC-ND' => 'Creative Commons Attribution Non-Commercial No Derivatives',
+                                         'GFDL-NIV' => 'GNU Free Documentation License, with no invariant sections',
+                                         'CPL' => 'IBM Common Public License. For versions, consult the IBM_Common_Public License_(CPL)_Frequently_asked_questions.',
+                                         'CC-BY-ND' => 'Creative Commons Attribution No Derivatives',
+                                         'BSD-2-clause' => 'Berkeley software distribution license, 2-clause version',
+                                         'W3C' => 'W3C Software License. For more information, consult the W3C IntellectualRights FAQ and the 20021231 W3C_Software_notice_and_license',
+                                         'QPL' => 'Q Public License',
+                                         'Apache' => 'Apache license. For versions, consult the Apache_Software_Foundation.'
                                        },
-                             'default' => 'other',
+                             'mandatory' => '1',
                              'type' => 'leaf',
                              'description' => 'abbreviated name for the license. If empty, it is given the default value \'other\'. Only one license per file can use this default value; if there is more than one license present in the package without a standard short name, an arbitrary short name may be assigned for these licenses. These arbitrary names are only guaranteed to be unique within a single copyright file.
 

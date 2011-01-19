@@ -6,7 +6,7 @@ use ExtUtils::testlib;
 use Test::More;
 use Config::Model ;
 
-BEGIN { plan tests => 37; }
+BEGIN { plan tests => 38; }
 
 use strict;
 
@@ -213,7 +213,7 @@ my $root = $inst -> config_root ;
 is_deeply([$root->get_element_name()],
           [qw/av bv compute_int sav sbv one_var one_wrong_var 
               meet_test compute_with_override compute_no_var bar 
-              foo2 url host Upstream-Contact/],
+              foo2 url host Upstream-Contact Source/],
          "check available elements");
 
 my ( $av, $bv, $compute_int );
@@ -361,7 +361,7 @@ my $h = $root->fetch_element('host');
 is($h->fetch,'foo.bar',"check extracted host") ;
 
 $root->fetch_element(name => 'Maintainer', check => 'no')->store_set([qw/foo bar baz/] );
-is($root->grab_value(step => 'Upstream-Maintainer:0'),'foo',"check compute with index in variable");
+is($root->grab_value(step => 'Upstream-Maintainer:0', check => 'no'),'foo',"check compute with index in variable");
 is($root->grab_value(step => 'Upstream-Contact:0'   ),'foo',"check compute with index in variable");
 
 $root->fetch_element(name => 'Original-Source-Location', check => 'no')->store('foobar');
