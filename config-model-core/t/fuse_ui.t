@@ -53,9 +53,17 @@ $fused->mkpath( { mode => 0755 }) ;
 
 my $model = Config::Model -> new(legacy => 'ignore')  ;
 
-my $inst = $model->instance (root_class_name => 'Master', 
-			     model_file => 't/big_model.pm',
-			     instance_name => 'test1');
+$model->load(Master => 't/big_model.pm') ;
+
+
+$model->augment_config_class(
+    name => 'Master',
+    element => [ 
+        'a_boolean' => { type => 'leaf', value_type => 'boolean', default => 0  } ,
+    ],
+);
+
+my $inst = $model->instance (root_class_name => 'Master');
 ok($inst,"created dummy instance") ;
 
 my $root = $inst -> config_root ;
@@ -110,6 +118,10 @@ $std_id->subdir('cd')->rmtree() ;
 @content = sort map { $_->relative($std_id) ; } $std_id-> children ;
 is_deeply( \@content ,  \@std_id_elements ,"check $std_id content after rmdir (@content)");
 
+is( $fused->file('a_boolean')->slurp , '', "check new a_boolean content");
+my $a_boolean_fhw = $fused->file('a_boolean')->openw ;
+$a_boolean_fhw -> print("1") ;
+$a_boolean_fhw->close ;
 
 END {
     if ($pid) {

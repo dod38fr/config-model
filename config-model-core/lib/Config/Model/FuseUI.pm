@@ -24,13 +24,13 @@ sub BUILD {
 # nodes, list and hashes are directories
 sub getdir {
     my $name = shift ;
-    $logger->debug(__PACKAGE__."::getdir called with $name");
+    $logger->debug("FuseUI getdir called with $name");
 
     my $obj = $fuseui->root->get(path => $name, check => 'skip', get_obj => 1, autoadd=>0) ;
     return -EINVAL() unless (ref $obj and $obj->can('children')) ;
     
     my @c = ('..','.', $obj->children ) ;
-    $logger->debug(__PACKAGE__."::getdir return @c , wantarray is ".(wantarray ? 1 : 0) );
+    $logger->debug("FuseUI getdir return @c , wantarray is ".(wantarray ? 1 : 0) );
     return ( @c , 0 ) ;
 }
 
@@ -38,7 +38,7 @@ my %files ;
 
 sub getattr {
     my $name = shift ;
-    $logger->debug(__PACKAGE__."::getattr called with $name");
+    $logger->debug("FuseUI getattr called with $name");
     my $obj = $fuseui->root->get(path => $name, check => 'skip', get_obj => 1, autoadd=>0) ;
 
     return -&ENOENT() unless ref $obj ;
@@ -48,7 +48,7 @@ sub getattr {
     # return -ENOENT() unless exists($files{$file});
 
     my $size ;
-    if    ($type eq 'leaf') { $size = length ($obj->fetch || '') ;}
+    if    ($type eq 'leaf') { $size = length ($obj->fetch(check => 'no') || '') ;}
     elsif ($type eq 'check_list') { $size = length ($obj->fetch || '') ;}
     else {my @c = $obj->children ; $size = @c; }
     
@@ -67,7 +67,7 @@ sub getattr {
 	#return -ENOENT(); # or any other error you care to
 	#print(join(",",($dev,$ino,$modes,$nlink,$uid,$gid,$rdev,$size,$atime,$mtime,$ctime,$blksize,$blocks)),"\n");
     my @r = ($dev,$ino,$mode,$nlink,$uid,$gid,$rdev,$size,$atime,$mtime,$ctime,$blksize,$blocks);
-    $logger->trace(__PACKAGE__."::getattr returns '".join("','",@r)."'");
+    $logger->trace("FuseUI getattr returns '".join("','",@r)."'");
 
     return @r ;
 }
@@ -76,13 +76,13 @@ sub getattr {
 sub open {
     # VFS sanity check; it keeps all the necessary state, not much to do here.
     my $name = shift ;
-    $logger->debug(__PACKAGE__."::open called on $name");
+    $logger->debug("FuseUI open called on $name");
     my $obj = $fuseui->root->get(path => $name, check => 'skip', get_obj => 1) ;
     my $type = $obj->get_type ;
     
     return -ENOENT() unless defined $obj;
     return -EISDIR() unless ($type eq 'leaf' or $type eq 'check_list') ;
-    $logger->debug(__PACKAGE__."::open on $name ok");
+    $logger->debug("FuseUI open on $name ok");
     return 0;
 }
 
@@ -91,7 +91,7 @@ sub read {
     # give a byte (ascii "0") to the reading program)
     my ($name,$buf,$off) = @_;
  
-    $logger->debug(__PACKAGE__."::read called on $name");
+    $logger->debug("FuseUI read called on $name");
     my $obj = $fuseui->root->get(path => $name, check => 'skip', get_obj => 1) ;
     my $type = $obj->get_type ;
 
@@ -107,14 +107,14 @@ sub read {
     return -EINVAL() if $off > length($v);
     return 0 if $off == length($v);
     my $ret = substr($v,$off,$buf); 
-    $logger->debug(__PACKAGE__."::read returns '$ret'");
-    return $ret ;
+    $logger->debug("FuseUI read returns '$ret'");
+    return "$ret" ;
 }
 
 sub truncate {
     my ($name,$off) = @_;
 
-    $logger->debug(__PACKAGE__."::truncate called on $name with length $off");
+    $logger->debug("FuseUI truncate called on $name with length $off");
     my $obj = $fuseui->root->get(path => $name, check => 'skip', get_obj => 1) ;
     my $type = $obj->get_type ;
 
@@ -123,8 +123,8 @@ sub truncate {
 
     my $v = substr $obj->fetch, 0, $off ;
 
-    $logger->debug(__PACKAGE__."::truncate stores '$v'");
-    $obj->store(value => $v, check => 'skip') ;
+    $logger->debug("FuseUI truncate stores '$v'");
+    $obj->store(value => $v, check => 'no') ;
     return 0 ;
 }
 
@@ -134,7 +134,7 @@ sub write {
     if ($logger->is_debug) {
         my $str = $buf ;
         $str =~ s/\n/\\n/g;
-        $logger->debug(__PACKAGE__."::write called on $name with '$str' offset $off");
+        $logger->debug("FuseUI write called on $name with '$str' offset $off");
     }
     
     my $obj = $fuseui->root->get(path => $name, check => 'skip', get_obj => 1) ;
@@ -143,12 +143,12 @@ sub write {
     return -ENOENT() unless defined $obj;
     return -EISDIR() unless ($type eq 'leaf' or $type eq 'check_list') ;
 
-    my $v = $obj->fetch || '';
-    $logger->debug(__PACKAGE__."::write starts with '$v'");
+    my $v = $obj->fetch(check => 'no') || '';
+    $logger->debug("FuseUI write starts with '$v'");
 
     substr $v,$off,length($buf),$buf ;
     chomp $v unless ($type eq 'leaf' and $obj->value_type eq 'string') ;
-    $logger->debug(__PACKAGE__."::write stores '$v'");
+    $logger->debug("FuseUI write stores '$v'");
     $obj->store(value => $v, skip => 'check' ) ;
     return length($buf) ;
 }
@@ -158,7 +158,7 @@ sub mkdir {
     # give a byte (ascii "0") to the reading program)
     my ($name,$mode) = @_;
  
-    $logger->debug(__PACKAGE__."::mkdir called on $name with mode $mode");
+    $logger->debug("FuseUI mkdir called on $name with mode $mode");
     my $obj = $fuseui->root->get(path => $name, check => 'skip', get_obj => 1) ;
     return -ENOENT() unless defined $obj;
 
@@ -173,7 +173,7 @@ sub rmdir {
     # give a byte (ascii "0") to the reading program)
     my ($name) = @_;
  
-    $logger->debug(__PACKAGE__."::rmdir called on $name");
+    $logger->debug("FuseUI rmdir called on $name");
     my $obj = $fuseui->root->get(path => $name, check => 'skip', get_obj => 1, autoadd=>0) ;
     return -ENOENT() unless defined $obj;
 
@@ -186,7 +186,7 @@ sub rmdir {
     
     if ($ct eq 'list' or $ct eq 'hash') {
         my $idx = $obj->index_value ;
-        $logger->debug(__PACKAGE__."::rmdir actually deletes $idx");
+        $logger->debug("FuseUI rmdir actually deletes $idx");
         $parent->fetch_element($elt_name)->delete($idx) ;
     }
     
@@ -198,7 +198,7 @@ sub rmdir {
 sub unlink {
     my ($name) = @_;
 
-    $logger->debug(__PACKAGE__."::unlink called on $name");
+    $logger->debug("FuseUI unlink called on $name");
     my $obj = $fuseui->root->get(path => $name, check => 'skip', get_obj => 1, autoadd=>0) ;
     my $type = $obj->get_type ;
 
@@ -211,7 +211,7 @@ sub unlink {
     
     if ($ct eq 'list' or $ct eq 'hash') {
         my $idx = $obj->index_value ;
-        $logger->debug(__PACKAGE__."::unlink actually deletes $idx");
+        $logger->debug("FuseUI unlink actually deletes $idx");
         $parent->fetch_element($elt_name)->delete($name) ;
     }
     

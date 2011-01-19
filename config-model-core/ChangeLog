@@ -6,8 +6,9 @@
         * ValueComputer: added 'undef_is' to allow undef value in formulas. Useful for
           complex migration scenario where migration can come from several alternative parmeters.
         * Debian::Dependency: don't check debhelper
-        * Debian::Copyright: removed license keyword warnings.
-        * Will fix debian bug #609889
+        * Debian::Copyright: removed license keyword warnings. (fix Debian #610242), lots
+          of other bug fixes (including debian bug #609889 #610231)
+        * FuseUI: Fix bug that disabled write in a boolean value
         
 2011-01-10 Dominique Dumont  <domi.dumont@free.fr> 1.229
 
