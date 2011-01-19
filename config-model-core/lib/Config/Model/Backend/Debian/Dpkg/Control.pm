@@ -87,9 +87,13 @@ sub read_section {
         $logger->debug("$key value: $v");
         my $type = $node->element_type($key) ;
         my $elt_obj = $node->fetch_element($key) ;
+        $v =~ s/^\s*\n//;
+        chomp $v;
 
         if ($type eq 'list') {
             my @v = split /[\s\n]*,[\s\n]*/, $v ;
+            chomp @v ;
+            $logger->debug("list $key store set '".join("','",@v)."'");
             $elt_obj->store_set(@v) ;
         }
         elsif (my $found = $node->find_element($key, case => 'any')) { 

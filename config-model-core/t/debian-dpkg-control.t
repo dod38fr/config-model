@@ -39,15 +39,23 @@ else {
 
 my $arg = shift || '';
 
-my ($log,$show,$one) = (0) x 3 ;
+my ($log,$show) = (0) x 3 ;
+my $do ;
 
 my $trace = $arg =~ /t/ ? 1 : 0 ;
 $::debug            = 1 if $arg =~ /d/;
 $log                = 1 if $arg =~ /l/;
 $show               = 1 if $arg =~ /s/;
-$one                = 1 if $arg =~ /1/;
+$do                 = $1 if $arg =~ /(\d+)/;
 
-Log::Log4perl->easy_init($log ? $TRACE: $WARN);
+my $log4perl_user_conf_file = $ENV{HOME}.'/.log4config-model' ;
+
+if (-e $log4perl_user_conf_file ) {
+    Log::Log4perl::init($log4perl_user_conf_file);
+}
+else {
+    Log::Log4perl->easy_init($arg =~ /l/ ? $DEBUG: $WARN);
+}
 
 my $model = Config::Model -> new ( ) ;
 
@@ -435,6 +443,7 @@ $tests[$i++]{check}
 
 my $idx = 0 ;
 foreach my $t (@tests) {
+    if (defined $do and $do ne $idx) { $idx ++; next; }
    my $wr_dir = $wr_root.'/test-'.$idx ;
    mkpath($wr_dir."/debian/", { mode => 0755 }) ;
    my $control_file = "$wr_dir/debian/control" ;
@@ -482,6 +491,5 @@ foreach my $t (@tests) {
    is($p2_dump,$dump,"compare original data with 2nd instance data") ;
    
    $idx++ ;
-   last if $one ;
 }
 
