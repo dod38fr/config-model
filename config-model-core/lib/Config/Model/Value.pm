@@ -350,6 +350,7 @@ sub set_migrate_from {
 	      variables    => $mig_ref->{variables} ,
 	      replace      => $mig_ref->{replace},
 	      use_eval     => $mig_ref->{use_eval},
+	      undef_is     => $mig_ref->{undef_is},
 	      value_object => $self ,
 	      value_type   => $self->{value_type}
 	     );

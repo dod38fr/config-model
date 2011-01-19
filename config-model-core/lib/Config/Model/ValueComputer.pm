@@ -293,6 +293,42 @@ compute parameter:
                }
    }
 
+=head2 Undefined variables
+
+You may need to compute value where one of the variables (i.e. other configuration
+parameter) is undefined. By default, any formula will yield an undefined value if one 
+variable is undefined.
+
+You may change this behavior with C<undef_is> parameter. Depending on your formula and whether C<use_eval> 
+is true or not, you may specify a "fallback" value that will be used in your formula.
+
+The most usefull will probably be: 
+
+ undef_is => "''", # for string values
+ undef_is => 0   , # for integers, boolean values
+
+Example:
+
+        Source => {
+            value_type   => 'string',
+            mandatory    => 1,
+            migrate_from => {
+                use_eval  => 1,
+                formula   => '$old || $older ;',
+                undef_is => "''",
+                variables => {
+                    older => '- Original-Source-Location',
+                    old   => '- Upstream-Source'
+                }
+            },
+            type => 'leaf',
+        },
+        [qw/Upstream-Source Original-Source-Location/] => {
+            value_type => 'string',
+            status     => 'deprecated',
+            type       => 'leaf'
+        }
+
 =cut
 
 # allow_override is intercepted and handled by Value object
@@ -314,11 +350,9 @@ sub new {
 	  croak "Config::Model::ValueComputer:new undefined parameter $k";
     }
 
-    foreach my $k (qw/variables replace/) {
-	$self->{$k} = delete $args{$k} || {} ;
-    }
-
-    $self->{use_eval} = delete $args{use_eval} || 0 ;
+    map { $self->{$_} = delete $args{$_}  || {} ; } qw/variables replace/;
+    map { $self->{$_} = delete $args{$_} || 0   ; } qw/use_eval/ ;
+    map { $self->{$_} = delete $args{$_}        ; } qw/undef_is/ ;
 
     die "Config::Model::ValueComputer:new unexpected parameter: ",
       join(' ',keys %args) if %args ;
@@ -358,14 +392,15 @@ sub compute {
     $logger->debug("compute from pre_formula: $pre_formula");
     my $variables = $self->compute_variables(check => $check) ;
 
-    return unless defined $variables ;
+    die "internal error" unless defined $variables ;
 
     my $need_quote = 0;
     $need_quote = 1 if $self->{use_eval} and $self->{value_type} !~ /(integer|number|boolean)/;
 
+    $logger->debug("compute: calling parser with compute on pre_formula $pre_formula");
     my $formula_r = $compute_parser
       -> compute ($pre_formula, 1,$self->{value_object}, $variables, 
-		  $self->{replace},$check,$need_quote) ;
+		  $self->{replace},$check,$need_quote,$self->{undef_is}) ;
 
     my $formula = $$formula_r ;
 
@@ -377,6 +412,7 @@ sub compute {
     my $result = $self->{computed_formula} = $formula ;
 
     if ($self->{use_eval} or $self->{value_type} =~ /(integer|number|boolean)/) {
+        $logger->debug("compute: evaluating '$formula'");
         $result = eval $formula ;
 	if ($@) {
 	    Config::Model::Exception::Formula
@@ -388,6 +424,8 @@ sub compute {
 			 ) ;
 	}
     }
+
+    $logger->debug("compute result is '$result'" );
 
     return $result ;
 }
@@ -631,7 +669,7 @@ sub _function_alone {
 
 sub _compute {
     my ( $value_ref, $return,
-        $value_object, $variables_h, $replace_h, $check, $need_quote )
+        $value_object, $variables_h, $replace_h, $check, $need_quote, $undef_is )
       = @_;
 
     my @values = map { $$_ } @{$value_ref};
@@ -642,8 +680,8 @@ sub _compute {
 
     # return undef if one value is undef
     foreach my $v (@values) {
-        if ( defined $v ) {
-            $result .= $v;
+        if ( defined $v or defined $undef_is) {
+            $result .= defined $v ? $v : $undef_is;
         }
         else {
             $result = undef;

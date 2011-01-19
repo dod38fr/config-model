@@ -181,6 +181,25 @@ $model->create_config_class(
             'status' => 'deprecated',
             'type'   => 'list',
         },
+        'Source' => {
+            'value_type'   => 'string',
+            'mandatory'    => '1',
+            'migrate_from' => {
+                'use_eval'  => '1',
+                'formula'   => '$old || $older ;',
+                undef_is => "''",
+                'variables' => {
+                    'older' => '- Original-Source-Location',
+                    'old'   => '- Upstream-Source'
+                }
+            },
+            'type' => 'leaf',
+        },
+        [qw/Upstream-Source Original-Source-Location/] => {
+            'value_type' => 'string',
+            'status'     => 'deprecated',
+            'type'       => 'leaf'
+        }
     ]
 );
 
@@ -344,4 +363,7 @@ is($h->fetch,'foo.bar',"check extracted host") ;
 $root->fetch_element(name => 'Maintainer', check => 'no')->store_set([qw/foo bar baz/] );
 is($root->grab_value(step => 'Upstream-Maintainer:0'),'foo',"check compute with index in variable");
 is($root->grab_value(step => 'Upstream-Contact:0'   ),'foo',"check compute with index in variable");
+
+$root->fetch_element(name => 'Original-Source-Location', check => 'no')->store('foobar');
+is($root->grab_value(step => 'Source'   ),'foobar',"check compute with undef_is");
 
