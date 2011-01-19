@@ -1,13 +1,17 @@
+2011-01-10 Dominique Dumont  <domi.dumont@free.fr> 1.230
 
+    * Application changes:
+        * Debian::Dependency: don't check debhelper
+        * Debian::Copyright: removed license keyword warnings. (fix Debian #610242), lots
+          of other bug fixes (including debian bug #609889 #610231)
+
+    * Framework changes:
         * AnyId: added migrate_keys_from to migrate list or hash content 
           during updgrades.
         * ObjTreeScanner: Added node_dispatch_cb parameter to setup callback
           dedicated to specific configuration classes.
         * ValueComputer: added 'undef_is' to allow undef value in formulas. Useful for
           complex migration scenario where migration can come from several alternative parmeters.
-        * Debian::Dependency: don't check debhelper
-        * Debian::Copyright: removed license keyword warnings. (fix Debian #610242), lots
-          of other bug fixes (including debian bug #609889 #610231)
         * FuseUI: Fix bug that disabled write in a boolean value
         
 2011-01-10 Dominique Dumont  <domi.dumont@free.fr> 1.229
