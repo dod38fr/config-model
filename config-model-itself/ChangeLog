@@ -1,3 +1,8 @@
+2011-01-20 Dominique Dumont  <domi.dumont@free.fr> 1.222
+
+        * added migrate_keys_from, undef_is parameters 
+        * Above require Config::Model 1.230
+
 2011-01-09 Dominique Dumont  <domi.dumont@free.fr> 1.221
 
 	* Remove unwanted test package file (oops)
