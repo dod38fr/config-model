@@ -14,6 +14,7 @@ my $logger = get_logger("Backend::Debian::Dpkg") ;
 sub parse_dpkg_file {
     my $self = shift ;
     my $fh = shift;
+    my $check = shift || 'yes' ;
     my @res ; # list of list (section, [keyword, value])
 
     my $field;
@@ -41,14 +42,16 @@ sub parse_dpkg_file {
         }
         elsif (/^\s+\.$/) {   # line with a single dot
             $logger->trace("dot line: adding blank line to field $key");
-            _store_line($store_ref,"\n") ;
+            _store_line($store_ref,"\n",$check) ;
         }
         elsif (s/^\s//) {     # non empty line
             $logger->trace("text line: adding '$_' to field $key");
-            _store_line($store_ref,"$_\n" );
+            _store_line($store_ref,"$_\n" , $check);
         }
         else {
-            $logger->error("DpkgSyntax error: Invalid line $. (missing ':' ?) : $_\n");
+            my $msg = "DpkgSyntax error: Invalid line $. (missing ':' ?) : $_" ;
+            Config::Model::Exception::Syntax -> throw ( message => $msg ) if $check eq 'yes' ; 
+	    $logger->error($msg) if $check eq 'skip';
         }
     }
 
@@ -67,13 +70,16 @@ sub parse_dpkg_file {
 }
 
 sub _store_line {
-    my ($store_ref,$line) = @_ ;
+    my ($store_ref,$line,$check) = @_ ;
+    
     if (defined $store_ref) {
         $$store_ref .= $line ;
     }
     else {
         my $l = $. ;
-        $logger->error("DpkgSyntax error: missing keyword before line $l : $_\n");
+        my $msg = "DpkgSyntax error: missing keyword before line $l : $_";
+        Config::Model::Exception::Syntax -> throw ( message => $msg ) if $check eq 'yes' ; 
+        $logger->error($msg) if $check eq 'skip';
     }
     
 }
@@ -137,7 +143,7 @@ to Config::Model backend classes.
 
 =head1
 
-=head2 parse_dpkg_file ( file_handle )
+=head2 parse_dpkg_file ( file_handle , check )
 
 Read a control file from the file_handle and returns a nested list (or a list 
 ref) containing data from the file.
@@ -153,6 +159,8 @@ The returned list is of the form :
    [ ... ]
    # etc ...
  ]
+
+check is C<yes>, C<skip> or C<no> 
 
 =head2 write_dpkg_file ( io_handle, list_ref, list_sep )
 

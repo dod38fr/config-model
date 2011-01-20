@@ -178,6 +178,7 @@ my @tests = (
     
     { # t12
         warnings => [ (qr/deprecated/) x 3, qr/Adding/ ],
+        load_check => 'no',
         errors =>  [ 
             qr/not declared/ => 'License:Expat="Expat license foobar"',
         ],
@@ -202,7 +203,7 @@ foreach my $t (@tests) {
          $inst  = $model->instance (root_class_name   => 'Debian::Dpkg::Copyright',
                                     root_dir          => $wr_dir,
                                     instance_name => "deptest".$idx,
-                                    force_load => 1,
+                                    check => $t->{load_check} || 'yes' ,
                                    ); 
     } $t->{warnings} , "Read $license_file and created instance" ;
 

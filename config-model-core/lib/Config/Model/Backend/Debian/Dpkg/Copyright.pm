@@ -39,17 +39,21 @@ sub read {
 
     return 0 unless defined $args{io_handle} ;
 
+    my $check = $args{check} || 'yes';
+
     $logger->info("Parsing $args{file} control file");
     # load dpkgctrl file
-    my $c = $self -> parse_dpkg_file ($args{io_handle}) ;
+    my $c = $self -> parse_dpkg_file ($args{io_handle}, $check) ;
     
     my $root = $args{object} ;
-    my $check = $args{check} || 'yes';
     my $file;
     $logger->info("First pass to read pure license sections from $args{file} control file");
     foreach my $section (@$c) {
         next unless $section->[0] =~ /licen[sc]e/i;
         my ($key,$v) =  @$section ;
+        if ($key =~ /licence/) {
+            $logger->warn("Found UK spelling for $key: $v. $key will be converted to License");
+        } 
         my @lic_text = split /\n/,$v ;
         my ($lic_name) = shift @lic_text ;
         # get rid of potential 'with XXX exception'
@@ -97,7 +101,11 @@ sub read {
                 $file = $root->fetch_element('Files')->fetch_with_id(index => $v, check => $check) ;
                 $object = $file ;
             }
-            elsif ($key =~ /licen[sc]e/i) {
+            elsif ($key =~ /licence/i) {
+                $logger->warn("Found UK spelling for $key: $v. $key will be converted to License");
+                _store_file_license ($file->fetch_element('License'), $v ,$check);
+            }
+            elsif ($key =~ /license/i) {
                 _store_file_license ($file->fetch_element('License'), $v ,$check);
             }
             elsif (my $found = $object->find_element($key, case => 'any')) { 
