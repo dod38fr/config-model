@@ -185,11 +185,11 @@ my %warn_if_payload = (
                 value_type  => 'integer',
                 level       => 'hidden',
                 experience  => 'advanced',
-                description => 'minimum number of indexes',
+                description => 'minimum number of keys',
                 warp        => {
                     follow  => { 'type' => '?type', },
                     'rules' => [
-                        '$type eq "hash" or $type eq "list"' =>
+                        '$type eq "hash"' =>
                           { level => 'normal', },
                     ]
                 }
@@ -204,7 +204,7 @@ my %warn_if_payload = (
                 warp        => {
                     follow  => { 'type' => '?type', },
                     'rules' => [
-                        '$type eq "hash" or $type eq "list"' =>
+                        '$type eq "hash"' =>
                           { level => 'normal', },
                     ]
                 }
