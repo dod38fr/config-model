@@ -34,8 +34,10 @@ To upgrade your file from an old spec, run:
                            {
                              'value_type' => 'uniline',
                              'replace' => {
-                                            'http://svn.*' => 'http://dep.debian.net/deps/dep5/'
+                                            'http://svn.*' => 'http://dep.debian.net/deps/dep5/',
+                                            '<.*>' => 'http://dep.debian.net/deps/dep5/'
                                           },
+                             'match' => '^http://',
                              'default' => 'http://dep.debian.net/deps/dep5/',
                              'mandatory' => '1',
                              'type' => 'leaf',
