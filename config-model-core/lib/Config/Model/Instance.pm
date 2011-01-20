@@ -82,13 +82,18 @@ Specify which backend to use. See L</write_back ( ... )> for details
 When set, configuration files will not be read when creating
 configuration tree.
 
+=item check
+
+'yes', 'skip' or 'no'
+
 =back
 
 Note that the root directory specified within the configuration model
 will be overridden by C<root_dir> parameter.
 
 If you need to load configuration data that are not correct, you can
-use C<< force_load => 1 >>. Then, wrong data will be discarded.
+use C<< force_load => 1 >>. Then, wrong data will be discarded (equivalent to 
+C<check => 'no'> ).
 
 =cut
 
@@ -106,7 +111,8 @@ sub new {
     confess __PACKAGE__," error: config_model is not a Config::Model object"
       unless $config_model->isa('Config::Model') ; 
 
-    my $force_load = delete $args{force_load} || 0 ;
+    my $check = delete $args{check} || 'yes' ;
+    $check = 'no' if delete $args{force_load} ;
 
     my $self 
       = {
@@ -152,7 +158,7 @@ sub new {
 
     bless $self, $class;
 
-    $self->reset_config(check => $force_load ? 'no' : 'yes' ) ;
+    $self->reset_config(check => $check ) ;
 
     return $self ;
 }
