@@ -1,8 +1,4 @@
-# $Author: ddumont $
-# $Date: 2008-05-09 17:45:50 +0200 (Fri, 09 May 2008) $
-# $Revision: 655 $
-
-#    Copyright (c) 2007-2008 Dominique Dumont.
+#    Copyright (c) 2007-2011 Dominique Dumont.
 #
 #    This file is part of Config-Model-Itself.
 #
@@ -56,6 +52,12 @@
 	    upstream_default   => 0,
 	    description => 'Set to 1 if you need to perform more complex operations than substition, like extraction with regular expressions. This will force an eval by Perl when computing the formula. The result of the eval will be used as the computed value.'
 	  },
+       'undef_is'
+       => { type => 'leaf',
+	    value_type => 'uniline',
+	    description => 'Specify a replacement for undefined variables. This will replace undef values in the formula before migrating values',
+	  },
+
 
 
       ],

@@ -304,6 +304,42 @@
                 warn_unless_match =>
                   { foo => { msg => '', fix => '$_ = "foo".$_;' } },
             },
+            list_with_migrate_keys_from => {
+                type  => 'list',
+                cargo => {
+                    type       => 'leaf',
+                    value_type => 'string'
+                },
+                migrate_keys_from => '- lista',
+            },
+            hash_with_migrate_keys_from => {
+                type       => 'hash',
+                index_type => 'string',
+                cargo      => {
+                    type       => 'leaf',
+                    value_type => 'string'
+                },
+                migrate_keys_from => '- hash_a',
+            },
+            'Source' => {
+                'value_type'   => 'string',
+                'mandatory'    => '1',
+                'migrate_from' => {
+                    'use_eval'  => '1',
+                    'formula'   => '$old || $older ;',
+                    undef_is    => "''",
+                    'variables' => {
+                        'older' => '- Original-Source-Location',
+                        'old'   => '- Upstream-Source'
+                    }
+                },
+                'type' => 'leaf',
+            },
+            [qw/Upstream-Source Original-Source-Location/] => {
+                'value_type' => 'string',
+                'status'     => 'deprecated',
+                'type'       => 'leaf'
+            },
             ## too difficult to correctly test Augeas here
             'sshd_augeas' => {
                 type              => 'node',

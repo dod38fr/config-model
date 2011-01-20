@@ -38,6 +38,17 @@
                 }
             },
 
+            [ qw/migrate_keys_from/ ] => {
+                type       => 'leaf',
+                level      => 'hidden',
+                value_type => 'uniline',
+                experience => 'advanced',
+                warp       => {
+                    follow  => { 't'                            => '?type' },
+                    'rules' => [ '$t eq "hash" or $t eq "list"' => { level => 'normal', } ]
+                }
+            },
+
             [qw/ordered/] => {
                 type       => 'leaf',
                 level      => 'hidden',
