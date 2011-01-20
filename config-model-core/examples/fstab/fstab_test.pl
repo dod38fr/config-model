@@ -1,4 +1,4 @@
-#    Copyright (c) 2005,2006,2010 Dominique Dumont.
+#    Copyright (c) 2005-2011 Dominique Dumont.
 #
 #    This file is part of Config-Model.
 #
@@ -21,7 +21,7 @@ use warnings ;
 
 # this line is necessary to run the example without installing
 # Config::Model
-use lib ('../../blib/lib') ;
+use lib ('../../lib') ;
 
 use Config::Model ;
 use Getopt::Long ;
@@ -38,7 +38,7 @@ my $fstab_file = $use_etc ?  '/etc/fstab' : 'fstab.sample'  ;
 
 $model = Config::Model -> new(model_dir => 'lib/Config/Model/models') ;
 
-my $instance = $model -> instance( root_class_name => 'Fstab',
+my $instance = $model -> instance( root_class_name => 'MyFstab',
 				   instance_name => 'test',
 				 ) ;
 
