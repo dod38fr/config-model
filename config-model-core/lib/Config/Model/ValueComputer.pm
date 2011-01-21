@@ -302,7 +302,7 @@ variable is undefined.
 You may change this behavior with C<undef_is> parameter. Depending on your formula and whether C<use_eval> 
 is true or not, you may specify a "fallback" value that will be used in your formula.
 
-The most usefull will probably be: 
+The most useful will probably be: 
 
  undef_is => "''", # for string values
  undef_is => 0   , # for integers, boolean values

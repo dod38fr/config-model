@@ -201,7 +201,7 @@ lenses.
 
 Sometimes, the structure of a file loaded by Augeas starts directly
 with a list of items. For instance C</etc/hosts> structure starts with
-a list of lines that specify hosts and IP adresses. The C<set_in>
+a list of lines that specify hosts and IP addresses. The C<set_in>
 parameter specifies an element name in Config::Model root class that
 will hold the configuration data retrieved by Augeas.
 
