@@ -17,7 +17,7 @@
 %\newcommand{\showadvanced}{true}
 \newcommand{\showadvanced}{false}
 \newcommand{\showaugeas}{false}
-\newcommand{\showreadwrite}{true}
+\newcommand{\showreadwrite}{false}
 \newcommand{\showpackageupgrade}{true}
 \newcommand{\showhairyupgrade}{false}
 \end_preamble
@@ -107,7 +107,7 @@ Debian Perl Group
 \end_layout
 
 \begin_layout Date
-Oct 2010
+Feb 2011
 \end_layout
 
 \begin_layout Standard
@@ -1291,7 +1291,55 @@ status open
 
 \begin_layout Plain Layout
 
-}{} %showreadwrite
+}{
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout BeginFrame
+Read/Write backend
+\end_layout
+
+\begin_layout Itemize
+Does not require Perl knowledge to use one
+\end_layout
+
+\begin_layout Itemize
+Ask if you need a new backend
+\end_layout
+
+\begin_layout Itemize
+Current backend:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+YAML
+\end_layout
+
+\begin_layout Itemize
+INI files
+\end_layout
+
+\begin_layout Itemize
+Shell vars like
+\end_layout
+
+\end_deeper
+\begin_layout EndFrame
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+} %showreadwrite
 \end_layout
 
 \end_inset
