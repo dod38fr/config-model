@@ -1,22 +1,12 @@
 # -*- cperl -*-
 
 BEGIN {
-
     # dirty trick to create a Memoize cache so that test will use this instead
     # of getting values through the internet
     no warnings 'once';
     my $sep = chr(28);
     %Config::Model::Debian::Dependency::cache = (
-        'debhelper' . $sep . '7'                => '',
-        'libcpan-meta-perl' . $sep . '2.101550' => '',
-        'libdist-zilla-perl' . $sep . '3'       => '',
-        'libfile-homedir-perl' . $sep . '0.81'  => 'lenny',
-        'libmoose-autobox-perl' . $sep . '0.09' => '',
-        'libmoose-perl' . $sep . '0.65'         => 'lenny',
-        'perl' . $sep . '5.10'                  => '',
-        'perl' . $sep . '5.10.1'                => 'lenny',
-        'perl' . $sep . '5.28.1'                => 'lenny',
-        'perl' . $sep . '5.6.0'                 => '',
+        'perl' => 'lenny 5.10.0-19lenny3 squeeze 5.10.1-17 sid 5.10.1-17 experimental 5.12.0-2 experimental 5.12.2-2',
     );
 }
 
@@ -34,7 +24,7 @@ if ( $@ ) {
     plan skip_all => "AptPkg::Config is not installed (not a Debian system ?)";
 }
 else {
-    plan tests => 19;
+    plan tests => 21;
 }
 
 use warnings;
@@ -121,7 +111,7 @@ my $msg = $perl_dep->check_dep('perl','>=','5.28.1') ;
 is($msg,undef,"check perl (>= 5.28.1) dependency: has older version");
 
 $msg = $perl_dep->check_dep('perl','>=','5.6.0') ;
-is($msg,"unnecessary versioned dependency: >= 5.6.0","check perl (>= 5.6.0) dependency: no older version");
+like($msg,qr/^unnecessary versioned dependency/,"check perl (>= 5.6.0) dependency: no older version");
 
 # check parser and grammer
 my $parser = $perl_dep->dep_parser ;
@@ -136,7 +126,8 @@ warning_like {
 qr/unnecessary versioned/,"check perl (>= 5.6.0) store: no older version warning" ;
 
 my @msgs = $perl_dep->warning_msg ;
-is_deeply(\@msgs,["unnecessary versioned dependency: >= 5.6.0"],"check store with old version");
+is(scalar @msgs,1,"check nb of warning with store with old version");
+like($msgs[0],qr/unnecessary versioned dependency/,"check store with old version");
 
 # test fixes
 is($perl_dep->has_fixes,1, "test presence of fixes");
@@ -156,7 +147,8 @@ qr/includes libmodule-build-perl/, "test BDI warn";
 
 is($bdi_val,"perl (>= 5.10) | libmodule-build-perl","check B-D-I dependency value from config tree");
 my $msgs = $perl_bdi->warning_msg ;
-is($msgs,"lenny has perl 5.10 which includes libmodule-build-perl\nunnecessary versioned dependency: >= 5.10","check store with old version");
+like($msgs,qr/lenny has perl 5.10/,"check store with old version: trap perl | libmodule");
+like($msgs,qr/unnecessary versioned dependency/,"check store with old version: trap version");
 
 # test fixes
 is($perl_bdi->has_fixes,2, "test presence of fixes");
