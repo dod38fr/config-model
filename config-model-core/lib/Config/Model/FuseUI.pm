@@ -36,6 +36,17 @@ sub getdir {
 
 my %files ;
 
+sub fetch_as_line {
+    my $obj = shift ; 
+    my $v = $obj->fetch(check => 'no') ;
+    $v = '' unless defined $v ;
+    # let's append a \n so that returned files always have a line ending
+    $v .= "\n" unless $v =~ /\n$/ ;
+
+    return $v ;
+}
+
+
 sub getattr {
     my $name = shift ;
     $logger->debug("FuseUI getattr called with $name");
@@ -48,9 +59,13 @@ sub getattr {
     # return -ENOENT() unless exists($files{$file});
 
     my $size ;
-    if    ($type eq 'leaf') { $size = length ($obj->fetch(check => 'no') || '') ;}
-    elsif ($type eq 'check_list') { $size = length ($obj->fetch || '') ;}
-    else {my @c = $obj->children ; $size = @c; }
+    if ($type eq 'leaf' or $type eq 'check_list') { 
+        $size = length (fetch_as_line($obj)) ;
+    }
+    else {
+        my @c = $obj->children ; 
+        $size = @c; 
+    }
     
     my $mode ;
     if ($type eq 'leaf' or $type eq 'check_list') {
@@ -97,7 +112,7 @@ sub read {
 
     return -ENOENT() unless defined $obj;
     return -EISDIR() unless ($type eq 'leaf' or $type eq 'check_list') ;
-    my $v = $obj->fetch ;
+    my $v = fetch_as_line($obj) ;
 
     if(not defined $v) {
 	return -EINVAL() if $off > 0;
@@ -121,7 +136,7 @@ sub truncate {
     return -ENOENT() unless defined $obj;
     return -EISDIR() unless ($type eq 'leaf' or $type eq 'check_list') ;
 
-    my $v = substr $obj->fetch || '' , 0, $off ;
+    my $v = substr fetch_as_line($obj) , 0, $off ;
 
     $logger->debug("FuseUI truncate stores '$v'");
     $obj->store(value => $v, check => 'no') ;
@@ -143,7 +158,7 @@ sub write {
     return -ENOENT() unless defined $obj;
     return -EISDIR() unless ($type eq 'leaf' or $type eq 'check_list') ;
 
-    my $v = $obj->fetch(check => 'no') || '';
+    my $v = fetch_as_line($obj);
     $logger->debug("FuseUI write starts with '$v'");
 
     substr $v,$off,length($buf),$buf ;

@@ -2,7 +2,8 @@
         * Debian::Dependency: reworked to reduce calls to madison. Report available
           versions when unnessary version issue is found.). Source is optional.
     * Framework changes:
-        * FuseUI: Fix undef warning
+        * FuseUI: Fix undef warning. Ensure that files finish with "\n". 
+        Fix bug where value 0 was shown as an empty file.
 
 2011-01-10 Dominique Dumont  <domi.dumont@free.fr> 1.230
 

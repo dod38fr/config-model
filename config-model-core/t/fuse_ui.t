@@ -103,12 +103,13 @@ my $std_id = $fused->subdir('std_id') ;
 my @std_id_elements = sort $root->fetch_element('std_id')->get_all_indexes() ;
 is_deeply( \@content , \@std_id_elements ,"check $std_id content (@content)");
 
-is( $fused->file('a_string')->slurp , $root->grab_value('a_string'), "check a_string content");
+is( $fused->file('a_string')->slurp , $root->grab_value('a_string')."\n",
+    "check a_string content");
 my $a_string_fhw = $fused->file('a_string')->openw ;
 $a_string_fhw -> print("foo bar") ;
 $a_string_fhw->close ;
 
-is( $fused->file('a_string')->slurp , "foo bar", "check new a_string content");
+is( $fused->file('a_string')->slurp , "foo bar\n", "check new a_string content");
 
 $std_id->subdir('cd')->mkpath() ;
 @content = sort map { $_->relative($std_id) ; } $std_id-> children ;
@@ -118,7 +119,7 @@ $std_id->subdir('cd')->rmtree() ;
 @content = sort map { $_->relative($std_id) ; } $std_id-> children ;
 is_deeply( \@content ,  \@std_id_elements ,"check $std_id content after rmdir (@content)");
 
-is( $fused->file('a_boolean')->slurp , '', "check new a_boolean content");
+is( $fused->file('a_boolean')->slurp , "0\n", "check new a_boolean content");
 my $a_boolean_fhw = $fused->file('a_boolean')->openw ;
 $a_boolean_fhw -> print("1") ;
 $a_boolean_fhw->close ;
