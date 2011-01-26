@@ -21,6 +21,7 @@
 \newcommand{\showpackageupgrade}{true}
 \newcommand{\showhairyupgrade}{false}
 \end_preamble
+\options handout
 \use_default_options false
 \language american
 \inputencoding utf8

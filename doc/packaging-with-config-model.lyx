@@ -81,7 +81,7 @@ This file can be redistributed and/or modified under the terms of the GNU
 \end_layout
 
 \begin_layout Title
-Sharing packaging work with Config::Model
+About sharing some packaging work between distros 
 \begin_inset OptArg
 status open
 
@@ -362,7 +362,7 @@ the number of distros: not very healthy for open-source
 \end_layout
 
 \begin_layout Itemize
-the number of languages: bad bad bad
+the number of human languages: bad bad bad
 \end_layout
 
 \begin_layout Itemize
@@ -384,7 +384,7 @@ Share the work:
 \end_layout
 
 \begin_layout Itemize
-package description and translation (cf VIncent Untz's talk in 2010)
+package description and translation (cf Vincent Untz's talk in 2010)
 \end_layout
 
 \begin_layout Itemize
@@ -539,7 +539,7 @@ Demo time
 
 \begin_layout Standard
 In case I forget ...
- demo of control editor
+ demo of Dpkg control editor
 \end_layout
 
 \begin_layout BeginFrame
@@ -615,7 +615,7 @@ centralised data model
 \end_layout
 
 \begin_layout Itemize
-LIkewise for Spec file model
+Likewise for Spec file model
 \end_layout
 
 \begin_layout Itemize
