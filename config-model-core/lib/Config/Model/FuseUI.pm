@@ -121,7 +121,7 @@ sub truncate {
     return -ENOENT() unless defined $obj;
     return -EISDIR() unless ($type eq 'leaf' or $type eq 'check_list') ;
 
-    my $v = substr $obj->fetch, 0, $off ;
+    my $v = substr $obj->fetch || '' , 0, $off ;
 
     $logger->debug("FuseUI truncate stores '$v'");
     $obj->store(value => $v, check => 'no') ;
