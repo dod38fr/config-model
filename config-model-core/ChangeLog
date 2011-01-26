@@ -1,6 +1,6 @@
     * Application changes:
         * Debian::Dependency: reworked to reduce calls to madison. Report available
-          versions when unnessary version issue is found.)
+          versions when unnessary version issue is found.). Source is optional.
     * Framework changes:
         * FuseUI: Fix undef warning
 

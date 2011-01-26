@@ -75,7 +75,6 @@ To upgrade your file from an old spec, run:
                            'Source',
                            {
                              'value_type' => 'string',
-                             'mandatory' => '1',
                              'migrate_from' => {
                                                  'undef_is' => '\'\'',
                                                  'use_eval' => '1',
@@ -87,7 +86,7 @@ To upgrade your file from an old spec, run:
                                                },
                              'type' => 'leaf',
                              'description' => '* Syntax: formatted text, no synopsis 
-* An explanation from where the upstream source came from. Typically this would be a URL, but it might be a free-form explanation. If the upstream source has been modified to remove non-free parts, that should be explained in this field.'
+* An explanation from where the upstream source came from. Typically this would be a URL, but it might be a free-form explanation. The Debian Policy, 12.5 requires this information unless there are no upstream sources, which is mainly the case for native Debian packages. If the upstream source has been modified to remove non-free parts, that should be explained in this field.'
                            },
                            'Disclaimer',
                            {
