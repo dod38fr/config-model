@@ -50,7 +50,7 @@ Config::Model::TermUI - Provides Config::Model UI à la Term::ReadLine
 
 =head1 DESCRIPTION
 
-This module provides a helper to construct pure ascii user interface
+This module provides a helper to construct pure ASCII user interface
 on top of L<Term::ReadLine>. To get better interaction you must
 install either L<Term::ReadLine::Gnu> or L<Term::ReadLine::Perl>.
 

@@ -86,9 +86,9 @@ according to the model declaration.
 
 This declaration will specify one (or several) leaf in the
 configuration tree that will trigger the actual property change of the
-warped node. This leaf is also refered as I<warp master>.
+warped node. This leaf is also referred as I<warp master>.
 
-When the warp master(s) value(s) changes, WarpedNode will create an instance
+When the warp master(s) value(s) changes, C<WarpedNode> will create an instance
 of the new class required by the warp master. 
 
 If the morph parameter is set, the values held by the old object are
@@ -104,7 +104,7 @@ Warped node can alter the following properties:
 
 =head1 Constructor
 
-WarpedNode should not be created directly.
+C<WarpedNode> should not be created directly.
 
 =head1 Warped node model declaration
 
@@ -126,7 +126,7 @@ See L<Config::Model::WarpedThing/"Warp follow argument"> for details.
 
 =item morph
 
-boolean. If 1, WarpedNode will try to recursively copy the value from
+boolean. If 1, C<WarpedNode> will try to recursively copy the value from
 the old object to the new object using 
 L<copy_from method|Config::Model::Node/"copy_from ( another_node_object )">.
 When a copy is not possible, undef values
@@ -149,7 +149,7 @@ For a warped node, the effects are declared with these parameters:
 
 =item B<config_class_name>
 
-When requested by the warp master,the WarpedNode will create a new
+When requested by the warp master,the C<WarpedNode> will create a new
 object of the type specified by this parameter:
 
   XZ => { config_class_name => 'SlaveZ' }
@@ -216,7 +216,7 @@ sub new {
 
 =head1 Forwarded methods
 
-The following methods are forwared to contained node:
+The following methods are forwarded to contained node:
 
 fetch_element config_class_name get_element_name has_element
 is_element_available element_type load fetch_element_value get_type
@@ -434,7 +434,7 @@ In the example above we see that:
 
 =item *
 
-The 'bar' slot can refer to a ClassX, ClassZ or ClassY object.
+The 'bar' slot can refer to a C<ClassX>, C<ClassZ> or C<ClassY> object.
 
 =item *
 
@@ -449,14 +449,14 @@ access bar will raise an exception.
 =item *
 
 When C<tree_macro> is changed from C<ZZ> to C<XX>, 
-C<bar> will refer to a brand new ClassX 
+C<bar> will refer to a brand new C<ClassX> 
 object constructed with C<< ClassX->new(foo => 'bar') >>
 
 =item *
 
 Then, if C<tree_macro> is changed from C<XX> to C<XY>, C<bar> will
-refer to a brand new ClassY object. But in this case, the object will be
-initialized with most if not all the attributes of ClassX. This copy
+refer to a brand new C<ClassY> object. But in this case, the object will be
+initialized with most if not all the attributes of C<ClassX>. This copy
 will be done whenever C<tree_macro> is changed.
 
 =back

@@ -88,7 +88,7 @@ upstream default parameter: specifies a default value that will be
 used by the application when no information is provided in the
 configuration file. This upstream_default value will not written in
 the configuration files. Only the C<fetch_standard> method will return
-the builtin value. This parameter was previously refered as
+the builtin value. This parameter was previously referred as
 C<built_in> value. This may be used for audit
 purpose. (C<upstream_default> parameter)
 
@@ -469,7 +469,7 @@ Hash ref. Keys are made of Perl regular expression. The value can
 specify a warning message (leave empty or undefined for default warning
 message) and instructions to fix the value. A warning will be issued
 when the value match the passed regular expression. Valid only for
-C<string> or C<uniline> values. The fix instructions will be eval'ed
+C<string> or C<uniline> values. The fix instructions will be evaluated
 when L<apply_fixes> is called. C<$_> will contain the value to fix.
 C<$_> will be stored as the new value once the instructions are done.
 
@@ -649,7 +649,7 @@ Reference> for details.
 
 =item computed_refer_to
 
-Specify a pathto an id element used as a computed reference. See
+Specify a path to an id element used as a computed reference. See
 L<Value Reference> for details.
 
 =item warp
@@ -1051,7 +1051,7 @@ See L<refer_to parameter|Config::Model::IdElementReference/"Config class paramet
 =back
 
 In this case, a C<IdElementReference> object is created to handle the
-relation between this value object and the refered Id. See
+relation between this value object and the referred Id. See
 L<Config::Model::IdElementReference> for details.
 
 =cut
@@ -1447,7 +1447,7 @@ sub apply_fixes {
 
 Like L</check_value>. Also ensure that mandatory value are defined
 
-Will also display warnings on STDTOUT unless C<silent> parameter is set to 1.
+Will also display warnings on STDOUT unless C<silent> parameter is set to 1.
 In this case,user is expected to retrieve them with
 L<warning_msg>.
 
@@ -1654,7 +1654,7 @@ sub load_data {
 =head2 fetch_custom
 
 Returns the stored value if this value is different from a standard
-setting or built in seting. In other words, returns undef if the
+setting or built in setting. In other words, returns undef if the
 stored value is identical to the default value or the computed value
 or the built in value.
 
@@ -2064,14 +2064,14 @@ Declare the deprecated parameter with a C<status> set to C<deprecated>
 
 =item *
 
-Declare the new parameter with the intructions to load the semantic
+Declare the new parameter with the instructions to load the semantic
 content from the deprecated parameter. These instructions are declared
 in the C<migrate_from> parameters (which is similar to the C<compute>
 parameter)
 
 =back
 
-Here an example where a url parameter is changed to a set of 2
+Here an example where a URL parameter is changed to a set of 2
 parameters (host and path):
 
        'old_url' => { type => 'leaf',

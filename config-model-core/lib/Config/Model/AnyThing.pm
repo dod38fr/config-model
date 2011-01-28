@@ -205,26 +205,26 @@ Parameters are:
 
 =over
 
-=item step
+=item C<step>
 
 A string indicating the steps to follow in the tree to find the
 required item. (mandatory)
 
-=item strict
+=item C<strict>
 
 When set to 1, C<grab> will throw an exception if no object is found
 using the passed string. When set to 0, the object found at last will
 be returned. For instance, for the step C<good_step wrong_step>, only
 the object held by C<good_step> will be returned. (default is 1)
 
-=item type 
+=item C<type>
 
 Either C<node>, C<leaf>, C<hash> or C<list>. Returns only an object of
 requested type. Depending on C<strict> value, C<grab> will either
 throw an exception or return the last found object of requested type.
 (optional, default to C<undef>, which means any type of object)
 
-=item autoadd
+=item C<autoadd>
 
 When set to 1, C<hash> or C<list> configuration element are created
 when requested by the passed steps. (default is 1).

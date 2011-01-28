@@ -243,9 +243,9 @@ This module is used directly by L<Config::Model> to read or write the
 content of a configuration tree written with INI syntax in
 C<Config::Model> configuration tree.
 
-This INI file can have arbitrary comment delimeter. See the example 
-in the SYNOPSIS that sets a semi-column as comment delimeter. 
-By default the comment delimeter is '#' like in Shell or Perl.
+This INI file can have arbitrary comment delimiter. See the example 
+in the SYNOPSIS that sets a semi-column as comment delimiter. 
+By default the comment delimiter is '#' like in Shell or Perl.
 
 Note that undefined values are skipped for list element. I.e. if a
 list element contains C<('a',undef,'b')>, the data structure will
@@ -283,14 +283,15 @@ When a file is read,  C<read()> will return 1.
 =head2 write ( io_handle => ... )
 
 Of all parameters passed to this write call-back, only C<io_handle> is
-used. This parameter must be L<IO::File> object alwritey opened for
+used. This parameter must be L<IO::File> object already opened for
 write. 
 
 C<write()> will return 1.
 
 =head1 AUTHOR
 
-Dominique Dumont, (ddumont at cpan dot org); Krzysztof Tyszecki, (krzysztof.tyszecki at gmail dot com)
+Dominique Dumont, (ddumont at cpan dot org); 
+Krzysztof Tyszecki, (krzysztof.tyszecki at gmail dot com)
 
 =head1 SEE ALSO
 

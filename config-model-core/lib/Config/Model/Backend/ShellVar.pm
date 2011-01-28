@@ -138,7 +138,7 @@ __END__
 
 =head1 NAME
 
-Config::Model::Backend::ShellVar - Read and write config as a SHELLVAR data structure
+Config::Model::Backend::ShellVar - Read and write config as a C<SHELLVAR> data structure
 
 =head1 SYNOPSIS
 
@@ -160,7 +160,7 @@ Config::Model::Backend::ShellVar - Read and write config as a SHELLVAR data stru
 =head1 DESCRIPTION
 
 This module is used directly by L<Config::Model> to read or write the
-content of a configuration tree written with SHELLVAR syntax in
+content of a configuration tree written with C<SHELLVAR> syntax in
 C<Config::Model> configuration tree.
 
 Note that undefined values are skipped for list element. I.e. if a
@@ -188,7 +188,7 @@ When a file is read,  C<read()> will return 1.
 =head2 write ( io_handle => ... )
 
 Of all parameters passed to this write call-back, only C<io_handle> is
-used. This parameter must be L<IO::File> object alwritey opened for
+used. This parameter must be L<IO::File> object already opened for
 write. 
 
 C<write()> will return 1.

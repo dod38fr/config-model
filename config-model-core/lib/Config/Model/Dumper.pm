@@ -59,7 +59,7 @@ Config::Model::Dumper - Serialize data of config tree
 This module is used directly by L<Config::Model::Node> to serialize 
 configuration data in a compact (but readable) string.
 
-The serialisation can be done in standard mode where only customized
+The serialization can be done in standard mode where only customized
 values are dumped in the string. I.e. only data modified by the user
 are dumped.
 

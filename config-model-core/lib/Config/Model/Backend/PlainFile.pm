@@ -147,7 +147,7 @@ contain C<'a','b'>.
 
 =head1 CONSTRUCTOR
 
-=head2 new ( node => $node_obj, name => 'shellvar' ) ;
+=head2 new ( node => $node_obj, name => 'plain_file' ) ;
 
 Inherited from L<Config::Model::Backend::Any>. The constructor will be
 called by L<Config::Model::AutoRead>.
@@ -165,7 +165,7 @@ When a file is read,  C<read()> will return 1.
 =head2 write ( io_handle => ... )
 
 Of all parameters passed to this write call-back, only C<io_handle> is
-used. This parameter must be L<IO::File> object alwritey opened for
+used. This parameter must be L<IO::File> object already opened for
 write. 
 
 C<write()> will return 1.

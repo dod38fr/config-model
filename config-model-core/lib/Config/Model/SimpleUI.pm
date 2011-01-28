@@ -46,7 +46,7 @@ Config::Model::SimpleUI - Simple interface for Config::Model
 
 =head1 DESCRIPTION
 
-This module provides a pure ascii user interface using STDIN and
+This module provides a pure ASCII user interface using STDIN and
 STDOUT.
 
 =head1 USER COMMAND SYNTAX

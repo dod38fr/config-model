@@ -100,7 +100,7 @@ computation uses a formula and some other configuration values from
 the configuration tree.
 
 The computed value can be overridden, in other words, the computed
-value can be used as a defult value.
+value can be used as a default value.
 
 =head1 Computed value declaration
 
@@ -173,7 +173,7 @@ For instance, you could have this template string:
    'my element is &element, my index is &index' .
     'upper element is &element($up), upper index is &index($up)',
 
-If you need to perform more complex operations than substition, like
+If you need to perform more complex operations than substitution, like
 extraction with regular expressions, you can force an eval done by
 Perl with C<< use_eval => 1 >>. In this case, the result of the eval
 will be used as the computed value.

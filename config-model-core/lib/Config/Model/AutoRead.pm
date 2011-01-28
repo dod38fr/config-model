@@ -602,7 +602,7 @@ file. See L<Config::Model::Dumper>.
 
 =item ini_file
 
-Ini files (written with L<Config::Model::Backend::IniFile>. See limitations in 
+INI files (written with L<Config::Model::Backend::IniFile>. See limitations in 
 L</"Limitations depending on storage">.
 
 =item perl_file
@@ -750,7 +750,7 @@ See L</"read callback"> for details. (default is C<read>)
 =item auto_create
 
 By default, an exception is thrown if no read was
-successfull. This behavior can be overridden by specifying 
+successful. This behavior can be overridden by specifying 
 C<< auto_create => 1 >> in one of the backend specification. For instance:
 
     read_config  => [ { backend => 'cds_file', config_dir => '/etc/my_cfg/' } , 
@@ -815,7 +815,7 @@ The read backends will be tried in the specified order:
 
 =item *
 
-First the cds file whose name depend on the parameters used in model
+First the C<cds> file whose name depend on the parameters used in model
 creation and instance creation:
 C<< <model_config_dir>/<instance_name>.cds >>
 The syntax of the C<cds> file is described in  L<Config::Model::Dumper>.
@@ -845,7 +845,7 @@ When required by the user, all configuration information is written
 back using B<all> the write specifications. See
 L<Config::Model::Instance/write_back ( ... )> for details.
 
-The write class declared witn C<custom> backend must provide a call-back.
+The write class declared with C<custom> backend must provide a call-back.
 See L</"write callback"> for details.
 
 =head2 read write directory
@@ -868,7 +868,7 @@ Read callback function will be called with these parameters:
 
 The L<IO::File> object is undef if the file cannot be read.
 
-The callback must return 0 on failure and 1 on succesfull read.
+The callback must return 0 on failure and 1 on successful read.
 
 =head2 write callback
 
@@ -886,7 +886,7 @@ Write callback function will be called with these parameters:
 
 The L<IO::File> object is undef if the file cannot be written to.
 
-The callback must return 0 on failure and 1 on succesfull write.
+The callback must return 0 on failure and 1 on successful write.
 
 =head1 CAVEATS
 
@@ -928,7 +928,7 @@ You can choose also to read and write only customized files:
 
   read_config  => [{ backend => 'custom', class => 'Bar'}],
 
-Or to read and write only cds files :
+Or to read and write only C<cds> files :
 
   read_config  => [{ backend => 'cds_file'}] ,
 

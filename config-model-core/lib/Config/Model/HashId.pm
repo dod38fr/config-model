@@ -140,7 +140,7 @@ sub get_type {
 
 =head2 fetch_size
 
-Returns the nb of elements of the hash.
+Returns the number of elements of the hash.
 
 =cut
 

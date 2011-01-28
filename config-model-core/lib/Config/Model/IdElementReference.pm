@@ -73,7 +73,7 @@ L<Config::Model::HashId> or the content of a L<Config::Model::ListId>
 object.
 
 This class is also used by L<Config::Model::CheckList> to define the
-cheklist items from the keys of another hash (or content of a list).
+checklist items from the keys of another hash (or content of a list).
 
 =head1 CONSTRUCTOR
 

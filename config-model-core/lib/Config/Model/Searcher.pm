@@ -73,7 +73,7 @@ remember where is this parameter in the configuration tree. This module
 will guide you through the tree to the(s) node(s) that contain this
 parameter.
 
-This class should be invaluable to construct interactive GUIs.
+This class should be invaluable to construct interactive user interfaces.
 
 This module provides 2 search modes:
 
@@ -227,7 +227,7 @@ sub prepare {
 	  croak "Searcher->prepare: Missing $p parameter" ;
     }
 
-    $self->reset ; # initialise the search engine
+    $self->reset ; # initialize the search engine
 
     unless (defined $self->{search_tree}) {
 	my $searched = $self->{element} ;
@@ -246,7 +246,7 @@ sub prepare {
 
 =head2 reset
 
-Re-initialise the search engine to redo the search from start
+Re-initialize the search engine to redo the search from start
 
 =cut
 

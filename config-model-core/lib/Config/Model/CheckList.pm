@@ -71,7 +71,7 @@ A fixed list (with the C<choice> parameter)
 
 =item *
 
-A dynamic list where the available choise are the keys of another hash
+A dynamic list where the available choice are the keys of another hash
 of the configuration tree. See L</"Choice reference"> for details.
 
 =back
@@ -412,7 +412,7 @@ and C<my_hash2> and C<my_hash3> configuration parameter:
 A check list where the available choices are the specified choice and
 the choice of C<refer_to_3_lists> and a hash whose name is specified
 by the value of the C<indirection> configuration parameter (this
-example is admitedly convoluted):
+example is admittedly convoluted):
 
 
        refer_to_check_list_and_choice
@@ -485,11 +485,11 @@ sub cargo_type {
 =head2 check ( ... )
 
 Set choice. Parameter is either a list of choices to set or 
-a list ref and some optional parmeter. I.e:
+a list ref and some optional parameter. I.e:
 
   check (\@list, check => 'skip') ;
 
-C<check> parameter decide on behavior in case of unvalid
+C<check> parameter decide on behavior in case of invalid
 choice value: either die (if yes) or discard bad value (if skip)
 
 =cut
@@ -548,11 +548,11 @@ sub store {
 =head2 uncheck (...)
 
 Unset choice. Parameter is either a list of choices to unset or 
-a list ref and some optional parmeter. I.e:
+a list ref and some optional parameter. I.e:
 
   uncheck (\@list, check => 'skip') ;
 
-C<check> parameter decide on behavior in case of unvalid
+C<check> parameter decide on behavior in case of invalid
 choice value: either die (if yes) or discard bad value (if skip)
 
 =cut
@@ -574,7 +574,7 @@ sub uncheck {
 
 Return 1 if the given C<choice> was set. Returns 0 otherwise.
 
-C<check> parameter decide on behavior in case of unvalid
+C<check> parameter decide on behavior in case of invalid
 choice value: either die (if yes) or discard bad value (if skip)
 
 C<mode> is either: custom standard preset default upstream_default

@@ -262,7 +262,7 @@ sub full_message {
     my $unavail = $obj->fetch_element(name => $element, experience => 'master',	
 				      check => 'no', accept_hidden => 1) ;
     $msg .= " '$element' in node '$location'.\n" ;
-    $msg .= "\tError occured when calling $function.\n" if defined $function ;
+    $msg .= "\tError occurred when calling $function.\n" if defined $function ;
     $msg .= "\t".$unavail->warp_error if $unavail->can('warp_error');
 
     $msg .= "\t".$self->info."\n" if defined $self->info ;
@@ -439,7 +439,7 @@ You must read L<Exception::Class> before reading on.
 
 This module creates all the exception class used by L<Config::Model>.
 
-All expection class name begins with C<Config::Model::Exception::>
+All exception class name begins with C<Config::Model::Exception::>
 
 The exception classes are:
 
@@ -448,8 +448,8 @@ The exception classes are:
 =item C<Any>
 
 Base class. It accepts an C<object> argument. The user must pass the
-reference of the object where the exception occured. The object name
-(or xpath) will be used to generate the error message.
+reference of the object where the exception occurred. The object name
+will be used to generate the error message.
 
 =back
 
@@ -458,7 +458,7 @@ reference of the object where the exception occured. The object name
 =head1 How to get trace
 
 By default, most of the exceptions will not print out the stack
-trace. For debug purpose, you can force a strack trace.
+trace. For debug purpose, you can force a stack trace.
 
 For instance, if you want a stack trace for an "unknown element"
 error, you must add this line in your script:

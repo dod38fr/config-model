@@ -176,7 +176,7 @@ only upgrade and migration specifications are required
 
 =item *
 
-unknow parameters can be accepted 
+unknown parameters can be accepted 
 
 =back
 
@@ -235,7 +235,7 @@ and work fine, but they have their set of drawbacks.
 Usually, the validation of configuration data is done with a script
 which performs semantic validation and often ends up being quite
 complex (e.g. 2500 lines for Debian's xserver-xorg.config script which
-handles xorg.conf file).
+handles C<xorg.conf> file).
 
 In most cases, the configuration model is expressed in instructions
 (whatever programming language is used) and interspersed with a lot of
@@ -268,7 +268,7 @@ enum like type, default value ...)
 
 =item *
 
-The targeted audience (beginer, advanced, master)
+The targeted audience (beginner, advanced, master)
 
 =item *
 
@@ -291,7 +291,7 @@ project.
 
 =item *
 
-Beginners will not see advanced parameters (advanved and master
+Beginners will not see advanced parameters (advanced and master
 parameters are hidden from beginners)
 
 =item *
@@ -344,7 +344,7 @@ to another, people who want to use this framework may have to
 provide a dedicated parser/writer.
 
 To help with this task, this project provides writer/parsers for common
-format: ini style file and perl file. With the additional
+format: INI style file and perl file. With the additional
 Config::Model::Backend::Augeas, Augeas library can be used to read and
 write some configuration files. See http://augeas.net for more
 details.
@@ -471,7 +471,7 @@ List or hash of node or value elements
 
 =back
 
-By declaring a set of configuration classes and refering them in node
+By declaring a set of configuration classes and referring them in node
 element, you will shape the structure of your configuration tree.
 
 The structure of the configuration data must be based on a tree
@@ -1706,9 +1706,9 @@ can also be declared within the element declaration:
   ) ;
 
 
-=head1 Load pre-declared model
+=head1 Load predeclared model
 
-You can also load pre-declared model.
+You can also load predeclared model.
 
 =head2 load( <model_name> )
 
@@ -2117,7 +2117,7 @@ application => { model => 'model_name', ... }
 
 =item *
 
-applicaiton => model_name
+application => model_name
 
 =back
 
@@ -2167,7 +2167,7 @@ Errors are handled with an exception mechanism (See
 L<Exception::Class>).
 
 When a strongly typed Value object gets an authorized value, it raises
-an exception. If this exception is not catched, the programs exits.
+an exception. If this exception is not caught, the programs exits.
 
 See L<Config::Model::Exception|Config::Model::Exception> for details on
 the various exception classes provided with C<Config::Model>.
@@ -2194,13 +2194,13 @@ implemented.
 =head1 BUGS
 
 Given Murphy's law, the author is fairly confident that you will find
-bugs or miss some features. Please report thems config-model at
+bugs or miss some features. Please report them to config-model at
 rt.cpan.org, or through the web interface at 
 https://rt.cpan.org/Public/Bug/Report.html?Queue=config-model . 
 The author will be notified, and then you'll automatically be
 notified of progress on your bug.
 
-=head1 FEEDBACKS
+=head1 FEEDBACK
 
 Feedback from users are highly desired. If you find this module useful, please
 share your use cases, success stories with the author or with the config-model-

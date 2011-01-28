@@ -18,7 +18,7 @@ between elements with the following features:
 =item *
 
 Model warp. For instance, Xorg driver options change depending on
-driver name (I<nvidia>, I<radeon>...)
+driver name (C<nvidia>, C<radeon>...)
 
 =item *
 
@@ -26,8 +26,8 @@ Simple computation from other elements (used for upgrades)
 
 =item *
 
-References. For instance, in C<Xorg::Device::Radeon>, I<Monitor-DVI-0>
-name must refer to one of the monitors declared in I<Monitor> section.
+References. For instance, in C<Xorg::Device::Radeon>, C<Monitor-DVI-0>
+name must refer to one of the monitors declared in C<Monitor> section.
 
 =back
 
@@ -39,7 +39,7 @@ Xorg 1.5 or 1.6
 From a user's point of view, model warp will look like the structure
 or properties of the configuration is changing (or adapting)
 dynamically depending on the values being entered. For instance, when
-changing a driver name from I<fglrx> to I<radeon>, some options will
+changing a driver name from C<fglrx> to C<radeon>, some options will
 disappear from the GUI and some other options will pop-in.
 
 Model warping need not be that spectacular and can have more subtle
@@ -124,16 +124,16 @@ Here's a real use case scenario from OpenSsh.
 C<ssh_config> enables a user to set up a tunnel through ssh. The input
 of this tunnel can listen to localhost (default) or to other hosts.
 These other hosts are specified by the I<bind_adress> part of the
-I<LocalForward> parameter.
+C<LocalForward> parameter.
 
-But this bind address is ignored if I<GatewayPorts> is false (which is
+But this bind address is ignored if C<GatewayPorts> is false (which is
 the default).
 
 In order to present only meaningful parameters to the user,
-I<bind_address> parameter must be hidden when I<GatewayPorts> is false
-and shown when I<GatewayPorts> is true.
+I<bind_address> parameter must be hidden when C<GatewayPorts> is false
+and shown when C<GatewayPorts> is true.
 
-Here's the recipe. First creeate a boolean element for C<GatewayPorts>:
+Here's the recipe. First create a boolean element for C<GatewayPorts>:
 
  GatewayPorts => {
     type => 'leaf',
@@ -141,7 +141,7 @@ Here's the recipe. First creeate a boolean element for C<GatewayPorts>:
     upstream_default => 0,
  },
 
-And I<LocalForward> that will provide I<bind_address> parameter:
+And C<LocalForward> that will provide I<bind_address> parameter:
 
  LocalForward => {
    type => 'list',
@@ -153,7 +153,7 @@ And I<LocalForward> that will provide I<bind_address> parameter:
    experience => 'advanced',
  }
 
-In I<Ssh::PortForward> configuration class, declate I<bind_address> with the warp
+In C<Ssh::PortForward> configuration class, declare I<bind_address> with the warp
 instructions:
 
  bind_address => {
@@ -184,7 +184,7 @@ to swap a configuration class with another.
 For instance, swap C<vfat> mount options with C<ext3> mount options
 when a file system is changed from C<vfat> to C<ext3>.
 
-Here's how this can be done. First declare the fstype parameter:
+Here's how this can be done. First declare the C<fstype> parameter:
 
  fs_vfstype => {
    type => 'leaf',

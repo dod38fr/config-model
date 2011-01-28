@@ -57,7 +57,7 @@ This module is used directly by L<Config::Model::Node> to describe
 a node element. This module returns a human readable string that 
 shows the content of a configuration node.
 
-For instance (as showns by C<fstab> example:
+For instance (as shown by C<fstab> example:
 
  name         value        type         comment
  fs_spec      [undef]      string       mandatory

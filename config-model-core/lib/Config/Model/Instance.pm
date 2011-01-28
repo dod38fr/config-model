@@ -416,9 +416,9 @@ Try to run all subroutines registered with C<register_write_back> to
 write the configuration information until one succeeds (returns
 true). (See L<Config::Model::AutoRead> for details).
 
-You can specify here a pseudo root dir or another config dir to write
-configuration data back with C<root> and C<config_dir> parameters. This
-will override the model specifications.
+You can specify here a pseudo root directory or another config
+directory to write configuration data back with C<root> and
+C<config_dir> parameters. This will override the model specifications.
 
 You can force to use a backend by specifying C<< backend => xxx >>. 
 For instance, C<< backend => 'augeas' >> or C<< backend => 'custom' >>.

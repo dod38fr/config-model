@@ -102,7 +102,7 @@ element with C<node> cargo_type)
 Go down using C<xxx> element and loop over the ids that match the regex.
 (For C<hash>)
 
-For instance, with OpenSsh model, you could do
+For instance, with C<OpenSsh> model, you could do
 
  Host=~/.*.debian.org/ user='foo-guest'
 

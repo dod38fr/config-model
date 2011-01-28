@@ -92,7 +92,7 @@ configuration data will be used by the application. (default is yes)
 
 =item skip_auto_write
 
-Skip node that have a C<perl write> capabality in their model. See
+Skip node that have a C<perl write> capability in their model. See
 L<Config::Model::AutoRead>.
 
 =item auto_vivify
@@ -106,7 +106,7 @@ By default, ordered hash (i.e. the order of the keys are important)
 are dumped as Perl list. This is the faster way to dump such hashed
 while keeping the key order. But it's the less readable way. 
 
-When this parmeter is 1 (default), the ordered hash is dumped as a
+When this parameter is 1 (default), the ordered hash is dumped as a
 list:
 
   [ A => 'foo', B => 'bar', C => 'baz' ]

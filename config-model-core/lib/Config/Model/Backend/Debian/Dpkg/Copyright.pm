@@ -310,7 +310,7 @@ Config::Model::Backend::Debian::Dpkg::Copyright - Read and write Debian Dpkg Lic
 =head1 DESCRIPTION
 
 This module is used directly by L<Config::Model> to read or write the
-content of a configuration tree written with Debian Dep-5 syntax in
+content of a configuration tree written with Debian C<Dep-5> syntax in
 C<Config::Model> configuration tree. This syntax is used to specify 
 license information in Debian source package format.
 
@@ -334,7 +334,7 @@ When a file is read,  C<read()> will return 1.
 =head2 write ( io_handle => ... )
 
 Of all parameters passed to this write call-back, only C<io_handle> is
-used. This parameter must be L<IO::File> object alwritey opened for
+used. This parameter must be L<IO::File> object already opened for
 write. 
 
 C<write()> will return 1.
