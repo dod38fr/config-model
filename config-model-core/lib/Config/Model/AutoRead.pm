@@ -1,5 +1,5 @@
 #
-#    Copyright (c) 2005-2010 Dominique Dumont.
+#    Copyright (c) 2005-2011 Dominique Dumont.
 #
 #    This file is part of Config-Model.
 #
@@ -59,14 +59,19 @@ sub get_cfg_file_path {
         return;
     }
 
-    if ($args{file}) {
+    if (exists $args{file} and not $args{file}) {
+        $logger->trace("get_cfg_file_path: return because file explicitly set to undef or empty"); 
+        return;
+    }
+    
+    if (defined $args{file}) {
         my $res = $dir.$args{file} ;
         $logger->trace("get_cfg_file_path: returns $res"); 
         return $res ;
     }
 
     if (not defined $args{suffix}) {
-        $logger->trace("get_cfg_file_path: returns undef (no suffix, no file argurment)"); 
+        $logger->trace("get_cfg_file_path: returns undef (no suffix, no file argument)"); 
         return ;
     }
 
@@ -124,6 +129,7 @@ sub load_backend_class {
     my $backend = shift;
     my $function = shift ;
 
+    $logger->debug("load_backend_class: called with backend $backend, function $function");
     my %c ;
 
     my $k = "Config::Model::Backend::".ucfirst($backend) ;
@@ -137,13 +143,18 @@ sub load_backend_class {
     $c{$k} = $f ;
 
     foreach my $c (keys %c) { 
-        return $c if $c->can($function) ; # no need to load class  
+        if ($c->can($function)) {
+            # no need to load class  
+            $logger->debug("load_backend_class: $c is already loaded (can $function)");
+            return $c ;
+        } 
     }
 
         
     # look for file to load 
     my $class_to_load ;
     foreach my $c (keys %c) { 
+        $logger->debug("load_backend_class: looking to load class $c");
         foreach my $prefix (@INC) {
             my $realfilename = "$prefix/$c{$c}";
             $class_to_load = $c if -f $realfilename ;
@@ -359,21 +370,22 @@ sub auto_write_init {
             require $file.'.pm' unless $c->can($f) ;
 
             my $safe_self = $self ; # provide a closure
-            $wb = sub 
-              {  no strict 'refs';
-                 my $file_path ;
-                 $file_path = $self-> open_file_to_write($backend,$fh,@wr_args,@_) 
+            $wb = sub  {  
+                no strict 'refs';
+                my $file_path ;
+                $file_path = $self-> open_file_to_write($backend,$fh,@wr_args,@_) 
                     unless ($c->can('skip_open') and $c->skip_open) ;
-                 eval {
+                eval {
                     # override needed for "save as" button
                     &{$c.'::'.$f}(@wr_args,
                                   file_path => $file_path,
                                   conf_dir => $write_dir, # legacy FIXME
                                   object => $safe_self, 
                                   @_                      # override from user
-                                 ) ;
-                 };
-                 $self->close_file_to_write($@,$fh,$file_path) ;
+                                ) ;
+                };
+                $logger->warn("write backend $c".'::'."$f failed: $@") if $@;
+                $self->close_file_to_write($@,$fh,$file_path) ;
              };
             $self->{auto_write}{custom} = 1 ;
         }
@@ -386,6 +398,7 @@ sub auto_write_init {
                     $self->write_perl(@wr_args, file_path => $file_path,  @_) ;
                 };
                 $self->close_file_to_write($@,$fh,$file_path) ;
+                $logger->warn("write backend $backend failed: $@") if $@;
             } ;
             $self->{auto_write}{perl_file} = 1 ;
         }
@@ -397,6 +410,7 @@ sub auto_write_init {
                 eval {
                     $self->write_cds_file(@wr_args, file_path => $file_path, @_) ;
                 };
+                $logger->warn("write backend $backend failed: $@") if $@;
                 $self->close_file_to_write($@,$fh,$file_path) ;
             } ;
             $self->{auto_write}{cds_file} = 1 ;
@@ -406,26 +420,27 @@ sub auto_write_init {
 			my $c = load_backend_class ($backend, $f);
 
             my $safe_self = $self ; # provide a closure
-            $wb = sub 
-              {  no strict 'refs';
-                 my $backend_obj =  $self->{backend}{$backend}
-                                 || $c->new(node => $self, name => $backend) ;
-                 my $file_path ;
-                 my $suffix ;
-                 $suffix = $backend_obj->suffix if $backend_obj->can('suffix');
-                 $file_path = $self-> open_file_to_write($backend,$fh,
+            $wb = sub {
+                no strict 'refs';
+                my $backend_obj =  $self->{backend}{$backend}
+                                || $c->new(node => $self, name => $backend) ;
+                my $file_path ;
+                my $suffix ;
+                $suffix = $backend_obj->suffix if $backend_obj->can('suffix');
+                $file_path = $self-> open_file_to_write($backend,$fh,
                                                          suffix => $suffix,
                                                          @wr_args,@_) 
-                     unless ($c->can('skip_open') and $c->skip_open) ;
-                 eval {
+                    unless ($c->can('skip_open') and $c->skip_open) ;
+                eval {
                     # override needed for "save as" button
                     $backend_obj->$f( @wr_args, 
                                       file_path => $file_path,
                                       object => $safe_self, 
                                       @_                      # override from user
                                     ) ;
-                 } ;
-                 $self->close_file_to_write($@,$fh,$file_path) ;
+                } ;
+                $logger->warn("write backend $backend $c".'::'."$f failed: $@") if $@;
+                $self->close_file_to_write($@,$fh,$file_path) ;
              };
         }
 
@@ -724,7 +739,8 @@ directory can be hardcoded in the custom class.
 
 optional. This parameter may not apply if the configuration is stored
 in several files. By default, the instance name is used as
-configuration file name.
+configuration file name. If you want to completely handle file creation
+in your backend class, set to C<undef> or and empty string.
 
 =item function
 
@@ -881,13 +897,13 @@ parameter. C<write> should use this handle to write data in the target
 configuration file.
 
 If this behavior causes problem (e.g. with augeas backend), the
-solution is to:
+solution is either to:
 
 =over
 
 =item *
 
-Skip either C<file> or C<config_dir> parameter in the C<write_config>
+Set C<file> to undef or an empty string in the C<write_config>
 specification.
 
 =item *
