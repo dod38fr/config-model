@@ -30,7 +30,7 @@ my ($cat,$models) = $model->available_models ;
 
 is_deeply($cat->{system},[qw/fstab popcon/],"check available system models");
 is($models->{popcon}{model},'PopCon',"check available popcon");
-is_deeply($cat->{application}, ['dpkg-control', 'dpkg-copyright' ] ,"check available application models");
+is_deeply($cat->{application}, [qw/dpkg dpkg-control dpkg-copyright/ ] ,"check available application models");
 is($models->{'dpkg-copyright'}{model},'Debian::Dpkg::Copyright',"check available dpkg-copyright");
 
 my $class_name = $model->create_config_class 
