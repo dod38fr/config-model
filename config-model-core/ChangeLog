@@ -1,6 +1,8 @@
     * Application changes:
         * Debian::Dependency: reworked to reduce calls to madison. Report available
           versions when unnessary version issue is found.). Source is optional.
+        * dpkg control model: added forgotten Enhances and Pre-Depends. Added warnings for
+          too long lines in Description (plus fixes based on Text::Autoformat)
     * Framework changes:
         * FuseUI: Fix undef warning. Ensure that files finish with "\n". 
         Fix bug where value 0 was shown as an empty file.

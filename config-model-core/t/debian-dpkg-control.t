@@ -5,15 +5,14 @@ BEGIN {
     my $sep = chr(28);
     no warnings 'once' ;
     %Config::Model::Debian::Dependency::cache = (
-        'debhelper'.$sep.'7' => '',
-        'libcpan-meta-perl' . $sep . '2.101550' => '',
-        'libdist-zilla-perl' . $sep . '3'       => '',
-        'libfile-homedir-perl' . $sep . '0.81'  => 'lenny',
-        'libmoose-autobox-perl' . $sep . '0.09' => '',
-        'libmoose-perl' . $sep . '0.65'         => 'lenny',
-        'lsb-base' . $sep . '1.3-9ubuntu2'      => '',
-        'perl' . $sep . '5.10.1'                => 'lenny',
-        'xkb-data' . $sep . '1.4'               => 'lenny',
+        'libcpan-meta-perl' => 'squeeze 2.101670-1 sid 2.102400-1',
+        'libdist-zilla-perl' => 'squeeze 4.101900-1 sid 4.200000-1',
+        'libfile-homedir-perl' => 'lenny 0.64-1.1 squeeze 0.86-1 sid 0.93-2',
+        'libmoose-autobox-perl' => 'squeeze 0.11-1 sid 0.11-1',
+        'libmoose-perl' => 'lenny 0.54-1 backports/lenny 1.05-1~bpo50+1 squeeze 1.09-2 sid 1.21-1',
+        'perl' => 'lenny 5.10.0-19lenny3 squeeze 5.10.1-17 sid 5.10.1-17 experimental 5.12.0-2 experimental 5.12.2-2',
+        'lsb-base' => 'lenny 3.2-20 squeeze-p-u 3.2-23.2squeeze1 squeeze 3.2-23.2squeeze1 sid 3.2-27',
+        'xkb-data' => 'lenny 1.3-2 squeeze 1.8-2 sid 1.8-2 experimental 2.1-1',
     );
 }
 
@@ -34,7 +33,7 @@ if ( $@ ) {
     plan skip_all => "AptPkg::Config is not installed (not a Debian system ?)";
 }
 else {
-    plan tests => 26;
+    plan tests => 31;
 }
 
 my $arg = shift || '';
@@ -113,8 +112,8 @@ $tests[$i++]{check}
    = [ 
        'source Source',               "libdist-zilla-plugins-cjm-perl" ,
        'source Build-Depends:0',      "debhelper (>= 7)",
-       'source Build-Depends-Indep:0',"libcpan-meta-perl (>= 2.101550)",
-       'source Build-Depends-Indep:1',"libdist-zilla-perl (>= 3)",
+       'source Build-Depends-Indep:0',"libcpan-meta-perl",  # fixed
+       'source Build-Depends-Indep:1',"libdist-zilla-perl", # fixed
        'source Build-Depends-Indep:5',"libpath-class-perl",
        'source Build-Depends-Indep:6',"perl (>= 5.10.1)",
        'binary:libdist-zilla-plugins-cjm-perl Depends:0','${misc:Depends}',
@@ -441,6 +440,38 @@ $tests[$i++]{check}
       'binary:xserver-xorg-video-all Conflicts:0', 'xserver-xorg-driver-all',
      ];
 
+$tests[$i]{text} = <<'EOD' ;
+Source: libdist-zilla-plugin-podspellingtests-perl
+Section: perl
+Priority: optional
+Build-Depends: debhelper (>= 7)
+Build-Depends-Indep: perl
+Maintainer: Debian Perl Group <pkg-perl-maintainers@lists.alioth.debian.org>
+Uploaders: Dominique Dumont <dominique.dumont@hp.com>
+Standards-Version: 3.9.1
+Homepage: http://search.cpan.org/dist/Dist-Zilla-Plugin-PodSpellingTests/
+Vcs-Svn: svn://svn.debian.org/pkg-perl/trunk/libdist-zilla-plugin-podspellingtests-perl/
+Vcs-Browser: http://svn.debian.org/viewsvn/pkg-perl/trunk/libdist-zilla-plugin-podspellingtests-perl/
+
+Package: libdist-zilla-plugin-podspellingtests-perl
+Architecture: all
+Depends: ${misc:Depends}, ${perl:Depends}
+Description: Release tests for POD spelling
+ This is an extension of Dist::Zilla::Plugin::InlineFiles, xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx providing the following file:
+ .
+ - xt/release/pod-spell.t - a standard Test::Spelling test
+EOD
+
+$tests[$i++]{check} 
+   = [ 'binary:libdist-zilla-plugin-podspellingtests-perl Description' 
+   => "Release tests for POD spelling This is an extension of
+Dist::Zilla::Plugin::InlineFiles, xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+providing the following file:
+
+ - xt/release/pod-spell.t - a standard Test::Spelling test"
+    ];
+
+
 my $idx = 0 ;
 foreach my $t (@tests) {
     if (defined $do and $do ne $idx) { $idx ++; next; }
@@ -455,11 +486,14 @@ foreach my $t (@tests) {
    my $inst = $model->instance (root_class_name   => 'Debian::Dpkg::Control',
                                 root_dir          => $wr_dir,
                                 instance_name => "deptest".$idx,
+                                check => 'yes',
                                );  
    ok($inst,"Read $control_file and created instance") ;
 
    my $control = $inst -> config_root ;
 
+   $inst->apply_fixes;
+   
    my $dump =  $control->dump_tree ();
    print $dump if $trace ;
    
