@@ -1438,7 +1438,7 @@ sub apply_fixes {
         $self->store($_) ; # will update $self->{fixes} 
         Config::Model::Exception::Model -> throw (
             object => $self, 
-            message => "apply_fixes: too many tries to fix, bailing out\n"
+            message => "apply_fixes: too many tries to fix, bailing out\nUnfixable value is $_" ,
         ) if $count ++ > 50 ;
     } ;
 }
