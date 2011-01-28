@@ -103,15 +103,15 @@
                                                                           'fix' => 's!Debian GNU/Linux!Debian GNU!g;'
                                                                         },
                                                   '[^\\n]{80,}' => {
-                                                                  'msg' => 'Line too long in description',
-                                                                  'fix' => 'eval { require Text::Autoformat   ; } ;
+                                                                     'msg' => 'Line too long in description',
+                                                                     'fix' => 'eval { require Text::Autoformat   ; } ;
 if ($@) { CORE::warn "cannot fix without Text::Autoformat"}
 else {
         import Text::Autoformat ;
         $_ = autoformat($_) ;
 	chomp;
 }'
-                                                                },
+                                                                   },
                                                   '\\n[\\-\\*]' => {
                                                                      'msg' => 'lintian like possible-unindented-list-in-extended-description. i.e. "-" or "*" without leading white space',
                                                                      'fix' => 's/\\n([\\-\\*])/\\n $1/g; $_ ;'
