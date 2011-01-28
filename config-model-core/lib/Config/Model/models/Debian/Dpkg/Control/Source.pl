@@ -63,29 +63,29 @@ The archive area and section for each package should be specified in the package
                            {
                              'cargo' => {
                                           'value_type' => 'uniline',
-                                          'type' => 'leaf',
-                                           warn_if_match => { 
-                                               'perl.*\|\s*libmodule-build-perl' => { 
-                                                    msg => 'lenny has perl 5.10 which includes libmodule-build-perl',
-                                                    fix => '$_ = "perl" ;',
-                                                },
-                                            },
-                                           class => 'Config::Model::Debian::Dependency',
-                                       },
+                                          'warn_if_match' => {
+                                                               'perl.*\\|\\s*libmodule-build-perl' => {
+                                                                                                        'msg' => 'lenny has perl 5.10 which includes libmodule-build-perl',
+                                                                                                        'fix' => '$_ = "perl" ;'
+                                                                                                      }
+                                                             },
+                                          'class' => 'Config::Model::Debian::Dependency',
+                                          'type' => 'leaf'
+                                        },
                              'type' => 'list'
                            },
                            'Build-Depends-Indep',
                            {
                              'cargo' => {
                                           'value_type' => 'uniline',
-                                          'type' => 'leaf',
-                                          warn_if_match => { 
-                                              'perl.*\|\s*libmodule-build-perl' => { 
-                                                    msg => => 'lenny has perl 5.10 which includes libmodule-build-perl',
-                                                     fix => '$_ = "perl" ;',
-                                                },
-                                            },
-                                         class => 'Config::Model::Debian::Dependency',
+                                          'warn_if_match' => {
+                                                               'perl.*\\|\\s*libmodule-build-perl' => {
+                                                                                                        'msg' => 'lenny has perl 5.10 which includes libmodule-build-perl',
+                                                                                                        'fix' => '$_ = "perl" ;'
+                                                                                                      }
+                                                             },
+                                          'class' => 'Config::Model::Debian::Dependency',
+                                          'type' => 'leaf'
                                         },
                              'type' => 'list'
                            },
