@@ -1,7 +1,7 @@
 # -*- cperl -*-
 
 use ExtUtils::testlib;
-use Test::More tests => 50;
+use Test::More tests => 53;
 use Test::Exception ;
 use Test::Warn ;
 use Config::Model;
@@ -181,6 +181,9 @@ is( $tested->get_help(summary => 'X'),
     "X-ray (summary)", "Test sarge slot help X (summary)" );
 
 is($root->has_element('daughter'), 0 ,"Non-existing element" );
+is($root->has_element('captain'), 1 ,"existing element" );
+is($root->has_element(name => 'captain', type => 'node' ), 1 ,"existing node element" );
+is($root->has_element(name => 'captain', type => 'leaf' ), 0 ,"non existing leaf element" );
 
 
 ok( $root->is_element_available(name =>'captain'), "test element" );

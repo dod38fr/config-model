@@ -700,20 +700,26 @@ for my $datum (qw/config_model model config_class_name/) {
     } ;
 }
 
-=head2 has_element ( element_name )
+=head2 has_element ( name => element_name, [ type => searched_type ] )
 
 Returns 1 if the class model has the element declared or if the element 
-name is matched by the optional C<accept> parameter. 
+name is matched by the optional C<accept> parameter. If C<type> is specified, the 
+element name must also match the type.
 
 =cut
 
 # should I autovivify this element: NO
 sub has_element {
-    my ($self,$name) = @_ ;
+    my $self = shift ;
+    my %args = ( @_ > 1 ) ? @_ : ( name => shift ) ;
+    my $name = $args{name};
+    my $type = $args{type} ;
     croak "has_element: missing element name" unless defined $name ;
 
     $self->accept_element($name);
-    return defined $self->{model}{element}{$name} ? 1 : 0 ;
+    return 0 unless defined $self->{model}{element}{$name} ;
+    return 1 unless defined $type ;
+    return $self->{model}{element}{$name}{type} eq $type ? 1 : 0 ;
 }
 
 =head2 find_element ( element_name , [ case => any ])
