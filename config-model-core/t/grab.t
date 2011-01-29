@@ -1,10 +1,7 @@
 # -*- cperl -*-
-# $Author$
-# $Date$
-# $Revision$
 
 use ExtUtils::testlib;
-use Test::More tests => 34;
+use Test::More tests => 35;
 use Config::Model;
 
 use warnings;
@@ -108,6 +105,7 @@ is($obj->location,"std_id:zzz","test no strict grab");
 
 $obj = $root->grab(step => 'std_id:ab X', type => 'node' , strict => 0);
 is($obj->location,"std_id:ab","test no strict grab with type node");
-exit ;
-eval { $root->grab(step => 'std_id:ab X', type => 'node' , strict => 1); } ;ok($@,"test strict grab with type node");
+
+eval { $root->grab(step => 'std_id:ab X', type => 'node' , strict => 1); } ;
+ok($@,"test strict grab with type node");
 print "normal error:\n", $@, "\n" if $trace;
