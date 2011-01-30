@@ -1,5 +1,6 @@
 #!/usr/bin/perl
 
+use feature ":5.10" ;
 use strict;
 use warnings;
 
@@ -16,7 +17,7 @@ sub go_on {
     return if $ans =~ /^n/i ;
 }
 
-sub done {
+sub pause {
     print "Done.\nHit return to continue ... ";
     my $ans =  <STDIN>;
     print "\n";
@@ -27,9 +28,10 @@ sub my_system {
     my $show = shift || 0 ;
     print "Will run: $run\n" if $show ;
     go_on ;
+    print '\/ ' x 15,"\n";
     system($run) ;
-    done ;
-    print "\n";
+    print '/\ ' x 15,"\n";
+    pause ;
 }
 
 print wrap('','',
@@ -106,11 +108,23 @@ print "Run: 'config-edit-sshd -ui none IgnoreRhosts=oui'\n";
 my_system("config-edit -model Sshd -model_dir lib/Config/Model/models ".
  	 "-root_dir . -ui none -backend custom IgnoreRhosts=oui") ;
 
-print "Better let beginner use a GUI\n";
+my $fuse_dir = 'my_fuse' ;
+say "If you prefer to use a virtual file system (script ?)" ;
+say "Run: 'config-edit-sshd -ui fuse -fuse_dir $fuse_dir'";
+mkdir ($fuse_dir,0755) unless -d $fuse_dir ;
+my_system("config-edit -model Sshd -model_dir lib/Config/Model/models ".
+    "-root_dir . -backend custom -ui fuse -fuse_dir $fuse_dir"
+) ;
+my_system("ls --classify $fuse_dir",1);
+my_system(qq!echo "/etc/my_banner.txt" > $fuse_dir/Banner!,1) ; 
+my_system("fusermount -u $fuse_dir",1);	 
+	 
+print "Beginners will probably prefer a GUI\n";
 print "Run: config-edit-sshd\n";
 my_system("config-edit -model Sshd -model_dir lib/Config/Model/models ".
 	 "-root_dir . -backend custom ") ;
 
 END {
+    system("fusermount -u $fuse_dir");
     kill "QUIT",$pid ;
 }
