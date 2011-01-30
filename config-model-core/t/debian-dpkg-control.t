@@ -33,7 +33,7 @@ if ( $@ ) {
     plan skip_all => "AptPkg::Config is not installed (not a Debian system ?)";
 }
 else {
-    plan tests => 31;
+    plan tests => 32;
 }
 
 my $arg = shift || '';
@@ -463,13 +463,13 @@ Description: Release tests for POD spelling
 EOD
 
 $tests[$i++]{check} 
-   = [ 'binary:libdist-zilla-plugin-podspellingtests-perl Description' 
-   => "release tests for POD spelling This is an extension of
-Dist::Zilla::Plugin::InlineFiles, xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-providing the following file:
+   = [ 'binary:libdist-zilla-plugin-podspellingtests-perl Synopsis' 
+   => "release tests for POD spelling",
+    'binary:libdist-zilla-plugin-podspellingtests-perl Description' 
+   => "This is an extension of Dist::Zilla::Plugin::InlineFiles,
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx providing the following file:
 
- - xt/release/pod-spell.t - a standard Test::Spelling test"
-    ];
+ - xt/release/pod-spell.t - a standard Test::Spelling test"   ];
 
 
 my $idx = 0 ;

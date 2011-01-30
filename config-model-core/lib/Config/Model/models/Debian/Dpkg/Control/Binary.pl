@@ -94,6 +94,21 @@
                                         },
                              'type' => 'list'
                            },
+                           'Synopsis',
+                           {
+                             'value_type' => 'uniline',
+                             'warn_if_match' => {
+                                                  '^[A-Z]' => {
+                                                                'msg' => 'short description should start with a small letter',
+                                                                'fix' => '$_ = lcfirst($_) ;'
+                                                              },
+                                                  '.{80,}' => {
+                                                              'msg' => 'Synopsis is too long. '
+                                                            }
+                                                },
+                             'mandatory' => '1',
+                             'type' => 'leaf'
+                           },
                            'Description',
                            {
                              'value_type' => 'string',
@@ -115,7 +130,11 @@ else {
                                                   '\\n[\\-\\*]' => {
                                                                      'msg' => 'lintian like possible-unindented-list-in-extended-description. i.e. "-" or "*" without leading white space',
                                                                      'fix' => 's/\\n([\\-\\*])/\\n $1/g; $_ ;'
-                                                                   }
+                                                                   },
+                                                  '^\\s*\\n' => {
+                                                              'msg' => 'Description must not start with an empty line',
+                                                              'fix' => 's/[\\s\\s]+// ;'
+                                                            }
                                                 },
                              'mandatory' => '1',
                              'type' => 'leaf'
