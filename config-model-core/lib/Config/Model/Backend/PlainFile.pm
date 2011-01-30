@@ -87,6 +87,7 @@ sub write {
 
     my $check = $args{check} || 'yes' ;
     my $dir = $args{config_dir} ;
+    mkpath($dir, { mode => 0755 } ) unless -d $dir ;
     my $node = $args{object} ;
     $logger->debug("PlainFile write called on node ", $node->name);
 
