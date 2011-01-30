@@ -4,11 +4,11 @@
         * Debian::Dependency: reworked to reduce calls to madison. Report available
           versions when unnessary version issue is found.). Source is optional.
         * dpkg control model: added forgotten Enhances and Pre-Depends. Added warnings for
-          too long lines in Description (plus fixes based on Text::Autoformat)
-        * dpkg model: New model to aggregate control, copyright and source/format models.
+          too long lines in Description (plus fixes based on Text::Autoformat). Added 
+          Synopsis element to better tune warnings and fixes
     * Framework changes:
         * FuseUI: Fix undef warning. Ensure that files finish with "\n". 
-        Fix bug where value 0 was shown as an empty file.
+          Fix bug where value 0 was shown as an empty file.
         * Added PlainFile backend (each config parameter is stored in its own file. useful for
         some dpkg data)
 
