@@ -444,6 +444,8 @@ sub auto_write_init {
              };
         }
 
+        # FIXME: enhance write back mechanism so that different backend *and* different nodse
+        # work as expected
         $instance->register_write_back($backend => $wb) ;
         $registered_backend ++ ;
     }
