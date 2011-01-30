@@ -516,8 +516,7 @@ sub grab_root {
 
 #internal. Used by grab with '?xxx' steps
 sub grab_ancestor_with_element_named {
-    my $self = shift ;
-    my $search = shift ;
+    my ($self, $search, $type) = @_ ;
 
     my $obj = $self ;
 
@@ -527,7 +526,7 @@ sub grab_ancestor_with_element_named {
 
 	my $obj_element_name = $obj->element_name ;
 
-	if ($obj->isa('Config::Model::Node') && $obj->has_element($search)) {
+	if ($obj->isa('Config::Model::Node') and $obj->has_element(name => $search, type => $type) ) {
 	    # object contains the search element, we need to grab the
 	    # searched object (i.e. the '?foo' part is done
 	    return $obj ;
