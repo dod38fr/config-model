@@ -63,7 +63,7 @@ Package: libdist-zilla-plugins-cjm-perl
 Architecture: all
 Depends: ${misc:Depends}, ${perl:Depends}, libcpan-meta-perl ,
  perl (>= 5.10.1)
-Description: Collection of CJM's plugins for Dist::Zilla
+Description: collection of CJM's plugins for Dist::Zilla
  Collection of Dist::Zilla plugins. This package features the 
  following [snip]  
 EOD
@@ -93,7 +93,7 @@ warning_like {
         instance_name   => "deptest",
     );
 }
-qr/includes libmodule-build-perl/, "test BDI warn";
+qr/includes libmodule-build-perl/ , "test BDI warn";
 
 ok($inst,"Read $control_file and created instance") ;
 

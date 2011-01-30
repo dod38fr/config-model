@@ -464,7 +464,7 @@ EOD
 
 $tests[$i++]{check} 
    = [ 'binary:libdist-zilla-plugin-podspellingtests-perl Description' 
-   => "Release tests for POD spelling This is an extension of
+   => "release tests for POD spelling This is an extension of
 Dist::Zilla::Plugin::InlineFiles, xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 providing the following file:
 
