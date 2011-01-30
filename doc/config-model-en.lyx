@@ -498,7 +498,7 @@ What is a model?
 \end_layout
 
 \begin_layout Standard
-Config is represented in a tree.
+Configuration is represented as a tree.
 \end_layout
 
 \begin_layout Pause
@@ -812,6 +812,108 @@ status open
 
 \end_layout
 
+\end_deeper
+\begin_layout BeginFrame
+Warnings and fixes
+\end_layout
+
+\begin_layout ColumnsTopAligned
+
+\end_layout
+
+\begin_deeper
+\begin_layout Column
+5cm
+\end_layout
+
+\begin_layout Block
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+{Betweem right and wrong}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Specify warning conditions
+\end_layout
+
+\begin_layout Itemize
+Specify message
+\end_layout
+
+\end_deeper
+\begin_layout Pause
+
+\end_layout
+
+\begin_layout Block
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+{Fix help}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Declare fix instructions
+\end_layout
+
+\begin_layout Itemize
+Applied by user
+\end_layout
+
+\begin_layout Itemize
+Optional
+\end_layout
+
+\end_deeper
+\begin_layout Column
+5cm
+\end_layout
+
+\begin_layout Block
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+{warning specification}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+
+\size scriptsize
+\begin_inset Graphics
+	filename warn_if.png
+	width 80col%
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
 \end_deeper
 \begin_layout Subsection
 Configuration model creation
@@ -1326,7 +1428,15 @@ INI files
 \end_layout
 
 \begin_layout Itemize
-Shell vars like
+Shell vars like (FOO = bar)
+\end_layout
+
+\begin_layout Itemize
+Plain file (one parameter, one file)
+\end_layout
+
+\begin_layout Itemize
+Augeas
 \end_layout
 
 \end_deeper
@@ -1645,8 +1755,59 @@ status open
 
 \begin_layout Plain Layout
 
-}{} %showotherui
+}{ % else showotherui
 \end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout BeginFrame
+Other interfaces
+\end_layout
+
+\begin_layout Standard
+Other interfaces are available:
+\end_layout
+
+\begin_layout Itemize
+Curses
+\end_layout
+
+\begin_layout Itemize
+Shell like (with 'ls' 'cd' )
+\end_layout
+
+\begin_layout Itemize
+Telnet like (command and answers)
+\end_layout
+
+\begin_layout Itemize
+Fuse (every parameter is a file)
+\end_layout
+
+\begin_layout EndFrame
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+} % end elseshowotherui
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
 
 \begin_layout Plain Layout
 
@@ -2247,7 +2408,7 @@ sshd_config: Accept new parameters, but emit a warning
 
 \size scriptsize
           .
- 'no typo and contact the author'
+ 'no typo and log a bug'
 \end_layout
 
 \begin_layout LyX-Code
@@ -2553,7 +2714,7 @@ Status
 \end_layout
 
 \begin_layout BeginFrame
-Project status
+Project status 1
 \end_layout
 
 \begin_layout ColumnsCenterAligned
@@ -2682,11 +2843,35 @@ n between Config::Model and Augeas is tricky
 
 \end_deeper
 \end_deeper
+\end_deeper
 \begin_layout Pause
 
 \end_layout
 
+\begin_layout Block
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+{Framework}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Model composition (plugins)
+\end_layout
+
 \end_deeper
+\begin_layout BeginFrame
+Project status 2
+\end_layout
+
 \begin_layout Block
 \begin_inset ERT
 status open
@@ -2707,7 +2892,7 @@ Debian packages
 \end_layout
 
 \begin_layout Itemize
-Rpm packages 
+Mageia packages 
 \end_layout
 
 \begin_layout Itemize
@@ -2817,12 +3002,16 @@ status open
 \end_layout
 
 \begin_deeper
-\begin_layout Standard
-Config::Model needs your help:
+\begin_layout Itemize
+Integration in distros (packaging)
 \end_layout
 
 \begin_layout Itemize
-Integration in distros
+Improve config upgrade on 
+\emph on
+your
+\emph default
+ package
 \end_layout
 
 \begin_layout Itemize
@@ -2832,16 +3021,6 @@ Multi-level configuration
 \begin_deeper
 \begin_layout NoteItem
 Debian pure-blend project
-\end_layout
-
-\end_deeper
-\begin_layout Itemize
-Plug-in mechanism for models (Xorg drivers)
-\end_layout
-
-\begin_deeper
-\begin_layout NoteItem
-For applications with plug-ins
 \end_layout
 
 \end_deeper
