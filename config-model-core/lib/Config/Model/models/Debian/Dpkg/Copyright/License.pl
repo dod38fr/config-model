@@ -13,7 +13,7 @@ license: /[\\w\\-\\.\\+]+/i
    { # PRD action to check if the license text is provided
      my $abbrev = $item[1] ;
      $found++ ;
-     my $elt = $arg[0]->grab("! License") ;
+     my $elt = $arg[0]->grab(step => "- - - License", strict => 1, type => \'hash\') ;
      if ($elt->defined($abbrev) or $arg[0]->grab("- full_license")->fetch) {
         $ok &&= 1;
      }
