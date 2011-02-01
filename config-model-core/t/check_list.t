@@ -7,7 +7,7 @@ use Test::More;
 use Config::Model;
 use Data::Dumper ;
 
-BEGIN { plan tests => 74; }
+BEGIN { plan tests => 75; }
 
 use strict;
 
@@ -410,6 +410,8 @@ is_deeply( \@got , [qw/Y V C Z A/] , "test ordered_checklist after move_up B unc
 $ocl->check('B');
 @got = $ocl->get_checked_list ;
 is_deeply( \@got , [qw/Y V C Z B A/] , "test ordered_checklist after check B") ;
+
+is( $root->grab_value($ocl->location) , "Y,V,C,Z,B,A" , "test grab_value") ;
 
 my $oclrt = $root->fetch_element('ordered_checklist_refer_to') ;
 @got = $oclrt->get_choice() ;

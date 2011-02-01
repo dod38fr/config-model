@@ -460,28 +460,28 @@ sub grab {
 
 =head2 grab_value(...)
 
-Like L</grab(...)>, but will return the value of a leaf object, not
+Like L</grab(...)>, but will return the value of a leaf or check_list object, not
 just the leaf object.
 
 Will raise an exception if following the steps ends on anything but a
-leaf.
+leaf or a check_list.
 
 =cut
 
 sub grab_value {
     my $self = shift ;
-    my @args = scalar @_ == 1 ? ( step => $_[0], type => 'leaf')
-      : ( @_ , type => 'leaf') ;
-
+    my @args = scalar @_ == 1 ? ( step => $_[0] ) : @_ ;
+    
     my $obj = $self->grab(@args) ;
 
     Config::Model::Exception::User
 	-> throw (
 		  object => $self,
-		  message => "grab_value: cannot get value of non-leaf "
+		  message => "grab_value: cannot get value of non-leaf or check_list "
 		  ."item with '".join("' '",@_)."'"
 		 ) 
-	  unless ref $obj && $obj->isa("Config::Model::Value");
+	  unless ref $obj and ( $obj->isa("Config::Model::Value") or 
+            $obj->isa("Config::Model::CheckList"));
 
     return $obj->fetch ;
 }
