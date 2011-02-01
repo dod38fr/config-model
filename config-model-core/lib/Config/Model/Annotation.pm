@@ -45,20 +45,67 @@ Config::Model::Annotation - Read and write configuration annotations
 
 =head1 SYNOPSIS
 
- my $arw = Config::Model::Annotation 
-          -> new (
-                  config_class_name => $self->{root_class_name},
-                  instance => $self ,
-                 ) ;
+ use Config::Model ;
+ use Log::Log4perl qw(:easy) ;
+ Log::Log4perl->easy_init($WARN);
 
- $arw->load;
+ # define configuration tree object
+ my $model = Config::Model->new ;
+ $model ->create_config_class (
+    name => "MyClass",
+    element => [ 
+        [qw/foo bar/] => { 
+            type => 'leaf',
+            value_type => 'string'
+        },
+        baz => { 
+            type => 'hash',
+            index_type => 'string' ,
+            cargo => {
+                type => 'leaf',
+                value_type => 'string',
+            },
+        },
+        
+    ],
+ ) ;
 
- $arw->save;
+ my $inst = $model->instance(root_class_name => 'MyClass' );
+
+ my $root = $inst->config_root ;
+
+ # put some data in config tree the hard way
+ $root->fetch_element('foo')->store('yada') ;
+ $root->fetch_element('baz')->fetch_with_id('en')->store('hello') ;
+
+ # put annotation the hard way
+ $root->fetch_element('foo')->annotation('english') ;
+ $root->fetch_element('baz')->fetch_with_id('en')->annotation('also english') ;
+
+ # put more data the easy way
+ my $step = 'baz:fr=bonjour#french baz:hr="dobar dan"#croatian';
+ $root->load( step => $step ) ;
+
+ # dump resulting tree with annotations
+ print $root->dump_tree;
+
+ # save annotations
+ my $annotate_saver = Config::Model::Annotation
+  -> new (
+          config_class_name => 'MyClass',
+          instance => $inst ,
+	  root_dir => '/tmp/', # for test
+         ) ;
+ $annotate_saver->save ;
+
+ # now check content of /tmp/config-model/MyClass-note.pl
+
 
 =head1 DESCRIPTION
 
 This module provides an object that read and write annotations (a bit
-like comments) to and from a configuration tree.
+like comments) to and from a configuration tree and save them in a file (not 
+configuration file)
 
 Depending on the effective id of the process, the annotation will be
 saved in:

@@ -33,17 +33,28 @@ Config::Model::ObjTreeScanner - Scan config tree and perform call-backs
 
 =head1 SYNOPSIS
 
- use Config::Model::ObjTreeScanner ;
+ use Config::Model ;
+ use Log::Log4perl qw(:easy) ;
+ Log::Log4perl->easy_init($WARN);
 
  # define configuration tree object
  my $model = Config::Model->new ;
  $model ->create_config_class (
     name => "MyClass",
     element => [ 
-        [qw/foo bar baz/] => { 
+        [qw/foo bar/] => { 
             type => 'leaf',
             value_type => 'string'
         },
+        baz => { 
+            type => 'hash',
+            index_type => 'string' ,
+            cargo => {
+                type => 'leaf',
+                value_type => 'string',
+            },
+        },
+        
     ],
  ) ;
 
@@ -51,56 +62,31 @@ Config::Model::ObjTreeScanner - Scan config tree and perform call-backs
 
  my $root = $inst->config_root ;
 
+ # put some data in config tree the hard way
+ $root->fetch_element('foo')->store('yada') ;
+ $root->fetch_element('bar')->store('bla bla') ;
+ $root->fetch_element('baz')->fetch_with_id('en')->store('hello') ;
+
+ # put more data the easy way
+ my $step = 'baz:fr=bonjour baz:hr="dobar dan"';
+ $root->load( step => $step ) ;
+
  # define leaf call back
  my $disp_leaf = sub { 
       my ($scanner, $data_ref, $node,$element_name,$index, $leaf_object) = @_ ;
-      $$data_ref .= "Called for $element_name value ",$leaf_object->fetch,"\n";
+      $$data_ref .= "disp_leaf called for '". $leaf_object->name. 
+	"' value '".$leaf_object->fetch."'\n";
     } ;
 
  # simple scanner, (print all values with 'beginner' experience
  $scan = Config::Model::ObjTreeScanner-> new
   (
-   leaf_cb               => \&disp_leaf, # only mandatory parameter
+   leaf_cb               => $disp_leaf, # only mandatory parameter
   ) ;
 
  my $result = '';
  $scan->scan_node(\$result, $root) ;
  print $result ;
-
- # For a more complex scanner
-
- $scan = Config::Model::ObjTreeScanner-> new
-  (
-   fallback => 'none',     # all callback must be defined
-   experience => 'master', # consider all values
-
-   # node callback
-   node_content_cb        => \&my_node_elt_cb ,
-
-   # node callback depending on configuration class
-   node_dispach_cb        => { MyClass => \&my_class_cb } ,
-
-   # element callback
-   list_element_cb       => \&my_hash_cb ,
-   check_list_element_cb => \&my_hash_cb ,
-   hash_element_cb       => \&my_hash_cb ,
-   node_element_cb       => \&my_node_cb  ,
-
-   # leaf callback
-   leaf_cb               => \&my_leaf_cb,
-   enum_value_cb         => \&my_leaf_cb,
-   integer_value_cb      => \&my_leaf_cb,
-   number_value_cb       => \&my_leaf_cb,
-   boolean_value_cb      => \&my_leaf_cb,
-   string_value_cb       => \&my_leaf_cb,
-   uniline_value_cb      => \&my_leaf_cb,
-   reference_value_cb    => \&my_leaf_cb,
-
-   # call-back when going up the tree
-   up_cb                 => \&my_up_cb ,
-  ) ;
-
- $scan->scan_node(\$result, $root) ;
 
 =head1 DESCRIPTION
 

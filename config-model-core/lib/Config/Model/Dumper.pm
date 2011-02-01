@@ -32,27 +32,46 @@ Config::Model::Dumper - Serialize data of config tree
 =head1 SYNOPSIS
 
  use Config::Model ;
+ use Log::Log4perl qw(:easy) ;
+ Log::Log4perl->easy_init($WARN);
 
- # create your config model
- my $model = Config::Model -> new ;
- $model->create_config_class( ... ) ;
+ # define configuration tree object
+ my $model = Config::Model->new ;
+ $model ->create_config_class (
+    name => "MyClass",
+    element => [ 
+        [qw/foo bar/] => { 
+            type => 'leaf',
+            value_type => 'string'
+        },
+        baz => { 
+            type => 'hash',
+            index_type => 'string' ,
+            cargo => {
+                type => 'leaf',
+                value_type => 'string',
+            },
+        },
+        
+    ],
+ ) ;
 
- # create instance
- my $inst = $model->instance (root_class_name => 'FooBar', 
-			      instance_name => 'test1');
+ my $inst = $model->instance(root_class_name => 'MyClass' );
 
- # create root of config
- my $root = $inst -> config_root ;
+ my $root = $inst->config_root ;
 
- # put some data in config tree
- my $step = 'std_id:ab X=Bv - std_id:bc X=Av - a_string="toto tata"';
- $root->walk( step => $step ) ;
+ # put some data in config tree the hard way
+ $root->fetch_element('foo')->store('yada') ;
+ $root->fetch_element('bar')->store('bla bla') ;
+ $root->fetch_element('baz')->fetch_with_id('en')->store('hello') ;
 
- # dump only customized data (audit mode)
+ # put more data the easy way
+ my $step = 'baz:fr=bonjour baz:hr="dobar dan"';
+ $root->load( step => $step ) ;
+
+ # dump only customized data
  print $root->dump_tree;
 
- # dump all data including default values
- print $root->dump_tree( full_dump => 1 ) ;
 
 =head1 DESCRIPTION
 
