@@ -418,20 +418,7 @@ Config::Model::Exception - Exception mechanism for configuration model
 
 =head1 SYNOPSIS
 
- # in module
- Config::Model::Exception::Model->throw
-     (
-       object => $self,
-       error => "Oops in model"
-     ) if $fail ;
-
- # in application
- eval { function_that_may_fail() ;}
- if ($@) {
-    my $exception = shift;
-    warn $ex->error ;
-    # fix failure
- }
+ # internal
 
 =head1 DESCRIPTION
 

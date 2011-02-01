@@ -25,44 +25,113 @@ use strict;
 use Scalar::Util qw(weaken) ;
 use Carp ;
 
-
-
-
 =head1 NAME
 
 Config::Model::IdElementReference - Refer to id element(s) and extract keys
 
 =head1 SYNOPSIS
 
- # used from a value class
- element => [
-            node_host => { type => 'leaf',
-			   value_type => 'reference' ,
-			   refer_to => '! host'
-			 },
-            if   => { type => 'leaf',
-                      value_type => 'reference' ,
-                      computed_refer_to 
-                      => { formula => '  ! host:$h if ',
-                           variables => { h => '- node_host' }
-                         }
-                    },
-            ],
+ # synopsis shows an example of model of a network to use references
+ 
+ use Config::Model;
+ use Log::Log4perl qw(:easy);
+ Log::Log4perl->easy_init($WARN);
 
-  # used from checklist
-  element => [
-	      # simple reference, checklist items are given by the
-	      # keys of my_hash
-	      refer_to_list => { type => 'check_list',
-				 refer_to => '- my_hash'
-			       },
+ my $model = Config::Model->new;
 
-	      # checklist items are given by combining my_hash*
-	      refer_to_2_list
-                            => { type => 'check_list',
-				 refer_to => '- my_hash + - my_hash2   + - my_hash3'
-			       },
-             ]
+ # model of several hosts with several NICs
+ $model->create_config_class(
+    name      => 'Host',
+    'element' => [
+        ip_nic => {
+            type       => 'hash',
+            index_type => 'string',
+            cargo      => {
+                type       => 'leaf',
+                value_type => 'uniline',
+            }
+        },
+    ]
+ );
+
+ # model to choose a master host and a master NIC (whatever that may be)
+ # among configured hosts. Once these 2 are configured, the model computes 
+ # the master IP
+
+ $model->create_config_class(
+    name => "MyNetwork",
+
+    element => [
+        host => {
+            type       => 'hash',
+            index_type => 'string',
+            cargo      => {
+                type              => 'node',
+                config_class_name => 'Host'
+            },
+        },
+
+        # master_host is one of the configured hosts
+        master_host => {
+            type       => 'leaf',
+            value_type => 'reference', # provided by tConfig::Model::IdElementReference
+            refer_to   => '! host'
+        },
+
+        # master_nic is one NIC of the master host
+        master_nic => {
+            type              => 'leaf',
+            value_type        => 'reference', # provided by tConfig::Model::IdElementReference
+            computed_refer_to => {            # provided by Config::Model::ValueComputer
+                formula   => '  ! host:$h ip_nic ',
+                variables => { h => '- master_host' }
+            }
+        },
+
+        # provided by Config::Model::ValueComputer
+        master_ip => {
+            type       => 'leaf',
+            value_type => 'string',
+            compute    => {
+                formula   => '$ip',
+                variables => {
+                    h   => '- master_host',
+                    nic => '- master_nic',
+                    ip  => '! host:$h ip_nic:$nic'
+                }
+            }
+        },
+
+    ],
+ );
+
+ my $inst = $model->instance(root_class_name => 'MyNetwork' );
+
+ my $root = $inst->config_root ;
+
+ # configure hosts on my network
+ my $step = 'host:foo ip_nic:eth0=192.168.0.1 ip_nic:eth1=192.168.1.1 -
+             host:bar ip_nic:eth0=192.168.0.2 ip_nic:eth1=192.168.1.2 -
+             host:baz ip_nic:eth0=192.168.0.3 ip_nic:eth1=192.168.1.3 ';
+ $root->load( step => $step );
+
+ print "master host can be one of ",
+   join(' ',$root->fetch_element('master_host')->get_choice),"\n" ; 
+ # prints: master host can be one of bar baz foo
+
+ # choose master host
+ $root->load('master_host=bar') ;
+
+ print "master NIC of master host can be one of ",
+ join(' ',$root->fetch_element('master_nic')->get_choice),"\n" ; 
+ # prints: master NIC of master host can be one of eth0 eth1
+
+ # choose master nic
+ $root->load('master_nic=eth1') ;
+
+ # check what is the master IP computed by the model
+ print "master IP is ",$root->grab_value('master_ip'),"\n";
+ # prints master IP is 192.168.1.2
 
 
 =head1 DESCRIPTION
@@ -77,7 +146,7 @@ checklist items from the keys of another hash (or content of a list).
 
 =head1 CONSTRUCTOR
 
-Construction is handled by the calling object. 
+Construction is handled by the calling object (L<Config::Model::Node>). 
 
 =cut
 

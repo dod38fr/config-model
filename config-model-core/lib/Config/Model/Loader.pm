@@ -32,22 +32,81 @@ Config::Model::Loader - Load serialized data into config tree
 
 =head1 SYNOPSIS
 
- use Config::Model ;
+ use Config::Model;
+ use Log::Log4perl qw(:easy);
+ Log::Log4perl->easy_init($WARN);
 
- # create your config model
- my $model = Config::Model -> new ;
- $model->create_config_class( ... ) ;
+ # define configuration tree object
+ my $model = Config::Model->new;
+  $model->create_config_class(
+    name    => "Foo",
+    element => [
+        [qw/foo bar/] => {
+            type       => 'leaf',
+            value_type => 'string'
+        },
+    ]
+ ); 
+ 
+ $model ->create_config_class (
+    name => "MyClass",
 
- # create instance
- my $inst = $model->instance (root_class_name => 'FooBar',
-			      instance_name => 'test1');
+    element => [ 
 
- # create root of config
- my $root = $inst -> config_root ;
+        [qw/foo bar/] => {
+            type       => 'leaf',
+            value_type => 'string'
+        },
+        hash_of_nodes => {
+            type       => 'hash',     # hash id
+            index_type => 'string',
+            cargo      => {
+                type              => 'node',
+                config_class_name => 'Foo'
+            },
+        },
+        [qw/lista listb/] => { 
+			      type => 'list',
+			      cargo =>  {type => 'leaf',
+					 value_type => 'string'
+					}
+			      },
+    ],
+ ) ;
 
- # put some data in config tree
- my $step = 'std_id:ab X=Bv - std_id:bc X=Av - a_string="toto tata"';
- $root->load( step => $step ) ;
+ my $inst = $model->instance(root_class_name => 'MyClass' );
+
+ my $root = $inst->config_root ;
+
+ # put data
+ my $step = 'foo=FOO hash_of_nodes:fr foo=bonjour -
+   hash_of_nodes:en foo=hello 
+   ! lista=foo,bar lista:2=baz
+     listb:0=foo listb:1=baz';
+ $root->load( step => $step );
+
+ print $root->describe,"\n" ;
+ # name         value        type         comment                            
+ # foo          FOO          string                                          
+ # bar          [undef]      string                                          
+ # hash_of_nodes <Foo>        node hash    keys: "en" "fr"                    
+ # lista        foo,bar,baz  list                                            
+ # listb        foo,baz      list                                            
+
+
+ # delete some data
+ $root->load( step => 'lista~2' );
+
+ print $root->describe(element => 'lista'),"\n" ;
+ # name         value        type         comment                            
+ # lista        foo,bar      list                                            
+
+ # append some data
+ $root->load( step => q!hash_of_nodes:en foo.=" world"! );
+
+ print $root->grab('hash_of_nodes:en')->describe(element => 'foo'),"\n" ;
+ # name         value        type         comment                            
+ # foo          "hello world" string                                          
 
 =head1 DESCRIPTION
 

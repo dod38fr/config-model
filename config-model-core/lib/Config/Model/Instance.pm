@@ -44,11 +44,37 @@ Config::Model::Instance - Instance of configuration tree
 
 =head1 SYNOPSIS
 
- my $model = Config::Model->new() ;
- $model ->create_config_class ( ... ) ;
+ use Config::Model;
+ use Log::Log4perl qw(:easy);
+ use File::Path ;
+ Log::Log4perl->easy_init($WARN);
 
- my $inst = $model->instance (root_class_name => 'SomeRootClass', 
-                              instance_name    => 'some_name');
+ # setup a dummy popcon conf file
+ my $wr_dir = '/tmp/etc/';
+ my $conf_file = "$wr_dir/popularity-contest.conf" ;
+
+ unless (-d $wr_dir) {
+     mkpath($wr_dir, { mode => 0755 }) 
+       || die "can't mkpath $wr_dir: $!";
+ }
+ open(my $conf,"> $conf_file" ) || die "can't open $conf_file: $!";
+ $conf->print( qq!MY_HOSTID="aaaaaaaaaaaaaaaaaaaa"\n!,
+   qq!PARTICIPATE="yes"\n!,
+   qq!USEHTTP="yes" # always http\n!,
+   qq!DAY="6"\n!);
+ $conf->close ;
+
+ my $model = Config::Model->new;
+
+ # PopCon model is provided. Create a new Config::Model::Instance object
+ my $inst = $model->instance (root_class_name   => 'PopCon',
+                              root_dir          => '/tmp',
+                             );
+ my $root = $inst -> config_root ;
+
+ print $root->describe;
+
+
 
 =head1 DESCRIPTION
 

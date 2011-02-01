@@ -35,25 +35,45 @@ Config::Model::CheckList - Handle check list element
 
 =head1 SYNOPSIS
 
- $model ->create_config_class 
-  (
-   ...
-   element 
-   => [ 
-       check_list 
-       => { type => 'check_list',
-            choice => [ 'A', 'B', 'C', 'D' ],
-            help   => { A => 'A effect is this',
-                        D => 'D does that',
-                      }
-          },
-       check_list_refering_to_another_hash 
-       => { type => 'check_list',
-            refer_to => '- foobar'
-          },
+ use Config::Model;
+ use Log::Log4perl qw(:easy);
+ Log::Log4perl->easy_init($WARN);
 
-      ]
-  ) ;
+ # define configuration tree object
+ my $model = Config::Model->new;
+ $model->create_config_class(
+    name => "MyClass",
+
+    element => [
+
+        # type check_list will use Config::Model::CheckList
+        my_check_list => {
+            type   => 'check_list',
+            choice => [ 'A', 'B', 'C', 'D' ],
+            help   => {
+                A => 'A effect is this',
+                D => 'D does that',
+            }
+        },
+    ],
+ );
+
+ my $inst = $model->instance( root_class_name => 'MyClass' );
+
+ my $root = $inst->config_root;
+
+ # put data
+ $root->load( step => 'my_check_list=A' ); 
+
+ my $obj = $root->grab('my_check_list');
+
+ my $v = $root->grab_value('my_check_list');
+ print "check_list value '$v' with help '", $obj->get_help($v), "'\n";
+
+ # more data
+ $obj->check('D');
+ $v = $root->grab_value('my_check_list');
+ print "check_list new value is '$v'\n";   # prints check_list new value is 'A,D'
 
 =head1 DESCRIPTION
 

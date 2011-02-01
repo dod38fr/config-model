@@ -34,20 +34,7 @@ Config::Model::ListId - Handle list element for configuration model
 
 =head1 SYNOPSIS
 
- $model ->create_config_class 
-  (
-   ...
-   element 
-   => [ 
-       bounded_list 
-       => { type => 'list',
-            max_index => 123, 
-            max_nb => 2 ,
-            cargo_type => 'leaf',
-            cargo_args => {value_type => 'string'},
-          },
-      ]
-  ) ;
+See L<Config::Model::AnyId/SYNOPSIS>
 
 =head1 DESCRIPTION
 

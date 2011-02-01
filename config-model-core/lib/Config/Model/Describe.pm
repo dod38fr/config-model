@@ -32,24 +32,57 @@ Config::Model::Describe - Provide a description of a node element
 
 =head1 SYNOPSIS
 
- use Config::Model ;
+ use Config::Model;
+ use Log::Log4perl qw(:easy);
+ Log::Log4perl->easy_init($WARN);
 
- # create your config model
- my $model = Config::Model -> new ;
- $model->create_config_class( ... ) ;
+ # define configuration tree object
+ my $model = Config::Model->new;
+  $model->create_config_class(
+    name    => "Foo",
+    element => [
+        [qw/foo bar/] => {
+            type       => 'leaf',
+            value_type => 'string'
+        },
+    ]
+ ); 
+ $model ->create_config_class (
+    name => "MyClass",
 
- # create instance
- my $inst = $model->instance (root_class_name => 'FooBar', 
-			      instance_name => 'test1');
+    element => [ 
 
- # create root of config
- my $root = $inst -> config_root ;
+        [qw/foo bar/] => {
+            type       => 'leaf',
+            value_type => 'string'
+        },
+        hash_of_nodes => {
+            type       => 'hash',     # hash id
+            index_type => 'string',
+            cargo      => {
+                type              => 'node',
+                config_class_name => 'Foo'
+            },
+        },
+    ],
+ ) ;
+
+ my $inst = $model->instance(root_class_name => 'MyClass' );
+
+ my $root = $inst->config_root ;
+
+ # put data
+ my $step = 'foo=FOO hash_of_nodes:fr foo=bonjour -
+   hash_of_nodes:en foo=hello ';
+ $root->load( step => $step );
 
  print $root->describe ;
 
- # or
-
- print $root->describe(element => 'foo' ) ;
+ ### prints
+ # name         value        type         comment                            
+ # foo          FOO          string                                          
+ # bar          [undef]      string                                          
+ # hash_of_nodes <Foo>        node hash    keys: "en" "fr"                    
 
 =head1 DESCRIPTION
 
