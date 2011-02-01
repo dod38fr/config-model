@@ -65,7 +65,7 @@
 status open
 
 \begin_layout Plain Layout
-Copyright 2009-2010, Dominique Dumont <domi.dumont@free.fr>.
+Copyright 2011, Dominique Dumont <domi.dumont@free.fr>.
  
 \end_layout
 
@@ -384,7 +384,7 @@ Share the work:
 \end_layout
 
 \begin_layout Itemize
-package description and translation (cf Vincent Untz's talk in 2010)
+package description and translation (cf Vincent Untz's talks)
 \end_layout
 
 \begin_layout Itemize
@@ -392,15 +392,50 @@ package legal description (copyright, license ...)
 \end_layout
 
 \begin_layout Itemize
-Maybe: dependency declaration
+screenshots
+\end_layout
+
+\begin_layout Itemize
+Maybe: dependency declarationConfig::Model user mailing list 
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+https://lists.sourceforge.net/lists/listinfo/config-model-users
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+News:
+\end_layout
+
+\begin_layout Itemize
+A lot of talks have recently begun
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+http://www.enricozini.org/2011/debian/appinstaller2011/
+\end_layout
+
+\end_inset
+
+.
+ Mostly focused on user experience.
+\end_layout
+
+\begin_layout Itemize
+That's excellent news
 \end_layout
 
 \begin_layout Standard
 Issues:
-\end_layout
-
-\begin_layout Itemize
-Distro packaging teams don't talk much to each other 
 \end_layout
 
 \begin_layout Itemize
@@ -479,7 +514,7 @@ But I can help on the 2nd point...
 \end_layout
 
 \begin_layout BeginFrame
-Tools: what do we have ?
+Tools: what do we have to merge data?
 \end_layout
 
 \begin_layout Standard
@@ -539,7 +574,7 @@ Demo time
 
 \begin_layout Standard
 In case I forget ...
- demo of Dpkg control editor
+ demo of Dpkg control editor, 
 \end_layout
 
 \begin_layout BeginFrame
@@ -599,7 +634,11 @@ centralised data
 \begin_inset Quotes srd
 \end_inset
 
- model with its DB backend
+ model 
+\end_layout
+
+\begin_layout Itemize
+DB/remote backend for centralised data
 \end_layout
 
 \begin_layout Itemize
@@ -642,21 +681,6 @@ http://config-model.wiki.sourceforge.net
 \end_layout
 
 \begin_layout Itemize
-Config::Model on CPAN 
-\begin_inset Flex URL
-status collapsed
-
-\begin_layout Plain Layout
-
-http://search.cpan.org/dist/Config-Model/
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Itemize
 Config::Model user mailing list 
 \begin_inset Flex URL
 status collapsed
@@ -672,41 +696,13 @@ https://lists.sourceforge.net/lists/listinfo/config-model-users
 \end_layout
 
 \begin_layout Itemize
-GNU/Linux Mag France n°117 and n°120 
-\begin_inset Quotes sld
-\end_inset
-
-Config::Model - Créer un éditeur graphique de configuration avec Perl
-\begin_inset Quotes srd
-\end_inset
-
- (2 parts)
-\end_layout
-
-\begin_layout Itemize
-Proposal to use Config::Model to upgrade configuration during Debian package
- upgrade 
+Cross-distro meeting on application installer 
 \begin_inset Flex URL
 status collapsed
 
 \begin_layout Plain Layout
 
-http://wiki.debian.org/PackageConfigUpgrade
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Itemize
-Augeas project 
-\begin_inset Flex URL
-status collapsed
-
-\begin_layout Plain Layout
-
-http://augeas.net
+http://distributions.freedesktop.org/wiki/Meetings/AppInstaller2011
 \end_layout
 
 \end_inset
