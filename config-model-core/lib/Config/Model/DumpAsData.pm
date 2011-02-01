@@ -32,19 +32,55 @@ Config::Model::DumpAsData - Dump configuration content as a perl data structure
 =head1 SYNOPSIS
 
  use Config::Model ;
+ use Log::Log4perl qw(:easy) ;
+ use Data::Dumper ;
 
- # create your config model
- my $model = Config::Model -> new ;
- $model->create_config_class( ... ) ;
+ Log::Log4perl->easy_init($WARN);
 
- # create instance
- my $inst = $model->instance (root_class_name => 'FooBar', 
-			      instance_name => 'test1');
+ # define configuration tree object
+ my $model = Config::Model->new ;
+ $model ->create_config_class (
+    name => "MyClass",
+    element => [ 
+        [qw/foo bar/] => { 
+            type => 'leaf',
+            value_type => 'string'
+        },
+        baz => { 
+            type => 'hash',
+            index_type => 'string' ,
+            cargo => {
+                type => 'leaf',
+                value_type => 'string',
+            },
+        },
+        
+    ],
+ ) ;
 
- # create root of config
- my $root = $inst -> config_root ;
+ my $inst = $model->instance(root_class_name => 'MyClass' );
 
- my $data =  $root->dump_as_data ;
+ my $root = $inst->config_root ;
+
+ # put some data in config tree the hard way
+ $root->fetch_element('foo')->store('yada') ;
+ $root->fetch_element('bar')->store('bla bla') ;
+ $root->fetch_element('baz')->fetch_with_id('en')->store('hello') ;
+
+ # put more data the easy way
+ my $step = 'baz:fr=bonjour baz:hr="dobar dan"';
+ $root->load( step => $step ) ;
+
+ print Dumper($root->dump_as_data);
+ # $VAR1 = {
+ #         'bar' => 'bla bla',
+ #         'baz' => {
+ #                    'en' => 'hello',
+ #                    'fr' => 'bonjour',
+ #                    'hr' => 'dobar dan'
+ #                  },
+ #         'foo' => 'yada'
+ #       };
 
 =head1 DESCRIPTION
 

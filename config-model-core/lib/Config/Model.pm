@@ -2314,6 +2314,10 @@ L<Config::Model::DumpAsData>
 
 =item *
 
+L<Config::Model::IdElementReference>
+
+=item *
+
 L<Config::Model::Loader>
 
 =item *

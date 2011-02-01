@@ -56,6 +56,12 @@ Config::Model::Node - Class for configuration tree node
 
 =head1 SYNOPSIS
 
+ use Config::Model;
+ use Log::Log4perl qw(:easy);
+ Log::Log4perl->easy_init($WARN);
+
+ # define configuration tree object
+ my $model = Config::Model->new;
  $model->create_config_class(
     name              => 'OneConfigClass',
     class_description => "OneConfigClass detailed description",
@@ -84,10 +90,28 @@ Config::Model::Node - Class for configuration tree node
         }
     ]
  );
+ my $instance = $model->instance (root_class_name => 'OneConfigClass');
+ my $root = $instance->config_root ;
 
- my $instance = $model->instance (root_class_name => 'OneConfigClass', 
-                                  instance_name => 'test1');
- my $root_node = $instance -> config_root ;
+ # X is not shown below because of its deprecated status
+ print $root->describe,"\n" ;
+ # name         value        type         comment
+ # Y            [undef]      enum         choice: Av Bv Cv
+ # Z            [undef]      enum         choice: Av Bv Cv
+
+ # add some data
+ $root->load( step => 'Y=Av' );
+
+ # add some accepted element, ipA and ipB are created on the fly
+ $root->load( step => q!ipA=192.168.1.0 ipB=192.168.1.1"! );
+
+ # show also ip* element created in the last "load" call
+ print $root->describe,"\n" ;
+ # name         value        type         comment
+ # Y            Av           enum         choice: Av Bv Cv
+ # Z            [undef]      enum         choice: Av Bv Cv
+ # ipA          192.168.1.0  uniline
+ # ipB          192.168.1.1  uniline
 
 =head1 DESCRIPTION
 
