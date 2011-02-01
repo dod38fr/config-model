@@ -30,8 +30,7 @@ Config::Model::AnyThing - Base class for configuration tree item
 
 =head1 SYNOPSIS
 
- package Config::Model::Node ;
- use base qw/Config::Model::AnyThing/ ;
+ # internal class
 
 =head1 DESCRIPTION
 

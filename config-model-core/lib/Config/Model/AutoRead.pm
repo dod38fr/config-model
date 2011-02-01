@@ -547,30 +547,64 @@ Config::Model::AutoRead - Load configuration node on demand
 
 =head1 SYNOPSIS
 
-  # top level config file name matches instance name
-  $model->create_config_class 
-  (
-   name => 'OneAutoReadConfigClass',
+ # Use AutoRead to write data in perl data file
+ use Config::Model;
+ use Log::Log4perl qw(:easy);
+ Log::Log4perl->easy_init($WARN);
 
-   read_config  => [ { backend => 'cds_file' , config_dir => '/etc/cfg_dir'},
-                     { backend => 'custom' , 
-                       class => 'ProcessRead' ,
-                       config_dir => '/etc/foo', # optional
-                       file  => 'foo.conf',      # optional
-                       auto_create => 1,         # optional
-                     }
-                   ],
-   # if omitted, write_config will be written using read_config specifications
-   # write_config can be array of hash ref to write several syntaxes
-   write_config => { backend => 'cds_file', config_dir => '/etc/cfg_dir' } ,
+ # define configuration tree object
+ my $model = Config::Model->new;
+ $model->create_config_class(
+    name    => "Foo",
+    element => [
+        [qw/foo bar/] => {
+            type       => 'leaf',
+            value_type => 'string'
+        },
+    ]
+ ); 
 
+ $model->create_config_class(
+    name => "MyClass",
 
-   element => ...
-  ) ;
+    # read_config spec is used by Config::Model::AutoRead
+    read_config => [
+        {
+            backend     => 'perl_file',
+            config_dir  => '/tmp/',
+            file        => 'my_class.pl',
+            auto_create => 1,
+        },
+    ],
+    
+    element => [
+        [qw/foo bar/] => {
+            type       => 'leaf',
+            value_type => 'string'
+        },
+        hash_of_nodes => {
+            type       => 'hash',     # hash id
+            index_type => 'string',
+            cargo      => {
+                type              => 'node',
+                config_class_name => 'Foo'
+            },
+        },
+    ],
+ );
 
-  # config data will be written in /etc/my_config_dir/foo.cds
-  # according to the instance name
-  my $instance = $model->instance(instance_name => 'foo') ;
+ my $inst = $model->instance( root_class_name => 'MyClass' );
+
+ my $root = $inst->config_root;
+
+ # put data
+ my $step = 'foo=FOO hash_of_nodes:fr foo=bonjour -
+   hash_of_nodes:en foo=hello ';
+ $root->load( step => $step );
+
+ $inst->write_back;
+
+ # now look at file /tmp/my_class.pl
 
 =head1 DESCRIPTION
 
