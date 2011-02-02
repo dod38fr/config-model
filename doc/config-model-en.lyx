@@ -313,6 +313,19 @@ Configuration upgrade problems
 Configuration is often painful!
 \end_layout
 
+\begin_layout FrameSubtitle
+Boy, so much doc to read
+\end_layout
+
+\begin_layout ColumnsCenterAligned
+
+\end_layout
+
+\begin_deeper
+\begin_layout Column
+8cm
+\end_layout
+
 \begin_layout Standard
 Configuration upgrade is often difficult for a user:
 \end_layout
@@ -339,11 +352,29 @@ Ensure consistency
 Leave spurious files
 \end_layout
 
+\begin_layout Column
+3cm
+\end_layout
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename /usr/share/openclipart/svg/signs_and_symbols/extremement_inflammable_01.svg
+	width 100col%
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
 \begin_layout Pause
 
 \end_layout
 
 \begin_layout Standard
+\begin_inset VSpace medskip
+\end_inset
+
 Basic configuration may also be difficult...
 \end_layout
 
@@ -355,7 +386,24 @@ Objectives
 Objective 1: Make configuration easier for users
 \end_layout
 
+\begin_layout ColumnsCenterAligned
+
+\end_layout
+
+\begin_deeper
+\begin_layout Column
+8cm
+\end_layout
+
 \begin_layout Standard
+Better user experience:
+\end_layout
+
+\begin_layout Itemize
+Smooth the learning curve
+\end_layout
+
+\begin_layout Itemize
 Handle configuration upgrade smoothly (mostly no interaction)
 \end_layout
 
@@ -390,18 +438,44 @@ Several levels of skills
 Search
 \end_layout
 
+\begin_layout Column
+3cm
+\end_layout
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename /usr/share/openclipart/svg/signs_and_symbols/extincteur_yves_guillou_01.svg
+	width 100col%
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
 \begin_layout BeginFrame
 Objective 2: Make maintenance easy for developers
 \end_layout
 
-\begin_layout Itemize
-Configuration tool and upgrader must be easy to maintain:
+\begin_layout FrameSubtitle
+Help the developers help the users...
+\end_layout
+
+\begin_layout ColumnsCenterAligned
+
 \end_layout
 
 \begin_deeper
+\begin_layout Column
+9cm
+\end_layout
+
+\begin_layout Standard
+Config tool and upgrader must be easy to maintain:
+\end_layout
+
 \begin_layout Itemize
-Avoid ad-hoc validation code (e.g.
- don't rewrite Webmin)
+Avoid ad-hoc validation code 
 \end_layout
 
 \begin_layout Itemize
@@ -418,46 +492,46 @@ meta-data
 configuration model
 \end_layout
 
-\begin_deeper
-\begin_layout NoteItem
-Data are much easier to maintain than code
-\end_layout
-
-\end_deeper
 \begin_layout Itemize
-Generate interfaces (graphicals or not) from the model
+Generate interfaces from the model
 \end_layout
 
 \begin_layout Itemize
-Model contains properties to upgrade configuration
+Model designed to upgrade user configuration
 \end_layout
 
 \begin_layout Itemize
 GUI to create and maintain models
 \end_layout
 
-\begin_deeper
-\begin_layout NoteItem
-Avoid rpmsave file proliferation
-\end_layout
-
-\end_deeper
-\end_deeper
 \begin_layout Pause
 
 \end_layout
 
-\begin_layout Itemize
-Minimise code required to read or write configuration files:
-\end_layout
-
-\begin_deeper
-\begin_layout Itemize
-Use existing libraries (Config::Ini, Config::Augeas -- and all Augeas lenses...)
+\begin_layout Standard
+Minimise code required to read or write config:
 \end_layout
 
 \begin_layout Itemize
-Provide basic classes to help configuration reads and writes
+Use existing libraries (Config::Ini, Augeas)
+\end_layout
+
+\begin_layout Itemize
+Provide base classes to help configuration reads and writes
+\end_layout
+
+\begin_layout Column
+2cm
+\end_layout
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename /usr/share/openclipart/svg/signs_and_symbols/premiers_secours_yves_gu_01.svg
+	width 100col%
+
+\end_inset
+
+
 \end_layout
 
 \end_deeper
@@ -473,6 +547,10 @@ Overview
 Config::Model design
 \end_layout
 
+\begin_layout FrameSubtitle
+Very high level...
+\end_layout
+
 \begin_layout Standard
 \align center
 \begin_inset Graphics
@@ -486,6 +564,10 @@ Config::Model design
 
 \begin_layout BeginFrame
 What is a model?
+\end_layout
+
+\begin_layout FrameSubtitle
+Kind of a blue print
 \end_layout
 
 \begin_layout ColumnsCenterAligned
@@ -559,6 +641,10 @@ model GUI
 \end_deeper
 \begin_layout BeginFrame
 Simple elements
+\end_layout
+
+\begin_layout FrameSubtitle
+For most config parameters
 \end_layout
 
 \begin_layout ColumnsCenterAligned
@@ -702,6 +788,10 @@ status open
 Unknown elements
 \end_layout
 
+\begin_layout FrameSubtitle
+S#!t happens
+\end_layout
+
 \begin_layout ColumnsTopAligned
 
 \end_layout
@@ -731,7 +821,7 @@ Software evolve
 \end_layout
 
 \begin_layout Itemize
-You don't know everything
+Easy to miss parameters
 \end_layout
 
 \begin_layout Itemize
@@ -821,10 +911,14 @@ status open
 
 \end_deeper
 \begin_layout BeginFrame
-Warnings and fixes
+Config warnings and repairs
 \end_layout
 
-\begin_layout ColumnsTopAligned
+\begin_layout FrameSubtitle
+Between right and wrong
+\end_layout
+
+\begin_layout ColumnsCenterAligned
 
 \end_layout
 
@@ -839,7 +933,7 @@ status open
 
 \begin_layout Plain Layout
 
-{Between right and wrong}
+{Protect the user}
 \end_layout
 
 \end_inset
@@ -848,12 +942,16 @@ status open
 \end_layout
 
 \begin_deeper
-\begin_layout Itemize
-Specify warning conditions
+\begin_layout Standard
+Model can specify:
 \end_layout
 
 \begin_layout Itemize
-Specify warning message
+warning conditions
+\end_layout
+
+\begin_layout Itemize
+warning message
 \end_layout
 
 \end_deeper
@@ -930,6 +1028,10 @@ Configuration model creation
 Model analysis
 \end_layout
 
+\begin_layout FrameSubtitle
+RTFM alert
+\end_layout
+
 \begin_layout Block
 \begin_inset ERT
 status open
@@ -998,9 +1100,12 @@ For the non-regression tests
 Model declaration
 \end_layout
 
+\begin_layout FrameSubtitle
+The hard way
+\end_layout
+
 \begin_layout Standard
-In summary, configuration documentation is translated into a format usable
- by Config::Model:
+Config doc is translated into a format usable by Config::Model:
 \end_layout
 
 \begin_layout Itemize
@@ -1023,60 +1128,78 @@ Some constraints show that config may have a structure more complex than
  more complex structures.
 \end_layout
 
-\begin_layout LyX-Code
+\begin_layout ExampleBlock
 
 \size footnotesize
-name => 'Ssh',             # class name
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+{Ssh element}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+
+\size scriptsize
+name => 'Ssh',             # config class name
 \end_layout
 
 \begin_layout LyX-Code
 
-\size footnotesize
+\size scriptsize
 element => [
 \end_layout
 
 \begin_layout LyX-Code
 
-\size footnotesize
+\size scriptsize
   EnableSSHKeysign => {    # element name
 \end_layout
 
 \begin_layout LyX-Code
 
-\size footnotesize
+\size scriptsize
     type => 'leaf',
 \end_layout
 
 \begin_layout LyX-Code
 
-\size footnotesize
+\size scriptsize
     value_type => 'boolean', 
 \end_layout
 
 \begin_layout LyX-Code
 
-\size footnotesize
+\size scriptsize
     built_in => '0',       # default value
 \end_layout
 
 \begin_layout LyX-Code
 
-\size footnotesize
+\size scriptsize
     description => 'Setting ...',
 \end_layout
 
 \begin_layout LyX-Code
 
-\size footnotesize
+\size scriptsize
   },
 \end_layout
 
 \begin_layout LyX-Code
 
-\size footnotesize
+\size scriptsize
 ] 
 \end_layout
 
+\end_deeper
 \begin_layout Standard
 
 \size footnotesize
@@ -1096,7 +1219,11 @@ oduction.pod
 \end_layout
 
 \begin_layout BeginFrame
-Declaration (easier mode)
+Model declaration
+\end_layout
+
+\begin_layout FrameSubtitle
+The easier way
 \end_layout
 
 \begin_layout Standard
@@ -1439,6 +1566,10 @@ status open
 Read/Write backend
 \end_layout
 
+\begin_layout FrameSubtitle
+No Perl knowledge required...
+\end_layout
+
 \begin_layout ColumnsCenterAligned
 
 \end_layout
@@ -1449,18 +1580,9 @@ Read/Write backend
 \end_layout
 
 \begin_layout Standard
-Does not require Perl knowledge to use one
+Declare a backend in the model from this list:
 \end_layout
 
-\begin_layout Itemize
-Ask if you need a new backend (mail or bug report)
-\end_layout
-
-\begin_layout Itemize
-Current backend:
-\end_layout
-
-\begin_deeper
 \begin_layout Itemize
 YAML
 \end_layout
@@ -1490,7 +1612,10 @@ Augeas
 Perl data structure
 \end_layout
 
-\end_deeper
+\begin_layout Standard
+Ask if you need a new backend (mail or bug report)
+\end_layout
+
 \begin_layout Column
 3cm
 \end_layout
@@ -1525,7 +1650,7 @@ status open
 \end_layout
 
 \begin_layout BeginFrame
-Prepare configuration updates
+Designing configuration files
 \end_layout
 
 \begin_layout FrameSubtitle
@@ -1558,7 +1683,7 @@ status open
 \begin_deeper
 \begin_layout Enumerate
 No new parameters 
-\color green
+\color blue
 <-> no new problems
 \end_layout
 
@@ -1570,7 +1695,7 @@ No new parameters
 \end_deeper
 \begin_layout Enumerate
 Picking parameter name and value : 
-\color green
+\color blue
 A good name is better than 3 pages of doc
 \end_layout
 
@@ -1582,7 +1707,7 @@ A good name is better than 3 pages of doc
 \end_deeper
 \begin_layout Enumerate
 Default values : 
-\color green
+\color blue
 Application can work with an empty config file
 \end_layout
 
@@ -1592,6 +1717,12 @@ Application can work with an empty config file
 \end_layout
 
 \end_deeper
+\begin_layout Enumerate
+Choose the right syntax from a standard: 
+\color blue
+No special conventions
+\end_layout
+
 \end_deeper
 \begin_layout Column
 3cm
@@ -1609,11 +1740,11 @@ Application can work with an empty config file
 
 \end_deeper
 \begin_layout BeginFrame
-Prepare configuration updates
+Prepare configuration upgrades
 \end_layout
 
 \begin_layout FrameSubtitle
-For smooth upgrades
+For smooth package updates
 \end_layout
 
 \begin_layout ColumnsCenterAligned
@@ -1732,6 +1863,66 @@ http://wiki.debian.org/PackageConfigUpgrade
 
 \end_layout
 
+\begin_layout BeginFrame
+Benefit of smooth configuration upgrades
+\end_layout
+
+\begin_layout FrameSubtitle
+Enable upstream evolution
+\end_layout
+
+\begin_layout ColumnsCenterAligned
+
+\end_layout
+
+\begin_deeper
+\begin_layout Column
+6cm
+\end_layout
+
+\begin_layout Block
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+{Configuration improvement}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+If upgrades does not impact user, configuration files can be improved:
+\end_layout
+
+\begin_layout Itemize
+keyword cleanup (to reduce doc)
+\end_layout
+
+\begin_layout Itemize
+re-structuration to match user's point of view instead of application design
+\end_layout
+
+\end_deeper
+\begin_layout Column
+5cm
+\end_layout
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename /usr/share/openclipart/png/science/evolution_steps_marcelo__01.png
+	width 100col%
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
 \begin_layout Subsection
 User point of view
 \end_layout
@@ -1940,7 +2131,7 @@ Curses
 \end_layout
 
 \begin_layout Itemize
-Shell like (with 'ls' 'cd' )
+Shell like (with 'ls' 'cd' commands)
 \end_layout
 
 \begin_layout Itemize
@@ -1948,7 +2139,7 @@ Telnet like (command and answers)
 \end_layout
 
 \begin_layout Itemize
-Fuse (every parameter is a file)
+Fuse (each parameter is a file)
 \end_layout
 
 \begin_layout EndFrame
@@ -2278,7 +2469,7 @@ Configuration and package upgrades
 \end_layout
 
 \begin_layout FrameSubtitle
-Situation
+Lackluster situation
 \end_layout
 
 \begin_layout Standard
@@ -2429,31 +2620,37 @@ sshd_config: TCPKeepAlive option was formerly called KeepAlive.
 \begin_layout LyX-Code
 
 \size scriptsize
-KeepAlive => { value_type => 'enum',
+KeepAlive => { 
 \end_layout
 
 \begin_layout LyX-Code
 
 \size scriptsize
-               status     => 'deprecated',
+  type       => 'leaf',
 \end_layout
 
 \begin_layout LyX-Code
 
 \size scriptsize
-               type       => 'leaf',
+  value_type => 'enum',
 \end_layout
 
 \begin_layout LyX-Code
 
 \size scriptsize
-               choice     => [ 'no', 'yes' ]
+  choice     => [ 'no', 'yes' ]
 \end_layout
 
 \begin_layout LyX-Code
 
 \size scriptsize
-             }, 
+  status     => 'deprecated',     # KeepAlive is a goner
+\end_layout
+
+\begin_layout LyX-Code
+
+\size scriptsize
+}, 
 \end_layout
 
 \begin_layout Pause
@@ -2463,43 +2660,67 @@ KeepAlive => { value_type => 'enum',
 \begin_layout LyX-Code
 
 \size scriptsize
-TCPKeepAlive => { value_type => 'enum',
+TCPKeepAlive => { 
 \end_layout
 
 \begin_layout LyX-Code
 
 \size scriptsize
-                  type       => 'leaf',
+  type       => 'leaf',           # same spec as KeepAlive
 \end_layout
 
 \begin_layout LyX-Code
 
 \size scriptsize
-                  choice     => [ 'no', 'yes' ],
+  value_type => 'enum',
 \end_layout
 
 \begin_layout LyX-Code
 
 \size scriptsize
-                  migrate_from 
+  choice     => [ 'no', 'yes' ],  # default status is 'normal'
 \end_layout
 
 \begin_layout LyX-Code
 
 \size scriptsize
-                  => { formula   => '$keep_alive',
+  migrate_from => { 
 \end_layout
 
 \begin_layout LyX-Code
 
 \size scriptsize
-                       variables => { keep_alive => '- KeepAlive' },
+    variables => { 
 \end_layout
 
 \begin_layout LyX-Code
 
 \size scriptsize
-                     }, 
+      keep_alive => '- KeepAlive' # where is the old param
+\end_layout
+
+\begin_layout LyX-Code
+
+\size scriptsize
+    },
+\end_layout
+
+\begin_layout LyX-Code
+
+\size scriptsize
+    formula   => '$keep_alive',   # how is used the old value
+\end_layout
+
+\begin_layout LyX-Code
+
+\size scriptsize
+  }
+\end_layout
+
+\begin_layout LyX-Code
+
+\size scriptsize
+},
 \end_layout
 
 \begin_layout BeginFrame
@@ -2520,7 +2741,8 @@ Invite user feedback
 \end_layout
 
 \begin_layout Standard
-sshd_config: Accept new parameters, but emit a warning
+Accept unknow parameters...
+ with warning
 \end_layout
 
 \begin_layout LyX-Code
@@ -2550,13 +2772,13 @@ sshd_config: Accept new parameters, but emit a warning
 \begin_layout LyX-Code
 
 \size scriptsize
-    name_match => '.*',  # default will match /^.*$/
+    name_match => '.*',   # match any unknown parameter
 \end_layout
 
 \begin_layout LyX-Code
 
 \size scriptsize
-    type       => 'leaf',
+    type       => 'leaf', 
 \end_layout
 
 \begin_layout LyX-Code
@@ -2874,6 +3096,10 @@ config-edit --model Sshd -ui none -save
 \end_layout
 
 \end_deeper
+\begin_layout EndFrame
+
+\end_layout
+
 \begin_layout Standard
 \begin_inset ERT
 status open
@@ -3142,7 +3368,7 @@ Web UI? (help needed)
 
 \end_deeper
 \begin_layout Column
-4cm
+3cm
 \end_layout
 
 \begin_layout Block
@@ -3169,34 +3395,22 @@ XML
 \end_layout
 
 \begin_layout Itemize
-Other?
+Need other?
 \end_layout
 
 \end_deeper
 \end_deeper
-\begin_layout Standard
-Core: Support included config files (à la Apache)
+\begin_layout Pause
+
 \end_layout
 
-\begin_layout Standard
-Configuration aggregation (reduce redundancies between different configs)
-\end_layout
-
-\begin_layout BeginFrame
-Where the bloody hell are you?
-\end_layout
-
-\begin_layout FrameSubtitle
-Your users need you!
-\end_layout
-
-\begin_layout ExampleBlock
+\begin_layout Block
 \begin_inset ERT
 status open
 
 \begin_layout Plain Layout
 
-{We need you !}
+{Core}
 \end_layout
 
 \end_inset
@@ -3206,32 +3420,75 @@ status open
 
 \begin_deeper
 \begin_layout Itemize
-Integration in distros (packaging)
+Support included config files (à la Apache)
 \end_layout
 
 \begin_layout Itemize
-Improve config upgrade on 
-\emph on
-your
-\emph default
- package
-\end_layout
-
-\begin_layout Itemize
-Multi-level configuration 
-\end_layout
-
-\begin_deeper
-\begin_layout NoteItem
-Debian pure-blend project
+Configuration aggregation (to reduce redundancies between different configs)
 \end_layout
 
 \end_deeper
-\begin_layout Itemize
-Define mechanism for configuration injection (e.g.
- mercurial viewer in Apache)
+\begin_layout BeginFrame
+Your users need you !
 \end_layout
 
+\begin_layout ColumnsCenterAligned
+
+\end_layout
+
+\begin_deeper
+\begin_layout Column
+3cm
+\end_layout
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename /usr/share/openclipart/svg/people/smilies/smiley118.svg
+	width 100col%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Column
+7cm
+\end_layout
+
+\begin_layout Block
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+{Users are waiting for}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Config::Model packages in your favorite distro
+\end_layout
+
+\begin_layout Itemize
+Questionless package upgrade of their favorite application (i.e.
+ on 
+\emph on
+your
+\emph default
+ packages)
+\end_layout
+
+\begin_layout Itemize
+Smooth multi-level configuration (e.g cascaded models for Debian pure-blend
+ project)
+\end_layout
+
+\end_deeper
 \end_deeper
 \begin_layout BeginFrame
 Links
