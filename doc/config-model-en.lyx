@@ -1432,11 +1432,11 @@ Shell vars like (FOO = bar)
 \end_layout
 
 \begin_layout Itemize
-Plain file (one parameter, one file)
+Augeas
 \end_layout
 
 \begin_layout Itemize
-Augeas
+Perl data structure
 \end_layout
 
 \end_deeper
