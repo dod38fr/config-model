@@ -1,5 +1,5 @@
 
-#    Copyright (c) 2008 Dominique Dumont.
+#    Copyright (c) 2008,2011 Dominique Dumont.
 #
 #    This file is part of Config-Model.
 #
@@ -31,18 +31,95 @@ Config::Model::SimpleUI - Simple interface for Config::Model
 
 =head1 SYNOPSIS
 
- my $model = Config::Model -> new ;
- my $inst = $model->instance (root_class_name => 'RootClass', 
-                              instance_name => 'my_instance');
- my $root = $inst -> config_root ;
+ use Config::Model;
+ use Config::Model::SimpleUI ;
+ use Log::Log4perl qw(:easy);
+ Log::Log4perl->easy_init($WARN);
+
+ # define configuration tree object
+ my $model = Config::Model->new;
+  $model->create_config_class(
+    name    => "Foo",
+    element => [
+        [qw/foo bar/] => {
+            type       => 'leaf',
+            value_type => 'string'
+        },
+    ]
+ ); 
+ $model ->create_config_class (
+    name => "MyClass",
+
+    element => [ 
+
+        [qw/foo bar/] => {
+            type       => 'leaf',
+            value_type => 'string'
+        },
+        hash_of_nodes => {
+            type       => 'hash',     # hash id
+            index_type => 'string',
+            cargo      => {
+                type              => 'node',
+                config_class_name => 'Foo'
+            },
+        },
+    ],
+ ) ;
+
+ my $inst = $model->instance(root_class_name => 'MyClass' );
+
+ my $root = $inst->config_root ;
+
+ # put data
+ my $step = 'foo=FOO hash_of_nodes:fr foo=bonjour -
+   hash_of_nodes:en foo=hello ';
+ $root->load( step => $step );
 
  my $ui = Config::Model::SimpleUI->new( root => $root ,
-  	               		        title => 'My Title',
-					prompt => 'My Prompt',
+  	               		        title => 'My class ui',
+					prompt => 'class ui',
 				      );
 
  # engage in user interaction
  $ui -> run_loop ;
+
+ print $root->dump_tree ;
+
+Once the synopsis above has been saved in C<my_test.pl>, you can do:
+
+ $ perl my_test.pl
+ class ui:$ ls
+ foo  bar  hash_of_nodes
+ class ui:$ ll hash_of_nodes
+ name         value        type         comment                            
+ hash_of_nodes <Foo>        node hash    keys: "en" "fr"                    
+ 
+ class ui:$ cd hash_of_nodes:en
+ 
+ class ui: hash_of_nodes:en $ ll
+ name         value        type         comment                            
+ foo          hello        string                                          
+ bar          [undef]      string                                          
+ 
+ class ui: hash_of_nodes:en $ set bar=bonjour
+ 
+ class ui: hash_of_nodes:en $  ll
+ name         value        type         comment                            
+ foo          hello        string                                          
+ bar          bonjour      string                                          
+ 
+ class ui: hash_of_nodes:en $ ^D
+
+At the end, the test script will dump the configuration tree. The modified
+C<bar> value can be found in there:
+
+ foo=FOO
+ hash_of_nodes:en
+   foo=hello
+   bar=bonjour -
+ hash_of_nodes:fr
+   foo=bonjour - -
 
 =head1 DESCRIPTION
 

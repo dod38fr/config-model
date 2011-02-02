@@ -2334,6 +2334,10 @@ L<Config::Model::Searcher>
 
 =item *
 
+L<Config::Model::SimpleUI>
+
+=item *
+
 L<Config::Model::TermUI>
 
 =item *

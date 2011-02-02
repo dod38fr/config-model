@@ -1,5 +1,5 @@
 
-#    Copyright (c) 2006-2009 Dominique Dumont.
+#    Copyright (c) 2006-2011 Dominique Dumont.
 #
 #    This file is part of Config-Model.
 #
@@ -34,33 +34,90 @@ Config::Model::Searcher - Search an element in a configuration model
 
 =head1 SYNOPSIS
 
- use Config::Model ;
+ use Config::Model;
+ use Log::Log4perl qw(:easy);
+ Log::Log4perl->easy_init($WARN);
 
- # create your config model
- my $model = Config::Model -> new ;
- $model->create_config_class( ... ) ;
+ # define configuration tree object
+ my $model = Config::Model->new;
+  $model->create_config_class(
+    name    => "Foo",
+    element => [
+        [qw/foo bar/] => {
+            type       => 'leaf',
+            value_type => 'string'
+        },
+    ]
+ ); 
+ $model ->create_config_class (
+    name => "MyClass",
 
- # create instance
- my $inst = $model->instance (root_class_name => 'FooBar', 
-			      instance_name => 'test1');
+    element => [ 
 
- # create root of config
- my $root = $inst -> config_root ;
+        [qw/foo bar/] => {
+            type       => 'leaf',
+            value_type => 'string'
+        },
+        hash_of_nodes => {
+            type       => 'hash',     # hash id
+            index_type => 'string',
+            cargo      => {
+                type              => 'node',
+                config_class_name => 'Foo'
+            },
+        },
+    ],
+ ) ;
+
+ my $inst = $model->instance(root_class_name => 'MyClass' );
+
+ my $root = $inst->config_root ;
+
+ # put data
+ my $step = 'foo=FOO hash_of_nodes:fr foo=bonjour -
+   hash_of_nodes:en foo=hello ';
+ $root->load( step => $step );
 
  # create searcher for manual search
  my $searcher = $root->searcher();
- $searcher -> prepare (element => 'X') ;
- my $step1 = $searcher->next_step() ; # return possibilities
- my $obj1 = $searcher->choose($step1->[0]) ;
- my $step2 = $searcher->next_step() ; # return possibilities
- my $target = $searcher->choose($step2->[1]) ;
 
- # automatic search
- my $element_call_back = sub { ... ; return 'foo' ;} ;
- my $id_call_back      = sub { ... ; return 'bar' ;} ;
+ # looking for foo element in the tree
+ $searcher -> prepare (element => 'foo') ;
+ my @next = $searcher->next_step() ; 
+
+ print "next possible steps: @next\n";
+ # next possible steps: foo hash_of_nodes
+
+ # Looking for foo below hash_of_nodes
+ $searcher->choose('hash_of_nodes') ;
+ @next = $searcher->next_step() ; 
+
+ print "next possible steps: @next\n";
+ # next possible steps: en fr
+
+ # Looking for foo below fr
+ $searcher->choose('fr') ;
+ @next = $searcher->next_step() ; 
+
+ print "next possible steps: @next\n";
+ # next possible steps: foo
+
+ # last step
+ $searcher->choose('foo') ;
+ my $target = $searcher->current_object;
+
+ print "Found '",$target->location,"'\n";
+ # Found 'hash_of_nodes:fr foo'
+
+ # automatic search setup
+ my $element_call_back = sub { return 'hash_of_nodes' ;} ;
+ my $id_call_back      = sub { return 'en' ;} ;
 
  $searcher->reset ;
- my $target = $searcher->auto_choose($element_call_back, $id_call_back) ;
+ $target = $searcher->auto_choose($element_call_back, $id_call_back) ;
+  print "Automatic search found '",$target->location,"'\n";
+ # Automatic search found 'hash_of_nodes:en foo'
+
 
 =head1 DESCRIPTION
 
@@ -275,7 +332,8 @@ sub searched {
 
 =head2 next_step()
 
-Returns an array ref containing the next possible step to find the
+Returns an array (or a ref depending on context) 
+containing the next possible step to find the
 element you're looking for. The array ref can contain 1 or more
 elements.
 
@@ -302,7 +360,7 @@ sub next_step {
     }
 	#my $name = $self->{current}{element_name} ;
 	#print "From $name, next_step is @result\n";
-    return \@result ;
+    return wantarray ? @result : \@result ;
 }
 
 =head2 next_choice()

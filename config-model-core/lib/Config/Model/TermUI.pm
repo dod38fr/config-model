@@ -35,18 +35,94 @@ Config::Model::TermUI - Provides Config::Model UI à la Term::ReadLine
 
 =head1 SYNOPSIS
 
- my $model = Config::Model -> new ;
- my $inst = $model->instance (root_class_name => 'RootClass', 
-                                 instance_name => 'my_instance');
- my $root = $inst -> config_root ;
+ use Config::Model;
+ use Config::Model::TermUI ;
+ use Log::Log4perl qw(:easy);
+ Log::Log4perl->easy_init($WARN);
 
- my $term_ui = Config::Model::TermUI->new( root => $root ,
-					   title => 'My Title',
-					   prompt => 'My Prompt',
-					 );
+ # define configuration tree object
+ my $model = Config::Model->new;
+  $model->create_config_class(
+    name    => "Foo",
+    element => [
+        [qw/foo bar/] => {
+            type       => 'leaf',
+            value_type => 'string'
+        },
+    ]
+ ); 
+ $model ->create_config_class (
+    name => "MyClass",
+
+    element => [ 
+
+        [qw/foo bar/] => {
+            type       => 'leaf',
+            value_type => 'string'
+        },
+        hash_of_nodes => {
+            type       => 'hash',     # hash id
+            index_type => 'string',
+            cargo      => {
+                type              => 'node',
+                config_class_name => 'Foo'
+            },
+        },
+    ],
+ ) ;
+
+ my $inst = $model->instance(root_class_name => 'MyClass' );
+
+ my $root = $inst->config_root ;
+
+ # put data
+ my $step = 'foo=FOO hash_of_nodes:fr foo=bonjour -
+   hash_of_nodes:en foo=hello ';
+ $root->load( step => $step );
+
+ my $ui = Config::Model::TermUI->new( root => $root ,
+  	               	              title => 'My class ui',
+			              prompt => 'class ui',
+				      );
 
  # engage in user interaction
- $term_ui -> run_loop ;
+ $ui -> run_loop ;
+
+ print $root->dump_tree ;
+
+Once the synopsis above has been saved in C<my_test.pl>, you can achieve the 
+same interactions as with C<Config::Model::SimpleUI>. Except that you can use 
+TAB completion:
+
+ class ui:$ ls
+ foo  bar  hash_of_nodes
+ class ui:$ ll hash_of_nodes
+ name         value        type         comment                            
+ hash_of_nodes <Foo>        node hash    keys: "en" "fr"                    
+ 
+ class ui:$ cd hash_of_nodes:en
+ class ui: hash_of_nodes:en $ ll
+ name         value        type         comment                            
+ foo          hello        string                                          
+ bar          [undef]      string                                          
+ 
+ class ui: hash_of_nodes:en $ set bar=bonjour
+ class ui: hash_of_nodes:en $ ll
+ name         value        type         comment                            
+ foo          hello        string                                          
+ bar          bonjour      string                                          
+
+ class ui: hash_of_nodes:en $ ^D
+
+At the end, the test script will dump the configuration tree. The modified
+C<bar> value can be found in there:
+
+ foo=FOO
+ hash_of_nodes:en
+   foo=hello
+   bar=bonjour -
+ hash_of_nodes:fr
+   foo=bonjour - -
 
 =head1 DESCRIPTION
 
