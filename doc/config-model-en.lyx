@@ -21,7 +21,6 @@
 \newcommand{\showpackageupgrade}{true}
 \newcommand{\showhairyupgrade}{false}
 \end_preamble
-\options handout
 \use_default_options false
 \language american
 \inputencoding utf8
@@ -1148,7 +1147,7 @@ status open
 \begin_layout LyX-Code
 
 \size scriptsize
-name => 'Ssh',             # config class name
+name => 'Ssh',                   # config class name
 \end_layout
 
 \begin_layout LyX-Code
@@ -1160,31 +1159,31 @@ element => [
 \begin_layout LyX-Code
 
 \size scriptsize
-  EnableSSHKeysign => {    # element name
+  EnableSSHKeysign => {          # element name
 \end_layout
 
 \begin_layout LyX-Code
 
 \size scriptsize
-    type => 'leaf',
+    type           => 'leaf',
 \end_layout
 
 \begin_layout LyX-Code
 
 \size scriptsize
-    value_type => 'boolean', 
+    value_type     => 'boolean', # strong typing
 \end_layout
 
 \begin_layout LyX-Code
 
 \size scriptsize
-    built_in => '0',       # default value
+    built_in       => '0',       # default value
 \end_layout
 
 \begin_layout LyX-Code
 
 \size scriptsize
-    description => 'Setting ...',
+    description    => 'Setting ...',
 \end_layout
 
 \begin_layout LyX-Code
@@ -1917,10 +1916,22 @@ With smooth upgrades, configuration files can be improved:
 keyword clarification (to reduce doc)
 \end_layout
 
+\begin_deeper
+\begin_layout Pause
+
+\end_layout
+
+\end_deeper
 \begin_layout Itemize
 re-structuration to match user's point of view instead of application design
 \end_layout
 
+\begin_deeper
+\begin_layout Pause
+
+\end_layout
+
+\end_deeper
 \begin_layout Itemize
 Even syntax change
 \end_layout
@@ -2652,7 +2663,11 @@ KeepAlive => {
 \begin_layout LyX-Code
 
 \size scriptsize
-  status     => 'deprecated',     # KeepAlive is a goner
+  status     => 
+\color blue
+'deprecated'
+\color inherit
+,     # KeepAlive is a goner
 \end_layout
 
 \begin_layout LyX-Code
@@ -2692,31 +2707,48 @@ TCPKeepAlive => {
 \begin_layout LyX-Code
 
 \size scriptsize
-  migrate_from => { 
+  
+\color blue
+migrate_from => { 
 \end_layout
 
 \begin_layout LyX-Code
 
 \size scriptsize
+\color blue
     variables => { 
 \end_layout
 
 \begin_layout LyX-Code
 
 \size scriptsize
-      keep_alive => '- KeepAlive' # where is the old param
+\color blue
+      keep_alive => 
+\color red
+'- KeepAlive'
+\color inherit
+ # where is the old param
 \end_layout
 
 \begin_layout LyX-Code
 
 \size scriptsize
-    },
+    
+\color blue
+},
 \end_layout
 
 \begin_layout LyX-Code
 
 \size scriptsize
-    formula   => '$keep_alive',   # how is used the old value
+\color blue
+    formula   => 
+\color red
+'$keep_alive'
+\color blue
+,
+\color inherit
+   # how is used the old value
 \end_layout
 
 \begin_layout LyX-Code
@@ -2780,7 +2812,11 @@ Accept unknow parameters...
 \begin_layout LyX-Code
 
 \size scriptsize
-    name_match => '.*',   # match any unknown parameter
+    
+\color blue
+name_match => '.*'
+\color inherit
+,   # match any unknown parameter
 \end_layout
 
 \begin_layout LyX-Code
@@ -2804,7 +2840,9 @@ Accept unknow parameters...
 \begin_layout LyX-Code
 
 \size scriptsize
-    warn => 'Unknow parameter: please make sure there
+    
+\color blue
+warn => 'Unknown parameter: please make sure there
 \backslash
 's '
 \end_layout
@@ -2812,6 +2850,7 @@ Accept unknow parameters...
 \begin_layout LyX-Code
 
 \size scriptsize
+\color blue
           .
  'no typo and log a bug'
 \end_layout
@@ -3435,6 +3474,10 @@ Support included config files (à la Apache)
 Configuration aggregation (to reduce redundancies between different configs)
 \end_layout
 
+\begin_layout Itemize
+More doc, examples, blogs, FAQ ...
+\end_layout
+
 \end_deeper
 \begin_layout BeginFrame
 Your users need you !
@@ -3483,6 +3526,12 @@ No question asked, no slag left after upgrade of their favorite application
  
 \end_layout
 
+\begin_deeper
+\begin_layout Pause
+
+\end_layout
+
+\end_deeper
 \begin_layout Itemize
 Smooth multi-level configuration (e.g cascaded models for Debian pure-blend
  project)
