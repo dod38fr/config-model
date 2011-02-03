@@ -1753,6 +1753,20 @@ For smooth package updates
 
 \begin_deeper
 \begin_layout Column
+3cm
+\end_layout
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename /usr/share/openclipart/png/science/evolution_steps_marcelo__01.png
+	width 100col%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Column
 8cm
 \end_layout
 
@@ -1828,20 +1842,6 @@ unknown parameters
 \end_layout
 
 \end_deeper
-\begin_layout Column
-3cm
-\end_layout
-
-\begin_layout Standard
-\begin_inset Graphics
-	filename /usr/share/openclipart/png/science/evolution_steps_marcelo__01.png
-	width 100col%
-
-\end_inset
-
-
-\end_layout
-
 \end_deeper
 \begin_layout Standard
 
@@ -1877,6 +1877,20 @@ Enable upstream evolution
 
 \begin_deeper
 \begin_layout Column
+5cm
+\end_layout
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename /usr/share/openclipart/png/science/evolution_steps_marcelo__01.png
+	width 100col%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Column
 6cm
 \end_layout
 
@@ -1896,32 +1910,22 @@ status open
 
 \begin_deeper
 \begin_layout Standard
-If upgrades does not impact user, configuration files can be improved:
+With smooth upgrades, configuration files can be improved:
 \end_layout
 
 \begin_layout Itemize
-keyword cleanup (to reduce doc)
+keyword clarification (to reduce doc)
 \end_layout
 
 \begin_layout Itemize
 re-structuration to match user's point of view instead of application design
 \end_layout
 
+\begin_layout Itemize
+Even syntax change
+\end_layout
+
 \end_deeper
-\begin_layout Column
-5cm
-\end_layout
-
-\begin_layout Standard
-\begin_inset Graphics
-	filename /usr/share/openclipart/png/science/evolution_steps_marcelo__01.png
-	width 100col%
-
-\end_inset
-
-
-\end_layout
-
 \end_deeper
 \begin_layout Subsection
 User point of view
@@ -1932,7 +1936,11 @@ Configuration GUI
 \end_layout
 
 \begin_layout FrameSubtitle
-Your work seen by user
+Your work may be seen by user
+\end_layout
+
+\begin_layout Standard
+Shown only when user requires it, not during upgrade.
 \end_layout
 
 \begin_layout Standard
@@ -2465,7 +2473,7 @@ Package upgrades
 \end_layout
 
 \begin_layout BeginFrame
-Configuration and package upgrades
+Config and package upgrades status
 \end_layout
 
 \begin_layout FrameSubtitle
@@ -2527,7 +2535,7 @@ Merging configuration requires good knowledge from user.
 
 \end_deeper
 \begin_layout BeginFrame
-Configuration and package upgrades
+Better configuration and package upgrades
 \end_layout
 
 \begin_layout FrameSubtitle
@@ -2605,7 +2613,7 @@ http://wiki.debian.org/PackageConfigUpgrade
 \end_layout
 
 \begin_layout BeginFrame
-Migration example
+Example of model with migration
 \end_layout
 
 \begin_layout FrameSubtitle
@@ -2724,7 +2732,7 @@ TCPKeepAlive => {
 \end_layout
 
 \begin_layout BeginFrame
-Coping with new parameter
+Coping with unknown parameters
 \end_layout
 
 \begin_layout FrameSubtitle
@@ -3471,16 +3479,8 @@ status open
 
 \begin_deeper
 \begin_layout Itemize
-Config::Model packages in your favorite distro
-\end_layout
-
-\begin_layout Itemize
-Questionless package upgrade of their favorite application (i.e.
- on 
-\emph on
-your
-\emph default
- packages)
+No question asked, no slag left after upgrade of their favorite application
+ 
 \end_layout
 
 \begin_layout Itemize
