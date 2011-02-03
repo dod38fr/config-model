@@ -36,62 +36,40 @@ Config::Model::ValueComputer - Provides configuration value computation
 
 =head1 SYNOPSIS
 
- my $model = Config::Model->new() ;
+ use Config::Model;
+ use Log::Log4perl qw(:easy);
+ Log::Log4perl->easy_init($WARN);
 
- $model ->create_config_class 
-  (
-   name => "Master",
-   element 
-   => [
+ # define configuration tree object
+ my $model = Config::Model->new;
+ $model ->create_config_class (
+    name => "MyClass",
+
+    element => [ 
+
        [qw/av bv/] => {type => 'leaf',
                        value_type => 'integer',
                       },
-       compute_int 
-       => { type => 'leaf',
+       compute_int => { 
+	    type => 'leaf',
             value_type => 'integer',
             compute    => { formula   => '$a + $b', 
                             variables => { a => '- av', b => '- bv'}
                           },
-            min        => -4,
-            max        => 4,
           },
-       [qw/sav sbv/] => {type => 'leaf',
-                         value_type => 'string',
-                      },
-       compute_string
-       => { type => 'leaf',
-            value_type => 'string',
-            compute => { formula => 'meet $a and $b', 
-                         variables => { '- sav', b => '- sbv' }
-                       },
-          },
-       compute_with_replace 
-       => { type => 'leaf',
-            value_type => 'string',
-            compute => {
-               formula   => '$replace{$who} is the $replace{$what} of $replace{$country}',
-               variables => {
-                              who   => '! who' ,
-                              what  => '! what' ,
-                              country => '- country',
-                             },
-	       replace   => { chief => 'president', 
-                              America => 'USA'
-                            },
-            },
-       },
-
-       url => { type => 'leaf', value_type => 'uniline'},
-       extract_host_from_url
-       => { type => 'leaf',
-	    value_type => 'uniline',
-	    compute    => { formula => '$old =~ m!http://([\w\.]+)!; $1 ;' , 
-			    variables => { old => '- url' } ,
-			    use_eval => 1 ,
-			  },
-	  },
-     ]
+   ],
  ) ;
+
+ my $inst = $model->instance(root_class_name => 'MyClass' );
+
+ my $root = $inst->config_root ;
+
+ # put data
+ $root->load( step => 'av=33 bv=9' );
+
+ print "Computed value is ",$root->grab_value('compute_int'),"\n";
+ # Computed value is 42
+
 
 =head1 DESCRIPTION
 
@@ -139,7 +117,7 @@ computation for integer values or a string template for string
 values).
 
 This string or formula should contain variables (like C<$foo> or
-C<$bar>). Note that these variables are not interpolated by perl.
+C<$bar>). Note that these variables are not interpolated by Perl.
 
 For instance:
 
@@ -821,6 +799,60 @@ END_OF_GRAMMAR
 
 __END__
 
+=head1 Examples
+
+=head2 String substitution
+
+    [qw/sav sbv/] => {
+        type       => 'leaf',
+        value_type => 'string',
+      },
+    compute_string => {
+        type       => 'leaf',
+        value_type => 'string',
+        compute    => {
+            formula   => 'meet $a and $b',
+            variables => { '- sav', b => '- sbv' }
+        },
+    },
+
+=head2 Computation with on-the-fly replacement
+
+    compute_with_replace => {
+        type       => 'leaf',
+        value_type => 'string',
+        compute    => {
+            formula =>
+              '$replace{$who} is the $replace{$what} of $replace{$country}',
+            variables => {
+                who     => '! who',
+                what    => '! what',
+                country => '- country',
+            },
+            replace => {
+                chief   => 'president',
+                America => 'USA'
+            },
+        },
+      },
+
+=head2 Extract data from a value using a Perl regexp
+
+Extract the host name from an URL:
+
+    url => {
+        type       => 'leaf',
+        value_type => 'uniline'
+    },
+    extract_host_from_url => {
+        type       => 'leaf',
+        value_type => 'uniline',
+        compute    => {
+            formula   => '$old =~ m!http://([\w\.]+)!; $1 ;',
+            variables => { old => '- url' },
+            use_eval  => 1,
+        },
+    },
 
 =head1 AUTHOR
 

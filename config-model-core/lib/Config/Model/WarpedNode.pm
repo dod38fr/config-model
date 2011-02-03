@@ -38,45 +38,57 @@ Config::Model::WarpedNode - Node that change config class properties
 
 =head1 SYNOPSIS
 
- $model ->create_config_class 
-  (
-   name => 'Class_with_one_changing_node',
-   element =>
-   [
-    tree_macro => {type => 'leaf',
-                   value_type => 'enum',
-                   choice     => [qw/XY XZ mXY W/]
-                  },
+ use Config::Model;
+ use Log::Log4perl qw(:easy);
+ Log::Log4perl->easy_init($WARN);
 
-    'a_warped_node'
-    => {
-        type => 'warped_node',
-        follow  => '! tree_macro',
-        morph   => 1,
-        rules => {
-                  XY  => { config_class_name => ['SlaveY'], },
-                  mXY => {
-                          config_class_name   => 'SlaveY',
-                          experience => 'intermediate'
-                         },
-                  XZ => { config_class_name => 'SlaveZ' }
-                 }
-       },
+ my $model = Config::Model->new;
+ foreach (qw/X Y/) {
+    $model->create_config_class(
+        name    => "Class$_",
+        element => [ foo => {qw/type leaf value_type string/} ]
+    );
+ }
+ $model->create_config_class(
+    name => "MyClass",
 
-    'another_warped_node'
-    => {
-        type => 'warped_node',
-        follow  => { tm => '! tree_macro'},
-        morph   => 1,
-        rules => [
-                  '$tm eq "XY"'  => { config_class_name => ['SlaveY'], },
-                  '$tm eq "mXY"' => {
-                                    config_class_name   => 'SlaveY',
-                                    experience => 'intermediate'
-                                  },
-                  '$tm eq "XZ"'  => { config_class_name => 'SlaveZ' }
-                 ]
-       },
+    element => [
+        master_switch => {
+            type       => 'leaf',
+            value_type => 'enum',
+            choice     => [qw/cX cY/]
+        },
+
+        'a_warped_node' => {
+            type   => 'warped_node',
+            follow => { ms => '! master_switch' },
+            rules  => [
+                '$ms eq "cX"' => { config_class_name => 'ClassX' },
+                '$ms eq "cY"' => { config_class_name => 'ClassY' },
+            ]
+        },
+
+    ],
+ );
+
+ my $inst = $model->instance(root_class_name => 'MyClass' );
+ my $root = $inst->config_root ;
+
+ print "Visible elements: ",join(' ',$root->get_element_name),"\n" ;
+ # Visible elements: master_switch
+
+ $root->load( step => 'master_switch=cX' );
+ print "Visible elements: ",join(' ',$root->get_element_name),"\n" ;
+ # Visible elements: master_switch a_warped_node
+
+ my $node = $root->grab('a_warped_node') ;
+ print "a_warped_node class: ",$node->config_class_name,"\n" ;
+ # a_warped_node class: ClassX
+
+ $root->load( step => 'master_switch=cY' );
+ print "a_warped_node class: ",$node->config_class_name,"\n" ;
+ # a_warped_node class: ClassY
+
 
 =head1 DESCRIPTION
 

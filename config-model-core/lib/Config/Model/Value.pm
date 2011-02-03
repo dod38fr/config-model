@@ -39,30 +39,44 @@ Config::Model::Value - Strongly typed configuration value
 
 =head1 SYNOPSIS
 
- my $model = Config::Model->new() ;
- $model ->create_config_class 
-  (
-   name => "SomeClass",
-   element => [
+ use Config::Model;
+ use Log::Log4perl qw(:easy);
+ Log::Log4perl->easy_init($WARN);
+
+ # define configuration tree object
+ my $model = Config::Model->new;
+ $model ->create_config_class (
+    name => "MyClass",
+
+    element => [ 
+
+        [qw/foo bar/] => {
+            type       => 'leaf',
+            value_type => 'string',
+	    description => 'foobar',
+        },
      country => { 
        type =>       'leaf',
        value_type => 'enum',
-       choice =>      [qw/France US/]
+       choice =>      [qw/France US/],
+       description => 'big countries',
      },
-     president => { 
-       type =>        'leaf',
-       value_type => 'string',
-       warp => { 
-         follow => { c => '- country'}, 
-         rules  => {
-           '$c eq "France"' => { default => 'Chirac' },
-           '$c eq "US"'     => { default => 'Bush' }
-         }
-       },
-     }
-   ]
- );
+    ],
+ ) ;
 
+ my $inst = $model->instance(root_class_name => 'MyClass' );
+
+ my $root = $inst->config_root ;
+
+ # put data
+ $root->load( step => 'foo=FOO country=US' );
+
+ print $root->report ;
+ #  foo = FOO
+ #         DESCRIPTION: foobar
+ # 
+ #  country = US
+ #         DESCRIPTION: big countries
 
 =head1 DESCRIPTION
 
@@ -2045,6 +2059,123 @@ sub get_depend_slave {
 1;
 
 __END__
+
+=head1 Examples
+
+=head2 Number with min and max values
+
+ bounded_number => {
+    type       => 'leaf',
+    value_type => 'number',
+    min        => 1,
+    max        => 4,
+  },
+
+=head2 Mandatory value
+
+  mandatory_string => {
+    type       => 'leaf',
+    value_type => 'string',
+    mandatory  => 1,
+  },
+
+  mandatory_boolean => {
+    type       => 'leaf',
+    value_type => 'boolean',
+  },
+ 
+=head2 Enum with help associated with each value 
+
+Note that the ehlp is optional.
+
+   enum_with_help => {
+    type       => 'leaf',
+    value_type => 'enum',
+    choice     => [qw/a b c/],
+    help       => { a => 'a help' }
+  },
+
+=head2 Migrate old obsolete enum value
+
+Legacy values C<a1>, C<c1> and C<foo/.*> are replaced with C<a>, C<c> and C<foo/>.
+
+  with_replace => {
+    type       => 'leaf',
+    value_type => 'enum',
+    choice     => [qw/a b c/],
+    replace    => {
+        a1       => 'a',
+        c1       => 'c',
+        'foo/.*' => 'foo',
+    },
+  },
+
+=head2 Enforce value to match a regexp 
+
+An exception will be triggered if the value does not match the C<match> 
+regular expression.
+
+  match => {
+    type       => 'leaf',
+    value_type => 'string',
+    match      => '^foo\d{2}$',
+  },
+  
+=head2 Enforce value to match a L<Parse::RecDescent> grammar
+
+  prd_match => {
+    type       => 'leaf',
+    value_type => 'string',
+    grammar    => q{ 
+        token (oper token)(s?)
+        oper: 'and' | 'or'
+        token: 'Apache' | 'CC-BY' | 'Perl' 
+    },
+  },
+
+=head2 Issue a warning if a value matches a regexp 
+
+Issue a warning if the string contains upper case letters. Propose a fix that
+translate all capital letters to lower case.
+
+  warn_if_capital => {
+    type          => 'leaf',
+    value_type    => 'string',
+    warn_if_match => { '/A-Z/' => { fix => '$_ = lc;' } },
+  },
+ 
+A specific warning can be specified:
+
+  warn_if_capital => {
+    type          => 'leaf',
+    value_type    => 'string',
+    warn_if_match => { 
+        '/A-Z/' => { 
+            fix => '$_ = lc;' ,
+            mesg =>'NO UPPER CASE PLEASE'
+        } 
+    },
+  },
+
+=head2 Issue a warning if a value does NOT match a regexp 
+  
+  warn_unless => {
+    type              => 'leaf',
+    value_type        => 'string',
+    warn_unless_match => { foo => { msg => '', fix => '$_ = "foo".$_;' } },
+  },
+  
+=head2 Always issue a warning 
+
+  always_warn => {
+    type       => 'leaf',
+    value_type => 'string',
+    warn       => 'Always warn whenever used',
+  },
+
+=head2 Computed values 
+
+See L<Config::Model::ValueComputer/Examples>.
 
 =head1 Upgrade
 
