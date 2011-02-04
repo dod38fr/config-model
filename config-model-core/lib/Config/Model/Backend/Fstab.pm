@@ -171,19 +171,7 @@ Config::Model::Backend::Fstab - Read and write config from fstab file
 
 =head1 SYNOPSIS
 
-  # model declaration
-  name => 'Fstab',
-
-  read_config  => [
-                    { backend => 'fstab' , 
-                      config_dir => '/etc/',
-                      file  => 'fstab', 
-                    }
-                  ],
-
-   element => ...
-  ) ;
-
+No synopsis. This class is dedicated to configuration class C<Fstab>
 
 =head1 DESCRIPTION
 
@@ -191,6 +179,10 @@ This module is used directly by L<Config::Model> to read or write the
 content of a configuration tree written with C<fstab> syntax in
 C<Config::Model> configuration tree. Typically this backend will 
 be used to read and write C</etc/fstab>.
+
+=head1 Comments in file_path
+
+This backend is able to read and write comments in the C</etc/fstab> file.
 
 =head1 STOP
 
