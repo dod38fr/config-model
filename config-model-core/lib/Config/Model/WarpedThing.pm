@@ -39,7 +39,7 @@ Config::Model::WarpedThing - Base class for warped classes
 
 =head1 SYNOPSIS
 
- use base qw/Config::Model::WarpedThing/ ;
+ # internal class
 
 =head1 DESCRIPTION
 
