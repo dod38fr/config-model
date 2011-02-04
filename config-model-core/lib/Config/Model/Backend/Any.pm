@@ -180,7 +180,7 @@ L<Config::Model::Node>.
 
 =head2 annotation
 
-Whether the backend supports to read and write annotation. Default i s
+Whether the backend supports to read and write annotation. Default is
 0. Override if your backend supports annotations
 
 =head1 Methods
@@ -188,7 +188,9 @@ Whether the backend supports to read and write annotation. Default i s
 =head2 read_global_comments( lines , comment_char)
 
 Read the global comments (i.e. the first block of comments until the first blank or non comment line) and
-store them as root node annotation. lines is an array ref containing file lines.
+store them as root node annotation. The first parameter (C<lines>)
+ is an array ref containing file lines.
+
 =head1 AUTHOR
 
 Dominique Dumont, (ddumont at cpan dot org)
