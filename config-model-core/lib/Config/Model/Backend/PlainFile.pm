@@ -122,18 +122,33 @@ Config::Model::Backend::PlainFile - Read and write config as plain file
 
 =head1 SYNOPSIS
 
-  # model declaration
-  name => 'FooConfig',
+ use Config::Model;
+ use Log::Log4perl qw(:easy);
+ Log::Log4perl->easy_init($WARN);
 
-  read_config  => [
-                    { backend => 'plainfile' , 
-                      config_dir => '/etc/foo',
-                    }
-                  ],
+ my $model = Config::Model->new;
 
-   element => ...
-  ) ;
+ my $inst = $model->create_config_class(
+    name => "WithPlainFile",
+    element => [ 
+        [qw/source new/] => { qw/type leaf value_type uniline/ },
+    ],
+    read_config  => [ 
+        { 
+            backend => 'plain_file', 
+            config_dir => '/tmp',
+        },
+    ],
+ );
+ 
+ my $inst = $model->instance(root_class_name => 'WithPlainFile' );
+ my $root = $inst->config_root ;
 
+ $root->load('source=foo new=yes' );
+
+ $inst->write_back ;
+
+Now C</tmp> dir will contain 2 files: C<source> and C<new> with C<foo> and C<yes> inside.
 
 =head1 DESCRIPTION
 
@@ -141,9 +156,6 @@ This module is used directly by L<Config::Model> to read or write the
 content of a configuration tree written in several files. In this case 
 each leaf element of the node is written in a plain file.
 
-Note that undefined values are skipped for list element. I.e. if a
-list element contains C<('a',undef,'b')>, the data structure will
-contain C<'a','b'>.
 
 
 =head1 CONSTRUCTOR
