@@ -2,7 +2,7 @@
 # 
 #   The GNU Lesser General Public License, Version 2.1, February 1999
 # 
-#    Copyright (c) 2010 Dominique Dumont, Krzysztof Tyszecki.
+#    Copyright (c) 2010-2011 Dominique Dumont, Krzysztof Tyszecki.
 #
 #    This file is part of Config-Model.
 #
@@ -67,6 +67,7 @@ sub read {
     my $r = \%data;
     my $a = \%annot;
     my $delimiter = $args{comment_delimiter} || '#' ;
+    my $hash_class = $args{store_class_in_hash} || '';
 
     #FIXME: Is it possible to store the comments with their location
     #in the file?  It would be nice if comments that are after values
@@ -91,11 +92,20 @@ sub read {
         $global_zone = 0 if /^\s*$/ ;
 
         if (defined $vdata and $vdata ) {
+            $vdata =~ s/^\s+//g;
+            $vdata =~ s/\s+$//g;
+            
             # Update section name
-            if($vdata =~ /\[(.*)\]/){
+            if($vdata =~ /\[(.*)\]/) {
                 $section = $1;
-                $r = $data {$section} = {};
-                $a = $annot{$section} = {};
+                if ($hash_class) {
+                    $r = $data {$hash_class}{$section} = {};
+                    $a = $annot{$hash_class}{$section} = {};
+                }
+                else {
+                    $r = $data {$section} = {};
+                    $a = $annot{$section} = {};
+                }
                 $a->{__} = "@comments" if @comments ;
                 @comments = ();
                 next;
@@ -119,7 +129,8 @@ sub read {
         }
     }
 
-    # use Data::Dumper; print Dumper(\%annot) ;
+    use Data::Dumper; print Dumper(\%annot) ;
+    use Data::Dumper; print Dumper(\%data) ;
 
     $self->node->load_data(\%data,\%annot, $args{check} || 'yes' );
 
@@ -166,7 +177,7 @@ sub _write {
     # first write list and element, then classes
     foreach my $elt ($node->get_element_name) {
         my $type = $node->element_type($elt) ;
-        next if $type eq 'node' ;
+        next if $type eq 'node' or $type eq 'hash';
         
         my $obj =  $node->fetch_element($elt) ;
 
@@ -195,18 +206,24 @@ sub _write {
 
     foreach my $elt ($node->get_element_name) {
         my $type = $node->element_type($elt) ;
-        next unless $type eq 'node' ;
+        next unless $type eq 'node' or $type eq 'hash';
         my $obj =  $node->fetch_element($elt) ;
 
         my $note = $obj->annotation;
         
         map { $ioh->print("$delimiter $_\n") } $note if $note;
 
-        $ioh->print("[$elt]\n");
-        my %na = %args;
-        $na{object} = $obj;
-        $self->_write(%na);
-    }
+        if ($type eq 'hash') {
+            foreach my $key ($obj->get_all_indexes) {
+                $ioh->print("[$key]\n");
+                $self->_write(%args, object => $obj->fetch_with_id($key));
+            }
+        }
+        else {
+            $ioh->print("[$elt]\n");
+            $self->_write(%args, object => $obj);
+        }
+    }   
 
     return 1;
 }
@@ -221,21 +238,62 @@ Config::Model::Backend::IniFile - Read and write config as a INI file
 
 =head1 SYNOPSIS
 
-  # model declaration
-  name => 'FooConfig',
+ use Config::Model;
+ use Log::Log4perl qw(:easy);
+ Log::Log4perl->easy_init($WARN);
 
-  read_config  => [
-                    { backend => 'IniFile',
-                      config_dir => '/etc/foo',
-                      file  => 'foo.conf',      # optional
-                      auto_create => 1,         # optional
-                      comment_delimiter => ';', # optional, default is '#'
-                    }
-                  ],
+ my $model = Config::Model->new;
+ $model->create_config_class(
+        name    => "IniClass",
+        element => [ [qw/foo bar/] => {
+				       type => 'list',
+			 cargo => {qw/type leaf value_type string/}} ]
+    );
 
-   element => ...
-  ) ;
+ # model for free INI class name and constrained class parameters
+ $model->create_config_class(
+    name => "MyClass",
 
+    element => [
+        'ini_class' => {
+            type   => 'hash',
+	    index_type => 'string',
+	    cargo => { 
+		type => 'node',
+		config_class_name => 'IniClass' 
+		},
+	    },
+    ],
+
+   read_config  => [
+        { 
+            backend => 'IniFile',
+            config_dir => '/tmp',
+            file  => 'foo.conf',
+            store_class_in_hash => 'ini_class',
+            auto_create => 1,
+        }
+    ],
+ );
+
+ my $inst = $model->instance(root_class_name => 'MyClass' );
+ my $root = $inst->config_root ;
+
+ $root->load('ini_class:ONE foo=FOO1 bar=BAR1 - 
+              ini_class:TWO foo=FOO2' );
+
+ $inst->write_back ;
+
+Now C</tmp/foo.conf> will contain:
+
+ ## file written by Config::Model
+ [ONE]
+ foo=FOO1
+
+ bar=BAR1
+
+ [TWO]
+ foo=FOO2
 
 =head1 DESCRIPTION
 
@@ -251,6 +309,12 @@ Note that undefined values are skipped for list element. I.e. if a
 list element contains C<('a',undef,'b')>, the data structure will
 contain C<'a','b'>.
 
+=head1 Comments
+
+This backend tries to read and write comments from configuration file. The
+comments are stored as annotation within the configuration tree. Bear in mind
+that comments extraction is based on best estimation as to which parameter the 
+comment may apply. Wrong estimations are possible.
 
 =head1 CONSTRUCTOR
 

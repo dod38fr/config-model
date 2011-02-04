@@ -97,6 +97,33 @@
                 cargo  => {qw/type leaf value_type uniline/},
             }
         ],
-    }
+    },
+    {
+        name => "MyClass",
 
+        element => [
+            [qw/foo bar/] => {
+                'type' => 'list',
+                cargo  => {qw/type leaf value_type uniline/},
+            },
+            'any_ini_class' => {
+                type       => 'hash',
+                index_type => 'string',
+                cargo      => {
+                    type              => 'node',
+                    config_class_name => 'AutoIniClass'
+                },
+            },
+        ],
+
+        read_config => [
+            {
+                backend     => 'IniFile',
+                config_dir        => '/etc/',
+                file              => 'test.ini',
+                store_class_in_hash => 'any_ini_class',
+                auto_create => 1,
+            }
+        ],
+    }
 ];

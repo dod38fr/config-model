@@ -35,17 +35,21 @@ my $wr_root = 'wr_root/';
 my @with_semi_column_comment = my @with_hash_comment = <DATA> ;
 # change delimiter comments
 map {s/#/;/;} @with_semi_column_comment ;
-my %test_setup = ( IniTest  => \@with_hash_comment, 
-                   IniTest2 => \@with_semi_column_comment,
-                   AutoIni  => \@with_hash_comment,
+my %test_setup = ( #IniTest  => [ \@with_hash_comment , 'class1' ], 
+                   ##IniTest2 => [ \@with_semi_column_comment, 'class1' ],
+                   #AutoIni  => [ \@with_hash_comment, 'class1' ],
+                   MyClass  => [ \@with_hash_comment, 'any_ini_class:class1' ]
                  );
 
 foreach my $test_class (sort keys %test_setup) {
     my $model = Config::Model -> new () ;
-    my @orig = @{$test_setup{$test_class}} ;
+    my @orig = @{$test_setup{$test_class}[0]} ;
+    my $test_path = $test_setup{$test_class}[1] ;
 
     # cleanup before tests
     rmtree($wr_root);
+
+    ok(1,"Starting $test_class tests");
 
     my $test1 = 'ini1' ;
     my $wr_dir = $wr_root.'/'.$test1 ;
@@ -71,11 +75,11 @@ foreach my $test_class (sort keys %test_setup) {
     $i_root->load("bar:0=\x{263A}") ; # utf8 smiley
 
     is($i_root->annotation,"some global comment","check global comment");
-    is($i_root->fetch_element("class1")->annotation,"class1 comment",
-        "check class1 comment");
+    is($i_root->grab($test_path)->annotation,"class1 comment",
+        "check $test_path comment");
 
-    my $lista_obj = $i_root->fetch_element("class1")->fetch_element('lista');
-    is($lista_obj->annotation, undef,"check lista comment"); 
+    my $lista_obj = $i_root->grab($test_path)->fetch_element('lista');
+    is($lista_obj->annotation, undef,"check $test_path lista comment"); 
 
     foreach my $i (1 .. 3) {
         my $elt = $lista_obj->fetch_with_id($i - 1) ;
