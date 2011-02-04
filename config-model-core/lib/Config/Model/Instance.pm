@@ -26,7 +26,7 @@ use Config::Model::Exception ;
 use Config::Model::Node ;
 use Config::Model::Loader;
 use Config::Model::Searcher;
-use Config::Model::WizardHelper;
+use Config::Model::Iterator;
 
 use strict ;
 use Carp;
@@ -349,25 +349,35 @@ sub search_element {
 
 =head2 wizard_helper ( ... )
 
-This method returns a L<Config::Model::WizardHelper> object. See
-L<Config::Model::WizardHelper> for details on how to create a wizard
-widget with this object.
-
-wizard_helper arguments are explained in  L<Config::Model::WizardHelper>
-L<constructor arguments|Config::Model::WizardHelper/"Creating a wizard helper">.
+Deprecated. Call L</iterator> instead.
 
 =cut
 
 sub wizard_helper {
+    carp __PACKAGE__,"::wizard_helper helped is deprecated. Call iterator instead" ;
+    goto &iterator ;
+}
+
+=head2 iterator 
+
+This method returns a L<Config::Model::Iterator> object. See
+L<Config::Model::Iterator> for details.
+
+Arguments are explained in  L<Config::Model::Iterator>
+L<constructor arguments|Config::Model::Iterator/"Creating an iterator">.
+
+=cut
+
+sub iterator {
     my $self = shift ;
     my @args = @_ ;
 
     my $tree_root = $self->config_root ;
 
-    return Config::Model::WizardHelper->new ( root => $tree_root, @args) ;
+    return Config::Model::Iterator->new ( root => $tree_root, @args) ;
 }
 
-
+=head2 
 
 =head1 Auto read and write feature
 

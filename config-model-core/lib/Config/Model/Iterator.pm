@@ -17,7 +17,7 @@
 #    along with Config-Model; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 
-package Config::Model::WizardHelper ;
+package Config::Model::Iterator ;
 use Carp;
 use strict;
 use warnings ;
@@ -29,25 +29,73 @@ use Config::Model::Exception ;
 
 =head1 NAME
 
-Config::Model::WizardHelper - Helps to create wizard widget for config models
+Config::Model::Iterator - Iterates forward or backward a configuration tree
 
 =head1 SYNOPSIS
 
- use Config::Model ;
+ use Config::Model;
+ use Log::Log4perl qw(:easy);
+ Log::Log4perl->easy_init($WARN);
 
- my $inst   = $model -> instance ( root_class_name => 'Master', 
-                                   instance_name => 'test1');
+ # define configuration tree object
+ my $model = Config::Model->new;
+ $model->create_config_class(
+    name    => "Foo",
+    element => [
+        [qw/bar baz/] => {
+            type       => 'leaf',
+            value_type => 'string',
+	    level => 'important' ,
+        },
+    ]
+ );
+ $model->create_config_class(
+    name    => "MyClass",
+    element => [
+        foo_nodes => {
+            type       => 'hash',     # hash id
+            index_type => 'string',
+	    level => 'important' ,
+            cargo      => {
+                type              => 'node',
+                config_class_name => 'Foo'
+            },
+        },
+    ],
+ );
 
- my $root   = $inst -> config_root ;
+ my $inst = $model->instance( root_class_name => 'MyClass' );
+ # create some Foo objects
+ $inst->config_root->load("foo_nodes:foo1 - foo_nodes:foo2  ") ;
 
- my $wizard = $inst -> wizard_helper ( leaf_cb => sub { ... },
-                                       hash_element_cb => sub { ... } );
+ my $my_leaf_cb = sub {
+    my ($iter, $data_r,$node,$element,$index, $leaf_object) = @_ ;
+    print "leaf_cb called for ",$leaf_object->location,"\n" ;
+    $iter->go_forward;
+ } ;
+ my $my_hash_cb = sub {
+    my ($iter, $data_r,$node,$element,@keys) = @_ ;
+    print "hash_element_cb called for element $element with keys @keys\n" ;
+    $iter->go_forward;
+ } ;
+
+ my $wizard = $inst -> iterator ( 
+    leaf_cb         => $my_leaf_cb,
+    hash_element_cb => $my_hash_cb , 
+ );
+
  $wizard->start ;
+ ### prints
+ # hash_element_cb called for element foo_nodes with keys foo1 foo2
+ # leaf_cb called for foo_nodes:foo1 bar
+ # leaf_cb called for foo_nodes:foo1 baz
+ # leaf_cb called for foo_nodes:foo2 bar
+ # leaf_cb called for foo_nodes:foo2 baz
 
 =head1 DESCRIPTION
 
-This module provides a class that is able to scan a configuration tree and
-will call back user defined subroutines on one of the following condition:
+This module provides a class that is able to iterate forward or backward a configuration tree.
+The iterator will stop and call back user defined subroutines on one of the following condition:
 
 =over
 
@@ -64,28 +112,28 @@ for details.
 
 =back
 
-By default, the wizard will only scan element with an C<intermediate>
+By default, the iterator will only stop on element with an C<intermediate>
 experience.
 
-The wizard helper supports going forward and backward during the scan
+The iterator supports going forward and backward 
 (to support C<back> and C<next> buttons on a wizard widget).
 
 =head1 CONSTRUCTOR
 
 The constructor should be used only by L<Config::Model::Instance> with
-the L<wizard_helper|Config::Model::Instance/"wizard_helper ( ... )">
+the L<iterator|Config::Model::Instance/"iterator ( ... )">
 method.
 
-=head1 Creating a wizard helper
+=head1 Creating an iterator
 
-A wizard helper will need at least two kind of call-back that must be
-provided by the user: a call-back for leaf elements and a call-back
+A iterator requires at least two kind of call-back: 
+a call-back for leaf elements and a call-back
 for hash elements (which will be also used for list elements).
 
-These call-back must be passed when creating the wizard object (the
+These call-back must be passed when creating the iterator (the
 parameters are named C<leaf_cb> and C<hash_element_cb>)
 
-Here are the the parameters accepted by C<wizard_helper>:
+Here are the the parameters accepted by C<iterator>:
 
 =head2 call_back_on_important
 
@@ -139,7 +187,7 @@ sub new {
 
     foreach my $p (qw/root/) {
 	$self->{$p} = delete $args{$p} or
-	  croak "WizardHelper->new: Missing $p parameter" ;
+	  croak "Iterator->new: Missing $p parameter" ;
     }
 
     foreach my $p (qw/call_back_on_important call_back_on_warning/) {
@@ -158,7 +206,7 @@ sub new {
     # mandatory call-back parameters 
     foreach my $item (qw/leaf_cb hash_element_cb/) {
 	$cb_hash{$item} = delete $args{$item} or
-	  croak "WizardHelper->new: Missing $item parameter" ;
+	  croak "Iterator->new: Missing $item parameter" ;
     }
 
     # handle optional list_element_cb parameter
@@ -182,7 +230,7 @@ sub new {
     $self->{user_scan_args} = \%user_scan_args ;
     
     if (%args) {
-        die "WizardHelper->new: unexpected parameters: ",join(' ', keys %args),"\n";
+        die "Iterator->new: unexpected parameters: ",join(' ', keys %args),"\n";
     }
 
     # user call-back are *not* passed to ObjTreeScanner. They will be

@@ -118,49 +118,49 @@ my @expected = (
 	       ) ;
 
 my $steer = sub {
-    my ($wiz, $item) = @_;
+    my ($iter, $item) = @_;
     my ($dir,$expect) = @$item ;
-    $wiz->bail_out    if $dir eq 'bail' ;
-    $wiz->go_forward  if $dir eq 'for' ;
-    $wiz->go_backward if $dir eq 'back' ;
+    $iter->bail_out    if $dir eq 'bail' ;
+    $iter->go_forward  if $dir eq 'for' ;
+    $iter->go_backward if $dir eq 'back' ;
     return @$item ;
 } ;
 
 my $leaf_element_cb = sub {
-    my ($wiz, $data_r,$node,$element,$index, $leaf_object) = @_ ;
+    my ($iter, $data_r,$node,$element,$index, $leaf_object) = @_ ;
     print "test: leaf_element_cb called for ",$leaf_object->location,"\n" 
       if $trace ;
-    my ($dir, $expect) = $steer->($wiz,shift @expected) ;
+    my ($dir, $expect) = $steer->($iter,shift @expected) ;
     is( $leaf_object->location, $expect, "leaf_element_cb got $expect and '$dir'" ) ;
 };
 
 my $int_cb = sub {
-    my ($wiz, $data_r,$node,$element,$index, $leaf_object) = @_ ;
+    my ($iter, $data_r,$node,$element,$index, $leaf_object) = @_ ;
     print "test: int_cb called for ",$leaf_object->location,"\n" 
       if $trace ;
-    my ($dir, $expect) = $steer->($wiz,shift @expected) ;
+    my ($dir, $expect) = $steer->($iter,shift @expected) ;
     is( $leaf_object->location, $expect, "int_cb got $expect and '$dir'" ) ;
 };
 
 my $hash_element_cb = sub {
-    my ($wiz, $data_r,$node,$element,@keys) = @_ ;
+    my ($iter, $data_r,$node,$element,@keys) = @_ ;
     print "test: hash_element_cb called for ",$node->location," element $element\n" 
       if $trace ;
     my $obj = $node->fetch_element($element) ;
-    my ($dir, $expect) = $steer->($wiz,shift @expected) ;
+    my ($dir, $expect) = $steer->($iter,shift @expected) ;
     is( $obj->location, $expect, "hash_element_cb got $expect and '$dir'" ) ;
 };
 
 my $list_element_cb = sub {
-    my ($wiz, $data_r,$node,$element,@idx) = @_ ;
+    my ($iter, $data_r,$node,$element,@idx) = @_ ;
     print "test: list_element_cb called for ",$node->location," element $element\n" 
       if $trace ;
     my $obj = $node->fetch_element($element) ;
-    my ($dir, $expect) = $steer->($wiz,shift @expected) ;
+    my ($dir, $expect) = $steer->($iter,shift @expected) ;
     is( $obj->location, $expect, "list_element_cb got $expect and '$dir'" ) ;
 };
 
-my $wizard = $inst->wizard_helper(
+my $iterator = $inst->iterator(
     leaf_cb              => $leaf_element_cb,
     integer_value_cb     => $int_cb,
     hash_element_cb      => $hash_element_cb,
@@ -168,10 +168,10 @@ my $wizard = $inst->wizard_helper(
     experience           => 'advanced',
     call_back_on_warning => 1,
 );
-ok( $wizard, "created wizard helper" );
+ok( $iterator, "created iterator helper" );
 
-$wizard->start ;
+$iterator->start ;
 
-is_deeply(\@expected,[],"wizard explored all items") ;
+is_deeply(\@expected,[],"iterator explored all items") ;
 
 
