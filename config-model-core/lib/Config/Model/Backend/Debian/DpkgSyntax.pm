@@ -1,4 +1,3 @@
-
 package Config::Model::Backend::Debian::DpkgSyntax ;
 
 use Moose::Role ;
@@ -101,8 +100,9 @@ sub write_dpkg_section {
         my $label = "$name:" ;
         if (ref ($value)) {
             $label .= ' ';
-            my $l = length ($label) ;
-            $ioh -> print ($label.join( $list_sep . ' ' x $l , @$value ) . "\n");
+            my $sep = $list_sep ? $list_sep  : ",\n" ;
+            $sep .= ' ' x length ($label) if $sep =~ /\n$/ ;
+            $ioh -> print ($label.join( $sep, @$value ) . "\n");
         }
         else {
             $ioh->print ($label) ;
@@ -133,13 +133,76 @@ Config::Model::Backend::Debian::DpkgSyntax - Role to read and write files with D
 
 =head1 SYNOPSIS
 
-  # in Dpkg dedicated backend class
+ package MyParser ;
+ use Log::Log4perl qw(:easy);
+ Log::Log4perl->easy_init($WARN);
+ 
+ use Moose ;
+ with 'Config::Model::Backend::Debian::DpkgSyntax';
+ 
+ package main ;
+ use IO::File ;
+ use Data::Dumper ;
+ 
+ my $data = [ [ qw/Name Foo Version 1.2/ ],
+ 	      [ qw/Name Bar Version 1.3/ ,
+                Files => [qw/file1 file2/] ,
+ 	        Description => "A very\n\nlong description"
+ 	     ]
+ 	   ] ;
+ 
+ my $fhw = IO::File->new ;
+ $fhw -> open ( 'dpkg_file' ,'>' ) ;
+ my $parser = MyParser->new() ;
+ 
+ $parser->write_dpkg_file($fhw,$data) ;
   
+C<dpkg_file> will contain:
+
+ Name: Foo
+ Version: 1.2
+
+ Name: Bar
+ Version: 1.3
+ Files: file1,
+        file2
+ Description: A very
+  .
+  long description
 
 =head1 DESCRIPTION
 
-This module is a Moose role to add capacity to read and write dpkg control files
-to Config::Model backend classes.
+This module is a Moose role to read and write dpkg control files. 
+
+Debian control file are read and transformes in a list of list matching the control file. 
+The top level list of a list of section. Each section is mapped to a list made of keyowrds and values.
+Since this explanation is probably too absstract, here's an example of a file written with Dpkg syntax:
+
+ Name: Foo
+ Version: 1.1
+
+ Name: Bar
+ Version: 1.2
+  Description: A very
+  . 
+  long description
+
+Once parsed, this file will be stored in the following list of list :
+
+ (
+   [ Name => 'Foo', Version => '1.1' ],
+   [ Name => 'Bar', Version => '1.2', 
+     Description => "A very\n\nlong description"
+   ]
+ )
+ 
+Note: The description is changed into a paragraph without the Dpkg syntax idiosyncrasies. 
+The leading white is removed and the single dot is transformed in to a "\n". These 
+characters will be restored when the file is written back.
+
+Last not but not least, this module can be re-used outside of C<Config::Model> with some 
+small modifications in exception handing. Ask the author
+if you want this module shipped in its own distribution.
 
 =head1
 
@@ -173,7 +236,8 @@ L<parse_dpkg_file>:
  [ section [ keyword => value | value_list ] ]
 
 Except that the value may be a SCALAR or a list ref. In case, of a list ref, the list 
-items will be joined with the value C<list_sep> before being written.
+items will be joined with the value C<list_sep> before being written. Values will be aligned
+in case of multi-line output of a list.
 
 For instance the following code :
 

@@ -188,20 +188,7 @@ Config::Model::Backend::Debian::Dpkg::Control - Read and write Debian Dpkg contr
 
 =head1 SYNOPSIS
 
-  # model declaration
-  name => 'FooConfig',
-
-  read_config  => [
-                    { backend => 'Debian::Dpkg::Control' , 
-                      config_dir => 'debian',
-                      file  => 'control',      # optional
-                      auto_create => 1,         # optional
-                    }
-                  ],
-
-   element => ...
-  ) ;
-
+No synopsis. This class is dedicated to configuration class C<Debian::Dpkg::Control>
 
 =head1 DESCRIPTION
 

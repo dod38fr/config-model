@@ -292,20 +292,7 @@ Config::Model::Backend::Debian::Dpkg::Copyright - Read and write Debian Dpkg Lic
 
 =head1 SYNOPSIS
 
-  # model declaration
-  name => 'FooConfig',
-
-  read_config  => [
-                    { backend => 'Debian::Dpkg::Copyright' , 
-                      config_dir => 'debian',
-                      file  => 'copyright',      # optional
-                      auto_create => 1,         # optional
-                    }
-                  ],
-
-   element => ...
-  ) ;
-
+No synopsis. This class is dedicated to configuration class C<Debian::Dpkg::Copyright>
 
 =head1 DESCRIPTION
 
