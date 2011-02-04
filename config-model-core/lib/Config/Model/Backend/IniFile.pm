@@ -243,12 +243,15 @@ Config::Model::Backend::IniFile - Read and write config as a INI file
  Log::Log4perl->easy_init($WARN);
 
  my $model = Config::Model->new;
- $model->create_config_class(
-        name    => "IniClass",
-        element => [ [qw/foo bar/] => {
-				       type => 'list',
-			 cargo => {qw/type leaf value_type string/}} ]
-    );
+ $model->create_config_class (
+    name    => "IniClass",
+    element => [ 
+        [qw/foo bar/] => {
+            type => 'list',
+            cargo => {qw/type leaf value_type string/}
+        } 
+    ]
+ );
 
  # model for free INI class name and constrained class parameters
  $model->create_config_class(
