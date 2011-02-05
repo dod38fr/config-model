@@ -1,4 +1,4 @@
-#    Copyright (c) 2010 Dominique Dumont.
+#    Copyright (c) 2010-2011 Dominique Dumont.
 #
 #    This file is part of Config-Model.
 #
@@ -142,20 +142,44 @@ Config::Model::Backend::ShellVar - Read and write config as a C<SHELLVAR> data s
 
 =head1 SYNOPSIS
 
-  # model declaration
-  name => 'FooConfig',
+ use Config::Model;
+ use Log::Log4perl qw(:easy);
+ Log::Log4perl->easy_init($WARN);
 
-  read_config  => [
-                    { backend => 'shellvar' , 
-                      config_dir => '/etc/foo',
-                      file  => 'foo.conf',      # optional
-                      auto_create => 1,         # optional
-                    }
-                  ],
+ my $model = Config::Model->new;
+ $model->create_config_class (
+    name    => "MyClass",
+    element => [ 
+        [qw/foo bar/] => {qw/type leaf value_type string/}
+    ],
 
-   element => ...
-  ) ;
+   read_config  => [
+        { 
+            backend => 'ShellVar',
+            config_dir => '/tmp',
+            file  => 'foo.conf',
+            auto_create => 1,
+        }
+    ],
+ );
 
+ my $inst = $model->instance(root_class_name => 'MyClass' );
+ my $root = $inst->config_root ;
+
+ $root->load('foo=FOO1 bar=BAR1' );
+
+ $inst->write_back ;
+
+File C<foo.conf> now contains:
+
+ ## This file was written by Config::Model
+ ## You may modify the content of this file. Configuration 
+ ## modifications will be preserved. Modifications in
+ ## comments may be mangled.
+ ##
+ foo="FOO1"
+
+ bar="BAR1"
 
 =head1 DESCRIPTION
 
