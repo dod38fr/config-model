@@ -24,7 +24,7 @@ Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 use Log::Log4perl qw(:easy) ;
 Log::Log4perl->easy_init($arg =~ /l/ ? $TRACE: $ERROR);
 
-plan tests => 34 ;
+plan tests => 49 ;
 
 ok(1,"compiled");
 
@@ -35,9 +35,9 @@ my $wr_root = 'wr_root/';
 my @with_semi_column_comment = my @with_hash_comment = <DATA> ;
 # change delimiter comments
 map {s/#/;/;} @with_semi_column_comment ;
-my %test_setup = ( #IniTest  => [ \@with_hash_comment , 'class1' ], 
-                   ##IniTest2 => [ \@with_semi_column_comment, 'class1' ],
-                   #AutoIni  => [ \@with_hash_comment, 'class1' ],
+my %test_setup = ( IniTest  => [ \@with_hash_comment , 'class1' ], 
+                   IniTest2 => [ \@with_semi_column_comment, 'class1' ],
+                   AutoIni  => [ \@with_hash_comment, 'class1' ],
                    MyClass  => [ \@with_hash_comment, 'any_ini_class:class1' ]
                  );
 
