@@ -282,7 +282,15 @@ sub move {
 
 =head2 push( value )
 
-push some value at the end of the list.
+push some values at the end of the list.
+
+Call be called as 
+
+ $elt->push ( 'v1','v2', ...) 
+ 
+or 
+
+ $elt->push ( [ v1','v2', ... ] ,  check => ''skip');
 
 =cut
 
@@ -290,8 +298,24 @@ push some value at the end of the list.
 sub push {
     my $self = shift ;
     my $idx   = scalar @{$self->{data}};
+    my @new ;
+    my $check = 'yes' ;
+    if (ref $_[0] eq 'ARRAY' ) {
+        @new = @{ shift() } ;
+        my %args = @_ ;
+        $check ||= $args{check} ; 
+    }
+    elsif (ref $_[0] eq '') {
+        @new = @_ ;
+    }
+    else {
+        Config::Model::Exception::WrongValue -> throw (
+            error => "push first argument should be scalar or list ref, not ".ref($_[0]) ,
+            object => $self
+        );
+    }
 
-    map { $self->fetch_with_id( $idx++ )->store( $_ ) ; } @_ ;
+    map { $self->fetch_with_id( $idx++ )->store( $_ ) ; } @new ;
 }
 
 =head2 swap ( C<ida> , C<idb> )
