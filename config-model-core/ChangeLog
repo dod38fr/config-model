@@ -1,6 +1,11 @@
-    * Backend Ini file: Fixed comment handling
-    * All modules: Improved synopsis. You can now save them in a file and 
-      have a working program
+    
+    * Framework changes:
+        * Backend Ini file: Fixed comment handling
+        * All modules: Improved synopsis. You can now save them in a file and 
+          have a working program
+        ! Remove crappy handling of comments in perl backend. 
+        ! Read and write comments as pod in Perl backend
+        ! Fix Dpkg write back (conflation of multiple backends)
 
 2011-01-30 Dominique Dumont  <domi.dumont@free.fr> 1.232
 

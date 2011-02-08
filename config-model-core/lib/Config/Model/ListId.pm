@@ -280,17 +280,9 @@ sub move {
     }
 }
 
-=head2 push( value )
+=head2 push( value1, [ value2 ... ] )
 
 push some values at the end of the list.
-
-Call be called as 
-
- $elt->push ( 'v1','v2', ...) 
- 
-or 
-
- $elt->push ( [ v1','v2', ... ] ,  check => ''skip');
 
 =cut
 
@@ -298,24 +290,51 @@ or
 sub push {
     my $self = shift ;
     my $idx   = scalar @{$self->{data}};
-    my @new ;
-    my $check = 'yes' ;
-    if (ref $_[0] eq 'ARRAY' ) {
-        @new = @{ shift() } ;
-        my %args = @_ ;
-        $check ||= $args{check} ; 
-    }
-    elsif (ref $_[0] eq '') {
-        @new = @_ ;
-    }
-    else {
-        Config::Model::Exception::WrongValue -> throw (
-            error => "push first argument should be scalar or list ref, not ".ref($_[0]) ,
-            object => $self
-        );
-    }
+    map { $self->fetch_with_id( $idx++ )->store( $_ ) ; } @_ ;
+}
 
-    map { $self->fetch_with_id( $idx++ )->store( $_ ) ; } @new ;
+=head2 push_x ( values => [ v1','v2', ...] , [ ... ] )
+
+Like push with extended options. Options are:
+
+=over 4
+
+=item check 
+
+C<yes>, C<no> or C<skip>
+
+=item annotation
+
+list ref of annotation to store with the list values
+
+=back
+
+Example:
+
+ $elt->push (
+    values => [ v1','v2' ] , 
+    annotation => [ 'v1 comment', 'v2 comment' ],
+    check => ''skip'
+ );
+
+=cut
+
+# list only methods
+sub push_x {
+    my $self = shift ;
+    my %args = @_ ;
+    my $check = $args{check} || 'yes'; 
+    my $idx   = scalar @{$self->{data}};
+    my @v = @{$args{values}}  ;
+    my @a = @{$args{annotation} || [] } ;
+    
+    while (@v) {
+        my $val = shift @v ;
+        my $a   = shift @a ;
+        my $obj = $self->fetch_with_id( $idx++ );
+        $obj->store( $val ) ;
+        $obj->annotation($a) if $a ;
+    }
 }
 
 =head2 swap ( C<ida> , C<idb> )
