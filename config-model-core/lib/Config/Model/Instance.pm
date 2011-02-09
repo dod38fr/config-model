@@ -431,19 +431,18 @@ sub write_root_dir {
     return $self -> {root_dir} ;
 }
 
-=head2 register_write_back ( backend_name, sub_ref )
+=head2 register_write_back ( node_location )
 
-Register a sub ref (with the backend name) that will be called with
+Register a node path that will be called back with
 C<write_back> method.
 
 =cut
 
 sub register_write_back {
-    my ($self,$backend,$wb) = @_ ;
+    my ($self,$node_path) = @_ ;
+    $logger->debug("register_write_back: instance '$self->{name}' registers node '$node_path'") ;
 
-    croak "register_write_back: parameter is not a code ref"
-      unless ref($wb) eq 'CODE' ;
-    push @{$self->{write_back}}, [$backend, $wb] ;
+    push @{$self->{write_back}}, $node_path ;
 }
 
 =head2 write_back ( ... )
@@ -481,22 +480,13 @@ sub write_back {
      }
       keys %args;
 
-    croak "write_back: no subs registered. cannot save data\n" 
+    croak "write_back: no subs registered in instance $self->{name}. cannot save data\n" 
       unless @{$self->{write_back}} ;
 
-    my $dir = $args{config_dir} ;
-    mkpath($dir,0,0755) if $dir and not -d $dir ;
-
-    foreach my $wb_info (@{$self->{write_back}}) {
-	my ($backend,$wb) = @$wb_info ;
-	if (not $force_backend 
-	    or  $force_backend eq $backend 
-	    or  $force_backend eq 'all' ) {
-	    # exit when write is successfull
-	    my $res = $wb->(%args) ; 
-	    $logger->info("write_back called with $backend backend, result is ", defined $res ? $res : '<undef>' );
-	    last if ($res and not $force_backend); 
-	}
+    foreach my $path (@{$self->{write_back}}) {
+	$logger->info("write_back called on node $path");
+        my $node = $self->config_root->grab(step => $path, type => 'node');
+        $node->write_back(%args, backend => $force_backend);
     }
 }
 

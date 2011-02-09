@@ -25,7 +25,14 @@ $::debug            = 1 if $arg =~ /d/;
 Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 
 use Log::Log4perl qw(:easy) ;
-Log::Log4perl->easy_init($arg =~ /l/ ? $TRACE: $ERROR);
+my $log4perl_user_conf_file = $ENV{HOME}.'/.log4config-model' ;
+
+if (-e $log4perl_user_conf_file ) {
+    Log::Log4perl::init($log4perl_user_conf_file);
+}
+else {
+    Log::Log4perl->easy_init($arg =~ /l/ ? $DEBUG: $WARN);
+}
 
 ok(1,"compiled");
 

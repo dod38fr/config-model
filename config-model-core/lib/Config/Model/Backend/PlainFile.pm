@@ -86,14 +86,14 @@ sub write {
     # check      => yes|no|skip
 
     my $check = $args{check} || 'yes' ;
-    my $dir = $args{config_dir} ;
+    my $dir = $args{root}.$args{config_dir} ;
     mkpath($dir, { mode => 0755 } ) unless -d $dir ;
     my $node = $args{object} ;
     $logger->debug("PlainFile write called on node ", $node->name);
 
     # write data from leaf element from the node
     foreach my $elt ($node->get_element_name() ) {
-        my $file = $args{root}.$dir.$elt ;
+        my $file = $dir.$elt ;
         $logger->trace("PlainFile write opening $file to write");
         
         my $fh = new IO::File;
