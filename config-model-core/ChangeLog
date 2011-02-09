@@ -5,7 +5,8 @@
           have a working program
         ! Remove crappy handling of comments in perl backend. 
         ! Read and write comments as pod in Perl backend
-        ! Fix Dpkg write back (conflation of multiple backends)
+        * Instance write back: now correctly call all write_back when several
+          nodes in model needs to be called back
 
 2011-01-30 Dominique Dumont  <domi.dumont@free.fr> 1.232
 

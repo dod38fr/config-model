@@ -102,7 +102,7 @@
                                                                 'msg' => 'short description should start with a small letter',
                                                                 'fix' => '$_ = lcfirst($_) ;'
                                                               },
-                                                  '.{80,}' => {
+                                                  '.{60,}' => {
                                                               'msg' => 'Synopsis is too long. '
                                                             }
                                                 },
@@ -132,9 +132,9 @@ else {
                                                                      'fix' => 's/\\n([\\-\\*])/\\n $1/g; $_ ;'
                                                                    },
                                                   '^\\s*\\n' => {
-                                                              'msg' => 'Description must not start with an empty line',
-                                                              'fix' => 's/[\\s\\s]+// ;'
-                                                            }
+                                                                  'msg' => 'Description must not start with an empty line',
+                                                                  'fix' => 's/[\\s\\s]+// ;'
+                                                                }
                                                 },
                              'mandatory' => '1',
                              'type' => 'leaf'
