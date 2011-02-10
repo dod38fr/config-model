@@ -424,12 +424,11 @@ the first element of the list.
 sub load_data {
     my $self = shift ;
     my $raw_data = shift ;
-    my $raw_annot = shift ;
+    my $check = shift ;
 
-    my ($data,$annot) 
-        = map {   ref($_) eq 'ARRAY' ? $_ 
-                : defined $_         ? [ $_ ] 
-                :                  	undef; } ($raw_data,$raw_annot);
+    my $data = ref($raw_data) eq 'ARRAY' ? $raw_data 
+             : defined $raw_data         ? [ $raw_data ] 
+             :                             undef; 
 
     $self->clear ;
 
@@ -437,24 +436,9 @@ sub load_data {
     $logger->info("ListId load_data (",$self->location,") will load idx ",
         "0..$#$data");
     foreach my $item (@$data ) {
-        my $obj = $self->fetch_with_id($idx) ;
-        my @args = ($item);
-        CORE::push (@args,$annot->[$idx]) if defined $annot ;
-        $idx++ ;
-        $obj -> load_data(@args) ;
-    }
-
-    return unless defined $annot ;
-    $idx = 0;
-    $logger->info("ListId load_data (",$self->location,") will load annotation idx ",
-          "0..$#$annot") ;
-    foreach my $item (@$annot ) {
         my $obj = $self->fetch_with_id($idx++) ;
-        $obj -> annotation($item) if $item ; # do not store undef
-    }
-
-    
-    
+        $obj -> load_data($item, $check) ;
+    }   
 }
 
 1;

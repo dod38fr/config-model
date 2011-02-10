@@ -401,7 +401,7 @@ sub load_data {
 		     ) ;
     }
 
-    $self->get_actual_node->load_data($h) ;
+    $self->get_actual_node->load_data($h,@_) ;
 
 }
 

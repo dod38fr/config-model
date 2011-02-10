@@ -1479,30 +1479,23 @@ sub load {
     }
 }
 
-=head2 load_data ( hash_ref, hash_ref,[ $check  ])
+=head2 load_data ( hash_ref, [ $check  ])
 
 Load configuration data with a hash ref (first parameter). The hash ref key must match
 the available elements of the node. The hash ref structure must match
 the structure of the configuration model.
 
-The second parameter is optional and contains annotations for
-elements. A standard hash of hash (or list) may contain annotation
-only for leaf elements. In order to support annotation for nodes or
-other elements, hash keys can also contain annotations like "foo# foo
-note".  Also the special key '__' will store the annotation in the
-containing object.
-
 =cut
 sub load_data {
     my $self                = shift ;
     my $raw_perl_data       = shift ;
-    my $raw_annotation_data = shift || {};
 
     my $check = $self->_check_check(shift) ;
 
     if (    not defined $raw_perl_data 
         or (ref($raw_perl_data) ne 'HASH' 
-        and not $raw_perl_data->isa( 'HASH' )) ) {
+            #and not $raw_perl_data->isa( 'HASH' )
+            ) ) {
         Config::Model::Exception::LoadData
             -> throw (
                       object => $self,
@@ -1514,34 +1507,9 @@ sub load_data {
 
 
     my $perl_data       = dclone $raw_perl_data ;
-    my $annotation_data = dclone $raw_annotation_data ;
 
     $logger->info("Node load_data (",$self->location,") will load elt ",
                   join (' ',keys %$perl_data));
-
-    # handle special '__' element to store annotation in containing node
-    # this is mostly useful for root node
-    my $node_annotation = delete $annotation_data->{__} ;
-    if (defined $node_annotation) {
-        $logger->debug("Node load_data annotation from '__': $node_annotation");
-        $self->annotation($node_annotation);
-    }
-
-    # put aside annotation to be stored later directly in elements
-    # i.e. scalar values and contained in key like "foo#comment"
-    my %elt_note ;
-
-    foreach my $k (keys %$annotation_data) {
-        my ($elt,$note) = split (/#\s*/,$k);
-        next unless $note ;
-        $elt_note{$elt} = $note ;
-        $annotation_data->{$elt} = delete $annotation_data->{$k} ;
-    }
-
-    foreach my $k (keys %$annotation_data) {
-        next if ref( $annotation_data->{$k} );
-        $elt_note{$k} = delete $annotation_data->{$k} ;
-    }
 
     # data must be loaded according to the element order defined by
     # the model. This will not load not yet accepted parameters
@@ -1555,8 +1523,7 @@ sub load_data {
             my $obj = $self->fetch_element(name => $elt, experience => 'master', 
                                            check => $check) ;
 
-            $obj -> load_data(delete $perl_data->{$elt}, 
-                              delete $annotation_data->{$elt}) ;
+            $obj -> load_data(delete $perl_data->{$elt}) ;
         } elsif ($check ne 'skip')  {
             Config::Model::Exception::LoadData 
                 -> throw (
@@ -1577,18 +1544,9 @@ sub load_data {
             #TODO: annotations
             my $obj = $self->fetch_element(name => $elt, experience => 'master', check => $check) ;
             $logger->debug("Node load_data: accepting element $elt");
-            $obj ->load_data(delete $perl_data->{$elt}, 
-                             delete $annotation_data->{$elt}
-                             ) if defined $obj;
+            $obj ->load_data(delete $perl_data->{$elt}) if defined $obj;
             }
     }
-
-    # now load annotations that were put aside
-    foreach my $elt (keys %elt_note) {
-        my $obj = $self->fetch_element(name => $elt, experience => 'master', check => $check) ;
-        $logger->debug("Node load_data: store element $elt annotation: $elt_note{$elt}");
-        $obj -> annotation($elt_note{$elt}) if defined $obj;
-        }
 
     if (%$perl_data and $check eq 'yes') {
         Config::Model::Exception::LoadData 
@@ -1621,6 +1579,20 @@ sub dump_tree {
     my $dumper = Config::Model::Dumper->new ;
     $dumper->dump_tree(node => $self, @_) ;
 }
+
+=head2 dump_annotations_as_pod ( ... )
+
+Dumps the configuration annotations of the node and its siblings into a
+string.  See L<Config::Model::Dumper/dump_annotations_as_pod> for parameter details.
+
+=cut
+
+sub dump_annotations_as_pod {
+    my $self = shift ;
+    my $dumper = Config::Model::DumpAsData->new ;
+    $dumper->dump_annotations_as_pod(node => $self, @_) ;
+}
+
 
 =head2 describe ( [ element => ... ] )
 

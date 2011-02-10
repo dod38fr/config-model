@@ -3,7 +3,7 @@
         * Backend Ini file: Fixed comment handling
         * All modules: Improved synopsis. You can now save them in a file and 
           have a working program
-        ! Remove crappy handling of comments in perl backend. 
+        * Remove crappy handling of comments in load_data methods. 
         ! Read and write comments as pod in Perl backend
         * Instance write back: now correctly call all write_back when several
           nodes in model needs to be called back
