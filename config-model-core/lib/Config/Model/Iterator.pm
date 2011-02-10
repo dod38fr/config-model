@@ -71,20 +71,18 @@ Config::Model::Iterator - Iterates forward or backward a configuration tree
  my $my_leaf_cb = sub {
     my ($iter, $data_r,$node,$element,$index, $leaf_object) = @_ ;
     print "leaf_cb called for ",$leaf_object->location,"\n" ;
-    $iter->go_forward;
  } ;
  my $my_hash_cb = sub {
     my ($iter, $data_r,$node,$element,@keys) = @_ ;
     print "hash_element_cb called for element $element with keys @keys\n" ;
-    $iter->go_forward;
  } ;
 
- my $wizard = $inst -> iterator ( 
+ my $iterator = $inst -> iterator ( 
     leaf_cb         => $my_leaf_cb,
     hash_element_cb => $my_hash_cb , 
  );
 
- $wizard->start ;
+ $iterator->start ;
  ### prints
  # hash_element_cb called for element foo_nodes with keys foo1 foo2
  # leaf_cb called for foo_nodes:foo1 bar
