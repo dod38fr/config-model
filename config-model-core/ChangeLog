@@ -4,7 +4,8 @@
         * All modules: Improved synopsis. You can now save them in a file and 
           have a working program
         * Remove crappy handling of comments in load_data methods. 
-        ! Read and write comments as pod in Perl backend
+        * DumpAsData: Write annotations as pod in method dump_annotations_as_pod
+        * Anything: load_pod_annoation load annotations from a pod document 
         * Instance write back: now correctly call all write_back when several
           nodes in model needs to be called back
 

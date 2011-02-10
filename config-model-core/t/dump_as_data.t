@@ -1,7 +1,7 @@
 # -*- cperl -*-
 
 use ExtUtils::testlib;
-use Test::More tests => 36;
+use Test::More tests => 37;
 use Config::Model;
 
 use warnings;
@@ -190,3 +190,9 @@ print $pod_notes if $trace ;
 foreach (values %notes) {
     like ($pod_notes, qr/$_/, "found note $_ in pod notes");
 }
+
+$root2->load_pod_annotation($pod_notes) ;
+my $pod_notes2 = $root2->dump_annotations_as_pod ;
+
+is($pod_notes2,$pod_notes,"check 2nd pod notes" );
+
