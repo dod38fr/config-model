@@ -113,6 +113,14 @@ The information is meant to be useful for the final user, willing to browse the 
 
 The information is meant to be useful for a user knowledgeable in the given Version Control System and willing to build the current version of a package from the VCS sources. Other uses of this information might include automatic building of the latest VCS version of the given package. To this end the location pointed to by the field should better be version agnostic and point to the main branch (for VCSs supporting such a concept). Also, the location pointed to should be accessible to the final user; fulfilling this requirement might imply pointing to an anonymous access of the repository instead of pointing to an SSH-accessible version of the same. '
                            },
+                           'DM-Upload-Allowed',
+                           {
+                             'value_type' => 'uniline',
+                             'summary' => 'The package may be uploaded by a Debian Maintainer',
+                             'match' => 'yes',
+                             'type' => 'leaf',
+                             'description' => 'If this field is present, then any Debian Maintainers listed in the Maintainer or Uploaders fields may upload the package directly to the Debian archive.  For more information see the "Debian Maintainer" page at the Debian Wiki - http://wiki.debian.org/DebianMaintainer',
+                           },
                            'Homepage',
                            {
                              'value_type' => 'uniline',

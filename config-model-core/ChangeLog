@@ -1,4 +1,8 @@
     
+    * Application changes:
+        * dpkg control model: Added DM-Upload-Allowed to source model (Peter Pentchev)
+          (Fix RT 65575)
+        
     * Framework changes:
         * Backend Ini file: Fixed comment handling
         * All modules: Improved synopsis. You can now save them in a file and 
