@@ -163,7 +163,7 @@ sub dump_as_data {
 
     my %args = @_;
     my $dump_node = delete $args{node} 
-      || croak "dumpribe: missing 'node' parameter";
+      || croak "dump_as_data: missing 'node' parameter";
     my $full = delete $args{full_dump} ;
     $full = 1 unless defined $full ;
     my $skip_aw = delete $args{skip_auto_write} || '' ;
@@ -283,6 +283,89 @@ sub dump_as_data {
     }
 
     return $result ;
+}
+
+sub dump_annotations_as_pod {
+    my $self = shift ;
+
+    my %args = @_;
+    my $dump_node = delete $args{node} 
+      || croak "dump_annotations_as_pod: missing 'node' parameter";
+   
+    my $annotation_to_pod = sub {
+        my $obj = shift ;
+        my $path = shift || $obj->location;
+	my $a = $obj->annotation ;
+	if ($a) {
+	    chomp $a ;
+	    return "=item $path\n\n$a\n\n" ;
+        }
+        else {
+            return '';
+        }
+    };
+    
+    my $std_cb = sub {
+        my ( $scanner, $data_r, $obj, $element, $index, $value_obj ) = @_;
+        $$data_r .= $annotation_to_pod->($value_obj) ; 
+    };
+
+    my $hash_element_cb = sub {
+        my ($scanner, $data_ref,$node,$element_name,@keys) = @_ ;
+        my $h = $node->fetch_element($element_name) ;
+        my $h_path = $h->location . ':';
+	foreach (@keys) { 
+	    $$data_ref .= $annotation_to_pod->(
+                $h->fetch_with_id($_),
+                $h_path.$_
+            );
+	    $scanner->scan_hash($data_ref,$node,$element_name,$_) ;
+	}
+    } ;
+    
+    my $node_content_cb = sub {
+	my ($scanner, $data_ref,$node,@element) = @_ ;
+	my $node_path = $node->location ;
+	$node_path .= ' ' if $node_path ;
+	foreach (@element) { 
+	    $$data_ref .= $annotation_to_pod->(
+                $node->fetch_element($_),
+                $node_path.$_
+            );
+	    $scanner->scan_element($data_ref, $node,$_) ;
+	}
+    };
+
+    my @scan_args = (
+		     experience            => delete $args{experience} || 'master',
+		     check                 => delete $args{check} || 'yes' ,
+		     fallback              => 'all',
+		     leaf_cb               => $std_cb ,
+		     node_content_cb       => $node_content_cb,
+		     hash_element_cb       => $hash_element_cb ,
+		     list_element_cb       => $hash_element_cb ,
+		    );
+
+    my @left = keys %args;
+    croak "dump_annotations_as_pod: unknown parameter:@left" if @left;
+
+    # perform the scan
+    my $view_scanner = Config::Model::ObjTreeScanner->new(@scan_args);
+
+    my $obj_type = $dump_node->get_type ;
+    my $result = "=over\n\n" ;
+
+    my $a = $dump_node->annotation ;
+    $result .= "=item\n\n$a\n\n" if $a ;
+
+    if ($obj_type =~ /node/) {
+	$view_scanner->scan_node(\$result ,$dump_node);
+    }
+    else {
+	croak "dump_annotations_as_pod: unexpected type: $obj_type";
+    }
+
+    return $result."=back\n\n" ;
 }
 
 1;

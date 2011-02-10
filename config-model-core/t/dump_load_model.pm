@@ -106,6 +106,7 @@
 			  index_type => 'string',
 			  cargo_type => 'leaf',
 			  cargo_args => {value_type => 'string'},
+			  summary => "hash_* summary",
 			},
 	       ordered_hash => { type => 'hash',
 				 index_type => 'string',
