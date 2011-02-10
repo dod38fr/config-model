@@ -308,7 +308,7 @@ Example:
      map {$scanner->scan_element($data_ref, $node,$_)} @element ;
   }
 
-==head2 Dispatch node callback
+=head2 Dispatch node callback
 
 C<node_dispatch_cb>: Any callback specified in the hash will be called for 
 each instance of the specified configuration class.
@@ -341,7 +341,7 @@ Example:
      map {$scanner->scan_element($data_ref, $node,$_)} @element ;
   }
 
-head2 Node element callback
+=head2 Node element callback
 
 C<node_element_cb> is called for each node contained within a node
 (i.e not with root node). This node can be held by a plain element or
