@@ -193,9 +193,9 @@ No synopsis. This class is dedicated to configuration class C<Debian::Dpkg::Cont
 =head1 DESCRIPTION
 
 This module is used directly by L<Config::Model> to read or write the
-content of a configuration tree written with Debian Dpkg syntax in
-C<Config::Model> configuration tree. This syntax is used to specify 
-license information in Debian source package format.
+content of Debian C<control> file.
+
+All C<control> files keyword are read in a case-insensitive manner.
 
 =head1 CONSTRUCTOR
 
