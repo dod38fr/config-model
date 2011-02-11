@@ -2086,7 +2086,7 @@ __END__
  
 =head2 Enum with help associated with each value 
 
-Note that the ehlp is optional.
+Note that the help specification is optional.
 
    enum_with_help => {
     type       => 'leaf',

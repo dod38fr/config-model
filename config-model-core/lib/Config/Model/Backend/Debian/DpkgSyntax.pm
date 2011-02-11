@@ -174,9 +174,12 @@ C<dpkg_file> will contain:
 
 This module is a Moose role to read and write dpkg control files. 
 
-Debian control file are read and transformes in a list of list matching the control file. 
-The top level list of a list of section. Each section is mapped to a list made of keyowrds and values.
-Since this explanation is probably too absstract, here's an example of a file written with Dpkg syntax:
+Debian control file are read and transformed in a list of list
+matching the control file. The top level list of a list of section.
+Each section is mapped to a list made of keywords and values. Since
+this explanation is probably too abstract, here's an example of a file
+written with Dpkg syntax:
+
 
  Name: Foo
  Version: 1.1
@@ -196,9 +199,10 @@ Once parsed, this file will be stored in the following list of list :
    ]
  )
  
-Note: The description is changed into a paragraph without the Dpkg syntax idiosyncrasies. 
-The leading white is removed and the single dot is transformed in to a "\n". These 
-characters will be restored when the file is written back.
+Note: The description is changed into a paragraph without the Dpkg
+      syntax idiosyncrasies. The leading white is removed and the single
+      dot is transformed in to a "\n". These characters will be restored
+      when the file is written back.
 
 Last not but not least, this module can be re-used outside of C<Config::Model> with some 
 small modifications in exception handing. Ask the author

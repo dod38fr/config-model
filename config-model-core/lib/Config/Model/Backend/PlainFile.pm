@@ -148,7 +148,8 @@ Config::Model::Backend::PlainFile - Read and write config as plain file
 
  $inst->write_back ;
 
-Now C</tmp> dir will contain 2 files: C<source> and C<new> with C<foo> and C<yes> inside.
+Now C</tmp> directory will contain 2 files: C<source> and C<new> 
+with C<foo> and C<yes> inside.
 
 =head1 DESCRIPTION
 

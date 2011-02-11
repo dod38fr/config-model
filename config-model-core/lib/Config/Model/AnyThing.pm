@@ -196,7 +196,8 @@ sub annotation {
 
 =head2 load_pod_annotation ( pod_string )
 
-Load annoatation in configuration tree from a pod document. The pod must be in the form:
+Load annotations in configuration tree from a pod document. The pod must
+be in the form:
 
  =over
  
