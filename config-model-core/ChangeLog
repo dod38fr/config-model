@@ -1,6 +1,8 @@
+2011-02-11 Dominique Dumont  <domi.dumont@free.fr> 1.233
     
     * Application changes:
-        * dpkg control model: Added DM-Upload-Allowed to source model (Peter Pentchev)
+        * dpkg control source model: Added DM-Upload-Allowed and all Vcs-* tags defined 
+        in Debian reference guide (Peter Pentchev)
           (Fix RT 65575)
         
     * Framework changes:

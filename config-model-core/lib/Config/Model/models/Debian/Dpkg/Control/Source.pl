@@ -104,7 +104,7 @@ The archive area and section for each package should be specified in the package
 
 The information is meant to be useful for the final user, willing to browse the latest work done on the package (e.g. when looking for the patch fixing a bug tagged as pending in the bug tracking system). '
                            },
-                           'Vcs-Svn',
+                           ['Vcs-Arch', 'Vcs-Bzr', 'Vcs-Cvs', 'Vcs-Darcs', 'Vcs-Git', 'Vcs-Hg', 'Vcs-Mtn', 'Vcs-Svn'],
                            {
                              'value_type' => 'uniline',
                              'summary' => 'URL of the VCS repository',
