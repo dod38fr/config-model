@@ -1,8 +1,9 @@
 # -*- cperl -*-
 
 use ExtUtils::testlib;
-use Test::More tests => 35;
+use Test::More tests => 41;
 use Config::Model;
+use Log::Log4perl qw(:easy) ;
 
 use warnings;
 no warnings qw(once);
@@ -10,19 +11,27 @@ no warnings qw(once);
 use strict;
 
 use Data::Dumper;
-# use Config::Model::ObjTreeScanner;
 
-use vars qw/$model/;
+my $arg = shift ;
+$arg = '' unless defined $arg ;
 
-$model = Config::Model -> new (legacy => 'ignore',) ;
+my ($log,$show) = (0) x 2 ;
+my $do ;
 
-my $arg = shift || '';
-$::verbose          = 1 if $arg =~ /v/;
-$::debug            = 1 if $arg =~ /d/;
 my $trace = $arg =~ /t/ ? 1 : 0 ;
+$::debug            = 1 if $arg =~ /d/;
+$log                = 1 if $arg =~ /l/;
 
-use Log::Log4perl qw(:easy) ;
-Log::Log4perl->easy_init($arg =~ /l/ ? $TRACE: $WARN);
+my $log4perl_user_conf_file = $ENV{HOME}.'/.log4config-model' ;
+
+if ($log and -e $log4perl_user_conf_file ) {
+    Log::Log4perl::init($log4perl_user_conf_file);
+}
+else {
+    Log::Log4perl->easy_init($log ? $WARN: $ERROR);
+}
+
+my $model = Config::Model -> new (legacy => 'ignore',) ;
 
 ok(1,"compiled");
 
@@ -78,6 +87,9 @@ my @tests = ( [ '?warp' ,      'warp',           'WarpedNode'],
 	      [ '?std_id:ab' , 'warp std_id:ab', 'Node'],
 	      [ '?hash_a:ab' , 'hash_a:ab'   , 'Value'],
 	      [ '?std_id' ,     'warp std_id', 'HashId'],
+	      [ '!Master',     '',             'Node' ],
+	      [ '!SlaveY',     'warp',             'Node' ],
+	      [ '!SlaveZ',     'warp std_id:toto', 'Node' ],
 	    ) ;
 
 foreach my $unit_test (@tests) {

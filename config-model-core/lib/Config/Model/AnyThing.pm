@@ -282,6 +282,11 @@ Go up one node
 
 Go to the root node.
 
+=item !Foo
+
+Go up the configuration tree until the C<Foo> configuration class is found. Raise an exception if 
+no C<Foo> class when root node is reached.
+
 =item xxx
 
 Go down using C<xxx> element.
@@ -378,9 +383,14 @@ sub grab {
         $logger->debug( "grab: executing cmd '$cmd' on object '",$obj->name, "($obj)'");
 
         if ($cmd eq '!') { 
-            push @found, $obj->grab_root ;
+            push @found, $obj->grab_root();
             next ;
           }
+          
+        if ($cmd =~ /^!([\w:]*)/) { 
+            push @found, $obj->grab_ancestor($1) ;
+            next ;
+        }
 
         if ($cmd =~ /^\?(\w+)/) {
 	    push @found, $obj->grab_ancestor_with_element_named($1) ;
@@ -542,9 +552,26 @@ Returns the root of the configuration tree.
 =cut
 
 sub grab_root {
-    my $self = shift ;
-    return defined $self->{parent} ? $self->{parent}->grab_root 
+    my $self = shift;
+    return defined $self->{parent} ? $self->{parent}->grab_root
       : $self ;
+}
+
+=head2 grab_ancestor( Foo )
+
+Go up the configuration tree until the C<Foo> configuration class is found. Returns 
+the found node or undef.
+
+=cut
+
+sub grab_ancestor {
+    my $self = shift ;
+    my $class = shift || die "grab_ancestor: missing ancestor class" ;
+    
+    return $self if $self->get_type eq 'node' and $self->config_class_name eq $class ;
+	
+    return $self->{parent}->grab_ancestor ($class) if defined $self->{parent} ;
+    return ;
 }
 
 #internal. Used by grab with '?xxx' steps
