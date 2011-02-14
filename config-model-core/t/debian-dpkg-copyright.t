@@ -27,11 +27,11 @@ $do                 = $1 if $arg =~ /(\d+)/;
 
 my $log4perl_user_conf_file = $ENV{HOME}.'/.log4config-model' ;
 
-if (-e $log4perl_user_conf_file ) {
+if ($log and -e $log4perl_user_conf_file ) {
     Log::Log4perl::init($log4perl_user_conf_file);
 }
 else {
-    Log::Log4perl->easy_init($arg =~ /l/ ? $DEBUG: $WARN);
+    Log::Log4perl->easy_init($log ? $WARN: $ERROR);
 }
 
 my $model = Config::Model -> new ( ) ;
