@@ -53,21 +53,13 @@ sub read {
     # try to get global comments (comments before a blank line)
     $self->read_global_comments(\@lines,'#') ;
 
-    my @comments ;
-    foreach (@lines) {
-        next if /^##/ ;		  # remove comments added by Config::Model
-        chomp ;
-
-        my ($data,$comment) = split /\s*#\s?/ ;
-
-        push @comments, $comment        if defined $comment ;
-
-        if (defined $data and $data ) {
-            $data .= '#"'.join("\n",@comments).'"' if @comments ;
-            $logger->debug("Loading:$data\n");
-            $self->node->load(step => $data, check => $check) ;
-            @comments = () ;
-        }
+    my @assoc = $self->associates_comments_with_data( \@lines, '#' ) ;
+    foreach my $item (@assoc) {
+        my ($data,$c) = @$item;
+        my $load = qq!$data! ;
+        $load .= qq!#"$c"! if $c ;
+        $logger->debug("Loading:$load\n");
+        $self->node->load(step => $load, check => $check) ;
     }
 
     return 1 ;

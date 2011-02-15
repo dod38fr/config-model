@@ -1,3 +1,14 @@
+TODO:
+- factor out comment parsing: the code that retrieve comments and tie it to actual config data is generic
+  and can be used for INI file, shell var, and openssh
+- make warp skip warp master if they cannot be found with !SomeClass
+- Auto test of synopsises
+
+Done:
+    * factor out comment extraction: code that retrieve comments and tie it to 
+      actual config data is generic. Now this is handled by 
+      C::M::B::Any::associates_comments_with_data
+
 2011-02-11 Dominique Dumont  <domi.dumont@free.fr> 1.233
     
     * Application changes:

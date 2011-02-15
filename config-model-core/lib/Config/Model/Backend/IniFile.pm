@@ -53,11 +53,6 @@ sub read {
 
     return 0 unless defined $args{io_handle};    # no file to read
 
-    # try to get global comments (comments before a blank line)
-    my @global_comments;
-    my @comments;
-    my $global_zone = 1;
-
     my $section;
 
     my $delimiter  = $args{comment_delimiter}   || '#';
@@ -69,63 +64,46 @@ sub read {
     #in the file?  It would be nice if comments that are after values
     #in input file, would be written in the same way in the output
     #file.  Also, comments at the end of file are being ignored now.
-    foreach ( $args{io_handle}->getlines ) {
-        next
-          if /^$delimiter$delimiter/;   # remove comments added by Config::Model
-        chomp;
 
-        my ( $vdata, $comment ) = split /\s*$delimiter\s?/;
+    my @lines = $args{io_handle}->getlines ;
+    # try to get global comments (comments before a blank line)
+    $self->read_global_comments(\@lines,$delimiter) ;
 
-        push @global_comments, $comment if defined $comment and $global_zone;
-        push @comments, $comment if ( defined $comment and not $global_zone );
+    my @assoc = $self->associates_comments_with_data( \@lines, $delimiter ) ;
+    foreach my $item (@assoc) {
+        my ($vdata,$comment) = @$item;
 
-        if ( $global_zone and /^\s*$/ and @global_comments ) {
-            $logger->debug("Setting global comment with '@global_comments'");
-            $self->node->annotation(@global_comments);
-            $global_zone = 0;
+        # Update section name
+        if ( $vdata =~ /\[(.*)\]/ ) {
+            $section = $1;
+            my $prefix = $hash_class ? "$hash_class:" : '';
+            $obj = $self->node->grab(
+                step  => $prefix . $section,
+                check => $check
+            );
+            $obj->annotation($comment) if $comment;
         }
+        else {
+            my ( $name, $val ) = split( /\s*=\s*/, $vdata );
 
-        # stop global comment at first blank line
-        $global_zone = 0 if /^\s*$/;
+            my $elt = $obj->fetch_element( name => $name, check => $check );
 
-        if ( defined $vdata and $vdata ) {
-            $vdata =~ s/^\s+//g;
-            $vdata =~ s/\s+$//g;
-
-            # Update section name
-            if ( $vdata =~ /\[(.*)\]/ ) {
-                $section = $1;
-                my $prefix = $hash_class ? "$hash_class:" : '';
-                $obj = $self->node->grab(
-                    step  => $prefix . $section,
-                    check => $check
-                );
-                $obj->annotation(@comments) if scalar @comments;
+            if ( $elt->get_type eq 'list' ) {
+                my $idx = $elt->fetch_size ;
+                my $list_val = $elt->fetch_with_id($idx);
+                $list_val -> store( $val, check => $check );
+                $list_val -> annotation($comment) if $comment ;
+            }
+            elsif ( $elt->element_type eq 'leaf' ) {
+                $elt->store( value => $val, check => $check );
+                $elt->annotation($comment) if scalar $comment;
             }
             else {
-                my ( $name, $val ) = split( /\s*=\s*/, $vdata );
-
-                my $elt = $obj->fetch_element( name => $name, check => $check );
-
-                if ( $elt->get_type eq 'list' ) {
-                    my $idx = $elt->fetch_size ;
-                    my $list_val = $elt->fetch_with_id($idx);
-                    $list_val -> store( $val, check => $check );
-                    $list_val -> annotation(@comments) if @comments ;
-                }
-                elsif ( $elt->element_type eq 'leaf' ) {
-                    $elt->store( value => $val, check => $check );
-                    $elt->annotation(@comments) if scalar @comments;
-                }
-                else {
-                    Config::Model::Exception::ModelDeclaration->throw(
-                        error =>
-                          "element $elt must be list or leaf for INI files",
-                        object => $obj
-                    );
-                }
+                Config::Model::Exception::ModelDeclaration->throw(
+                    error => "element $elt must be list or leaf for INI files",
+                    object => $obj
+                );
             }
-            @comments = ();
         }
     }
 

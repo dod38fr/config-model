@@ -81,6 +81,37 @@ sub read_global_comments {
     }
 }
 
+sub associates_comments_with_data {
+    my $self = shift ;
+    my $lines = shift ;
+    my $cc = shift ; # comment character
+
+    my @result ;
+    my @comments ;
+    foreach (@$lines) {
+        next if /^$cc$cc/ ;		  # remove comments added by Config::Model
+        chomp ;
+
+        my ($data,$comment) = split /\s*$cc\s?/ ;
+        push @comments, $comment        if defined $comment ;
+
+        next unless defined $data ;
+        $data =~ s/^\s+//g;
+        $data =~ s/\s+$//g;
+
+        if ($data) {
+            my $note = '';
+            $note = join("\n",@comments) if @comments ;
+            $logger->debug("associates_comments_with_data: '$note' with '$data'");
+            push @result, [  $data , $note ] ;
+            @comments = () ;
+        }
+    }
+    
+    return wantarray ? @result : \@result ;
+   
+}
+
 no Moose ;
 __PACKAGE__->meta->make_immutable ;
 
@@ -190,6 +221,22 @@ Whether the backend supports to read and write annotation. Default is
 Read the global comments (i.e. the first block of comments until the first blank or non comment line) and
 store them as root node annotation. The first parameter (C<lines>)
  is an array ref containing file lines.
+
+=head2 associates_comments_with_data ( lines , comment_char)
+
+This method will extract comments from the passed lines and associate them with actual data found
+ine the lines. Data is associated with comments preceding or on the same line as the data. Returns a list of
+[ data, comment ] .
+
+Example:
+
+  # Foo comments
+  foo= 1
+  Baz = 0 # Baz comments
+
+will return 
+
+  ( [  'foo= 1', 'Foo comments'  ] , [ 'Baz = 0' , 'Baz comments' ] )
 
 =head1 AUTHOR
 

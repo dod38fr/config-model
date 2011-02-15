@@ -24,7 +24,14 @@ $log                = 1 if $arg =~ /l/;
 $show               = 1 if $arg =~ /s/;
 $do                 = $1 if $arg =~ /(\d)/;
 
-Log::Log4perl->easy_init($log ? $TRACE: $WARN);
+my $log4perl_user_conf_file = $ENV{HOME}.'/.log4config-model' ;
+
+if ($log and -e $log4perl_user_conf_file ) {
+    Log::Log4perl::init($log4perl_user_conf_file);
+}
+else {
+    Log::Log4perl->easy_init($log ? $WARN: $ERROR);
+}
 
 my $model = Config::Model -> new ( ) ;
 

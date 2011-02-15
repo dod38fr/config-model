@@ -11,13 +11,12 @@ sub suffix { return '' ; }
 
 sub annotation { return 1 ;}
 
-my %opt_r_translate 
-  = (
-     ro => 'rw=0',
-     rw => 'rw=1',
-     bsddf => 'statfs_behavior=bsddf',
-     minixdf => 'statfs_behavior=minixdf',
-    ) ;
+my %opt_r_translate = (
+    ro => 'rw=0',
+    rw => 'rw=1',
+    bsddf => 'statfs_behavior=bsddf',
+    minixdf => 'statfs_behavior=minixdf',
+) ;
 
 sub read {
     my $self = shift ;
@@ -39,54 +38,45 @@ sub read {
     # try to get global comments (comments before a blank line)
     $self->read_global_comments(\@lines,'#') ;
 
-    my @comments ;
-    foreach (@lines) {
-        next if /^##/ ;		  # remove comments added by Config::Model
-        chomp ;
-        s/\s+$//;
+    my @assoc = $self->associates_comments_with_data( \@lines, '#' );
+    foreach my $item (@assoc) {
+        my ( $data, $comment ) = @$item;
+        $logger->trace("fstab read data '$data' comment '$comment'");
 
-        my ($data,$comment) = split /\s*#\s?/ ;
+        my ( $device, $mount_point, $type, $options, $dump, $pass ) =
+          split /\s+/, $data;
 
-        push @comments, $comment        if defined $comment ;
-        $logger->debug("Fstab: line $. '$_'\n");
+        my $swap_idx = 0;
+        my $label = $device =~ /LABEL=(\w+)$/ ? $1
+          : $type eq 'swap' ? "swap-" . $swap_idx++
+          :                   $mount_point;
 
-        if (defined $data and $data ) {
-            my ($device,$mount_point,$type,$options, $dump, $pass) = split /\s+/,$data ;
+        my $fs_obj = $self->node->fetch_element('fs')->fetch_with_id($label);
 
-            my $swap_idx = 0;
-            my $label = $device =~ /LABEL=(\w+)$/  ? $1 
-                      : $type eq 'swap'            ? "swap-".$swap_idx++ 
-                      :                              $mount_point; 
-
-            my $fs_obj = $self->node->fetch_element('fs')->fetch_with_id($label) ;
-
-            if (@comments) {
-                $logger->debug("Annotation: @comments\n");
-                $fs_obj->annotation(@comments);
-            }
-
-            my $load_line = "fs_vfstype=$type fs_spec=$device fs_file=$mount_point "
-                          . "fs_freq=$dump fs_passno=$pass" ;
-            $logger->debug("Loading:$load_line\n");
-            $fs_obj->load(step => $load_line, check => $check) ;
-
-            # now load fs options
-            $logger->trace("fs_type $type options is $options");
-            my @options = split /,/,$options ;
-            map {
-                $_ = $opt_r_translate{$_} if defined $opt_r_translate{$_};
-                s/no(.*)/$1=0/ ;
-                $_ .= '=1' unless /=/ ;
-            } @options ;
-            
-            $logger->debug("Loading:@options");
-            $fs_obj->fetch_element('fs_mntopts')->load (step => "@options", check => $check) ;
-
-            @comments = () ;
+        if ($comment) {
+            $logger->debug("Annotation: $comment\n");
+            $fs_obj->annotation($comment);
         }
-    }
 
-    return 1 ;
+        my $load_line = "fs_vfstype=$type fs_spec=$device fs_file=$mount_point "
+          . "fs_freq=$dump fs_passno=$pass";
+        $logger->debug("Loading:$load_line\n");
+        $fs_obj->load( step => $load_line, check => $check );
+
+        # now load fs options
+        $logger->trace("fs_type $type options is $options");
+        my @options = split /,/, $options;
+        map {
+            $_ = $opt_r_translate{$_} if defined $opt_r_translate{$_};
+            s/no(.*)/$1=0/;
+            $_ .= '=1' unless /=/;
+        } @options;
+
+        $logger->debug("Loading:@options");
+        $fs_obj->fetch_element('fs_mntopts')
+          ->load( step => "@options", check => $check );
+    }
+    return 1;
 }
 
 sub write {
