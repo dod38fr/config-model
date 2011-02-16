@@ -11,190 +11,28 @@ use File::Path ;
 
 my $logger = Log::Log4perl::get_logger("Backend::OpenSsh");
 
-sub sshd_read {
-    read_ssh_file( @_,  file => 'sshd_config',) ;
-}
-
-# for ssh_read:
-# if root: use /etc/ssh/ssh_config as usual
-# if normal user: load root file in "preset mode" 
-#                 load ~/.ssh/config in normal mode
-#                 write back to ~/.ssh/config
-#                 Ssh model can only specify root config_dir
-
-sub _ssh_read {
-    my %args = @_ ;
-    my $config_root = $args{object}
-      || croak __PACKAGE__," ssh_read: undefined config root object";
-    my $instance = $config_root -> instance ;
-
-    my $is_user = 1 ;
-
-    # $__test_root_file is a special global variable used only for tests
-    $is_user = 0 if ($> == 0 or $__test_ssh_root_file ); 
-
-    my $home_dir = $__test_ssh_home || $ENV{HOME} ;
-
-    $logger->info("ssh_read: reading ".($is_user ? 'user' :'root').
-		 " ssh config in ". ($is_user ? $home_dir : $args{config_dir}));
-
-    $instance -> preset_start if $is_user ; # regular user
-
-    my $ret = read_ssh_file( @_, file => 'ssh_config' ) ;
-
-    $instance -> preset_stop if $is_user ;
-
-    if ( $is_user) {
-	# don't croak if user config file is missing
-	 read_ssh_file( @_ , file => 'config',
-		       config_dir => $home_dir.'/.ssh') ;
-    }
-
-    return $ret ;
-}
-
-my @dispatch = (
-    qr/match/i                 => \&match,
-    qr/host\b/i                => \&host,
-    qr/(local|remote)forward/i => \&forward,
-    qr/localcommand/i          => \&assign,
-    qr/\w/                     => \&assign,
-);
-
-sub _read_ssh_file {
-    my %args = @_ ;
-    my $config_root = $args{object}
-      || croak __PACKAGE__," read_ssh_file: undefined config root object";
-    my $dir = $args{root}.$args{config_dir} ;
-
-    unless (-d $dir ) {
-	$logger->info("read_ssh_file: unknown config dir $dir");
-	return 0;
-    }
-
-    my $file = $dir.'/'.$args{file} ;
-    unless (-r "$file") {
-	$logger->info("read_ssh_file: unknown file $file");
-	return 0;
-    }
-
-    $logger->info("loading config file $file");
-
-    my $fh = new IO::File $file, "r"  
-        || die __PACKAGE__," read_ssh_file: can't open $file:$!";
-
-    # try to get global comments (comments before a blank line)
-    my @global_comments;
-    my @comments;
-    my $global_zone = 1;
-
-    foreach ( $fh->getlines ) {
-        next if /^##/;   # remove comments added by Config::Model
-        chomp;
-
-        my ( $vdata, $comment ) = split /\s*#\s?/;
-
-        push @global_comments, $comment if defined $comment and $global_zone;
-        push @comments, $comment if ( defined $comment and not $global_zone );
-
-        if ( $global_zone and /^\s*$/ and @global_comments ) {
-            $logger->debug("Setting global comment with '@global_comments'");
-            $config_root->annotation(@global_comments);
-            $global_zone = 0;
-        }
-
-        # stop global comment at first blank line
-        $global_zone = 0 if /^\s*$/;
-
-        if ( defined $vdata and $vdata ) {
-            $vdata =~ s/^\s+//g;
-            $vdata =~ s/\s+$//g;
-            my ($k,@v) = split /\s+/,$vdata;
-            
-            my $i = 0;
-            while ($i< @dispatch) {
-                my ($regexp, $sub) = @dispatch[$i++,$i++];
-                if ( $k =~ $regexp ) {
-                    $self->$sub($config_root,\@v,\@comments) ;
-                    last;
-                }
-            }
-
-            warn __PACKAGE__," unknown keyword: $k" if $i >= @dispatch ;
-        }
-    $fh->close ;
-    return 1;
-}
-
-sub _assign {
-    my ($root, $key,$arg,$comment) = @_ ;
-    $logger->debug("assign: $key @$arg # $comment");
-    $current_node = $root unless defined $current_node ;
-
-    # keys are case insensitive, try to find a match
-    if ( not $current_node->element_exists( $key ) ) {
-	foreach my $elt ($current_node->get_element_name(for => 'master') ) {
-	    $key = $elt if lc($key) eq lc($elt) ;
-	}
-    }
-
-    my $elt = $current_node->fetch_element($key) ;
-    my $type = $elt->get_type;
-    #print "got $key type $type and ",join('+',@$arg),"\n";
-    if    ($type eq 'leaf') { 
-	$elt->store( join(' ',@$arg) ) ;
-    }
-    elsif ($type eq 'list') { 
-	$elt->push ( @$arg ) ;
-    }
-    elsif ($type eq 'hash') {
-        $elt->fetch_with_id($arg->[0])->store( $arg->[1] );
-    }
-    elsif ($type eq 'check_list') {
-	my @check = split /,/,$arg->[0] ;
-        $elt->set_checked_list (@check) ;
-    }
-    else {
-       die "OpenSsh::assign did not expect $type for $key\n";
-    }
-  }
-
-sub _match {
-    my ($root, $pairs,$comments) = @_ ;
-    $logger->debug("match: @$pairs # @$comment");
-    my $list_obj = $root->fetch_element('Match');
-
-    # create new match block
-    my $nb_of_elt = $list_obj->fetch_size;
-    my $block_obj = $list_obj->fetch_with_id($nb_of_elt) ;
-    $block_obj->annotation(@$comments) ;
-
-    while (@$pairs) {
-	my $criteria = shift @$pairs;
-	my $pattern  = shift @$pairs;
-	$block_obj->load(qq!Condition $criteria="$pattern"!);
-    }
-
-    $current_node = $block_obj->fetch_element('Settings');
+sub read {
+    my $self = shift ;
+    $self->read_ssh_file( @_,  file => 'sshd_config',) ;
 }
 
 sub _host {
-    my ($root,$patterns,$comment)  = @_;
+    my ($self,$root,$patterns,$comment)  = @_;
     $logger->debug("host: pattern @$patterns # $comment");
     my $hash_obj = $root->fetch_element('Host');
 
     $logger->info("ssh: load host patterns '".join("','", @$patterns)."'");
 
-    $current_node = $hash_obj->fetch_with_id("@$patterns");
+    $self->current_node = $hash_obj->fetch_with_id("@$patterns");
 }
 
 sub _forward {
-    my ($root,$key,$args,$comment)  = @_;
+    my ($self,$root,$key,$args,$comment)  = @_;
     $logger->debug("forward: $key @$args # $comment");
-    $current_node = $root unless defined $current_node ;
+    $self->current_node($root) unless defined $self->current_node ;
 
     my $elt_name = $key =~ /local/i ? 'Localforward' : 'RemoteForward' ;
-    my $size = $current_node->fetch_element($key)->fetch_size;
+    my $size = $self->current_node->fetch_element($key)->fetch_size;
 
     $logger->info("ssh: load $key '".join("','", @$args)."'");
 
@@ -219,10 +57,10 @@ sub _forward {
     $load_str .= "bind_address=$bind_adr " if defined $bind_adr ;
     $load_str .= "port=$port host=$host hostport=$host_port";
 
-    $current_node -> load($load_str) ;
+    $self->current_node -> load($load_str) ;
 }
 
-=head2 sshd_write (object => <sshd_root>, conf_dir => ...)
+=head2 write (object => <sshd_root>, conf_dir => ...)
 
 Write F<sshd_config> in C<conf_dir> from the data stored the
 C<sshd_root> configuration tree.
@@ -231,7 +69,8 @@ C<sshd_root> configuration tree.
 
 # now the write part
 
-sub _sshd_write {
+sub write {
+    my $self = shift ;
     my %args = @_ ;
     my $config_root = $args{object}
       || croak __PACKAGE__," sshd_write: undefined config root object";
@@ -248,49 +87,7 @@ sub _sshd_write {
 
     $logger->info("writing config file $file");
 
-    my $result = write_node_content($config_root);
-
-    #print $result ;
-    open(OUT,"> $file") || die "cannot open $file:$!";
-    print OUT $result;
-    close OUT;
-
-    return 1;
-}
-
-# for ssh_write:
-# if root: use /etc/ssh/ssh_config as usual
-# if normal user: load root file in "preset mode" 
-#                 load ~/.ssh/config in normal mode
-#                 write back to ~/.ssh/config
-#                 Ssh model can only specify root config_dir
-
-sub _ssh_write {
-    my %args = @_ ;
-    my $config_root = $args{object}
-      || croak __PACKAGE__," ssh_write: undefined config root object";
-
-    my $is_user = 1 ;
-    # $__test_root_file is a special global variable used only for tests
-    $is_user = 0 if ($> == 0 or $__test_ssh_root_file ); 
-    my $home_dir = $__test_ssh_home || $ENV{HOME} ;
-
-    my $config_dir = $is_user ? $home_dir.'/.ssh' : $args{config_dir} ;
-    my $dir = $args{root}.$config_dir ;
-
-    mkpath($dir, {mode => 0755} )  unless -d $dir ;
-
-    my $file = $is_user ? "$dir/config" : "$dir/ssh_config" ;
-
-    if (-r "$file") {
-	my $backup = "$file.".time ;
-	$logger->info("Backing up file $file in $backup");
-	copy($file,$backup);
-    }
-
-    $logger->info("writing config file $file");
-
-    my $result = write_node_content($config_root,'custom');
+    my $result = $self->write_node_content($config_root);
 
     #print $result ;
     open(OUT,"> $file") || die "cannot open $file:$!";
@@ -305,6 +102,7 @@ sub _write_line {
 }
 
 sub _write_node_content {
+    my $self = shift ;
     my $node = shift ;
     my $mode = shift || '';
 
@@ -358,18 +156,20 @@ sub _write_node_content {
 }
 
 sub write_all_match_block {
+    my $self = shift ;
     my $match_elt = shift ;
     my $mode = shift || '';
 
     my $result = '' ;
     foreach my $elt ($match_elt->fetch_all($mode) ) {
-	$result .= write_match_block($elt,$mode) ;
+	$result .= $self->write_match_block($elt,$mode) ;
     }
 
     return $result ;
 }
 
 sub write_match_block {
+    my $self = shift ;
     my $match_elt = shift ;
     my $mode = shift || '';
 
@@ -379,10 +179,10 @@ sub write_match_block {
 	my $elt = $match_elt->fetch_element($name) ;
 
 	if ($name eq 'Settings') {
-	    $result .= "\n".write_node_content($elt,$mode)."\n" ;
+	    $result .= "\n".$self->write_node_content($elt,$mode)."\n" ;
 	}
 	elsif ($name eq 'Condition') {
-	    $result .= write_match_condition($elt,$mode) ."\n" ;
+	    $result .= $self->write_match_condition($elt,$mode) ."\n" ;
 	}
 	else {
 	    die "write_match_block: unexpected element: $name";
@@ -393,6 +193,7 @@ sub write_match_block {
 }
 
 sub write_match_condition {
+    my $self = shift ;
     my $cond_elt = shift ;
     my $mode = shift || '';
 
@@ -408,6 +209,7 @@ sub write_match_condition {
 }
 
 sub write_all_host_block {
+    my $self = shift ;
     my $host_elt = shift ;
     my $mode = shift || '';
 
@@ -415,7 +217,7 @@ sub write_all_host_block {
 
     foreach my $pattern ( $host_elt->get_all_indexes) {
 	my $block_elt = $host_elt->fetch_with_id($pattern) ;
-	my $block_data = write_node_content($block_elt,'custom') ;
+	my $block_data = $self->write_node_content($block_elt,'custom') ;
 
 	# write data only if custom pattern or custom data is found this
 	# is necessary to avoid writing data from /etc/ssh/ssh_config that
@@ -428,6 +230,7 @@ sub write_all_host_block {
 }
 
 sub write_forward {
+    my $self = shift ;
     my $forward_elt = shift ;
     my $mode = shift || '';
 
@@ -447,7 +250,7 @@ sub write_forward {
 	       :                           $v ;
     }
 
-    return write_line($forward_elt->element_name,$line) ;
+    return $self->write_line($forward_elt->element_name,$line) ;
 }
 1;
 

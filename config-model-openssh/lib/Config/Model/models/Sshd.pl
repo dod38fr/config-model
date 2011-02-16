@@ -11,6 +11,10 @@
                         ],
             'read_config' => [
                                {
+                                 'backend' => 'OpenSsh::Sshd',
+                                 'config_dir' => '/etc/ssh'
+                               },
+                               {
                                  'save' => 'backup',
                                  'file' => 'sshd_config',
                                  'backend' => 'augeas',
@@ -20,34 +24,9 @@
                                                         'Match'
                                                       ],
                                  'config_dir' => '/etc/ssh'
-                               },
-                               {
-                                 'function' => 'sshd_read',
-                                 'backend' => 'custom',
-                                 'class' => 'Config::Model::OpenSsh',
-                                 'config_dir' => '/etc/ssh'
                                }
                              ],
             'name' => 'Sshd',
-            'write_config' => [
-                                {
-                                  'save' => 'backup',
-                                  'file' => 'sshd_config',
-                                  'backend' => 'augeas',
-                                  'sequential_lens' => [
-                                                         'HostKey',
-                                                         'Subsystem',
-                                                         'Match'
-                                                       ],
-                                  'config_dir' => '/etc/ssh'
-                                },
-                                {
-                                  'function' => 'sshd_write',
-                                  'backend' => 'custom',
-                                  'class' => 'Config::Model::OpenSsh',
-                                  'config_dir' => '/etc/ssh'
-                                }
-                              ],
             'element' => [
                            'AcceptEnv',
                            {

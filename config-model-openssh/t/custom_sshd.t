@@ -24,17 +24,12 @@ $show               = 1 if $arg =~ /s/;
 
 my $log4perl_user_conf_file = $ENV{HOME}.'/.log4config-model' ;
 
-if (-e $log4perl_user_conf_file ) {
+if ($log and -e $log4perl_user_conf_file ) {
     Log::Log4perl::init($log4perl_user_conf_file);
 }
 else {
-    Log::Log4perl->easy_init($arg =~ /l/ ? $DEBUG: $WARN);
+    Log::Log4perl->easy_init($log ? $DEBUG: $ERROR);
 }
-
-#$::RD_ERRORS = 1 ;  
-#$::RD_WARN   = 1 ;  # unless undefined, also report non-fatal problems
-#$::RD_HINT   = 1 ;  # if defined, also suggestion remedies
-$::RD_TRACE  = 1 if $arg =~ /p/;
 
 # trap warning if Augeas backend is not installed
 if (not  eval {require Config::Model::Backend::Augeas; } ) {
@@ -69,7 +64,7 @@ close SSHD ;
 my $inst = $model->instance (root_class_name   => 'Sshd',
 			     instance_name     => 'sshd_instance',
 			     root_dir          => $wr_dir,
-			     backend => 'custom',
+			     backend => 'OpenSsh::Sshd',
 			    );
 
 ok($inst,"Read $wr_dir/etc/ssh/sshd_config and created instance") ;
@@ -80,7 +75,6 @@ my $dump =  $root->dump_tree ();
 print "First $testdir dump:\n",$dump if $trace ;
 
 #like($dump,qr/Match:0/, "check Match section") if $testdir =~ /match/;
-exit ;
 
 $root -> load("Port=2222") ; 
 
@@ -97,7 +91,7 @@ copy($wr_dir.'/etc/ssh/sshd_config',$wr_dir2.'/etc/ssh/') ;
 my $inst2 = $model->instance (root_class_name   => 'Sshd',
 			      instance_name     => 'sshd_instance2',
 			      root_dir          => $wr_dir2,
-			      backend => 'custom',
+			      backend => 'OpenSsh::Sshd',
 			     );
 
 ok($inst2,"Read $wr_dir2/etc/ssh/sshd_config and created instance") ;
