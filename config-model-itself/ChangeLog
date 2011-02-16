@@ -1,3 +1,5 @@
+        * Search backend in all @INC directories (useful for dev)
+
 2011-01-20 Dominique Dumont  <domi.dumont@free.fr> 1.222
 
         * added migrate_keys_from, undef_is parameters 
