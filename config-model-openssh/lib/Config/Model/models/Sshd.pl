@@ -1,6 +1,7 @@
 [
           {
             'accept' => [
+                          '.*',
                           {
                             'value_type' => 'uniline',
                             'summary' => 'boilerplate parameter that may hide a typo',

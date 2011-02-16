@@ -4,21 +4,11 @@
             'include_after' => 'Host',
             'read_config' => [
                                {
-                                 'function' => 'ssh_read',
-                                 'backend' => 'custom',
-                                 'class' => 'Config::Model::OpenSsh',
+                                 'backend' => 'OpenSsh::Ssh',
                                  'config_dir' => '/etc/ssh'
                                }
                              ],
             'name' => 'Ssh',
-            'write_config' => [
-                                {
-                                  'function' => 'ssh_write',
-                                  'backend' => 'custom',
-                                  'class' => 'Config::Model::OpenSsh',
-                                  'config_dir' => '/etc/ssh'
-                                }
-                              ],
             'include' => [
                            'Ssh::HostElement'
                          ],

@@ -3,7 +3,7 @@
 use ExtUtils::testlib;
 use Test::More tests => 17;
 use Config::Model ;
-use Config::Model::OpenSsh ; # required for tests
+use Config::Model::Backend::OpenSsh::Ssh ; # required for tests
 use Log::Log4perl qw(:easy) ;
 use File::Path ;
 use English;
@@ -25,18 +25,12 @@ $show               = 1 if $arg =~ /s/;
 
 my $log4perl_user_conf_file = $ENV{HOME}.'/.log4config-model' ;
 
-if (-e $log4perl_user_conf_file ) {
+if ($log and -e $log4perl_user_conf_file ) {
     Log::Log4perl::init($log4perl_user_conf_file);
 }
 else {
-    Log::Log4perl->easy_init($arg =~ /l/ ? $DEBUG: $WARN);
+    Log::Log4perl->easy_init($log ? $DEBUG: $ERROR);
 }
-
-
-#$::RD_ERRORS = 1 ;  
-#$::RD_WARN   = 1 ;  # unless undefined, also report non-fatal problems
-#$::RD_HINT   = 1 ;  # if defined, also suggestion remedies
-$::RD_TRACE  = 1 if $arg =~ /p/;
 
 my $model = Config::Model -> new ( ) ;
 
@@ -64,7 +58,7 @@ close SSHD ;
 
 # special global variable used only for tests
 my $joe_home = "/home/joe" ;
-&Config::Model::OpenSsh::_set_test_ssh_home($joe_home) ; 
+&Config::Model::Backend::OpenSsh::Ssh::_set_test_ssh_home($joe_home) ; 
 
 # set up Joe's environment
 my $joe_ssh = $wr_dir.$joe_home.'/.ssh';
@@ -84,7 +78,7 @@ sub read_user_ssh {
 print "Test from directory $testdir\n" if $trace ;
 
 # special global variable used only for tests
-&Config::Model::OpenSsh::_set_test_ssh_root_file(1);
+&Config::Model::Backend::OpenSsh::Ssh::_set_test_ssh_root_file(1);
 
 my $root_inst = $model->instance (root_class_name   => 'Ssh',
 				  instance_name     => 'root_ssh_instance',
@@ -126,7 +120,7 @@ SKIP: {
 
 
     # now test reading user configuration file on top of root file
-    &Config::Model::OpenSsh::_set_test_ssh_root_file(0);
+    &Config::Model::Backend::OpenSsh::Ssh::_set_test_ssh_root_file(0);
 
     my $user_inst = $model->instance (root_class_name   => 'Ssh',
 				      instance_name     => 'user_ssh_instance',

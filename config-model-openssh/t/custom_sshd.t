@@ -1,7 +1,4 @@
 # -*- cperl -*-
-# $Author: ddumont $
-# $Date: 2008-04-15 13:57:49 +0200 (mar, 15 avr 2008) $
-# $Revision: 608 $
 
 use ExtUtils::testlib;
 use Test::More tests => 5;
@@ -15,7 +12,7 @@ no warnings qw(once);
 
 use strict;
 
-my $arg = shift || '';
+my $arg = shift @ARGV || '';
 
 my ($log,$show) = (0) x 2 ;
 
@@ -25,7 +22,14 @@ $::debug            = 1 if $arg =~ /d/;
 $log                = 1 if $arg =~ /l/;
 $show               = 1 if $arg =~ /s/;
 
-Log::Log4perl->easy_init($log ? $TRACE: $WARN);
+my $log4perl_user_conf_file = $ENV{HOME}.'/.log4config-model' ;
+
+if (-e $log4perl_user_conf_file ) {
+    Log::Log4perl::init($log4perl_user_conf_file);
+}
+else {
+    Log::Log4perl->easy_init($arg =~ /l/ ? $DEBUG: $WARN);
+}
 
 #$::RD_ERRORS = 1 ;  
 #$::RD_WARN   = 1 ;  # unless undefined, also report non-fatal problems
@@ -76,6 +80,7 @@ my $dump =  $root->dump_tree ();
 print "First $testdir dump:\n",$dump if $trace ;
 
 #like($dump,qr/Match:0/, "check Match section") if $testdir =~ /match/;
+exit ;
 
 $root -> load("Port=2222") ; 
 
