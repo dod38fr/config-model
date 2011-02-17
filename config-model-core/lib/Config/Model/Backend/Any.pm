@@ -112,6 +112,22 @@ sub associates_comments_with_data {
    
 }
 
+sub write_global_comment {
+    my ($self,$ioh,$cc) = @_ ;
+
+    $ioh->print("$cc$cc This file was written by Config::Model\n");
+    $ioh->print("$cc$cc You may modify the content of this file. Configuration \n");
+    $ioh->print("$cc$cc modifications will be preserved. Modifications in\n");
+    $ioh->print("$cc$cc comments may be mangled.\n$cc$cc\n");
+
+    # write global comment
+    my $global_note = $self->node->annotation ;
+    if ($global_note) {
+        map { $ioh->print("$cc $_\n") } split /\n/,$global_note ;
+        $ioh->print("\n") ;
+    }
+}
+
 no Moose ;
 __PACKAGE__->meta->make_immutable ;
 
@@ -237,6 +253,10 @@ Example:
 will return 
 
   ( [  'foo= 1', 'Foo comments'  ] , [ 'Baz = 0' , 'Baz comments' ] )
+
+=head2 write_global_comments( io_handle , comment_char)
+
+Write global comments from configuration root annotation.
 
 =head1 AUTHOR
 

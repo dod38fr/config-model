@@ -130,9 +130,7 @@ sub write {
 
     croak "Undefined file handle to write" unless defined $ioh;
     
-    $ioh->print($delimiter x 2 ." file written by Config::Model\n");
-    my $global_comment = $node->annotation ;
-    $ioh->print("$delimiter $global_comment\n\n") if $global_comment ;
+    $self->write_global_comment($ioh,$delimiter) ;
 
     $self->_write(@_) ;
 }

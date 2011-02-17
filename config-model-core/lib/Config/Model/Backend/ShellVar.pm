@@ -83,17 +83,7 @@ sub write {
 
     croak "Undefined file handle to write" unless defined $ioh;
 
-    $ioh->print("## This file was written by Config::Model\n");
-    $ioh->print("## You may modify the content of this file. Configuration \n");
-    $ioh->print("## modifications will be preserved. Modifications in\n");
-    $ioh->print("## comments may be mangled.\n##\n");
-
-    # write global comment
-    my $global_note = $node->annotation ;
-    if ($global_note) {
-        map { $ioh->print("# $_\n") } split /\n/,$global_note ;
-        $ioh->print("\n") ;
-    }
+    $self->write_global_comment($ioh,'#') ;
 
     # Using Config::Model::ObjTreeScanner would be overkill
     foreach my $elt ($node->get_element_name) {
