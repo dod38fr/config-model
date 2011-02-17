@@ -262,14 +262,16 @@ sub dump_tree {
             }
         }
         else {
+            # write value comments
+            foreach my $idx ($list_obj->get_all_indexes) {
+                my $note = $list_obj->fetch_with_id($idx)->annotation ;
+                $$data_r .= "\n$pad$element:$idx#".quote($note) if $note ;
+            }
 	    # skip undef values
 	    my @val = quote( grep (defined $_, 
 				   $list_obj->fetch_all_values(mode => $fetch_mode, 
 							       check => $check))) ;
-	    my $note = quote($list_obj->annotation) ;
-            $$data_r .= "\n$pad$element"        if @val or $note ;
-	    $$data_r .= "=" . join( ',', @val ) if @val;
-	    $$data_r .= '#'  . $note            if         $note ;
+            $$data_r .= "\n$pad$element=" . join( ',', @val ) if @val;
         }
     };
 

@@ -241,7 +241,7 @@ $step = ' std_id:ab#std_id_ab_note
                                     X=Bv X#std_id_ab_X_note 
       - std_id#std_id_note std_id:bc X=Av X#std_id_bc_X_note '
   .'- a_string="toto \"titi\" tata" a_string#a_string_note '
-  .'lista=a,b,c,d olist#o_list_note olist:0#olist_0_note X=Av - olist:1#olist1_c X=Bv - listb=b,"c c2",d '
+  .'lista#lista_note lista=a,b,c,d lista:1#lista_1_note olist#o_list_note olist:0#olist_0_note X=Av - olist:1#olist1_c X=Bv - listb=b,"c c2",d '
   . '! hash_a:X2=x#hash_a_X2 hash_a:Y2=xy#"hash_a Y2 note"  hash_b:X3=xy#hash_b_X3
      my_check_list=X2,X3 plain_object#"plain comment" aa2=aa2_value' ;
 ok( $root2->load( step => $step, experience => 'advanced' ),
