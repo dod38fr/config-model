@@ -32,6 +32,7 @@ sub read_ssh_file {
     my $config_root = $args{object}
       || croak __PACKAGE__," read_ssh_file: undefined config root object";
     my $dir = $args{root}.$args{config_dir} ;
+    my $skip_notes = $args{skip_notes} || 0 ;
 
     unless (-d $dir ) {
 	$logger->info("read_ssh_file: unknown config dir $dir");
@@ -76,20 +77,19 @@ sub read_ssh_file {
 }
 
 sub assign {
-    my ($self,$root, $key,$arg,$comment) = @_ ;
-    $logger->debug("assign: $key @$arg # $comment");
+    my ($self,$root, $raw_key,$arg,$comment) = @_ ;
+    $logger->debug("assign: $raw_key @$arg # $comment");
     $self->current_node($root) unless defined $self->current_node ;
 
     # keys are case insensitive, try to find a match
-    if ( not $self->current_node->element_exists( $key ) ) {
-	foreach my $elt ($self->current_node->get_element_name(for => 'master') ) {
-	    $key = $elt if lc($key) eq lc($elt) ;
-	}
-    }
+    my $key = $self->current_node->find_element ($raw_key, case => 'any') ;
 
     my $elt = $self->current_node->fetch_element($key) ;
     my $type = $elt->get_type;
     #print "got $key type $type and ",join('+',@$arg),"\n";
+
+    $elt->annotation($comment) if $comment and $type ne 'hash';
+    
     if    ($type eq 'leaf') { 
 	$elt->store( join(' ',@$arg) ) ;
     }
@@ -97,7 +97,9 @@ sub assign {
 	$elt->push ( @$arg ) ;
     }
     elsif ($type eq 'hash') {
-        $elt->fetch_with_id($arg->[0])->store( $arg->[1] );
+        my $hv = $elt->fetch_with_id($arg->[0]);
+        $hv->store( $arg->[1] );
+        $hv->annotation($comment) if $comment;
     }
     elsif ($type eq 'check_list') {
 	my @check = split /,/,$arg->[0] ;
@@ -110,8 +112,8 @@ sub assign {
 
 
 sub write_line {
-    my $self= shift ;
-    return sprintf("%-20s %s\n",@_) ;
+    my ($self, $k, $v, $note) = @_ ;
+    return $self->write_data_and_comments( undef, '#',sprintf("%-20s %s",$k,$v),$note) ;
 }
 
 sub write_node_content {
@@ -126,6 +128,7 @@ sub write_node_content {
 	next unless $node->is_element_defined($name) ;
 	my $elt = $node->fetch_element($name) ;
 	my $type = $elt->get_type;
+	my $note = $elt->annotation ;
 
 	#print "got $key type $type and ",join('+',@arg),"\n";
 	if    ($name eq 'Match') { 
@@ -137,27 +140,26 @@ sub write_node_content {
 	elsif    ($name =~ /^(Local|Remote)Forward$/) { 
 	    map { $result .= $self->write_forward($_,$mode) ;} $elt->fetch_all() ;
 	}
-#	elsif    ($name eq 'ClientAliveCheck') { 
-#	    # special case that must be skipped
-#	}
 	elsif    ($type eq 'leaf') { 
 	    my $v = $elt->fetch($mode) ;
 	    if (defined $v and $elt->value_type eq 'boolean') {
 		$v = $v == 1 ? 'yes':'no' ;
 	    }
-	    $result .= $self->write_line($name,$v) if defined $v;
+	    $result .= $self->write_line($name,$v,$note) if defined $v;
 	}
 	elsif    ($type eq 'check_list') { 
 	    my $v = $elt->fetch($mode) ;
-	    $result .= $self->write_line($name,$v) if defined $v and $v;
+	    $result .= $self->write_line($name,$v,$note) if defined $v and $v;
 	}
 	elsif ($type eq 'list') { 
-	    map { $result .= $self->write_line($name,$_) ;} $elt->fetch_all_values($mode) ;
+	    $result .= $self->write_data_and_comments(undef,'#', undef, $note) ; 
+	    map { $result .= $self->write_line($name,$_->fetch($mode), $_->annotation) ;} $elt->fetch_all() ;
 	}
 	elsif ($type eq 'hash') {
 	    foreach my $k ( $elt->get_all_indexes ) {
-		my $v = $elt->fetch_with_id($k)->fetch($mode) ;
-		$result .=  $self->write_line($name,"$k $v") ;
+		my $o = $elt->fetch_with_id($k);
+		my $v = $o->fetch($mode) ;
+		$result .=  $self->write_line($name,"$k $v", $o->annotation) ;
 	    }
 	}
 	else {

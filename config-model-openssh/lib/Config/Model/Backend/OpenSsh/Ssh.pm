@@ -62,8 +62,10 @@ sub host {
     my $hash_obj = $root->fetch_element('Host');
 
     $logger->info("ssh: load host patterns '".join("','", @$patterns)."'");
+    my $hv = $hash_obj->fetch_with_id("@$patterns") ;
+    $hv -> annotation($comment) if $comment ;
 
-    $self->current_node($hash_obj->fetch_with_id("@$patterns"));
+    $self->current_node($hv);
 }
 
 sub forward {
@@ -89,8 +91,10 @@ sub forward {
 
     my $load_str = '';
     $load_str .= "GatewayPorts=1 " if $bind_adr ;
-
-    $load_str .= "$key:$size ";
+    my $note = $comment || '' ;
+    $note =~ s/"/\\"/g;
+    $note = qq!#"$note"! if $note ;
+    $load_str .= "$key:$size$note ";
 
     $load_str .= 'ipv6=1 ' if $v6 ;
 
@@ -125,20 +129,17 @@ sub write {
 
     my $file = $is_user ? "$dir/config" : "$dir/ssh_config" ;
 
-    if (-r "$file") {
-	my $backup = "$file.".time ;
-	$logger->info("Backing up file $file in $backup");
-	copy($file,$backup);
-    }
-
     $logger->info("writing config file $file");
+
+    my $ioh = IO::File->new ;
+    $ioh-> open($file,">") || die "cannot open $file:$!";
+    $self->write_global_comment($ioh,'#') ;
 
     my $result = $self->write_node_content($config_root,'custom');
 
     #print $result ;
-    open(OUT,"> $file") || die "cannot open $file:$!";
-    print OUT $result;
-    close OUT;
+    $ioh->print ($result);
+    $ioh -> close ;
 
     return 1;
 }
@@ -158,7 +159,8 @@ sub write_all_host_block {
 	# is necessary to avoid writing data from /etc/ssh/ssh_config that
 	# were entered as 'preset' data
 	if ($block_data) {
-	    $result .= "Host $pattern\n$block_data\n" ;
+	    $result .= $self->write_line(Host => $pattern, $host_elt->annotation);
+	    $result .= "$block_data\n" ;
 	}
     }
     return $result ;
@@ -185,7 +187,7 @@ sub write_forward {
 	       :                           $v ;
     }
 
-    return $self->write_line($forward_elt->element_name,$line) ;
+    return $self->write_line($forward_elt->element_name,$line,$forward_elt->annotation) ;
 }
 1;
 

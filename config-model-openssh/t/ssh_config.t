@@ -70,7 +70,7 @@ close JOE ;
 sub read_user_ssh {
     my $file = shift ;
     open(IN, $file)||die "can't read $file:$!";
-    my @res = grep {/\w/} map { chomp; s/\s+/ /g; $_ ;} <IN> ;
+    my @res = grep {/\w/} map { chomp; s/\s+/ /g; $_ ;} grep { not /##/ } <IN> ;
     close (IN);
     return @res ;
 }
@@ -92,10 +92,13 @@ my $root_cfg = $root_inst -> config_root ;
 my $dump =  $root_cfg->dump_tree ();
 print $dump if $trace ;
 
+like($dump,qr/^#"ssh global comment"/, "check global comment pattern") ;
+like($dump,qr/Ciphers=aes192-cbc,aes128-cbc,3des-cbc,blowfish-cbc,aes256-cbc#"  Protocol 2,1\s+Cipher 3des"/,"check Ciphers comment");
+like($dump,qr/SendEnv#"  PermitLocalCommand no"/,"check SendEnv comment");
 like($dump,qr/Host:"foo\.\*,\*\.bar"/, "check Host pattern") ;
 like($dump,qr/LocalForward:0\s+port=20022/, "check user LocalForward port") ;
 like($dump,qr/host=10.3.244.4/, "check user LocalForward host") ;
-like($dump,qr/LocalForward:1\s+ipv6=1/, "check user LocalForward ipv6") ;
+like($dump,qr/LocalForward:1#"IPv6 example"\s+ipv6=1/, "check user LocalForward ipv6") ;
 like($dump,qr/port=22080/, "check user LocalForward port ipv6") ;
 like($dump,qr/host=2001:0db8:85a3:0000:0000:8a2e:0370:7334/, 
      "check user LocalForward host ipv6") ;
@@ -158,37 +161,16 @@ SKIP: {
 }
 
 __END__
-
+# ssh global comment
 
 
 Host *
 #   ForwardAgent no
 #   ForwardX11 no
-#   ForwardX11Trusted yes
-#   RhostsRSAAuthentication no
-#   RSAAuthentication yes
-#   PasswordAuthentication yes
-#   HostbasedAuthentication no
-#   GSSAPIAuthentication no
-#   GSSAPIDelegateCredentials no
-#   GSSAPIKeyExchange no
-#   GSSAPITrustDNS no
-#   BatchMode no
-#   CheckHostIP yes
-#   AddressFamily any
-#   ConnectTimeout 0
-#   StrictHostKeyChecking ask
-#   IdentityFile ~/.ssh/identity
-#   IdentityFile ~/.ssh/id_rsa
-#   IdentityFile ~/.ssh/id_dsa
     Port 1022
 #   Protocol 2,1
 #   Cipher 3des
     Ciphers aes192-cbc,aes128-cbc,3des-cbc,blowfish-cbc,aes256-cbc
-#   MACs hmac-md5,hmac-sha1,umac-64@openssh.com,hmac-ripemd160
-#   EscapeChar ~
-#   Tunnel no
-#   TunnelDevice any:any
 #   PermitLocalCommand no
     SendEnv LANG LC_*
     HashKnownHosts yes
@@ -196,6 +178,7 @@ Host *
     GSSAPIDelegateCredentials no
 
 Host foo.*,*.bar
+    # for and bar have X11
     ForwardX11 yes
     SendEnv FOO BAR
 
