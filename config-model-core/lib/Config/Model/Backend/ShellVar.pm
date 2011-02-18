@@ -90,22 +90,9 @@ sub write {
         my $obj =  $node->fetch_element($elt) ;
         my $v = $node->grab_value($elt) ;
 
-        # write some documentation in comments
-        my $help = $node->get_help(summary => $elt);
-        my $upstream_default = $obj -> fetch('upstream_default') ;
-        $help .=" ($upstream_default)" if defined $upstream_default;
-        $ioh->print("## $elt: $help\n") if $help;
+        next unless defined $v ;
 
-
-        # write annotation
-        my $note = $obj->annotation ;
-        if ($note) {
-            map { $ioh->print("# $_\n") } split /\n/,$note ;
-        }
-
-        # write value
-        $ioh->print(qq!$elt="$v"\n!) if defined $v ;
-        $ioh->print("\n") if defined $v or $help;
+        $self->write_data_and_comments($ioh,'#',qq!$elt="$v"!, $obj->annotation) ;
     }
 
     return 1;

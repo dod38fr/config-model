@@ -1,4 +1,3 @@
-
 #    Copyright (c) 2010 Dominique Dumont.
 #
 #    This file is part of Config-Model.
@@ -63,6 +62,16 @@ sub read_global_comments {
 
     while (defined ( $_ = shift @$lines ) ) {
         next if /^$cc$cc/ ; # remove comments added by Config::Model
+        unshift @$lines,$_;
+        last;
+    }
+    while (defined ( $_ = shift @$lines ) ) {
+        next if /^\s*$/ ; # remove empty lines
+        unshift @$lines,$_;
+        last;
+    }
+
+    while (defined ( $_ = shift @$lines ) ) {
         chomp ;
 
         my ($data,$comment) = split /\s*$cc\s?/ ;
@@ -118,13 +127,26 @@ sub write_global_comment {
     $ioh->print("$cc$cc This file was written by Config::Model\n");
     $ioh->print("$cc$cc You may modify the content of this file. Configuration \n");
     $ioh->print("$cc$cc modifications will be preserved. Modifications in\n");
-    $ioh->print("$cc$cc comments may be mangled.\n$cc$cc\n");
+    $ioh->print("$cc$cc comments may be mangled.\n\n");
 
     # write global comment
     my $global_note = $self->node->annotation ;
     if ($global_note) {
         map { $ioh->print("$cc $_\n") } split /\n/,$global_note ;
         $ioh->print("\n") ;
+    }
+}
+
+sub write_data_and_comments {
+    my ($self,$ioh,$cc, @data_and_comments) = @_ ;
+
+    # write global comment
+    while (@data_and_comments) {
+        my ($d,$c) = splice @data_and_comments,0,2;
+        if ($c) {
+            map { $ioh->print("$cc $_\n") } split /\n/,$c ;
+        }
+        $ioh->print("$d\n") ;
     }
 }
 
@@ -257,6 +279,10 @@ will return
 =head2 write_global_comments( io_handle , comment_char)
 
 Write global comments from configuration root annotation.
+
+=head2 write_data_and_comments( io_handle , comment_char , data1, comment1, data2, comment2 ...)
+
+Write data and comments in the io handle. Comments are written before the data.
 
 =head1 AUTHOR
 

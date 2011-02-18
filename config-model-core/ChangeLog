@@ -8,12 +8,15 @@ Done:
     * factor out comment extraction: code that retrieve comments and tie it to 
       actual config data is generic. Now this is handled by 
       C::M::B::Any::associates_comments_with_data
-
+    * factored out comment writing in C::M::B::Any::write_global_comments
+      and C::M::B::Any::write_data_and_comments
+    * Fix bad handling of leaf type Ini backend (Thanks Krzysztof for the notice)
+    
 2011-02-11 Dominique Dumont  <domi.dumont@free.fr> 1.233
     
     * Application changes:
         * dpkg control source model: Added DM-Upload-Allowed and all Vcs-* tags defined 
-        in Debian reference guide (Peter Pentchev)
+        in Debian reference guide (Thanks Peter Pentchev for the patch)
           (Fix RT 65575)
         
     * Framework changes:
@@ -22,7 +25,7 @@ Done:
           have a working program
         * Remove crappy handling of comments in load_data methods. 
         * DumpAsData: Write annotations as pod in method dump_annotations_as_pod
-        * Anything: load_pod_annoation load annotations from a pod document 
+        * Anything: load_pod_annotation load annotations from a pod document 
         * Instance write back: now correctly call all write_back when several
           nodes in model needs to be called back
 

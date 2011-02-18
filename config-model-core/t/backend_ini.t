@@ -79,7 +79,7 @@ foreach my $test_class (sort keys %test_setup) {
         "check $test_path comment");
 
     my $lista_obj = $i_root->grab($test_path)->fetch_element('lista');
-    is($lista_obj->annotation, undef,"check $test_path lista comment"); 
+    is($lista_obj->annotation, '',"check $test_path lista comment"); 
 
     foreach my $i (1 .. 3) {
         my $elt = $lista_obj->fetch_with_id($i - 1) ;

@@ -101,18 +101,13 @@ sub write {
 
     # Using Config::Model::ObjTreeScanner would be overkill
     foreach my $line_obj ($node->fetch_element('fs')->fetch_all ) {
-        # write line annotation
-        my $note = $line_obj->annotation ;
-        if ($note) {
-            map { $ioh->print("\n# $_") } split /\n/,$note ;
-            $ioh->print("\n");
-        }
-
-        $ioh->printf("%-30s %-25s %-6s %-10s %d %d\n",
+        my $d = sprintf("%-30s %-25s %-6s %-10s %d %d\n",
                      map ($line_obj->fetch_element_value($_), qw/fs_spec fs_file fs_vfstype/),
                      $self->option_string($line_obj->fetch_element('fs_mntopts')) ,
                      map ($line_obj->fetch_element_value($_) , qw/fs_freq fs_passno/),
                     );
+        $self->write_data_and_comments($ioh,'#',$d, $line_obj->annotation) ;
+        
     }
 
     return 1;

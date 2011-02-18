@@ -107,9 +107,18 @@ sub new {
 sub quote {
     my @res = @_ ;
     foreach (@res) {
-	if (    defined $_ 
-		and ( /(\s|"|\*)/ or $_ eq '')
-	   ) {
+	if ( defined $_ and ( /(\s|"|\*)/ or $_ eq '') ) {
+	    s/"/\\"/g ; # escape present quotes
+	    $_ = '"' . $_ . '"' ; # add my quotes
+	}
+    }
+    return wantarray ? @res : $res[0];
+}
+
+sub note_quote {
+    my @res = @_ ;
+    foreach (@res) {
+	if ( defined $_ and $_ and ( /(\s|"|\*)/ ) ) {
 	    s/"/\\"/g ; # escape present quotes
 	    $_ = '"' . $_ . '"' ; # add my quotes
 	}
@@ -221,7 +230,7 @@ sub dump_tree {
                  :                   $element;
 
 	# add annotation for obj contained in hash or list
-	my $note = quote($value_obj->annotation) ;
+	my $note = note_quote($value_obj->annotation) ;
         $$data_r .= "\n" . $pad . $name if defined $value or $note ;
 	$$data_r .= '='  . $value       if defined $value          ;
 	$$data_r .= '#'  . $note        if                   $note ;
@@ -240,7 +249,7 @@ sub dump_tree {
                  :                   $element;
 
 	# add annotation for obj contained in hash or list
-	my $note = quote($value_obj->annotation) ;
+	my $note = note_quote($value_obj->annotation) ;
         $$data_r .= "\n" . $pad . $name if $value or $note ;
 	$$data_r .= '='  . $qvalue      if $value          ;
 	$$data_r .= '#'  . $note        if           $note ;
@@ -253,7 +262,7 @@ sub dump_tree {
 	my $list_obj = $node->fetch_element($element) ;
 
 	# add annotation for list element
-	my $list_note  = quote($list_obj->annotation) ;
+	my $list_note  = note_quote($list_obj->annotation) ;
 	$$data_r .= "\n$pad$element#$list_note" if $list_note ;
 
         if ( $list_obj->cargo_type eq 'node' ) {
@@ -265,7 +274,7 @@ sub dump_tree {
             # write value comments
             foreach my $idx ($list_obj->get_all_indexes) {
                 my $note = $list_obj->fetch_with_id($idx)->annotation ;
-                $$data_r .= "\n$pad$element:$idx#".quote($note) if $note ;
+                $$data_r .= "\n$pad$element:$idx#".note_quote($note) if $note ;
             }
 	    # skip undef values
 	    my @val = quote( grep (defined $_, 
@@ -282,7 +291,7 @@ sub dump_tree {
 	my $hash_obj = $node->fetch_element($element) ;
 
 	# add annotation for list or hash element
-	my $note  = quote($hash_obj->annotation) ;
+	my $note  = note_quote($hash_obj->annotation) ;
 	$$data_r .= "\n$pad$element#$note" if $note ;
 
 	# resume exploration
@@ -307,7 +316,7 @@ sub dump_tree {
 	# but foo#comment:bar if not valid -> foo#commaent foo:bar
 
 	my $head = "\n$pad$element";
-        my $node_note = quote($contained_node->annotation) ;
+        my $node_note = note_quote($contained_node->annotation) ;
 	
 	if ($type eq 'list' or $type eq 'hash') {
 	    $head .= ':'.quote($key) ;
@@ -344,7 +353,7 @@ sub dump_tree {
     my $view_scanner = Config::Model::ObjTreeScanner->new(@scan_args);
 
     my $ret = '';
-    my $root_note = quote($node->annotation) ;
+    my $root_note = note_quote($node->annotation) ;
     $ret .="\n#$root_note" if $root_note ;
     $view_scanner->scan_node(\$ret, $node);
 

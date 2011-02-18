@@ -139,9 +139,9 @@ sub _write {
     my $self = shift;
     my %args = @_ ;
 
-    my $ioh = $args{io_handle} ;
     my $node = $args{object} ;
     my $delimiter = $args{comment_delimiter} || '#' ;
+    my $ioh = $args{io_handle} ;
 
     # Using Config::Model::ObjTreeScanner would be overkill
     
@@ -152,26 +152,22 @@ sub _write {
         
         my $obj =  $node->fetch_element($elt) ;
 
-        my $note = $obj->annotation;
-        map { $ioh->print("$delimiter $_\n") } $note if $note;
+        my $obj_note = $obj->annotation;
 
         if ($node->element_type($elt) eq 'list'){
             foreach my $item ($obj->fetch_all('custom')) {
-                my $note = $item->annotation;
+                my $note = $item->annotation ;
                 my $v = $item->fetch ;
-                $ioh->print("$delimiter $note\n") if $note ;
-                $ioh->print("$elt=$v\n") ;
-                $ioh->print("\n");
+                next unless defined $v ;
+                $self->write_data_and_comments($ioh,$delimiter,"$elt=$v",$obj_note.$note) ;
             }
         }
         else {
             my $v_obj = $node->grab($elt) ;
             my $note = $v_obj->annotation;
-            $ioh->print("$delimiter $note\n") if $note ;
             my $v = $v_obj->fetch ;
-            # write value
-            $ioh->print("$elt=$v\n") if defined $v ;
-            $ioh->print("\n");
+            $self->write_data_and_comments($ioh,$delimiter,"$elt=$v",$obj_note.$note) 
+                if defined $v;
         }
     }
 
@@ -180,22 +176,21 @@ sub _write {
         next unless $type eq 'node' or $type eq 'hash';
         my $obj =  $node->fetch_element($elt) ;
 
-        my $note = $obj->annotation;
+        my $obj_note = $obj->annotation ;
         
         if ($type eq 'hash') {
             foreach my $key ($obj->get_all_indexes) {
                 my $hash_obj = $obj->fetch_with_id($key) ;
                 my $note = $hash_obj->annotation;
-                $ioh->print("$delimiter $note\n") if $note;
-                $ioh->print("[$key]\n");
+                $self->write_data_and_comments($ioh,$delimiter,"[$key]",$obj_note.$note) ;
                 $self->_write(%args, object => $hash_obj);
+                $ioh->print("\n");
             }
         }
         else {
-            my $note = $obj->annotation;
-            $ioh->print("$delimiter $note\n") if $note;
-            $ioh->print("[$elt]\n");
+            $self->write_data_and_comments($ioh,$delimiter,"[$elt]",$obj_note) ;
             $self->_write(%args, object => $obj);
+            $ioh->print("\n");
         }
     }   
 
