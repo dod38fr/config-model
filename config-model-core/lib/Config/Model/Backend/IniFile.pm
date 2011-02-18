@@ -94,7 +94,7 @@ sub read {
                 $list_val -> store( $val, check => $check );
                 $list_val -> annotation($comment) if $comment ;
             }
-            elsif ( $elt->element_type eq 'leaf' ) {
+            elsif ( $elt->get_type eq 'leaf' ) {
                 $elt->store( value => $val, check => $check );
                 $elt->annotation($comment) if scalar $comment;
             }

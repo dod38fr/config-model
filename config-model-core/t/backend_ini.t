@@ -129,6 +129,8 @@ foo = foo2 # foo2 comment
 
 bar = bar1
 
+baz = bazv
+
 # class1 comment
 [class1]
 lista=lista1 #lista1 comment
