@@ -375,7 +375,8 @@ sub auto_write_init {
                 $logger->debug("write cb ($backend) called for ",$self->name);
                 $file_path = $self-> open_file_to_write($backend,$fh,@wr_args,@_) 
                     unless ($c->can('skip_open') and $c->skip_open) ;
-                my $res = eval {
+                my $res ;
+                $res = eval {
                     # override needed for "save as" button
                     &{$c.'::'.$f}(@wr_args,
                                   file_path => $file_path,
@@ -396,7 +397,8 @@ sub auto_write_init {
                 my $file_path 
                     = $self-> open_file_to_write($backend,$fh,
                                                 suffix => '.pl',@wr_args,@_) ;
-                my $res = eval {
+                my $res ;
+                $res = eval {
                     $self->write_perl(@wr_args, file_path => $file_path,  @_) ;
                 };
                 $self->close_file_to_write($@,$fh,$file_path) ;
@@ -411,7 +413,8 @@ sub auto_write_init {
                 my $file_path 
                    = $self-> open_file_to_write($backend,$fh,
                                                 suffix => '.cds',@wr_args,@_) ;
-                my $res = eval {
+                my $res ;
+                $res = eval {
                     $self->write_cds_file(@wr_args, file_path => $file_path, @_) ;
                 };
                 $logger->warn("write backend $backend failed: $@") if $@;
@@ -437,7 +440,8 @@ sub auto_write_init {
                                                          suffix => $suffix,
                                                          @wr_args,@_) 
                     unless ($c->can('skip_open') and $c->skip_open) ;
-                my $res = eval {
+                my $res ;
+                $res = eval {
                     # override needed for "save as" button
                     $backend_obj->$f( @wr_args, 
                                       file_path => $file_path,
