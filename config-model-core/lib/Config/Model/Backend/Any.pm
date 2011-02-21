@@ -267,8 +267,9 @@ store them as root node annotation. The first parameter (C<lines>)
 
 =head2 associates_comments_with_data ( lines , comment_char)
 
-This method will extract comments from the passed lines and associate them with actual data found
-ine the lines. Data is associated with comments preceding or on the same line as the data. Returns a list of
+This method will extract comments from the passed lines and associate 
+them with actual data found in the file lines. Data is associated with 
+comments preceding or on the same line as the data. Returns a list of
 [ data, comment ] .
 
 Example:
@@ -288,7 +289,7 @@ Returns the string written to the io_handle.
 
 =head2 write_data_and_comments( io_handle , comment_char , data1, comment1, data2, comment2 ...)
 
-Write data and comments in the io handle (if defined). Comments are written before the data.
+Write data and comments in the C<io_handle> (if defined). Comments are written before the data.
 Returns the string written to the io_handle. If a data is undef, the comment will be written on its own
 line.
 
