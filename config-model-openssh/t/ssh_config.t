@@ -1,7 +1,7 @@
 # -*- cperl -*-
 
 use ExtUtils::testlib;
-use Test::More tests => 17;
+use Test::More tests => 20;
 use Config::Model ;
 use Config::Model::Backend::OpenSsh::Ssh ; # required for tests
 use Log::Log4perl qw(:easy) ;

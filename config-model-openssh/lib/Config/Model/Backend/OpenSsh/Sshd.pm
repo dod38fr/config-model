@@ -11,6 +11,8 @@ use File::Path ;
 
 my $logger = Log::Log4perl::get_logger("Backend::OpenSsh");
 
+sub suffix {return } 
+
 sub read {
     my $self = shift ;
     $self->read_ssh_file( @_,  file => 'sshd_config',) ;
@@ -60,6 +62,25 @@ sub _forward {
     $self->current_node -> load($load_str) ;
 }
 
+sub match {
+    my ($self,$root, $key, $pairs,$comment) = @_ ;
+    $logger->debug("match: @$pairs # $comment");
+    my $list_obj = $root->fetch_element('Match');
+
+    # create new match block
+    my $nb_of_elt = $list_obj->fetch_size;
+    my $block_obj = $list_obj->fetch_with_id($nb_of_elt) ;
+    $block_obj->annotation($comment) ;
+
+    while (@$pairs) {
+       my $criteria = shift @$pairs;
+       my $pattern  = shift @$pairs;
+       $block_obj->load(qq!Condition $criteria="$pattern"!);
+    }
+
+    $self->current_node( $block_obj->fetch_element('Settings') );
+}
+
 =head2 write (object => <sshd_root>, conf_dir => ...)
 
 Write F<sshd_config> in C<conf_dir> from the data stored the
@@ -87,12 +108,15 @@ sub write {
 
     $logger->info("writing config file $file");
 
+    my $ioh = IO::File->new ;
+    $ioh-> open($file,">") || die "cannot open $file:$!";
+    $self->write_global_comment($ioh,'#') ;
+
     my $result = $self->write_node_content($config_root);
 
     #print $result ;
-    open(OUT,"> $file") || die "cannot open $file:$!";
-    print OUT $result;
-    close OUT;
+    $ioh->print ($result);
+    $ioh -> close ;
 
     return 1;
 }
@@ -160,7 +184,7 @@ sub write_all_match_block {
     my $match_elt = shift ;
     my $mode = shift || '';
 
-    my $result = '' ;
+    my $result = '';
     foreach my $elt ($match_elt->fetch_all($mode) ) {
 	$result .= $self->write_match_block($elt,$mode) ;
     }
@@ -173,23 +197,27 @@ sub write_match_block {
     my $match_elt = shift ;
     my $mode = shift || '';
 
-    my $result = "\nMatch " ;
+    my $match_line ;
+    my $match_body ;
 
     foreach my $name ($match_elt->get_element_name(for => 'master') ) {
 	my $elt = $match_elt->fetch_element($name) ;
 
 	if ($name eq 'Settings') {
-	    $result .= "\n".$self->write_node_content($elt,$mode)."\n" ;
+	    $match_body .= $self->write_node_content($elt,$mode)."\n" ;
 	}
 	elsif ($name eq 'Condition') {
-	    $result .= $self->write_match_condition($elt,$mode) ."\n" ;
+	    $match_line = $self->write_line( 
+                Match => $self->write_match_condition($elt,$mode) ,
+                $match_elt -> annotation
+            ) ;
 	}
 	else {
 	    die "write_match_block: unexpected element: $name";
 	}
     }
 
-    return $result ;
+    return $match_line.$match_body ;
 }
 
 sub write_match_condition {
@@ -208,50 +236,6 @@ sub write_match_condition {
     return $result ;
 }
 
-sub write_all_host_block {
-    my $self = shift ;
-    my $host_elt = shift ;
-    my $mode = shift || '';
-
-    my $result = '' ;
-
-    foreach my $pattern ( $host_elt->get_all_indexes) {
-	my $block_elt = $host_elt->fetch_with_id($pattern) ;
-	my $block_data = $self->write_node_content($block_elt,'custom') ;
-
-	# write data only if custom pattern or custom data is found this
-	# is necessary to avoid writing data from /etc/ssh/ssh_config that
-	# were entered as 'preset' data
-	if ($block_data) {
-	    $result .= "Host $pattern\n$block_data\n" ;
-	}
-    }
-    return $result ;
-}
-
-sub write_forward {
-    my $self = shift ;
-    my $forward_elt = shift ;
-    my $mode = shift || '';
-
-    my $result = '' ;
-
-    my $v6 = $forward_elt->grab_value('ipv6') ;
-    my $sep = $v6 ? '/' : ':';
-
-    my $line = '';
-    foreach my $name ($forward_elt->get_element_name(for => 'master') ) {
-	next if $name eq 'ipv6' ;
-	my $elt = $forward_elt->fetch_element($name) ;
-	my $v = $elt->fetch($mode) ;
-	next unless defined $v;
-	$line .=  $name =~ /bind|host$/ ? "$v$sep"
-	       :  $name eq 'port'       ? "$v "
-	       :                           $v ;
-    }
-
-    return $self->write_line($forward_elt->element_name,$line) ;
-}
 1;
 
 =head1 NAME

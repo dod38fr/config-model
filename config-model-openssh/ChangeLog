@@ -1,8 +1,14 @@
+2011-02-21  Dominique Dumont  <domi.dumont@free.fr> v 1.211
+
 	* *.t: fixed tests 
 	* demo: split user and maintainer demo
 	* removed config-edit-*. config-edit now has auto-completion and 
-	can be invoked with '-application ssh' or '-application sshd'
-
+	  can be invoked with '-application ssh' or '-application sshd'
+        * removed dependency on Parse::RecDescent
+        * depend on Config::Model 1.234
+        * Single backend was split in 3 (OpenSsh, Ssh and Sshd) to benefit
+          from C::M::Backend::Any
+           
 2010-02-02  Dominique Dumont  <dominique.dumont@hp.com>
 
 	* demo/demo.pl (my_system): new demo (requires Config::Model::Itself)

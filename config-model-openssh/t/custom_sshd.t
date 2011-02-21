@@ -101,7 +101,7 @@ my $dump2 = $root2 -> dump_tree ();
 print "Second $testdir dump:",$dump2 if $trace ;
 
 my @mod = split /\n/,$dump ;
-$mod[6] = 'Port=2222';
+$mod[17] =~ s/221/2222/;
 is_deeply([split /\n/,$dump2],\@mod, "check if both dumps are consistent") ;
 
 
