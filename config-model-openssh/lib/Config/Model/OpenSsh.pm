@@ -1,8 +1,6 @@
-
-# See license at bottom of pod
-
 package Config::Model::OpenSsh ;
 
+1;
 
 =head1 NAME
 
@@ -81,46 +79,11 @@ if L<Fuse> is installed (Linux only)
 
 =back
 
-=head1 STOP
-
-The documentation provides on the reader and writer of OpenSsh configuration files.
-These details are not needed for the basic usages explained above.
-
-=head1 Functions
-
-These read/write functions are part of OpenSsh read/write backend. They are 
-declared in OpenSsh configuration models and are called back when needed to read the 
-configuration file and write it back.
-
-=head2 sshd_read (object => <sshd_root>, conf_dir => ...)
-
-Read F<sshd_config> in C<conf_dir> and load the data in the 
-C<sshd_root> configuration tree.
 
 =head1 AUTHOR
 
 Dominique Dumont, (ddumont at cpan dot org)
 
-=head1 LICENSE
-
-   Copyright (c) 2008-2010 Dominique Dumont.
-
-   This file is part of Config-Model-OpenSsh.
-
-   Config-Model-OpenSsh is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Lesser Public License as
-   published by the Free Software Foundation; either version 2.1 of
-   the License, or (at your option) any later version.
-
-   Config-Xorg is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Lesser Public License for more details.
-
-   You should have received a copy of the GNU Lesser Public License
-   along with Config-Model; if not, write to the Free Software
-   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-
 =head1 SEE ALSO
 
-L<config-edit-sshd>, L<config-edit-ssh>, L<Config::Model>,
+L<config-edit>, L<Config::Model>,

@@ -2,11 +2,10 @@
 
 use strict;
 use warnings;
+use lib '../lib' ;
 
 use Text::Wrap ;
 use File::Path qw(make_path remove_tree);
-use Config::Model::OpenSsh ;
-
 
 sub go_on {
     print "continue (Y/n/q)?";
@@ -65,15 +64,22 @@ print "Forked terminal with pid $pid\n";
 $SIG{KILL} = sub { kill "QUIT",$pid } ;
 
 print "Copying ssh model\n\n\n";
-my $mod_file = 'Config/Model/OpenSsh.pm' ;
-my $lib_path = $INC{$mod_file} ;
-$lib_path =~ s/OpenSsh.pm/models/;
 make_path('lib/Config/Model/') ;
-system("cp -r $lib_path lib/Config/Model/") ; # required to be able to modify the model for the demo
+my $lib_path ;
+foreach my $inc (@INC) {
+    my $model_path = "$inc/Config/Model/models" ;
+    if (-d "$model_path/Sshd") {
+        print "Copying model from $model_path\n" ;
+        # required to be able to modify the model for the demo
+        system("cp -r $model_path lib/Config/Model/") ; 
+        $lib_path = $model_path ;
+        last;
+    }
+}
 
-my $showpostinst = "config-edit -model Sshd -ui none -save" ;
+my $showpostinst = "perl -I../lib -S config-edit -model Sshd -ui none -save" ;
 my $postinst = $showpostinst . " -model_dir lib/Config/Model/models "
-	 . "-root_dir . -backend custom ";
+	 . "-root_dir .  ";
 
 print "Upstream upgrade: KeepAlive is to be changed to TCPKeepAlive\n";
 print "postinst will run: $showpostinst\n" ;
@@ -82,7 +88,7 @@ system($postinst) ;
 print "\n";
 
 print "Add distro policy: Debian dev patches OpenSsh model...\n";
-my_system("config-model-edit -model Sshd -save ".
+my_system("perl -I../lib -S config-model-edit -model Sshd -save ".
 	  qq!class:Sshd element:PermitRootLogin default=no upstream_default~!, 1) ;
 print "\n";
 
@@ -96,7 +102,7 @@ system($postinst) ;
 print "\n";
 
 print "Add another distro policy: Patch model with reduced default cipher list...\n";
-my_system("config-model-edit -model Sshd -save ".
+my_system("perl -I../lib -S config-model-edit -model Sshd -save ".
 	  qq!class:Sshd element:Ciphers !.
 	  qq!default_list=aes128-cbc,aes128-ctr,aes192-cbc,aes192-ctr,aes256-cbc,aes256-ctr!,1) ;
 print "\n";
@@ -110,7 +116,7 @@ if (0) {
 # bug: -force does not work
 print "Big problem: aes-128-* are compromised. Need to help user remove these ciphers\n";
 print "Patch model to have a hard restriction on cipher list...\n";
-my_system("config-model-edit -model Sshd -save ".
+my_system("perl -I../lib -S config-model-edit -model Sshd -save ".
  	  'class:Sshd element:Ciphers '.
  	  'choice=arcfour256,aes192-cbc,aes192-ctr,aes256-cbc,aes256-ctr '.
  	  'default_list=aes192-cbc,aes192-ctr,aes256-cbc,aes256-ctr',1) ;
@@ -126,7 +132,7 @@ my_system("$postinst -force",1) ;
 
 print "Usability for maintainers is not forgotten\n",
 	 "There's also a GUI to edit models\n";
-my_system("config-model-edit -model Sshd",1) ;
+my_system("perl -I../lib -S config-model-edit -model Sshd",1) ;
 
 END {
     kill "QUIT",$pid ;

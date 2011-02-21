@@ -1,6 +1,6 @@
 2011-02-21  Dominique Dumont  <domi.dumont@free.fr> v 1.211
 
-	* *.t: fixed tests 
+	* *.t: fixed tests (Fix Debian bug #605792)
 	* demo: split user and maintainer demo
 	* removed config-edit-*. config-edit now has auto-completion and 
 	  can be invoked with '-application ssh' or '-application sshd'

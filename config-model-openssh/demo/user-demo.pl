@@ -6,9 +6,7 @@ use warnings;
 
 use Text::Wrap ;
 use File::Path qw(make_path remove_tree);
-use Config::Model::OpenSsh ; # to get path
-
-
+use lib '../lib' ;
 
 sub go_on {
     print "continue (Y/n/q)?";
@@ -70,21 +68,26 @@ $SIG{KILL} = sub { kill "QUIT",$pid } ;
 die "Must be run in demo directory\n" unless -d "../lib" ;
 
 print "Copying ssh model\n\n\n";
-my $mod_file = 'Config/Model/OpenSsh.pm' ;
-my $lib_path = $INC{$mod_file} ;
-$lib_path =~ s/OpenSsh.pm/models/;
 make_path('lib/Config/Model/') ;
-system("cp -r $lib_path lib/Config/Model/") ; # required to be able to modify the model for the demo
+foreach my $inc (@INC) {
+    my $model_path = "$inc/Config/Model/models" ;
+    if (-d "$model_path/Sshd") {
+        print "Copying model from $model_path\n" ;
+        # required to be able to modify the model for the demo
+        system("cp -r $model_path lib/Config/Model/") ; 
+        last;
+    }
+}
 
-my $postinst = "config-edit -model Sshd -model_dir lib/Config/Model/models "
-	 . "-root_dir . -ui none -backend custom -save";
+my $postinst = "perl -I../lib -S config-edit -model Sshd -model_dir lib/Config/Model/models "
+	 . "-root_dir . -ui none  -save";
 
 print "Upstream changelog: KeepAlive is changed to TCPKeepAlive\n";
 print "User file is updated by package posinst...\n";
 my_system($postinst) ;
 
 print "Changing model to reflect maintainer's work. Please wait ..." ;
-system("config-model-edit -model Sshd -save ".
+system("perl -I../lib -S config-model-edit -model Sshd -save ".
 	  qq!class:Sshd element:PermitRootLogin default=no upstream_default~!) ;
 print "done\n\n";
 
@@ -93,7 +96,7 @@ print "Package upgrade triggers same postinst script\n";
 my_system($postinst) ;
 
 print "Changing model to reflect maintainer's work. Please wait ..." ;
-system("config-model-edit -model Sshd -save ".
+system("perl -I../lib -S config-model-edit -model Sshd -save ".
 	  qq!class:Sshd element:Ciphers !.
 	  qq!default_list=aes128-cbc,aes128-ctr,aes192-cbc,aes192-ctr,aes256-cbc,aes256-ctr!) ;
 print "done\n\n";
@@ -105,15 +108,15 @@ my_system($postinst) ;
 
 print "Even command line is safe for users: try to modify IgnoreRhosts with bad value\n";
 print "Run: 'config-edit-sshd -ui none IgnoreRhosts=oui'\n";
-my_system("config-edit -model Sshd -model_dir lib/Config/Model/models ".
- 	 "-root_dir . -ui none -backend custom IgnoreRhosts=oui") ;
+my_system("perl -I../lib -S config-edit -model Sshd -model_dir lib/Config/Model/models ".
+ 	 "-root_dir . -ui none  IgnoreRhosts=oui") ;
 
 my $fuse_dir = 'my_fuse' ;
 say "If you prefer to use a virtual file system (script ?)" ;
 say "Run: 'config-edit-sshd -ui fuse -fuse_dir $fuse_dir'";
 mkdir ($fuse_dir,0755) unless -d $fuse_dir ;
-my_system("config-edit -model Sshd -model_dir lib/Config/Model/models ".
-    "-root_dir . -backend custom -ui fuse -fuse_dir $fuse_dir"
+my_system("perl -I../lib -S config-edit -model Sshd -model_dir lib/Config/Model/models ".
+    "-root_dir .  -ui fuse -fuse_dir $fuse_dir"
 ) ;
 my_system("ls --classify $fuse_dir",1);
 my_system(qq!echo "/etc/my_banner.txt" > $fuse_dir/Banner!,1) ; 
@@ -121,8 +124,8 @@ my_system("fusermount -u $fuse_dir",1);
 	 
 print "Beginners will probably prefer a GUI\n";
 print "Run: config-edit-sshd\n";
-my_system("config-edit -model Sshd -model_dir lib/Config/Model/models ".
-	 "-root_dir . -backend custom ") ;
+my_system("perl -I../lib -S config-edit -model Sshd -model_dir lib/Config/Model/models ".
+	 "-root_dir .  ") ;
 
 END {
     system("fusermount -u $fuse_dir");

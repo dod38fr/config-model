@@ -195,7 +195,7 @@ __END__
 
 =head1 NAME
 
-Config::Model::Backend::OpenSsh::Ssh - Backend for ssh configuration fiels
+Config::Model::Backend::OpenSsh::Ssh - Backend for ssh configuration files
 
 =head1 SYNOPSIS
 
@@ -225,21 +225,12 @@ This code snippet will remove the C<Host Foo> section added above:
 
 =head1 DESCRIPTION
 
-This module provides a configuration editors (and models) for the 
-configuration files of OpenSsh. (C</etc/ssh/sshd_config>, F</etc/ssh/ssh_config>
-and C<~/.ssh/config>).
+This calls provides a backend to read and write ssh client configuration files.
 
-This module can also be used to modify safely the
-content of these configuration files from a Perl programs.
+Once this module is installed, user root can edit C</etc/ssh/ssh_config> 
+with :
 
-Once this module is installed, you can edit C</etc/ssh/sshd_config> 
-with run (as root) :
-
- # config-edit -application sshd 
-
-To edit F</etc/ssh/ssh_config>, run (as root):
-
- # config-edit -application ssh
+ # config-edit -application ssh 
 
 To edit F<~/.ssh/config>, run as a normal user:
 
@@ -275,43 +266,27 @@ if L<Fuse> is installed (Linux only)
 The documentation provides on the reader and writer of OpenSsh configuration files.
 These details are not needed for the basic usages explained above.
 
-=head1 Functions
+=head1 Methods
 
-These read/write functions are part of OpenSsh read/write backend. They are 
-declared in OpenSsh configuration models and are called back when needed to read the 
+These read/write functions are part of C<OpenSsh::Ssh> read/write backend. 
+They are 
+declared in Ssh configuration model and are called back when needed to read the 
 configuration file and write it back.
 
-=head2 sshd_read (object => <sshd_root>, conf_dir => ...)
+=head2 read (object => <ssh_root>, config_dir => ...)
 
-Read F<sshd_config> in C<conf_dir> and load the data in the 
-C<sshd_root> configuration tree.
+Read F<ssh_config> in C<config_dir> and load the data in the 
+C<ssh_root> configuration tree.
 
-=cut 
+=head2 write (object => <ssh_root>, config_dir => ...)
+
+Write F<ssh_config> in C<config_dir> from the data stored in  
+C<ssh_root> configuration tree.
 
 =head1 AUTHOR
 
 Dominique Dumont, (ddumont at cpan dot org)
 
-=head1 LICENSE
-
-   Copyright (c) 2008-2010 Dominique Dumont.
-
-   This file is part of Config-Model-OpenSsh.
-
-   Config-Model-OpenSsh is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Lesser Public License as
-   published by the Free Software Foundation; either version 2.1 of
-   the License, or (at your option) any later version.
-
-   Config-Xorg is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Lesser Public License for more details.
-
-   You should have received a copy of the GNU Lesser Public License
-   along with Config-Model; if not, write to the Free Software
-   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-
 =head1 SEE ALSO
 
-L<config-edit-sshd>, L<config-edit-ssh>, L<Config::Model>,
+L<config-edit>, L<Config::Model>,
