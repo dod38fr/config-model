@@ -9,5 +9,6 @@ _build
 ^MYMETA.yml$
 blib
 wr_root
+wr_test
 demo/lib
-demi/etc
+demo/etc
