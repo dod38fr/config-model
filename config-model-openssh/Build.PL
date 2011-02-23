@@ -1,5 +1,4 @@
-
-#    Copyright (c) 2008-2009 Dominique Dumont.
+#    Copyright (c) 2008-2011 Dominique Dumont.
 #
 #    This file is part of Config-Model-OpenSsh.
 #
@@ -24,6 +23,7 @@ use Data::Dumper ;
 use warnings FATAL => qw(all) ;
 use strict ;
 
+require 5.008;
 
 my $build = Module::Build->new
   (
@@ -31,18 +31,16 @@ my $build = Module::Build->new
    license       => 'lgpl',
    dist_author   => "Dominique Dumont (ddumont at cpan dot org)",
    dist_abstract => "OpenSsh configuration files graphical editor",
-   requires      => {
-		     perl              => '5.8.0',
-		     'Config::Model'   => '0.637',
-		     'Log::Log4perl'   => 0 ,
-		     'Parse::RecDescent' => 0,
-		    },
-   recommends    => {
-                     'Config::Model::CursesUI' => 0, # Curses interface
-                     'Config::Model::TkUI'     => 0, # graphical interface
-		     # Augeas library to keep /etc/ssh/sshd_config structure and comments
-                     'Config::Model::Backend::Augeas' => 0, 
-                    },
+
+##{ $plugin->get_prereqs ##}
+
+    meta_merge => {
+        resources => {
+            homepage => 'http://config-model.wiki.sourceforge.net',
+            MailingList => 'https://lists.sourceforge.net/lists/listinfo/config-model-users',
+            repository => 'http://config-model.hg.sourceforge.net:8000/hgroot/config-model/config-model',
+        },
+   },
    add_to_cleanup => [qw/wr_test/] ,
   );
 

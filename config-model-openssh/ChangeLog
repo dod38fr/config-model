@@ -1,3 +1,7 @@
+2011-02-23  Dominique Dumont  <domi.dumont@free.fr> v 1.212
+
+	* Fixed Build.PL to include prereqs computed by Dist::Zilla
+
 2011-02-21  Dominique Dumont  <domi.dumont@free.fr> v 1.211
 
 	* *.t: fixed tests (Fix Debian bug #605792)
