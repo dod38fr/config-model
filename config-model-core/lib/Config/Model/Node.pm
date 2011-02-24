@@ -328,7 +328,7 @@ sub create_element {
       " error: no create method for element type $element_info->{type}"
         unless defined $method ;
 
-    $self->$method($element_name) ;
+    $self->$method($element_name, $check) ;
 }
 
 
@@ -345,8 +345,7 @@ See L</"Node element">.
 =cut
 
 sub create_node {
-    my $self= shift ;
-    my $element_name = shift ;
+    my ($self, $element_name, $check)  = @_ ;
 
     my $element_info = dclone($self->{model}{element}{$element_name}) ; 
 
@@ -360,7 +359,9 @@ sub create_node {
 
     my @args = (config_class_name => $element_info->{config_class_name},
                 instance          => $self->{instance},
-                element_name      => $element_name) ;
+                element_name      => $element_name ,
+                check             => $check ,
+    ) ;
 
     $self->{element}{$element_name} = $self->new(@args) ;
 }
@@ -375,15 +376,15 @@ for details.
 =cut
 
 sub create_warped_node {
-    my $self= shift ;
-    my $element_name = shift ;
+    my ($self, $element_name, $check)  = @_ ;
 
     my $element_info = dclone($self->{model}{element}{$element_name}) ; 
 
     my @args = (instance          => $self->{instance},
                 element_name      => $element_name,
-                parent            => $self
-               ) ;
+                parent            => $self,
+                check             => $check,
+    ) ;
 
     require Config::Model::WarpedNode ;
 
@@ -398,8 +399,7 @@ The element is a scalar value. See L</"Leaf element">
 =cut
 
 sub create_leaf {
-    my $self = shift ;
-    my $element_name = shift ;
+    my ($self, $element_name, $check)  = @_ ;
 
     my $element_info = dclone($self->{model}{element}{$element_name}) ; 
 
@@ -449,8 +449,7 @@ my %id_class_hash = (
                     ) ;
 
 sub create_id {
-    my $self = shift ;
-    my $element_name = shift ;
+    my ($self, $element_name, $check)  = @_ ;
 
     my $element_info = dclone($self->{model}{element}{$element_name}) ; 
     my $type = delete $element_info->{type} ;
@@ -870,6 +869,10 @@ C<get_element_name> will return simple leaf elements, but also hash
 or list element that contain L<leaf|Config::Model::Value> object. By
 default return elements of any type.
 
+=item *
+
+B<check>: C<yes>, C<no> or C<skip>
+
 =back
 
 Returns an array in array context, and a string 
@@ -907,7 +910,8 @@ sub get_element_name {
     foreach my $elt (@element_list) {
         # create element if they don't exist, this enables warp stuff
         # to kick in
-        $self->create_element($elt) unless defined $self->{element}{$elt};
+        $self->create_element(name => $elt, check => $args{check} || 'yes') 
+            unless defined $self->{element}{$elt};
 
         next if $self->{level}{$elt} eq 'hidden' ;
 
