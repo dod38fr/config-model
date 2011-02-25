@@ -478,6 +478,16 @@ sub grab {
 	    last ;
 	}
 
+        if (defined $action and not $next_obj->isa('Config::Model::AnyId')) {
+            Config::Model::Exception::Model
+		->throw (
+			 object => $obj,
+			 message => "Cannot apply command '$cmd' on non hash or non list item".
+			 " (full command is '@saved'). item is '".$next_obj->name."'"
+			) ;
+	    last ;
+	}
+
 	# action can only be :
 	$next_obj = $next_obj -> fetch_with_id($arg) if defined $action ;
 
