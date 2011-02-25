@@ -13,6 +13,12 @@ BEGIN {
         'perl' => 'lenny 5.10.0-19lenny3 squeeze 5.10.1-17 sid 5.10.1-17 experimental 5.12.0-2 experimental 5.12.2-2',
         'lsb-base' => 'lenny 3.2-20 squeeze-p-u 3.2-23.2squeeze1 squeeze 3.2-23.2squeeze1 sid 3.2-27',
         'xkb-data' => 'lenny 1.3-2 squeeze 1.8-2 sid 1.8-2 experimental 2.1-1',
+        'xserver-xorg-core' => 'lenny 2:1.4.2-10.lenny3 squeeze 2:1.7.7-11 wheezy 2:1.7.7-11 squeeze-p-u 2:1.7.7-13 sid 2:1.9.4-3 experimental 2:1.9.99.902-2 experimental 2:1.9.99.902-3',
+        'hal' => 'lenny 0.5.11-8 squeeze 0.5.14-3 wheezy 0.5.14-5 sid 0.5.14-5',
+        'xfonts-base' => 'lenny 1:1.0.0-5 squeeze 1:1.0.1 wheezy 1:1.0.3 sid 1:1.0.3',
+        'xfonts-100dpi' => 'lenny 1:1.0.0-4 squeeze 1:1.0.1 wheezy 1:1.0.3 sid 1:1.0.3',
+        'xfonts-75dpi' => 'lenny 1:1.0.0-4 squeeze 1:1.0.1 wheezy 1:1.0.3 sid 1:1.0.3',
+        'xfonts-scalable' => 'lenny 1:1.0.0-6 squeeze 1:1.0.1-1 wheezy 1:1.0.3-1 sid 1:1.0.3-1',
     );
 }
 

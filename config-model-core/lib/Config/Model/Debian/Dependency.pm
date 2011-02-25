@@ -56,17 +56,27 @@ memoize 'get_available_version' , SCALAR_CACHE => [HASH => \%cache];
 
 my $grammar = << 'EOG' ;
 
-check_depend: depend ( '|' depend)(s?)
-depend: pkg_dep | variable
-variable: /\${[\w:\-]+}/
-pkg_dep: pkg_name dep_version {
-    $arg[0]->check_dep( $item{pkg_name}, @{$item{dep_version}} ) ;
-} | pkg_name
+check_depend: depend ( '|' depend)(s?) eofile 
+  { $return = $item[1] ; }
 
+depend: pkg_dep | variable  
+
+variable: /\${[\w:\-]+}/
+
+pkg_dep: pkg_name dep_version arch_restriction(?) 
+    {
+       $arg[0]->check_dep( $item{pkg_name}, @{$item{dep_version}} ) ;
+    } 
+ | pkg_name arch_restriction(?) {  $return = 1 ; }
+
+arch_restriction: '[' arch(s) ']'
 dep_version: '(' oper version ')' { $return = [ $item{oper}, $item{version} ] ;} 
-pkg_name: /[\w\-]+/
+pkg_name: /[\w\-\.]+/
 oper: '<<' | '<=' | '=' | '>=' | '>>'
-version: /[\w\.\-]+/
+version: /[\w\.\-~:]+/
+eofile: /^\Z/
+arch: not(?) /[\w-]+/
+not: '!'
 
 EOG
 
@@ -105,7 +115,7 @@ sub check_value {
 
 sub check_dep {
     my ($self,$pkg,$oper,$vers) = @_ ;
-    $logger->debug("check_dep on @_");
+    $logger->debug("parser calls check_dep with $pkg $oper $vers");
     return 1 unless defined $oper and $oper =~ />/ ;
 
     # special case to keep lintian happy
@@ -113,7 +123,7 @@ sub check_dep {
 
     # check if Debian has version older than required version
     my @dist_version = split m/ /,  get_available_version($pkg) ;
-    #print "\t'$pkg' => '@dist_version',\n";
+    # print "\t'$pkg' => '@dist_version',\n";
 
     my @list ;
     my $has_older = 0;
@@ -129,14 +139,11 @@ sub check_dep {
 
     $logger->debug("check_dep on $pkg $oper $vers has_older is $has_older (@list)");
 
-    if ($has_older) {
-        return;
-    }
-    else {
-        push @{$self->{warning_list}} , $msg ;
-        push @{$self->{fixes}} , 's/\s*\(.*\)\s*//;' ;
-        return $msg ;
-    }
+    return 1 if $has_older ;
+    
+    push @{$self->{warning_list}} , $msg ;
+    push @{$self->{fixes}} , 's/\s*\(.*\)\s*//;' ;
+    return 0 ;
 }
 
 sub get_available_version {

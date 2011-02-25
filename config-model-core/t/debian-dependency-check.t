@@ -24,7 +24,7 @@ if ( $@ ) {
     plan skip_all => "AptPkg::Config is not installed (not a Debian system ?)";
 }
 else {
-    plan tests => 21;
+    plan tests => 23;
 }
 
 use warnings;
@@ -108,10 +108,10 @@ my $perl_dep = $control->grab("binary:libdist-zilla-plugins-cjm-perl Depends:3")
 is($perl_dep->fetch,"perl (>= 5.10.1)","check dependency value from config tree");
 
 my $msg = $perl_dep->check_dep('perl','>=','5.28.1') ;
-is($msg,undef,"check perl (>= 5.28.1) dependency: has older version");
+is($msg,1,"check perl (>= 5.28.1) dependency: has older version");
 
 $msg = $perl_dep->check_dep('perl','>=','5.6.0') ;
-like($msg,qr/^unnecessary versioned dependency/,"check perl (>= 5.6.0) dependency: no older version");
+is($msg,0,"check perl (>= 5.6.0) dependency: no older version");
 
 # check parser and grammer
 my $parser = $perl_dep->dep_parser ;
@@ -128,6 +128,12 @@ qr/unnecessary versioned/,"check perl (>= 5.6.0) store: no older version warning
 my @msgs = $perl_dep->warning_msg ;
 is(scalar @msgs,1,"check nb of warning with store with old version");
 like($msgs[0],qr/unnecessary versioned dependency/,"check store with old version");
+
+$res = $parser->check_depend("foo [!i386] | bar [amd64] ") ;
+is( $res, 1, "check_depend on arch stuff rule");
+
+$res = $parser->check_depend("xserver-xorg-input-evdev [alpha amd64 arm armeb armel hppa i386 ia64 lpia m32r m68k mips mipsel powerpc sparc]");
+is( $res, 1, "check_depend on xorg arch stuff rule");
 
 # test fixes
 is($perl_dep->has_fixes,1, "test presence of fixes");
