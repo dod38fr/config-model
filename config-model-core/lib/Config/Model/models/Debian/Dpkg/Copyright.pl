@@ -122,15 +122,10 @@ To upgrade your file from an old spec, run:
                              'description' => 'Patterns indicating files having the same license and sharing copyright holders. See "File patterns" below',
                              'index_type' => 'string'
                            },
-                           'License',
+                           'Global-License',
                            {
-                             'cargo' => {
-                                          'value_type' => 'string',
-                                          'type' => 'leaf'
-                                        },
-                             'allow_keys_matching' => '^[\\w\\-\\.+]+$',
-                             'type' => 'hash',
-                             'index_type' => 'string'
+                             'type' => 'node',
+                             'config_class_name' => 'Debian::Dpkg::Copyright::License'
                            },
                            'Format-Specification',
                            {
@@ -184,6 +179,16 @@ To upgrade your file from an old spec, run:
                              'value_type' => 'string',
                              'status' => 'deprecated',
                              'type' => 'leaf'
+                           },
+                           'License',
+                           {
+                             'cargo' => {
+                                          'value_type' => 'string',
+                                          'type' => 'leaf'
+                                        },
+                             'allow_keys_matching' => '^[\\w\\-\\.+]+$',
+                             'type' => 'hash',
+                             'index_type' => 'string'
                            }
                          ]
           }

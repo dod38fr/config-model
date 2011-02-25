@@ -11,8 +11,13 @@
     - make warp skip warp master if they cannot be found with !SomeClass
     - Auto test of synopsises
 
-    * WarpedThing: Can warp based on the location in a tree. For instance to make
-    an element mandatory in one place and not in another. Used by Debian copyright model
+    * Application changes:
+        * dpkg control source model: Encourage Standard-Vesrion 3.9.1
+        * dpkg copyright: Handle license in header (Closes Debian #614776)
+        
+    * Framework changes:
+        * WarpedThing: Can warp based on the location in a tree. For instance to make
+        an element mandatory in one place and not in another. Used by Debian copyright model
 
 2011-02-11 Dominique Dumont  <domi.dumont@free.fr> 1.233
     

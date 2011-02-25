@@ -13,15 +13,23 @@ license: /[\\w\\-\\.\\+]+/i
    { # PRD action to check if the license text is provided
      my $abbrev = $item[1] ;
      $found++ ;
-     my $elt = $arg[0]->grab(step => "- - - License", strict => 1, type => \'hash\') ;
+     my $elt = $arg[0]->grab(step => "!Debian::Dpkg::Copyright License", strict => 1, type => \'hash\') ;
      if ($elt->defined($abbrev) or $arg[0]->grab("- full_license")->fetch) {
         $ok &&= 1;
      }
      else { 
      	 $ok = 0 ;
-         ${$arg[1]} .= "license $abbrev is not declared in main Licence section. Expected ".join(" ",$elt->get_all_indexes) ;
+         ${$arg[1]} .= "license $abbrev is not declared in main License section. Expected ".join(" ",$elt->get_all_indexes) ;
      }
    } ',
+                             'warp' => {
+                                         'rules' => [
+                                                      '&location !~ /Global/',
+                                                      {
+                                                        'mandatory' => '1'
+                                                      }
+                                                    ]
+                                       },
                              'help' => {
                                          'Zope' => 'Zope Public License. For versions, consult Zope.org',
                                          'MPL' => 'Mozilla Public License. For versions, consult Mozilla.org',
@@ -54,7 +62,6 @@ license: /[\\w\\-\\.\\+]+/i
                                          'QPL' => 'Q Public License',
                                          'Apache' => 'Apache license. For versions, consult the Apache_Software_Foundation.'
                                        },
-                             'mandatory' => '1',
                              'type' => 'leaf',
                              'description' => 'abbreviated name for the license. If empty, it is given the default value \'other\'. Only one license per file can use this default value; if there is more than one license present in the package without a standard short name, an arbitrary short name may be assigned for these licenses. These arbitrary names are only guaranteed to be unique within a single copyright file.
 
