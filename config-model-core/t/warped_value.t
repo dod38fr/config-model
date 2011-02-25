@@ -7,7 +7,7 @@ use Test::More;
 use Config::Model;
 use Config::Model::ValueComputer ;
 
-BEGIN { plan tests => 59; }
+BEGIN { plan tests => 63; }
 
 use strict;
 
@@ -65,6 +65,10 @@ $model ->create_config_class
 				     }
 			 ]
 	  },
+       [qw/bar foo foo2/ ] => {
+			       type => 'node',
+			       config_class_name => 'Slave'
+			      },
        macro_replace
        => {
 	   type => 'hash',
@@ -139,7 +143,17 @@ $model -> create_config_class
 		 value_type => 'string',
 		 compute    => [ 'macro is $m', 'm' => '- - macro' ],
 		},
-       ]
+        warped_by_location => {
+            type => 'leaf',
+            value_type => 'uniline',
+            default => 'slaved',
+            warp => {
+                rules => [
+                    '&location =~ /recursive/', { 'default' => 'rslaved' }
+                ]
+            },
+        },
+     ]
   );
 
 $model -> create_config_class 
@@ -316,7 +330,7 @@ is_deeply( [$root->get_element_name(for => 'beginner')],
 is_deeply( [$model->get_element_name(class => 'Slave',
 				     for => 'beginner')
 	   ],
-	   [qw'X Y Z recursive_slave Comp'], 
+	   [qw'X Y Z recursive_slave Comp warped_by_location'], 
 	   "Elements of Slave from the model"
 	 );
 
@@ -324,7 +338,7 @@ my $slave = $root-> fetch_element('bar') ;
 ok($slave,"Created slave(bar)");
 
 is_deeply( [$slave->get_element_name(for => 'beginner')],
-	   [qw'X Y Z recursive_slave Comp'], 
+	   [qw'X Y Z recursive_slave Comp warped_by_location'], 
 	   "Elements of Slave from the object"
 	 );
 my $result ;
@@ -400,17 +414,17 @@ is($root->fetch_element('m_value_old')->fetch , 'Av',
 $root->fetch_element('macro')->store('A') ;
 
 is_deeply( [$slave->get_element_name(for => 'beginner')],
-	   [qw/X Y Z recursive_slave W Comp/], 
+	   [qw/X Y Z recursive_slave W Comp warped_by_location/], 
 	   "Slave elements from the object (W pops in when macro is set to A)"
 	 );
 $root->fetch_element('macro')->store('B') ;
 
 is_deeply( [$slave->get_element_name(for => 'beginner')],
-	   [qw/X Y Z recursive_slave Comp/], 
+	   [qw/X Y Z recursive_slave Comp warped_by_location/], 
 	   "Slave elements from the object (W's out when macro is set to B)"
 	 );
 is_deeply( [$slave->get_element_name(for => 'advanced')],
-	   [qw/X Y Z recursive_slave W Comp/], 
+	   [qw/X Y Z recursive_slave W Comp warped_by_location/], 
 	   "Slave elements from the object for advanced level"
 	 );
 
@@ -576,3 +590,13 @@ like( $@, qr/unavailable element/,
 $root->fetch_element('ClientAliveCheck')-> store (1) ;
 $root->fetch_element('ClientAliveInterval')-> store (10) ;
 is($root->fetch_element('ClientAliveInterval')-> fetch,10,"check ClientAliveInterval") ;
+
+my %loc_h = (qw/bar slaved foo2 slaved/,
+    'bar recursive_slave:l1 foo2', 'rslaved',
+    'bar recursive_slave:l1 recursive_slave:l2 foo2', 'rslaved'
+    );
+
+foreach my $k (sort keys %loc_h) {
+    my $path = "$k warped_by_location";
+    is($root->grab_value($path),$loc_h{$k},"check &location with $path");
+}
