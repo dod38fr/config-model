@@ -144,6 +144,10 @@ The element name of the current object: C<&element> or C<&element()>.
 
 The element name of another object: C<&element($other)>
 
+=item* 
+
+The full location (path) of the current object: C<&location> or C<&location()>.
+
 =back
 
 For instance, you could have this template string:
@@ -620,6 +624,7 @@ sub _function_alone {
     my $method_name =
         $f_name eq 'element' ? 'element_name'
       : $f_name eq 'index'   ? 'index_value'
+      : $f_name eq 'location' ? 'location'
       :                        undef;
 
     Config::Model::Exception::Formula->throw(

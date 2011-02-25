@@ -6,7 +6,7 @@ use ExtUtils::testlib;
 use Test::More;
 use Config::Model ;
 
-BEGIN { plan tests => 38; }
+BEGIN { plan tests => 40; }
 
 use strict;
 
@@ -39,6 +39,13 @@ $model->create_config_class(
             compute    => {
                 variables => { p => '-' },
                 formula   => '&element($p)',
+            },
+        },
+        location_function_in_formula => {
+            type       => 'leaf',
+            value_type => 'string',
+            compute    => {
+                formula   => '&location',
             },
         },
         check_node_element_name => {
@@ -367,3 +374,7 @@ is($root->grab_value(step => 'Upstream-Contact:0'   ),'foo',"check compute with 
 $root->fetch_element(name => 'Original-Source-Location', check => 'no')->store('foobar');
 is($root->grab_value(step => 'Source'   ),'foobar',"check compute with undef_is");
 
+foreach (qw/bar foo2/) {
+    my $path = "$_ location_function_in_formula";
+    is($root->grab_value($path),$path,"check &location with $path");
+}
