@@ -92,6 +92,14 @@ The archive area and section for each package should be specified in the package
                            'Standards-Version',
                            {
                              'value_type' => 'uniline',
+                             'warn_unless_match' => {
+                                                      '3\\.9\\.1' => {
+                                                                   'msg' => 'Current standard version is 3.9.1',
+                                                                   'fix' => '$_ = \'3.9.1\';'
+                                                                 }
+                                                    },
+                             'match' => '\\d+\\.\\d+\\.\\d+(\\.\\d+)?',
+                             'default' => '3.9.1',
                              'type' => 'leaf'
                            },
                            'Vcs-Browser',
@@ -104,7 +112,70 @@ The archive area and section for each package should be specified in the package
 
 The information is meant to be useful for the final user, willing to browse the latest work done on the package (e.g. when looking for the patch fixing a bug tagged as pending in the bug tracking system). '
                            },
-                           ['Vcs-Arch', 'Vcs-Bzr', 'Vcs-Cvs', 'Vcs-Darcs', 'Vcs-Git', 'Vcs-Hg', 'Vcs-Mtn', 'Vcs-Svn'],
+                           'Vcs-Arch',
+                           {
+                             'value_type' => 'uniline',
+                             'summary' => 'URL of the VCS repository',
+                             'type' => 'leaf',
+                             'description' => 'Value of this field should be a string identifying unequivocally the location of the Version Control System repository used to maintain the given package, if available. * identify the Version Control System; currently the following systems are supported by the package tracking system: arch, bzr (Bazaar), cvs, darcs, git, hg (Mercurial), mtn (Monotone), svn (Subversion). It is allowed to specify different VCS fields for the same package: they will all be shown in the PTS web interface.
+
+The information is meant to be useful for a user knowledgeable in the given Version Control System and willing to build the current version of a package from the VCS sources. Other uses of this information might include automatic building of the latest VCS version of the given package. To this end the location pointed to by the field should better be version agnostic and point to the main branch (for VCSs supporting such a concept). Also, the location pointed to should be accessible to the final user; fulfilling this requirement might imply pointing to an anonymous access of the repository instead of pointing to an SSH-accessible version of the same. '
+                           },
+                           'Vcs-Bzr',
+                           {
+                             'value_type' => 'uniline',
+                             'summary' => 'URL of the VCS repository',
+                             'type' => 'leaf',
+                             'description' => 'Value of this field should be a string identifying unequivocally the location of the Version Control System repository used to maintain the given package, if available. * identify the Version Control System; currently the following systems are supported by the package tracking system: arch, bzr (Bazaar), cvs, darcs, git, hg (Mercurial), mtn (Monotone), svn (Subversion). It is allowed to specify different VCS fields for the same package: they will all be shown in the PTS web interface.
+
+The information is meant to be useful for a user knowledgeable in the given Version Control System and willing to build the current version of a package from the VCS sources. Other uses of this information might include automatic building of the latest VCS version of the given package. To this end the location pointed to by the field should better be version agnostic and point to the main branch (for VCSs supporting such a concept). Also, the location pointed to should be accessible to the final user; fulfilling this requirement might imply pointing to an anonymous access of the repository instead of pointing to an SSH-accessible version of the same. '
+                           },
+                           'Vcs-Cvs',
+                           {
+                             'value_type' => 'uniline',
+                             'summary' => 'URL of the VCS repository',
+                             'type' => 'leaf',
+                             'description' => 'Value of this field should be a string identifying unequivocally the location of the Version Control System repository used to maintain the given package, if available. * identify the Version Control System; currently the following systems are supported by the package tracking system: arch, bzr (Bazaar), cvs, darcs, git, hg (Mercurial), mtn (Monotone), svn (Subversion). It is allowed to specify different VCS fields for the same package: they will all be shown in the PTS web interface.
+
+The information is meant to be useful for a user knowledgeable in the given Version Control System and willing to build the current version of a package from the VCS sources. Other uses of this information might include automatic building of the latest VCS version of the given package. To this end the location pointed to by the field should better be version agnostic and point to the main branch (for VCSs supporting such a concept). Also, the location pointed to should be accessible to the final user; fulfilling this requirement might imply pointing to an anonymous access of the repository instead of pointing to an SSH-accessible version of the same. '
+                           },
+                           'Vcs-Darcs',
+                           {
+                             'value_type' => 'uniline',
+                             'summary' => 'URL of the VCS repository',
+                             'type' => 'leaf',
+                             'description' => 'Value of this field should be a string identifying unequivocally the location of the Version Control System repository used to maintain the given package, if available. * identify the Version Control System; currently the following systems are supported by the package tracking system: arch, bzr (Bazaar), cvs, darcs, git, hg (Mercurial), mtn (Monotone), svn (Subversion). It is allowed to specify different VCS fields for the same package: they will all be shown in the PTS web interface.
+
+The information is meant to be useful for a user knowledgeable in the given Version Control System and willing to build the current version of a package from the VCS sources. Other uses of this information might include automatic building of the latest VCS version of the given package. To this end the location pointed to by the field should better be version agnostic and point to the main branch (for VCSs supporting such a concept). Also, the location pointed to should be accessible to the final user; fulfilling this requirement might imply pointing to an anonymous access of the repository instead of pointing to an SSH-accessible version of the same. '
+                           },
+                           'Vcs-Git',
+                           {
+                             'value_type' => 'uniline',
+                             'summary' => 'URL of the VCS repository',
+                             'type' => 'leaf',
+                             'description' => 'Value of this field should be a string identifying unequivocally the location of the Version Control System repository used to maintain the given package, if available. * identify the Version Control System; currently the following systems are supported by the package tracking system: arch, bzr (Bazaar), cvs, darcs, git, hg (Mercurial), mtn (Monotone), svn (Subversion). It is allowed to specify different VCS fields for the same package: they will all be shown in the PTS web interface.
+
+The information is meant to be useful for a user knowledgeable in the given Version Control System and willing to build the current version of a package from the VCS sources. Other uses of this information might include automatic building of the latest VCS version of the given package. To this end the location pointed to by the field should better be version agnostic and point to the main branch (for VCSs supporting such a concept). Also, the location pointed to should be accessible to the final user; fulfilling this requirement might imply pointing to an anonymous access of the repository instead of pointing to an SSH-accessible version of the same. '
+                           },
+                           'Vcs-Hg',
+                           {
+                             'value_type' => 'uniline',
+                             'summary' => 'URL of the VCS repository',
+                             'type' => 'leaf',
+                             'description' => 'Value of this field should be a string identifying unequivocally the location of the Version Control System repository used to maintain the given package, if available. * identify the Version Control System; currently the following systems are supported by the package tracking system: arch, bzr (Bazaar), cvs, darcs, git, hg (Mercurial), mtn (Monotone), svn (Subversion). It is allowed to specify different VCS fields for the same package: they will all be shown in the PTS web interface.
+
+The information is meant to be useful for a user knowledgeable in the given Version Control System and willing to build the current version of a package from the VCS sources. Other uses of this information might include automatic building of the latest VCS version of the given package. To this end the location pointed to by the field should better be version agnostic and point to the main branch (for VCSs supporting such a concept). Also, the location pointed to should be accessible to the final user; fulfilling this requirement might imply pointing to an anonymous access of the repository instead of pointing to an SSH-accessible version of the same. '
+                           },
+                           'Vcs-Mtn',
+                           {
+                             'value_type' => 'uniline',
+                             'summary' => 'URL of the VCS repository',
+                             'type' => 'leaf',
+                             'description' => 'Value of this field should be a string identifying unequivocally the location of the Version Control System repository used to maintain the given package, if available. * identify the Version Control System; currently the following systems are supported by the package tracking system: arch, bzr (Bazaar), cvs, darcs, git, hg (Mercurial), mtn (Monotone), svn (Subversion). It is allowed to specify different VCS fields for the same package: they will all be shown in the PTS web interface.
+
+The information is meant to be useful for a user knowledgeable in the given Version Control System and willing to build the current version of a package from the VCS sources. Other uses of this information might include automatic building of the latest VCS version of the given package. To this end the location pointed to by the field should better be version agnostic and point to the main branch (for VCSs supporting such a concept). Also, the location pointed to should be accessible to the final user; fulfilling this requirement might imply pointing to an anonymous access of the repository instead of pointing to an SSH-accessible version of the same. '
+                           },
+                           'Vcs-Svn',
                            {
                              'value_type' => 'uniline',
                              'summary' => 'URL of the VCS repository',
@@ -119,7 +190,7 @@ The information is meant to be useful for a user knowledgeable in the given Vers
                              'summary' => 'The package may be uploaded by a Debian Maintainer',
                              'match' => 'yes',
                              'type' => 'leaf',
-                             'description' => 'If this field is present, then any Debian Maintainers listed in the Maintainer or Uploaders fields may upload the package directly to the Debian archive.  For more information see the "Debian Maintainer" page at the Debian Wiki - http://wiki.debian.org/DebianMaintainer',
+                             'description' => 'If this field is present, then any Debian Maintainers listed in the Maintainer or Uploaders fields may upload the package directly to the Debian archive.  For more information see the "Debian Maintainer" page at the Debian Wiki - http://wiki.debian.org/DebianMaintainer'
                            },
                            'Homepage',
                            {
