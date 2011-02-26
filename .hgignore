@@ -6,3 +6,4 @@ libconfig-
 /wr_
 META.yml
 Build$
+.build
