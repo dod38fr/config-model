@@ -1,3 +1,6 @@
+        * TkUi.pm: renamed 'check' menu to 'check for errors'. Added 'check for warnings'
+        * AnyViewer: renamed warning widget to 'issue'. Display errors with red background
+
 2011-01-11  Dominique Dumont  <domi.dumont@free.fr> 1.320
 
         * LeafViewer: removed 'apply fix' button. This one is reserved for 

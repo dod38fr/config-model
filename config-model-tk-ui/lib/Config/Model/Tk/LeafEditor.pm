@@ -18,7 +18,7 @@ my @fbe1 = qw/-fill both -expand 1/ ;
 my @fxe1 = qw/-fill x    -expand 1/ ;
 my @fx   = qw/-fill x  / ;
 
-my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+my $logger = Log::Log4perl::get_logger("Tk::LeafEditor");
 
 sub ClassInit {
     my ($cw, $args) = @_;
@@ -38,10 +38,11 @@ sub Populate {
     my $inst = $leaf->instance ;
     my $vt = $leaf -> value_type ;
     $logger->info("Creating leaf editor for value_type $vt");
+    $cw->{value} = $leaf->fetch ( check => 'no');
+    $logger->info("Creating leaf editor with error ".$leaf->error_msg);
 
     $cw->add_header(Edit => $leaf)->pack(@fx) ;
 
-    $cw->{value} = $leaf->fetch ( check => 'no');
     my $vref = \$cw->{value};
 
     my @pack_args = @fx ;
@@ -176,7 +177,7 @@ sub try {
            :                 $cw->{value} ;
     }
 
-    return unless defined $v;
+    $v = '' unless defined $v ;
     chomp $v ;
 
     $logger->debug( "try: value $v") ;

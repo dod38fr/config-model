@@ -26,8 +26,11 @@ use Tk::Photo ;
 use Tk::ROText;
 use Tk::Dialog ;
 use Config::Model::TkUI ;
+use Log::Log4perl qw(get_logger :levels);
 
 use vars qw/$icon_path/ ;
+
+my $logger = get_logger("Tk");
 
 my @fbe1 = qw/-fill both -expand 1/ ;
 my @fxe1 = qw/-fill x    -expand 1/ ;
@@ -158,14 +161,12 @@ sub add_description {
 sub add_warning {
     my ($cw, $elt_obj,$usage) = @_ ;
 
-    my $msg = $elt_obj->warning_msg || ''  . "with " . $elt_obj->has_fixes." fixes";
- 
     my $frame = $cw -> Frame ; # packed by caller 
     my $inner_frame = $frame->Frame ; # packed by update_warning
 
     my $label_button_frame = $inner_frame->Frame->pack(@fxe1) ;
     $label_button_frame ->Label(
-        -text => 'Warning', 
+        -text => 'Issues', 
     ) ->pack(-anchor => 'w', -side => 'left', -fill =>'x');
 
     if ($usage eq 'edit') {
@@ -187,8 +188,16 @@ sub add_warning {
                                         -height => 4,
                                        );
 
+    my $err = $elt_obj->error_msg || '';
+    $warn_widget ->pack( @fbe1 ) ->insert('end',$err,'error') ;
+    $warn_widget ->tagConfigure(qw/error -lmargin1 2 -lmargin2 2 -rmargin 2 -background red/);
+
+    my $msg = $elt_obj->warning_msg || ''  ;
+    $msg .= "with " . $elt_obj->has_fixes." fixes" if $msg ;
     $warn_widget ->pack( @fbe1 ) ->insert('end',$msg,'warning') ;
     $warn_widget ->tagConfigure(qw/warning -lmargin1 2 -lmargin2 2 -rmargin 2 -background orange/);
+    
+    $logger->debug("creating warning widget". ($err ? " with errors": '').($msg ? " with warnings":''));
 
     $cw->Advertise(warn_widget => $warn_widget) ;
     $cw->Advertise(warn_frame  => $inner_frame ) ;
@@ -199,23 +208,31 @@ sub add_warning {
 }
 
 sub update_warning {
-    my ($cw, $elt_obj,$usage) = @_ ;
-
-    my $msg = $elt_obj->warning_msg ;
-    if (ref ($msg) eq 'HASH') {
-        $msg = join('', map { join("\n\t",@{$msg->{$_}}) } sort keys %$msg ) ;
-    }
+    my ($cw, $elt_obj) = @_ ;
 
     my $wf = $cw->Subwidget('warn_frame') ;
     my $ww = $cw->Subwidget('warn_widget') ;
     my $fw = $cw->Subwidget('fix_widget') ;
 
-    if ($msg) {
-        $ww->delete('0.0', 'end') ;
-        $ww->insert('end',$msg,'warning') ;
+    $ww->delete('0.0', 'end') ;
+
+    my $err = $elt_obj -> error_msg || '' ;
+    $ww->insert('end',$err,'error') if $err ;
+    
+    
+    my $msg .= $elt_obj->warning_msg || '';
+    if (ref ($msg) eq 'HASH') {
+        $msg = join('', map { join("\n\t",@{$msg->{$_}}) } sort keys %$msg ) ;
+    }
+    $ww->insert('end',$msg,'warning') if $msg ;
+
+    $logger->debug("updating warning widget". ($err ? " with errors": '').($msg ? " with warnings":''));
+
+
+    if ($msg or $err) {
         $wf->pack(@fbe1) ;
         
-        if ( defined $fw ) {
+        if ( $msg and defined $fw ) {
             my $nb_fixes = $elt_obj->has_fixes;
             $fw->configure(
                 -text    => "Apply $nb_fixes fixes",

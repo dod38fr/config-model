@@ -3,7 +3,7 @@
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
-use Test::More tests => 53 ;
+use Test::More tests => 52 ;
 use Test::Warn ;
 use Tk;
 use Config::Model::TkUI;
@@ -24,7 +24,14 @@ $show               = 1 if $arg =~ /s|i/;
 
 print "You can play with the widget if you run the test with 's' argument\n";
 
-Log::Log4perl->easy_init($log ? $TRACE: $WARN);
+my $log4perl_user_conf_file = $ENV{HOME}.'/.log4config-model' ;
+
+if ($log and -e $log4perl_user_conf_file ) {
+    Log::Log4perl::init($log4perl_user_conf_file);
+}
+else {
+    Log::Log4perl->easy_init($log ? $WARN: $ERROR);
+}
 
 Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 
@@ -126,15 +133,15 @@ SKIP: {
 	 sub { $cmu->create_element_widget('edit','test1.std_id');; ok(1,"test ".$idx++)},
 	 sub { $cmu->{editor}->add_entry('e'); ok(1,"test ".$idx++)},
 	 sub { $tktree->open('test1.std_id') ; ok(1,"test ".$idx++)},
-	 sub { $cmu->reload; ok(1,"test ".$idx++)} ,
+	 sub { $cmu->reload; ok(1,"test reload ".$idx++)} ,
 	 sub { $cmu->create_element_widget('view','test1.std_id'); ok(1,"test ".$idx++)},
 	 sub { $cmu->create_element_widget('edit','test1.std_id'); ok(1,"test ".$idx++)},
 	 sub { $tktree->open('test1.std_id.ab') ; ok(1,"test ".$idx++)},
 	 sub { $cmu->create_element_widget('view','test1.std_id.ab.Z'); ok(1,"test ".$idx++)},
-	 sub { $root->load(step => "std_id:ab Z=Cv") ; $cmu->reload ;; ok(1,"test ".$idx++)},
+	 sub { $root->load(step => "std_id:ab Z=Cv") ; $cmu->reload ;; ok(1,"test load ".$idx++)},
 	 sub { $tktree->open('test1.std_id.ab') ; ok(1,"test ".$idx++)},
 	 sub { $cmu->create_element_widget('edit','test1.std_id.ab.DX'); ok(1,"test ".$idx++)},
-	 sub { $root->load(step => "std_id:ab3") ; $cmu->reload ;; ok(1,"test ".$idx++)} ,
+	 sub { $root->load(step => "std_id:ab3") ; $cmu->reload ;; ok(1,"test load ".$idx++)} ,
 	 sub { $cmu->create_element_widget('view','test1.string_with_def'); ok(1,"test ".$idx++)},
 	 sub { $cmu->create_element_widget('edit','test1.string_with_def'); ok(1,"test ".$idx++)},
 	 sub { $cmu->create_element_widget('view','test1.a_long_string'); ok(1,"test ".$idx++)},
@@ -148,36 +155,36 @@ SKIP: {
 	 sub { $cmu->create_element_widget('view','test1.my_reference'); ok(1,"test ".$idx++)},
 	 sub { $cmu->create_element_widget('edit','test1.my_reference'); ok(1,"test ".$idx++)},
 
-	 sub { $root->load(step => "ordered_checklist=A,Z,G") ; $cmu->reload ;; ok(1,"test ".$idx++)} ,
+	 sub { $root->load(step => "ordered_checklist=A,Z,G") ; $cmu->reload ;; ok(1,"test load ".$idx++)} ,
 	 sub { $widget = $cmu->create_element_widget('edit','test1.ordered_checklist'); ok(1,"test ".$idx++)},
-	 sub { $widget->Subwidget('notebook')->raise('order') ;; ok(1,"test ".$idx++)},
-	 sub { $widget->Subwidget('notebook')->raise('order') ;; ok(1,"test ".$idx++)},
+	 sub { $widget->Subwidget('notebook')->raise('order') ;; ok(1,"test notebook raise 1 ".$idx++)},
+	 sub { $widget->Subwidget('notebook')->raise('order') ;; ok(1,"test notebook raise 2 ".$idx++)},
 	 sub { $widget->{order_list}->selectionSet(1,1) ;; ok(1,"test ".$idx++)}, # Z
 	 sub { $widget->move_selected_down ;; ok(1,"test ".$idx++)},
-	 sub { $cmu->save(); ok(1,"test ".$idx++)},
+	 # cannot save with pernding errors sub { $cmu->save(); ok(1,"test save 1 ".$idx++)},
 	 sub {
-	     for ($cmu->children) { $_->destroy if $_->name =~ /dialog/i; } ;
-	     $root->load($load_fix);; ok(1,"test ".$idx++)},
-	 sub { $cmu->save(); ok(1,"test ".$idx++)},
+	     #for ($cmu->children) { $_->destroy if $_->name =~ /dialog/i; } ;
+	     $root->load($load_fix);; ok(1,"test load_fix ".$idx++)},
+	 sub { $cmu->save(); ok(1,"test save 2 ".$idx++)},
 	 sub { $cmu->create_element_widget('edit','test1.always_warn');
 		$cmu -> force_element_display($root->grab('always_warn')) ; 
-	    ; ok(1,"test ".$idx++)},
+	    ; ok(1,"test always_warn ".$idx++)},
 
 	 # warn test, 3 warnings: load, fetch for hlist, fetch for editor
 	 sub { warnings_like { $root->load("always_warn=foo") ; $cmu->reload ;}
-	       [ qr/always/ , qr/always/, qr/always/] ,"warn test ".$idx++ ;
+	       [ qr/always/ , qr/always/, qr/always/] ,"warn test always_warn 2 ".$idx++ ;
 	     },
-	 sub { $root->load('always_warn~') ; $cmu->reload ;; ok(1,"test ".$idx++)},
+	 sub { $root->load('always_warn~') ; $cmu->reload ;; ok(1,"test remove always_warn ".$idx++)},
 
 	 sub { $cmu->create_element_widget('edit','test1.warn_unless');
 	       $cmu -> force_element_display($root->grab('warn_unless')) ; 
-	       ok(1,"test ".$idx++);
+	       ok(1,"test warn_unless ".$idx++);
 	     },
 
 	 sub { warnings_like { $root->load("warn_unless=bar") ; $cmu->reload ;}
-	       [ qr/warn_unless/ , qr/warn_unless/, qr/warn_unless/] ,"warn test ".$idx++ ;
+	       [ qr/warn_unless/ , qr/warn_unless/, qr/warn_unless/] ,"warn test warn_unless ".$idx++ ;
 	     },
-	 sub { $root->load('warn_unless=foo2') ; $cmu->reload ;; ok(1,"test ".$idx++)},
+	 sub { $root->load('warn_unless=foo2') ; $cmu->reload ;; ok(1,"test fix warn_unless ".$idx++)},
 
 	 sub { $mw->destroy; }
 	);

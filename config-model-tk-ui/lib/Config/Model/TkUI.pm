@@ -118,7 +118,8 @@ sub Populate {
 
     my $file_items = [[ qw/command wizard -command/, sub{ $cw->wizard }],
 		      [ qw/command reload -command/, sub{ $cw->reload }],
-		      [ qw/command check  -command/, sub{ $cw->check(1)}],
+		      [ command => 'check for errors',    -command => sub{ $cw->check(1)} ],
+		      [ command => 'check for warnings',  -command => sub{ $cw->check(1)} ],
 		      [ qw/command save   -command/, sub{ $cw->save }],
 		      [ command => 'save in dir ...',
                         -command => sub{ $cw->save_in_dir ;} ],
@@ -335,53 +336,25 @@ sub save_in_dir {
 
 sub check {
     my $cw = shift ;
-    my $show = shift || 0 ;
+    my $show = shift || 0;
+    my $check_warnings = shift || 0;
 
-    # first check for errors, will die on errors
-    eval { $cw->{root}->dump_tree(auto_vivify => 1, full_dump => 1) } ;
+    my $wiz = $cw->setup_wizard(sub{ $cw->check_end($show,@_) ;});
 
-    if ($@) {
-	$cw->handle_error($@) ;
-    }
-    elsif ($show) {
-	$cw->Dialog(-title => 'Check',
-		    -text => "No errors found"
-		   ) -> Show ;
-    }
+    $wiz->start_wizard(experience => $cw->{experience}, stop_on_warning => $check_warnings ) ;
 }
 
-sub handle_error {
-    my $cw = shift;
-    my $e_obj = shift ;
-    my $mode = shift || '' ;
+sub check_end {
+    my $cw = shift ;
+    my $show = shift ;
+    my $has_stopped = shift ;
 
-    my @buttons = qw/ok/ ;
+    $cw->reload if $has_stopped ;
 
-    my $conf_obj = $e_obj->object ;
-    push @buttons, 'edit' if defined $conf_obj ;
-
-    push @buttons, 'trace' unless $mode eq 'trace' ;
-
-    my $d = $cw->DialogBox(-title => 'Error',
-			   -buttons => \@buttons,
-			  ) ;
-
-    if ($mode eq 'trace') {
-	my $t = $d->add('ROText') -> pack;
-	$t->insert(end => $e_obj->trace->as_string);
-    }
-    else {
-	$d->add('Label',
-		-text => $e_obj-> as_string ) -> pack ;
-    }
-
-    my $answer = $d -> Show ;
-
-    if ($answer eq 'trace') {
-	$cw->handle_error($e_obj,$answer) ;
-    }
-    elsif ($answer eq 'edit') {
-	$cw->force_element_display($conf_obj) ;
+    if ($show and not $has_stopped) {
+	$cw->Dialog(-title => 'Check',
+		    -text => "No issue found"
+		   ) -> Show ;
     }
 }
 
@@ -395,18 +368,18 @@ sub save {
     $cw->check() ;
 
     if (defined $cw->{store_sub}) {
-	$logger->info( "Saving data in $trace_dir directory with store call-back" );
-	$cw->{store_sub}->($dir) ;
+       $logger->info( "Saving data in $trace_dir directory with store call-back" );
+       $cw->{store_sub}->($dir) ;
     }
     else {
-	$logger->info( "Saving data in $trace_dir directory with instance write_back" );
-	eval { $cw->{root}->instance->write_back(@wb_args); } ;
-	if ($@) {
-	  $cw -> Dialog ( -title => 'Save error',
-			  -text  => $@->as_string,
-			)
+       $logger->info( "Saving data in $trace_dir directory with instance write_back" );
+       eval { $cw->{root}->instance->write_back(@wb_args); } ;
+       if ($@) {
+         $cw -> Dialog ( -title => 'Save error',
+                         -text  => $@->as_string,
+                       )
             -> Show ;
-	}
+       }
     }
     $cw->{modified_data} = 0 ;
 }
@@ -830,6 +803,7 @@ sub setup_scanner {
 
        fallback => 'node',
        experience => 'master', #'beginner',
+       check => 'no',
 
        # node callback
        node_content_cb       => \&disp_obj_elt ,
@@ -1014,23 +988,28 @@ sub edit_paste {
 
 sub wizard {
     my $cw = shift ;
-    my $tree = $cw->{tktree} ;
 
-    # when wizard is run, there's no need to update editor window in
-    # main widget
-    my $wiz = $cw->ConfigModelWizard
-      (
-	-root     => $cw->{root},
-	-store_cb => sub{ $cw->{modified_data} = 1 ;},
-	-end_cb   => sub{ $cw->deiconify; $cw->raise ; $cw->reload ;},
-       # -show_cb => sub{ $cw->force_element_display(@_)},
-      ) ;
+    my $wiz = $cw->setup_wizard(sub{ $cw->deiconify; $cw->raise ; $cw->reload ;});
 
     # hide main window while wizard is running
     # end_cb callback will raise the main window
     $cw->withdraw ;
 
-    $wiz->start_wizard($cw->{experience}) ;
+    $wiz->prepare_wizard(experience => $cw->{experience}) ;
+}
+
+sub setup_wizard {
+    my $cw = shift ;
+    my $end_sub = shift ;
+
+    # when wizard is run, there's no need to update editor window in
+    # main widget
+    return $cw->ConfigModelWizard
+      (
+	-root     => $cw->{root},
+	-store_cb => sub{ $cw->{modified_data} = 1 ;},
+	-end_cb   => $end_sub,
+      ) ;
 }
 
 1;

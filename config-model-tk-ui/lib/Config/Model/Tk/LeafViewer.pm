@@ -13,7 +13,7 @@ my @fbe1 = qw/-fill both -expand 1/ ;
 my @fxe1 = qw/-fill x    -expand 1/ ;
 my @fx   = qw/-fill x  / ;
 
-my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+my $logger = Log::Log4perl::get_logger("Tk::LeafViewer");
 
 sub ClassInit {
     my ($cw, $args) = @_;

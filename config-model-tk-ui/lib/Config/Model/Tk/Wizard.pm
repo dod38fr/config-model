@@ -50,6 +50,7 @@ sub Populate {
     $logger->info("Creating wizard widget");
     $cw->{show_cb} ||= sub {} ;
     $cw->{store_cb} ||= sub {} ;
+    $cw->{has_stopped} = 0;
 
     my $title = delete $args->{'-title'} 
               || "config wizard ".$cw->{root}->config_class_name ;
@@ -93,6 +94,7 @@ sub save {
 sub leaf_cb {
     my ( $cw, $scanner, $data_ref, $node, $element_name, $index, $leaf_object )
       = @_;
+    $cw->{has_stopped} = 1;
 
     # cleanup existing widget contained in this frame
     $cw->{show_cb}->($leaf_object);
@@ -104,6 +106,7 @@ sub leaf_cb {
 
 sub list_element_cb {
     my ( $cw, $scanner, $data_ref, $node, $element_name, @indexes ) = @_;
+    $cw->{has_stopped} = 1;
 
     # cleanup existing widget contained in this frame
     my $obj = $node->fetch_element($element_name);
@@ -116,6 +119,7 @@ sub list_element_cb {
 
 sub hash_element_cb {
     my ( $cw, $scanner, $data_ref, $node, $element_name, @keys ) = @_;
+    $cw->{has_stopped} = 1;
 
     # cleanup existing widget contained in this frame
     my $obj = $node->fetch_element($element_name);
@@ -128,6 +132,7 @@ sub hash_element_cb {
 
 sub check_list_element_cb {
     my ( $cw, $scanner, $data_ref, $node, $element_name, @items ) = @_;
+    $cw->{has_stopped} = 1;
 
     # cleanup existing widget contained in this frame
     my $obj = $node->fetch_element($element_name);
@@ -138,10 +143,14 @@ sub check_list_element_cb {
     )->pack(@fbe1);
 }
 
-sub start_wizard {
-    my ($cw,$exp) = @_ ;
+sub prepare_wizard {
+    my ($cw,%args) = @_ ;
+    
+    my $exp = $args{experience} || 'beginner' ;
 
-    my $text = 'The wizard will scan all configuration items and stop on "important" items or on error (like missing mandatory values). If no "important" item and no error are found, the wizard will exit immediately' ;
+    my $text = 'The wizard will scan all configuration items and stop on '
+    . '"important" items or on error (like missing mandatory values). If no '
+    . '"important" item and no error are found, the wizard will exit immediately' ;
 
     my $edf = $cw->{ed_frame} ;
 
@@ -168,17 +177,18 @@ sub start_wizard {
     $edf->Checkbutton (-text => 'stop on warning', -variable => \$stop_on_warn )->pack(qw/-side top -anchor w/);
 
     $edf->Button(-text => 'OK',
-		 -command => sub {$cw->_start_wizard($exp,$stop_on_warn)}
+		 -command => sub {$cw->start_wizard($exp,$stop_on_warn)}
 		) -> pack (qw/-side right -anchor e/) ;
     $edf->Button(-text => 'cancel',
 		 -command => sub {$cw->destroy_wizard()}
 		) -> pack (qw/-side left -anchor w/) ;
 }
 
-sub _start_wizard {
-    my ( $cw, $exp, $stop_on_warn ) = @_;
+sub start_wizard {
+    my ( $cw, %args) = @_;
 
     my $button_f = $cw->Frame->pack(qw/-pady 0 -fill x -expand 1/);
+    $cw->{has_stopped} = 0;
 
     my $back = $button_f->Button(
         -text    => 'Back',
@@ -236,15 +246,19 @@ sub _start_wizard {
     }
 
     my @wiz_args = (
-        experience           => $exp,
-        call_back_on_warning => $stop_on_warn,
+        experience             => $args{experience} || 'beginner',
         %cb_table
     );
 
-    #Tk::ObjScanner::scan_object(\@wiz_args) ;
-    $cw->{wizard} = $cw->{root}->instance->wizard_helper(@wiz_args);
+    foreach (qw/warning important/) {
+        push @wiz_args,  "call_back_on_$_"   => $args{"stop_on_$_"}
+            if defined $args{"stop_on_$_"} ;
+    }
 
-    # exits when wizard is done (but not when stopped)
+    #Tk::ObjScanner::scan_object(\@wiz_args) ;
+    $cw->{wizard} = $cw->{root}->instance->iterator(@wiz_args);
+
+    # exits when wizard is done 
     $cw->{wizard}->start;
     $cw->destroy_wizard;
 }
@@ -255,13 +269,14 @@ sub destroy_wizard{
     delete $cw->{ed_w} ;
     delete $cw->{wizard} ;
 
-    if (defined $cw->{end_cb}) {
-        $logger->debug("Calling end_cb");
-        $cw->{end_cb}->() ;
-    }
-
+    # print "Destroying wizard\n" ;
     $logger->debug("Destroying wizard");
     $cw->destroy ;
+
+    if (defined $cw->{end_cb}) {
+        $logger->debug("Calling end_cb");
+        $cw->{end_cb}->($cw->{has_stopped}) ;
+    }
 }
 
 1;
