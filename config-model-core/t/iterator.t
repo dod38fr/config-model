@@ -161,12 +161,13 @@ my $list_element_cb = sub {
 };
 
 my $iterator = $inst->iterator(
-    leaf_cb              => $leaf_element_cb,
-    integer_value_cb     => $int_cb,
-    hash_element_cb      => $hash_element_cb,
-    list_element_cb      => $list_element_cb,
-    experience           => 'advanced',
-    call_back_on_warning => 1,
+    leaf_cb                => $leaf_element_cb,
+    integer_value_cb       => $int_cb,
+    hash_element_cb        => $hash_element_cb,
+    list_element_cb        => $list_element_cb,
+    experience             => 'advanced',
+    call_back_on_warning   => 1,
+    call_back_on_important => 1,
 );
 ok( $iterator, "created iterator helper" );
 
