@@ -1,3 +1,6 @@
+    * Value: mandatory values also require non-empty strings
+    * Dpkg copyright backend: skip empty copyright lines
+
 2011-02-21 Dominique Dumont  <domi.dumont@free.fr> 1.234
     
     * factor out comment extraction: code that retrieve comments and tie it to 

@@ -1926,9 +1926,10 @@ sub fetch {
 		" parameter, not $mode" ;
     }
 
+    my $ok = $self->check(value => $value, silent => $silent) ;
+
     if (defined $value) {
 	# check validity (all modes)
-	my $ok = $self->check(value => $value, silent => $silent) ;
 	if ($ok or $check eq 'no') {
 	    return $value ;
 	}

@@ -151,10 +151,10 @@
 			     default    => 'yada yada'
 			    },
 	       a_string => { type => 'leaf',
-			     mandatory => 1 ,
 			     value_type => 'string'
 			   },
 	       another_string => { type => 'leaf',
+			     mandatory => 1 ,
 			     value_type => 'string'
 			   },
 	       hidden_string 

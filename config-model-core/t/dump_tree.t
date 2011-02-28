@@ -44,7 +44,7 @@ ok( $root->load( step => $step, experience => 'advanced' ),
 $inst->preset_stop ;
 
 $step = 'std_id:ab X=Bv - std_id:bc X=Av - std_id:"b d " X=Av '
-  .'- a_string="toto \"titi\" tata" '
+  .'- a_string="toto \"titi\" tata" another_string="foobar" '
   .'lista=a,b,c,d olist:0 X=Av - olist:1 X=Bv - listb=b,"c c2",d '
   . '! hash_a:X2=x hash_a:Y2=xy  hash_b:X3=xy my_check_list=X2,X3' ;
 ok( $root->load( step => $step, experience => 'advanced' ),
@@ -76,6 +76,7 @@ olist:0
 olist:1
   X=Bv -
 a_string="toto \"titi\" tata"
+another_string=foobar
 my_check_list=X2,X3 -
 EOF
 
@@ -110,6 +111,7 @@ olist:1
 string_with_def="yada yada"
 a_uniline="yada yada"
 a_string="toto \"titi\" tata"
+another_string=foobar
 int_v=10
 my_check_list=X2,X3 -
 EOF
@@ -147,6 +149,7 @@ olist:1
 string_with_def="yada yada"
 a_uniline="yada yada"
 a_string="toto \"titi\" tata"
+another_string=foobar
 int_v=10
 my_check_list=X2,X3 -
 EOF
@@ -184,6 +187,7 @@ olist:1
 string_with_def="yada yada"
 a_uniline="yada yada"
 a_string=""
+another_string=foobar
 int_v=10
 my_check_list=X2,X3 -
 EOF
@@ -240,7 +244,7 @@ my $root2 = $model->instance (root_class_name => 'Master',
 $step = ' std_id:ab#std_id_ab_note 
                                     X=Bv X#std_id_ab_X_note 
       - std_id#std_id_note std_id:bc X=Av X#std_id_bc_X_note '
-  .'- a_string="toto \"titi\" tata" a_string#a_string_note '
+  .'- a_string="toto \"titi\" tata" a_string#a_string_note another_string="foobar"'
   .'lista#lista_note lista=a,b,c,d lista:1#lista_1_note olist#o_list_note olist:0#olist_0_note X=Av - olist:1#olist1_c X=Bv - listb=b,"c c2",d '
   . '! hash_a:X2=x#hash_a_X2 hash_a:Y2=xy#"hash_a Y2 note"  hash_b:X3=xy#hash_b_X3
      my_check_list=X2,X3 plain_object#"plain comment" aa2=aa2_value' ;
