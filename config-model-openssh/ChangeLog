@@ -1,3 +1,8 @@
+2011-02-28  Dominique Dumont  <domi.dumont@free.fr> v 1.213
+
+	* Fixed MANIFEST.SKIP to remove cruft shipped by Dist::Zilla. As
+	  downstream packager, I was not amused :/
+
 2011-02-23  Dominique Dumont  <domi.dumont@free.fr> v 1.212
 
 	* Fixed Build.PL to include prereqs computed by Dist::Zilla
