@@ -127,7 +127,7 @@ sub read {
 
 sub _store_line_based_list {
     my ($object,$v,$check) = @_ ;
-    my @v = split /\s*\n\s*/,$v ;
+    my @v = grep {length($_) } split /\s*\n\s*/,$v ;
     $logger->debug("_store_line_based_list with check $check on ".$object->name." = ('".join("','",@v),"')");
     $object->store_set(\@v, check => $check);
 }
