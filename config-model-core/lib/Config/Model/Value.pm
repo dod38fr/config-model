@@ -1238,7 +1238,12 @@ sub get_help {
     return ;
 }
 
-# internal
+=head2 error_msg 
+
+Returns the error messages of this object (if any)
+
+=cut
+
 sub error_msg {
     my $self = shift ;
     return unless $self->{error_list} ;
@@ -1475,7 +1480,7 @@ sub check {
 
     my @error = $self->check_value(%args) ;
 
-    if (not defined $value and $self->{mandatory}) {
+    if ((not defined $value or length($value) == 0 ) and $self->{mandatory}) {
         push @error, "Mandatory value is not defined" ;
     }
 

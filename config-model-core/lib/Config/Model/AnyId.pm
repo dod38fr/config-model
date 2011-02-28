@@ -1216,6 +1216,19 @@ sub warning_msg {
     return defined $idx ? $self->{warning_hash}{$idx} : $self->{warning_hash} ;
 }
 
+
+=head2 error_msg 
+
+Returns the error messages of this object (if any)
+
+=cut
+
+sub error_msg {
+    my $self = shift ;
+    return unless $self->{error} ;
+    return wantarray ? @{$self->{error}} : join("\n\t",@{ $self ->{error}}) ;
+}
+
 1;
 
 __END__
