@@ -2346,7 +2346,7 @@ L<Config::Model::TermUI>
 
 =item *
 
-L<Config::Model::WizardHelper>
+L<Config::Model::Iterator>
 
 =item *
 
