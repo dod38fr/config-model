@@ -5,6 +5,19 @@ use Test::More ;
 use Path::Class ;
 
 use Config::Model;
+use Config;
+
+if ($Config{osname} ne 'linux') {
+    plan skip_all => "Not a Linux system" ;
+}
+
+if (not grep (/fuse/, `lsmod`)) {
+      plan skip_all => "fuse module is not loaded" ;
+}
+
+if (not grep (/is/ , `bash -c 'type fusermount'`) ) {
+      plan skip_all => "fusemount not found" ;
+}
 
 eval { require Config::Model::FuseUI ;} ;
 if ( $@ ) {
