@@ -294,11 +294,11 @@ is($root2->grab_value('plain_object aa2'), "aa2_value \x{263A}","utf8 value") ;
 
 
 # test deletion of leaf items
-$step = 'another_string=foobar another_string~';
+$step = 'a_string=foobar a_string~';
 ok( $root2->load( step => $step, experience => 'advanced' ),
   "set up data then delete it");
   
-is($root2->grab_value('another_string'),undef,"check that another_string was undef'ed");
+is($root2->grab_value('a_string'),undef,"check that another_string was undef'ed");
 
 $root2->load("lista:0.=\x{263A}") ;
 is($root2->grab_value('lista:0'),"a\x{263A}","check that list append work");
