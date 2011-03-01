@@ -129,12 +129,14 @@ by the command line.
 
 =item application
 
-Application name to be configured. 
+Application name to be configured. Specify C<help> to get a list of available 
+applications.
 
 =item -model
 
-Specifies the model used to edit configuration data. 
-This option is ignored when C<-application> is specified
+Specifies the model used to edit configuration data. Specify C<help> to
+get a list of available applications. This option is ignored when C<-
+application> is specified
 
 =item -ui
 
@@ -221,7 +223,8 @@ Load file even if error are found in data. Bad data are discarded
 
 Apply fixes mentioned in model description. 
 For details, see C<warn_if_match> or C<warn_unless_match> 
-in L<Config::Model::Value/>.
+in L<Config::Model::Value/>. Configuration files will be saved if 
+invoked with C<-ui none> .
 
 =item -backend
 
@@ -345,7 +348,7 @@ my ($categories,$appli_info,$appli_map) = $model->available_models ;
 
 $root_model = $appli_map->{$application} if defined $application and defined $appli_map->{$application} ;
 
-if (not defined $root_model or $root_model eq 'help') {
+if (not defined $root_model or $root_model eq 'help' or $application eq 'help') {
     print "Please specify one of the following application with -application option:\n";
     foreach my $cat (keys %$categories) {
         my $names = $categories->{$cat} || [];
@@ -513,13 +516,15 @@ elsif ( $ui_type eq 'fuse' ) {
     }
 }
 elsif ( $ui_type =~ /^no/i ) {
-    # let go
+    # trigger a dump to load all sub-models
+    my $dump = $root->dump_tree ;
+    $force_save = 1 if $apply_fixes or $load ;
 }
 else {
     die "Unsupported user interface: $ui_type";
 }
 
-$inst->write_back if ($force_save or $apply_fixes or $load or scalar @ARGV);
+$inst->write_back if $force_save ;
 
 =head1 Saving configuration data
 

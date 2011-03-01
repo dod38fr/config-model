@@ -11,6 +11,8 @@
         * WarpedThing: Can warp based on the location in a tree. For instance to make
         an element mandatory in one place and not in another. Used by Debian copyright model
         * Value: mandatory values also require non-empty strings
+        * config-edit: Force to load all sub-models (i.e. control, copyright) of
+        a top-model (err.. dpkg) when run with option -ui none
 
     TODO:
     - make warp skip warp master if they cannot be found with !SomeClass
