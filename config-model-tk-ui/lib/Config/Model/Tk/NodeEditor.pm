@@ -7,6 +7,7 @@ use Carp ;
 use Tk::Pane ;
 use Tk::Balloon;
 use Text::Wrap;
+use Config::Model::Tk::NoteEditor ;
 
 use base qw/Tk::Frame Config::Model::Tk::AnyViewer/;
 use subs qw/menu_struct/ ;
@@ -48,6 +49,7 @@ sub Populate {
     #require Tk::Adjuster;
     #$cw -> Adjuster()->pack(-fill => 'x' , -side => 'top') ;
 
+    $cw->ConfigModelNoteEditor( -object => $node )->pack;
     $cw->add_info_button()->pack(@fxe1, qw/-anchor n/) ;
 
     if ($node->parent) {
