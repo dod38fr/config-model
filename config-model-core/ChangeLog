@@ -1,5 +1,20 @@
-    * Value: mandatory values also require non-empty strings
-    * Dpkg copyright backend: skip empty copyright lines
+2011-03-01 Dominique Dumont  <domi.dumont@free.fr> 1.235
+    
+    * Application changes:
+        * dpkg control source model: Encourage Standard-Version 3.9.11
+        * dpkg control dependency: only versions older than old-stable (i.e. 
+          not found on madison) will trigger a warning
+        * dpkg copyright: Handle license in header (Closes Debian #614776)
+        * Dpkg copyright backend: skip empty copyright lines
+        
+    * Framework changes:
+        * WarpedThing: Can warp based on the location in a tree. For instance to make
+        an element mandatory in one place and not in another. Used by Debian copyright model
+        * Value: mandatory values also require non-empty strings
+
+    TODO:
+    - make warp skip warp master if they cannot be found with !SomeClass
+    - Auto test of synopsises
 
 2011-02-21 Dominique Dumont  <domi.dumont@free.fr> 1.234
     
@@ -10,17 +25,6 @@
       and C::M::B::Any::write_data_and_comments
     * Fix bad handling of leaf type Ini backend (Thanks Krzysztof for the notice)
     
-    TODO:
-    - make warp skip warp master if they cannot be found with !SomeClass
-    - Auto test of synopsises
-
-    * Application changes:
-        * dpkg control source model: Encourage Standard-Vesrion 3.9.1
-        * dpkg copyright: Handle license in header (Closes Debian #614776)
-        
-    * Framework changes:
-        * WarpedThing: Can warp based on the location in a tree. For instance to make
-        an element mandatory in one place and not in another. Used by Debian copyright model
 
 2011-02-11 Dominique Dumont  <domi.dumont@free.fr> 1.233
     
