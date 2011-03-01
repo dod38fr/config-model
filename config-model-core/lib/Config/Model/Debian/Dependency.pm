@@ -160,7 +160,7 @@ sub get_available_version {
     my @res ;
     foreach my $line (split /\n/, $res) {
         my ($name,$available_v,$dist,$type) = split /\s*\|\s*/, $line ;
-        push @res , $dist,  $available_v unless $dist =~ /etch/ ;
+        push @res , $dist,  $available_v ;
     }
     return "@res" ;
 }
@@ -216,15 +216,17 @@ syntax as described in http://www.debian.org/doc/debian-policy/ch-relationships.
 
 =item *
 
-Whether the version specified with C<< > >> or C<< >= >> is necessary. This module will check 
-with Debian server whether older versions can be found in Debian stable or not. If no older version 
-can be found, a warning will be issued. 
+Whether the version specified with C<< > >> or C<< >= >> is necessary.
+This module will check with Debian server whether older versions can be
+found in Debian old-stable or not. If no older version can be found, a
+warning will be issued.
 
 =back
 
 =head1 Cache
 
-Queries to Debian server are cached in C<~/.config_model_depend_cache> for about one month.
+Queries to Debian server are cached in C<~/.config_model_depend_cache>
+for about one month.
 
 =head1 BUGS
 
@@ -241,7 +243,3 @@ L<Config::Model>,
 L<Config::Model::Value>,
 L<Memoize>,
 L<Memoize::Expire>
-
-
-
-=cut
