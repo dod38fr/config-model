@@ -1,7 +1,7 @@
 # -*- cperl -*-
 
 use ExtUtils::testlib;
-use Test::More tests => 163 ;
+use Test::More ;
 use Config::Model ;
 use Log::Log4perl qw(:easy) ;
 use File::Path ;
@@ -12,6 +12,14 @@ use Test::Exception ;
 use warnings;
 
 use strict;
+
+eval { require AptPkg::Config ;} ;
+if ( $@ ) {
+    plan skip_all => "AptPkg::Config is not installed (not a Debian system ?)";
+}
+else {
+    plan tests => 163;
+}
 
 my $arg = shift ;
 $arg = '' unless defined $arg ;
