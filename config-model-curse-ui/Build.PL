@@ -1,8 +1,4 @@
-# $Author$
-# $Date$
-# $Revision$
-
-#    Copyright (c) 2007-2009 Dominique Dumont.
+#    Copyright (c) 2007-2009,2011 Dominique Dumont.
 #
 #    This file is part of Config-Model-Curses-UI.
 #
@@ -32,7 +28,7 @@ my $build = Module::Build->new
    dist_abstract => "Curses interface to edit config data through Config::Model",
    dist_author  => "Dominique Dumont (ddumont at cpan dot org)",
    requires => {
-		'Config::Model'    => '0.637',
+		'Config::Model'    => '1.233',
 		'Exception::Class' => 0,
 		'Curses::UI'       => '0.9606',
 	       },

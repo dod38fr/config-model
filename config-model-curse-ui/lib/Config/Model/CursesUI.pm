@@ -22,7 +22,7 @@ use Exception::Class
       },
   ) ;
 
-our $VERSION = '1.103';
+our $VERSION = '1.104';
 
 my @help_settings = qw/-bg green -fg black -border 1 
                        -titlereverse 0
@@ -1240,10 +1240,8 @@ sub value_info {
     my ($self,$win,$leaf, $x,$y, $width) = @_ ;
     my $inst = $leaf->instance ;
 
-    $inst->push_no_value_check('fetch') ;
-
     no warnings "uninitialized";
-    my $value = $leaf->fetch ;
+    my $value = $leaf->fetch(check => 'no') ;
     $win -> add ( undef, 'Label', -text => "current value: ",
 		  '-x' => $x, '-y' => $y ) ;
     my $display_value = defined $value ? $value : '<undef>' ;
@@ -1260,8 +1258,6 @@ sub value_info {
     elsif (defined $leaf->fetch_standard) {
 	push @items, "default value: " . $leaf->fetch_standard ;
     }
-
-    $inst->pop_no_value_check ;
 
     my $m = $leaf->mandatory ;
     push @items, "is mandatory: ".($m ? 'yes':'no') if defined $m;
@@ -1582,8 +1578,8 @@ sub display_view_list {
 
     my $std_cb = sub {
 	my ($scanner, $data_ref,$node,$element_name,$index, $leaf_object) = @_ ;
-	my $value = $leaf_object->fetch ;
-	my $value_str = defined $value          ? $value 
+	my $value = $leaf_object->fetch(check => 'no') ;
+	my $value_str = length($value)          ? $value 
                       : $leaf_object->mandatory ? '*MISSING*' 
 		      :                            undef ;
 	$value_str = '"'.$value_str.'"' if defined $value_str && $value_str =~ /\s/ ;
@@ -1612,6 +1608,7 @@ sub display_view_list {
  		      hash_element_cb  => $hash_cb ,
 		      leaf_cb          => $leaf_cb ,
 		      node_element_cb  => $node_cb ,
+		      check            => 'no',
 		    );
 
     my $view_scanner = Config::Model::ObjTreeScanner->new (@scan_args);
@@ -1619,9 +1616,7 @@ sub display_view_list {
     my @leaves ;
     eval {
 	# perform the scan that fills @leaves
-        $root->instance->push_no_value_check('fetch','store','type') ;
         $view_scanner-> scan_node(\@leaves, $root) ;
-        $root->instance->pop_no_value_check ;
     } ;
 
     if ($@) {
@@ -1642,7 +1637,7 @@ sub display_view_list {
             $str =sprintf("%-28s | %-10s | %-30s", $name,$value,$node->name) ;
 	}
         else {
-            my @level = split / +/,$loc ;
+            my @level = split m/ +/ ,$loc ;
             $str = ('. ' x scalar @level) . $name ;
             $str .= " = '$value'" if @$_ == 4;
 	}
@@ -1831,7 +1826,7 @@ sub wiz_walk {
                           check_list_element => 'layout_checklist' ,
 			) ;
 
-    foreach my $leaf_item (qw/leaf enum_value enum_integer_value
+    foreach my $leaf_item (qw/leaf enum_value
                               integer_value number_value 
                               boolean_value string_value/) {
 	my $layout_meth = $override_meth{$leaf_item} || 'layout_'.$leaf_item ;
@@ -1852,7 +1847,7 @@ sub wiz_walk {
 		   );
 
     #Tk::ObjScanner::scan_object(\@wiz_args) ;
-    $self->{wizard} = $root->instance->wizard_helper (@wiz_args);
+    $self->{wizard} = $root->instance->iterator (@wiz_args);
 
     my $result;
     eval {$self->{wizard}->start ;} ;
@@ -1938,7 +1933,7 @@ Dominique Dumont, (ddumont at cpan dot org)
 
 =head1 LICENSE
 
-    Copyright (c) 2007-2009 Dominique Dumont.
+    Copyright (c) 2007-2009,2011 Dominique Dumont.
 
     This file is part of Config-Model.
 

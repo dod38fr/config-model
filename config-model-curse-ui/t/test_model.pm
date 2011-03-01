@@ -1,5 +1,4 @@
 # -*- cperl -*-
-# $Name: not supported by cvs2svn $
 
 # this file is used by test script
 

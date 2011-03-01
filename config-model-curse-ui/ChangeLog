@@ -1,3 +1,11 @@
+2011-03-01  Dominique Dumont  <domi.dumont@free.fr> v1.104
+
+	* Build.PL: depends on Config::Model 1.233.
+
+	* lib/Config/Model/CursesUI.pm: Removed usage of *_no_value_cheack
+	and replaced them with explicit check parameters. Removed long dead
+	enum_integer value_type (Debian Closes: #613970).
+
 2009-06-24  Dominique Dumont  <domi.dumont@free.fr> v1.103
 
 	* Build.PL: depends on Config::Model 0.637. Added build dependency
