@@ -1,7 +1,7 @@
 2011-03-01 Dominique Dumont  <domi.dumont@free.fr> 1.235
     
     * Application changes:
-        * dpkg control source model: Encourage Standard-Version 3.9.11
+        * dpkg control source model: Encourage Standard-Version 3.9.1
         * dpkg control dependency: only versions older than old-stable (i.e. 
           not found on madison) will trigger a warning
         * dpkg copyright: Handle license in header (Closes Debian #614776)
