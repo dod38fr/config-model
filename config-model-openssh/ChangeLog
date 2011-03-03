@@ -1,4 +1,7 @@
+2011-03-03  Dominique Dumont  <domi.dumont@free.fr> v 1.214
+
         * Fixed Build.PL to install files from lib/.../system.d/
+        * Fixed Ssh backend to write Host pattern annotations/comments
 
 2011-02-28  Dominique Dumont  <domi.dumont@free.fr> v 1.213
 

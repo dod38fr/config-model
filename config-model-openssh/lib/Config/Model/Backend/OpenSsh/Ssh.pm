@@ -153,13 +153,14 @@ sub write_all_host_block {
 
     foreach my $pattern ( $host_elt->get_all_indexes) {
 	my $block_elt = $host_elt->fetch_with_id($pattern) ;
+        $logger->debug("write_all_host_block on ".$block_elt->location." mode $mode");
 	my $block_data = $self->write_node_content($block_elt,'custom') ;
 
 	# write data only if custom pattern or custom data is found this
 	# is necessary to avoid writing data from /etc/ssh/ssh_config that
 	# were entered as 'preset' data
 	if ($block_data) {
-	    $result .= $self->write_line(Host => $pattern, $host_elt->annotation);
+	    $result .= $self->write_line(Host => $pattern, $block_elt->annotation);
 	    $result .= "$block_data\n" ;
 	}
     }
