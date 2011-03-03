@@ -1,4 +1,5 @@
         * Search backend in all @INC directories (useful for dev)
+        * Reduced indentation of generated Perl files.
 
 2011-01-20 Dominique Dumont  <domi.dumont@free.fr> 1.222
 

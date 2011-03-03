@@ -333,7 +333,8 @@ sub write_all {
 
         open (WR, ">$wr_file") || croak "Cannot open file $wr_file:$!" ;
         my $dumper = Data::Dumper->new([\@data]) ;
-        $dumper->Terse(1) ;
+        $dumper->Indent(1) ; # avoid too deep indentation
+        $dumper->Terse(1) ; # allow unnamed variables in dump
         print WR $dumper->Dump , ";\n";
         close WR ;
     }
