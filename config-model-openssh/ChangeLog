@@ -1,3 +1,5 @@
+        * Fixed Build.PL to install files from lib/.../system.d/
+
 2011-02-28  Dominique Dumont  <domi.dumont@free.fr> v 1.213
 
 	* Fixed MANIFEST.SKIP to remove cruft shipped by Dist::Zilla. As

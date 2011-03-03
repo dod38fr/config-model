@@ -177,6 +177,8 @@ Host *
     GSSAPIAuthentication yes
     GSSAPIDelegateCredentials no
 
+# foo bar big
+# comment
 Host foo.*,*.bar
     # for and bar have X11
     ForwardX11 yes
