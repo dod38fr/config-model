@@ -1,3 +1,8 @@
+2011-03-04  Dominique Dumont  <domi.dumont@free.fr> 1.322
+
+        * Changed nb of skipped tests (fix test plan issues
+         when Tk cannot be run)
+
 2011-03-01  Dominique Dumont  <domi.dumont@free.fr> 1.321
 
         * TkUi.pm: renamed 'check' menu to 'check for errors'. Added 'check for warnings'

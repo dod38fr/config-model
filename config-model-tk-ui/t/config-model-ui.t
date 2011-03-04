@@ -13,6 +13,13 @@ use Log::Log4perl qw(:easy) ;
 
 use strict;
 
+sub test_all {
+    my ($mw, $delay,$test_ref) = @_ ;
+    my $test = shift @$test_ref ;
+    $test->() ;
+    $mw->after($delay, sub { test_all($mw, $delay,$test_ref) } ) if @$test_ref;
+}
+
 my $arg = shift || '';
 
 my ($log,$show) = (0) x 2 ;
@@ -100,29 +107,25 @@ SKIP: {
     my $mw = eval {MainWindow-> new ; };
 
     # cannot create Tk window
-    skip "Cannot create Tk window",48 unless $mw;
+    skip "Cannot create Tk window",47 unless $mw;
 
     $mw->withdraw ;
 
-    my $cmu = $mw->ConfigModelUI (-root => $root, 
-			     ) ;
+    my $cmu = $mw->ConfigModelUI (-root => $root, ) ;
 
     my $delay = 200 ;
     
-    sub inc_d { $delay += 500 } ;
-
     my $tktree= $cmu->Subwidget('tree') ;
     my $mgr   = $cmu->Subwidget('multi_mgr') ;
     my $widget ; # ugly global variable. Use with care
     my $idx = 1 ;
 
-    my @force_test 
+    my @test 
       = (
 	 sub { $cmu->reload ; ok(1,"forced test: reload") } ,
 	) ;
 
-    my @test 
-      = (
+    push @test,  
 	 sub { $cmu->create_element_widget('edit','test1'); ok(1,"test ".$idx++)},
 	 sub { $cmu->force_element_display($root->grab('std_id:dd DX')) ; ok(1,"test ".$idx++)},
 	 sub { $cmu->edit_copy('test1.std_id'); ok(1,"test ".$idx++)},
@@ -186,20 +189,11 @@ SKIP: {
 	     },
 	 sub { $root->load('warn_unless=foo2') ; $cmu->reload ;; ok(1,"test fix warn_unless ".$idx++)},
 
-	 sub { $mw->destroy; }
-	);
+	 sub { $mw->destroy; },
+        unless $show;
 
-    foreach my $t (@force_test) {
-	$mw->after($delay, $t);
-	inc_d ;
-    }
 
-    unless ($show) {
-	foreach my $t (@test) {
-	    $mw->after($delay, $t);
-	    inc_d ;
-	}
-    }
+    test_all($mw , $delay, \@test) ; 
 
     ok(1,"window launched") ;
 
