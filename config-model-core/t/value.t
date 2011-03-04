@@ -3,7 +3,7 @@
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
-use Test::More tests => 111 ;
+use Test::More tests => 114;
 use Test::Exception ;
 use Test::Warn ;
 use Config::Model ;
@@ -109,6 +109,19 @@ $model->create_config_class(
                 c1       => 'c',
                 'foo/.*' => 'b',
             },
+        },
+        replacement_hash => {
+            type => 'hash',
+            index_type => 'string',
+            cargo => {
+                type => 'leaf',
+                value_type => 'uniline',
+            },
+        },
+        with_replace_follow => {
+            type       => 'leaf',
+            value_type => 'string',
+            replace_follow => '- replacement_hash',
         },
         match => {
             type       => 'leaf',
@@ -454,3 +467,15 @@ warning_like {$aw->store('whatever');} qr/always/i, "test unconditional warn" ;
 my $smiley = "\x{263A}" ; # See programming perl chapter 15
 $wip -> store($smiley) ;
 is($wip->fetch,$smiley,"check utf-8 string");
+
+# test replace_follow
+$root->load('replacement_hash:foo=repfoo replacement_hash:bar=repbar');
+my $wrf = $root->fetch_element('with_replace_follow');
+$wrf->store('foo') ;
+is($wrf->fetch,'repfoo',"check replacement_hash with foo");
+
+$wrf->store('bar') ;
+is($wrf->fetch,'repbar',"check replacement_hash with bar");
+
+$wrf->store('baz') ;
+is($wrf->fetch,'baz',"check replacement_hash with baz (no replacement)");
