@@ -1,4 +1,4 @@
-#    Copyright (c) 2007-2010 Dominique Dumont.
+#    Copyright (c) 2007-2011 Dominique Dumont.
 #
 #    This file is part of Config-Model-Itself.
 #
@@ -144,6 +144,22 @@
 		   },
 	      ],
 	   description => "points to an array or hash element in the configuration tree using a path computed with value from several other elements in the configuration tree. The available choice of this reference value (or check list) is made from the available keys of the pointed hash element or the values of the pointed array element.",
+	 },
+
+      'replace_follow' 
+      => { type => 'leaf',
+	   level      => 'hidden' ,
+	   value_type => 'uniline',
+	   experience => 'advanced',
+	   warp => { follow => { t  => '- type'},
+		     'rules'
+		     => [ '$t  eq "leaf"'
+			  => {
+			      level => 'important',
+			     },
+			]
+		   },
+	   description => "Path specifying a hash of value element in the configuration tree. The hash if used in a way similar to the replace parameter. In this case, the replacement is not coded in the model but specified by the configuration.",
 	 },
 
       'compute' 

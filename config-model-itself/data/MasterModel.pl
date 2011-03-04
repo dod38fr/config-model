@@ -323,7 +323,6 @@
             },
             'Source' => {
                 'value_type'   => 'string',
-                'mandatory'    => '1',
                 'migrate_from' => {
                     'use_eval'  => '1',
                     'formula'   => '$old || $older ;',

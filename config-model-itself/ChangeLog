@@ -1,5 +1,7 @@
         * Search backend in all @INC directories (useful for dev)
         * Reduced indentation of generated Perl files.
+        * NonWarpableElement: added replace_follow parameter 
+         (TODO: depend on Config::Model 1.236)
 
 2011-01-20 Dominique Dumont  <domi.dumont@free.fr> 1.222
 
