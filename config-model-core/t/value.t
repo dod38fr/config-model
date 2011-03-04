@@ -24,108 +24,131 @@ ok(1,"Compilation done");
 
 # minimal set up to get things working
 my $model = Config::Model->new();
-$model ->create_config_class 
-  (
-   name => "Master",
-   element => [ crooked => { type => 'leaf',
-			    class => 'Config::Model::Value',
-			  },
-		scalar => { type => 'leaf',
-			    class => 'Config::Model::Value',
-			    value_type => 'integer',
-			    min        => 1,
-			    max        => 4,
-			  },
-		bounded_number => {type => 'leaf',
-				   class => 'Config::Model::Value',
-				   value_type => 'number',
-				   min        => 1,
-				   max        => 4,
-				  },
-		mandatory_string => {type => 'leaf',
-				     class => 'Config::Model::Value',
-				     value_type => 'string',
-				     mandatory  => 1,
-				    },
-		mandatory_boolean => {type => 'leaf',
-				      class => 'Config::Model::Value',
-				      value_type => 'boolean',
-				      mandatory  => 1,
-				     },
-		crooked_enum => {type => 'leaf',
-				 class => 'Config::Model::Value',
-				 value_type => 'enum',
-				 default    => 'foo',
-				 choice     => [qw/A B C/]},
-		enum => {type => 'leaf',
-			 class => 'Config::Model::Value',
-			 value_type => 'enum',
-			 default    => 'A',
-			 choice     => [qw/A B C/]},
-		enum_with_help => {type => 'leaf',
-				   class => 'Config::Model::Value',
-				   value_type => 'enum',
-				   choice     => [qw/a b c/],
-				   help       => { a => 'a help' }
-				   },
-		uc_convert => { type => 'leaf',
-				class => 'Config::Model::Value',
-				value_type => 'string',
-				convert    => 'uc',
-			      },
-		lc_convert => { type => 'leaf',
-				class => 'Config::Model::Value',
-				value_type => 'string',
-				convert    => 'lc',
-			      },
-		upstream_default => { type => 'leaf',
-				      value_type => 'string',
-				      upstream_default    => 'up_def',
-				    },
-		a_uniline  => { type => 'leaf',
-				value_type => 'uniline',
-				upstream_default    => 'a_uniline_def',
-			      },
-		with_replace => {type => 'leaf',
-				 value_type => 'enum',
-				 choice     => [qw/a b c/],
-				 replace    => { a1 => 'a',
-						 c1 => 'c',
-						 'foo/.*' => 'b',
-					       },
-				},
-		match => { type => 'leaf',
-			   value_type => 'string',
-			   match => '^foo\d{2}$',
-			 },
-                prd_test_action => { type => 'leaf',
-                                     value_type => 'string',
-                                   } ,
-		prd_match => { type => 'leaf',
-                               value_type => 'string',
-			       grammar => q^check: <rulevar: local $failed = 0>
-			                    check: token (oper token)(s?) <reject:$failed>
-			                    oper: 'and' | 'or'
-			                    token: 'Apache' | 'CC-BY' | 'Perl' 
-			                       {my $v = $arg[0]->grab("! prd_test_action")->fetch || '';
-			                        $failed++ unless $v =~ /$item[1]/ ; 
-			                       }
-                                           ^,
-			 },
-		warn_if => { type => 'leaf',
-                             value_type => 'string',
-			     warn_if_match => { 'foo' => { fix =>'$_ = uc;' }},
-			   },
-		warn_unless => { type => 'leaf',
-                                 value_type => 'string',
-			         warn_unless_match => { foo => { msg => '', fix =>'$_ = "foo".$_;' }},
-			   },
-		always_warn => { type => 'leaf',
-                                 value_type => 'string',
-			         warn => 'Always warn whenever used',
-			   },
-	      ] , # dummy class
-  ) ;
+$model->create_config_class(
+    name    => "Master",
+    element => [
+        crooked => {
+            type  => 'leaf',
+            class => 'Config::Model::Value',
+        },
+        scalar => {
+            type       => 'leaf',
+            class      => 'Config::Model::Value',
+            value_type => 'integer',
+            min        => 1,
+            max        => 4,
+        },
+        bounded_number => {
+            type       => 'leaf',
+            class      => 'Config::Model::Value',
+            value_type => 'number',
+            min        => 1,
+            max        => 4,
+        },
+        mandatory_string => {
+            type       => 'leaf',
+            class      => 'Config::Model::Value',
+            value_type => 'string',
+            mandatory  => 1,
+        },
+        mandatory_boolean => {
+            type       => 'leaf',
+            class      => 'Config::Model::Value',
+            value_type => 'boolean',
+            mandatory  => 1,
+        },
+        crooked_enum => {
+            type       => 'leaf',
+            class      => 'Config::Model::Value',
+            value_type => 'enum',
+            default    => 'foo',
+            choice     => [qw/A B C/]
+        },
+        enum => {
+            type       => 'leaf',
+            class      => 'Config::Model::Value',
+            value_type => 'enum',
+            default    => 'A',
+            choice     => [qw/A B C/]
+        },
+        enum_with_help => {
+            type       => 'leaf',
+            class      => 'Config::Model::Value',
+            value_type => 'enum',
+            choice     => [qw/a b c/],
+            help       => { a => 'a help' }
+        },
+        uc_convert => {
+            type       => 'leaf',
+            class      => 'Config::Model::Value',
+            value_type => 'string',
+            convert    => 'uc',
+        },
+        lc_convert => {
+            type       => 'leaf',
+            class      => 'Config::Model::Value',
+            value_type => 'string',
+            convert    => 'lc',
+        },
+        upstream_default => {
+            type             => 'leaf',
+            value_type       => 'string',
+            upstream_default => 'up_def',
+        },
+        a_uniline => {
+            type             => 'leaf',
+            value_type       => 'uniline',
+            upstream_default => 'a_uniline_def',
+        },
+        with_replace => {
+            type       => 'leaf',
+            value_type => 'enum',
+            choice     => [qw/a b c/],
+            replace    => {
+                a1       => 'a',
+                c1       => 'c',
+                'foo/.*' => 'b',
+            },
+        },
+        match => {
+            type       => 'leaf',
+            value_type => 'string',
+            match      => '^foo\d{2}$',
+        },
+        prd_test_action => {
+            type       => 'leaf',
+            value_type => 'string',
+        },
+        prd_match => {
+            type       => 'leaf',
+            value_type => 'string',
+            grammar    => q^check: <rulevar: local $failed = 0>
+			    check: token (oper token)(s?) <reject:$failed>
+			    oper: 'and' | 'or'
+			    token: 'Apache' | 'CC-BY' | 'Perl' {
+			        my $v = $arg[0]->grab("! prd_test_action")->fetch || '';
+			        $failed++ unless $v =~ /$item[1]/ ; 
+			    }
+                           ^,
+        },
+        warn_if => {
+            type          => 'leaf',
+            value_type    => 'string',
+            warn_if_match => { 'foo' => { fix => '$_ = uc;' } },
+        },
+        warn_unless => {
+            type       => 'leaf',
+            value_type => 'string',
+            warn_unless_match =>
+              { foo => { msg => '', fix => '$_ = "foo".$_;' } },
+        },
+        always_warn => {
+            type       => 'leaf',
+            value_type => 'string',
+            warn       => 'Always warn whenever used',
+        },
+    ],    # dummy class
+);
 
 my $inst = $model->instance (root_class_name => 'Master', 
 				 instance_name => 'test1');
