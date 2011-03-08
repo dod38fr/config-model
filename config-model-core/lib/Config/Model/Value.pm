@@ -1609,6 +1609,8 @@ sub pre_store {
     if (defined $self->{replace_follow}) {
         my $rep = $self->grab_value(
             step => $self->{replace_follow}.qq!:"$value"!,
+            mode => 'loose',
+            autoadd => 0,
         );                
         $value = $rep if defined $rep ;
     }

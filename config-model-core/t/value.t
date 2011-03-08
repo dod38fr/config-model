@@ -3,7 +3,7 @@
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
-use Test::More tests => 114;
+use Test::More tests => 115;
 use Test::Exception ;
 use Test::Warn ;
 use Config::Model ;
@@ -479,3 +479,6 @@ is($wrf->fetch,'repbar',"check replacement_hash with bar");
 
 $wrf->store('baz') ;
 is($wrf->fetch,'baz',"check replacement_hash with baz (no replacement)");
+
+ok( ! $root->fetch_element('replacement_hash')->exists('baz'), 
+    "check that replacement hash was not changed by missed substitution") ;

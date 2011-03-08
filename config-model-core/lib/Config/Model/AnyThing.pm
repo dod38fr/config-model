@@ -245,12 +245,13 @@ Parameters are:
 A string indicating the steps to follow in the tree to find the
 required item. (mandatory)
 
-=item C<strict>
+=item C<mode>
 
-When set to 1, C<grab> will throw an exception if no object is found
-using the passed string. When set to 0, the object found at last will
+When set to C<strict>, C<grab> will throw an exception if no object is found
+using the passed string. When set to C<adaptative>, the object found at last will
 be returned. For instance, for the step C<good_step wrong_step>, only
-the object held by C<good_step> will be returned. (default is 1)
+the object held by C<good_step> will be returned. When set to C<loose>, grab 
+will return undef in case of problem. (default is C<strict>)
 
 =item C<type>
 
@@ -262,7 +263,7 @@ throw an exception or return the last found object of requested type.
 =item C<autoadd>
 
 When set to 1, C<hash> or C<list> configuration element are created
-when requested by the passed steps. (default is 1).
+when requested by the passed steps. (default is 1). 
 
 =item grab_non_available
 
@@ -322,31 +323,35 @@ considered when going up the tree.
 
 sub grab {
     my $self = shift ;
-    my ($step,$strict,$autoadd, $type, $grab_non_available,$check)
-      = (undef, 1, 1, undef, 0, 'yes' ) ;
-    if ( @_ > 1 ) {
-	my %args = @_;
-	$step    = $args{step};
-	$strict  = $args{strict}  if defined $args{strict};
-	$autoadd = $args{autoadd} if defined $args{autoadd};
-	$grab_non_available = $args{grab_non_available} 
-	  if defined $args{grab_non_available};
-	$type    = $args{type} ; # node, leaf or undef
-	$check = $self->_check_check($args{check}) ;
-    }
-    elsif (@_ == 1) {
-	$step = shift ;
-    }
-    else {
-	confess "grab: no step passed";
+    my ($step,$mode,$autoadd, $type, $grab_non_available,$check)
+      = (undef, 'strict', 1, undef, 0, 'yes' ) ;
+
+    my %args = @_ > 1 ? @_ : (step => @_[0] );
+
+    $step    = delete $args{step};
+    $mode    = delete $args{mode}  if defined $args{mode};
+    $autoadd = delete $args{autoadd} if defined $args{autoadd};
+    $grab_non_available = delete $args{grab_non_available} 
+	if defined $args{grab_non_available};
+    $type    = delete $args{type} ; # node, leaf or undef
+    $check = $self->_check_check(delete $args{check}) ;
+
+    if (defined $args{strict}) {
+        carp "grab: deprecated parameter 'strict'. Use mode";
+        $mode = delete $args{strict} ? 'strict' : 'adaptative' ;
     }
 
-    Config::Model::Exception::Internal
-	->throw (
-		 error => "grab: step parameter must be a string ".
+    Config::Model::Exception::User -> throw (
+	object => $self,
+	message => "grab: unexpected parameter: ".join(' ',keys %args)
+    ) 
+    if %args;
+
+    Config::Model::Exception::Internal ->throw (
+        error => "grab: step parameter must be a string ".
 		 "or an array ref"
-		) 
-	  unless ref $step eq 'ARRAY' || not ref $step ;
+    ) 
+    unless ref $step eq 'ARRAY' || not ref $step ;
 
     # accept commands, grep remove empty items left by spurious spaces
     my $huge_string = ref $step ? join (' ', @$step) : $step ;
@@ -408,7 +413,7 @@ sub grab {
               } 
             else {
                 $logger->debug("grab: ",$obj->name," has no parent");
-                return $strict ? undef : $obj ;
+                return $mode eq 'adaptative' ? $obj : undef ;
               }
           }
 
@@ -443,7 +448,7 @@ sub grab {
 			 function => 'grab',
 			 info => "grab called from '".$self->name.
 			 "' with steps '@saved'"
-			) if $strict ;
+			) unless $mode eq 'adaptative' ;
 	    last ;
 	}
 
@@ -457,7 +462,7 @@ sub grab {
 			 function => 'grab',
 			 info => "grab called from '".$self->name.
 			 "' with steps '@saved'"
-			) if $strict;
+			) unless $mode eq 'adaptative';
 	   last ;
 	}
 
@@ -468,13 +473,14 @@ sub grab {
         if (defined $action and $autoadd == 0
 	    and not $next_obj->exists($arg)) 
 	  {
+            return undef if $mode eq 'loose' ;
             Config::Model::Exception::UnknownId
 		->throw (
 			 object => $obj->fetch_element($name),
 			 element => $name,
 			 id => $arg,
 			 function => 'grab'
-			)  if $strict;
+			)  unless $mode eq 'adaptative';
 	    last ;
 	}
 
@@ -504,7 +510,7 @@ sub grab {
 			 got_type => $found[-1] -> get_type,
 			 expected_type => $type,
 			 info   => "requested with step '$step'"
-			) if $strict ;
+			) if $mode eq 'adaptative';
 	    pop @found;
 	}
     }
@@ -526,15 +532,18 @@ leaf or a check_list.
 
 sub grab_value {
     my $self = shift ;
-    my @args = scalar @_ == 1 ? ( step => $_[0] ) : @_ ;
+    my %args = scalar @_ == 1 ? ( step => $_[0] ) : @_ ;
     
-    my $obj = $self->grab(@args) ;
+    my $obj = $self->grab(%args) ;
+    # Pb: may return a node. add another option to grab ?? 
+    # to get undef value when needed?
 
-    Config::Model::Exception::User
-	-> throw (
+    return if (not $args{strict} and not defined $obj);
+
+    Config::Model::Exception::User -> throw (
 		  object => $self,
 		  message => "grab_value: cannot get value of non-leaf or check_list "
-		  ."item with '".join("' '",@_)."'"
+		  ."item with '".join("' '",@_)."'. item is $obj"
 		 ) 
 	  unless ref $obj and ( $obj->isa("Config::Model::Value") or 
             $obj->isa("Config::Model::CheckList"));
