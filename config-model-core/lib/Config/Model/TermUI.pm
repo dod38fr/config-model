@@ -188,7 +188,7 @@ my $cd_completion_sub = sub {
 	# grab in tolerant mode
 	#print "Grabbing $cmd\n";
 	eval {$new_item = $self->{current_node} 
-		-> grab(step => $cmd, strict => 1, autoadd => 0); };
+		-> grab(step => $cmd, mode => 'strict', autoadd => 0); };
 	chop $cmd ;
     }
 

@@ -87,6 +87,12 @@ use Exception::Class
 	fields      => [qw/object min_experience element function where info/],
       },
 
+   'Config::Model::Exception::AncestorClass' 
+   => { isa         => 'Config::Model::Exception::User',
+	description => 'unknown ancestor class',
+	fields      => [qw/object min_experience element function where info/],
+      },
+
    'Config::Model::Exception::UnknownId' 
    => { isa         => 'Config::Model::Exception::User',
 	description => 'unknown identifier',

@@ -12,15 +12,16 @@ use strict;
 
 use Data::Dumper;
 
-my $arg = shift ;
-$arg = '' unless defined $arg ;
+my $arg = shift || '';
 
-my ($log,$show) = (0) x 2 ;
+my ($log,$show) = (0) x 3 ;
 my $do ;
 
 my $trace = $arg =~ /t/ ? 1 : 0 ;
 $::debug            = 1 if $arg =~ /d/;
 $log                = 1 if $arg =~ /l/;
+$show               = 1 if $arg =~ /s/;
+Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 
 my $log4perl_user_conf_file = $ENV{HOME}.'/.log4config-model' ;
 
@@ -28,7 +29,7 @@ if ($log and -e $log4perl_user_conf_file ) {
     Log::Log4perl::init($log4perl_user_conf_file);
 }
 else {
-    Log::Log4perl->easy_init($log ? $WARN: $ERROR);
+    Log::Log4perl->easy_init($arg =~ /l/ ? $DEBUG: $WARN);
 }
 
 my $model = Config::Model -> new (legacy => 'ignore',) ;
@@ -112,12 +113,12 @@ print "normal error:\n", $@, "\n" if $trace;
 $root->grab(step => 'std_id:zzz', autoadd => 1 );
 ok(1,"test autoadd 1 with 'std_id:zzz'");
 
-my $obj = $root->grab(step => 'std_id:zzz foobar', strict => 0 );
+my $obj = $root->grab(step => 'std_id:zzz foobar', mode => 'adaptative' );
 is($obj->location,"std_id:zzz","test no strict grab");
 
-$obj = $root->grab(step => 'std_id:ab X', type => 'node' , strict => 0);
+$obj = $root->grab(step => 'std_id:ab X', type => 'node' , mode => 'adaptative');
 is($obj->location,"std_id:ab","test no strict grab with type node");
 
-eval { $root->grab(step => 'std_id:ab X', type => 'node' , strict => 1); } ;
+eval { $root->grab(step => 'std_id:ab X', type => 'node' , mode => 'strict'); } ;
 ok($@,"test strict grab with type node");
 print "normal error:\n", $@, "\n" if $trace;

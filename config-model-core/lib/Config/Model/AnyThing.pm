@@ -288,7 +288,7 @@ Go to the root node.
 =item !Foo
 
 Go up the configuration tree until the C<Foo> configuration class is found. Raise an exception if 
-no C<Foo> class when root node is reached.
+no C<Foo> class is found when root node is reached.
 
 =item xxx
 
@@ -395,8 +395,20 @@ sub grab {
           }
           
         if ($cmd =~ /^!([\w:]*)/) { 
-            push @found, $obj->grab_ancestor($1) ;
-            next ;
+            my $ancestor = $obj->grab_ancestor($1) ;
+            if (defined $ancestor) {
+                push @found, $ancestor ;
+                next ;
+            }
+            else {
+                Config::Model::Exception::AncestorClass -> throw (
+                    object => $obj,
+                    function => 'grab',
+                    info => "grab called from '".$self->name.
+                    "' with steps '@saved'"
+		) if $mode eq 'strict' ;
+                last ;
+            }
         }
 
         if ($cmd =~ /^\?(\w+)/) {
@@ -510,7 +522,7 @@ sub grab {
 			 got_type => $found[-1] -> get_type,
 			 expected_type => $type,
 			 info   => "requested with step '$step'"
-			) if $mode eq 'adaptative';
+			) if $mode ne 'adaptative';
 	    pop @found;
 	}
     }
