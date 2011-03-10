@@ -1606,15 +1606,6 @@ sub pre_store {
         }
     }
     
-    if (defined $self->{replace_follow}) {
-        my $rep = $self->grab_value(
-            step => $self->{replace_follow}.qq!:"$value"!,
-            mode => 'loose',
-            autoadd => 0,
-        );                
-        $value = $rep if defined $rep ;
-    }
-
     my $ok = $self->store_check($value) ;
 
     if (     $ok 
@@ -1940,6 +1931,15 @@ sub fetch {
 	croak "fetch: expected ", not scalar
 	    join (' or ',keys %accept_mode),
 		" parameter, not $mode" ;
+    }
+
+    if (defined $self->{replace_follow} and defined $value) {
+        my $rep = $self->grab_value(
+            step => $self->{replace_follow}.qq!:"$value"!,
+            mode => 'loose',
+            autoadd => 0,
+        );                
+        $value = $rep if defined $rep ;
     }
 
     my $ok = $self->check(value => $value, silent => $silent) ;
