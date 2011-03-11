@@ -47,6 +47,10 @@ my $model = Config::Model -> new ( ) ;
 
 Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 
+{
+    no warnings qw/once/ ;
+    $Debian::Dependency::test_filter='lenny'; 
+}
 
 my $control_text = <<'EOD' ;
 Source: libdist-zilla-plugins-cjm-perl
@@ -85,14 +89,12 @@ open(my $control_h,"> $control_file" ) || die "can't open $control_file: $!";
 print $control_h $control_text ;
 close $control_h ;
 
-my $inst ;
-warning_like {
-    $inst = $model->instance(
-        root_class_name => 'Debian::Dpkg::Control',
-        root_dir        => $wr_dir,
-        instance_name   => "deptest",
-    );
-}
+my $inst = $model->instance (
+    root_class_name => 'Debian::Dpkg::Control',
+    root_dir        => $wr_dir,
+    instance_name   => "deptest",
+);
+warning_like { $inst->config_root->init ; ; }
 qr/includes libmodule-build-perl/ , "test BDI warn";
 
 ok($inst,"Read $control_file and created instance") ;

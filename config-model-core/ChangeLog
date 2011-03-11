@@ -1,6 +1,17 @@
+    * Application changes:
+        * dpkg control dependency: Base dependency filterin mechanism on 
+          depkg meta dependency_filter value
+        * Dpkg meta: new class to enable user to customize dpkg editor. 
+          (email-updates and dependency-filter). Content of meta is saved in
+          ~/.dpkg-meta.yml
+        * Depkg control: change e-mail address based on content of meta 
+          email-updates
+    * Framework changes:
 	* value: added replace_follow parameter to specify automatic
 	  replacement based on a hash somewhere in the configuration
-	   tree
+	  tree
+	* Extracted initialisation of reader and writer from new and moved in new
+	  init method to avoid deep recursion on startup.
 
 2011-03-01 Dominique Dumont  <domi.dumont@free.fr> 1.235
     

@@ -598,7 +598,7 @@ sub new {
     my $caller = shift;
     my $type = ref($caller) || $caller ;
 
-    my $self         = {};
+    my $self         = { initialized => 0 };
     bless $self, $type;
 
     my @mandatory_parameters = qw/config_class_name instance/;
@@ -625,7 +625,9 @@ sub new {
     $self->{index_value} = delete $args{index_value} ;
     my $skip_read = delete $args{skip_read} ;
     my $check = $self->_check_check(delete $args{check}) ;
-
+    
+    $self->{auto_read} = { skip => delete $args{skip_read}, check => $check };
+    
     my @left = keys %args ;
     croak "Node->new: unexpected parameter: @left" if @left ;
 
@@ -642,11 +644,22 @@ sub new {
         
     $self->check_properties ;
 
-    if (defined $model->{read_config} and not $skip_read) {
+    return $self ;
+}
+
+sub init {
+    my $self = shift ;
+
+    return if $self->{initialized} ;
+    $self->{initialized} = 1 ; # avoid recursions
+
+    my $model = $self->{model} ;
+    my $ar = $self->{auto_read} ;
+    my $check = $ar->{check} ;
+    if (defined $model->{read_config} and not $ar->{skip_read} ) {
+        $ar->{done} = 1 ;
         # setup auto_read, read_config_dir is obsolete
-        $self->auto_read_init($model->{read_config}, $check,
-                              $model->{read_config_dir}
-                              );
+        $self->auto_read_init($model->{read_config}, $check, $model->{read_config_dir} );
     }
 
     # use read_config data if write_config is missing
@@ -658,8 +671,6 @@ sub new {
         $self->auto_write_init($model->{write_config},
                                $model->{write_config_dir});
     }
-
-    return $self ;
 }
 
 =head1 Introspection methods
@@ -897,6 +908,8 @@ sub get_element_name {
       join (' or ', @experience_list) 
         unless defined $experience_index{$for} ;
 
+    $self->init ;
+
     my $for_idx = $experience_index{$for} ;
 
     my @result ;
@@ -1125,6 +1138,8 @@ sub fetch_element {
         carp "fetch_element: 'intermediate' is deprecated in favor of 'beginner'";
         $user = 'beginner' ;
     }
+
+    $self->init($check);
 
     my $model = $self->{model} ;
 
@@ -1580,6 +1595,7 @@ passed to C<load>.
 
 sub dump_tree {
     my $self = shift ;
+    $self->init ;
     my $dumper = Config::Model::Dumper->new ;
     $dumper->dump_tree(node => $self, @_) ;
 }
@@ -1593,6 +1609,7 @@ string.  See L<Config::Model::Dumper/dump_annotations_as_pod> for parameter deta
 
 sub dump_annotations_as_pod {
     my $self = shift ;
+    $self->init ;
     my $dumper = Config::Model::DumpAsData->new ;
     $dumper->dump_annotations_as_pod(node => $self, @_) ;
 }
@@ -1606,6 +1623,7 @@ Provides a description of the node elements or of one element.
 
 sub describe {
     my $self = shift ;
+    $self->init ;
 
     my $descriptor = Config::Model::Describe->new ;
     $descriptor->describe(node => $self, @_) ;
@@ -1620,6 +1638,7 @@ node.
 
 sub report {
     my $self = shift ;
+    $self->init ;
     my $reporter = Config::Model::Report->new ;
     $reporter->report(node => $self) ;
 }
@@ -1634,6 +1653,7 @@ value.
 
 sub audit {
     my $self = shift ;
+    $self->init ;
     my $reporter = Config::Model::Report->new ;
     $reporter->report(node => $self, audit => 1) ;
 }

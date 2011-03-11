@@ -18,20 +18,22 @@ use vars qw/$model/;
 $model = Config::Model -> new (legacy => 'ignore',) ;
 
 my $arg = shift || '';
+my $log = 0;
 
 my $trace = $arg =~ /t/ ? 1 : 0 ;
 $::verbose          = 1 if $arg =~ /v/;
 $::debug            = 1 if $arg =~ /d/;
+$log                = 1 if $arg =~ /l/;
 Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 
 use Log::Log4perl qw(:easy) ;
 my $log4perl_user_conf_file = $ENV{HOME}.'/.log4config-model' ;
 
-if (-e $log4perl_user_conf_file ) {
+if ($log and -e $log4perl_user_conf_file ) {
     Log::Log4perl::init($log4perl_user_conf_file);
 }
 else {
-    Log::Log4perl->easy_init($arg =~ /l/ ? $DEBUG: $WARN);
+    Log::Log4perl->easy_init($log ? $DEBUG: $WARN);
 }
 
 ok(1,"compiled");
@@ -237,13 +239,15 @@ sub write {
 
 package main;
 
+my $i_fail = $model->instance(
+    instance_name    => 'failed_inst',
+    root_class_name  => 'Master',
+    root_dir   => $root1 ,
+    backend => 'perl_file',
+);
 throws_ok {
-    my $i_fail = $model->instance(instance_name    => 'zero_inst',
-			       root_class_name  => 'Master',
-			       root_dir   => $root1 ,
-			       backend => 'perl_file',
-			      );
-    } qr/'perl_file' backend/,  "read with forced perl_file backend fails (normal: no perl file)"  ;
+    $i_fail->config_root->init ;
+} qr/'perl_file' backend/,  "read with forced perl_file backend fails (normal: no perl file)"  ;
 
 my $i_no_read = $model->instance(instance_name    => 'no_read_inst',
 				 root_class_name  => 'Master',
@@ -262,19 +266,22 @@ my $i_zero = $model->instance(instance_name    => 'zero_inst',
 
 ok( $i_zero, "Created instance (from scratch)" );
 
-# check that conf dir was read when instance was created
-is( $result{master_read}, $conf_dir, "Master read conf dir" );
-
 my $master = $i_zero->config_root;
 
 ok( $master, "Master node created" );
+
+$master->init ;
+
+# check that conf dir was read when instance was created
+is( $result{master_read}, $conf_dir, "Master read conf dir" );
 
 is( $master->fetch_element_value('aa'), $custom_aa, "Master custom read" );
 
 my $level1;
 
+$level1 = $master->fetch_element('level1');
 warnings_like {
-    $level1 = $master->fetch_element('level1');
+    $level1-> init ;
 } qr/read_config_dir is obsolete/ , "obsolete warning" ;
 
 ok( $level1, "Level1 object created" );
@@ -375,9 +382,9 @@ ok($test2_inst,"created second instance") ;
 # access level1 to autoread it
 my $root_2   = $test2_inst  -> config_root ;
 
-my $level1_2;
+my $level1_2 = $root_2 -> fetch_element('level1');
 warnings_like {
-    $level1_2 = $root_2 -> fetch_element('level1');
+    $level1_2->init ;
 } qr/read_config_dir is obsolete/ , "obsolete warning" ;
 
 

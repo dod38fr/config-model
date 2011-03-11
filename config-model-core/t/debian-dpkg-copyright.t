@@ -206,16 +206,17 @@ foreach my $t (@tests) {
         || die "copy $ex_file -> $license_file failed:$!";
     ok(1,"Copied copyright example $idx") ;
 
-    my $inst;
-    warnings_like {
-         $inst  = $model->instance (root_class_name   => 'Debian::Dpkg::Copyright',
-                                    root_dir          => $wr_dir,
-                                    instance_name => "deptest".$idx,
-                                    check => $t->{load_check} || 'yes' ,
-                                   ); 
-    } $t->{warnings} , "Read $license_file and created instance" ;
+    my $inst = $model->instance(
+        root_class_name => 'Debian::Dpkg::Copyright',
+        root_dir        => $wr_dir,
+        instance_name   => "deptest" . $idx,
+        check           => $t->{load_check} || 'yes',
+    );
 
     my $lic = $inst -> config_root ;
+    warnings_like { $lic->init;   } $t->{warnings} , 
+        "Read $license_file and created instance" ;
+
 
     print "dumping tree ...\n" if $trace ;
     my $dump = '';

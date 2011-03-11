@@ -403,11 +403,10 @@ sub grab {
             else {
                 Config::Model::Exception::AncestorClass -> throw (
                     object => $obj,
-                    function => 'grab',
                     info => "grab called from '".$self->name.
-                    "' with steps '@saved'"
+                    "' with steps '@saved' looking for class $1"
 		) if $mode eq 'strict' ;
-                last ;
+                return ;
             }
         }
 
@@ -550,7 +549,7 @@ sub grab_value {
     # Pb: may return a node. add another option to grab ?? 
     # to get undef value when needed?
 
-    return if (not $args{strict} and not defined $obj);
+    return if ($args{mode} eq 'loose' and not defined $obj);
 
     Config::Model::Exception::User -> throw (
 		  object => $self,
@@ -560,7 +559,9 @@ sub grab_value {
 	  unless ref $obj and ( $obj->isa("Config::Model::Value") or 
             $obj->isa("Config::Model::CheckList"));
 
-    return $obj->fetch ;
+    my $value = $obj->fetch;
+    $logger->debug("grab_value: returning value $value of object '",$obj->name);
+    return $value ;
 }
 
 =head2 grab_annotation(...)

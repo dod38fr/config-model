@@ -32,7 +32,7 @@ use Exception::Class
 
    'Config::Model::Exception::Any' 
    => { description => 'config error' ,
-	fields      =>  'object' ,
+	fields      =>  [qw/object info/] ,
       },
 
    'Config::Model::Exception::User' 
@@ -90,7 +90,6 @@ use Exception::Class
    'Config::Model::Exception::AncestorClass' 
    => { isa         => 'Config::Model::Exception::User',
 	description => 'unknown ancestor class',
-	fields      => [qw/object min_experience element function where info/],
       },
 
    'Config::Model::Exception::UnknownId' 
@@ -166,6 +165,7 @@ sub full_message {
     $msg .= "'$location' " if $location ;
     $msg .= "has a ".$self->description ;
     $msg .= ":\n\t". $self->message."\n";
+    $msg .=  $self->info."\n" if defined $self->info;
 
     return $msg;
 }
