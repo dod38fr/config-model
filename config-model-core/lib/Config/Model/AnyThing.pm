@@ -326,7 +326,7 @@ sub grab {
     my ($step,$mode,$autoadd, $type, $grab_non_available,$check)
       = (undef, 'strict', 1, undef, 0, 'yes' ) ;
 
-    my %args = @_ > 1 ? @_ : (step => @_[0] );
+    my %args = @_ > 1 ? @_ : (step => $_[0] );
 
     $step    = delete $args{step};
     $mode    = delete $args{mode}  if defined $args{mode};
@@ -549,7 +549,7 @@ sub grab_value {
     # Pb: may return a node. add another option to grab ?? 
     # to get undef value when needed?
 
-    return if ($args{mode} eq 'loose' and not defined $obj);
+    return if ($args{mode} and $args{mode} eq 'loose' and not defined $obj);
 
     Config::Model::Exception::User -> throw (
 		  object => $self,
@@ -560,7 +560,10 @@ sub grab_value {
             $obj->isa("Config::Model::CheckList"));
 
     my $value = $obj->fetch;
-    $logger->debug("grab_value: returning value $value of object '",$obj->name);
+    if ($logger->is_debug) {
+        my $str = defined $value ? $value : '<undef>' ;
+        $logger->debug("grab_value: returning value $str of object '",$obj->name);
+    }
     return $value ;
 }
 

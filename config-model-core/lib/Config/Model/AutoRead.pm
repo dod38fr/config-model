@@ -838,7 +838,7 @@ Specify the class that contain the read method
 
 Specify configuration directory. This parameter is optional as the
 directory can be hardcoded in the custom class. C<config_dir> beginning
-with 'C<~>' will be munged so C<~> is repleced by C<< File::HomeDir->my_data >>.
+with 'C<~>' will be munged so C<~> is replaced by C<< File::HomeDir->my_data >>.
 See L<File::HomeDir> for details.
 
 =item file

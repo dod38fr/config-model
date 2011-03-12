@@ -21,7 +21,7 @@ sub BUILD {
     my $self = shift ;
     croak (__PACKAGE__," singleton constructed twice" )
         if defined $fuseui and $fuseui ne $self;
-    $fuseui = shift ; # store singleton object in global variable
+    $fuseui = $self ; # store singleton object in global variable
 }
 
 # nodes, list and hashes are directories

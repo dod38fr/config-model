@@ -19,12 +19,12 @@ my $conf_file = "$wr_dir/etc/popularity-contest.conf" ;
 
 my $path = Probe::Perl->find_perl_interpreter();
 
-my $perl_cmd = $path . ' -Iblib/lib ' .join(' ',map { "-I$_" } Probe::Perl->perl_inc());
+my $perl_cmd = $path . ' -Ilib ' .join(' ',map { "-I$_" } Probe::Perl->perl_inc());
 
-my $oops = Test::Command->new( cmd => "$perl_cmd -Ilib config-edit -root_dir $wr_dir -appli popcon -ui none PARITICIPATE=yes");
+my $oops = Test::Command->new( cmd => "$perl_cmd config-edit -root_dir $wr_dir -appli popcon -ui none PARITICIPATE=yes");
 
 exit_cmp_ok($oops, '>',0,'missing config file detected');
-stderr_like($oops, qr/auto_read error/, 'check auto_read_error') ;
+stderr_like($oops, qr/unknown element/, 'check auto_read_error') ;
 
 # put popcon data in place
 my @orig = <DATA> ;
@@ -36,8 +36,8 @@ open(CONF,"> $conf_file" ) || die "can't open $conf_file: $!";
 print CONF @orig ;
 close CONF ;
 
-$oops = Test::Command->new( cmd => "$perl_cmd -Ilib config-edit -root_dir $wr_dir -appli popcon -ui none PARITICIPATE=yes");
-exit_is_num($oops, 255,'wrong parameter detected');
+$oops = Test::Command->new( cmd => "$perl_cmd config-edit -root_dir $wr_dir -appli popcon -ui none PARITICIPATE=yes");
+exit_is_num($oops, 2,'wrong parameter detected');
 stderr_like($oops, qr/unknown element/, 'check unknown element') ;
 
 
