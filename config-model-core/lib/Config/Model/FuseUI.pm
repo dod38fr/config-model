@@ -1,6 +1,7 @@
 package Config::Model::FuseUI ;
 
-use Moose ;
+# there's no Singleton with Mouse
+use Any::Moose ;
 
 use Fuse qw(fuse_get_context);
 use Fcntl ':mode';
@@ -8,7 +9,6 @@ use POSIX qw(ENOENT EISDIR EINVAL);
 use Log::Log4perl qw(get_logger :levels);
 use English qw( -no_match_vars ) ;
 
-use MooseX::Singleton;
 has model         => ( is => 'rw', isa => 'Config::Model');
 has root          => ( is => 'ro', isa => 'Config::Model::Node', required => 1 );
 has mountpoint    => ( is => 'ro', isa => 'Str'          , required => 1 );
@@ -18,6 +18,9 @@ my $logger = get_logger("FuseUI") ;
 our $fuseui ;
 
 sub BUILD {
+    my $self = shift ;
+    croak (__PACKAGE__," singleton constructed twice" )
+        if defined $fuseui and $fuseui ne $self;
     $fuseui = shift ; # store singleton object in global variable
 }
 

@@ -1,7 +1,7 @@
 package Config::Model;
-use Moose ;
-use Moose::Util::TypeConstraints;
-use MooseX::StrictConstructor ;
+use Any::Moose ;
+use Any::Moose '::Util::TypeConstraints';
+use Any::Moose 'X::StrictConstructor' ;
 
 use Carp;
 use Storable ('dclone') ;

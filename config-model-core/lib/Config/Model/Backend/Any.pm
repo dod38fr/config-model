@@ -22,7 +22,7 @@ use Carp;
 use strict;
 use warnings ;
 use Config::Model::Exception ;
-use Moose ;
+use Any::Moose ;
 
 use File::Path;
 use Log::Log4perl qw(get_logger :levels);
@@ -169,7 +169,7 @@ Config::Model::Backend::Any - Virtual class for other backends
 =head1 SYNOPSIS
 
  package Config::Model::Backend::Foo ;
- use Moose ;
+ use Any::Moose ;
  use Log::Log4perl qw(get_logger :levels);
 
  extends 'Config::Model::Backend::Any';

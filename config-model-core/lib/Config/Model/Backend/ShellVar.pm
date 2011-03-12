@@ -19,7 +19,7 @@
 package Config::Model::Backend::ShellVar ;
 
 use Carp;
-use Moose;
+use Any::Moose ;
 use Config::Model::Exception ;
 use UNIVERSAL ;
 use File::Path;

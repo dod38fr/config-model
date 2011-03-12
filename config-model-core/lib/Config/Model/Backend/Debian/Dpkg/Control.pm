@@ -1,7 +1,7 @@
 
 package Config::Model::Backend::Debian::Dpkg::Control ;
 
-use Moose ;
+use Any::Moose ;
 
 extends 'Config::Model::Backend::Any';
 

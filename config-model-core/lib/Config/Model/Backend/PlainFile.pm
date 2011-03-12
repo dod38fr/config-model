@@ -19,7 +19,7 @@
 package Config::Model::Backend::PlainFile ;
 
 use Carp;
-use Moose;
+use Any::Moose ;
 use Config::Model::Exception ;
 use UNIVERSAL ;
 use File::Path;

@@ -1,5 +1,5 @@
 package Config::Model::Backend::Fstab ;
-use Moose ;
+use Any::Moose ;
 use Carp ;
 use Log::Log4perl qw(get_logger :levels);
  

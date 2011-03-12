@@ -18,7 +18,7 @@
 
 package Config::Model::Annotation;
 
-use Moose ;
+use Any::Moose ;
 use English ;
 
 use File::Path;
