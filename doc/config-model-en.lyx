@@ -1,5 +1,5 @@
-#LyX 1.6.7 created this file. For more info see http://www.lyx.org/
-\lyxformat 345
+#LyX 2.0 created this file. For more info see http://www.lyx.org/
+\lyxformat 413
 \begin_document
 \begin_header
 \textclass beamer
@@ -14,26 +14,34 @@
 \usepackage{ifthen}
 %\newcommand{\showotherui}{true}
 \newcommand{\showotherui}{false}
-%\newcommand{\showadvanced}{true}
-\newcommand{\showadvanced}{false}
+\newcommand{\showadvanced}{true}
+%\newcommand{\showadvanced}{false}
 \newcommand{\showaugeas}{false}
 \newcommand{\showreadwrite}{false}
 \newcommand{\showpackageupgrade}{true}
 \newcommand{\showhairyupgrade}{false}
 \end_preamble
 \use_default_options false
+\maintain_unincluded_children false
 \language american
+\language_package default
 \inputencoding utf8
+\fontencoding global
 \font_roman times
 \font_sans default
 \font_typewriter default
 \font_default_family default
+\use_non_tex_fonts false
 \font_sc false
 \font_osf false
 \font_sf_scale 100
 \font_tt_scale 100
 
 \graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
 \paperfontsize default
 \spacing single
 \use_hyperref false
@@ -41,21 +49,31 @@
 \use_geometry true
 \use_amsmath 2
 \use_esint 0
+\use_mhchem 1
+\use_mathdots 1
 \cite_engine basic
 \use_bibtopic false
+\use_indices false
 \paperorientation portrait
+\suppress_date false
+\use_refstyle 0
+\index Index
+\shortcut idx
+\color #008000
+\end_index
 \secnumdepth 2
 \tocdepth 2
 \paragraph_separation indent
-\defskip medskip
+\paragraph_indentation default
 \quotes_language swedish
 \papercolumns 1
 \papersides 1
 \paperpagestyle default
 \tracking_changes false
 \output_changes false
-\author "" 
-\author "" 
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
 \end_header
 
 \begin_body
@@ -81,17 +99,7 @@ This file can be redistributed and/or modified under the terms of the GNU
 \end_layout
 
 \begin_layout Title
-Config::Model and configuration upgrades during package upgrade
-\begin_inset OptArg
-status open
-
-\begin_layout Plain Layout
-Config::Model
-\end_layout
-
-\end_inset
-
-
+Easier configuration upgrades with Config::Model
 \end_layout
 
 \begin_layout Author
@@ -107,7 +115,7 @@ Debian Perl Group
 \end_layout
 
 \begin_layout Date
-Feb 2011
+March 2011
 \end_layout
 
 \begin_layout Standard
@@ -579,7 +587,7 @@ Kind of a blue print
 \end_layout
 
 \begin_layout Standard
-Configuration is represented as a tree.
+Configuration data is represented as a tree.
 \end_layout
 
 \begin_layout Pause
@@ -587,7 +595,7 @@ Configuration is represented as a tree.
 \end_layout
 
 \begin_layout Standard
-The model defines its structure:
+The model defines configuration structure:
 \end_layout
 
 \begin_layout Itemize
@@ -731,6 +739,10 @@ showadvanced}{true}}{
 Complex elements
 \end_layout
 
+\begin_layout FrameSubtitle
+A model is often more than a simple tree
+\end_layout
+
 \begin_layout Standard
 A configuration model can also define interactions between elements:
 \end_layout
@@ -739,26 +751,36 @@ A configuration model can also define interactions between elements:
 Model warp (example: Xorg driver options change depending on declared driver)
  (
 \emph on
+\color blue
 warp
 \emph default
+\color inherit
 )
 \end_layout
 
 \begin_layout Itemize
 Simple computation from other elements (used for upgrades) (
 \emph on
+\color blue
 compute
 \emph default
+\color inherit
  and 
 \emph on
+\color blue
 migrate_from
 \emph default
+\color inherit
 )
 \end_layout
 
 \begin_layout Itemize
-References (example: Xorg::Device::Radeon, Monitor-DVI-0 must refer to one
- of the monitors declared in Monitor section)
+
+\color blue
+References
+\color inherit
+ (example: Xorg::Device::Radeon, Monitor-DVI-0 must refer to one of the
+ monitors declared in Monitor section)
 \end_layout
 
 \begin_layout NoteItem
@@ -816,24 +838,23 @@ status open
 
 \begin_deeper
 \begin_layout Itemize
-Software evolve
+Software evolve too fast
 \end_layout
 
 \begin_layout Itemize
-Easy to miss parameters
+Missed parameters
 \end_layout
 
 \begin_layout Itemize
-\begin_inset Flex CharStyle:Structure
-status collapsed
 
-\begin_layout Plain Layout
+\color blue
 X-*
+\color inherit
+ parameters
 \end_layout
 
-\end_inset
-
- parameters
+\begin_layout Itemize
+Can't afford to describe all parameters
 \end_layout
 
 \end_deeper
@@ -1024,11 +1045,79 @@ Configuration model creation
 \end_layout
 
 \begin_layout BeginFrame
-Model analysis
+Analysis for upgrade model
 \end_layout
 
 \begin_layout FrameSubtitle
-RTFM alert
+Describe only the minimum
+\end_layout
+
+\begin_layout Block
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+{Read the application doc and changelog}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Identify main config structure
+\end_layout
+
+\begin_layout Itemize
+Identify potential upgrade issues (deprecated parameters)
+\end_layout
+
+\begin_layout Itemize
+Find upgrade paths (how to migrate data)
+\end_layout
+
+\begin_layout Itemize
+Decide how to accept unknown parameters
+\end_layout
+
+\end_deeper
+\begin_layout Pause
+
+\end_layout
+
+\begin_layout Block
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+{Find several valid upgrade examples}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+To verify that the documentation was understood
+\end_layout
+
+\begin_layout Itemize
+For the non-regression tests
+\end_layout
+
+\end_deeper
+\begin_layout BeginFrame
+Analysis for complete model
+\end_layout
+
+\begin_layout FrameSubtitle
+RTFM alert: more doc to read
 \end_layout
 
 \begin_layout Block
@@ -1055,15 +1144,11 @@ Identify config parameters, their constraints and relations
 \end_layout
 
 \begin_layout Itemize
-Decide: accept or reject unknown parameters?
+Unknown parameters should be rejected
 \end_layout
 
 \begin_layout Itemize
-Identify potential upgrade issues (deprecated parameters)
-\end_layout
-
-\begin_layout Itemize
-Find upgrade paths
+Identify potential upgrade issues (as upgrade case)
 \end_layout
 
 \end_deeper
@@ -1077,7 +1162,7 @@ status open
 
 \begin_layout Plain Layout
 
-{Find several valid examples}
+{Find (again) several valid examples}
 \end_layout
 
 \end_inset
@@ -2480,7 +2565,7 @@ showpackageupgrade}{true}}{
 \end_layout
 
 \begin_layout Section
-Package upgrades
+Configuration upgrades
 \end_layout
 
 \begin_layout BeginFrame
@@ -2491,12 +2576,8 @@ Config and package upgrades status
 Lackluster situation
 \end_layout
 
-\begin_layout Standard
-Package upgrade:
-\end_layout
-
 \begin_layout Itemize
-RedHat: Configuration evolutions leave rpm.new or rpm.save file
+RedHat packages: Configuration evolutions leave rpm.new or rpm.save file
 \end_layout
 
 \begin_layout Pause
@@ -2504,7 +2585,7 @@ RedHat: Configuration evolutions leave rpm.new or rpm.save file
 \end_layout
 
 \begin_layout Itemize
-Debian: Configuration evolution either:
+Debian packages: Configuration evolutions either:
 \end_layout
 
 \begin_deeper
@@ -2518,6 +2599,28 @@ expose details to user with a diff
 
 \begin_layout Itemize
 leave spurious files (dpkg-new or dpkg-old)
+\end_layout
+
+\end_deeper
+\begin_layout Pause
+
+\end_layout
+
+\begin_layout Itemize
+Standalone application configuration upgrades:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+requires ad-hoc code ($$$)
+\end_layout
+
+\begin_layout Itemize
+or big 
+\end_layout
+
+\begin_layout Itemize
+release notes
 \end_layout
 
 \end_deeper
@@ -2546,7 +2649,7 @@ Merging configuration requires good knowledge from user.
 
 \end_deeper
 \begin_layout BeginFrame
-Better configuration and package upgrades
+Better configuration upgrades
 \end_layout
 
 \begin_layout FrameSubtitle
@@ -2577,7 +2680,7 @@ user data from config file
 \end_layout
 
 \begin_layout Itemize
-package/upstream evolutions from distributed model
+package/upstream evolutions from packaged model
 \end_layout
 
 \begin_layout Pause
@@ -2944,7 +3047,11 @@ url => { type => 'leaf',
 \begin_layout LyX-Code
 
 \size scriptsize
-         status => 'deprecated'},
+         status => '
+\color blue
+deprecated
+\color inherit
+'},
 \end_layout
 
 \begin_layout Pause
@@ -2966,35 +3073,55 @@ host => { type => 'leaf',
 \begin_layout LyX-Code
 
 \size scriptsize
-          migrate_from => { 
+          
+\color blue
+migrate_from => { 
 \end_layout
 
 \begin_layout LyX-Code
 
 \size scriptsize
-            formula => '$old =~ m!http://([
+\color blue
+            formula => '$old =~ m!http://
+\color red
+([
 \backslash
 w
 \backslash
-.]+)!; $1 ;' ,
+.]+)
+\color blue
+!; 
+\color red
+$1
+\color blue
+ ;' ,
 \end_layout
 
 \begin_layout LyX-Code
 
 \size scriptsize
-            variables => { old => '- url' }
+\color blue
+            variables => { old => '
+\color red
+- url
+\color blue
+' }
 \end_layout
 
 \begin_layout LyX-Code
 
 \size scriptsize
+\color blue
             use_eval => 1 ,
 \end_layout
 
 \begin_layout LyX-Code
 
 \size scriptsize
-            },
+\color blue
+            }
+\color inherit
+,
 \end_layout
 
 \begin_layout LyX-Code
@@ -3022,35 +3149,55 @@ path => { type => 'leaf',
 \begin_layout LyX-Code
 
 \size scriptsize
-          migrate_from => { 
+          
+\color blue
+migrate_from => { 
 \end_layout
 
 \begin_layout LyX-Code
 
 \size scriptsize
+\color blue
             formula => '$old =~ m!http://[
 \backslash
 w
 \backslash
-.]+(/.*)!; $1 ;',
+.]+
+\color red
+(/.*)
+\color blue
+!; 
+\color red
+$1
+\color blue
+ ;',
 \end_layout
 
 \begin_layout LyX-Code
 
 \size scriptsize
-            variables => { old => '- url' }
+\color blue
+            variables => { old => '
+\color red
+- url
+\color blue
+' }
 \end_layout
 
 \begin_layout LyX-Code
 
 \size scriptsize
+\color blue
             use_eval => 1 ,
 \end_layout
 
 \begin_layout LyX-Code
 
 \size scriptsize
-            },
+\color blue
+            }
+\color inherit
+,
 \end_layout
 
 \begin_layout LyX-Code
