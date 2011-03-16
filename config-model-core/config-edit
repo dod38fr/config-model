@@ -286,7 +286,7 @@ my $load;
 my $force_save = 0;
 my $open_item = '';
 my $list = '' ;
-my $application ;
+my $application ='' ;
 my $fuse_dir ;
 my $fuse_debug = 0;
 my $apply_fixes = 0 ;
@@ -346,7 +346,7 @@ my $model = Config::Model -> new(model_dir => $model_dir) ;
 
 my ($categories,$appli_info,$appli_map) = $model->available_models ;
 
-$root_model = $appli_map->{$application} if defined $application and defined $appli_map->{$application} ;
+$root_model = $appli_map->{$application} if $application and defined $appli_map->{$application} ;
 
 if (not defined $root_model or $root_model eq 'help' or $application eq 'help') {
     print "Please specify one of the following application with -application option:\n";
