@@ -1,0 +1,17 @@
+digraph tree{
+	{ rank = same ; A1 ; B1 ; Meta ;}
+	{ rank = same ; A2 ; B2 ; C2 ;}
+	{ rank = same ; A3 ;      C3 ; D3 }
+	edge [ weight= 1 ] ;
+	Root -> A1 -> A2 -> A3 ;
+	Root -> B1 -> B2 ;
+	Root -> Meta ;
+	B1 -> C2 -> C3 ;
+	A2 -> D3 ;
+
+/*
+	C3 -> D3 [ style = "dashed" label = "migrate" weight=1 ] ;
+	Meta -> A1 [ style = "dashed" label = "warp\nnode" weight= 1 ] ;
+	Meta -> B2 [ style = "dashed" label = "warp\ndefault" weight= 1 ] ;
+*/
+}

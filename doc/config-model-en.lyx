@@ -20,6 +20,8 @@
 \newcommand{\showreadwrite}{false}
 \newcommand{\showpackageupgrade}{true}
 \newcommand{\showhairyupgrade}{false}
+
+\newcommand{\showdesignconffile}{false}
 \end_preamble
 \use_default_options false
 \maintain_unincluded_children false
@@ -632,17 +634,12 @@ upgrade instructions
 
 \begin_layout Standard
 \begin_inset Graphics
-	filename class.png
+	filename tree-simple.svg
 	width 100col%
 
 \end_inset
 
 
-\end_layout
-
-\begin_layout Standard
-\align center
-model GUI
 \end_layout
 
 \end_deeper
@@ -743,23 +740,33 @@ Complex elements
 A model is often more than a simple tree
 \end_layout
 
+\begin_layout ColumnsCenterAligned
+
+\end_layout
+
+\begin_deeper
+\begin_layout Column
+8cm
+\end_layout
+
 \begin_layout Standard
 A configuration model can also define interactions between elements:
 \end_layout
 
 \begin_layout Itemize
-Model warp (example: Xorg driver options change depending on declared driver)
- (
+Model 
 \emph on
 \color blue
 warp
 \emph default
 \color inherit
-)
+ 
+\size footnotesize
+(example: Xorg driver options change depending on declared driver) 
 \end_layout
 
 \begin_layout Itemize
-Simple computation from other elements (used for upgrades) (
+Computation from other elements (used for upgrades) (
 \emph on
 \color blue
 compute
@@ -779,10 +786,27 @@ migrate_from
 \color blue
 References
 \color inherit
- (example: Xorg::Device::Radeon, Monitor-DVI-0 must refer to one of the
- monitors declared in Monitor section)
+ 
+\size footnotesize
+(example: Xorg::Device::Radeon, Monitor-DVI-0 must refer to one of the monitors
+ declared in Monitor section)
 \end_layout
 
+\begin_layout Column
+4cm
+\end_layout
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename tree-complex.svg
+	width 100col%
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
 \begin_layout NoteItem
 Xorg examples are based on Xorg 1.4 and may not be valid for Xorg 1.5 or 1.6
 \end_layout
@@ -3512,6 +3536,35 @@ Article in GNULinux Mag France
 
 \begin_layout Itemize
 2010 GSoC project based on Config::Model
+\end_layout
+
+\begin_layout Itemize
+Config::Model based packaging tools used in Debian
+\end_layout
+
+\end_deeper
+\begin_layout Pause
+
+\end_layout
+
+\begin_layout Block
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+{Open source license}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+LGPL v2.1 license: free to use in commercial project (feedback welcome though
+ ;-) )
 \end_layout
 
 \end_deeper
