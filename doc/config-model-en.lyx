@@ -708,6 +708,59 @@ Model GUI
 \end_layout
 
 \end_deeper
+\begin_layout BeginFrame
+Node element
+\end_layout
+
+\begin_layout FrameSubtitle
+To connect nodes to form the tree
+\end_layout
+
+\begin_layout ColumnsTopAligned
+
+\end_layout
+
+\begin_deeper
+\begin_layout Column
+5cm
+\end_layout
+
+\begin_layout Block
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Block
+Tree structure is provided by node elements.
+\end_layout
+
+\begin_layout Block
+Each node links one class to another.
+\end_layout
+
+\begin_layout Column
+6cm
+\end_layout
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename ddc.svg
+	width 100col%
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
 \begin_layout EndFrame
 
 \end_layout
@@ -2533,7 +2586,7 @@ status open
 
 \begin_layout Plain Layout
 
-{Developer is not no lucky}
+{Developer is not so lucky}
 \end_layout
 
 \end_inset
@@ -2640,11 +2693,7 @@ requires ad-hoc code ($$$)
 \end_layout
 
 \begin_layout Itemize
-or big 
-\end_layout
-
-\begin_layout Itemize
-release notes
+or big release notes
 \end_layout
 
 \end_deeper
