@@ -12,6 +12,11 @@
 	  tree
 	* Extracted initialisation of reader and writer from new and moved in new
 	  init method to avoid deep recursion on startup.
+	* Use Any::Moose instead of plain Moose
+	* Removed dependency on MooseX::Singleton
+	* Model: added author, copyright, license fields. This data is not used by
+	  Config::Model, but can be used in the user interface or to generate config
+	  class doc
 
 2011-03-01 Dominique Dumont  <domi.dumont@free.fr> 1.235
     
