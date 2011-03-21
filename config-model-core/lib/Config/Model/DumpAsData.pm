@@ -285,6 +285,32 @@ sub dump_as_data {
     return $result ;
 }
 
+=head1 Methods
+
+=head2 dump_annotations_as_pod(...)
+
+Return a string formatted in pod (See L<perlpod>) with the annotations.
+
+Parameters are:
+
+=over
+
+=item node
+
+Reference to a L<Config::Model::Node> object. Mandatory
+
+=item experience
+
+master, advanced or beginner
+
+=item check_list
+
+Yes, no or skip
+
+=back
+
+=cut 
+
 sub dump_annotations_as_pod {
     my $self = shift ;
 
