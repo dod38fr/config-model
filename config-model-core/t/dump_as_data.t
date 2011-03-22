@@ -175,7 +175,7 @@ foreach my $test ( @tries ) {
 
 # test dump of annotations as pod
 my %notes = 
-    map { ( $_ => $_ ? "$_ annotation" : "root annotation") ;}
+    map { ( $_ => $_ ? "$_ annotation\nwith long text" : "root annotation") ;}
     ( '','olist' , 'olist:0' , 'olist:0 DX' , 'hash_a' , 'std_id:ab' , 'my_check_list' );
 foreach (keys %notes) {
     $root->grab($_)->annotation($notes{$_}) ;
@@ -187,8 +187,9 @@ my $pod_notes = $root->dump_annotations_as_pod ;
 
 print $pod_notes if $trace ;
 
-foreach (values %notes) {
-    like ($pod_notes, qr/$_/, "found note $_ in pod notes");
+foreach (keys %notes) {
+    my $v = $notes{$_} ;
+    like ($pod_notes, qr/$v/, "found note for $_ in pod notes");
 }
 
 $root2->load_pod_annotation($pod_notes) ;

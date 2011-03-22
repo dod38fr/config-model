@@ -379,7 +379,7 @@ sub dump_annotations_as_pod {
     my $view_scanner = Config::Model::ObjTreeScanner->new(@scan_args);
 
     my $obj_type = $dump_node->get_type ;
-    my $result = "=over\n\n" ;
+    my $result = "=head1 Annotations\n\n=over\n\n" ;
 
     my $a = $dump_node->annotation ;
     $result .= "=item\n\n$a\n\n" if $a ;

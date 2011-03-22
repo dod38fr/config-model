@@ -18,6 +18,7 @@
 
 package Config::Model::AnyThing;
 use Scalar::Util qw(weaken);
+use Pod::POM ;
 use Carp;
 use strict;
 use Log::Log4perl qw(get_logger :levels);
@@ -205,7 +206,7 @@ be in the form:
  
  =item path
  
- Annotation tested
+ Annotation text
  
  =back
  
@@ -215,17 +216,21 @@ sub load_pod_annotation {
     my $self = shift ;
     my $pod = shift ;
     
-    # could use Pod::POM, but it's overkill... for now
-    my $obj ;
-    foreach (split /\n+/ , $pod ) {
-        if (s/=item//) {
-            $obj = $self->grab(step => "! $_") ; # FIXME the '!' is dangerous if the pod was not generated from a root node ....
-        }
-        elsif (/=(over|back)/) {
-            # nothing 
-        }
-        else {
-            $obj->annotation($_) ;
+    my $parser = Pod::POM->new();
+    my $pom = $parser->parse_text($pod) 
+        || croak $parser->error();
+    my $sections = $pom->head1();
+
+    foreach my $s ( @$sections ) {
+        next unless $s->title eq 'Annotations' ;
+        
+        foreach my $item ( $s->over->[0]->item ) {
+            my $path = $item->title.''; # force string representation. Not understood why...
+            $path =~ s/^[\s\*]+//; 
+            my $note = $item->text.'' ;
+            $note =~ s/\s+$//;
+            $logger->debug("load_pod_annotation: '$path' -> '$note'");
+            $self->grab(step => $path )-> annotation($note) ;
         }
     }
 }
