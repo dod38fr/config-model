@@ -382,7 +382,8 @@ sub dump_annotations_as_pod {
     my $result = "=head1 Annotations\n\n=over\n\n" ;
 
     my $a = $dump_node->annotation ;
-    $result .= "=item\n\n$a\n\n" if $a ;
+    my $l = $dump_node->location ;
+    $result .= "=item $l\n\n$a\n\n" if $a ;
 
     if ($obj_type =~ /node/) {
 	$view_scanner->scan_node(\$result ,$dump_node);
