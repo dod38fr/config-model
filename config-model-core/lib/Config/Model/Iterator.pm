@@ -152,6 +152,11 @@ Whether to call back when an item with warnings is found (default 0).
 Specifies the experience of the element scanned by the wizard (default
 'intermediate').
 
+=head2 status
+
+Specifies the status of the element scanned by the wizard (default
+'standard').
+
 =head2 leaf_cb
 
 Subroutine called backed for leaf elements. See
@@ -187,6 +192,7 @@ sub new {
     my $self = {
 		call_back_on_important => 0,
 		forward                => 1 ,
+		status                 => 'standard',
 	       } ;
 
     foreach my $p (qw/root/) {
@@ -194,7 +200,7 @@ sub new {
 	  croak "Iterator->new: Missing $p parameter" ;
     }
 
-    foreach my $p (qw/call_back_on_important call_back_on_warning/) {
+    foreach my $p (qw/call_back_on_important call_back_on_warning status/) {
 	$self->{$p} = delete $args{$p} if defined $args{$p} ;
     }
 
@@ -282,25 +288,31 @@ sub bail_out {
 # internal. This call-back is passed to ObjTreeScanner. It will call
 # scan_element in an order which depends on $self->{forward}.
 sub node_content_cb {
-    my ($self,$scanner, $data_r, $node,@element) = @_ ;
+    my ( $self, $scanner, $data_r, $node, @element ) = @_;
 
-    $logger->info("node_content_cb called on '", $node->name,
-		  "' element: @element");
+    $logger->info( "node_content_cb called on '",
+        $node->name, "' element: @element" );
 
-    my $experience = $self->{user_scan_args}{experience} ;
-    my $element ;
+    my $experience = $self->{user_scan_args}{experience};
+    my $element;
 
     while (1) {
-	my $reverse = 1 - $self->{forward} ;
-	$element = $node->next_element($element,$experience,$reverse);
+        # @element from ObjTreeScanner is not used as user actions may 
+        # change the element list due to warping
+        $element = $node->next_element(
+            name       => $element,
+            experience => $experience,
+            status     => $self->{status},
+            reverse    => 1 - $self->{forward}
+        );
 
-	last unless defined $element ;
+        last unless defined $element;
 
-	$logger->info( "node_content_cb calls scan_element ",
-		       "on element $element");
+        $logger->info( "node_content_cb calls scan_element ",
+            "on element $element" );
 
-	$self->{scanner}->scan_element($data_r,$node,$element) ;
-	return if $self->{bail_out} ;
+        $self->{scanner}->scan_element( $data_r, $node, $element );
+        return if $self->{bail_out};
     }
 }
 

@@ -211,9 +211,9 @@ is( $root->reset_element_property( property => 'level',element =>'captain'),
 
 map {
     my $key_label = defined $_->[0] ? $_->[0] : 'undef';
-    is( $root->next_element($_->[0]), $_->[1], 
+    is( $root->next_element(name => $_->[0]), $_->[1], 
         "test next_element ($key_label)" );
-    is( $root->previous_element($_->[1]), $_->[0], 
+    is( $root->previous_element(name => $_->[1]), $_->[0], 
         "test previous_element ($key_label)" ) unless (defined $_->[0] and $_->[0] eq '');
 } ( [ undef, 'captain'] ,
     [ '',    'captain'] ,

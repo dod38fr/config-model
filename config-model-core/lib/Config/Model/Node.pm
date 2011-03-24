@@ -960,23 +960,25 @@ sub children {
     return $self-> get_element_name ;
 }
 
-=head2 next_element ( element_name, [ experience_index ] )
+=head2 next_element ( ... )
 
 This method provides a way to iterate through the elements of a node.
+Mandatory parameter is C<name>. Optional parameters are C<experience>
+and C<status>.
 
 Returns the next element name for a given experience (default
-C<master>).  Returns undef if no next element is available.
+C<master>) and status (default C<normal>).
+Returns undef if no next element is available.
 
 =cut
 
 sub next_element {
     my $self      = shift;
-    my $element   = shift;
-    my $min_experience = shift;
-    my $find_previous = shift || 0 ;
+    my %args = @_ ;
+    my $element   = $args{name} ;
 
     my @elements = @{$self->{model}{element_list}} ;
-    @elements = reverse @elements if $find_previous ;
+    @elements = reverse @elements if $args{reverse} ;
 
     # if element is empty, start from first element
     my $found_elt = (defined $element and $element) ? 0 : 1 ;
@@ -985,9 +987,10 @@ sub next_element {
         if ($found_elt) {
             return $name 
               if $self->is_element_available(name => $name, 
-                                             experience => $min_experience);
+                                             experience => $args{experience},
+                                             status => $args{status});
         }
-        $found_elt = 1 if $element eq $name ;
+        $found_elt = 1 if defined $element and $element eq $name ;
     }
 
     croak "next_element: element $element is unknown. Expected @elements" 
@@ -995,7 +998,7 @@ sub next_element {
     return;
 }
 
-=head2 previous_element ( element_name, [ experience_index ] )
+=head2 previous_element ( name => element_name, [ experience => min_experience ] )
 
 This method provides a way to iterate through the elements of a node.
 
@@ -1006,9 +1009,7 @@ C<master>).  Returns undef if no previous element is available.
 
 sub previous_element {
     my $self      = shift;
-    my $element   = shift;
-    my $min_experience = shift;
-    $self->next_element($element,$min_experience,1) ;
+    $self->next_element(@_, reverse => 1) ;
 }
 
 =head2 get_element_property ( element => ..., property => ... )
@@ -1277,13 +1278,14 @@ As a syntactic sugar, this method can be called with only one parameter:
 
 sub is_element_available {
     my $self = shift;
-    my ($elt_name, $user_experience) = (undef, 'beginner');
+    my ($elt_name, $user_experience,$status) = (undef, 'beginner','deprecated');
     if (@_ == 1) {
         $elt_name = shift ;
     } else {
         my %args = @_ ;
         $elt_name = $args{name} ;
         $user_experience = $args{experience} if defined $args{experience} ;
+        $status = $args{status} if defined $args{status} ;
         if (defined $args{permission}) {
             $user_experience = $args{permission};
             carp "is_element_available: permission is deprecated" ;
@@ -1301,6 +1303,11 @@ sub is_element_available {
     my $element_level = $self->get_element_property(property => 'level',
                                                     element => $elt_name) ;
     return 0 if $element_level eq 'hidden' ;
+
+    my $element_status = $self->get_element_property(property => 'status',
+                                                    element => $elt_name) ;
+
+    return 0 unless ($element_status eq 'standard' or $element_status eq $status) ;
 
     my $element_exp = $self->get_element_property(property => 'experience',
                                                   element => $elt_name) ;
