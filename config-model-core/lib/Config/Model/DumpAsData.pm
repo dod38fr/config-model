@@ -355,7 +355,7 @@ sub dump_annotations_as_pod {
 	$node_path .= ' ' if $node_path ;
 	foreach (@element) { 
 	    $$data_ref .= $annotation_to_pod->(
-                $node->fetch_element($_),
+                $node->fetch_element(name => $_, check => 'no'),
                 $node_path.$_
             );
 	    $scanner->scan_element($data_ref, $node,$_) ;
