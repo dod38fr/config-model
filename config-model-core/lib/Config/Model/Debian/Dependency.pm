@@ -78,7 +78,7 @@ arch_restriction: '[' arch(s) ']'
 dep_version: '(' oper version ')' { $return = [ $item{oper}, $item{version} ] ;} 
 pkg_name: /[\w\-\.]+/ 
 oper: '<<' | '<=' | '=' | '>=' | '>>'
-version: variable | /[\w\.\-~:]+/
+version: variable | /[\w\.\-~:+]+/
 eofile: /^\Z/
 arch: not(?) /[\w-]+/
 not: '!'
