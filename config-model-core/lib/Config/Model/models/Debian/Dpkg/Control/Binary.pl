@@ -36,6 +36,7 @@
       {
         'cargo' => {
           'value_type' => 'uniline',
+          'class' => 'Config::Model::Debian::Dependency',
           'type' => 'leaf'
         },
         'type' => 'list'
@@ -44,14 +45,19 @@
       {
         'cargo' => {
           'value_type' => 'uniline',
+          'class' => 'Config::Model::Debian::Dependency',
           'type' => 'leaf'
         },
         'type' => 'list'
       },
       'Enhances',
       {
-        'value_type' => 'uniline',
-        'type' => 'leaf'
+        'cargo' => {
+          'value_type' => 'uniline',
+          'class' => 'Config::Model::Debian::Dependency',
+          'type' => 'leaf'
+        },
+        'type' => 'list'
       },
       'Pre-Depends',
       {
@@ -66,6 +72,7 @@
       {
         'cargo' => {
           'value_type' => 'uniline',
+          'class' => 'Config::Model::Debian::Dependency',
           'type' => 'leaf'
         },
         'type' => 'list'
@@ -74,6 +81,7 @@
       {
         'cargo' => {
           'value_type' => 'uniline',
+          'class' => 'Config::Model::Debian::Dependency',
           'type' => 'leaf'
         },
         'type' => 'list'
@@ -90,6 +98,7 @@
       {
         'cargo' => {
           'value_type' => 'uniline',
+          'class' => 'Config::Model::Debian::Dependency',
           'type' => 'leaf'
         },
         'type' => 'list'

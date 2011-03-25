@@ -1,6 +1,7 @@
     * Application changes:
         * dpkg control dependency: Base dependency filterin mechanism on 
-          depkg meta dependency_filter value.
+          dpkg meta dependency_filter value (i.e. a user parameter). Warn if a package
+          is not found. Accepts version specified with dpkg variables.
         * dpkg control and copyright: warn when dh-make-perl boilerplate is found
         * Dpkg meta: new class to enable user to customize dpkg editor. 
           (email-updates and dependency-filter). Content of meta is saved in

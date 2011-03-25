@@ -66,17 +66,19 @@ depend: pkg_dep | variable
 
 variable: /\${[\w:\-]+}/
 
-pkg_dep: pkg_name dep_version arch_restriction(?) 
-    {
-       $arg[0]->check_dep( $item{pkg_name}, @{$item{dep_version}} ) ;
-    } 
- | pkg_name arch_restriction(?) {  $return = 1 ; }
+pkg_dep: pkg_name dep_version arch_restriction(?) {
+    $arg[0]->check_dep( $item{pkg_name}, @{$item{dep_version}} ) ;
+   } 
+ | pkg_name arch_restriction(?) {              
+    $arg[0]->check_pkg_name($item{pkg_name}) ;
+    $return = 1 ; 
+   }
 
 arch_restriction: '[' arch(s) ']'
 dep_version: '(' oper version ')' { $return = [ $item{oper}, $item{version} ] ;} 
-pkg_name: /[\w\-\.]+/
+pkg_name: /[\w\-\.]+/ 
 oper: '<<' | '<=' | '=' | '>=' | '>>'
-version: /[\w\.\-~:]+/
+version: variable | /[\w\.\-~:]+/
 eofile: /^\Z/
 arch: not(?) /[\w-]+/
 not: '!'
@@ -130,17 +132,40 @@ while (@deb_releases) {
     $deb_release_h{$k} = qr/$regexp/;
 }
 
+# called in Parse::RecDescent grammar
+sub check_pkg_name {
+    my ($self,$pkg) = @_ ;
+    $logger->debug("check_pkg_name: called with $pkg");
+
+    # check if Debian has version older than required version
+    my @dist_version = split m/ /,  get_available_version($pkg) ;
+    # print "\t'$pkg' => '@dist_version',\n";
+
+    # if no pkg was found
+    if (@dist_version == 0) {
+        $logger->debug("check_pkg_name: unknown package $pkg") ;
+        push @{$self->{warning_list}} , "package $pkg is unknown. Check for typos." ;
+        return ;
+    }
+    return @dist_version ;
+}
+
+# called in Parse::RecDescent grammar
 sub check_dep {
     my ($self,$pkg,$oper,$vers) = @_ ;
     $logger->debug("check_dep: called with $pkg $oper $vers");
-    return 1 unless defined $oper and $oper =~ />/ ;
 
     # special case to keep lintian happy
     return 1 if $pkg eq 'debhelper' ;
 
     # check if Debian has version older than required version
-    my @dist_version = split m/ /,  get_available_version($pkg) ;
-    # print "\t'$pkg' => '@dist_version',\n";
+    my @dist_version = $self->check_pkg_name($pkg) ;
+
+    return unless @dist_version ;
+
+    return 1 unless defined $oper and $oper =~ />/ ;
+
+    return 1 if $vers =~ /^\$/ ; # a dpkg variable
 
     my $filter = $test_filter || $self->grab_value(
         step => '!Debian::Dpkg meta dependency-filter',

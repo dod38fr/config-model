@@ -7,6 +7,11 @@ BEGIN {
     my $sep = chr(28);
     %Config::Model::Debian::Dependency::cache = (
         'perl' => 'lenny 5.10.0-19lenny3 squeeze 5.10.1-17 sid 5.10.1-17 experimental 5.12.0-2 experimental 5.12.2-2',
+        'debhelper' => 'etch 5.0.42 backports/etch 7.0.15~bpo40+2 lenny 7.0.15 backports/lenny 8.0.0~bpo50+2 squeeze 8.0.0 wheezy 8.1.2 sid 8.1.2',
+        'libcpan-meta-perl' => 'squeeze 2.101670-1 wheezy 2.110580-1 sid 2.110580-1',
+        'libmodule-build-perl' => 'etch 0.26-1 backports/etch 0.2808.01-2~bpo40+1 lenny 0.2808.01-2 squeeze 0.360700-1 wheezy 0.380000-1 sid 0.380000-1', 
+        'xserver-xorg-input-evdev' => 'etch 1:1.1.2-6 lenny 1:2.0.8-1 squeeze 1:2.3.2-6 wheezy 1:2.3.2-6 sid 1:2.6.0-2 experimental 1:2.6.0-3',
+        'lcdproc' => 'etch 0.4.5-1.1 lenny 0.4.5-1.1 squeeze 0.5.2-3 wheezy 0.5.2-3.1 sid 0.5.2-3.1',
     );
 }
 
@@ -24,7 +29,7 @@ if ( $@ ) {
     plan skip_all => "AptPkg::Config is not installed (not a Debian system ?)";
 }
 else {
-    plan tests => 23;
+    plan tests => 24;
 }
 
 use warnings;
@@ -131,11 +136,18 @@ my @msgs = $perl_dep->warning_msg ;
 is(scalar @msgs,1,"check nb of warning with store with old version");
 like($msgs[0],qr/unnecessary versioned dependency/,"check store with old version");
 
-$res = $parser->check_depend("foo [!i386] | bar [amd64] ") ;
-is( $res, 1, "check_depend on arch stuff rule");
+$control->load(q{binary:libdist-zilla-plugins-cjm-perl Depends:4="perl [!i386] | perl [amd64] "}) ;
+ok( 1, "check_depend on arch stuff rule");
 
-$res = $parser->check_depend("xserver-xorg-input-evdev [alpha amd64 arm armeb armel hppa i386 ia64 lpia m32r m68k mips mipsel powerpc sparc]");
-is( $res, 1, "check_depend on xorg arch stuff rule");
+$control->load(
+    "binary:libdist-zilla-plugins-cjm-perl ".
+    q{Depends:5="xserver-xorg-input-evdev [alpha amd64 arm armeb armel hppa i386 ia64 lpia m32r m68k mips mipsel powerpc sparc]"}
+);
+ok( 1, "check_depend on xorg arch stuff rule");
+
+$control->load(q{binary:libdist-zilla-plugins-cjm-perl Depends:6="lcdproc (= ${binary:Version})"});
+ok( 1, "check_depend on lcdproc where version is a variable");
+
 
 # test fixes
 is($perl_dep->has_fixes,1, "test presence of fixes");
