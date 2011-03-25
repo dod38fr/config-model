@@ -131,6 +131,9 @@ else {
             'msg' => 'lintian like possible-unindented-list-in-extended-description. i.e. "-" or "*" without leading white space',
             'fix' => 's/\\n([\\-\\*])/\\n $1/g; $_ ;'
           },
+          'automagically.*dh-make-perl' => {
+            'msg' => 'Description contains dh-make-perl boilerplate'
+          },
           '^\\s*\\n' => {
             'msg' => 'Description must not start with an empty line',
             'fix' => 's/[\\s\\s]+// ;'

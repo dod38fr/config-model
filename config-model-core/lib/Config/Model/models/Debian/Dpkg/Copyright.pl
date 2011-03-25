@@ -91,6 +91,12 @@ To upgrade your file from an old spec, run:
       'Disclaimer',
       {
         'value_type' => 'string',
+        'warn_if_match' => {
+          'dh-make-perl' => {
+            'msg' => 'Disclaimer contains dh-make-perl boilerplate',
+            'fix' => '$_ = undef ;'
+          }
+        },
         'type' => 'leaf',
         'description' => '* Syntax: formatted text, no synopsis 
 * This field can be used in the case of non-free and contrib packages (see [Policy 12.5]( http://www.debian.org/doc/debian-policy/ch-docs.html#s-copyrightfile))'

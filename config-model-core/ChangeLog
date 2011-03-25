@@ -1,10 +1,11 @@
     * Application changes:
         * dpkg control dependency: Base dependency filterin mechanism on 
-          depkg meta dependency_filter value
+          depkg meta dependency_filter value.
+        * dpkg control and copyright: warn when dh-make-perl boilerplate is found
         * Dpkg meta: new class to enable user to customize dpkg editor. 
           (email-updates and dependency-filter). Content of meta is saved in
           ~/.dpkg-meta.yml
-        * Depkg control: change e-mail address based on content of meta 
+        * Dpkg control: change e-mail address based on content of meta 
           email-updates
     * Framework changes:
 	* value: added replace_follow parameter to specify automatic
