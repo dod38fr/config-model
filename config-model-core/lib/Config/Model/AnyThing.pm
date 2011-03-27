@@ -654,7 +654,7 @@ sub grab_ancestor_with_element_named {
 Returns an object dedicated to search an element in the configuration
 model (respecting privilege level).
 
-This method returns a L<Config::Model::Searcher> object. See
+This method returns a L<Config::Model::SearchElement> object. See
 L<Config::Model::Searcher> for details on how to handle a search.
 
 =cut
@@ -664,7 +664,7 @@ sub searcher {
     my %args = @_ ;
 
     my $model = $self->instance->config_model ;
-    return Config::Model::Searcher
+    return Config::Model::SearchElement
       -> new(model => $model, node => $self, %args ) ;
 }
 

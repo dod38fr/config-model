@@ -792,8 +792,8 @@ sub find_element {
 Returns an object dedicated to search an element in the configuration
 model (respecting privilege level).
 
-This method returns a L<Config::Model::Searcher> object. See
-L<Config::Model::Searcher> for details on how to handle a search.
+This method returns a L<Config::Model::SearchElement> object. See
+L<Config::Model::SearchElement> for details on how to handle a search.
 
 This method is inherited from L<Config::Model::AnyThing>.
 

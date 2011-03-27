@@ -1,4 +1,4 @@
-#    Copyright (c) 2005-2010 Dominique Dumont.
+#    Copyright (c) 2005-2011 Dominique Dumont.
 #
 #    This file is part of Config-Model.
 #
@@ -25,7 +25,7 @@ use Config::Model::Annotation;
 use Config::Model::Exception ;
 use Config::Model::Node ;
 use Config::Model::Loader;
-use Config::Model::Searcher;
+use Config::Model::SearchElement;
 use Config::Model::Iterator;
 
 use strict ;

@@ -17,7 +17,7 @@
 #    along with Config-Model; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 
-package Config::Model::Searcher;
+package Config::Model::SearchElement;
 use Log::Log4perl qw(get_logger :levels);
 use Carp;
 use strict;
@@ -30,7 +30,7 @@ my $logger = get_logger("Model::Searcher") ;
 
 =head1 NAME
 
-Config::Model::Searcher - Search an element in a configuration model
+Config::Model::SearchElement - Search an element in a configuration model
 
 =head1 SYNOPSIS
 
