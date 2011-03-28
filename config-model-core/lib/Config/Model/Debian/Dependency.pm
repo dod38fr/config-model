@@ -145,7 +145,7 @@ sub check_pkg_name {
     if (@dist_version == 0) {
         $logger->debug("check_pkg_name: unknown package $pkg") ;
         push @{$self->{warning_list}} , "package $pkg is unknown. Check for typos." ;
-        return ;
+        return ();
     }
     return @dist_version ;
 }
@@ -161,7 +161,7 @@ sub check_dep {
     # check if Debian has version older than required version
     my @dist_version = $self->check_pkg_name($pkg) ;
 
-    return unless @dist_version ;
+    return 1 unless @dist_version ; # no older for unknow packages
 
     return 1 unless defined $oper and $oper =~ />/ ;
 
