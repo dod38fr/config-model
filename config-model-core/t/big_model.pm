@@ -90,7 +90,11 @@
   [
    name => 'Master',
    permission => [ [qw/tree_macro warp/] => 'advanced'] ,
-   class_description => "Master description",
+   class_description => "Master configuration class is a wonderful test class\n"
+     . "widely used in Config::Model self tests",
+    copyright => "2005-2011, Dominique Dumont",
+    license => 'LGPL-2',
+    author => 'Dominique Dumont',
    level      => [ [qw/lista hash_a tree_macro int_v/] => 'important' ],
    element => [
 	       std_id => { type => 'hash',

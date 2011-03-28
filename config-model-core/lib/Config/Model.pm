@@ -9,6 +9,7 @@ use Data::Dumper ();
 use Log::Log4perl 1.11 qw(get_logger :levels);
 use Config::Model::Instance ;
 use Hash::Merge qw/merge/ ;
+use File::Path qw/make_path/;
 
 # this class holds the version number of the package
 use vars qw(@status @level @experience_list %experience_index
@@ -1906,7 +1907,8 @@ sub augment_config_class {
 
 =head2 get_model( config_class_name )
 
-Return a hash containing the model declaration.
+Return a hash containing the model declaration (in a deep clone copy of the hash).
+You may modify the hash at leisure.
 
 =cut
 
@@ -1922,6 +1924,124 @@ sub get_model {
       croak "get_model error: unknown config class name: $config_class_name";
 
     return dclone($model) ;
+}
+
+=head2 get_model_doc 
+
+Generate POD document for configuration class.
+
+=cut
+
+sub get_model_doc {
+    my ( $self, $top_class_name ) = @_;
+
+    if ( not defined $self->model($top_class_name) ) {
+        croak
+          "get_model_doc error : unknown config class name: $top_class_name";
+    }
+
+    my @classes = ($top_class_name);
+    my %result;
+
+    while (@classes) {
+        my $class_name = shift @classes;
+        next if defined $result{$class_name};
+        my $c_model   = $self->model($class_name)
+          || croak "get_model_doc model error : unknown config class name: $class_name";
+
+        my $full_name = "Config::Model::models::$class_name" ;
+
+        my %see_also ;
+
+        my @pod = (
+            "=head1 NAME",                                    '',
+            "$full_name - Configuration class " . $class_name,                    '',
+            "=head1 DESCRIPTION",                             '',
+            "Configuration classes used by L<Config::Model>", ''
+        );
+
+        my %legalese;
+
+        my $i = 0;
+
+        my $class_desc = $c_model->{class_description};
+        push @pod, $class_desc, '' if defined $class_desc;
+
+        my @elt = ( "=head1 Elements", '' );
+        foreach my $elt_name ( @{ $c_model->{element_list} } ) {
+            my $elt_info = $c_model->{element}{$elt_name};
+            my $type     = $elt_info->{type};
+
+            my $of    = '';
+            my $cargo = $elt_info->{cargo};
+            my $cargo_type = $cargo->{type} ;
+            $of = " of $cargo_type" if defined $cargo_type;
+            push @elt, "=head2 $elt_name", '';
+            my $desc =
+              "Element type $type$of. " . ( $elt_info->{description} || '' );
+            push @elt, $desc, '';
+
+            foreach ($elt_info,$cargo) { 
+                my $ccn = $_->{config_class_name};
+                next unless defined $ccn ;
+                push @classes, $ccn ;
+                $see_also{$ccn} = 1;
+            }
+        }
+
+        foreach my $what (qw/author copyright license/) {
+            my $item = $c_model->{$what};
+            push @{ $legalese{$what} }, $item if $item;
+        }
+
+        my @end;
+        foreach my $what (qw/author copyright license/) {
+            next unless @{ $legalese{$what} || [] };
+            push @end, "=head1 " . uc($what), '', '=over', '',
+              ( map { ( "=item $_", '' ); } @{ $legalese{$what} } ),
+              '', '=back', '';
+        }
+
+        my @see_also =  (
+            "=head1 SEE ALSO",'',"=over",'',"=item L<config-edit>",'',
+            ( map { ( "=item L<Config::Model::models::$_>",'') ; } sort keys %see_also ),
+            "=back",'') ;
+
+        $result{$full_name} = join( "\n", @pod, @elt, @see_also, @end,'=cut','' ) . "\n";
+    }
+    return \%result ;
+}
+
+=head2 get_model_doc 
+
+Generate POD document for configuration class.
+
+=cut
+
+sub generate_doc {
+    my ( $self, $top_class_name, $dir ) = @_;
+
+    my $res  = $self->get_model_doc($top_class_name) ;
+
+    if (defined $dir) {
+        foreach my $class_name (keys %$res) {
+            my $file_name = $dir.'/'.$class_name.'.pod';
+            $file_name =~ s!::!/!g ;
+            my $dir_name = $file_name ;
+            $dir_name =~ s!/[^/]+$!!;
+            make_path($dir_name,{ mode => 0755} ) unless -d $dir_name ;
+            my $fh = IO::File->new($file_name,'>') || die "Can't open $file_name: $!";
+            $fh->print($res->{$class_name});
+            $fh->close ;
+            print "Wrote documentation in $file_name\n";
+        }
+    }
+    else {
+        foreach my $class_name (keys %$res) {
+            print "########## $_ ############ \n\n";
+            print $res->{$class_name} ;
+        }
+    }
 }
 
 =head2 get_element_model( config_class_name , element)

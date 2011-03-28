@@ -1,19 +1,24 @@
+TODO: generate doc from config class (option in config-edit)
+
+### 2011-03-25 Dominique Dumont  <domi.dumont@free.fr> 1.236
+    
     * Application changes:
-        * dpkg control dependency: Base dependency filterin mechanism on 
+        * dpkg control dependency: Base dependency filtering mechanism on 
           dpkg meta dependency_filter value (i.e. a user parameter). Warn if a package
           is not found. Accepts version specified with dpkg variables.
-        * dpkg control and copyright: warn when dh-make-perl boilerplate is found
+        * dpkg control and copyright: warn if dh-make-perl boilerplate is found
         * Dpkg meta: new class to enable user to customize dpkg editor. 
           (email-updates and dependency-filter). Content of meta is saved in
           ~/.dpkg-meta.yml
         * Dpkg control: change e-mail address based on content of meta 
           email-updates
+
     * Framework changes:
-	* value: added replace_follow parameter to specify automatic
+	* Value: added replace_follow parameter to specify automatic
 	  replacement based on a hash somewhere in the configuration
-	  tree
-	* Extracted initialisation of reader and writer from new and moved in new
-	  init method to avoid deep recursion on startup.
+	  tree (used by dpkg e-mail update)
+	* Extracted initialisation of reader and writer from new() and moved in 
+	  init() method to avoid deep recursion on startup.
 	* Use Any::Moose instead of plain Moose
 	* Removed dependency on MooseX::Singleton
 	* Model: added author, copyright, license fields. This data is not used by
@@ -22,6 +27,7 @@
 	* AnyThing: Fix parsing of multi line annotations. Now use Pod::POM 
 	  to load annocation from Pod document
 	* dist.ini: Depends on Pod::POM
+	* Model.pm: added generate_doc method
 
 2011-03-01 Dominique Dumont  <domi.dumont@free.fr> 1.235
     
@@ -38,10 +44,6 @@
         * Value: mandatory values also require non-empty strings
         * config-edit: Force to load all sub-models (i.e. control, copyright) of
         a top-model (err.. dpkg) when run with option -ui none
-
-    TODO:
-    - make warp skip warp master if they cannot be found with !SomeClass
-    - Auto test of synopsises
 
 2011-02-21 Dominique Dumont  <domi.dumont@free.fr> 1.234
     
