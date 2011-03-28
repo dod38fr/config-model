@@ -28,6 +28,7 @@ TODO: generate doc from config class (option in config-edit)
 	  to load annocation from Pod document
 	* dist.ini: Depends on Pod::POM
 	* Model.pm: added generate_doc method
+	* config-edit: new -gen-pod option to generate pod document from config class
 
 2011-03-01 Dominique Dumont  <domi.dumont@free.fr> 1.235
     

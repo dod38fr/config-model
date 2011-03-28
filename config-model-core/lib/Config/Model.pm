@@ -1946,7 +1946,7 @@ sub get_model_doc {
     while (@classes) {
         my $class_name = shift @classes;
         next if defined $result{$class_name};
-        my $c_model   = $self->model($class_name)
+        my $c_model   = $self->get_model($class_name)
           || croak "get_model_doc model error : unknown config class name: $class_name";
 
         my $full_name = "Config::Model::models::$class_name" ;
@@ -2012,9 +2012,9 @@ sub get_model_doc {
     return \%result ;
 }
 
-=head2 get_model_doc 
+=head2 generate_doc ( [ dir ] )
 
-Generate POD document for configuration class.
+Generate POD document and write them on STDOUT or in specified dir.
 
 =cut
 
@@ -2023,7 +2023,7 @@ sub generate_doc {
 
     my $res  = $self->get_model_doc($top_class_name) ;
 
-    if (defined $dir) {
+    if (defined $dir and $dir) {
         foreach my $class_name (keys %$res) {
             my $file_name = $dir.'/'.$class_name.'.pod';
             $file_name =~ s!::!/!g ;
@@ -2038,7 +2038,7 @@ sub generate_doc {
     }
     else {
         foreach my $class_name (keys %$res) {
-            print "########## $_ ############ \n\n";
+            print "########## $class_name ############ \n\n";
             print $res->{$class_name} ;
         }
     }

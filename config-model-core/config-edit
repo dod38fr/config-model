@@ -121,7 +121,16 @@ Loads old configuration data, update C<PARTICIPATE> data, checks the modificatio
 and save the configuration back. Option C<-save> is not needed as the data was modified
 by the command line.
 
+=head2 Generation of configuration documentation
 
+  config-edit -model Popcon -gen-pod [ output_dir ] 
+
+Generate pod documentation on STDOUT or write them in the specified directory. Note that
+one pod file will be created per class.
+
+To get man pages or text docuement, you can pipe the output of the command:
+
+ config-edit -model Popcon -doc  | pod2man > popcon-conf.3
 
 =head1 Options
 
@@ -288,11 +297,12 @@ my $open_item = '';
 my $list = '' ;
 my $application ='' ;
 my $fuse_dir ;
+my $gen_pod ;
 my $fuse_debug = 0;
 my $apply_fixes = 0 ;
  
 my $result = GetOptions ("ui|if=s"          => \$ui_type,
-			 "model_dir=s"      => \$model_dir,
+			 "model_dir|model-dir=s"      => \$model_dir,
 			 "application=s"    => \$application,
 			 "model=s"          => \$root_model,
 			 "verbose!"         => \$verbose,
@@ -303,18 +313,19 @@ my $result = GetOptions ("ui|if=s"          => \$ui_type,
 			 "man!"             => \$man,
 			 "help!"            => \$help,
 			 "dev!"             => \$dev,
-			 "force_load!"      => \$force_load,
-			 "root_dir=s"       => \$root_dir ,
+			 "force_load|force-load!"      => \$force_load,
+			 "root_dir|root-dir=s"       => \$root_dir ,
 			 "backend=s"        => \$backend,
                          "dump:s"           => \$dump,
                          "dumptype:s"       => \$dumptype,
                          "load=s"           => \$load,
 			 'save!'            => \$force_save ,
-			 "open_item=s"      => \$open_item ,
+			 "open_item|open-item=s"      => \$open_item ,
 			 "list=s"           => \$list ,
-			 "fuse_dir=s"       => \$fuse_dir,
+			 "fuse_dir|fuse-dir=s"       => \$fuse_dir,
 			 "dfuse!"           => \$fuse_debug,
 			 "apply-fixes!"     => \$apply_fixes ,
+			 "gen-pod|gen_pod:s" => \$gen_pod,
 			);
 
 pod2usage(2) if not $result ;
@@ -362,6 +373,12 @@ $instance_name = $root_model unless defined $instance_name ;
 
 # use name found by available_models if found
 $root_model = $appli_info->{$root_model}{model} || $root_model ;
+
+if (defined $gen_pod) {
+    $model->load($root_model) ;
+    $model->generate_doc ($root_model,$gen_pod) ;
+    exit ;
+}
 
 my $inst = $model->instance (root_class_name => $root_model ,
 			     instance_name   => $instance_name ,
