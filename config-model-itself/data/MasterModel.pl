@@ -345,7 +345,10 @@
                 config_class_name => 'MasterModel::SshdWithAugeas',
             },
         ],
-        description => [ tree_macro => 'controls behavior of other elements' ]
+        description => [ tree_macro => 'controls behavior of other elements' ],
+        author    => "dod\@foo.com",
+        copyright => "2011 dod",
+        license   =>  "LGPL",
     ],
 ];
 
