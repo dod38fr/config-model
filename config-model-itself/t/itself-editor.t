@@ -67,6 +67,10 @@ else {
 my $meta_model = Config::Model -> new ( ) ;
 
 Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
+sub Tk::Error {
+    my ($widget,$error,@locations) = @_;
+    die $error ;
+}
 
 ok(1,"compiled");
 

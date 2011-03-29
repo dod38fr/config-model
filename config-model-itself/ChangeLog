@@ -1,3 +1,4 @@
+        * dump and load annotations in pod doc in config class file
         * Class.pl: added copyright, author, license elements
         * Search backend in all @INC directories (useful for dev)
         * Reduced indentation of generated Perl files.
