@@ -1970,18 +1970,10 @@ sub get_model_doc {
         my @elt = ( "=head1 Elements", '' );
         foreach my $elt_name ( @{ $c_model->{element_list} } ) {
             my $elt_info = $c_model->{element}{$elt_name};
-            my $type     = $elt_info->{type};
-
-            my $of    = '';
-            my $cargo = $elt_info->{cargo};
-            my $cargo_type = $cargo->{type} ;
-            $of = " of $cargo_type" if defined $cargo_type;
             push @elt, "=head2 $elt_name", '';
-            my $desc =
-              "Element type $type$of. " . ( $elt_info->{description} || '' );
-            push @elt, $desc, '';
+            push @elt, $self->get_element_description($elt_info) , '' ;
 
-            foreach ($elt_info,$cargo) { 
+            foreach ($elt_info,$elt_info->{cargo}) { 
                 my $ccn = $_->{config_class_name};
                 next unless defined $ccn ;
                 push @classes, $ccn ;
@@ -2012,9 +2004,34 @@ sub get_model_doc {
     return \%result ;
 }
 
-=head2 generate_doc ( [ dir ] )
+sub get_element_description {
+    my ( $self, $elt_info ) = @_;
 
-Generate POD document and write them on STDOUT or in specified dir.
+    my $type  = $elt_info->{type};
+    my $cargo = $elt_info->{cargo};
+    my $vt    = $elt_info->{value_type} ;
+
+    my $of         = '';
+    my $cargo_type = $cargo->{type};
+    my $cargo_vt   = $cargo->{value_type};
+    $of = " of " . ( $cargo_vt or $cargo_type ) if defined $cargo_type;
+
+    my $desc = $elt_info->{description} || '';
+    $desc .= $elt_info->{mandatory} ? 'Mandatory' : 'Optional' ;
+    $desc .= ". Type ". ($vt || $type) . $of.'.';
+    foreach (qw/choice default upstream_default/) {
+        my $item = $elt_info->{$_} ;
+        next unless defined $item ;
+        my @list = ref($item) ? @$item : ($item) ;
+        $desc .= " $_: '". join("', '",@list)."'." ;
+    } 
+    return $desc ;
+}
+
+=head2 generate_doc ( top_class_name , [ directory ] )
+
+Generate POD document for configuration class top_class_name 
+and write them on STDOUT or in specified directory.
 
 =cut
 
@@ -2025,15 +2042,20 @@ sub generate_doc {
 
     if (defined $dir and $dir) {
         foreach my $class_name (keys %$res) {
-            my $file_name = $dir.'/'.$class_name.'.pod';
-            $file_name =~ s!::!/!g ;
-            my $dir_name = $file_name ;
-            $dir_name =~ s!/[^/]+$!!;
-            make_path($dir_name,{ mode => 0755} ) unless -d $dir_name ;
-            my $fh = IO::File->new($file_name,'>') || die "Can't open $file_name: $!";
-            $fh->print($res->{$class_name});
-            $fh->close ;
-            print "Wrote documentation in $file_name\n";
+            my $file = $class_name;
+            $file =~ s!::!/!g ;
+            my $pl_file   = $self->model_dir."/$file.pl";
+            my $pod_file  = $dir."/$file.pod";
+            my $pod_dir = $pod_file ;
+            $pod_dir =~ s!/[^/]+$!!;
+            make_path($pod_dir,{ mode => 0755} ) unless -d $pod_dir ;
+            if (not -e $pod_file or not -e $pl_file or -M $pl_file > -M $pod_file ) {
+                my $fh = IO::File->new($pod_file,'>') || die "Can't open $pod_file: $!";
+                $fh->binmode(":utf8");
+                $fh->print($res->{$class_name});
+                $fh->close ;
+                print "Wrote documentation in $pod_file\n";
+            }
         }
     }
     else {

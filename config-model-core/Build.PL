@@ -31,7 +31,27 @@ my @version_info = @ARGV ? (dist_version => $ARGV[0]) : () ;
 
 my %appli_files = map { ($_, $_ ) } glob("lib/Config/Model/*.d/*") ;
 
-my $build = Module::Build -> new
+my $class = Module::Build->subclass (
+    class => 'My::PodBuilder',
+    code => q{
+        use File::Slurp qw/slurp/;
+        sub process_pl_files {
+            my $self = shift;
+            my %done ;
+            map { print "Generating doc for model $_\n";
+                system("perl -Ilib config-edit -model $_ -gen-pod blib/lib") ;
+                $done{$_} = 1 ;
+            }
+            grep { not $done{$_} ;} 
+            map  { /model\s*=\s*([\w:-]+)/ ; $1 ;}
+            grep { /^\s*model/ ;} 
+            map  { slurp ($_) ;}
+            glob("lib/Config/Model/*.d/*") ;
+        }
+    },
+);
+
+  my $build = $class -> new
   (
    module_name    => 'Config::Model',
    @version_info,
