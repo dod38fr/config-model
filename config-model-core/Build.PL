@@ -1,4 +1,4 @@
-#    Copyright (c) 2005-2010 Dominique Dumont.
+#    Copyright (c) 2005-2011 Dominique Dumont.
 #
 #    This file is part of Config-Model.
 #
@@ -29,7 +29,7 @@ print "\nIf you want to use the TermUI interface, you should install\n",
 
 my @version_info = @ARGV ? (dist_version => $ARGV[0]) : () ;
 
-my %model_files = map { ($_, $_ ) } glob("lib/Config/Model/*.d/*") ;
+my %appli_files = map { ($_, $_ ) } glob("lib/Config/Model/*.d/*") ;
 
 my $build = Module::Build -> new
   (
@@ -37,7 +37,7 @@ my $build = Module::Build -> new
    @version_info,
    license        => 'lgpl',
    script_files   => [ 'config-edit' ],
-   model_files => \%model_files ,
+   appli_files => \%appli_files ,
    dist_abstract  => 'Describe, edit and validate configuration data',
    dist_author    => 'Dominique Dumont (ddumont at cpan dot org)',
 
@@ -56,6 +56,6 @@ my $build = Module::Build -> new
   );
 
 $build->add_build_element('pl');
-$build->add_build_element('model');
+$build->add_build_element('appli');
 
 $build->create_build_script;
