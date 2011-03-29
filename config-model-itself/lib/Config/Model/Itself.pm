@@ -354,14 +354,7 @@ sub write_all {
         $wr->print( join("\n",@notes )) ;
 
         $wr->close ;
-        
-        my $pod_file = $wr_file ;
-        $pod_file =~ s/p[lm]$/pod/;
-        my $wr_pod = IO::File->new ($pod_file,'>') || croak "Cannot open file $pod_file:$!" ;
-        $wr_pod->print($self->generate_pod( $map_to_write{$file}, \@data ));
-        $wr_pod->close;
     }
-
 }
 
 
