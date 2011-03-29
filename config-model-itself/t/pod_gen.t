@@ -39,7 +39,7 @@ my $wr_conf1 = "$wr_test/wr_conf1";
 my $wr_model1 = "$wr_test/wr_model1";
 
 
-plan tests => 18 ; 
+plan tests => 6 ; 
 
 my $meta_model = Config::Model -> new ( ) ;# model_dir => '.' );
 
@@ -50,12 +50,12 @@ ok(1,"compiled");
 rmtree($wr_test) if -d $wr_test ;
 
 
-my $meta_inst = $meta_model
-  -> instance (root_class_name   => 'Itself::Model', 
-               instance_name     => 'itself_instance',
-               root_dir          => $wr_model1,
-              );
-ok($meta_inst,"Read Itself::Model and created instance") ;
+my $meta_inst = $meta_model->instance(
+    root_class_name => 'Itself::Model',
+    instance_name   => 'itself_instance',
+    root_dir => $wr_model1,
+);
+ok( $meta_inst, "Read Itself::Model and created instance" );
 
 my $meta_root = $meta_inst -> config_root ;
 
