@@ -768,9 +768,10 @@ L<Config::Model::Itself> model editor.
 =cut
 
 my @legal_params = qw/element experience status description summary level
-                      config_dir generated_by class_description
+                      config_dir
                       read_config read_config_dir write_config
                       write_config_dir accept/;
+my @static_legal_params = qw/class_description copyright author license generated_by/ ;                      
 
 sub create_config_class {
     my $self=shift ;
@@ -853,7 +854,7 @@ sub _create_config_class {
         (
          error=> "create class $config_class_name: unknown ".
          "parameter '" . join("', '",@left_params)."', expected '".
-         join("', '",@legal_params,qw/class_description/)."'"
+         join("', '",@legal_params, @static_legal_params)."'"
         )
           if @left_params ;
 
@@ -1019,7 +1020,7 @@ sub check_class_parameters {
         (
          error => "create class $config_class_name: unexpected "
                 . "parameters '". join (', ', keys %$raw_model) ."' "
-                . "Expected '".join("', '",@legal_params)."'"
+                . "Expected '".join("', '",@legal_params, @static_legal_params)."'"
         )
           if keys %$raw_model ;
 
@@ -1647,7 +1648,7 @@ sub include_one_class {
                 $raw_model->{$included_item} = $to_copy ;
             }
         }
-        else {
+        elsif ( not grep { $_ eq $included_item; } @static_legal_params ) {
             Config::Model::Exception::ModelDeclaration->throw
                 (
                  error => "Cannot include '$included_item', "
