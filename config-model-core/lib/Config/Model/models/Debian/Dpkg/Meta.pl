@@ -9,6 +9,13 @@
       }
     ],
     'name' => 'Debian::Dpkg::Meta',
+    'copyright' => [
+      '2010,2011 Dominique Dumont'
+    ],
+    'author' => [
+      'Dominique Dumont'
+    ],
+    'license' => 'LGPL2',
     'element' => [
       'email-updates',
       {
@@ -50,3 +57,4 @@ For instance, if the dependency filter is \'lenny\', all \'lenny\' and \'etch\' 
   }
 ]
 ;
+

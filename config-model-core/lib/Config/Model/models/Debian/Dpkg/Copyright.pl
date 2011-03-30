@@ -20,15 +20,14 @@ To upgrade your file from an old spec, run:
         'type' => 'leaf'
       }
     ],
-    'read_config' => [
-      {
-        'auto_create' => '1',
-        'file' => 'copyright',
-        'backend' => 'Debian::Dpkg::Copyright',
-        'config_dir' => 'debian'
-      }
-    ],
     'name' => 'Debian::Dpkg::Copyright',
+    'copyright' => [
+      '2010,2011 Dominique Dumont'
+    ],
+    'author' => [
+      'Dominique Dumont'
+    ],
+    'license' => 'LGPL2',
     'element' => [
       'Format',
       {
@@ -196,7 +195,16 @@ To upgrade your file from an old spec, run:
         'type' => 'hash',
         'index_type' => 'string'
       }
+    ],
+    'read_config' => [
+      {
+        'auto_create' => '1',
+        'file' => 'copyright',
+        'backend' => 'Debian::Dpkg::Copyright',
+        'config_dir' => 'debian'
+      }
     ]
   }
 ]
 ;
+

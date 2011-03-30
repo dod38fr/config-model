@@ -1,6 +1,13 @@
 [
   {
     'name' => 'Debian::Dpkg::Control::Binary',
+    'copyright' => [
+      '2010,2011 Dominique Dumont'
+    ],
+    'author' => [
+      'Dominique Dumont'
+    ],
+    'license' => 'LGPL2',
     'element' => [
       'Architecture',
       {
@@ -155,3 +162,4 @@ else {
   }
 ]
 ;
+

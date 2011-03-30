@@ -8,6 +8,13 @@
       }
     ],
     'name' => 'Debian::Dpkg::Copyright::Content',
+    'copyright' => [
+      '2010,2011 Dominique Dumont'
+    ],
+    'author' => [
+      'Dominique Dumont'
+    ],
+    'license' => 'LGPL2',
     'element' => [
       'Copyright',
       {
@@ -50,3 +57,4 @@ The Copyright field may contain the original copyright statement copied exactly 
   }
 ]
 ;
+

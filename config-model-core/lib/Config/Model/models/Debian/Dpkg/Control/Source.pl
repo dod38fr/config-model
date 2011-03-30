@@ -1,6 +1,13 @@
 [
   {
     'name' => 'Debian::Dpkg::Control::Source',
+    'copyright' => [
+      '2010,2011 Dominique Dumont'
+    ],
+    'author' => [
+      'Dominique Dumont'
+    ],
+    'license' => 'LGPL2',
     'element' => [
       'Source',
       {
@@ -202,3 +209,4 @@ The information is meant to be useful for a user knowledgeable in the given Vers
   }
 ]
 ;
+

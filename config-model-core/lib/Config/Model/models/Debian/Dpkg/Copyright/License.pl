@@ -1,6 +1,13 @@
 [
   {
     'name' => 'Debian::Dpkg::Copyright::License',
+    'copyright' => [
+      '2010,2011 Dominique Dumont'
+    ],
+    'author' => [
+      'Dominique Dumont'
+    ],
+    'license' => 'LGPL2',
     'element' => [
       'short_name',
       {
@@ -114,3 +121,4 @@ The name given must match a License described in License element in root node
   }
 ]
 ;
+

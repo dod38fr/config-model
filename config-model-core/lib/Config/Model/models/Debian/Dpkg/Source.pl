@@ -8,6 +8,13 @@
       }
     ],
     'name' => 'Debian::Dpkg::Source',
+    'copyright' => [
+      '2010,2011 Dominique Dumont'
+    ],
+    'author' => [
+      'Dominique Dumont'
+    ],
+    'license' => 'LGPL2',
     'element' => [
       'format',
       {
@@ -28,3 +35,4 @@
   }
 ]
 ;
+
