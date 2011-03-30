@@ -636,7 +636,7 @@ sub _load_hash {
     if ($action eq '=~') {
 	my @keys = $element->get_all_indexes;
 	my $ret ;
-	$logger->debug("_load_hash: looping with regex $id");
+	$logger->debug("_load_hash: looping with regex $id on keys @keys");
 	$id =~ s!^/!!;
 	$id =~ s!/$!! ;
 	my @saved_cmd = @$cmdref ;
@@ -661,7 +661,7 @@ sub _load_hash {
 			     ) ;
 	    }
 
-	    if ($ret eq 'error' or $ret eq 'done') { return $ret; }
+	    if ($ret eq 'error' or $ret eq 'root') { return $ret; }
 	}
 	return $ret ;
     }
