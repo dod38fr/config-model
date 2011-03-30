@@ -379,7 +379,7 @@ sub dump_annotations_as_pod {
     my $view_scanner = Config::Model::ObjTreeScanner->new(@scan_args);
 
     my $obj_type = $dump_node->get_type ;
-    my $result = "=head1 Annotations\n\n=over\n\n" ;
+    my $result = '' ;
 
     my $a = $dump_node->annotation ;
     my $l = $dump_node->location ;
@@ -392,7 +392,8 @@ sub dump_annotations_as_pod {
 	croak "dump_annotations_as_pod: unexpected type: $obj_type";
     }
 
-    return $result."=back\n\n" ;
+    return '' unless $result ;
+    return "=head1 Annotations\n\n=over\n\n".$result."=back\n\n" ;
 }
 
 1;
