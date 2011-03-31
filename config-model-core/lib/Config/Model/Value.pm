@@ -1752,7 +1752,8 @@ sub _pre_fetch {
 	$std_value = undef ;
     }
     elsif ($e = Exception::Class->caught()) {
-	$e->rethrow;
+	$e->rethrow if ref($e);
+        die $e ;
     } 
 
     return $std_value ;
