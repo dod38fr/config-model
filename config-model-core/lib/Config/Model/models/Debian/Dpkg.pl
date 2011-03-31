@@ -1,5 +1,6 @@
 [
   {
+    'class_description' => 'Model of Debian source package files (e.g control, oopyright...)',
     'name' => 'Debian::Dpkg',
     'copyright' => [
       '2010,2011 Dominique Dumont'
