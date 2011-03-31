@@ -16,7 +16,8 @@ TODO:
           - Warn if a package is unknown.
           - Accepts version specified with dpkg variables.
         * dpkg control and copyright: warn if dh-make-perl boilerplate is found
-        * Dpkg meta: new class to enable user to customize dpkg editor. 
+	* dpkg control: added Package-Type parameter (Peter Pentchev)
+	* Dpkg meta: new class to enable user to customize dpkg editor. 
           (email-updates and dependency-filter). Content of meta is saved in
           ~/.dpkg-meta.yml
         * Dpkg control: change e-mail address based on content of meta 

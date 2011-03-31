@@ -110,6 +110,14 @@
         },
         'type' => 'list'
       },
+                           'Package-Type',
+                           {
+                             'value_type' => 'enum',
+                             'summary' => 'The type of the package, if not a regular Debian one',
+                             'choice' => [qw/tdeb udeb/],
+                             'type' => 'leaf',
+                             'description' => 'If this field is present, the package is not a regular Debian package, but either a udeb generated for the Debian installer or a tdeb containing translated debconf strings.'
+                           },
       'Synopsis',
       {
         'value_type' => 'uniline',
