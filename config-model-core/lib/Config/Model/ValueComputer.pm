@@ -441,14 +441,17 @@ sub compute_info {
 		  my $obj = eval { $self->{value_object} ->grab($u_val) };
 		  if ($@) {
 		    my $e = $@ ;
-		    my $msg = $e ? $e->full_message : '' ;
+		    my $msg = ref($e) ? $e->full_message : $e  ;
 		    Config::Model::Exception::Model
 			-> throw (
 				  object => $self,
 				  error => "Compute variable:\n". $msg
 				 ) ;
 		  }
-		  $val = $obj->get_type eq 'node' ? '<node>' : $obj->fetch(check => $check) ;
+		  $val = $obj->get_type eq 'node' ? '<node>' 
+                       : $obj->get_type eq 'hash' ? '<hash>' 
+                       : $obj->get_type eq 'list' ? '<list>' 
+                       :                             $obj->fetch(check => $check) ;
 		}
 		$str.= "\n\t\t'$k' from path '$orig_variables->{$k}' is ";
 		$str.= defined $val ? "'$val'" : 'undef' ;
@@ -710,7 +713,9 @@ sub _value_from_object {
             "_value_from_object: fetched var object '$name' with '$path', result '", 
             defined $my_res ? $my_res : 'undef',"'"
         );
-
+    }
+    else {
+        $logger->warn("Warning: No variable definition found for \$$name");
     }
 
     # my_res stays undef if $path if not defined
