@@ -167,8 +167,12 @@ sub check_dep {
 
     return 1 if $vers =~ /^\$/ ; # a dpkg variable
 
+    my $p = $self->parent;
+    my $self_pkg_name = $p->has_element('Source') ? $p->fetch_element_value('Source') 
+                      :                             $p->index_value ;
+        
     my $filter = $test_filter || $self->grab_value(
-        step => '!Debian::Dpkg meta dependency-filter',
+        step => qq{!Debian::Dpkg meta package-dependency-filter:"$self_pkg_name"},
         mode => 'loose',
     ) || '';
     $logger->debug("check_dep: using filter $filter") if defined $filter;

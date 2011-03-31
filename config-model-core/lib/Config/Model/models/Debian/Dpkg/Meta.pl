@@ -1,5 +1,6 @@
 [
   {
+    'class_description' => 'This class contains parameters to tune the behavior of the Dpkg model. For instance, user can specify rules to update e-mail addresses.',
     'read_config' => [
       {
         'auto_create' => '1',
@@ -31,17 +32,6 @@
       'dependency-filter',
       {
         'value_type' => 'enum',
-        'warp' => {
-          'follow' => {
-            'maintainer' => '! control source Maintainer'
-          },
-          'rules' => [
-            '$maintainer =~ /Debian Perl/',
-            {
-              'default' => 'squeeze'
-            }
-          ]
-        },
         'type' => 'leaf',
         'description' => 'Specifies the depedency filter to be used. The release specified mentions the most recent release to be filterd out. Oldser release will also be filtered.
 
@@ -52,6 +42,56 @@ For instance, if the dependency filter is \'lenny\', all \'lenny\' and \'etch\' 
           'squeeze',
           'wheezy'
         ]
+      },
+      'package-dependency-filter',
+      {
+        'cargo' => {
+          'compute' => {
+            'formula' => '$group_filter',
+            'variables' => {
+              'maintainer' => '! control source Maintainer',
+              'group_filter' => '- group-dependency-filter:"$maintainer"'
+            },
+            'allow_override' => '1'
+          },
+          'value_type' => 'enum',
+          'type' => 'leaf',
+          'choice' => [
+            'etch',
+            'lenny',
+            'squeeze',
+            'wheezy'
+          ]
+        },
+        'type' => 'hash',
+        'description' => 'Dependency filter tuned by package. Use this to override the main dependency-filter value.',
+        'index_type' => 'string'
+      },
+      'group-dependency-filter',
+      {
+        'cargo' => {
+          'compute' => {
+            'formula' => '$main',
+            'variables' => {
+              'main' => '- dependency-filter'
+            },
+            'allow_override' => '1'
+          },
+          'value_type' => 'enum',
+          'type' => 'leaf',
+          'choice' => [
+            'etch',
+            'lenny',
+            'squeeze',
+            'wheezy'
+          ]
+        },
+        'default_with_init' => {
+          'Debian Perl Group <pkg-perl-maintainers@lists.alioth.debian.org>' => 'lenny'
+        },
+        'type' => 'hash',
+        'description' => 'Dependency filter tuned by Maintainer field. Use this to override the main dependency-filter value.',
+        'index_type' => 'string'
       }
     ]
   }

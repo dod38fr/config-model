@@ -7,9 +7,14 @@ TODO:
 ### 2011-03-25 Dominique Dumont  <domi.dumont@free.fr> 1.236
     
     * Application changes:
-        * dpkg control dependency: Base dependency filtering mechanism on 
-          dpkg meta dependency_filter value (i.e. a user parameter). Warn if a package
-          is not found. Accepts version specified with dpkg variables.
+        * dpkg control dependency: 
+          - Dependency filtering mechanism now use dpkg meta 
+            package_dependency_filter value (i.e. a user parameter).
+            Debian_perl package will be filtered on lenny by default
+            Filter mechanism can be overriden in a package by package basis
+            See Debian::Dpkg::Meta config class for details. 
+          - Warn if a package is unknown.
+          - Accepts version specified with dpkg variables.
         * dpkg control and copyright: warn if dh-make-perl boilerplate is found
         * Dpkg meta: new class to enable user to customize dpkg editor. 
           (email-updates and dependency-filter). Content of meta is saved in
