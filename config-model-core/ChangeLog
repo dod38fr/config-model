@@ -1,4 +1,8 @@
-TODO: generate doc from config class (option in config-edit)
+TODO: 
+  - generate doc from config class (option in config-edit)
+  - FStab: force fs_freq and fs_passno to be 0 with bind mounted fs
+    (require re-work of warp mechanism)
+  - remove warp registration mechanism (was premature optimisation)
 
 ### 2011-03-25 Dominique Dumont  <domi.dumont@free.fr> 1.236
     
@@ -29,6 +33,8 @@ TODO: generate doc from config class (option in config-edit)
 	* dist.ini: Depends on Pod::POM
 	* Model.pm: added generate_doc method
 	* config-edit: new -gen-pod option to generate pod document from config class
+	* HashId: fix default_with_init to be able to auto-create leaf values 
+	  specified in the model
 
 2011-03-01 Dominique Dumont  <domi.dumont@free.fr> 1.235
     

@@ -235,8 +235,8 @@ be used with string index type)
 =item default_keys
 
 When set, the default parameter (or set of parameters) are used as
-default keys hashes and created automatically when the keys or exists
-functions are used on an I<empty> hash.
+default keys hashes and created automatically when the C<keys> or C<exists>
+functions are used on an I<empty> hash..
 
 You can use C<< default_keys => 'foo' >>, 
 or C<< default_keys => ['foo', 'bar'] >>.
@@ -245,8 +245,13 @@ or C<< default_keys => ['foo', 'bar'] >>.
 
 To perform special set-up on children nodes you can also use 
 
-   default_with_init =>  { 'foo' => 'X=Av Y=Bv'  ,
+   default_with_init =>  { 'foo' => 'X=Av Y=Bv' ,
                            'bar' => 'Y=Av Z=Cv' }
+                           
+When the hash contains leaves, you can also use:
+
+   default_with_init => { 'def_1' => 'def_1 stuff' ,
+                          'def_2' => 'def_2 stuff' }
 
 
 =item migrate_keys_from
@@ -1005,10 +1010,7 @@ are sorted alphabetically, except for ordered hashed.
 
 sub get_all_indexes {
     my $self = shift;
-    $self->create_default if (   defined $self->{default_keys}
-                              or defined $self->{default_with_init}
-                              or defined $self->{migrate_keys_from}
-                              or defined $self->{follow_keys_from});
+    $self->create_default ; # will check itself if creationg is necessary
     return $self->_get_all_indexes ;
 }
 

@@ -3,7 +3,7 @@
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
-use Test::More tests => 78 ;
+use Test::More tests => 80 ;
 use Config::Model ;
 use Test::Exception ;
 use Test::Warn ;
@@ -31,7 +31,7 @@ my @element = (
 	      ) ;
 
 # minimal set up to get things working
-my $model = Config::Model->new(legacy => 'ignore',) ;
+my $model = Config::Model->new() ;
 $model ->create_config_class 
   (
    name => "Master",
@@ -154,6 +154,13 @@ $model ->create_config_class
 	   index_type  => 'string',
 	   @element ,
 	    warn_unless_key_match => 'foo',
+	  },
+       hash_with_default_and_init => { 
+           type => 'hash',
+	    index_type  => 'string',
+	    default_with_init => { 'def_1' => 'def_1 stuff'  ,
+                                    'def_2' => 'def_2 stuff' } ,
+	    @element
 	  },
       ],
    );
@@ -389,3 +396,9 @@ warning_like { $hwwukm->fetch_with_id('bar2') ;} qr/key 'bar2' should match foo/
 my $hwmkf = $root->fetch_element('hash_with_migrate_keys_from') ;
 my @to_migrate = $root->fetch_element('hash_with_several_auto_created_id')->get_all_indexes ;
 is_deeply( [ $hwmkf->get_all_indexes ] , \@to_migrate ,"check ids of hash_with_migrate_keys_from");
+
+my $hwdai = $root->fetch_element('hash_with_default_and_init');
+# calling get_all_indexes will trigger the creation of the default_with_init keys
+foreach ($hwdai->get_all_indexes) {
+    is($hwdai->fetch_with_id($_)->fetch, "$_ stuff","check default_with_init with $_");
+}

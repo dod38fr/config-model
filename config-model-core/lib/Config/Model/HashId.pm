@@ -189,7 +189,13 @@ sub create_default {
     if (defined $self->{default_with_init}) {
         my $h = $self->{default_with_init} ;
         foreach my $def_key (keys %$h) {
-            $self->fetch_with_id($def_key)->load($h->{$def_key}) ;
+            my $v_obj = $self->fetch_with_id($def_key);
+            if ($v_obj->get_type eq 'leaf') {
+                $v_obj->store($h->{$def_key}) ;
+            }
+            else {
+                $v_obj->load($h->{$def_key}) ;
+            }
         }
     }
 }
