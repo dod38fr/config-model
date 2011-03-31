@@ -247,6 +247,8 @@ sub submit_to_warp {
 	my $warper_path = $follow -> {$warper_name} ;
         $logger->debug( ref($self),' ',$self->name," following $warper_name");
 
+        # BIG FIXME: warper can itself be warped out (part of a warped out node).
+        # not just 'not available'.
 	my $warper = $self->get_warper_object($warper_path,1);
 
         $logger->debug( ref($self),' ',$self->name,
