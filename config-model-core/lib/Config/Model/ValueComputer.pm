@@ -502,7 +502,7 @@ sub compute_variables {
             }
 	    {
 		no warnings "uninitialized" ;
-		$logger->debug( "compute_variables:\tresult '$variables{$key}' left $var_left");
+		$logger->debug( "compute_variables:\tresult '$variables{$key}' left '$var_left'");
 	    }
 	}
 
@@ -682,7 +682,11 @@ sub _value_from_object {
     my ( $name, $value_object, $variables_h, $replace_h, $check, $need_quote ) =
       @_;
 
-    my $path = $variables_h->{$name};    # can be a ref for test purpose
+    $logger->warn("Warning: No variable definition found for \$$name") 
+        unless exists $variables_h->{$name};
+
+    # $path can be a ref for test purpose, or can be undef if path is computed from another value
+    my $path = $variables_h->{$name};
     my $my_res;
 
     $logger->debug("_value_from_object: replace \$$name with path $path...") if $logger->is_debug;
@@ -713,9 +717,6 @@ sub _value_from_object {
             "_value_from_object: fetched var object '$name' with '$path', result '", 
             defined $my_res ? $my_res : 'undef',"'"
         );
-    }
-    else {
-        $logger->warn("Warning: No variable definition found for \$$name");
     }
 
     # my_res stays undef if $path if not defined
