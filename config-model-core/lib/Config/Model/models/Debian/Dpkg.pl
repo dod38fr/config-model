@@ -1,6 +1,6 @@
 [
   {
-    'class_description' => 'Model of Debian source package files (e.g control, oopyright...)',
+    'class_description' => 'Model of Debian source package files (e.g control, copyright...)',
     'name' => 'Debian::Dpkg',
     'copyright' => [
       '2010,2011 Dominique Dumont'
@@ -26,7 +26,7 @@
       {
         'summary' => 'copyright and license information',
         'type' => 'node',
-        'description' => 'copyrigth and license information of all files containted in this packge',
+        'description' => 'copyright and license information of all files contained in this package',
         'config_class_name' => 'Debian::Dpkg::Copyright'
       },
       'source',

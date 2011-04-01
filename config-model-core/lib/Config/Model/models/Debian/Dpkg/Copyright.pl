@@ -4,13 +4,16 @@
 of DEP-5 are flagged as deprecated. The idea is to enable migration from older 
 specs to CANDIDATE spec.
 
-To edit a copyright file, go into your package developement directory and run:
+To edit a copyright file, go into your package development directory and run:
+
    config-edit -application dpkg-copyright
    
- To check you file run:
+To check you file run:
+
     config-edit -application dpkg-copyright -ui none
     
 To upgrade your file from an old spec, run:
+
     config-edit -application dpkg-copyright -ui none -save
 ',
     'accept' => [

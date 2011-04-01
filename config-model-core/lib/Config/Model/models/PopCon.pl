@@ -84,7 +84,7 @@ This key was generated automatically so you should normally just leave it alone.
         'summary' => 'day of week',
         'max' => '6',
         'type' => 'leaf',
-        'description' => 'Only run on the given day, to spread the load on the server a bit. 0 is sunday, 6 is saturday. '
+        'description' => 'Only run on the given day, to spread the load on the server a bit. 0 is Sunday, 6 is Saturday. '
       }
     ]
   }

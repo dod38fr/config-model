@@ -38,7 +38,7 @@ the Copyright field for a stanza covering both file A and file B need contain on
 
       Copyright 2008 John Smith Copyright 2009, 2010 Angela Watts
 
-The Copyright field may contain the original copyright statement copied exactly (including the word \x{201c}Copyright\x{201d}), or it can shorten the text, as long as it does not sacrifice information. Examples in this specification use both forms.",
+The Copyright field may contain the original copyright statement copied exactly (including the word Copyright), or it can shorten the text, as long as it does not sacrifice information. Examples in this specification use both forms.",
         'auto_create_ids' => '1'
       },
       'License',

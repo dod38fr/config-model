@@ -33,7 +33,7 @@
       {
         'value_type' => 'enum',
         'type' => 'leaf',
-        'description' => 'Specifies the depedency filter to be used. The release specified mentions the most recent release to be filterd out. Oldser release will also be filtered.
+        'description' => 'Specifies the dependency filter to be used. The release specified mentions the most recent release to be filtered out. Older release will also be filtered.
 
 For instance, if the dependency filter is \'lenny\', all \'lenny\' and \'etch\' dependencies are filtered out.',
         'choice' => [
