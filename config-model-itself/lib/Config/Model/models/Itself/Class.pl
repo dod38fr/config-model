@@ -1,4 +1,4 @@
-#    Copyright (c) 2007-2010 Dominique Dumont.
+#    Copyright (c) 2007-2011 Dominique Dumont.
 #
 #    This file is part of Config-Model-Itself.
 #
@@ -19,15 +19,26 @@
 [
     [
         name => "Itself::Class",
+        author => 'Dominique Dumont',
+        copyright => '2007-2011 Dominique Dumont.',
+        license => 'LGPL-2',
 
         class_description =>
-          "Configuration class. This class will contain elements",
+          "Configuration class. This class represents a node of a configuration tree.",
 
         'element' => [
 
-            [qw/class_description author copyright license/] => {
+            [qw/class_description license/] => {
                 type       => 'leaf',
                 value_type => 'string',
+            },
+
+            [qw/author copyright/] => {
+                type  => 'list',
+                cargo => {
+                    type       => 'leaf',
+                    value_type => 'uniline',
+                }
             },
 
             'element' => {
