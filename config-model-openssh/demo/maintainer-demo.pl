@@ -93,7 +93,7 @@ my_system("perl -I../lib -S config-model-edit -model Sshd -save ".
 print "\n";
 
 print "Add distro policy: show the diff...\n";
-my_system("diff -Naur $lib_path lib/Config/Model/models") ;
+my_system("diff -Naur -b -B $lib_path lib/Config/Model/models") ;
 print "\n";
 
 print "Package upgrade: PermitRootLogin is updated\n";

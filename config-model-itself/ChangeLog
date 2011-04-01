@@ -1,9 +1,12 @@
+2011-04-01 Dominique Dumont  <domi.dumont@free.fr> 1.223
+
         * dump and load annotations in pod doc in config class file
         * Class.pl: added copyright, author, license elements
         * Search backend in all @INC directories (useful for dev)
         * Reduced indentation of generated Perl files.
         * NonWarpableElement: added replace_follow parameter 
         * Build depend on Test::Differences
+        * Requires Config::Model 1.236
 
 2011-01-20 Dominique Dumont  <domi.dumont@free.fr> 1.222
 

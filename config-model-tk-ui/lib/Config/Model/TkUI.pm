@@ -119,7 +119,7 @@ sub Populate {
     my $file_items = [[ qw/command wizard -command/, sub{ $cw->wizard }],
 		      [ qw/command reload -command/, sub{ $cw->reload }],
 		      [ command => 'check for errors',    -command => sub{ $cw->check(1)} ],
-		      [ command => 'check for warnings',  -command => sub{ $cw->check(1)} ],
+		      [ command => 'check for warnings',  -command => sub{ $cw->check(1,1)} ],
 		      [ qw/command save   -command/, sub{ $cw->save }],
 		      [ command => 'save in dir ...',
                         -command => sub{ $cw->save_in_dir ;} ],
