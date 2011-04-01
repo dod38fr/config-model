@@ -786,7 +786,7 @@ sub create_config_class {
         Config::Model::Exception::ModelDeclaration->throw
             (
              error=> "create_config_class: attempt to clobber $config_class_name".
-             "config class name "
+             " config class name "
             );
     }
 
@@ -1919,7 +1919,7 @@ sub get_model {
       || die "Model::get_model: missing config class name argument" ;
 
     $self->load($config_class_name)
-      unless defined $self->model($config_class_name) ;
+      unless $self->model_exists($config_class_name) ;
 
     my $model = $self->model($config_class_name) ||
       croak "get_model error: unknown config class name: $config_class_name";
@@ -1971,7 +1971,7 @@ sub get_model_doc {
         my @elt = ( "=head1 Elements", '' );
         foreach my $elt_name ( @{ $c_model->{element_list} } ) {
             my $elt_info = $c_model->{element}{$elt_name};
-            push @elt, "=head2 $elt_name", '';
+            push @elt, "=head2 C<$elt_name>", '';
             push @elt, $self->get_element_description($elt_info) , '' ;
 
             foreach ($elt_info,$elt_info->{cargo}) { 
@@ -2034,12 +2034,15 @@ sub get_element_description {
 Generate POD document for configuration class top_class_name 
 and write them on STDOUT or in specified directory.
 
+Returns a list of written file names.
+
 =cut
 
 sub generate_doc {
     my ( $self, $top_class_name, $dir ) = @_;
 
     my $res  = $self->get_model_doc($top_class_name) ;
+    my @wrote ;
 
     if (defined $dir and $dir) {
         foreach my $class_name (keys %$res) {
@@ -2056,6 +2059,7 @@ sub generate_doc {
                 $fh->print($res->{$class_name});
                 $fh->close ;
                 print "Wrote documentation in $pod_file\n";
+                push @wrote, $pod_file ;
             }
         }
     }
@@ -2065,6 +2069,7 @@ sub generate_doc {
             print $res->{$class_name} ;
         }
     }
+    return @wrote ;
 }
 
 =head2 get_element_model( config_class_name , element)
