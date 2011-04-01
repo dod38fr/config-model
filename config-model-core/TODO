@@ -1,22 +1,11 @@
 
-
 o [domi] Update compute so that a built-in value can also be computed. This
    is required to fix a bug is sshd_config where match element values
    are needlessly written to files
 
-
 o [domi] Filter element according to element in SimpleUI and TERMUI
 
 o [domi] Provide import/export of configuration data in free form XML
-
-o [domi] Associate comment to configuration tree ?
-
-o [domi] Add model plug-in facility
-  Currently, models can be provided in modular load-on-demand
-   classes. This is necessary if more applications are using
-   config-model. But it's not the same mechanism as plug-in. Plugin is
-   necessary for application like xorg which are delivered in modular
-   packages.  
 
 * A web interface. May be a Webmin integration
 
