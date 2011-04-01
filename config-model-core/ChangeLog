@@ -1,10 +1,9 @@
 TODO: 
-  - generate doc from config class (option in config-edit)
   - FStab: force fs_freq and fs_passno to be 0 with bind mounted fs
     (require re-work of warp mechanism)
   - remove warp registration mechanism (was premature optimisation)
 
-### 2011-03-25 Dominique Dumont  <domi.dumont@free.fr> 1.236
+2011-04-01 Dominique Dumont  <domi.dumont@free.fr> 1.236
     
     * Application changes:
         * dpkg control dependency: 
