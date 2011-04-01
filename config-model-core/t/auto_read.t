@@ -33,7 +33,7 @@ if ($log and -e $log4perl_user_conf_file ) {
     Log::Log4perl::init($log4perl_user_conf_file);
 }
 else {
-    Log::Log4perl->easy_init($log ? $DEBUG: $WARN);
+    Log::Log4perl->easy_init($ERROR);
 }
 
 ok(1,"compiled");
