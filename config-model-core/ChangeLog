@@ -3,6 +3,11 @@ TODO:
     (require re-work of warp mechanism)
   - remove warp registration mechanism (was premature optimisation)
 
+    * Framework changes:
+        * added MouseX::NativeTraits dependency (fix RT #67196)
+        * config-edit: fixed typo (fix RT #66403)
+        * Value, Node, AnyId: use dclone to backup constructor parameters
+
 2011-04-01 Dominique Dumont  <domi.dumont@free.fr> 1.236
     
     * Application changes:
