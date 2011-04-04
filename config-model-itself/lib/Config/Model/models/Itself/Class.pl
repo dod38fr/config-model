@@ -211,7 +211,7 @@
                 upstream_default => '1',
                 warp             => {
                     follow => { backend => '- backend' },
-                    rules  => [ '$backend eq "yaml" or $backend eq "perl"' => { level => 'normal', } ],
+                    rules  => [ '$backend =~ /yaml|perl/i' => { level => 'normal', } ],
                 }
             },
            'comment_delimiter' => {
