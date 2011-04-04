@@ -3,6 +3,8 @@ TODO:
     (require re-work of warp mechanism)
   - remove warp registration mechanism (was premature optimisation)
 
+2011-04-01 Dominique Dumont  <domi.dumont@free.fr> 1.237
+    
     * Framework changes:
         * added MouseX::NativeTraits dependency (fix RT #67196)
         * config-edit: fixed typo (fix RT #66403)
@@ -12,7 +14,8 @@ TODO:
     * Application changes:
         * dpkg control dependency: 
             - Dependency filtering mechanism uses source package name to find
-              filter value in Meta
+              filter value in Meta. This makes more sense than using binary package
+              name
               
 2011-04-01 Dominique Dumont  <domi.dumont@free.fr> 1.236
     
