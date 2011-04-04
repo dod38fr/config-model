@@ -1991,7 +1991,7 @@ sub get_model_doc {
         foreach my $what (qw/author copyright license/) {
             next unless @{ $legalese{$what} || [] };
             push @end, "=head1 " . uc($what), '', '=over', '',
-              ( map { ( "=item $_", '' ); } @{ $legalese{$what} } ),
+              ( map { ( "=item $_", '' ); } map {ref $_ ? @$_ : $_ } @{ $legalese{$what} } ),
               '', '=back', '';
         }
 
