@@ -539,7 +539,7 @@ sub close_file_to_write {
     
     if ($error) {
         # restore backup and display error
-        my $data = $self->{file_backup} ;
+        my $data = $self->{file_backup} || [];
         $logger->debug("Error during write, restoring backup in $file_path with ".scalar @$data." lines");
         $fh->seek(0,0) ; # go back to beginning of file
         $fh->print(@$data);
