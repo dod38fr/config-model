@@ -41,14 +41,14 @@ my %warn_if_payload = (
     experience => 'advanced',
     cargo      => {
         type              => 'node',
-        config_class_name => 'CommonElement::WarnIf',
+        config_class_name => 'Itself::CommonElement::WarnIf',
     },
     @warp_in_uniline_or_string,
 );
 
 [
     [
-        name    => 'CommonElement::WarnIf',
+        name    => 'Itself::CommonElement::WarnIf',
         element => [
             msg => {
                 type       => 'leaf',
