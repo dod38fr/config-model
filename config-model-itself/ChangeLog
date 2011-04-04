@@ -1,3 +1,5 @@
+        * Class.pl: added full_dump parameter for YAML and Perl backend
+
 2011-04-01 Dominique Dumont  <domi.dumont@free.fr> 1.223
 
         * dump and load annotations in pod doc in config class file
