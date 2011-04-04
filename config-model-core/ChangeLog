@@ -7,7 +7,11 @@ TODO:
         * added MouseX::NativeTraits dependency (fix RT #67196)
         * config-edit: fixed typo (fix RT #66403)
         * Value, Node, AnyId: use dclone to backup constructor parameters
-
+    * Application changes:
+        * dpkg control dependency: 
+            - Dependency filtering mechanism uses source package name to find
+              filter value in Meta
+              
 2011-04-01 Dominique Dumont  <domi.dumont@free.fr> 1.236
     
     * Application changes:
