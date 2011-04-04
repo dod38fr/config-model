@@ -1,5 +1,8 @@
 [
   {
+    'class_description' => 'Configuration class used by L<Config::Model> to edit or 
+validate /etc/ssh/sshd_config
+',
     'accept' => [
       '.*',
       {
@@ -7,23 +10,6 @@
         'summary' => 'boilerplate parameter that may hide a typo',
         'warn' => 'Unknow parameter please make sure there\'s no typo and contact the author',
         'type' => 'leaf'
-      }
-    ],
-    'read_config' => [
-      {
-        'backend' => 'OpenSsh::Sshd',
-        'config_dir' => '/etc/ssh'
-      },
-      {
-        'save' => 'backup',
-        'file' => 'sshd_config',
-        'backend' => 'augeas',
-        'sequential_lens' => [
-          'HostKey',
-          'Subsystem',
-          'Match'
-        ],
-        'config_dir' => '/etc/ssh'
       }
     ],
     'name' => 'Sshd',
@@ -835,6 +821,23 @@ If UsePAM is enabled, you will not be able to run sshd(8) as a non-root user.  T
         'experience' => 'advanced',
         'type' => 'list',
         'description' => 'Specifies a match block. The criteria User, Group Host and Address can contain patterns. When all these criteria are satisfied (i.e. all patterns match the incoming connection), the parameters set in the block element will override the general settings.'
+      }
+    ],
+    'read_config' => [
+      {
+        'backend' => 'OpenSsh::Sshd',
+        'config_dir' => '/etc/ssh'
+      },
+      {
+        'save' => 'backup',
+        'file' => 'sshd_config',
+        'backend' => 'augeas',
+        'sequential_lens' => [
+          'HostKey',
+          'Subsystem',
+          'Match'
+        ],
+        'config_dir' => '/etc/ssh'
       }
     ]
   }

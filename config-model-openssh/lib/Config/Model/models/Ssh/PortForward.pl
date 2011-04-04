@@ -1,5 +1,7 @@
 [
   {
+    'class_description' => 'Configuration class that represents the parameters required
+to specify port forwarding in a ssh configuration.',
     'name' => 'Ssh::PortForward',
     'copyright' => [
       '2009-2011 Dominique Dumont'

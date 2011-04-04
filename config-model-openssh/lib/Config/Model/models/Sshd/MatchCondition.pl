@@ -1,5 +1,7 @@
 [
   {
+    'class_description' => 'Conidtion to apply to identify matched items inside 
+a sshd_config match block.',
     'name' => 'Sshd::MatchCondition',
     'copyright' => [
       '2009-2011 Dominique Dumont'

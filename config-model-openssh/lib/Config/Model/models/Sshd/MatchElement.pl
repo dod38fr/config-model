@@ -1,5 +1,7 @@
 [
   {
+    'class_description' => 'Configuration class that represents all parameters available 
+inside a Match block of a sshd configuration.',
     'name' => 'Sshd::MatchElement',
     'copyright' => [
       '2009-2011 Dominique Dumont'

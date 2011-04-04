@@ -1,5 +1,7 @@
 [
   {
+    'class_description' => 'Configuration class that represents all parameters available 
+inside a Host directive of a ssh configuration.',
     'name' => 'Ssh::HostElement',
     'copyright' => [
       '2009-2011 Dominique Dumont'

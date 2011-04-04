@@ -1,3 +1,9 @@
+2011-04-04  Dominique Dumont  <domi.dumont@free.fr> v 1.215
+    
+        * All models: Added author, license and class_description
+        * Added generated documentation from configuration classes.
+        * Requires Config::Model 1.236
+
 2011-03-03  Dominique Dumont  <domi.dumont@free.fr> v 1.214
 
         * Fixed Build.PL to install files from lib/.../system.d/

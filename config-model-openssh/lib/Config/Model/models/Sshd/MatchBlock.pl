@@ -1,5 +1,9 @@
 [
   {
+    'class_description' => 'Class to represent a Match block inside a sshd_config file. 
+
+It\'s made of a list of conditions to match and a list of 
+parameters to apply to the matched items.',
     'name' => 'Sshd::MatchBlock',
     'copyright' => [
       '2009-2011 Dominique Dumont'
