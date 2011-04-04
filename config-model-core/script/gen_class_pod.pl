@@ -20,6 +20,7 @@
 #    02110-1301 USA
 
 use warnings FATAL => qw(all);
+use lib qw/lib/ ;
 use strict;
 use File::Slurp qw/slurp/;
 use Config::Model ; # to generate doc
