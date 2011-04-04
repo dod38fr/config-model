@@ -2018,8 +2018,8 @@ sub get_element_description {
     $of = " of " . ( $cargo_vt or $cargo_type ) if defined $cargo_type;
 
     my $desc = $elt_info->{description} || '';
-    $desc .= $elt_info->{mandatory} ? 'Mandatory' : 'Optional' ;
-    $desc .= ". Type ". ($vt || $type) . $of.'.';
+    $desc .= $elt_info->{mandatory} ? ' Mandatory.' : ' Optional.' ;
+    $desc .= " Type ". ($vt || $type) . $of.'.';
     foreach (qw/choice default upstream_default/) {
         my $item = $elt_info->{$_} ;
         next unless defined $item ;
