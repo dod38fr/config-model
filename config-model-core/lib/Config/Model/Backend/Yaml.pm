@@ -60,7 +60,7 @@ sub write {
     croak "Undefined file handle to write"
       unless defined $args{io_handle} ;
 
-    my $perl_data = $self->{node}->dump_as_data() ;
+    my $perl_data = $self->{node}->dump_as_data(full_dump => $args{full_dump}) ;
     my $yaml = Dump $perl_data ;
 
     $args{io_handle} -> print ($yaml) ;

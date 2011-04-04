@@ -8,6 +8,7 @@ TODO:
         * config-edit: fixed typo (fix RT #66403)
         * Value, Node, AnyId: use dclone to backup constructor parameters
         * Model: Correctly write author and copyright in doc (i.e not as ARRAY0x0...)
+        * Yaml backend: fill full_dump option (did not work when set to 0)
     * Application changes:
         * dpkg control dependency: 
             - Dependency filtering mechanism uses source package name to find

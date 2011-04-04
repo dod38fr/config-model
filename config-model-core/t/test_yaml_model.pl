@@ -9,7 +9,7 @@
                 type       => 'leaf',
                 value_type => 'uniline',
             },
-            dummy => {qw/type leaf value_type uniline upstream_default toto/},
+            dummy => {qw/type leaf value_type uniline default toto/},
         ]
     },
     {
@@ -21,6 +21,7 @@
                 config_dir  => '/yaml/',
                 file        => 'hosts.yml',
                 auto_create => 1,
+                full_dump => 0,
             },
         ],
 
