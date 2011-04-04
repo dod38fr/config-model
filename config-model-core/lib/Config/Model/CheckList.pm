@@ -23,6 +23,7 @@ use warnings ;
 use Carp;
 use strict;
 use Log::Log4perl qw(get_logger :levels);
+use Storable qw/dclone/;
 
 use base qw/Config::Model::WarpedThing/ ;
 
@@ -135,7 +136,7 @@ sub new {
 	$self->submit_to_refer_to() ;
     }
 
-    $self->{backup}  = \%args ;
+    $self->{backup}  = dclone (\%args) ;
 
     $self->set_properties() ; # set will use backup data
 

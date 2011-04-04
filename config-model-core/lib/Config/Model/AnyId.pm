@@ -23,6 +23,7 @@ use warnings ;
 use Carp;
 use strict;
 use Log::Log4perl qw(get_logger :levels);
+use Storable qw/dclone/;
 
 use base qw/Config::Model::WarpedThing/;
 
@@ -685,7 +686,7 @@ sub handle_args {
     map { $self->{$_} =  delete $args{$_} if defined $args{$_} }
          qw/index_class index_type morph ordered/;
 
-    %{$self->{backup}}  = %args ;
+    $self->{backup}  = dclone (\%args) ;
 
     $self->set_properties(%args) if defined $self->{index_type} ;
 
