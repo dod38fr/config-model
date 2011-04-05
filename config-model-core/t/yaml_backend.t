@@ -86,15 +86,6 @@ is($p2_dump,$load,"compare original data with 2nd instance data") ;
 
 # since full_dump is null, check that dummy param is not written in yaml files
 my $yaml = slurp($yaml_file) || die "can't open $yaml_file:$!";
-my $expect = << 'YAML';
----
-record:
-- alias: localhost
-  canonical: localhost
-  ipaddr: 127.0.0.1
-- canonical: bilbo
-  ipaddr: 192.168.0.1
-YAML
 
-is($yaml,$expect,"check yaml dump content");
+unlike($yaml,qr/dummy/,"check yaml dump content");
 
