@@ -155,7 +155,7 @@ sub write_data_and_comments {
     return $res ;
 }
 
-no Moose ;
+no Any::Moose ;
 __PACKAGE__->meta->make_immutable ;
 
 1;
@@ -232,7 +232,7 @@ Config::Model::Backend::Any - Virtual class for other backends
     return 1;
  }
 
- no Moose ;
+ no Any::Moose ;
  __PACKAGE__->meta->make_immutable ;
 
 =head1 DESCRIPTION

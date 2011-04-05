@@ -277,7 +277,7 @@ sub load {
     }
 }
 
-no Moose ;
+no Any::Moose ;
 
 __PACKAGE__ -> meta->make_immutable;
 

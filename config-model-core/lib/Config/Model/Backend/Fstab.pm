@@ -133,7 +133,7 @@ sub option_string {
     return join',',@options ;
 }
 
-no Moose ;
+no Any::Moose ;
 __PACKAGE__->meta->make_immutable ;
 
 1;

@@ -2315,7 +2315,7 @@ sub available_models {
     return \%categories, \%appli_info, \%applications ;
 }
 
-no Moose ;
+no Any::Moose ;
 __PACKAGE__->meta->make_immutable ;
 
 1;

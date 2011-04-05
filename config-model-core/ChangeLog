@@ -6,6 +6,11 @@ TODO:
 2011-04-05 Dominique Dumont  <domi.dumont@free.fr> 1.238
     
     * Framework changes:
+        * Most *.pm: replaced 'no Moose' by 'no Any::Moose' 
+        
+2011-04-05 Dominique Dumont  <domi.dumont@free.fr> 1.238
+    
+    * Framework changes:
         * Build.PL: removed dead code that cause downstream pacaking problems.
         * Model.pm: fix cosmetic issue with doc generation.
         
