@@ -3,7 +3,7 @@ TODO:
     (require re-work of warp mechanism)
   - remove warp registration mechanism (was premature optimisation)
 
-2011-04-05 Dominique Dumont  <domi.dumont@free.fr> 1.239
+2011-04-05 Dominique Dumont  <domi.dumont@free.fr> 1.240
     
     * Framework changes:
         * Most *.pm: replaced 'no Moose' by 'no Any::Moose' 

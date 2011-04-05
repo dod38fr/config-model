@@ -9,3 +9,4 @@ _build
 ^MYMETA.yml$
 blib
 wr_root
+\.rej$
