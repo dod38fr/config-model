@@ -22,7 +22,6 @@ use Module::Build;
 use warnings FATAL => qw(all);
 use strict;
 use File::Slurp qw/slurp/;
-use Config::Model ; # to generate doc
 use Log::Log4perl qw(:easy) ;
 
 Log::Log4perl->easy_init($WARN);
@@ -35,20 +34,6 @@ print "\nIf you want to use the TermUI interface, you should install\n",
 my @version_info = @ARGV ? ( dist_version => $ARGV[0] ) : ();
 
 my %appli_files = map { ( $_, $_ ) } glob("lib/Config/Model/*.d/*");
-
-my $model = Config::Model -> new(model_dir => "lib/Config/Model/models") ;
-
-my @generated_pods ;
-# map {
-    # if (not $model->model_exists($_)) {
-        # print "Generating doc for model $_\n";
-        # $model->load($_) ;
-        # $model->generate_doc ($_,'lib') ;
-    # }
-  # }
-  # map { /model\s*=\s*([\w:-]+)/; $1; }
-  # grep { /^\s*model/; }
-  #map  { slurp($_); } glob("lib/Config/Model/*.d/*");
 
 my $build = Module::Build->new(
     module_name => 'Config::Model',
@@ -73,7 +58,7 @@ my $build = Module::Build->new(
 
     # cleanup required by t/auto_read.t
     # PreGrammar.pm is created by t/value_computer.t
-    add_to_cleanup => [qw/PreGrammar.pm wr_root r_root/, @generated_pods],
+    add_to_cleanup => [ qw/PreGrammar.pm wr_root r_root/ ],
 );
 
 $build->add_build_element('pl');
