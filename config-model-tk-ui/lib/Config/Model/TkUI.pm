@@ -18,6 +18,10 @@ use Pod::POM::View::Text ;
 use Tk::Photo ;
 use Tk::PNG ; # required for Tk::Photo to be able to load pngs
 use Tk::DialogBox ;
+use Tk::Adjuster;
+
+use Tk::Pod ;
+use Tk::Pod::Text; # for findpod
 
 use Config::Model::Tk::LeafEditor ;
 use Config::Model::Tk::CheckListEditor ;
@@ -179,7 +183,6 @@ sub Populate {
     $cw->{tktree} = $tree ;
 
     # add adjuster
-    require Tk::Adjuster;
     $bottom_frame -> Adjuster()->packAfter($tree, -side => 'left') ;
 
     # add headers
@@ -279,7 +282,7 @@ sub add_help_menu {
     my $about_sub = sub {
 	$cw->Dialog(-title => 'About',
 		    -text => "Config::Model::TkUI \n"
-		    ."(c) 2008-2010 Dominique Dumont \n"
+		    ."(c) 2008-2011 Dominique Dumont \n"
 		    ."Licensed under LGPLv2\n"
 		   ) -> Show ;
     };
@@ -298,9 +301,20 @@ sub add_help_menu {
 	$db-> Show ;
     };
 
+    my $class = $cw->{root}->config_class_name ;
+    my $man_sub = sub {
+        $cw -> Pod(
+            -tree => 0,
+            -file => "Config::Model::models::".$class ,
+            -title => $class ,
+            -exitbutton => 0,
+        ) ;
+    };
+
     my $help_items = [[ qw/command About -command/, $about_sub ],
 		      [ qw/command Todo  -command/, $todo_sub  ],
 		      [ qw/command Usage -command/, $help_sub  ],
+		      [ command => "$class help", -command => $man_sub ],
 		     ] ;
     $menubar->cascade( -label => 'Help', -menuitems => $help_items ) ;
 }

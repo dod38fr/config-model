@@ -1,4 +1,5 @@
     * LeafEditor: pack and unpack value help widget when needed
+    * TkUI: added help menu entry to pop up the config class man page.
 
 2011-03-04  Dominique Dumont  <domi.dumont@free.fr> 1.322
 
