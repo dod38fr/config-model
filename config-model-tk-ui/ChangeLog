@@ -1,3 +1,5 @@
+    * LeafEditor: pack and unpack value help widget when needed
+
 2011-03-04  Dominique Dumont  <domi.dumont@free.fr> 1.322
 
         * Changed nb of skipped tests (fix test plan issues

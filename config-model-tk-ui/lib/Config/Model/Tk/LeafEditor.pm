@@ -114,9 +114,11 @@ sub Populate {
     $cw->add_info_button()->pack( @fx,qw/-anchor n/) ;
     $cw->add_summary($leaf)->pack(@fx) ;
     $cw->add_description($leaf)->pack(@fx) ;
-    my ($help_frame, $help_widget) = $cw->add_help(value => '',1);
-    $help_frame->pack(@fx);
-    $cw->{value_help_widget} = $help_widget ; 
+    my ($help_frame, $help_widget) = $cw->add_help('help on value' => '',1);
+
+    $cw->Advertise( value_help_widget  => $help_widget );
+    $cw->Advertise( value_help_frame   => $help_frame  );
+
     $cw->set_value_help ;
 
     $cw->ConfigSpecs(
@@ -243,15 +245,22 @@ sub store {
 }
 
 sub set_value_help {
-     my $cw = shift ;
-     my $v = $cw->{value} ;
-     if (defined $v) {
-         my $value_help = $cw->{leaf}->get_help($v);
-         my $w = $cw->{value_help_widget};
-         $w->delete('0.0','end');
-         $w->insert('end',$value_help) if defined $value_help ;
-     }
- }
+    my $cw = shift;
+    my $v  = $cw->{value};
+    my $value_help = defined $v ? $cw->{leaf}->get_help($v) : '' ;
+
+    my $w = $cw->Subwidget('value_help_widget');
+    my $f = $cw->Subwidget('value_help_frame');
+ 
+    if ( $value_help ) {
+        $w->delete( '0.0', 'end' );
+        $w->insert( 'end', $value_help ) ;
+        $f->pack(@fbe1) ;
+    }
+    else {
+        $f->packForget ;
+    }
+}
 
 sub reset_value {
     my $cw = shift ;
