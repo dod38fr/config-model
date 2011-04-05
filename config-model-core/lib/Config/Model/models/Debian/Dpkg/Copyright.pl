@@ -6,15 +6,15 @@ specs to CANDIDATE spec.
 
 To edit a copyright file, go into your package development directory and run:
 
-   config-edit -application dpkg-copyright
+  config-edit -application dpkg-copyright
    
 To check you file run:
 
-    config-edit -application dpkg-copyright -ui none
+  config-edit -application dpkg-copyright -ui none
     
 To upgrade your file from an old spec, run:
 
-    config-edit -application dpkg-copyright -ui none -save
+  config-edit -application dpkg-copyright -ui none -save
 ',
     'accept' => [
       '.*',
@@ -71,8 +71,7 @@ To upgrade your file from an old spec, run:
           'type' => 'leaf'
         },
         'type' => 'list',
-        'description' => '* Syntax: line based list
-* The preferred address(es) to reach the upstream project. May be free-form text, but by convention will usually be written as a list of RFC5822 addresses or URIs.'
+        'description' => 'The preferred address(es) to reach the upstream project. May be free-form text, but by convention will usually be written as a list of RFC5822 addresses or URIs.'
       },
       'Source',
       {
@@ -87,8 +86,7 @@ To upgrade your file from an old spec, run:
           }
         },
         'type' => 'leaf',
-        'description' => '* Syntax: formatted text, no synopsis 
-* An explanation from where the upstream source came from. Typically this would be a URL, but it might be a free-form explanation. The Debian Policy, 12.5 requires this information unless there are no upstream sources, which is mainly the case for native Debian packages. If the upstream source has been modified to remove non-free parts, that should be explained in this field.'
+        'description' => 'An explanation from where the upstream source came from. Typically this would be a URL, but it might be a free-form explanation. The Debian Policy, 12.5 requires this information unless there are no upstream sources, which is mainly the case for native Debian packages. If the upstream source has been modified to remove non-free parts, that should be explained in this field.'
       },
       'Disclaimer',
       {
@@ -100,15 +98,13 @@ To upgrade your file from an old spec, run:
           }
         },
         'type' => 'leaf',
-        'description' => '* Syntax: formatted text, no synopsis 
-* This field can be used in the case of non-free and contrib packages (see [Policy 12.5]( http://www.debian.org/doc/debian-policy/ch-docs.html#s-copyrightfile))'
+        'description' => 'This field can be used in the case of non-free and contrib packages (see [Policy 12.5]( http://www.debian.org/doc/debian-policy/ch-docs.html#s-copyrightfile))'
       },
       'Comment',
       {
         'value_type' => 'string',
         'type' => 'leaf',
-        'description' => '* Syntax: formatted text, no synopsis
-* Description: This field can provide additional information. For example, it might quote an e-mail from upstream justifying why the license is acceptable to the main archive, or an explanation of how this version of the package has been forked from a version known to be DFSG-free, even though the current upstream version is not.'
+        'description' => 'This field can provide additional information. For example, it might quote an e-mail from upstream justifying why the license is acceptable to the main archive, or an explanation of how this version of the package has been forked from a version known to be DFSG-free, even though the current upstream version is not.'
       },
       'Copyright',
       {
