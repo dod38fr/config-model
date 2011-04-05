@@ -3,7 +3,13 @@ TODO:
     (require re-work of warp mechanism)
   - remove warp registration mechanism (was premature optimisation)
 
-2011-04-01 Dominique Dumont  <domi.dumont@free.fr> 1.237
+2011-04-05 Dominique Dumont  <domi.dumont@free.fr> 1.238
+    
+    * Framework changes:
+        * Build.PL: removed dead code that cause downstream pacaking problems.
+        * Model.pm: fix cosmetic issue with doc generation.
+        
+2011-04-04 Dominique Dumont  <domi.dumont@free.fr> 1.237
     
     * Framework changes:
         * added MouseX::NativeTraits dependency (fix RT #67196)

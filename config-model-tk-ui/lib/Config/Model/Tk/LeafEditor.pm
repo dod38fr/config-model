@@ -253,8 +253,9 @@ sub set_value_help {
     my $f = $cw->Subwidget('value_help_frame');
  
     if ( $value_help ) {
-        $w->delete( '0.0', 'end' );
-        $w->insert( 'end', $value_help ) ;
+        #$w->delete( '0.0', 'end' );
+        #$w->insert( 'end', $value_help ) ;
+        $cw->update_help($w,$value_help);
         $f->pack(@fbe1) ;
     }
     else {

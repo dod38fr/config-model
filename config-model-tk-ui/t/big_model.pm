@@ -105,7 +105,28 @@
     [
         name              => 'Master',
         experience        => [ [qw/tree_macro warp/] => 'advanced' ],
-        class_description => "Master description",
+        class_description => "
+
+=head1 coucou
+
+Master description . Let's go for a very long description.
+
+Big class to do:
+
+=over 
+
+=item * 
+
+shiny
+
+=item *
+
+beautiful
+
+=back
+
+things.
+",
         level        => [ [qw/lista hash_a tree_macro int_v/] => 'important' ],
         write_config => [
             {
@@ -256,7 +277,15 @@
                 description =>
                   'my_plain_check_list nto so helpfull description',
             },
-            my_ref_check_list => {
+            enum_with_help => {
+                type   => 'leaf',
+                value_type => 'enum' ,
+                choice => [ 'AA' .. 'AE' ],
+                help   => { map { ( $_ => "$_ help") ;} ('AA' .. 'AE') },
+                description =>
+                  'my_plain_check_list nto so helpfull description',
+            },
+           my_ref_check_list => {
                 type     => 'check_list',
                 refer_to => '- hash_a + ! hash_b',
             },
