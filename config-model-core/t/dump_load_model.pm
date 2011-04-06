@@ -42,7 +42,7 @@
   [
    name => 'SlaveZ',
    element => [
-	       [qw/Z/] => { type => 'leaf',
+	       ['Z' , 'X-Y-Z' ] => { type => 'leaf',
 			      value_type => 'enum',
 			      choice     => [qw/Av Bv Cv/]
 			    },

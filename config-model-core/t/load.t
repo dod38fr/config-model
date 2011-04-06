@@ -1,8 +1,9 @@
 # -*- cperl -*-
 
 use ExtUtils::testlib;
-use Test::More tests => 107;
+use Test::More tests => 109;
 use Test::Exception ;
+use Test::Differences ;
 use Config::Model;
 use Data::Dumper ;
 
@@ -38,6 +39,7 @@ my @regexp_test
      [ '#C'              , ['x', 'x' ,  'x'    ,'x' , 'x'     , 'C'  ]],
      [ '#"m C"'          , ['x', 'x' ,  'x'    ,'x' , 'x'     , 'm C']],
      [ 'a=b'             , ['a', 'x' ,  'x'    ,'=' , 'b'     , 'x'  ]],
+     [ 'a-z=b'           , ['a-z','x' , 'x'    ,'=' , 'b'     , 'x'  ]],
      [ "a=\x{263A}"      , ['a', 'x' ,  'x'    ,'=' , "\x{263A}" , 'x'  ]], # utf8 smiley
      [ 'a.=b'            , ['a', 'x' ,  'x'    ,'.=','b'      , 'x'  ]],
      [ "a.=\x{263A}"     , ['a', 'x' ,  'x'    ,'.=', "\x{263A}" , 'x'  ]], # utf8 smiley
@@ -64,7 +66,7 @@ foreach my $subtest (@regexp_test) {
     my $res = Config::Model::Loader::_split_cmd($cmd) ;
     #print Dumper $res,"\n";
     foreach (@$ref) { $_ = undef if  $_ eq 'x' ;} 
-    is_deeply($res,$ref, "test _split_cmd with '$cmd'") ;
+    eq_or_diff($res,$ref, "test _split_cmd with '$cmd'") ;
 }
 
 my $inst = $model->instance (root_class_name => 'Master', 
@@ -302,3 +304,8 @@ is($root2->grab_value('a_string'),undef,"check that another_string was undef'ed"
 
 $root2->load("lista:0.=\x{263A}") ;
 is($root2->grab_value('lista:0'),"a\x{263A}","check that list append work");
+
+# test element with embedded dash
+$root->load("std_id:ab X-Y-Z=Av");
+is($root->grab_value('std_id:ab X-Y-Z'), "Av","check load grab of X-Y-Z") ;
+

@@ -3,6 +3,10 @@ TODO:
     (require re-work of warp mechanism)
   - remove warp registration mechanism (was premature optimisation)
 
+    * Framework changes:
+       * Build depend on Test::Differences
+       * Load and grab: fix to accept '-' in element names 
+
 2011-04-05 Dominique Dumont  <domi.dumont@free.fr> 1.240
     
     * Framework changes:

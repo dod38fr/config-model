@@ -331,7 +331,7 @@ sub _split_cmd {
       (
        $cmd =~
        m!^
-	 (\w+)? # element name can be alone
+	 (\w[\w-]*)? # element name can be alone
 	 (?:
             (:|=~|~)       # action
             ( /[^/]+/      # regexp

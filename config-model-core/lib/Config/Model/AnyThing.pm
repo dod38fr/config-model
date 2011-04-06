@@ -415,7 +415,7 @@ sub grab {
             }
         }
 
-        if ($cmd =~ /^\?(\w+)/) {
+        if ($cmd =~ /^\?(\w[\w-]*)/) {
 	    push @found, $obj->grab_ancestor_with_element_named($1) ;
 	    $cmd =~ s/^\?// ; #remove the go up part
 	    unshift @command, $cmd ;
@@ -444,7 +444,7 @@ sub grab {
 	}
 
         my ($name, $action, $arg) 
-	  = ($cmd =~ /([\-\w]+)(?:(:)((?:"[^\"]*")|(?:[\w:\/\.\-\+]+)))?/);
+	  = ($cmd =~ /(\w[\-\w]*)(?:(:)((?:"[^\"]*")|(?:[\w:\/\.\-\+]+)))?/);
 
 	if (defined $arg and $arg =~ /^"/ and $arg =~ /"$/) {
 	    $arg =~ s/^"// ; # remove leading quote
