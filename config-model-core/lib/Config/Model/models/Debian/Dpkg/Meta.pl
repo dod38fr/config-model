@@ -44,30 +44,6 @@ For instance, if the dependency filter is \'lenny\', all \'lenny\' and \'etch\' 
           'wheezy'
         ]
       },
-      'package-dependency-filter',
-      {
-        'cargo' => {
-          'compute' => {
-            'formula' => '$group_filter',
-            'variables' => {
-              'maintainer' => '! control source Maintainer',
-              'group_filter' => '- group-dependency-filter:"$maintainer"'
-            },
-            'allow_override' => '1'
-          },
-          'value_type' => 'enum',
-          'type' => 'leaf',
-          'choice' => [
-            'etch',
-            'lenny',
-            'squeeze',
-            'wheezy'
-          ]
-        },
-        'type' => 'hash',
-        'description' => 'Dependency filter tuned by package. Use this to override the main dependency-filter value.',
-        'index_type' => 'string'
-      },
       'group-dependency-filter',
       {
         'cargo' => {
@@ -92,6 +68,30 @@ For instance, if the dependency filter is \'lenny\', all \'lenny\' and \'etch\' 
         },
         'type' => 'hash',
         'description' => 'Dependency filter tuned by Maintainer field. Use this to override the main dependency-filter value.',
+        'index_type' => 'string'
+      },
+      'package-dependency-filter',
+      {
+        'cargo' => {
+          'compute' => {
+            'formula' => '$group_filter',
+            'variables' => {
+              'maintainer' => '! control source Maintainer',
+              'group_filter' => '- group-dependency-filter:"$maintainer"'
+            },
+            'allow_override' => '1'
+          },
+          'value_type' => 'enum',
+          'type' => 'leaf',
+          'choice' => [
+            'etch',
+            'lenny',
+            'squeeze',
+            'wheezy'
+          ]
+        },
+        'type' => 'hash',
+        'description' => 'Dependency filter tuned by package. Use this to override the main dependency-filter value.',
         'index_type' => 'string'
       }
     ]
