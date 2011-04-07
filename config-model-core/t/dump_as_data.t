@@ -74,7 +74,6 @@ my $expect = {
 	      'hash_a' => {
 			   'toto' => 'toto_value',
 			   'titi' => 'titi_value',
-			   undef_val => undef ,
 			  },
 	      'std_id' => {
 			   'ab' => {'X' => 'Bv'},
