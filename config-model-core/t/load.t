@@ -65,7 +65,7 @@ foreach my $subtest (@regexp_test) {
     my ($cmd, $ref) = @$subtest ;
     my $res = Config::Model::Loader::_split_cmd($cmd) ;
     #print Dumper $res,"\n";
-    foreach (@$ref) { $_ = undef if  $_ eq 'x' ;} 
+    foreach (@$res) { $_ = 'x' unless defined $_ ;} 
     eq_or_diff($res,$ref, "test _split_cmd with '$cmd'") ;
 }
 
