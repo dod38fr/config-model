@@ -1971,7 +1971,9 @@ sub get_model_doc {
         my @elt = ( "=head1 Elements", '' );
         foreach my $elt_name ( @{ $c_model->{element_list} } ) {
             my $elt_info = $c_model->{element}{$elt_name};
-            push @elt, "=head2 C<$elt_name>", '';
+            my $summary = $elt_info->{summary} || '';
+            $summary &&= " - $summary" ;
+            push @elt, "=head2 $elt_name$summary", '';
             push @elt, $self->get_element_description($elt_info) , '' ;
 
             foreach ($elt_info,$elt_info->{cargo}) { 
