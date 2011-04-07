@@ -19,9 +19,7 @@ my @fxe1 = qw/-fill x    -expand 1/ ;
 my @fx   = qw/-fill    x / ;
 my $logger = Log::Log4perl::get_logger("Tk::ListEditor");
 
-my $up_img;
-my $down_img;
-my $rm_img;
+my ($up_img,$down_img, $rm_img, $eraser_img, $remove_img );
 *icon_path = *Config::Model::TkUI::icon_path;
 
 my $entry_width = 20 ;
@@ -33,155 +31,173 @@ sub ClassInit {
     # cw->Advertise(name=>$widget);
 }
 
-sub Populate { 
-    my ($cw, $args) = @_;
-    my $list = $cw->{list} = delete $args->{-item} 
-      || die "ListEditor: no -item, got ",keys %$args;
-    delete $args->{-path} ;
-    $cw->{store_cb} = delete $args->{-store_cb} 
-      or die __PACKAGE__,"no -store_cb" ;
+sub Populate {
+    my ( $cw, $args ) = @_;
 
-    unless (defined $up_img) {
-	$up_img   = $cw->Photo(-file => $icon_path.'up.png');
-	$down_img = $cw->Photo(-file => $icon_path.'down.png');
+    my $list = $cw->{list} = delete $args->{-item}
+      || die "ListEditor: no -item, got ", keys %$args;
+
+    delete $args->{-path};
+
+    $cw->{store_cb} = delete $args->{-store_cb}
+      or die __PACKAGE__, "no -store_cb";
+
+    unless ( defined $up_img ) {
+        $up_img     = $cw->Photo( -file => $icon_path . 'up.png' );
+        $down_img   = $cw->Photo( -file => $icon_path . 'down.png' );
+        $eraser_img  = $cw->Photo( -file => $icon_path . 'eraser.png' );
+        $remove_img = $cw->Photo( -file => $icon_path . 'remove.png' );
     }
 
-    $cw->add_header(Edit => $list)->pack(@fx) ;
+    $cw->add_header( Edit => $list )->pack(@fx);
 
-    my $balloon = $cw->Balloon(-state => 'balloon') ;
+    my $balloon = $cw->Balloon( -state => 'balloon' );
 
-    my $inst = $list->instance ;
+    my $inst = $list->instance;
 
-    my $value_type = $list->get_cargo_info('value_type') ; # may be undef
+    my $value_type = $list->get_cargo_info('value_type');    # may be undef
 
-    my $elt_button_frame = $cw->Frame(qw/-relief raised -borderwidth 2/)
-                                     ->pack(@fbe1) ;
-    my $frame_title = $list->element_name ;
-    $frame_title .= (defined $value_type and $value_type =~ /node/) ? 'elements' : 'values' ;
-    $elt_button_frame -> Label(-text => $frame_title) -> pack() ; 
+    my $elt_button_frame =
+      $cw->Frame(qw/-relief raised -borderwidth 2/)->pack(@fbe1);
+    my $frame_title = $list->element_name;
+    $frame_title .=
+      ( defined $value_type and $value_type =~ /node/ ) ? 'elements' : 'values';
+    $elt_button_frame->Label( -text => $frame_title )->pack();
 
-    my $tklist = $elt_button_frame ->Scrolled ( 'Listbox',
-						-selectmode => 'single',
-						-scrollbars => 'oe',
-						-height => 8,
-					      )
-      -> pack(@fbe1, qw/-side left -anchor w/) ;
+    my $tklist = $elt_button_frame->Scrolled(
+        'Listbox',
+        -selectmode => 'single',
+        -scrollbars => 'oe',
+        -height     => 8,
+    )->pack(@fbe1);
 
-    $balloon -> attach($tklist, 
-		       -msg => 'select an element and perform '
-		             . 'an action on the right');
+    $balloon->attach( $tklist,
+        -msg => 'select an element and perform ' . 'an action on the right' );
 
-    my $cargo_type = $list->cargo_type ;
-    my @insert = $cargo_type eq 'leaf' ? $list->fetch_all_values (check => 'no')
-               :                         $list->get_all_indexes ;
-    map { $_ = '<undef>' unless defined $_ } @insert ;
-    $tklist->insert( end => @insert ) ;
+    my $cargo_type = $list->cargo_type;
+    my @insert =
+        $cargo_type eq 'leaf'
+      ? $list->fetch_all_values( check => 'no' )
+      : $list->get_all_indexes;
+    map { $_ = '<undef>' unless defined $_ } @insert;
+    $tklist->insert( end => @insert );
 
-    my $right_frame = $elt_button_frame->Frame
-      -> pack(@fxe1,qw/-side right -anchor n/);
+    my $right_frame =
+      $elt_button_frame->Frame->pack( @fxe1, qw/-side right -anchor n/ );
 
-    $cw->ConfigModelNoteEditor( -object => $list )->pack ;
-    $cw->add_summary($list)->pack(@fx) ;
-    $cw->add_description($list)->pack(@fx) ;
-    $cw->add_info_button($cw)->pack(@fx) ;
+    $cw->ConfigModelNoteEditor( -object => $list )->pack;
+    $cw->add_summary($list)->pack(@fx);
+    $cw->add_description($list)->pack(@fx);
+    $cw->add_info_button($cw)->pack(@fx);
 
+    my $mv_rm_frame = $right_frame->Frame->pack(@fx);
 
-    my $mv_rm_frame = $right_frame->Frame->pack(@fx) ;
+    $mv_rm_frame->Button(
+        -image   => $up_img,
+        -command => sub { $cw->move_up; },
+    )->pack( -side => 'left', @fxe1 );
 
-    $mv_rm_frame->Button(-image => $up_img,
-			 -command => sub { $cw->move_up ;} ,
-			)-> pack( -side =>'left' ,@fxe1);
-    $mv_rm_frame->Button(-image => $down_img,
-			 -command => sub { $cw->move_down ;} ,
-			)-> pack( -side =>'left' ,@fxe1);
+    $mv_rm_frame->Button(
+        -image   => $down_img,
+        -command => sub { $cw->move_down; },
+    )->pack( -side => 'left', @fxe1 );
 
-    $right_frame->Button(-text => 'Remove selected',
-			 -command => sub { $cw->remove_selection ;} ,
-			)-> pack( @fxe1);
+    my $eraser_b = $mv_rm_frame->Button(
+        -image   => $eraser_img,
+        -command => sub { $cw->remove_selection; },
+    )->pack( -side => 'left', @fxe1 );
+    $balloon->attach( $eraser_b, -msg => 'Remove selected element from the list' );
 
-    if ($cargo_type eq 'leaf' and $value_type ne 'enum' and $value_type ne 'reference') {
-	$cw->add_set_entry  ($right_frame, $balloon, $tklist)->pack( @fxe1) ;
-	$right_frame->Frame(-borderwidth => 2, -relief => 'groove') -> pack( @fxe1) ;
-	$cw->add_push_entry ($right_frame, $balloon)->pack( @fxe1) ;
-	$cw->add_set_all_b ($right_frame, $balloon)->pack( @fxe1) ;
+    my $rm_all_b = $mv_rm_frame->Button(
+        -image   => $remove_img,
+        -command => sub {
+            $list->clear;
+            $tklist->delete( 0, 'end' );
+            $cw->reload_tree;
+        },
+    )->pack( -side => 'left', @fxe1 );
+    $balloon->attach( $rm_all_b, -msg => 'Remove all elements from the list' );
 
+    if (    $cargo_type eq 'leaf'
+        and $value_type ne 'enum'
+        and $value_type ne 'reference' )
+    {
+        my $set_push_b_entry_frame = $right_frame->Frame( -borderwidth => 2, -relief => 'groove' )
+            ->pack(@fxe1) ;
+        my $user_value ;
+        my $value_entry  = $set_push_b_entry_frame -> Entry (
+            -textvariable => \$user_value, 
+            -width => $entry_width
+        ) ;
 
+        my $set_push_b_frame = $set_push_b_entry_frame->Frame ->pack(@fxe1) ;
+
+        $cw->add_set_entry ( $set_push_b_frame, $balloon, $tklist,\$user_value )->pack(@fxe1);
+        $cw->add_push_entry( $set_push_b_frame, $balloon ,\$user_value)->pack(@fxe1);
+        $cw->add_set_all_b ( $set_push_b_entry_frame, $set_push_b_frame, $balloon ,\$user_value)
+            ->pack(@fxe1);
+
+	$value_entry -> pack  (@fxe1) ;
     }
     else {
-        my $elt_name = $list->element_name ;
-	my $disp = "$elt_name ( $cargo_type ";
-	$disp .=  $list->config_class_name.' )' if $cargo_type eq 'node' ;
-	$disp .= " $value_type )" if defined $value_type ;
-	my $b = $right_frame->Button(-text => "Push new $disp",
-                                     -command => sub { $cw->push_entry('') ;} ,
-                                    )-> pack( @fxe1);
-        $balloon->attach($b, -msg => "add a new $elt_name at the end of the list");
+        my $elt_name = $list->element_name;
+        my $disp     = "$elt_name ( $cargo_type ";
+        $disp .= $list->config_class_name . ' )' if $cargo_type eq 'node';
+        $disp .= " $value_type )" if defined $value_type;
+        my $b = $right_frame->Button(
+            -text    => "Push new $disp",
+            -command => sub { $cw->push_entry(''); },
+        )->pack(@fxe1);
+        $balloon->attach( $b,
+            -msg => "add a new $elt_name at the end of the list" );
     }
 
 
-    my $rm_all_b = $right_frame 
-      -> Button ( -text => 'Remove all',
-		  -command => sub { $list->clear ; 
-				    $tklist->delete(0,'end');
-				    $cw->reload_tree;
-				},
-		) -> pack(-side => 'left', @fxe1) ;
-    $balloon->attach($rm_all_b, 
-		     -msg => 'Remove all elements from the list');
+    $cw->{tklist} = $tklist;
 
-    $cw->{tklist} = $tklist ;
-
-    $cw->Tk::Frame::Populate($args) ;
+    $cw->Tk::Frame::Populate($args);
 }
 
 sub add_set_entry {
-    my ($cw,$right_frame, $balloon,$tklist) = @_ ;
+    my ( $cw, $frame, $balloon, $tklist, $user_value_r ) = @_;
 
     my $set_item = '';
-    my $set_sub = sub {$cw->set_entry($set_item); $set_item = '';} ;
-    my $set_frame = $right_frame->Frame;
+    my $set_sub = sub { $cw->set_entry($set_item); $set_item = ''; };
 
-    $set_frame -> Button(-text => "set selected item:",
-			 -command => $set_sub ,
-			 -anchor => 'e',
-			)->pack(-side => 'left', @fxe1);
-    my $set_selected_entry 
-      = $set_frame -> Entry (-textvariable => \$set_item, 
-			     -width => $entry_width)
-	-> pack  (-side => 'left') ;
-    $balloon->attach($set_selected_entry, 
-		     -msg => 'enter a value, select an element on the left '
-		           . 'and click the button to replace the selected '
-		           . 'element with this value.');
+    my $set_b = $frame->Button(
+        -text    => "set selected item",
+        -command => $set_sub,
+    )->pack( -side => 'left', @fxe1 );
 
-    my $b_sub = sub { 
-	my $idx = $tklist->curselection ;
-	$set_item = $tklist->get($idx) if $idx ;
+    $balloon->attach( $set_b,
+            -msg => 'enter a value, select an element on the left '
+          . 'and click the button to replace the selected '
+          . 'element with this value.' );
+
+    my $b_sub = sub {
+        my $idx = $tklist->curselection;
+        $set_item = $tklist->get($idx) if $idx;
     };
 
-    $tklist->bind('<<ListboxSelect>>',$b_sub);
+    $tklist->bind( '<<ListboxSelect>>', $b_sub );
 
-    return $set_frame ;
+    return $set_b;
 }
 
 sub add_push_entry {
-    my ($cw,$right_frame, $balloon) = @_ ;
+    my ( $cw, $frame, $balloon, $user_value_r ) = @_;
 
-    my $push_item = '' ;
-    my $push_sub = sub {$cw->push_entry($push_item); $push_item = '';} ;
-    my $push_frame = $right_frame->Frame->pack( @fxe1);
-    $push_frame -> Button(-text => "push item:",
-			  -command => $push_sub ,
-			  -anchor => 'e',
-			 )->pack(-side => 'left', @fxe1);
-    my $push_entry = $push_frame -> Entry (-textvariable => \$push_item, 
-			  -width => $entry_width)
-      -> pack  (-side => 'left') ;
+    my $push_item = '';
+    my $push_sub  = sub { $cw->push_entry($push_item); $push_item = ''; };
+    my $push_b    = $frame->Button(
+        -text    => "push item",
+        -command => $push_sub,
+    )->pack( -side => 'left', @fxe1 );
 
-    $balloon->attach($push_entry, 
-		     -msg => 'enter a value, and click the push button to add '
-		           . 'this value at the end of the list');
-    return $push_frame;
+    $balloon->attach( $push_b,
+        -msg => 'enter a value, and click the push button to add '
+          . 'this value at the end of the list' );
+    return $push_b;
 }
 
 sub push_entry {
@@ -243,30 +259,35 @@ sub set_entry {
 }
 
 sub add_set_all_b {
-    my ($cw,$right_frame, $balloon) = @_ ;
+    my ( $cw, $frame, $b_frame, $balloon, $user_value_r ) = @_;
 
-    my $set_all_items = '' ;
-    my $regexp = '\s*,\s*' ;
-    my $set_all_sub = sub {$cw->set_all_items($set_all_items,$regexp);} ;
-    my $set_all_frame = $right_frame->Frame;
-    my $set_top    = $set_all_frame->Frame->pack(@fxe1) ;
-    my $set_bottom = $set_all_frame->Frame->pack(@fxe1) ;
-    
-    $set_top -> Button(-text => "set all:",
-		       -command => $set_all_sub ,
-		       -anchor => 'e',
-		      )->pack(-side => 'left', @fx);
-    my $set_all_entry 
-      = $set_top -> Entry (-textvariable => \$set_all_items,)
-	-> pack  (-side => 'left',@fxe1) ;
-    $balloon->attach($set_all_entry, 
-		     -msg => 'set all elements with a single string that '
-		     . 'will be split by the regexp displayed below');
+    my $set_all_items = '';
+    my $regexp        = '\s*,\s*';
+    my $set_all_sub   = sub { $cw->set_all_items( $set_all_items, $regexp ); };
 
-    $set_bottom-> Label(-text => 'split regexp') -> pack(-side => 'left', @fxe1);
-    $set_bottom-> Entry(-textvariable => \$regexp )
-	-> pack(-side => 'left',@fxe1);
-    return $set_all_frame ;
+    #my $set_all_frame = $frame->Frame;
+    #my $set_top       = $set_all_frame->Frame->pack(@fxe1);
+    my $set_bottom    = $frame->Frame->pack(@fxe1, -side => 'bottom');
+
+    my $set_b = $b_frame->Button(
+        -text    => "set all",
+        -command => $set_all_sub,
+    )->pack( -side => 'left', @fx );
+
+    $balloon->attach( $set_b,
+        -msg => 'set all elements with a single string that '
+          . 'will be split by the regexp displayed below' );
+
+    my $split_lb = $set_bottom->Label( -text => 'split regexp' )
+      ->pack( -side => 'left', @fxe1 );
+    $set_bottom->Entry( -textvariable => \$regexp )
+      ->pack( -side => 'left', @fxe1 );
+
+    $balloon->attach( $split_lb,
+        -msg => 'regexp used to split the entry above when "set all" button is pressed' 
+        );
+
+    return $set_bottom;
 }
 
 sub set_all_items {
