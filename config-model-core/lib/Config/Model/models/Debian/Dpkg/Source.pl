@@ -31,7 +31,8 @@ See L<dpkg-source> for details.',
           '3.0 (bzr)' => 'This format is experimental. It generates a single tarball containing the bzr repository.
 ',
           '1.0' => 'A source package in this format consists either of a .orig.tar.gz associated to a .diff.gz or a single .tar.gz (in that case the package is said to be native).',
-          '3.0 (git)' => "This format is experimental. A source package in this format consists of a single bundle of a git repository .git to hold the source of a package. There may also be a .git\x{2010} shallow file listing revisions for a shallow git clone."
+          '3.0 (git)' => "This format is experimental. A source package in this format consists of a single bundle of a git repository .git to hold the source of a package. 
+There may also be a .git shallow file listing revisions for a shallow git clone."
         },
         'mandatory' => '1',
         'type' => 'leaf',

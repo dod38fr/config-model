@@ -57,7 +57,7 @@
           'proc' => 'Kernel info through a special file system',
           'auto' => 'file system type is probed by the kernel when mounting the device',
           'vfat' => 'Older Windows file system often used on removable media',
-          'ext3' => 'Common Linux file system with journalling ',
+          'ext3' => 'Common Linux file system with journaling ',
           'usbfs' => 'USB pseudo file system. Gives a file system view of kernel data related to usb',
           'iso9660' => 'CD-ROM or DVD file system',
           'ignore' => 'unused disk partition',
