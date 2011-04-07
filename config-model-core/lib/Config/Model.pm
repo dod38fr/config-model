@@ -2033,7 +2033,24 @@ sub get_element_description {
         my @list = ref($item) ? @$item : ($item) ;
         $info .= "$_: '". join("', '",@list)."'. " ;
     } 
-    return $desc."I<< $info >>" ;
+    
+    my $elt_help = $self->get_element_value_help ($elt_info) ;
+    
+    return $desc."I<< $info >>" .$elt_help;
+}
+
+sub get_element_value_help {
+    my ( $self, $elt_info ) = @_;
+
+    my $help = $elt_info->{help} ;
+    return '' unless defined $help ;
+    
+    my $help_text = "\n\nHere are some explanations on the possible values:\n\n=over\n\n" ;
+    foreach my $v (sort keys %$help) {
+        $help_text .= "=item $v\n\n$help->{$v}\n\n" ;
+    }
+    
+    return $help_text."=back\n\n" ;
 }
 
 =head2 generate_doc ( top_class_name , [ directory ] )

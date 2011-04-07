@@ -6,6 +6,7 @@ TODO:
     * Framework changes:
        * Build depend on Test::Differences
        * Load and grab: fix to accept '-' in element names 
+       * Added value help in generated documentation
 
 2011-04-05 Dominique Dumont  <domi.dumont@free.fr> 1.240
     
