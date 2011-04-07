@@ -502,6 +502,13 @@ sub on_cut_buffer_dump {
 	my @keys = ($sel =~ /\n/m) ? split(/\n/,$sel) : ($sel) ;
 	map{ $obj->fetch_with_id($_) } @keys ;
     }
+    elsif ($obj->isa('Config::Model::ListId')) {
+	# if array, push values
+	my @v = ($sel =~ /\n/m) ? split(/\n/,$sel) 
+	      : ($sel =~ /,/)   ? split(/,/, $sel)
+	      :                  ($sel) ;
+	$obj->push(@v) ;
+    }
     # else ignore
 
     # display result
