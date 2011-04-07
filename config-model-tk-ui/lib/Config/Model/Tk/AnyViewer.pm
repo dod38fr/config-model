@@ -151,7 +151,10 @@ sub add_help {
 
 sub update_help {
     my ($cw,$w,$help) = @_ ;
+    # work around RT #67306
+    my $t = $cw->toplevel->cget('-title');
     $w->text("\n\n=pod\n\n\n$help\n\n=cut\n\n") ;
+    $w->toplevel->title($t);
 }
 
 sub add_summary {
