@@ -502,7 +502,7 @@ sub on_cut_buffer_dump {
 	my @keys = ($sel =~ /\n/m) ? split(/\n/,$sel) : ($sel) ;
 	map{ $obj->fetch_with_id($_) } @keys ;
     }
-    elsif ($obj->isa('Config::Model::ListId')) {
+    elsif ($obj->isa('Config::Model::ListId') and $obj->get_cargo_type !~ /node/ ) {
 	# if array, push values
 	my @v = ($sel =~ /\n/m) ? split(/\n/,$sel) 
 	      : ($sel =~ /,/)   ? split(/,/, $sel)
