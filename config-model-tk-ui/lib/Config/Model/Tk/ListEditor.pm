@@ -19,7 +19,7 @@ my @fxe1 = qw/-fill x    -expand 1/ ;
 my @fx   = qw/-fill    x / ;
 my $logger = Log::Log4perl::get_logger("Tk::ListEditor");
 
-my ($up_img,$down_img, $rm_img, $eraser_img, $remove_img );
+my ($up_img,$down_img, $rm_img, $eraser_img, $remove_img, $sort_img );
 *icon_path = *Config::Model::TkUI::icon_path;
 
 my $entry_width = 20 ;
@@ -47,6 +47,7 @@ sub Populate {
         $down_img   = $cw->Photo( -file => $icon_path . 'down.png' );
         $eraser_img  = $cw->Photo( -file => $icon_path . 'eraser.png' );
         $remove_img = $cw->Photo( -file => $icon_path . 'remove.png' );
+        $sort_img = $cw->Photo( -file => $icon_path . 'dbgrun.png' );
     }
 
     $cw->add_header( Edit => $list )->pack(@fx);
@@ -92,15 +93,17 @@ sub Populate {
 
     my $mv_rm_frame = $right_frame->Frame->pack(@fx);
 
-    $mv_rm_frame->Button(
+    my $move_up_b = $mv_rm_frame->Button(
         -image   => $up_img,
         -command => sub { $cw->move_up; },
     )->pack( -side => 'left', @fxe1 );
+   $balloon->attach( $move_up_b, -msg => 'Move selected element up the list' );
 
-    $mv_rm_frame->Button(
+    my $move_down_b = $mv_rm_frame->Button(
         -image   => $down_img,
         -command => sub { $cw->move_down; },
     )->pack( -side => 'left', @fxe1 );
+   $balloon->attach( $move_down_b, -msg => 'Move selected element down the list' );
 
     my $eraser_b = $mv_rm_frame->Button(
         -image   => $eraser_img,
@@ -117,6 +120,14 @@ sub Populate {
         },
     )->pack( -side => 'left', @fxe1 );
     $balloon->attach( $rm_all_b, -msg => 'Remove all elements from the list' );
+
+    if ($cargo_type eq 'leaf') {
+        my $sort_b = $mv_rm_frame->Button(
+            -image   => $sort_img,
+            -command => sub { $cw->sort_content } 
+        )->pack( -side => 'left', @fxe1 );
+        $balloon->attach( $sort_b, -msg => 'Sort all elements in the list' );
+    }
 
     if (    $cargo_type eq 'leaf'
         and $value_type ne 'enum'
@@ -161,8 +172,7 @@ sub Populate {
 sub add_set_entry {
     my ( $cw, $frame, $balloon, $tklist, $user_value_r ) = @_;
 
-    my $set_item = '';
-    my $set_sub = sub { $cw->set_entry($set_item); $set_item = ''; };
+    my $set_sub = sub { $cw->set_entry($$user_value_r); };
 
     my $set_b = $frame->Button(
         -text    => "set selected item",
@@ -176,7 +186,7 @@ sub add_set_entry {
 
     my $b_sub = sub {
         my $idx = $tklist->curselection;
-        $set_item = $tklist->get($idx) if $idx;
+        $$user_value_r = $tklist->get($idx) if $idx;
     };
 
     $tklist->bind( '<<ListboxSelect>>', $b_sub );
@@ -187,8 +197,7 @@ sub add_set_entry {
 sub add_push_entry {
     my ( $cw, $frame, $balloon, $user_value_r ) = @_;
 
-    my $push_item = '';
-    my $push_sub  = sub { $cw->push_entry($push_item); $push_item = ''; };
+    my $push_sub  = sub { $cw->push_entry($$user_value_r); $$user_value_r = ''; };
     my $push_b    = $frame->Button(
         -text    => "push item",
         -command => $push_sub,
@@ -261,9 +270,8 @@ sub set_entry {
 sub add_set_all_b {
     my ( $cw, $frame, $b_frame, $balloon, $user_value_r ) = @_;
 
-    my $set_all_items = '';
     my $regexp        = '\s*,\s*';
-    my $set_all_sub   = sub { $cw->set_all_items( $set_all_items, $regexp ); };
+    my $set_all_sub   = sub { $cw->set_all_items( $$user_value_r, $regexp ); };
 
     #my $set_all_frame = $frame->Frame;
     #my $set_top       = $set_all_frame->Frame->pack(@fxe1);
@@ -303,6 +311,20 @@ sub set_all_items {
     $tklist->delete(0,'end') ;
     $tklist->insert(0, @list) ;
     $cw->{list}->load_data(\@list) ;
+    $cw->reload_tree ;
+}
+
+sub sort_content {
+    my $cw =shift;
+
+    my $tklist = $cw->{tklist} ;
+    my $list = $cw->{list} ;
+
+    my @list = sort $list->fetch_all_values ;
+
+    $tklist->delete(0,'end') ;
+    $tklist->insert(0, @list) ;
+    $list->load_data(\@list) ;
     $cw->reload_tree ;
 }
 
