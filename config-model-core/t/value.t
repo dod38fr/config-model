@@ -3,7 +3,7 @@
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
-use Test::More tests => 115;
+use Test::More tests => 119;
 use Test::Exception ;
 use Test::Warn ;
 use Config::Model ;
@@ -445,11 +445,17 @@ foreach my $prd_test (('Perl','Perl and CC-BY', 'Perl and CC-BY or Apache')) {
 my $wip = $root->fetch_element('warn_if') ;
 warning_like {$wip->store('foobar');} qr/should not match/, "test warn_if condition" ;
 
-### test fix included in model
 is($wip -> has_fixes,1,"test has_fixes") ;
+
+is($wip ->fetch(check => 'no', silent => 1),'foobar',"check warn_if stored value");
+is($wip -> has_fixes,1,"test has_fixes after fetch with check=no") ;
+
+is($wip ->fetch(mode => 'standard'),undef,"check warn_if standard value");
+is($wip -> has_fixes,1,"test has_fixes after fetch with mode = standard") ;
+
+### test fix included in model
 $wip->apply_fixes ;
 is($wip -> fetch,'FOOBAR',"test if fixes were applied") ;
-
 
 ### test warn_unless parameter
 my $wup = $root->fetch_element('warn_unless') ;
