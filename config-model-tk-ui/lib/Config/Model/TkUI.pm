@@ -57,6 +57,7 @@ no warnings "redefine" ;
 sub Tk::Error {
     my ($cw,$error,@locations) = @_;
     my $msg = (ref($error) && $error->can('as_string')) ? $error->as_string : $error ;
+    warn $msg ;
     $msg .= "Tk stack: \n@locations\n";
     $cw -> Dialog ( -title => 'Config::Model error',
                     -text  => $msg,
@@ -784,7 +785,7 @@ sub disp_leaf {
 	no warnings qw/uninitialized/ ;
 	$img = $cust_img if (defined $value and $std_v ne $value) ;
 	$img = $warn_img if $leaf_object->warning_msg ;
-	$img = $error_img unless $leaf_object->check($value) ;
+	$img = $error_img if $leaf_object->error_msg;
     }
 
     if (defined $img) {
