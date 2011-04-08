@@ -77,7 +77,7 @@ I<upstream_default>):
  # USEHTTP enables http reporting.   Set this to 'yes' to enable it.
  USEHTTP="yes"
  
- # HTTP_PROXY allows to specify an HTTP proxy server, the syntax is
+ # HTTP_PROXY allows one to specify an HTTP proxy server, the syntax is
  # HTTP_PROXY="http://proxy:port". This overrides the environment
  # variable http_proxy.
  
