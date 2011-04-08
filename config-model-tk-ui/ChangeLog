@@ -3,6 +3,7 @@
     * AnyViewer: use Tk::Text::Pod to display on-line help
     * Paste on List items will push content of cut buffer into the list
     * ListEditor: reworked layout for better usability, added sort button
+    * HashEditor: reworked layout for better usability
 
 2011-03-04  Dominique Dumont  <domi.dumont@free.fr> 1.322
 
