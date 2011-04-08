@@ -1101,9 +1101,27 @@ configuration tree. Beware, there's no "undo" operation.
 
 =item *
 
-Pasting cut buffer into a leaf element will store the content of the
-buffer into the element. This should be used with C<string> or
-C<uniline> elements.
+Pasting cut buffer into:
+
+=over
+
+=item *
+
+a leaf element will store the content of the
+buffer into the element.
+
+=item *
+
+a list element will split the content of the
+buffer with /\n/ or /,/ and push the resulting array at the 
+end of the list element. 
+
+=item *
+
+a hash element will use the content of the cut buffer to create a new key 
+in the hash element. 
+
+=back
 
 =back
 
