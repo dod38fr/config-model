@@ -1,3 +1,8 @@
+2010-12-13  Dominique Dumont  <dominique.dumont@hp.com> v0.109
+
+        * updated tests to work with Config::Model 1.236
+          (fix Ubuntu bug #749108)
+
 2010-12-13  Dominique Dumont  <dominique.dumont@hp.com> v0.108
 
         * updated tests to work with Config::Model 1.207

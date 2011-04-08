@@ -1,7 +1,4 @@
 # -*- cperl -*-
-# $Author: ddumont $
-# $Date: 2008-07-04 16:14:06 +0200 (Fri, 04 Jul 2008) $
-# $Revision$
 
 # test augeas backend 
 
@@ -160,6 +157,7 @@ my @sshd_orig = <SSHD> ;
 close SSHD ;
 
 my $sshd_root = $i_sshd->config_root ;
+$sshd_root->init; # required by Config::Model 1.236
 
 my $ssh_augeas_obj = $sshd_root->{backend}{augeas}->_augeas_object ;
 

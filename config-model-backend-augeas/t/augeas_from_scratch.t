@@ -1,7 +1,4 @@
 # -*- cperl -*-
-# $Author: ddumont $
-# $Date: 2008-07-04 16:14:06 +0200 (Fri, 04 Jul 2008) $
-# $Revision: 846 $
 
 # test augeas backend 
 
@@ -80,6 +77,7 @@ ok( $i_sshd, "Created instance for sshd" );
 ok( $i_sshd, "Created instance for /etc/ssh/sshd_config" );
 
 my $sshd_root = $i_sshd->config_root ;
+$sshd_root->init ;
 
 my $ssh_augeas_obj = $sshd_root->{backend}{augeas}->_augeas_object ;
 

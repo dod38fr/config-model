@@ -1,4 +1,4 @@
-#    Copyright (c) 2008-2010 Dominique Dumont.
+#    Copyright (c) 2008-2011 Dominique Dumont.
 #
 #    This file is part of Config-Model-Backend-Augeas.
 #
@@ -29,7 +29,7 @@ my $has_augeas = 1;
 eval { require Config::Augeas ;} ;
 $has_augeas = 0 if $@ ;
 
-our $VERSION = '0.108';
+our $VERSION = '0.109';
 
 =head1 NAME
 
