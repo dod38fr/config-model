@@ -10,3 +10,4 @@ t/augeas_backend.t
 t/augeas_from_scratch.t
 t/test_model.pl
 t/pod.t
+META.json
