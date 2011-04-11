@@ -1,3 +1,8 @@
+2011-04-11  Dominique Dumont  <domi.dumont@free.fr> v 1.216
+
+    * All: use Any::Moose instead of plain Moose
+    * depends on Any::Moose (fix RT# 67307)
+    
 2011-04-04  Dominique Dumont  <domi.dumont@free.fr> v 1.215
     
         * All models: Added author, license and class_description

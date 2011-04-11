@@ -1,6 +1,6 @@
 package Config::Model::Backend::OpenSsh::Sshd ;
 
-use Moose ;
+use Any::Moose ;
 extends "Config::Model::Backend::OpenSsh" ;
 
 use Carp ;
@@ -226,6 +226,8 @@ sub write_match_condition {
 
     return $result ;
 }
+
+no Any::Moose;
 
 1;
 
