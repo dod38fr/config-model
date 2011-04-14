@@ -1,4 +1,4 @@
-#    Copyright (c) 2005-2010 Dominique Dumont.
+#    Copyright (c) 2005-2011 Dominique Dumont.
 #
 #    This file is part of Config-Model.
 #
@@ -24,11 +24,12 @@ use Data::Dumper ();
 use Config::Model::Exception ;
 use Config::Model::ValueComputer ;
 use Config::Model::IdElementReference ;
+use Config::Model::Warper ;
 use Log::Log4perl qw(get_logger :levels);
 use Carp ;
 use Storable qw/dclone/;
 
-use base qw/Config::Model::WarpedThing/ ;
+use base qw/Config::Model::AnyThing/ ;
 
 my $logger = get_logger("Tree::Element::Value") ;
 
@@ -748,10 +749,12 @@ sub new {
 
 
     if (defined $warp_info) {
-	$self->check_warp_args( \@allowed_warp_params, $warp_info) ;
+        $self->{warper} = Config::Model::Warper->new (
+            warped_object => $self,
+            %$warp_info ,
+            allowed => \@allowed_warp_params
+        ) ;
     }
-
-    $self->submit_to_warp($self->{warp}) if $self->{warp} ;
 
     $self->_init ;
 
@@ -775,8 +778,6 @@ sub set_properties {
 	$logger->debug("Leaf '".$self->name."' set_properties called with '",
 		       join("','",sort keys %args),"'");
     }
-
-    $self->set_owner_element_property ( \%args );
 
     if ($args{value_type} eq 'reference' and not defined $self->{refer_to}
 	and not defined $self->{computed_refer_to}
@@ -816,7 +817,7 @@ sub set_properties {
 
     if (defined $self->{warp_these_objects}) {
         my $value = $self->_fetch_no_check ;
-        $self->warp_them($value)  ;
+        $self->trigger_warp($value)  ;
     }
 
     return $self; 
@@ -978,6 +979,7 @@ sub register
   {
     my ($self, $warped, $w_idx) = @_ ;
 
+    $logger ->debug("Value: ".$self->name," registered ".$warped->name) ;
     # weaken only applies to the passed reference, and there's no way
     # to duplicate a weak ref. Only a strong ref is created. See
     #  qw(weaken) module for weaken()
@@ -1005,7 +1007,7 @@ sub check_warp_keys
   }
 
 # And I'm going to warp them ...
-sub warp_them
+sub trigger_warp
   {
     my $self = shift ;
 
@@ -1019,10 +1021,10 @@ sub warp_them
         next unless defined $warped ; # $warped is a weak ref and may vanish
 
         # pure warp of object
-        get_logger("Tree::Element::Warper")
-	  ->debug("warp_them: (value ", (defined $value ? $value : 'undefined'),
+        $logger->debug("trigger_warp: from ",$self->name,
+            " (value ", (defined $value ? $value : 'undefined'),
 		  ") warping '",$warped->name, "'" );
-        $warped->warp($value,$warp_index) ;
+        $warped->trigger($value,$warp_index) ;
       }
   }
 
@@ -1621,7 +1623,7 @@ sub pre_store {
 	if (      not defined $current 
 	       or $value ne $current
 	   ) {
-	    $self->warp_them($value) ;
+	    $self->trigger_warp($value) ;
 	}
     }
 
@@ -1718,9 +1720,10 @@ sub fetch_standard {
 sub _init {
     my $self = shift ;
 
-    $self->warp 
-      if ($self->{warp} and defined $self->{warp_info} 
-          and @{$self->{warp_info}{computed_master}});
+    # trigger loop
+    #$self->{warper} -> trigger if defined $self->{warper} ; 
+#      if ($self->{warp} and defined $self->{warp_info} 
+#          and @{$self->{warp_info}{computed_master}});
 
     if (defined $self->{refer_to} or defined $self->{computed_refer_to}) {
 	$self->submit_to_refer_to ;

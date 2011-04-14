@@ -4,21 +4,33 @@ use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
 use Test::More;
+use Test::Differences ;
 use Config::Model;
 use Config::Model::ValueComputer;
+use Log::Log4perl qw(:easy) ;
 
 BEGIN { plan tests => 63; }
 
 use strict;
 
+my ($log,$show) = (0) x 3 ;
+
 my $arg = shift || '';
 
-my $trace = $arg =~ /t/ ? 1 : 0;
-$::debug = 1 if $arg =~ /d/;
+my $trace = $arg =~ /t/ ? 1 : 0 ;
+$::debug            = 1 if $arg =~ /d/;
+$log                = 1 if $arg =~ /l/;
+$show               = 1 if $arg =~ /s/;
 Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 
-use Log::Log4perl qw(:easy);
-Log::Log4perl->easy_init( $arg =~ /l/ ? $TRACE : $WARN );
+my $log4perl_user_conf_file = $ENV{HOME}.'/.log4config-model' ;
+
+if ($log and -e $log4perl_user_conf_file ) {
+    Log::Log4perl::init($log4perl_user_conf_file);
+}
+else {
+    Log::Log4perl->easy_init($arg =~ /l/ ? $DEBUG: $WARN);
+}
 
 ok( 1, "Compilation done" );
 
@@ -174,6 +186,27 @@ $model->create_config_class(
             mandatory  => 1,
             choice     => [qw/A B C D/]
         },
+        m_value_out => {
+            type       => 'leaf',
+            value_type => 'uniline',
+             warp       => {
+                follow  => '- macro',
+                'rules' => [
+                    "B" => {
+                        level  => 'hidden',
+                    },
+                ]
+            }
+        },
+        m2_value_out => {
+            type       => 'leaf',
+            value_type => 'uniline',
+            warp       => {
+                follow => { m => '- macro', m2 => '- macro2' },
+                rules =>
+                  [ '$m eq "A" or $m2 eq "A"' => { level => 'hidden', }, ]
+            }
+         },
         macro2 => {
             type       => 'leaf',
             value_type => 'enum',
@@ -315,17 +348,41 @@ ok( $inst, "created dummy instance" );
 
 my $root = $inst->config_root;
 
-is_deeply(
+my $mvo = $root->fetch_element('m_value_out');
+isa_ok($mvo->{warper},'Config::Model::Warper',"check warper object");
+
+my $macro = $root->fetch_element('macro');
+
+my @macro_slaves = ('Warper of Master m_value_out');
+
+eq_or_diff( 
+    [ map { $_->name } $macro->get_depend_slave ] ,
+    \@macro_slaves,
+    "check m_value_out warper"
+    );
+    
+my $mvo2 = $root->fetch_element('m2_value_out');
+isa_ok($mvo2->{warper},'Config::Model::Warper',"check warper object");
+
+push @macro_slaves , 'Warper of Master m2_value_out', 'Warper of Master macro2' ;
+
+eq_or_diff( 
+    [ map { $_->name } $macro->get_depend_slave ] ,
+    \@macro_slaves,
+    "check m_value_out and m2_value_out warper"
+    );
+    
+eq_or_diff(
     [ $root->get_element_name( for => 'beginner' ) ],
     [
-        qw'get_element where_is_element macro compute var_path class bar foo foo2
-          ClientAliveCheck'
+        qw'get_element where_is_element macro m_value_out m2_value_out 
+        compute var_path class bar foo foo2 ClientAliveCheck'
     ],
     "Elements of Master"
 );
 
 # query the model instead of the instance
-is_deeply(
+eq_or_diff(
     [
         $model->get_element_name(
             class => 'Slave',
@@ -339,7 +396,7 @@ is_deeply(
 my $slave = $root->fetch_element('bar');
 ok( $slave, "Created slave(bar)" );
 
-is_deeply(
+eq_or_diff(
     [ $slave->get_element_name( for => 'beginner' ) ],
     [qw'X Y Z recursive_slave Comp warped_by_location'],
     "Elements of Slave from the object"
@@ -351,13 +408,12 @@ print "normal error: $@" if $trace;
 
 is( $slave->fetch_element('X')->fetch, undef, "reading slave->X (undef)" );
 
-is( $root->fetch_element('macro')->store('B'),
-    'B', "setting master->macro to B" );
+is( $macro->store('B'), 'B', "setting master->macro to B" );
 
-is_deeply(
+eq_or_diff(
     [ $root->get_element_name( for => 'beginner' ) ],
     [
-        qw'get_element where_is_element macro macro2 m_value
+        qw'get_element where_is_element macro m2_value_out macro2 m_value
           m_value_old compute var_path class bar foo foo2
           ClientAliveCheck'
     ],

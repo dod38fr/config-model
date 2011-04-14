@@ -24,7 +24,7 @@ use strict;
 use warnings ;
 use Scalar::Util qw(weaken) ;
 
-use base qw/Config::Model::WarpedThing/ ;
+use base qw/Config::Model::AnyThing/ ;
 use Config::Model::Exception ;
 use Data::Dumper ();
 use Log::Log4perl qw(get_logger :levels);

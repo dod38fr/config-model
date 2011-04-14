@@ -457,29 +457,41 @@ sub grab {
 	}
 
         unless ($obj->has_element($name)) {
-            Config::Model::Exception::UnknownElement
-		->throw (
-			 object => $obj,
-			 element => $name,
-			 function => 'grab',
-			 info => "grab called from '".$self->name.
-			 "' with steps '@saved'"
-			) unless $mode eq 'adaptative' ;
-	    last ;
+            if ($mode eq 'step_by_step') {
+                return wantarray ? (undef,@command) : undef ;
+            }
+            elsif ($mode eq 'adaptative') {
+                last;
+            }
+            else {
+                Config::Model::Exception::UnknownElement ->throw (
+                    object => $obj,
+                    element => $name,
+                    function => 'grab',
+                    info => "grab called from '".$self->name.
+                        "' with steps '@saved'"
+		) ;
+	    }
 	}
 
         unless ($grab_non_available 
 		or $obj->is_element_available(name => $name, 
 					      experience => 'master')) {
-            Config::Model::Exception::UnavailableElement
-		->throw (
-			 object => $obj,
-			 element => $name,
-			 function => 'grab',
-			 info => "grab called from '".$self->name.
+            if ($mode eq 'loose') {
+                return wantarray ? (undef,@command) : undef ;
+            }
+            elsif ($mode eq 'adaptative') {
+                last;
+            }
+            else {
+                Config::Model::Exception::UnavailableElement ->throw (
+                    object => $obj,
+                    element => $name,
+                    function => 'grab',
+                    info => "grab called from '".$self->name.
 			 "' with steps '@saved'"
-			) unless $mode eq 'adaptative';
-	   last ;
+		);
+            }
 	}
 
 	my $next_obj = $obj->fetch_element( name => $name,
@@ -514,6 +526,7 @@ sub grab {
 	$next_obj = $next_obj -> fetch_with_id($arg) if defined $action ;
 
 	push @found, $next_obj ;
+	last if $mode eq 'step_by_step' ;
     }
 
     # check element type
@@ -533,7 +546,7 @@ sub grab {
 
     my $return = $found[-1] ;
     $logger->debug("grab: returning object '",$return->name, "($return)'");
-    return $return;
+    return wantarray ? ($return,@command) : $return ;
 }
 
 =head2 grab_value(...)
