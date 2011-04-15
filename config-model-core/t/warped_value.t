@@ -9,7 +9,7 @@ use Config::Model;
 use Config::Model::ValueComputer;
 use Log::Log4perl qw(:easy) ;
 
-BEGIN { plan tests => 63; }
+BEGIN { plan tests => 67; }
 
 use strict;
 
@@ -608,21 +608,23 @@ my @names = sort map { $_->name } @masters;
 print "macro controls:\n\t", join( "\n\t", @names ), "\n"
   if $trace;
 
-is( scalar @masters, 14, 'reading macro slaves' );
+is( scalar @masters, 16, 'reading macro slaves' );
 
-is_deeply(
+eq_or_diff(
     \@names,
     [
         'Master compute',
-        'Master m_value',
-        'Master m_value_old',
-        'Master macro2',
-        'Master warped_out_ref',
+        'Warper of Master m2_value_out',
+        'Warper of Master m_value',
+        'Warper of Master m_value_old',
+        'Warper of Master m_value_out',
+        'Warper of Master macro2',
+        'Warper of Master warped_out_ref',
+        'Warper of bar W',
+        'Warper of bar X',
+        'Warper of bar Y',
+        'Warper of bar Z',
         'bar Comp',
-        'bar W',
-        'bar X',
-        'bar Y',
-        'bar Z',
         'bar recursive_slave:l1 macro_replace:br1',
         'bar recursive_slave:l1 recursive_slave:l2 big_compute:b1',
         'bar recursive_slave:l1 recursive_slave:l2 big_compute:test_1',
@@ -689,8 +691,8 @@ is( $root->fetch_element('ClientAliveInterval')->fetch,
 
 my %loc_h = (
     qw/bar slaved foo2 slaved/,
-    'bar recursive_slave:l1 foo2',
-    'rslaved', 'bar recursive_slave:l1 recursive_slave:l2 foo2', 'rslaved'
+    'bar recursive_slave:l1 foo2' => 'rslaved', 
+    'bar recursive_slave:l1 recursive_slave:l2 foo2' => 'rslaved'
 );
 
 foreach my $k ( sort keys %loc_h ) {

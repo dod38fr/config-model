@@ -299,6 +299,23 @@ sub submit_to_compute {
     $self->register_in_other_value( $v ) ;
 }
 
+sub register_in_other_value {
+    my $self = shift;
+    my $var = shift ;
+
+    # register compute or refer_to dependency. This info may be used
+    # by other tools
+    foreach my $path (values %$var) {
+        if (defined $path and not ref $path) {
+	    # is ref during test case
+	    #print "path is '$path'\n";
+            next if $path =~ /\$/ ; # next if path also contain a variable
+            my $master = $self->grab($path);
+            next unless $master->can('register_dependency');
+            $master->register_dependency($self) ;
+	}
+    }
+}
 
 # internal
 sub compute {

@@ -26,14 +26,14 @@ use Config::Model::Exception ;
 use Carp;
 
 
-has 'follow' => ( is => 'ro', isa => 'HashRef' , required => 1 );
+has 'follow' => ( is => 'ro', isa => 'HashRef[Str]' , required => 1 );
 has 'rules'  => ( is => 'ro', isa => 'ArrayRef' , required => 1 );
 has 'warped_object'  => ( is => 'ro', isa => 'Config::Model::AnyThing' , 
         weak_ref => 1, required => 1 );
 
 has '_values' => (  traits    => ['Hash'],
              is        => 'ro',
-             isa       => 'HashRef[Str]',
+             isa       => 'HashRef[Str | Undef ]',
              default   => sub { {} },
              handles => { 
                     _set_value => 'set' ,
@@ -60,6 +60,7 @@ sub BUILD {
 
     $self->register_to_all_warp_masters ;
     $self->refresh_values_from_master ;
+    $self->_do_warp ;
 }
 
 # should be called only at startup
@@ -190,8 +191,10 @@ sub refresh_values_from_master {
         if ( defined $warper ) {
             # read the warp master values, so I can warp myself just
             # after.
-            my $warper_value = $warper->fetch('allow_undef') || '';
-            $logger->debug( "Warper: '$warper_name' value is: '$warper_value'" );
+            my $warper_value = $warper->fetch('allow_undef') ;
+            $logger->debug( "Warper: '$warper_name' value is: '"
+                . ( defined $warper_value ? $warper_value : '<undef>' ) 
+                . "'" );
             $self->_set_value( $warper_name => $warper_value );
         }
         else {
@@ -343,8 +346,8 @@ sub trigger {
     foreach my $name ($self->_value_keys) {
         my $old = $old_value_set   {$name};
         my $new = $self->_get_value($name);
-        $same = 0 if (defined $old xor defined $new)
-	  or (defined $old and defined $new and $new ne $old) ;
+        $same = 0 if ( $old ? 1 : 0  xor $new ? 1 : 0 )
+	  or ($old and $new and $new ne $old) ;
     }
 
     if ($same) {
@@ -469,32 +472,6 @@ sub get_all_warper_object {
     return values %{$self->{warper_object}} ;
 }
 
-sub register_in_other_value {
-    my $self = shift;
-    my $var = shift ;
-
-    # register compute or refer_to dependency. This info may be used
-    # by other tools
-    foreach my $path (values %$var) {
-        if (ref $path eq 'HASH') {
-            # check replace rule
-            map {
-                Config::Model::Exception::Formula
-		    -> throw (
-			      error => "replace arg '$_' is not alphanumeric"
-			     ) if /\W/ ;
-	    }  (%$path) ;
-	}
-        elsif (defined $path and not ref $path) {
-	    # is ref during test case
-	    #print "path is '$path'\n";
-            next if $path =~ /\$/ ; # next if path also contain a variable
-            my $master = $self->get_master_object($path);
-            next unless $master->can('register_dependency');
-            $master->register_dependency($self) ;
-	}
-    }
-}
 
 # Usually a warp error occurs when the item is not actually available
 # or when a setting is wrong. Then guiding the user toward a warp
