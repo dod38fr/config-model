@@ -1,12 +1,9 @@
 # -*- cperl -*-
-# $Author$
-# $Date$
-# $Revision$
 
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
-use Test::More tests => 21 ;
+use Test::More tests => 20 ;
 use Config::Model ;
 
 use strict;
@@ -149,6 +146,3 @@ is ($root->grab('bar:1')->config_class_name ,'SlaveZ',
 
 is( $root-> is_element_available(name => 'bar', experience => 'advanced'), 1,
   'check element bar experience (back to advanced )') ;
-
-my @array = $root->fetch_element('bar')-> get_all_warper_object ;
-is( @array, 2, "test number of warper for bar elements" );
