@@ -1,5 +1,5 @@
 
-#    Copyright (c) 2005-2010 Dominique Dumont.
+#    Copyright (c) 2005-2011 Dominique Dumont.
 #
 #    This file is part of Config-Model.
 #
@@ -203,11 +203,17 @@ sub new {
 
     $self->_set_parent(delete $args{parent}) ;
 
-
     # optional parameter that makes sense only if warped node is held
     # by a hash or an array
     $self->{index_value}  =  delete $args{index_value} ;
     $self->{id_owner}     =  delete $args{id_owner} ;
+
+    $self->{morph}     =  delete $args{morph} || 0;
+
+    my @warp_info = ( 
+        rules => delete $args{rules} ,
+        follow => delete $args{follow} ,
+    ) ;
 
     $self->{backup} = dclone (\%args) ;
 
@@ -215,14 +221,11 @@ sub new {
     # warper).  When the warper gets a new value, it will modify the
     # WarpedNode according to the data passed by the user.
 
-    $self->check_warp_args(\@allowed_warp_params, \%args ) ;
-
-    $self->set_properties() ;
-
-    $self->submit_to_warp($self->{warp}) if $self->{warp} ;
-
-    $self->warp 
-      if ($self->{warp} and @{$self->{warp_info}{computed_master}});
+    $self->{warper} = Config::Model::Warper->new (
+        warped_object => $self,
+        @warp_info, 
+        allowed => \@allowed_warp_params
+    ) ;
 
     return $self ;
 }
@@ -328,14 +331,6 @@ sub set_properties {
 
     my $config_class_name = delete $args{config_class_name};
 
-    unless (defined $config_class_name) {
-	$args{level} = 'hidden' ;
-	# cannot delete bluntly {data} for ListId or HashId
-        $self->clear ;
-    }
-
-    $self->set_owner_element_property(\%args) ;
-
     return unless defined $config_class_name ;
 
     my @args ;
@@ -347,15 +342,14 @@ sub set_properties {
       and $self->{config_class_name} eq $config_class_name ;
 
     my $old_object = $self->{data} ;
-    my $morph = $self->{warp}{morph} || 0 ;
 
     # create a new object from scratch
     my $new_object = $self->create_node($config_class_name,@args) ;
 
-    if (defined $old_object and $morph) {
+    if (defined $old_object and $self->{morph}) {
         # there an old object that we need to translate
-        print "morphing ",$old_object->name," to ",$new_object->name,"\n"
-          if $::debug ;
+        $logger->debug("WarpedNode: morphing ",$old_object->name," to ",$new_object->name)
+          if $logger->is_debug ;
 
         $new_object->copy_from($old_object) ;
     }

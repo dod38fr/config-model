@@ -4,18 +4,30 @@ use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
 use Test::More tests => 37 ;
+use Test::Differences ;
 use Config::Model ;
+use Log::Log4perl qw(:easy) ;
 
 use strict;
+
+my ($log,$show) = (0) x 3 ;
 
 my $arg = shift || '';
 
 my $trace = $arg =~ /t/ ? 1 : 0 ;
 $::debug            = 1 if $arg =~ /d/;
+$log                = 1 if $arg =~ /l/;
+$show               = 1 if $arg =~ /s/;
 Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 
-use Log::Log4perl qw(:easy) ;
-Log::Log4perl->easy_init($arg =~ /l/ ? $TRACE: $WARN);
+my $log4perl_user_conf_file = $ENV{HOME}.'/.log4config-model' ;
+
+if ($log and -e $log4perl_user_conf_file ) {
+    Log::Log4perl::init($log4perl_user_conf_file);
+}
+else {
+    Log::Log4perl->easy_init($arg =~ /l/ ? $DEBUG: $WARN);
+}
 
 ok(1,"Compilation done");
 
@@ -111,20 +123,27 @@ $model ->create_config_class
     => {
         type => 'warped_node',
         follow  => '! tree_macro',
+        level => 'hidden',
         morph   => 1,
         rules => {
-                  XY  => { config_class_name => ['SlaveY'], },
+                  XY  => { 
+                      level => 'normal',
+                            config_class_name => ['SlaveY'], },
                   mXY => {
+                          level => 'normal',
                           config_class_name   => 'SlaveY',
                           experience => 'advanced'
                          },
-                  XZ => { config_class_name => 'SlaveZ' }
+                  XZ => { level => 'normal',
+                          config_class_name => 'SlaveZ' }
                  }
        },
     bool_object => {
                     type => 'warped_node',
                     follow  => '! b_macro',
-                    rules => { 1 => { config_class_name => 'SlaveY' }, }
+                    level => 'hidden',
+                   rules => { 1 => { level => 'normal',
+                                    config_class_name => 'SlaveY' }, }
                    },
    ]
   );
@@ -138,7 +157,7 @@ ok($inst,"created dummy instance") ;
 my $root = $inst -> config_root ;
 
 my $tm = $root -> fetch_element('tree_macro') ;
-map { $tm->store($_);} qw/XY XZ XY W mXY XZ W AR/;
+$tm->store('AR');
 
 is($root->is_element_available('a_warped_node'),0,
    'check that a_warped_node is not accessible'
@@ -225,16 +244,16 @@ is($ahown->fetch_with_id(234)->element_name, 'a_hash_of_warped_nodes',
 is($ahown->fetch_with_id(234)->index_value, '234', 
    'Check index value of actual node below warped node') ;
 
-is_deeply([$root->get_element_name(for => 'beginner')],
+eq_or_diff([$root->get_element_name(for => 'beginner')],
           [qw/v_macro b_macro tree_macro a_hash_of_warped_nodes/],
          'reading elements of root for experience beginner') ;
 
-is_deeply([$root->get_element_name(for => 'advanced')],
+eq_or_diff([$root->get_element_name(for => 'advanced')],
           [qw/v_macro b_macro tree_macro a_hash_of_warped_nodes 
               a_warped_node/],
          'reading elements of root for experience advanced') ;
 
-is_deeply([$root->get_element_name(for => 'master')],
+eq_or_diff([$root->get_element_name(for => 'master')],
           [qw/v_macro b_macro tree_macro a_hash_of_warped_nodes 
               a_warped_node/],
          'reading elements of root for experience master') ;
@@ -248,11 +267,11 @@ is( $ahown->fetch_with_id( 234)->fetch_element_value('X'),
 is($root->fetch_element('tree_macro')->store('W'),'W',
    'set master->tree_macro to W (warp out)...');
 
-is_deeply([$root->get_element_name(for => 'beginner')],
+eq_or_diff([$root->get_element_name(for => 'beginner')],
           [qw/v_macro b_macro tree_macro/],
          'reading elements of root after warp out') ;
 
-is_deeply([$root->get_element_name(for => 'advanced')],
+eq_or_diff([$root->get_element_name(for => 'advanced')],
           [qw/v_macro b_macro tree_macro/],
          'reading elements of root after warp out') ;
 

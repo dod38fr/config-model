@@ -336,7 +336,7 @@ sub trigger {
     if (@_) {
         my ($value,$warp_name) = @_ ;
         get_logger("Tree::Element::Warped")
-	  ->debug( "Warp called on ",$self->name, " with value '", 
+	  ->debug( "Warper: trigger called on ",$self->name, " with value '", 
 		   defined $value ? $value : '<undef>',
 		   "' name $warp_name");
         $self->_set_value($warp_name => $value || '') ;
@@ -360,7 +360,7 @@ sub trigger {
     if ($same) {
 	no warnings "uninitialized" ;
         if ($logger->is_debug) {
-            $logger ->debug("Warp skipped because no change in value set ",
+            $logger ->debug("Warper: warp skipped because no change in value set ",
 		  "(old: '",join("' '", %old_value_set),"' new: '",
 		  join("' '",%{ $self->_values() }),"')");
         }
