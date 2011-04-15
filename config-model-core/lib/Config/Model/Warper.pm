@@ -319,14 +319,6 @@ sub set_parent_element_property {
     }
 }
 
-sub set_owner_element_property {
-    my $self = shift ;
-    my $ref = shift ;
-
-    my $next = $self->{id_owner} || $self ;
-    $next -> set_parent_element_property($ref) ;
-}
-
 # try to actually warp (change properties) of a warped object.
 sub trigger {
     my $self = shift;
@@ -453,7 +445,7 @@ sub _do_warp {
     $logger->debug("warp_them: call set_properties on '",$self->name,"' with ",
 	Data::Dumper->Dump ([$found_rule],['found_rule']));
 
-   $self->set_owner_element_property ( $found_rule ) ;
+   $self->set_parent_element_property ( $found_rule ) ;
 
     eval { $self->warped_object->set_properties(%$found_rule) ; };
 
@@ -470,15 +462,6 @@ sub _do_warp {
 		     ) ;
     }
 }
-
-sub get_all_warper_object {
-    my $self = shift ;
-    confess "Internal error: get_all_warper_object called before submit_to_warp"
-      unless defined $self->{warper_object} ;
-
-    return values %{$self->{warper_object}} ;
-}
-
 
 # Usually a warp error occurs when the item is not actually available
 # or when a setting is wrong. Then guiding the user toward a warp

@@ -1,12 +1,9 @@
 # -*- cperl -*-
-# $Author$
-# $Date$
-# $Revision$
 
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
-use Test::More tests => 65 ;
+use Test::More tests => 64 ;
 use Config::Model ;
 use Storable qw/dclone/ ;
 
@@ -166,9 +163,6 @@ foreach my $u_test (@test) {
     is($root->grab_value('m3'),$exp,"test m3 with $load") ;
 }
 
-
-my @array = $root->fetch_element('m1')->get_all_warper_object;
-is( @array, 3, "test number of warp roots" );
 
 # check that model_data was not modified
 is_deeply($copy, $model_data, "check that copy was not modified") ;
