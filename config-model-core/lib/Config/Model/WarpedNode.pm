@@ -331,7 +331,19 @@ sub set_properties {
 
     my $config_class_name = delete $args{config_class_name};
 
-    return unless defined $config_class_name ;
+    my @prop_args = (qw/property level element/, $self->element_name);
+    if (defined $config_class_name) {
+        # reset ensures that property is reset to known state by default
+        $self->parent->reset_element_property( @prop_args ) 
+            unless $self->{id_owner};
+    }
+    else {
+        # not part of a hash or list 
+        $self->parent->set_element_property( @prop_args, value => 'hidden' )
+            unless $self->{id_owner};
+        $self->clear ;
+        return ;
+    }
 
     my @args ;
     ($config_class_name,@args) = @$config_class_name 

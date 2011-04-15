@@ -123,27 +123,20 @@ $model ->create_config_class
     => {
         type => 'warped_node',
         follow  => '! tree_macro',
-        level => 'hidden',
         morph   => 1,
         rules => {
-                  XY  => { 
-                      level => 'normal',
-                            config_class_name => ['SlaveY'], },
+                  XY  => { config_class_name => ['SlaveY'], },
                   mXY => {
-                          level => 'normal',
                           config_class_name   => 'SlaveY',
                           experience => 'advanced'
                          },
-                  XZ => { level => 'normal',
-                          config_class_name => 'SlaveZ' }
+                  XZ => { config_class_name => 'SlaveZ' }
                  }
        },
     bool_object => {
                     type => 'warped_node',
                     follow  => '! b_macro',
-                    level => 'hidden',
-                   rules => { 1 => { level => 'normal',
-                                    config_class_name => 'SlaveY' }, }
+                    rules => { 1 => { config_class_name => 'SlaveY' }, }
                    },
    ]
   );
