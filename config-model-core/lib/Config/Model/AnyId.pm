@@ -691,10 +691,12 @@ sub handle_args {
     $self->set_properties(%args) if defined $self->{index_type} ;
 
     if (defined $warp_info) {
-        $self->check_warp_args( \@allowed_warp_params, $warp_info) ;
+        $self->{warper} = Config::Model::Warper->new (
+            warped_object => $self,
+            %$warp_info ,
+            allowed => \@allowed_warp_params
+        ) ;
     }
-
-    $self->submit_to_warp($self->{warp}) if $self->{warp} ;
 
     return $self ;
 }

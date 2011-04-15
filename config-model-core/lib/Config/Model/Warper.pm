@@ -292,7 +292,14 @@ sub set_parent_element_property {
 
     my $warped_object = $self->warped_object ;
 
-    foreach my $property_name (qw/level experience/) {
+    my @properties = qw/level experience/ ;
+
+    if ( defined $warped_object->index_value ) {
+        map {delete $arg_ref->{$_} } @properties ;
+        return ;
+    }
+    
+    foreach my $property_name (@properties) {
         my $v = delete $arg_ref->{$property_name};
         if ( defined $v ) {
             $warped_object->parent->set_element_property(
@@ -446,7 +453,7 @@ sub _do_warp {
     $logger->debug("warp_them: call set_properties on '",$self->name,"' with ",
 	Data::Dumper->Dump ([$found_rule],['found_rule']));
 
-    $self->set_owner_element_property ( $found_rule );
+   $self->set_owner_element_property ( $found_rule ) ;
 
     eval { $self->warped_object->set_properties(%$found_rule) ; };
 
