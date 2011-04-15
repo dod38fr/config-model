@@ -18,6 +18,7 @@
 
 package Config::Model::AnyId ;
 use Config::Model::Exception ;
+use Config::Model::Warper ;
 use Scalar::Util qw(weaken) ;
 use warnings ;
 use Carp;

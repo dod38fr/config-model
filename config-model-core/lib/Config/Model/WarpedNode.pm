@@ -26,6 +26,7 @@ use Scalar::Util qw(weaken) ;
 
 use base qw/Config::Model::AnyThing/ ;
 use Config::Model::Exception ;
+use Config::Model::Warper ;
 use Data::Dumper ();
 use Log::Log4perl qw(get_logger :levels);
 use Storable qw/dclone/;
