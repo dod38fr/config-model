@@ -1,3 +1,5 @@
+	* Class.pl: name_match parameter is depracated.
+
 2011-04-04 Dominique Dumont  <domi.dumont@free.fr> 1.224
 
         * Class.pl: added full_dump parameter for YAML and Perl backend
