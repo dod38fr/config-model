@@ -276,7 +276,7 @@ my %warn_if_payload = (
 
             'warn' => {
                 type       => 'leaf',
-                value_type => 'uniline',
+                value_type => 'string',
                 level      => 'hidden',
                 experience => 'advanced',
                 description =>
