@@ -46,6 +46,12 @@ There may also be a .git shallow file listing revisions for a shallow git clone.
           '3.0 (git)',
           '3.0 (bzr)'
         ]
+      },
+      'options',
+      {
+        'type' => 'node',
+        'description' => 'Source options as described in L<dpkgc-source>',
+        'config_class_name' => 'Debian::Dpkg::Source::Options'
       }
     ]
   }

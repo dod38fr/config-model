@@ -3,6 +3,10 @@ TODO:
     (require re-work of warp mechanism)
   - remove warp registration mechanism (was premature optimisation)
 
+    * Application changes:
+        * dpkg control: added Build-Conflicts field 
+	* Added model for debian/source/options files
+
     * Framework changes:
        * Value: don't perform value check when fetching standard or default value
 
