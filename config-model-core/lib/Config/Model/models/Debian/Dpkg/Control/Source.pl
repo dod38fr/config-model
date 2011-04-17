@@ -97,6 +97,20 @@ The archive area and section for each package should be specified in the package
         },
         'type' => 'list'
       },
+      'Build-Conflicts',
+      {
+        'cargo' => {
+          'value_type' => 'uniline',
+          'warn_if_match' => {
+            'perl.*\\|\\s*libmodule-build-perl' => {
+              'msg' => 'lenny has perl 5.10 which includes libmodule-build-perl',
+              'fix' => '$_ = "perl" ;'
+            }
+          },
+          'type' => 'leaf'
+        },
+        'type' => 'list'
+      },
       'Standards-Version',
       {
         'value_type' => 'uniline',
