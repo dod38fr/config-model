@@ -715,6 +715,18 @@ sub has_fixes {
     return 0;
 }
 
+=head2 warp_error
+
+Returns a string describing any issue with L<Config::Model::Warper> object. 
+Returns '' if invoked on a tree object without warp specification.
+
+=cut 
+
+sub warp_error {
+    my $self = shift ;
+    return '' unless defined $self->{warper} ;
+    return $self->{warper} -> warp_error ;
+}
 
 1;
 
