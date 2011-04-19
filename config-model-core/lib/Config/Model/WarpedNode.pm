@@ -231,13 +231,20 @@ sub new {
     return $self ;
 }
 
+sub config_model {
+    my $self = shift ;
+    return $self->{parent}->config_model ;
+}
+
+
+
 =head1 Forwarded methods
 
 The following methods are forwarded to contained node:
 
 fetch_element config_class_name get_element_name has_element
 is_element_available element_type load fetch_element_value get_type
-get_cargo_type describe config_model
+get_cargo_type describe
 
 =cut
 
@@ -245,7 +252,7 @@ get_cargo_type describe config_model
 foreach my $method (qw/fetch_element config_class_name copy_from get_element_name
                        has_element is_element_available element_type load
 		       fetch_element_value get_type get_cargo_type dump_tree
-                       describe config_model get_help children get set/
+                       describe get_help children get set/
 		   ) {
     # to register new methods in package
     no strict "refs"; 
@@ -369,6 +376,9 @@ sub set_properties {
 
     $self->{config_class_name} = $config_class_name ;
     $self->{data} = $new_object ;
+
+    # need to call trigger on all registered objects only after all is setup
+    $self->trigger_warp ;
 }
 
 sub create_node {
@@ -417,6 +427,47 @@ sub is_auto_write_for_type {
     my $self = shift ;
     $self->get_actual_node->is_auto_write_for_type(@_) ;
 }
+
+# register warper that goes through this path when looking for warp master value
+sub register {
+    my ( $self, $warped, $w_idx ) = @_;
+
+    $logger->debug( "WarpedNode: " . $self->name, " registered " . $warped->name );
+
+    # weaken only applies to the passed reference, and there's no way
+    # to duplicate a weak ref. Only a strong ref is created. See
+    #  qw(weaken) module for weaken()
+    my @tmp = ( $warped, $w_idx );
+    weaken( $tmp[0] );
+    push @{ $self->{warp_these_objects} }, \@tmp;
+}
+
+sub trigger_warp {
+    my $self = shift;
+
+    # warp_these_objects is modified by the calls below, so this copy 
+    # must be done before the loop
+    my @list = @{ $self->{warp_these_objects} || [] };
+
+    foreach my $ref (@list) {
+        my ( $warped, $warp_index ) = @$ref;
+        next unless defined $warped;    # $warped is a weak ref and may vanish
+
+        # pure warp of object
+        $logger->debug( "node trigger_warp: from '",
+            $self->name, "' warping '", $warped->name, "'" );
+
+        # FIXME: this does not trigger new registration (or removal thereof)...
+        $warped->refresh_affected_registrations( $self->location );
+
+        #$warped->refresh_values_from_master ;
+        $warped->do_warp;
+        $logger->debug( "node trigger_warp: from '",
+            $self->name, "' warping '", $warped->name, "' done" );
+    }
+}
+
+# FIXME: should we un-register ???
 
 1;
 

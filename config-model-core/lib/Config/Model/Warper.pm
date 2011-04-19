@@ -44,7 +44,8 @@ has '_values' => (  traits    => ['Hash'],
 
 has _computed_masters => ( is => 'rw',  isa => 'HashRef' , init_arg => undef ) ;
 
-has _warped_nodes => ( is => 'rw',  isa => 'HashRef' , init_arg => undef ) ;
+has _warped_nodes => ( is => 'rw',  isa => 'HashRef' , init_arg => undef, default   => sub { {} }, ) ;
+has _registered_values => ( is => 'rw',  isa => 'HashRef' , init_arg => undef, default   => sub { {} }, ) ;
 
 has allowed => ( is => 'rw',  isa => 'ArrayRef' ) ;
 has morph => ( is => 'ro', isa => 'Bool' ) ;
@@ -60,7 +61,7 @@ sub BUILD {
 
     $self->register_to_all_warp_masters ;
     $self->refresh_values_from_master ;
-    $self->_do_warp ;
+    $self->do_warp ;
 }
 
 # should be called only at startup
@@ -90,6 +91,9 @@ sub register_to_one_warp_master {
     my $warper;
     my $warped_node ;
     my $obj = $self->warped_object;
+    my $reg_values = $self->_registered_values ;
+
+    return if defined $reg_values->{$warper_name} ;
 
     while (@command) {
 
@@ -101,7 +105,7 @@ sub register_to_one_warp_master {
         );
 
         if ( not defined $obj ) {
-            $logger->debug( "Warper register_to_one_warp_master: aborted steps. Left @command" );
+            $logger->debug( "Warper register_to_one_warp_master: aborted steps. Left '@command'" );
             last;
         }
 
@@ -112,8 +116,8 @@ sub register_to_one_warp_master {
         if ( $obj->isa('Config::Model::Value') ) {
             $warper = $obj;
             if (defined $warped_node) {
-                # keep onj ref to be able to unregister later on
-                $self->_warped_nodes->{$warper_name}{$warped_node} = $obj  ;
+                # keep obj ref to be able to unregister later on
+                $self->_warped_nodes->{$warped_node}{$warper_name} = $obj  ;
             }
             last;
         }
@@ -121,15 +125,15 @@ sub register_to_one_warp_master {
         if ( $obj->isa('Config::Model::WarpedNode') ) {
             $logger->debug( "Warper register_to_one_warp_master: register to warped_node $obj_loc");
              if (defined $warped_node) {
-                # keep onj ref to be able to unregister later on
-                $self->_warped_nodes->{$warper_name}{$warped_node} = $obj  ;
+                # keep obj ref to be able to unregister later on
+                $self->_warped_nodes->{$warped_node}{$warper_name} = $obj  ;
             }
             $warped_node = $obj_loc ;
             $obj->register( $self, $warper_name );
         }
     }
 
-    if ( defined $obj and scalar @command ) {
+    if ( defined $warper and scalar @command ) {
         Config::Model::Exception::Model->throw(
             object => $self->warped_object,
             error => "Some steps are left (@command) from warper path $warper_path",
@@ -140,16 +144,16 @@ sub register_to_one_warp_master {
         "Warper register_to_one_warp_master:",
         $self->name,
         " is warped by $warper_name => '$warper_path' location in tree is: '",
-        $warper->name,
+        defined $warper ? $warper->name : 'unknown' ,
         "'"
     );
+    
+    return unless defined $warper ;
 
     Config::Model::Exception::Model->throw(
         object => $self->warped_object,
         error  => "warper $warper_name => '$warper_path' is not a leaf"
-    ) unless defined $warper;
-
-    # FIXME: have trigger coming from WarpedNode
+    ) unless $warper->isa('Config::Model::Value') ;
 
     # warp will register this value object in another value object
     # (the warper).  When the warper gets a new value, it will
@@ -157,12 +161,45 @@ sub register_to_one_warp_master {
     # user.
 
     my $type = $warper->register( $self, $warper_name );
+    
+    $reg_values->{$warper_name} = $warper ;
 
     # store current warp master value
     if ( $type eq 'computed' ) {
         $self->_computed_masters->{$warper_name} = $warper;
     }
 }
+
+sub refresh_affected_registrations {
+    my ($self, $warped_node_location) = @_ ;
+    
+    my $wnref = $self->_warped_nodes ;
+
+    $logger->debug(
+        "Warper refresh_affected_registrations: called on",
+        $self->name,
+        " from $warped_node_location'"
+    );
+   
+    #return unless defined $wnref ;
+    
+    # remove and unregister obj affected by this warped node
+    my $ref = delete $wnref->{$warped_node_location} ;
+    
+    foreach my $warper_name (keys %$ref) {
+        $logger->debug(
+            "Warper refresh_affected_registrations: ",
+            $self->name,
+            " unregisters from $warper_name'"
+        );
+        delete $self->_registered_values->{$warper_name} ;
+        $ref -> {$warper_name} -> unregister( $self->name ) ;
+    }
+
+    $self->register_to_all_warp_masters ;
+    #map {  $self->register_to_one_warp_master($_) } keys %$ref;
+}
+
 
 # should be called only at startup
 sub refresh_values_from_master {
@@ -180,7 +217,7 @@ sub refresh_values_from_master {
         $logger->debug( "Warper trigger: ",
             $self->name, " following $warper_name" );
 
-       # BIG FIXME: warper can itself be warped out (part of a warped out node).
+       # warper can itself be warped out (part of a warped out node).
        # not just 'not available'.
 
         my $warper = $self->warped_object->grab(
@@ -359,7 +396,7 @@ sub trigger {
         return ;
     }
 
-    $self->_do_warp ;
+    $self->do_warp ;
 }
 
 # undef values are changed to '' so compute_bool no longer returns
@@ -409,7 +446,7 @@ sub compute_bool {
     return $ret ;
 }
 
-sub _do_warp {
+sub do_warp {
     my $self = shift ;
 
     my $warp_value_set = $self->_values   ;
@@ -428,7 +465,7 @@ sub _do_warp {
 	next unless $res ;
 	$found_bool = $bool_expr ;
 	$found_rule = $rule_hash{$bool_expr} || {};
-	$logger->debug("_do_warp found rule for '$bool_expr':\n", 
+	$logger->debug("do_warp found rule for '$bool_expr':\n", 
 		       Data::Dumper->Dump ([$found_rule],['found_rule']));
 	last;
     }
@@ -436,7 +473,7 @@ sub _do_warp {
     if ($logger->is_info) {
         my @warp_str = map { defined $_ ? $_ : 'undef' } keys %$warp_value_set ;
 
-        $logger->info("_do_warp: warp called from '$found_bool' on '",$self->warped_object->name,
+        $logger->info("do_warp: warp called from '$found_bool' on '",$self->warped_object->name,
 		      "' with elements '",join("','",@warp_str),
 		      "', warp rule is ", (scalar %$found_rule ? "" : 'not ') , 
 		      "found");

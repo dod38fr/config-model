@@ -390,7 +390,10 @@ sub grab {
 
   COMMAND:
     while ( @command ) {
+	last if $mode eq 'step_by_step' and @saved > @command;
+
 	my $cmd = shift @command ;
+
 	my $obj = $found[-1] ;
         $logger->debug( "grab: executing cmd '$cmd' on object '",$obj->name, "($obj)'");
 
@@ -526,7 +529,6 @@ sub grab {
 	$next_obj = $next_obj -> fetch_with_id($arg) if defined $action ;
 
 	push @found, $next_obj ;
-	last if $mode eq 'step_by_step' ;
     }
 
     # check element type

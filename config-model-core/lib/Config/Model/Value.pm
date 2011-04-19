@@ -996,16 +996,26 @@ sub register
   {
     my ($self, $warped, $w_idx) = @_ ;
 
-    $logger ->debug("Value: ".$self->name," registered ".$warped->name) ;
+    my $w_name = $warped->name;
+    $logger ->debug("Value: ".$self->name," registered $w_name ($w_idx)" );
     # weaken only applies to the passed reference, and there's no way
     # to duplicate a weak ref. Only a strong ref is created. See
     #  qw(weaken) module for weaken()
-    my @tmp = ($warped, $w_idx) ;
+    my @tmp = ($warped, $w_name, $w_idx) ;
     weaken ($tmp[0]) ;
     push @{$self->{warp_these_objects}} , \@tmp ;
 
     return defined $self->{compute} ? 'computed' : 'regular' ;
   }
+
+sub unregister {
+    my ($self, $w_name) = @_ ;
+    $logger ->debug("Value: ".$self->name," unregister $w_name" );
+    
+    my @new = grep { $_->[1] ne $w_name ; } @{$self->{warp_these_objects}} ;
+  
+    $self->{warp_these_objects} = \@new ;
+}
 
 sub check_warp_keys
   {
@@ -1034,13 +1044,13 @@ sub trigger_warp
 
     foreach my $ref ( @{$self->{warp_these_objects}})
       {
-        my ($warped, $warp_index) = @$ref ;
+        my ($warped, $w_name, $warp_index) = @$ref ;
         next unless defined $warped ; # $warped is a weak ref and may vanish
 
         # pure warp of object
         $logger->debug("trigger_warp: from ",$self->name,
             " (value ", (defined $value ? $value : 'undefined'),
-		  ") warping '",$warped->name, "'" );
+		  ") warping '$w_name'" );
         $warped->trigger($value,$warp_index) ;
       }
   }
@@ -1544,6 +1554,8 @@ sub store {
     my $check = $self->_check_check($args{check}) ;
     my $silent = $args{silent} || 0 ;
 
+    my $old_value = $self->_fetch_no_check ;
+
     my ($ok,$value) = $self->pre_store(value => $args{value}, check => $check ) ;
 
     $logger->debug("value store $value, ok '$ok', check is $check") if $logger->is_debug;
@@ -1567,6 +1579,15 @@ sub store {
 	    -> throw ( error => join("\n\t",@{$self->{error_list}}),
 		       object => $self) ;
     }
+
+    if (    $ok 
+	and defined $value 
+	and defined $self->{warp_these_objects}
+	and (not defined $old_value or $value ne $old_value)
+        ) {
+	$self->trigger_warp($value) ;
+    }
+
 
     return $value;
 }
@@ -1631,18 +1652,6 @@ sub pre_store {
     }
     
     my $ok = $self->store_check($value) ;
-
-    if (     $ok 
-	 and defined $value 
-	 and defined $self->{warp_these_objects}
-       ) {
-	my $current = $self->_fetch_no_check ;
-	if (      not defined $current 
-	       or $value ne $current
-	   ) {
-	    $self->trigger_warp($value) ;
-	}
-    }
 
     return ($ok,$value);
 }
@@ -2103,7 +2112,7 @@ sub get_depend_slave {
     push @result, @{$self->{depend_on_me}} if defined $self->{depend_on_me} ;
 
     if (defined $self->{warp_these_objects}) {
-        push @result, map ($_->[0],@{$self->{warp_these_objects}})  ;
+        push @result, map ($_->[0], @{$self->{warp_these_objects}} )  ;
     }
 
     return @result ;
