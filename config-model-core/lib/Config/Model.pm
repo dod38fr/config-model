@@ -2197,7 +2197,25 @@ sub get_element_with_experience {
     return @result ;
 }
 
-#internal
+=head2 get_element_property
+
+Returns the property of an element from the model.
+
+Parameters are:
+
+=over 
+
+=item class 
+
+=item element 
+
+=item property
+
+=back 
+
+=cut
+
+
 sub get_element_property {
     my $self = shift ;
     my %args = @_ ;
