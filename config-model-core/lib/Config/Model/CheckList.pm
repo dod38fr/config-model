@@ -308,6 +308,9 @@ sub set_properties {
     # merge data passed to the constructor with data passed to set
     my %args = (%{$self->{backup}},@_ );
 
+    # these are handled by Node or Warper
+    map { delete $args{$_} } qw/level experience/ ;
+
     $self->{ordered} = delete $args{ordered} || 0 ;
 
     if (defined $args{choice}) {

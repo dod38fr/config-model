@@ -414,6 +414,9 @@ sub set_properties {
 
     my %args = (%{$self->{backup}},@_) ;
 
+    # these are handled by Node or Warper
+    map { delete $args{$_} } qw/level experience/ ;
+
     $logger->debug($self->name," set_properties called with @_");
 
     map { $self->{$_} =  delete $args{$_} if defined $args{$_} }

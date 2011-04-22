@@ -3,7 +3,7 @@
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
-use Test::More tests => 12;
+use Test::More tests => 13;
 use Test::Exception;
 use Config::Model;
 use Log::Log4perl qw(:easy);
@@ -34,25 +34,24 @@ ok( 1, "Compilation done" );
 # minimal set up to get things working
 my $model = Config::Model->new( legacy => 'ignore', );
 
-
 $model->create_config_class(
-    name => 'CommonOptions',
-     element => [
+    name    => 'CommonOptions',
+    element => [
         atime => {
             value_type => 'boolean',
-            type => 'leaf'
+            type       => 'leaf'
         },
-    ], 
+    ],
 );
 
 $model->create_config_class(
-    name => 'NoneOptions',
-     element => [
+    name    => 'NoneOptions',
+    element => [
         bind => {
             value_type => 'boolean',
-            type => 'leaf',
+            type       => 'leaf',
         },
-    ], 
+    ],
 );
 
 $model->create_config_class(
@@ -75,19 +74,32 @@ $model->create_config_class(
         },
         fs_passno => {
             value_type => 'integer',
-            default => 0,
-            type => 'leaf',
-            warp => { 
-                follow => { 
-                    fstyp => '- fs_vfstype',
+            default    => 0,
+            type       => 'leaf',
+            warp       => {
+                follow => {
+                    fstyp   => '- fs_vfstype',
                     isbound => '- fs_mntopts bind',
                 },
-                rules => [
-                    '$fstyp eq "none" and $isbound' => { 
-                        max => 0,
-                    } 
-                ]
+                rules => [ '$fstyp eq "none" and $isbound' => { max => 0, } ]
             }
+        },
+        type => {
+            type       => 'leaf',
+            value_type => 'enum',
+            choice     => [qw/node warped_node hash list leaf check_list/],
+            mandatory  => 1,
+        },
+        cargo => {
+            type    => 'warped_node',
+            level   => 'hidden',
+            follow  => { 't' => '- type' },
+            'rules' => [
+                '$t eq "list" or $t eq "hash"' => {
+                    level             => 'normal',
+                    config_class_name => 'CommonOptions',
+                },
+            ],
         },
     ]
 );
@@ -102,40 +114,42 @@ ok( $inst, "created dummy instance" );
 
 my $root = $inst->config_root;
 
-my $pass = $root->fetch_element('fs_passno') ;
-is($pass->fetch,'0',"check pass nb at 0");
+my $pass = $root->fetch_element('fs_passno');
+is( $pass->fetch, '0', "check pass nb at 0" );
 
 $pass->store(2);
-is($pass->fetch,'2',"check pass nb at 2");
+is( $pass->fetch, '2', "check pass nb at 2" );
 
 $root->load('fs_vfstype=none');
-is($pass->fetch,'2',"check pass nb at 2 after setting fs_vfstype");
+is( $pass->fetch, '2', "check pass nb at 2 after setting fs_vfstype" );
 
 $root->load('fs_mntopts bind=1');
-throws_ok { $pass->fetch ;}
-    'Config::Model::Exception::WrongValue', "check that setting bind detects and error with passno";
+throws_ok { $pass->fetch; } 'Config::Model::Exception::WrongValue',
+  "check that setting bind detects and error with passno";
 
 # fix issue
 $root->load('fs_mntopts bind=1 - fs_passno=0 fs_mntopts bind=0');
 
-is($pass->fetch,'0',"check pass nb at 2 after setting bind");
+is( $pass->fetch, '0', "check pass nb at 2 after setting bind" );
 
 # warp out bind
 $root->load('fs_vfstype=auto');
 
-throws_ok { $root->load('fs_mntopts bind=1'); } 
-    'Config::Model::Exception::UnknownElement', "check that setting bind was warped out";
-    
+throws_ok { $root->load('fs_mntopts bind=1'); }
+'Config::Model::Exception::UnknownElement',
+  "check that setting bind was warped out";
+
 # fix issue
 $root->load('fs_vfstype=none fs_mntopts bind=0 - fs_passno=3');
-is($pass->fetch,'3',"check pass nb at 3 ");
+is( $pass->fetch, '3', "check pass nb at 3 " );
 
 # break again
 $root->load('fs_mntopts bind=1');
-throws_ok { $pass->fetch ;}
-    'Config::Model::Exception::WrongValue', "check that setting bind detects and error with passno again";
+throws_ok { $pass->fetch; } 'Config::Model::Exception::WrongValue',
+  "check that setting bind detects and error with passno again";
 
 $root->load('fs_passno=0 fs_mntopts bind=1');
 
-is($pass->fetch,'0',"check pass nb at 2 after setting bind");
+is( $pass->fetch, '0', "check pass nb at 2 after setting bind" );
 
+ok($root->load('type=hash cargo atime=1'), "check warping in of a node");

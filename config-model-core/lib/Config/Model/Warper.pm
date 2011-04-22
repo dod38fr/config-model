@@ -263,8 +263,7 @@ sub warp_them
         next unless defined $warped ; # $warped is a weak ref and may vanish
 
         # pure warp of object
-        get_logger("Tree::Element::Warper")
-	  ->debug("warp_them: (value ", (defined $value ? $value : 'undefined'),
+        $logger->debug("Warper ",$self->name," warp_them: (value ", (defined $value ? $value : 'undefined'),
 		  ") warping '",$warped->name, "'" );
         $warped->warp($value,$warp_index) ;
       }
@@ -332,25 +331,30 @@ sub set_parent_element_property {
     my @properties = qw/level experience/ ;
 
     if ( defined $warped_object->index_value ) {
-        map {delete $arg_ref->{$_} } @properties ;
+        $logger->debug("Warper set_parent_element_property: called on hash or list, aborted" );
         return ;
     }
     
+    my $parent = $warped_object->parent ;
+    my $elt_name = $warped_object->element_name ;
     foreach my $property_name (@properties) {
-        my $v = delete $arg_ref->{$property_name};
+        my $v = $arg_ref->{$property_name};
         if ( defined $v ) {
-            $warped_object->parent->set_element_property(
+            $logger->debug("Warper set_parent_element_property: set '",
+                $parent->name," $elt_name' $property_name with $v" );
+            $parent->set_element_property(
                 property => $property_name,
-                element  => $warped_object->element_name,
+                element  => $elt_name,
                 value    => $v,
             );
         }
         else {
 
             # reset ensures that property is reset to known state by default
-            $warped_object->parent->reset_element_property(
+            $logger->debug("Warper set_parent_element_property: reset $property_name" );
+            $parent->reset_element_property(
                 property => $property_name,
-                element  => $warped_object->element_name ,
+                element  => $elt_name ,
             );
         }
     }
@@ -364,8 +368,7 @@ sub trigger {
 
     if (@_) {
         my ($value,$warp_name) = @_ ;
-        get_logger("Tree::Element::Warped")
-	  ->debug( "Warper: trigger called on ",$self->name, " with value '", 
+        $logger -> debug( "Warper: trigger called on ",$self->name, " with value '", 
 		   defined $value ? $value : '<undef>',
 		   "' name $warp_name");
         $self->_set_value($warp_name => $value || '') ;
@@ -479,11 +482,13 @@ sub do_warp {
 		      "found");
     }
 
-    $logger->debug("warp_them: call set_properties on '",$self->name,"' with ",
+    $logger->debug("do_warp: call set_parent_element_property on '",$self->name,"' with ",
 	Data::Dumper->Dump ([$found_rule],['found_rule']));
 
-   $self->set_parent_element_property ( $found_rule ) ;
+    $self->set_parent_element_property ( $found_rule ) ;
 
+    $logger->debug("do_warp: call set_properties on '",$self->warped_object->name,"' with ",
+	Data::Dumper->Dump ([$found_rule],['found_rule']));
     eval { $self->warped_object->set_properties(%$found_rule) ; };
 
     if ($@) {

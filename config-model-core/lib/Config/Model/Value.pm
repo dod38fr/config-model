@@ -790,6 +790,9 @@ sub set_properties {
     # merge data passed to the constructor with data passed to set_properties
     my %args = (%{$self->{backup}},@_ );
 
+    # these are handled by Node or Warper
+    map { delete $args{$_} } qw/level experience/ ;
+
     my $logger = $logger ;
     if ($logger->is_debug) {
 	$logger->debug("Leaf '".$self->name."' set_properties called with '",
