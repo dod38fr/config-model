@@ -120,9 +120,9 @@ ok($inst,"created dummy instance") ;
 
 my $root = $inst -> config_root ;
 
-use Config::Model::WarpedThing ;
+use Config::Model::Warper ;
 
-is_deeply( [ Config::Model::WarpedThing::_dclone_key('foo') ],
+is_deeply( [ Config::Model::Warper::_dclone_key('foo') ],
     ['foo'], "Test _dclone_key (single key)" );
 
 
