@@ -54,7 +54,7 @@ sub read {
     $logger->debug("PlainFile read called on node", $node->name);
 
     # read data from leaf element from the node
-    foreach my $elt ($node->get_element_name(type => 'leaf') ) {
+    foreach my $elt ($node->get_element_name() ) {
         my $file = $args{root}.$dir.$elt ;
         $logger->trace("Looking for plainfile $file");
         next unless -e $file ;
@@ -62,10 +62,24 @@ sub read {
         my $fh = new IO::File;
         $fh->open($file) or die "Cannot open $file:$!" ;
         $fh->binmode(":utf8");
-        my $v = join('',$fh->getlines) ;
-        my $leaf = $args{object}->fetch_element(name => $elt) ;
-        chomp $v unless $leaf->value_type eq 'string';
-        $leaf->store(value => $v, check => $args{check} ) ;
+        
+        my $obj = $args{object}->fetch_element(name => $elt) ;
+        my $type = $obj->get_type;
+        
+        if ($type eq 'leaf') {
+            my $v = join('',$fh->getlines) ;
+            chomp $v unless $obj->value_type eq 'string';
+            $obj->store(value => $v, check => $args{check} ) ;
+        }
+        elsif ($type eq 'list') {
+            my @v = $fh->getlines ;
+            chomp @v ;
+            $obj->store_set(@v) ;
+        }
+        else {
+            $logger->debug("PlainFile read skiped $type $elt");
+        }
+            
         $fh->close;
     }
 
@@ -99,10 +113,22 @@ sub write {
         my $fh = new IO::File;
         $fh->open($file , '>') or die "Cannot open $file:$!" ;
         $fh->binmode(":utf8");
-        my $leaf = $args{object}->fetch_element(name => $elt) ;
-        my $v = $leaf->fetch(check => $args{check} ) ;
-        $v .= "\n" unless $leaf->value_type eq 'string';
-        $fh->print($v) ;
+        my $obj = $args{object}->fetch_element(name => $elt) ;
+        my $type = $obj->get_type ;
+        my @v ;
+
+        if ($type eq 'leaf') {
+            $v[0] = $obj->fetch(check => $args{check} ) ;
+            $v[0] .= "\n" unless $obj->value_type eq 'string';
+        }
+        elsif ($type eq 'list') {
+            @v = map { "$_\n" } $obj->fetch_all_values ;
+        }
+        else {
+            $logger->debug("PlainFile write skiped $type $elt");
+        }
+
+        $fh->print(@v) ;
         $fh->close;
     }
 
@@ -154,9 +180,11 @@ with C<foo> and C<yes> inside.
 =head1 DESCRIPTION
 
 This module is used directly by L<Config::Model> to read or write the
-content of a configuration tree written in several files. In this case 
-each leaf element of the node is written in a plain file.
+content of a configuration tree written in several files. 
+Each element of the node is written in a plain file.
 
+This module supports currently only leaf and list elements.  
+In the case of C<list> element, each line of the file is a value of the list.
 
 
 =head1 CONSTRUCTOR

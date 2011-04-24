@@ -43,6 +43,7 @@ $model->create_config_class(
     name => "WithPlainFile",
     element => [ 
         [qw/source new/] => { qw/type leaf value_type uniline/ },
+        clean => { qw/type list/, cargo => { qw/type leaf value_type uniline/} },
     ],
     read_config  => [ 
         { 
@@ -64,6 +65,11 @@ $fh->print("2.0\n");
 $fh ->close ;
 ok(1,"wrote source file");
 
+$fh ->open($wr_root.$subdir.'clean', ">") ;
+$fh->print("foo\n*/*/bar\n");
+$fh ->close ;
+ok(1,"wrote clean file");
+
 my $inst = $model->instance(
     root_class_name  => 'WithPlainFile',
     root_dir    => $wr_root ,
@@ -74,8 +80,10 @@ ok( $inst, "Created instance" );
 my $root = $inst->config_root ;
 
 is($root->grab_value("source"),"2.0","got correct source value");
+is($root->grab_value("clean:0"),"foo","got clean 0");
+is($root->grab_value("clean:1"),"*/*/bar","got clean 1");
 
-my $load = qq[source="3.0 (quilt)"\nnew="new stuff" -\n] ;
+my $load = qq[source="3.0 (quilt)"\nnew="new stuff" clean:2="baz*"\n] ;
 
 $root->load($load) ;
 
@@ -98,4 +106,4 @@ my $i2_root = $i2_plain->config_root ;
 
 my $p2_dump = $i2_root->dump_tree ;
 
-is($p2_dump,$load,"compare original data with 2nd instance data") ;
+is($p2_dump,$root->dump_tree,"compare original data with 2nd instance data") ;
