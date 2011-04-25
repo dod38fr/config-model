@@ -11,7 +11,8 @@ TODO:
        * Value: don't perform value check when fetching standard or default value
        * Backend/Plainfile: now support list element in the form of multi line file.
          Each line of the file is a value of the list.
-
+       * t/fuse_ui.t: skip test if lsmod cannot be used (e.g. Mandriva)
+	
 2011-04-07 Dominique Dumont  <domi.dumont@free.fr> 1.241
     
     * Framework changes:

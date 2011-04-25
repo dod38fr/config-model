@@ -11,7 +11,13 @@ if ($Config{osname} ne 'linux') {
     plan skip_all => "Not a Linux system" ;
 }
 
-if (not grep (/fuse/, `lsmod`)) {
+my @lsmod = eval { `lsmod` ;} ;
+
+if ($@) {
+      plan skip_all => "Cannot check is fuse module is loaded: $@" ;
+}
+
+if (not grep (/fuse/, @lsmod)) {
       plan skip_all => "fuse module is not loaded" ;
 }
 
