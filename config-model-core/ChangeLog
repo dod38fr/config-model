@@ -1,11 +1,13 @@
 TODO: 
   - FStab: force fs_freq and fs_passno to be 0 with bind mounted fs
     (require re-work of warp mechanism)
-  - remove warp registration mechanism (was premature optimisation)
+  - rework warp registration mechanism
+
+2011-04-07 Dominique Dumont  <domi.dumont@free.fr> 1.242
 
     * Application changes:
-        * dpkg control: added Build-Conflicts field 
-	* Added model for debian/source/options files
+        * dpkg control: added Build-Conflicts field
+	* dpkg: Added model for debian/source/options and debian/clean files
 
     * Framework changes:
        * Value: don't perform value check when fetching standard or default value
@@ -13,7 +15,7 @@ TODO:
          Each line of the file is a value of the list.
        * t/fuse_ui.t: skip test if lsmod cannot be used (e.g. Mandriva)
        * t/debian*.t: skip test when /etc/debian_version is not found
-	
+
 2011-04-07 Dominique Dumont  <domi.dumont@free.fr> 1.241
     
     * Framework changes:
