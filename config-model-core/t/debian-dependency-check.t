@@ -24,12 +24,11 @@ use File::Path ;
 use File::Copy ;
 use Test::Warn ;
 
-eval { require AptPkg::Config ;} ;
-if ( $@ ) {
-    plan skip_all => "AptPkg::Config is not installed (not a Debian system ?)";
+if ( -r '/etc/debian_version' ) {
+    plan tests => 24;
 }
 else {
-    plan tests => 24;
+    plan skip_all => "Not a Debian system";
 }
 
 use warnings;

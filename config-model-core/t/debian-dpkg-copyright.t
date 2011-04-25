@@ -13,12 +13,11 @@ use warnings;
 
 use strict;
 
-eval { require AptPkg::Config ;} ;
-if ( $@ ) {
-    plan skip_all => "AptPkg::Config is not installed (not a Debian system ?)";
+if ( -r '/etc/debian_version' ) {
+    plan tests => 163;
 }
 else {
-    plan tests => 163;
+    plan skip_all => "Not a Debian system";
 }
 
 my $arg = shift ;
