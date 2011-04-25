@@ -108,11 +108,7 @@ sub write {
     # write data from leaf element from the node
     foreach my $elt ($node->get_element_name() ) {
         my $file = $dir.$elt ;
-        $logger->trace("PlainFile write opening $file to write");
         
-        my $fh = new IO::File;
-        $fh->open($file , '>') or die "Cannot open $file:$!" ;
-        $fh->binmode(":utf8");
         my $obj = $args{object}->fetch_element(name => $elt) ;
         my $type = $obj->get_type ;
         my @v ;
@@ -128,8 +124,15 @@ sub write {
             $logger->debug("PlainFile write skiped $type $elt");
         }
 
-        $fh->print(@v) ;
-        $fh->close;
+
+		if (@v) {
+		    $logger->trace("PlainFile write opening $file to write");
+		    my $fh = new IO::File;
+			$fh->open($file , '>') or die "Cannot open $file:$!" ;
+			$fh->binmode(":utf8");
+			$fh->print(@v) ;
+			$fh->close;
+		}
     }
 
     return 1;
