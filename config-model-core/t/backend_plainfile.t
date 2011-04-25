@@ -1,7 +1,7 @@
 # -*- cperl -*-
 
 use ExtUtils::testlib;
-use Test::More ;
+use Test::More tests => 11 ;
 use Config::Model;
 use File::Path;
 use File::Copy ;
@@ -33,8 +33,6 @@ if (-e $log4perl_user_conf_file ) {
 else {
     Log::Log4perl->easy_init($arg =~ /l/ ? $DEBUG: $WARN);
 }
-
-plan tests => 8 ;
 
 ok(1,"compiled");
 my $subdir= 'plain/';

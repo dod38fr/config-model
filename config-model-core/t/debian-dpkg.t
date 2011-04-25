@@ -6,6 +6,7 @@ use Config::Model ;
 use Log::Log4perl qw(:easy) ;
 use File::Path ;
 use File::Copy ;
+use File::Slurp ;
 use Test::Warn ;
 use Test::Exception ;
 
@@ -13,12 +14,11 @@ use warnings;
 
 use strict;
 
-eval { require AptPkg::Config ;} ;
-if ( $@ ) {
-    plan skip_all => "AptPkg::Config is not installed (not a Debian system ?)";
+if ( -r '/etc/debian_version' ) {
+    plan tests => 13 ;
 }
 else {
-    plan tests => 163;
+    plan skip_all => "Not a Debian system";
 }
 
 my $arg = shift ;
@@ -54,4 +54,37 @@ my $wr_root = 'wr_root';
 # cleanup before tests
 rmtree($wr_root);
 mkpath($wr_root, { mode => 0755 }) ;
+
+my $dpkg = $model->instance(root_class_name => 'Debian::Dpkg',
+							root_dir          => $wr_root,
+);
+
+my $root = $dpkg->config_root ;
+
+my $opt = 'config\..*|configure|.*Makefile.in|aclocal.m4|\.pc' ;
+
+my @test = ( [ "clean=foo,bar,baz" , 'clean' , "foo\nbar\nbaz\n" ],
+			 [ 'source format="3.0 (quilt)"', 'source/format', "3.0 (quilt)\n" ] ,
+			 [ qq!source options extend-diff-ignore="$opt"!, 'source/options', 
+			   qq!extend-diff-ignore="$opt"\n! ] ,
+		   ) ;
+
+my %files ;
+foreach my $t (@test) {
+    my ($load, $file, $content) = @$t ;
+	$files{$file} = $content ;
+
+	print "loading: $load\n" if $trace ;
+	$root->load($load) ;
+
+	$dpkg->write_back ;
+
+	foreach my $f (keys %files) {
+	    my $test_file = "$wr_root/debian/$f" ;
+	    ok(-e $test_file ,"check that $f exists") ;
+		my @lines = grep { ! /^#/ and /\w/ } read_file($test_file) ;
+		is(join('',@lines),$files{$f},"check $f content") ;
+	}
+}
+
 
