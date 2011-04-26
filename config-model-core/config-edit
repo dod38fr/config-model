@@ -600,19 +600,39 @@ Log4perl uses the following categories:
 
 =over
 
-=item Model
+=item Anything
 
-=item Model::Load
+=item Backend
+
+=item Backend::Debian::Dpkg
+
+=item Backend::Debian::Dpkg::Control
+
+=item Backend::Debian::Dpkg::Copyright
+
+=item Backend::Fstab
+
+=item Backend::IniFile
+
+=item Backend::PlainFile
+
+=item Backend::ShellVar
+
+=item Backend::Yaml
 
 =item Data
 
 Used by read and write handler (L<Config::Model::AutoRead>)
 
-=item Model::Searcher
+=item FuseUI
 
 =item Instance
 
-=item Tree::Element::Value
+=item Loader
+
+=item Model::Searcher
+
+=item Tree::Element::CheckList
 
 =item Tree::Element::Id
 
@@ -620,34 +640,26 @@ Used by read and write handler (L<Config::Model::AutoRead>)
 
 =item Tree::Element::Id::List
 
-=item Tree::Element::Warper
+=item Tree::Element::Value
 
-=item Tree::Element::Warped
-
-=item Tree::Element::CheckList
+=item Tree::Element::Value::Dependency
 
 =item Tree::Node
 
-=item Loader
+=item Tree::Node::Warped
 
-=item Backend::Yaml
+=item ValueComputer
+
+=item Warper
 
 =item Wizard::Helper
 
-=item Anything
+=item Model
 
-=item ValueComputer
 
 =back
 
 More categories will come.
-
-=for comment
-Tree
-Tree::Element
-Tree::Element::Value::Compute
-Tree::Element::Hash
-Tree::Element::List
 
 =head1 SUPPORT
 

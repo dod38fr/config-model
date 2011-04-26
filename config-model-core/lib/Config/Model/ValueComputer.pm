@@ -466,6 +466,7 @@ sub compute_info {
 }
 
 #internal
+# returns a hash of variable names -> variable path
 sub compute_variables {
     my $self = shift ;
     my %args = @_ ;

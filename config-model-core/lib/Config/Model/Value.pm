@@ -1,4 +1,4 @@
-#    Copyright (c) 2005-2010 Dominique Dumont.
+#    Copyright (c) 2005-2011 Dominique Dumont.
 #
 #    This file is part of Config-Model.
 #
@@ -24,11 +24,12 @@ use Data::Dumper ();
 use Config::Model::Exception ;
 use Config::Model::ValueComputer ;
 use Config::Model::IdElementReference ;
+use Config::Model::Warper ;
 use Log::Log4perl qw(get_logger :levels);
 use Carp ;
 use Storable qw/dclone/;
 
-use base qw/Config::Model::WarpedThing/ ;
+use base qw/Config::Model::AnyThing/ ;
 
 my $logger = get_logger("Tree::Element::Value") ;
 
@@ -298,6 +299,23 @@ sub submit_to_compute {
     $self->register_in_other_value( $v ) ;
 }
 
+sub register_in_other_value {
+    my $self = shift;
+    my $var = shift ;
+
+    # register compute or refer_to dependency. This info may be used
+    # by other tools
+    foreach my $path (values %$var) {
+        if (defined $path and not ref $path) {
+	    # is ref during test case
+	    #print "path is '$path'\n";
+            next if $path =~ /\$/ ; # next if path also contain a variable
+            my $master = $self->grab($path);
+            next unless $master->can('register_dependency');
+            $master->register_dependency($self) ;
+	}
+    }
+}
 
 # internal
 sub compute {
@@ -748,10 +766,12 @@ sub new {
 
 
     if (defined $warp_info) {
-	$self->check_warp_args( \@allowed_warp_params, $warp_info) ;
+        $self->{warper} = Config::Model::Warper->new (
+            warped_object => $self,
+            %$warp_info ,
+            allowed => \@allowed_warp_params
+        ) ;
     }
-
-    $self->submit_to_warp($self->{warp}) if $self->{warp} ;
 
     $self->_init ;
 
@@ -770,13 +790,14 @@ sub set_properties {
     # merge data passed to the constructor with data passed to set_properties
     my %args = (%{$self->{backup}},@_ );
 
+    # these are handled by Node or Warper
+    map { delete $args{$_} } qw/level experience/ ;
+
     my $logger = $logger ;
     if ($logger->is_debug) {
 	$logger->debug("Leaf '".$self->name."' set_properties called with '",
 		       join("','",sort keys %args),"'");
     }
-
-    $self->set_owner_element_property ( \%args );
 
     if ($args{value_type} eq 'reference' and not defined $self->{refer_to}
 	and not defined $self->{computed_refer_to}
@@ -816,7 +837,7 @@ sub set_properties {
 
     if (defined $self->{warp_these_objects}) {
         my $value = $self->_fetch_no_check ;
-        $self->warp_them($value)  ;
+        $self->trigger_warp($value)  ;
     }
 
     return $self; 
@@ -978,15 +999,26 @@ sub register
   {
     my ($self, $warped, $w_idx) = @_ ;
 
+    my $w_name = $warped->name;
+    $logger ->debug("Value: ".$self->name," registered $w_name ($w_idx)" );
     # weaken only applies to the passed reference, and there's no way
     # to duplicate a weak ref. Only a strong ref is created. See
     #  qw(weaken) module for weaken()
-    my @tmp = ($warped, $w_idx) ;
+    my @tmp = ($warped, $w_name, $w_idx) ;
     weaken ($tmp[0]) ;
     push @{$self->{warp_these_objects}} , \@tmp ;
 
     return defined $self->{compute} ? 'computed' : 'regular' ;
   }
+
+sub unregister {
+    my ($self, $w_name) = @_ ;
+    $logger ->debug("Value: ".$self->name," unregister $w_name" );
+    
+    my @new = grep { $_->[1] ne $w_name ; } @{$self->{warp_these_objects}} ;
+  
+    $self->{warp_these_objects} = \@new ;
+}
 
 sub check_warp_keys
   {
@@ -1005,7 +1037,7 @@ sub check_warp_keys
   }
 
 # And I'm going to warp them ...
-sub warp_them
+sub trigger_warp
   {
     my $self = shift ;
 
@@ -1015,14 +1047,14 @@ sub warp_them
 
     foreach my $ref ( @{$self->{warp_these_objects}})
       {
-        my ($warped, $warp_index) = @$ref ;
+        my ($warped, $w_name, $warp_index) = @$ref ;
         next unless defined $warped ; # $warped is a weak ref and may vanish
 
         # pure warp of object
-        get_logger("Tree::Element::Warper")
-	  ->debug("warp_them: (value ", (defined $value ? $value : 'undefined'),
-		  ") warping '",$warped->name, "'" );
-        $warped->warp($value,$warp_index) ;
+        $logger->debug("trigger_warp: from ",$self->name,
+            " (value ", (defined $value ? $value : 'undefined'),
+		  ") warping '$w_name'" );
+        $warped->trigger($value,$warp_index) ;
       }
   }
 
@@ -1525,6 +1557,8 @@ sub store {
     my $check = $self->_check_check($args{check}) ;
     my $silent = $args{silent} || 0 ;
 
+    my $old_value = $self->_fetch_no_check ;
+
     my ($ok,$value) = $self->pre_store(value => $args{value}, check => $check ) ;
 
     $logger->debug("value store $value, ok '$ok', check is $check") if $logger->is_debug;
@@ -1548,6 +1582,15 @@ sub store {
 	    -> throw ( error => join("\n\t",@{$self->{error_list}}),
 		       object => $self) ;
     }
+
+    if (    $ok 
+	and defined $value 
+	and defined $self->{warp_these_objects}
+	and (not defined $old_value or $value ne $old_value)
+        ) {
+	$self->trigger_warp($value) ;
+    }
+
 
     return $value;
 }
@@ -1612,18 +1655,6 @@ sub pre_store {
     }
     
     my $ok = $self->store_check($value) ;
-
-    if (     $ok 
-	 and defined $value 
-	 and defined $self->{warp_these_objects}
-       ) {
-	my $current = $self->_fetch_no_check ;
-	if (      not defined $current 
-	       or $value ne $current
-	   ) {
-	    $self->warp_them($value) ;
-	}
-    }
 
     return ($ok,$value);
 }
@@ -1718,9 +1749,10 @@ sub fetch_standard {
 sub _init {
     my $self = shift ;
 
-    $self->warp 
-      if ($self->{warp} and defined $self->{warp_info} 
-          and @{$self->{warp_info}{computed_master}});
+    # trigger loop
+    #$self->{warper} -> trigger if defined $self->{warper} ; 
+#      if ($self->{warp} and defined $self->{warp_info} 
+#          and @{$self->{warp_info}{computed_master}});
 
     if (defined $self->{refer_to} or defined $self->{computed_refer_to}) {
 	$self->submit_to_refer_to ;
@@ -2083,7 +2115,7 @@ sub get_depend_slave {
     push @result, @{$self->{depend_on_me}} if defined $self->{depend_on_me} ;
 
     if (defined $self->{warp_these_objects}) {
-        push @result, map ($_->[0],@{$self->{warp_these_objects}})  ;
+        push @result, map ($_->[0], @{$self->{warp_these_objects}} )  ;
     }
 
     return @result ;
