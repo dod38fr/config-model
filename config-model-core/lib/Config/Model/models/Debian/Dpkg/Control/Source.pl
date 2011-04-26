@@ -116,13 +116,13 @@ The archive area and section for each package should be specified in the package
         'value_type' => 'uniline',
         'summary' => 'Debian policy version number this package complies to',
         'warn_unless_match' => {
-          '3\\.9\\.1' => {
-            'msg' => 'Current standard version is 3.9.1',
-            'fix' => '$_ = \'3.9.1\';'
+          '3\\.9\\.2' => {
+            'msg' => 'Current standard version is 3.9.2',
+            'fix' => '$_ = \'3.9.2\';'
           }
         },
         'match' => '\\d+\\.\\d+\\.\\d+(\\.\\d+)?',
-        'default' => '3.9.1',
+        'default' => '3.9.2',
         'type' => 'leaf',
         'description' => 'This field indicates the debian policy version number this package complies to'
       },
