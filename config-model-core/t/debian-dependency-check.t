@@ -24,7 +24,11 @@ use File::Path ;
 use File::Copy ;
 use Test::Warn ;
 
-if ( -r '/etc/debian_version' ) {
+eval { require AptPkg::Config ;} ;
+if ( $@ ) {
+    plan skip_all => "AptPkg::Config is not installed";
+}
+elsif ( -r '/etc/debian_version' ) {
     plan tests => 24;
 }
 else {
