@@ -308,10 +308,16 @@ sub full_message {
 	  || $obj->isa('Config::Model::WarpedNode');
 
     my $min_experience = $self->min_experience || 'master' ;
+    my $class_name = $obj -> config_class_name ;
+    
+    # class_name is undef if the warped_node is warped out
+    
     # TBD use model instead of node
-    my @elements = $obj -> config_model 
-      -> get_element_name(class => $obj -> config_class_name,
-			  for => $min_experience) ;
+    my @elements ;
+    @elements = $obj -> config_model -> get_element_name(
+        class => $class_name,
+	for => $min_experience
+    ) if defined $class_name ;
 
     my $msg = '';
     $msg .= "In ". $self->where .": " if 
@@ -322,10 +328,14 @@ sub full_message {
 
     $msg = "object '".$obj->name."' error: " unless $msg ;
 
-    $msg .=
-      $self->description. " '". $self->element. "'"
-        . " (configuration class '".$obj -> config_class_name ."')\n"
-          . "\tExpected: '". join("','",@elements)."'\n" ;
+    $msg .= $self->description. " '". $self->element. "'" ;
+    if (@elements) {
+        $msg .= " (configuration class '".$class_name ."')\n"
+              . "\tExpected: '". join("','",@elements)."'\n" ;
+    }
+    else {
+        $msg .= " (node is warped out)\n";
+    }
 
     my @match_keys = $obj->can('accept_regexp') ? $obj->accept_regexp() : () ;
     if (@match_keys) {

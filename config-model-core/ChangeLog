@@ -1,7 +1,13 @@
 TODO: 
   - FStab: force fs_freq and fs_passno to be 0 with bind mounted fs
     (require re-work of warp mechanism)
-  - rework warp registration mechanism
+
+    * Application changes:
+        * dpkg control: bumperd standard version to 3.9.2
+
+    * Framework changes:
+        * reworked warp registration mechanism (Changed inherited WarpedThing into
+          delegation to Warper)
 
 2011-04-07 Dominique Dumont  <domi.dumont@free.fr> 1.242
 

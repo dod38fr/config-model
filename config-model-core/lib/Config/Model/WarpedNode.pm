@@ -1,5 +1,5 @@
 
-#    Copyright (c) 2005-2010 Dominique Dumont.
+#    Copyright (c) 2005-2011 Dominique Dumont.
 #
 #    This file is part of Config-Model.
 #
@@ -24,8 +24,9 @@ use strict;
 use warnings ;
 use Scalar::Util qw(weaken) ;
 
-use base qw/Config::Model::WarpedThing/ ;
+use base qw/Config::Model::AnyThing/ ;
 use Config::Model::Exception ;
+use Config::Model::Warper ;
 use Data::Dumper ();
 use Log::Log4perl qw(get_logger :levels);
 use Storable qw/dclone/;
@@ -203,11 +204,17 @@ sub new {
 
     $self->_set_parent(delete $args{parent}) ;
 
-
     # optional parameter that makes sense only if warped node is held
     # by a hash or an array
     $self->{index_value}  =  delete $args{index_value} ;
     $self->{id_owner}     =  delete $args{id_owner} ;
+
+    $self->{morph}     =  delete $args{morph} || 0;
+
+    my @warp_info = ( 
+        rules => delete $args{rules} ,
+        follow => delete $args{follow} ,
+    ) ;
 
     $self->{backup} = dclone (\%args) ;
 
@@ -215,17 +222,21 @@ sub new {
     # warper).  When the warper gets a new value, it will modify the
     # WarpedNode according to the data passed by the user.
 
-    $self->check_warp_args(\@allowed_warp_params, \%args ) ;
-
-    $self->set_properties() ;
-
-    $self->submit_to_warp($self->{warp}) if $self->{warp} ;
-
-    $self->warp 
-      if ($self->{warp} and @{$self->{warp_info}{computed_master}});
+    $self->{warper} = Config::Model::Warper->new (
+        warped_object => $self,
+        @warp_info, 
+        allowed => \@allowed_warp_params
+    ) ;
 
     return $self ;
 }
+
+sub config_model {
+    my $self = shift ;
+    return $self->{parent}->config_model ;
+}
+
+
 
 =head1 Forwarded methods
 
@@ -233,7 +244,7 @@ The following methods are forwarded to contained node:
 
 fetch_element config_class_name get_element_name has_element
 is_element_available element_type load fetch_element_value get_type
-get_cargo_type describe config_model
+get_cargo_type describe
 
 =cut
 
@@ -241,7 +252,7 @@ get_cargo_type describe config_model
 foreach my $method (qw/fetch_element config_class_name copy_from get_element_name
                        has_element is_element_available element_type load
 		       fetch_element_value get_type get_cargo_type dump_tree
-                       describe config_model get_help children get set/
+                       describe get_help children get set/
 		   ) {
     # to register new methods in package
     no strict "refs"; 
@@ -328,15 +339,24 @@ sub set_properties {
 
     my $config_class_name = delete $args{config_class_name};
 
+    my @prop_args = (qw/property level element/, $self->element_name );
+    
+    my $original_level = $self->config_model-> get_element_property (
+        class => $self->parent->config_class_name,
+        @prop_args,
+    );
+
+    my $next_level = defined $args{level}       ? $args{level} 
+                   : defined $config_class_name ? $original_level
+                   :                              'hidden' ;
+    
+    $self->parent->set_element_property( @prop_args, value => $next_level )
+        unless $self->{id_owner};
+
     unless (defined $config_class_name) {
-	$args{level} = 'hidden' ;
-	# cannot delete bluntly {data} for ListId or HashId
         $self->clear ;
+        return ;
     }
-
-    $self->set_owner_element_property(\%args) ;
-
-    return unless defined $config_class_name ;
 
     my @args ;
     ($config_class_name,@args) = @$config_class_name 
@@ -347,21 +367,23 @@ sub set_properties {
       and $self->{config_class_name} eq $config_class_name ;
 
     my $old_object = $self->{data} ;
-    my $morph = $self->{warp}{morph} || 0 ;
 
     # create a new object from scratch
     my $new_object = $self->create_node($config_class_name,@args) ;
 
-    if (defined $old_object and $morph) {
+    if (defined $old_object and $self->{morph}) {
         # there an old object that we need to translate
-        print "morphing ",$old_object->name," to ",$new_object->name,"\n"
-          if $::debug ;
+        $logger->debug("WarpedNode: morphing ",$old_object->name," to ",$new_object->name)
+          if $logger->is_debug ;
 
         $new_object->copy_from($old_object) ;
     }
 
     $self->{config_class_name} = $config_class_name ;
     $self->{data} = $new_object ;
+
+    # need to call trigger on all registered objects only after all is setup
+    $self->trigger_warp ;
 }
 
 sub create_node {
@@ -410,6 +432,47 @@ sub is_auto_write_for_type {
     my $self = shift ;
     $self->get_actual_node->is_auto_write_for_type(@_) ;
 }
+
+# register warper that goes through this path when looking for warp master value
+sub register {
+    my ( $self, $warped, $w_idx ) = @_;
+
+    $logger->debug( "WarpedNode: " . $self->name, " registered " . $warped->name );
+
+    # weaken only applies to the passed reference, and there's no way
+    # to duplicate a weak ref. Only a strong ref is created. See
+    #  qw(weaken) module for weaken()
+    my @tmp = ( $warped, $w_idx );
+    weaken( $tmp[0] );
+    push @{ $self->{warp_these_objects} }, \@tmp;
+}
+
+sub trigger_warp {
+    my $self = shift;
+
+    # warp_these_objects is modified by the calls below, so this copy 
+    # must be done before the loop
+    my @list = @{ $self->{warp_these_objects} || [] };
+
+    foreach my $ref (@list) {
+        my ( $warped, $warp_index ) = @$ref;
+        next unless defined $warped;    # $warped is a weak ref and may vanish
+
+        # pure warp of object
+        $logger->debug( "node trigger_warp: from '",
+            $self->name, "' warping '", $warped->name, "'" );
+
+        # FIXME: this does not trigger new registration (or removal thereof)...
+        $warped->refresh_affected_registrations( $self->location );
+
+        #$warped->refresh_values_from_master ;
+        $warped->do_warp;
+        $logger->debug( "node trigger_warp: from '",
+            $self->name, "' warping '", $warped->name, "' done" );
+    }
+}
+
+# FIXME: should we un-register ???
 
 1;
 
