@@ -22,7 +22,7 @@ if (not grep (/fuse/, @lsmod)) {
 }
 
 if (not grep (/is/ , `bash -c 'type fusermount'`) ) {
-      plan skip_all => "fusemount not found" ;
+      plan skip_all => "fusermount not found" ;
 }
 
 eval { require Config::Model::FuseUI ;} ;
