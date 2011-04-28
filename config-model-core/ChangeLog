@@ -4,10 +4,12 @@ TODO:
 
     * Application changes:
         * dpkg control: bumperd standard version to 3.9.2
+        * dpkg: fix spelling (RT# 67783 and 67784, thanks carnil)
 
     * Framework changes:
         * reworked warp registration mechanism (Changed inherited WarpedThing into
           delegation to Warper)
+        * t/debian*.t: Put back Apt::Pkg test to avoid smoke test failure
 
 2011-04-07 Dominique Dumont  <domi.dumont@free.fr> 1.242
 

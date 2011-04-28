@@ -50,7 +50,7 @@ There may also be a .git shallow file listing revisions for a shallow git clone.
       'options',
       {
         'type' => 'node',
-        'description' => 'Source options as described in L<dpkgc-source>',
+        'description' => 'Source options as described in L<dpkg-source>',
         'config_class_name' => 'Debian::Dpkg::Source::Options'
       }
     ]

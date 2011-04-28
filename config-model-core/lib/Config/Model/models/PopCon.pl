@@ -67,7 +67,7 @@ If your MTA is misconfigured or impossible to configure correctly, and it always
       {
         'value_type' => 'uniline',
         'type' => 'leaf',
-        'description' => 'Allows to specify an HTTP proxy server, the syntax is "http://proxy:port". This overrides the environment variable http_proxy.'
+        'description' => 'Allows one to specify an HTTP proxy server, the syntax is "http://proxy:port". This overrides the environment variable http_proxy.'
       },
       'MY_HOSTID',
       {
