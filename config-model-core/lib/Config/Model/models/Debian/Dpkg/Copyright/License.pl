@@ -14,7 +14,8 @@
         'value_type' => 'uniline',
         'grammar' => 'check: <rulevar: local $found = 0> <rulevar: local $ok = 1 >
 check: license alternate(s?) <reject: $text or not $found or not $ok >
-alternate: oper license 
+alternate: comma(?) oper license 
+comma: \',\'
 oper: \'and\' | \'or\' 
 license: /[\\w\\-\\.\\+]+/i
    { # PRD action to check if the license text is provided

@@ -4,7 +4,9 @@ TODO:
 
     * Application changes:
         * dpkg control: bumperd standard version to 3.9.2
-        * dpkg: fix spelling (RT# 67783 and 67784, thanks carnil)
+        * dpkg: fix spelling . Closes RT# 67783 and 67784. Thanks carnil
+        * dpkg control license: tweaked grammar to accept commas in license
+          fields. Closes Debian #624305. Thanks Niko Tyni.
 
     * Framework changes:
         * reworked warp registration mechanism (Changed inherited WarpedThing into

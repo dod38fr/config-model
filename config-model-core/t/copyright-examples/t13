@@ -1,0 +1,7 @@
+Format: http://www.debian.org/doc/copyright-format/1.0
+
+Files: *
+Copyright: none
+License: GPL-2+ or Artistic-2.0, and BSD
+ This is for a file that has Perl code and classic BSD code in it.
+
