@@ -378,36 +378,52 @@ sub compute {
 
     my $need_quote = 0;
     $need_quote = 1 if $self->{use_eval} and $self->{value_type} !~ /(integer|number|boolean)/;
+    my $result ;
+    my @parser_args = ( $self->{value_object},
+            $variables, $self->{replace}, $check, $need_quote,
+            $self->{undef_is} ) ;
 
-    $logger->debug("compute: calling parser with compute on pre_formula $pre_formula");
-    my $formula_r = $compute_parser
-      -> compute ($pre_formula, 1,$self->{value_object}, $variables, 
-		  $self->{replace},$check,$need_quote,$self->{undef_is}) ;
+    if (   $self->{use_eval}
+        or $self->{value_type} =~ /(integer|number|boolean)/ )
+    {
+        my $all_defined = 1;
+        my @init ;
+        foreach my $key (sort keys %$variables) { 
+            # no need to get variable if not used in formula;
+            next unless index ($pre_formula,$key) > 0 ;
+            my $vr = _value_from_object( $key , @parser_args);
+            my $v = $$vr ;
+            $v = $self->{undef_is} unless defined $v ;
+            if (defined $v) { push @init, "my \$$key = $v ;\n" ; }
+            else {$all_defined = 0 ;}
+        } 
+        
+        if ($all_defined) {
+            my $formula = join('', @init) . $pre_formula ;
+            $logger->debug("compute: evaluating '$formula'");
+            $result = eval $formula;
+            if ($@) {
+                Config::Model::Exception::Formula->throw(
+                    object => $self->{value_object},
+                    error  => "Eval of formula '$formula' failed:\n$@"
+                            . "Make sure that your element is indeed "
+                            . "'$self->{value_type}'"
+                );
+            }
+        }
+    }
+    else {
+        $logger->debug(
+            "compute: calling parser with compute on pre_formula $pre_formula");
+        my $formula_r =
+          $compute_parser->compute( $pre_formula, 1, @parser_args);
 
-    my $formula = $$formula_r ;
+        $result = $$formula_r;
 
-    return unless defined $formula ;
-
-    $logger->debug("compute $self->{value_type}: pre_formula $pre_formula\n",
-      "compute $self->{value_type}: rule to eval $formula");
-
-    my $result = $self->{computed_formula} = $formula ;
-
-    if ($self->{use_eval} or $self->{value_type} =~ /(integer|number|boolean)/) {
-        $logger->debug("compute: evaluating '$formula'");
-        $result = eval $formula ;
-	if ($@) {
-	    Config::Model::Exception::Formula
-		-> throw (
-			  object => $self->{value_object},
-			  error => "Eval of formula '$formula' failed:\n$@"
-			  . "Make sure that your element is indeed "
-			  . "'$self->{value_type}'"
-			 ) ;
-	}
+        #$result = $self->{computed_formula} = $formula;
     }
 
-    $logger->debug("compute result is '$result'" );
+    $logger->debug("compute result is '". (defined $result ? $result : '<undef>'). "'" );
 
     return $result ;
 }
@@ -690,7 +706,10 @@ sub _value_from_object {
     my $path = $variables_h->{$name};
     my $my_res;
 
-    $logger->debug("_value_from_object: replace \$$name with path $path...") if $logger->is_debug;
+    if ($logger->is_debug) {
+        my $str = defined $path ? $path : '<undef>' ;
+        $logger->debug("_value_from_object: replace \$$name with path $str...") ;
+    }
 
     if ( defined $path and $path =~ /[\$&]/ ) {
         $logger->trace("_value_from_object: skip name $name path '$path'");
@@ -760,7 +779,7 @@ pre_value:
   | <skip:''> '&' /\w+/ func_param(?) {
     $return = Config::Model::ValueComputer::_function_alone($item[3],$return,@arg ) ;
   }
-  |  <skip:''> /\$\d+/ {
+  |  <skip:''> /\$(\d+|_)\b/ {
      my $result = $item[-1] ;
      $return = \$result ;
   }
@@ -787,7 +806,7 @@ value:
   <skip:''> '$replace' '{' <commit> /\s*/ value[@arg] /\s*/ '}' {
     $return = Config::Model::ValueComputer::_replace($arg[2], ${ $item{value} },@arg ) ;
   }
-  |  <skip:''> /\$\d+/ { 
+  |  <skip:''> /\$(\d+|_)\b/ { 
      my $result = $item[-1] ;
      $return = \$result ;
   }

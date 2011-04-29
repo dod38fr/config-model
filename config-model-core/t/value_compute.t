@@ -5,21 +5,24 @@ use warnings FATAL => qw(all);
 use ExtUtils::testlib;
 use Test::More;
 use Config::Model ;
+use Log::Log4perl qw(:easy) ;
 
-BEGIN { plan tests => 40; }
+BEGIN { plan tests => 41; }
 
 use strict;
 
 my $arg = shift || '';
 
+my $log = 0;
+
 my $trace = $arg =~ /t/ ? 1 : 0 ;
 $::debug            = 1 if $arg =~ /d/;
+$log                = 1 if $arg =~ /l/;
 Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 
-use Log::Log4perl qw(:easy) ;
 my $log4perl_user_conf_file = $ENV{HOME}.'/.log4config-model' ;
 
-if (-e $log4perl_user_conf_file ) {
+if ($log and -e $log4perl_user_conf_file ) {
     Log::Log4perl::init($log4perl_user_conf_file);
 }
 else {
@@ -153,7 +156,16 @@ $model->create_config_class(
                 use_eval  => 1,
             },
         },
-        'Upstream-Contact' => {
+         'with_tmp_var' => {
+            type       => 'leaf',
+            value_type => 'uniline',
+            compute    => {
+                formula   => 'my $tmp = $url; $tmp =~ m!http://([\w\.]+)!; $1 ;',
+                variables => { url => '- url' },
+                use_eval  => 1,
+            },
+        },
+       'Upstream-Contact' => {
             'cargo' => {
                 'value_type'   => 'uniline',
                 'migrate_from' => {
@@ -220,7 +232,7 @@ my $root = $inst -> config_root ;
 is_deeply([$root->get_element_name()],
           [qw/av bv compute_int sav sbv one_var one_wrong_var 
               meet_test compute_with_override compute_no_var bar 
-              foo2 url host Upstream-Contact Source/],
+              foo2 url host with_tmp_var Upstream-Contact Source/],
          "check available elements");
 
 my ( $av, $bv, $compute_int );
@@ -378,3 +390,10 @@ foreach (qw/bar foo2/) {
     my $path = "$_ location_function_in_formula";
     is($root->grab_value($path),$path,"check &location with $path");
 }
+
+# test formula with tmp variable
+my $tmph = $root->fetch_element('with_tmp_var');
+
+is($tmph->fetch,'foo.bar',"check extracted host with temp variable") ;
+
+

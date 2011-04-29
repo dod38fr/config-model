@@ -12,6 +12,8 @@ TODO:
         * reworked warp registration mechanism (Changed inherited WarpedThing into
           delegation to Warper)
         * t/debian*.t: Put back Apt::Pkg test to avoid smoke test failure
+        * ValueComputer: Fixed bug to allow temporary variables and $_ in eval'ed 
+          formulas
 
 2011-04-07 Dominique Dumont  <domi.dumont@free.fr> 1.242
 
