@@ -220,6 +220,52 @@ The information is meant to be useful for a user knowledgeable in the given Vers
       {
         'value_type' => 'uniline',
         'type' => 'leaf'
+      },
+      'XS-Python-Version',
+      {
+        'value_type' => 'uniline',
+        'status' => 'deprecated',
+        'experience' => 'advanced',
+        'type' => 'leaf'
+      },
+      'X-Python-Version',
+      {
+        'value_type' => 'uniline',
+        'summary' => 'supported versions of Python ',
+        'upstream_default' => 'all',
+        'experience' => 'advanced',
+        'migrate_from' => {
+          'use_eval' => '1',
+          'formula' => 'my $old = $xspython ;
+my $new ;
+if ($old =~ /,/) {
+   # list of versions
+   my @list = sort split /\\s*,\\s*/, $old ; 
+   $new = ">= ". (shift @list) . ", << " .  (pop @list) ;
+}
+elsif ($old =~ /-/) {
+   my @list = sort grep { $_ ;} split /\\s*-\\s*/, $old ; 
+   $new = ">= ". shift @list ;
+   $new .= ", << ". pop @list if @list ;
+}
+else {
+   $new = $old ;
+}
+$new ;',
+          'variables' => {
+            'xspython' => '- XS-Python-Version'
+          }
+        },
+        'type' => 'leaf',
+        'description' => 'This field specifies the versions of Python (not versions of Python 3) supported by the source package.  When not specified, they default to all currently supported Python (or Python 3) versions. For more detail, See L<python policy|http://www.debian.org/doc/packaging-manuals/python-policy/ch-module_packages.html#s-specifying_versions>'
+      },
+      'X-Python3-Version',
+      {
+        'value_type' => 'uniline',
+        'summary' => 'supported versions of Python3 ',
+        'experience' => 'advanced',
+        'type' => 'leaf',
+        'description' => 'This field specifies the versions of Python 3 supported by the package. For more detail, See L<python policy|http://www.debian.org/doc/packaging-manuals/python-policy/ch-module_packages.html#s-specifying_versions>'
       }
     ]
   }

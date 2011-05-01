@@ -138,7 +138,7 @@ if ( $@ ) {
     plan skip_all => "AptPkg::Config is not installed";
 }
 elsif ( -r '/etc/debian_version' ) {
-    plan tests => 32;
+    plan tests => 47;
 }
 else {
     plan skip_all => "Not a Debian system";
@@ -579,6 +579,40 @@ $tests[$i++]{check}
 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx providing the following file:
 
  - xt/release/pod-spell.t - a standard Test::Spelling test"   ];
+
+
+# See Debian bug 624321
+$tests[$i]{text} = <<'EOD' ;
+Source: python-foo
+Maintainer: dod <dod@foo.bar>
+Priority: optional
+Build-Depends: debhelper (>= 7)
+XS-Python-Version: 2.3,   2.4,   2.5
+EOD
+
+$tests[$i++]{check}  = [ 'source X-Python-Version' => ">= 2.3, << 2.5"   ];
+
+# See Debian bug 624321
+$tests[$i]{text} = <<'EOD' ;
+Source: python-foo
+Maintainer: dod <dod@foo.bar>
+Priority: optional
+Build-Depends: debhelper (>= 7)
+XS-Python-Version: 2.3-2.6
+EOD
+
+$tests[$i++]{check}  = [ 'source X-Python-Version' => ">= 2.3, << 2.6"   ];
+
+# See Debian bug 624321
+$tests[$i]{text} = <<'EOD' ;
+Source: python-foo
+Maintainer: dod <dod@foo.bar>
+Priority: optional
+Build-Depends: debhelper (>= 7)
+XS-Python-Version: 2.3-
+EOD
+
+$tests[$i++]{check}  = [ 'source X-Python-Version' => ">= 2.3"   ];
 
 
 my $idx = 0 ;
