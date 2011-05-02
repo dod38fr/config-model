@@ -55,7 +55,9 @@
        'undef_is'
        => { type => 'leaf',
 	    value_type => 'uniline',
-	    description => 'Specify a replacement for undefined variables. This will replace undef values in the formula before migrating values',
+	    description => 'Specify a replacement for undefined variables. This will replace undef'
+	    .' values in the formula before migrating values. Use \'\' (2 single quotes) '
+	    . 'if you want to specify an empty string',
 	  },
 
 
