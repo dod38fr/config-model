@@ -291,6 +291,7 @@ sub submit_to_compute {
 	      value_object => $self ,
 	      value_type   => $self->{value_type},
 	      use_eval     => $c_info->{use_eval},
+	      undef_is     => $c_info->{undef_is},
 	     );
 
     # resolve any recursive variables before registration

@@ -7,7 +7,7 @@ use Test::More;
 use Config::Model ;
 use Log::Log4perl qw(:easy) ;
 
-BEGIN { plan tests => 41; }
+BEGIN { plan tests => 42; }
 
 use strict;
 
@@ -214,7 +214,21 @@ $model->create_config_class(
             },
             'type' => 'leaf',
         },
-        [qw/Upstream-Source Original-Source-Location/] => {
+         'Source2' => {
+            'value_type'   => 'string',
+            'mandatory'    => '1',
+            'compute' => {
+                'use_eval'  => '1',
+                'formula'   => '$old || $older ;',
+                undef_is => "''",
+                'variables' => {
+                    'older' => '- Original-Source-Location',
+                    'old'   => '- Upstream-Source'
+                }
+            },
+            'type' => 'leaf',
+        },
+       [qw/Upstream-Source Original-Source-Location/] => {
             'value_type' => 'string',
             'status'     => 'deprecated',
             'type'       => 'leaf'
@@ -232,7 +246,7 @@ my $root = $inst -> config_root ;
 is_deeply([$root->get_element_name()],
           [qw/av bv compute_int sav sbv one_var one_wrong_var 
               meet_test compute_with_override compute_no_var bar 
-              foo2 url host with_tmp_var Upstream-Contact Source/],
+              foo2 url host with_tmp_var Upstream-Contact Source Source2/],
          "check available elements");
 
 my ( $av, $bv, $compute_int );
@@ -384,7 +398,8 @@ is($root->grab_value(step => 'Upstream-Maintainer:0', check => 'no'),'foo',"chec
 is($root->grab_value(step => 'Upstream-Contact:0'   ),'foo',"check compute with index in variable");
 
 $root->fetch_element(name => 'Original-Source-Location', check => 'no')->store('foobar');
-is($root->grab_value(step => 'Source'   ),'foobar',"check compute with undef_is");
+is($root->grab_value(step => 'Source'   ),'foobar',"check migrate_from with undef_is");
+is($root->grab_value(step => 'Source2'   ),'foobar',"check compoute with undef_is");
 
 foreach (qw/bar foo2/) {
     my $path = "$_ location_function_in_formula";
