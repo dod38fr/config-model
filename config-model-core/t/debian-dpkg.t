@@ -19,7 +19,7 @@ if ( $@ ) {
     plan skip_all => "AptPkg::Config is not installed";
 }
 elsif ( -r '/etc/debian_version' ) {
-    plan tests => 13 ;
+    plan tests => 14 ;
 }
 else {
     plan skip_all => "Not a Debian system";
@@ -59,24 +59,28 @@ my $wr_root = 'wr_root';
 rmtree($wr_root);
 mkpath($wr_root, { mode => 0755 }) ;
 
-my $dpkg = $model->instance(root_class_name => 'Debian::Dpkg',
-							root_dir          => $wr_root,
+my $dpkg = $model->instance(
+    root_class_name => 'Debian::Dpkg',
+    root_dir        => $wr_root,
 );
 
 my $root = $dpkg->config_root ;
 
 my $opt = 'config\..*|configure|.*Makefile.in|aclocal.m4|\.pc' ;
 
-my @test = ( [ "clean=foo,bar,baz" , 'clean' , "foo\nbar\nbaz\n" ],
-			 [ 'source format="3.0 (quilt)"', 'source/format', "3.0 (quilt)\n" ] ,
-			 [ qq!source options extend-diff-ignore="$opt"!, 'source/options', 
-			   qq!extend-diff-ignore="$opt"\n! ] ,
-		   ) ;
+my @test = (
+    [ "clean=foo,bar,baz",           'clean',         "foo\nbar\nbaz\n" ],
+    [ 'source format="3.0 (quilt)"', 'source/format', "3.0 (quilt)\n" ],
+    [
+        qq!source options extend-diff-ignore="$opt"!, 'source/options',
+        qq!extend-diff-ignore="$opt"\n!
+    ],
+);
 
 my %files ;
 foreach my $t (@test) {
     my ($load, $file, $content) = @$t ;
-	$files{$file} = $content ;
+	$files{$file} = $content if $file;
 
 	print "loading: $load\n" if $trace ;
 	$root->load($load) ;
@@ -91,4 +95,6 @@ foreach my $t (@test) {
 	}
 }
 
-
+$root->load('control source Maintainer="foo <foo@bar>" ! meta dependency-filter=lenny') ;
+is($root->grab_value("meta package-dependency-filter:foopkg"),
+    'lenny', "check package-dependency-filter");

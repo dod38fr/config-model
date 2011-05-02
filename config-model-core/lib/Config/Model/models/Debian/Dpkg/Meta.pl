@@ -47,13 +47,6 @@ For instance, if the dependency filter is \'lenny\', all \'lenny\' and \'etch\' 
       'group-dependency-filter',
       {
         'cargo' => {
-          'compute' => {
-            'formula' => '$main',
-            'variables' => {
-              'main' => '- dependency-filter'
-            },
-            'allow_override' => '1'
-          },
           'value_type' => 'enum',
           'type' => 'leaf',
           'choice' => [
@@ -74,10 +67,13 @@ For instance, if the dependency filter is \'lenny\', all \'lenny\' and \'etch\' 
       {
         'cargo' => {
           'compute' => {
-            'formula' => '$group_filter',
+            'undef_is' => '\'\'',
+            'use_eval' => '1',
+            'formula' => '$group_filter || $dependency_filter ;',
             'variables' => {
               'maintainer' => '! control source Maintainer',
-              'group_filter' => '- group-dependency-filter:"$maintainer"'
+              'group_filter' => '- group-dependency-filter:"$maintainer"',
+              'dependency_filter' => '- dependency-filter'
             },
             'allow_override' => '1'
           },
