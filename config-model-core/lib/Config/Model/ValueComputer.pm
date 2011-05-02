@@ -281,8 +281,9 @@ You may need to compute value where one of the variables (i.e. other configurati
 parameter) is undefined. By default, any formula will yield an undefined value if one 
 variable is undefined.
 
-You may change this behavior with C<undef_is> parameter. Depending on your formula and whether C<use_eval> 
-is true or not, you may specify a "fallback" value that will be used in your formula.
+You may change this behavior with C<undef_is> parameter. Depending on your formula and 
+whether C<use_eval> is true or not, you may specify a "fallback" value that will be 
+used in your formula.
 
 The most useful will probably be: 
 
@@ -334,12 +335,21 @@ sub new {
 
     map { $self->{$_} = delete $args{$_}  || {} ; } qw/variables replace/;
     map { $self->{$_} = delete $args{$_} || 0   ; } qw/use_eval/ ;
-    map { $self->{$_} = delete $args{$_}        ; } qw/undef_is/ ;
-
+    my $sui = delete $args{undef_is} ;
+ 
     die "Config::Model::ValueComputer:new unexpected parameter: ",
       join(' ',keys %args) if %args ;
 
+    my $need_quote = 0;
+    $need_quote = 1 if $self->{use_eval} and $self->{value_type} !~ /(integer|number|boolean)/;
 
+    $self->{need_quote} = $need_quote ;
+    $self->{undef_is} = $need_quote && defined $sui && $sui eq "''" ? "''" 
+                      : $need_quote && defined $sui                 ? "'$sui'"
+                      :                defined $sui && $sui eq "''" ? ''
+                      :                defined $sui                 ? $sui
+                      :                                               undef;
+                 
     weaken($self->{value_object}) ;
 
     # create parser if needed 
@@ -376,11 +386,9 @@ sub compute {
 
     die "internal error" unless defined $variables ;
 
-    my $need_quote = 0;
-    $need_quote = 1 if $self->{use_eval} and $self->{value_type} !~ /(integer|number|boolean)/;
     my $result ;
     my @parser_args = ( $self->{value_object},
-            $variables, $self->{replace}, $check, $need_quote,
+            $variables, $self->{replace}, $check, $self->{need_quote},
             $self->{undef_is} ) ;
 
     if (   $self->{use_eval}
@@ -394,6 +402,7 @@ sub compute {
             my $vr = _value_from_object( $key , @parser_args);
             my $v = $$vr ;
             $v = $self->{undef_is} unless defined $v ;
+            $logger->debug("compute: var $key -> ", (defined $v ? $v : '<undef>'));
             if (defined $v) { push @init, "my \$$key = $v ;\n" ; }
             else {$all_defined = 0 ;}
         } 
@@ -491,7 +500,8 @@ sub compute_variables {
     # a shallow copy should be enough as we don't allow
     # replace in replacement rules
     my %variables = %{$self->{variables}} ;
-    $logger->debug("compute_variables called on ", join (" ",%variables)) ;
+    $logger->debug("compute_variables called on variables '", 
+        join ("', '",sort keys %variables),"'")  if $logger->is_debug ;
 
     # apply a compute on all variables until no $var is left
     my $var_left = scalar (keys %variables) + 1 ;
@@ -502,12 +512,12 @@ sub compute_variables {
             my $value = $variables{$key} ; # value may be undef
             next unless (defined $value and $value =~ /\$|&/) ;
             #next if ref($value); # skip replacement rules
-            $logger->debug("compute_variables: key '$key', value '$value', left $var_left)"); 
+            $logger->debug("compute_variables: key '$key', value '$value', left $var_left"); 
 	    my $pre_res_r = $compute_parser
                 -> pre_compute ($value, 1,$self->{value_object}, \%variables, $self->{replace},$check);
             $logger->debug( "compute_variables: key '$key', pre res '$$pre_res_r', left $var_left\n");
             $variables{$key} = $$pre_res_r ;
-	    $logger->debug("variable after pre_compute: ", join (" ",%variables)) if $logger->is_debug ;
+	    $logger->debug("compute_variables: variable after pre_compute: ", join (" ",keys %variables)) if $logger->is_debug ;
 
             if ($$pre_res_r =~ /\$/) { ;
                 # variables needs to be evaluated
@@ -515,11 +525,11 @@ sub compute_variables {
                     -> compute ($$pre_res_r, 1,$self->{value_object}, \%variables, $self->{replace},$check);
                 #return undef unless defined $res ;
                 $variables{$key} = $$res_ref ;
-                $logger->debug("variable after compute: ", join (" ",%variables))  if $logger->is_debug;
+                $logger->debug("compute_variables: variable after compute: ", join (" ",keys %variables))  if $logger->is_debug;
             }
 	    {
 		no warnings "uninitialized" ;
-		$logger->debug( "compute_variables:\tresult '$variables{$key}' left '$var_left'");
+		$logger->debug( "compute_variables: result $key -> '$variables{$key}' left '$var_left'");
 	    }
 	}
 
