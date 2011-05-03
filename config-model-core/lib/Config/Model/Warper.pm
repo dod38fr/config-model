@@ -581,22 +581,18 @@ no Any::Moose ;
 
 =head1 NAME
 
-Config::Model::WarpedThing - Base class for warped classes
+Config::Model::Warper - Warp tree properties
 
 =head1 SYNOPSIS
 
- # internal class
+ # internal class 
 
 =head1 DESCRIPTION
 
-This class must be inherited by all classes that can be warped by
-L<Config::Model::Value>. This class provides a set of methods that are
-expected by a warp master from a warped class.
-
-Currently this class is inherited by L<Config::Model::Value>, 
-L<Config::Model::AnyId> and L<Config::Model::WarpedNode>.
-
-WarpThing does not provide a constructor.
+Depending on the value of a warp master (In fact a L<Config::Model::Value> object),
+this class will change the properties of a node (L<Config::Model::WarpedNode>),
+a hash (L<Config::Model::HashId>), a list (L<Config::Model::ListId>), 
+a checklist (L<Config::Model::CheckList>) or another value.
 
 =head1 Warper and warped
 
