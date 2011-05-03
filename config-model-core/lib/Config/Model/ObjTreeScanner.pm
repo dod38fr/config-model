@@ -79,10 +79,9 @@ Config::Model::ObjTreeScanner - Scan config tree and perform call-backs
     } ;
 
  # simple scanner, (print all values with 'beginner' experience
- $scan = Config::Model::ObjTreeScanner-> new
-  (
-   leaf_cb               => $disp_leaf, # only mandatory parameter
-  ) ;
+ my $scan = Config::Model::ObjTreeScanner-> new (
+   leaf_cb => $disp_leaf, # only mandatory parameter
+ ) ;
 
  my $result = '';
  $scan->scan_node(\$result, $root) ;
