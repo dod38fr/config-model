@@ -1,4 +1,4 @@
-#    Copyright (c) 2005-2010 Dominique Dumont, Krzysztof Tyszecki.
+#    Copyright (c) 2005-2011 Dominique Dumont, Krzysztof Tyszecki.
 #
 #    This file is part of Config-Model.
 #
@@ -25,6 +25,7 @@ use Config::Model::Loader;
 use Config::Model::Dumper;
 use Config::Model::DumpAsData;
 use Config::Model::Report;
+use Config::Model::TreeSearcher;
 use Config::Model::Describe;
 use Log::Log4perl qw(get_logger :levels);
 use UNIVERSAL;
@@ -1719,6 +1720,33 @@ sub get_help {
     }
 
     return defined $help ? $help : '';
+}
+
+=head2 search( type => ..., string => ... )
+
+Search the configuration tree. Parameters are :
+
+=over
+
+=item type
+
+Where to perform the search. It can be C<element>, C<value>,
+C<key>, C<summary>, C<description>, C<help> or C<all>.
+
+=item string
+
+What to search. This can be a simple string or a Perl regular expression.
+
+=back
+
+Returns a L<Config::Model::TreeSearcher> object.
+
+=cut
+
+sub searcher {
+    my $self = shift;
+    
+    return Config::Model::TreeSearcher->new ( node => $self, @_ );
 }
 
 1;

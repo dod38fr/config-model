@@ -2534,11 +2534,15 @@ L<Config::Model::Report>
 
 =item *
 
-L<Config::Model::Searcher>
+L<Config::Model::Searcher>: Search element in configuration model.
 
 =item *
 
 L<Config::Model::SimpleUI>
+
+=item *
+
+L<Config::Model::TreeSearcher>: Search string or regexp in configuration tree.
 
 =item *
 
