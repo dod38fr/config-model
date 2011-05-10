@@ -215,7 +215,7 @@ Search in all the items above
 
 Search the keyword or pattern in the tree. Returns a list of path pointing 
 to the matching tree element. See L<Config::Model::AnyThing/grab(...)> for details
-on the patch syntax.
+on the path syntax.
 
 =head1 BUGS
 

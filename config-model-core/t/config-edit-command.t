@@ -3,7 +3,7 @@ use warnings ;
 use File::Path ;
 use Probe::Perl ;
 
-use Test::Command tests => 5;
+use Test::Command tests => 8;
 
 ## testing exit status
 
@@ -43,6 +43,11 @@ stderr_like($oops, qr/unknown element/, 'check unknown element') ;
 
 my $ok = Test::Command->new( cmd => "$perl_cmd config-edit -root_dir $wr_dir -ui none -appli popcon PARTICIPATE=yes");
 exit_is_num($ok, 0,'all went well');
+
+my $search = Test::Command->new( cmd => "$perl_cmd config-edit -root_dir $wr_dir -ui none -appli popcon -search y -narrow value");
+exit_is_num($search, 0,'search went well');
+stdout_like($search,qr/PARTICIPATE/,"got PARTICIPATE");
+stdout_like($search,qr/USEHTTP/,"got USEHTTP");
 
 __END__
 # Config file for Debian's popularity-contest package.
