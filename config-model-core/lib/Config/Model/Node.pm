@@ -788,7 +788,7 @@ sub find_element {
     return ;
 }
 
-=head2 searcher ()
+=head2 model_searcher ()
 
 Returns an object dedicated to search an element in the configuration
 model (respecting privilege level).
@@ -1722,9 +1722,10 @@ sub get_help {
     return defined $help ? $help : '';
 }
 
-=head2 search( type => ..., string => ... )
+=head2 tree_searcher( type => ... )
 
-Search the configuration tree. Parameters are :
+Returns an object able to search the configuration tree. 
+Parameters are :
 
 =over
 
@@ -1733,17 +1734,16 @@ Search the configuration tree. Parameters are :
 Where to perform the search. It can be C<element>, C<value>,
 C<key>, C<summary>, C<description>, C<help> or C<all>.
 
-=item string
-
-What to search. This can be a simple string or a Perl regular expression.
-
 =back
+
+Typically, you will have to call C<search> on this object.
 
 Returns a L<Config::Model::TreeSearcher> object.
 
+
 =cut
 
-sub searcher {
+sub tree_searcher {
     my $self = shift;
     
     return Config::Model::TreeSearcher->new ( node => $self, @_ );

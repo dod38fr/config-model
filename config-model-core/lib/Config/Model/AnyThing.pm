@@ -664,7 +664,7 @@ sub grab_ancestor_with_element_named {
     }
 }
 
-=head2 searcher ()
+=head2 model_searcher ()
 
 Returns an object dedicated to search an element in the configuration
 model (respecting privilege level).
@@ -674,13 +674,18 @@ L<Config::Model::Searcher> for details on how to handle a search.
 
 =cut
 
-sub searcher {
+sub model_searcher {
     my $self = shift ;
     my %args = @_ ;
 
     my $model = $self->instance->config_model ;
     return Config::Model::SearchElement
       -> new(model => $model, node => $self, %args ) ;
+}
+
+sub searcher { 
+    carp "Config::Model::AnyThing searcher is deprecated";
+    goto &model_searcher ; 
 }
 
 =head2 dump_as_data ( )

@@ -142,7 +142,7 @@ my @data
      ]
     ) ;
 
-my @items = $root->searcher->get_searchable_elements ;
+my @items = $root->model_searcher->get_searchable_elements ;
 my @expected = qw/DX X Y Z a_string a_uniline aa aa2 ab ab2 ac ac2 ad ad2 
                   hash_a hash_b int_v lista listb my_check_list 
                   my_reference ordered_hash string_with_def tree_macro/ ;
@@ -152,46 +152,46 @@ is_deeply(\@items, \@expected, "list of searchable items") ;
 foreach my $item (@data) {
     next unless @$item == 3 ;
     my $node = $root->grab($item->[1]) ;
-    my $searcher = $node->searcher->prepare(element => $item->[0]);
+    my $model_searcher = $node->model_searcher->prepare(element => $item->[0]);
 
-    is_deeply( $searcher->{data}, $item->[2] , 
+    is_deeply( $model_searcher->{data}, $item->[2] , 
 	       "verify search data on ".$node->config_class_name
 	       . "($item->[0],$item->[1])" )
-      || print Dumper $searcher->{data} ;
+      || print Dumper $model_searcher->{data} ;
 }
 
-my $searcher = $root->searcher->prepare(element => 'X');
+my $model_searcher = $root->model_searcher->prepare(element => 'X');
 $root->load("tree_macro=XZ") ;
 
-my $step = $searcher->next_step() ;
+my $step = $model_searcher->next_step() ;
 is_deeply($step, [qw/olist slave_y std_id warp/],'check first step') ;
 
-my $obj = $searcher->choose('warp') ;
+my $obj = $model_searcher->choose('warp') ;
 is($obj->name,'warp', 'check chosen object') ;
 
-my $target = $searcher->auto_choose(sub{}, sub {}) ;
+my $target = $model_searcher->auto_choose(sub{}, sub {}) ;
 is($target->name,'warp X', 'check auto chosen object for X') ;
 
-$step = $searcher->next_step() ;
+$step = $model_searcher->next_step() ;
 is_deeply($step, [],'check that no more steps are left') ;
 
 # no user choice to look for aa
 $root->load("tree_macro=XY") ;
-$searcher = $root->searcher->prepare(element => 'aa');
-$searcher->choose('warp') ;
-$target = $searcher->auto_choose(sub{}, sub {}) ;
+$model_searcher = $root->model_searcher->prepare(element => 'aa');
+$model_searcher->choose('warp') ;
+$target = $model_searcher->auto_choose(sub{}, sub {}) ;
 is($target->name,'warp sub_slave aa', 'check auto chosen object for aa') ;
 
 # try choose_next
-$searcher = $root->searcher->prepare(element => 'aa');
-$searcher->choose('warp') ;
-$step = $searcher->next_choice() ;
+$model_searcher = $root->model_searcher->prepare(element => 'aa');
+$model_searcher->choose('warp') ;
+$step = $model_searcher->next_choice() ;
 is_deeply($step, [],'check that no more steps are left after next_choice') ;
-$target = $searcher->current_object ;
+$target = $model_searcher->current_object ;
 is($target->name,'warp sub_slave aa', 'check chosen object for aa') ;
 
 
-$searcher = $root->searcher->prepare(element => 'DX');
+$model_searcher = $root->model_searcher->prepare(element => 'DX');
 $root->load("tree_macro=XZ") ;
 my $cb1 = sub {
     my $object = shift ;
@@ -202,34 +202,34 @@ my $cb1 = sub {
     return 'warp' ;
 } ;
 
-$target = $searcher->auto_choose($cb1, sub{}) ;
+$target = $model_searcher->auto_choose($cb1, sub{}) ;
 is($target->name,'warp DX', 'check auto chosen object for DX (warp)') ;
 
 # restart and try through olist
-$searcher->reset ;
-$target = $searcher->auto_choose(sub{'olist'}, sub {return 1;}) ;
+$model_searcher->reset ;
+$target = $model_searcher->auto_choose(sub{'olist'}, sub {return 1;}) ;
 
 is($target->name, 'olist:1 DX',
 	  'check auto_choose target for DX (olist)') ;
 
 # restart and try through std_d
-$searcher->reset ;
-$target = $searcher->auto_choose(sub{'std_id'}, sub {return 'foo';}) ;
+$model_searcher->reset ;
+$target = $model_searcher->auto_choose(sub{'std_id'}, sub {return 'foo';}) ;
 
 is($target->name, 'std_id:foo DX',
 	  'check auto_choose target for DX (std_id)') ;
 
 # restart and try through std_d with next_choice
-$searcher->reset ;
-$step = $searcher->next_choice() ;
+$model_searcher->reset ;
+$step = $model_searcher->next_choice() ;
 is_deeply($step, [qw/olist slave_y std_id warp/],'next_choice 1') ;
 
-$searcher->choose('std_id') ;
+$model_searcher->choose('std_id') ;
 ok(1, "std_id choice done") ;
 
 #print $root->dump_tree(full_dump =>1) ;
 
-$step = $searcher->next_choice() ;
+$step = $model_searcher->next_choice() ;
 is_deeply($step, [],'next_choice 2') ;
 
-is($searcher->current_object->name, 'std_id:foo DX','next_choice target') ;
+is($model_searcher->current_object->name, 'std_id:foo DX','next_choice target') ;
