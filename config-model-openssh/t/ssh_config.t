@@ -7,6 +7,7 @@ use Config::Model::Backend::OpenSsh::Ssh ; # required for tests
 use Log::Log4perl qw(:easy) ;
 use File::Path ;
 use English;
+use Test::Differences ;
 
 
 use warnings;
@@ -132,6 +133,8 @@ SKIP: {
 
     ok($user_inst,"Read user .ssh/config and created instance") ;
 
+    my @joe_orig    = read_user_ssh($wr_dir.$joe_home.'/.ssh/config') ;
+
     my $user_cfg = $user_inst -> config_root ;
 
     $dump =  $user_cfg->dump_tree (mode => 'full' );
@@ -148,16 +151,15 @@ SKIP: {
     ok(-e $joe_file,"Found $joe_file") ;
 
     # compare original and written file
-    my @joe_orig    = read_user_ssh($wr_dir.$joe_home.'/.ssh/config') ;
     my @joe_written = read_user_ssh($joe_file) ;
-    is_deeply(\@joe_written,\@joe_orig,"check user .ssh/config files") ;
+    eq_or_diff(\@joe_written,\@joe_orig,"check user .ssh/config files") ;
 
     # write some data
     $user_cfg->load('EnableSSHKeysign=1') ;
     $user_inst->write_back() ;
     unshift @joe_orig,'EnableSSHKeysign yes';
     @joe_written = read_user_ssh($joe_file) ;
-    is_deeply(\@joe_written,\@joe_orig,"check user .ssh/config files after modif") ;
+    eq_or_diff(\@joe_written,\@joe_orig,"check user .ssh/config files after modif") ;
 }
 
 __END__
