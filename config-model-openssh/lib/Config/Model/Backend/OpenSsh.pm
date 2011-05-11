@@ -113,6 +113,7 @@ sub assign {
 
 sub write_line {
     my ($self, $k, $v, $note) = @_ ;
+    return '' unless length($v) ;
     return $self->write_data_and_comments( undef, '#',sprintf("%-20s %s",$k,$v),$note) ;
 }
 
@@ -145,11 +146,11 @@ sub write_node_content {
 	    if (defined $v and $elt->value_type eq 'boolean') {
 		$v = $v == 1 ? 'yes':'no' ;
 	    }
-	    $result .= $self->write_line($name,$v,$note) if defined $v;
+	    $result .= $self->write_line($name,$v,$note);
 	}
 	elsif    ($type eq 'check_list') { 
 	    my $v = $elt->fetch($mode) ;
-	    $result .= $self->write_line($name,$v,$note) if defined $v and $v;
+	    $result .= $self->write_line($name,$v,$note);
 	}
 	elsif ($type eq 'list') { 
 	    $result .= $self->write_data_and_comments(undef,'#', undef, $note) ; 

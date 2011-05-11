@@ -182,7 +182,7 @@ sub write_forward {
 	next if $name eq 'ipv6' ;
 	my $elt = $forward_elt->fetch_element($name) ;
 	my $v = $elt->fetch($mode) ;
-	next unless defined $v;
+	next unless length($v);
 	$line .=  $name =~ /bind|host$/ ? "$v$sep"
 	       :  $name eq 'port'       ? "$v "
 	       :                           $v ;
