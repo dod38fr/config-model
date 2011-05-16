@@ -4,6 +4,7 @@ use ExtUtils::testlib;
 use Test::More tests => 11 ;
 use Test::Exception ;
 use Test::Warn ;
+use Test::Differences ;
 use Config::Model;
 use Data::Dumper ;
 
@@ -28,9 +29,10 @@ my $model = Config::Model -> new()  ;
 
 my ($cat,$models) = $model->available_models ;
 
-is_deeply($cat->{system},[qw/fstab popcon/],"check available system models");
+eq_or_diff($cat->{system},[qw/fstab popcon/],"check available system models");
 is($models->{popcon}{model},'PopCon',"check available popcon");
-is_deeply($cat->{application}, [qw/dpkg dpkg-control dpkg-copyright/ ] ,"check available application models");
+
+eq_or_diff($cat->{application}, [qw/dpkg dpkg-control dpkg-copyright/ ] ,"check available application models");
 is($models->{'dpkg-copyright'}{model},'Debian::Dpkg::Copyright',"check available dpkg-copyright");
 
 my $class_name = $model->create_config_class 
@@ -57,7 +59,7 @@ is($class_name,'Sarge',"check $class_name class name");
 my $canonical_model = $model->get_model($class_name) ;
 print "$class_name model:\n",Dumper($canonical_model) if $trace;
 
-is_deeply($model->get_element_model($class_name,'D') ,
+eq_or_diff($model->get_element_model($class_name,'D') ,
    {
    'value_type' => 'enum',
    'status' => 'deprecated',
@@ -67,7 +69,7 @@ is_deeply($model->get_element_model($class_name,'D') ,
    }, 
    "check $class_name D element model");
 
-is_deeply($model->get_element_model($class_name,'X') ,
+eq_or_diff($model->get_element_model($class_name,'X') ,
    {
    'value_type' => 'enum',
    'summary' => 'X-ray (summary)',
