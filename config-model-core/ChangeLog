@@ -7,8 +7,9 @@
 	  backend
 	
     * Framework changes:
-	* config-edit: added -search and -narrow_search options. This options
-	  enable search in tree element, values and tree documentation.
+	* config-edit: added -search and -narrow-search options. This options
+	  enable search in tree element, values and tree documentation. 
+	* config-edit: cleaned up option names (always accept '-' in place of '_')
 	* Config/Model/AnyThing.pm: fix location string and fix grab function
 
 2011-05-02  Dominique Dumont  <domi.dumont@free.fr> 1.243
