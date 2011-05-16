@@ -57,7 +57,7 @@ For instance, if the dependency filter is \'lenny\', all \'lenny\' and \'etch\' 
           ]
         },
         'default_with_init' => {
-          'Debian Perl Group <pkg-perl-maintainers@lists.alioth.debian.org>' => 'lenny'
+          'Debian Perl Group <pkg-perl-maintainers@lists.alioth.debian.org>' => 'etch'
         },
         'type' => 'hash',
         'description' => 'Dependency filter tuned by Maintainer field. Use this to override the main dependency-filter value.',
