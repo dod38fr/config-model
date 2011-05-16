@@ -225,7 +225,7 @@ on the path syntax.
 =head1 BUGS
 
 Creating a class with just one search method may be overkill. OTOH, it may 
-be extented later to provide iteratice search.
+be extended later to provide iterative search.
 
 =head1 AUTHOR
 

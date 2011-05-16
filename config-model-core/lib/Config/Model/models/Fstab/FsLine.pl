@@ -180,7 +180,7 @@
       'fs_passno',
       {
         'value_type' => 'integer',
-        'summary' => 'fsdk pass number',
+        'summary' => 'fsck pass number',
         'warp' => {
           'follow' => {
             'isbound' => '- fs_mntopts bind',
