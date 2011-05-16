@@ -148,7 +148,7 @@ sub composite_name {
     $element = '' unless defined $element;
 
     my $idx = $self->index_value;
-    $idx = '"'.$idx.'"' if defined $idx && $idx =~ /\s/ ;
+    $idx = '"'.$idx.'"' if defined $idx && $idx =~ /\W/ ;
 
     return $element . ( defined $idx ? ':' . $idx : '' );
 }
@@ -463,6 +463,9 @@ sub grab {
             if ($mode eq 'step_by_step') {
                 return wantarray ? (undef,@command) : undef ;
             }
+            elsif ($mode eq 'loose') {
+                return ;
+            }
             elsif ($mode eq 'adaptative') {
                 last;
             }
@@ -480,8 +483,11 @@ sub grab {
         unless ($grab_non_available 
 		or $obj->is_element_available(name => $name, 
 					      experience => 'master')) {
-            if ($mode eq 'loose') {
+            if ($mode eq 'step_by_step') {
                 return wantarray ? (undef,@command) : undef ;
+            }
+            elsif ($mode eq 'loose') {
+                return ;
             }
             elsif ($mode eq 'adaptative') {
                 last;
