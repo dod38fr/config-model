@@ -1,0 +1,34 @@
+# /etc/fstab: static file system information.
+#
+# <file system> <mount point>   <type>  <options>       <dump>  <pass>
+LABEL=root      /               ext3    defaults,relatime,errors=remount-ro 0 1
+LABEL=home       /home           ext3    defaults,relatime        0       2
+LABEL=video1       /mnt/video      ext3    defaults,relatime        0       2
+LABEL=video2       /mnt/video2     ext3    defaults,relatime        0 2
+LABEL=video3       /mnt/video3     ext3    defaults,relatime        0 2
+LABEL=video4       /mnt/video4     ext3    defaults,relatime        0 2
+
+proc            /proc           proc    defaults        0       0
+# /dev/sdd2       none            swap    sw              0       0
+UUID=5333e0e6-11d0-47a5-97af-44880a732e19  none swap sw 0 0
+
+# 320GB usb disk (maxtor) 
+LABEL=USB320 /mnt/usb-320gb ext3 rw,user,relatime,noauto 0 0
+
+# 200GB Maxtor disk IEEE1394 through USB 
+LABEL=Maxtor120 /mnt/maxtor120  ext3 rw,user,relatime,noauto 0 0
+
+# 2To external disk (USB or e-sata)
+LABEL=ext-2To /mnt/ext-2To ext4 rw,user,relatime,noauto 0 0
+
+# sysfs entry for powernowd (and others)
+#sysfs /sys sysfs defaults 0 0
+
+# to enable usbmon
+debugfs /sys/kernel/debug debugfs defaults 0 2
+                                                                                                              
+/dev  /var/chroot/testing-i386/dev  none bind 0 0                                                          
+/home /var/chroot/testing-i386/home none bind 0 0                                                          
+/proc /var/chroot/testing-i386/proc none bind 0 0                                                          
+/tmp  /var/chroot/testing-i386/tmp  none bind 0 0
+

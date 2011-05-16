@@ -154,14 +154,45 @@
       },
       'fs_freq',
       {
-        'value_type' => 'boolean',
+        'value_type' => 'enum',
+        'warp' => {
+          'follow' => {
+            'isbound' => '- fs_mntopts bind',
+            'fstyp' => '- fs_vfstype'
+          },
+          'rules' => [
+            '$fstyp eq "none" and $isbound',
+            {
+              'choice' => [
+                '0'
+              ]
+            }
+          ]
+        },
         'default' => '0',
         'type' => 'leaf',
-        'description' => 'Specifies if the file system needs to be dumped'
+        'description' => 'Specifies if the file system needs to be dumped',
+        'choice' => [
+          '0',
+          '1'
+        ]
       },
       'fs_passno',
       {
         'value_type' => 'integer',
+        'summary' => 'fsdk pass number',
+        'warp' => {
+          'follow' => {
+            'isbound' => '- fs_mntopts bind',
+            'fstyp' => '- fs_vfstype'
+          },
+          'rules' => [
+            '$fstyp eq "none" and $isbound',
+            {
+              'max' => '0'
+            }
+          ]
+        },
         'default' => 0,
         'type' => 'leaf',
         'description' => 'used by the fsck(8) program to determine the order in which filesystem checks are done at reboot time'
