@@ -57,24 +57,24 @@ sub search {
     my $string = shift ; # string to search, can be a regexp 
     
     $logger->debug( "TreeSearcher: creating scanner for ".$self->node->name);
-    my $reg = qr/$string/ ;
+    my $reg = qr/$string/i ;
 
     my @scanner_args ;
     my $need_search =  $self->_build_type_hash ;
-    
+     
     push @scanner_args, leaf_cb => sub { 
         my ($scanner, $data_ref, $node,$element_name,$index, $leaf_object) = @_ ;
 
         my $loc = $leaf_object->location ;
         $logger->debug( "TreeSearcher: scanning leaf $loc");
             
-        my $v = $leaf_object->fetch ;
+        my $v = $leaf_object->fetch(check => 'no') ;
         if ($need_search->{value} and defined $v and $v =~ $reg ) {
-            $data_ref->{$loc} =1  ;
+            $data_ref->($loc) ;
         }
         if ($need_search->{help}) {
             my $help_ref = $leaf_object->get_help ;
-            $data_ref->{$loc} = 1  
+            $data_ref->($loc)
                 if grep { $_ =~ $reg ; } values %$help_ref ;
         }
     } ;
@@ -87,15 +87,13 @@ sub search {
 
         $logger->debug( "TreeSearcher: scanning hash $loc");
 
-        if ($need_search->{key}) {
-            foreach my $k (@keys) {
-                next unless $k =~ $reg ;
+        foreach my $k (@keys) {
+            if ($need_search->{key} and $k =~ $reg) {
                 my $hloc= $node->fetch_element($element_name)->fetch_with_id($k)->location;
-                $data_ref->{$hloc} = 1 ;
+                $data_ref->($hloc) ;
             }
+            $scanner->scan_hash($data_ref,$node,$element_name,$k) ;
         }
-        
-        map {$scanner->scan_hash($data_ref,$node,$element_name,$_)} @keys ;
      } ;
 
     push @scanner_args,  node_content_cb => sub { 
@@ -111,10 +109,10 @@ sub search {
             } qw/description summary/;
             $store = 1 if $need_search->{element} and $e =~ $reg ;
             
-            $data_ref->{$loc.' '.$e} = 1 if $store ;
-        }
+            $data_ref->( $loc ? $loc.' '.$e : $e )  if $store ;
 
-        map {$scanner->scan_element($data_ref, $node,$_)} @element ;
+            $scanner->scan_element($data_ref, $node,$e);
+        }
     } ;
 
     
@@ -123,10 +121,16 @@ sub search {
     ) ;
 
     # use hash to avoid duplication of path
-    my %locations ;
-    $scan->scan_node(\%locations, $self->node) ;
+    my @loc ;
+    my $store_sub = sub {
+        my $p = shift ;
+        return if @loc and $loc[$#loc] eq $p ;
+        $logger->debug( "TreeSearcher: storing location '$p'");
+        push @loc,$p ;
+    } ;
+    $scan->scan_node($store_sub, $self->node) ;
     
-    return sort keys %locations ;
+    return @loc ;
 }
 
 
@@ -171,7 +175,7 @@ Config::Model::TreeSearcher - Search tree for match in value, description...
  my $step = 'baz:fr=bonjour baz:hr="dobar dan" foo="journalled"';
  $root->load( step => $step ) ;
 
- my @result = $root->searcher(type => 'value')->search('jour');
+ my @result = $root->tree_searcher(type => 'value')->search('jour');
  print join("\n",@result),"\n" ;
  # print 
  #  baz:fr
@@ -213,7 +217,8 @@ Search in all the items above
 
 =head2 search(keyword)
 
-Search the keyword or pattern in the tree. Returns a list of path pointing 
+Search the keyword or pattern in the tree. The search is done in a case
+insensitive manner. Returns a list of path pointing 
 to the matching tree element. See L<Config::Model::AnyThing/grab(...)> for details
 on the path syntax.
 
