@@ -2328,6 +2328,11 @@ sub available_models {
     get_logger("Model")->trace("available_models: path is $path");
     foreach my $dir (glob("$path/*.d")) {
         my ($cat) = ( $dir =~ m!.*/([\w\-]+)\.d! );
+
+        if ($cat !~ /^user|system|application$/) {
+            warn "available_models: skipping unexpected category: $cat\n";
+            next;
+        }
         
         get_logger("Model")->trace("available_models: category dir $dir");
         
