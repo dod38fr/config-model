@@ -5,6 +5,8 @@
 	  bound mount point
 	* Dpkg: Added doc for control Architecture. Fix pod doc in DpkgSyntax 
 	  backend
+	* Debian/Dpkg/Meta.pl: applied Debian patch fix_perl_group_filter 
+	  (set group_filter of debian perl team to 'etch' instead of 'lenny')
 	
     * Framework changes:
 	* config-edit: added -search and -narrow-search options. This options
