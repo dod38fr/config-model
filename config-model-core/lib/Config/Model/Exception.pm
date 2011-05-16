@@ -230,9 +230,13 @@ sub full_message {
 
     my $location = defined $self->object ? $self->object->name :'';
     my $msg = $self->description;
+    my $cmd = $self->command ;
+    my $cmd_str = defined $cmd && $cmd ? "'$cmd'" 
+                : defined $cmd         ? '<empty>'
+                :                        '<undef>' ;
     $msg .= " in node '$location'" if $location ;
     $msg .= ':';
-    $msg .= "\n\tcommand: ".$self->command if $self->command ne '';
+    $msg .= "\n\tcommand: $cmd_str";
     $msg .= "\n\t". $self->message."\n";
 
     return $msg;
