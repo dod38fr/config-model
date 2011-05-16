@@ -1,10 +1,20 @@
-TODO: 
-  - FStab: force fs_freq and fs_passno to be 0 with bind mounted fs
+2011-05-16  Dominique Dumont  <ddomi.dumont@free.fr> 1.244
+
+    * Application changes:
+	* Fstab model: Prevent wrong value in fs_passno and fs_freq with 
+	  bound mount point
+	* Dpkg: Added doc for control Architecture. Fix pod doc in DpkgSyntax 
+	  backend
+	
+    * Framework changes:
+	* config-edit: added -search and -narrow_search options. This options
+	  enable search in tree element, values and tree documentation.
+	* Config/Model/AnyThing.pm: fix location string and fix grab function
 
 2011-05-02  Dominique Dumont  <domi.dumont@free.fr> 1.243
 
     * Application changes:
-        * dpkg control: bumperd standard version to 3.9.2
+        * dpkg control: bumped standard version to 3.9.2
         * dpkg: fix spelling . Closes RT# 67783 and 67784. Thanks carnil
         * dpkg control license: tweaked grammar to accept commas in license
           fields. Closes Debian #624305. Thanks Niko Tyni.
