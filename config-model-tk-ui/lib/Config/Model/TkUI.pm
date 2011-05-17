@@ -44,6 +44,7 @@ Construct Tk::Widget 'ConfigModelUI';
 
 my $cust_img ;
 my $tool_img ;
+my %gnome_img;
 
 my $mod_file = 'Config/Model/TkUI.pm' ;
 $icon_path = $INC{$mod_file} ;
@@ -85,6 +86,8 @@ sub Populate {
 	$warn_img = $cw->Photo(-file => $icon_path.'dialog-warning.png');
 	# snatched from openclipart-png
 	$tool_img = $cw->Photo(-file => $icon_path.'tools_nicu_buculei_01.png');
+	$gnome_img{next} = $cw->Photo(-file => $icon_path.'gnome-next.png');
+	$gnome_img{previous} = $cw->Photo(-file => $icon_path.'gnome-previous.png');
     }
 
     foreach my $parm (qw/-root/) {
@@ -143,6 +146,7 @@ sub Populate {
 	 # [ qw/command cut   -command/, sub{ $cw->edit_cut }],
 	 [ command => 'copy (Ctrl-C)', '-command', sub{ $cw->edit_copy }],
 	 [ command => 'paste (Ctrl-V)','-command', sub{ $cw->edit_paste }],
+	 [ command => 'find (Ctrl-F)','-command', sub{ $cw->pack_find_widget; }],
 	];
     $menubar->cascade( -label => 'Edit', -menuitems => $edit_items ) ;
 
@@ -213,20 +217,24 @@ sub Populate {
     # bind button3 as double-button-1 does not work
     my $b3_sub = sub{my $item = $tree->nearest($tree->pointery - $tree->rooty) ;
 		     $cw->on_select($item)} ;
-    $tree->bind('<Button-3>', $b3_sub) ;
+    $cw->bind('<Button-3>', $b3_sub) ;
+    $cw->bind('<Double-Button-1>', $b3_sub) ;
 
     # bind button2 to get cut buffer content and try to store cut buffer content
     my $b2_sub = sub{my $item = $tree->nearest($tree->pointery - $tree->rooty) ;
 		     $cw->on_cut_buffer_dump($item)} ;
-    $tree->bind('<Button-2>', $b2_sub) ;
+    $cw->bind('<Button-2>', $b2_sub) ;
 
-    $tree->bind('<Control-c>',  sub{ $cw->edit_copy }) ;
-    $tree->bind('<Control-v>',  sub{ $cw->edit_paste }) ;
+    $cw->bind('<Control-c>',  sub{ $cw->edit_copy }) ;
+    $cw->bind('<Control-v>',  sub{ $cw->edit_paste }) ;
+    $cw->bind('<Control-f>',  sub{ $cw->pack_find_widget }) ;
 
     # bind button2 to get cut buffer content and try to store cut buffer content
     #my $key_sub = sub{my $item = $tree->nearest($tree->pointery - $tree->rooty) ;
     #$cw->on_key_press($item)} ;
     #$tree->bind('<KeyPress>', $key_sub) ;
+
+    my $find_frame = $cw->create_find_widget ;
 
     $args->{-title} = $title;
     $cw->SUPER::Populate($args) ;
@@ -249,6 +257,7 @@ sub Populate {
     $cw->Advertise( menubar => $menubar );
     $cw->Advertise( right_frame => $eh_frame );
     $cw->Advertise( ed_frame => $e_frame );
+    $cw->Advertise( find_frame => $find_frame );
 
     $cw->Delegates ;
 }
@@ -1034,6 +1043,73 @@ sub setup_wizard {
       ) ;
 }
 
+sub create_find_widget {
+    my $cw = shift ;
+    my $f = $cw -> Frame(-relief => 'ridge', -borderwidth => 1 , ) ;
+    my $remove_img = $cw->Photo( -file => $icon_path . 'remove.png' );
+
+    $f -> Button (
+        -image   => $remove_img,
+        -command => sub { $f -> packForget() ;},
+        -relief => 'flat',
+    ) -> pack(-side => 'left');
+
+    my $searcher = $cw->{root}->tree_searcher(type => 'all') ;
+    
+    my $search = '';
+    my @result ;
+    $f -> Label (-text => 'Find: ') -> pack(-side => 'left') ;
+    my $e = $f -> Entry (
+        -textvariable => \$search,
+        -validate => 'key',
+        # ditch the search results when find entry is modified.
+        -validatecommand => sub {  @result = () ; return 1 ;} ,
+    ) ->pack (-side => 'left') ;
+    
+    $cw->Advertise( find_entry => $e) ;
+    
+    foreach my $direction (qw/previous next/) {
+        my $s = sub { $cw -> find_item($direction, $searcher,\$search, \@result) ;};
+        $f -> Button (
+            -compound => 'left',
+            -image => $gnome_img{$direction} ,
+            -text   => ucfirst($direction),
+            -command => $s,
+            -relief => 'flat',
+        ) -> pack(-side => 'left');
+    }
+    
+    return $f ;
+}
+
+sub pack_find_widget {
+    my $cw = shift;
+    $cw->Subwidget('find_frame')->pack(-anchor => 'w', -fill => 'x'); 
+    $cw->Subwidget('find_entry') -> focus ;
+}
+
+sub find_item {
+    my ($cw, $direction, $searcher, $search_ref, $result) = @_ ;
+
+    my $find_frame = $cw ->Subwidget('find_frame') ;
+
+    # search the tree, store the result 
+    @$result = $searcher->search($$search_ref) unless @$result ;
+    
+    # and jump in the list widget any time next is hit.
+    if (@$result) {
+        if ( defined $cw->{old_path} and $direction eq 'next' ) {
+            push @$result, shift @$result ;
+        }
+        elsif (defined $cw->{old_path}) {
+            unshift @$result, pop @$result ;
+        }
+        my $path = $result->[0];
+        $cw->{old_path} = $path ;
+
+        $cw->force_element_display($cw->{root}->grab($path)) ;
+    }
+}
 1;
 
 __END__
@@ -1126,6 +1202,16 @@ in the hash element.
 
 =back
 
+=head2 Search
+
+Hit C<Ctrl-F> or use menu C<< Edit -> Search >> to open a search widget at the bottom 
+of the window.
+
+Enter a keyword in the entry widget and click on C<Next> button.
+
+The keyword will be searched in the configuration tree, in element name, in element value and 
+in documentation.
+
 =head2 Editor widget
 
 The right side of the widget is either a viewer or an editor. When
@@ -1145,10 +1231,7 @@ items (mostly missing mandatory values).
 =head1 TODO
 
 - Document widget options. (-root_model and -store_sub, -quit)
-- add better navigation
 - add tabular view ?
-- improve look and feel
-- add search element or search value
 - expand the whole tree at once
 - add plug-in mechanism so that dedicated widget
   can be used for some config Class (Could be handy for
@@ -1160,7 +1243,7 @@ Dominique Dumont, (ddumont at cpan dot org)
 
 =head1 LICENSE
 
-    Copyright (c) 2008-2010 Dominique Dumont.
+    Copyright (c) 2008-2011 Dominique Dumont.
 
     This file is part of Config-Model.
 
