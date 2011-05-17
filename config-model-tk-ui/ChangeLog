@@ -1,3 +1,10 @@
+2011-05-17  Dominique Dumont  <domi.dumont@free.fr> 1.324
+
+   * Depends on Config::Model 1.244
+   * TkUI: added search widget (menu "Edit -> Search" or
+     just hit <Ctrl-F>)
+   * ListEditor: fix bug that prevented to push a null value
+
 2011-04-11  Dominique Dumont  <domi.dumont@free.fr> 1.323
 
     * LeafEditor: show value help widget only when useful
@@ -22,7 +29,7 @@
 
         * LeafViewer: removed 'apply fix' button. This one is reserved for 
         LeafEditor
-        
+
 2011-01-09  Dominique Dumont  <domi.dumont@free.fr> 1.319
 
         * LeafEditor: added fix button to fix warnings (if model provides a fix)
