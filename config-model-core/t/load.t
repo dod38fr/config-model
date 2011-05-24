@@ -1,7 +1,7 @@
 # -*- cperl -*-
 
 use ExtUtils::testlib;
-use Test::More tests => 109;
+use Test::More tests => 111;
 use Test::Exception ;
 use Test::Differences ;
 use Config::Model;
@@ -308,4 +308,14 @@ is($root2->grab_value('lista:0'),"a\x{263A}","check that list append work");
 # test element with embedded dash
 $root->load("std_id:ab X-Y-Z=Av");
 is($root->grab_value('std_id:ab X-Y-Z'), "Av","check load grab of X-Y-Z") ;
+
+# test some errors cases
+my %errors = ( 
+    'std_id', qr/Missing assignment/ ,
+    'olist', qr/Wrong assignment/,
+);
+
+foreach my $bad (sort keys %errors) {
+    throws_ok { $root->load($bad) }  $errors{$bad}, "Check error for load('$bad')" ;
+}
 
