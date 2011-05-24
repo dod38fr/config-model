@@ -303,11 +303,12 @@ sub get_choice_from_refered_to {
 
 	if ($@) {
 	    my $e = $@ ;
-	    my $msg = $e ? $e->full_message : '' ;
+	    # don't use $e->full_description as it will recurse badly
+	    my $msg = $e ? $e->description : '' ;
 	    Config::Model::Exception::Model
 		-> throw (
 			  object => $config_elt,
-			  error => "'refer_to' parameter: " . $msg
+			  error => "'refer_to' parameter with path '@path': " . $msg
 			 ) ;
 	}
 
