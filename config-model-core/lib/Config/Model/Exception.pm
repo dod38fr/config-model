@@ -315,10 +315,8 @@ sub full_message {
     my $class_name = $obj -> config_class_name ;
     
     # class_name is undef if the warped_node is warped out
-    
-    # TBD use model instead of node
     my @elements ;
-    @elements = $obj -> config_model -> get_element_name(
+    @elements = $obj -> get_element_name(
         class => $class_name,
 	for => $min_experience
     ) if defined $class_name ;
