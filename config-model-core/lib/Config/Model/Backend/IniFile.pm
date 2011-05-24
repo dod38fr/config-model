@@ -290,13 +290,14 @@ comment may apply. Wrong estimations are possible.
 
 =head1 CONSTRUCTOR
 
-=head2 new ( node => $node_obj, name => 'shellvar' ) ;
+=head2 new ( node => $node_obj, name => 'inifile' ) ;
 
 Inherited from L<Config::Model::Backend::Any>. The constructor will be
 called by L<Config::Model::AutoRead>.
 
-The constructor will be passed the optional parameters declared in the 
-model:
+=head1 Parameters
+
+Optional parameters declared in the model:
 
 =over
 
@@ -304,7 +305,74 @@ model:
 
 Change the character that starts comments in the INI file. Default is 'C<#>'.
 
+=item store_class_in_hash
+
+See L</"Arbitrary class name">
+
 =back
+
+=head1 Mapping between INI structure and model
+
+INI file typically have the same structure with 2 different conventions. 
+The class names can be imposed by the application or may be chosen by user.
+
+=head2 Imposed class name
+
+In this case, the class names must match what is expected by the application. 
+The elements of each class can be different. For instance:
+
+  foo = foo_v
+  [ A ]
+  bar = bar_v
+  [ B ]
+  baz = baz_v
+
+In this case, class C<A> and class C<B> will not use the same configuration class.
+
+The model will have this structure:
+   
+ Root class 
+ |- leaf element foo
+ |- node element A of class_A
+ |  \- leaf element bar
+ \- node element B of class_B
+    \-  leaf element baz
+    
+=head2 Arbitrary class name
+
+In this case, the class names can be chosen by the end user. Each class will have the same 
+elements. For instance:
+
+  foo = foo_v
+  [ A ]
+  bar = bar_v1
+  [ B ]
+  bar = bar_v2
+
+In this case, class C<A> and class C<B> will not use the same configuration class.
+The model will have this structure:
+   
+ Root class 
+ |- leaf foo
+ \- hash element my_class_holder
+    |- key A (value is node of class_A)
+    |  \- element-bar
+    \- key B (value is node of class_A)
+       \- element-bar
+
+In this case, the C<my_class_holder> name is specified in C<read_config> with C<store_class_in_hash> 
+parameter:
+
+    read_config  => [
+        { 
+            backend => 'IniFile',
+            config_dir => '/tmp',
+            file  => 'foo.ini',
+            store_class_in_hash => 'my_class_holder',
+        }
+    ],
+
+=head1 Methods
 
 =head2 read ( io_handle => ... )
 
