@@ -115,6 +115,7 @@ sub open_read_file {
 
     my $fh = new IO::File;
     if (defined $file_path and -e $file_path) {
+        $logger->debug("open_read_file: open $file_path for read");
         $fh->open($file_path);
         $fh->binmode(":utf8");
         # store a backup in memory in case there's a problem
