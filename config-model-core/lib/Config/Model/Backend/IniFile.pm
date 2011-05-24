@@ -23,8 +23,7 @@
 package Config::Model::Backend::IniFile ;
 
 use Carp;
-use strict;
-use warnings ;
+use Any::Moose ;
 use Config::Model::Exception ;
 use UNIVERSAL ;
 use File::Path;
@@ -196,6 +195,10 @@ sub _write {
 
     return 1;
 }
+
+no Any::Moose ;
+__PACKAGE__->meta->make_immutable ;
+
 
 1;
 
