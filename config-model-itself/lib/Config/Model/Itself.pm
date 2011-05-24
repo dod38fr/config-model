@@ -53,7 +53,7 @@ Config::Model::Itself - Model editor for Config::Model
  $rw_obj -> read_all( conf_dir => '/path/to/model_files') ;
 
  # For Curses UI prepare a call-back to write model
- my $wr_back = sub { $rw_obj->write_all(conf_dir => '/path/to/model_files');
+ my $wr_back = sub { $rw_obj->write_all(model_dir => '/path/to/model_files');
 
  # create Curses user interface
  my $dialog = Config::Model::CursesUI-> new
@@ -289,7 +289,7 @@ sub write_all {
     my %args = @_ ;
     my $model_obj = $self->{model_object} ;
     my $dir = $args{model_dir} 
-      || croak __PACKAGE__," write_all: undefined config dir";
+      || croak __PACKAGE__," write_all: undefined model_dir";
 
     my $map = $self->{map} ;
 
