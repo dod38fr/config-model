@@ -78,11 +78,12 @@ sub read {
             my $prefix = $hash_class ? "$hash_class:" : '';
             $obj = $self->node->grab(
                 step  => $prefix . $section,
-                check => $check
+                check => $check,
+                mode => $check eq 'yes' ? 'strict' : 'loose' ,
             );
-            $obj->annotation($comment) if $comment;
+            $obj->annotation($comment) if $comment and defined $obj;
         }
-        else {
+        elsif (defined $obj) {
             my ( $name, $val ) = split( /\s*=\s*/, $vdata );
 
             my $elt = $obj->fetch_element( name => $name, check => $check );
@@ -103,6 +104,9 @@ sub read {
                     object => $obj
                 );
             }
+        }
+        else {
+            $logger->warn("ini read: skipping $vdata");
         }
     }
 
