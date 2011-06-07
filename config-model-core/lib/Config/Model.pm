@@ -2021,8 +2021,7 @@ sub get_element_description {
 
     my $desc = $elt_info->{description} || '';
     if ($desc) {
-        $desc .= '.' unless $desc =~ /\.$/ ;
-        $desc .= ' ' unless $desc =~ /\s$/ ;
+        $desc .= '. ' if $desc =~ /\w$/ ;
     }
     
     my $info = $elt_info->{mandatory} ? 'Mandatory. ' : 'Optional. ' ;
