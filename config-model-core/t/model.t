@@ -29,7 +29,7 @@ my $model = Config::Model -> new()  ;
 
 my ($cat,$models) = $model->available_models ;
 
-eq_or_diff($cat->{system},[qw/fstab popcon/],"check available system models");
+eq_or_diff($cat->{system},[qw/fstab lcdproc popcon/],"check available system models");
 is($models->{popcon}{model},'PopCon',"check available popcon");
 
 eq_or_diff($cat->{application}, [qw/dpkg dpkg-control dpkg-copyright/ ] ,"check available application models");
