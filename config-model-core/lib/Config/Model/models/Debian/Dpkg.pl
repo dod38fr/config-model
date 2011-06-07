@@ -56,7 +56,7 @@
  */Makefile.in
  */*/Makefile.in
 
- '
+'
       }
     ]
   }
