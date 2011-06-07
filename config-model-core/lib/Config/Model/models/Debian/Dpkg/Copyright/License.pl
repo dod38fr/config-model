@@ -82,7 +82,7 @@ The name given must match a License described in License element in root node
       },
       'exception',
       {
-        'value_type' => 'enum',
+        'value_type' => 'uniline',
         'help' => {
           'Font' => 'The GPL "Font" exception refers to the text added to the license notice of each file as specified at How_does_the_GPL_apply_to_fonts?. The precise text corresponding to this exception is:
 As a special exception, if you create a document which uses this
@@ -110,11 +110,7 @@ exception statement from all source files in the program, then also
 delete it here.'
         },
         'type' => 'leaf',
-        'description' => 'License exception',
-        'choice' => [
-          'Font',
-          'OpenSSL'
-        ]
+        'description' => 'License exception'
       },
       'full_license',
       {
