@@ -116,7 +116,7 @@
            a new parameter is created in the model using the description provided
            in the value of this hash key. Note that the regexp must match the whole 
            candidate parameter name. I.e. the specified regexp will be eval\'ed 
-           with a leading ^ and a trailing $."
+           with a leading ^ and a trailing \$."
         ],
     ],
 
@@ -237,7 +237,7 @@
                 refer_to   => '- - element',
                 level      => 'hidden',
                 description =>
-'Sometimes, the structure of a file loaded by Augeas starts directly with a list of items. For instance, /etc/hosts structure starts with a list of lines that specify hosts and IP adresses. This parameter specifies an element name in Config::Model root class that will hold the configuration data retrieved by Augeas',
+'Sometimes, the structure of a file loaded by Augeas starts directly with a list of items. For instance, /etc/hosts structure starts with a list of lines that specify hosts and IP addresses. This parameter specifies an element name in Config::Model root class that will hold the configuration data retrieved by Augeas',
                 warp => {
                     follow => '- backend',
                     rules  => [ augeas => { level => 'normal', } ],
