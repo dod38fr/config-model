@@ -58,11 +58,14 @@ my $meta_inst = $model->instance(
 my $meta_root = $meta_inst->config_root;
 
 # read dummy file to create model_object
+my $extra_description = "Model information extracted from template /etc/LCDd.conf"
+    ."\n\n=head1 BUGS\n\nThis model does not support to load several drivers. Loading "
+    ."several drivers is probably a marginal case. Please complain to the author if this "
+    ."assumption is false" ;
+    
 
 $meta_root->grab("class:LCDd class_description")->store( $dummy->annotation );
-$meta_root->load(
-qq!class:LCDd class_description.="\n\nModel information extracted from template /etc/LCDd.conf"!
-);
+$meta_root->load( qq!class:LCDd class_description.="\n\n$extra_description"! );
 
 $meta_root->load(
 qq!class:LCDd 
@@ -86,7 +89,7 @@ my %def;
     "LCDd::server" => {
         Driver => sub {
             my ( $class, $elt, $info, $ini_v ) = @_;
-            my $load = qq!class:"$class" element:$elt type=check_list !;
+            my $load = qq!class:"$class" element:$elt type=leaf value_type=enum !;
             my @drivers = split /\W+/, $info;
             while ( @drivers and ( shift @drivers ) !~ /supported/ ) { }
             $load .= 'choice=' . join( ',', @drivers ) . ' ';
@@ -162,7 +165,7 @@ foreach my $item (@ini_classes) {
         my $load = qq!class:LCDd element:$item type=warped_node
             config_class_name="LCDd::$item" level=hidden
             follow:selected="- server Driver"
-            rules:"\$selected =~ /$item/" level=normal! ;
+            rules:"\$selected eq '$item'" level=normal! ;
         print "Class load:$load\n";
         $meta_root->load($load) ;
     }
