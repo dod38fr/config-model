@@ -25,12 +25,19 @@ if (not grep (/is/ , `bash -c 'type fusermount'`) ) {
       plan skip_all => "fusermount not found" ;
 }
 
+my $umount_str = `bash -c 'umount --version'` ;
+my ($umount_v) = $umount_str =~ / (\d+\.\d+)/ ;
+if ( $umount_v + 0 < 2.18 ) {
+      plan skip_all => "Did not find umount with version >= 2.18" ;
+}
+
+
 eval { require Config::Model::FuseUI ;} ;
 if ( $@ ) {
     plan skip_all => "Config::Model::FuseUI or Fuse is not installed";
 }
 else {
-    plan tests => 12;
+    plan tests => 13;
 }
 
 use warnings FATAL => qw(all);
@@ -142,6 +149,7 @@ is( $fused->file('a_boolean')->slurp , "0\n", "check new a_boolean content");
 my $a_boolean_fhw = $fused->file('a_boolean')->openw ;
 $a_boolean_fhw -> print("1") ;
 $a_boolean_fhw->close ;
+is( $fused->file('a_boolean')->slurp , "1\n", "check new a_boolean content (set to 1)");
 
 END {
     if ($pid) {
