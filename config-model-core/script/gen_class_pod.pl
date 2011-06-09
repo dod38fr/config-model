@@ -36,7 +36,7 @@ my $model = Config::Model -> new(model_dir => "lib/Config/Model/models") ;
 my @generated_pods ;
 map {
     if (not $model->model_exists($_)) {
-        print "Generating doc for model $_\n";
+        print "Checking doc for model $_\n";
         $model->load($_) ;
         $model->generate_doc ($_,'lib') ;
     }
