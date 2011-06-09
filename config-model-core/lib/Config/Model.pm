@@ -2073,12 +2073,14 @@ sub generate_doc {
         foreach my $class_name (keys %$res) {
             my $file = $class_name;
             $file =~ s!::!/!g ;
-            my $pl_file   = $self->model_dir."/$file.pl";
+            my $pl_file   = $dir."/$file.pl";
             my $pod_file  = $dir."/$file.pod";
             my $pod_dir = $pod_file ;
             $pod_dir =~ s!/[^/]+$!!;
             make_path($pod_dir,{ mode => 0755} ) unless -d $pod_dir ;
-            if (not -e $pod_file or not -e $pl_file or -M $pl_file > -M $pod_file ) {
+            # -M returns age of file, not date or epoch. hence greater is older
+            if (not -e $pod_file or not -e $pl_file or (-M $pl_file < -M $pod_file) ) {
+                #print "-M $pl_file: ", -M $pl_file, "-M $pod_file: ". -M $pod_file ,"\n";
                 my $fh = IO::File->new($pod_file,'>') || die "Can't open $pod_file: $!";
                 $fh->binmode(":utf8");
                 $fh->print($res->{$class_name});
