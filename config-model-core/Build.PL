@@ -31,6 +31,11 @@ require 5.008;
 print "\nIf you want to use the TermUI interface, you should install\n",
   "Term::ReadLine::Perl or Term::ReadLine::Gnu\n\n";
 
+# check that pod docs are up-to-date
+# this is redundant with work done by dzil. But this enable to re-build the 
+# docs downstream.
+system("perl -Ilib script/gen_class_pod.pl");
+
 my @version_info = @ARGV ? ( dist_version => $ARGV[0] ) : ();
 
 my %appli_files = map { ( $_, $_ ) } glob("lib/Config/Model/*.d/*");
