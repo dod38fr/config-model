@@ -7,15 +7,16 @@ use warnings;
 # for LCDd configuration file
 
 # How does this work ?
+
 # The convention used in LCDd.conf template file are written in a way which
 # makes it relatively easy to parse to get all required information to build a model.
-# All drivers are listed, most parameters have the default values and legal values
+# All drivers are listed, most parameters have default values and legal values
 # written in comments in a uniform way. Hence this file (and comments) can be parsed
 # to retrieve information required for the model.
 
-# this script performs 3 tasks:
+# This script performs 3 tasks:
 # 1/ parse LCDd.conf template
-# 2/ mine the information there and translate these in a format suitable to create
+# 2/ mine the information there and translate them in a format suitable to create
 #    a model. Comments are used to provide default and legal values and also to provide
 #    user documentation
 # 3/ Write the resulting LCDd model
@@ -43,52 +44,55 @@ my $model = Config::Model->new();
 # Problem: comments must also be retrieved and associated with INI
 # class and parameters
 
-# Fortunately, Config::Model::Backend::IniFile can already to this.
-# But Config::Model::Backend::IniFile must store its values in a
+# Fortunately, Config::Model::Backend::IniFile can already perform this
+# task. But Config::Model::Backend::IniFile must store its values in a
 # configuration tree.
 
 # So let's create a model suitable for LCDd.conf that accepts any
-# INI class and any INI value
+# INI class and any INI parameter
 
-# The class used to store any parameter
+# The class is used to store any parameter found in an INI class
 $model->create_config_class(
     name   => 'Dummy::Class',
     accept => [ '.*' => {qw/type leaf value_type uniline/}, ],
 );
 
-# Store any INI class, and use Dummy::Class to hold parameters Note that
-# a INI backend could be created here. But, some useful parameters are
-# commented out in LCD.conf so some some processing is required to be
-# able to create a model with these commented parameters. See below
+# Store any INI class, and use Dummy::Class to hold parameters. 
+
+# Note that a INI backend could be created here. But, some useful
+# parameters are commented out in LCD.conf. Some some processing is
+# required to be able to create a model with these commented parameters.
+# See below for this processing.
 
 $model->create_config_class(
     name   => 'Dummy',
     accept => [ '.*' => {qw/type node config_class_name Dummy::Class/}, ],
 );
 
-my $dummy_inst = $model->instance(
+# Now the dummy configuration class is created. Let's create a 
+# configuration tree to store the data from LCDd.conf
+
+my $dummy = $model->instance(
     instance_name   => 'dummy',
     root_class_name => 'Dummy',
-);
-
-my $dummy = $dummy_inst->config_root;
-
-$dummy->init;
+)-> config_root;
 
 # read LCDd.conf
 my $lcd_file = IO::File->new('examples/lcdproc/LCDd.conf');
 my @lines    = $lcd_file->getlines;
 
+# Here's the LCDd.conf pre-processing mentioned above
+
 # un-comment commented parameters
 foreach (@lines) { s/^#(\w+=)/$1/ }
 
-# store the munged LCDd.conf in a IO::Handle
+# store the munged LCDd.conf in a IO::Handle usable by INI backend
 my $ioh = IO::String->new( join( '', @lines ) );
 
 # Create the INI backend
 my $ini_backend = Config::Model::Backend::IniFile->new( node => $dummy );
 
-# read the munged LCDd.conf content
+# feed the munged LCDd.conf content into INI backend
 $ini_backend->read( io_handle => $ioh );
 
 ##############################################
@@ -96,42 +100,46 @@ $ini_backend->read( io_handle => $ioh );
 # Step 2: Mine the LCDd.conf information and create a model
 #
 
-# Create a meta_model that will contain LCDd model
-my $meta_inst = $model->instance(
+# Create a meta tree that will contain LCDd model
+my $meta_root = $model->instance(
     root_class_name => 'Itself::Model',
     instance_name   => 'meta_model',
-);
-
-my $meta_root = $meta_inst->config_root;
-
-# Create some documentation for end user
-my $extra_description =
-    "Model information extracted from template /etc/LCDd.conf"
-  . "\n\n=head1 BUGS\n\nThis model does not support to load several drivers. Loading "
-  . "several drivers is probably a marginal case. Please complain to the author if this "
-  . "assumption is false";
+) -> config_root;
 
 # Create LCDd configuration class and store the first comment from LCDd.conf as
 # class description
 $meta_root->grab("class:LCDd class_description")->store( $dummy->annotation );
 
 # append my own text
+my $extra_description =
+    "Model information extracted from template /etc/LCDd.conf"
+  . "\n\n=head1 BUGS\n\nThis model does not support to load several drivers. Loading "
+  . "several drivers is probably a marginal case. Please complain to the author if this "
+  . "assumption is false";
 $meta_root->load(qq!class:LCDd class_description.="\n\n$extra_description"!);
 
-# add legal stuff and backend (So LCDd model will be able to read INI files)
+# add legal stuff
 $meta_root->load( qq!
     class:LCDd 
-    copyright:0="2011, Dominique Dumont" 
-    copyright:1="1999-2011, William Ferrell and others" 
-    license="GPL-2"
-    element:server -
-    element:menu -
-    read_config:0 
-       backend=ini_file 
-       config_dir="/etc" 
-       file="LCDd.conf"
+        copyright:0="2011, Dominique Dumont" 
+        copyright:1="1999-2011, William Ferrell and others" 
+        license="GPL-2"
 !
 );
+
+# add INI backend (So LCDd model will be able to read INI files)
+$meta_root->load( qq!
+    class:LCDd 
+        read_config:0 
+            backend=ini_file 
+            config_dir="/etc" 
+            file="LCDd.conf"
+!
+);
+
+# Note: all the load calls above could be done as one call. But I choose
+#       to split them for better clarity
+
 
 # This array contains all INI classes found in LCDd.conf
 my @ini_classes = $dummy->get_element_name;
@@ -227,7 +235,7 @@ foreach my $ini_class (@ini_classes) {
     # create config class in case there's no parameter in INI file
     $meta_root->load(qq!class:"LCDd::$ini_class"!);
 
-    # loop over all INI parameters
+    # loop over all INI parameters and create LCDd::$ini_class elements
     foreach my $ini_param ( $ini_obj->get_element_name ) {
         # retrieve INI value
         my $ini_v    = $ini_obj->grab_value($ini_param);
@@ -253,37 +261,33 @@ foreach my $ini_class (@ini_classes) {
         $meta_root->load($model_spec);
     }
 
-    if ( $ini_class ne 'server' and $ini_class ne 'menu' ) {
+    # Now create a an $ini_class element in LCDd class (to link LCDd
+    # class and LCDd::$ini_class)
+    my $driver_class_spec = qq!
+        class:LCDd 
+            element:$ini_class 
+    ! ;
+
+    if ( $ini_class eq 'server' or $ini_class eq 'menu' ) {
+        $driver_class_spec .= qq! 
+            type=node 
+            config_class_name="LCDd::server" 
+        ! ;
+    }
+    else {
         # Arrange a driver class is shown only if the driver was selected
         # in the [server] class
-        my $driver_class_spec = qq!
-            class:LCDd 
-                element:$ini_class 
-                type=warped_node 
-                config_class_name="LCDd::$ini_class"
-                level=hidden
-                follow:selected="- server Driver"
-                rules:"\$selected eq '$ini_class'" 
-                    level=normal
-            !;
-        $meta_root->load($driver_class_spec);
+        $driver_class_spec .= qq! 
+            type=warped_node 
+            config_class_name="LCDd::$ini_class"
+            level=hidden
+            follow:selected="- server Driver"
+            rules:"\$selected eq '$ini_class'" 
+                level=normal
+        !;
     }
+    $meta_root->load($driver_class_spec);
 }
-
-say "Creating LCDs root elements (server and menu)";
-
-# create the root LCDd class
-$meta_root->load(
-    qq!
-    class:LCDd  
-        element:server  
-            type=node 
-            config_class_name="LCDd::server" -
-        element:menu
-            type=node
-            config_class_name="LCDd::menu" -
-    !
-);
 
 ######################
 #
@@ -293,6 +297,7 @@ $meta_root->load(
 # Itself constructor returns an object to read or write the data
 # structure containing the model to be edited
 my $rw_obj = Config::Model::Itself->new( model_object => $meta_root );
+
 say "Writing all models in file (please wait)";
 $rw_obj->write_all( model_dir => 'lib/Config/Model/models/' );
 
