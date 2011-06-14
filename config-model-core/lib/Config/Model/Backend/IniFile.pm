@@ -71,6 +71,7 @@ sub read {
     my @assoc = $self->associates_comments_with_data( \@lines, $delimiter ) ;
     foreach my $item (@assoc) {
         my ($vdata,$comment) = @$item;
+        $logger->debug("ini read: reading '$vdata'");
 
         # Update section name
         if ( $vdata =~ /\[(.*)\]/ ) {
@@ -81,10 +82,12 @@ sub read {
                 check => $check,
                 mode => $check eq 'yes' ? 'strict' : 'loose' ,
             );
+            $logger->debug("ini read: new section '$section' on node ".$obj->location);
             $obj->annotation($comment) if $comment and defined $obj;
         }
         elsif (defined $obj) {
             my ( $name, $val ) = split( /\s*=\s*/, $vdata );
+            $logger->debug("ini read: data $name for node ".$obj->location);
 
             my $elt = $obj->fetch_element( name => $name, check => $check );
 
