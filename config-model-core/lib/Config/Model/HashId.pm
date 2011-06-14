@@ -185,20 +185,8 @@ sub create_default {
     # hash is empty so create empty element for default keys
     my $def = $self->get_default_keys ;
     map {$self->_store($_,undef) } @$def ;
-
-    if (defined $self->{default_with_init}) {
-        my $h = $self->{default_with_init} ;
-        foreach my $def_key (keys %$h) {
-            my $v_obj = $self->fetch_with_id($def_key);
-            if ($v_obj->get_type eq 'leaf') {
-                $v_obj->store($h->{$def_key}) ;
-            }
-            else {
-                $v_obj->load($h->{$def_key}) ;
-            }
-        }
-    }
-}
+    $self->create_default_with_init ;
+}    
 
 sub _delete {
     my ($self,$key) = @_ ;

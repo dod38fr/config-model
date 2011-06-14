@@ -470,6 +470,8 @@ sub set_properties {
                          # experience => $args{experience}
                        # } ;
     #$self->SUPER::set_parent_element_property(\%args) ;
+    
+    $self->create_default_with_init ;
 
     Config::Model::Exception::Model
         ->throw (
@@ -501,6 +503,24 @@ sub set_properties {
 # 
     # $self->SUPER::set_parent_element_property($arg_ref) ;
 # }
+
+sub create_default_with_init {
+    my $self = shift;
+
+    return unless defined $self->{default_with_init};
+
+    my $h = $self->{default_with_init};
+    foreach my $def_key ( keys %$h ) {
+        my $v_obj = $self->fetch_with_id($def_key);
+        if ( $v_obj->get_type eq 'leaf' ) {
+            $v_obj->store( $h->{$def_key} );
+        }
+        else {
+            $v_obj->load( $h->{$def_key} );
+        }
+    }
+}
+
 
 =head1 Introspection methods
 

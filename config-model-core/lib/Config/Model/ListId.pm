@@ -406,11 +406,7 @@ sub create_default {
 
     map {$self->{data}[$_] = undef } @$def ;
 
-    if (defined $self->{default_with_init}) {
-        foreach my $def_key (keys %{$self->{default_with_init}}) {
-            $self->fetch_with_id($def_key)->load($def->{$def_key}) ;
-        }
-    }
+    $self->create_default_with_init ;
 }
 
 =head2 load_data ( array_ref | data )
