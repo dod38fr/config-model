@@ -215,6 +215,12 @@ C<foo#comment:bar> is B<not> valid.
 
 =back
 
+=head2 Quotes
+
+You can surround indexes and values with double quotes. E.g.:
+
+  a_string="\"titi\" and \"toto\""
+
 =head1 Methods
 
 =head2 load ( ... )
@@ -584,7 +590,6 @@ sub _load_list {
     if ($elt_type eq 'list' and defined $action and $action eq '~') {
 	# remove possible leading or trailing quote
 	$logger->debug("_load_list: removing id $id");
-	unquote ($id) ;
 	$element->remove($id) ;
 	return 'ok' ;
     }
@@ -596,7 +601,6 @@ sub _load_list {
 	if ($cargo_type =~ /node/) {
 	    # remove possible leading or trailing quote
 	    $logger->debug("_load_list: calling _load on node id $id");
-	    unquote ($id) ;
 	    return $self->_load($obj, $check, $experience, $cmdref);
 	}
 
@@ -604,7 +608,6 @@ sub _load_list {
 
 	if ($cargo_type =~ /leaf/) {
 	    $logger->debug("_load_list: calling _load_value on $cargo_type id $id");
-	    unquote($value) ;
 	    $self->_load_value($obj,$check,$subaction,$value)
 	      and return 'ok';
 	}
@@ -680,7 +683,6 @@ sub _load_hash {
     if ($action eq '~') {
 	# remove possible leading or trailing quote
 	$logger->debug("_load_hash: deleting $id");
-	unquote ($id) ;
 	$element->delete($id) ;
 	return 'ok' ;
     }
@@ -691,12 +693,10 @@ sub _load_hash {
     if ($action eq ':' and $cargo_type =~ /node/) {
 	# remove possible leading or trailing quote
 	$logger->debug("_load_hash: calling _load on node $id");
-	unquote ($id) ;
 	return $self->_load($obj,$check, $experience, $cmdref);
     }
     elsif ($action eq ':' and defined $subaction and $cargo_type =~ /leaf/) {
 	$logger->debug("_load_hash: calling _load_value on leaf $id");
-	unquote($id,$value) ;
 	$self->_load_value($obj,$check,$subaction,$value)
 	  and return 'ok';
     }
@@ -721,7 +721,6 @@ sub _load_leaf {
 
     my $element = $node -> fetch_element($element_name) ;
     $self->_load_note($element, $note, $inst, $cmdref);
-    unquote($value) ;
 
     if (defined $action and $action eq '~' and $element->isa('Config::Model::Value')) {
         $logger->debug("_load_leaf: action '$action' deleting value");

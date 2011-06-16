@@ -1,7 +1,7 @@
 # -*- cperl -*-
 
 use ExtUtils::testlib;
-use Test::More tests => 111;
+use Test::More tests => 113;
 use Test::Exception ;
 use Test::Differences ;
 use Config::Model;
@@ -82,6 +82,13 @@ ok( $root->load( step => $step, experience => 'advanced' ),
   "load steps with embedded \\n");
 is( $root->fetch_element('a_string')->fetch, "titi and\ntoto",
   "check a_string");
+
+# check with embedded quotes
+$step = qq!std_id:ab X=Bv -\na_string="\"titi\" and \"toto\"" std_id:bc X=Av!;
+ok( $root->load( step => $step, experience => 'advanced' ),
+  "load steps with embedded quotes");
+is( $root->fetch_element('a_string')->fetch, qq!"titi" and "toto"!,
+  "check a_string with embedded quotes");
 
 # check with embedded utf8
 $step = qq!#"root cooment \x{263A} " std_id:\x{263A} X=Bv -\na_string="titi and\ntoto and \x{263A}" !;
