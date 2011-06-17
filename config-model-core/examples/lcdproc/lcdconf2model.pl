@@ -219,8 +219,8 @@ $dispatch{"LCDd::server"}{GoodBye} = $dispatch{"LCDd::server"}{Hello} = sub {
         cargo 
             type=leaf 
             value_type=uniline - 
-        default_with_init:0="    $elt" 
-        default_with_init:1="    LCDproc!" 
+        default_with_init:0="\\"    $elt\\"" 
+        default_with_init:1="\\"    LCDproc!\\"" 
     );
 };
 
@@ -242,12 +242,8 @@ foreach my $ini_class (@ini_classes) {
 
         # retrieve INI comment attached to $ini_param
         my $ini_comment = $ini_obj->grab($ini_param)->annotation;
-        # embedded quotes causes trouble, replace them with single quotes.
-        $ini_comment =~ s/"/'/g;
-
-        # remove unnecessary quotes
-        $ini_v    =~ s/^"//g;
-        $ini_v    =~ s/"$//g;
+        # escape embedded quotes
+        $ini_comment =~ s/"/\\"/g;
 
         # retrieve the correct sub from the dispatch table
         my $sub = $dispatch{$config_class}{$ini_param} || $dispatch{_default_};
@@ -271,7 +267,7 @@ foreach my $ini_class (@ini_classes) {
     if ( $ini_class eq 'server' or $ini_class eq 'menu' ) {
         $driver_class_spec .= qq! 
             type=node 
-            config_class_name="LCDd::server" 
+            config_class_name="LCDd::$ini_class" 
         ! ;
     }
     else {
