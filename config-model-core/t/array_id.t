@@ -5,9 +5,10 @@ use warnings FATAL => qw(all);
 use ExtUtils::testlib;
 use Test::More;
 use Test::Exception;
+use Test::Differences ;
 use Config::Model;
 
-BEGIN { plan tests => 76; }
+BEGIN { plan tests => 78; }
 
 use strict;
 
@@ -284,11 +285,14 @@ is_deeply( [ $lwmkf->get_all_indexes ],
     
 # test default_with_init on leaf
 my $lwdwil = $root->fetch_element('list_with_default_with_init_leaf');
+# note: calling get_all_indexes is required to trigger creation of default_with_init keys
+eq_or_diff([$lwdwil->get_all_indexes],[0,1],"check default keys");
 is($lwdwil->fetch_with_id(0)->fetch,'def_1 stuff',"test default_with_init leaf 0") ;
 is($lwdwil->fetch_with_id(1)->fetch,'def_2 stuff',"test default_with_init leaf 1") ;
 
 # test default_with_init on node
 my $lwdwin = $root->fetch_element('list_with_default_with_init_node');
+eq_or_diff([$lwdwin->get_all_indexes],[0,1],"check default keys");
 is($lwdwin->fetch_with_id(0)->fetch_element('X')->fetch,'Bv',"test default_with_init node 0") ;
 is($lwdwin->fetch_with_id(0)->fetch_element('Y')->fetch,'Cv',"test default_with_init node 0") ;
 is($lwdwin->fetch_with_id(1)->fetch_element('X')->fetch,'Av',"test default_with_init node 0") ;

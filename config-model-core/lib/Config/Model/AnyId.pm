@@ -471,8 +471,6 @@ sub set_properties {
                        # } ;
     #$self->SUPER::set_parent_element_property(\%args) ;
     
-    $self->create_default_with_init ;
-
     Config::Model::Exception::Model
         ->throw (
                  object => $self,
