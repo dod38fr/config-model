@@ -154,7 +154,7 @@ sub _write {
     # first write list and element, then classes
     foreach my $elt ($node->get_element_name) {
         my $type = $node->element_type($elt) ;
-        next if $type eq 'node' or $type eq 'hash';
+        next if $type =~ /node/ or $type eq 'hash';
         
         my $obj =  $node->fetch_element($elt) ;
 
@@ -165,21 +165,24 @@ sub _write {
                 my $note = $item->annotation ;
                 my $v = $item->fetch ;
                 next unless defined $v ;
+                $logger->debug("ini write: list elt $elt from ",$obj->location);
                 $self->write_data_and_comments($ioh,$delimiter,"$elt=$v",$obj_note.$note) ;
             }
         }
-        else {
-            my $v_obj = $node->grab($elt) ;
-            my $note = $v_obj->annotation;
-            my $v = $v_obj->fetch ;
-            $self->write_data_and_comments($ioh,$delimiter,"$elt=$v",$obj_note.$note) 
+        elsif ($node->element_type($elt) eq 'leaf') {
+            my $v = $obj->fetch ;
+            $logger->debug("ini write: leaf elt $elt from ",$obj->location);
+            $self->write_data_and_comments($ioh,$delimiter,"$elt=$v", $obj_note) 
                 if defined $v;
+        }
+        else {
+            $logger->error("ini write: unexpected type $type for leaf elt $elt from ",$obj->location);
         }
     }
 
     foreach my $elt ($node->get_element_name) {
         my $type = $node->element_type($elt) ;
-        next unless $type eq 'node' or $type eq 'hash';
+        next unless $type =~ /node/ or $type eq 'hash';
         my $obj =  $node->fetch_element($elt) ;
 
         my $obj_note = $obj->annotation ;
@@ -188,12 +191,14 @@ sub _write {
             foreach my $key ($obj->get_all_indexes) {
                 my $hash_obj = $obj->fetch_with_id($key) ;
                 my $note = $hash_obj->annotation;
+                $logger->debug("ini write: hash elt $elt key $key from ",$obj->location);
                 $self->write_data_and_comments($ioh,$delimiter,"[$key]",$obj_note.$note) ;
                 $self->_write(%args, object => $hash_obj);
                 $ioh->print("\n");
             }
         }
         else {
+            $logger->debug("ini write: class $elt from ",$obj->location);
             $self->write_data_and_comments($ioh,$delimiter,"[$elt]",$obj_note) ;
             $self->_write(%args, object => $obj);
             $ioh->print("\n");
