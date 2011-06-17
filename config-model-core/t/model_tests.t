@@ -1,7 +1,7 @@
 # -*- cperl -*-
 
 use ExtUtils::testlib;
-use Test::More tests => 22 ;
+use Test::More tests => 28 ;
 use Config::Model ;
 use Log::Log4perl qw(:easy :levels) ;
 use File::Path ;
@@ -45,10 +45,6 @@ ok(1,"compiled");
 # pseudo root where config files are written by config-model
 my $wr_root = 'wr_root';
 
-# cleanup before tests
-rmtree($wr_root);
-mkpath($wr_root, { mode => 0755 }) ;
-
 my @group_of_tests = grep {/-test-conf.pl/} glob("t/model_tests.d/*") ;
 
 foreach my $model_test_conf (@group_of_tests) {
@@ -67,6 +63,10 @@ foreach my $model_test_conf (@group_of_tests) {
         note("Beginning $model_test subtest $idx");
         if (defined $do and $do ne $idx) { $idx ++; next; }
    
+        # cleanup before tests
+        rmtree($wr_root);
+        mkpath($wr_root, { mode => 0755 }) ;
+
         my $wr_dir = $wr_root.'/test-'.$idx ;
         mkpath($wr_dir."/etc/", { mode => 0755 }) ;
         my $conf_file = "$wr_dir/etc/$conf_file_name" ;
@@ -125,10 +125,10 @@ foreach my $model_test_conf (@group_of_tests) {
         my $i2_test = $model->instance(
             root_class_name => $model_to_test,
             root_dir        => $wr_dir2,
-            instance_name   => "lcddtest" . $idx . "-w",
+            instance_name   => "$model_test-test-$idx-w",
         );
 
-        ok( $i2_test, "Created instance $idx-w" );
+        ok( $i2_test, "Created instance $model_test-test-$idx-w" );
 
         my $i2_root = $i2_test->config_root ;
 
