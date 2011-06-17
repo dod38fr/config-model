@@ -1,7 +1,7 @@
 # -*- cperl -*-
 
 use ExtUtils::testlib;
-use Test::More tests => 28 ;
+use Test::More tests => 32 ;
 use Config::Model ;
 use Log::Log4perl qw(:easy :levels) ;
 use File::Path ;
