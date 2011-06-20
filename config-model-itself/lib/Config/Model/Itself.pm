@@ -349,7 +349,12 @@ sub write_all {
         my $dumper = Data::Dumper->new([\@data]) ;
         $dumper->Indent(1) ; # avoid too deep indentation
         $dumper->Terse(1) ; # allow unnamed variables in dump
-        $wr->print ($dumper->Dump , ";\n\n");
+
+        my $dump = $dumper->Dump;
+        # munge pod text embedded in values to avoid spurious pod formatting
+        $dump =~ s/\n=/\n'.'=/g ;
+
+        $wr->print ( $dump , ";\n\n");
 
         $wr->print( join("\n",@notes )) ;
 
