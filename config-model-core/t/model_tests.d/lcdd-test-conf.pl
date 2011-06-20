@@ -7,6 +7,8 @@ $model_to_test = "LCDd" ;
      check => { 
        'server Hello:0',           qq!"  Bienvenue"! ,
        'server Hello:1',           qq("   LCDproc et Config::Model!") ,
+       'server GoodBye:0',           qq!"    GoodBye"! ,
+       'server GoodBye:1',           qq("    LCDproc!") ,
         'server Driver', 'curses',
        'curses Size', '20x2',
      },
