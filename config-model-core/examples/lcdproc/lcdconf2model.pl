@@ -22,7 +22,7 @@ use warnings;
 # 3/ Write the resulting LCDd model
 
 use Config::Model;
-use Config::Model::Itself;    # to create the model
+use Config::Model::Itself 1.225;    # to create the model
 use Config::Model::Backend::IniFile;
 
 use 5.10.0;
@@ -212,16 +212,11 @@ $dispatch{"LCDd::server"}{WaitTime} = $dispatch{"LCDd::server"}{ReportLevel} =
 # ensure that default values are "Hello LCDproc" (or "GoodBye LCDproc")
 $dispatch{"LCDd::server"}{GoodBye} = $dispatch{"LCDd::server"}{Hello} = sub {
     my ( $class, $elt, $info, $ini_v ) = @_;
-    return qq(
-    class:"$class" 
-        element:$elt 
-        type=list 
-        cargo 
-            type=leaf 
-            value_type=uniline - 
-        default_with_init:0="\\"    $elt\\"" 
-        default_with_init:1="\\"    LCDproc!\\"" 
-    );
+    my $ret = qq( class:"$class" element:$elt type=list ) ;
+    $ret .= 'cargo type=leaf value_type=uniline - ' ;  
+    $ret .= 'default_with_init:0="\"    '.$elt.'\"" ' ; 
+    $ret .= 'default_with_init:1="\"    LCDproc!\""'; 
+    return $ret ;
 };
 
 # Now really mine LCDd.conf information
