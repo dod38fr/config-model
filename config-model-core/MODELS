@@ -2,9 +2,11 @@ This distribution provides models for the following files (following
 Debian's config file locations) :
 
 - /etc/popularity-contest.conf (for Popcon)
+- /etc/LCDd.conf (for lcdproc)
+- /etc/fstab
 
 Models for users:
-- ./debian/copyright (to build Debian packages)
+- ./debian/copyright ./debian/control ... (to build Debian packages)
 
 Other models:
 
