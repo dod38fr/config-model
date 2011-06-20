@@ -29,4 +29,16 @@ my $source = "examples/lcdproc/LCDd.conf" ;
 
 exit if -e $target and -M $target < -M $script and -M $target < -M $source ;
 
-do $script ;
+eval { require Config::Model::Itself ;} ;
+if ( $@ ) {
+    print "Config::Model::Itself is not available, skipping LCDd model generation\n";
+    exit ;
+}
+
+unless (my $return = do $script) {
+    warn "couldn't parse $script: $@" if $@;
+    warn "couldn't do $script: $!"    unless defined $return;
+    warn "couldn't run $script"       unless $return;
+}
+
+
