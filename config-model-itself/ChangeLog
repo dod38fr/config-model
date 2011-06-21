@@ -3,7 +3,7 @@
         * Itself.pm:  munge pod text embedded in description 
           to avoid spurious pod formatting in model files
         * WarpableElement.pl: allow default_with_init for list (like hash)
-        * MigratedValue.pl: updated undef_is doc: use '' to have an emty string
+        * MigratedValue.pl: updated undef_is doc: use '' to have an empty string
         * CommonElement.pl: warn parameter is a string and not a uniline
 	- Class.pl: name_match parameter is deprecated.
 
