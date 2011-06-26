@@ -82,7 +82,10 @@ sub read {
                 check => $check,
                 mode => $check eq 'yes' ? 'strict' : 'loose' ,
             );
-            $logger->debug("ini read: new section '$section' on node ".$obj->location);
+            if ($logger->is_debug) {
+                my $debug_loc = defined $obj ? 'on node '.$obj->location : '' ;
+                $logger->debug("ini read: new section '$section' $debug_loc");
+            }
             $obj->annotation($comment) if $comment and defined $obj;
         }
         elsif (defined $obj) {
