@@ -1,5 +1,10 @@
 [
   {
+    'class_description' => 'Configuration model to edit C</etc/approc/approx.conf>. This file can be edited with the following command:
+
+ config-edit -application approx
+
+',
     'read_config' => [
       {
         'file' => 'approx.conf',
@@ -9,6 +14,13 @@
       }
     ],
     'name' => 'Approx',
+    'copyright' => [
+      '2011, Dominique Dumont'
+    ],
+    'author' => [
+      'Dominique Dumont'
+    ],
+    'license' => 'LGPL-2.1+',
     'element' => [
       'cache',
       {
