@@ -1,3 +1,11 @@
+2011-06-27  Dominique Dumont  <domi.dumont@free.fr> 1.247
+
+    * Application changes:
+        * examples/lcdproc/LCDd.conf: fix typos
+    * Framework changes:
+        * lib/Config/Model/Backend/IniFile.pm: Fix failure to load in 
+          debug trace: do not call location when $obj is undef
+
 2011-06-17  Dominique Dumont  <domi.dumont@free.fr> 1.246
 
     * Application changes:
