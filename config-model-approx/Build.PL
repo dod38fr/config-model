@@ -1,8 +1,4 @@
-# $Author$
-# $Date$
-# $Revision$
-
-#    Copyright (c) 2009 Dominique Dumont.
+#    Copyright (c) 2009-2011 Dominique Dumont.
 #
 #    This file is part of Config-Model-Approx.
 #
@@ -27,6 +23,10 @@ use Data::Dumper ;
 use warnings FATAL => qw(all) ;
 use strict ;
 
+# check that pod docs are up-to-date
+system("perl -Ilib script/gen_class_pod.pl");
+
+my %appli_files = map { ( $_, $_ ) } glob("lib/Config/Model/*.d/*");
 
 my $build = Module::Build->new
   (
@@ -34,10 +34,10 @@ my $build = Module::Build->new
    license       => 'lgpl',
    dist_author   => "Dominique Dumont (ddumont at cpan dot org)",
    dist_abstract => "Approx configuration files editor",
-   script_files   => [ qw/config-edit-approx/ ],
+   appli_files   => \%appli_files,
    requires      => {
 		     perl              => '5.8.0',
-		     'Config::Model'   => '0.637',
+		     'Config::Model'   => '1.245',
 		     'Log::Log4perl'   => 0 ,
 		    },
    build_requires => { 'Test::Pod' => 0 },
@@ -50,4 +50,6 @@ my $build = Module::Build->new
 
 
 $build->add_build_element('pl');
+$build->add_build_element('appli');
+
 $build->create_build_script;

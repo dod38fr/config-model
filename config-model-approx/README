@@ -13,7 +13,7 @@ Suggested dependencies:
 
 Once this module is installed, you can run:
 
-  # config-edit-approx
+  # config-edit -application approx
 
 If config-edit fails to load your approx.conf, you can try config-edit
 with -force option.
@@ -25,14 +25,14 @@ This Perl modules contains several files (listed in MANIFEST). Here
 are the purpose of the main files:
 - Build.PL : script to build the Perl module. See Module::Build(3pm)
 - lib/Config/Model/models : directory containing Approx model
-  file (Approx.pl). 
+  file (Approx.pl). and its generated doc (Approx.pod)
 - lib/Config/Model/Approx.pm: Read and write approx.conf
 - t/ : non-regression tests
 
 --------------------------------------------------------------------
 
 AUTHOR
-    Copyright (c) 2009 Dominique Dumont.
+    Copyright (c) 2009-2011 Dominique Dumont.
 
     This file is part of Config-Model-Approx. License is LGPL v2.1 or
     any later version.

@@ -1,5 +1,5 @@
 
-#    Copyright (c) 2009 Dominique Dumont.
+#    Copyright (c) 2009-2011 Dominique Dumont.
 #
 #    This file is part of Config-Model-Approx.
 #
@@ -27,7 +27,7 @@ use Log::Log4perl;
 use File::Copy ;
 use File::Path ;
 
-our $VERSION = '1.003' ;
+our $VERSION = '1.004' ;
 
 my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
