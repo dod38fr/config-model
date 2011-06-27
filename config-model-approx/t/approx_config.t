@@ -1,7 +1,4 @@
 # -*- cperl -*-
-# $Author: ddumont $
-# $Date: 2008-04-15 13:57:49 +0200 (mar, 15 avr 2008) $
-# $Revision: 608 $
 
 use ExtUtils::testlib;
 use Test::More tests => 5;
@@ -18,8 +15,6 @@ my $arg = shift || '';
 my ($log,$show) = (0) x 2 ;
 
 my $trace = $arg =~ /t/ ? 1 : 0 ;
-$::verbose          = 1 if $arg =~ /v/;
-$::debug            = 1 if $arg =~ /d/;
 $log                = 1 if $arg =~ /l/;
 $show               = 1 if $arg =~ /s/;
 
