@@ -594,7 +594,7 @@ elsif ( $ui_type eq 'fuse' ) {
 elsif ( $ui_type =~ /^no/i ) {
     # trigger a dump to load all sub-models
     my $dump = $root->dump_tree ;
-    $force_save = 1 if $apply_fixes or $load ;
+    $force_save = 1 if $apply_fixes or $load or @ARGV;
 }
 else {
     die "Unsupported user interface: $ui_type";
