@@ -74,22 +74,25 @@ sub fill_pane {
 
     my $exp = $cw->parent->parent->parent->parent->get_experience ;
 
-    my %old_elt = map { ($_ => 1) } keys %{$cw->{elt_widgets}|| {} } ;
+    my %is_elt_drawn = map { ($_ => 1) } keys %{$cw->{elt_widgets}|| {} } ;
 
     my %values;
     my %modified ;
-    my $old_f ;
+    my $prev_elt ;
 
     foreach my $c ($node->get_element_name(for => $exp)) {
-	next if delete $old_elt{$c} ;
+	if (delete $is_elt_drawn{$c}) { 
+	    $prev_elt = $c ;
+	    next;
+	} ; 
 
 	my $type = $node->element_type($c) ;
 	my $elt_path = $cw->{path}.'.'.$c ;
 
-	my @after = $old_f ? ( -after => $old_f ) : () ;
-	my $f = $elt_pane->Frame(-relief=> 'groove', -borderwidth => 1)
-	  ->pack(-side =>'top',@fx,@after) ;
-	$old_f = $f ;
+	my @after = defined $prev_elt ? ( -after => $cw->{elt_widgets}{$prev_elt} ) : () ;
+        $prev_elt = $c ;
+	my $f = $elt_pane->Frame(-relief=> 'groove', -borderwidth => 1);
+	$f ->pack(-side =>'top',@fx,@after) ;
 
 	$cw->{elt_widgets}{$c} = $f ;
 	my $label = $f -> Label(-text => $c,-width=> 22, -anchor => 'w') ;
@@ -150,7 +153,7 @@ sub fill_pane {
     }
 
     # destroy leftover widgets (may occur with warp mechanism)
-    map {my $w = delete $cw->{elt_widgets}{$_};$w->destroy } keys %old_elt ;
+    map {my $w = delete $cw->{elt_widgets}{$_};$w->destroy } keys %is_elt_drawn ;
 }
 
 sub get_info {
