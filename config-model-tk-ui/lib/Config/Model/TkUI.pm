@@ -400,7 +400,7 @@ sub save {
        eval { $cw->{root}->instance->write_back(@wb_args); } ;
        if ($@) {
          $cw -> Dialog ( -title => 'Save error',
-                         -text  => $@->as_string,
+                         -text  => ref($@) ? $@->as_string : $@ ,
                        )
             -> Show ;
        }
