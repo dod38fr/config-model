@@ -49,6 +49,7 @@ $model_to_test  = "Debian::Dpkg::Control";
         apply_fix => 1,
         load_warnings => undef, #skipped
         dump_warnings => undef, #skipped
+        no_warnings => 1,
     },
     {
 

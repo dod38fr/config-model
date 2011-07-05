@@ -3,6 +3,7 @@
 use ExtUtils::testlib;
 use Test::More tests => 286;
 use Config::Model ;
+use Config::Model::Value ;
 use Log::Log4perl qw(:easy :levels) ;
 use File::Path ;
 use File::Copy ;
@@ -97,6 +98,7 @@ foreach my $model_test_conf (@group_of_tests) {
         my $root = $inst -> config_root ;
 
         if (exists $t->{load_warnings} and not defined $t->{load_warnings}) {
+            local $Config::Model::Value::nowarning = 1 ;
             $root->init; 
             ok(1,"Read $conf_file and created instance with init() method without warning check");
         }
@@ -111,6 +113,7 @@ foreach my $model_test_conf (@group_of_tests) {
         }
         
         if ($t->{apply_fix}) {
+            local $Config::Model::Value::nowarning = 1 ;
             $inst->apply_fixes ;
             ok (1,"apply_fixes called");
         }
@@ -134,7 +137,8 @@ foreach my $model_test_conf (@group_of_tests) {
         }
         
         if (exists $t->{dump_warnings} and not defined $t->{dump_warnings}) {
-            &$risky;
+            local $Config::Model::Value::nowarning = 1 ;
+             &$risky;
             ok(1,"Ran dump_tree (no warning check");
         }
         else {
@@ -149,7 +153,9 @@ foreach my $model_test_conf (@group_of_tests) {
             my $v = $t->{check}{$path} ;
             is($root->grab_value($path),$v,"check $path value");
         }
-   
+        
+        local $Config::Model::Value::nowarning = $t->{no_warnings} || 0;
+        
         $inst->write_back ;
         ok(1,"$model_test write back done") ;
 
