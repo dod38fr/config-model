@@ -36,8 +36,11 @@ sub read {
     my $yaml = join ('',$args{io_handle}->getlines) ;
 
     # convert to perl data
-    my $perl_data = Load $yaml 
-      || croak "No data found in YAML file $args{file_path}";
+    my $perl_data = Load $yaml ;
+    if (not defined $perl_data) {
+        $logger->warn("No data found in YAML file $args{file_path}");
+        return 1;
+    }
 
     # load perl data in tree
     $self->{node}->load_data($perl_data, $args{check} || 'yes' ) ;
