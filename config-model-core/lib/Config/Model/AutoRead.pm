@@ -50,7 +50,7 @@ sub get_cfg_file_path {
     my $dir = $args{root}.$args{config_dir} ;
     if ($dir =~ /~/) { 
         my $home = File::HomeDir->my_data; # Works also on Windows
-        $dir =~ s/^~/$home/;
+        $dir =~ s/~/$home/;
     }
     
     $dir .= '/' unless $dir =~ m!/$! ;
