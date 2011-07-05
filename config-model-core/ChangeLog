@@ -1,3 +1,22 @@
+2011-07-05  Dominique Dumont  <domi.dumont@free.fr> 1.248
+
+    * Framework changes:
+        * Reworked test framework 
+        * New test require new build dependency: File::Copy::Recursive
+        * C::M::Value: allow an enum to have an empty ('') value.
+        * Yaml backend: Do not try to call load_data when YAML 
+          file is almost empty (file present but no data in there)
+        * config-edit: force save when command are passed in command
+          line arguements
+
+    * Application changes:
+        * Debian::Dependency: Do not issue warning when a package 
+        is pure virtual (found from local apt cache)
+        * Debian::Dpkg::Control backend: read control information 
+          according to element order in config class. This avoids 
+          problems when Maintainer field is declared after
+          the Dependencies
+
 2011-06-27  Dominique Dumont  <domi.dumont@free.fr> 1.247
 
     * Application changes:
