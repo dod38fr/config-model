@@ -1,0 +1,22 @@
+Format-Specification: http://svn.debian.org/wsvn/dep/web/deps/dep5.mdwn?op=file&rev=135
+Maintainer: Dominique Dumont <ddumont@cpan.org>
+Source: http://search.cpan.org/dist/Config-Model-Approx/
+Name: Config-Model-Approx
+
+Files: *
+Copyright: 2009-2011, Dominique Dumont <ddumont@cpan.org>
+License: LGPL-2.1+
+
+Files: debian/*
+Copyright: 2009, Dominique Dumont <domi.dumont@free.fr>
+ 2009, Jonathan Yu <jawnsy@cpan.org>
+ 2011, Fabrizio Regalli <fabreg@fabreg.it>
+License: LGPL-2.1+
+
+License: LGPL-2.1+
+    This program is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Lesser Public License as
+    published by the Free Software Foundation; either version 2.1 of
+    the License, or (at your option) any later version.
+    On Debian GNU/Linux systems, the complete text of version 2.1 of the GNU
+    Lesser Public License can be found in `/usr/share/common-licenses/LGPL-2.1'
