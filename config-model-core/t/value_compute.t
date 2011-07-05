@@ -4,10 +4,11 @@ use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
 use Test::More;
+use Test::Warn ;
 use Config::Model ;
 use Log::Log4perl qw(:easy) ;
 
-BEGIN { plan tests => 42; }
+BEGIN { plan tests => 43; }
 
 use strict;
 
@@ -399,7 +400,11 @@ is($root->grab_value(step => 'Upstream-Contact:0'   ),'foo',"check compute with 
 
 $root->fetch_element(name => 'Original-Source-Location', check => 'no')->store('foobar');
 is($root->grab_value(step => 'Source'   ),'foobar',"check migrate_from with undef_is");
-is($root->grab_value(step => 'Source2'   ),'foobar',"check compoute with undef_is");
+
+my $v ;
+warning_like {$v = $root->grab_value(step => 'Source2'   );} 
+    [ (qr/deprecated/) x 4 ], "check compute with undef_is" ;
+is($v ,'foobar',"check result of compute with undef_is");
 
 foreach (qw/bar foo2/) {
     my $path = "$_ location_function_in_formula";
