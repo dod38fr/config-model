@@ -1,7 +1,7 @@
 # -*- cperl -*-
 
 use ExtUtils::testlib;
-use Test::More tests => 34 ;
+use Test::More tests => 286;
 use Config::Model ;
 use Log::Log4perl qw(:easy :levels) ;
 use File::Path ;
@@ -91,6 +91,7 @@ foreach my $model_test_conf (@group_of_tests) {
         my $inst = $model->instance (root_class_name   => $model_to_test,
                                     root_dir           => $wr_dir,
                                     instance_name      => "$model_test-test".$idx,
+                                    check           => $t->{load_check} || 'yes',
                                    ); 
 
         my $root = $inst -> config_root ;
