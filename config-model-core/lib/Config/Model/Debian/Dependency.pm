@@ -14,6 +14,7 @@ use Log::Log4perl qw(get_logger :levels);
 use AptPkg::Config '$_config';
 use AptPkg::System '$_system';
 use AptPkg::Version;
+use AptPkg::Cache ;
 
 use vars qw/$test_filter/ ;
 $test_filter = ''; # reserved for tests
@@ -28,6 +29,8 @@ $_system = $_config->system;
 
 # fetch a versioning system
 my $vs = $_system->versioning;
+
+my $apt_cache = AptPkg::Cache->new ;
 
 # end black magic
 
@@ -143,8 +146,16 @@ sub check_pkg_name {
 
     # if no pkg was found
     if (@dist_version == 0) {
-        $logger->debug("check_pkg_name: unknown package $pkg") ;
-        push @{$self->{warning_list}} , "package $pkg is unknown. Check for typos." ;
+        # try to find virtual package
+        my $pkg_obj = $apt_cache->get($pkg);
+        if (defined $pkg_obj) {
+            # virtual package
+            $logger->debug("check_pkg_name: package $pkg is pure virtual") ;
+        }
+        else {
+            $logger->debug("check_pkg_name: unknown package $pkg") ;
+            push @{$self->{warning_list}} , "package $pkg is unknown. Check for typos." ;
+        }
         return ();
     }
     return @dist_version ;
@@ -275,7 +286,8 @@ syntax as described in http://www.debian.org/doc/debian-policy/ch-relationships.
 Whether the version specified with C<< > >> or C<< >= >> is necessary.
 This module will check with Debian server whether older versions can be
 found in Debian old-stable or not. If no older version can be found, a
-warning will be issued.
+warning will be issued. Note a warning will also be sent if the package
+is not found on madison and if the package is not virtual.
 
 =back
 
@@ -286,8 +298,19 @@ for about one month.
 
 =head1 BUGS
 
+=over
+
+=item *
+
+Virtual package names are found scanning local apt cache. Hence an unknown package 
+on your system may a virtual package on another system.
+
+=item *
+
 More advanced checks can probably be implemented. The author is open to
 new ideas. He's even more open to patches (with tests).
+
+=back
 
 =head1 AUTHOR
 
