@@ -45,7 +45,7 @@ sub read {
 
     # first section is source package, following sections are binary package
     my $node = $root->fetch_element(name => 'source', check => $check) ;
-    $self->read_section ($node, shift @$c, $check);
+    $self->read_sections ($node, shift @$c, $check);
 
     $logger->debug("Reading binary package names");
     # we assume that package name is the first item in the section data
@@ -66,7 +66,7 @@ sub read {
         } 
         
         $node = $root->grab("binary:$package_name") ;
-        $self->read_section ($node, $section, $args{check});
+        $self->read_sections ($node, $section, $args{check});
     }
 
     return 1 ;
@@ -75,42 +75,72 @@ sub read {
 #
 # New subroutine "read_section" extracted - Tue Sep 28 17:19:44 2010.
 #
-sub read_section {
+sub read_sections {
     my $self = shift ;
     my $node = shift;
     my $section = shift;
     my $check = shift || 'yes';
 
+    my %sections ;
     for (my $i=0; $i < @$section ; $i += 2 ) {
         my $key = $section->[$i];
+        my $lc_key = lc($key); # key are not key sensitive
         my $v = $section->[$i+1];
-        $logger->info("reading key '$key' from control file (for node " .$node->location.")");
-        $logger->debug("$key value: $v");
-        my $type = $node->element_type($key) ;
-        my $elt_obj = $node->fetch_element(name => $key, check => $check ) ;
-        $v =~ s/^\s*\n//;
-        chomp $v;
+        $sections{$lc_key} = [ $key, $v ];
+    }
 
-        if ($type eq 'list') {
-            my @v = split /[\s\n]*,[\s\n]*/, $v ;
-            chomp @v ;
-            $logger->debug("list $key store set '".join("','",@v)."'");
-            $elt_obj->store_set(\@v, check => $check) ;
+    foreach my $key ($node->get_element_name) {
+        my $ref = delete $sections{lc($key)} ;
+        $self->store_section_in_tree ($node,$check, $key, $ref->[1]);
+    }
+    
+    # leftover sections should be either accepted or rejected
+    foreach my $key (keys %sections) {
+        $self->store_section_in_tree ($node,$check, @{$sections{$key}});
+    }
+}
+
+#
+# New subroutine "store_section_in_tree" extracted - Mon Jul  4 13:35:50 2011.
+#
+sub store_section_in_tree {
+    my $self  = shift;
+    my $node  = shift;
+    my $check = shift;
+    my $key   = shift;
+    my $v     = shift;
+
+    return unless defined $v ;
+
+    $logger->info( "reading key '$key' from control file (for node "
+          . $node->location
+          . ")" );
+    my $elt_name = 
+    $logger->debug("$key value: $v");
+    my $type = $node->element_type($key);
+    my $elt_obj = $node->fetch_element( name => $key, check => $check );
+    $v =~ s/^\s*\n//;
+    chomp $v;
+
+    if ( $type eq 'list' ) {
+        my @v = split /[\s\n]*,[\s\n]*/, $v;
+        chomp @v;
+        $logger->debug( "list $key store set '" . join( "','", @v ) . "'" );
+        $elt_obj->store_set( \@v, check => $check );
+    }
+    elsif ( my $found = $node->find_element( $key, case => 'any' ) ) {
+        my @elt = ($found);
+        my @v = ( $found eq 'Description' ) ? ( split /\n/, $v, 2 ) : ($v);
+        unshift @elt, 'Synopsis' if $found eq 'Description';
+        foreach (@elt) {
+            my $sub_v = shift @v;
+            $logger->debug("storing $_  value: $sub_v");
+            $node->fetch_element($_)->store( value => $sub_v, check => $check );
         }
-        elsif (my $found = $node->find_element($key, case => 'any')) { 
-            my @elt = ($found);
-            my @v = ($found eq 'Description') ? (split /\n/,$v,2) : ($v) ;
-            unshift @elt, 'Synopsis' if $found eq 'Description' ;
-            foreach (@elt) {
-                my $sub_v = shift @v ;
-                $logger->debug("storing $_  value: $sub_v");
-                $node->fetch_element($_)->store(value => $sub_v, check => $check ) ;
-            }
-        }
-        else {
-            # try anyway to trigger an error message
-            $node->fetch_element($key)->store(value => $v, check => $check ) ;
-        }
+    }
+    else {
+        # try anyway to trigger an error message
+        $node->fetch_element($key)->store( value => $v, check => $check );
     }
 }
 
