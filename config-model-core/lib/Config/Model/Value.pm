@@ -1317,6 +1317,7 @@ sub enum_error {
 
     my @choice = map( "'$_'", $self->get_choice);
     my $var = $self->{value_type} ;
+    my $str_value = defined $value ? $value : '<undef>' ;
     push @error, "$self->{value_type} type does not know '$value'. Expected ".
       join(" or ",@choice) ; 
     push @error, "Expected list is given by '".
@@ -1386,9 +1387,10 @@ sub check_value {
     elsif (   $self->{value_type} eq 'enum' 
 	   or $self->{value_type} eq 'reference'
 	  ) {
-        push @error, ($quiet ? 'enum error' : $self->enum_error($value))
-          unless defined $self->{choice_hash} and 
-            defined $self->{choice_hash}{$value} ;
+        if (length($value) and defined $self->{choice_hash} 
+            and not defined $self->{choice_hash}{$value} ) {
+            push @error, ($quiet ? 'enum error' : $self->enum_error($value));
+        }
     }
     elsif ($self->{value_type} eq 'boolean') {
         push @error, "boolean error: '$value' is not '1' or '0'" 
