@@ -5,6 +5,9 @@ $conf_file_name = "copyright";
 $conf_dir       = 'debian';
 $model_to_test  = "Debian::Dpkg::Copyright";
 
+eval { require AptPkg::Config ;} ;
+$skip = ( $@ or not -r '/etc/debian_version') ? 1 : 0 ;
+
 @tests = (
     { # t0
         load_warnings => [ (qr/deprecated/) x 3, qr/Missing/ ],

@@ -1,7 +1,7 @@
 # -*- cperl -*-
 
 use ExtUtils::testlib;
-use Test::More tests => 286;
+use Test::More;
 use Config::Model ;
 use Config::Model::Value ;
 use Log::Log4perl qw(:easy :levels) ;
@@ -18,7 +18,7 @@ use strict;
 
 $File::Copy::Recursive::DirPerms = 0755 ;
 
-use vars qw/$conf_file_name $conf_dir $model_to_test @tests/ ;
+use vars qw/$conf_file_name $conf_dir $model_to_test @tests $skip/ ;
 
 my $arg = shift || '';
 my $test_only_model = shift || '';
@@ -54,6 +54,7 @@ my @group_of_tests = grep {/-test-conf.pl/} glob("t/model_tests.d/*") ;
 foreach my $model_test_conf (@group_of_tests) {
     my ($model_test) = ($model_test_conf =~ m!\.d/([\w\-]+)-test-conf! );
     next if ($test_only_model and $test_only_model ne $model_test) ;
+    $skip = 0 ;
     
     note("Beginning $model_test test ($model_test_conf)");
 
@@ -62,6 +63,12 @@ foreach my $model_test_conf (@group_of_tests) {
         warn "couldn't do $model_test_conf: $!"    unless defined $return;
         warn "couldn't run $model_test_conf"       unless $return;
     }
+    
+    if ($skip) {
+        note("Skipped $model_test test ($model_test_conf)");
+        next;
+    }
+    
     note("$model_test uses $model_to_test model on file $conf_file_name");
 
     my $idx = 0 ;
@@ -187,4 +194,6 @@ foreach my $model_test_conf (@group_of_tests) {
     }
     note("End of $model_test test");
 }
+
+done_testing ;
 

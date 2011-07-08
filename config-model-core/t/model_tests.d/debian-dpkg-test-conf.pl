@@ -5,6 +5,9 @@ $conf_file_name = "control" ;
 $conf_dir='debian' ;
 $model_to_test = "Debian::Dpkg" ;
 
+eval { require AptPkg::Config ;} ;
+$skip = ( $@ or not -r '/etc/debian_version') ? 1 : 0 ;
+
 @tests = (
     { # t0
      check => { 
