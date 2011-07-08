@@ -192,6 +192,7 @@ sub check_depend_chain {
             $pname =~ s/-/::/g;
             # check for dual life module, module name follows debian convention...
             my @dep_name_as_perl = Module::CoreList->find_modules(qr/^$pname$/i);
+            next unless @dep_name_as_perl ;
             my $v_decimal = Module::CoreList->first_release($dep_name_as_perl[0],$dep_v);
             next unless defined $v_decimal ;
             my $v_normal =  version->new($v_decimal)->normal ;
