@@ -7,7 +7,8 @@ use Memoize::Expire ;
 use DB_File ;
 use LWP::Simple ;
 use Log::Log4perl qw(get_logger :levels);
-
+use Module::CoreList;
+use version ;
 
 # available only in debian. Black magic snatched from 
 # /usr/share/doc/libapt-pkg-perl/examples/apt-version 
@@ -62,19 +63,22 @@ memoize 'get_available_version' , SCALAR_CACHE => [HASH => \%cache];
 
 my $grammar = << 'EOG' ;
 
-check_depend: depend ( '|' depend)(s?) eofile 
-  { $return = $item[1] ; }
+check_depend: depend ( '|' depend)(s?) eofile { 
+    my $ret = $arg[0]->check_depend_chain( $item{depend}, @{$item[2]} ) ;
+    $return = $ret && ($item[1] ? 1 : 0) ; 
+  }
 
 depend: pkg_dep | variable  
 
 variable: /\${[\w:\-]+}/
 
 pkg_dep: pkg_name dep_version arch_restriction(?) {
-    $arg[0]->check_dep( $item{pkg_name}, @{$item{dep_version}} ) ;
+    my $ok = $arg[0]->check_dep_and_warn( $item{pkg_name}, @{$item{dep_version}} ) ;
+    $return = [ $ok, $item{pkg_name}, @{$item{dep_version}} ];
    } 
  | pkg_name arch_restriction(?) {              
     $arg[0]->check_pkg_name($item{pkg_name}) ;
-    $return = 1 ; 
+    $return = [ 1 , $item{pkg_name} ] ; 
    }
 
 arch_restriction: '[' arch(s) ']'
@@ -106,15 +110,6 @@ sub check_value {
     my $quiet = $args{quiet} || 0 ;
     my $silent = $args{silent} || 0 ;
     
-    my @error = $self->SUPER::check_value(%args) ;
-    
-    if (defined $value) {
-        $logger->debug("check_value '$value'");
-        my $prd_check = dep_parser->check_depend ( $value,1,$self) ; 
-    
-        push @error,"dependency '$value' does not match grammar" unless defined $prd_check ;
-    }
-
     # value is one dependency, something like "perl ( >= 1.508 )"
     # or exim | mail-transport-agent or gnumach-dev [hurd-i386]
 
@@ -123,6 +118,16 @@ sub check_value {
     # to get package list
     # wget -q -O - 'http://qa.debian.org/cgi-bin/madison.cgi?package=perl-doc&text=on'
 
+    my @error = $self->SUPER::check_value(%args) ;
+    
+    if (defined $value) {
+        $logger->debug("check_value '$value', calling check_depend");
+        my $prd_check = dep_parser->check_depend ( $value,1,$self) ; 
+        $logger->debug("check_value '$value' done");
+   
+        push @error,"dependency '$value' does not match grammar" unless defined $prd_check ;
+    }
+    
     return wantarray ? @error : scalar @error ? 0 : 1 ;
 }
 
@@ -159,6 +164,56 @@ sub check_pkg_name {
         return ();
     }
     return @dist_version ;
+}
+
+# called in Parse::RecDescent grammar
+sub check_depend_chain {
+    my $self = shift ;
+    
+    my @alternatives ;
+    foreach my $d (@_) {
+        my $line = '';
+        if( ref ($d) ) {
+            $line .= "$d->[1]";
+            $line .= " ($d->[2] $d->[3])" if defined $d->[3];
+        }
+        else { $line .= $d ; } ;
+        push @alternatives, $line ;
+    }
+    my $actual_dep = join (' | ',@alternatives);
+    my $ret = 1 ;
+    
+    foreach my $depend (@_) {
+        next unless ref ($depend) ;
+        my ($ok, $dep_name, $oper, $dep_v) = @$depend ;
+        $logger->debug("check_depend_chain: scanning dependency $dep_name");
+        if ($dep_name =~ /lib([\w+\-]+)-perl/) {
+            my $pname = $1 ;
+            $pname =~ s/-/::/g;
+            # check for dual life module, module name follows debian convention...
+            my @dep_name_as_perl = Module::CoreList->find_modules(qr/^$pname$/i);
+            my $v_decimal = Module::CoreList->first_release($dep_name_as_perl[0],$dep_v);
+            next unless defined $v_decimal ;
+            my $v_normal =  version->new($v_decimal)->normal ;
+            $v_normal =~ s/^v//; # loose the v prefix
+            $logger->debug("check_depend_chain: dual life $dep_name aka $dep_name_as_perl[0] found in Perl core $v_normal");
+
+            # Here the dependency should be in the form perl (>= 5.10.1) | libtest-simple-perl (>= 0.88)".
+            # cf http://pkg-perl.alioth.debian.org/policy.html#debian_control_handling
+            my ($ret) = $self->check_dep('perl', '>=', $v_normal) ;
+            my $ideal_dep = "perl" ;
+            $ideal_dep .= " (>= $v_normal) | $dep_name" if $ret ;
+            $ideal_dep .= " (>= $dep_v)" if $ret and defined $dep_v;
+            if ($actual_dep ne $ideal_dep) {
+                my $msg = "Dependency of dual life package should be '$ideal_dep' not '$actual_dep'";
+                push @{$self->{warning_list}} , $msg ;
+                push @{$self->{fixes}} , '$_ = "'.$ideal_dep.'"' ;
+                $ret = 0;
+            }
+        }
+    }
+    
+    return $ret ;
 }
 
 # called in Parse::RecDescent grammar
@@ -202,14 +257,25 @@ sub check_dep {
             $has_older = 1 ;
         }
     }
-    my $msg = "unnecessary versioned dependency: $oper $vers. Debian has @list" ;
 
     $logger->debug("check_dep on $pkg $oper $vers has_older is $has_older (@list)");
 
     return 1 if $has_older ;
-    
+    return (0,@list);
+}
+
+sub check_dep_and_warn {
+    my ($self,$pkg,$oper,$vers) = @_ ;
+    $logger->debug("check_dep_and_warn: called with $pkg $oper $vers");
+
+    my ($ret,@list) = $self->check_dep($pkg,$oper,$vers) ;
+
+    return 1 if $ret ;
+
+    my $msg = "unnecessary versioned dependency: $oper $vers. Debian has @list" ;
     push @{$self->{warning_list}} , $msg ;
     push @{$self->{fixes}} , 's/\s*\(.*\)\s*//;' ;
+
     return 0 ;
 }
 

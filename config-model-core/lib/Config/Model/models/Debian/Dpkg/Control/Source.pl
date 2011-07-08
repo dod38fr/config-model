@@ -71,12 +71,6 @@ The archive area and section for each package should be specified in the package
       {
         'cargo' => {
           'value_type' => 'uniline',
-          'warn_if_match' => {
-            'perl.*\\|\\s*libmodule-build-perl' => {
-              'msg' => 'lenny has perl 5.10 which includes libmodule-build-perl',
-              'fix' => '$_ = "perl" ;'
-            }
-          },
           'class' => 'Config::Model::Debian::Dependency',
           'type' => 'leaf'
         },
@@ -86,12 +80,6 @@ The archive area and section for each package should be specified in the package
       {
         'cargo' => {
           'value_type' => 'uniline',
-          'warn_if_match' => {
-            'perl.*\\|\\s*libmodule-build-perl' => {
-              'msg' => 'lenny has perl 5.10 which includes libmodule-build-perl',
-              'fix' => '$_ = "perl" ;'
-            }
-          },
           'class' => 'Config::Model::Debian::Dependency',
           'type' => 'leaf'
         },
@@ -101,12 +89,6 @@ The archive area and section for each package should be specified in the package
       {
         'cargo' => {
           'value_type' => 'uniline',
-          'warn_if_match' => {
-            'perl.*\\|\\s*libmodule-build-perl' => {
-              'msg' => 'lenny has perl 5.10 which includes libmodule-build-perl',
-              'fix' => '$_ = "perl" ;'
-            }
-          },
           'type' => 'leaf'
         },
         'type' => 'list'

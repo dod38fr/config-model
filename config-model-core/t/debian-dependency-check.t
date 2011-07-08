@@ -18,6 +18,7 @@ BEGIN {
 use ExtUtils::testlib;
 use Test::More ;
 use Config::Model ;
+use Config::Model::Value ;
 #use Config::Model::Debian::Dependency ;
 use Log::Log4perl qw(:easy) ;
 use File::Path ;
@@ -103,7 +104,7 @@ my $inst = $model->instance (
     instance_name   => "deptest",
 );
 warning_like { $inst->config_root->init ; ; }
-qr/includes libmodule-build-perl/ , "test BDI warn";
+ [ (qr/dual life/) , qr/unnecessary/, ( qr/dual life/) x 2] , "test BDI warn";
 
 ok($inst,"Read $control_file and created instance") ;
 
@@ -117,11 +118,11 @@ if ($trace) {
 my $perl_dep = $control->grab("binary:libdist-zilla-plugins-cjm-perl Depends:3");
 is($perl_dep->fetch,"perl (>= 5.10.1)","check dependency value from config tree");
 
-my $msg = $perl_dep->check_dep('perl','>=','5.28.1') ;
-is($msg,1,"check perl (>= 5.28.1) dependency: has older version");
+my @ret = $perl_dep->check_dep('perl','>=','5.28.1') ;
+is($ret[0],1,"check perl (>= 5.28.1) dependency: has older version");
 
-$msg = $perl_dep->check_dep('perl','>=','5.6.0') ;
-is($msg,0,"check perl (>= 5.6.0) dependency: no older version");
+@ret = $perl_dep->check_dep('perl','>=','5.6.0') ;
+is($ret[0],0,"check perl (>= 5.6.0) dependency: no older version");
 
 # check parser and grammer
 my $parser = $perl_dep->dep_parser ;
@@ -166,16 +167,21 @@ my $bdi_val ;
 warning_like {
     $bdi_val = $perl_bdi->fetch ;
 }
-qr/includes libmodule-build-perl/, "test BDI warn";
+[ qr/unnecessary/, qr/dual life/ ], "test BDI warn";
 
 is($bdi_val,"perl (>= 5.10) | libmodule-build-perl","check B-D-I dependency value from config tree");
 my $msgs = $perl_bdi->warning_msg ;
-like($msgs,qr/lenny has perl 5.10/,"check store with old version: trap perl | libmodule");
+like($msgs,qr/dual life/,"check store with old version: trap perl | libmodule");
 like($msgs,qr/unnecessary versioned dependency/,"check store with old version: trap version");
 
 # test fixes
 is($perl_bdi->has_fixes,2, "test presence of fixes");
-$perl_bdi->apply_fixes;
+
+{
+    local $Config::Model::Value::nowarning = 1 ;
+    $perl_bdi->apply_fixes;
+}
+
 is($perl_bdi->has_fixes,0, "test that fixes are gone");
 @msgs = $perl_bdi->warning_msg ;
 is_deeply(\@msgs,[],"check that warnings are gone");
