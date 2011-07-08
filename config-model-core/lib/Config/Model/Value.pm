@@ -1532,7 +1532,7 @@ sub check {
     }
 
     my $warn = $self->{warning_list} ;
-    warn(join ('', map { "Warning in '".$self->location."' value '$value': $_\n"} @$warn)) 
+    map { warn "Warning in '".$self->location."' value '$value': $_\n" ;} @$warn 
         if @$warn and not $nowarning and not $silent;
 
 
