@@ -1487,25 +1487,31 @@ Applies the fixes to suppress the current warnings.
 sub apply_fixes {
     my $self = shift ; 
     my $count = 0;
+
     $logger->debug( $self->location.": apply_fixes called on ". @{$self->{fixes} || [] }.
         " fixable problems" ) ;
         
     while ( @{$self->{fixes} || [] } ) {
         local $_ ;
         $_ = $self->fetch(silent => 1) ;
-        $logger->debug($self->location.": Applying fix '$self->{fixes}[0]'" );
-        eval ( $self->{fixes}[0] ) ;
-        if ($@) { 	
-            Config::Model::Exception::Model -> throw (
-                object => $self, 
-                message => "Eval of fix  $self->{fixes}[0] failed : $@" 
-            );
+
+        # apply all fixes fir this value THEN store the new value
+        foreach my $fix (@{$self->{fixes}}) {
+            $logger->info($self->location.": Applying fix '$fix'" );
+            eval ( $fix ) ;
+            if ($@) { 	
+                Config::Model::Exception::Model -> throw (
+                    object => $self, 
+                    message => "Eval of fix  $fix failed : $@" 
+                );
+            }
         }
+
         $self->store($_) ; # will update $self->{fixes} 
         Config::Model::Exception::Model -> throw (
             object => $self, 
             message => "apply_fixes: too many tries to fix, bailing out\nUnfixable value is $_" ,
-        ) if $count ++ > 50 ;
+        ) if $count ++ > 10 ;
     } ;
 }
 
