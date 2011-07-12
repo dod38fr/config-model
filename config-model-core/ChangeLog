@@ -1,3 +1,17 @@
+2011-07-12  Dominique Dumont  <domi.dumont@free.fr> 1.249
+
+    * Framework changes:
+        * Config/Model/Value.pm: 
+          * apply_fixes applies all available fixes of a 
+            value *then* save the value.
+          * Emit one warning per problem instead of one 
+            warning per problematic values (with embedded newlines)
+
+    * Application changes:
+        * Config/Model/Debian/Dependency.pm: reworked to take buildd 
+        limitation into account (check if Perl version is available 
+        in sid to decide the order of the alternates dependencies)
+   
 2011-07-05  Dominique Dumont  <domi.dumont@free.fr> 1.248
 
     * Framework changes:
