@@ -4,7 +4,7 @@ Priority: optional
 Build-Depends: debhelper (>= 7)
 Build-Depends-Indep: libcpan-meta-perl (>= 2.101550), libdist-zilla-perl (>= 3),
  libfile-homedir-perl (>= 0.81), libmoose-autobox-perl (>= 0.09),
- libmoose-perl (>= 0.65), libpath-class-perl, perl (>= 5.10.1)
+ libmoose-perl (>= 0.65), libpath-class-perl, libmodule-build-perl (>= 0.36) | perl (>= 5.8.8)
 Maintainer: Debian Perl Group <pkg-perl-maintainers@lists.alioth.debian.org>
 Uploaders: Dominique Dumont <dominique.dumont@hp.com>
 Standards-Version: 3.9.1

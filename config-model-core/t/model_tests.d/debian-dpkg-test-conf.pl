@@ -31,6 +31,7 @@ unless (my $return = do $cache_file ) {
     }
 
 END {
+    return if $::DebianDependencyCacheWritten ;
     my $str = Data::Dumper->Dump([\%Config::Model::Debian::Dependency::cache], ['*Config::Model::Debian::Dependency::cache']);
     my $fh = new IO::File "> $cache_file";
     print "writing back cache file\n";
@@ -38,6 +39,7 @@ END {
         # not a bit deal if cache cannot be written back
         $fh->print($str);
         $fh->close;
+        $::DebianDependencyCacheWritten=1;
     }
 }
 
