@@ -44,7 +44,7 @@ The Copyright field may contain the original copyright statement copied exactly 
       'License',
       {
         'type' => 'node',
-        'config_class_name' => 'Debian::Dpkg::Copyright::License'
+        'config_class_name' => 'Debian::Dpkg::Copyright::FileLicense'
       },
       'Comment',
       {

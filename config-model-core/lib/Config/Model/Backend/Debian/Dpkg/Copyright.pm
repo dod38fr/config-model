@@ -50,19 +50,29 @@ sub read {
     $logger->info("First pass to read pure license sections from $args{file} control file");
     foreach my $section (@$c) {
         next unless $section->[0] =~ /licen[sc]e/i;
-        my ($key,$v) =  @$section ;
-        if ($key =~ /licence/) {
-            $logger->warn("Found UK spelling for $key: $v. $key will be converted to License");
+        my ($lic_key,$lic_v) =  @$section ; # extra keys are taken care of later
+        if ($lic_key =~ /licence/) {
+            $logger->warn("Found UK spelling for $lic_key: $lic_v. $lic_key will be converted to License");
         } 
-        my @lic_text = split /\n/,$v ;
+        my @lic_text = split /\n/,$lic_v ;
         my ($lic_name) = shift @lic_text ;
         # get rid of potential 'with XXX exception'
         $lic_name =~ s/\s+with\s+\w+\s+exception//g ;
         $logger->debug("adding license text for '$lic_name': '@lic_text'");
         my $lic_obj = $root->grab(step => qq!License:"$lic_name"!, check => $check);
+
         # lic_obj may not be defined in -force mode
-        $lic_obj->store(value => join("\n", @lic_text), check => $check) if defined $lic_obj ;
-    }
+        next unless defined $lic_obj ;
+
+        $lic_obj->fetch_element('text')->store(value => join("\n", @lic_text), check => $check) ;
+
+        for (my $i=2; $i < @$section ; $i += 2 ) {
+            my $key = $section->[$i];
+            my $v   = $section->[$i+1];
+            # store other sections thanks to 'accept' clause
+            $lic_obj->fetch_element($key)->store($v) ;
+        }
+    }   
 
     $logger->info("Second pass to read other sections from $args{file} control file");
     my $section_nb = 0;
@@ -219,19 +229,6 @@ sub write {
         push @{$data_ref->{one}}, $element_name, \@v if @v;
     };
 
-    # called for license
-    my $my_hash_element_cb = sub {
-        my ( $scanner, $data_ref, $node, $element_name, @keys ) = @_;
-
-        # each hash element defined a new section
-        foreach my $k (@keys) {
-            my @section ;
-            $logger->debug("my_hash_element_cb: on $element_name key $k call scan_hash");
-            $scanner->scan_hash( { one => \@section, all => $data_ref->{all} }, $node, $element_name, $k );
-            push @{$data_ref->{all}}, \@section;
-        }
-    };
-
     my $file_license_cb = sub {
         my ($scanner, $data_ref,$node,@element_list) = @_;
 
@@ -243,6 +240,37 @@ sub write {
         my $full_lic_text = $node->fetch_element_value('full_license');
         $lic_text .= "\n" . $full_lic_text if defined $full_lic_text;
         push @{$data_ref->{one}}, License => $lic_text if defined $lic_text;
+    };
+
+    my $global_license_cb = sub {
+        my ($scanner, $data_ref,$node,@element_list) = @_;
+
+        # your custom code using $data_ref
+        $logger->debug("file_license_cb called on ",$node->name);
+        my $lic_text  = $node->fetch_element_value('short_name');
+        my $full_lic_text = $node->fetch_element_value('full_license');
+        $lic_text .= "\n" . $full_lic_text if defined $full_lic_text;
+        push @{$data_ref->{one}}, License => $lic_text if defined $lic_text;
+    };
+
+    my $license_spec_cb = sub {
+        my ($scanner, $data_ref,$node,@element_list) = @_;
+
+        $logger->debug("license_spec_cb called on ",$node->name);
+        my @section = ( 'License' , $node->index_value."\n") ;
+
+        # resume exploration
+        my $local_data_ref = { one => \@section, all => $data_ref->{all} } ;
+        foreach my $elt (@element_list) { 
+            if ($elt eq 'text') {
+                $section[1] .= $node->fetch_element_value($elt);
+            }
+            else {
+                $scanner->scan_element($local_data_ref, $node,$elt);
+            }
+        }
+        
+        push @{$data_ref->{all}}, \@section;
     };
 
     my $file_cb = sub {
@@ -262,10 +290,12 @@ sub write {
         leaf_cb         => $my_leaf_cb,
         #string_value_cb => $my_string_cb,
         list_element_cb => $my_list_element_cb,
-        hash_element_cb => $my_hash_element_cb,
+        #hash_element_cb => $my_hash_element_cb,
         #node_element_cb => $my_node_element_cb,
         node_dispatch_cb => {
-            'Debian::Dpkg::Copyright::License' => $file_license_cb ,
+            'Debian::Dpkg::Copyright::FileLicense' => $file_license_cb ,
+            'Debian::Dpkg::Copyright::GlobalLicense' => $global_license_cb ,
+            'Debian::Dpkg::Copyright::LicenseSpec' => $license_spec_cb ,
             'Debian::Dpkg::Copyright::Content' => $file_cb,
         }
     );
