@@ -11,6 +11,8 @@ use File::Copy::Recursive qw(fcopy rcopy dircopy) ;
 use Test::Warn ;
 use Test::Exception ;
 use Test::Differences ;
+use locale ;
+use utf8 ;
 
 use warnings;
 
