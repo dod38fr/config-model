@@ -8,21 +8,33 @@ use Log::Log4perl qw(get_logger :levels);
 
 use base qw/Config::Model::Backend::Any/;
 
-my $logger = get_logger("Backend::Debian::Dpkg") ;
+my $logger = get_logger("Backend::Debian::DpkgSyntax") ;
 
 sub parse_dpkg_file {
     my $self = shift ;
     my $fh = shift;
     my $check = shift || 'yes' ;
-    my @res ; # list of list (section, [keyword, value])
 
+    my @lines = $fh->getlines ;
+    chomp @lines ;
+    $fh->close ;
+    
+    $self->parse_dpkg_lines (\@lines,$check);
+}
+
+#
+# New subroutine "parse_dpkg_lines" extracted - Tue Jul 19 17:47:58 2011.
+#
+sub parse_dpkg_lines {
+    my ($self, $lines, $check) = @_ ;
+
+    my @res ; # list of list (section, [keyword, value])
     my $field;
     my $store_ref ;       # hold field data
     my $store_list = [] ; # holds sections
 
     my $key = '';
-    while (<$fh>) {
-        chomp ;
+    foreach (@$lines) {
         $logger->trace("Parsing line '$_'");
         if (/^([\w\-]+)\s*:/) {  # keyword: 
             my ($field,$text) = split /\s*:\s*/,$_,2 ;
@@ -63,7 +75,7 @@ sub parse_dpkg_file {
     chomp $$store_ref if defined $$store_ref;
     # store last section if not empty
     push @res, $store_list if @$store_list;
-    $fh->close ;
+
 
     if ($logger->is_debug ) {
         my $i = 1 ;
@@ -235,6 +247,11 @@ The returned list is of the form :
  ]
 
 check is C<yes>, C<skip> or C<no> 
+
+=head2 parse_dpkg_lines (lines, check)
+
+Parse the dpkg date from lines (which is an array ref) and return a data 
+structure like L<parse_dpkg_file>.
 
 =head2 write_dpkg_file ( io_handle, list_ref, list_sep )
 
