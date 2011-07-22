@@ -15,10 +15,11 @@ $skip = ( $@ or not -r '/etc/debian_version') ? 1 : 0 ;
      dump_warnings => [ (qr/deprecated/) x 3 ],
      #errors => [ ],
     },
-    #{ #t1
-    # check => { 
-    #          },
-    # },
+    { #t1
+     check => { 
+                'control source Build-Depends-Indep:3','libtest-pod-perl',
+              },
+    },
 );
 
 my $cache_file = 't/model_tests.d/debian-dependency-cache.txt';
