@@ -65,11 +65,6 @@ sub get_cfg_file_path {
         return;
     }
 
-    if (exists $args{file} and not $args{file}) {
-        $logger->trace("get_cfg_file_path: return because file explicitly set to undef or empty"); 
-        return;
-    }
-    
     if (defined $args{file}) {
         my $res = $dir.$args{file} ;
         $logger->trace("get_cfg_file_path: returns $res"); 
@@ -846,8 +841,7 @@ See L<File::HomeDir> for details.
 
 optional. This parameter may not apply if the configuration is stored
 in several files. By default, the instance name is used as
-configuration file name. If you want to completely handle file creation
-in your backend class, set to C<undef> or and empty string.
+configuration file name. 
 
 =item function
 
