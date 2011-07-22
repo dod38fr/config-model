@@ -26,6 +26,8 @@ my @dispatch = (
     qr/\w/                     => 'assign',
 );
 
+sub skip_open { 1 ;} # tell AutoRead not to try to open a file
+
 sub read_ssh_file {
     my $self = shift ;
     my %args = @_ ;
@@ -47,7 +49,7 @@ sub read_ssh_file {
 
     $logger->info("loading config file $file");
 
-    my $fh = new IO::File $file, "r"  
+    my $fh = IO::File->new( $file, "r")  
         || die __PACKAGE__," read_ssh_file: can't open $file:$!";
 
     my @lines = $fh->getlines ;
