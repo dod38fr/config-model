@@ -21,13 +21,15 @@ $skip = ( $@ or not -r '/etc/debian_version') ? 1 : 0 ;
     # },
 );
 
-my $cache_file = 't/model_tests.d/debian-dependency-cache.pl' ;
+my $cache_file = 't/model_tests.d/debian-dependency-cache.txt';
 
-unless (my $return = do $cache_file ) {
-        warn "couldn't parse $cache_file: $@" if $@;
-        warn "couldn't do $cache_file: $!"    unless defined $return;
-        warn "couldn't run $cache_file"       unless $return;
-    }
+my $ch = new IO::File "$cache_file";
+foreach ($ch->getlines) {
+    chomp;
+    my ($k,$v) = split m/ => / ;
+    $Config::Model::Debian::Dependency::cache{$k} = $v ;
+}
+$ch -> close ;
 
 END {
     return if $::DebianDependencyCacheWritten ;
