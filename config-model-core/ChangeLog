@@ -1,3 +1,22 @@
+2011-07-22  Dominique Dumont  <domi.dumont@free.fr> 1.250
+
+    * Test changes
+        * Debian dpkg tests: reworked cache file syntax (text instead of
+          Perl). Perl file did change randomly depending on order of
+          hash keys. That caused trouble when building Debian packages
+          because running tests did change a source file.
+
+    * Application changes
+        * Debian Dpkg License model and backend: 
+          Reworked Licence models to allow comments and arbitrary parameters
+          in stand-alone licences section (Closes Debian #633847)
+        * Backend Debian::DpkgSyntax: Better handle newlines
+
+    * Framework changes:
+        * lib/Config/Model/Loader.pm: Raise an exception if a hash of
+          node gets a load string like hash:foo=bar (this one is
+          reserved for hash of leaves)
+
 2011-07-12  Dominique Dumont  <domi.dumont@free.fr> 1.249
 
     * Framework changes:
