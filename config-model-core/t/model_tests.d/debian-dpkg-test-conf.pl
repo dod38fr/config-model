@@ -1,7 +1,8 @@
+use Data::Dumper ;
 use IO::File ;
 
-$conf_file_name = "control" ;
-$conf_dir='debian' ;
+$conf_file_name = "" ;
+$conf_dir='' ;
 $model_to_test = "Debian::Dpkg" ;
 
 eval { require AptPkg::Config ;} ;
@@ -17,7 +18,7 @@ $skip = ( $@ or not -r '/etc/debian_version') ? 1 : 0 ;
     },
     { #t1
      check => { 
-                'control source Build-Depends-Indep:3','libtest-pod-perl',
+                'patches:fix-spelling Synopsis', 'fix man page spelling',
               },
     },
 );
@@ -36,9 +37,9 @@ END {
     return if $::DebianDependencyCacheWritten ;
     my %h = %Config::Model::Debian::Dependency::cache ;
     my $str = join ("\n", map { "$_ => $h{$_}" ;} sort keys %h) ;
+
     my $fh = new IO::File "> $cache_file";
     print "writing back cache file\n";
-
     if ( defined $fh ) {
         # not a big deal if cache cannot be written back
         $fh->print($str);

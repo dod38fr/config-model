@@ -16,130 +16,172 @@
 #    along with Config-Model; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 
-package Config::Model::Backend::PlainFile ;
+package Config::Model::Backend::PlainFile;
 
 use Carp;
-use Any::Moose ;
-use Config::Model::Exception ;
-use UNIVERSAL ;
+use Any::Moose;
+use Config::Model::Exception;
+use UNIVERSAL;
 use File::Path;
 use Log::Log4perl qw(get_logger :levels);
 
 extends 'Config::Model::Backend::Any';
 
-my $logger = get_logger("Backend::PlainFile") ;
+my $logger = get_logger("Backend::PlainFile");
 
-sub suffix { return '' ; }
+sub suffix { return ''; }
 
-sub annotation { return 0 ;}
+sub annotation { return 0; }
 
-sub skip_open { 1;}
+sub skip_open { 1; }
 
 sub read {
-    my $self = shift ;
-    my %args = @_ ;
+    my $self = shift;
+    my %args = @_;
 
     # args are:
-    # object     => $obj,         # Config::Model::Node object 
+    # object     => $obj,         # Config::Model::Node object
     # root       => './my_test',  # fake root directory, userd for tests
-    # config_dir => /etc/foo',    # absolute path 
+    # config_dir => /etc/foo',    # absolute path
     # file       => 'foo.conf',   # file name
-    # file_path  => './my_test/etc/foo/foo.conf' 
+    # file_path  => './my_test/etc/foo/foo.conf'
     # io_handle  => $io           # IO::File object
     # check      => yes|no|skip
 
-    my $check = $args{check} || 'yes' ;
-    my $dir = $args{config_dir} ;
-    my $node = $args{object} ;
-    $logger->debug("PlainFile read called on node", $node->name);
+    my $check = $args{check} || 'yes';
+    my $dir   = $args{config_dir};
+    my $node  = $args{object};
+    $logger->debug( "called on node", $node->name );
 
     # read data from leaf element from the node
-    foreach my $elt ($node->get_element_name() ) {
-        my $file = $args{root}.$dir.$elt ;
-        $logger->trace("Looking for plainfile $file");
-        next unless -e $file ;
-        
-        my $fh = new IO::File;
-        $fh->open($file) or die "Cannot open $file:$!" ;
-        $fh->binmode(":utf8");
-        
-        my $obj = $args{object}->fetch_element(name => $elt) ;
+    foreach my $elt ( $node->get_element_name() ) {
+        my $file = $args{root} . $dir . $elt;
+        $logger->trace("looking for plainfile $file");
+
+        my $obj = $args{object}->fetch_element( name => $elt );
         my $type = $obj->get_type;
-        
-        if ($type eq 'leaf') {
-            my $v = join('',$fh->getlines) ;
-            chomp $v unless $obj->value_type eq 'string';
-            $obj->store(value => $v, check => $args{check} ) ;
+
+        if ( $type eq 'leaf' ) {
+            $self->read_leaf ($obj, $elt, $check,$file,\%args);
         }
-        elsif ($type eq 'list') {
-            my @v = $fh->getlines ;
-            chomp @v ;
-            $obj->store_set(@v) ;
+        elsif ( $type eq 'list' ) {
+            $self->read_list ($obj, $elt, $check,$file,\%args);
+        }
+        elsif ( $type eq 'hash' ) {
+            $self->read_hash ($obj, $elt, $check,$file,\%args);
         }
         else {
             $logger->debug("PlainFile read skiped $type $elt");
         }
-            
-        $fh->close;
-    }
 
-    return 1 ;
-}
-
-sub write {
-    my $self = shift ;
-    my %args = @_ ;
-
-    # args are:
-    # object     => $obj,         # Config::Model::Node object 
-    # root       => './my_test',  # fake root directory, userd for tests
-    # config_dir => /etc/foo',    # absolute path read
-    # file       => 'foo.conf',   # file name
-    # file_path  => './my_test/etc/foo/foo.conf' 
-    # io_handle  => $io           # IO::File object
-    # check      => yes|no|skip
-
-    my $check = $args{check} || 'yes' ;
-    my $dir = $args{root}.$args{config_dir} ;
-    mkpath($dir, { mode => 0755 } ) unless -d $dir ;
-    my $node = $args{object} ;
-    $logger->debug("PlainFile write called on node ", $node->name);
-
-    # write data from leaf element from the node
-    foreach my $elt ($node->get_element_name() ) {
-        my $file = $dir.$elt ;
-        
-        my $obj = $args{object}->fetch_element(name => $elt) ;
-        my $type = $obj->get_type ;
-        my @v ;
-
-        if ($type eq 'leaf') {
-            $v[0] = $obj->fetch(check => $args{check} ) ;
-            $v[0] .= "\n" unless $obj->value_type eq 'string';
-        }
-        elsif ($type eq 'list') {
-            @v = map { "$_\n" } $obj->fetch_all_values ;
-        }
-        else {
-            $logger->debug("PlainFile write skiped $type $elt");
-        }
-
-
-		if (@v) {
-		    $logger->trace("PlainFile write opening $file to write");
-		    my $fh = new IO::File;
-			$fh->open($file , '>') or die "Cannot open $file:$!" ;
-			$fh->binmode(":utf8");
-			$fh->print(@v) ;
-			$fh->close;
-		}
     }
 
     return 1;
 }
 
-no Any::Moose ;
-__PACKAGE__->meta->make_immutable ;
+#
+# New subroutine "open_for_read" extracted - Thu Jul 21 13:36:52 2011.
+#
+sub open_for_read {
+    my ($self, $file,$elt) = @_ ;
+
+    return unless -e $file;
+
+    my $fh = new IO::File;
+    $fh->open($file) or die "Cannot open $file:$!";
+    $fh->binmode(":utf8");
+    $logger->trace("found file $file for element $elt");
+
+    return ($fh);
+}
+
+#
+# New subroutine "read_leaf" extracted - Thu Jul 21 12:58:06 2011.
+#
+sub read_leaf {
+    my ($self,$obj,$elt, $check,$file,$args) = @_;
+
+    my $fh = $self->open_for_read ($file,$elt) or return ;
+
+    my $v = join( '', $fh->getlines );
+    chomp $v unless $obj->value_type eq 'string';
+    $obj->store( value => $v, check => $check );
+}
+
+#
+# New subroutine "read_list" extracted - Thu Jul 21 12:58:36 2011.
+#
+sub read_list {
+    my ($self,$obj,$elt, $check,$file,$args) = @_;
+
+    my $fh = $self->open_for_read ($file,$elt) or return ;
+
+    my @v = $fh->getlines;
+    chomp @v;
+    $obj->store_set(@v);
+}
+
+#
+# New subroutine "read_hash" extracted - Thu Jul 21 12:58:50 2011.
+#
+sub read_hash {
+    my ($self,$obj,$elt, $check,$file,$args) = @_;
+    $logger->debug("PlainFile read skipped hash $elt");
+}
+
+sub write {
+    my $self = shift;
+    my %args = @_;
+
+    # args are:
+    # object     => $obj,         # Config::Model::Node object
+    # root       => './my_test',  # fake root directory, userd for tests
+    # config_dir => /etc/foo',    # absolute path read
+    # file       => 'foo.conf',   # file name
+    # file_path  => './my_test/etc/foo/foo.conf'
+    # io_handle  => $io           # IO::File object
+    # check      => yes|no|skip
+
+    my $check = $args{check} || 'yes';
+    my $dir = $args{root} . $args{config_dir};
+    mkpath( $dir, { mode => 0755 } ) unless -d $dir;
+    my $node = $args{object};
+    $logger->debug( "PlainFile write called on node ", $node->name );
+
+    # write data from leaf element from the node
+    foreach my $elt ( $node->get_element_name() ) {
+        my $file = $dir . $elt;
+
+        my $obj = $args{object}->fetch_element( name => $elt );
+        my $type = $obj->get_type;
+        my @v;
+
+        if ( $type eq 'leaf' ) {
+            $v[0] = $obj->fetch( check => $args{check} );
+            $v[0] .= "\n" unless $obj->value_type eq 'string';
+        }
+        elsif ( $type eq 'list' ) {
+            @v = map { "$_\n" } $obj->fetch_all_values;
+        }
+        else {
+            $logger->debug("PlainFile write skiped $type $elt");
+        }
+
+        if (@v) {
+            $logger->trace("PlainFile write opening $file to write");
+            my $fh = new IO::File;
+            $fh->open( $file, '>' ) or die "Cannot open $file:$!";
+            $fh->binmode(":utf8");
+            $fh->print(@v);
+            $fh->close;
+        }
+    }
+
+    return 1;
+}
+
+no Any::Moose;
+__PACKAGE__->meta->make_immutable;
 
 1;
 
@@ -206,6 +248,19 @@ read.
 It can also be undef. In this case, C<read()> will return 0.
 
 When a file is read,  C<read()> will return 1.
+
+=head2 read_leaf (obj,elt,check,file,args);
+
+Called by L<read> method to read the file of a leaf element. C<args>
+contains the arguments passed to L<read> method.
+
+=head2 read_hash (obj,elt,check,file,args);
+
+Like L<read_leaf> for hash elements.
+
+=head2 read_list (obj,elt,check,file,args);
+
+Like L<read_leaf> for list elements.
 
 =head2 write ( io_handle => ... )
 
