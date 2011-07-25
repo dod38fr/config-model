@@ -75,17 +75,18 @@ foreach my $model_test_conf (@group_of_tests) {
 
     my $idx = 0 ;
     foreach my $t (@tests) {
-        if (defined $do and $do ne $idx) { $idx ++; next; }
-        note("Beginning $model_test subtest $idx");
+        my $t_name = $t->{name} || "t$idx" ;
+        if (defined $do and $do ne $t_name) { $idx ++; next; }
+        note("Beginning $model_test subtest $t_name");
    
         # cleanup before tests
         rmtree($wr_root);
         mkpath($wr_root, { mode => 0755 }) ;
 
-        my $wr_dir = $wr_root.'/test-'.$idx ;
+        my $wr_dir = $wr_root.'/test-'.$t_name ;
         my $conf_file = "$wr_dir/$conf_dir/$conf_file_name" ;
 
-        my $ex_data = "t/model_tests.d/$model_test-examples/t$idx" ;
+        my $ex_data = "t/model_tests.d/$model_test-examples/$t_name" ;
         if (-d $ex_data) {
             # copy whole dir
             my $debian_dir = "$wr_dir/$conf_dir";
@@ -96,11 +97,11 @@ foreach my $model_test_conf (@group_of_tests) {
             fcopy($ex_data , $conf_file) 
                 || die "copy $ex_data -> $conf_file failed:$!";
         }
-        ok(1,"Copied $model_test example $idx") ;
+        ok(1,"Copied $model_test example $t_name") ;
 
         my $inst = $model->instance (root_class_name   => $model_to_test,
                                     root_dir           => $wr_dir,
-                                    instance_name      => "$model_test-test".$idx,
+                                    instance_name      => "$model_test-".$t_name,
                                     check           => $t->{load_check} || 'yes',
                                    ); 
 
@@ -176,10 +177,10 @@ foreach my $model_test_conf (@group_of_tests) {
         my $i2_test = $model->instance(
             root_class_name => $model_to_test,
             root_dir        => $wr_dir2,
-            instance_name   => "$model_test-test-$idx-w",
+            instance_name   => "$model_test-$t_name-w",
         );
 
-        ok( $i2_test, "Created instance $model_test-test-$idx-w" );
+        ok( $i2_test, "Created instance $model_test-test-$t_name-w" );
 
         my $i2_root = $i2_test->config_root ;
         $i2_root->init;
@@ -191,7 +192,7 @@ foreach my $model_test_conf (@group_of_tests) {
         ok( -s "$wr_dir2/$conf_dir/$conf_file_name",
             "check that original $model_test file was not clobbered");
 
-        note("End of $model_test subtest $idx");
+        note("End of $model_test subtest $t_name");
    
         $idx++ ;
     }
