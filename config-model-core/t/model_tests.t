@@ -182,6 +182,7 @@ foreach my $model_test_conf (@group_of_tests) {
         ok( $i2_test, "Created instance $model_test-test-$idx-w" );
 
         my $i2_root = $i2_test->config_root ;
+        $i2_root->init;
 
         my $p2_dump = $i2_root->dump_tree(full_dump => 1) ;
 
