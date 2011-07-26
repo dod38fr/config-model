@@ -4,6 +4,7 @@ use ExtUtils::testlib;
 use Test::More tests => 10;
 use Config::Model;
 use Config::Model::ObjTreeScanner ;
+use Test::Differences ;
 
 use warnings;
 no warnings qw(once);
@@ -16,6 +17,12 @@ use Data::Dumper;
 use vars qw/$model/;
 
 $model = Config::Model -> new (legacy => 'ignore',) ;
+
+sub disp_node_content_hook {
+    my ( $scanner, $data_r, $node, @element ) = @_;
+
+    $$data_r .= "disp_node_content_hook " . $node->name . " element: @element\n";
+}
 
 sub disp_node_content {
     my ( $scanner, $data_r, $node, @element ) = @_;
@@ -43,6 +50,12 @@ sub disp_node_elt {
     $scanner->scan_node( $data_r, $next);
 }
 
+sub disp_hash_hook {
+    my ( $scanner, $data_r, $node, $element, @keys ) = @_;
+    return unless @keys;
+    $$data_r .= "disp_hash_hook " . $node->name . " element($element): @keys\n";
+}
+
 sub disp_hash {
     my ( $scanner, $data_r, $node, $element, @keys ) = @_;
 
@@ -52,6 +65,13 @@ sub disp_hash {
 
     map { $scanner->scan_hash( $data_r, $node, $element, $_ ) } @keys;
 }
+
+sub disp_list_hook {
+    my ( $scanner, $data_r, $node, $element, @keys ) = @_;
+    return unless @keys;
+    $$data_r .= "disp_list_hook " . $node->name . " element($element): @keys\n";
+}
+
 
 sub disp_check_list {
     my ( $scanner, $data_r, $node, $element, @choices ) = @_;
@@ -81,15 +101,31 @@ sub disp_up {
 
 }
 
+use Log::Log4perl qw(:easy) ;
+
 my $arg = shift || '';
+my $test_only_model = shift || '';
+my $do = shift ;
+
+my ($log,$show) = (0) x 2 ;
 
 my $trace = $arg =~ /t/ ? 1 : 0 ;
-$::verbose          = 1 if $arg =~ /v/;
 $::debug            = 1 if $arg =~ /d/;
-Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
+$log                = 1 if $arg =~ /l/;
+$show               = 1 if $arg =~ /s/;
 
-use Log::Log4perl qw(:easy) ;
-Log::Log4perl->easy_init($arg =~ /l/ ? $TRACE: $WARN);
+my $log4perl_user_conf_file = $ENV{HOME}.'/.log4config-model' ;
+
+if ($log and -e $log4perl_user_conf_file ) {
+    Log::Log4perl::init($log4perl_user_conf_file);
+}
+else {
+    Log::Log4perl->easy_init($log ? $WARN: $ERROR);
+}
+
+my $model = Config::Model -> new ( ) ;
+
+Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 
 ok(1,"compiled");
 
@@ -121,6 +157,10 @@ my $scan = Config::Model::ObjTreeScanner->new(
     boolean_value_cb      => \&disp_leaf,
     string_value_cb       => \&disp_leaf,
     reference_value_cb    => \&disp_leaf,
+    node_content_hook     => \&disp_node_content_hook ,
+    hash_element_hook     => \&disp_hash_hook,
+    list_element_hook     => \&disp_list_hook,
+    
     up_cb                 => \&disp_up
 );
 
@@ -133,35 +173,44 @@ ok(1,"performed scan") ;
 print $result if $trace ;
 
 my $expect = << 'EOF' ;
+disp_node_content_hook Master element: std_id lista listb hash_a hash_b ordered_hash olist slave_y string_with_def a_uniline a_string int_v my_check_list my_reference
 disp_node_content Master element: std_id lista listb hash_a hash_b ordered_hash olist slave_y string_with_def a_uniline a_string int_v my_check_list my_reference
+disp_hash_hook Master element(std_id): ab bc
 disp_hash Master element(std_id): ab bc
 disp_node_elt Master element: std_id key ab
+disp_node_content_hook std_id:ab element: Z X DX
 disp_node_content std_id:ab element: Z X DX
 disp_leaf std_id:ab element Z
 disp_leaf std_id:ab element X value Bv
 disp_leaf std_id:ab element DX value Dv
 disp_up std_id:ab
 disp_node_elt Master element: std_id key bc
+disp_node_content_hook std_id:bc element: Z X DX
 disp_node_content std_id:bc element: Z X DX
 disp_leaf std_id:bc element Z
 disp_leaf std_id:bc element X value Av
 disp_leaf std_id:bc element DX value Dv
 disp_up std_id:bc
+disp_hash_hook Master element(hash_a): X2 Y2
 disp_hash Master element(hash_a): X2 Y2
 disp_leaf Master element hash_a value x
 disp_leaf Master element hash_a value xy
+disp_hash_hook Master element(hash_b): X3
 disp_hash Master element(hash_b): X3
 disp_leaf Master element hash_b value xy
 disp_node_elt Master element: slave_y
+disp_node_content_hook slave_y element: X std_id sub_slave warp2 Y
 disp_node_content slave_y element: X std_id sub_slave warp2 Y
 disp_leaf slave_y element X
 disp_node_elt slave_y element: sub_slave
+disp_node_content_hook slave_y sub_slave element: aa ab ac ad sub_slave
 disp_node_content slave_y sub_slave element: aa ab ac ad sub_slave
 disp_leaf slave_y sub_slave element aa
 disp_leaf slave_y sub_slave element ab
 disp_leaf slave_y sub_slave element ac
 disp_leaf slave_y sub_slave element ad
 disp_node_elt slave_y sub_slave element: sub_slave
+disp_node_content_hook slave_y sub_slave sub_slave element: aa2 ab2 ac2 ad2 Z
 disp_dispatch_node_sub_slave2 slave_y sub_slave sub_slave element: aa2 ab2 ac2 ad2 Z
 disp_leaf slave_y sub_slave sub_slave element aa2
 disp_leaf slave_y sub_slave sub_slave element ab2
@@ -171,12 +220,14 @@ disp_leaf slave_y sub_slave sub_slave element Z
 disp_up slave_y sub_slave sub_slave
 disp_up slave_y sub_slave
 disp_node_elt slave_y element: warp2
+disp_node_content_hook slave_y warp2 element: aa ab ac ad sub_slave
 disp_node_content slave_y warp2 element: aa ab ac ad sub_slave
 disp_leaf slave_y warp2 element aa
 disp_leaf slave_y warp2 element ab
 disp_leaf slave_y warp2 element ac
 disp_leaf slave_y warp2 element ad
 disp_node_elt slave_y warp2 element: sub_slave
+disp_node_content_hook slave_y warp2 sub_slave element: aa2 ab2 ac2 ad2 Z
 disp_dispatch_node_sub_slave2 slave_y warp2 sub_slave element: aa2 ab2 ac2 ad2 Z
 disp_leaf slave_y warp2 sub_slave element aa2
 disp_leaf slave_y warp2 sub_slave element ab2
@@ -197,7 +248,7 @@ disp_up Master
 EOF
 
 $result =~ s/\s+\n/\n/g;
-is_deeply( [split /\n/,$result], [split /\n/,$expect], "check result" );
+eq_or_diff( [split /\n/,$result], [split /\n/,$expect], "check result" );
 
 
 my $scan2 = Config::Model::ObjTreeScanner->new(
@@ -252,7 +303,7 @@ EOF
 
 $result =~ s/\s+\n/\n/g;
 
-is_deeply( [split /\n/,$result], [split /\n/,$expect], "check result" );
+eq_or_diff( [split /\n/,$result], [split /\n/,$expect], "check result" );
 
 # test dump of mandatory values
 
