@@ -131,7 +131,7 @@ foreach my $model_test_conf (@group_of_tests) {
         print "dumping tree ...\n" if $trace ;
         my $dump = '';
         my $risky = sub {
-            $dump = $root->dump_tree (full_dump => 1); 
+            $dump = $root->dump_tree (full_dump => 0); 
         } ;
     
         if (defined $t->{dump_errors} ) {
@@ -185,7 +185,7 @@ foreach my $model_test_conf (@group_of_tests) {
         my $i2_root = $i2_test->config_root ;
         $i2_root->init;
 
-        my $p2_dump = $i2_root->dump_tree(full_dump => 1) ;
+        my $p2_dump = $i2_root->dump_tree(full_dump => 0) ;
 
         eq_or_diff($p2_dump,$dump,"compare original $model_test data with 2nd instance data") ;
    

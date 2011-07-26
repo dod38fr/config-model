@@ -29,6 +29,7 @@ $skip = ( $@ or not -r '/etc/debian_version' ) ? 1 : 0;
 
     { 
         name => 'libversion' ,
+        apply_fix => 1 ,
     }
     # FIXME: add t2 to fix gregoa's issue
 );
