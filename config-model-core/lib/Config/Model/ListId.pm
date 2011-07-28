@@ -311,7 +311,7 @@ list ref of annotation to store with the list values
 
 Example:
 
- $elt->push (
+ $elt->push_x (
     values => [ v1','v2' ] , 
     annotation => [ 'v1 comment', 'v2 comment' ],
     check => ''skip'
