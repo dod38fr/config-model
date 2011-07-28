@@ -1495,7 +1495,7 @@ sub apply_fixes {
         local $_ ;
         $_ = $self->fetch(silent => 1) ;
 
-        # apply all fixes fir this value THEN store the new value
+        # apply all fixes for this value THEN store the new value
         foreach my $fix (@{$self->{fixes}}) {
             $logger->info($self->location.": Applying fix '$fix'" );
             eval ( $fix ) ;
