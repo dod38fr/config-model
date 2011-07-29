@@ -14,10 +14,6 @@ use strict;
 use Data::Dumper;
 # use Config::Model::ObjTreeScanner;
 
-use vars qw/$model/;
-
-$model = Config::Model -> new (legacy => 'ignore',) ;
-
 sub disp_node_content_hook {
     my ( $scanner, $data_r, $node, @element ) = @_;
 
@@ -123,7 +119,7 @@ else {
     Log::Log4perl->easy_init($log ? $WARN: $ERROR);
 }
 
-my $model = Config::Model -> new ( ) ;
+my $model = Config::Model -> new ( legacy => 'ignore' ) ;
 
 Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 
