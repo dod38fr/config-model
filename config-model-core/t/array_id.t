@@ -5,23 +5,41 @@ use warnings FATAL => qw(all);
 use ExtUtils::testlib;
 use Test::More;
 use Test::Exception;
+use Test::Warn ;
 use Test::Differences ;
 use Config::Model;
+use Config::Model::AnyId;
+use Log::Log4perl qw(:easy :levels) ;
 
-BEGIN { plan tests => 78; }
+BEGIN { plan tests => 86; }
 
 use strict;
 
 my $arg = shift || '';
+my $test_only_model = shift || '';
+my $do = shift ;
 
-my $trace = $arg =~ /t/ ? 1 : 0;
-$::debug = 1 if $arg =~ /d/;
+my ($log,$show) = (0) x 2 ;
+
+my $trace = $arg =~ /t/ ? 1 : 0 ;
+$::debug            = 1 if $arg =~ /d/;
+$log                = 1 if $arg =~ /l/;
+$show               = 1 if $arg =~ /s/;
+
+my $log4perl_user_conf_file = $ENV{HOME}.'/.log4config-model' ;
+
+if ($log and -e $log4perl_user_conf_file ) {
+    Log::Log4perl::init($log4perl_user_conf_file);
+}
+else {
+    Log::Log4perl->easy_init($log ? $WARN: $ERROR);
+}
+
+my $model = Config::Model -> new ( ) ;
+
 Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 
-use Log::Log4perl qw(:easy);
-Log::Log4perl->easy_init( $arg =~ /l/ ? $TRACE : $WARN );
-
-ok( 1, "Compilation done" );
+ok(1,"compiled");
 
 my @element = (
 
@@ -33,7 +51,6 @@ my @element = (
 );
 
 # minimal set up to get things working
-my $model = Config::Model->new();
 $model->create_config_class(
     name    => "Master",
     element => [
@@ -84,6 +101,9 @@ $model->create_config_class(
                 config_class_name => 'Slave'
             },
         },
+        map { 
+              ("list_with_".$_."_duplicates" => { type => 'list', duplicates => $_ , @element, },);
+            } qw/warn allow forbid suppress/ ,
     ]
 );
 
@@ -94,6 +114,19 @@ $model->create_config_class(
             type            => 'list',
             auto_create_ids => ['foo'],
             @element
+        },
+        list_with_wrong_duplicates => {
+            type              => 'list',
+            duplicates => 'forbid',
+            cargo => {
+                type              => 'node',
+                config_class_name => 'Slave'
+            },
+        },
+        list_with_yada_duplicates => { 
+            type => 'list', 
+            duplicates => 'yada' ,
+            @element, 
         },
     ]
 );
@@ -297,4 +330,33 @@ is($lwdwin->fetch_with_id(0)->fetch_element('X')->fetch,'Bv',"test default_with_
 is($lwdwin->fetch_with_id(0)->fetch_element('Y')->fetch,'Cv',"test default_with_init node 0") ;
 is($lwdwin->fetch_with_id(1)->fetch_element('X')->fetch,'Av',"test default_with_init node 0") ;
 
+throws_ok { $bogus_root->fetch_element('list_with_wrong_duplicates'); } "Config::Model::Exception::Model",
+  "fails duplicates with node cargo";
 
+throws_ok { $bogus_root->fetch_element('list_with_yada_duplicates'); } "Config::Model::Exception::Model",
+  "fails yada duplicates";
+
+foreach my $what (qw/forbid warn suppress/) {
+    my $lwd = $root->fetch_element('list_with_'.$what.'_duplicates');
+    $lwd->push(qw/string1 string2/);
+    $lwd->push('string1'); # does not trigger duplicate issues, yet
+    
+    # there we go
+    if ($what eq 'forbid') {
+        throws_ok { $lwd->fetch_with_id(2) ; } "Config::Model::Exception::WrongValue", 
+            "fails forbidden duplicates" ;
+        $lwd->delete(2) ;
+    }
+    elsif ($what eq 'warn') {
+        warnings_like { $lwd->fetch_with_id(2) ; } qr/Duplicated/ ,
+            "warns with duplicated values" ;
+        $inst->apply_fixes ;
+        warnings_like { $lwd->fetch_with_id(2) ; } [] , # no warning accepted
+            "no longer warns with duplicated values" ;
+    }
+    else {
+        $lwd->fetch_with_id(2) ; 
+    }
+    is ($lwd->fetch_with_id(0)->fetch,'string1',
+        "check that original values is untouched after $what duplicates");
+}
