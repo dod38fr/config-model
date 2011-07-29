@@ -758,9 +758,7 @@ my %check_dispatch = map { ($_ => 'check_'.$_) ;}
 
 # internal function to check the validity of the index
 sub check {
-    my ($self,$idx,$silent) = @_ ; 
-
-    $silent = 0 unless defined $silent ;
+    my ($self,$idx) = @_ ; 
 
     Config::Model::Exception::Internal
         -> throw (
@@ -808,9 +806,7 @@ sub check {
 
     if (@warn) {
         $self->{warning_hash}{$idx} = \@warn ;
-        if (not $silent) {
-            map { warn ("Warning in '".$self->location."': $_\n") } @warn ;
-        }
+        map { warn ("Warning in '".$self->location."': $_\n") } @warn ;
     }
         
     return scalar @error ? 0 : 1 ;
@@ -912,7 +908,7 @@ sub fix_duplicates {
     my %h;
     my @issues;
     foreach my $i ( $self->_get_all_indexes ) {
-        my $v = $self->_fetch_with_id($i)->fetch;
+        my $v = $self->fetch_with_id(index => $i, check => 'no')->fetch;
         $h{$v}++;
         if ($h{$v} > 1) {
             $logger->debug("check for duplicates: got $i -> $v : occurences $h{$v}");
@@ -934,7 +930,7 @@ sub check_duplicates {
     my %h;
     my @issues;
     foreach my $i ( $self->get_all_indexes ) {
-        my $v = $self->_fetch_with_id($i)->fetch;
+        my $v = $self->fetch_with_id(index => $i, check => 'no')->fetch;
         next unless defined $v ;
         $h{$v} = 0 unless defined $h{$v} ;
         $h{$v}++;
@@ -985,8 +981,7 @@ sub fetch_with_id {
     $self->warp 
       if ($self->{warp} and @{$self->{warp_info}{computed_master}});
 
-    my $silent = $check eq 'no' ? 1 : 0 ;
-    my $ok = $self->check($idx, $silent) ;
+    my $ok = $check eq 'no' ? 1 : $self->check($idx) ;
 
     if ($ok or $check eq 'no') {
         $self->auto_vivify($idx) unless $self->_defined($idx) ;
