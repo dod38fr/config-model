@@ -21,7 +21,7 @@ use Config::Model::Exception ;
 use Config::Model::Warper ;
 use Scalar::Util qw(weaken) ;
 use warnings ;
-use Carp;
+use Carp qw/cluck croak carp/;
 use strict;
 use Log::Log4perl qw(get_logger :levels);
 use Storable qw/dclone/;
@@ -139,7 +139,10 @@ sub new {
     # args hash is modified for arg check in derived class constructor
     my $args_ref = shift ; 
 
-    my $self= { warning_hash => { } } ;
+    my $self= { 
+            warning_hash => { },
+            fixes => [] ,
+        } ;
 
     bless $self,$type;
 
@@ -196,6 +199,15 @@ L<Tie::IxHash>).  The hash keys are ordered along their creation. The
 order can be modified with L<swap|Config::Model::HashId/"swap ( key1 , key2 )">,
 L<move_up|Config::Model::HashId/"move_up ( key )"> or
 L<move_down|Config::Model::HashId/"move_down ( key )">.
+
+=item duplicates
+
+Specify the policy regarding duplicated values stored in the list or as
+hash values (valid only when cargo type is C<leaf>). The policy can be
+C<allow> (default), C<suppress>, C<warn> (which offers the possibility
+to apply a fix), C<forbid>. Note that duplicates I<check cannot be
+performed when the duplicated value is stored>: this happens outside of
+this object. Duplicates can be check only after when the value is read.
 
 =item cargo
 
@@ -396,7 +408,7 @@ leads to a number of items greater than the max_nb constraint.
 =cut
 
 my @common_params =  qw/min_index max_index max_nb default_with_init default_keys
-                        follow_keys_from migrate_keys_from 
+                        follow_keys_from migrate_keys_from duplicates
                         auto_create_ids auto_create_keys
                         allow_keys allow_keys_from allow_keys_matching
                         warn_if_key_match warn_unless_key_match/ ;
@@ -465,14 +477,31 @@ sub set_properties {
     if (defined $self->{auto_create_keys} or defined $self->{auto_create_ids}) {
         $self->auto_create_elements ;
     }
+    
+    if (    defined $self->{duplicates}
+        and defined $self->{cargo}
+        and $self->{cargo}{type} ne 'leaf' )
+    {
+        Config::Model::Exception::Model->throw(
+            object => $self,
+            error => "Cannot specify 'duplicates' with cargo type '$self->{cargo}{type}'",
+        );
+    }
+
+    my $ok_dup = 'forbid|suppress|warn|allow';
+    if ( defined $self->{duplicates} and $self->{duplicates} !~ /^$ok_dup$/ ) {
+        Config::Model::Exception::Model->throw(
+            object => $self,
+            error => "Unexpected 'duplicates' $self->{duplicates} expected $ok_dup",
+        );
+    }
 
     # $self->{current} = { level      => $args{level} ,
                          # experience => $args{experience}
                        # } ;
     #$self->SUPER::set_parent_element_property(\%args) ;
     
-    Config::Model::Exception::Model
-        ->throw (
+    Config::Model::Exception::Model ->throw (
                  object => $self,
                  error => "Unexpected parameters: ". join(' ', keys %args)
                 ) if scalar keys %args ;
@@ -725,11 +754,13 @@ sub handle_args {
 
 my %check_dispatch = map { ($_ => 'check_'.$_) ;}
     qw/follow_keys_from allow_keys allow_keys_from allow_keys_matching
-        warn_if_key_match warn_unless_key_match/;
+        warn_if_key_match warn_unless_key_match duplicates/;
 
 # internal function to check the validity of the index
 sub check {
-    my ($self,$idx) = @_ ; 
+    my ($self,$idx,$silent) = @_ ; 
+
+    $silent = 0 unless defined $silent ;
 
     Config::Model::Exception::Internal
         -> throw (
@@ -743,7 +774,7 @@ sub check {
     foreach my $key_check_name (keys %check_dispatch) {
         next unless $self->{$key_check_name} ;
         my $method = $check_dispatch{$key_check_name} ;
-        $self->$method($idx,\@error,\@warn) ;
+        $self->$method($idx,\@error,\@warn,$self->{fixes}) ;
     }
 
     my $nb =  $self->fetch_size ;
@@ -777,13 +808,41 @@ sub check {
 
     if (@warn) {
         $self->{warning_hash}{$idx} = \@warn ;
-        warn(map { "Warning in '".$self->location."': $_\n"} @warn) ;
+        if (not $silent) {
+            map { warn ("Warning in '".$self->location."': $_\n") } @warn ;
+        }
     }
         
     return scalar @error ? 0 : 1 ;
 }
 
+sub apply_fixes {
+    my $self = shift ; 
+    my $count = 0;
 
+    $logger->debug( $self->location.": apply_fixes called on ". @{$self->{fixes} || [] }.
+        " fixable problems" ) ;
+        
+    while ( @{$self->{fixes} || [] } ) {
+        foreach my $fix ( @{$self->{fixes}} ) {
+            eval { &$fix } ;
+            if ($@) { 	
+                Config::Model::Exception::Model -> throw (
+                    object => $self, 
+                    message => "Eval of fix failed : $@" 
+                );
+            }
+        }
+
+        $self->{fixes} = [] ;
+        #map { $self->check($_,1) } $self->get_all_indexes ;  
+        
+        Config::Model::Exception::Model -> throw (
+            object => $self, 
+            message => "apply_fixes: too many tries to fix, bailing out" ,
+        ) if $count ++ > 10 ;
+    }
+}
 
 #internal
 sub check_follow_keys_from {
@@ -846,6 +905,68 @@ sub check_warn_unless_key_match {
     push @$warn, "key '$idx' should match $re\n" unless $idx =~ /$re/;
 }
 
+sub fix_duplicates {
+    my ( $self ) = @_;
+
+    $logger->debug("fixing duplicates");
+    my %h;
+    my @issues;
+    foreach my $i ( $self->_get_all_indexes ) {
+        my $v = $self->_fetch_with_id($i)->fetch;
+        $h{$v}++;
+        if ($h{$v} > 1) {
+            $logger->debug("check for duplicates: got $i -> $v : occurences $h{$v}");
+            push @issues, $i ;
+        }
+    }
+    
+    # reverse is important to avoid messing list indexes before deletion
+    map {$self->_delete($_) } reverse @issues ;
+}
+
+sub check_duplicates {
+    my ( $self, $idx, $error, $warn, $fixes ) = @_;
+
+    my $dup = $self->{duplicates} ;
+    return if $dup eq 'allow' ;
+    
+    $logger->debug("check for duplicates for idx $idx");
+    my %h;
+    my @issues;
+    foreach my $i ( $self->get_all_indexes ) {
+        my $v = $self->_fetch_with_id($i)->fetch;
+        next unless defined $v ;
+        $h{$v} = 0 unless defined $h{$v} ;
+        $h{$v}++;
+        $logger->debug("check for duplicates for idx $idx: got $i -> $v : $h{$v}");
+        my @to_push = ($v);
+        unshift @to_push,"$i -> " if $self->get_type eq 'hash';
+        push @issues, @to_push if $h{$v} > 1;
+    }
+
+    return unless @issues ;
+    my $fixit = sub {$self->fix_duplicates} ;
+    
+    if ($dup eq 'forbid') {
+        $logger->debug("Found forbidden duplicates @issues");
+        push @$error, "Forbidden duplicates value @issues";
+    }
+    elsif ($dup eq 'warn') {
+        $logger->debug("warning condition: found duplicate @issues");
+        push @$warn, "Duplicated value: @issues";
+        push @$fixes, $fixit ;
+    }
+    elsif ($dup eq 'suppress') {
+        $logger->debug("suppressing duplicates @issues");
+        $fixit->() ;
+    }
+    else {
+        die "Internal error: duplicates is $dup";
+    }
+}
+
+
+
 =head1 Information management
 
 =head2 fetch_with_id ( index => $idx , [ check => 'no' ])
@@ -864,7 +985,8 @@ sub fetch_with_id {
     $self->warp 
       if ($self->{warp} and @{$self->{warp_info}{computed_master}});
 
-    my $ok = $self->check($idx) ;
+    my $silent = $check eq 'no' ? 1 : 0 ;
+    my $ok = $self->check($idx, $silent) ;
 
     if ($ok or $check eq 'no') {
         $self->auto_vivify($idx) unless $self->_defined($idx) ;
