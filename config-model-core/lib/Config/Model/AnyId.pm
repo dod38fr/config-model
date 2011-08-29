@@ -141,7 +141,6 @@ sub new {
 
     my $self= { 
             warning_hash => { },
-            fixes => [] ,
         } ;
 
     bless $self,$type;
@@ -453,7 +452,7 @@ sub set_properties {
         my $last_idx  = pop   @current_idx ;
 
         foreach my $idx ( ($first_idx, $last_idx)) {
-            my $ok = $self->check($first_idx) ;
+            my $ok = $self->check_idx($first_idx) ;
             next if $ok ;
 
             # here a user input may trigger an exception even if fetch
@@ -752,19 +751,37 @@ sub handle_args {
     return $self ;
 }
 
-my %check_dispatch = map { ($_ => 'check_'.$_) ;}
-    qw/follow_keys_from allow_keys allow_keys_from allow_keys_matching
-        warn_if_key_match warn_unless_key_match duplicates/;
+sub apply_fixes {
+    my $self = shift ; 
+    $logger->debug( $self->location.": apply_fixes called" ) ;
 
-# internal function to check the validity of the index
+    $self->check(fix => 1) ;
+
+}
+
+
+my %check_idx_dispatch =
+  map { ( $_ => 'check_' . $_ ); }
+  qw/follow_keys_from allow_keys allow_keys_from allow_keys_matching
+  warn_if_key_match warn_unless_key_match/;
+
+my %check_dispatch = map { ($_ => 'check_'.$_) ;}
+    qw/duplicates/;
+
+# check all indexes in the list or hash
 sub check {
-    my ($self,$idx) = @_ ; 
+    my $self = shift ;
+    
+    my %args = @_ > 1 ? @_ : (index => $_[0]) ;
+    my $silent = $args{silent} || 0 ;
+    my $check = $args{check} || 'yes' ;
+    my $apply_fix = $args{fix} || 0 ;
 
     Config::Model::Exception::Internal
         -> throw (
                   object => $self,
-                  error => "check method: key or index is not defined"
-                 ) unless defined $idx ;
+                  error => "check method: index or key should not be defined"
+                 ) if defined $args{index} ;
 
     my @error ;
     my @warn ;
@@ -772,7 +789,41 @@ sub check {
     foreach my $key_check_name (keys %check_dispatch) {
         next unless $self->{$key_check_name} ;
         my $method = $check_dispatch{$key_check_name} ;
-        $self->$method($idx,\@error,\@warn,$self->{fixes}) ;
+        $self->$method(\@error,\@warn,$apply_fix) ;
+    }
+
+    my $nb =  $self->fetch_size ;
+    push @error,"Too many instances ($nb) limit $self->{max_nb}, "
+        if defined $self->{max_nb} and $nb > $self->{max_nb};
+
+    map { warn ("Warning in '".$self->location."': $_\n") } @warn unless $silent;
+
+    return scalar @error ? 0 : 1 ;
+}
+
+# internal function to check the validity of the index
+sub check_idx {
+    my $self = shift ;
+    
+    my %args = @_ > 1 ? @_ : (index => $_[0]) ;
+    my $idx = $args{index} ;
+    my $silent = $args{silent} || 0 ;
+    my $check = $args{check} || 'yes' ;
+    my $apply_fix = $check eq 'fix' ? 1 : 0 ;
+
+    Config::Model::Exception::Internal
+        -> throw (
+                  object => $self,
+                  error => "check_idx method: key or index is not defined"
+                 ) unless defined $idx ;
+
+    my @error ;
+    my @warn ;
+
+    foreach my $key_check_name (keys %check_idx_dispatch) {
+        next unless $self->{$key_check_name} ;
+        my $method = $check_idx_dispatch{$key_check_name} ;
+        $self->$method($idx,\@error,\@warn,$apply_fix) ;
     }
 
     my $nb =  $self->fetch_size ;
@@ -806,38 +857,10 @@ sub check {
 
     if (@warn) {
         $self->{warning_hash}{$idx} = \@warn ;
-        map { warn ("Warning in '".$self->location."': $_\n") } @warn ;
+        map { warn ("Warning in '".$self->location."': $_\n") } @warn unless $silent;
     }
         
     return scalar @error ? 0 : 1 ;
-}
-
-sub apply_fixes {
-    my $self = shift ; 
-    my $count = 0;
-
-    $logger->debug( $self->location.": apply_fixes called on ". @{$self->{fixes} || [] }.
-        " fixable problems" ) ;
-        
-    while ( @{$self->{fixes} || [] } ) {
-        foreach my $fix ( @{$self->{fixes}} ) {
-            eval { &$fix } ;
-            if ($@) { 	
-                Config::Model::Exception::Model -> throw (
-                    object => $self, 
-                    message => "Eval of fix failed : $@" 
-                );
-            }
-        }
-
-        $self->{fixes} = [] ;
-        #map { $self->check($_,1) } $self->get_all_indexes ;  
-        
-        Config::Model::Exception::Model -> throw (
-            object => $self, 
-            message => "apply_fixes: too many tries to fix, bailing out" ,
-        ) if $count ++ > 10 ;
-    }
 }
 
 #internal
@@ -901,60 +924,47 @@ sub check_warn_unless_key_match {
     push @$warn, "key '$idx' should match $re\n" unless $idx =~ /$re/;
 }
 
-sub fix_duplicates {
-    my ( $self ) = @_;
-
-    $logger->debug("fixing duplicates");
-    my %h;
-    my @issues;
-    foreach my $i ( $self->_get_all_indexes ) {
-        my $v = $self->fetch_with_id(index => $i, check => 'no')->fetch;
-        $h{$v}++;
-        if ($h{$v} > 1) {
-            $logger->debug("check for duplicates: got $i -> $v : occurences $h{$v}");
-            push @issues, $i ;
-        }
-    }
-    
-    # reverse is important to avoid messing list indexes before deletion
-    map {$self->_delete($_) } reverse @issues ;
-}
-
 sub check_duplicates {
-    my ( $self, $idx, $error, $warn, $fixes ) = @_;
+    my ( $self, $error, $warn, $apply_fix ) = @_;
 
     my $dup = $self->{duplicates} ;
     return if $dup eq 'allow' ;
     
-    $logger->debug("check for duplicates for idx $idx");
+    $logger->debug("check_duplicates called");
     my %h;
     my @issues;
+    my @to_delete ;
     foreach my $i ( $self->get_all_indexes ) {
         my $v = $self->fetch_with_id(index => $i, check => 'no')->fetch;
         next unless defined $v ;
         $h{$v} = 0 unless defined $h{$v} ;
         $h{$v}++;
-        $logger->debug("check for duplicates for idx $idx: got $i -> $v : $h{$v}");
-        my @to_push = ($v);
-        unshift @to_push,"$i -> " if $self->get_type eq 'hash';
-        push @issues, @to_push if $h{$v} > 1;
+        if ($h{$v} > 1) {
+            $logger->debug("got duplicates $i -> $v : $h{$v}");
+            push @to_delete, $i ;
+            my @to_push = ($v);
+            unshift @to_push,"$i -> " if $self->get_type eq 'hash';
+            push @issues, @to_push ; 
+        }
     }
 
     return unless @issues ;
-    my $fixit = sub {$self->fix_duplicates} ;
     
-    if ($dup eq 'forbid') {
+    if ($apply_fix) {
+        $logger->debug("Fixing duplicates @issues");
+        map { $self->remove($_) } reverse @to_delete ;
+    }
+    elsif ($dup eq 'forbid') {
         $logger->debug("Found forbidden duplicates @issues");
         push @$error, "Forbidden duplicates value @issues";
     }
     elsif ($dup eq 'warn') {
         $logger->debug("warning condition: found duplicate @issues");
         push @$warn, "Duplicated value: @issues";
-        push @$fixes, $fixit ;
     }
     elsif ($dup eq 'suppress') {
         $logger->debug("suppressing duplicates @issues");
-        $fixit->() ;
+        map { $self->remove($_) } reverse @to_delete ;
     }
     else {
         die "Internal error: duplicates is $dup";
@@ -981,7 +991,7 @@ sub fetch_with_id {
     $self->warp 
       if ($self->{warp} and @{$self->{warp_info}{computed_master}});
 
-    my $ok = $check eq 'no' ? 1 : $self->check($idx) ;
+    my $ok = $check eq 'no' ? 1 : $self->check_idx(index => $idx, check => $check) ;
 
     if ($ok or $check eq 'no') {
         $self->auto_vivify($idx) unless $self->_defined($idx) ;
@@ -1050,7 +1060,7 @@ sub copy {
     my ($self,$from, $to) = @_ ;
 
     my $from_obj = $self->fetch_with_id($from) ;
-    my $ok = $self->check($to) ;
+    my $ok = $self->check_idx($to) ;
 
     if ($ok && $self->{cargo}{type} eq 'leaf') {
         $logger->trace("AnyId: copy leaf value from ".$self->name." $from to $to") ;
@@ -1122,24 +1132,37 @@ sub fetch_all_values {
     
     my @keys  = $self->get_all_indexes ;
 
-    if ($self->{cargo}{type} eq 'leaf') {
-        return grep {defined $_} 
-          map { $self->fetch_with_id($_)->fetch(check => $check, mode => $mode) ;} @keys ;
+    if ( $self->{cargo}{type} eq 'leaf' ) {
+        my $ok = $check eq 'no' ? 1 : $self->check( check => $check );
+
+        if ( $ok or $check eq 'no' ) {
+            return grep { defined $_ }
+              map {
+                $self->fetch_with_id($_)
+                  ->fetch( check => $check, mode => $mode );
+              } @keys;
+        }
+        else {
+            Config::Model::Exception::WrongValue->throw(
+                error  => join( "\n\t", @{ $self->{error} } ),
+                object => $self
+            );
+        }
+
     }
     else {
-        my $info = "current keys are '".join("', '",@keys)."'." ;
-        if ($self->{cargo}{type} eq 'node') {
-            $info .= "config class is ".
-              $self->fetch_with_id($keys[0])->config_class_name ;
+        my $info = "current keys are '" . join( "', '", @keys ) . "'.";
+        if ( $self->{cargo}{type} eq 'node' ) {
+            $info .= "config class is "
+              . $self->fetch_with_id( $keys[0] )->config_class_name;
         }
-        Config::Model::Exception::WrongType
-            ->throw(
-                    object => $self,
-                    function => 'fetch_all_values',
-                    got_type => $self->{cargo}{type},
-                    expected_type => 'leaf',
-                    info => $info,
-                   )
+        Config::Model::Exception::WrongType->throw(
+            object        => $self,
+            function      => 'fetch_all_values',
+            got_type      => $self->{cargo}{type},
+            expected_type => 'leaf',
+            info          => $info,
+        );
     }
 }
 
@@ -1152,7 +1175,7 @@ are sorted alphabetically, except for ordered hashed.
 
 sub get_all_indexes {
     my $self = shift;
-    $self->create_default ; # will check itself if creationg is necessary
+    $self->create_default ; # will check itself if creation is necessary
     return $self->_get_all_indexes ;
 }
 
