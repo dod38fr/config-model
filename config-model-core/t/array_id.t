@@ -343,19 +343,19 @@ foreach my $what (qw/forbid warn suppress/) {
     
     # there we go
     if ($what eq 'forbid') {
-        throws_ok { $lwd->fetch_with_id(2) ; } "Config::Model::Exception::WrongValue", 
+        throws_ok { $lwd->fetch_all_values ; } "Config::Model::Exception::WrongValue", 
             "fails forbidden duplicates" ;
         $lwd->delete(2) ;
     }
     elsif ($what eq 'warn') {
-        warnings_like { $lwd->fetch_with_id(2) ; } qr/Duplicated/ ,
+        warnings_like { $lwd->fetch_all_values ; } qr/Duplicated/ ,
             "warns with duplicated values" ;
         $inst->apply_fixes ;
-        warnings_like { $lwd->fetch_with_id(2) ; } [] , # no warning accepted
+        warnings_like { $lwd->fetch_all_values ; } [] , # no warning accepted
             "no longer warns with duplicated values" ;
     }
     else {
-        $lwd->fetch_with_id(2) ; 
+        $lwd->check ; 
     }
     is ($lwd->fetch_with_id(0)->fetch,'string1',
         "check that original values is untouched after $what duplicates");
