@@ -159,6 +159,15 @@ found in ‘/usr/share/common-licenses/Artistic’, and the complete text of
 the latest version of the GNU General Public License version 1 can be found
 in ‘/usr/share/common-licenses/GPL-1’." } , 
     },       
+    
+    {
+        name => 'libpadre-plugin-perltidy-perl',
+        load_warnings => [ (qr/deprecated/) x 3  ],
+        check => { 
+            'Files:"*" License short_name' => "Artistic or GPL-1+" ,
+            'Files:"*" License-Alias' => 'Perl',
+        },
+    },
 );
 
 1;
