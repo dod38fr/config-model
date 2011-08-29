@@ -197,6 +197,10 @@ sub _delete {
     return delete $self->{data}{$key};
 }
 
+sub remove {
+    goto &_delete ;
+}
+
 sub _clear {
     my ($self) = @_ ;
     $self->{list} = [];
@@ -296,7 +300,7 @@ sub move {
                  )
           unless exists $self->{data}{$from} ;
 
-    my $ok = $self->check($to) ;
+    my $ok = $self->check_idx($to) ;
 
     if ($ok) {
         # this may clobber the old content of $self->{data}{$to}

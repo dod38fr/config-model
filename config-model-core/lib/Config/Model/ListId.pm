@@ -262,7 +262,7 @@ sub move {
     $self->_delete($from);
     delete $self->{warning_hash}{$from} ;
 
-    my $ok = $self->check($to) ;
+    my $ok = $self->check_idx($to) ;
     if ($ok or $check eq 'no') {
         $self->_store($to, $moved) ;
         $moved->index_value($to) ;
