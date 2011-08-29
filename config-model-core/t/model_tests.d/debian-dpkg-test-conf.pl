@@ -30,8 +30,11 @@ $skip = ( $@ or not -r '/etc/debian_version' ) ? 1 : 0;
     { 
         name => 'libversion' ,
         apply_fix => 1 ,
+        check => {
+            'control source Build-Depends-Indep:0', => 'perl',
+            'control source Build-Depends-Indep:1', => 'libdist-zilla-perl',
+        }
     }
-    # FIXME: add t2 to fix gregoa's issue
 );
 
 my $cache_file = 't/model_tests.d/debian-dependency-cache.txt';
