@@ -105,13 +105,13 @@ sub read {
             }
 
 
-            if ($key =~ /files/i) {
+            if ($key =~ /^files$/i) {
                 $logger->debug("Creating Files:$v element");
                 $v =~ s/\s*,\s*/ /g;
                 $file = $root->fetch_element('Files')->fetch_with_id(index => $v, check => $check) ;
                 $object = $file ;
             }
-            elsif ($key =~ /licen[sc]e/i) {
+            elsif ($key =~ /^licen[sc]e$/i) {
                 $logger->warn("Found UK spelling for $key: $v. $key will be converted to License")
                     if $key =~ /license/ ;
                 my $lic_node = defined $file ? $file->fetch_element('License') 
