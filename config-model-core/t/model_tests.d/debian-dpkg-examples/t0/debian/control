@@ -3,7 +3,7 @@ Section: perl
 Priority: optional
 Build-Depends: debhelper (>= 8)
 Build-Depends-Indep: perl, libconfig-model-perl (>= 1.245),
-  liblog-log4perl-perl, libtest-pod-perl, libfile-slurp-perl, libmodule-build-perl (>= 0.380000) | perl (>= 5.13.11)
+  liblog-log4perl-perl, libtest-pod-perl, libfile-slurp-perl, libmodule-build-perl (>= 0.3800) | perl (>= 5.13.11)
 Maintainer: Debian Perl Group <pkg-perl-maintainers@lists.alioth.debian.org>
 Uploaders: Dominique Dumont <domi.dumont@free.fr>,
            gregor herrmann <gregoa@debian.org>, Jonathan Yu <jawnsy@cpan.org>,
