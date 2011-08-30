@@ -209,7 +209,10 @@ sub check_depend_chain {
             next unless defined $v_decimal ;
             my $v_normal =  version->new($v_decimal)->normal ;
             $v_normal =~ s/^v//; # loose the v prefix
-            $logger->debug("check_depend_chain: dual life $dep_name aka $dep_name_as_perl[0] found in Perl core $v_normal");
+            if ($logger->debug) {
+                my $dep_str = $dep_name . ( defined $dep_v ? ' '.$dep_v : '');
+                $logger->debug("dual life $dep_str aka $dep_name_as_perl[0] found in Perl core $v_normal");
+            }
 
             # Here the dependency should be in the form perl (>= 5.10.1) | libtest-simple-perl (>= 0.88)".
             # cf http://pkg-perl.alioth.debian.org/policy.html#debian_control_handling
