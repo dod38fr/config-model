@@ -1,3 +1,22 @@
+2011-08-30  Dominique Dumont  <domi.dumont@free.fr> 1.251
+
+    * Application changes
+	* Backend Debian/Dpkg/Copyright.pm:
+  	  Fixed parser to avoid confusing License and License-Alias
+	+ model Debian/Dpkg/Control/Source.pl:
+	  warn in case of duplicated dependencies
+	* Debian/Dependency.pm: Fixed handling of dependency alternates
+	* Backend Debian/Dpkg/Patch.pm: patch write is now working
+
+    * Framework changes:
+	* Value.pm: rewrote apply_fix to use check to apply fixes. 
+	  No longer stores fixes as sub ref.
+	* AnyId.pm: rewrote apply_fix to use check to apply fixes. 
+	  Split check in a global check and dedicated index (check_idx) check
+	* AnyId.pm: Added fix_duplicates feature
+	* Instance.pm: apply_fixes: now relay the call to hash and lists objects
+	* OjTreeScanner.pm: added hooks for node_content hash_element and list_element
+
 2011-07-22  Dominique Dumont  <domi.dumont@free.fr> 1.250
 
     * Test changes
