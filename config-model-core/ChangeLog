@@ -1,3 +1,11 @@
+2011-09-01  Dominique Dumont  <domi.dumont@free.fr> 1.252
+
+    * Framework changes:
+	* AutoRead.pm: correctly handle ~ as home dir (thanks fabreg)
+	* Backend/ShellVar.pm: do not write global comments if 
+	  there's no data to write
+	* AutoRead.pm: do not leave empty files
+
 2011-08-30  Dominique Dumont  <domi.dumont@free.fr> 1.251
 
     * Application changes
