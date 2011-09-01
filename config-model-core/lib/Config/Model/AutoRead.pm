@@ -545,6 +545,9 @@ sub close_file_to_write {
     }
 
     $fh->close;
+    
+    # check file size and remove empty files
+    unlink($file_path) if -z $file_path ;
 }
 
 sub is_auto_write_for_type {
