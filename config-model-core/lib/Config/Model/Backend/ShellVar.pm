@@ -83,8 +83,8 @@ sub write {
 
     croak "Undefined file handle to write" unless defined $ioh;
 
-    $self->write_global_comment($ioh,'#') ;
 
+    my @to_write ;
     # Using Config::Model::ObjTreeScanner would be overkill
     foreach my $elt ($node->get_element_name) {
         my $obj =  $node->fetch_element($elt) ;
@@ -92,9 +92,14 @@ sub write {
 
         next unless defined $v ;
 
-        $self->write_data_and_comments($ioh,'#',qq!$elt="$v"!, $obj->annotation) ;
+        push @to_write, [ qq!$elt="$v"!, $obj->annotation ] ;
     }
 
+    if (@to_write) {
+        $self->write_global_comment($ioh,'#') ;
+        map { $self->write_data_and_comments($ioh,'#',@$_) ; } @to_write ;
+    }
+    
     return 1;
 }
 
