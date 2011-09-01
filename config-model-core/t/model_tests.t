@@ -8,6 +8,7 @@ use Log::Log4perl qw(:easy :levels) ;
 use File::Path ;
 use File::Copy ;
 use File::Copy::Recursive qw(fcopy rcopy dircopy) ;
+use File::Find ;
 use Test::Warn ;
 use Test::Exception ;
 use Test::Differences ;
@@ -87,10 +88,12 @@ foreach my $model_test_conf (@group_of_tests) {
         my $conf_file = "$wr_dir/$conf_dir/$conf_file_name" ;
 
         my $ex_data = "t/model_tests.d/$model_test-examples/$t_name" ;
+        my @file_list ;
         if (-d $ex_data) {
             # copy whole dir
             my $debian_dir = "$wr_dir/$conf_dir";
             dircopy($ex_data,$debian_dir)  || die "dircopy $ex_data -> $debian_dir failed:$!";
+            find ( { wanted => sub { push @file_list, $_ ; }, no_chdir => 1} , $debian_dir ) ;
         }
         else {
             # just copy file
@@ -168,6 +171,15 @@ foreach my $model_test_conf (@group_of_tests) {
         
         $inst->write_back ;
         ok(1,"$model_test write back done") ;
+        
+        my @new_file_list ;
+        if (-d $ex_data) {
+            # copy whole dir
+            my $debian_dir = "$wr_dir/$conf_dir";
+            find ( { wanted => sub { push @new_file_list, $_; }, no_chdir => 1} , $debian_dir ) ;
+            $t->{file_check_sub}->(\@new_file_list) if defined $t->{file_check_sub};
+            eq_or_diff(\@new_file_list, \@file_list,"check added or removed files");
+        }
 
         # create another instance to read the conf file that was just written
         my $wr_dir2 = $wr_dir.'-w' ;
