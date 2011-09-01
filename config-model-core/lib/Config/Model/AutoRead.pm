@@ -47,11 +47,14 @@ sub get_cfg_file_path {
          object => $self
         ) unless $args{config_dir};
 
-    my $dir = $args{root}.$args{config_dir} ;
-    if ($dir =~ /~/) { 
-        my $home = File::HomeDir->my_data; # Works also on Windows
-        $dir =~ s/~/$home/;
+    my $dir = $args{config_dir} ;
+    if ($dir =~ /^~/) { 
+        # also works also on Windows. Not that I care, just trying to be nice
+        my $home = File::HomeDir->my_data; 
+        $dir =~ s/^~/$home/;
     }
+    
+    $dir = $args{root}.$dir ;
     
     $dir .= '/' unless $dir =~ m!/$! ;
     if (not -d $dir and $w and $args{auto_create}) {
