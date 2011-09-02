@@ -97,7 +97,7 @@
                 type       => 'leaf',
                 value_type => 'enum',
                 choice     => [qw/Av Bv Cv/]
-            },
+            }, 
         ],
         include => 'X_base_class',
     ],
@@ -225,6 +225,12 @@ things.
                     value_type => 'enum',
                     choice     => [qw/A B C/],
                 }
+            },
+            
+            "list_with_warn_duplicates" => { 
+                type => 'list', 
+                duplicates => 'warn' , 
+                cargo => { type => 'leaf', value_type => 'string' } 
             },
             warp => {
                 type              => 'warped_node',
