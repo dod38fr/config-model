@@ -1,3 +1,7 @@
+2011-09-02  Dominique Dumont  <domi.dumont@free.fr> 1.326
+
+    * added check warning button in list viewer and editor
+
 2011-05-17  Dominique Dumont  <domi.dumont@free.fr> 1.325
 
     * TkUI.pm: disable double-click because it trigger
