@@ -3,7 +3,7 @@
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
-use Test::More tests => 119;
+use Test::More tests => 120;
 use Test::Exception ;
 use Test::Warn ;
 use Config::Model ;
@@ -460,6 +460,8 @@ is($wip -> fetch,'FOOBAR',"test if fixes were applied") ;
 ### test warn_unless parameter
 my $wup = $root->fetch_element('warn_unless') ;
 warning_like {$wup->store('bar');} qr/should match/, "test warn_unless condition" ;
+
+warning_like {$wup->check;} qr/should match/, "check warn_unless condition" ;
 
 is($wup -> has_fixes,1,"test has_fixes") ;
 $wup->apply_fixes ;
