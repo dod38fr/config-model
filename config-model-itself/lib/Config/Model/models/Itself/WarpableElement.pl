@@ -123,6 +123,18 @@
                 cargo => { type => 'leaf', value_type => 'string' },
             },
 
+            [ qw/duplicates/ ] => {
+                type       => 'leaf',
+                level      => 'hidden',
+                value_type => 'enum',
+                choice     => [qw/allow suppress warn forbid/],
+                upstream_default => 'allow',
+                warp       => {
+                    follow  => { 't'                            => '?type' },
+                    'rules' => [ '$t eq "hash" or $t eq "list"' => { level => 'normal', } ]
+                }
+            },
+
             help => {
                 type       => 'hash',
                 index_type => 'string',
@@ -155,6 +167,7 @@
             replace => 'Used for enum to substitute one value with another. This parameter must be used to enable user to upgrade a configuration with obsolete values. The old value is the key of the hash, the new one is the value of the hash',
             warn_if_key_match => 'Warn user if a key is created matching this regular expression',
             warn_unless_key_match => 'Warn user if a key is created not matching this regular expression',
+            duplicates => 'Specify the policy regarding duplicated values stored in the list or as hash values (valid only when cargo type is "leaf"). The policy can be "allow" (default), "suppress", "warn" (which offers the possibility to apply a fix), "forbid".',
         ],
     ],
 
