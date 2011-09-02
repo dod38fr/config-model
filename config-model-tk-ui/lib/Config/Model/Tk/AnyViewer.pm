@@ -231,6 +231,7 @@ sub update_warning {
 
     $ww->delete('0.0', 'end') ;
 
+    $elt_obj->check(self_check =>1 ) ;
     my $err = $elt_obj -> error_msg || '' ;
     $ww->insert('end',$err,'error') if $err ;
     

@@ -49,6 +49,7 @@ sub Populate {
     }
 
     $cw->add_annotation($list)->pack(@fx) ;
+    $cw->add_warning($list, 'view')->pack(@fx) ;
     $cw->add_summary($list)->pack(@fx) ;
     $cw->add_description($list)->pack(@fx) ;
 

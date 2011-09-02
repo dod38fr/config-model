@@ -149,6 +149,7 @@ sub Populate {
             ->pack(@fxe1);
 
 	$value_entry -> pack  (@fxe1) ;
+        $cw->add_warning($list, 'edit')->pack(@fx) ;
     }
     else {
         my $elt_name = $list->element_name;
@@ -405,6 +406,7 @@ sub remove_selection {
                :                         $list->get_all_indexes ;
     map { $_ = '<undef>' unless defined $_ } @insert ;
     $tklist->insert( end => @insert ) ;
+    $cw->update_warning($list) ;
 }
 
 sub reload_tree {
