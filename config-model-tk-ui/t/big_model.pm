@@ -232,7 +232,13 @@ things.
                 duplicates => 'warn' , 
                 cargo => { type => 'leaf', value_type => 'string' } 
             },
-            warp => {
+             "hash_with_warn_duplicates" => { 
+                type => 'hash',
+                index_type => 'string', 
+                duplicates => 'warn' , 
+                cargo => { type => 'leaf', value_type => 'string' } 
+            },
+           warp => {
                 type              => 'warped_node',
                 follow            => '! tree_macro',
                 config_class_name => 'SlaveY',
