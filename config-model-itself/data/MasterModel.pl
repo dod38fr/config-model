@@ -339,6 +339,15 @@
                 'status'     => 'deprecated',
                 'type'       => 'leaf'
             },
+            
+            ( 
+                map { 
+                    (   "list_with_".$_."_duplicates" => 
+                        { type => 'list', duplicates => $_ , cargo => { type       => 'leaf', value_type => 'string' } },
+                    );
+                } qw/warn allow forbid suppress/ 
+            ),
+            
             ## too difficult to correctly test Augeas here
             'sshd_augeas' => {
                 type              => 'node',
