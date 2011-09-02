@@ -175,7 +175,7 @@ SKIP: {
 
 	 # warn test, 3 warnings: load, fetch for hlist, fetch for editor
 	 sub { warnings_like { $root->load("always_warn=foo") ; $cmu->reload ;}
-	       [ qr/always/ , qr/always/] ,"warn test always_warn 2 ".$idx++ ;
+	       [ ( qr/always/ ) x 3 ] ,"warn test always_warn 2 ".$idx++ ;
 	     },
 	 sub { $root->load('always_warn~') ; $cmu->reload ;; ok(1,"test remove always_warn ".$idx++)},
 
@@ -185,7 +185,7 @@ SKIP: {
 	     },
 
 	 sub { warnings_like { $root->load("warn_unless=bar") ; $cmu->reload ;}
-	       [ qr/warn_unless/ ,  qr/warn_unless/] ,"warn test warn_unless ".$idx++ ;
+	       [ ( qr/warn_unless/ ) x 3 ] ,"warn test warn_unless ".$idx++ ;
 	     },
 	 sub { $root->load('warn_unless=foo2') ; $cmu->reload ;; ok(1,"test fix warn_unless ".$idx++)},
 
