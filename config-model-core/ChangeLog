@@ -1,3 +1,7 @@
+2011-09-04  Dominique Dumont  <domi.dumont@free.fr> 1.254
+
+    * fix tests that blow up with Debian build tools
+
 2011-09-02  Dominique Dumont  <domi.dumont@free.fr> 1.253
 
     * Framework changes:
