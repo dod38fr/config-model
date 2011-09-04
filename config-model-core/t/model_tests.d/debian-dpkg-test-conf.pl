@@ -1,5 +1,6 @@
 use Data::Dumper;
 use IO::File;
+use File::HomeDir ;
 
 $conf_file_name = "";
 $conf_dir       = '';
@@ -10,7 +11,8 @@ $skip = ( $@ or not -r '/etc/debian_version' ) ? 1 : 0;
 
 my $del_home = sub { 
     my $r = shift ;
-    @$r = grep { ! m(\bhome\b) } @$r ;
+    my $home = File::HomeDir->my_data; # Works also on Windows
+    @$r = grep { ! /$home/ } @$r ;
 };
 
 @tests = (
