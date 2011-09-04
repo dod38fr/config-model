@@ -1,0 +1,31 @@
+Format: http://dep.debian.net/deps/dep5/
+Upstream-Name: Dist-Zilla-Plugin-Run
+Upstream-Contact: Torsten Raudssus <torsten@raudssus.de> http://www.raudssus.de/
+Source: http://search.cpan.org/dist/Dist-Zilla-Plugin-Run/
+
+Files: *
+Copyright: 2010, Raudssus Social Software
+License: Artistic or GPL-1+
+
+
+Files: debian/*
+Copyright: 2011, Dominique Dumont <domi.dumont@free.fr>
+License: Artistic or GPL-1+
+
+
+License: Artistic
+ This program is free software; you can redistribute it and/or modify
+ it under the terms of the Artistic License, which comes with Perl.
+ .
+ On Debian systems, the complete text of the Artistic License can be
+ found in `/usr/share/common-licenses/Artistic'.
+
+License: GPL-1+
+ This program is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 1, or (at your option)
+ any later version.
+ .
+ On Debian systems, the complete text of version 1 of the GNU General
+ Public License can be found in `/usr/share/common-licenses/GPL-1'.
+
