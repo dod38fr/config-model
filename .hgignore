@@ -1,8 +1,9 @@
-/debian/
-libconfig-
-/blib/
-/_build/
+^[a-z\-]+/debian/
+^[a-z\-]+/libconfig-
+^[a-z\-]+/blib/
+^[a-z\-]+/_build/
 ~$
+\.orig$
 /wr_
 META.yml
 Build$
