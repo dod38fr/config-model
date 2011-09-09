@@ -27,12 +27,13 @@ use Config::Model::DumpAsData;
 use Config::Model::Report;
 use Config::Model::TreeSearcher;
 use Config::Model::Describe;
+use Config::Model::BackendMgr;
 use Log::Log4perl qw(get_logger :levels);
 use UNIVERSAL;
 use Scalar::Util qw/weaken/;
 use Storable qw/dclone/ ;
 
-use base qw/Config::Model::AutoRead/;
+use base qw/Config::Model::AnyThing/;
 
 use vars qw(@status @level
             @experience_list %experience_index %default_property);
@@ -656,11 +657,14 @@ sub init {
 
     my $model = $self->{model} ;
     my $ar = $self->{auto_read} ;
+    my $bmgr ;
+    
     my $check = $ar->{check} ;
     if (defined $model->{read_config} and not $ar->{skip_read} ) {
+        $bmgr = $self->{bmgr} = Config::Model::BackendMgr->new (node => $self) ;
         $ar->{done} = 1 ;
         # setup auto_read, read_config_dir is obsolete
-        $self->auto_read_init($model->{read_config}, $check, $model->{read_config_dir} );
+        $bmgr->auto_read_init($model->{read_config}, $check, $model->{read_config_dir} );
     }
 
     # use read_config data if write_config is missing
@@ -669,9 +673,20 @@ sub init {
 
     if ($model->{write_config}) {
         # setup auto_write, write_config_dir is obsolete
-        $self->auto_write_init($model->{write_config},
+        $bmgr->auto_write_init($model->{write_config},
                                $model->{write_config_dir});
     }
+}
+
+sub write_back {
+    my $self = shift ;
+    $self->{bmgr}->write_back(@_) ;
+}
+
+sub is_auto_write_for_type {
+    my $self = shift ;
+    return 0 unless defined $self->{bmgr} ;
+    return $self->{bmgr}->is_auto_write_for_type(@_) ;
 }
 
 =head1 Introspection methods
