@@ -35,12 +35,20 @@ my $logger = get_logger('Data') ;
 
 # one BackendMgr per file
 
-has 'node'       => ( is => 'ro', isa => 'Config::Model::Node', 
-		      weak_ref => 1, required => 1 ) ;
-has 'file_backup' => ( is => 'rw') ;
-has 'backend' => ( is => 'rw', ) ;
-has 'backend_obj' => ( is => 'rw', isa => 'Config::Model::Backend::Any' ) ;
-
+has 'node' => (
+    is       => 'ro',
+    isa      => 'Config::Model::Node',
+    weak_ref => 1,
+    required => 1
+);
+has 'file_backup' => ( is => 'rw', isa => 'ArrayRef', default => sub { [] } );
+has 'backend' => (
+    is      => 'rw',
+    isa     => 'HashRef[Config::Model::Backend::Any]',
+    traits    => ['Hash'],
+    default => sub { {} },
+    handles => { set_backend => 'set', get_backend => 'get' }
+);
 
 sub get_cfg_file_path {
     my $self = shift ; 
@@ -125,7 +133,7 @@ sub open_read_file {
         $fh->open($file_path);
         $fh->binmode(":utf8");
         # store a backup in memory in case there's a problem
-        $self->{file_backup} = [ $fh-> getlines ] ;
+        $self->file_backup( [ $fh-> getlines ] ) ;
         $fh->seek(0,0) ; # go back to beginning of file
         return ($file_path,$fh) ;
     }
@@ -284,8 +292,8 @@ sub auto_read_init {
             next unless defined $c;
 
             no strict 'refs';
-            my $backend_obj = $self->{backend}{$backend} 
-              = $c->new(node => $self->node, name => $backend) ;
+            my $backend_obj = $c->new(node => $self->node, name => $backend) ;
+            $self->set_backend($backend => $backend_obj) ; 
             my $suffix ;
             $suffix = $backend_obj->suffix if $backend_obj->can('suffix');
             my ($file_path,$fh) = $self->open_read_file(@read_args,
@@ -444,7 +452,7 @@ sub auto_write_init {
             $wb = sub {
                 no strict 'refs';
                 $logger->debug("write cb ($backend) called for ",$self->node->name);
-                my $backend_obj =  $self->{backend}{$backend}
+                my $backend_obj =  $self->get_backend($backend)
                                 || $c->new(node => $self->node, name => $backend) ;
                 my $file_path ;
                 my $suffix ;
@@ -546,7 +554,7 @@ sub close_file_to_write {
     
     if ($error) {
         # restore backup and display error
-        my $data = $self->{file_backup} || [];
+        my $data = $self->file_backup ;
         $logger->debug("Error during write, restoring backup in $file_path with ".scalar @$data." lines");
         $fh->seek(0,0) ; # go back to beginning of file
         $fh->print(@$data);
