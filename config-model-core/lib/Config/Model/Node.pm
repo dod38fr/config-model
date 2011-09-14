@@ -1760,8 +1760,10 @@ Returns a L<Config::Model::TreeSearcher> object.
 
 sub tree_searcher {
     my $self = shift;
+    my %args = @_ ;
     
-    return Config::Model::TreeSearcher->new ( node => $self, @_ );
+    $args{search_type} = delete $args{type} ;
+    return Config::Model::TreeSearcher->new ( node => $self, %args );
 }
 
 1;
