@@ -21,7 +21,7 @@ if (not grep (/fuse/, @lsmod)) {
       plan skip_all => "fuse module is not loaded" ;
 }
 
-if (not grep (/is/ , `bash -c 'type fusermount'`) ) {
+if (not grep (m!/! , `bash -c 'type fusermount'`) ) {
       plan skip_all => "fusermount not found" ;
 }
 
