@@ -626,7 +626,13 @@ sub new {
 
     $self->{index_value} = delete $args{index_value} ;
     my $skip_read = delete $args{skip_read} ;
-    my $check = $self->_check_check(delete $args{check}) ;
+    my $req_check = $self->_check_check(delete $args{check}) ;
+    my $read_check = $self->instance->read_check;
+    
+    my $check = $req_check eq 'no'   || $read_check eq 'no'   ? 'no'
+              : $req_check eq 'skip' || $read_check eq 'skip' ? 'skip' 
+              :                                                 'yes' ;
+    
     
     $self->{auto_read} = { skip => delete $args{skip_read}, check => $check };
     

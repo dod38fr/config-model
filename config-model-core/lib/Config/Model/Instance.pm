@@ -137,8 +137,9 @@ sub new {
     confess __PACKAGE__," error: config_model is not a Config::Model object"
       unless $config_model->isa('Config::Model') ; 
 
-    my $check = delete $args{check} || 'yes' ;
-    $check = 'no' if delete $args{force_load} ;
+    my $read_check = delete $args{check} || 'yes' ;
+    carp "instance new: force_load is deprecated" if defined $args{force_load} ;
+    $read_check = 'no' if delete $args{force_load} ;
 
     my $self 
       = {
@@ -152,6 +153,8 @@ sub new {
 	 # to store information
 	 safe => {
 		 } ,
+
+        read_check => $read_check ,
 
 	 # preset mode to load values found by HW scan or other
 	 # automatic scheme
@@ -184,7 +187,7 @@ sub new {
 
     bless $self, $class;
 
-    $self->reset_config(check => $check ) ;
+    $self->reset_config() ;
 
     return $self ;
 }
@@ -212,6 +215,16 @@ sub config_root {
     return shift->{tree} ;
 }
 
+=head2 read_check()
+
+Returns how to check read files.
+
+=cut
+
+sub read_check {
+    return shift->{read_check} ;
+}
+
 =head2 reset_config
 
 Destroy current configuration tree (with data) and returns a new tree with
@@ -227,7 +240,6 @@ sub reset_config {
 	       instance => $self,
 	       config_model => $self->{config_model},
 	       skip_read  => $self->{skip_read},
-	       check => $args{check} ,
 	     );
 
     # $self->{annotation_saver} = Config::Model::Annotation
