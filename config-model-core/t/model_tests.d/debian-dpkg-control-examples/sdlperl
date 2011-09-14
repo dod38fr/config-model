@@ -1,0 +1,22 @@
+Source: sdlperl
+Section: perl
+Priority: optional
+Maintainer: Debian SDL packages maintainers <pkg-sdl-maintainers@lists.alioth.debian.org>
+Uploaders: Matthew Danish <mrd@debian.org>, Zephaniah E. Hull <warp@debian.org>, Sam Hocevar (Debian packages) <sam+deb@zoy.org>, Aurelien Jarno <aurel32@debian.org>, Josselin Mouette <joss@debian.org>,
+ Ryan Niebur <ryan@debian.org>
+Build-Depends: debhelper (>= 7.0.50), quilt (>= 0.46-7), perl (>= 5.8), perl-modules (>= 5.10) | libmodule-build-perl, libtest-simple-perl, libsdl1.2-dev (>= 1.2.5-3), libsdl-image1.2-dev, libsdl-mixer1.2-dev (>= 1.2.5-2), libsdl-ttf2.0-dev, libsdl-gfx1.2-dev, libsdl-net1.2-dev, libyaml-perl
+Standards-Version: 3.8.3
+Homepage: http://sdl.perl.org/
+Vcs-Svn: svn://svn.debian.org/svn/pkg-sdl/unstable/sdlperl
+Vcs-Browser: http://svn.debian.org/viewsvn/pkg-sdl/unstable/sdlperl/
+
+Package: libsdl-perl
+Architecture: any
+Depends: ${perl:Depends}, ${shlibs:Depends}, ${misc:Depends}
+Suggests: ttf-freefont
+Conflicts: frozen-bubble (<= 1.0.0-4)
+Description: SDL bindings for the Perl language
+ SDL is a library that allows programs portable low level access to
+ a video framebuffer, audio output, mouse, and keyboard. This perl
+ package contains Perl bindings to access the SDL library.
+

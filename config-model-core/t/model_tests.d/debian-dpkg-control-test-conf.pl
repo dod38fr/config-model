@@ -90,6 +90,13 @@ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx providing the following file:
         check => { 'source X-Python-Version' => ">= 2.3" },
         load_warnings => [ (qr/deprecated/) x 2 ],
     },
+    {
+        name => 'sdlperl',
+        load => 'source Uploaders:2="Sam Hocevar (Debian packages) <sam@zoy.org>"',
+        load_warnings => [ ( qr/Warning/) x 7 ],
+        load_check => 'no',
+        apply_fix => 1,
+    },
 );
 
 my $cache_file = 't/model_tests.d/debian-dependency-cache.txt';
