@@ -2374,24 +2374,9 @@ an exception. If this exception is not caught, the programs exits.
 See L<Config::Model::Exception|Config::Model::Exception> for details on
 the various exception classes provided with C<Config::Model>.
 
-=head1 Log and Traces
+=head1 Logging
 
-Currently a rather lame trace mechanism is provided:
-
-=over
-
-=item *
-
-Set C<$::debug> to 1 to get debug messages on STDOUT.
-
-=item *
-
-Set C<$::verbose> to 1 to get verbose messages on STDOUT.
-
-=back
-
-Depending on available time, a better log/error system may be
-implemented.
+See L<config-edit/Logging>
 
 =head1 BUGS
 
@@ -2447,7 +2432,7 @@ The arrow shows the inheritance of the classes
 
 =item *
 
-L<Config::Model::Node> <- L<Config::Model::AutoRead> <- L<Config::Model::AnyThing>
+L<Config::Model::Node> <- L<Config::Model::AnyThing>
 
 =item *
 
@@ -2468,7 +2453,6 @@ L<Config::Model::CheckList> <- L<Config::Model::AnyThing>
 =item *
 
 L<Config::Model::WarpedNode> <- L<Config::Model::AnyThing>
-
 
 =back
 
@@ -2509,6 +2493,10 @@ L<Config::Model::Backend::Yaml> <- L<Config::Model::Backend::Any>
 =item *
 
 L<Config::Model::Annotation>
+
+=item *
+
+L<Config::Model::BackendMgr>: Used by C<Config::Model::Node> object
 
 =item *
 

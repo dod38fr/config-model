@@ -629,11 +629,10 @@ When C<-save> option is used
 You can run safely C<config-edit -ui none> to test a configuration,
 configuration files will not be modified in this case.
 
-=head1 LOGGING
+=head1 Logging
 
-All Config::Model logging is (slowly) moved from klunky debug and
-verbose prints to L<Log::Log4perl>. Logging can be configured in the
-following files:
+All Config::Model logging is now based on L<Log::Log4perl>. 
+Logging can be configured in the following files:
 
 =over
 
