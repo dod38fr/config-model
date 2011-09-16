@@ -32,7 +32,7 @@ enum ('SearchType' =>  @search_types, 'all');
 has 'node'  => ( is => 'ro', isa => 'Config::Model::Node' , 
                   weak_ref => 1, required => 1 );
 
-has 'search_type' => ( is => 'ro', isa => 'SearchType' ) ;
+has 'type' => ( is => 'ro', isa => 'SearchType' ) ;
 
 has '_type_hash' => (
     is =>'rw',
@@ -45,7 +45,7 @@ my $logger = get_logger("TreeSearcher") ;
 
 sub _build_type_hash {
     my $self = shift ;
-    my $t = $self->search_type ;
+    my $t = $self->type ;
     my $def = $t eq 'all' ? 1 : 0 ;
     my %res=  map { $_ => $def ;} @search_types ;
     $res{$t} = 1 unless $t eq 'all' ;
