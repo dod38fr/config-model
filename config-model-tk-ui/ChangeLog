@@ -1,3 +1,11 @@
+2011-09-16  Dominique Dumont  <domi.dumont@free.fr> 1.327
+
+    * TkUI.pm:
+      * Fixed bug where force display did not work with hash 
+        keys containing non alphanumeric of space
+      * Changed logger class to TkUI (instead of 
+        Config::Model::TkUI)
+
 2011-09-02  Dominique Dumont  <domi.dumont@free.fr> 1.326
 
     * added check warning button in list viewer and editor
