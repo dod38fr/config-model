@@ -68,6 +68,39 @@
         'ordered' => '1',
         'type' => 'hash',
         'index_type' => 'string'
+      },
+      'compat',
+      {
+        'value_type' => 'integer',
+        'default' => '7',
+        'type' => 'leaf',
+        'description' => 'compat file defines the debhelper compatibility level'
+      },
+      'dirs',
+      {
+        'cargo' => {
+          'value_type' => 'uniline',
+          'warn' => 'Make sure that this directory is actually needed. See L<http://www.debian.org/doc/manuals/maint-guide/dother.en.html#dirs> for details',
+          'type' => 'leaf'
+        },
+        'summary' => 'Extra directories',
+        'type' => 'list',
+        'description' => 'This file specifies any directories which we need but which are not created by the normal installation procedure (make install DESTDIR=... invoked by dh_auto_install). This generally means there is a problem with the Makefile.
+
+Files listed in an install file don\'t need their directories created first. 
+
+It is best to try to run the installation first and only use this if you run into trouble. There is no preceding slash on the directory names listed in the dirs file. '
+      },
+      'docs',
+      {
+        'cargo' => {
+          'value_type' => 'uniline',
+          'type' => 'leaf'
+        },
+        'type' => 'list',
+        'description' => 'This file specifies the file names of documentation files we can have dh_installdocs(1) install into the temporary directory for us.
+
+By default, it will include all existing files in the top-level source directory that are called BUGS, README*, TODO etc. '
       }
     ]
   }
