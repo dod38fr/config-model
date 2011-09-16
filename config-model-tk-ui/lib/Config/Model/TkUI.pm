@@ -695,7 +695,8 @@ sub disp_hash {
 
 	my $elt_loc = $node_loc ;
 	$elt_loc .=' ' if $elt_loc;
-	$elt_loc .= $element_name.':'.($idx =~ / / ? '"'.$idx.'"' : $idx);
+	# need to keep regexp identical to the one from C::M::Anything:composite_name
+	$elt_loc .= $element_name.':'.($idx =~ /\W/ ? '"'.$idx.'"' : $idx);
 
 	# hide new entry if hash is not yet opened
 	$cw->setmode('hash',$newpath,$eltmode,$elt_loc,$fd_path,$opening,$scan_sub) ;
