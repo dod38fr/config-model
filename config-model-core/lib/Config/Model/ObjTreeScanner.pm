@@ -561,7 +561,6 @@ sub scan_element {
 
     my $element_type = $node->element_type($element_name);
 
-    return unless defined $element_type; # element may not be initialized
     my $autov = $self->{auto_vivify} ;
 
     #print "scan_element $element_name ";
