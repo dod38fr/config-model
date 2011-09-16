@@ -164,7 +164,7 @@ sub write {
             @v = map { "$_\n" } $obj->fetch_all_values;
         }
         else {
-            $logger->debug("PlainFile write skiped $type $elt");
+            $logger->debug("PlainFile write skipped $type $elt");
         }
 
         if (@v) {
@@ -232,22 +232,7 @@ This module supports currently only leaf and list elements.
 In the case of C<list> element, each line of the file is a value of the list.
 
 
-=head1 CONSTRUCTOR
-
-=head2 new ( node => $node_obj, name => 'plain_file' ) ;
-
-Inherited from L<Config::Model::Backend::Any>. The constructor will be
-called by L<Config::Model::AutoRead>.
-
-=head2 read ( io_handle => ... )
-
-Of all parameters passed to this read call-back, only C<io_handle> is
-used. This parameter must be L<IO::File> object already opened for
-read. 
-
-It can also be undef. In this case, C<read()> will return 0.
-
-When a file is read,  C<read()> will return 1.
+=head1 Methods
 
 =head2 read_leaf (obj,elt,check,file,args);
 
@@ -262,13 +247,10 @@ Like L<read_leaf> for hash elements.
 
 Like L<read_leaf> for list elements.
 
-=head2 write ( io_handle => ... )
+=head2 write ( )
 
-Of all parameters passed to this write call-back, only C<io_handle> is
-used. This parameter must be L<IO::File> object already opened for
-write. 
-
-C<write()> will return 1.
+C<write()> will write a file for each element of the calling class. Works only for 
+leaf and list elements. Other element type are skipped. Always return 1 (unless it died before).
 
 =head1 AUTHOR
 
