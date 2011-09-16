@@ -51,7 +51,7 @@ $icon_path = $INC{$mod_file} ;
 $icon_path =~ s/TkUI.pm//;
 $icon_path .= 'Tk/icons/' ;
 
-my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+my $logger = Log::Log4perl::get_logger('TkUI');
 
 no warnings "redefine" ;
 
