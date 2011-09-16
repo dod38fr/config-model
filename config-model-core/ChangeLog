@@ -1,7 +1,13 @@
-2011-09-15  Dominique Dumont  <domi.dumont@free.fr> 1.256
+2011-09-16  Dominique Dumont  <domi.dumont@free.fr> 1.256
+
     * Application changes
         * Dpkg control model: warn (and offer to fix) duplicated 
           dependencies
+        + Dpkg model: new compat docs and dirs parameters
+
+    * Framework changes:
+        * TreeSearcher.pm: properly fix conflict between method name and
+          Moose::Util::TypeConstraints
 
 2011-09-15  Dominique Dumont  <domi.dumont@free.fr> 1.255
 
