@@ -29,6 +29,11 @@ use Carp;
 my @search_types = qw/element value key summary description help/;
 enum ('SearchType' =>  @search_types, 'all');
 
+# clean up namespace to avoid clash between MUTC keywords and
+# my functions
+# See http://www.nntp.perl.org/group/perl.moose/2010/10/msg1935.html
+no Any::Moose '::Util::TypeConstraints';
+
 has 'node'  => ( is => 'ro', isa => 'Config::Model::Node' , 
                   weak_ref => 1, required => 1 );
 
