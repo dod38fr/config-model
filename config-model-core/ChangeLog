@@ -1,3 +1,15 @@
+2011-09-15  Dominique Dumont  <domi.dumont@free.fr> 1.256
+    * Application changes
+        * Dpkg control model: warn (and offer to fix) duplicated 
+          dependencies
+
+2011-09-15  Dominique Dumont  <domi.dumont@free.fr> 1.255
+
+    * Framework changes:
+        * Instance.pm, Node.pm: take into account force_load 
+          with delayed loading of config files
+        * BackendMgr.pm: New Moose class (renamed from AutoLoader)
+
 2011-09-04  Dominique Dumont  <domi.dumont@free.fr> 1.254
 
     * fix tests that blow up with Debian build tools
