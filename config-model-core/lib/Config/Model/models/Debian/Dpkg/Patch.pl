@@ -3,7 +3,7 @@
     'read_config' => [
       {
         'backend' => 'Debian::Dpkg::Patch',
-        'config_dir' => 'patches'
+        'config_dir' => 'debian/patches'
       }
     ],
     'name' => 'Debian::Dpkg::Patch',

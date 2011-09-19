@@ -33,9 +33,10 @@ sub read_hash {
     my ($self,$obj,$elt, $file,$check,$args) = @_;
 
     if ($elt eq 'patches') {
-        $logger->info("Checking patches directory");
+        my $patch_dir = $args->{root}.$args->{config_dir}."patches" ;
+        $logger->info("Checking patches directory ($patch_dir)");
 
-        $self->read_patch_series($obj,$check,$args->{root}."patches") ;
+        $self->read_patch_series($obj,$check,$patch_dir) ;
     }
     else {
         $self->SUPER::read_hash(@_) ;
