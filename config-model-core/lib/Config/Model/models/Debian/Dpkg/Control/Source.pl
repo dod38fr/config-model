@@ -113,7 +113,7 @@ The archive area and section for each package should be specified in the package
       {
         'compute' => {
           'use_eval' => '1',
-          'formula' => '$maintainer =~ /pkg-perl/ ? "http://anonscm.debian.org/gitweb/?p=pkg-perl/packages/$pkgname.git" : \'\' ;',
+          'formula' => '$maintainer =~ /pkg-perl/ ? "http://anonscm.debian.org/gitweb/?p=pkg-perl/packages/$pkgname.git" : undef ;',
           'variables' => {
             'maintainer' => '- Maintainer',
             'pkgname' => '- Source'
