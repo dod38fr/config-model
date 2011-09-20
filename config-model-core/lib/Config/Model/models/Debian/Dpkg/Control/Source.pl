@@ -111,6 +111,15 @@ The archive area and section for each package should be specified in the package
       },
       'Vcs-Browser',
       {
+        'compute' => {
+          'use_eval' => '1',
+          'formula' => '$maintainer =~ /pkg-perl/ ? "http://anonscm.debian.org/gitweb/?p=pkg-perl/packages/$pkgname.git" : \'\' ;',
+          'variables' => {
+            'maintainer' => '- Maintainer',
+            'pkgname' => '- Source'
+          },
+          'allow_override' => '1'
+        },
         'value_type' => 'uniline',
         'summary' => 'web-browsable URL of the VCS repository',
         'match' => '^http://',
@@ -157,6 +166,15 @@ The information is meant to be useful for a user knowledgeable in the given Vers
       },
       'Vcs-Git',
       {
+        'compute' => {
+          'use_eval' => '1',
+          'formula' => '$maintainer =~ /pkg-perl/ ? "git://git.debian.org/pkg-perl/packages/$pkgname.git" : \'\' ;',
+          'variables' => {
+            'maintainer' => '- Maintainer',
+            'pkgname' => '- Source'
+          },
+          'allow_override' => '1'
+        },
         'value_type' => 'uniline',
         'summary' => 'URL of the VCS repository',
         'type' => 'leaf',
