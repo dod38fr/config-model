@@ -111,7 +111,8 @@ sub write {
         next unless defined $v and $v;
         
         if ($elt eq 'Synopsis') {
-            $v .= "\n" . $node->fetch_element_value('Description') ;
+            my $long_description = $node->fetch_element_value('Description') ;
+            $v .= "\n" . $long_description if $long_description ;
             $io->print("Description:");
             $self->write_dpkg_text($io,$v) ;
         }
