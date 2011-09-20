@@ -107,7 +107,7 @@ sub write {
             @v = map { "$_\n" } $obj->fetch_all_values ;
         }
         else {
-            $logger->debug("Debian::Dpkg write skiped $type $elt");
+            $logger->debug("Debian::Dpkg write skipped $type $elt");
         }
 
 
