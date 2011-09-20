@@ -662,15 +662,17 @@ sub init {
     $self->{initialized} = 1 ; # avoid recursions
 
     my $model = $self->{model} ;
+    
+    return unless defined $model->{read_config} or defined $model->{write_config} ;
+    $self->{bmgr} ||= Config::Model::BackendMgr->new (node => $self) ;
+    
     my $ar = $self->{auto_read} ;
-    my $bmgr ;
     
     my $check = $ar->{check} ;
     if (defined $model->{read_config} and not $ar->{skip_read} ) {
-        $bmgr = $self->{bmgr} = Config::Model::BackendMgr->new (node => $self) ;
         $ar->{done} = 1 ;
         # setup auto_read, read_config_dir is obsolete
-        $bmgr->auto_read_init($model->{read_config}, $check, $model->{read_config_dir} );
+        $self->{bmgr}->auto_read_init($model->{read_config}, $check, $model->{read_config_dir} );
     }
 
     # use read_config data if write_config is missing
@@ -679,8 +681,8 @@ sub init {
 
     if ($model->{write_config}) {
         # setup auto_write, write_config_dir is obsolete
-        $bmgr->auto_write_init($model->{write_config},
-                               $model->{write_config_dir});
+        $self->{bmgr}->auto_write_init($model->{write_config},
+                                       $model->{write_config_dir});
     }
 }
 
