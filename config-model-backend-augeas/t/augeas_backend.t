@@ -108,7 +108,7 @@ is_deeply([<AUG>],\@expect,"check content of $aug_file") ;
 close AUG;
 
 # check directly the content of augeas
-my $augeas_obj = $i_root->{backend}{augeas}->_augeas_object ;
+my $augeas_obj = $i_root->{bmgr}->get_backend('augeas')->_augeas_object ;
 
 my $nb = $augeas_obj -> count_match("/files/etc/hosts/*") ;
 is($nb,4,"Check nb of hosts in Augeas") ;
@@ -159,7 +159,7 @@ close SSHD ;
 my $sshd_root = $i_sshd->config_root ;
 $sshd_root->init; # required by Config::Model 1.236
 
-my $ssh_augeas_obj = $sshd_root->{backend}{augeas}->_augeas_object ;
+my $ssh_augeas_obj = $sshd_root->{bmgr}->get_backend('augeas')->_augeas_object ;
 
 $ssh_augeas_obj->print('/files/etc/ssh/sshd_config/*') if $trace;
 #my @aug_content = $ssh_augeas_obj->match("/files/etc/ssh/sshd_config/*") ;

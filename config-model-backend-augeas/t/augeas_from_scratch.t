@@ -79,7 +79,7 @@ ok( $i_sshd, "Created instance for /etc/ssh/sshd_config" );
 my $sshd_root = $i_sshd->config_root ;
 $sshd_root->init ;
 
-my $ssh_augeas_obj = $sshd_root->{backend}{augeas}->_augeas_object ;
+my $ssh_augeas_obj = $sshd_root->{bmgr}->get_backend('augeas')->_augeas_object ;
 
 $ssh_augeas_obj->print('/files/etc/ssh/sshd_config/*') if $trace;
 #my @aug_content = $ssh_augeas_obj->match("/files/etc/ssh/sshd_config/*") ;
