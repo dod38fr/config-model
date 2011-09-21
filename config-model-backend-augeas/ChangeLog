@@ -1,3 +1,11 @@
+2011-09-21  Dominique Dumont  <domi.dumont@free.fr> v0.110
+
+        * Moosified C::M::Backend::Augeas (fixes Debian #642156)
+        * Build.PL:
+          + require Any::Moose
+          * require Config::Model 1.255
+
+
 2010-12-13  Dominique Dumont  <dominique.dumont@hp.com> v0.109
 
         * updated tests to work with Config::Model 1.236
