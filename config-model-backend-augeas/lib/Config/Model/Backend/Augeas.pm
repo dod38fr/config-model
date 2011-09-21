@@ -17,11 +17,14 @@
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 
 package Config::Model::Backend::Augeas ;
-use Carp;
-use strict;
-use warnings ;
+use Any::Moose ;
+use Carp ;
+use Log::Log4perl qw(get_logger :levels);
+ 
+extends 'Config::Model::Backend::Any';
+
 use Config::Model::Exception ;
-use UNIVERSAL ;
+
 use File::Path;
 use Log::Log4perl qw(get_logger :levels);
 
@@ -29,7 +32,11 @@ my $has_augeas = 1;
 eval { require Config::Augeas ;} ;
 $has_augeas = 0 if $@ ;
 
-our $VERSION = '0.109';
+our $VERSION = '0.110';
+
+my $logger =  get_logger('Backend::Augeas') ;
+
+sub suffix { return '';}
 
 =head1 NAME
 
@@ -207,14 +214,6 @@ will hold the configuration data retrieved by Augeas.
 
 =cut
 
-sub new {
-    my $type = shift ;
-    my %args = @_ ;
-    my $node = $args{node} || croak "write: missing node parameter";
-    my $self = { node => $node } ;
-    bless $self,$type ;
-}
-
 # for tests only
 sub _augeas_object {return shift->{augeas_obj} ; } ;
 
@@ -244,7 +243,6 @@ sub read
     }
 
     my $cdir = $args{root}.$args{config_dir} ;
-    my $logger =  get_logger('Data::Read') ;
     $logger->info( "Read config data through Augeas in directory '$cdir' ".
 		   "file $args{file}");
 
