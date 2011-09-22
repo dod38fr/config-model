@@ -760,6 +760,18 @@ sub apply_fixes {
 
 }
 
+=head2 has_fixes
+
+Returns the number of fixes that can be applied to the current value. 
+
+=cut
+
+sub has_fixes {
+    my $self = shift; 
+    return $self->{nb_of_fixes} ;
+}
+
+
 
 my %check_idx_dispatch =
   map { ( $_ => 'check_' . $_ ); }
@@ -777,6 +789,9 @@ sub check {
     my $silent = $args{silent} || 0 ;
     my $check = $args{check} || 'yes' ;
     my $apply_fix = $args{fix} || 0 ;
+
+    # need to keep track to update GUI
+    $self->{nb_of_fixes} = 0; # reset before check
 
     Config::Model::Exception::Internal
         -> throw (
@@ -965,6 +980,7 @@ sub check_duplicates {
     elsif ($dup eq 'warn') {
         $logger->debug("warning condition: found duplicate @issues");
         push @$warn, "Duplicated value: @issues";
+        $self->{nb_of_fixes} += scalar @issues ;
     }
     elsif ($dup eq 'suppress') {
         $logger->debug("suppressing duplicates @issues");
