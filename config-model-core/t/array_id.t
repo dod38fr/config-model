@@ -11,7 +11,7 @@ use Config::Model;
 use Config::Model::AnyId;
 use Log::Log4perl qw(:easy :levels) ;
 
-BEGIN { plan tests => 86; }
+BEGIN { plan tests => 87; }
 
 use strict;
 
@@ -340,6 +340,7 @@ foreach my $what (qw/forbid warn suppress/) {
     my $lwd = $root->fetch_element('list_with_'.$what.'_duplicates');
     $lwd->push(qw/string1 string2/);
     $lwd->push('string1'); # does not trigger duplicate issues, yet
+    $lwd->push('string1'); # does not trigger duplicate issues, yet
     
     # there we go
     if ($what eq 'forbid') {
@@ -350,6 +351,7 @@ foreach my $what (qw/forbid warn suppress/) {
     elsif ($what eq 'warn') {
         warnings_like { $lwd->fetch_all_values ; } qr/Duplicated/ ,
             "warns with duplicated values" ;
+        is($lwd->has_fixes, 2,"check nb of fixes") ;
         $inst->apply_fixes ;
         warnings_like { $lwd->fetch_all_values ; } [] , # no warning accepted
             "no longer warns with duplicated values" ;
