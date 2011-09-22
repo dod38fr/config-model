@@ -74,6 +74,7 @@ The archive area and section for each package should be specified in the package
           'class' => 'Config::Model::Debian::Dependency',
           'type' => 'leaf'
         },
+        'duplicates' => 'warn',
         'type' => 'list'
       },
       'Build-Depends-Indep',
