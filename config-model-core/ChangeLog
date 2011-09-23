@@ -1,3 +1,19 @@
+2011-09-16  Dominique Dumont  <domi.dumont@free.fr> 1.257
+
+    * Framework changes:
+        * config-edit: avoid deprecation warning
+        * C::M::AnyId: enable automtic fix of duplicated values
+        * C::M::Node: Create BackendMgr when read_config or write_config 
+          is defined (Fixes Debian FTBS in Config::Model::TkUI See #642157)
+
+    * Application changes
+        + models Debian::Dpkg::Control::Binary and Source:
+          added duplicates warning in dependencies
+        + model Debian::Dpkg::Control::Source:
+          compute Vcs-Browser and Vcs-Git default value for pkg-perl team
+        * model Debian::Dpkg::Patch: No need for a first capital letter 
+          restriction. Look for debian patches in the correct places
+
 2011-09-16  Dominique Dumont  <domi.dumont@free.fr> 1.256
 
     * Application changes
