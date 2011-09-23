@@ -428,7 +428,7 @@ if (defined $gen_pod) {
 my $inst = $model->instance (root_class_name => $root_model ,
 			     instance_name   => $instance_name ,
 			     root_dir        => $root_dir ,
-			     force_load      => $force_load,
+			     check           => $force_load ? 'no' : 'yes',
 			     skip_read       => $load ? 1 : 0,
 			     backend         => $backend,
 			    );
