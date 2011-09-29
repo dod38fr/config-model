@@ -1,20 +1,3 @@
-#    Copyright (c) 2005-2010 Dominique Dumont.
-#
-#    This file is part of Config-Model.
-#
-#    Config-Model is free software; you can redistribute it and/or
-#    modify it under the terms of the GNU Lesser Public License as
-#    published by the Free Software Foundation; either version 2.1 of
-#    the License, or (at your option) any later version.
-#
-#    Config-Model is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#    Lesser Public License for more details.
-#
-#    You should have received a copy of the GNU Lesser Public License
-#    along with Config-Model; if not, write to the Free Software
-#    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 
 package Config::Model::ValueComputer ;
 
@@ -422,10 +405,8 @@ sub compute {
         }
     }
     else {
-        $logger->debug(
-            "compute: calling parser with compute on pre_formula $pre_formula");
-        my $formula_r =
-          $compute_parser->compute( $pre_formula, 1, @parser_args);
+        $logger->debug( "calling parser with compute on pre_formula $pre_formula");
+        my $formula_r = $compute_parser->compute( $pre_formula, 1, @parser_args);
 
         $result = $$formula_r;
 
@@ -553,6 +534,7 @@ sub compute_variables {
 sub _pre_replace {
     my ( $replace_h, $pre_value ) = @_;
 
+    $logger->debug("value: _pre_replace called with value '$pre_value'");
     my $result =
       exists $replace_h->{$pre_value}
       ? $replace_h->{$pre_value}
@@ -561,9 +543,9 @@ sub _pre_replace {
 }
 
 sub _replace {
-    my ( $replace_h, $value, $value_object ) = @_;
+    my ( $replace_h, $value, $value_object, $variables, $replace, $check, $need_quote, $undef_is) = @_;
 
-    # print "value: replacement, value '$value'\n";
+    $logger->debug("value: _replace called with value '$value'");
     my $result;
     if ( defined $value and $value =~ /\$/ ) {
 
@@ -571,12 +553,8 @@ sub _replace {
         $result = '$replace{' . $value . '}';
     }
     elsif ( defined $value ) {
-        Config::Model::Exception::Formula->throw(
-            object => $value_object,
-            error  => "Unknown replacement value for replace: " . "'$value'\n"
-        ) unless defined $replace_h->{$value};
-
-        $result = $replace_h->{$value};
+        my $r = $replace_h->{$value};
+        $result = defined $r ? $r : $undef_is;
     }
     return \$result;
 }
@@ -687,8 +665,11 @@ sub _compute {
 
     my @values = map { $$_ } @{$value_ref};
 
-    # print "compute return is '",join("','",@values),"'\n";
-
+    if ($logger->is_debug) {
+        my @display = map { defined $_ ? $_ : '<undef>' } @values ;
+        $logger->debug("_compute called with values '",join("','",@display));
+    }
+           
     my $result = '';
 
     # return undef if one value is undef
@@ -813,8 +794,8 @@ compute:  <skip:''> value[@arg](s) {
 }
 
 value: 
-  <skip:''> '$replace' '{' <commit> /\s*/ value[@arg] /\s*/ '}' {
-    $return = Config::Model::ValueComputer::_replace($arg[2], ${ $item{value} },@arg ) ;
+  <skip:''> '$replace' '{' <commit> /\s*/ value_to_replace[@arg] /\s*/ '}' {
+    $return = Config::Model::ValueComputer::_replace($arg[2], ${ $item{value_to_replace} },@arg ) ;
   }
   |  <skip:''> /\$(\d+|_)\b/ { 
      my $result = $item[-1] ;
@@ -829,6 +810,16 @@ value:
      $return = \$result ;
   }
 
+value_to_replace:
+  <skip:''> object <commit> {
+    $return = Config::Model::ValueComputer::_value_from_object($item{object},@arg ) ;
+    1;
+  }
+  |  <skip:''> /[\w\-\.+]*/ { 
+     my $result = $item[-1] ;
+     $return = \$result ;
+  }
+  
 object: <skip:''> /\$/ /[a-zA-Z]\w*/
 
 function: <skip:''> '&' /\w+/
