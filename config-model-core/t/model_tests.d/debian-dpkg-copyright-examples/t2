@@ -1,7 +1,7 @@
 Format-Specification: http://svn.debian.org/wsvn/dep/web/deps/dep5.mdwn?op=file&amp;rev=135
 Source: http://some.where.com
 
-Files: src/js/editline/*
+Files: *
 Copyright: 1993, John Doe
            1993, Joe Average
 License: MPL-1.1
