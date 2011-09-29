@@ -47,75 +47,141 @@ sub read {
     
     my $root = $args{object} ;
     my $file;
-    $logger->info("First pass to read pure license sections from $args{file} control file");
+    my %license_paragraph ;
+    my @license_names ;
+    my %file_paragraph ;
+    my @file_names ;
+
+    my @header = @{ shift @$c } ;
+
+    my $section_nb = 1 ; # header was already done
     foreach my $section (@$c) {
-        next unless $section->[0] =~ /licen[sc]e/i;
-        my ($lic_key,$lic_v) =  @$section ; # extra keys are taken care of later
-        if ($lic_key =~ /licence/) {
-            $logger->warn("Found UK spelling for $lic_key: $lic_v. $lic_key will be converted to License");
+        $section_nb ++ ;
+        $logger->info("Classifying section $section_nb");
+        my %h = @$section ;
+
+        # normalise
+        my %section = map { (lc($_),$h{$_}) ; } keys %h ;
+        $logger->debug("section $section_nb keys: ".join(' ',keys %section)) ;
+
+        if ( defined $section{copyright} and not defined $section{files}
+             and not defined $file_paragraph{'*'} 
+            ) {
+            # Some legacy files can have a header and one paragraph with License tag
+            # more often than not, this is an implied "File: *"  section
+            my $str = "Missing 'Files:' specification in section $section_nb.";
+            Config::Model::Exception::Syntax -> throw ( object => $self, error => $str ) 
+                if $check eq 'yes' ;
+            warn("$str Adding 'Files: *' spec\n") ;
+            $section{files} = '*' ;
+        }
+
+        if (defined $section{licence}) {
+            $logger->warn("Found UK spelling for license. It will be converted to US spellingLicense");
+            $section{license} = delete $section{licence} ;
         } 
-        my @lic_text = split /\n/,$lic_v ;
-        my ($lic_name) = shift @lic_text ;
-        # get rid of potential 'with XXX exception'
-        $lic_name =~ s/\s+with\s+\w+\s+exception//g ;
-        $logger->debug("adding license text for '$lic_name': '@lic_text'");
-        my $lic_obj = $root->grab(step => qq!License:"$lic_name"!, check => $check);
 
-        # lic_obj may not be defined in -force mode
-        next unless defined $lic_obj ;
+        if (defined $section{files}) {
+            my $v = $section{files} ;
+            $logger->debug("Found Files paragraph ($v)");
+            $file_paragraph{$v} = $section ;
+            push @file_names, $v ;
+        }
+        elsif (defined $section{license}) {
+            my $v = $section{license} ;
+            # need to extract license name from license text
+            my ($lic_name) = ($v =~ /^(\S+)/) ;
+            $lic_name = 'other' unless defined $lic_name ;
+            $logger->debug("Found license paragraph for '$lic_name'");
+            $license_paragraph{$lic_name} = $section ;
+            push @license_names, $lic_name ;
+        }
+        else {
+            my $str = "Unknow paragraph in section $section_nb. Is is a Files or a License section ?";
+            Config::Model::Exception::Syntax -> throw ( object => $self, error => $str ) 
+                if $check eq 'yes' ;
+            $logger->warn("Dropping unknown paragraph from section $section_nb");
+        }
+    }
+    
+    $logger->info("First pass to read pure license sections from $args{file} control file");
+    foreach my $lic_name (@license_names) {
+        my $object = $root->grab(step => qq!License:"$lic_name"!, check => $check);
 
-        $lic_obj->fetch_element('text')->store(value => join("\n", @lic_text), check => $check) ;
-
-        for (my $i=2; $i < @$section ; $i += 2 ) {
+        my $section = $license_paragraph{$lic_name} ;
+        for (my $i=0; $i < @$section ; $i += 2 ) {
             my $key = $section->[$i];
-            my $v   = $section->[$i+1];
-            # store other sections thanks to 'accept' clause
-            $lic_obj->fetch_element($key)->store($v) ;
+            my $v = $section->[$i+1];
+            $logger->info("reading key $key from $args{file} control file for ".$object->name);
+            $logger->debug("$key value: '$v'");
+            
+            if ($key =~ /licen[sc]e/i) {
+                my @lic_text = split /\n/,$v ;
+                my ($lic_name) = shift @lic_text ;
+                # get rid of potential 'with XXX exception'
+                $lic_name =~ s/\s+with\s+\w+\s+exception//g ;
+                $logger->debug("adding license text for '$lic_name': '@lic_text'");
+
+                # lic_obj may not be defined in -force mode
+                next unless defined $object ;
+
+                $object->fetch_element('text')->store(value => join("\n", @lic_text), check => $check) ;
+            }
+            else {
+                # store other sections thanks to 'accept' clause
+                $object->fetch_element($key)->store($v) ;
+            }
         }
     }   
 
-    $logger->info("Second pass to read other sections from $args{file} control file");
-    my $section_nb = 0;
-    foreach my $section (@$c) {
-        $section_nb ++ ;
-        $logger->debug("2ns pass: reading section $section_nb");
-        my $object = $root ;
+    $logger->info("Second pass to header section from $args{file} control file");
+    my $object = $root ;
    
-        next if $section->[0] =~ /^licen[sc]e$/i; # skip pure license sections
+    for (my $i=0; $i < @header ; $i += 2 ) {
+        my $key = $header[$i];
+        my $v = $header[$i+1];
+
+        $logger->info("reading key $key from header for ".$object->name);
+        $logger->debug("$key value: '$v'");
+
+        if ($key =~ /^licen[sc]e$/i) {
+            $logger->warn("Found UK spelling for $key: $v. $key will be converted to License")
+                if $key =~ /license/ ;
+            my $lic_node = $root->fetch_element('Global-License') ;
+            _store_file_license ($lic_node, $v ,$check);
+        }
+        elsif (my $found = $object->find_element($key, case => 'any')) { 
+            my $target = $object->fetch_element($found) ;
+            my $type = $target->get_type ;
+            my $dispatcher = $type eq 'leaf' ? $target->value_type : $type ;
+            my $f =  $store_dispath{$dispatcher} || die "unknown dispatcher for $key";
+            $f->($target,$v,$check) ;
+        }
+        else {
+            # try anyway to trigger an error message
+            $object->fetch_element($key)->store($v) ;
+        }
+    }
+    
+    $logger->info("Third pass to read Files sections from $args{file} control file");
+    foreach my $file_name (@file_names) {
+        $logger->debug("Creating Files:'$file_name' element");
+        my $object =  $root->fetch_element('Files')->fetch_with_id(index => $file_name, check => $check) ;
+   
+        my $section = $file_paragraph{$file_name} ;
         for (my $i=0; $i < @$section ; $i += 2 ) {
             my $key = $section->[$i];
             my $v = $section->[$i+1];
             #$v =~ s/^\s+//; # remove all leading spaces 
-            $logger->info("reading key $key from $args{file} control file for ".$object->name);
+            $logger->info("reading key $key from file paragraph '$file_name' for ".$object->name);
             $logger->debug("$key value: '$v'");
 
-            if ($section_nb != 1 and $key !~ /files/i and $object eq $root) {
-                if ($root->fetch_element('Files')->exists('*')) {
-                    Config::Model::Exception::Syntax ->throw( 
-                        object => $self ,
-                        error => "Missing 'Files:' specification at top of section number $section_nb"
-                    ) ;
-                }
-                else {
-                    warn "Missing 'Files:' specification at top of section number $section_nb. Adding 'Files: *' spec\n";
-                    $logger->debug("Creating missing Files:* element for key $key");
-                    $file = $root->fetch_element('Files')->fetch_with_id(index => '*', check => $check) ;
-                    $object = $file ;
-                }
-            }
+            next if $key =~ /^files$/i; # already done just before this loop
 
-
-            if ($key =~ /^files$/i) {
-                $logger->debug("Creating Files:$v element");
-                $v =~ s/\s*,\s*/ /g;
-                $file = $root->fetch_element('Files')->fetch_with_id(index => $v, check => $check) ;
-                $object = $file ;
-            }
-            elsif ($key =~ /^licen[sc]e$/i) {
+            if ($key =~ /^licen[sc]e$/i) {
                 $logger->warn("Found UK spelling for $key: $v. $key will be converted to License")
                     if $key =~ /license/ ;
-                my $lic_node = defined $file ? $file->fetch_element('License') 
-                             :                 $root->fetch_element('Global-License') ;
+                my $lic_node = $object->fetch_element('License') ;
                 _store_file_license ($lic_node, $v ,$check);
             }
             elsif (my $found = $object->find_element($key, case => 'any')) { 
@@ -208,7 +274,7 @@ sub write {
         my ( $scanner, $data_ref, $node, $element_name, $key, $leaf_object ) =
           @_;
         my $v = $leaf_object->fetch;
-        return unless defined $v ;
+        return unless length($v) ;
         $logger->debug("my_leaf_cb: on $element_name ". (defined $key ? " key $key ":'') . "value $v");
         my $prefix = defined $key ? "$key\n" : '' ;
         push @{$data_ref->{one}}, $element_name, $prefix.$v ;
@@ -217,7 +283,7 @@ sub write {
     my $my_string_cb = sub {
         my ( $scanner, $data_ref, $node, $element_name, $index, $leaf_object ) = @_;
         my $v = $leaf_object->fetch;
-        return unless defined $v ;
+        return unless length($v) ;
         $logger->debug("my_string_cb: on $element_name value $v");
         push @{$data_ref->{one}}, $element_name, "\n$v";    # text without synopsis
     };
