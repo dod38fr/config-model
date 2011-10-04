@@ -8,7 +8,7 @@ use Test::Warn ;
 use Config::Model ;
 use Log::Log4perl qw(:easy) ;
 
-BEGIN { plan tests => 43; }
+BEGIN { plan tests => 47; }
 
 use strict;
 
@@ -57,7 +57,7 @@ $model->create_config_class(
             value_type => 'boolean',
             compute    => {
                 variables => { p => '-' },
-                formula   => '&element($p) eq "foo2"',
+                formula   => '"&element($p)" eq "foo2"',
             },
         },
         [qw/av bv/] => {
@@ -87,6 +87,15 @@ $model->create_config_class(
                 'variables'      => { 'holder' => ' -' },
                 'allow_override' => '1',
                 undef_is => '',
+            },
+        },
+        short_name_from_index => {
+            'type'       => 'leaf',
+            'value_type' => 'string',
+            compute => {
+                'formula' => '&index( $holder );',
+                'use_eval' => 1,
+                'variables' => { 'holder' => '-' },
             },
         }
     ]
@@ -450,3 +459,6 @@ is($lic_gpl->grab_value('text'), "yada yada GPL-1+\nyada yada","check replacemen
 
 is($root->grab_value('Licenses:PsF text'), "","check missing replacement with &index()");
 is($root->grab_value('Licenses:"MPL-1.1" text'), "","check missing replacement with &index()");
+
+is($root->grab_value('Licenses:"MPL-1.1" short_name_from_index'), "MPL-1.1",'evaled &index($holder)');
+
