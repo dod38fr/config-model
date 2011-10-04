@@ -20,6 +20,17 @@
     'element' => [
       'text',
       {
+        'compute' => {
+          'undef_is' => '\'\'',
+          'use_eval' => '1',
+          'formula' => 'require Software::License ;
+my $l = Software::License({ short_name => $holder, holder => \'foo\') ;
+$l->summary ;',
+          'variables' => {
+            'holder' => '-'
+          },
+          'allow_override' => '1'
+        },
         'value_type' => 'string',
         'type' => 'leaf',
         'description' => 'Full license text.'
