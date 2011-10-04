@@ -19,6 +19,16 @@
     ],
     'license' => 'LGPL2',
     'element' => [
+      'email',
+      {
+        'compute' => {
+          'use_eval' => '1',
+          'formula' => '$ENV{DEBEMAIL} ;',
+          'allow_override' => '1'
+        },
+        'value_type' => 'uniline',
+        'type' => 'leaf'
+      },
       'email-updates',
       {
         'cargo' => {
