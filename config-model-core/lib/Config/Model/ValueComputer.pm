@@ -347,7 +347,9 @@ sub new {
 	 1,
 	 $self->{value_object},
 	 $self->{variables},
-	 $self->{replace}
+	 $self->{replace},
+	 'yes',
+	 $need_quote,
 	) ;
 
     $self->{pre_formula} = $$result_r ;
@@ -564,7 +566,7 @@ sub _function_on_object {
         $check, $need_quote )
       = @_;
 
-    $logger->debug("_function_on_object: handling &$function(...) ");
+    $logger->debug("handling &$function(...) ");
 
     # get now the object refered
     my $fetch_str = $variables_h->{$object};
@@ -614,11 +616,9 @@ sub _function_on_object {
     # print "\&foo(...) result = ",$$return," \n";
 
     # make sure that result of function is quoted (avoid bareword errors)
-    my $vt = $value_object->value_type;
-    if ( $vt =~ /^integer|number|boolean$/ ) {
-        $$return = '"' . $$return . '"';
-    }
+    $$return = '"' . $$return . '"' if $need_quote ;
 
+    $logger->debug("&$function(...) returns $$return");
     return $return;
 }
 
