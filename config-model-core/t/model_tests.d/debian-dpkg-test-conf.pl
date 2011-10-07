@@ -25,8 +25,11 @@ my $del_home = sub {
         #errors => [ ],
     },
     {   name => 't1',
+        apply_fix => 1 ,
         check => {
             'patches:fix-spelling Synopsis', 'fix man page spelling',
+            # test synopsis generated from patch name
+            'patches:fix-man-page-spelling Synopsis', 'Fix man page spelling',
             'patches:use-standard-dzil-test Synopsis', "use standard dzil test suite",
             'patches:use-standard-dzil-test Description',
               "Test is modified in order not to load the Test:Dzil module\nprovided in t/lib",
