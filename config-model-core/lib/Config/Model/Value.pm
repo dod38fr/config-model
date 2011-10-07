@@ -1509,16 +1509,9 @@ Applies the fixes to suppress the current warnings.
 sub apply_fixes {
     my $self = shift ; 
 
-    $logger->debug( $self->location."called" ) ;
+    $logger->debug( $self->location." called" ) ;
 
-    my $d = $self->{data} ;
-    if (defined $d and length($d)) {
-        $self->check_value(value => $d, fix => 1);
-    }
-    else {
-        my $str = defined $d ? 'empty' : 'undef' ;
-        $logger->debug( $self->location.": skipped because value is $str" ) ;
-    }
+    $self->check_value(value => $self->{data}, fix => 1);
 }
 
 
