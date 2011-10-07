@@ -102,7 +102,7 @@ The archive area and section for each package should be specified in the package
         'warn_unless_match' => {
           '3\\.9\\.2' => {
             'msg' => 'Current standards version is 3.9.2',
-            'fix' => '$_ = \'3.9.2\';'
+            'fix' => '$_ = undef; # restore default value'
           }
         },
         'match' => '\\d+\\.\\d+\\.\\d+(\\.\\d+)?',
