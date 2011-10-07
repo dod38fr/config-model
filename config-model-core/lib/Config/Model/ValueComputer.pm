@@ -117,7 +117,8 @@ The index value of the current object : C<&index> or C<&index()>.
 
 =item *
 
-The index value of another object: C<&index($other)>
+The index value of a parent object: C<&index(-)>. Ancestor index value can be retrieved
+with C<&index(-2)> or C<&index(-3)>.
 
 =item *
 
@@ -125,7 +126,8 @@ The element name of the current object: C<&element> or C<&element()>.
 
 =item *
 
-The element name of another object: C<&element($other)>
+The element name of a parent object: C<&element(-)>. Likewise, ancestor element name
+can be retrieved with C<&element(-2)> or C<&element(-3)>.
 
 =item* 
 
@@ -136,7 +138,7 @@ The full location (path) of the current object: C<&location> or C<&location()>.
 For instance, you could have this template string:
 
    'my element is &element, my index is &index' .
-    'upper element is &element($up), upper index is &index($up)',
+    'upper element is &element(-), upper index is &index(-)',
 
 If you need to perform more complex operations than substitution, like
 extraction with regular expressions, you can force an eval done by
@@ -359,6 +361,7 @@ sub new {
 
 sub formula { return shift->{formula} ;}
 sub variables     { return shift->{variables} ;}
+sub value_object { return shift->{value_object} ;}
 
 sub compute {
     my $self = shift ;
@@ -547,7 +550,11 @@ sub _pre_replace {
 sub _replace {
     my ( $replace_h, $value, $value_object, $variables, $replace, $check, $need_quote, $undef_is) = @_;
 
-    $logger->debug("value: _replace called with value '$value'");
+    if ($logger->is_debug) {
+        my $str = defined $value ? $value : '<undef>' ;
+        $logger->debug("value: _replace called with value '$str'");
+    }
+    
     my $result;
     if ( defined $value and $value =~ /\$/ ) {
 
@@ -562,28 +569,24 @@ sub _replace {
 }
 
 sub _function_on_object {
-    my ( $object, $function, $return, $value_object, $variables_h, $replace_h,
+    my ( $up, $function, $return, $value_object, $variables_h, $replace_h,
         $check, $need_quote )
       = @_;
 
-    $logger->debug("handling &$function(...) ");
+    $logger->debug("handling &$function($up) ");
 
     # get now the object refered
-    my $fetch_str = $variables_h->{$object};
-    Config::Model::Exception::Formula->throw(
-        object => $value_object,
-        error  => "Item $object has no associated location string"
-    ) unless defined $fetch_str;
+    $up =~ s/-(\d+)/'- ' x $1/x ;
 
     my $target =
-      eval { $value_object->grab( step => $fetch_str, check => $check ) };
+      eval { $value_object->grab( step => $up, check => $check ) };
 
     if ($@) {
         my $e = $@;
         my $msg = $e ? $e->full_message : '';
         Config::Model::Exception::Model->throw(
             object => $value_object,
-            error  => "Compute function argument '$fetch_str':\n" . $msg
+            error  => "Compute function argument '$up':\n" . $msg
         );
     }
 
@@ -592,7 +595,7 @@ sub _function_on_object {
         Config::Model::Exception::Model->throw(
             object => $value_object,
             error  => "'",
-            $object->name, "' has no element name"
+            $target->name, "' has no element name"
         ) unless defined $result;
         $return = \$result;
     }
@@ -601,7 +604,7 @@ sub _function_on_object {
         Config::Model::Exception::Formula->throw(
             object => $value_object,
             error  => "'",
-            $object->name, "' has no index value"
+            $target->name, "' has no index value"
         ) unless defined $result;
         $return = \$result;
     }
@@ -764,8 +767,8 @@ pre_value:
   <skip:''> '$replace' '{' /\s*/ pre_value[@arg] /\s*/ '}' {
     $return = Config::Model::ValueComputer::_pre_replace($arg[2], ${ $item{pre_value} } ) ;
   }
-  | <skip:''> function '(' /\s*/ object /\s*/ ')' {
-    $return = Config::Model::ValueComputer::_function_on_object($item{object},$item{function},$return,@arg ) ;
+  | <skip:''> function '(' <commit> /\s*/ up /\s*/ ')' {
+    $return = Config::Model::ValueComputer::_function_on_object($item{up},$item{function},$return,@arg ) ;
   }
   | <skip:''> '&' /\w+/ func_param(?) {
     $return = Config::Model::ValueComputer::_function_alone($item[3],$return,@arg ) ;
@@ -787,6 +790,8 @@ pre_value:
   }
 
 func_param: /\(\s*\)/
+
+up: /-?\d*/
 
 compute:  <skip:''> value[@arg](s) { 
     # if one value is undef, return undef;
