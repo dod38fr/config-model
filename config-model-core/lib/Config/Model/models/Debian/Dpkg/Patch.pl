@@ -17,7 +17,14 @@
           }
         },
         'summary' => 'short description of the patch',
-        'mandatory' => '1',
+        'warn_unless_match' => {
+          '\\w' => {
+            'msg' => 'Empty synopsis',
+            'fix' => '$_ = lcfirst( $self->parent->index_value)  ;
+s/-/ /g;
+'
+          }
+        },
         'type' => 'leaf'
       },
       'Description',
