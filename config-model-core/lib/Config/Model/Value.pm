@@ -506,7 +506,7 @@ when the value match the passed regular expression. Valid only for
 C<string> or C<uniline> values. The fix instructions will be evaluated
 when L<apply_fixes> is called. C<$_> will contain the value to fix.
 C<$_> will be stored as the new value once the instructions are done.
-
+C<$self> will contain the value object. Use with care.
 
 In the example below, any value matching 'foo' will be converted in uppercase:
 
@@ -1362,7 +1362,17 @@ sub check_value {
     my $quiet = $args{quiet} || 0 ;
     my $check = $args{check} || 'yes' ;
     my $apply_fix = $args{fix} || 0 ;
-    
+    my $mode = $args{mode} || '' ;
+
+    #croak "Cannot specify a value with fix = 1" if $apply_fix and exists $args{value} ;
+
+    if($logger -> debug) {
+        no warnings 'uninitialized' ;
+        my $v = defined $value ? $value : '<undef>' ;
+        my $msg= "called with value '$v' mode $mode check $check";
+        $logger->debug($msg) ;
+    } 
+
     # need to keep track to update GUI
     $self->{nb_of_fixes} = 0; # reset before check
 
@@ -1433,7 +1443,14 @@ sub check_value {
     foreach my $t (qw/warn_if_match warn_unless_match/) {
         my $w_info = $self->{$t} ;
 
-        next unless defined $w_info and defined $value ;
+        next unless defined $w_info ;
+        
+        # no need to check default or computed values
+        next unless (defined $value or $mode ne 'custom' );
+
+        # avoid undef warnings 
+        $value = '' unless defined $value ;
+
         my $h = ref $w_info ? $w_info : { $w_info => '' } ;
 
         foreach my $rxp ( keys %$h ) {
@@ -1492,9 +1509,16 @@ Applies the fixes to suppress the current warnings.
 sub apply_fixes {
     my $self = shift ; 
 
-    $logger->debug( $self->location.": apply_fixes called" ) ;
+    $logger->debug( $self->location."called" ) ;
 
-    $self->check_value(value => $self->{data}, fix => 1);
+    my $d = $self->{data} ;
+    if (defined $d and length($d)) {
+        $self->check_value(value => $d, fix => 1);
+    }
+    else {
+        my $str = defined $d ? 'empty' : 'undef' ;
+        $logger->debug( $self->location.": skipped because value is $str" ) ;
+    }
 }
 
 
@@ -1514,7 +1538,8 @@ sub apply_fix {
         );
     }
 
-    $self->store($_);    # will update $self->{fixes}
+    $self->{data}  = $_ ;
+    # $self->store(value => $_, check => 'no');  # will update $self->{fixes}
 }
 
 =head2 check( [ value => foo ] )
@@ -1545,8 +1570,10 @@ sub check {
     }
 
     my $warn = $self->{warning_list} ;
-    map { warn "Warning in '".$self->location."' value '$value': $_\n" ;} @$warn 
-        if @$warn and not $nowarning and not $silent;
+    map { 
+        my $str = defined $value ? "'$value'" : '<undef>' ;
+        warn "Warning in '".$self->location."' value $str: $_\n" ;
+    } @$warn if @$warn and not $nowarning and not $silent;
 
 
     $self->{error_list} = \@error ;
@@ -2000,7 +2027,7 @@ sub fetch {
     # in user or custom mode. (because fixes are cleaned up during check and using
     # mode may not trigger the warnings. Hence confusion afterwards
     my $ok = 1 ;
-    $ok = $self->check(value => $value, silent => $silent) 
+    $ok = $self->check(value => $value, silent => $silent, mode => $mode ) 
         if $mode eq '' or $mode eq 'custom' ;
 
     if (defined $value) {
