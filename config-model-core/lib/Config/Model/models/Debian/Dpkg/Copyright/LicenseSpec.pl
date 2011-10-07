@@ -24,11 +24,15 @@
           'undef_is' => '\'\'',
           'use_eval' => '1',
           'formula' => 'require Software::License ;
-my $l = Software::License({ short_name => $holder, holder => \'foo\') ;
-$l->summary ;',
-          'variables' => {
-            'holder' => '-'
-          },
+my $h = { 
+  short_name => &index( - ), 
+  holder => \'foo\' 
+} ;
+
+# no need to fail if short_name is unknown
+eval {
+  Software::License->new($h)->summary ; 
+} ;',
           'allow_override' => '1'
         },
         'value_type' => 'string',
