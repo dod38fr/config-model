@@ -9,7 +9,7 @@ use Config::Model;
 use Config::Model::ValueComputer;
 use Log::Log4perl qw(:easy) ;
 
-BEGIN { plan tests => 67; }
+BEGIN { plan tests => 65; }
 
 use strict;
 
@@ -55,13 +55,12 @@ $model->create_config_class(
                 value_type => 'string',
                 compute    => {
                     variables => {
-                        up  => '-',
                         'm' => '!  macro',
                     },
                     formula => 'macro is $m, my idx: &index, '
                       . 'my element &element, '
-                      . 'upper element &element($up), '
-                      . 'up idx &index($up)',
+                      . 'upper element &element( - ), '
+                      . 'up idx &index( - )',
                 }
             },
         },
@@ -69,8 +68,7 @@ $model->create_config_class(
             type       => 'leaf',
             value_type => 'string',
             compute    => {
-                formula   => 'trad idx $replace{&index($up)}',
-                variables => { up => '-', },
+                formula   => 'trad idx $replace{&index(-)}',
                 replace   => {
                     l1 => 'level1',
                     l2 => 'level2'
@@ -525,38 +523,6 @@ my $big_compute_obj =
 
 isa_ok( $big_compute_obj, 'Config::Model::Value',
     'Created new big compute object' );
-
-my $txt   = 'macro is $m, my idx: &index, my element &element, ';
-my $rules = {
-    m   => '! macro',
-    up  => '-',
-    up2 => '- -',
-};
-
-my $parser =
-  new Parse::RecDescent($Config::Model::ValueComputer::compute_grammar);
-
-# the 2 next tests are used to check what going on before trying the
-# real test below. But beware, the error messages for these 2 tests
-# might be misleading.
-my $str_r = $parser->pre_compute( $txt, 1, $big_compute_obj, $rules );
-is(
-    $$str_r,
-    'macro is $m, my idx: b1, my element big_compute, ',
-    "testing pre_compute with & and &index on \$big_compute_obj"
-);
-
-$txt .=
-'upper elements &element($up2) &element($up), up idx &index($up2) &index($up)';
-
-$str_r = $parser->pre_compute( $txt, 1, $big_compute_obj, $rules );
-
-is(
-    $$str_r,
-    'macro is $m, my idx: b1, my element big_compute, '
-      . 'upper elements recursive_slave recursive_slave, up idx l1 l2',
-    "testing pre_compute with &element(stuff) and &index(\$stuff)"
-);
 
 my $bc_val =
   $rslave2->fetch_element('big_compute')->fetch_with_id("test_1")->fetch;

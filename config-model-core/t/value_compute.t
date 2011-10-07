@@ -41,8 +41,7 @@ $model->create_config_class(
             type       => 'leaf',
             value_type => 'string',
             compute    => {
-                variables => { p => '-' },
-                formula   => '&element($p)',
+                formula   => '&element(-)',
             },
         },
         location_function_in_formula => {
@@ -56,8 +55,7 @@ $model->create_config_class(
             type       => 'leaf',
             value_type => 'boolean',
             compute    => {
-                variables => { p => '-' },
-                formula   => '"&element($p)" eq "foo2"',
+                formula   => '"&element(-)" eq "foo2"',
             },
         },
         [qw/av bv/] => {
@@ -83,8 +81,7 @@ $model->create_config_class(
                     'GPL-1+' => "yada yada GPL-1+\nyada yada", 
                     'Artistic' => "yada yada Artistic\nyada yada", 
                 },
-                'formula'        => '$replace{&index($holder)}',
-                'variables'      => { 'holder' => ' -' },
+                'formula'        => '$replace{&index(-)}',
                 'allow_override' => '1',
                 undef_is => '',
             },
@@ -93,9 +90,8 @@ $model->create_config_class(
             'type'       => 'leaf',
             'value_type' => 'string',
             compute => {
-                'formula' => '&index( $holder );',
+                'formula' => '&index( - );',
                 'use_eval' => 1,
-                'variables' => { 'holder' => '-' },
             },
         }
     ]
@@ -305,8 +301,8 @@ use warnings 'once';
 
 {
     no warnings qw/once/;
-    $::RD_HINT  = 1 if $arg =~ /rdh/;
-    $::RD_TRACE = 1 if $arg =~ /rdt/;
+    $::RD_HINT  = 1 if $arg =~ /rdt?h/;
+    $::RD_TRACE = 1 if $arg =~ /rdh?t/;
 }
 
 my $object = $root->fetch_element('one_var') ;
