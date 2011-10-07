@@ -82,7 +82,7 @@ sub parse_dpkg_lines {
         map { $logger->debug("Parse result section ".$i++.":\n'".join("','",@$_)."'") ;} @res ;
     }
 
-    warn "No section found\n" unless @res ;
+    $logger->warn("No section found") unless @res ;
     
     return wantarray ? @res : \@res ;   
 }
