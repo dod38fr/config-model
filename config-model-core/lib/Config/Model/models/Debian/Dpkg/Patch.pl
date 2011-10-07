@@ -20,7 +20,7 @@
         'warn_unless_match' => {
           '\\w' => {
             'msg' => 'Empty synopsis',
-            'fix' => '$_ = lcfirst( $self->parent->index_value)  ;
+            'fix' => '$_ = ucfirst( $self->parent->index_value )  ;
 s/-/ /g;
 '
           }
