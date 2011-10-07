@@ -27,7 +27,7 @@ $skip = ( $@ or not -r '/etc/debian_version') ? 1 : 0 ;
         load_warnings => [ qr/dependency/, qr/dual life/, (qr/dependency/) x 2, 
                           qr/libmodule-build-perl \(>= 0.36\) \| perl \(>= 5.8.8\)/,
                           qr/should be 'perl \(>= 5.11.3\) \| libmodule-build-perl \(>= 0.36\)/,
-                          qr/standard version/, 
+                          qr/standards version/, 
                            qr/dependency/, qr/dual life/, (qr/dependency/) x 2, qr/description/ ],
         apply_fix => 1,
     },
@@ -35,7 +35,7 @@ $skip = ( $@ or not -r '/etc/debian_version') ? 1 : 0 ;
 
         # t1
         check => { 'binary:seaview Recommends:0', 'clustalw', },
-        load_warnings => [ qr/standard version/, qr/description/, qr/too long/ ],
+        load_warnings => [ qr/standards version/, qr/description/, qr/too long/ ],
         apply_fix => 1,
         load => 'binary:seaview Synopsis="multiplatform interface for sequence alignment"',
     },
@@ -71,7 +71,7 @@ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx providing the following file:
 
  - xt/release/pod-spell.t - a standard Test::Spelling test"
         },
-        load_warnings => [ qr/standard version/, qr/description/, (qr/value/) x 2],
+        load_warnings => [ qr/standards version/, qr/description/, (qr/value/) x 2],
         apply_fix => 1,
     },
     {
