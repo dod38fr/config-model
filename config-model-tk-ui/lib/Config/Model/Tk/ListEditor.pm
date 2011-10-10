@@ -253,7 +253,7 @@ sub push_entry {
     }
     else {
 	# trigger redraw of Tk Tree
-	$cw->reload_tree;
+	$cw->{store_cb}->(1);
     }
 
     my @new_idx = $list->get_all_indexes ;
@@ -280,7 +280,7 @@ sub set_entry {
     $tklist->insert($idx, $data) ;
     $tklist->selectionSet($idx ) ;
     $cw->{list}->fetch_with_id($idx)->store($data) ;
-    $cw->reload_tree ;
+    $cw->{store_cb}->(1) ;
 }
 
 sub add_set_all_b {
@@ -327,7 +327,7 @@ sub set_all_items {
     $tklist->delete(0,'end') ;
     $tklist->insert(0, @list) ;
     $cw->{list}->load_data(\@list) ;
-    $cw->reload_tree ;
+    $cw->{store_cb}->(1) ;
 }
 
 sub sort_content {
@@ -341,7 +341,7 @@ sub sort_content {
     $tklist->delete(0,'end') ;
     $tklist->insert(0, @list) ;
     $list->load_data(\@list) ;
-    $cw->reload_tree ;
+    $cw->{store_cb}->(1) ;
 }
 
 
@@ -400,7 +400,7 @@ sub swap {
     }
 
     $tklist->selectionSet($idb ) ;
-    $cw->reload_tree ;
+    $cw->{store_cb}->(1) ;
 }
 
 sub remove_selection {
@@ -411,8 +411,8 @@ sub remove_selection {
     foreach ($tklist->curselection()) {
 	$logger->debug( "remove_selection: removing index $_" );
 	$list   -> remove($_) ;
-	$cw->reload_tree ;
     }
+    $cw->{store_cb}->(1) ;
 
     # redraw the list content
     $tklist -> delete(0,'end') ;
@@ -422,11 +422,6 @@ sub remove_selection {
     map { $_ = '<undef>' unless defined $_ } @insert ;
     $tklist->insert( end => @insert ) ;
     $cw->update_warning($list) ;
-}
-
-sub reload_tree {
-    my $cw = shift ;
-    $cw->{store_cb}->() ;
 }
 
 
