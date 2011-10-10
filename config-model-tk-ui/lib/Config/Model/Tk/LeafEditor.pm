@@ -235,7 +235,6 @@ sub store {
                         -text  => $@->as_string,
                       )
             -> Show ;
-        $cw->reset_value ;
     }
     else {
         # trigger redraw of Tk Tree
