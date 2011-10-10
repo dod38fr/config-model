@@ -185,7 +185,7 @@ sub add_warning {
     ) ->pack(-anchor => 'w', -side => 'left', -fill =>'x');
 
     if ($usage eq 'edit') {
-        my $nb_fixes = $elt_obj->has_fixes ;
+        my $nb_fixes = $elt_obj->has_fixes || 0;
 
         my $fix_widget = $label_button_frame -> Button(
             -text => "Apply $nb_fixes fixes",
