@@ -1,14 +1,22 @@
+2011-10-10  Dominique Dumont  <domi.dumont@free.fr> 1.329
+
+	* ListEditor: signal TKUI that data needs to be saved when list is
+	modified
+        * LeafEditor: do not clear entry when input is wrong. This is
+	annoying
+        * TkUI: updated license wording to keep Debian lintian happy
+
 2011-09-23  Dominique Dumont  <domi.dumont@free.fr> 1.328
 
-    * ListEditor: enable apply_fix button
-    * TkUI: Restrict cut buffer paste to tree widget
+	* ListEditor: enable apply_fix button
+	* TkUI: Restrict cut buffer paste to tree widget
 
 2011-09-16  Dominique Dumont  <domi.dumont@free.fr> 1.327
 
     * TkUI.pm:
-      * Fixed bug where force display did not work with hash 
+      * Fixed bug where force display did not work with hash
         keys containing non alphanumeric of space
-      * Changed logger class to TkUI (instead of 
+      * Changed logger class to TkUI (instead of
         Config::Model::TkUI)
 
 2011-09-02  Dominique Dumont  <domi.dumont@free.fr> 1.326
@@ -19,7 +27,7 @@
 
     * TkUI.pm: disable double-click because it trigger
       editor when double clicking outside of Hlist
-    * NodeEditor.pm: respect order of element when 
+    * NodeEditor.pm: respect order of element when
       completing the pane widget after warp
 
 2011-05-17  Dominique Dumont  <domi.dumont@free.fr> 1.324
