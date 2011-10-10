@@ -60,7 +60,7 @@ my %warn_if_payload = (
                 type       => 'leaf',
                 value_type => 'string',
                 description =>
-'Perl instructions to fix the value. These instructions may be triggered by user. $_ will contain the value to fix.  $_ will be stored as the new value once the instructions are done.',
+'Perl instructions to fix the value. These instructions may be triggered by user. $_ will contain the value to fix.  $_ will be stored as the new value once the instructions are done. C<$self> will contain the value object. Use with care.',
             },
         ],
     ],
