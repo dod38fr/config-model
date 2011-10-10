@@ -1,3 +1,24 @@
+2011-09-16  Dominique Dumont  <domi.dumont@free.fr> 1.258
+
+    * Application changes
+        * model Debian::Dpkg::Patch: Synopsis is no longer mandatory. 
+          Issue a warning for empty Synopsis and propose a value based 
+          on patch name
+        + model Debian::Dpkg::Meta: added email element
+        + model Debian::Dpkg::Copyright::LicenseSpec: compute license 
+          text from Software::License (requires version patched for Debian)
+        * Backend::Debian::Dpkg::Copyright: Rewrote parser to classify 
+          correctly Files and Licenses paragraph even if extra fields are 
+          prepended.
+        * model Debian::Dpkg::Control::Source: Vcs-browser must also accep
+          https URLs
+
+    * Framework changes:
+        * ValueComputer: &index and &element can only work with parent 
+          or ancestors in tree. Fixed grammar inside of {} statements. 
+          It is now able to return '' when no replacement is found
+        * Value: fix warn_if warn_unless check in custom mode.
+
 2011-09-16  Dominique Dumont  <domi.dumont@free.fr> 1.257
 
     * Framework changes:
