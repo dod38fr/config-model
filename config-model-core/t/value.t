@@ -3,34 +3,57 @@
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
-use Test::More tests => 123;
+use Test::More tests => 130;
 use Test::Exception;
 use Test::Warn;
 use Config::Model;
 use Config::Model::Value;
+use Log::Log4perl qw(:easy :levels) ;
 
 use strict;
 
 my $arg = shift || '';
+my ($log,$show) = (0) x 2 ;
 
-my $trace = $arg =~ /t/ ? 1 : 0;
-$::debug = 1 if $arg =~ /d/;
+my $trace = $arg =~ /t/ ? 1 : 0 ;
+$log                = 1 if $arg =~ /l/;
+$show               = 1 if $arg =~ /s/;
+
+my $log4perl_user_conf_file = $ENV{HOME}.'/.log4config-model' ;
+
+if ($log and -e $log4perl_user_conf_file ) {
+    Log::Log4perl::init($log4perl_user_conf_file);
+}
+else {
+    Log::Log4perl->easy_init($log ? $WARN: $ERROR);
+}
+
 Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
-
-use Log::Log4perl qw(:easy);
-Log::Log4perl->easy_init( $arg =~ /l/ ? $TRACE : $WARN );
 
 ok( 1, "Compilation done" );
 
 # minimal set up to get things working
 my $model = Config::Model->new();
 $model->create_config_class(
-    name    => "Master",
+    name    => "BadClass",
     element => [
         crooked => {
             type  => 'leaf',
             class => 'Config::Model::Value',
         },
+        crooked_enum => {
+            type       => 'leaf',
+            class      => 'Config::Model::Value',
+            value_type => 'enum',
+            default    => 'foo',
+            choice     => [qw/A B C/]
+        },
+    ]
+);
+
+$model->create_config_class(
+    name    => "Master",
+    element => [
         scalar => {
             type       => 'leaf',
             class      => 'Config::Model::Value',
@@ -56,13 +79,6 @@ $model->create_config_class(
             class      => 'Config::Model::Value',
             value_type => 'boolean',
             mandatory  => 1,
-        },
-        crooked_enum => {
-            type       => 'leaf',
-            class      => 'Config::Model::Value',
-            value_type => 'enum',
-            default    => 'foo',
-            choice     => [qw/A B C/]
         },
         enum => {
             type       => 'leaf',
@@ -144,16 +160,38 @@ $model->create_config_class(
 			    }
                            ^,
         },
-        warn_if => {
+        warn_if_match => {
             type          => 'leaf',
             value_type    => 'string',
             warn_if_match => { 'foo' => { fix => '$_ = uc;' } },
         },
-        warn_unless => {
+        warn_unless_match => {
             type       => 'leaf',
             value_type => 'string',
             warn_unless_match =>
               { foo => { msg => '', fix => '$_ = "foo".$_;' } },
+        },
+        assert => {
+            type       => 'leaf',
+            value_type => 'string',
+            assert => { 
+                assert_test => { 
+                    code => 'defined $_ and /\w/',
+                    msg => 'must not be empty', 
+                    fix => '$_ = "foobar";' 
+                } 
+            },
+        },
+        warn_unless => {
+            type       => 'leaf',
+            value_type => 'string',
+            warn_unless => { 
+                warn_test => { 
+                    code => 'defined $_ and /\w/',
+                    msg => 'should not be empty', 
+                    fix => '$_ = "foobar";' 
+                } 
+            },
         },
         always_warn => {
             type       => 'leaf',
@@ -183,9 +221,17 @@ ok( $inst, "created dummy instance" );
 
 my $root = $inst->config_root;
 
+my $bad_inst = $model->instance(
+    root_class_name => 'BadClass',
+    instance_name   => 'test_bad_class'
+);
+ok( $inst, "created bad_class instance" );
+
+my $bad_root = $bad_inst->config_root;
+
 my $result;
 
-throws_ok { $root->fetch_element('crooked'); }
+throws_ok { $bad_root->fetch_element('crooked'); }
 'Config::Model::Exception::Model',
   "test create expected failure";
 print "normal error:\n", $@, "\n" if $trace;
@@ -274,7 +320,7 @@ print "mandatory boolean: set to False\n" if $trace;
 is( $mb->store('False'), 0, "mandatory boolean: set to False" );
 is( $mb->fetch,          0, "and read" );
 
-throws_ok { $root->fetch_element('crooked_enum'); }
+throws_ok { $bad_root->fetch_element('crooked_enum'); }
 'Config::Model::Exception::Model',
   "test create expected failure with enum with wrong default";
 print "normal error:\n", $@, "\n" if $trace;
@@ -462,7 +508,7 @@ foreach
 }
 
 ### test warn_if parameter
-my $wip = $root->fetch_element('warn_if');
+my $wip = $root->fetch_element('warn_if_match');
 warning_like { $wip->store('foobar'); } qr/should not match/,
   "test warn_if condition";
 
@@ -480,11 +526,11 @@ $wip->apply_fixes;
 is( $wip->fetch, 'FOOBAR', "test if fixes were applied" );
 
 ### test warn_unless parameter
-my $wup = $root->fetch_element('warn_unless');
+my $wup = $root->fetch_element('warn_unless_match');
 warning_like { $wup->store('bar'); } qr/should match/,
   "test warn_unless condition";
 
-warning_like { $wup->check; } qr/should match/, "check warn_unless condition";
+warning_like { $wup->check; } qr/should match/, "check warn_unless_match condition";
 
 is( $wup->has_fixes, 1, "test has_fixes" );
 $wup->apply_fixes;
@@ -524,4 +570,22 @@ is($sv->fetch,'3.9.2',"check fixed standard version");
 
 is($sv->fetch(mode => 'custom') ,undef,"check custom standard version");
 
+### test assert 
+
+my $assert_elt = $root->fetch_element('assert') ;
+throws_ok { $assert_elt->fetch() ; } 'Config::Model::Exception::WrongValue',  
+     "check assert error";
+
+$assert_elt->apply_fixes ;
+ok(1,"assert_elt apply_fixes called");
+is($assert_elt->fetch,'foobar',"check fixed assert pb");
+
+### test warn_unless
+my $warn_unless = $root->fetch_element('warn_unless') ;
+
+warning_like { $warn_unless->fetch() ; } qr/should not be empty/ , "check warn_unless";
+
+$warn_unless->apply_fixes ;
+ok(1,"warn_unless apply_fixes called");
+is($warn_unless->fetch,'foobar',"check fixed warn_unless pb");
 
