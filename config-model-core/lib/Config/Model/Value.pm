@@ -1,4 +1,4 @@
-#    Copyright (c) 2005-2011 Dominique Dumont.
+#    Cpyright (c) 2005-2011 Dominique Dumont.
 #
 #    This file is part of Config-Model.
 #
@@ -282,6 +282,8 @@ sub set_compute {
 sub submit_to_compute {
     my $self = shift ;
 
+    $logger->debug("called") ;
+    
     my $c_info = $self->{compute} ;
     $self->{_compute} = Config::Model::ValueComputer
       -> new (
@@ -298,6 +300,7 @@ sub submit_to_compute {
     my $v = $self->{_compute}->compute_variables ;
 
     $self->register_in_other_value( $v ) ;
+    $logger->debug("done") ;
 }
 
 sub register_in_other_value {
@@ -321,6 +324,7 @@ sub register_in_other_value {
 # internal
 sub compute {
     my $self = shift ;
+    $logger->debug("called");
 
     $self->submit_to_compute unless defined $self->{_compute} ;
 
@@ -345,6 +349,7 @@ sub compute {
 		     );
     }
 
+    $logger->debug("done");
     return $ok ? $result : undef ;
 }
 
@@ -1387,7 +1392,8 @@ sub check_value {
     if($logger ->is_debug) {
         no warnings 'uninitialized' ;
         my $v = defined $value ? $value : '<undef>' ;
-        my $msg= "called with value '$v' mode $mode check $check";
+        my $loc = $self->location ;
+        my $msg= "called with value '$v' mode $mode check $check on '$loc'";
         $logger->debug($msg) ;
     } 
 
@@ -1500,6 +1506,7 @@ sub check_value {
     $self->{error_list} = \@error ;
     $self->{warning_list} = \@warn ;
 
+    $logger->debug("done") ;
     return wantarray ? @error : scalar @error ? 0 : 1 ;
 }
 
@@ -1619,6 +1626,7 @@ Without C<value> argument, this method will check the value currently stored.
 sub check {
     my $self = shift ;
     
+    $logger->debug("called for ".$self->location) if $logger->is_debug ;
     my %args = @_ == 0 ? ( value => $self->{data} ) 
              : @_ == 1 ? ( value => $_[0]         )
              :           @_ ;
@@ -1639,6 +1647,7 @@ sub check {
 
 
     $self->{error_list} = \@error ;
+    $logger->debug("done") ;
     return wantarray ? @error : not scalar @error ;
 }
 
@@ -1868,7 +1877,7 @@ sub _init {
 sub _pre_fetch {
     my ($self, $mode, $check) = @_ ;
 
-    $self->_init ;
+    #$self->_init ;
 
     my $inst = $self->instance ;
 
@@ -1911,6 +1920,7 @@ my %accept_mode = map { ( $_ => 1) }
 
 sub _fetch {
     my ($self, $mode, $check) = @_ ;
+    $logger->debug("called for ".$self->location) if $logger->is_debug ;
 
     # always call to perform submit_to_warp
     my $std = $self->_pre_fetch($mode, $check) ;
@@ -1937,6 +1947,8 @@ sub _fetch {
 	no warnings "uninitialized" ;
 	my $cust ;
 	$cust = $data if $data ne $std and $data ne $self->{upstream_default} ;
+        $logger->debug("done in custom mode for ".$self->location) 
+            if $logger->is_debug ;
 	return $cust;
     }
 
@@ -1946,8 +1958,13 @@ sub _fetch {
 	        : defined $std  && $std  ne $self->{upstream_default} ? $std 
                 :                                                      undef ;
 
+        $logger->debug("done in non_upstream_default mode for ".$self->location)
+            if $logger->is_debug ;
 	return $nbu;
     }
+
+    $logger->debug("done in $mode mode for ".$self->location) 
+        if $logger->is_debug ;
 
     return $mode eq 'preset'                   ? $self->{preset}
          : $mode eq 'default'                  ? $self->{default}
@@ -2061,6 +2078,9 @@ trying to fetch an undefined mandatory value leads to an exception.
 sub fetch {
     my $self = shift ;
 
+    if ($logger->is_debug) {
+        $logger->debug("called for ".$self->location);
+    }
     my %args =  @_ > 1 ? @_ : (mode => $_[0]) ;
     my $mode = $args{mode} || '';
     my $silent = $args{silent} || 0 ;
@@ -2092,18 +2112,18 @@ sub fetch {
     $ok = $self->check(value => $value, silent => $silent, mode => $mode ) 
         if $mode eq '' or $mode eq 'custom' ;
 
+    $logger->debug("check mandatory stuff (mode $mode) for ".$self->location) if $logger->is_debug;
     if (     $self->{mandatory}
 	 and $check eq 'yes'
 	 and (not $mode or $mode eq 'custom' )
          and ($mode ne 'allow_undef')
-	 and (not defined $self->_fetch('', $check) )
+	 and (not defined $self->_fetch('', $check) ) # fetch in default mode (may trigger compute)
 	  ) {
 	# check only custom or "empty" mode. But undef custom value is
 	# authorized if standard value is defined (that's what is
 	# important)
         my @error ;
-        push @error, "Undefined mandatory value."
-          if $self->{mandatory} ;
+        push @error, "Undefined mandatory value." ;
         push @error, $self->warp_error 
           if defined $self->{warped_attribute}{default} ;
         Config::Model::Exception::WrongValue
@@ -2112,6 +2132,8 @@ sub fetch {
 		      error => join("\n\t",@error)
 		     );
     }
+
+    $logger->debug("(almost) done for ".$self->location) if $logger->is_debug;
 
     # check validity (all modes)
     if ( $ok or $check eq 'no' ) {

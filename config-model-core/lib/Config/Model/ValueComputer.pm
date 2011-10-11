@@ -342,19 +342,18 @@ sub new {
 
     # must make a first pass at computation to subsitute index and
     # element values.  leaves $xxx outside of &index or &element untouched
-    my $result_r = $compute_parser
-      -> pre_compute
-	(
-	 $self->{formula},
-	 1,
-	 $self->{value_object},
-	 $self->{variables},
-	 $self->{replace},
-	 'yes',
-	 $need_quote,
-	) ;
+    my $result_r = $compute_parser -> pre_compute (
+	$self->{formula},
+	1,
+	$self->{value_object},
+	$self->{variables},
+	$self->{replace},
+	'yes',
+	$need_quote,
+    ) ;
 
     $self->{pre_formula} = $$result_r ;
+    $logger->debug("done") ;
 
     bless $self,$type ;
 }
@@ -369,7 +368,7 @@ sub compute {
     my $check = $args{check} || 'yes' ;
 
     my $pre_formula = $self->{pre_formula};
-    $logger->debug("compute from pre_formula: $pre_formula");
+    $logger->debug("called with pre_formula: $pre_formula");
     my $variables = $self->compute_variables(check => $check) ;
 
     die "internal error" unless defined $variables ;
@@ -382,6 +381,7 @@ sub compute {
     if (   $self->{use_eval}
         or $self->{value_type} =~ /(integer|number|boolean)/ )
     {
+        $logger->debug("will use eval");
         my $all_defined = 1;
         my @init ;
         foreach my $key (sort keys %$variables) { 
@@ -476,7 +476,7 @@ sub compute_info {
     return $str ;
 }
 
-#internal
+# internal. resolves variables that contains $foo or &bar
 # returns a hash of variable names -> variable path
 sub compute_variables {
     my $self = shift ;
@@ -486,24 +486,27 @@ sub compute_variables {
     # a shallow copy should be enough as we don't allow
     # replace in replacement rules
     my %variables = %{$self->{variables}} ;
-    $logger->debug("compute_variables called on variables '", 
+    $logger->debug("called on variables '", 
         join ("', '",sort keys %variables),"'")  if $logger->is_debug ;
 
     # apply a compute on all variables until no $var is left
     my $var_left = scalar (keys %variables) + 1 ;
 
     while ($var_left) {
-        my $old_var_left= $var_left ;
+        my $old_var_left = $var_left ;
         foreach my $key (keys %variables) {
             my $value = $variables{$key} ; # value may be undef
-            next unless (defined $value and $value =~ /\$|&/) ;
+            next unless defined $value; 
+            
             #next if ref($value); # skip replacement rules
-            $logger->debug("compute_variables: key '$key', value '$value', left $var_left"); 
-	    my $pre_res_r = $compute_parser
+            $logger->debug("key '$key', value '$value', left $var_left"); 
+	    next unless $value =~ /\$|&/ ;
+            
+            my $pre_res_r = $compute_parser
                 -> pre_compute ($value, 1,$self->{value_object}, \%variables, $self->{replace},$check);
-            $logger->debug( "compute_variables: key '$key', pre res '$$pre_res_r', left $var_left\n");
+            $logger->debug( "key '$key', pre res '$$pre_res_r', left $var_left\n");
             $variables{$key} = $$pre_res_r ;
-	    $logger->debug("compute_variables: variable after pre_compute: ", join (" ",keys %variables)) if $logger->is_debug ;
+	    $logger->debug("variable after pre_compute: ", join (" ",keys %variables)) if $logger->is_debug ;
 
             if ($$pre_res_r =~ /\$/) { ;
                 # variables needs to be evaluated
@@ -511,11 +514,11 @@ sub compute_variables {
                     -> compute ($$pre_res_r, 1,$self->{value_object}, \%variables, $self->{replace},$check);
                 #return undef unless defined $res ;
                 $variables{$key} = $$res_ref ;
-                $logger->debug("compute_variables: variable after compute: ", join (" ",keys %variables))  if $logger->is_debug;
+                $logger->debug("variable after compute: ", join (" ",keys %variables))  if $logger->is_debug;
             }
 	    {
 		no warnings "uninitialized" ;
-		$logger->debug( "compute_variables: result $key -> '$variables{$key}' left '$var_left'");
+		$logger->debug("result $key -> '$variables{$key}' left '$var_left'");
 	    }
 	}
 
@@ -533,6 +536,7 @@ sub compute_variables {
 	      unless ($var_left < $old_var_left);
     }
 
+    $logger->debug("done");
     return \%variables ;
 }
 
@@ -702,16 +706,16 @@ sub _value_from_object {
 
     if ($logger->is_debug) {
         my $str = defined $path ? $path : '<undef>' ;
-        $logger->debug("_value_from_object: replace \$$name with path $str...") ;
+        $logger->debug("replace \$$name with path $str...") ;
     }
 
     if ( defined $path and $path =~ /[\$&]/ ) {
-        $logger->trace("_value_from_object: skip name $name path '$path'");
+        $logger->trace("skip name $name path '$path'");
         $my_res = "\$$name";             # restore name that contain '$var'
     }
     elsif ( defined $path ) {
 
-        $logger->trace("_value_from_object: fetching var object '$name' with '$path'");
+        $logger->trace("fetching var object '$name' with '$path'");
         
         $my_res = eval { 
             $value_object->grab_value( step => $path, check => $check ); 
@@ -728,7 +732,7 @@ sub _value_from_object {
         }
 
         $logger->trace(
-            "_value_from_object: fetched var object '$name' with '$path', result '", 
+            "fetched var object '$name' with '$path', result '", 
             defined $my_res ? $my_res : 'undef',"'"
         );
     }
