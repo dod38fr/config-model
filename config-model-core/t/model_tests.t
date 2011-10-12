@@ -78,7 +78,7 @@ foreach my $model_test_conf (@group_of_tests) {
     foreach my $t (@tests) {
         my $t_name = $t->{name} || "t$idx" ;
         if (defined $do and $do ne $t_name) { $idx ++; next; }
-        note("Beginning $model_test subtest $t_name");
+        note("Beginning subtest $model_test $t_name");
    
         # cleanup before tests
         rmtree($wr_root);
@@ -134,7 +134,7 @@ foreach my $model_test_conf (@group_of_tests) {
         print "dumping tree ...\n" if $trace ;
         my $dump = '';
         my $risky = sub {
-            $dump = $root->dump_tree (full_dump => 0); 
+            $dump = $root->dump_tree (mode => 'full'); 
         } ;
     
         if (defined $t->{dump_errors} ) {
@@ -158,9 +158,12 @@ foreach my $model_test_conf (@group_of_tests) {
             warnings_like { &$risky; } $t->{dump_warnings} , 
                 "Ran dump_tree" ;
         }
-        ok($dump, "Dumped $model_test config tree" ) ;
+        ok($dump, "Dumped $model_test config tree in full mode" ) ;
     
         print $dump if $trace ;
+        
+        $dump = $root->dump_tree (); 
+        ok($dump, "Dumped $model_test config tree in custom mode" ) ;
 
         foreach my $path (sort keys %{$t->{check} || {}}) { 
             my $v = $t->{check}{$path} ;
@@ -197,14 +200,15 @@ foreach my $model_test_conf (@group_of_tests) {
         my $i2_root = $i2_test->config_root ;
         $i2_root->init;
 
-        my $p2_dump = $i2_root->dump_tree(full_dump => 0) ;
+        my $p2_dump = $i2_root->dump_tree() ;
+        ok($dump, "Dumped $model_test 2nd config tree in custom mode" ) ;
 
-        eq_or_diff($p2_dump,$dump,"compare original $model_test data with 2nd instance data") ;
+        eq_or_diff($p2_dump,$dump,"compare original $model_test custom data with 2nd instance custom data") ;
    
         ok( -s "$wr_dir2/$conf_dir/$conf_file_name",
             "check that original $model_test file was not clobbered");
 
-        note("End of $model_test subtest $t_name");
+        note("End of subtest $model_test $t_name");
    
         $idx++ ;
     }

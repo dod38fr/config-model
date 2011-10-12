@@ -8,6 +8,11 @@ $model_to_test  = "Debian::Dpkg::Control";
 eval { require AptPkg::Config ;} ;
 $skip = ( $@ or not -r '/etc/debian_version') ? 1 : 0 ;
 
+my $t3_description = "This is an extension of Dist::Zilla::Plugin::InlineFiles, 
+providing the following file:
+
+ - xt/release/pod-spell.t - a standard Test::Spelling test" ;
+
 @tests = (
     {
 
@@ -65,13 +70,11 @@ $skip = ( $@ or not -r '/etc/debian_version') ? 1 : 0 ;
         check => {
             'binary:libdist-zilla-plugin-podspellingtests-perl Synopsis' =>
               "release tests for POD spelling",
-            'binary:libdist-zilla-plugin-podspellingtests-perl Description' =>
-              "This is an extension of Dist::Zilla::Plugin::InlineFiles,
-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx providing the following file:
-
- - xt/release/pod-spell.t - a standard Test::Spelling test"
+            'binary:libdist-zilla-plugin-podspellingtests-perl Description' => $t3_description ,
         },
         load_warnings => [ qr/standards version/, qr/description/, (qr/value/) x 2],
+        load => 'binary:libdist-zilla-plugin-podspellingtests-perl '.
+            'Description="'.$t3_description.'"',
         apply_fix => 1,
     },
     {

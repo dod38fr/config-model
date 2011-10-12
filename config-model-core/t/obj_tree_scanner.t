@@ -320,6 +320,6 @@ my $inst2 = $model2->instance(root_class_name => 'SomeRootClass',
 
 my $root2 = $inst2->config_root ;
 
-eval{ $root2->dump_tree(auto_vivify => 1) ;};
+eval{ $root2->dump_tree(auto_vivify => 1, mode => 'full') ;};
 ok($@,"expected failure of dump with empty mandatory value") ;
 print "normal error:", $@, "\n" if $trace;

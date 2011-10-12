@@ -619,7 +619,7 @@ like(
 );
 like(
     $@,
-    qr/Mandatory value is not defined/,
+    qr/Undefined mandatory value/,
     'reading var_path while get_element variable is undef'
 );
 
