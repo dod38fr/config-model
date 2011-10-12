@@ -1353,8 +1353,7 @@ sub enum_error {
 
 =head2 check_value ( value )
 
-Check the consistency of the value. Does not check for undefined
-mandatory values.
+Check the consistency of the value.
 
 C<check_value> also accepts named parameters:
 
@@ -1458,6 +1457,16 @@ sub check_value {
 	    -> throw (object => $self, message => $msg) ;
     }
 
+    if ($self->{mandatory} and $check eq 'yes' and ($mode eq '') 
+        and (not defined $value or not length($value))
+        ) {
+	# check only "empty" mode. 
+        my $msg = "Undefined mandatory value." ;
+        $msg .= $self->warp_error 
+          if defined $self->{warped_attribute}{default} ;
+        push @error, $msg ;
+    }
+
     if (defined $self->{match_regexp} and defined $value) {
 	push @error,"value '$value' does not match regexp "
 	    .$self->{match} 
@@ -1513,7 +1522,7 @@ sub check_value {
 sub run_code_on_value {
     my ($self,$value, $apply_fix, $array, $label, $sub, $msg, $fix) = @_;
 
-    $logger->info( $self->location . ": run_code_on_value called (apply_fix $apply_fix, fix is $fix)" );
+    $logger->info( $self->location . ": run_code_on_value called (apply_fix $apply_fix)" );
 
     my $ret = $sub->($value) ;
     $logger->debug( "run_code_on_value sub returned '$ret'" );
@@ -1613,7 +1622,7 @@ sub apply_fix {
 
 =head2 check( [ value => foo ] )
 
-Like L</check_value>. Also ensure that mandatory value are defined
+Like L</check_value>.
 
 Will also display warnings on STDOUT unless C<silent> parameter is set to 1.
 In this case,user is expected to retrieve them with
@@ -1634,10 +1643,6 @@ sub check {
     my $silent = $args{silent} || 0 ;
 
     my @error = $self->check_value(%args) ;
-
-    if ((not defined $value or length($value) == 0 ) and $self->{mandatory}) {
-        push @error, "Mandatory value is not defined" ;
-    }
 
     my $warn = $self->{warning_list} ;
     map { 
@@ -2078,13 +2083,14 @@ trying to fetch an undefined mandatory value leads to an exception.
 sub fetch {
     my $self = shift ;
 
-    if ($logger->is_debug) {
-        $logger->debug("called for ".$self->location);
-    }
     my %args =  @_ > 1 ? @_ : (mode => $_[0]) ;
     my $mode = $args{mode} || '';
     my $silent = $args{silent} || 0 ;
     my $check = $self->_check_check($args{check}); 
+
+    if ($logger->is_debug) {
+        $logger->debug("called for ".$self->location." check $check mode $mode");
+    }
     
     my $inst = $self->instance ;
 
@@ -2107,33 +2113,14 @@ sub fetch {
 
     # check and subsequent storage of fixes instruction must be done only
     # in user or custom mode. (because fixes are cleaned up during check and using
-    # mode may not trigger the warnings. Hence confusion afterwards
+    # mode may not trigger the warnings. Hence confusion afterwards)
     my $ok = 1 ;
     $ok = $self->check(value => $value, silent => $silent, mode => $mode ) 
         if $mode eq '' or $mode eq 'custom' ;
 
-    $logger->debug("check mandatory stuff (mode $mode) for ".$self->location) if $logger->is_debug;
-    if (     $self->{mandatory}
-	 and $check eq 'yes'
-	 and (not $mode or $mode eq 'custom' )
-         and ($mode ne 'allow_undef')
-	 and (not defined $self->_fetch('', $check) ) # fetch in default mode (may trigger compute)
-	  ) {
-	# check only custom or "empty" mode. But undef custom value is
-	# authorized if standard value is defined (that's what is
-	# important)
-        my @error ;
-        push @error, "Undefined mandatory value." ;
-        push @error, $self->warp_error 
-          if defined $self->{warped_attribute}{default} ;
-        Config::Model::Exception::WrongValue
-	    -> throw (
-		      object => $self,
-		      error => join("\n\t",@error)
-		     );
-    }
 
-    $logger->debug("(almost) done for ".$self->location) if $logger->is_debug;
+    $logger->debug( "(almost) done for " . $self->location )
+      if $logger->is_debug;
 
     # check validity (all modes)
     if ( $ok or $check eq 'no' ) {
@@ -2145,12 +2132,13 @@ sub fetch {
           if not $silent and $msg;
         return undef;
     }
-
-    # if not yet returned, something went wrong
+    
     Config::Model::Exception::WrongValue->throw(
         object => $self,
         error  => join( "\n\t", @{ $self->{error_list} } )
     );
+
+    #return $value;    # undef in fact
 }
 
 =head2 user_value
