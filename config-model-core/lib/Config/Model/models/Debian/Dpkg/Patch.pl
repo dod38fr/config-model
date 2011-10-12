@@ -17,8 +17,9 @@
           }
         },
         'summary' => 'short description of the patch',
-        'warn_unless_match' => {
-          '\\w' => {
+        'warn_unless' => {
+          'empty' => {
+            'code' => 'defined $_ && /\w/ ? 1 : 0 ;', 
             'msg' => 'Empty synopsis',
             'fix' => '$_ = ucfirst( $self->parent->index_value )  ;
 s/-/ /g;
