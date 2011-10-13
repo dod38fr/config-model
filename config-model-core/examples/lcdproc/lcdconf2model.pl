@@ -34,6 +34,8 @@ use Log::Log4perl qw(:easy);
 my $log4perl_user_conf_file = $ENV{HOME} . '/.log4config-model';
 Log::Log4perl::init($log4perl_user_conf_file);
 
+Config::Model::Exception::Any->Trace(1) ;
+
 # one model to rule them all
 my $model = Config::Model->new();
 
@@ -160,17 +162,10 @@ $dispatch{_default_} = sub {
     $value_type ||= 'uniline';
 
     # get semantic information from comment (written between square barckets)
-    my $info = $ini_note =~ /\[(.*)\]/ ? $1 : ''; 
-    $info =~ s/\s+//g;
-    # use this semantic information to better specify the parameter
-    $load .=
-        $info =~ /legal:(\d+)-(\d+)/ ? " value_type=integer min=$1 max=$2"
-      : $info =~ /legal:([\w\,]+)/   ? " value_type=enum choice=$1"
-      :                                " value_type=$value_type";
-
-    if ( $info =~ /default:(\w+)/ ) {
-        # specify upstream default value if it was found in the comment
-        $load .= qq! upstream_default="$1"! if length($1);
+    my $info = $ini_note =~ /\[(\s*\w+\s*:.*)\]/ ? $1 : ''; 
+    if ($info) {
+        say "class $ini_class element $ini_param info: '$info'";
+        $load .= ' '. info_to_model($info,$value_type) ;
     }
     else {
         # or use the value found in INI file as default
@@ -194,12 +189,6 @@ $dispatch{"LCDd::server"}{Driver} = sub {
 
     #say $load; exit;
     return $load;
-};
-
-# like default but ensure that DriverPath ends with '/'
-$dispatch{"LCDd::server"}{DriverPath} = sub {
-    my ( $class, $elt, $info, $ini_v ) = @_;
-    return $dispatch{_default_}->(@_) . q! match="/$" !;
 };
 
 # like default but ensure that parameter is integer
@@ -293,3 +282,43 @@ say "Writing all models in file (please wait)";
 $rw_obj->write_all( model_dir => 'lib/Config/Model/models/' );
 
 say "Done";
+
+# this function extracts info specified between square brackets and returns a model snippet
+sub info_to_model {
+    my ($info,$value_type) = @_ ;
+
+    $info =~ s/\s+//g;
+    my @model ;
+
+    # legal needs to be parsed first to setup value_type first
+    my %info = map { split /[:=]/,$_ ,2 ; } split /;/,$info ; 
+
+    # use this semantic information to better specify the parameter
+    my $legal = delete $info{legal} || '';
+    given ($legal) {
+        when (/^(\d+)-(\d+)$/) { push @model, "value_type=integer min=$1 max=$2"}
+        when (/^([\w\,]+)$/)   { push @model, "value_type=enum choice=$1"}
+        default                { push @model, "value_type=$value_type"}
+    }
+
+    foreach my $k (keys %info) {
+        my $v = $info{$k} ;
+        $v = '"'.$v.'"' unless $v=~/^"/ ;
+
+        given ($k) {
+            when (/default/ ) {
+                # specify upstream default value if it was found in the comment
+                push @model ,qq!upstream_default=$v! if length($v);
+            }
+            when (/assert/ ) {
+                push @model ,qq!warn_unless:0 code=$v -!;
+            }
+            default {
+                push @model, "$k=$v" ;
+            }
+        }
+    }
+
+    return join(' ',@model) ;
+}
+
