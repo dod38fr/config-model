@@ -409,7 +409,7 @@ sub migrate_value {
 
     # check if the migrated result fits with the constraints of the
     # Value object
-    my $ok = $self->check_value($result) ;
+    my $ok = $self->check_value(value => $result, mode => 'allow_undef') ;
 
     #print "check result: $ok\n";
     if (not $ok) {
