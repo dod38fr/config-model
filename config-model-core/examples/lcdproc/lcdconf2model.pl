@@ -28,12 +28,21 @@ use Config::Model::Backend::IniFile;
 use 5.10.0;
 use IO::File;
 use IO::String;
+use Getopt::Long;
 
 # initialise logs for Config;:Model
 use Log::Log4perl qw(:easy);
 my $log4perl_user_conf_file = $ENV{HOME} . '/.log4config-model';
 Log::Log4perl::init($log4perl_user_conf_file);
 
+my $verbose = 0;
+my $show_model = 0;
+my $result = GetOptions ("verbose"  => \$verbose,
+    "model" => \$show_model);
+
+die "Unknown option. Expected -verbose or -show_model" unless $result ;
+
+# Dump stack trace in case of error
 Config::Model::Exception::Any->Trace(1) ;
 
 # one model to rule them all
@@ -155,35 +164,51 @@ my %dispatch;
 # the comment attached to the parameter, the INI value, and an optional
 # value type  
 $dispatch{_default_} = sub {
-    my ( $ini_class, $ini_param, $ini_note, $ini_v, $value_type ) = @_;
+    my ( $ini_class, $ini_param, $info_r, $ini_v, $value_type ) = @_;
 
     # prepare a string to create the ini_class model
     my $load = qq!class:"$ini_class" element:$ini_param type=leaf !;
     $value_type ||= 'uniline';
 
-    # get semantic information from comment (written between square barckets)
-    my $info = $ini_note =~ /\[(\s*\w+\s*:.*)\]/ ? $1 : ''; 
-    if ($info) {
-        say "class $ini_class element $ini_param info: '$info'";
-        $load .= ' '. info_to_model($info,$value_type) ;
+    # get semantic information from comment (written between square brackets)
+    my $square_model = '';
+    
+    my $square_rexp = '\[(\s*\w+\s*:[^\]]*)\]';
+    while ($$info_r =~ /$square_rexp/ ) {
+        my $info = $1 ;
+        say "class $ini_class element $ini_param info: '$info'" if $verbose;
+        $$info_r =~ s/$square_rexp//;
+        $square_model .= ' '. info_to_model($info,$value_type) ;
     }
-    else {
+    
+    unless ($square_model) {
         # or use the value found in INI file as default
         $ini_v =~ s/^"//g;
         $ini_v =~ s/"$//g;
-        $load .= qq! default="$ini_v"! if length($ini_v);
+        $square_model .= qq! value_type=$value_type default="$ini_v"! if length($ini_v);
+    }
+
+    # get model information from comment (written between curly brackets)
+    my $curly_model = '';
+    my $curly_rexp = '{(\s*\w+.*)}' ;
+    while ($$info_r =~ /$curly_rexp/) { 
+        my $model_snippet = $1 ;
+        say "class $ini_class element $ini_param model snippet: '$model_snippet'"
+            if $verbose;
+        $$info_r =~ s/$curly_rexp//;
+        $load .= ' '. $model_snippet ;
     }
     
     # return a string containing model specifications
-    return $load;
+    return $load.$square_model;
 };
 
 # Now let's take care of the special cases. This one deals with "Driver"
 # parameter found in INI [server] class
 $dispatch{"LCDd::server"}{Driver} = sub {
-    my ( $class, $elt, $info, $ini_v ) = @_;
+    my ( $class, $elt, $info_r, $ini_v ) = @_;
     my $load = qq!class:"$class" element:$elt type=leaf value_type=enum !;
-    my @drivers = split /\W+/, $info;
+    my @drivers = split /\W+/, $$info_r;
     while ( @drivers and ( shift @drivers ) !~ /supported/ ) { }
     $load .= 'choice=' . join( ',', @drivers ) . ' ';
 
@@ -194,13 +219,13 @@ $dispatch{"LCDd::server"}{Driver} = sub {
 # like default but ensure that parameter is integer
 $dispatch{"LCDd::server"}{WaitTime} = $dispatch{"LCDd::server"}{ReportLevel} =
   $dispatch{"LCDd::server"}{Port}   = sub {
-    my ( $class, $elt, $info, $ini_v ) = @_;
+    my ( $class, $elt, $info_r, $ini_v ) = @_;
     return $dispatch{_default_}->( @_, 'integer' );
   };
 
 # ensure that default values are "Hello LCDproc" (or "GoodBye LCDproc")
 $dispatch{"LCDd::server"}{GoodBye} = $dispatch{"LCDd::server"}{Hello} = sub {
-    my ( $class, $elt, $info, $ini_v ) = @_;
+    my ( $class, $elt, $info_r, $ini_v ) = @_;
     my $ret = qq( class:"$class" element:$elt type=list ) ;
     $ret .= 'cargo type=leaf value_type=uniline - ' ;  
     $ret .= 'default_with_init:0="\"    '.$elt.'\"" ' ; 
@@ -212,7 +237,7 @@ $dispatch{"LCDd::server"}{GoodBye} = $dispatch{"LCDd::server"}{Hello} = sub {
 
 # loop over all INI classes
 foreach my $ini_class (@ini_classes) {
-    say "Handling INI class $ini_class";
+    say "Handling INI class $ini_class" if $verbose;
     my $ini_obj = $dummy->grab($ini_class);
     my $config_class   = "LCDd::$ini_class";
 
@@ -226,15 +251,19 @@ foreach my $ini_class (@ini_classes) {
 
         # retrieve INI comment attached to $ini_param
         my $ini_comment = $ini_obj->grab($ini_param)->annotation;
-        # escape embedded quotes
-        $ini_comment =~ s/"/\\"/g;
 
         # retrieve the correct sub from the dispatch table
         my $sub = $dispatch{$config_class}{$ini_param} || $dispatch{_default_};
         
         # runs the sub to get the model string
-        my $model_spec = $sub->( $config_class, $ini_param, $ini_comment, $ini_v );
+        my $model_spec = $sub->( $config_class, $ini_param, \$ini_comment, $ini_v );
 
+        # show the model without the doc (too verbose)
+        say "load -> $model_spec" if $show_model ;
+
+        # escape embedded quotes
+        $ini_comment =~ s/"/\\"/g;
+        $ini_comment =~ s/\n*$//;
         $model_spec .= qq! description="$ini_comment"! if length($ini_comment);
 
         # load class specification in model
