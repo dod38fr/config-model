@@ -1,4 +1,4 @@
-2011-09-16  Dominique Dumont  <domi.dumont@free.fr> 1.258
+2011-10-14  Dominique Dumont  <domi.dumont@free.fr> 1.258
 
     * Application changes
         * model Debian::Dpkg::Patch: Synopsis is no longer mandatory. 
@@ -12,12 +12,17 @@
           prepended.
         * model Debian::Dpkg::Control::Source: Vcs-browser must also accep
           https URLs
+        * lcdproc:  fixed some specs in square brackets in LCDd.conf template.
+          Reworked model generator to better specs in square brackets and
+          handle model snippets in curly brackets 
 
     * Framework changes:
         * ValueComputer: &index and &element can only work with parent 
           or ancestors in tree. Fixed grammar inside of {} statements. 
           It is now able to return '' when no replacement is found
-        * Value: fix warn_if warn_unless check in custom mode.
+        * Value: fix warn_if warn_unless check in custom mode. Cleaned up 
+          mess about mandatory value checks. Custom values are no
+          longer checked this way
 
 2011-09-16  Dominique Dumont  <domi.dumont@free.fr> 1.257
 
