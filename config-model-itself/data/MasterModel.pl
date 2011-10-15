@@ -321,6 +321,28 @@
                 },
                 migrate_keys_from => '- hash_a',
             },
+            assert_leaf => {
+                type       => 'leaf',
+                value_type => 'string',
+                assert     => {
+                    assert_test => {
+                        code => 'defined $_ and /\w/',
+                        msg  => 'must not be empty',
+                        fix  => '$_ = "foobar";'
+                    }
+                },
+            },
+            leaf_with_warn_unless => {
+                type        => 'leaf',
+                value_type  => 'string',
+                warn_unless => {
+                    warn_test => {
+                        code => 'defined $_ and /\w/',
+                        msg  => 'should not be empty',
+                        fix  => '$_ = "foobar";'
+                    }
+                },
+            },
             'Source' => {
                 'value_type'   => 'string',
                 'migrate_from' => {
@@ -339,15 +361,21 @@
                 'status'     => 'deprecated',
                 'type'       => 'leaf'
             },
-            
-            ( 
-                map { 
-                    (   "list_with_".$_."_duplicates" => 
-                        { type => 'list', duplicates => $_ , cargo => { type       => 'leaf', value_type => 'string' } },
+
+            (
+                map {
+                    (
+                            "list_with_" 
+                          . $_
+                          . "_duplicates" => {
+                            type       => 'list',
+                            duplicates => $_,
+                            cargo => { type => 'leaf', value_type => 'string' }
+                          },
                     );
-                } qw/warn allow forbid suppress/ 
+                  } qw/warn allow forbid suppress/
             ),
-            
+
             ## too difficult to correctly test Augeas here
             'sshd_augeas' => {
                 type              => 'node',
@@ -357,7 +385,7 @@
         description => [ tree_macro => 'controls behavior of other elements' ],
         author    => "dod\@foo.com",
         copyright => "2011 dod",
-        license   =>  "LGPL",
+        license   => "LGPL",
     ],
 ];
 
