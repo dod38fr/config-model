@@ -89,7 +89,8 @@ my @elt1 = $root1->get_element_name ;
 
 $root1->load("a_string=toto lot_of_checklist macro=AD - "
             ."! warped_values macro=C where_is_element=get_element "
-            ."                get_element=m_value_element m_value=Cv") ;
+            ."                get_element=m_value_element m_value=Cv "
+            ."! assert_leaf=foo leaf_with_warn_unless=bar") ;
 ok($inst1,"loaded some data in master_model instance") ;
 
 my $dump1 = $root1->dump_tree(mode => 'full') ;
