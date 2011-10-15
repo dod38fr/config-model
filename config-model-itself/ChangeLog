@@ -1,10 +1,17 @@
-2011-09-02  Dominique Dumont  <domi@komarr.gre.hp.com> 1.226
+2011-09-15  Dominique Dumont  <domi.dumont@free.fr> 1.227
+
+	* MigratedValue.pl: replaced value can be a string, not only a
+	uniline
+	* CommonElement.pl: added assert and warn_unless parameters 
+	  (requires Config::Model 1.258)
+
+2011-09-02  Dominique Dumont  <domi.dumont@free.fr> 1.226
 
         * WarpableElement.pl: added duplicates parameter
         * Depends on Config::Model 1.252
 
 
-2011-06-07  Dominique Dumont  <domi@komarr.gre.hp.com> 1.225
+2011-06-07  Dominique Dumont  <domi.dumont@free.fr> 1.225
 
         * Itself.pm:  munge pod text embedded in description 
           to avoid spurious pod formatting in model files
