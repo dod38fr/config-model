@@ -34,21 +34,33 @@ my @warp_in_uniline_or_string = (
 
 );
 
-my %warn_if_payload = (
+my %warn_if_match_payload = (
     type       => 'hash',
     index_type => 'string',
     level      => 'hidden',
     experience => 'advanced',
     cargo      => {
         type              => 'node',
-        config_class_name => 'Itself::CommonElement::WarnIf',
+        config_class_name => 'Itself::CommonElement::WarnIfMatch',
+    },
+    @warp_in_uniline_or_string,
+);
+
+my %assert_payload = (
+    type       => 'hash',
+    index_type => 'string',
+    level      => 'hidden',
+    experience => 'advanced',
+    cargo      => {
+        type              => 'node',
+        config_class_name => 'Itself::CommonElement::Assert',
     },
     @warp_in_uniline_or_string,
 );
 
 [
     [
-        name    => 'Itself::CommonElement::WarnIf',
+        name    => 'Itself::CommonElement::WarnIfMatch',
         element => [
             msg => {
                 type       => 'leaf',
@@ -61,6 +73,19 @@ my %warn_if_payload = (
                 value_type => 'string',
                 description =>
 'Perl instructions to fix the value. These instructions may be triggered by user. $_ will contain the value to fix.  $_ will be stored as the new value once the instructions are done. C<$self> will contain the value object. Use with care.',
+            },
+        ],
+    ],
+    [
+        name    => 'Itself::CommonElement::Assert',
+        include => 'Itself::CommonElement::WarnIfMatch',
+        include_after => 'code',
+        element => [
+            code => {
+                type       => 'leaf',
+                value_type => 'string',
+                description =>
+'Perl instructions to test the value. $_ will contain the value to test. C<$self> will contain the value object. Use with care.',
             },
         ],
     ],
@@ -262,16 +287,28 @@ my %warn_if_payload = (
                 @warp_in_uniline_or_string,
             },
 
-            'warn_if_match' => {
-                %warn_if_payload,
+            'assert' => {
+                %assert_payload,
                 description =>
-                  'Warn user if value matches the regular expression',
+                  'Raise an error if the test code snippet does returns false',
+            },
+
+            'warn_unless' => {
+                %assert_payload,
+                description =>
+                  'Warn user if the tes code snippet does returns false',
+            },
+
+            'warn_if_match' => {
+                %warn_if_match_payload,
+                description =>
+                  'Warn user if a I<defined> value matches the regular expression. ',
             },
 
             'warn_unless_match' => {
-                %warn_if_payload,
+                %warn_if_match_payload,
                 description =>
-                  'Warn user if value does not match the regular expression',
+                  'Warn user if I<defined> value does not match the regular expression',
             },
 
             'warn' => {
