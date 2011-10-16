@@ -72,7 +72,7 @@
       'compat',
       {
         'value_type' => 'integer',
-        'default' => '7',
+        'default' => '8',
         'type' => 'leaf',
         'description' => 'compat file defines the debhelper compatibility level'
       },
