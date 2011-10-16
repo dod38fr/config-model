@@ -20,4 +20,4 @@ Note that you need to compile the module (perl Makefile.PL && make) to
 run the example, but you don't need to install the module.
 
 Feel free to send me any modifications or enhancement of this example.
-(mailto:domi@komarr.grenoble.hp.com)
+(mailto: ddumont at cpan.org)
