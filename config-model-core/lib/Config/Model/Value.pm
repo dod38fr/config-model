@@ -1491,9 +1491,14 @@ sub check_value {
             $self->run_regexp_set_on_value($value, $apply_fix, \@warn, '',$test_sub, $self->{warn_unless_match}) ; 
         }
     
-        $self->run_code_set_on_value($value, $apply_fix, \@error, "assert failure" ,$self->{assert})  if $self->{assert};
-        $self->run_code_set_on_value($value, $apply_fix, \@warn,  "warn_unless code check returned false", $self->{warn_unless}) 
-            if $self->{warn_unless};
+        $self->run_code_set_on_value( $value, $apply_fix, \@error,
+            "assert failure",
+            $self->{assert} )
+          if $self->{assert};
+        $self->run_code_set_on_value( $value, $apply_fix, \@warn,
+            "warn_unless code check returned false",
+            $self->{warn_unless} )
+          if $self->{warn_unless};
 
     }
     
@@ -1525,7 +1530,10 @@ sub run_code_on_value {
     $logger->info( $self->location . ": run_code_on_value called (apply_fix $apply_fix)" );
 
     my $ret = $sub->($value) ;
-    $logger->debug( "run_code_on_value sub returned '$ret'" );
+    if ($logger->is_debug) {
+        my $str = defined $ret ? $ret : '<undef>';
+        $logger->debug( "run_code_on_value sub returned '$str'" );
+    }
 
     unless ($ret) {
         $logger->debug( "run_code_on_value sub returned false" );
@@ -1541,6 +1549,7 @@ sub run_code_set_on_value {
     foreach my $label ( keys %$w_info ) {
         my $code = $w_info->{$label}{code} ;
         my $msg  = $w_info->{$label}{msg} || $msg;
+        $msg .= " (code is: '$code')";
         my $fix  = $w_info->{$label}{fix} ;
         
         my $sub = sub {
