@@ -1,3 +1,9 @@
+2011-10-16  Dominique Dumont  <domi.dumont@free.fr> 1.259
+
+    * Application changes
+        * model Debian::Dpkg: Bumped compat default value to 8
+    * fixed test to work even if lcdproc is not installed
+
 2011-10-14  Dominique Dumont  <domi.dumont@free.fr> 1.258
 
     * Application changes
