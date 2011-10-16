@@ -317,7 +317,7 @@ my %assert_payload = (
                 level      => 'hidden',
                 experience => 'advanced',
                 description =>
-'Unconditionaly issue a warning with this string when this parameter is used. This should be used mostly with "accept"',
+'Unconditionally issue a warning with this string when this parameter is used. This should be used mostly with "accept"',
                 warp => {
                     follow  => { t              => '?type' },
                     'rules' => [ '$t eq "leaf"' => { level => 'normal', }, ]
