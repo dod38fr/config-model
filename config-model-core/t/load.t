@@ -1,7 +1,7 @@
 # -*- cperl -*-
 
 use ExtUtils::testlib;
-use Test::More tests => 113;
+use Test::More tests => 114;
 use Test::Exception ;
 use Test::Differences ;
 use Config::Model;
@@ -105,6 +105,10 @@ ok( $root->load( step => $step, experience => 'advanced' ),
 is( $root->fetch_element('a_string')->fetch, 'titi , toto',
   "check a_string");
 
+# check that we can go to root node starting from below
+my $stdab = $root->grab("std_id:ab") ;
+$stdab->load("! a_string=titi");
+ok(1,"go to root node starting from below");
 
 ok( $root->load( step => 'tree_macro=XZ', experience => 'advanced' ),
   "Set tree_macro to XZ");
