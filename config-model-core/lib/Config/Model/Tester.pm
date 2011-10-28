@@ -26,13 +26,6 @@ require Exporter;
 
 $File::Copy::Recursive::DirPerms = 0755;
 
-
-#
-# New subroutine "run_model_test" extracted - Thu Oct 27 13:42:16 2011.
-#
-#
-# New subroutine "setup_test" extracted - Thu Oct 27 13:56:43 2011.
-#
 sub setup_test {
     my ( $model_test, $t_name, $wr_root ) = @_;
 
@@ -99,7 +92,8 @@ sub run_model_test {
         } 
         note("Beginning subtest $model_test $t_name");
 
-        my ($wr_dir, $conf_file, $ex_data, @file_list) = setup_test ($model_test, $t_name, $wr_root);
+        my ($wr_dir, $conf_file, $ex_data, @file_list) 
+            = setup_test ($model_test, $t_name, $wr_root);
 
         my $inst = $model->instance(
             root_class_name => $model_to_test,
@@ -115,13 +109,11 @@ sub run_model_test {
         {
             local $Config::Model::Value::nowarning = 1;
             $root->init;
-            ok( 1,
-"Read $conf_file and created instance with init() method without warning check"
-            );
+            ok( 1,"Read $conf_file and created instance with init() method without warning check" );
         }
         else {
             warnings_like { $root->init; } $t->{load_warnings},
-"Read $conf_file and created instance with init() method with warning check ";
+                "Read $conf_file and created instance with init() method with warning check ";
         }
 
         if ( $t->{load} ) {
@@ -220,7 +212,7 @@ sub run_model_test {
         ok( $dump, "Dumped $model_test 2nd config tree in custom mode" );
 
         eq_or_diff( $p2_dump, $dump,
-"compare original $model_test custom data with 2nd instance custom data"
+            "compare original $model_test custom data with 2nd instance custom data"
         );
 
         ok( -s "$wr_dir2/$conf_dir/$conf_file_name" , 
@@ -273,3 +265,242 @@ sub run_tests {
 
 }
 1;
+
+=head1 NAME
+
+Config::Model::Tester - Test framework for Config::Model
+
+=head1 SYNOPSIS
+
+ # in t/foo.t
+ use warnings;
+ use strict;
+
+ use Config::Model::Tester ;
+ use ExtUtils::testlib;
+
+ my $arg = shift || '';
+ my $test_only_model = shift || '';
+ my $do = shift ;
+
+ run_tests($arg, $test_only_model, $do) ;
+
+
+=head1 DESCRIPTION
+
+This class provides a way to test configuration models with tests files. 
+This class was designed to tests several models and severals tests 
+cases per model.
+
+A specific layout for test files must be followed
+
+=head2 Test file layout
+
+ t/model_tests.d
+ |-- fstab-examples
+ |   |-- t0
+ |   \-- t1
+ |-- fstab-test-conf.pl
+ |-- debian-dpkg-examples
+ |   \-- libversion
+ |       \-- debian
+ |           |-- changelog
+ |           |-- compat
+ |           |-- control
+ |           |-- copyright
+ |           |-- rules
+ |           |-- source
+ |           |   \-- format
+ |           \-- watch
+ \-- debian-dpkg-test-conf.pl
+
+In the example above, we have 2 models to test: C<fstab> and C<debian-dpkg>.
+
+Each model test has specification in C<*-test-conf.pl> files. Test cases are 
+either plain files or directories in C<*-examples> . The former is fine if 
+your model deal with one file (e.g. C</etc/fstab>. Complete directories are
+required if your model deal with several files (e.g. Debian source package).
+
+=head2 Basic test specification
+
+Each model test is specified in C<< <model>-test-conf.pl >>. This file
+contains a set of global variable. (yes, global variables are often bad ideas
+in programs, but they are handy for tests):
+
+ # config file name (used to copy test case into test wr_root directory)
+ $conf_file_name = "fstab" ;
+ # config dir where to copy the file
+ #$conf_dir = "etc" ;
+
+Here, C<t0> file will be copied in C<wr_root/test-t0/etc/fstab>.
+
+ # config model name to test
+ $model_to_test = "Fstab" ;
+
+ # list of tests
+ @tests = (
+    { 
+     # test name 
+     name => 't0',
+     # add optional specification here for t0 test
+    },
+    { 
+     name => 't1',
+     # add optional specification here for t1 test
+     },
+ );
+
+ 1; # to keep Perl happy
+ 
+=head2 test scenario
+
+Each subtest follow a sequence explained below. Each step of this
+sequence may be altered by adding specification in the test case:
+
+=over
+
+=item *
+
+Setup test in C<< wr_root/<subtest name>/ >>
+
+=item *
+
+Create configuration instance, load config data and check its validity. Use
+C<< load_check => 'no' >> if your file is not valid.
+
+=item *
+
+Check for config data warning. You should pass the list of expected warnings.
+E.g.  
+
+    load_warnings => [ qr/Missing/, (qr/deprecated/) x 3 , ],
+
+=item *
+
+Optionally load configuration data. You should design this config data to 
+suppress any error or warning mentioned above. E.g:
+
+    load => 'binary:seaview Synopsis="multiplatform interface for sequence alignment"',
+
+=item *
+
+Optionally, call L<apply_fixes|Config::Model::Instance/apply_fixes>:
+
+    apply_fix => 1,
+
+=item *
+
+Call L<dump_tree|Config::Model::Node/dump_tree ( ... )> to check the validity of the 
+data. Use C<dump_errors> if you expect issues:
+
+    dump_errors =>  [ 
+        # the issues     the fix that will be applied
+        qr/mandatory/ => 'Files:"*" Copyright:0="(c) foobar"',
+        qr/mandatory/ => ' License:FOO text="foo bar" ! Files:"*" License short_name="FOO" '
+    ],
+
+=item *
+
+Likewise, specify any expected warnings:
+
+        dump_warnings => [ (qr/deprecated/) x 3 ],
+
+You can tolerate any sump warning this way:
+
+        dump_warnings => undef ,
+        
+=item * 
+
+Run specific content check to verify that configuration data was retrieved 
+correctly:
+
+    check => { 
+        'fs:/proc fs_spec',           "proc" ,
+        'fs:/proc fs_file',           "/proc" ,
+        'fs:/home fs_file',          "/home",
+    },
+
+=item *
+
+Write back the config data in C<< wr_root/<subtest name>/ >>. 
+You can skip warning when writing back with:
+
+    no_warnings => 1,
+
+=item *
+
+Check added or removed configuration files. If you expect changes, 
+specify a subref  to alter the file list:
+
+    file_check_sub => sub { 
+        my $file_list_ref = shift ; 
+        @$r = grep { ! /home/ } @$r ;
+    };
+
+=item *
+
+Copy all config data from C<< wr_root/<subtest name>/ >>
+to C<< wr_root/<subtest name>-w/ >>. This steps is necessary
+to check that configuration written back has the same content as
+the original configuration.
+
+=item *
+
+Create another configuration instance to read the conf file that was just copied
+(configuration data is checked.)
+
+=item *
+
+Compare data read from original data.
+
+
+=back
+
+=head2 running the test
+
+Run all tests:
+
+ perl -Ilib t/model_test.t
+ 
+By default, all tests are run on all models. 
+
+You can pass arguments to C<t/model_test.t>:
+
+=over 
+
+=item *
+
+a bunch of letters. 't' to get test traces. 'e' to get stack trace in case of 
+errors, 'l' to have logs. All other letters are ignored. E.g.
+
+  # run with log and error traces
+  perl -Ilib t/model_test.t el
+
+=item *
+
+The model name to tests. E.g.:
+
+  # run only fstab tests
+  perl -Ilib t/model_test.t x fstab
+
+=item * 
+
+The required subtest E.g.:
+
+  # run only fstab tests t0
+  perl -Ilib t/model_test.t x fstab t0
+  
+=back
+
+=head1 Examples
+
+See http://config-model.hg.sourceforge.net/hgweb/config-model/config-model/file/tip/config-model-core/t/model_tests.d/debian-dpkg-copyright-test-conf.pl
+
+=head1 AUTHOR
+
+Dominique Dumont, (ddumont at cpan dot org)
+
+=head1 SEE ALSO
+
+L<Config::Model>, 
+
