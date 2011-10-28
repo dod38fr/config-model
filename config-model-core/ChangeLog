@@ -1,3 +1,13 @@
+2011-10-28  Dominique Dumont  <domi.dumont@free.fr> 1.260
+
+    * Application changes
+        * Backend Debian::Dpkg: skip empty lines in patch series files
+    * Framework changes:
+        + Config::Model::Tester: new class extracted from t/model_tests.t
+          to test config files and models. 
+        * Config/Model/Loader.pm: Make sure that load("!") goes to root 
+          even if load was called from a child node. Fix RT#69480
+
 2011-10-16  Dominique Dumont  <domi.dumont@free.fr> 1.259
 
     * Application changes
