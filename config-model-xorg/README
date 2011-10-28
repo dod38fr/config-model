@@ -15,13 +15,13 @@ interface in case Xorg server is down)
 Once this module is installed, you can run (as root, but please backup
 /etc/X11/xorg.conf before):
 
-  # config-edit -model Xorg
+  # config-edit -application xorg
 
 You may want to try it safely first by writing the resulting xorg.conf
 elsewhere (in this case you can run this command with your user
 account):
 
-  $ config-edit -model Xorg -write_directory test 
+  $ config-edit -application xorg -write_directory test 
 
 If config-edit fails with your xorg.conf (See BUGS section below), you
 can try config-edit with -force option.
@@ -29,7 +29,7 @@ can try config-edit with -force option.
 Note that you must run this command where you unpacked
 this perl module:
 
-  $ config-edit -model Xorg -read data -write wr_test
+  $ config-edit -application xorg -read data -write wr_test
 
 If you do not have the curses user interface, be sure to read doc
 which explain the basic command of the terminal based interface:
@@ -41,13 +41,9 @@ MODULE CONTENT
 This Perl modules contains several files (listed in MANIFEST). Here
 are the purpose of the main files:
 - Build.PL : script to build the Perl module. See Module::Build(3pm)
-- data/xorg.conf: sample xorg.conf used with non-reg test
 - lib/Config/Model/models : directory containing Xorg model files. The
   main model is Xorg.pl. The complete xorg model is made from all
   files contained in this directory.
-- lib/Config/Model/Xorg/Read.pm: Read xorg.conf files
-- lib/Config/Model/Xorg/Write.pm: Write xorg.conf files
-- t/xorg.t: non-regression test
 
 --------------------------------------------------------------------
 
@@ -75,7 +71,7 @@ lib/Config/Model/models/Xorg/Device/ directory) :
 --------------------------------------------------------------------
 
 AUTHOR
-    Copyright (c) 2007-2009 Dominique Dumont.
+    Copyright (c) 2007-2011 Dominique Dumont.
 
     This file is part of Config-Model-Xorg.
 
