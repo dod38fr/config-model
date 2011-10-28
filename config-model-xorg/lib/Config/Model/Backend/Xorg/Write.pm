@@ -1,61 +1,15 @@
 
-#    Copyright (c) 2005-2009 Dominique Dumont.
-#
-#    This file is part of Config-Xorg.
-#
-#    Config-Xorg is free software; you can redistribute it and/or
-#    modify it under the terms of the GNU Lesser Public License as
-#    published by the Free Software Foundation; either version 2.1 of
-#    the License, or (at your option) any later version.
-#
-#    Config-Xorg is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#    Lesser Public License for more details.
-#
-#    You should have received a copy of the GNU Lesser Public License
-#    along with Config-Model; if not, write to the Free Software
-#    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+package Config::Model::Backend::Xorg::Write ;
 
-package Config::Model::Xorg::Write ;
+use Any::Moose 'Role' ;
 
-use strict;
-use warnings ;
 use Carp ;
 use IO::File ;
 use Config::Model::ObjTreeScanner ;
 use Log::Log4perl ;
 use File::Path ;
 
-# use vars qw($VERSION) ;
-
-
-my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-
-sub write {
-    my %args = @_ ;
-    my $config_root = $args{object}
-      || croak __PACKAGE__," write: undefined config root object";
-    my $conf_dir = $args{config_dir} 
-      || croak __PACKAGE__," write: undefined config_dir";
-    my $root = $args{root} || '';
-
-    my $dir = join('/',$root,$conf_dir) ;
-
-    unless (-d $dir ) {
-	mkpath($dir,{mode => 0755 }) || 
-	  die __PACKAGE__," write: can't create dir $dir:$!";
-    }
-
-    my $file = "$dir/xorg.conf" ;
-
-    $logger->info( __PACKAGE__." write: writing config file $file\n");
-
-    open (CONF,"> $file ") || die __PACKAGE__," write: can't open $file:$!";
-
-    print CONF join("\n", write_all($config_root)) ;
-    close CONF;
-}
+my $logger = Log::Log4perl::get_logger('Backend::Xorg::Write');
 
 sub wr_std_leaf {
     my ($scanner, $data_r, $node,$element_name,$index, $leaf_object,$v) = @_ ;
@@ -383,7 +337,7 @@ sub write_all {
 
     $scan->scan_node (\@result, $root) ;
 
-    return @result ;
+    return \@result ;
 #     foreach my $sect_obj (@_) {
 # 	my $section_name = $sect_obj->element_name ;
 # 	$$ref .= qq(Section "$section_name"\n) ;
