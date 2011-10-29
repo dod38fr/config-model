@@ -405,10 +405,10 @@ Likewise, specify any expected warnings:
 
         dump_warnings => [ (qr/deprecated/) x 3 ],
 
-You can tolerate any sump warning this way:
+You can tolerate any dump warning this way:
 
         dump_warnings => undef ,
-        
+
 =item * 
 
 Run specific content check to verify that configuration data was retrieved 
