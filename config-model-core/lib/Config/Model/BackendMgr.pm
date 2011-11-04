@@ -31,7 +31,7 @@ use IO::File ;
 use Storable qw/dclone/ ;
 use Log::Log4perl qw(get_logger :levels);
 
-my $logger = get_logger('Data') ;
+my $logger = get_logger('BackendMgr') ;
 
 # one BackendMgr per file
 
@@ -54,17 +54,21 @@ sub get_cfg_file_path {
     my $self = shift ; 
     my %args = @_;
 
-    # config file override
-    return $args{config_file} if defined $args{config_file} ;
-
     my $w = $args{write} || 0 ;
 
-    Config::Model::Exception::Model -> throw
-        (
+    # config file override
+    if (defined $args{config_file}) {
+        my $override = $args{root}.$args{config_file}  ;
+         $logger->trace("auto_". ($w ? 'write' : 'read') 
+                  ." $args{backend} override target file is $override" );
+        return $args{root}.$args{config_file} 
+    }
+
+    Config::Model::Exception::Model -> throw (
          error=> "auto_". ($w ? 'write' : 'read') 
-                 ." error: empty 'config_dir' parameter",
+                 ." error: empty 'config_dir' parameter (and no config_file override)",
          object => $self->node
-        ) unless $args{config_dir};
+    ) unless $args{config_dir};
 
     my $dir = $args{config_dir} ;
     if ($dir =~ /^~/) { 
