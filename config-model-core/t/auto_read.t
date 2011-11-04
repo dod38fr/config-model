@@ -16,14 +16,12 @@ use strict;
 
 use vars qw/$model/;
 
-$model = Config::Model -> new (legacy => 'ignore',) ;
+$model = Config::Model -> new () ;
 
 my $arg = shift || '';
 my $log = 0;
 
 my $trace = $arg =~ /t/ ? 1 : 0 ;
-$::verbose          = 1 if $arg =~ /v/;
-$::debug            = 1 if $arg =~ /d/;
 $log                = 1 if $arg =~ /l/;
 Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 
