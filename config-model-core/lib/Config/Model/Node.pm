@@ -635,6 +635,7 @@ sub new {
     
     
     $self->{auto_read} = { skip => delete $args{skip_read}, check => $check };
+    $self->{config_file} = delete $args{config_file} ;
     
     my @left = keys %args ;
     croak "Node->new: unexpected parameter: @left" if @left ;
@@ -656,33 +657,44 @@ sub new {
 }
 
 sub init {
-    my $self = shift ;
+    my $self = shift;
 
-    return if $self->{initialized} ;
-    $self->{initialized} = 1 ; # avoid recursions
+    return if $self->{initialized};
+    $self->{initialized} = 1;    # avoid recursions
 
-    my $model = $self->{model} ;
-    
-    return unless defined $model->{read_config} or defined $model->{write_config} ;
-    $self->{bmgr} ||= Config::Model::BackendMgr->new (node => $self) ;
-    
-    my $ar = $self->{auto_read} ;
-    
-    my $check = $ar->{check} ;
-    if (defined $model->{read_config} and not $ar->{skip_read} ) {
-        $ar->{done} = 1 ;
+    my $model = $self->{model};
+
+    return
+      unless defined $model->{read_config}
+          or defined $model->{write_config};
+    $self->{bmgr} ||= Config::Model::BackendMgr->new( node => $self );
+
+    my $ar = $self->{auto_read};
+
+    my $check = $ar->{check};
+    if ( defined $model->{read_config} and not $ar->{skip_read} ) {
+        $ar->{done} = 1;
+
         # setup auto_read, read_config_dir is obsolete
-        $self->{bmgr}->auto_read_init($model->{read_config}, $check, $model->{read_config_dir} );
+        $self->{bmgr}->auto_read_init(
+            read_config     => $model->{read_config},
+            check           => $check,
+            read_config_dir => $model->{read_config_dir},
+            config_file     => $self->{config_file},
+        );
     }
 
     # use read_config data if write_config is missing
-    $model->{write_config} ||= dclone $model->{read_config} 
+    $model->{write_config} ||= dclone $model->{read_config}
       if defined $model->{read_config};
 
-    if ($model->{write_config}) {
+    if ( $model->{write_config} ) {
+
         # setup auto_write, write_config_dir is obsolete
-        $self->{bmgr}->auto_write_init($model->{write_config},
-                                       $model->{write_config_dir});
+        $self->{bmgr}->auto_write_init(
+            write_config     => $model->{write_config},
+            write_config_dir => $model->{write_config_dir},
+        );
     }
 }
 

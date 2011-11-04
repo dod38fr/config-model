@@ -54,6 +54,9 @@ sub get_cfg_file_path {
     my $self = shift ; 
     my %args = @_;
 
+    # config file override
+    return $args{config_file} if defined $args{config_file} ;
+
     my $w = $args{write} || 0 ;
 
     Config::Model::Exception::Model -> throw
@@ -74,7 +77,7 @@ sub get_cfg_file_path {
     
     $dir .= '/' unless $dir =~ m!/$! ;
     if (not -d $dir and $w and $args{auto_create}) {
-        $logger->info("get_cfg_file_path:{ite create directory $dir" );
+        $logger->info("creating directory $dir" );
         mkpath ($dir,0, 0755);
     }
 
@@ -195,7 +198,15 @@ sub load_backend_class {
 }
 
 sub auto_read_init {
-    my ($self, $readlist_orig, $check, $r_dir) = @_ ;
+    my ($self, %args) = @_ ;
+    my $readlist_orig = delete $args{read_config} ;
+    my $check = delete $args{check} ;
+    my $r_dir = delete $args{read_config_dir} ;
+    my $config_file_override = delete $args{config_file} ;
+    
+    croak "auto_read_init: unexpected args ".join(' ',keys %args)."\n" 
+        if %args ;
+
     # r_dir is obsolete
     if (defined $r_dir) {
         warn $self->node->config_class_name," : read_config_dir is obsolete\n";
@@ -240,7 +251,8 @@ sub auto_read_init {
         $auto_create ||= delete $read->{auto_create} if defined $read->{auto_create};
 
         my @read_args = (%$read, root => $root_dir, config_dir => $read_dir,
-                        backend => $backend, check => $check);
+                        backend => $backend, check => $check, 
+                        config_file => $config_file_override);
 
         if ($backend eq 'custom') {
             my $c = my $file = delete $read->{class} ;
@@ -331,7 +343,12 @@ sub auto_read_init {
 
 # called at configuration node creation, NOT when writing
 sub auto_write_init {
-    my ($self, $wrlist_orig, $w_dir) = @_ ;
+    my ($self, %args) = @_ ;
+    my $wrlist_orig = delete $args{write_config} ;
+    my $w_dir = delete $args{write_config_dir} ;
+
+    croak "auto_write_init: unexpected args ".join(' ',keys %args)."\n" 
+        if %args ;
 
     # w_dir is obsolete
     if (defined $w_dir) {
@@ -499,6 +516,9 @@ For instance, C<< backend => 'augeas' >> or C<< backend => 'custom' >>.
 
 You can force to use all backend to write the files by specifying 
 C<< backend => 'all' >>.
+
+You can force a specific config file to write with 
+C<<config_file => 'foo/bar.conf' >>
 
 C<write_back> will croak if no write call-back are known for this node.
 
