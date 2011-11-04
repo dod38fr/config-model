@@ -2516,6 +2516,10 @@ L<Config::Model::IdElementReference>
 
 =item *
 
+L<Config::Model::Iterator>
+
+=item *
+
 L<Config::Model::Loader>
 
 =item *
