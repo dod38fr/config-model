@@ -1,12 +1,13 @@
 # -*- cperl -*-
 
 use ExtUtils::testlib;
-use Test::More tests => 56;
+use Test::More tests => 59;
 use Config::Model;
 use File::Path;
 use File::Copy ;
 use Test::Warn ;
 use Test::Exception ;
+use Test::File::Contents;
 
 use warnings;
 no warnings qw(once);
@@ -153,6 +154,17 @@ $model->create_config_class
    read_config  => [ { backend => 'cds_file', config_dir => $conf_dir,
 		       file => 'scratch_inst.cds'},
 		   ],
+
+   element => [
+	       aa => { type => 'leaf',value_type => 'string'} ,
+	      ]
+   );
+
+$model->create_config_class 
+  (
+   name => 'CdsWithNoFile',
+
+   read_config  => [ { backend => 'cds_file'}, ],
 
    element => [
 	       aa => { type => 'leaf',value_type => 'string'} ,
@@ -498,10 +510,25 @@ map {is($result{simple_rw}{$_},'wr_root/test3//etc/test/toto.conf',
 	"Check Simple_Rw cb file argument ($_)")} 
   qw/rfile wfile/ ;
 
-open(TOTO,$toto_conf) || die "Can't open $toto_conf:$!" ;
-my @totolines= <TOTO> ;
-close TOTO;
+file_contents_eq ($toto_conf, "aa=toto3 -\n" ,"checked file written by simpleRW") ;
 
-is_deeply(\@totolines,["aa=toto3 -\n"],"checked file written by simpleRW") ;
+# test config-file override, reading cds file 
+my $scratch_conf = 'etc/test/scratch_inst.cds' ;
+my $cdswnf = $model->instance(
+    root_class_name  => 'CdsWithNoFile',
+    instance_name => 'cds_with_no_file_inst',
+    root_dir => $root3 ,
+    config_file => $scratch_conf,
+    );
+ok($cdswnf,"Created instance to load overridden cds config file") ;
+
+$expect = 'aa=toto2 -
+' ;
+is($cdswnf->config_root->dump_tree, $expect, "check dump" );
+$cdswnf->config_root->load("aa=toto4") ;
+$cdswnf->write_back( config_file => $scratch_conf );
+
+file_contents_eq ("$root3/$scratch_conf", "aa=toto4 -\n" ,"checked file written by simpleRW") ;
+
 
 
