@@ -2173,6 +2173,16 @@ sub fetch_preset {
     return shift->{preset} ;
 }
 
+=head2 clear_preset
+
+Delete the preset value. (Even out of preset mode)
+
+=cut
+
+sub clear_preset {
+    delete shift->{preset} ;
+}
+
 
 =head2 get( path => ..., mode => ... ,  check => ... )
 
