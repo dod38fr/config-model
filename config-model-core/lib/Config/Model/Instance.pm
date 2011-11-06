@@ -27,6 +27,7 @@ use Config::Model::Node ;
 use Config::Model::Loader;
 use Config::Model::SearchElement;
 use Config::Model::Iterator;
+use Config::Model::ObjTreeScanner;
 
 use strict ;
 use Carp;
@@ -141,8 +142,7 @@ sub new {
     carp "instance new: force_load is deprecated" if defined $args{force_load} ;
     $read_check = 'no' if delete $args{force_load} ;
 
-    my $self 
-      = {
+    my $self  = {
 	 # stack used to store whether read and/or write check must 
 	 # be done in tree objects (Value, Id ...)
 	 check_stack => [ { fetch => 1,
@@ -171,6 +171,7 @@ sub new {
 	 # used for auto_read auto_write feature
 	 name            =>  delete $args{name} ,
 	 root_dir        =>  delete $args{root_dir},
+	 config_file     =>  delete $args{config_file} , 
 
 	 backend         =>  delete $args{backend} || '',
 	 skip_read       =>  delete $args{skip_read} || 0,
@@ -233,14 +234,15 @@ data (and annotations) loaded from disk.
 =cut
 
 sub reset_config {
-    my ($self, %args ) = @_ ;
+    my ( $self, %args ) = @_;
 
-    $self->{tree} = Config::Model::Node
-      -> new ( config_class_name => $self->{root_class_name},
-	       instance => $self,
-	       config_model => $self->{config_model},
-	       skip_read  => $self->{skip_read},
-	     );
+    $self->{tree} = Config::Model::Node->new(
+        config_class_name => $self->{root_class_name},
+        instance          => $self,
+        config_model      => $self->{config_model},
+        skip_read         => $self->{skip_read},
+        config_file       => $self->{config_file} ,
+    );
 
     # $self->{annotation_saver} = Config::Model::Annotation
     #   -> new (
@@ -250,7 +252,7 @@ sub reset_config {
     # 	     ) ;
     # $self->{annotation_saver}->load ;
 
-    return $self->{tree} ;
+    return $self->{tree};
 }
 
 
@@ -311,6 +313,28 @@ Get preset mode
 sub preset {
     my $self = shift ;
     return $self->{preset} ;
+}
+
+=head2 preset_clear()
+
+Clear all preset values stored.
+
+=cut
+
+sub preset_clear {
+    my $self = shift ;
+    my $wiper = Config::Model::ObjTreeScanner->new (
+        fallback => 'all',
+        auto_vivify => 0,
+        check => 'skip' ,
+        leaf_cb => sub {
+            my ($scanner, $data_ref,$node,$element_name,$index, $leaf_object) = @_ ;
+            $leaf_object->clear_preset ;
+        }
+    );
+
+    $wiper->scan_node(undef,$self->config_root) ;
+
 }
 
 =head2 data( kind, [data] )
@@ -485,12 +509,15 @@ sub write_back {
 
     my $force_backend = delete $args{backend} || $self->{backend} ;
 
-    map {croak "write_back: wrong parameters $_" 
-	     unless /^(root|config_dir)$/ ;
-	 $args{$_} ||= '' ;
-	 $args{$_} .= '/' if $args{$_} and $args{$_} !~ m(/$) ;
+    foreach (keys %args) {
+        if (/^(root|config_dir)$/) {
+            $args{$_} ||= '' ;
+            $args{$_} .= '/' if $args{$_} and $args{$_} !~ m(/$) ;
+        }
+        elsif (not /^config_file$/) {
+            croak "write_back: wrong parameters $_" ;
+        }
      }
-      keys %args;
 
     croak "write_back: no subs registered in instance $self->{name}. cannot save data\n" 
       unless @{$self->{write_back}} ;

@@ -201,15 +201,14 @@ sub load_backend_class {
     return $class_to_load ;
 }
 
-sub auto_read_init {
+sub read_config_data {
     my ($self, %args) = @_ ;
     my $readlist_orig = delete $args{read_config} ;
     my $check = delete $args{check} ;
     my $r_dir = delete $args{read_config_dir} ;
     my $config_file_override = delete $args{config_file} ;
     
-    croak "auto_read_init: unexpected args ".join(' ',keys %args)."\n" 
-        if %args ;
+    croak "unexpected args ".join(' ',keys %args)."\n" if %args ;
 
     # r_dir is obsolete
     if (defined $r_dir) {
@@ -224,7 +223,7 @@ sub auto_read_init {
     my $root_dir = $instance -> read_root_dir || '';
     $root_dir .= '/' if ($root_dir and $root_dir !~ m(/$)) ; 
 
-    croak "auto_read_init: readlist must be array or hash ref\n" 
+    croak "readlist must be array or hash ref\n" 
       unless ref $readlist ;
 
     my @list = ref $readlist  eq 'ARRAY' ? @$readlist :  ($readlist) ;

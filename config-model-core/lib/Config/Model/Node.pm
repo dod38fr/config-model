@@ -674,14 +674,7 @@ sub init {
     my $check = $ar->{check};
     if ( defined $model->{read_config} and not $ar->{skip_read} ) {
         $ar->{done} = 1;
-
-        # setup auto_read, read_config_dir is obsolete
-        $self->{bmgr}->auto_read_init(
-            read_config     => $model->{read_config},
-            check           => $check,
-            read_config_dir => $model->{read_config_dir},
-            config_file     => $self->{config_file},
-        );
+        $self->read_config_data(check => $check) ;
     }
 
     # use read_config data if write_config is missing
@@ -698,9 +691,35 @@ sub init {
     }
 }
 
+sub read_config_data {
+    my ($self,%args) = @_ ;
+    
+    my $model = $self->{model};
+    
+    if ($self->location and $args{config_file}) {
+        die "read_config_data: cannot override config_file in non root node (",
+            $self->location,")\n";
+    }
+
+    # setup auto_read, read_config_dir is obsolete
+    # may use an overridden config file
+    $self->{bmgr}->read_config_data(
+        read_config     => $model->{read_config},
+        check           => $args{check},
+        read_config_dir => $model->{read_config_dir},
+        config_file     => $args{config_file} || $self->{config_file},
+    );
+}
+
 sub write_back {
-    my $self = shift ;
-    $self->{bmgr}->write_back(@_) ;
+    my ($self,%args) = @_ ;
+
+    if ($self->location and $args{config_file}) {
+        die "write_back: cannot override config_file in non root node (",
+            $self->location,")\n";
+    }
+    
+    $self->{bmgr}->write_back(%args) ;
 }
 
 sub is_auto_write_for_type {

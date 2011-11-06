@@ -28,12 +28,6 @@ use Pod::Usage ;
 use Log::Log4perl qw(get_logger :levels);
 use POSIX qw/setsid/ ;
 
-# lame tracing that will be replaced by Log4perl
-use vars qw/$verbose $debug/ ;
-
-$verbose = 0;
-$debug = 0;
-
 my $log4perl_syst_conf_file = '/etc/log4config-model.conf' ;
 my $log4perl_user_conf_file = $ENV{HOME}.'/.log4config-model' ;
 my $fallback_conf = << 'EOC';
@@ -343,15 +337,14 @@ my $fuse_debug = 0;
 my $apply_fixes = 0 ;
 my $search ;
 my $search_type = 'all';
+my $config_file ; # can override file given by model
  
 my $result = GetOptions ("ui|if=s"          => \$ui_type,
 			 "model_dir|model-dir=s"      => \$model_dir,
 			 "application=s"    => \$application,
 			 "model=s"          => \$root_model,
-			 "verbose!"         => \$verbose,
 			 "experience=s"     => \$experience ,
 			 "instance_name|instance-name=s"  => \$instance_name,
-			 "debug!"           => \$debug,
 			 "trace!"           => \$trace,
 			 "man!"             => \$man,
 			 "help!"            => \$help,
@@ -371,6 +364,7 @@ my $result = GetOptions ("ui|if=s"          => \$ui_type,
 			 "gen-pod|gen_pod:s" => \$gen_pod,
 			 "search=s"         => \$search,
 			 "narrow-search=s"  => \$search_type,
+			 "file=s"           => \$config_file,
 			);
 
 pod2usage(2) if not $result ;
@@ -431,6 +425,7 @@ my $inst = $model->instance (root_class_name => $root_model ,
 			     check           => $force_load ? 'no' : 'yes',
 			     skip_read       => $load ? 1 : 0,
 			     backend         => $backend,
+			     config_file     => $config_file ,
 			    );
 
 my $root = $inst -> config_root ;
