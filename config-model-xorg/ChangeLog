@@ -1,3 +1,8 @@
+2011-11-07  Dominique Dumont  <domi.dumont@free.fr> 1.106
+
+    * Config/Model/Backend/Xorg.pm: updated doc (removed misleading
+      mentions of fstab)
+
 2011-10-28  Dominique Dumont  <domi.dumont@free.fr> 1.105
 
     * Xorg backend: updated with new read_config spec. Now use 
