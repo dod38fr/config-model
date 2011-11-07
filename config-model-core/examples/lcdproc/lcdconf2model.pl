@@ -218,7 +218,7 @@ $dispatch{"LCDd::server"}{Driver} = sub {
 
 # like default but ensure that parameter is integer
 $dispatch{"LCDd::server"}{WaitTime} = $dispatch{"LCDd::server"}{ReportLevel} =
-  $dispatch{"LCDd::server"}{Port}   = sub {
+ $dispatch{"LCDd::picolcd"}{LircFlushThreshold} = $dispatch{"LCDd::server"}{Port}   = sub {
     my ( $class, $elt, $info_r, $ini_v ) = @_;
     return $dispatch{_default_}->( @_, 'integer' );
   };
