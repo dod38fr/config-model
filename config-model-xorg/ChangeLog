@@ -1,3 +1,9 @@
+2011-10-28  Dominique Dumont  <domi.dumont@free.fr> 1.105
+
+    * Xorg backend: updated with new read_config spec. Now use 
+      Config::Model::Backend framework
+    * added file for config-edit auto-completion
+
 2009-06-25  Dominique Dumont  <dominique.dumont@hp.com> 1.104
 
 	* Build.PL: depends on Config::Model 0.637
