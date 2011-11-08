@@ -1,6 +1,4 @@
 
-#$conf_file_name = "multi-test.conf" ;
-$conf_dir      = "";
 $model_to_test = "Multistrap";
 
 @tests = (
