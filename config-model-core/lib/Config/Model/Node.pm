@@ -803,7 +803,13 @@ sub has_element {
     my %args = ( @_ > 1 ) ? @_ : ( name => shift ) ;
     my $name = $args{name};
     my $type = $args{type} ;
-    croak "has_element: missing element name" unless defined $name ;
+
+    if (not defined $name) {
+        Config::Model::Exception::Internal->throw(
+            object   => $self,
+            info     => "has_element: missing element name",
+        ) ;
+    }
 
     $self->accept_element($name);
     return 0 unless defined $self->{model}{element}{$name} ;
