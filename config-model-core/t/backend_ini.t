@@ -7,6 +7,7 @@ use Config::Model;
 use File::Path;
 use File::Copy ;
 use Data::Dumper ;
+use Log::Log4perl qw(:easy) ;
 
 use warnings;
 no warnings qw(once);
@@ -17,12 +18,17 @@ use strict;
 my $arg = shift || '';
 
 my $trace = $arg =~ /t/ ? 1 : 0 ;
-$::verbose          = 1 if $arg =~ /v/;
-$::debug            = 1 if $arg =~ /d/;
-Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
+my $log   = $arg =~ /l/ ? 1 : 0 ;;
 
-use Log::Log4perl qw(:easy) ;
-Log::Log4perl->easy_init($arg =~ /l/ ? $TRACE: $ERROR);
+my $log4perl_user_conf_file = $ENV{HOME}.'/.log4config-model' ;
+
+if ($log and -e $log4perl_user_conf_file ) {
+    Log::Log4perl::init($log4perl_user_conf_file);
+}
+else {
+    Log::Log4perl->easy_init($log ? $WARN: $ERROR);
+}
+Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 
 plan tests => 49 ;
 
