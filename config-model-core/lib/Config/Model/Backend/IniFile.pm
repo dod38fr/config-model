@@ -54,10 +54,11 @@ sub read {
 
     my $section;
 
-    my $delimiter  = $args{comment_delimiter}   || '#';
-    my $hash_class = $args{store_class_in_hash} || '';
-    my $check      = $args{check}               || 'yes';
-    my $obj        = $self->node;
+    my $delimiter   = $args{comment_delimiter}   || '#';
+    my $hash_class  = $args{store_class_in_hash} || '' ;
+    my $section_map = $args{section_map}         || {} ;
+    my $check       = $args{check}               || 'yes';
+    my $obj         = $self->node;
 
     #FIXME: Is it possible to store the comments with their location
     #in the file?  It would be nice if comments that are after values
@@ -76,9 +77,12 @@ sub read {
         # Update section name
         if ( $vdata =~ /\[(.*)\]/ ) {
             $section = $1;
-            my $prefix = $hash_class ? "$hash_class:" : '';
+            my $steps = $section_map->{$section} ? $section_map->{$section}.' '
+                      : $hash_class              ? "$hash_class:$section" 
+                      :                            $section ;
+            $logger->debug("use step '$steps' for section '$section'");
             $obj = $self->node->grab(
-                step  => $prefix . $section,
+                step  => $steps ,
                 check => $check,
                 mode => $check eq 'yes' ? 'strict' : 'loose' ,
             );
@@ -327,6 +331,10 @@ Change the character that starts comments in the INI file. Default is 'C<#>'.
 
 See L</"Arbitrary class name">
 
+=item section_map
+
+Is a kind of exception of the above rule. See also L</"Arbitrary class name">
+
 =back
 
 =head1 Mapping between INI structure and model
@@ -389,6 +397,35 @@ parameter:
             store_class_in_hash => 'my_class_holder',
         }
     ],
+    
+Of course they are exceptions. For instance, in C<Multistrap>, the C<[General]> 
+INI class must be mapped to a specific node object. This can be specified
+with the C<section_map> parameter: 
+
+    read_config  => [
+        { 
+            backend => 'IniFile',
+            config_dir => '/tmp',
+            file  => 'foo.ini',
+            store_class_in_hash => 'my_class_holder',
+            section_map => { 
+                General => 'general_node',
+            }
+        }
+    ],
+
+C<section_map> can also map an INI class to the root node:
+
+    read_config => [
+        {
+            backend => 'ini_file',
+            store_class_in_hash => 'sections',
+            section_map => {
+                General => '!'
+            },
+        }
+    ],
+
 
 =head1 Methods
 
