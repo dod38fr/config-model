@@ -34,14 +34,16 @@ sub setup_test {
     mkpath( $wr_root, { mode => 0755 } );
 
     my $wr_dir    = $wr_root . '/test-' . $t_name;
-    my $conf_file = "$wr_dir/$conf_dir/$conf_file_name";
+    my $conf_file ;
+    $conf_file = "$wr_dir/$conf_dir/$conf_file_name" if defined $conf_file_name;
 
     my $ex_data = "t/model_tests.d/$model_test-examples/$t_name";
     my @file_list;
     if ( -d $ex_data ) {
 
         # copy whole dir
-        my $debian_dir = "$wr_dir/$conf_dir";
+        my $debian_dir = "$wr_dir/" ;
+        $debian_dir .= $conf_dir if $conf_dir;
         dircopy( $ex_data, $debian_dir )
           || die "dircopy $ex_data -> $debian_dir failed:$!";
         find(
@@ -81,7 +83,9 @@ sub run_model_test {
         next;
     }
 
-    note("$model_test uses $model_to_test model on file $conf_file_name");
+    my $note ="$model_test uses $model_to_test model";
+    $note .= " on file $conf_file_name" if defined $conf_file_name;
+    note($note);
 
     my $idx = 0;
     foreach my $t (@tests) {
@@ -99,6 +103,7 @@ sub run_model_test {
             root_class_name => $model_to_test,
             root_dir        => $wr_dir,
             instance_name   => "$model_test-" . $t_name,
+            config_file     => $t->{config_file} ,
             check           => $t->{load_check} || 'yes',
         );
 
@@ -109,11 +114,11 @@ sub run_model_test {
         {
             local $Config::Model::Value::nowarning = 1;
             $root->init;
-            ok( 1,"Read $conf_file and created instance with init() method without warning check" );
+            ok( 1,"Read configuration and created instance with init() method without warning check" );
         }
         else {
             warnings_like { $root->init; } $t->{load_warnings},
-                "Read $conf_file and created instance with init() method with warning check ";
+                "Read configuration and created instance with init() method with warning check ";
         }
 
         if ( $t->{load} ) {
@@ -171,7 +176,7 @@ sub run_model_test {
 
         local $Config::Model::Value::nowarning = $t->{no_warnings} || 0;
 
-        $inst->write_back;
+        $inst->write_back(config_file     => $t->{config_file} );
         ok( 1, "$model_test write back done" );
 
         my @new_file_list;
@@ -200,6 +205,7 @@ sub run_model_test {
         my $i2_test = $model->instance(
             root_class_name => $model_to_test,
             root_dir        => $wr_dir2,
+            config_file     => $t->{config_file} ,
             instance_name   => "$model_test-$t_name-w",
         );
 
@@ -216,7 +222,8 @@ sub run_model_test {
         );
 
         ok( -s "$wr_dir2/$conf_dir/$conf_file_name" , 
-            "check that original $model_test file was not clobbered" );
+            "check that original $model_test file was not clobbered" )
+                if defined $conf_file_name ;
 
         note("End of subtest $model_test $t_name");
 
@@ -253,7 +260,7 @@ sub run_tests {
     # pseudo root where config files are written by config-model
     my $wr_root = 'wr_root';
 
-    my @group_of_tests = grep { /-test-conf.pl/ } glob("t/model_tests.d/*");
+    my @group_of_tests = grep { /-test-conf.pl$/ } glob("t/model_tests.d/*");
 
     foreach my $model_test_conf (@group_of_tests) {
         my ($model_test) = ( $model_test_conf =~ m!\.d/([\w\-]+)-test-conf! );
@@ -352,6 +359,22 @@ Here, C<t0> file will be copied in C<wr_root/test-t0/etc/fstab>.
 
  1; # to keep Perl happy
  
+=head2 Test specification with arbitrary file names
+
+In some models (e.g. C<Multistrap>, the config file is choosen by the user. 
+In this case, the file name must be specified for each tests case:
+
+ $model_to_test = "Multistrap";
+
+ @tests = (
+    {
+        name        => 'arm',
+        config_file => '/home/foo/my_arm.conf',
+        check       => {},
+    },
+ );
+
+
 =head2 test scenario
 
 Each subtest follow a sequence explained below. Each step of this
