@@ -57,6 +57,7 @@ sub read {
     my $delimiter   = $args{comment_delimiter}   || '#';
     my $hash_class  = $args{store_class_in_hash} || '' ;
     my $section_map = $args{section_map}         || {} ;
+    my $split_reg   = $args{split_list_value}    || '' ;  
     my $check       = $args{check}               || 'yes';
     my $obj         = $self->node;
 
@@ -98,11 +99,16 @@ sub read {
 
             my $elt = $obj->fetch_element( name => $name, check => $check );
 
-            if ( $elt->get_type eq 'list' ) {
-                my $idx = $elt->fetch_size ;
-                my $list_val = $elt->fetch_with_id($idx);
-                $list_val -> store( $val, check => $check );
-                $list_val -> annotation($comment) if $comment ;
+            if ( $elt->get_type eq 'list' and $split_reg) {
+                my @v_list = split(/$split_reg/,$val) ;
+                my @args = (\@v_list, check => $check) ;
+                push @args, annotation => $comment if $comment ;
+                $elt->store_set(@args) ;
+            }
+            elsif ( $elt->get_type eq 'list' ) {
+                my @args = (value => $val, check => $check) ;
+                push @args, annotation => $comment if $comment ;
+                $elt -> push_x(@args) ;
             }
             elsif ( $elt->get_type eq 'leaf' ) {
                 $elt->store( value => $val, check => $check );
@@ -156,11 +162,17 @@ sub _write {
     my $delimiter = $args{comment_delimiter} || '#' ;
     my $ioh = $args{io_handle} ;
 
+    $logger->debug("called on ",$node->name);
     # Using Config::Model::ObjTreeScanner would be overkill
+    
+    my $preset = $node->instance->preset;
+     $logger->debug("preset is $preset ");
+   
     
     # first write list and element, then classes
     foreach my $elt ($node->get_element_name) {
         my $type = $node->element_type($elt) ;
+        $logger->debug("first loop on elt $elt type $type");
         next if $type =~ /node/ or $type eq 'hash';
         
         my $obj =  $node->fetch_element($elt) ;
@@ -171,24 +183,33 @@ sub _write {
             foreach my $item ($obj->fetch_all('custom')) {
                 my $note = $item->annotation ;
                 my $v = $item->fetch ;
-                next unless defined $v ;
-                $logger->debug("ini write: list elt $elt from ",$obj->location);
-                $self->write_data_and_comments($ioh,$delimiter,"$elt=$v",$obj_note.$note) ;
+                if (defined $v) {
+                    $logger->debug("writing list elt $elt -> $v");
+                    $self->write_data_and_comments($ioh,$delimiter,"$elt=$v",$obj_note.$note) ;
+                }
+                else {
+                    $logger->debug("NOT writing undef list elt");
+                }
             }
         }
         elsif ($node->element_type($elt) eq 'leaf') {
             my $v = $obj->fetch ;
-            $logger->debug("ini write: leaf elt $elt from ",$obj->location);
-            $self->write_data_and_comments($ioh,$delimiter,"$elt=$v", $obj_note) 
-                if defined $v;
+            if (defined $v) {
+                $logger->debug("writing leaf elt $elt -> $v");
+                $self->write_data_and_comments($ioh,$delimiter,"$elt=$v", $obj_note);
+            }
+            else {
+                $logger->debug("NOT writing undef leaf elt");
+            }
         }
         else {
-            $logger->error("ini write: unexpected type $type for leaf elt $elt from ",$obj->location);
+            $logger->error("unexpected type $type for leaf elt $elt");
         }
     }
 
     foreach my $elt ($node->get_element_name) {
         my $type = $node->element_type($elt) ;
+        $logger->debug("second loop on elt $elt type $type");
         next unless $type =~ /node/ or $type eq 'hash';
         my $obj =  $node->fetch_element($elt) ;
 
@@ -198,19 +219,21 @@ sub _write {
             foreach my $key ($obj->get_all_indexes) {
                 my $hash_obj = $obj->fetch_with_id($key) ;
                 my $note = $hash_obj->annotation;
-                $logger->debug("ini write: hash elt $elt key $key from ",$obj->location);
+                $logger->debug("writing hash elt $elt key $key");
                 $self->write_data_and_comments($ioh,$delimiter,"[$key]",$obj_note.$note) ;
                 $self->_write(%args, object => $hash_obj);
                 $ioh->print("\n");
             }
         }
         else {
-            $logger->debug("ini write: class $elt from ",$obj->location);
+            $logger->debug("writing class $elt");
             $self->write_data_and_comments($ioh,$delimiter,"[$elt]",$obj_note) ;
             $self->_write(%args, object => $obj);
             $ioh->print("\n");
         }
     }   
+
+    $logger->debug("done on ",$node->name);
 
     return 1;
 }
@@ -334,6 +357,12 @@ See L</"Arbitrary class name">
 =item section_map
 
 Is a kind of exception of the above rule. See also L</"Arbitrary class name">
+
+=item split_list_value
+
+Some INI values are in fact a list of items separated by a space or a comma. 
+This parameter specifies the regex  to use to split the value into a list. This
+applies only to C<list> elements.
 
 =back
 
