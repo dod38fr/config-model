@@ -1,5 +1,4 @@
 # -*- cperl -*-
-# $Author: ddumont, random_nick $
 
 use ExtUtils::testlib;
 use Test::More ;
@@ -30,7 +29,7 @@ else {
 }
 Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 
-plan tests => 49 ;
+plan tests => 61 ;
 
 ok(1,"compiled");
 
@@ -89,6 +88,7 @@ foreach my $test_class (sort keys %test_setup) {
 
     foreach my $i (1 .. 3) {
         my $elt = $lista_obj->fetch_with_id($i - 1) ;
+        is($elt->fetch,"lista$i","check lista[$i] content");
         is($elt->annotation,
             "lista$i comment","check lista[$i] comment");
     } 
