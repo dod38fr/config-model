@@ -11,7 +11,7 @@ use Config::Model;
 use Config::Model::AnyId;
 use Log::Log4perl qw(:easy :levels) ;
 
-BEGIN { plan tests => 87; }
+BEGIN { plan tests => 89; }
 
 use strict;
 
@@ -190,8 +190,18 @@ is( $b->fetch_with_id(5)->annotation,
     'toto comment', "check pushed toto annotation with push_x" );
 is( $b->fetch_with_id(6)->fetch, 'titi', "check pushed titi item with push_x" );
 
+$b->push_x(
+    values     => 'toto2',
+    check      => 'no',
+    annotation => 'toto2 comment'
+);
+
+is( $b->fetch_with_id(7)->fetch, 'toto2', "check pushed toto2 item with push_x" );
+is( $b->fetch_with_id(7)->annotation,
+    'toto2 comment', "check pushed toto2 annotation with push_x" );
+
 my @all = $b->fetch_all_values;
-is_deeply( \@all, [qw/baz bar toto titi toto titi/], "check fetch_all_values" );
+is_deeply( \@all, [qw/baz bar toto titi toto titi toto2/], "check fetch_all_values" );
 
 my $lac = $root->fetch_element('list_with_auto_created_id');
 is_deeply(
