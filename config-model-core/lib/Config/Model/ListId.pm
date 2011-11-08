@@ -207,10 +207,14 @@ sub store_set {
         %args = @_; # note that $r was shifted out of @_
     }
 
+    my @comments = @{ $args{comment} || [] } ;
+
     my $idx = 0 ;
     foreach (@v) { 
         if (defined $_) {
-            $self->fetch_with_id( $idx++ )->store(%args, value => $_);
+            my $v_obj = $self->fetch_with_id( $idx++ ) ;
+            $v_obj -> store(%args, value => $_);
+            $v_obj->annotation(shift @comments) if @comments ;
         }
         else {
             $self->{data}[$idx] = undef ; # detruit l'objet pas bon!
@@ -325,15 +329,16 @@ sub push_x {
     my %args = @_ ;
     my $check = $args{check} || 'yes'; 
     my $idx   = scalar @{$self->{data}};
-    my @v = @{$args{values}}  ;
-    my @a = @{$args{annotation} || [] } ;
+    my $v_arg = $args{values} ;
+    my @v = ref ($v_arg) ? @$v_arg : ($v_arg)  ;
+    my $anno = $args{annotation} ;
+    my @a = ref ($anno) ? @$anno : $anno ? ($anno) : () ;
     
     while (@v) {
         my $val = shift @v ;
-        my $a   = shift @a ;
         my $obj = $self->fetch_with_id( $idx++ );
         $obj->store( $val ) ;
-        $obj->annotation($a) if $a ;
+        $obj->annotation(shift @a) if @a ;
     }
 }
 
