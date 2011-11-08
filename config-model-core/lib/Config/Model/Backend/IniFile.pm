@@ -106,7 +106,7 @@ sub read {
                 $elt->store_set(@args) ;
             }
             elsif ( $elt->get_type eq 'list' ) {
-                my @args = (value => $val, check => $check) ;
+                my @args = (values => $val, check => $check) ;
                 push @args, annotation => $comment if $comment ;
                 $elt -> push_x(@args) ;
             }
