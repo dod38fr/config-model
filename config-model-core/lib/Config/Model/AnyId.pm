@@ -815,6 +815,7 @@ sub check {
     map { warn ("Warning in '".$self->location."': $_\n") } @warn unless $silent;
     
     $self->{warning_list} = \@warn ;
+    $self->{error_list}   = \@error ;
 
     return scalar @error ? 0 : 1 ;
 }
@@ -957,7 +958,7 @@ sub check_duplicates {
     my @to_delete ;
     foreach my $i ( $self->get_all_indexes ) {
         my $v = $self->fetch_with_id(index => $i, check => 'no')->fetch;
-        next unless defined $v ;
+        next unless $v ;
         $h{$v} = 0 unless defined $h{$v} ;
         $h{$v}++;
         if ($h{$v} > 1) {
