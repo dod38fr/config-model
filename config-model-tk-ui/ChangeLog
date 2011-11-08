@@ -1,3 +1,6 @@
+    * dist.ini (hence Build.PL): added Tk::Pod dependency
+      (Fix RT# 72229)
+
 2011-10-10  Dominique Dumont  <domi.dumont@free.fr> 1.329
 
 	* ListEditor: signal TKUI that data needs to be saved when list is
