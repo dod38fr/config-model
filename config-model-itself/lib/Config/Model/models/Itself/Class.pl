@@ -201,6 +201,46 @@
                     rules  => [ augeas => { level => 'normal', } ],
                 }
             },
+
+            'store_class_in_hash' => {
+                type       => 'leaf',
+                value_type => 'uniline',
+                level      => 'hidden',
+                description => 'Specify element hash name that will contain all INI classes. '
+                    .'See L<Config::Model::Backend::IniFile/"Arbitrary class name">',
+                warp => {
+                    follow => '- backend',
+                    rules  => [ ini_file => { level => 'normal', } ],
+                }
+            },
+
+            'section_map' => {
+                type       => 'hash',
+                level      => 'hidden',
+                index_type => 'string',
+                description => 'Specify element name that will contain one INI class. E.g. to store '
+                     .'INI class [foo] in element Foo, specify { foo => "Foo" } ',
+                warp => {
+                    follow => '- backend',
+                    rules  => [ ini_file => { level => 'normal', } ],
+                },
+                cargo => { 
+                    type => 'leaf',
+                    value_type => 'uniline',
+                },
+            },
+
+            'split_list_value' => {
+                type       => 'leaf',
+                value_type => 'uniline',
+                level      => 'hidden',
+                description => 'Regexp to split values stored in list element. Usually "\s+" or "[,\s]"',
+                warp => {
+                    follow => '- backend',
+                    rules  => [ ini_file => { level => 'normal', } ],
+                }
+            },
+
             'config_file' => {
                 type       => 'leaf',
                 value_type => 'uniline',
@@ -209,6 +249,7 @@
                 description =>
 'Specify the configuration file (without path) that will store configuration information',
             },
+
              'full_dump' => {
                 type             => 'leaf',
                 value_type       => 'boolean',
@@ -220,6 +261,7 @@
                     rules  => [ '$backend =~ /yaml|perl/i' => { level => 'normal', } ],
                 }
             },
+
            'comment_delimiter' => {
                 type             => 'leaf',
                 value_type       => 'uniline',
@@ -285,7 +327,6 @@
                 type         => 'leaf',
                 value_type   => 'uniline',
                 level        => 'normal',
-                mandatory    => 1,
                 migrate_from => {
                     formula   => '$old',
                     variables => { old => '- - read_config_dir' },
