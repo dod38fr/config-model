@@ -468,7 +468,7 @@ sub set_properties {
             Config::Model::Exception::WrongValue 
                 -> throw (
                           error => "Error while setting id property:".
-                          join("\n\t",@{$self->{error}}),
+                          join("\n\t",@{$self->{error_list}}),
                           object => $self
                          ) ;
         }
@@ -871,7 +871,7 @@ sub check_idx {
           $self->warp_error  ;
     }
 
-    $self->{error} = \@error ;
+    $self->{error_list} = \@error ;
 
     if (@warn) {
         $self->{warning_hash}{$idx} = \@warn ;
@@ -1020,7 +1020,7 @@ sub fetch_with_id {
     else {
         Config::Model::Exception::WrongValue 
             -> throw (
-                      error => join("\n\t",@{$self->{error}}),
+                      error => join("\n\t",@{$self->{error_list}}),
                       object => $self
                      ) ;
     }
@@ -1096,7 +1096,7 @@ sub copy {
     else {
         Config::Model::Exception::WrongValue 
             -> throw (
-                      error => join("\n\t",@{$self->{error}}),
+                      error => join("\n\t",@{$self->{error_list}}),
                       object => $self
                      ) ;
     }
@@ -1164,7 +1164,7 @@ sub fetch_all_values {
         }
         else {
             Config::Model::Exception::WrongValue->throw(
-                error  => join( "\n\t", @{ $self->{error} } ),
+                error  => join( "\n\t", @{ $self->{error_list} } ),
                 object => $self
             );
         }
@@ -1419,8 +1419,8 @@ Returns the error messages of this object (if any)
 
 sub error_msg {
     my $self = shift ;
-    return unless $self->{error} ;
-    return wantarray ? @{$self->{error}} : join("\n\t",@{ $self ->{error}}) ;
+    return unless $self->{error_list} ;
+    return wantarray ? @{$self->{error_list}} : join("\n\t",@{ $self ->{error_list}}) ;
 }
 
 1;
