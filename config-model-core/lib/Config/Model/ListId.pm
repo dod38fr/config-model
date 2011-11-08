@@ -327,12 +327,14 @@ Example:
 sub push_x {
     my $self = shift ;
     my %args = @_ ;
-    my $check = $args{check} || 'yes'; 
+    my $check = delete $args{check} || 'yes'; 
     my $idx   = scalar @{$self->{data}};
-    my $v_arg = $args{values} ;
+    my $v_arg = delete $args{values} ;
     my @v = ref ($v_arg) ? @$v_arg : ($v_arg)  ;
-    my $anno = $args{annotation} ;
+    my $anno = delete $args{annotation} ;
     my @a = ref ($anno) ? @$anno : $anno ? ($anno) : () ;
+    
+    croak("push_x: unexpected parameter ",join(' ',keys %args)) if %args ;
     
     while (@v) {
         my $val = shift @v ;
