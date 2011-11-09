@@ -87,6 +87,14 @@ sub read {
                 check => $check,
                 mode => $check eq 'yes' ? 'strict' : 'loose' ,
             );
+            
+            # for write later, need to store the obj if section map was used
+            if (defined $section_map->{$section}) {
+               my $map_loc = $obj->location ;
+               $logger->debug("store section_map loc '$map_loc' section '$section'");
+               $self->{reverse_section_map}{$map_loc} = $section ;
+            }
+            
             if ($logger->is_debug) {
                 my $debug_loc = defined $obj ? 'on node '.$obj->location : '' ;
                 $logger->debug("ini read: new section '$section' $debug_loc");
@@ -151,6 +159,13 @@ sub write {
     
     $self->write_global_comment($ioh,$delimiter) ;
 
+    # some INI file have a 'General' section mapped in root node
+    my $top_class_name = $self->{reverse_section_map}{''} ;
+    if (defined $top_class_name) {
+        $logger->debug("writing class $top_class_name from reverse_section_map");
+        $self->write_data_and_comments($ioh,$delimiter,"[$top_class_name]") ;
+    }
+
     $self->_write(@_) ;
 }
 
@@ -163,12 +178,8 @@ sub _write {
     my $ioh = $args{io_handle} ;
 
     $logger->debug("called on ",$node->name);
+
     # Using Config::Model::ObjTreeScanner would be overkill
-    
-    my $preset = $node->instance->preset;
-     $logger->debug("preset is $preset ");
-   
-    
     # first write list and element, then classes
     foreach my $elt ($node->get_element_name) {
         my $type = $node->element_type($elt) ;
@@ -183,23 +194,23 @@ sub _write {
             foreach my $item ($obj->fetch_all('custom')) {
                 my $note = $item->annotation ;
                 my $v = $item->fetch ;
-                if (defined $v) {
+                if (length $v) {
                     $logger->debug("writing list elt $elt -> $v");
                     $self->write_data_and_comments($ioh,$delimiter,"$elt=$v",$obj_note.$note) ;
                 }
                 else {
-                    $logger->debug("NOT writing undef list elt");
+                    $logger->debug("NOT writing undef or empty list elt");
                 }
             }
         }
         elsif ($node->element_type($elt) eq 'leaf') {
             my $v = $obj->fetch ;
-            if (defined $v) {
+            if (length $v) {
                 $logger->debug("writing leaf elt $elt -> $v");
                 $self->write_data_and_comments($ioh,$delimiter,"$elt=$v", $obj_note);
             }
             else {
-                $logger->debug("NOT writing undef leaf elt");
+                $logger->debug("NOT writing undef or empty leaf elt");
             }
         }
         else {
@@ -220,16 +231,22 @@ sub _write {
                 my $hash_obj = $obj->fetch_with_id($key) ;
                 my $note = $hash_obj->annotation;
                 $logger->debug("writing hash elt $elt key $key");
+                $ioh->print("\n");
                 $self->write_data_and_comments($ioh,$delimiter,"[$key]",$obj_note.$note) ;
                 $self->_write(%args, object => $hash_obj);
-                $ioh->print("\n");
             }
         }
         else {
             $logger->debug("writing class $elt");
-            $self->write_data_and_comments($ioh,$delimiter,"[$elt]",$obj_note) ;
-            $self->_write(%args, object => $obj);
             $ioh->print("\n");
+            # some INI file may have a section mapped to a node as exception to mapped in a hash
+            my $exception_name = $self->{reverse_section_map}{$obj->location} ;
+            if (defined $exception_name) {
+                $logger->debug("writing class $exception_name from reverse_section_map");
+            }
+            my $c_name = $exception_name || $elt ;
+            $self->write_data_and_comments($ioh,$delimiter,"[$c_name]",$obj_note) ;
+            $self->_write(%args, object => $obj);
         }
     }   
 
