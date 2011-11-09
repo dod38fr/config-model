@@ -332,6 +332,7 @@ sub info_to_model {
 
     foreach my $k (keys %info) {
         my $v = $info{$k} ;
+        die "Undefined value. Something is wrong in info '$info'" unless defined $v ;
         $v = '"'.$v.'"' unless $v=~/^"/ ;
 
         given ($k) {
