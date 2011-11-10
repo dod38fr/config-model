@@ -11,6 +11,7 @@
     'read_config' => [
       {
         'auto_create' => '1',
+        'join_list_value' => ' ',
         'section_map' => {
           'General' => '!'
         },
