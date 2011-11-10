@@ -241,6 +241,17 @@
                 }
             },
 
+            'join_list_value' => {
+                type       => 'leaf',
+                value_type => 'uniline',
+                level      => 'hidden',
+                description => 'string to join values from list element. Usually " " or ", "',
+                warp => {
+                    follow => '- backend',
+                    rules  => [ ini_file => { level => 'normal', } ],
+                }
+            },
+
             'config_file' => {
                 type       => 'leaf',
                 value_type => 'uniline',
