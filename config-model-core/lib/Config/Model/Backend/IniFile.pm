@@ -176,6 +176,7 @@ sub _write {
     my $node = $args{object} ;
     my $delimiter = $args{comment_delimiter} || '#' ;
     my $ioh = $args{io_handle} ;
+    my $join_list = $args{join_list_value} ;
 
     $logger->debug("called on ",$node->name);
 
@@ -190,7 +191,13 @@ sub _write {
 
         my $obj_note = $obj->annotation;
 
-        if ($node->element_type($elt) eq 'list'){
+        if ($node->element_type($elt) eq 'list' and $join_list){
+            my $v = join( $join_list, $obj->fetch_all_values('custom') ) ;
+            $logger->debug("writing list elt $elt -> $v");
+            $self->write_data_and_comments($ioh,$delimiter,"$elt=$v",$obj_note) ;
+        }
+        elsif ($node->element_type($elt) eq 'list'){
+            # FIXME: list is repeated in INI file. Not good if a split_reg was specified
             foreach my $item ($obj->fetch_all('custom')) {
                 my $note = $item->annotation ;
                 my $v = $item->fetch ;
@@ -380,6 +387,12 @@ Is a kind of exception of the above rule. See also L</"Arbitrary class name">
 Some INI values are in fact a list of items separated by a space or a comma. 
 This parameter specifies the regex  to use to split the value into a list. This
 applies only to C<list> elements.
+
+=item join_list_value
+
+Conversely, the list element split with C<split_list_value> needs to be written
+back with a string to join them. Specify this string (usually ' ' or ', ') 
+with C<join_list_value>.
 
 =back
 
