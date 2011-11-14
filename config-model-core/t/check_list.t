@@ -23,7 +23,7 @@ Log::Log4perl->easy_init($arg =~ /l/ ? $TRACE: $WARN);
 ok(1,"Compilation done");
 
 # minimal set up to get things working
-my $model = Config::Model->new(legacy => 'ignore',) ;
+my $model = Config::Model->new() ;
 $model ->create_config_class 
   (
    name => "Master",
@@ -32,8 +32,7 @@ $model ->create_config_class
        [qw/my_hash my_hash2 my_hash3/] 
        => { type => 'hash',
 	    index_type => 'string',
-	    cargo_type => 'leaf',
-	    cargo_args => { value_type => 'string' },
+	    cargo => { type => 'leaf', value_type => 'string' },
 	  },
 
        choice_list 
@@ -65,7 +64,7 @@ $model ->create_config_class
        choice_list_with_upstream_default
        => { type          => 'check_list',
 	    choice        => ['A' .. 'Z'],
-	    built_in_list => [ 'A', 'D' ],
+	    upstream_default_list => [ 'A', 'D' ],
 	    help          => { A => 'A help', E => 'E help' } ,
 	  },
 
@@ -73,7 +72,7 @@ $model ->create_config_class
        => { type          => 'check_list',
 	    choice        => ['A' .. 'Z'],
 	    default_list  => [ 'A', 'C' ],
-	    built_in_list => [ 'A', 'D' ],
+	    upstream_default_list => [ 'A', 'D' ],
 	    help          => { A => 'A help', E => 'E help' } ,
 	  },
 
@@ -120,17 +119,17 @@ $model ->create_config_class
 
        refer_to_check_list_and_choice
        => { type => 'check_list',
-            refer_to => [ '- refer_to_2_list + - $var',
-			  var => '- indirection ',
-			],
+            computed_refer_to => {
+                formula =>  '- refer_to_2_list + - $var',
+                variables => { var => '- indirection '},
+            },
 	    choice  => [qw/A1 A2 A3/],
           },
 
        indirection => { type => 'leaf', value_type => 'string' } ,
 
        dumb_list => { type => 'list',
-		      cargo_type => 'leaf',
-		      cargo_args => {value_type => 'string'}
+		      cargo => {type => 'leaf', value_type => 'string'}
 		    },
        refer_to_dumb_list
        => {
