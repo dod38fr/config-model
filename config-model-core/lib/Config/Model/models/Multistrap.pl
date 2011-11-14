@@ -25,7 +25,7 @@
       'include',
       {
         'value_type' => 'uniline',
-        'class' => 'Config::Model::Value::PresetFromInclude',
+        'class' => 'Config::Model::Value::LayeredInclude',
         'type' => 'leaf'
       },
       'arch',
