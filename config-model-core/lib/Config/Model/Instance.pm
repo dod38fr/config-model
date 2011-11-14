@@ -160,6 +160,10 @@ sub new {
 	 # automatic scheme
 	 preset => 0,
 
+	 # layered mode to load values found in included files (e.g. a la multistrap)
+	 layered => 0,
+
+
 	 config_model => $config_model ,
 	 root_class_name => $root_class_name ,
 
@@ -336,6 +340,66 @@ sub preset_clear {
     $wiper->scan_node(undef,$self->config_root) ;
 
 }
+
+=head2 layered_start ()
+
+All values stored in layered mode are shown to the user as default
+values. This feature is useful to enter configuration data entered by
+an automatic process (like hardware scan)
+
+=cut
+
+sub layered_start {
+    my $self = shift ;
+    $logger->info("Starting layered mode");
+    $self->{layered} = 1;
+}
+
+=head2 layered_stop ()
+
+Stop layered mode
+
+=cut
+
+sub layered_stop {
+    my $self = shift ;
+    $logger->info("Stopping layered mode");
+    $self->{layered} = 0;
+}
+
+=head2 layered ()
+
+Get layered mode
+
+=cut
+
+sub layered {
+    my $self = shift ;
+    return $self->{layered} ;
+}
+
+=head2 layered_clear()
+
+Clear all layered values stored.
+
+=cut
+
+sub layered_clear {
+    my $self = shift ;
+    my $wiper = Config::Model::ObjTreeScanner->new (
+        fallback => 'all',
+        auto_vivify => 0,
+        check => 'skip' ,
+        leaf_cb => sub {
+            my ($scanner, $data_ref,$node,$element_name,$index, $leaf_object) = @_ ;
+            $leaf_object->clear_layered ;
+        }
+    );
+
+    $wiper->scan_node(undef,$self->config_root) ;
+
+}
+
 
 =head2 data( kind, [data] )
 

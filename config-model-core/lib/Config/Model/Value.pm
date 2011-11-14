@@ -140,8 +140,14 @@ From the lowest default level to the "highest":
 
 =item *
 
-C<upstream_default>: The value is knows in the application, but is not
+C<upstream_default>: The value is known in the application, but is not
 written in the configuration file.
+
+=item *
+
+C<layered>: The value is known by the application through another
+mean (e.g. an included configuration file), but is not written in the 
+configuration file.
 
 =item *
 
@@ -492,7 +498,7 @@ sub setup_enum_choice {
     map {
 	delete $self->{$_}
 	  if (defined  $self->{$_} and not $self->check(value => $self->{$_}, quiet => 1)) ;
-    } qw/data preset/;
+    } qw/data preset layered/;
 }
 
 =item match
@@ -932,6 +938,7 @@ sub set_value_type {
         # convert any value to boolean
         $self->{data} = $self->{data} ? 1 : 0 if defined $self->{data};
         $self->{preset} = $self->{preset} ? 1 : 0 if defined $self->{preset};
+        $self->{layered} = $self->{layered} ? 1 : 0 if defined $self->{layered};
     }
     elsif (   $value_type eq 'reference' 
 	   or $value_type eq 'enum' 
@@ -1693,7 +1700,10 @@ sub store {
 
     # we let store the value even if wrong when check is disabled
     if ($ok or $check eq 'no') {
-	if ($self->instance->preset) {
+        if ($self->instance->layered) {
+	    $self->{layered} = $value ;
+	} 
+	elsif ($self->instance->preset) {
 	    $self->{preset} = $value ;
 	} 
 	else {
@@ -1863,7 +1873,7 @@ sub fetch_custom {
 =head2 fetch_standard
 
 Returns the standard value as defined by the configuration model. The
-standard value can be either a preset value, a computed value, a
+standard value can be either a preset value, a layered value, a computed value, a
 default value or a built-in default value.
 
 =cut
@@ -1871,7 +1881,9 @@ default value or a built-in default value.
 sub fetch_standard {
     my $self = shift ;
     my $pre_fetch = $self->_pre_fetch ;
-    return defined $pre_fetch ? $pre_fetch : $self->{upstream_default} ;
+    return defined $pre_fetch       ? $pre_fetch 
+         : defined $self->{layered} ? $self->{layered}
+         :                            $self->{upstream_default} ;
 }
 
 sub _init {
@@ -1888,6 +1900,7 @@ sub _init {
     }
 }
 
+# returns something that needs to be written to config file
 sub _pre_fetch {
     my ($self, $mode, $check) = @_ ;
 
@@ -1930,14 +1943,17 @@ my %old_mode = ( built_in => 'upstream_default',
 
 my %accept_mode = map { ( $_ => 1) } 
                       qw/custom standard preset default upstream_default
-			non_upstream_default allow_undef/;
+			layered non_upstream_default allow_undef/;
 
 sub _fetch {
     my ($self, $mode, $check) = @_ ;
     $logger->debug("called for ".$self->location) if $logger->is_debug ;
 
     # always call to perform submit_to_warp
-    my $std = $self->_pre_fetch($mode, $check) ;
+    my $pref = $self->_pre_fetch($mode, $check) ;
+    my $known_upstream = defined $self->{layered} ? $self->{layered}
+                       :                            $self->{upstream_default} ;
+    my $std = defined $pref ? $pref : $known_upstream ;
     my $data = $self->{data} ;
 
     if (not defined $data and defined $self->{_migrate_from}) {
@@ -1960,7 +1976,8 @@ sub _fetch {
     if ($mode eq 'custom') {
 	no warnings "uninitialized" ;
 	my $cust ;
-	$cust = $data if $data ne $std and $data ne $self->{upstream_default} ;
+	$cust = $data if $data ne $pref and $data ne $self->{upstream_default} 
+            and $data ne $self->{layered};
         $logger->debug("done in custom mode for ".$self->location) 
             if $logger->is_debug ;
 	return $cust;
@@ -1969,7 +1986,7 @@ sub _fetch {
     if ($mode eq 'non_upstream_default') {
 	no warnings "uninitialized" ;
 	my $nbu = defined $data && $data ne $self->{upstream_default} ? $data 
-	        : defined $std  && $std  ne $self->{upstream_default} ? $std 
+	        : defined $pref && $pref ne $self->{upstream_default} ? $pref 
                 :                                                      undef ;
 
         $logger->debug("done in non_upstream_default mode for ".$self->location)
@@ -1980,13 +1997,13 @@ sub _fetch {
     $logger->debug("done in $mode mode for ".$self->location) 
         if $logger->is_debug ;
 
-    return $mode eq 'preset'                   ? $self->{preset}
-         : $mode eq 'default'                  ? $self->{default}
-         : $mode eq 'standard' && defined $std ? $std 
-         : $mode eq 'standard'                 ? $self->{upstream_default}
-	 : $mode eq 'upstream_default'         ? $self->{upstream_default}
-	 : defined $data                       ? $data
-         :                                       $std ;
+    return $mode eq 'preset'                    ? $self->{preset}
+         : $mode eq 'default'                   ? $self->{default}
+         : $mode eq 'standard'                  ? $std
+	 : $mode eq 'layered'                   ? $self->{layered}
+	 : $mode eq 'upstream_default'          ? $self->{upstream_default}
+	 : defined $data                        ? $data
+         :                                        $pref ;
 
 }
 
@@ -2069,6 +2086,11 @@ The preset or computed or default or built in value.
 =item default
 
 The default value (defined by the configuration model)
+
+=item layered
+
+The value found in included files (treated in layered mode: values specified
+there are handled as upstream default values). E.g. like in multistrap config.
 
 =item upstream_default
 
@@ -2182,6 +2204,29 @@ Delete the preset value. (Even out of preset mode)
 sub clear_preset {
     delete shift->{preset} ;
 }
+
+=head2 fetch_layered
+
+Returns the value entered in layered mode. Does not use the default or
+computed value. Returns undef unless a value was actually stored in
+layered mode.
+
+=cut
+
+sub fetch_layered {
+    return shift->{layered} ;
+}
+
+=head2 clear_layered
+
+Delete the layered value. (Even out of layered mode)
+
+=cut
+
+sub clear_layered {
+    delete shift->{layered} ;
+}
+
 
 
 =head2 get( path => ..., mode => ... ,  check => ... )
