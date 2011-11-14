@@ -3,7 +3,7 @@
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
-use Test::More tests => 130;
+use Test::More tests => 144;
 use Test::Exception;
 use Test::Warn;
 use Config::Model;
@@ -79,6 +79,12 @@ $model->create_config_class(
             class      => 'Config::Model::Value',
             value_type => 'boolean',
             mandatory  => 1,
+        },
+        bare_enum => {
+            type       => 'leaf',
+            class      => 'Config::Model::Value',
+            value_type => 'enum',
+            choice     => [qw/A B C/]
         },
         enum => {
             type       => 'leaf',
@@ -469,6 +475,48 @@ is( $p_enum->fetch_custom,   'C', "enum: read custom_value" );
 is( $p_enum->default,        'A', "enum: read default_value" );
 
 warning_like { $p_enum->store( 'foobar', check => 'skip' ); }
+qr/skipping value/,
+  "test that errors are displayed as warnings with check = skip";
+
+### test layered feature
+
+my $layer_inst = $model->instance(
+    root_class_name => 'Master',
+    instance_name   => 'layered_test'
+);
+ok( $layer_inst, "created dummy layered instance" );
+
+my $l_root = $layer_inst->config_root;
+
+$layer_inst->layered_start;
+ok( $layer_inst->layered, "instance in layered mode" );
+
+my $l_scalar = $l_root->fetch_element('scalar');
+$l_scalar->store(3);
+
+my $l_enum = $l_root->fetch_element('bare_enum');
+$l_enum->store('B');
+
+$layer_inst->layered_stop;
+is( $layer_inst->layered, 0, "instance in normal mode" );
+
+is( $l_scalar->fetch, undef, "scalar: read layered value as value" );
+$l_scalar->store(4);
+is( $l_scalar->fetch, 4, "scalar: read overridden layered value as value" );
+is( $l_scalar->fetch('layered'), 3,
+    "scalar: read layered value as layered_value" );
+is( $l_scalar->fetch_standard, 3,
+    "scalar: read standard_value" );
+is( $l_scalar->fetch_custom, 4, "scalar: read custom_value" );
+
+is( $l_enum->fetch, undef, "enum: read layered value as value" );
+$l_enum->store('C');
+is( $l_enum->fetch, 'C', "enum: read overridden layered value as value" );
+is( $l_enum->fetch('layered'), 'B', "enum: read layered value as layered_value" );
+is( $l_enum->fetch_standard, 'B', "enum: read layered value as standard_value" );
+is( $l_enum->fetch_custom,   'C', "enum: read custom_value" );
+
+warning_like { $l_enum->store( 'foobar', check => 'skip' ); }
 qr/skipping value/,
   "test that errors are displayed as warnings with check = skip";
 
