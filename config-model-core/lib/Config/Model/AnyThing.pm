@@ -193,7 +193,7 @@ and return the resulting string.
 sub annotation {
     my $self = shift ;
     $self->{annotation} = join("\n", grep (defined $_,@_)) 
-        if @_ and not $self->instance->preset;
+        if @_ and not $self->instance->preset and not $self->instance->layered;
     return $self->{annotation} || '';
 }
 
