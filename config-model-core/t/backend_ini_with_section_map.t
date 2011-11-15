@@ -8,6 +8,7 @@ use File::Copy;
 use Data::Dumper;
 use Log::Log4perl qw(:easy);
 use Test::Differences;
+use Test::File::Contents;
 
 use warnings;
 no warnings qw(once);
@@ -29,36 +30,55 @@ else {
 }
 Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 
-plan tests => 13;
+plan tests => 15;
 
 ok( 1, "compiled" );
 
 # pseudo root where config files are written by config-model
 my $wr_root = 'wr_root/';
 
-# set_up data
-my @general_data = split /\n/, << 'EOD1' ;
-[General]
-foo=bar
-[Section1]
-source=1
-[Section2]
-source=2
-EOD1
+my $head = << 'EOH';
+## This file was written by Config::Model
+## You may modify the content of this file. Configuration 
+## modifications will be preserved. Modifications in
+## comments may be mangled.
+EOH
 
 my @below_data = split /\n/, << 'EOD2' ;
 [Low]
 foo=bar
+
 [Section1]
 source=1
+
 [Section2]
 source=2
+
+[Empty]
 EOD2
+
+my $w_file_below = join("\n",$head,'', @below_data[3..8,0..2]);
+
+# set_up data
+my @general_data = split /\n/, << 'EOD1' ;
+[General]
+foo=bar
+
+[Section1]
+source=1
+
+[Section2]
+source=2
+
+[Empty]
+EOD1
+
+my $w_file_general = join("\n",$head, @general_data[0..8]);
 
 # change delimiter comments
 my %test_setup = ( 
-    SectionMapTop => [ \@general_data, 'general' ], 
-    SectionMap    => [ \@below_data,   'below' ], 
+    SectionMapTop => [ \@general_data, 'general' , $w_file_general ], 
+    SectionMap    => [ \@below_data,   'below' , $w_file_below], 
 );
 
 my $model = Config::Model->new();
@@ -141,6 +161,7 @@ rmtree($wr_root);
 foreach my $test_class ( sort keys %test_setup ) {
     my @orig      = @{ $test_setup{$test_class}[0] };
     my $test_path = $test_setup{$test_class}[1];
+    my $written_file = $test_setup{$test_class}[2];
 
     ok( 1, "Starting $test_class tests in $test_path dir" );
 
@@ -175,6 +196,10 @@ foreach my $test_class ( sort keys %test_setup ) {
     my $ini_file = $wr_dir . '/etc/test.ini';
     ok( -e $ini_file, "check that config file $ini_file was written" );
 
+    file_contents_eq_or_diff $ini_file,  $written_file, 
+        "check file $ini_file content" ;
+
+
     # create another instance to read the IniFile that was just written
     my $wr_dir2 = "$wr_root/$test_path/ini2";
     mkpath( $wr_dir2 . '/etc', { mode => 0755 } ) || die "can't mkpath: $!";
@@ -193,10 +218,13 @@ foreach my $test_class ( sort keys %test_setup ) {
     my $i2_root = $i2_test->config_root;
 
     my $p2_dump = $i2_root->dump_tree;
+    
+    $i_root->load('sections~Empty');
+    my $orig_fixed = $i_root->dump_tree ;
 
     eq_or_diff( 
         [ split /\n/, $p2_dump], 
-        [ split /\n/ , $orig ],
+        [ split /\n/ , $orig_fixed ],
          "compare original data with 2nd instance data" 
     );
 
