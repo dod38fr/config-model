@@ -166,7 +166,8 @@ sub write {
         $self->write_data_and_comments($ioh,$delimiter,"[$top_class_name]") ;
     }
 
-    $self->_write(@_) ;
+    my $res = $self->_write(@_) ;
+    $ioh->print($res) ;
 }
 
 sub _write {
@@ -175,10 +176,10 @@ sub _write {
 
     my $node = $args{object} ;
     my $delimiter = $args{comment_delimiter} || '#' ;
-    my $ioh = $args{io_handle} ;
     my $join_list = $args{join_list_value} ;
 
     $logger->debug("called on ",$node->name);
+    my $res = '';
 
     # Using Config::Model::ObjTreeScanner would be overkill
     # first write list and element, then classes
@@ -194,7 +195,7 @@ sub _write {
         if ($node->element_type($elt) eq 'list' and $join_list){
             my $v = join( $join_list, $obj->fetch_all_values('custom') ) ;
             $logger->debug("writing list elt $elt -> $v");
-            $self->write_data_and_comments($ioh,$delimiter,"$elt=$v",$obj_note) ;
+            $res .= $self->write_data_and_comments(undef,$delimiter,"$elt=$v",$obj_note) ;
         }
         elsif ($node->element_type($elt) eq 'list'){
             # FIXME: list is repeated in INI file. Not good if a split_reg was specified
@@ -203,7 +204,7 @@ sub _write {
                 my $v = $item->fetch ;
                 if (length $v) {
                     $logger->debug("writing list elt $elt -> $v");
-                    $self->write_data_and_comments($ioh,$delimiter,"$elt=$v",$obj_note.$note) ;
+                    $res .= $self->write_data_and_comments(undef,$delimiter,"$elt=$v",$obj_note.$note) ;
                 }
                 else {
                     $logger->debug("NOT writing undef or empty list elt");
@@ -214,7 +215,7 @@ sub _write {
             my $v = $obj->fetch ;
             if (length $v) {
                 $logger->debug("writing leaf elt $elt -> $v");
-                $self->write_data_and_comments($ioh,$delimiter,"$elt=$v", $obj_note);
+                $res .= $self->write_data_and_comments(undef,$delimiter,"$elt=$v", $obj_note);
             }
             else {
                 $logger->debug("NOT writing undef or empty leaf elt");
@@ -238,28 +239,34 @@ sub _write {
                 my $hash_obj = $obj->fetch_with_id($key) ;
                 my $note = $hash_obj->annotation;
                 $logger->debug("writing hash elt $elt key $key");
-                $ioh->print("\n");
-                $self->write_data_and_comments($ioh,$delimiter,"[$key]",$obj_note.$note) ;
-                $self->_write(%args, object => $hash_obj);
+                my $subres = $self->_write(%args, object => $hash_obj);
+                if ($subres) {
+                    $res .= "\n"
+                    . $self->write_data_and_comments(undef,$delimiter,"[$key]",$obj_note.$note) 
+                    .$subres   ;
+                }
             }
         }
         else {
             $logger->debug("writing class $elt");
-            $ioh->print("\n");
-            # some INI file may have a section mapped to a node as exception to mapped in a hash
-            my $exception_name = $self->{reverse_section_map}{$obj->location} ;
-            if (defined $exception_name) {
-                $logger->debug("writing class $exception_name from reverse_section_map");
+            my $subres = $self->_write(%args, object => $obj);
+            if ($subres) {
+                # some INI file may have a section mapped to a node as exception to mapped in a hash
+                my $exception_name = $self->{reverse_section_map}{$obj->location} ;
+                if (defined $exception_name) {
+                    $logger->debug("writing class $exception_name from reverse_section_map");
+                }
+                my $c_name = $exception_name || $elt ;
+                $res .= "\n"
+                    . $self->write_data_and_comments(undef,$delimiter,"[$c_name]",$obj_note) 
+                    . $subres ;
             }
-            my $c_name = $exception_name || $elt ;
-            $self->write_data_and_comments($ioh,$delimiter,"[$c_name]",$obj_note) ;
-            $self->_write(%args, object => $obj);
         }
     }   
 
     $logger->debug("done on ",$node->name);
 
-    return 1;
+    return $res ;
 }
 
 no Any::Moose ;
