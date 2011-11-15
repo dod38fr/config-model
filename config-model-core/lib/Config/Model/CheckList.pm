@@ -115,7 +115,7 @@ sub new {
     my $type = shift;
     my %args = @_ ;
 
-    my $self = { data => {}, preset => {} , ordered_data => [] } ;
+    my $self = { data => {}, preset => {} , layered => {} , ordered_data => [] } ;
     bless $self,$type;
 
     foreach my $p (qw/element_name instance config_model/) {
@@ -360,7 +360,7 @@ sub setup_choice {
     $self->{choice}  = \@choice ;
 
     # cleanup current preset and data if it does not fit current choices
-    foreach my $field (qw/preset data/) {
+    foreach my $field (qw/preset data layered/) {
 	next unless defined $self->{$field} ; # do not create if not present
 	foreach my $item (keys %{$self->{$field}}) {
 	    delete $self->{$field}{$item} unless defined $self->{choice_hash}{$item} ;
@@ -561,6 +561,9 @@ sub store {
 	if ($inst->preset) {
 	    $self->{preset}{$choice} = $value ;
 	}
+	elsif ($inst->layered) {
+	    $self->{layered}{$choice} = $value ;
+	}
 	else {
 	    $self->{data}{$choice} = $value ;
 	}
@@ -611,12 +614,12 @@ Return 1 if the given C<choice> was set. Returns 0 otherwise.
 C<check> parameter decide on behavior in case of invalid
 choice value: either die (if yes) or discard bad value (if skip)
 
-C<mode> is either: custom standard preset default upstream_default
+C<mode> is either: custom standard preset default layered upstream_default
 
 =cut
 
 my %accept_mode = map { ( $_ => 1) } 
-                      qw/custom standard preset default upstream_default/;
+                      qw/custom standard preset default layered upstream_default/;
 
 
 sub is_checked {
@@ -644,6 +647,7 @@ sub is_checked {
 	my $result 
 	  = $type eq 'custom'           ? ( $dat->{$choice} && ! $std_v ? 1 : 0 )
           : $type eq 'preset'           ? $pre->{$choice}
+          : $type eq 'layered'          ? $self->{layered}{$choice}
           : $type eq 'upstream_default' ? $ud ->{$choice}
           : $type eq 'default'          ? $def->{$choice}
           : $type eq 'standard'         ? $std_v
@@ -774,6 +778,10 @@ The list set in preset mode or checked by default.
 
 The default list (defined by the configuration model)
 
+=item layered
+
+The list specified in layered mode. 
+
 =item upstream_default
 
 The list implemented by upstream project (defined in the configuration
@@ -810,22 +818,24 @@ sub get_checked_list_as_hash {
     my $dat = $self->{data} ;
     my $pre = $self->{preset} ;
     my $def = $self->{default_data} ;
+    my $lay = $self->{layered} ;
     my $ud  = $self->{upstream_default_data} ;
 
     # copy hash and return it
-    my %std = (%h, %$def, %$pre ) ;
+    my %std = (%h, %$ud, %$lay, %$def, %$pre ) ;
     my %result 
       = $mode eq 'custom'   ? (%h, map { $dat->{$_} && ! $std{$_} ? ($_,1) : ()} keys %$dat )
       : $mode eq 'preset'   ? (%h, %$pre )
-      : $mode eq 'upstream_default' ? %$ud
-      : $mode eq 'default'          ? %$def
+      : $mode eq 'layered'  ? (%h, %$lay )
+      : $mode eq 'upstream_default' ? (%h, %$ud) 
+      : $mode eq 'default'          ? (%h, %$def )
       : $mode eq 'standard' ? %std
-      :                       (%std, %$dat );
+      :                       (%h, %$def, %$pre, %$dat );
 
     return wantarray ? %result : \%result;
 }
 
-=head2 get_checked_list ( [ custom | preset | standard | default ] )
+=head2 get_checked_list ( < mode >  )
 
 Returns a list (or a list ref) of all checked items (i.e. all items
 set to 1). 
@@ -841,7 +851,7 @@ sub get_checked_list {
     return wantarray ? @res : \@res ;
 }
 
-=head2 fetch ( [ custom | preset | standard | default ] )
+=head2 fetch ( < mode > )
 
 Returns a string listing the checked items (i.e. "A,B,C")
 
@@ -862,7 +872,11 @@ sub fetch_preset {
     return join (',', $self->get_checked_list('preset'));
 }
 
-=head2 get( path  [, custom | preset | standard | default ])
+sub fetch_layered {
+    my $self = shift ;
+    return join (',', $self->get_checked_list('layered'));
+}
+=head2 get( path  [, < mode> ] )
 
 Get a value from a directory like path.
 
