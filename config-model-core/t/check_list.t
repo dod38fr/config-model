@@ -4,11 +4,12 @@ use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
 use Test::More;
+use Test::Differences ;
 use Config::Model;
 use Data::Dumper;
 use Log::Log4perl qw(:easy :levels) ;
 
-BEGIN { plan tests => 75; }
+BEGIN { plan tests => 78; }
 
 use strict;
 
@@ -222,6 +223,16 @@ is( scalar @got, 0, "test nb of elt in check_list after clear" );
 eval { $cl->check('a'); };
 ok( $@, "check 'a': which is an error" );
 print "normal error:\n", $@, "\n" if $trace;
+
+# test layered choice_list
+$inst->layered_start ;
+my @l_set = qw/B M W/ ;
+$cl->set_checked_list(@l_set);
+$inst->layered_stop ;
+
+eq_or_diff( [ $cl->get_checked_list(mode => 'layered') ], \@l_set,"check layered content");
+eq_or_diff( [ $cl->get_checked_list(mode => 'standard') ], \@l_set,"check standard content");
+eq_or_diff( [ $cl->get_checked_list() ], [],"check content");
 
 # now test with a refer_to parameter
 
