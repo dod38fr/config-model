@@ -229,7 +229,7 @@ my %assert_payload = (
                 warp        => {
                     follow  => { 'type' => '?type', },
                     'rules' => [
-                        '$type eq "hash"' =>
+                        '$type eq "hash" or $type eq "list"' =>
                           { level => 'normal', },
                     ]
                 }
