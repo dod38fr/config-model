@@ -69,6 +69,8 @@ sub run_model_test {
     my ($model_test, $model_test_conf, $do, $model, $trace, $wr_root) = @_ ;
 
     $skip = 0;
+    undef $conf_file_name ;
+    undef $conf_dir ;
 
     note("Beginning $model_test test ($model_test_conf)");
 
@@ -183,7 +185,8 @@ sub run_model_test {
         if ( -d $ex_data ) {
 
             # copy whole dir
-            my $debian_dir = "$wr_dir/$conf_dir" ;
+            my $debian_dir = "$wr_dir/" ;
+            $debian_dir .= $conf_dir if $conf_dir;
             find(
                 {
                     wanted => sub { push @new_file_list, $_ unless -d; },
