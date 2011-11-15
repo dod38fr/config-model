@@ -192,8 +192,27 @@
                     },
                 ],
                 description =>
-"                  Specify an upgrade path from an old value and compute "
+                    "Specify an upgrade path from an old value and compute "
                   . "the value to store in the new element.",
+            },
+
+            'write_as' => {
+                type       => 'list',
+                level      => 'hidden',
+                max_index  => 1,
+
+                warp => {
+                    follow  => { t => '- type', vt => '- value_type'},
+                    rules   => [
+                        '$t eq "leaf" and $vt eq "boolean"' => { level => 'normal', },
+                    ]
+                },
+                cargo => {
+                    type => 'leaf',
+                    value_type => 'uniline',
+                },
+                description =>
+                    "Specify how to write a boolean value. Example 'no' 'yes'.",
             },
 
             # hash element
