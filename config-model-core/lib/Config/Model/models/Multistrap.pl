@@ -4,7 +4,7 @@
       '\\w+',
       {
         'value_type' => 'uniline',
-        'warn' => 'Handling unknown parameter as unlinie value.',
+        'warn' => 'Handling unknown parameter as uniline value.',
         'type' => 'leaf'
       }
     ],
