@@ -743,7 +743,7 @@ my @warp_accessible_params =  qw/min max mandatory default
 				 warn assert warn_unless warn_if_match warn_unless_match/ ;
 
 my @accessible_params =  (@warp_accessible_params, 
-			  qw/index_value element_name value_type
+			  qw/index_value element_name value_type write_as
 			     refer_to computed_refer_to replace_follow/ ) ;
 
 my @allowed_warp_params = (@warp_accessible_params, qw/level experience help/);
@@ -842,7 +842,8 @@ sub set_properties {
 
 
     map { $self->{$_} =  delete $args{$_} if defined $args{$_} }
-      qw/min max mandatory replace warn replace_follow assert warn_unless/ ;
+      qw/min max mandatory replace warn replace_follow assert warn_unless
+        write_as/ ;
 
     $self->set_help           ( \%args );
     $self->set_value_type     ( \%args );
@@ -858,12 +859,16 @@ sub set_properties {
     # cannot be warped
     $self->set_migrate_from   ( \%args ) if defined $args{migrate_from};
 
-    Config::Model::Exception::Model
-	-> throw (
-		  object => $self,
-		  error => "Unexpected parameters: ".join(' ', keys %args )
-		 ) 
-	  if scalar keys %args ;
+    Config::Model::Exception::Model -> throw (
+        object => $self,
+	error => "write_as is allowed only with boolean values"
+    ) if defined $self->{write_as} and $self->{value_type} ne 'boolean';
+
+
+    Config::Model::Exception::Model -> throw (
+        object => $self,
+	error => "Unexpected parameters: ".join(' ', keys %args )
+    ) if scalar keys %args ;
 
     if (defined $self->{warp_these_objects}) {
         my $value = $self->_fetch_no_check ;
@@ -1866,8 +1871,8 @@ sub fetch_custom {
 
     no warnings "uninitialized" ;
     my $data = $self->_fetch_no_check ;
-
-    return ($data ne $std_value) ? $data : undef ;
+    my $v = ($data ne $std_value) ? $data : undef ; 
+    return $self->map_write_as($v) ;
 }
 
 =head2 fetch_standard
@@ -1881,9 +1886,10 @@ default value or a built-in default value.
 sub fetch_standard {
     my $self = shift ;
     my $pre_fetch = $self->_pre_fetch ;
-    return defined $pre_fetch       ? $pre_fetch 
-         : defined $self->{layered} ? $self->{layered}
-         :                            $self->{upstream_default} ;
+    my $v = defined $pre_fetch       ? $pre_fetch 
+          : defined $self->{layered} ? $self->{layered}
+          :                            $self->{upstream_default} ;
+    return $self->map_write_as($v) ;
 }
 
 sub _init {
@@ -2149,13 +2155,12 @@ sub fetch {
     $ok = $self->check(value => $value, silent => $silent, mode => $mode ) 
         if $mode eq '' or $mode eq 'custom' ;
 
-
     $logger->debug( "(almost) done for " . $self->location )
       if $logger->is_debug;
 
     # check validity (all modes)
     if ( $ok or $check eq 'no' ) {
-        return $value;
+        return $self->map_write_as($value);
     }
     elsif ( $check eq 'skip' ) {
         my $msg = $self->error_msg;
@@ -2170,6 +2175,14 @@ sub fetch {
     );
 
     #return $value;    # undef in fact
+}
+
+sub map_write_as {
+    my ($self,$v) = @_ ;
+    return unless defined $v ;
+    return $v unless $self->{write_as};
+    return $v unless $self->value_type eq 'boolean';
+    return $self->{write_as}[$v] ;
 }
 
 =head2 user_value
@@ -2192,7 +2205,8 @@ preset mode.
 =cut
 
 sub fetch_preset {
-    return shift->{preset} ;
+    my $self= shift ;
+    return $self->map_write_as($self->{preset}) ;
 }
 
 =head2 clear_preset
@@ -2214,7 +2228,8 @@ layered mode.
 =cut
 
 sub fetch_layered {
-    return shift->{layered} ;
+    my $self= shift ;
+    return $self->map_write_as($self->{layered}) ;
 }
 
 =head2 clear_layered
