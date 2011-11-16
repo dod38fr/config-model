@@ -197,7 +197,14 @@ Specify the default value (optional)
 
 =item upstream_default
 
-Specify a built in default value (optional)
+Specify a built in default value (optional). I.e a value known by the application
+which does not need to be written in the configuration file.
+
+=item write_as
+
+Array ref. Reserved for boolean value. Specify how to write a boolean value. 
+Default is C<[0,1]> which may not be the most readable. C<write_as> can be 
+specified as C<['false','true']> or C<['no','yes']>. 
 
 =cut
 
