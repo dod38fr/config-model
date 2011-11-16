@@ -32,7 +32,7 @@ my ($cat,$models) = $model->available_models ;
 eq_or_diff($cat->{system},[qw/fstab lcdproc popcon/],"check available system models");
 is($models->{popcon}{model},'PopCon',"check available popcon");
 
-eq_or_diff($cat->{application}, [qw/dpkg dpkg-control dpkg-copyright/ ] ,"check available application models");
+eq_or_diff($cat->{application}, [qw/dpkg dpkg-control dpkg-copyright multistrap/ ] ,"check available application models");
 is($models->{'dpkg-copyright'}{model},'Debian::Dpkg::Copyright',"check available dpkg-copyright");
 
 my $class_name = $model->create_config_class 
