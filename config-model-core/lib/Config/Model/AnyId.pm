@@ -239,7 +239,8 @@ Specify the minimum value (optional, only for hash and for integer index)
 
 =item max_index
 
-Specify the maximum value (optional, only for integer index)
+Specify the maximum value (optional, only for list or for hash with 
+integer index)
 
 =item max_nb
 
