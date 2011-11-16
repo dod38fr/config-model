@@ -177,6 +177,7 @@ sub _write {
     my $node = $args{object} ;
     my $delimiter = $args{comment_delimiter} || '#' ;
     my $join_list = $args{join_list_value} ;
+    my $write_bool_as = $args{write_boolean_as} ;
 
     $logger->debug("called on ",$node->name);
     my $res = '';
@@ -201,7 +202,6 @@ sub _write {
             }
         }
         elsif ($node->element_type($elt) eq 'list'){
-            # FIXME: list is repeated in INI file. Not good if a split_reg was specified
             foreach my $item ($obj->fetch_all('custom')) {
                 my $note = $item->annotation ;
                 my $v = $item->fetch ;
@@ -216,6 +216,9 @@ sub _write {
         }
         elsif ($node->element_type($elt) eq 'leaf') {
             my $v = $obj->fetch ;
+            if ($write_bool_as and length($v) and $obj->value_type eq 'boolean') {
+                $v = $write_bool_as->[$v] ;
+            }
             if (length $v) {
                 $logger->debug("writing leaf elt $elt -> $v");
                 $res .= $self->write_data_and_comments(undef,$delimiter,"$elt=$v", $obj_note);
@@ -403,6 +406,12 @@ applies only to C<list> elements.
 Conversely, the list element split with C<split_list_value> needs to be written
 back with a string to join them. Specify this string (usually ' ' or ', ') 
 with C<join_list_value>.
+
+=item write_boolean_as
+
+Array ref. Reserved for boolean value. Specify how to write a boolean value. 
+Default is C<[0,1]> which may not be the most readable. C<write_boolean_as> can be 
+specified as C<['false','true']> or C<['no','yes']>. 
 
 =back
 
