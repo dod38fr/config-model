@@ -252,6 +252,17 @@
                 }
             },
 
+            'write_boolean_as' => {
+                type       => 'list',
+                description => 'Specify how to write a boolean value in config file. Suggested values are '
+                    . '"no","yes". ',
+                max_index => 1,
+                cargo => { 
+                    type => 'leaf',
+                    value_type => 'uniline',
+                },
+            },
+
             'config_file' => {
                 type       => 'leaf',
                 value_type => 'uniline',
