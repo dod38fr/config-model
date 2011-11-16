@@ -32,6 +32,11 @@
       {
         'value_type' => 'uniline',
         'type' => 'leaf'
+      },
+      'omitdebsrc',
+      {
+        'value_type' => 'boolean',
+        'type' => 'leaf'
       }
     ]
   }
