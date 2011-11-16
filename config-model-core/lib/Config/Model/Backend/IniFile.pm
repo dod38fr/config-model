@@ -193,9 +193,12 @@ sub _write {
         my $obj_note = $obj->annotation;
 
         if ($node->element_type($elt) eq 'list' and $join_list){
-            my $v = join( $join_list, $obj->fetch_all_values('custom') ) ;
-            $logger->debug("writing list elt $elt -> $v");
-            $res .= $self->write_data_and_comments(undef,$delimiter,"$elt=$v",$obj_note) ;
+            my @v = grep { length } $obj->fetch_all_values() ;
+            my $v = join( $join_list, @v) ;
+            if (length ($v) ) {
+                $logger->debug("writing list elt $elt -> $v");
+                $res .= $self->write_data_and_comments(undef,$delimiter,"$elt=$v",$obj_note) ;
+            }
         }
         elsif ($node->element_type($elt) eq 'list'){
             # FIXME: list is repeated in INI file. Not good if a split_reg was specified
