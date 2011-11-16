@@ -3,7 +3,7 @@
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
-use Test::More tests => 144;
+use Test::More tests => 147;
 use Test::Exception;
 use Test::Warn;
 use Config::Model;
@@ -79,6 +79,11 @@ $model->create_config_class(
             class      => 'Config::Model::Value',
             value_type => 'boolean',
             mandatory  => 1,
+        },
+        boolean_with_write_as => {
+            type       => 'leaf',
+            value_type => 'boolean',
+            write_as   => [qw/false true/],
         },
         bare_enum => {
             type       => 'leaf',
@@ -325,6 +330,13 @@ is( $mb->fetch,         1, "and read" );
 print "mandatory boolean: set to False\n" if $trace;
 is( $mb->store('False'), 0, "mandatory boolean: set to False" );
 is( $mb->fetch,          0, "and read" );
+
+my $bwwa = $root->fetch_element('boolean_with_write_as');
+is($bwwa->fetch, undef, "boolean_with_write_as reads undef");
+$bwwa->store('no');
+is($bwwa->fetch, 'false', "boolean_with_write_as returns 'false'");
+$bwwa->store(1);
+is($bwwa->fetch, 'true', "boolean_with_write_as returns 'true'");
 
 throws_ok { $bad_root->fetch_element('crooked_enum'); }
 'Config::Model::Exception::Model',
