@@ -46,13 +46,7 @@ sub setup_test {
         $debian_dir .= $conf_dir if $conf_dir;
         dircopy( $ex_data, $debian_dir )
           || die "dircopy $ex_data -> $debian_dir failed:$!";
-        find(
-            {
-                wanted => sub { push @file_list, $_ unless -d; },
-                no_chdir => 1
-            },
-            $debian_dir
-        );
+        list_test_files ($debian_dir, \@file_list);
     }
     else {
 
@@ -63,6 +57,23 @@ sub setup_test {
     ok( 1, "Copied $model_test example $t_name" );
 
     return ( $wr_dir, $conf_file, $ex_data, @file_list );
+}
+
+#
+# New subroutine "list_test_files" extracted - Thu Nov 17 17:27:20 2011.
+#
+sub list_test_files {
+    my $debian_dir = shift;
+    my $file_list  = shift;
+
+    find(
+        {
+            wanted => sub { push @$file_list, $_ unless -d; },
+            no_chdir => 1
+        },
+        $debian_dir
+    );
+    map { s!^$debian_dir!/!; } @$file_list;
 }
 
 sub run_model_test {
@@ -187,14 +198,8 @@ sub run_model_test {
             # copy whole dir
             my $debian_dir = "$wr_dir/" ;
             $debian_dir .= $conf_dir if $conf_dir;
-            find(
-                {
-                    wanted => sub { push @new_file_list, $_ unless -d; },
-                    no_chdir => 1
-                },
-                $debian_dir
-            );
-            $t->{file_check_sub}->( \@new_file_list )
+            list_test_files($debian_dir, \@new_file_list) ;
+            $t->{file_check_sub}->( \@file_list )
               if defined $t->{file_check_sub};
             eq_or_diff( \@new_file_list, \@file_list,
                 "check added or removed files" );
@@ -456,11 +461,12 @@ You can skip warning when writing back with:
 =item *
 
 Check added or removed configuration files. If you expect changes, 
-specify a subref  to alter the file list:
+specify a subref to alter the file list:
 
     file_check_sub => sub { 
-        my $file_list_ref = shift ; 
-        @$r = grep { ! /home/ } @$r ;
+        my $list_ref = shift ; 
+        # file added during tests
+        push @$list_ref, "/debian/source/format" ;
     };
 
 =item *
