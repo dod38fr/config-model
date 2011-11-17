@@ -12,7 +12,7 @@ $skip = ( $@ or not -r '/etc/debian_version' ) ? 1 : 0;
 my $del_home = sub { 
     my $r = shift ;
     my $home = File::HomeDir->my_data; # Works also on Windows
-    @$r = grep { ! /$home/ } @$r ;
+    push @$r, "$home/.dpkg-meta.yml" ;
 };
 
 @tests = (
