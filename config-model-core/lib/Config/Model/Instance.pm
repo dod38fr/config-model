@@ -589,7 +589,11 @@ sub write_back {
     foreach my $path (@{$self->{write_back}}) {
 	$logger->info("write_back called on node $path");
         my $node = $self->config_root->grab(step => $path, type => 'node');
-        $node->write_back(%args, backend => $force_backend);
+        $node->write_back(
+            %args, 
+            config_file => $self->{config_file} ,
+            backend => $force_backend
+        );
     }
 }
 
