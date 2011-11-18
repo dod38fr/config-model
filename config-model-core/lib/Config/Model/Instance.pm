@@ -327,18 +327,13 @@ Clear all preset values stored.
 
 sub preset_clear {
     my $self = shift ;
-    my $wiper = Config::Model::ObjTreeScanner->new (
-        fallback => 'all',
-        auto_vivify => 0,
-        check => 'skip' ,
-        leaf_cb => sub {
-            my ($scanner, $data_ref,$node,$element_name,$index, $leaf_object) = @_ ;
-            $leaf_object->clear_preset ;
-        }
-    );
 
-    $wiper->scan_node(undef,$self->config_root) ;
-
+    my $leaf_cb = sub {
+        my ($scanner, $data_ref,$node,$element_name,$index, $leaf_object) = @_ ;
+        $leaf_object->clear_preset ;
+    } ;
+    
+    $self->_stuff_clear($leaf_cb) ;
 }
 
 =head2 layered_start ()
@@ -386,14 +381,40 @@ Clear all layered values stored.
 
 sub layered_clear {
     my $self = shift ;
+    
+    my $leaf_cb = sub {
+        my ($scanner, $data_ref,$node,$element_name,$index, $leaf_object) = @_ ;
+        $$data_ref ||= $leaf_object->clear_layered ;
+    };
+
+    $self->_stuff_clear($leaf_cb);
+}
+    
+sub _stuff_clear {
+    my ($self,$leaf_cb) = @_ ;
+    
+    # this sub may remove hash keys that were entered by user if the 
+    # corresponding hash value has no data. 
+    # it also clear auto_created ids if there's no data in there
+    my $h_cb = sub {
+        my  ($scanner, $data_ref,$node,$element_name,@keys) = @_ ;
+        my $obj = $node->fetch_element($element_name) ;
+        
+        foreach my $k (@keys) {
+            my $has_data = 0;
+            $scanner->scan_hash(\$has_data,$node,$element_name,$k);
+            $obj->remove($k) unless $has_data ;
+            $$data_ref ||= $has_data ;
+        }
+    };
+    
     my $wiper = Config::Model::ObjTreeScanner->new (
         fallback => 'all',
         auto_vivify => 0,
         check => 'skip' ,
-        leaf_cb => sub {
-            my ($scanner, $data_ref,$node,$element_name,$index, $leaf_object) = @_ ;
-            $leaf_object->clear_layered ;
-        }
+        leaf_cb => $leaf_cb ,
+        hash_element_cb => $h_cb,
+        list_element_cb => $h_cb,
     );
 
     $wiper->scan_node(undef,$self->config_root) ;
