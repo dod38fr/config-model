@@ -2218,12 +2218,15 @@ sub fetch_preset {
 
 =head2 clear_preset
 
-Delete the preset value. (Even out of preset mode)
+Delete the preset value. (Even out of preset mode). Returns true if other data 
+are still stored in the value (layered or user data). Returns false otherwise.
 
 =cut
 
 sub clear_preset {
-    delete shift->{preset} ;
+    my $self= shift ;
+    delete $self->{preset} ;
+    return defined $self->{layered} || defined $self->{data} ;
 }
 
 =head2 fetch_layered
@@ -2241,12 +2244,15 @@ sub fetch_layered {
 
 =head2 clear_layered
 
-Delete the layered value. (Even out of layered mode)
+Delete the layered value. (Even out of layered mode). Returns true if other data 
+are still stored in the value (layered or user data). Returns false otherwise.
 
 =cut
 
 sub clear_layered {
-    delete shift->{layered} ;
+    my $self= shift ;
+    delete $self->{layered} ;
+    return defined $self->{preset} || defined $self->{data} ;
 }
 
 
