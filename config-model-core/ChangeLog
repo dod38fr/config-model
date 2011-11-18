@@ -1,3 +1,33 @@
+2011-11-17  Dominique Dumont  <domi.dumont@free.fr> 1.261
+
+    * Test changes (Config/Model/Tester):
+      * reworked cfg file list check
+      * Avoid test conf pollution from one test to the other
+      + added possibility to specify arbitrary file name (for multistrap)
+
+    * Application changes:
+      + new multistrap model. Supports multistrap's layered configuration
+      * lcdproc:
+        * lcdconf2model.pl: added better check of info in square brackets
+        * lcdproc/LCDd.conf: resync with upstream lcdproc LCDd.conf 
+
+    * Inifile backend changes:
+      + added write_boolean_as, split_list_value, section_map and
+	join_list_value parameters to cope with special conventions
+	regaring INI files
+      * No longer write empty list parameter (i.e. just "foo=" lines)
+      * ensure that empty sections are not written
+
+    * Framework changes:
+      * Config::Model::Value:
+	+ added write_as parameter for booleans
+        + added clear_preset method
+      + C::M::CheckList, C::M::Instance, C::M::Value: added layered value
+      + C::M::Value::LayeredInclude: new class to include sub-layer
+        of configuration data
+      + config-edit: added -config_file option
+      + added Test::File::Contents build dependency
+
 2011-10-28  Dominique Dumont  <domi.dumont@free.fr> 1.260
 
     * Application changes
@@ -87,29 +117,29 @@
 2011-09-01  Dominique Dumont  <domi.dumont@free.fr> 1.252
 
     * Framework changes:
-	* AutoRead.pm: correctly handle ~ as home dir (thanks fabreg)
-	* Backend/ShellVar.pm: do not write global comments if 
-	  there's no data to write
-	* AutoRead.pm: do not leave empty files
+        * AutoRead.pm: correctly handle ~ as home dir (thanks fabreg)
+        * Backend/ShellVar.pm: do not write global comments if 
+          there's no data to write
+        * AutoRead.pm: do not leave empty files
 
 2011-08-30  Dominique Dumont  <domi.dumont@free.fr> 1.251
 
     * Application changes
-	* Backend Debian/Dpkg/Copyright.pm:
-  	  Fixed parser to avoid confusing License and License-Alias
-	+ model Debian/Dpkg/Control/Source.pl:
-	  warn in case of duplicated dependencies
-	* Debian/Dependency.pm: Fixed handling of dependency alternates
-	* Backend Debian/Dpkg/Patch.pm: patch write is now working
+        * Backend Debian/Dpkg/Copyright.pm:
+            Fixed parser to avoid confusing License and License-Alias
+        + model Debian/Dpkg/Control/Source.pl:
+          warn in case of duplicated dependencies
+        * Debian/Dependency.pm: Fixed handling of dependency alternates
+        * Backend Debian/Dpkg/Patch.pm: patch write is now working
 
     * Framework changes:
-	* Value.pm: rewrote apply_fix to use check to apply fixes. 
-	  No longer stores fixes as sub ref.
-	* AnyId.pm: rewrote apply_fix to use check to apply fixes. 
-	  Split check in a global check and dedicated index (check_idx) check
-	* AnyId.pm: Added fix_duplicates feature
-	* Instance.pm: apply_fixes: now relay the call to hash and lists objects
-	* OjTreeScanner.pm: added hooks for node_content hash_element and list_element
+        * Value.pm: rewrote apply_fix to use check to apply fixes. 
+          No longer stores fixes as sub ref.
+        * AnyId.pm: rewrote apply_fix to use check to apply fixes. 
+          Split check in a global check and dedicated index (check_idx) check
+        * AnyId.pm: Added fix_duplicates feature
+        * Instance.pm: apply_fixes: now relay the call to hash and lists objects
+        * OjTreeScanner.pm: added hooks for node_content hash_element and list_element
 
 2011-07-22  Dominique Dumont  <domi.dumont@free.fr> 1.250
 
@@ -180,8 +210,8 @@
 2011-06-17  Dominique Dumont  <domi.dumont@free.fr> 1.245
 
     * Application changes:
-	* models Debian::Dpkg::Copyright::License:
-	  Allow any license exception keyword (fix Debian bug #627874)
+        * models Debian::Dpkg::Copyright::License:
+          Allow any license exception keyword (fix Debian bug #627874)
         + New model for lcdproc: 
           The model for lcdproc (LCDd) is generated from the template 
           LCDd.conf file provided by lcdproc project. This model can be 
@@ -194,36 +224,36 @@
           (c) 1999-2011, D Dumont, William Ferrell and others, GPL-2. 
           
     * Framework changes:
-	* lib/Config/Model/Backend/IniFile.pm:
-	- Do not write twice leaf comments
-	- handle warped_node like nodes
-	* lib/Config/Model/Loader.pm:
-	  Do not remove first and last escaped quotes
-	* Build.PL:
-  	  Check (and may be generate) pod doc at build time 
-  	  (on top of release time)
-	* lib/Config/Model.pm:
-	  Fix doc generator to test correctly for time stamp 
-	  before re-writing docs
-	* lib/Config/Model/Backend/IniFile.pm:
-	  When check is 'no', discard data that belongs to unavailable
-	  elements
+        * lib/Config/Model/Backend/IniFile.pm:
+        - Do not write twice leaf comments
+        - handle warped_node like nodes
+        * lib/Config/Model/Loader.pm:
+          Do not remove first and last escaped quotes
+        * Build.PL:
+            Check (and may be generate) pod doc at build time 
+            (on top of release time)
+        * lib/Config/Model.pm:
+          Fix doc generator to test correctly for time stamp 
+          before re-writing docs
+        * lib/Config/Model/Backend/IniFile.pm:
+          When check is 'no', discard data that belongs to unavailable
+          elements
 
 2011-05-16  Dominique Dumont  <ddomi.dumont@free.fr> 1.244
 
     * Application changes:
-	* Fstab model: Prevent wrong value in fs_passno and fs_freq with 
-	  bound mount point
-	* Dpkg: Added doc for control Architecture. Fix pod doc in DpkgSyntax 
-	  backend
-	* Debian/Dpkg/Meta.pl: applied Debian patch fix_perl_group_filter 
-	  (set group_filter of debian perl team to 'etch' instead of 'lenny')
-	
+        * Fstab model: Prevent wrong value in fs_passno and fs_freq with 
+          bound mount point
+        * Dpkg: Added doc for control Architecture. Fix pod doc in DpkgSyntax 
+          backend
+        * Debian/Dpkg/Meta.pl: applied Debian patch fix_perl_group_filter 
+          (set group_filter of debian perl team to 'etch' instead of 'lenny')
+        
     * Framework changes:
-	* config-edit: added -search and -narrow-search options. This options
-	  enable search in tree element, values and tree documentation. 
-	* config-edit: cleaned up option names (always accept '-' in place of '_')
-	* Config/Model/AnyThing.pm: fix location string and fix grab function
+        * config-edit: added -search and -narrow-search options. This options
+          enable search in tree element, values and tree documentation. 
+        * config-edit: cleaned up option names (always accept '-' in place of '_')
+        * Config/Model/AnyThing.pm: fix location string and fix grab function
 
 2011-05-02  Dominique Dumont  <domi.dumont@free.fr> 1.243
 
@@ -234,8 +264,8 @@
           fields. Closes Debian #624305. Thanks Niko Tyni.
         * Dpkg/Control/Source.pl : added XS-Python-Version ans X-Python-Version
           (first steo to solve Debian #624321)
-	* Debian Dpkg Meta model: package filter is computed from group-filter
-	  OR private policy
+        * Debian Dpkg Meta model: package filter is computed from group-filter
+          OR private policy
           
     * Framework changes:
         * reworked warp registration mechanism (Changed inherited WarpedThing into
@@ -248,7 +278,7 @@
 
     * Application changes:
         * dpkg control: added Build-Conflicts field
-	* dpkg: Added model for debian/source/options and debian/clean files
+        * dpkg: Added model for debian/source/options and debian/clean files
 
     * Framework changes:
        * Value: don't perform value check when fetching standard or default value
@@ -302,31 +332,31 @@
           - Warn if a package is unknown.
           - Accepts version specified with dpkg variables.
         * dpkg control and copyright: warn if dh-make-perl boilerplate is found
-	* dpkg control: added Package-Type parameter (Peter Pentchev)
-	* Dpkg meta: new class to enable user to customize dpkg editor. 
+        * dpkg control: added Package-Type parameter (Peter Pentchev)
+        * Dpkg meta: new class to enable user to customize dpkg editor. 
           (email-updates and dependency-filter). Content of meta is saved in
           ~/.dpkg-meta.yml
         * Dpkg control: change e-mail address based on content of meta 
           email-updates
 
     * Framework changes:
-	* Value: added replace_follow parameter to specify automatic
-	  replacement based on a hash somewhere in the configuration
-	  tree (used by dpkg e-mail update)
-	* Extracted initialisation of reader and writer from new() and moved in 
-	  init() method to avoid deep recursion on startup.
-	* Use Any::Moose instead of plain Moose
-	* Removed dependency on MooseX::Singleton
-	* Model: added author, copyright, license fields. This data is not used by
-	  Config::Model, but can be used in the user interface or to generate config
-	  class doc
-	* AnyThing: Fix parsing of multi line annotations. Now use Pod::POM 
-	  to load annocation from Pod document
-	* dist.ini: Depends on Pod::POM
-	* Model.pm: added generate_doc method
-	* config-edit: new -gen-pod option to generate pod document from config class
-	* HashId: fix default_with_init to be able to auto-create leaf values 
-	  specified in the model
+        * Value: added replace_follow parameter to specify automatic
+          replacement based on a hash somewhere in the configuration
+          tree (used by dpkg e-mail update)
+        * Extracted initialisation of reader and writer from new() and moved in 
+          init() method to avoid deep recursion on startup.
+        * Use Any::Moose instead of plain Moose
+        * Removed dependency on MooseX::Singleton
+        * Model: added author, copyright, license fields. This data is not used by
+          Config::Model, but can be used in the user interface or to generate config
+          class doc
+        * AnyThing: Fix parsing of multi line annotations. Now use Pod::POM 
+          to load annocation from Pod document
+        * dist.ini: Depends on Pod::POM
+        * Model.pm: added generate_doc method
+        * config-edit: new -gen-pod option to generate pod document from config class
+        * HashId: fix default_with_init to be able to auto-create leaf values 
+          specified in the model
 
 2011-03-01 Dominique Dumont  <domi.dumont@free.fr> 1.235
     
@@ -468,27 +498,27 @@
 
 2010-11-22 Dominique Dumont  <domi.dumont@free.fr> 1.222
 
-	* bash-completion: fixed missing application option
-	* Fstab model: specify '/etc' dir inst
+        * bash-completion: fixed missing application option
+        * Fstab model: specify '/etc' dir inst
 
 2010-11-21 Dominique Dumont  <domi.dumont@free.fr> 1.221
 
         * Annotation: can now save annotation for node and list objects
         * Added new Fstab model and backend. Supports ext2 to ext4 and
-	other file systems.  Please contact the author if options are
-	missing.
+        other file systems.  Please contact the author if options are
+        missing.
         * Fix pod spelling errors (RT #62947). Thanks to carnil for the
-	report and patches.
+        report and patches.
         * added config-edit test (build requires Test::Command)
         * config-edit: added -application option, added -list
-  	model|applications option
-	* Model.pm: updated doc
-	* bash_completion.config-edit: is now *not* executable
+          model|applications option
+        * Model.pm: updated doc
+        * bash_completion.config-edit: is now *not* executable
 
 2010-11-10 Dominique Dumont  <domi.dumont@free.fr> 1.220
 
-	* Fix Build.PL to install files found in lib/Config/Model/*.d
-	* Added Cookbook::CreateModelFromDoc from SF wiki
+        * Fix Build.PL to install files found in lib/Config/Model/*.d
+        * Added Cookbook::CreateModelFromDoc from SF wiki
 
 2010-11-09 Dominique Dumont  <domi.dumont@free.fr> 1.219
 
@@ -500,1205 +530,1205 @@
 2010-11-05 Dominique Dumont  <domi.dumont@free.fr> 1.218
 
         * Moved doc from README into model.pm
-	* Copyright: added deprecated parameters (Upstream-Name
-	  Upstream-Maintainer Upstream-Source). Added migrate_from
-	  instruction to migrate user data from old parameters to new
-	  parameters.
-	* Copyright: Removed fuzziness around trailing '+' in licence names
-	* AnyThing.pm: grab() : accept '+' without surrounding quotes in argument
-	* WarpedNode: delegates copy_from and dump_tree to Node (fixes hash 
-	  copy with warped nodes)
-	* config-edit: added -open_item option
-	* Build.PL: configure_depends on Text::Template to avoid CPANPLUS 
-	  installation failure
+        * Copyright: added deprecated parameters (Upstream-Name
+          Upstream-Maintainer Upstream-Source). Added migrate_from
+          instruction to migrate user data from old parameters to new
+          parameters.
+        * Copyright: Removed fuzziness around trailing '+' in licence names
+        * AnyThing.pm: grab() : accept '+' without surrounding quotes in argument
+        * WarpedNode: delegates copy_from and dump_tree to Node (fixes hash 
+          copy with warped nodes)
+        * config-edit: added -open_item option
+        * Build.PL: configure_depends on Text::Template to avoid CPANPLUS 
+          installation failure
 
 2010-10-26 Dominique Dumont  <domi.dumont@free.fr> 1.217
 
         * Fix issue where value reference did not follow refered
-	  to parameters after creation.
-	* Fstab example: split the model for the Debian mini-debconf
-	workshop
+          to parameters after creation.
+        * Fstab example: split the model for the Debian mini-debconf
+        workshop
 
 2010-10-26 Dominique Dumont  <domi.dumont@free.fr> 1.216
 
         * Control.pl: fixed control fields order to be less confusing (thanks to ansgar
-	  for the advice)
+          for the advice)
         * Backend IniFile: Bug fix to write top level parameters before the first INI class
         * Node.pm: Bug fix when calling fetch_element with accepted parameters
         * Model.pm: updated doc to point to overview and introduction on SourceForge wiki
-	* example/fstab/Fstab.pl: Fix model so it can be loaded by config-model-edit
+        * example/fstab/Fstab.pl: Fix model so it can be loaded by config-model-edit
 
 2010-10-19 Dominique Dumont  <domi.dumont@free.fr> 1.215
 
-	* Instance.pm and Loader.pm: added some stub to preserve backwards compatibility 
+        * Instance.pm and Loader.pm: added some stub to preserve backwards compatibility 
 
 2010-10-19 Dominique Dumont  <domi.dumont@free.fr> 1.213
 
-	* AutoRead.pm: do not clobber configuration file when trying to write erroneous data
-	* Value.pm: fix value check based on Parse::RecDescent
-	* Dpkg::Copyright: fix bugs masked by above problem
-	* Dpkg::Copyright: Fix read/write issues with License that can be stored either 
-	  in Files section or their own sections
+        * AutoRead.pm: do not clobber configuration file when trying to write erroneous data
+        * Value.pm: fix value check based on Parse::RecDescent
+        * Dpkg::Copyright: fix bugs masked by above problem
+        * Dpkg::Copyright: Fix read/write issues with License that can be stored either 
+          in Files section or their own sections
 
 2010-10-15 Dominique Dumont  <domi.dumont@free.fr> 1.212
 
-	* Value and AnyId: store wrong values when store check is disabled 
-	(i.e. config-edit is run with -force option).
-	* Debian::Dpkg::Copyright: cosmetic improvements on written file
-	* Instance.pm: Removed all overengineered push_no_value_check, pop_no_value_check. 
-	This stuff had too many drawbacks of global variables. An optional check parameter 
-	was added to a lot of calls on Config::Model. The API was also sanitized with some 
-	positional parameters replaced by named parameters. Most of these changes should 
-	be internal. The main impact is that read/write backends must now explicitely
-	pass this check parameter lest the force_load will not work.
-	* ValueComputer: Remove req on Parse::RecDescent version. (Debian bug #597794)
-	* Value.pm: added silent parameter to fetch method to avoid displaying warnings on STDOUT
-	* Enable read and write of utf8 characters
+        * Value and AnyId: store wrong values when store check is disabled 
+        (i.e. config-edit is run with -force option).
+        * Debian::Dpkg::Copyright: cosmetic improvements on written file
+        * Instance.pm: Removed all overengineered push_no_value_check, pop_no_value_check. 
+        This stuff had too many drawbacks of global variables. An optional check parameter 
+        was added to a lot of calls on Config::Model. The API was also sanitized with some 
+        positional parameters replaced by named parameters. Most of these changes should 
+        be internal. The main impact is that read/write backends must now explicitely
+        pass this check parameter lest the force_load will not work.
+        * ValueComputer: Remove req on Parse::RecDescent version. (Debian bug #597794)
+        * Value.pm: added silent parameter to fetch method to avoid displaying warnings on STDOUT
+        * Enable read and write of utf8 characters
 
 2010-10-01 Dominique Dumont  <domi.dumont@free.fr> 1.211
-	* Value.pm: added warn_if_match and warn_unless_match parameters.
-	Value will issue a warning if the stored value match (or does not) 
-	match a Perl regular expression specified in the model.
-	* AnyId.pm: Likewise, added warn_if_key_match and 
-	warn_unless_key_match. 
-	* Value.pm: added warn parameter. Unconditionaly issue a warning with
-	a string specified in the model. Mostly usefull for deprecated or accept'ed 
-	parameters
-	* Loader.pm: load string can now undef a leaf with '~' action. 
-	E.g load("foo~") will set foo parameter to undef.
-	* Copyright model: warn if unknown license is used.
+        * Value.pm: added warn_if_match and warn_unless_match parameters.
+        Value will issue a warning if the stored value match (or does not) 
+        match a Perl regular expression specified in the model.
+        * AnyId.pm: Likewise, added warn_if_key_match and 
+        warn_unless_key_match. 
+        * Value.pm: added warn parameter. Unconditionaly issue a warning with
+        a string specified in the model. Mostly usefull for deprecated or accept'ed 
+        parameters
+        * Loader.pm: load string can now undef a leaf with '~' action. 
+        E.g load("foo~") will set foo parameter to undef.
+        * Copyright model: warn if unknown license is used.
 
 2010-09-30 Dominique Dumont  <domi.dumont@free.fr> 1.210
-	* renamed config-edit-dep5 in config-edit-dpkg-copyright
-	* renamed Debian::Dep5 model to Debian::Dpkg::Copyright
-	* renamed Config::Model::Backend::Debian::Dep5 backend to 
-	  Config::Model::Backend::Debian::Dpkg::Copyright
-	* Factored out code to read/write control files in 
-	  Config::Model::Backend::Debian::DpkgSyntax
-	* Created model and backend for Debian control files
-	* added config-edit-dpkg-control command line
+        * renamed config-edit-dep5 in config-edit-dpkg-copyright
+        * renamed Debian::Dep5 model to Debian::Dpkg::Copyright
+        * renamed Config::Model::Backend::Debian::Dep5 backend to 
+          Config::Model::Backend::Debian::Dpkg::Copyright
+        * Factored out code to read/write control files in 
+          Config::Model::Backend::Debian::DpkgSyntax
+        * Created model and backend for Debian control files
+        * added config-edit-dpkg-control command line
 
 2010-09-20 Dominique Dumont  <domi.dumont@free.fr> 1.209
-	* Fixed Debian::Dep5 parser: fixed read issue and added write
-	capability
+        * Fixed Debian::Dep5 parser: fixed read issue and added write
+        capability
 
 2010-09-16 Dominique Dumont  <domi.dumont@free.fr> 1.208
-	* Fixed missing dependencies in Build.PL (Building from hg
-	requires Dist::Zilla and Dist-Zilla-Plugins-CJM >= 3.01)
+        * Fixed missing dependencies in Build.PL (Building from hg
+        requires Dist::Zilla and Dist-Zilla-Plugins-CJM >= 3.01)
 
 2010-09-14 Dominique Dumont  <domi.dumont@free.fr> 1.207
-	* Added Debian's Dep-5 model (with config-edit-dep5 CLI)
-	* Value.pm: Added validation of value based on a Parse::RecDescent
-	grammar
-	* AnyId.pm: Authorized keys can also be based of a
-	Parse::RecDescent grammar
-	* Node.pm (find_element): returns the element name (if known). Can
-	also find the element in a case insensitive manner
+        * Added Debian's Dep-5 model (with config-edit-dep5 CLI)
+        * Value.pm: Added validation of value based on a Parse::RecDescent
+        grammar
+        * AnyId.pm: Authorized keys can also be based of a
+        Parse::RecDescent grammar
+        * Node.pm (find_element): returns the element name (if known). Can
+        also find the element in a case insensitive manner
 
 2010-07-23  Dominique Dumont  <domi.dumont@free.fr> 1.206
 
-	First version to feature code written during Google Summer of Code 2010.
-	For this GSoC, Krzysztof Tyszecki has provided:
-	* a new backend for INI file that can:
-	    * read and write comments to and from annotations. This way
-	      users comments are preserved
-	    * read and write parameters that are repeated in the INI file. This
-	      repeated parameters will be loaded in list elements
-	* the capacity to load annotation from perl data structure
-	* a new model feature to accept unknown element. This will enable
-	loading and writing configuration files even if parameters are
-	unknown. This feature is required to create models targeted for
-	configuration upgrades: only upgrade and migration specifications
-	need to be specified in a model. Parameters that don't change from
-	one version to another need not to be specified in the model.
+        First version to feature code written during Google Summer of Code 2010.
+        For this GSoC, Krzysztof Tyszecki has provided:
+        * a new backend for INI file that can:
+            * read and write comments to and from annotations. This way
+              users comments are preserved
+            * read and write parameters that are repeated in the INI file. This
+              repeated parameters will be loaded in list elements
+        * the capacity to load annotation from perl data structure
+        * a new model feature to accept unknown element. This will enable
+        loading and writing configuration files even if parameters are
+        unknown. This feature is required to create models targeted for
+        configuration upgrades: only upgrade and migration specifications
+        need to be specified in a model. Parameters that don't change from
+        one version to another need not to be specified in the model.
 
-	Other changes:
-	* lib/Config/Model/Loader.pm (_walk_node): bug fix to load node
-	element annotation
-	* lib/Config/Model/Dumper.pm (): bug fix to dump hash and list
-	element annotations
-	* Fixed Fstab example
+        Other changes:
+        * lib/Config/Model/Loader.pm (_walk_node): bug fix to load node
+        element annotation
+        * lib/Config/Model/Dumper.pm (): bug fix to dump hash and list
+        element annotations
+        * Fixed Fstab example
 
 2010-06-04  Dominique Dumont  <domi.dumont@free.fr> 1.205
 
-	* t/node.t: patch by Niko Tyni to avoid Carp::Heavy failure. Fix
-	Debian FTBS bug #582915 and countless CPAN smoke tests failures
+        * t/node.t: patch by Niko Tyni to avoid Carp::Heavy failure. Fix
+        Debian FTBS bug #582915 and countless CPAN smoke tests failures
 
 2010-06-03  Dominique Dumont  <domi.dumont@free.fr> v1.204
 
-	* MANIFEST.SKIP: Prompt re-release because 1.203 tarball contains
-	debian packages used for tests (oops)
+        * MANIFEST.SKIP: Prompt re-release because 1.203 tarball contains
+        debian packages used for tests (oops)
 
 2010-06-03  Dominique Dumont  <domi.dumont@free.fr> v1.203
 
-	* lib/Config/Model/Loader.pm (_load_hash): Bug fix: can load
-	annotation tied to hash values (node or leaf).
+        * lib/Config/Model/Loader.pm (_load_hash): Bug fix: can load
+        annotation tied to hash values (node or leaf).
 
 2010-04-22  Dominique Dumont  <domi.dumont@free.fr> v1.202
 
-	SUMMARY:
+        SUMMARY:
 
-	* New core feature: user can store annotation (e.g. structured
-	comments) with each configuration object of the configuration
-	tree, be it node, leaf, hash or list. Read backend can parse
-	confguration file comments and store them in annotations.
+        * New core feature: user can store annotation (e.g. structured
+        comments) with each configuration object of the configuration
+        tree, be it node, leaf, hash or list. Read backend can parse
+        confguration file comments and store them in annotations.
 
-	For instance ShellVar read backend will parse comments and store
-	them in the configuration tree. ShellVar write backend will put
-	them back in the configuration file.
+        For instance ShellVar read backend will parse comments and store
+        them in the configuration tree. ShellVar write backend will put
+        them back in the configuration file.
 
-	* PopCon editor preserve comments in configuration file.
+        * PopCon editor preserve comments in configuration file.
 
-	* Code: Uses Moose for C::M::Annotation and C::M::Backend::Any. Moose
-	looks good. I may use Moose for all other Config::Model classes later.
+        * Code: Uses Moose for C::M::Annotation and C::M::Backend::Any. Moose
+        looks good. I may use Moose for all other Config::Model classes later.
 
 2010-04-22  Dominique Dumont  <domi.dumont@free.fr>
 
-	* lib/Config/Model/Backend/ShellVar.pm (read): Tries its best to
-	read user comments and store them in annotations.
-	(write): Write annotation as comments. Write model documentation
-	as comments starting with '##'
+        * lib/Config/Model/Backend/ShellVar.pm (read): Tries its best to
+        read user comments and store them in annotations.
+        (write): Write annotation as comments. Write model documentation
+        as comments starting with '##'
 
 2010-04-19  Dominique Dumont  <domi.dumont@free.fr>
 
-	* lib/Config/Model/AnyThing.pm (grab_annotation): new method
+        * lib/Config/Model/AnyThing.pm (grab_annotation): new method
 
 2010-04-15  Dominique Dumont  <domi.dumont@free.fr>
 
-	* lib/Config/Model/Loader.pm (load): Can load string with annotations
+        * lib/Config/Model/Loader.pm (load): Can load string with annotations
 
-	* lib/Config/Model/Dumper.pm (dump_tree): Dumps annotations in
-	data string
+        * lib/Config/Model/Dumper.pm (dump_tree): Dumps annotations in
+        data string
 
 2010-04-07  Dominique Dumont  <domi.dumont@free.fr>
 
-	* lib/Config/Model/AnyThing.pm (annotation): new accessor method
-	for annotations.
+        * lib/Config/Model/AnyThing.pm (annotation): new accessor method
+        for annotations.
 
-	* lib/Config/Model/Annotation.pm : New file to load and save
-	configuration annotations (just like comments with a structure)
+        * lib/Config/Model/Annotation.pm : New file to load and save
+        configuration annotations (just like comments with a structure)
 
-	* Build.PL: added dependency on Moose
+        * Build.PL: added dependency on Moose
 
 2010-04-01  Dominique Dumont  <dominique.dumont@hp.com>
 
-	* lib/Config/Model/models/PopCon.pl: Fixed PopCon config
-	directory. Cosmetic improvements for descriptions.
+        * lib/Config/Model/models/PopCon.pl: Fixed PopCon config
+        directory. Cosmetic improvements for descriptions.
 
 2010-03-29  Dominique Dumont  <dominique.dumont@hp.com>
 
-	* lib/Config/Model/*.pm: Put back VERSION number and bumped them
-	all to 1.201 to make CPAN indexer happy
+        * lib/Config/Model/*.pm: Put back VERSION number and bumped them
+        all to 1.201 to make CPAN indexer happy
 
 2010-03-28  Dominique Dumont  <domi.dumont@free.fr> 1.001
 
-	* Build.PL (process_tmpl_files): Build depends on
-	Text::Template. Generates config-edit-popcon
+        * Build.PL (process_tmpl_files): Build depends on
+        Text::Template. Generates config-edit-popcon
 
-	* config-edit.tmpl: New file to create dedicated config-edit-foo
-	commands
+        * config-edit.tmpl: New file to create dedicated config-edit-foo
+        commands
 
-	* lib/Config/Model.pm: Version bumped to 1.001
+        * lib/Config/Model.pm: Version bumped to 1.001
 
 2010-03-26  Dominique Dumont  <dominique.dumont@hp.com>
 
-	* lib/Config/Model/Backend/ShellVar.pm : New backend to read and
-	write configuration files used by shells (sourced by scripts)
+        * lib/Config/Model/Backend/ShellVar.pm : New backend to read and
+        write configuration files used by shells (sourced by scripts)
 
 2010-03-22  Dominique Dumont  <domi.dumont@free.fr>
 
-	* lib/Config/Model/WizardHelper.pm (node_content_cb): no longer
-	forget to scan element that are warped in while scanning the node.
+        * lib/Config/Model/WizardHelper.pm (node_content_cb): no longer
+        forget to scan element that are warped in while scanning the node.
 
-	* lib/Config/Model/Node.pm (previous_element): new method to
-	iterate through availalble node elements
+        * lib/Config/Model/Node.pm (previous_element): new method to
+        iterate through availalble node elements
 
 2010-03-17  Dominique Dumont  <domi.dumont@free.fr>
 
-	* lib/Config/Model/Value.pm (setup_match_regexp): added new
-	'match' parameter to validate a value against a Perl regular
-	expression.
+        * lib/Config/Model/Value.pm (setup_match_regexp): added new
+        'match' parameter to validate a value against a Perl regular
+        expression.
 
 2010-03-16  Dominique Dumont  <dominique.dumont@hp.com>
 
-	* lib/Config/Model/Node.pm (load_data): can load data in hidden
-	element when store check is ignored.
+        * lib/Config/Model/Node.pm (load_data): can load data in hidden
+        element when store check is ignored.
 
 2010-03-11  Dominique Dumont  <dominique.dumont@hp.com> v0.644
 
-	* lib/Config/Model/Loader.pm (load): Load string now support:
-	- '.=' operator to append to config values.
-	- '=~' to loop configurations instruction over list or hash elements
+        * lib/Config/Model/Loader.pm (load): Load string now support:
+        - '.=' operator to append to config values.
+        - '=~' to loop configurations instruction over list or hash elements
 
 2010-03-01  Dominique Dumont  <dominique.dumont@hp.com>
 
-	* all: Applied spelling corrections done by Debian Perl
-	team (thanks gregoa)
+        * all: Applied spelling corrections done by Debian Perl
+        team (thanks gregoa)
 
 2010-02-23  Dominique Dumont  <dominique.dumont@hp.com>  v0.643
 
-	* lib/Config/Model/DumpAsData.pm (dump_as_data): Can dump ordered
-	hash in hash ref with __order key to specify order of hash
-	elements
+        * lib/Config/Model/DumpAsData.pm (dump_as_data): Can dump ordered
+        hash in hash ref with __order key to specify order of hash
+        elements
 
-	* lib/Config/Model/HashId.pm (load_data): Accept hash ref with
-	__order to load ordered data
+        * lib/Config/Model/HashId.pm (load_data): Accept hash ref with
+        __order to load ordered data
 
 2010-02-17  Dominique Dumont  <domi.dumont@free.fr>
 
-	* lib/Config/Model/AnyId.pm: For better clarity, Hash and List
-	parameter max and min are changed to max_index and
-	min_index. Backward compatibility is kept, but warning will be
-	displayed on the terminal when the old parameters are used.
+        * lib/Config/Model/AnyId.pm: For better clarity, Hash and List
+        parameter max and min are changed to max_index and
+        min_index. Backward compatibility is kept, but warning will be
+        displayed on the terminal when the old parameters are used.
 
-	* lib/Config/Model/Backend/Yaml.pm: New backend to read and write
-	YAML configuration files.
+        * lib/Config/Model/Backend/Yaml.pm: New backend to read and write
+        YAML configuration files.
 
 2010-02-05  Dominique Dumont  <domi.dumont@free.fr>
 
-	* lib/Config/Model/CheckList.pm (set): buf fix: split input value
-	to get the list of checked items.
-	Migrated to Log4perl
+        * lib/Config/Model/CheckList.pm (set): buf fix: split input value
+        to get the list of checked items.
+        Migrated to Log4perl
 
 2010-02-03  Dominique Dumont  <domi.dumont@free.fr>
 
-	* lib/Config/Model/CheckList.pm: Fixed default and upstream
-	default handling
+        * lib/Config/Model/CheckList.pm: Fixed default and upstream
+        default handling
 
 2010-01-21  Dominique Dumont  <dominique.dumont@hp.com> v0.642
 
-	* lib/Config/Model/WarpedNode.pm: added get_help to methods
-	forwarded to Node object to avoid breaking the graphical model
-	editor
+        * lib/Config/Model/WarpedNode.pm: added get_help to methods
+        forwarded to Node object to avoid breaking the graphical model
+        editor
 
 2010-01-19  Dominique Dumont  <dominique.dumont@hp.com> v0.641
 
-	* lib/Config/Model/Node.pm: Ported to Log4Perl (Tree::Node class)
+        * lib/Config/Model/Node.pm: Ported to Log4Perl (Tree::Node class)
 
-	* lib/Config/Model/AutoRead.pm: Doc updates on plugin mechanism
-	for read/write classes
+        * lib/Config/Model/AutoRead.pm: Doc updates on plugin mechanism
+        for read/write classes
 
-	* lib/Config/Model/Value.pm: model example updates
+        * lib/Config/Model/Value.pm: model example updates
 
-	* lib/Config/Model/Dumper.pm (dump_tree): Correctly quote values
-	in list elements
+        * lib/Config/Model/Dumper.pm (dump_tree): Correctly quote values
+        in list elements
 
 2009-12-01  Dominique Dumont  <dominique.dumont@hp.com>
 
-	* lib/Config/Model/HashId.pm: Ported to
-	Log4Perl (Tree::Element::Hash class)
+        * lib/Config/Model/HashId.pm: Ported to
+        Log4Perl (Tree::Element::Hash class)
 
 2009-09-25  Dominique Dumont  <domi.dumont@free.fr>
 
-	* lib/Config/Model/Instance.pm (write_back): Croak if no
-	write_back callbacks were registered
+        * lib/Config/Model/Instance.pm (write_back): Croak if no
+        write_back callbacks were registered
 
 2009-09-09  Dominique Dumont  <dominique.dumont@hp.com> v0.640
 
-	* lib/Config/Model/WizardHelper.pm (new): Correctly scan list
-	element.
+        * lib/Config/Model/WizardHelper.pm (new): Correctly scan list
+        element.
 
 2009-07-30  Dominique Dumont  <dominique.dumont@hp.com> v0.639
 
-	* lib/Config/Model/WizardHelper.pm (leaf_element_cb): bug fix:
-	scan correctly leaf elements of a hash.
-	* lib/Config/Model/WizardHelper.pm: use Log4perl
+        * lib/Config/Model/WizardHelper.pm (leaf_element_cb): bug fix:
+        scan correctly leaf elements of a hash.
+        * lib/Config/Model/WizardHelper.pm: use Log4perl
 
 2009-07-27  Dominique Dumont  <dominique.dumont@hp.com>
 
-	* config-edit: Tk cosmetic improvement. Thanks to Jerome Quelin
-	for the suggestion
+        * config-edit: Tk cosmetic improvement. Thanks to Jerome Quelin
+        for the suggestion
 
-	* lib/Config/Model/WarpedThing.pm (_do_warp): Use
-	Log4Perl. Improved error message
+        * lib/Config/Model/WarpedThing.pm (_do_warp): Use
+        Log4Perl. Improved error message
 
-	* lib/Config/Model/Searcher.pm (): replace prints with
-	Log4perl. Fixed data structure bug
+        * lib/Config/Model/Searcher.pm (): replace prints with
+        Log4perl. Fixed data structure bug
 
 2009-06-29  Dominique Dumont  <dominique.dumont@hp.com> v0.638
 
-	* lib/Config/Model/WarpedNode.pm (is_auto_write_for_type): Added
-	new method that need to be forwarded to Node to avoid write
-	cds_file bug.
+        * lib/Config/Model/WarpedNode.pm (is_auto_write_for_type): Added
+        new method that need to be forwarded to Node to avoid write
+        cds_file bug.
 
 2009-06-23  Dominique Dumont  <dominique.dumont@hp.com>  v0.637
 
-	* lib/Config/Model/Value.pm: As suggested by Jonas Smedegaard,
-	replaced 'built_in' parameter with 'upstream_default'. This change
-	will trigger warnings but no errors with existing model. To get
-	rid of the warnings, the easiest solution is to update the model
-	by running "config-model-edit -model Foo -save" (config-model-edit
-	is provided by Config::Model::Itself)
+        * lib/Config/Model/Value.pm: As suggested by Jonas Smedegaard,
+        replaced 'built_in' parameter with 'upstream_default'. This change
+        will trigger warnings but no errors with existing model. To get
+        rid of the warnings, the easiest solution is to update the model
+        by running "config-model-edit -model Foo -save" (config-model-edit
+        is provided by Config::Model::Itself)
 
-	* lib/Config/Model/CheckList.pm: replaced 'built_in_list'
-	parameter with 'upstream_default_list'. This change may also
-	trigger warnings. These warnings will also be fixed by running the
-	config-model-edit command described above.
+        * lib/Config/Model/CheckList.pm: replaced 'built_in_list'
+        parameter with 'upstream_default_list'. This change may also
+        trigger warnings. These warnings will also be fixed by running the
+        config-model-edit command described above.
 
-	* lib/Config/Model/Value.pm: use Log::Log4perl with categories
-	Tree::Element::Value and Tree::Element::Warper
+        * lib/Config/Model/Value.pm: use Log::Log4perl with categories
+        Tree::Element::Value and Tree::Element::Warper
 
 2009-05-30  Dominique Dumont  <dominique.dumont@hp.com> v0.636
 
-	* lib/Config/Model/AutoRead.pm: Added skip_open to avoid opening
-	config target file when the open must be done by the
-	backend (e.g. for Augeas backend)
+        * lib/Config/Model/AutoRead.pm: Added skip_open to avoid opening
+        config target file when the open must be done by the
+        backend (e.g. for Augeas backend)
 
-	* lib/Config/Model.pm (instance): name parameter is no longer
-	mandatory. Uses 'default' as default instance name.
+        * lib/Config/Model.pm (instance): name parameter is no longer
+        mandatory. Uses 'default' as default instance name.
 
 2009-05-13  Dominique Dumont  <dominique.dumont@hp.com> 
 
-	* lib/Config/Model/AutoRead.pm: When calling backend, 'file'
-	parameter contains configuration file name without path and
-	'file_path' parameter contains complete path and file name
+        * lib/Config/Model/AutoRead.pm: When calling backend, 'file'
+        parameter contains configuration file name without path and
+        'file_path' parameter contains complete path and file name
 
 2009-04-17  Dominique Dumont  <dominique.dumont@hp.com> v0.635
 
-	* config-edit: added -dumptype option. -dump can now be used to
-	specify a file name
+        * config-edit: added -dumptype option. -dump can now be used to
+        specify a file name
 
-	* lib/Config/Model/Instance.pm (new): Added skip_read parameter
+        * lib/Config/Model/Instance.pm (new): Added skip_read parameter
 
-	* lib/Config/Model/Node.pm (new): Added skip_read parameter
+        * lib/Config/Model/Node.pm (new): Added skip_read parameter
 
 2009-04-15  Dominique Dumont  <dominique.dumont@hp.com>
 
-	* config-edit: Fix broken Log4Perl default config. Added -load option
+        * config-edit: Fix broken Log4Perl default config. Added -load option
 
 2009-04-11  Dominique Dumont  <domi.dumont@free.fr>
 
-	* lib/Config/Model/AutoRead.pm (): Reworked doc. Aligned read and
-	write specs (now have same parameters). Read and write callback
-	are passed an opened file handle if possible. Now use Log::Log4perl.
+        * lib/Config/Model/AutoRead.pm (): Reworked doc. Aligned read and
+        write specs (now have same parameters). Read and write callback
+        are passed an opened file handle if possible. Now use Log::Log4perl.
 
 2009-04-02  Dominique Dumont  <dominique.dumont@hp.com>
 
-	* lib/Config/Model.pm (include_one_class): Can no longer clobber
-	element with 'include' class feature.
+        * lib/Config/Model.pm (include_one_class): Can no longer clobber
+        element with 'include' class feature.
 
 2009-03-30  Dominique Dumont  <dominique.dumont@hp.com>
 
-	* lib/Config/Model.pm (check_class_parameters): Accept summary
-	parameter. Summary is optional and will be used either to generate
-	user interface or may be used to provide comments in saved
-	configuration files.
+        * lib/Config/Model.pm (check_class_parameters): Accept summary
+        parameter. Summary is optional and will be used either to generate
+        user interface or may be used to provide comments in saved
+        configuration files.
 
-	* lib/Config/Model/Node.pm (get_help): added options to get either
-	summary or description of an element
+        * lib/Config/Model/Node.pm (get_help): added options to get either
+        summary or description of an element
 
 2009-03-29  Dominique Dumont  <dominique.dumont@hp.com> 
 
-	* config-edit: added -dump and -load options
-	
+        * config-edit: added -dump and -load options
+        
 2009-02-24  Dominique Dumont  <dominique.dumont@hp.com> v0.634
 
-	* config-edit: removed kludgy read_root_dir and write_root_dir
-	options. For test, only one root_dir can be specified (like Augeas)
+        * config-edit: removed kludgy read_root_dir and write_root_dir
+        options. For test, only one root_dir can be specified (like Augeas)
 
-	* lib/Config/Model/ListId.pm: auto_create parameter is replaced by
-	auto_create_ids (still trap wrong parameter to avoid memory
-	problems)
+        * lib/Config/Model/ListId.pm: auto_create parameter is replaced by
+        auto_create_ids (still trap wrong parameter to avoid memory
+        problems)
  
-	* lib/Config/Model/HashId.pm: auto_create parameter is replaced by
-	auto_create_keys
+        * lib/Config/Model/HashId.pm: auto_create parameter is replaced by
+        auto_create_keys
 
 2009-02-19  Dominique Dumont  <dominique.dumont@hp.com>
 
-	* lib/Config/Model/ListId.pm (auto_create_elements): Trap wrong
-	auto_create argument (avoid massive memory consumption)
+        * lib/Config/Model/ListId.pm (auto_create_elements): Trap wrong
+        auto_create argument (avoid massive memory consumption)
 
 2008-12-23  Dominique Dumont  <dominique.dumont@hp.com> v0.633
 
-	* lib/Config/Model/AutoRead.pm : Added -allow_empty parameter so
-	starting a configuration from scratch can be allowed by
-	configuration model designer. No longer die if 'augeas'
-	backend (or any other optional backend) is not found. Just emit a
-	warning.
+        * lib/Config/Model/AutoRead.pm : Added -allow_empty parameter so
+        starting a configuration from scratch can be allowed by
+        configuration model designer. No longer die if 'augeas'
+        backend (or any other optional backend) is not found. Just emit a
+        warning.
 
 2008-12-16  Dominique Dumont  <dominique.dumont@hp.com> v0.632
 
-	* config-edit: added -backend parameter so (advanced) user can
-	specify which read/write backend to use. The actual backed to use
-	depends on the model loaded with -model option
+        * config-edit: added -backend parameter so (advanced) user can
+        specify which read/write backend to use. The actual backed to use
+        depends on the model loaded with -model option
 
 2008-11-16  Domi  <domi@bilbo.maison>
 
-	* lib/Config/Model/Instance.pm (write_back): Added backend
-	parameter to specify which backend to use to write. By default,
-	all backend are tried until one succeeds. This parameter can also
-	be specified when calling the constructor
+        * lib/Config/Model/Instance.pm (write_back): Added backend
+        parameter to specify which backend to use to write. By default,
+        all backend are tried until one succeeds. This parameter can also
+        be specified when calling the constructor
 
 2008-11-10  Dominique Dumont  <dominique.dumont@hp.com> v0.631
 
-	* lib/Config/Model/Value.pm (_pre_fetch): removed dependency on Error
+        * lib/Config/Model/Value.pm (_pre_fetch): removed dependency on Error
 
-	* lib/Config/Model/WizardHelper.pm : removed dependency on Error
+        * lib/Config/Model/WizardHelper.pm : removed dependency on Error
 
-	* lib/Config/Model/AutoRead.pm (auto_write_init): Move Augeas
-	read/write feature out of Config::Model. This feature is now
-	available in an additional class: Config::Model::Backend::Augeas.
-	This class is distributed in its own Perl distribution.
+        * lib/Config/Model/AutoRead.pm (auto_write_init): Move Augeas
+        read/write feature out of Config::Model. This feature is now
+        available in an additional class: Config::Model::Backend::Augeas.
+        This class is distributed in its own Perl distribution.
 
 2008-10-29  Dominique Dumont  <dominique.dumont@hp.com>
 
-	* lib/Config/Model/Dumper.pm (dump_tree): No longer dump list
-	elements that contain only undef values. No longer dump node that
-	do not contain data.
+        * lib/Config/Model/Dumper.pm (dump_tree): No longer dump list
+        elements that contain only undef values. No longer dump node that
+        do not contain data.
 
 2008-10-21  Dominique Dumont  <dominique.dumont@hp.com> v0.630
 
-	* t/augeas_backend.t: Skip sshd_config tests if Augeas library <= 0.3.1
+        * t/augeas_backend.t: Skip sshd_config tests if Augeas library <= 0.3.1
 
 2008-10-13  Dominique Dumont  <dominique.dumont@hp.com> v0.629
 
-	* lib/Config/Model/CheckList.pm (set_properties): Added ordered
-	parameter to checklist. Ordered checklist feature is required by
-	Ssh model for Ciphers list (see Config::Model::OpenSsh).
+        * lib/Config/Model/CheckList.pm (set_properties): Added ordered
+        parameter to checklist. Ordered checklist feature is required by
+        Ssh model for Ciphers list (see Config::Model::OpenSsh).
 
 2008-10-01  Dominique Dumont  <dominique.dumont@hp.com>
 
-	* lib/Config/Model/AnyId.pm (get_cargo_info): New method
+        * lib/Config/Model/AnyId.pm (get_cargo_info): New method
 
 2008-09-29  Dominique Dumont  <dominique.dumont@hp.com> v0.628
 
-	* lib/Config/Model.pm: Allow include of read or write config
-	parameters (required by Xorg model)
+        * lib/Config/Model.pm: Allow include of read or write config
+        parameters (required by Xorg model)
 
 2008-09-23  Dominique Dumont  <dominique.dumont@hp.com> v0.627
 
-	* ChangeLog: I plainly forgot to update this file for v0.626. This
-	is fixed now.
-	
+        * ChangeLog: I plainly forgot to update this file for v0.626. This
+        is fixed now.
+        
 2008-09-22  Dominique Dumont  <dominique.dumont@hp.com> v0.626
 
-	* lib/Config/Model/AutoRead.pm (read_augeas): Lot of bug fix to
-	read and write through Augeas. Now, lens containing 'seq' lenses
-	must be explicitely declared.
+        * lib/Config/Model/AutoRead.pm (read_augeas): Lot of bug fix to
+        read and write through Augeas. Now, lens containing 'seq' lenses
+        must be explicitely declared.
 
 2008-07-31  Dominique Dumont  <dominique.dumont@hp.com>
 
-	* lib/Config/Model/Value.pm (migrate_value): No longer fails when
-	a migrated value is also a mandatory value.
+        * lib/Config/Model/Value.pm (migrate_value): No longer fails when
+        a migrated value is also a mandatory value.
 
-	* lib/Config/Model.pm (create_config_class): No longer creates
-	empty include in model when skip_include is true (breaks
-	Config::Itself tests)
+        * lib/Config/Model.pm (create_config_class): No longer creates
+        empty include in model when skip_include is true (breaks
+        Config::Itself tests)
 
 2008-07-30  Dominique Dumont  <dominique.dumont@hp.com> v0.625
 
-	* lib/Config/Model/ListId.pm (swap): Swapped or moved values in a
-	list no longer provides wrong location in config
-	tree. (index_value were not updated in objects contained in List
-	after a swap or a move)
+        * lib/Config/Model/ListId.pm (swap): Swapped or moved values in a
+        list no longer provides wrong location in config
+        tree. (index_value were not updated in objects contained in List
+        after a swap or a move)
 
 2008-07-24  Dominique Dumont   v0.624
 
-	* lib/Config/Model/Value.pm and others: Modified to allow smooth
-	configuration data upgrades without requiring user input (if used
-	by packaging, this should really help in avoiding rpmsave or
-	dpkg-old files) (See migrate_from parameter)
+        * lib/Config/Model/Value.pm and others: Modified to allow smooth
+        configuration data upgrades without requiring user input (if used
+        by packaging, this should really help in avoiding rpmsave or
+        dpkg-old files) (See migrate_from parameter)
 
-	* lib/Config/Model/ValueComputer.pm: added 'use_eval' parameter to
-	allow more complex computation like regexp in string or uniline
-	values
+        * lib/Config/Model/ValueComputer.pm: added 'use_eval' parameter to
+        allow more complex computation like regexp in string or uniline
+        values
   
 2008-07-18  Dominique Dumont
 
-	* lib/Config/Model/AutoRead.pm: Major changes to interface
-	Config::Model with Augeas (http://augeas.net). Changes are
-	compatible but new warnings are issued:
-	- 'syntax' is replaced by 'backend' to indicate that permanent
-	  storage of configuration data is more than a matter of writing 
-	  a configuration file.
-	- introduced 'config_dir' and 'root' paramater so a backend can 
-	  specify a configuration dir (e.g. /etc/foo) and a pseudo-root 
-	  to perform tests (so the config file can land in my_root/etc/foo).
+        * lib/Config/Model/AutoRead.pm: Major changes to interface
+        Config::Model with Augeas (http://augeas.net). Changes are
+        compatible but new warnings are issued:
+        - 'syntax' is replaced by 'backend' to indicate that permanent
+          storage of configuration data is more than a matter of writing 
+          a configuration file.
+        - introduced 'config_dir' and 'root' paramater so a backend can 
+          specify a configuration dir (e.g. /etc/foo) and a pseudo-root 
+          to perform tests (so the config file can land in my_root/etc/foo).
 
-	* lib/Config/Model/Dumper.pm (new): skip_auto_write now take a
-	storage backend name as a parameter instead of a boolean (See
-	AutoRead for explanations about backends)
+        * lib/Config/Model/Dumper.pm (new): skip_auto_write now take a
+        storage backend name as a parameter instead of a boolean (See
+        AutoRead for explanations about backends)
 
-	* lib/Config/Model/Node.pm (set): New method to emulate (part of)
-	augeas API
-	(get): New method to emulate (part of) augeas API
+        * lib/Config/Model/Node.pm (set): New method to emulate (part of)
+        augeas API
+        (get): New method to emulate (part of) augeas API
 
-	* lib/Config/Model/Loader.pm (): Added load command '~' which was
-	forgotten. This command can delete hash or list
-	item. I.e. load("foo~") will delete element 'a' for hash 'foo'
-	(_load_list): command '=' now clear all values before storing the
-	set of values in the list.
+        * lib/Config/Model/Loader.pm (): Added load command '~' which was
+        forgotten. This command can delete hash or list
+        item. I.e. load("foo~") will delete element 'a' for hash 'foo'
+        (_load_list): command '=' now clear all values before storing the
+        set of values in the list.
 
-	* lib/Config/Model/AnyId.pm (clear_values): New method to clear
-	values without destroying underlying objects.
-	(set): New method to emulate (part of) augeas API
-	(get): New method to emulate (part of) augeas API
+        * lib/Config/Model/AnyId.pm (clear_values): New method to clear
+        values without destroying underlying objects.
+        (set): New method to emulate (part of) augeas API
+        (get): New method to emulate (part of) augeas API
 
 2008-06-20  Dominique Dumont 
 
-	* lib/Config/Model/AutoRead.pm: Changed 'syntax' paramter to
-	'backend' as configuration data may be stored to files or through
-	dedicated libraries like Augeas, gconf ... Backend now can be
-	cds_file, perl_file, ini_file and custom
+        * lib/Config/Model/AutoRead.pm: Changed 'syntax' paramter to
+        'backend' as configuration data may be stored to files or through
+        dedicated libraries like Augeas, gconf ... Backend now can be
+        cds_file, perl_file, ini_file and custom
 
 2008-05-19  Dominique Dumont v0.623
 
-	* Build.PL: Moved from Makefile.PL to Build.PL
+        * Build.PL: Moved from Makefile.PL to Build.PL
 
 2008-05-18  Dominique Dumont 
 
-	* lib/Config/Model/CheckList.pm: added support for built_in
-	default list
+        * lib/Config/Model/CheckList.pm: added support for built_in
+        default list
 
 2008-05-17  Dominique Dumont 
 
-	* lib/Config/Model/SimpleUI.pm: Some cleanup. Added possibility to
-	add and element name to 'll' command
+        * lib/Config/Model/SimpleUI.pm: Some cleanup. Added possibility to
+        add and element name to 'll' command
 
 2008-05-15  Dominique Dumont 
 
-	* config-edit: added "dev" and "experience" options. With "dev"
-	option, config-edit will add "lib" to @INC and look for models in
-	"lib"
+        * config-edit: added "dev" and "experience" options. With "dev"
+        option, config-edit will add "lib" to @INC and look for models in
+        "lib"
 
 2008-05-14  Dominique Dumont 
 
-	* lib/Config/Model/Node.pm (fetch_element): Bails out if element
-	is hidden (this feature was forgotten)
+        * lib/Config/Model/Node.pm (fetch_element): Bails out if element
+        is hidden (this feature was forgotten)
 
 2008-05-09  Dominique Dumont 
 
-	* lib/Config/Model/Value.pm (submit_to_compute): Fix bug where a
-	compute variable in the form 'foo' => '- - &element' did not work
-	(new): allow_compute_override is deprecated in favor of
-	allow_override within the compute parameter (backward compatible
-	change)
+        * lib/Config/Model/Value.pm (submit_to_compute): Fix bug where a
+        compute variable in the form 'foo' => '- - &element' did not work
+        (new): allow_compute_override is deprecated in favor of
+        allow_override within the compute parameter (backward compatible
+        change)
 
 2008-05-07  Dominique Dumont 
 
-	* lib/Config/Model/AnyThing.pm (dump_as_data): dump_as_data can
-	now be called on all configuration elements. (before, it could
-	only be called on nodes)
+        * lib/Config/Model/AnyThing.pm (dump_as_data): dump_as_data can
+        now be called on all configuration elements. (before, it could
+        only be called on nodes)
 
 2008-05-02  Domi  <domi@bilbo.maison>
 
-	* lib/Config/Model/AutoRead.pm: Changed the way to specify auto
-	read and write for better clarity. Now they must be specified with
-	   read_config => [ { syntax => 'ini'},
-	                    { syntax => 'custom', 
-	                      class => 'Mine',
-	                      function=>'my_read'
-	                    }
-	                  ]
-	instead of 
-	   read_config => [ 'ini', { class => 'Mine',function=>'my_read'}]
-	likewise for write_config
+        * lib/Config/Model/AutoRead.pm: Changed the way to specify auto
+        read and write for better clarity. Now they must be specified with
+           read_config => [ { syntax => 'ini'},
+                            { syntax => 'custom', 
+                              class => 'Mine',
+                              function=>'my_read'
+                            }
+                          ]
+        instead of 
+           read_config => [ 'ini', { class => 'Mine',function=>'my_read'}]
+        likewise for write_config
 
 2008-05-01  Domi  <domi@bilbo.maison>
 
-	* lib/Config/Model.pm: Changed 'permission' to 'experience' and
-	'intermediate' to 'beginner' for better clarify. Changes are
-	backward compatible.
+        * lib/Config/Model.pm: Changed 'permission' to 'experience' and
+        'intermediate' to 'beginner' for better clarify. Changes are
+        backward compatible.
 
 2008-04-29  Dominique Dumont 
 
-	* lib/Config/Model/HashId.pm (move): New method to take into
-	account move within ordered hash
+        * lib/Config/Model/HashId.pm (move): New method to take into
+        account move within ordered hash
 
-	* lib/Config/Model/WarpedThing.pm (compute_bool): warp rule no
-	longer fail with eval $foo == 1 when $foo is undef
+        * lib/Config/Model/WarpedThing.pm (compute_bool): warp rule no
+        longer fail with eval $foo == 1 when $foo is undef
 
 2008-04-18  Dominique Dumont v0.622
 
-	* Value.pm (fetch): added 'allow_undef' mode to allow reading
-	undefined mandatory value (fix morphing warped node containing
-	undefined mandatory values)
+        * Value.pm (fetch): added 'allow_undef' mode to allow reading
+        undefined mandatory value (fix morphing warped node containing
+        undefined mandatory values)
 
-	* Node.pm (copy_from): No longer die when copying undefined
-	mandatory value.
+        * Node.pm (copy_from): No longer die when copying undefined
+        mandatory value.
 
 2008-04-16  Dominique Dumont 
 
-	* AutoRead.pm (get_cfg_file_name): Do not use ':' in file
-	names. This breaks windows. Now use sub-directories
+        * AutoRead.pm (get_cfg_file_name): Do not use ':' in file
+        names. This breaks windows. Now use sub-directories
 
 2008-04-15  Dominique Dumont 
 
-	* Dumper.pm (dump_tree): skip undefined values in list element
+        * Dumper.pm (dump_tree): skip undefined values in list element
 
-	* DumpAsData.pm (dump_as_data): idem
+        * DumpAsData.pm (dump_as_data): idem
 
 2008-04-14  Dominique Dumont 
 
-	* Model.pm (list_class_element): New method to help debugging of
-	configuration models
+        * Model.pm (list_class_element): New method to help debugging of
+        configuration models
 
 2008-04-13  Dominique Dumont 
 
-	* Model.pm (include_class): allow multiple includes
+        * Model.pm (include_class): allow multiple includes
 
 2008-04-11  Dominique Dumont 
 
-	* AnyId.pm: Changed the way the cargo parameter are specified. Now
-	the cargo parameter holds all the information related to the
-	payload of the hash or list. Instead of having :
-	cargo_type => ... , cargo_args => {}, config_class_name => ...
-	you now have:
-	cargo => { type => ..., config_class_name => ..., <other_parm> => ... }
-	Model.pm provides a translation from the old way to the new way so
-	this change is (95%) backward compatible.
-	
+        * AnyId.pm: Changed the way the cargo parameter are specified. Now
+        the cargo parameter holds all the information related to the
+        payload of the hash or list. Instead of having :
+        cargo_type => ... , cargo_args => {}, config_class_name => ...
+        you now have:
+        cargo => { type => ..., config_class_name => ..., <other_parm> => ... }
+        Model.pm provides a translation from the old way to the new way so
+        this change is (95%) backward compatible.
+        
 2008-04-08  Dominique Dumont 
 
-	* CheckList.pm (set): Fix bug that prevented to use level or
-	permission or status parameter with check_list elements
+        * CheckList.pm (set): Fix bug that prevented to use level or
+        permission or status parameter with check_list elements
 
 2008-04-05  Domi  <domi@bilbo.maison>
 
-	* Value.pm (pre_store): Fix bug that prevented to load models with
-	errors even in tolerant mode.
+        * Value.pm (pre_store): Fix bug that prevented to load models with
+        errors even in tolerant mode.
 
 2008-04-03  Dominique Dumont  0.621
 
-	* Dumper.pm (dump_tree): Added auto_vivify parameter
+        * Dumper.pm (dump_tree): Added auto_vivify parameter
 
-	* DumpAsData.pm (dump_as_data): By default, now provide full
-	dump (with default values). Added auto_vivify parameter
+        * DumpAsData.pm (dump_as_data): By default, now provide full
+        dump (with default values). Added auto_vivify parameter
 
-	* Value.pm (fetch): Check for mandatory values even if fetching
-	only custom values
+        * Value.pm (fetch): Check for mandatory values even if fetching
+        only custom values
 
 2008-04-02  Dominique Dumont  
 
-	* Value.pm (): Cannot warp value_type anymore (this feature was
-	hard to use and encouraged too complex model).
+        * Value.pm (): Cannot warp value_type anymore (this feature was
+        hard to use and encouraged too complex model).
 
 2008-03-28  Dominique Dumont  
 
-	* HashId.pm (swap): Fix swap problem which led to duplicated keys
-	in ordered hash
-	(move_after): New method
+        * HashId.pm (swap): Fix swap problem which led to duplicated keys
+        in ordered hash
+        (move_after): New method
 
 2008-03-22  Domi  <domi@bilbo.maison> 
 
-	* ListId.pm (swap): new method
-	(remove): New method, equivalent to splice (@list,$idx,1)
+        * ListId.pm (swap): new method
+        (remove): New method, equivalent to splice (@list,$idx,1)
 
 2008-03-20  Dominique Dumont  v0.6201
 
-	* Makefile.PL: Removed dependency on Term::ReadLine::Gnu. This module
-	is just suggested (as well as Term::ReadLine::Perl)
+        * Makefile.PL: Removed dependency on Term::ReadLine::Gnu. This module
+        is just suggested (as well as Term::ReadLine::Perl)
 
 2008-03-18  Dominique Dumont  v0.620
 
-	* TermUI.pm: Fixed to work with Term::ReadLine::Gnu or
-	Term::ReadLine::Perl. Can also work in degraded mode without these
-	2 modules. 
-	The command handling part was moved to SimpleUI.pm
+        * TermUI.pm: Fixed to work with Term::ReadLine::Gnu or
+        Term::ReadLine::Perl. Can also work in degraded mode without these
+        2 modules. 
+        The command handling part was moved to SimpleUI.pm
 
-	* config-edit: added Simple UI mode so config-edit can be used
-	with stdin and stdout
+        * config-edit: added Simple UI mode so config-edit can be used
+        with stdin and stdout
 
 2008-02-29  Dominique Dumont  v0.619
 
-	* Value.pm: removed kludgy enum_integer value type 
+        * Value.pm: removed kludgy enum_integer value type 
 
 2008-02-27  Dominique Dumont  
 
-	* Instance.pm (write_back): can override directory where config
-	data is written back (necessary for GUI menu like "save in dir
-	...")
+        * Instance.pm (write_back): can override directory where config
+        data is written back (necessary for GUI menu like "save in dir
+        ...")
 
 2008-02-26  Dominique Dumont  
 
-	* Node.pm (get_help): do not mangle description text (don't remove
-	spurious \s and \n. Leave that to user)
+        * Node.pm (get_help): do not mangle description text (don't remove
+        spurious \s and \n. Leave that to user)
 
 2008-02-12  Dominique Dumont  v0.618
 
-	* AnyThing.pm (composite_name): new method to return a name
-	like element:index or element.
+        * AnyThing.pm (composite_name): new method to return a name
+        like element:index or element.
 
 2008-02-08  Dominique Dumont  
 
-	* CheckList.pm (): added refer_to and computed_refer_to accessors 
+        * CheckList.pm (): added refer_to and computed_refer_to accessors 
 
 2008-01-28  Dominique Dumont v0.617
 
-	* config-edit: added possibility to load Tk GUI (still under
-	development)
+        * config-edit: added possibility to load Tk GUI (still under
+        development)
 
-	* Exception.pm (): Fixed misleading error message for
-	UnavailableElement exception
+        * Exception.pm (): Fixed misleading error message for
+        UnavailableElement exception
 
 2008-01-25  Dominique Dumont  
 
-	* Value.pm (): added "replace" parameter for enum Value. This
-	enables to specify a substitution when storing value.
+        * Value.pm (): added "replace" parameter for enum Value. This
+        enables to specify a substitution when storing value.
 
 2008-01-23  Dominique Dumont  
 
-	* WarpedNode.pm (check): no longer die when trying to retrieve
-	warped out node, just return undef. This is necessary to be able
-	to load configuration files with important error (e.g. a xorg.conf
-	file with a wrong device driver: all driver option are no longer
-	valid.)
+        * WarpedNode.pm (check): no longer die when trying to retrieve
+        warped out node, just return undef. This is necessary to be able
+        to load configuration files with important error (e.g. a xorg.conf
+        file with a wrong device driver: all driver option are no longer
+        valid.)
 
-	* Value.pm (check): Added doc for check.  
+        * Value.pm (check): Added doc for check.  
 
-	* ObjTreeScanner.pm (permission): new method to get or set the
-	permission of the scanner (after creation).
+        * ObjTreeScanner.pm (permission): new method to get or set the
+        permission of the scanner (after creation).
 
 2007-12-04  Dominique Dumont  v0.616
 
-	* AutoRead.pm (read_ini): added capability to read configuration
-	data from ini file (See Config::Tiny)
-	(write_ini): can use ini files to store configuration data
-	(read_perl): added capability to read configuration data from a
-	perl data structure (see Config::Model::DumpAsData) from a .pl
-	(write_perl): can use perl file to store configuration data (.pl
-	file)
-	(auto_read_init): configuration model can specify cds (dump string
-	see Config::Model::Dumper), perl or ini with 'read_config' and
-	'write_config' parameter.
+        * AutoRead.pm (read_ini): added capability to read configuration
+        data from ini file (See Config::Tiny)
+        (write_ini): can use ini files to store configuration data
+        (read_perl): added capability to read configuration data from a
+        perl data structure (see Config::Model::DumpAsData) from a .pl
+        (write_perl): can use perl file to store configuration data (.pl
+        file)
+        (auto_read_init): configuration model can specify cds (dump string
+        see Config::Model::Dumper), perl or ini with 'read_config' and
+        'write_config' parameter.
 
 2007-11-15  Dominique Dumont  v0.615
 
-	* config-edit: added '-force-load' option to load erroneous
-	configuration data. bad data is discarded.
+        * config-edit: added '-force-load' option to load erroneous
+        configuration data. bad data is discarded.
 
-	* Value.pm : handle 'preset' mode to store values
-	(fetch):accept mode parameter ( [ custom | preset |
-	standard | default | non_built_in ] )
+        * Value.pm : handle 'preset' mode to store values
+        (fetch):accept mode parameter ( [ custom | preset |
+        standard | default | non_built_in ] )
 
-	* Loader.pm (_load_list): When loading list, empty value are
-	considered as undef values. I.e 'list_a=a,,"",d' will
-	load ('a',undef,'','d') to lista element
+        * Loader.pm (_load_list): When loading list, empty value are
+        considered as undef values. I.e 'list_a=a,,"",d' will
+        load ('a',undef,'','d') to lista element
 
-	* Instance.pm (new): added 'force_load' parameter to load
-	erronueus configuration data. In this case, wrong data will be
-	discarded.
-	(preset_start): new. Use this method, then load configuration data
-	that will be used as "preset data". You can use this feature to
-	load data discovered by an automatic mechanism, like hardware
-	scan.
-	(preset_stop): new. Stop preset mode. Then all data entered will
-	be considered as 'custom' data. These custom data can be compared
-	to 'default' or 'preset' data for audit purpose
-	(preset): new. Query if the instance is in 'preset' mode.
+        * Instance.pm (new): added 'force_load' parameter to load
+        erronueus configuration data. In this case, wrong data will be
+        discarded.
+        (preset_start): new. Use this method, then load configuration data
+        that will be used as "preset data". You can use this feature to
+        load data discovered by an automatic mechanism, like hardware
+        scan.
+        (preset_stop): new. Stop preset mode. Then all data entered will
+        be considered as 'custom' data. These custom data can be compared
+        to 'default' or 'preset' data for audit purpose
+        (preset): new. Query if the instance is in 'preset' mode.
 
-	* Dumper.pm (dump_tree): changed 'full_dump' parameter (0|1) to 
-	'mode' (full | preset)
-	(dump_tree): if a list contain undef values, they are dumped as
-	a_list=a,b,,d. Empty values are dumped as a_list=a,b,"",d
+        * Dumper.pm (dump_tree): changed 'full_dump' parameter (0|1) to 
+        'mode' (full | preset)
+        (dump_tree): if a list contain undef values, they are dumped as
+        a_list=a,b,,d. Empty values are dumped as a_list=a,b,"",d
 
-	* CheckList.pm (store): work in preset mode
-	(set_checked_list_as_hash): accept a mode parameter ([ custom |
-	preset | standard | default ]) to be able to audit config data
-	(fetch): idem
+        * CheckList.pm (store): work in preset mode
+        (set_checked_list_as_hash): accept a mode parameter ([ custom |
+        preset | standard | default ]) to be able to audit config data
+        (fetch): idem
 
 2007-10-19  Dominique Dumont v0.614
 
-	* Value.pm: added 'uniline' value type for string with no embedded
-	newline. (no "\n")
+        * Value.pm: added 'uniline' value type for string with no embedded
+        newline. (no "\n")
 
 2007-10-11  Dominique Dumont
 
-	* Model.pm (translate_id_names): new method to translate AnyId
-	parameter changes
+        * Model.pm (translate_id_names): new method to translate AnyId
+        parameter changes
 
-	* AnyId.pm: Changed some parameters: follow -> follow_keys,
-	allow -> allow_keys, allow_from -> allow_keys_from
+        * AnyId.pm: Changed some parameters: follow -> follow_keys,
+        allow -> allow_keys, allow_from -> allow_keys_from
 
 2007-10-09  Dominique Dumont
 
-	* Model.pm (translate_id_default_info): provides backward
-	compatibility for AnyId parameter changes.
+        * Model.pm (translate_id_default_info): provides backward
+        compatibility for AnyId parameter changes.
 
-	* AnyId.pm: default parameter is replaced by 'default_keys' and
-	'default_with_init'.
+        * AnyId.pm: default parameter is replaced by 'default_keys' and
+        'default_with_init'.
 
 2007-09-25  Dominique Dumont  v0.613
 
-	* IdElementReference.pm: Changes the API of IdElementReference so
-	that API is more explicit (Like the API change for
-	ValueComputer). This change is backward compatible (model
-	translation)
+        * IdElementReference.pm: Changes the API of IdElementReference so
+        that API is more explicit (Like the API change for
+        ValueComputer). This change is backward compatible (model
+        translation)
 
 2007-09-20  Dominique Dumont  
 
-	* ValueComputer.pm: Now compute paramater must use explicit
-	parameters for compute formula, variables and replace.  Backward
-	compatibility is kept by translating old compute declaration in
-	Model.pm
-	
+        * ValueComputer.pm: Now compute paramater must use explicit
+        parameters for compute formula, variables and replace.  Backward
+        compatibility is kept by translating old compute declaration in
+        Model.pm
+        
 2007-09-17  Dominique Dumont  
 
-	* Model.pm (include_class): permission, level and description
-	parameters can also be declared within the element declaration.
-	(i.e. at the same level than 'type' )
-	
-	* IdElementReference.pm (): A reference to a list will now take
-	into account the values of the list instead of the indexes of the
-	list. This makes more sense...
+        * Model.pm (include_class): permission, level and description
+        parameters can also be declared within the element declaration.
+        (i.e. at the same level than 'type' )
+        
+        * IdElementReference.pm (): A reference to a list will now take
+        into account the values of the list instead of the indexes of the
+        list. This makes more sense...
 
-	* CheckList.pm: Change the name of 'default' parameter to
+        * CheckList.pm: Change the name of 'default' parameter to
          'default_list' ('default' is still accepted but is deprecated)
 
 2007-09-06  Dominique Dumont  
 
-	* WarpedNode.pm: improved synopsis in doc
-	(load_data): new method (forgotten in 0.612)
+        * WarpedNode.pm: improved synopsis in doc
+        (load_data): new method (forgotten in 0.612)
 
-	* Model.pm: -doc: added synopsis
-	- inherit is deprecated in favor of include 
-	- inherit_after is deprecated in favor of include_after
-	- Raise an exception if an element is declared twice in a
-	  model (even through include mechanism: overriding an
-	  included element leads to confusion)
+        * Model.pm: -doc: added synopsis
+        - inherit is deprecated in favor of include 
+        - inherit_after is deprecated in favor of include_after
+        - Raise an exception if an element is declared twice in a
+          model (even through include mechanism: overriding an
+          included element leads to confusion)
 
 2007-07-26  Dominique Dumont  v0.612
 
-	* HashId.pm : can preserve hash key order (when created with
-	ordered => 1). New method to manipulate hash key order are swap,
-	move_up, move_down.
+        * HashId.pm : can preserve hash key order (when created with
+        ordered => 1). New method to manipulate hash key order are swap,
+        move_up, move_down.
 
-	* Exception.pm :new error class  Config::Model::Exception::LoadData
+        * Exception.pm :new error class  Config::Model::Exception::LoadData
 
-	* AnyThing.pm (grab): added 'grab_non_available' parameter.
+        * AnyThing.pm (grab): added 'grab_non_available' parameter.
 
-	* AnyId.pm: added "ordered" parameter to create ordered hash
-	elements. I.e. hashes where the order of the keys is kept (like
-	Tie::IxHash)
+        * AnyId.pm: added "ordered" parameter to create ordered hash
+        elements. I.e. hashes where the order of the keys is kept (like
+        Tie::IxHash)
 
 2007-07-18  Dominique Dumont  
 
-	* Value.pm (load_data): new method
+        * Value.pm (load_data): new method
 
-	* Node.pm (load_data): new method
-	(dump_as_data): new method 
+        * Node.pm (load_data): new method
+        (dump_as_data): new method 
 
-	* Model.pm (inherit_class): added inherit_after parameter. In a
-	model, the order of the elements is important. This parameter
-	enable a model to inherit elements from another class and to place
-	them in a specific place among the original elements.
-	(load): returns the names of the class loaded by this method.
+        * Model.pm (inherit_class): added inherit_after parameter. In a
+        model, the order of the elements is important. This parameter
+        enable a model to inherit elements from another class and to place
+        them in a specific place among the original elements.
+        (load): returns the names of the class loaded by this method.
 
-	* ListId.pm (load_data): new method
+        * ListId.pm (load_data): new method
 
-	* HashId.pm (load_data): new method
+        * HashId.pm (load_data): new method
 
-	* CheckList.pm (load_data): new method
+        * CheckList.pm (load_data): new method
 
 2007-07-03  Dominique Dumont  v0.611
 
-	* WarpedThing.pm: Modified the way to specify complex warped
-	rules. The former way based on list of lists was confusing. Now
-	you can specify boolean expressions to find the warp rule to apply.
-	
-	* Model.pm: Simplified config class inheritance mechanism: inherit
-	all or nothing. Added translation of legacy warp parameter (based
-	on list of lists) to new warp parameters (based on boolean
-	expressions). So the change done in WarpedThing is backward
-	compatible.
-	
+        * WarpedThing.pm: Modified the way to specify complex warped
+        rules. The former way based on list of lists was confusing. Now
+        you can specify boolean expressions to find the warp rule to apply.
+        
+        * Model.pm: Simplified config class inheritance mechanism: inherit
+        all or nothing. Added translation of legacy warp parameter (based
+        on list of lists) to new warp parameters (based on boolean
+        expressions). So the change done in WarpedThing is backward
+        compatible.
+        
 2007-06-06  Dominique Dumont v0.610
 
-	* Model.pm (inherit_class): Fix configuration class inheritance
-	mechanism
+        * Model.pm (inherit_class): Fix configuration class inheritance
+        mechanism
 
 2007-06-04  Dominique Dumont  
 
-	* Value.pm: can also warp help for enum value
+        * Value.pm: can also warp help for enum value
 
 2007-05-09  Dominique Dumont   v0.609
 
-	* config-edit: renamed from config-model
+        * config-edit: renamed from config-model
 
 2007-05-07  Dominique Dumont  
 
-	* examples/fstab/fstab_test.pl (produce_fstab): added curses
-	interface example (need to install Config::Model::CursesUI to
-	work)
+        * examples/fstab/fstab_test.pl (produce_fstab): added curses
+        interface example (need to install Config::Model::CursesUI to
+        work)
 
 2007-05-04  Dominique Dumont  
 
-	* config-model: added possibility to use the curses interface
-	provided by Config::Model::CursesUI (if this one is installed)
+        * config-model: added possibility to use the curses interface
+        provided by Config::Model::CursesUI (if this one is installed)
 
-	* ValueComputer.pm: Modified so compute may return an undef value
-	if one of the variable (extracted from the configuration data) of
-	the formula is undefined. In other word, propagate undef instead
-	of croaking.
+        * ValueComputer.pm: Modified so compute may return an undef value
+        if one of the variable (extracted from the configuration data) of
+        the formula is undefined. In other word, propagate undef instead
+        of croaking.
 
-	* Searcher.pm: Lots of bug fixes
-	(get_searchable_elements): new method
-	(prepare): new method. Search is now done in 3 moves: create the
-	searcher object, prepare the search, and run the search
+        * Searcher.pm: Lots of bug fixes
+        (get_searchable_elements): new method
+        (prepare): new method. Search is now done in 3 moves: create the
+        searcher object, prepare the search, and run the search
 
-	* Value.pm: removed unique_value parameter which was a bad idea
-	for a check list implementation. Moved reference handling into new
-	IdElementReference class
+        * Value.pm: removed unique_value parameter which was a bad idea
+        for a check list implementation. Moved reference handling into new
+        IdElementReference class
 
-	* IdElementReference.pm: New class extracted from Value object so
-	reference can be used also by CheckList
+        * IdElementReference.pm: New class extracted from Value object so
+        reference can be used also by CheckList
 
-	* CheckList.pm: re-wrote as a "check_list" type and not a "list"
-	type
+        * CheckList.pm: re-wrote as a "check_list" type and not a "list"
+        type
 
 2007-04-27  Dominique Dumont  
 
-	* Instance.pm (reset_config): new method
-	(searcher): renamed search_element to
-	searcher. searcher retunrs a Config::Model::Searcher object.
-	
-	* AnyThing.pm (searcher): renamed search_element to
-	searcher. searcher retunrs a Config::Model::Searcher object.
+        * Instance.pm (reset_config): new method
+        (searcher): renamed search_element to
+        searcher. searcher retunrs a Config::Model::Searcher object.
+        
+        * AnyThing.pm (searcher): renamed search_element to
+        searcher. searcher retunrs a Config::Model::Searcher object.
 
-	* AnyId.pm (copy): new method to deep-copy the content of a hash
-	or id element.
+        * AnyId.pm (copy): new method to deep-copy the content of a hash
+        or id element.
 
 2007-04-13  Dominique Dumont  
 
-	* Value.pm: moved out reference facility in
-	Config::Model::IdElementReference
+        * Value.pm: moved out reference facility in
+        Config::Model::IdElementReference
 
 2007-03-16  Dominique Dumont  
 
-	* Value.pm (fetch_no_check): new method
+        * Value.pm (fetch_no_check): new method
 
 2007-02-23  Dominique Dumont  v0.608
 
-	* ObjTreeScanner.pm: Clarified call-back names.
+        * ObjTreeScanner.pm: Clarified call-back names.
 
 2007-01-12  Dominique Dumont  v0.607
 
-	* t/term_ui.t: Changed tests to try to load Term::ReadLine and
-	skip tests if Term::ReadLine cannot be loaded.
+        * t/term_ui.t: Changed tests to try to load Term::ReadLine and
+        skip tests if Term::ReadLine cannot be loaded.
 
 2007-01-11  Dominique Dumont  v0.606
 
-	* config-model: Corrected wrong doc for options.
+        * config-model: Corrected wrong doc for options.
 
-	* Describe.pm: Small cosmetic changes in output.
+        * Describe.pm: Small cosmetic changes in output.
 
 2007-01-08  Dominique Dumont  v0.605
 
-	* config-model: Now uses Log::Log4perl. (Still need to use
-	Log4perl for all *.pm files though). Now write config files back.
-	Added option to read and write config in test directories.
+        * config-model: Now uses Log::Log4perl. (Still need to use
+        Log4perl for all *.pm files though). Now write config files back.
+        Added option to read and write config in test directories.
 
-	* *.pm: Changed e-mail address to reduce spam.
+        * *.pm: Changed e-mail address to reduce spam.
 
-	* *.pm: Small bug and doc fixes.
-	
+        * *.pm: Small bug and doc fixes.
+        
 2006-12-08  Dominique Dumont 
 
-	* Model.pm (load): Model files are expected to be delivered as
-	Perl module and are searched using @INC. (E.g. Xorg.pl model will
-	be searched as Config/Model/models/Xorg.pl in @INC elements)
+        * Model.pm (load): Model files are expected to be delivered as
+        Perl module and are searched using @INC. (E.g. Xorg.pl model will
+        be searched as Config/Model/models/Xorg.pl in @INC elements)
 
-	* Exception.pm (full_message): Clarified error message of
-	RestrictedElement exception
+        * Exception.pm (full_message): Clarified error message of
+        RestrictedElement exception
 
-	* examples/fstab/fstab_test.pl: Clarified notifications shown to
-	user. Adapted to changes of 0.604
+        * examples/fstab/fstab_test.pl: Clarified notifications shown to
+        user. Adapted to changes of 0.604
 
 2006-12-06  Dominique Dumont   v0.604
 
-	* Node.pm: added check_list in possible element of a node.
+        * Node.pm: added check_list in possible element of a node.
 
-	* Value.pm (set): Changed reference declaration: now value_type
-	must be set to 'reference' when using 'refer_to' parameter.
+        * Value.pm (set): Changed reference declaration: now value_type
+        must be set to 'reference' when using 'refer_to' parameter.
 
-	* WarpedThing.pm: can group rules declaration in warp argument to
-	save typing
+        * WarpedThing.pm: can group rules declaration in warp argument to
+        save typing
 
-	* WizardHelper.pm: adapted for ObjTreeScanner changes
+        * WizardHelper.pm: adapted for ObjTreeScanner changes
 
 2006-12-05  Dominique Dumont  
 
-	* ObjTreeScanner.pm: Modified the callback signature so the user
-	does no longer have to play with closures.
-	- added check_list_cb for CheckList elements
-	- improved doc
-	- added callback example in doc
+        * ObjTreeScanner.pm: Modified the callback signature so the user
+        does no longer have to play with closures.
+        - added check_list_cb for CheckList elements
+        - improved doc
+        - added callback example in doc
 
-	* AutoRead.pm (auto_write_init): bug fix in auto_write functions
+        * AutoRead.pm (auto_write_init): bug fix in auto_write functions
 
-	* AnyId.pm (new): New allow and allow_from parameters to set
-	"allowed" keys of a hash or list. This list of allowed keys can be
-	fixed or dynamic.
+        * AnyId.pm (new): New allow and allow_from parameters to set
+        "allowed" keys of a hash or list. This list of allowed keys can be
+        fixed or dynamic.
 
-	* AnyThing.pm (root): new method. Returns the root node of the
-	configuration tree.
-	(grab): bug fix so hash identifier can contain white spaces when
-	calling grab (e.g. InputDevice:"Configured Mouse")
+        * AnyThing.pm (root): new method. Returns the root node of the
+        configuration tree.
+        (grab): bug fix so hash identifier can contain white spaces when
+        calling grab (e.g. InputDevice:"Configured Mouse")
 
-	* CheckList.pm: New class to implement a check list. 
+        * CheckList.pm: New class to implement a check list. 
 
-	* Describe.pm: adapted for ObjTreeScanner changes and new
-	CheckList element type
+        * Describe.pm: adapted for ObjTreeScanner changes and new
+        CheckList element type
 
-	* Dumper.pm: idem
+        * Dumper.pm: idem
 
-	* Report.pm: idem
+        * Report.pm: idem
 
 2006-10-19  Dominique Dumont   v0.603
 
-	* Value.pm (set): forbids to specify both 'refer_to' and
-	'value_type' in value declaration
+        * Value.pm (set): forbids to specify both 'refer_to' and
+        'value_type' in value declaration
 
 2006-10-11  Dominique Dumont  
 
-	* Loader.pm (load): Accepts now to load configuration data where
-	index can contain white space. (e.g. Monitor:"Hercules Pro")
+        * Loader.pm (load): Accepts now to load configuration data where
+        index can contain white space. (e.g. Monitor:"Hercules Pro")
 
-	* AnyId.pm: changed 'element_args' to 'cargo_args'. Changed
-	'element_class' to 'cargo_class'. Added 'follow' parameter so a
-	hash key can mimic the keys of another hash in the configuration
-	tree.
+        * AnyId.pm: changed 'element_args' to 'cargo_args'. Changed
+        'element_class' to 'cargo_class'. Added 'follow' parameter so a
+        hash key can mimic the keys of another hash in the configuration
+        tree.
 
-	* TermUI.pm: removed debug print. This makes auto-completion much
-	easier to understand ;-)
+        * TermUI.pm: removed debug print. This makes auto-completion much
+        easier to understand ;-)
 
 2006-09-26  Dominique Dumont  
 
-	* Value.pm (set_default): added built_in default
-	parameter. Built_in default parameter are not written in
-	configuration files but can be used to audit configuration data.
-	
-	* AutoRead.pm (auto_read_init): bug fix: override of read_dir was
-	not taken into account
-	(auto_write_init): idem for write_dir
+        * Value.pm (set_default): added built_in default
+        parameter. Built_in default parameter are not written in
+        configuration files but can be used to audit configuration data.
+        
+        * AutoRead.pm (auto_read_init): bug fix: override of read_dir was
+        not taken into account
+        (auto_write_init): idem for write_dir
 
 2006-09-22  Dominique Dumont  
 
-	* Instance.pm: added doc for the possibility to specify where to
-	read or write the configuration files.
+        * Instance.pm: added doc for the possibility to specify where to
+        read or write the configuration files.
 
 2006-09-21  Dominique Dumont  
 
-	* AnyId.pm (move): also change index value when moving items.
+        * AnyId.pm (move): also change index value when moving items.
 
 2006-09-07  Dominique Dumont   v0.602
 
-	* config-model: added -help and -man options to command line
+        * config-model: added -help and -man options to command line
 
-	* Model.pm (load): model file now must return an array ref and not
-	invoke Model methods. See t/big_model.pm for an example
-	(load): can load model file for model class that contain '::'. In
-	this case the model file is searched in a sub-directory just like
-	a perl class (E.g Model::Foo -> Model/Foo.pm)
+        * Model.pm (load): model file now must return an array ref and not
+        invoke Model methods. See t/big_model.pm for an example
+        (load): can load model file for model class that contain '::'. In
+        this case the model file is searched in a sub-directory just like
+        a perl class (E.g Model::Foo -> Model/Foo.pm)
 
-	* HashId.pm (create_default): can initialise children nodes while
-	creating default keys. (Necessary to be able to write a
-	configuration model for Xorg)
+        * HashId.pm (create_default): can initialise children nodes while
+        creating default keys. (Necessary to be able to write a
+        configuration model for Xorg)
 
-	* AnyId.pm (move): new method
+        * AnyId.pm (move): new method
 
 2006-07-20  Dominique Dumont   v0.601
 
-	* config-model: new program. This programs can be invoked to
-	modify configuration files (provided the corresponding model is
-	available in /etc/config-model.d). (Still shaky. Don't run as
-	root)
+        * config-model: new program. This programs can be invoked to
+        modify configuration files (provided the corresponding model is
+        available in /etc/config-model.d). (Still shaky. Don't run as
+        root)
 
 2006-07-19  Dominique Dumont  
 
-	* Node.pm (get_type): new method
-	(get_cargo_type): new method
-	(get_element_name): added type and cargo_type parameters to filter
-	returned element depending on their type or cargo (contained) type
-	(describe): new method. Uses new Describe.pm file
+        * Node.pm (get_type): new method
+        (get_cargo_type): new method
+        (get_element_name): added type and cargo_type parameters to filter
+        returned element depending on their type or cargo (contained) type
+        (describe): new method. Uses new Describe.pm file
 
-	* Value.pm (get_type): new method
-	(get_cargo_type): new method
+        * Value.pm (get_type): new method
+        (get_cargo_type): new method
 
 2006-07-18  Dominique Dumont  
 
-	* Model.pm (load): new method. Model can load model declaration
-	from /etc/config-model.d. The model must be valid perl script that
-	ends with an array ref containing configuraiton class declaration
-	like the one accepted by create_config_class
+        * Model.pm (load): new method. Model can load model declaration
+        from /etc/config-model.d. The model must be valid perl script that
+        ends with an array ref containing configuraiton class declaration
+        like the one accepted by create_config_class
 
-	* ListId.pm (get_type): new method
+        * ListId.pm (get_type): new method
 
-	* HashId.pm (get_type): new method
+        * HashId.pm (get_type): new method
 
-	* Exception.pm : Added WrongType exception for new grab parameters
+        * Exception.pm : Added WrongType exception for new grab parameters
 
-	* AnyThing.pm (get_type): New method
-	(grab): added strict, autoadd, type parameter.
+        * AnyThing.pm (get_type): New method
+        (grab): added strict, autoadd, type parameter.
 
-	* AnyId.pm (get_cargo_type): new method.
-	(config_class_name): new mehtod
+        * AnyId.pm (get_cargo_type): new method.
+        (config_class_name): new mehtod
 
-	* Describe.pm: New file. Provides a human readable description of
-	a configuration node.
+        * Describe.pm: New file. Provides a human readable description of
+        a configuration node.
 
 2006-06-15  Dominique Dumont   v0.507
 
-	* TermUI.pm: New file. Provides a shell like interactive user
-	interface.
+        * TermUI.pm: New file. Provides a shell like interactive user
+        interface.
 
-	* Node.pm: Now inherit AutoRead class
+        * Node.pm: Now inherit AutoRead class
 
-	* Instance.pm: Adapted for auto read/write.
+        * Instance.pm: Adapted for auto read/write.
 
 2006-06-12  Dominique Dumont   
 
-	* AutoRead.pm: New file. Provides node the capabilities to load
-	config data when creating a configuration node.
+        * AutoRead.pm: New file. Provides node the capabilities to load
+        config data when creating a configuration node.
 
 2006-05-19  Dominique Dumont   v0.506
 
-	* examples/fstab/FstabModel.pl: added Fstab example with its fstab
-	configuration model. This example includes a small program that
-	use this model to show some ways to extract configuration
-	informations.
+        * examples/fstab/FstabModel.pl: added Fstab example with its fstab
+        configuration model. This example includes a small program that
+        use this model to show some ways to extract configuration
+        informations.
 
 2006-05-17  Dominique Dumont   
 
-	* Report.pm: new file. Provides report and audit facility for
-	Node.pm
+        * Report.pm: new file. Provides report and audit facility for
+        Node.pm
 
-	* Node.pm (report): new method
-	(audit): new method
+        * Node.pm (report): new method
+        (audit): new method
 
-	* Model.pm (create_config_class): added inheritance of
-	configuration models.
+        * Model.pm (create_config_class): added inheritance of
+        configuration models.
 
-	* HashId.pm (_get_all_indexes): sort returned indexes
+        * HashId.pm (_get_all_indexes): sort returned indexes
 
-	* Dumper.pm (dump_tree): fix list dump which did not work
+        * Dumper.pm (dump_tree): fix list dump which did not work
 
-	* AnyId.pm (fetch_all_values): new method
+        * AnyId.pm (fetch_all_values): new method
 
 2006-04-21  Dominique Dumont   v0.505
 
-	* WizardHelper.pm: New file. This class helps to create wizard
-	widget for config models
+        * WizardHelper.pm: New file. This class helps to create wizard
+        widget for config models
 
-	* Makefile.PL: ValueFormula is no longer compiled at build-time
-	but on the fly at run-time. Hopefully this will fix Windows
-	problem and ease integration downstream for a minor performance
-	penalty at start time.
+        * Makefile.PL: ValueFormula is no longer compiled at build-time
+        but on the fly at run-time. Hopefully this will fix Windows
+        problem and ease integration downstream for a minor performance
+        penalty at start time.
 
 2006-04-10  Dominique Dumont   v0.504
 
-	* Searcher.pm: Added search element feature. This feature provides
-	a way to search for a configuration element in a configuration
-	tree. The search can be launcher from an instance or any node of a
-	configuration tree. Getting to searched target can be manual or
-	automatic (with call-backs provided by user)
+        * Searcher.pm: Added search element feature. This feature provides
+        a way to search for a configuration element in a configuration
+        tree. The search can be launcher from an instance or any node of a
+        configuration tree. Getting to searched target can be manual or
+        automatic (with call-backs provided by user)
 
 2006-03-21  Dominique Dumont  
 
-	* Makefile.PL: Changed grammar pre-compilation to add a "1;" at
-	the end of ValueFormulaParser.pm (Makes Windows happy)
+        * Makefile.PL: Changed grammar pre-compilation to add a "1;" at
+        the end of ValueFormulaParser.pm (Makes Windows happy)
 
 2006-03-16  Dominique Dumont   v0.503
 
-	* Makefile.PL (MY::postamble): Corrected CPAN dependencies
+        * Makefile.PL (MY::postamble): Corrected CPAN dependencies
 
