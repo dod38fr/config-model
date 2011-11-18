@@ -135,6 +135,11 @@ To get man pages or text docuement, you can pipe the output of the command:
 Application name to be configured. Specify C<help> to get a list of available 
 applications.
 
+=item file
+
+Configuration file name. Used only for models without standard configuration 
+file name. (e.g. multistrap)
+
 =item -model
 
 Specifies the model used to edit configuration data. Specify C<help> to
