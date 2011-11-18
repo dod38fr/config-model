@@ -8,6 +8,7 @@ use File::Path;
 use File::Copy;
 use File::Copy::Recursive qw(fcopy rcopy dircopy);
 use File::Find;
+use File::Spec ;
 use Test::Warn;
 use Test::Exception;
 use Test::Differences;
@@ -111,6 +112,11 @@ sub run_model_test {
 
         my ($wr_dir, $conf_file, $ex_data, @file_list) 
             = setup_test ($model_test, $t_name, $wr_root);
+            
+        if ($t->{config_file}) { 
+            my ($v,$local_conf_dir,$f) = File::Spec->splitpath($wr_dir.$t->{config_file}) ;
+            mkpath($local_conf_dir,{mode => 0755} );
+        }
 
         my $inst = $model->instance(
             root_class_name => $model_to_test,
