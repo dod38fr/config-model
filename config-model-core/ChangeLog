@@ -1,3 +1,8 @@
+2011-11-18  Dominique Dumont  <domi.dumont@free.fr> 1.262
+
+    * Config/Model/Tester: avoid test failure by sorting file list 
+      before comparing them 
+
 2011-11-17  Dominique Dumont  <domi.dumont@free.fr> 1.261
 
     * Test changes (Config/Model/Tester):
