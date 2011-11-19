@@ -1,4 +1,4 @@
-package Config::Model::Value::PresetFromInclude;
+package Config::Model::Value::LayeredInclude;
 
 
 use 5.010;
@@ -7,10 +7,10 @@ use warnings;
 
 use base qw/Config::Model::Value/ ;
 
-# override store to trigger a refresh of preset value when value is actually
+# override store to trigger a refresh of layered value when value is actually
 # changed. 
 
-# should we clear all preset value when include value is changed ? 
+# should we clear all layered value when include value is changed ? 
 # If yes, beware of recursive includes. Clear should only be done once.
 
 # beware: 2 kind of includes: shadow include (set default values like 
@@ -20,31 +20,37 @@ use base qw/Config::Model::Value/ ;
 # this class deals only with the first type
 
 sub store {
-    my ($self,%args) = @_;
+    my $self = shift ;
+    my %args = @_ == 1 ? (value => $_[0]) 
+             : @_ == 3 ? ( 'value' , @_ ) 
+             : @_ ;
 
     my $old_data = $self->{data} ;
     
     my $new_data = $self->SUPER::store(%args) ; 
     
-    return $new_data unless $new_data ;   
+    {
+        no warnings 'uninitialized' ;
+        return $new_data if $new_data eq $old_data;   
+    }
     
     my $i = $self->instance ;
-    my $already_in_preset = $i->preset ;
+    my $already_in_layered = $i->layered ;
     
-    # preset stuff here
-    if (not $already_in_preset) {
-        $i->preset_clear ;
-        $i->preset_start ;
+    # layered stuff here
+    if (not $already_in_layered) {
+        $i->layered_clear ;
+        $i->layered_start ;
     }
     
-    # load included file in preset mode
+    # load included file in layered mode
     $self->root->read_config_data(check => 'no', config_file => $new_data );
 
-    if (not $already_in_preset) {
-        $i->preset_stop ;
+    if (not $already_in_layered) {
+        $i->layered_stop ;
     }
     
-    # test if already in preset mode -> if no, clear preset, 
+    # test if already in layered mode -> if no, clear layered, 
     
     return $new_data ;
 }
@@ -62,13 +68,13 @@ sub _check_value {
 
     # need to test that prest config file is present as the model
     # may not enforce it (when read_config auto_create is 1)
-    my $preset_file = $self->instance->read_root_dir ;
-    $preset_file .= $value ;
+    my $layered_file = $self->instance->read_root_dir ;
+    $layered_file .= $value ;
     
     my $err = $self->{error_list} ;
     
-    if (not -r $preset_file) {
-        push @$err,"cannot read include file $$preset_file";
+    if (not -r $layered_file) {
+        push @$err,"cannot read include file $$layered_file";
     }
     
     return wantarray ? @$err : scalar @$err ? 0 : 1 ;
@@ -82,7 +88,7 @@ __END__
 
 =head1 NAME
 
-Config::Model::Value::PresetFromInclude - Preset configuration from file
+Config::Model::Value::LayeredInclude - Include a sub layer configuration
 
 =head1 SYNOPSIS
 
