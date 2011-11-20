@@ -19,7 +19,11 @@ $model_to_test = "Multistrap";
             # this file was created after the load instructions above
             unshift @$r, "/home/foo/my_arm.conf";
         }
-    }
+    },
+    {
+        name => 'igep0020',
+        config_file => '/home/foo/strap-igep0020.conf',
+    },
 );
 
 1;
