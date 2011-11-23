@@ -444,25 +444,6 @@ sub migrate_value {
 When stored, the value will be converted to uppercase (uc) or
 lowercase (lc).
 
-=cut
-
-sub set_convert {
-    my ($self, $arg_ref) = @_ ;
-
-    my $convert = delete $arg_ref->{convert} ;
-    # convert_sub keeps a subroutine reference
-    $self->{convert_sub} = $convert eq 'uc' ? sub {uc(shift)} :
-      $convert eq 'lc' ? sub {lc(shift)} : undef;
-
-    Config::Model::Exception::Model
-	-> throw (
-		  object => $self,
-		  error => "Unexpected convert value: $convert, "
-		  ."expected lc or uc"
-		 ) 
-	  unless defined $self->{convert_sub};
-}
-
 =item min
 
 Specify the minimum value (optional, only for integer, number)
@@ -503,9 +484,10 @@ sub setup_enum_choice {
     # delete the current value if it does not fit in the new
     # choice
     map {
-	delete $self->{$_}
-	  if (defined  $self->{$_} and not $self->check(value => $self->{$_}, quiet => 1)) ;
-    } qw/data preset layered/;
+	my $lv = $self->{$_} ;
+
+	delete $self->{$_} if (defined  $lv and not defined $self->{choice_hash}{$lv}) ;
+    } qw/data preset/;
 }
 
 =item match
@@ -1411,7 +1393,7 @@ sub check_value {
         no warnings 'uninitialized' ;
         my $v = defined $value ? $value : '<undef>' ;
         my $loc = $self->location ;
-        my $msg= "called with value '$v' mode $mode check $check on '$loc'";
+        my $msg= "called from ".join(' ',caller)." with value '$v' mode $mode check $check on '$loc'";
         $logger->debug($msg) ;
     } 
 
@@ -1441,10 +1423,19 @@ sub check_value {
         push @error,"Type $self->{value_type}: value $value is a number ".
 	  "but not an integer";
     }
-    elsif (   $self->{value_type} eq 'enum' 
-	   or $self->{value_type} eq 'reference'
-	  ) {
-        if (length($value) and defined $self->{choice_hash} 
+    elsif ($self->{value_type} eq 'reference' ) {
+        # just in case the reference_object has been changed
+	if (defined $self->{refer_to} or defined $self->{computed_refer_to}) {
+	    $self->{ref_object}->get_choice_from_refered_to ;
+	}	
+	
+	if (length($value) and defined $self->{choice_hash} 
+            and not defined $self->{choice_hash}{$value} ) {
+            push @error, ($quiet ? 'reference error' : $self->enum_error($value));
+        }
+    }
+    elsif (   $self->{value_type} eq 'enum' ) {
+	if (length($value) and defined $self->{choice_hash} 
             and not defined $self->{choice_hash}{$value} ) {
             push @error, ($quiet ? 'enum error' : $self->enum_error($value));
         }
@@ -1663,7 +1654,7 @@ Without C<value> argument, this method will check the value currently stored.
 sub check {
     my $self = shift ;
     
-    $logger->debug("called for ".$self->location) if $logger->is_debug ;
+    $logger->debug("called for ".$self->location ." from ".join(' ',caller)) if $logger->is_debug ;
     my %args = @_ == 0 ? ( value => $self->{data} ) 
              : @_ == 1 ? ( value => $_[0]         )
              :           @_ ;
@@ -1708,8 +1699,13 @@ sub store {
 
     my ($ok,$value) = $self->pre_store(value => $args{value}, check => $check ) ;
 
-    $logger->debug("value store $value, ok '$ok', check is $check") if $logger->is_debug;
-
+    if ($logger->is_debug) {
+	my $i = $self->instance ;
+	my $msg = "value store $value, ok '$ok', check is $check";
+	map { $msg .= " $_" if $i->$_() } qw/layered preset/ ;
+	$logger->debug($msg) ; 
+    }
+    
     # we let store the value even if wrong when check is disabled
     if ($ok or $check eq 'no') {
         if ($self->instance->layered) {
@@ -1737,6 +1733,7 @@ sub store {
 	and defined $value 
 	and defined $self->{warp_these_objects}
 	and (not defined $old_value or $value ne $old_value)
+	and not ($self->instance->layered or $self->instance->preset)
         ) {
 	$self->trigger_warp($value) ;
     }
