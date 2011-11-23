@@ -28,6 +28,7 @@
     'element' => [
       'include',
       {
+        'convert' => 'lc',
         'value_type' => 'uniline',
         'class' => 'Config::Model::Value::LayeredInclude',
         'type' => 'leaf'
@@ -51,6 +52,7 @@
       'aptsources',
       {
         'cargo' => {
+          'convert' => 'lc',
           'value_type' => 'reference',
           'type' => 'leaf',
           'refer_to' => '- sections'
@@ -62,6 +64,7 @@
       'bootstrap',
       {
         'cargo' => {
+          'convert' => 'lc',
           'value_type' => 'reference',
           'type' => 'leaf',
           'refer_to' => '- sections'
@@ -73,6 +76,7 @@
       'debootstrap',
       {
         'cargo' => {
+          'convert' => 'lc',
           'value_type' => 'reference',
           'type' => 'leaf',
           'refer_to' => '- sections'
@@ -92,11 +96,13 @@
       },
       'configscript',
       {
+        'convert' => 'lc',
         'value_type' => 'uniline',
         'type' => 'leaf'
       },
       'setupscript',
       {
+        'convert' => 'lc',
         'value_type' => 'uniline',
         'type' => 'leaf'
       },
@@ -121,19 +127,37 @@
       },
       'unpack',
       {
+        'convert' => 'lc',
         'value_type' => 'boolean',
         'summary' => 'extract all downloaded archives',
         'upstream_default' => '1',
+        'migrate_from' => {
+          'formula' => '$old',
+          'variables' => {
+            'old' => '- forceunpack'
+          }
+        },
         'type' => 'leaf'
       },
       'sections',
       {
+        'convert' => 'lc',
         'cargo' => {
           'type' => 'node',
           'config_class_name' => 'Multistrap::Section'
         },
         'type' => 'hash',
         'index_type' => 'string'
+      },
+      'forceunpack',
+      {
+        'convert' => 'lc',
+        'value_type' => 'boolean',
+        'summary' => 'extract all downloaded archives',
+        'status' => 'deprecated',
+        'upstream_default' => '1',
+        'type' => 'leaf',
+        'description' => 'deprecated. Replaced by unpack'
       }
     ]
   }
