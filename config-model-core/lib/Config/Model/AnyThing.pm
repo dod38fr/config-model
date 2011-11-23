@@ -741,6 +741,25 @@ sub warp_error {
     return $self->{warper} -> warp_error ;
 }
 
+# used by Value and AnyId
+sub set_convert {
+    my ($self, $arg_ref) = @_ ;
+
+    my $convert = delete $arg_ref->{convert} ;
+    # convert_sub keeps a subroutine reference
+    $self->{convert_sub} = $convert eq 'uc' ? sub {uc(shift)} :
+      $convert eq 'lc' ? sub {lc(shift)} : undef;
+
+    Config::Model::Exception::Model
+	-> throw (
+		  object => $self,
+		  error => "Unexpected convert value: $convert, "
+		  ."expected lc or uc"
+		 ) 
+	  unless defined $self->{convert_sub};
+}
+
+
 1;
 
 =head1 AUTHOR
