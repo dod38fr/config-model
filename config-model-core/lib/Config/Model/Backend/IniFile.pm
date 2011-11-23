@@ -61,6 +61,11 @@ sub read {
     my $check       = $args{check}               || 'yes';
     my $obj         = $self->node;
 
+    # delay validation after read because the read order depends
+    # on the INI file and not on the model
+    my $read_check = 'no'; 
+    
+
     #FIXME: Is it possible to store the comments with their location
     #in the file?  It would be nice if comments that are after values
     #in input file, would be written in the same way in the output
@@ -84,8 +89,8 @@ sub read {
             $logger->debug("use step '$steps' for section '$section'");
             $obj = $self->node->grab(
                 step  => $steps ,
-                check => $check,
-                mode => $check eq 'yes' ? 'strict' : 'loose' ,
+                check => $read_check,
+                mode => $read_check eq 'yes' ? 'strict' : 'loose' ,
             );
             
             # for write later, need to store the obj if section map was used
@@ -105,21 +110,21 @@ sub read {
             my ( $name, $val ) = split( /\s*=\s*/, $vdata );
             $logger->debug("ini read: data $name for node ".$obj->location);
 
-            my $elt = $obj->fetch_element( name => $name, check => $check );
+            my $elt = $obj->fetch_element( name => $name, check => $read_check );
 
             if ( $elt->get_type eq 'list' and $split_reg) {
                 my @v_list = split(/$split_reg/,$val) ;
-                my @args = (\@v_list, check => $check) ;
+                my @args = (\@v_list, check => $read_check) ;
                 push @args, annotation => $comment if $comment ;
                 $elt->store_set(@args) ;
             }
             elsif ( $elt->get_type eq 'list' ) {
-                my @args = (values => $val, check => $check) ;
+                my @args = (values => $val, check => $read_check) ;
                 push @args, annotation => $comment if $comment ;
                 $elt -> push_x(@args) ;
             }
             elsif ( $elt->get_type eq 'leaf' ) {
-                $elt->store( value => $val, check => $check );
+                $elt->store( value => $val, check => $read_check );
                 $elt->annotation($comment) if scalar $comment;
             }
             else {
@@ -132,6 +137,11 @@ sub read {
         else {
             $logger->warn("ini read: skipping $vdata");
         }
+    }
+
+    # perform check if it was not done before
+    if ($check ne 'no') {
+        $obj->dump_tree(check => $check) ;
     }
 
     return 1;
