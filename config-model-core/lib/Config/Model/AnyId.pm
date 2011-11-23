@@ -325,6 +325,10 @@ Specifies the number of elements to create automatically. E.g.  C<<
 auto_create_ids => 4 >> will initialize the list with 4 undef elements.
 (valid only for list elements)
 
+=item convert => [uc | lc ]
+
+The hash key will be converted to uppercase (uc) or lowercase (lc).
+
 =item warp
 
 See L</"Warp: dynamic value configuration"> below.
@@ -414,7 +418,7 @@ my @common_params =  qw/min_index max_index max_nb default_with_init default_key
                         allow_keys allow_keys_from allow_keys_matching
                         warn_if_key_match warn_unless_key_match/ ;
 
-my @allowed_warp_params = (@common_params,qw/experience level/) ;
+my @allowed_warp_params = (@common_params,qw/experience level convert/) ;
 
 
 # this method can be called by the warp mechanism to alter (warp) the
@@ -434,6 +438,8 @@ sub set_properties {
 
     map { $self->{$_} =  delete $args{$_} if defined $args{$_} }
       @common_params ;
+      
+    $self->set_convert        ( \%args ) if defined $args{convert};
 
     Config::Model::Exception::Model
         ->throw (
@@ -1009,6 +1015,10 @@ sub fetch_with_id {
     my %args = @_ > 1 ? @_ : ( index => shift ) ;
     my $check = $self->_check_check($args{check}) ;    
     my $idx = $args{index} ;
+
+    $idx = $self->{convert_sub}($idx) 
+      if (defined $self->{convert_sub} and defined $idx) ;
+
 
     $self->warp 
       if ($self->{warp} and @{$self->{warp_info}{computed_master}});
