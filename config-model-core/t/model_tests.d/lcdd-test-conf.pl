@@ -7,7 +7,7 @@ my @fix_warnings ;
 
 push @fix_warnings,
     ( 
-        load_warnings => [ qr/code check returned false/ ],
+        #load_warnings => [ qr/code check returned false/ ],
         load => "server DriverPath=/tmp/" , # just a work-around
     ) 
     unless -d '/usr/lib/lcdproc/' ;
