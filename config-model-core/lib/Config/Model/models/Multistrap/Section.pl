@@ -18,6 +18,14 @@
         },
         'type' => 'list'
       },
+      'components',
+      {
+        'cargo' => {
+          'value_type' => 'uniline',
+          'type' => 'leaf'
+        },
+        'type' => 'list'
+      },
       'source',
       {
         'value_type' => 'uniline',
