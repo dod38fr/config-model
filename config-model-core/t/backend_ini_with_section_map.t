@@ -57,7 +57,7 @@ source=2
 [Empty]
 EOD2
 
-my $w_file_below = join("\n",$head,'', @below_data[3..8,0..2]);
+my $w_file_below = join("\n",$head,'', map {lc} @below_data[3..8,0..2]);
 
 # set_up data
 my @general_data = split /\n/, << 'EOD1' ;
@@ -73,7 +73,7 @@ source=2
 [Empty]
 EOD1
 
-my $w_file_general = join("\n",$head, @general_data[0..8]);
+my $w_file_general = join("\n",$head, map {lc} @general_data[0..8]);
 
 # change delimiter comments
 my %test_setup = ( 
@@ -106,10 +106,11 @@ $model->create_config_class(
     name          => 'SectionMapTop',
     'read_config' => [
         {
-            'section_map'         => { 'General' => '!' },
+            'section_map'         => { 'general' => '!' },
             'backend'             => 'ini_file',
             'split_list_value'    => '\\s+',
-            'store_class_in_hash' => 'sections'
+            'store_class_in_hash' => 'sections',
+            force_lc_section => 1,
         }
     ],
 
@@ -132,10 +133,11 @@ $model->create_config_class(
     name          => 'SectionMap',
     'read_config' => [
         {
-            'section_map'         => { 'Low' => 'below' },
+            'section_map'         => { 'low' => 'below' },
             'backend'             => 'ini_file',
             'split_list_value'    => '\\s+',
-            'store_class_in_hash' => 'sections'
+            'store_class_in_hash' => 'sections',
+            force_lc_section => 1,
         }
     ],
 
@@ -219,7 +221,7 @@ foreach my $test_class ( sort keys %test_setup ) {
 
     my $p2_dump = $i2_root->dump_tree;
     
-    $i_root->load('sections~Empty');
+    $i_root->load('sections~empty');
     my $orig_fixed = $i_root->dump_tree ;
 
     eq_or_diff( 
