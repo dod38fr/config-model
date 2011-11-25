@@ -3,7 +3,7 @@
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
-use Test::More tests => 80 ;
+use Test::More tests => 81 ;
 use Config::Model ;
 use Test::Exception ;
 use Test::Warn ;
@@ -157,10 +157,16 @@ $model ->create_config_class
 	  },
        hash_with_default_and_init => { 
            type => 'hash',
-	    index_type  => 'string',
-	    default_with_init => { 'def_1' => 'def_1 stuff'  ,
-                                    'def_2' => 'def_2 stuff' } ,
-	    @element
+	   index_type  => 'string',
+	   default_with_init => { 'def_1' => 'def_1 stuff'  ,
+                                  'def_2' => 'def_2 stuff' } ,
+	   @element
+	  },
+       hash_with_convert_lc => { 
+           type => 'hash',
+	   index_type  => 'string',
+	   convert => 'lc',
+	   @element
 	  },
       ],
    );
@@ -402,3 +408,10 @@ my $hwdai = $root->fetch_element('hash_with_default_and_init');
 foreach ($hwdai->get_all_indexes) {
     is($hwdai->fetch_with_id($_)->fetch, "$_ stuff","check default_with_init with $_");
 }
+
+# test convert lc
+my $hwclc = $root->fetch_element('hash_with_convert_lc');
+$hwclc -> fetch_with_id('Debian')->store('DebV');
+$hwclc -> fetch_with_id('Grip')  -> store('GripV') ;
+is_deeply( [ $hwclc->get_all_indexes ] , [qw/debian grip/],"check converted ids");
+
