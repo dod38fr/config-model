@@ -1,3 +1,23 @@
+2011-11-25  Dominique Dumont  <domi.dumont@free.fr> 1.263
+
+    * Application changes:
+        * model Multistrap:
+          * Use convert =>lc on most parameters to match multistrap's behavior
+          + added deprecated forceunpack parameter (migrated to unpack). 
+          + force sections and key names to be lowercase
+          + added components parameter to Multistrap::Section model
+
+    * Framework changes:
+        + Config::Model::HashId: added convert parameter
+        * Config::Model::Value: recompute choice before checking 
+          if a reference matches available choices.
+
+    * Inifile backend changes:
+        * delay validation after read because read order depends on the
+          INI file and not on the model.
+        + added force_lc_(key|name|value) parameter to take care of case 
+          insensitive INI files
+
 2011-11-18  Dominique Dumont  <domi.dumont@free.fr> 1.262
 
     * Config/Model/Tester: avoid test failure by sorting file list 
