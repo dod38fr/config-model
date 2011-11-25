@@ -10,17 +10,19 @@
     ],
     'read_config' => [
       {
-        'auto_create' => '1',
+        'force_lc_section' => '1',
         'join_list_value' => ' ',
-        'section_map' => {
-          'General' => '!'
-        },
         'backend' => 'ini_file',
+        'force_lc_key' => '1',
+        'auto_create' => '1',
+        'section_map' => {
+          'general' => '!'
+        },
+        'split_list_value' => '\\s+',
         'write_boolean_as' => [
           'false',
           'true'
         ],
-        'split_list_value' => '\\s+',
         'store_class_in_hash' => 'sections'
       }
     ],
