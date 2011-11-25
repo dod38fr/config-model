@@ -61,6 +61,9 @@ sub read {
     my $check       = $args{check}               || 'yes';
     my $obj         = $self->node;
 
+    my %force_lc ;
+    map { $force_lc{$_} = $args{"force_lc_$_"} ? 1 : 0; } qw/section key value/ ;
+
     # delay validation after read because the read order depends
     # on the INI file and not on the model
     my $read_check = 'no'; 
@@ -82,7 +85,7 @@ sub read {
 
         # Update section name
         if ( $vdata =~ /\[(.*)\]/ ) {
-            $section = $1;
+            $section = $force_lc{section} ? lc($1) : $1;
             my $steps = $section_map->{$section} ? $section_map->{$section}.' '
                       : $hash_class              ? "$hash_class:$section" 
                       :                            $section ;
@@ -108,6 +111,9 @@ sub read {
         }
         elsif (defined $obj) {
             my ( $name, $val ) = split( /\s*=\s*/, $vdata );
+            $name = lc($name) if $force_lc{name} ;
+            $val  = lc($val)  if $force_lc{value} ;
+            
             $logger->debug("ini read: data $name for node ".$obj->location);
 
             my $elt = $obj->fetch_element( name => $name, check => $read_check );
@@ -404,6 +410,18 @@ See L</"Arbitrary class name">
 =item section_map
 
 Is a kind of exception of the above rule. See also L</"Arbitrary class name">
+
+=item force_lc_section
+
+Boolean. When set, sections names are converted to lowercase.
+
+=item force_lc_key
+
+Idem for key name 
+
+=item force_lc_value
+
+Idem for all values.
 
 =item split_list_value
 
