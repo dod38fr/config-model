@@ -6,8 +6,8 @@ $model_to_test = "Multistrap";
         name        => 'arm',
         config_file => '/home/foo/my_arm.conf',
         check       => {
-                'sections:Toolchains packages:0' ,'g++-4.2-arm-linux-gnu',
-                'sections:Toolchains packages:1', 'linux-libc-dev-arm-cross',
+                'sections:toolchains packages:0' ,'g++-4.2-arm-linux-gnu',
+                'sections:toolchains packages:1', 'linux-libc-dev-arm-cross',
             },
     },
     {
