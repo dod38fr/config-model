@@ -1,5 +1,6 @@
 [
   {
+    'class_description' => 'Class for multistrap configuration files. Note that multistrap is based on INI where section and keys are case insensitive. Hence all sections and keys are converted to lower case and written back as lower case. Most values (but not all) are also case-insensitive. These values will also be written back as lowercase.',
     'accept' => [
       '\\w+',
       {
