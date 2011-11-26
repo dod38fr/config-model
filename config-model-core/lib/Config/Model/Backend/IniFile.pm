@@ -111,7 +111,7 @@ sub read {
         }
         elsif (defined $obj) {
             my ( $name, $val ) = split( /\s*=\s*/, $vdata );
-            $name = lc($name) if $force_lc{name} ;
+            $name = lc($name) if $force_lc{key} ;
             $val  = lc($val)  if $force_lc{value} ;
             
             $logger->debug("ini read: data $name for node ".$obj->location);
