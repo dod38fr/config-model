@@ -12,13 +12,13 @@
 
 _config-edit_models()
 {
-   MODELS=$(config-edit -list models)
+   MODELS=$(perl -MConfig::Model::Lister -e'print Config::Model::Lister::models;')
    COMPREPLY=( $( compgen -W "$MODELS" -- $cur ) )
 }
 
 _config-edit_appli()
 {
-   MODELS=$(config-edit -list applications)
+   MODELS=$(perl -MConfig::Model::Lister -e'print Config::Model::Lister::applications;')
    COMPREPLY=( $( compgen -W "$MODELS" -- $cur ) )
 }
 
