@@ -23,6 +23,7 @@ use strict ;
 use warnings ;
 
 use Config::Model;
+use Config::Model::Lister;
 use Getopt::Long ;
 use Pod::Usage ;
 use Log::Log4perl qw(get_logger :levels);
@@ -334,7 +335,6 @@ my $dumptype;
 my $load;
 my $force_save = 0;
 my $open_item = '';
-my $list = '' ;
 my $application ='' ;
 my $fuse_dir ;
 my $gen_pod ;
@@ -362,7 +362,6 @@ my $result = GetOptions ("ui|if=s"          => \$ui_type,
                          "load=s"           => \$load,
 			 'save!'            => \$force_save ,
 			 "open_item|open-item=s"      => \$open_item ,
-			 "list=s"           => \$list ,
 			 "fuse_dir|fuse-dir=s"       => \$fuse_dir,
 			 "dfuse!"           => \$fuse_debug,
 			 "apply-fixes!"     => \$apply_fixes ,
@@ -375,14 +374,6 @@ my $result = GetOptions ("ui|if=s"          => \$ui_type,
 pod2usage(2) if not $result ;
 pod2usage(1) if $help;
 pod2usage(-verbose => 2) if $man;
-
-if ($list) {
-    my @i = Config::Model::available_models ;
-    if    ($list =~ /model/i)  { print join( ' ',  sort values %{$i[2]} ),"\n"; }
-    elsif ($list =~ /appli/i)  { print join( ' ',  sort keys   %{$i[2]} ),"\n"; }
-    else { die "Unknown item to list. Expected 'models' or 'applications'\n" }
-    exit ;
-}
 
 # ignore $dev if run as root
 if ($> and $dev) {
@@ -399,7 +390,7 @@ if (defined $root_dir && ! -e $root_dir) {
 
 my $model = Config::Model -> new(model_dir => $model_dir) ;
 
-my ($categories,$appli_info,$appli_map) = $model->available_models ;
+my ($categories,$appli_info,$appli_map) = Config::Model::Lister::available_models ;
 
 $root_model = $appli_map->{$application} if $application and defined $appli_map->{$application} ;
 

@@ -6,6 +6,7 @@ use Test::Exception ;
 use Test::Warn ;
 use Test::Differences ;
 use Config::Model;
+use Config::Model::Lister;
 use Data::Dumper ;
 
 use warnings;
@@ -27,7 +28,7 @@ ok(1,"compiled") ;
 
 my $model = Config::Model -> new()  ;
 
-my ($cat,$models) = $model->available_models ;
+my ($cat,$models) = Config::Model::Lister::available_models ;
 
 eq_or_diff($cat->{system},[qw/fstab lcdproc popcon/],"check available system models");
 is($models->{popcon}{model},'PopCon',"check available popcon");
