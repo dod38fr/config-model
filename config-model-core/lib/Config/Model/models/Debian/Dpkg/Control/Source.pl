@@ -21,7 +21,6 @@
       {
         'value_type' => 'uniline',
         'summary' => 'package maintainer\'s name and email address',
-        'match' => '[\\w\\s\\-]+<[\\w\\.\\-\\@]+>',
         'mandatory' => '1',
         'type' => 'leaf',
         'description' => 'The package maintainer\'s name and email address. The name must come first, then the email address inside angle brackets <> (in RFC822 format).
@@ -33,7 +32,6 @@ If the maintainer\'s name contains a full stop then the whole field will not wor
         'cargo' => {
           'replace_follow' => '!Debian::Dpkg meta email-updates',
           'value_type' => 'uniline',
-          'match' => '[\\w\\s\\-]+<[\\w\\.\\-\\@]+>',
           'type' => 'leaf'
         },
         'type' => 'list'
