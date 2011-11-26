@@ -2296,67 +2296,6 @@ sub list_one_class_element {
     return $res ;
 }
 
-=head1 Available models
-
-Returns an array of 3 hash refs:
-
-=over 
-
-=item *
-
-category (system or user or application) => application list. E.g. 
-
- { system => [ 'popcon' , 'fstab'] }
-
-=item *
-
-application => { model => 'model_name', ... }
-
-=item *
-
-application => model_name
-
-=back
-
-=cut
-
-sub available_models {
-   
-    my $path = $INC{"Config/Model.pm"} ;
-    $path =~ s/\.pm// ;
-    my (%categories, %appli_info, %applications ) ;
-
-    get_logger("Model")->trace("available_models: path is $path");
-    foreach my $dir (glob("$path/*.d")) {
-        my ($cat) = ( $dir =~ m!.*/([\w\-]+)\.d! );
-
-        if ($cat !~ /^user|system|application$/) {
-            warn "available_models: skipping unexpected category: $cat\n";
-            next;
-        }
-        
-        get_logger("Model")->trace("available_models: category dir $dir");
-        
-        foreach my $file (sort glob("$dir/*")) {
-            next if $file =~ m!/README! ;
-            my ($appli) = ($file =~ m!.*/([\w\-]+)! );
-            get_logger("Model")->debug("available_models: opening file $file");
-            open (F, $file) || die "Can't open file $file:$!" ;
-            while (<F>) {
-                chomp ;
-                s/^\s+// ;
-                s/\s+$// ;
-                s/#.*// ;
-                my ($k,$v) = split /\s*=\s*/ ;
-                next unless $v ;
-                push @{$categories{$cat}} , $appli if $k =~ /model/i;
-                $appli_info{$appli}{$k} = $v ; 
-                $applications{$appli} = $v if $k =~ /model/i; 
-            }
-        }
-    }
-    return \%categories, \%appli_info, \%applications ;
-}
 
 no Any::Moose ;
 __PACKAGE__->meta->make_immutable ;
