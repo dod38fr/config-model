@@ -128,9 +128,14 @@ sub get_info {
 
     my $node = $cw->{node} ;
 
-    my @items = ('type : '. $node->get_type ,
+    my @items = ('tyspe : '. $node->get_type ,
 		 'class name : '.$node->config_class_name ,
 		);
+
+    my @rexp = $node->accept_regexp ;
+    if (@rexp) {
+	push @items, 'accept : /'.join('/, /',@rexp).'/';
+    }
 
     return $node->element_name,@items ;
 }
