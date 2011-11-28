@@ -9,7 +9,7 @@ use Tk::Balloon;
 use Text::Wrap;
 use Config::Model::Tk::NoteEditor ;
 
-use base qw/Tk::Frame Config::Model::Tk::AnyViewer/;
+use base qw/Config::Model::Tk::NodeViewer/;
 use subs qw/menu_struct/ ;
 
 
@@ -59,7 +59,8 @@ sub Populate {
     else {
 	$cw->add_help(class   => $node->get_help)->pack(@fx) ;
     }
-    $cw->SUPER::Populate($args) ;
+    # don't call directly SUPER::Populate as it's LeafViewer's populate
+    $cw->Tk::Frame::Populate($args) ;
 }
 
 sub reload {
@@ -155,18 +156,5 @@ sub fill_pane {
     # destroy leftover widgets (may occur with warp mechanism)
     map {my $w = delete $cw->{elt_widgets}{$_};$w->destroy } keys %is_elt_drawn ;
 }
-
-sub get_info {
-    my $cw = shift ;
-
-    my $node = $cw->{node} ;
-
-    my @items = ('type : '. $node->get_type ,
-		 'class name : '.$node->config_class_name ,
-		);
-
-    return $node->element_name,@items ;
-}
-
 
 1;
