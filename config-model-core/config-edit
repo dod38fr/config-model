@@ -212,6 +212,13 @@ files. (Actual default directory and file names depends on the model
 C</etc/ssh/sshd_config> files will be written in C<~/mytest/etc/ssh/>
 directory.
 
+=item -config-file 
+
+Specify the configuration file to edit (which may override the file specified by the model).
+ Note that some applicaitions (like multistrap)
+will require this option. For other models (like Debian::Dpkg), this option may not make sense
+as several files are used.
+
 =item -verbose
 
 Be (very) verbose
@@ -343,6 +350,16 @@ my $apply_fixes = 0 ;
 my $search ;
 my $search_type = 'all';
 my $config_file ; # can override file given by model
+
+# backward compatility to avoid transition issues with bash_completion
+# remove March 2012
+my $list_sub = sub {
+    my ($opt,$v) = @_ ;
+    require Config::Model::Lister;
+    print $v eq 'models' ? Config::Model::Lister::models
+        :  Config::Model::Lister::applications ;
+    exit ;
+} ;
  
 my $result = GetOptions ("ui|if=s"          => \$ui_type,
 			 "model_dir|model-dir=s"      => \$model_dir,
@@ -368,7 +385,8 @@ my $result = GetOptions ("ui|if=s"          => \$ui_type,
 			 "gen-pod|gen_pod:s" => \$gen_pod,
 			 "search=s"         => \$search,
 			 "narrow-search=s"  => \$search_type,
-			 "file=s"           => \$config_file,
+			 "config-file|file=s"    => \$config_file,
+			 "list=s"           => $list_sub ,
 			);
 
 pod2usage(2) if not $result ;
