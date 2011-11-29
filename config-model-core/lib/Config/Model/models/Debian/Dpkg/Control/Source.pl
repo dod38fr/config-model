@@ -33,7 +33,6 @@ If the maintainer\'s name contains a full stop then the whole field will not wor
         'cargo' => {
           'replace_follow' => '!Debian::Dpkg meta email-updates',
           'value_type' => 'uniline',
-          'match' => '[\\w\\s\\-]+<[\\w\\.\\-\\@]+>',
           'type' => 'leaf'
         },
         'type' => 'list'
