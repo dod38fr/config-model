@@ -162,8 +162,8 @@ SKIP: {
 	 sub { $widget = $cmu->create_element_widget('edit','test1.ordered_checklist'); ok(1,"test ".$idx++)},
 	 sub { $widget->Subwidget('notebook')->raise('order') ;; ok(1,"test notebook raise 1 ".$idx++)},
 	 sub { $widget->Subwidget('notebook')->raise('order') ;; ok(1,"test notebook raise 2 ".$idx++)},
-	 sub { $widget->{order_list}->selectionSet(1,1) ;; ok(1,"test ".$idx++)}, # Z
-	 sub { $widget->move_selected_down ;; ok(1,"test ".$idx++)},
+	 sub { $widget->{order_list}->selectionSet(1,1) ;; ok(1,"test selectionSet ".$idx++)}, # Z
+	 sub { $widget->move_selected_down ; ok(1,"test move_selected_down ".$idx++)},
 	 # cannot save with pernding errors sub { $cmu->save(); ok(1,"test save 1 ".$idx++)},
 	 sub {
 	     #for ($cmu->children) { $_->destroy if $_->name =~ /dialog/i; } ;
