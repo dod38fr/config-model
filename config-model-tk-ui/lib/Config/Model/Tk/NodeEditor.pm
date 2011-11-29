@@ -45,6 +45,12 @@ sub Populate {
 
     $cw->fill_pane ;
 
+    # insert a widget for "accepted" elements
+    my @rexp = $node->accept_regexp ;
+    if (@rexp) {
+	$cw-> add_accept_entry(@rexp) ;
+    }
+
     # add adjuster
     #require Tk::Adjuster;
     #$cw -> Adjuster()->pack(-fill => 'x' , -side => 'top') ;
@@ -155,6 +161,34 @@ sub fill_pane {
 
     # destroy leftover widgets (may occur with warp mechanism)
     map {my $w = delete $cw->{elt_widgets}{$_};$w->destroy } keys %is_elt_drawn ;
+}
+
+sub add_accept_entry {
+    my ($cw,@rexp) = @_ ;
+
+    my $node = $cw->{node} ;
+    my $f = $cw->Frame(-relief=> 'groove', -borderwidth => 1);
+    $f ->pack(-side =>'top',@fx) ;
+
+    my $accepted = '' ;
+    $f -> Label(-text => 'accept : /'.join('/, /',@rexp).'/') -> pack ;
+
+    my $e = $f->Entry(-textvariable => \$accepted)
+		  ->pack(qw/-side left -anchor w/,@fxe1) ;
+    my $sub = sub {
+    	return unless $accepted ;
+    	my $ok = 0 ;
+    	map { $ok ++ if $accepted =~ /^$_$/ } @rexp ; 
+	if (not $ok) {
+	    die "Cannot accept $accepted, it does not match any accepted regexp\n";
+	}
+    	$node->fetch_element($accepted); 
+	$cw->{store_cb}->();
+	$cw->fill_pane; 
+	$cw->{pane}->yview(moveto => 1);
+    };
+    
+    $e->bind("<Return>"   => $sub) ;
 }
 
 1;
