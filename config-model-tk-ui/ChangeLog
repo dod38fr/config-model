@@ -1,5 +1,12 @@
+2011-10-10  Dominique Dumont  <domi.dumont@free.fr> 1.330
+
     * dist.ini (hence Build.PL): added Tk::Pod dependency
       (Fix RT# 72229)
+    + NodeEditor: Added widget to add element when node has 
+      an accept clause 
+    * TkUI: trim also default value displayed in tk tree 
+    * ListEditor: do not update list widget when modif was 
+      refused by Config::Model
 
 2011-10-10  Dominique Dumont  <domi.dumont@free.fr> 1.329
 
