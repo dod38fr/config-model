@@ -1,4 +1,4 @@
-2011-11-26  Dominique Dumont  <domi.dumont@free.fr> 1.263
+2011-11-29  Dominique Dumont  <domi.dumont@free.fr> 1.263
 
     * Application changes:
         * model Multistrap:
@@ -6,6 +6,8 @@
           + added deprecated forceunpack parameter (migrated to unpack). 
           + force sections and key names to be lowercase
           + added components parameter to Multistrap::Section model
+        * model Debian::Dpkg:
+          - removed email checks
 	* bash_completion: use new Lister class to gain a lot of speed
 
     * Framework changes:
