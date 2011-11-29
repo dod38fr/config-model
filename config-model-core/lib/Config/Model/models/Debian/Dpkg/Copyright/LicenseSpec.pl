@@ -5,8 +5,9 @@
       '.*',
       {
         'value_type' => 'string',
-        'type' => 'leaf'
-      }
+        'type' => 'leaf',
+        description => 'license short_name. Example: GPL-1 LPL-2.1+',
+       }
     ],
     'name' => 'Debian::Dpkg::Copyright::LicenseSpec',
     'copyright' => [
