@@ -10,11 +10,13 @@ use subs qw/menu_struct/ ;
 
 use Tk::NoteBook;
 use Config::Model::Tk::NoteEditor ;
+use Log::Log4perl;
 
 Construct Tk::Widget 'ConfigModelCheckListEditor';
 
 my $up_img;
 my $down_img;
+my $logger = Log::Log4perl::get_logger("Tk::CheckListEditor");
 
 *icon_path = *Config::Model::TkUI::icon_path;
 
@@ -171,6 +173,7 @@ sub move_selected_down {
     return unless @idx and $idx[0] < $#h_idx;
 
     my $name = $order_list->get(@idx);
+    $logger->debug("move_selected_down: $name (@idx)");
 
     $order_list -> delete(@idx) ;
     my $new_idx = $idx[0] + 1 ;
