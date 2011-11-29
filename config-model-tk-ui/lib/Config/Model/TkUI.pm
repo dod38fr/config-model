@@ -811,7 +811,7 @@ sub disp_leaf {
 
     $tkt->itemCreate($path,2, -text => $cw->trim_value($value)) ;
 
-    $tkt->itemCreate($path,3, -text => $std_v) ;
+    $tkt->itemCreate($path,3, -text => $cw->trim_value($std_v)) ;
 }
 
 sub disp_node {
