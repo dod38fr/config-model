@@ -1,3 +1,9 @@
+2011-11-29  Dominique Dumont  <domi.dumont@free.fr> 1.264
+
+    * Application changes:
+        * model Debian::Dpkg:
+          - removed another email check (was hiding in a hg branch)
+
 2011-11-29  Dominique Dumont  <domi.dumont@free.fr> 1.263
 
     * Application changes:
