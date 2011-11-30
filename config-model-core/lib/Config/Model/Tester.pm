@@ -376,7 +376,7 @@ Here, C<t0> file will be copied in C<wr_root/test-t0/etc/fstab>.
  
 =head2 Test specification with arbitrary file names
 
-In some models (e.g. C<Multistrap>, the config file is choosen by the user. 
+In some models (e.g. C<Multistrap>, the config file is chosen by the user. 
 In this case, the file name must be specified for each tests case:
 
  $model_to_test = "Multistrap";
