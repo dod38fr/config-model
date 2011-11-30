@@ -1,4 +1,9 @@
-2011-10-10  Dominique Dumont  <domi.dumont@free.fr> 1.330
+2011-11-30  Dominique Dumont  <domi.dumont@free.fr> 1.331
+
+    * dist.ini (hence Build.PL): Depends on Config::Model 1.263
+      (Fixes a bug triggered by new NodeEditor widget)
+
+2011-11-29  Dominique Dumont  <domi.dumont@free.fr> 1.330
 
     * dist.ini (hence Build.PL): added Tk::Pod dependency
       (Fix RT# 72229)
