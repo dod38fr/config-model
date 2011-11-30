@@ -10,6 +10,15 @@
     'element' => [
       'Synopsis',
       {
+        'warn_unless' => {
+          'empty' => {
+            'msg' => 'Empty synopsis',
+            'fix' => '$_ = ucfirst( $self->parent->index_value )  ;
+s/-/ /g;
+',
+            'code' => 'defined $_ && /\\w/ ? 1 : 0 ;'
+          }
+        },
         'value_type' => 'uniline',
         'warn_if_match' => {
           '.{60,}' => {
@@ -17,15 +26,6 @@
           }
         },
         'summary' => 'short description of the patch',
-        'warn_unless' => {
-          'empty' => {
-            'code' => 'defined $_ && /\w/ ? 1 : 0 ;', 
-            'msg' => 'Empty synopsis',
-            'fix' => '$_ = ucfirst( $self->parent->index_value )  ;
-s/-/ /g;
-'
-          }
-        },
         'type' => 'leaf'
       },
       'Description',

@@ -21,7 +21,6 @@
       {
         'value_type' => 'uniline',
         'summary' => 'package maintainer\'s name and email address',
-        'match' => '[\\w\\s\\-]+<[\\w\\.\\-\\@]+>',
         'mandatory' => '1',
         'type' => 'leaf',
         'description' => 'The package maintainer\'s name and email address. The name must come first, then the email address inside angle brackets <> (in RFC822 format).
