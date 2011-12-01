@@ -1,7 +1,7 @@
 2011-11-29  Dominique Dumont  <domi.dumont@free.fr> 1.228
 
     * Requires Config::Model >= 1.263
-	* Meta model:
+    * Meta model changes:
         * Itself/CommonElement: enable convert for hash indexes. 
         * Itself/Class, added in ini backend a lot of paramaters to
           cope with various conventions:
