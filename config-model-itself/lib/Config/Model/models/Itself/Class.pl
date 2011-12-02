@@ -263,6 +263,41 @@
                 },
             },
 
+            force_lc_section => {
+                type => 'leaf',
+                value_type => 'boolean',
+                level      => 'hidden',
+                upstream_default => 0,
+                description => "force section to be lowercase",
+                warp => {
+                    follow => '- backend',
+                    rules  => [ ini_file => { level => 'normal', } ],
+                }
+            },
+            force_lc_key => {
+                type => 'leaf',
+                value_type => 'boolean',
+                level      => 'hidden',
+                upstream_default => 0,
+                description => "force key names to be lowercase",
+                warp => {
+                    follow => '- backend',
+                    rules  => [ ini_file => { level => 'normal', } ],
+                }
+            },
+            force_lc_value => {
+                type => 'leaf',
+                value_type => 'boolean',
+                level      => 'hidden',
+                upstream_default => 0,
+                description => "force values to be lowercase",
+                warp => {
+                    follow => '- backend',
+                    rules  => [ ini_file => { level => 'normal', } ],
+                }
+            },
+
+
             'config_file' => {
                 type       => 'leaf',
                 value_type => 'uniline',

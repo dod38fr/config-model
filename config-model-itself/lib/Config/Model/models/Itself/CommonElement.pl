@@ -264,12 +264,11 @@ my %assert_payload = (
                 value_type => 'enum',
                 level      => 'hidden',
                 experience => 'advanced',
-                description =>
-'When stored, the value will be converted to uppercase (uc) or lowercase (lc).',
+                description => 'Convert value or index to uppercase (uc) or lowercase (lc).',
                 warp => {
                     follow  => { 't' => '?type' },
                     'rules' => [
-                        '$t eq "leaf"' => {
+                        '$t eq "leaf" or $t eq "hash"' => {
                             choice => [qw/uc lc/],
                             level  => 'normal',
                         }

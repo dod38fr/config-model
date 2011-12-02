@@ -1,3 +1,18 @@
+2011-11-29  Dominique Dumont  <domi.dumont@free.fr> 1.228
+
+    * Requires Config::Model >= 1.263
+    * Meta model changes:
+        * Itself/CommonElement: enable convert for hash indexes. 
+        * Itself/Class, added in ini backend a lot of paramaters to
+          cope with various conventions:
+          + force_lc_* parameters. 
+          + write_boolean_as parameter
+          + join_list_value parameter
+          + store_class_in_hash section_map split_list_value 
+        * Itself/CommonElement: max_index can be used in lists
+        * Itself/NonWarpableElement:
+          + added write_as parameter (for booleans)
+
 2011-09-15  Dominique Dumont  <domi.dumont@free.fr> 1.227
 
 	* MigratedValue.pl: replaced value can be a string, not only a
