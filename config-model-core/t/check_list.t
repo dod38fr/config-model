@@ -9,7 +9,7 @@ use Config::Model;
 use Data::Dumper;
 use Log::Log4perl qw(:easy :levels) ;
 
-BEGIN { plan tests => 78; }
+BEGIN { plan tests => 79; }
 
 use strict;
 
@@ -153,7 +153,43 @@ $model->create_config_class(
         refer_to_dumb_list => {
             type     => 'check_list',
             refer_to => '- dumb_list + - my_hash',
-        }
+        },
+              'Ciphers',
+      {
+        'ordered' => '1',
+        'experience' => 'master',
+        'upstream_default_list' => [
+          '3des-cbc',
+          'aes128-cbc',
+          'aes128-ctr',
+          'aes192-cbc',
+          'aes192-ctr',
+          'aes256-cbc',
+          'aes256-ctr',
+          'arcfour',
+          'arcfour128',
+          'arcfour256',
+          'blowfish-cbc',
+          'cast128-cbc'
+        ],
+        'type' => 'check_list',
+        'description' => 'Specifies the ciphers allowed for protocol version 2 in order of preference. By default, all ciphers are allowed.',
+        'choice' => [
+          'aes128-cbc',
+          '3des-cbc',
+          'blowfish-cbc',
+          'cast128-cbc',
+          'arcfour128',
+          'arcfour256',
+          'arcfour',
+          'aes192-cbc',
+          'aes256-cbc',
+          'aes128-ctr',
+          'aes192-ctr',
+          'aes256-ctr'
+        ]
+      },
+
     ]
 );
 
@@ -407,12 +443,12 @@ is( $p_cl->fetch('preset'),
     "C,H,L", "choice_list: read preset value as preset_value" );
 is( $p_cl->fetch('standard'),
     "C,H,L", "choice_list: read preset value as standard_value" );
-is( $p_cl->fetch('custom'), "A,S", "choice_list: read custom_value" );
+is( $p_cl->fetch('custom'), "A,C,H,L,S", "choice_list: read custom_value" );
 
 $p_cl->set_checked_list(qw/A S H E/);
 is( $p_cl->fetch, "A,E,H,S", "choice_list: read overridden preset LIST" );
 is( $p_cl->fetch('custom'),
-    "A,E,S", "choice_list: read custom_value after override" );
+    "A,E,H,S", "choice_list: read custom_value after override" );
 
 my $wrtl =
   $p_root->fetch_element( name => 'warped_refer_to_list', accept_hidden => 1 );
@@ -467,3 +503,8 @@ my $oclrt = $root->fetch_element('ordered_checklist_refer_to');
 @got = $oclrt->get_choice();
 is_deeply( \@got, [qw/Y V C Z B A/],
     "test default of ordered_checklist_refer_to" );
+
+my $ciphers = $root->fetch_element('Ciphers');
+my @cipher_list = qw/aes192-cbc aes128-cbc 3des-cbc blowfish-cbc aes256-cbc/ ;
+$ciphers->set_checked_list(@cipher_list) ;
+eq_or_diff( [ $ciphers->get_checked_list ], \@cipher_list, "check cipher list");
