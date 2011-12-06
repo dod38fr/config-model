@@ -943,6 +943,7 @@ sub store_set { goto &set_checked_list }
 
 sub set_checked_list {
     my $self = shift ;
+    $logger->debug("called with @_");
     $self->clear ;
     $self->{ordered_data} = [ @_ ] ; # copy list
     $self->check (@_) ;
