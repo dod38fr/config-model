@@ -512,7 +512,7 @@ $l_enum->store('B');
 $layer_inst->layered_stop;
 is( $layer_inst->layered, 0, "instance in normal mode" );
 
-is( $l_scalar->fetch, undef, "scalar: read layered value as value" );
+is( $l_scalar->fetch, 0, "scalar: read layered value as value" );
 $l_scalar->store(4);
 is( $l_scalar->fetch, 4, "scalar: read overridden layered value as value" );
 is( $l_scalar->fetch('layered'), 3,
@@ -521,7 +521,7 @@ is( $l_scalar->fetch_standard, 3,
     "scalar: read standard_value" );
 is( $l_scalar->fetch_custom, 4, "scalar: read custom_value" );
 
-is( $l_enum->fetch, undef, "enum: read layered value as value" );
+is( $l_enum->fetch, 'B', "enum: read layered value as value" );
 $l_enum->store('C');
 is( $l_enum->fetch, 'C', "enum: read overridden layered value as value" );
 is( $l_enum->fetch('layered'), 'B', "enum: read layered value as layered_value" );
