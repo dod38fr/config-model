@@ -1929,6 +1929,7 @@ sub _pre_fetch {
 	$std_value 
 	  = defined $self->{preset}        ? $self->{preset}
           : defined $self->{compute}       ? $self->compute 
+          : defined $self->{layered}       ? $self->{layered}
           :                                  $self->{default} ;
     };
 
