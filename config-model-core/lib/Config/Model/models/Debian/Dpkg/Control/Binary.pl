@@ -17,6 +17,22 @@
         'description' => 'If a program needs to specify an architecture specification string in some place, it should select one of the strings provided by dpkg-architecture -L. The strings are in the format os-arch, though the OS part is sometimes elided, as when the OS is Linux. 
 A package may specify an architecture wildcard. Architecture wildcards are in the format any (which matches every architecture), os-any, or any-cpu. For more details, see L<http://www.debian.org/doc/debian-policy/ch-customized-programs.html#s-arch-spec| Debian policy>'
       },
+      'Multi-Arch',
+      {
+        'value_type' => 'enum',
+        'help' => {
+          'foreign' => 'the package is not co-installable with itself, but should be allowed to satisfy the dependency of a package of a different arch from itself.',
+          'allowed' => 'allows reverse-dependencies to indicate in their Depends field that they need a package from a foreign architecture, but has no effect otherwise.',
+          'same' => 'the package is co-installable with itself, but it must not be used to satisfy the dependency of any package of a different architecture from itself.'
+        },
+        'type' => 'leaf',
+        'description' => 'This field is used to indicate how this package should behave on a multi-arch installations. This field should not be present in packages with the Architecture: all field.',
+        'choice' => [
+          'same',
+          'foreign',
+          'allowed'
+        ]
+      },
       'Section',
       {
         'value_type' => 'uniline',
