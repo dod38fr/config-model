@@ -1,3 +1,16 @@
+2011-12-06  Dominique Dumont  <domi.dumont@free.fr> 1.265
+
+    * Application changes:
+        * model Debian::Dpkg: 
+          + added Multi-Arch parameter
+          * don't fail when debian/copyright is missing or empty
+
+    * Framework changes:
+        * Config::Model::Value: layered value is also part of a standard value
+        * Config::Model::CheckList: in custom mode, checklist must return the whole
+          list when queried by user, not just the changed items. 
+          (Fix Config::Model:OpenSsh RT#72916)        
+
 2011-11-29  Dominique Dumont  <domi.dumont@free.fr> 1.264
 
     * Application changes:
