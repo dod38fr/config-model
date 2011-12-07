@@ -40,11 +40,11 @@ sub read {
     $logger->info("ssh_read: reading ".($is_user ? 'user' :'root').
 		 " ssh config in ". ($is_user ? $home_dir : $args{config_dir}));
 
-    $instance -> preset_start if $is_user ; # regular user
+    $instance -> layered_start if $is_user ; # regular user
 
     my $ret = $self->read_ssh_file( @_, file => 'ssh_config' ) ;
 
-    $instance -> preset_stop if $is_user ;
+    $instance -> layered_stop if $is_user ;
 
     if ( $is_user) {
 	# don't croak if user config file is missing
@@ -76,9 +76,9 @@ sub forward {
     my $elt_name = $key =~ /local/i ? 'Localforward' : 'RemoteForward' ;
     my $size = $self->current_node->fetch_element($key)->fetch_size;
 
-    $logger->info("ssh: load $key '".join("','", @$args)."'");
-
     my $v6 = ($args->[1] =~ m![/\[\]]!) ? 1 : 0;
+
+    $logger->info("ssh: load $key '".join("','", @$args)."' ". ( $v6 ? 'IPv6' : 'IPv4'));
 
     # cleanup possible square brackets used for IPv6
     foreach (@$args) {s/[\[\]]+//g;}
@@ -101,6 +101,7 @@ sub forward {
     $load_str .= "bind_address=$bind_adr " if defined $bind_adr ;
     $load_str .= "port=$port host=$host hostport=$host_port";
 
+    $logger->debug("load string $load_str") ; 
     $self->current_node -> load($load_str) ;
 }
 
