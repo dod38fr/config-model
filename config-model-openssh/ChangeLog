@@ -1,3 +1,11 @@
+2011-12-07  Dominique Dumont <domi.dumont@free.fr> v 1.219
+
+	* Ssh model: do not warp LocalForward with GatewayPorts. 
+	  They are independant
+	* Ssh backend: store root config in layered data instead of 
+	  preset data (also fix RT#72916) 
+	* Depends on Config::Model 1.265
+
 2011-07-22  Dominique Dumont <domi.dumont@free.fr> v 1.218
 
         * OpenSsh backend: Fix bug that tried to open a file in /etc 
