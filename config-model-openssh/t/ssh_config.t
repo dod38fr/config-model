@@ -1,7 +1,7 @@
 # -*- cperl -*-
 
 use ExtUtils::testlib;
-use Test::More tests => 20;
+use Test::More tests => 21;
 use Config::Model ;
 use Config::Model::Backend::OpenSsh::Ssh ; # required for tests
 use Log::Log4perl qw(:easy) ;
@@ -81,6 +81,8 @@ print "Test from directory $testdir\n" if $trace ;
 # special global variable used only for tests
 &Config::Model::Backend::OpenSsh::Ssh::_set_test_ssh_root_file(1);
 
+note "Running test like root (no layered config)" ;
+
 my $root_inst = $model->instance (root_class_name   => 'Ssh',
 				  instance_name     => 'root_ssh_instance',
 				  root_dir          => $wr_dir,
@@ -91,7 +93,7 @@ ok($root_inst,"Read $wr_dir/etc/ssh/ssh_config and created instance") ;
 my $root_cfg = $root_inst -> config_root ;
 $root_cfg->init ;
 
-my $ciphers = $root_cfg->fetch_element('Ciphers') ;
+my $ciphers = $root_cfg->grab('Host:"*" Ciphers') ;
 
 # require Tk::ObjScanner; Tk::ObjScanner::scan_object($ciphers) ;
 
@@ -113,7 +115,9 @@ like($dump,qr/port=22080/, "check user LocalForward port ipv6") ;
 like($dump,qr/host=2001:0db8:85a3:0000:0000:8a2e:0370:7334/, 
      "check user LocalForward host ipv6") ;
 
-$root_inst->write_back() ; ok(1,"wrote ssh_config data in $wr_dir") ;
+$root_inst->write_back() ; 
+
+ok(1,"wrote ssh_config data in $wr_dir") ;
 
 my $inst2 = $model->instance (root_class_name   => 'Ssh',
 			      instance_name     => 'root_ssh_instance2',
@@ -131,6 +135,7 @@ SKIP: {
     skip "user tests when test is run as root", 8
        unless $EUID > 0 ;
 
+    note "Running test like user with layered config";
 
     # now test reading user configuration file on top of root file
     &Config::Model::Backend::OpenSsh::Ssh::_set_test_ssh_root_file(0);
