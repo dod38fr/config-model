@@ -20,19 +20,7 @@ to specify port forwarding in a ssh configuration.',
       'bind_address',
       {
         'value_type' => 'uniline',
-        'level' => 'hidden',
         'summary' => 'bind address to listen to',
-        'warp' => {
-          'follow' => {
-            'gp' => '- - GatewayPorts'
-          },
-          'rules' => [
-            '$gp',
-            {
-              'level' => 'normal'
-            }
-          ]
-        },
         'type' => 'leaf',
         'description' => "Specify the address that the port will listen to. By default, only connections coming from localhost (127.0.0.1) will be forwarded.
 
