@@ -136,6 +136,25 @@ A package may specify an architecture wildcard. Architecture wildcards are in th
         'value_type' => 'enum',
         'summary' => 'The type of the package, if not a regular Debian one',
         'experience' => 'advanced',
+        'migrate_from' => {
+          'formula' => '$xc',
+          'variables' => {
+            'xc' => '- XC-Package-Type'
+          }
+        },
+        'type' => 'leaf',
+        'description' => 'If this field is present, the package is not a regular Debian package, but either a udeb generated for the Debian installer or a tdeb containing translated debconf strings.',
+        'choice' => [
+          'tdeb',
+          'udeb'
+        ]
+      },
+      'XC-Package-Type',
+      {
+        'value_type' => 'enum',
+        'summary' => 'The type of the package, if not a regular Debian one',
+        'status' => 'deprecated',
+        'experience' => 'advanced',
         'type' => 'leaf',
         'description' => 'If this field is present, the package is not a regular Debian package, but either a udeb generated for the Debian installer or a tdeb containing translated debconf strings.',
         'choice' => [
