@@ -1,0 +1,774 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+use Config::Model;
+use Config::Model::Lister;
+use Getopt::Long;
+use Pod::Usage;
+use Log::Log4perl qw(get_logger :levels);
+use POSIX qw/setsid/;
+
+my $log4perl_syst_conf_file = '/etc/log4config-model.conf';
+my $log4perl_user_conf_file = $ENV{HOME} . '/.log4config-model';
+my $fallback_conf           = << 'EOC';
+log4perl.logger=WARN, Screen
+log4perl.appender.Screen        = Log::Log4perl::Appender::Screen
+log4perl.appender.Screen.stderr = 0
+log4perl.appender.Screen.layout = Log::Log4perl::Layout::PatternLayout
+log4perl.appender.Screen.layout.ConversionPattern = %d %m %n
+EOC
+
+my $log4perl_conf =
+    -e $log4perl_user_conf_file ? $log4perl_user_conf_file
+  : -e $log4perl_syst_conf_file ? $log4perl_syst_conf_file
+  :                               \$fallback_conf;
+
+Log::Log4perl::init($log4perl_conf);
+
+my $ui_type;
+
+eval { require Config::Model::TkUI; };
+my $has_tk = $@ ? 0 : 1;
+
+eval { require Config::Model::CursesUI; };
+my $has_curses = $@ ? 0 : 1;
+
+eval { require Config::Model::FuseUI; };
+my $has_fuse = $@ ? 0 : 1;
+
+my $model_dir;
+my $root_model;
+my $trace = 0;
+my $root_dir;
+
+my $man        = 0;
+my $help       = 0;
+my $force_load = 0;
+my $dev        = 0;
+my $backend;
+my $experience = 'beginner';
+my $dumptype;
+my $load;
+my $force_save  = 0;
+my $open_item   = '';
+my $fuse_dir;
+my $fuse_debug  = 0;
+my $apply_fixes = 0;
+my $search;
+my $search_type = 'all';
+
+my @global_options = (
+    "model_dir|model-dir=s"         => \$model_dir,
+    "experience=s"                  => \$experience,
+    "dev!"                          => \$dev,
+    "force_load|force-load!"        => \$force_load,
+    "root_dir|root-dir=s"           => \$root_dir,
+    "backend=s"                     => \$backend,
+    );
+
+my %command_option = (
+    list    => [],
+    check   => [],
+    migrate => [],
+    fix     => [],
+    modify  => [],
+    search  => [ 
+        "search=s"                      => \$search,
+        "narrow-search=s"               => \$search_type, 
+    ],
+    edit    => [
+        "ui|if=s"               => \$ui_type,
+        "open_item|open-item=s" => \$open_item,
+    ],
+    dump   => [ "dumptype:s" => \$dumptype, ],
+    fusefs => [
+        "fuse_dir|fuse-dir=s" => \$fuse_dir,
+        "dfuse!"              => \$fuse_debug,
+    ],
+);
+
+# retrieve the main command, i.e. the first arg without leading dash
+my ($command) = grep { ! /^-/ } @ARGV ;
+pod2usage(2) unless defined $command ;
+$command // pod2usage(2) ;
+
+my $cmd_options =  $command_option{$command} 
+    || pod2usage(2) ;
+
+my $result = GetOptions( @global_options, @$cmd_options);
+
+pod2usage(2) if not $result;
+pod2usage(1) if $command eq 'help';
+pod2usage( -verbose => 2 ) if $command eq 'man';
+
+# now @ARGV should be $command, $application, [ $config_file ]
+shift @ARGV;
+my $application = shift @ARGV ;
+
+# ignore $dev if run as root
+if ( $> and $dev ) {
+    unshift @INC, 'lib';
+    $model_dir = 'lib/Config/Model/models/';
+    warn "-dev option is ignored when run as root\n";
+}
+
+Config::Model::Exception::Any->Trace(1) if $trace;
+
+if ( defined $root_dir && !-e $root_dir ) {
+    mkdir $root_dir, 0755 || die "can't create $root_dir:$!";
+}
+
+my $model = Config::Model->new( model_dir => $model_dir );
+
+my ( $categories, $appli_info, $appli_map ) =
+  Config::Model::Lister::available_models;
+
+$root_model = $appli_map->{$application}
+  if $application and defined $appli_map->{$application};
+  
+if ( $command eq 'list') {
+    print "The following applications are available:\n";
+    foreach my $cat ( keys %$categories ) {
+        my $names = $categories->{$cat} || [];
+        next unless @$names;
+        print "$cat:\n\t", join( "\n\t", @$names ), "\n";
+    }
+    exit 1;
+}
+
+my $instance_name = $application || $root_model ;
+
+my $config_file ;
+$config_file = shift @ARGV if $appli_info->{require_config_file} ;
+
+# use name found by available_models if found
+$root_model = $appli_info->{$root_model}{model} || $root_model;
+
+my $inst = $model->instance(
+    root_class_name => $root_model,
+    instance_name   => $instance_name,
+    root_dir        => $root_dir,
+    check           => $force_load ? 'no' : 'yes',
+    skip_read       => $load ? 1 : 0,
+    backend         => $backend,
+    config_file     => $config_file,
+);
+
+my $root = $inst->config_root;
+
+if ($command eq 'edit' and not defined $ui_type ) {
+    if ($has_tk) {
+        $ui_type = 'tk';
+    }
+    elsif ($has_curses) {
+        warn "You should install Config::Model::TkUI for a ",
+            "more friendly user interface\n";
+        $ui_type = 'curses';
+    }
+    else {
+        warn "You should install Config::Model::TkUI or ",
+            "Config::Model::CursesUI ", 
+            "for a more friendly user interface\n";
+        $ui_type = 'shell';
+    }
+}
+
+
+if ( $command =~ /dump/ ) {
+    my $dump_string = $root->dump_tree( mode => $dumptype || 'custom' );
+    print $dump_string ;
+}
+elsif ( $command eq 'search' ) {
+    pod2usage(-message => "missing -search option with search command" )
+        unless defined $search;
+    my @res = $root->tree_searcher( type => $search_type )->search($search);
+    foreach my $path ( @res ) {
+        print "$path";
+        my $obj = $root->grab($path);
+        if ( $obj->get_type =~ /leaf|check_list/ ) {
+            my $v = $obj->fetch;
+            $v = defined $v ? $v : '<undef>';
+            print " -> '$v'";
+        }
+        print "\n";
+    }
+}
+elsif ($command eq 'fix') {
+    $inst->apply_fixes;
+    $force_save = 1;
+}
+elsif ( $command eq 'modify' ) {
+    $root->load("@ARGV");
+    $force_save = 1;
+}
+elsif ( $command =~ /^fuse/ ) {
+    die "could not load Config::Model::FuseUI. Is Fuse installed ?\n"
+      unless $has_fuse;
+    die "Missing -fuse_dir option\n" unless defined $fuse_dir;
+    die "Directory $fuse_dir does not exists\n" unless -d $fuse_dir;
+
+    my $ui = Config::Model::FuseUI->new(
+        root       => $root,
+        mountpoint => "$fuse_dir",
+    );
+
+    print "Mounting config on $fuse_dir in background.\n",
+        "Use command 'fusermount -u $fuse_dir' to unmount\n";
+
+    # now fork
+    my $pid = fork;
+
+    if ( defined $pid and $pid == 0 ) {
+
+        # child process, just run fuse and wait for exit
+        $ui->run_loop( debug => $fuse_debug );
+        $force_save = 1;
+    }
+    else {
+        exit;    # don't save data in parent process
+    }
+}
+elsif ( $command eq 'edit' ) {
+    if ( $ui_type eq 'simple' ) {
+
+        # experience not yet implemented
+        require Config::Model::SimpleUI;
+        my $shell_ui = Config::Model::SimpleUI->new(
+            root   => $root,
+            title  => $root_model . ' configuration',
+            prompt => ' >',
+        );
+
+        # engage in user interaction
+        $shell_ui->run_loop;
+    }
+    elsif ( $ui_type eq 'shell' ) {
+
+        # experience not yet implemented
+        require Config::Model::TermUI;
+        my $shell_ui = Config::Model::TermUI->new(
+            root   => $root,
+            title  => $root_model . ' configuration',
+            prompt => ' >',
+        );
+
+        # engage in user interaction
+        $shell_ui->run_loop;
+    }
+    elsif ( $ui_type eq 'curses' ) {
+        die "cannot run curses interface: ",
+            "Config::Model::CursesUI is not installed\n"
+          unless $has_curses;
+        my $err_file = '/tmp/config-edit-error.log';
+
+        print "In case of error, check $err_file\n";
+
+        open( FH, "> $err_file" ) || die "Can't open $err_file: $!";
+        open STDERR, ">&FH";
+
+        my $dialog = Config::Model::CursesUI->new( experience => $experience, );
+
+        # engage in user interaction
+        $dialog->start($model);
+
+        close FH;
+    }
+    elsif ( $ui_type eq 'tk' ) {
+        die "cannot run Tk interface: Config::Model::CursesUI is not installed\n"
+          unless $has_tk;
+
+        require Tk;
+        require Tk::ErrorDialog;
+        Tk->import;
+
+        my $mw = MainWindow->new;
+        $mw->withdraw;
+
+        # Thanks to Jerome Quelin for the tip
+        $mw->optionAdd( '*BorderWidth' => 1 );
+
+        my $cmu = $mw->ConfigModelUI( 
+            -root => $root, 
+            -experience => $experience 
+        );
+
+        if ($open_item) {
+            my $obj = $root->grab($open_item);
+            $cmu->force_element_display($obj);
+        }
+
+        &MainLoop;    # Tk's
+    }
+    elsif ( $ui_type =~ /^no/i ) {
+
+        # trigger a dump to load all sub-models
+        my $dump = $root->dump_tree;
+        $force_save = 1 if $apply_fixes or $load or @ARGV;
+    }
+    else {
+        die "Unsupported user interface: $ui_type";
+    }
+}
+
+$inst->write_back if $force_save;
+
+exit 0;
+
+__END__
+
+=pod
+
+=head1 NAME
+
+cfg - Edit data of configuration managed by Config::Model
+
+=head1 SYNOPSIS
+
+  # edit dpkg config with GUI
+  cfg edit dpkg 
+  
+  # just check the validity of the file 
+  cfg check multistrap file.conf 
+  
+  # check the file, update deprecated parameters and save
+  cfg migrate dpkg 
+  
+  # like migrate, but also apply all suggested fixes
+  cfg fix dpkg 
+  
+  # modify configuration with command line
+  cfg modify dpkg source format="quilt (3.0)"
+  
+  cfg edit multistrap my.conf 
+
+  cfg fusefs multistrap my.conf -d fuse_dir
+
+  
+  cfg fusefs dpkg -d fuse_dir
+  
+  # list all available application
+  cfg list 
+  
+  # more general synopsis
+  cfg [ global_options ] command application [ options ] arguments
+  
+=head1 DESCRIPTION
+
+C<config-edit> program will use Config::Model configuration
+descriptions to validate or modify the configuration file of an application.
+
+You can specify commands as arguments that will be run on the
+configuration root before launching the UI. These command follow the
+syntax defined in L<Config::Model::Loader>.
+
+C<config-edit> can be run in several modes depending on your needs.
+
+=head2 Graphical interface
+
+  config-edit -application popcon
+
+Provides a user interface so user can easily and
+securely modify the configuration of their system.
+
+=head2 Curses interface
+
+  config-edit -ui curses -application popcon
+
+Provides a curses user interface
+
+=head2 Shell like interface
+
+  config-edit -ui shell -application popcon
+  
+Provides a shell like interface
+
+=head2 upgrade mode
+
+  config-edit -ui none -application popcon -save
+
+Loads configuration date, perform validation and migration of old data 
+(if specified by the model) and save the new configuration file.
+
+=head2 Direct modification of configuration data
+
+  config-edit -ui none -application popcon PARTICIPATE=yes
+
+Loads old configuration data, update C<PARTICIPATE> data, checks the modification 
+and save the configuration back. Option C<-save> is not needed as the data was modified
+by the command line.
+
+=head2 Generation of configuration documentation
+
+  config-edit -model Popcon -gen-pod [ output_dir ] 
+
+Generate pod documentation on STDOUT or write them in the specified directory. Note that
+one pod file will be created per class.
+
+To get man pages or text docuement, you can pipe the output of the command:
+
+ config-edit -model Popcon -doc  | pod2man > popcon-conf.3
+
+=head1 Options
+
+=over
+
+=item application
+
+Application name to be configured. Specify C<help> to get a list of available 
+applications.
+
+=item file
+
+Configuration file name. Used only for models without standard configuration 
+file name. (e.g. multistrap)
+
+=item -model
+
+Specifies the model used to edit configuration data. Specify C<help> to
+get a list of available applications. This option is ignored when C<-
+application> is specified
+
+=item -ui
+
+Specify the user interface type. 
+
+=over
+
+=item *
+
+C<tk>: provides a Tk graphical interface (If L<Config::Model::TkUI> is
+installed).
+
+=item *
+
+C<curses>: provides a curses user interface (If
+L<Config::Model::CursesUI> is installed).
+
+=item *
+
+C<shell>: provides a shell like interface.  See L<Config::Model::TermUI>
+for details.
+
+=item *
+
+C<fuse>: provides an interface through a FUSE virtual file system. You must give a directory where
+the virtual file system will be mounted with option C<-fuse_dir>. 
+To stop (and write the configuration data back to the configuration file), 
+run C<< fusermount -u <mounted_fuse_dir> >>. (This is experimental. Mount point 
+specification may change in the future)
+
+=item *
+
+C<none>: No UI provided. Only command line arguments are handled.
+
+=back
+
+=item -dev
+
+Use this option if you want to test a model under development. This
+option will add C<lib> in C<@INC> and use C<lib/Config/Model/models>
+as model directory. This option is ignored when run as root.
+
+=item -model-dir
+
+Specify an alternate directory to find model files. Mostly useful for
+tests.
+
+=item -instance-name
+
+Specify an instance name. By default the instance name is copied from
+model name. 
+
+=begin comment 
+
+Could be useful for a backup config data feature. To be implemented
+
+=end comment
+
+=item -root-dir
+
+Specify a pseudo root directory to read and write the configuration
+files. (Actual default directory and file names depends on the model
+(See C<-model> option). For instance, if you specify C<~/mytest>, the
+C</etc/ssh/sshd_config> files will be written in C<~/mytest/etc/ssh/>
+directory.
+
+=item -config-file 
+
+Specify the configuration file to edit (which may override the file specified by the model).
+ Note that some applicaitions (like multistrap)
+will require this option. For other models (like Debian::Dpkg), this option may not make sense
+as several files are used.
+
+=item -verbose
+
+Be (very) verbose
+
+=item -debug
+
+Provide debug infos.
+
+=item -trace
+
+Provides a full stack trace when exiting on error.
+
+=item -force-load
+
+Load file even if error are found in data. Bad data are discarded
+
+=item -apply-fixes
+
+Apply fixes mentioned in model description. 
+For details, see C<warn_if_match> or C<warn_unless_match> 
+in L<Config::Model::Value/>. Configuration files will be saved if 
+invoked with C<-ui none> .
+
+=item -backend
+
+Specify a read/write backend. The actual backend name depends on the model
+passed to C<-model> option. See L<Config::Model::AutoRead> for details.
+
+=item -dump [ file ]
+
+Dump configuration content on STDOUT or in the specified with
+Config::Model syntax.
+
+By default, dump only custom values, i.e. different from application
+built-in values or model default values. See -dumptype option for
+other types of dump
+
+=item -dumptype [ full | preset | custom ]
+
+Choose to dump every values (full), only preset values or only
+customized values (default)
+
+=item -load <cds_file_to_load>
+
+Load configuration data in model from cds file (using Config::Model
+serialisation format, typically done with -dump option). When this
+option is used, the usual configuration files will not be read.
+
+If used with C<-ui none>, this option will load configuration data, 
+validate it and save it in configuration file (if no error was found).
+
+=item -save
+
+Force re-writing the configuration. (useful for configuration upgrade)
+
+=item -open-item 'path'
+
+In graphical mode, force the UI to open the node specified. E.g.
+
+ -open-item 'foo bar'
+
+=item -fuse-dir
+
+Directory where the FUSE virtual file system will be mounted (with C<-ui fuse>)
+
+=back
+
+=head1 Search
+
+You can search the configuration with the following options
+
+=over 
+
+=item -search
+
+Specifies a string or pattern to search. C<config-edit> will a list of path pointing 
+to the matching tree element and their value. 
+See L<Config::Model::AnyThing/grab(...)> for details
+on the path syntax.
+
+=item -narrow-search
+
+Narrows down the search to:
+
+=over 
+
+=item element 
+
+=item value 
+
+=item key 
+
+=item summary 
+
+Summary text
+
+=item description
+
+description text 
+
+=item help
+
+value help text
+
+=back 
+
+=back 
+
+=head1 Embedding config-edit
+
+You can use config-edit from another program by using C<-ui simple>
+option. This way you will be able to send command on the standard input
+of C<config-edit> and get the results from the standard output.
+
+=head1 Saving configuration data
+
+Configuration data are saved only when :
+
+=over
+
+=item *
+
+Requested through the user interface
+
+=item *
+
+When commands are specified with arguments
+
+=item *
+
+When C<-load> option is used
+
+=item *
+
+When C<-save> option is used
+
+=back
+
+You can run safely C<config-edit -ui none> to test a configuration,
+configuration files will not be modified in this case.
+
+=head1 Logging
+
+All Config::Model logging is now based on L<Log::Log4perl>. 
+Logging can be configured in the following files:
+
+=over
+
+=item *
+
+ ~/.log4config-model
+
+=item * 
+
+ /etc/log4config-model.conf
+
+=back
+
+Without these files, the following Log4perl config is used:
+
+ log4perl.logger=WARN, Screen
+ log4perl.appender.Screen        = Log::Log4perl::Appender::Screen
+ log4perl.appender.Screen.stderr = 0
+ log4perl.appender.Screen.layout = Log::Log4perl::Layout::PatternLayout
+ log4perl.appender.Screen.layout.ConversionPattern = %d %m %n
+
+Log4perl uses the following categories:
+
+=over
+
+=item Anything
+
+=item Backend
+
+=item Backend::Debian::Dpkg
+
+=item Backend::Debian::Dpkg::Control
+
+=item Backend::Debian::Dpkg::Copyright
+
+=item Backend::Fstab
+
+=item Backend::IniFile
+
+=item Backend::PlainFile
+
+=item Backend::ShellVar
+
+=item Backend::Yaml
+
+=item Data
+
+Used by read and write handler (L<Config::Model::AutoRead>)
+
+=item FuseUI
+
+=item Instance
+
+=item Loader
+
+=item Model::Searcher
+
+=item Tree::Element::CheckList
+
+=item Tree::Element::Id
+
+=item Tree::Element::Id::Hash
+
+=item Tree::Element::Id::List
+
+=item Tree::Element::Value
+
+=item Tree::Element::Value::Dependency
+
+=item Tree::Node
+
+=item Tree::Node::Warped
+
+=item ValueComputer
+
+=item Warper
+
+=item Wizard::Helper
+
+=item Model
+
+
+=back
+
+More categories will come.
+
+=head1 SUPPORT
+
+For support, please check the following resources:
+
+=over
+
+=item *
+
+The config-model users mailing list:
+
+ config-model-users at lists.sourceforge.net
+
+=item *
+
+The config-model wiki: L<http://config-model.wiki.sourceforge.net/>
+
+=back
+
+=head1 FEEDBACKS
+
+Feedback from users are highly desired. If you find this module useful, please
+share your use cases, success stories with the author or with the config-model-
+users mailing list. 
+
+=head1 AUTHOR
+
+Dominique Dumont, ddumont at cpan dot org
+
+=head1 SEE ALSO
+
+L<Config::Model::Model>, 
+L<Config::Model::Instance>, 
+L<Config::Model::Node>, 
+L<Config::Model::HashId>,
+L<Config::Model::ListId>,
+L<Config::Model::WarpedNode>,
+L<Config::Model::Value>
+
+=cut
