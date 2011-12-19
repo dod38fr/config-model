@@ -687,10 +687,6 @@ Log4perl uses the following categories:
 
 =item Backend::Yaml
 
-=item Data
-
-Used by read and write handler (L<Config::Model::AutoRead>)
-
 =item FuseUI
 
 =item Instance
