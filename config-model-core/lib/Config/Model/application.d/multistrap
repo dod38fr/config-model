@@ -1,1 +1,2 @@
 model = Multistrap
+require_config_file = 1
