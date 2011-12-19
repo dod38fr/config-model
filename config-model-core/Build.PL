@@ -44,7 +44,7 @@ my $build = Module::Build->new(
     module_name => 'Config::Model',
     @version_info,
     license       => 'lgpl',
-    script_files  => ['config-edit'],
+    script_files  => ['config-edit','script/cme'],
     appli_files   => \%appli_files,
     dist_abstract => 'Describe, edit and validate configuration data',
     dist_author   => 'Dominique Dumont (ddumont at cpan dot org)',
