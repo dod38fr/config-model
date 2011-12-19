@@ -1,0 +1,79 @@
+# cme(1) completion
+#
+#
+# This file is part of Config-Model
+#
+# This software is Copyright (c) 2011 by Dominique Dumont
+#
+# This is free software, licensed under:
+#
+#   The GNU Lesser General Public License, Version 2.1, February 1999
+#
+
+_cme_models()
+{
+   MODELS=$(perl -MConfig::Model::Lister -e'print Config::Model::Lister::models;')
+   COMPREPLY=( $( compgen -W "$MODELS" -- $cur ) )
+}
+
+_cme_appli()
+{
+   MODELS=$(perl -MConfig::Model::Lister -e'print Config::Model::Lister::applications;')
+   COMPREPLY=( $( compgen -W "$MODELS" -- $cur ) )
+}
+
+_cme_commands()
+{
+    COMPREPLY=( $( compgen -W 'list check migrate fix modify search edit dump fusefs' -- $cur ) )
+}    
+
+_cme()
+{
+    local cur
+
+    COMPREPLY=()
+    _get_comp_words_by_ref -n : cur prev
+    
+    global_options='-application -model -ui -dev -model-dir -root-dir -force-load -backend -dump -dumptype -load -save -fuse-dir -search -narrow-search'
+    
+    if [[ $COMP_CWORD -eq 1 ]] ; then
+        _cme_commands
+    elif [[ $COMP_CWORD -eq 2 ]] ; then
+        _cme_appli
+    else
+        case $prev in
+            multistrap)
+                COMPREPLY=( $( compgen -o filenames -G "$cur*.conf" ) )
+            ;;
+            -ui)
+                COMPREPLY=( $( compgen -W 'none tk curses shell fuse' -- $cur ) )
+            ;;
+           -dumptype)
+                COMPREPLY=( $( compgen -W 'full preset custom' -- $cur ) )
+            ;;
+           -model-dir|-root-dir|-fuse-dir)
+                _filedir -d
+            ;;
+             *)
+            case ${words[1]} in
+                edit)
+                   COMPREPLY=( $( compgen -W "$global_options -ui -open-item" -- $cur ) )                        )
+                ;;
+                # modify completion could be much more elaborate...
+                list|check|migrate|fix|modify)
+                   COMPREPLY=( $( compgen -W "$global_options" -- $cur ) ) 
+                ;;
+                search)
+                   COMPREPLY=( $( compgen -W "$global_options -search -narrow-search" -- $cur ) )
+                ;;
+                dump)
+                   COMPREPLY=( $( compgen -W "$global_options -dump-type" -- $cur ) )
+                ;;
+                fusefs)
+                   COMPREPLY=( $( compgen -W "$global_options -fuse-dir -dfuse" -- $cur ) )
+                ;;
+            esac
+        esac
+    fi
+}
+complete -F _cme cme
