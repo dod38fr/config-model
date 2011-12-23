@@ -1,7 +1,8 @@
 package Config::Model::Value ;
-use warnings ;
-use strict;
-use Scalar::Util qw(weaken) ;
+
+use Any::Moose;
+use Any::Moose '::Util::TypeConstraints' ;
+
 use Data::Dumper ();
 use Config::Model::Exception ;
 use Config::Model::ValueComputer ;
@@ -11,11 +12,61 @@ use Log::Log4perl qw(get_logger :levels);
 use Carp ;
 use Storable qw/dclone/;
 
-use base qw/Config::Model::AnyThing/ ;
+extends qw/Config::Model::AnyThing/ ;
 
 my $logger = get_logger("Tree::Element::Value") ;
 
 our $nowarning = 0; # global variable to silence warnings. Only used for tests
+
+enum ValueType => qw/boolean enum uniline string integer/ ;
+
+has fixes => (is => 'rw', isa => 'ArrayRef', default => sub{[]}) ;
+has [qw/warp compute backup/]  => (is => 'rw', isa => 'Maybe[HashRef]') ;
+has [qw/mandatory allow_compute_override/] 
+    => (is => 'rw', isa => 'Bool', default => 0 ); 
+
+has [qw/refer_to computed_refer_to/] 
+    => (is => 'rw', isa => 'Maybe[Str]' ); 
+    
+has value_type => (is => 'rw', isa => 'ValueType', required => 1 );
+
+around BUILDARGS => sub {
+    my $orig = shift ;
+    my $class = shift ;
+    my %args =  @_ ;
+    map {delete $args{$_}} qw/warp element_name index_value parent 
+	instance refer_to computed_refer_to/ ;
+    return $class->$orig( backup => dclone (\%args), @_ );
+} ;
+
+my @warp_accessible_params =  qw/min max mandatory default 
+				 choice convert upstream_default replace match grammar
+				 warn assert warn_unless warn_if_match warn_unless_match/ ;
+
+my @accessible_params =  (@warp_accessible_params, 
+			  qw/index_value element_name value_type write_as
+			     refer_to computed_refer_to replace_follow/ ) ;
+
+my @allowed_warp_params = (@warp_accessible_params, qw/level experience help/);
+
+
+sub BUILD {
+    my $self = shift;
+
+    $self->set_properties() ; # set will use backup data
+
+    if (my $warp_info = $self->warp) {
+        $self->{warper} = Config::Model::Warper->new (
+            warped_object => $self,
+            %$warp_info ,
+            allowed => \@allowed_warp_params
+        ) ;
+    }
+
+    $self->_init ;
+
+    return $self ;
+}
 
 
 # internal method
@@ -374,76 +425,6 @@ sub setup_grammar_check {
 
 
 
-my @warp_accessible_params =  qw/min max mandatory default 
-				 choice convert upstream_default replace match grammar
-				 warn assert warn_unless warn_if_match warn_unless_match/ ;
-
-my @accessible_params =  (@warp_accessible_params, 
-			  qw/index_value element_name value_type write_as
-			     refer_to computed_refer_to replace_follow/ ) ;
-
-my @allowed_warp_params = (@warp_accessible_params, qw/level experience help/);
-
-sub new {
-    my $type = shift;
-    my %args = @_ ;
-
-    my $self={ fixes => [] } ;
-    bless $self,$type;
-
-    $self->{mandatory} = $self->{allow_compute_override} = 0 ;
-
-    $self->{element_name} = delete $args{element_name} 
-      || croak "Value new: no 'element_name' defined" ;
-    $self->{index_value} = delete $args{index_value} ; 
-    $self->{id_owner}    = delete $args{id_owner} ; 
-
-    $self->_set_parent(delete $args{parent}) ;
-
-    $self->{instance} = delete $args{instance} 
-      || croak "Value: missing 'instance' parameter" ;
-
-    # refer_to cannot be warped because of registration
-    $self->{refer_to} = delete $args{refer_to};
-    $self->{computed_refer_to} = delete $args{computed_refer_to};
-
-    Config::Model::Exception::Model
-	-> throw (
-		  error=> "$type creation error: missing value_type or "
-		  ."warp parameter",
-		  object => $self
-		 ) 
-	  unless (   defined $args{value_type} 
-		  or defined $args{warp});
-
-    Config::Model::Exception::Model
-	-> throw (
-		  error=> "$type creation error: "
-		  ."compute value must be a hash ref",
-		  object => $self
-		 ) 
-	  if (defined $args{compute} and ref($args{compute}) ne 'HASH') ;
-
-    my $warp_info = delete $args{warp} ;
-
-    $self->{backup}  = dclone (\%args) ;
-
-    $self->set_properties() ; # set will use backup data
-
-
-    if (defined $warp_info) {
-        $self->{warper} = Config::Model::Warper->new (
-            warped_object => $self,
-            %$warp_info ,
-            allowed => \@allowed_warp_params
-        ) ;
-    }
-
-    $self->_init ;
-
-    return $self ;
-}
-
 # warning : call to 'set' are not cumulative. Default value are always
 # restored. Lest keeping track of what was modified with 'set' is
 # too confusing.
@@ -671,16 +652,6 @@ sub reference_object {
     return $self->{ref_object} ;
 }
 
-
-# accessor to get some fields through methods (See man perltootc)
-foreach my $datum (@accessible_params) {
-    next if $datum eq 'index_value' ; #provided by AnyThing
-    no strict "refs";       # to register new methods in package
-    *$datum = sub {
-	my $self= shift;
-	return $self->{$datum};
-    } ;
-}
 
 sub built_in { 
   carp "warning: built_in sub is deprecated, use upstream_default";
