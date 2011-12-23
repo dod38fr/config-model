@@ -1,21 +1,3 @@
-#    Copyright (c) 2005-2010 Dominique Dumont.
-#
-#    This file is part of Config-Model.
-#
-#    Config-Model is free software; you can redistribute it and/or
-#    modify it under the terms of the GNU Lesser Public License as
-#    published by the Free Software Foundation; either version 2.1 of
-#    the License, or (at your option) any later version.
-#
-#    Config-Model is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#    Lesser Public License for more details.
-#
-#    You should have received a copy of the GNU Lesser Public License
-#    along with Config-Model; if not, write to the Free Software
-#    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-
 package Config::Model::AnyThing;
 use Scalar::Util qw(weaken);
 use Pod::POM ;
@@ -25,38 +7,6 @@ use Log::Log4perl qw(get_logger :levels);
 
 my $logger = get_logger("Anything") ;
 
-=head1 NAME
-
-Config::Model::AnyThing - Base class for configuration tree item
-
-=head1 SYNOPSIS
-
- # internal class
-
-=head1 DESCRIPTION
-
-This class must be inherited by all nodes or leaves of the
-configuration tree.
-
-AnyThing provides some methods and no constructor.
-
-=head1 Introspection methods
-
-=head2 element_name()
-
-Returns the element name that contain this object.
-
-=head2 index_value()
-
-For object stored in an array or hash element, returns the index (or key)
-containing this object.
-
-=head2 parent()
-
-Returns the node containing this object. May return undef if C<parent()> 
-is called on the root of the tree.
-
-=cut 
 
 foreach my $datum (qw/element_name parent instance/) {
     no strict "refs";       # to register new methods in package
@@ -74,12 +24,6 @@ sub index_value {
     return $self->{index_value} ;
 }
 
-=head2 get_container_type()
-
-Returns the type (e.g. C<list> or C<hash> or C<leaf> or C<node> or
-C<warped_node>) of the element containing this object. 
-
-=cut 
 
 sub get_container_type {
     my $self = shift;
@@ -101,11 +45,6 @@ sub _set_parent {
     weaken ($self->{parent}) ;
 }
 
-=head2 root()
-
-Returns the root node of the configuration tree.
-
-=cut
 
 sub root {
     my $self = shift;
@@ -113,12 +52,6 @@ sub root {
     return $self->parent || $self;
 }
 
-=head2 location()
-
-Returns the node location in the configuration tree. This location
-conforms with the syntax defined by L</grab()> method.
-
-=cut
 
 sub location {
     my $self = shift;
@@ -134,12 +67,6 @@ sub location {
     return $str;
 }
 
-=head2 composite_name
-
-Return the element name with its index (if any). I.e. returns C<foo:bar> or
-C<foo>.
-
-=cut
 
 sub composite_name {
     my $self = shift;
@@ -174,21 +101,6 @@ sub xpath {
     return $str;
 }
 
-=head1 Annotation
-
-Annotation is a way to store miscellaneous information associated to
-each node. (Yeah... comments) These comments will be saved outside of
-the configuration file and restored the next time the command is run.
-
-=head2 annotation( [ note1, [ note2 , ... ] ] )
-
-Without argument, return a string containing the object's annotation (or 
-an empty string).
-
-With several arguments, join the arguments with "\n", store the annotations 
-and return the resulting string.
-
-=cut
 
 sub annotation {
     my $self = shift ;
@@ -197,20 +109,6 @@ sub annotation {
     return $self->{annotation} || '';
 }
 
-=head2 load_pod_annotation ( pod_string )
-
-Load annotations in configuration tree from a pod document. The pod must
-be in the form:
-
- =over
- 
- =item path
- 
- Annotation text
- 
- =back
- 
-=cut
 
 sub load_pod_annotation {
     my $self = shift ;
@@ -235,87 +133,6 @@ sub load_pod_annotation {
     }
 }
 
-=head1 Information management
-
-=head2 grab(...)
-
-Grab an object from the configuration tree.
-
-Parameters are:
-
-=over
-
-=item C<step>
-
-A string indicating the steps to follow in the tree to find the
-required item. (mandatory)
-
-=item C<mode>
-
-When set to C<strict>, C<grab> will throw an exception if no object is found
-using the passed string. When set to C<adaptative>, the object found at last will
-be returned. For instance, for the step C<good_step wrong_step>, only
-the object held by C<good_step> will be returned. When set to C<loose>, grab 
-will return undef in case of problem. (default is C<strict>)
-
-=item C<type>
-
-Either C<node>, C<leaf>, C<hash> or C<list>. Returns only an object of
-requested type. Depending on C<strict> value, C<grab> will either
-throw an exception or return the last found object of requested type.
-(optional, default to C<undef>, which means any type of object)
-
-=item C<autoadd>
-
-When set to 1, C<hash> or C<list> configuration element are created
-when requested by the passed steps. (default is 1). 
-
-=item grab_non_available
-
-When set to 1, grab will return an object even if this one is not
-available. I.e. even if this element was warped out. (default is 0).
-
-=back
-
-The C<step> parameters is made of the following items separated by
-spaces:
-
-=over 8
-
-=item -
-
-Go up one node
-
-=item !
-
-Go to the root node.
-
-=item !Foo
-
-Go up the configuration tree until the C<Foo> configuration class is found. Raise an exception if 
-no C<Foo> class is found when root node is reached.
-
-=item xxx
-
-Go down using C<xxx> element.
-
-=item xxx:yy
-
-Go down using C<xxx> element and id C<yy> (valid for hash or list elements)
-
-=item ?xxx
-
-Go up the tree until a node containing element C<xxx> is found. Then go down
-the tree like item C<xxx>.
-
-If C<?xxx:yy>, go up the tree the same way. But no check is done to
-see if id C<yy> actually exists or not. Only the element C<xxx> is 
-considered when going up the tree.
-
-=back
-
-
-=cut
 
 ## Navigation
 
@@ -557,15 +374,6 @@ sub grab {
     return wantarray ? ($return,@command) : $return ;
 }
 
-=head2 grab_value(...)
-
-Like L</grab(...)>, but will return the value of a leaf or check_list object, not
-just the leaf object.
-
-Will raise an exception if following the steps ends on anything but a
-leaf or a check_list.
-
-=cut
 
 sub grab_value {
     my $self = shift ;
@@ -593,11 +401,6 @@ sub grab_value {
     return $value ;
 }
 
-=head2 grab_annotation(...)
-
-Like L</grab(...)>, but will return the annotation of an object.
-
-=cut
 
 sub grab_annotation {
     my $self = shift ;
@@ -608,11 +411,6 @@ sub grab_annotation {
     return $obj->annotation ;
 }
 
-=head2 grab_root()
-
-Returns the root of the configuration tree.
-
-=cut
 
 sub grab_root {
     my $self = shift;
@@ -620,12 +418,6 @@ sub grab_root {
       : $self ;
 }
 
-=head2 grab_ancestor( Foo )
-
-Go up the configuration tree until the C<Foo> configuration class is found. Returns 
-the found node or undef.
-
-=cut
 
 sub grab_ancestor {
     my $self = shift ;
@@ -670,15 +462,6 @@ sub grab_ancestor_with_element_named {
     }
 }
 
-=head2 model_searcher ()
-
-Returns an object dedicated to search an element in the configuration
-model (respecting privilege level).
-
-This method returns a L<Config::Model::SearchElement> object. See
-L<Config::Model::Searcher> for details on how to handle a search.
-
-=cut
 
 sub model_searcher {
     my $self = shift ;
@@ -694,15 +477,6 @@ sub searcher {
     goto &model_searcher ; 
 }
 
-=head2 dump_as_data ( )
-
-Dumps the configuration data of the node and its siblings into a perl
-data structure. 
-
-Returns a hash ref containing the data. See
-L<Config::Model::DumpAsData> for details.
-
-=cut
 
 sub dump_as_data {
     my $self = shift ;
@@ -728,12 +502,6 @@ sub has_fixes {
     return 0;
 }
 
-=head2 warp_error
-
-Returns a string describing any issue with L<Config::Model::Warper> object. 
-Returns '' if invoked on a tree object without warp specification.
-
-=cut 
 
 sub warp_error {
     my $self = shift ;
@@ -761,6 +529,210 @@ sub set_convert {
 
 
 1;
+
+
+__END__
+
+=pod
+
+=head1 NAME
+
+Config::Model::AnyThing - Base class for configuration tree item
+
+=head1 SYNOPSIS
+
+ # internal class
+
+=head1 DESCRIPTION
+
+This class must be inherited by all nodes or leaves of the
+configuration tree.
+
+AnyThing provides some methods and no constructor.
+
+=head1 Introspection methods
+
+=head2 element_name()
+
+Returns the element name that contain this object.
+
+=head2 index_value()
+
+For object stored in an array or hash element, returns the index (or key)
+containing this object.
+
+=head2 parent()
+
+Returns the node containing this object. May return undef if C<parent()> 
+is called on the root of the tree.
+
+=head2 get_container_type()
+
+Returns the type (e.g. C<list> or C<hash> or C<leaf> or C<node> or
+C<warped_node>) of the element containing this object. 
+
+=head2 root()
+
+Returns the root node of the configuration tree.
+
+=head2 location()
+
+Returns the node location in the configuration tree. This location
+conforms with the syntax defined by L</grab()> method.
+
+=head2 composite_name
+
+Return the element name with its index (if any). I.e. returns C<foo:bar> or
+C<foo>.
+
+=head1 Annotation
+
+Annotation is a way to store miscellaneous information associated to
+each node. (Yeah... comments) These comments will be saved outside of
+the configuration file and restored the next time the command is run.
+
+=head2 annotation( [ note1, [ note2 , ... ] ] )
+
+Without argument, return a string containing the object's annotation (or 
+an empty string).
+
+With several arguments, join the arguments with "\n", store the annotations 
+and return the resulting string.
+
+=head2 load_pod_annotation ( pod_string )
+
+Load annotations in configuration tree from a pod document. The pod must
+be in the form:
+
+ =over
+ 
+ =item path
+ 
+ Annotation text
+ 
+ =back
+ 
+
+=head1 Information management
+
+=head2 grab(...)
+
+Grab an object from the configuration tree.
+
+Parameters are:
+
+=over
+
+=item C<step>
+
+A string indicating the steps to follow in the tree to find the
+required item. (mandatory)
+
+=item C<mode>
+
+When set to C<strict>, C<grab> will throw an exception if no object is found
+using the passed string. When set to C<adaptative>, the object found at last will
+be returned. For instance, for the step C<good_step wrong_step>, only
+the object held by C<good_step> will be returned. When set to C<loose>, grab 
+will return undef in case of problem. (default is C<strict>)
+
+=item C<type>
+
+Either C<node>, C<leaf>, C<hash> or C<list>. Returns only an object of
+requested type. Depending on C<strict> value, C<grab> will either
+throw an exception or return the last found object of requested type.
+(optional, default to C<undef>, which means any type of object)
+
+=item C<autoadd>
+
+When set to 1, C<hash> or C<list> configuration element are created
+when requested by the passed steps. (default is 1). 
+
+=item grab_non_available
+
+When set to 1, grab will return an object even if this one is not
+available. I.e. even if this element was warped out. (default is 0).
+
+=back
+
+The C<step> parameters is made of the following items separated by
+spaces:
+
+=over 8
+
+=item -
+
+Go up one node
+
+=item !
+
+Go to the root node.
+
+=item !Foo
+
+Go up the configuration tree until the C<Foo> configuration class is found. Raise an exception if 
+no C<Foo> class is found when root node is reached.
+
+=item xxx
+
+Go down using C<xxx> element.
+
+=item xxx:yy
+
+Go down using C<xxx> element and id C<yy> (valid for hash or list elements)
+
+=item ?xxx
+
+Go up the tree until a node containing element C<xxx> is found. Then go down
+the tree like item C<xxx>.
+
+If C<?xxx:yy>, go up the tree the same way. But no check is done to
+see if id C<yy> actually exists or not. Only the element C<xxx> is 
+considered when going up the tree.
+
+=back
+
+=head2 grab_value(...)
+
+Like L</grab(...)>, but will return the value of a leaf or check_list object, not
+just the leaf object.
+
+Will raise an exception if following the steps ends on anything but a
+leaf or a check_list.
+
+=head2 grab_annotation(...)
+
+Like L</grab(...)>, but will return the annotation of an object.
+
+=head2 grab_root()
+
+Returns the root of the configuration tree.
+
+=head2 grab_ancestor( Foo )
+
+Go up the configuration tree until the C<Foo> configuration class is found. Returns 
+the found node or undef.
+
+=head2 model_searcher ()
+
+Returns an object dedicated to search an element in the configuration
+model (respecting privilege level).
+
+This method returns a L<Config::Model::SearchElement> object. See
+L<Config::Model::Searcher> for details on how to handle a search.
+
+=head2 dump_as_data ( )
+
+Dumps the configuration data of the node and its siblings into a perl
+data structure. 
+
+Returns a hash ref containing the data. See
+L<Config::Model::DumpAsData> for details.
+
+=head2 warp_error
+
+Returns a string describing any issue with L<Config::Model::Warper> object. 
+Returns '' if invoked on a tree object without warp specification.
 
 =head1 AUTHOR
 
