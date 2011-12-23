@@ -11,6 +11,7 @@ use File::Find;
 use File::Spec ;
 use Test::Warn;
 use Test::Exception;
+use Test::File::Contents ;
 use Test::Differences;
 use locale;
 use utf8;
@@ -189,15 +190,27 @@ sub run_model_test {
         $dump = $root->dump_tree();
         ok( $dump, "Dumped $model_test config tree in custom mode" );
 
-        foreach my $path ( sort keys %{ $t->{check} || {} } ) {
-            my $v = $t->{check}{$path};
-            is( $root->grab_value($path), $v, "check $path value" );
+        foreach my $key ( keys %$t) {
+            next unless $key =~ /^check_?(\w*)/;
+            my $mode = $1 || '';
+            
+            foreach my $path ( sort keys %{ $t->{$key} } ) {
+                my $v = $t->{$key}{$path};
+                is( $root->grab($path)->fetch (mode => $mode), 
+                    $v, "check $path value (mode $mode)" );
+            }
         }
 
         local $Config::Model::Value::nowarning = $t->{no_warnings} || 0;
 
-        $inst->write_back(config_file     => $t->{config_file} );
+        $inst->write_back( );
         ok( 1, "$model_test write back done" );
+        
+        if (my $fc = $t->{file_content}) {
+            foreach my $f (keys %$fc) {
+                file_contents_eq_or_diff $wr_dir.$f,  $fc->{$f},  "check content of $f";
+            } 
+        }
 
         my @new_file_list;
         if ( -d $ex_data ) {
@@ -457,6 +470,15 @@ correctly:
         'fs:/proc fs_file',           "/proc" ,
         'fs:/home fs_file',          "/home",
     },
+    
+You can run check using different check modes (See L<Config::Model::Value/"fetch( ... )">):
+    
+    check_layered  => {
+                'sections:debian packages:0' ,'dpkg-dev',
+                'sections:base packages:0', 'gcc-4.2-base',
+            },
+
+The mode is specified after C<check_>.
 
 =item *
 
@@ -464,6 +486,14 @@ Write back the config data in C<< wr_root/<subtest name>/ >>.
 You can skip warning when writing back with:
 
     no_warnings => 1,
+
+=item *
+
+Check the content of the written files(s) with L<Test::File::Contents>:
+
+   file_content => { 
+            "/home/foo/my_arm.conf" => "really big string" ,
+        }
 
 =item *
 
