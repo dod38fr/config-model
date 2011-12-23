@@ -1,4 +1,4 @@
-#    Cpyright (c) 2005-2011 Dominique Dumont.
+#    Copyright (c) 2005-2011 Dominique Dumont.
 #
 #    This file is part of Config-Model.
 #
@@ -1385,7 +1385,7 @@ sub check_value {
     my $quiet = $args{quiet} || 0 ;
     my $check = $args{check} || 'yes' ;
     my $apply_fix = $args{fix} || 0 ;
-    my $mode = $args{mode} || '' ;
+    my $mode = $args{mode} || 'backend' ;
 
     #croak "Cannot specify a value with fix = 1" if $apply_fix and exists $args{value} ;
 
@@ -1467,7 +1467,7 @@ sub check_value {
 	    -> throw (object => $self, message => $msg) ;
     }
 
-    if ($self->{mandatory} and $check eq 'yes' and ($mode eq '') 
+    if ($self->{mandatory} and $check eq 'yes' and ($mode =~ /backend|user/) 
         and (not defined $value or not length($value))
         ) {
 	# check only "empty" mode. 
@@ -1911,6 +1911,7 @@ sub _init {
 }
 
 # returns something that needs to be written to config file
+# unless overridden by user data
 sub _pre_fetch {
     my ($self, $mode, $check) = @_ ;
 
@@ -1929,7 +1930,6 @@ sub _pre_fetch {
 	$std_value 
 	  = defined $self->{preset}        ? $self->{preset}
           : defined $self->{compute}       ? $self->compute 
-          : defined $self->{layered}       ? $self->{layered}
           :                                  $self->{default} ;
     };
 
@@ -1954,7 +1954,7 @@ my %old_mode = ( built_in => 'upstream_default',
 
 my %accept_mode = map { ( $_ => 1) } 
                       qw/custom standard preset default upstream_default
-			layered non_upstream_default allow_undef/;
+			layered non_upstream_default allow_undef user backend/;
 
 sub _fetch {
     my ($self, $mode, $check) = @_ ;
@@ -2013,8 +2013,9 @@ sub _fetch {
          : $mode eq 'standard'                  ? $std
 	 : $mode eq 'layered'                   ? $self->{layered}
 	 : $mode eq 'upstream_default'          ? $self->{upstream_default}
-	 : defined $data                        ? $data
-         :                                        $pref ;
+	 : $mode eq 'user'                      ? defined $data ? $data : $std
+         : $mode =~ /backend|allow_undef/       ? defined $data ? $data : $pref 
+         :                                      die "unexpected mode $mode " ;
 
 }
 
@@ -2079,12 +2080,21 @@ According to the C<mode> parameter, this method will return either:
 
 =item empty mode parameter (default)
 
-Value entered by user or default value if the value is different from upstream_default
+Value entered by user or default value if the value is different from upstream_default or 
+layered value. Typically this value will be written in a configuration file.
+
+=item backend 
+
+Alias for default mode.
 
 =item custom
 
 The value entered by the user (if different from built in, preset,
 computed or default value)
+
+=item user
+
+The value most useful to user: the value that will be used by the application.
 
 =item preset
 
@@ -2126,7 +2136,7 @@ sub fetch {
     my $self = shift ;
 
     my %args =  @_ > 1 ? @_ : (mode => $_[0]) ;
-    my $mode = $args{mode} || '';
+    my $mode = $args{mode} || 'backend';
     my $silent = $args{silent} || 0 ;
     my $check = $self->_check_check($args{check}); 
 
@@ -2158,7 +2168,7 @@ sub fetch {
     # mode may not trigger the warnings. Hence confusion afterwards)
     my $ok = 1 ;
     $ok = $self->check(value => $value, silent => $silent, mode => $mode ) 
-        if $mode eq '' or $mode eq 'custom' ;
+        if $mode =~ /backend|custom|user/ ;
 
     $logger->debug( "(almost) done for " . $self->location )
       if $logger->is_debug;
