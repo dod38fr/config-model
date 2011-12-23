@@ -2397,7 +2397,7 @@ L<Config::Model::WarpedNode> <- L<Config::Model::AnyThing>
 
 =head2 command line
 
-L<config-edit>
+L<cme>. L<config-edit> is now deprecated.
 
 =head2 Read and write backends
 
@@ -2500,6 +2500,16 @@ L<Config::Model::ValueComputer>
 =item *
 
 L<Config::Model::Warper>
+
+=back
+
+=head2 Test framework
+
+=over
+
+=item *
+
+L<Config::Model::Tester>
 
 =back
 
