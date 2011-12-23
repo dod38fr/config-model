@@ -203,12 +203,20 @@ sub load_backend_class {
 
 sub read_config_data {
     my ($self, %args) = @_ ;
+
+    {
+        no warnings 'uninitialized';
+        $logger->debug("called with ",join(' ',%args));
+    }
+    
     my $readlist_orig = delete $args{read_config} ;
     my $check = delete $args{check} ;
     my $r_dir = delete $args{read_config_dir} ;
     my $config_file_override = delete $args{config_file} ;
+    my $auto_create_override = delete $args{auto_create} ;
     
     croak "unexpected args ".join(' ',keys %args)."\n" if %args ;
+
 
     # r_dir is obsolete
     if (defined $r_dir) {
@@ -328,7 +336,9 @@ sub read_config_data {
     }
 
     if (not $read_done) {
-        my $msg = "could not read config file with ";
+        my $msg = "could not read config file " ;
+        $msg .= $config_file_override.' ' if defined $config_file_override ;
+        $msg .= "with ";
         $msg .= $pref_backend ? "'$pref_backend'" : 'any' ;
         $msg .= " backend";
 
@@ -337,7 +347,7 @@ sub read_config_data {
              error => "auto_read error: $msg. May be add "
                     . "'auto_create' parameter in configuration model" ,
              object => $self->node,
-            ) unless $auto_create ;
+            ) unless (defined $auto_create_override ? $auto_create_override : $auto_create );
 
         $logger->warn("Warning: node '".$self->node->name."' $msg");
     }
