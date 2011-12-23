@@ -1,31 +1,24 @@
 package Config::Model::AnyThing;
-use Scalar::Util qw(weaken);
+
+use Any::Moose ;
+
 use Pod::POM ;
 use Carp;
-use strict;
 use Log::Log4perl qw(get_logger :levels);
 
 my $logger = get_logger("Anything") ;
 
-
-foreach my $datum (qw/element_name parent instance/) {
-    no strict "refs";       # to register new methods in package
-    *$datum = sub {
-	my $self = shift;
-	return $self->{$datum};
-    } ;
-}
+has element_name => ( is => 'ro', isa => 'Str') ;
+has parent => (is => 'ro', isa => 'Config::Model::Node' , weak_ref => 1);
+has instance => (is => 'ro', isa => 'Config::Model::Instance', weak_ref => 1) ;
 
 # index_value can be written to when move method is called. But let's
 # not advertise this feature.
-sub index_value {
-    my $self = shift;
-    $self->{index_value} = shift if @_;
-    return $self->{index_value} ;
-}
+has index_value ( is => 'ro', isa => 'Str') ;
 
+has container_type ( is => 'ro', isa => 'Str' , builder => '_container_type', lazy => 1 );
 
-sub get_container_type {
+sub _container_type {
     my $self = shift;
     my $p = $self->parent ;
     return defined $p ? $p->element_type($self->element_name)
@@ -33,27 +26,17 @@ sub get_container_type {
 
 }
 
-sub _set_parent {
-    my ($self,$parent) = @_ ;
-
-    croak ref($self)," new: no 'parent' defined" unless $parent;
-    croak ref($self)," new: Wrong class for parent : '",
-      ref($parent),"'. Expected 'Config::Model::Node'" 
-	unless $parent->isa('Config::Model::Node') ;
-
-    $self->{parent} =  $parent ;
-    weaken ($self->{parent}) ;
-}
-
-
-sub root {
+has root => (is => 'ro', isa => 'Config::Model::Node' , weak_ref => 1,
+    builder => '_root', lazy => 1);
+sub _root {
     my $self = shift;
 
     return $self->parent || $self;
 }
 
+has location => (is => 'ro', isa => 'Str' , builder => '_location', lazy => 1);
 
-sub location {
+sub _location {
     my $self = shift;
 
     my $str = '';
@@ -67,8 +50,9 @@ sub location {
     return $str;
 }
 
+has composite_name => (is => 'ro', isa => 'Str' , builder => '_composite_name', lazy => 1);
 
-sub composite_name {
+sub _composite_name {
     my $self = shift;
 
     my $element = $self->element_name;
