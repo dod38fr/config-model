@@ -1,7 +1,9 @@
 package Config::Model::Node;
+
+use Any::Moose ;
+
 use Carp ;
-use strict;
-use warnings;
+
 use Config::Model::Exception;
 use Config::Model::Loader;
 use Config::Model::Dumper;
@@ -11,11 +13,9 @@ use Config::Model::TreeSearcher;
 use Config::Model::Describe;
 use Config::Model::BackendMgr;
 use Log::Log4perl qw(get_logger :levels);
-use UNIVERSAL;
-use Scalar::Util qw/weaken/;
 use Storable qw/dclone/ ;
 
-use base qw/Config::Model::AnyThing/;
+extends qw/Config::Model::AnyThing/;
 
 use vars qw(@status @level
             @experience_list %experience_index %default_property);
@@ -45,6 +45,79 @@ my %create_sub_for =
    check_list => \&create_id ,
    warped_node => \&create_warped_node,
   ) ;
+
+
+# Node internal documentation
+#
+# Since the class holds a significant number of element, here's its
+# main structure.
+#
+# $self 
+# = (
+#    config_model      : Weak reference to Config::Model object
+#    config_class_name
+#    model             : model of the config class
+#    instance          : Weak reference to Config::Model::Instance object 
+#    element_name      : Name of the element containing this node
+#                        (undef for root node).
+#    parent            : weak reference of parent node (undef for root node)
+#    element           : actual storage of configuration elements
+
+#    element_by_experience: {<experience>} = [ list of elements ]
+#                          e.g {
+#                                master => [ list of master elements ],
+#                                advanced => [ ...],
+#                                beginner => [,,,]
+#                              }
+#  ) ;
+
+has initialized => (is => 'rw', isa => 'Bool', default => 0 ) ;
+
+has [qw/config_class_name/] 
+    => (is => 'ro', isa => 'Str', required =>1 ) ;
+has [qw/index_value config_file element_name/] 
+    => (is => 'ro', isa => 'Maybe[Str]', required =>0 ) ;
+
+has instance => ( is => 'ro', isa => 'Config::Model::Instance', weak_ref => 1 ,required =>1 ) ;
+has config_model => ( is => 'ro', isa => 'Config::Model', 
+    weak_ref => 1 , lazy => 1, builder => '_config_model') ;
+
+sub _config_model {
+    my $self = shift ;
+    my $p = $self->instance->config_model ;
+}
+
+has skip_read => ( is => 'ro', isa => 'Bool') ;
+has check => ( is => 'ro', isa => 'Str', builder => '_check_check', lazy => 1) ;
+has auto_read => ( is => 'rw' , isa => 'HashRef' ) ;
+has model => ( is => 'rw' , isa => 'HashRef' ) ;
+
+sub BUILD {
+    my $self = shift;
+
+    my $read_check = $self->instance->read_check;
+    
+    my $req_check = $self->check ;
+    my $check = $req_check eq 'no'   || $read_check eq 'no'   ? 'no'
+              : $req_check eq 'skip' || $read_check eq 'skip' ? 'skip' 
+              :                                                 'yes' ;
+    
+    
+    $self->auto_read( { skip => $self->skip_read, check => $check } );
+    
+    my $caller_class = defined $self->parent 
+      ? $self->parent->name : 'user' ;
+
+    my $class_name = $self->config_class_name ;
+    $logger->info( "New $class_name requested by $caller_class");
+
+    $self->model( dclone ( $self->config_model->get_model($class_name) ) );
+        
+    $self->check_properties ;
+
+    return $self ;
+}
+
 
 ## Create_* methods are all internal and should not be used directly
 
@@ -241,92 +314,6 @@ sub check_properties {
     }
 }
 
-
-
-# Node internal documentation
-#
-# Since the class holds a significant number of element, here's its
-# main structure.
-#
-# $self 
-# = (
-#    config_model      : Weak reference to Config::Model object
-#    config_class_name
-#    model             : model of the config class
-#    instance          : Weak reference to Config::Model::Instance object 
-#    element_name      : Name of the element containing this node
-#                        (undef for root node).
-#    parent            : weak reference of parent node (undef for root node)
-#    element           : actual storage of configuration elements
-
-#    element_by_experience: {<experience>} = [ list of elements ]
-#                          e.g {
-#                                master => [ list of master elements ],
-#                                advanced => [ ...],
-#                                beginner => [,,,]
-#                              }
-#  ) ;
-
-sub new {
-    my $caller = shift;
-    my $type = ref($caller) || $caller ;
-
-    my $self         = { initialized => 0 };
-    bless $self, $type;
-
-    my @mandatory_parameters = qw/config_class_name instance/;
-
-    if (ref($caller)) {
-        $self->_set_parent($caller) ;
-
-        $self->{config_model} = $caller->config_model ;
-        push @mandatory_parameters, 'element_name' ;
-    } else {
-        push @mandatory_parameters, 'config_model' ;
-    }
-
-    my %args = @_ ;
-
-    foreach my $p (@mandatory_parameters) {
-        $self->{$p} = delete $args{$p} or
-          croak "Node->new: Missing $p parameter" ;
-    }
-
-    weaken($self->{instance}) ;
-    weaken($self->{config_model}) ;
-
-    $self->{index_value} = delete $args{index_value} ;
-    my $skip_read = delete $args{skip_read} ;
-    my $req_check = $self->_check_check(delete $args{check}) ;
-    my $read_check = $self->instance->read_check;
-    
-    my $check = $req_check eq 'no'   || $read_check eq 'no'   ? 'no'
-              : $req_check eq 'skip' || $read_check eq 'skip' ? 'skip' 
-              :                                                 'yes' ;
-    
-    
-    $self->{auto_read} = { skip => delete $args{skip_read}, check => $check };
-    $self->{config_file} = delete $args{config_file} ;
-    
-    my @left = keys %args ;
-    croak "Node->new: unexpected parameter: @left" if @left ;
-
-
-    my $caller_class = defined $self->{parent} 
-      ? $self->{parent}->name : 'user' ;
-
-    my $class_name = $self->{config_class_name} ;
-    $logger->info( "New $class_name requested by $caller_class");
-
-    my $model 
-      = $self->{model} 
-        = dclone ( $self->{config_model}->get_model($class_name) );
-        
-    $self->check_properties ;
-
-    return $self ;
-}
-
 sub init {
     my $self = shift;
 
@@ -403,7 +390,7 @@ sub is_auto_write_for_type {
 
 sub name {
     my $self = shift;
-    return $self->location($self) || $self->{config_class_name};
+    return $self->location() || $self->{config_class_name};
 }
 
 
@@ -419,15 +406,6 @@ sub get_cargo_type {
 # have a similar API.
 sub is_accessible {
     return 1;
-}
-
-
-for my $datum (qw/config_model model config_class_name/) {
-    no strict "refs";			# to register new methods in package
-    *$datum = sub {
-        my $self= shift; 
-        return $self->{$datum};
-    } ;
 }
 
 
