@@ -243,7 +243,6 @@ sub reset_config {
     $self->{tree} = Config::Model::Node->new(
         config_class_name => $self->{root_class_name},
         instance          => $self,
-        config_model      => $self->{config_model},
         skip_read         => $self->{skip_read},
         config_file       => $self->{config_file} ,
     );
