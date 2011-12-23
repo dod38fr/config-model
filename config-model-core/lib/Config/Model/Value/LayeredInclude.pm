@@ -52,7 +52,11 @@ sub store {
     }
     
     # load included file in layered mode
-    $self->root->read_config_data(check => 'no', config_file => $new_data );
+    $self->root->read_config_data(
+        check => 'no', 
+        config_file => $new_data ,
+        auto_create => 0, # included file must exist
+    );
 
     if (not $already_in_layered) {
         $i->layered_stop ;
