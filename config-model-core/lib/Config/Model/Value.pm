@@ -1,21 +1,3 @@
-#    Copyright (c) 2005-2011 Dominique Dumont.
-#
-#    This file is part of Config-Model.
-#
-#    Config-Model is free software; you can redistribute it and/or
-#    modify it under the terms of the GNU Lesser Public License as
-#    published by the Free Software Foundation; either version 2.1 of
-#    the License, or (at your option) any later version.
-#
-#    Config-Model is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#    Lesser Public License for more details.
-#
-#    You should have received a copy of the GNU Lesser Public License
-#    along with Config-Model; if not, write to the Free Software
-#    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-
 package Config::Model::Value ;
 use warnings ;
 use strict;
@@ -35,178 +17,6 @@ my $logger = get_logger("Tree::Element::Value") ;
 
 our $nowarning = 0; # global variable to silence warnings. Only used for tests
 
-=head1 NAME
-
-Config::Model::Value - Strongly typed configuration value
-
-=head1 SYNOPSIS
-
- use Config::Model;
- use Log::Log4perl qw(:easy);
- Log::Log4perl->easy_init($WARN);
-
- # define configuration tree object
- my $model = Config::Model->new;
- $model ->create_config_class (
-    name => "MyClass",
-
-    element => [ 
-
-        [qw/foo bar/] => {
-            type       => 'leaf',
-            value_type => 'string',
-	    description => 'foobar',
-        },
-     country => { 
-       type =>       'leaf',
-       value_type => 'enum',
-       choice =>      [qw/France US/],
-       description => 'big countries',
-     },
-    ],
- ) ;
-
- my $inst = $model->instance(root_class_name => 'MyClass' );
-
- my $root = $inst->config_root ;
-
- # put data
- $root->load( step => 'foo=FOO country=US' );
-
- print $root->report ;
- #  foo = FOO
- #         DESCRIPTION: foobar
- # 
- #  country = US
- #         DESCRIPTION: big countries
-
-=head1 DESCRIPTION
-
-This class provides a way to specify configuration value with the
-following properties:
-
-=over
-
-=item *
-
-Strongly typed scalar: the value can either be an enumerated type, a boolean,
-a number, an integer or a string
-
-=item *
-
-default parameter: a value can have a default value specified during
-the construction. This default value will be written in the target
-configuration file. (C<default> parameter)
-
-=item *
-
-upstream default parameter: specifies a default value that will be
-used by the application when no information is provided in the
-configuration file. This upstream_default value will not written in
-the configuration files. Only the C<fetch_standard> method will return
-the builtin value. This parameter was previously referred as
-C<built_in> value. This may be used for audit
-purpose. (C<upstream_default> parameter)
-
-=item *
-
-mandatory value: reading a mandatory value will raise an exception if the
-value is not specified and has no default value.
-
-=item *
-
-dynamic change of property: A slave value can be registered to another
-master value so that the properties of the slave value can change
-according to the value of the master value. For instance, paper size value
-can be 'letter' for country 'US' and 'A4' for country 'France'.
-
-=item *
-
-A reference to the Id of a hash of list element. In other word, the
-value is an enumerated type where the possible values (choice) is
-defined by the existing keys of a has element somewhere in the tree. See
-L</"Value Reference">.
-
-=back
-
-=head1 Default values
-
-There are several kind of default values. They depend on where these
-values are defined (or found).
-
-From the lowest default level to the "highest":
-
-=over
-
-=item *
-
-C<upstream_default>: The value is known in the application, but is not
-written in the configuration file.
-
-=item *
-
-C<layered>: The value is known by the application through another
-mean (e.g. an included configuration file), but is not written in the 
-configuration file.
-
-=item *
-
-C<default>: The value is known by the model, but not by the
-application. This value must be written in the configuration file.
-
-=item *
-
-C<computed>: The value is computed from other configuration
-elements. This value must be written in the configuration file.
-
-
-=item *
-
-C<preset>: The value is not known by the model or by the
-application. But it can be found by an automatic program and stored
-while the configuration L<Config::Model::Instance|instance> is in 
-L<Config::Model::Instance/"preset_start ()"|preset mode>
-
-=back
-
-Then there is the value entered by the user. This will override all
-kind of "default" value.
-
-The L<fetch_standard> function will return the "highest" level of
-default value, but will not return a custom value, i.e. a value
-entered by the user.
-
-=head1 Constructor
-
-Value object should not be created directly.
-
-=head1 Value model declaration
-
-A leaf element must be declared with the following parameters:
-
-=over
-
-=item value_type
-
-Either C<boolean>, C<enum>, C<integer>, C<number>,
-C<uniline>, C<string>. Mandatory. See L</"Value types">.
-
-=item default
-
-Specify the default value (optional)
-
-=item upstream_default
-
-Specify a built in default value (optional). I.e a value known by the application
-which does not need to be written in the configuration file.
-
-=item write_as
-
-Array ref. Reserved for boolean value. Specify how to write a boolean value. 
-Default is C<[0,1]> which may not be the most readable. C<write_as> can be 
-specified as C<['false','true']> or C<['no','yes']>. 
-
-=cut
 
 # internal method
 sub set_default {
@@ -251,13 +61,6 @@ sub set_default {
     }
 }
 
-=item compute
-
-Will compute a value according to a formula and other values. By default
-a computed value cannot be set. See L<Config::Model::ValueComputer> for 
-computed value declaration.
-
-=cut
 
 sub set_compute {
     my ($self, $arg_ref) = @_ ;
@@ -372,13 +175,6 @@ sub compute_info {
     $self->{_compute} -> compute_info ;
 }
 
-=item migrate_from
-
-This is a special parameter to cater for smooth configuration
-upgrade. This parameter can be used to copy the value of a deprecated
-parameter to its replacement. See L<"/upgrade"> for details.
-
-=cut
 
 sub set_migrate_from {
     my ($self, $arg_ref) = @_ ;
@@ -439,31 +235,6 @@ sub migrate_value {
     return $ok ? $result : undef ;
 }
 
-=item convert => [uc | lc ]
-
-When stored, the value will be converted to uppercase (uc) or
-lowercase (lc).
-
-=item min
-
-Specify the minimum value (optional, only for integer, number)
-
-=item max
-
-Specify the maximum value (optional, only for integer, number)
-
-=item mandatory
-
-Set to 1 if the configuration value B<must> be set by the
-configuration user (default: 0)
-
-=item choice
-
-Array ref of the possible value of an enum. Example :
-
- choice => [ qw/foo bar/]
-
-=cut
 
 sub setup_enum_choice {
     my $self = shift ;
@@ -490,57 +261,6 @@ sub setup_enum_choice {
     } qw/data preset/;
 }
 
-=item match
-
-Perl regular expression. The value will be match with the regex to
-assert its validity. Example C<< match => '^foo' >> means that the
-parameter value must begin with "foo". Valid only for C<string> or
-C<uniline> values.
-
-=item warn_if_match
-
-Hash ref. Keys are made of Perl regular expression. The value can
-specify a warning message (leave empty or undefined for default warning
-message) and instructions to fix the value. A warning will be issued
-when the value match the passed regular expression. Valid only for
-C<string> or C<uniline> values. The fix instructions will be evaluated
-when L<apply_fixes> is called. C<$_> will contain the value to fix.
-C<$_> will be stored as the new value once the instructions are done.
-C<$self> will contain the value object. Use with care.
-
-In the example below, any value matching 'foo' will be converted in uppercase:
-
-  warn_if_match => { 'foo' => { fix =>'uc;', msg =>  'lower foo is not good'}},
-
-=item warn_unless_match
-
-Hash ref like above. A warning will be issued when the value does not
-match the passed regular expression. Valid only for C<string> or
-C<uniline> values.
-
-=item warn
-
-String. Issue a warning to user with the specified string any time a value is set or read.
-
-=item warn_unless
-
-A bit like C<warn_if_match>. The hash key is not a regexp but a label to help users.
-The hash ref containd some Perl code that is evaluated to perform the test. A warning will be issued if 
-the code returns false. 
-
-C<$_> will contains the value to check. C<$self> will contain the C<Config::Model::Value> object.
-
-The example below will warn if a directory is missing:
-
-  warn_unless => { 'dir' => { code => '-d' , msg => 'missing dir', fix => "system(mkdir $_);" }}
-
-
-=item assert
-
-Like C<warn_if_match>. Except that returned value will trigger an error if false.
-
-
-=cut
 
 sub setup_match_regexp {
     my ($self,$what,$ref) = @_ ;
@@ -616,32 +336,6 @@ sub check_validation_regexp {
     }
 }
 
-=item grammar
-
-Setup a L<Parse::RecDescent> grammar to perform validation.
-
-If the grammar does not start with a "check" rule (i.e does not start with "check: "),
-the first line of the grammar will be modified to add "check" rule and set up this rules so
-the entire value must match the passed grammar.
-
-I.e. the grammar:
-
-  token (oper token)(s?)
-  oper: 'and' | 'or'
-  token: 'Apache' | 'CC-BY' | 'Perl'
-
-will be changed to
-
-  check: token (oper token)(s?) /^\Z/ {$return = 1;}
-  oper: 'and' | 'or'
-  token: 'Apache' | 'CC-BY' | 'Perl'
-
-The rule is called with Value object and a string reference. So, in the
-actions you may need to define, you can call the value object as
-C<$arg[0]>, store error message in C<${$arg[1]}}> and store warnings in
-C<${$arg[2]}}>.
-
-=cut
 
 sub setup_grammar_check {
     my ($self,$ref) = @_ ;
@@ -678,53 +372,6 @@ sub setup_grammar_check {
     }
 }
 
-=item replace
-
-Hash ref. Used for enum to substitute one value with another. This
-parameter must be used to enable user to upgrade a configuration with
-obsolete values. For instance, if the value C<foo> is obsolete and
-replaced by C<foo_better>, you will need to declare:
-
-  replace => { foo => 'foo_better' }
-
-The hash key can also be a regular expression for wider range replacement. 
-The regexp must match the whole value:
-
-  replace => ( 'foo.*' => 'better_foo' }
-  
-In this case, a value will be replaced by C<better_foo> if the 
-C</^foo.*$/> regexp matches. 
-
-=item replace_follow
-
-Path specifying a hash of value element in the configuration tree. The 
-hash if used in a way similar to the C<replace> parameter. In this case, the 
-replacement is not coded in the model but specified by the configuration.
-
-=item refer_to
-
-Specify a path to an id element used as a reference. See L<Value
-Reference> for details.
-
-=item computed_refer_to
-
-Specify a path to an id element used as a computed reference. See
-L<Value Reference> for details.
-
-=item warp
-
-See section below: L</"Warp: dynamic value configuration">.
-
-=item help
-
-You may provide detailed description on possible values with a hash
-ref. Example:
-
- help => { oui => "French for 'yes'", non => "French for 'no'"}
-
-=back
-
-=cut
 
 
 my @warp_accessible_params =  qw/min max mandatory default 
@@ -874,45 +521,6 @@ sub set_help {
     $self->{help} =  delete $args->{help};
 }
 
-=head2 Value types
-
-This modules can check several value types:
-
-=over
-
-=item C<boolean>
-
-Accepts values C<1> or C<0>, C<yes> or C<no>, C<true> or C<false>. The
-value read back is always C<1> or C<0>.
-
-=item C<enum>
-
-Enum choices must be specified by the C<choice> parameter.
-
-=item C<integer>
-
-Enable positive or negative integer
-
-=item C<number>
-
-The value can be a decimal number
-
-=item C<uniline>
-
-A one line string. I.e without "\n" in it.
-
-=item C<string>
-
-Actually, no check is performed with this type.
-
-=item C<reference>
-
-Like an C<enum> where the possible values (aka choice) is defined by
-another location if the configuration tree. See L</Value Reference>.
-
-=back
-
-=cut
 
 sub set_value_type {
     my ($self, $arg_ref) = @_ ;
@@ -963,61 +571,6 @@ sub set_value_type {
     }
 }
 
-=head1 Warp: dynamic value configuration
-
-The Warp functionality enable a C<Value> object to change its
-properties (i.e. default value or its type) dynamically according to
-the value of another C<Value> object locate elsewhere in the
-configuration tree. (See L<Config::Model::WarpedThing> for an
-explanation on warp mechanism).
-
-For instance if you declare 2 C<Value> element this way:
-
- $model ->create_config_class (
-   name => "TV_config_class",
-   element => [
-     country => {
-       type => 'leaf',
-       value_type => 'enum', 
-       choice => [qw/US Europe Japan/]
-     },
-     tv_standard => {
-       type => 'leaf',
-       value_type => 'enum',
-       choice => [qw/PAL NTSC SECAM/]  
-       warp => { 
-         follow => { c => '- country' }, # this points to the warp master
-         rules => { 
-           '$c eq "US"'     => { default => 'NTSC'  },
-           '$c eq "France"' => { default => 'SECAM' },
-           '$c eq "Japan"'  => { default => 'NTSC'  },
-           '$c eq "Europe"' => { default => 'PAL'   },
-         }
-       }
-     },
-   ]
- );
-
-Setting C<country> element to C<US> will mean that C<tv_standard> has
-a default value set to C<NTSC> by the warp mechanism.
-
-Likewise, the warp mechanism enables you to dynamically change the
-possible values of an enum element:
-
- state => {
-      type => 'leaf',
-      value_type => 'enum', # example is admittedly silly
-      warp =>{ 
-         follow => { c => '- country' },
-         rules => { 
-           '$c eq "US"'     => { choice => ['Kansas', 'Texas'    ]},
-           '$c eq "Europe"' => { choice => ['France', 'Spain'    ]},
-           '$c eq "Japan"'  => { choice => ['Honshu', 'Hokkaido' ]}
-         }
-      }
-   }
-
-=cut
 
 # Now I'm a warper !
 sub register
@@ -1084,56 +637,6 @@ sub trigger_warp
   }
 
 
-=head2 Cascaded warping
-
-Warping value can be cascaded: C<A> can be warped by C<B> which can be
-warped by C<C>. But this feature should be avoided since it can lead
-to a model very hard to debug. Bear in mind that:
-
-=over
-
-=item *
-
-Warp loop are not detected and will end up in "deep recursion
-subroutine" failures.
-
-=item *
-
-If you declare "diamond" shaped warp dependencies, the results will
-depend on the order of the warp algorithm and can be unpredictable.
-
-=item *
-
-The keys declared in the warp rules (C<US>, C<Europe> and C<Japan> in
-the example above) cannot be checked at start time against the warp
-master C<Value>. So a wrong warp rule key will be silently ignored
-during start up and will fail at run time.
-
-=back
-
-=head1 Value Reference
-
-To set up an enumerated value where the possible choice depends on the
-key of a L<Config::Model::AnyId> object, you must:
-
-=over
-
-=item * 
-
-Set C<value_type> to C<reference>.
-
-=item *
-
-Specify the C<refer_to> or C<computed_refer_to> parameter. 
-See L<refer_to parameter|Config::Model::IdElementReference/"Config class parameters">.
-
-=back
-
-In this case, a C<IdElementReference> object is created to handle the
-relation between this value object and the referred Id. See
-L<Config::Model::IdElementReference> for details.
-
-=cut
 
 sub submit_to_refer_to {
     my $self = shift ;
@@ -1168,37 +671,6 @@ sub reference_object {
     return $self->{ref_object} ;
 }
 
-=head1 Introspection methods
-
-The following methods returns the current value of the parameter of
-the value object (as declared in the model unless they were warped):
-
-=over
-
-=item min 
-
-=item max 
-
-=item mandatory 
-
-=item choice
-
-=item convert
-
-=item value_type 
-
-=item default 
-
-=item upstream_default
-
-=item index_value
-
-=item element_name
-
-=back
-
-
-=cut
 
 # accessor to get some fields through methods (See man perltootc)
 foreach my $datum (@accessible_params) {
@@ -1215,11 +687,6 @@ sub built_in {
   goto &upstream_default ;
 }
 
-=head2 name()
-
-Returns the object name. 
-
-=cut
 
 ## FIXME::what about id ??
 sub name {
@@ -1229,11 +696,6 @@ sub name {
     return $name ;
 }
 
-=head2 get_type
-
-Returns C<leaf>.
-
-=cut
 
 sub get_type {
     return 'leaf' ;
@@ -1243,12 +705,6 @@ sub get_cargo_type {
     return 'leaf' ;
 }
 
-=head2 can_store()
-
-Returns true if the value object can be assigned to. Return 0 for a
-read-only value (i.e. a computed value with no override allowed).
-
-=cut
 
 sub can_store {
     my $self= shift;
@@ -1256,12 +712,6 @@ sub can_store {
     return not defined $self->{compute} || $self->{allow_compute_override} ;
 }
 
-=head2 get_choice()
-
-Query legal values (only for enum types). Return an array (possibly
-empty).
-
-=cut
 
 sub get_default_choice {
     my $self = shift ;
@@ -1279,16 +729,6 @@ sub get_choice {
     return @{$self->{choice} || [] } ;
 }
 
-=head2 get_help ( [ on_value ] )
-
-Returns the help strings passed to the constructor.
-
-With C<on_value> parameter, returns the help string dedicated to the
-passed value or undef.
-
-Without parameter returns a hash ref that contains all the help strings.
-
-=cut
 
 sub get_help {
     my $self= shift;
@@ -1303,11 +743,6 @@ sub get_help {
     return ;
 }
 
-=head2 error_msg 
-
-Returns the error messages of this object (if any)
-
-=cut
 
 sub error_msg {
     my $self = shift ;
@@ -1315,12 +750,6 @@ sub error_msg {
     return wantarray ? @{$self->{error_list}} : join("\n\t",@{ $self ->{error_list}}) ;
 }
 
-=head2 warning_msg
-
-Returns warning concerning this value. Returns a list in list 
-context and a string in scalar context.
-
-=cut
 
 sub warning_msg {
     my $self = shift ;
@@ -1352,31 +781,6 @@ sub enum_error {
     return @error ;
 }
 
-=head2 check_value ( value )
-
-Check the consistency of the value.
-
-C<check_value> also accepts named parameters:
-
-=over 4
-
-=item value
-
-=item quiet
-
-When non null, check will not try to get extra
-information from the tree. This is required in some cases to avoid
-loops in check, get_info, get_warp_info, re-check ...
-
-=back
-
-In scalar context, return 0 or 1.
-
-In array context, return an empty array when no error was found. In
-case of errors, returns an array of error strings that should be shown
-to the user.
-
-=cut
 
 sub check_value {
     my $self = shift ;
@@ -1592,22 +996,12 @@ sub run_regexp_set_on_value {
     }
 }
     
-=head2 has_fixes
-
-Returns the number of fixes that can be applied to the current value. 
-
-=cut
 
 sub has_fixes {
     my $self = shift; 
     return $self->{nb_of_fixes} ;
 }
 
-=head2 apply_fixes
-
-Applies the fixes to suppress the current warnings.
-
-=cut
 
 sub apply_fixes {
     my $self = shift ; 
@@ -1639,17 +1033,6 @@ sub apply_fix {
     # $self->store(value => $_, check => 'no');  # will update $self->{fixes}
 }
 
-=head2 check( [ value => foo ] )
-
-Like L</check_value>.
-
-Will also display warnings on STDOUT unless C<silent> parameter is set to 1.
-In this case,user is expected to retrieve them with
-L<warning_msg>.
-
-Without C<value> argument, this method will check the value currently stored.
-
-=cut
 
 sub check {
     my $self = shift ;
@@ -1676,16 +1059,6 @@ sub check {
 }
 
 
-=head1 Information management
-
-=head2 store( value )
-
-Can be called as C<< value => ...,  check => yes|no|skip ) >>
-
-Store value in leaf element. C<check> parameter can be used to 
-skip validation check.
-
-=cut
 
 sub store {
     my $self = shift ;
@@ -1833,11 +1206,6 @@ sub _value_type_error {
 		 ) ;
 }
 
-=head2 load_data( scalar_value )
-
-Load scalar data. Data is simply forwarded to L<store>.
-
-=cut
 
 sub load_data {
     my $self = shift ;
@@ -1860,14 +1228,6 @@ sub load_data {
 }
 
 
-=head2 fetch_custom
-
-Returns the stored value if this value is different from a standard
-setting or built in setting. In other words, returns undef if the
-stored value is identical to the default value or the computed value
-or the built in value.
-
-=cut
 
 sub fetch_custom {
     my $self = shift ;
@@ -1879,13 +1239,6 @@ sub fetch_custom {
     return $self->map_write_as($v) ;
 }
 
-=head2 fetch_standard
-
-Returns the standard value as defined by the configuration model. The
-standard value can be either a preset value, a layered value, a computed value, a
-default value or a built-in default value.
-
-=cut
 
 sub fetch_standard {
     my $self = shift ;
@@ -2035,6 +1388,774 @@ sub _fetch_no_check {
           :                            $self->{default} ;
 }
 
+
+sub fetch {
+    my $self = shift ;
+
+    my %args =  @_ > 1 ? @_ : (mode => $_[0]) ;
+    my $mode = $args{mode} || 'backend';
+    my $silent = $args{silent} || 0 ;
+    my $check = $self->_check_check($args{check}); 
+
+    if ($logger->is_debug) {
+        $logger->debug("called for ".$self->location." check $check mode $mode");
+    }
+    
+    my $inst = $self->instance ;
+
+    my $value = $self->_fetch($mode,$check) ;
+
+    if ($mode and not defined $accept_mode{$mode}) {
+	croak "fetch: expected ", not scalar
+	    join (' or ',keys %accept_mode),
+		" parameter, not $mode" ;
+    }
+
+    if (defined $self->{replace_follow} and defined $value) {
+        my $rep = $self->grab_value(
+            step => $self->{replace_follow}.qq!:"$value"!,
+            mode => 'loose',
+            autoadd => 0,
+        );                
+        $value = $rep if defined $rep ;
+    }
+
+    # check and subsequent storage of fixes instruction must be done only
+    # in user or custom mode. (because fixes are cleaned up during check and using
+    # mode may not trigger the warnings. Hence confusion afterwards)
+    my $ok = 1 ;
+    $ok = $self->check(value => $value, silent => $silent, mode => $mode ) 
+        if $mode =~ /backend|custom|user/ ;
+
+    $logger->debug( "(almost) done for " . $self->location )
+      if $logger->is_debug;
+
+    # check validity (all modes)
+    if ( $ok or $check eq 'no' ) {
+        return $self->map_write_as($value);
+    }
+    elsif ( $check eq 'skip' ) {
+        my $msg = $self->error_msg;
+        warn "Warning: skipping value $value because of the following errors:\n$msg\n\n"
+          if not $silent and $msg;
+        return undef;
+    }
+    
+    Config::Model::Exception::WrongValue->throw(
+        object => $self,
+        error  => join( "\n\t", @{ $self->{error_list} } )
+    );
+
+    #return $value;    # undef in fact
+}
+
+sub map_write_as {
+    my ($self,$v) = @_ ;
+    return unless defined $v ;
+    return $v unless $self->{write_as};
+    return $v unless $self->value_type eq 'boolean';
+    return $self->{write_as}[$v] ;
+}
+
+
+sub user_value {
+    return shift->{data} ;
+}
+
+
+sub fetch_preset {
+    my $self= shift ;
+    return $self->map_write_as($self->{preset}) ;
+}
+
+
+sub clear_preset {
+    my $self= shift ;
+    delete $self->{preset} ;
+    return defined $self->{layered} || defined $self->{data} ;
+}
+
+
+sub fetch_layered {
+    my $self= shift ;
+    return $self->map_write_as($self->{layered}) ;
+}
+
+
+sub clear_layered {
+    my $self= shift ;
+    delete $self->{layered} ;
+    return defined $self->{preset} || defined $self->{data} ;
+}
+
+
+
+
+sub get {
+    my $self = shift ;
+    my %args = @_ > 1 ? @_ : ( path => $_[0] ) ;
+    my $path = delete $args{path} ;
+    if ($path) {
+	Config::Model::Exception::User
+	    -> throw (
+		      object => $self,
+		      message => "get() called with a value with non-empty path: '$path'"
+		     ) ;
+    }
+    return $self->fetch(%args) ;
+}
+
+
+sub set {
+    my $self = shift ;
+    my $path = shift ;
+    if ($path) {
+	Config::Model::Exception::User
+	    -> throw (
+		      object => $self,
+		      message => "set() called with a value with non-empty path: '$path'"
+		     ) ;
+    }
+    return $self->store(@_) ;
+}
+
+#These methods are important when this leaf value is used as a warp
+#master, or a variable in a compute formula.
+
+# register a dependency, This information may be used by external
+# tools
+sub register_dependency {
+    my $self = shift ;
+    my $slave = shift ;
+
+    unshift @{$self->{depend_on_me}}, $slave ;
+    # weaken only applies to the passed reference, and there's no way
+    # to duplicate a weak ref. Only a strong ref is created.
+    weaken($self->{depend_on_me}[0]) ; 
+}
+
+sub get_depend_slave {
+    my $self = shift ;
+
+    my @result = () ;
+    push @result, @{$self->{depend_on_me}} if defined $self->{depend_on_me} ;
+
+    if (defined $self->{warp_these_objects}) {
+        push @result, map ($_->[0], @{$self->{warp_these_objects}} )  ;
+    }
+
+    return @result ;
+  }
+
+1;
+
+__END__
+
+
+
+=pod
+
+=head1 NAME
+
+Config::Model::Value - Strongly typed configuration value
+
+=head1 SYNOPSIS
+
+ use Config::Model;
+ use Log::Log4perl qw(:easy);
+ Log::Log4perl->easy_init($WARN);
+
+ # define configuration tree object
+ my $model = Config::Model->new;
+ $model ->create_config_class (
+    name => "MyClass",
+
+    element => [ 
+
+        [qw/foo bar/] => {
+            type       => 'leaf',
+            value_type => 'string',
+	    description => 'foobar',
+        },
+     country => { 
+       type =>       'leaf',
+       value_type => 'enum',
+       choice =>      [qw/France US/],
+       description => 'big countries',
+     },
+    ],
+ ) ;
+
+ my $inst = $model->instance(root_class_name => 'MyClass' );
+
+ my $root = $inst->config_root ;
+
+ # put data
+ $root->load( step => 'foo=FOO country=US' );
+
+ print $root->report ;
+ #  foo = FOO
+ #         DESCRIPTION: foobar
+ # 
+ #  country = US
+ #         DESCRIPTION: big countries
+
+=head1 DESCRIPTION
+
+This class provides a way to specify configuration value with the
+following properties:
+
+=over
+
+=item *
+
+Strongly typed scalar: the value can either be an enumerated type, a boolean,
+a number, an integer or a string
+
+=item *
+
+default parameter: a value can have a default value specified during
+the construction. This default value will be written in the target
+configuration file. (C<default> parameter)
+
+=item *
+
+upstream default parameter: specifies a default value that will be
+used by the application when no information is provided in the
+configuration file. This upstream_default value will not written in
+the configuration files. Only the C<fetch_standard> method will return
+the builtin value. This parameter was previously referred as
+C<built_in> value. This may be used for audit
+purpose. (C<upstream_default> parameter)
+
+=item *
+
+mandatory value: reading a mandatory value will raise an exception if the
+value is not specified and has no default value.
+
+=item *
+
+dynamic change of property: A slave value can be registered to another
+master value so that the properties of the slave value can change
+according to the value of the master value. For instance, paper size value
+can be 'letter' for country 'US' and 'A4' for country 'France'.
+
+=item *
+
+A reference to the Id of a hash of list element. In other word, the
+value is an enumerated type where the possible values (choice) is
+defined by the existing keys of a has element somewhere in the tree. See
+L</"Value Reference">.
+
+=back
+
+=head1 Default values
+
+There are several kind of default values. They depend on where these
+values are defined (or found).
+
+From the lowest default level to the "highest":
+
+=over
+
+=item *
+
+C<upstream_default>: The value is known in the application, but is not
+written in the configuration file.
+
+=item *
+
+C<layered>: The value is known by the application through another
+mean (e.g. an included configuration file), but is not written in the 
+configuration file.
+
+=item *
+
+C<default>: The value is known by the model, but not by the
+application. This value must be written in the configuration file.
+
+=item *
+
+C<computed>: The value is computed from other configuration
+elements. This value must be written in the configuration file.
+
+
+=item *
+
+C<preset>: The value is not known by the model or by the
+application. But it can be found by an automatic program and stored
+while the configuration L<Config::Model::Instance|instance> is in 
+L<Config::Model::Instance/"preset_start ()"|preset mode>
+
+=back
+
+Then there is the value entered by the user. This will override all
+kind of "default" value.
+
+The L<fetch_standard> function will return the "highest" level of
+default value, but will not return a custom value, i.e. a value
+entered by the user.
+
+=head1 Constructor
+
+Value object should not be created directly.
+
+=head1 Value model declaration
+
+A leaf element must be declared with the following parameters:
+
+=over
+
+=item value_type
+
+Either C<boolean>, C<enum>, C<integer>, C<number>,
+C<uniline>, C<string>. Mandatory. See L</"Value types">.
+
+=item default
+
+Specify the default value (optional)
+
+=item upstream_default
+
+Specify a built in default value (optional). I.e a value known by the application
+which does not need to be written in the configuration file.
+
+=item write_as
+
+Array ref. Reserved for boolean value. Specify how to write a boolean value. 
+Default is C<[0,1]> which may not be the most readable. C<write_as> can be 
+specified as C<['false','true']> or C<['no','yes']>. 
+
+=item compute
+
+Will compute a value according to a formula and other values. By default
+a computed value cannot be set. See L<Config::Model::ValueComputer> for 
+computed value declaration.
+
+=item migrate_from
+
+This is a special parameter to cater for smooth configuration
+upgrade. This parameter can be used to copy the value of a deprecated
+parameter to its replacement. See L<"/upgrade"> for details.
+
+=item convert => [uc | lc ]
+
+When stored, the value will be converted to uppercase (uc) or
+lowercase (lc).
+
+=item min
+
+Specify the minimum value (optional, only for integer, number)
+
+=item max
+
+Specify the maximum value (optional, only for integer, number)
+
+=item mandatory
+
+Set to 1 if the configuration value B<must> be set by the
+configuration user (default: 0)
+
+=item choice
+
+Array ref of the possible value of an enum. Example :
+
+ choice => [ qw/foo bar/]
+
+=item match
+
+Perl regular expression. The value will be match with the regex to
+assert its validity. Example C<< match => '^foo' >> means that the
+parameter value must begin with "foo". Valid only for C<string> or
+C<uniline> values.
+
+=item warn_if_match
+
+Hash ref. Keys are made of Perl regular expression. The value can
+specify a warning message (leave empty or undefined for default warning
+message) and instructions to fix the value. A warning will be issued
+when the value match the passed regular expression. Valid only for
+C<string> or C<uniline> values. The fix instructions will be evaluated
+when L<apply_fixes> is called. C<$_> will contain the value to fix.
+C<$_> will be stored as the new value once the instructions are done.
+C<$self> will contain the value object. Use with care.
+
+In the example below, any value matching 'foo' will be converted in uppercase:
+
+  warn_if_match => { 'foo' => { fix =>'uc;', msg =>  'lower foo is not good'}},
+
+=item warn_unless_match
+
+Hash ref like above. A warning will be issued when the value does not
+match the passed regular expression. Valid only for C<string> or
+C<uniline> values.
+
+=item warn
+
+String. Issue a warning to user with the specified string any time a value is set or read.
+
+=item warn_unless
+
+A bit like C<warn_if_match>. The hash key is not a regexp but a label to help users.
+The hash ref containd some Perl code that is evaluated to perform the test. A warning will be issued if 
+the code returns false. 
+
+C<$_> will contains the value to check. C<$self> will contain the C<Config::Model::Value> object.
+
+The example below will warn if a directory is missing:
+
+  warn_unless => { 'dir' => { code => '-d' , msg => 'missing dir', fix => "system(mkdir $_);" }}
+
+
+=item assert
+
+Like C<warn_if_match>. Except that returned value will trigger an error if false.
+
+=item grammar
+
+Setup a L<Parse::RecDescent> grammar to perform validation.
+
+If the grammar does not start with a "check" rule (i.e does not start with "check: "),
+the first line of the grammar will be modified to add "check" rule and set up this rules so
+the entire value must match the passed grammar.
+
+I.e. the grammar:
+
+  token (oper token)(s?)
+  oper: 'and' | 'or'
+  token: 'Apache' | 'CC-BY' | 'Perl'
+
+will be changed to
+
+  check: token (oper token)(s?) /^\Z/ {$return = 1;}
+  oper: 'and' | 'or'
+  token: 'Apache' | 'CC-BY' | 'Perl'
+
+The rule is called with Value object and a string reference. So, in the
+actions you may need to define, you can call the value object as
+C<$arg[0]>, store error message in C<${$arg[1]}}> and store warnings in
+C<${$arg[2]}}>.
+
+=item replace
+
+Hash ref. Used for enum to substitute one value with another. This
+parameter must be used to enable user to upgrade a configuration with
+obsolete values. For instance, if the value C<foo> is obsolete and
+replaced by C<foo_better>, you will need to declare:
+
+  replace => { foo => 'foo_better' }
+
+The hash key can also be a regular expression for wider range replacement. 
+The regexp must match the whole value:
+
+  replace => ( 'foo.*' => 'better_foo' }
+  
+In this case, a value will be replaced by C<better_foo> if the 
+C</^foo.*$/> regexp matches. 
+
+=item replace_follow
+
+Path specifying a hash of value element in the configuration tree. The 
+hash if used in a way similar to the C<replace> parameter. In this case, the 
+replacement is not coded in the model but specified by the configuration.
+
+=item refer_to
+
+Specify a path to an id element used as a reference. See L<Value
+Reference> for details.
+
+=item computed_refer_to
+
+Specify a path to an id element used as a computed reference. See
+L<Value Reference> for details.
+
+=item warp
+
+See section below: L</"Warp: dynamic value configuration">.
+
+=item help
+
+You may provide detailed description on possible values with a hash
+ref. Example:
+
+ help => { oui => "French for 'yes'", non => "French for 'no'"}
+
+=back
+
+=head2 Value types
+
+This modules can check several value types:
+
+=over
+
+=item C<boolean>
+
+Accepts values C<1> or C<0>, C<yes> or C<no>, C<true> or C<false>. The
+value read back is always C<1> or C<0>.
+
+=item C<enum>
+
+Enum choices must be specified by the C<choice> parameter.
+
+=item C<integer>
+
+Enable positive or negative integer
+
+=item C<number>
+
+The value can be a decimal number
+
+=item C<uniline>
+
+A one line string. I.e without "\n" in it.
+
+=item C<string>
+
+Actually, no check is performed with this type.
+
+=item C<reference>
+
+Like an C<enum> where the possible values (aka choice) is defined by
+another location if the configuration tree. See L</Value Reference>.
+
+=back
+
+=head1 Warp: dynamic value configuration
+
+The Warp functionality enable a C<Value> object to change its
+properties (i.e. default value or its type) dynamically according to
+the value of another C<Value> object locate elsewhere in the
+configuration tree. (See L<Config::Model::WarpedThing> for an
+explanation on warp mechanism).
+
+For instance if you declare 2 C<Value> element this way:
+
+ $model ->create_config_class (
+   name => "TV_config_class",
+   element => [
+     country => {
+       type => 'leaf',
+       value_type => 'enum', 
+       choice => [qw/US Europe Japan/]
+     },
+     tv_standard => {
+       type => 'leaf',
+       value_type => 'enum',
+       choice => [qw/PAL NTSC SECAM/]  
+       warp => { 
+         follow => { c => '- country' }, # this points to the warp master
+         rules => { 
+           '$c eq "US"'     => { default => 'NTSC'  },
+           '$c eq "France"' => { default => 'SECAM' },
+           '$c eq "Japan"'  => { default => 'NTSC'  },
+           '$c eq "Europe"' => { default => 'PAL'   },
+         }
+       }
+     },
+   ]
+ );
+
+Setting C<country> element to C<US> will mean that C<tv_standard> has
+a default value set to C<NTSC> by the warp mechanism.
+
+Likewise, the warp mechanism enables you to dynamically change the
+possible values of an enum element:
+
+ state => {
+      type => 'leaf',
+      value_type => 'enum', # example is admittedly silly
+      warp =>{ 
+         follow => { c => '- country' },
+         rules => { 
+           '$c eq "US"'     => { choice => ['Kansas', 'Texas'    ]},
+           '$c eq "Europe"' => { choice => ['France', 'Spain'    ]},
+           '$c eq "Japan"'  => { choice => ['Honshu', 'Hokkaido' ]}
+         }
+      }
+   }
+
+=head2 Cascaded warping
+
+Warping value can be cascaded: C<A> can be warped by C<B> which can be
+warped by C<C>. But this feature should be avoided since it can lead
+to a model very hard to debug. Bear in mind that:
+
+=over
+
+=item *
+
+Warp loop are not detected and will end up in "deep recursion
+subroutine" failures.
+
+=item *
+
+If you declare "diamond" shaped warp dependencies, the results will
+depend on the order of the warp algorithm and can be unpredictable.
+
+=item *
+
+The keys declared in the warp rules (C<US>, C<Europe> and C<Japan> in
+the example above) cannot be checked at start time against the warp
+master C<Value>. So a wrong warp rule key will be silently ignored
+during start up and will fail at run time.
+
+=back
+
+=head1 Value Reference
+
+To set up an enumerated value where the possible choice depends on the
+key of a L<Config::Model::AnyId> object, you must:
+
+=over
+
+=item * 
+
+Set C<value_type> to C<reference>.
+
+=item *
+
+Specify the C<refer_to> or C<computed_refer_to> parameter. 
+See L<refer_to parameter|Config::Model::IdElementReference/"Config class parameters">.
+
+=back
+
+In this case, a C<IdElementReference> object is created to handle the
+relation between this value object and the referred Id. See
+L<Config::Model::IdElementReference> for details.
+
+=head1 Introspection methods
+
+The following methods returns the current value of the parameter of
+the value object (as declared in the model unless they were warped):
+
+=over
+
+=item min 
+
+=item max 
+
+=item mandatory 
+
+=item choice
+
+=item convert
+
+=item value_type 
+
+=item default 
+
+=item upstream_default
+
+=item index_value
+
+=item element_name
+
+=back
+
+=head2 name()
+
+Returns the object name. 
+
+=head2 get_type
+
+Returns C<leaf>.
+
+=head2 can_store()
+
+Returns true if the value object can be assigned to. Return 0 for a
+read-only value (i.e. a computed value with no override allowed).
+
+=head2 get_choice()
+
+Query legal values (only for enum types). Return an array (possibly
+empty).
+
+=head2 get_help ( [ on_value ] )
+
+Returns the help strings passed to the constructor.
+
+With C<on_value> parameter, returns the help string dedicated to the
+passed value or undef.
+
+Without parameter returns a hash ref that contains all the help strings.
+
+=head2 error_msg 
+
+Returns the error messages of this object (if any)
+
+=head2 warning_msg
+
+Returns warning concerning this value. Returns a list in list 
+context and a string in scalar context.
+
+=head2 check_value ( value )
+
+Check the consistency of the value.
+
+C<check_value> also accepts named parameters:
+
+=over 4
+
+=item value
+
+=item quiet
+
+When non null, check will not try to get extra
+information from the tree. This is required in some cases to avoid
+loops in check, get_info, get_warp_info, re-check ...
+
+=back
+
+In scalar context, return 0 or 1.
+
+In array context, return an empty array when no error was found. In
+case of errors, returns an array of error strings that should be shown
+to the user.
+
+=head2 has_fixes
+
+Returns the number of fixes that can be applied to the current value. 
+
+=head2 apply_fixes
+
+Applies the fixes to suppress the current warnings.
+
+=head2 check( [ value => foo ] )
+
+Like L</check_value>.
+
+Will also display warnings on STDOUT unless C<silent> parameter is set to 1.
+In this case,user is expected to retrieve them with
+L<warning_msg>.
+
+Without C<value> argument, this method will check the value currently stored.
+
+=head1 Information management
+
+=head2 store( value )
+
+Can be called as C<< value => ...,  check => yes|no|skip ) >>
+
+Store value in leaf element. C<check> parameter can be used to 
+skip validation check.
+
+=head2 load_data( scalar_value )
+
+Load scalar data. Data is simply forwarded to L<store>.
+
+=head2 fetch_custom
+
+Returns the stored value if this value is different from a standard
+setting or built in setting. In other words, returns undef if the
+stored value is identical to the default value or the computed value
+or the built in value.
+
+=head2 fetch_standard
+
+Returns the standard value as defined by the configuration model. The
+standard value can be either a preset value, a layered value, a computed value, a
+default value or a built-in default value.
+
 =head2 fetch( ... )
 
 Check and fetch value from leaf element. The method can have one parameter (the fetch mode)
@@ -2130,86 +2251,10 @@ trying to fetch an undefined mandatory value leads to an exception.
 
 =back
 
-=cut
-
-sub fetch {
-    my $self = shift ;
-
-    my %args =  @_ > 1 ? @_ : (mode => $_[0]) ;
-    my $mode = $args{mode} || 'backend';
-    my $silent = $args{silent} || 0 ;
-    my $check = $self->_check_check($args{check}); 
-
-    if ($logger->is_debug) {
-        $logger->debug("called for ".$self->location." check $check mode $mode");
-    }
-    
-    my $inst = $self->instance ;
-
-    my $value = $self->_fetch($mode,$check) ;
-
-    if ($mode and not defined $accept_mode{$mode}) {
-	croak "fetch: expected ", not scalar
-	    join (' or ',keys %accept_mode),
-		" parameter, not $mode" ;
-    }
-
-    if (defined $self->{replace_follow} and defined $value) {
-        my $rep = $self->grab_value(
-            step => $self->{replace_follow}.qq!:"$value"!,
-            mode => 'loose',
-            autoadd => 0,
-        );                
-        $value = $rep if defined $rep ;
-    }
-
-    # check and subsequent storage of fixes instruction must be done only
-    # in user or custom mode. (because fixes are cleaned up during check and using
-    # mode may not trigger the warnings. Hence confusion afterwards)
-    my $ok = 1 ;
-    $ok = $self->check(value => $value, silent => $silent, mode => $mode ) 
-        if $mode =~ /backend|custom|user/ ;
-
-    $logger->debug( "(almost) done for " . $self->location )
-      if $logger->is_debug;
-
-    # check validity (all modes)
-    if ( $ok or $check eq 'no' ) {
-        return $self->map_write_as($value);
-    }
-    elsif ( $check eq 'skip' ) {
-        my $msg = $self->error_msg;
-        warn "Warning: skipping value $value because of the following errors:\n$msg\n\n"
-          if not $silent and $msg;
-        return undef;
-    }
-    
-    Config::Model::Exception::WrongValue->throw(
-        object => $self,
-        error  => join( "\n\t", @{ $self->{error_list} } )
-    );
-
-    #return $value;    # undef in fact
-}
-
-sub map_write_as {
-    my ($self,$v) = @_ ;
-    return unless defined $v ;
-    return $v unless $self->{write_as};
-    return $v unless $self->value_type eq 'boolean';
-    return $self->{write_as}[$v] ;
-}
-
 =head2 user_value
 
 Returns the value entered by the user. Does not use the default or
 computed value. Returns undef unless a value was actually stored.
-
-=cut
-
-sub user_value {
-    return shift->{data} ;
-}
 
 =head2 fetch_preset
 
@@ -2217,25 +2262,10 @@ Returns the value entered in preset mode. Does not use the default or
 computed value. Returns undef unless a value was actually stored in
 preset mode.
 
-=cut
-
-sub fetch_preset {
-    my $self= shift ;
-    return $self->map_write_as($self->{preset}) ;
-}
-
 =head2 clear_preset
 
 Delete the preset value. (Even out of preset mode). Returns true if other data 
 are still stored in the value (layered or user data). Returns false otherwise.
-
-=cut
-
-sub clear_preset {
-    my $self= shift ;
-    delete $self->{preset} ;
-    return defined $self->{layered} || defined $self->{data} ;
-}
 
 =head2 fetch_layered
 
@@ -2243,98 +2273,18 @@ Returns the value entered in layered mode. Does not use the default or
 computed value. Returns undef unless a value was actually stored in
 layered mode.
 
-=cut
-
-sub fetch_layered {
-    my $self= shift ;
-    return $self->map_write_as($self->{layered}) ;
-}
-
 =head2 clear_layered
 
 Delete the layered value. (Even out of layered mode). Returns true if other data 
 are still stored in the value (layered or user data). Returns false otherwise.
 
-=cut
-
-sub clear_layered {
-    my $self= shift ;
-    delete $self->{layered} ;
-    return defined $self->{preset} || defined $self->{data} ;
-}
-
-
-
 =head2 get( path => ..., mode => ... ,  check => ... )
 
 Get a value from a directory like path.
 
-=cut
-
-sub get {
-    my $self = shift ;
-    my %args = @_ > 1 ? @_ : ( path => $_[0] ) ;
-    my $path = delete $args{path} ;
-    if ($path) {
-	Config::Model::Exception::User
-	    -> throw (
-		      object => $self,
-		      message => "get() called with a value with non-empty path: '$path'"
-		     ) ;
-    }
-    return $self->fetch(%args) ;
-}
-
 =head2 set( path , value )
 
 Set a value from a directory like path.
-
-=cut
-
-sub set {
-    my $self = shift ;
-    my $path = shift ;
-    if ($path) {
-	Config::Model::Exception::User
-	    -> throw (
-		      object => $self,
-		      message => "set() called with a value with non-empty path: '$path'"
-		     ) ;
-    }
-    return $self->store(@_) ;
-}
-
-#These methods are important when this leaf value is used as a warp
-#master, or a variable in a compute formula.
-
-# register a dependency, This information may be used by external
-# tools
-sub register_dependency {
-    my $self = shift ;
-    my $slave = shift ;
-
-    unshift @{$self->{depend_on_me}}, $slave ;
-    # weaken only applies to the passed reference, and there's no way
-    # to duplicate a weak ref. Only a strong ref is created.
-    weaken($self->{depend_on_me}[0]) ; 
-}
-
-sub get_depend_slave {
-    my $self = shift ;
-
-    my @result = () ;
-    push @result, @{$self->{depend_on_me}} if defined $self->{depend_on_me} ;
-
-    if (defined $self->{warp_these_objects}) {
-        push @result, map ($_->[0], @{$self->{warp_these_objects}} )  ;
-    }
-
-    return @result ;
-  }
-
-1;
-
-__END__
 
 =head1 Examples
 
@@ -2527,4 +2477,3 @@ L<Config::Model::AnyId>, L<Config::Model::WarpedThing>, L<Exception::Class>
 L<Config::Model::ValueComputer>,
 
 =cut
-
