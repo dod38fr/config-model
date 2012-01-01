@@ -57,7 +57,7 @@ _cme()
              *)
             case ${words[1]} in
                 edit)
-                   COMPREPLY=( $( compgen -W "$global_options -ui -open-item" -- $cur ) )                        )
+                   COMPREPLY=( $( compgen -W "$global_options -ui -open-item" -- $cur ) )
                 ;;
                 # modify completion could be much more elaborate...
                 list|check|migrate|fix|modify)
