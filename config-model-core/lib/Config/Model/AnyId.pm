@@ -1,14 +1,14 @@
 package Config::Model::AnyId ;
+
+use Any::Moose ;
+
 use Config::Model::Exception ;
 use Config::Model::Warper ;
-use Scalar::Util qw(weaken) ;
-use warnings ;
 use Carp qw/cluck croak carp/;
-use strict;
 use Log::Log4perl qw(get_logger :levels);
 use Storable qw/dclone/;
 
-use base qw/Config::Model::AnyThing/;
+extends qw/Config::Model::AnyThing/;
 
 my $logger = get_logger("Tree::Element::Id") ;
 
@@ -20,46 +20,26 @@ my $logger = get_logger("Tree::Element::Id") ;
 # nb is incremented each time, or compute the passed formula 
 # and performs the same
 
+has cargo => (is => 'ro', isa => 'HashRef', required => 1 ) ;
+has warning_hash => ( is => 'rw', isa => 'HashRef' , default => sub {{} ;} ) ;
+has warning_list => ( is => 'rw', isa => 'ArrayRef', default => sub {[] ;} ) ;
+has [qw/config_class_name cargo_class/] => ( is => 'rw', isa => 'Maybe[Str]') ;
 
+sub BUILD {
+    my $self = shift;
 
-sub new {
-    my $type = shift;
-
-    # args hash is modified for arg check in derived class constructor
-    my $args_ref = shift ; 
-
-    my $self= { 
-            warning_hash => { },
-            warning_list => [ ],
-        } ;
-
-    bless $self,$type;
-
-    foreach my $p (qw/element_name cargo instance config_model/) {
-        $self->{$p} = delete $args_ref->{$p} or
-          croak "$type->new: Missing $p parameter for element ".
-            $self->{element_name} || 'unknown' ;
-    }
-
-    croak "$type->new: Missing cargo->type parameter for element ".
+    croak "Missing cargo->type parameter for element ".
       $self->{element_name} || 'unknown' 
-        unless defined $self->{cargo}{type};
+        unless defined $self->cargo->{type};
 
-    $self->_set_parent(delete $args_ref->{parent}) ;
-
-    if ($self->{cargo}{type} eq 'node') {
-        $self->{config_class_name} = delete $self->{cargo}{config_class_name}
-          or croak  "$type->new: Missing cargo->config_class_name "
+    if ($self->cargo->{type} eq 'node') {
+        $self->config_class_name( delete $self->cargo->{config_class_name})
+          or croak  "Missing cargo->config_class_name "
                   . "parameter for element " 
-                  . $self->{element_name} || 'unknown' ;
+                  . $self->element_name || 'unknown' ;
     }
     elsif ($self->{cargo}{type} eq 'hash' or $self->{cargo}{type} eq 'list') {
-        die "$type $self->{element_name}: using $self->{cargo}{type} will probably not work";
-    }
-
-    foreach my $p (qw/cargo_class/) {
-        next unless defined $args_ref->{$p} ;
-        $self->{$p} = delete $args_ref->{$p} ;
+        die "$self->{element_name}: using $self->{cargo}{type} will probably not work";
     }
 
     return $self ;
