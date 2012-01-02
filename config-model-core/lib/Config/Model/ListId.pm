@@ -1,21 +1,3 @@
-#    Copyright (c) 2005-2010 Dominique Dumont.
-#
-#    This file is part of Config-Model.
-#
-#    Config-Model is free software; you can redistribute it and/or
-#    modify it under the terms of the GNU Lesser Public License as
-#    published by the Free Software Foundation; either version 2.1 of
-#    the License, or (at your option) any later version.
-#
-#    Config-Model is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#    Lesser Public License for more details.
-#
-#    You should have received a copy of the GNU Lesser Public License
-#    along with Config-Model; if not, write to the Free Software
-#    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-
 package Config::Model::ListId ;
 use Config::Model::Exception ;
 use Scalar::Util qw(weaken) ;
@@ -28,25 +10,7 @@ use base qw/Config::Model::AnyId/ ;
 
 my $logger = get_logger("Tree::Element::Id::List") ;
 
-=head1 NAME
 
-Config::Model::ListId - Handle list element for configuration model
-
-=head1 SYNOPSIS
-
-See L<Config::Model::AnyId/SYNOPSIS>
-
-=head1 DESCRIPTION
-
-This class provides list elements for a L<Config::Model::Node>.
-
-=cut
-
-=head1 CONSTRUCTOR
-
-ListId object should not be created directly.
-
-=cut
 
 sub new {
     my $type = shift;
@@ -69,13 +33,6 @@ sub new {
     return $self;
 }
 
-=head1 List model declaration
-
-See
-L<model declaration section|Config::Model::AnyId/"Hash or list model declaration">
-from L<Config::Model::AnyId>.
-
-=cut
 
 sub set_properties {
     my $self = shift ;
@@ -96,24 +53,12 @@ sub set_properties {
     }
 }
 
-=head1 Methods
-
-=head2 get_type
-
-Returns C<list>.
-
-=cut
 
 sub get_type {
     my $self = shift;
     return 'list' ;
 }
 
-=head2 fetch_size
-
-Returns the number of elements of the list.
-
-=cut
 
 sub fetch_size {
     my $self =shift ;
@@ -133,15 +78,6 @@ sub _fetch_with_id {
     return $self->{data}[$idx];
 }
 
-=head2 load(string, [ check => 'no' ] )
-
-Store a set of values passed as a comma separated list of values. 
-Values can be quoted strings. (i.e C<"a,a",b> will yield
-C<('a,a', 'b')> list). 
-
-C<check> can be yes, no or skip
-
-=cut
 
 sub load {
     my ($self, $string, %args) = @_ ;
@@ -186,15 +122,6 @@ sub load {
     $self->store_set(@set ) ;
 }
 
-=head2 store_set( ... )
-
-Store a set of values (passed as list)
-
-If tinkering with check is required, use the following way : 
-
- store_set ( \@v , check => 'skip' );
-
-=cut
 
 sub store_set {
     my $self = shift ;
@@ -252,11 +179,6 @@ sub _clear {
     $self->{data} = [] ;
 }
 
-=head2 move ( from_index, to_index, [ check => 'no' )
-
-Move an element within the list. C<check> can be 'yes' 'no' 'skip'
-
-=cut
 
 sub move {
     my ($self,$from, $to,%args) = @_ ;
@@ -284,11 +206,6 @@ sub move {
     }
 }
 
-=head2 push( value1, [ value2 ... ] )
-
-push some values at the end of the list.
-
-=cut
 
 # list only methods
 sub push {
@@ -297,31 +214,6 @@ sub push {
     map { $self->fetch_with_id( $idx++ )->store( $_ ) ; } @_ ;
 }
 
-=head2 push_x ( values => [ v1','v2', ...] , [ ... ] )
-
-Like push with extended options. Options are:
-
-=over 4
-
-=item check 
-
-C<yes>, C<no> or C<skip>
-
-=item annotation
-
-list ref of annotation to store with the list values
-
-=back
-
-Example:
-
- $elt->push_x (
-    values => [ v1','v2' ] , 
-    annotation => [ 'v1 comment', 'v2 comment' ],
-    check => ''skip'
- );
-
-=cut
 
 # list only methods
 sub push_x {
@@ -344,11 +236,6 @@ sub push_x {
     }
 }
 
-=head2 swap ( C<ida> , C<idb> )
-
-Swap 2 elements within the array
-
-=cut
 
 sub swap {
     my $self = shift ;
@@ -370,11 +257,6 @@ sub swap {
 
 #die "check index number after wap";
 
-=head2 remove ( C<idx> )
-
-Remove an element from the list. Equivalent to C<splice @list,$idx,1>
-
-=cut
 
 sub remove {
     my $self = shift ;
@@ -416,13 +298,6 @@ sub create_default {
     $self->create_default_with_init ;
 }
 
-=head2 load_data ( array_ref | data )
-
-Clear and load list from data contained in the array ref. If a scalar
-or a hash ref is passed, the list is cleared and the data is stored in
-the first element of the list.
-
-=cut
 
 sub load_data {
     my $self = shift ;
@@ -447,6 +322,103 @@ sub load_data {
 1;
 
 __END__
+
+
+=pod
+
+=head1 NAME
+
+Config::Model::ListId - Handle list element for configuration model
+
+=head1 SYNOPSIS
+
+See L<Config::Model::AnyId/SYNOPSIS>
+
+=head1 DESCRIPTION
+
+This class provides list elements for a L<Config::Model::Node>.
+
+=head1 CONSTRUCTOR
+
+ListId object should not be created directly.
+
+=head1 List model declaration
+
+See
+L<model declaration section|Config::Model::AnyId/"Hash or list model declaration">
+from L<Config::Model::AnyId>.
+
+=head1 Methods
+
+=head2 get_type
+
+Returns C<list>.
+
+=head2 fetch_size
+
+Returns the number of elements of the list.
+
+=head2 load(string, [ check => 'no' ] )
+
+Store a set of values passed as a comma separated list of values. 
+Values can be quoted strings. (i.e C<"a,a",b> will yield
+C<('a,a', 'b')> list). 
+
+C<check> can be yes, no or skip
+
+=head2 store_set( ... )
+
+Store a set of values (passed as list)
+
+If tinkering with check is required, use the following way : 
+
+ store_set ( \@v , check => 'skip' );
+
+=head2 move ( from_index, to_index, [ check => 'no' )
+
+Move an element within the list. C<check> can be 'yes' 'no' 'skip'
+
+=head2 push( value1, [ value2 ... ] )
+
+push some values at the end of the list.
+
+=head2 push_x ( values => [ v1','v2', ...] , [ ... ] )
+
+Like push with extended options. Options are:
+
+=over 4
+
+=item check 
+
+C<yes>, C<no> or C<skip>
+
+=item annotation
+
+list ref of annotation to store with the list values
+
+=back
+
+Example:
+
+ $elt->push_x (
+    values => [ v1','v2' ] , 
+    annotation => [ 'v1 comment', 'v2 comment' ],
+    check => ''skip'
+ );
+
+=head2 swap ( C<ida> , C<idb> )
+
+Swap 2 elements within the array
+
+=head2 remove ( C<idx> )
+
+Remove an element from the list. Equivalent to C<splice @list,$idx,1>
+
+=head2 load_data ( array_ref | data )
+
+Clear and load list from data contained in the array ref. If a scalar
+or a hash ref is passed, the list is cleared and the data is stored in
+the first element of the list.
 
 =head1 AUTHOR
 
