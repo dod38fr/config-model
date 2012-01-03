@@ -18,17 +18,18 @@ my $logger = get_logger("Tree::Element::Value") ;
 
 our $nowarning = 0; # global variable to silence warnings. Only used for tests
 
-enum ValueType => qw/boolean enum uniline string integer/ ;
+enum ValueType => qw/boolean enum uniline string integer number/ ;
 
 has fixes => (is => 'rw', isa => 'ArrayRef', default => sub{[]}) ;
 has [qw/warp compute backup/]  => (is => 'rw', isa => 'Maybe[HashRef]') ;
+has [qw/choice/]  => (is => 'rw', isa => 'Maybe[ArrayRef]') ;
 has [qw/mandatory allow_compute_override/] 
     => (is => 'rw', isa => 'Bool', default => 0 ); 
 
-has [qw/refer_to computed_refer_to/] 
+has [qw/refer_to computed_refer_to default/] 
     => (is => 'rw', isa => 'Maybe[Str]' ); 
     
-has value_type => (is => 'rw', isa => 'ValueType', required => 1 );
+has value_type => (is => 'rw', isa => 'ValueType');
 
 around BUILDARGS => sub {
     my $orig = shift ;
@@ -446,7 +447,8 @@ sub set_properties {
 		       join("','",sort keys %args),"'");
     }
 
-    if ($args{value_type} eq 'reference' and not defined $self->{refer_to}
+    if (defined $args{value_type} and $args{value_type} eq 'reference' 
+	and not defined $self->{refer_to}
 	and not defined $self->{computed_refer_to}
        ) {
 	Config::Model::Exception::Model
