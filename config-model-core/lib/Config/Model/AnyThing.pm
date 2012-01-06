@@ -398,7 +398,7 @@ sub grab_annotation {
 
 sub grab_root {
     my $self = shift;
-    return defined $self->{parent} ? $self->{parent}->grab_root
+    return defined $self->parent ? $self->parent->grab_root
       : $self ;
 }
 

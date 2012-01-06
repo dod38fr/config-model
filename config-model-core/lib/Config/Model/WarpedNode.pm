@@ -8,6 +8,7 @@ use Config::Model::Warper ;
 use Data::Dumper ();
 use Log::Log4perl qw(get_logger :levels);
 use Storable qw/dclone/;
+use Scalar::Util qw/weaken/;
 
 extends qw/Config::Model::AnyThing/ ;
 
@@ -21,13 +22,13 @@ my $logger = get_logger("Tree::Node::Warped") ;
 
 my @allowed_warp_params = qw/config_class_name experience level/ ;
 
-has [qw/rules follow/] 
+has [qw/backup follow/] 
     => ( is => 'rw', isa => 'HashRef' , default => sub { {} ;} ) ;
-#has [qw/ordered_data choice/]
-#    => ( is => 'rw', isa => 'ArrayRef' , default => sub { [] ;} ) ;
+has [qw/rules/]
+    => ( is => 'rw', isa => 'ArrayRef' , required => 1 ) ;
 
 has [qw/warp help/]  => (is => 'rw', isa => 'Maybe[HashRef]') ;
-has morph => (is => 'ro', isa => 'Boolean', default => 0) ;
+has morph => (is => 'ro', isa => 'Bool', default => 0) ;
 
 has warper => (is => 'rw', isa => 'Config::Model::Warper') ;
 
@@ -43,7 +44,6 @@ around BUILDARGS => sub {
 
 sub BUILD {
     my $self = shift;
-    my %args = @_ ;
 
     # WarpedNode will register this object in a Value object (the
     # warper).  When the warper gets a new value, it will modify the
@@ -130,7 +130,7 @@ sub check {
 sub set_properties {
     my $self = shift ;
 
-    my %args = (%{$self->{backup}},@_) ;
+    my %args = (%{ $self->backup },@_) ;
 
     # mega cleanup
     map(delete $self->{$_}, @allowed_warp_params) ;
@@ -194,8 +194,10 @@ sub create_node {
     my @args = (config_class_name => $config_class_name,
 		instance          => $self->{instance},
 		element_name      => $self->{element_name},
-		index_value       => $self->{index_value},
+		parent            => $self->parent ,
 	       ) ;
+
+    push @args, index_value => $self->index_value if defined $self->index_value ;
 
     return  $self->parent->new(@args) ;
 }

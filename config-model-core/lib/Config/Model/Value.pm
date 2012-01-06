@@ -19,7 +19,7 @@ my $logger = get_logger("Tree::Element::Value") ;
 
 our $nowarning = 0; # global variable to silence warnings. Only used for tests
 
-enum ValueType => qw/boolean enum uniline string integer number/ ;
+enum ValueType => qw/boolean enum uniline string integer number reference/ ;
 
 has fixes => (is => 'rw', isa => 'ArrayRef', default => sub{[]}) ;
 has [qw/warp compute backup/]  => (is => 'rw', isa => 'Maybe[HashRef]') ;

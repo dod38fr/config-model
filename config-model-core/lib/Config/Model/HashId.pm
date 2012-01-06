@@ -12,7 +12,7 @@ extends qw/Config::Model::AnyId/ ;
 
 has data => ( is => 'rw', isa => 'HashRef' , default => sub { {} ;} ) ;
 has list => ( is => 'rw', isa => 'ArrayRef', default => sub { [] ;} ) ;
-has auto_create_keys => ( is => 'rw', isa => 'ArrayRef', default => sub { [] ;} ) ;
+has [qw/default_keys auto_create_keys/] => ( is => 'rw', isa => 'ArrayRef', default => sub { [] ;} ) ;
 has [qw/morph ordered/] => (is => 'ro', isa => 'Bool' ) ;
 
 sub BUILD {

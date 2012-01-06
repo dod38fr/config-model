@@ -574,9 +574,9 @@ sub fetch_with_id {
     $idx = $self->{convert_sub}($idx) 
       if (defined $self->{convert_sub} and defined $idx) ;
 
-
-    $self->warp 
-      if ($self->{warp} and @{$self->{warp_info}{computed_master}});
+    # NOT GODD
+    #$self->warp 
+    #  if ($self->{warp} and @{$self->{warp_info}{computed_master}});
 
     my $ok = $check eq 'no' ? 1 : $self->check_idx(index => $idx, check => $check) ;
 
@@ -777,6 +777,7 @@ sub auto_vivify {
                        element_name => $self->{element_name},
                        index_value  => $idx,
                        instance     => $self->{instance} ,
+                       parent       => $self->parent,
                       );
 
     my $item ;
@@ -829,9 +830,6 @@ sub exists {
 
 sub delete {
     my ($self,$idx) = @_ ;
-
-    $self->warp 
-      if ($self->{warp} and @{$self->{warp_info}{computed_master}});
 
     delete $self->{warning_hash}{$idx}  ;
     return $self->_delete($idx);
