@@ -1,6 +1,5 @@
 package Config::Model::HashId ;
 use Any::Moose ;
-use Any::Moose '::Util::TypeConstraints' ;
 
 use Config::Model::Exception ;
 use Carp;
@@ -11,11 +10,10 @@ my $logger = get_logger("Tree::Element::Id::Hash");
 
 extends qw/Config::Model::AnyId/ ;
 
-enum IndexType => qw/boolean enum uniline string integer/ ;
-
 has data => ( is => 'rw', isa => 'HashRef' , default => sub { {} ;} ) ;
 has list => ( is => 'rw', isa => 'ArrayRef', default => sub { [] ;} ) ;
-has index_type => ( is => 'rw', isa => 'IndexType' ) ;
+has auto_create_keys => ( is => 'rw', isa => 'ArrayRef', default => sub { [] ;} ) ;
+has [qw/morph ordered/] => (is => 'ro', isa => 'Bool' ) ;
 
 sub BUILD {
     my $self = shift;
@@ -108,7 +106,8 @@ sub _defined {
 sub auto_create_elements {
     my $self = shift ;
 
-    my $auto_p = $self->{auto_create_keys} ;
+    my $auto_p = $self->auto_create_keys ;
+    return unless defined $auto_p ;
     # create empty slots
     map {
         $self->_store($_, undef) unless exists $self->{data}{$_};

@@ -82,17 +82,6 @@ sub name {
 sub value_type { return 'check_list' ;} 
 
 
-# accessor to get some fields through methods (See man perltootc)
-foreach my $datum (@accessible_params, @introspect_params ) {
-    no strict "refs";       # to register new methods in package
-    *$datum = sub {
-	my $self= shift;
-	return $self->{$datum};
-    } ;
-}
-
-
-
 # warning : call to 'set' are not cumulative. Default value are always
 # restored. Lest keeping track of what was modified with 'set' is
 # too hard for the user.

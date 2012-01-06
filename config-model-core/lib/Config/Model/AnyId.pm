@@ -22,7 +22,7 @@ my $logger = get_logger("Tree::Element::Id") ;
 
 my @common_params =  qw/min_index max_index max_nb default_with_init default_keys
                         follow_keys_from migrate_keys_from duplicates
-                        auto_create_ids auto_create_keys
+                        _c_create_ids auto_create_keys
                         allow_keys allow_keys_from allow_keys_matching
                         warn_if_key_match warn_unless_key_match/ ;
 
@@ -38,7 +38,7 @@ around BUILDARGS => sub {
 
 has [qw/backup cargo/] => (is => 'ro', isa => 'HashRef', required => 1 ) ;
 has warp => (is => 'ro', isa => 'Maybe[HashRef]') ;
-has [qw/morph ordered/] => (is => 'ro', isa => 'Boolean' ) ;
+has [qw/morph/] => (is => 'ro', isa => 'Bool' ) ;
 has warning_hash => ( is => 'rw', isa => 'HashRef' , default => sub {{} ;} ) ;
 has warning_list => ( is => 'rw', isa => 'ArrayRef', default => sub {[] ;} ) ;
 has [qw/config_class_name cargo_class max_index index_class index_type/] 
@@ -137,9 +137,7 @@ sub set_properties {
         }
     }
 
-    if (defined $self->auto_create_keys or defined $self->auto_create_ids) {
-        $self->auto_create_elements ;
-    }
+    $self->auto_create_elements ;
     
     if (    defined $self->{duplicates}
         and defined $self->{cargo}
@@ -209,19 +207,6 @@ sub create_default_with_init {
             $v_obj->load( $h->{$def_key} );
         }
     }
-}
-
-
-
-for my $datum (qw/min_index max_index max_nb index_type default_keys default_with_init
-                  follow_keys_from auto_create_keys auto_create_ids
-                  morph ordered warn_unless_key_match warn_if_key_match
-                  config_model/) {
-    no strict "refs";       # to register new methods in package
-    *$datum = sub {
-        my $self= shift; 
-        return $self->{$datum};
-    } ;
 }
 
 sub max {
