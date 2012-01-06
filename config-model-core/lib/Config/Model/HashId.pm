@@ -1,32 +1,32 @@
 package Config::Model::HashId ;
+use Any::Moose ;
+use Any::Moose '::Util::TypeConstraints' ;
+
 use Config::Model::Exception ;
-use Scalar::Util qw(weaken) ;
-use warnings ;
 use Carp;
-use strict;
 
 use Log::Log4perl qw(get_logger :levels);
 
 my $logger = get_logger("Tree::Element::Id::Hash");
 
-use base qw/Config::Model::AnyId/ ;
+extends qw/Config::Model::AnyId/ ;
 
-sub new {
-    my $type = shift;
-    my %args = @_ ;
+enum IndexType => qw/boolean enum uniline string integer/ ;
 
-    my $self = $type->SUPER::new(\%args) ;
+has data => ( is => 'rw', isa => 'HashRef' , default => sub { {} ;} ) ;
+has list => ( is => 'rw', isa => 'ArrayRef', default => sub { [] ;} ) ;
+has index_type => ( is => 'rw', isa => 'IndexType' ) ;
 
-    $self->{data} = {} ;
-    $self->{list} = [] ;
+sub BUILD {
+    my $self = shift;
 
+    # could use "required", but we'd get a Moose error instead of a Config::Model
+    # error
     Config::Model::Exception::Model->throw 
         (
          object => $self,
          error => "Undefined index_type"
-        ) unless defined $args{index_type} ;
-
-    $self->handle_args(%args) ;
+        ) unless defined $self->index_type ;
 
     return $self;
 }

@@ -1,35 +1,32 @@
 package Config::Model::ListId ;
+use Any::Moose ;
+
 use Config::Model::Exception ;
-use Scalar::Util qw(weaken) ;
 use Log::Log4perl qw(get_logger :levels);
 
-use warnings ;
 use Carp;
-use strict;
-use base qw/Config::Model::AnyId/ ;
+extends qw/Config::Model::AnyId/ ;
 
 my $logger = get_logger("Tree::Element::Id::List") ;
 
+has data => ( is => 'rw', isa => 'ArrayRef' , default => sub { [] ;} ) ;
 
+# compatibility with HashId
+has index_type => ( is => 'ro', isa => 'Str', default => 'integer' ) ;
+has auto_create_ids => ( is => 'rw' ) ;
 
-sub new {
-    my $type = shift;
-    my %args = @_ ;
-
-    my $self = $type->SUPER::new(\%args) ;
-
-    $self->{data} = [] ;
+sub BUILD {
+    my $self = shift;
 
     foreach my $wrong (qw/max_nb min_index default_keys/) {
         Config::Model::Exception::Model->throw 
             (
             object => $self,
             error =>  "Cannot use $wrong with ".$self->get_type." element"
-        ) if defined $args{$wrong};
+        ) if defined $self->{$wrong};
     }
 
     # Supply the mandatory parameter
-    $self->handle_args(%args, index_type => 'integer') ;
     return $self;
 }
 
@@ -268,7 +265,8 @@ sub remove {
 sub auto_create_elements {
     my $self = shift ;
 
-    my $auto_nb = $self->{auto_create_ids} ;
+    my $auto_nb = $self->auto_create_ids ;
+    $logger->debug("auto-creating $auto_nb elements");
 
     Config::Model::Exception::Model
         ->throw (

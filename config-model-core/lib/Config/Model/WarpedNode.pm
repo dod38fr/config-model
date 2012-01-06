@@ -1,16 +1,15 @@
 package Config::Model::WarpedNode ;
+use Any::Moose ;
 
 use Carp qw(cluck croak);
-use strict;
-use warnings ;
-use Scalar::Util qw(weaken) ;
 
-use base qw/Config::Model::AnyThing/ ;
 use Config::Model::Exception ;
 use Config::Model::Warper ;
 use Data::Dumper ();
 use Log::Log4perl qw(get_logger :levels);
 use Storable qw/dclone/;
+
+extends qw/Config::Model::AnyThing/ ;
 
 my $logger = get_logger("Tree::Node::Warped") ;
 
@@ -22,51 +21,48 @@ my $logger = get_logger("Tree::Node::Warped") ;
 
 my @allowed_warp_params = qw/config_class_name experience level/ ;
 
-sub new {
-    my $type = shift;
-    my $self={} ;
+has [qw/rules follow/] 
+    => ( is => 'rw', isa => 'HashRef' , default => sub { {} ;} ) ;
+#has [qw/ordered_data choice/]
+#    => ( is => 'rw', isa => 'ArrayRef' , default => sub { [] ;} ) ;
+
+has [qw/warp help/]  => (is => 'rw', isa => 'Maybe[HashRef]') ;
+has morph => (is => 'ro', isa => 'Boolean', default => 0) ;
+
+has warper => (is => 'rw', isa => 'Config::Model::Warper') ;
+
+around BUILDARGS => sub {
+    my $orig = shift ;
+    my $class = shift ;
+    my %args =  @_ ;
+    map {delete $args{$_}} qw/element_name instance config_model 
+	warp rules follow / ;
+    return $class->$orig( backup => dclone (\%args), @_ );
+} ;
+
+
+sub BUILD {
+    my $self = shift;
     my %args = @_ ;
-
-    bless $self,$type;
-
-    my @mandatory_parameters = qw/element_name instance/;
-    foreach my $p (@mandatory_parameters) {
-	$self->{$p} = delete $args{$p} or
-	  croak "WarpedNode->new: Missing $p parameter" ;
-    }
-
-    $self->_set_parent(delete $args{parent}) ;
-
-    # optional parameter that makes sense only if warped node is held
-    # by a hash or an array
-    $self->{index_value}  =  delete $args{index_value} ;
-    $self->{id_owner}     =  delete $args{id_owner} ;
-
-    $self->{morph}     =  delete $args{morph} || 0;
-
-    my @warp_info = ( 
-        rules => delete $args{rules} ,
-        follow => delete $args{follow} ,
-    ) ;
-
-    $self->{backup} = dclone (\%args) ;
 
     # WarpedNode will register this object in a Value object (the
     # warper).  When the warper gets a new value, it will modify the
     # WarpedNode according to the data passed by the user.
 
-    $self->{warper} = Config::Model::Warper->new (
+    my $w = Config::Model::Warper->new (
         warped_object => $self,
-        @warp_info, 
+        rules => $self->rules ,
+        follow => $self->follow ,
         allowed => \@allowed_warp_params
     ) ;
 
+    $self->warper($w) ;
     return $self ;
 }
 
 sub config_model {
     my $self = shift ;
-    return $self->{parent}->config_model ;
+    return $self->parent->config_model ;
 }
 
 
@@ -156,7 +152,7 @@ sub set_properties {
                    :                              'hidden' ;
     
     $self->parent->set_element_property( @prop_args, value => $next_level )
-        unless $self->{id_owner};
+        unless defined $self->index_value;
 
     unless (defined $config_class_name) {
         $self->clear ;

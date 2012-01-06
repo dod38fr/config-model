@@ -20,10 +20,29 @@ my $logger = get_logger("Tree::Element::Id") ;
 # nb is incremented each time, or compute the passed formula 
 # and performs the same
 
-has cargo => (is => 'ro', isa => 'HashRef', required => 1 ) ;
+my @common_params =  qw/min_index max_index max_nb default_with_init default_keys
+                        follow_keys_from migrate_keys_from duplicates
+                        auto_create_ids auto_create_keys
+                        allow_keys allow_keys_from allow_keys_matching
+                        warn_if_key_match warn_unless_key_match/ ;
+
+my @allowed_warp_params = (@common_params,qw/experience level convert/) ;
+
+around BUILDARGS => sub {
+    my $orig = shift ;
+    my $class = shift ;
+    my %args =  @_ ;
+    my %h = map { ( $_ => $args{$_}) ;} grep {defined $args{$_}} @allowed_warp_params;
+    return $class->$orig( backup => dclone (\%h), @_ );
+} ;
+
+has [qw/backup cargo/] => (is => 'ro', isa => 'HashRef', required => 1 ) ;
+has warp => (is => 'ro', isa => 'Maybe[HashRef]') ;
+has [qw/morph ordered/] => (is => 'ro', isa => 'Boolean' ) ;
 has warning_hash => ( is => 'rw', isa => 'HashRef' , default => sub {{} ;} ) ;
 has warning_list => ( is => 'rw', isa => 'ArrayRef', default => sub {[] ;} ) ;
-has [qw/config_class_name cargo_class/] => ( is => 'rw', isa => 'Maybe[Str]') ;
+has [qw/config_class_name cargo_class max_index index_class index_type/] 
+    => ( is => 'rw', isa => 'Maybe[Str]') ;
 
 sub BUILD {
     my $self = shift;
@@ -42,17 +61,20 @@ sub BUILD {
         die "$self->{element_name}: using $self->{cargo}{type} will probably not work";
     }
 
+  
+     $self->set_properties() ;
+
+    if (defined $self->warp) {
+        $self->{warper} = Config::Model::Warper->new (
+            warped_object => $self,
+            %{$self->warp} ,
+            allowed => \@allowed_warp_params
+        ) ;
+    }
+
     return $self ;
 }
 
-
-my @common_params =  qw/min_index max_index max_nb default_with_init default_keys
-                        follow_keys_from migrate_keys_from duplicates
-                        auto_create_ids auto_create_keys
-                        allow_keys allow_keys_from allow_keys_matching
-                        warn_if_key_match warn_unless_key_match/ ;
-
-my @allowed_warp_params = (@common_params,qw/experience level convert/) ;
 
 
 # this method can be called by the warp mechanism to alter (warp) the
@@ -115,7 +137,7 @@ sub set_properties {
         }
     }
 
-    if (defined $self->{auto_create_keys} or defined $self->{auto_create_ids}) {
+    if (defined $self->auto_create_keys or defined $self->auto_create_ids) {
         $self->auto_create_elements ;
     }
     
@@ -294,12 +316,6 @@ sub name
     return $self->{parent}->name . ' '.$self->{element_name}.' id' ;
   }
 
-
-sub config_class_name
-  {
-    my $self = shift ;
-    return $self->{config_class_name} ;
-  }
 
 # internal. Handle model declaration arguments
 sub handle_args {
@@ -796,7 +812,6 @@ sub auto_vivify {
                   %cargo_args) ;
     }
     else {
-        weaken($common_args{id_owner} =  $self) ;
         $item = $el_class->new( %common_args,
                                 parent => $self->{parent} ,
                                 instance => $self->{instance} ,

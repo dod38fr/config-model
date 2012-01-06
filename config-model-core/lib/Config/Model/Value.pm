@@ -9,6 +9,7 @@ use Config::Model::ValueComputer ;
 use Config::Model::IdElementReference ;
 use Config::Model::Warper ;
 use Log::Log4perl qw(get_logger :levels);
+use Scalar::Util qw/weaken/ ;
 use Carp ;
 use Storable qw/dclone/;
 
@@ -22,33 +23,32 @@ enum ValueType => qw/boolean enum uniline string integer number/ ;
 
 has fixes => (is => 'rw', isa => 'ArrayRef', default => sub{[]}) ;
 has [qw/warp compute backup/]  => (is => 'rw', isa => 'Maybe[HashRef]') ;
-has [qw/choice/]  => (is => 'rw', isa => 'Maybe[ArrayRef]') ;
+has [qw/choice write_as/]  => (is => 'rw', isa => 'Maybe[ArrayRef]') ;
 has [qw/mandatory allow_compute_override/] 
     => (is => 'rw', isa => 'Bool', default => 0 ); 
 
-has [qw/refer_to computed_refer_to default/] 
+has [qw/refer_to computed_refer_to default _data replace_follow/] 
     => (is => 'rw', isa => 'Maybe[Str]' ); 
     
 has value_type => (is => 'rw', isa => 'ValueType');
-
-around BUILDARGS => sub {
-    my $orig = shift ;
-    my $class = shift ;
-    my %args =  @_ ;
-    map {delete $args{$_}} qw/warp element_name index_value parent 
-	instance refer_to computed_refer_to/ ;
-    return $class->$orig( backup => dclone (\%args), @_ );
-} ;
 
 my @warp_accessible_params =  qw/min max mandatory default 
 				 choice convert upstream_default replace match grammar
 				 warn assert warn_unless warn_if_match warn_unless_match/ ;
 
-my @accessible_params =  (@warp_accessible_params, 
-			  qw/index_value element_name value_type write_as
-			     refer_to computed_refer_to replace_follow/ ) ;
+# my @accessible_params =  (@warp_accessible_params, 
+			  # qw/index_value element_name value_type write_as
+			     # refer_to computed_refer_to replace_follow/ ) ;
 
 my @allowed_warp_params = (@warp_accessible_params, qw/level experience help/);
+
+around BUILDARGS => sub {
+    my $orig = shift ;
+    my $class = shift ;
+    my %args =  @_ ;
+    my %h = map { ( $_ => $args{$_}) ;} grep {defined $args{$_}} @allowed_warp_params;
+    return $class->$orig( backup => dclone (\%h), @_ );
+} ;
 
 
 sub BUILD {
@@ -63,6 +63,8 @@ sub BUILD {
             allowed => \@allowed_warp_params
         ) ;
     }
+
+    $self->set_compute ( ) if $self->compute;
 
     $self->_init ;
 
@@ -115,15 +117,15 @@ sub set_default {
 
 
 sub set_compute {
-    my ($self, $arg_ref) = @_ ;
+    my ($self) = @_ ;
 
-    my $c_ref = delete $arg_ref->{compute};
+    my $c_ref = $self->compute;
 
-    $self->{allow_compute_override} = delete $c_ref->{allow_override}
+    $self->allow_compute_override( delete $c_ref->{allow_override} )
       if defined $c_ref->{allow_override} ;
 
     if (ref($c_ref) eq 'HASH') {
-	$self->{compute} = $c_ref ;
+	$self->compute($c_ref) ;
     }
     else {
 	Config::Model::Exception::Model
@@ -190,7 +192,7 @@ sub register_in_other_value {
 }
 
 # internal
-sub compute {
+sub perform_compute {
     my $self = shift ;
     $logger->debug("called");
 
@@ -467,7 +469,6 @@ sub set_properties {
     $self->set_help           ( \%args );
     $self->set_value_type     ( \%args );
     $self->set_default        ( \%args );
-    $self->set_compute        ( \%args ) if defined $args{compute};
     $self->set_convert        ( \%args ) if defined $args{convert};
     $self->setup_match_regexp ( match =>  \%args ) if defined $args{match};
     foreach (qw/warn_if_match warn_unless_match/) {
@@ -486,7 +487,7 @@ sub set_properties {
 
     Config::Model::Exception::Model -> throw (
         object => $self,
-	error => "Unexpected parameters: ".join(' ', keys %args )
+	error => "Unexpected parameters: ".join(' ', each %args )
     ) if scalar keys %args ;
 
     if (defined $self->{warp_these_objects}) {
@@ -504,11 +505,12 @@ sub set_help {
     $self->{help} =  delete $args->{help};
 }
 
-
+# this code is somewhat dead as warping value_type is no longer supported
+# but it may come back.
 sub set_value_type {
     my ($self, $arg_ref) = @_ ;
 
-    my $value_type = delete $arg_ref->{value_type};
+    my $value_type = delete $arg_ref->{value_type} || $self->value_type;
 
     Config::Model::Exception::Model
 	-> throw (
@@ -682,7 +684,7 @@ sub get_cargo_type {
 sub can_store {
     my $self= shift;
 
-    return not defined $self->{compute} || $self->{allow_compute_override} ;
+    return not defined $self->{compute} || $self->allow_compute_override ;
 }
 
 
@@ -1010,7 +1012,7 @@ sub apply_fix {
 sub check {
     my $self = shift ;
     
-    $logger->debug("called for ".$self->location ." from ".join(' ',caller)) if $logger->is_debug ;
+    $logger->debug("called for ".$self->location ." from ".join(' ',caller)," with @_") if $logger->is_debug ;
     my %args = @_ == 0 ? ( value => $self->{data} ) 
              : @_ == 1 ? ( value => $_[0]         )
              :           @_ ;
@@ -1103,7 +1105,7 @@ sub pre_store {
           and @{$self->{warp_info}{computed_master}});
 
     if (defined $self->{compute} 
-	and not $self->{allow_compute_override}) {
+	and not $self->allow_compute_override) {
 	my $msg = 'assignment to a computed value is forbidden unless '
 	  .'compute -> allow_override is set.';
 	Config::Model::Exception::Model
@@ -1255,7 +1257,7 @@ sub _pre_fetch {
     eval {
 	$std_value 
 	  = defined $self->{preset}        ? $self->{preset}
-          : defined $self->{compute}       ? $self->compute 
+          : defined $self->{compute}       ? $self->perform_compute 
           :                                  $self->{default} ;
     };
 
@@ -1331,10 +1333,8 @@ sub _fetch {
 	return $nbu;
     }
 
-    $logger->debug("done in $mode mode for ".$self->location) 
-        if $logger->is_debug ;
-
-    return $mode eq 'preset'                    ? $self->{preset}
+    my $res = 
+           $mode eq 'preset'                    ? $self->{preset}
          : $mode eq 'default'                   ? $self->{default}
          : $mode eq 'standard'                  ? $std
 	 : $mode eq 'layered'                   ? $self->{layered}
@@ -1343,6 +1343,10 @@ sub _fetch {
          : $mode =~ /backend|allow_undef/       ? defined $data ? $data : $pref 
          :                                      die "unexpected mode $mode " ;
 
+    $logger->debug("done in $mode mode for ".$self->location." -> " . Data::Dumper->Dumper(['res'],[$res])) 
+        if $logger->is_debug ;
+
+    return $res ;
 }
 
 sub fetch_no_check {
@@ -1356,7 +1360,7 @@ sub _fetch_no_check {
     my $self = shift ;
      return defined $self->{data}    ? $self->{data}
           : defined $self->{preset}  ? $self->{preset}
-          : defined $self->{compute} ? $self->compute 
+          : defined $self->{compute} ? $self->perform_compute 
           : defined $self->{_migrate_from} ? $self->migrate_value
           :                            $self->{default} ;
 }

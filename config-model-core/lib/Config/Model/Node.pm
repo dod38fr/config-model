@@ -75,8 +75,8 @@ has initialized => (is => 'rw', isa => 'Bool', default => 0 ) ;
 
 has [qw/config_class_name/] 
     => (is => 'ro', isa => 'Str', required =>1 ) ;
-has [qw/index_value config_file element_name/] 
-    => (is => 'ro', isa => 'Maybe[Str]', required =>0 ) ;
+has [qw/config_file element_name/] 
+    => (is => 'ro', isa => 'Maybe[Str]', required => 0 ) ;
 
 has instance => ( is => 'ro', isa => 'Config::Model::Instance', weak_ref => 1 ,required =>1 ) ;
 has config_model => ( is => 'ro', isa => 'Config::Model', 

@@ -1,56 +1,51 @@
 package Config::Model::CheckList ;
+use Any::Moose ;
+
 use Config::Model::Exception ;
 use Config::Model::IdElementReference ;
 use Config::Model::Warper ;
-use warnings ;
 use Carp;
-use strict;
 use Log::Log4perl qw(get_logger :levels);
 use Storable qw/dclone/;
 
-use base qw/Config::Model::AnyThing/ ;
+extends qw/Config::Model::AnyThing/ ;
 
 
 my $logger = get_logger("Tree::Element::CheckList") ;
-
-
 
 my @introspect_params = qw/refer_to computed_refer_to/ ;
 
 my @accessible_params =  qw/default_list upstream_default_list choice ordered/ ;
 my @allowed_warp_params = (@accessible_params, qw/level experience/);
 
-sub new {
-    my $type = shift;
-    my %args = @_ ;
+has [qw/data preset layered refer_to computed_refer_to/] 
+    => ( is => 'rw', isa => 'HashRef' , default => sub { {} ;} ) ;
+has [qw/ordered_data choice/]
+    => ( is => 'rw', isa => 'ArrayRef' , default => sub { [] ;} ) ;
 
-    my $self = { data => {}, preset => {} , layered => {} , ordered_data => [] } ;
-    bless $self,$type;
+has [qw/warp help/]  => (is => 'rw', isa => 'Maybe[HashRef]') ;
 
-    foreach my $p (qw/element_name instance config_model/) {
-	$self->{$p} = delete $args{$p} or
-	  croak "$type->new: Missing $p parameter for element ".
-	    $self->{element_name} || 'unknown' ;
-    }
+around BUILDARGS => sub {
+    my $orig = shift ;
+    my $class = shift ;
+    my %args =  @_ ;
+    map {delete $args{$_}} qw/element_name instance config_model 
+	warp help refer_to computed_refer_to/ ;
+    return $class->$orig( backup => dclone (\%args), @_ );
+} ;
 
-    $self->_set_parent(delete $args{parent}) ;
 
-    my $warp_info = delete $args{warp} ;
+sub BUILD {
+    my $self = shift;
 
-    $self->{help} = delete $args{help} ;
-
-    if (defined $args{refer_to} or defined $args{computed_refer_to}) {
-	$self->{choice} ||= [] ; # create empty choice
-	$self->{refer_to} = delete $args{refer_to} ;
-	$self->{computed_refer_to} = delete $args{computed_refer_to} ;
+    if (defined $self->refer_to or defined $self->computed_refer_to) {
 	$self->submit_to_refer_to() ;
     }
 
-    $self->{backup}  = dclone (\%args) ;
-
     $self->set_properties() ; # set will use backup data
 
-    if (defined $warp_info) {
+    if (defined $self->warp) {
+        my $warp_info = $self->warp ;
         $self->{warper} = Config::Model::Warper->new (
             warped_object => $self,
             %$warp_info ,
@@ -60,7 +55,7 @@ sub new {
 
     $self->cl_init ;
 
-    $logger->info("Created check_list element $self->{element_name}");
+    $logger->info("Created check_list element ".$self->element_name);
     return $self ;
 }
 
