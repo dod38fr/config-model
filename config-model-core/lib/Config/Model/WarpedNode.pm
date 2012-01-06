@@ -32,13 +32,14 @@ has morph => (is => 'ro', isa => 'Bool', default => 0) ;
 
 has warper => (is => 'rw', isa => 'Config::Model::Warper') ;
 
+my @backup_list = @allowed_warp_params ;
+
 around BUILDARGS => sub {
     my $orig = shift ;
     my $class = shift ;
     my %args =  @_ ;
-    map {delete $args{$_}} qw/element_name instance config_model 
-	warp rules follow / ;
-    return $class->$orig( backup => dclone (\%args), @_ );
+    my %h = map { ( $_ => $args{$_}) ;} grep {defined $args{$_}} @backup_list;
+    return $class->$orig( backup => dclone (\%h), @_ );
 } ;
 
 

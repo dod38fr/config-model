@@ -738,75 +738,61 @@ my %can_override_class
 
 #internal
 sub auto_vivify {
-    my ($self,$idx) = @_ ;
-    my %cargo_args = %{$self->{cargo} || {}} ;
-    my $class = delete $cargo_args{class} ; # to override class in cargo
+    my ( $self, $idx ) = @_;
+    my %cargo_args = %{ $self->cargo };
+    my $class      = delete $cargo_args{class};    # to override class in cargo
 
-    my $cargo_type = delete $cargo_args{type} ;
+    my $cargo_type = delete $cargo_args{type};
 
-    Config::Model::Exception::Model 
-        -> throw (
-                  object => $self,
-                  message => "unknown '$cargo_type' cargo type:  "
-                  ."in cargo_args. Expected "
-                  .join (' or ',keys %element_default_class)
-                 ) 
-              unless defined $element_default_class{$cargo_type} ;
+    Config::Model::Exception::Model->throw(
+        object  => $self,
+        message => "unknown '$cargo_type' cargo type:  "
+          . "in cargo_args. Expected "
+          . join( ' or ', keys %element_default_class )
+    ) unless defined $element_default_class{$cargo_type};
 
-    my $el_class = 'Config::Model::'
-      . $element_default_class{$cargo_type} ;
+    my $el_class = 'Config::Model::' . $element_default_class{$cargo_type};
 
-    if (defined $class) {
-        Config::Model::Exception::Model 
-            -> throw (
-                      object => $self,
-                      message => "$cargo_type class "
-                      ."cannot be overidden by '$class'"
-                     ) 
-              unless $can_override_class{$cargo_type} ;
+    if ( defined $class ) {
+        Config::Model::Exception::Model->throw(
+            object  => $self,
+            message => "$cargo_type class " . "cannot be overidden by '$class'"
+        ) unless $can_override_class{$cargo_type};
         $el_class = $class;
     }
 
-    if (not defined *{$el_class.'::new'}) {
-        my $file = $el_class.'.pm';
+    if ( not defined *{ $el_class . '::new' } ) {
+        my $file = $el_class . '.pm';
         $file =~ s!::!/!g;
-        require $file ;
+        require $file;
     }
 
-    my %common_args = (
-                       element_name => $self->{element_name},
-                       index_value  => $idx,
-                       instance     => $self->{instance} ,
-                       parent       => $self->parent,
-                      );
+    my @common_args = (
+        element_name => $self->{element_name},
+        index_value  => $idx,
+        instance     => $self->{instance},
+        parent       => $self->parent,
+        %cargo_args,
+    );
 
-    my $item ;
+    my $item;
 
     # check parameters passed by the user
-    if ($cargo_type eq 'node') {
-        Config::Model::Exception::Model 
-            -> throw (
-                      object => $self,
-                      message => "missing 'cargo->config_class_name' "
-                      ."parameter",
-                     ) 
-              unless defined $self->{config_class_name} ;
+    if ( $cargo_type eq 'node' ) {
+        Config::Model::Exception::Model->throw(
+            object  => $self,
+            message => "missing 'cargo->config_class_name' " . "parameter",
+        ) unless defined $self->{config_class_name};
 
-        $item = $self->{parent} 
-          -> new( %common_args ,
-                  config_class_name => $self->{config_class_name},
-                  %cargo_args) ;
+        $item = $self->{parent}->new( @common_args,
+            config_class_name => $self->{config_class_name} );
     }
     else {
-        $item = $el_class->new( %common_args,
-                                parent => $self->{parent} ,
-                                instance => $self->{instance} ,
-                                %cargo_args) ;
+        $item = $el_class->new(@common_args);
     }
 
-    $self->_store($idx,$item) ;
+    $self->_store( $idx, $item );
 }
-
 
 sub defined {
     my ($self,$idx) = @_ ;

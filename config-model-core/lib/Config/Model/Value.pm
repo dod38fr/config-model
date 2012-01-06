@@ -21,13 +21,19 @@ our $nowarning = 0; # global variable to silence warnings. Only used for tests
 
 enum ValueType => qw/boolean enum uniline string integer number reference/ ;
 
-has fixes => (is => 'rw', isa => 'ArrayRef', default => sub{[]}) ;
-has [qw/warp compute backup/]  => (is => 'rw', isa => 'Maybe[HashRef]') ;
-has [qw/choice write_as/]  => (is => 'rw', isa => 'Maybe[ArrayRef]') ;
+has fixes 
+    => (is => 'rw', isa => 'ArrayRef', default => sub{[]}) ;
+
+has [qw/warp compute computed_refer_to backup migrate_from/] 
+    => (is => 'rw', isa => 'Maybe[HashRef]') ;
+
+has [qw/choice write_as/]
+    => (is => 'rw', isa => 'Maybe[ArrayRef]') ;
+
 has [qw/mandatory allow_compute_override/] 
     => (is => 'rw', isa => 'Bool', default => 0 ); 
 
-has [qw/refer_to computed_refer_to default _data replace_follow/] 
+has [qw/refer_to default _data replace_follow/] 
     => (is => 'rw', isa => 'Maybe[Str]' ); 
     
 has value_type => (is => 'rw', isa => 'ValueType');
@@ -41,12 +47,13 @@ my @warp_accessible_params =  qw/min max mandatory default
 			     # refer_to computed_refer_to replace_follow/ ) ;
 
 my @allowed_warp_params = (@warp_accessible_params, qw/level experience help/);
+my @backup_list = (@allowed_warp_params, qw/migrate_from/) ;
 
 around BUILDARGS => sub {
     my $orig = shift ;
     my $class = shift ;
     my %args =  @_ ;
-    my %h = map { ( $_ => $args{$_}) ;} grep {defined $args{$_}} @allowed_warp_params;
+    my %h = map { ( $_ => $args{$_}) ;} grep {defined $args{$_}} @backup_list;
     return $class->$orig( backup => dclone (\%h), @_ );
 } ;
 
@@ -236,7 +243,7 @@ sub set_migrate_from {
     my $mig_ref = delete $arg_ref->{migrate_from};
 
     if (ref($mig_ref) eq 'HASH') {
-	$self->{migrate_from} = $mig_ref ;
+	$self->migrate_from( $mig_ref );
     }
     else {
 	Config::Model::Exception::Model

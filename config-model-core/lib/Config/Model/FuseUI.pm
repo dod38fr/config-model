@@ -180,7 +180,7 @@ sub mkdir {
     my $obj = $fuseui->root->get(path => $name, check => 'skip', get_obj => 1) ;
     return -ENOENT() unless defined $obj;
 
-    my $type = $obj->get_container_type ;
+    my $type = $obj->container_type ;
     return -ENOENT() unless ($type eq 'list' or $type eq 'hash') ;
 
     return 0 ;
@@ -198,7 +198,7 @@ sub rmdir {
     my $type = $obj->get_type ;
     return -ENOENT() if ($type eq 'leaf' or $type eq 'check_list') ;
 
-    my $ct = $obj->get_container_type ;
+    my $ct = $obj->container_type ;
     my $elt_name = $obj->element_name ;
     my $parent = $obj->parent ;
     
@@ -223,7 +223,7 @@ sub unlink {
     return -ENOENT() unless defined $obj;
     return -EISDIR() unless ($type eq 'leaf' or $type eq 'check_list') ;
     
-    my $ct = $obj->get_container_type ;
+    my $ct = $obj->container_type ;
     my $elt_name = $obj->element_name ;
     my $parent = $obj->parent ;
     

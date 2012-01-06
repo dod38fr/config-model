@@ -1,7 +1,7 @@
 package Config::Model::Debian::Dependency ;
 
-use strict ;
-use warnings ;
+use Any::Moose;
+
 use Memoize ;
 use Memoize::Expire ;
 use DB_File ;
@@ -35,7 +35,7 @@ my $apt_cache = AptPkg::Cache->new ;
 
 # end black magic
 
-use base qw/Config::Model::Value/ ;
+extends qw/Config::Model::Value/ ;
 use vars qw/%cache/ ;
 
 # Set up persistence
