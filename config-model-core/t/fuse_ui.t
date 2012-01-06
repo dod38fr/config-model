@@ -50,21 +50,24 @@ use Data::Dumper;
 use POSIX ":sys_wait_h";
 
 my $arg = shift || '';
+my $log = 0;
 
 my $trace = $arg =~ /t/ ? 1 : 0 ;
 my $fuse_debug = $arg =~ /f/ ? 1 : 0 ;
 $::debug            = 1 if $arg =~ /d/;
+$log                = 1 if $arg =~ /l/;
 Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 
 use Log::Log4perl qw(:easy) ;
 my $log4perl_user_conf_file = $ENV{HOME}.'/.log4config-model' ;
 
-if (-e $log4perl_user_conf_file ) {
+if ($log and -e $log4perl_user_conf_file ) {
     Log::Log4perl::init($log4perl_user_conf_file);
 }
 else {
-    Log::Log4perl->easy_init($arg =~ /l/ ? $DEBUG: $WARN);
+    Log::Log4perl->easy_init($WARN);
 }
+
 ok(1,"Compilation done");
 
 # pseudo root where config files are written by config-model
