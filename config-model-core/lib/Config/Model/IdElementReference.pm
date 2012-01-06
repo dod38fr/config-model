@@ -24,6 +24,7 @@ use strict;
 
 use Scalar::Util qw(weaken) ;
 use Carp ;
+use Config::Model::ValueComputer ;
 
 =head1 NAME
 

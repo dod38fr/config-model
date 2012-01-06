@@ -18,10 +18,14 @@ my @introspect_params = qw/refer_to computed_refer_to/ ;
 my @accessible_params =  qw/default_list upstream_default_list choice ordered/ ;
 my @allowed_warp_params = (@accessible_params, qw/level experience/);
 
-has [qw/data preset layered refer_to computed_refer_to/] 
+has [qw/backup data preset layered/] 
     => ( is => 'rw', isa => 'HashRef' , default => sub { {} ;} ) ;
+has [qw/refer_to computed_refer_to/] 
+    => ( is => 'rw', isa => 'Maybe[HashRef]'  ) ;
+has [qw/refer_to/]  => ( is => 'rw', isa => 'Str'  ) ;
 has [qw/ordered_data choice/]
     => ( is => 'rw', isa => 'ArrayRef' , default => sub { [] ;} ) ;
+has [qw/ordered/] => (is => 'ro', isa => 'Bool' ) ;
 
 has [qw/warp help/]  => (is => 'rw', isa => 'Maybe[HashRef]') ;
 
@@ -29,9 +33,8 @@ around BUILDARGS => sub {
     my $orig = shift ;
     my $class = shift ;
     my %args =  @_ ;
-    map {delete $args{$_}} qw/element_name instance config_model 
-	warp help refer_to computed_refer_to/ ;
-    return $class->$orig( backup => dclone (\%args), @_ );
+    my %h = map { ( $_ => $args{$_}) ;} grep {defined $args{$_}} @allowed_warp_params;
+    return $class->$orig( backup => dclone (\%h), @_ );
 } ;
 
 
@@ -166,17 +169,17 @@ sub setup_choice {
 sub submit_to_refer_to {
     my $self = shift ;
 
-    if (defined $self->{refer_to}) {
-	$self->{ref_object} = Config::Model::IdElementReference 
-	  -> new ( refer_to   => $self->{refer_to} ,
-		   config_elt => $self,
-		 ) ;
+    if (defined $self->refer_to) {
+	$self->{ref_object} = Config::Model::IdElementReference -> new ( 
+	    refer_to   => $self->refer_to ,
+	    config_elt => $self,
+	) ;
     }
-    elsif (defined $self->{computed_refer_to}) {
-	$self->{ref_object} = Config::Model::IdElementReference 
-	  -> new ( computed_refer_to => $self->{computed_refer_to} ,
-		   config_elt => $self,
-		 ) ;
+    elsif (defined $self->computed_refer_to) {
+	$self->{ref_object} = Config::Model::IdElementReference -> new (
+	    computed_refer_to => $self->computed_refer_to ,
+	    config_elt => $self,
+	) ;
         my $var = $self->{computed_refer_to}{variables} ;
 
 	# refer_to registration is done for all element that are used as
