@@ -34,9 +34,9 @@ sub _root {
     return $self->parent || $self;
 }
 
-has location => (is => 'ro', isa => 'Str' , builder => '_location', lazy => 1);
+#has location => (is => 'ro', isa => 'Str' , builder => '_location', lazy => 1);
 
-sub _location {
+sub location {
     my $self = shift;
 
     my $str = '';
@@ -50,9 +50,9 @@ sub _location {
     return $str;
 }
 
-has composite_name => (is => 'ro', isa => 'Str' , builder => '_composite_name', lazy => 1);
+#has composite_name => (is => 'ro', isa => 'Str' , builder => '_composite_name', lazy => 1);
 
-sub _composite_name {
+sub composite_name {
     my $self = shift;
 
     my $element = $self->element_name;

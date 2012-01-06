@@ -184,6 +184,7 @@ sub create_node {
                 instance          => $self->{instance},
                 element_name      => $element_name ,
                 check             => $check ,
+                parent            => $self,
     ) ;
 
     $self->{element}{$element_name} = $self->new(@args) ;
@@ -390,7 +391,7 @@ sub is_auto_write_for_type {
 
 sub name {
     my $self = shift;
-    return $self->location() || $self->{config_class_name};
+    return $self->location() || $self->config_class_name;
 }
 
 
