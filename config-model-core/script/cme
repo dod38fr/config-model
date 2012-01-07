@@ -176,9 +176,12 @@ if ($command eq 'edit' and not defined $ui_type ) {
 }
 
 
-if ( $command =~ /dump/ ) {
+if ( $command eq  'dump' ) {
     my $dump_string = $root->dump_tree( mode => $dumptype || 'custom' );
     print $dump_string ;
+}
+if ( $command eq 'check' ) {
+    $root->dump_tree( mode => 'custom' );
 }
 elsif ( $command eq 'search' ) {
     pod2usage(-message => "missing -search option with search command" )
@@ -310,6 +313,9 @@ elsif ( $command eq 'edit' ) {
     else {
         die "Unsupported user interface: $ui_type";
     }
+}
+else {
+    die "Looks like the author forgot to implement $command. Bad author, bad.";
 }
 
 $inst->write_back if $force_save;
