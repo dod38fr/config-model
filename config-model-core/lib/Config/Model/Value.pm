@@ -27,24 +27,31 @@ has fixes
 has [qw/warp compute computed_refer_to backup migrate_from/] 
     => (is => 'rw', isa => 'Maybe[HashRef]') ;
 
-has [qw/choice write_as/]
+has [qw/write_as/]
     => (is => 'rw', isa => 'Maybe[ArrayRef]') ;
 
-has [qw/mandatory allow_compute_override/] 
+has [qw/allow_compute_override/] 
     => (is => 'rw', isa => 'Bool', default => 0 ); 
 
-has [qw/refer_to default _data replace_follow/] 
+has [qw/refer_to _data replace_follow/] 
     => (is => 'rw', isa => 'Maybe[Str]' ); 
     
 has value_type => (is => 'rw', isa => 'ValueType');
 
-my @warp_accessible_params =  qw/min max mandatory default 
-				 choice convert upstream_default replace match grammar
-				 warn assert warn_unless warn_if_match warn_unless_match/ ;
+my @common_int_params  = qw/min max mandatory /;
+has \@common_int_params => (is => 'ro', isa => 'Maybe[Int]') ;
 
-# my @accessible_params =  (@warp_accessible_params, 
-			  # qw/index_value element_name value_type write_as
-			     # refer_to computed_refer_to replace_follow/ ) ;
+my @common_hash_params = qw/replace assert warn_if_match warn_unless_match warn_unless/ ;
+has \@common_hash_params => (is => 'ro', isa => 'Maybe[HashRef]') ;
+
+my @common_list_params = qw/choice/;
+has \@common_list_params => (is => 'ro', isa => 'Maybe[ArrayRef]') ;
+
+my @common_str_params  = qw/default upstream_default convert match grammar warn/;
+has \@common_str_params => (is => 'ro', isa => 'Maybe[Str]') ;
+
+
+my @warp_accessible_params = (@common_int_params,@common_str_params, @common_list_params, @common_hash_params);
 
 my @allowed_warp_params = (@warp_accessible_params, qw/level experience help/);
 my @backup_list = (@allowed_warp_params, qw/migrate_from/) ;

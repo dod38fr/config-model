@@ -20,13 +20,22 @@ my $logger = get_logger("Tree::Element::Id") ;
 # nb is incremented each time, or compute the passed formula 
 # and performs the same
 
-my @common_params =  qw/min_index max_index max_nb default_with_init default_keys
-                        follow_keys_from migrate_keys_from duplicates
-                        _c_create_ids auto_create_keys
-                        allow_keys allow_keys_from allow_keys_matching
-                        warn_if_key_match warn_unless_key_match/ ;
+my @common_int_params  = qw/min_index max_index max_nb auto_create_ids/;
+has \@common_int_params => (is => 'ro', isa => 'Maybe[Int]') ;
 
-my @allowed_warp_params = (@common_params,qw/experience level convert/) ;
+my @common_hash_params = qw/default_with_init/;
+has \@common_hash_params => (is => 'ro', isa => 'Maybe[HashRef]') ;
+
+my @common_list_params = qw/allow_keys default_keys auto_create_keys/;
+has \@common_list_params => (is => 'ro', isa => 'Maybe[ArrayRef]') ;
+
+my @common_str_params  = qw/allow_keys_from allow_keys_matching follow_keys_from migrate_keys_from 
+                            duplicates warn_if_key_match warn_unless_key_match/;
+has \@common_str_params => (is => 'ro', isa => 'Maybe[Str]') ;
+
+
+my @common_params = (@common_int_params,@common_str_params, @common_list_params, @common_hash_params);
+my @allowed_warp_params = (@common_params, qw/experience level convert/) ;
 
 around BUILDARGS => sub {
     my $orig = shift ;
@@ -37,7 +46,7 @@ around BUILDARGS => sub {
 } ;
 
 has [qw/backup cargo/] => (is => 'ro', isa => 'HashRef', required => 1 ) ;
-has warp => (is => 'ro', isa => 'Maybe[HashRef]') ;
+has warp=> (is => 'ro', isa => 'Maybe[HashRef]') ;
 has [qw/morph/] => (is => 'ro', isa => 'Bool' ) ;
 has warning_hash => ( is => 'rw', isa => 'HashRef' , default => sub {{} ;} ) ;
 has warning_list => ( is => 'rw', isa => 'ArrayRef', default => sub {[] ;} ) ;
