@@ -163,6 +163,8 @@ sub new {
 	 # layered mode to load values found in included files (e.g. a la multistrap)
 	 layered => 0,
 
+         # initial_load mode: when data is loaded the first time
+         initial_load => 1,
 
 	 config_model => $config_model ,
 	 root_class_name => $root_class_name ,
@@ -243,6 +245,7 @@ sub reset_config {
     $self->{tree} = Config::Model::Node->new(
         config_class_name => $self->{root_class_name},
         instance          => $self,
+        container         => $self,
         skip_read         => $self->{skip_read},
         config_file       => $self->{config_file} ,
     );
@@ -418,6 +421,31 @@ sub _stuff_clear {
 
     $wiper->scan_node(undef,$self->config_root) ;
 
+}
+
+
+=head2 initial_load_stop ()
+
+Stop initial_load mode. Instance is built with initial_load as 1. Read backend
+will clear this value once the first read is done.
+
+=cut
+
+sub initial_load_stop {
+    my $self = shift ;
+    $logger->info("Stopping initial_load mode");
+    $self->{initial_load} = 0;
+}
+
+=head2 initial_load ()
+
+Get initial_load mode
+
+=cut
+
+sub initial_load {
+    my $self = shift ;
+    return $self->{initial_load} ;
 }
 
 
