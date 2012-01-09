@@ -781,6 +781,7 @@ sub auto_vivify {
         index_value  => $idx,
         instance     => $self->{instance},
         parent       => $self->parent,
+        container    => $self,
         %cargo_args,
     );
 

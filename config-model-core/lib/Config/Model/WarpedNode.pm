@@ -196,6 +196,7 @@ sub create_node {
 		instance          => $self->{instance},
 		element_name      => $self->{element_name},
 		parent            => $self->parent ,
+		container         => $self->container ,
 	       ) ;
 
     push @args, index_value => $self->index_value if defined $self->index_value ;

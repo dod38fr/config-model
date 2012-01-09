@@ -91,6 +91,7 @@ has skip_read => ( is => 'ro', isa => 'Bool') ;
 has check => ( is => 'ro', isa => 'Str', builder => '_check_check', lazy => 1) ;
 has auto_read => ( is => 'rw' , isa => 'HashRef' ) ;
 has model => ( is => 'rw' , isa => 'HashRef' ) ;
+has needs_save => ( is => 'rw', isa => 'Bool', default => 0 ) ;
 
 sub BUILD {
     my $self = shift;
@@ -185,6 +186,7 @@ sub create_node {
                 element_name      => $element_name ,
                 check             => $check ,
                 parent            => $self,
+                container         => $self,
     ) ;
 
     $self->{element}{$element_name} = $self->new(@args) ;
@@ -200,6 +202,7 @@ sub create_warped_node {
                 element_name      => $element_name,
                 parent            => $self,
                 check             => $check,
+                container         => $self,
     ) ;
 
     require Config::Model::WarpedNode ;
@@ -223,9 +226,10 @@ sub create_leaf {
         require $file ;
     }
 
-    $element_info->{parent}       = $self ;
+    $element_info->{container} = $element_info->{parent} = $self ;
     $element_info->{element_name} = $element_name ;
     $element_info->{instance}     = $self->{instance} ;
+    
 
     $self->{element}{$element_name} = $leaf_class->new( %$element_info) ;
 }
@@ -263,7 +267,7 @@ sub create_id {
         require $file ;
     }
 
-    $element_info->{parent}       = $self ;
+    $element_info->{container} = $element_info->{parent} = $self ;
     $element_info->{element_name} = $element_name ;
     $element_info->{instance}     = $self->{instance} ;
     $element_info->{config_model} = $self->{config_model} ;

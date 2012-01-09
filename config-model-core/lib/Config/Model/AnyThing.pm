@@ -12,9 +12,13 @@ has element_name => ( is => 'ro', isa => 'Str') ;
 has parent => (is => 'ro', isa => 'Config::Model::Node' , weak_ref => 1);
 has instance => (is => 'ro', isa => 'Config::Model::Instance', weak_ref => 1) ;
 
+has needs_check => (is => 'rw', isa => 'Bool', default => 0 );
+
 # index_value can be written to when move method is called. But let's
 # not advertise this feature.
 has index_value => ( is => 'rw', isa => 'Str') ;
+
+has container => (is => 'ro', isa => 'Ref', required => 1, weak_ref => 1 ) ;
 
 has container_type => ( is => 'ro', isa => 'Str' , builder => '_container_type', lazy => 1 );
 
@@ -28,6 +32,7 @@ sub _container_type {
 
 has root => (is => 'ro', isa => 'Config::Model::Node' , weak_ref => 1,
     builder => '_root', lazy => 1);
+
 sub _root {
     my $self = shift;
 
