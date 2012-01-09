@@ -56,6 +56,8 @@ my @warp_accessible_params = (@common_int_params,@common_str_params, @common_lis
 my @allowed_warp_params = (@warp_accessible_params, qw/level experience help/);
 my @backup_list = (@allowed_warp_params, qw/migrate_from/) ;
 
+# as some information like experience must be backed up even though they are not
+# attributes, we cannot move below code in BUILD. (experience is actually used by node)
 around BUILDARGS => sub {
     my $orig = shift ;
     my $class = shift ;
