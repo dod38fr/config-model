@@ -1090,11 +1090,15 @@ sub store {
 	    $self->{layered} = $value ;
 	} 
 	elsif ($self->instance->preset) {
+	    $self->has_changed ;
 	    $self->{preset} = $value ;
 	} 
 	else {
+	    no warnings 'uninitialized';
+	    $self->has_changed if $self->{data} ne $value;
 	    $self->{data} = $value ; # may be undef
 	}
+	
     }
     elsif ($check eq 'skip') {
         my $msg = $self->error_msg;
