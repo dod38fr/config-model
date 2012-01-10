@@ -12,7 +12,7 @@ has element_name => ( is => 'ro', isa => 'Str') ;
 has parent => (is => 'ro', isa => 'Config::Model::Node' , weak_ref => 1);
 has instance => (is => 'ro', isa => 'Config::Model::Instance', weak_ref => 1) ;
 
-has needs_check => (is => 'rw', isa => 'Bool', default => 0 );
+has needs_check => (is => 'rw', isa => 'Bool', default => 1 );
 
 # index_value can be written to when move method is called. But let's
 # not advertise this feature.
