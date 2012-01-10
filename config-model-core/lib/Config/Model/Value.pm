@@ -1033,27 +1033,34 @@ sub apply_fix {
 
 
 sub check {
-    my $self = shift ;
-    
-    $logger->debug("called for ".$self->location ." from ".join(' ',caller)," with @_") if $logger->is_debug ;
-    my %args = @_ == 0 ? ( value => $self->{data} ) 
-             : @_ == 1 ? ( value => $_[0]         )
-             :           @_ ;
-    my $value = exists $args{value} ? $args{value} : $self->{data} ;
-    my $silent = $args{silent} || 0 ;
+    my $self = shift;
 
-    my @error = $self->check_value(%args) ;
+    $logger->debug(
+        "called for " . $self->location . " from " . join( ' ', caller ),
+        " with @_" )
+      if $logger->is_debug;
 
-    my $warn = $self->{warning_list} ;
-    map { 
-        my $str = defined $value ? "'$value'" : '<undef>' ;
-        warn "Warning in '".$self->location."' value $str: $_\n" ;
+    my %args =
+        @_ == 0 ? ( value => $self->{data} )
+      : @_ == 1 ? ( value => $_[0] )
+      :           @_;
+
+    my $value = exists $args{value} ? $args{value} : $self->{data};
+    my $silent = $args{silent} || 0;
+
+    my @error = $self->check_value(%args);
+
+    my $warn = $self->{warning_list};
+    map {
+        my $str = defined $value ? "'$value'" : '<undef>';
+        warn "Warning in '" . $self->location . "' value $str: $_\n";
     } @$warn if @$warn and not $nowarning and not $silent;
 
+    $self->{error_list} = \@error;
+    $logger->debug("done");
 
-    $self->{error_list} = \@error ;
-    $logger->debug("done") ;
-    return wantarray ? @error : not scalar @error ;
+    $self->needs_check(0) ;
+    return wantarray ? @error : not scalar @error;
 }
 
 
