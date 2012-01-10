@@ -87,6 +87,13 @@ sub BUILD {
     return $self ;
 }
 
+sub has_changed {	
+    my $self = shift ;
+
+    return if $self->instance->initial_load ;
+    $self->needs_check(1);
+    $self->container->has_changed;
+}
 
 # internal method
 sub set_default {
