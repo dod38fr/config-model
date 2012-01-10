@@ -41,6 +41,12 @@ sub _root {
 
 #has location => (is => 'ro', isa => 'Str' , builder => '_location', lazy => 1);
 
+sub has_changed {	
+    my $self = shift ;
+
+    $self->container->has_changed;
+}
+
 sub location {
     my $self = shift;
 
