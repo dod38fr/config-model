@@ -245,20 +245,24 @@ my $inst = $model->instance(
     instance_name   => 'test1'
 );
 ok( $inst, "created dummy instance" );
-$inst->initial_load(0) ;
+$inst->initial_load_stop ;
 
 my $root = $inst->config_root;
 
 my $i = $root->fetch_element('scalar');
 ok( $i, "test create bounded integer" );
 
+is($inst->needs_save,0,"verify instance needs_save status after creation") ;
+
 is($i->needs_check,1,"verify check status after creation") ;
 
 ok( $i->store(1), "store test" );
 is($i->needs_check,1,"store will trigger a check") ;
+is($inst->needs_save,1,"verify instance needs_save status after store") ;
 
 is( $i->fetch, 1, "fetch test" );
 is($i->needs_check,0,"check was done during fetch") ;
+is($inst->needs_save,1,"verify instance needs_save status after fetch") ;
 
 throws_ok { $i->store(5); } 'Config::Model::Exception::User',
   "bounded integer: max error";
