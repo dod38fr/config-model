@@ -143,12 +143,6 @@ sub new {
     $read_check = 'no' if delete $args{force_load} ;
 
     my $self  = {
-	 # stack used to store whether read and/or write check must 
-	 # be done in tree objects (Value, Id ...)
-	 check_stack => [ { fetch => 1,
-			    store => 1,
-			    type  => 1 } ],
-
 	 # a unique (instance wise) placeholder for various tree objects
 	 # to store information
 	 safe => {
@@ -165,6 +159,7 @@ sub new {
 
          # initial_load mode: when data is loaded the first time
          initial_load => 1,
+         needs_save => 0,
 
 	 config_model => $config_model ,
 	 root_class_name => $root_class_name ,
@@ -295,6 +290,8 @@ an automatic process (like hardware scan)
 sub preset_start {
     my $self = shift ;
     $logger->info("Starting preset mode");
+    carp "Cannot start preset mode during layered mode" 
+        if $self->{layered} ;
     $self->{preset} = 1;
 }
 
@@ -349,6 +346,8 @@ an automatic process (like hardware scan)
 sub layered_start {
     my $self = shift ;
     $logger->info("Starting layered mode");
+    carp "Cannot start layered mode during preset mode" 
+        if $self->{preset} ;
     $self->{layered} = 1;
 }
 
@@ -391,7 +390,22 @@ sub layered_clear {
 
     $self->_stuff_clear($leaf_cb);
 }
-    
+
+=head2 get_data_mode 
+
+Returns 'normal' or 'preset' or 'layered'. Does not take into account initial_load.
+
+=cut
+
+sub get_data_mode {
+    my $self = shift;
+    return
+        $self->{layered} ? 'layered'
+      : $self->{preset}  ? 'preset'
+      :                    'normal';
+}
+
+
 sub _stuff_clear {
     my ($self,$leaf_cb) = @_ ;
     
@@ -445,6 +459,8 @@ Get initial_load mode
 
 sub initial_load {
     my $self = shift ;
+    my $v = shift ;
+    $self->{initial_load} = $v if defined $v ;
     return $self->{initial_load} ;
 }
 
@@ -591,6 +607,17 @@ sub register_write_back {
     $logger->debug("register_write_back: instance '$self->{name}' registers node '$node_path'") ;
 
     push @{$self->{write_back}}, $node_path ;
+}
+
+=head2 has_changed
+
+Notify that some data has changed in the tree. 
+
+=cut
+
+sub has_changed {
+    my $self = shift ;
+    $self->{needs_save} = 1;
 }
 
 =head2 write_back ( ... )
