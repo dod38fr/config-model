@@ -1,5 +1,10 @@
 package Config::Model::Instance;
-use Scalar::Util qw(weaken) ;
+#use Scalar::Util qw(weaken) ;
+
+use Any::Moose ;
+use namespace::autoclean;
+use Any::Moose '::Util::TypeConstraints';
+
 use File::Path;
 use Log::Log4perl qw(get_logger :levels);
 
@@ -11,160 +16,123 @@ use Config::Model::SearchElement;
 use Config::Model::Iterator;
 use Config::Model::ObjTreeScanner;
 
-use strict ;
-use Carp;
 use warnings FATAL => qw(all);
 use warnings::register ;
 
 
-use Carp qw/croak confess cluck/;
+use Carp qw/carp croak confess cluck/;
 
 my $logger = get_logger("Instance") ;
 
+has [qw/root_class_name/] => (is => 'ro', isa => 'Str', required => 1) ;
 
-sub new {
-    my $proto = shift ;
-    my $class = ref($proto) || $proto ;
-    my %args = @_ ;
+has config_model => (
+    is => 'ro', 
+    isa => 'Config::Model', 
+    weak_ref => 1 ,
+    required => 1
+) ;
 
-    my $root_class_name = delete $args{root_class_name} || 
-      confess __PACKAGE__," error: missing root_class_name parameter" ;
+has check => ( 
+    is => 'ro', 
+    isa => 'Bool', 
+    default => 1,
+    reader => 'read_check' ,
+) ;
 
-    my $config_model = delete $args{config_model} || 
-      confess __PACKAGE__," error: missing config_model parameter" ;
+# a unique (instance wise) placeholder for various tree objects
+# to store information
+has _safe => (
+    is => 'rw',
+    isa => 'HashRef',
+    traits => ['Hash'] ,
+    default => sub { {} } ,
+    handles => {
+        data => 'accessor' ,
+    },
+) ;
 
-    confess __PACKAGE__," error: config_model is not a Config::Model object"
-      unless $config_model->isa('Config::Model') ; 
+# preset mode:  to load values found by HW scan or other automatic scheme
+# layered mode: to load values found in included files (e.g. a la multistrap)
+has [qw/preset layered needs_save/] => (
+    is => 'ro',
+    isa => 'Bool' ,
+    default => 0,
+);
 
-    my $read_check = delete $args{check} || 'yes' ;
-    carp "instance new: force_load is deprecated" if defined $args{force_load} ;
-    $read_check = 'no' if delete $args{force_load} ;
+# initial_load mode: when data is loaded the first time
+has initial_load => ( 
+    is => 'ro',
+    isa => 'Bool' ,
+    default => 1,
+) ;
 
-    my $self  = {
-	 # a unique (instance wise) placeholder for various tree objects
-	 # to store information
-	 safe => {
-		 } ,
+# This array holds a set of sub ref that will be invoked when
+# the users requires to write all configuration tree in their
+# backend storage.
+has _write_back => (
+    is => 'ro',
+    isa => 'ArrayRef',
+    traits => ['Array'],
+    handles => {
+        register_write_back => 'push' ,
+    },
+    default => sub { [] } ,
+);
 
-        read_check => $read_check ,
+# used for auto_read auto_write feature
+has [qw/name root_dir config_file backend/] => (
+    is => 'ro',
+    isa => 'Maybe[Str]' ,
+);
+has skip_read => (is => 'ro', isa => 'Bool', default => 0) ;
 
-	 # preset mode to load values found by HW scan or other
-	 # automatic scheme
-	 preset => 0,
+sub BUILD {
+    my $self = shift ;
 
-	 # layered mode to load values found in included files (e.g. a la multistrap)
-	 layered => 0,
-
-         # initial_load mode: when data is loaded the first time
-         initial_load => 1,
-         needs_save => 0,
-
-	 config_model => $config_model ,
-	 root_class_name => $root_class_name ,
-
-	 # This array holds a set of sub ref that will be invoked when
-	 # the users requires to write all configuration tree in their
-	 # backend storage.
-	 write_back => [] ,
-
-	 # used for auto_read auto_write feature
-	 name            =>  delete $args{name} ,
-	 root_dir        =>  delete $args{root_dir},
-	 config_file     =>  delete $args{config_file} , 
-
-	 backend         =>  delete $args{backend} || '',
-	 skip_read       =>  delete $args{skip_read} || 0,
-	};
-
-    my @left = keys %args ;
-    croak "Instance->new: unexpected parameter: @left" if @left ;
+    #carp "instance new: force_load is deprecated" if defined $args{force_load} ;
+    #$read_check = 'no' if delete $args{force_load} ;
 
     # cleanup paths
     map { $self->{$_} .= '/' if defined $self->{$_} and $self->{$_} !~ m!/$!}
       qw/root_dir/;
 
-    weaken($self->{config_model}) ;
-
-    bless $self, $class;
-
     $self->reset_config() ;
-
-    return $self ;
 }
 
-
-
-sub name {
-    return shift->{name} ;
-}
-
-
-sub config_root {
-    return shift->{tree} ;
-}
-
-
-sub read_check {
-    return shift->{read_check} ;
-}
-
+has tree => (
+    is => 'ro',
+    isa => 'Config::Model::Node',
+    builder => 'reset_config' ,
+    reader => 'config_root' ,
+);
 
 sub reset_config {
-    my ( $self, %args ) = @_;
+    my $self =shift;
 
-    $self->{tree} = Config::Model::Node->new(
+    return Config::Model::Node->new(
         config_class_name => $self->{root_class_name},
         instance          => $self,
         container         => $self,
         skip_read         => $self->{skip_read},
         config_file       => $self->{config_file} ,
     );
-
-    # $self->{annotation_saver} = Config::Model::Annotation
-    #   -> new (
-    # 	      config_class_name => $self->{root_class_name},
-    # 	      instance => $self ,
-    # 	      root_dir => $self->{root_dir} ,
-    # 	     ) ;
-    # $self->{annotation_saver}->load ;
-
-    return $self->{tree};
 }
-
-
-
-sub config_model {
-    return shift->{config_model} ;
-}
-
-
-# sub annotation_saver {
-#     my $self = shift ;
-#     return $self->{annotation_saver} ;
-#}
-
 
 sub preset_start {
     my $self = shift ;
     $logger->info("Starting preset mode");
     carp "Cannot start preset mode during layered mode" 
         if $self->{layered} ;
-    $self->{preset} = 1;
+    $self->{_preset} = 1;
 }
 
 
 sub preset_stop {
     my $self = shift ;
     $logger->info("Stopping preset mode");
-    $self->{preset} = 0;
+    $self->{_preset} = 0;
 }
-
-
-sub preset {
-    my $self = shift ;
-    return $self->{preset} ;
-}
-
 
 sub preset_clear {
     my $self = shift ;
@@ -191,12 +159,6 @@ sub layered_stop {
     my $self = shift ;
     $logger->info("Stopping layered mode");
     $self->{layered} = 0;
-}
-
-
-sub layered {
-    my $self = shift ;
-    return $self->{layered} ;
 }
 
 
@@ -261,26 +223,6 @@ sub initial_load_stop {
 }
 
 
-sub initial_load {
-    my $self = shift ;
-    my $v = shift ;
-    $self->{initial_load} = $v if defined $v ;
-    return $self->{initial_load} ;
-}
-
-
-
-sub data {
-    my $self = shift;
-    my $kind = shift || croak "undefined data kind";
-    my $store = shift ;
-
-    $self->{safe}{$kind} = $store if defined $store;
-    return $self->{safe}{$kind} ;
-}
-
-
-
 sub load {
     my $self = shift ;
     my $loader = Config::Model::Loader->new ;
@@ -320,12 +262,6 @@ sub read_root_dir {
     return shift -> {root_dir} ;
 }
 
-
-sub backend {
-    return shift -> {backend} ;
-}
-
-
 sub write_directory {
     my $self = shift ;
     carp "write_directory is deprecated";
@@ -335,14 +271,6 @@ sub write_directory {
 sub write_root_dir {
     my $self = shift ;
     return $self -> {root_dir} ;
-}
-
-
-sub register_write_back {
-    my ($self,$node_path) = @_ ;
-    $logger->debug("register_write_back: instance '$self->{name}' registers node '$node_path'") ;
-
-    push @{$self->{write_back}}, $node_path ;
 }
 
 
@@ -371,9 +299,9 @@ sub write_back {
      }
 
     croak "write_back: no subs registered in instance $self->{name}. cannot save data\n" 
-      unless @{$self->{write_back}} ;
+      unless @{$self->{_write_back}} ;
 
-    foreach my $path (@{$self->{write_back}}) {
+    foreach my $path (@{$self->{_write_back}}) {
 	$logger->info("write_back called on node $path");
         my $node = $self->config_root->grab(step => $path, type => 'node');
         $node->write_back(
@@ -425,9 +353,7 @@ sub apply_fixes {
     $scan->scan_node(undef, $self->config_root) ;
 }
 
-sub push_no_value_check { carp "push_no_value_check is deprecated";}
-sub pop_no_value_check  { carp "pop_no_value_check is deprecated";}
-sub get_value_check { carp "get_value_check is deprecated";}
+__PACKAGE__->meta->make_immutable;
 
 1;
 
