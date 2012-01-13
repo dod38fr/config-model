@@ -3,7 +3,7 @@
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
-use Test::More tests => 149;
+use Test::More tests => 152;
 use Test::Exception;
 use Test::Warn;
 use Config::Model;
@@ -224,19 +224,12 @@ $model->create_config_class(
     ],    # dummy class
 );
 
-my $inst = $model->instance(
-    root_class_name => 'Master',
-    instance_name   => 'test1'
-);
-ok( $inst, "created dummy instance" );
-
-my $root = $inst->config_root;
-
 my $bad_inst = $model->instance(
     root_class_name => 'BadClass',
     instance_name   => 'test_bad_class'
 );
-ok( $inst, "created bad_class instance" );
+ok( $bad_inst, "created bad_class instance" );
+$bad_inst->initial_load_stop ;
 
 my $bad_root = $bad_inst->config_root;
 
@@ -247,11 +240,25 @@ throws_ok { $bad_root->fetch_element('crooked'); }
   "test create expected failure";
 print "normal error:\n", $@, "\n" if $trace;
 
+my $inst = $model->instance(
+    root_class_name => 'Master',
+    instance_name   => 'test1'
+);
+ok( $inst, "created dummy instance" );
+$inst->initial_load(0) ;
+
+my $root = $inst->config_root;
+
 my $i = $root->fetch_element('scalar');
 ok( $i, "test create bounded integer" );
 
+is($i->needs_check,1,"verify check status after creation") ;
+
 ok( $i->store(1), "store test" );
+is($i->needs_check,1,"store will trigger a check") ;
+
 is( $i->fetch, 1, "fetch test" );
+is($i->needs_check,0,"check was done during fetch") ;
 
 throws_ok { $i->store(5); } 'Config::Model::Exception::User',
   "bounded integer: max error";
