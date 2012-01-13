@@ -1,5 +1,6 @@
 package Config::Model;
 use Any::Moose ;
+use namespace::autoclean;
 use Any::Moose '::Util::TypeConstraints';
 use Any::Moose 'X::StrictConstructor' ;
 
@@ -2297,7 +2298,6 @@ sub list_one_class_element {
 }
 
 
-no Any::Moose ;
 __PACKAGE__->meta->make_immutable ;
 
 1;
@@ -2338,7 +2338,7 @@ Dominique Dumont, (ddumont at cpan dot org)
 
 =head1 LICENSE
 
-    Copyright (c) 2005-2011 Dominique Dumont.
+    Copyright (c) 2005-2012 Dominique Dumont.
 
     This file is part of Config-Model.
 
