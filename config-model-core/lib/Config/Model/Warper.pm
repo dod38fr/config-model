@@ -1,6 +1,8 @@
 package Config::Model::Warper ;
 
 use Any::Moose ;
+use namespace::autoclean;
+
 use Log::Log4perl qw(get_logger :levels);
 use Data::Dumper ;
 use Storable qw/dclone/ ;
@@ -565,7 +567,8 @@ sub warp_error {
     return $str ;
 }
 
-no Any::Moose ;
+__PACKAGE__->meta->make_immutable;
+
 1;
 
 =head1 NAME
