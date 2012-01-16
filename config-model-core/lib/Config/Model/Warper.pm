@@ -1,21 +1,3 @@
-#    Copyright (c) 2005-2011 Dominique Dumont.
-#
-#    This file is part of Config-Model.
-#
-#    Config-Model is free software; you can redistribute it and/or
-#    modify it under the terms of the GNU Lesser Public License as
-#    published by the Free Software Foundation; either version 2.1 of
-#    the License, or (at your option) any later version.
-#
-#    Config-Model is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#    Lesser Public License for more details.
-#
-#    You should have received a copy of the GNU Lesser Public License
-#    along with Config-Model; if not, write to the Free Software
-#    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-
 package Config::Model::Warper ;
 
 use Any::Moose ;
@@ -28,24 +10,31 @@ use Carp;
 
 has 'follow' => ( is => 'ro', isa => 'HashRef[Str]' , required => 1 );
 has 'rules'  => ( is => 'ro', isa => 'ArrayRef' , required => 1 );
-has 'warped_object'  => ( is => 'ro', isa => 'Config::Model::AnyThing' , 
-        weak_ref => 1, required => 1 );
 
-has '_values' => (  traits    => ['Hash'],
-             is        => 'ro',
-             isa       => 'HashRef[Str | Undef ]',
-             default   => sub { {} },
-             handles => { 
-                    _set_value => 'set' ,
-                    _get_value => 'get' ,
-                    _value_keys => 'keys' ,
-                } ,
-  ) ;
+has 'warped_object'  => ( 
+    is => 'ro', 
+    isa => 'Config::Model::AnyThing' , 
+    handles => [ 'has_changed' ],
+    weak_ref => 1, 
+    required => 1 
+);
+
+has '_values' => (
+    traits  => ['Hash'],
+    is      => 'ro',
+    isa     => 'HashRef[Str | Undef ]',
+    default => sub { {} },
+    handles => {
+        _set_value  => 'set',
+        _get_value  => 'get',
+        _value_keys => 'keys',
+    },
+);
 
 has _computed_masters => ( is => 'rw',  isa => 'HashRef' , init_arg => undef ) ;
 
-has _warped_nodes => ( is => 'rw',  isa => 'HashRef' , init_arg => undef, default   => sub { {} }, ) ;
-has _registered_values => ( is => 'rw',  isa => 'HashRef' , init_arg => undef, default   => sub { {} }, ) ;
+has [qw/_warped_nodes _registered_values/] =>
+  ( is => 'rw', isa => 'HashRef', init_arg => undef, default => sub { {} }, );
 
 has allowed => ( is => 'rw',  isa => 'ArrayRef' ) ;
 has morph => ( is => 'ro', isa => 'Bool' ) ;
