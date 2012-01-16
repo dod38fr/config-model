@@ -147,11 +147,14 @@ my $inst = $model->instance(
     instance_name   => 'test1'
 );
 ok( $inst, "created dummy instance" );
+$inst->initial_load_stop ;
 
 my $root = $inst->config_root;
 
 is_deeply( [ $root->fetch_element('olist')->get_all_indexes ],
     [], "check index list of empty list" );
+
+is($inst->needs_save,0,"verify instance needs_save status after creation") ;
 
 my $b = $root->fetch_element('bounded_list');
 ok( $b, "bounded list created" );
@@ -316,7 +319,7 @@ is_deeply(
     "check that values are read"
 );
 
-is_deeply( [ $pl->fetch_all_values( mode => 'custom' ) ],
+eq_or_diff( [ $pl->fetch_all_values( mode => 'custom' ) ],
     ['bar'], "check that custom values are read" );
 
 # test key migration
