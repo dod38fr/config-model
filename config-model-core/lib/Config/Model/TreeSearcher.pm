@@ -2,6 +2,7 @@ package Config::Model::TreeSearcher ;
 
 use Any::Moose ;
 use Any::Moose '::Util::TypeConstraints';
+use namespace::autoclean;
 
 use Log::Log4perl qw(get_logger :levels);
 use Config::Model::Exception ;
@@ -120,8 +121,8 @@ sub search {
     return @loc ;
 }
 
+__PACKAGE__->meta->make_immutable;
 
-no Any::Moose ;
 1;
 
 =head1 NAME
