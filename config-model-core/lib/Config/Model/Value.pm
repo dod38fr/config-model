@@ -99,6 +99,7 @@ sub has_changed {
 
     unless ($self->needs_check) {
 	$self->needs_check(1);
+	$self->SUPER::has_changed ;
 	# notify all warped or computed objects that depends on me 
 	foreach my $s ($self->get_depend_slave) {
 	    $logger->debug("calling has_changed on slave ",$s->name) 
