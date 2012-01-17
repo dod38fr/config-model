@@ -3,7 +3,7 @@
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
-use Test::More tests => 81 ;
+use Test::More tests => 84 ;
 use Config::Model ;
 use Test::Exception ;
 use Test::Warn ;
@@ -177,6 +177,8 @@ my $inst = $model->instance (root_class_name => 'Master',
 ok($inst,"created dummy instance") ;
 
 my $root = $inst -> config_root ;
+$inst->initial_load_stop ;
+is($inst->needs_save,0,"verify instance needs_save status after creation") ;
 
 my $b = $root->fetch_element('bounded_hash') ;
 ok($b,"bounded hash created") ;
@@ -189,8 +191,10 @@ is($b->name,'Master bounded_hash id',"check hash id name");
 
 my $b1 = $b->fetch_with_id(1) ;
 isa_ok($b1,'Config::Model::Value',"fetched element id 1") ;
+is($inst->needs_save,0,"verify instance needs_save status after element creation") ;
 
 is($b1->store('foo'),'foo',"Storing in id 1" ) ;
+is($inst->needs_save,1,"verify instance needs_save status after storing into element") ;
 
 is($b->fetch_with_id(2)->store('bar'),'bar',"Storing in id 2" ) ;
 
