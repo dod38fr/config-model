@@ -93,11 +93,18 @@ sub has_changed {
 
     return if $self->instance->initial_load ;
 
+    $logger->debug("called while needs_check is ",$self->needs_check,
+	" for ",$self->name) 
+	if $logger->is_debug ;
+
     unless ($self->needs_check) {
 	$self->needs_check(1);
-	$self->SUPER::has_changed;
 	# notify all warped or computed objects that depends on me 
-	map { $_ -> has_changed } $self->get_depend_slave ;
+	foreach my $s ($self->get_depend_slave) {
+	    $logger->debug("calling has_changed on slave ",$s->name) 
+		if $logger->is_debug ;
+	    $s -> has_changed ;
+	}  ;
     }
 }
 
@@ -128,17 +135,13 @@ sub set_default {
 	next unless defined $def ;
 
 	# will check default value
-	my $ok = $self->check($def) ;
-	Config::Model::Exception::Model
-	    -> throw (
-		      object => $self,
-		      error => "Wrong $item value\n\t".
-		      join("\n\t",@{$self->{error_list}})
-		     ) 
-	      unless $ok ;
+	my @error = $self->check_value(value => $def) ;
+	Config::Model::Exception::Model->throw(
+	    object => $self,
+	    error  => "Wrong $item value\n\t" . join( "\n\t", @error )
+	) if @error;
 
-	$logger
-	  ->debug("Set $item value for ",$self->name,"") ;
+	$logger->debug( "Set $item value for ", $self->name, "" );
 
 	$self->{$item} = $def ;
     }
