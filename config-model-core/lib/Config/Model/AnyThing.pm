@@ -1,6 +1,7 @@
 package Config::Model::AnyThing;
 
 use Any::Moose ;
+use namespace::autoclean;
 
 use Pod::POM ;
 use Carp;
@@ -12,6 +13,7 @@ has element_name => ( is => 'ro', isa => 'Str') ;
 has parent => (is => 'ro', isa => 'Config::Model::Node' , weak_ref => 1);
 has instance => (is => 'ro', isa => 'Config::Model::Instance', weak_ref => 1) ;
 
+# needs_check defaults to 1 to trap undef mandatory values
 has needs_check => (is => 'rw', isa => 'Bool', default => 1 );
 
 # index_value can be written to when move method is called. But let's
@@ -44,7 +46,7 @@ sub _root {
 sub has_changed {	
     my $self = shift ;
 
-    $self->container->has_changed;
+    $self->container->has_changed($self->element_name, $self->index_value);
 }
 
 sub location {
@@ -521,6 +523,8 @@ sub set_convert {
 		 ) 
 	  unless defined $self->{convert_sub};
 }
+
+__PACKAGE__->meta->make_immutable;
 
 
 1;
