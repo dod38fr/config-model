@@ -124,14 +124,14 @@ sub preset_start {
     $logger->info("Starting preset mode");
     carp "Cannot start preset mode during layered mode" 
         if $self->{layered} ;
-    $self->{_preset} = 1;
+    $self->{preset} = 1;
 }
 
 
 sub preset_stop {
     my $self = shift ;
     $logger->info("Stopping preset mode");
-    $self->{_preset} = 0;
+    $self->{preset} = 0;
 }
 
 sub preset_clear {
