@@ -1,6 +1,7 @@
 package Config::Model::Node;
 
 use Any::Moose ;
+use namespace::autoclean;
 
 use Carp ;
 
@@ -1094,6 +1095,8 @@ sub tree_searcher {
     
     return Config::Model::TreeSearcher->new ( node => $self, @_ );
 }
+
+__PACKAGE__->meta->make_immutable;
 
 1;
 
