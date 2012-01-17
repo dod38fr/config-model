@@ -2,6 +2,7 @@ package Config::Model::Value ;
 
 use Any::Moose;
 use Any::Moose '::Util::TypeConstraints' ;
+use namespace::autoclean;
 
 use Data::Dumper ();
 use Config::Model::Exception ;
@@ -1557,6 +1558,8 @@ sub get_depend_slave {
 
     return @result ;
   }
+
+__PACKAGE__->meta->make_immutable;
 
 1;
 
