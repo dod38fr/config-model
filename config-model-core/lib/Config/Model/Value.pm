@@ -523,7 +523,7 @@ sub set_properties {
         my $value = $self->_fetch_no_check ;
         $self->trigger_warp($value)  ;
     }
-
+    
     return $self; 
 }
 
@@ -1383,7 +1383,7 @@ sub _fetch {
          : $mode =~ /backend|allow_undef/       ? defined $data ? $data : $pref 
          :                                      die "unexpected mode $mode " ;
 
-    $logger->debug("done in $mode mode for ".$self->location." -> " . Data::Dumper->Dumper(['res'],[$res])) 
+    $logger->debug("done in '$mode' mode for ".$self->location." -> " . Data::Dumper->Dumper(['res'],[$res])) 
         if $logger->is_debug ;
 
     return $res ;
@@ -1422,6 +1422,10 @@ sub fetch {
 
     my $value = $self->_fetch($mode,$check) ;
 
+    if ($logger->is_debug) {
+        $logger->debug("_fetch returns ". (defined $value ? $value : '<undef>'));
+    }
+
     if ($mode and not defined $accept_mode{$mode}) {
 	croak "fetch: expected ", not scalar
 	    join (' or ',keys %accept_mode),
@@ -1444,7 +1448,7 @@ sub fetch {
     $ok = $self->check(value => $value, silent => $silent, mode => $mode ) 
         if $mode =~ /backend|custom|user/ and $self->needs_check;
 
-    $logger->debug( "(almost) done for " . $self->location )
+    $logger->debug( "$mode fetch (almost) done for " . $self->location )
       if $logger->is_debug;
 
     # check validity (all modes)
