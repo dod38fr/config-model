@@ -27,7 +27,7 @@ use Config::Model::ObjTreeScanner ;
 use Carp;
 
 my @search_types = qw/element value key summary description help/;
-enum ('SearchType' =>  @search_types, 'all');
+enum ('SearchType' =>  [ @search_types, 'all' ]);
 
 # clean up namespace to avoid clash between MUTC keywords and
 # my functions
