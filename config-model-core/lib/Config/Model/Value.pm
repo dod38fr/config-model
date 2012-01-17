@@ -1065,7 +1065,8 @@ sub check {
     $self->{error_list} = \@error;
     $logger->debug("done");
 
-    $self->needs_check(0) ;
+    # don't clear needs_check if tests are bad
+    $self->needs_check(0) unless @error;
     return wantarray ? @error : not scalar @error;
 }
 
