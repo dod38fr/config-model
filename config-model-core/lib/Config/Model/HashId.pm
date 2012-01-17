@@ -1,7 +1,6 @@
 package Config::Model::HashId ;
 use Any::Moose ;
 use namespace::autoclean;
-use Any::Moose '::Util::TypeConstraints';
 
 use Config::Model::Exception ;
 use Carp;
@@ -10,23 +9,10 @@ use Log::Log4perl qw(get_logger :levels);
 
 my $logger = get_logger("Tree::Element::Id::Hash");
 
-enum 'DataMode' =>  [qw/preset layered normal/];
-
 extends qw/Config::Model::AnyId/ ;
 
 has data => ( is => 'rw', isa => 'HashRef' , default => sub { {} ;} ) ;
 has list => ( is => 'rw', isa => 'ArrayRef', default => sub { [] ;} ) ;
-
-has data_mode => ( 
-    is => 'rw', 
-    isa => 'HashRef[DataMode]' , 
-    traits => ['Hash'] ,
-    handles => {
-        get_data_mode => 'get' ,
-        set_data_mode => 'set' ,
-    },
-    default => sub { {} ;} 
-) ;
 
 has [qw/default_keys auto_create_keys/] => ( is => 'rw', isa => 'ArrayRef', default => sub { [] ;} ) ;
 has [qw/morph ordered/] => (is => 'ro', isa => 'Bool' ) ;

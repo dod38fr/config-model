@@ -1,6 +1,5 @@
 package Config::Model::ListId ;
 use Any::Moose ;
-use Any::Moose '::Util::TypeConstraints';
 use namespace::autoclean;
 
 use Config::Model::Exception ;
@@ -9,25 +8,9 @@ use Log::Log4perl qw(get_logger :levels);
 use Carp;
 extends qw/Config::Model::AnyId/ ;
 
-enum 'DataMode' => qw/preset layered normal/;
-
 my $logger = get_logger("Tree::Element::Id::List") ;
 
 has data => ( is => 'rw', isa => 'ArrayRef' , default => sub { [] ;} ) ;
-
-# data_mode is updated by "has_changed" method
-has data_mode => ( 
-    is => 'rw', 
-    # Mouse fails if ArrayRef[DataMode] is used in isa
-    # Moose has no such problem
-    isa => 'ArrayRef' , 
-    traits => ['Array'] ,
-    handles => {
-        get_data_mode => 'get' ,
-        set_data_mode => 'set' ,
-    },
-    default => sub { [] ;} 
-) ;
 
 # compatibility with HashId
 has index_type => ( is => 'ro', isa => 'Str', default => 'integer' ) ;

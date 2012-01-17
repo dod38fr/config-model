@@ -8,10 +8,24 @@ use Config::Model::Warper ;
 use Carp qw/cluck croak carp/;
 use Log::Log4perl qw(get_logger :levels);
 use Storable qw/dclone/;
+use Any::Moose '::Util::TypeConstraints';
 
 extends qw/Config::Model::AnyThing/;
 
 my $logger = get_logger("Tree::Element::Id") ;
+
+enum 'DataMode' =>  [qw/preset layered normal/];
+
+has data_mode => ( 
+    is => 'rw', 
+    isa => 'HashRef[DataMode]' , 
+    traits => ['Hash'] ,
+    handles => {
+        get_data_mode => 'get' ,
+        set_data_mode => 'set' ,
+    },
+    default => sub { {} ;} 
+) ;
 
 # Some idea for improvement
 
