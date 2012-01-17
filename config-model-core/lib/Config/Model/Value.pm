@@ -92,8 +92,13 @@ sub has_changed {
     my $self = shift ;
 
     return if $self->instance->initial_load ;
-    $self->needs_check(1);
-    $self->container->has_changed;
+
+    unless ($self->needs_check) {
+	$self->needs_check(1);
+	$self->SUPER::has_changed;
+	# notify all warped or computed objects that depends on me 
+	map { $_ -> has_changed } $self->get_depend_slave ;
+    }
 }
 
 # internal method
@@ -1096,7 +1101,7 @@ sub store {
 	} 
 	else {
 	    no warnings 'uninitialized';
-	    $self->has_changed if $self->{data} ne $value;
+	    $self->has_changed if $value ne $old_value;
 	    $self->{data} = $value ; # may be undef
 	}
 	
