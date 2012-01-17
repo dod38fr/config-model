@@ -1,6 +1,7 @@
 package Config::Model::AnyId ;
 
 use Any::Moose ;
+use namespace::autoclean;
 
 use Config::Model::Exception ;
 use Config::Model::Warper ;
@@ -360,6 +361,25 @@ my %check_idx_dispatch =
 my %check_dispatch = map { ($_ => 'check_'.$_) ;}
     qw/duplicates/;
 
+my %mode_move = ( 
+    layered => { preset => 1, normal => 1} ,
+    preset  => { normal => 1 },
+    normal => {} ,
+ ) ;
+
+sub has_changed {
+    my ($self,$name,$idx) = @_ ;
+    
+    # use $idx to trigger move from layered->preset->normal
+    my $imode = $self->instance->get_data_mode ;
+    my $old_mode = $self->get_data_mode($idx) ;
+    $self->set_data_mode($idx,$imode) if $mode_move{$old_mode}{$imode} ; 
+    
+    $self->needs_check(1) ;
+    $self->SUPER::has_changed ;
+}
+
+
 # check globally the list or hash
 sub check {
     my $self = shift ;
@@ -368,15 +388,20 @@ sub check {
     my $silent = $args{silent} || 0 ;
     my $check = $args{check} || 'yes' ;
     my $apply_fix = $args{fix} || 0 ;
+    
+    unless ($self->needs_check) {
+        $logger->debug($self->location, " has not changed, check skipped")
+            if $logger->is_debug;
+        return 1;
+    }
 
     # need to keep track to update GUI
     $self->{nb_of_fixes} = 0; # reset before check
 
-    Config::Model::Exception::Internal
-        -> throw (
-                  object => $self,
-                  error => "check method: index or key should not be defined"
-                 ) if defined $args{index} ;
+    Config::Model::Exception::Internal->throw(
+        object => $self,
+        error  => "check method: index or key should not be defined"
+    ) if defined $args{index};
 
     my @error ;
     my @warn ;
@@ -587,7 +612,10 @@ sub fetch_with_id {
     #$self->warp 
     #  if ($self->{warp} and @{$self->{warp_info}{computed_master}});
 
-    my $ok = $check eq 'no' ? 1 : $self->check_idx(index => $idx, check => $check) ;
+    my $ok = 1 ;
+    # check index only if it's unknown
+    $ok = $self->check_idx(index => $idx, check => $check) 
+        unless $self->_defined($idx) or $check eq 'no' ;
 
     if ($ok or $check eq 'no') {
         $self->auto_vivify($idx) unless $self->_defined($idx) ;
@@ -800,7 +828,10 @@ sub auto_vivify {
     else {
         $item = $el_class->new(@common_args);
     }
-
+    
+    my $imode = $self->instance->get_data_mode ;
+    $self->set_data_mode( $idx, $imode ) ;
+    
     $self->_store( $idx, $item );
 }
 
@@ -880,6 +911,8 @@ sub error_msg {
     return unless $self->{error_list} ;
     return wantarray ? @{$self->{error_list}} : join("\n\t",@{ $self ->{error_list}}) ;
 }
+
+__PACKAGE__->meta->make_immutable;
 
 1;
 
