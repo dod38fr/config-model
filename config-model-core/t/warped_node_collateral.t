@@ -111,6 +111,8 @@ my $inst = $model->instance(
     instance_name   => 'test1'
 );
 ok( $inst, "created dummy instance" );
+$inst->initial_load_stop ;
+
 
 my $root = $inst->config_root;
 
