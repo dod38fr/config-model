@@ -1019,6 +1019,8 @@ sub apply_fixes {
     }
 
     $self->check_value(value => $self->{data}, fix => 1);
+    $self->needs_check(1) ;
+    $self->has_changed ;
 }
 
 
@@ -1038,6 +1040,8 @@ sub apply_fix {
     }
 
     $self->{data}  = $_ ;
+    $self->needs_check(1) ;
+    $self->has_changed ;
     # $self->store(value => $_, check => 'no');  # will update $self->{fixes}
 }
 
@@ -1420,7 +1424,8 @@ sub fetch {
     my $check = $self->_check_check($args{check}); 
 
     if ($logger->is_debug) {
-        $logger->debug("called for ".$self->location." check $check mode $mode");
+        $logger->debug("called for ".$self->location." check $check mode $mode"
+	    . " needs_check ". $self->needs_check);
     }
     
     my $inst = $self->instance ;
