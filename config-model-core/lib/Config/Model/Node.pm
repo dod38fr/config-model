@@ -331,6 +331,9 @@ sub init {
     return
       unless defined $model->{read_config}
           or defined $model->{write_config};
+          
+    $self->instance->initial_load_start ;
+    
     $self->{bmgr} ||= Config::Model::BackendMgr->new( node => $self );
 
     my $ar = $self->{auto_read};
@@ -353,6 +356,8 @@ sub init {
             write_config_dir => $model->{write_config_dir},
         );
     }
+
+    $self->instance->initial_load_stop ;
 }
 
 sub read_config_data {

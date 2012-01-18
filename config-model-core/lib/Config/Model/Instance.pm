@@ -76,6 +76,7 @@ has _write_back => (
     traits => ['Array'],
     handles => {
         register_write_back => 'push' ,
+        count_write_back => 'count' , # mostly for tests
     },
     default => sub { [] } ,
 );
@@ -214,7 +215,11 @@ sub _stuff_clear {
 
 }
 
-
+sub initial_load_start {
+    my $self = shift ;
+    $logger->info("Start initial_load mode");
+    $self->{initial_load} = 1;
+}
 
 sub initial_load_stop {
     my $self = shift ;
