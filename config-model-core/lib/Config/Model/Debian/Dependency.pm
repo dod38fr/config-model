@@ -1,6 +1,7 @@
 package Config::Model::Debian::Dependency ;
 
 use Any::Moose;
+use namespace::autoclean;
 
 use Memoize ;
 use Memoize::Expire ;
@@ -352,6 +353,9 @@ sub get_available_version {
     }
     return "@res" ;
 }
+
+__PACKAGE__->meta->make_immutable;
+
 1;
 
 =head1 NAME
