@@ -307,7 +307,7 @@ is( $same_rw->grab_value('bar Y'), 'Cv', "Check samerw custom read" );
 
 is( $result{same_rw_read}, $conf_dir, "check same_rw_spec custom read conf dir" );
 
-is( scalar @{ $i_zero->{write_back} }, 10, 
+is( $i_zero->count_write_back , 10, 
     "check that write call back are present" );
 
 # perform write back of dodu tree dump string
