@@ -90,6 +90,7 @@ sub BUILD {
 
 sub has_changed {	
     my $self = shift ;
+    my $check_done = shift || 0 ;
 
     return if $self->instance->initial_load ;
 
@@ -98,7 +99,7 @@ sub has_changed {
 	if $logger->is_debug ;
 
     unless ($self->needs_check) {
-	$self->needs_check(1);
+	$self->needs_check(1) unless $check_done;
 	$self->SUPER::has_changed ;
 	# notify all warped or computed objects that depends on me 
 	foreach my $s ($self->get_depend_slave) {
@@ -528,6 +529,9 @@ sub set_properties {
         $self->trigger_warp($value)  ;
     }
     
+    # when properties are changed, a check is required to validate new constraints
+    $self->needs_check(1) ;
+    
     return $self; 
 }
 
@@ -792,6 +796,8 @@ sub enum_error {
 
 sub check_value {
     my $self = shift ;
+    croak "check_value needs a value to check" unless @_ ;
+    
     my %args = @_ > 1 ? @_ : (value => $_[0]) ;
     my $value = $args{value} ;
     my $quiet = $args{quiet} || 0 ;
@@ -895,13 +901,7 @@ sub check_value {
 		unless $value =~ $self->{match_regexp} ;
     }
 
-    foreach my $t (qw/warn_if_match warn_unless_match/) {
-        my $w_info = $self->{$t} ;
-
-        next unless defined $w_info ;
-        
-    }
-    
+  
     if ($mode ne 'custom') {
         if ($self->{warn_if_match}) {
             my $test_sub = sub {my ($v,$r) = @_ ; $v =~ /$r/ ? 0 : 1;} ;
@@ -1019,7 +1019,6 @@ sub apply_fixes {
     }
 
     $self->check_value(value => $self->{data}, fix => 1);
-    $self->needs_check(1) ;
     $self->has_changed ;
 }
 
@@ -1040,7 +1039,6 @@ sub apply_fix {
     }
 
     $self->{data}  = $_ ;
-    $self->needs_check(1) ;
     $self->has_changed ;
     # $self->store(value => $_, check => 'no');  # will update $self->{fixes}
 }
@@ -1061,21 +1059,32 @@ sub check {
 
     my $value = exists $args{value} ? $args{value} : $self->{data};
     my $silent = $args{silent} || 0;
+    my $check = $args{check} || 'yes' ;
 
-    my @error = $self->check_value(%args);
+    if ($self->needs_check) {
+	my @error = $self->check_value(%args);
+
+	$self->{error_list} = \@error;
+	$logger->debug("check done");
+
+	# some se case like idElementReference are too complex to propagate
+	# a change notification back to the value using them. So an error or
+	# warning must always be rechecked.
+	my $warn = $self->{warning_list};
+	$self->needs_check(0) unless @error or @$warn ;
+    }	
+    else {
+	$logger->debug("check is not needed");
+    }
 
     my $warn = $self->{warning_list};
     map {
-        my $str = defined $value ? "'$value'" : '<undef>';
-        warn "Warning in '" . $self->location . "' value $str: $_\n";
+	my $str = defined $value ? "'$value'" : '<undef>';
+	warn "Warning in '" . $self->location . "' value $str: $_\n";
     } @$warn if @$warn and not $nowarning and not $silent;
 
-    $self->{error_list} = \@error;
-    $logger->debug("done");
-
-    # don't clear needs_check if tests are bad
-    $self->needs_check(0) unless @error;
-    return wantarray ? @error : not scalar @error;
+    my $e = $self->{error_list} ;
+    return wantarray ? @$e : not scalar @$e ;
 }
 
 
@@ -1090,7 +1099,10 @@ sub store {
 
     my $old_value = $self->_fetch_no_check ;
 
-    my ($ok,$value) = $self->pre_store(value => $args{value}, check => $check ) ;
+    my $value = $self->pre_store(value => $args{value}, check => $check ) ;
+
+    $self->needs_check(1) ;
+    my $ok = $self->store_check($value) ;
 
     if ($logger->is_debug) {
 	my $i = $self->instance ;
@@ -1105,12 +1117,12 @@ sub store {
 	    $self->{layered} = $value ;
 	} 
 	elsif ($self->instance->preset) {
-	    $self->has_changed ;
+	    $self->has_changed(1) ;
 	    $self->{preset} = $value ;
 	} 
 	else {
 	    no warnings 'uninitialized';
-	    $self->has_changed if $value ne $old_value;
+	    $self->has_changed(1) if $value ne $old_value;
 	    $self->{data} = $value ; # may be undef
 	}
 	
@@ -1134,7 +1146,6 @@ sub store {
         ) {
 	$self->trigger_warp($value) ;
     }
-
 
     return $value;
 }
@@ -1198,9 +1209,7 @@ sub pre_store {
         }
     }
     
-    my $ok = $self->store_check($value) ;
-
-    return ($ok,$value);
+    return $value;
 }
 
 # dummy routine to enable special store check in inherited classes
@@ -1456,7 +1465,7 @@ sub fetch {
     # mode may not trigger the warnings. Hence confusion afterwards)
     my $ok = 1 ;
     $ok = $self->check(value => $value, silent => $silent, mode => $mode ) 
-        if $mode =~ /backend|custom|user/ and $self->needs_check;
+        if $mode =~ /backend|custom|user/ ;
 
     $logger->debug( "$mode fetch (almost) done for " . $self->location )
       if $logger->is_debug;
@@ -1477,7 +1486,7 @@ sub fetch {
         error  => join( "\n\t", @{ $self->{error_list} } )
     );
 
-    #return $value;    # undef in fact
+    return;
 }
 
 sub map_write_as {
