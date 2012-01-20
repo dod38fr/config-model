@@ -1,12 +1,15 @@
 package Config::Model::IdElementReference ;
 
-use warnings ;
-use strict;
+use Any::Moose;
+use namespace::autoclean;
+
 
 use Scalar::Util qw(weaken) ;
 use Carp ;
 use Config::Model::ValueComputer ;
+use Log::Log4perl qw(get_logger :levels);
 
+my $logger = get_logger("Tree::Element::IdElementReference") ;
 
 # config_elt is a reference to the object that called new
 
@@ -15,10 +18,10 @@ sub new {
     my %args = @_ ;
     my $self = {} ;
 
-    if ($::debug) {
+    if ($logger->is_debug) {
 	my %show = %args ;
 	delete $show{config_elt} ;
-	print Data::Dumper->Dump([\%show],['IdElementReference_new_args']) ;
+	$logger->debug("called with args ", join(' ',%show)) ;
     }
 
     my $obj = $self->{config_elt} = delete $args{config_elt} || 
@@ -102,8 +105,7 @@ sub get_choice_from_refered_to {
 
 	my @path = split (/\s+/,$user_spec) ;
 
-	print "get_choice_from_refered_to:\n\tpath: @path\n"
-	  if $::debug ;
+	$logger->debug("path: @path");
 
 	my $refered_to = 
 	  eval { 
@@ -173,9 +175,7 @@ sub get_choice_from_refered_to {
 	@res = sort @unique ;
     }
 
-    print "get_choice_from_refered_to:\n\tSetting choice to '", 
-      join("','",@res),"'\n"
-	if $::debug ;
+    $self->debug("Setting choice to '",join("','",@res),"'") ;
 
     $config_elt->setup_reference_choice(@res) ;
 }
@@ -203,6 +203,8 @@ sub reference_path {
     my $self = shift ;
     return map { $_ -> formula } @{$self->{compute}}
 }
+
+__PACKAGE__->meta->make_immutable;
 
 
 1;
