@@ -1,211 +1,176 @@
-package Config::Model::IdElementReference ;
+package Config::Model::IdElementReference;
 
 use Any::Moose;
 use namespace::autoclean;
 
-
-use Scalar::Util qw(weaken) ;
-use Carp ;
-use Config::Model::ValueComputer ;
+use Carp;
+use Config::Model::ValueComputer;
 use Log::Log4perl qw(get_logger :levels);
 
-my $logger = get_logger("Tree::Element::IdElementReference") ;
+my $logger = get_logger("Tree::Element::IdElementReference");
 
 # config_elt is a reference to the object that called new
+has config_elt =>
+  ( is => 'ro', isa => 'Config::Model::AnyThing', required => 1, weak_ref => 1 );
+has refer_to => ( is => 'ro', isa => 'Maybe[Str]' );
+has computed_refer_to => ( is => 'ro', isa => 'Maybe[HashRef]' );
 
-sub new {
-    my $type = shift ;
-    my %args = @_ ;
-    my $self = {} ;
+sub BUILD {
+    my $self = shift;
 
-    if ($logger->is_debug) {
-	my %show = %args ;
-	delete $show{config_elt} ;
-	$logger->debug("called with args ", join(' ',%show)) ;
+    my $found =
+      scalar grep { defined $self->$_; } qw/refer_to computed_refer_to/;
+
+    if ( not $found ) {
+        Config::Model::Exception::Model->throw(
+            object  => $self->config_elt,
+            message => "missing " . "refer_to or computed_refer_to parameter"
+        );
+    }
+    elsif ( $found > 1 ) {
+        Config::Model::Exception::Model->throw(
+            object  => $self->config_elt,
+            message => "cannot specify both "
+              . "refer_to and computed_refer_to parameters"
+        );
     }
 
-    my $obj = $self->{config_elt} = delete $args{config_elt} || 
-      croak "Config::Model::IdElementReference:new undefined parameter config_elt";
+    my $rft    = $self->{refer_to};
+    my $crft   = $self->{computed_refer_to} || {};
+    my %c_args = %$crft;
 
-    bless $self,$type ;
-
-    my $found = 0 ;
-    map { $self->{$_} = delete $args{$_}; $found++ } 
-      grep {defined $args{$_}} qw/refer_to computed_refer_to/ ;
-
-    if (not $found ) {
-	Config::Model::Exception::Model 
-	    -> throw (
-		      object => $obj,
-		      message => "missing " 
-                               . "refer_to or computed_refer_to parameter"
-		     ) ;
-    }
-    elsif ($found > 1 ) {
-	Config::Model::Exception::Model 
-	    -> throw (
-		      object => $obj,
-		      message => "cannot specify both "
-                               . "refer_to and computed_refer_to parameters" 
-		     ) ;
-    }
-
-    Config::Model::Exception::Model 
-	    -> throw (
-		      object => $obj,
-		      message => "IdElementReference unexpected parameter: "
-		               . join(' ',keys %args)
-		      ) 
-	      if %args ;
-
-    weaken($self->{config_elt}) ;
-
-
-    my $rft  = $self->{refer_to};
-    my $crft = $self->{computed_refer_to} || {} ;
-    my %c_args = %$crft ;
-
-    my $refer_path = defined $rft ? $rft
-                   :                delete $c_args{formula} ;
-
+    my $refer_path =
+      defined $rft
+      ? $rft
+      : delete $c_args{formula};
 
     # split refer_path on + then create as many ValueComputer as
     # required
-    my @references =  split /\s+\+\s+/, $refer_path ;
+    my @references = split /\s+\+\s+/, $refer_path;
 
     foreach my $single_path (@references) {
-	push @{$self->{compute}}, Config::Model::ValueComputer
-	  -> new (
-		  formula => $single_path ,
-		  variables => {} ,
-		  %c_args,
-		  value_object => $self->{config_elt} ,
-		  value_type => 'string'   # a reference is always a string
-		 );
+        push @{ $self->{compute} }, Config::Model::ValueComputer->new(
+            formula   => $single_path,
+            variables => {},
+            %c_args,
+            value_object => $self->{config_elt},
+            value_type   => 'string'            # a reference is always a string
+        );
     }
 
-    return $self ;
+    return $self;
 }
-
-
 
 # internal
 
 # FIXME: do not call back value object -> may recurse
 sub get_choice_from_refered_to {
-    my $self = shift ;
+    my $self = shift;
 
-    my $config_elt = $self->{config_elt} ;
-    my @enum_choice = $config_elt -> get_default_choice ;
+    my $config_elt  = $self->{config_elt};
+    my @enum_choice = $config_elt->get_default_choice;
 
-    foreach my $compute_obj (@{$self->{compute}}) {
-	my $user_spec = $compute_obj->compute ;
+    foreach my $compute_obj ( @{ $self->{compute} } ) {
+        my $user_spec = $compute_obj->compute;
 
-	next unless defined $user_spec ;
+        next unless defined $user_spec;
 
-	my @path = split (/\s+/,$user_spec) ;
+        my @path = split( /\s+/, $user_spec );
 
-	$logger->debug("path: @path");
+        $logger->debug("path: @path");
 
-	my $refered_to = 
-	  eval { 
-	    $config_elt->grab("@path"); 
-	} ;
+        my $refered_to = eval { $config_elt->grab("@path"); };
 
-	if ($@) {
-	    my $e = $@ ;
-	    # don't use $e->full_description as it will recurse badly
-	    my $msg = $e ? $e->description : '' ;
-	    Config::Model::Exception::Model
-		-> throw (
-			  object => $config_elt,
-			  error => "'refer_to' parameter with path '@path': " . $msg
-			 ) ;
-	}
+        if ($@) {
+            my $e = $@;
 
-	my $element = pop @path ;
-	my $obj = $refered_to -> parent ;
-	my $type = $obj->element_type($element) ;
+            # don't use $e->full_description as it will recurse badly
+            my $msg = $e ? $e->description : '';
+            Config::Model::Exception::Model->throw(
+                object => $config_elt,
+                error  => "'refer_to' parameter with path '@path': " . $msg
+            );
+        }
 
-	my @choice ;
-	if ($type eq 'check_list') {
-	    @choice = $obj->fetch_element($element)->get_checked_list();
-	}
-	elsif ( $type eq 'hash') {
-	    @choice = $obj->fetch_element($element)->get_all_indexes();
-	}
-	elsif ( $type eq 'list') {
-	    my $list_obj = $obj->fetch_element($element) ;
-	    my $ct = $list_obj-> get_cargo_type ;
-	    if ($ct eq 'leaf') {
-		@choice = $list_obj->fetch_all_values();
-	    }
-	    else {
-		Config::Model::Exception::Model 
-		    -> throw (
-			  object => $obj,
-			      message => "element '$element' cargo_type is $ct. "
-			      ."Expected 'leaf'"
-			     ) ;
-	    }
-	}
-	else {
-	    Config::Model::Exception::Model 
-		-> throw (
-			  object => $obj,
-			  message => "element '$element' type is $type. "
-			  ."Expected hash or list or check_list"
-			 ) ;
-	}
+        my $element = pop @path;
+        my $obj     = $refered_to->parent;
+        my $type    = $obj->element_type($element);
 
-	# use a hash so choices are unique
-	push @enum_choice, @choice ;
+        my @choice;
+        if ( $type eq 'check_list' ) {
+            @choice = $obj->fetch_element($element)->get_checked_list();
+        }
+        elsif ( $type eq 'hash' ) {
+            @choice = $obj->fetch_element($element)->get_all_indexes();
+        }
+        elsif ( $type eq 'list' ) {
+            my $list_obj = $obj->fetch_element($element);
+            my $ct       = $list_obj->get_cargo_type;
+            if ( $ct eq 'leaf' ) {
+                @choice = $list_obj->fetch_all_values();
+            }
+            else {
+                Config::Model::Exception::Model->throw(
+                    object  => $obj,
+                    message => "element '$element' cargo_type is $ct. "
+                      . "Expected 'leaf'"
+                );
+            }
+        }
+        else {
+            Config::Model::Exception::Model->throw(
+                object  => $obj,
+                message => "element '$element' type is $type. "
+                  . "Expected hash or list or check_list"
+            );
+        }
+
+        # use a hash so choices are unique
+        push @enum_choice, @choice;
     }
 
     # prune out repeated items
-    my %h ;
-    my @unique = grep { my $found = $h{$_} || 0; $h{$_} = 1; not $found ; }
-      @enum_choice ; 
+    my %h;
+    my @unique =
+      grep { my $found = $h{$_} || 0; $h{$_} = 1; not $found; } @enum_choice;
 
-    my @res ;
-    if ($config_elt->value_type eq 'check_list' and $config_elt->ordered) {
-	@res = @unique ;
-    } 
+    my @res;
+    if ( $config_elt->value_type eq 'check_list' and $config_elt->ordered ) {
+        @res = @unique;
+    }
     else {
-	@res = sort @unique ;
+        @res = sort @unique;
     }
 
-    $self->debug("Setting choice to '",join("','",@res),"'") ;
+    $logger->debug( "Setting choice to '", join( "','", @res ), "'" );
 
-    $config_elt->setup_reference_choice(@res) ;
+    $config_elt->setup_reference_choice(@res);
 }
 
-
 sub reference_info {
-    my $self = shift ;
-    my $str = "choice was retrieved with: " ;
+    my $self = shift;
+    my $str  = "choice was retrieved with: ";
 
-    foreach my $compute_obj (@{$self->{compute}}) {
-	my $path = $compute_obj->formula ;
-	$path = defined $path ? "'$path'" : 'undef' ;
-	$str .= "\n\tpath $path" ;
-	$str .= "\n\t" . $compute_obj->compute_info ;
+    foreach my $compute_obj ( @{ $self->{compute} } ) {
+        my $path = $compute_obj->formula;
+        $path = defined $path ? "'$path'" : 'undef';
+        $str .= "\n\tpath $path";
+        $str .= "\n\t" . $compute_obj->compute_info;
     }
-    return $str ;
+    return $str;
 }
 
 sub compute_obj {
-    my $self = shift ;
-    return @{$self->{compute}} ;
+    my $self = shift;
+    return @{ $self->{compute} };
 }
 
 sub reference_path {
-    my $self = shift ;
-    return map { $_ -> formula } @{$self->{compute}}
+    my $self = shift;
+    return map { $_->formula } @{ $self->{compute} };
 }
 
 __PACKAGE__->meta->make_immutable;
-
 
 1;
 
