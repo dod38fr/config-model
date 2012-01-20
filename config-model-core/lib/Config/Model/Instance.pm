@@ -35,8 +35,8 @@ has config_model => (
 
 has check => ( 
     is => 'ro', 
-    isa => 'Bool', 
-    default => 1,
+    isa => 'Str', 
+    default => 'yes',
     reader => 'read_check' ,
 ) ;
 
