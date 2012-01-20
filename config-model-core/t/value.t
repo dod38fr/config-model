@@ -3,7 +3,7 @@
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
-use Test::More tests => 155;
+use Test::More tests => 154;
 use Test::Exception;
 use Test::Warn;
 use Config::Model;
@@ -257,7 +257,7 @@ is($inst->needs_save,0,"verify instance needs_save status after creation") ;
 is($i->needs_check,1,"verify check status after creation") ;
 
 ok( $i->store(1), "store test" );
-is($i->needs_check,1,"store will trigger a check") ;
+is($i->needs_check,0,"store not trigger a check (check done during store)") ;
 is($inst->needs_save,1,"verify instance needs_save status after store") ;
 
 is( $i->fetch, 1, "fetch test" );
@@ -601,9 +601,7 @@ is( $wip->fetch, 'FOOBAR', "test if fixes were applied" );
 ### test warn_unless parameter
 my $wup = $root->fetch_element('warn_unless_match');
 warning_like { $wup->store('bar'); } qr/should match/,
-  "test warn_unless condition";
-
-warning_like { $wup->check; } qr/should match/, "check warn_unless_match condition";
+  "test warn_unless_match condition";
 
 is( $wup->has_fixes, 1, "test has_fixes" );
 $wup->apply_fixes;
