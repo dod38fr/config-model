@@ -30,7 +30,7 @@ if ( $@ ) {
     plan skip_all => "AptPkg::Config is not installed";
 }
 elsif ( -r '/etc/debian_version' ) {
-    plan tests => 23;
+    plan tests => 24;
 }
 else {
     plan skip_all => "Not a Debian system";
@@ -168,9 +168,11 @@ is_deeply(\@msgs,[],"check that warnings are gone");
 
 my $perl_bdi = $control->grab("source Build-Depends-Indep:1");
 
-# check and warnings was done while reading the file
-# a new fetch does not trigger another warning
-my $bdi_val = $perl_bdi->fetch ;
+my $bdi_val ;
+warning_like {
+    $bdi_val = $perl_bdi->fetch ;
+}
+[ qr/unnecessary/, qr/dual life/ ], "test BDI warn";
 
 is($bdi_val,"perl (>= 5.10) | libmodule-build-perl","check B-D-I dependency value from config tree");
 my $msgs = $perl_bdi->warning_msg ;
