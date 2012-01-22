@@ -324,14 +324,13 @@ sub grab {
         if (defined $action and $autoadd == 0
 	    and not $next_obj->exists($arg)) 
 	  {
-            return undef if $mode eq 'loose' ;
-            Config::Model::Exception::UnknownId
-		->throw (
-			 object => $obj->fetch_element($name),
-			 element => $name,
-			 id => $arg,
-			 function => 'grab'
-			)  unless $mode eq 'adaptative';
+            return if $mode eq 'loose' ;
+            Config::Model::Exception::UnknownId->throw(
+                object   => $obj->fetch_element($name),
+                element  => $name,
+                id       => $arg,
+                function => 'grab'
+            ) unless $mode eq 'adaptative';
 	    last ;
 	}
 
