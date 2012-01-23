@@ -155,7 +155,7 @@ sub set_properties {
             Config::Model::Exception::WrongValue 
                 -> throw (
                           error => "Error while setting id property:".
-                          join("\n\t",@{$self->{error_list}}),
+                          join("\n\t",@{$self->{idx_error_list}}),
                           object => $self
                          ) ;
         }
@@ -433,12 +433,13 @@ sub check_content {
     map { warn ("Warning in '".$self->location."': $_\n") } @warn unless $silent;
     
     $self->{warning_list} = \@warn ;
-    $self->{error_list}   = \@error ;
+    $self->{content_error_list}   = \@error ;
 
     return scalar @error ? 0 : 1 ;
 }
 
-# internal function to check the validity of the index
+# internal function to check the validity of the index. Called when creating a new
+# index or when set_properties is called (init or during warp)
 sub check_idx {
     my $self = shift ;
     
@@ -490,7 +491,7 @@ sub check_idx {
           $self->warp_error  ;
     }
 
-    $self->{error_list} = \@error ;
+    $self->{idx_error_list} = \@error ;
 
     if (@warn) {
         $self->{warning_hash}{$idx} = \@warn ;
@@ -638,7 +639,7 @@ sub fetch_with_id {
     else {
         Config::Model::Exception::WrongValue 
             -> throw (
-                      error => join("\n\t",@{$self->{error_list}}),
+                      error => join("\n\t",@{$self->{idx_error_list}}),
                       object => $self
                      ) ;
     }
@@ -697,7 +698,7 @@ sub copy {
     else {
         Config::Model::Exception::WrongValue 
             -> throw (
-                      error => join("\n\t",@{$self->{error_list}}),
+                      error => join("\n\t",@{$self->{idx_error_list}}),
                       object => $self
                      ) ;
     }
@@ -731,7 +732,7 @@ sub fetch_all_values {
         }
         else {
             Config::Model::Exception::WrongValue->throw(
-                error  => join( "\n\t", @{ $self->{error_list} } ),
+                error  => join( "\n\t", @{ $self->{content_error_list} } ),
                 object => $self
             );
         }
@@ -922,8 +923,11 @@ sub warning_msg {
 
 sub error_msg {
     my $self = shift ;
-    return unless $self->{error_list} ;
-    return wantarray ? @{$self->{error_list}} : join("\n\t",@{ $self ->{error_list}}) ;
+    my @list ;
+    map { push @list, @{$self->{$_}} if $self->{$_} ;} qw/idx_error_list content_error_list/ ;
+
+    return unless @list ;
+    return wantarray ? @list : join("\n\t",@list) ;
 }
 
 __PACKAGE__->meta->make_immutable;
