@@ -355,7 +355,7 @@ sub apply_fixes {
     my $self = shift ; 
     $logger->debug( $self->location.": apply_fixes called" ) ;
 
-    $self->check(fix => 1) ;
+    $self->check_content(fix => 1) ;
 
 }
 
@@ -395,7 +395,7 @@ sub has_changed {
 
 
 # check globally the list or hash
-sub check {
+sub check_content {
     my $self = shift ;
     
     my %args = @_ > 1 ? @_ : (index => $_[0]) ;
@@ -720,7 +720,7 @@ sub fetch_all_values {
     my @keys  = $self->get_all_indexes ;
 
     if ( $self->{cargo}{type} eq 'leaf' ) {
-        my $ok = $check eq 'no' ? 1 : $self->check( check => $check );
+        my $ok = $check eq 'no' ? 1 : $self->check_content( check => $check );
 
         if ( $ok or $check eq 'no' ) {
             return grep { defined $_ }
