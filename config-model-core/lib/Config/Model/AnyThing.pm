@@ -43,6 +43,15 @@ sub _root {
 
 #has location => (is => 'ro', isa => 'Str' , builder => '_location', lazy => 1);
 
+sub DEMOLISH {
+    my $self = shift;
+    $logger->debug(ref($self).' '.$self->location." demolished") if $logger->is_debug ;
+
+    # container may not be defined during global desctruction
+    $self->container->has_changed($self->element_name, $self->index_value)
+	if defined $self->container;
+}
+
 sub has_changed {	
     my $self = shift ;
 
