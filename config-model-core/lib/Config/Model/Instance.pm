@@ -97,8 +97,6 @@ sub BUILD {
     # cleanup paths
     map { $self->{$_} .= '/' if defined $self->{$_} and $self->{$_} !~ m!/$!}
       qw/root_dir/;
-
-    $self->reset_config() ;
 }
 
 has tree => (
