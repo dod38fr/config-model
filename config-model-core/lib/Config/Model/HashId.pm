@@ -229,6 +229,11 @@ sub move {
         # update index_value attribute in moved objects
         $self->{data}{$to}->index_value($to) ;
 
+        # data_mode is preset or layered or user. Actually only user
+        # mode makes sense here
+        my $imode = $self->instance->get_data_mode ;
+        $self->set_data_mode( $to, $imode ) ;
+
         my ($to_idx,$from_idx);
         my $idx = 0 ;
         my $list = $self->{list} ;
