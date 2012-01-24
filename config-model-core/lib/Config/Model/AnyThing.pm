@@ -18,7 +18,11 @@ has needs_check => (is => 'rw', isa => 'Bool', default => 1 );
 
 # index_value can be written to when move method is called. But let's
 # not advertise this feature.
-has index_value => ( is => 'rw', isa => 'Str') ;
+has index_value => ( 
+    is => 'rw', 
+    isa => 'Str', 
+    trigger => sub { my $self = shift; $self->{location}=$self->_location} ,
+) ;
 
 has container => (is => 'ro', isa => 'Ref', required => 1, weak_ref => 1 ) ;
 
@@ -41,7 +45,7 @@ sub _root {
     return $self->parent || $self;
 }
 
-#has location => (is => 'ro', isa => 'Str' , builder => '_location', lazy => 1);
+has location => (is => 'ro', isa => 'Str' , builder => '_location', lazy => 1);
 
 sub DEMOLISH {
     my $self = shift;
@@ -59,7 +63,8 @@ sub has_changed {
     $self->container->has_changed($self->element_name, $self->index_value);
 }
 
-sub location {
+
+sub _location {
     my $self = shift;
 
     my $str = '';
