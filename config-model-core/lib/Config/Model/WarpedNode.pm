@@ -89,7 +89,7 @@ foreach my $method (qw/fetch_element config_class_name copy_from get_element_nam
 
 sub name {
     my $self = shift;
-    return $self->location($self) ;
+    return $self->location ;
 }
 
 
