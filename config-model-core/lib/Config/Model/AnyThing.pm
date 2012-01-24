@@ -45,7 +45,8 @@ sub _root {
 
 sub DEMOLISH {
     my $self = shift;
-    $logger->debug(ref($self).' '.$self->location." demolished") if $logger->is_debug ;
+    # $logger->debug(ref($self).' '.$self->location." demolished") if defined $logger and
+     # $logger->is_debug ;
 
     # container may not be defined during global desctruction
     $self->container->has_changed($self->element_name, $self->index_value)
