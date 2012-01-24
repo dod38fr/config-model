@@ -396,46 +396,48 @@ sub has_changed {
 
 # check globally the list or hash
 sub check_content {
-    my $self = shift ;
-    
-    my %args = @_ > 1 ? @_ : (index => $_[0]) ;
-    my $silent = $args{silent} || 0 ;
-    my $check = $args{check} || 'yes' ;
-    my $apply_fix = $args{fix} || 0 ;
-    
-    unless ($self->needs_check) {
-        $logger->debug($self->location, " has not changed, check skipped")
-            if $logger->is_debug;
-        return 1;
-    }
+    my $self = shift;
 
-    # need to keep track to update GUI
-    $self->{nb_of_content_fixes} = 0; # reset before check
+    my %args = @_ > 1 ? @_ : ( index => $_[0] );
+    my $silent    = $args{silent} || 0;
+    my $check     = $args{check}  || 'yes';
+    my $apply_fix = $args{fix}    || 0;
 
     Config::Model::Exception::Internal->throw(
         object => $self,
         error  => "check method: index or key should not be defined"
     ) if defined $args{index};
 
-    my @error ;
-    my @warn ;
+    if ( $self->needs_check ) {
+        # need to keep track to update GUI
+        $self->{nb_of_content_fixes} = 0;    # reset before check
 
-    foreach my $key_check_name (keys %check_content_dispatch) {
-        next unless $self->{$key_check_name} ;
-        my $method = $check_content_dispatch{$key_check_name} ;
-        $self->$method(\@error,\@warn,$apply_fix) ;
+        my @error;
+        my @warn;
+
+        foreach my $key_check_name ( keys %check_content_dispatch ) {
+            next unless $self->{$key_check_name};
+            my $method = $check_content_dispatch{$key_check_name};
+            $self->$method( \@error, \@warn, $apply_fix );
+        }
+
+        my $nb = $self->fetch_size;
+        push @error, "Too many instances ($nb) limit $self->{max_nb}, "
+          if defined $self->{max_nb} and $nb > $self->{max_nb};
+
+        map { warn( "Warning in '" . $self->location . "': $_\n" ) } @warn
+          unless $silent;
+
+        $self->{content_warning_list} = \@warn;
+        $self->{content_error_list}   = \@error;
+
+        return scalar @error ? 0 : 1;
     }
-
-    my $nb =  $self->fetch_size ;
-    push @error,"Too many instances ($nb) limit $self->{max_nb}, "
-        if defined $self->{max_nb} and $nb > $self->{max_nb};
-
-    map { warn ("Warning in '".$self->location."': $_\n") } @warn unless $silent;
-    
-    $self->{content_warning_list} = \@warn ;
-    $self->{content_error_list}   = \@error ;
-
-    return scalar @error ? 0 : 1 ;
+    else {
+        $logger->debug( $self->location, " has not changed, check skipped" )
+          if $logger->is_debug;
+        return 1;
+    }
 }
 
 # internal function to check the validity of the index. Called when creating a new
