@@ -388,7 +388,9 @@ sub has_changed {
     my $imode = $self->instance->get_data_mode ;
     my $old_mode = $self->get_data_mode($idx) ;
     $self->set_data_mode($idx,$imode) if $mode_move{$old_mode}{$imode} ; 
-    
+
+    return if $self->instance->initial_load ;
+
     $self->needs_check(1) ;
     $self->SUPER::has_changed ;
 }
@@ -400,7 +402,6 @@ sub check_content {
 
     my %args = @_ > 1 ? @_ : ( index => $_[0] );
     my $silent    = $args{silent} || 0;
-    my $check     = $args{check}  || 'yes';
     my $apply_fix = $args{fix}    || 0;
 
     Config::Model::Exception::Internal->throw(
@@ -430,13 +431,15 @@ sub check_content {
 
         $self->{content_warning_list} = \@warn;
         $self->{content_error_list}   = \@error;
+        $self->needs_check(0) ;
 
         return scalar @error ? 0 : 1;
     }
     else {
-        $logger->debug( $self->location, " has not changed, check skipped" )
+        $logger->debug( $self->location, " has not changed, actual check skipped" )
           if $logger->is_debug;
-        return 1;
+        my $err = $self->{content_error_list} ;
+        return scalar @$err ? 0 : 1;
     }
 }
 
@@ -723,7 +726,7 @@ sub fetch_all_values {
     my @keys  = $self->get_all_indexes ;
 
     if ( $self->{cargo}{type} eq 'leaf' ) {
-        my $ok = $check eq 'no' ? 1 : $self->check_content( check => $check );
+        my $ok = $check eq 'no' ? 1 : $self->check_content( );
 
         if ( $ok or $check eq 'no' ) {
             return grep { defined $_ }
@@ -877,7 +880,7 @@ sub delete {
 
     delete $self->{warning_hash}{$idx}  ;
     return $self->_delete($idx);
-  }
+}
 
 
 sub clear {
