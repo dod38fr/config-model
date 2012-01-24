@@ -11,7 +11,7 @@ use Config::Model;
 use Config::Model::AnyId;
 use Log::Log4perl qw(:easy :levels) ;
 
-BEGIN { plan tests => 99; }
+BEGIN { plan tests => 105; }
 
 use strict;
 
@@ -141,6 +141,8 @@ $model->create_config_class(
         },
     ]
 );
+
+ok(1,"config classes created") ;
 
 my $inst = $model->instance(
     root_class_name => 'Master',
@@ -359,9 +361,15 @@ foreach my $what (qw/forbid warn suppress/) {
     
     # there we go
     if ($what eq 'forbid') {
+        is($lwd->needs_check, 1, "verify needs_check is true") ;
         throws_ok { $lwd->fetch_all_values ; } "Config::Model::Exception::WrongValue", 
             "fails forbidden duplicates" ;
+        is($lwd->needs_check, 0, "verify needs_check after fetch_all_values") ;
+        throws_ok { $lwd->fetch_all_values ; } "Config::Model::Exception::WrongValue", 
+            "fails forbidden duplicates even if needs_check is false" ;
+        is($lwd->needs_check, 0, "verify again needs_check after fetch_all_values") ;
         $lwd->delete(2) ;
+        is($lwd->needs_check, 1, "verify needs_check after list content modif") ;
     }
     elsif ($what eq 'warn') {
         warnings_like { $lwd->fetch_all_values ; } qr/Duplicated/ ,
