@@ -63,8 +63,8 @@ around BUILDARGS => sub {
 has [qw/backup cargo/] => (is => 'ro', isa => 'HashRef', required => 1 ) ;
 has warp=> (is => 'ro', isa => 'Maybe[HashRef]') ;
 has [qw/morph/] => (is => 'ro', isa => 'Bool' ) ;
-has warning_hash => ( is => 'rw', isa => 'HashRef' , default => sub {{} ;} ) ;
-has warning_list => ( is => 'rw', isa => 'ArrayRef', default => sub {[] ;} ) ;
+has content_warning_hash => ( is => 'rw', isa => 'HashRef' , default => sub {{} ;} ) ;
+has content_warning_list => ( is => 'rw', isa => 'ArrayRef', default => sub {[] ;} ) ;
 has [qw/config_class_name cargo_class max_index index_class index_type/] 
     => ( is => 'rw', isa => 'Maybe[Str]') ;
 
@@ -362,7 +362,7 @@ sub apply_fixes {
 
 sub has_fixes {
     my $self = shift; 
-    return $self->{nb_of_fixes} ;
+    return $self->{nb_of_content_fixes} ;
 }
 
 
@@ -372,7 +372,7 @@ my %check_idx_dispatch =
   qw/follow_keys_from allow_keys allow_keys_from allow_keys_matching
   warn_if_key_match warn_unless_key_match/;
 
-my %check_dispatch = map { ($_ => 'check_'.$_) ;}
+my %check_content_dispatch = map { ($_ => 'check_'.$_) ;}
     qw/duplicates/;
 
 my %mode_move = ( 
@@ -410,7 +410,7 @@ sub check_content {
     }
 
     # need to keep track to update GUI
-    $self->{nb_of_fixes} = 0; # reset before check
+    $self->{nb_of_content_fixes} = 0; # reset before check
 
     Config::Model::Exception::Internal->throw(
         object => $self,
@@ -420,9 +420,9 @@ sub check_content {
     my @error ;
     my @warn ;
 
-    foreach my $key_check_name (keys %check_dispatch) {
+    foreach my $key_check_name (keys %check_content_dispatch) {
         next unless $self->{$key_check_name} ;
-        my $method = $check_dispatch{$key_check_name} ;
+        my $method = $check_content_dispatch{$key_check_name} ;
         $self->$method(\@error,\@warn,$apply_fix) ;
     }
 
@@ -432,7 +432,7 @@ sub check_content {
 
     map { warn ("Warning in '".$self->location."': $_\n") } @warn unless $silent;
     
-    $self->{warning_list} = \@warn ;
+    $self->{content_warning_list} = \@warn ;
     $self->{content_error_list}   = \@error ;
 
     return scalar @error ? 0 : 1 ;
@@ -600,7 +600,7 @@ sub check_duplicates {
     elsif ($dup eq 'warn') {
         $logger->debug("warning condition: found duplicate @issues");
         push @$warn, "Duplicated value: @issues";
-        $self->{nb_of_fixes} += scalar @issues ;
+        $self->{nb_of_content_fixes} += scalar @issues ;
     }
     elsif ($dup eq 'suppress') {
         $logger->debug("suppressing duplicates @issues");
@@ -912,9 +912,9 @@ sub warning_msg {
     if (defined $idx) {
         return $self->{warning_hash}{$idx} ;
     }
-    elsif (scalar %{$self->{warning_hash}} or @{$self->{warning_list}}) {
-        my @list = @{$self->{warning_list}} ;
-        push @list , map ( "key $_: ".$self->{warning_hash}{$_}, keys %{$self->{warning_hash}}) ;
+    elsif (scalar %{$self->{content_warning_hash}} or @{$self->{content_warning_list}}) {
+        my @list = @{$self->{content_warning_list}} ;
+        push @list , map ( "key $_: ".$self->{content_warning_hash}{$_}, keys %{$self->{content_warning_hash}}) ;
         return join("\n",@list) ;
     }
 }
