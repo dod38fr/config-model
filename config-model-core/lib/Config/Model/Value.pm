@@ -88,7 +88,7 @@ sub BUILD {
     return $self ;
 }
 
-sub has_changed {	
+sub notify_change {	
     my $self = shift ;
     my $check_done = shift || 0 ;
 
@@ -100,12 +100,12 @@ sub has_changed {
 
     unless ($self->needs_check) {
 	$self->needs_check(1) unless $check_done;
-	$self->SUPER::has_changed ;
+	$self->SUPER::notify_change ;
 	# notify all warped or computed objects that depends on me 
 	foreach my $s ($self->get_depend_slave) {
-	    $logger->debug("calling has_changed on slave ",$s->name) 
+	    $logger->debug("calling notify_change on slave ",$s->name) 
 		if $logger->is_debug ;
-	    $s -> has_changed ;
+	    $s -> notify_change ;
 	}  ;
     }
 }
@@ -1019,7 +1019,7 @@ sub apply_fixes {
     }
 
     $self->check_value(value => $self->{data}, fix => 1);
-    $self->has_changed ;
+    $self->notify_change ;
 }
 
 
@@ -1039,7 +1039,7 @@ sub apply_fix {
     }
 
     $self->{data}  = $_ ;
-    $self->has_changed ;
+    $self->notify_change ;
     # $self->store(value => $_, check => 'no');  # will update $self->{fixes}
 }
 
@@ -1117,12 +1117,12 @@ sub store {
 	    $self->{layered} = $value ;
 	} 
 	elsif ($self->instance->preset) {
-	    $self->has_changed(1) ;
+	    $self->notify_change(1) ;
 	    $self->{preset} = $value ;
 	} 
 	else {
 	    no warnings 'uninitialized';
-	    $self->has_changed(1) if $value ne $old_value;
+	    $self->notify_change(1) if $value ne $old_value;
 	    $self->{data} = $value ; # may be undef
 	}
 	

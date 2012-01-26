@@ -49,18 +49,20 @@ has location => (is => 'ro', isa => 'Str' , builder => '_location', lazy => 1);
 
 sub DEMOLISH {
     my $self = shift;
+
+    # logger does not work during global desctruction
     # $logger->debug(ref($self).' '.$self->location." demolished") if defined $logger and
      # $logger->is_debug ;
 
     # container may not be defined during global desctruction
-    $self->container->has_changed($self->element_name, $self->index_value)
+    $self->container->notify_change($self->element_name, $self->index_value)
 	if defined $self->container;
 }
 
-sub has_changed {	
+sub notify_change {	
     my $self = shift ;
 
-    $self->container->has_changed($self->element_name, $self->index_value);
+    $self->container->notify_change($self->element_name, $self->index_value);
 }
 
 

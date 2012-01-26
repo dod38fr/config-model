@@ -381,7 +381,7 @@ my %mode_move = (
     normal => {} ,
  ) ;
 
-sub has_changed {
+sub notify_change {
     my ($self,$name,$idx) = @_ ;
     
     # use $idx to trigger move from layered->preset->normal
@@ -392,7 +392,7 @@ sub has_changed {
     return if $self->instance->initial_load ;
 
     $self->needs_check(1) ;
-    $self->SUPER::has_changed ;
+    $self->SUPER::notify_change ;
 }
 
 

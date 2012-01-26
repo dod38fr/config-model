@@ -262,7 +262,7 @@ sub store {
 	    my $ord = $self->{ordered_data} ;
 	    push @$ord,$choice unless scalar grep {$choice eq $_} @$ord ;
 	}
-	$self->has_changed unless $self->instance->initial_load;
+	$self->notify_change unless $self->instance->initial_load;
     }
     elsif ($check eq 'yes')  {
 	my $err_str = "Unknown check_list item '$choice'. Expected '"

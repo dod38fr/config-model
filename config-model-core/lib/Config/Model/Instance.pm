@@ -277,7 +277,7 @@ sub write_root_dir {
 }
 
 
-sub has_changed {
+sub notify_change {
     my $self = shift ;
     $self->{needs_save} = 1;
 }
@@ -585,7 +585,7 @@ Returns root directory where configuration data is written to.
 Register a node path that will be called back with
 C<write_back> method.
 
-=head2 has_changed
+=head2 notify_change
 
 Notify that some data has changed in the tree. 
 
