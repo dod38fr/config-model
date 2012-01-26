@@ -382,17 +382,19 @@ my %mode_move = (
  ) ;
 
 sub notify_change {
-    my ($self,$name,$idx) = @_ ;
+    my $self = shift ;
+    my %args = @_ ;
     
     # use $idx to trigger move from layered->preset->normal
     my $imode = $self->instance->get_data_mode ;
+    my $idx = $args{index} ;
     my $old_mode = $self->get_data_mode($idx) ;
     $self->set_data_mode($idx,$imode) if $mode_move{$old_mode}{$imode} ; 
 
     return if $self->instance->initial_load ;
 
     $self->needs_check(1) ;
-    $self->SUPER::notify_change ;
+    $self->SUPER::notify_change(@_) ;
 }
 
 

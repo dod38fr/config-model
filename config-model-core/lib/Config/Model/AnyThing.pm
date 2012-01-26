@@ -21,7 +21,7 @@ has needs_check => (is => 'rw', isa => 'Bool', default => 1 );
 has index_value => ( 
     is => 'rw', 
     isa => 'Str', 
-    trigger => sub { my $self = shift; $self->{location}=$self->_location} ,
+    trigger => sub { my $self = shift; $self->{location} = $self->_location; } ,
 ) ;
 
 has container => (is => 'ro', isa => 'Ref', required => 1, weak_ref => 1 ) ;
@@ -62,7 +62,7 @@ sub DEMOLISH {
 sub notify_change {	
     my $self = shift ;
 
-    $self->container->notify_change($self->element_name, $self->index_value);
+    $self->container->notify_change(@_, name => $self->element_name, index => $self->index_value);
 }
 
 

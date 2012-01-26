@@ -90,7 +90,8 @@ sub BUILD {
 
 sub notify_change {	
     my $self = shift ;
-    my $check_done = shift || 0 ;
+    my %args = @_ ;
+    my $check_done = $args{check_done} || 0 ;
 
     return if $self->instance->initial_load ;
 
@@ -100,7 +101,7 @@ sub notify_change {
 
     unless ($self->needs_check) {
 	$self->needs_check(1) unless $check_done;
-	$self->SUPER::notify_change ;
+	$self->SUPER::notify_change(%args) ;
 	# notify all warped or computed objects that depends on me 
 	foreach my $s ($self->get_depend_slave) {
 	    $logger->debug("calling notify_change on slave ",$s->name) 
@@ -1117,12 +1118,12 @@ sub store {
 	    $self->{layered} = $value ;
 	} 
 	elsif ($self->instance->preset) {
-	    $self->notify_change(1) ;
+	    $self->notify_change(check_done => 1) ;
 	    $self->{preset} = $value ;
 	} 
 	else {
 	    no warnings 'uninitialized';
-	    $self->notify_change(1) if $value ne $old_value;
+	    $self->notify_change(check_done => 1) if $value ne $old_value;
 	    $self->{data} = $value ; # may be undef
 	}
 	
