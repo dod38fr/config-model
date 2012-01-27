@@ -3,7 +3,7 @@ use warnings ;
 use File::Path ;
 use Probe::Perl ;
 
-use Test::Command tests => 9;
+use Test::Command tests => 8;
 
 ## testing exit status
 
@@ -63,4 +63,3 @@ PARTICIPATE="yes"
 USEHTTP="yes" # always http
 DAY="6"
 
-memory_cycle_ok($model);
