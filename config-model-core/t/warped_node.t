@@ -280,4 +280,4 @@ is($root->fetch_element('bool_object')->config_class_name,
    'check theorical bool_object type...');
 
 
-#die "test copy_from on warped nodes" ; memory_cycle_ok($model);
+memory_cycle_ok($model,"mem cycle test");
