@@ -4,6 +4,7 @@ use ExtUtils::testlib;
 use Test::More tests => 53;
 use Test::Exception ;
 use Test::Warn ;
+use Test::Memory::Cycle;
 use Config::Model;
 
 use warnings;
@@ -220,3 +221,4 @@ map {
     [ qw/captain array_args/ ],
     [ qw/array_args hash_args/]
   ) ;
+memory_cycle_ok($model);

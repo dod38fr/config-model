@@ -5,6 +5,7 @@ use warnings FATAL => qw(all);
 use ExtUtils::testlib;
 use Test::More;
 use Test::Exception ;
+use Test::Memory::Cycle;
 use Config::Model;
 use Data::Dumper ;
 
@@ -123,3 +124,4 @@ is_deeply($augmented_model->{element}{fs_mntopts}{rules},
 
 is_deeply($augmented_model->{accept_list},['.*','ip.*'],"test accept_list");
 is($augmented_model->{accept}{'.*'}{description},'catchall',"test augmented rules");
+memory_cycle_ok($model);

@@ -2,6 +2,7 @@
 
 use ExtUtils::testlib;
 use Test::More tests => 5;
+use Test::Memory::Cycle;
 use Config::Model;
 
 use warnings;
@@ -47,3 +48,4 @@ my $inst2 = $model2->instance (root_class_name => 'Master',
 			     model_file    => 't/big_model.pm' ,
 			     instance_name => 'test1');
 ok($inst2,"created dummy instance 2") ;
+memory_cycle_ok($model);

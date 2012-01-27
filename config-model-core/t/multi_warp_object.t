@@ -4,6 +4,7 @@ use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
 use Test::More tests => 20 ;
+use Test::Memory::Cycle;
 use Config::Model ;
 
 use strict;
@@ -146,3 +147,4 @@ is ($root->grab('bar:1')->config_class_name ,'SlaveZ',
 
 is( $root-> is_element_available(name => 'bar', experience => 'advanced'), 1,
   'check element bar experience (back to advanced )') ;
+memory_cycle_ok($model);

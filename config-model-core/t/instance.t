@@ -5,6 +5,7 @@ use warnings FATAL => qw(all);
 use ExtUtils::testlib;
 use Test::More;
 use Test::Warn ;
+use Test::Memory::Cycle;
 use Config::Model;
 
 BEGIN { plan tests => 12; }
@@ -64,3 +65,4 @@ $inst->apply_fixes ;
 is($wup -> fetch,'foobar',"test if fixes were applied (instance test)") ;
 is($wup -> fetch,'foobar',"test if fixes were applied (instance test)") ;
 
+memory_cycle_ok($model);

@@ -63,3 +63,4 @@ PARTICIPATE="yes"
 USEHTTP="yes" # always http
 DAY="6"
 
+memory_cycle_ok($model);

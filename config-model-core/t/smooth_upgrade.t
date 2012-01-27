@@ -6,6 +6,7 @@ use ExtUtils::testlib;
 use Test::More tests => 21 ;
 use Test::Exception ;
 use Test::Warn ;
+use Test::Memory::Cycle;
 use Config::Model ;
 use Config::Model::Value;
 
@@ -186,3 +187,4 @@ is($h->fetch,$host,"check extracted host") ;
 
 is($uroot->fetch_element('port')->fetch,$port,"check extracted port") ;
 is($uroot->fetch_element('path')->fetch,$path,"check extracted path") ;
+memory_cycle_ok($model);

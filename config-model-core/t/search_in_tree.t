@@ -3,6 +3,7 @@
 use ExtUtils::testlib;
 use Test::More tests => 12;
 use Test::Differences ;
+use Test::Memory::Cycle;
 use Config::Model;
 use Log::Log4perl qw(:easy) ;
 
@@ -65,3 +66,4 @@ foreach my $ref (@tests) {
     eq_or_diff(\@res,\@expected,"searched for $type $string");
     print "\treturned '",join("', '",@res),"'\n" if $trace ;
 }
+memory_cycle_ok($model);

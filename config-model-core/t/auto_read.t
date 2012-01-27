@@ -2,6 +2,7 @@
 
 use ExtUtils::testlib;
 use Test::More tests => 59;
+use Test::Memory::Cycle;
 use Config::Model;
 use File::Path;
 use File::Copy ;
@@ -530,3 +531,4 @@ file_contents_eq ("$root3/$scratch_conf", "aa=toto4 -\n" ,"checked file written 
 
 
 
+memory_cycle_ok($model);

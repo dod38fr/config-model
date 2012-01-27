@@ -2,6 +2,7 @@
 
 use ExtUtils::testlib;
 use Test::More tests => 31;
+use Test::Memory::Cycle;
 use Config::Model;
 use Config::Model::Value ;
 use Log::Log4perl qw(get_logger :levels) ;
@@ -176,3 +177,4 @@ $iterator->start ;
 is_deeply(\@expected,[],"iterator explored all items") ;
 
 
+memory_cycle_ok($model);

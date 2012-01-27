@@ -5,6 +5,7 @@ use ExtUtils::testlib;
 use Test::More ;
 use Test::Exception ;
 use Test::Warn ;
+use Test::Memory::Cycle;
 use Config::Model;
 use File::Path;
 use File::Copy ;
@@ -110,3 +111,4 @@ foreach my $oops (qw/foo=bar vlistB=test/) {
 ### test always_warn parameter
 my $bad = $i_root->fetch_element('badbad') ;
 warning_like {$bad->store('whatever');} qr/gotcha/, "test unconditional warn" ;
+memory_cycle_ok($model);

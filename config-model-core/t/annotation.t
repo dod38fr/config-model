@@ -2,6 +2,7 @@
 
 use ExtUtils::testlib;
 use Test::More tests => 16;
+use Test::Memory::Cycle;
 use Config::Model;
 use Config::Model::Annotation;
 use File::Path ;
@@ -125,3 +126,4 @@ delete $expect3{'olist:2'} ;
 my $h3_ref = $saver2->get_annotation_hash() ;
 print Dumper ( $h3_ref ) if $trace ;
 is_deeply ($h3_ref,\%expect3 ,"check loaded annotation data with non-empty tree") ;
+memory_cycle_ok($model);

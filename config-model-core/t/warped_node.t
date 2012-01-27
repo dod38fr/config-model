@@ -5,6 +5,7 @@ use warnings FATAL => qw(all);
 use ExtUtils::testlib;
 use Test::More tests => 37 ;
 use Test::Differences ;
+use Test::Memory::Cycle;
 use Config::Model ;
 use Log::Log4perl qw(:easy) ;
 
@@ -279,4 +280,4 @@ is($root->fetch_element('bool_object')->config_class_name,
    'check theorical bool_object type...');
 
 
-#die "test copy_from on warped nodes" ; 
+#die "test copy_from on warped nodes" ; memory_cycle_ok($model);

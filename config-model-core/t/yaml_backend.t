@@ -2,6 +2,7 @@
 
 use ExtUtils::testlib;
 use Test::More ;
+use Test::Memory::Cycle;
 use Config::Model;
 use File::Path;
 use File::Copy ;
@@ -89,3 +90,4 @@ my $yaml = slurp($yaml_file) || die "can't open $yaml_file:$!";
 
 unlike($yaml,qr/dummy/,"check yaml dump content");
 
+memory_cycle_ok($model);

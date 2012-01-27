@@ -2,6 +2,7 @@
 
 use ExtUtils::testlib;
 use Test::More;
+use Test::Memory::Cycle;
 use Config::Model;
 use File::Path;
 use File::Copy;
@@ -231,3 +232,4 @@ foreach my $test_class ( sort keys %test_setup ) {
     );
 
 }
+memory_cycle_ok($model);

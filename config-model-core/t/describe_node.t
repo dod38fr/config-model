@@ -5,6 +5,7 @@
 
 use ExtUtils::testlib;
 use Test::More tests => 7;
+use Test::Memory::Cycle;
 use Config::Model;
 
 use warnings;
@@ -93,3 +94,4 @@ $description = $root->describe(element => 'std_id');
 $description =~ s/\s*\n/\n/g;
 print "description string:\n$description" if $trace  ;
 is($description,$expect,"check root description of std_id") ;
+memory_cycle_ok($model);

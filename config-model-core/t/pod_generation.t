@@ -2,6 +2,7 @@
 
 use ExtUtils::testlib;
 use Test::More tests => 7;
+use Test::Memory::Cycle;
 use Config::Model;
 use Log::Log4perl qw(:easy) ;
 use File::Path ;
@@ -47,3 +48,4 @@ $model->generate_doc('Master',$wr_root) ;
 
 map { ok ( -r "wr_root/Config/Model/models/$_", "Found doc $_") ; }
     qw /Master.pod  SlaveY.pod  SlaveZ.pod  SubSlave2.pod  SubSlave.pod/;
+memory_cycle_ok($model);

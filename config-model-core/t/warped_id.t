@@ -7,6 +7,7 @@ use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
 use Test::More tests => 36 ;
+use Test::Memory::Cycle;
 use Config::Model ;
 
 use strict;
@@ -236,3 +237,4 @@ is( $root->grab_value('hash_with_warped_value:5'), 'dumb string',
 is( $root->grab_value('hash_with_warped_value:6'), 'dumb string',
     "check hash_with_warped_value:6" );
 
+memory_cycle_ok($model);

@@ -4,6 +4,7 @@ use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
 use Test::More tests => 84 ;
+use Test::Memory::Cycle;
 use Config::Model ;
 use Test::Exception ;
 use Test::Warn ;
@@ -420,3 +421,4 @@ $hwclc -> fetch_with_id('Debian')->store('DebV');
 $hwclc -> fetch_with_id('Grip')  -> store('GripV') ;
 eq_or_diff( [ $hwclc->get_all_indexes ] , [qw/debian grip/],"check converted ids");
 
+memory_cycle_ok($model);

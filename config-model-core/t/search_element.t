@@ -2,6 +2,7 @@
 
 use ExtUtils::testlib;
 use Test::More tests => 23;
+use Test::Memory::Cycle;
 use Config::Model;
 
 use warnings;
@@ -233,3 +234,4 @@ $step = $model_searcher->next_choice() ;
 is_deeply($step, [],'next_choice 2') ;
 
 is($model_searcher->current_object->name, 'std_id:foo DX','next_choice target') ;
+memory_cycle_ok($model);

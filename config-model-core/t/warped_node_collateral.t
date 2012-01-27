@@ -5,6 +5,7 @@ use warnings FATAL => qw(all);
 use ExtUtils::testlib;
 use Test::More tests => 13;
 use Test::Exception;
+use Test::Memory::Cycle;
 use Config::Model;
 use Log::Log4perl qw(:easy);
 
@@ -155,3 +156,4 @@ $root->load('fs_passno=0 fs_mntopts bind=1');
 is( $pass->fetch, '0', "check pass nb at 2 after setting bind" );
 
 ok($root->load('type=hash cargo atime=1'), "check warping in of a node");
+memory_cycle_ok($model);

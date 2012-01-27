@@ -4,6 +4,7 @@ use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
 use Test::More tests => 17 ;
+use Test::Memory::Cycle;
 use Config::Model ;
 use Data::Dumper ;
 use Log::Log4perl qw(:easy :levels) ;
@@ -146,3 +147,4 @@ is($ph->fetch_with_id(4)->dump_tree,
    $ph->fetch_with_id(3)->dump_tree, "compare copied then moved values") ;
 
 is_deeply([$ph->get_all_indexes],[3,4],"compare indexes after move") ;
+memory_cycle_ok($model);

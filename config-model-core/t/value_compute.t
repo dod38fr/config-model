@@ -5,6 +5,7 @@ use warnings FATAL => qw(all);
 use ExtUtils::testlib;
 use Test::More;
 use Test::Warn ;
+use Test::Memory::Cycle;
 use Config::Model ;
 use Log::Log4perl qw(:easy) ;
 
@@ -458,3 +459,4 @@ is($root->grab_value('Licenses:"MPL-1.1" text'), "","check missing replacement w
 
 is($root->grab_value('Licenses:"MPL-1.1" short_name_from_index'), "MPL-1.1",'evaled &index($holder)');
 
+memory_cycle_ok($model);

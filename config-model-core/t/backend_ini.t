@@ -2,6 +2,7 @@
 
 use ExtUtils::testlib;
 use Test::More ;
+use Test::Memory::Cycle;
 use Config::Model;
 use File::Path;
 use File::Copy ;
@@ -144,3 +145,4 @@ lista=lista1 #lista1 comment
 lista    =    lista2 
 # lista3 comment
 lista    =    lista3 
+memory_cycle_ok($model);

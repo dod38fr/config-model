@@ -2,6 +2,7 @@
 
 use ExtUtils::testlib;
 use Test::More tests => 6;
+use Test::Memory::Cycle;
 use Config::Model;
 use File::Path;
 use File::Copy ;
@@ -126,3 +127,4 @@ my $inst2 = $model->instance(root_class_name => 'Test::Dpkg',
 my $root2 = $inst2->config_root;
 my $dump2 = $root2 -> dump_tree ;
 is($dump2, $dump,"check that inst2 is a copy of first instance");
+memory_cycle_ok($model);

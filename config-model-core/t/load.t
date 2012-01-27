@@ -4,6 +4,7 @@ use ExtUtils::testlib;
 use Test::More tests => 114;
 use Test::Exception ;
 use Test::Differences ;
+use Test::Memory::Cycle;
 use Config::Model;
 use Data::Dumper ;
 
@@ -330,3 +331,4 @@ foreach my $bad (sort keys %errors) {
     throws_ok { $root->load($bad) }  $errors{$bad}, "Check error for load('$bad')" ;
 }
 
+memory_cycle_ok($model);

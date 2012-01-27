@@ -2,6 +2,7 @@
 
 use ExtUtils::testlib;
 use Test::More tests => 21;
+use Test::Memory::Cycle;
 use Config::Model;
 
 use warnings;
@@ -274,3 +275,4 @@ my $cds2 = $root3->dump_tree( full_dump => 1 );
 print "Dump second instance with annotations:\n$cds2" if $trace  ;
 
 is($cds2,$cds,"check both dumps") ;
+memory_cycle_ok($model);

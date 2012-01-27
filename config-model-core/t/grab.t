@@ -2,6 +2,7 @@
 
 use ExtUtils::testlib;
 use Test::More tests => 41;
+use Test::Memory::Cycle;
 use Config::Model;
 use Log::Log4perl qw(:easy) ;
 
@@ -122,3 +123,4 @@ is($obj->location,"std_id:ab","test no strict grab with type node");
 eval { $root->grab(step => 'std_id:ab X', type => 'node' , mode => 'strict'); } ;
 ok($@,"test strict grab with type node");
 print "normal error:\n", $@, "\n" if $trace;
+memory_cycle_ok($model);

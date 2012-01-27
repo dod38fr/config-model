@@ -6,6 +6,7 @@ use ExtUtils::testlib;
 use Test::More tests => 154;
 use Test::Exception;
 use Test::Warn;
+use Test::Memory::Cycle;
 use Config::Model;
 use Config::Model::Value;
 use Log::Log4perl qw(:easy :levels) ;
@@ -660,3 +661,4 @@ $warn_unless->apply_fixes ;
 ok(1,"warn_unless apply_fixes called");
 is($warn_unless->fetch,'foobar',"check fixed warn_unless pb");
 
+memory_cycle_ok($model);

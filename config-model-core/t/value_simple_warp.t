@@ -4,6 +4,7 @@ use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
 use Test::More;
+use Test::Memory::Cycle;
 use Config::Model ;
 use Data::Dumper ;
 
@@ -155,3 +156,4 @@ is($w1->fetch, 'A',
 is($w2->fetch, 'G', "... and w2 ...");
 is($w3->fetch, 'G', "... and w3");
 
+memory_cycle_ok($model);

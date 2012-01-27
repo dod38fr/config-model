@@ -28,6 +28,7 @@ BEGIN {
     }
 }
 
+use Test::Memory::Cycle;
 use Config::Model;
 use Config::Model::TermUI ;
 
@@ -99,3 +100,4 @@ foreach my $a_test (@test) {
     is_deeply(\@comp,$expect ,"exec '".join("', '",@$input)."'") ;
 
 }
+memory_cycle_ok($model);

@@ -4,6 +4,7 @@ use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
 use Test::More tests => 64 ;
+use Test::Memory::Cycle;
 use Config::Model ;
 use Storable qw/dclone/ ;
 
@@ -171,3 +172,4 @@ delete $model_data->{name} ; # not part of saved raw_model
 
 is_deeply($model->get_raw_model('Master'), $model_data, 
 	  "check that copy in model object was not modified") ;
+memory_cycle_ok($model);

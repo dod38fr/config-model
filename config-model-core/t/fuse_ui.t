@@ -4,6 +4,7 @@ use ExtUtils::testlib;
 use Test::More ;
 use Path::Class ;
 
+use Test::Memory::Cycle;
 use Config::Model;
 use Config;
 
@@ -172,3 +173,4 @@ END {
 
 
 
+memory_cycle_ok($model);

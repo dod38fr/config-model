@@ -5,6 +5,7 @@ use Test::More tests => 11 ;
 use Test::Exception ;
 use Test::Warn ;
 use Test::Differences ;
+use Test::Memory::Cycle;
 use Config::Model;
 use Config::Model::Lister;
 use Data::Dumper ;
@@ -140,3 +141,4 @@ is($class_name,'Master',"check $class_name class name");
 $canonical_model = $model->get_model($class_name) ;
 print "$class_name model:\n",Dumper($canonical_model) if $trace;
 
+memory_cycle_ok($model);

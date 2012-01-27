@@ -6,6 +6,7 @@
 use ExtUtils::testlib;
 use Test::More tests => 22 ;
 
+use Test::Memory::Cycle;
 use Config::Model;
 use Config::Model::SimpleUI ;
 
@@ -86,3 +87,4 @@ foreach my $a_test (@test) {
 
     is($ui->prompt,$expect_prompt,"test prompt is $expect_prompt") ;
 }
+memory_cycle_ok($model);

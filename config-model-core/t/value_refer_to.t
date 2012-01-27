@@ -4,6 +4,7 @@ use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
 use Test::More tests => 18 ;
+use Test::Memory::Cycle;
 use Config::Model ;
 
 use strict;
@@ -203,3 +204,4 @@ print "normal error: $@" if $trace;
 eval { $root->fetch_element("refer_to_unknown_elt") } ;
 ok($@,"fetching refer_to_unknown_elt") ;
 print "normal error: $@" if $trace;
+memory_cycle_ok($model);

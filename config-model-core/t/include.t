@@ -5,6 +5,7 @@ use warnings FATAL => qw(all);
 use ExtUtils::testlib;
 use Test::More;
 use Test::Exception ;
+use Test::Memory::Cycle;
 use Config::Model;
 use Data::Dumper ;
 
@@ -101,3 +102,4 @@ my @bad_class =
 
 throws_ok {$model ->create_config_class(@bad_class);}
   qr/cannot clobber/i , "Check that include does not clobber elements";
+memory_cycle_ok($model);

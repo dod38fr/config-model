@@ -11,3 +11,4 @@ my $test_only_model = shift || '';
 my $do = shift ;
 
 run_tests($arg, $test_only_model, $do) ;
+memory_cycle_ok($model);

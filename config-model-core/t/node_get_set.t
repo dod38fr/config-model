@@ -2,6 +2,7 @@
 
 use ExtUtils::testlib;
 use Test::More tests => 8;
+use Test::Memory::Cycle;
 use Config::Model;
 
 use warnings;
@@ -54,3 +55,4 @@ is ($root->get(path => "/std_id/bc/X", get_obj => 1),
 
 is($root->get(path => '/BDMV', check => 'skip'), undef,"get with check skip does not die");
 
+memory_cycle_ok($model);

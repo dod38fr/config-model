@@ -2,6 +2,7 @@
 
 use ExtUtils::testlib;
 use Test::More tests => 9;
+use Test::Memory::Cycle;
 use Config::Model ;
 use Log::Log4perl qw(:easy) ;
 use File::Path ;
@@ -130,3 +131,4 @@ MY_HOSTID="aaaaaaaaaaaaaaaaaaaa"
 PARTICIPATE="yes"
 USEHTTP="yes" # always http
 DAY="6"
+memory_cycle_ok($model);

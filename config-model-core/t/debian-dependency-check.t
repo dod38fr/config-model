@@ -17,6 +17,7 @@ BEGIN {
 
 use ExtUtils::testlib;
 use Test::More ;
+use Test::Memory::Cycle;
 use Config::Model ;
 use Config::Model::Value ;
 #use Config::Model::Debian::Dependency ;
@@ -191,3 +192,4 @@ is($perl_bdi->has_fixes,0, "test that fixes are gone");
 @msgs = $perl_bdi->warning_msg ;
 is_deeply(\@msgs,[],"check that warnings are gone");
 
+memory_cycle_ok($model);

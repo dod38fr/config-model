@@ -2,6 +2,7 @@
 
 use ExtUtils::testlib;
 use Test::More tests => 11 ;
+use Test::Memory::Cycle;
 use Config::Model;
 use File::Path;
 use File::Copy ;
@@ -105,3 +106,4 @@ my $i2_root = $i2_plain->config_root ;
 my $p2_dump = $i2_root->dump_tree ;
 
 is($p2_dump,$root->dump_tree,"compare original data with 2nd instance data") ;
+memory_cycle_ok($model);
