@@ -117,6 +117,7 @@ $cfg3->load($dump) ;
 ok(1,"loaded 3nd instance with dump from 1st instance");
 $cfg2->load("MY_HOSTID=bbbbbbbb") ;
 
+memory_cycle_ok($model);
 
 __END__
 # Config file for Debian's popularity-contest package.
@@ -131,4 +132,3 @@ MY_HOSTID="aaaaaaaaaaaaaaaaaaaa"
 PARTICIPATE="yes"
 USEHTTP="yes" # always http
 DAY="6"
-memory_cycle_ok($model);
