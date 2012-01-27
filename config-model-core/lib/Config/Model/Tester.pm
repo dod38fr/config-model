@@ -13,6 +13,7 @@ use Test::Warn;
 use Test::Exception;
 use Test::File::Contents ;
 use Test::Differences;
+use Test::Memory::Cycle ;
 use locale;
 use utf8;
 
@@ -295,6 +296,8 @@ sub run_tests {
         next if ( $test_only_model and $test_only_model ne $model_test ) ; 
         run_model_test($model_test, $model_test_conf, $do, $model, $trace, $wr_root) ;
     }
+
+    memory_cycle_ok($model,"test memory cycle") ; 
 
     done_testing;
 
