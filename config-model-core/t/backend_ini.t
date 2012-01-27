@@ -30,7 +30,7 @@ else {
 }
 Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 
-plan tests => 62;
+plan tests => 65;
 
 ok(1,"compiled");
 
@@ -123,7 +123,10 @@ foreach my $test_class (sort keys %test_setup) {
 
     is($p2_dump,$orig,"compare original data with 2nd instance data") ;
 
+    memory_cycle_ok($model,"memory cycle test");
+
 }
+
 
 __DATA__
 #some global comment
@@ -145,4 +148,3 @@ lista=lista1 #lista1 comment
 lista    =    lista2 
 # lista3 comment
 lista    =    lista3 
-memory_cycle_ok($model);
