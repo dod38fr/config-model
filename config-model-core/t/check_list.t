@@ -10,7 +10,7 @@ use Config::Model;
 use Data::Dumper;
 use Log::Log4perl qw(:easy :levels) ;
 
-BEGIN { plan tests => 79; }
+BEGIN { plan tests => 80; }
 
 use strict;
 

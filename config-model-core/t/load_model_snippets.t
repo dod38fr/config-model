@@ -11,7 +11,7 @@ use Data::Dumper ;
 use IO::File ;
 use File::Path ;
 
-BEGIN { plan tests => 7; }
+BEGIN { plan tests => 8; }
 
 use strict;
 

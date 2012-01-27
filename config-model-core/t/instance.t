@@ -8,7 +8,7 @@ use Test::Warn ;
 use Test::Memory::Cycle;
 use Config::Model;
 
-BEGIN { plan tests => 12; }
+BEGIN { plan tests => 13; }
 
 use strict;
 

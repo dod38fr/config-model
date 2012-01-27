@@ -8,7 +8,7 @@ use Test::Memory::Cycle;
 use Config::Model ;
 use Data::Dumper ;
 
-BEGIN { plan tests => 23; }
+BEGIN { plan tests => 24; }
 
 use strict;
 

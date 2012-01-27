@@ -12,7 +12,7 @@ use Config::Model;
 use Config::Model::AnyId;
 use Log::Log4perl qw(:easy :levels) ;
 
-BEGIN { plan tests => 105; }
+BEGIN { plan tests => 106; }
 
 use strict;
 

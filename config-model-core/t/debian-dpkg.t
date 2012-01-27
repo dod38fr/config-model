@@ -20,7 +20,7 @@ if ( $@ ) {
     plan skip_all => "AptPkg::Config is not installed";
 }
 elsif ( -r '/etc/debian_version' ) {
-    plan tests => 14 ;
+    plan tests => 15;
 }
 else {
     plan skip_all => "Not a Debian system";

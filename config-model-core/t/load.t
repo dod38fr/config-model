@@ -1,7 +1,7 @@
 # -*- cperl -*-
 
 use ExtUtils::testlib;
-use Test::More tests => 114;
+use Test::More tests => 115;
 use Test::Exception ;
 use Test::Differences ;
 use Test::Memory::Cycle;

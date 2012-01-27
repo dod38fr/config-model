@@ -9,7 +9,7 @@ use Test::Memory::Cycle;
 use Config::Model;
 use Data::Dumper ;
 
-BEGIN { plan tests => 4; }
+BEGIN { plan tests => 5; }
 
 use strict;
 

@@ -21,7 +21,7 @@ BEGIN {
 
 
     if ($ok) {
-	plan tests => 10 ;
+	plan tests => 11;
     }
     else {
 	plan skip_all => "Cannot load Term::ReadLine" ;

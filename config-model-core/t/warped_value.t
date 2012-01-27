@@ -10,7 +10,7 @@ use Config::Model;
 use Config::Model::ValueComputer;
 use Log::Log4perl qw(:easy) ;
 
-BEGIN { plan tests => 65; }
+BEGIN { plan tests => 66; }
 
 use strict;
 

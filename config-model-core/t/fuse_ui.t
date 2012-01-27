@@ -38,7 +38,7 @@ if ( $@ ) {
     plan skip_all => "Config::Model::FuseUI or Fuse is not installed";
 }
 else {
-    plan tests => 13;
+    plan tests => 14;
 }
 
 use warnings FATAL => qw(all);

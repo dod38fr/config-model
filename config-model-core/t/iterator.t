@@ -1,7 +1,7 @@
 # -*- cperl -*-
 
 use ExtUtils::testlib;
-use Test::More tests => 31;
+use Test::More tests => 32;
 use Test::Memory::Cycle;
 use Config::Model;
 use Config::Model::Value ;

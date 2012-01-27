@@ -3,7 +3,7 @@ use warnings ;
 use File::Path ;
 use Probe::Perl ;
 
-use Test::Command tests => 8;
+use Test::Command tests => 9;
 
 ## testing exit status
 

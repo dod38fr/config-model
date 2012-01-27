@@ -4,7 +4,7 @@
 # $Revision$
 
 use ExtUtils::testlib;
-use Test::More tests => 8;
+use Test::More tests => 9;
 use Test::Memory::Cycle;
 use Config::Model;
 

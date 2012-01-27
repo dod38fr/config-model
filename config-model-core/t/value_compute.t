@@ -9,7 +9,7 @@ use Test::Memory::Cycle;
 use Config::Model ;
 use Log::Log4perl qw(:easy) ;
 
-BEGIN { plan tests => 47; }
+BEGIN { plan tests => 48; }
 
 use strict;
 

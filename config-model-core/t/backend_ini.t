@@ -30,7 +30,7 @@ else {
 }
 Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 
-plan tests => 61 ;
+plan tests => 62;
 
 ok(1,"compiled");
 

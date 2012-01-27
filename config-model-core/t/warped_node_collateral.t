@@ -3,7 +3,7 @@
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
-use Test::More tests => 13;
+use Test::More tests => 14;
 use Test::Exception;
 use Test::Memory::Cycle;
 use Config::Model;
