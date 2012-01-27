@@ -1579,13 +1579,15 @@ sub get_depend_slave {
     my $self = shift ;
 
     my @result = () ;
-    push @result, @{$self->{depend_on_me}} if defined $self->{depend_on_me} ;
+    push @result,  @{$self->{depend_on_me}} 
+	if defined $self->{depend_on_me} ;
 
     if (defined $self->{warp_these_objects}) {
         push @result, map ($_->[0], @{$self->{warp_these_objects}} )  ;
     }
 
-    return @result ;
+    # needs to clean up weak ref to object that were destroyed
+    return grep {defined $_} @result ;
   }
 
 __PACKAGE__->meta->make_immutable;
