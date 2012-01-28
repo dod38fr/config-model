@@ -93,19 +93,17 @@ sub notify_change {
     my %args = @_ ;
     my $check_done = $args{check_done} || 0 ;
 
-    return if $self->instance->initial_load ;
-
-    $logger->debug("called while needs_check is ",$self->needs_check,
-	" for ",$self->name) 
-	if $logger->is_debug ;
+    # $logger->debug("called while needs_check is ",$self->needs_check,
+	# " for ",$self->name) 
+	# if $logger->is_debug ;
 
     unless ($self->needs_check) {
 	$self->needs_check(1) unless $check_done;
 	$self->SUPER::notify_change(%args) ;
 	# notify all warped or computed objects that depends on me 
 	foreach my $s ($self->get_depend_slave) {
-	    $logger->debug("calling notify_change on slave ",$s->name) 
-		if $logger->is_debug ;
+	    # $logger->debug("calling notify_change on slave ",$s->name) 
+		# if $logger->is_debug ;
 	    $s -> notify_change ;
 	}  ;
     }
@@ -1112,18 +1110,26 @@ sub store {
 	$logger->debug($msg) ; 
     }
     
+    my $init_load = $self->instance->initial_load ;
+    no warnings qw/uninitialized/;
+    my $notify_change 
+	= $args{value} ne $value                ? 1 # data was transformed by model 
+	: $value ne $old_value and ! $init_load ? 1 
+	:                                         0 ;
+    use warnings qw/uninitialized/;
+    
     # we let store the value even if wrong when check is disabled
     if ($ok or $check eq 'no') {
         if ($self->instance->layered) {
 	    $self->{layered} = $value ;
 	} 
 	elsif ($self->instance->preset) {
-	    $self->notify_change(check_done => 1) ;
+	    $self->notify_change(check_done => 1) if $notify_change;
 	    $self->{preset} = $value ;
 	} 
 	else {
 	    no warnings 'uninitialized';
-	    $self->notify_change(check_done => 1) if $value ne $old_value;
+	    $self->notify_change(check_done => 1) if $notify_change;
 	    $self->{data} = $value ; # may be undef
 	}
 	
