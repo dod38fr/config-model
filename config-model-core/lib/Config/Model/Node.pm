@@ -74,8 +74,8 @@ my %create_sub_for =
 
 has initialized => (is => 'rw', isa => 'Bool', default => 0 ) ;
 
-has [qw/config_class_name/] 
-    => (is => 'ro', isa => 'Str', required =>1 ) ;
+has config_class_name => (is => 'ro', isa => 'Str', required =>1 ) ;
+
 has [qw/config_file element_name/] 
     => (is => 'ro', isa => 'Maybe[Str]', required => 0 ) ;
 
@@ -381,6 +381,26 @@ sub read_config_data {
     );
 }
 
+sub notify_change {	
+    my $self = shift ;
+
+    return if $self->instance->initial_load ;
+
+    # $logger->debug("called while needs_write is ",$self->needs_save,
+	# " for ",$self->name) 
+	# if $logger->is_debug ;
+
+    if (defined $self->{bmgr}) {
+        $self->needs_save(1) ; # will trigger a save in config_file
+	$self->SUPER::notify_change( @_, needs_save => 0 ) ;
+    }
+    else {
+        # save config_file will be done by a node above
+	$self->SUPER::notify_change( @_, needs_save => 1 ) ;
+    }
+}
+
+
 sub write_back {
     my ($self,%args) = @_ ;
 
@@ -389,7 +409,7 @@ sub write_back {
             $self->location,")\n";
     }
     
-    $self->{bmgr}->write_back(%args) ;
+    $self->{bmgr}->write_back(%args) ;#if $self->needs_save ;
 }
 
 sub is_auto_write_for_type {
