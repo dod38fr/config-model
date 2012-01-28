@@ -21,8 +21,6 @@ $model = Config::Model -> new () ;
 my $arg = shift || '';
 
 my $trace = $arg =~ /t/ ? 1 : 0 ;
-$::verbose          = 1 if $arg =~ /v/;
-$::debug            = 1 if $arg =~ /d/;
 Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 
 use Log::Log4perl qw(:easy) ;
@@ -90,4 +88,4 @@ my $yaml = slurp($yaml_file) || die "can't open $yaml_file:$!";
 
 unlike($yaml,qr/dummy/,"check yaml dump content");
 
-memory_cycle_ok($model);
+memory_cycle_ok($model,"check model mem cycles");
