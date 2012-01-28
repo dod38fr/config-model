@@ -51,18 +51,24 @@ sub DEMOLISH {
     my $self = shift;
 
     # logger does not work during global desctruction
-    # $logger->debug(ref($self).' '.$self->location." demolished") if defined $logger and
-     # $logger->is_debug ;
+    #$logger->debug(ref($self).' '.$self->location." demolished") if $logger->is_debug ;
 
     # container may not be defined during global desctruction
-    $self->container->notify_change($self->element_name, $self->index_value)
-	if defined $self->container;
+    $self->container->notify_change(
+	name => $self->element_name, 
+	index => $self->index_value
+    ) if defined $self->container;
 }
 
 sub notify_change {	
     my $self = shift ;
 
-    $self->container->notify_change(@_, name => $self->element_name, index => $self->index_value);
+    $self->container->notify_change(
+	needs_write => 1 , # may be overridden by caller
+	@_, 
+	name => $self->element_name, 
+	index => $self->index_value
+    );
 }
 
 
