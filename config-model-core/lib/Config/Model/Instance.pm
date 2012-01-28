@@ -277,6 +277,7 @@ sub write_root_dir {
 }
 
 
+# FIXME: record changes to implement undo/redo ?
 sub notify_change {
     my $self = shift ;
     $self->{needs_save} = 1;
