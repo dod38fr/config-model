@@ -11,6 +11,7 @@ use File::Path ;
 use File::HomeDir ;
 use IO::File ;
 use Storable qw/dclone/ ;
+use Scalar::Util qw/weaken/ ;
 use Log::Log4perl qw(get_logger :levels);
 
 my $logger = get_logger('BackendMgr') ;
@@ -342,6 +343,8 @@ sub auto_write_init {
     my $wrlist_orig = delete $args{write_config} ;
     my $w_dir = delete $args{write_config_dir} ;
 
+    weaken($self) ; # avoid leak: $self is stored in write_back closure
+
     croak "auto_write_init: unexpected args ".join(' ',keys %args)."\n" 
         if %args ;
 
@@ -401,7 +404,6 @@ sub auto_write_init {
             my $f = $write->{function} || 'write' ;
             require $file.'.pm' unless $c->can($f) ;
 
-            my $node = $self->node ; # provide a closure
             $wb = sub  {  
                 no strict 'refs';
                 my $file_path ;
@@ -414,7 +416,7 @@ sub auto_write_init {
                     &{$c.'::'.$f}(@wr_args,
                                   file_path => $file_path,
                                   conf_dir => $write_dir, # legacy FIXME
-                                  object => $node, 
+                                  object => $self->node, 
                                   @_                      # override from user
                                 ) ;
                 };
@@ -457,10 +459,9 @@ sub auto_write_init {
             $self->{auto_write}{cds_file} = 1 ;
         }
         else {
-			my $f = $write->{function} || 'write' ;
-			my $c = load_backend_class ($backend, $f);
+            my $f = $write->{function} || 'write' ;
+            my $c = load_backend_class ($backend, $f);
 
-            my $node = $self->node ; # provide a closure
             $wb = sub {
                 no strict 'refs';
                 $logger->debug("write cb ($backend) called for ",$self->node->name);
@@ -478,7 +479,7 @@ sub auto_write_init {
                     # override needed for "save as" button
                     $backend_obj->$f( @wr_args, 
                                       file_path => $file_path,
-                                      object => $node, 
+                                      object => $self->node, 
                                       @_                      # override from user
                                     ) ;
                 } ;
