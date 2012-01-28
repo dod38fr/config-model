@@ -385,12 +385,15 @@ sub notify_change {
     my $self = shift ;
     my %args = @_ ;
     
-    # use $idx to trigger move from layered->preset->normal
-    my $imode = $self->instance->get_data_mode ;
-    my $idx = $args{index} ;
-    my $old_mode = $self->get_data_mode($idx) ;
-    $self->set_data_mode($idx,$imode) if $mode_move{$old_mode}{$imode} ; 
-
+    # $idx may be undef if $self has changed, not necessarily its content
+    my $idx = $args{index} ; 
+    if (defined $idx) {
+        # use $idx to trigger move from layered->preset->normal
+        my $imode = $self->instance->get_data_mode ;
+        my $old_mode = $self->get_data_mode($idx) if defined $idx ;
+        $self->set_data_mode($idx,$imode) if $mode_move{$old_mode}{$imode} ; 
+    }
+    
     return if $self->instance->initial_load ;
 
     $self->needs_check(1) ;
