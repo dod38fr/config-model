@@ -400,6 +400,12 @@ sub notify_change {
     $self->SUPER::notify_change(@_) ;
 }
 
+sub check {
+    my $self = shift;
+    carp __PACKAGE__,"check is deprecated. Use check_content";
+    $self->check_content(@_) ;
+}
+
 
 # check globally the list or hash
 sub check_content {
@@ -633,10 +639,6 @@ sub fetch_with_id {
     $idx = $self->{convert_sub}($idx) 
       if (defined $self->{convert_sub} and defined $idx) ;
 
-    # NOT GODD
-    #$self->warp 
-    #  if ($self->{warp} and @{$self->{warp_info}{computed_master}});
-
     my $ok = 1 ;
     # check index only if it's unknown
     $ok = $self->check_idx(index => $idx, check => $check) 
@@ -863,18 +865,12 @@ sub auto_vivify {
 sub defined {
     my ($self,$idx) = @_ ;
 
-    $self->warp 
-      if ($self->{warp} and @{$self->{warp_info}{computed_master}});
-
     return $self->_defined($idx);
 }
 
 
 sub exists {
     my ($self,$idx) = @_ ;
-
-    $self->warp 
-      if ($self->{warp} and @{$self->{warp_info}{computed_master}});
 
     return $self->_exists($idx);
 }
@@ -891,8 +887,6 @@ sub delete {
 sub clear {
     my ($self) = @_ ;
 
-    $self->warp 
-      if ($self->{warp} and @{$self->{warp_info}{computed_master}});
     $self->{warning_hash} = {} ;
     $self->_clear;
   }
@@ -909,8 +903,6 @@ sub clear_values {
                  ) 
           if $ct ne 'leaf';
 
-    $self->warp 
-      if ($self->{warp} and @{$self->{warp_info}{computed_master}});
 
     map {$self->fetch_with_id($_)->store(undef)} $self->get_all_indexes ;
   }
