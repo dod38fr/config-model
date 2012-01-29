@@ -30,6 +30,13 @@
         'description' => 'Package control file. Specifies the most vital (and version-independent) information about the source package and about the binary packages it creates.',
         'config_class_name' => 'Debian::Dpkg::Control'
       },
+      'rules',
+      {
+        'value_type' => 'string',
+        'summary' => 'package build rules',
+        'type' => 'leaf',
+        'description' => 'debian/rules is a makefile containing all intructions required to build a debian package.'
+      },
       'copyright',
       {
         'summary' => 'copyright and license information',
