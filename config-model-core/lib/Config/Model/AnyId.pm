@@ -880,6 +880,7 @@ sub delete {
     my ($self,$idx) = @_ ;
 
     delete $self->{warning_hash}{$idx}  ;
+    # this will trigger a notify_change
     return $self->_delete($idx);
 }
 
@@ -888,6 +889,7 @@ sub clear {
     my ($self) = @_ ;
 
     $self->{warning_hash} = {} ;
+    # this will trigger a notify_change
     $self->_clear;
   }
 
@@ -904,6 +906,7 @@ sub clear_values {
           if $ct ne 'leaf';
 
 
+    # this will trigger a notify_change
     map {$self->fetch_with_id($_)->store(undef)} $self->get_all_indexes ;
   }
 
