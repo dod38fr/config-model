@@ -312,7 +312,7 @@ is( $i_zero->count_write_back , 10,
     "check that write call back are present" );
 
 # perform write back of dodu tree dump string
-$i_zero->write_back(backend => 'all');
+$i_zero->write_back(backend => 'all', force => 1);
 
 # check written files
 foreach my $suffix (qw/cds ini/) {
@@ -337,7 +337,7 @@ is($result{wr_root_name},'Master','check custom conf root to write') ;
 
 # perform write back of dodu tree dump string in an overridden dir
 my $override = 'etc/wr_2/';
-$i_zero->write_back(backend => 'all', config_dir => $override);
+$i_zero->write_back(backend => 'all', config_dir => $override, force => 1);
 
 # check written files
 foreach my $suffix (qw/cds ini/) {
