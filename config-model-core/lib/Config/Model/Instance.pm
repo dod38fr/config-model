@@ -291,7 +291,8 @@ sub write_back {
 	     :                  () ; 
 
     my $force_backend = delete $args{backend} || $self->{backend} ;
-
+    my $force_write = delete $args{force} || 0;
+ 
     foreach (keys %args) {
         if (/^(root|config_dir)$/) {
             $args{$_} ||= '' ;
@@ -311,7 +312,8 @@ sub write_back {
         $node->write_back(
             %args, 
             config_file => $self->{config_file} ,
-            backend => $force_backend
+            backend => $force_backend,
+            force => $force_write,
         );
     }
 }
