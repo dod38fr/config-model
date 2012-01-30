@@ -31,7 +31,7 @@ else {
 }
 Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 
-plan tests => 16;
+plan tests => 18;
 
 ok( 1, "compiled" );
 
@@ -192,6 +192,10 @@ foreach my $test_class ( sort keys %test_setup ) {
 
     my $orig = $i_root->dump_tree;
     print $orig if $trace;
+    is($i_root->needs_save,0,"check data does not need to be saved") ;
+
+    # force write back
+    $i_root->needs_save(1) ;
 
     $i_test->write_back(config_file     => $conf_file);
     ok( 1, "IniFile write back done" );
