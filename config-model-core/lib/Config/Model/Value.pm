@@ -1362,6 +1362,7 @@ sub _fetch {
 
     if (not defined $data and defined $self->{_migrate_from}) {
 	$data =  $self->migrate_value ;
+	$self->notify_change ;
     }
 
     foreach my $k (keys %old_mode) {
