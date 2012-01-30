@@ -76,6 +76,8 @@ sub read {
                 if $check eq 'yes' ;
             warn("$str Adding 'Files: *' spec\n") ;
             $section{files} = '*' ;
+            # tell root node that read data was altered and needs to be written back
+            $root->needs_save(1) ;
         }
 
         if (defined $section{licence}) {
