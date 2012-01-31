@@ -140,7 +140,8 @@ sub _delete {
 }
 
 sub remove {
-    goto &_delete ;
+    my $self = shift ;
+    $self->delete(@_) ;
 }
 
 sub _clear {
