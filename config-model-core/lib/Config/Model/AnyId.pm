@@ -23,6 +23,8 @@ has data_mode => (
     handles => {
         get_data_mode => 'get' ,
         set_data_mode => 'set' ,
+        delete_data_mode => 'delete' ,
+        clear_data_mode => 'clear' ,
     },
     default => sub { {} ;} 
 ) ;
@@ -390,7 +392,7 @@ sub notify_change {
     if (defined $idx) {
         # use $idx to trigger move from layered->preset->normal
         my $imode = $self->instance->get_data_mode ;
-        my $old_mode = $self->get_data_mode($idx) if defined $idx ;
+        my $old_mode = $self->get_data_mode($idx) || 'normal' ;
         $self->set_data_mode($idx,$imode) if $mode_move{$old_mode}{$imode} ; 
     }
     
@@ -880,8 +882,8 @@ sub delete {
     my ($self,$idx) = @_ ;
 
     delete $self->{warning_hash}{$idx}  ;
-    # this will trigger a notify_change
-    return $self->_delete($idx);
+    my $ret = $self->_delete($idx);
+    $self->notify_change( index => $idx ) ;
 }
 
 
@@ -889,13 +891,15 @@ sub clear {
     my ($self) = @_ ;
 
     $self->{warning_hash} = {} ;
-    # this will trigger a notify_change
     $self->_clear;
+    $self->clear_data_mode ;
+    $self->notify_change ;
   }
 
 
 sub clear_values {
     my ($self) = @_ ;
+    warn "clear_values deprecated" ;
 
     my $ct = $self->get_cargo_type ;
     Config::Model::Exception::User
@@ -908,6 +912,7 @@ sub clear_values {
 
     # this will trigger a notify_change
     map {$self->fetch_with_id($_)->store(undef)} $self->get_all_indexes ;
+    $self->notify_change ;
   }
 
 

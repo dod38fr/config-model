@@ -183,6 +183,8 @@ sub set_properties {
 
     $self->{config_class_name} = $config_class_name ;
     $self->{data} = $new_object ;
+    
+    $self->notify_change; 
 
     # need to call trigger on all registered objects only after all is setup
     $self->trigger_warp ;

@@ -253,6 +253,9 @@ sub swap {
     # then swap the objects
     $self->{data}[$ida] = $objb ;
     $self->{data}[$idb] = $obja ;
+    
+    $self->notify_change(index => $ida) ;
+    $self->notify_change(index => $idb) ;
 }
 
 #die "check index number after wap";
@@ -261,6 +264,8 @@ sub swap {
 sub remove {
     my $self = shift ;
     my $idx  = shift ;
+    $self->delete_data_mode(index => $idx) ;
+    $self->notify_change ;
     splice @{$self->{data}}, $idx , 1 ;
 }
 
