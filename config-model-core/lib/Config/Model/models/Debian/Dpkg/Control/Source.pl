@@ -167,7 +167,7 @@ The information is meant to be useful for a user knowledgeable in the given Vers
       {
         'compute' => {
           'use_eval' => '1',
-          'formula' => '$maintainer =~ /pkg-perl/ ? "git://git.debian.org/pkg-perl/packages/$pkgname.git" : \'\' ;',
+          'formula' => '$maintainer =~ /pkg-perl/ ? "git://git.debian.org/git/pkg-perl/packages/$pkgname.git" : \'\' ;',
           'variables' => {
             'maintainer' => '- Maintainer',
             'pkgname' => '- Source'
