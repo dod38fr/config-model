@@ -3,7 +3,7 @@
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
-use Test::More tests => 155;
+use Test::More tests => 160;
 use Test::Exception;
 use Test::Warn;
 use Test::Memory::Cycle;
@@ -618,10 +618,22 @@ $wip->store($smiley);
 is( $wip->fetch, $smiley, "check utf-8 string" );
 
 # test replace_follow
-$root->load('replacement_hash:foo=repfoo replacement_hash:bar=repbar');
 my $wrf = $root->fetch_element('with_replace_follow');
+$inst->needs_save(0);
+
 $wrf->store('foo');
-is( $wrf->fetch, 'repfoo', "check replacement_hash with foo" );
+is($inst->needs_save,1,"check needs_save after store") ;
+$inst->needs_save(0);
+
+is( $wrf->fetch, 'foo', "check replacement_hash with foo (before replacement)" );
+is($inst->needs_save,0,"check needs_save after simple fetch") ;
+
+$root->load('replacement_hash:foo=repfoo replacement_hash:bar=repbar');
+is($inst->needs_save,1,"check needs_save after load") ;
+$inst->needs_save(0);
+
+is( $wrf->fetch, 'repfoo', "check replacement_hash with foo (after replacement)" );
+is($inst->needs_save,1,"check needs_save after fetch with replacement") ;
 
 $wrf->store('bar');
 is( $wrf->fetch, 'repbar', "check replacement_hash with bar" );
@@ -661,4 +673,4 @@ $warn_unless->apply_fixes ;
 ok(1,"warn_unless apply_fixes called");
 is($warn_unless->fetch,'foobar',"check fixed warn_unless pb");
 
-memory_cycle_ok($model);
+memory_cycle_ok($model,"check memory cycles");
