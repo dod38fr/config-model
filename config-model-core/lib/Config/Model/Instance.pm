@@ -54,8 +54,14 @@ has _safe => (
 
 # preset mode:  to load values found by HW scan or other automatic scheme
 # layered mode: to load values found in included files (e.g. a la multistrap)
-has [qw/preset layered needs_save/] => (
+has [qw/preset layered/] => (
     is => 'ro',
+    isa => 'Bool' ,
+    default => 0,
+);
+
+has needs_save => (
+    is => 'rw',
     isa => 'Bool' ,
     default => 0,
 );
@@ -316,6 +322,7 @@ sub write_back {
             force => $force_write,
         );
     }
+    $self->needs_save(0) ;
 }
 
 

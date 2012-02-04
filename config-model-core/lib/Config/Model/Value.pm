@@ -1464,8 +1464,9 @@ sub fetch {
             step => $self->{replace_follow}.qq!:"$value"!,
             mode => 'loose',
             autoadd => 0,
-        );                
-        $value = $rep if defined $rep ;
+        ); 
+        # stire replaced value to trigger notify_change         
+        $value = $self->store($rep) if defined $rep ;
     }
 
     # check and subsequent storage of fixes instruction must be done only
