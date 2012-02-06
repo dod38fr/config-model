@@ -1,3 +1,32 @@
+2012-02-06  Dominique Dumont  <domi.dumont@free.fr> 2.001
+
+    Big change this time, hence the version bump tp 2.001. The main
+    change for users is the deprecation of the config-edit program in
+    favor of cme. Instead of using options, this cme uses command
+    keywords like git, so users will have more possibilities while
+    typing less. Internally, some performance improvements were
+    implemented. Given the work required, core Config::Model classes
+    were converted to Moose.
+
+    In more details:
+
+    * Application changes:
+      + New cme program to edit/validate configuration.
+      * model Debian::Dpkg: 
+        * fixed computed default value for VcsBrowser
+        + added rules element for debian/rules file
+        * DEP-5 model: updated doc and removed obsolete URL. Thanks to skaet 
+	  for raising this point
+        * Debian/Dpkg/Control/Binary model:
+	  + Added deprecated XC-Package-Type. 
+	  + Added migration from XC-Package-Type to Package-Type
+    * Framework changes:
+      * All:
+        + Improved performance by running validation only when data 
+	  is modified. (implemented with notify_changes method)
+        * breaks memory cycles in backend manager
+        * Converted to Moose all classes inheriting Config::Model::AnyThing
+
 2011-12-06  Dominique Dumont  <domi.dumont@free.fr> 1.265
 
     * Application changes:
@@ -9,7 +38,7 @@
         * Config::Model::Value: layered value is also part of a standard value
         * Config::Model::CheckList: in custom mode, checklist must return the whole
           list when queried by user, not just the changed items. 
-          (Fix Config::Model:OpenSsh RT#72916)        
+          (Fix Config::Model::OpenSsh RT#72916)
 
 2011-11-29  Dominique Dumont  <domi.dumont@free.fr> 1.264
 
