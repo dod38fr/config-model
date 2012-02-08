@@ -1,3 +1,19 @@
+2012-02-08  Dominique Dumont  <domi.dumont@free.fr> 2.002
+
+    Most of the fixes aim to solve issues with Perl smoke tests
+
+    * Application changes:
+      * fix bash completion for cme options
+
+    * Framework changes:
+      * Added dependency on namespace::clean and Mouse
+      * AnyId: remove deprecation warning. check is useful as an alias to check_content
+      * Lister: no need to require perl 5.10
+      * Tester: don't use next to exit from sub
+    
+    * Tests: 
+      * avoid undef $ENV{HOME} problems on Windows
+
 2012-02-06  Dominique Dumont  <domi.dumont@free.fr> 2.001
 
     Big change this time, hence the version bump tp 2.001. The main
