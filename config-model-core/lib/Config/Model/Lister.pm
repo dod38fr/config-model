@@ -22,7 +22,6 @@ by bash completion.
 
 =cut
 
-use 5.010;
 use strict;
 use warnings;
 use Exporter;
