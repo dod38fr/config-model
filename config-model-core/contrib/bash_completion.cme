@@ -55,7 +55,7 @@ _cme()
                 _filedir -d
             ;;
              *)
-            case ${words[1]} in
+            case ${COMP_WORDS[1]} in
                 edit)
                    COMPREPLY=( $( compgen -W "$global_options -ui -open-item" -- $cur ) )
                 ;;
