@@ -235,7 +235,7 @@ sub _write {
             if ($write_bool_as and length($v) and $obj->value_type eq 'boolean') {
                 $v = $write_bool_as->[$v] ;
             }
-            if (length $v) {
+            if (defined $v and length $v) {
                 $logger->debug("writing leaf elt $elt -> $v");
                 $res .= $self->write_data_and_comments(undef,$delimiter,"$elt=$v", $obj_note);
             }
