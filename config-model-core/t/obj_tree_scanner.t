@@ -111,7 +111,8 @@ $::debug            = 1 if $arg =~ /d/;
 $log                = 1 if $arg =~ /l/;
 $show               = 1 if $arg =~ /s/;
 
-my $log4perl_user_conf_file = $ENV{HOME}.'/.log4config-model' ;
+my $home = $ENV{HOME} || "";
+my $log4perl_user_conf_file = "$home/.log4config-model";
 
 if ($log and -e $log4perl_user_conf_file ) {
     Log::Log4perl::init($log4perl_user_conf_file);
