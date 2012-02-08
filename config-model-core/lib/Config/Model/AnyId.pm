@@ -404,7 +404,6 @@ sub notify_change {
 
 sub check {
     my $self = shift;
-    carp __PACKAGE__,"check is deprecated. Use check_content";
     $self->check_content(@_) ;
 }
 
