@@ -97,7 +97,7 @@ sub run_model_test {
 
     if ($skip) {
         note("Skipped $model_test test ($model_test_conf)");
-        next;
+        return;
     }
 
     my $note ="$model_test uses $model_to_test model";
