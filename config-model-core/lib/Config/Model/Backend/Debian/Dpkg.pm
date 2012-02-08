@@ -1,132 +1,117 @@
-#    Copyright (c) 2011 Dominique Dumont.
-#
-#    This file is part of Config-Model.
-#
-#    Config-Model is free software; you can redistribute it and/or
-#    modify it under the terms of the GNU Lesser Public License as
-#    published by the Free Software Foundation; either version 2.1 of
-#    the License, or (at your option) any later version.
-#
-#    Config-Model is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#    Lesser Public License for more details.
-#
-#    You should have received a copy of the GNU Lesser Public License
-#    along with Config-Model; if not, write to the Free Software
-#    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-
-package Config::Model::Backend::Debian::Dpkg ;
+package Config::Model::Backend::Debian::Dpkg;
 
 use Carp;
-use Any::Moose ;
-use Config::Model::Exception ;
-use UNIVERSAL ;
+use Any::Moose;
+use Config::Model::Exception;
+use UNIVERSAL;
 use File::Path;
 use Log::Log4perl qw(get_logger :levels);
 
 extends 'Config::Model::Backend::PlainFile';
 
-my $logger = get_logger("Backend::Debian::Dpkg::Root") ;
+my $logger = get_logger("Backend::Debian::Dpkg::Root");
 
 sub read_hash {
-    my ($self,$obj,$elt, $file,$check,$args) = @_;
+    my ( $self, $obj, $elt, $file, $check, $args ) = @_;
 
-    if ($elt eq 'patches') {
-        my $patch_dir = $args->{root}.$args->{config_dir}."patches" ;
+    if ( $elt eq 'patches' ) {
+        my $patch_dir = $args->{root} . $args->{config_dir} . "patches";
         $logger->info("Checking patches directory ($patch_dir)");
 
-        $self->read_patch_series($obj,$check,$patch_dir) ;
+        $self->read_patch_series( $obj, $check, $patch_dir );
     }
     else {
-        $self->SUPER::read_hash(@_) ;
+        $self->SUPER::read_hash(@_);
     }
 }
 
 sub read_patch_series {
-    my ($self, $hash,$check,$patch_dir) = @_ ;
+    my ( $self, $hash, $check, $patch_dir ) = @_;
 
-    my $series_files = "$patch_dir/series" ;
-    
-    return unless -d $patch_dir ;
-    return unless -e $series_files ;
-    
+    my $series_files = "$patch_dir/series";
+
+    return unless -d $patch_dir;
+    return unless -e $series_files;
+
     $logger->info("Opening file $series_files");
-    my $ser_io = IO::File->new ($series_files) ;
-    
-    unless (defined $ser_io) {
-        my $msg = "Dpkg::Patch error, cannot read $series_files:$!" ;
-        Config::Model::Exception::Syntax -> throw ( message => $msg ) if $check eq 'yes' ; 
+    my $ser_io = IO::File->new($series_files);
+
+    unless ( defined $ser_io ) {
+        my $msg = "Dpkg::Patch error, cannot read $series_files:$!";
+        Config::Model::Exception::Syntax->throw( message => $msg )
+          if $check eq 'yes';
         $logger->error($msg) if $check eq 'skip';
     }
 
     # trigger element creation to read patch file_path
-    foreach my $pname ($ser_io -> getlines) { 
-        chomp $pname; 
-        next unless $pname =~ /\w/; # skip empty lines
+    foreach my $pname ( $ser_io->getlines ) {
+        chomp $pname;
+        next unless $pname =~ /\w/;    # skip empty lines
         my $obj = $hash->fetch_with_id($pname);
         $obj->init;
         my $location = $obj->name;
         $logger->info("found patch $pname, stored in $location ($obj)");
-    } 
-    
-    $ser_io ->close;
+    }
+
+    $ser_io->close;
 }
 
 sub write {
-    my $self = shift ;
-    my %args = @_ ;
+    my $self = shift;
+    my %args = @_;
 
     # args are:
-    # object     => $obj,         # Config::Model::Node object 
+    # object     => $obj,         # Config::Model::Node object
     # root       => './my_test',  # fake root directory, userd for tests
     # config_dir => /etc/foo',    # absolute path read
     # file       => 'foo.conf',   # file name
-    # file_path  => './my_test/etc/foo/foo.conf' 
+    # file_path  => './my_test/etc/foo/foo.conf'
     # io_handle  => $io           # IO::File object
     # check      => yes|no|skip
 
-    my $check = $args{check} || 'yes' ;
-    my $dir = $args{root}.$args{config_dir} ;
-    mkpath($dir, { mode => 0755 } ) unless -d $dir ;
-    my $node = $args{object} ;
-    $logger->debug("Debian::Dpkg write called on node ", $node->name);
+    my $check = $args{check} || 'yes';
+    my $dir = $args{root} . $args{config_dir};
+    mkpath( $dir, { mode => 0755 } ) unless -d $dir;
+    my $node = $args{object};
+    $logger->debug( "Debian::Dpkg write called on node ", $node->name );
 
     # write data from leaf element from the node
-    foreach my $elt ($node->get_element_name() ) {
-        my $file = $dir.$elt ;
-        
-        my $obj = $args{object}->fetch_element(name => $elt) ;
-        my $type = $obj->get_type ;
-        my @v ;
+    foreach my $elt ( $node->get_element_name() ) {
+        my $file = $dir . $elt;
 
-        if ($type eq 'leaf') {
-            $v[0] = $obj->fetch(check => $args{check} ) ;
-            $v[0] .= "\n" unless $obj->value_type eq 'string';
+        my $obj = $args{object}->fetch_element( name => $elt );
+        my $type = $obj->get_type;
+        my @v;
+
+        if ( $type eq 'leaf' ) {
+            my $lv = $obj->fetch( check => $args{check} );
+            if ( defined $lv ) {
+                $lv .= "\n" unless $obj->value_type eq 'string';
+                push @v, $lv;
+            }
         }
-        elsif ($type eq 'list') {
-            @v = map { "$_\n" } $obj->fetch_all_values ;
+        elsif ( $type eq 'list' ) {
+            @v = map { "$_\n" } $obj->fetch_all_values;
         }
         else {
             $logger->debug("Debian::Dpkg write skipped $type $elt");
         }
 
-
-		if (@v) {
-		    $logger->trace("Debian::Dpkg write opening $file to write");
-		    my $fh = new IO::File;
-			$fh->open($file , '>') or die "Cannot open $file:$!" ;
-			$fh->binmode(":utf8");
-			$fh->print(@v) ;
-			$fh->close;
-		}
+        if (@v) {
+            $logger->trace("Debian::Dpkg write opening $file to write");
+            my $fh = new IO::File;
+            $fh->open( $file, '>' ) or die "Cannot open $file:$!";
+            $fh->binmode(":utf8");
+            $fh->print(@v);
+            $fh->close;
+        }
     }
 
     return 1;
 }
 
-no Any::Moose ;
-__PACKAGE__->meta->make_immutable ;
+no Any::Moose;
+__PACKAGE__->meta->make_immutable;
 
 1;
 
