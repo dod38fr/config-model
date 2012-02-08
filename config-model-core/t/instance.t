@@ -8,7 +8,7 @@ use Test::Warn ;
 use Test::Memory::Cycle;
 use Config::Model;
 
-BEGIN { plan tests => 13; }
+BEGIN { plan tests => 12; }
 
 use strict;
 
@@ -49,7 +49,7 @@ ok($inst,"created dummy instance") ;
 isa_ok( $inst->config_root , 'Config::Model::Node',"test config root class" );
 
 is( $inst->data('test'),undef,"test empty private data ..." );
-ok( $inst->data( 'test', 'coucou' ), "store private data" );
+$inst->data( 'test', 'coucou' );
 is( $inst->data( 'test'), 'coucou', "retrieve private data" );
 
 is( $inst->read_root_dir,  'foobar/', "test read directory") ;
