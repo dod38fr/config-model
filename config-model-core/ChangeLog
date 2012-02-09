@@ -1,3 +1,14 @@
+2012-02-09  Dominique Dumont  <domi.dumont@free.fr> 2.004
+
+  * Build.PL runs gen_class_pod.pl which loads Config::Model from lib,
+    hence most of the runtime dependencies are now moved in
+    configure_requires. This should improve Perl smoke tests.
+
+2012-02-08  Dominique Dumont  <domi.dumont@free.fr> 2.003
+   
+   * Added configure_requires on File::Slurp (Fix RT#73611)
+   * Updated meta-data to point toward github instead of sourceforge
+
 2012-02-08  Dominique Dumont  <domi.dumont@free.fr> 2.002
 
     Most of the fixes aim to solve issues with Perl smoke tests
