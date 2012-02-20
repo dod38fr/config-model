@@ -25,7 +25,7 @@ use Config::Model;
 use Config::Model::Itself 1.225;    # to create the model
 use Config::Model::Backend::IniFile;
 
-use 5.10.0;
+use 5.010;
 use IO::File;
 use IO::String;
 use Getopt::Long;
