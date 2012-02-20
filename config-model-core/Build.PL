@@ -1,4 +1,4 @@
-#    Copyright (c) 2005-2011 Dominique Dumont.
+#    Copyright (c) 2005-2012 Dominique Dumont.
 #
 #    This file is part of Config-Model.
 #
@@ -26,7 +26,7 @@ use Log::Log4perl qw(:easy) ;
 
 Log::Log4perl->easy_init($WARN);
 
-require 5.008;
+require 5.10.0 ;
 
 print "\nIf you want to use the TermUI interface, you should install\n",
   "Term::ReadLine::Perl or Term::ReadLine::Gnu\n\n";
@@ -34,7 +34,8 @@ print "\nIf you want to use the TermUI interface, you should install\n",
 # check that pod docs are up-to-date
 # this is redundant with work done by dzil. But this enable to re-build the 
 # docs downstream.
-system("perl -Ilib script/gen_class_pod.pl");
+# Use $^X as requested in https://rt.cpan.org/Public/Bug/Display.html?id=74891
+system("$^X -Ilib script/gen_class_pod.pl");
 
 my @version_info = @ARGV ? ( dist_version => $ARGV[0] ) : ();
 
