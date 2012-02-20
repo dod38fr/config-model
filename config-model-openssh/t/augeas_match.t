@@ -1,14 +1,10 @@
-# -*- cperl -*-
-# $Author: ddumont $
-# $Date: 2008-04-15 13:57:49 +0200 (mar, 15 avr 2008) $
-# $Revision: 608 $
-
 use ExtUtils::testlib;
 use Test::More ;
 use Config::Model ;
 use Log::Log4perl qw(:easy) ;
 use File::Path ;
 use File::Copy ;
+use Test::Differences ;
 
 use warnings;
 no warnings qw(once);
@@ -21,8 +17,6 @@ my $arg = shift || '';
 my ($log,$show) = (0) x 2 ;
 
 my $trace = $arg =~ /t/ ? 1 : 0 ;
-$::verbose          = 1 if $arg =~ /v/;
-$::debug            = 1 if $arg =~ /d/;
 $log                = 1 if $arg =~ /l/;
 $show               = 1 if $arg =~ /s/;
 
@@ -83,7 +77,7 @@ my $root = $inst -> config_root ;
 my $dump =  $root->dump_tree ();
 print "$testdir dump:\n",$dump if $trace ;
 
-$inst->write_back(backend => 'augeas') ;
+$inst->write_back(backend => 'augeas', force => 1) ;
 ok(1,"wrote data in $wr_dir") ;
 
 open(SSHD2,"$wr_dir/etc/ssh/sshd_config")
@@ -99,7 +93,7 @@ Config::Model need to support computed value that provide a
 built_in value will not be written in sshd_config file";
 
 
-is_deeply(\@new,\@orig,"check written file (no modif)") ;
+eq_or_diff(\@new,\@orig,"check written file (no modif)") ;
 
 # remove also this line with the todo
 push @orig, "X11Forwarding yes\n";
@@ -107,7 +101,7 @@ push @orig, "X11Forwarding yes\n";
 
 
 
-is_deeply(\@new,\@orig,"check written file with workaround (no modif )") ;
+eq_or_diff(\@new,\@orig,"check written file with workaround (no modif )") ;
 
 
 $root->load("HostbasedAuthentication=yes 
@@ -127,7 +121,7 @@ my @mod = @orig;
 splice @mod,1,0, "HostbasedAuthentication yes\n",
   "Subsystem ddftp /home/dd/bin/ddftp\n";
 
-is_deeply(\@new2,\@mod,"check written file with workaround (and modifs)") ;
+eq_or_diff(\@new2,\@mod,"check written file with workaround (and modifs)") ;
 
 __DATA__
 
