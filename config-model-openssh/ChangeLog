@@ -1,3 +1,12 @@
+2012-02-20  Dominique Dumont <domi.dumont@free.fr> v 1.220
+
+        * Fix test to force write back even if no data were changed in
+          the test (Fix FTBS Debian #660371 and Ubuntu #935221)
+        * This fix depends on Config::Model 2.004
+        * Requires perl 5.10
+        * Move runtime dependencies in configure-requires as config::model is
+          called by Build.PL to (re)generate pod (see also RT73611)
+
 2011-12-07  Dominique Dumont <domi.dumont@free.fr> v 1.219
 
 	* Ssh model: do not warp LocalForward with GatewayPorts. 

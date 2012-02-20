@@ -1,4 +1,4 @@
-#    Copyright (c) 2008-2011 Dominique Dumont.
+#    Copyright (c) 2008-2012 Dominique Dumont.
 #
 #    This file is part of Config-Model-OpenSsh.
 #
@@ -23,7 +23,7 @@ use Data::Dumper ;
 use warnings FATAL => qw(all) ;
 use strict ;
 
-require 5.008;
+require 5.010;
 
 my %model_files = map { ($_, $_ ) } glob("lib/Config/Model/*.d/*") ;
 
