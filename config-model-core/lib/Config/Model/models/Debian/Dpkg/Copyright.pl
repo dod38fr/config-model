@@ -35,12 +35,14 @@ To upgrade your file from an old spec, run:
       'Format',
       {
         'value_type' => 'uniline',
-        'replace' => {
-          'http://svn.*' => 'http://dep.debian.net/deps/dep5/',
-          '<.*>' => 'http://dep.debian.net/deps/dep5/'
+        'warn_unless_match' => {
+          '^http://www.debian.org/doc/packaging-manuals/copyright-format/1\\.0/?$' => {
+            'msg' => 'Format does not match the recommended URL for DEP-5',
+            'fix' => '$_ = \'http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/\';'
+          }
         },
         'match' => '^http://',
-        'default' => 'http://dep.debian.net/deps/dep5/',
+        'default' => 'http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/',
         'mandatory' => '1',
         'type' => 'leaf',
         'description' => 'URI of the format specification.'
