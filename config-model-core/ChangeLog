@@ -1,3 +1,10 @@
+2012-02-23  Dominique Dumont  <domi.dumont@free.fr> 2.005
+
+    * Application changes:
+      * Debian copyright model: updated url for dep-5 format with new 
+        Debian approved one. URL is no longer updated silently, user 
+        will have to request it with 'cme fix' command
+
 2012-02-09  Dominique Dumont  <domi.dumont@free.fr> 2.004
 
   * Build.PL runs gen_class_pod.pl which loads Config::Model from lib,
