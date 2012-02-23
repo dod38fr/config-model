@@ -94,18 +94,21 @@ $skip = ( $@ or not -r '/etc/debian_version') ? 1 : 0 ;
     },
     { # t7
         # example from CANDIDATE DEP-5 spec (nb 7)
-        load_warnings => [ (qr/Adding/) x 1 ],
+        load_warnings => [ (qr/Adding/) x 1 , qr/Format does not match/ ],
         load_check => 'no',
+        apply_fix => 1,
         check => { 
-            Format => "http://dep.debian.net/deps/dep5/", 
+            Format => "http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/", 
             'Files:"*" Copyright:0' => 'Copyright 1998 John Doe <jdoe@example.com>',
             'Files:"debian/*" License short_name' => 'other',
             },
     },
     {
         # test nb 8
+        load_warnings => [ qr/Format does not match/ ],
+        apply_fix => 1,
         check => { 
-            Format => "http://dep.debian.net/deps/dep5/", 
+            Format => "http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/", 
             'Files:"*" Copyright:0' => '2008, John Doe <jdoe@example.com>',
             'Files:"*" Copyright:1' =>          '2007, Jane Smith <jsmith@example.org>',
             'Files:"*" Copyright:2' =>          '2007, Joe Average <joe@example.org>',
@@ -113,6 +116,8 @@ $skip = ( $@ or not -r '/etc/debian_version') ? 1 : 0 ;
             },
         },
     {
+        load_warnings => [ qr/Format does not match/ ],
+        apply_fix => 1,
         check => {
             'Files:"*" Copyright:0' => 'foo',
             'Files:"*" License short_name' => 'BSD',
@@ -123,7 +128,7 @@ $skip = ( $@ or not -r '/etc/debian_version') ? 1 : 0 ;
         load_warnings => [ (qr/deprecated/) x 2 ],
 
         check => { 
-            Format => "http://dep.debian.net/deps/dep5/", 
+            Format => "http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/", 
             # something's wrong with utf8 string checks
             #'Debianized-By' => 'Picca Frédéric-Emmanuel <picca@synchrotron-soleil.fr>',
             Source => 'http://tango-controls.org/download',
@@ -133,6 +138,8 @@ $skip = ( $@ or not -r '/etc/debian_version') ? 1 : 0 ;
     },
 
     { # t11 Debian bug #610231
+        load_warnings => [ qr/Format does not match/ ],
+        apply_fix => 1,
         dump_errors =>  [ 
             qr/mandatory/ => 'Files:"*" Copyright:0="(c) foobar"',
             qr/mandatory/ => ' License:FOO text="foo bar" ! Files:"*" License short_name="FOO" '
@@ -148,9 +155,13 @@ $skip = ( $@ or not -r '/etc/debian_version') ? 1 : 0 ;
     },
 
     { # t13 Debian bug #624305
+        load_warnings => [ qr/Format does not match/ ],
+        apply_fix => 1,
     },
     { # t14 Debian bug #633847
         # need to change License model from Hash of leaves to hash of nodes 
+        load_warnings => [ qr/Format does not match/ ],
+        apply_fix => 1,
         check => { 
             'Comment' => "On Debian systems, copies of the GNU General Public License version 1
 and Lesser General Public License version 2.1 can be found respectively in
