@@ -12,6 +12,7 @@ BEGIN {
         'libmodule-build-perl' => 'etch 0.26-1 backports/etch 0.2808.01-2~bpo40+1 lenny 0.2808.01-2 squeeze 0.360700-1 wheezy 0.380000-1 sid 0.380000-1', 
         'xserver-xorg-input-evdev' => 'etch 1:1.1.2-6 lenny 1:2.0.8-1 squeeze 1:2.3.2-6 wheezy 1:2.3.2-6 sid 1:2.6.0-2 experimental 1:2.6.0-3',
         'lcdproc' => 'etch 0.4.5-1.1 lenny 0.4.5-1.1 squeeze 0.5.2-3 wheezy 0.5.2-3.1 sid 0.5.2-3.1',
+        'libsdl1.2' => '', # only source
     );
 }
 
@@ -72,7 +73,7 @@ my $control_text = <<'EOD' ;
 Source: libdist-zilla-plugins-cjm-perl
 Section: perl
 Priority: optional
-Build-Depends: debhelper
+Build-Depends: debhelper, libsdl1.2
 Build-Depends-Indep: libcpan-meta-perl, perl (>= 5.10) | libmodule-build-perl,
 Maintainer: Debian Perl Group <pkg-perl-maintainers@lists.alioth.debian.org>
 Uploaders: Dominique Dumont <dominique.dumont@hp.com>
@@ -111,7 +112,7 @@ my $inst = $model->instance (
     instance_name   => "deptest",
 );
 warning_like { $inst->config_root->init ; ; }
- [ (qr/dual life/) , qr/unnecessary/, ( qr/dual life/) x 2] , "test BDI warn";
+ [ qr/is unknown/, (qr/dual life/) , qr/unnecessary/, ( qr/dual life/) x 2] , "test BDI warn";
 
 ok($inst,"Read $control_file and created instance") ;
 
