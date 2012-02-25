@@ -19,8 +19,9 @@ my $del_home = sub {
     {   name => 't0',
         check =>
           { 'control source Build-Depends-Indep:3', 'libtest-pod-perl', },
-        dump_warnings => [ (qr/deprecated/) x 3 ],
+        dump_warnings => [  (qr/deprecated/) x 3 ],
         file_check_sub => $del_home,
+        # apply_fix => 1 ,
 
         #errors => [ ],
     },

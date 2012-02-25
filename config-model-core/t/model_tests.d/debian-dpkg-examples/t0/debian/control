@@ -8,7 +8,7 @@ Maintainer: Debian Perl Group <pkg-perl-maintainers@lists.alioth.debian.org>
 Uploaders: Dominique Dumont <domi.dumont@free.fr>,
            gregor herrmann <gregoa@debian.org>, Jonathan Yu <jawnsy@cpan.org>,
            Fabrizio Regalli <fabreg@fabreg.it>
-Standards-Version: 3.9.2
+Standards-Version: 3.9.3
 Homepage: http://search.cpan.org/dist/Config-Model-Approx/
 Vcs-Svn: svn://svn.debian.org/svn/pkg-perl/tags/libconfig-model-approx-perl
 Vcs-Browser: http://anonscm.debian.org/viewvc/pkg-perl/trunk/libconfig-model-approx-perl/
