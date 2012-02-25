@@ -188,6 +188,8 @@ sub run_model_test {
 
         print $dump if $trace;
 
+        local $Config::Model::Value::nowarning = $t->{no_warnings} || 0;
+
         $dump = $root->dump_tree();
         ok( $dump, "Dumped $model_test config tree in custom mode" );
 
@@ -202,7 +204,6 @@ sub run_model_test {
             }
         }
 
-        local $Config::Model::Value::nowarning = $t->{no_warnings} || 0;
 
         $inst->write_back( );
         ok( 1, "$model_test write back done" );
