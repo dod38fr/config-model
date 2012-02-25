@@ -33,14 +33,14 @@ providing the following file:
                           qr/libmodule-build-perl \(>= 0.36\) \| perl \(>= 5.8.8\)/,
                           qr/should be 'perl \(>= 5.11.3\) \| libmodule-build-perl \(>= 0.36\)/,
                           qr/standards version/, 
-                           qr/dependency/, qr/dual life/, (qr/dependency/) x 2, qr/description/ ],
+                           qr/dependency/, qr/dual life/, (qr/dependency/) x 2 ],
         apply_fix => 1,
     },
     {
 
         # t1
         check => { 'binary:seaview Recommends:0', 'clustalw', },
-        load_warnings => [ qr/standards version/, qr/description/, qr/too long/ ],
+        load_warnings => [ qr/standards version/, qr/too long/ ],
         apply_fix => 1,
         load => 'binary:seaview Synopsis="multiplatform interface for sequence alignment"',
     },
@@ -68,11 +68,12 @@ providing the following file:
 
         # t3
         check => {
+            # no longer mess up synopsis with lcfirst
             'binary:libdist-zilla-plugin-podspellingtests-perl Synopsis' =>
-              "release tests for POD spelling",
+              "Release tests for POD spelling",
             'binary:libdist-zilla-plugin-podspellingtests-perl Description' => $t3_description ,
         },
-        load_warnings => [ qr/standards version/, qr/description/, (qr/value/) x 2],
+        load_warnings => [ qr/standards version/, (qr/value/) x 2],
         load => 'binary:libdist-zilla-plugin-podspellingtests-perl '.
             'Description="'.$t3_description.'"',
         apply_fix => 1,
@@ -98,7 +99,7 @@ providing the following file:
     {
         name => 'sdlperl',
         load => 'source Uploaders:2="Sam Hocevar (Debian packages) <sam@zoy.org>"',
-        load_warnings => [ ( qr/Warning/) x 7 ],
+        load_warnings => [ ( qr/Warning/) x 6 ],
         load_check => 'no',
         apply_fix => 1,
     },
