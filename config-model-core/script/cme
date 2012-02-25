@@ -198,6 +198,9 @@ elsif ( $command eq 'search' ) {
         print "\n";
     }
 }
+elsif ($command eq 'migrate') {
+    $force_save = 1;
+}
 elsif ($command eq 'fix') {
     $inst->apply_fixes;
     $force_save = 1;
