@@ -1,3 +1,18 @@
+2012-02-25  Dominique Dumont  <domi.dumont@free.fr> 2.006
+
+    * Application changes:
+      * Debian control model: 
+        * bumped default Debian source standards version to 3.9.3
+        - no longer try to enforce first lowercase in Synopsis. 
+          Too many false positives (fix debian #661184)
+        - Removed check for virtual package (source packages are seen as
+          virtual packages). Unfortunately, virtual packages are now reported 
+          as unknown packages. Suggestions on how to fix this are welcome.
+      * Debian copyright model:
+        * changed copyright type from line based list to string leaf
+    * Framework changes:
+      + cme: added forgotten 'migrate' command (i.e. cme migrate stuff)
+
 2012-02-23  Dominique Dumont  <domi.dumont@free.fr> 2.005
 
     * Application changes:
