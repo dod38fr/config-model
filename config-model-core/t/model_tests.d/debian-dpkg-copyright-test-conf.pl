@@ -15,9 +15,7 @@ $skip = ( $@ or not -r '/etc/debian_version') ? 1 : 0 ;
         load_check => 'no',
         check => {
             'Files:"*" License full_license' => "[PSF LICENSE TEXT]",
-            'Files:"*" Copyright:0' => "2008, John Doe <john.doe\@example.com>",
-            'Files:"*" Copyright:1' =>
-              "2007, Jane Smith <jane.smith\@example.com>",
+            'Files:"*" Copyright' => "2008, John Doe <john.doe\@example.com>\n2007, Jane Smith <jane.smith\@example.com>",
             'Files:"*" License short_name' => "PsF",
             '"Xtest"'                     => "yada yada\n\nyada",
             '"Upstream-Name"'              => "xyz",
@@ -99,7 +97,7 @@ $skip = ( $@ or not -r '/etc/debian_version') ? 1 : 0 ;
         apply_fix => 1,
         check => { 
             Format => "http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/", 
-            'Files:"*" Copyright:0' => 'Copyright 1998 John Doe <jdoe@example.com>',
+            'Files:"*" Copyright' => 'Copyright 1998 John Doe <jdoe@example.com>',
             'Files:"debian/*" License short_name' => 'other',
             },
     },
@@ -109,17 +107,14 @@ $skip = ( $@ or not -r '/etc/debian_version') ? 1 : 0 ;
         apply_fix => 1,
         check => { 
             Format => "http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/", 
-            'Files:"*" Copyright:0' => '2008, John Doe <jdoe@example.com>',
-            'Files:"*" Copyright:1' =>          '2007, Jane Smith <jsmith@example.org>',
-            'Files:"*" Copyright:2' =>          '2007, Joe Average <joe@example.org>',
-            'Files:"*" Copyright:3' =>          '2007, J. Random User <jr@users.example.com>',
+            'Files:"*" Copyright' => "2008, John Doe <jdoe\@example.com>\n2007, Jane Smith <jsmith\@example.org>\n2007, Joe Average <joe\@example.org>\n2007, J. Random User <jr\@users.example.com>",
             },
         },
     {
         load_warnings => [ qr/Format does not match/ ],
         apply_fix => 1,
         check => {
-            'Files:"*" Copyright:0' => 'foo',
+            'Files:"*" Copyright' => 'foo',
             'Files:"*" License short_name' => 'BSD',
             'Files:"*" License full_license' => ' foo bar',
         },
