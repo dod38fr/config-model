@@ -110,11 +110,8 @@ To upgrade your file from an old spec, run:
       },
       'Copyright',
       {
-        'cargo' => {
-          'value_type' => 'uniline',
-          'type' => 'leaf'
-        },
-        'type' => 'list',
+        'value_type' => 'string',
+        'type' => 'leaf',
         'description' => 'Copyright information for the package as a whole, which may be different or simplified from a combination of all the per-file copyright information. See also Copyright below in the Files paragraph section.'
       },
       'Files',
