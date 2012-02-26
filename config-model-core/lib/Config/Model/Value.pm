@@ -17,6 +17,7 @@ use Storable qw/dclone/;
 extends qw/Config::Model::AnyThing/ ;
 
 my $logger = get_logger("Tree::Element::Value") ;
+my $change_logger = get_logger("Anything::Change") ;
 
 our $nowarning = 0; # global variable to silence warnings. Only used for tests
 
@@ -93,20 +94,19 @@ sub notify_change {
     my %args = @_ ;
     my $check_done = $args{check_done} || 0 ;
 
-    # $logger->debug("called while needs_check is ",$self->needs_check,
-	# " for ",$self->name) 
-	# if $logger->is_debug ;
+    
+    $change_logger->debug("called while needs_check is ",$self->needs_check,
+	" for ",$self->name) 
+	if $change_logger->is_debug ;
+    $self->needs_check(1) unless $check_done;
+    $self->SUPER::notify_change(%args) ;
 
-    unless ($self->needs_check) {
-	$self->needs_check(1) unless $check_done;
-	$self->SUPER::notify_change(%args) ;
-	# notify all warped or computed objects that depends on me 
-	foreach my $s ($self->get_depend_slave) {
-	    # $logger->debug("calling notify_change on slave ",$s->name) 
-		# if $logger->is_debug ;
-	    $s -> notify_change ;
-	}  ;
-    }
+    # notify all warped or computed objects that depends on me 
+    foreach my $s ($self->get_depend_slave) {
+	$change_logger->debug("calling notify_change on slave ",$s->name) 
+	    if $change_logger->is_debug ;
+	$s -> notify_change ;
+    }  ;
 }
 
 # internal method
@@ -1409,7 +1409,7 @@ sub _fetch {
          : $mode =~ /backend|allow_undef/       ? defined $data ? $data : $pref 
          :                                      die "unexpected mode $mode " ;
 
-    $logger->debug("done in '$mode' mode for ".$self->location." -> " . Data::Dumper->Dumper(['res'],[$res])) 
+    $logger->debug("done in '$mode' mode for ".$self->location." -> $res") 
         if $logger->is_debug ;
 
     return $res ;
