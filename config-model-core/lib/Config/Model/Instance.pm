@@ -23,6 +23,7 @@ use warnings::register ;
 use Carp qw/carp croak confess cluck/;
 
 my $logger = get_logger("Instance") ;
+my $change_logger = get_logger("Anything::Change") ;
 
 has [qw/root_class_name/] => (is => 'ro', isa => 'Str', required => 1) ;
 
@@ -286,6 +287,7 @@ sub write_root_dir {
 # FIXME: record changes to implement undo/redo ?
 sub notify_change {
     my $self = shift ;
+    $change_logger->debug("called for  instance ",$self->name) if $change_logger->is_debug ;
     $self->{needs_save} = 1;
 }
 

@@ -8,6 +8,7 @@ use Carp;
 use Log::Log4perl qw(get_logger :levels);
 
 my $logger = get_logger("Anything") ;
+my $change_logger = get_logger("Anything::Change") ;
 
 has element_name => ( is => 'ro', isa => 'Str') ;
 has parent => (is => 'ro', isa => 'Config::Model::Node' , weak_ref => 1);
@@ -49,6 +50,8 @@ has location => (is => 'ro', isa => 'Str' , builder => '_location', lazy => 1);
 
 sub notify_change {	
     my $self = shift ;
+
+    $change_logger->debug("called for  ",$self->name) if $change_logger->is_debug ;
 
     $self->container->notify_change(
 	needs_write => 1 , # may be overridden by caller
