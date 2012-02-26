@@ -9,7 +9,7 @@ use Test::Memory::Cycle;
 use Config::Model ;
 use Log::Log4perl qw(:easy) ;
 
-BEGIN { plan tests => 48; }
+BEGIN { plan tests => 50; }
 
 use strict;
 
@@ -276,6 +276,7 @@ $model->create_config_class(
 my $inst = $model->instance (root_class_name => 'Master', 
                              instance_name => 'test1');
 ok($inst,"created dummy instance") ;
+$inst->initial_load_stop ;
 
 my $root = $inst -> config_root ;
 
@@ -431,8 +432,13 @@ my $h = $root->fetch_element('host');
 is($h->fetch,'foo.bar',"check extracted host") ;
 
 $root->fetch_element(name => 'Maintainer', check => 'no')->store_set([qw/foo bar baz/] );
-is($root->grab_value(step => 'Upstream-Maintainer:0', check => 'no'),'foo',"check compute with index in variable");
-is($root->grab_value(step => 'Upstream-Contact:0'   ),'foo',"check compute with index in variable");
+
+# reset to check if migration is seen as a change to be saved
+$inst->needs_save(0) ;
+is($inst->needs_save,0,"check needs save before migrate") ;
+is($root->grab_value(step => 'Upstream-Maintainer:0', check => 'no'),'foo',"check migrate_from first stage");
+is($root->grab_value(step => 'Upstream-Contact:0'   ),'foo',"check migrate_from second stage");
+is($inst->needs_save,1,"check needs save before migrate") ;
 
 $root->fetch_element(name => 'Original-Source-Location', check => 'no')->store('foobar');
 is($root->grab_value(step => 'Source'   ),'foobar',"check migrate_from with undef_is");
