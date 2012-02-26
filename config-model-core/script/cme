@@ -180,7 +180,7 @@ if ( $command eq  'dump' ) {
     my $dump_string = $root->dump_tree( mode => $dumptype || 'custom' );
     print $dump_string ;
 }
-if ( $command eq 'check' ) {
+elsif ( $command eq 'check' ) {
     $root->dump_tree( mode => 'custom' );
 }
 elsif ( $command eq 'search' ) {
@@ -200,6 +200,8 @@ elsif ( $command eq 'search' ) {
 }
 elsif ($command eq 'migrate') {
     $force_save = 1;
+    $root->migrate;
+    
 }
 elsif ($command eq 'fix') {
     $inst->apply_fixes;
@@ -417,9 +419,16 @@ Example:
 
  cme check lcdproc
  
+=head2 migrate
+
+Checks the content of the configuration file of an application, update deprecated
+(old value are saved to new parameters) and save the new configuration.  
+
+For more details, see L<Config::Model::Value/Upgrade>
+
 =head2 fix
 
-When possible, fix the warnings of a configuration.
+Like C<migrate> and, when possible, fix the warnings of a configuration.
 
 =head2 modify
 
@@ -430,13 +439,6 @@ Example:
 
    cme modify dpkg source format="quilt (3.0)"
    cme modify multistrap my_mstrap.conf sections:base source="http://ftp.fr.debian.org"
-
-=head2 migrate
-
-Checks the content of the configuration file of an application, update deprecated
-(old value are saved to new parameters) and save the new configuration.  
-
-For more details, see L<Config::Model::Value/Upgrade>
 
 =head2 search
 
@@ -591,6 +593,10 @@ Log4perl uses the following categories:
 =over
 
 =item Anything
+
+=item Anything::Change
+
+Trace change notification through configuration tree and instance.
 
 =item Backend
 
