@@ -1,3 +1,7 @@
+2012-02-26  Dominique Dumont  <domi.dumont@free.fr> 2.007
+
+    * cme: fix 'migrate' command.
+
 2012-02-25  Dominique Dumont  <domi.dumont@free.fr> 2.006
 
     * Application changes:
