@@ -41,10 +41,10 @@ sub read {
 
     my $check = $args{check} || 'yes';
 
-    $logger->info("Parsing $args{file} control file");
+    $logger->info("Parsing $args{file}");
 
     # load dpkgctrl file
-    my $c = $self -> parse_dpkg_file ($args{io_handle}, $check) ;
+    my $c = $self -> parse_dpkg_file ($args{io_handle},$args{file}, $check) ;
     return 0 unless @$c ; # no sections in file
     
     my $root = $args{object} ;

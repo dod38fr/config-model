@@ -33,9 +33,9 @@ sub read {
 
     return 0 unless defined $args{io_handle} ;
 
-    $logger->info("Parsing control file");
+    $logger->info("Parsing $args{file_path}");
     # load dpkgctrl file
-    my $c = $self -> parse_dpkg_file ($args{io_handle}) ;
+    my $c = $self -> parse_dpkg_file ($args{io_handle}, $args{file_path}) ;
     
     my $root = $args{object} ;
     my $check = $args{check} ;

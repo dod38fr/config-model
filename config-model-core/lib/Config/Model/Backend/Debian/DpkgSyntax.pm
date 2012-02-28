@@ -13,20 +13,21 @@ my $logger = get_logger("Backend::Debian::DpkgSyntax") ;
 sub parse_dpkg_file {
     my $self = shift ;
     my $fh = shift;
+    my $fn = shift ;
     my $check = shift || 'yes' ;
 
     my @lines = $fh->getlines ;
     chomp @lines ;
     $fh->close ;
     
-    $self->parse_dpkg_lines (\@lines,$check);
+    $self->parse_dpkg_lines (\@lines,$fn, $check);
 }
 
 #
 # New subroutine "parse_dpkg_lines" extracted - Tue Jul 19 17:47:58 2011.
 #
 sub parse_dpkg_lines {
-    my ($self, $lines, $check) = @_ ;
+    my ($self, $lines, $fn, $check) = @_ ;
 
     my @res ; # list of list (section, [keyword, value])
     my $field;
@@ -34,8 +35,9 @@ sub parse_dpkg_lines {
     my $store_list = [] ; # holds sections
 
     my $key = '';
+    my $line = 1 ;
     foreach (@$lines) {
-        $logger->trace("Parsing line '$_'");
+        $logger->trace("Parsing line $line '$_'");
         if (/^([\w\-]+)\s*:/) {  # keyword: 
             my ($field,$text) = split /\s*:\s*/,$_,2 ;
             $key = $field ;
@@ -65,10 +67,11 @@ sub parse_dpkg_lines {
             _store_line($store_ref,$_ , $check);
         }
         else {
-            my $msg = "DpkgSyntax error: Invalid line $. (missing ':' ?) : $_" ;
+            my $msg = "DpkgSyntax error: file $fn Invalid line $line (missing ':' ?) : $_" ;
             Config::Model::Exception::Syntax -> throw ( message => $msg ) if $check eq 'yes' ; 
 	    $logger->error($msg) if $check eq 'skip';
         }
+        $line++;
     }
 
     # remove trailing \n of last stored value 
@@ -229,7 +232,7 @@ if you want this module shipped in its own distribution.
 
 =head1
 
-=head2 parse_dpkg_file ( file_handle , check )
+=head2 parse_dpkg_file ( file_handle , file_name, check )
 
 Read a control file from the file_handle and returns a nested list (or a list 
 ref) containing data from the file.
@@ -246,12 +249,14 @@ The returned list is of the form :
    # etc ...
  ]
 
-check is C<yes>, C<skip> or C<no> 
+check is C<yes>, C<skip> or C<no>. C<file_name> is used to provide
+meaningful error message.
 
-=head2 parse_dpkg_lines (lines, check)
+=head2 parse_dpkg_lines (lines, file_name, check)
 
 Parse the dpkg date from lines (which is an array ref) and return a data 
-structure like L<parse_dpkg_file>.
+structure like L<parse_dpkg_file>. C<file_name> is used to provide
+meaningful error message.
 
 =head2 write_dpkg_file ( io_handle, list_ref, list_sep )
 
