@@ -106,6 +106,10 @@ providing the following file:
     {
         name => 'libpango-perl',
         load_warnings => [ ( qr/Warning/) x 2 ],
+        verify_annotation => {
+            'source Build-Depends' => "do NOT add libgtk2-perl to build-deps (see bug #554704)",
+            'source Maintainer'    => "what a fine\nteam this one is",
+        },
         load_check => 'no',
         apply_fix => 1,
     },
