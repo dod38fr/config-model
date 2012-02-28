@@ -103,6 +103,12 @@ providing the following file:
         load_check => 'no',
         apply_fix => 1,
     },
+    {
+        name => 'libpango-perl',
+        load_warnings => [ ( qr/Warning/) x 2 ],
+        load_check => 'no',
+        apply_fix => 1,
+    },
 );
 
 my $cache_file = 't/model_tests.d/debian-dependency-cache.txt';
