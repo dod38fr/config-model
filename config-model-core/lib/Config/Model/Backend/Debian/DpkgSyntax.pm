@@ -32,19 +32,32 @@ sub parse_dpkg_lines {
     my @res ; # list of list (section, [keyword, value])
     my $field;
     my $store_ref ;       # hold field data
+    my @comments;         # hold comment data
     my $store_list = [] ; # holds sections
 
     my $key = '';
     my $line = 1 ;
     foreach (@$lines) {
         $logger->trace("Parsing line $line '$_'");
-        if (/^([\w\-]+)\s*:/) {  # keyword: 
+        if (/^#/) { # comment are always located before the keyword (hopefully)
+            my $c = $_ ;
+            $c =~ s/#\s// ;
+            push @comments, $c ;
+        }
+        elsif (/^([\w\-]+)\s*:/) {  # keyword: 
             my ($field,$text) = split /\s*:\s*/,$_,2 ;
             $key = $field ;
             $logger->trace("start new field $key with '$text'");
 
-	    push @$store_list, $field, $text ;
-	    $store_ref = \$store_list->[$#$store_list] ;
+            if (@comments) {
+                push @$store_list, $field, [$text , @comments ] ;
+                @comments = () ;
+                $store_ref = \$store_list->[$#$store_list][0] ;
+            }
+	    else {
+                push @$store_list, $field, $text ;
+                $store_ref = \$store_list->[$#$store_list] ;
+            }
         }
         elsif ($key and /^\s*$/) {     # first empty line after a section
             $logger->trace("empty line: starting new section");
@@ -117,6 +130,10 @@ sub write_dpkg_section {
 
     my $i = 0;
     foreach (my $i=0; $i < @$array_ref; $i += 2 ) {
+        while ($array_ref->[$i] =~ /^#/) {
+            # print comment
+            $ioh->print($array_ref->[$i++],"\n") ; 
+        }
         my $name  = $array_ref->[$i] ;
         my $value = $array_ref->[$i + 1];
         my $label = "$name:" ;
@@ -207,6 +224,7 @@ written with Dpkg syntax:
  Version: 1.1
 
  Name: Bar
+ # boy, new version
  Version: 1.2
   Description: A very
   . 
@@ -216,7 +234,7 @@ Once parsed, this file will be stored in the following list of list :
 
  (
    [ Name => 'Foo', Version => '1.1' ],
-   [ Name => 'Bar', Version => '1.2', 
+   [ Name => 'Bar', Version => [ '1.2' 'boy, new version' ], 
      Description => "A very\n\nlong description"
    ]
  )
@@ -251,6 +269,19 @@ The returned list is of the form :
 
 check is C<yes>, C<skip> or C<no>. C<file_name> is used to provide
 meaningful error message.
+
+When comments are provided in the dpkg files, the returned list is of
+the form :
+
+ [
+   [ 
+     keyword1 => [ value1, 'value1 comment'] 
+     keyword2 => value2, # no comment 
+   ],
+   [ ... ]
+ ]
+
+
 
 =head2 parse_dpkg_lines (lines, file_name, check)
 

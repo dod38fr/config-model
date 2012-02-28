@@ -108,17 +108,22 @@ sub store_section_in_tree {
     my $node  = shift;
     my $check = shift;
     my $key   = shift;
-    my $v     = shift;
+    my $maybe_v = shift;
 
-    return unless defined $v ;
+    return unless defined $maybe_v ;
 
     $logger->info( "reading key '$key' from control file (for node "
           . $node->location
           . ")" );
-    my $elt_name = 
+
+    my ($v,@c) = ref $maybe_v ? @$maybe_v : ($maybe_v) ;
+
     $logger->debug("$key value: $v");
     my $type = $node->element_type($key);
     my $elt_obj = $node->fetch_element( name => $key, check => $check );
+
+    $elt_obj->annotation(join("\n",@c)) if @c ;
+
     $v =~ s/^\s*\n//;
     chomp $v;
 
@@ -184,6 +189,9 @@ sub package_spec {
     foreach my $elt ($node->get_element_name ) {
         my $type = $node->element_type($elt) ;
         my $elt_obj = $node->fetch_element($elt) ;
+
+        my $c = $elt_obj->annotation ;
+        push @section, map {'# '.$_} split /\n/,$c if $c ;
 
         if ($type eq 'hash') {
             die "package_spec: unexpected hash type in ".$node->name." element $elt\n" ;
