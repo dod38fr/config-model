@@ -13,21 +13,20 @@ my $logger = get_logger("Backend::Debian::DpkgSyntax") ;
 sub parse_dpkg_file {
     my $self = shift ;
     my $fh = shift;
-    my $fn = shift ;
     my $check = shift || 'yes' ;
 
     my @lines = $fh->getlines ;
     chomp @lines ;
     $fh->close ;
     
-    $self->parse_dpkg_lines (\@lines,$fn, $check);
+    $self->parse_dpkg_lines (\@lines, $check);
 }
 
 #
 # New subroutine "parse_dpkg_lines" extracted - Tue Jul 19 17:47:58 2011.
 #
 sub parse_dpkg_lines {
-    my ($self, $lines, $fn, $check) = @_ ;
+    my ($self, $lines, $check) = @_ ;
 
     my @res ; # list of list (section, [keyword, value])
     my $field;
@@ -80,8 +79,8 @@ sub parse_dpkg_lines {
             _store_line($store_ref,$_ , $check);
         }
         else {
-            my $msg = "DpkgSyntax error: file $fn Invalid line $line (missing ':' ?) : $_" ;
-            Config::Model::Exception::Syntax -> throw ( message => $msg ) if $check eq 'yes' ; 
+            my $msg = "DpkgSyntax error: Invalid line (missing ':' ?) : $_" ;
+            Config::Model::Exception::Syntax -> throw ( message => $msg, line => $line ) if $check eq 'yes' ; 
 	    $logger->error($msg) if $check eq 'skip';
         }
         $line++;
@@ -250,7 +249,7 @@ if you want this module shipped in its own distribution.
 
 =head1
 
-=head2 parse_dpkg_file ( file_handle , file_name, check )
+=head2 parse_dpkg_file ( file_handle, check )
 
 Read a control file from the file_handle and returns a nested list (or a list 
 ref) containing data from the file.
@@ -267,8 +266,7 @@ The returned list is of the form :
    # etc ...
  ]
 
-check is C<yes>, C<skip> or C<no>. C<file_name> is used to provide
-meaningful error message.
+check is C<yes>, C<skip> or C<no>. 
 
 When comments are provided in the dpkg files, the returned list is of
 the form :
@@ -283,11 +281,10 @@ the form :
 
 
 
-=head2 parse_dpkg_lines (lines, file_name, check)
+=head2 parse_dpkg_lines (lines, check)
 
 Parse the dpkg date from lines (which is an array ref) and return a data 
-structure like L<parse_dpkg_file>. C<file_name> is used to provide
-meaningful error message.
+structure like L<parse_dpkg_file>.
 
 =head2 write_dpkg_file ( io_handle, list_ref, list_sep )
 

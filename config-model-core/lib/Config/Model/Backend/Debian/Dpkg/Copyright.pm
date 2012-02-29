@@ -44,7 +44,7 @@ sub read {
     $logger->info("Parsing $args{file}");
 
     # load dpkgctrl file
-    my $c = $self -> parse_dpkg_file ($args{io_handle},$args{file}, $check) ;
+    my $c = $self -> parse_dpkg_file ($args{io_handle}, $check) ;
     return 0 unless @$c ; # no sections in file
     
     my $root = $args{object} ;

@@ -35,7 +35,7 @@ sub read {
 
     $logger->info("Parsing $args{file_path}");
     # load dpkgctrl file
-    my $c = $self -> parse_dpkg_file ($args{io_handle}, $args{file_path}) ;
+    my $c = $self -> parse_dpkg_file ($args{io_handle}) ;
     
     my $root = $args{object} ;
     my $check = $args{check} ;
