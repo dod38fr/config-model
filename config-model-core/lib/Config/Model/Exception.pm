@@ -26,7 +26,7 @@ use Exception::Class
   (
    'Config::Model::Exception::Syntax' 
    => { description => 'config error' ,
-	fields      =>  [/object file line/] ,
+	fields      =>  [qw/object file line/] ,
 	description => 'syntax error in configuration file',
       },
 
