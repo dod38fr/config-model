@@ -247,6 +247,8 @@ sub read_config_data {
         my @read_args = (%$read, root => $root_dir, config_dir => $read_dir,
                         backend => $backend, check => $check, 
                         config_file => $config_file_override);
+        
+        my ($res,$fh,$file_path) ;
 
         if ($backend eq 'custom') {
             my $c = my $file = delete $read->{class} ;
@@ -257,39 +259,35 @@ sub read_config_data {
 
             $logger->info("Read with custom backend $ {c}::$f in dir $read_dir");
 
-            my ($file_path,$fh) = $self->open_read_file(@read_args);
-            my $res = &{$c.'::'.$f}(@read_args, 
-                                    file_path => $file_path,
-                                    io_handle => $fh,
-                                    object => $self->node) ;
-            if ($res) { 
-                $read_done = 1 ;
-                last;
-            }
+            ($file_path,$fh) = $self->open_read_file(@read_args);
+            eval {
+                $res = &{ $c . '::' . $f }(
+                    @read_args,
+                    file_path => $file_path,
+                    io_handle => $fh,
+                    object    => $self->node
+                );
+            };
         }
         elsif ($backend eq 'perl_file') {
-            my ($file_path,$fh) = $self->open_read_file(@read_args,
+            ($file_path,$fh) = $self->open_read_file(@read_args,
                                                        suffix => '.pl');
             next unless defined $file_path ;
-            my $res = $self->read_perl(@read_args, 
+            eval {
+                $res = $self->read_perl(@read_args, 
                                        file_path => $file_path,
                                        io_handle => $fh);
-            if ($res) {
-                $read_done = 1 ;
-                last;
             }
         }
         elsif ($backend eq 'cds_file') {
-            my ($file_path,$fh) = $self->open_read_file(@read_args,
+            ($file_path,$fh) = $self->open_read_file(@read_args,
                                                         suffix => '.cds');
             next unless defined $file_path ;
-            my $res = $self->read_cds_file(@read_args, 
+            eval { 
+                $res = $self->read_cds_file(@read_args, 
                                            file_path => $file_path,
                                            io_handle => $fh,);
-            if ($res) {
-                $read_done = 1 ;
-                last;
-            }
+            } ;
         }
         else {
             # try to load a specific Backend class
@@ -302,19 +300,34 @@ sub read_config_data {
             $self->set_backend($backend => $backend_obj) ; 
             my $suffix ;
             $suffix = $backend_obj->suffix if $backend_obj->can('suffix');
-            my ($file_path,$fh) = $self->open_read_file(@read_args,
+            ($file_path,$fh) = $self->open_read_file(@read_args,
                                                         suffix => $suffix);
             $logger->info("Read with $backend ".$c."::$f");
 
-            my $res = $backend_obj->$f(@read_args, 
+            eval {
+                $res = $backend_obj->$f(@read_args, 
                                        file_path => $file_path,
                                        io_handle => $fh,
                                        object => $self->node,
                                       );
-            if ($res) {
-                $read_done = 1 ;
-                last;
-            }
+            } ;
+        }
+
+        # catch eval errors done in the if-then-else block before
+        my $e ;
+        if ( $e = Exception::Class->caught('Config::Model::Exception::Syntax') ) {
+            Config::Model::Exception::Syntax->throw( 
+                map { $e->$_ } qw/object error line/,
+                file => $file_path, 
+            );
+        }
+        elsif ( $e = Exception::Class->caught() ) {
+            ref $e ? $e->rethrow : die $e;
+        }
+
+        if ($res) { 
+            $read_done = 1 ;
+            last;
         }
     }
 
