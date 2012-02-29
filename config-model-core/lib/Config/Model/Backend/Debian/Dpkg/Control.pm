@@ -61,7 +61,7 @@ sub read {
         
         if (not defined $package_name) {
             my $msg = "Cannot find package_name in section @$section";
-            Config::Model::Exception::User
+            Config::Model::Exception::Syntax
 	    -> throw (object => $root,  error => $msg) ;
         } 
         
