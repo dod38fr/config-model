@@ -105,6 +105,12 @@ To upgrade your file from an old spec, run:
       'Comment',
       {
         'value_type' => 'string',
+        'migrate_from' => {
+          'formula' => '$old',
+          'variables' => {
+            'old' => '- X-Comment'
+          }
+        },
         'type' => 'leaf',
         'description' => 'This field can provide additional information. For example, it might quote an e-mail from upstream justifying why the license is acceptable to the main archive, or an explanation of how this version of the package has been forked from a version known to be DFSG-free, even though the current upstream version is not.'
       },
@@ -189,6 +195,12 @@ To upgrade your file from an old spec, run:
         'allow_keys_matching' => '^[\\w\\-\\.+]+$',
         'type' => 'hash',
         'index_type' => 'string'
+      },
+      'X-Comment',
+      {
+        'value_type' => 'string',
+        'status' => 'deprecated',
+        'type' => 'leaf'
       }
     ],
     'read_config' => [
