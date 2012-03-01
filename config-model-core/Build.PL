@@ -26,7 +26,7 @@ use Log::Log4perl qw(:easy) ;
 
 Log::Log4perl->easy_init($WARN);
 
-require 5.010 ;
+require 5.010001 ;
 
 print "\nIf you want to use the TermUI interface, you should install\n",
   "Term::ReadLine::Perl or Term::ReadLine::Gnu\n\n";
