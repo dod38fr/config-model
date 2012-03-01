@@ -27,7 +27,7 @@ use Exception::Class
    'Config::Model::Exception::Syntax' 
    => { description => 'config error' ,
 	fields      =>  [qw/object file line/] ,
-	description => 'syntax error in configuration file',
+	description => 'syntax error',
       },
 
    'Config::Model::Exception::Any' 
@@ -146,10 +146,9 @@ package Config::Model::Exception::Syntax ;
 sub full_message {
     my $self = shift;
 
-    my $obj = $self->object ;
     my $fn = $self->file || '?' ;
     my $line = $self->line || '?' ;
-    my $msg = "File $fn line $line of type ".ref ($obj) ." ";
+    my $msg = "File $fn line $line ";
     $msg .= "has a ".$self->description ;
     $msg .= ":\n\t". $self->message."\n";
 
