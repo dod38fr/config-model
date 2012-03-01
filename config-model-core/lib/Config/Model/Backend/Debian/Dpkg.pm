@@ -38,7 +38,7 @@ sub read_patch_series {
 
     unless ( defined $ser_io ) {
         my $msg = "Dpkg::Patch error, cannot read $series_files:$!";
-        Config::Model::Exception::Syntax->throw( message => $msg )
+        Config::Model::Exception::User->throw( message => $msg )
           if $check eq 'yes';
         $logger->error($msg) if $check eq 'skip';
     }
