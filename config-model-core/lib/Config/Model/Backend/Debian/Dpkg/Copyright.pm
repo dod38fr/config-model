@@ -101,7 +101,7 @@ sub read {
             push @license_names, $lic_name ;
         }
         else {
-            my $str = "Unknow paragraph in section $section_nb. Is is a Files or a License section ?";
+            my $str = "Unknow paragraph in section $section_nb. Is it a Files or a License section ?";
             Config::Model::Exception::Syntax -> throw ( object => $self, error => $str ) 
                 if $check eq 'yes' ;
             $logger->warn("Dropping unknown paragraph from section $section_nb");
