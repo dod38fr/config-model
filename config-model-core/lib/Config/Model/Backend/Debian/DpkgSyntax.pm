@@ -14,19 +14,20 @@ sub parse_dpkg_file {
     my $self = shift ;
     my $fh = shift;
     my $check = shift || 'yes' ;
+    my $comment_allowed = shift || 0 ;
 
     my @lines = $fh->getlines ;
     chomp @lines ;
     $fh->close ;
     
-    $self->parse_dpkg_lines (\@lines, $check);
+    $self->parse_dpkg_lines (\@lines, $check, $comment_allowed);
 }
 
 #
 # New subroutine "parse_dpkg_lines" extracted - Tue Jul 19 17:47:58 2011.
 #
 sub parse_dpkg_lines {
-    my ($self, $lines, $check) = @_ ;
+    my ($self, $lines, $check, $comment_allowed) = @_ ;
 
     my @res ; # list of list (section, [keyword, value])
     my $field;
@@ -39,6 +40,11 @@ sub parse_dpkg_lines {
     foreach (@$lines) {
         $logger->trace("Parsing line $line '$_'");
         if (/^#/) { # comment are always located before the keyword (hopefully)
+            Config::Model::Exception::Syntax->throw (
+                object => $self,
+                line => $line,
+                message => "Comments are not allowed",
+            ) unless $comment_allowed;
             my $c = $_ ;
             $c =~ s/#\s// ;
             push @comments, $c ;
@@ -72,11 +78,11 @@ sub parse_dpkg_lines {
         } 
         elsif (/^\s+\.$/) {   # line with a single dot
             $logger->trace("dot line: adding blank line to field $key");
-            _store_line($store_ref,"",$check) ;
+            _store_line($store_ref,"",$check,$line) ;
         }
         elsif (s/^\s//) {     # non empty line
             $logger->trace("text line: adding '$_' to field $key");
-            _store_line($store_ref,$_ , $check);
+            _store_line($store_ref,$_ , $check,$line);
         }
         else {
             my $msg = "DpkgSyntax error: Invalid line (missing ':' ?) : $_" ;
@@ -103,15 +109,15 @@ sub parse_dpkg_lines {
 }
 
 sub _store_line {
-    my ($store_ref,$line,$check) = @_ ;
+    my ($store_ref,$line,$check,$line_nb) = @_ ;
     
     if (defined $store_ref) {
         $$store_ref .= "\n$line" ;
     }
     else {
-        my $l = $. ;
-        my $msg = "DpkgSyntax error: missing keyword before line $l : $_";
-        Config::Model::Exception::Syntax -> throw ( message => $msg ) if $check eq 'yes' ; 
+        my $msg = "Did not find a keyword before: '$line''";
+        Config::Model::Exception::Syntax -> throw ( message => $msg, line => $line_nb ) 
+            if $check eq 'yes' ; 
         $logger->error($msg) if $check eq 'skip';
     }
     
@@ -249,7 +255,7 @@ if you want this module shipped in its own distribution.
 
 =head1
 
-=head2 parse_dpkg_file ( file_handle, check )
+=head2 parse_dpkg_file ( file_handle, check, comment_allowed )
 
 Read a control file from the file_handle and returns a nested list (or a list 
 ref) containing data from the file.
@@ -266,7 +272,7 @@ The returned list is of the form :
    # etc ...
  ]
 
-check is C<yes>, C<skip> or C<no>. 
+check is C<yes>, C<skip> or C<no>.  C<comment_allowed> is boolean (default 0)
 
 When comments are provided in the dpkg files, the returned list is of
 the form :
@@ -281,7 +287,7 @@ the form :
 
 
 
-=head2 parse_dpkg_lines (lines, check)
+=head2 parse_dpkg_lines (lines, check, comment_allowed )
 
 Parse the dpkg date from lines (which is an array ref) and return a data 
 structure like L<parse_dpkg_file>.
