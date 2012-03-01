@@ -317,7 +317,7 @@ sub read_config_data {
         my $e ;
         if ( $e = Exception::Class->caught('Config::Model::Exception::Syntax') ) {
             Config::Model::Exception::Syntax->throw( 
-                map { $e->$_ } qw/object error line/,
+                ( map { ($_, $e->$_); } qw/object message line/ ),
                 file => $file_path, 
             );
         }
