@@ -1,3 +1,16 @@
+2012-03-01  Dominique Dumont  <domi.dumont@free.fr> 2.008
+
+    * Application changes:
+      * Debian control: 
+        + comments are now parsed correctly
+      * Debian copyright model:
+        + added support for deprecated X-Comment. X-Comment fields are converted
+          to Comment fields (note that regular comments are forbidden)
+
+    * Framework changes:
+      * Requires perl 5.10.1 instead of 5.10.0
+      * provide file name and line number in syntax error message
+
 2012-02-26  Dominique Dumont  <domi.dumont@free.fr> 2.007
 
     * cme: fix 'migrate' command.
