@@ -1,8 +1,9 @@
 package Config::Model::ValueComputer ;
 
-use warnings ;
-use strict;
-use Scalar::Util qw(weaken) ;
+use Any::Moose ;
+use namespace::autoclean;
+
+# use Scalar::Util qw(weaken) ;
 use Carp ;
 use Parse::RecDescent ;
 use Data::Dumper () ;
@@ -15,41 +16,49 @@ my $logger = get_logger("ValueComputer") ;
 
 # allow_override is intercepted and handled by Value object
 
-sub new {
-    my $type = shift ;
-    my %args = @_ ;
-    my $self= {} ;
+has formula => (is => 'ro', isa => 'Str' , required => 1 ) ;
+has value_type => (is => 'ro', isa => 'Str' , required => 1 ) ;
 
-    if ($logger->is_debug) {
-	my %show = %args ;
-	delete $show{value_object} ;
-	$logger->debug(Data::Dumper->Dump([\%show],['Computed_value_new_args'])) ;
-    }
+# value_object is mostly used for error messages
+has value_object => (is => 'ro', isa => 'Config::Model::AnyThing' , required => 1, weak_ref => 1 ) ;
 
-    # value_object is mostly used for error messages
-    foreach my $k (qw/formula value_type value_object/) {
-	$self->{$k} = delete $args{$k} || 
-	  croak "Config::Model::ValueComputer:new undefined parameter $k";
-    }
+has variables => ( is => 'ro', isa => 'HashRef', default => sub {{}}) ;
+has replace   => ( is => 'ro', isa => 'HashRef', default => sub {{}}) ;
+has use_eval  => (is => 'ro', isa => 'Bool', default => 0 ) ;
 
-    map { $self->{$_} = delete $args{$_}  || {} ; } qw/variables replace/;
-    map { $self->{$_} = delete $args{$_} || 0   ; } qw/use_eval/ ;
-    my $sui = delete $args{undef_is} ;
- 
-    die "Config::Model::ValueComputer:new unexpected parameter: ",
-      join(' ',keys %args) if %args ;
+has need_quote => ( is => 'ro',isa => 'Bool', builder => '_need_quote', lazy => 1 ) ;
+
+sub _need_quote {
+    my $self  = shift ;
 
     my $need_quote = 0;
     $need_quote = 1 if $self->{use_eval} and $self->{value_type} !~ /(integer|number|boolean)/;
+    return $need_quote ;
+}
 
-    $self->{need_quote} = $need_quote ;
-    $self->{undef_is} = $need_quote && defined $sui && $sui eq "''" ? "''" 
-                      : $need_quote && defined $sui                 ? "'$sui'"
-                      :                defined $sui && $sui eq "''" ? ''
-                      :                defined $sui                 ? $sui
-                      :                                               undef;
-                 
-    weaken($self->{value_object}) ;
+has undef_is => (is => 'ro', isa => 'Maybe[Str]' ) ;
+
+has undef_replacement => (is => 'ro',  isa => 'Maybe[Str]', builder => '_build_undef_replacement',
+    lazy => 1) ;
+
+sub _build_undef_replacement {
+    my $self = shift;
+
+    my $sui = $self->undef_is ;
+    my $need_quote = $self->need_quote ;
+
+    return
+        $need_quote && defined $sui && $sui eq "''" ? "''"
+      : $need_quote && defined $sui                 ? "'$sui'"
+      : defined $sui && $sui eq "''"                ? ''
+      : defined $sui                                ? $sui
+      :                                               undef;
+    
+}
+
+
+sub BUILD {
+    my $self = shift ;
 
     # create parser if needed 
     $compute_parser ||= Parse::RecDescent->new($compute_grammar) ;
@@ -63,18 +72,11 @@ sub new {
 	$self->{variables},
 	$self->{replace},
 	'yes',
-	$need_quote,
+	$self->need_quote,
     ) ;
 
     $self->{pre_formula} = $$result_r ;
-    $logger->debug("done") ;
-
-    bless $self,$type ;
 }
-
-sub formula { return shift->{formula} ;}
-sub variables     { return shift->{variables} ;}
-sub value_object { return shift->{value_object} ;}
 
 sub compute {
     my $self = shift ;
@@ -90,7 +92,7 @@ sub compute {
     my $result ;
     my @parser_args = ( $self->{value_object},
             $variables, $self->{replace}, $check, $self->{need_quote},
-            $self->{undef_is} ) ;
+            $self->undef_replacement ) ;
 
     if (   $self->{use_eval}
         or $self->{value_type} =~ /(integer|number|boolean)/ )
@@ -103,7 +105,7 @@ sub compute {
             next unless index ($pre_formula,$key) > 0 ;
             my $vr = _value_from_object( $key , @parser_args);
             my $v = $$vr ;
-            $v = $self->{undef_is} unless defined $v ;
+            $v = $self->undef_replacement unless defined $v ;
             $logger->debug("compute: var $key -> ", (defined $v ? $v : '<undef>'));
             if (defined $v) { push @init, "my \$$key = $v ;\n" ; }
             else {$all_defined = 0 ;}
@@ -548,6 +550,8 @@ object: <skip:''> /\$/ /[a-zA-Z]\w*/
 function: <skip:''> '&' /\w+/
 
 END_OF_GRAMMAR
+
+__PACKAGE__->meta->make_immutable;
 
 1;
 
