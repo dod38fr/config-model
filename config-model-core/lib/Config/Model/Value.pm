@@ -188,16 +188,16 @@ sub submit_to_compute {
     $logger->debug("called") ;
     
     my $c_info = $self->{compute} ;
-    $self->{_compute} = Config::Model::ValueComputer
-      -> new (
-	      formula      => $c_info->{formula} ,
-	      variables    => $c_info->{variables} ,
-	      replace      => $c_info->{replace},
-	      value_object => $self ,
-	      value_type   => $self->{value_type},
-	      use_eval     => $c_info->{use_eval},
-	      undef_is     => $c_info->{undef_is},
-	     );
+    my @compute_data ;
+    foreach (qw/formula variables replace use_eval undef_is/ ) {
+	push @compute_data, $_, $c_info->{$_} if defined $c_info->{$_} ;
+    }
+
+    $self->{_compute} = Config::Model::ValueComputer->new(
+        @compute_data,
+        value_object => $self,
+        value_type   => $self->{value_type},
+    );
 
     # resolve any recursive variables before registration
     my $v = $self->{_compute}->compute_variables ;
@@ -279,16 +279,16 @@ sub set_migrate_from {
 		     ) ;
     }
 
-    $self->{_migrate_from} = Config::Model::ValueComputer
-      -> new (
-	      formula      => $mig_ref->{formula} ,
-	      variables    => $mig_ref->{variables} ,
-	      replace      => $mig_ref->{replace},
-	      use_eval     => $mig_ref->{use_eval},
-	      undef_is     => $mig_ref->{undef_is},
-	      value_object => $self ,
-	      value_type   => $self->{value_type}
-	     );
+    my @migrate_data ;
+    foreach (qw/formula variables replace use_eval undef_is/ ) {
+	push @migrate_data, $_, $mig_ref->{$_} if defined $mig_ref->{$_} ;
+    }
+
+    $self->{_migrate_from} = Config::Model::ValueComputer->new(
+        @migrate_data,
+        value_object => $self,
+        value_type   => $self->{value_type}
+    );
 
     # resolve any recursive variables before registration
     my $v = $self->{_migrate_from}->compute_variables ;
