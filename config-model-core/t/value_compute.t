@@ -5,11 +5,12 @@ use warnings FATAL => qw(all);
 use ExtUtils::testlib;
 use Test::More;
 use Test::Warn ;
+use Test::Differences ;
 use Test::Memory::Cycle;
 use Config::Model ;
 use Log::Log4perl qw(:easy) ;
 
-BEGIN { plan tests => 50; }
+BEGIN { plan tests => 54; }
 
 use strict;
 
@@ -162,6 +163,16 @@ $model->create_config_class(
             min => -4,
             max => 4,
         },
+        compute_with_upstream => {
+            type       => 'leaf',
+            class      => 'Config::Model::Value',
+            value_type => 'integer',
+            compute    => {
+                formula        => '$a + $b',
+                variables      => { a => '- av', b => '- bv' },
+                use_as_upstream_default => 1,
+            },
+        },
         compute_no_var => {
             type       => 'leaf',
             value_type => 'string',
@@ -281,9 +292,9 @@ $inst->initial_load_stop ;
 my $root = $inst -> config_root ;
 
 # order is important. Do no use sort.
-is_deeply([$root->get_element_name()],
+eq_or_diff([$root->get_element_name()],
           [qw/av bv compute_int sav sbv one_var one_wrong_var 
-              meet_test compute_with_override compute_no_var bar 
+              meet_test compute_with_override compute_with_upstream compute_no_var bar 
               foo2 url host with_tmp_var Upstream-Contact Source Source2 Licenses/],
          "check available elements");
 
@@ -402,6 +413,14 @@ is( $comp_over->fetch, 3, "test computed value" );
 $comp_over->store(4);
 is( $comp_over->fetch, 4, "test overridden value" );
 
+my $cwu =  $root-> fetch_element('compute_with_upstream');
+
+is( $cwu->fetch, undef, "test computed with upstream value" );
+is( $cwu->fetch(mode => 'custom'), undef, "test computed with upstream value (custom)" );
+is( $cwu->fetch(mode => 'standard'), 3, "test computed with upstream value (standard)" );
+$cwu->store(4);
+is( $cwu->fetch, 4, "test overridden value" );
+
 my $owv = $root->fetch_element('one_wrong_var');
 eval {$owv -> fetch ;} ;
 ok($@,"expected failure with one_wrong_var");
@@ -466,4 +485,4 @@ is($root->grab_value('Licenses:"MPL-1.1" text'), "","check missing replacement w
 
 is($root->grab_value('Licenses:"MPL-1.1" short_name_from_index'), "MPL-1.1",'evaled &index($holder)');
 
-memory_cycle_ok($model);
+memory_cycle_ok($model,"test memory cycles");
