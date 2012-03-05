@@ -271,7 +271,6 @@ sub create_id {
     $element_info->{container} = $element_info->{parent} = $self ;
     $element_info->{element_name} = $element_name ;
     $element_info->{instance}     = $self->{instance} ;
-    $element_info->{config_model} = $self->{config_model} ;
 
     $self->{element}{$element_name} = $id_class->new( %$element_info) ;
 }
