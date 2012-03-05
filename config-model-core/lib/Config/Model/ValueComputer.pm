@@ -1,6 +1,7 @@
 package Config::Model::ValueComputer ;
 
 use Any::Moose ;
+use Any::Moose 'X::StrictConstructor' ;
 use namespace::autoclean;
 
 # use Scalar::Util qw(weaken) ;
@@ -24,7 +25,10 @@ has value_object => (is => 'ro', isa => 'Config::Model::AnyThing' , required => 
 
 has variables => ( is => 'ro', isa => 'HashRef', default => sub {{}}) ;
 has replace   => ( is => 'ro', isa => 'HashRef', default => sub {{}}) ;
-has use_eval  => (is => 'ro', isa => 'Bool', default => 0 ) ;
+has [qw/use_eval allow_override use_as_upstream_default/]  => (is => 'ro', isa => 'Bool', default => 0 ) ;
+
+has allow_user_override  => (is => 'ro', isa => 'Bool', lazy => 1 ,
+    builder => sub { my $self = shift; return $self->allow_override || $self->use_as_upstream_default ;} ) ;
 
 has need_quote => ( is => 'ro',isa => 'Bool', builder => '_need_quote', lazy => 1 ) ;
 

@@ -29,11 +29,11 @@ has fixes
 has [qw/warp compute computed_refer_to backup migrate_from/] 
     => (is => 'rw', isa => 'Maybe[HashRef]') ;
 
+has compute_obj => (is => 'ro', isa =>'Maybe[Config::Model::ValueComputer]', 
+    builder => '_build_compute_obj', lazy => 1) ;
+
 has [qw/write_as/]
     => (is => 'rw', isa => 'Maybe[ArrayRef]') ;
-
-has [qw/allow_compute_override/] 
-    => (is => 'rw', isa => 'Bool', default => 0 ); 
 
 has [qw/refer_to _data replace_follow/] 
     => (is => 'rw', isa => 'Maybe[Str]' ); 
@@ -43,7 +43,7 @@ has value_type => (is => 'rw', isa => 'ValueType');
 my @common_int_params  = qw/min max mandatory /;
 has \@common_int_params => (is => 'ro', isa => 'Maybe[Int]') ;
 
-my @common_hash_params = qw/replace assert warn_if_match warn_unless_match warn_unless/ ;
+my @common_hash_params = qw/replace assert warn_if_match warn_unless_match warn_unless help/ ;
 has \@common_hash_params => (is => 'ro', isa => 'Maybe[HashRef]') ;
 
 my @common_list_params = qw/choice/;
@@ -52,11 +52,26 @@ has \@common_list_params => (is => 'ro', isa => 'Maybe[ArrayRef]') ;
 my @common_str_params  = qw/default upstream_default convert match grammar warn/;
 has \@common_str_params => (is => 'ro', isa => 'Maybe[Str]') ;
 
-
 my @warp_accessible_params = (@common_int_params,@common_str_params, @common_list_params, @common_hash_params);
 
 my @allowed_warp_params = (@warp_accessible_params, qw/level experience help/);
 my @backup_list = (@allowed_warp_params, qw/migrate_from/) ;
+
+has compute_is_upstream_default => (is => 'ro', isa => 'Bool', lazy => 1, builder => '_compute_is_upstream_default') ;
+
+sub _compute_is_upstream_default {
+    my $self = shift;
+    return 0 unless defined $self->compute ;
+    return $self->compute_obj->use_as_upstream_default ;
+}
+
+has compute_is_default => (is => 'ro', isa => 'Bool', lazy => 1, builder => '_compute_is_default') ;
+
+sub _compute_is_default {
+    my $self = shift;
+    return 0 unless defined $self->compute ;
+    return ! $self->compute_obj->use_as_upstream_default ;
+}
 
 # as some information like experience must be backed up even though they are not
 # attributes, we cannot move below code in BUILD. (experience is actually used by node)
@@ -81,8 +96,6 @@ sub BUILD {
             allowed => \@allowed_warp_params
         ) ;
     }
-
-    $self->set_compute ( ) if $self->compute;
 
     $self->_init ;
 
@@ -149,61 +162,33 @@ sub set_default {
 }
 
 
-sub set_compute {
-    my ($self) = @_ ;
-
-    my $c_ref = $self->compute;
-
-    $self->allow_compute_override( delete $c_ref->{allow_override} )
-      if defined $c_ref->{allow_override} ;
-
-    if (ref($c_ref) eq 'HASH') {
-	$self->compute($c_ref) ;
-    }
-    else {
-	Config::Model::Exception::Model
-	    -> throw (
-		      object => $self,
-		      error => "Compute value must be a hash ref not $c_ref"
-		     ) ;
-    }
-
-    foreach my $item (qw/formula/) {
-	next if defined $self->{compute}{$item} ;
-	Config::Model::Exception::Model
-	    -> throw (
-		      object => $self,
-		      error => "Missing compute $item"
-		     ) ;
-    }
-
-    delete $self->{_compute} ;
-}
-
 # set up relation between objects required by the compute constructor
 # parameters
-sub submit_to_compute {
+sub _build_compute_obj {
     my $self = shift ;
 
     $logger->debug("called") ;
     
-    my $c_info = $self->{compute} ;
+    my $c_info = $self->compute ;
+    return unless $c_info ;
+    
     my @compute_data ;
-    foreach (qw/formula variables replace use_eval undef_is/ ) {
+    foreach ( keys %$c_info ) {
 	push @compute_data, $_, $c_info->{$_} if defined $c_info->{$_} ;
     }
 
-    $self->{_compute} = Config::Model::ValueComputer->new(
+    my $ret = Config::Model::ValueComputer->new(
         @compute_data,
         value_object => $self,
         value_type   => $self->{value_type},
     );
 
     # resolve any recursive variables before registration
-    my $v = $self->{_compute}->compute_variables ;
+    my $v = $ret->compute_variables ;
 
     $self->register_in_other_value( $v ) ;
     $logger->debug("done") ;
+    return $ret ;
 }
 
 sub register_in_other_value {
@@ -229,11 +214,7 @@ sub perform_compute {
     my $self = shift ;
     $logger->debug("called");
 
-    $self->submit_to_compute unless defined $self->{_compute} ;
-
-    confess unless ref($self->{_compute}) eq 'Config::Model::ValueComputer' ;
-
-    my $result = $self->{_compute} -> compute ;
+    my $result = $self->compute_obj -> compute ;
 
     #print "compute: result $result\n" ;
     # check if the computed result fits with the constraints of the
@@ -259,7 +240,7 @@ sub perform_compute {
 # internal, used to generate error messages
 sub compute_info {
     my $self = shift;
-    $self->{_compute} -> compute_info ;
+    $self->compute_obj-> compute_info ;
 }
 
 
@@ -720,7 +701,7 @@ sub get_cargo_type {
 sub can_store {
     my $self= shift;
 
-    return not defined $self->{compute} || $self->allow_compute_override ;
+    return not defined $self->compute || $self->compute_obj->allow_user_override ;
 }
 
 
@@ -1171,8 +1152,8 @@ sub pre_store {
       if ($self->{warp} and defined $self->{warp_info} 
           and @{$self->{warp_info}{computed_master}});
 
-    if (defined $self->{compute} 
-	and not $self->allow_compute_override) {
+    if (defined $self->compute_obj
+	and not $self->compute_obj->allow_user_override) {
 	my $msg = 'assignment to a computed value is forbidden unless '
 	  .'compute -> allow_override is set.';
 	Config::Model::Exception::Model
@@ -1283,9 +1264,10 @@ sub fetch_custom {
 sub fetch_standard {
     my $self = shift ;
     my $pre_fetch = $self->_pre_fetch ;
-    my $v = defined $pre_fetch       ? $pre_fetch 
-          : defined $self->{layered} ? $self->{layered}
-          :                            $self->{upstream_default} ;
+    my $v = defined $pre_fetch                 ? $pre_fetch 
+          : defined $self->{layered}           ? $self->{layered}
+          : $self->compute_is_upstream_default ? $self->perform_compute
+          :                                      $self->{upstream_default} ;
     return $self->map_write_as($v) ;
 }
 
@@ -1322,7 +1304,7 @@ sub _pre_fetch {
     eval {
 	$std_value 
 	  = defined $self->{preset}        ? $self->{preset}
-          : defined $self->{compute}       ? $self->perform_compute 
+          : $self->compute_is_default      ? $self->perform_compute 
           :                                  $self->{default} ;
     };
 
@@ -1356,6 +1338,7 @@ sub _fetch {
     # always call to perform submit_to_warp
     my $pref = $self->_pre_fetch($mode, $check) ;
     my $known_upstream = defined $self->{layered} ? $self->{layered}
+		       : $self->compute_is_upstream_default ? $self->perform_compute 
                        :                            $self->{upstream_default} ;
     my $std = defined $pref ? $pref : $known_upstream ;
     my $data = $self->{data} ;
