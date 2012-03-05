@@ -4,6 +4,7 @@ package Config::Model::Instance;
 use Any::Moose ;
 use namespace::autoclean;
 use Any::Moose '::Util::TypeConstraints';
+use Any::Moose 'X::StrictConstructor' ;
 
 use File::Path;
 use Log::Log4perl qw(get_logger :levels);
