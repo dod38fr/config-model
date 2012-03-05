@@ -3,6 +3,9 @@ package Config::Model::AnyThing;
 use Any::Moose ;
 use namespace::autoclean;
 
+# FIXME: must cleanup warp mechanism to implement this
+# use Any::Moose 'X::StrictConstructor' ;
+
 use Pod::POM ;
 use Carp;
 use Log::Log4perl qw(get_logger :levels);
