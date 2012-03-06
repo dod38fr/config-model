@@ -83,18 +83,21 @@ providing the following file:
         # t4
         check => { 'source X-Python-Version' => ">= 2.3, << 2.5" },
         load_warnings => [ (qr/deprecated/) x 2 ],
+        dump_warnings => [ qr/empty/ ],
     },
     {
 
         # t5
         check => { 'source X-Python-Version' => ">= 2.3, << 2.6" },
         load_warnings => [ (qr/deprecated/) x 2 ],
+        dump_warnings => [ qr/empty/ ],
     },
     {
 
         # t6
         check => { 'source X-Python-Version' => ">= 2.3" },
         load_warnings => [ (qr/deprecated/) x 2 ],
+        dump_warnings => [ qr/empty/ ],
     },
     {
         name => 'sdlperl',
