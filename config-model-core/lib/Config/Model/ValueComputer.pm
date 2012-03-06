@@ -811,6 +811,25 @@ compute parameter:
                  allow_override => 1,
                }
    }
+   
+This computed default value witl be written to the configuration file.
+
+This default value may be already known by the application so the computed value
+should B<not> be written to the configuration file. The computed value is interesting 
+because it cab be shown to the user. In this case, use the C<use_as_upstream_default>
+parameter: 
+
+   compute_known_upstream => { 
+    type => 'leaf',
+    value_type => 'string', 
+    compute => { formula => '"macro is $m"' , 
+                 variables => { m => '- - macro' } ,
+                 use_as_upstream_default => 1,
+               }
+   }
+   
+C<use_as_upstream_default> implies C<allow_override>.
+ 
 
 =head2 Undefined variables
 
