@@ -181,7 +181,7 @@ if ( $command eq  'dump' ) {
     print $dump_string ;
 }
 elsif ( $command eq 'check' ) {
-    $root->dump_tree( mode => 'custom' );
+    $root->dump_tree( mode => 'full' );
 }
 elsif ( $command eq 'search' ) {
     pod2usage(-message => "missing -search option with search command" )
