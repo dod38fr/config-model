@@ -38,13 +38,45 @@ If the maintainer\'s name contains a full stop then the whole field will not wor
       },
       'Section',
       {
+        'warn_unless' => {
+          'area' => {
+            'msg' => 'Bad area. Should be \'non-free\' or \'contrib\'',
+            'code' => '(not defined) or m!^((contrib|non-free)/)?\\w+$!;'
+          },
+          'section' => {
+            'msg' => 'Bad section.',
+            'code' => '(not defined) or m!^([-\\w]+/)?(admin|cli-mono|comm|database|devel|debug|doc|editors|education|electronics|embedded|fonts|games|gnome|graphics|gnu-r|gnustep|hamradio|haskell|httpd|interpreters|introspection|java|kde|kernel|libs|libdevel|lisp|localization|mail|math|metapackages|misc|net|news|ocaml|oldlibs|otherosfs|perl|php|python|ruby|science|shells|sound|tex|text|utils|vcs|video|web|x11|xfce|zope)$!;'
+          },
+          'empty' => {
+            'msg' => 'Section is empty',
+            'code' => 'defined and length'
+          }
+        },
         'value_type' => 'uniline',
         'type' => 'leaf',
-        'description' => 'The packages in the archive areas main, contrib and non-free are grouped further into sections to simplify handling. 
+        'description' => 'The packages in the archive areas main, contrib and non-free are
+grouped further into sections to simplify handling.
 
-The archive area and section for each package should be specified in the package\'s Section control record (see Section, Section 5.6.5). However, the maintainer of the Debian archive may override this selection to ensure the consistency of the Debian distribution. The Section field should be of the form:
- * section if the package is in the main archive area,
- * area/section if the package is in the contrib or non-free archive areas.'
+The archive area and section for each package should be specified in
+the package\'s Section control record (see 
+L<Section 5.6.5|http://www.debian.org/doc/debian-policy/ch-controlfields.html#s-f-Section>). 
+However, the maintainer of the Debian archive may override
+this selection to ensure the consistency of the Debian
+distribution. The Section field should be of the form:
+
+'.'=over
+
+'.'=item * 
+
+section if the package is in the main archive area,
+
+'.'=item *
+
+area/section if the package is in the contrib or non-free archive areas.
+
+'.'=back
+
+'
       },
       'Priority',
       {

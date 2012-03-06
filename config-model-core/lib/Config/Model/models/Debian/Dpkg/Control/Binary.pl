@@ -35,13 +35,44 @@ A package may specify an architecture wildcard. Architecture wildcards are in th
       },
       'Section',
       {
+        'warn_unless' => {
+          'area' => {
+            'msg' => 'Bad area. Should be \'non-free\' or \'contrib\'',
+            'code' => '(not defined) or m!^((contrib|non-free)/)?\\w+$!;'
+          },
+          'section' => {
+            'msg' => 'Bad section.',
+            'code' => '(not defined) or m!^([-\\w]+/)?(admin|cli-mono|comm|database|devel|debug|doc|editors|education|electronics|embedded|fonts|games|gnome|graphics|gnu-r|gnustep|hamradio|haskell|httpd|interpreters|introspection|java|kde|kernel|libs|libdevel|lisp|localization|mail|math|metapackages|misc|net|news|ocaml|oldlibs|otherosfs|perl|php|python|ruby|science|shells|sound|tex|text|utils|vcs|video|web|x11|xfce|zope)$!;'
+          }
+        },
+        'compute' => {
+          'use_as_upstream_default' => '1',
+          'formula' => '$source',
+          'variables' => {
+            'source' => '- - source Section'
+          }
+        },
         'value_type' => 'uniline',
         'type' => 'leaf'
       },
       'Priority',
       {
-        'value_type' => 'uniline',
-        'type' => 'leaf'
+        'compute' => {
+          'use_as_upstream_default' => '1',
+          'formula' => '$source',
+          'variables' => {
+            'source' => '- - source Priority'
+          }
+        },
+        'value_type' => 'enum',
+        'type' => 'leaf',
+        'choice' => [
+          'required',
+          'important',
+          'standard',
+          'optional',
+          'extra'
+        ]
       },
       'Essential',
       {
