@@ -108,7 +108,7 @@ sub Populate {
         -command => sub {
             $list->clear;
             $tklist->delete( 0, 'end' );
-            $cw->reload_tree;
+            $cw->{store_cb}->() ;
         },
     )->pack( -side => 'left', @fxe1 );
     $balloon->attach( $rm_all_b, -msg => 'Remove all elements from the list' );

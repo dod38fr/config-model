@@ -226,7 +226,7 @@ sub reset_value {
 
 sub reload_tree {
     my $cw = shift ;
-    $cw->parent->parent->parent->parent->reload(1) ;
+    $cw->parent->parent->parent->parent->reload() ;
 }
 
 1;

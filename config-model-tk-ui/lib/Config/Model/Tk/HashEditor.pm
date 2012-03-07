@@ -234,7 +234,7 @@ sub remove_all_elements {
     return unless $answer eq 'Yes';
     $cw->{hash}->clear;
     $cw->Subwidget('tklist')->delete( 0, 'end' );
-    $cw->reload_tree(1);
+    $cw->reload_tree();
 }
 
 # update buttons state according to entry and list widget
