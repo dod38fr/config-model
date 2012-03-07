@@ -297,8 +297,15 @@ sub exec_external_editor {
     }
     $h->autoflush(1);
     $cw->fileevent($h, 'readable' => [\&_read_stdout, $cw]);
+    
+    # prevent navigation in the tree (and destruction of this widget
+    # while the external editor is active). See mastering Perl/Tk p302
+    $cw->grab ;
 
     $cw->waitVariable(\$cw->{ed_done});
+    
+    $cw->grabRelease; 
+    
     my $new_v = read_file($fh->filename) ;
     print "exec_external_editor done with '$new_v'\n";
     $cw->store($new_v);
