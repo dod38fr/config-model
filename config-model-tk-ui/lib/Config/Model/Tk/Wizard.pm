@@ -211,14 +211,14 @@ sub start_wizard {
     );
     $stop->pack(qw/-side left -fill x -expand 1/);
 
-    my $stop = $button_f->Button(
+    my $quit = $button_f->Button(
         -text    => 'quit wizard',
         -command => sub {
             $cw->{keep_wiz_editor} = 0;
             $cw->{wizard}->bail_out;
         }
     );
-    $stop->pack(qw/-side left -fill x -expand 1/);
+    $quit->pack(qw/-side left -fill x -expand 1/);
 
     my $forw = $button_f->Button(
         -text    => 'Next',
