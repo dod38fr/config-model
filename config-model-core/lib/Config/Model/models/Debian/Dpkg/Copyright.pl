@@ -127,6 +127,7 @@ To upgrade your file from an old spec, run:
           'config_class_name' => 'Debian::Dpkg::Copyright::Content'
         },
         'ordered' => '1',
+        'warn_if_key_match' => '[\\[\\]\\|]',
         'type' => 'hash',
         'description' => 'Patterns indicating files having the same license and sharing copyright holders. See "File patterns" below',
         'index_type' => 'string'
