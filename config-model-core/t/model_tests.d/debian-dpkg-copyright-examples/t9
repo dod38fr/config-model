@@ -5,3 +5,8 @@ Files: *
 License: BSD
   foo bar
 Copyright: foo
+
+Files: */share/web/static/[css|js|images]/yui/*
+License: BSD
+  foo bar
+Copyright: foo

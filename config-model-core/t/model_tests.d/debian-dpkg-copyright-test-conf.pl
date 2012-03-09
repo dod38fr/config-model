@@ -111,8 +111,9 @@ $skip = ( $@ or not -r '/etc/debian_version') ? 1 : 0 ;
             },
         },
     {
-        load_warnings => [ qr/Format does not match/ ],
+        load_warnings => [ qr/Format does not match/ ,qr/should not match/ ],
         apply_fix => 1,
+        load => 'Files~"*/share/web/static/[css|js|images]/yui/*"',
         check => {
             'Files:"*" Copyright' => 'foo',
             'Files:"*" License short_name' => 'BSD',
