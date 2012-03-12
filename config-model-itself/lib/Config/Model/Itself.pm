@@ -290,7 +290,6 @@ sub write_all {
     my $model_obj = $self->{model_object} ;
     my $dir = $args{model_dir} 
       || croak __PACKAGE__," write_all: undefined model_dir";
-    my $model_file
 
     my $map = $self->{map} ;
 
@@ -341,28 +340,42 @@ sub write_all {
 
         next unless @data ; # don't write empty model
 
-        my $wr_file = "$dir/$file" ;
-        my $wr_dir  = dirname($wr_file) ;
-        unless (-d $wr_dir ) {
-            mkpath($wr_dir,0, 0755) || die "Can't mkpath $wr_dir:$!";
-        }
-
-        my $wr = IO::File->new ($wr_file,'>') || croak "Cannot open file $wr_file:$!" ;
-
-        my $dumper = Data::Dumper->new([\@data]) ;
-        $dumper->Indent(1) ; # avoid too deep indentation
-        $dumper->Terse(1) ; # allow unnamed variables in dump
-
-        my $dump = $dumper->Dump;
-        # munge pod text embedded in values to avoid spurious pod formatting
-        $dump =~ s/\n=/\n'.'=/g ;
-
-        $wr->print ( $dump , ";\n\n");
-
-        $wr->print( join("\n",@notes )) ;
-
-        $wr->close ;
+        write_model_file ("$dir/$file", \@notes, \@data);
     }
+}
+
+
+#
+# New subroutine "write_model_file" extracted - Mon Mar 12 13:38:29 2012.
+#
+sub write_model_file {
+    my $wr_file = shift;
+    my $notes   = shift;
+    my $data    = shift;
+
+    my $wr_dir = dirname($wr_file);
+    unless ( -d $wr_dir ) {
+        mkpath( $wr_dir, 0, 0755 ) || die "Can't mkpath $wr_dir:$!";
+    }
+
+    my $wr = IO::File->new( $wr_file, '>' )
+      || croak "Cannot open file $wr_file:$!" ;
+
+    my $dumper = Data::Dumper->new( [ \@$data ] );
+    $dumper->Indent(1);    # avoid too deep indentation
+    $dumper->Terse(1);     # allow unnamed variables in dump
+
+    my $dump = $dumper->Dump;
+
+    # munge pod text embedded in values to avoid spurious pod formatting
+    $dump =~ s/\n=/\n'.'=/g;
+
+    $wr->print( $dump, ";\n\n" );
+
+    $wr->print( join( "\n", @$notes ) );
+
+    $wr->close;
+
 }
 
 
