@@ -1,8 +1,8 @@
 package Config::Model::Itself ;
 
-use strict;
-use warnings ;
-use Carp ;
+use Any::Moose ;
+use namespace::autoclean;
+
 use IO::File ;
 use Log::Log4perl;
 use Data::Dumper ;
@@ -15,24 +15,12 @@ my $logger = Log::Log4perl::get_logger("Backend::Itself");
 
 # find all .pl file in model_dir and load them...
 
-sub new {
-    my $type = shift ;
-    my %args = @_ ;
-
-    my $model_obj = $args{model_object}
-      || croak __PACKAGE__," read_all: undefined model object";
-
-     croak __PACKAGE__," read_all: model_object is not a Config::Model::Node object"
-       unless $model_obj->isa("Config::Model::Node");
-
-    bless { model_object => $model_obj }, $type ;
-}
-
+has model_object => (is =>'ro', isa =>'Config::Model::Node', required => 1) ;
 
 sub read_all {
     my $self = shift ;
     my %args = @_ ;
-    my $model_obj = $self->{model_object};
+
     my $dir = $args{model_dir} 
       || croak __PACKAGE__," read_all: undefined model dir";
     my $model = $args{root_model} 
@@ -58,7 +46,7 @@ sub read_all {
     } ;
     find ($wanted, $dir ) ;
 
-    my $i = $model_obj->instance ;
+    my $i = $self->model_obj->instance ;
     my %read_models ;
     my %pod_data ;
     my %class_file_map ;
@@ -396,6 +384,8 @@ sub scan_used_class {
     }
     return $res ;
 }
+
+__PACKAGE__->meta->make_immutable;
 
 1;
 
