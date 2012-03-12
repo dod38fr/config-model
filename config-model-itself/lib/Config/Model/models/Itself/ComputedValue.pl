@@ -1,25 +1,3 @@
-# $Author$
-# $Date$
-# $Revision$
-
-#    Copyright (c) 2007-2008 Dominique Dumont.
-#
-#    This file is part of Config-Model-Itself.
-#
-#    Config-Model-Itself is free software; you can redistribute it
-#    and/or modify it under the terms of the GNU Lesser Public License
-#    as published by the Free Software Foundation; either version 2.1
-#    of the License, or (at your option) any later version.
-#
-#    Config-Model-Itself is distributed in the hope that it will be
-#    useful, but WITHOUT ANY WARRANTY; without even the implied
-#    warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-#    See the GNU Lesser Public License for more details.
-#
-#    You should have received a copy of the GNU Lesser Public License
-#    along with Config-Model-Itself; if not, write to the Free Software
-#    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-
 [
   [
    name => "Itself::ComputedValue",
@@ -32,11 +10,27 @@
        => { type => 'leaf',
 
 	    value_type => 'boolean',
-	    upstream_default   => 0,
+	    compute => {
+                formula => '$upstream_knowns',
+                variables => {
+                    upstream_knowns => '- use_as_upstream_default',
+                },
+                use_as_upstream_default => 1,
+            },
+
 	    level => 'normal',
-	    description => "Allow user to override computed value (ignored if no computation is used for this variable).",
+	    description => "Allow user to override computed value",
 	 },
 
+       'use_as_upstream_default' 
+       => { type => 'leaf',
+
+	    value_type => 'boolean',
+	    upstream_default   => 0,
+	    level => 'normal',
+	    description => "Indicate that the computed value is known by the "
+                ."application and does not need to be written in the configuration file. Implies allow_override."
+	 },
 
       ],
 
