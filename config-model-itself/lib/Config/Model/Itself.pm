@@ -272,7 +272,7 @@ sub get_perl_data_model{
     # } 
 
     # don't forget to add name
-    $model->{name} = $class_name ;
+    $model->{name} = $class_name if keys %$model;
 
     return $model ;
 }
@@ -290,6 +290,7 @@ sub write_all {
     my $model_obj = $self->{model_object} ;
     my $dir = $args{model_dir} 
       || croak __PACKAGE__," write_all: undefined model_dir";
+    my $model_file
 
     my $map = $self->{map} ;
 
@@ -330,13 +331,15 @@ sub write_all {
             $logger->info("writing class $class_name");
             my $model 
               = $self-> get_perl_data_model(class_name => $class_name) ;
-            push @data, $model if defined $model;
+            push @data, $model if defined $model and keys %$model;
             
             my $node = $self->{model_object}->grab("class:".$class_name) ;
             push @notes, $node->dump_annotations_as_pod ;
             # remove class name from above list
             delete $loaded_classes{$class_name} ;
         }
+
+        next unless @data ; # don't write empty model
 
         my $wr_file = "$dir/$file" ;
         my $wr_dir  = dirname($wr_file) ;
