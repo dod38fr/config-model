@@ -1,21 +1,3 @@
-#    Copyright (c) 2007-2011 Dominique Dumont.
-#
-#    This file is part of Config-Model-Itself.
-#
-#    Config-Model-Itself is free software; you can redistribute it and/or
-#    modify it under the terms of the GNU Lesser Public License as
-#    published by the Free Software Foundation; either version 2.1 of
-#    the License, or (at your option) any later version.
-#
-#    Config-Xorg is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#    Lesser Public License for more details.
-#
-#    You should have received a copy of the GNU Lesser Public License
-#    along with Config-Model; if not, write to the Free Software
-#    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-
 package Config::Model::Itself ;
 
 use strict;
@@ -30,78 +12,6 @@ use File::Basename ;
 
 my $logger = Log::Log4perl::get_logger("Backend::Itself");
 
-=head1 NAME
-
-Config::Model::Itself - Model editor for Config::Model
-
-=head1 SYNOPSIS
-
- my $meta_model = Config::Model -> new ( ) ;
-
- # load Config::Model model
- my $meta_inst = $model->instance (root_class_name => 'Itself::Model' ,
-                                   instance_name   => 'meta_model' ,
-                                  );
-
- my $meta_root = $meta_inst -> config_root ;
-
- # Itself constructor returns an object to read or write the data
- # structure containing the model to be edited
- my $rw_obj = Config::Model::Itself -> new(model_object => $meta_root ) ;
-
- # now lead the model to be edited
- $rw_obj -> read_all( conf_dir => '/path/to/model_files') ;
-
- # For Curses UI prepare a call-back to write model
- my $wr_back = sub { $rw_obj->write_all(model_dir => '/path/to/model_files');
-
- # create Curses user interface
- my $dialog = Config::Model::CursesUI-> new
-      (
-       experience => 'advanced',
-       store => $wr_back,
-      ) ;
-
- # start Curses dialog to edit the mode
- $dialog->start( $meta_model )  ;
-
- # that's it. When user quits curses interface, Curses will call
- # $wr_back sub ref to write the modified model.
-
-=head1 DESCRIPTION
-
-Config::Itself module and its model files provide a model of Config:Model
-(hence the Itself name).
-
-Let's step back a little to explain. Any configuration data is, in
-essence, structured data. This data could be stored in an XML file. A
-configuration model is a way to describe the structure and relation of
-all items of a configuration data set.
-
-This configuration model is also expressed as structured data. This
-structure data is structured and follow a set of rules which are
-described for humans in L<Config::Model>.
-
-The structure and rules documented in L<Config::Model> are also
-expressed in a model in the files provided with
-C<Config::Model::Itself>.
-
-Hence the possibity to verify, modify configuration data provided by
-Config::Model can also be applied on configuration models. Using the
-same user interface.
-
-From a Perl point of view, Config::Model::Itself provides a class
-dedicated to read and write a set of model files.
-
-=head1 Constructor
-
-=head2 new ( model_object => ... )
-
-Creates a new read/write handler. This handler is dedicated to the
-C<model_object> passed with the constructor. This parameter must be a
-L<Config::Model::Node> class.
-
-=cut
 
 # find all .pl file in model_dir and load them...
 
@@ -118,18 +28,6 @@ sub new {
     bless { model_object => $model_obj }, $type ;
 }
 
-=head2 Methods
-
-=head1 read_all ( model_dir => ... , root_model => ... , [ force_load => 1 ] )
-
-Load all the model files contained in C<model_dir> and all its
-subdirectories. C<root_model> is used to filter the classes read. 
-
-Use C<force_load> if you are trying to load a model containing errors.
-
-C<read_all> returns a hash ref containing ( class_name => file_name , ...)
-
-=cut
 
 sub read_all {
     my $self = shift ;
@@ -277,12 +175,6 @@ sub get_perl_data_model{
     return $model ;
 }
 
-=head2 write_all ( model_dir => ... )
-
-Will write back configuration model in the specified directory. The
-structure of the read directory is respected.
-
-=cut
 
 sub write_all {
     my $self = shift ;
@@ -389,12 +281,6 @@ sub write_model_file {
 }
 
 
-=head2 list_class_element
-
-Returns a string listing all the class and elements. Useful for
-debugging your configuration model.
-
-=cut
 
 sub list_class_element {
     my $self = shift ;
@@ -439,25 +325,6 @@ sub list_one_class_element {
     return $res ;
 }
 
-=head2 get_dot_diagram
-
-Returns a graphviz dot file that represents the strcuture of the
-configuration model:
-
-=over
-
-=item *
-
-C<include> are represented by solid lines
-
-=item *
-
-Class usage (i.e. C<config_class_name> parameter) is represented by
-dashed lines. The name of the element is attached to the dashed line.
-
-=back
-
-=cut
 
 sub get_dot_diagram {
     my $self = shift ;
@@ -534,6 +401,120 @@ sub scan_used_class {
 
 __END__
 
+
+
+=pod
+
+=head1 NAME
+
+Config::Model::Itself - Model editor for Config::Model
+
+=head1 SYNOPSIS
+
+ my $meta_model = Config::Model -> new ( ) ;
+
+ # load Config::Model model
+ my $meta_inst = $model->instance (root_class_name => 'Itself::Model' ,
+                                   instance_name   => 'meta_model' ,
+                                  );
+
+ my $meta_root = $meta_inst -> config_root ;
+
+ # Itself constructor returns an object to read or write the data
+ # structure containing the model to be edited
+ my $rw_obj = Config::Model::Itself -> new(model_object => $meta_root ) ;
+
+ # now lead the model to be edited
+ $rw_obj -> read_all( conf_dir => '/path/to/model_files') ;
+
+ # For Curses UI prepare a call-back to write model
+ my $wr_back = sub { $rw_obj->write_all(model_dir => '/path/to/model_files');
+
+ # create Curses user interface
+ my $dialog = Config::Model::CursesUI-> new
+      (
+       experience => 'advanced',
+       store => $wr_back,
+      ) ;
+
+ # start Curses dialog to edit the mode
+ $dialog->start( $meta_model )  ;
+
+ # that's it. When user quits curses interface, Curses will call
+ # $wr_back sub ref to write the modified model.
+
+=head1 DESCRIPTION
+
+Config::Itself module and its model files provide a model of Config:Model
+(hence the Itself name).
+
+Let's step back a little to explain. Any configuration data is, in
+essence, structured data. This data could be stored in an XML file. A
+configuration model is a way to describe the structure and relation of
+all items of a configuration data set.
+
+This configuration model is also expressed as structured data. This
+structure data is structured and follow a set of rules which are
+described for humans in L<Config::Model>.
+
+The structure and rules documented in L<Config::Model> are also
+expressed in a model in the files provided with
+C<Config::Model::Itself>.
+
+Hence the possibity to verify, modify configuration data provided by
+Config::Model can also be applied on configuration models. Using the
+same user interface.
+
+From a Perl point of view, Config::Model::Itself provides a class
+dedicated to read and write a set of model files.
+
+=head1 Constructor
+
+=head2 new ( model_object => ... )
+
+Creates a new read/write handler. This handler is dedicated to the
+C<model_object> passed with the constructor. This parameter must be a
+L<Config::Model::Node> class.
+
+=head2 Methods
+
+=head1 read_all ( model_dir => ... , root_model => ... , [ force_load => 1 ] )
+
+Load all the model files contained in C<model_dir> and all its
+subdirectories. C<root_model> is used to filter the classes read. 
+
+Use C<force_load> if you are trying to load a model containing errors.
+
+C<read_all> returns a hash ref containing ( class_name => file_name , ...)
+
+=head2 write_all ( model_dir => ... )
+
+Will write back configuration model in the specified directory. The
+structure of the read directory is respected.
+
+=head2 list_class_element
+
+Returns a string listing all the class and elements. Useful for
+debugging your configuration model.
+
+=head2 get_dot_diagram
+
+Returns a graphviz dot file that represents the strcuture of the
+configuration model:
+
+=over
+
+=item *
+
+C<include> are represented by solid lines
+
+=item *
+
+Class usage (i.e. C<config_class_name> parameter) is represented by
+dashed lines. The name of the element is attached to the dashed line.
+
+=back
+
 =head1 AUTHOR
 
 Dominique Dumont, (ddumont at cpan dot org)
@@ -552,4 +533,3 @@ it under the LGPL terms.
 L<Config::Model>, L<Config::Model::Node>,
 
 =cut
-
