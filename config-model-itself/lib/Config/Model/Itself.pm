@@ -344,6 +344,16 @@ sub write_all {
     }
 }
 
+sub write_model_snippet {
+    my $self = shift ;
+    my %args = @_ ;
+    my $model_obj = $self->{model_object} ;
+    my $dir = $args{model_dir} 
+      || croak __PACKAGE__," write_model_snippet: undefined model_dir";
+    my $model_file = $args{model_file} 
+      || croak __PACKAGE__," write_model_snippet: undefined model_file";
+
+}
 
 #
 # New subroutine "write_model_file" extracted - Mon Mar 12 13:38:29 2012.
