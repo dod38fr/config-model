@@ -1,8 +1,10 @@
 2012-03-13  Dominique Dumont  <domi.dumont@free.fr> 2.009
 
     * Application changes:
-      * Debian control: fix warning of section and priority fields
-      * Debian Copyright: added warnings if Files uses either [ ] or |
+      * Debian control:
+	* fix warning of section and priority fields
+        + added check and fix for libpng and libtiff4 transistions
+	* Debian Copyright: added warnings if Files uses either [ ] or |
 	(thanks gregoa for the suggestion)
       * cme: check must check all values
 
