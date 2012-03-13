@@ -10,7 +10,7 @@ use Config::Model;
 use Config::Model::ValueComputer;
 use Log::Log4perl qw(:easy) ;
 
-BEGIN { plan tests => 66; }
+BEGIN { plan tests => 68; }
 
 use strict;
 
@@ -667,4 +667,25 @@ foreach my $k ( sort keys %loc_h ) {
     my $path = "$k warped_by_location";
     is( $root->grab_value($path), $loc_h{$k}, "check &location with $path" );
 }
-memory_cycle_ok($model);
+
+# test warp in layered mode
+my $layered_i = $model->instance(
+    root_class_name => 'Master',
+    instance_name   => 'test_layered'
+);
+ok( $inst, "created layered instance" );
+
+my $l_root = $layered_i->config_root;
+$layered_i->layered_start ;
+
+my $l_macro = $l_root->fetch_element('macro');
+
+$l_macro->store('D') ;
+
+my $l_mv = $l_root->fetch_element('m_value');
+$layered_i->layered_stop;
+
+$l_mv->store('Av') ;
+is($l_mv->fetch,'Av',"test warp in layered mode") ;
+
+memory_cycle_ok($model,"test memory cycle");
