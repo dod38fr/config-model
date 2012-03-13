@@ -10,7 +10,7 @@ use Config::Model;
 use Data::Dumper;
 use Log::Log4perl qw(:easy :levels) ;
 
-BEGIN { plan tests => 80; }
+BEGIN { plan tests => 82; }
 
 use strict;
 
@@ -510,4 +510,24 @@ my $ciphers = $root->fetch_element('Ciphers');
 my @cipher_list = qw/aes192-cbc aes128-cbc 3des-cbc blowfish-cbc aes256-cbc/ ;
 $ciphers->set_checked_list(@cipher_list) ;
 eq_or_diff( [ $ciphers->get_checked_list ], \@cipher_list, "check cipher list");
-memory_cycle_ok($model);
+
+# test warp in layered mode
+my $layered_i = $model->instance(
+    root_class_name => 'Master',
+    instance_name   => 'test_layered'
+);
+ok( $layered_i, "created layered instance" );
+my $l_root = $layered_i->config_root;
+$layered_i->layered_start ;
+
+my $locl =  $l_root->fetch_element('ordered_checklist') ;
+$locl->set_checked_list(@set);
+
+my $loclrt = $root->fetch_element('ordered_checklist_refer_to');
+@got = $loclrt->get_choice();
+is_deeply( \@got, [qw/Y V C Z B A/],
+    "test default of ordered_checklist_refer_to in layered mode" );
+
+
+
+memory_cycle_ok($model,"memory cycle");

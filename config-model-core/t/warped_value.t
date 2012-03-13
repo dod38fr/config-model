@@ -673,7 +673,7 @@ my $layered_i = $model->instance(
     root_class_name => 'Master',
     instance_name   => 'test_layered'
 );
-ok( $inst, "created layered instance" );
+ok( $layered_i, "created layered instance" );
 
 my $l_root = $layered_i->config_root;
 $layered_i->layered_start ;
