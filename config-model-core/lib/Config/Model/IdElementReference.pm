@@ -107,7 +107,7 @@ sub get_choice_from_refered_to {
             my $list_obj = $obj->fetch_element($element);
             my $ct       = $list_obj->get_cargo_type;
             if ( $ct eq 'leaf' ) {
-                @choice = $list_obj->fetch_all_values();
+                @choice = $list_obj->fetch_all_values(mode => 'user');
             }
             else {
                 Config::Model::Exception::Model->throw(
