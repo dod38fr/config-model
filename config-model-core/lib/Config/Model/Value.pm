@@ -1389,7 +1389,8 @@ sub _fetch {
 	 : $mode eq 'layered'                   ? $self->{layered}
 	 : $mode eq 'upstream_default'          ? $self->{upstream_default}
 	 : $mode eq 'user'                      ? defined $data ? $data : $std
-         : $mode =~ /backend|allow_undef/       ? defined $data ? $data : $pref 
+         : $mode eq 'allow_undef'               ? defined $data ? $data : $std 
+         : $mode eq 'backend'                   ? defined $data ? $data : $pref 
          :                                      die "unexpected mode $mode " ;
 
     $logger->debug("done in '$mode' mode for ".$self->location." -> $res") 
