@@ -1,0 +1,43 @@
+Source: libwx-scintilla-perl
+Maintainer: Debian Perl Group <pkg-perl-maintainers@lists.alioth.debian.org>
+Uploaders: Dominique Dumont <dod@debian.org>
+Section: perl
+Priority: optional
+Build-Depends: debhelper (>= 8),
+               libalien-wxwidgets-perl ( >= 0.54+dfsg),
+               libatk1.0-dev,
+               libtiff4, 
+               libextutils-xspp-perl,
+               libfontconfig1-dev,
+               libfreetype6-dev,
+               libgdk-pixbuf2.0-dev,
+               libglib2.0-dev,
+               libgtk2.0-dev,
+               libpango1.0-dev,
+               libpng12-dev,
+               libwx-perl,
+               perl,
+               xauth,
+               xvfb,
+               zlib1g-dev
+Standards-Version: 3.9.2
+Vcs-Browser: http://anonscm.debian.org/gitweb/?p=pkg-perl/packages/libwx-scintilla-perl.git
+Vcs-Git: git://git.debian.org/pkg-perl/packages/libwx-scintilla-perl.git
+Homepage: http://search.cpan.org/dist/Wx-Scintilla/
+
+Package: libwx-scintilla-perl
+Architecture: any
+Depends: ${misc:Depends},
+         ${perl:Depends},
+         ${shlibs:Depends},
+         libwx-perl
+Description: source code editor component for wxWidgets
+ Wx::Scintilla Perl module is a Wx wrapper around scintilla editor.
+ .
+ Wx::Scintilla prjoect goal is to provide fresh Perl 5 and maybe Perl 6
+ support in Wx while preserving compatibility with Wx::StyledTextCtrl.
+ .
+ Note: You cannot load Wx::STC and Wx::Scintilla in the same application. They
+ are mutually exclusive. The wxSTC_... events are handled by one library or
+ the other.
+

@@ -116,6 +116,11 @@ providing the following file:
         load_check => 'no',
         apply_fix => 1,
     },
+    {
+        name => 'libwx-scintilla-perl',
+        load_warnings => [ ( qr/Warning/) x 3 ],
+        apply_fix => 1,
+    },
 );
 
 my $cache_file = 't/model_tests.d/debian-dependency-cache.txt';
