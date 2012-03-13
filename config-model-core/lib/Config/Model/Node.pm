@@ -823,12 +823,19 @@ sub is_element_available {
 
     my $element_level = $self->get_element_property(property => 'level',
                                                     element => $elt_name) ;
-    return 0 if $element_level eq 'hidden' ;
+    
+    if ($element_level eq 'hidden') {
+        $logger->trace("element $elt_name is level hidden -> return 0") ;
+        return 0 ;
+    }
 
     my $element_status = $self->get_element_property(property => 'status',
                                                     element => $elt_name) ;
 
-    return 0 unless ($element_status eq 'standard' or $element_status eq $status) ;
+    if ($element_status ne 'standard' and $element_status ne $status) {
+        $logger->trace("element $elt_name is status $element_status -> return 0") ;
+        return 0 ;
+    }
 
     my $element_exp = $self->get_element_property(property => 'experience',
                                                   element => $elt_name) ;
@@ -991,12 +998,16 @@ sub load_data {
     # data must be loaded according to the element order defined by
     # the model. This will not load not yet accepted parameters
     foreach my $elt ( @{$self->{model}{element_list}} ) {
+        $logger->trace("check element $elt") ;
         next unless defined $perl_data->{$elt} ;
 
         if ($self->is_element_available(name => $elt, experience => 'master')
             or $check eq 'no'
            ) {
-            $logger->debug("Node load_data for element $elt");
+            if ($logger->is_trace) {
+                my $v = defined $perl_data->{$elt} ? $perl_data->{$elt} : '<undef>' ;
+                $logger->trace("Node load_data for element $elt -> $v");
+            }
             my $obj = $self->fetch_element(name => $elt, experience => 'master', 
                                            check => $check) ;
 
