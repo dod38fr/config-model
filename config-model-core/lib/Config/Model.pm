@@ -405,7 +405,7 @@ Dedicated Config::Model::Manual pages will follow soon.
 
 =head1 Storage backend, configuration reader and writer
 
-See L<Config::Model::AutoRead> for details
+See L<Config::Model::BackendMgr> for details
 
 =head1 Validation engine
 
@@ -2488,10 +2488,6 @@ L<Config::Model::TermUI>
 =item *
 
 L<Config::Model::Iterator>
-
-=item *
-
-L<Config::Model::AutoRead>
 
 =item *
 
