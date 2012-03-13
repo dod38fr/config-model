@@ -124,6 +124,7 @@ sub check_value {
     # wget -q -O - 'http://qa.debian.org/cgi-bin/madison.cgi?package=perl-doc&text=on'
 
     $self->SUPER::check_value(%args) ;
+    $value = $self->{data} if $apply_fix ; # check_value may modify data in this case
     my $e_list = $self->{error_list} ;
     
     if (defined $value) {
