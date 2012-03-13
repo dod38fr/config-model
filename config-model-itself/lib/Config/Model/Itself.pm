@@ -5,6 +5,7 @@ use namespace::autoclean;
 
 use IO::File ;
 use Log::Log4perl;
+use Carp ;
 use Data::Dumper ;
 use File::Find ;
 use File::Path ;
@@ -46,7 +47,7 @@ sub read_all {
     } ;
     find ($wanted, $dir ) ;
 
-    my $i = $self->model_obj->instance ;
+    my $i = $self->model_object->instance ;
     my %read_models ;
     my %pod_data ;
     my %class_file_map ;
@@ -103,6 +104,7 @@ sub read_all {
 
     # Create all classes listed in %read_models to avoid problems with
     # include statement while calling load_data
+    my $model_obj = $self->model_object ;
     my $class_element = $model_obj->fetch_element('class') ;
     map { $class_element->fetch_with_id($_) } sort keys %read_models ;
 
@@ -205,6 +207,8 @@ sub write_all {
 
         my @data ;
         my @notes ;
+        
+        # FIXME: check here if any of these class was modified
 
         foreach my $class_name (@{$map_to_write{$file}}) {
             $logger->info("writing class $class_name");
@@ -227,12 +231,26 @@ sub write_all {
 sub write_model_snippet {
     my $self = shift ;
     my %args = @_ ;
-    my $model_obj = $self->{model_object} ;
-    my $dir = $args{model_dir} 
+    my $model_dir = $args{model_dir} 
       || croak __PACKAGE__," write_model_snippet: undefined model_dir";
     my $model_file = $args{model_file} 
       || croak __PACKAGE__," write_model_snippet: undefined model_file";
 
+    my $model = $self->model_object->dump_as_data ;
+    print (Dumper( $model)) ;
+
+    my @data ;
+    my @raw_data = @{$model->{class}} ;
+    while (@raw_data) {
+        my ( $class , $data ) = splice @raw_data,0,2 ;
+        $data ->{name} = $class ;
+        push @data, $data ;
+    }
+    return unless @data ;
+
+    my @notes = $self->model_object->dump_annotations_as_pod ;
+    
+    write_model_file ("$model_dir/$model_file", \@notes, \@data);
 }
 
 #
