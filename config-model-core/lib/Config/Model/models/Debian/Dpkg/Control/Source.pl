@@ -100,7 +100,20 @@ area/section if the package is in the contrib or non-free archive areas.
       'Build-Depends',
       {
         'cargo' => {
+          'warn_unless' => {
+            'libtiff4 transition' => {
+              'msg' => 'libtiff4 is transtioning to versioned symbols. New packages should build-depend on libtiff4 (>= 3.9.5-2).',
+              'fix' => '$_ = \'libtiff4 (>= 3.9.5-2)\';',
+              'code' => 'not /libtiff4/ or /libtiff4\\s*\\(>=\\s*3.9.5-2\\s*\\)/'
+            }
+          },
           'value_type' => 'uniline',
+          'warn_if_match' => {
+            'libpng12-dev' => {
+              'msg' => 'This dependency is deprecated and should be replaced with libpng-dev. See BTS 650601 for details',
+              'fix' => '$_ = \'libpng-dev\';'
+            }
+          },
           'class' => 'Config::Model::Debian::Dependency',
           'type' => 'leaf'
         },
