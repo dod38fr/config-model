@@ -40,7 +40,7 @@ providing the following file:
 
         # t1
         check => { 'binary:seaview Recommends:0', 'clustalw', },
-        load_warnings => [ qr/standards version/, qr/too long/ ],
+        load_warnings => [ qr/dependency is deprecated/,qr/standards version/, qr/too long/ ],
         apply_fix => 1,
         load => 'binary:seaview Synopsis="multiplatform interface for sequence alignment"',
     },
