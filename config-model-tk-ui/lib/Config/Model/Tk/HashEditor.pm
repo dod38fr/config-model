@@ -128,6 +128,7 @@ sub Populate {
         );
     };
     $entry->bind( '<KeyPress>', $bound_sub );
+    $entry->bind( '<B2-ButtonRelease>', $bound_sub );
     $tklist->bind( '<<ListboxSelect>>', $bound_sub );
 
     # frame for all buttons
