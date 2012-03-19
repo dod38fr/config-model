@@ -170,10 +170,27 @@ in ‘/usr/share/common-licenses/GPL-1’." } ,
     
     {
         name => 'libpadre-plugin-perltidy-perl',
-        load_warnings => [ (qr/deprecated/) x 3  ],
+        load_warnings => [ (qr/deprecated/) x 4  ],
         check => { 
             'Files:"*" License short_name' => "Artistic or GPL-1+" ,
-            'Files:"*" License-Alias' => 'Perl',
+            'Files:"*" License-Alias' => { qw/check no value Perl/}, # deprecated but not yet removed
+        },
+        wr_check => { 
+            'Files:"*" License short_name' => "Artistic or GPL-1+" ,
+            'Files:"*" License-Alias' => { check => 'no' },
+        },
+    },
+    {
+        name => 'migrate-license-alias',
+        load_check => 'no', # missing Files: * in 2nd section
+        load_warnings => [ qr/Missing/, (qr/deprecated/) x 4  ],
+        check => { 
+            'Files:"*" License short_name' => "Artistic or GPL-1+" ,
+            'Files:"*" License-Alias' => { qw/check no value Perl/},
+        },
+        wr_check => { 
+            'Files:"*" License short_name' => "Artistic or GPL-1+" ,
+            'Files:"*" License-Alias' => { check => 'no' },
         },
     },
 );

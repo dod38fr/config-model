@@ -25,15 +25,15 @@ EOF
         config_file => '/home/foo/my_arm.conf',
         load => "include=/usr/share/multistrap/crosschroot.conf" ,
 
-        # values brought by included file
-        check_layered  => {
-                'sections:debian packages:0' ,'dpkg-dev',
-                'sections:base packages:0', 'gcc-4.2-base',
-            },
-        check  => {
-                'sections:toolchains packages:0' ,undef,
-                'sections:toolchains packages:1', undef,
-            },
+        check => {
+
+            # values brought by included file
+            'sections:debian packages:0', {qw/mode layered value dpkg-dev/},
+            'sections:base packages:0',   {qw/mode layered value gcc-4.2-base/},
+
+            'sections:toolchains packages:0', undef,
+            'sections:toolchains packages:1', undef,
+          },
         file_check_sub => sub { 
             my $r = shift ; 
             # this file was created after the load instructions above
