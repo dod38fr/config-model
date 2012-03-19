@@ -70,6 +70,15 @@ license: /[\\w\\-\\.\\+]+/i
           'QPL' => 'Q Public License',
           'Apache' => 'Apache license. For versions, consult the Apache_Software_Foundation.'
         },
+        'migrate_from' => {
+          'replace' => {
+            'Perl' => 'Artistic or GPL-1+'
+          },
+          'formula' => '$replace{$alias}',
+          'variables' => {
+            'alias' => '- - License-Alias'
+          }
+        },
         'type' => 'leaf',
         'description' => 'abbreviated name for the license. If empty, it is given the default 
 value \'other\'. Only one license per file can use this default value; if there is more 

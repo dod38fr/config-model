@@ -42,6 +42,12 @@ The Copyright field may contain the original copyright statement copied exactly 
         'type' => 'node',
         'config_class_name' => 'Debian::Dpkg::Copyright::FileLicense'
       },
+      'License-Alias',
+      {
+        'value_type' => 'uniline',
+        'status' => 'deprecated',
+        'type' => 'leaf'
+      },
       'Comment',
       {
         'value_type' => 'string',
