@@ -193,15 +193,13 @@ sub run_model_test {
         $dump = $root->dump_tree();
         ok( $dump, "Dumped $model_test config tree in custom mode" );
 
-        foreach my $key ( keys %$t) {
-            next unless $key =~ /^check_?(\w*)/;
-            my $mode = $1 || '';
-            
-            foreach my $path ( sort keys %{ $t->{$key} } ) {
-                my $v = $t->{$key}{$path};
-                is( $root->grab($path)->fetch (mode => $mode), 
-                    $v, "check $path value (mode $mode)" );
-            }
+        my $check = $t->{check} || {};
+        foreach my $path ( sort keys %$check ) {
+                my $v = $check->{$path};
+                my $check_v = ref $v ? delete $v->{value} : $v ;
+                my @check_args = ref $v ? %$v : ();
+                is( $root->grab(step => $path, @check_args)->fetch (@check_args), 
+                    $check_v, "check $path value (@check_args)" );
         }
 
         if (my $annot_check = $t->{verify_annotation}) {
@@ -261,6 +259,15 @@ sub run_model_test {
         ok( -s "$wr_dir2/$conf_dir/$conf_file_name" , 
             "check that original $model_test file was not clobbered" )
                 if defined $conf_file_name ;
+
+        my $wr_check = $t->{wr_check} || {};
+        foreach my $path ( sort keys %$wr_check ) {
+            my $v          = $wr_check->{$path};
+            my $check_v    = ref $v ? delete $v->{value} : $v;
+            my @check_args = ref $v ? %$v : ();
+            is( $i2_root->grab( step => $path, @check_args )->fetch(@check_args),
+                $check_v, "wr_check $path value (@check_args)" );
+        }
 
         note("End of subtest $model_test $t_name");
 
@@ -482,14 +489,16 @@ correctly:
         'fs:/home fs_file',          "/home",
     },
     
-You can run check using different check modes (See L<Config::Model::Value/"fetch( ... )">):
+You can run check using different check modes (See L<Config::Model::Value/"fetch( ... )">)
+by passing a hash ref instead of a scalar :
     
-    check_layered  => {
-                'sections:debian packages:0' ,'dpkg-dev',
-                'sections:base packages:0', 'gcc-4.2-base',
-            },
+    check  => {
+        'sections:debian packages:0' , { qw/mode layered value dpkg-dev/},
+        ''sections:base packages:0',   { qw/mode layered value gcc-4.2-base/},
+    },
 
-The mode is specified after C<check_>.
+The whole hash content (except "value") is passed to  L<grab|Config::Model::AnyThing/"grab(...)"> 
+and L<fetch|Config::Model::Value/"fetch( ... )">
 
 =item *
 
@@ -543,6 +552,20 @@ Create another configuration instance to read the conf file that was just copied
 
 Compare data read from original data.
 
+=item *
+
+Run specific content check on the B<written> config file to verify that
+configuration data was written and retrieved correctly:
+
+
+    wr_check => { 
+        'fs:/proc fs_spec',           "proc" ,
+        'fs:/proc fs_file',           "/proc" ,
+        'fs:/home fs_file',          "/home",
+    },
+
+Like the C<check> item explained above, you can run check using
+different check modes.
 
 =back
 
