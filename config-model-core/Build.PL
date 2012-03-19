@@ -58,11 +58,11 @@ my $build = Module::Build->new(
 
     meta_merge => {
         resources => {
-            homepage => 'http://config-model.wiki.sourceforge.net',
+            homepage => 'https://github.com/dod38fr/config-model/wiki',
             MailingList =>
               'https://lists.sourceforge.net/lists/listinfo/config-model-users',
             repository =>
-              'http://config-model.hg.sourceforge.net:8000/hgroot/config-model/config-model',
+              'git://github.com/dod38fr/config-model.git',
         },
     },
 
