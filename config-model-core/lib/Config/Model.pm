@@ -2361,7 +2361,9 @@ Dominique Dumont, (ddumont at cpan dot org)
 
 L<Config::Model::Instance>,
 
-L<http://sourceforge.net/apps/mediawiki/config-model/index.php?title=Creating_a_model>
+L<https://github.com/dod38fr/config-model/wiki>
+
+L<https://github.com/dod38fr/config-model/wiki/Creating-models>
 
 =head2 Model elements
 
