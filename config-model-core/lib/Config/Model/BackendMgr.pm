@@ -316,10 +316,9 @@ sub read_config_data {
         # catch eval errors done in the if-then-else block before
         my $e ;
         if ( $e = Exception::Class->caught('Config::Model::Exception::Syntax') ) {
-            Config::Model::Exception::Syntax->throw( 
-                ( map { ($_, $e->$_); } qw/object message line/ ),
-                file => $file_path, 
-            );
+            # FIXME: this is naughty. Should file a bug to add info in rethrow
+            $e->{parsed_file} = $file_path unless $e->parsed_file ;
+            $e->rethrow ;
         }
         elsif ( $e = Exception::Class->caught() ) {
             ref $e ? $e->rethrow : die $e;

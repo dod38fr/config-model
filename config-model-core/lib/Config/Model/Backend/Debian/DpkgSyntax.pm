@@ -42,7 +42,7 @@ sub parse_dpkg_lines {
         if (/^#/) { # comment are always located before the keyword (hopefully)
             Config::Model::Exception::Syntax->throw (
                 object => $self,
-                line => $line,
+                parsed_line => $line,
                 message => "Comments are not allowed",
             ) unless $comment_allowed;
             my $c = $_ ;
@@ -86,7 +86,8 @@ sub parse_dpkg_lines {
         }
         else {
             my $msg = "DpkgSyntax error: Invalid line (missing ':' ?) : $_" ;
-            Config::Model::Exception::Syntax -> throw ( message => $msg, line => $line ) if $check eq 'yes' ; 
+            Config::Model::Exception::Syntax -> throw ( message => $msg, parsed_line => $line ) 
+                if $check eq 'yes' ; 
 	    $logger->error($msg) if $check eq 'skip';
         }
         $line++;
@@ -116,7 +117,7 @@ sub _store_line {
     }
     else {
         my $msg = "Did not find a keyword before: '$line''";
-        Config::Model::Exception::Syntax -> throw ( message => $msg, line => $line_nb ) 
+        Config::Model::Exception::Syntax -> throw ( message => $msg, parsed_line => $line_nb ) 
             if $check eq 'yes' ; 
         $logger->error($msg) if $check eq 'skip';
     }

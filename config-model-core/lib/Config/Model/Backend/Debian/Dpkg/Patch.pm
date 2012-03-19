@@ -39,7 +39,7 @@ sub read {
 
     my $patch_name = $node->index_value;
 
-    my $patch_file = "$patch_dir/$patch_name";
+    my $patch_file = "$patch_dir$patch_name";
     $logger->info("Parsing patch $patch_file");
     my $patch_io = IO::File->new($patch_file)
       || Config::Model::Exception::Syntax->throw(
@@ -53,7 +53,17 @@ sub read {
     }
     chomp @$header;
 
-    my $c = $self->parse_dpkg_lines($header,$check);
+    my $c = eval { $self->parse_dpkg_lines($header,$check); } ;
+    my $e ;
+    if ( $e = Exception::Class->caught('Config::Model::Exception::Syntax') ) {
+        # FIXME: this is naughty. Should file a bug to add info in rethrow
+        $e->{parsed_file} = $patch_file unless $e->parsed_file ;
+        $e->rethrow ;
+    }
+    elsif ( $e = Exception::Class->caught() ) {
+        ref $e ? $e->rethrow : die $e;
+    }
+    
     Config::Model::Exception::Syntax->throw(
         message => "More than one section in $patch_name header" )
       if @$c > 1;

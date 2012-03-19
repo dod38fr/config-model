@@ -25,8 +25,9 @@ use Data::Dumper ;
 use Exception::Class 
   (
    'Config::Model::Exception::Syntax' 
-   => { description => 'config error' ,
-	fields      =>  [qw/object file line/] ,
+   => { isa         => 'Config::Model::Exception::Any',
+	description => 'config error' ,
+	fields      =>  [qw/object parsed_file parsed_line/] ,
 	description => 'syntax error',
       },
 
@@ -146,8 +147,8 @@ package Config::Model::Exception::Syntax ;
 sub full_message {
     my $self = shift;
 
-    my $fn = $self->file || '?' ;
-    my $line = $self->line || '?' ;
+    my $fn = $self->parsed_file || '?' ;
+    my $line = $self->parsed_line || '?' ;
     my $msg = "File $fn line $line ";
     $msg .= "has a ".$self->description ;
     $msg .= ":\n\t". $self->message."\n";
