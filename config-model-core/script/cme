@@ -87,6 +87,7 @@ my @global_options = (
     "force_load|force-load!"        => \$force_load,
     "root_dir|root-dir=s"           => \$root_dir,
     "backend=s"                     => \$backend,
+    "stack-trace|trace!"            => \$trace,
     );
 
 # retrieve the main command, i.e. the first arg without leading dash
@@ -546,7 +547,7 @@ files. (Actual default directory and file names depends on the model
 C</etc/ssh/sshd_config> files will be written in C<~/mytest/etc/ssh/>
 directory.
 
-=item -trace
+=item -stack-trace
 
 Provides a full stack trace when exiting on error.
 
