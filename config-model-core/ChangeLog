@@ -1,3 +1,18 @@
+2012-03-19  Dominique Dumont  <domi.dumont@free.fr> 2.010
+
+    * Application changes:
+      + Debian copyright: added deprecated License-Alias paramater. 
+        When set to 'Perl', this parameter is migrated into 
+        License: Artistic or GPL-1+
+      + Debian DpkgSyntax: better error message. This was really annoying for DEP-3
+        patch parser.
+      + cme: added forgotten -stack-trace option
+
+    * Tester changes:
+      - removed check_* parameter. 
+      + Added wr_check parameter
+      + added possibility to pass options to grab and fetch with check and wr_check.
+
 2012-03-13  Dominique Dumont  <domi.dumont@free.fr> 2.010
 
     * Application changes:
