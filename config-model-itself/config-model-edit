@@ -385,7 +385,7 @@ if ($open_item) {
 
 =head1 LOGGING
 
-All Config::Model logging is (slowly) moved from klunky debug and
+All Config::Model logging was moved from klunky debug and
 verbose prints to L<Log::Log4perl>. Logging can be configured in the
 following files:
 
