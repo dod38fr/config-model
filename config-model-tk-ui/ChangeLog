@@ -1,3 +1,11 @@
+2012-03-14  Dominique Dumont  <domi.dumont@free.fr> 1.332
+
+	* Hash editor: enable buttons when mouse button-2 is released
+	  (paste)
+	* wizard: clarify stop button. Added quit button
+	* Leaf editor: grab focus when using external editor
+	* Depends on Config::Model >= 2.001
+
 2011-11-30  Dominique Dumont  <domi.dumont@free.fr> 1.331
 
     * dist.ini (hence Build.PL): Depends on Config::Model 1.263
