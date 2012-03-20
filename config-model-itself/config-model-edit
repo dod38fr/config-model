@@ -31,12 +31,7 @@ use YAML::Any;
 use Tk ;
 use Config::Model::TkUI ;
 use Config::Model::Itself::TkEditUI ;
-
-# lame tracing that will be replaced by Log4perl
-use vars qw/$verbose $debug/ ;
-
-$verbose = 0;
-$debug = 0;
+use lib qw/lib/ ;
 
 my $log4perl_syst_conf_file = '/etc/log4config-model.conf' ;
 my $log4perl_user_conf_file = $ENV{HOME}.'/.log4config-model' ;
@@ -55,7 +50,6 @@ my $log4perl_conf
 
 Log::Log4perl::init($log4perl_conf);
 
-use lib qw/lib/ ;
 
 my $dev_model_dir = 'lib/Config/Model/models/';
 my $root_model ;
@@ -69,6 +63,9 @@ config-model-edit -  Graphical model editor for Config::Model
 =head1 SYNOPSIS
 
   config-model-edit [options] -model Sshd [ class:Sshd element:Foo ... ]
+
+  # plugin mode
+  config-model-edit [options] -model Debian::Dpkg -plugin-file dpkg-snipper.pl
 
 =head1 DESCRIPTION
 
@@ -120,24 +117,28 @@ C<Xorg::Screen> (file C<Xorg/Screen.pl>).
 Mandatory option that specifies the configuration model to be
 edited.
 
-=item -verbose
+=item -plugin-file foo.pl
 
-Be (very) verbose
+this option can be used to create model plugins. A model plugin is an addendum to 
+an existing model. The resulting file must be located in a C<.d> directory besides the 
+original file to be taken into account. 
 
-=item -debug
+For instance:
 
-Provide debug infos.
+ $ config-model-edit -model Debian::Dpkg::Control::Source -plugin-file my-plugin.pl 
+ # perform additions and save
+ 
 
 =item -trace
 
 Provides a full stack trace when exiting on error.
 
-=item -force_load
+=item -force-load
 
 Load file even if error are found in data. Bad data are loaded, but should be cleaned up 
 before saving the model. See menu C<< File -> check >> in the GUI.
 
-=item -dot_diagram
+=item -dot-diagram
 
 Returns a dot file that represent the stucture of the configuration
 model. C<include> are represented by solid lines. Class usage
@@ -165,7 +166,7 @@ typically done with -dump option). This option can be used with
 C<-save> to directly save a model loaded from the cds file or from
 STDIN.
 
-=item -load_yaml <yaml_file_to_load> | -
+=item -load-yaml <yaml_file_to_load> | -
 
 Load configuration data in model from YAML file. This
 option can be used with C<-save> to directly save a model loaded from
@@ -184,7 +185,7 @@ useful to migrate a model when Config::Model model feature changes.
 
 Directory where to read and write model
 
-=item -open_item 'path'
+=item -open-item 'path'
 
 In graphical mode, force the UI to open the node specified. E.g.
 
@@ -223,24 +224,23 @@ my $save = 0;
 my $load ;
 my $model_modified = 0;
 my $open_item = '';
+my $plugin_file = '';
 
 my $result = GetOptions (
 			 "dir=s"            => \$model_dir,
 			 "model=s"          => \$root_model,
-			 "verbose!"         => \$verbose,
-			 "debug!"           => \$debug,
-			 "trace!"           => \$trace,
 			 "man!"             => \$man,
 			 "help!"            => \$help,
-			 "force_load!"      => \$force_load,
+			 "force-load|force_load!"      => \$force_load,
 			 "save!"            => \$save,
-			 "dot_diagram!"     => \$do_dot ,
+			 "dot-diagram|dot_diagram!"     => \$do_dot ,
 			 "dump!"            => \$do_dump ,
                          "dumptype:s"       => \$dumptype,
                          "load=s"           => \$load,
-                         "load_yaml=s"      => \$load_yaml,
-			 "dump_yaml!"       => \$do_yaml ,
-			 "open_item=s"      => \$open_item ,
+                         "load-yaml|load_yaml=s"      => \$load_yaml,
+			 "dump-yaml|dump_yaml!"       => \$do_yaml ,
+			 "open-item|open_item=s"      => \$open_item ,
+			 "plugin-file=s"     => \$plugin_file ,
 			);
 
 pod2usage(2) if not $result ;
@@ -284,16 +284,26 @@ if (not -e $read_model_dir.'/'.$root_model_file.'.pl') {
     $read_model_dir .= '/models' ;
 }
 
+$meta_inst->layered_start if $plugin_file;
+
 $rw_obj -> read_all( model_dir  => $read_model_dir, 
 		     force_load => $force_load ,
 		     root_model => $root_model,
 		     legacy =>'ignore',
 		   ) ;
+		   
+if ($plugin_file) {
+    $meta_inst->layered_stop;
 
-$meta_inst->push_no_value_check(qw/store type/) if $force_load ;
+    # load any existing plugin file
+    $rw_obj->read_model_snippet(model_dir => $wr_model_dir, model_file => $plugin_file) ;
+}
+
+		   
 
 if (defined $load) {
     my $data = load_data($load) ;
+    $data = qq(class:"$root_model" ).$data unless $data =~ /^\s*class:/ ;
     $meta_root->load($data);
     $model_modified = 1;
 }
@@ -306,12 +316,11 @@ if (defined $load_yaml) {
 }
 
 if (@ARGV) {
-    $meta_root->load("@ARGV") ;
+    my $data = join(' ',@ARGV) ;
+    $data = qq(class:"$root_model" ).$data unless $data =~ /^\s*class:/ ;
+    $meta_root->load($data) ;
     $model_modified = 1;
 }
-
-$meta_inst->pop_no_value_check() if $force_load ;
-
 
 if ($do_dot) {
     print $rw_obj->get_dot_diagram ;
@@ -338,10 +347,14 @@ if ($do_yaml) {
     exit ;
 }
 
-my $write_sub = sub { 
-    my $wr_dir = shift || $wr_model_dir ;
-    $rw_obj->write_all(model_dir => $wr_dir);
-} ;
+my $write_sub = $plugin_file ? 
+    sub { 
+	$rw_obj->write_model_snippet(model_dir => $wr_model_dir, model_file => $plugin_file );
+    }
+    : sub { 
+	my $wr_dir = shift || $wr_model_dir ;
+	$rw_obj->write_all(model_dir => $wr_dir, model_file => $plugin_file );
+    } ;
 
 if ($save) {
     &$write_sub ;
