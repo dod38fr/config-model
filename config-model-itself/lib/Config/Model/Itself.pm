@@ -237,21 +237,57 @@ sub write_model_snippet {
       || croak __PACKAGE__," write_model_snippet: undefined model_file";
 
     my $model = $self->model_object->dump_as_data ;
-    print (Dumper( $model)) ;
+    # print (Dumper( $model)) ;
 
-    my @data ;
     my @raw_data = @{$model->{class}} ;
     while (@raw_data) {
         my ( $class , $data ) = splice @raw_data,0,2 ;
         $data ->{name} = $class ;
-        push @data, $data ;
+ 
+        # does not distinguish between notes from underlying model or snipper notes ...
+        my @notes = $self->model_object->grab("class:$class")->dump_annotations_as_pod ;
+        my $class_dir = $class.'.d';
+        $class_dir =~ s!::!/!g;
+        write_model_file ("$model_dir/$class_dir/$model_file", \@notes, [ $data ]);
     }
-    return unless @data ;
-
-    my @notes = $self->model_object->dump_annotations_as_pod ;
-    
-    write_model_file ("$model_dir/$model_file", \@notes, \@data);
 }
+
+sub read_model_snippet {
+    my $self = shift ;
+    my %args = @_ ;
+    my $model_dir = $args{model_dir} 
+      || croak __PACKAGE__," read_model_snippet: undefined model_dir";
+    my $model_file = $args{model_file} 
+      || croak __PACKAGE__," read_model_snippet: undefined model_file";
+
+    
+    my $load_file = "$model_dir/$model_file";
+    return unless -r $load_file;
+    
+    my $snippet = do $load_file ;
+
+    unless ($snippet) {
+        if ($@) {die "couldn't parse $load_file: $@"; }
+        elsif (not defined $snippet) {die  "couldn't do $load_file: $!"}
+        else { die  "couldn't run $load_file" ;}
+    }
+
+    my $class_element = $self->model_object->fetch_element('class') ;
+
+    foreach my $model (@$snippet) {
+        my $class_name = delete $model->{name} ;
+        # load with a array ref to avoid warnings about missing order
+        $class_element->fetch_with_id($class_name)->load_data( $model ) ;
+    }
+
+    # load annotations
+    $logger->info("loading annotations from snippet file $load_file");
+    my $fh = IO::File->new($load_file) || die "Can't open $load_file: $!" ;
+    my @lines = $fh->getlines ;  
+    $fh->close;
+    $self->model_object->load_pod_annotation(join('',@lines)) ;
+}
+
 
 #
 # New subroutine "write_model_file" extracted - Mon Mar 12 13:38:29 2012.
@@ -499,6 +535,16 @@ C<read_all> returns a hash ref containing ( class_name => file_name , ...)
 
 Will write back configuration model in the specified directory. The
 structure of the read directory is respected.
+
+=head2 write_model_snippet( model_dir => foo, model_file => bar.pl )
+
+Write snippet models in separate C<.d> directory. E.g. a snippet for class
+C<Foo::Bar> will be written in C<Foo/Bar.d/bar.pl> file. This file is to be used
+by L<augment_config_class|Config::Model/"augment_config_class (name => '...', class_data )">
+
+=head2 read_model_snippet( model_dir => foo, model_file => bar.pl )
+
+Likewise to read model snippets.
 
 =head2 list_class_element
 
