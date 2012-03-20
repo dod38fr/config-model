@@ -238,7 +238,7 @@ sub store {
     }
     else {
         # trigger redraw of Tk Tree
-        $cw->{store_cb}->($cw->{leaf}) ;
+        $cw->{store_cb}->() ;
         $cw->update_warning($cw->{leaf}) ;
     }
 }
