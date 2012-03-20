@@ -1,3 +1,7 @@
+2012-03-20  Dominique Dumont  <domi.dumont@free.fr> 1.333
+
+	* Fix error when updating a leaf value through NodeEditor
+
 2012-03-14  Dominique Dumont  <domi.dumont@free.fr> 1.332
 
 	* Hash editor: enable buttons when mouse button-2 is released
