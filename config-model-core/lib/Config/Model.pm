@@ -1999,7 +1999,7 @@ sub get_model_doc {
         }
 
         my @see_also =  (
-            "=head1 SEE ALSO",'',"=over",'',"=item *",'',"L<config-edit>",'',
+            "=head1 SEE ALSO",'',"=over",'',"=item *",'',"L<cme>",'',
             ( map { ( "=item *",'',"L<Config::Model::models::$_>",'') ; } sort keys %see_also ),
             "=back",'') ;
 
