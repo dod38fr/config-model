@@ -1721,6 +1721,10 @@ Load configuration data with a hash ref (first parameter). The hash ref key must
 the available elements of the node. The hash ref structure must match
 the structure of the configuration model.
 
+=head2 needs_save
+
+return 1 if one of the elements of the node's sub-tree has been modified.
+
 =head1 Serialization
 
 =head2 dump_tree ( ... )
