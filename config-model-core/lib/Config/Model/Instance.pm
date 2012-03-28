@@ -68,6 +68,11 @@ has needs_save => (
     default => 0,
 );
 
+has on_change_cb => (
+    is => 'rw',
+    isa => 'Maybe[CodeRef]',
+);
+
 # initial_load mode: when data is loaded the first time
 has initial_load => ( 
     is => 'ro',
@@ -289,6 +294,8 @@ sub write_root_dir {
 sub notify_change {
     my $self = shift ;
     $change_logger->debug("called for  instance ",$self->name) if $change_logger->is_debug ;
+    my $cb = $self->on_change_cb ;
+    $cb->(@_) if $cb ;
     $self->{needs_save} = 1;
 }
 
@@ -452,6 +459,11 @@ configuration tree.
 =item check
 
 'yes', 'skip' or 'no'
+
+=item on_change_cb
+
+Call back this function whenever C<notify_change> is called. Called with
+arguments: C<< name => <root node element name>, index => <index_value> >>
 
 =back
 
