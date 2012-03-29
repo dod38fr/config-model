@@ -9,6 +9,7 @@ use File::Path ;
 use File::Copy ;
 use File::Find ;
 use Config::Model::Itself ;
+use File::Copy::Recursive qw(fcopy rcopy dircopy);
 
 use warnings;
 no warnings qw(once);
@@ -63,6 +64,7 @@ rmtree($wr_test) if -d $wr_test ;
 # "modern" API of File::Path does not work with perl 5.8.8
 mkpath( [$wr_conf1, $wr_model1, "$wr_conf1/etc/ssh/"] , 0, 0755) ;
 copy('augeas_box/etc/ssh/sshd_config', "$wr_conf1/etc/ssh/") ;
+dircopy('data',$wr_model1) || die "cannot copy model data:$!" ;
 
 # copy test model
 my $wanted = sub { 
@@ -109,10 +111,12 @@ ok($meta_inst,"Read Itself::Model and created instance") ;
 
 my $meta_root = $meta_inst -> config_root ;
 
-my $rw_obj = Config::Model::Itself -> new(model_object => $meta_root) ;
+my $rw_obj = Config::Model::Itself -> new(
+    model_object => $meta_root,
+    model_dir => $wr_model1,
+) ;
 
 my $map = $rw_obj -> read_all( 
-                              model_dir => 'data',
                               root_model => 'MasterModel',
                               legacy => 'ignore',
                              ) ;
@@ -227,7 +231,7 @@ my $dump = $rw_obj -> get_perl_data_model ( class_name => 'MasterModel' ) ;
 print Dumper $dump if $trace ;
 ok($dump,"Checked dump of one class");
 
-$rw_obj->write_all( model_dir => $wr_model1 ) ;
+$rw_obj->write_all( ) ;
 
 my $model4 = Config::Model->new(legacy => 'ignore',model_dir => $wr_model1) ;
 #$model4 -> load ('X_base_class', 'wr_test/MasterModel/X_base_class.pl') ;

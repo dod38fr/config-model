@@ -20,8 +20,6 @@ my $log = 0;
 my $arg = $ARGV[0] || '' ;
 
 my $trace = ($arg =~ /t/) ? 1 : 0 ;
-$::verbose          = 1 if $arg =~ /v/;
-$::debug            = 1 if $arg =~ /d/;
 $log                = 1 if $arg =~ /l/;
 Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 
@@ -56,10 +54,14 @@ my $meta_inst = $meta_model->instance(
     root_dir => $wr_model1,
 );
 ok( $meta_inst, "Read Itself::Model and created instance" );
+$meta_inst->initial_load_stop ;
 
 my $meta_root = $meta_inst -> config_root ;
 
-my $rw_obj = Config::Model::Itself -> new(model_object => $meta_root) ;
+my $rw_obj = Config::Model::Itself -> new(
+    model_object => $meta_root,
+    model_dir => $wr_model1
+) ;
 
 # add a new class 
 my @list = (1..3);
@@ -85,23 +87,23 @@ if (0) {
     &MainLoop ; # Tk's
 }
 
-print $rw_obj->generate_pod(
-    [ map {"Master::Created$_"} @list ], 
-    [ map {$rw_obj->get_perl_data_model(class_name => "Master::Created$_") } @list ],
-) if $trace;
-
-$rw_obj->write_all( model_dir => $wr_model1 ) ;
+$rw_obj->write_all(  ) ;
 ok(1,"wrote back all stuff") ;
 
-my $meta_root2 = $meta_model -> instance (
+my $meta_inst2 = $meta_model -> instance (
     root_class_name   => 'Itself::Model', 
     instance_name     => 'itself_instance2',
     root_dir          => $wr_model1,
-) -> config_root ;
+) ;
+my $meta_root2 = $meta_inst2->config_root ;
+$meta_inst2->initial_load_stop ;
               
 ok($meta_root2,"Read Itself::Model and created instance2") ;
-my $rw_obj2 = Config::Model::Itself -> new(model_object => $meta_root2 ) ;
-$rw_obj2->read_all( model_dir => $wr_model1 , root_model => 'Master' ) ;
+my $rw_obj2 = Config::Model::Itself -> new(
+    model_dir => $wr_model1 ,
+    model_object => $meta_root2
+) ;
+$rw_obj2->read_all(  root_model => 'Master' ) ;
 
 eq_or_diff($meta_root2->dump_tree, $meta_root->dump_tree,"compare 2 dumps");
 

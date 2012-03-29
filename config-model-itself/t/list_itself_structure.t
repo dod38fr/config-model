@@ -1,8 +1,3 @@
-# -*- cperl -*-
-# $Author: ddumont $
-# $Date: 2008-03-07 13:42:08 $
-# $Revision: 1.2 $
-
 use ExtUtils::testlib;
 use Test::More tests => 4;
 use Config::Model;
@@ -40,13 +35,16 @@ ok($meta_inst,"Read Itself::Model and created instance") ;
 
 my $meta_root = $meta_inst -> config_root ;
 
-my $rw_obj = Config::Model::Itself -> new(model_object => $meta_root ) ;
+my $model_dir = 'lib/Config/Model/models';
+my $rw_obj    = Config::Model::Itself->new(
+    model_dir    => $model_dir,
+    model_object => $meta_root
+);
 
-my $model_dir = 'lib/Config/Model/models' ;
-my $map = $rw_obj -> read_all( model_dir => $model_dir,
-			       root_model => 'Itself',
-			       force_load   => 1,
-			     ) ;
+my $map = $rw_obj->read_all(
+    root_model => 'Itself',
+    force_load => 1,
+);
 
 ok(1,"Read all models from $model_dir") ;
 

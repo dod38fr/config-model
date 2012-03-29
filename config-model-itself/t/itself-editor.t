@@ -10,11 +10,14 @@ use Tk ;
 use File::Path ;
 use File::Copy ;
 use Config::Model::Itself::TkEditUI;
+use File::Copy::Recursive qw(fcopy rcopy dircopy);
 
 use warnings;
 no warnings qw(once);
 
 use strict;
+$File::Copy::Recursive::DirPerms = 0755;
+
 
 my ($log,$show) = (0) x 2 ;
 my $arg = $ARGV[0] || '' ;
@@ -29,7 +32,6 @@ print "You can play with the widget if you run the test with 's' argument\n";
 my $wr_test = 'wr_test' ;
 my $wr_conf1 = "$wr_test/wr_conf1";
 my $wr_model1 = "$wr_test/wr_model1";
-my $read_dir = 'data' ;
 
 sub wr_cds {
     my ($file,$cds) = @_ ;
@@ -82,8 +84,9 @@ rmtree($wr_test) if -d $wr_test ;
 
 mkpath([$wr_conf1, $wr_model1, "$wr_conf1/etc/ssh/"], 0, 0755) ;
 copy('augeas_box/etc/ssh/sshd_config', "$wr_conf1/etc/ssh/") ;
+dircopy('data',$wr_model1) || die "cannot copy model data:$!" ;
 
-my $model = Config::Model->new(legacy => 'ignore',model_dir => $read_dir ) ;
+my $model = Config::Model->new(legacy => 'ignore',model_dir => $wr_model1 ) ;
 ok(1,"loaded Master model") ;
 
 # check that Master Model can be loaded by Config::Model
@@ -101,20 +104,23 @@ $root1->load("a_string=toto lot_of_checklist macro=AD - "
 	    ."                get_element=m_value_element m_value=Cv") ;
 ok($inst1,"loaded some data in master_model instance") ;
 
-my $meta_inst = $meta_model->instance (root_class_name   => 'Itself::Model', 
-			     instance_name     => 'itself_instance',
-			    );
-ok($meta_inst,"Read Itself::Model and created instance") ;
+my $meta_inst = $meta_model->instance(
+    root_class_name => 'Itself::Model',
+    instance_name   => 'itself_instance',
+);
+ok( $meta_inst, "Read Itself::Model and created instance" );
 
 my $meta_root = $meta_inst -> config_root ;
 
-my $rw_obj = Config::Model::Itself -> new(model_object => $meta_root) ;
+my $rw_obj = Config::Model::Itself -> new(
+    model_object => $meta_root,
+    model_dir => $wr_model1,
+) ;
 
-my $map = $rw_obj -> read_all( 
-			      model_dir => $read_dir,
-			      root_model => 'MasterModel',
-			      legacy => 'ignore',
-			     ) ;
+my $map = $rw_obj->read_all(
+    root_model => 'MasterModel',
+    legacy     => 'ignore',
+);
 
 ok(1,"Read all models in data dir") ;
 
@@ -129,15 +135,14 @@ SKIP: {
     $mw->withdraw ;
 
     my $write_sub = sub { 
-	$rw_obj->write_all(model_dir => $wr_model1);
+	$rw_obj->write_all();
     } ;
 
     my $cmu = $mw->ConfigModelEditUI (-root => $meta_root,
 				      -root_dir => $wr_conf1,
+				      -model_dir => $wr_model1 ,
 				      -store_sub => $write_sub,
-				      -model_dir => $wr_model1,
 				      -model_name => 'MasterModel',
-				      -model_modified => 1,
 				     ) ;
     my $delay = 2000 ;
 

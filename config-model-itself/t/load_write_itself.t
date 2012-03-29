@@ -1,9 +1,3 @@
-# -*- cperl -*-
-# $Author: ddumont $
-# $Date: 2008-03-07 13:42:08 $
-# $Name: not supported by cvs2svn $
-# $Revision: 1.2 $
-
 use ExtUtils::testlib;
 use Test::More tests => 8;
 use Config::Model;
@@ -54,12 +48,13 @@ ok($inst,"Read Itself::Model and created instance") ;
 
 my $root = $inst -> config_root ;
 
-my $rw_obj = Config::Model::Itself -> new(model_object => $root ) ;
+my $model_dir = 'lib/Config/Model/models';
+my $rw_obj    = Config::Model::Itself->new(
+    model_dir    => $model_dir,
+    model_object => $root
+);
 
-my $model_dir = 'lib/Config/Model/models' ;
-my $map = $rw_obj -> read_all( model_dir => $model_dir,
-			       root_model => 'Itself',
-			     ) ;
+my $map = $rw_obj->read_all( root_model => 'Itself' );
 
 ok(1,"Read all models from $model_dir") ;
 
@@ -96,7 +91,7 @@ my $cds3 = $root3 ->dump_tree (full_dump => 1) ;
 
 is($cds3,$cds,"Compared the 3rd full dump with first one") ; 
 
-$rw_obj->write_all( model_dir => 'wr_test' ) ;
+$rw_obj->write_all(  ) ;
 
 # require Tk::ObjScanner; Tk::ObjScanner::scan_object($meta_model) ;
 
