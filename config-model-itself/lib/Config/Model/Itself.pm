@@ -10,6 +10,7 @@ use Data::Dumper ;
 use File::Find ;
 use File::Path ;
 use File::Basename ;
+use Data::Compare ;
 
 my $logger = Log::Log4perl::get_logger("Backend::Itself");
 
@@ -17,18 +18,55 @@ my $logger = Log::Log4perl::get_logger("Backend::Itself");
 # find all .pl file in model_dir and load them...
 
 has model_object => (is =>'ro', isa =>'Config::Model::Node', required => 1) ;
+has model_dir    => (is =>'ro', isa =>'Str', required => 1 ) ;
+
+has modifed_classes => (
+    is =>'rw', 
+    isa =>'HashRef[Bool]', 
+    traits => ['Hash'],
+    default => sub { {} } ,
+    handles => {
+        clear_classes => 'clear',
+        set_class => 'set',
+        class_was_changed => 'get' ,
+        classes_to_write => 'keys' ,
+    }
+) ;
+
+sub BUILD {
+    my $self = shift;
+
+    my $cb = sub {
+        my %args = @_ ;
+        return unless $args{name} eq 'class' ;
+        return if $self->class_was_changed($args{index}) ;
+        $logger->info("class $args{index} was modified");
+        
+        $self->add_modified_class($args{index}) ;
+    } ;
+    $self->model_object->instance -> on_change_cb($cb) ;
+    
+}
+
+
+sub add_modified_class {
+    my $self = shift;
+    $self->set_class(shift,1) ;
+}
+
 
 sub read_all {
     my $self = shift ;
     my %args = @_ ;
 
-    my $dir = $args{model_dir} 
-      || croak __PACKAGE__," read_all: undefined model dir";
-    my $model = $args{root_model} 
+    my $model = delete $args{root_model} 
       || croak __PACKAGE__," read_all: undefined root_model";
-    my $force_load = $args{force_load} || 0 ;
-    my $legacy = $args{legacy} ;
+    my $force_load = delete $args{force_load} || 0 ;
+    my $legacy = delete $args{legacy} ;
 
+    croak "read_all: unexpected parameters ",join(' ', keys %args) if %args ;
+
+    my $dir = $self->model_dir ;
     unless (-d $dir ) {
         croak __PACKAGE__," read_all: unknown model dir $dir";
     }
@@ -48,6 +86,7 @@ sub read_all {
     find ($wanted, $dir ) ;
 
     my $i = $self->model_object->instance ;
+    
     my %read_models ;
     my %pod_data ;
     my %class_file_map ;
@@ -69,7 +108,12 @@ sub read_all {
         # - move experience, description and level status into parameter info.
         foreach my $model_name (@models) {
             # no need to dclone model as Config::Model object is temporary
+            my $raw_model =  $tmp_model -> get_raw_model( $model_name ) ;
             my $new_model =  $tmp_model -> get_model( $model_name ) ;
+
+            # some modifications may be done to cope with older model styles. If a modif
+            # was done, mark the class as changed so it will be saved later
+            $self->add_modified_class($model_name) unless Compare($raw_model, $new_model) ;
 
             foreach my $item (qw/description summary level experience status/) {
                 foreach my $elt_name (keys %{$new_model->{element}}) {
@@ -169,17 +213,16 @@ sub get_perl_data_model{
 sub write_all {
     my $self = shift ;
     my %args = @_ ;
-    my $model_obj = $self->{model_object} ;
-    my $dir = $args{model_dir} 
-      || croak __PACKAGE__," write_all: undefined model_dir";
+    my $model_obj = $self->model_object ;
+    my $dir = $self->model_dir ;
+
+    croak "write_all: unexpected parameters ",join(' ', keys %args) if %args ;
 
     my $map = $self->{map} ;
 
     unless (-d $dir ) {
         mkpath($dir,0, 0755) || die "Can't mkpath $dir:$!";
     }
-
-    #my $i = $model_obj->instance ;
 
     # get list of all classes loaded by the editor
     my %loaded_classes 
@@ -203,12 +246,19 @@ sub write_all {
     my %map_to_write = (%$map,%new_map) ;
 
     foreach my $file (keys %map_to_write) {
-        $logger->info("writing config file $file");
+        $logger->info("checking model file $file");
 
         my @data ;
         my @notes ;
+        my $file_needs_write = 0;
         
-        # FIXME: check here if any of these class was modified
+        # check if any a class of a file was modified
+        foreach my $class_name (@{$map_to_write{$file}}) {
+            $file_needs_write++ if $self->class_was_changed($class_name) ;
+            $logger->info("file $file class $class_name needs write ",$file_needs_write);
+        }
+        
+        next unless $file_needs_write ;    
 
         foreach my $class_name (@{$map_to_write{$file}}) {
             $logger->info("writing class $class_name");
@@ -231,10 +281,11 @@ sub write_all {
 sub write_model_snippet {
     my $self = shift ;
     my %args = @_ ;
-    my $model_dir = $args{model_dir} 
-      || croak __PACKAGE__," write_model_snippet: undefined model_dir";
-    my $model_file = $args{model_file} 
+    my $snippet_dir = delete $args{snippet_dir} 
+      || croak __PACKAGE__," write_model_snippet: undefined snippet_dir";
+    my $model_file = delete $args{model_file} 
       || croak __PACKAGE__," write_model_snippet: undefined model_file";
+    croak "write_model_snippet: unexpected parameters ",join(' ', keys %args) if %args ;
 
     my $model = $self->model_object->dump_as_data ;
     # print (Dumper( $model)) ;
@@ -248,20 +299,20 @@ sub write_model_snippet {
         my @notes = $self->model_object->grab("class:$class")->dump_annotations_as_pod ;
         my $class_dir = $class.'.d';
         $class_dir =~ s!::!/!g;
-        write_model_file ("$model_dir/$class_dir/$model_file", \@notes, [ $data ]);
+        write_model_file ("$snippet_dir/$class_dir/$model_file", \@notes, [ $data ]);
     }
 }
 
 sub read_model_snippet {
     my $self = shift ;
     my %args = @_ ;
-    my $model_dir = $args{model_dir} 
-      || croak __PACKAGE__," read_model_snippet: undefined model_dir";
-    my $model_file = $args{model_file} 
+    my $snippet_dir = delete $args{snippet_dir} 
+      || croak __PACKAGE__," write_model_snippet: undefined snippet_dir";
+    my $model_file = delete $args{model_file} 
       || croak __PACKAGE__," read_model_snippet: undefined model_file";
+    croak "read_model_snippet: unexpected parameters ",join(' ', keys %args) if %args ;
 
-    
-    my $load_file = "$model_dir/$model_file";
+    my $load_file = "$snippet_dir/$model_file";
     return unless -r $load_file;
     
     my $snippet = do $load_file ;
@@ -304,6 +355,7 @@ sub write_model_file {
 
     my $wr = IO::File->new( $wr_file, '>' )
       || croak "Cannot open file $wr_file:$!" ;
+    $logger->info("in $wr_file");
 
     my $dumper = Data::Dumper->new( [ \@$data ] );
     $dumper->Indent(1);    # avoid too deep indentation
