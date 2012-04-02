@@ -443,6 +443,8 @@ Check for config data warning. You should pass the list of expected warnings.
 E.g.  
 
     load_warnings => [ qr/Missing/, (qr/deprecated/) x 3 , ],
+    
+Use an empty array_ref to masks load warnings.
 
 =item *
 
