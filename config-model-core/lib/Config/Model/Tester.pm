@@ -228,7 +228,7 @@ sub run_model_test {
             my @new_file_list = list_test_files($debian_dir) ;
             $t->{file_check_sub}->( \@file_list )
               if defined $t->{file_check_sub};
-            eq_or_diff( \@new_file_list, \@file_list,
+            eq_or_diff( \@new_file_list, [ sort @file_list ],
                 "check added or removed files" );
         }
 
