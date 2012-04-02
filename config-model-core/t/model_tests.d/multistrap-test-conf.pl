@@ -19,6 +19,7 @@ EOF
                 'sections:toolchains packages:0' ,'g++-4.2-arm-linux-gnu',
                 'sections:toolchains packages:1', 'linux-libc-dev-arm-cross',
             },
+        load_warnings => [] , # some weird warnings pop up in Perl smoke tests with perl 5.15.9
     },
     {
         name => 'from_scratch',
