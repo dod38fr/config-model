@@ -274,7 +274,7 @@ sub check_dep {
     my $src_pkg_name = $self->grab_value("!Debian::Dpkg::Control source Source") ;
         
     my $filter = $test_filter || $self->grab_value(
-        step => qq{!Debian::Dpkg meta package-dependency-filter:"$src_pkg_name"},
+        step => qq{!Debian::Dpkg my_config package-dependency-filter:"$src_pkg_name"},
         mode => 'loose',
     ) || '';
     return $self->has_older_version_than ($pkg, $vers,  $filter, \@dist_version );

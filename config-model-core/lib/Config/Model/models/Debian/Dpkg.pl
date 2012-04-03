@@ -18,10 +18,10 @@
     ],
     'license' => 'LGPL2',
     'element' => [
-      'meta',
+      'my_config',
       {
         'type' => 'node',
-        'description' => 'Specify meta parameters that will tune the behavior of this dpkg model',
+        'description' => 'This element contains a set of parameters to tune the behavior of this dpkg editor. You can for instance specify e-mail replacements. These parameters are stored in ~/.dpkg-meta.yml or ~/.local/share/.dpkg-meta.yml. These parameters can be applied to all Debian packages you maintain in this unix account.',
         'config_class_name' => 'Debian::Dpkg::Meta'
       },
       'control',

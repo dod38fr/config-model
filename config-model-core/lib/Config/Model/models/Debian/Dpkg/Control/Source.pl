@@ -30,7 +30,7 @@ If the maintainer\'s name contains a full stop then the whole field will not wor
       'Uploaders',
       {
         'cargo' => {
-          'replace_follow' => '!Debian::Dpkg meta email-updates',
+          'replace_follow' => '!Debian::Dpkg my_config email-updates',
           'value_type' => 'uniline',
           'type' => 'leaf'
         },
