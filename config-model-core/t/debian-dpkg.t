@@ -97,7 +97,7 @@ foreach my $t (@test) {
 	}
 }
 
-$root->load('control source Maintainer="foo <foo@bar>" ! meta dependency-filter=lenny') ;
-is($root->grab_value("meta package-dependency-filter:foopkg"),
+$root->load('control source Maintainer="foo <foo@bar>" ! my_config dependency-filter=lenny') ;
+is($root->grab_value("my_config package-dependency-filter:foopkg"),
     'lenny', "check package-dependency-filter");
 memory_cycle_ok($model);
