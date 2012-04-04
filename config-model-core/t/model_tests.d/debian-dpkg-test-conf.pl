@@ -27,15 +27,18 @@ my $del_home = sub {
     },
     {   name => 't1',
         apply_fix => 1 ,
+        load => qq!patches:fix-spelling Description="more spelling details"!
+            . qq( ! patches:glib-single-include Synopsis="mega patchchoid")
+            ,
         check => {
             'patches:fix-spelling Synopsis', 'fix man page spelling',
             # test synopsis generated from patch name
             'patches:fix-man-page-spelling Synopsis', 'Fix man page spelling',
             'patches:use-standard-dzil-test Synopsis', "use standard dzil test suite",
+            'patches:glib-single-include Synopsis', "mega patchchoid",
             'patches:use-standard-dzil-test Description',
               "Test is modified in order not to load the Test:Dzil module\nprovided in t/lib",
         },
-        load => qq!patches:fix-spelling Description="more spelling details"! ,
         file_check_sub => $del_home,
         # dump_warnings => [ (qr/deprecated/) x 3 ],
     },
