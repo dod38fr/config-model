@@ -18,6 +18,7 @@ extends qw/Config::Model::AnyThing/ ;
 
 my $logger = get_logger("Tree::Element::Value") ;
 my $change_logger = get_logger("Anything::Change") ;
+my $fix_logger = get_logger("Anything::Fix") ;
 
 our $nowarning = 0; # global variable to silence warnings. Only used for tests
 
@@ -995,7 +996,7 @@ sub apply_fixes {
     my $self = shift ; 
 
     if ($logger->is_debug) {
-        $logger->debug( "called for ".$self->location ) ;
+        $fix_logger->debug( "called for ".$self->location ) ;
     }
 
     $self->check_value(value => $self->{data}, fix => 1);
@@ -1007,9 +1008,14 @@ sub apply_fixes {
 sub apply_fix {
     my ( $self, $fix, $value ) = @_;
 
-    local $_ = $value;
+    local $_ = $value; # used inside $fix sub ref
 
-    $logger->info( $self->location . ": Applying fix '$fix'" );
+    if ($fix_logger->is_debug){ 
+	my $str = $fix ;
+	$str =~ s/\n/ /g ;
+	$fix_logger->info( $self->location . ": Applying fix '$str'" );
+    }
+    
     eval($fix);
     if ($@) {
         Config::Model::Exception::Model->throw(
@@ -1019,6 +1025,12 @@ sub apply_fix {
     }
 
     $self->{data}  = $_ ;
+
+    if ($fix_logger->is_trace){ 
+	$fix_logger->trace( "fix change: '" . ($value // '<undef>') ."' -> '"
+	    . ($self->{data} // '<undef>'). "'" );
+    }
+    
     $self->notify_change ;
     # $self->store(value => $_, check => 'no');  # will update $self->{fixes}
 }

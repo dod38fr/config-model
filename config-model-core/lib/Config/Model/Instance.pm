@@ -25,6 +25,7 @@ use Carp qw/carp croak confess cluck/;
 
 my $logger = get_logger("Instance") ;
 my $change_logger = get_logger("Anything::Change") ;
+my $fix_logger = get_logger("Anything::Fix") ;
 
 has [qw/root_class_name/] => (is => 'ro', isa => 'Str', required => 1) ;
 
@@ -373,7 +374,9 @@ sub apply_fixes {
         check => 'no',
     ) ;
 
+    $fix_logger->debug("apply fix started") ;
     $scan->scan_node(undef, $self->config_root) ;
+    $fix_logger->debug("apply fix done") ;
 }
 
 __PACKAGE__->meta->make_immutable;
