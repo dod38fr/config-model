@@ -1,4 +1,26 @@
-2012-03-19  Dominique Dumont  <domi.dumont@free.fr> 2.010
+2012-04-05  Dominique Dumont  <domi.dumont@free.fr> 2.012
+
+    * Application changes:
+	* Debian Dep-3 patch parser: quilt formats patch in a very concise
+	way.  There's no Index: line and no '====='. OTOH, imported patch
+	may contain this lines until the patch is refreshed. This commit
+	makes sure that both types of patch are parsed
+	correctly.
+	* Debian model: changed meta element into my-config. This should
+	make clear that this element stores user's config regarding dpkg
+	files.
+	* Tester: Produced file order is not important. Make sure both
+	list are sorted before being compared (Closes Debian #666705)
+
+    * Test changes:
+	* multistrap test: ignore load warnings (which pop up in Perl
+	smoke tests with perl 5.15.9)
+
+    * Framework changes:
+	* Instance: added on_change_cb to take action when something is
+	modified in the config tree
+
+2012-03-19  Dominique Dumont  <domi.dumont@free.fr> 2.011
 
     * Application changes:
       + Debian copyright: added deprecated License-Alias paramater. 
