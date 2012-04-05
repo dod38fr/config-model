@@ -1845,9 +1845,9 @@ String. Issue a warning to user with the specified string any time a value is se
 
 =item warn_unless
 
-A bit like C<warn_if_match>. The hash key is not a regexp but a label to help users.
-The hash ref containd some Perl code that is evaluated to perform the test. A warning will be issued if 
-the code returns false. 
+A bit like C<warn_if_match>. The hash key is not a regexp but a label to
+help users. The hash ref contains some Perl code that is evaluated to
+perform the test. A warning will be issued if the code returns false.
 
 C<$_> will contains the value to check. C<$self> will contain the C<Config::Model::Value> object.
 

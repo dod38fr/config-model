@@ -342,7 +342,7 @@ Config::Model::Tester - Test framework for Config::Model
 =head1 DESCRIPTION
 
 This class provides a way to test configuration models with tests files. 
-This class was designed to tests several models and severals tests 
+This class was designed to tests several models and several tests 
 cases per model.
 
 A specific layout for test files must be followed
