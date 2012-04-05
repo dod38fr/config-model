@@ -1,0 +1,22 @@
+Config::Model from git is built with Dist::Zilla.
+
+You must make sure that the following modules are installed:
+Dist::Zilla::Plugin::MetaResources
+Dist::Zilla::Plugin::ModuleBuild::Custom
+Dist::Zilla::Plugin::PodSpellingTests
+Dist::Zilla::Plugin::PodVersion
+Dist::Zilla::Plugin::Prepender
+Dist::Zilla::Plugin::Prereqs
+Dist::Zilla::Plugin::Run::BeforeBuild
+Dist::Zilla::PluginBundle::Filter
+
+On debian or ubuntu, do:
+
+sudo aptitude install \
+     libdist-zilla-plugin-prepender-perl \
+     libdist-zilla-plugin-run-perl \
+     libdist-zilla-plugins-cjm-perl \
+     libdist-zilla-perl \
+     libdist-zilla-plugin-podspellingtests-perl
+
+      
