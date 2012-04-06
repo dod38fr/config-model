@@ -6,7 +6,6 @@ Priority: optional
 Build-Depends: debhelper (>= 8),
                libalien-wxwidgets-perl ( >= 0.54+dfsg),
                libatk1.0-dev,
-               libtiff4, 
                libextutils-xspp-perl,
                libfontconfig1-dev,
                libfreetype6-dev,
@@ -30,6 +29,7 @@ Architecture: any
 Depends: ${misc:Depends},
          ${perl:Depends},
          ${shlibs:Depends},
+         libtiff4, 
          libwx-perl
 Description: source code editor component for wxWidgets
  Wx::Scintilla Perl module is a Wx wrapper around scintilla editor.
