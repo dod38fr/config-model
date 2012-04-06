@@ -1,3 +1,17 @@
+2012-04-06  Dominique Dumont  <domi.dumont@free.fr> 2.013
+
+    * Application changes:
+	* Debian Dpkg model: Moved libtiff4 transition warning
+	  from source Build-Depends to binary Depends
+
+    * Framework changes:
+	Model doc generation: small formatting fix to avoid Pod::Html
+	errors with Debian/Dpkg/Source.pod (should fix ActiveState breakage)
+
+    * Test changes:
+	* multitrap tests: really ignore warnings coming from Text::Balanced
+        (which pop up in Perl smoke tests with perl 5.15.9)
+
 2012-04-05  Dominique Dumont  <domi.dumont@free.fr> 2.012
 
     * Application changes:
