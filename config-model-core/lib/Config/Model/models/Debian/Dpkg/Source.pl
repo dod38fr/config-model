@@ -23,7 +23,7 @@ See L<dpkg-source> for details.',
         'value_type' => 'enum',
         'summary' => 'source package format',
         'help' => {
-          '2.0' => 'Wig&pen was the first specification of a new-generation source package format. This format is not recommended for wide-spread usage, the format "3.0 (quilt)" replaces it.',
+          '2.0' => 'was the first specification of a new-generation source package format. This format is not recommended for wide-spread usage, the format "3.0 (quilt)" replaces it.',
           '3.0 (quilt)' => 'A source package in this format contains at least an original tarball (.orig.tar.ext where ext can be gz, bz2, lzma and xz) and a debian tarball (.debian.tar.ext). It can also contain additional original tarballs (.orig-component.tar.ext).',
           '3.0 (native)' => 'extension of the native package format as defined in the 1.0 format.',
           '3.0 (custom)' => 'This format is particular. It doesn\'t represent a real source package format but can be used to create source packages with arbitrary files.
