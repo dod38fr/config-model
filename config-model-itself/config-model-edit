@@ -12,6 +12,7 @@ use YAML::Any;
 use Tk ;
 use Config::Model::TkUI ;
 use Config::Model::Itself::TkEditUI ;
+use Path::Class ;
 use lib qw/lib/ ;
 
 my $log4perl_syst_conf_file = '/etc/log4config-model.conf' ;
@@ -32,7 +33,7 @@ my $log4perl_conf
 Log::Log4perl::init($log4perl_conf);
 
 
-my $dev_model_dir = 'lib/Config/Model/models/';
+my $dev_model_dir = dir(qw/lib Config Model models/);
 my $root_model ;
 my $trace = 0 ;
 
@@ -57,7 +58,7 @@ sub load_data {
 my $man = 0;
 my $help = 0;
 my $force_load = 0;
-my $model_dir ;
+my $model_dir_path ;
 my $do_dot = 0;
 my $do_dump;
 my $dumptype;
@@ -65,12 +66,12 @@ my $do_yaml = 0;
 my $load_yaml ;
 my $save = 0;
 my $load ;
-my $model_modified = 0;
+# my $model_modified = 0;
 my $open_item = '';
 my $plugin_file = '';
 
 my $result = GetOptions (
-			 "dir=s"            => \$model_dir,
+			 "dir=s"            => \$model_dir_path,
 			 "model=s"          => \$root_model,
 			 "man!"             => \$man,
 			 "help!"            => \$help,
@@ -95,10 +96,10 @@ Config::Model::Exception::Any->Trace(1) if $trace ;
 die "Unspecified root configuration model (option -model)\n"
   unless defined $root_model ;
 
-my $wr_model_dir = $model_dir || $dev_model_dir ;
+my $model_dir = $model_dir_path ? dir(split m!/!, $model_dir_path) : $dev_model_dir ;
 
-if (! -d $wr_model_dir) {
-    mkdir $wr_model_dir, 0755 || die "can't create $wr_model_dir:$!";
+if (! -d $model_dir->as_string) {
+    $model_dir->mkpath(0, 0755) || die "can't create $model_dir:$!";
 }
 
 my $meta_model = Config::Model -> new();
@@ -113,33 +114,33 @@ my $meta_root = $meta_inst -> config_root ;
 
 # now load model
 
-my $rw_obj = Config::Model::Itself -> new(model_object => $meta_root ) ;
+my $rw_obj = Config::Model::Itself -> new(
+    model_object => $meta_root,
+    model_dir    => $model_dir,
+) ;
 
-my $read_model_dir = $model_dir || $dev_model_dir ;
-$read_model_dir =~ s!/$!!;
+# my $root_model_file = $root_model ;
+# $root_model_file =~ s!::!/!g ;
 
-my $root_model_file = $root_model ;
-$root_model_file =~ s!::!/!g ;
-
-if (not -e $read_model_dir.'/'.$root_model_file.'.pl') {
-    $read_model_dir =  $INC{'Config/Model.pm'} ;
-    $read_model_dir =~ s/\.pm//;
-    $read_model_dir .= '/models' ;
-}
+# if (not -e $read_model_dir.'/'.$root_model_file.'.pl') {
+    # $read_model_dir =  $INC{'Config/Model.pm'} ;
+    # $read_model_dir =~ s/\.pm//;
+    # $read_model_dir .= '/models' ;
+# }
 
 $meta_inst->layered_start if $plugin_file;
 
-$rw_obj -> read_all( model_dir  => $read_model_dir, 
-		     force_load => $force_load ,
-		     root_model => $root_model,
-		     legacy =>'ignore',
-		   ) ;
-		   
+$rw_obj->read_all(
+    force_load => $force_load,
+    root_model => $root_model,
+    # legacy     => 'ignore',
+);
+
 if ($plugin_file) {
     $meta_inst->layered_stop;
 
     # load any existing plugin file
-    $rw_obj->read_model_snippet(model_dir => $wr_model_dir, model_file => $plugin_file) ;
+    $rw_obj->read_model_snippet(model_dir => $model_dir, model_file => $plugin_file) ;
 }
 
 		   
@@ -148,21 +149,18 @@ if (defined $load) {
     my $data = load_data($load) ;
     $data = qq(class:"$root_model" ).$data unless $data =~ /^\s*class:/ ;
     $meta_root->load($data);
-    $model_modified = 1;
 }
 
 if (defined $load_yaml) {
     my $yaml = load_data($load_yaml) ;
     my $pdata = Load($yaml) ;
     $meta_root->load_data($pdata) ;
-    $model_modified = 1;
 }
 
 if (@ARGV) {
     my $data = join(' ',@ARGV) ;
     $data = qq(class:"$root_model" ).$data unless $data =~ /^\s*class:/ ;
     $meta_root->load($data) ;
-    $model_modified = 1;
 }
 
 if ($do_dot) {
@@ -192,10 +190,10 @@ if ($do_yaml) {
 
 my $write_sub = $plugin_file ? 
     sub { 
-	$rw_obj->write_model_snippet(model_dir => $wr_model_dir, model_file => $plugin_file );
+	$rw_obj->write_model_snippet(model_dir => $model_dir, model_file => $plugin_file );
     }
     : sub { 
-	my $wr_dir = shift || $wr_model_dir ;
+	my $wr_dir = shift || $model_dir ;
 	$rw_obj->write_all(model_dir => $wr_dir, model_file => $plugin_file );
     } ;
 
@@ -209,15 +207,11 @@ $mw->withdraw ;
 # Thanks to Jerome Quelin for the tip
 $mw->optionAdd('*BorderWidth' => 1);
 
-$model_modified = 1 if $wr_model_dir ne $read_model_dir ;
-
-
-my $cmu = $mw->ConfigModelEditUI (-root      => $meta_root,
-				  -store_sub => $write_sub,
-  				  -model_dir => $wr_model_dir,
-				  -model_name => $root_model,
-				  -model_modified => $model_modified,
-				 ) ;
+my $cmu = $mw->ConfigModelEditUI(
+    -root       => $meta_root,
+    -store_sub  => $write_sub,
+    -model_name => $root_model,
+);
 
 if ($open_item) {
     my $obj = $meta_root->grab($open_item) ;
