@@ -294,7 +294,7 @@ sub write_root_dir {
 # FIXME: record changes to implement undo/redo ?
 sub notify_change {
     my $self = shift ;
-    $change_logger->debug("called for  instance ",$self->name) if $change_logger->is_debug ;
+    $change_logger->debug("called for instance ",$self->name) if $change_logger->is_debug ;
     my $cb = $self->on_change_cb ;
     $cb->(@_) if $cb ;
     $self->{needs_save} = 1;

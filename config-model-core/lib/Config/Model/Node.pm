@@ -385,9 +385,9 @@ sub notify_change {
 
     return if $self->instance->initial_load ;
 
-    # $logger->debug("called while needs_write is ",$self->needs_save,
-	# " for ",$self->name) 
-	# if $logger->is_debug ;
+    $logger->debug("called while needs_write is ",$self->needs_save,
+	" for ",$self->name) 
+	if $logger->is_debug ;
 
     if (defined $self->{bmgr}) {
         $self->needs_save(1) ; # will trigger a save in config_file
