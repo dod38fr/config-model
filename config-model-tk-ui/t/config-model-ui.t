@@ -197,6 +197,7 @@ SKIP: {
 
     ok(1,"window launched") ;
 
+    # $mw->WidgetDump ;
     MainLoop ; # Tk's
 
 }
