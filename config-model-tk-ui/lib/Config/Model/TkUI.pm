@@ -107,7 +107,7 @@ sub Populate {
     my $extra_menu = delete $args->{'-extra-menu'} || [] ;
 
     my $title = delete $args->{'-title'}
-              || "config-edit ".$cw->{root}->config_class_name ;
+              || $0." ".$cw->{root}->config_class_name ;
 
     # check unknown parameters
     croak "Unknown parameter ",join(' ',keys %$args) if %$args;
