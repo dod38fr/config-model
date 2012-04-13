@@ -33,7 +33,7 @@ mkdir($wr_test) ;
 
 # copy test model
 my $wanted = sub { 
-    return if /svn|data$|~$/ ;
+    return if /data$|~$/ ;
     s!data/!! ;
     -d $File::Find::name && mkpath( ["$wr_test/$_"], 0, 0755) ;
     -f $File::Find::name && copy($File::Find::name,"$wr_test/$_") ;
@@ -48,9 +48,16 @@ ok($inst,"Read Itself::Model and created instance") ;
 
 my $root = $inst -> config_root ;
 
+# copy itself model
 my $model_dir = 'lib/Config/Model/models';
+$wanted = sub { 
+    -d $File::Find::name && mkpath( ["$wr_test/$_"], 0, 0755) ;
+    -f $File::Find::name && copy($File::Find::name,"$wr_test/$_") ;
+};
+find ({ wanted =>$wanted, no_chdir=>1} , $model_dir ) ;
+
 my $rw_obj    = Config::Model::Itself->new(
-    model_dir    => $model_dir,
+    model_dir    => "$wr_test/$model_dir",
     model_object => $root
 );
 
