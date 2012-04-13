@@ -314,33 +314,47 @@ sub read_model_snippet {
       || croak __PACKAGE__," write_model_snippet: undefined snippet_dir";
     my $model_file = delete $args{model_file} 
       || croak __PACKAGE__," read_model_snippet: undefined model_file";
+
     croak "read_model_snippet: unexpected parameters ",join(' ', keys %args) if %args ;
 
-    my $load_file = "$snippet_dir/$model_file";
-    return unless -r $load_file;
-    
-    my $snippet = do $load_file ;
-
-    unless ($snippet) {
-        if ($@) {die "couldn't parse $load_file: $@"; }
-        elsif (not defined $snippet) {die  "couldn't do $load_file: $!"}
-        else { die  "couldn't run $load_file" ;}
-    }
+    my @files ;
+    my $wanted = sub { 
+        my $n = $File::Find::name ;
+        push @files, $n if (-f $_ and not /~$/ 
+                            and $n !~ /CVS/
+                            and $n !~ m!.(svn|orig|pod)$!
+                            and $n =~ m!\.d/$model_file!
+                           ) ;
+    } ;
+    find ($wanted, $snippet_dir ) ;
 
     my $class_element = $self->model_object->fetch_element('class') ;
 
-    foreach my $model (@$snippet) {
-        my $class_name = delete $model->{name} ;
-        # load with a array ref to avoid warnings about missing order
-        $class_element->fetch_with_id($class_name)->load_data( $model ) ;
-    }
+    foreach my $load_file (@files) {
+        $logger->info("trying to read snippet $load_file");
+    
+        my $snippet = do $load_file ;
 
-    # load annotations
-    $logger->info("loading annotations from snippet file $load_file");
-    my $fh = IO::File->new($load_file) || die "Can't open $load_file: $!" ;
-    my @lines = $fh->getlines ;  
-    $fh->close;
-    $self->model_object->load_pod_annotation(join('',@lines)) ;
+        unless ($snippet) {
+            if ($@) {die "couldn't parse $load_file: $@"; }
+            elsif (not defined $snippet) {die  "couldn't do $load_file: $!"}
+            else { die  "couldn't run $load_file" ;}
+        }
+
+        # there should be only only class in each snippet file
+        foreach my $model (@$snippet) {
+            my $class_name = delete $model->{name} ;
+            # load with a array ref to avoid warnings about missing order
+            $class_element->fetch_with_id($class_name)->load_data( $model ) ;
+        }
+
+        # load annotations
+        $logger->info("loading annotations from snippet file $load_file");
+        my $fh = IO::File->new($load_file) || die "Can't open $load_file: $!" ;
+        my @lines = $fh->getlines ;  
+        $fh->close;
+        $self->model_object->load_pod_annotation(join('',@lines)) ;
+    }
 }
 
 
@@ -600,7 +614,8 @@ by L<augment_config_class|Config::Model/"augment_config_class (name => '...', cl
 
 =head2 read_model_snippet( model_dir => foo, model_file => bar.pl )
 
-Likewise to read model snippets.
+To read model snippets, this methid will search recursively C<$model_dir> and load
+all C<bar.pl> files found in there.
 
 =head2 list_class_element
 
