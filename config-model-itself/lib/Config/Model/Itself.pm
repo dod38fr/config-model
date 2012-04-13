@@ -276,6 +276,8 @@ sub write_all {
 
         write_model_file ("$dir/$file", \@notes, \@data);
     }
+    
+    $self->model_object->instance->needs_save(0) ;
 }
 
 sub write_model_snippet {
@@ -301,6 +303,8 @@ sub write_model_snippet {
         $class_dir =~ s!::!/!g;
         write_model_file ("$snippet_dir/$class_dir/$model_file", \@notes, [ $data ]);
     }
+
+    $self->model_object->instance->needs_save(0) ;
 }
 
 sub read_model_snippet {
