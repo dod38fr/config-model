@@ -1,3 +1,24 @@
+2012-04-14  Dominique Dumont  <domi.dumont@free.fr> 1.229
+
+    + new runtime dependency: Data::Compare, Path::Class
+    + new test dependency: File::Copy::Recursive
+    * Depends on Config::Model 2.009
+
+    * config-model-edit:
+      + new option -plugin-file option. This option can be used to create model
+	plugins: small modification of an existing model that can be distributed
+	in a separate file or package.
+      * removed capacity to read models from systems files if the model
+	is not found locally. This behavior does not work well with model
+	plugins. This command can no longer read from one dir and write to
+	another for the same reason.
+      - removed obsolete option (-verbose -debug). These are now replaced
+        by the Log::Log4Perl framework
+      * replaced '_' by '-' in options names. Old options are still accepted
+        but are not documented
+    * Itself model: added use_as_upstream_default parameter
+    * Itself backend: do not write empty model file
+
 2011-11-29  Dominique Dumont  <domi.dumont@free.fr> 1.228
 
     * Requires Config::Model >= 1.263
