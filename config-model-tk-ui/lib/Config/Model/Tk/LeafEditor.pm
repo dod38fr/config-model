@@ -290,7 +290,7 @@ sub exec_external_editor {
     my $fh = File::Temp->new ; ;
     die "Can't open temp file:$!" unless defined $fh ;
     binmode($fh,":utf8");
-    $fh->print($cw->{value});
+    $fh->print($cw->{e_widget}->get('1.0','end'));
     $fh->close ;
 
     # See mastering Perl/Tk p382
