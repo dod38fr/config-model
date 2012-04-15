@@ -152,15 +152,27 @@ sub cleanup {
 sub add_buttons {
     my ($cw,$frame) = @_ ;
     my $bframe = $frame->Frame->pack() ;
-    $bframe -> Button ( -text => 'Reset',
-                        -command => sub { $cw->reset_value ; },
-                      ) -> pack(-side => 'left') ;
-    $bframe -> Button ( -text => 'Delete',
+
+    my $balloon = $cw->Balloon(-state => 'balloon') ;
+    
+    my $reset_b = $bframe -> Button ( 
+        -text => 'Reset',
+        -command => sub { $cw->reset_value ; },
+    ) -> pack(-side => 'left') ;
+    $balloon->attach($reset_b, -msg => "reset entry value from tree value") ;
+    
+    my $del_label = defined $cw->{leaf}->fetch_standard ? 'Back to default' : 'Delete' ;
+    $bframe -> Button ( -text => $del_label,
                         -command => sub { $cw->delete},
                       ) -> pack(-side => 'left') ;
-    $bframe -> Button ( -text => 'Store',
-                        -command => sub { $cw->store},
-                      ) -> pack(-side => 'right') ;
+    my $store_b = $bframe -> Button (
+        -text => 'Store',
+        -command => sub { $cw->store},
+    ) -> pack(-side => 'right') ;
+    
+    $balloon->attach($store_b, -msg => "store entry value in config tree") ;
+    
+    
     return $bframe ;
 }
 
