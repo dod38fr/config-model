@@ -190,5 +190,17 @@ L<http://lists.sourceforge.net/mailman/listinfo/config-model-users>
 
 =head2 More information
 
-See the wiki tab above
+See
+
+=over
+
+=item *
+
+the L<config-model wiki|https://github.com/dod38fr/config-model/wiki> (i.e. the wiki tab above)
+
+=item *
+
+L<http://ddumont.wordpress.com/> 
+
+=back
 
