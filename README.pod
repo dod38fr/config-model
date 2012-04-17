@@ -1,0 +1,194 @@
+=head1 Config::Model - Describe and edit configuration data
+
+Config::Model enables a project developer to provide an interactive
+configuration editor (graphical, curses based or plain terminal) to
+his users. For this he must:
+
+=over
+
+=item *
+
+describe the structure and constraints of his project's configuration
+
+=item *
+
+find a way to read and write configuration data. This can be provided 
+by Config::Model backends or by custom code
+
+=back
+
+With the elements above, Config::Model will generate interactive
+configuration editors (with integrated help and data validation).
+These editors can be graphical (with Config::Model::TkUI), curses
+based (with Config::Model::CursesUI) or based on ReadLine.
+
+=head2 How does this work ?
+
+Using this project, a typical configuration editor will be made of 3
+parts :
+
+=over
+
+=item 1.
+
+The user interface ( L<cme|http://search.cpan.org/dist/Config-Model/script/cme> 
+program and some other optional modules)
+
+=item 2.
+
+The validation engine which is in charge of validating all the
+configuration information provided by the user. This engine is
+made of the framework provided by this module and the
+configuration description (often refered as "configuration model").
+
+=item 3.
+
+The storage facility that store the configuration information
+(currently several backends are provided: ini files, perl files,
+and Augeas)
+
+=back
+
+The important part is the configuration model used by the validation
+engine. This model can be created or modified with a graphical editor
+(L<config-model-edit|http://search.cpan.org/dist/Config-Model-Itself/config-model-edit>
+provided by Config::Model::Iself).
+
+
+=head2 Don't we already have some configuration validation tools ?
+
+You're probably thinking of tools like webmin. Yes, these tools exist
+and work fine, but they have their set of drawbacks.
+
+Usually, the validation of configuration data is done with a script
+which performs semantic validation and often ends up being quite
+complex (e.g. 2500 lines for Debian's xserver-xorg.config script which
+handles xorg.conf file). 
+
+In most cases, the configuration model is expressed in instructions
+(whatever programming language is used) and interspersed with a lot of
+processing to handle the actual configuration data.
+
+
+=head2 What's the advantage of this project ?
+
+Config::Model projects provide a way to get a validation engine where
+the configuration model is completely separated from the actual
+processing instructions.
+
+A configuration model can be created and modified with the graphical
+interface provide by Config::Model::Itself. The model is saved in a
+declarative form (currently, a Perl data structure). Such a model is
+easier to maintain than a lot of code.
+
+The model specifies:
+
+=over
+
+=item *
+
+the structure of the configuration data (which can be queried by
+generic user interfaces)
+
+=item *
+
+the properties of each element (boundaries check, integer or string,
+enum like type ...)
+
+=item *
+
+the default values of parameters (if any)
+
+=item *
+
+mandatory parameters
+
+=item *
+
+Warning conditions (and optionally, instructions to fix warnings)
+
+=item *
+
+on-line help (for each parameter or value of parameter)
+
+=back
+
+So, in the end:
+
+=over
+
+=item *
+
+maintenance and evolution of the configuration content is easier
+
+=item *
+
+user will see a B<common> interface for B<all> programs using this
+project.
+
+=item *
+
+upgrade of configuration data is easier and sanity check is
+performed
+
+=item *
+
+audit of configuration is possible to check what was modified by the
+user compared to default values
+
+=back
+
+
+
+=head2 What about the user interface ?
+
+Config::Model interface can be:
+
+=over
+
+=item *
+
+a shell-like interface (plain or based on Term::ReadLine).
+
+=item *
+
+Graphical with Config::Model::TkUI (Perl/Tk interface).
+
+=item *
+
+based on curses with Config::Model::CursesUI. This interface can be
+handy if your X server is down.
+
+=back
+
+
+All these interfaces are generated from the configuration model.
+
+And configuration model can be created or modified with a graphical
+user interface (with Config::Model::Itself)
+
+
+=head2 What about configuration data storage ?
+
+Since the syntax of configuration files vary wildly form one program
+to another, most people who want to use this framework will have to
+provide a dedicated parser/writer. 
+
+Nevertheless, this project provides a writer/parser for some common
+format: ini style file and perl file. 
+
+With the additional
+Config::Model::Backend::Augeas, L<Augeas|http://augeas.net> library can be used to read and
+write some configuration files. 
+
+
+=head2 If you want to discuss Config::Model ?
+
+Subscribe to the config-model-users list:
+
+L<http://lists.sourceforge.net/mailman/listinfo/config-model-users>
+
+=head2 More information
+
+See the wiki tab above
+
