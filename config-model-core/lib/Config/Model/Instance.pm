@@ -620,20 +620,16 @@ configuration model, then load all configuration data.
 
 This feature enables you to declare with the model a way to load
 configuration data (and to write it back). See
-L<Config::Model::AutoRead> for details.
-
-=head2 read_root_dir()
-
-Returns root directory where configuration data is read from.
+L<Config::Model::BackendMgr> for details.
 
 =head2 backend()
 
 Get the preferred backend method for this instance (as passed to the
 constructor).
 
-=head2 write_root_dir()
+=head2 root_dir()
 
-Returns root directory where configuration data is written to.
+Returns root directory where configuration data is read from or written to.
 
 =head2 register_write_back ( node_location )
 
@@ -666,6 +662,15 @@ C<write_back> will croak if no write call-back are known.
 
 Scan the tree and apply fixes that are attached to warning specifications. 
 See C<warn_if_match> or C<warn_unless_match> in L<Config::Model::Value/>.
+
+=head2 needs_save
+
+Returns 1 (or more) if the instance contains data that needs to be saved.
+
+=head2 list_changes
+
+In list context, returns a array ref of strings describing the changes. 
+In scalar context, returns a big string. Useful to print.
 
 =head1 AUTHOR
 
