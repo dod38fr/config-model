@@ -3,7 +3,7 @@
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
-use Test::More tests => 85;
+use Test::More tests => 88;
 use Test::Memory::Cycle;
 use Config::Model ;
 use Test::Exception ;
@@ -198,6 +198,8 @@ is($b1->store('foo'),'foo',"Storing in id 1" ) ;
 is($inst->needs_save,1,"verify instance needs_save status after storing into element") ;
 
 is($b->fetch_with_id(2)->store('bar'),'bar',"Storing in id 2" ) ;
+is($inst->needs_save,2,"verify instance needs_save status after storing into another element") ;
+print scalar $inst->list_changes,"\n" if $trace ;
 
 eval { $b->fetch_with_id('')->store('foo');} ;
 ok($@,"empty index error") ;
@@ -215,8 +217,15 @@ eval { $b->fetch_with_id(40)->store('foo');} ;
 ok($@,"max nb error") ;
 print "normal error: ", $@ if $trace;
 
+is($inst->needs_save,2,"verify instance needs_save status after store errors") ;
+print scalar $inst->list_changes,"\n" if $trace ;
+$inst->clear_changes ;
+
 ok( $b->delete(2), "delete id 2" );
 is( $b->exists(2), '', "deleted id does not exist" );
+is($inst->needs_save,1,"verify instance needs_save status after delete") ;
+print scalar $inst->list_changes,"\n" if $trace ;
+$inst->clear_changes ;
 
 is( $b->index_type, 'integer',"reading value_type" );
 is( $b->max_index, 123,"reading max boundary" );
@@ -277,11 +286,18 @@ eval { $allow_from->fetch_with_id('zoo')->store('zoo');} ;
 ok($@,"not allowed index error") ;
 print "normal error: ", $@ if $trace;
 
+print scalar $inst->list_changes,"\n" if $trace ;
+$inst->clear_changes ;
+
+
 my $ph = $root->fetch_element('plain_hash') ;
 $ph->fetch_with_id(2)->store('baz') ;
 ok($ph->copy(2,3),"value copy") ;
 is($ph->fetch_with_id(3)->fetch, 
    $ph->fetch_with_id(2)->fetch, "compare copied value") ;
+print scalar $inst->list_changes,"\n" if $trace ;
+$inst->clear_changes ;
+
 
 my $hwfkf =  $root->fetch_element('hash_with_follow_keys_from'); 
 ok($hwfkf,"created hash_with_follow_keys_from ...") ;
@@ -303,8 +319,11 @@ $oh->fetch_with_id('a' ) -> store( '3a' );
 
 eq_or_diff([$oh->get_all_indexes], [qw/z x a/],
 	 "check index order of ordered_hash") ;
+$inst->clear_changes ;
 
 $oh ->swap(qw/z x/) ;
+print scalar $inst->list_changes,"\n" if $trace ;
+$inst->clear_changes ;
 
 eq_or_diff([$oh->get_all_indexes], [qw/x z a/],
 	 "check index order of ordered_hash after swap(z x)") ;
@@ -421,4 +440,4 @@ $hwclc -> fetch_with_id('Debian')->store('DebV');
 $hwclc -> fetch_with_id('Grip')  -> store('GripV') ;
 eq_or_diff( [ $hwclc->get_all_indexes ] , [qw/debian grip/],"check converted ids");
 
-memory_cycle_ok($model);
+memory_cycle_ok($model,"check memory cycles");

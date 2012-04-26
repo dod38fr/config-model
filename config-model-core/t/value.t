@@ -13,6 +13,8 @@ use Log::Log4perl qw(:easy :levels) ;
 
 use strict;
 
+binmode STDOUT, ':utf8' ;
+
 my $arg = shift || '';
 my ($log,$show) = (0) x 2 ;
 
@@ -618,20 +620,22 @@ my $smiley = "\x{263A}";    # See programming perl chapter 15
 $wip->store($smiley);
 is( $wip->fetch, $smiley, "check utf-8 string" );
 
+print  join("\n", $inst->list_changes("\n")),"\n" if $trace;
+
 # test replace_follow
 my $wrf = $root->fetch_element('with_replace_follow');
-$inst->needs_save(0);
+$inst->clear_changes;
 
 $wrf->store('foo');
 is($inst->needs_save,1,"check needs_save after store") ;
-$inst->needs_save(0);
+$inst->clear_changes;
 
 is( $wrf->fetch, 'foo', "check replacement_hash with foo (before replacement)" );
 is($inst->needs_save,0,"check needs_save after simple fetch") ;
 
 $root->load('replacement_hash:foo=repfoo replacement_hash:bar=repbar');
-is($inst->needs_save,1,"check needs_save after load") ;
-$inst->needs_save(0);
+is($inst->needs_save,2,"check needs_save after load") ;
+$inst->clear_changes;
 
 is( $wrf->fetch, 'repfoo', "check replacement_hash with foo (after replacement)" );
 is($inst->needs_save,1,"check needs_save after fetch with replacement") ;
