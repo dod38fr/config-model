@@ -172,6 +172,7 @@ Two additional options allow for opportunistic multiplexing: try to use a master
           'no',
           'yes',
           'ask',
+          'auto',
           'autoask'
         ]
       },
