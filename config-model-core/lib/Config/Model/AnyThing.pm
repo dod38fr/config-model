@@ -62,8 +62,9 @@ sub notify_change {
 
     # needs_save may be overridden by caller
     $args{needs_save} //= 1 ;
-    $args{name} = $self->element_name if $self->element_name ;
-    $args{index} = $self->index_value if $self->index_value ;
+    $args{path} //= $self->location ;
+    $args{name} //= $self->element_name if $self->element_name ;
+    $args{index} //= $self->index_value if $self->index_value ;
     
     # beter use %args instead of @_ to forward arguments. %args eliminates duplicated keys
     $self->container->notify_change(%args);

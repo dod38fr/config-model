@@ -63,10 +63,16 @@ has [qw/preset layered/] => (
     default => 0,
 );
 
-has needs_save => (
-    is => 'rw',
-    isa => 'Bool' ,
-    default => 0,
+has changes => (
+    is =>'ro',
+    isa => 'ArrayRef',
+    traits => ['Array'],
+    default => sub { [] },
+    handles => {
+        add_change => 'push',
+        needs_save => 'count' ,
+        clear_changes => 'clear' ,
+    }
 );
 
 has on_change_cb => (
@@ -294,10 +300,31 @@ sub write_root_dir {
 # FIXME: record changes to implement undo/redo ?
 sub notify_change {
     my $self = shift ;
-    $change_logger->debug("called for instance ",$self->name) if $change_logger->is_debug ;
+    my %args = @_ ;
+    if ($change_logger->is_debug) {
+        $change_logger->debug("in instance ",$self->name, 'for path ',$args{path}) ;
+    }
+    $self->add_change( \%args ) ;
     my $cb = $self->on_change_cb ;
     $cb->(@_) if $cb ;
-    $self->{needs_save} = 1;
+}
+
+sub list_changes {
+    my $self = shift;
+    my $l = $self->changes ;
+    my @all ;
+
+    foreach my $c (@$l) {
+        my $path = $c->{path} ;
+        my $value_change = '' ;
+        if (exists $c->{old} or exists $c->{new}) {
+            my ($o,$n) = map { defined $_ ? "'$_'" : '<undef>';} ($c->{old},$c->{new}) ;
+            $value_change = " $o -> $n " ;
+        }
+        push @all, "$path$value_change" . ($c->{note} ? " # $c->{note}" : '');
+    }
+
+    return wantarray ? @all : join("\n",@all) ;
 }
 
 
@@ -333,7 +360,7 @@ sub write_back {
             force => $force_write,
         );
     }
-    $self->needs_save(0) ;
+    $self-> clear_changes;
 }
 
 

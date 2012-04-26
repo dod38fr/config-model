@@ -207,6 +207,8 @@ sub swap {
             $self->{list}[$idx] = $key1 ;
         }
     }
+
+    $self->notify_change(note => "swap ordered hash keys $key1 and $key2")
 }
 
 

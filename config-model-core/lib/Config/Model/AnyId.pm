@@ -882,7 +882,8 @@ sub delete {
 
     delete $self->{warning_hash}{$idx}  ;
     my $ret = $self->_delete($idx);
-    $self->notify_change( index => $idx ) ;
+    $self->notify_change( note => "deleted entry $idx" ) ;
+    return $ret ;
 }
 
 

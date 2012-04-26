@@ -120,7 +120,7 @@ sub notify_change {
     foreach my $s ($self->get_depend_slave) {
 	$change_logger->debug("calling notify_change on slave ",$s->name) 
 	    if $change_logger->is_debug ;
-	$s -> notify_change ;
+	$s -> notify_change(note => 'master triggered changed') ;
     }  ;
 }
 
@@ -301,6 +301,8 @@ sub migrate_value {
 		      error => "migrated value error:\n\t". $error 
 		     );
     }
+
+    $self->{data} = $result ;
 
     return $ok ? $result : undef ;
 }
@@ -1001,7 +1003,7 @@ sub apply_fixes {
     }
 
     $self->check_value(value => $self->{data}, fix => 1);
-    $self->notify_change ;
+    # $self->notify_change ;
 }
 
 
@@ -1032,7 +1034,7 @@ sub apply_fix {
 	    . ($self->{data} // '<undef>'). "'" );
     }
     
-    $self->notify_change ;
+    $self->notify_change(old => $value, new => $self->{data}, note => 'applied fix') ;
     # $self->store(value => $_, check => 'no');  # will update $self->{fixes}
 }
 
@@ -1118,12 +1120,14 @@ sub store {
 	    $self->{layered} = $value ;
 	} 
 	elsif ($self->instance->preset) {
-	    $self->notify_change(check_done => 1) if $notify_change;
+	    $self->notify_change(check_done => 1,old => $self->{data}, new => $value)
+                if $notify_change;
 	    $self->{preset} = $value ;
 	} 
 	else {
 	    no warnings 'uninitialized';
-	    $self->notify_change(check_done => 1) if $notify_change;
+	    $self->notify_change(check_done => 1,old => $self->{data}, new => $value)
+                if $notify_change;
 	    $self->{data} = $value ; # may be undef
 	}
 	
@@ -1358,7 +1362,7 @@ sub _fetch {
 
     if (not defined $data and defined $self->{_migrate_from}) {
 	$data =  $self->migrate_value ;
-	$self->notify_change ;
+	$self->notify_change(note =>'migrated value', new => $data ) ;
     }
 
     foreach my $k (keys %old_mode) {
