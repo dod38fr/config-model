@@ -132,7 +132,7 @@ is_deeply([split /\n/,$dump2],[split /\n/,$dump],
 	  "check if both root_ssh dumps are identical") ;
 
 SKIP: {
-    skip "user tests when test is run as root", 8
+    skip "user tests when test is run as root", 7
        unless $EUID > 0 ;
 
     note "Running test like user with layered config";
