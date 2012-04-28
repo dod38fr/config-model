@@ -1,3 +1,10 @@
+2012-04-25  Dominique Dumont <domi.dumont@free.fr> v 1.221
+
+	* Ssh model: ControlMaster also supports auto keyword (tx to
+	  harleypig and Daniel Dehennin) Closes Debian #670319
+	* Test: Fix skip count when test is run as root (fix smoke test
+	  failures)
+
 2012-02-20  Dominique Dumont <domi.dumont@free.fr> v 1.220
 
         * Fix test to force write back even if no data were changed in
