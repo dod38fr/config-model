@@ -17,7 +17,7 @@ my $logger = get_logger("Backend::Debian::Dpkg::Copyright") ;
 
 sub suffix { return '' ; }
 
-my %store_dispath = (
+my %store_dispatch = (
     list    => \&_store_line_based_list,
     #string  => \&_store_line,
     string  => \&_store_text_no_synopsis,
@@ -54,17 +54,20 @@ sub read {
     my %file_paragraph ;
     my @file_names ;
 
-    my @header = @{ shift @$c } ;
+    # put header aside
+    my $header_line_nb = shift @$c ;
+    my $header_info    = shift @$c ;
 
     my $section_nb = 1 ; # header was already done
-    foreach my $section (@$c) {
+    while (@$c) {
+        my ($section_line, $section_ref) = splice @$c, 0, 2;
         $section_nb ++ ;
-        $logger->info("Classifying section $section_nb");
-        my %h = @$section ;
+        $logger->info("Classifying section $section_nb found in line $section_line");
+        my %h = @$section_ref ;
 
         # normalise
         my %section = map { (lc($_),$h{$_}) ; } keys %h ;
-        $logger->debug("section $section_nb keys: ".join(' ',keys %section)) ;
+        $logger->debug("section nb $section_nb has fields: ".join(' ',keys %section)) ;
 
         if ( defined $section{copyright} and not defined $section{files}
              and not defined $file_paragraph{'*'} 
@@ -75,49 +78,62 @@ sub read {
             Config::Model::Exception::Syntax -> throw ( object => $self, error => $str ) 
                 if $check eq 'yes' ;
             warn("$str Adding 'Files: *' spec\n") ;
-            $section{files} = '*' ;
-            # tell root node that read data was altered and needs to be written back
-            $root->needs_save(1) ;
+            # the 3rd element is used to tell root node that read data was 
+            # altered and needs to be written back
+            $section{files} = [ '*', $section_line, 'created missing File:* section' ] ;
         }
 
         if (defined $section{licence}) {
             $logger->warn("Found UK spelling for license. It will be converted to US spellingLicense");
-            $section{license} = delete $section{licence} ;
+            $section{license} = delete $section{licence} ;# FIXME: use notify_change
+            $section{license}[2] = 'changed uk spelling for license (was licence)'; # is altered
         } 
 
         if (defined $section{files}) {
-            my $v = $section{files} ;
-            $logger->debug("Found Files paragraph ($v)");
-            $file_paragraph{$v} = $section ;
+            my ($v,$l, $a) = @{$section{files}} ;
+            if ($logger->is_debug) {
+                my $a_str = $a ? "altered: '$a' ":'' ;
+                $logger->debug("Found Files paragraph line $l, $a_str($v)");
+            }
+            $file_paragraph{$v} = $section_ref ;
             push @file_names, $v ;
         }
         elsif (defined $section{license}) {
-            my $v = $section{license} ;
+            my ($v,$l, $a) = @{$section{license}} ;
             # need to extract license name from license text
             my ($lic_name) = ($v =~ /^(\S+)/) ;
-            $lic_name = 'other' unless defined $lic_name ;
-            $logger->debug("Found license paragraph for '$lic_name'");
-            $license_paragraph{$lic_name} = $section ;
+            if (not defined $lic_name) {
+                $lic_name = 'other';
+                $a = $section{license}[2] = q!use 'other' to replace undefined license name!;
+            }
+            if ($logger->is_debug) {
+                my $a_str = $a ? "altered: '$a' ":'' ;
+                $logger->debug("Found license paragraph line $l, $a_str ($lic_name)");
+             }
+            $license_paragraph{$lic_name} = $section_ref ;
             push @license_names, $lic_name ;
         }
         else {
-            my $str = "Unknow paragraph in section $section_nb. Is it a Files or a License section ?";
+            my $str = "Unknow paragraph in section $section_nb line $section_line. "
+                . "Is it a Files or a License section ?";
             Config::Model::Exception::Syntax -> throw ( object => $self, error => $str ) 
                 if $check eq 'yes' ;
-            $logger->warn("Dropping unknown paragraph from section $section_nb");
+            $logger->warn("Dropping unknown paragraph from section $section_nb line $section_line");
         }
     }
     
     $logger->info("First pass to read pure license sections from $args{file} control file");
+
     foreach my $lic_name (@license_names) {
         my $object = $root->grab(step => qq!License:"$lic_name"!, check => $check);
 
         my $section = $license_paragraph{$lic_name} ;
         for (my $i=0; $i < @$section ; $i += 2 ) {
             my $key = $section->[$i];
-            my $v = $section->[$i+1];
-            $logger->info("reading key $key from $args{file} control file for ".$object->name);
+            my ($v,$l,$a) = @{$section->[$i+1]};
+            $logger->info("reading key $key from $args{file} file line $l altered $a for ".$object->name);
             $logger->debug("$key value: '$v'");
+            my $elt_obj ;
             
             if ($key =~ /licen[sc]e/i) {
                 my @lic_text = split /\n/,$v ;
@@ -129,37 +145,35 @@ sub read {
                 # lic_obj may not be defined in -force mode
                 next unless defined $object ;
 
-                $object->fetch_element('text')->store(value => join("\n", @lic_text), check => $check) ;
+                $elt_obj = $object->fetch_element('text');
+                $elt_obj->store(value => join("\n", @lic_text), check => $check) ;
             }
             else {
                 # store other sections thanks to 'accept' clause
-                $object->fetch_element($key)->store($v) ;
+                $elt_obj = $object->fetch_element($key);
+                $elt_obj->store($v) ;
             }
+           $elt_obj->notify_change(note => $a, really => 1 ) if $a ;
         }
     }   
 
     $logger->info("Second pass to header section from $args{file} control file");
     my $object = $root ;
    
+    my @header = @$header_info ;
     for (my $i=0; $i < @header ; $i += 2 ) {
         my $key = $header[$i];
-        my $v = $header[$i+1];
+        my ($v,$l,$a) = @{$header[$i+1]};
 
-        $logger->info("reading key $key from header for ".$object->name);
+        $logger->info("reading key $key from header line $l altered $a for ".$object->name);
         $logger->debug("$key value: '$v'");
 
         if ($key =~ /^licen[sc]e$/i) {
-            $logger->warn("Found UK spelling for $key: $v. $key will be converted to License")
-                if $key =~ /license/ ;
             my $lic_node = $root->fetch_element('Global-License') ;
-            _store_file_license ($lic_node, $v ,$check);
+            _store_license_info ($lic_node, $key, $v, $a, $check);
         }
         elsif (my $found = $object->find_element($key, case => 'any')) { 
-            my $target = $object->fetch_element($found) ;
-            my $type = $target->get_type ;
-            my $dispatcher = $type eq 'leaf' ? $target->value_type : $type ;
-            my $f =  $store_dispath{$dispatcher} || die "unknown dispatcher for $key";
-            $f->($target,$v,$check) ;
+            _store_file_info($object,$found,$key, $v, $check)
         }
         else {
             # try anyway to trigger an error message
@@ -175,25 +189,19 @@ sub read {
         my $section = $file_paragraph{$file_name} ;
         for (my $i=0; $i < @$section ; $i += 2 ) {
             my $key = $section->[$i];
-            my $v = $section->[$i+1];
+            my ($v,$l,$a) = @{$section->[$i+1]};
             #$v =~ s/^\s+//; # remove all leading spaces 
-            $logger->info("reading key $key from file paragraph '$file_name' for ".$object->name);
+            $logger->info("reading key $key from file paragraph '$file_name' line $l for ".$object->name);
             $logger->debug("$key value: '$v'");
 
             next if $key =~ /^files$/i; # already done just before this loop
 
             if ($key =~ /^licen[sc]e$/i) {
-                $logger->warn("Found UK spelling for $key: $v. $key will be converted to License")
-                    if $key =~ /license/ ;
                 my $lic_node = $object->fetch_element('License') ;
-                _store_file_license ($lic_node, $v ,$check);
+                _store_license_info ($lic_node, $key, $v, $a, $check);
             }
             elsif (my $found = $object->find_element($key, case => 'any')) { 
-                my $target = $object->fetch_element($found) ;
-                my $type = $target->get_type ;
-                my $dispatcher = $type eq 'leaf' ? $target->value_type : $type ;
-                my $f =  $store_dispath{$dispatcher} || die "unknown dispatcher for $key";
-                $f->($target,$v,$check) ;
+                _store_file_info($object,$found,$key, $v, $check);
             }
             else {
                 # try anyway to trigger an error message
@@ -226,6 +234,37 @@ sub _store_line {
     chomp $v ;
     $logger->debug("_store_line with check $check ".$object->name." = $v");
     $object->store(value => $v, check => $check) ; 
+}
+
+#
+# New subroutine "_store_license_info" extracted - Fri Apr 27 13:59:18 2012.
+#
+#
+# New subroutine "_store_file_info" extracted - Fri Apr 27 14:07:11 2012.
+#
+sub _store_file_info {
+    my ($object,$target_name,$key, $v, $check) = @_;
+
+    my $target = $object->fetch_element($target_name) ;
+    my $type = $target->get_type ;
+    my $dispatcher = $type eq 'leaf' ? $target->value_type : $type ;
+    my $f =  $store_dispatch{$dispatcher} || die "unknown dispatcher for $key";
+    $f->($target,$v,$check) ; 
+    $target->notify_change(note => $a, really => 1 ) if $a ;
+}
+
+sub _store_license_info {
+    my ( $lic_node, $key, $v, $a, $check ) = @_;
+
+    if ( $key =~ /license/ ) {
+        $logger->warn( "Found UK spelling for $key: $v. $key will be converted to License" );
+        $lic_node->notify_change(
+            note   => 'change uk spelling to us spelling',
+            really => 1
+        );
+    }
+    _store_file_license( $lic_node, $v, $check );
+    $lic_node->notify_change( note => $a, really => 1 ) if $a;
 }
 
 sub _store_file_license {

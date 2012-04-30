@@ -83,13 +83,13 @@ sub read {
 
         Config::Model::Exception::Syntax->throw(
             message => "More than one section in $patch_name header" )
-          if @$c > 1;
+          if @$c > 2; # $c contains [ line_nb, section_ref ]
     }
 
-    my $section = $c->[0];
+    my $section = $c->[1];
     foreach ( my $i = 0 ; $i < $#$section ; $i += 2 ) {
         my $key = $section->[$i];
-        my $v   = $section->[ $i + 1 ];
+        my ($v,$l,$a,@comments) = @{$section->[ $i + 1 ]};
         if ( my $found = $node->find_element( $key, case => 'any' ) ) {
             my @elt = ($found);
             my @v = ( $found eq 'Description' ) ? ( split /\n/, $v, 2 ) : ($v);

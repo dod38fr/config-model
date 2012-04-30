@@ -29,7 +29,6 @@ sub parse_dpkg_file {
 sub parse_dpkg_lines {
     my ($self, $lines, $check, $comment_allowed) = @_ ;
 
-    my @res ; # list of list (section, [keyword, value])
     my $field;
     my $store_ref ;       # hold field data
     my @comments;         # hold comment data
@@ -37,6 +36,12 @@ sub parse_dpkg_lines {
 
     my $key = '';
     my $line = 1 ;
+    my $section_line = 1 ;
+    
+    # list of list ( $line_nb, section, ... ) wheere section is
+    # [keyword, [ value, line_nb, altered , comment ] ])
+    my @res ; 
+    
     foreach (@$lines) {
         $logger->trace("Parsing line $line '$_'");
         if (/^#/) { # comment are always located before the keyword (hopefully)
@@ -52,23 +57,21 @@ sub parse_dpkg_lines {
         elsif (/^([\w\-]+)\s*:/) {  # keyword: 
             my ($field,$text) = split /\s*:\s*/,$_,2 ;
             $key = $field ;
-            $logger->trace("start new field $key with '$text'");
+            $logger->trace("line $line start new field $key with '$text'");
 
-            if (@comments) {
-                push @$store_list, $field, [$text , @comments ] ;
-                @comments = () ;
-                $store_ref = \$store_list->[$#$store_list][0] ;
-            }
-	    else {
-                push @$store_list, $field, $text ;
-                $store_ref = \$store_list->[$#$store_list] ;
-            }
+            # @$store_list will be used in a hash, where the $field is key
+            # store value found, file line number, is value altered (used later, o for now)
+            # and comments
+            push @$store_list, $field, [ $text , $line, '', @comments ] ;
+            @comments = () ;
+            $store_ref = \$store_list->[$#$store_list][0] ;
         }
         elsif ($key and /^\s*$/) {     # first empty line after a section
             $logger->trace("empty line: starting new section");
             $key = '';
-            push @res, $store_list if @$store_list ; # don't store empty sections 
+            push @res, $section_line, $store_list if @$store_list ; # don't store empty sections 
             $store_list = [] ;
+            $section_line = $line + 1; # next line, will be clobbered if next line is empty
 	    chomp $$store_ref if defined $$store_ref; # remove trailing \n 
             undef $store_ref ; # to ensure that next line contains a keyword
         }
@@ -96,12 +99,21 @@ sub parse_dpkg_lines {
     # remove trailing \n of last stored value 
     chomp $$store_ref if defined $$store_ref;
     # store last section if not empty
-    push @res, $store_list if @$store_list;
+    push @res, $section_line, $store_list if @$store_list;
 
 
     if ($logger->is_debug ) {
-        my $i = 1 ;
-        map { $logger->debug("Parse result section ".$i++.":\n'".join("','",@$_)."'") ;} @res ;
+        for (my $i = 0 ; 2*$i < $#res ; $i++  ) {
+            my $l = $res[$i*2];
+            my $s = $res[$i*2 + 1];
+            my %section_data = @$s;
+            
+            $logger->debug("Parse result section $i, found:") ;
+            foreach my $key (keys %section_data) {
+                $logger->debug( "$key: ". substr ($section_data{$key}[0],0,35)) ;
+            }
+            
+        }
     }
 
     $logger->warn("No section found") unless @res ;

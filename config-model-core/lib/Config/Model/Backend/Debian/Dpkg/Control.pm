@@ -45,28 +45,29 @@ sub read {
 
     # first section is source package, following sections are binary package
     my $node = $root->fetch_element(name => 'source', check => $check) ;
-    $self->read_sections ($node, shift @$c, $check);
+    $self->read_sections ($node, shift @$c, shift @$c, $check);
 
     $logger->debug("Reading binary package names");
     # we assume that package name is the first item in the section data
     
-    while (my $section = shift @$c ) {
+    while (@$c ) {
+        my ($section_line,$section) = splice @$c,0,2 ;
         my $package_name;
         foreach (my $i = 0; $i < $#$section; $i += 2) {
             next unless $section->[$i] =~ /^package$/i;
-            $package_name = $section->[$i+1 ];
+            $package_name = $section->[ $i+1 ][0];
             splice @$section,$i,2 ;
             last ;
         }
         
         if (not defined $package_name) {
-            my $msg = "Cannot find package_name in section @$section";
+            my $msg = "Cannot find package_name in section beginning at line $section_line";
             Config::Model::Exception::Syntax
 	    -> throw (object => $root,  error => $msg) ;
         } 
         
         $node = $root->grab("binary:$package_name") ;
-        $self->read_sections ($node, $section, $args{check});
+        $self->read_sections ($node, $section_line, $section, $args{check});
     }
 
     return 1 ;
@@ -78,6 +79,7 @@ sub read {
 sub read_sections {
     my $self = shift ;
     my $node = shift;
+    my $section_line = shift ;
     my $section = shift;
     my $check = shift || 'yes';
 
@@ -85,18 +87,19 @@ sub read_sections {
     for (my $i=0; $i < @$section ; $i += 2 ) {
         my $key = $section->[$i];
         my $lc_key = lc($key); # key are not key sensitive
-        my $v = $section->[$i+1];
-        $sections{$lc_key} = [ $key, $v ];
+        $sections{$lc_key} = [ $key , $section->[$i+1] ]; 
     }
 
     foreach my $key ($node->get_element_name) {
         my $ref = delete $sections{lc($key)} ;
-        $self->store_section_in_tree ($node,$check, $key, $ref->[1]);
+        next unless defined $ref ;
+        $self->store_section_in_tree ($node,$check, @$ref);
     }
     
     # leftover sections should be either accepted or rejected
-    foreach my $key (keys %sections) {
-        $self->store_section_in_tree ($node,$check, @{$sections{$key}});
+    foreach my $lc_key (keys %sections) {
+        my $ref = delete $sections{$lc_key} ;
+        $self->store_section_in_tree ($node,$check, @$ref);
     }
 }
 
@@ -108,21 +111,20 @@ sub store_section_in_tree {
     my $node  = shift;
     my $check = shift;
     my $key   = shift;
-    my $maybe_v = shift;
-
-    return unless defined $maybe_v ;
+    my $v_ref = shift;
 
     $logger->info( "reading key '$key' from control file (for node "
           . $node->location
           . ")" );
 
-    my ($v,@c) = ref $maybe_v ? @$maybe_v : ($maybe_v) ;
+    my ($v,$l,$a,@c) = @$v_ref;
 
     $logger->debug("$key value: $v");
     my $type = $node->element_type($key);
     my $elt_obj = $node->fetch_element( name => $key, check => $check );
 
     $elt_obj->annotation(join("\n",@c)) if @c ;
+    $elt_obj->notify_change(note => $a, really => 1) if $a ;
 
     $v =~ s/^\s*\n//;
     chomp $v;
