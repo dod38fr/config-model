@@ -396,7 +396,7 @@ sub notify_change {
         $self->set_data_mode($idx,$imode) if $mode_move{$old_mode}{$imode} ; 
     }
     
-    return if $self->instance->initial_load ;
+    return if $self->instance->initial_load  and not $args{really};
 
     $self->needs_check(1) ;
     $self->SUPER::notify_change(@_) ;

@@ -108,7 +108,7 @@ sub notify_change {
     my %args = @_ ;
     my $check_done = $args{check_done} || 0 ;
 
-    return if $self->instance->initial_load ;
+    return if $self->instance->initial_load and not $args{really};
     
     $change_logger->debug("called while needs_check is ",$self->needs_check,
 	" for ",$self->name) 

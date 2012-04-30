@@ -382,8 +382,9 @@ sub read_config_data {
 
 sub notify_change {	
     my $self = shift ;
+    my %args = @_ ;
 
-    return if $self->instance->initial_load ;
+    return if $self->instance->initial_load  and not $args{really};
 
     $logger->debug("called while needs_write is ",$self->needs_save,
 	" for ",$self->name) 

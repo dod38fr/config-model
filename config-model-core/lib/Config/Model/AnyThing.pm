@@ -56,7 +56,7 @@ sub notify_change {
     my $self = shift ;
     my %args =  @_ ;
 
-    return if $self->instance->initial_load ;
+    return if $self->instance->initial_load  and not $args{really};
 
     $change_logger->debug("called for ",$self->name) if $change_logger->is_debug ;
 
