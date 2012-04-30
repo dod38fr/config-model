@@ -63,7 +63,7 @@ sub read {
         if (not defined $package_name) {
             my $msg = "Cannot find package_name in section beginning at line $section_line";
             Config::Model::Exception::Syntax
-	    -> throw (object => $root,  error => $msg) ;
+	    -> throw (object => $root,  error => $msg, parsed_line => $section_line) ;
         } 
         
         $node = $root->grab("binary:$package_name") ;

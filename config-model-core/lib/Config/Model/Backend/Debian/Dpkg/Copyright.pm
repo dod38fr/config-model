@@ -74,9 +74,10 @@ sub read {
             ) {
             # Some legacy files can have a header and one paragraph with License tag
             # more often than not, this is an implied "File: *"  section
-            my $str = "Missing 'Files:' specification in section $section_nb.";
-            Config::Model::Exception::Syntax -> throw ( object => $self, error => $str ) 
-                if $check eq 'yes' ;
+            my $str = "Missing 'Files:' specification in section starting $section_line.";
+            Config::Model::Exception::Syntax 
+                -> throw ( object => $self, error => $str, parsed_line => $section_line ) 
+                    if $check eq 'yes' ;
             warn("$str Adding 'Files: *' spec\n") ;
             # the 3rd element is used to tell root node that read data was 
             # altered and needs to be written back
@@ -114,10 +115,15 @@ sub read {
             push @license_names, $lic_name ;
         }
         else {
-            my $str = "Unknow paragraph in section $section_nb line $section_line. "
+            my $str = "Unknow section type beginning at line $section_line. "
                 . "Is it a Files or a License section ?";
-            Config::Model::Exception::Syntax -> throw ( object => $self, error => $str ) 
-                if $check eq 'yes' ;
+            if ($check eq 'yes') {
+                Config::Model::Exception::Syntax -> throw ( 
+                    object => $self, 
+                    error => $str, 
+                    parsed_line => $section_line 
+                );
+            }
             $logger->warn("Dropping unknown paragraph from section $section_nb line $section_line");
         }
     }
