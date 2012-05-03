@@ -2,6 +2,7 @@
 
 use strict;
 use warnings;
+use 5.10.1;
 
 use Config::Model;
 use Config::Model::Lister;
@@ -205,6 +206,7 @@ elsif ($command eq 'migrate') {
     
 }
 elsif ($command eq 'fix') {
+    say "Fixing..." ;
     $inst->apply_fixes;
     $force_save = 1;
 }
@@ -324,8 +326,10 @@ else {
     die "Looks like the author forgot to implement $command. Bad author, bad.";
 }
 
-$inst->write_back if $force_save;
-
+if ($force_save) {
+    say "Changes: \n", $inst->list_changes;
+    $inst->write_back  ;
+}
 exit 0;
 
 __END__
