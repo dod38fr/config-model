@@ -1,3 +1,20 @@
+2012-05-03  Dominique Dumont  <domi.dumont@free.fr> 2.014
+
+    * Application changes:
+	* cme: list changes before saving data (unless save is handled by
+  	  user interface) (HEAD, master)
+	* Dpkg backend: reworked the internal data structure used between
+	  DpkgSyntax and the other modules. The new data structure feature
+	  the file line number to provide error messages with the line
+	  number where the error was found. This patch also tracks what was
+	  changed during parsing (see "altered" keyword) to call
+	  change_notify with new option "really => 1" (closes debian #670441)
+
+    * Framework changes:
+	+ all: added tracking of changes performed by user. The change list can
+	  retrieved from Instance object with list_changes method (this list can be
+	  cleared with clear_changes).
+
 2012-04-06  Dominique Dumont  <domi.dumont@free.fr> 2.013
 
     * Application changes:
