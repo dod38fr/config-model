@@ -305,10 +305,13 @@ foreach my $ini_class (@ini_classes) {
 
 # Itself constructor returns an object to read or write the data
 # structure containing the model to be edited
-my $rw_obj = Config::Model::Itself->new( model_object => $meta_root );
+my $rw_obj = Config::Model::Itself->new( 
+    model_object => $meta_root,
+    model_dir => 'lib/Config/Model/models/'
+);
 
 say "Writing all models in file (please wait)";
-$rw_obj->write_all( model_dir => 'lib/Config/Model/models/' );
+$rw_obj->write_all;
 
 say "Done";
 
