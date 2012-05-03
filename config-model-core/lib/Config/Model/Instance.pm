@@ -316,6 +316,10 @@ sub list_changes {
 
     foreach my $c (@$l) {
         my $path = $c->{path} ;
+        
+        # don't list change without further info (like nodes)
+        next unless keys %$c > 1 ;
+        
         my $value_change = '' ;
         if (exists $c->{old} or exists $c->{new}) {
             my ($o,$n) = map { defined $_ ? "'$_'" : '<undef>';} ($c->{old},$c->{new}) ;
