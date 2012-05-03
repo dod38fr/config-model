@@ -70,10 +70,18 @@ has changes => (
     default => sub { [] },
     handles => {
         add_change => 'push',
-        needs_save => 'count' ,
+        c_count => 'count' ,
+        #needs_save => 'count' ,
         clear_changes => 'clear' ,
     }
 );
+
+sub needs_save {
+    my $self = shift;
+    carp "cannot call needs_save with argument" if @_ ;
+    return $self->c_count ;
+}
+
 
 has on_change_cb => (
     is => 'rw',
