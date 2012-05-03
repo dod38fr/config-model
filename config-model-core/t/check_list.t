@@ -10,7 +10,7 @@ use Config::Model;
 use Data::Dumper;
 use Log::Log4perl qw(:easy :levels) ;
 
-BEGIN { plan tests => 82; }
+BEGIN { plan tests => 86; }
 
 use strict;
 
@@ -200,6 +200,7 @@ my $inst = $model->instance(
     instance_name   => 'test1'
 );
 ok( $inst, "created dummy instance" );
+$inst->initial_load_stop ;
 
 my $root = $inst->config_root;
 
@@ -207,6 +208,8 @@ my $cl = $root->fetch_element('choice_list');
 
 # check get_choice
 is_deeply( [ $cl->get_choice ], [ 'A' .. 'Z' ], "check_get_choice" );
+
+is($inst->needs_save,0,"verify instance needs_save status after creation") ;
 
 ok( 1, "test get_checked_list for empty check_list" );
 my @got = $cl->get_checked_list;
@@ -222,6 +225,8 @@ is_deeply( $hr, \%expect, "test get_checked_list_as_hash for empty checklist" );
 # check help
 is( $cl->get_help('A'), 'A help', "test help" );
 
+is($inst->needs_save,0,"verify instance needs_save status after reading meta data") ;
+
 # test with the polymorphic 'set' method
 $cl->set( '', 'A,Z,Y,B' );
 ok( 1, "test set method" );
@@ -229,12 +234,20 @@ ok( 1, "test set method" );
 is( scalar @got, 4, "test nb of elt in check_list after set" );
 is_deeply( \@got, [qw/A B Y Z/], "test get_checked_list after set" );
 
+is($inst->needs_save,1,"verify instance needs_save after set") ;
+print  join("\n", $inst->list_changes("\n")),"\n" if $trace;
+$inst->clear_changes ;
+
 my @set = sort qw/A C Z V Y/;
 $cl->set_checked_list(@set);
 ok( 1, "test set_checked_list" );
 @got = $cl->get_checked_list;
 is( scalar @got, 5, "test nb of elt in check_list after set_checked_list" );
 is_deeply( \@got, \@set, "test get_checked_list after set_checked_list" );
+
+is($inst->needs_save,1,"verify instance needs_save after set_checked_list") ;
+print  join("\n", $inst->list_changes("\n")),"\n" if $trace;
+$inst->clear_changes ;
 
 # test global get and set as hash
 $hr = $cl->get_checked_list_as_hash;
@@ -528,6 +541,7 @@ my $loclrt = $root->fetch_element('ordered_checklist_refer_to');
 is_deeply( \@got, [qw/Y V C Z B A/],
     "test default of ordered_checklist_refer_to in layered mode" );
 
+print  join("\n", $inst->list_changes("\n")),"\n" if $trace;
 
 
 memory_cycle_ok($model,"memory cycle");
