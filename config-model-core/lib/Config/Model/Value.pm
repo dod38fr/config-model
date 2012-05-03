@@ -1034,7 +1034,11 @@ sub apply_fix {
 	    . ($self->{data} // '<undef>'). "'" );
     }
     
-    $self->notify_change(old => $value, new => $self->{data}, note => 'applied fix') ;
+    $self->notify_change(
+        old => $value // $self->_pre_fetch, 
+        new => $self->{data} // $self->_pre_fetch,
+        note => 'applied fix'
+    ) ;
     # $self->store(value => $_, check => 'no');  # will update $self->{fixes}
 }
 
@@ -1126,8 +1130,11 @@ sub store {
 	} 
 	else {
 	    no warnings 'uninitialized';
-	    $self->notify_change(check_done => 1,old => $self->{data}, new => $value)
-                if $notify_change;
+	    $self->notify_change(
+                check_done => 1,
+                old => $self->{data} // $self->_pre_fetch, 
+                new => $value // $self->_pre_fetch
+            ) if $notify_change;
 	    $self->{data} = $value ; # may be undef
 	}
 	
