@@ -3,7 +3,7 @@
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
-use Test::More tests => 160;
+use Test::More tests => 162;
 use Test::Exception;
 use Test::Warn;
 use Test::Memory::Cycle;
@@ -651,9 +651,13 @@ ok(
     "check that replacement hash was not changed by missed substitution"
 );
 
+$inst->clear_changes;
 my $sv = $root->fetch_element('Standards-Version') ;
 warning_like { $sv->store('3.9.1') ; } qr/Current/ , "store old standard version";
+is($inst->needs_save,1,"check needs_save after load") ;
 $sv->apply_fixes ;
+is($inst->needs_save,2,"check needs_save after load") ;
+print  join("\n", $inst->list_changes("\n")),"\n" if $trace;
 
 is($sv->fetch,'3.9.2',"check fixed standard version");
 
