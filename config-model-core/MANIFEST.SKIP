@@ -10,3 +10,4 @@ _build
 blib
 wr_root
 \.rej$
+README.build-from-git
