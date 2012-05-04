@@ -9,6 +9,7 @@ use Config::Model::TkUI;
 use Config::Model ;
 use Config::Model::Value ;
 use Log::Log4perl qw(get_logger :levels) ;
+use Test::Memory::Cycle;
 
 
 use strict;
@@ -128,4 +129,6 @@ SKIP: {
 
     ok(1,"wizard done") ;
 
+    memory_cycle_ok($cmw);
 }
+
