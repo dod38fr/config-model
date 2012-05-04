@@ -14,6 +14,7 @@
 	+ all: added tracking of changes performed by user. The change list can
 	  retrieved from Instance object with list_changes method (this list can be
 	  cleared with clear_changes).
+	+ Depends on Text::Diff
 
 2012-04-06  Dominique Dumont  <domi.dumont@free.fr> 2.013
 
