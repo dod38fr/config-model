@@ -19,7 +19,7 @@
 
 use Module::Build;
 
-require 5.008 ;
+require 5.10.1 ;
 my @version_info = @ARGV ? (dist_version => $ARGV[0]) : () ;
 
 my $build = Module::Build->new
