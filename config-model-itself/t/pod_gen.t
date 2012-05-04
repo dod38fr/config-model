@@ -60,7 +60,8 @@ my $meta_root = $meta_inst -> config_root ;
 
 my $rw_obj = Config::Model::Itself -> new(
     model_object => $meta_root,
-    model_dir => $wr_model1
+    model_dir => $wr_model1,
+    force_write => 1, # can put 0 when Config::MOdel 1.214 is used
 ) ;
 
 # add a new class 
