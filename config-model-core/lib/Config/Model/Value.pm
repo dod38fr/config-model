@@ -114,7 +114,7 @@ sub notify_change {
 	" for ",$self->name) 
 	if $change_logger->is_debug ;
     $self->needs_check(1) unless $check_done;
-    $self->SUPER::notify_change(%args) ;
+    $self->SUPER::notify_change(%args, value_type => $self->value_type) ;
 
     # notify all warped or computed objects that depends on me 
     foreach my $s ($self->get_depend_slave) {

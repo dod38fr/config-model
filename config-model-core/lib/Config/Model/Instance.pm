@@ -6,6 +6,7 @@ use namespace::autoclean;
 use Any::Moose '::Util::TypeConstraints';
 use Any::Moose 'X::StrictConstructor' ;
 
+use Text::Diff ;
 use File::Path;
 use Log::Log4perl qw(get_logger :levels);
 
@@ -337,13 +338,19 @@ sub list_changes {
         
         # don't list change without further info (like nodes)
         next unless keys %$c > 1 ;
+        my $vt = $c->{value_type} || '' ;
+        my ($o,$n) =  map { $_ || '<undef>' ;} ($c->{old},$c->{new}) ;
         
-        my $value_change = '' ;
-        if (exists $c->{old} or exists $c->{new}) {
-            my ($o,$n) = map { defined $_ ? "'$_'" : '<undef>';} ($c->{old},$c->{new}) ;
-            $value_change = " $o -> $n " ;
+        if ($vt eq 'string' and ($o =~ /\n/ or $n =~ /\n/) ) {
+            # append \n if needed so diff works as expected
+            map { $_ .= "\n" unless /\n$/ ;} ($o,$n) ;
+            my $diff = diff \$o, \$n ;
+            push @all, "$path :" . ($c->{note} ? " # $c->{note}" : ''). "\n". $diff;
         }
-        push @all, "$path$value_change" . ($c->{note} ? " # $c->{note}" : '');
+        elsif (exists $c->{old} or exists $c->{new}) {
+            map { s/\n.*/.../s; } ($o,$n) ;
+            push @all, "$path: '$o' -> '$n'" . ($c->{note} ? " # $c->{note}" : '');
+        }
     }
 
     return wantarray ? @all : join("\n",@all) ;
