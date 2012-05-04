@@ -242,7 +242,7 @@ foreach my $ini_class (@ini_classes) {
     my $config_class   = "LCDd::$ini_class";
 
     # create config class in case there's no parameter in INI file
-    $meta_root->load(qq!class:"LCDd::$ini_class"!);
+    $meta_root->load(qq!class:"LCDd::$ini_class" class_description="generated from LCDd.conf"!);
 
     # loop over all INI parameters and create LCDd::$ini_class elements
     foreach my $ini_param ( $ini_obj->get_element_name ) {
