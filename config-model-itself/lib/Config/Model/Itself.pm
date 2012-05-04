@@ -19,6 +19,7 @@ my $logger = Log::Log4perl::get_logger("Backend::Itself");
 
 has model_object => (is =>'ro', isa =>'Config::Model::Node', required => 1) ;
 has model_dir    => (is =>'ro', isa =>'Str', required => 1 ) ;
+has force_write  => (is =>'ro', isa => 'Bool', default => 0) ;
 
 has modifed_classes => (
     is =>'rw', 
@@ -38,7 +39,8 @@ sub BUILD {
 
     my $cb = sub {
         my %args = @_ ;
-        return unless $args{name} eq 'class' ;
+        my $p = $args{path} || '' ;
+        return unless $p =~ /^class/ ;
         return if $self->class_was_changed($args{index}) ;
         $logger->info("class $args{index} was modified");
         
@@ -254,7 +256,7 @@ sub write_all {
         
         # check if any a class of a file was modified
         foreach my $class_name (@{$map_to_write{$file}}) {
-            $file_needs_write++ if $self->class_was_changed($class_name) ;
+            $file_needs_write++ if $self->force_write or $self->class_was_changed($class_name) ;
             $logger->info("file $file class $class_name needs write ",$file_needs_write);
         }
         
@@ -528,21 +530,25 @@ Config::Model::Itself - Model editor for Config::Model
  my $meta_model = Config::Model -> new ( ) ;
 
  # load Config::Model model
- my $meta_inst = $model->instance (root_class_name => 'Itself::Model' ,
-                                   instance_name   => 'meta_model' ,
-                                  );
+ my $meta_inst = $model->instance (
+    root_class_name => 'Itself::Model' ,
+    instance_name   => 'meta_model' ,
+ );
 
  my $meta_root = $meta_inst -> config_root ;
 
  # Itself constructor returns an object to read or write the data
  # structure containing the model to be edited
- my $rw_obj = Config::Model::Itself -> new(model_object => $meta_root ) ;
+ my $rw_obj = Config::Model::Itself -> new(
+    model_object => $meta_root,
+    model_dir => '/path/to/model_files' ,
+ ) ;
 
- # now lead the model to be edited
- $rw_obj -> read_all( conf_dir => '/path/to/model_files') ;
+ # now load the model to be edited
+ $rw_obj -> read_all( ) ;
 
  # For Curses UI prepare a call-back to write model
- my $wr_back = sub { $rw_obj->write_all(model_dir => '/path/to/model_files');
+ my $wr_back = sub { $rw_obj->write_all();
 
  # create Curses user interface
  my $dialog = Config::Model::CursesUI-> new
@@ -584,7 +590,7 @@ dedicated to read and write a set of model files.
 
 =head1 Constructor
 
-=head2 new ( model_object => ... )
+=head2 new ( model_object => ... , model_dir => ... )
 
 Creates a new read/write handler. This handler is dedicated to the
 C<model_object> passed with the constructor. This parameter must be a
@@ -592,7 +598,7 @@ L<Config::Model::Node> class.
 
 =head2 Methods
 
-=head1 read_all ( model_dir => ... , root_model => ... , [ force_load => 1 ] )
+=head1 read_all (  root_model => ... , [ force_load => 1 ] )
 
 Load all the model files contained in C<model_dir> and all its
 subdirectories. C<root_model> is used to filter the classes read. 
@@ -601,20 +607,20 @@ Use C<force_load> if you are trying to load a model containing errors.
 
 C<read_all> returns a hash ref containing ( class_name => file_name , ...)
 
-=head2 write_all ( model_dir => ... )
+=head2 write_all
 
 Will write back configuration model in the specified directory. The
 structure of the read directory is respected.
 
-=head2 write_model_snippet( model_dir => foo, model_file => bar.pl )
+=head2 write_model_snippet( snippet_dir => foo, model_file => bar.pl )
 
 Write snippet models in separate C<.d> directory. E.g. a snippet for class
 C<Foo::Bar> will be written in C<Foo/Bar.d/bar.pl> file. This file is to be used
 by L<augment_config_class|Config::Model/"augment_config_class (name => '...', class_data )">
 
-=head2 read_model_snippet( model_dir => foo, model_file => bar.pl )
+=head2 read_model_snippet( snippet_dir => foo, model_file => bar.pl )
 
-To read model snippets, this methid will search recursively C<$model_dir> and load
+To read model snippets, this methid will search recursively C<$snippet_dir> and load
 all C<bar.pl> files found in there.
 
 =head2 list_class_element
@@ -646,7 +652,7 @@ Dominique Dumont, (ddumont at cpan dot org)
 
 =head1 COPYRIGHT
 
-Copyright (C) 2007-2011 by Dominique Dumont
+Copyright (C) 2007-2012 by Dominique Dumont
 
 =head1 LICENSE
 
