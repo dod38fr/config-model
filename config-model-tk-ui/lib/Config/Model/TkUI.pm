@@ -2,6 +2,7 @@
 
 package Config::Model::TkUI ;
 
+use 5.10.1 ;
 use strict;
 use warnings ;
 use Carp ;
@@ -127,6 +128,7 @@ sub Populate {
 		      [ qw/command reload -command/, sub{ $cw->reload }],
 		      [ command => 'check for errors',    -command => sub{ $cw->check(1)} ],
 		      [ command => 'check for warnings',  -command => sub{ $cw->check(1,1)} ],
+		      [ command => 'show changes',  -command => sub{ $cw->show_changes;} ],
 		      [ qw/command save   -command/, sub{ $cw->save }],
 		      [ command => 'save in dir ...',
                         -command => sub{ $cw->save_in_dir ;} ],
@@ -411,20 +413,28 @@ sub save_if_yes {
     my $cw =shift ;
     my $text = shift || "Save data ?" ;
 
+    my $ok_to_quit ;
     if ($cw->{root}->instance->needs_save) {
 	my $answer = $cw->Dialog(-title => "quit",
 				 -text  => $text,
-				 -buttons => [ qw/yes no/],
+				 -buttons => [ qw/yes no cancel/, 'show changes'],
 				 -default_button => 'yes',
 				)->Show ;
-	$cw->save if $answer eq 'yes';
+	given ($answer) {
+            when ('yes') { $cw->save; $ok_to_quit = 1 ;}
+            when ('no')  {            $ok_to_quit = 1 ;}
+            when ('cancel')  {            $ok_to_quit = 0 ;}
+            when (/show/)  { $cw->show_changes(sub{$cw -> save_if_yes}) ;  $ok_to_quit = 0 ;}
+	}
     }
+
+    return $ok_to_quit ;
 }
 
 sub quit {
     my $cw = shift ;
 
-    $cw->save_if_yes ;
+    $cw->save_if_yes || return ;
 
     if (defined $cw->{quit} and $cw->{quit} eq 'soft') {
 	$cw->destroy ;
@@ -433,6 +443,19 @@ sub quit {
 	# destroy main window to exit Tk Mainloop;
 	$cw->parent->destroy ;
     }
+}
+
+sub show_changes {
+    my $cw = shift ;
+    my $cb = shift ;
+    
+    my $changes = $cw->{root}->instance->list_changes ;
+    my $change_widget = $cw->Toplevel ;
+    $change_widget->Scrolled('ROText')->pack ->insert('1.0',$changes);
+    $change_widget->Button(
+        -command => sub {$change_widget->destroy; $cb ->() if defined $cb;} ,
+        -text => 'ok',
+    )->pack ;
 }
 
 sub reload {
