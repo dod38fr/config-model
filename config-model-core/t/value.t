@@ -303,6 +303,14 @@ print "normal error:\n", $@, "\n" if $trace;
 is( $ms->store('toto'), 'toto', "mandatory_string: store" );
 is( $ms->fetch,         'toto', "and read" );
 
+my $toto_str = "a\nbig\ntext\nabout\ntoto" ;
+$ms->store($toto_str) ;
+$toto_str =~ s/text/string/ ;
+$ms->store($toto_str) ;
+
+print  join("\n", $inst->list_changes("\n")),"\n" if $trace;
+$inst->clear_changes ;
+
 my $mb = $root->fetch_element('mandatory_boolean');
 ok( $mb, "created mandatory_boolean" );
 
@@ -617,6 +625,7 @@ warning_like { $aw->store('whatever'); } qr/always/i, "test unconditional warn";
 
 # test unicode
 my $smiley = "\x{263A}";    # See programming perl chapter 15
+$wip->store(':-)'); # to test list_changes just below
 $wip->store($smiley);
 is( $wip->fetch, $smiley, "check utf-8 string" );
 
