@@ -188,6 +188,7 @@ SKIP: {
 	       [ ( qr/warn_unless/ ) x 3 ] ,"warn test warn_unless ".$idx++ ;
 	     },
 	 sub { $root->load('warn_unless=foo2') ; $cmu->reload ;; ok(1,"test fix warn_unless ".$idx++)},
+         sub { $cmu ->show_changes ;} ,
 
 	 sub { $mw->destroy; },
         unless $show;
