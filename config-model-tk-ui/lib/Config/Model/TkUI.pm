@@ -416,7 +416,7 @@ sub save_if_yes {
     my $cw =shift ;
     my $text = shift || "Save data ?" ;
 
-    my $ok_to_quit ;
+    my $ok_to_quit = 1 ;
     if ($cw->{root}->instance->needs_save) {
 	my $answer = $cw->Dialog(-title => "quit",
 				 -text  => $text,
