@@ -1,3 +1,9 @@
+2012-05-06  Dominique Dumont  <domi.dumont@free.fr> 1.335
+
+    * TkUI: enable quitting even if no data is to be saved
+    * removed todo list. Added 'more info' help item
+    * renamed show_changes menu into show_unsaved_changes
+
 2012-05-05  Dominique Dumont  <domi.dumont@free.fr> 1.334
 
     * main widget (TkUI):
