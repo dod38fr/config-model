@@ -128,7 +128,7 @@ sub Populate {
 		      [ qw/command reload -command/, sub{ $cw->reload }],
 		      [ command => 'check for errors',    -command => sub{ $cw->check(1)} ],
 		      [ command => 'check for warnings',  -command => sub{ $cw->check(1,1)} ],
-		      [ command => 'show changes',  -command => sub{ $cw->show_changes;} ],
+		      [ command => 'show unsaved changes',  -command => sub{ $cw->show_changes;} ],
 		      [ qw/command save   -command/, sub{ $cw->save }],
 		      [ command => 'save in dir ...',
                         -command => sub{ $cw->save_in_dir ;} ],
