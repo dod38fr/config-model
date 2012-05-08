@@ -171,7 +171,7 @@ $warped_hash->delete('3') ;
 
 is($macro->store('B'),'B',"Set macro to B (limit max to 2)") ;
 
-is_deeply( [ $warped_hash->get_all_indexes ], [qw/1 2/],
+is_deeply( [ $warped_hash->fetch_all_indexes ], [qw/1 2/],
 	   "check reduced key set") ;
 
 my $multi_warp = $root->fetch_element('multi_warp') ;
@@ -189,7 +189,7 @@ is_deeply( $multi_warp->default_keys ,
 	   [0 .. 7],
 	   "check multi_warp default_keys index parameter"
 	 );
-is_deeply( [ sort $multi_warp->get_all_indexes ] ,
+is_deeply( [ sort $multi_warp->fetch_all_indexes ] ,
 	   [0 .. 7],
 	   "check multi_warp default key set with different warp master"
 	 );
@@ -204,7 +204,7 @@ is($root->grab_value('multi_warp:5 X'),'Av','check X value') ;
 
 is( $multi_warp->max_index, 7, "check multi_warp warped_hash max_index" );
 
-is_deeply( [ sort $multi_auto_create->get_all_indexes ],
+is_deeply( [ sort $multi_auto_create->fetch_all_indexes ],
 	   [0 .. 7],
 	   "check multi_auto_create default key set with different warp master"
 );

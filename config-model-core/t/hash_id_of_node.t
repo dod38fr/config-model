@@ -97,7 +97,7 @@ isa_ok($b1,'Config::Model::Node',"fetched element id 1") ;
 is($b1->config_class_name,'Slave', 'check config_class_name') ;
 
 my $h_with_def = $root->fetch_element('hash_with_default_and_init') ;
-my $res = [$h_with_def->get_all_indexes] ;
+my $res = [$h_with_def->fetch_all_indexes] ;
 
 #print Dumper( $res ) ;
 
@@ -122,7 +122,7 @@ $h_with_def->move('def_1', 'moved_1') ;
 is ($h_with_def->fetch_with_id('moved_1')->index_value, 'moved_1',
    'check index_value after move') ;
 
-$res = [$h_with_def->get_all_indexes] ;
+$res = [$h_with_def->fetch_all_indexes] ;
 is_deeply($res , [qw/def_2 moved_1/], 'check moved items keys') ;
 
 #print $root->dump_tree ;
@@ -146,5 +146,5 @@ ok($ph->move(2,4),"node move in hash") ;
 is($ph->fetch_with_id(4)->dump_tree, 
    $ph->fetch_with_id(3)->dump_tree, "compare copied then moved values") ;
 
-is_deeply([$ph->get_all_indexes],[3,4],"compare indexes after move") ;
+is_deeply([$ph->fetch_all_indexes],[3,4],"compare indexes after move") ;
 memory_cycle_ok($model);

@@ -51,7 +51,7 @@ $step = 'std_id:ab X=Bv - std_id:bc X=Av - std_id:"b d " X=Av '
 ok( $root->load( step => $step, experience => 'advanced' ),
   "set up data in tree");
 
-is_deeply([ sort $root->fetch_element('std_id')->get_all_indexes ],
+is_deeply([ sort $root->fetch_element('std_id')->fetch_all_indexes ],
 	  ['ab','b d ','bc'], "check std_id keys" ) ;
 
 is_deeply([ sort $root->fetch_element('lista')->fetch_all_values(mode => 'custom') ],

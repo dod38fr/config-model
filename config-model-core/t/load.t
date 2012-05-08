@@ -129,7 +129,7 @@ $step = 'std_id:"a b" X=Bv - std_id:" b  c " X=Av " ';
 ok( $root->load( step => $step, experience => 'advanced' ),
   "load '$step'");
 
-is_deeply([ $root->fetch_element('std_id')->get_all_indexes ],
+is_deeply([ $root->fetch_element('std_id')->fetch_all_indexes ],
       [ ' b  c ', 'a b','ab','bc',"\x{263A}"],
       "check indexes");
 
@@ -199,13 +199,13 @@ map {
 # set the value of the previous object
 $step = 'std_id:"f/o/o:b.ar" X=Bv' ;
 ok( $root->load( step => $step, ), "load : '$step'");
-is_deeply( [sort $root->fetch_element('std_id')->get_all_indexes ],
+is_deeply( [sort $root->fetch_element('std_id')->fetch_all_indexes ],
        [' b  c ', 'a b',qw!ab bc f/o/o:b.ar!,"\x{263A}"],
        "check result after load '$step'" );
 
 $step = 'hash_a:a=z hash_a:b=z2 hash_a:"a b "="z 1"' ;
 ok( $root->load( step => $step, ), "load : '$step'");
-is_deeply( [sort $root->fetch_element('hash_a')->get_all_indexes ],
+is_deeply( [sort $root->fetch_element('hash_a')->fetch_all_indexes ],
        ['a','a b ','b'],
        "check result after load '$step'" );
 is($root->fetch_element('hash_a')->fetch_with_id('a')->fetch,'z',

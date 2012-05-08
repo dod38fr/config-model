@@ -131,7 +131,7 @@ is_deeply( \@content ,[sort $root->get_element_name() ],"check $fused content");
 
 my $std_id = $fused->subdir('std_id') ;
 @content = sort map { $_->relative($std_id) ; } $std_id-> children ;
-my @std_id_elements = sort $root->fetch_element('std_id')->get_all_indexes() ;
+my @std_id_elements = sort $root->fetch_element('std_id')->fetch_all_indexes() ;
 is_deeply( \@content , \@std_id_elements ,"check $std_id content (@content)");
 
 is( $fused->file('a_string')->slurp , $root->grab_value('a_string')."\n",

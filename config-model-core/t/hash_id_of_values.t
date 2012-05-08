@@ -233,36 +233,36 @@ is( $b->max_index, 123,"reading max boundary" );
 my $ac = $root->fetch_element('hash_with_auto_created_id') ;
 ok($ac,"created hash_with_auto_created_id") ;
 
-eq_or_diff([$ac->get_all_indexes], ['yada'],"check auto-created id") ;
+eq_or_diff([$ac->fetch_all_indexes], ['yada'],"check auto-created id") ;
 ok($ac->exists('yada'), "...idem") ;
 
 $ac->fetch_with_id('foo')->store(3) ;
 ok($ac->exists('yada'), "...idem after creating another id") ;
-eq_or_diff([$ac->get_all_indexes], ['foo','yada'],"check the 2 ids") ;
+eq_or_diff([$ac->fetch_all_indexes], ['foo','yada'],"check the 2 ids") ;
 
 my $dk = $root->fetch_element('hash_with_default_id');
 ok($dk,"created hash_with_default_id ...") ;
 
-eq_or_diff([$dk->get_all_indexes], ['yada'],"check default id") ;
+eq_or_diff([$dk->fetch_all_indexes], ['yada'],"check default id") ;
 ok($dk->exists('yada'), "...and test default id on empty hash") ;
 
 my $dk2 = $root->fetch_element('hash_with_default_id_2');
 ok($dk2,"created hash_with_default_id_2 ...") ;
 ok($dk2->fetch_with_id('foo')->store(3),"... store a value...") ;
-eq_or_diff([$dk2->get_all_indexes], ['foo'],"...check existing id...") ;
+eq_or_diff([$dk2->fetch_all_indexes], ['foo'],"...check existing id...") ;
 is($dk2->exists('yada'),'', "...and test that default id is not provided") ;
 
 my $dk3 = $root->fetch_element('hash_with_several_default_keys');
 ok($dk3,"created hash_with_several_default_keys ...") ;
-eq_or_diff([sort $dk3->get_all_indexes], [qw/x y z/],"...check default id") ;
+eq_or_diff([sort $dk3->fetch_all_indexes], [qw/x y z/],"...check default id") ;
 
 my $ac2 = $root->fetch_element('hash_with_several_auto_created_id');
 ok($ac2,"created hash_with_several_auto_created_id ...") ;
 ok($ac2->fetch_with_id('foo')->store(3),"... store a value...") ;
-eq_or_diff([sort $ac2->get_all_indexes], [qw/foo x y z/],"...check id...") ;
+eq_or_diff([sort $ac2->fetch_all_indexes], [qw/foo x y z/],"...check id...") ;
 
 my $follower = $root->fetch_element('hash_follower');
-eq_or_diff([sort $follower->get_all_indexes], [qw/foo x y z/],"check follower id") ;
+eq_or_diff([sort $follower->fetch_all_indexes], [qw/foo x y z/],"check follower id") ;
 
 eval { $follower->fetch_with_id('zoo')->store('zoo');} ;
 ok($@,"forbidden index error (not in followed object)") ;
@@ -317,7 +317,7 @@ $oh->fetch_with_id('z' ) -> store( '1z' );
 $oh->fetch_with_id('x' ) -> store( '2x' );
 $oh->fetch_with_id('a' ) -> store( '3a' );
 
-eq_or_diff([$oh->get_all_indexes], [qw/z x a/],
+eq_or_diff([$oh->fetch_all_indexes], [qw/z x a/],
 	 "check index order of ordered_hash") ;
 $inst->clear_changes ;
 
@@ -325,84 +325,84 @@ $oh ->swap(qw/z x/) ;
 print scalar $inst->list_changes,"\n" if $trace ;
 $inst->clear_changes ;
 
-eq_or_diff([$oh->get_all_indexes], [qw/x z a/],
+eq_or_diff([$oh->fetch_all_indexes], [qw/x z a/],
 	 "check index order of ordered_hash after swap(z x)") ;
 
 $oh ->swap(qw/a z/) ;
 
-eq_or_diff([$oh->get_all_indexes], [qw/x a z/],
+eq_or_diff([$oh->fetch_all_indexes], [qw/x a z/],
 	 "check index order of ordered_hash after swap(a z)") ;
 
 $oh ->move_up(qw/a/) ;
 
-eq_or_diff([$oh->get_all_indexes], [qw/a x z/],
+eq_or_diff([$oh->fetch_all_indexes], [qw/a x z/],
 	 "check index order of ordered_hash after move_up(a)") ;
 
 $oh ->move_down(qw/x/) ;
 
-eq_or_diff([$oh->get_all_indexes], [qw/a z x/],
+eq_or_diff([$oh->fetch_all_indexes], [qw/a z x/],
 	 "check index order of ordered_hash after move_down(x)") ;
 
 is($oh->fetch_with_id('x')->fetch, '2x',"Check copied value") ;
 
 $oh->copy(qw/x d/) ;
-eq_or_diff([$oh->get_all_indexes], [qw/a z x d/],
+eq_or_diff([$oh->fetch_all_indexes], [qw/a z x d/],
 	 "check index order of ordered_hash after copy(x d)") ;
 is($oh->fetch_with_id('d')->fetch, '2x',"Check copied value") ;
 
 $oh->copy(qw/a e/) ;
-eq_or_diff([$oh->get_all_indexes], [qw/a z x d e/],
+eq_or_diff([$oh->fetch_all_indexes], [qw/a z x d e/],
 	 "check index order of ordered_hash after copy(a e)") ;
 is($oh->fetch_with_id('e')->fetch, '3a',"Check copied value") ;
 
 $oh->move_after('d') ;
-eq_or_diff([$oh->get_all_indexes], [qw/d a z x e/],
+eq_or_diff([$oh->fetch_all_indexes], [qw/d a z x e/],
 	 "check index order of ordered_hash after move_after(d)") ;
 
 $oh->move_after('d','z') ;
-eq_or_diff([$oh->get_all_indexes], [qw/a z d x e/],
+eq_or_diff([$oh->fetch_all_indexes], [qw/a z d x e/],
 	 "check index order of ordered_hash after move_after(d z)") ;
 
 $oh->move_after('d','e') ;
-eq_or_diff([$oh->get_all_indexes], [qw/a z x e d/],
+eq_or_diff([$oh->fetch_all_indexes], [qw/a z x e d/],
 	 "check index order of ordered_hash after move_after(d e)") ;
 
 $oh->clear ;
-eq_or_diff([$oh->get_all_indexes], [],
+eq_or_diff([$oh->fetch_all_indexes], [],
 	 "check index order of ordered_hash after clear") ;
 
 $oh->load_data([qw/a va b vb c vc d vd e ve/]);
-eq_or_diff([$oh->get_all_indexes], [qw/a b c d e/],
+eq_or_diff([$oh->fetch_all_indexes], [qw/a b c d e/],
 	 "check index order of ordered_hash after clear") ;
 
 $oh->clear ;
 $oh->load_data({ __order => [qw/a b c d e/],
 		 qw/a va b vb c vc d vd e ve/});
-eq_or_diff([$oh->get_all_indexes], [qw/a b c d e/],
+eq_or_diff([$oh->fetch_all_indexes], [qw/a b c d e/],
 	 "check index order of ordered_hash loaded with hash and __order") ;
 
 $oh->move('e','e2') ;
-eq_or_diff([$oh->get_all_indexes], [qw/a b c d e2/],
+eq_or_diff([$oh->fetch_all_indexes], [qw/a b c d e2/],
 	 "check index order of ordered_hash after move(e e2)") ;
 my $v = $oh->fetch_with_id('e2')->fetch;
 is($v, 've',"Check moved value") ;
 
 $oh->move('d','e2') ;
-eq_or_diff([$oh->get_all_indexes], [qw/a b c e2/],
+eq_or_diff([$oh->fetch_all_indexes], [qw/a b c e2/],
 	 "check index order of ordered_hash after move(d e2)") ;
 
 $v = $oh->fetch_with_id('e2')->fetch ;
 is($v, 'vd',"Check moved value") ;
 
 $oh->move('b','d') ;
-eq_or_diff([$oh->get_all_indexes], [qw/a d c e2/],
+eq_or_diff([$oh->fetch_all_indexes], [qw/a d c e2/],
 	 "check index order of ordered_hash after move(b d)") ;
 
 $v = $oh->fetch_with_id('d')->fetch ;
 is($v, 'vb',"Check moved value") ;
 
 $oh->move('c','a') ;
-eq_or_diff([$oh->get_all_indexes], [qw/d a e2/],
+eq_or_diff([$oh->fetch_all_indexes], [qw/d a e2/],
 	 "check index order of ordered_hash after move(c a)") ;
 
 $v = $oh->fetch_with_id('a')->fetch ;
@@ -425,12 +425,12 @@ warning_like { $hwwukm->fetch_with_id('bar2') ;} qr/key 'bar2' should match foo/
 
 # test key migration
 my $hwmkf = $root->fetch_element('hash_with_migrate_keys_from') ;
-my @to_migrate = $root->fetch_element('hash_with_several_auto_created_id')->get_all_indexes ;
-eq_or_diff( [ $hwmkf->get_all_indexes ] , \@to_migrate ,"check ids of hash_with_migrate_keys_from");
+my @to_migrate = $root->fetch_element('hash_with_several_auto_created_id')->fetch_all_indexes ;
+eq_or_diff( [ $hwmkf->fetch_all_indexes ] , \@to_migrate ,"check ids of hash_with_migrate_keys_from");
 
 my $hwdai = $root->fetch_element('hash_with_default_and_init');
-# calling get_all_indexes will trigger the creation of the default_with_init keys
-foreach ($hwdai->get_all_indexes) {
+# calling fetch_all_indexes will trigger the creation of the default_with_init keys
+foreach ($hwdai->fetch_all_indexes) {
     is($hwdai->fetch_with_id($_)->fetch, "$_ stuff","check default_with_init with $_");
 }
 
@@ -438,6 +438,6 @@ foreach ($hwdai->get_all_indexes) {
 my $hwclc = $root->fetch_element('hash_with_convert_lc');
 $hwclc -> fetch_with_id('Debian')->store('DebV');
 $hwclc -> fetch_with_id('Grip')  -> store('GripV') ;
-eq_or_diff( [ $hwclc->get_all_indexes ] , [qw/debian grip/],"check converted ids");
+eq_or_diff( [ $hwclc->fetch_all_indexes ] , [qw/debian grip/],"check converted ids");
 
 memory_cycle_ok($model,"check memory cycles");
