@@ -349,7 +349,7 @@ sub next_step {
 
     my @result ;
     if ($current_obj->get_type =~ /list|hash/) {
-	@result = $current_obj -> get_all_indexes ;
+	@result = $current_obj -> fetch_all_indexes ;
     }
     else {
 	my $next_step = $self->{search_tree}{next_step} ;
@@ -578,7 +578,7 @@ sub _auto_choose_elt {
     my $elt_type = $self->{current}{element_type} ;
     if ($elt_type =~ /list|hash/) {
 	my $object   = $self->{current}{object} ;
-	my @choice = $object->get_all_indexes() ;
+	my @choice = $object->fetch_all_indexes() ;
 
 	my $id = @choice == 1 ? $choice[0] 
 	       :                $id_cb->($object, @choice ) ;

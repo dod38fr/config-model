@@ -27,7 +27,7 @@ license: /[\\w\\-\\.\\+]+/i
      }
      else { 
      	 $ok = 0 ;
-         ${$arg[1]} .= "license $abbrev is not declared in main License section. Expected ".join(" ",$elt->get_all_indexes) ;
+         ${$arg[1]} .= "license $abbrev is not declared in main License section. Expected ".join(" ",$elt->fetch_all_indexes) ;
      }
    } ',
         'warp' => {

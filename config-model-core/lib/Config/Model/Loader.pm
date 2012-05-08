@@ -669,7 +669,7 @@ sub _load_hash {
     }
     
     if ($action eq '=~') {
-	my @keys = $element->get_all_indexes;
+	my @keys = $element->fetch_all_indexes;
 	my $ret ;
 	$logger->debug("_load_hash: looping with regex $id on keys @keys");
 	$id =~ s!^/!!;

@@ -209,7 +209,7 @@ my $cd_completion_sub = sub {
 	}
     }
     elsif ($new_type eq 'hash' or $new_type eq 'list') {
-	my @idx = $new_item -> get_all_indexes ;
+	my @idx = $new_item -> fetch_all_indexes ;
 	if (@idx) {
 	    my $quote = $line =~ /"$/ ? '' : '"';
 	    my @tmp = map { /\s/ ? qq($quote$_" ) : qq($_ ); } @idx ;

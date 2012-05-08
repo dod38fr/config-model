@@ -678,7 +678,7 @@ sub get_keys {
     my $element_type = $node->element_type($element_name);
     my $item = $node->fetch_element(name => $element_name, check => $self->{check}) ;
 
-    return $item->get_all_indexes 
+    return $item->fetch_all_indexes 
       if    $element_type eq 'hash' 
 	 || $element_type eq 'list' ;
 

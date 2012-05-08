@@ -410,7 +410,7 @@ sub list_cd_path {
 	if ($t eq 'list' or $t eq 'hash') {
 	    push @result, 
 	      map { "$elt_name:$_" }
-		$c_node->fetch_element($elt_name)->get_all_indexes ;
+		$c_node->fetch_element($elt_name)->fetch_all_indexes ;
 	}
 	else {
 	    push @result, $elt_name ;

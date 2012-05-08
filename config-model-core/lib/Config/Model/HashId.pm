@@ -161,7 +161,7 @@ sub firstkey {
     $self->create_default if defined $self->{default};
 
     # reset "each" iterator (to be sure, map is also an iterator)
-    my @list = $self->_get_all_indexes ;
+    my @list = $self->_fetch_all_indexes ;
     $self->{each_list} = \@list ;
     return shift @list ;
 }
@@ -179,7 +179,7 @@ sub nextkey {
     return $res if defined $res ;
 
     # reset list for next call to next_keys
-    $self->{each_list} = [ $self->_get_all_indexes  ] ;
+    $self->{each_list} = [ $self->_fetch_all_indexes  ] ;
 
     return ;
 }
