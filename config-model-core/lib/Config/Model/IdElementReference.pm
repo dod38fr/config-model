@@ -101,7 +101,7 @@ sub get_choice_from_refered_to {
             @choice = $obj->fetch_element($element)->get_checked_list();
         }
         elsif ( $type eq 'hash' ) {
-            @choice = $obj->fetch_element($element)->get_all_indexes();
+            @choice = $obj->fetch_element($element)->fetch_all_indexes();
         }
         elsif ( $type eq 'list' ) {
             my $list_obj = $obj->fetch_element($element);

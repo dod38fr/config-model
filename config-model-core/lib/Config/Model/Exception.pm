@@ -373,7 +373,7 @@ sub full_message {
     my $min_experience = $self->min_experience || 'master' ;
 
     my $element = $self->element ;
-    my $id_str = "'".join("','",$obj->get_all_indexes())."'" ;
+    my $id_str = "'".join("','",$obj->fetch_all_indexes())."'" ;
 
     my $msg = '';
     $msg .= "In function ". $self->function .": " if 

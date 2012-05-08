@@ -257,7 +257,7 @@ sub _write {
         my $obj_note = $obj->annotation ;
         
         if ($type eq 'hash') {
-            foreach my $key ($obj->get_all_indexes) {
+            foreach my $key ($obj->fetch_all_indexes) {
                 my $hash_obj = $obj->fetch_with_id($key) ;
                 my $note = $hash_obj->annotation;
                 $logger->debug("writing hash elt $elt key $key");

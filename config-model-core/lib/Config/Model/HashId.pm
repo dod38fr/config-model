@@ -71,10 +71,10 @@ sub get_type {
 
 sub fetch_size {
     my $self = shift;
-    return scalar keys %{$self->{data}} ;
+    return scalar $self->fetch_all_indexes ;
 }
 
-sub _get_all_indexes {
+sub _fetch_all_indexes {
     my $self = shift;
     return $self->{ordered} ? @{$self->{list}}
       :                    sort keys %{$self->{data}} ;

@@ -136,7 +136,7 @@ sub set_properties {
                 ) unless ($self->{index_type} eq 'integer' or 
                           $self->{index_type} eq 'string');
 
-    my @current_idx = $self->_get_all_indexes( );
+    my @current_idx = $self->fetch_all_indexes( );
     if (@current_idx) {
         my $first_idx = shift @current_idx ;
         my $last_idx  = pop   @current_idx ;
@@ -252,7 +252,7 @@ sub cargo_type { goto &get_cargo_type; }
 
 sub get_cargo_type {
     my $self = shift ;
-    #my @ids = $self->get_all_indexes ;
+    #my @ids = $self->fetch_all_indexes ;
     # the returned cargo type might be different from collected type
     # when collected type is 'warped_node'. 
     #return @ids ? $self->fetch_with_id($ids[0])->get_cargo_type
@@ -300,7 +300,7 @@ sub get_default_keys {
 
     if ($self->{follow_keys_from}) {
         my $followed = $self->safe_typed_grab(param => 'follow_keys_from') ;
-        my @res = $followed -> get_all_indexes ;
+        my @res = $followed -> fetch_all_indexes ;
         return wantarray ? @res : \@res ;
     }
 
@@ -308,7 +308,7 @@ sub get_default_keys {
 
     if ($self->{migrate_keys_from}) {
         my $followed = $self->safe_typed_grab(param => 'migrate_keys_from', check => 'no') ;
-        push @res , $followed -> get_all_indexes ;
+        push @res , $followed -> fetch_all_indexes ;
     }
 
     push @res , @{ $self->{default_keys} }
@@ -503,7 +503,7 @@ sub check_idx {
         if defined $self->{max_nb} and $new_nb > $self->{max_nb};
 
     if (scalar @error) {
-        my @a = $self->get_all_indexes ;
+        my @a = $self->fetch_all_indexes ;
         push @error, "Instance ids are '".join(',', @a)."'" ,
           $self->warp_error  ;
     }
@@ -529,7 +529,7 @@ sub check_follow_keys_from {
     return if $followed->exists($idx) ;
 
     push @$error, "key '$idx' does not exists in '".$followed->name 
-              . "'. Expected '" . join("', '", $followed->get_all_indexes) . "'" ;
+              . "'. Expected '" . join("', '", $followed->fetch_all_indexes) . "'" ;
 }
 
 #internal
@@ -557,14 +557,14 @@ sub check_allow_keys_from {
     my ($self,$idx,$error) = @_ ; 
 
     my $from = $self->safe_typed_grab(param => 'allow_keys_from');
-    my $ok = grep { $_ eq $idx } $from->get_all_indexes ;
+    my $ok = grep { $_ eq $idx } $from->fetch_all_indexes ;
 
     return if $ok ;
 
     push @$error, "key '$idx' does not exists in '"
                       . $from->name 
                       . "'. Expected '"
-                      . join( "', '", $from->get_all_indexes). "'"  ;
+                      . join( "', '", $from->fetch_all_indexes). "'"  ;
 
 }
 
@@ -592,7 +592,7 @@ sub check_duplicates {
     my %h;
     my @issues;
     my @to_delete ;
-    foreach my $i ( $self->get_all_indexes ) {
+    foreach my $i ( $self->fetch_all_indexes ) {
         my $v = $self->fetch_with_id(index => $i, check => 'no')->fetch;
         next unless $v ;
         $h{$v} = 0 unless defined $h{$v} ;
@@ -720,7 +720,7 @@ sub copy {
 
 sub fetch_all {
     my $self = shift ;
-    my @keys  = $self->get_all_indexes ;
+    my @keys  = $self->fetch_all_indexes ;
     return map { $self->fetch_with_id($_) ;} @keys ;
 }
 
@@ -731,7 +731,7 @@ sub fetch_all_values {
     my $mode = $args{mode};
     my $check = $self->_check_check($args{check}) ;
     
-    my @keys  = $self->get_all_indexes ;
+    my @keys  = $self->fetch_all_indexes ;
 
     if ( $self->{cargo}{type} eq 'leaf' ) {
         my $ok = $check eq 'no' ? 1 : $self->check_content( );
@@ -768,16 +768,21 @@ sub fetch_all_values {
 }
 
 
-sub get_all_indexes {
+sub fetch_all_indexes {
     my $self = shift;
     $self->create_default ; # will check itself if creation is necessary
-    return $self->_get_all_indexes ;
+    return $self->_fetch_all_indexes ;
 }
 
+sub get_all_indexes {
+    my $self = shift;
+    carp "get_all_indexes is deprecated. use fetch_all_indexes" ;
+    return $self->fetch_all_indexes ;
+}
 
 sub children {
     my $self = shift ;
-    return $self->get_all_indexes ;
+    return $self->fetch_all_indexes ;
 }
 
 
@@ -911,7 +916,7 @@ sub clear_values {
 
 
     # this will trigger a notify_change
-    map {$self->fetch_with_id($_)->store(undef)} $self->get_all_indexes ;
+    map {$self->fetch_with_id($_)->store(undef)} $self->fetch_all_indexes ;
     $self->notify_change ;
   }
 
@@ -1393,14 +1398,14 @@ The default value (defined by the configuration model)
 
 =back
 
-=head2 get_all_indexes()
+=head2 fetch_all_indexes()
 
 Returns an array containing all indexes of the hash or list. Hash keys
 are sorted alphabetically, except for ordered hashed.
 
 =head2 children 
 
-Like get_all_indexes. This method is
+Like fetch_all_indexes. This method is
 polymorphic for all non-leaf objects of the configuration tree.
 
 =head2 defined ( index )
