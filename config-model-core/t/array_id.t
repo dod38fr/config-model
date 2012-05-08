@@ -17,15 +17,11 @@ BEGIN { plan tests => 106; }
 use strict;
 
 my $arg = shift || '';
-my $test_only_model = shift || '';
-my $do = shift ;
 
-my ($log,$show) = (0) x 2 ;
+my $log = 0 ;
 
 my $trace = $arg =~ /t/ ? 1 : 0 ;
-$::debug            = 1 if $arg =~ /d/;
 $log                = 1 if $arg =~ /l/;
-$show               = 1 if $arg =~ /s/;
 
 my $home = $ENV{HOME} || "";
 my $log4perl_user_conf_file = "$home/.log4config-model";
