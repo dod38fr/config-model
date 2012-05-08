@@ -61,10 +61,11 @@ sub get_type {
 sub fetch_size {
     my $self =shift ;
     confess "Undef data " unless defined $self->{data} ;
-    return scalar @{$self->{data}} ;
+    my @d = $self->fetch_all_indexes ;
+    return  scalar @d ;
 }
 
-sub _get_all_indexes {
+sub _fetch_all_indexes {
     my $self = shift ;
     my $data = $self->{data} ;
     return scalar @$data ? (0 .. $#$data ) : () ;
@@ -159,6 +160,7 @@ sub _store {
 
 sub _defined {
     my ($self,$key) = @_ ;
+    croak "argument '$key' is not numeric" unless $key =~ /^\d+$/;
     return defined $self->{data}[$key];
 }
 
@@ -210,7 +212,7 @@ sub move {
 # list only methods
 sub push {
     my $self = shift ;
-    my $idx   = scalar @{$self->{data}};
+    my $idx   = $self->fetch_size ;
     map { $self->fetch_with_id( $idx++ )->store( $_ ) ; } @_ ;
 }
 
@@ -220,7 +222,6 @@ sub push_x {
     my $self = shift ;
     my %args = @_ ;
     my $check = delete $args{check} || 'yes'; 
-    my $idx   = scalar @{$self->{data}};
     my $v_arg = delete $args{values} ;
     my @v = ref ($v_arg) ? @$v_arg : ($v_arg)  ;
     my $anno = delete $args{annotation} ;
@@ -228,6 +229,7 @@ sub push_x {
     
     croak("push_x: unexpected parameter ",join(' ',keys %args)) if %args ;
     
+    my $idx   = $self->fetch_size ;
     while (@v) {
         my $val = shift @v ;
         my $obj = $self->fetch_with_id( $idx++ );
