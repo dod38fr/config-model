@@ -286,9 +286,11 @@ sub migrate_value {
     # avoid warning when reading deprecated values
     my $result = $self->{_migrate_from} -> compute (check => 'no');
 
+    return undef unless defined $result;
+
     # check if the migrated result fits with the constraints of the
     # Value object
-    my $ok = $self->check_value(value => $result, mode => 'allow_undef') ;
+    my $ok = $self->check_value(value => $result) ;
 
     #print "check result: $ok\n";
     if (not $ok) {
@@ -302,6 +304,8 @@ sub migrate_value {
 		     );
     }
 
+    # old value is always undef when this method is called
+    $self->notify_change(note =>'migrated value', new => $result );
     $self->{data} = $result ;
 
     return $ok ? $result : undef ;
@@ -1369,7 +1373,6 @@ sub _fetch {
 
     if (not defined $data and defined $self->{_migrate_from}) {
 	$data =  $self->migrate_value ;
-	$self->notify_change(note =>'migrated value', new => $data ) ;
     }
 
     foreach my $k (keys %old_mode) {
