@@ -57,12 +57,10 @@ sub get_type {
     return 'list' ;
 }
 
-
+# important: return the actual size (not taking into account auto-created stuff)
 sub fetch_size {
     my $self =shift ;
-    confess "Undef data " unless defined $self->{data} ;
-    my @d = $self->fetch_all_indexes ;
-    return  scalar @d ;
+    return scalar @{$self->{data}} ;
 }
 
 sub _fetch_all_indexes {

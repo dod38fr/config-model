@@ -69,10 +69,10 @@ sub get_type {
 }
 
 
+# important: return the actual size (not taking into account auto-created stuff)
 sub fetch_size {
     my $self = shift;
-    my @d = $self->fetch_all_indexes ;
-    return  scalar @d ;
+    return scalar keys %{$self->{data}} ;
 }
 
 sub _fetch_all_indexes {
