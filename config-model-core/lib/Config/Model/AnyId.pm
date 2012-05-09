@@ -136,7 +136,7 @@ sub set_properties {
                 ) unless ($self->{index_type} eq 'integer' or 
                           $self->{index_type} eq 'string');
 
-    my @current_idx = $self->fetch_all_indexes( );
+    my @current_idx = $self->_fetch_all_indexes( );
     if (@current_idx) {
         my $first_idx = shift @current_idx ;
         my $last_idx  = pop   @current_idx ;
@@ -503,7 +503,7 @@ sub check_idx {
         if defined $self->{max_nb} and $new_nb > $self->{max_nb};
 
     if (scalar @error) {
-        my @a = $self->fetch_all_indexes ;
+        my @a = $self->_fetch_all_indexes ;
         push @error, "Instance ids are '".join(',', @a)."'" ,
           $self->warp_error  ;
     }
