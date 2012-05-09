@@ -71,10 +71,7 @@ sub get_type {
 
 sub fetch_size {
     my $self = shift;
-    return scalar keys %{$self->{data}} ;
-
-    my @d = $self->fetch_all_indexes ;
-    return scalar @d ;
+    return scalar $self->fetch_all_indexes ;
 }
 
 sub _fetch_all_indexes {

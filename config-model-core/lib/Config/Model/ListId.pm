@@ -60,8 +60,7 @@ sub get_type {
 
 sub fetch_size {
     my $self =shift ;
-    return scalar @{$self->{data}} ;
-    
+    confess "Undef data " unless defined $self->{data} ;
     my @d = $self->fetch_all_indexes ;
     return  scalar @d ;
 }
@@ -161,7 +160,7 @@ sub _store {
 
 sub _defined {
     my ($self,$key) = @_ ;
-    #croak "argument '$key' is not numeric" unless $key =~ /^\d+$/;
+    croak "argument '$key' is not numeric" unless $key =~ /^\d+$/;
     return defined $self->{data}[$key];
 }
 
