@@ -75,11 +75,32 @@ validate /etc/ssh/sshd_config
           'yes'
         ]
       },
+      'AuthorizedKeysFile2',
+      {
+        'cargo' => {
+          'value_type' => 'uniline',
+          'type' => 'leaf'
+        },
+        'status' => 'deprecated',
+        'experience' => 'advanced',
+        'type' => 'list',
+        'description' => 'Specifies the file that contains the public keys that can be used for user authentication. AuthorizedKeysFile may contain tokens of the form %T which are substituted during connection setup.'
+      },
       'AuthorizedKeysFile',
       {
-        'value_type' => 'uniline',
+        'migrate_keys_from' => '- AuthorizedKeysFile2',
+        'cargo' => {
+          'value_type' => 'uniline',
+          'migrate_from' => {
+            'formula' => '$keysfile2',
+            'variables' => {
+              'keysfile2' => '- AuthorizedKeysFile2:&index()'
+            }
+          },
+          'type' => 'leaf'
+        },
         'experience' => 'advanced',
-        'type' => 'leaf',
+        'type' => 'list',
         'description' => 'Specifies the file that contains the public keys that can be used for user authentication. AuthorizedKeysFile may contain tokens of the form %T which are substituted during connection setup.'
       },
       'Banner',
