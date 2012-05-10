@@ -276,7 +276,7 @@ sub auto_create_elements {
     my $auto_nb = $self->auto_create_ids ;
     return unless defined $auto_nb ;
     
-    $logger->debug("auto-creating $auto_nb elements");
+    $logger->debug($self->name," auto-creating $auto_nb elements");
 
     Config::Model::Exception::Model
         ->throw (
