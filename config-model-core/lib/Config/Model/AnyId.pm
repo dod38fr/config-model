@@ -306,11 +306,6 @@ sub get_default_keys {
 
     my @res ;
 
-    if ($self->{migrate_keys_from}) {
-        my $followed = $self->safe_typed_grab(param => 'migrate_keys_from', check => 'no') ;
-        push @res , $followed -> fetch_all_indexes ;
-    }
-
     push @res , @{ $self->{default_keys} }
       if defined $self->{default_keys} ;
 
@@ -628,8 +623,20 @@ sub check_duplicates {
     }
 }
 
+sub _migrate_keys {
+    my $self = shift;
 
-
+    return if $self->{migration_done};
+    $self->{migration_done} = 1;
+    
+    return unless $self->{migrate_keys_from} ;
+    
+    my $followed = $self->safe_typed_grab(param => 'migrate_keys_from', check => 'no') ;
+    if ($logger->is_debug) {
+        $logger ->debug($self->name," migrate keys from ",$followed->name);
+    }
+    map { $self->_store($_, undef) unless $self->_defined($_) } $followed -> fetch_all_indexes ;
+}
 
 sub fetch_with_id {
     my $self = shift ;
@@ -639,6 +646,9 @@ sub fetch_with_id {
 
     $idx = $self->{convert_sub}($idx) 
       if (defined $self->{convert_sub} and defined $idx) ;
+
+    # try migration only once
+    $self->_migrate_keys unless $self->{migration_done};
 
     my $ok = 1 ;
     # check index only if it's unknown
@@ -771,6 +781,7 @@ sub fetch_all_values {
 sub fetch_all_indexes {
     my $self = shift;
     $self->create_default ; # will check itself if creation is necessary
+    $self->_migrate_keys ;
     return $self->_fetch_all_indexes ;
 }
 
