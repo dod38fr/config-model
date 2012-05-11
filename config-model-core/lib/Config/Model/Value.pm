@@ -2,6 +2,7 @@ package Config::Model::Value ;
 
 use Any::Moose;
 use Any::Moose '::Util::TypeConstraints' ;
+use Any::Moose 'X::StrictConstructor' ;
 use namespace::autoclean;
 
 use Data::Dumper ();
@@ -281,7 +282,9 @@ sub set_migrate_from {
 sub migrate_value {
     my $self = shift ;
 
-    my $i = $self->instance;
+    return if $self->{migration_done} ;
+    return if $self->instance->initial_load ;
+    $self->{migration_done} =1 ;
 
     # avoid warning when reading deprecated values
     my $result = $self->{_migrate_from} -> compute (check => 'no');

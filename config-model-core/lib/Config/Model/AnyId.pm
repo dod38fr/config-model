@@ -627,6 +627,11 @@ sub _migrate_keys {
     my $self = shift;
 
     return if $self->{migration_done};
+    
+    # migration must be done *after* initial load to make sure that all data
+    # were retrieved from the file before migration. 
+    return if $self->instance->initial_load ;
+    
     $self->{migration_done} = 1;
     
     return unless $self->{migrate_keys_from} ;
@@ -644,6 +649,8 @@ sub fetch_with_id {
     my $check = $self->_check_check($args{check}) ;    
     my $idx = $args{index} ;
 
+    $logger->debug($self->name," called for idx $idx") if $logger->is_debug ;
+    
     $idx = $self->{convert_sub}($idx) 
       if (defined $self->{convert_sub} and defined $idx) ;
 

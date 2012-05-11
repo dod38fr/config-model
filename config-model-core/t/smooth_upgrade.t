@@ -132,6 +132,8 @@ is( $nfd->fetch, undef, "undef old and undef new");
 # does not generate a warning
 $dp -> store ('ini') ;
 
+$inst->initial_load_stop ;
+
 is( $nfd->fetch, 'ini_file', "old is 'ini' and new is 'ini_file'");
 
 is( $nfd->fetch_custom, 'ini_file', "likewise for custom_value");
@@ -181,10 +183,13 @@ warning_like {$dp = $uroot->fetch_element('old_url')->store($url) ;}
   qr/Element 'old_url' of node 'UrlMigration' is deprecated/ ,
   "check warning when fetching deprecated element" ;
 
+$uinst->initial_load_stop ;
+
 my $h = $uroot->fetch_element('host');
 
 is($h->fetch,$host,"check extracted host") ;
 
 is($uroot->fetch_element('port')->fetch,$port,"check extracted port") ;
 is($uroot->fetch_element('path')->fetch,$path,"check extracted path") ;
-memory_cycle_ok($model);
+
+memory_cycle_ok($model,"test memory cycles");
