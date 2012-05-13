@@ -219,6 +219,18 @@ sub run_model_test {
             } 
         }
 
+        if (my $fc = $t->{file_contents_like}) {
+            foreach my $f (keys %$fc) {
+                file_contents_like $wr_dir.$f,  $fc->{$f},  "check that $f matches regexp";
+            } 
+        }
+
+        if (my $fc = $t->{file_contents_unlike}) {
+            foreach my $f (keys %$fc) {
+                file_contents_unlike $wr_dir.$f,  $fc->{$f},  "check that $f does not match regexp";
+            } 
+        }
+
         my @new_file_list;
         if ( -d $ex_data ) {
 
@@ -527,6 +539,14 @@ Check the content of the written files(s) with L<Test::File::Contents>:
    file_content => { 
             "/home/foo/my_arm.conf" => "really big string" ,
         }
+   
+   file_contents_like => {
+            "/home/foo/my_arm.conf" => qw/should be there/ ,
+   }
+
+   file_contents_unlike => {
+            "/home/foo/my_arm.conf" => qw/should NOT be there/ ,
+   }
 
 =item *
 
