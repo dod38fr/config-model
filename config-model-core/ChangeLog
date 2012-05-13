@@ -1,3 +1,22 @@
+2012-05-13  Dominique Dumont  <domi.dumont@free.fr> 2.015
+
+    * Application changes:
+        * Copyright model: replace migrate_keys_from with new migrate_values_from. 
+          This simplifies the model
+
+    * Framework changes:
+        + List or Hash: added migrate_values_from to enable migration from another hash or list.
+        * AnyId or Value: ensure that migration is done after initial load, i.e. once all data
+          from configuration file is loaded.
+        * AnyId: deprecated get_all_indexes in favor of fetch_all_indexes
+        * Value: 
+            * make sure that setting a default value triggers notify_change so the 
+              resulting modification in the config file can be saved
+            * don't notify update undef -> undef
+
+    * Test changes:
+        * Tester: added file_contents_like and file_contents_unlike tests
+
 2012-05-03  Dominique Dumont  <domi.dumont@free.fr> 2.014
 
     * Application changes:
