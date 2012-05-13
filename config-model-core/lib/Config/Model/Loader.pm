@@ -577,7 +577,7 @@ sub _load_list {
     my ($self,$node, $check,$experience,$inst,$cmdref) = @_ ;
     my ($element_name,$action,$id,$subaction,$value,$note) = @$inst ;
 
-    my $element = $node -> fetch_element($element_name) ;
+    my $element = $node -> fetch_element(name => $element_name, check => $check) ;
 
     my $elt_type   = $node -> element_type( $element_name ) ;
     my $cargo_type = $element->cargo_type ;
@@ -651,7 +651,7 @@ sub _load_hash {
     my ($self,$node,$check,$experience,$inst,$cmdref) = @_ ;
     my ($element_name,$action,$id,$subaction,$value,$note) = @$inst ;
 
-    my $element = $node -> fetch_element($element_name) ;
+    my $element = $node -> fetch_element(name => $element_name, check => $check ) ;
     my $cargo_type = $element->cargo_type ;
 
     if (defined $note and not defined $action) {
@@ -749,7 +749,7 @@ sub _load_leaf {
     my ($self,$node,$check,$experience,$inst,$cmdref) = @_ ;
     my ($element_name,$action,$id,$subaction,$value,$note) = @$inst ;
 
-    my $element = $node -> fetch_element($element_name) ;
+    my $element = $node -> fetch_element(name => $element_name, check => $check) ;
     $self->_load_note($element, $note, $inst, $cmdref);
 
     if (defined $action and $action eq '~' and $element->isa('Config::Model::Value')) {
