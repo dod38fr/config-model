@@ -3,7 +3,7 @@
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
-use Test::More tests => 162;
+use Test::More tests => 163;
 use Test::Exception;
 use Test::Warn;
 use Test::Memory::Cycle;
@@ -373,7 +373,12 @@ throws_ok { $mb->store('toto'); } 'Config::Model::Exception::User',
   "enum: store 'toto' error";
 print "normal error:\n", $@, "\n" if $trace;
 
+$inst->clear_changes ;
+
 is( $de->fetch, 'A', "enum with default: read default value" );
+
+is($inst->needs_save,1,"check needs_save after reading a default value") ;
+$inst->clear_changes;
 
 print "enum with default: read custom\n" if $trace;
 is( $de->fetch_custom, undef, "enum with default: read custom value" );
