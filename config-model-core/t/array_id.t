@@ -12,7 +12,7 @@ use Config::Model;
 use Config::Model::AnyId;
 use Log::Log4perl qw(:easy :levels) ;
 
-BEGIN { plan tests => 106; }
+BEGIN { plan tests => 105; }
 
 use strict;
 
@@ -67,11 +67,6 @@ $model->create_config_class(
             type            => 'list',
             auto_create_ids => 4,
             @element
-        },
-        list_with_migrate_keys_from => {
-            type => 'list',
-            @element,
-            migrate_keys_from => '- list_with_auto_created_id',
         },
         olist => {
             type  => 'list',
@@ -325,13 +320,6 @@ eq_or_diff(
 eq_or_diff( [ $pl->fetch_all_values( mode => 'custom' ) ],
     ['bar'], "check that custom values are read" );
 
-# test key migration
-my $lwmkf = $root->fetch_element('list_with_migrate_keys_from');
-my @to_migrate =
-  $root->fetch_element('list_with_auto_created_id')->fetch_all_indexes;
-eq_or_diff( [ $lwmkf->fetch_all_indexes ],
-    \@to_migrate, "check migrated ids (@to_migrate)" );
-    
 # test default_with_init on leaf
 my $lwdwil = $root->fetch_element('list_with_default_with_init_leaf');
 # note: calling fetch_all_indexes is required to trigger creation of default_with_init keys

@@ -42,25 +42,31 @@ ok(1,"compiled");
 $model->create_config_class(
     name    => "Master",
     element => [
-        plain_list                => { 
-            type => 'list', 
+        plain_hash                => { 
+            type => 'hash', 
             status => 'deprecated' ,
+            index_type => 'string',
+            ordered => 1,
             cargo => {
                 type       => 'leaf',
                 value_type => 'string'
             },
         },
-        list_with_data_migration => {
-            type => 'list',
-            migrate_values_from => '- plain_list',
+        hash_with_data_migration => {
+            type => 'hash',
+            index_type => 'string',
+            migrate_values_from => '- plain_hash',
+            ordered => 1,
             cargo => {
                 type       => 'leaf',
                 value_type => 'string' ,
             },
         },
-        list2_with_data_migration => {
-            type => 'list',
-            migrate_values_from => '- list_with_data_migration',
+        hash2_with_data_migration => {
+            type => 'hash',
+            index_type => 'string',
+            migrate_values_from => '- hash_with_data_migration',
+            ordered => 1,
             cargo => {
                 type       => 'leaf',
                 value_type => 'string' ,
@@ -80,28 +86,26 @@ ok( $inst, "created dummy instance" );
 my $root = $inst->config_root;
 
 # emulate config file load
-my $pl = $root->fetch_element(name => 'plain_list', check =>'no');
-$pl->push(qw/foo bar/) ;
-my @old = $pl->fetch_all_values ;
-ok(1,"set up plain list") ;
+$root->load(step => "plain_hash:k1=foo plain_hash:k2=bar", check => 'no') ;
+ok(1,"set up plain hash") ;
 
-my $lwdm = $root->fetch_element('list_with_data_migration') ;
-ok($lwdm, "create list_with_data_migration element") ;
-$lwdm->fetch_with_id(0)->store('baz0') ;
+my $hwdm = $root->fetch_element('hash_with_data_migration') ;
+ok($hwdm, "create hash_with_data_migration element") ;
+$hwdm->fetch_with_id('new')->store('baz0') ;
 
 # check data prior to migration
-eq_or_diff([$lwdm->fetch_all_values], ['baz0'],"list data before migration") ;
+eq_or_diff([$hwdm->fetch_all_values], ['baz0'],"hash data before migration") ;
 
 # emulate end of file read
 $inst->initial_load_stop ;
 
 # test data migration stuff
 
-eq_or_diff([$lwdm->fetch_all_indexes],[ 0 ..2 ],"list size after migration") ;
-eq_or_diff([$lwdm->fetch_all_values], [ baz0 => @old],"list data migration (@old)") ;
+eq_or_diff([$hwdm->fetch_all_indexes],[ qw/new k1 k2/ ],"hash keys after migration") ;
+eq_or_diff([$hwdm->fetch_all_values], [ qw/baz0 foo bar/],"hash data after migration ") ;
 
-my $lwdm2 = $root->fetch_element('list2_with_data_migration') ;
-ok($lwdm2, "create list2_with_data_migration element") ;
-eq_or_diff([$lwdm2->fetch_all_values], [ baz0 => @old ],"list2 data migration (@old)") ;
+my $hwdm2 = $root->fetch_element('hash2_with_data_migration') ;
+ok($hwdm2, "create hash2_with_data_migration element") ;
+eq_or_diff([$hwdm2->fetch_all_values], [ qw/baz0 foo bar/],"hash data after 2nd migration ") ;
 
 memory_cycle_ok($model,"test memory cycles");
