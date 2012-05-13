@@ -46,7 +46,8 @@ has \@common_hash_params => (is => 'ro', isa => 'Maybe[HashRef]') ;
 my @common_list_params = qw/allow_keys default_keys auto_create_keys/;
 has \@common_list_params => (is => 'ro', isa => 'Maybe[ArrayRef]') ;
 
-my @common_str_params  = qw/allow_keys_from allow_keys_matching follow_keys_from migrate_keys_from 
+my @common_str_params  = qw/allow_keys_from allow_keys_matching follow_keys_from 
+                        migrate_keys_from migrate_values_from
                             duplicates warn_if_key_match warn_unless_key_match/;
 has \@common_str_params => (is => 'ro', isa => 'Maybe[Str]') ;
 
@@ -623,26 +624,6 @@ sub check_duplicates {
     }
 }
 
-sub _migrate_keys {
-    my $self = shift;
-
-    return if $self->{migration_done};
-    
-    # migration must be done *after* initial load to make sure that all data
-    # were retrieved from the file before migration. 
-    return if $self->instance->initial_load ;
-    
-    $self->{migration_done} = 1;
-    
-    return unless $self->{migrate_keys_from} ;
-    
-    my $followed = $self->safe_typed_grab(param => 'migrate_keys_from', check => 'no') ;
-    if ($logger->is_debug) {
-        $logger ->debug($self->name," migrate keys from ",$followed->name);
-    }
-    map { $self->_store($_, undef) unless $self->_defined($_) } $followed -> fetch_all_indexes ;
-}
-
 sub fetch_with_id {
     my $self = shift ;
     my %args = @_ > 1 ? @_ : ( index => shift ) ;
@@ -655,7 +636,7 @@ sub fetch_with_id {
       if (defined $self->{convert_sub} and defined $idx) ;
 
     # try migration only once
-    $self->_migrate_keys unless $self->{migration_done};
+    $self->_migrate unless $self->{migration_done};
 
     my $ok = 1 ;
     # check index only if it's unknown
@@ -788,7 +769,7 @@ sub fetch_all_values {
 sub fetch_all_indexes {
     my $self = shift;
     $self->create_default ; # will check itself if creation is necessary
-    $self->_migrate_keys ;
+    $self->_migrate ;
     return $self->_fetch_all_indexes ;
 }
 
@@ -1159,10 +1140,19 @@ When the hash contains leaves, you can also use:
 
 =item migrate_keys_from
 
-Specifies that the keys of the hash or list are copied from another hash or list in
-the configuration tree only when the hash is created. 
+Specifies that the keys of the hash are copied from another hash in
+the configuration tree only when the hash is read for the first time after
+initial load (i.e. once the configuration files are completely read). 
 
-   migrate_keys_from => '- another_hash_or_list'
+   migrate_keys_from => '- another_hash'
+
+=item migrate_values_from
+
+Specifies that the values of the hash (or list) are copied from another hash (or list) in
+the configuration tree only when the hash (or list) is read for the first time after
+initial load (i.e. once the configuration files are completely read). 
+
+   migrate_values_from => '- another_hash_or_list'
 
 =item follow_keys_from
 

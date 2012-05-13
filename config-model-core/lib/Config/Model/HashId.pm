@@ -20,6 +20,13 @@ has [qw/morph ordered/] => (is => 'ro', isa => 'Bool' ) ;
 sub BUILD {
     my $self = shift;
 
+    # foreach my $wrong (qw/migrate_values_from/) {
+        # Config::Model::Exception::Model->throw (
+            # object => $self,
+            # error =>  "Cannot use $wrong with ".$self->get_type." element"
+        # ) if defined $self->{$wrong};
+    # }
+
     # could use "required", but we'd get a Moose error instead of a Config::Model
     # error
     Config::Model::Exception::Model->throw 
@@ -62,6 +69,35 @@ sub set_properties {
     }
 }
 
+sub _migrate {
+    my $self = shift;
+
+    return if $self->{migration_done};
+    
+    # migration must be done *after* initial load to make sure that all data
+    # were retrieved from the file before migration. 
+    return if $self->instance->initial_load ;
+    $self->{migration_done} = 1;
+    
+    if ($self->{migrate_keys_from}) { 
+        my $followed = $self->safe_typed_grab(param => 'migrate_keys_from', check => 'no') ;
+        if ($logger->is_debug) {
+            $logger ->debug($self->name," migrate keys from ",$followed->name);
+        }
+
+        map { $self->_store($_, undef) unless $self->_defined($_) } $followed -> fetch_all_indexes ;
+    }
+    elsif ( $self->{migrate_values_from}) {
+        my $followed = $self->safe_typed_grab(param => 'migrate_values_from', check => 'no') ;
+        $logger ->debug($self->name," migrate values from ",$followed->name) if $logger->is_debug;
+        foreach my $item ( $followed -> fetch_all_indexes ) {
+            next if $self->exists($item) ; # don't clobber existing entries
+            my $data = $followed->fetch_with_id($item) -> dump_as_data(check => 'no') ;
+            $self->fetch_with_id($item)->load_data($data) ;
+        }
+    }
+
+}
 
 sub get_type {
     my $self = shift;

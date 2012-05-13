@@ -19,7 +19,7 @@ has auto_create_ids => ( is => 'rw' ) ;
 sub BUILD {
     my $self = shift;
 
-    foreach my $wrong (qw/max_nb min_index default_keys/) {
+    foreach my $wrong (qw/max_nb min_index default_keys migrate_keys_from/) {
         Config::Model::Exception::Model->throw 
             (
             object => $self,
@@ -51,6 +51,28 @@ sub set_properties {
     }
 }
 
+sub _migrate {
+    my $self = shift;
+
+    return if $self->{migration_done};
+    
+    # migration must be done *after* initial load to make sure that all data
+    # were retrieved from the file before migration. 
+    return if $self->instance->initial_load ;
+    
+    $self->{migration_done} = 1;
+    
+    if ( $self->{migrate_values_from}) {
+        my $followed = $self->safe_typed_grab(param => 'migrate_values_from', check => 'no') ;
+        $logger ->debug($self->name," migrate values from ",$followed->name) if $logger->is_debug;
+        my $idx   = $self->fetch_size ;
+        foreach my $item ( $followed -> fetch_all_indexes ) {
+            my $data = $followed->fetch_with_id($item) -> dump_as_data(check => 'no') ;
+            $self->fetch_with_id( $idx++ )->load_data($data) ;
+        }
+    }
+
+}
 
 sub get_type {
     my $self = shift;
