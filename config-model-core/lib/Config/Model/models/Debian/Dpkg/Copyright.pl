@@ -61,15 +61,9 @@ To upgrade your file from an old spec, run:
       },
       'Upstream-Contact',
       {
-        'migrate_keys_from' => '- Upstream-Maintainer',
+        'migrate_values_from' => '- Upstream-Maintainer',
         'cargo' => {
           'value_type' => 'uniline',
-          'migrate_from' => {
-            'formula' => '$maintainer',
-            'variables' => {
-              'maintainer' => '- Upstream-Maintainer:&index'
-            }
-          },
           'type' => 'leaf'
         },
         'type' => 'list',
@@ -161,15 +155,9 @@ To upgrade your file from an old spec, run:
       },
       'Upstream-Maintainer',
       {
-        'migrate_keys_from' => '- Maintainer',
+        'migrate_values_from' => '- Maintainer',
         'cargo' => {
           'value_type' => 'uniline',
-          'migrate_from' => {
-            'formula' => '$maintainer',
-            'variables' => {
-              'maintainer' => '- Maintainer:&index'
-            }
-          },
           'type' => 'leaf'
         },
         'status' => 'deprecated',
