@@ -36,7 +36,7 @@ sub setup_test {
     rmtree($wr_root);
     mkpath( $wr_root, { mode => 0755 } );
 
-    my $wr_dir    = $wr_root . '/test-' . $t_name;
+    my $wr_dir    = $wr_root . '/test-' . $t_name.'/';
     my $conf_file ;
     $conf_file = "$wr_dir/$conf_dir/$conf_file_name" if defined $conf_file_name;
 
@@ -233,7 +233,8 @@ sub run_model_test {
         }
 
         # create another instance to read the conf file that was just written
-        my $wr_dir2 = $wr_dir . '-w';
+        my $wr_dir2 = $wr_dir ;
+        $wr_dir2 =~ s!/$!-w/!;
         dircopy( $wr_dir, $wr_dir2 )
           or die "can't copy from $wr_dir to $wr_dir2: $!";
 
