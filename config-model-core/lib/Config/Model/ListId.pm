@@ -19,12 +19,17 @@ has auto_create_ids => ( is => 'rw' ) ;
 sub BUILD {
     my $self = shift;
 
-    foreach my $wrong (qw/max_nb min_index default_keys migrate_keys_from/) {
-        Config::Model::Exception::Model->throw 
-            (
+    foreach my $wrong (qw/max_nb min_index default_keys/) {
+        Config::Model::Exception::Model->throw (
             object => $self,
             error =>  "Cannot use $wrong with ".$self->get_type." element"
         ) if defined $self->{$wrong};
+    }
+
+    if (defined $self->{migrate_keys_from}) {
+        warn $self->name, "Using migrate_keys_from with list element is deprecated.",
+            " Use migrate_values_from\n" ;
+        delete $self->{migrate_keys_from} ;
     }
 
     # Supply the mandatory parameter
