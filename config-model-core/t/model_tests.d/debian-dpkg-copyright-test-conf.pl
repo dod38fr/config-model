@@ -43,6 +43,9 @@ $skip = ( $@ or not -r '/etc/debian_version') ? 1 : 0 ;
             'Files:"*" License short_name' => "MPL-1.1",
             'Files:"src/js/fdlibm/*" License short_name'   => "MPL-1.1",
         },
+        file_contents_like => {
+            'debian/copyright' => qr/Format: http/ ,
+        }
     },
 
     # the empty license will default to 'other'
