@@ -29,7 +29,6 @@ sub BUILD {
     if (defined $self->{migrate_keys_from}) {
         warn $self->name, "Using migrate_keys_from with list element is deprecated.",
             " Use migrate_values_from\n" ;
-        delete $self->{migrate_keys_from} ;
     }
 
     # Supply the mandatory parameter
@@ -76,6 +75,12 @@ sub _migrate {
             $self->fetch_with_id( $idx++ )->load_data($data) ;
         }
     }
+    elsif ($self->{migrate_keys_from}) {
+        # FIXME: remove this deprecated stuff
+        my $followed = $self->safe_typed_grab(param => 'migrate_keys_from', check => 'no') ;
+        map { $self->_store($_, undef) unless $self->_defined($_) } $followed -> fetch_all_indexes ;
+    }
+
 
 }
 
