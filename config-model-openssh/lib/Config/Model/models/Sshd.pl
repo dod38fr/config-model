@@ -88,15 +88,9 @@ validate /etc/ssh/sshd_config
       },
       'AuthorizedKeysFile',
       {
-        'migrate_keys_from' => '- AuthorizedKeysFile2',
+        'migrate_values_from' => '- AuthorizedKeysFile2',
         'cargo' => {
           'value_type' => 'uniline',
-          'migrate_from' => {
-            'formula' => '$keysfile2',
-            'variables' => {
-              'keysfile2' => '- AuthorizedKeysFile2:&index()'
-            }
-          },
           'type' => 'leaf'
         },
         'experience' => 'advanced',
