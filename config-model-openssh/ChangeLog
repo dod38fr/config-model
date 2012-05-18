@@ -1,3 +1,10 @@
+2012-05-18  Dominique Dumont <domi.dumont@free.fr> v 1.223
+
+   * Added build-dependencies required by t/model_test.t
+     (which use Config::Model::Tester)
+   * Fix sshd-test-conf.pl to avoid test failure due to
+     Text::Balanced warnings with perl 5.15
+
 2012-05-16  Dominique Dumont <domi.dumont@free.fr> v 1.222
 
     * added AuthorizedKeysFile2 parameter (See Debian #671367) and migration
