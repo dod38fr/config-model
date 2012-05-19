@@ -541,11 +541,11 @@ Check the content of the written files(s) with L<Test::File::Contents>:
         }
    
    file_contents_like => {
-            "/home/foo/my_arm.conf" => qw/should be there/ ,
+            "/home/foo/my_arm.conf" => qr/should be there/ ,
    }
 
    file_contents_unlike => {
-            "/home/foo/my_arm.conf" => qw/should NOT be there/ ,
+            "/home/foo/my_arm.conf" => qr/should NOT be there/ ,
    }
 
 =item *
