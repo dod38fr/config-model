@@ -1,10 +1,19 @@
+2012-05-20  Dominique Dumont  <domi.dumont@free.fr> 2.016
+
+   * Framework changes:
+        * Having dependencies in prereq does not mean they are listed
+	in runtime require. The dependency list is now duplicated to have
+	them in prereq (for smoke tests) and runtime require. This should
+	help smoke tests for modules depending on Config::Model
+	* Fixed small doc mistake in Tester
+
 2012-05-14  Dominique Dumont  <domi.dumont@free.fr> 2.015
 
     * Application changes:
         * Copyright model: replace migrate_keys_from with new 
 	   migrate_values_from. This simplifies the model
 
-	* Framework changes: 
+    * Framework changes: 
 	  + List or Hash: added migrate_values_from to enable migration 
 	    from another hash or list. migrate_keys_from for list element
 	    is now deprecated.
