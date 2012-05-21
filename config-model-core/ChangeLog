@@ -1,3 +1,8 @@
+2012-05-21  Dominique Dumont  <domi.dumont@free.fr> 2.017
+
+   * Framework changes:
+        * Fix missing YAML dependency in configure require
+
 2012-05-20  Dominique Dumont  <domi.dumont@free.fr> 2.016
 
    * Framework changes:
