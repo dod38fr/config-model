@@ -229,7 +229,7 @@ sub write_all {
     # get list of all classes loaded by the editor
     my %loaded_classes 
       = map { ($_ => 1); } 
-        $model_obj->fetch_element('class')->get_all_indexes ;
+        $model_obj->fetch_element('class')->fetch_all_indexes ;
 
     # remove classes that are listed in map
     foreach my $file (keys %$map) {
@@ -279,7 +279,7 @@ sub write_all {
         write_model_file ("$dir/$file", \@notes, \@data);
     }
     
-    $self->model_object->instance->needs_save(0) ;
+    $self->model_object->instance->clear_changes ;
 }
 
 sub write_model_snippet {
@@ -306,7 +306,7 @@ sub write_model_snippet {
         write_model_file ("$snippet_dir/$class_dir/$model_file", \@notes, [ $data ]);
     }
 
-    $self->model_object->instance->needs_save(0) ;
+    $self->model_object->instance->clear_changes ;
 }
 
 sub read_model_snippet {
@@ -402,7 +402,7 @@ sub list_class_element {
 
     my $res = '';
     my $meta_class = $self->{model_object}->fetch_element('class') ;
-    foreach my $class_name ($meta_class->get_all_indexes ) {
+    foreach my $class_name ($meta_class->fetch_all_indexes ) {
         $res .= $self->list_one_class_element($class_name) ;
     }
     return $res ;
@@ -417,7 +417,7 @@ sub list_one_class_element {
     my $meta_class = $self->{model_object}->fetch_element('class')
        -> fetch_with_id($class_name) ;
 
-    my @elts = $meta_class->fetch_element('element')->get_all_indexes ;
+    my @elts = $meta_class->fetch_element('element')->fetch_all_indexes ;
 
     my @include = $meta_class->fetch_element('include')->fetch_all_values ;
     my $inc_after = $meta_class->grab_value('include_after') ;
@@ -445,7 +445,7 @@ sub get_dot_diagram {
     my $dot = "digraph model {\n" ;
 
     my $meta_class = $self->{model_object}->fetch_element('class') ;
-    foreach my $class_name ($meta_class->get_all_indexes ) {
+    foreach my $class_name ($meta_class->fetch_all_indexes ) {
         my $c_model = $self->{model_object}->config_model->get_raw_model($class_name);
         my $elts = $c_model->{element} || []; # array ref
 
