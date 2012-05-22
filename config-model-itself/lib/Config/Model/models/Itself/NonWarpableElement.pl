@@ -215,6 +215,21 @@
                     "Specify how to write a boolean value. Example 'no' 'yes'.",
             },
 
+            # hash or list element
+            migrate_values_from => {
+                type       => 'leaf',
+                level      => 'hidden',
+                value_type => 'uniline',
+                experience => 'advanced',
+                warp       => {
+                    follow  => { 't'                            => '?type' },
+                    'rules' => [ '$t eq "hash" or $t eq "list"' => { level => 'normal', } ]
+                } ,
+                description => 'Specifies that the values of the hash or list are copied '
+                    . 'from another hash or list in the configuration tree once configuration '
+                    . 'data are loaded.',
+            },
+
             # hash element
             migrate_keys_from => {
                 type       => 'leaf',
