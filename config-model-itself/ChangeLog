@@ -1,3 +1,9 @@
+2012-05-22  Dominique Dumont  <domi.dumont@free.fr> 1.231
+
+    * added migrate_values_from (requires Config::Model 2.015)
+    * migrate_keys_from cannot be warped (too complicated to mix
+      warp and migration)
+
 2012-05-04  Dominique Dumont  <domi.dumont@free.fr> 1.230
 
     * Itself reader/writer: added force_write attribute
