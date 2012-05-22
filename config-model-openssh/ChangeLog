@@ -1,3 +1,14 @@
+2012-05-22  Dominique Dumont <domi.dumont@free.fr> v 1.224
+
+    * Backend: make sure that AuthorizedKeysFile items are
+      written on a single line.
+    * Depends on Config::Model 2.017 (which has a correct dependency
+      list).
+    * Note to distro packagers: this dependency on Config::Model 2.017
+      is required for people installing this module with cpanm and for
+      Perl smoke tests. From a feature point of view, this module
+      requires only Config::Model 2.015
+
 2012-05-18  Dominique Dumont <domi.dumont@free.fr> v 1.223
 
    * Added build-dependencies required by t/model_test.t
