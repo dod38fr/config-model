@@ -38,17 +38,6 @@
                 }
             },
 
-            [ qw/migrate_keys_from/ ] => {
-                type       => 'leaf',
-                level      => 'hidden',
-                value_type => 'uniline',
-                experience => 'advanced',
-                warp       => {
-                    follow  => { 't'                            => '?type' },
-                    'rules' => [ '$t eq "hash" or $t eq "list"' => { level => 'normal', } ]
-                }
-            },
-
             [qw/ordered/] => {
                 type       => 'leaf',
                 level      => 'hidden',
@@ -162,7 +151,6 @@
             auto_create_ids => 'always create the number of id specified in this integer',
             allow_keys => 'specify a set of allowed keys',
             allow_keys_matching => 'Keys must match the specified regular expression.',
-            migrate_keys_from => 'Specifies that the keys of the hash or list are copied from another hash or list in the configuration tree only when the hash is created.',
             default_with_init => 'specify a set of keys to create and initialization on some elements . E.g. \' foo => "X=Av Y=Bv", bar => "Y=Av Z=Cz"\' ',
             help => 'Specify help string specific to possible values. E.g for "light" value, you could write " red => \'stop\', green => \'walk\' ',
             replace => 'Used for enum to substitute one value with another. This parameter must be used to enable user to upgrade a configuration with obsolete values. The old value is the key of the hash, the new one is the value of the hash',

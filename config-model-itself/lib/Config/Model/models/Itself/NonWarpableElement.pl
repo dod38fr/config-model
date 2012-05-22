@@ -216,6 +216,18 @@
             },
 
             # hash element
+            migrate_keys_from => {
+                type       => 'leaf',
+                level      => 'hidden',
+                value_type => 'uniline',
+                experience => 'advanced',
+                warp       => {
+                    follow  => { 't'            => '?type' },
+                    'rules' => [ '$t eq "hash"' => { level => 'normal', } ]
+                },
+                description => 'Specifies that the keys of the hash are copied from another hash '
+                    . 'in the configuration tree only when the hash is created.',
+            },
 
             # list element
 
