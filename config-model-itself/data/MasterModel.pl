@@ -304,13 +304,13 @@
                 warn_unless_match =>
                   { foo => { msg => '', fix => '$_ = "foo".$_;' } },
             },
-            list_with_migrate_keys_from => {
+            list_with_migrate_values_from => {
                 type  => 'list',
                 cargo => {
                     type       => 'leaf',
                     value_type => 'string'
                 },
-                migrate_keys_from => '- lista',
+                migrate_values_from => '- lista',
             },
             hash_with_migrate_keys_from => {
                 type       => 'hash',
