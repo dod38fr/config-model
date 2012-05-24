@@ -61,11 +61,11 @@ To upgrade your file from an old spec, run:
       },
       'Upstream-Contact',
       {
-        'migrate_values_from' => '- Upstream-Maintainer',
         'cargo' => {
           'value_type' => 'uniline',
           'type' => 'leaf'
         },
+        'migrate_values_from' => '- Upstream-Maintainer',
         'type' => 'list',
         'description' => 'The preferred address(es) to reach the upstream project. May be free-form text, but by convention will usually be written as a list of RFC5822 addresses or URIs.'
       },
@@ -155,12 +155,12 @@ To upgrade your file from an old spec, run:
       },
       'Upstream-Maintainer',
       {
-        'migrate_values_from' => '- Maintainer',
         'cargo' => {
           'value_type' => 'uniline',
           'type' => 'leaf'
         },
         'status' => 'deprecated',
+        'migrate_values_from' => '- Maintainer',
         'type' => 'list'
       },
       'Upstream-Source',
