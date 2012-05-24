@@ -14,6 +14,7 @@ use Config::Model;
 use File::Path;
 use File::Copy ;
 use Data::Dumper ;
+use version 0.77 ;
 
 use warnings;
 no warnings qw(once);
@@ -135,11 +136,11 @@ my $aug_version = $have_pkg_config ? `pkg-config --modversion augeas` : '' ;
 chomp $aug_version ;
 
 my $skip =  (not $have_pkg_config)  ? 'pkgconfig is not installed'
-         :  $aug_version le '0.3.1' ? 'Need Augeas library > 0.3.1'
+         :  version->parse($aug_version) le version->parse('0.3.1') ? 'Need Augeas library > 0.3.1'
          :                            '';
 
 SKIP: {
-    skip $skip , 5 if $skip ;
+    skip $skip , 8 if $skip ;
 
 my $i_sshd = $model->instance(instance_name    => 'sshd_inst',
 			      root_class_name  => 'Sshd',

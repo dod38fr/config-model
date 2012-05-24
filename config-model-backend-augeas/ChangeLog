@@ -1,3 +1,9 @@
+2012-05-24  Dominique Dumont  <domi.dumont@free.fr> v0.111
+
+    * In t/*.t: Change the way Augeas version is tested to cope with 0.10.0
+      (Closes Debian #674390)
+    + build-depends on version 0.77
+
 2011-09-21  Dominique Dumont  <domi.dumont@free.fr> v0.110
 
         * Moosified C::M::Backend::Augeas (fixes Debian #642156)
