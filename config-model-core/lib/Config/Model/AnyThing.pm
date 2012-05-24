@@ -58,7 +58,8 @@ sub notify_change {
 
     return if $self->instance->initial_load  and not $args{really};
 
-    $change_logger->debug("called for ",$self->name) if $change_logger->is_debug ;
+    $change_logger->debug("called for ",$self->name, " from ", join(' ',caller) ) 
+        if $change_logger->is_debug ;
 
     # needs_save may be overridden by caller
     $args{needs_save} //= 1 ;
