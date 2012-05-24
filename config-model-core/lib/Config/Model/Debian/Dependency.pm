@@ -169,6 +169,7 @@ sub check_pkg_name {
     return @dist_version ;
 }
 
+# FIXME: check debhelper version wrt debian/compat content
 # called in Parse::RecDescent grammar
 sub check_depend_chain {
     my ($self, $apply_fix, $v_ref, @input) = @_ ;
@@ -197,64 +198,76 @@ sub check_depend_chain {
         $logger->debug("check_depend_chain: scanning dependency $dep_name".(defined $dep_v ? " $dep_v" : ''));
         if ($dep_name =~ /lib([\w+\-]+)-perl/) {
             my $pname = $1 ;
-            $pname =~ s/-/::/g;
-            # check for dual life module, module name follows debian convention...
-            my @dep_name_as_perl = Module::CoreList->find_modules(qr/^$pname$/i);
-            next unless @dep_name_as_perl ;
-            my $v_decimal = Module::CoreList->first_release($dep_name_as_perl[0],$dep_v);
-            next unless defined $v_decimal ;
-            my $v_normal =  version->new($v_decimal)->normal ;
-            $v_normal =~ s/^v//; # loose the v prefix
-            if ($logger->debug) {
-                my $dep_str = $dep_name . ( defined $dep_v ? ' '.$dep_v : '');
-                $logger->debug("dual life $dep_str aka $dep_name_as_perl[0] found in Perl core $v_normal");
-            }
-
-            # Here the dependency should be in the form perl (>= 5.10.1) | libtest-simple-perl (>= 0.88)".
-            # cf http://pkg-perl.alioth.debian.org/policy.html#debian_control_handling
-            # If the Perl version is not available in sid, the order of the dependency should be reversed
-            # libcpan-meta-perl | perl (>= 5.13.10)
-            # because buildd will use the first available alternative
-
-            my ($has_older_perl) = $self->check_dep('perl', '>=', $v_normal) ;
-            my @ideal_deps = ( 'perl' ) ;
-            $ideal_deps[0] .= " (>= $v_normal)" if $has_older_perl ;
-
-            my ($has_older_dep) = defined $dep_v ? $self->check_dep($dep_name, '>=', $dep_v) : (0) ;
-            push @ideal_deps, $dep_name if $has_older_perl ;
-            $ideal_deps[1] .= " (>= $dep_v)" if $has_older_perl and $has_older_dep;
-
-            my %perl_version = split m/ /, get_available_version('perl') ;
-            my $has_older_perl_in_sid = ($vs->compare($v_normal,$perl_version{sid} ) < 0 ) ? 1 : 0;
-            $logger->debug("check_depend_chain: perl $v_normal is", 
-                $has_older_perl_in_sid ? ' ' :' not ',
-                "older than perl in sid ($perl_version{sid})");
-
-            my $ideal_dep = join (' | ', $has_older_perl_in_sid ? @ideal_deps : reverse(@ideal_deps) ); 
-            
-            if ($actual_dep ne $ideal_dep) {
-                if ($apply_fix) {
-                    $$v_ref = $ideal_dep ;
-                    $logger->info("check_depend_chain: fixed dependency with: $ideal_dep");
-                }
-                else {
-                    $self->{nb_of_fixes}++;
-                    my $msg = "Dependency of dual life package should be '$ideal_dep' not '$actual_dep'";
-                    push @{$self->{warning_list}} , $msg ;
-                    $logger->info("check_depend_chain: will warn: $msg");
-                }
-                $ret = 0;
-            }
+            $ret &&= $self->check_perl_lib_dep ($apply_fix, $v_ref, $pname, $actual_dep, $depend);
         }
     }
     #exit if $input[0][1] =~ /module/ ;
     return $ret ;
 }
 
-# called in Parse::RecDescent grammar
-#
-# New subroutine "has_older_version_than" extracted - Fri Jul  8 16:34:53 2011.
-#
+# called in Parse::RecDescent grammar through check_depend_chain
+sub check_perl_lib_dep {
+    my ($self, $apply_fix, $v_ref, $pname, $actual_dep, $depend) = @_;
+
+    my ( $ok, $dep_name, $oper, $dep_v ) = @$depend;
+    my $ret = 1;
+
+    $pname =~ s/-/::/g;
+
+    # check for dual life module, module name follows debian convention...
+    my @dep_name_as_perl = Module::CoreList->find_modules(qr/^$pname$/i) ; 
+    return $ret unless @dep_name_as_perl;
+
+    my $v_decimal = Module::CoreList->first_release( $dep_name_as_perl[0], $dep_v );
+    return $ret unless defined $v_decimal;
+
+    my $v_normal = version->new($v_decimal)->normal;
+    $v_normal =~ s/^v//;    # loose the v prefix
+    if ( $logger->debug ) {
+        my $dep_str = $dep_name . ( defined $dep_v ? ' ' . $dep_v : '' );
+        $logger->debug("dual life $dep_str aka $dep_name_as_perl[0] found in Perl core $v_normal");
+    }
+
+    # Here the dependency should be in the form perl (>= 5.10.1) | libtest-simple-perl (>= 0.88)".
+    # cf http://pkg-perl.alioth.debian.org/policy.html#debian_control_handling
+    # If the Perl version is not available in sid, the order of the dependency should be reversed
+    # libcpan-meta-perl | perl (>= 5.13.10)
+    # because buildd will use the first available alternative
+
+    my ($has_older_perl) = $self->check_dep( 'perl', '>=', $v_normal );
+    my @ideal_deps = ('perl');
+    $ideal_deps[0] .= " (>= $v_normal)" if $has_older_perl;
+
+    my ($has_older_dep) = defined $dep_v ? $self->check_dep( $dep_name, '>=', $dep_v ) : (0);
+    push @ideal_deps, $dep_name if $has_older_perl;
+    $ideal_deps[1] .= " (>= $dep_v)" if $has_older_perl and $has_older_dep;
+
+    my %perl_version = split m/ /, get_available_version('perl');
+    my $has_older_perl_in_sid = ( $vs->compare( $v_normal, $perl_version{sid} ) < 0 ) ? 1 : 0;
+    $logger->debug(
+        "check_depend_chain: perl $v_normal is",
+        $has_older_perl_in_sid ? ' ' : ' not ',
+        "older than perl in sid ($perl_version{sid})"
+    );
+
+    my $ideal_dep = join( ' | ', $has_older_perl_in_sid ? @ideal_deps : reverse(@ideal_deps) );
+
+    if ( $actual_dep ne $ideal_dep ) {
+        if ($apply_fix) {
+            $$v_ref = $ideal_dep;
+            $logger->info("check_depend_chain: fixed dependency with: $ideal_dep");
+        }
+        else {
+            $self->{nb_of_fixes}++;
+            my $msg = "Dependency of dual life package should be '$ideal_dep' not '$actual_dep'";
+            push @{ $self->{warning_list} }, $msg;
+            $logger->info("check_depend_chain: will warn: $msg");
+        }
+        $ret = 0;
+    }
+   return $ret ;
+}
+
 sub check_dep {
     my ($self, $pkg,$oper,$vers) = @_ ;
     $logger->debug("check_dep: called with $pkg $oper $vers");
