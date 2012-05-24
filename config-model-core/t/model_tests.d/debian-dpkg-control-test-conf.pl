@@ -27,7 +27,7 @@ providing the following file:
             'binary:libdist-zilla-plugins-cjm-perl Depends:0',
             '${misc:Depends}',
             'source Vcs-Browser' ,'http://anonscm.debian.org/gitweb/?p=pkg-perl/packages/libdist-zilla-plugins-cjm-perl.git',
-            'source Vcs-Git', 'git://git.debian.org/git/pkg-perl/packages/libdist-zilla-plugins-cjm-perl.git',
+            'source Vcs-Git', 'git://git.debian.org/pkg-perl/packages/libdist-zilla-plugins-cjm-perl.git',
         },
         load_warnings => [ qr/dependency/, qr/dual life/, (qr/dependency/) x 2, 
                           qr/libmodule-build-perl \(>= 0.36\) \| perl \(>= 5.8.8\)/,
