@@ -169,6 +169,7 @@ sub set_properties {
       and $self->{config_class_name} eq $config_class_name ;
 
     my $old_object = $self->{data} ;
+    my $old_config_class_name = $self->{config_class_name} ;
 
     # create a new object from scratch
     my $new_object = $self->create_node($config_class_name,@args) ;
@@ -184,8 +185,17 @@ sub set_properties {
     $self->{config_class_name} = $config_class_name ;
     $self->{data} = $new_object ;
     
-    $self->notify_change; 
-
+    # bringing a new object does not really modify the content of the config tree.
+    # only changes underneath will change the tree. And these changes below will trigger
+    # their own change notif. SO there's no need to call notify_change when transitioning
+    # from an undef object into a real object. On the other hand, warping out an object will 
+    # NOT trigger notify_changes from below. So notify_change must be called
+    if (defined $old_object) {  
+        my $from = $old_config_class_name // '<undef>' ;
+        my $to = $config_class_name // '<undef>' ;
+        $self->notify_change( note => "warped node from $from to $to" ) ; 
+    }
+    
     # need to call trigger on all registered objects only after all is setup
     $self->trigger_warp ;
 }
