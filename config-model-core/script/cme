@@ -327,7 +327,8 @@ else {
 }
 
 if ($force_save) {
-    say "Changes: \n", $inst->list_changes;
+    my @changes = $inst->list_changes ;
+    say "\n",join( "\n- ","Changes:", @changes ) if @changes;
     $inst->write_back  ;
 }
 exit 0;
