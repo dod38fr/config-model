@@ -1,5 +1,7 @@
 package Config::Model::Value ;
 
+use 5.10.1 ;
+
 use Any::Moose;
 use Any::Moose '::Util::TypeConstraints' ;
 use Any::Moose 'X::StrictConstructor' ;
@@ -1084,10 +1086,21 @@ sub check {
     }
 
     my $warn = $self->{warning_list};
-    map {
-	my $str = defined $value ? "'$value'" : '<undef>';
-	warn "Warning in '" . $self->location . "' value $str: $_\n";
-    } @$warn if @$warn and not $nowarning and not $silent;
+    
+    # old_warn is used to avoid warning the user several times for the 
+    # same reason. We take care to clean up this hash each time this routine
+    # is run
+    my $old_warn = $self->{old_warning_hash} || {} ;
+    my %warn_h ;
+    if (@$warn and not $nowarning and not $silent) {
+        foreach my $w (@$warn) {
+            $warn_h{$w} = 1 ;
+            next if $old_warn->{$w} ;
+            my $str = defined $value ? "'$value'" : '<undef>';
+            warn "Warning in '" . $self->location . "' value $str: $w\n";
+        }
+    }
+    $self->{old_warning_hash} = \%warn_h ;
 
     my $e = $self->{error_list} ;
     return wantarray ? @$e : not scalar @$e ;

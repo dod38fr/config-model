@@ -172,10 +172,9 @@ is_deeply(\@msgs,[],"check that warnings are gone");
 my $perl_bdi = $control->grab("source Build-Depends-Indep:1");
 
 my $bdi_val ;
-warning_like {
-    $bdi_val = $perl_bdi->fetch ;
-}
-[ qr/unnecessary/, qr/dual life/ ], "test BDI warn";
+# since warnings were already issued during config_root->init, we don;t
+# get warnings here
+warning_like { $bdi_val = $perl_bdi->fetch ; } [ ], "check that no BDI warn are shown";
 
 is($bdi_val,"perl (>= 5.10) | libmodule-build-perl","check B-D-I dependency value from config tree");
 my $msgs = $perl_bdi->warning_msg ;
