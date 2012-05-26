@@ -485,7 +485,7 @@ data. Use C<dump_errors> if you expect issues:
 
 =item *
 
-Likewise, specify any expected warnings:
+Likewise, specify any expected warnings (note the list must contain only C<qr> stuff):
 
         dump_warnings => [ (qr/deprecated/) x 3 ],
 
