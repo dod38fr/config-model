@@ -3,6 +3,10 @@ package Config::Model::Debian::Dependency ;
 use Any::Moose;
 use namespace::autoclean;
 
+# Debian only module
+use lib '/usr/share/lintian/lib' ;
+use Lintian::Relation ;
+
 use Memoize ;
 use Memoize::Expire ;
 use DB_File ;
@@ -141,6 +145,37 @@ sub check_value {
     return wantarray ? @$e_list : scalar @$e_list ? 0 : 1 ;
 }
 
+sub check_debhelper {
+    my ($self,$apply_fix, $v_ref, $dep_name, $oper, $dep_v) = @_ ;
+
+    my $lintian_dep = Lintian::Relation->new( $$v_ref) ;
+    $logger->debug("checking '$$v_ref' with lintian");
+
+    # using mode loose because debian-control model can be used alone
+    # and compat is outside of debian-control
+    my $compat = $self->grab_value(mode => 'loose', step => "!Debian::Dpkg compat") ;
+    return unless defined $compat ;
+
+    my $min_dep = Lintian::Relation->new("debhelper ( >= $compat)") ;
+    $logger->debug("checking if ".$lintian_dep->unparse." implies ". $min_dep->unparse);
+    
+    return if $lintian_dep->implies ($min_dep) ;
+    
+    $logger->debug("'$$v_ref' does not imply debhelper >= $compat");
+    
+    if ($apply_fix) {
+        $$v_ref = $min_dep->unparse ;
+        $logger->info("fixed debhelper dependency from "
+            ."$dep_name $oper $dep_v -> $$v_ref (for compat $compat)");
+    }
+    else {
+        $self->{nb_of_fixes}++ ;
+        my $msg = "should be (>= $compat) not ($oper $dep_v) because compat is $compat" ;
+        push @{$self->{warning_list}} , $msg ;
+        $logger->info("will warn: $msg");
+    }
+}
+
 my @deb_releases = qw/etch lenny squeeze wheezy/;
 
 my %deb_release_h ;
@@ -200,6 +235,10 @@ sub check_depend_chain {
             my $pname = $1 ;
             $ret &&= $self->check_perl_lib_dep ($apply_fix, $v_ref, $pname, $actual_dep, $depend);
         }
+        elsif ( $dep_name eq 'debhelper') {
+            $self->check_debhelper($apply_fix, $v_ref, $dep_name, $oper, $dep_v);
+        }
+        
     }
     #exit if $input[0][1] =~ /module/ ;
     return $ret ;
@@ -343,6 +382,7 @@ sub check_dep_and_warn {
     return 0 ;
 }
 
+# memoized
 sub get_available_version {
     my ($pkg_name) = @_ ;
 
