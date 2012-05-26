@@ -38,6 +38,8 @@ my $del_home = sub {
             'patches:glib-single-include Synopsis', "mega patchchoid",
             'patches:use-standard-dzil-test Description',
               "Test is modified in order not to load the Test:Dzil module\nprovided in t/lib",
+            'compat' => 8 , # test setup
+            'control source Build-Depends:0' => 'debhelper (>= 8)' ,
         },
         file_check_sub => $del_home,
         # dump_warnings => [ (qr/deprecated/) x 3 ],
