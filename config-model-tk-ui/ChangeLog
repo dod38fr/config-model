@@ -1,3 +1,11 @@
+2012-05-29  Dominique Dumont  <domi.dumont@free.fr> 1.336
+
+  * replace deprecated get_all_indexes with fetch_all_indexes 
+    (requires Config::Model 2.017)
+  * view_unsaved_change widget can now be expanded
+  * fix dependency on Test::Memory::Cycle 
+    (with '::' between Memory and Cycle)
+
 2012-05-06  Dominique Dumont  <domi.dumont@free.fr> 1.335
 
     * TkUI: enable quitting even if no data is to be saved
