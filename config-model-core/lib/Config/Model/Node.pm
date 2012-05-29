@@ -330,8 +330,9 @@ sub init {
     return
       unless defined $model->{read_config}
           or defined $model->{write_config};
-          
-    $self->instance->initial_load_start ;
+    
+    my $initial_load_backup = $self->instance->initial_load ;      
+    $self->instance->initial_load_start;
     
     $self->{bmgr} ||= Config::Model::BackendMgr->new( node => $self );
 
@@ -356,7 +357,7 @@ sub init {
         );
     }
 
-    $self->instance->initial_load_stop ;
+    $self->instance->initial_load( $initial_load_backup );
 }
 
 sub read_config_data {

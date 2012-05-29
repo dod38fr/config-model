@@ -85,6 +85,9 @@ ok( $inst, "created dummy instance" );
 
 my $root = $inst->config_root;
 
+# emulate start of file read
+$inst->initial_load_start ;
+
 # emulate config file load
 $root->load(step => "plain_hash:k1=foo plain_hash:k2=bar", check => 'no') ;
 ok(1,"set up plain hash") ;

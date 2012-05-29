@@ -79,6 +79,9 @@ ok( $inst, "created dummy instance" );
 
 my $root = $inst->config_root;
 
+# emulate start of file read
+$inst->initial_load_start ;
+
 # emulate config file load
 my $pl = $root->fetch_element(name => 'plain_list', check =>'no');
 $pl->push(qw/foo bar/) ;

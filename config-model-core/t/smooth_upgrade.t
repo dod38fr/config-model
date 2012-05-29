@@ -115,6 +115,8 @@ ok($inst,"created dummy instance") ;
 
 my $root = $inst -> config_root ;
 
+# emulate start of file read
+$inst->initial_load_start ;
 
 throws_ok { $root->fetch_element('obsolete_p') ;} 
   'Config::Model::Exception::ObsoleteElement' ,
@@ -167,6 +169,9 @@ my $uinst = $model->instance (root_class_name => 'UrlMigration',
 ok($uinst,"created url test instance") ;
 
 my $uroot = $uinst -> config_root ;
+
+# emulate start of file read
+$uinst->initial_load_start ;
 
 my $host = 'foo.gre.hp.com';
 my $port = 2345 ;
