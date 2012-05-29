@@ -42,7 +42,7 @@ sub Populate {
 				     -height => 10,
 				   ) ->pack(@fbe1) ;
 
-    foreach my $c ($hash->get_all_indexes) {
+    foreach my $c ($hash->fetch_all_indexes) {
 	$rt->insert('end', $c."\n" ) ;
     }
 
