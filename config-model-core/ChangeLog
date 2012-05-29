@@ -1,3 +1,22 @@
+2012-05-29  Dominique Dumont  <domi.dumont@free.fr> 2.018
+
+  * Application changes:
+    + Debian::Dependency: Added a check and fix for debhelper version
+      requirement taking into account compat value. This check is
+      available only with full dpkg model (i.e. "cme xxx dpkg"
+      command). It is disabled when using only dpkg-contol model ("cme
+      xxx dpkg-control").
+    * Debian::Dpkg model: fix default Vcs-Git URL for debian-perl packages
+
+  * Framework changes:
+    * Value:
+      * avoid issuing the same warning twice
+      * send a notif warning only when default data is different
+        from current data as already seen by user (i.e.  // )
+    * cme: better formatting when printing changes
+    * WarpedNode: Don't call notify_change when not needed.
+    * added a note parameter for notify_change
+
 2012-05-21  Dominique Dumont  <domi.dumont@free.fr> 2.017
 
    * Framework changes:
