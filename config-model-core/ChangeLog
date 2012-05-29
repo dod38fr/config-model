@@ -16,6 +16,9 @@
     * cme: better formatting when printing changes
     * WarpedNode: Don't call notify_change when not needed.
     * added a note parameter for notify_change
+    * Instance: initial_load default value is now 0. 
+    * Node: correctly set initial_load mode when init is called 
+      recursively
 
 2012-05-21  Dominique Dumont  <domi.dumont@free.fr> 2.017
 
