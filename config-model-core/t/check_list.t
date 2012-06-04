@@ -10,7 +10,7 @@ use Config::Model;
 use Data::Dumper;
 use Log::Log4perl qw(:easy :levels) ;
 
-BEGIN { plan tests => 86; }
+BEGIN { plan tests => 87; }
 
 use strict;
 
@@ -541,7 +541,11 @@ my $loclrt = $root->fetch_element('ordered_checklist_refer_to');
 is_deeply( \@got, [qw/Y V C Z B A/],
     "test default of ordered_checklist_refer_to in layered mode" );
 
+$inst->apply_fixes; 
+ok(1,"apply_fixes works") ;
+
 print  join("\n", $inst->list_changes("\n")),"\n" if $trace;
+
 
 
 memory_cycle_ok($model,"memory cycle");

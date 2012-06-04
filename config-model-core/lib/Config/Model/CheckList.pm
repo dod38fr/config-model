@@ -218,7 +218,13 @@ sub cargo_type {
     return 'leaf' ;
 }
 
+sub apply_fixes {
+    # no operation. THere's no check_value method because a check list 
+    # supposed to be always correct. Hence apply_fixes is empty.
+}
 
+
+# does not check the validity, but check the item of the check_list 
 sub check {
     my $self = shift ;
     my @list = ref $_[0] eq 'ARRAY' ? @{$_[0]} : @_ ;
