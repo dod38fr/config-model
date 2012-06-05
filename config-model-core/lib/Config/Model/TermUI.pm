@@ -1,5 +1,5 @@
 
-#    Copyright (c) 2006-2008 Dominique Dumont.
+#    Copyright (c) 2006-2012 Dominique Dumont.
 #
 #    This file is part of Config-Model.
 #
@@ -28,6 +28,7 @@ use Term::ReadLine;
 
 use base qw/Config::Model::SimpleUI/ ;
 
+=encoding utf8
 
 =head1 NAME
 
