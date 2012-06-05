@@ -1,3 +1,11 @@
+2012-06-05  Dominique Dumont  <domi.dumont@free.fr> 2.019
+
+  * Framework changes:
+    + doc generated from model now provides details on status 
+      (e.g. deprecation) and migration (HEAD, master)
+    * check_list: make sure that apply_fixes can be called 
+      on check_list even though it does nothing there
+
 2012-05-29  Dominique Dumont  <domi.dumont@free.fr> 2.018
 
   * Application changes:
