@@ -1978,10 +1978,16 @@ sub get_model_doc {
             push @elt, $self->get_element_description($elt_info) , '' ;
 
             foreach ($elt_info,$elt_info->{cargo}) { 
-                my $ccn = $_->{config_class_name};
-                next unless defined $ccn ;
-                push @classes, $ccn ;
-                $see_also{$ccn} = 1;
+                if (my $ccn = $_->{config_class_name}) {
+                    push @classes, $ccn ;
+                    $see_also{$ccn} = 1;
+                }
+                if (my $migr = $_->{migrate_from}) {
+                    push @elt, $self->get_migrate_doc ($elt_name,'is migrated with',$migr);
+                }
+                if (my $migr = $_->{migrate_values_from}) {
+                    push @elt, "Note: $elt_name values are migrated from '$migr'",'';
+                }
             }
         }
 
@@ -2008,6 +2014,27 @@ sub get_model_doc {
     return \%result ;
 }
 
+#
+# New subroutine "get_migrate_doc" extracted - Tue Jun  5 13:31:20 2012.
+#
+sub get_migrate_doc {
+    my ( $self, $elt_name, $desc, $migr ) = @_;
+
+    my $mv    = $migr->{variables};
+    my $mform = $migr->{formula};
+
+    if ( $migr->{use_eval} ) { $mform =~ s/^/ /mg; $mform = "\n\n$mform\n\n"; }
+    else                     { $mform = "'C<$mform>' " }
+
+    my $mdoc = "Note: $elt_name $desc ${mform}and with "
+      . join( ", ", map { qq!\$$_ => "C<$mv->{$_}>"! } keys %$mv );
+    if (my $rep = $migr->{replace}) {
+        $mdoc .= ' and '.join( ", ", map { qq!'C<\$replace{$_}>' => "C<$rep->{$_}>"! } keys %$rep );
+    }
+    
+    return ( $mdoc, '' );
+}
+
 sub get_element_description {
     my ( $self, $elt_info ) = @_;
 
@@ -2024,6 +2051,11 @@ sub get_element_description {
     if ($desc) {
         $desc .= '. ' if $desc =~ /\w$/ ;
     }
+
+    if (my $status = $elt_info->{status}) {
+        $desc .= 'B<'.ucfirst($status).'> ';
+    }  
+
     
     my $info = $elt_info->{mandatory} ? 'Mandatory. ' : 'Optional. ' ;
 
