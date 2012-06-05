@@ -179,7 +179,7 @@ sub run_model_test {
         {
             local $Config::Model::Value::nowarning = 1;
             &$risky;
-            ok( 1, "Ran dump_tree (no warning check" );
+            ok( 1, "Ran dump_tree (no warning check)" );
         }
         else {
             warnings_like { &$risky; } $t->{dump_warnings}, "Ran dump_tree";
