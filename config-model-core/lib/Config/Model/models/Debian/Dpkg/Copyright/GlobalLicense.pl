@@ -43,7 +43,7 @@
           'FreeBSD' => 'FreeBSD Project license',
           'CC-BY-NC' => 'Creative Commons Attribution Non-Commercial',
           'CDDL' => 'Common Development and Distribution License. For versions, consult Sun Microsystems.',
-          'ISC' => "Internet_Software_Consortium\x{2019}s license, sometimes also known as the OpenBSD License",
+          'ISC' => "Internet_Software_Consortium's license, sometimes also known as the OpenBSD License",
           'CC-BY-NC-ND' => 'Creative Commons Attribution Non-Commercial No Derivatives',
           'GFDL-NIV' => 'GNU Free Documentation License, with no invariant sections',
           'CPL' => 'IBM Common Public License. For versions, consult the IBM_Common_Public License_(CPL)_Frequently_asked_questions.',
