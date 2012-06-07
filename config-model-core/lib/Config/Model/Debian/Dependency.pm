@@ -163,14 +163,16 @@ sub check_debhelper {
     
     $logger->debug("'$$v_ref' does not imply debhelper >= $compat");
     
+    # $show_rel avoids undef warnings
+    my $show_rel = join(' ', map { $_ || ''} ($oper, $dep_v));
     if ($apply_fix) {
         $$v_ref = $min_dep->unparse ;
         $logger->info("fixed debhelper dependency from "
-            ."$dep_name $oper $dep_v -> $$v_ref (for compat $compat)");
+            ."$dep_name $show_rel -> $$v_ref (for compat $compat)");
     }
     else {
         $self->{nb_of_fixes}++ ;
-        my $msg = "should be (>= $compat) not ($oper $dep_v) because compat is $compat" ;
+        my $msg = "should be (>= $compat) not ($show_rel) because compat is $compat" ;
         push @{$self->{warning_list}} , $msg ;
         $logger->info("will warn: $msg");
     }
