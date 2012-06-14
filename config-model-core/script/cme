@@ -365,7 +365,7 @@ cme - Edit data of configuration managed by Config::Model
   cme fix dpkg 
   
   # modify configuration with command line
-  cme modify dpkg source format="quilt (3.0)"
+  cme modify dpkg source 'format="quilt (3.0)"'
 
   # edit a file (file name specification is mandatory here)
   cme edit multistrap my.conf 
