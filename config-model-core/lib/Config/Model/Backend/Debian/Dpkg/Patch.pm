@@ -15,6 +15,8 @@ use IO::File;
 
 my $logger = get_logger("Backend::Debian::Dpkg::Patch");
 
+my $patch_name_for_test = 'some-patch';
+
 sub suffix { return ''; }
 
 sub skip_open { 1;}
@@ -38,7 +40,8 @@ sub read {
     my $check     = $args{check};
     my $node      = $args{object};
 
-    my $patch_name = $node->index_value;
+    # the default value is used for tests
+    my $patch_name = $node->index_value || $patch_name_for_test;
 
     my $patch_file = "$patch_dir$patch_name";
     $logger->info("Parsing patch $patch_file");
@@ -66,9 +69,11 @@ sub read {
 
     my $c = [] ;
     $logger->trace("header: @$header") ;
+    my @stuff ;
+    my $store_stuff = sub { push @stuff, shift ;} ;
     
     if (@$header) {
-        $c = eval { $self->parse_dpkg_lines( $header, $check ); };
+        $c = eval { $self->parse_dpkg_lines( $header, $check, 0, $store_stuff ); };
         my $e;
         if ( $e = Exception::Class->caught('Config::Model::Exception::Syntax') )
         {
@@ -82,27 +87,29 @@ sub read {
         }
 
         Config::Model::Exception::Syntax->throw(
-            message => "More than one section in $patch_name header" )
-          if @$c > 2; # $c contains [ line_nb, section_ref ]
+            message => "More than 2 sections in $patch_name header" )
+          if @$c > 4; # $c contains [ line_nb, section_ref ]
     }
 
-    my $section = $c->[1];
-    foreach ( my $i = 0 ; $i < $#$section ; $i += 2 ) {
-        my $key = $section->[$i];
-        my ($v,$l,$a,@comments) = @{$section->[ $i + 1 ]};
-        if ( my $found = $node->find_element( $key, case => 'any' ) ) {
-            my @elt = ($found);
-            my @v = ( $found eq 'Description' ) ? ( split /\n/, $v, 2 ) : ($v);
-            unshift @elt, 'Synopsis' if $found eq 'Description';
-            foreach (@elt) {
-                my $sub_v = shift @v;
-                next unless defined $sub_v ;
-                $logger->debug("storing $_  value: $sub_v");
-                $node->fetch_element($_)->store( value => $sub_v, check => $check );
+    while (@$c) {
+        my ( $section_line, $section ) = splice @$c, 0, 2;
+        foreach ( my $i = 0 ; $i < $#$section ; $i += 2 ) {
+            my $key = $section->[$i];
+            my ( $v, $l, $a, @comments ) = @{ $section->[ $i + 1 ] };
+            if ( my $found = $node->find_element( $key, case => 'any' ) ) {
+                my @elt = ($found);
+                $v .= join( "\n", @stuff ) if $found eq 'Subject';
+                my @v = ( $found eq 'Description' ) ? ( split /\n/, $v, 2 ) : ($v);
+                unshift @elt, 'Synopsis' if $found eq 'Description';
+                foreach (@elt) {
+                    my $sub_v = shift @v;
+                    next unless defined $sub_v;
+                    $logger->debug("storing $_  value: $sub_v");
+                    $node->fetch_element($_)->store( value => $sub_v, check => $check );
+                }
             }
         }
     }
-
     $node->fetch_element('diff')->store(join('',@$diff));
 
     return 1;
@@ -126,7 +133,7 @@ sub write {
     my $check     = $args{check};
     my $node      = $args{object};
 
-    my $patch_name = $node->index_value;
+    my $patch_name = $node->index_value || $patch_name_for_test;
 
     my $patch_file = "$patch_dir/$patch_name";
     $logger->info("Writing patch $patch_file");
@@ -135,24 +142,32 @@ sub write {
         message => "cannot write patch $patch_file" );
 
     foreach my $elt ( $node -> get_element_name ) {
-        my $v = $node->fetch_element_value($elt) ;
-        next unless defined $v and $v;
-        
-        if ($elt eq 'Synopsis') {
-            my $long_description = $node->fetch_element_value('Description') ;
-            $v .= "\n" . $long_description if $long_description ;
-            $io->print("Description:");
-            $self->write_dpkg_text($io,$v) ;
-        }
-        elsif ($elt eq 'Description') { } # done in Synopsis
-        elsif ($elt eq 'diff' ) {
-            $io->print($node->fetch_element_value('diff')) ;
-        }
-        else {
-            $io->print("$elt:");
-            $self->write_dpkg_text($io,$v) ;
-        }
+        my $elt_obj = $node->fetch_element($elt) ;
+        my $type = $node->element_type($elt) ;
 
+        my @v = $type eq 'list' ? $elt_obj->fetch_all_values
+              : $type eq 'leaf' ? ($elt_obj->fetch)
+              : ();
+
+        foreach my $v (@v) {
+            say "write $elt -> $v" ;
+            next unless defined $v and $v;
+        
+            if ($elt eq 'Synopsis') {
+                my $long_description = $node->fetch_element_value('Description') ;
+                $v .= "\n" . $long_description if $long_description ;
+                $io->print("Description:");
+                $self->write_dpkg_text($io,$v) ;
+            }
+            elsif ($elt eq 'Description') { } # done in Synopsis
+            elsif ($elt eq 'diff' ) {
+                $io->print($node->fetch_element_value('diff')) ;
+            }
+            else {
+                $io->print("$elt:");
+                $self->write_dpkg_text($io,$v) ;
+            }
+        }
     }
 
     return 1;

@@ -1,5 +1,16 @@
 [
   {
+    'accept' => [
+      'Bug-.*',
+      {
+        'cargo' => {
+          'value_type' => 'uniline',
+          'type' => 'leaf'
+        },
+        'type' => 'list',
+        'accept_after' => 'Bug' ,
+      }
+    ],
     'read_config' => [
       {
         'backend' => 'Debian::Dpkg::Patch',
@@ -36,13 +47,16 @@ s/-/ /g;
       },
       'Subject',
       {
-        'value_type' => 'uniline',
+        'value_type' => 'string',
         'type' => 'leaf'
       },
       'Bug',
       {
-        'value_type' => 'uniline',
-        'type' => 'leaf'
+        'cargo' => {
+          'value_type' => 'uniline',
+          'type' => 'leaf'
+        },
+        'type' => 'list'
       },
       'Forwarded',
       {
@@ -52,6 +66,11 @@ s/-/ /g;
       'Author',
       {
         'value_type' => 'uniline',
+        'type' => 'leaf'
+      },
+      'Origin',
+      {
+        'value_type' => 'string',
         'type' => 'leaf'
       },
       'From',
