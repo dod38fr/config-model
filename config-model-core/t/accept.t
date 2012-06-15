@@ -44,6 +44,7 @@ $model->create_config_class(
                 type       => 'leaf',
                 value_type => 'string',
             },
+            accept_after => 'id',
         },
         'str.*' => {
             type       => 'leaf',
@@ -58,7 +59,7 @@ $model->create_config_class(
         #TODO: Some advanced structures, hashes, etc.
     ],
     element => [
-        id => {
+        [qw/id other/] => {
             type       => 'leaf',
             value_type => 'uniline',
         },
@@ -80,7 +81,7 @@ my $i_root = $i_hosts->config_root ;
 is_deeply([$i_root->accept_regexp],[qw/list.* str.* bad.*/],
        "check accept_regexp");
        
-is_deeply([$i_root->get_element_name],[qw/id/],
+is_deeply([$i_root->get_element_name],[qw/id other/],
        "check explicit element list");
 
 my $load = "listA=one,two,three,four
@@ -99,7 +100,7 @@ is_deeply([$i_root->fetch_element('listC')->fetch_all_values],
           [qw/a b c d/],"check accepted list content");
 
 is_deeply([$i_root->get_element_name],
-       [qw/id listA listB listC str1 str2 str3 str4/],
+       [qw/id listC listB listA other str1 str2 str3 str4/],
        "check element list with accepted parameters");
 
 foreach my $oops (qw/foo=bar vlistB=test/) {
