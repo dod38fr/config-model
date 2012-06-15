@@ -210,7 +210,7 @@ sub run_model_test {
             } 
         }
 
-        $inst->write_back( );
+        $inst->write_back( force => 1 );
         ok( 1, "$model_test write back done" );
         
         if (my $fc = $t->{file_content}) {
@@ -528,6 +528,9 @@ Verify annotation extracted from the configuration file comments:
 =item *
 
 Write back the config data in C<< wr_root/<subtest name>/ >>. 
+Note that write back is forced, so the tested configuration files are
+written back even if the configuration values were not changed during the test.
+
 You can skip warning when writing back with:
 
     no_warnings => 1,
