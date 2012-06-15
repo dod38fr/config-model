@@ -15,6 +15,7 @@ use Config::Model::Describe;
 use Config::Model::BackendMgr;
 use Log::Log4perl qw(get_logger :levels);
 use Storable qw/dclone/ ;
+use List::MoreUtils qw(insert_after_string);
 
 extends qw/Config::Model::AnyThing/;
 
@@ -888,6 +889,7 @@ sub reset_accepted_element_model {
 
     my $model = dclone $accept_model ;
     delete $model->{name_match} ;
+    my $accept_after = delete $model->{accept_after} ;
     
     foreach my $info_to_move (qw/description summary/) {
         my $moved_data = delete $model->{$info_to_move}  ;
@@ -903,8 +905,13 @@ sub reset_accepted_element_model {
     $self->{model}{element}{$element_name} = $model ;
 
     #add to element list...
-    push @{$self->{model}{element_list}}, $element_name;
-
+    if ($accept_after) {
+        insert_after_string($accept_after, $element_name, @{$self->{model}{element_list}} );
+    }
+    else {
+        push @{$self->{model}{element_list}}, $element_name;
+    }
+    
     return ($model);
 }
 
@@ -1353,6 +1360,25 @@ Example:
   ]
 
 All C<element> parameters can be used in specifying accepted parameters.
+
+The parameter C<accept_after> to specify where to insert the accepted element.
+This will not change much the behavior of the tree, but it will help generate
+user interface easier to use.
+
+Example:
+
+ element => [
+    'Bug' => { type => 'leaf', value_type => 'uniline' } ,
+ ]
+ accept => [
+    'Bug-.*' =>  {
+         value_type => 'uniline',
+         type => 'leaf'
+         accept_after => 'Bug' ,
+    }
+ ]
+
+The model snippet above will ensure that C<Bug-Debian> will be shown right after C<bug>.
 
 =for html
 <p>For more information, see <a href="http://ddumont.wordpress.com/2010/05/19/improve-config-upgrade-ep-02-minimal-model-for-opensshs-sshd_config/">this blog<\a>.</p>
