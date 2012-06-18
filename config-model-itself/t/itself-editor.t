@@ -110,6 +110,8 @@ my $meta_inst = $meta_model->instance(
 );
 ok( $meta_inst, "Read Itself::Model and created instance" );
 
+$meta_inst->initial_load_start ;
+
 my $meta_root = $meta_inst -> config_root ;
 
 my $rw_obj = Config::Model::Itself -> new(
@@ -117,10 +119,13 @@ my $rw_obj = Config::Model::Itself -> new(
     model_dir => $wr_model1,
 ) ;
 
+
+
 my $map = $rw_obj->read_all(
     root_model => 'MasterModel',
     legacy     => 'ignore',
 );
+$meta_inst->initial_load_stop ;
 
 ok(1,"Read all models in data dir") ;
 
