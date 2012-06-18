@@ -1,9 +1,25 @@
+2012-06-18  Dominique Dumont  <domi.dumont@free.fr> 2.020
+
+  * Application changes:
+    * Fix DEP-3 model:
+      + added missing parameters (Subject ...)
+      + accept Bug-* parameters
+      * Better cope with unstructured text after Subject keyword
+
+  * Framework changes:
+    * prepare release. depends on List::MoreUtils
+    * fix cme doc example (Closes Debian: #677069)
+    * Node: accept stuff: added 'accept_after' parameter
+
+  * Tester framework:
+    * force write_back during tests
+
 2012-06-05  Dominique Dumont  <domi.dumont@free.fr> 2.019
 
   * Framework changes:
-    + doc generated from model now provides details on status 
+    + doc generated from model now provides details on status
       (e.g. deprecation) and migration (HEAD, master)
-    * check_list: make sure that apply_fixes can be called 
+    * check_list: make sure that apply_fixes can be called
       on check_list even though it does nothing there
 
 2012-05-29  Dominique Dumont  <domi.dumont@free.fr> 2.018
