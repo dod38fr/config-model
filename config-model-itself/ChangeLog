@@ -1,3 +1,10 @@
+2012-06-19  Dominique Dumont  <domi.dumont@free.fr> 1.232
+
+    * model Itself::Class: added accept_after
+      (requires Config::Model 2.020)
+    * config-model-edit: make sure that loading models are not 
+      recorded as changed data
+
 2012-05-22  Dominique Dumont  <domi.dumont@free.fr> 1.231
 
     * added migrate_values_from (requires Config::Model 2.015)
