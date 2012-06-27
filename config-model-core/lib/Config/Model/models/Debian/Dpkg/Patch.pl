@@ -8,7 +8,7 @@
           'type' => 'leaf'
         },
         'type' => 'list',
-        'accept_after' => 'Bug' ,
+        'accept_after' => 'Bug'
       }
     ],
     'read_config' => [
