@@ -150,7 +150,7 @@ sub write {
               : ();
 
         foreach my $v (@v) {
-            say "write $elt -> $v" ;
+            # say "write $elt -> $v" ;
             next unless defined $v and $v;
         
             if ($elt eq 'Synopsis') {
