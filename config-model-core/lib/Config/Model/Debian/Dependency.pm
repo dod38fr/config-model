@@ -145,6 +145,17 @@ sub check_value {
     return wantarray ? @$e_list : scalar @$e_list ? 0 : 1 ;
 }
 
+#
+# New subroutine "fix_value" extracted - Wed Jun 27 14:33:07 2012.
+#
+sub fix_value {
+    my ($self, $v_ref, $new_v) = @_ ;
+
+    my $old_v = $$v_ref;
+    $$v_ref = $new_v ;
+    $self->notify_change(old => $old_v, new => $$v_ref, note => 'applied fix') ;
+}
+
 sub check_debhelper {
     my ($self,$apply_fix, $v_ref, $dep_name, $oper, $dep_v) = @_ ;
 
@@ -166,7 +177,7 @@ sub check_debhelper {
     # $show_rel avoids undef warnings
     my $show_rel = join(' ', map { $_ || ''} ($oper, $dep_v));
     if ($apply_fix) {
-        $$v_ref = $min_dep->unparse ;
+        $self->fix_value ($v_ref, $min_dep->unparse );
         $logger->info("fixed debhelper dependency from "
             ."$dep_name $show_rel -> $$v_ref (for compat $compat)");
     }
@@ -295,7 +306,7 @@ sub check_perl_lib_dep {
 
     if ( $actual_dep ne $ideal_dep ) {
         if ($apply_fix) {
-            $$v_ref = $ideal_dep;
+            $self->fix_value( $v_ref, $ideal_dep);
             $logger->info("check_depend_chain: fixed dependency with: $ideal_dep");
         }
         else {
@@ -371,7 +382,7 @@ sub check_dep_and_warn {
     return 1 if $ret ;
 
     if ($apply_fix) {
-        $$v_ref =~ s/\s*\(.*\)\s*//;
+        $self->fix_value($v_ref, $pkg) ;
         $logger->info("check_dep_and_warn: removed versioned dependency from $pkg $oper $vers -> $$v_ref");
     }
     else {
