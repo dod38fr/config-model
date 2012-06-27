@@ -181,7 +181,7 @@ To upgrade your file from an old spec, run:
           'type' => 'node',
           'config_class_name' => 'Debian::Dpkg::Copyright::LicenseSpec'
         },
-        'allow_keys_matching' => '^[\\w\\-\\.+]+$',
+        'warn_if_key_match' => '\\s',
         'type' => 'hash',
         'index_type' => 'string'
       },

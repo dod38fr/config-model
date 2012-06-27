@@ -17,7 +17,7 @@ check: license alternate(s?) <reject: $text or not $found or not $ok >
 alternate: comma(?) oper license 
 comma: \',\'
 oper: \'and\' | \'or\' 
-license: /[\\w\\-\\.\\+]+/i
+license: /\\S+/i
    { # PRD action to check if the license text is provided
      my $abbrev = $item[1] ;
      $found++ ;
