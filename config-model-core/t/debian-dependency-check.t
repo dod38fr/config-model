@@ -32,7 +32,7 @@ if ( $@ ) {
     plan skip_all => "AptPkg::Config is not installed";
 }
 elsif ( -r '/etc/debian_version' ) {
-    plan tests => 25;
+    plan tests => 27;
 }
 else {
     plan skip_all => "Not a Debian system";
@@ -160,6 +160,8 @@ ok( 1, "check_depend on xorg arch stuff rule");
 $control->load(q{binary:libdist-zilla-plugins-cjm-perl Depends:6="lcdproc (= ${binary:Version})"});
 ok( 1, "check_depend on lcdproc where version is a variable");
 
+# reset change tracker
+$inst-> clear_changes ;
 
 # test fixes
 is($perl_dep->has_fixes,1, "test presence of fixes");
@@ -168,6 +170,7 @@ is($perl_dep->has_fixes,0, "test that fixes are gone");
 @msgs = $perl_dep->warning_msg ;
 is_deeply(\@msgs,[],"check that warnings are gone");
 
+is($inst->c_count, 1,"check that fixes are tracked with notify changes") ;
 
 my $perl_bdi = $control->grab("source Build-Depends-Indep:1");
 
@@ -181,6 +184,8 @@ my $msgs = $perl_bdi->warning_msg ;
 like($msgs,qr/dual life/,"check store with old version: trap perl | libmodule");
 like($msgs,qr/unnecessary versioned dependency/,"check store with old version: trap version");
 
+$inst-> clear_changes ;
+
 # test fixes
 is($perl_bdi->has_fixes,2, "test presence of fixes");
 
@@ -192,5 +197,7 @@ is($perl_bdi->has_fixes,2, "test presence of fixes");
 is($perl_bdi->has_fixes,0, "test that fixes are gone");
 @msgs = $perl_bdi->warning_msg ;
 is_deeply(\@msgs,[],"check that warnings are gone");
+
+is($inst->c_count, 2,"check that fixes are tracked with notify changes") ;
 
 memory_cycle_ok($model);
