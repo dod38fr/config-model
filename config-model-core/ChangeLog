@@ -1,3 +1,16 @@
+2012-06-18  Dominique Dumont  <domi.dumont@free.fr> 2.021_01
+
+  * Application changes:
+    * Debian::Dpkg 
+      * dependency model:
+	* Make concurrent calls to madison to reduce user wait
+	* make sure that apply_fix trigger notification changes 
+	  so the fixes are indeed saved when running apply_fix 
+	  (thanks to gregoa for the heads up)
+      * copyright: allow any non-space character for license short name
+  - Removed dependency on LWP::Simple
+  + Added dependency on AnyEvent and AnyEvent::HTTP
+
 2012-06-18  Dominique Dumont  <domi.dumont@free.fr> 2.020
 
   * Application changes:

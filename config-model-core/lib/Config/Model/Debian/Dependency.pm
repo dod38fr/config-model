@@ -10,7 +10,6 @@ use lib '/usr/share/lintian/lib' ;
 use Lintian::Relation ;
 
 use DB_File ;
-use LWP::Simple ;
 use Log::Log4perl qw(get_logger :levels);
 use Module::CoreList;
 use version ;
