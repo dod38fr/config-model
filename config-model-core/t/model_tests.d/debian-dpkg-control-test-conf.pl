@@ -129,13 +129,14 @@ my $ch = new IO::File "$cache_file";
 foreach ($ch->getlines) {
     chomp;
     my ($k,$v) = split m/ => / ;
-    $Config::Model::Debian::Dependency::cache{$k} = $v ;
+    $Config::Model::Debian::Dependency::cache{$k} = time . ' '. $v ;
 }
 $ch -> close ;
 
 END {
     return if $::DebianDependencyCacheWritten ;
     my %h = %Config::Model::Debian::Dependency::cache ;
+    map { s/^\d+ //;} values %h ; # remove time stamp
     my $str = join ("\n", map { "$_ => $h{$_}" ;} sort keys %h) ;
 
     my $fh = new IO::File "> $cache_file";

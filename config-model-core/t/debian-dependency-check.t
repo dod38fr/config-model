@@ -14,6 +14,8 @@ BEGIN {
         'lcdproc' => 'etch 0.4.5-1.1 lenny 0.4.5-1.1 squeeze 0.5.2-3 wheezy 0.5.2-3.1 sid 0.5.2-3.1',
         'libsdl1.2' => '', # only source
     );
+    my $t = time ;
+    map { $_ = "$t $_"} values %Config::Model::Debian::Dependency::cache ;
 }
 
 use ExtUtils::testlib;
