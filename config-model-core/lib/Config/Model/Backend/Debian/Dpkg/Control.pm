@@ -11,10 +11,11 @@ use Carp;
 use Config::Model::Exception ;
 use File::Path;
 use Log::Log4perl qw(get_logger :levels);
-
-
+use AnyEvent ;
 
 my $logger = get_logger("Backend::Debian::Dpkg::Control") ;
+
+has condvar => (is => 'ro', isa => 'Ref', writer => '_cv') ;
 
 sub suffix { return '' ; }
 
@@ -43,12 +44,16 @@ sub read {
     
     $logger->debug("Reading control source info");
 
+    $self->_cv( AnyEvent->condvar );
+    $self->condvar->begin( sub { shift->send }) ; # make sure begin is called at least once
+
     # first section is source package, following sections are binary package
     my $node = $root->fetch_element(name => 'source', check => $check) ;
     $self->read_sections ($node, shift @$c, shift @$c, $check);
 
     $logger->debug("Reading binary package names");
     # we assume that package name is the first item in the section data
+    
     
     while (@$c ) {
         my ($section_line,$section) = splice @$c,0,2 ;
@@ -70,6 +75,11 @@ sub read {
         $self->read_sections ($node, $section_line, $section, $args{check});
     }
 
+    $self->condvar->end ; # matches the begin above
+
+    $self->condvar->recv ;
+    my $dump_to_check = $root->dump_tree(mode => 'full') ;
+    
     return 1 ;
 }
 

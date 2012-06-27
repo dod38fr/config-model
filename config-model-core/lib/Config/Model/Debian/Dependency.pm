@@ -1,5 +1,7 @@
 package Config::Model::Debian::Dependency ;
 
+use 5.10.1;
+
 use Any::Moose;
 use namespace::autoclean;
 
@@ -7,13 +9,13 @@ use namespace::autoclean;
 use lib '/usr/share/lintian/lib' ;
 use Lintian::Relation ;
 
-use Memoize ;
-use Memoize::Expire ;
 use DB_File ;
 use LWP::Simple ;
 use Log::Log4perl qw(get_logger :levels);
 use Module::CoreList;
 use version ;
+
+use AnyEvent::HTTP ;
 
 # available only in debian. Black magic snatched from 
 # /usr/share/doc/libapt-pkg-perl/examples/apt-version 
@@ -45,26 +47,16 @@ use vars qw/%cache/ ;
 
 # Set up persistence
 my $cache_file_name = $ENV{HOME}.'/.config_model_depend_cache' ;
-my @tie_args = ( 'DB_File', $cache_file_name, O_CREAT|O_RDWR, 0640 ) ;
 
-# Set up expiration policy, supplying persistent hash as a target
-# Memoire::Expire doc is wrong
-tie %cache => 'Memoize::Expire',
-    LIFETIME => 60 * 60 * 24 * 30,    # roughly one month , in seconds
-    TIE => \@tie_args 
-       unless %cache; # this condition is used during tests
-
-
-# Memoize::Expire is lacking methods for Data::Dumper to work
-#use Data::Dumper; print Dumper(\%cache) ;
+# this condition is used during tests
+if (not %cache) {
+    tie %cache => 'DB_File', $cache_file_name, 
+} 
 
 # required to write data back to DB_File
 END { 
     untie %cache ;
 }
-
-# Set up memoization, supplying expiring persistent hash for cache
-memoize 'get_available_version' , SCALAR_CACHE => [HASH => \%cache];
 
 my $grammar = << 'EOG' ;
 
@@ -198,14 +190,16 @@ while (@deb_releases) {
     $deb_release_h{$k} = qr/$regexp/;
 }
 
-# called in Parse::RecDescent grammar
+# called in check_dep and in Parse::RecDescent grammar 
 sub check_pkg_name {
     my ($self,$pkg) = @_ ;
     $logger->debug("check_pkg_name: called with $pkg");
 
     # check if Debian has version older than required version
-    my @dist_version = split m/ /,  get_available_version($pkg) ;
+    my ($has_info, @dist_version) = $self->get_available_version($pkg) ;
     # print "\t'$pkg' => '@dist_version',\n";
+
+    return () unless $has_info ;
 
     # if no pkg was found
     if (@dist_version == 0) {
@@ -217,7 +211,6 @@ sub check_pkg_name {
     return @dist_version ;
 }
 
-# FIXME: check debhelper version wrt debian/compat content
 # called in Parse::RecDescent grammar
 sub check_depend_chain {
     my ($self, $apply_fix, $v_ref, @input) = @_ ;
@@ -294,7 +287,9 @@ sub check_perl_lib_dep {
     push @ideal_deps, $dep_name if $has_older_perl;
     $ideal_deps[1] .= " (>= $dep_v)" if $has_older_perl and $has_older_dep;
 
-    my %perl_version = split m/ /, get_available_version('perl');
+    my ($has_info, %perl_version) = $self->get_available_version('perl');
+    return $ret unless $has_info ; # info not yet available
+
     my $has_older_perl_in_sid = ( $vs->compare( $v_normal, $perl_version{sid} ) < 0 ) ? 1 : 0;
     $logger->debug(
         "check_depend_chain: perl $v_normal is",
@@ -395,25 +390,54 @@ sub check_dep_and_warn {
     return 0 ;
 }
 
-# memoized
 sub get_available_version {
-    my ($pkg_name) = @_ ;
+    my ($self,$pkg_name) = @_ ;
+    state %requested ;
 
     $logger->debug("get_available_version called on $pkg_name");
 
-    print "Connecting to qa.debian.org to check $pkg_name versions. Please wait ...\n" ;
-
-    my $res = get("http://qa.debian.org/cgi-bin/madison.cgi?package=$pkg_name&text=on") ;
-    
-    die "cannot get data for package $pkg_name. Check your proxy ?\n" unless defined $res ;
-
-    my @res ;
-    foreach my $line (split /\n/, $res) {
-        my ($name,$available_v,$dist,$type) = split /\s*\|\s*/, $line ;
-        $type =~ s/\s//g ;
-        push @res , $dist,  $available_v unless $type eq 'source';
+    my ($time,@res) = split / /, ($cache{$pkg_name} || '');
+    if ($requested{$pkg_name} 
+        or (defined $time and $time =~ /^\d+$/ and $time + 24 * 60 * 60 * 7 > time) ) {
+        return (1, @res) ;
     }
-    return "@res" ;
+
+    my $url = "http://qa.debian.org/cgi-bin/madison.cgi?package=$pkg_name&text=on" ;
+    $requested{$pkg_name} = 1 ;
+
+    # async fetch
+    my $cv= $self->grab("!Debian::Dpkg::Control")->backend_mgr
+        ->get_backend("Debian::Dpkg::Control")->condvar;
+    $cv->begin;
+
+    say "Connecting to qa.debian.org to check $pkg_name versions. Please wait..." ;
+
+
+    my $request;
+    $request = http_request(
+        GET => $url,
+        timeout => 20, # seconds
+        sub {
+            my ($body, $hdr) = @_;
+            if ($hdr->{Status} =~ /^2/) {
+                my @res ;
+                foreach my $line (split /\n/, $body) {
+                    my ($name,$available_v,$dist,$type) = split /\s*\|\s*/, $line ;
+                    $type =~ s/\s//g ;
+                    push @res , $dist,  $available_v unless $type eq 'source';
+                }
+                say "got info for $pkg_name" ;
+                $cache{$pkg_name} = time ." @res" ;
+            }
+            else {
+                say "Error for $url: ($hdr->{Status}) $hdr->{Reason}";
+            }
+            undef $request;
+            $cv->end;
+        }
+    );
+    
+    return (0) ; # will re-check dep once the info is retrieved
 }
 
 __PACKAGE__->meta->make_immutable;

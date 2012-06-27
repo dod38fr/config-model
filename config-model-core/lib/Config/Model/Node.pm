@@ -95,6 +95,8 @@ has auto_read => ( is => 'rw' , isa => 'HashRef' ) ;
 has model => ( is => 'rw' , isa => 'HashRef' ) ;
 has needs_save => ( is => 'rw', isa => 'Bool', default => 0 ) ;
 
+has backend_mgr => ( is => 'ro', isa => 'Maybe[Config::Model::BackendMgr]') ;
+
 sub BUILD {
     my $self = shift;
 
@@ -335,7 +337,7 @@ sub init {
     my $initial_load_backup = $self->instance->initial_load ;      
     $self->instance->initial_load_start;
     
-    $self->{bmgr} ||= Config::Model::BackendMgr->new( node => $self );
+    $self->{backend_mgr} ||= Config::Model::BackendMgr->new( node => $self );
 
     my $ar = $self->{auto_read};
 
@@ -352,7 +354,7 @@ sub init {
     if ( $model->{write_config} ) {
 
         # setup auto_write, write_config_dir is obsolete
-        $self->{bmgr}->auto_write_init(
+        $self->backend_mgr->auto_write_init(
             write_config     => $model->{write_config},
             write_config_dir => $model->{write_config_dir},
         );
@@ -373,7 +375,7 @@ sub read_config_data {
 
     # setup auto_read, read_config_dir is obsolete
     # may use an overridden config file
-    $self->{bmgr}->read_config_data(
+    $self->backend_mgr->read_config_data(
         read_config     => $model->{read_config},
         check           => $args{check},
         read_config_dir => $model->{read_config_dir},
@@ -392,7 +394,7 @@ sub notify_change {
 	" for ",$self->name) 
 	if $logger->is_debug ;
 
-    if (defined $self->{bmgr}) {
+    if (defined $self->backend_mgr) {
         $self->needs_save(1) ; # will trigger a save in config_file
 	$self->SUPER::notify_change( @_, needs_save => 0 ) ;
     }
@@ -413,13 +415,13 @@ sub write_back {
             $self->location,")\n";
     }
     
-    $self->{bmgr}->write_back(%args) if $self->needs_save or $force_write;
+    $self->backend_mgr->write_back(%args) if $self->needs_save or $force_write;
 }
 
 sub is_auto_write_for_type {
     my $self = shift ;
-    return 0 unless defined $self->{bmgr} ;
-    return $self->{bmgr}->is_auto_write_for_type(@_) ;
+    return 0 unless defined $self->backend_mgr ;
+    return $self->backend_mgr->is_auto_write_for_type(@_) ;
 }
 
 
