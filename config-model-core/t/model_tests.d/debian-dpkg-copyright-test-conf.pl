@@ -196,6 +196,11 @@ in ‘/usr/share/common-licenses/GPL-1’." } ,
             'Files:"*" License-Alias' => { check => 'no' },
         },
     },
+    {
+        name => 'oar',
+        'File:"sources/extra/orpheus/modules/lua-signal/lsignal.c" License short_name'
+            => 'MIT/X11'
+    },
 );
 
 1;
