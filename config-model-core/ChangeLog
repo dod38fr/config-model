@@ -1,15 +1,20 @@
-2012-06-18  Dominique Dumont  <domi.dumont@free.fr> 2.021_01
+2012-06-28  Dominique Dumont  <domi.dumont@free.fr> 2.021
 
   * Application changes:
-    * Debian::Dpkg 
+    * Debian::Dpkg
+      * Bump default compat level to 9 (for hardening)
       * dependency model:
-	* Make concurrent calls to madison to reduce user wait
+	* Make concurrent calls to madison to reduce user wait 
+	  with AnyEvent::HTTP
 	* make sure that apply_fix trigger notification changes 
 	  so the fixes are indeed saved when running apply_fix 
 	  (thanks to gregoa for the heads up)
       * copyright: allow any non-space character for license short name
-  - Removed dependency on LWP::Simple
-  + Added dependency on AnyEvent and AnyEvent::HTTP
+
+  * Framework changes:
+    - Removed dependency on LWP::Simple
+    + Added dependency on AnyEvent and AnyEvent::HTTP
+    * cme: clean up the mess after AnyEvent headbutts Tk :-/
 
 2012-06-18  Dominique Dumont  <domi.dumont@free.fr> 2.020
 
