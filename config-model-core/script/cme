@@ -304,8 +304,9 @@ elsif ( $command eq 'edit' ) {
         # without that, C::M::TkUI::quit (which just destroys one $mw, not 2) is not enough
         # to end the program :-( 
 
+        no warnings 'once' ;
         my $mw = $AnyEvent::Impl::Tk::mw ;#|| MainWindow->new;
-        $mw->withdraw;
+        # $mw->withdraw;
 
         # Thanks to Jerome Quelin for the tip
         $mw->optionAdd( '*BorderWidth' => 1 );
