@@ -10,6 +10,7 @@ use Getopt::Long;
 use Pod::Usage;
 use Log::Log4perl qw(get_logger :levels);
 use POSIX qw/setsid/;
+use AnyEvent ;
 
 my $log4perl_syst_conf_file = '/etc/log4config-model.conf';
 my $log4perl_user_conf_file = $ENV{HOME} . '/.log4config-model';
@@ -293,8 +294,17 @@ elsif ( $command eq 'edit' ) {
         require Tk;
         require Tk::ErrorDialog;
         Tk->import;
+        
+        # BLEEUAARGHHH. 
+        # Currently AnyEvent is loaded and called only within Debian::Dpkg backend
+        # and C::M::Debian::Dependency. When called in a Tk environment
+        # AnyEvent creates its own TK mw which may be along the one created below
+        # this require make sure that AnyEvent Tk mw is created and used for Tk application 
+        require AnyEvent::Impl::Tk ;
+        # without that, C::M::TkUI::quit (which just destroys one $mw, not 2) is not enough
+        # to end the program :-( 
 
-        my $mw = MainWindow->new;
+        my $mw = $AnyEvent::Impl::Tk::mw ;#|| MainWindow->new;
         $mw->withdraw;
 
         # Thanks to Jerome Quelin for the tip
