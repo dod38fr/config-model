@@ -396,10 +396,14 @@ sub get_available_version {
     $logger->debug("get_available_version called on $pkg_name");
 
     my ($time,@res) = split / /, ($cache{$pkg_name} || '');
-    if ($requested{$pkg_name} 
-        or (defined $time and $time =~ /^\d+$/ and $time + 24 * 60 * 60 * 7 > time) ) {
+    if (defined $time and $time =~ /^\d+$/ and $time + 24 * 60 * 60 * 7 > time) {
         return (1, @res) ;
     }
+
+    # package info was requested but info is still not there
+    # this may be called twice for the same package: one for source, one
+    # for binary package
+    return (0) if $requested{$pkg_name} ;
 
     my $url = "http://qa.debian.org/cgi-bin/madison.cgi?package=$pkg_name&text=on" ;
     $requested{$pkg_name} = 1 ;
