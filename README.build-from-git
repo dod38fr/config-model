@@ -19,4 +19,11 @@ sudo aptitude install \
      libdist-zilla-perl \
      libdist-zilla-plugin-podspellingtests-perl
 
-      
+Then run:
+
+dzil build 
+
+or 
+
+dzil test
+
