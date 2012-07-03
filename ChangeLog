@@ -1,3 +1,12 @@
+2012-07-03  Dominique Dumont  <domi.dumont@free.fr> 2.022
+
+  * Application changes:
+    * Debian::Dpkg
+      * fix a race condition between the various calls to Debian's madison site
+
+  * Framework changes:
+    * added -from and -filter option to cme fix command
+
 2012-06-28  Dominique Dumont  <domi.dumont@free.fr> 2.021
 
   * Application changes:
