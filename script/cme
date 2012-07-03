@@ -52,6 +52,8 @@ my $backend;
 my $experience = 'beginner';
 my $dumptype;
 my $load;
+my @fix_from;
+my $fix_filter ;
 my $force_save  = 0;
 my $open_item   = '';
 my $fuse_dir;
@@ -65,7 +67,10 @@ my %command_option = (
     list    => [],
     check   => [],
     migrate => [],
-    fix     => [],
+    fix     => [
+        "from=s" => \@fix_from ,
+        "filter=s" => \$fix_filter ,
+    ],
     modify  => [],
     search  => [ 
         "search=s"                      => \$search,
@@ -207,8 +212,12 @@ elsif ($command eq 'migrate') {
     
 }
 elsif ($command eq 'fix') {
-    say "Fixing..." ;
-    $inst->apply_fixes;
+    @fix_from = ('') unless @fix_from ;
+    foreach my $path (@fix_from) {
+        my $node_to_fix = $inst->config_root->grab($path) ;
+        say "Fixing from ",$node_to_fix->name,"..." ;
+        $node_to_fix->apply_fixes($fix_filter);
+    }
     $force_save = 1;
 }
 elsif ( $command eq 'modify' ) {
@@ -445,7 +454,30 @@ For more details, see L<Config::Model::Value/Upgrade>
 
 =head2 fix
 
-Like C<migrate> and, when possible, fix the warnings of a configuration.
+Like C<migrate> and, when possible, fix the warnings of a configuration. Options are:
+
+=over 
+
+=item from
+
+Use option C<-from> to fix only a subset of a configuration tree. Example:
+
+ cme fix dpkg -from 'control binary:foo Depends'
+
+This option can be repeated:
+
+ cme fix dpkg -from 'control binary:foo Depends' -from 'control source Build-Depends'
+ 
+=item filter
+
+Filter the leaf according to a pattern. The pattern is applied to the element name to be fixed
+Example:
+
+ cme fix dpkg -from control -filter Build # will fix all Build-Depends and Build-Depend-Indep
+
+or 
+
+ cme fix dpkg -filter Depend 
 
 =head2 modify
 
