@@ -26,7 +26,6 @@ use Carp qw/carp croak confess cluck/;
 
 my $logger = get_logger("Instance") ;
 my $change_logger = get_logger("Anything::Change") ;
-my $fix_logger = get_logger("Anything::Fix") ;
 
 has [qw/root_class_name/] => (is => 'ro', isa => 'Str', required => 1) ;
 
@@ -154,6 +153,7 @@ has tree => (
     isa => 'Config::Model::Node',
     builder => 'reset_config' ,
     reader => 'config_root' ,
+    handles => [qw/apply_fixes/] ,
 );
 
 sub reset_config {
@@ -392,47 +392,6 @@ sub write_back {
 }
 
 
-sub apply_fixes {
-    my $self = shift ;
-
-    # define leaf call back
-    my $fix_leaf = sub { 
-      my ($scanner, $data_ref, $node,$element_name,$index, $leaf_object) = @_ ;
-      $leaf_object->apply_fixes ;
-    } ;
-
-    my $fix_hash = sub {
-        my ( $scanner, $data_r, $node, $element, @keys ) = @_;
-
-        return unless @keys;
-
-        # leaves must be fixed before the hash, hence the 
-        # calls to scan_hash before apply_fixes
-        map {$scanner->scan_hash($data_r,$node,$element,$_)} @keys ;
-
-        $node->fetch_element($element)->apply_fixes ;
-    } ;
-    
-    my $fix_list = sub {
-        my ( $scanner, $data_r, $node, $element, @keys ) = @_;
-
-        return unless @keys;
-
-        map {$scanner->scan_list($data_r,$node,$element,$_)} @keys ;
-        $node->fetch_element($element)->apply_fixes ;
-    } ;
-    
-   my $scan = Config::Model::ObjTreeScanner-> new ( 
-        hash_element_cb => $fix_hash ,
-        list_element_cb => $fix_list ,
-        leaf_cb => $fix_leaf ,
-        check => 'no',
-    ) ;
-
-    $fix_logger->debug("apply fix started") ;
-    $scan->scan_node(undef, $self->config_root) ;
-    $fix_logger->debug("apply fix done") ;
-}
 
 __PACKAGE__->meta->make_immutable;
 

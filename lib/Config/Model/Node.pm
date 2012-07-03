@@ -35,7 +35,7 @@ my %legal_properties = (
                        ) ;
 
 my $logger = get_logger("Tree::Node") ;
-
+my $fix_logger = get_logger("Anything::Fix") ;
 
 # Here are the legal element types
 my %create_sub_for = 
@@ -1150,6 +1150,49 @@ sub tree_searcher {
     return Config::Model::TreeSearcher->new ( node => $self, @_ );
 }
 
+sub apply_fixes {
+    my $self = shift ;
+    my $filter = shift || '.';
+
+    # define leaf call back
+    my $fix_leaf = sub { 
+      my ($scanner, $data_ref, $node,$element_name,$index, $leaf_object) = @_ ;
+      $leaf_object->apply_fixes if $element_name =~ /$filter/ ;
+    } ;
+
+    my $fix_hash = sub {
+        my ( $scanner, $data_r, $node, $element, @keys ) = @_;
+
+        return unless @keys;
+
+        # leaves must be fixed before the hash, hence the 
+        # calls to scan_hash before apply_fixes
+        map {$scanner->scan_hash($data_r,$node,$element,$_)} @keys ;
+
+        $node->fetch_element($element)->apply_fixes if $element =~ /$filter/ ;
+    } ;
+    
+    my $fix_list = sub {
+        my ( $scanner, $data_r, $node, $element, @keys ) = @_;
+
+        return unless @keys;
+
+        map {$scanner->scan_list($data_r,$node,$element,$_)} @keys ;
+        $node->fetch_element($element)->apply_fixes if $element =~ /$filter/ ;
+    } ;
+    
+   my $scan = Config::Model::ObjTreeScanner-> new ( 
+        hash_element_cb => $fix_hash ,
+        list_element_cb => $fix_list ,
+        leaf_cb => $fix_leaf ,
+        check => 'no',
+    ) ;
+
+    $fix_logger->debug("apply fix started from ",$self->name) ;
+    $scan->scan_node(undef, $self) ;
+    $fix_logger->debug("apply fix done") ;
+}
+
 __PACKAGE__->meta->make_immutable;
 
 1;
@@ -1732,6 +1775,11 @@ Set a value from a directory like path.
 
 Force a read of the configuration and perform all changes regarding 
 deprecated elements or values. Return 1 if data needs to be saved.
+
+=head2 apply_fixes
+
+Scan the tree from this node and apply fixes that are attached to warning specifications. 
+See C<warn_if_match> or C<warn_unless_match> in L<Config::Model::Value/>.
 
 =head2 load ( step => string [, experience => ... ] )
 
