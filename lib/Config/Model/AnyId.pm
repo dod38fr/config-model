@@ -603,7 +603,7 @@ sub check_duplicates {
     return unless @issues ;
     
     if ($apply_fix) {
-        $logger->debug("Fixing duplicates @issues");
+        $logger->debug("Fixing duplicates @issues, removing @to_delete");
         map { $self->remove($_) } reverse @to_delete ;
     }
     elsif ($dup eq 'forbid') {
