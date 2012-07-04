@@ -102,8 +102,9 @@ providing the following file:
     {
         name => 'sdlperl',
         load => 'source Uploaders:2="Sam Hocevar (Debian packages) <sam@zoy.org>"',
-        load_warnings => [ ( qr/Warning/) x 6 ],
+        load_warnings => [ ( qr/Warning/) x 7 ],
         load_check => 'no',
+        check => { 'binary:libsdl-perl Depends:2' => '${misc:Depends}' },
         apply_fix => 1,
     },
     {

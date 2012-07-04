@@ -12,7 +12,7 @@ Vcs-Browser: http://svn.debian.org/viewsvn/pkg-sdl/unstable/sdlperl/
 
 Package: libsdl-perl
 Architecture: any
-Depends: ${perl:Depends}, ${shlibs:Depends}, ${misc:Depends}
+Depends: ${perl:Depends}, ${shlibs:Depends}, perl, ${misc:Depends}
 Suggests: ttf-freefont
 Conflicts: frozen-bubble (<= 1.0.0-4)
 Description: SDL bindings for the Perl language
