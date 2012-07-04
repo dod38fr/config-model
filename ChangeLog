@@ -1,3 +1,11 @@
+2012-07-04  Dominique Dumont  <domi.dumont@free.fr> 2.023
+
+  * Application changes:
+    * Debian dpkg control binary: 
+      * In control binary Depends, replace 'perl' dep with ${perl:Depends}
+        This is implemented as a warning and is changed only if apply_fix is
+        called. Duplicates ${perl:Depends} will also be removed by apply_fix.
+
 2012-07-03  Dominique Dumont  <domi.dumont@free.fr> 2.022
 
   * Application changes:
