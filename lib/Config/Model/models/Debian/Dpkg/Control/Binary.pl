@@ -90,6 +90,12 @@ A package may specify an architecture wildcard. Architecture wildcards are in th
             }
           },
           'value_type' => 'uniline',
+          'warn_if_match' => {
+            '^perl$' => {
+              'msg' => 'perl dependency better written as ${perl:Depends}',
+              'fix' => '$_ = \'${perl:Depends}\';'
+            }
+          },
           'class' => 'Config::Model::Debian::Dependency',
           'type' => 'leaf'
         },
