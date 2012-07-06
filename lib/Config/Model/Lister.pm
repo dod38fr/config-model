@@ -56,11 +56,9 @@ application => model_name
 
 sub available_models {
    
-    my $path = $INC{"Config/Model/Lister.pm"} ;
-    $path =~ s!/Lister\.pm!! ;
     my (%categories, %appli_info, %applications ) ;
 
-    foreach my $dir (glob("$path/*.d")) {
+    foreach my $dir (map { glob("$_/Config/Model/*.d") } @INC ) {
         my ($cat) = ( $dir =~ m!.*/([\w\-]+)\.d! );
 
         if ($cat !~ /^user|system|application$/) {
