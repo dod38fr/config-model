@@ -72,6 +72,9 @@ _cme()
                 fusefs)
                    COMPREPLY=( $( compgen -W "$global_options -fuse-dir -dfuse" -- $cur ) )
                 ;;
+                fix)
+                   COMPREPLY=( $( compgen -W "$global_options -from -filter" -- $cur ) )
+                ;;
             esac
         esac
     fi
