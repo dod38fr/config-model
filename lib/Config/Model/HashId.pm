@@ -307,6 +307,11 @@ sub move_after {
     my $self = shift ;
     my ($key_to_move,$ref_key) = @_ ;
 
+    if (not $self->ordered) {
+        $logger->warn("called move_after on unordered hash") ;
+        return ;
+    }
+
     foreach my $k (@_) {
         Config::Model::Exception::User
             -> throw (
@@ -338,6 +343,11 @@ sub move_up {
     my $self = shift ;
     my ($key) = @_ ;
 
+    if (not $self->ordered) {
+        $logger->warn("called move_up on unordered hash") ;
+        return ;
+    }
+
     Config::Model::Exception::User
         -> throw (
                   object => $self,
@@ -360,6 +370,11 @@ sub move_up {
 sub move_down {
     my $self = shift ;
     my ($key) = @_ ;
+
+    if (not $self->ordered) {
+        $logger->warn("called move_down on unordered hash") ;
+        return ;
+    }
 
     Config::Model::Exception::User
         -> throw (
