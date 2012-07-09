@@ -262,7 +262,7 @@ sub check_perl_lib_dep {
     my @dep_name_as_perl = Module::CoreList->find_modules(qr/^$pname$/i) ; 
     return $ret unless @dep_name_as_perl;
 
-    my $v_decimal = Module::CoreList->first_release( $dep_name_as_perl[0], $dep_v );
+    my $v_decimal = Module::CoreList->first_release( $dep_name_as_perl[0], version->parse( $dep_v ) );
     return $ret unless defined $v_decimal;
 
     my $v_normal = version->new($v_decimal)->normal;
