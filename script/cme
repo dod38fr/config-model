@@ -479,6 +479,8 @@ or
 
  cme fix dpkg -filter Depend 
 
+=back
+
 =head2 modify
 
 Modify a configuration file with the values passed on the command line.
