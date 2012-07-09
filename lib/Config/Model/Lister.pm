@@ -55,10 +55,13 @@ application => model_name
 =cut
 
 sub available_models {
+    my $test = shift || 0 ;
    
     my (%categories, %appli_info, %applications ) ;
+    my %done_cat ;
+    my @dir_to_scan = $test ? qw/lib/ : @INC ;
 
-    foreach my $dir (map { glob("$_/Config/Model/*.d") } @INC ) {
+    foreach my $dir (map { glob("$_/Config/Model/*.d") } @dir_to_scan ) {
         my ($cat) = ( $dir =~ m!.*/([\w\-]+)\.d! );
 
         if ($cat !~ /^user|system|application$/) {
@@ -77,7 +80,11 @@ sub available_models {
                 s/#.*// ;
                 my ($k,$v) = split /\s*=\s*/ ;
                 next unless $v ;
-                push @{$categories{$cat}} , $appli if $k =~ /model/i;
+                if ($k =~ /model/i) {
+                    push @{$categories{$cat}} , $appli unless $done_cat{$cat}{$appli} ;
+                    $done_cat{$cat}{$appli} = 1 ;
+                }
+                
                 $appli_info{$appli}{$k} = $v ; 
                 $applications{$appli} = $v if $k =~ /model/i; 
             }
