@@ -268,6 +268,8 @@ sub move {
         delete $self->{warning_hash}{$from} ;
         # update index_value attribute in moved objects
         $self->{data}{$to}->index_value($to) ;
+        
+        $self->notify_change(note => "rename key from $from to $to");
 
         # data_mode is preset or layered or user. Actually only user
         # mode makes sense here
@@ -336,6 +338,9 @@ sub move_after {
     } else {
         unshift @$list , $key_to_move ;
     }
+
+    $self->notify_change(note => "moved key $key_to_move after $ref_key") ;
+
 }
 
 
@@ -361,9 +366,13 @@ sub move_up {
         if ($list->[$idx] eq $key) {
             $list->[$idx]   = $list->[$idx-1];
             $list->[$idx-1] = $key ;
+            $self->notify_change(note => "moved up key $key") ;
             last ;
         }
     }
+
+    # notify_change is placed in the loop so the notification
+    # is not sent if the user tries to move up idx 0
 }
 
 
@@ -389,9 +398,13 @@ sub move_down {
         if ($list->[$idx] eq $key) {
             $list->[$idx]   = $list->[$idx+1];
             $list->[$idx+1] = $key ;
+            $self->notify_change(note => "moved down key $key") ;
             last ;
         }
     }
+
+    # notify_change is placed in the loop so the notification
+    # is not sent if the user tries to move past last idx
 }
 
 
