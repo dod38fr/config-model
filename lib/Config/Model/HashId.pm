@@ -328,6 +328,7 @@ sub move_after {
 
     my $list = $self->{list} ;
 
+    my $msg ;
     if (defined $ref_key) {
         for (my $idx = 0; $idx <= $#$list; $idx ++ ) {
             if ($list->[$idx] eq $ref_key) {
@@ -335,11 +336,15 @@ sub move_after {
                 last;
             }
         }
+
+        $msg = "moved key $key_to_move after $ref_key" ;
     } else {
         unshift @$list , $key_to_move ;
+        $msg = "moved key $key_to_move at beginning" ;
     }
 
-    $self->notify_change(note => "moved key $key_to_move after $ref_key") ;
+
+    $self->notify_change( note => $msg ) ;
 
 }
 
