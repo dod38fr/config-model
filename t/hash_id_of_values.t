@@ -3,7 +3,7 @@
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
-use Test::More tests => 88;
+use Test::More tests => 94;
 use Test::Memory::Cycle;
 use Config::Model ;
 use Test::Exception ;
@@ -322,6 +322,7 @@ eq_or_diff([$oh->fetch_all_indexes], [qw/z x a/],
 $inst->clear_changes ;
 
 $oh ->swap(qw/z x/) ;
+is($inst->needs_save,1,"verify instance needs_save status after swap") ;
 print scalar $inst->list_changes,"\n" if $trace ;
 $inst->clear_changes ;
 
@@ -333,12 +334,19 @@ $oh ->swap(qw/a z/) ;
 eq_or_diff([$oh->fetch_all_indexes], [qw/x a z/],
 	 "check index order of ordered_hash after swap(a z)") ;
 
+$inst->clear_changes ;
 $oh ->move_up(qw/a/) ;
+is($inst->needs_save,1,"verify instance needs_save status after move_up") ;
+print scalar $inst->list_changes,"\n" if $trace ;
+$inst->clear_changes ;
 
 eq_or_diff([$oh->fetch_all_indexes], [qw/a x z/],
 	 "check index order of ordered_hash after move_up(a)") ;
 
 $oh ->move_down(qw/x/) ;
+is($inst->needs_save,1,"verify instance needs_save status after move_down") ;
+print scalar $inst->list_changes,"\n" if $trace ;
+$inst->clear_changes ;
 
 eq_or_diff([$oh->fetch_all_indexes], [qw/a z x/],
 	 "check index order of ordered_hash after move_down(x)") ;
@@ -346,6 +354,10 @@ eq_or_diff([$oh->fetch_all_indexes], [qw/a z x/],
 is($oh->fetch_with_id('x')->fetch, '2x',"Check copied value") ;
 
 $oh->copy(qw/x d/) ;
+is($inst->needs_save,1,"verify instance needs_save status after copy") ;
+print scalar $inst->list_changes,"\n" if $trace ;
+$inst->clear_changes ;
+
 eq_or_diff([$oh->fetch_all_indexes], [qw/a z x d/],
 	 "check index order of ordered_hash after copy(x d)") ;
 is($oh->fetch_with_id('d')->fetch, '2x',"Check copied value") ;
@@ -355,13 +367,20 @@ eq_or_diff([$oh->fetch_all_indexes], [qw/a z x d e/],
 	 "check index order of ordered_hash after copy(a e)") ;
 is($oh->fetch_with_id('e')->fetch, '3a',"Check copied value") ;
 
+$inst->clear_changes ;
 $oh->move_after('d') ;
 eq_or_diff([$oh->fetch_all_indexes], [qw/d a z x e/],
 	 "check index order of ordered_hash after move_after(d)") ;
+is($inst->needs_save,1,"verify instance needs_save status after move_after") ;
+print scalar $inst->list_changes,"\n" if $trace ;
+$inst->clear_changes ;
 
 $oh->move_after('d','z') ;
 eq_or_diff([$oh->fetch_all_indexes], [qw/a z d x e/],
 	 "check index order of ordered_hash after move_after(d z)") ;
+is($inst->needs_save,1,"verify instance needs_save status after move_after") ;
+print scalar $inst->list_changes,"\n" if $trace ;
+$inst->clear_changes ;
 
 $oh->move_after('d','e') ;
 eq_or_diff([$oh->fetch_all_indexes], [qw/a z x e d/],
