@@ -222,6 +222,7 @@ sub move {
     if ($ok or $check eq 'no') {
         $self->_store($to, $moved) ;
         $moved->index_value($to) ;
+        $self->notify_change(note => "moved from index $from to $to") ;
         my $imode = $self->instance->get_data_mode ;
         $self->set_data_mode( $to, $imode ) ;
     }
