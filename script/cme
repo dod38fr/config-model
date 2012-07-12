@@ -61,6 +61,7 @@ my $fuse_debug  = 0;
 my $apply_fixes = 0;
 my $search;
 my $search_type = 'all';
+my $dir_char_mockup ;
 
 
 my %command_option = (
@@ -84,6 +85,7 @@ my %command_option = (
     fusefs => [
         "fuse_dir|fuse-dir=s" => \$fuse_dir,
         "dfuse!"              => \$fuse_debug,
+        "dir-char=s"          => \$dir_char_mockup ,
     ],
 );
 
@@ -230,9 +232,12 @@ elsif ( $command =~ /^fuse/ ) {
     die "Missing -fuse_dir option\n" unless defined $fuse_dir;
     die "Directory $fuse_dir does not exists\n" unless -d $fuse_dir;
 
+    my @extra ;
+    push @extra, dir_char_mockup => $dir_char_mockup if  $dir_char_mockup ;
     my $ui = Config::Model::FuseUI->new(
         root       => $root,
         mountpoint => "$fuse_dir",
+        @extra ,
     );
 
     print "Mounting config on $fuse_dir in background.\n",
@@ -444,7 +449,7 @@ and errors on STDOUT.
 Example:
 
  cme check lcdproc
- 
+
 =head2 migrate
 
 Checks the content of the configuration file of an application, update deprecated
@@ -467,7 +472,7 @@ Use option C<-from> to fix only a subset of a configuration tree. Example:
 This option can be repeated:
 
  cme fix dpkg -from 'control binary:foo Depends' -from 'control source Build-Depends'
- 
+
 =item filter
 
 Filter the leaf according to a pattern. The pattern is applied to the element name to be fixed
@@ -546,7 +551,7 @@ Dump configuration content on STDOUT with Config::Model syntax.
 By default, dump only custom values, i.e. different from application
 built-in values or model default values. You can use the C<-dumptype> option for
 other types of dump:
- 
+
  -dumptype [ full | preset | custom ]
 
 Choose to dump every values (full), only preset values or only
@@ -554,12 +559,29 @@ customized values (default)
 
 =head2 fusefs 
 
-Map the configuration file content to a FUSE virtual file system. 
-You must give a directory where
-the virtual file system will be mounted with option C<-fuse-dir>. 
-To stop (and write the configuration data back to the configuration file), 
-run C<< fusermount -u <mounted_fuse_dir> >>. Use C<-dfuse> option to debug
-fuse problems.
+Map the configuration file content to a FUSE virtual file system on a
+directory specified with option C<-fuse-dir>. To stop (and write the
+configuration data back to the configuration file), run C<< fusermount
+-u <mounted_fuse_dir> >>.
+
+Options:
+
+=over
+
+=item -fuse-dir
+
+Mandatory. Directory where the virtual file system will be mounted.
+
+=item -dfuse
+
+Use this option to debug fuse problems.
+
+=item -dir-char
+
+Fuse will fail if an element name or key name contains '/'. You can specify a 
+subsitution string to replace '/' in the fused dir. Default is C<< <slash> >>.
+
+=back
 
 =head1 Global options
 
