@@ -12,7 +12,7 @@ use Config::Model;
 use Config::Model::AnyId;
 use Log::Log4perl qw(:easy :levels) ;
 
-BEGIN { plan tests => 105; }
+BEGIN { plan tests => 107; }
 
 use strict;
 
@@ -246,7 +246,13 @@ foreach my $item (@set) {
     $ol->fetch_with_id( $i++ )->fetch_element($e)->store($v);
 }
 
+$inst->clear_changes ;
+
 $ol->move( 3, 4 );
+is($inst->needs_save,1,"verify instance needs_save status after move") ;
+print scalar $inst->list_changes,"\n" if $trace ;
+$inst->clear_changes ;
+
 is( $ol->fetch_with_id(3)->fetch_element('Z')->fetch,
     undef, "check after move idx 3 in 4" );
 is( $ol->fetch_with_id(4)->fetch_element('Z')->fetch,
@@ -256,6 +262,10 @@ map {
 } ( 0 .. 4 );
 
 $ol->swap( 0, 2 );
+is($inst->needs_save,1,"verify instance needs_save status after move") ;
+print scalar $inst->list_changes,"\n" if $trace ;
+$inst->clear_changes ;
+
 is( $ol->fetch_with_id(0)->fetch_element('X')->fetch,
     undef, "check after move idx 0 in 2" );
 is( $ol->fetch_with_id(0)->fetch_element('Y')->fetch, 'Av',
@@ -401,4 +411,4 @@ $inst->layered_clear ;
 eq_or_diff( [ $pl->fetch_all_indexes ], [0] ,"check that only layered stuff was cleared");
 is($pl->fetch_with_id(0)->fetch,'bar',"check that bar was moved from 1 to 0");
 $pl->clear ;
-memory_cycle_ok($model);
+memory_cycle_ok($model,"memory cycles");
