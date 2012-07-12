@@ -668,6 +668,16 @@ sub get {
     my $get_obj = delete $args{get_obj} || 0 ;
     $path =~ s!^/!! ;
     my ($item,$new_path) = split m!/!,$path,2 ;
+    
+    my $dcm = $args{dir_char_mockup} ;
+    # $item =~ s($dcm)(/)g if $dcm ;
+    if ($dcm) {
+        while (1) {
+            my $i = index($item,$dcm) ;
+            last if $i == -1 ;
+            substr $item, $i, length ($dcm), '/' ;
+        }
+    }
 
     return unless ($self->exists($item) or $autoadd) ;
 
@@ -1360,9 +1370,47 @@ Returns the number of fixes that can be applied to the current value.
 Fetch the collected element held by the hash or list. Index check is 'yes' by default.
 Can be called with one parameter which will be used as index.
 
-=head2 C<get( path => ..., mode => ... ,  check => ... , get_obj => 1|0, autoadd => 1|0)>
+=head2 get(...)
 
-Get a value from a directory like path.
+Get a value from a directory like path. Parameters are:
+
+=over
+
+=item path
+
+Poor man's version of XPath style path. This string is in the form:
+
+ /foo/bar/4
+
+Each word between the '/' is either an element name or a hash key or a list index. 
+
+=item mode
+
+Either C<default>, C<custom>, C<user>,... 
+See C<mode> parameter in <Config::Model::Value/"fetch( ... )">
+
+=item check
+
+Either C<skip>, C<no>
+
+=item get_obj
+
+If the path leads to a leaf, this parameter tell whether to return 
+the stored value or the value object. 
+
+=item autoadd
+
+Whether to create missing keys
+
+=item dir_char_mockup
+
+When the hash key used contains '/', (for instance a directory value),
+the key cannot be used as is with this method. Because '/' is already
+used to separate configuration items (this is also important with
+L<Config::Model::FuseUI>). This parameter specifies how the forbidden
+'/' char is shown in the path. Default is C<< <slash> >>
+
+=back
 
 =head2 set( path, value )
 
