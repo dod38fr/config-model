@@ -7,6 +7,7 @@ use Path::Class ;
 use Test::Memory::Cycle;
 use Config::Model;
 use Config;
+use Config::Model::FuseUI ;
 
 if ($Config{osname} ne 'linux') {
     plan skip_all => "Not a Linux system" ;
@@ -38,7 +39,7 @@ if ( $@ ) {
     plan skip_all => "Config::Model::FuseUI or Fuse is not installed";
 }
 else {
-    plan tests => 14;
+    plan tests => 16;
 }
 
 use warnings FATAL => qw(all);
@@ -99,16 +100,18 @@ ok($inst,"created dummy instance") ;
 
 my $root = $inst -> config_root ;
 
-my $step = 'std_id:ab X=Bv - std_id:bc X=Av - a_string="toto tata"';
+my $step = 'std_id:ab X=Bv - std_id:bc X=Av - std_id:"a/c" X=Av - a_string="toto tata"';
 ok( $root->load( step => $step, experience => 'advanced' ),
   "set up data in tree with '$step'");
 
 my $ui = Config::Model::FuseUI->new(
     root => $root , 
     mountpoint => "$fused",
+    dir_char_mockup => '\\' ,
 );
+my $dir_char_mockup = $ui->dir_char_mockup ;
 
-ok($ui,"Created ui") ;
+ok($ui,"Created ui (dir mockup is $dir_char_mockup)") ;
 
 # now fork 
 my $pid = fork ;
@@ -132,6 +135,7 @@ is_deeply( \@content ,[sort $root->get_element_name() ],"check $fused content");
 my $std_id = $fused->subdir('std_id') ;
 @content = sort map { $_->relative($std_id) ; } $std_id-> children ;
 my @std_id_elements = sort $root->fetch_element('std_id')->fetch_all_indexes() ;
+map { s(/){$dir_char_mockup}g; } @std_id_elements ;
 is_deeply( \@content , \@std_id_elements ,"check $std_id content (@content)");
 
 is( $fused->file('a_string')->slurp , $root->grab_value('a_string')."\n",
@@ -143,10 +147,12 @@ $a_string_fhw->close ;
 is( $fused->file('a_string')->slurp , "foo bar\n", "check new a_string content");
 
 $std_id->subdir('cd')->mkpath() ;
+ok(1,"mkpath on cd dir done") ;
 @content = sort map { $_->relative($std_id) ; } $std_id-> children ;
 is_deeply( \@content ,  [ @std_id_elements, 'cd' ] ,"check $std_id new content (@content)");
 
 $std_id->subdir('cd')->rmtree() ;
+ok(1,"rmtree on cd dir done") ;
 @content = sort map { $_->relative($std_id) ; } $std_id-> children ;
 is_deeply( \@content ,  \@std_id_elements ,"check $std_id content after rmdir (@content)");
 
@@ -174,4 +180,4 @@ END {
 
 
 
-memory_cycle_ok($model);
+memory_cycle_ok($model,"memory cycles");
