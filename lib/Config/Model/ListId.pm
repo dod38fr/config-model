@@ -293,8 +293,7 @@ sub swap {
     $self->{data}[$ida] = $objb ;
     $self->{data}[$idb] = $obja ;
     
-    $self->notify_change(index => $ida) ;
-    $self->notify_change(index => $idb) ;
+    $self->notify_change(note => "swapped index $ida and $idb") ;
 }
 
 #die "check index number after wap";
