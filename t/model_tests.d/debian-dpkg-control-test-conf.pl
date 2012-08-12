@@ -122,6 +122,11 @@ providing the following file:
         load_warnings => [ ( qr/Warning/) x 3 ],
         apply_fix => 1,
     },
+    {
+        name => 'libmodule-metadata-perl',
+        load_warnings => [ ( qr/Warning/) x 3 ],
+        apply_fix => 1,
+    },
 );
 
 my $cache_file = 't/model_tests.d/debian-dependency-cache.txt';
