@@ -123,8 +123,15 @@ providing the following file:
         apply_fix => 1,
     },
     {
+        # test for #683861
         name => 'libmodule-metadata-perl',
         load_warnings => [ ( qr/Warning/) x 3 ],
+        apply_fix => 1,
+    },
+    {
+        # test for #682730
+        name => 'libclass-meta-perl',
+        check => { 'source Build-Depends-Indep:1' => 'libclass-isa-perl | perl (<< 5.10.1-13)' },
         apply_fix => 1,
     },
 );

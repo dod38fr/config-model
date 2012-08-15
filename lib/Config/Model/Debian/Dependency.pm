@@ -211,6 +211,8 @@ sub check_pkg_name {
 }
 
 # called in Parse::RecDescent grammar
+# @input contains the alternates dependencies (without '|') of one dependency values
+# a bit like @input = split /|/, $dependency
 sub check_depend_chain {
     my ($self, $apply_fix, $v_ref, @input) = @_ ;
     
@@ -218,22 +220,31 @@ sub check_depend_chain {
     # modified by check_dep. Hence the validity of the versioned dependencies
     # must also be checked in this method
     
+    my $skip = 0 ;
     my @alternatives ;
     foreach my $d (@input) {
         my $line = '';
         if( ref ($d) ) {
             $line .= "$d->[1]";
+            # skip test for relations like << or < 
+            $skip ++ if defined $d->[2] and $d->[2] =~ /</ ;
             $line .= " ($d->[2] $d->[3])" if defined $d->[3];
         }
         else { $line .= $d ; } ;
         push @alternatives, $line ;
     }
+    
     my $actual_dep = join (' | ',@alternatives);
     my $ret = 1 ;
     $logger->debug("check_depend_chain: called with $actual_dep");
+
+    if ($skip) {
+        $logger->debug("skipping '$actual_dep': has a < relation ship") ;
+        return $ret ;
+    }
     
     foreach my $depend (@input) {
-        next unless ref ($depend) ;
+        next unless ref ($depend) ; # no relations
         my ($ok, $dep_name, $oper, $dep_v) = @$depend ;
         $logger->debug("check_depend_chain: scanning dependency $dep_name".(defined $dep_v ? " $dep_v" : ''));
         if ($dep_name =~ /lib([\w+\-]+)-perl/) {
