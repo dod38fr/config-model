@@ -1,4 +1,5 @@
 clustalw => etch/non-free 1.83-1.2 lenny/non-free 2.0.9-1 squeeze/non-free 2.0.12-1 wheezy 2.1+lgpl-2 sid 2.1+lgpl-2 sid 2.1+lgpl-2+b1
+dpkg => squeeze 1.15.8.12 wheezy 1.16.8 sid 1.16.8
 frozen-bubble => etch 2.1.0-1 lenny 2.1.0-2 lenny 2.1.0-2+b1 squeeze 2.2.0-2 wheezy 2.2.0-2 sid 2.2.0-2 wheezy 2.2.0-2+b1 sid 2.2.0-2+b1
 gdm => etch 2.16.4-1 lenny 2.20.7-4lenny1 squeeze 2.20.11-4 wheezy 2.20.11-4
 hal => lenny 0.5.11-8 squeeze 0.5.14-3 wheezy 0.5.14-5 sid 0.5.14-5
