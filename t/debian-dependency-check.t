@@ -6,6 +6,7 @@ BEGIN {
     no warnings 'once';
     my $sep = chr(28);
     %Config::Model::Debian::Dependency::cache = (
+        'perl-modules' => 'lenny 5.10.0-19lenny3 squeeze 5.10.1-17 sid 5.10.1-17 experimental 5.12.0-2 experimental 5.12.2-2',
         'perl' => 'lenny 5.10.0-19lenny3 squeeze 5.10.1-17 sid 5.10.1-17 experimental 5.12.0-2 experimental 5.12.2-2',
         'debhelper' => 'etch 5.0.42 backports/etch 7.0.15~bpo40+2 lenny 7.0.15 backports/lenny 8.0.0~bpo50+2 squeeze 8.0.0 wheezy 8.1.2 sid 8.1.2',
         'libcpan-meta-perl' => 'squeeze 2.101670-1 wheezy 2.110580-1 sid 2.110580-1',
@@ -13,6 +14,7 @@ BEGIN {
         'xserver-xorg-input-evdev' => 'etch 1:1.1.2-6 lenny 1:2.0.8-1 squeeze 1:2.3.2-6 wheezy 1:2.3.2-6 sid 1:2.6.0-2 experimental 1:2.6.0-3',
         'lcdproc' => 'etch 0.4.5-1.1 lenny 0.4.5-1.1 squeeze 0.5.2-3 wheezy 0.5.2-3.1 sid 0.5.2-3.1',
         'libsdl1.2' => '', # only source
+        'dpkg' => 'squeeze 1.15 wheezy 1.16 sid 1.16',
     );
     my $t = time ;
     map { $_ = "$t $_"} values %Config::Model::Debian::Dependency::cache ;
@@ -34,7 +36,7 @@ if ( $@ ) {
     plan skip_all => "AptPkg::Config is not installed";
 }
 elsif ( -r '/etc/debian_version' ) {
-    plan tests => 27;
+    plan tests => 35;
 }
 else {
     plan skip_all => "Not a Debian system";
@@ -64,6 +66,12 @@ else {
 $show               = 1 if $arg =~ /s/;
 $one                = 1 if $arg =~ /1/;
 
+{
+    no warnings qw/once/;
+    $::RD_HINT  = 1 if $arg =~ /rdt?h/;
+    $::RD_TRACE = 1 if $arg =~ /rdh?t/;
+}
+
 my $model = Config::Model -> new ( ) ;
 
 {
@@ -75,7 +83,7 @@ my $control_text = <<'EOD' ;
 Source: libdist-zilla-plugins-cjm-perl
 Section: perl
 Priority: optional
-Build-Depends: debhelper, libsdl1.2
+Build-Depends: debhelper, libsdl1.2, dpkg
 Build-Depends-Indep: libcpan-meta-perl, perl (>= 5.10) | libmodule-build-perl,
 Maintainer: Debian Perl Group <pkg-perl-maintainers@lists.alioth.debian.org>
 Uploaders: Dominique Dumont <dominique.dumont@hp.com>
@@ -85,7 +93,7 @@ Homepage: http://search.cpan.org/dist/Dist-Zilla-Plugins-CJM/
 Package: libdist-zilla-plugins-cjm-perl
 Architecture: all
 Depends: ${misc:Depends}, ${perl:Depends}, libcpan-meta-perl ,
- perl (>= 5.10.1)
+ perl (>= 5.10.1), dpkg (>= 0.01), perl-modules
 Description: collection of CJM's plugins for Dist::Zilla
  Collection of Dist::Zilla plugins. This package features the 
  following [snip]  
@@ -114,7 +122,9 @@ my $inst = $model->instance (
     instance_name   => "deptest",
 );
 warning_like { $inst->config_root->init ; ; }
- [ qr/is unknown/, (qr/dual life/) , qr/unnecessary/, ( qr/dual life/) x 2] , "test BDI warn";
+ [ qr/is unknown/, qr/unnecessary/, (qr/dual life/) , qr/unnecessary/, 
+   ( qr/dual life/) x 2 , (qr/unnecessary/) x 1 ] ,
+  "test BDI warn";
 
 ok($inst,"Read $control_file and created instance") ;
 
@@ -128,11 +138,29 @@ if ($trace) {
 my $perl_dep = $control->grab("binary:libdist-zilla-plugins-cjm-perl Depends:3");
 is($perl_dep->fetch,"perl (>= 5.10.1)","check dependency value from config tree");
 
-my @ret = $perl_dep->check_dep('perl','>=','5.28.1') ;
+my @ret = $perl_dep->check_versioned_dep(['perl','>=','5.28.1']) ;
 is($ret[0],1,"check perl (>= 5.28.1) dependency: has older version");
 
-@ret = $perl_dep->check_dep('perl','>=','5.6.0') ;
+@ret = $perl_dep->check_versioned_dep(['perl','>=','5.6.0']) ;
 is($ret[0],0,"check perl (>= 5.6.0) dependency: no older version");
+
+my $dpkg_dep = $control->grab("source Build-Depends:2");
+is($dpkg_dep->fetch,"dpkg",'check dpkg value') ;
+# test fixes
+is($dpkg_dep->has_fixes,1, "test presence of fixes");
+$dpkg_dep->apply_fixes;
+is($dpkg_dep->has_fixes,0, "test that fixes are gone");
+is($dpkg_dep->fetch,undef,'check fixed dpkg value') ;
+
+$dpkg_dep = $control->grab("binary:libdist-zilla-plugins-cjm-perl Depends:4");
+is($dpkg_dep->fetch,"dpkg (>= 0.01)",'check dpkg value with unnecessary versioned dep') ;
+# test fixes
+is($dpkg_dep->has_fixes,1, "test presence of fixes");
+$dpkg_dep->apply_fixes;
+is($dpkg_dep->has_fixes,0, "test that fixes are gone");
+is($dpkg_dep->fetch,undef,'check fixed dpkg value') ;
+
+
 
 # check parser and grammer
 my $parser = $perl_dep->dep_parser ;
@@ -183,6 +211,7 @@ warning_like { $bdi_val = $perl_bdi->fetch ; } [ ], "check that no BDI warn are 
 
 is($bdi_val,"perl (>= 5.10) | libmodule-build-perl","check B-D-I dependency value from config tree");
 my $msgs = $perl_bdi->warning_msg ;
+print "bdi warning: $msgs" if $trace ;
 like($msgs,qr/dual life/,"check store with old version: trap perl | libmodule");
 like($msgs,qr/unnecessary versioned dependency/,"check store with old version: trap version");
 
@@ -200,6 +229,6 @@ is($perl_bdi->has_fixes,0, "test that fixes are gone");
 @msgs = $perl_bdi->warning_msg ;
 is_deeply(\@msgs,[],"check that warnings are gone");
 
-is($inst->c_count, 2,"check that fixes are tracked with notify changes") ;
+is($inst->c_count, 1,"check that fixes are tracked with notify changes") ;
 
 memory_cycle_ok($model);
