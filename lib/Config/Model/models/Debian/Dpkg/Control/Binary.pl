@@ -86,7 +86,7 @@ A package may specify an architecture wildcard. Architecture wildcards are in th
             'libtiff4 transition' => {
               'msg' => 'libtiff4 is transtioning to versioned symbols. New packages should build-depend on libtiff4 (>= 3.9.5-2).',
               'fix' => '$_ = \'libtiff4 (>= 3.9.5-2)\';',
-              'code' => 'not /libtiff4/ or /libtiff4\\s*\\(>=\\s*3.9.5-2\\s*\\)/'
+              'code' => 'not defined $_ or not /libtiff4/ or /libtiff4\\s*\\(>=\\s*3.9.5-2\\s*\\)/'
             }
           },
           'value_type' => 'uniline',
