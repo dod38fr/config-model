@@ -1,0 +1,51 @@
+=head1 NAME
+
+Config::Model::models::LCDd::SureElec - Configuration class LCDd::SureElec
+
+=head1 DESCRIPTION
+
+Configuration classes used by L<Config::Model>
+
+generated from LCDd.conf
+
+=head1 Elements
+
+=head2 Device
+
+Port the device is connected to  (by default first USB serial port)I<< Optional. Type uniline. default: '/dev/ttyUSB0'.  >>
+
+=head2 Edition
+
+Edition level of the device (can be 1, 2 or 3) I<< Optional. Type uniline. upstream_default: '2'.  >>
+
+=head2 Size
+
+set display size
+Note: The size can be obtained directly from device for edition 2 & 3.I<< Optional. Type uniline. default: '16x2'.  >>
+
+=head2 Contrast
+
+Set the initial contrast I<< Optional. Type integer. upstream_default: '480'.  >>
+
+=head2 Brightness
+
+Set the initial brightness I<< Optional. Type integer. upstream_default: '480'.  >>
+
+=head2 OffBrightness
+
+Set the initial off-brightness 
+This value is used when the display is normally
+switched off in case LCDd is inactive. I<< Optional. Type integer. upstream_default: '100'.  >>
+
+=head1 SEE ALSO
+
+=over
+
+=item *
+
+L<cme>
+
+=back
+
+=cut
+

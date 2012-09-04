@@ -1,0 +1,71 @@
+=head1 NAME
+
+Config::Model::models::LCDd::CFontzPacket - Configuration class LCDd::CFontzPacket
+
+=head1 DESCRIPTION
+
+Configuration classes used by L<Config::Model>
+
+generated from LCDd.conf
+
+=head1 Elements
+
+=head2 Model
+
+Select the LCD model I<< Optional. Type enum. choice: '533', '631', '633', '635'. upstream_default: '633'.  >>
+
+=head2 Device
+
+Select the output device to use I<< Optional. Type uniline. upstream_default: '/dev/lcd'.  >>
+
+=head2 Contrast
+
+Set the initial contrast I<< Optional. Type integer. upstream_default: '560'.  >>
+
+=head2 Brightness
+
+Set the initial brightness I<< Optional. Type integer. upstream_default: '1000'.  >>
+
+=head2 OffBrightness
+
+Set the initial off-brightness 
+This value is used when the display is normally
+switched off in case LCDd is inactive. I<< Optional. Type integer. upstream_default: '0'.  >>
+
+=head2 Reboot
+
+Reinitialize the LCD's BIOS on driver start. I<< Optional. Type enum. choice: 'yes', 'no'. upstream_default: 'no'.  >>
+
+=head2 USB
+
+Enable the USB flag if the device is connected to an USB port. For
+serial ports leave it disabled. I<< Optional. Type enum. choice: 'yes', 'no'. upstream_default: 'no'.  >>
+
+=head2 OldFirmware
+
+Very old 633 firmware versions do not support partial screen updates using
+'Send Data to LCD' command (31). For those devices it may be necessary to
+enable this flag. I<< Optional. Type enum. choice: 'yes', 'no'. upstream_default: 'no'.  >>
+
+=head2 Size
+
+Override the LCD size known for the selected model. Usually setting this
+value should not be necessary.I<< Optional. Type uniline. default: '20x4'.  >>
+
+=head2 Speed
+
+Override the default communication speed known for the selected model.
+Default value depends on model I<< Optional. Type enum. choice: '19200', '115200'.  >>
+
+=head1 SEE ALSO
+
+=over
+
+=item *
+
+L<cme>
+
+=back
+
+=cut
+

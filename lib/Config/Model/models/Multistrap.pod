@@ -1,0 +1,94 @@
+=head1 NAME
+
+Config::Model::models::Multistrap - Configuration class Multistrap
+
+=head1 DESCRIPTION
+
+Configuration classes used by L<Config::Model>
+
+Class for multistrap configuration files. Note that multistrap is based on INI where section and keys are case insensitive. Hence all sections and keys are converted to lower case and written back as lower case. Most values (but not all) are also case-insensitive. These values will also be written back as lowercase.
+
+=head1 Elements
+
+=head2 include - Include file for cascaded configuration
+
+To support multiple variants of a basic (common) configuration, "multistrap" allows configuration files to include other (more general) configuration files. i.e. the most detailed / specific configuration file is specified on the command line and that file includes another file which is shared by other configurations.I<< Optional. Type uniline.  >>
+
+=head2 arch
+
+I<< Optional. Type enum. choice: 'alpha', 'arm', 'armel', 'powerpc'.  >>
+
+=head2 directory - target directory
+
+top level directory where the bootstrap will be created. I<< Optional. Type uniline.  >>
+
+=head2 aptsources
+
+aptsources is a list of sections to be used in the /etc/apt/sources.list.d/multistrap.sources.list of the target. Order is not important.I<< Optional. Type list of reference.  >>
+
+=head2 bootstrap
+
+the bootstrap option determines which repository is used to calculate the list of Priority: required packages and which packages go into the rootfs. The order of sections is not important.I<< Optional. Type list of reference.  >>
+
+=head2 debootstrap
+
+Replaced by bootstrap parameter. B<Deprecated> I<< Optional. Type list of reference.  >>
+
+=head2 omitrequired
+
+I<< Optional. Type boolean.  >>
+
+=head2 addimportant
+
+I<< Optional. Type boolean.  >>
+
+=head2 configscript
+
+I<< Optional. Type uniline.  >>
+
+=head2 setupscript
+
+I<< Optional. Type uniline.  >>
+
+=head2 cleanup
+
+remove apt cache data, downloaded Packages files and the apt package cache.I<< Optional. Type boolean.  >>
+
+=head2 noauth
+
+allow the use of unauthenticated repositories. I<< Optional. Type boolean.  >>
+
+=head2 explicitsuite
+
+whether to add the /suite to be explicit about where apt needs to look for packages.I<< Optional. Type boolean. upstream_default: '0'.  >>
+
+=head2 unpack - extract all downloaded archives
+
+I<< Optional. Type boolean. upstream_default: '1'.  >>
+
+Note: unpack is migrated with 'C<$old>' and with $old => "C<- forceunpack>"
+
+=head2 sections
+
+I<< Optional. Type hash of node.  >>
+
+=head2 forceunpack - extract all downloaded archives
+
+deprecated. Replaced by unpack. B<Deprecated> I<< Optional. Type boolean. upstream_default: '1'.  >>
+
+=head1 SEE ALSO
+
+=over
+
+=item *
+
+L<cme>
+
+=item *
+
+L<Config::Model::models::Multistrap::Section>
+
+=back
+
+=cut
+

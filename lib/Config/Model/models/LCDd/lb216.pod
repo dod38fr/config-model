@@ -1,0 +1,40 @@
+=head1 NAME
+
+Config::Model::models::LCDd::lb216 - Configuration class LCDd::lb216
+
+=head1 DESCRIPTION
+
+Configuration classes used by L<Config::Model>
+
+generated from LCDd.conf
+
+=head1 Elements
+
+=head2 Device
+
+Select the output device to use I<< Optional. Type uniline. upstream_default: '/dev/lcd'.  >>
+
+=head2 Brightness
+
+Set the initial brightness I<< Optional. Type integer. upstream_default: '255'.  >>
+
+=head2 Speed
+
+Set the communication speed I<< Optional. Type enum. choice: '2400', '9600'. upstream_default: '9600'.  >>
+
+=head2 Reboot
+
+Reinitialize the LCD's BIOS I<< Optional. Type enum. choice: 'yes', 'no'. upstream_default: 'no'.  >>
+
+=head1 SEE ALSO
+
+=over
+
+=item *
+
+L<cme>
+
+=back
+
+=cut
+

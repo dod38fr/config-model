@@ -1,0 +1,32 @@
+## yada
+
+[server]
+
+DriverPath=/usr/lib/lcdproc/
+
+Driver=curses
+
+# Tells the driver to bind to the given interface
+Bind=127.0.0.1
+
+# Listen on this specified port; defaults to 13666.
+Port=13666
+
+Hello="  Bienvenue"
+Hello="   LCDproc et Config::Model!"
+
+
+[menu]
+
+# The following works excellent with 4 keys or more.
+EnterKey=Enter
+UpKey=Up
+# Downkey and not donkey :-)
+DownKey=Down
+
+## Curses driver ##
+[curses]
+
+
+Size=20x2
+

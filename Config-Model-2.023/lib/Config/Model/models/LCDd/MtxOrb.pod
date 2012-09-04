@@ -1,0 +1,99 @@
+=head1 NAME
+
+Config::Model::models::LCDd::MtxOrb - Configuration class LCDd::MtxOrb
+
+=head1 VERSION
+
+version 2.023
+
+=head1 DESCRIPTION
+
+Configuration classes used by L<Config::Model>
+
+generated from LCDd.conf
+
+=head1 Elements
+
+=head2 Device
+
+Select the output device to use I<< Optional. Type uniline. upstream_default: '/dev/lcd'.  >>
+
+=head2 Size
+
+Set the display size I<< Optional. Type uniline. upstream_default: '20x4'.  >>
+
+=head2 Type
+
+Set the display type I<< Optional. Type enum. choice: 'lcd', 'lkd', 'vfd', 'vkd'. upstream_default: 'lcd'.  >>
+
+=head2 Contrast
+
+Set the initial contrast 
+NOTE: The driver will ignore this if the display
+      is a vfd or vkd as they don't have this feature. I<< Optional. Type uniline. upstream_default: '480'.  >>
+
+=head2 hasAdjustableBacklight
+
+Some old displays do not have an adjustable backlight but only can
+switch the backlight on/off. If you experience randomly appearing block
+characters, try setting this to false. I<< Optional. Type enum. choice: 'yes', 'no'. upstream_default: 'yes'.  >>
+
+=head2 Brightness
+
+Set the initial brightness I<< Optional. Type integer. upstream_default: '1000'.  >>
+
+=head2 OffBrightness
+
+Set the initial off-brightness 
+This value is used when the display is normally
+switched off in case LCDd is inactive. I<< Optional. Type integer. upstream_default: '0'.  >>
+
+=head2 Speed
+
+Set the communication speed I<< Optional. Type enum. choice: '1200', '2400', '9600', '19200'. upstream_default: '19200'.  >>
+
+=head2 KeyMap_A
+
+The following table translates from MtxOrb key letters to logical key names.
+By default no keys are mapped, meaning the keypad is not used at all.I<< Optional. Type uniline. default: 'Left'.  >>
+
+=head2 KeyMap_B
+
+I<< Optional. Type uniline. default: 'Right'.  >>
+
+=head2 KeyMap_C
+
+I<< Optional. Type uniline. default: 'Up'.  >>
+
+=head2 KeyMap_D
+
+I<< Optional. Type uniline. default: 'Down'.  >>
+
+=head2 KeyMap_E
+
+I<< Optional. Type uniline. default: 'Enter'.  >>
+
+=head2 KeyMap_F
+
+I<< Optional. Type uniline. default: 'Escape'.  >>
+
+=head2 keypad_test_mode
+
+See the [menu] section for an explanation of the key mappings
+You can find out which key of your display sends which
+character by setting keypad_test_mode to yes and running
+LCDd. LCDd will output all characters it receives.
+Afterwards you can modify the settings above and set
+keypad_set_mode to no again.I<< Optional. Type uniline. default: 'no'.  >>
+
+=head1 SEE ALSO
+
+=over
+
+=item *
+
+L<cme>
+
+=back
+
+=cut

@@ -1,0 +1,24 @@
+=head1 NAME
+
+Config::Model::models::LCDd::shuttleVFD - Configuration class LCDd::shuttleVFD
+
+=head1 DESCRIPTION
+
+Configuration classes used by L<Config::Model>
+
+generated from LCDd.conf
+
+=head1 Elements
+
+=head1 SEE ALSO
+
+=over
+
+=item *
+
+L<cme>
+
+=back
+
+=cut
+

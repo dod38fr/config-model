@@ -1,0 +1,72 @@
+=head1 NAME
+
+Config::Model::models::LCDd::EyeboxOne - Configuration class LCDd::EyeboxOne
+
+=head1 DESCRIPTION
+
+Configuration classes used by L<Config::Model>
+
+generated from LCDd.conf
+
+=head1 Elements
+
+=head2 Device
+
+Select the output device to use I<< Optional. Type uniline. upstream_default: '/dev/ttyS1'.  >>
+
+=head2 Size
+
+Set the display size I<< Optional. Type uniline. upstream_default: '20x4'.  >>
+
+=head2 Backlight
+
+Switch on the backlight? I<< Optional. Type uniline. upstream_default: 'yes'.  >>
+
+=head2 Cursor
+
+Switch on the cursor? I<< Optional. Type uniline. upstream_default: 'no'.  >>
+
+=head2 Speed
+
+Set the communication speed I<< Optional. Type enum. choice: '1200', '2400', '9600', '19200'. upstream_default: '19200'.  >>
+
+=head2 LeftKey
+
+Enter Key is a \r character, so it's hardcoded in the driver. I<< Optional. Type uniline. default: 'D'.  >>
+
+=head2 RightKey
+
+I<< Optional. Type uniline. default: 'C'.  >>
+
+=head2 UpKey
+
+I<< Optional. Type uniline. default: 'A'.  >>
+
+=head2 DownKey
+
+I<< Optional. Type uniline. default: 'B'.  >>
+
+=head2 EscapeKey
+
+I<< Optional. Type uniline. default: 'P'.  >>
+
+=head2 keypad_test_mode
+
+You can find out which key of your display sends which
+character by setting keypad_test_mode to yes and running
+LCDd. LCDd will output all characters it receives.
+Afterwards you can modify the settings above and set
+keypad_set_mode to no again.I<< Optional. Type uniline. default: 'no'.  >>
+
+=head1 SEE ALSO
+
+=over
+
+=item *
+
+L<cme>
+
+=back
+
+=cut
+

@@ -1,0 +1,11 @@
+--- a/lib/Dist/Zilla/Plugin/Run/Role/Runner.pm
++++ b/lib/Dist/Zilla/Plugin/Run/Role/Runner.pm
+@@ -76,7 +76,7 @@
+ 
+ =head1 DESCRIPTION
+ 
+-This is the base role for all the plugins L<Dist::Zilla::Plugin::Run> delivers. You dont need this.
++This is the base role for all the plugins L<Dist::Zilla::Plugin::Run> delivers. You don't need this.
+ 
+ =head1 AUTHOR
+ 

@@ -1,0 +1,35 @@
+=head1 NAME
+
+Config::Model::models::LCDd::sli - Configuration class LCDd::sli
+
+=head1 VERSION
+
+version 2.023
+
+=head1 DESCRIPTION
+
+Configuration classes used by L<Config::Model>
+
+generated from LCDd.conf
+
+=head1 Elements
+
+=head2 Device
+
+Select the output device to use I<< Optional. Type uniline. upstream_default: '/dev/lcd'.  >>
+
+=head2 Speed
+
+Set the communication speed I<< Optional. Type enum. choice: '1200', '2400', '9600', '19200', '38400', '57600', '115200'. upstream_default: '19200'.  >>
+
+=head1 SEE ALSO
+
+=over
+
+=item *
+
+L<cme>
+
+=back
+
+=cut

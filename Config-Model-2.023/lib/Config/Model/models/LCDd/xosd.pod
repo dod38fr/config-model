@@ -1,0 +1,39 @@
+=head1 NAME
+
+Config::Model::models::LCDd::xosd - Configuration class LCDd::xosd
+
+=head1 VERSION
+
+version 2.023
+
+=head1 DESCRIPTION
+
+Configuration classes used by L<Config::Model>
+
+generated from LCDd.conf
+
+=head1 Elements
+
+=head2 Size
+
+set display size I<< Optional. Type uniline. upstream_default: '20x4'.  >>
+
+=head2 Offset
+
+Offset in pixels from the top-left corner of the monitor I<< Optional. Type uniline. upstream_default: '0x0'.  >>
+
+=head2 Font
+
+X font to use, in XLFD format, as given by "xfontsel"I<< Optional. Type uniline. default: '-*-terminus-*-r-*-*-*-320-*-*-*-*-*'.  >>
+
+=head1 SEE ALSO
+
+=over
+
+=item *
+
+L<cme>
+
+=back
+
+=cut

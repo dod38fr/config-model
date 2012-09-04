@@ -1,0 +1,39 @@
+=head1 NAME
+
+Config::Model::models::LCDd::mtc_s16209x - Configuration class LCDd::mtc_s16209x
+
+=head1 VERSION
+
+version 2.023
+
+=head1 DESCRIPTION
+
+Configuration classes used by L<Config::Model>
+
+generated from LCDd.conf
+
+=head1 Elements
+
+=head2 Device
+
+Select the output device to use I<< Optional. Type uniline. upstream_default: '/dev/lcd'.  >>
+
+=head2 Brightness
+
+Set the initial brightness I<< Optional. Type integer. upstream_default: '255'.  >>
+
+=head2 Reboot
+
+Reinitialize the LCD's BIOS I<< Optional. Type enum. choice: 'yes', 'no'. upstream_default: 'no'.  >>
+
+=head1 SEE ALSO
+
+=over
+
+=item *
+
+L<cme>
+
+=back
+
+=cut

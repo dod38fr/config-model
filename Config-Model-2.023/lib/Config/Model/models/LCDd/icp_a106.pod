@@ -1,0 +1,31 @@
+=head1 NAME
+
+Config::Model::models::LCDd::icp_a106 - Configuration class LCDd::icp_a106
+
+=head1 VERSION
+
+version 2.023
+
+=head1 DESCRIPTION
+
+Configuration classes used by L<Config::Model>
+
+generated from LCDd.conf
+
+=head1 Elements
+
+=head2 Device
+
+I<< Optional. Type uniline. default: '/dev/ttyS1'.  >>
+
+=head1 SEE ALSO
+
+=over
+
+=item *
+
+L<cme>
+
+=back
+
+=cut

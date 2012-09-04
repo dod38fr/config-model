@@ -1,0 +1,103 @@
+=head1 NAME
+
+Config::Model::models::Debian::Dpkg::Source - Configuration class Debian::Dpkg::Source
+
+=head1 DESCRIPTION
+
+Configuration classes used by L<Config::Model>
+
+Model of files found under debian/source directory. 
+See L<dpkg-source> for details.
+
+=head1 Elements
+
+=head2 format - source package format
+
+Specifies the format of the source package. A missing format implies a '1.0' source format.I<< Mandatory. Type enum. choice: '1.0', '2.0', '3.0 (native)', '3.0 (quilt)', '3.0 (custom)', '3.0 (git)', '3.0 (bzr)'.  >>
+
+Here are some explanations on the possible values:
+
+=over
+
+=item '1.0'
+
+A source package in this format consists either of a .orig.tar.gz associated to a .diff.gz or a single .tar.gz (in that case the package is said to be native).
+
+=item '2.0'
+
+was the first specification of a new-generation source package format. This format is not recommended for wide-spread usage, the format "3.0 (quilt)" replaces it.
+
+=item '3.0 (bzr)'
+
+This format is experimental. It generates a single tarball containing the bzr repository.
+
+
+=item '3.0 (custom)'
+
+This format is particular. It doesn't represent a real source package format but can be used to create source packages with arbitrary files.
+
+
+=item '3.0 (git)'
+
+This format is experimental. A source package in this format consists of a single bundle of a git repository .git to hold the source of a package. 
+There may also be a .git shallow file listing revisions for a shallow git clone.
+
+=item '3.0 (native)'
+
+extension of the native package format as defined in the 1.0 format.
+
+=item '3.0 (quilt)'
+
+A source package in this format contains at least an original tarball (.orig.tar.ext where ext can be gz, bz2, lzma and xz) and a debian tarball (.debian.tar.ext). It can also contain additional original tarballs (.orig-component.tar.ext).
+
+=back
+
+
+
+=head2 options
+
+Source options as described in L<dpkg-source>I<< Optional. Type node.  >>
+
+=head1 SEE ALSO
+
+=over
+
+=item *
+
+L<cme>
+
+=item *
+
+L<Config::Model::models::Debian::Dpkg::Source::Options>
+
+=back
+
+=head1 AUTHOR
+
+=over
+
+=item Dominique Dumont
+
+
+=back
+
+=head1 COPYRIGHT
+
+=over
+
+=item 2010,2011 Dominique Dumont
+
+
+=back
+
+=head1 LICENSE
+
+=over
+
+=item LGPL2
+
+
+=back
+
+=cut
+

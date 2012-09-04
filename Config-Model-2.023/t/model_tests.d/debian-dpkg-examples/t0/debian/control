@@ -1,0 +1,36 @@
+Source: libconfig-model-approx-perl
+Section: perl
+Priority: optional
+Build-Depends: debhelper (>= 8)
+Build-Depends-Indep: perl, libconfig-model-perl (>= 1.245),
+  liblog-log4perl-perl, libtest-pod-perl, libfile-slurp-perl, libmodule-build-perl (>= 0.3800) | perl (>= 5.13.11)
+Maintainer: Debian Perl Group <pkg-perl-maintainers@lists.alioth.debian.org>
+Uploaders: Dominique Dumont <domi.dumont@free.fr>,
+           gregor herrmann <gregoa@debian.org>, Jonathan Yu <jawnsy@cpan.org>,
+           Fabrizio Regalli <fabreg@fabreg.it>
+Standards-Version: 3.9.3
+Homepage: http://search.cpan.org/dist/Config-Model-Approx/
+Vcs-Svn: svn://svn.debian.org/svn/pkg-perl/tags/libconfig-model-approx-perl
+Vcs-Browser: http://anonscm.debian.org/viewvc/pkg-perl/trunk/libconfig-model-approx-perl/
+
+Package: libconfig-model-approx-perl
+Architecture: all
+Depends: ${perl:Depends}, ${misc:Depends},
+  libconfig-model-perl (>= 1.245), liblog-log4perl-perl
+Recommends: libconfig-model-tkui-perl
+Suggests: libconfig-model-cursesui-perl
+Description: approx proxy server configuration editor
+ Config::Model::Approx and config-edit-approx provide a configuration
+ model and a configuration editor for /etc/approx/approx.conf.
+ .
+ When the following dependencies are installed, you will get extra
+ functionalities:
+ .
+    * A graphical Approx configuration editor and a graphical
+      configuration wizard with libconfig-model-tkui-perl
+    * A curses Approx configuration editor with
+      libconfig-model-cursesui-perl
+ .
+ When run with '-ui none', Approx configuration editor can also be
+ used as a command line to validate Approx configuration or to upgrade
+ an older configuration without user interaction.

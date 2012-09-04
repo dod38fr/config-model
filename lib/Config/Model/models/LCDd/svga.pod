@@ -1,0 +1,48 @@
+=head1 NAME
+
+Config::Model::models::LCDd::svga - Configuration class LCDd::svga
+
+=head1 DESCRIPTION
+
+Configuration classes used by L<Config::Model>
+
+generated from LCDd.conf
+
+=head1 Elements
+
+=head2 Mode
+
+svgalib mode to use 
+legal values are supported svgalib modes. I<< Optional. Type uniline. upstream_default: 'G320x240x256'.  >>
+
+=head2 Size
+
+set display size I<< Optional. Type uniline. upstream_default: '20x4'.  >>
+
+=head2 Contrast
+
+Set the initial contrast 
+Can be set but does not change anything internally. I<< Optional. Type integer. upstream_default: '500'.  >>
+
+=head2 Brightness
+
+Set the initial brightness I<< Optional. Type integer. upstream_default: '1000'.  >>
+
+=head2 OffBrightness
+
+Set the initial off-brightness 
+This value is used when the display is normally
+switched off in case LCDd is inactive. I<< Optional. Type integer. upstream_default: '500'.  >>
+
+=head1 SEE ALSO
+
+=over
+
+=item *
+
+L<cme>
+
+=back
+
+=cut
+

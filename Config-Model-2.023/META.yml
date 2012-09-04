@@ -1,0 +1,77 @@
+---
+abstract: 'Create tools to validate, migrate and edit configuration files'
+author:
+  - 'Dominique Dumont'
+  - 'Krzysztof Tyszecki'
+build_requires:
+  File::Copy::Recursive: 0
+  Module::Build: 0.34
+  Path::Class: 0
+  Probe::Perl: 0
+  Test::Command: 0.08
+  Test::Differences: 0
+  Test::Exception: 0
+  Test::File::Contents: 0
+  Test::Memory::Cycle: 0
+  Test::More: 0
+  Test::Warn: 0.11
+configure_requires:
+  Any::Moose: 0
+  Carp::Assert::More: 0
+  Exception::Class: 0
+  File::HomeDir: 0
+  File::Path: 2.07
+  File::Slurp: 0
+  Hash::Merge: 0.12
+  IO::File: 0
+  List::MoreUtils: 0
+  Log::Log4perl: 1.11
+  Module::Build: 0.34
+  Mouse: 0
+  MouseX::NativeTraits: 0
+  MouseX::StrictConstructor: 0
+  Parse::RecDescent: v1.90.0
+  Pod::POM: 0
+  Scalar::Util: 0
+  Term::ReadLine: 0
+  Text::Diff: 0
+  YAML::Any: 0.303
+  namespace::autoclean: 0
+dynamic_config: 0
+generated_by: 'Dist::Zilla version 4.300021, CPAN::Meta::Converter version 2.120921'
+license: lgpl
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4
+name: Config-Model
+recommends:
+  Fuse: 0
+  YAML::Any: 0.303
+requires:
+  Any::Moose: 0
+  AnyEvent: 0
+  AnyEvent::HTTP: 0
+  Carp::Assert::More: 0
+  DB_File: 0
+  Exception::Class: 0
+  File::HomeDir: 0
+  File::Path: 2.07
+  Hash::Merge: 0.12
+  IO::File: 0
+  List::MoreUtils: 0
+  Log::Log4perl: 1.11
+  Mouse: 0
+  MouseX::NativeTraits: 0
+  MouseX::StrictConstructor: 0
+  Parse::RecDescent: v1.90.0
+  Pod::POM: 0
+  Scalar::Util: 0
+  Term::ReadLine: 0
+  Text::Autoformat: 0
+  Text::Diff: 0
+  namespace::autoclean: 0
+resources:
+  bugtracker: http://rt.cpan.org/NoAuth/Bugs.html?Dist=Config-Model
+  homepage: https://github.com/dod38fr/config-model/wiki
+  repository: git://github.com/dod38fr/config-model.git
+version: 2.023

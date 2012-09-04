@@ -1,0 +1,24 @@
+Source: libmodule-metadata-perl
+Maintainer: Debian Perl Group <pkg-perl-maintainers@lists.alioth.debian.org>
+Uploaders: Dominique Dumont <dod@debian.org>,
+ gregor herrmann <gregoa@debian.org>
+Section: perl
+Priority: optional
+Build-Depends: debhelper (>= 8)
+Build-Depends-Indep: perl (>= 5.13.9) | libversion-perl (>= 1:0.8700),
+                     perl
+Standards-Version: 3.9.2
+Vcs-Browser: http://anonscm.debian.org/gitweb/?p=pkg-perl/packages/libmodule-metadata-perl.git
+Vcs-Git: git://git.debian.org/pkg-perl/packages/libmodule-metadata-perl.git
+Homepage: http://search.cpan.org/dist/Module-Metadata/
+
+Package: libmodule-metadata-perl
+Architecture: all
+Depends: ${misc:Depends},
+         ${perl:Depends},
+         perl (>= 5.13.9) | libversion-perl (>= 1:0.8700)
+Description: package and POD information gatherer
+ Module::Metadata provides routines to gather information about perl
+ modules like name, version, list of packages, list of pod
+ sections... All this information is extracted from perl module files.
+

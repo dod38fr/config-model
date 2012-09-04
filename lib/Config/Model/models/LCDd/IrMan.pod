@@ -1,0 +1,33 @@
+=head1 NAME
+
+Config::Model::models::LCDd::IrMan - Configuration class LCDd::IrMan
+
+=head1 DESCRIPTION
+
+Configuration classes used by L<Config::Model>
+
+generated from LCDd.conf
+
+=head1 Elements
+
+=head2 Device
+
+in case of trouble with IrMan, try the Lirc emulator for IrMan
+Select the input device to use. I<< Optional. Type uniline. default: '/dev/irman'.  >>
+
+=head2 Config
+
+Select the configuration file to use. I<< Optional. Type uniline. default: '/etc/irman.cfg'.  >>
+
+=head1 SEE ALSO
+
+=over
+
+=item *
+
+L<cme>
+
+=back
+
+=cut
+

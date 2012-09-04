@@ -1,0 +1,39 @@
+=head1 NAME
+
+Config::Model::models::LCDd::irtrans - Configuration class LCDd::irtrans
+
+=head1 VERSION
+
+version 2.023
+
+=head1 DESCRIPTION
+
+Configuration classes used by L<Config::Model>
+
+generated from LCDd.conf
+
+=head1 Elements
+
+=head2 Backlight
+
+Does the device have a backlight? I<< Optional. Type enum. choice: 'yes', 'no'. upstream_default: 'no'.  >>
+
+=head2 Hostname
+
+IRTrans device to connect to I<< Optional. Type uniline. upstream_default: 'localhost'.  >>
+
+=head2 Size
+
+display dimensions. I<< Optional. Type uniline. default: '16x2'.  >>
+
+=head1 SEE ALSO
+
+=over
+
+=item *
+
+L<cme>
+
+=back
+
+=cut

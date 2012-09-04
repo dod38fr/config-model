@@ -1,0 +1,17 @@
+This distribution provides models for the following files (following
+Debian's config file locations) :
+
+- /etc/popularity-contest.conf (for Popcon)
+- /etc/LCDd.conf (for lcdproc)
+- /etc/fstab
+
+Models for users:
+- ./debian/copyright ./debian/control ... (to build Debian packages)
+- multistrap configuration
+
+Other models:
+
+- /etc/approx/approx.conf in Config::Model::Approx
+- /etc/ssh/sshd_config in Config::Model::OpenSsh
+- /etc/ssh/ssh_config in Config::Model::OpenSsh
+- ~/.ssh/config in Config::Model::OpenSsh

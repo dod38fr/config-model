@@ -1,0 +1,30 @@
+Source: seaview
+Section: non-free/science
+Priority: optional
+Maintainer: Debian-Med Packaging Team <debian-med-packag...@lists.alioth.debian.org>
+Uploaders: Charles Plessy <ple...@debian.org>
+Build-Depends: debhelper ( >= 7  ), libfltk1.1-dev, libjpeg62-dev, 
+ libpng12-dev, libxft-dev,
+ libxext-dev,  zlib1g-dev
+Standards-Version: 3.8.1
+Vcs-Browser: http://svn.debian.org/wsvn/debian-med/trunk/packages/seaview/trunk/?rev=0&sc=0
+Vcs-Svn: svn://svn.debian.org/svn/debian-med/trunk/packages/seaview/trunk/
+Homepage: http://pbil.univ-lyon1.fr/software/seaview.html
+
+Package: seaview
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Recommends: clustalw, muscle, phyml
+Description: Multiplatform interface for sequence alignment and phylogeny
+ SeaView reads and writes various file formats (NEXUS, MSF, CLUSTAL, FASTA,
+ PHYLIP, MASE, Newick) of DNA and protein sequences and of phylogenetic trees.
+ Alignments can be manually edited. It drives the programs Muscle or Clustal W
+ for multiple sequence alignment, and also allows to use any external alignment
+ algorithm able to read and write FASTA-formatted files.
+ .
+ It computes phylogenetic trees by parsimony using PHYLIP's dnapars/protpars
+ algorithm, by distance with NJ or BioNJ algorithms on a variety of evolutionary
+ distances, or by maximum likelihood using the program PhyML 3.0. SeaView draws
+ phylogenetic trees on screen or PostScript files, and allows to download
+ sequences from EMBL/GenBank/UniProt using the Internet.
+

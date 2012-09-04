@@ -1,0 +1,99 @@
+=head1 NAME
+
+Config::Model::models::LCDd::picolcd - Configuration class LCDd::picolcd
+
+=head1 VERSION
+
+version 2.023
+
+=head1 DESCRIPTION
+
+Configuration classes used by L<Config::Model>
+
+generated from LCDd.conf
+
+=head1 Elements
+
+=head2 KeyTimeout
+
+KeyTimeout is the time in ms that LCDd spends waiting for a key press before
+cycling through other duties.  Higher values make LCDd use less CPU time and
+make key presses more detectable.  Lower values make LCDd more responsive
+but a little prone to missing key presses.  500 (.5 second) is the default
+and a balanced value. I<< Optional. Type integer. upstream_default: '500'.  >>
+
+=head2 Backlight
+
+Sets the initial state of the backlight upon start-up.I<< Optional. Type enum. choice: 'on', 'off'. upstream_default: 'on'.  >>
+
+=head2 Brightness
+
+Set the initial brightness . Works only
+with the 20x4 device. I<< Optional. Type integer. upstream_default: '1000'.  >>
+
+=head2 OffBrightness
+
+Set the brightness while the backlight is 'off' .
+Works only with the 20x4 device.I<< Optional. Type integer. upstream_default: '0'.  >>
+
+=head2 Contrast
+
+Set the initial contrast I<< Optional. Type integer. upstream_default: '1000'.  >>
+
+=head2 Keylights
+
+Light the keys? I<< Optional. Type enum. choice: 'on', 'off'. upstream_default: 'on'.  >>
+
+=head2 Key0Light
+
+If Keylights is on, the you can unlight specific keys below:
+Key0 is the directional pad.  Key1 - Key5 correspond to the F1 - F5 keys.
+There is no LED for the +/- keys.  This is a handy way to indicate to users
+which keys are disabled.  I<< Optional. Type enum. choice: 'on', 'off'. upstream_default: 'on'.  >>
+
+=head2 Key1Light
+
+I<< Optional. Type uniline. default: 'on'.  >>
+
+=head2 Key2Light
+
+I<< Optional. Type uniline. default: 'on'.  >>
+
+=head2 Key3Light
+
+I<< Optional. Type uniline. default: 'on'.  >>
+
+=head2 Key4Light
+
+I<< Optional. Type uniline. default: 'on'.  >>
+
+=head2 Key5Light
+
+I<< Optional. Type uniline. default: 'on'.  >>
+
+=head2 LircHost
+
+Host name or IP address of the LIRC instance that is to receive IR codes
+If not set, or set to an empty value, IR support is disabled.I<< Optional. Type uniline. default: '127.0.0.1'.  >>
+
+=head2 LircPort
+
+UDP port on which LIRC is listening I<< Optional. Type integer. upstream_default: '8765'.  >>
+
+=head2 LircFlushThreshold
+
+Threshold in jiffies of synthesized gap that triggers flushing the IR data
+to lirc 
+100 means 6.1ms. legal: 16 - 32767; Use 0 to disable.I<< Optional. Type integer. upstream_default: '100'.  >>
+
+=head1 SEE ALSO
+
+=over
+
+=item *
+
+L<cme>
+
+=back
+
+=cut

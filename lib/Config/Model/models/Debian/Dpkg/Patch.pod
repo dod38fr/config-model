@@ -1,0 +1,74 @@
+=head1 NAME
+
+Config::Model::models::Debian::Dpkg::Patch - Configuration class Debian::Dpkg::Patch
+
+=head1 DESCRIPTION
+
+Configuration classes used by L<Config::Model>
+
+=head1 Elements
+
+=head2 Synopsis - short description of the patch
+
+I<< Optional. Type uniline.  >>
+
+=head2 Description
+
+verbose explanation of the patch and its history.I<< Optional. Type string.  >>
+
+=head2 Subject
+
+I<< Optional. Type string.  >>
+
+=head2 Bug
+
+I<< Optional. Type list of uniline.  >>
+
+=head2 Forwarded
+
+I<< Optional. Type uniline.  >>
+
+=head2 Author
+
+I<< Optional. Type uniline.  >>
+
+=head2 Origin
+
+I<< Optional. Type string.  >>
+
+=head2 From
+
+I<< Optional. Type uniline.  >>
+
+=head2 Reviewed-by
+
+I<< Optional. Type uniline.  >>
+
+=head2 Acked-by
+
+I<< Optional. Type uniline.  >>
+
+=head2 Last-Update
+
+I<< Optional. Type uniline.  >>
+
+=head2 Applied-Upstream
+
+I<< Optional. Type uniline.  >>
+
+=head2 diff - actual patch
+
+This element contains the diff that will be used to patch the source. Do not modify.I<< Optional. Type string.  >>
+
+=head1 SEE ALSO
+
+=over
+
+=item *
+
+L<cme>
+
+=back
+
+=cut
+

@@ -1,0 +1,85 @@
+=head1 NAME
+
+Config::Model::models::PopCon - Configuration class PopCon
+
+=head1 DESCRIPTION
+
+Configuration classes used by L<Config::Model>
+
+=head1 Elements
+
+=head2 PARTICIPATE
+
+If you don't want to participate in the contest, say "no" and we won't send messages.I<< Optional. Type enum. choice: 'no', 'yes'. upstream_default: 'no'.  >>
+
+=head2 MAILTO - survey e-mail
+
+Specifies the address to e-mail statistics to each week.I<< Optional. Type uniline. upstream_default: 'survey@popcon.debian.org'.  >>
+
+=head2 MAILFROM - forged sender email address
+
+MAILFROM is the forged sender email address you want to use in email submitted to the popularity-contest. If this is commented out, no From: or Sender: lines will be added to the outgoing mail, and it will be your MTA's job to add them. This is usually what you want.
+
+If your MTA is misconfigured or impossible to configure correctly, and it always generates invalid From: and/or Sender: lines, you can force different results by setting MAILFROM here. This can cause problems with spam bouncers, so most people should leave it commented out.I<< Optional. Type uniline.  >>
+
+=head2 SUBMITURLS - list of urls to submit data to
+
+Space separated list of where to submit popularity-contest reports using http.I<< Optional. Type uniline. upstream_default: 'http://popcon.debian.org/cgi-bin/popcon.cgi'.  >>
+
+=head2 USEHTTP
+
+enables http reporting. Set this to 'yes' to enable it.I<< Optional. Type enum. choice: 'no', 'yes'. upstream_default: 'yes'.  >>
+
+=head2 HTTP_PROXY
+
+Allows one to specify an HTTP proxy server, the syntax is "http://proxy:port". This overrides the environment variable http_proxy.I<< Optional. Type uniline.  >>
+
+=head2 MY_HOSTID
+
+Secret number that the popularity-contest receiver uses to keep track of your submissions. Whenever you send in a new entry, it overwrites the last one that had the same HOSTID.
+
+This key was generated automatically so you should normally just leave it alone. I<< Optional. Type uniline.  >>
+
+=head2 DAY - day of week
+
+Only run on the given day, to spread the load on the server a bit. 0 is Sunday, 6 is Saturday. I<< Optional. Type integer.  >>
+
+=head1 SEE ALSO
+
+=over
+
+=item *
+
+L<cme>
+
+=back
+
+=head1 AUTHOR
+
+=over
+
+=item Dominique Dumont
+
+
+=back
+
+=head1 COPYRIGHT
+
+=over
+
+=item 2010,2011 Dominique Dumont
+
+
+=back
+
+=head1 LICENSE
+
+=over
+
+=item LGPL2
+
+
+=back
+
+=cut
+

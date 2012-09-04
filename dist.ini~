@@ -1,0 +1,263 @@
+name    = Config-Model
+version = 2.023
+author  = Dominique Dumont
+author  = Krzysztof Tyszecki
+license = LGPL_2_1
+copyright_holder = Dominique Dumont, Krzysztof Tyszecki
+copyright_year = 2012
+
+[MetaResources]
+homepage          = https://github.com/dod38fr/config-model/wiki
+bugtracker.web    = http://rt.cpan.org/NoAuth/Bugs.html?Dist=Config-Model
+bugtracker.mailto = bug-project@rt.cpan.org
+repository.url    = git://github.com/dod38fr/config-model.git
+repository.web    = https://github.com/dod38fr/config-model
+repository.type   = git
+
+[Prereqs / ConfigureRequires]
+
+; Fix RT73611
+File::Slurp = 0 
+
+; FIXME: reduce the list (use require C::M::Instance instead of use in COnfig::MOdel)
+
+; Build.PL runs gen_class_pod.pl which loads 
+; Config::Model from lib, hence all this stuff is required
+; at configure time to improve Perl smoke tests
+Term::ReadLine    = 0
+Log::Log4perl     = 1.11 ;-- for TRACE log level
+Parse::RecDescent = 1.90.0
+Scalar::Util      = 0 ;-- provided by perl 5.8.0
+Exception::Class  = 0
+Carp::Assert::More = 0
+Any::Moose             = 0
+MouseX::StrictConstructor = 0
+MouseX::NativeTraits = 0
+Mouse = 0
+namespace::autoclean = 0
+Hash::Merge       = 0.12
+File::HomeDir     = 0
+Text::Diff        = 0
+List::MoreUtils   = 0
+; should be part of core perl since perl5.003007
+; but some do not have it 
+IO::File          = 0 
+
+; make_path is quite recent (or Perl >= 5.10.1)
+File::Path = 2.07
+
+; To load annotations for Perl data
+Pod::POM          = 0
+
+; YAML backend (used in tests)
+YAML::Any         = 0.303
+
+[Prereqs / RuntimeRequires]
+
+; For C::M::Debian::Dependency
+DB_File           = 0 
+AnyEvent          = 0
+AnyEvent::HTTP    = 0
+
+; For C::M::Debian::Control
+Text::Autoformat  = 0
+
+Term::ReadLine    = 0
+Log::Log4perl     = 1.11 ;-- for TRACE log level
+Parse::RecDescent = 1.90.0
+Scalar::Util      = 0 ;-- provided by perl 5.8.0
+Exception::Class  = 0
+Carp::Assert::More = 0
+Any::Moose             = 0
+MouseX::StrictConstructor = 0
+MouseX::NativeTraits = 0
+Mouse = 0
+namespace::autoclean = 0
+Hash::Merge       = 0.12
+File::HomeDir     = 0
+Text::Diff        = 0
+List::MoreUtils   = 0
+; should be part of core perl since perl5.003007
+; but some do not have it 
+IO::File          = 0 
+
+; make_path is quite recent (or Perl >= 5.10.1)
+File::Path = 2.07
+
+; To load annotations for Perl data
+Pod::POM          = 0
+
+[Prereqs / RuntimeRecommends]
+
+Fuse              = 0
+
+; YAML backend
+YAML::Any         = 0.303
+
+[Prereqs / BuildRequires]
+Test::More        = 0
+Test::Exception   = 0
+Test::Warn        = 0.11 ;-- tests fail with 0.08
+Test::Command     = 0.08 ; -- some tests fail with 0.01
+Test::Differences = 0
+Test::File::Contents = 0
+Test::Memory::Cycle = 0
+Probe::Perl       = 0 
+Path::Class       = 0
+File::Copy::Recursive = 0 
+
+[@Filter]
+bundle = @Classic
+remove = MakeMaker
+remove = PodCoverageTests
+remove = PodVersion
+;-- remove = Manifest
+
+;-- [AutoPrereq]
+;-- skip = ^[a-z]|UNIVERSAL
+
+[ModuleBuild::Custom]
+mb_version = 0.34  
+
+[Prepender]
+copyright=1
+
+[Run::BeforeBuild]
+;-- Generate LCDd model from stored LCDd.conf file
+run = script/gen_LCDd_model.pl
+
+;-- Generate pod doc from model (including LCDd model)
+run = script/gen_class_pod.pl
+
+[PodVersion]
+
+[PodSpellingTests]
+stopwords = Bzr
+stopwords = CTRL
+stopwords = Cvs
+stopwords = DEP
+stopwords = DFSG
+stopwords = DM
+stopwords = Darcs
+stopwords = GFDL
+stopwords = GPL
+stopwords = HOSTID
+stopwords = Indep
+stopwords = LGPL
+stopwords = MAILTO
+stopwords = MTA
+stopwords = MTA's
+stopwords = Mtn
+stopwords = NIV
+stopwords = OpenSSL
+stopwords = PopCon
+stopwords = Pre
+stopwords = QPL
+stopwords = SUBMITURLS
+stopwords = Svn
+stopwords = USEHTTP
+stopwords = Vcs
+stopwords = Wiki
+stopwords = Xorg
+stopwords = ZLIB
+stopwords = Zope
+stopwords = anyid
+stopwords = anything
+stopwords = augeas
+stopwords = autoadd
+stopwords = autoread
+stopwords = browsable
+stopwords = bz
+stopwords = bzr
+stopwords = cds
+stopwords = cddl
+stopwords = CNRI
+stopwords = checklist
+stopwords = conf
+stopwords = contrib
+stopwords = cpan
+stopwords = cpu
+stopwords = ctrl
+stopwords = cvs
+stopwords = cvsignore
+stopwords = darcs
+stopwords = davfs
+stopwords = ddumont
+stopwords = debconf
+stopwords = debugfs
+stopwords = debian
+stopwords = dep
+stopwords = dfsg
+stopwords = dm
+stopwords = dpkg
+stopwords = dumont
+stopwords = firstkey
+stopwords = freebsd
+stopwords = fs
+stopwords = fsck
+stopwords = fstab
+stopwords = git
+stopwords = gz
+stopwords = gmail
+stopwords = hashid
+stopwords = hg
+stopwords = http
+stopwords = indepicrosystems
+stopwords = inet
+stopwords = ini
+stopwords = IntellectualRights
+stopwords = isc
+stopwords = iso
+stopwords = json
+stopwords = journaling
+stopwords = krzysztof
+stopwords = lan
+stopwords = lenny
+stopwords = lgpl
+stopwords = lppl
+stopwords = listid
+stopwords = lzma
+stopwords = mcloughlin
+stopwords = mailfrom
+stopwords = microsystems
+stopwords = mtn
+stopwords = mpl
+stopwords = nfs
+stopwords = nextkey
+stopwords = objtreescanner
+stopwords = openbsd
+stopwords = openssh
+stopwords = os
+stopwords = pts
+stopwords = proc
+stopwords = redhat
+stopwords = redhat's
+stopwords = scriplets
+stopwords = shellvar
+stopwords = svn
+stopwords = tdeb
+stopwords = tyszecki
+stopwords = udeb
+stopwords = ui
+stopwords = uncheck
+stopwords = uniline
+stopwords = urls
+stopwords = uploaders
+stopwords = usb
+stopwords = usbfs
+stopwords = vcs
+stopwords = vfat
+stopwords = vcss
+stopwords = warper
+stopwords = warpthing
+stopwords = webdav
+stopwords = webmin
+stopwords = wildcard
+stopwords = wildcards
+stopwords = xorg
+stopwords = xserver
+stopwords = xz
+stopwords = yaml
+
+
+;[podweaver]

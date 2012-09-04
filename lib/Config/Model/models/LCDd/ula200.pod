@@ -1,0 +1,28 @@
+=head1 NAME
+
+Config::Model::models::LCDd::ula200 - Configuration class LCDd::ula200
+
+=head1 DESCRIPTION
+
+Configuration classes used by L<Config::Model>
+
+generated from LCDd.conf
+
+=head1 Elements
+
+=head2 Size
+
+Select the LCD size I<< Optional. Type uniline. upstream_default: '20x4'.  >>
+
+=head1 SEE ALSO
+
+=over
+
+=item *
+
+L<cme>
+
+=back
+
+=cut
+

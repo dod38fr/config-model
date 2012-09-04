@@ -1,0 +1,40 @@
+=head1 NAME
+
+Config::Model::models::LCDd::serialPOS - Configuration class LCDd::serialPOS
+
+=head1 DESCRIPTION
+
+Configuration classes used by L<Config::Model>
+
+generated from LCDd.conf
+
+=head1 Elements
+
+=head2 Device
+
+Device to use in serial mode I<< Optional. Type uniline. upstream_default: '/dev/lcd'.  >>
+
+=head2 Size
+
+Specifies the size of the display in characters. I<< Optional. Type uniline. upstream_default: '16x2'.  >>
+
+=head2 Type
+
+Set the communication protocol to use with the POS display.I<< Optional. Type enum. choice: 'IEE', 'Epson', 'Emax', 'IBM', 'LogicControls', 'Ultimate'. upstream_default: 'AEDEX'.  >>
+
+=head2 Speed
+
+communication baud rate with the display I<< Optional. Type enum. choice: '1200', '2400', '19200', '115200'. upstream_default: '9600'.  >>
+
+=head1 SEE ALSO
+
+=over
+
+=item *
+
+L<cme>
+
+=back
+
+=cut
+

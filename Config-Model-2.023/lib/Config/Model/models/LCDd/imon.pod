@@ -1,0 +1,42 @@
+=head1 NAME
+
+Config::Model::models::LCDd::imon - Configuration class LCDd::imon
+
+=head1 VERSION
+
+version 2.023
+
+=head1 DESCRIPTION
+
+Configuration classes used by L<Config::Model>
+
+generated from LCDd.conf
+
+=head1 Elements
+
+=head2 Device
+
+select the device to use. I<< Optional. Type uniline. default: '/dev/lcd0'.  >>
+
+=head2 Size
+
+display dimensions. I<< Optional. Type uniline. default: '16x2'.  >>
+
+=head2 CharMap
+
+Character map to to map ISO-8859-1 to the displays character set.
+ (upd16314, hd44780_koi8_r,
+hd44780_cp1251, hd44780_8859_5 are possible if compiled with additional
+charmaps)I<< Optional. Type enum. choice: 'none', 'hd44780_euro', 'upd16314', 'hd44780_koi8_r', 'hd44780_cp1251', 'hd44780_8859_5'. upstream_default: 'none'.  >>
+
+=head1 SEE ALSO
+
+=over
+
+=item *
+
+L<cme>
+
+=back
+
+=cut

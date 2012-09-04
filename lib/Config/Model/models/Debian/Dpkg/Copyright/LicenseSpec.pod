@@ -1,0 +1,57 @@
+=head1 NAME
+
+Config::Model::models::Debian::Dpkg::Copyright::LicenseSpec - Configuration class Debian::Dpkg::Copyright::LicenseSpec
+
+=head1 DESCRIPTION
+
+Configuration classes used by L<Config::Model>
+
+Stand-alone license paragraph. This paragraph is used to describe licenses which are used somewhere else in the Files paragraph.
+
+=head1 Elements
+
+=head2 text
+
+Full license text.I<< Optional. Type string.  >>
+
+=head1 SEE ALSO
+
+=over
+
+=item *
+
+L<cme>
+
+=back
+
+=head1 AUTHOR
+
+=over
+
+=item Dominique Dumont
+
+
+=back
+
+=head1 COPYRIGHT
+
+=over
+
+=item 2010
+
+=item 2011 Dominique Dumont
+
+
+=back
+
+=head1 LICENSE
+
+=over
+
+=item LGPL2
+
+
+=back
+
+=cut
+

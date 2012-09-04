@@ -1,0 +1,21 @@
+# /etc/fstab: static file system information.
+#
+# <file system> <mount point>   <type>  <options>       <dump>  <pass>
+proc            /proc           proc    defaults        0       0
+# /dev/sda2       /               ext3    errors=remount-ro 0       1
+UUID=e255dac7-9cfb-42c8-ad1e-4dd1a8b962cb       /               ext3    errors=remount-ro 0       1
+# /dev/sda4       /home           ext3    defaults        0       2
+UUID=18e71d5c-436a-4b88-aa16-308ebfa2eef8       /home           ext3    defaults        1       2
+# /dev/sda3       none            swap    sw              0       0
+UUID=9988aeba-6937-4da3-8fd3-0fa696266137       none            swap    sw              0       0
+
+gandalf:/home/  /mnt/gandalf-home nfs  user,noauto,rw    0    2
+gandalf:/mnt/video/   /mnt/video  nfs  user,noauto,rw    0    2
+gandalf:/mnt/video3/  /mnt/video3 nfs  user,noauto,rw    0    2
+gandalf:/mnt/video4/  /mnt/video4 nfs  user,noauto,rw    0    2
+
+/dev  /var/chroot/lenny-i386/dev  none bind 0 2
+/home /var/chroot/lenny-i386/home none bind 0 0
+/tmp  /var/chroot/lenny-i386/tmp  none bind 1 0
+/proc /var/chroot/lenny-i386/proc none bind 0 0
+

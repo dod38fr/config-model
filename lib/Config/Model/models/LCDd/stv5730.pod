@@ -1,0 +1,28 @@
+=head1 NAME
+
+Config::Model::models::LCDd::stv5730 - Configuration class LCDd::stv5730
+
+=head1 DESCRIPTION
+
+Configuration classes used by L<Config::Model>
+
+generated from LCDd.conf
+
+=head1 Elements
+
+=head2 Port
+
+Port the device is connected to I<< Optional. Type uniline. upstream_default: '0x378'.  >>
+
+=head1 SEE ALSO
+
+=over
+
+=item *
+
+L<cme>
+
+=back
+
+=cut
+

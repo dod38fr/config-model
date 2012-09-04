@@ -1,0 +1,61 @@
+=head1 NAME
+
+Config::Model::models::LCDd::curses - Configuration class LCDd::curses
+
+=head1 VERSION
+
+version 2.023
+
+=head1 DESCRIPTION
+
+Configuration classes used by L<Config::Model>
+
+generated from LCDd.conf
+
+=head1 Elements
+
+=head2 Foreground
+
+color settings
+foreground color I<< Optional. Type uniline. upstream_default: 'blue'.  >>
+
+=head2 Background
+
+background color when "backlight" is off I<< Optional. Type uniline. upstream_default: 'cyan'.  >>
+
+=head2 Backlight
+
+background color when "backlight" is on I<< Optional. Type uniline. upstream_default: 'red'.  >>
+
+=head2 Size
+
+display size I<< Optional. Type uniline. upstream_default: '20x4'.  >>
+
+=head2 TopLeftX
+
+What position (X,Y) to start the left top corner at...
+Default: (7,7)I<< Optional. Type uniline. default: '7'.  >>
+
+=head2 TopLeftY
+
+I<< Optional. Type uniline. default: '7'.  >>
+
+=head2 UseACS
+
+use ASC symbols for icons & bars I<< Optional. Type enum. choice: 'yes', 'no'. upstream_default: 'no'.  >>
+
+=head2 DrawBorder
+
+draw Border I<< Optional. Type enum. choice: 'yes', 'no'. upstream_default: 'yes'.  >>
+
+=head1 SEE ALSO
+
+=over
+
+=item *
+
+L<cme>
+
+=back
+
+=cut

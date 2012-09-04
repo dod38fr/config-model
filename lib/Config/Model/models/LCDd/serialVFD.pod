@@ -1,0 +1,82 @@
+=head1 NAME
+
+Config::Model::models::LCDd::serialVFD - Configuration class LCDd::serialVFD
+
+=head1 DESCRIPTION
+
+Configuration classes used by L<Config::Model>
+
+generated from LCDd.conf
+
+=head1 Elements
+
+=head2 Type
+
+Specifies the displaytype.
+0 NEC (FIPC8367 based) VFDs.
+1 KD Rev 2.1.
+2 Noritake VFDs (*).
+3 Futaba VFDs
+4 IEE S03601-95B
+5 IEE S03601-96-080 (*)
+6 Futaba NA202SD08FA (allmost IEE compatible)
+7 Samsung 20S207DA4 and 20S207DA6
+8 Nixdorf BA6x / VT100
+(* most should work, not tested yet.)I<< Optional. Type uniline. upstream_default: '0'.  >>
+
+=head2 use_parallel
+
+"no" if display connected serial, "yes" if connected parallel. 
+I.e. serial by default. I<< Optional. Type uniline. upstream_default: 'no'.  >>
+
+=head2 Port
+
+Number of Custom-Characters. default is display type dependent
+Custom-Characters=0
+Portaddress where the LPT is. Used in parallel mode only. Usual values are
+0x278, 0x378 and 0x3BC.I<< Optional. Type uniline. default: '0x378'.  >>
+
+=head2 PortWait
+
+Set parallel port timing delay (us). Used in parallel mode only.I<< Optional. Type integer. upstream_default: '2'.  >>
+
+=head2 Device
+
+Device to use in serial mode. Usual values are /dev/ttyS0 and /dev/ttyS1. I<< Optional. Type uniline. default: '/dev/ttyS1'.  >>
+
+=head2 Size
+
+Specifies the size of the VFD.I<< Optional. Type uniline. default: '20x2'.  >>
+
+=head2 Brightness
+
+Set the initial brightness 
+(4 steps 0-250, 251-500, 501-750, 751-1000)I<< Optional. Type integer. upstream_default: '1000'.  >>
+
+=head2 OffBrightness
+
+Set the initial off-brightness 
+This value is used when the display is normally
+switched off in case LCDd is inactive
+(4 steps 0-250, 251-500, 501-750, 751-1000)I<< Optional. Type integer. upstream_default: '0'.  >>
+
+=head2 Speed
+
+set the serial port speed I<< Optional. Type enum. choice: '1200', '2400', '9600', '19200', '115200'. upstream_default: '9600'.  >>
+
+=head2 ISO_8859_1
+
+enable ISO 8859 1 compatibility I<< Optional. Type enum. choice: 'yes', 'no'. upstream_default: 'yes'.  >>
+
+=head1 SEE ALSO
+
+=over
+
+=item *
+
+L<cme>
+
+=back
+
+=cut
+

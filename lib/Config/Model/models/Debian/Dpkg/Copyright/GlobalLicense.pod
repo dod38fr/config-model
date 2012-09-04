@@ -1,0 +1,188 @@
+=head1 NAME
+
+Config::Model::models::Debian::Dpkg::Copyright::GlobalLicense - Configuration class Debian::Dpkg::Copyright::GlobalLicense
+
+=head1 DESCRIPTION
+
+Configuration classes used by L<Config::Model>
+
+=head1 Elements
+
+=head2 short_name
+
+The Copyright and License fields in the header paragraph may complement but do not replace the files paragraphs. They can be used to summarise the contributions and redistribution terms for the whole package, for instance when a work combines a permissive and a copyleft license, or to document a compilation copyright and license. It is possible to use only License in the header paragraph, but Copyright alone makes no sense.I<< Optional. Type uniline.  >>
+
+Here are some explanations on the possible values:
+
+=over
+
+=item 'Apache'
+
+Apache license. For versions, consult the Apache_Software_Foundation.
+
+=item 'Artistic'
+
+Artistic license. For versions, consult the Perl_Foundation
+
+=item 'BSD-2-clause'
+
+Berkeley software distribution license, 2-clause version
+
+=item 'BSD-3-clause'
+
+Berkeley software distribution license, 3-clause version
+
+=item 'BSD-4-clause'
+
+Berkeley software distribution license, 4-clause version
+
+=item 'CC-BY'
+
+Creative Commons Attribution license
+
+=item 'CC-BY-NC'
+
+Creative Commons Attribution Non-Commercial
+
+=item 'CC-BY-NC-ND'
+
+Creative Commons Attribution Non-Commercial No Derivatives
+
+=item 'CC-BY-NC-SA'
+
+Creative Commons Attribution Non-Commercial Share Alike
+
+=item 'CC-BY-ND'
+
+Creative Commons Attribution No Derivatives
+
+=item 'CC-BY-SA'
+
+Creative Commons Attribution Share Alike license
+
+=item 'CC0'
+
+Creative Commons Universal waiver
+
+=item 'CDDL'
+
+Common Development and Distribution License. For versions, consult Sun Microsystems.
+
+=item 'CPL'
+
+IBM Common Public License. For versions, consult the IBM_Common_Public License_(CPL)_Frequently_asked_questions.
+
+=item 'EFL'
+
+The Eiffel Forum License. For versions, consult the Open_Source_Initiative
+
+=item 'Expat'
+
+The Expat license
+
+=item 'FreeBSD'
+
+FreeBSD Project license
+
+=item 'GFDL'
+
+GNU Free Documentation License
+
+=item 'GFDL-NIV'
+
+GNU Free Documentation License, with no invariant sections
+
+=item 'GPL'
+
+GNU General Public License
+
+=item 'ISC'
+
+Internet_Software_Consortium's license, sometimes also known as the OpenBSD License
+
+=item 'LGPL'
+
+GNU Lesser General Public License, (GNU Library General Public License for versions lower than 2.1)
+
+=item 'LPPL'
+
+LaTeX Project Public License
+
+=item 'MPL'
+
+Mozilla Public License. For versions, consult Mozilla.org
+
+=item 'Perl'
+
+Perl license (equates to "GPL-1+ or Artistic-1")
+
+=item 'Python-CNRI'
+
+Python Software Foundation license. For versions, consult the Python_Software Foundation
+
+=item 'QPL'
+
+Q Public License
+
+=item 'W3C'
+
+W3C Software License. For more information, consult the W3C IntellectualRights FAQ and the 20021231 W3C_Software_notice_and_license
+
+=item 'ZLIB'
+
+zlib/libpng_license
+
+=item 'Zope'
+
+Zope Public License. For versions, consult Zope.org
+
+=back
+
+
+
+=head2 full_license
+
+if left blank here, the file must include a stand-alone License section matching each license short name listed on the first line (see the Standalone License Section section). Otherwise, this field should either include the full text of the license(s) or include a pointer to the license file under /usr/share/common-licenses. This field should include all text needed in order to fulfill both Debian Policy requirement for including a copy of the software distribution license, and any license requirements to include warranty disclaimers or other notices with the binary package.
+I<< Optional. Type string.  >>
+
+=head1 SEE ALSO
+
+=over
+
+=item *
+
+L<cme>
+
+=back
+
+=head1 AUTHOR
+
+=over
+
+=item Dominique Dumont
+
+
+=back
+
+=head1 COPYRIGHT
+
+=over
+
+=item 2010
+
+=item 2011 Dominique Dumont
+
+
+=back
+
+=head1 LICENSE
+
+=over
+
+=item LGPL2
+
+
+=back
+
+=cut
+

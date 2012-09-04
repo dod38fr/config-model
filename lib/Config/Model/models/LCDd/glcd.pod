@@ -1,0 +1,62 @@
+=head1 NAME
+
+Config::Model::models::LCDd::glcd - Configuration class LCDd::glcd
+
+=head1 DESCRIPTION
+
+Configuration classes used by L<Config::Model>
+
+generated from LCDd.conf
+
+=head1 Elements
+
+=head2 ConnectionType
+
+Select what type of connection. See documentation for types.I<< Optional. Type uniline. default: 't6963'.  >>
+
+=head2 Size
+
+Width and height of the display in pixel. The supported sizes may depend on
+the ConnectionType. I<< Optional. Type uniline. upstream_default: '128x64'.  >>
+
+=head2 Port
+
+t6963: Parallel port to use I<< Optional. Type uniline. upstream_default: '0x378'.  >>
+
+=head2 bidirectional
+
+t6963: Use LPT port in bi-directional mode. This should work on most LPT port
+and is required for proper timing! I<< Optional. Type enum. choice: 'yes', 'no'. upstream_default: 'yes'.  >>
+
+=head2 delayBus
+
+t6963: Insert additional delays into reads / writes. I<< Optional. Type enum. choice: 'yes', 'no'. upstream_default: 'no'.  >>
+
+=head2 useFT2
+
+If LCDproc has been compiled with FreeType 2 support this option can be used
+to turn if off intentionally. I<< Optional. Type enum. choice: 'yes', 'no'. upstream_default: 'yes'.  >>
+
+=head2 normal_font
+
+Path to font file to use for FreeType rendering. This font must be monospace
+and should contain some special Unicode characters like arrows (Andale Mono
+is recommended and can be fetched at http://corefonts.sf.net).I<< Optional. Type uniline. default: '/usr/local/lib/X11/fonts/TTF/andalemo.ttf'.  >>
+
+=head2 fontHasIcons
+
+Some fonts miss the Unicode characters used to represent icons. In this case
+the built-in 5x8 font can used if this option is turned off. I<< Optional. Type enum. choice: 'yes', 'no'. upstream_default: 'yes'.  >>
+
+=head1 SEE ALSO
+
+=over
+
+=item *
+
+L<cme>
+
+=back
+
+=cut
+

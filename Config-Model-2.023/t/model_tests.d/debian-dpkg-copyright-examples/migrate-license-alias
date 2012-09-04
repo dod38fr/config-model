@@ -1,0 +1,28 @@
+Format-Specification: http://anonscm.debian.org/viewvc/dep/web/deps/dep5.mdwn?view=markup&pathrev=135
+Maintainer: Ken MacLeod
+Source: http://search.cpan.org/dist/XML-Grove/
+Name: XML-Grove
+
+Copyright: © 1998-1999, Ken MacLeod
+License-Alias: Perl
+
+Files: debian/*
+Copyright:
+ © 1999-2003, Ardo van Rangelrooij <ardo@debian.org>
+ © 2004,      Jay Bonci <jaybonci@debian.org>
+ © 2010,      Ansgar Burchardt <ansgar@debian.org>
+License: Artistic | GPL-1+
+
+License: Artistic
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the Artistic License, which comes with Perl.
+    On Debian GNU/Linux systems, the complete text of the Artistic License
+    can be found in `/usr/share/common-licenses/Artistic'
+
+License: GPL-1+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 1, or (at your option)
+    any later version.
+    On Debian GNU/Linux systems, the complete text of the GNU General
+    Public License can be found in `/usr/share/common-licenses/GPL'

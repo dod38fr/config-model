@@ -1,0 +1,72 @@
+=head1 NAME
+
+Config::Model::models::LCDd::CwLnx - Configuration class LCDd::CwLnx
+
+=head1 DESCRIPTION
+
+Configuration classes used by L<Config::Model>
+
+generated from LCDd.conf
+
+=head1 Elements
+
+=head2 Model
+
+Select the LCD model I<< Optional. Type enum. choice: '12232', '12832', '1602'. upstream_default: '12232'.  >>
+
+=head2 Device
+
+Select the output device to use I<< Optional. Type uniline. upstream_default: '/dev/lcd'.  >>
+
+=head2 Size
+
+Select the LCD size. Default depends on model:
+12232: 20x4
+12832: 21x4
+1602: 16x2. I<< Optional. Type uniline. default: '20x4'.  >>
+
+=head2 Speed
+
+Set the communication speed I<< Optional. Type enum. choice: '9600', '19200'. upstream_default: '19200'.  >>
+
+=head2 Reboot
+
+Reinitialize the LCD's BIOS 
+normally you shouldn't need this. I<< Optional. Type enum. choice: 'yes', 'no'. upstream_default: 'no'.  >>
+
+=head2 Keypad
+
+If you have a keypad connected. Keypad layout is currently not
+configureable from the config file.I<< Optional. Type uniline. default: 'yes'.  >>
+
+=head2 keypad_test_mode
+
+If you have a non-standard keypad you can associate any keystrings to keys.
+There are 6 input keys in the CwLnx hardware that generate characters
+from 'A' to 'F'.
+
+The following is the built-in default mapping hardcoded in the driver.
+You can leave those unchanged if you have a standard keypad.
+You can change it if you want to report other keystrings or have a non
+standard keypad.
+KeyMap_A=Up
+KeyMap_B=Down
+KeyMap_C=Left
+KeyMap_D=Right
+KeyMap_E=Enter
+KeyMap_F=Escape
+keypad_test_mode permits one to test keypad assignment
+Default value is no. I<< Optional. Type uniline. default: 'yes'.  >>
+
+=head1 SEE ALSO
+
+=over
+
+=item *
+
+L<cme>
+
+=back
+
+=cut
+

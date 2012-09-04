@@ -1,0 +1,237 @@
+=head1 NAME
+
+Config::Model::models::Debian::Dpkg::Copyright::FileLicense - Configuration class Debian::Dpkg::Copyright::FileLicense
+
+=head1 DESCRIPTION
+
+Configuration classes used by L<Config::Model>
+
+=head1 Elements
+
+=head2 short_name
+
+abbreviated name for the license. If empty, it is given the default 
+value 'other'. Only one license per file can use this default value; if there is more 
+than one license present in the package without a standard short name, an arbitrary 
+short name may be assigned for these licenses. These arbitrary names are only guaranteed 
+to be unique within a single copyright file.
+
+The name given must match a License described in License element in root node
+. I<< Optional. Type uniline.  >>
+
+Here are some explanations on the possible values:
+
+=over
+
+=item 'Apache'
+
+Apache license. For versions, consult the Apache_Software_Foundation.
+
+=item 'Artistic'
+
+Artistic license. For versions, consult the Perl_Foundation
+
+=item 'BSD-2-clause'
+
+Berkeley software distribution license, 2-clause version
+
+=item 'BSD-3-clause'
+
+Berkeley software distribution license, 3-clause version
+
+=item 'BSD-4-clause'
+
+Berkeley software distribution license, 4-clause version
+
+=item 'CC-BY'
+
+Creative Commons Attribution license
+
+=item 'CC-BY-NC'
+
+Creative Commons Attribution Non-Commercial
+
+=item 'CC-BY-NC-ND'
+
+Creative Commons Attribution Non-Commercial No Derivatives
+
+=item 'CC-BY-NC-SA'
+
+Creative Commons Attribution Non-Commercial Share Alike
+
+=item 'CC-BY-ND'
+
+Creative Commons Attribution No Derivatives
+
+=item 'CC-BY-SA'
+
+Creative Commons Attribution Share Alike license
+
+=item 'CC0'
+
+Creative Commons Universal waiver
+
+=item 'CDDL'
+
+Common Development and Distribution License. For versions, consult Sun Microsystems.
+
+=item 'CPL'
+
+IBM Common Public License. For versions, consult the IBM_Common_Public License_(CPL)_Frequently_asked_questions.
+
+=item 'EFL'
+
+The Eiffel Forum License. For versions, consult the Open_Source_Initiative
+
+=item 'Expat'
+
+The Expat license
+
+=item 'FreeBSD'
+
+FreeBSD Project license
+
+=item 'GFDL'
+
+GNU Free Documentation License
+
+=item 'GFDL-NIV'
+
+GNU Free Documentation License, with no invariant sections
+
+=item 'GPL'
+
+GNU General Public License
+
+=item 'ISC'
+
+Internet_Software_Consortium's license, sometimes also known as the OpenBSD License
+
+=item 'LGPL'
+
+GNU Lesser General Public License, (GNU Library General Public License for versions lower than 2.1)
+
+=item 'LPPL'
+
+LaTeX Project Public License
+
+=item 'MPL'
+
+Mozilla Public License. For versions, consult Mozilla.org
+
+=item 'Perl'
+
+Perl license (equates to "GPL-1+ or Artistic-1")
+
+=item 'Python-CNRI'
+
+Python Software Foundation license. For versions, consult the Python_Software Foundation
+
+=item 'QPL'
+
+Q Public License
+
+=item 'W3C'
+
+W3C Software License. For more information, consult the W3C IntellectualRights FAQ and the 20021231 W3C_Software_notice_and_license
+
+=item 'ZLIB'
+
+zlib/libpng_license
+
+=item 'Zope'
+
+Zope Public License. For versions, consult Zope.org
+
+=back
+
+
+
+Note: short_name is migrated with 'C<$replace{$alias}>' and with $alias => "C<- - License-Alias>" and 'C<$replace{Perl}>' => "C<Artistic or GPL-1+>"
+
+=head2 exception
+
+License exception. I<< Optional. Type uniline.  >>
+
+Here are some explanations on the possible values:
+
+=over
+
+=item 'Font'
+
+The GPL "Font" exception refers to the text added to the license notice of each file as specified at How_does_the_GPL_apply_to_fonts?. The precise text corresponding to this exception is:
+As a special exception, if you create a document which uses this
+font, and embed this font or unaltered portions of this font into the
+document, this font does not by itself cause the resulting document
+to be covered by the GNU General Public License. This exception does
+not however invalidate any other reasons why the document might be
+covered by the GNU General Public License. If you modify this font,
+you may extend this exception to your version of the font, but you
+are not obligated to do so. If you do not wish to do so, delete this
+exception statement from your version.
+
+=item 'OpenSSL'
+
+The GPL "OpenSSL" exception gives permission to link GPL-licensed code with the OpenSSL library, which contains GPL-incompatible clauses. For more information, see "The_-OpenSSL_License_and_The_GPL" by Mark McLoughlin and the message "middleman_software_license_conflicts_with_OpenSSL" by Mark McLoughlin on the debian-legal mailing list. The text corresponding to this exception is:
+In addition, as a special exception, the copyright holders give
+permission to link the code of portions of this program with the
+OpenSSL library under certain conditions as described in each
+individual source file, and distribute linked combinations including
+the two.
+
+You must obey the GNU General Public License in all respects for all
+of the code used other than OpenSSL. If you modify file(s) with this
+exception, you may extend this exception to your version of the file
+(s), but you are not obligated to do so. If you do not wish to do so,
+delete this exception statement from your version. If you delete this
+exception statement from all source files in the program, then also
+delete it here.
+
+=back
+
+
+
+=head2 full_license
+
+if left blank here, the file must include a stand-alone License section matching each license short name listed on the first line (see the Standalone License Section section). Otherwise, this field should either include the full text of the license(s) or include a pointer to the license file under /usr/share/common-licenses. This field should include all text needed in order to fulfill both Debian Policy requirement for including a copy of the software distribution license, and any license requirements to include warranty disclaimers or other notices with the binary package.
+I<< Optional. Type string.  >>
+
+=head1 SEE ALSO
+
+=over
+
+=item *
+
+L<cme>
+
+=back
+
+=head1 AUTHOR
+
+=over
+
+=item Dominique Dumont
+
+
+=back
+
+=head1 COPYRIGHT
+
+=over
+
+=item 2010,2011 Dominique Dumont
+
+
+=back
+
+=head1 LICENSE
+
+=over
+
+=item LGPL2
+
+
+=back
+
+=cut
+

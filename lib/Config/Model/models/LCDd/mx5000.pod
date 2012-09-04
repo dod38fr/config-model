@@ -1,0 +1,32 @@
+=head1 NAME
+
+Config::Model::models::LCDd::mx5000 - Configuration class LCDd::mx5000
+
+=head1 DESCRIPTION
+
+Configuration classes used by L<Config::Model>
+
+generated from LCDd.conf
+
+=head1 Elements
+
+=head2 Device
+
+Select the output device to use I<< Optional. Type uniline. upstream_default: '/dev/hiddev0'.  >>
+
+=head2 WaitAfterRefresh
+
+Time to wait in ms after the refresh screen has been sent I<< Optional. Type uniline. upstream_default: '1000'.  >>
+
+=head1 SEE ALSO
+
+=over
+
+=item *
+
+L<cme>
+
+=back
+
+=cut
+

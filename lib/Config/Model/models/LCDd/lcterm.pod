@@ -1,0 +1,32 @@
+=head1 NAME
+
+Config::Model::models::LCDd::lcterm - Configuration class LCDd::lcterm
+
+=head1 DESCRIPTION
+
+Configuration classes used by L<Config::Model>
+
+generated from LCDd.conf
+
+=head1 Elements
+
+=head2 Device
+
+I<< Optional. Type uniline. default: '/dev/ttyS1'.  >>
+
+=head2 Size
+
+I<< Optional. Type uniline. default: '16x2'.  >>
+
+=head1 SEE ALSO
+
+=over
+
+=item *
+
+L<cme>
+
+=back
+
+=cut
+

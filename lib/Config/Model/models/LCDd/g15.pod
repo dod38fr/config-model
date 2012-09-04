@@ -1,0 +1,28 @@
+=head1 NAME
+
+Config::Model::models::LCDd::g15 - Configuration class LCDd::g15
+
+=head1 DESCRIPTION
+
+Configuration classes used by L<Config::Model>
+
+generated from LCDd.conf
+
+=head1 Elements
+
+=head2 size
+
+Display size (currently unused)I<< Optional. Type uniline. default: '20x5'.  >>
+
+=head1 SEE ALSO
+
+=over
+
+=item *
+
+L<cme>
+
+=back
+
+=cut
+

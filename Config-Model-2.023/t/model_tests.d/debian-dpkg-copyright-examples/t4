@@ -1,0 +1,9 @@
+Format-Specification: http://svn.debian.org/wsvn/dep/web/deps/dep5.mdwn?op=file&amp;rev=135
+Source: http:/some.where.com
+
+Files: *
+Copyright: 1993, John Doe
+           1993, Joe Average
+License: GPL-2+ with OpenSSL exception
+ This program is free software; you can redistribute it
+  and/or modify it under the terms of the [snip]

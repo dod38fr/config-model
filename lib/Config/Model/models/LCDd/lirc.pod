@@ -1,0 +1,32 @@
+=head1 NAME
+
+Config::Model::models::LCDd::lirc - Configuration class LCDd::lirc
+
+=head1 DESCRIPTION
+
+Configuration classes used by L<Config::Model>
+
+generated from LCDd.conf
+
+=head1 Elements
+
+=head2 lircrc
+
+Specify an alternative location of the lircrc file I<< Optional. Type uniline. upstream_default: '~/.lircrc'.  >>
+
+=head2 prog
+
+Must be the same as in your lircrc. I<< Optional. Type uniline. default: 'lcdd'.  >>
+
+=head1 SEE ALSO
+
+=over
+
+=item *
+
+L<cme>
+
+=back
+
+=cut
+

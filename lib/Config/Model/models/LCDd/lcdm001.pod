@@ -1,0 +1,51 @@
+=head1 NAME
+
+Config::Model::models::LCDd::lcdm001 - Configuration class LCDd::lcdm001
+
+=head1 DESCRIPTION
+
+Configuration classes used by L<Config::Model>
+
+generated from LCDd.conf
+
+=head1 Elements
+
+=head2 Device
+
+I<< Optional. Type uniline. default: '/dev/ttyS1'.  >>
+
+=head2 PauseKey
+
+keypad settings
+Keyname      Function
+             Normal context              Menu context
+-------      --------------              ------------
+PauseKey     Pause/Continue              Enter/select
+BackKey      Back(Go to previous screen) Up/Left
+ForwardKey   Forward(Go to next screen)  Down/Right
+MainMenuKey  Open main menu              Exit/Cancel. I<< Optional. Type uniline. default: 'LeftKey'.  >>
+
+=head2 BackKey
+
+I<< Optional. Type uniline. default: 'UpKey'.  >>
+
+=head2 ForwardKey
+
+I<< Optional. Type uniline. default: 'DownKey'.  >>
+
+=head2 MainMenuKey
+
+I<< Optional. Type uniline. default: 'RightKey'.  >>
+
+=head1 SEE ALSO
+
+=over
+
+=item *
+
+L<cme>
+
+=back
+
+=cut
+

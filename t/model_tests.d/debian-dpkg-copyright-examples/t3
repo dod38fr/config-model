@@ -1,0 +1,53 @@
+Format-Specification: http://svn.debian.org/wsvn/dep/web/deps/dep5.mdwn?op=file&rev=135
+Name: Planet Venus
+Maintainer: John Doe <jdoe@example.com>
+Source: http://www.example.com/code/venus
+Comment:
+ Header comment 1/2
+ Header comment 2/2
+
+Files: *
+Copyright: 2008, John Doe <jdoe@example.com>
+           2007, Jane Smith <jsmith@example.org>
+           2007, Joe Average <joe@example.org>
+           2007, J. Random User <jr@users.example.com>
+License: PSF-2
+ [LICENSE TEXT]
+Comment: 
+  Files * comment 1/2
+ Files * comment 2/2
+
+Files: debian/patches/theme-diveintomark.patch
+Copyright: 2008, Joe Hacker <hack@example.org>
+License: GPL-2+
+ [LICENSE TEXT]
+
+Files: planet/vendor/compat_logging/*
+Copyright: 2002, Mark Smith <msmith@example.org>
+License: MIT
+ [LICENSE TEXT]
+Comment: 
+ Files logging * comment 1/2
+  Files logging * comment 2/2
+
+Files: planet/vendor/httplib2/*
+Copyright: 2006, John Brown <brown@example.org>
+License: MIT2
+ Unspecified MIT style license.
+
+Files: planet/vendor/feedparser.py
+Copyright: 2007, Mike Smith <mike@example.org>
+License: PSF-2
+ [LICENSE TEXT]
+
+Files: planet/vendor/htmltmpl.py
+Copyright: 2004, Thomas Brown <coder@example.org>
+License: GPL-2
+ This program is free software; you can redistribute it
+ [snip]
+ Boston, MA  02110-1301 USA
+ .
+ On Debian systems, the full text of the GNU General Public
+ License version 2 can be found in the file
+ ‘/usr/share/common-licenses/GPL-2’.
+

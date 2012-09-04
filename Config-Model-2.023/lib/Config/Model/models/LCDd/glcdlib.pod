@@ -1,0 +1,100 @@
+=head1 NAME
+
+Config::Model::models::LCDd::glcdlib - Configuration class LCDd::glcdlib
+
+=head1 VERSION
+
+version 2.023
+
+=head1 DESCRIPTION
+
+Configuration classes used by L<Config::Model>
+
+generated from LCDd.conf
+
+=head1 Elements
+
+=head2 Driver
+
+which graphical display supported by graphlcd-base to use 
+(see /etc/graphlcd.conf for possible drivers)I<< Optional. Type uniline. upstream_default: 'image'.  >>
+
+=head2 UseFT2
+
+no=use graphlcd bitmap fonts (they have only one size / font file)
+yes=use fonts supported by FreeType2 (needs Freetype2 support in
+libglcdprocdriver and its dependants)I<< Optional. Type uniline. default: 'yes'.  >>
+
+=head2 TextResolution
+
+text resolution in fixed width characters 
+(if it won't fit according to available physical pixel resolution
+and the minimum available font face size in pixels, then
+'DebugBorder' will automatically be turned on)I<< Optional. Type uniline. upstream_default: '16x4'.  >>
+
+=head2 FontFile
+
+path to font file to use. I<< Optional. Type uniline. default: '/usr/share/fonts/corefonts/courbd.ttf'.  >>
+
+=head2 CharEncoding
+
+character encoding to use. I<< Optional. Type uniline. default: 'iso8859-2'.  >>
+
+=head2 MinFontFaceSize
+
+minimum size in pixels in which fonts should be rendered. I<< Optional. Type uniline. default: '7x12'.  >>
+
+=head2 Brightness
+
+Brightness (in %) if applicable. I<< Optional. Type uniline. default: '50'.  >>
+
+=head2 Contrast
+
+Contrast (in %) if applicable. I<< Optional. Type uniline. default: '50'.  >>
+
+=head2 Backlight
+
+Backlight if applicable. I<< Optional. Type uniline. default: 'no'.  >>
+
+=head2 UpsideDown
+
+flip image upside down. I<< Optional. Type uniline. default: 'no'.  >>
+
+=head2 Invert
+
+invert light/dark pixels. I<< Optional. Type uniline. default: 'no'.  >>
+
+=head2 ShowDebugFrame
+
+turns on/off 1 pixel thick debugging. I<< Optional. Type uniline. default: 'no'.  >>
+
+=head2 ShowBigBorder
+
+border within the usable text area,
+for setting up TextResolution and
+MinFontFaceSize (if using FT2);
+border around the unused area. I<< Optional. Type uniline. default: 'no'.  >>
+
+=head2 ShowThinBorder
+
+border around the unused area. I<< Optional. Type uniline. default: 'yes'.  >>
+
+=head2 PixelShiftX
+
+I<< Optional. Type uniline. default: '0'.  >>
+
+=head2 PixelShiftY
+
+I<< Optional. Type uniline. default: '2'.  >>
+
+=head1 SEE ALSO
+
+=over
+
+=item *
+
+L<cme>
+
+=back
+
+=cut

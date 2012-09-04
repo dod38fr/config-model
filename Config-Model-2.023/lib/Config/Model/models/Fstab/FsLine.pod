@@ -1,0 +1,122 @@
+=head1 NAME
+
+Config::Model::models::Fstab::FsLine - Configuration class Fstab::FsLine
+
+=head1 VERSION
+
+version 2.023
+
+=head1 DESCRIPTION
+
+Configuration classes used by L<Config::Model>
+
+data of one /etc/fstab line
+
+=head1 Elements
+
+=head2 fs_spec
+
+block special device or remote filesystem to be mounted. I<< Mandatory. Type uniline.  >>
+
+=head2 fs_file
+
+mount point for the filesystem. I<< Mandatory. Type uniline.  >>
+
+=head2 fs_vfstype
+
+file system type. I<< Mandatory. Type enum. choice: 'auto', 'davfs', 'ext2', 'ext3', 'ext4', 'swap', 'proc', 'iso9660', 'vfat', 'usbfs', 'ignore', 'nfs', 'nfs4', 'none', 'ignore', 'debugfs'.  >>
+
+Here are some explanations on the possible values:
+
+=over
+
+=item 'auto'
+
+file system type is probed by the kernel when mounting the device
+
+=item 'davfs'
+
+WebDav access
+
+=item 'ext2'
+
+Common Linux file system.
+
+=item 'ext3'
+
+Common Linux file system with journaling 
+
+=item 'ignore'
+
+unused disk partition
+
+=item 'iso9660'
+
+CD-ROM or DVD file system
+
+=item 'proc'
+
+Kernel info through a special file system
+
+=item 'usbfs'
+
+USB pseudo file system. Gives a file system view of kernel data related to usb
+
+=item 'vfat'
+
+Older Windows file system often used on removable media
+
+=back
+
+
+
+=head2 fs_mntopts
+
+mount options associated with the filesystem. I<< Optional. Type warped_node.  >>
+
+=head2 fs_freq
+
+Specifies if the file system needs to be dumped. I<< Optional. Type enum. choice: '0', '1'. default: '0'.  >>
+
+=head2 fs_passno - fsck pass number
+
+used by the fsck(8) program to determine the order in which filesystem checks are done at reboot time. I<< Optional. Type integer. default: '0'.  >>
+
+=head1 SEE ALSO
+
+=over
+
+=item *
+
+L<cme>
+
+=back
+
+=head1 AUTHOR
+
+=over
+
+=item Dominique Dumont
+
+
+=back
+
+=head1 COPYRIGHT
+
+=over
+
+=item 2010,2011 Dominique Dumont
+
+
+=back
+
+=head1 LICENSE
+
+=over
+
+=item LGPL2
+
+
+=back
+
+=cut

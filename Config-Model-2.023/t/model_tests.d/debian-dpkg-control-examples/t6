@@ -1,0 +1,5 @@
+Source: python-foo
+Maintainer: dod <dod@foo.bar>
+Priority: optional
+Build-Depends: debhelper (>= 7)
+XS-Python-Version: 2.3-

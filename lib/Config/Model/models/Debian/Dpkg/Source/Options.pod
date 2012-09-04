@@ -1,0 +1,50 @@
+=head1 NAME
+
+Config::Model::models::Debian::Dpkg::Source::Options - Configuration class Debian::Dpkg::Source::Options
+
+=head1 DESCRIPTION
+
+Configuration classes used by L<Config::Model>
+
+list of long options that should be automatically prepended to the set of command line options of a dpkg-source -b or dpkg-source --print-format call. Options like --compression and --compression-level are well suited for this file.
+
+=head1 Elements
+
+=head2 diff-ignore - perl regexp to filter out files for the diff
+
+perl regular expression to match files you want filtered out of the list of files for the diff.This is very helpful in cutting out extraneous files that get included in the diff, e.g. if you maintain your source in a revision control system and want to use a checkout to build a source package without including the additional files and directories that it will usually contain (e.g. CVS, .cvsignore, .svn/). The default regexp is already very exhaustive, but if you need to replace it, please note that by default it can match any part of a path, so if you want to match the begin of a filename or only full filenames, you will need to provide the necessary anchors (e.g. '(^|/)', '($|/)') yourself.I<< Optional. Type uniline.  >>
+
+=head2 extend-diff-ignore - Perl regexp to extend the diff-ignore setup
+
+The perl regular expression specified will extend the default regular expression associated to diff-ignore by concatenating "|regexp" to the default regexp. This option is convenient to exclude some auto-generated files from the automatic patch generation.I<< Optional. Type uniline.  >>
+
+=head1 SEE ALSO
+
+=over
+
+=item *
+
+L<cme>
+
+=back
+
+=head1 AUTHOR
+
+=over
+
+=item Dominique Dumont <domi.dumont@free.fr>
+
+
+=back
+
+=head1 LICENSE
+
+=over
+
+=item LGPL-2.1
+
+
+=back
+
+=cut
+

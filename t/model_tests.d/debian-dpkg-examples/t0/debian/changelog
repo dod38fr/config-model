@@ -1,0 +1,46 @@
+libconfig-model-approx-perl (1.004-1) UNRELEASED; urgency=low
+
+  TODO:
+  - d/control:
+    + we need Module::Build: 0.38 --> add to Build-Depends: 
+      "libmodule-build-perl (>= 0.380000) | perl (>= 5.13.11)
+      (or check with dod what's _really_ needed, 0.38 is what his META.* says :))
+    + we now need Config::Model: 1.245 --> bump version in B-D-I and Depends of
+      libconfig-model-perl to >= 1.245
+
+  [ Fabrizio Regalli ]
+  * New upstream release.
+  * Switch d/compat to 8.
+  * Bump to 3.9.2 Standard-Version.
+  * Build-Depends: switch to debhelper (>= 8).
+  * Add myself to Uploaders and Copyright.
+  * Updated d/copyright.
+  * Changed Vcs-* fields.
+  * Switch to 3.0 quilt format.
+  * Removed perl (>= 5.10) | libmodule-build-perl as B-D.
+  * Added libfile-slurp-perl as B-D-I.
+  * Added libmodule-build-perl (>= 0.380000) | perl (>= 5.13.11) as B-D.
+  * Update libconfig-model-perl to >= 1.245 in d/control.
+
+  [ Dominique Dumont ]
+  * control and copyright: updated my e-mail address
+
+ -- Fabrizio Regalli <fabreg@fabreg.it>  Mon, 27 Jun 2011 23:41:57 +0200
+
+libconfig-model-approx-perl (1.003-1) unstable; urgency=low
+
+  [ Jonathan Yu ]
+  * New upstream release
+  * Add myself to Uploaders and Copyright
+
+  [ gregor herrmann ]
+  * debian/control: Changed: (build-)depend on perl instead of perl-
+    modules.
+
+ -- Jonathan Yu <jawnsy@cpan.org>  Fri, 23 Oct 2009 07:33:31 -0400
+
+libconfig-model-approx-perl (1.002-1) unstable; urgency=low
+
+  * Initial Release. (Closes: #548193)
+
+ -- Dominique Dumont <dominique.dumont@hp.com>  Sun, 27 Sep 2009 18:57:22 +0200

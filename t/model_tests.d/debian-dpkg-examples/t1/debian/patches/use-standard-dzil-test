@@ -1,0 +1,14 @@
+Description: use standard dzil test suite
+ Test is modified in order not to load the Test:Dzil module
+ provided in t/lib
+--- a/t/10_build_phase.t
++++ b/t/10_build_phase.t
+@@ -2,8 +2,6 @@
+ use warnings;
+ use Test::More 0.88;
+ 
+-use lib 't/lib';
+-
+ use Path::Class;
+ 
+ use Test::DZil;

@@ -1,0 +1,147 @@
+=head1 NAME
+
+Config::Model::models::Debian::Dpkg::Control::Binary - Configuration class Debian::Dpkg::Control::Binary
+
+=head1 VERSION
+
+version 2.023
+
+=head1 DESCRIPTION
+
+Configuration classes used by L<Config::Model>
+
+=head1 Elements
+
+=head2 Architecture
+
+If a program needs to specify an architecture specification string in some place, it should select one of the strings provided by dpkg-architecture -L. The strings are in the format os-arch, though the OS part is sometimes elided, as when the OS is Linux. 
+A package may specify an architecture wildcard. Architecture wildcards are in the format any (which matches every architecture), os-any, or any-cpu. For more details, see L<http://www.debian.org/doc/debian-policy/ch-customized-programs.html#s-arch-spec| Debian policy>I<< Mandatory. Type string.  >>
+
+=head2 Multi-Arch
+
+This field is used to indicate how this package should behave on a multi-arch installations. This field should not be present in packages with the Architecture: all field.I<< Optional. Type enum. choice: 'same', 'foreign', 'allowed'.  >>
+
+Here are some explanations on the possible values:
+
+=over
+
+=item 'allowed'
+
+allows reverse-dependencies to indicate in their Depends field that they need a package from a foreign architecture, but has no effect otherwise.
+
+=item 'foreign'
+
+the package is not co-installable with itself, but should be allowed to satisfy the dependency of a package of a different arch from itself.
+
+=item 'same'
+
+the package is co-installable with itself, but it must not be used to satisfy the dependency of any package of a different architecture from itself.
+
+=back
+
+
+
+=head2 Section
+
+I<< Optional. Type uniline.  >>
+
+=head2 Priority
+
+I<< Optional. Type enum. choice: 'required', 'important', 'standard', 'optional', 'extra'.  >>
+
+=head2 Essential
+
+I<< Optional. Type boolean.  >>
+
+=head2 Depends
+
+I<< Optional. Type list of uniline.  >>
+
+=head2 Recommends
+
+I<< Optional. Type list of uniline.  >>
+
+=head2 Suggests
+
+I<< Optional. Type list of uniline.  >>
+
+=head2 Enhances
+
+I<< Optional. Type list of uniline.  >>
+
+=head2 Pre-Depends
+
+I<< Optional. Type list of uniline.  >>
+
+=head2 Breaks
+
+I<< Optional. Type list of uniline.  >>
+
+=head2 Conflicts
+
+I<< Optional. Type list of uniline.  >>
+
+=head2 Provides
+
+I<< Optional. Type list of uniline.  >>
+
+=head2 Replaces
+
+I<< Optional. Type list of uniline.  >>
+
+=head2 Package-Type - The type of the package, if not a regular Debian one
+
+If this field is present, the package is not a regular Debian package, but either a udeb generated for the Debian installer or a tdeb containing translated debconf strings.I<< Optional. Type enum. choice: 'tdeb', 'udeb'.  >>
+
+Note: Package-Type is migrated with 'C<$xc>' and with $xc => "C<- XC-Package-Type>"
+
+=head2 XC-Package-Type - The type of the package, if not a regular Debian one
+
+If this field is present, the package is not a regular Debian package, but either a udeb generated for the Debian installer or a tdeb containing translated debconf strings.B<Deprecated> I<< Optional. Type enum. choice: 'tdeb', 'udeb'.  >>
+
+=head2 Synopsis
+
+I<< Mandatory. Type uniline.  >>
+
+=head2 Description
+
+I<< Mandatory. Type string.  >>
+
+=head1 SEE ALSO
+
+=over
+
+=item *
+
+L<cme>
+
+=back
+
+=head1 AUTHOR
+
+=over
+
+=item Dominique Dumont
+
+
+=back
+
+=head1 COPYRIGHT
+
+=over
+
+=item 2010,2011 Dominique Dumont
+
+
+=back
+
+=head1 LICENSE
+
+=over
+
+=item LGPL2
+
+
+=back
+
+=cut

@@ -1,0 +1,52 @@
+=head1 NAME
+
+Config::Model::models::LCDd::joy - Configuration class LCDd::joy
+
+=head1 DESCRIPTION
+
+Configuration classes used by L<Config::Model>
+
+generated from LCDd.conf
+
+=head1 Elements
+
+=head2 Device
+
+Select the input device to use I<< Optional. Type uniline. upstream_default: '/dev/js0'.  >>
+
+=head2 Map_Axis1neg
+
+set the axis map. I<< Optional. Type uniline. default: 'Left'.  >>
+
+=head2 Map_Axis1pos
+
+I<< Optional. Type uniline. default: 'Right'.  >>
+
+=head2 Map_Axis2neg
+
+I<< Optional. Type uniline. default: 'Up'.  >>
+
+=head2 Map_Axis2pos
+
+I<< Optional. Type uniline. default: 'Down'.  >>
+
+=head2 Map_Button1
+
+set the button map. I<< Optional. Type uniline. default: 'Enter'.  >>
+
+=head2 Map_Button2
+
+I<< Optional. Type uniline. default: 'Escape'.  >>
+
+=head1 SEE ALSO
+
+=over
+
+=item *
+
+L<cme>
+
+=back
+
+=cut
+

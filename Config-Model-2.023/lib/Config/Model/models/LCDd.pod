@@ -1,0 +1,476 @@
+=head1 NAME
+
+Config::Model::models::LCDd - Configuration class LCDd
+
+=head1 VERSION
+
+version 2.023
+
+=head1 DESCRIPTION
+
+Configuration classes used by L<Config::Model>
+
+LCDd.conf -- configuration file for the LCDproc server daemon LCDd
+
+This file contains the configuration for the LCDd server.
+
+The format is ini-file-like. It is divided into sections that start at
+markers that look like [section]. Comments are all line-based comments,
+and are lines that start with '
+
+The server has a 'central' section named [server]. For the menu there is
+a section called [menu]. Further each driver has a section which
+defines how the driver acts.
+
+The drivers are activated by specifying them in a driver= line in the
+server section, like:
+
+  Driver=curses
+
+This tells LCDd to use the curses driver.
+The first driver that is loaded and is capable of output defines the
+size of the display. The default driver to use is curses.
+If the driver is specified using the -d <driver> command line option,
+the Driver= options in the config file are ignored.
+
+The drivers read their own options from the respective sections.
+
+Model information extracted from template /etc/LCDd.conf
+
+=head1 BUGS
+
+This model does not support to load several drivers. Loading several drivers is probably a marginal case. Please complain to the author if this assumption is false
+
+=head1 Elements
+
+=head2 server
+
+I<< Optional. Type node.  >>
+
+=head2 menu
+
+I<< Optional. Type node.  >>
+
+=head2 bayrad
+
+I<< Optional. Type warped_node.  >>
+
+=head2 CFontz
+
+I<< Optional. Type warped_node.  >>
+
+=head2 CFontzPacket
+
+I<< Optional. Type warped_node.  >>
+
+=head2 curses
+
+I<< Optional. Type warped_node.  >>
+
+=head2 CwLnx
+
+I<< Optional. Type warped_node.  >>
+
+=head2 ea65
+
+I<< Optional. Type warped_node.  >>
+
+=head2 EyeboxOne
+
+I<< Optional. Type warped_node.  >>
+
+=head2 g15
+
+I<< Optional. Type warped_node.  >>
+
+=head2 glcd
+
+I<< Optional. Type warped_node.  >>
+
+=head2 glcdlib
+
+I<< Optional. Type warped_node.  >>
+
+=head2 glk
+
+I<< Optional. Type warped_node.  >>
+
+=head2 hd44780
+
+I<< Optional. Type warped_node.  >>
+
+=head2 icp_a106
+
+I<< Optional. Type warped_node.  >>
+
+=head2 IOWarrior
+
+I<< Optional. Type warped_node.  >>
+
+=head2 imon
+
+I<< Optional. Type warped_node.  >>
+
+=head2 imonlcd
+
+I<< Optional. Type warped_node.  >>
+
+=head2 IrMan
+
+I<< Optional. Type warped_node.  >>
+
+=head2 irtrans
+
+I<< Optional. Type warped_node.  >>
+
+=head2 joy
+
+I<< Optional. Type warped_node.  >>
+
+=head2 lb216
+
+I<< Optional. Type warped_node.  >>
+
+=head2 lcdm001
+
+I<< Optional. Type warped_node.  >>
+
+=head2 lcterm
+
+I<< Optional. Type warped_node.  >>
+
+=head2 lirc
+
+I<< Optional. Type warped_node.  >>
+
+=head2 lis
+
+I<< Optional. Type warped_node.  >>
+
+=head2 MD8800
+
+I<< Optional. Type warped_node.  >>
+
+=head2 mdm166a
+
+I<< Optional. Type warped_node.  >>
+
+=head2 ms6931
+
+I<< Optional. Type warped_node.  >>
+
+=head2 mtc_s16209x
+
+I<< Optional. Type warped_node.  >>
+
+=head2 MtxOrb
+
+I<< Optional. Type warped_node.  >>
+
+=head2 mx5000
+
+I<< Optional. Type warped_node.  >>
+
+=head2 NoritakeVFD
+
+I<< Optional. Type warped_node.  >>
+
+=head2 picolcd
+
+I<< Optional. Type warped_node.  >>
+
+=head2 pyramid
+
+I<< Optional. Type warped_node.  >>
+
+=head2 sed1330
+
+I<< Optional. Type warped_node.  >>
+
+=head2 sed1520
+
+I<< Optional. Type warped_node.  >>
+
+=head2 serialPOS
+
+I<< Optional. Type warped_node.  >>
+
+=head2 serialVFD
+
+I<< Optional. Type warped_node.  >>
+
+=head2 shuttleVFD
+
+I<< Optional. Type warped_node.  >>
+
+=head2 stv5730
+
+I<< Optional. Type warped_node.  >>
+
+=head2 SureElec
+
+I<< Optional. Type warped_node.  >>
+
+=head2 svga
+
+I<< Optional. Type warped_node.  >>
+
+=head2 text
+
+I<< Optional. Type warped_node.  >>
+
+=head2 t6963
+
+I<< Optional. Type warped_node.  >>
+
+=head2 tyan
+
+I<< Optional. Type warped_node.  >>
+
+=head2 ula200
+
+I<< Optional. Type warped_node.  >>
+
+=head2 sli
+
+I<< Optional. Type warped_node.  >>
+
+=head2 vlsys_m428
+
+I<< Optional. Type warped_node.  >>
+
+=head2 xosd
+
+I<< Optional. Type warped_node.  >>
+
+=head1 SEE ALSO
+
+=over
+
+=item *
+
+L<cme>
+
+=item *
+
+L<Config::Model::models::LCDd::CFontz>
+
+=item *
+
+L<Config::Model::models::LCDd::CFontzPacket>
+
+=item *
+
+L<Config::Model::models::LCDd::CwLnx>
+
+=item *
+
+L<Config::Model::models::LCDd::EyeboxOne>
+
+=item *
+
+L<Config::Model::models::LCDd::IOWarrior>
+
+=item *
+
+L<Config::Model::models::LCDd::IrMan>
+
+=item *
+
+L<Config::Model::models::LCDd::MD8800>
+
+=item *
+
+L<Config::Model::models::LCDd::MtxOrb>
+
+=item *
+
+L<Config::Model::models::LCDd::NoritakeVFD>
+
+=item *
+
+L<Config::Model::models::LCDd::SureElec>
+
+=item *
+
+L<Config::Model::models::LCDd::bayrad>
+
+=item *
+
+L<Config::Model::models::LCDd::curses>
+
+=item *
+
+L<Config::Model::models::LCDd::ea65>
+
+=item *
+
+L<Config::Model::models::LCDd::g15>
+
+=item *
+
+L<Config::Model::models::LCDd::glcd>
+
+=item *
+
+L<Config::Model::models::LCDd::glcdlib>
+
+=item *
+
+L<Config::Model::models::LCDd::glk>
+
+=item *
+
+L<Config::Model::models::LCDd::hd44780>
+
+=item *
+
+L<Config::Model::models::LCDd::icp_a106>
+
+=item *
+
+L<Config::Model::models::LCDd::imon>
+
+=item *
+
+L<Config::Model::models::LCDd::imonlcd>
+
+=item *
+
+L<Config::Model::models::LCDd::irtrans>
+
+=item *
+
+L<Config::Model::models::LCDd::joy>
+
+=item *
+
+L<Config::Model::models::LCDd::lb216>
+
+=item *
+
+L<Config::Model::models::LCDd::lcdm001>
+
+=item *
+
+L<Config::Model::models::LCDd::lcterm>
+
+=item *
+
+L<Config::Model::models::LCDd::lirc>
+
+=item *
+
+L<Config::Model::models::LCDd::lis>
+
+=item *
+
+L<Config::Model::models::LCDd::mdm166a>
+
+=item *
+
+L<Config::Model::models::LCDd::menu>
+
+=item *
+
+L<Config::Model::models::LCDd::ms6931>
+
+=item *
+
+L<Config::Model::models::LCDd::mtc_s16209x>
+
+=item *
+
+L<Config::Model::models::LCDd::mx5000>
+
+=item *
+
+L<Config::Model::models::LCDd::picolcd>
+
+=item *
+
+L<Config::Model::models::LCDd::pyramid>
+
+=item *
+
+L<Config::Model::models::LCDd::sed1330>
+
+=item *
+
+L<Config::Model::models::LCDd::sed1520>
+
+=item *
+
+L<Config::Model::models::LCDd::serialPOS>
+
+=item *
+
+L<Config::Model::models::LCDd::serialVFD>
+
+=item *
+
+L<Config::Model::models::LCDd::server>
+
+=item *
+
+L<Config::Model::models::LCDd::shuttleVFD>
+
+=item *
+
+L<Config::Model::models::LCDd::sli>
+
+=item *
+
+L<Config::Model::models::LCDd::stv5730>
+
+=item *
+
+L<Config::Model::models::LCDd::svga>
+
+=item *
+
+L<Config::Model::models::LCDd::t6963>
+
+=item *
+
+L<Config::Model::models::LCDd::text>
+
+=item *
+
+L<Config::Model::models::LCDd::tyan>
+
+=item *
+
+L<Config::Model::models::LCDd::ula200>
+
+=item *
+
+L<Config::Model::models::LCDd::vlsys_m428>
+
+=item *
+
+L<Config::Model::models::LCDd::xosd>
+
+=back
+
+=head1 COPYRIGHT
+
+=over
+
+=item 2011, Dominique Dumont
+
+=item 1999-2011, William Ferrell and others
+
+
+=back
+
+=head1 LICENSE
+
+=over
+
+=item GPL-2
+
+
+=back
+
+=cut

@@ -1,0 +1,41 @@
+=head1 NAME
+
+Config::Model::models::LCDd::ea65 - Configuration class LCDd::ea65
+
+=head1 VERSION
+
+version 2.023
+
+=head1 DESCRIPTION
+
+Configuration classes used by L<Config::Model>
+
+generated from LCDd.conf
+
+=head1 Elements
+
+=head2 Brightness
+
+Device is fixed /dev/ttyS1
+Width and Height are fixed 9x1
+As the VFD is self luminescent we don't have a backlight
+But we can use the backlight functions to control the front LEDs
+Brightness 0 to 299 -> LEDs off
+Brightness 300 to 699 -> LEDs half bright
+Brightness 700 to 1000 -> LEDs full bright. I<< Optional. Type uniline. default: '500'.  >>
+
+=head2 OffBrightness
+
+OffBrightness is the the value used for the 'backlight off' state. I<< Optional. Type uniline. default: '0'.  >>
+
+=head1 SEE ALSO
+
+=over
+
+=item *
+
+L<cme>
+
+=back
+
+=cut
