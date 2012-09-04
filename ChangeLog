@@ -1,3 +1,25 @@
+2012-09-04  Dominique Dumont  <domi.dumont@free.fr> 2.024
+
+  * Debian dpkg dependency:
+    * Warn and can remove unversioned dependency on essential 
+      package (Debian bug 684208)
+    * Warn and replace perl-modules dependency with perl
+    * Don't mess with alternate dependency with < relation 
+      (Closes Debian #682730)
+    * remove Debian epoch when checking perl module version 
+      from corelist (Debian bug # 683861)
+
+  * Framework changes:
+    * Lister: use @INC to get available application models. This is
+      mostly useful to use local models for tests
+
+  * cme command changes:
+    * added bash completion for 'fix' subcommand
+    * fix pod doc (gregoa)
+    * improved notification change (avoid duplication and added a
+      clear message for swap)
+    * cme: added -dir-char option for fusefs command
+
 2012-07-04  Dominique Dumont  <domi.dumont@free.fr> 2.023
 
   * Application changes:
