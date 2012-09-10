@@ -7,7 +7,7 @@ use Path::Class ;
 use Test::Memory::Cycle;
 use Config::Model;
 use Config;
-use Config::Model::FuseUI ;
+# Config::Model::FuseUI is loaded later within an eval
 
 if ($Config{osname} ne 'linux') {
     plan skip_all => "Not a Linux system" ;

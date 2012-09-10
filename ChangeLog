@@ -1,3 +1,8 @@
+2012-09-10  Dominique Dumont  <domi.dumont@free.fr> 2.025
+
+  * Test: Fix fuseui test regression that shows on
+    non-linux systems
+
 2012-09-04  Dominique Dumont  <domi.dumont@free.fr> 2.024
 
   * Debian dpkg dependency:
