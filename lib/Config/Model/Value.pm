@@ -1443,7 +1443,7 @@ sub _fetch {
          : $mode eq 'backend'                   ? defined $data ? $data : $pref 
          :                                      die "unexpected mode $mode " ;
 
-    $logger->debug("done in '$mode' mode for ".$self->location." -> $res") 
+    $logger->debug("done in '$mode' mode for ".$self->location." -> ". ($res // '<undef>')) 
         if $logger->is_debug ;
 
     return $res ;
