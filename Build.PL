@@ -21,9 +21,6 @@ use Module::Build;
 
 use warnings FATAL => qw(all);
 use strict;
-use Log::Log4perl qw(:easy) ;
-
-Log::Log4perl->easy_init($WARN);
 
 require 5.010001 ;
 
