@@ -1,2 +1,0 @@
-version=3
-http://search.cpan.org/dist/Dist-Zilla-Plugin-Run/   .*/Dist-Zilla-Plugin-Run-v?(\d[\d.-]+)\.(?:tar(?:\.gz|\.bz2)?|tgz|zip)$

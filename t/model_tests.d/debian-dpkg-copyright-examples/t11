@@ -1,6 +1,0 @@
-Format: http://dep.debian.net/deps/dep5/
-Source: http://example.org/
-
-Files: *
-Comment: "Copyright" and "License" are missing but Config::Model does't mind.
-

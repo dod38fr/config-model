@@ -1,5 +1,0 @@
-libdist-zilla-plugin-run-perl (0.005-1) unstable; urgency=low
-
-  * Initial Release. (Closes: #620783)
-
- -- Dominique Dumont <domi.dumont@free.fr>  Tue, 19 Apr 2011 11:13:14 +0200
