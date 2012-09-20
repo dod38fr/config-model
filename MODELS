@@ -6,7 +6,6 @@ Debian's config file locations) :
 - /etc/fstab
 
 Models for users:
-- ./debian/copyright ./debian/control ... (to build Debian packages)
 - multistrap configuration
 
 Other models:
@@ -15,3 +14,4 @@ Other models:
 - /etc/ssh/sshd_config in Config::Model::OpenSsh
 - /etc/ssh/ssh_config in Config::Model::OpenSsh
 - ~/.ssh/config in Config::Model::OpenSsh
+- ./debian/copyright ./debian/control ... in Config::Model::Dpkg
