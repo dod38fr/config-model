@@ -657,6 +657,17 @@ You can use cme from another program by using C<-ui simple>
 option. This way you will be able to send command on the standard input
 of C<cme> and get the results from the standard output.
 
+=head1 cme extensions
+
+New C<cme> subcommands can be placed in extensions directory (i.e. in
+C<Config/Model/extensions>. When a cme command matched one of this extension,
+the extension will be run. For instance, if you have:
+
+ .../Config/Model/extensions/cme-foo
+ 
+Running C<cme foo> will run this program (who must be written in Perl) with 
+the same arguements are C<cme>.
+
 =head1 Logging
 
 All Config::Model logging is now based on L<Log::Log4perl>. 
