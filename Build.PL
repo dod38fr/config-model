@@ -21,7 +21,6 @@ use Module::Build;
 
 use warnings FATAL => qw(all);
 use strict;
-use File::Slurp qw/slurp/;
 use Log::Log4perl qw(:easy) ;
 
 Log::Log4perl->easy_init($WARN);
@@ -31,17 +30,30 @@ require 5.010001 ;
 print "\nIf you want to use the TermUI interface, you should install\n",
   "Term::ReadLine::Perl or Term::ReadLine::Gnu\n\n";
 
-# check that pod docs are up-to-date
-# this is redundant with work done by dzil. But this enable to re-build the 
-# docs downstream.
-# Use $^X as requested in https://rt.cpan.org/Public/Bug/Display.html?id=74891
-system("$^X -Ilib script/gen_class_pod.pl");
+# check that pod docs are up-to-date this is redundant with work done by
+# dzil. But this enable to re-build the docs downstream.
+# Use $^X in there as requested in 
+# https://rt.cpan.org/Public/Bug/Display.html?id=74891
+my $class = Module::Build->subclass(
+    class => "Module::Build::Custom",
+    code => <<'SUBCLASS' );
+
+sub ACTION_build {
+    my $self = shift;
+    # below requires Config::Model 2.026
+    system ($^X, qw!-Ilib script/cme gen-class-pod!) ;
+    $self->SUPER::ACTION_build;
+}
+SUBCLASS
+
+
+# system("$^X -Ilib script/cme gen-class-pod.pl");
 
 my @version_info = @ARGV ? ( dist_version => $ARGV[0] ) : ();
 
 my %appli_files = map { ( $_, $_ ) } glob("lib/Config/Model/*.d/*");
 
-my $build = Module::Build->new(
+my $build = $class->new(
     module_name => 'Config::Model',
     @version_info,
     license       => 'lgpl',
