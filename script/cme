@@ -9,8 +9,10 @@ use Config::Model::Lister;
 use Getopt::Long;
 use Pod::Usage;
 use Log::Log4perl qw(get_logger :levels);
+use File::Slurp qw/slurp/;
+use Path::Class ;
 use POSIX qw/setsid/;
-use AnyEvent ;
+use AnyEvent ; # why AnyEvent ? See comment below around Tk UI
 
 my $log4perl_syst_conf_file = '/etc/log4config-model.conf';
 my $log4perl_user_conf_file = $ENV{HOME} . '/.log4config-model';
@@ -107,6 +109,25 @@ pod2usage(-message => 'no command specified', -verbose => 0)
 
 pod2usage( -verbose => 1 ) if $command =~ /help/;
 pod2usage( -verbose => 2 ) if $command =~ /man/;
+
+# scan lib/Config/Model/extensions dir to find cme-* subcommands 
+my @dir_to_scan = @INC ;
+my %extension_path;
+foreach my $inc ( @dir_to_scan ) {
+    my $dir = dir("$inc/Config/Model/extensions/") ;
+    next unless -d $dir ;
+    foreach my $ext ($dir ->children ) {
+        my $cmd = substr $ext->basename, 4 ;
+        $command_option{$cmd} = [] ;
+        $extension_path{$cmd} = $ext ;
+    }
+}
+
+# run extention if the command matches one extension
+if (my $path = $extension_path{$command}){
+    do $path; # thus @INC and @ARGV  are still valid
+    exit ;
+}
 
 my $cmd_options =  $command_option{$command} 
     || pod2usage(-message => "unknown command: $command", -verbose => 0) ;
