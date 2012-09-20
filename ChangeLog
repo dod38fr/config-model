@@ -1,3 +1,14 @@
+2012-09-20  Dominique Dumont  <domi.dumont@free.fr> 2.026_01
+
+  * Application changes:
+    * IMPORTANT: Debian Dpkg model was removed. It will be
+      available on Debian soon as a native package. It will also
+      be published on CPAN in Config::Model::Dpkg.
+  * Framework changes:
+    * cme: added possibility to run extensions. The first extension
+      is gen-class-pod. I.e. you can run 'cme gen-class-pod' (which
+      is useful only if you develop a configuration model...)
+
 2012-09-10  Dominique Dumont  <domi.dumont@free.fr> 2.025
 
   * Test: Fix fuseui test regression that shows on
