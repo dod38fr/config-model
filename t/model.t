@@ -1,7 +1,7 @@
 # -*- cperl -*-
 
 use ExtUtils::testlib;
-use Test::More tests => 12;
+use Test::More tests => 11;
 use Test::Exception ;
 use Test::Warn ;
 use Test::Differences ;
@@ -34,8 +34,7 @@ my ($cat,$models) = Config::Model::Lister::available_models(1) ;
 eq_or_diff($cat->{system},[qw/fstab lcdproc popcon/],"check available system models");
 is($models->{popcon}{model},'PopCon',"check available popcon");
 
-eq_or_diff($cat->{application}, [qw/dpkg dpkg-control dpkg-copyright multistrap/ ] ,"check available application models");
-is($models->{'dpkg-copyright'}{model},'Debian::Dpkg::Copyright',"check available dpkg-copyright");
+eq_or_diff($cat->{application}, [qw/multistrap/ ] ,"check available application models");
 
 my $class_name = $model->create_config_class 
   (
