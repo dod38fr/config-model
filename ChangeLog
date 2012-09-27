@@ -1,5 +1,9 @@
+2012-09-27  Dominique Dumont  <domi.dumont@free.fr> 2.026
+
+  * Re-released 2.026_2 as good to go.
+
 2012-09-20  Dominique Dumont  <domi.dumont@free.fr> 2.026_02
-  
+
   * Added build-time dep on YAML::Any
 
 2012-09-20  Dominique Dumont  <domi.dumont@free.fr> 2.026_01
