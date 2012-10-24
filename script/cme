@@ -666,7 +666,7 @@ the extension will be run. For instance, if you have:
  .../Config/Model/extensions/cme-foo
  
 Running C<cme foo> will run this program (who must be written in Perl) with 
-the same arguements are C<cme>.
+the same arguments as C<cme>.
 
 =head1 Logging
 
