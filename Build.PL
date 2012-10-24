@@ -50,6 +50,9 @@ my @version_info = @ARGV ? ( dist_version => $ARGV[0] ) : ();
 
 my %appli_files = map { ( $_, $_ ) } glob("lib/Config/Model/*.d/*");
 
+# add extensions
+do { $appli_files{$_}=$_ ;} for glob("lib/Config/Model/extensions/cme-*") ;
+
 my $build = $class->new(
     module_name => 'Config::Model',
     @version_info,
