@@ -3,7 +3,7 @@
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
-use Test::More tests => 163;
+use Test::More tests => 166;
 use Test::Exception;
 use Test::Warn;
 use Test::Memory::Cycle;
@@ -379,6 +379,11 @@ is( $de->fetch, 'A', "enum with default: read default value" );
 
 is($inst->needs_save,1,"check needs_save after reading a default value") ;
 $inst->clear_changes;
+
+$de->store('A') ; # emulate config file read
+is($inst->needs_save,0,"check needs_save after storing a value identical to default value") ;
+is( $de->fetch, 'A', "enum with default: read default value" );
+is($inst->needs_save,0,"check needs_save after reading a default value") ;
 
 print "enum with default: read custom\n" if $trace;
 is( $de->fetch_custom, undef, "enum with default: read custom value" );
