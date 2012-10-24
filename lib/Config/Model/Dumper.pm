@@ -85,7 +85,7 @@ are dumped.
 The other mode is C<full_dump> mode where all all data, including
 default values, are dumped.
 
-The serialized string can be used by L<Config::Model::Walker> to store
+The serialized string can be used by L<Config::Model::Loader> to store
 the data back into a configuration tree.
 
 Note that undefined values are skipped for list element. I.e. if a list
@@ -132,9 +132,9 @@ sub note_quote {
 
 Return a string that contains a dump of the object tree with all the
 values. This string follows the convention defined by
-L<Config::Model::Walker>.
+L<Config::Model::Loader>.
 
-The serialized string can be used by L<Config::Model::Walker> to store
+The serialized string can be used by L<Config::Model::Loader> to store
 the data back into a configuration tree.
 
 Parameters are:
@@ -370,4 +370,4 @@ Dominique Dumont, (ddumont at cpan dot org)
 
 =head1 SEE ALSO
 
-L<Config::Model>,L<Config::Model::Node>,L<Config::Model::Walker>
+L<Config::Model>,L<Config::Model::Node>,L<Config::Model::Loader>
