@@ -1,9 +1,11 @@
 package Config::Model::CheckList ;
 use Any::Moose ;
+use 5.010 ;
 
 use Config::Model::Exception ;
 use Config::Model::IdElementReference ;
 use Config::Model::Warper ;
+use List::MoreUtils qw/any none/;
 use Carp;
 use Log::Log4perl qw(get_logger :levels);
 use Storable qw/dclone/;
@@ -447,7 +449,17 @@ sub get_checked_list_as_hash {
     my $ud  = $self->{upstream_default_data} ;
 
     # copy hash and return it
-    my %std = (%h, %$ud, %$lay, %$def, %$pre ) ;
+    my %predef  = (%h, %$def, %$pre )  ;
+    my %std     = (%h, %$ud, %$lay, %$def, %$pre ) ;
+
+    # use _std_backup if all data values are null (no checked items by user)
+    my %old_dat = (none { $_ ;} values %$dat) ?  %{$self->{_std_backup} || {}} : %$dat ;
+
+    if (not $mode and any {$_;} values %predef and none { $_ ;} values %old_dat) {
+        # changed from nothing to default checked list that must be written
+        $self->{_std_backup} = \%predef ;
+        $self->notify_change(note => "use default checklist") ;
+    }
 
     # custom test must compare the whole list at once, not just one item at a time.
     my %result 
@@ -457,7 +469,7 @@ sub get_checked_list_as_hash {
       : $mode eq 'upstream_default' ? (%h, %$ud) 
       : $mode eq 'default'          ? (%h, %$def )
       : $mode eq 'standard' ? %std
-      :                       (%h, %$def, %$pre, %$dat );
+      :                       (%predef, %$dat );
 
     return wantarray ? %result : \%result;
 }

@@ -10,7 +10,7 @@ use Config::Model;
 use Data::Dumper;
 use Log::Log4perl qw(:easy :levels) ;
 
-BEGIN { plan tests => 87; }
+BEGIN { plan tests => 91; }
 
 use strict;
 
@@ -418,18 +418,23 @@ is_deeply( \@got, [qw/A D/],
     "test upstream_default of choice_list_with_upstream_default" );
 
 # test check list with upstream_default *and* default (should override)
+$inst->clear_changes ;
 my $wudad =
   $root->fetch_element("choice_list_with_default_and_upstream_default");
+is($inst->needs_save,0,"check needs_save after reading a default value") ;
 @got = $wudad->get_checked_list('default');
 is_deeply( \@got, [qw/A C/],
     "test default of choice_list_with_default_and_upstream_default" );
+is($inst->needs_save,0,"check needs_save after reading a default value") ;
 
 @got = $wudad->get_checked_list();
 is_deeply( \@got, [qw/A C/],
     "test choice_list_with_default_and_upstream_default" );
+is($inst->needs_save,1,"check needs_save after reading a default value") ;
 
 is_deeply( $wudad->fetch(), 'A,C',
     "test fetch choice_list_with_default_and_upstream_default" );
+is($inst->needs_save,1,"check needs_save after reading a default value") ;
 
 ### test preset feature
 

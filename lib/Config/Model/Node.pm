@@ -1071,7 +1071,7 @@ sub dump_tree {
 sub migrate {
     my $self = shift ;
     $self->init ;
-    Config::Model::Dumper->new->dump_tree(node => $self, mode => 'custom', @_) ;
+    Config::Model::Dumper->new->dump_tree(node => $self, mode => 'full', @_) ;
 
     return $self->needs_save ;
 }
