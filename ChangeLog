@@ -1,3 +1,9 @@
+2012-10-30  Dominique Dumont  <domi.dumont@free.fr> 2.027
+
+    * fix checklist problem with writing default values
+      (which broke openssh demo). (Closes: Debian #691338)
+    * Dumper: fix wrong module reference in pod doc
+
 2012-09-27  Dominique Dumont  <domi.dumont@free.fr> 2.026
 
   * Re-released 2.026_2 as good to go.
