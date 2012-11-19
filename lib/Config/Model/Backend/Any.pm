@@ -178,7 +178,7 @@ Config::Model::Backend::Any - Virtual class for other backends
 
     foreach ($args{io_handle}->getlines) {
         chomp ;
-        s/#.*/ ;
+        s/#.*// ;
         next unless /\S/; # skip blank line
 
         # $data is 'foo=bar' which is compatible with load 
