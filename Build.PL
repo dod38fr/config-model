@@ -68,14 +68,6 @@ my $build = $class->new(
 
 ##{ $plugin->get_prereqs ##}
 
-    meta_merge => {
-        resources => {
-            homepage => 'https://github.com/dod38fr/config-model/wiki',
-            MailingList =>
-              'https://lists.sourceforge.net/lists/listinfo/config-model-users',
-            repository =>
-              'git://github.com/dod38fr/config-model.git',
-        },
     },
 
     # cleanup required by t/auto_read.t
