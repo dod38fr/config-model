@@ -367,8 +367,8 @@ isa_ok($mvo2->{warper},'Config::Model::Warper',"check warper object");
 push @macro_slaves , 'Warper of Master m2_value_out', 'Warper of Master macro2' ;
 
 eq_or_diff( 
-    [ map { $_->name } $macro->get_depend_slave ] ,
-    \@macro_slaves,
+    [ sort map { $_->name } $macro->get_depend_slave ] ,
+    [ sort @macro_slaves ],
     "check m_value_out and m2_value_out warper"
     );
     
