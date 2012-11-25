@@ -21,7 +21,6 @@ package Config::Model::Backend::ShellVar ;
 use Carp;
 use Any::Moose ;
 use Config::Model::Exception ;
-use UNIVERSAL ;
 use File::Path;
 use Log::Log4perl qw(get_logger :levels);
 
