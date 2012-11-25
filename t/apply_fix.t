@@ -7,6 +7,7 @@ use Test::More;
 use Test::Exception ;
 use Test::Memory::Cycle;
 use Config::Model;
+use Config::Model::Value ;
 use Data::Dumper ;
 use Log::Log4perl qw(:easy) ;
 
@@ -32,6 +33,8 @@ else {
 }
 
 ok(1,"Compilation done");
+
+$Config::Model::Value::nowarning = 1 unless $trace ;
 
 # minimal set up to get things working
 my $model = Config::Model->new() ;
