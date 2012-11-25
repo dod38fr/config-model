@@ -33,15 +33,15 @@ my %appli_files = map { ( $_, $_ ) } glob("lib/Config/Model/*.d/*");
 
 my $model = Config::Model -> new(model_dir => "lib/Config/Model/models") ;
 
-my @generated_pods ;
+my @models = @ARGV ? @ARGV : 
+  map { /model\s*=\s*([\w:-]+)/; $1; }
+  grep { /^\s*model/; }
+  map  { slurp($_); } glob("lib/Config/Model/*.d/*");
+
 map {
     if (not $model->model_exists($_)) {
         print "Checking doc for model $_\n";
         $model->load($_) ;
         $model->generate_doc ($_,'lib') ;
     }
-  }
-  map { /model\s*=\s*([\w:-]+)/; $1; }
-  grep { /^\s*model/; }
-  map  { slurp($_); } glob("lib/Config/Model/*.d/*");
-
+  } @models ;
