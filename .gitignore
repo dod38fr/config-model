@@ -1,0 +1,9 @@
+Config-Model-*
+lib/Config/Model/models/Fstab.pod
+lib/Config/Model/models/Fstab/FsLine.pod
+lib/Config/Model/models/LCDd.pl
+lib/Config/Model/models/LCDd.pod
+lib/Config/Model/models/LCDd/
+lib/Config/Model/models/Multistrap.pod
+lib/Config/Model/models/Multistrap/Section.pod
+lib/Config/Model/models/PopCon.pod
