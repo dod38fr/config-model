@@ -68,8 +68,6 @@ my $build = $class->new(
 
 ##{ $plugin->get_prereqs ##}
 
-    },
-
     # cleanup required by t/auto_read.t
     # PreGrammar.pm is created by t/value_computer.t
     add_to_cleanup => [ qw/PreGrammar.pm wr_root r_root/ ],
