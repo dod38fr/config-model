@@ -758,6 +758,17 @@ Trace change notification through configuration tree and instance.
 
 More categories will come.
 
+=head1 BUGS
+
+=head2 Configuration models can lag behind the target application
+
+If a configuration model is not up-to-date, you will get errors complaining about
+unknown parameters. In such a case, please file a bug on 
+L<request tracked|http://rt.cpan.org/> or fix the model and send a pull request. 
+You can see this 
+L<example from OpenSsh|https://github.com/dod38fr/config-model/wiki/New-parameter-for-openssh-example>
+to learn how to fix a model.
+
 =head1 SUPPORT
 
 For support, please check the following resources:
@@ -772,7 +783,7 @@ The config-model users mailing list:
 
 =item *
 
-The config-model wiki: L<http://config-model.wiki.sourceforge.net/>
+The config-model wiki: L<http://github.com/dod38fr/config-model/wiki>
 
 =back
 
