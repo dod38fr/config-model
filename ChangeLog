@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+2012-11-27 - 2.028
+
     * cme:
       + added a BUGS section in man page
       * Improved error message for unknown elements
