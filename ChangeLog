@@ -1,9 +1,12 @@
 {{$NEXT}}
 
+    * cme:
+      + added a BUGS section in man page
+      * Improved error message for unknown elements
     * cme-gen-class-pod: pod doc can be generated from
       a class specified on command line argument
     * fix test that broke with perl 5.17
-    * removed uneeded 'use UNIVERSAL'. (should fix smoke tests)
+    * removed unneeded 'use UNIVERSAL'. (should fix smoke tests)
 
 2012-10-30  Dominique Dumont  <domi.dumont@free.fr> 2.027
 
