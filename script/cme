@@ -118,6 +118,10 @@ foreach my $inc ( @dir_to_scan ) {
     next unless -d $dir ;
     foreach my $ext ($dir ->children ) {
         my $cmd = substr $ext->basename, 4 ;
+
+        # don't clobber commands found before in @INC
+        next if $extension_path{$cmd} ; 
+
         $command_option{$cmd} = [] ;
         $extension_path{$cmd} = $ext ;
     }
@@ -125,6 +129,7 @@ foreach my $inc ( @dir_to_scan ) {
 
 # run extention if the command matches one extension
 if (my $path = $extension_path{$command}){
+    say "doing $path";
     do $path; # thus @INC and @ARGV  are still valid
     exit ;
 }
