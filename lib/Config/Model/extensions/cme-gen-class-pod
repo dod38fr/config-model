@@ -33,12 +33,18 @@ my %appli_files = map { ( $_, $_ ) } glob("lib/Config/Model/*.d/*");
 
 my $model = Config::Model -> new(model_dir => "lib/Config/Model/models") ;
 
+# this extension is run with 'cme gen-classpod'. cme will run 'do gen-class-pod'
+# to keep @INC and @ARGV around. Hence @ARGV contains 'gen-class-pod'
+shift @ARGV if $ARGV[0] eq 'gen-class-pod' ;
+
 my @models = @ARGV ? @ARGV : 
   map { /model\s*=\s*([\w:-]+)/; $1; }
   grep { /^\s*model/; }
   map  { slurp($_); } glob("lib/Config/Model/*.d/*");
 
 map {
+    # this test avoid generating doc several times (generate_doc scan docs for
+    # classes referenced by the model with config_class_name paremeter)
     if (not $model->model_exists($_)) {
         print "Checking doc for model $_\n";
         $model->load($_) ;
