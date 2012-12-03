@@ -2436,7 +2436,7 @@ regular expression.
   
 =head2 Enforce value to match a L<Parse::RecDescent> grammar
 
-  prd_match => {
+  match_with_parse_recdescent => {
     type       => 'leaf',
     value_type => 'string',
     grammar    => q{ 
