@@ -1118,7 +1118,7 @@ sub store {
 
     my $old_value = $self->_fetch_no_check ;
 
-    my $value = $self->pre_store(value => $args{value}, check => $check ) ;
+    my $value = $self->transform_value(value => $args{value}, check => $check ) ;
 
     $self->needs_check(1) ;
     my $ok = $self->store_check($value) ;
@@ -1182,9 +1182,9 @@ sub store {
     return $value;
 }
 
-# internal. return ( 1|0, value)
+# internal. return ( undef, value)
 # May return an undef value if actual store should be skipped
-sub pre_store {
+sub transform_value {
     my $self = shift ;
     my %args = @_ > 1 ? @_ : (value => $_[0]) ;
     my $value = $args{value} ;
@@ -1203,17 +1203,11 @@ sub pre_store {
 	Config::Model::Exception::Model
 	    -> throw (object => $self, message => $msg) 
 	      if $check eq 'yes';
-        return 1 ; 
+        return ; 
     }
 
     if (defined $self->{refer_to} or defined $self->{computed_refer_to}) {
 	$self->{ref_object}->get_choice_from_refered_to ;
-    }
-
-    # check if the object was initialized
-    if (not defined $self->{value_type}) {
-        $self->_value_type_error if $check eq 'yes';
-	return 0 ;
     }
 
     if ($self->{value_type} eq 'boolean' and defined $value) {
