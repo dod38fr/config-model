@@ -92,6 +92,29 @@ sub needs_save {
     return $self->c_count ;
 }
 
+has errors => (
+    is => 'ro',
+    isa => 'HashRef',
+    traits => ['Hash'],
+    default => sub { {} },
+    handles => {
+        _set_error => 'set',
+        has_error => 'count' ,
+        clear_errors => 'clear' ,
+        error_paths => 'keys'
+    }
+) ;
+
+sub add_error {
+    my $self = shift;
+    $self->_set_error(shift, '') ;
+}
+
+sub error_messages {
+    my $self = shift ;
+    my @errs = map {"$_: " . $self->config_root->grab($_)->error_msg} $self->error_paths ;
+    return wantarray ? @errs : join("\n", @errs) ;
+}
 
 has on_change_cb => (
     is => 'rw',
@@ -481,6 +504,14 @@ configuration tree.
 
 Call back this function whenever C<notify_change> is called. Called with
 arguments: C<< name => <root node element name>, index => <index_value> >>
+
+=item error_paths
+
+Returns a list of tree items that currently have an error.
+
+=item error_messages
+
+Returns a list of error messages from the tree content.
 
 =back
 
