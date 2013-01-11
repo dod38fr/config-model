@@ -16,6 +16,7 @@ use Log::Log4perl qw(get_logger :levels);
 use Scalar::Util qw/weaken/ ;
 use Carp ;
 use Storable qw/dclone/;
+use AnyEvent ;
 
 extends qw/Config::Model::AnyThing/ ;
 
@@ -76,6 +77,30 @@ sub _compute_is_default {
     return 0 unless defined $self->compute ;
     return ! $self->compute_obj->use_as_upstream_default ;
 }
+
+has _pending_store => (
+    traits  => ['Counter'],
+    is      => 'ro',
+    isa     => 'Int',
+    default => 0,
+    handles => {
+        inc_pending_store   => 'inc',
+        dec_pending_store   => 'dec',
+    },
+    trigger => sub {
+        my ($self,$count) = @_ ;
+        my $cb = $self->_pending_fetch or return ;
+        return if $count ;
+        $cb->() ;
+        $self->_fetch_done;
+    }
+);
+
+has _pending_fetch => (
+    is => 'rw',
+    isa => 'Maybe[CodeRef]',
+    clearer => '_fetch_done'
+);
 
 # as some information like experience must be backed up even though they are not
 # attributes, we cannot move below code in BUILD. (experience is actually used by node)
@@ -789,14 +814,15 @@ sub enum_error {
 
 sub check_value {
     my $self = shift ;
-    croak "check_value needs a value to check" unless @_ ;
+    croak "check_value needs a value to check" unless @_ > 1;
     
-    my %args = @_ > 1 ? @_ : (value => $_[0]) ;
+    my %args = @_ ;
     my $value = $args{value} ;
     my $quiet = $args{quiet} || 0 ;
     my $check = $args{check} || 'yes' ;
     my $apply_fix = $args{fix} || 0 ;
     my $mode = $args{mode} || 'backend' ;
+    my $cb = delete $args{callback} || croak "check_value: missing call_back arg" ;
 
     #croak "Cannot specify a value with fix = 1" if $apply_fix and exists $args{value} ;
 
@@ -936,7 +962,9 @@ sub check_value {
     $self->{warning_list} = \@warn ;
 
     $logger->debug("done") ;
-    return wantarray ? @error : scalar @error ? 0 : 1 ;
+
+    $cb->(%args, ok => not @error) ;
+
 }
 
 sub run_code_on_value {
@@ -1051,8 +1079,15 @@ sub apply_fix {
     # $self->store(value => $_, check => 'no');  # will update $self->{fixes}
 }
 
+# read checks should be blocking
+# store checks should be async
+
 
 sub check {
+    goto &check_fetched_value ;
+}
+
+sub check_fetched_value {
     my $self = shift;
 
     $logger->debug(
@@ -1069,8 +1104,17 @@ sub check {
     my $silent = $args{silent} || 0;
     my $check = $args{check} || 'yes' ;
 
-    if ($self->needs_check) {
-	my @error = $self->check_value(%args);
+    if ($self->_pending_store) {
+        my $retry = sub { $self->check_fetched_value(%args) ; };
+        $self->_pending_fetch($retry) ;
+    }
+    elsif ($self->needs_check) {
+        my $w = AnyEvent->condvar ;
+        my $cb = sub { $w->send } ;
+
+	my @error = $self->check_value(%args, callback => $cb );
+
+        $w->recv ;
 
 	$self->{error_list} = \@error;
 	$logger->debug("check done");
@@ -1107,6 +1151,13 @@ sub check {
 }
 
 
+# callback with ($value, $error_ref, $warning_ref) ?
+
+# create a callback that wraps:
+# actual store in internal structure
+# user callback
+# notify_change
+# call to warp master
 
 sub store {
     my $self = shift ;
@@ -1116,28 +1167,65 @@ sub store {
     my $check = $self->_check_check($args{check}) ;
     my $silent = $args{silent} || 0 ;
 
+    # FIXME: clean this mess up
+    warn "internal warning: store with no check is fishy\n" if $check eq 'no' ;
+
     my $old_value = $self->_fetch_no_check ;
 
     my $value = $self->transform_value(value => $args{value}, check => $check ) ;
 
-    $self->needs_check(1) ;
-    my $ok = $self->store_check($value) ;
-
-    if ($logger->is_debug) {
-	my $i = $self->instance ;
-	my $msg = "value store $value, ok '$ok', check is $check";
-	map { $msg .= " $_" if $i->$_() } qw/layered preset/ ;
-	$logger->debug($msg) ; 
-    }
-    
     my $init_load = $self->instance->initial_load ;
     no warnings qw/uninitialized/;
     my $notify_change 
 	= $args{value} ne $value                ? 1 # data was transformed by model 
 	: $value ne $old_value and ! $init_load ? 1 
 	:                                         0 ;
+
+    if ($value eq $old_value) {
+        $logger->info("store: skip storage of unchanged value: $value") ;
+        return ;
+    }
+
     use warnings qw/uninitialized/;
     
+
+    $self->needs_check(1) ; # always when storing a value
+    my $user_cb = $args{callback} || sub {} ;
+
+    $self->inc_pending_store ;
+    my $my_cb = sub {
+        $self->store_cb(@_ , callback => $user_cb) ;
+        $self->dec_pending_store;
+    };
+
+    # FIXME: need to record a "pending_store" status so that fetch blocks until
+    # pending_store is cleared (necessary if warp stuff is read before the store is finished)
+
+    $self->check_stored_value(
+        value => $value,
+        check => $check,
+        silent => $silent,
+        notify_change => $notify_change, 
+        callback => $my_cb
+    ) ;
+}
+
+sub store_cb {
+    my $self = shift;
+    my %args = @_ ;
+
+    my ($value, $check, $silent, $notify_change, $ok, $callback) 
+        = @args{qw/value check silent notify_change ok callback/} ;
+
+    if ($logger->is_debug) {
+	my $i = $self->instance ;
+	my $msg = "value store $value, ok '$ok', check is $check";
+	map { $msg .= " $_" if $i->$_() } qw/layered preset/ ;
+	$logger->debug($msg) ;
+    }
+
+    my $old_value = $self->_fetch_no_check ;
+
     # we let store the value even if wrong when check is disabled
     if ($ok or $check eq 'no') {
         if ($self->instance->layered) {
@@ -1159,16 +1247,16 @@ sub store {
 	}
 	
     }
-    elsif ($check eq 'skip') {
+    else {
+        $self->instance->add_error($self->location) ;
         my $msg = $self->error_msg;
         warn "Warning: skipping value $value because of the following errors:\n$msg\n\n"
           if not $silent and $msg;
     }
-    else {
-        Config::Model::Exception::WrongValue 
-	    -> throw ( error => join("\n\t",@{$self->{error_list}}),
-		       object => $self) ;
-    }
+
+    # FIXME: fix this mess
+    warn "internal warning: store with check skip may not mean much" if $check eq 'skip' ;
+
 
     if (    $ok 
 	and defined $value 
@@ -1179,7 +1267,7 @@ sub store {
 	$self->trigger_warp($value) ;
     }
 
-    return $value;
+    $callback->(%args) ;
 }
 
 # internal. return ( undef, value)
@@ -1238,9 +1326,57 @@ sub transform_value {
     return $value;
 }
 
-# dummy routine to enable special store check in inherited classes
-sub store_check {
-    goto &check ;
+# store check must be async
+sub check_stored_value {
+    my $self = shift;
+
+    $logger->debug(
+        "called for " . $self->location . " from " . join( ' ', caller ),
+        " with @_" )
+      if $logger->is_debug;
+
+    my %args = @_;
+
+    my $cb = delete $args{callback} || croak "check_stored_value: no callback" ;
+    my $my_cb = sub {
+        $self->check_stored_value_cb(@_, callback => $cb) ;
+    } ;
+
+
+    $self->check_value(%args, callback => $my_cb);
+}
+
+sub check_stored_value_cb {
+    my $self = shift;
+    my %args = @_ ;
+
+    my ($value, $check, $silent, $notify_change, $ok, $callback) 
+        = @args{qw/value check silent notify_change ok callback/} ;
+
+    $logger->debug("check_stored_value_cb called");
+
+    # some se case like idElementReference are too complex to propagate
+    # a change notification back to the value using them. So an error or
+    # warning must always be rechecked.
+    my $warn = $self->{warning_list};
+    $self->needs_check(0) unless @{$self->{error_list}} or @$warn ;
+
+    # old_warn is used to avoid warning the user several times for the
+    # same reason. We take care to clean up this hash each time this routine
+    # is run
+    my $old_warn = $self->{old_warning_hash} || {} ;
+    my %warn_h ;
+    if (@$warn and not $nowarning and not $silent) {
+        foreach my $w (@$warn) {
+            $warn_h{$w} = 1 ;
+            next if $old_warn->{$w} ;
+            my $str = defined $value ? "'$value'" : '<undef>';
+            warn "Warning in '" . $self->location . "' value $str: $w\n";
+        }
+    }
+    $self->{old_warning_hash} = \%warn_h ;
+
+    $callback->(%args) ;
 }
 
 # print a hopefully helpful error message when value_type is not
