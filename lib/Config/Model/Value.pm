@@ -1493,7 +1493,7 @@ sub fetch {
             mode => 'loose',
             autoadd => 0,
         ); 
-        # stire replaced value to trigger notify_change         
+        # store replaced value to trigger notify_change
         $value = $self->store($rep) if defined $rep ;
     }
 
