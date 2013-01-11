@@ -6,6 +6,7 @@ use ExtUtils::testlib;
 use Test::More tests => 166;
 use Test::Exception;
 use Test::Warn;
+use Test::Differences ;
 use Test::Memory::Cycle;
 use Config::Model;
 use Config::Model::Value;
@@ -260,35 +261,38 @@ is($inst->needs_save,0,"verify instance needs_save status after creation") ;
 
 is($i->needs_check,1,"verify check status after creation") ;
 
-ok( $i->store(1), "store test" );
-is($i->needs_check,0,"store not trigger a check (check done during store)") ;
+$i->store(1);
+ok( 1, "store test done" );
+is($i->needs_check,0,"store does not trigger a check (check done during store)") ;
 is($inst->needs_save,1,"verify instance needs_save status after store") ;
 
 is( $i->fetch, 1, "fetch test" );
 is($i->needs_check,0,"check was done during fetch") ;
 is($inst->needs_save,1,"verify instance needs_save status after fetch") ;
 
-throws_ok { $i->store(5); } 'Config::Model::Exception::User',
-  "bounded integer: max error";
-print "normal error:\n", $@, "\n" if $trace;
+$i->store(value => 5, silent => 1);
+is_deeply( $inst->errors,{'scalar' , ''},"store error is tracked") ;
+like( scalar $inst->error_messages,qr/max limit/,"store error message is available") ;
 
-throws_ok { $i->store('toto'); } 'Config::Model::Exception::User',
-  "bounded integer: string error";
-print "normal error:\n", $@, "\n" if $trace;
+is( $i->fetch, 1, "fetch test: value 5 was not stored" );
 
-throws_ok { $i->store(1.5); } 'Config::Model::Exception::User',
-  "bounded integer: number error";
-print "normal error:\n", $@, "\n" if $trace;
+# FIXME: dying during a callback is not a good idea
+# FIXME: may need to change the treatment of user errors
+
+$i->store(value => 'toto', silent => 1);
+is_deeply( $inst->errors,{'scalar' , ''},"store error is tracked") ;
+like( scalar $inst->error_messages,qr/not of type/,"new store error message is available") ;
+
+
+$i->store(value => 1.5 , silent => 1);
+is_deeply( $inst->errors,{'scalar' , ''},"store error is tracked") ;
+like( scalar $inst->error_messages,qr/number but not an integer/,"new store error message is available") ;
 
 my $nb = $root->fetch_element('bounded_number');
 ok( $nb, "created " . $nb->name );
 
-ok( $nb->store(1),   "assign 1" );
-ok( $nb->store(1.5), "assign 1.5" );
-
-throws_ok { $i->store('toto'); } 'Config::Model::Exception::User',
-  "bounded integer: string error";
-print "normal error:\n", $@, "\n" if $trace;
+$nb->store(value => 1, callback => sub { is($nb->fetch, 1,  "assign 1" ); });
+$nb->store(value => 1.5, callback => sub { is($nb->fetch, 1.5,  "assign 1.5" ); });
 
 $nb->store(undef);
 ok( defined $nb->fetch() ? 0 : 1, "store undef" );
