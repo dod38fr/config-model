@@ -1112,21 +1112,21 @@ sub check_fetched_value {
         my $w = AnyEvent->condvar ;
         my $cb = sub { $w->send } ;
 
-	my @error = $self->check_value(%args, callback => $cb );
+	$self->check_value(%args, callback => $cb );
 
         $w->recv ;
 
-	$self->{error_list} = \@error;
-	$logger->debug("check done");
+	my $err = $self->{error_list};
+	my $warn = $self->{warning_list};
+	$logger->debug("done with ",scalar @$err," errors and ", scalar @$warn, " warnings");
 
 	# some se case like idElementReference are too complex to propagate
 	# a change notification back to the value using them. So an error or
 	# warning must always be rechecked.
-	my $warn = $self->{warning_list};
-	$self->needs_check(0) unless @error or @$warn ;
+	$self->needs_check(0) unless @$err or @$warn ;
     }	
     else {
-	$logger->debug("check is not needed");
+	$logger->debug("is not needed");
     }
 
     my $warn = $self->{warning_list};
