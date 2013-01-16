@@ -117,6 +117,20 @@ has errors => (
     }
 ) ;
 
+has warnings => (
+    is => 'ro',
+    isa => 'ArrayRef',
+    default => sub { [] },
+    traits => ['Array'] ,
+    handles => {
+        add_warning => 'push',
+        clear_warnings  => 'clear',
+        warning_msg => [ join => "\n\t" ],
+        has_warning => 'count',
+        all_warnings => 'elements' ,
+    }
+) ;
+
 # as some information like experience must be backed up even though they are not
 # attributes, we cannot move below code in BUILD. (experience is actually used by node)
 around BUILDARGS => sub {
@@ -788,13 +802,6 @@ sub get_help {
     return ;
 }
 
-
-sub warning_msg {
-    my $self = shift ;
-    return unless $self->{warning_list} ;
-    return wantarray ? @{$self->{warning_list}} : join("\n",@{ $self ->{warning_list}})
-}
-
 # construct an error message for enum types
 sub enum_error {
     my ($self,$value) = @_ ;
@@ -967,8 +974,9 @@ sub check_value {
 
     $logger->debug("check_value returns ",scalar @error," errors and ", scalar @warn," warnings");
     $self->clear_errors;
+    $self->clear_warnings;
     $self->add_error( @error ) ;
-    $self->{warning_list} = \@warn ;
+    $self->add_warning( @warn ) ;
 
     $logger->debug("done") ;
 
@@ -1126,27 +1134,26 @@ sub check_fetched_value {
         $w->recv ;
 
 	my $err_count = $self->has_error;
-	my $warn = $self->{warning_list};
-	$logger->debug("done with $err_count errors and ", scalar @$warn, " warnings");
+	my $warn_count = $self->has_warning;
+	$logger->debug("done with $err_count errors and $warn_count warnings");
 
 	# some se case like idElementReference are too complex to propagate
 	# a change notification back to the value using them. So an error or
 	# warning must always be rechecked.
-	$self->needs_check(0) unless $err_count or @$warn ;
+	$self->needs_check(0) unless $err_count or $warn_count ;
     }	
     else {
 	$logger->debug("is not needed");
     }
 
-    my $warn = $self->{warning_list};
-    
     # old_warn is used to avoid warning the user several times for the 
     # same reason. We take care to clean up this hash each time this routine
     # is run
     my $old_warn = $self->{old_warning_hash} || {} ;
     my %warn_h ;
-    if (@$warn and not $nowarning and not $silent) {
-        foreach my $w (@$warn) {
+
+    if ($self->has_warning and not $nowarning and not $silent) {
+        foreach my $w ($self->all_warnings) {
             $warn_h{$w} = 1 ;
             next if $old_warn->{$w} ;
             my $str = defined $value ? "'$value'" : '<undef>';
@@ -1366,16 +1373,15 @@ sub check_stored_value_cb {
     # some se case like idElementReference are too complex to propagate
     # a change notification back to the value using them. So an error or
     # warning must always be rechecked.
-    my $warn = $self->{warning_list};
-    $self->needs_check(0) unless $self->has_error or @$warn ;
+    $self->needs_check(0) unless $self->has_error or $self->has_warning ;
 
     # old_warn is used to avoid warning the user several times for the
     # same reason. We take care to clean up this hash each time this routine
     # is run
     my $old_warn = $self->{old_warning_hash} || {} ;
     my %warn_h ;
-    if (@$warn and not $nowarning and not $silent) {
-        foreach my $w (@$warn) {
+    if ($self->has_warning and not $nowarning and not $silent) {
+        foreach my $w ($self->all_warnings) {
             $warn_h{$w} = 1 ;
             next if $old_warn->{$w} ;
             my $str = defined $value ? "'$value'" : '<undef>';
