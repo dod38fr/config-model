@@ -102,6 +102,21 @@ has _pending_fetch => (
     clearer => '_fetch_done'
 );
 
+has errors => (
+    is => 'ro',
+    isa => 'ArrayRef',
+    default => sub { [] },
+    traits => ['Array'] ,
+    handles => {
+        add_error => 'push',
+        clear_errors  => 'clear',
+        error_msg => [ join => "\n\t" ],
+        has_error => 'count',
+        all_errors => 'elements' ,
+        is_ok => 'is_empty'
+    }
+) ;
+
 # as some information like experience must be backed up even though they are not
 # attributes, we cannot move below code in BUILD. (experience is actually used by node)
 around BUILDARGS => sub {
@@ -179,11 +194,11 @@ sub set_default {
 	next unless defined $def ;
 
 	# will check default value
-	my @error = $self->check_value(value => $def) ;
+	$self->check_value(value => $def) ;
 	Config::Model::Exception::Model->throw(
 	    object => $self,
-	    error  => "Wrong $item value\n\t" . join( "\n\t", @error )
-	) if @error;
+	    error  => "Wrong $item value\n\t" . $self->error_msg
+	) if $self->has_error;
 
 	$logger->debug( "Set $item value for ", $self->name, "" );
 
@@ -253,7 +268,7 @@ sub perform_compute {
 
     #print "check result: $ok\n";
     if (not $ok) {
-        my $error =  join("\n\t",@{$self->{error_list}}) .
+        my $error =  $self->error_msg.
           "\n\t".$self->compute_info;
 
         Config::Model::Exception::WrongValue
@@ -324,7 +339,7 @@ sub migrate_value {
 
     #print "check result: $ok\n";
     if (not $ok) {
-        my $error =  join("\n\t",@{$self->{error_list}}) .
+        my $error =  $self->error_msg .
           "\n\t".$self->{_migrate_from}->compute_info;
 
         Config::Model::Exception::WrongValue
@@ -774,13 +789,6 @@ sub get_help {
 }
 
 
-sub error_msg {
-    my $self = shift ;
-    return unless $self->{error_list} ;
-    return wantarray ? @{$self->{error_list}} : join("\n\t",@{ $self ->{error_list}}) ;
-}
-
-
 sub warning_msg {
     my $self = shift ;
     return unless $self->{warning_list} ;
@@ -958,7 +966,8 @@ sub check_value {
     }
 
     $logger->debug("check_value returns ",scalar @error," errors and ", scalar @warn," warnings");
-    $self->{error_list} = \@error ;
+    $self->clear_errors;
+    $self->add_error( @error ) ;
     $self->{warning_list} = \@warn ;
 
     $logger->debug("done") ;
@@ -1116,14 +1125,14 @@ sub check_fetched_value {
 
         $w->recv ;
 
-	my $err = $self->{error_list};
+	my $err_count = $self->has_error;
 	my $warn = $self->{warning_list};
-	$logger->debug("done with ",scalar @$err," errors and ", scalar @$warn, " warnings");
+	$logger->debug("done with $err_count errors and ", scalar @$warn, " warnings");
 
 	# some se case like idElementReference are too complex to propagate
 	# a change notification back to the value using them. So an error or
 	# warning must always be rechecked.
-	$self->needs_check(0) unless @$err or @$warn ;
+	$self->needs_check(0) unless $err_count or @$warn ;
     }	
     else {
 	$logger->debug("is not needed");
@@ -1146,8 +1155,7 @@ sub check_fetched_value {
     }
     $self->{old_warning_hash} = \%warn_h ;
 
-    my $e = $self->{error_list} ;
-    return wantarray ? @$e : not scalar @$e ;
+    return wantarray ? $self->all_errors : $self->is_ok ;
 }
 
 
@@ -1359,7 +1367,7 @@ sub check_stored_value_cb {
     # a change notification back to the value using them. So an error or
     # warning must always be rechecked.
     my $warn = $self->{warning_list};
-    $self->needs_check(0) unless @{$self->{error_list}} or @$warn ;
+    $self->needs_check(0) unless $self->has_error or @$warn ;
 
     # old_warn is used to avoid warning the user several times for the
     # same reason. We take care to clean up this hash each time this routine
@@ -1656,7 +1664,7 @@ sub fetch {
     
     Config::Model::Exception::WrongValue->throw(
         object => $self,
-        error  => join( "\n\t", @{ $self->{error_list} } )
+        error  => $self->error_msg
     );
 
     return;
