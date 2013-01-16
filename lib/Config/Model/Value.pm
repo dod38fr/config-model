@@ -811,7 +811,7 @@ sub enum_error {
     return @error ;
 }
 
-
+# asynchronous if a call-back is passed
 sub check_value {
     my $self = shift ;
     croak "check_value needs a value to check" unless @_ > 1;
@@ -822,7 +822,7 @@ sub check_value {
     my $check = $args{check} || 'yes' ;
     my $apply_fix = $args{fix} || 0 ;
     my $mode = $args{mode} || 'backend' ;
-    my $cb = delete $args{callback} || croak "check_value: missing call_back arg" ;
+    my $cb = delete $args{callback} ;
 
     #croak "Cannot specify a value with fix = 1" if $apply_fix and exists $args{value} ;
 
@@ -963,8 +963,8 @@ sub check_value {
 
     $logger->debug("done") ;
 
-    $cb->(%args, ok => not @error) ;
-
+    $cb->(%args, ok => not @error) if $cb ;
+    return not @error ;
 }
 
 sub run_code_on_value {
