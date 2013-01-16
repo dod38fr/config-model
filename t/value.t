@@ -361,10 +361,6 @@ print "normal error:\n", $@, "\n" if $trace;
 my $de = $root->fetch_element('enum');
 ok( $de, "Created enum with correct default" );
 
-throws_ok { $mb->store('toto'); } 'Config::Model::Exception::User',
-  "enum: store 'toto' error";
-print "normal error:\n", $@, "\n" if $trace;
-
 $inst->clear_changes ;
 
 is( $de->fetch, 'A', "enum with default: read default value" );
