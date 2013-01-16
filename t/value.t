@@ -252,6 +252,24 @@ my $inst = $model->instance(
 ok( $inst, "created dummy instance" );
 $inst->initial_load_stop ;
 
+my %error_stash ;
+
+sub check_store_error {
+    my ($obj, $v, $qr) = @_ ;
+    my $path = $obj->location ;
+    $error_stash{$path} = '' ;
+    $obj->store(value => $v, silent => 1);
+    is_deeply( $inst->errors, \%error_stash,"store error in $path is tracked") ;
+    like( scalar $inst->error_messages,$qr,"check $path error message") ;
+}
+
+sub check_error {
+    my ($obj, $v, $qr) = @_ ;
+    my $old_v = $obj->fetch ;
+    check_store_error(@_) ;
+    is($obj->fetch, $old_v,"check that wrong value $v was not stored") ;
+}
+
 my $root = $inst->config_root;
 
 my $i = $root->fetch_element('scalar');
@@ -270,23 +288,14 @@ is( $i->fetch, 1, "fetch test" );
 is($i->needs_check,0,"check was done during fetch") ;
 is($inst->needs_save,1,"verify instance needs_save status after fetch") ;
 
-$i->store(value => 5, silent => 1);
-is_deeply( $inst->errors,{'scalar' , ''},"store error is tracked") ;
-like( scalar $inst->error_messages,qr/max limit/,"store error message is available") ;
-
-is( $i->fetch, 1, "fetch test: value 5 was not stored" );
+check_error($i, 5, qr/max limit/) ;
 
 # FIXME: dying during a callback is not a good idea
 # FIXME: may need to change the treatment of user errors
 
-$i->store(value => 'toto', silent => 1);
-is_deeply( $inst->errors,{'scalar' , ''},"store error is tracked") ;
-like( scalar $inst->error_messages,qr/not of type/,"new store error message is available") ;
+check_error($i, 'toto', qr/not of type/) ;
 
-
-$i->store(value => 1.5 , silent => 1);
-is_deeply( $inst->errors,{'scalar' , ''},"store error is tracked") ;
-like( scalar $inst->error_messages,qr/number but not an integer/,"new store error message is available") ;
+check_error($i, 1.5, qr/number but not an integer/) ;
 
 my $nb = $root->fetch_element('bounded_number');
 ok( $nb, "created " . $nb->name );
@@ -322,12 +331,9 @@ throws_ok { my $v = $mb->fetch; } 'Config::Model::Exception::User',
   "mandatory bounded: undef error";
 print "normal error:\n", $@, "\n" if $trace;
 
-$mb->store(value => 'toto', silent => 1);
-is_deeply( $inst->errors,{'scalar' , '', mandatory_boolean => ''},"mandatory bounded:store error is tracked") ;
-like( scalar $inst->error_messages,qr/boolean error/,"mandatory bounded:store toto error message is available") ;
+check_store_error($mb, 'toto',qr/boolean error/);
 
-$mb->store(value => 2, silent => 1);
-like( scalar $inst->error_messages,qr/boolean error/,"mandatory bounded:store 2 error message is available") ;
+check_store_error($mb, 2,qr/boolean error/);
 
 my @bool_test = ( 1, 1, yes => 1, Yes => 1 , no => 0, Nope => 0 , true => 1, False => 0) ;
 
@@ -339,7 +345,6 @@ while (@bool_test) {
 
     is( $mb->fetch, $read, "mandatory boolean: store $store and read $read value" );
 }
-
 
 my $bwwa = $root->fetch_element('boolean_with_write_as');
 is($bwwa->fetch, undef, "boolean_with_write_as reads undef");
@@ -452,9 +457,7 @@ is( $up_def->fetch('standard'),
 ###
 
 my $uni = $root->fetch_element('a_uniline');
-throws_ok { $uni->store("foo\nbar"); } 'Config::Model::Exception::User',
-  "uniline: tried to store a multi line";
-print "normal error:\n", $@, "\n" if $trace;
+check_error($uni,  "foo\nbar", qr/value must not contain embedded newlines/) ;
 
 $uni->store("foo bar");
 is( $uni->fetch, "foo bar", "tested uniline value" );
