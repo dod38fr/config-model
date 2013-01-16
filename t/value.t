@@ -3,7 +3,7 @@
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
-use Test::More tests => 166;
+use Test::More ;
 use Test::Exception;
 use Test::Warn;
 use Test::Differences ;
@@ -507,10 +507,6 @@ is( $p_enum->fetch_standard, 'B', "enum: read preset value as standard_value" );
 is( $p_enum->fetch_custom,   'C', "enum: read custom_value" );
 is( $p_enum->default,        'A', "enum: read default_value" );
 
-warning_like { $p_enum->store( 'foobar', check => 'skip' ); }
-qr/skipping value/,
-  "test that errors are displayed as warnings with check = skip";
-
 ### test layered feature
 
 my $layer_inst = $model->instance(
@@ -551,37 +547,20 @@ is( $l_enum->fetch('layered'), 'B', "enum: read layered value as layered_value" 
 is( $l_enum->fetch_standard, 'B', "enum: read layered value as standard_value" );
 is( $l_enum->fetch_custom,   'C', "enum: read custom_value" );
 
-warning_like { $l_enum->store( 'foobar', check => 'skip' ); }
-qr/skipping value/,
-  "test that errors are displayed as warnings with check = skip";
-
 ### test match regexp
 my $match = $root->fetch_element('match');
-throws_ok { $match->store('bar'); } 'Config::Model::Exception::WrongValue',
-  'match value: test for non matching value';
+
+check_error($match, 'bar' , qr/does not match/);
 
 $match->store('foo42');
 is( $match->fetch, 'foo42', "test stored matching value" );
 
-### test match and check stuff
-is( $match->store(qw/value bar check no/),
-    'bar', "force storage of wrong value" );
-is( $match->fetch(qw/check no silent 1/), 'bar', "read forced wrong value" );
-
 ### test Parse::RecDescent validation
 my $prd_match = $root->fetch_element('prd_match');
-throws_ok { $prd_match->store('bar'); } 'Config::Model::Exception::WrongValue',
-  'match value: test for non matching grammar';
-throws_ok { $prd_match->store('Perl'); } 'Config::Model::Exception::WrongValue',
-  'match value: test for non matching grammar';
-$root->fetch_element('prd_test_action')->store('Perl CC-BY Apache');
 
-throws_ok { $prd_match->store('bar'); } 'Config::Model::Exception::WrongValue',
-  'match value: test for non matching grammar';
-is( $prd_match->store(qw/value bar check no/),
-    'bar', "force storage of wrong value" );
-is( $prd_match->fetch(qw/check no silent 1/), 'bar',
-    "read forced wrong value" );
+check_error($prd_match, 'bar' , qr/does not match grammar/) ;
+check_error($prd_match, 'Perl' , qr/does not match grammar/) ;
+$root->fetch_element('prd_test_action')->store('Perl CC-BY Apache');
 
 foreach
   my $prd_test ( ( 'Perl', 'Perl and CC-BY', 'Perl and CC-BY or Apache' ) )
@@ -690,3 +669,5 @@ ok(1,"warn_unless apply_fixes called");
 is($warn_unless->fetch,'foobar',"check fixed warn_unless pb");
 
 memory_cycle_ok($model,"check memory cycles");
+
+done_testing ;
