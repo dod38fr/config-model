@@ -376,7 +376,8 @@ is($inst->needs_save,0,"check needs_save after reading a default value") ;
 print "enum with default: read custom\n" if $trace;
 is( $de->fetch_custom, undef, "enum with default: read custom value" );
 
-is( $de->store('B'),     'B', "enum: store B" );
+$de->store('B');
+is( $de->fetch,          'B', "enum: store and read B" );
 is( $de->fetch_custom,   'B', "enum: read custom value" );
 is( $de->fetch_standard, 'A', "enum: read standard value" );
 
@@ -407,19 +408,20 @@ is( $de->default(), undef, "enum: check that new default value is undef" );
 
 is( $de->fetch, undef, "enum: check that new current value is undef" );
 
-is( $de->store('H'), 'H', "enum:  set a new value" );
+$de->store('H');
+is( $de->fetch(), 'H', "enum: set and read a new value" );
 
 ###
 
 my $uc_c = $root->fetch_element('uc_convert');
 ok( $uc_c, "testing convert => uc" );
-is( $uc_c->store('coucou'), 'COUCOU', "uc_convert: testing store" );
-is( $uc_c->fetch(),         'COUCOU', "uc_convert: testing read" );
+$uc_c->store('coucou');
+is( $uc_c->fetch(),         'COUCOU', "uc_convert: testing" );
 
 my $lc_c = $root->fetch_element('lc_convert');
 ok( $lc_c, "testing convert => lc" );
-is( $lc_c->store('coUcOu'), 'coucou', "lc_convert: testing store" );
-is( $lc_c->fetch(),         'coucou', "lc_convert: testing read" );
+$lc_c->store('coUcOu');
+is( $lc_c->fetch(),         'coucou', "lc_convert: testing" );
 
 print "Testing integrated help\n" if $trace;
 
