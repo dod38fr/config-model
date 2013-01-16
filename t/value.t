@@ -304,8 +304,8 @@ throws_ok { my $v = $ms->fetch; } 'Config::Model::Exception::User',
   "mandatory string: undef error";
 print "normal error:\n", $@, "\n" if $trace;
 
-is( $ms->store('toto'), 'toto', "mandatory_string: store" );
-is( $ms->fetch,         'toto', "and read" );
+$ms->store('toto') ;
+is( $ms->fetch,         'toto', "mandatory_string: store and read" );
 
 my $toto_str = "a\nbig\ntext\nabout\ntoto" ;
 $ms->store($toto_str) ;
@@ -322,41 +322,24 @@ throws_ok { my $v = $mb->fetch; } 'Config::Model::Exception::User',
   "mandatory bounded: undef error";
 print "normal error:\n", $@, "\n" if $trace;
 
-throws_ok { $mb->store('toto'); } 'Config::Model::Exception::User',
-  "mandatory bounded: store string error";
-print "normal error:\n", $@, "\n" if $trace;
+$mb->store(value => 'toto', silent => 1);
+is_deeply( $inst->errors,{'scalar' , '', mandatory_boolean => ''},"mandatory bounded:store error is tracked") ;
+like( scalar $inst->error_messages,qr/boolean error/,"mandatory bounded:store toto error message is available") ;
 
-throws_ok { $mb->store(2); } 'Config::Model::Exception::User',
-  "mandatory bounded: store 2 error";
-print "normal error:\n", $@, "\n" if $trace;
+$mb->store(value => 2, silent => 1);
+like( scalar $inst->error_messages,qr/boolean error/,"mandatory bounded:store 2 error message is available") ;
 
-ok( $mb->store(1), "mandatory boolean: set to 1" );
+my @bool_test = ( 1, 1, yes => 1, Yes => 1 , no => 0, Nope => 0 , true => 1, False => 0) ;
 
-ok( $mb->fetch, "mandatory boolean: read" );
+while (@bool_test) {
+    my $store = shift @bool_test ;
+    my $read  = shift @bool_test ;
 
-print "mandatory boolean: set to yes\n" if $trace;
-ok( $mb->store('yes'), "mandatory boolean: set to yes" );
-is( $mb->fetch, 1, "and read" );
+    $mb->store($store);
 
-print "mandatory boolean: set to Yes\n" if $trace;
-ok( $mb->store('Yes'), "mandatory boolean: set to Yes" );
-is( $mb->fetch, 1, "and read" );
+    is( $mb->fetch, $read, "mandatory boolean: store $store and read $read value" );
+}
 
-print "mandatory boolean: set to no\n" if $trace;
-is( $mb->store('no'), 0, "mandatory boolean: set to no" );
-is( $mb->fetch,       0, "and read" );
-
-print "mandatory boolean: set to Nope\n" if $trace;
-is( $mb->store('Nope'), 0, "mandatory boolean: set to Nope" );
-is( $mb->fetch,         0, "and read" );
-
-print "mandatory boolean: set to true\n" if $trace;
-is( $mb->store('true'), 1, "mandatory boolean: set to true" );
-is( $mb->fetch,         1, "and read" );
-
-print "mandatory boolean: set to False\n" if $trace;
-is( $mb->store('False'), 0, "mandatory boolean: set to False" );
-is( $mb->fetch,          0, "and read" );
 
 my $bwwa = $root->fetch_element('boolean_with_write_as');
 is($bwwa->fetch, undef, "boolean_with_write_as reads undef");
