@@ -1225,6 +1225,34 @@ sub store {
     ) ;
 }
 
+#
+# New subroutine "_store_value" extracted - Wed Jan 16 18:46:22 2013.
+#
+sub _store_value {
+    my $self          = shift;
+    my $value         = shift;
+    my $notify_change = shift // 1;
+
+    if ( $self->instance->layered ) {
+        $self->{layered} = $value;
+    }
+    elsif ( $self->instance->preset ) {
+        $self->notify_change( check_done => 1, old => $self->{data}, new => $value )
+          if $notify_change;
+        $self->{preset} = $value;
+    }
+    else {
+        no warnings 'uninitialized';
+        $self->notify_change(
+            check_done => 1,
+            old        => $self->{data} // $self->_fetch_std,
+            new        => $value // $self->_fetch_std
+        ) if $notify_change;
+        $self->{data} = $value;    # may be undef
+    }
+    return $value ;
+}
+
 sub store_cb {
     my $self = shift;
     my %args = @_ ;
@@ -1241,26 +1269,10 @@ sub store_cb {
 
     my $old_value = $self->_fetch_no_check ;
 
+    # FIXME: storing wrong value does not make sense
     # we let store the value even if wrong when check is disabled
     if ($ok or $check eq 'no') {
-        if ($self->instance->layered) {
-	    $self->{layered} = $value ;
-	} 
-	elsif ($self->instance->preset) {
-	    $self->notify_change(check_done => 1,old => $self->{data}, new => $value)
-                if $notify_change;
-	    $self->{preset} = $value ;
-	} 
-	else {
-	    no warnings 'uninitialized';
-	    $self->notify_change(
-                check_done => 1,
-                old => $self->{data} // $self->_fetch_std, 
-                new => $value // $self->_fetch_std
-            ) if $notify_change;
-	    $self->{data} = $value ; # may be undef
-	}
-	
+        $self-> _store_value ( $value,$notify_change) ;
     }
     else {
         $self->instance->add_error($self->location) ;
@@ -1644,7 +1656,9 @@ sub fetch {
             autoadd => 0,
         ); 
         # store replaced value to trigger notify_change
-        $value = $self->store($rep) if defined $rep ;
+        if (defined $rep  and $rep ne $value) {
+             $value = $self->_store_value($rep) ;
+        };
     }
 
     # check and subsequent storage of fixes instruction must be done only
