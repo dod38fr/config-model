@@ -90,7 +90,7 @@ sub _config_model {
 }
 
 has skip_read => ( is => 'ro', isa => 'Bool') ;
-has check => ( is => 'ro', isa => 'Str', builder => '_check_check', lazy => 1) ;
+has check => ( is => 'ro', isa => 'Str', default => 'yes') ;
 has auto_read => ( is => 'rw' , isa => 'HashRef' ) ;
 has model => ( is => 'rw' , isa => 'HashRef' ) ;
 has needs_save => ( is => 'rw', isa => 'Bool', default => 0 ) ;
