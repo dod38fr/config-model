@@ -31,8 +31,6 @@ else {
 }
 Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 
-plan tests => 65;
-
 ok(1,"compiled");
 
 # pseudo root where config files are written by config-model
@@ -42,7 +40,7 @@ my $wr_root = 'wr_root/';
 my @with_semi_column_comment = my @with_hash_comment = <DATA> ;
 # change delimiter comments
 map {s/#/;/;} @with_semi_column_comment ;
-my %test_setup = ( IniTest  => [ \@with_hash_comment , 'class1' ], 
+my %test_setup = ( IniTest  => [ \@with_hash_comment , 'class1' ],
                    IniTest2 => [ \@with_semi_column_comment, 'class1' ],
                    AutoIni  => [ \@with_hash_comment, 'class1' ],
                    MyClass  => [ \@with_hash_comment, 'any_ini_class:class1' ]
@@ -62,7 +60,7 @@ foreach my $test_class (sort keys %test_setup) {
     my $wr_dir = $wr_root.'/'.$test1 ;
     my $conf_file = "$wr_dir/etc/test.ini" ;
 
-    mkpath($wr_dir.'/etc', { mode => 0755 }) 
+    mkpath($wr_dir.'/etc', { mode => 0755 })
         || die "can't mkpath: $!";
     open(CONF,"> $conf_file" ) || die "can't open $conf_file: $!";
     print CONF @orig ;
@@ -78,22 +76,24 @@ foreach my $test_class (sort keys %test_setup) {
 
 
     my $i_root = $i_test->config_root ;
-   
-    $i_root->load("bar:0=\x{263A}") ; # utf8 smiley
+    ok($i_root, "created $test_class tree root");
+    $i_root->init ;
+    ok(1,"$test_class root init done") ;
 
+    $i_root->load("bar:0=\x{263A}") ; # utf8 smiley
     is($i_root->annotation,"some global comment","check global comment");
     is($i_root->grab($test_path)->annotation,"class1 comment",
         "check $test_path comment");
 
     my $lista_obj = $i_root->grab($test_path)->fetch_element('lista');
-    is($lista_obj->annotation, '',"check $test_path lista comment"); 
+    is($lista_obj->annotation, '',"check $test_path lista comment");
 
     foreach my $i (1 .. 3) {
         my $elt = $lista_obj->fetch_with_id($i - 1) ;
         is($elt->fetch,"lista$i","check lista[$i] content");
         is($elt->annotation,
             "lista$i comment","check lista[$i] comment");
-    } 
+    }
 
     my $orig = $i_root->dump_tree ;
     print $orig if $trace ;
@@ -107,7 +107,7 @@ foreach my $test_class (sort keys %test_setup) {
     # create another instance to read the IniFile that was just written
     my $wr_dir2 = $wr_root.'/ini2' ;
     mkpath($wr_dir2.'/etc',{ mode => 0755 })   || die "can't mkpath: $!";
-    copy($wr_dir.'/etc/test.ini',$wr_dir2.'/etc/') 
+    copy($wr_dir.'/etc/test.ini',$wr_dir2.'/etc/')
         or die "can't copy from test1 to test2: $!";
 
     my $i2_test = $model->instance(instance_name    => 'test_inst2',
@@ -128,6 +128,7 @@ foreach my $test_class (sort keys %test_setup) {
 
 }
 
+done_testing;
 
 __DATA__
 #some global comment
@@ -146,6 +147,6 @@ baz = bazv
 [class1]
 lista=lista1 #lista1 comment
 # lista2 comment
-lista    =    lista2 
+lista    =    lista2
 # lista3 comment
-lista    =    lista3 
+lista    =    lista3
