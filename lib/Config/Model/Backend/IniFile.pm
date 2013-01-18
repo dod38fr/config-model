@@ -24,6 +24,7 @@ package Config::Model::Backend::IniFile ;
 
 use Carp;
 use Any::Moose ;
+use 5.10.0;
 use Config::Model::Exception ;
 use File::Path;
 use Log::Log4perl qw(get_logger :levels);
@@ -51,7 +52,7 @@ sub read {
 
     return 0 unless defined $args{io_handle};    # no file to read
 
-    my $section;
+    my $section = '<top>'; # dumb value used for logging
 
     my $delimiter   = $args{comment_delimiter}   || '#';
     my $hash_class  = $args{store_class_in_hash} || '' ;
@@ -63,11 +64,6 @@ sub read {
     my %force_lc ;
     map { $force_lc{$_} = $args{"force_lc_$_"} ? 1 : 0; } qw/section key value/ ;
 
-    # delay validation after read because the read order depends
-    # on the INI file and not on the model
-    my $read_check = 'no'; 
-    
-
     #FIXME: Is it possible to store the comments with their location
     #in the file?  It would be nice if comments that are after values
     #in input file, would be written in the same way in the output
@@ -78,80 +74,83 @@ sub read {
     $self->read_global_comments(\@lines,$delimiter) ;
 
     my @assoc = $self->associates_comments_with_data( \@lines, $delimiter ) ;
+
+    # store INI data in a structure:
+    # {
+    #   name => value         leaf
+    #   name => [  value ]     list
+    #   name => { key =>  value , ... }    hash
+    #   name => { ... }                   node
+    #   name => [ { ... }, ... ]        list of nodes
+    #   name => { key =>   { ... } , ... }        hash of nodes
+    # }
+    # section hash contain also name => [ [ value, comment ] ]
+
+    my $ini_data = {};
+    my %ini_comment ;
+    my $section_ref = $ini_data ;
+    my $section_path = '';
+
     foreach my $item (@assoc) {
         my ($vdata,$comment) = @$item;
         $logger->debug("ini read: reading '$vdata'");
+        my $path ;
 
         # Update section name
-        if ( $vdata =~ /\[(.*)\]/ ) {
+        if ( $hash_class and $vdata =~ /\[(.*)\]/ ) {
             $section = $force_lc{section} ? lc($1) : $1;
-            my $steps = $section_map->{$section} ? $section_map->{$section}.' '
-                      : $hash_class              ? "$hash_class:$section" 
-                      :                            $section ;
-            $logger->debug("use step '$steps' for section '$section'");
-            $obj = $self->node->grab(
-                step  => $steps ,
-                check => $read_check,
-                mode => $read_check eq 'yes' ? 'strict' : 'loose' ,
-            );
-            
-            # for write later, need to store the obj if section map was used
-            if (defined $section_map->{$section}) {
-               my $map_loc = $obj->location ;
-               $logger->debug("store section_map loc '$map_loc' section '$section'");
-               $self->{reverse_section_map}{$map_loc} = $section ;
-            }
-            
-            if ($logger->is_debug) {
-                my $debug_loc = defined $obj ? 'on node '.$obj->location : '' ;
-                $logger->debug("ini read: new section '$section' $debug_loc");
-            }
-            $obj->annotation($comment) if $comment and defined $obj;
+            $ini_data->{$hash_class}{$section} = $section_ref = { } ;
+            $path = $section_path =  "$hash_class:$section" ;
+
+            $logger->debug("step 1: found section $section for class $hash_class");
         }
-        elsif (defined $obj) {
+        elsif ( $vdata =~ /\[(.*)\]/ ) {
+            $section = $force_lc{section} ? lc($1) : $1;
+            my $target = $section_map->{$section} ? $section_map->{$section}.' '
+                       :                            $section ;
+            $section_ref = {} ;
+            $logger->debug("step 1: found section $target");
+            $section_path = $path = $self->set_or_push($ini_data, $target, $section_ref);
+        }
+        else {
             my ( $name, $val ) = split( /\s*=\s*/, $vdata );
             $name = lc($name) if $force_lc{key} ;
             $val  = lc($val)  if $force_lc{value} ;
-            
-            $logger->debug("ini read: data $name for node ".$obj->location);
-
-            my $elt = $obj->fetch_element( name => $name, check => $read_check );
-
-            if ( $elt->get_type eq 'list' and $split_reg) {
-                my @v_list = split(/$split_reg/,$val) ;
-                my @args = (\@v_list, check => $read_check) ;
-                push @args, annotation => $comment if $comment ;
-                $elt->store_set(@args) ;
-            }
-            elsif ( $elt->get_type eq 'list' ) {
-                my @args = (values => $val, check => $read_check) ;
-                push @args, annotation => $comment if $comment ;
-                $elt -> push_x(@args) ;
-            }
-            elsif ( $elt->get_type eq 'leaf' ) {
-                $elt->store( value => $val, check => $read_check );
-                $elt->annotation($comment) if scalar $comment;
-            }
-            else {
-                Config::Model::Exception::ModelDeclaration->throw(
-                    error => "element $elt must be list or leaf for INI files",
-                    object => $obj
-                );
-            }
+            $path = $section_path.' '.$self->set_or_push($section_ref, $name, $val);
+            $logger->debug("step 1: found name $name in section $section");
         }
-        else {
-            $logger->warn("ini read: skipping $vdata");
-        }
+
+        $ini_comment{$path} = $comment if $comment ;
     }
 
-    # perform check if it was not done before
-    if ($check ne 'no') {
-        $obj->dump_tree(check => $check) ;
-    }
+    $obj->load_data($ini_data) ;
+    while (my ($k,$v) = each %ini_comment) {
+        my $item = $obj->grab($k) ;
+        $item= $item->fetch_with_id(0) if $item->get_type eq 'list' ;
+        $item->annotation($v) ;
+    } ;
 
     return 1;
 }
 
+sub set_or_push {
+    my ( $self, $ref, $name, $val ) = @_;
+    my $cell = $ref->{$name};
+    my $path ;
+    if ( defined $cell and ref($cell) eq 'ARRAY' ) {
+        push @$cell, $val;
+        $path = $name.':'. $#$cell
+    }
+    elsif ( defined $cell ) {
+        $ref->{$name} = [ $cell, $val ];
+        $path = $name.':1' ;
+    }
+    else {
+        $ref->{$name} = $val ;
+        $path = $name ; # no way to distinguish between leaf and first value of list
+    }
+    return $path;
+}
 
 sub write {
     my $self = shift;
