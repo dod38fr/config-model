@@ -94,33 +94,47 @@ sub read {
     foreach my $item (@assoc) {
         my ($vdata,$comment) = @$item;
         $logger->debug("ini read: reading '$vdata'");
-        my $path ;
+        my $comment_path ;
 
         # Update section name
-        if ( $hash_class and $vdata =~ /\[(.*)\]/ ) {
+        if ($vdata =~ /\[(.*)\]/ ) {
             $section = $force_lc{section} ? lc($1) : $1;
-            $ini_data->{$hash_class}{$section} = $section_ref = { } ;
-            $path = $section_path =  "$hash_class:$section" ;
-
-            $logger->debug("step 1: found section $section for class $hash_class");
-        }
-        elsif ( $vdata =~ /\[(.*)\]/ ) {
-            $section = $force_lc{section} ? lc($1) : $1;
-            my $target = $section_map->{$section} ? $section_map->{$section}.' '
-                       :                            $section ;
-            $section_ref = {} ;
-            $logger->debug("step 1: found section $target");
-            $section_path = $path = $self->set_or_push($ini_data, $target, $section_ref);
+            my $remap = $section_map->{$section} || '' ;
+            if ( $remap eq '!') {
+                $section_ref = $ini_data ;
+                $comment_path = $section_path = '';
+                $logger->debug("step 1: found node <top> [$section]");
+            }
+            elsif ($remap) {
+                $section_ref = {} ;
+                $logger->debug("step 1: found node $remap [$section]");
+                $section_path = $comment_path = $self->set_or_push($ini_data, $remap, $section_ref);
+            }
+            elsif ($hash_class) {
+                $ini_data->{$hash_class}{$section} = $section_ref = { } ;
+                $comment_path = $section_path =  "$hash_class:$section" ;
+                $logger->debug("step 1: found node $hash_class and path $comment_path [$section]");
+            }
+            else {
+                $section_ref = {} ;
+                $logger->debug("step 1: found node $section [$section]");
+                $section_path = $comment_path = $self->set_or_push($ini_data, $section, $section_ref);
+            }
+            # for write later, need to store the obj if section map was used
+            if (defined $section_map->{$section}) {
+               $logger->debug("store section_map loc '$section_path' section '$section'");
+               $self->{reverse_section_map}{$section_path} = $section ;
+            }
         }
         else {
             my ( $name, $val ) = split( /\s*=\s*/, $vdata );
             $name = lc($name) if $force_lc{key} ;
             $val  = lc($val)  if $force_lc{value} ;
-            $path = $section_path.' '.$self->set_or_push($section_ref, $name, $val);
-            $logger->debug("step 1: found name $name in section $section");
+            $comment_path = $section_path.' '.$self->set_or_push($section_ref, $name, $val);
+            $logger->debug("step 1: found node $comment_path name $name in [$section]");
         }
 
-        $ini_comment{$path} = $comment if $comment ;
+        $ini_comment{$comment_path} = $comment if $comment ;
     }
 
     $obj->load_data($ini_data) ;
