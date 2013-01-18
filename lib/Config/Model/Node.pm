@@ -1022,7 +1022,7 @@ sub load_data {
             my $obj = $self->fetch_element(name => $elt, experience => 'master', 
                                            check => $check) ;
 
-            $obj -> load_data(delete $perl_data->{$elt}) ;
+            $obj -> load_data(delete $perl_data->{$elt}, $check) ;
         } elsif ($check ne 'skip')  {
             Config::Model::Exception::LoadData 
                 -> throw (
@@ -1043,7 +1043,7 @@ sub load_data {
             #TODO: annotations
             my $obj = $self->fetch_element(name => $elt, experience => 'master', check => $check) ;
             $logger->debug("Node load_data: accepting element $elt");
-            $obj ->load_data(delete $perl_data->{$elt}) if defined $obj;
+            $obj ->load_data(delete $perl_data->{$elt}, $check) if defined $obj;
             }
     }
 
