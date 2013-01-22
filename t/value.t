@@ -460,6 +460,10 @@ check_error($uni,  "foo\nbar", qr/value must not contain embedded newlines/) ;
 $uni->store("foo bar");
 is( $uni->fetch, "foo bar", "tested uniline value" );
 
+$uni->store('') ;
+is( $uni->fetch, '', "tested empty value" );
+
+
 ### test replace feature
 my $wrepl = $root->fetch_element('with_replace');
 $wrepl->store('c1');
