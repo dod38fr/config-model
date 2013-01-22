@@ -1211,14 +1211,14 @@ sub store {
     $self->needs_check(1) ; # always when storing a value
     my $user_cb = $args{callback} || sub {} ;
 
+    # record a "pending_store" status so that fetch blocks until
+    # pending_store is cleared (necessary if warp stuff is read before the store is finished)
     $self->inc_pending_store ;
     my $my_cb = sub {
-        $self->store_cb(@_ , callback => $user_cb) ;
+        # must dec the counter before calling the user's cb. (which may contain a fetch call)
         $self->dec_pending_store;
+        $self->store_cb(@_ , callback => $user_cb) ;
     };
-
-    # FIXME: need to record a "pending_store" status so that fetch blocks until
-    # pending_store is cleared (necessary if warp stuff is read before the store is finished)
 
     $self->check_stored_value(
         value => $value,
