@@ -278,7 +278,7 @@ sub perform_compute {
     #print "compute: result $result\n" ;
     # check if the computed result fits with the constraints of the
     # Value object
-    my $ok = $self->check_value($result) ;
+    my $ok = $self->check_fetched_value($result) ;
 
     #print "check result: $ok\n";
     if (not $ok) {
