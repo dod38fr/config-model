@@ -355,27 +355,27 @@ my $macro = $root->fetch_element('macro');
 
 my @macro_slaves = ('Warper of Master m_value_out');
 
-eq_or_diff( 
+eq_or_diff(
     [ map { $_->name } $macro->get_depend_slave ] ,
     \@macro_slaves,
     "check m_value_out warper"
     );
-    
+
 my $mvo2 = $root->fetch_element('m2_value_out');
 isa_ok($mvo2->{warper},'Config::Model::Warper',"check warper object");
 
 push @macro_slaves , 'Warper of Master m2_value_out', 'Warper of Master macro2' ;
 
-eq_or_diff( 
+eq_or_diff(
     [ sort map { $_->name } $macro->get_depend_slave ] ,
     [ sort @macro_slaves ],
     "check m_value_out and m2_value_out warper"
     );
-    
+
 eq_or_diff(
     [ $root->get_element_name( for => 'beginner' ) ],
     [
-        qw'get_element where_is_element macro m_value_out m2_value_out 
+        qw'get_element where_is_element macro m_value_out m2_value_out
         compute var_path class bar foo foo2 ClientAliveCheck'
     ],
     "Elements of Master"
@@ -659,7 +659,7 @@ is( $root->fetch_element('ClientAliveInterval')->fetch,
 
 my %loc_h = (
     qw/bar slaved foo2 slaved/,
-    'bar recursive_slave:l1 foo2' => 'rslaved', 
+    'bar recursive_slave:l1 foo2' => 'rslaved',
     'bar recursive_slave:l1 recursive_slave:l2 foo2' => 'rslaved'
 );
 
