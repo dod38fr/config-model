@@ -516,7 +516,7 @@ is( $slave->fetch_element('Y')->fetch, 'Cv', "reading slave->Y (Cv)" );
 
 is( $slave->fetch_element('Comp')->fetch, 'macro is C', "reading slave->Comp" );
 
-is( $root->fetch_element('m_value')->store('Cv'), 'Cv', 'set m_value to Cv' );
+is( $root->fetch_element('m_value')->store('Cv'), 1, 'set m_value to Cv' );
 
 my $rslave1 = $slave->fetch_element('recursive_slave')->fetch_with_id('l1');
 my $rslave2 = $rslave1->fetch_element('recursive_slave')->fetch_with_id('l2');
