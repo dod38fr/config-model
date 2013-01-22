@@ -7,6 +7,7 @@ use Test::Differences ;
 use Test::Memory::Cycle;
 use Config::Model;
 use Data::Dumper ;
+use Log::Log4perl qw(:easy :levels) ;
 
 use warnings;
 no warnings qw(once);
@@ -15,14 +16,24 @@ use strict;
 
 my $model = Config::Model -> new(legacy => 'ignore',)  ;
 
-my $arg = shift || '' ;
-my $trace = $arg =~ /t/ ? 1 : 0 ;
-$::verbose          = 1 if $arg =~ /v/;
-$::debug            = 1 if $arg =~ /d/;
-Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
+my $arg = shift || '';
+my ($log,$show) = (0) x 2 ;
 
-use Log::Log4perl qw(:easy) ;
-Log::Log4perl->easy_init($arg =~ /l/ ? $TRACE: $WARN);
+my $trace = $arg =~ /t/ ? 1 : 0 ;
+$log                = 1 if $arg =~ /l/;
+$show               = 1 if $arg =~ /s/;
+
+my $home = $ENV{HOME} || "";
+my $log4perl_user_conf_file = "$home/.log4config-model";
+
+if ($log and -e $log4perl_user_conf_file ) {
+    Log::Log4perl::init($log4perl_user_conf_file);
+}
+else {
+    Log::Log4perl->easy_init($log ? $WARN: $ERROR);
+}
+
+Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 
 # See caveats in Test::More doc
 my $builder = Test::More->builder;
