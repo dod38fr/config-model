@@ -1123,7 +1123,9 @@ sub check_fetched_value {
 
     if ($self->_pending_store) {
         my $w = AnyEvent->condvar ;
+        $logger->debug("blocks on pending store, count: ", $self->_pending_store);
         $self->_pending_fetch( sub { $w->send; }) ;
+        $logger->debug("unblocked after pending store");
         $w->recv ;
     }
 
