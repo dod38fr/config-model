@@ -1122,10 +1122,12 @@ sub check_fetched_value {
     my $check = $args{check} || 'yes' ;
 
     if ($self->_pending_store) {
-        my $retry = sub { $self->check_fetched_value(%args) ; };
-        $self->_pending_fetch($retry) ;
+        my $w = AnyEvent->condvar ;
+        $self->_pending_fetch( sub { $w->send; }) ;
+        $w->recv ;
     }
-    elsif ($self->needs_check) {
+
+    if ($self->needs_check) {
         my $w = AnyEvent->condvar ;
         my $cb = sub { $w->send } ;
 
