@@ -1200,7 +1200,7 @@ sub store {
 	: $value ne $old_value and ! $init_load ? 1 
 	:                                         0 ;
 
-    if ($value eq $old_value) {
+    if (defined $old_value and $value eq $old_value) {
         $logger->info("store: skip storage of unchanged value: $value") ;
         return ;
     }
