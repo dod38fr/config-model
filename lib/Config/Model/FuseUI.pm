@@ -171,8 +171,10 @@ sub truncate {
 
     my $v = substr fetch_as_line($obj) , 0, $off ;
 
-    $logger->debug("FuseUI truncate stores '$v'");
-    $obj->store(value => $v, check => 'no') ;
+    $logger->debug("FuseUI truncate stores '$v' of length ",length($v));
+    # store the value without any check. Check will be done in write()
+    # the second parameter will trigger a notif_change.
+    $obj->_store_value( $v, 1 ) ;
     return 0 ;
 }
 
