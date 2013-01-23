@@ -1189,6 +1189,9 @@ sub store {
     # FIXME: clean this mess up
     warn "internal warning: store with no check is fishy\n" if $check eq 'no' ;
 
+    # OTOH, store with check skip makes sense when force loading data: bad value
+    # is discarded
+
     my $old_value = $self->_fetch_no_check ;
 
     my $value = $self->transform_value(value => $args{value}, check => $check ) ;
@@ -1284,10 +1287,6 @@ sub store_cb {
         warn "Warning: skipping value $value because of the following errors:\n$msg\n\n"
           if not $silent and $msg;
     }
-
-    # FIXME: fix this mess
-    warn "internal warning: store with check skip may not mean much" if $check eq 'skip' ;
-
 
     if (    $ok 
 	and defined $value 
