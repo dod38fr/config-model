@@ -199,7 +199,7 @@ sub write {
     substr $v,$off,length($buf),$buf ;
     chomp $v unless ($type eq 'leaf' and $obj->value_type eq 'string') ;
     $logger->debug("FuseUI write stores '$v'");
-    $obj->store(value => $v, skip => 'check' ) ;
+    $obj->store(value => $v ) ;
     return length($buf) ;
 }
 
