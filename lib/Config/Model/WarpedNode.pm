@@ -174,17 +174,17 @@ sub set_properties {
     # create a new object from scratch
     my $new_object = $self->create_node($config_class_name,@args) ;
 
+    $self->{config_class_name} = $config_class_name ;
+    $self->{data} = $new_object ;
+
     if (defined $old_object and $self->{morph}) {
         # there an old object that we need to translate
         $logger->debug("WarpedNode: morphing ",$old_object->name," to ",$new_object->name)
           if $logger->is_debug ;
 
-        $new_object->copy_from($old_object) ;
+        $new_object->copy_from($old_object,'skip') ;
     }
 
-    $self->{config_class_name} = $config_class_name ;
-    $self->{data} = $new_object ;
-    
     # bringing a new object does not really modify the content of the config tree.
     # only changes underneath will change the tree. And these changes below will trigger
     # their own change notif. SO there's no need to call notify_change when transitioning
