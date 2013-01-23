@@ -1114,10 +1114,12 @@ sub audit {
 
 sub copy_from {
     my $self = shift ;
-    my $from = shift ;
+    my %args = @_ > 1 ? @_ : (from => shift) ;
+    my $from = $args{from} || croak "copy_from: missing from argument";
+    my $check = $args{check} || 'yes' ;
     $logger->debug("node ".$self->location." copy from ".$from->location);
     my $dump = $from->dump_tree(check => 'no') ;
-    $self->load( step => $dump, check => 'skip' ) ;
+    $self->load( step => $dump, check => $check ) ;
 }
 
 
@@ -1834,11 +1836,12 @@ Provides a text audit on the content of the configuration below this
 node. This audit will show only value different from their default
 value.
 
-=head2 copy_from ( another_node_object )
+=head2 copy_from ( from => another_node_object, [ check => ... ] )
 
 Copy configuration data from another node into this node and its
-siblings. The copy is made in a I<tolerant> mode where invalid data
-are simply discarded.
+siblings. The copy can be made in a I<tolerant> mode where invalid data
+is discarded with C<< check => skip >>. This method can be called with
+a single argument: C<< copy_from($another_node) >>
 
 =head1 Help management
 
