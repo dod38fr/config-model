@@ -167,7 +167,7 @@ eval { $root->fetch_element('a_hash_of_warped_nodes')->fetch_with_id(1)
 ok($@,'test stored on a warped node element (should fail)') ;
 print "Normal error:\n", $@ if $trace ;
 
-is($root->fetch_element('tree_macro')->store('XY'),'XY',
+is($root->fetch_element('tree_macro')->store('XY'),1,
    'set master->tree_macro to XY');
 
 is($root->fetch_element('a_warped_node')->is_accessible,1,
@@ -178,7 +178,7 @@ my $ahown = $root->fetch_element('a_hash_of_warped_nodes') ;
 is( $ahown->fetch_with_id(234) -> config_class_name, 'SlaveY' ,
    "reading a_hash_of_warped_nodes (is SlaveY because tree_macro was set)") ;
 
-is($root->fetch_element('tree_macro')->store('XZ'),'XZ',
+is($root->fetch_element('tree_macro')->store('XZ'),1,
    'set master->tree_macro to XZ');
 
 is( $ahown->fetch_with_id(234) -> config_class_name, 'SlaveZ' ,
@@ -187,7 +187,7 @@ is( $ahown->fetch_with_id(234) -> config_class_name, 'SlaveZ' ,
 is($ahown->fetch_with_id(234) -> fetch_element('X')->fetch, undef,
    'reading master a_hash_of_warped_nodes:234 X (undef)');
 
-is($root->fetch_element('v_macro')->store('A'),'A',
+is($root->fetch_element('v_macro')->store('A'),1,
    'set master v_macro to A');
 
 map {
@@ -196,12 +196,12 @@ map {
     } qw/X Z/ ;
 
 map {
-    is($ahown->fetch_with_id(234) -> fetch_element($_)->store('Cv'), 'Cv',
+    is($ahown->fetch_with_id(234) -> fetch_element($_)->store('Cv'), 1,
        "Set master a_hash_of_warped_nodes:234 $_ to Cv");
     } qw/X Z/ ;
 
-is($root->fetch_element('tree_macro')->store('mXY'),'mXY',
-   'set master->tree_macro to mXY (with morphing)...');
+is($root->fetch_element('tree_macro')->store('mXY'),1,
+   'set master->tree_macro to mXY (with morphing which looses Z element)...');
 
 is($ahown->fetch_with_id(234) -> fetch_element('X')->fetch, 'Cv',
        "... X value was kept ...");
@@ -209,7 +209,7 @@ is($ahown->fetch_with_id(234) -> fetch_element('X')->fetch, 'Cv',
 is($ahown->fetch_with_id(234) -> fetch_element('Y')->fetch, 'Av',
        "... Y is back to default value");
 
-is($root->fetch_element('v_macro')->store('B'),'B',
+is($root->fetch_element('v_macro')->store('B'),1,
    'set master v_macro to B');
 
 is($ahown->fetch_with_id(234) -> fetch_element('X')->fetch, 'Cv',
@@ -259,7 +259,7 @@ is( $ahown->fetch_with_id( 234)->fetch_element_value('X'),
     $ahown->fetch_with_id(2345)->fetch_element_value('X'),
     "check that has copy works on warped_node") ;
 
-is($root->fetch_element('tree_macro')->store('W'),'W',
+is($root->fetch_element('tree_macro')->store('W'),1,
    'set master->tree_macro to W (warp out)...');
 
 eq_or_diff([$root->get_element_name(for => 'beginner')],
