@@ -182,7 +182,7 @@ sub set_properties {
         $logger->debug("WarpedNode: morphing ",$old_object->name," to ",$new_object->name)
           if $logger->is_debug ;
 
-        $new_object->copy_from($old_object,'skip') ;
+        $new_object->copy_from(from => $old_object,check => 'skip') ;
     }
 
     # bringing a new object does not really modify the content of the config tree.
