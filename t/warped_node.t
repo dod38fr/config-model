@@ -35,12 +35,12 @@ ok(1,"Compilation done");
 
 # minimal set up to get things working
 my $model = Config::Model->new(legacy => 'ignore',) ;
-$model ->create_config_class 
+$model ->create_config_class
   (
    name => 'SlaveY',
    element =>
    [
-    [qw/X Y/] => { 
+    [qw/X Y/] => {
                   type => 'leaf',
                   value_type => 'enum',
                   choice     => [qw/Av Bv Cv/],
@@ -51,7 +51,7 @@ $model ->create_config_class
                                           }
                                 }
                  },
-    [qw/a_string a_long_string another_string/] 
+    [qw/a_string a_long_string another_string/]
     => { type => 'leaf',
          mandatory => 1 ,
          value_type => 'string'
@@ -60,12 +60,12 @@ $model ->create_config_class
    ]
   );
 
-$model ->create_config_class 
+$model ->create_config_class
   (
    name => 'SlaveZ',
    element =>
    [
-    [qw/X Z/] => { 
+    [qw/X Z/] => {
                   type => 'leaf',
                   value_type => 'enum',
                   choice     => [qw/Av Bv Cv/],
@@ -79,12 +79,12 @@ $model ->create_config_class
    ]
   );
 
-$model ->create_config_class 
+$model ->create_config_class
   (
    name => 'Master',
    element =>
    [
-    v_macro => { 
+    v_macro => {
                 type => 'leaf',
                 value_type => 'enum',
                 choice     => [qw/A B/]
@@ -101,7 +101,7 @@ $model ->create_config_class
         index_type  => 'string',
         level => 'hidden',
         warp => {  follow => '! tree_macro',
-                   rules => { 
+                   rules => {
                              XY  => { level => 'normal', },
                              mXY => {
                                      level => 'normal',
@@ -145,7 +145,7 @@ $model ->create_config_class
 
 ok(1,"compiled");
 
-my $inst = $model->instance (root_class_name => 'Master', 
+my $inst = $model->instance (root_class_name => 'Master',
                                  instance_name => 'test1');
 ok($inst,"created dummy instance") ;
 
@@ -162,7 +162,7 @@ is($root->is_element_available('a_hash_of_warped_nodes'),0,
    'check that a_hash_of_warped_nodes is not available'
   ) ;
 
-eval { $root->fetch_element('a_hash_of_warped_nodes')->fetch_with_id(1) 
+eval { $root->fetch_element('a_hash_of_warped_nodes')->fetch_with_id(1)
          -> fetch_element('X')->store('coucou');} ;
 ok($@,'test stored on a warped node element (should fail)') ;
 print "Normal error:\n", $@ if $trace ;
@@ -184,41 +184,41 @@ is($root->fetch_element('tree_macro')->store('XZ'),'XZ',
 is( $ahown->fetch_with_id(234) -> config_class_name, 'SlaveZ' ,
    "reading a_hash_of_warped_nodes (is SlaveZ because tree_macro was set)") ;
 
-is($ahown->fetch_with_id(234) -> fetch_element('X')->fetch, undef,  
+is($ahown->fetch_with_id(234) -> fetch_element('X')->fetch, undef,
    'reading master a_hash_of_warped_nodes:234 X (undef)');
 
 is($root->fetch_element('v_macro')->store('A'),'A',
    'set master v_macro to A');
 
 map {
-    is($ahown->fetch_with_id(234) -> fetch_element($_)->fetch, 'Av',  
+    is($ahown->fetch_with_id(234) -> fetch_element($_)->fetch, 'Av',
        "reading master a_hash_of_warped_nodes:234 $_ (default value)");
     } qw/X Z/ ;
 
 map {
-    is($ahown->fetch_with_id(234) -> fetch_element($_)->store('Cv'), 'Cv',  
+    is($ahown->fetch_with_id(234) -> fetch_element($_)->store('Cv'), 'Cv',
        "Set master a_hash_of_warped_nodes:234 $_ to Cv");
     } qw/X Z/ ;
 
 is($root->fetch_element('tree_macro')->store('mXY'),'mXY',
    'set master->tree_macro to mXY (with morphing)...');
 
-is($ahown->fetch_with_id(234) -> fetch_element('X')->fetch, 'Cv',  
+is($ahown->fetch_with_id(234) -> fetch_element('X')->fetch, 'Cv',
        "... X value was kept ...");
 
-is($ahown->fetch_with_id(234) -> fetch_element('Y')->fetch, 'Av',  
+is($ahown->fetch_with_id(234) -> fetch_element('Y')->fetch, 'Av',
        "... Y is back to default value");
 
 is($root->fetch_element('v_macro')->store('B'),'B',
    'set master v_macro to B');
 
-is($ahown->fetch_with_id(234) -> fetch_element('X')->fetch, 'Cv',  
+is($ahown->fetch_with_id(234) -> fetch_element('X')->fetch, 'Cv',
        "... X value was kept ...");
 
-is($ahown->fetch_with_id(234) -> fetch_element('Y')->fetch, 'Bv',  
+is($ahown->fetch_with_id(234) -> fetch_element('Y')->fetch, 'Bv',
        "... Y is to new default value");
 
-# TBD 
+# TBD
 #print "Testing dump on warped object\n" if $trace;
 #my $dump = cute_dump( object => $master );
 #ok( $dump, qr/ X = Cv/ );
@@ -227,16 +227,16 @@ is($ahown->fetch_with_id(234) -> fetch_element('Y')->fetch, 'Bv',
 my $warped_node = $root -> fetch_element( 'a_warped_node') ;
 isa_ok($warped_node,"Config::Model::WarpedNode", "created warped node") ;
 
-is($ahown->fetch_with_id(234)->element_name, 'a_hash_of_warped_nodes', 
+is($ahown->fetch_with_id(234)->element_name, 'a_hash_of_warped_nodes',
   'Check element name of warped node') ;
-is($ahown->fetch_with_id(234)->index_value, '234', 
+is($ahown->fetch_with_id(234)->index_value, '234',
   'Check index value of warped node') ;
 
 # should also check that info was passed to actual node below (data
 # element)
-is($ahown->fetch_with_id(234)->element_name, 'a_hash_of_warped_nodes', 
+is($ahown->fetch_with_id(234)->element_name, 'a_hash_of_warped_nodes',
    'Check element name of actual node below warped node') ;
-is($ahown->fetch_with_id(234)->index_value, '234', 
+is($ahown->fetch_with_id(234)->index_value, '234',
    'Check index value of actual node below warped node') ;
 
 eq_or_diff([$root->get_element_name(for => 'beginner')],
@@ -244,19 +244,19 @@ eq_or_diff([$root->get_element_name(for => 'beginner')],
          'reading elements of root for experience beginner') ;
 
 eq_or_diff([$root->get_element_name(for => 'advanced')],
-          [qw/v_macro b_macro tree_macro a_hash_of_warped_nodes 
+          [qw/v_macro b_macro tree_macro a_hash_of_warped_nodes
               a_warped_node/],
          'reading elements of root for experience advanced') ;
 
 eq_or_diff([$root->get_element_name(for => 'master')],
-          [qw/v_macro b_macro tree_macro a_hash_of_warped_nodes 
+          [qw/v_macro b_macro tree_macro a_hash_of_warped_nodes
               a_warped_node/],
          'reading elements of root for experience master') ;
 
 $ahown->copy(234,2345) ;
 print $root->dump_tree(check => 'no') if $trace ;
-is( $ahown->fetch_with_id( 234)->fetch_element_value('X'), 
-    $ahown->fetch_with_id(2345)->fetch_element_value('X'), 
+is( $ahown->fetch_with_id( 234)->fetch_element_value('X'),
+    $ahown->fetch_with_id(2345)->fetch_element_value('X'),
     "check that has copy works on warped_node") ;
 
 is($root->fetch_element('tree_macro')->store('W'),'W',
