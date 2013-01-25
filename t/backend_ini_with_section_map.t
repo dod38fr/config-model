@@ -32,8 +32,6 @@ else {
 }
 Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 
-plan tests => 18;
-
 ok( 1, "compiled" );
 
 # pseudo root where config files are written by config-model
@@ -55,11 +53,12 @@ source=1
 
 [Section2]
 source=2
+packages=g++-4.2-arm-linux-gnu linux-libc-dev-arm-cross
 
 [Empty]
 EOD2
 
-my $w_file_below = join("\n",$head,'', map {lc} @below_data[3..8,0..2]);
+my $w_file_below = join("\n",$head,'', map {lc} @below_data[3..9,0..2]);
 
 # set_up data
 my @general_data = split /\n/, << 'EOD1' ;
@@ -71,11 +70,12 @@ source=1
 
 [Section2]
 source=2
+packages=g++-4.2-arm-linux-gnu linux-libc-dev-arm-cross
 
 [Empty]
 EOD1
 
-my $w_file_general = join("\n",$head, map {lc} @general_data[0..8]);
+my $w_file_general = join("\n",$head, map {lc} @general_data[0..9]);
 
 # change delimiter comments
 my %test_setup = ( 
@@ -93,6 +93,15 @@ $model->create_config_class(
             'value_type' => 'uniline',
             'type'       => 'leaf'
         },
+        'packages',
+        {
+            'cargo' => {
+                'value_type' => 'uniline',
+                'type' => 'leaf'
+            },
+            'type' => 'list'
+        },
+
     ],
 );
 
@@ -111,6 +120,7 @@ $model->create_config_class(
             'section_map'         => { 'general' => '!' },
             'backend'             => 'ini_file',
             'split_list_value'    => '\\s+',
+            'join_list_value' => ' ',
             'store_class_in_hash' => 'sections',
             force_lc_section => 1,
         }
@@ -138,6 +148,7 @@ $model->create_config_class(
             'section_map'         => { 'low' => 'below' },
             'backend'             => 'ini_file',
             'split_list_value'    => '\\s+',
+            'join_list_value' => ' ',
             'store_class_in_hash' => 'sections',
             force_lc_section => 1,
         }
@@ -195,6 +206,17 @@ foreach my $test_class ( sort keys %test_setup ) {
     print $orig if $trace;
     is($i_root->needs_save,0,"check data does not need to be saved") ;
 
+    is(
+        $i_root->grab_value("sections:section2 packages:0"),
+        "g++-4.2-arm-linux-gnu",
+        "check auto-split 1/2"
+    );
+    is(
+        $i_root->grab_value("sections:section2 packages:1"),
+        "linux-libc-dev-arm-cross",
+        "check auto-split 2/2"
+    );
+
     # force write back
     $i_root->needs_save(1) ;
 
@@ -206,7 +228,6 @@ foreach my $test_class ( sort keys %test_setup ) {
 
     file_contents_eq_or_diff $ini_file,  $written_file, 
         "check file $ini_file content" ;
-
 
     # create another instance to read the IniFile that was just written
     my $wr_dir2 = "$wr_root/$test_path/ini2";
@@ -238,3 +259,5 @@ foreach my $test_class ( sort keys %test_setup ) {
 
 }
 memory_cycle_ok($model);
+
+done_testing ;
