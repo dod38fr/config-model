@@ -57,7 +57,7 @@ sub read {
     my $delimiter   = $args{comment_delimiter}   || '#';
     my $hash_class  = $args{store_class_in_hash} || '' ;
     my $section_map = $args{section_map}         || {} ;
-    my $split_reg   = $args{split_list_value}    || '' ;  
+    my $split_reg   = $args{split_list_value} ;
     my $check       = $args{check}               || 'yes';
     my $obj         = $self->node;
 
@@ -84,7 +84,6 @@ sub read {
     #   name => [ { ... }, ... ]        list of nodes
     #   name => { key =>   { ... } , ... }        hash of nodes
     # }
-    # section hash contain also name => [ [ value, comment ] ]
 
     my $ini_data = {};
     my %ini_comment ;
@@ -137,7 +136,10 @@ sub read {
         $ini_comment{$comment_path} = $comment if $comment ;
     }
 
-    $obj->load_data($ini_data) ;
+    my @load_args = ( data => $ini_data ) ;
+    push @load_args, split_reg => qr/$split_reg/ if $split_reg ;
+    $obj->load_data(@load_args) ;
+
     while (my ($k,$v) = each %ini_comment) {
         my $item = $obj->grab($k) ;
         $item= $item->fetch_with_id(0) if $item->get_type eq 'list' ;
