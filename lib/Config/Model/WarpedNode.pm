@@ -224,18 +224,20 @@ sub clear {
 
 sub load_data {
     my $self = shift ;
-    my $h = shift ;
+    my %args = @_ > 1 ? @_ : ( data => shift) ;
+    my $data       = $args{data};
+    my $check = $self->_check_check($args{check}) ;
 
-    if (ref ($h) ne 'HASH') {
+    if (ref ($data) ne 'HASH') {
 	Config::Model::Exception::LoadData
 	    -> throw (
 		      object => $self,
 		      message => "load_data called with non hash ref arg",
-		      wrong_data => $h,
+		      wrong_data => $data,
 		     ) ;
     }
 
-    $self->get_actual_node->load_data($h,@_) ;
+    $self->get_actual_node->load_data(%args) ;
 
 }
 

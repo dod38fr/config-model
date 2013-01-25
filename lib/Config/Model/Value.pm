@@ -1433,7 +1433,10 @@ sub _value_type_error {
 
 sub load_data {
     my $self = shift ;
-    my $data  = shift ;
+
+    my %args = @_ > 1 ? @_ : ( data => shift) ;
+    my $data       = $args{data};
+    my $check = $self->_check_check($args{check}) ;
 
     if (ref $data) {
 	Config::Model::Exception::LoadData

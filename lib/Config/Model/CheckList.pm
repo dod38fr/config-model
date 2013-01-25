@@ -572,7 +572,10 @@ sub set_checked_list_as_hash {
 
 sub load_data {
     my $self = shift ;
-    my $data  = shift ;
+
+    my %args = @_ > 1 ? @_ : ( data => shift) ;
+    my $data       = $args{data};
+    my $check = $self->_check_check($args{check}) ;
 
     if (ref ($data)  eq 'ARRAY') {
 	$self->set_checked_list(@$data) ;

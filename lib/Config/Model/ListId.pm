@@ -347,12 +347,21 @@ sub create_default {
 
 sub load_data {
     my $self = shift ;
-    my $raw_data = shift ;
-    my $check = shift ;
+    my %args = @_ > 1 ? @_ : ( data => shift) ;
+    my $raw_data    = delete $args{data};
+    my $check = $self->_check_check($args{check}) ;
 
     my $data = ref($raw_data) eq 'ARRAY' ? $raw_data 
+             : ref $raw_data             ? undef
+             : $args{split_reg}          ? [ split $args{split_reg}, $raw_data ]
              : defined $raw_data         ? [ $raw_data ] 
              :                             undef; 
+
+    Config::Model::Exception::LoadData -> throw (
+        object => $self,
+        message => "load_data called with non expected data. Expected array ref or scalar",
+        wrong_data => $raw_data ,
+    ) unless defined $data;
 
     $self->clear ;
 
@@ -361,7 +370,7 @@ sub load_data {
         "0..$#$data");
     foreach my $item (@$data ) {
         my $obj = $self->fetch_with_id($idx++) ;
-        $obj -> load_data($item, $check) ;
+        $obj -> load_data(%args, data => $item) ;
     }   
 }
 
@@ -486,11 +495,18 @@ Swap 2 elements within the array
 
 Remove an element from the list. Equivalent to C<splice @list,$idx,1>
 
-=head2 load_data ( array_ref | data )
+=head2 load_data ( data => ( array_ref | scalar ) [, check => ... ] [ , split_reg => $re ] )
 
-Clear and load list from data contained in the array ref. If a scalar
-or a hash ref is passed, the list is cleared and the data is stored in
-the first element of the list.
+Clear and load list from data contained in the C<data> array ref. If a scalar
+is passed, the list is cleared and the data is stored in
+the first element of the list. If split_reg is specified, the scalar will be split
+to load the array.
+
+For instance
+
+   $elt->load_data( data => 'foo,bar', split_reg => qr(,) ) ;
+
+will load C< [ 'foo','bar']> in C<$elt>
 
 =head1 AUTHOR
 

@@ -415,7 +415,9 @@ sub move_down {
 
 sub load_data {
     my $self = shift ;
-    my $data = shift ;
+    my %args = @_ > 1 ? @_ : ( data => shift) ;
+    my $data       = delete $args{data};
+    my $check = $self->_check_check($args{check}) ;
 
     if (ref ($data) eq 'HASH') {
         my @load_keys ;
@@ -437,7 +439,7 @@ sub load_data {
                       ") will load idx @load_keys from hash ref".$from);
         foreach my $elt (@load_keys) {
             my $obj = $self->fetch_with_id($elt) ;
-            $obj -> load_data($data->{$elt}) ;
+            $obj -> load_data(%args, data => $data->{$elt}) ;
         }
     }
     elsif ( $self->{ordered} and ref ($data) eq 'ARRAY') {
@@ -447,7 +449,7 @@ sub load_data {
         while ( $idx < @$data ) {
             my $elt = $data->[$idx++];
             my $obj = $self->fetch_with_id($elt) ;
-            $obj -> load_data($data->[$idx++]) ;
+            $obj -> load_data(%args, data => $data->[$idx++]) ;
         }
     }
     elsif (defined $data) {
@@ -540,7 +542,7 @@ an ordered hash will be ignored. Ignored for non ordered hash.
 Move the key down in a ordered hash. Attempt to move up the last key of
 an ordered hash will be ignored. Ignored for non ordered hash.
 
-=head2 load_data ( hash_ref | array_ref )
+=head2 load_data ( data => ( hash_ref | array_ref ) [ , check => ... , ... ])
 
 Load check_list as a hash ref for standard hash. 
 
@@ -552,6 +554,8 @@ containing a special C<__order> element. E.g. loaded with either:
 or
 
   { __order => ['a','b'], b => 'bar', a => 'foo' }
+
+load_data can also be called with a single ref parameter.
 
 =head1 AUTHOR
 

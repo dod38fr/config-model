@@ -969,8 +969,6 @@ sub load {
     my %args = @_ eq 1 ? (step => $_[0]) : @_ ;
     if (defined $args{step}) {
         $loader->load(node => $self, %args) ;
-#    } elsif (defined $args{ref}) {
-#        $self->load_data($args{ref}) ; # 
     }
     else {
         Config::Model::Exception::Load
@@ -983,9 +981,10 @@ sub load {
 
 sub load_data {
     my $self                = shift ;
-    my $raw_perl_data       = shift ;
 
-    my $check = $self->_check_check(shift) ;
+    my %args = @_ > 1 ? @_ : ( data => shift) ;
+    my $raw_perl_data       = delete $args{data};
+    my $check = $self->_check_check($args{check}) ;
 
     if (    not defined $raw_perl_data 
         or (ref($raw_perl_data) ne 'HASH' 
@@ -1022,7 +1021,7 @@ sub load_data {
             my $obj = $self->fetch_element(name => $elt, experience => 'master', 
                                            check => $check) ;
 
-            $obj -> load_data(delete $perl_data->{$elt}, $check) ;
+            $obj -> load_data(%args, data => delete $perl_data->{$elt}) ;
         } elsif ($check ne 'skip')  {
             Config::Model::Exception::LoadData 
                 -> throw (
@@ -1043,7 +1042,7 @@ sub load_data {
             #TODO: annotations
             my $obj = $self->fetch_element(name => $elt, experience => 'master', check => $check) ;
             $logger->debug("Node load_data: accepting element $elt");
-            $obj ->load_data(delete $perl_data->{$elt}, $check) if defined $obj;
+            $obj ->load_data(%args, data => delete $perl_data->{$elt}) if defined $obj;
             }
     }
 
@@ -1795,11 +1794,15 @@ This method can also be called with a single parameter:
 
   $node->load("some data:to be=loaded");
 
-=head2 load_data ( hash_ref, [ $check  ])
+=head2 load_data ( data => hash_ref, [ check => $check, ...  ])
 
-Load configuration data with a hash ref (first parameter). The hash ref key must match
-the available elements of the node. The hash ref structure must match
+Load configuration data with a hash ref. The hash ref key must match
+the available elements of the node (or accepted element). The hash ref structure must match
 the structure of the configuration model.
+
+Use C<< check => skip >> to make data loading more tolerant: bad data will be discarded.
+
+C<load_data> can be called with a single hash ref parameter.
 
 =head2 needs_save
 
