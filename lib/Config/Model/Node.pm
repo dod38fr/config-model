@@ -91,7 +91,6 @@ sub _config_model {
 
 has skip_read => ( is => 'ro', isa => 'Bool') ;
 has check => ( is => 'ro', isa => 'Str', default => 'yes') ;
-has auto_read => ( is => 'rw' , isa => 'HashRef' ) ;
 has model => ( is => 'rw' , isa => 'HashRef' ) ;
 has needs_save => ( is => 'rw', isa => 'Bool', default => 0 ) ;
 
@@ -107,8 +106,6 @@ sub BUILD {
               : $req_check eq 'skip' || $read_check eq 'skip' ? 'skip' 
               :                                                 'yes' ;
     
-    
-    $self->auto_read( { skip => $self->skip_read, check => $check } );
     
     my $caller_class = defined $self->parent 
       ? $self->parent->name : 'user' ;
@@ -339,12 +336,8 @@ sub init {
     
     $self->{backend_mgr} ||= Config::Model::BackendMgr->new( node => $self );
 
-    my $ar = $self->{auto_read};
-
-    my $check = $ar->{check};
-    if ( defined $model->{read_config} and not $ar->{skip_read} ) {
-        $ar->{done} = 1;
-        $self->read_config_data(check => $check) ;
+    if ( defined $model->{read_config} and not $self->skip_read ) {
+        $self->read_config_data(check => $self->check) ;
     }
 
     # use read_config data if write_config is missing
