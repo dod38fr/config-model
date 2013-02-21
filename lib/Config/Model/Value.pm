@@ -103,7 +103,7 @@ has _pending_fetch => (
     clearer => '_fetch_done'
 );
 
-has errors => (
+has error_list => (
     is => 'ro',
     isa => 'ArrayRef',
     default => sub { [] },
@@ -118,7 +118,7 @@ has errors => (
     }
 ) ;
 
-has warnings => (
+has warning_list => (
     is => 'ro',
     isa => 'ArrayRef',
     default => sub { [] },
