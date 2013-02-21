@@ -831,7 +831,7 @@ sub enum_error {
 sub check_value {
     my $self = shift ;
     croak "check_value needs a value to check" unless @_ > 1;
-    
+
     my %args = @_ ;
     my $value = $args{value} ;
     my $quiet = $args{quiet} || 0 ;
@@ -1059,16 +1059,23 @@ sub apply_fixes {
         $fix_logger->debug( "called for ".$self->location ) ;
     }
 
-    $self->check_value(value => $self->{data}, fix => 1);
-    # $self->notify_change ;
+    my ($old, $new) ;
+    do {
+        $old = $self->{nb_of_fixes} ;
+        $self->check_value(value => $self->{data}, fix => 1);
+        $new = $self->{nb_of_fixes} ;
+        $self->check_value(value => $self->{data});
+        say "nb of fixes: $old -> $new";
+    }
+    while ( $self->{nb_of_fixes} and $old > $new);
 }
 
 
 # internal: called by check when a fix is required
 sub apply_fix {
-    my ( $self, $fix, $value ) = @_;
+    my ( $self, $fix, $value_r ) = @_;
 
-    local $_ = $value; # used inside $fix sub ref
+    local $_ = $$value_r; # used inside $fix sub ref
 
     if ($fix_logger->is_debug){ 
 	my $str = $fix ;
@@ -1084,16 +1091,22 @@ sub apply_fix {
         );
     }
 
-    $self->{data}  = $_ ;
+    $self->_store_fix($$value_r, $_) ;
+}
+
+sub _store_fix {
+    my ( $self, $old, $new ) = @_;
+
+    $self->{data} = $new ;
 
     if ($fix_logger->is_trace){ 
-	$fix_logger->trace( "fix change: '" . ($value // '<undef>') ."' -> '"
-	    . ($self->{data} // '<undef>'). "'" );
+	$fix_logger->trace( "fix change: '" . ($old // '<undef>') ."' -> '"
+	    . ($new // '<undef>'). "'" );
     }
     
     $self->notify_change(
-        old => $value // $self->_fetch_std, 
-        new => $self->{data} // $self->_fetch_std,
+        old => $old // $self->_fetch_std,
+        new => $new // $self->_fetch_std,
         note => 'applied fix'
     ) ;
     # $self->store(value => $_, check => 'no');  # will update $self->{fixes}
