@@ -21,6 +21,7 @@ use AnyEvent ;
 extends qw/Config::Model::AnyThing/ ;
 
 my $logger = get_logger("Tree::Element::Value") ;
+my $async_logger = get_logger("Async::Value") ;
 my $change_logger = get_logger("Anything::Change") ;
 my $fix_logger = get_logger("Anything::Fix") ;
 
@@ -1123,10 +1124,10 @@ sub check_fetched_value {
 
     if ($self->_pending_store) {
         my $w = AnyEvent->condvar ;
-        $logger->debug("blocks on pending store, count: ", $self->_pending_store);
+        $async_logger->debug("blocks on pending store, count: ", $self->_pending_store);
         $self->_pending_fetch( sub { $w->send; }) ;
-        $logger->debug("unblocked after pending store");
         $w->recv ;
+        $async_logger->debug("unblocked after pending store");
     }
 
     if ($self->needs_check) {
@@ -1135,7 +1136,9 @@ sub check_fetched_value {
 
 	$self->check_value(%args, callback => $cb );
 
+        $async_logger->debug("blocks on check_value");
         $w->recv ;
+        $async_logger->debug("unblocked after check_value");
 
 	my $err_count = $self->has_error;
 	my $warn_count = $self->has_warning;
@@ -1216,9 +1219,11 @@ sub store {
 
     # record a "pending_store" status so that fetch blocks until
     # pending_store is cleared (necessary if warp stuff is read before the store is finished)
+    $async_logger->debug("incrementing pending store for ",$self->element_name) ;
     $self->inc_pending_store ;
     my $my_cb = sub {
         # must dec the counter before calling the user's cb. (which may contain a fetch call)
+        $async_logger->debug("decrementing pending store for ",$self->element_name) ;
         $self->dec_pending_store;
         $self->store_cb(@_ , callback => $user_cb) ;
     };
@@ -1360,10 +1365,10 @@ sub transform_value {
 sub check_stored_value {
     my $self = shift;
 
-    $logger->debug(
+    $async_logger->debug(
         "called for " . $self->location . " from " . join( ' ', caller ),
         " with @_" )
-      if $logger->is_debug;
+      if $async_logger->is_debug;
 
     my %args = @_;
 
@@ -1383,7 +1388,7 @@ sub check_stored_value_cb {
     my ($value, $check, $silent, $notify_change, $ok, $callback) 
         = @args{qw/value check silent notify_change ok callback/} ;
 
-    $logger->debug("check_stored_value_cb called");
+    $async_logger->debug("check_stored_value_cb called");
 
     # some se case like idElementReference are too complex to propagate
     # a change notification back to the value using them. So an error or
