@@ -940,19 +940,19 @@ sub check_value {
     if ($mode ne 'custom') {
         if ($self->{warn_if_match}) {
             my $test_sub = sub {my ($v,$r) = @_ ; $v =~ /$r/ ? 0 : 1;} ;
-            $self->run_regexp_set_on_value($value, $apply_fix, \@warn, 'not ',$test_sub, $self->{warn_if_match}) ; 
+            $self->run_regexp_set_on_value(\$value, $apply_fix, \@warn, 'not ',$test_sub, $self->{warn_if_match}) ; 
         }
     
         if ($self->{warn_unless_match}) {
             my $test_sub = sub {my ($v,$r) = @_ ; $v =~ /$r/ ? 1 : 0 ;} ;
-            $self->run_regexp_set_on_value($value, $apply_fix, \@warn, '',$test_sub, $self->{warn_unless_match}) ; 
+            $self->run_regexp_set_on_value(\$value, $apply_fix, \@warn, '',$test_sub, $self->{warn_unless_match}) ; 
         }
     
-        $self->run_code_set_on_value( $value, $apply_fix, \@error,
+        $self->run_code_set_on_value( \$value, $apply_fix, \@error,
             "assert failure",
             $self->{assert} )
           if $self->{assert};
-        $self->run_code_set_on_value( $value, $apply_fix, \@warn,
+        $self->run_code_set_on_value( \$value, $apply_fix, \@warn,
             "warn_unless code check returned false",
             $self->{warn_unless} )
           if $self->{warn_unless};
@@ -976,8 +976,10 @@ sub check_value {
     $logger->debug("check_value returns ",scalar @error," errors and ", scalar @warn," warnings");
     $self->clear_errors;
     $self->clear_warnings;
-    $self->add_error( @error ) ;
-    $self->add_warning( @warn ) ;
+    $self->add_error( @error ) if @error;
+    $self->add_warning( @warn ) if @warn;
+
+    $args{value} = $value ; # may be updated by apply_fix
 
     $logger->debug("done") ;
 
@@ -986,11 +988,11 @@ sub check_value {
 }
 
 sub run_code_on_value {
-    my ($self,$value, $apply_fix, $array, $label, $sub, $msg, $fix) = @_;
+    my ($self,$value_r, $apply_fix, $array, $label, $sub, $msg, $fix) = @_;
 
     $logger->info( $self->location . ": run_code_on_value called (apply_fix $apply_fix)" );
 
-    my $ret = $sub->($value) ;
+    my $ret = $sub->($$value_r) ;
     if ($logger->is_debug) {
         my $str = defined $ret ? $ret : '<undef>';
         $logger->debug( "run_code_on_value sub returned '$str'" );
@@ -1000,12 +1002,12 @@ sub run_code_on_value {
         $logger->debug( "run_code_on_value sub returned false" );
         push @$array, $msg unless $apply_fix ;
         $self->{nb_of_fixes}++ if (defined $fix and not $apply_fix);
-        $self->apply_fix($fix,$value) if (defined $fix and $apply_fix);
+        $self->apply_fix($fix,$value_r) if (defined $fix and $apply_fix);
     }
 }
 
 sub run_code_set_on_value {
-    my ($self,$value, $apply_fix, $array, $msg, $w_info) = @_ ; ; 
+    my ($self,$value_r, $apply_fix, $array, $msg, $w_info) = @_ ;
         
     foreach my $label ( keys %$w_info ) {
         my $code = $w_info->{$label}{code} ;
@@ -1025,21 +1027,21 @@ sub run_code_set_on_value {
             return $ret ;
         };
         
-        $self->run_code_on_value($value,$apply_fix,$array,$label,$sub,$msg,$fix) ;
+        $self->run_code_on_value($value_r,$apply_fix,$array,$label,$sub,$msg,$fix) ;
     }
 }
 
 sub run_regexp_set_on_value {
-    my ($self,$value, $apply_fix, $array, $msg, $test_sub, $w_info) = @_ ; ; 
+    my ($self,$value_r, $apply_fix, $array, $msg, $test_sub, $w_info) = @_ ;
 
     # no need to check default or computed values
-    return unless defined $value;
+    return unless defined $$value_r;
 
     foreach my $rxp ( keys %$w_info ) {
         my $sub = sub { $test_sub->($_[0], $rxp) } ;
-        my $msg = $w_info->{$rxp}{msg} || "value '$value' should $msg"."match regexp $rxp";
+        my $msg = $w_info->{$rxp}{msg} || "value '$$value_r' should $msg"."match regexp $rxp";
         my $fix = $w_info->{$rxp}{fix} ;
-        $self->run_code_on_value($value,$apply_fix,$array,'regexp',$sub,$msg,$fix) ;
+        $self->run_code_on_value($value_r,$apply_fix,$array,'regexp',$sub,$msg,$fix) ;
     }
 }
     
