@@ -1277,11 +1277,13 @@ sub _store_value {
     }
     else {
         no warnings 'uninitialized';
+        my $old = $self->{data} // $self->_fetch_std ;
+        my $new = $value // $self->_fetch_std ;
         $self->notify_change(
             check_done => 1,
-            old        => $self->{data} // $self->_fetch_std,
-            new        => $value // $self->_fetch_std
-        ) if $notify_change;
+            old        => $old,
+            new        => $new
+        ) if $notify_change and ($old ne $new);
         $self->{data} = $value;    # may be undef
     }
     return $value ;
