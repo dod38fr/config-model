@@ -47,6 +47,7 @@ EOF
     {
         name => 'igep0020',
         config_file => '/home/foo/strap-igep0020.conf',
+        load_warnings => [ qr/deprecated/, (qr/deprecated/, qr/skipping/) x2 ]
     },
 );
 
