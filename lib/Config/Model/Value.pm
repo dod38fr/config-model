@@ -1091,7 +1091,7 @@ sub apply_fix {
         );
     }
 
-    $self->_store_fix($$value_r, $_) ;
+    $self->_store_fix($$value_r, $_) if ($_ ne $$value_r);
 }
 
 sub _store_fix {
