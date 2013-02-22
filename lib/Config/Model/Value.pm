@@ -1235,7 +1235,7 @@ sub store {
 
     if (defined $old_value and $value eq $old_value) {
         $logger->info("store: skip storage of unchanged value: $value") ;
-        return ;
+        return 1;
     }
 
     use warnings qw/uninitialized/;
