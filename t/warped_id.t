@@ -134,7 +134,7 @@ my $macro = $root->fetch_element('macro') ;
 is($root->is_element_available('hash_with_warped_value'),0,
   "check warped out hash_with_warped_value (macro is undef)"); 
 
-is($macro->store('A'),'A',"Set macro to A") ;
+is($macro->store('A'),1,"Set macro to A") ;
 is($macro->fetch(),'A',"Check macro") ;
 
 is($root->is_element_available('hash_with_warped_value'),1,
@@ -147,14 +147,14 @@ my $res = eval { $warped_hash->fetch_with_id('2'); };
 ok( $@, "Set second slave (normal error)" );
 print "normal error:", $@, "\n" if $trace;
 
-is($macro->store('B'),'B',"Set macro to B") ;
+is($macro->store('B'),1,"Set macro to B") ;
 ok( $warped_hash->fetch_with_id('2'), "Set second slave" );
 
 $res = eval { $warped_hash->fetch_with_id('3'); };
 ok( $@, "Set third slave (normal error)" );
 print "normal error:", $@, "\n" if $trace;
 
-is($macro->store('C'),'C',"Set macro to C (warp_reset)") ;
+is($macro->store('C'),1,"Set macro to C (warp_reset)") ;
 ok( $warped_hash->fetch_with_id('3'), "Set third slave" );
 
 $res = eval { $warped_hash->fetch_with_id('4'); };
@@ -169,7 +169,7 @@ print "normal error:", $@, "\n" if $trace;
 $warped_hash->delete('3') ;
 # and retry
 
-is($macro->store('B'),'B',"Set macro to B (limit max to 2)") ;
+is($macro->store('B'),1,"Set macro to B (limit max to 2)") ;
 
 is_deeply( [ $warped_hash->fetch_all_indexes ], [qw/1 2/],
 	   "check reduced key set") ;
@@ -182,8 +182,8 @@ my $multi_auto_create = $root->fetch_element('multi_auto_create') ;
 is( $multi_auto_create->max_index,
     3, "check multi_auto_create default max_index" );
 
-is( $root->fetch_element('version')->store(2), 2, 'set version to 2') ;
-is( $macro->store('C'),'C','set macro to C') ;
+is( $root->fetch_element('version')->store(2), 1, 'set version to 2') ;
+is( $macro->store('C'),1,'set macro to C') ;
 
 is_deeply( $multi_warp->default_keys ,
 	   [0 .. 7],
@@ -195,7 +195,7 @@ is_deeply( [ sort $multi_warp->fetch_all_indexes ] ,
 	 );
 
 is($multi_warp->fetch_with_id('5')->fetch_element('X')->store('Av'),
-   'Av', "store Av in X");
+   1, "store Av in X");
 
 $root->load(step => 'multi_warp:5 X=Av') ;
 

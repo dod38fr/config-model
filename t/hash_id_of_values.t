@@ -194,10 +194,10 @@ my $b1 = $b->fetch_with_id(1) ;
 isa_ok($b1,'Config::Model::Value',"fetched element id 1") ;
 is($inst->needs_save,0,"verify instance needs_save status after element creation") ;
 
-is($b1->store('foo'),'foo',"Storing in id 1" ) ;
+is($b1->store('foo'),1,"Storing in id 1" ) ;
 is($inst->needs_save,1,"verify instance needs_save status after storing into element") ;
 
-is($b->fetch_with_id(2)->store('bar'),'bar',"Storing in id 2" ) ;
+is($b->fetch_with_id(2)->store('bar'),1,"Storing in id 2" ) ;
 is($inst->needs_save,2,"verify instance needs_save status after storing into another element") ;
 print scalar $inst->list_changes,"\n" if $trace ;
 

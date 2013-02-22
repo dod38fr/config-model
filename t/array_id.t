@@ -155,9 +155,9 @@ my $b = $root->fetch_element('bounded_list');
 ok( $b, "bounded list created" );
 is($inst->needs_save,0,"verify instance needs_save status after element creation") ;
 
-is( $b->fetch_with_id(1)->store('foo'), 'foo', "stored in 1" );
-is( $b->fetch_with_id(0)->store('baz'), 'baz', "stored in 0" );
-is( $b->fetch_with_id(2)->store('bar'), 'bar', "stored in 2" );
+is( $b->fetch_with_id(1)->store('foo'), 1, "stored in 1" );
+is( $b->fetch_with_id(0)->store('baz'), 1, "stored in 0" );
+is( $b->fetch_with_id(2)->store('bar'), 1, "stored in 2" );
 is($inst->needs_save,3,"verify instance needs_save status after storing into element") ;
 print  join("\n", $inst->list_changes("\n")),"\n" if $trace;
 

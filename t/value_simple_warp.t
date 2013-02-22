@@ -109,11 +109,11 @@ ok($@, "try to read warped object while warp master is undef"  );
 print "normal error:\n", $@, "\n" if $trace;
 
 my $warp_master = $root->fetch_element('enum') ;
-is( $warp_master->store('F'), 'F', 
+is( $warp_master->store('F'), 1,
     "store F in warp master" );
 is( $w1->fetch, 'F', "read warped object default value" );
 
-is( $w1 -> store ('F2'), 'F2', "store F2 in  warped object");
+is( $w1 -> store ('F2'), 1, "store F2 in  warped object");
 is( $w1->fetch, 'F2',"and read" );
 
 
@@ -128,7 +128,7 @@ eval { $t = $rec_wo->fetch ;};
 ok( $@,"recursive_warped_object blows up" );
 print "normal error:\n", $@, "\n" if $trace;
 
-is( $w1 -> store ('F'), 'F', "store F in warped object");
+is( $w1 -> store ('F'), 1, "store F in warped object");
 is($rec_wo->fetch , 'F',
    "read recursive_warped_object: default value was set by warp master");
 

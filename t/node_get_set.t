@@ -38,7 +38,7 @@ ok( $root->load( step => $step, experience => 'advanced' ),
 foreach (["/std_id/cc/X","Bv" ],
 	) {
     my ($path,$exp) = @$_ ;
-    is($root->set($path,$exp),$exp,"Test set $path") ;
+    is($root->set($path,$exp),1,"Test set $path") ;
 }
 
 foreach (["/std_id/bc/X","Av" ],
