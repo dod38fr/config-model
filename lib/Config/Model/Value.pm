@@ -1097,6 +1097,7 @@ sub apply_fix {
         );
     }
 
+    no warnings "uninitialized";
     $self->_store_fix($$value_r, $_) if ($_ ne $$value_r);
 }
 
