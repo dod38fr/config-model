@@ -42,7 +42,7 @@ sub read {
     }
 
     # load perl data in tree
-    $self->{node}->load_data($perl_data, $args{check} || 'yes' ) ;
+    $self->{node}->load_data(data => $perl_data, check => $args{check} || 'yes' ) ;
     return 1 ;
 }
 
