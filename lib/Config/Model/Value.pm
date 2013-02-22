@@ -172,6 +172,11 @@ sub notify_change {
 	" for ",$self->name) 
 	if $change_logger->is_debug ;
     $self->needs_check(1) unless $check_done;
+    {
+        no warnings 'uninitialized';
+        croak "needless change with $args{new}" if defined $args{old}
+            and defined $args{new} and $args{old} eq $args{new} ;
+    }
     $self->SUPER::notify_change(%args, value_type => $self->value_type) ;
 
     # notify all warped or computed objects that depends on me 
