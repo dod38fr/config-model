@@ -58,7 +58,7 @@ $model->create_config_class(
             'warn_if_match' => {
                 '[^\\n]{10,}' => {
                     'msg' => 'Line too long',
-                    'fix' => '$_ = substr $_,0,10;'
+                    'fix' => '$_ = substr $_,0,8;'
                 },
             },
         }
@@ -94,7 +94,7 @@ $root->apply_fixes('long') ;
 map {
     is( 
         $root->grab_value("my_broken_node_$_ fix-long"),
-        "$_ is way t",
+        "$_ is way",
         "check that $_ long stuff was fixed"
     ) ;
     is(
