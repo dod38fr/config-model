@@ -1060,14 +1060,20 @@ sub apply_fixes {
     }
 
     my ($old, $new) ;
+    my $i = 0;
     do {
         $old = $self->{nb_of_fixes} ;
         $self->check_value(value => $self->{data}, fix => 1);
         $new = $self->{nb_of_fixes} ;
         $self->check_value(value => $self->{data});
-        say "nb of fixes: $old -> $new";
+        if ($i++ > 100) {
+            Config::Model::Exception::Model->throw(
+                object => $self,
+                error  => "Too many fix loops: check with fix code or regexp"
+            ) ;
+        }
     }
-    while ( $self->{nb_of_fixes} and $old > $new);
+    while ($self->{nb_of_fixes} and $old > $new);
 }
 
 
