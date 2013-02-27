@@ -1135,10 +1135,11 @@ sub check {
 sub check_fetched_value {
     my $self = shift;
 
-    $logger->debug(
-        "called for " . $self->location . " from " . join( ' ', caller ),
-        " with @_" )
-      if $logger->is_debug;
+    if ($logger->is_debug) {
+        no warnings 'uninitialized' ;
+        $logger->debug( "called for " . $self->location
+            . " from " . join( ' ', caller ), " with @_" );
+    }
 
     my %args =
         @_ == 0 ? ( value => $self->{data} )
