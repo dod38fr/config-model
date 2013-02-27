@@ -1217,11 +1217,9 @@ sub store {
     my $check = $self->_check_check($args{check}) ;
     my $silent = $args{silent} || 0 ;
 
-    # FIXME: clean this mess up
-    warn "internal warning: store with no check is fishy\n" if $check eq 'no' ;
-
-    # OTOH, store with check skip makes sense when force loading data: bad value
-    # is discarded
+    # store with check skip makes sense when force loading data: bad value
+    # is discarded, partially consistent values are stored so the user may
+    # salvage them before next save check discard them
 
     my $old_value = $self->_fetch_no_check ;
 
