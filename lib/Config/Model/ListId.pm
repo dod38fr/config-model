@@ -352,7 +352,6 @@ sub load_data {
     my $check = $self->_check_check($args{check}) ;
 
     my $data = ref($raw_data) eq 'ARRAY' ? $raw_data 
-             : ref $raw_data             ? undef
              : $args{split_reg}          ? [ split $args{split_reg}, $raw_data ]
              : defined $raw_data         ? [ $raw_data ] 
              :                             undef; 
@@ -495,9 +494,9 @@ Swap 2 elements within the array
 
 Remove an element from the list. Equivalent to C<splice @list,$idx,1>
 
-=head2 load_data ( data => ( array_ref | scalar ) [, check => ... ] [ , split_reg => $re ] )
+=head2 load_data ( data => ( ref | scalar ) [, check => ... ] [ , split_reg => $re ] )
 
-Clear and load list from data contained in the C<data> array ref. If a scalar
+Clear and load list from data contained in the C<data> array ref. If a scalar or a hash ref
 is passed, the list is cleared and the data is stored in
 the first element of the list. If split_reg is specified, the scalar will be split
 to load the array.
