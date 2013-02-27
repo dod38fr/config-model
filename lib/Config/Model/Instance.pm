@@ -187,6 +187,7 @@ sub reset_config {
         instance          => $self,
         container         => $self,
         skip_read         => $self->skip_read,
+        check             => $self->read_check,
         config_file       => $self->{config_file} ,
     );
 }
