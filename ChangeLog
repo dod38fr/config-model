@@ -1,5 +1,35 @@
 {{$NEXT}}
 
+  The main change of this release is to provide asynchronous store
+  check.  Now, a model can check the validity of a configuration
+  value against a remote resource in a non-blocking way. This is
+  currently used by Dpkg model to check the validity of package
+  names with Debian server through several concurent http
+  requests. This change is mostly backward compatible. Only classes
+  inheriting Config::Model::Value will be impacted.
+
+  In more details...
+
+  Framework Changes:
+    * Instance:
+      * propagate check parameter to root node
+      * store path of tree items having an error condition
+    * ListId:
+      * changed load_data signature to accept named parameters
+      * load_data accepts hash_ref and store them in the first element
+    * Value:
+      * croak if notify_change is called for nothing
+      * make sure that all fixes are applied
+      * limit the number of times a fix can be tried
+      * store always returns 1
+
+  Backend changes:
+    * rewrote INI parser so that check is enabled directly on store
+
+  Test Changes:
+    * fixed multistrap tests
+    * test ini backend: test split_reg parameter
+
 2012-11-28 - 2.029
 
     * cme-gen-class-pod: pod doc can be generated from
