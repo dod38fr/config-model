@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+2013-02-27 - 2.030_01
+
   The main change of this release is to provide asynchronous store
   check.  Now, a model can check the validity of a configuration
   value against a remote resource in a non-blocking way. This is
