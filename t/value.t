@@ -85,6 +85,13 @@ $model->create_config_class(
             value_type => 'boolean',
             mandatory  => 1,
         },
+        mandatory_with_default_value => {
+            type       => 'leaf',
+            class      => 'Config::Model::Value',
+            value_type => 'string',
+            mandatory  => 1,
+            default    => 'booya' ,
+        },
         boolean_with_write_as => {
             type       => 'leaf',
             value_type => 'boolean',
@@ -320,6 +327,23 @@ my $toto_str = "a\nbig\ntext\nabout\ntoto" ;
 $ms->store($toto_str) ;
 $toto_str =~ s/text/string/ ;
 $ms->store($toto_str) ;
+
+print  join("\n", $inst->list_changes("\n")),"\n" if $trace;
+$inst->clear_changes ;
+
+my $mwdv = $root->fetch_element('mandatory_with_default_value') ;
+$mwdv->store('booya') ; # emulate reading a file containing default value
+is($mwdv->fetch,'booya', "status quo") ;
+is($inst->needs_save,0,"verify instance needs_save status after storing default value") ;
+
+$mwdv->store('boo') ;
+is($mwdv->fetch,'boo', "overrode default") ;
+is($inst->needs_save,1,"verify instance needs_save status after storing another value") ;
+
+$mwdv->store(undef) ;
+is($mwdv->fetch,'booya', "restore default by writing undef value in mandatory string") ;
+is($inst->needs_save,1,"verify instance needs_save status after restoring default value") ;
+
 
 print  join("\n", $inst->list_changes("\n")),"\n" if $trace;
 $inst->clear_changes ;
