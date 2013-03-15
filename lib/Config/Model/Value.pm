@@ -1386,6 +1386,15 @@ sub transform_value {
         }
     }
     
+    # using default or computed value is normally done on fetch. Except that an undefined
+    # value cannot be stored in a mandatory value. Storing undef is used when resetting a 
+    # value to default. If a value is mandatory, we must store the default (or best equivalent)
+    # instead
+    if ((not defined $value or not length($value)) and $self->mandatory) {
+        delete $self->{data} ; # avoiding recycling the old stored value
+        $value = $self->_fetch_no_check ;
+    }
+
     return $value;
 }
 
