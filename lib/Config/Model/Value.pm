@@ -1224,7 +1224,8 @@ sub store {
     # is discarded, partially consistent values are stored so the user may
     # salvage them before next save check discard them
 
-    my $old_value = $self->_fetch_no_check ;
+    # $self->{data} represents what written in the file
+    my $old_value = $self->{data} ;
 
     my $value = $self->transform_value(value => $args{value}, check => $check ) ;
 
