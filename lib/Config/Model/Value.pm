@@ -1217,6 +1217,9 @@ sub store {
     my $check = $self->_check_check($args{check}) ;
     my $silent = $args{silent} || 0 ;
 
+    my $str = $args{value} // '<undef>' ;
+    $logger->debug("called with '$str' on ", $self->element_name) ;
+
     # store with check skip makes sense when force loading data: bad value
     # is discarded, partially consistent values are stored so the user may
     # salvage them before next save check discard them
@@ -1233,7 +1236,7 @@ sub store {
 	:                                         0 ;
 
     if (defined $old_value and $value eq $old_value) {
-        $logger->info("store: skip storage of unchanged value: $value") ;
+        $logger->info("skip storage of ",$self->element_name," unchanged value: $value") ;
         return 1;
     }
 
@@ -1331,6 +1334,7 @@ sub store_cb {
     }
 
     $callback->(%args) ;
+    $logger->debug("store_cb done on ",$self->element_name) ;
 }
 
 # internal. return ( undef, value)
