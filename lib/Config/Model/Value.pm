@@ -1593,10 +1593,9 @@ sub _fetch {
     my $pref = $self->_fetch_std($mode, $check) ;
 
     my $data = $self->{data} ;
-    my $old_data = $data // $self->{_std_backup} ;
-    if (defined $pref  and not defined $old_data) {
-        $self->{_std_backup} = $pref ;
-        $self->notify_change(old => $old_data, new => $pref, note => "use standard value") ;
+    if (defined $pref  and not $self->{notified_change_for_default} and not defined $data) {
+        $self->{notified_change_for_default} = 1 ;
+        $self->notify_change(old => undef, new => $pref, note => "use standard value") ;
     }
 
     my $known_upstream = defined $self->{layered} ? $self->{layered}
