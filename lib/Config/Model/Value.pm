@@ -1320,6 +1320,7 @@ sub store_cb {
     else {
         $self->instance->add_error($self->location) ;
         my $msg = $self->error_msg;
+        no warnings 'uninitialized';
         warn "Warning: skipping value $value because of the following errors:\n$msg\n\n"
           if not $silent and $msg;
     }
