@@ -973,9 +973,19 @@ sub load {
 }
 
 sub load_data {
-    my $self                = shift ;
+    my $self = shift ;
 
-    my %args = @_ > 1 ? @_ : ( data => shift) ;
+    if (@_ == 3) {
+        # kludge to avoid breaking Config::Model::Itself. Should be removed end of 2013
+        carp "load_data called with even number of parameters. Use named parameters" ;
+    } ;
+
+
+    my %args
+        = @_ == 3 ? ( data => $_[0], check => $_[2]) # should also be removed end of 2013
+        : @_ > 1 ? @_
+        : ( data => shift) ;
+
     my $raw_perl_data       = delete $args{data};
     my $check = $self->_check_check($args{check}) ;
 
