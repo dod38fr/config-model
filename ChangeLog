@@ -7,8 +7,10 @@
   value against a remote resource in a non-blocking way. This is
   currently used by Dpkg model to check the validity of package
   names with Debian server through several concurent http
-  requests. This change is mostly backward compatible. Only classes
-  inheriting Config::Model::Value will be impacted.
+  requests. This change is backward compatible except for Value
+  store method: it returns now 1 instead of the stored value. Classes
+  inheriting Config::Model::Value may be impacted, although old version
+  of Config::Model::Dpkg::Dependency is still working.
 
   In more details...
 
