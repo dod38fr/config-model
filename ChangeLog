@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+  Framework Changes:
+    * Value: fix reset value for mandatory with default value
+    * Node load_data: added kludge to avoid breaking C::M::Itself
+
 2013-02-27 - 2.030_01
 
   The main change of this release is to provide asynchronous store
