@@ -157,8 +157,10 @@ $meta_root->load( qq!
 #       to split them for better clarity
 
 
-# This array contains all INI classes found in LCDd.conf
-my @ini_classes = $dummy->get_element_name;
+# This array contains all INI classes found in LCDd.conf,
+# make sure to put server in first, and sort the rest
+my @ini_classes = sort grep { $_ ne 'server'} $dummy->get_element_name;
+unshift @ini_classes, 'server' ;
 
 # Now before actually mining LCDd.conf information, we must prepare
 # subs to handle them. This is done using a dispatch table.
