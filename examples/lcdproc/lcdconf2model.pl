@@ -65,7 +65,12 @@ my $model = Config::Model->new();
 # The class is used to store any parameter found in an INI class
 $model->create_config_class(
     name   => 'Dummy::Class',
-    accept => [ '.*' => {qw/type leaf value_type uniline/}, ],
+    accept => [
+        'Hello|GoodBye' => { type => 'list',
+            cargo => { qw/type  leaf value_type uniline/}
+        },
+        '.*' => {qw/type leaf value_type uniline/},
+    ],
 );
 
 # Store any INI class, and use Dummy::Class to hold parameters. 
