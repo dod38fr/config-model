@@ -1,8 +1,15 @@
 {{$NEXT}}
 
+2013-03-23 - 2.030
+
   Framework Changes:
     * Value: fix reset value for mandatory with default value
     * Node load_data: added kludge to avoid breaking C::M::Itself
+
+  Application changes:
+    * LCDproc model generator: Added a more special treatment for
+      Hello and GoodBye parameters to cope with new INI backend
+      (which is more strict than previous versions)
 
 2013-02-27 - 2.030_01
 
@@ -13,7 +20,7 @@
   names with Debian server through several concurent http
   requests. This change is backward compatible except for Value
   store method: it returns now 1 instead of the stored value. OTOH,
-  that feature was not documented). Classes inheriting
+  that feature was not documented. Classes inheriting
   Config::Model::Value may be impacted, although old version
   of Config::Model::Dpkg::Dependency is still working.
 
