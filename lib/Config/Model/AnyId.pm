@@ -1,6 +1,6 @@
 package Config::Model::AnyId ;
 
-use Any::Moose ;
+use Mouse ;
 use namespace::autoclean;
 
 use Config::Model::Exception ;
@@ -8,7 +8,7 @@ use Config::Model::Warper ;
 use Carp qw/cluck croak carp/;
 use Log::Log4perl qw(get_logger :levels);
 use Storable qw/dclone/;
-use Any::Moose '::Util::TypeConstraints';
+use Mouse::Util::TypeConstraints;
 
 extends qw/Config::Model::AnyThing/;
 

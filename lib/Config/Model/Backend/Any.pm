@@ -4,7 +4,7 @@ use Carp;
 use strict;
 use warnings ;
 use Config::Model::Exception ;
-use Any::Moose ;
+use Mouse ;
 use namespace::autoclean;
 
 use File::Path;
@@ -151,7 +151,7 @@ Config::Model::Backend::Any - Virtual class for other backends
 =head1 SYNOPSIS
 
  package Config::Model::Backend::Foo ;
- use Any::Moose ;
+ use Mouse ;
  use Log::Log4perl qw(get_logger :levels);
 
  extends 'Config::Model::Backend::Any';
@@ -214,12 +214,12 @@ Config::Model::Backend::Any - Virtual class for other backends
     return 1;
  }
 
- no Any::Moose ;
+ no Mouse ;
  __PACKAGE__->meta->make_immutable ;
 
 =head1 DESCRIPTION
 
-This L<Moose> class is to be inherited by other backend plugin classes
+This L<Mouse> class is to be inherited by other backend plugin classes
 
 See L<Config::Model::AutoRead/"read callback"> and
 L<Config::Model::AutoRead/"write callback"> for more details on the

@@ -1,5 +1,5 @@
 package Config::Model::HashId ;
-use Any::Moose ;
+use Mouse ;
 use namespace::autoclean;
 
 use Config::Model::Exception ;

@@ -1,8 +1,8 @@
 package Config::Model;
-use Any::Moose ;
+use Mouse ;
 use namespace::autoclean;
-use Any::Moose '::Util::TypeConstraints';
-use Any::Moose 'X::StrictConstructor' ;
+use Mouse::Util::TypeConstraints;
+use MouseX::StrictConstructor;
 
 use Carp;
 use Storable ('dclone') ;

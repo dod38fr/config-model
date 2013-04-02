@@ -1,10 +1,10 @@
 package Config::Model::AnyThing;
 
-use Any::Moose ;
+use Mouse ;
 use namespace::autoclean;
 
 # FIXME: must cleanup warp mechanism to implement this
-# use Any::Moose 'X::StrictConstructor' ;
+# use MouseX::StrictConstructor;
 
 use Pod::POM ;
 use Carp;

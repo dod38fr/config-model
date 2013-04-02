@@ -19,7 +19,7 @@
 package Config::Model::Backend::PlainFile;
 
 use Carp;
-use Any::Moose;
+use Mouse;
 use Config::Model::Exception;
 use File::Path;
 use Log::Log4perl qw(get_logger :levels);
@@ -179,7 +179,7 @@ sub write {
     return 1;
 }
 
-no Any::Moose;
+no Mouse;
 __PACKAGE__->meta->make_immutable;
 
 1;

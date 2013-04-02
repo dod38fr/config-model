@@ -1,6 +1,6 @@
 package Config::Model::IdElementReference;
 
-use Any::Moose;
+use Mouse;
 use namespace::autoclean;
 
 use Carp;

@@ -18,7 +18,7 @@
 
 package Config::Model::Annotation;
 
-use Any::Moose ;
+use Mouse ;
 use English ;
 
 use File::Path;
@@ -277,7 +277,7 @@ sub load {
     }
 }
 
-no Any::Moose ;
+no Mouse ;
 
 __PACKAGE__ -> meta->make_immutable;
 

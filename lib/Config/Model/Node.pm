@@ -1,6 +1,6 @@
 package Config::Model::Node;
 
-use Any::Moose ;
+use Mouse ;
 use namespace::autoclean;
 
 use Carp ;

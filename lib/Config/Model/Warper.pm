@@ -1,6 +1,6 @@
 package Config::Model::Warper ;
 
-use Any::Moose ;
+use Mouse ;
 use namespace::autoclean;
 
 use Log::Log4perl qw(get_logger :levels);

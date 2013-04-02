@@ -1,5 +1,5 @@
 package Config::Model::CheckList ;
-use Any::Moose ;
+use Mouse ;
 use 5.010 ;
 
 use Config::Model::Exception ;

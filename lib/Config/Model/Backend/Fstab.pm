@@ -1,5 +1,5 @@
 package Config::Model::Backend::Fstab ;
-use Any::Moose ;
+use Mouse ;
 use Carp ;
 use Log::Log4perl qw(get_logger :levels);
  
@@ -133,7 +133,7 @@ sub option_string {
     return join',',@options ;
 }
 
-no Any::Moose ;
+no Mouse ;
 __PACKAGE__->meta->make_immutable ;
 
 1;

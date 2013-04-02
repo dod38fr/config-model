@@ -1,7 +1,7 @@
 package Config::Model::ValueComputer ;
 
-use Any::Moose ;
-use Any::Moose 'X::StrictConstructor' ;
+use Mouse ;
+use MouseX::StrictConstructor;
 use namespace::autoclean;
 
 # use Scalar::Util qw(weaken) ;

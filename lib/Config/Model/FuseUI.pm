@@ -1,7 +1,7 @@
 package Config::Model::FuseUI ;
 
 # there's no Singleton with Mouse
-use Any::Moose ;
+use Mouse ;
 
 use Fuse qw(fuse_get_context);
 use Fcntl ':mode';

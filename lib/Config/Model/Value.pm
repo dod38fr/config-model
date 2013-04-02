@@ -2,9 +2,9 @@ package Config::Model::Value ;
 
 use 5.10.1 ;
 
-use Any::Moose;
-use Any::Moose '::Util::TypeConstraints' ;
-use Any::Moose 'X::StrictConstructor' ;
+use Mouse;
+use Mouse::Util::TypeConstraints;
+use MouseX::StrictConstructor;
 use namespace::autoclean;
 
 use Data::Dumper ();

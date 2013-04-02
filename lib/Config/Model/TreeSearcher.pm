@@ -1,7 +1,7 @@
 package Config::Model::TreeSearcher ;
 
-use Any::Moose ;
-use Any::Moose '::Util::TypeConstraints';
+use Mouse ;
+use Mouse::Util::TypeConstraints;
 use namespace::autoclean;
 
 use Log::Log4perl qw(get_logger :levels);
@@ -15,7 +15,7 @@ enum ('SearchType' =>  [ @search_types, 'all' ]);
 # clean up namespace to avoid clash between MUTC keywords and
 # my functions
 # See http://www.nntp.perl.org/group/perl.moose/2010/10/msg1935.html
-no Any::Moose '::Util::TypeConstraints';
+no Mouse::Util::TypeConstraints;
 
 has 'node'  => ( is => 'ro', isa => 'Config::Model::Node' , 
                   weak_ref => 1, required => 1 );
