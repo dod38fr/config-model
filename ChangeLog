@@ -1,5 +1,12 @@
 {{$NEXT}}
 
+2013-04-03 - 2.031
+
+  Framework Changes:
+    * All: use directly Mouse instead of going through Any::Moose
+      (which is deprecated)
+    * Removed dependency on Any::Moose
+
 2013-03-23 - 2.030
 
   Framework Changes:
