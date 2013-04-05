@@ -78,360 +78,6 @@ around BUILDARGS => sub {
   };
 
 
-=head1 NAME
-
-Config::Model - Create tools to validate, migrate and edit configuration files
-
-=head1 SYNOPSIS
-
-=head2 Perl program
-
- use Config::Model;
- use Log::Log4perl qw(:easy) ;
- Log::Log4perl->easy_init($WARN);
-
- # create new Model object
- my $model = Config::Model->new() ; # Config::Model object
-
- # create config model. Most users will want to store the model
- # in lib/Config/Model/models and run "config-edit -model MiniModel"
- # See below for details
- $model ->create_config_class (
-   name => "MiniModel",
-   element => [ [qw/foo bar baz/ ] => { type => 'leaf', value_type => 'uniline' }, ],
-   read_config => { backend => 'IniFile', auto_create => 1,
-                    config_dir => '.', file => 'mini.ini',
-                  }
- ) ;
-
- # create instance (Config::Model::Instance object)
- my $instance = $model->instance (root_class_name => 'MiniModel');
-
- # get configuration tree root
- my $cfg_root = $instance -> config_root ; # C::M:Node object
-
- # load some dummy data
- $cfg_root -> load("bar=BARV foo=FOOV baz=BAZV") ;
-
- # write new ini file
- $instance -> write_back;
-
- # now look for new mini.ini file un current directory
-
-=head2 More convenient
-
- $ mkdir -p lib/Config/Model/models/
- $ echo "[ { name => 'MiniModel',
-             element => [ [qw/foo bar baz/ ] => { type => 'leaf', value_type => 'uniline' }, ],
-             read_config => { backend => 'IniFile', auto_create => 1,
-                              config_dir => '.', file => 'mini.ini',
-                            }
-           }
-         ] ; " > lib/Config/Model/models/MiniModel.pl
- $ config-edit -model MiniModel -model_dir lib/Config/Model/models/ -ui none bar=BARV foo=FOOV baz=BAZV
- $ cat mini.ini
-
-=head2 Look Ma, no Perl
-
- $ echo "Make sure that Config::Model::Itself is installed"
- $ mkdir -p lib/Config/Model/models/
- $ config-model-edit -model MiniModel -save \
-   class:MiniModel element:foo type=leaf value_type=uniline - \
-                   element:bar type=leaf value_type=uniline - \
-                   element:baz type=leaf value_type=uniline - \
-   read_config:0 backend=IniFile file=mini.ini config_dir=. auto_create=1 - - -
- $ config-edit -model MiniModel -model_dir lib/Config/Model/models/ -ui none bar=BARV foo=FOOV baz=BAZV
- $ cat mini.ini
-
-=head1 DESCRIPTION
-
-Config::Model enables a project developer to provide an interactive
-configuration editor (graphical, curses based or plain terminal) to
-his users. For this he must:
-
-=over 
-
-=item *
-
-Describe the structure and constraints of his project's configuration
-(fear not, a GUI is available)
-
-=item *
-
-Find a way to read and write configuration data using read/write backend
-provided by Config::Model or other Perl modules.
-
-=back
-
-With the elements above, Config::Model will generate interactive
-configuration editors (with integrated help and data validation).
-These editors can be graphical (with L<Config::Model::TkUI>), curses
-based (with L<Config::Model::CursesUI>) or based on ReadLine.
-
-Smaller models targeted for configuration upgrades can also be created:
-
-=over
-
-=item *
-
-only upgrade and migration specifications are required
-
-=item *
-
-unknown parameters can be accepted 
-
-=back
-
-A command line is provided to perform configuration upgrade with a
-single command.
-
-=head2 How does this work ?
-
-Using this project, a typical configuration editor/validator/upgrader
-will be made of 3 parts :
-
-
-
-  GUI <--------> |---------------|
-  CursesUI <---> | |---------|   |
-                 | | Model   |   |
-  ShellUI <----> | |---------|   |<-----read-backend------- |-------------|
-                 |               |----write-backend-------> | config file |
-  FuseUI <-----> | Config::Model |                          |-------------|
-                 |---------------|
-
-=over
-
-=item 1.
-
-A reader and writer that will parse the configuration file and transform
-in a tree representation within Config::Model. The values contained in this
-configuration tree can be written back in the configuration file(s).
-
-=item 2.
-
-A validation engine which is in charge of validating the content and
-structure of configuration stored in the configuration tree. This
-validation engine will follow the structure and constraint declared in
-a configuration model. This model is a kind of schema for the
-configuration tree.
-
-=item 3.
-
-A user interface to modify the content of the configuration tree. A
-modification will be validated instantly by the validation engine.
-
-=back
-
-The important part is the configuration model used by the validation
-engine. This model can be created or modified with a graphical editor
-(Config::Model::Iself).
-
-=head1 Question you may ask yourself
-
-=head2 Don't we already have some configuration validation tools ?
-
-You're probably thinking of tools like webmin. Yes, these tools exist
-and work fine, but they have their set of drawbacks.
-
-Usually, the validation of configuration data is done with a script
-which performs semantic validation and often ends up being quite
-complex (e.g. 2500 lines for Debian's xserver-xorg.config script which
-handles C<xorg.conf> file).
-
-In most cases, the configuration model is expressed in instructions
-(whatever programming language is used) and interspersed with a lot of
-processing to handle the actual configuration data.
-
-=head2 What's the advantage of this project ?
-
-Config::Model projects provide a way to get a validation engine where
-the configuration model is completely separated from the actual
-processing instructions.
-
-A configuration model can be created and modified with the graphical
-interface provide by L<Config::Model::Itself>. The model is saved in a
-declarative form (currently, a Perl data structure). Such a model is
-easier to maintain than a lot of code.
-
-The model specifies:
-
-=over 
-
-=item *
-
-The structure of the configuration data (which can be queried by
-generic user interfaces)
-
-=item *
-
-The properties of each element (boundaries check, integer or string,
-enum like type, default value ...)
-
-=item *
-
-The targeted audience (beginner, advanced, master)
-
-=item *
-
-The on-line help
-
-=back
-
-So, in the end:
-
-=over
-
-=item *
-
-Maintenance and evolution of the configuration content is easier
-
-=item *
-
-User will see a *common* interface for *all* programs using this
-project.
-
-=item *
-
-Beginners will not see advanced parameters (advanced and master
-parameters are hidden from beginners)
-
-=item *
-
-Upgrade of configuration data is easier and sanity check is
-performed during the upgrade.
-
-=item *
-
-Audit of configuration is possible to check what was modified by the
-user compared to default values
-
-=back
-
-=head2 What about the user interface ?
-
-L<Config::Model> interface can be:
-
-=over
-
-=item *
-
-a shell-like interface (plain or based on Term::ReadLine).
-
-=item *
-
-Graphical with L<Config::Model::TkUI> (Perl/Tk interface).
-
-=item *
-
-based on curses with L<Config::Model::CursesUI>. This interface can be
-handy if your X server is down.
-
-=item *
-
-Through a virtual file system where every configuration parameter is mapped to a file.
-(Linux only)
-
-=back
-
-All these interfaces are generated from the configuration model.
-
-And configuration model can be created or modified with a graphical
-user interface (with Config::Model::Itself)
-
-=head2 What about configuration data storage ?
-
-Since the syntax of configuration files vary wildly form one application
-to another, people who want to use this framework may have to
-provide a dedicated parser/writer.
-
-To help with this task, this project provides writer/parsers for common
-format: INI style file and perl file. With the additional
-Config::Model::Backend::Augeas, Augeas library can be used to read and
-write some configuration files. See http://augeas.net for more
-details.
-
-=head2 Is there an example of a configuration model ?
-
-The "example" directory contains a configuration model example for
-C</etc/fstab> file. This example includes a small program that use
-this model to show some ways to extract configuration information.
-
-=head1 Mailing lists
-
-For more question, please send a mail to:
-
- config-model-users at lists.sourceforge.net
-
-=head1 Suggested reads to start
-
-=head2 Beginners
-
-=over
-
-=item *
-
-L<Config::Model::Manual::ModelCreationIntroduction>:
-
-=item *
-
-L<Config::Model::Cookbook::CreateModelFromDoc>
-
-=back
-
-=head2 Advanced 
-
-=over
-
-=item *
-
-L<Config::Model::Manual::ModelCreationAdvanced>
-
-=back
-
-=head2 Masters
-
-use the source, Luke
-
-=head1 STOP
-
-The documentation below is quite detailed and is more a reference doc regarding
-C<Config::Model> class.
-
-For an introduction to model creation, please check:
-L<http://sourceforge.net/apps/mediawiki/config-model/index.php?title=Creating_a_model>
-
-Dedicated Config::Model::Manual pages will follow soon.
-
-=head1 Storage backend, configuration reader and writer
-
-See L<Config::Model::BackendMgr> for details
-
-=head1 Validation engine
-
-C<Config::Model> provides a way to get a validation engine from a set
-of rules. This set of rules is called the configuration model.
-
-=head1 User interface
-
-The user interface will use some parts of the API to set and get
-configuration values. More importantly, a generic user interface will
-need to explore the configuration model to be able to generate at
-run-time relevant configuration screens.
-
-Simple text interface if provided in this module. Curses and Tk
-interfaces are provided by L<Config::Model::CursesUI> and
-L<Config::Model::TkUI>.
-
-=head1 Constructor
-
-Simply call new without parameters:
-
- my $model = Config::Model -> new ;
-
-This will create an empty shell for your model.
-
-=cut
 
 sub show_legacy_issue {
     my $self = shift ;
@@ -445,204 +91,6 @@ sub show_legacy_issue {
     }
 }
 
-=head1 Configuration Model
-
-To validate a configuration tree, we must create a configuration model
-that will set all the properties of the validation engine you want to
-create.
-
-The configuration model is expressed in a declarative form (i.e. a
-Perl data structure which is always easier to maintain than a lot of
-code)
-
-Each configuration class contains a set of:
-
-=over
-
-=item *
-
-node element that will refer to another configuration class
-
-=item *
-
-value element that will contains actual configuration data
-
-=item *
-
-List or hash of node or value elements
-
-=back
-
-By declaring a set of configuration classes and referring them in node
-element, you will shape the structure of your configuration tree.
-
-The structure of the configuration data must be based on a tree
-structure. This structure has several advantages:
-
-=over
-
-=item *
-
-Unique path to get to a node or a leaf.
-
-=item *
-
-Simpler exploration and query
-
-=item *
-
-Simple hierarchy. Deletion of configuration items is simpler to grasp:
-when you cut a branch, all the leaves attaches to that branch go down.
-
-=back
-
-But using a tree has also some drawbacks:
-
-=over 4
-
-=item *
-
-A complex configuration cannot be mapped on a simple tree.  Some more
-relation between nodes and leaves must be added.
-
-=item *
-
-Some configuration part are actually graph instead of a tree (for
-instance, any configuration that will map a service to a
-resource). The graph relation must be decomposed in a tree with
-special I<reference> relation. See L<Config::Model::Value/Value Reference>
-
-=back
-
-Note: a configuration tree is a tree of objects. The model is declared
-with classes. The classes themselves have relations that closely match
-the relation of the object of the configuration tree. But the class
-need not to be declared in a tree structure (always better to reuse
-classes). But they must be declared as a DAG (directed acyclic graph).
-
-=begin html
-
-<a href="http://en.wikipedia.org/wiki/Directed_acyclic_graph">More on DAGs</a>
-
-=end html
-
-Each configuration class declaration specifies:
-
-=over
-
-=item *
-
-The C<name> of the class (mandatory)
-
-=item *
-
-A C<class_description> used in user interfaces (optional)
-
-=item *
-
-Optional include specification to avoid duplicate declaration of elements.
-
-=item *
-
-The class elements
-
-=back
-
-Each element will specify:
-
-=over
-
-=item *
-
-Most importantly, the type of the element (mostly C<leaf>, or C<node>)
-
-=item *
-
-The properties of each element (boundaries, check, integer or string,
-enum like type ...)
-
-=item *
-
-The default values of parameters (if any)
-
-=item *
-
-Whether the parameter is mandatory
-
-=item *
-
-Targeted audience (beginner, advance, master), i.e. the level of
-expertise required to tinker a parameter (to hide expert parameters
-from newbie eyes)
-
-=item *
-
-On-line help (for each parameter or value of parameter)
-
-=back
-
-See L<Config::Model::Node> for details on how to declare a
-configuration class.
-
-Example:
-
- $ cat lib/Config/Model/models/Xorg.pl
- [
-   {
-     name => 'Xorg',
-     class_description => 'Top level Xorg configuration.',
-     include => [ 'Xorg::ConfigDir'],
-     element => [
-                 Files => {
-                           type => 'node',
-                           description => 'File pathnames',
-                           config_class_name => 'Xorg::Files'
-                          },
-                 # snip
-                ]
-   },
-   {
-     name => 'Xorg::DRI',
-     element => [
-                 Mode => {
-                          type => 'leaf',
-                          value_type => 'uniline',
-                          description => 'DRI mode, usually set to 0666'
-                         }
-                ]
-   }
- ];
-
-=head1 Configuration instance
-
-A configuration instance if the staring point of a configuration tree.
-When creating a model instance, you must specify the root class name, I.e. the
-configuration class that is used by the root node of the tree.
-
- my $model = Config::Model->new() ;
- $model ->create_config_class
-  (
-   name => "SomeRootClass",
-   element => [ ...  ]
-  ) ;
-
- # instance name is 'default'
- my $inst = $model->instance (root_class_name => 'SomeRootClass');
-
-You can create several separated instances from a model using
-C<name> option:
-
- # instance name is 'default'
- my $inst = $model->instance (root_class_name => 'SomeRootClass',
-                              name            => 'test1');
-
-
-Usually, model files will be loaded automatically depending on
-C<root_class_name>. But you can choose to specify the file containing
-the model with C<model_file> parameter. This is mostly useful for
-tests.
-
-=cut
 
 sub instance {
     my $self = shift ;
@@ -682,23 +130,6 @@ sub instance_names {
     return keys %{$self->instances} ;
 }
 
-=head1 Configuration class
-
-A configuration class is made of series of elements which are detailed
-in L<Config::Model::Node>.
-
-Whatever its type (node, leaf,... ), each element of a node has
-several other properties:
-
-=over
-
-=item experience
-
-By using the C<experience> parameter, you can change the experience
-level of each element. Possible experience levels are C<master>,
-C<advanced> and C<beginner> (default).
-
-=cut
 
 @experience_list = qw/beginner advanced master/;
 {
@@ -706,47 +137,12 @@ C<advanced> and C<beginner> (default).
   map ($experience_index{$_}=$idx++, @experience_list);
 }
 
-=item level
-
-Level is C<important>, C<normal> or C<hidden>.
-
-The level is used to set how configuration data is presented to the
-user in browsing mode. C<Important> elements will be shown to the user
-no matter what. C<hidden> elements will be explained with the I<warp>
-notion.
-
-=cut
 
 @level = qw/hidden normal important/;
 
-=item status
-
-Status is C<obsolete>, C<deprecated> or C<standard> (default).
-
-Using a deprecated element will issue a warning. Using an obsolete
-element will raise an exception.
-
-=cut
 
 @status = qw/obsolete deprecated standard/;
 
-=item description
-
-Description of the element. This description will be used when
-generating user interfaces.
-
-=item summary
-
-Summary of the element. This description will be used when generating
-user interfaces and may be used in comments when writing the
-configuration file.
-
-=item class_description
-
-Description of the configuration class. This description will be used
-when generating user interfaces.
-
-=cut
 
 
 # unpacked model is:
@@ -760,13 +156,6 @@ when generating user interfaces.
 # description, experience, summary, level, status are moved
 # into element description.
 
-=item generated_by
-
-Mention with a descriptive string if this class was generated by a
-program.  This parameter is currently reserved for
-L<Config::Model::Itself> model editor.
-
-=cut
 
 my @legal_params = qw/element experience status description summary level
                       config_dir
@@ -1535,35 +924,6 @@ sub translate_legacy_built_in_list {
         if $::debug;
 }
 
-=item include
-
-Include element description from another class.
-
-  include => 'AnotherClass' ,
-
-or
-
-  include => [qw/ClassOne ClassTwo/]
-
-In a configuration class, the order of the element is important. For
-instance if C<foo> is warped by C<bar>, you must declare C<bar>
-element before C<foo>.
-
-When including another class, you may wish to insert the included
-elements after a specific element of your including class:
-
-  # say AnotherClass contains element xyz
-  include => 'AnotherClass' ,
-  include_after => "foo" ,
-  element => [ bar => ... , foo => ... , baz => ... ]
-
-Now the element of your class will be:
-
-  ( bar , foo , xyz , baz )
-
-=back
-
-=cut
 
 sub include_class {
     my $self       = shift;
@@ -1676,80 +1036,6 @@ sub include_one_class {
 
 
 
-=pod
-
-Example:
-
-  my $model = Config::Model -> new ;
-
-  $model->create_config_class
-  (
-   config_class_name => 'SomeRootClass',
-   experience        => [ [ qw/tree_macro warp/ ] => 'advanced'] ,
-   description       => [ X => 'X-ray' ],
-   level             => [ 'tree_macro' => 'important' ] ,
-   class_description => "SomeRootClass description",
-   element           => [ ... ]
-  ) ;
-
-Again, see L<Config::Model::Node> for more details on configuration
-class declaration.
-
-For convenience, C<experience>, C<level> and C<description> parameters
-can also be declared within the element declaration:
-
-  $model->create_config_class
-  (
-   config_class_name => 'SomeRootClass',
-   class_description => "SomeRootClass description",
-   'element'
-   => [
-        tree_macro => { level => 'important',
-                        experience => 'advanced',
-                      },
-        warp       => { experience => 'advanced', } ,
-        X          => { description => 'X-ray', } ,
-      ]
-  ) ;
-
-
-=head1 Load predeclared model
-
-You can also load predeclared model.
-
-=head2 load( <model_name> )
-
-This method will open the model directory and execute a C<.pl>
-file containing the model declaration,
-
-This perl file must return an array ref to declare models. E.g.:
-
- [
-  [
-   name => 'Class_1',
-   element => [ ... ]
-  ],
-  [
-   name => 'Class_2',
-   element => [ ... ]
-  ]
- ];
-
-do not put C<1;> at the end or C<load> will not work
-
-If a model name contain a C<::> (e.g C<Foo::Bar>), C<load> will look for
-a file named C<Foo/Bar.pl>.
-
-This method will also look in C<Foo/Bar.d> directory for additional model information. 
-Model snippet found there will be loaded with L<augment_config_class>.
-
-Returns a list containing the names of the loaded classes. For instance, if
-C<Foo/Bar.pl> contains a model for C<Foo::Bar> and C<Foo::Bar2>, C<load>
-will return C<( 'Foo::Bar' , 'Foo::Bar2' )>.
-
-
-
-=cut
 
 # load a model from file
 sub load {
@@ -1821,57 +1107,6 @@ sub _do_model_file {
 }
 
 
-=head1 Model plugin
-
-Config::Model can also use model plugins. Each model can be augmented by model snippets
-stored into directory C<< <model_name>.d >>. All files found there will be merged to existing model.
-
-For instance, this model in file C<.../Config/Model/models/Fstab/Fsline.pl>:
-
- {
-    name => "Fstab::Fsline",
-    element => [
-	fs_vfstype => {
-            type => 'leaf',
-            value_type => 'enum',
-            choice => [ qw/ext2 ext3/ ],
-        },
-        fs_mntopts => {
-            type => 'warped_node',
-            follow => { 'f1' => '- fs_vfstype' },
-            rules => [
-                '$f1 eq \'ext2\'', { 'config_class_name' => 'Fstab::Ext2FsOpt' },
-                '$f1 eq \'ext3\'', { 'config_class_name' => 'Fstab::Ext3FsOpt' }, 
-            ],
-        }
-    ]
- }
-
-can be augmented with the content of C<.../Config/Model/models/Fstab/Fsline.d/addext4.pl>:
-
- {
-    name => "Fstab::Fsline",
-    element => [
- 	fs_vfstype => { choice => [ qw/ext4/ ], },
-        fs_mntopts => {
-            rules => [
-                q!$f1 eq 'ext4'!, { 'config_class_name' => 'Fstab::Ext4FsOpt' }, 
-            ],
-        },
-    ]
- } ;
- 
-Then, the merged model will feature C<fs_vfstype> with choice C<ext2 ext4 ext4>. 
-Likewise, C<fs_mntopts> will feature rules for the 3 filesystems. 
-
-Under the hood, L</augment_config_class> method is used to load model snippets.
-
-=head2 augment_config_class (name => '...', class_data )
-
-Enhance the feature of a configuration class. This method uses the same parameters
-as L<create_config_class>.
-
-=cut
 
 sub augment_config_class {
     my ($self,%augment_data) = @_ ;
@@ -1906,14 +1141,6 @@ sub augment_config_class {
     $self->models->{$config_class_name} = $model ;
 }
 
-=head1 Model query
-
-=head2 get_model( config_class_name )
-
-Return a hash containing the model declaration (in a deep clone copy of the hash).
-You may modify the hash at leisure.
-
-=cut
 
 sub get_model {
     my $self =shift ;
@@ -1929,11 +1156,6 @@ sub get_model {
     return dclone($model) ;
 }
 
-=head2 get_model_doc 
-
-Generate POD document for configuration class.
-
-=cut
 
 sub get_model_doc {
     my ( $self, $top_class_name ) = @_;
@@ -2088,14 +1310,6 @@ sub get_element_value_help {
     return $help_text."=back\n\n" ;
 }
 
-=head2 generate_doc ( top_class_name , [ directory ] )
-
-Generate POD document for configuration class top_class_name 
-and write them on STDOUT or in specified directory.
-
-Returns a list of written file names.
-
-=cut
 
 sub generate_doc {
     my ( $self, $top_class_name, $dir ) = @_;
@@ -2133,12 +1347,6 @@ sub generate_doc {
     return @wrote ;
 }
 
-=head2 get_element_model( config_class_name , element)
-
-Return a hash containing the model declaration for the specified class
-and element.
-
-=cut
 
 sub get_element_model {
     my $self =shift ;
@@ -2175,14 +1383,6 @@ sub get_raw_model {
     return dclone($raw_model) ;
 }
 
-=head2 get_element_name( class => Foo, for => advanced )
-
-Get all names of the elements of class C<Foo> that are accessible for
-experience level C<advanced>.
-
-Level can be C<master> (default), C<advanced> or C<beginner>.
-
-=cut
 
 sub get_element_name {
     my $self = shift ;
@@ -2232,23 +1432,6 @@ sub get_element_with_experience {
     return @result ;
 }
 
-=head2 get_element_property
-
-Returns the property of an element from the model.
-
-Parameters are:
-
-=over 
-
-=item class 
-
-=item element 
-
-=item property
-
-=back 
-
-=cut
 
 
 sub get_element_property {
@@ -2276,12 +1459,6 @@ sub get_element_property {
         || $default_property{$prop} ;
 }
 
-=head2 list_class_element
-
-Returns a string listing all the class and elements. Useful for
-debugging your configuration model.
-
-=cut
 
 sub list_class_element {
     my $self = shift ;
@@ -2334,6 +1511,813 @@ sub list_one_class_element {
 __PACKAGE__->meta->make_immutable ;
 
 1;
+
+
+__END__
+
+=pod
+
+=head1 NAME
+
+Config::Model - Create tools to validate, migrate and edit configuration files
+
+=head1 SYNOPSIS
+
+=head2 Perl program
+
+ use Config::Model;
+ use Log::Log4perl qw(:easy) ;
+ Log::Log4perl->easy_init($WARN);
+
+ # create new Model object
+ my $model = Config::Model->new() ; # Config::Model object
+
+ # create config model. Most users will want to store the model
+ # in lib/Config/Model/models and run "config-edit -model MiniModel"
+ # See below for details
+ $model ->create_config_class (
+   name => "MiniModel",
+   element => [ [qw/foo bar baz/ ] => { type => 'leaf', value_type => 'uniline' }, ],
+   read_config => { backend => 'IniFile', auto_create => 1,
+                    config_dir => '.', file => 'mini.ini',
+                  }
+ ) ;
+
+ # create instance (Config::Model::Instance object)
+ my $instance = $model->instance (root_class_name => 'MiniModel');
+
+ # get configuration tree root
+ my $cfg_root = $instance -> config_root ; # C::M:Node object
+
+ # load some dummy data
+ $cfg_root -> load("bar=BARV foo=FOOV baz=BAZV") ;
+
+ # write new ini file
+ $instance -> write_back;
+
+ # now look for new mini.ini file un current directory
+
+=head2 More convenient
+
+ $ mkdir -p lib/Config/Model/models/
+ $ echo "[ { name => 'MiniModel',
+             element => [ [qw/foo bar baz/ ] => { type => 'leaf', value_type => 'uniline' }, ],
+             read_config => { backend => 'IniFile', auto_create => 1,
+                              config_dir => '.', file => 'mini.ini',
+                            }
+           }
+         ] ; " > lib/Config/Model/models/MiniModel.pl
+ $ config-edit -model MiniModel -model_dir lib/Config/Model/models/ -ui none bar=BARV foo=FOOV baz=BAZV
+ $ cat mini.ini
+
+=head2 Look Ma, no Perl
+
+ $ echo "Make sure that Config::Model::Itself is installed"
+ $ mkdir -p lib/Config/Model/models/
+ $ config-model-edit -model MiniModel -save \
+   class:MiniModel element:foo type=leaf value_type=uniline - \
+                   element:bar type=leaf value_type=uniline - \
+                   element:baz type=leaf value_type=uniline - \
+   read_config:0 backend=IniFile file=mini.ini config_dir=. auto_create=1 - - -
+ $ config-edit -model MiniModel -model_dir lib/Config/Model/models/ -ui none bar=BARV foo=FOOV baz=BAZV
+ $ cat mini.ini
+
+=head1 DESCRIPTION
+
+Config::Model enables a project developer to provide an interactive
+configuration editor (graphical, curses based or plain terminal) to
+his users. For this he must:
+
+=over 
+
+=item *
+
+Describe the structure and constraints of his project's configuration
+(fear not, a GUI is available)
+
+=item *
+
+Find a way to read and write configuration data using read/write backend
+provided by Config::Model or other Perl modules.
+
+=back
+
+With the elements above, Config::Model will generate interactive
+configuration editors (with integrated help and data validation).
+These editors can be graphical (with L<Config::Model::TkUI>), curses
+based (with L<Config::Model::CursesUI>) or based on ReadLine.
+
+Smaller models targeted for configuration upgrades can also be created:
+
+=over
+
+=item *
+
+only upgrade and migration specifications are required
+
+=item *
+
+unknown parameters can be accepted 
+
+=back
+
+A command line is provided to perform configuration upgrade with a
+single command.
+
+=head2 How does this work ?
+
+Using this project, a typical configuration editor/validator/upgrader
+will be made of 3 parts :
+
+
+
+  GUI <--------> |---------------|
+  CursesUI <---> | |---------|   |
+                 | | Model   |   |
+  ShellUI <----> | |---------|   |<-----read-backend------- |-------------|
+                 |               |----write-backend-------> | config file |
+  FuseUI <-----> | Config::Model |                          |-------------|
+                 |---------------|
+
+=over
+
+=item 1.
+
+A reader and writer that will parse the configuration file and transform
+in a tree representation within Config::Model. The values contained in this
+configuration tree can be written back in the configuration file(s).
+
+=item 2.
+
+A validation engine which is in charge of validating the content and
+structure of configuration stored in the configuration tree. This
+validation engine will follow the structure and constraint declared in
+a configuration model. This model is a kind of schema for the
+configuration tree.
+
+=item 3.
+
+A user interface to modify the content of the configuration tree. A
+modification will be validated instantly by the validation engine.
+
+=back
+
+The important part is the configuration model used by the validation
+engine. This model can be created or modified with a graphical editor
+(Config::Model::Iself).
+
+=head1 Question you may ask yourself
+
+=head2 Don't we already have some configuration validation tools ?
+
+You're probably thinking of tools like webmin. Yes, these tools exist
+and work fine, but they have their set of drawbacks.
+
+Usually, the validation of configuration data is done with a script
+which performs semantic validation and often ends up being quite
+complex (e.g. 2500 lines for Debian's xserver-xorg.config script which
+handles C<xorg.conf> file).
+
+In most cases, the configuration model is expressed in instructions
+(whatever programming language is used) and interspersed with a lot of
+processing to handle the actual configuration data.
+
+=head2 What's the advantage of this project ?
+
+Config::Model projects provide a way to get a validation engine where
+the configuration model is completely separated from the actual
+processing instructions.
+
+A configuration model can be created and modified with the graphical
+interface provide by L<Config::Model::Itself>. The model is saved in a
+declarative form (currently, a Perl data structure). Such a model is
+easier to maintain than a lot of code.
+
+The model specifies:
+
+=over 
+
+=item *
+
+The structure of the configuration data (which can be queried by
+generic user interfaces)
+
+=item *
+
+The properties of each element (boundaries check, integer or string,
+enum like type, default value ...)
+
+=item *
+
+The targeted audience (beginner, advanced, master)
+
+=item *
+
+The on-line help
+
+=back
+
+So, in the end:
+
+=over
+
+=item *
+
+Maintenance and evolution of the configuration content is easier
+
+=item *
+
+User will see a *common* interface for *all* programs using this
+project.
+
+=item *
+
+Beginners will not see advanced parameters (advanced and master
+parameters are hidden from beginners)
+
+=item *
+
+Upgrade of configuration data is easier and sanity check is
+performed during the upgrade.
+
+=item *
+
+Audit of configuration is possible to check what was modified by the
+user compared to default values
+
+=back
+
+=head2 What about the user interface ?
+
+L<Config::Model> interface can be:
+
+=over
+
+=item *
+
+a shell-like interface (plain or based on Term::ReadLine).
+
+=item *
+
+Graphical with L<Config::Model::TkUI> (Perl/Tk interface).
+
+=item *
+
+based on curses with L<Config::Model::CursesUI>. This interface can be
+handy if your X server is down.
+
+=item *
+
+Through a virtual file system where every configuration parameter is mapped to a file.
+(Linux only)
+
+=back
+
+All these interfaces are generated from the configuration model.
+
+And configuration model can be created or modified with a graphical
+user interface (with Config::Model::Itself)
+
+=head2 What about configuration data storage ?
+
+Since the syntax of configuration files vary wildly form one application
+to another, people who want to use this framework may have to
+provide a dedicated parser/writer.
+
+To help with this task, this project provides writer/parsers for common
+format: INI style file and perl file. With the additional
+Config::Model::Backend::Augeas, Augeas library can be used to read and
+write some configuration files. See http://augeas.net for more
+details.
+
+=head2 Is there an example of a configuration model ?
+
+The "example" directory contains a configuration model example for
+C</etc/fstab> file. This example includes a small program that use
+this model to show some ways to extract configuration information.
+
+=head1 Mailing lists
+
+For more question, please send a mail to:
+
+ config-model-users at lists.sourceforge.net
+
+=head1 Suggested reads to start
+
+=head2 Beginners
+
+=over
+
+=item *
+
+L<Config::Model::Manual::ModelCreationIntroduction>:
+
+=item *
+
+L<Config::Model::Cookbook::CreateModelFromDoc>
+
+=back
+
+=head2 Advanced 
+
+=over
+
+=item *
+
+L<Config::Model::Manual::ModelCreationAdvanced>
+
+=back
+
+=head2 Masters
+
+use the source, Luke
+
+=head1 STOP
+
+The documentation below is quite detailed and is more a reference doc regarding
+C<Config::Model> class.
+
+For an introduction to model creation, please check:
+L<http://sourceforge.net/apps/mediawiki/config-model/index.php?title=Creating_a_model>
+
+Dedicated Config::Model::Manual pages will follow soon.
+
+=head1 Storage backend, configuration reader and writer
+
+See L<Config::Model::BackendMgr> for details
+
+=head1 Validation engine
+
+C<Config::Model> provides a way to get a validation engine from a set
+of rules. This set of rules is called the configuration model.
+
+=head1 User interface
+
+The user interface will use some parts of the API to set and get
+configuration values. More importantly, a generic user interface will
+need to explore the configuration model to be able to generate at
+run-time relevant configuration screens.
+
+Simple text interface if provided in this module. Curses and Tk
+interfaces are provided by L<Config::Model::CursesUI> and
+L<Config::Model::TkUI>.
+
+=head1 Constructor
+
+Simply call new without parameters:
+
+ my $model = Config::Model -> new ;
+
+This will create an empty shell for your model.
+
+=head1 Configuration Model
+
+To validate a configuration tree, we must create a configuration model
+that will set all the properties of the validation engine you want to
+create.
+
+The configuration model is expressed in a declarative form (i.e. a
+Perl data structure which is always easier to maintain than a lot of
+code)
+
+Each configuration class contains a set of:
+
+=over
+
+=item *
+
+node element that will refer to another configuration class
+
+=item *
+
+value element that will contains actual configuration data
+
+=item *
+
+List or hash of node or value elements
+
+=back
+
+By declaring a set of configuration classes and referring them in node
+element, you will shape the structure of your configuration tree.
+
+The structure of the configuration data must be based on a tree
+structure. This structure has several advantages:
+
+=over
+
+=item *
+
+Unique path to get to a node or a leaf.
+
+=item *
+
+Simpler exploration and query
+
+=item *
+
+Simple hierarchy. Deletion of configuration items is simpler to grasp:
+when you cut a branch, all the leaves attaches to that branch go down.
+
+=back
+
+But using a tree has also some drawbacks:
+
+=over 4
+
+=item *
+
+A complex configuration cannot be mapped on a simple tree.  Some more
+relation between nodes and leaves must be added.
+
+=item *
+
+Some configuration part are actually graph instead of a tree (for
+instance, any configuration that will map a service to a
+resource). The graph relation must be decomposed in a tree with
+special I<reference> relation. See L<Config::Model::Value/Value Reference>
+
+=back
+
+Note: a configuration tree is a tree of objects. The model is declared
+with classes. The classes themselves have relations that closely match
+the relation of the object of the configuration tree. But the class
+need not to be declared in a tree structure (always better to reuse
+classes). But they must be declared as a DAG (directed acyclic graph).
+
+=begin html
+
+<a href="http://en.wikipedia.org/wiki/Directed_acyclic_graph">More on DAGs</a>
+
+=end html
+
+Each configuration class declaration specifies:
+
+=over
+
+=item *
+
+The C<name> of the class (mandatory)
+
+=item *
+
+A C<class_description> used in user interfaces (optional)
+
+=item *
+
+Optional include specification to avoid duplicate declaration of elements.
+
+=item *
+
+The class elements
+
+=back
+
+Each element will specify:
+
+=over
+
+=item *
+
+Most importantly, the type of the element (mostly C<leaf>, or C<node>)
+
+=item *
+
+The properties of each element (boundaries, check, integer or string,
+enum like type ...)
+
+=item *
+
+The default values of parameters (if any)
+
+=item *
+
+Whether the parameter is mandatory
+
+=item *
+
+Targeted audience (beginner, advance, master), i.e. the level of
+expertise required to tinker a parameter (to hide expert parameters
+from newbie eyes)
+
+=item *
+
+On-line help (for each parameter or value of parameter)
+
+=back
+
+See L<Config::Model::Node> for details on how to declare a
+configuration class.
+
+Example:
+
+ $ cat lib/Config/Model/models/Xorg.pl
+ [
+   {
+     name => 'Xorg',
+     class_description => 'Top level Xorg configuration.',
+     include => [ 'Xorg::ConfigDir'],
+     element => [
+                 Files => {
+                           type => 'node',
+                           description => 'File pathnames',
+                           config_class_name => 'Xorg::Files'
+                          },
+                 # snip
+                ]
+   },
+   {
+     name => 'Xorg::DRI',
+     element => [
+                 Mode => {
+                          type => 'leaf',
+                          value_type => 'uniline',
+                          description => 'DRI mode, usually set to 0666'
+                         }
+                ]
+   }
+ ];
+
+=head1 Configuration instance
+
+A configuration instance if the staring point of a configuration tree.
+When creating a model instance, you must specify the root class name, I.e. the
+configuration class that is used by the root node of the tree.
+
+ my $model = Config::Model->new() ;
+ $model ->create_config_class
+  (
+   name => "SomeRootClass",
+   element => [ ...  ]
+  ) ;
+
+ # instance name is 'default'
+ my $inst = $model->instance (root_class_name => 'SomeRootClass');
+
+You can create several separated instances from a model using
+C<name> option:
+
+ # instance name is 'default'
+ my $inst = $model->instance (root_class_name => 'SomeRootClass',
+                              name            => 'test1');
+
+
+Usually, model files will be loaded automatically depending on
+C<root_class_name>. But you can choose to specify the file containing
+the model with C<model_file> parameter. This is mostly useful for
+tests.
+
+=head1 Configuration class
+
+A configuration class is made of series of elements which are detailed
+in L<Config::Model::Node>.
+
+Whatever its type (node, leaf,... ), each element of a node has
+several other properties:
+
+=over
+
+=item experience
+
+By using the C<experience> parameter, you can change the experience
+level of each element. Possible experience levels are C<master>,
+C<advanced> and C<beginner> (default).
+
+=item level
+
+Level is C<important>, C<normal> or C<hidden>.
+
+The level is used to set how configuration data is presented to the
+user in browsing mode. C<Important> elements will be shown to the user
+no matter what. C<hidden> elements will be explained with the I<warp>
+notion.
+
+=item status
+
+Status is C<obsolete>, C<deprecated> or C<standard> (default).
+
+Using a deprecated element will issue a warning. Using an obsolete
+element will raise an exception.
+
+=item description
+
+Description of the element. This description will be used when
+generating user interfaces.
+
+=item summary
+
+Summary of the element. This description will be used when generating
+user interfaces and may be used in comments when writing the
+configuration file.
+
+=item class_description
+
+Description of the configuration class. This description will be used
+when generating user interfaces.
+
+=item generated_by
+
+Mention with a descriptive string if this class was generated by a
+program.  This parameter is currently reserved for
+L<Config::Model::Itself> model editor.
+
+=item include
+
+Include element description from another class.
+
+  include => 'AnotherClass' ,
+
+or
+
+  include => [qw/ClassOne ClassTwo/]
+
+In a configuration class, the order of the element is important. For
+instance if C<foo> is warped by C<bar>, you must declare C<bar>
+element before C<foo>.
+
+When including another class, you may wish to insert the included
+elements after a specific element of your including class:
+
+  # say AnotherClass contains element xyz
+  include => 'AnotherClass' ,
+  include_after => "foo" ,
+  element => [ bar => ... , foo => ... , baz => ... ]
+
+Now the element of your class will be:
+
+  ( bar , foo , xyz , baz )
+
+=back
+
+Example:
+
+  my $model = Config::Model -> new ;
+
+  $model->create_config_class
+  (
+   config_class_name => 'SomeRootClass',
+   experience        => [ [ qw/tree_macro warp/ ] => 'advanced'] ,
+   description       => [ X => 'X-ray' ],
+   level             => [ 'tree_macro' => 'important' ] ,
+   class_description => "SomeRootClass description",
+   element           => [ ... ]
+  ) ;
+
+Again, see L<Config::Model::Node> for more details on configuration
+class declaration.
+
+For convenience, C<experience>, C<level> and C<description> parameters
+can also be declared within the element declaration:
+
+  $model->create_config_class
+  (
+   config_class_name => 'SomeRootClass',
+   class_description => "SomeRootClass description",
+   'element'
+   => [
+        tree_macro => { level => 'important',
+                        experience => 'advanced',
+                      },
+        warp       => { experience => 'advanced', } ,
+        X          => { description => 'X-ray', } ,
+      ]
+  ) ;
+
+
+=head1 Load predeclared model
+
+You can also load predeclared model.
+
+=head2 load( <model_name> )
+
+This method will open the model directory and execute a C<.pl>
+file containing the model declaration,
+
+This perl file must return an array ref to declare models. E.g.:
+
+ [
+  [
+   name => 'Class_1',
+   element => [ ... ]
+  ],
+  [
+   name => 'Class_2',
+   element => [ ... ]
+  ]
+ ];
+
+do not put C<1;> at the end or C<load> will not work
+
+If a model name contain a C<::> (e.g C<Foo::Bar>), C<load> will look for
+a file named C<Foo/Bar.pl>.
+
+This method will also look in C<Foo/Bar.d> directory for additional model information. 
+Model snippet found there will be loaded with L<augment_config_class>.
+
+Returns a list containing the names of the loaded classes. For instance, if
+C<Foo/Bar.pl> contains a model for C<Foo::Bar> and C<Foo::Bar2>, C<load>
+will return C<( 'Foo::Bar' , 'Foo::Bar2' )>.
+
+=head1 Model plugin
+
+Config::Model can also use model plugins. Each model can be augmented by model snippets
+stored into directory C<< <model_name>.d >>. All files found there will be merged to existing model.
+
+For instance, this model in file C<.../Config/Model/models/Fstab/Fsline.pl>:
+
+ {
+    name => "Fstab::Fsline",
+    element => [
+	fs_vfstype => {
+            type => 'leaf',
+            value_type => 'enum',
+            choice => [ qw/ext2 ext3/ ],
+        },
+        fs_mntopts => {
+            type => 'warped_node',
+            follow => { 'f1' => '- fs_vfstype' },
+            rules => [
+                '$f1 eq \'ext2\'', { 'config_class_name' => 'Fstab::Ext2FsOpt' },
+                '$f1 eq \'ext3\'', { 'config_class_name' => 'Fstab::Ext3FsOpt' }, 
+            ],
+        }
+    ]
+ }
+
+can be augmented with the content of C<.../Config/Model/models/Fstab/Fsline.d/addext4.pl>:
+
+ {
+    name => "Fstab::Fsline",
+    element => [
+ 	fs_vfstype => { choice => [ qw/ext4/ ], },
+        fs_mntopts => {
+            rules => [
+                q!$f1 eq 'ext4'!, { 'config_class_name' => 'Fstab::Ext4FsOpt' }, 
+            ],
+        },
+    ]
+ } ;
+ 
+Then, the merged model will feature C<fs_vfstype> with choice C<ext2 ext4 ext4>. 
+Likewise, C<fs_mntopts> will feature rules for the 3 filesystems. 
+
+Under the hood, L</augment_config_class> method is used to load model snippets.
+
+=head2 augment_config_class (name => '...', class_data )
+
+Enhance the feature of a configuration class. This method uses the same parameters
+as L<create_config_class>.
+
+=head1 Model query
+
+=head2 get_model( config_class_name )
+
+Return a hash containing the model declaration (in a deep clone copy of the hash).
+You may modify the hash at leisure.
+
+=head2 get_model_doc 
+
+Generate POD document for configuration class.
+
+=head2 generate_doc ( top_class_name , [ directory ] )
+
+Generate POD document for configuration class top_class_name 
+and write them on STDOUT or in specified directory.
+
+Returns a list of written file names.
+
+=head2 get_element_model( config_class_name , element)
+
+Return a hash containing the model declaration for the specified class
+and element.
+
+=head2 get_element_name( class => Foo, for => advanced )
+
+Get all names of the elements of class C<Foo> that are accessible for
+experience level C<advanced>.
+
+Level can be C<master> (default), C<advanced> or C<beginner>.
+
+=head2 get_element_property
+
+Returns the property of an element from the model.
+
+Parameters are:
+
+=over 
+
+=item class 
+
+=item element 
+
+=item property
+
+=back 
+
+=head2 list_class_element
+
+Returns a string listing all the class and elements. Useful for
+debugging your configuration model.
 
 =head1 Error handling
 
