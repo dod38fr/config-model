@@ -1826,10 +1826,10 @@ sub _do_model_file {
 Config::Model can also use model plugins. Each model can be augmented by model snippets
 stored into directory C<< <model_name>.d >>. All files found there will be merged to existing model.
 
-For instance, this model:
+For instance, this model in file C<.../Config/Model/models/Fstab/Fsline.pl>:
 
  {
-    name => "Master",
+    name => "Fstab::Fsline",
     element => [
 	fs_vfstype => {
             type => 'leaf',
@@ -1847,7 +1847,7 @@ For instance, this model:
     ]
  }
 
-can be augmented with:
+can be augmented with the content of C<.../Config/Model/models/Fstab/Fsline.d/addext4.pl>:
 
  {
     name => "Fstab::Fsline",
@@ -1864,6 +1864,7 @@ can be augmented with:
 Then, the merged model will feature C<fs_vfstype> with choice C<ext2 ext4 ext4>. 
 Likewise, C<fs_mntopts> will feature rules for the 3 filesystems. 
 
+Under the hood, L</augment_config_class> method is used to load model snippets.
 
 =head2 augment_config_class (name => '...', class_data )
 
