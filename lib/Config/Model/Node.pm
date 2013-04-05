@@ -1430,7 +1430,7 @@ Example:
 The model snippet above will ensure that C<Bug-Debian> will be shown right after C<bug>.
 
 =for html
-<p>For more information, see <a href="http://ddumont.wordpress.com/2010/05/19/improve-config-upgrade-ep-02-minimal-model-for-opensshs-sshd_config/">this blog<\a>.</p>
+<p>For more information, see <a href="http://ddumont.wordpress.com/2010/05/19/improve-config-upgrade-ep-02-minimal-model-for-opensshs-sshd_config/">this blog</a>.</p>
 
 =back
 
