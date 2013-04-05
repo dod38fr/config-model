@@ -32,9 +32,9 @@ has model_dir    => ( isa => 'Str',  is => 'ro', default => 'Config/Model/models
 has legacy       => ( isa => 'LegacyTreament', is => 'ro', default => 'warn' ) ;
 has instances    => ( isa => 'HashRef[Config::Model::Instance]', is => 'ro', default => sub { {} } ) ;
 
-has models => ( 
-    isa => 'HashRef', 
-    is => 'ro' , 
+has models => (
+    isa => 'HashRef',
+    is => 'ro' ,
     default => sub { {} } ,
     traits  => [ 'Hash' ],
     handles => {
@@ -44,9 +44,9 @@ has models => (
     },
 )  ;
 
-has raw_models => ( 
-    isa => 'HashRef', 
-    is => 'ro' , 
+has raw_models => (
+    isa => 'HashRef',
+    is => 'ro' ,
     default => sub { {} } ,
     traits  => [ 'Hash' ],
     handles => {
@@ -58,9 +58,9 @@ has raw_models => (
 )  ;
 
 
-has skip_inheritance => ( 
+has skip_inheritance => (
     isa => 'Bool', is => 'ro', default => 0,
-    trigger => sub { 
+    trigger => sub {
         my $self = shift ;
         $self->show_legacy_issue("skip_inheritance is deprecated, use skip_include") ;
         $self->skip_include = $self->skip_inheritance ;
@@ -161,14 +161,14 @@ my @legal_params = qw/element experience status description summary level
                       config_dir
                       read_config read_config_dir write_config
                       write_config_dir accept/;
-my @static_legal_params = qw/class_description copyright author license generated_by/ ;                      
+my @static_legal_params = qw/class_description copyright author license generated_by/ ;
 
 sub create_config_class {
     my $self=shift ;
     my %raw_model = @_ ;
 
     my $config_class_name = delete $raw_model{name} or
-        croak "create_config_class: no config class name" ; 
+        croak "create_config_class: no config class name" ;
 
     get_logger("Model")->info("Creating class $config_class_name") ;
 
@@ -203,7 +203,7 @@ sub create_config_class {
 #
 sub load_raw_model {
     my ($self, $config_class_name, $raw_model) = @_;
-    
+
     # perform some syntax and rule checks and expand compacted
     # elements ie  [qw/foo bar/] => {...} is transformed into
     #  foo => {...} , bar => {...} before being stored
@@ -235,7 +235,7 @@ sub _create_config_class {
     my $model = shift;
     my $raw_copy = shift;
 
-    
+
     # check config class parameters and fill %model
     $self->check_class_parameters($config_class_name, $model, $raw_copy) ;
 
@@ -331,7 +331,7 @@ sub check_class_parameters {
             warn "class $config_class_name: name_match ($implicit$name_match)",
                 " in accept is deprecated\n" ;
         }
-        
+
         push @accept_list, $name_match ;
         $accept_hash{$name_match} = shift @$accept_info;
     }
@@ -1110,22 +1110,22 @@ sub _do_model_file {
 
 sub augment_config_class {
     my ($self,%augment_data) = @_ ;
-    # %args must contain existing class name to augment 
+    # %args must contain existing class name to augment
 
     # plus other data to merge to raw model
     my $config_class_name = delete $augment_data{name} ||
         croak "augment_config_class: missing class name" ;
-    
+
     # check config class parameters and fill %model
     my ( $model_to_merge, $augment_copy) = $self->load_raw_model ($config_class_name, \%augment_data);
-    
+
     my $orig_model = $self->get_model($config_class_name) ;
     croak "unknown class to augment: $config_class_name" unless defined $orig_model ;
-    
+
     $self->check_class_parameters($config_class_name, $model_to_merge, $augment_copy) ;
 
     my $model = merge ($orig_model, $model_to_merge) ;
-    
+
     # remove duplicates in element_list and accept_list while keeping order
     foreach my $list_name (qw/element_list accept_list/) {
         my %seen ;
@@ -1134,10 +1134,10 @@ sub augment_config_class {
             push @newlist, $_ unless $seen{$_} ;
             $seen{$_}= 1;
         }
-    
+
         $model->{$list_name} = \@newlist;
     }
-    
+
     $self->models->{$config_class_name} = $model ;
 }
 
@@ -1200,7 +1200,7 @@ sub get_model_doc {
             push @elt, "=head2 $elt_name$summary", '';
             push @elt, $self->get_element_description($elt_info) , '' ;
 
-            foreach ($elt_info,$elt_info->{cargo}) { 
+            foreach ($elt_info,$elt_info->{cargo}) {
                 if (my $ccn = $_->{config_class_name}) {
                     push @classes, $ccn ;
                     $see_also{$ccn} = 1;
@@ -1254,7 +1254,7 @@ sub get_migrate_doc {
     if (my $rep = $migr->{replace}) {
         $mdoc .= ' and '.join( ", ", map { qq!'C<\$replace{$_}>' => "C<$rep->{$_}>"! } keys %$rep );
     }
-    
+
     return ( $mdoc, '' );
 }
 
@@ -1277,22 +1277,22 @@ sub get_element_description {
 
     if (my $status = $elt_info->{status}) {
         $desc .= 'B<'.ucfirst($status).'> ';
-    }  
+    }
 
-    
+
     my $info = $elt_info->{mandatory} ? 'Mandatory. ' : 'Optional. ' ;
 
     $info .= "Type ". ($vt || $type) . $of.'. ';
-    
+
     foreach (qw/choice default upstream_default/) {
         my $item = $elt_info->{$_} ;
         next unless defined $item ;
         my @list = ref($item) ? @$item : ($item) ;
         $info .= "$_: '". join("', '",@list)."'. " ;
-    } 
-    
+    }
+
     my $elt_help = $self->get_element_value_help ($elt_info) ;
-    
+
     return $desc."I<< $info >>" .$elt_help;
 }
 
@@ -1301,12 +1301,12 @@ sub get_element_value_help {
 
     my $help = $elt_info->{help} ;
     return '' unless defined $help ;
-    
+
     my $help_text = "\n\nHere are some explanations on the possible values:\n\n=over\n\n" ;
     foreach my $v (sort keys %$help) {
         $help_text .= "=item '$v'\n\n$help->{$v}\n\n" ;
     }
-    
+
     return $help_text."=back\n\n" ;
 }
 
@@ -1448,7 +1448,7 @@ sub get_element_property {
     my $model = $self->model($class) ;
     # must take into account 'accept' model parameter
     if (not defined $model->{element}{$prop} ) {
-        
+
         foreach my $acc_re ( @{$model->{accept_list}} ) {
             return $model->{accept}{$acc_re}{$prop} || $default_property{$prop}
                 if $elt =~ /^$acc_re$/;
@@ -1588,7 +1588,7 @@ Config::Model enables a project developer to provide an interactive
 configuration editor (graphical, curses based or plain terminal) to
 his users. For this he must:
 
-=over 
+=over
 
 =item *
 
@@ -1617,7 +1617,7 @@ only upgrade and migration specifications are required
 
 =item *
 
-unknown parameters can be accepted 
+unknown parameters can be accepted
 
 =back
 
@@ -1695,7 +1695,7 @@ easier to maintain than a lot of code.
 
 The model specifies:
 
-=over 
+=over
 
 =item *
 
@@ -1818,7 +1818,7 @@ L<Config::Model::Cookbook::CreateModelFromDoc>
 
 =back
 
-=head2 Advanced 
+=head2 Advanced
 
 =over
 
@@ -2211,7 +2211,7 @@ do not put C<1;> at the end or C<load> will not work
 If a model name contain a C<::> (e.g C<Foo::Bar>), C<load> will look for
 a file named C<Foo/Bar.pl>.
 
-This method will also look in C<Foo/Bar.d> directory for additional model information. 
+This method will also look in C<Foo/Bar.d> directory for additional model information.
 Model snippet found there will be loaded with L<augment_config_class>.
 
 Returns a list containing the names of the loaded classes. For instance, if
@@ -2238,7 +2238,7 @@ For instance, this model in file C<.../Config/Model/models/Fstab/Fsline.pl>:
             follow => { 'f1' => '- fs_vfstype' },
             rules => [
                 '$f1 eq \'ext2\'', { 'config_class_name' => 'Fstab::Ext2FsOpt' },
-                '$f1 eq \'ext3\'', { 'config_class_name' => 'Fstab::Ext3FsOpt' }, 
+                '$f1 eq \'ext3\'', { 'config_class_name' => 'Fstab::Ext3FsOpt' },
             ],
         }
     ]
@@ -2252,14 +2252,14 @@ can be augmented with the content of C<.../Config/Model/models/Fstab/Fsline.d/ad
  	fs_vfstype => { choice => [ qw/ext4/ ], },
         fs_mntopts => {
             rules => [
-                q!$f1 eq 'ext4'!, { 'config_class_name' => 'Fstab::Ext4FsOpt' }, 
+                q!$f1 eq 'ext4'!, { 'config_class_name' => 'Fstab::Ext4FsOpt' },
             ],
         },
     ]
  } ;
- 
-Then, the merged model will feature C<fs_vfstype> with choice C<ext2 ext4 ext4>. 
-Likewise, C<fs_mntopts> will feature rules for the 3 filesystems. 
+
+Then, the merged model will feature C<fs_vfstype> with choice C<ext2 ext4 ext4>.
+Likewise, C<fs_mntopts> will feature rules for the 3 filesystems.
 
 Under the hood, L</augment_config_class> method is used to load model snippets.
 
@@ -2275,13 +2275,13 @@ as L<create_config_class>.
 Return a hash containing the model declaration (in a deep clone copy of the hash).
 You may modify the hash at leisure.
 
-=head2 get_model_doc 
+=head2 get_model_doc
 
 Generate POD document for configuration class.
 
 =head2 generate_doc ( top_class_name , [ directory ] )
 
-Generate POD document for configuration class top_class_name 
+Generate POD document for configuration class top_class_name
 and write them on STDOUT or in specified directory.
 
 Returns a list of written file names.
@@ -2304,15 +2304,15 @@ Returns the property of an element from the model.
 
 Parameters are:
 
-=over 
+=over
 
-=item class 
+=item class
 
-=item element 
+=item element
 
 =item property
 
-=back 
+=back
 
 =head2 list_class_element
 
@@ -2338,8 +2338,8 @@ See L<config-edit/Logging>
 
 Given Murphy's law, the author is fairly confident that you will find
 bugs or miss some features. Please report them to config-model at
-rt.cpan.org, or through the web interface at 
-https://rt.cpan.org/Public/Bug/Report.html?Queue=config-model . 
+rt.cpan.org, or through the web interface at
+https://rt.cpan.org/Public/Bug/Report.html?Queue=config-model .
 The author will be notified, and then you'll automatically be
 notified of progress on your bug.
 
@@ -2347,7 +2347,7 @@ notified of progress on your bug.
 
 Feedback from users are highly desired. If you find this module useful, please
 share your use cases, success stories with the author or with the config-model-
-users mailing list. 
+users mailing list.
 
 =head1 AUTHOR
 
