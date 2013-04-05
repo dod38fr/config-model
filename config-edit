@@ -65,7 +65,7 @@ my $root_dir ;
 
 =head1 NAME
 
-config-edit - Edit data of configuration managed by Config::Model
+config-edit - Deprecated, use L<cme>
 
 =head1 SYNOPSIS
 
