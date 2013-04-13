@@ -113,7 +113,8 @@ sub BUILD {
     my $class_name = $self->config_class_name ;
     $logger->info( "New $class_name requested by $caller_class");
 
-    $self->model( dclone ( $self->config_model->get_model($class_name) ) );
+    # get_model returns a cloned data structure
+    $self->model( $self->config_model->get_model($class_name) );
         
     $self->check_properties ;
 
