@@ -34,6 +34,51 @@ name must refer to one of the monitors declared in C<Monitor> section.
 Caveat: Xorg examples are based on Xorg 1.4 and may not be valid for
 Xorg 1.5 or 1.6
 
+=head1 Model plugin
+
+Config::Model can also use model plugins. Each model can be augmented by model snippets
+stored into directory C<< <model_name>.d >>. All files found there will be merged to existing model.
+
+For instance, this model in file C<.../Config/Model/models/Fstab/Fsline.pl>:
+
+ {
+    name => "Fstab::Fsline",
+    element => [
+	fs_vfstype => {
+            type => 'leaf',
+            value_type => 'enum',
+            choice => [ qw/ext2 ext3/ ],
+        },
+        fs_mntopts => {
+            type => 'warped_node',
+            follow => { 'f1' => '- fs_vfstype' },
+            rules => [
+                '$f1 eq \'ext2\'', { 'config_class_name' => 'Fstab::Ext2FsOpt' },
+                '$f1 eq \'ext3\'', { 'config_class_name' => 'Fstab::Ext3FsOpt' },
+            ],
+        }
+    ]
+ }
+
+can be augmented with the content of C<.../Config/Model/models/Fstab/Fsline.d/addext4.pl>:
+
+ {
+    name => "Fstab::Fsline",
+    element => [
+	fs_vfstype => { choice => [ qw/ext4/ ], },
+        fs_mntopts => {
+            rules => [
+                q!$f1 eq 'ext4'!, { 'config_class_name' => 'Fstab::Ext4FsOpt' },
+            ],
+        },
+    ]
+ } ;
+
+Then, the merged model will feature C<fs_vfstype> with choice C<ext2 ext4 ext4>.
+Likewise, C<fs_mntopts> will feature rules for the 3 filesystems.
+
+Under the hood, L<Config::Model/augment_config_class> method is used to load model snippets.
+
 =head1 Model warp
 
 From a user's point of view, model warp will look like the structure
