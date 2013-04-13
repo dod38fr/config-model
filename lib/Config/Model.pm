@@ -928,27 +928,27 @@ sub translate_legacy_built_in_list {
 sub include_class {
     my $self       = shift;
     my $class_name = shift || croak "include_class: undef includer" ;
-    my $raw_model  = shift || die "include_class: undefined raw_model";
+    my $target_model  = shift || die "include_class: undefined target_model";
 
-    my $include_class = delete $raw_model->{include} ;
+    my $include_class = delete $target_model->{include} ;
 
     return () unless defined $include_class ;
 
-    my $include_after       = delete $raw_model->{include_after} ;
+    my $include_after       = delete $target_model->{include_after} ;
 
     my @includes = ref $include_class ? @$include_class : ($include_class) ;
 
     # use reverse because included classes are *inserted* in front
     # of the list (or inserted after $include_after
     foreach my $inc (reverse @includes) {
-        $self->include_one_class($class_name, $raw_model, $inc, $include_after) ;
+        $self->include_one_class($class_name, $target_model, $inc, $include_after) ;
     }
 }
 
 sub include_one_class {
     my $self          = shift;
     my $class_name    = shift || croak "include_class: undef includer" ;
-    my $raw_model     = shift || croak "include_class: undefined raw_model";
+    my $target_model     = shift || croak "include_class: undefined raw_model";
     my $include_class = shift || croak "include_class: undef include_class param" ;;
     my $include_after = shift ;
 
@@ -971,7 +971,7 @@ sub include_one_class {
     # important)
     if (defined $include_after and defined $included_raw_model->{element}) {
         my %elt_idx ;
-        my @raw_elt = @{$raw_model->{element}} ;
+        my @raw_elt = @{$target_model->{element}} ;
 
         for (my $idx = 0; $idx < @raw_elt ; $idx += 2) {
             my $elt = $raw_elt[$idx] ;
@@ -988,7 +988,7 @@ sub include_one_class {
         # + 2 because we splice *after* $include_after
         my $splice_idx = $elt_idx{$include_after} + 2;
         my $to_copy = delete $included_raw_model->{element} ;
-        splice ( @{$raw_model->{element}}, $splice_idx, 0, @$to_copy) ;
+        splice ( @{$target_model->{element}}, $splice_idx, 0, @$to_copy) ;
     }
 
     # now included_raw_model contains all information to be merged to
@@ -999,14 +999,14 @@ sub include_one_class {
         if (defined $include_item{$included_item}) {
             my $to_copy = $included_raw_model->{$included_item} ;
             if (ref($to_copy) eq 'HASH') {
-                map { $raw_model->{$included_item}{$_} = $to_copy->{$_} }
+                map { $target_model->{$included_item}{$_} = $to_copy->{$_} }
                   keys %$to_copy ;
             }
             elsif (ref($to_copy) eq 'ARRAY') {
-                unshift @{$raw_model->{$included_item}}, @$to_copy;
+                unshift @{$target_model->{$included_item}}, @$to_copy;
             }
             else {
-                $raw_model->{$included_item} = $to_copy ;
+                $target_model->{$included_item} = $to_copy ;
             }
         }
         elsif ( not grep { $_ eq $included_item; } @static_legal_params ) {
@@ -1020,7 +1020,7 @@ sub include_one_class {
 
     # check that elements are not clobbered
     my %elt_name ;
-    my @raw_elt = @{$raw_model->{element}} ;
+    my @raw_elt = @{$target_model->{element}} ;
     for (my $idx = 0; $idx < @raw_elt ; $idx += 2) {
         my $elt = $raw_elt[$idx] ;
         if (defined $elt_name{$elt})  {
