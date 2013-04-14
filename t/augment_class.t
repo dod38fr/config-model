@@ -6,21 +6,33 @@ use ExtUtils::testlib;
 use Test::More;
 use Test::Exception ;
 use Test::Memory::Cycle;
+use Test::Differences ;
 use Config::Model;
 use Data::Dumper ;
+use Log::Log4perl qw(:easy :levels) ;
 
 BEGIN { plan tests => 8; }
 
 use strict;
 
 my $arg = shift || '';
+my ($log,$show) = (0) x 2 ;
 
 my $trace = $arg =~ /t/ ? 1 : 0 ;
-$::debug            = 1 if $arg =~ /d/;
-Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
+$log                = 1 if $arg =~ /l/;
+$show               = 1 if $arg =~ /s/;
 
-use Log::Log4perl qw(:easy) ;
-Log::Log4perl->easy_init($arg =~ /l/ ? $TRACE: $WARN);
+my $home = $ENV{HOME} || "";
+my $log4perl_user_conf_file = "$home/.log4config-model";
+
+if ($log and -e $log4perl_user_conf_file ) {
+    Log::Log4perl::init($log4perl_user_conf_file);
+}
+else {
+    Log::Log4perl->easy_init($log ? $WARN: $ERROR);
+}
+
+Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 
 ok(1,"Compilation done");
 
