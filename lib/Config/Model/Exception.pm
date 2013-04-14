@@ -210,7 +210,7 @@ sub full_message {
     my $obj = $self->object ;
     my $msg ;
     if ($obj->isa('Config::Model::Node')) {
-	$msg = "Node '".$obj->name."' ";
+	$msg = "Node '".$obj->name."' of class ".$obj->config_class_name.' ';
     }
     else {
 	my $element = $obj->element_name ;
