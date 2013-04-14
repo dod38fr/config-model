@@ -4,6 +4,7 @@ use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
 use Test::More tests => 65;
+use Test::Differences ;
 use Test::Memory::Cycle;
 use Config::Model ;
 use Storable qw/dclone/ ;
@@ -123,7 +124,7 @@ my $root = $inst -> config_root ;
 
 use Config::Model::Warper ;
 
-is_deeply( [ Config::Model::Warper::_dclone_key('foo') ],
+eq_or_diff( [ Config::Model::Warper::_dclone_key('foo') ],
     ['foo'], "Test _dclone_key (single key)" );
 
 
@@ -166,10 +167,10 @@ foreach my $u_test (@test) {
 
 
 # check that model_data was not modified
-is_deeply($copy, $model_data, "check that copy was not modified") ;
+eq_or_diff($copy, $model_data, "check that copy was not modified") ;
 
 delete $model_data->{name} ; # not part of saved raw_model
 
-is_deeply($model->get_raw_model('Master'), $model_data, 
+eq_or_diff($model->get_raw_model('Master'), $model_data, 
 	  "check that copy in model object was not modified") ;
 memory_cycle_ok($model);
