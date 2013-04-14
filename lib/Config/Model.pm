@@ -4,6 +4,8 @@ use namespace::autoclean;
 use Mouse::Util::TypeConstraints;
 use MouseX::StrictConstructor;
 
+use 5.10.1;
+
 use Carp;
 use Storable ('dclone') ;
 use Data::Dumper ();
@@ -32,17 +34,12 @@ has model_dir    => ( isa => 'Str',  is => 'ro', default => 'Config/Model/models
 has legacy       => ( isa => 'LegacyTreament', is => 'ro', default => 'warn' ) ;
 has instances    => ( isa => 'HashRef[Config::Model::Instance]', is => 'ro', default => sub { {} } ) ;
 
-has models => (
-    isa => 'HashRef',
-    is => 'ro' ,
-    default => sub { {} } ,
-    traits  => [ 'Hash' ],
-    handles => {
-        model_exists => 'exists',
-        model_defined => 'defined',
-        model => 'get',
-    },
-)  ;
+# Config::Model stores 3 versions of each model
+
+# raw_model is the model exactly as passed by the user. Since the format is quite
+# liberal (e.g legacy parameters, grouped declaration of elements like '[qw/foo bar/] => {}}',
+# element description in class or in element declaration)), this raw format is not
+# usable without normalization (done by normalize_class_parameters)
 
 has raw_models => (
     isa => 'HashRef',
@@ -53,7 +50,48 @@ has raw_models => (
         raw_model_exists => 'exists',
         raw_model_defined => 'defined',
         raw_model => 'get',
+        store_raw_model => 'set',
         raw_model_names => 'keys',
+    },
+)  ;
+
+sub get_raw_model {
+    my $self = shift;
+    return $self->raw_model(@_) ;
+}
+
+# the result of normalization is stored here. Normalized model aggregate user models and
+# augmented features (the one found in Foo.d directory). inclusion of other class is NOT
+# yet done. normalized_models are created while loading files (load method) or creating
+# configuration classes (create_config_class)
+has normalized_models => (
+    isa => 'HashRef',
+    is => 'ro' ,
+    default => sub { {} } ,
+    traits  => [ 'Hash' ],
+    handles => {
+        normalized_model_exists => 'exists',
+        normalized_model_defined => 'defined',
+        normalized_model => 'get',
+        store_normalized_model => 'set',
+        normalized_model_names => 'keys',
+    },
+)  ;
+
+# This attribute contain the model that will be used by Config::Model::Node. They
+# are created on demand when get_model is called. When created the inclusion of
+# other classes is done according to the class 'include' parameter. Note that get_model
+# will try call load if the required normalized_model is not known (lazy loading)
+has models => (
+    isa => 'HashRef',
+    is => 'ro' ,
+    default => sub { {} } ,
+    traits  => [ 'Hash' ],
+    handles => {
+        model_exists => 'exists',
+        model_defined => 'defined',
+        model => 'get',
+        _store_model => 'set',
     },
 )  ;
 
@@ -163,6 +201,8 @@ my @legal_params = qw/element experience status description summary level
                       write_config_dir accept/;
 my @static_legal_params = qw/class_description copyright author license generated_by/ ;
 
+# keep as external API. All internal call go through _store_model
+#  See comments around raw_models attribute for explanations
 sub create_config_class {
     my $self=shift ;
     my %raw_model = @_ ;
@@ -180,91 +220,53 @@ sub create_config_class {
             );
     }
 
-    if (defined $raw_model{inherit_after}) {
-        $self->show_legacy_issue("Model $config_class_name: inherit_after is deprecated ",
-          "in favor of include_after" );
-        $raw_model{include_after} = delete $raw_model{inherit_after} ;
-    }
-    if (defined $raw_model{inherit}) {
-        $self->show_legacy_issue("Model $config_class_name: inherit is deprecated in favor of include");
-        $raw_model{include} = delete $raw_model{inherit} ;
-    }
+    $self->store_raw_model($config_class_name, dclone(\%raw_model)) ;
 
-    my ($model, $raw_copy) = $self->load_raw_model ($config_class_name, \%raw_model);
-    $self->raw_models->{$config_class_name} = \%raw_model ;
+    my $model = $self->normalize_class_parameters($config_class_name, \%raw_model) ;
 
+    $self->store_normalized_model($config_class_name, $model) ;
 
-    $self->_create_config_class ($config_class_name, $model, $raw_copy);
     return $config_class_name ;
 }
 
-#
-# New subroutine "load_raw_model" extracted - Sat Nov 27 17:01:30 2010.
-#
-sub load_raw_model {
-    my ($self, $config_class_name, $raw_model) = @_;
+sub merge_included_class {
+    my ($self, $config_class_name) = @_;
 
-    # perform some syntax and rule checks and expand compacted
-    # elements ie  [qw/foo bar/] => {...} is transformed into
-    #  foo => {...} , bar => {...} before being stored
-
-    my $raw_copy = dclone $raw_model ;
-
-    my %model = ( element_list => [] );
+    my $normalized_model = $self->normalized_model($config_class_name) ;
+    my $model = dclone $normalized_model ;
 
     # add included items
-    if ($self->skip_include and defined $raw_copy->{include}) {
-        my $inc = delete $raw_copy->{include} ;
-        $model{include}       =  ref $inc ? $inc : [ $inc ];
-        $model{include_after} = delete $raw_copy->{include_after}
-          if defined $raw_copy->{include_after};
+    if ($self->skip_include and defined $normalized_model->{include}) {
+        my $inc = $normalized_model->{include} ;
+        $model->{include}       =  ref $inc ? $inc : [ $inc ];
+        $model->{include_after} = $normalized_model->{include_after}
+          if defined $normalized_model->{include_after};
     }
     else {
-        # include class in raw_copy, raw_model is left as is
-        $self->include_class($config_class_name, $raw_copy ) ;
+        # include class in raw_copy, normalized_model is left as is
+        $self->include_class($config_class_name, $model ) ;
     }
-    return (\%model, $raw_copy);
+    return $model;
 }
 
-#
-# New subroutine "_create_config_class" extracted - Sat Nov 27 17:06:42 2010.
-#
-sub _create_config_class {
-    my $self = shift;
-    my $config_class_name = shift;
-    my $model = shift;
-    my $raw_copy = shift;
-
-
-    # check config class parameters and fill %model
-    $self->check_class_parameters($config_class_name, $model, $raw_copy) ;
-
-    my @left_params = keys %$raw_copy ;
-    Config::Model::Exception::ModelDeclaration->throw
-        (
-         error=> "create class $config_class_name: unknown ".
-         "parameter '" . join("', '",@left_params)."', expected '".
-         join("', '",@legal_params, @static_legal_params)."'"
-        )
-          if @left_params ;
-
-
-    $self->models->{$config_class_name} = $model ;
-
-    return (\@left_params);
-}
-
-sub check_class_parameters {
+sub normalize_class_parameters {
     my $self  = shift;
     my $config_class_name = shift || die ;
-    my $model = shift || die ;
-    my $raw_model = shift || die ;
+    my $normalized_model = shift || die ;
 
+    my $model = {} ;
+
+    # sanity check
+    my $raw_name = delete $normalized_model->{name} ;
+    if (defined $raw_name and $config_class_name ne $raw_name) {
+        my $e = "internal: config_class_name $config_class_name ne model name $raw_name";
+        Config::Model::Exception::ModelDeclaration->throw ( error=> $e ) ;
+    }
 
     my @element_list ;
 
     # first construct the element list
-    my @compact_list = @{$raw_model->{element} || []} ;
+    my @compact_list = @{$normalized_model->{element} || []} ;
     while (@compact_list) {
         my ($item,$info) = splice @compact_list,0,2 ;
         # store the order of element as declared in 'element'
@@ -275,8 +277,8 @@ sub check_class_parameters {
     # are grouped. Although interaction with include may be tricky. Let's not advertise it.
     # yet.
 
-    if (defined $raw_model->{force_element_order}) {
-        my @forced_list = @{delete $raw_model->{force_element_order}} ;
+    if (defined $normalized_model->{force_element_order}) {
+        my @forced_list = @{delete $normalized_model->{force_element_order}} ;
         my %forced = map { ($_ => 1 ) } @forced_list ;
         foreach (@element_list) {
             next if delete $forced{$_};
@@ -294,12 +296,22 @@ sub check_class_parameters {
         }
     }
 
+    if (defined $normalized_model->{inherit_after}) {
+        $self->show_legacy_issue("Model $config_class_name: inherit_after is deprecated ",
+          "in favor of include_after" );
+        $normalized_model->{include_after} = delete $normalized_model->{inherit_after} ;
+    }
+    if (defined $normalized_model->{inherit}) {
+        $self->show_legacy_issue("Model $config_class_name: inherit is deprecated in favor of include");
+        $normalized_model->{include} = delete $normalized_model->{inherit} ;
+    }
+
 
 
     # get data read/write information (if any)
     $model->{read_config_dir} = $model->{write_config_dir}
-      = delete $raw_model->{config_dir}
-        if defined $raw_model->{config_dir};
+      = delete $normalized_model->{config_dir}
+        if defined $normalized_model->{config_dir};
 
     my @info_to_move = (
         qw/read_config  read_config_dir
@@ -308,18 +320,18 @@ sub check_class_parameters {
         # this parameter is filled by class generated by a program. It may
         # be used to avoid interactive edition of a generated model
         'generated_by',
-        qw/class_description author copyright license/
+        qw/class_description author copyright license include include_after/
     ) ;
 
     foreach my $info (@info_to_move) {
-        next unless defined $raw_model->{$info} ;
-        $model->{$info} = delete $raw_model->{$info} ;
+        next unless defined $normalized_model->{$info} ;
+        $model->{$info} = delete $normalized_model->{$info} ;
     }
 
     # handle accept parameter
     my @accept_list ;
     my %accept_hash ;
-    my $accept_info = delete $raw_model->{'accept'} || [] ;
+    my $accept_info = delete $normalized_model->{'accept'} || [] ;
     while (@$accept_info) {
         my $name_match = shift @$accept_info ; # should be a regexp
 
@@ -351,11 +363,11 @@ sub check_class_parameters {
             ) ;
     }
 
-    $self->translate_legacy_permission($config_class_name, $raw_model, $raw_model ) ;
+    $self->translate_legacy_permission($config_class_name, $normalized_model, $normalized_model ) ;
 
     # element is handled first
     foreach my $info_name (qw/element experience status description summary level/) {
-        my $raw_compact_info = delete $raw_model->{$info_name} ;
+        my $raw_compact_info = delete $normalized_model->{$info_name} ;
 
         next unless defined $raw_compact_info ;
 
@@ -409,21 +421,23 @@ sub check_class_parameters {
     Config::Model::Exception::ModelDeclaration->throw
         (
          error => "create class $config_class_name: unexpected "
-                . "parameters '". join (', ', keys %$raw_model) ."' "
+                . "parameters '". join (', ', keys %$normalized_model) ."' "
                 . "Expected '".join("', '",@legal_params, @static_legal_params)."'"
         )
-          if keys %$raw_model ;
+          if keys %$normalized_model ;
 
     $model->{element_list} = \@element_list;
+
+    return $model ;
 }
 
 sub translate_legacy_permission {
-    my ($self, $config_class_name, $model, $raw_model ) = @_  ;
+    my ($self, $config_class_name, $model, $normalized_model ) = @_  ;
 
-    my $raw_experience = delete $raw_model -> {permission} ;
+    my $raw_experience = delete $normalized_model -> {permission} ;
     return unless defined $raw_experience ;
 
-    print Data::Dumper->Dump([$raw_model ] , ['permission to translate' ] ) ,"\n"
+    print Data::Dumper->Dump([$normalized_model ] , ['permission to translate' ] ) ,"\n"
         if $::debug;
 
     $self->show_legacy_issue("$config_class_name: parameter permission is deprecated "
@@ -889,12 +903,12 @@ sub translate_rules_arg {
 }
 
 sub translate_legacy_builtin {
-    my ($self, $config_class_name, $model, $raw_model ) = @_  ;
+    my ($self, $config_class_name, $model, $normalized_model ) = @_  ;
 
-    my $raw_builtin_default = delete $raw_model -> {built_in} ;
+    my $raw_builtin_default = delete $normalized_model -> {built_in} ;
     return unless defined $raw_builtin_default ;
 
-    print Data::Dumper->Dump([$raw_model ] , ['builtin to translate' ] ) ,"\n"
+    print Data::Dumper->Dump([$normalized_model ] , ['builtin to translate' ] ) ,"\n"
         if $::debug;
 
     $self->show_legacy_issue("$config_class_name: parameter 'built_in' is deprecated "
@@ -907,12 +921,12 @@ sub translate_legacy_builtin {
 }
 
 sub translate_legacy_built_in_list {
-    my ($self, $config_class_name, $model, $raw_model ) = @_  ;
+    my ($self, $config_class_name, $model, $normalized_model ) = @_  ;
 
-    my $raw_builtin_default = delete $raw_model -> {built_in_list} ;
+    my $raw_builtin_default = delete $normalized_model -> {built_in_list} ;
     return unless defined $raw_builtin_default ;
 
-    print Data::Dumper->Dump([$raw_model ] , ['built_in_list to translate' ] ) ,"\n"
+    print Data::Dumper->Dump([$normalized_model ] , ['built_in_list to translate' ] ) ,"\n"
         if $::debug;
 
     $self->show_legacy_issue("$config_class_name: parameter 'built_in_list' is deprecated "
@@ -948,9 +962,11 @@ sub include_class {
 sub include_one_class {
     my $self          = shift;
     my $class_name    = shift || croak "include_class: undef includer" ;
-    my $target_model     = shift || croak "include_class: undefined raw_model";
+    my $target_model  = shift || croak "include_class: undefined target_model";
     my $include_class = shift || croak "include_class: undef include_class param" ;;
     my $include_after = shift ;
+
+    get_logger('Model')->info("class $class_name includes $include_class");
 
     if (defined $include_class and
         defined $self->{included_class}{$class_name}{$include_class}) {
@@ -960,130 +976,123 @@ sub include_one_class {
     }
     $self->{included_class}{$class_name}{$include_class} = 1;
 
-    my $included_raw_model = dclone $self->get_raw_model($include_class) ;
+    # takes care of recursive include, because get_model will perform
+    # includes (and normalization). Is already a dclone
+    my $included_model = $self->get_model($include_class) ;
 
-    # takes care of recursive include
-    $self->include_class( $class_name, $included_raw_model ) ;
-
-    my %include_item = map { $_ => 1 } @legal_params ;
-
-    # now include element (special treatment because order is
+    # now include element in element_list (special treatment because order is
     # important)
-    if (defined $include_after and defined $included_raw_model->{element}) {
-        my %elt_idx ;
-        my @raw_elt = @{$target_model->{element}} ;
-
-        for (my $idx = 0; $idx < @raw_elt ; $idx += 2) {
-            my $elt = $raw_elt[$idx] ;
-            map { $elt_idx{$_} = $idx } ref $elt ? @$elt : ($elt) ;
-        }
+    my $target_list = $target_model->{element_list} ;
+    my $included_list = $included_model->{element_list} ;
+    my $splice_idx = 0 ;
+    if (defined $include_after and defined $included_model->{element}) {
+        my $idx = 0 ;
+        my %elt_idx = map { ( $_ , $idx++ ); } @$target_list ;
 
         if (not defined $elt_idx{$include_after}) {
             my $msg =  "Unknown element for 'include_after': "
                         . "$include_after, expected ". join(' ', keys %elt_idx) ;
-            Config::Model::Exception::ModelDeclaration
-                -> throw (error => $msg) ;
+            Config::Model::Exception::ModelDeclaration-> throw (error => $msg) ;
         }
 
-        # + 2 because we splice *after* $include_after
-        my $splice_idx = $elt_idx{$include_after} + 2;
-        my $to_copy = delete $included_raw_model->{element} ;
-        splice ( @{$target_model->{element}}, $splice_idx, 0, @$to_copy) ;
+        # + 1 because we splice *after* $include_after
+        $splice_idx = $elt_idx{$include_after} + 1;
     }
 
-    # now included_raw_model contains all information to be merged to
-    # raw_model
+    splice ( @$target_list , $splice_idx, 0, @$included_list) ;
+    get_logger('Model')->debug("class $class_name new elt list: @$target_list");
 
-    my $included_model ;
-    foreach my $included_item (keys %$included_raw_model) {
-        if (defined $include_item{$included_item}) {
-            my $to_copy = $included_raw_model->{$included_item} ;
-            if (ref($to_copy) eq 'HASH') {
-                map { $target_model->{$included_item}{$_} = $to_copy->{$_} }
-                  keys %$to_copy ;
-            }
-            elsif (ref($to_copy) eq 'ARRAY') {
-                unshift @{$target_model->{$included_item}}, @$to_copy;
-            }
-            else {
-                $target_model->{$included_item} = $to_copy ;
-            }
+    # now actually include all elements
+    my $target_element = $target_model->{element} ||= {};
+    foreach my $included_elt (@$included_list) {
+        if (not defined $target_element->{$included_elt}) {
+            get_logger('Model')->debug("class $class_name includes elt $included_elt");
+            $target_element->{$included_elt} = $included_model->{element}{$included_elt};
         }
-        elsif ( not grep { $_ eq $included_item; } @static_legal_params ) {
-            Config::Model::Exception::ModelDeclaration->throw
-                (
-                 error => "Cannot include '$included_item', "
-                 . "expected @legal_params"
-                ) ;
-        }
-    }
-
-    # check that elements are not clobbered
-    my %elt_name ;
-    my @raw_elt = @{$target_model->{element}} ;
-    for (my $idx = 0; $idx < @raw_elt ; $idx += 2) {
-        my $elt = $raw_elt[$idx] ;
-        if (defined $elt_name{$elt})  {
-            Config::Model::Exception::ModelDeclaration->throw
-                (
-                 error => "Cannot clobber element '$elt' in $class_name"
+        else {
+            Config::Model::Exception::ModelDeclaration->throw (
+                 error => "Cannot clobber element '$included_elt' in $class_name"
                  . " (included from $include_class)"
-                ) ;
+            ) ;
         }
-        $elt_name{$elt} = 1;
     }
+    get_logger('Model')->info("class $class_name include $include_class done");
 }
 
 
 
-
-# load a model from file
+# load a model from file. See comments around raw_models attribute for explanations
 sub load {
     my $self = shift ;
-    my $load_model = shift ; # model name like Foo::Bar
+    my $model_name = shift ; # model name like Foo::Bar
     my $load_file = shift ;  # model file (override model name), used for tests
 
-    my $load_path = $load_model ;
+    my $load_path = $model_name ;
     $load_path =~ s/::/\//g;
 
     $load_file ||=  $self->model_dir . '/' . $load_path  . '.pl';
 
-    my $model = $self->_do_model_file ($load_model,$load_file);
+    get_logger("Model::Loader")->debug("model $model_name from file $load_file");
 
-    my @loaded ;
-    foreach my $config_class_info (@$model) {
-        my @data = ref $config_class_info eq 'HASH' ? %$config_class_info
-                 : ref $config_class_info eq 'ARRAY' ? @$config_class_info
-                 : croak "load $load_file: config_class_info is not a ref" ;
-        push @loaded, $self->create_config_class(@data) ;
+    # no special treatment, returns an array
+    my %models_by_name ;
+    $self->_load_model_in_hash (\%models_by_name, $load_file);
+    $self->store_raw_model($model_name,dclone(\%models_by_name)) ;
+    foreach my $name (keys %models_by_name) {
+        my $data = $self->normalize_class_parameters($name, $models_by_name{$name}) ;
+        get_logger("Model::Loader")->debug("Store normalized model $name");
+        $self->store_normalized_model($name, $data) ;
     }
 
     # look for additional model information
-    my $snippet_dir =  $self->model_dir . '/' . $load_path  . '.d';
-    get_logger("Model::Loader")-> info("looking for snippet in $snippet_dir") ;
-    if (-d $snippet_dir) {
-        foreach my $snippet_file (glob ("$snippet_dir/*.pl")) {
-            get_logger("Model::Loader")-> info("Found snippet $snippet_file") ;
-            my $snippet_model = $self->_do_model_file ($load_model,$snippet_file);
-            foreach my $snippet_info (@$snippet_model) {
-                my @data = ref $snippet_info eq 'HASH'  ? %$snippet_info
-                         : ref $snippet_info eq 'ARRAY' ? @$snippet_info
-                         : croak "load $load_file: config_class_info is not a ref" ;
-                $self->augment_config_class(@data) ;
+    my $rel_snippet_dir =  $self->model_dir . '/' . $load_path  . '.d';
+
+    my %model_graft_by_name ;
+    foreach my $inc (@INC) {
+        my $snippet_dir = "$inc/$rel_snippet_dir" ;
+        get_logger("Model::Loader")->trace("looking for snippet in $snippet_dir");
+        if ( -d $snippet_dir ) {
+            foreach my $snippet_file ( glob("$snippet_dir/*.pl") ) {
+                get_logger("Model::Loader")->info("Found snippet $snippet_file");
+                $self->_load_model_in_hash (\%model_graft_by_name,$snippet_file);
             }
         }
     }
 
-    return @loaded
+    foreach my $class_to_merge (keys %model_graft_by_name) {
+        my $data = $model_graft_by_name{$class_to_merge} ;
+        $self->augment_config_class_really($class_to_merge, $data) ;
+    }
+
+    # return the list of classes found in $load_file
+    return keys %models_by_name;
 }
 
+
+# New subroutine "_load_model_in_hash" extracted - Fri Apr 12 17:29:56 2013.
+#
+sub _load_model_in_hash {
+    my ($self, $hash_ref, $load_file) = @_;
+
+    my $model = $self->_do_model_file ($load_file);
+
+    foreach my $config_class_info (@$model) {
+        my %data = ref $config_class_info eq 'HASH' ? %$config_class_info
+                 : ref $config_class_info eq 'ARRAY' ? @$config_class_info
+                 : croak "load $load_file: config_class_info is not a ref" ;
+        my $config_class_name = $data{name} or
+            croak "load: missing config class name in $load_file" ;
+
+        # check config class parameters and fill %model
+        $hash_ref->{$config_class_name} = \%data ;
+    }
+}
 
 #
 # New subroutine "_do_model_file" extracted - Sun Nov 28 17:25:35 2010.
 #
-# $load_model is used only for error message
 sub _do_model_file {
-    my ($self,$load_model,$load_file) = @_ ;
+    my ($self,$load_file) = @_ ;
 
     get_logger("Model::Loader")-> info("load model $load_file") ;
 
@@ -1100,7 +1109,7 @@ sub _do_model_file {
     }
 
     Config::Model::Exception::ModelDeclaration
-            -> throw (message => "model $load_model: $err_msg")
+            -> throw (message => "load error: $err_msg")
                 if $err_msg ;
 
     return $model;
@@ -1109,36 +1118,38 @@ sub _do_model_file {
 
 
 sub augment_config_class {
-    my ($self,%augment_data) = @_ ;
+    my ($self, %augment_data) = @_;
     # %args must contain existing class name to augment
 
     # plus other data to merge to raw model
     my $config_class_name = delete $augment_data{name} ||
         croak "augment_config_class: missing class name" ;
 
-    # check config class parameters and fill %model
-    my ( $model_to_merge, $augment_copy) = $self->load_raw_model ($config_class_name, \%augment_data);
+    $self->augment_config_class_really($config_class_name, \%augment_data)
+}
 
-    my $orig_model = $self->get_model($config_class_name) ;
+sub augment_config_class_really {
+    my ($self,$config_class_name, $augment_data) = @_;
+
+    my $orig_model = $self->normalized_model($config_class_name) ;
     croak "unknown class to augment: $config_class_name" unless defined $orig_model ;
 
-    $self->check_class_parameters($config_class_name, $model_to_merge, $augment_copy) ;
-
-    my $model = merge ($orig_model, $model_to_merge) ;
+    my $model_addendum = $self->normalize_class_parameters($config_class_name, $augment_data) ;
+    my $new_model = merge ( $orig_model, $model_addendum) ;
 
     # remove duplicates in element_list and accept_list while keeping order
     foreach my $list_name (qw/element_list accept_list/) {
         my %seen ;
         my @newlist ;
-        foreach (@{$model->{$list_name}}) {
+        foreach (@{$new_model->{$list_name}}) {
             push @newlist, $_ unless $seen{$_} ;
             $seen{$_}= 1;
         }
 
-        $model->{$list_name} = \@newlist;
+        $new_model->{$list_name} = \@newlist;
     }
 
-    $self->models->{$config_class_name} = $model ;
+    $self->store_normalized_model($config_class_name => $new_model) ;
 }
 
 
@@ -1148,7 +1159,14 @@ sub get_model {
       || die "Model::get_model: missing config class name argument" ;
 
     $self->load($config_class_name)
-      unless $self->model_exists($config_class_name) ;
+        unless $self->normalized_model_exists($config_class_name) ;
+
+    if (not $self->model_defined($config_class_name)) {
+        get_logger("Model::Loader")->debug("creating model $config_class_name");
+
+        my $model = $self->merge_included_class ($config_class_name);
+        $self->_store_model ($config_class_name, $model);
+    }
 
     my $model = $self->model($config_class_name) ||
       croak "get_model error: unknown config class name: $config_class_name";
@@ -1349,17 +1367,13 @@ sub generate_doc {
 
 
 sub get_element_model {
-    my $self =shift ;
+    my $self = shift ;
     my $config_class_name = shift
       || die "Model::get_element_model: missing config class name argument" ;
     my $element_name = shift
       || die "Model::get_element_model: missing element name argument" ;
 
-    $self->load($config_class_name)
-      unless $self->model_defined($config_class_name) ;
-
-    my $model = $self->model($config_class_name) ||
-      croak "get_element_model error: unknown config class name: $config_class_name";
+    my $model = $self->get_model($config_class_name) ;
 
     my $element_m = $model->{element}{$element_name} ||
       croak "get_element_model error: unknown element name: $element_name";
@@ -1370,17 +1384,17 @@ sub get_element_model {
 # returns a hash ref containing the raw model, i.e. before expansion of
 # multiple keys (i.e. [qw/a b c/] => ... )
 # internal. For now ...
-sub get_raw_model {
+sub get_normalized_model {
     my $self =shift ;
     my $config_class_name = shift ;
 
     $self->load($config_class_name)
-      unless defined $self->raw_model($config_class_name) ;
+      unless defined $self->normalized_model($config_class_name) ;
 
-    my $raw_model = $self->raw_model($config_class_name) ||
-      croak "get_raw_model error: unknown config class name: $config_class_name";
+    my $normalized_model = $self->normalized_model($config_class_name) ||
+      croak "get_normalized_model error: unknown config class name: $config_class_name";
 
-    return dclone($raw_model) ;
+    return dclone($normalized_model) ;
 }
 
 
@@ -1465,7 +1479,7 @@ sub list_class_element {
     my $pad  =  shift || '' ;
 
     my $res = '';
-    foreach my $class_name ($self->raw_model_names) {
+    foreach my $class_name ($self->normalized_model_names) {
         $res .= $self->list_one_class_element($class_name) ;
     }
     return $res ;
@@ -1477,32 +1491,14 @@ sub list_one_class_element {
     my $pad  =  shift || '' ;
 
     my $res = $pad."Class: $class_name\n";
-    my $c_model = $self->raw_model($class_name);
-    my $elts = $c_model->{element} ; # array ref
+    my $c_model = $self->normalized_model($class_name);
+    my $elts = $c_model->{element_list} ; # array ref
 
-    my $include = $c_model->{include} ;
-    my $inc_ref = ref $include ? $include : [ $include ] ;
-    my $inc_after = $c_model->{include_after} ;
+    return $res unless defined $elts and @$elts;
 
-    if (defined $include and not defined $inc_after) {
-        map { $res .=$self->list_one_class_element($_,$pad.'  ') ;} @$inc_ref ;
-    }
-
-    return $res unless defined $elts ;
-
-    for (my $idx = 0; $idx < @$elts; $idx += 2) {
-        my $elt_info = $elts->[$idx] ;
-        my @elt_names = ref $elt_info ? @$elt_info : ($elt_info) ;
-        my $type = $elts->[$idx+1]{type} ;
-
-        foreach my $elt_name (@elt_names) {
-            $res .= $pad."  - $elt_name ($type)\n";
-            if (defined $include and defined $inc_after
-                and $inc_after eq $elt_name
-               ) {
-                map { $res .=$self->list_one_class_element($_,$pad.'  ') ;} @$inc_ref ;
-            }
-        }
+    foreach my $elt_name (@$elts) {
+        my $type = $c_model->{element}{$elt_name}{type};
+        $res .= $pad."  - $elt_name ($type)\n";
     }
     return $res ;
 }

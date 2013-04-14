@@ -100,6 +100,9 @@ my @bad_class =
    element => [one => { type => 'leaf', value_type => 'string',},]
   ) ;
 
-throws_ok {$model ->create_config_class(@bad_class);}
+# failure occurs later
+$model ->create_config_class(@bad_class);
+
+throws_ok {$model ->get_model('EvilMaster');}
   qr/cannot clobber/i , "Check that include does not clobber elements";
 memory_cycle_ok($model);
