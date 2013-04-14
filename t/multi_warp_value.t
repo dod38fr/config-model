@@ -3,7 +3,7 @@
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
-use Test::More tests => 65;
+use Test::More tests => 63;
 use Test::Differences ;
 use Test::Memory::Cycle;
 use Config::Model ;
@@ -166,11 +166,4 @@ foreach my $u_test (@test) {
 }
 
 
-# check that model_data was not modified
-eq_or_diff($copy, $model_data, "check that copy was not modified") ;
-
-delete $model_data->{name} ; # not part of saved raw_model
-
-eq_or_diff($model->get_raw_model('Master'), $model_data, 
-	  "check that copy in model object was not modified") ;
 memory_cycle_ok($model);
