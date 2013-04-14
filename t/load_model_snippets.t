@@ -116,6 +116,7 @@ $str = << 'EOF' ;
 {
     name    => "Master",
     include => 'Two',
+    include_after => 'fs_mntopts',
 
     accept => [
         '.*'   => { description => "catchall" },
@@ -145,10 +146,12 @@ $fh->print($str) ;
 
 $fh->close ;
 
+
 # minimal set up to get things working
 my $model = Config::Model->new(    
     model_dir => $wr_root,
 ) ;
+# use Tk::ObjScanner; Tk::ObjScanner::scan_object($model) ;
 
 my $inst = $model->instance (
     root_class_name => 'Master', 

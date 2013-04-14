@@ -45,6 +45,8 @@ ok($inst,"created dummy instance") ;
 my $root = $inst -> config_root ;
 ok($root,"Config root created") ;
 
+# use Tk::ObjScanner; Tk::ObjScanner::scan_object($model) ;
+
 my $step = 'std_id:ab X=Bv - std_id:bc X=Av - a_string="toto tata" '
   .'lista=a,b,c,d olist:0 X=Av - olist:1#olist1_comment X=Bv - listb=b,c,d '
     . '! hash_a:X2=x hash_a:Y2=xy hash_a:toto#"index comment"
