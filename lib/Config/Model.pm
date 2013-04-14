@@ -1045,16 +1045,18 @@ sub load {
     }
 
     # look for additional model information
-    my $rel_snippet_dir =  $self->model_dir . '/' . $load_path  . '.d';
-
     my %model_graft_by_name ;
     foreach my $inc (@INC) {
-        my $snippet_dir = "$inc/$rel_snippet_dir" ;
-        get_logger("Model::Loader")->trace("looking for snippet in $snippet_dir");
-        if ( -d $snippet_dir ) {
-            foreach my $snippet_file ( glob("$snippet_dir/*.pl") ) {
-                get_logger("Model::Loader")->info("Found snippet $snippet_file");
-                $self->_load_model_in_hash (\%model_graft_by_name,$snippet_file);
+        foreach my $name (keys %models_by_name) {
+            my $snippet_path = $name ;
+            $snippet_path =~ s/::/\//g;
+            my $snippet_dir = "$inc/". $self->model_dir.'/'.$snippet_path.'.d' ;
+            get_logger("Model::Loader")->trace("looking for snippet in $snippet_dir");
+            if ( -d $snippet_dir ) {
+                foreach my $snippet_file ( glob("$snippet_dir/*.pl") ) {
+                    get_logger("Model::Loader")->info("Found snippet $snippet_file");
+                    $self->_load_model_in_hash (\%model_graft_by_name,$snippet_file);
+                }
             }
         }
     }
