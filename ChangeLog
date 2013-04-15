@@ -1,5 +1,11 @@
 {{$NEXT}}
 
+2013-04-15 - 2.033
+
+    * Model: load returns loaded class in the correct order. Otherwise
+      Config::Model::Itself will write back config classes in a random
+      order (for files declaring more than one class)
+
 2013-04-15 - 2.032
 
   Framework Changes:
