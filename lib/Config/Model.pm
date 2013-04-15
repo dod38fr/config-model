@@ -1036,7 +1036,7 @@ sub load {
 
     # no special treatment, returns an array
     my %models_by_name ;
-    $self->_load_model_in_hash (\%models_by_name, $load_file);
+    my @loaded_classes = $self->_load_model_in_hash (\%models_by_name, $load_file);
     $self->store_raw_model($model_name,dclone(\%models_by_name)) ;
     foreach my $name (keys %models_by_name) {
         my $data = $self->normalize_class_parameters($name, $models_by_name{$name}) ;
@@ -1066,8 +1066,10 @@ sub load {
         $self->augment_config_class_really($class_to_merge, $data) ;
     }
 
-    # return the list of classes found in $load_file
-    return keys %models_by_name;
+    # return the list of classes found in $load_file. Respecting the order of the class
+    # declaration is important for Config::Model::Itself so the class are written back
+    # in the same order.
+    return @loaded_classes;
 }
 
 
@@ -1078,6 +1080,7 @@ sub _load_model_in_hash {
 
     my $model = $self->_do_model_file ($load_file);
 
+    my @names ;
     foreach my $config_class_info (@$model) {
         my %data = ref $config_class_info eq 'HASH' ? %$config_class_info
                  : ref $config_class_info eq 'ARRAY' ? @$config_class_info
@@ -1087,7 +1090,10 @@ sub _load_model_in_hash {
 
         # check config class parameters and fill %model
         $hash_ref->{$config_class_name} = \%data ;
+        push @names, $config_class_name ;
     }
+
+    return @names ;
 }
 
 #

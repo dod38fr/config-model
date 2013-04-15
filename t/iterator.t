@@ -1,7 +1,7 @@
 # -*- cperl -*-
 
 use ExtUtils::testlib;
-use Test::More tests => 32;
+use Test::More tests => 33;
 use Test::Memory::Cycle;
 use Config::Model;
 use Config::Model::Value ;
@@ -38,7 +38,11 @@ else {
 
 ok(1,"compiled");
 
-$model->load(Master => 't/big_model.pm') ;
+my @models = $model->load(Master => 't/big_model.pm') ;
+
+is_deeply(\@models,
+    [qw/SubSlave2 SubSlave X_base_class2 X_base_class SlaveZ SlaveY Master/],
+    "check list of model declared in t/big_model.pm (taking order into account)") ;
 
 $model->augment_config_class(
     name => 'Master' ,
