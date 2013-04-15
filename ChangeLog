@@ -1,5 +1,16 @@
 {{$NEXT}}
 
+2013-04-15 - 2.032
+
+  Framework Changes:
+    * Model: completely re-organized the way a model is loaded to
+      be able to add model extensions to an included class
+    * Doc: clarified and moved model plugin doc in advanced manual
+    * config-edit: added deprecation warning in Synopsis
+
+  Application changes:
+    * Fstab model: added missing relatime option
+
 2013-04-03 - 2.031
 
   Framework Changes:
