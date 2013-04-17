@@ -1190,7 +1190,7 @@ sub get_model {
 sub get_model_doc {
     my ( $self, $top_class_name ) = @_;
 
-    if ( not defined $self->model($top_class_name) ) {
+    if ( not defined $self->normalized_model($top_class_name) ) {
         croak
           "get_model_doc error : unknown config class name: $top_class_name";
     }
