@@ -1046,6 +1046,7 @@ sub load {
 
     # look for additional model information
     my %model_graft_by_name ;
+    my %done; # avoid loading twice the same snippet (where system version may clobber dev version)
     foreach my $inc (@INC) {
         foreach my $name (keys %models_by_name) {
             my $snippet_path = $name ;
@@ -1054,8 +1055,11 @@ sub load {
             get_logger("Model::Loader")->trace("looking for snippet in $snippet_dir");
             if ( -d $snippet_dir ) {
                 foreach my $snippet_file ( glob("$snippet_dir/*.pl") ) {
+                    my $done_key = $name.':'.$snippet_file;
+                    next if $done{$done_key} ;
                     get_logger("Model::Loader")->info("Found snippet $snippet_file");
                     $self->_load_model_in_hash (\%model_graft_by_name,$snippet_file);
+                    $done{$done_key} = 1;
                 }
             }
         }
