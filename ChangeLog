@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+2013-04-17 - 2.034
+
+    * Model: fix generation of model doc that broke with 2.032
+
 2013-04-15 - 2.033
 
     * Model: load returns loaded class in the correct order. Otherwise
