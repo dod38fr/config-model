@@ -334,7 +334,7 @@ sub full_message {
 
     $msg .= $self->description. " '". $self->element. "'." ;
 
-    $msg .= " Either you file has an error or $class_name model is lagging behind. "
+    $msg .= " Either your file has an error or $class_name model is lagging behind. "
         ."In the latter case, please submit a bug report or fix the model. See cme man "
         ."page for details.\n";
 
