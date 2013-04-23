@@ -33,15 +33,6 @@ Log::Log4perl::init($log4perl_conf);
 
 my $ui_type;
 
-eval { require Config::Model::TkUI; };
-my $has_tk = $@ ? 0 : 1;
-
-eval { require Config::Model::CursesUI; };
-my $has_curses = $@ ? 0 : 1;
-
-eval { require Config::Model::FuseUI; };
-my $has_fuse = $@ ? 0 : 1;
-
 my $model_dir;
 my $trace = 0;
 my $root_dir;
@@ -194,24 +185,6 @@ my $inst = $model->instance(
 
 my $root = $inst->config_root;
 
-if ($command eq 'edit' and not defined $ui_type ) {
-    if ($has_tk) {
-        $ui_type = 'tk';
-    }
-    elsif ($has_curses) {
-        warn "You should install Config::Model::TkUI for a ",
-            "more friendly user interface\n";
-        $ui_type = 'curses';
-    }
-    else {
-        warn "You should install Config::Model::TkUI or ",
-            "Config::Model::CursesUI ", 
-            "for a more friendly user interface\n";
-        $ui_type = 'shell';
-    }
-}
-
-
 if ( $command eq  'dump' ) {
     my $dump_string = $root->dump_tree( mode => $dumptype || 'custom' );
     print $dump_string ;
@@ -253,6 +226,9 @@ elsif ( $command eq 'modify' ) {
     $force_save = 1;
 }
 elsif ( $command =~ /^fuse/ ) {
+    eval { require Config::Model::FuseUI; };
+    my $has_fuse = $@ ? 0 : 1;
+
     die "could not load Config::Model::FuseUI. Is Fuse installed ?\n"
       unless $has_fuse;
     die "Missing -fuse_dir option\n" unless defined $fuse_dir;
@@ -283,6 +259,29 @@ elsif ( $command =~ /^fuse/ ) {
     }
 }
 elsif ( $command eq 'edit' ) {
+    eval { require Config::Model::TkUI; };
+    my $has_tk = $@ ? 0 : 1;
+
+    eval { require Config::Model::CursesUI; };
+    my $has_curses = $@ ? 0 : 1;
+
+    if (not defined $ui_type ) {
+        if ($has_tk) {
+            $ui_type = 'tk';
+        }
+        elsif ($has_curses) {
+            warn "You should install Config::Model::TkUI for a ",
+                "more friendly user interface\n";
+            $ui_type = 'curses';
+        }
+        else {
+            warn "You should install Config::Model::TkUI or ",
+                "Config::Model::CursesUI ",
+                "for a more friendly user interface\n";
+            $ui_type = 'shell';
+        }
+    }
+
     if ( $ui_type eq 'simple' ) {
 
         # experience not yet implemented
