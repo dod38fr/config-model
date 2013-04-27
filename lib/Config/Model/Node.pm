@@ -466,6 +466,9 @@ sub find_element {
     my ($self,$name, %args ) = @_ ;
     croak "find_element: missing element name" unless defined $name ;
 
+    # should be the case if people are using cme edit
+    return $name if defined $self->{model}{element}{$name} ;
+
     # look for a close element playing with cases;
     if (defined $args{case} and $args{case} eq 'any') {
         foreach my $elt (keys %{$self->{model}{element}}) {
