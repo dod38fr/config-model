@@ -6,6 +6,7 @@ use 5.10.1;
 
 use Config::Model;
 use Config::Model::Lister;
+use Config::Model::ObjTreeScanner;
 use Getopt::Long;
 use Pod::Usage;
 use Log::Log4perl qw(get_logger :levels);
@@ -190,7 +191,11 @@ if ( $command eq  'dump' ) {
     print $dump_string ;
 }
 elsif ( $command eq 'check' ) {
+    say "loading data";
+    Config::Model::ObjTreeScanner->new(leaf_cb => sub{})->scan_node(undef, $root) ;
+    say "checking data";
     $root->dump_tree( mode => 'full' );
+    say "check done";
 }
 elsif ( $command eq 'search' ) {
     pod2usage(-message => "missing -search option with search command" )
