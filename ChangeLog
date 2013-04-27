@@ -1,5 +1,13 @@
 {{$NEXT}}
 
+2013-04-27 - 2.035
+
+    * Node has_element: small optimisation for common case
+    * cme:
+      * make sure that async store is used before actual check
+      * load Tk only when using edit command (avoids issues on exit
+	with AnyEvent)
+
 2013-04-17 - 2.034
 
     * Model: fix generation of model doc that broke with 2.032
