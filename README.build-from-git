@@ -9,6 +9,7 @@ Dist::Zilla::Plugin::Prepender
 Dist::Zilla::Plugin::Prereqs
 Dist::Zilla::Plugin::Run::BeforeBuild
 Dist::Zilla::PluginBundle::Filter
+Dist::Zilla::Plugin::Git::NextVersion
 
 On debian or ubuntu, do:
 
