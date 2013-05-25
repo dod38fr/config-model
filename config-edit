@@ -22,6 +22,8 @@
 use strict ;
 use warnings ;
 
+warn "config-edit is deprecated. Please use cme command.\n" ;
+
 use Config::Model;
 use Config::Model::Lister;
 use Getopt::Long ;
