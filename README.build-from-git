@@ -3,7 +3,7 @@ Config::Model from git is built with Dist::Zilla.
 You must make sure that the following modules are installed:
 Dist::Zilla::Plugin::MetaResources
 Dist::Zilla::Plugin::ModuleBuild::Custom
-Dist::Zilla::Plugin::PodSpellingTests
+Dist::Zilla::Plugin::Test::PodSpelling
 Dist::Zilla::Plugin::PodVersion
 Dist::Zilla::Plugin::Prepender
 Dist::Zilla::Plugin::Prereqs
