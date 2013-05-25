@@ -1,5 +1,20 @@
 {{$NEXT}}
 
+2013-05-25 - 2.036
+
+  Framework changes:
+    * config-edit: added deprecation warning
+    * Value:
+	* fix pod doc error in L<> which tripped smoke tests
+        * apply_fixes: check after fix must be asynchronous
+    * Node::load_data: use a predictable order to accept elements.
+      This change fixes the smoke test error in t/backend_ini.t
+      (Closes Debian #709785)
+
+  Test changes:
+    * make t/pod.t run only when AUTHOR_TESTING is set
+      (Closes RT 8533 and Debian #709784)
+
 2013-04-27 - 2.035
 
     * Node has_element: small optimisation for common case
