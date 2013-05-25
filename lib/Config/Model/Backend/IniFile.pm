@@ -246,7 +246,7 @@ sub _write {
         }
         elsif ($node->element_type($elt) eq 'leaf') {
             my $v = $obj->fetch ;
-            if ($write_bool_as and length($v) and $obj->value_type eq 'boolean') {
+            if ($write_bool_as and defined($v) and length($v) and $obj->value_type eq 'boolean') {
                 $v = $write_bool_as->[$v] ;
             }
             if (defined $v and length $v) {
