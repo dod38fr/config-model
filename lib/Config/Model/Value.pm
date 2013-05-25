@@ -1999,7 +1999,7 @@ elements. This value must be written in the configuration file.
 C<preset>: The value is not known by the model or by the
 application. But it can be found by an automatic program and stored
 while the configuration L<Config::Model::Instance|instance> is in 
-L<Config::Model::Instance/"preset_start ()"|preset mode>
+L<preset mode|Config::Model::Instance/"preset_start ()">
 
 =back
 
