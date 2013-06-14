@@ -62,10 +62,6 @@ my $build = $class->new(
     dist_abstract => 'Describe, edit and validate configuration data',
     dist_author   => 'Dominique Dumont (ddumont at cpan dot org)',
 
-    # Build.PL runs gen_class_pod.pl which loads Config::Model from lib,
-    # hence most of the runtime dependencies are in fact 
-    # configure_requires. This should improve Perl smoke tests.
-
 ##{ $plugin->get_prereqs ##}
 
     # cleanup required by t/auto_read.t
