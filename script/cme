@@ -478,7 +478,7 @@ and errors on STDOUT.
 
 Example:
 
- cme check lcdproc
+ cme check fstab
 
 =head2 migrate
 
