@@ -656,7 +656,7 @@ Provides a full stack trace when exiting on error.
 =item -backend
 
 Specify a read/write backend. The actual backend name depends on the model
-passed to C<-model> option. See L<Config::Model::AutoRead> for details.
+passed to C<-model> option. See L<Config::Model::BackendMgr> for details.
 
 =back
 

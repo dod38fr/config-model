@@ -169,7 +169,7 @@ L<Config::Model>. You don't need to read it to write a model.
 =head2 new ( node => $node_obj, name => 'fstab' ) ;
 
 Inherited from L<Config::Model::Backend::Any>. The constructor will be
-called by L<Config::Model::AutoRead>.
+called by L<Config::Model::BackendMgr>.
 
 =head2 read ( io_handle => ... )
 
@@ -196,7 +196,7 @@ Dominique Dumont, (ddumont at cpan dot org)
 =head1 SEE ALSO
 
 L<Config::Model>, 
-L<Config::Model::AutoRead>, 
+L<Config::Model::BackendMgr>, 
 L<Config::Model::Backend::Any>, 
 
 =cut

@@ -745,7 +745,7 @@ A custom class where a read call-back must be provided
 
 =back
 
-For more details, see L<Config::Model::AutoRead>.
+For more details, see L<Config::Model::BackendMgr>.
 
 The name of the backend parameter must be specified in all cases.
 
@@ -790,7 +790,7 @@ Config file name (optional). defaults to C<< <config_class_name>.[pl|ini|cds] >>
                        file       => 'cfg_file.cds', # optional
                    } ],
 
-See L<Config::Model::AutoRead.pm/Built-in_backend> for details
+See L<Config::Model::BackendMgr.pm/Built-in_backend> for details
 
 Note that these parameters can also be set with the graphical
 configuration model editor.
@@ -827,7 +827,7 @@ This C<Config::Model::Backend::Foo> class is expected to provide the following m
 =back
 
 Their signatures are explained in 
-L<Config::Model::AutoRead doc on plugin backends|Config::Model::AutoRead/Plugin_backend_classes>
+L<Config::Model::BackendMgr doc on plugin backends|Config::Model::BackendMgr/Plugin_backend_classes>
 
 =head2 Using a custom class
 
@@ -844,7 +844,7 @@ Even the read method can have an arbitrary name by specifying a
 C<function> parameters.
 
 For more details on available parameters on custom backends, see 
-L<Config::Model::AutoRead doc on custom backends|Config::Model::AutoRead/Custom_backend>
+L<Config::Model::BackendMgr doc on custom backends|Config::Model::BackendMgr/Custom_backend>
 
 =head2 Using several read mechanisms
 
@@ -914,7 +914,7 @@ Several C<write> specification can be used. They are tried in order,
 until the first succeeds.
 
 For more information, see 
-L<write specification doc|Config::Model::AutoRead.pm/write_specification>
+L<write specification doc|Config::Model::BackendMgr.pm/write_specification>
 
 =head1 Syntax migration example
 

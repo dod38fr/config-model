@@ -221,8 +221,8 @@ Config::Model::Backend::Any - Virtual class for other backends
 
 This L<Mouse> class is to be inherited by other backend plugin classes
 
-See L<Config::Model::AutoRead/"read callback"> and
-L<Config::Model::AutoRead/"write callback"> for more details on the
+See L<Config::Model::BackendMgr/"read callback"> and
+L<Config::Model::BackendMgr/"write callback"> for more details on the
 method that must be provided by any backend classes.
 
 =head1 CONSTRUCTOR
@@ -282,7 +282,7 @@ Dominique Dumont, (ddumont at cpan dot org)
 =head1 SEE ALSO
 
 L<Config::Model>, 
-L<Config::Model::AutoRead>, 
+L<Config::Model::BackendMgr>, 
 L<Config::Model::Node>, 
 L<Config::Model::Backend::Yaml>, 
 

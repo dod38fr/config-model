@@ -1388,7 +1388,7 @@ configuration files.
 =item B<config_dir>
 
 Parameters used to load on demand configuration data. 
-See L<Config::Model::AutoRead> for details.
+See L<Config::Model::BackendMgr> for details.
 
 =item B<accept>
 
@@ -1887,10 +1887,10 @@ Typically, you will have to call C<search> on this object.
 
 Returns a L<Config::Model::TreeSearcher> object.
 
-=head2 AutoRead nodes
+=head2 Lazy load of node data
 
 As configuration model are getting bigger, the load time of a tree
-gets longer. The L<Config::Model::AutoRead> class provides a way to
+gets longer. The L<Config::Model::BackendMgr> class provides a way to
 load the configuration information only when needed.
 
 =head1 AUTHOR

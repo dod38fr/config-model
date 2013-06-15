@@ -129,7 +129,7 @@ configuration data will be used by the application. (default is yes)
 =item skip_auto_write
 
 Skip node that have a C<perl write> capability in their model. See
-L<Config::Model::AutoRead>.
+L<Config::Model::BackendMgr>.
 
 =item auto_vivify
 

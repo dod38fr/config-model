@@ -159,7 +159,7 @@ nodes and leaves attached to this node are also dumped.
 =item skip_auto_write ( <backend_name> )
 
 Skip node that have a write capability matching C<backend_name> in
-their model. See L<Config::Model::AutoRead>. 
+their model. See L<Config::Model::BackendMgr>. 
 
 =item auto_vivify
 

@@ -663,7 +663,7 @@ Notify that some data has changed in the tree.
 
 Try to run all subroutines registered with C<register_write_back> to
 write the configuration information until one succeeds (returns
-true). (See L<Config::Model::AutoRead> for details).
+true). (See L<Config::Model::BackendMgr> for details).
 
 You can specify here a pseudo root directory or another config
 directory to write configuration data back with C<root> and

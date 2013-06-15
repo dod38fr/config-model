@@ -405,7 +405,7 @@ comment may apply. Wrong estimations are possible.
 =head2 new ( node => $node_obj, name => 'inifile' ) ;
 
 Inherited from L<Config::Model::Backend::Any>. The constructor will be
-called by L<Config::Model::AutoRead>.
+called by L<Config::Model::BackendMgr>.
 
 =head1 Parameters
 
@@ -575,7 +575,7 @@ Krzysztof Tyszecki, (krzysztof.tyszecki at gmail dot com)
 =head1 SEE ALSO
 
 L<Config::Model>, 
-L<Config::Model::AutoRead>, 
+L<Config::Model::BackendMgr>, 
 L<Config::Model::Backend::Any>, 
 
 =cut
