@@ -44,8 +44,6 @@ sub ACTION_build {
 SUBCLASS
 
 
-# system("$^X -Ilib script/cme gen-class-pod.pl");
-
 my @version_info = @ARGV ? ( dist_version => $ARGV[0] ) : ();
 
 my %appli_files = map { ( $_, $_ ) } glob("lib/Config/Model/*.d/*");
