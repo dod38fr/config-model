@@ -1,5 +1,17 @@
 {{$NEXT}}
 
+2013-06-15 - 2.037
+
+  Framework changes:
+    * renamed ChangeLog in Changes to conform to Perl standards
+    * added missing dep on File::Slurp
+    * cme: added -try-app-as-model option (experimental)
+    * Most pod docs: Replaced obsolete links to Config::Model::AutoRead 
+      with Config::Model::BackendMgr
+
+  Application changes:
+    * Removed LcdProc model (now in its own Perl distribution)
+
 2013-05-25 - 2.036
 
   Framework changes:
