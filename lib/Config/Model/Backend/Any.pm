@@ -57,7 +57,7 @@ sub read_global_comments {
     while (defined ( $_ = shift @$lines ) ) {
         chomp ;
 
-        my ($data,$comment) = split /\s*$cc\s?/ ;
+        my ($data,$comment) = split /\s*$cc\s?/ , $_, 2 ;
 
         push @global_comments, $comment if defined $comment ;
 
@@ -84,7 +84,7 @@ sub associates_comments_with_data {
         next if /^$cc$cc/ ;		  # remove comments added by Config::Model
         chomp ;
 
-        my ($data,$comment) = split /\s*$cc\s?/ ;
+        my ($data,$comment) = split /\s*$cc\s?/, $_, 2 ;
         push @comments, $comment        if defined $comment ;
 
         next unless defined $data ;
