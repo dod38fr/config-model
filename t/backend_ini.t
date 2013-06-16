@@ -81,7 +81,7 @@ foreach my $test_class (sort keys %test_setup) {
     ok(1,"$test_class root init done") ;
 
     $i_root->load("bar:0=\x{263A}") ; # utf8 smiley
-    is($i_root->annotation,"some global comment","check global comment");
+    is($i_root->annotation,"some global comment with embedded '#' and stuff","check global comment");
     is($i_root->grab($test_path)->annotation,"class1 comment",
         "check $test_path comment");
 
@@ -131,10 +131,10 @@ foreach my $test_class (sort keys %test_setup) {
 done_testing;
 
 __DATA__
-#some global comment
+#some global comment with embedded '#' and stuff
 
 
-# foo1 comment
+# foo1 comment also with '#' stuff
 foo = foo1
 
 foo = foo2 # foo2 comment
