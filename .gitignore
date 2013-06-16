@@ -8,3 +8,4 @@ lib/Config/Model/models/Multistrap.pod
 lib/Config/Model/models/Multistrap/Section.pod
 lib/Config/Model/models/PopCon.pod
 .build
+wr_root
