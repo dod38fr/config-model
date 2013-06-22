@@ -18,11 +18,11 @@
     'element' => [
       'PARTICIPATE',
       {
-        'value_type' => 'enum',
-        'upstream_default' => 'no',
+        'value_type' => 'boolean',
+        'upstream_default' => '0',
         'type' => 'leaf',
         'description' => 'If you don\'t want to participate in the contest, say "no" and we won\'t send messages.',
-        'choice' => [
+        'write_as' => [
           'no',
           'yes'
         ]
@@ -66,11 +66,11 @@ If your MTA is misconfigured or impossible to configure correctly, and it always
       },
       'USEHTTP',
       {
-        'value_type' => 'enum',
-        'upstream_default' => 'yes',
+        'value_type' => 'boolean',
+        'upstream_default' => '1',
         'type' => 'leaf',
         'description' => 'enables http reporting. Set this to \'yes\' to enable it.',
-        'choice' => [
+        'write_as' => [
           'no',
           'yes'
         ]
