@@ -27,6 +27,18 @@
           'yes'
         ]
       },
+      'ENCRYPT',
+      {
+        'value_type' => 'boolean',
+        'summary' => 'support for encrypted submissions',
+        'upstream_default' => '0',
+        'type' => 'leaf',
+        'description' => 'encrypt popcon submission. Eventually, this feature wil be enabled by default.',
+        'write_as' => [
+          'no',
+          'yes'
+        ]
+      },
       'MAILTO',
       {
         'value_type' => 'uniline',
