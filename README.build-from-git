@@ -18,7 +18,8 @@ sudo aptitude install \
      libdist-zilla-plugin-run-perl \
      libdist-zilla-plugins-cjm-perl \
      libdist-zilla-perl \
-     libdist-zilla-plugin-podspellingtests-perl
+     libdist-zilla-plugin-podspellingtests-perl \
+     libdist-zilla-plugin-git-perl
 
 Then run:
 

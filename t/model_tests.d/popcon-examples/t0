@@ -1,0 +1,13 @@
+# Config file for Debian's popularity-contest package.
+#
+# To change this file, use:
+#        dpkg-reconfigure popularity-contest
+
+## should be removed
+
+MY_HOSTID="aaaaaaaaaaaaaaaaaaaa"
+# we participate
+PARTICIPATE="yes"
+USEHTTP="yes" # always http
+ENCRYPT="yes"
+DAY="6"
