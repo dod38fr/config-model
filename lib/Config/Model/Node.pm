@@ -1029,7 +1029,14 @@ sub load_data {
             my $obj = $self->fetch_element(name => $elt, experience => 'master', 
                                            check => $check) ;
 
-            $obj -> load_data(%args, data => delete $perl_data->{$elt}) ;
+            if ($obj) {
+                $obj -> load_data(%args, data => delete $perl_data->{$elt}) ;
+            }
+            elsif (defined $obj) {
+                # skip hidden elements and trash corresponding data
+                delete $perl_data->{$elt};
+            }
+
         } elsif ($check ne 'skip')  {
             Config::Model::Exception::LoadData 
                 -> throw (
@@ -1050,6 +1057,7 @@ sub load_data {
             #load value
             #TODO: annotations
             my $obj = $self->fetch_element(name => $elt, experience => 'master', check => $check) ;
+            next unless $obj; # in cas of known but unavailable elements
             $logger->debug("Node load_data: accepting element $elt");
             $obj ->load_data(%args, data => delete $perl_data->{$elt}) if defined $obj;
             }
