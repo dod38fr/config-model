@@ -136,12 +136,12 @@ sub read {
         $ini_comment{$comment_path} = $comment if $comment ;
     }
 
-    my @load_args = ( data => $ini_data ) ;
+    my @load_args = ( data => $ini_data, check => $check ) ;
     push @load_args, split_reg => qr/$split_reg/ if $split_reg ;
     $obj->load_data(@load_args) ;
 
     while (my ($k,$v) = each %ini_comment) {
-        my $item = $obj->grab($k) ;
+        my $item = $obj->grab(step => $k, mode => 'loose') or next;
         $item= $item->fetch_with_id(0) if $item->get_type eq 'list' ;
         $item->annotation($v) ;
     } ;
