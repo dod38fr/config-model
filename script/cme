@@ -57,6 +57,7 @@ my $search;
 my $search_type = 'all';
 my $dir_char_mockup ;
 my $try_application_as_model = 0; # means search a model instead of an application name
+my $backup ;
 
 
 my %command_option = (
@@ -93,6 +94,7 @@ my @global_options = (
     "root_dir|root-dir=s"           => \$root_dir,
     "backend=s"                     => \$backend,
     "stack-trace|trace!"            => \$trace,
+    "backup:s"                      => \$backup,
     );
 
 # retrieve the main command, i.e. the first arg without leading dash
@@ -184,6 +186,7 @@ my $inst = $model->instance(
     check           => $force_load ? 'no' : 'yes',
     skip_read       => $load ? 1 : 0,
     backend         => $backend,
+    backup          => $backup ,
     config_file     => $config_file,
 );
 
@@ -632,6 +635,18 @@ I<options> menu.
 =item -force-load
 
 Load file even if error are found in data. Bad data are discarded
+
+=item -backup
+
+Create a backup of configuration files before saving. By default, C<old> will
+be appended to the backup file. I.e. C<foo.conf> will be backed up as C<foo.conf.old>.
+You can specify an alternate suffix. For instance C<-backup dpkg-old>.
+
+=back
+
+=head1 Advanced options
+
+=over
 
 =item -dev
 
