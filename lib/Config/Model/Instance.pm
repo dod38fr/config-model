@@ -154,7 +154,7 @@ has _write_back => (
 );
 
 # used for auto_read auto_write feature
-has [qw/name root_dir config_file backend/] => (
+has [qw/name root_dir config_file backend backup/] => (
     is => 'ro',
     isa => 'Maybe[Str]' ,
 );
@@ -410,6 +410,7 @@ sub write_back {
             config_file => $self->{config_file} ,
             backend => $force_backend,
             force => $force_write,
+            backup => $self->backup,
         );
     }
     $self-> clear_changes;
