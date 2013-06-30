@@ -8,6 +8,7 @@ use Carp;
 use Config::Model::Exception ;
 use Data::Dumper ;
 use File::Path ;
+use File::Copy ;
 use File::HomeDir ;
 use IO::File ;
 use Storable qw/dclone/ ;
@@ -540,10 +541,18 @@ sub write_back {
 }
 
 sub open_file_to_write {
-    my ($self, $backend, $fh, @args) = @_ ;
+    my ($self, $backend, $fh, %args) = @_ ;
 
-    my $file_path = $self->get_cfg_file_path(@args);
+    my $backup = delete $args{backup};
+    my $do_backup = defined $backup;
+    $backup ||= 'old'; # use old only if defined
+    $backup = '.'.$backup unless $backup =~ /^\./;
+
+    my $file_path = $self->get_cfg_file_path(%args);
     if (defined $file_path) {
+        if ($do_backup) {
+            copy($file_path, $file_path.$backup) or die "Backup copy failed: $!";
+        }
         $logger->debug("$backend backend opened file $file_path to write");
         $fh ->open("> $file_path") || die "Cannot open $file_path:$!";
         $fh->binmode(':utf8');
@@ -835,8 +844,15 @@ with parameters:
  write       => 1,            # always
  check       => [ yes|no|skip] ,
  root        => $root_dir,
+ backup      => [ undef || '' || suffix ] # backup strategy required by user
 
 Must return 1 if the write was successful, 0 otherwise
+
+If C<io_handle> is defined, the backup has already been done while
+opening the config file. If C<io_handle> is not defined, there's not
+enough information in the model to read the configuration file and
+create the backup. Your write() method will have to do the backup
+requested by user.
 
 =back
 
