@@ -1,5 +1,19 @@
 {{$NEXT}}
 
+2013-07-03 - 2.038
+
+  Framework changes:
+    * cme: added -backup option.
+
+  Application changes:
+    * popcon model: 
+	  * replace yes/no enum value with boolean written as yes/no
+      + added ENCRYPT support
+
+  Backends:
+    * all: don't loose part of comment when '#' is embedded in comment
+    * Ini backend: handle storage to non available element by ditching data
+
 2013-06-15 - 2.037
 
   Framework changes:
