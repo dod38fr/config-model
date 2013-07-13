@@ -1,0 +1,59 @@
+# save this file as ~/.log4config-model
+# and edit the trace to customize the logs
+
+log4perl.rootLogger=WARN, Screen
+#log4perl.rootLogger=TRACE, Screen
+#log4perl.logger.Anything=TRACE, Screen
+#log4perl.logger.Anything::Change=TRACE, Screen
+#log4perl.logger.Anything::Fix=TRACE, Screen
+#log4perl.logger.Async::Value=TRACE, Screen
+#log4perl.logger.Async::Value::Dependency=TRACE, Screen
+#log4perl.logger.Backend.Dpkg::Control=TRACE, Screen
+#log4perl.logger.Backend.Dpkg::Copyright=TRACE, Screen
+#log4perl.logger.Backend.Dpkg::Patch=TRACE, Screen
+#log4perl.logger.Backend.Dpkg::Root=TRACE, Screen
+#log4perl.logger.Backend.DpkgSyntax=TRACE, Screen
+#log4perl.logger.Backend.Dpkg=TRACE, Screen
+#log4perl.logger.Backend::Fstab=TRACE, Screen
+#log4perl.logger.Backend::Itself=TRACE, Screen
+#log4perl.logger.Backend::OpenSsh=TRACE, Screen
+#log4perl.logger.Backend::IniFile=TRACE, Screen
+#log4perl.logger.Backend::PlainFile=TRACE, Screen
+#log4perl.logger.Backend::Xorg::Read=TRACE, Screen
+#log4perl.logger.Backend::Yaml=TRACE, Screen
+#log4perl.logger.BackendMgr=TRACE, Screen
+#log4perl.logger.FuseUI=TRACE, Screen
+#log4perl.logger.Instance=TRACE, Screen
+#log4perl.logger.Loader=TRACE, Screen
+#log4perl.logger.Model=DEBUG, Screen
+#log4perl.logger.Model.Loader=INFO, Screen
+#log4perl.logger.Tk::LeafEditor=TRACE, Screen
+#log4perl.logger.Tk::HashEditor=TRACE, Screen
+#log4perl.logger.Tk::CheckListEditor=TRACE, Screen
+#log4perl.logger.TkUI=TRACE, Screen
+#log4perl.logger.Tk::ListEditor=TRACE, Screen
+#log4perl.logger.Tree::Element::CheckList=TRACE, Screen
+#log4perl.logger.Tree::Element::Id=TRACE, Screen
+#log4perl.logger.Tree::Element::Id::List=TRACE, Screen
+#log4perl.logger.Tree::Element::Value::Dependency=TRACE, Screen
+#log4perl.logger.Tree::Element::Value=TRACE, Screen
+#log4perl.logger.Tree::Element::Value::LayeredInclude=TRACE, Screen
+#log4perl.logger.Tree::Element::Warped=TRACE, Screen
+#log4perl.logger.Tree::Node::Warped=TRACE, Screen
+#log4perl.logger.Tree::Node=TRACE, Screen
+#log4perl.logger.TreeSearcher=TRACE, Screen
+#log4perl.logger.ValueComputer=TRACE, Screen
+#log4perl.logger.Warper=TRACE, Screen
+
+log4perl.appender.Screen        = Log::Log4perl::Appender::Screen
+log4perl.appender.Screen.stderr = 0
+log4perl.appender.Screen.layout = Log::Log4perl::Layout::PatternLayout
+#log4perl.appender.Screen.layout.ConversionPattern = %d %M %m %n
+log4perl.appender.Screen.layout.ConversionPattern = %M %m (%L) %n
+
+log4perl.appender.Logfile          = Log::Log4perl::Appender::File
+log4perl.appender.Logfile.filename = test.log
+log4perl.appender.Logfile.mode     = write
+log4perl.appender.Logfile.layout   = Log::Log4perl::Layout::PatternLayout
+log4perl.appender.Logfile.layout.ConversionPattern = [%r] %F %L %m%n
+
