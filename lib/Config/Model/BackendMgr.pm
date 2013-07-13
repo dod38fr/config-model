@@ -34,27 +34,15 @@ has 'backend' => (
     handles => { set_backend => 'set', get_backend => 'get' }
 );
 
-sub get_cfg_file_path {
-    my $self = shift ; 
+#
+# New subroutine "get_cfg_dir_path" extracted - Thu Jul 11 13:47:22 2013.
+#
+sub get_cfg_dir_path {
+    my $self = shift ;
     my %args = @_;
 
     my $w = $args{write} || 0 ;
-
-    # config file override
-    if (defined $args{config_file}) {
-        my $override = $args{root}.$args{config_file}  ;
-         $logger->trace("auto_". ($w ? 'write' : 'read') 
-                  ." $args{backend} override target file is $override" );
-        return $args{root}.$args{config_file} 
-    }
-
-    Config::Model::Exception::Model -> throw (
-         error=> "auto_". ($w ? 'write' : 'read') 
-                 ." error: empty 'config_dir' parameter (and no config_file override)",
-         object => $self->node
-    ) unless $args{config_dir};
-
-    my $dir = $args{config_dir} ;
+    my $dir = $args{os_config_dir}{$^O} || $args{config_dir} ;
     if ($dir =~ /^~/) { 
         # also works also on Windows. Not that I care, just trying to be nice
         my $home = File::HomeDir->my_data; 
@@ -75,14 +63,40 @@ sub get_cfg_file_path {
         return;
     }
 
+    return $dir;
+}
+
+sub get_cfg_file_path {
+    my $self = shift ;
+    my %args = @_;
+
+    my $w = $args{write} || 0 ;
+
+    # config file override
+    if (defined $args{config_file}) {
+        my $override = $args{root}.$args{config_file}  ;
+         $logger->trace("auto_". ($w ? 'write' : 'read')
+                  ." $args{backend} override target file is $override" );
+        return $args{root}.$args{config_file}
+    }
+
+    Config::Model::Exception::Model -> throw (
+         error=> "auto_". ($w ? 'write' : 'read')
+                 ." error: empty 'config_dir' parameter (and no config_file override)",
+         object => $self->node
+    ) unless $args{config_dir};
+
+    my $dir = $self->get_cfg_dir_path (%args);
+    return unless defined $dir ;
+
     if (defined $args{file}) {
         my $res = $dir.$args{file} ;
-        $logger->trace("get_cfg_file_path: returns $res"); 
+        $logger->trace("get_cfg_file_path: returns $res");
         return $res ;
     }
 
     if (not defined $args{suffix}) {
-        $logger->trace("get_cfg_file_path: returns undef (no suffix, no file argument)"); 
+        $logger->trace("get_cfg_file_path: returns undef (no suffix, no file argument)");
         return ;
     }
 
@@ -102,7 +116,7 @@ sub get_cfg_file_path {
 
     $name .= $args{suffix} ;
 
-    $logger->trace("get_cfg_file_path: auto_". ($w ? 'write' : 'read') 
+    $logger->trace("get_cfg_file_path: auto_". ($w ? 'write' : 'read')
                   ." $args{backend} target file is $name" );
 
     return $name;
@@ -235,7 +249,7 @@ sub read_config_data {
 
         next if ($pref_backend and $backend ne $pref_backend) ;
 
-        my $read_dir = delete $read->{config_dir} || $r_dir || ''; # $r_dir obsolete
+        my $read_dir = $read->{os_config_dir}{$^O} || $read->{config_dir} || $r_dir || ''; # $r_dir obsolete
         $read_dir .= '/' if $read_dir and $read_dir !~ m(/$) ; 
 
         if (defined $read->{allow_empty}) {
@@ -393,7 +407,7 @@ sub auto_write_init {
             $backend .= "_file" ;
         }
 
-        my $write_dir = delete $write->{config_dir} || $w_dir || ''; # w_dir obsolete
+        my $write_dir =  $write->{os_config_dir}{$^O} || $write->{config_dir} || $w_dir || ''; # w_dir obsolete
         $write_dir .= '/' if $write_dir and $write_dir !~ m(/$) ; 
 
         my $fh ;
@@ -882,6 +896,16 @@ directory can be hardcoded in the custom class. C<config_dir> beginning
 with 'C<~>' will be munged so C<~> is replaced by C<< File::HomeDir->my_data >>.
 See L<File::HomeDir> for details.
 
+=item os_config_dir
+
+Specify alternate location of a configuration directory depending on the OS
+(as returned by C<$^O>, see L<perlport/PLATFORMS>).
+For instance:
+
+ config_dir => '/etc/ssh',
+ os_config_dir => { darwin => '/etc' }
+
+
 =item file
 
 optional. This parameter may not apply if the configuration is stored
@@ -920,7 +944,6 @@ default value for C<function> is C<write>. Here's an example:
                         function => 'my_write',
                       },
                     ],
-
 
 =head1 Limitations depending on storage
 
