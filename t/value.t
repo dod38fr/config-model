@@ -165,7 +165,7 @@ $model->create_config_class(
         match => {
             type       => 'leaf',
             value_type => 'string',
-            match      => '^foo\d{2}$',
+            match      => '^foo\d{2}/$',
         },
         prd_test_action => {
             type       => 'leaf',
@@ -580,8 +580,8 @@ my $match = $root->fetch_element('match');
 
 check_error($match, 'bar' , qr/does not match/);
 
-$match->store('foo42');
-is( $match->fetch, 'foo42', "test stored matching value" );
+$match->store('foo42/');
+is( $match->fetch, 'foo42/', "test stored matching value" );
 
 ### test Parse::RecDescent validation
 my $prd_match = $root->fetch_element('prd_match');
