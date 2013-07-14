@@ -218,7 +218,7 @@ sub read_config_data {
 
     # r_dir is obsolete
     if (defined $r_dir) {
-        warn $self->node->config_class_name," : read_config_dir is obsolete\n";
+        die $self->node->config_class_name," : read_config_dir is obsolete\n";
     }
 
     my $readlist = dclone $readlist_orig ;
@@ -249,95 +249,14 @@ sub read_config_data {
 
         next if ($pref_backend and $backend ne $pref_backend) ;
 
-        my $read_dir = $read->{os_config_dir}{$^O} || $read->{config_dir} || $r_dir || ''; # $r_dir obsolete
-        $read_dir .= '/' if $read_dir and $read_dir !~ m(/$) ; 
-
         if (defined $read->{allow_empty}) {
-          warn "backend $backend: allow_empty is deprecated. Use auto_create";
-          $auto_create ||= delete $read->{allow_empty} ;
+            warn "backend $backend: allow_empty is deprecated. Use auto_create";
+            $auto_create ||= delete $read->{allow_empty} ;
         }
 
         $auto_create ||= delete $read->{auto_create} if defined $read->{auto_create};
 
-        my @read_args = (%$read, root => $root_dir, config_dir => $read_dir,
-                        backend => $backend, check => $check, 
-                        config_file => $config_file_override);
-        
-        my ($res,$fh,$file_path) ;
-
-        if ($backend eq 'custom') {
-            my $c = my $file = delete $read->{class} ;
-            $file =~ s!::!/!g;
-            my $f = delete $read->{function} || 'read' ;
-            require $file.'.pm' unless $c->can($f);
-            no strict 'refs';
-
-            $logger->info("Read with custom backend $ {c}::$f in dir $read_dir");
-
-            ($file_path,$fh) = $self->open_read_file(@read_args);
-            eval {
-                $res = &{ $c . '::' . $f }(
-                    @read_args,
-                    file_path => $file_path,
-                    io_handle => $fh,
-                    object    => $self->node
-                );
-            };
-        }
-        elsif ($backend eq 'perl_file') {
-            ($file_path,$fh) = $self->open_read_file(@read_args,
-                                                       suffix => '.pl');
-            next unless defined $file_path ;
-            eval {
-                $res = $self->read_perl(@read_args, 
-                                       file_path => $file_path,
-                                       io_handle => $fh);
-            }
-        }
-        elsif ($backend eq 'cds_file') {
-            ($file_path,$fh) = $self->open_read_file(@read_args,
-                                                        suffix => '.cds');
-            next unless defined $file_path ;
-            eval { 
-                $res = $self->read_cds_file(@read_args, 
-                                           file_path => $file_path,
-                                           io_handle => $fh,);
-            } ;
-        }
-        else {
-            # try to load a specific Backend class
-            my $f = delete $read->{function} || 'read' ;
-            my $c = load_backend_class ($backend, $f);
-            next unless defined $c;
-
-            no strict 'refs';
-            my $backend_obj = $c->new(node => $self->node, name => $backend) ;
-            $self->set_backend($backend => $backend_obj) ; 
-            my $suffix ;
-            $suffix = $backend_obj->suffix if $backend_obj->can('suffix');
-            ($file_path,$fh) = $self->open_read_file(@read_args,
-                                                        suffix => $suffix);
-            $logger->info("Read with $backend ".$c."::$f");
-
-            eval {
-                $res = $backend_obj->$f(@read_args, 
-                                       file_path => $file_path,
-                                       io_handle => $fh,
-                                       object => $self->node,
-                                      );
-            } ;
-        }
-
-        # catch eval errors done in the if-then-else block before
-        my $e ;
-        if ( $e = Exception::Class->caught('Config::Model::Exception::Syntax') ) {
-            # FIXME: this is naughty. Should file a bug to add info in rethrow
-            $e->{parsed_file} = $file_path unless $e->parsed_file ;
-            $e->rethrow ;
-        }
-        elsif ( $e = Exception::Class->caught() ) {
-            ref $e ? $e->rethrow : die $e;
-        }
+        my $res = $self->try_read_backend ($read, $root_dir, $config_file_override, $check, $backend);
 
         if ($res) { 
             $read_done = 1 ;
@@ -365,6 +284,106 @@ sub read_config_data {
 }
 
 # called at configuration node creation, NOT when writing
+#
+# New subroutine "try_read_backend" extracted - Sun Jul 14 11:52:58 2013.
+#
+sub try_read_backend {
+    my $self                 = shift;
+    my $read                 = shift;
+    my $root_dir             = shift;
+    my $config_file_override = shift;
+    my $check                = shift;
+    my $backend              = shift;
+
+    my $read_dir = $read->{os_config_dir}{$^O} || $read->{config_dir} || '';
+    $read_dir .= '/' if $read_dir and $read_dir !~ m(/$);
+
+    my @read_args = (
+        %$read,
+        root        => $root_dir,
+        config_dir  => $read_dir,
+        backend     => $backend,
+        check       => $check,
+        config_file => $config_file_override
+    );
+
+    my ( $res, $fh, $file_path );
+
+    if ( $backend eq 'custom' ) {
+        my $c = my $file = delete $read->{class};
+        $file =~ s!::!/!g;
+        my $f = delete $read->{function} || 'read';
+        require $file . '.pm' unless $c->can($f);
+        no strict 'refs';
+
+        $logger->info("Read with custom backend $ {c}::$f in dir $read_dir");
+
+        ( $file_path, $fh ) = $self->open_read_file(@read_args);
+        eval {
+            $res = &{ $c . '::' . $f }(
+                @read_args,
+                file_path => $file_path,
+                io_handle => $fh,
+                object    => $self->node
+            );
+        };
+    }
+    elsif ( $backend eq 'perl_file' ) {
+        ( $file_path, $fh ) = $self->open_read_file( @read_args, suffix => '.pl' );
+        return unless defined $file_path;
+        eval { $res = $self->read_perl( @read_args, file_path => $file_path, io_handle => $fh ); };
+    }
+    elsif ( $backend eq 'cds_file' ) {
+        ( $file_path, $fh ) = $self->open_read_file( @read_args, suffix => '.cds' );
+        return unless defined $file_path;
+        eval {
+            $res = $self->read_cds_file(
+                @read_args,
+                file_path => $file_path,
+                io_handle => $fh,
+            );
+        };
+    }
+    else {
+        # try to load a specific Backend class
+        my $f = delete $read->{function} || 'read';
+        my $c = load_backend_class( $backend, $f )
+          ; #<--- Undefined subroutine &Devel::Refactor::load_backend_class called at (eval 5173) line 72.
+        return unless defined $c;
+
+        no strict 'refs';
+        my $backend_obj = $c->new( node => $self->node, name => $backend );
+        $self->set_backend( $backend => $backend_obj );
+        my $suffix;
+        $suffix = $backend_obj->suffix if $backend_obj->can('suffix');
+        ( $file_path, $fh ) = $self->open_read_file( @read_args, suffix => $suffix );
+        $logger->info( "Read with $backend " . $c . "::$f" );
+
+        eval {
+            $res = $backend_obj->$f(
+                @read_args,
+                file_path => $file_path,
+                io_handle => $fh,
+                object    => $self->node,
+            );
+        };
+    }
+
+    # catch eval errors done in the if-then-else block before
+    my $e;
+    if ( $e = Exception::Class->caught('Config::Model::Exception::Syntax') ) {
+
+        # FIXME: this is naughty. Should file a bug to add info in rethrow
+        $e->{parsed_file} = $file_path unless $e->parsed_file;
+        $e->rethrow;
+    }
+    elsif ( $e = Exception::Class->caught() ) {
+        ref $e ? $e->rethrow : die $e;
+    }
+
+    return $res;
+}
+
 sub auto_write_init {
     my ($self, %args) = @_ ;
     my $wrlist_orig = delete $args{write_config} ;

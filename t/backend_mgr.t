@@ -1,7 +1,7 @@
 # -*- cperl -*-
 
 use ExtUtils::testlib;
-use Test::More tests => 60;
+use Test::More ;
 use Test::Memory::Cycle;
 use Config::Model;
 use File::Path;
@@ -69,16 +69,14 @@ $model->create_config_class
    name => 'Level1',
 
    # try first to read with cds string and then custom class
-   read_config  => [ { backend => 'cds_file'}, 
-		     { backend => 'custom', 
+   read_config  => [ { backend => 'cds_file', config_dir => $conf_dir},
+		     { backend => 'custom', config_dir => $conf_dir,
 		       class => 'Level1Read', 
 		       function => 'read_it' } ],
    write_config => [ { backend => 'cds_file', config_dir => $conf_dir},
 		     { backend => 'perl_file', config_dir => $conf_dir,
 		       auto_create => 1},
 		     { backend => 'ini_file' , config_dir => $conf_dir}],
-
-   read_config_dir  => $conf_dir,
 
    element => [
 	       bar => { type => 'node',
@@ -292,9 +290,7 @@ is( $master->fetch_element_value('aa'), $custom_aa, "Master custom read" );
 my $level1;
 
 $level1 = $master->fetch_element('level1');
-warnings_like {
-    $level1-> init ;
-} qr/read_config_dir is obsolete/ , "obsolete warning" ;
+$level1-> init ;
 
 ok( $level1, "Level1 object created" );
 
@@ -395,10 +391,7 @@ ok($test2_inst,"created second instance") ;
 my $root_2   = $test2_inst  -> config_root ;
 
 my $level1_2 = $root_2 -> fetch_element('level1');
-warnings_like {
-    $level1_2->init ;
-} qr/read_config_dir is obsolete/ , "obsolete warning" ;
-
+$level1_2->init ;
 
 is($root_2->grab_value('aa'),'aa was set by file',"$inst2: check that cds file was read") ;
 
@@ -436,9 +429,7 @@ samerw
     Y=Cv - - -
 ' ;
 
-warnings_like {
-    $dump = $ini_inst ->config_root->dump_tree ;
-} qr/read_config_dir is obsolete/ , "obsolete warning" ;
+$dump = $ini_inst ->config_root->dump_tree ;
 
 is( $dump, $expect_custom, "ini_test: check dump" );
 
@@ -456,10 +447,7 @@ my $pl_inst = $model->instance(root_class_name  => 'Master',
 
 ok($pl_inst,"Created instance to load pl files") ;
 
-warnings_like {
-    $dump = $pl_inst ->config_root->dump_tree ;
-} qr/read_config_dir is obsolete/ , "obsolete warning" ;
-
+$dump = $pl_inst ->config_root->dump_tree ;
 is( $dump, $expect_custom, "pl_test: check dump" );
 
 #create from scratch instance
@@ -533,3 +521,5 @@ file_contents_eq ("$root3/$scratch_conf", "aa=toto4 -\n" ,"checked file written 
 
 
 memory_cycle_ok($model);
+
+done_testing ;
