@@ -8,19 +8,11 @@ use Log::Log4perl qw(get_logger :levels);
 
 use base qw/Config::Model::Value/ ;
 
-# override store to trigger a refresh of layered value when value is actually
-# changed. 
+
+my $logger = get_logger("Tree::Element::Value::LayeredInclude") ;
 
 # should we clear all layered value when include value is changed ? 
 # If yes, beware of recursive includes. Clear should only be done once.
-
-# beware: 2 kind of includes: shadow include (set default values like 
-# multistrap or ssh, i.e. read-only includes) and real includes (apache,
-# i.e. may write back in included files)
-
-# this class deals only with the first type
-
-my $logger = get_logger("Tree::Element::Value::LayeredInclude") ;
 
 sub store_cb {
     my $self = shift ;
@@ -105,41 +97,52 @@ Config::Model::Value::LayeredInclude - Include a sub layer configuration
 
 =head1 SYNOPSIS
 
-  my $object = Config::Model::Value::Include->new(
-      foo  => 'bar',
-      flag => 1,
-  );
-  
-  $object->dummy;
+    # in a model declaration:
+    'element' => [
+      'include' => {
+        'class' => 'Config::Model::Value::LayeredInclude',
+
+        # usual Config::Model::Value parameters
+        'type' => 'leaf',
+        'value_type' => 'uniline',
+        'convert' => 'lc',
+        'summary' => 'Include file for cascaded configuration',
+        'description' => 'To support multiple variants of ...'
+      },
+    ]
+
 
 =head1 DESCRIPTION
 
-The author was too lazy to write a description.
+This class inherits from L<Config::Model::Value>. It overrides
+L<store_cb> to trigger a refresh of layered value when value is actually
+changed. I.e. changing this value will reload the refered configuration
+file and use its values as default value. This class was designed to
+cope with L<multistrap|http://wiki.debian.org/Multistrap> configuration.
 
-=head1 METHODS
 
-=head2 new
+=head2 CAUTION
 
-  my $object = Config::Model::Value::Include->new(
-      foo => 'bar',
-  );
+A configuration file can support 2 kinds of include:
 
-The C<new> constructor lets you create a new B<Config::Model::Value::Include> object.
+=over
 
-So no big surprises there...
+=item *
 
-Returns a new B<Config::Model::Value::Include> or dies on error.
+Layered include which sets default values like multistrap or ssh. These includes are
+read-only.
 
-=head2 dummy
+=item *
 
-This method does something... apparently.
+Real includes like C<apache>. In this cases modified configuration items can be written to
+included files.
 
-=head1 SUPPORT
+=back
 
-No support is available
+This class works only with the first type
 
 =head1 AUTHOR
 
-Copyright 2011 Anonymous.
+Copyright 2011,2013 Dominique Dumont <ddumont at cpan.org>
 
 =cut
