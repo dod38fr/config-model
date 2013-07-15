@@ -255,6 +255,10 @@ sub read_config_data {
 
         $auto_create ||= delete $read->{auto_create} if defined $read->{auto_create};
 
+        if ($read->{default_layer}) {
+            $self->read_config_sub_layer($read, $root_dir, $config_file_override, $check, $backend);
+        }
+
         my $res = $self->try_read_backend ($read, $root_dir, $config_file_override, $check, $backend);
 
         if ($res) { 
@@ -280,6 +284,38 @@ sub read_config_data {
         $logger->warn("Warning: node '".$self->node->name."' $msg");
     }
 
+}
+
+
+sub read_config_sub_layer {
+    my ($self, $read, $root_dir, $config_file_override, $check, $backend) = @_;
+
+    my $layered_config = delete $read->{default_layer} ;
+    my $layered_read = dclone $read ;
+
+    map { my $lc = delete $layered_config->{$_} ; $layered_read->{$_} = $lc if $lc ;}
+        qw/file config_dir os_config_dir/ ;
+
+    Config::Model::Exception::Model->throw(
+        error => "backend error: unexpected default_layer parameters: "
+          . join( ' ', keys %$layered_config ),
+        object => $self->node,
+    ) if %$layered_config;
+
+    my $i = $self->node->instance ;
+    my $already_in_layered = $i->layered ;
+
+    # layered stuff here
+    if (not $already_in_layered) {
+        $i->layered_clear ;
+        $i->layered_start ;
+    }
+
+    $self->try_read_backend ($layered_read, $root_dir, $config_file_override, $check, $backend);
+
+    if (not $already_in_layered) {
+        $i->layered_stop ;
+    }
 }
 
 # called at configuration node creation, NOT when writing
@@ -926,9 +962,25 @@ For instance:
 
 =item file
 
-optional. This parameter may not apply if the configuration is stored
-in several files. By default, the instance name is used as
-configuration file name. 
+optional. Configuration file. This parameter may not apply if the
+configuration is stored in several files. By default, the instance name
+is used as configuration file name.
+
+=item default_layer
+
+Optional. Specifies where to find a global configuration file that
+specifies default values. For instance, this is used by OpenSSH to
+specify a global configuration file (C</etc/ssh/ssh_config>) that is
+overridden by user's file:
+
+
+	'default_layer' => {
+            os_config_dir => { 'darwin' => '/etc' },
+            config_dir    => '/etc/ssh',
+            file          => 'ssh_config'
+        }
+
+Only the 3 above parameters can be specified in C<default_layer>.
 
 =item function
 
