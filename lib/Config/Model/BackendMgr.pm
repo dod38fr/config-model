@@ -17,6 +17,11 @@ use Log::Log4perl qw(get_logger :levels);
 
 my $logger = get_logger('BackendMgr') ;
 
+# used only for tests
+my $__test_home = '';
+sub _set_test_home { $__test_home = shift ;}
+
+
 # one BackendMgr per file
 
 has 'node' => (
@@ -45,7 +50,7 @@ sub get_cfg_dir_path {
     my $dir = $args{os_config_dir}{$^O} || $args{config_dir} ;
     if ($dir =~ /^~/) { 
         # also works also on Windows. Not that I care, just trying to be nice
-        my $home = File::HomeDir->my_data; 
+        my $home = $__test_home || File::HomeDir->my_data;
         $dir =~ s/^~/$home/;
     }
     
