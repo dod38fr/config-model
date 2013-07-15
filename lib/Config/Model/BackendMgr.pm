@@ -81,8 +81,7 @@ sub get_cfg_file_path {
     }
 
     Config::Model::Exception::Model -> throw (
-         error=> "auto_". ($w ? 'write' : 'read')
-                 ." error: empty 'config_dir' parameter (and no config_file override)",
+         error=> "backend error: empty 'config_dir' parameter (and no config_file override)",
          object => $self->node
     ) unless $args{config_dir};
 
@@ -239,11 +238,11 @@ sub read_config_data {
 
     foreach my $read (@list) {
         warn $self->config_class_name,
-          " deprecated 'syntax' parameter in auto_read\n" if defined $read->{syntax} ;
+          " deprecated 'syntax' parameter in backend\n" if defined $read->{syntax} ;
         my $backend = delete $read->{backend} || delete $read->{syntax} || 'custom';
         if ($backend =~ /^(perl|ini|cds)$/) {
             warn $self->config_class_name,
-              " deprecated auto_read backend $backend. Should be '$ {backend}_file'\n";
+              " deprecated  backend $backend. Should be '$ {backend}_file'\n";
             $backend .= "_file" ;
         }
 
@@ -273,7 +272,7 @@ sub read_config_data {
 
         Config::Model::Exception::Model -> throw
             (
-             error => "auto_read error: $msg. May be add "
+             error => "backend error: $msg. May be add "
                     . "'auto_create' parameter in configuration model" ,
              object => $self->node,
             ) unless (defined $auto_create_override ? $auto_create_override : $auto_create );
@@ -422,7 +421,7 @@ sub auto_write_init {
         my $backend = delete $write->{backend} || delete $write->{syntax} || 'custom';
         if ($backend =~ /^(perl|ini|cds)$/) {
             warn $self->config_class_name,
-              " deprecated auto_read backend $backend. Should be '$ {backend}_file'\n";
+              " deprecated backend $backend. Should be '$ {backend}_file'\n";
             $backend .= "_file" ;
         }
 
