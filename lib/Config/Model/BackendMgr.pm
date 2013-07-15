@@ -382,8 +382,7 @@ sub try_read_backend {
     else {
         # try to load a specific Backend class
         my $f = delete $read->{function} || 'read';
-        my $c = load_backend_class( $backend, $f )
-          ; #<--- Undefined subroutine &Devel::Refactor::load_backend_class called at (eval 5173) line 72.
+        my $c = load_backend_class( $backend, $f ) ;
         return unless defined $c;
 
         no strict 'refs';
