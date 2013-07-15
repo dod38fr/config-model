@@ -395,7 +395,7 @@ sub auto_write_init {
 
     # w_dir is obsolete
     if (defined $w_dir) {
-        warn $self->config_class_name," : write_config_dir is obsolete\n";
+        die $self->config_class_name," : write_config_dir is obsolete\n";
     }
 
     my $wrlist = dclone $wrlist_orig ;
@@ -425,7 +425,7 @@ sub auto_write_init {
             $backend .= "_file" ;
         }
 
-        my $write_dir =  $write->{os_config_dir}{$^O} || $write->{config_dir} || $w_dir || ''; # w_dir obsolete
+        my $write_dir =  $write->{os_config_dir}{$^O} || $write->{config_dir} || '';
         $write_dir .= '/' if $write_dir and $write_dir !~ m(/$) ; 
 
         my $fh ;
