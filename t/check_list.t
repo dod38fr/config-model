@@ -10,8 +10,6 @@ use Config::Model;
 use Data::Dumper;
 use Log::Log4perl qw(:easy :levels) ;
 
-BEGIN { plan tests => 91; }
-
 use strict;
 
 my $arg = shift || '';
@@ -285,6 +283,10 @@ eq_or_diff( [ $cl->get_checked_list(mode => 'layered') ], \@l_set,"check layered
 eq_or_diff( [ $cl->get_checked_list(mode => 'standard') ], \@l_set,"check standard content");
 eq_or_diff( [ $cl->get_checked_list() ], [],"check content");
 
+$cl->clear_layered ;
+eq_or_diff( [ $cl->get_checked_list(mode => 'layered') ], [],"check layered content after clear");
+
+
 # now test with a refer_to parameter
 
 $root->load("my_hash:X=x my_hash:Y=y");
@@ -554,3 +556,5 @@ print  join("\n", $inst->list_changes("\n")),"\n" if $trace;
 
 
 memory_cycle_ok($model,"memory cycle");
+
+done_testing ;

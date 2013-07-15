@@ -417,6 +417,11 @@ sub clear {
 
 sub clear_values { goto &clear ; } 
 
+sub clear_layered {
+    my $self = shift;
+    $self->{layered} = {};
+}
+
 
 my %old_mode = ( built_in_list => 'upstream_default_list',
 	       );
