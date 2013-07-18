@@ -578,9 +578,17 @@ sub store_set { goto &set_checked_list }
 sub set_checked_list {
     my $self = shift ;
     $logger->debug("called with @_");
-    $self->clear ;
+    my %set = map { $_ => 1 } @_ ;
+    my @changed ;
+
+    foreach my $c ($self->get_choice) {
+        push @changed,$c if $self->store($c , $set{$c} // 0) ;
+    }
+
     $self->{ordered_data} = [ @_ ] ; # copy list
-    $self->check (@_) ;
+
+    $self->notify_change(note => "set_checked_list @changed")
+        if @changed and not $self->instance->initial_load;
 }
 
 
