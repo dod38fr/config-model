@@ -49,8 +49,7 @@ sub get_cfg_dir_path {
     my $w = $args{write} || 0 ;
     my $dir = $args{os_config_dir}{$^O} || $args{config_dir} ;
     if ($dir =~ /^~/) { 
-        # also works also on Windows. Not that I care, just trying to be nice
-        my $home = $__test_home || File::HomeDir->my_data;
+        my $home = $__test_home || File::HomeDir->my_home;
         $dir =~ s/^~/$home/;
     }
     
