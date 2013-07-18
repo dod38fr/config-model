@@ -596,14 +596,13 @@ sub set_checked_list_as_hash {
     my $self = shift ;
     my %check = ref $_[0] ? %{$_[0]} : @_ ;
 
-    $self->clear ; 
-
-    if (defined $self->{ref_object}) {
-	$self->{ref_object}->get_choice_from_refered_to ;
-    }
-
-    while (my ($key, $value) = each %check) {
-	$self->store($key,$value) ;
+    foreach my $c ($self->get_choice) {
+        if (defined $check{$c}) {
+            $self->store($c,$check{$c});
+        }
+        else {
+            $self->clear_item($c) ;
+        }
     }
 }
 
@@ -1092,16 +1091,11 @@ Example:
   # set cl to A=0 B=1 C=0 D=1
   $cl->set_checked_list('B','D')
 
-=head2 set_checked_list_as_hash ( A => 1, B => 1 )
+=head2 set_checked_list_as_hash ()
 
 Set check_list items. Missing items in the given list of parameters
-are set to 0.
+are cleared (i.e. set to undef).
 
-The example ( A => 1, B => 1 ) above will give :
-
- A = 1 , B = 1, C = 0 , D = 0
-
-=head2 load_data ( list_ref )
 
 Load check_list as an array ref. Data is simply forwarded to
 L<set_checked_list>.
