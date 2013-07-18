@@ -21,6 +21,21 @@ sudo aptitude install \
      libdist-zilla-plugin-podspellingtests-perl \
      libdist-zilla-plugin-git-perl
 
+On other systems, run:
+
+$ sudo perl -MCPAN -e shell
+> install App::cpanminus
+> quit
+$ sudo cpamn install Dist::Zilla::Plugin::MetaResources
+$ sudo cpamn install Dist::Zilla::Plugin::ModuleBuild::Custom
+$ sudo cpamn install Dist::Zilla::Plugin::Test::PodSpelling
+$ sudo cpamn install Dist::Zilla::Plugin::PodVersion
+$ sudo cpamn install Dist::Zilla::Plugin::Prepender
+$ sudo cpamn install Dist::Zilla::Plugin::Prereqs
+$ sudo cpamn install Dist::Zilla::Plugin::Run::BeforeBuild
+$ sudo cpamn install Dist::Zilla::PluginBundle::Filter
+$ sudo cpamn install Dist::Zilla::Plugin::Git::NextVersion
+
 Then run:
 
 dzil build 
