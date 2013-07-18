@@ -436,7 +436,7 @@ sub get_help {
 
 sub clear {
     my $self = shift ;
-    map { $self->store($_ , 0 ) } $self->get_choice ;
+    map { $self->clear_item($_) } $self->get_choice ; # also triggers notify changes
 }
 
 sub clear_values { goto &clear ; } 
@@ -998,8 +998,8 @@ Return the help string on this choice value
 
 =head2 clear
 
-Reset the check list (all items are set to 0) (can also be called as
-C<clear_values>)
+Reset the check list (can also be called as C<clear_values>)
+
 =head clear_item (choice_value)
 
 Reset an element of the checklist.
