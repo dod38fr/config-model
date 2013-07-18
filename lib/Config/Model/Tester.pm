@@ -314,7 +314,7 @@ sub run_tests {
         Log::Log4perl->easy_init( $log ? $WARN : $ERROR );
     }
 
-    my $model = Config::Model->new();
+    $model = Config::Model->new();
 
     Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 
@@ -426,6 +426,11 @@ Here, C<t0> file will be copied in C<wr_root/test-t0/etc/fstab>.
 
  1; # to keep Perl happy
  
+=head2 Internal tests
+
+C<$model> can also be called to create models to test specific C<Config::Model> behaviors.
+Use with caution.
+
 =head2 Test specification with arbitrary file names
 
 In some models (e.g. C<Multistrap>, the config file is chosen by the user. 
