@@ -22,8 +22,7 @@ my @allowed_warp_params = (@accessible_params, qw/level experience/);
 
 has [qw/backup data preset layered/] 
     => ( is => 'rw', isa => 'HashRef' , default => sub { {} ;} ) ;
-has [qw/refer_to computed_refer_to/] 
-    => ( is => 'rw', isa => 'Maybe[HashRef]'  ) ;
+has computed_refer_to => ( is => 'rw', isa => 'Maybe[HashRef]'  ) ;
 has [qw/refer_to/]  => ( is => 'rw', isa => 'Str'  ) ;
 has [qw/ordered_data choice/]
     => ( is => 'rw', isa => 'ArrayRef' , default => sub { [] ;} ) ;
