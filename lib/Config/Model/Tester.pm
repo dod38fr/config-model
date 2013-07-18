@@ -3,6 +3,7 @@ package Config::Model::Tester;
 use Test::More;
 use Config::Model;
 use Config::Model::Value;
+use Config::Model::BackendMgr;
 use Log::Log4perl qw(:easy :levels);
 use File::Path;
 use File::Copy;
@@ -21,7 +22,7 @@ use warnings;
 
 use strict;
 
-use vars qw/$conf_file_name $conf_dir $model_to_test @tests $skip @ISA @EXPORT/;
+use vars qw/$model $conf_file_name $conf_dir $model_to_test $home_for_test @tests $skip @ISA @EXPORT/;
 
 require Exporter;
 @ISA = qw(Exporter);
@@ -86,6 +87,7 @@ sub run_model_test {
     $skip = 0;
     undef $conf_file_name ;
     undef $conf_dir ;
+    undef $home_for_test ;
 
     note("Beginning $model_test test ($model_test_conf)");
 
@@ -99,6 +101,9 @@ sub run_model_test {
         note("Skipped $model_test test ($model_test_conf)");
         return;
     }
+
+    # even undef, this resets the global variable there
+    Config::Model::BackendMgr::_set_test_home($home_for_test) ;
 
     my $note ="$model_test uses $model_to_test model";
     $note .= " on file $conf_file_name" if defined $conf_file_name;
@@ -398,6 +403,8 @@ in programs, but they are handy for tests):
  $conf_file_name = "fstab" ;
  # config dir where to copy the file
  #$conf_dir = "etc" ;
+ # home directory for this test
+ $home_for_test = '/home/joe' ;
 
 Here, C<t0> file will be copied in C<wr_root/test-t0/etc/fstab>.
 
