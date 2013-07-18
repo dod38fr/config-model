@@ -470,37 +470,36 @@ sub get_checked_list_as_hash {
 		" parameter, not $mode" ;
     }
 
-    # fill empty hash result missing data
-    my %h = map { $_ => 0 } $self->get_choice ;
-
     my $dat = $self->{data} ;
     my $pre = $self->{preset} ;
     my $def = $self->{default_data} ;
     my $lay = $self->{layered} ;
     my $ud  = $self->{upstream_default_data} ;
 
-    # copy hash and return it
-    my %predef  = (%h, %$def, %$pre )  ;
-    my %std     = (%h, %$ud, %$lay, %$def, %$pre ) ;
+    # fill empty hash result
+    my %h = map { $_ => 0 } $self->get_choice ;
+
+    my %predef  = (%$def, %$pre )  ;
+    my %std     = (%$ud, %$lay, %$def, %$pre ) ;
 
     # use _std_backup if all data values are null (no checked items by user)
     my %old_dat = (none { $_ ;} values %$dat) ?  %{$self->{_std_backup} || {}} : %$dat ;
 
     if (not $mode and any {$_;} values %predef and none { $_ ;} values %old_dat) {
         # changed from nothing to default checked list that must be written
-        $self->{_std_backup} = \%predef ;
+        $self->{_std_backup} = { %$def, %$pre } ;
         $self->notify_change(note => "use default checklist") ;
     }
-
     # custom test must compare the whole list at once, not just one item at a time.
-    my %result 
-      = $mode eq 'custom'   ? ( ( grep { $dat->{$_} xor $std{$_} } keys %h ) ? (%h, %$pre ,%$dat) : %h )
-      : $mode eq 'preset'   ? (%h, %$pre )
-      : $mode eq 'layered'  ? (%h, %$lay )
-      : $mode eq 'upstream_default' ? (%h, %$ud) 
-      : $mode eq 'default'          ? (%h, %$def )
-      : $mode eq 'standard' ? %std
-      :                       (%predef, %$dat );
+    my %result =
+        $mode eq 'custom' ? ( ( grep { $dat->{$_} xor $std{$_} } keys %h ) ? ( %$pre, %$dat ) : () )
+      : $mode eq 'preset'           ? (%$pre)
+      : $mode eq 'layered'          ? (%$lay)
+      : $mode eq 'upstream_default' ? (%$ud)
+      : $mode eq 'default'          ? (%$def)
+      : $mode eq 'standard'         ? %std
+      : $mode eq 'user'             ? ( %h, %std, %$dat )
+      :                               ( %predef, %$dat );
 
     return wantarray ? %result : \%result;
 }
@@ -1047,6 +1046,11 @@ The list specified in layered mode.
 
 The list implemented by upstream project (defined in the configuration
 model)
+
+=item user
+
+The list set that will be active in the application. (ie. set by user or
+by layered data or preset or default)
 
 =back
 
