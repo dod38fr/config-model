@@ -243,6 +243,31 @@ sub check {
         unless $self->instance->initial_load;
 }
 
+sub clear_item {
+    my $self   = shift;
+    my $choice = shift;
+
+    my $inst = $self->instance;
+    my $data_name =
+        $inst->preset  ? 'preset'
+      : $inst->layered ? 'layered'
+      :                  'data';
+    my $old_v = $self->{$data_name}{$choice};
+    my $changed = 0;
+    if ( $old_v ) {
+        $changed = 1;
+    }
+    delete $self->{$data_name}{$choice} ;
+
+    if ( $self->{ordered} and $changed) {
+        my $ord = $self->{ordered_data};
+        my @new = grep { $_ ne $choice } @$ord;
+        $self->{ordered_data} = \@new ;
+    }
+    return $changed;
+}
+
+
 # internal
 sub store {
     my ($self, $choice, $value, $check) = @_;
@@ -975,6 +1000,9 @@ Return the help string on this choice value
 
 Reset the check list (all items are set to 0) (can also be called as
 C<clear_values>)
+=head clear_item (choice_value)
+
+Reset an element of the checklist.
 
 =head2 get_checked_list_as_hash ( [ custom | preset | standard | default ] )
 
