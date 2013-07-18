@@ -717,6 +717,9 @@ Logging can be configured in the following files:
 
 =back
 
+A sample of a C<.log4config-model> is provided in contrib directory in C<Config::Model>
+distribution of on L<github|https://github.com/dod38fr/config-model/blob/master/contrib/log4config-model>
+
 Without these files, the following Log4perl config is used:
 
  log4perl.logger=WARN, Screen
