@@ -68,6 +68,8 @@ sub get_cfg_dir_path {
         return;
     }
 
+    $logger->debug("dir: ". $dir // '<undef>') ;
+
     return $dir;
 }
 
@@ -91,7 +93,10 @@ sub get_cfg_file_path {
     ) unless $args{config_dir};
 
     my $dir = $self->get_cfg_dir_path (%args);
-    return unless defined $dir ;
+    if (not defined $dir) {
+        $logger->trace("no config dir: returns undef");
+        return ;
+    }
 
     if (defined $args{file}) {
         my $res = $dir.$args{file} ;
