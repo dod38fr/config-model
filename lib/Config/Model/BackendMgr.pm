@@ -830,11 +830,6 @@ for details on the data structure.
 Any format when the user provides a dedicated class and function to
 read and load the configuration tree.
 
-=item augeas
-
-Data can be loaded or stored using RedHat's Augeas library. See
-L<Config::Model::Backend::Augeas> for details.
-
 =back
 
 After loading the data, the object registers itself to the
@@ -1226,7 +1221,7 @@ directory to write configuration data back with C<root> and
 C<config_dir> parameters. This will override the model specifications.
 
 You can force to use a backend by specifying C<< backend => xxx >>.
-For instance, C<< backend => 'augeas' >> or C<< backend => 'custom' >>.
+For instance, C<< backend => 'perl_file' >> or C<< backend => 'custom' >>.
 
 You can force to use all backend to write the files by specifying
 C<< backend => 'all' >>.
@@ -1243,7 +1238,7 @@ Dominique Dumont, (ddumont at cpan dot org)
 =head1 SEE ALSO
 
 L<Config::Model>, L<Config::Model::Instance>,
-L<Config::Model::Node>, L<Config::Model::Dumper>, L<Config::Augeas>
+L<Config::Model::Node>, L<Config::Model::Dumper>
 
 =cut
 
