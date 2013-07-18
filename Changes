@@ -1,5 +1,35 @@
 {{$NEXT}}
 
+2013-07-18 - 2.039
+
+
+  Framework changes:
+    * CheckList: 
+	  + Added clear_item and clear_layered methods
+	  + added user mode to retrieve data
+      * clear now reset (undefs) a check-list instead of setting items to 0
+      * load_data accepts hash ref
+      * get_check_list_as_hash: added user mode, don't return 0 for undef items
+      * set_checked_list_as_hash: Missing items in the given list of parameters are now reset
+    * Added dependency on Module::Runtime to avoid test failure on Mac and Windows
+
+  Backends:
+    * BackendAny: lack of suffix method is now an info not a warning
+    * BackendMgr: 
+      + added $home override for tests
+      + added default_layer backend parameter
+      + added os_config_dir parameter
+      - die if obsolete read_config_dir or write_config_dir is specified
+
+  Test framework:
+    * Tester: 
+      + allow override of home directory for tests
+      +  can also use $model for internal tests
+      * check test item now accepts array refs
+
+  Doc:
+    * added log config file in contrib
+
 2013-07-03 - 2.038
 
   Framework changes:
