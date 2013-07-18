@@ -617,6 +617,9 @@ sub load_data {
     if (ref ($data)  eq 'ARRAY') {
 	$self->set_checked_list(@$data) ;
     }
+    elsif (ref($data) eq 'HASH') {
+        $self->set_checked_list_as_hash($data) ;
+    }
     else {
 	Config::Model::Exception::LoadData
 	    -> throw (
@@ -1096,9 +1099,10 @@ Example:
 Set check_list items. Missing items in the given list of parameters
 are cleared (i.e. set to undef).
 
+=head2 load_data ( ref )
 
-Load check_list as an array ref. Data is simply forwarded to
-L<set_checked_list>.
+Load check_list as an array or hash ref. Array is forwarded to
+L<set_checked_list> , and hash is forwarded to L<set_checked_list_as_hash>.
 
 =head1 Ordered checklist methods
 
