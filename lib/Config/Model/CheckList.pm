@@ -1011,7 +1011,7 @@ Return the help string on this choice value
 
 Reset the check list (can also be called as C<clear_values>)
 
-=head clear_item (choice_value)
+=head2 clear_item (choice_value)
 
 Reset an element of the checklist.
 
