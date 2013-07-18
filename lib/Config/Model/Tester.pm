@@ -198,14 +198,17 @@ sub run_model_test {
         $dump = $root->dump_tree();
         ok( $dump, "Dumped $model_test config tree in custom mode" );
 
-        my $check = $t->{check} || {};
-        foreach my $path ( sort keys %$check ) {
-                my $v = $check->{$path};
-                my $check_v = ref $v ? delete $v->{value} : $v ;
-                my @check_args = ref $v ? %$v : ();
-                my $check_str = @check_args ? " (@check_args)" : '' ;
-                is( $root->grab(step => $path, @check_args)->fetch (@check_args), 
-                    $check_v, "check $path value$check_str" );
+        my $c = $t->{check} || {};
+        my @checks = ref $c eq 'ARRAY' ? @$c
+            : map { ( $_ => $c->{$_})} sort keys %$c ;
+        while (@checks) {
+            my $path       = shift @checks;
+            my $v          = shift @checks;
+            my $check_v    = ref $v ? delete $v->{value} : $v;
+            my @check_args = ref $v ? %$v : ();
+            my $check_str  = @check_args ? " (@check_args)" : '';
+            is( $root->grab( step => $path, @check_args )->fetch(@check_args),
+                $check_v, "check '$path' value$check_str" );
         }
 
         if (my $annot_check = $t->{verify_annotation}) {
@@ -511,19 +514,19 @@ You can tolerate any dump warning this way:
 Run specific content check to verify that configuration data was retrieved 
 correctly:
 
-    check => { 
+    check => [
         'fs:/proc fs_spec',           "proc" ,
         'fs:/proc fs_file',           "/proc" ,
         'fs:/home fs_file',          "/home",
-    },
+    ],
     
 You can run check using different check modes (See L<Config::Model::Value/"fetch( ... )">)
 by passing a hash ref instead of a scalar :
     
-    check  => {
+    check  => [
         'sections:debian packages:0' , { qw/mode layered value dpkg-dev/},
         ''sections:base packages:0',   { qw/mode layered value gcc-4.2-base/},
-    },
+    ],
 
 The whole hash content (except "value") is passed to  L<grab|Config::Model::AnyThing/"grab(...)"> 
 and L<fetch|Config::Model::Value/"fetch( ... )">
