@@ -332,40 +332,42 @@ sub uncheck {
 
 
 my %accept_mode = map { ( $_ => 1) } 
-                      qw/custom standard preset default layered upstream_default/;
+                      qw/custom standard preset default layered upstream_default user/;
 
 
 sub is_checked {
     my $self = shift ;
     my $choice = shift ;
     my %args = @_ ;
-    my $type = $args{mode} || '';
+    my $mode = $args{mode} || '';
     my $check = $self->_check_check($args{check}) ;
 
     my $ok = $self->{choice_hash}{$choice} || 0 ;
 
     if ($ok ) {
 
-	if ($type and not defined $accept_mode{$type}) {
+	if ($mode and not defined $accept_mode{$mode}) {
 	    croak "is_checked: expected ", join (' or ',keys %accept_mode),
-	      "parameter, not $type" ;
+	      "parameter, not $mode" ;
 	}
 
-	my $dat = $self->{data} ;
-	my $pre = $self->{preset} ;
-	my $def = $self->{default_data} ;
-	my $ud  = $self->{upstream_default_data} ;
-	my $std_v = (defined $pre->{$choice} ? $pre->{$choice} : $def->{$choice}) || 0 ;
+	my $dat = $self->{data}{$choice} ;
+	my $pre = $self->{preset}{$choice} ;
+	my $def = $self->{default_data}{$choice} ;
+	my $ud  = $self->{upstream_default_data}{$choice} ;
+	my $lay = $self->{layered}{$choice} ;
+	my $std_v = $pre // $def // 0 ;
+	my $user_v = $dat // $pre // $lay // $def // $ud // 0 ;
 
 	my $result 
-	  = $type eq 'custom'           ? ( $dat->{$choice} && ! $std_v ? 1 : 0 )
-          : $type eq 'preset'           ? $pre->{$choice}
-          : $type eq 'layered'          ? $self->{layered}{$choice}
-          : $type eq 'upstream_default' ? $ud ->{$choice}
-          : $type eq 'default'          ? $def->{$choice}
-          : $type eq 'standard'         ? $std_v
-          : defined $dat->{$choice}     ? $dat->{$choice}
-          :                               $std_v ;
+	  = $mode eq 'custom'           ? ( $dat && ! $std_v ? 1 : 0 )
+          : $mode eq 'preset'           ? $pre
+          : $mode eq 'layered'          ? $lay
+          : $mode eq 'upstream_default' ? $ud
+          : $mode eq 'default'          ? $def
+          : $mode eq 'standard'         ? $std_v
+          : $mode eq 'user'             ? $user_v
+          :                               $dat // $std_v ;
 
 	return $result ;
     }
