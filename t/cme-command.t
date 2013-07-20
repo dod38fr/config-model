@@ -3,7 +3,14 @@ use warnings ;
 use File::Path ;
 use Probe::Perl ;
 
-use Test::Command tests => 8;
+use Test::Command ;
+use Test::More;
+if ( $^O =~ /linux|bsd|solaris|sunos/ ) {
+    plan tests => 8;
+}
+else {
+    plan skip_all => "Test with system() in build systems don't work well on this OS ($^O)";
+}
 
 ## testing exit status
 
