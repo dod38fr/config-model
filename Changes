@@ -1,7 +1,10 @@
 {{$NEXT}}
 
-2013-07-18 - 2.039
+2013-07-20 - 2.040
+   * Fix '~' in path substitution in BackendMgr
+   * Skip cme command test on non unix-like systems
 
+2013-07-18 - 2.039
 
   Framework changes:
     * CheckList: 
