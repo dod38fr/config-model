@@ -159,21 +159,21 @@ my $model = Config::Model->new( model_dir => $model_dir );
 my ( $categories, $appli_info, $appli_map ) =
   Config::Model::Lister::available_models;
 
-my $root_model = $appli_map->{$application};
-$root_model ||= $application if $try_application_as_model ;
-
-if (not defined $root_model) {
-  warn "Unknown application: $application\n";
-}
-
-if ( not defined $root_model or $command eq 'list') {
+if ($command eq 'list') {
     print "The following applications are available:\n";
     foreach my $cat ( keys %$categories ) {
         my $names = $categories->{$cat} || [];
         next unless @$names;
-        print "$cat:\n\t", join( "\n\t", @$names ), "\n";
+        print "$cat:\n  ", join( "\n  ", @$names ), "\n";
     }
     exit 1;
+}
+
+my $root_model = $appli_map->{$application};
+$root_model ||= $application if $try_application_as_model ;
+
+if (not defined $root_model) {
+    die "Unknown application: $application. Run 'cme list' to list available applications\n";
 }
 
 my $config_file ;
