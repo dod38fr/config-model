@@ -55,6 +55,7 @@ sub read {
     my @assoc = $self->associates_comments_with_data( \@lines, '#' ) ;
     foreach my $item (@assoc) {
         my ($data,$c) = @$item;
+        $data =~ s/\s*=\s*/=/; # make reader quite tolerant
         my $load = qq!$data! ;
         $load .= qq!#"$c"! if $c ;
         $logger->debug("Loading:$load\n");
