@@ -29,13 +29,18 @@
       },
       'ENCRYPT',
       {
-        'value_type' => 'boolean',
+        'value_type' => 'enum',
         'summary' => 'support for encrypted submissions',
-        'upstream_default' => '0',
+        'help' => {
+          'yes' => 'try to encrypt and fail if gpg is not available',
+          'maybe' => 'encrypt if gpg is available'
+        },
+        'upstream_default' => 'no',
         'type' => 'leaf',
         'description' => 'encrypt popcon submission. Eventually, this feature wil be enabled by default.',
-        'write_as' => [
+        'choice' => [
           'no',
+          'maybe',
           'yes'
         ]
       },

@@ -44,3 +44,11 @@ or
 
 dzil test
 
+
+If dzil returns an error like "Cannot determine local time zone", you should
+specify explicitely your timezone in TZ environement variable. E.g.
+
+ TZ="Europe/Paris" dzil test
+
+The list of timezones is provided by DateTime::TimeZone::Catalog documentation.
+
