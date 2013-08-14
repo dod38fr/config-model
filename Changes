@@ -1,5 +1,26 @@
 {{$NEXT}}
 
+2013-08-14 - 2.041
+
+    Main changes for this release are:
+
+    * The ENCRYPT parameter of Popularity contest model was changed from
+      boolean type to a yes,maybe,no value, thus allowing a
+      "réponse de Normand" ;) This follows up resolution of Debian
+      bug #714917.
+
+    * Config::Model::Tester class was moved in its own distribution.
+      Hence this distribution now build depends on Config::Model::Tester
+
+	Other bug fixes:
+    * Avoid warning with 'cme list' (Closes Debian #719197)
+    * ShellVar backend: Allow variable assignement like "foo = value".
+      This is not legal is Shell but sometimes used in configuration files
+      using a shell like syntax (Closes Debian #719256)
+
+    Other changes:
+    * Removed build-dep on File::Copy::Recursive
+
 2013-07-20 - 2.040
    * Fix '~' in path substitution in BackendMgr
    * Skip cme command test on non unix-like systems
