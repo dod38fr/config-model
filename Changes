@@ -1,6 +1,6 @@
 {{$NEXT}}
 
-2013-08-14 - 2.041
+2.041 2013-08-14
 
     Main changes for this release are:
 
@@ -21,11 +21,11 @@
     Other changes:
     * Removed build-dep on File::Copy::Recursive
 
-2013-07-20 - 2.040
+2.040 2013-07-20
    * Fix '~' in path substitution in BackendMgr
    * Skip cme command test on non unix-like systems
 
-2013-07-18 - 2.039
+2.039 2013-07-18
 
   Framework changes:
     * CheckList: 
@@ -54,7 +54,7 @@
   Doc:
     * added log config file in contrib
 
-2013-07-03 - 2.038
+2.038 2013-07-03
 
   Framework changes:
     * cme: added -backup option.
@@ -68,7 +68,7 @@
     * all: don't loose part of comment when '#' is embedded in comment
     * Ini backend: handle storage to non available element by ditching data
 
-2013-06-15 - 2.037
+2.037 2013-06-15
 
   Framework changes:
     * renamed ChangeLog in Changes to conform to Perl standards
@@ -80,7 +80,7 @@
   Application changes:
     * Removed LcdProc model (now in its own Perl distribution)
 
-2013-05-25 - 2.036
+2.036 2013-05-25
 
   Framework changes:
     * config-edit: added deprecation warning
@@ -95,7 +95,7 @@
     * make t/pod.t run only when AUTHOR_TESTING is set
       (Closes RT 8533 and Debian #709784)
 
-2013-04-27 - 2.035
+2.035 2013-04-27
 
     * Node has_element: small optimisation for common case
     * cme:
@@ -103,17 +103,17 @@
       * load Tk only when using edit command (avoids issues on exit
 	with AnyEvent)
 
-2013-04-17 - 2.034
+2.034 2013-04-17
 
     * Model: fix generation of model doc that broke with 2.032
 
-2013-04-15 - 2.033
+2.033 2013-04-15
 
     * Model: load returns loaded class in the correct order. Otherwise
       Config::Model::Itself will write back config classes in a random
       order (for files declaring more than one class)
 
-2013-04-15 - 2.032
+2.032 2013-04-15
 
   Framework Changes:
     * Model: completely re-organized the way a model is loaded to
@@ -124,14 +124,14 @@
   Application changes:
     * Fstab model: added missing relatime option
 
-2013-04-03 - 2.031
+2.031 2013-04-03
 
   Framework Changes:
     * All: use directly Mouse instead of going through Any::Moose
       (which is deprecated)
     * Removed dependency on Any::Moose
 
-2013-03-23 - 2.030
+2.030 2013-03-23
 
   Framework Changes:
     * Value: fix reset value for mandatory with default value
@@ -142,7 +142,7 @@
       Hello and GoodBye parameters to cope with new INI backend
       (which is more strict than previous versions)
 
-2013-02-27 - 2.030_01
+01 2013-02-27
 
   The main change of this release is to provide asynchronous store
   check.  Now, a model can check the validity of a configuration
@@ -177,14 +177,14 @@
     * fixed multistrap tests
     * test ini backend: test split_reg parameter
 
-2012-11-28 - 2.029
+2.029 2012-11-28
 
     * cme-gen-class-pod: pod doc can be generated from
       a class specified on command line argument (really this
       time, previous version was broken)
     * cme: run the first extension found in @INC, not the last one
 
-2012-11-27 - 2.028
+2.028 2012-11-27
 
     * cme:
       + added a BUGS section in man page
@@ -194,21 +194,21 @@
     * fix test that broke with perl 5.17
     * removed unneeded 'use UNIVERSAL'. (should fix smoke tests)
 
-2012-10-30  Dominique Dumont  <domi.dumont@free.fr> 2.027
+2.027 2012-10-30
 
     * fix checklist problem with writing default values
       (which broke openssh demo). (Closes: Debian #691338)
     * Dumper: fix wrong module reference in pod doc
 
-2012-09-27  Dominique Dumont  <domi.dumont@free.fr> 2.026
+2.026 2012-09-27
 
   * Re-released 2.026_2 as good to go.
 
-2012-09-20  Dominique Dumont  <domi.dumont@free.fr> 2.026_02
+02 2012-09-20
 
   * Added build-time dep on YAML::Any
 
-2012-09-20  Dominique Dumont  <domi.dumont@free.fr> 2.026_01
+01 2012-09-20
 
   * Application changes:
     * IMPORTANT: Debian Dpkg model was removed. It will be
@@ -219,12 +219,12 @@
       is gen-class-pod. I.e. you can run 'cme gen-class-pod' (which
       is useful only if you develop a configuration model...)
 
-2012-09-10  Dominique Dumont  <domi.dumont@free.fr> 2.025
+2.025 2012-09-10
 
   * Test: Fix fuseui test regression that shows on
     non-linux systems
 
-2012-09-04  Dominique Dumont  <domi.dumont@free.fr> 2.024
+2.024 2012-09-04
 
   * Debian dpkg dependency:
     * Warn and can remove unversioned dependency on essential 
@@ -246,7 +246,7 @@
       clear message for swap)
     * cme: added -dir-char option for fusefs command
 
-2012-07-04  Dominique Dumont  <domi.dumont@free.fr> 2.023
+2.023 2012-07-04
 
   * Application changes:
     * Debian dpkg control binary: 
@@ -254,7 +254,7 @@
         This is implemented as a warning and is changed only if apply_fix is
         called. Duplicates ${perl:Depends} will also be removed by apply_fix.
 
-2012-07-03  Dominique Dumont  <domi.dumont@free.fr> 2.022
+2.022 2012-07-03
 
   * Application changes:
     * Debian::Dpkg
@@ -263,7 +263,7 @@
   * Framework changes:
     * added -from and -filter option to cme fix command
 
-2012-06-28  Dominique Dumont  <domi.dumont@free.fr> 2.021
+2.021 2012-06-28
 
   * Application changes:
     * Debian::Dpkg
@@ -281,7 +281,7 @@
     + Added dependency on AnyEvent and AnyEvent::HTTP
     * cme: clean up the mess after AnyEvent headbutts Tk :-/
 
-2012-06-18  Dominique Dumont  <domi.dumont@free.fr> 2.020
+2.020 2012-06-18
 
   * Application changes:
     * Fix DEP-3 model:
@@ -297,7 +297,7 @@
   * Tester framework:
     * force write_back during tests
 
-2012-06-05  Dominique Dumont  <domi.dumont@free.fr> 2.019
+2.019 2012-06-05
 
   * Framework changes:
     + doc generated from model now provides details on status
@@ -305,7 +305,7 @@
     * check_list: make sure that apply_fixes can be called
       on check_list even though it does nothing there
 
-2012-05-29  Dominique Dumont  <domi.dumont@free.fr> 2.018
+2.018 2012-05-29
 
   * Application changes:
     + Debian::Dependency: Added a check and fix for debhelper version
@@ -327,12 +327,12 @@
     * Node: correctly set initial_load mode when init is called 
       recursively
 
-2012-05-21  Dominique Dumont  <domi.dumont@free.fr> 2.017
+2.017 2012-05-21
 
    * Framework changes:
         * Fix missing YAML dependency in configure require
 
-2012-05-20  Dominique Dumont  <domi.dumont@free.fr> 2.016
+2.016 2012-05-20
 
    * Framework changes:
         * Having dependencies in prereq does not mean they are listed
@@ -341,7 +341,7 @@
 	help smoke tests for modules depending on Config::Model
 	* Fixed small doc mistake in Tester
 
-2012-05-14  Dominique Dumont  <domi.dumont@free.fr> 2.015
+2.015 2012-05-14
 
     * Application changes:
         * Copyright model: replace migrate_keys_from with new 
@@ -364,7 +364,7 @@
     * Test changes:
         * Tester: added file_contents_like and file_contents_unlike tests
 
-2012-05-03  Dominique Dumont  <domi.dumont@free.fr> 2.014
+2.014 2012-05-03
 
     * Application changes:
 	* cme: list changes before saving data (unless save is handled by
@@ -382,7 +382,7 @@
 	  cleared with clear_changes).
 	+ Depends on Text::Diff
 
-2012-04-06  Dominique Dumont  <domi.dumont@free.fr> 2.013
+2.013 2012-04-06
 
     * Application changes:
 	* Debian Dpkg model: Moved libtiff4 transition warning
@@ -396,7 +396,7 @@
 	* multitrap tests: really ignore warnings coming from Text::Balanced
         (which pop up in Perl smoke tests with perl 5.15.9)
 
-2012-04-05  Dominique Dumont  <domi.dumont@free.fr> 2.012
+2.012 2012-04-05
 
     * Application changes:
 	* Debian Dep-3 patch parser: quilt formats patch in a very concise
@@ -418,7 +418,7 @@
 	* Instance: added on_change_cb to take action when something is
 	modified in the config tree
 
-2012-03-19  Dominique Dumont  <domi.dumont@free.fr> 2.011
+2.011 2012-03-19
 
     * Application changes:
       + Debian copyright: added deprecated License-Alias paramater. 
@@ -433,7 +433,7 @@
       + Added wr_check parameter
       + added possibility to pass options to grab and fetch with check and wr_check.
 
-2012-03-13  Dominique Dumont  <domi.dumont@free.fr> 2.010
+2.010 2012-03-13
 
     * Application changes:
       * Debian control:
@@ -451,7 +451,7 @@
       * ValueComputer: added usage of compute as an upstream default
         value. Some cleanup was done around that
 
-2012-03-01  Dominique Dumont  <domi.dumont@free.fr> 2.008
+2.008 2012-03-01
 
     * Application changes:
       * Debian control:
@@ -464,11 +464,11 @@
       * Requires perl 5.10.1 instead of 5.10.0
       * provide file name and line number in syntax error message
 
-2012-02-26  Dominique Dumont  <domi.dumont@free.fr> 2.007
+2.007 2012-02-26
 
     * cme: fix 'migrate' command.
 
-2012-02-25  Dominique Dumont  <domi.dumont@free.fr> 2.006
+2.006 2012-02-25
 
     * Application changes:
       * Debian control model: 
@@ -483,25 +483,25 @@
     * Framework changes:
       + cme: added forgotten 'migrate' command (i.e. cme migrate stuff)
 
-2012-02-23  Dominique Dumont  <domi.dumont@free.fr> 2.005
+2.005 2012-02-23
 
     * Application changes:
       * Debian copyright model: updated url for dep-5 format with new 
         Debian approved one. URL is no longer updated silently, user 
         will have to request it with 'cme fix' command
 
-2012-02-09  Dominique Dumont  <domi.dumont@free.fr> 2.004
+2.004 2012-02-09
 
   * Build.PL runs gen_class_pod.pl which loads Config::Model from lib,
     hence most of the runtime dependencies are now moved in
     configure_requires. This should improve Perl smoke tests.
 
-2012-02-08  Dominique Dumont  <domi.dumont@free.fr> 2.003
+2.003 2012-02-08
    
    * Added configure_requires on File::Slurp (Fix RT#73611)
    * Updated meta-data to point toward github instead of sourceforge
 
-2012-02-08  Dominique Dumont  <domi.dumont@free.fr> 2.002
+2.002 2012-02-08
 
     Most of the fixes aim to solve issues with Perl smoke tests
 
@@ -517,7 +517,7 @@
     * Tests: 
       * avoid undef $ENV{HOME} problems on Windows
 
-2012-02-06  Dominique Dumont  <domi.dumont@free.fr> 2.001
+2.001 2012-02-06
 
     Big change this time, hence the version bump tp 2.001. The main
     change for users is the deprecation of the config-edit program in
@@ -546,7 +546,7 @@
         * breaks memory cycles in backend manager
         * Converted to Moose all classes inheriting Config::Model::AnyThing
 
-2011-12-06  Dominique Dumont  <domi.dumont@free.fr> 1.265
+1.265 2011-12-06
 
     * Application changes:
         * model Debian::Dpkg: 
@@ -559,13 +559,13 @@
           list when queried by user, not just the changed items. 
           (Fix Config::Model::OpenSsh RT#72916)
 
-2011-11-29  Dominique Dumont  <domi.dumont@free.fr> 1.264
+1.264 2011-11-29
 
     * Application changes:
         * model Debian::Dpkg:
           - removed another email check (was hiding in a hg branch)
 
-2011-11-29  Dominique Dumont  <domi.dumont@free.fr> 1.263
+1.263 2011-11-29
 
     * Application changes:
         * model Multistrap:
@@ -589,12 +589,12 @@
         + added force_lc_(key|name|value) parameter to take care of case 
           insensitive INI files
 
-2011-11-18  Dominique Dumont  <domi.dumont@free.fr> 1.262
+1.262 2011-11-18
 
     * Config/Model/Tester: avoid test failure by sorting file list 
       before comparing them 
 
-2011-11-17  Dominique Dumont  <domi.dumont@free.fr> 1.261
+1.261 2011-11-17
 
     * Test changes (Config/Model/Tester):
       * reworked cfg file list check
@@ -624,7 +624,7 @@
       + config-edit: added -config_file option
       + added Test::File::Contents build dependency
 
-2011-10-28  Dominique Dumont  <domi.dumont@free.fr> 1.260
+1.260 2011-10-28
 
     * Application changes
         * Backend Debian::Dpkg: skip empty lines in patch series files
@@ -634,13 +634,13 @@
         * Config/Model/Loader.pm: Make sure that load("!") goes to root 
           even if load was called from a child node. Fix RT#69480
 
-2011-10-16  Dominique Dumont  <domi.dumont@free.fr> 1.259
+1.259 2011-10-16
 
     * Application changes
         * model Debian::Dpkg: Bumped compat default value to 8
     * fixed test to work even if lcdproc is not installed
 
-2011-10-14  Dominique Dumont  <domi.dumont@free.fr> 1.258
+1.258 2011-10-14
 
     * Application changes
         * model Debian::Dpkg::Patch: Synopsis is no longer mandatory. 
@@ -666,7 +666,7 @@
           mess about mandatory value checks. Custom values are no
           longer checked this way
 
-2011-09-16  Dominique Dumont  <domi.dumont@free.fr> 1.257
+1.257 2011-09-16
 
     * Framework changes:
         * config-edit: avoid deprecation warning
@@ -682,7 +682,7 @@
         * model Debian::Dpkg::Patch: No need for a first capital letter 
           restriction. Look for debian patches in the correct places
 
-2011-09-16  Dominique Dumont  <domi.dumont@free.fr> 1.256
+1.256 2011-09-16
 
     * Application changes
         * Dpkg control model: warn (and offer to fix) duplicated 
@@ -693,24 +693,24 @@
         * TreeSearcher.pm: properly fix conflict between method name and
           Moose::Util::TypeConstraints
 
-2011-09-15  Dominique Dumont  <domi.dumont@free.fr> 1.255
+1.255 2011-09-15
 
     * Framework changes:
         * Instance.pm, Node.pm: take into account force_load 
           with delayed loading of config files
         * BackendMgr.pm: New Moose class (renamed from AutoLoader)
 
-2011-09-04  Dominique Dumont  <domi.dumont@free.fr> 1.254
+1.254 2011-09-04
 
     * fix tests that blow up with Debian build tools
 
-2011-09-02  Dominique Dumont  <domi.dumont@free.fr> 1.253
+1.253 2011-09-02
 
     * Framework changes:
         * AnyId: reworked warning storage and display
         * Value: check can be called without arg to check current value
         
-2011-09-01  Dominique Dumont  <domi.dumont@free.fr> 1.252
+1.252 2011-09-01
 
     * Framework changes:
         * AutoRead.pm: correctly handle ~ as home dir (thanks fabreg)
@@ -718,7 +718,7 @@
           there's no data to write
         * AutoRead.pm: do not leave empty files
 
-2011-08-30  Dominique Dumont  <domi.dumont@free.fr> 1.251
+1.251 2011-08-30
 
     * Application changes
         * Backend Debian/Dpkg/Copyright.pm:
@@ -737,7 +737,7 @@
         * Instance.pm: apply_fixes: now relay the call to hash and lists objects
         * OjTreeScanner.pm: added hooks for node_content hash_element and list_element
 
-2011-07-22  Dominique Dumont  <domi.dumont@free.fr> 1.250
+1.250 2011-07-22
 
     * Test changes
         * Debian dpkg tests: reworked cache file syntax (text instead of
@@ -756,7 +756,7 @@
           node gets a load string like hash:foo=bar (this one is
           reserved for hash of leaves)
 
-2011-07-12  Dominique Dumont  <domi.dumont@free.fr> 1.249
+1.249 2011-07-12
 
     * Framework changes:
         * Config/Model/Value.pm: 
@@ -770,7 +770,7 @@
         limitation into account (check if Perl version is available 
         in sid to decide the order of the alternates dependencies)
    
-2011-07-05  Dominique Dumont  <domi.dumont@free.fr> 1.248
+1.248 2011-07-05
 
     * Framework changes:
         * Reworked test framework 
@@ -789,7 +789,7 @@
           problems when Maintainer field is declared after
           the Dependencies
 
-2011-06-27  Dominique Dumont  <domi.dumont@free.fr> 1.247
+1.247 2011-06-27
 
     * Application changes:
         * examples/lcdproc/LCDd.conf: fix typos
@@ -797,13 +797,13 @@
         * lib/Config/Model/Backend/IniFile.pm: Fix failure to load in 
           debug trace: do not call location when $obj is undef
 
-2011-06-17  Dominique Dumont  <domi.dumont@free.fr> 1.246
+1.246 2011-06-17
 
     * Application changes:
         * LCDd.pl model: re-generated with new C::M::Itself to avoid spurious pod
           formatting. Fix issue with embedded quotes in Hello and GoodBye parameters.
 
-2011-06-17  Dominique Dumont  <domi.dumont@free.fr> 1.245
+1.245 2011-06-17
 
     * Application changes:
         * models Debian::Dpkg::Copyright::License:
@@ -835,7 +835,7 @@
           When check is 'no', discard data that belongs to unavailable
           elements
 
-2011-05-16  Dominique Dumont  <ddomi.dumont@free.fr> 1.244
+1.244 2011-05-16
 
     * Application changes:
         * Fstab model: Prevent wrong value in fs_passno and fs_freq with 
@@ -851,7 +851,7 @@
         * config-edit: cleaned up option names (always accept '-' in place of '_')
         * Config/Model/AnyThing.pm: fix location string and fix grab function
 
-2011-05-02  Dominique Dumont  <domi.dumont@free.fr> 1.243
+1.243 2011-05-02
 
     * Application changes:
         * dpkg control: bumped standard version to 3.9.2
@@ -870,7 +870,7 @@
         * ValueComputer: Fixed bug to allow temporary variables and $_ in eval'ed 
           formulas
 
-2011-04-07 Dominique Dumont  <domi.dumont@free.fr> 1.242
+1.242 2011-04-07
 
     * Application changes:
         * dpkg control: added Build-Conflicts field
@@ -883,7 +883,7 @@
        * t/fuse_ui.t: skip test if lsmod cannot be used (e.g. Mandriva)
        * t/debian*.t: skip test when /etc/debian_version is not found
 
-2011-04-07 Dominique Dumont  <domi.dumont@free.fr> 1.241
+1.241 2011-04-07
     
     * Framework changes:
        * Build depend on Test::Differences
@@ -891,18 +891,18 @@
        * Model.pm: Added value help and summary in generated documentation
        * DumpAsData: skip hash keys containing undef values
 
-2011-04-05 Dominique Dumont  <domi.dumont@free.fr> 1.240
+1.240 2011-04-05
     
     * Framework changes:
         * Most *.pm: replaced 'no Moose' by 'no Any::Moose' 
         
-2011-04-05 Dominique Dumont  <domi.dumont@free.fr> 1.238
+1.238 2011-04-05
     
     * Framework changes:
         * Build.PL: removed dead code that cause downstream pacaking problems.
         * Model.pm: fix cosmetic issue with doc generation.
         
-2011-04-04 Dominique Dumont  <domi.dumont@free.fr> 1.237
+1.237 2011-04-04
     
     * Framework changes:
         * added MouseX::NativeTraits dependency (fix RT #67196)
@@ -916,7 +916,7 @@
               filter value in Meta. This makes more sense than using binary package
               name
               
-2011-04-01 Dominique Dumont  <domi.dumont@free.fr> 1.236
+1.236 2011-04-01
     
     * Application changes:
         * dpkg control dependency: 
@@ -954,7 +954,7 @@
         * HashId: fix default_with_init to be able to auto-create leaf values 
           specified in the model
 
-2011-03-01 Dominique Dumont  <domi.dumont@free.fr> 1.235
+1.235 2011-03-01
     
     * Application changes:
         * dpkg control source model: Encourage Standard-Version 3.9.1
@@ -970,7 +970,7 @@
         * config-edit: Force to load all sub-models (i.e. control, copyright) of
         a top-model (err.. dpkg) when run with option -ui none
 
-2011-02-21 Dominique Dumont  <domi.dumont@free.fr> 1.234
+1.234 2011-02-21
     
     * factor out comment extraction: code that retrieve comments and tie it to 
       actual config data is generic. Now this is handled by 
@@ -980,7 +980,7 @@
     * Fix bad handling of leaf type Ini backend (Thanks Krzysztof for the notice)
     
 
-2011-02-11 Dominique Dumont  <domi.dumont@free.fr> 1.233
+1.233 2011-02-11
     
     * Application changes:
         * dpkg control source model: Added DM-Upload-Allowed and all Vcs-* tags defined 
@@ -997,11 +997,11 @@
         * Instance write back: now correctly call all write_back when several
           nodes in model needs to be called back
 
-2011-01-30 Dominique Dumont  <domi.dumont@free.fr> 1.232
+1.232 2011-01-30
 
     * Added missing Text::Autoformat dependency
 
-2011-01-30 Dominique Dumont  <domi.dumont@free.fr> 1.231
+1.231 2011-01-30
 
     * Application changes:
         * Debian::Dependency: reworked to reduce calls to madison. Report available
@@ -1015,7 +1015,7 @@
         * Added PlainFile backend (each config parameter is stored in its own file. useful for
         some dpkg data)
 
-2011-01-21 Dominique Dumont  <domi.dumont@free.fr> 1.230
+1.230 2011-01-21
 
     * Application changes:
         * Debian::Dependency: don't check debhelper
@@ -1031,7 +1031,7 @@
           complex migration scenario where migration can come from several alternative parmeters.
         * FuseUI: Fix bug that disabled write in a boolean value
         
-2011-01-10 Dominique Dumont  <domi.dumont@free.fr> 1.229
+1.229 2011-01-10
 
         * config-edit: added -apply-fixes option
         * Value: can specify wider replace instruction by using regexp as
@@ -1043,12 +1043,12 @@
           Feedbacks are welcome.
 
 
-2011-01-09 Dominique Dumont  <domi.dumont@free.fr> 1.228
+1.228 2011-01-09
 
         * Specifically require DB_File as this module is not available by default on Ubuntu
         * Skip Debian dependency tests when AptPkg::Config is not available (non Debian systems)
 
-2011-01-07 Dominique Dumont  <domi.dumont@free.fr> 1.227
+1.227 2011-01-07
 
         * Model.pm: deprecated name_match parameter in accept
           specification. The regexp should now be specified as a
@@ -1065,17 +1065,17 @@
         * New dependency: LWP::Simple
 
 
-2010-12-08 Dominique Dumont  <domi.dumont@free.fr> 1.226
+1.226 2010-12-08
 
         * config-edit: mount fuse file system in the background. (like sshfs)
         * FuseUI: Improved doc
         * C::M::Backend::Fstab: improved doc
 
-2010-12-06 Dominique Dumont  <domi.dumont@free.fr> 1.225
+1.225 2010-12-06
 
         * Build.PL: build depends on Test::Command 0.08 to avoid smoke test problems
 
-2010-12-06 Dominique Dumont  <domi.dumont@free.fr> 1.224
+1.224 2010-12-06
 
         * Node AnyId Value: get() now accepts check parameter, autoadd parameter 
         * Node AnyId: added children method
@@ -1084,7 +1084,7 @@
           Stop with 'fusermount -u some/where'
         * Recommends Fuse (to be able to use fuse user interface)
         
-2010-11-28 Dominique Dumont  <domi.dumont@free.fr> 1.223
+1.223 2010-11-28
 
         * Debian/Dpkg/Copyright: removed restrictions on copyright format
         * dist.ini: added build dependency on Probe::Perl (to run tests that invoke config-edit)
@@ -1092,12 +1092,12 @@
           are used to augment Foo model. This will be useful to agregate models coming from several
           teams. For instance any team can extends the Fstab model provided in this distribution.
 
-2010-11-22 Dominique Dumont  <domi.dumont@free.fr> 1.222
+1.222 2010-11-22
 
         * bash-completion: fixed missing application option
         * Fstab model: specify '/etc' dir inst
 
-2010-11-21 Dominique Dumont  <domi.dumont@free.fr> 1.221
+1.221 2010-11-21
 
         * Annotation: can now save annotation for node and list objects
         * Added new Fstab model and backend. Supports ext2 to ext4 and
@@ -1111,19 +1111,19 @@
         * Model.pm: updated doc
         * bash_completion.config-edit: is now *not* executable
 
-2010-11-10 Dominique Dumont  <domi.dumont@free.fr> 1.220
+1.220 2010-11-10
 
         * Fix Build.PL to install files found in lib/Config/Model/*.d
         * Added Cookbook::CreateModelFromDoc from SF wiki
 
-2010-11-09 Dominique Dumont  <domi.dumont@free.fr> 1.219
+1.219 2010-11-09
 
         * config-edit: fixed syntax error
         * replaced command lines generated from template by bash-autocompletion.
         * Removed dependency on Text::Template
         * Added Config::Model::Manual::ModelCreationIntroduction doc from SF wiki
 
-2010-11-05 Dominique Dumont  <domi.dumont@free.fr> 1.218
+1.218 2010-11-05
 
         * Moved doc from README into model.pm
         * Copyright: added deprecated parameters (Upstream-Name
@@ -1138,14 +1138,14 @@
         * Build.PL: configure_depends on Text::Template to avoid CPANPLUS 
           installation failure
 
-2010-10-26 Dominique Dumont  <domi.dumont@free.fr> 1.217
+1.217 2010-10-26
 
         * Fix issue where value reference did not follow refered
           to parameters after creation.
         * Fstab example: split the model for the Debian mini-debconf
         workshop
 
-2010-10-26 Dominique Dumont  <domi.dumont@free.fr> 1.216
+1.216 2010-10-26
 
         * Control.pl: fixed control fields order to be less confusing (thanks to ansgar
           for the advice)
@@ -1154,11 +1154,11 @@
         * Model.pm: updated doc to point to overview and introduction on SourceForge wiki
         * example/fstab/Fstab.pl: Fix model so it can be loaded by config-model-edit
 
-2010-10-19 Dominique Dumont  <domi.dumont@free.fr> 1.215
+1.215 2010-10-19
 
         * Instance.pm and Loader.pm: added some stub to preserve backwards compatibility 
 
-2010-10-19 Dominique Dumont  <domi.dumont@free.fr> 1.213
+1.213 2010-10-19
 
         * AutoRead.pm: do not clobber configuration file when trying to write erroneous data
         * Value.pm: fix value check based on Parse::RecDescent
@@ -1166,7 +1166,7 @@
         * Dpkg::Copyright: Fix read/write issues with License that can be stored either 
           in Files section or their own sections
 
-2010-10-15 Dominique Dumont  <domi.dumont@free.fr> 1.212
+1.212 2010-10-15
 
         * Value and AnyId: store wrong values when store check is disabled 
         (i.e. config-edit is run with -force option).
@@ -1181,7 +1181,7 @@
         * Value.pm: added silent parameter to fetch method to avoid displaying warnings on STDOUT
         * Enable read and write of utf8 characters
 
-2010-10-01 Dominique Dumont  <domi.dumont@free.fr> 1.211
+1.211 2010-10-01
         * Value.pm: added warn_if_match and warn_unless_match parameters.
         Value will issue a warning if the stored value match (or does not) 
         match a Perl regular expression specified in the model.
@@ -1194,7 +1194,7 @@
         E.g load("foo~") will set foo parameter to undef.
         * Copyright model: warn if unknown license is used.
 
-2010-09-30 Dominique Dumont  <domi.dumont@free.fr> 1.210
+1.210 2010-09-30
         * renamed config-edit-dep5 in config-edit-dpkg-copyright
         * renamed Debian::Dep5 model to Debian::Dpkg::Copyright
         * renamed Config::Model::Backend::Debian::Dep5 backend to 
@@ -1204,15 +1204,15 @@
         * Created model and backend for Debian control files
         * added config-edit-dpkg-control command line
 
-2010-09-20 Dominique Dumont  <domi.dumont@free.fr> 1.209
+1.209 2010-09-20
         * Fixed Debian::Dep5 parser: fixed read issue and added write
         capability
 
-2010-09-16 Dominique Dumont  <domi.dumont@free.fr> 1.208
+1.208 2010-09-16
         * Fixed missing dependencies in Build.PL (Building from hg
         requires Dist::Zilla and Dist-Zilla-Plugins-CJM >= 3.01)
 
-2010-09-14 Dominique Dumont  <domi.dumont@free.fr> 1.207
+1.207 2010-09-14
         * Added Debian's Dep-5 model (with config-edit-dep5 CLI)
         * Value.pm: Added validation of value based on a Parse::RecDescent
         grammar
@@ -1221,7 +1221,7 @@
         * Node.pm (find_element): returns the element name (if known). Can
         also find the element in a case insensitive manner
 
-2010-07-23  Dominique Dumont  <domi.dumont@free.fr> 1.206
+1.206 2010-07-23
 
         First version to feature code written during Google Summer of Code 2010.
         For this GSoC, Krzysztof Tyszecki has provided:
@@ -1245,22 +1245,22 @@
         element annotations
         * Fixed Fstab example
 
-2010-06-04  Dominique Dumont  <domi.dumont@free.fr> 1.205
+1.205 2010-06-04
 
         * t/node.t: patch by Niko Tyni to avoid Carp::Heavy failure. Fix
         Debian FTBS bug #582915 and countless CPAN smoke tests failures
 
-2010-06-03  Dominique Dumont  <domi.dumont@free.fr> v1.204
+1.204 2010-06-03
 
         * MANIFEST.SKIP: Prompt re-release because 1.203 tarball contains
         debian packages used for tests (oops)
 
-2010-06-03  Dominique Dumont  <domi.dumont@free.fr> v1.203
+1.203 2010-06-03
 
         * lib/Config/Model/Loader.pm (_load_hash): Bug fix: can load
         annotation tied to hash values (node or leaf).
 
-2010-04-22  Dominique Dumont  <domi.dumont@free.fr> v1.202
+1.202 2010-04-22
 
         SUMMARY:
 
@@ -1278,25 +1278,21 @@
         * Code: Uses Moose for C::M::Annotation and C::M::Backend::Any. Moose
         looks good. I may use Moose for all other Config::Model classes later.
 
-2010-04-22  Dominique Dumont  <domi.dumont@free.fr>
 
         * lib/Config/Model/Backend/ShellVar.pm (read): Tries its best to
         read user comments and store them in annotations.
         (write): Write annotation as comments. Write model documentation
         as comments starting with '##'
 
-2010-04-19  Dominique Dumont  <domi.dumont@free.fr>
 
         * lib/Config/Model/AnyThing.pm (grab_annotation): new method
 
-2010-04-15  Dominique Dumont  <domi.dumont@free.fr>
 
         * lib/Config/Model/Loader.pm (load): Can load string with annotations
 
         * lib/Config/Model/Dumper.pm (dump_tree): Dumps annotations in
         data string
 
-2010-04-07  Dominique Dumont  <domi.dumont@free.fr>
 
         * lib/Config/Model/AnyThing.pm (annotation): new accessor method
         for annotations.
@@ -1306,17 +1302,15 @@
 
         * Build.PL: added dependency on Moose
 
-2010-04-01  Dominique Dumont  <dominique.dumont@hp.com>
 
         * lib/Config/Model/models/PopCon.pl: Fixed PopCon config
         directory. Cosmetic improvements for descriptions.
 
-2010-03-29  Dominique Dumont  <dominique.dumont@hp.com>
 
         * lib/Config/Model/*.pm: Put back VERSION number and bumped them
         all to 1.201 to make CPAN indexer happy
 
-2010-03-28  Dominique Dumont  <domi.dumont@free.fr> 1.001
+1.001 2010-03-28
 
         * Build.PL (process_tmpl_files): Build depends on
         Text::Template. Generates config-edit-popcon
@@ -1326,12 +1320,10 @@
 
         * lib/Config/Model.pm: Version bumped to 1.001
 
-2010-03-26  Dominique Dumont  <dominique.dumont@hp.com>
 
         * lib/Config/Model/Backend/ShellVar.pm : New backend to read and
         write configuration files used by shells (sourced by scripts)
 
-2010-03-22  Dominique Dumont  <domi.dumont@free.fr>
 
         * lib/Config/Model/WizardHelper.pm (node_content_cb): no longer
         forget to scan element that are warped in while scanning the node.
@@ -1339,29 +1331,26 @@
         * lib/Config/Model/Node.pm (previous_element): new method to
         iterate through availalble node elements
 
-2010-03-17  Dominique Dumont  <domi.dumont@free.fr>
 
         * lib/Config/Model/Value.pm (setup_match_regexp): added new
         'match' parameter to validate a value against a Perl regular
         expression.
 
-2010-03-16  Dominique Dumont  <dominique.dumont@hp.com>
 
         * lib/Config/Model/Node.pm (load_data): can load data in hidden
         element when store check is ignored.
 
-2010-03-11  Dominique Dumont  <dominique.dumont@hp.com> v0.644
+0.644 2010-03-11
 
         * lib/Config/Model/Loader.pm (load): Load string now support:
         - '.=' operator to append to config values.
         - '=~' to loop configurations instruction over list or hash elements
 
-2010-03-01  Dominique Dumont  <dominique.dumont@hp.com>
 
         * all: Applied spelling corrections done by Debian Perl
         team (thanks gregoa)
 
-2010-02-23  Dominique Dumont  <dominique.dumont@hp.com>  v0.643
+0.643 2010-02-23
 
         * lib/Config/Model/DumpAsData.pm (dump_as_data): Can dump ordered
         hash in hash ref with __order key to specify order of hash
@@ -1370,7 +1359,6 @@
         * lib/Config/Model/HashId.pm (load_data): Accept hash ref with
         __order to load ordered data
 
-2010-02-17  Dominique Dumont  <domi.dumont@free.fr>
 
         * lib/Config/Model/AnyId.pm: For better clarity, Hash and List
         parameter max and min are changed to max_index and
@@ -1380,24 +1368,22 @@
         * lib/Config/Model/Backend/Yaml.pm: New backend to read and write
         YAML configuration files.
 
-2010-02-05  Dominique Dumont  <domi.dumont@free.fr>
 
         * lib/Config/Model/CheckList.pm (set): buf fix: split input value
         to get the list of checked items.
         Migrated to Log4perl
 
-2010-02-03  Dominique Dumont  <domi.dumont@free.fr>
 
         * lib/Config/Model/CheckList.pm: Fixed default and upstream
         default handling
 
-2010-01-21  Dominique Dumont  <dominique.dumont@hp.com> v0.642
+0.642 2010-01-21
 
         * lib/Config/Model/WarpedNode.pm: added get_help to methods
         forwarded to Node object to avoid breaking the graphical model
         editor
 
-2010-01-19  Dominique Dumont  <dominique.dumont@hp.com> v0.641
+0.641 2010-01-19
 
         * lib/Config/Model/Node.pm: Ported to Log4Perl (Tree::Node class)
 
@@ -1409,28 +1395,25 @@
         * lib/Config/Model/Dumper.pm (dump_tree): Correctly quote values
         in list elements
 
-2009-12-01  Dominique Dumont  <dominique.dumont@hp.com>
 
         * lib/Config/Model/HashId.pm: Ported to
         Log4Perl (Tree::Element::Hash class)
 
-2009-09-25  Dominique Dumont  <domi.dumont@free.fr>
 
         * lib/Config/Model/Instance.pm (write_back): Croak if no
         write_back callbacks were registered
 
-2009-09-09  Dominique Dumont  <dominique.dumont@hp.com> v0.640
+0.640 2009-09-09
 
         * lib/Config/Model/WizardHelper.pm (new): Correctly scan list
         element.
 
-2009-07-30  Dominique Dumont  <dominique.dumont@hp.com> v0.639
+0.639 2009-07-30
 
         * lib/Config/Model/WizardHelper.pm (leaf_element_cb): bug fix:
         scan correctly leaf elements of a hash.
         * lib/Config/Model/WizardHelper.pm: use Log4perl
 
-2009-07-27  Dominique Dumont  <dominique.dumont@hp.com>
 
         * config-edit: Tk cosmetic improvement. Thanks to Jerome Quelin
         for the suggestion
@@ -1441,13 +1424,13 @@
         * lib/Config/Model/Searcher.pm (): replace prints with
         Log4perl. Fixed data structure bug
 
-2009-06-29  Dominique Dumont  <dominique.dumont@hp.com> v0.638
+0.638 2009-06-29
 
         * lib/Config/Model/WarpedNode.pm (is_auto_write_for_type): Added
         new method that need to be forwarded to Node to avoid write
         cds_file bug.
 
-2009-06-23  Dominique Dumont  <dominique.dumont@hp.com>  v0.637
+0.637 2009-06-23
 
         * lib/Config/Model/Value.pm: As suggested by Jonas Smedegaard,
         replaced 'built_in' parameter with 'upstream_default'. This change
@@ -1464,7 +1447,7 @@
         * lib/Config/Model/Value.pm: use Log::Log4perl with categories
         Tree::Element::Value and Tree::Element::Warper
 
-2009-05-30  Dominique Dumont  <dominique.dumont@hp.com> v0.636
+0.636 2009-05-30
 
         * lib/Config/Model/AutoRead.pm: Added skip_open to avoid opening
         config target file when the open must be done by the
@@ -1473,13 +1456,12 @@
         * lib/Config/Model.pm (instance): name parameter is no longer
         mandatory. Uses 'default' as default instance name.
 
-2009-05-13  Dominique Dumont  <dominique.dumont@hp.com> 
 
         * lib/Config/Model/AutoRead.pm: When calling backend, 'file'
         parameter contains configuration file name without path and
         'file_path' parameter contains complete path and file name
 
-2009-04-17  Dominique Dumont  <dominique.dumont@hp.com> v0.635
+0.635 2009-04-17
 
         * config-edit: added -dumptype option. -dump can now be used to
         specify a file name
@@ -1488,22 +1470,18 @@
 
         * lib/Config/Model/Node.pm (new): Added skip_read parameter
 
-2009-04-15  Dominique Dumont  <dominique.dumont@hp.com>
 
         * config-edit: Fix broken Log4Perl default config. Added -load option
 
-2009-04-11  Dominique Dumont  <domi.dumont@free.fr>
 
         * lib/Config/Model/AutoRead.pm (): Reworked doc. Aligned read and
         write specs (now have same parameters). Read and write callback
         are passed an opened file handle if possible. Now use Log::Log4perl.
 
-2009-04-02  Dominique Dumont  <dominique.dumont@hp.com>
 
         * lib/Config/Model.pm (include_one_class): Can no longer clobber
         element with 'include' class feature.
 
-2009-03-30  Dominique Dumont  <dominique.dumont@hp.com>
 
         * lib/Config/Model.pm (check_class_parameters): Accept summary
         parameter. Summary is optional and will be used either to generate
@@ -1513,11 +1491,10 @@
         * lib/Config/Model/Node.pm (get_help): added options to get either
         summary or description of an element
 
-2009-03-29  Dominique Dumont  <dominique.dumont@hp.com> 
 
         * config-edit: added -dump and -load options
         
-2009-02-24  Dominique Dumont  <dominique.dumont@hp.com> v0.634
+0.634 2009-02-24
 
         * config-edit: removed kludgy read_root_dir and write_root_dir
         options. For test, only one root_dir can be specified (like Augeas)
@@ -1529,12 +1506,11 @@
         * lib/Config/Model/HashId.pm: auto_create parameter is replaced by
         auto_create_keys
 
-2009-02-19  Dominique Dumont  <dominique.dumont@hp.com>
 
         * lib/Config/Model/ListId.pm (auto_create_elements): Trap wrong
         auto_create argument (avoid massive memory consumption)
 
-2008-12-23  Dominique Dumont  <dominique.dumont@hp.com> v0.633
+0.633 2008-12-23
 
         * lib/Config/Model/AutoRead.pm : Added -allow_empty parameter so
         starting a configuration from scratch can be allowed by
@@ -1542,20 +1518,19 @@
         backend (or any other optional backend) is not found. Just emit a
         warning.
 
-2008-12-16  Dominique Dumont  <dominique.dumont@hp.com> v0.632
+0.632 2008-12-16
 
         * config-edit: added -backend parameter so (advanced) user can
         specify which read/write backend to use. The actual backed to use
         depends on the model loaded with -model option
 
-2008-11-16  Domi  <domi@bilbo.maison>
 
         * lib/Config/Model/Instance.pm (write_back): Added backend
         parameter to specify which backend to use to write. By default,
         all backend are tried until one succeeds. This parameter can also
         be specified when calling the constructor
 
-2008-11-10  Dominique Dumont  <dominique.dumont@hp.com> v0.631
+0.631 2008-11-10
 
         * lib/Config/Model/Value.pm (_pre_fetch): removed dependency on Error
 
@@ -1566,43 +1541,40 @@
         available in an additional class: Config::Model::Backend::Augeas.
         This class is distributed in its own Perl distribution.
 
-2008-10-29  Dominique Dumont  <dominique.dumont@hp.com>
 
         * lib/Config/Model/Dumper.pm (dump_tree): No longer dump list
         elements that contain only undef values. No longer dump node that
         do not contain data.
 
-2008-10-21  Dominique Dumont  <dominique.dumont@hp.com> v0.630
+0.630 2008-10-21
 
         * t/augeas_backend.t: Skip sshd_config tests if Augeas library <= 0.3.1
 
-2008-10-13  Dominique Dumont  <dominique.dumont@hp.com> v0.629
+0.629 2008-10-13
 
         * lib/Config/Model/CheckList.pm (set_properties): Added ordered
         parameter to checklist. Ordered checklist feature is required by
         Ssh model for Ciphers list (see Config::Model::OpenSsh).
 
-2008-10-01  Dominique Dumont  <dominique.dumont@hp.com>
 
         * lib/Config/Model/AnyId.pm (get_cargo_info): New method
 
-2008-09-29  Dominique Dumont  <dominique.dumont@hp.com> v0.628
+0.628 2008-09-29
 
         * lib/Config/Model.pm: Allow include of read or write config
         parameters (required by Xorg model)
 
-2008-09-23  Dominique Dumont  <dominique.dumont@hp.com> v0.627
+0.627 2008-09-23
 
         * ChangeLog: I plainly forgot to update this file for v0.626. This
         is fixed now.
         
-2008-09-22  Dominique Dumont  <dominique.dumont@hp.com> v0.626
+0.626 2008-09-22
 
         * lib/Config/Model/AutoRead.pm (read_augeas): Lot of bug fix to
         read and write through Augeas. Now, lens containing 'seq' lenses
         must be explicitely declared.
 
-2008-07-31  Dominique Dumont  <dominique.dumont@hp.com>
 
         * lib/Config/Model/Value.pm (migrate_value): No longer fails when
         a migrated value is also a mandatory value.
@@ -1611,14 +1583,14 @@
         empty include in model when skip_include is true (breaks
         Config::Itself tests)
 
-2008-07-30  Dominique Dumont  <dominique.dumont@hp.com> v0.625
+0.625 2008-07-30
 
         * lib/Config/Model/ListId.pm (swap): Swapped or moved values in a
         list no longer provides wrong location in config
         tree. (index_value were not updated in objects contained in List
         after a swap or a move)
 
-2008-07-24  Dominique Dumont   v0.624
+0.624 2008-07-24
 
         * lib/Config/Model/Value.pm and others: Modified to allow smooth
         configuration data upgrades without requiring user input (if used
@@ -1629,7 +1601,6 @@
         allow more complex computation like regexp in string or uniline
         values
   
-2008-07-18  Dominique Dumont
 
         * lib/Config/Model/AutoRead.pm: Major changes to interface
         Config::Model with Augeas (http://augeas.net). Changes are
@@ -1660,39 +1631,33 @@
         (set): New method to emulate (part of) augeas API
         (get): New method to emulate (part of) augeas API
 
-2008-06-20  Dominique Dumont 
 
         * lib/Config/Model/AutoRead.pm: Changed 'syntax' paramter to
         'backend' as configuration data may be stored to files or through
         dedicated libraries like Augeas, gconf ... Backend now can be
         cds_file, perl_file, ini_file and custom
 
-2008-05-19  Dominique Dumont v0.623
+0.623 2008-05-19
 
         * Build.PL: Moved from Makefile.PL to Build.PL
 
-2008-05-18  Dominique Dumont 
 
         * lib/Config/Model/CheckList.pm: added support for built_in
         default list
 
-2008-05-17  Dominique Dumont 
 
         * lib/Config/Model/SimpleUI.pm: Some cleanup. Added possibility to
         add and element name to 'll' command
 
-2008-05-15  Dominique Dumont 
 
         * config-edit: added "dev" and "experience" options. With "dev"
         option, config-edit will add "lib" to @INC and look for models in
         "lib"
 
-2008-05-14  Dominique Dumont 
 
         * lib/Config/Model/Node.pm (fetch_element): Bails out if element
         is hidden (this feature was forgotten)
 
-2008-05-09  Dominique Dumont 
 
         * lib/Config/Model/Value.pm (submit_to_compute): Fix bug where a
         compute variable in the form 'foo' => '- - &element' did not work
@@ -1700,13 +1665,11 @@
         allow_override within the compute parameter (backward compatible
         change)
 
-2008-05-07  Dominique Dumont 
 
         * lib/Config/Model/AnyThing.pm (dump_as_data): dump_as_data can
         now be called on all configuration elements. (before, it could
         only be called on nodes)
 
-2008-05-02  Domi  <domi@bilbo.maison>
 
         * lib/Config/Model/AutoRead.pm: Changed the way to specify auto
         read and write for better clarity. Now they must be specified with
@@ -1720,13 +1683,11 @@
            read_config => [ 'ini', { class => 'Mine',function=>'my_read'}]
         likewise for write_config
 
-2008-05-01  Domi  <domi@bilbo.maison>
 
         * lib/Config/Model.pm: Changed 'permission' to 'experience' and
         'intermediate' to 'beginner' for better clarify. Changes are
         backward compatible.
 
-2008-04-29  Dominique Dumont 
 
         * lib/Config/Model/HashId.pm (move): New method to take into
         account move within ordered hash
@@ -1734,7 +1695,7 @@
         * lib/Config/Model/WarpedThing.pm (compute_bool): warp rule no
         longer fail with eval $foo == 1 when $foo is undef
 
-2008-04-18  Dominique Dumont v0.622
+0.622 2008-04-18
 
         * Value.pm (fetch): added 'allow_undef' mode to allow reading
         undefined mandatory value (fix morphing warped node containing
@@ -1743,27 +1704,22 @@
         * Node.pm (copy_from): No longer die when copying undefined
         mandatory value.
 
-2008-04-16  Dominique Dumont 
 
         * AutoRead.pm (get_cfg_file_name): Do not use ':' in file
         names. This breaks windows. Now use sub-directories
 
-2008-04-15  Dominique Dumont 
 
         * Dumper.pm (dump_tree): skip undefined values in list element
 
         * DumpAsData.pm (dump_as_data): idem
 
-2008-04-14  Dominique Dumont 
 
         * Model.pm (list_class_element): New method to help debugging of
         configuration models
 
-2008-04-13  Dominique Dumont 
 
         * Model.pm (include_class): allow multiple includes
 
-2008-04-11  Dominique Dumont 
 
         * AnyId.pm: Changed the way the cargo parameter are specified. Now
         the cargo parameter holds all the information related to the
@@ -1774,17 +1730,15 @@
         Model.pm provides a translation from the old way to the new way so
         this change is (95%) backward compatible.
         
-2008-04-08  Dominique Dumont 
 
         * CheckList.pm (set): Fix bug that prevented to use level or
         permission or status parameter with check_list elements
 
-2008-04-05  Domi  <domi@bilbo.maison>
 
         * Value.pm (pre_store): Fix bug that prevented to load models with
         errors even in tolerant mode.
 
-2008-04-03  Dominique Dumont  0.621
+0.621 2008-04-03
 
         * Dumper.pm (dump_tree): Added auto_vivify parameter
 
@@ -1794,28 +1748,25 @@
         * Value.pm (fetch): Check for mandatory values even if fetching
         only custom values
 
-2008-04-02  Dominique Dumont  
 
         * Value.pm (): Cannot warp value_type anymore (this feature was
         hard to use and encouraged too complex model).
 
-2008-03-28  Dominique Dumont  
 
         * HashId.pm (swap): Fix swap problem which led to duplicated keys
         in ordered hash
         (move_after): New method
 
-2008-03-22  Domi  <domi@bilbo.maison> 
 
         * ListId.pm (swap): new method
         (remove): New method, equivalent to splice (@list,$idx,1)
 
-2008-03-20  Dominique Dumont  v0.6201
+0.6201 2008-03-20
 
         * Makefile.PL: Removed dependency on Term::ReadLine::Gnu. This module
         is just suggested (as well as Term::ReadLine::Perl)
 
-2008-03-18  Dominique Dumont  v0.620
+0.620 2008-03-18
 
         * TermUI.pm: Fixed to work with Term::ReadLine::Gnu or
         Term::ReadLine::Perl. Can also work in degraded mode without these
@@ -1825,31 +1776,28 @@
         * config-edit: added Simple UI mode so config-edit can be used
         with stdin and stdout
 
-2008-02-29  Dominique Dumont  v0.619
+0.619 2008-02-29
 
         * Value.pm: removed kludgy enum_integer value type 
 
-2008-02-27  Dominique Dumont  
 
         * Instance.pm (write_back): can override directory where config
         data is written back (necessary for GUI menu like "save in dir
         ...")
 
-2008-02-26  Dominique Dumont  
 
         * Node.pm (get_help): do not mangle description text (don't remove
         spurious \s and \n. Leave that to user)
 
-2008-02-12  Dominique Dumont  v0.618
+0.618 2008-02-12
 
         * AnyThing.pm (composite_name): new method to return a name
         like element:index or element.
 
-2008-02-08  Dominique Dumont  
 
         * CheckList.pm (): added refer_to and computed_refer_to accessors 
 
-2008-01-28  Dominique Dumont v0.617
+0.617 2008-01-28
 
         * config-edit: added possibility to load Tk GUI (still under
         development)
@@ -1857,12 +1805,10 @@
         * Exception.pm (): Fixed misleading error message for
         UnavailableElement exception
 
-2008-01-25  Dominique Dumont  
 
         * Value.pm (): added "replace" parameter for enum Value. This
         enables to specify a substitution when storing value.
 
-2008-01-23  Dominique Dumont  
 
         * WarpedNode.pm (check): no longer die when trying to retrieve
         warped out node, just return undef. This is necessary to be able
@@ -1875,7 +1821,7 @@
         * ObjTreeScanner.pm (permission): new method to get or set the
         permission of the scanner (after creation).
 
-2007-12-04  Dominique Dumont  v0.616
+0.616 2007-12-04
 
         * AutoRead.pm (read_ini): added capability to read configuration
         data from ini file (See Config::Tiny)
@@ -1888,7 +1834,7 @@
         see Config::Model::Dumper), perl or ini with 'read_config' and
         'write_config' parameter.
 
-2007-11-15  Dominique Dumont  v0.615
+0.615 2007-11-15
 
         * config-edit: added '-force-load' option to load erroneous
         configuration data. bad data is discarded.
@@ -1923,12 +1869,11 @@
         preset | standard | default ]) to be able to audit config data
         (fetch): idem
 
-2007-10-19  Dominique Dumont v0.614
+0.614 2007-10-19
 
         * Value.pm: added 'uniline' value type for string with no embedded
         newline. (no "\n")
 
-2007-10-11  Dominique Dumont
 
         * Model.pm (translate_id_names): new method to translate AnyId
         parameter changes
@@ -1936,7 +1881,6 @@
         * AnyId.pm: Changed some parameters: follow -> follow_keys,
         allow -> allow_keys, allow_from -> allow_keys_from
 
-2007-10-09  Dominique Dumont
 
         * Model.pm (translate_id_default_info): provides backward
         compatibility for AnyId parameter changes.
@@ -1944,21 +1888,19 @@
         * AnyId.pm: default parameter is replaced by 'default_keys' and
         'default_with_init'.
 
-2007-09-25  Dominique Dumont  v0.613
+0.613 2007-09-25
 
         * IdElementReference.pm: Changes the API of IdElementReference so
         that API is more explicit (Like the API change for
         ValueComputer). This change is backward compatible (model
         translation)
 
-2007-09-20  Dominique Dumont  
 
         * ValueComputer.pm: Now compute paramater must use explicit
         parameters for compute formula, variables and replace.  Backward
         compatibility is kept by translating old compute declaration in
         Model.pm
         
-2007-09-17  Dominique Dumont  
 
         * Model.pm (include_class): permission, level and description
         parameters can also be declared within the element declaration.
@@ -1971,7 +1913,6 @@
         * CheckList.pm: Change the name of 'default' parameter to
          'default_list' ('default' is still accepted but is deprecated)
 
-2007-09-06  Dominique Dumont  
 
         * WarpedNode.pm: improved synopsis in doc
         (load_data): new method (forgotten in 0.612)
@@ -1983,7 +1924,7 @@
           model (even through include mechanism: overriding an
           included element leads to confusion)
 
-2007-07-26  Dominique Dumont  v0.612
+0.612 2007-07-26
 
         * HashId.pm : can preserve hash key order (when created with
         ordered => 1). New method to manipulate hash key order are swap,
@@ -1997,7 +1938,6 @@
         elements. I.e. hashes where the order of the keys is kept (like
         Tie::IxHash)
 
-2007-07-18  Dominique Dumont  
 
         * Value.pm (load_data): new method
 
@@ -2016,7 +1956,7 @@
 
         * CheckList.pm (load_data): new method
 
-2007-07-03  Dominique Dumont  v0.611
+0.611 2007-07-03
 
         * WarpedThing.pm: Modified the way to specify complex warped
         rules. The former way based on list of lists was confusing. Now
@@ -2028,26 +1968,23 @@
         expressions). So the change done in WarpedThing is backward
         compatible.
         
-2007-06-06  Dominique Dumont v0.610
+0.610 2007-06-06
 
         * Model.pm (inherit_class): Fix configuration class inheritance
         mechanism
 
-2007-06-04  Dominique Dumont  
 
         * Value.pm: can also warp help for enum value
 
-2007-05-09  Dominique Dumont   v0.609
+0.609 2007-05-09
 
         * config-edit: renamed from config-model
 
-2007-05-07  Dominique Dumont  
 
         * examples/fstab/fstab_test.pl (produce_fstab): added curses
         interface example (need to install Config::Model::CursesUI to
         work)
 
-2007-05-04  Dominique Dumont  
 
         * config-model: added possibility to use the curses interface
         provided by Config::Model::CursesUI (if this one is installed)
@@ -2072,7 +2009,6 @@
         * CheckList.pm: re-wrote as a "check_list" type and not a "list"
         type
 
-2007-04-27  Dominique Dumont  
 
         * Instance.pm (reset_config): new method
         (searcher): renamed search_element to
@@ -2084,31 +2020,29 @@
         * AnyId.pm (copy): new method to deep-copy the content of a hash
         or id element.
 
-2007-04-13  Dominique Dumont  
 
         * Value.pm: moved out reference facility in
         Config::Model::IdElementReference
 
-2007-03-16  Dominique Dumont  
 
         * Value.pm (fetch_no_check): new method
 
-2007-02-23  Dominique Dumont  v0.608
+0.608 2007-02-23
 
         * ObjTreeScanner.pm: Clarified call-back names.
 
-2007-01-12  Dominique Dumont  v0.607
+0.607 2007-01-12
 
         * t/term_ui.t: Changed tests to try to load Term::ReadLine and
         skip tests if Term::ReadLine cannot be loaded.
 
-2007-01-11  Dominique Dumont  v0.606
+0.606 2007-01-11
 
         * config-model: Corrected wrong doc for options.
 
         * Describe.pm: Small cosmetic changes in output.
 
-2007-01-08  Dominique Dumont  v0.605
+0.605 2007-01-08
 
         * config-model: Now uses Log::Log4perl. (Still need to use
         Log4perl for all *.pm files though). Now write config files back.
@@ -2118,7 +2052,6 @@
 
         * *.pm: Small bug and doc fixes.
         
-2006-12-08  Dominique Dumont 
 
         * Model.pm (load): Model files are expected to be delivered as
         Perl module and are searched using @INC. (E.g. Xorg.pl model will
@@ -2130,7 +2063,7 @@
         * examples/fstab/fstab_test.pl: Clarified notifications shown to
         user. Adapted to changes of 0.604
 
-2006-12-06  Dominique Dumont   v0.604
+0.604 2006-12-06
 
         * Node.pm: added check_list in possible element of a node.
 
@@ -2142,7 +2075,6 @@
 
         * WizardHelper.pm: adapted for ObjTreeScanner changes
 
-2006-12-05  Dominique Dumont  
 
         * ObjTreeScanner.pm: Modified the callback signature so the user
         does no longer have to play with closures.
@@ -2170,12 +2102,11 @@
 
         * Report.pm: idem
 
-2006-10-19  Dominique Dumont   v0.603
+0.603 2006-10-19
 
         * Value.pm (set): forbids to specify both 'refer_to' and
         'value_type' in value declaration
 
-2006-10-11  Dominique Dumont  
 
         * Loader.pm (load): Accepts now to load configuration data where
         index can contain white space. (e.g. Monitor:"Hercules Pro")
@@ -2188,7 +2119,6 @@
         * TermUI.pm: removed debug print. This makes auto-completion much
         easier to understand ;-)
 
-2006-09-26  Dominique Dumont  
 
         * Value.pm (set_default): added built_in default
         parameter. Built_in default parameter are not written in
@@ -2198,16 +2128,14 @@
         not taken into account
         (auto_write_init): idem for write_dir
 
-2006-09-22  Dominique Dumont  
 
         * Instance.pm: added doc for the possibility to specify where to
         read or write the configuration files.
 
-2006-09-21  Dominique Dumont  
 
         * AnyId.pm (move): also change index value when moving items.
 
-2006-09-07  Dominique Dumont   v0.602
+0.602 2006-09-07
 
         * config-model: added -help and -man options to command line
 
@@ -2223,14 +2151,13 @@
 
         * AnyId.pm (move): new method
 
-2006-07-20  Dominique Dumont   v0.601
+0.601 2006-07-20
 
         * config-model: new program. This programs can be invoked to
         modify configuration files (provided the corresponding model is
         available in /etc/config-model.d). (Still shaky. Don't run as
         root)
 
-2006-07-19  Dominique Dumont  
 
         * Node.pm (get_type): new method
         (get_cargo_type): new method
@@ -2241,7 +2168,6 @@
         * Value.pm (get_type): new method
         (get_cargo_type): new method
 
-2006-07-18  Dominique Dumont  
 
         * Model.pm (load): new method. Model can load model declaration
         from /etc/config-model.d. The model must be valid perl script that
@@ -2263,7 +2189,7 @@
         * Describe.pm: New file. Provides a human readable description of
         a configuration node.
 
-2006-06-15  Dominique Dumont   v0.507
+0.507 2006-06-15
 
         * TermUI.pm: New file. Provides a shell like interactive user
         interface.
@@ -2272,19 +2198,17 @@
 
         * Instance.pm: Adapted for auto read/write.
 
-2006-06-12  Dominique Dumont   
 
         * AutoRead.pm: New file. Provides node the capabilities to load
         config data when creating a configuration node.
 
-2006-05-19  Dominique Dumont   v0.506
+0.506 2006-05-19
 
         * examples/fstab/FstabModel.pl: added Fstab example with its fstab
         configuration model. This example includes a small program that
         use this model to show some ways to extract configuration
         informations.
 
-2006-05-17  Dominique Dumont   
 
         * Report.pm: new file. Provides report and audit facility for
         Node.pm
@@ -2301,7 +2225,7 @@
 
         * AnyId.pm (fetch_all_values): new method
 
-2006-04-21  Dominique Dumont   v0.505
+0.505 2006-04-21
 
         * WizardHelper.pm: New file. This class helps to create wizard
         widget for config models
@@ -2311,7 +2235,7 @@
         problem and ease integration downstream for a minor performance
         penalty at start time.
 
-2006-04-10  Dominique Dumont   v0.504
+0.504 2006-04-10
 
         * Searcher.pm: Added search element feature. This feature provides
         a way to search for a configuration element in a configuration
@@ -2319,12 +2243,11 @@
         configuration tree. Getting to searched target can be manual or
         automatic (with call-backs provided by user)
 
-2006-03-21  Dominique Dumont  
 
         * Makefile.PL: Changed grammar pre-compilation to add a "1;" at
         the end of ValueFormulaParser.pm (Makes Windows happy)
 
-2006-03-16  Dominique Dumont   v0.503
+0.503 2006-03-16
 
         * Makefile.PL (MY::postamble): Corrected CPAN dependencies
 
