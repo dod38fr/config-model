@@ -4,6 +4,10 @@ use namespace::autoclean;
 use Mouse::Util::TypeConstraints;
 use MouseX::StrictConstructor;
 
+# load AnyEvent as soon as possible: AnyEvent does not like late loading
+# in evals
+use AnyEvent;
+
 use 5.10.1;
 
 use Carp;
