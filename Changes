@@ -1,5 +1,12 @@
 {{$NEXT}}
 
+2.042 2013-09-15
+
+    * Config::Model: load AnyEvent as soon as possible to avoid
+      test issues
+    * ListId: fix typos in pod doc
+    * scripts: use /usr/bin/env to be more portable (e.g. for Mac OSX)
+
 2.041 2013-08-14
 
     Main changes for this release are:
