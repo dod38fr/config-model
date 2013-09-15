@@ -24,7 +24,7 @@ based (with Config::Model::CursesUI) or based on ReadLine.
 
 =head2 Installation
 
-See L<installation instructions|README.install.pod>
+See L<installation instructions|https://github.com/dod38fr/config-model/README.install.pod>
 
 =head2 How does this work ?
 
