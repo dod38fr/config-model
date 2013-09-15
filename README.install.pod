@@ -1,0 +1,45 @@
+=head1 Installation
+
+=head2 Debian or Ubuntu
+
+L<Config::Model> is provided as Debian package. Just type
+
+  sudo apt-get install libconfig-model-perl
+
+Or use your favorite installer
+
+=head2 Mac OSX
+
+L<Config::Model> is provided as ppm package by L<ActiveState|http://www.activestate.com/>:
+
+=over
+
+=item *
+
+Install L<perl from ActiveState|http://www.activestate.com/activeperl/downloads>
+
+=item *
+
+Update your $PATH variable to run ActiveState's perl
+
+=item *
+
+Run ppm to install L<Config::Model package|http://code.activestate.com/ppm/Config-Model/>
+
+=back
+
+=head2 Windows
+
+You can also install L<Config::Model> from  L<ActiveState|http://www.activestate.com/>. See the
+instructions for Mac OSX for details.
+
+=head2 Fedora
+
+L<Config::Model rpm|https://apps.fedoraproject.org/packages/perl-Config-Model>
+on Fedora is severely oudated. See below for installation.
+
+=head2 Other systems
+
+For other systems, you should install L<Config::Model> from CPAN:
+
+  cpanp install Config::Model

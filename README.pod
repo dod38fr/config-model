@@ -22,6 +22,10 @@ configuration editors (with integrated help and data validation).
 These editors can be graphical (with Config::Model::TkUI), curses
 based (with Config::Model::CursesUI) or based on ReadLine.
 
+=head2 Installation
+
+See L<README.install.pod>
+
 =head2 How does this work ?
 
 Using this project, a typical configuration editor will be made of 3
