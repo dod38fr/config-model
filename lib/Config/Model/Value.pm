@@ -212,6 +212,7 @@ sub set_default {
 	my $def    = delete $arg_ref->{$item} ;
 
 	next unless defined $def ;
+        $self->transform_boolean(\$def) if $self->value_type eq 'boolean';
 
 	# will check default value
 	$self->check_value(value => $def) ;
@@ -1355,6 +1356,28 @@ sub store_cb {
     $logger->debug("store_cb done on ",$self->composite_name) if $logger->is_debug ;
 }
 
+#
+# New subroutine "transform_boolean" extracted - Thu Sep 19 18:58:21 2013.
+#
+sub transform_boolean {
+    my $self  = shift;
+    my $v_ref = shift;
+
+    return unless defined $$v_ref;
+
+    if ( my $wa = $self->{write_as} ) {
+        my $i = 0;
+        map {
+            $$v_ref = $i if ($wa->[$i] eq $$v_ref);
+            $i++
+        } @$wa;
+    }
+
+    # convert yes no to 1 or 0
+    $$v_ref = 1 if ( $$v_ref =~ /^y/i or $$v_ref =~ /true/i );
+    $$v_ref = 0 if ( $$v_ref =~ /^n/i or $$v_ref =~ /false/i );
+}
+
 # internal. return ( undef, value)
 # May return an undef value if actual store should be skipped
 sub transform_value {
@@ -1383,11 +1406,7 @@ sub transform_value {
 	$self->{ref_object}->get_choice_from_refered_to ;
     }
 
-    if ($self->{value_type} eq 'boolean' and defined $value) {
-        # convert yes no to 1 or 0 
-        $value = 1 if ($value =~ /^y/i or $value =~ /true/i) ;
-        $value = 0 if ($value =~ /^n/i or $value =~ /false/i );
-    }
+    $self->transform_boolean (\$value) if $self->value_type eq 'boolean';
 
     $value = $self->{convert_sub}($value) 
       if (defined $self->{convert_sub} and defined $value) ;
