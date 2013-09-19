@@ -97,6 +97,12 @@ $model->create_config_class(
             value_type => 'boolean',
             write_as   => [qw/false true/],
         },
+        boolean_with_write_as_and_default => {
+            type       => 'leaf',
+            value_type => 'boolean',
+            write_as   => [qw/false true/],
+            default    => 'true',
+        },
         bare_enum => {
             type       => 'leaf',
             class      => 'Config::Model::Value',
@@ -376,6 +382,9 @@ $bwwa->store('no');
 is($bwwa->fetch, 'false', "boolean_with_write_as returns 'false'");
 $bwwa->store(1);
 is($bwwa->fetch, 'true', "boolean_with_write_as returns 'true'");
+
+my $bwwaad = $root->fetch_element('boolean_with_write_as_and_default');
+is($bwwa->fetch, 'true', "boolean_with_write_as_and_default reads true");
 
 throws_ok { $bad_root->fetch_element('crooked_enum'); }
 'Config::Model::Exception::Model',
