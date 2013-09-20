@@ -1,5 +1,15 @@
 {{$NEXT}}
 
+2.043 2013-09-20
+
+	* build depends on Config::Model::Tester 2.046 to avoid dependency
+      issues 
+    * Value: accept yes/no true/false as default value for Boolean.
+      This can make model declaration more consistent when boolean
+      value must be written as true/false, yes/no. In this case, 
+      forcing model developer to write default value as 0/1 was not
+      cool and prevented generation of model like LcdProc's model. 
+
 2.042 2013-09-15
 
     * Config::Model: load AnyEvent as soon as possible to avoid
