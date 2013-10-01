@@ -1034,10 +1034,14 @@ sub load_data {
             }
             elsif (defined $obj) {
                 # skip hidden elements and trash corresponding data
+                $logger->trace("Node load_data drop element $elt");
                 delete $perl_data->{$elt};
             }
 
-        } elsif ($check ne 'skip')  {
+        } elsif ($check eq 'skip')  {
+            $logger->trace("Node load_data skips element $elt");
+        }
+        else {
             Config::Model::Exception::LoadData 
                 -> throw (
                           message => "load_data: tried to load hidden "
