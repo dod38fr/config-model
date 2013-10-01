@@ -488,15 +488,17 @@ Example:
 
 =head2 migrate
 
-Checks the content of the configuration file of an application, update deprecated
-(old value are saved to new parameters) and save the new configuration.  
+Checks the content of the configuration file of an application (and show
+warnings if needed), discard parameters unused by the application,
+update deprecated parameters (old value are saved to new parameters) and
+save the new configuration.
 
 For more details, see L<Config::Model::Value/Upgrade>
 
 =head2 fix
 
-Like C<migrate> and, when possible, fix the warnings of a configuration
-and save the configuration if anything was changed. Options are:
+A bit like C<migrate> command, except that warnings are fixed. The configuration
+is saved if anything was changed. Options are:
 
 =over 
 
@@ -576,7 +578,7 @@ value help text
 
 Example:
 
- $ cme search multistrap my_mstrap.conf -s http -narrow value
+ $ cme search multistrap my_mstrap.conf -search http -narrow value
  sections:base source -> 'http://ftp.fr.debian.org'
  sections:debian source -> 'http://ftp.uk.debian.org/debian'
  sections:toolchains source -> 'http://www.emdebian.org/debian'
