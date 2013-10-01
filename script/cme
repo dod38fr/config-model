@@ -48,6 +48,7 @@ my $dumptype;
 my $load;
 my @fix_from;
 my $fix_filter ;
+my $request_save  = 0;
 my $force_save  = 0;
 my $open_item   = '';
 my $fuse_dir;
@@ -221,7 +222,6 @@ elsif ( $command eq 'search' ) {
 elsif ($command eq 'migrate') {
     $force_save = 1;
     $root->migrate;
-    
 }
 elsif ($command eq 'fix') {
     @fix_from = ('') unless @fix_from ;
@@ -230,11 +230,11 @@ elsif ($command eq 'fix') {
         say "Fixing from ",$node_to_fix->name,"..." ;
         $node_to_fix->apply_fixes($fix_filter);
     }
-    $force_save = 1;
+    $request_save = 1;
 }
 elsif ( $command eq 'modify' ) {
     $root->load("@ARGV");
-    $force_save = 1;
+    $request_save = 1;
 }
 elsif ( $command =~ /^fuse/ ) {
     eval { require Config::Model::FuseUI; };
@@ -263,7 +263,7 @@ elsif ( $command =~ /^fuse/ ) {
 
         # child process, just run fuse and wait for exit
         $ui->run_loop( debug => $fuse_debug );
-        $force_save = 1;
+        $request_save = 1;
     }
     else {
         exit;    # don't save data in parent process
@@ -377,7 +377,7 @@ elsif ( $command eq 'edit' ) {
 
         # trigger a dump to load all sub-models
         my $dump = $root->dump_tree;
-        $force_save = 1 if $apply_fixes or $load or @ARGV;
+        $request_save = 1 if $apply_fixes or $load or @ARGV;
     }
     else {
         die "Unsupported user interface: $ui_type";
@@ -387,10 +387,10 @@ else {
     die "Looks like the author forgot to implement $command. Bad author, bad.";
 }
 
-if ($force_save) {
+if ($request_save or $force_save) {
     my @changes = $inst->list_changes ;
     say "\n",join( "\n- ","Changes:", @changes ) if @changes;
-    $inst->write_back  ;
+    $inst->write_back(force => $force_save)  ;
 }
 exit 0;
 
@@ -495,7 +495,8 @@ For more details, see L<Config::Model::Value/Upgrade>
 
 =head2 fix
 
-Like C<migrate> and, when possible, fix the warnings of a configuration. Options are:
+Like C<migrate> and, when possible, fix the warnings of a configuration
+and save the configuration if anything was changed. Options are:
 
 =over 
 
