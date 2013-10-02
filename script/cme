@@ -49,7 +49,6 @@ my $load;
 my @fix_from;
 my $fix_filter ;
 my $request_save  = 0;
-my $force_save  = 0;
 my $open_item   = '';
 my $fuse_dir;
 my $fuse_debug  = 0;
@@ -220,7 +219,7 @@ elsif ( $command eq 'search' ) {
     }
 }
 elsif ($command eq 'migrate') {
-    $force_save = 1;
+    $request_save = 1;
     $root->migrate;
 }
 elsif ($command eq 'fix') {
@@ -387,10 +386,12 @@ else {
     die "Looks like the author forgot to implement $command. Bad author, bad.";
 }
 
-if ($request_save or $force_save) {
+if ($request_save) {
     my @changes = $inst->list_changes ;
     say "\n",join( "\n- ","Changes:", @changes ) if @changes;
-    $inst->write_back(force => $force_save)  ;
+    # if load was forced, must write back to clean up errors (even if they are not changes
+    # at semantic level, i.e. removed unnecessary stuff)
+    $inst->write_back(force => $force_load)  ;
 }
 exit 0;
 
@@ -489,9 +490,8 @@ Example:
 =head2 migrate
 
 Checks the content of the configuration file of an application (and show
-warnings if needed), discard parameters unused by the application,
-update deprecated parameters (old value are saved to new parameters) and
-save the new configuration.
+warnings if needed), update deprecated parameters (old value are saved
+to new parameters) and save the new configuration.
 
 For more details, see L<Config::Model::Value/Upgrade>
 
