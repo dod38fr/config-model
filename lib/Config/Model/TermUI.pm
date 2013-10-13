@@ -190,11 +190,9 @@ sub run_loop {
 
 1;
 
-# ABSTRACT: Provides Config::Model UI à la Term::ReadLine
+# ABSTRACT: Provides Config::Model UI with Term::ReadLine
 
 __END__
-
-=encoding utf8
 
 =head1 SYNOPSIS
 
