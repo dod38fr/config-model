@@ -1825,7 +1825,7 @@ For more question, please send a mail to:
 
 =item *
 
-L<Config::Model::Manual::ModelCreationIntroduction>:
+L<Config::Model::Manual::ModelCreationIntroduction>
 
 =item *
 
@@ -1853,7 +1853,7 @@ The documentation below is quite detailed and is more a reference doc regarding
 C<Config::Model> class.
 
 For an introduction to model creation, please check:
-L<http://sourceforge.net/apps/mediawiki/config-model/index.php?title=Creating_a_model>
+L<Config::Model::Manual::ModelCreationIntroduction>
 
 Dedicated Config::Model::Manual pages will follow soon.
 
@@ -2162,7 +2162,13 @@ Now the element of your class will be:
 
   ( bar , foo , xyz , baz )
 
-=back
+=head2 create_config_class
+
+This method creates configuration classes. The parameters are
+described above and are forwarded to L<Config::Model::Node>
+constructor. See
+L<Config::Model::Node/"Configuration class declaration">
+for more details on configuration class parameters.
 
 Example:
 
@@ -2177,9 +2183,6 @@ Example:
    class_description => "SomeRootClass description",
    element           => [ ... ]
   ) ;
-
-Again, see L<Config::Model::Node> for more details on configuration
-class declaration.
 
 For convenience, C<experience>, C<level> and C<description> parameters
 can also be declared within the element declaration:
@@ -2236,7 +2239,8 @@ will return C<( 'Foo::Bar' , 'Foo::Bar2' )>.
 =head2 augment_config_class (name => '...', class_data )
 
 Enhance the feature of a configuration class. This method uses the same parameters
-as L<create_config_class>. See L<Config::Model::Manual::ModelCreationAdvanced/Model Plugin> 
+as L<create_config_class>. See
+L<Config::Model::Manual::ModelCreationAdvanced/"Model Plugin">
 for more details on creating model plugins.
 
 =head1 Model query
