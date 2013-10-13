@@ -1,5 +1,16 @@
 {{$NEXT}}
 
+2.044 2013-10-13
+
+   The main change of this release is the addition of a JSON backend
+   so that cme can read and write JSON configuration files. Given that
+   JSON is more and more used, this new backend is bound to be useful.
+
+   Other fixes:
+    * cme:
+	  * force write back if -force option is used
+      * updated doc
+
 2.043 2013-09-20
 
 	* build depends on Config::Model::Tester 2.046 to avoid dependency
