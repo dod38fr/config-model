@@ -3,7 +3,7 @@
 use ExtUtils::testlib;
 use Test::More tests => 11;
 use Test::Exception ;
-use Test::Warn ;
+use Test::Warn 0.11;
 use Test::Differences ;
 use Test::Memory::Cycle;
 use Config::Model;

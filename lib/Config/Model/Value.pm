@@ -7,6 +7,8 @@ use Mouse::Util::TypeConstraints;
 use MouseX::StrictConstructor;
 use namespace::autoclean;
 
+use Parse::RecDescent 1.90.0;
+
 use Data::Dumper ();
 use Config::Model::Exception ;
 use Config::Model::ValueComputer ;

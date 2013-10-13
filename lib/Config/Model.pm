@@ -15,7 +15,7 @@ use Storable ('dclone') ;
 use Data::Dumper ();
 use Log::Log4perl 1.11 qw(get_logger :levels);
 use Config::Model::Instance ;
-use Hash::Merge qw/merge/ ;
+use Hash::Merge 0.12 qw/merge/ ;
 use File::Path qw/make_path/;
 
 # this class holds the version number of the package

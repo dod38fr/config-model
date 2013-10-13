@@ -3,7 +3,7 @@ use warnings ;
 use File::Path ;
 use Probe::Perl ;
 
-use Test::Command ;
+use Test::Command 0.08 ;
 use Test::More;
 if ( $^O =~ /linux|bsd|solaris|sunos/ ) {
     plan tests => 8;

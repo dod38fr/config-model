@@ -6,7 +6,7 @@ use namespace::autoclean;
 
 # use Scalar::Util qw(weaken) ;
 use Carp ;
-use Parse::RecDescent ;
+use Parse::RecDescent 1.90.0;
 use Data::Dumper () ;
 use Log::Log4perl qw(get_logger :levels);
 
