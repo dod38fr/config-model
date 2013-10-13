@@ -1,22 +1,4 @@
 
-#    Copyright (c) 2006-2010 Dominique Dumont.
-#
-#    This file is part of Config-Model.
-#
-#    Config-Model is free software; you can redistribute it and/or
-#    modify it under the terms of the GNU Lesser Public License as
-#    published by the Free Software Foundation; either version 2.1 of
-#    the License, or (at your option) any later version.
-#
-#    Config-Model is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#    Lesser Public License for more details.
-#
-#    You should have received a copy of the GNU Lesser Public License
-#    along with Config-Model; if not, write to the Free Software
-#    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-
 package Config::Model::Describe;
 use Carp;
 use strict;
@@ -25,117 +7,9 @@ use warnings ;
 use Config::Model::Exception ;
 use Config::Model::ObjTreeScanner ;
 
-
-=head1 NAME
-
-Config::Model::Describe - Provide a description of a node element
-
-=head1 SYNOPSIS
-
- use Config::Model;
- use Log::Log4perl qw(:easy);
- Log::Log4perl->easy_init($WARN);
-
- # define configuration tree object
- my $model = Config::Model->new;
-  $model->create_config_class(
-    name    => "Foo",
-    element => [
-        [qw/foo bar/] => {
-            type       => 'leaf',
-            value_type => 'string'
-        },
-    ]
- ); 
- $model ->create_config_class (
-    name => "MyClass",
-
-    element => [ 
-
-        [qw/foo bar/] => {
-            type       => 'leaf',
-            value_type => 'string'
-        },
-        hash_of_nodes => {
-            type       => 'hash',     # hash id
-            index_type => 'string',
-            cargo      => {
-                type              => 'node',
-                config_class_name => 'Foo'
-            },
-        },
-    ],
- ) ;
-
- my $inst = $model->instance(root_class_name => 'MyClass' );
-
- my $root = $inst->config_root ;
-
- # put data
- my $step = 'foo=FOO hash_of_nodes:fr foo=bonjour -
-   hash_of_nodes:en foo=hello ';
- $root->load( step => $step );
-
- print $root->describe ;
-
- ### prints
- # name         value        type         comment                            
- # foo          FOO          string                                          
- # bar          [undef]      string                                          
- # hash_of_nodes <Foo>        node hash    keys: "en" "fr"                    
-
-=head1 DESCRIPTION
-
-This module is used directly by L<Config::Model::Node> to describe
-a node element. This module returns a human readable string that 
-shows the content of a configuration node.
-
-For instance (as shown by C<fstab> example:
-
- name         value        type         comment
- fs_spec      [undef]      string       mandatory
- fs_vfstype   [undef]      enum         choice: auto davfs ext2 ext3 swap proc iso9660 vfat ignore, mandatory
- fs_file      [undef]      string       mandatory
- fs_freq      0            boolean
- fs_passno    0            integer
-
-This module is also used by the C<ll> command of L<Config::Model::TermUI>.
-
-=head1 CONSTRUCTOR
-
-=head2 new ( )
-
-No parameter. The constructor should be used only by
-L<Config::Model::Node>.
-
-=cut
-
 sub new {
     bless {}, shift ;
 }
-
-=head1 Methods
-
-=head2 describe(...)
-
-Return a description string.
-
-Parameters are:
-
-=over
-
-=item node
-
-Reference to a L<Config::Model::Node> object. Mandatory
-
-=item element
-
-Describe only this element from the node. Optional. All elements are
-described if omitted.
-
-=back
-
-=cut
 
 sub describe {
     my $self = shift ;
@@ -272,6 +146,109 @@ sub describe {
 
 1;
 
+# ABSTRACT: Provide a description of a node element
+
+__END__
+
+=head1 SYNOPSIS
+
+ use Config::Model;
+ use Log::Log4perl qw(:easy);
+ Log::Log4perl->easy_init($WARN);
+
+ # define configuration tree object
+ my $model = Config::Model->new;
+  $model->create_config_class(
+    name    => "Foo",
+    element => [
+        [qw/foo bar/] => {
+            type       => 'leaf',
+            value_type => 'string'
+        },
+    ]
+ );
+ $model ->create_config_class (
+    name => "MyClass",
+
+    element => [
+
+        [qw/foo bar/] => {
+            type       => 'leaf',
+            value_type => 'string'
+        },
+        hash_of_nodes => {
+            type       => 'hash',     # hash id
+            index_type => 'string',
+            cargo      => {
+                type              => 'node',
+                config_class_name => 'Foo'
+            },
+        },
+    ],
+ ) ;
+
+ my $inst = $model->instance(root_class_name => 'MyClass' );
+
+ my $root = $inst->config_root ;
+
+ # put data
+ my $step = 'foo=FOO hash_of_nodes:fr foo=bonjour -
+   hash_of_nodes:en foo=hello ';
+ $root->load( step => $step );
+
+ print $root->describe ;
+
+ ### prints
+ # name         value        type         comment
+ # foo          FOO          string
+ # bar          [undef]      string
+ # hash_of_nodes <Foo>        node hash    keys: "en" "fr"
+
+=head1 DESCRIPTION
+
+This module is used directly by L<Config::Model::Node> to describe
+a node element. This module returns a human readable string that
+shows the content of a configuration node.
+
+For instance (as shown by C<fstab> example:
+
+ name         value        type         comment
+ fs_spec      [undef]      string       mandatory
+ fs_vfstype   [undef]      enum         choice: auto davfs ext2 ext3 swap proc iso9660 vfat ignore, mandatory
+ fs_file      [undef]      string       mandatory
+ fs_freq      0            boolean
+ fs_passno    0            integer
+
+This module is also used by the C<ll> command of L<Config::Model::TermUI>.
+
+=head1 CONSTRUCTOR
+
+=head2 new ( )
+
+No parameter. The constructor should be used only by
+L<Config::Model::Node>.
+
+=head1 Methods
+
+=head2 describe(...)
+
+Return a description string.
+
+Parameters are:
+
+=over
+
+=item node
+
+Reference to a L<Config::Model::Node> object. Mandatory
+
+=item element
+
+Describe only this element from the node. Optional. All elements are
+described if omitted.
+
+=back
+
 =head1 AUTHOR
 
 Dominique Dumont, (ddumont at cpan dot org)
@@ -279,3 +256,5 @@ Dominique Dumont, (ddumont at cpan dot org)
 =head1 SEE ALSO
 
 L<Config::Model>,L<Config::Model::Node>,L<Config::Model::ObjTreeScanner>
+
+=cut

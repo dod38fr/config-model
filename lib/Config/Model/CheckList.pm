@@ -703,14 +703,9 @@ sub warning_msg { '' }
 
 1;
 
+# ABSTRACT: Handle check list element
+
 __END__
-
-
-=pod
-
-=head1 NAME
-
-Config::Model::CheckList - Handle check list element
 
 =head1 SYNOPSIS
 

@@ -142,11 +142,9 @@ __PACKAGE__->meta->make_immutable ;
 
 1;
 
+# ABSTRACT: Virtual class for other backends
+
 __END__
-
-=head1 NAME
-
-Config::Model::Backend::Any - Virtual class for other backends
 
 =head1 SYNOPSIS
 

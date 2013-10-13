@@ -1,8 +1,7 @@
+# PODNAME: Config::Model::Cookbook::CreateModelFromDoc
+# ABSTRACT: Create a configuration model from application documentation
+
 =pod
-
-=head1 NAME
-
-Config::Model::Cookbook::CreateModelFromDoc - Create a configuration model from application documentation
 
 =head1 Introduction
 

@@ -1,8 +1,5 @@
-=pod
-
-=head1 NAME
-
-Config::Model::Manual::ModelCreationIntroduction - Introduction to model creation with Config::Model
+# PODNAME: Config::Model::Manual::ModelCreationIntroduction
+# ABSTRACT: Introduction to model creation with Config::Model
 
 =head1 Introduction
 

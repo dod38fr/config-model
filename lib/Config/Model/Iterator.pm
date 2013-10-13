@@ -1,22 +1,3 @@
-
-#    Copyright (c) 2006-2009,2011 Dominique Dumont.
-#
-#    This file is part of Config-Model.
-#
-#    Config-Model is free software; you can redistribute it and/or
-#    modify it under the terms of the GNU Lesser Public License as
-#    published by the Free Software Foundation; either version 2.1 of
-#    the License, or (at your option) any later version.
-#
-#    Config-Model is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#    Lesser Public License for more details.
-#
-#    You should have received a copy of the GNU Lesser Public License
-#    along with Config-Model; if not, write to the Free Software
-#    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-
 package Config::Model::Iterator ;
 use Carp;
 use strict;
@@ -27,161 +8,6 @@ use Log::Log4perl qw(get_logger :levels);
 use Config::Model::Exception ;
 
 
-=head1 NAME
-
-Config::Model::Iterator - Iterates forward or backward a configuration tree
-
-=head1 SYNOPSIS
-
- use Config::Model;
- use Log::Log4perl qw(:easy);
- Log::Log4perl->easy_init($WARN);
-
- # define configuration tree object
- my $model = Config::Model->new;
- $model->create_config_class(
-    name    => "Foo",
-    element => [
-        [qw/bar baz/] => {
-            type       => 'leaf',
-            value_type => 'string',
-	    level => 'important' ,
-        },
-    ]
- );
- $model->create_config_class(
-    name    => "MyClass",
-    element => [
-        foo_nodes => {
-            type       => 'hash',     # hash id
-            index_type => 'string',
-	    level => 'important' ,
-            cargo      => {
-                type              => 'node',
-                config_class_name => 'Foo'
-            },
-        },
-    ],
- );
-
- my $inst = $model->instance( root_class_name => 'MyClass' );
- # create some Foo objects
- $inst->config_root->load("foo_nodes:foo1 - foo_nodes:foo2  ") ;
-
- my $my_leaf_cb = sub {
-    my ($iter, $data_r,$node,$element,$index, $leaf_object) = @_ ;
-    print "leaf_cb called for ",$leaf_object->location,"\n" ;
- } ;
- my $my_hash_cb = sub {
-    my ($iter, $data_r,$node,$element,@keys) = @_ ;
-    print "hash_element_cb called for element $element with keys @keys\n" ;
- } ;
-
- my $iterator = $inst -> iterator ( 
-    leaf_cb         => $my_leaf_cb,
-    hash_element_cb => $my_hash_cb , 
- );
-
- $iterator->start ;
- ### prints
- # hash_element_cb called for element foo_nodes with keys foo1 foo2
- # leaf_cb called for foo_nodes:foo1 bar
- # leaf_cb called for foo_nodes:foo1 baz
- # leaf_cb called for foo_nodes:foo2 bar
- # leaf_cb called for foo_nodes:foo2 baz
-
-=head1 DESCRIPTION
-
-This module provides a class that is able to iterate forward or backward a configuration tree.
-The iterator will stop and call back user defined subroutines on one of the following condition:
-
-=over
-
-=item *
-
-A configuration item contains an error (mostly undefined mandatory
-values)
-
-=item *
-
-A configuration item contains warnings and the constructor's argument
-C<call_back_on_warning> was set.
-
-=item *
-
-A configuration item has a C<important> level and the constructor's argument
-C<call_back_on_important> was set.. See 
-L<level parameter|Config::Model::Node/"Configuration class declaration"> 
-for details.
-
-=back
-
-By default, the iterator will only stop on element with an C<intermediate>
-experience.
-
-The iterator supports going forward and backward 
-(to support C<back> and C<next> buttons on a wizard widget).
-
-=head1 CONSTRUCTOR
-
-The constructor should be used only by L<Config::Model::Instance> with
-the L<iterator|Config::Model::Instance/"iterator ( ... )">
-method.
-
-=head1 Creating an iterator
-
-A iterator requires at least two kind of call-back: 
-a call-back for leaf elements and a call-back
-for hash elements (which will be also used for list elements).
-
-These call-back must be passed when creating the iterator (the
-parameters are named C<leaf_cb> and C<hash_element_cb>)
-
-Here are the the parameters accepted by C<iterator>:
-
-=head2 call_back_on_important
-
-Whether to call back when an important element is found (default 0).
-
-=head2 call_back_on_warning
-
-Whether to call back when an item with warnings is found (default 0).
-
-=head2 experience
-
-Specifies the experience of the element scanned by the wizard (default
-'intermediate').
-
-=head2 status
-
-Specifies the status of the element scanned by the wizard (default
-'standard').
-
-=head2 leaf_cb
-
-Subroutine called backed for leaf elements. See
-L<Config::Model::ObjTreeScanner/"Callback prototypes"> for signature
-and details. (mandatory)
-
-=head2 hash_element_cb
-
-Subroutine called backed for hash elements. See
-L<Config::Model::ObjTreeScanner/"Callback prototypes"> for signature
-and details. (mandatory)
-
-=head1 Custom callbacks
-
-By default, C<leaf_cb> will be called for all types of leaf elements
-(i.e enum. integer, strings, ...). But you can provide dedicated
-call-back for each type of leaf: 
-
- enum_value_cb, integer_value_cb, number_value_cb, boolean_value_cb,
- uniline_value_cb, string_value_cb
-
-Likewise, you can also provide a call-back dedicated to list elements with
-C<list_element_cb>
-
-=cut
 
 my $logger = get_logger("Wizard::Helper") ;
 
@@ -258,14 +84,6 @@ sub new {
     return $self ;
 }
 
-=head1 Methods
-
-=head2 start
-
-Start the scan and perform call-back when needed. This function will return
-when the scan is completely done.
-
-=cut
 
 sub start {
     my $self = shift ;
@@ -273,12 +91,6 @@ sub start {
     $self->{scanner}->scan_node(undef, $self->{root}) ;
 }
 
-=head2 bail_out
-
-When called, a variable is set so that all call_backs will return as soon as possible. Used to
-abort wizard.
-
-=cut
 
 sub bail_out {
     my $self = shift ;
@@ -422,11 +234,6 @@ sub leaf_cb {
 
 }
 
-=head2 go_forward
-
-Set wizard in forward (default) mode.
-
-=cut
 
 sub go_forward {
     my $self = shift ;
@@ -434,11 +241,6 @@ sub go_forward {
     $self ->{forward} = 1 ; 
 }
 
-=head2 go_backward
-
-Set wizard in backward mode.
-
-=cut
 
 sub go_backward {
     my $self = shift ;
@@ -448,6 +250,180 @@ sub go_backward {
 
 
 1;
+
+# ABSTRACT: Iterates forward or backward a configuration tree
+
+__END__
+
+=head1 SYNOPSIS
+
+ use Config::Model;
+ use Log::Log4perl qw(:easy);
+ Log::Log4perl->easy_init($WARN);
+
+ # define configuration tree object
+ my $model = Config::Model->new;
+ $model->create_config_class(
+    name    => "Foo",
+    element => [
+        [qw/bar baz/] => {
+            type       => 'leaf',
+            value_type => 'string',
+	    level => 'important' ,
+        },
+    ]
+ );
+ $model->create_config_class(
+    name    => "MyClass",
+    element => [
+        foo_nodes => {
+            type       => 'hash',     # hash id
+            index_type => 'string',
+	    level => 'important' ,
+            cargo      => {
+                type              => 'node',
+                config_class_name => 'Foo'
+            },
+        },
+    ],
+ );
+
+ my $inst = $model->instance( root_class_name => 'MyClass' );
+ # create some Foo objects
+ $inst->config_root->load("foo_nodes:foo1 - foo_nodes:foo2  ") ;
+
+ my $my_leaf_cb = sub {
+    my ($iter, $data_r,$node,$element,$index, $leaf_object) = @_ ;
+    print "leaf_cb called for ",$leaf_object->location,"\n" ;
+ } ;
+ my $my_hash_cb = sub {
+    my ($iter, $data_r,$node,$element,@keys) = @_ ;
+    print "hash_element_cb called for element $element with keys @keys\n" ;
+ } ;
+
+ my $iterator = $inst -> iterator (
+    leaf_cb         => $my_leaf_cb,
+    hash_element_cb => $my_hash_cb ,
+ );
+
+ $iterator->start ;
+ ### prints
+ # hash_element_cb called for element foo_nodes with keys foo1 foo2
+ # leaf_cb called for foo_nodes:foo1 bar
+ # leaf_cb called for foo_nodes:foo1 baz
+ # leaf_cb called for foo_nodes:foo2 bar
+ # leaf_cb called for foo_nodes:foo2 baz
+
+=head1 DESCRIPTION
+
+This module provides a class that is able to iterate forward or backward a configuration tree.
+The iterator will stop and call back user defined subroutines on one of the following condition:
+
+=over
+
+=item *
+
+A configuration item contains an error (mostly undefined mandatory
+values)
+
+=item *
+
+A configuration item contains warnings and the constructor's argument
+C<call_back_on_warning> was set.
+
+=item *
+
+A configuration item has a C<important> level and the constructor's argument
+C<call_back_on_important> was set.. See
+L<level parameter|Config::Model::Node/"Configuration class declaration">
+for details.
+
+=back
+
+By default, the iterator will only stop on element with an C<intermediate>
+experience.
+
+The iterator supports going forward and backward
+(to support C<back> and C<next> buttons on a wizard widget).
+
+=head1 CONSTRUCTOR
+
+The constructor should be used only by L<Config::Model::Instance> with
+the L<iterator|Config::Model::Instance/"iterator ( ... )">
+method.
+
+=head1 Creating an iterator
+
+A iterator requires at least two kind of call-back:
+a call-back for leaf elements and a call-back
+for hash elements (which will be also used for list elements).
+
+These call-back must be passed when creating the iterator (the
+parameters are named C<leaf_cb> and C<hash_element_cb>)
+
+Here are the the parameters accepted by C<iterator>:
+
+=head2 call_back_on_important
+
+Whether to call back when an important element is found (default 0).
+
+=head2 call_back_on_warning
+
+Whether to call back when an item with warnings is found (default 0).
+
+=head2 experience
+
+Specifies the experience of the element scanned by the wizard (default
+'intermediate').
+
+=head2 status
+
+Specifies the status of the element scanned by the wizard (default
+'standard').
+
+=head2 leaf_cb
+
+Subroutine called backed for leaf elements. See
+L<Config::Model::ObjTreeScanner/"Callback prototypes"> for signature
+and details. (mandatory)
+
+=head2 hash_element_cb
+
+Subroutine called backed for hash elements. See
+L<Config::Model::ObjTreeScanner/"Callback prototypes"> for signature
+and details. (mandatory)
+
+=head1 Custom callbacks
+
+By default, C<leaf_cb> will be called for all types of leaf elements
+(i.e enum. integer, strings, ...). But you can provide dedicated
+call-back for each type of leaf:
+
+ enum_value_cb, integer_value_cb, number_value_cb, boolean_value_cb,
+ uniline_value_cb, string_value_cb
+
+Likewise, you can also provide a call-back dedicated to list elements with
+C<list_element_cb>
+
+=head1 Methods
+
+=head2 start
+
+Start the scan and perform call-back when needed. This function will return
+when the scan is completely done.
+
+=head2 bail_out
+
+When called, a variable is set so that all call_backs will return as soon as possible. Used to
+abort wizard.
+
+=head2 go_forward
+
+Set wizard in forward (default) mode.
+
+=head2 go_backward
+
+Set wizard in backward mode.
 
 =head1 AUTHOR
 

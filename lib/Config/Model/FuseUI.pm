@@ -294,9 +294,9 @@ sub run_loop {
 
 1;
 
-=head1 NAME
+# ABSTRACT: Fuse virtual file interface for Config::Model
 
-Config::Model::FuseUI - Fuse virtual file interface for Config::Model
+__END__
 
 =head1 SYNOPSIS
 

@@ -125,9 +125,9 @@ __PACKAGE__->meta->make_immutable;
 
 1;
 
-=head1 NAME
+# ABSTRACT: Search tree for match in value, description...
 
-Config::Model::TreeSearcher - Search tree for match in value, description...
+__END__
 
 =head1 SYNOPSIS
 

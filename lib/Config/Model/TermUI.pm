@@ -1,23 +1,3 @@
-
-#    Copyright (c) 2006-2012 Dominique Dumont.
-#
-#    This file is part of Config-Model.
-#
-#    Config-Model is free software; you can redistribute it and/or
-#    modify it under the terms of the GNU Lesser Public License as
-#    published by the Free Software Foundation; either version 2.1 of
-#    the License, or (at your option) any later version.
-#
-#    Config-Model is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#    Lesser Public License for more details.
-#
-#    You should have received a copy of the GNU Lesser Public License
-#    along with Config-Model; if not, write to the Free Software
-#    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-#    02110-1301 USA
-
 package Config::Model::TermUI ;
 
 use Carp;
@@ -28,120 +8,8 @@ use Term::ReadLine;
 
 use base qw/Config::Model::SimpleUI/ ;
 
-=encoding utf8
 
-=head1 NAME
-
-Config::Model::TermUI - Provides Config::Model UI à la Term::ReadLine
-
-=head1 SYNOPSIS
-
- use Config::Model;
- use Config::Model::TermUI ;
- use Log::Log4perl qw(:easy);
- Log::Log4perl->easy_init($WARN);
-
- # define configuration tree object
- my $model = Config::Model->new;
-  $model->create_config_class(
-    name    => "Foo",
-    element => [
-        [qw/foo bar/] => {
-            type       => 'leaf',
-            value_type => 'string'
-        },
-    ]
- ); 
- $model ->create_config_class (
-    name => "MyClass",
-
-    element => [ 
-
-        [qw/foo bar/] => {
-            type       => 'leaf',
-            value_type => 'string'
-        },
-        hash_of_nodes => {
-            type       => 'hash',     # hash id
-            index_type => 'string',
-            cargo      => {
-                type              => 'node',
-                config_class_name => 'Foo'
-            },
-        },
-    ],
- ) ;
-
- my $inst = $model->instance(root_class_name => 'MyClass' );
-
- my $root = $inst->config_root ;
-
- # put data
- my $step = 'foo=FOO hash_of_nodes:fr foo=bonjour -
-   hash_of_nodes:en foo=hello ';
- $root->load( step => $step );
-
- my $ui = Config::Model::TermUI->new( root => $root ,
-  	               	              title => 'My class ui',
-			              prompt => 'class ui',
-				      );
-
- # engage in user interaction
- $ui -> run_loop ;
-
- print $root->dump_tree ;
-
-Once the synopsis above has been saved in C<my_test.pl>, you can achieve the 
-same interactions as with C<Config::Model::SimpleUI>. Except that you can use 
-TAB completion:
-
- class ui:$ ls
- foo  bar  hash_of_nodes
- class ui:$ ll hash_of_nodes
- name         value        type         comment                            
- hash_of_nodes <Foo>        node hash    keys: "en" "fr"                    
- 
- class ui:$ cd hash_of_nodes:en
- class ui: hash_of_nodes:en $ ll
- name         value        type         comment                            
- foo          hello        string                                          
- bar          [undef]      string                                          
- 
- class ui: hash_of_nodes:en $ set bar=bonjour
- class ui: hash_of_nodes:en $ ll
- name         value        type         comment                            
- foo          hello        string                                          
- bar          bonjour      string                                          
-
- class ui: hash_of_nodes:en $ ^D
-
-At the end, the test script will dump the configuration tree. The modified
-C<bar> value can be found in there:
-
- foo=FOO
- hash_of_nodes:en
-   foo=hello
-   bar=bonjour -
- hash_of_nodes:fr
-   foo=bonjour - -
-
-=head1 DESCRIPTION
-
-This module provides a helper to construct pure ASCII user interface
-on top of L<Term::ReadLine>. To get better interaction you must
-install either L<Term::ReadLine::Gnu> or L<Term::ReadLine::Perl>.
-
-Depending on your installation, either L<Term::ReadLine::Gnu> or
-L<Term::ReadLine::Perl>. See L<Term::ReadLine> to override default
-choice.
-
-=head1 USER COMMAND SYNTAX
-
-See L<Config::Model::SimpleUI/"USER COMMAND SYNTAX">.
-
-=cut
-
-my $completion_sub = sub { 
+my $completion_sub = sub {
     my ($self,$text,$line,$start) = @_ ;
 
     my @choice = $self->{current_node} -> get_element_name ;
@@ -151,10 +19,10 @@ my $completion_sub = sub {
     return @choice ;
 } ;
 
-my $leaf_completion_sub = sub { 
+my $leaf_completion_sub = sub {
     my ($self,$text,$line,$start) = @_ ;
 
-    my @choice = $self->{current_node} 
+    my @choice = $self->{current_node}
       -> get_element_name (cargo_type => 'leaf');
 
     return () if scalar grep {$text eq $_ } @choice ;
@@ -169,14 +37,14 @@ my $leaf_completion_sub = sub {
 # problem probably revolves around setting a readline variable like
 # rl_completer_word_break_characters, but I do not know which one.
 
-my $cd_completion_sub = sub { 
+my $cd_completion_sub = sub {
     my ($self,$text,$line,$start) = @_ ;
 
     #print "text '$text' line '$line' start $start\n";
     #print "  cd comp param is ",join('+',@_),"\n";
 
     # convert usual cd_ism ( '..' '/foo') to grab syntax ( '-' '! foo')
-    #$text =~ s(^/)  (! ); 
+    #$text =~ s(^/)  (! );
     #$text =~ s(\.\.)(-)g;
     #$text =~ s(/)   ( )g;
 
@@ -188,7 +56,7 @@ my $cd_completion_sub = sub {
     while (not defined $new_item) {
 	# grab in tolerant mode
 	#print "Grabbing $cmd\n";
-	eval {$new_item = $self->{current_node} 
+	eval {$new_item = $self->{current_node}
 		-> grab(step => $cmd, mode => 'strict', autoadd => 0); };
 	chop $cmd ;
     }
@@ -232,7 +100,7 @@ my $cd_completion_sub = sub {
 } ;
 
 
-my %completion_dispatch = 
+my %completion_dispatch =
   (
    cd => $cd_completion_sub,
    desc => $completion_sub,
@@ -259,31 +127,9 @@ sub completion {
     return () ;
 }
 
-=head1 CONSTRUCTOR
-
-=head2 parameters
-
-=over
-
-=item root
-
-Root node of the configuration tree
-
-=item title
-
-UI title
-
-=item prompt
-
-UI prompt. The prompt will be completed with the location of the
-current node.
-
-=back
-
-=cut
 
 sub new {
-    my $type = shift; 
+    my $type = shift;
     my %args = @_ ;
 
     my $self = {} ;
@@ -305,7 +151,7 @@ sub new {
 	# See Term::ReadLine::Gnu / Custom Completion
 	my $attribs = $term->Attribs ;
 	$attribs->{completion_function} = $sub_ref ;
-	$attribs->{completer_word_break_characters} 
+	$attribs->{completer_word_break_characters}
 	  = $word_break_string;
     }
     elsif ($term->ReadLine eq "Term::ReadLine::Perl") {
@@ -324,13 +170,6 @@ sub new {
     bless $self, $type ;
 }
 
-=head1 Methods
-
-=head2 run_loop()
-
-Engage in user interaction until user enters '^D' (CTRL-D).
-
-=cut
 
 sub run_loop {
     my $self = shift ;
@@ -350,6 +189,144 @@ sub run_loop {
 }
 
 1;
+
+# ABSTRACT: Provides Config::Model UI à la Term::ReadLine
+
+__END__
+
+=encoding utf8
+
+=head1 SYNOPSIS
+
+ use Config::Model;
+ use Config::Model::TermUI ;
+ use Log::Log4perl qw(:easy);
+ Log::Log4perl->easy_init($WARN);
+
+ # define configuration tree object
+ my $model = Config::Model->new;
+  $model->create_config_class(
+    name    => "Foo",
+    element => [
+        [qw/foo bar/] => {
+            type       => 'leaf',
+            value_type => 'string'
+        },
+    ]
+ );
+ $model ->create_config_class (
+    name => "MyClass",
+
+    element => [
+
+        [qw/foo bar/] => {
+            type       => 'leaf',
+            value_type => 'string'
+        },
+        hash_of_nodes => {
+            type       => 'hash',     # hash id
+            index_type => 'string',
+            cargo      => {
+                type              => 'node',
+                config_class_name => 'Foo'
+            },
+        },
+    ],
+ ) ;
+
+ my $inst = $model->instance(root_class_name => 'MyClass' );
+
+ my $root = $inst->config_root ;
+
+ # put data
+ my $step = 'foo=FOO hash_of_nodes:fr foo=bonjour -
+   hash_of_nodes:en foo=hello ';
+ $root->load( step => $step );
+
+ my $ui = Config::Model::TermUI->new( root => $root ,
+  	               	              title => 'My class ui',
+			              prompt => 'class ui',
+				      );
+
+ # engage in user interaction
+ $ui -> run_loop ;
+
+ print $root->dump_tree ;
+
+Once the synopsis above has been saved in C<my_test.pl>, you can achieve the
+same interactions as with C<Config::Model::SimpleUI>. Except that you can use
+TAB completion:
+
+ class ui:$ ls
+ foo  bar  hash_of_nodes
+ class ui:$ ll hash_of_nodes
+ name         value        type         comment
+ hash_of_nodes <Foo>        node hash    keys: "en" "fr"
+
+ class ui:$ cd hash_of_nodes:en
+ class ui: hash_of_nodes:en $ ll
+ name         value        type         comment
+ foo          hello        string
+ bar          [undef]      string
+
+ class ui: hash_of_nodes:en $ set bar=bonjour
+ class ui: hash_of_nodes:en $ ll
+ name         value        type         comment
+ foo          hello        string
+ bar          bonjour      string
+
+ class ui: hash_of_nodes:en $ ^D
+
+At the end, the test script will dump the configuration tree. The modified
+C<bar> value can be found in there:
+
+ foo=FOO
+ hash_of_nodes:en
+   foo=hello
+   bar=bonjour -
+ hash_of_nodes:fr
+   foo=bonjour - -
+
+=head1 DESCRIPTION
+
+This module provides a helper to construct pure ASCII user interface
+on top of L<Term::ReadLine>. To get better interaction you must
+install either L<Term::ReadLine::Gnu> or L<Term::ReadLine::Perl>.
+
+Depending on your installation, either L<Term::ReadLine::Gnu> or
+L<Term::ReadLine::Perl>. See L<Term::ReadLine> to override default
+choice.
+
+=head1 USER COMMAND SYNTAX
+
+See L<Config::Model::SimpleUI/"USER COMMAND SYNTAX">.
+
+=head1 CONSTRUCTOR
+
+=head2 parameters
+
+=over
+
+=item root
+
+Root node of the configuration tree
+
+=item title
+
+UI title
+
+=item prompt
+
+UI prompt. The prompt will be completed with the location of the
+current node.
+
+=back
+
+=head1 Methods
+
+=head2 run_loop()
+
+Engage in user interaction until user enters '^D' (CTRL-D).
 
 =head1 BUGS
 

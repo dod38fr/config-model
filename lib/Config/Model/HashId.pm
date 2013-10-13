@@ -468,14 +468,9 @@ __PACKAGE__->meta->make_immutable;
 
 1;
 
+# ABSTRACT: Handle hash element for configuration model
+
 __END__
-
-
-=pod
-
-=head1 NAME
-
-Config::Model::HashId - Handle hash element for configuration model
 
 =head1 SYNOPSIS
 

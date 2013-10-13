@@ -1,22 +1,3 @@
-
-#    Copyright (c) 2006-2010 Dominique Dumont.
-#
-#    This file is part of Config-Model.
-#
-#    Config-Model is free software; you can redistribute it and/or
-#    modify it under the terms of the GNU Lesser Public License as
-#    published by the Free Software Foundation; either version 2.1 of
-#    the License, or (at your option) any later version.
-#
-#    Config-Model is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#    Lesser Public License for more details.
-#
-#    You should have received a copy of the GNU Lesser Public License
-#    along with Config-Model; if not, write to the Free Software
-#    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-
 package Config::Model::Dumper;
 use Carp;
 use strict;
@@ -25,80 +6,6 @@ use warnings ;
 use Config::Model::Exception ;
 use Config::Model::ObjTreeScanner ;
 
-=head1 NAME
-
-Config::Model::Dumper - Serialize data of config tree
-
-=head1 SYNOPSIS
-
- use Config::Model ;
- use Log::Log4perl qw(:easy) ;
- Log::Log4perl->easy_init($WARN);
-
- # define configuration tree object
- my $model = Config::Model->new ;
- $model ->create_config_class (
-    name => "MyClass",
-    element => [ 
-        [qw/foo bar/] => { 
-            type => 'leaf',
-            value_type => 'string'
-        },
-        baz => { 
-            type => 'hash',
-            index_type => 'string' ,
-            cargo => {
-                type => 'leaf',
-                value_type => 'string',
-            },
-        },
-        
-    ],
- ) ;
-
- my $inst = $model->instance(root_class_name => 'MyClass' );
-
- my $root = $inst->config_root ;
-
- # put some data in config tree the hard way
- $root->fetch_element('foo')->store('yada') ;
- $root->fetch_element('bar')->store('bla bla') ;
- $root->fetch_element('baz')->fetch_with_id('en')->store('hello') ;
-
- # put more data the easy way
- my $step = 'baz:fr=bonjour baz:hr="dobar dan"';
- $root->load( step => $step ) ;
-
- # dump only customized data
- print $root->dump_tree;
-
-
-=head1 DESCRIPTION
-
-This module is used directly by L<Config::Model::Node> to serialize 
-configuration data in a compact (but readable) string.
-
-The serialization can be done in standard mode where only customized
-values are dumped in the string. I.e. only data modified by the user
-are dumped.
-
-The other mode is C<full_dump> mode where all all data, including
-default values, are dumped.
-
-The serialized string can be used by L<Config::Model::Loader> to store
-the data back into a configuration tree.
-
-Note that undefined values are skipped for list element. I.e. if a list
-element contains C<('a',undef,'b')>, the dump will contain C<'a','b'>.
-
-=head1 CONSTRUCTOR
-
-=head2 new ( )
-
-No parameter. The constructor should be used only by
-L<Config::Model::Node>.
-
-=cut
 
 sub new {
     bless {}, shift ;
@@ -126,59 +33,6 @@ sub note_quote {
     return wantarray ? @res : $res[0];
 }
 
-=head1 Methods
-
-=head2 dump_tree
-
-Return a string that contains a dump of the object tree with all the
-values. This string follows the convention defined by
-L<Config::Model::Loader>.
-
-The serialized string can be used by L<Config::Model::Loader> to store
-the data back into a configuration tree.
-
-Parameters are:
-
-=over
-
-=item mode ( full | preset | custom )
-
-C<full> will dump all configuration data including default
-values. 
-
-C<preset> will dump only value entered in preset mode.
-
-By default, the dump contains only data modified by the user
-(i.e. C<custom> data that differ from default or preset values).
-
-=item node
-
-Reference to the L<Config::Model::Node> object that is dumped. All
-nodes and leaves attached to this node are also dumped.
-
-=item skip_auto_write ( <backend_name> )
-
-Skip node that have a write capability matching C<backend_name> in
-their model. See L<Config::Model::BackendMgr>. 
-
-=item auto_vivify
-
-Scan and create data for nodes elements even if no actual data was
-stored in them. This may be useful to trap missing mandatory values.
-(default: 0)
-
-=item experience ( ... )
-
-Restrict dump to C<beginner> or C<intermediate> parameters. Default is
-to dump all parameters (C<master> level)
-
-=item check
-
-Check value before dumping. Valid check are 'yes', 'no' and 'skip'.
-
-=back
-
-=cut
 
 sub dump_tree {
     my $self = shift;
@@ -364,6 +218,131 @@ sub dump_tree {
 
 1;
 
+# ABSTRACT: Serialize data of config tree
+
+__END__
+
+=head1 SYNOPSIS
+
+ use Config::Model ;
+ use Log::Log4perl qw(:easy) ;
+ Log::Log4perl->easy_init($WARN);
+
+ # define configuration tree object
+ my $model = Config::Model->new ;
+ $model ->create_config_class (
+    name => "MyClass",
+    element => [
+        [qw/foo bar/] => {
+            type => 'leaf',
+            value_type => 'string'
+        },
+        baz => {
+            type => 'hash',
+            index_type => 'string' ,
+            cargo => {
+                type => 'leaf',
+                value_type => 'string',
+            },
+        },
+
+    ],
+ ) ;
+
+ my $inst = $model->instance(root_class_name => 'MyClass' );
+
+ my $root = $inst->config_root ;
+
+ # put some data in config tree the hard way
+ $root->fetch_element('foo')->store('yada') ;
+ $root->fetch_element('bar')->store('bla bla') ;
+ $root->fetch_element('baz')->fetch_with_id('en')->store('hello') ;
+
+ # put more data the easy way
+ my $step = 'baz:fr=bonjour baz:hr="dobar dan"';
+ $root->load( step => $step ) ;
+
+ # dump only customized data
+ print $root->dump_tree;
+
+
+=head1 DESCRIPTION
+
+This module is used directly by L<Config::Model::Node> to serialize
+configuration data in a compact (but readable) string.
+
+The serialization can be done in standard mode where only customized
+values are dumped in the string. I.e. only data modified by the user
+are dumped.
+
+The other mode is C<full_dump> mode where all all data, including
+default values, are dumped.
+
+The serialized string can be used by L<Config::Model::Loader> to store
+the data back into a configuration tree.
+
+Note that undefined values are skipped for list element. I.e. if a list
+element contains C<('a',undef,'b')>, the dump will contain C<'a','b'>.
+
+=head1 CONSTRUCTOR
+
+=head2 new ( )
+
+No parameter. The constructor should be used only by
+L<Config::Model::Node>.
+
+=head1 Methods
+
+=head2 dump_tree
+
+Return a string that contains a dump of the object tree with all the
+values. This string follows the convention defined by
+L<Config::Model::Loader>.
+
+The serialized string can be used by L<Config::Model::Loader> to store
+the data back into a configuration tree.
+
+Parameters are:
+
+=over
+
+=item mode ( full | preset | custom )
+
+C<full> will dump all configuration data including default
+values.
+
+C<preset> will dump only value entered in preset mode.
+
+By default, the dump contains only data modified by the user
+(i.e. C<custom> data that differ from default or preset values).
+
+=item node
+
+Reference to the L<Config::Model::Node> object that is dumped. All
+nodes and leaves attached to this node are also dumped.
+
+=item skip_auto_write ( <backend_name> )
+
+Skip node that have a write capability matching C<backend_name> in
+their model. See L<Config::Model::BackendMgr>.
+
+=item auto_vivify
+
+Scan and create data for nodes elements even if no actual data was
+stored in them. This may be useful to trap missing mandatory values.
+(default: 0)
+
+=item experience ( ... )
+
+Restrict dump to C<beginner> or C<intermediate> parameters. Default is
+to dump all parameters (C<master> level)
+
+=item check
+
+Check value before dumping. Valid check are 'yes', 'no' and 'skip'.
+
+=back
+
 =head1 AUTHOR
 
 Dominique Dumont, (ddumont at cpan dot org)
@@ -371,3 +350,5 @@ Dominique Dumont, (ddumont at cpan dot org)
 =head1 SEE ALSO
 
 L<Config::Model>,L<Config::Model::Node>,L<Config::Model::Loader>
+
+=cut

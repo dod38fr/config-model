@@ -86,14 +86,9 @@ sub _check_value {
 }
 1;
 
+# ABSTRACT: Include a sub layer configuration
 
 __END__
-
-=pod
-
-=head1 NAME
-
-Config::Model::Value::LayeredInclude - Include a sub layer configuration
 
 =head1 SYNOPSIS
 

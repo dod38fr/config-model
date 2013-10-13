@@ -1884,15 +1884,9 @@ __PACKAGE__->meta->make_immutable;
 
 1;
 
+# ABSTRACT:  Strongly typed configuration value
+
 __END__
-
-
-
-=pod
-
-=head1 NAME
-
-Config::Model::Value - Strongly typed configuration value
 
 =head1 SYNOPSIS
 

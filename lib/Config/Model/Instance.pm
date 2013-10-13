@@ -422,15 +422,9 @@ __PACKAGE__->meta->make_immutable;
 
 1;
 
-
+# ABSTRACT: Instance of configuration tree
 
 __END__
-
-=pod
-
-=head1 NAME
-
-Config::Model::Instance - Instance of configuration tree
 
 =head1 SYNOPSIS
 

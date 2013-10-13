@@ -560,14 +560,10 @@ __PACKAGE__->meta->make_immutable;
 1;
 
 
+# ABSTRACT:  Provides configuration value computation
+
 __END__
 
-
-=pod
-
-=head1 NAME
-
-Config::Model::ValueComputer - Provides configuration value computation
 
 =head1 SYNOPSIS
 

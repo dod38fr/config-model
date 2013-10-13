@@ -72,11 +72,9 @@ sub write {
 
 1;
 
+# ABSTRACT: Read and write config as a YAML data structure
+
 __END__
-
-=head1 NAME
-
-Config::Model::Backend::Yaml - Read and write config as a YAML data structure
 
 =head1 SYNOPSIS
 

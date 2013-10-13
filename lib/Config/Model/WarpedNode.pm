@@ -289,15 +289,9 @@ sub trigger_warp {
 
 1;
 
+# ABSTRACT: Node that change config class properties
+
 __END__
-
-
-
-=pod
-
-=head1 NAME
-
-Config::Model::WarpedNode - Node that change config class properties 
 
 =head1 SYNOPSIS
 

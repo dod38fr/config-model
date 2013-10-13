@@ -1,8 +1,5 @@
-=pod
-
-=head1 NAME
-
-Config::Model::Manual::ModelCreationAdvanced - Creating a model with advanced features
+# PODNAME: Config::Model::Manual::ModelCreationAdvanced
+# ABSTRACT: Creating a model with advanced features
 
 =head1 Introduction
 

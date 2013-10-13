@@ -717,11 +717,9 @@ __PACKAGE__->meta->make_immutable;
 
 1;
 
+# ABSTRACT: Load configuration node on demand
+
 __END__
-
-=head1 NAME
-
-Config::Model::BackendMgr - Load configuration node on demand
 
 =head1 SYNOPSIS
 

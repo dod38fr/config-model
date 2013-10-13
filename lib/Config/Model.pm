@@ -1533,14 +1533,11 @@ __PACKAGE__->meta->make_immutable ;
 
 1;
 
+# ABSTRACT:  Create tools to validate, migrate and edit configuration files
 
 __END__
 
 =pod
-
-=head1 NAME
-
-Config::Model - Create tools to validate, migrate and edit configuration files
 
 =head1 SYNOPSIS
 
@@ -2167,6 +2164,8 @@ elements after a specific element of your including class:
 Now the element of your class will be:
 
   ( bar , foo , xyz , baz )
+
+=back
 
 =head2 create_config_class
 

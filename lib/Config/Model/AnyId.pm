@@ -958,15 +958,9 @@ __PACKAGE__->meta->make_immutable;
 
 1;
 
+# ABSTRACT: Base class for hash or list element
+
 __END__
-
-
-
-=pod
-
-=head1 NAME
-
-Config::Model::AnyId - Base class for hash or list element
 
 =head1 SYNOPSIS
 

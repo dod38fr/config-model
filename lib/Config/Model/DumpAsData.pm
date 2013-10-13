@@ -1,22 +1,3 @@
-
-#    Copyright (c) 2007 Dominique Dumont.
-#
-#    This file is part of Config-Model.
-#
-#    Config-Model is free software; you can redistribute it and/or
-#    modify it under the terms of the GNU Lesser Public License as
-#    published by the Free Software Foundation; either version 2.1 of
-#    the License, or (at your option) any later version.
-#
-#    Config-Model is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#    Lesser Public License for more details.
-#
-#    You should have received a copy of the GNU Lesser Public License
-#    along with Config-Model; if not, write to the Free Software
-#    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-
 package Config::Model::DumpAsData;
 use Carp;
 use strict;
@@ -25,138 +6,11 @@ use warnings ;
 use Config::Model::Exception ;
 use Config::Model::ObjTreeScanner ;
 
-=head1 NAME
-
-Config::Model::DumpAsData - Dump configuration content as a perl data structure
-
-=head1 SYNOPSIS
-
- use Config::Model ;
- use Log::Log4perl qw(:easy) ;
- use Data::Dumper ;
-
- Log::Log4perl->easy_init($WARN);
-
- # define configuration tree object
- my $model = Config::Model->new ;
- $model ->create_config_class (
-    name => "MyClass",
-    element => [ 
-        [qw/foo bar/] => { 
-            type => 'leaf',
-            value_type => 'string'
-        },
-        baz => { 
-            type => 'hash',
-            index_type => 'string' ,
-            cargo => {
-                type => 'leaf',
-                value_type => 'string',
-            },
-        },
-        
-    ],
- ) ;
-
- my $inst = $model->instance(root_class_name => 'MyClass' );
-
- my $root = $inst->config_root ;
-
- # put some data in config tree the hard way
- $root->fetch_element('foo')->store('yada') ;
- $root->fetch_element('bar')->store('bla bla') ;
- $root->fetch_element('baz')->fetch_with_id('en')->store('hello') ;
-
- # put more data the easy way
- my $step = 'baz:fr=bonjour baz:hr="dobar dan"';
- $root->load( step => $step ) ;
-
- print Dumper($root->dump_as_data);
- # $VAR1 = {
- #         'bar' => 'bla bla',
- #         'baz' => {
- #                    'en' => 'hello',
- #                    'fr' => 'bonjour',
- #                    'hr' => 'dobar dan'
- #                  },
- #         'foo' => 'yada'
- #       };
-
-=head1 DESCRIPTION
-
-This module is used directly by L<Config::Model::Node> to dump the content
-of a configuration tree in perl data structure.
-
-The perl data structure is a hash of hash. Only
-L<CheckList|Config::Model::CheckList> content will be stored in an array ref.
-
-Note that undefined values are skipped for list element. I.e. if a
-list element contains C<('a',undef,'b')>, the data structure will
-contain C<'a','b'>.
-
-=head1 CONSTRUCTOR
-
-=head2 new ( )
-
-No parameter. The constructor should be used only by
-L<Config::Model::Node>.
-
-=cut
 
 sub new {
     bless {}, shift ;
 }
 
-=head1 Methods
-
-=head2 dump_as_data(...)
-
-Return a perl data structure
-
-Parameters are:
-
-=over
-
-=item node
-
-Reference to a L<Config::Model::Node> object. Mandatory
-
-=item full_dump
-
-Also dump default values in the data structure. Useful if the dumped
-configuration data will be used by the application. (default is yes)
-
-=item skip_auto_write
-
-Skip node that have a C<perl write> capability in their model. See
-L<Config::Model::BackendMgr>.
-
-=item auto_vivify
-
-Scan and create data for nodes elements even if no actual data was
-stored in them. This may be useful to trap missing mandatory values.
-
-=item ordered_hash_as_list
-
-By default, ordered hash (i.e. the order of the keys are important)
-are dumped as Perl list. This is the faster way to dump such hashed
-while keeping the key order. But it's the less readable way. 
-
-When this parameter is 1 (default), the ordered hash is dumped as a
-list:
-
-  [ A => 'foo', B => 'bar', C => 'baz' ]
-
-When this parameter is set as 0, the ordered hash is dumped with a
-special key that specifies the order of keys. E.g.:
-
-  { __order => [ 'A', 'B', 'C' ] ,
-    B => 'bar', A => 'foo', C => 'baz' 
-  }
-
-=back
-
-=cut
 
 sub dump_as_data {
     my $self = shift ;
@@ -285,31 +139,6 @@ sub dump_as_data {
     return $result ;
 }
 
-=head1 Methods
-
-=head2 dump_annotations_as_pod(...)
-
-Return a string formatted in pod (See L<perlpod>) with the annotations.
-
-Parameters are:
-
-=over
-
-=item node
-
-Reference to a L<Config::Model::Node> object. Mandatory
-
-=item experience
-
-master, advanced or beginner
-
-=item check_list
-
-Yes, no or skip
-
-=back
-
-=cut 
 
 sub dump_annotations_as_pod {
     my $self = shift ;
@@ -398,6 +227,155 @@ sub dump_annotations_as_pod {
 
 1;
 
+# ABSTRACT: Dump configuration content as a perl data structure
+
+__END__
+
+=head1 SYNOPSIS
+
+ use Config::Model ;
+ use Log::Log4perl qw(:easy) ;
+ use Data::Dumper ;
+
+ Log::Log4perl->easy_init($WARN);
+
+ # define configuration tree object
+ my $model = Config::Model->new ;
+ $model ->create_config_class (
+    name => "MyClass",
+    element => [
+        [qw/foo bar/] => {
+            type => 'leaf',
+            value_type => 'string'
+        },
+        baz => {
+            type => 'hash',
+            index_type => 'string' ,
+            cargo => {
+                type => 'leaf',
+                value_type => 'string',
+            },
+        },
+
+    ],
+ ) ;
+
+ my $inst = $model->instance(root_class_name => 'MyClass' );
+
+ my $root = $inst->config_root ;
+
+ # put some data in config tree the hard way
+ $root->fetch_element('foo')->store('yada') ;
+ $root->fetch_element('bar')->store('bla bla') ;
+ $root->fetch_element('baz')->fetch_with_id('en')->store('hello') ;
+
+ # put more data the easy way
+ my $step = 'baz:fr=bonjour baz:hr="dobar dan"';
+ $root->load( step => $step ) ;
+
+ print Dumper($root->dump_as_data);
+ # $VAR1 = {
+ #         'bar' => 'bla bla',
+ #         'baz' => {
+ #                    'en' => 'hello',
+ #                    'fr' => 'bonjour',
+ #                    'hr' => 'dobar dan'
+ #                  },
+ #         'foo' => 'yada'
+ #       };
+
+=head1 DESCRIPTION
+
+This module is used directly by L<Config::Model::Node> to dump the content
+of a configuration tree in perl data structure.
+
+The perl data structure is a hash of hash. Only
+L<CheckList|Config::Model::CheckList> content will be stored in an array ref.
+
+Note that undefined values are skipped for list element. I.e. if a
+list element contains C<('a',undef,'b')>, the data structure will
+contain C<'a','b'>.
+
+=head1 CONSTRUCTOR
+
+=head2 new ( )
+
+No parameter. The constructor should be used only by
+L<Config::Model::Node>.
+
+=head1 Methods
+
+=head2 dump_as_data(...)
+
+Return a perl data structure
+
+Parameters are:
+
+=over
+
+=item node
+
+Reference to a L<Config::Model::Node> object. Mandatory
+
+=item full_dump
+
+Also dump default values in the data structure. Useful if the dumped
+configuration data will be used by the application. (default is yes)
+
+=item skip_auto_write
+
+Skip node that have a C<perl write> capability in their model. See
+L<Config::Model::BackendMgr>.
+
+=item auto_vivify
+
+Scan and create data for nodes elements even if no actual data was
+stored in them. This may be useful to trap missing mandatory values.
+
+=item ordered_hash_as_list
+
+By default, ordered hash (i.e. the order of the keys are important)
+are dumped as Perl list. This is the faster way to dump such hashed
+while keeping the key order. But it's the less readable way.
+
+When this parameter is 1 (default), the ordered hash is dumped as a
+list:
+
+  [ A => 'foo', B => 'bar', C => 'baz' ]
+
+When this parameter is set as 0, the ordered hash is dumped with a
+special key that specifies the order of keys. E.g.:
+
+  { __order => [ 'A', 'B', 'C' ] ,
+    B => 'bar', A => 'foo', C => 'baz'
+  }
+
+=back
+
+=head1 Methods
+
+=head2 dump_annotations_as_pod(...)
+
+Return a string formatted in pod (See L<perlpod>) with the annotations.
+
+Parameters are:
+
+=over
+
+=item node
+
+Reference to a L<Config::Model::Node> object. Mandatory
+
+=item experience
+
+master, advanced or beginner
+
+=item check_list
+
+Yes, no or skip
+
+=back
+
 =head1 AUTHOR
 
 Dominique Dumont, (ddumont at cpan dot org)
@@ -405,3 +383,5 @@ Dominique Dumont, (ddumont at cpan dot org)
 =head1 SEE ALSO
 
 L<Config::Model>,L<Config::Model::Node>,L<Config::Model::ObjTreeScanner>
+
+=cut

@@ -569,11 +569,11 @@ sub warp_error {
 
 __PACKAGE__->meta->make_immutable;
 
+# ABSTRACT: Warp tree properties
+
 1;
 
-=head1 NAME
-
-Config::Model::Warper - Warp tree properties
+__END__
 
 =head1 SYNOPSIS
 

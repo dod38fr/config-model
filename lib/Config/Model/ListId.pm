@@ -377,14 +377,9 @@ __PACKAGE__->meta->make_immutable;
 
 1;
 
+# ABSTRACT: Handle list element for configuration model
+
 __END__
-
-
-=pod
-
-=head1 NAME
-
-Config::Model::ListId - Handle list element for configuration model
 
 =head1 SYNOPSIS
 

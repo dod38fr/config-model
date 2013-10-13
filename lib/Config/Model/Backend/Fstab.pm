@@ -138,11 +138,9 @@ __PACKAGE__->meta->make_immutable ;
 
 1;
 
+# ABSTRACT: Read and write config from fstab file
+
 __END__
-
-=head1 NAME
-
-Config::Model::Backend::Fstab - Read and write config from fstab file
 
 =head1 SYNOPSIS
 

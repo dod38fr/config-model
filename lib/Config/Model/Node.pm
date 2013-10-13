@@ -1219,14 +1219,9 @@ __PACKAGE__->meta->make_immutable;
 
 1;
 
+# ABSTRACT: Class for configuration tree node
 
 __END__
-
-=pod
-
-=head1 NAME
-
-Config::Model::Node - Class for configuration tree node
 
 =head1 SYNOPSIS
 

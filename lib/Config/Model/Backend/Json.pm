@@ -71,11 +71,9 @@ sub write {
 
 1;
 
+# ABSTRACT: Read and write config as a JSON data structure
+
 __END__
-
-=head1 NAME
-
-Config::Model::Backend::Json - Read and write config as a JSON data structure
 
 =head1 SYNOPSIS
 

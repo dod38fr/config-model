@@ -551,14 +551,9 @@ __PACKAGE__->meta->make_immutable;
 
 1;
 
+# ABSTRACT: Base class for configuration tree item
 
 __END__
-
-=pod
-
-=head1 NAME
-
-Config::Model::AnyThing - Base class for configuration tree item
 
 =head1 SYNOPSIS
 

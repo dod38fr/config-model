@@ -174,13 +174,9 @@ __PACKAGE__->meta->make_immutable;
 
 1;
 
+# ABSTRACT: Refer to id element(s) and extract keys
+
 __END__
-
-=pod
-
-=head1 NAME
-
-Config::Model::IdElementReference - Refer to id element(s) and extract keys
 
 =head1 SYNOPSIS
 

@@ -1,176 +1,8 @@
-
-#    Copyright (c) 2008,2011 Dominique Dumont.
-#
-#    This file is part of Config-Model.
-#
-#    Config-Model is free software; you can redistribute it and/or
-#    modify it under the terms of the GNU Lesser Public License as
-#    published by the Free Software Foundation; either version 2.1 of
-#    the License, or (at your option) any later version.
-#
-#    Config-Model is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#    Lesser Public License for more details.
-#
-#    You should have received a copy of the GNU Lesser Public License
-#    along with Config-Model; if not, write to the Free Software
-#    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-#    02110-1301 USA
-
 package Config::Model::SimpleUI ;
 
 use Carp;
 use strict ;
 use warnings ;
-
-
-=head1 NAME
-
-Config::Model::SimpleUI - Simple interface for Config::Model
-
-=head1 SYNOPSIS
-
- use Config::Model;
- use Config::Model::SimpleUI ;
- use Log::Log4perl qw(:easy);
- Log::Log4perl->easy_init($WARN);
-
- # define configuration tree object
- my $model = Config::Model->new;
-  $model->create_config_class(
-    name    => "Foo",
-    element => [
-        [qw/foo bar/] => {
-            type       => 'leaf',
-            value_type => 'string'
-        },
-    ]
- ); 
- $model ->create_config_class (
-    name => "MyClass",
-
-    element => [ 
-
-        [qw/foo bar/] => {
-            type       => 'leaf',
-            value_type => 'string'
-        },
-        hash_of_nodes => {
-            type       => 'hash',     # hash id
-            index_type => 'string',
-            cargo      => {
-                type              => 'node',
-                config_class_name => 'Foo'
-            },
-        },
-    ],
- ) ;
-
- my $inst = $model->instance(root_class_name => 'MyClass' );
-
- my $root = $inst->config_root ;
-
- # put data
- my $step = 'foo=FOO hash_of_nodes:fr foo=bonjour -
-   hash_of_nodes:en foo=hello ';
- $root->load( step => $step );
-
- my $ui = Config::Model::SimpleUI->new( root => $root ,
-  	               		        title => 'My class ui',
-					prompt => 'class ui',
-				      );
-
- # engage in user interaction
- $ui -> run_loop ;
-
- print $root->dump_tree ;
-
-Once the synopsis above has been saved in C<my_test.pl>, you can do:
-
- $ perl my_test.pl
- class ui:$ ls
- foo  bar  hash_of_nodes
- class ui:$ ll hash_of_nodes
- name         value        type         comment                            
- hash_of_nodes <Foo>        node hash    keys: "en" "fr"                    
- 
- class ui:$ cd hash_of_nodes:en
- 
- class ui: hash_of_nodes:en $ ll
- name         value        type         comment                            
- foo          hello        string                                          
- bar          [undef]      string                                          
- 
- class ui: hash_of_nodes:en $ set bar=bonjour
- 
- class ui: hash_of_nodes:en $  ll
- name         value        type         comment                            
- foo          hello        string                                          
- bar          bonjour      string                                          
- 
- class ui: hash_of_nodes:en $ ^D
-
-At the end, the test script will dump the configuration tree. The modified
-C<bar> value can be found in there:
-
- foo=FOO
- hash_of_nodes:en
-   foo=hello
-   bar=bonjour -
- hash_of_nodes:fr
-   foo=bonjour - -
-
-=head1 DESCRIPTION
-
-This module provides a pure ASCII user interface using STDIN and
-STDOUT.
-
-=head1 USER COMMAND SYNTAX
-
-=over
-
-=item cd ...
-
-Jump into node or value element. You can use C<< cd <element> >>,
-C<< cd <elt:key> >> or C<cd -> to go up one node or C<cd !> 
-to go to configuration root.
-
-=item set elt=value 
-
-Set a leaf value. 
-
-=item set elt:key=value
-
-Set a leaf value locate in a hash or list element.
-
-=item display node_name elt:key
-
-Display a value
-
-=item ls
-
-Show elements of current node
-
-=item help
-
-Show available commands.
-
-=item desc[ription]
-
-Show class description of current node.
-
-=item desc(elt)
-
-Show description of element from current node.
-
-=item desc(value)
-
-Show effect of value (for enum)
-
-=back
-
-=cut
 
 my $syntax = '
 cd <elt> cd <elt:key>, cd - , cd !
@@ -182,7 +14,7 @@ delete elt:key
 display elt elt:key
    -> display a value
 ls -> show elements of current node
-ll -> show elements of current node and their value 
+ll -> show elements of current node and their value
 help -> show available command
 desc[ription] -> show class desc of current node
 desc <element>   -> show desc of element from current node
@@ -225,15 +57,15 @@ my $ll_sub = sub {
 
     my $i = $self->{current_node}->instance;
     my $res = $obj->describe(element => $elt, check =>'no') ;
-    return $res ; 
+    return $res ;
 } ;
 
-my $cd_sub = sub { 
+my $cd_sub = sub {
     my $self = shift ;
     my @cmds = @_;
     # convert usual cd_ism ( .. /foo) to grab syntax ( - ! foo)
-    #map { s(^/)  (! ); 
-#	  s(\.\.)(-)g; 
+    #map { s(^/)  (! );
+#	  s(\.\.)(-)g;
 #	  s(/)   ( )g;
 #      } @cmds ;
 
@@ -263,23 +95,23 @@ my $cd_sub = sub {
 my %run_dispatch =
   (
    help => sub{ return $syntax; } ,
-   set  => sub { 
+   set  => sub {
        my $self = shift ;
        $self->{current_node}->load(@_) ;
        return "" ;
    },
-   display => sub { 
+   display => sub {
        my $self = shift ;
        print "Nothing to display" unless @_ ;
        return $self->{current_node}->grab_value(@_) ;
    },
-   ls => sub { 
+   ls => sub {
        my $self = shift ;
        my $i = $self->{current_node}->instance;
        my @res = $self->{current_node}->get_element_name ;
        return join('  ',@res) ;
    },
-   dump => sub { 
+   dump => sub {
        my $self = shift ;
        my $i = $self->{current_node}->instance;
        my @res = $self->{current_node}-> dump_tree(full_dump => 1);
@@ -291,7 +123,7 @@ my %run_dispatch =
        $self->{current_node}->fetch_element($elt)->delete($key);
        return '' ;
    },
-   save => sub { 
+   save => sub {
        my ($self,$dir) = @_ ;
        $self->{root}->instance->write_back($dir);
        return "done";
@@ -306,31 +138,9 @@ sub simple_ui_commands {
     sort keys %run_dispatch ;
 }
 
-=head1 CONSTRUCTOR
-
-=head2 parameters
-
-=over
-
-=item root
-
-Root node of the configuration tree
-
-=item title
-
-UI title
-
-=item prompt
-
-UI prompt. The prompt will be completed with the location of the
-current node.
-
-=back
-
-=cut
 
 sub new {
-    my $type = shift; 
+    my $type = shift;
     my %args = @_ ;
 
     my $self = {} ;
@@ -345,13 +155,6 @@ sub new {
     bless $self, $type ;
 }
 
-=head1 Methods
-
-=head2 run_loop()
-
-Engage in user interaction until user enters '^D' (CTRL-D).
-
-=cut
 
 sub run_loop {
     my $self = shift ;
@@ -408,7 +211,7 @@ sub list_cd_path {
 	my $t = $c_node->element_type($elt_name) ;
 
 	if ($t eq 'list' or $t eq 'hash') {
-	    push @result, 
+	    push @result,
 	      map { "$elt_name:$_" }
 		$c_node->fetch_element($elt_name)->fetch_all_indexes ;
 	}
@@ -420,6 +223,176 @@ sub list_cd_path {
     return \@result ;
 }
 1;
+
+#ABSTRACT: Simple interface for Config::Model
+
+=head1 SYNOPSIS
+
+ use Config::Model;
+ use Config::Model::SimpleUI ;
+ use Log::Log4perl qw(:easy);
+ Log::Log4perl->easy_init($WARN);
+
+ # define configuration tree object
+ my $model = Config::Model->new;
+  $model->create_config_class(
+    name    => "Foo",
+    element => [
+        [qw/foo bar/] => {
+            type       => 'leaf',
+            value_type => 'string'
+        },
+    ]
+ );
+ $model ->create_config_class (
+    name => "MyClass",
+
+    element => [
+
+        [qw/foo bar/] => {
+            type       => 'leaf',
+            value_type => 'string'
+        },
+        hash_of_nodes => {
+            type       => 'hash',     # hash id
+            index_type => 'string',
+            cargo      => {
+                type              => 'node',
+                config_class_name => 'Foo'
+            },
+        },
+    ],
+ ) ;
+
+ my $inst = $model->instance(root_class_name => 'MyClass' );
+
+ my $root = $inst->config_root ;
+
+ # put data
+ my $step = 'foo=FOO hash_of_nodes:fr foo=bonjour -
+   hash_of_nodes:en foo=hello ';
+ $root->load( step => $step );
+
+ my $ui = Config::Model::SimpleUI->new( root => $root ,
+  	               		        title => 'My class ui',
+					prompt => 'class ui',
+				      );
+
+ # engage in user interaction
+ $ui -> run_loop ;
+
+ print $root->dump_tree ;
+
+Once the synopsis above has been saved in C<my_test.pl>, you can do:
+
+ $ perl my_test.pl
+ class ui:$ ls
+ foo  bar  hash_of_nodes
+ class ui:$ ll hash_of_nodes
+ name         value        type         comment
+ hash_of_nodes <Foo>        node hash    keys: "en" "fr"
+
+ class ui:$ cd hash_of_nodes:en
+
+ class ui: hash_of_nodes:en $ ll
+ name         value        type         comment
+ foo          hello        string
+ bar          [undef]      string
+
+ class ui: hash_of_nodes:en $ set bar=bonjour
+
+ class ui: hash_of_nodes:en $  ll
+ name         value        type         comment
+ foo          hello        string
+ bar          bonjour      string
+
+ class ui: hash_of_nodes:en $ ^D
+
+At the end, the test script will dump the configuration tree. The modified
+C<bar> value can be found in there:
+
+ foo=FOO
+ hash_of_nodes:en
+   foo=hello
+   bar=bonjour -
+ hash_of_nodes:fr
+   foo=bonjour - -
+
+=head1 DESCRIPTION
+
+This module provides a pure ASCII user interface using STDIN and
+STDOUT.
+
+=head1 USER COMMAND SYNTAX
+
+=over
+
+=item cd ...
+
+Jump into node or value element. You can use C<< cd <element> >>,
+C<< cd <elt:key> >> or C<cd -> to go up one node or C<cd !>
+to go to configuration root.
+
+=item set elt=value
+
+Set a leaf value.
+
+=item set elt:key=value
+
+Set a leaf value locate in a hash or list element.
+
+=item display node_name elt:key
+
+Display a value
+
+=item ls
+
+Show elements of current node
+
+=item help
+
+Show available commands.
+
+=item desc[ription]
+
+Show class description of current node.
+
+=item desc(elt)
+
+Show description of element from current node.
+
+=item desc(value)
+
+Show effect of value (for enum)
+
+=back
+
+=head1 CONSTRUCTOR
+
+=head2 parameters
+
+=over
+
+=item root
+
+Root node of the configuration tree
+
+=item title
+
+UI title
+
+=item prompt
+
+UI prompt. The prompt will be completed with the location of the
+current node.
+
+=back
+
+=head1 Methods
+
+=head2 run_loop()
+
+Engage in user interaction until user enters '^D' (CTRL-D).
 
 =head1 BUGS
 
