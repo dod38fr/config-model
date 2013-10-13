@@ -1213,8 +1213,14 @@ sub get_model_doc {
         my %see_also ;
 
         my @pod = (
+			# Pod::Weaver compatibility
+			"# PODNAME: $full_name",
+			"# ABSTRACT:  Configuration class " . $class_name,
+
+			# plain old pod compatibility
             "=head1 NAME",                                    '',
             "$full_name - Configuration class " . $class_name,                    '',
+
             "=head1 DESCRIPTION",                             '',
             "Configuration classes used by L<Config::Model>", ''
         );
