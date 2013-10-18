@@ -1,5 +1,12 @@
 {{$NEXT}}
 
+2.045 2013-10-18
+
+  * Manually restored dep on MouseX::NativeTraits
+  * bumped dep on Config::Model::Tester to 2.046
+  * cme: print an error message when no application is
+    specified (Closes Debian #726447)
+
 2.044 2013-10-13
 
    The main change of this release is the addition of a JSON backend
