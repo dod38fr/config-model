@@ -159,7 +159,9 @@ my $model = Config::Model->new( model_dir => $model_dir );
 my ( $categories, $appli_info, $appli_map ) =
   Config::Model::Lister::available_models;
 
-if ($command eq 'list') {
+if (not $application or $command eq 'list') {
+    print "You forgot to specify an application to run cme on. Like 'cme $command stuff'.\n"
+        unless $application ;
     print "The following applications are available:\n";
     foreach my $cat ( keys %$categories ) {
         my $names = $categories->{$cat} || [];
