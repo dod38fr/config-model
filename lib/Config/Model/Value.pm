@@ -2065,7 +2065,7 @@ computed value declaration.
 
 This is a special parameter to cater for smooth configuration
 upgrade. This parameter can be used to copy the value of a deprecated
-parameter to its replacement. See L<"/upgrade"> for details.
+parameter to its replacement. See L</Upgrade> for details.
 
 =item convert => [uc | lc ]
 
