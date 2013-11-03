@@ -530,12 +530,18 @@ or
 =head2 modify
 
 Modify a configuration file with the values passed on the command line.
-These command must follow the syntax defined in L<Config::Model::Loader>.
+These command must follow the syntax defined in L<Config::Model::Loader>
+(which is similar to the output of L<cme dump|"/dump"> command)
+
 
 Example:
 
    cme modify dpkg source format="quilt (3.0)"
    cme modify multistrap my_mstrap.conf sections:base source="http://ftp.fr.debian.org"
+
+This example restores the default value of the text of all GPL like licenses:
+
+   cme modify dpkg-copyright 'License=~/GPL/ text~'
 
 =head2 search
 
