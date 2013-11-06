@@ -1223,7 +1223,7 @@ The Warp functionality enables an L<HashId|Config::Model::HashId> or
 L<ListId|Config::Model::ListId> object to change its default settings
 (e.g. C<min_index>, C<max_index> or C<max_nb> parameters) dynamically according to
 the value of another C<Value> object. (See
-L<Config::Model::WarpedThing> for explanation on warp mechanism)
+L<Config::Model::Warper> for explanation on warp mechanism)
 
 For instance, with this model:
 
@@ -1260,7 +1260,7 @@ Setting C<macro> to C<B> will mean that C<warped_hash> will accept two
 instances of C<Dummy>.
 
 Like other warped class, a HashId or ListId can have multiple warp
-masters (See L<Config::Model::WarpedThing/"Warp follow argument">:
+masters (See L<Config::Model::Warper/"Warp follow argument">:
 
   warp => { follow => { m1 => '- macro1', 
                         m2 => '- macro2' 

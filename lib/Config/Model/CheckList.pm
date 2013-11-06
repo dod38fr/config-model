@@ -817,7 +817,7 @@ Hash ref to provide information on the check list items.
 =item warp
 
 Used to provide dynamic modifications of the check list properties
-See L<Config::Model::WarpedThing> for details
+See L<Config::Model::Warper> for details
 
 =back
 

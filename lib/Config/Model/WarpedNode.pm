@@ -391,7 +391,7 @@ Always set to C<warped_node>.
 
 L<Grab string|Config::Model::AnyThing/"grab(...)"> leading to the
 C<Config::Model::Value> warp master.
-See L<Config::Model::WarpedThing/"Warp follow argument"> for details.
+See L<Config::Model::Warper/"Warp follow argument"> for details.
 
 =item morph
 
@@ -405,7 +405,7 @@ will be assigned to object elements.
 
 Hash or array ref that specify the property change rules according to the
 warp master(s) value(s). 
-See L<Config::Model::WarpedThing/"Warp rules argument"> for details 
+See L<Config::Model::Warper/"Warp rules argument"> for details 
 on how to specify the warp master values (or combination of values).
 
 =back
@@ -533,7 +533,7 @@ L<Config::Model>,
 L<Config::Model::HashId>,
 L<Config::Model::ListId>,
 L<Config::Model::AnyThing>,
-L<Config::Model::WarpedThing>,
+L<Config::Model::Warper>,
 L<Config::Model::WarpedNode>,
 L<Config::Model::Value>
 
