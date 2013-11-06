@@ -216,7 +216,7 @@ sub refresh_values_from_master {
             mode => 'loose',
         );
 
-        if ( defined $warper ) {
+        if ( defined $warper and $warper->get_type eq 'leaf') {
             # read the warp master values, so I can warp myself just
             # after.
             my $warper_value = $warper->fetch('allow_undef') ;
@@ -225,6 +225,13 @@ sub refresh_values_from_master {
                 . "'" );
             $self->_set_value( $warper_name => $warper_value );
         }
+		elsif (defined $warper) {
+			Config::Model::Exception::Model -> throw (
+				error => "warp error: warp 'follow' parameter "
+						  ."does not point to a leaf element",
+				object => $self->warped_object
+		       ) ;
+		}
         else {
             # consider that the warp master value is undef
             $self->_set_value($warper_name,'');
