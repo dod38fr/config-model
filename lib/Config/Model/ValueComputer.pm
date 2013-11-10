@@ -300,7 +300,7 @@ sub _function_on_object {
     $logger->debug("handling &$function($up) ");
 
     # get now the object refered
-    $up =~ s/-(\d+)/'- ' x $1/x ;
+    $up =~ s/-(\d+)/'- ' x $1/e ;
 
     my $target =
       eval { $value_object->grab( step => $up, check => $check ) };
