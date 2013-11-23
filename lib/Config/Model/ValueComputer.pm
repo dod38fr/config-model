@@ -925,6 +925,85 @@ Extract the host name from an URL:
         },
     },
 
+=head2 simple copy hash example
+
+Copying a hash may not be useful, but the using C<&index()> in a variable can be. Here's an example
+where the hashes contain leaves.
+
+The model is set up so that the content of C<copy_from>
+is copied into C<copy_to> hash:
+
+
+        copy_from => {
+            'type' => 'hash',
+            'index_type' => 'string',
+            'cargo' => {
+                'config_class_name' => 'From',
+                'type' => 'node'
+            },
+        },
+        copy_to => {
+            'type' => 'hash',
+            'index_type' => 'string',
+            'cargo' => {
+                'type' => 'leaf',
+                'value_type' => 'uniline',
+                'compute' => {
+                    'formula' => '$copied',
+                    'variables' => {
+                        'copied' => '- copy_from:&index()'
+                    }
+                },
+            },
+        },
+
+Hash copy is also possible when the hash contains node. Here's an example where
+the data to be copied is stored within a node. The main class has 2 hash elements:
+
+        copy_from => {
+            'type' => 'hash',
+            'index_type' => 'string',
+            'cargo' => {
+                'config_class_name' => 'From',
+                'type' => 'node'
+            },
+        },
+        copy_to => {
+            'type' => 'hash',
+            'index_type' => 'string',
+            'cargo' => {
+                'config_class_name' => 'To',
+                'type' => 'node'
+            },
+        },
+
+The Class to copy from is quite simple:
+
+    'name' => 'From',
+    'element' => [
+        name =>  {
+            'type' => 'leaf',
+            'value_type' => 'uniline',
+        }
+    ]
+
+Here the class to copy to:
+
+    'name' => 'To',
+    'element' => [
+        name =>  {
+            'type' => 'leaf',
+            'value_type' => 'uniline',
+            'compute' => {
+                'formula' => '$copied',
+                'variables' => {
+                    'copied' => '! copy_from:&index(-) name'
+                }
+            },
+        }
+    ]
+
+
 =head1 AUTHOR
 
 Dominique Dumont, (ddumont at cpan dot org)
