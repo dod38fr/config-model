@@ -132,15 +132,19 @@ sub create_element {
 
     my $element_info = $self->{model}{element}{$element_name}  ;
 
-    return if $check eq 'skip' and not defined $element_info;
-     
-    Config::Model::Exception::UnknownElement->throw(
-                                                    object   => $self,
-                                                    function => 'create_element',
-                                                    where    => $self->location || 'configuration root',
-                                                    element     => $element_name,
-                                                   )
-        unless defined $element_info ;
+    if ( not defined $element_info ) {
+        if ( $check eq 'yes' ) {
+            Config::Model::Exception::UnknownElement->throw(
+                object   => $self,
+                function => 'create_element',
+                where    => $self->location || 'configuration root',
+                element  => $element_name,
+            );
+        }
+        else {
+            return;    # just skip when check is no or skip
+        }
+    }
 
     Config::Model::Exception::Model->throw
         (
