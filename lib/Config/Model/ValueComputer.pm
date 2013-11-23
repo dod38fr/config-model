@@ -684,7 +684,7 @@ The element name of the current object: C<&element> or C<&element()>.
 The element name of a parent object: C<&element(-)>. Likewise, ancestor element name
 can be retrieved with C<&element(-2)> or C<&element(-3)>.
 
-=item* 
+=item * 
 
 The full location (path) of the current object: C<&location> or C<&location()>.
 
@@ -814,7 +814,7 @@ compute parameter:
                  allow_override => 1,
                }
    }
-   
+
 This computed default value will be written to the configuration file.
 
 This default value may be already known by the application so the computed value
@@ -830,9 +830,8 @@ parameter:
                  use_as_upstream_default => 1,
                }
    }
-   
+
 C<use_as_upstream_default> implies C<allow_override>.
- 
 
 =head2 Undefined variables
 
