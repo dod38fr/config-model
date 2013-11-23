@@ -10,7 +10,7 @@ use Test::Memory::Cycle;
 use Config::Model ;
 use Log::Log4perl qw(:easy) ;
 
-BEGIN { plan tests => 54; }
+BEGIN { plan tests => 55; }
 
 use strict;
 
@@ -71,6 +71,34 @@ $model->create_config_class(
         },
     ]
 );
+
+# Tx to Ilya Arosov
+$model->create_config_class(
+    'name' => 'TestIndex',
+    'element' => [
+        name =>  {
+            'type' => 'leaf',
+            'value_type' => 'uniline',
+            'compute' => {
+                'formula' => '$my_name is my name',
+                'variables' => {
+                    'my_name' => '! index_function_target:&index(-) name'
+                }
+            },
+        }
+    ]
+);
+
+$model->create_config_class(
+    'name' => 'TargetIndex',
+    'element' => [
+        name =>  {
+            'type' => 'leaf',
+            'value_type' => 'uniline',
+        }
+    ]
+);
+
 
 $model->create_config_class(
     'name'    => 'LicenseSpec',
@@ -281,6 +309,22 @@ $model->create_config_class(
                 config_class_name => 'LicenseSpec'
             }
         },
+        index_function_target => {
+            'type' => 'hash',
+            'index_type' => 'string',
+            'cargo' => {
+                'config_class_name' => 'TargetIndex',
+                'type' => 'node'
+            },
+        },
+        test_index_function => {
+            'type' => 'hash',
+            'index_type' => 'string',
+            'cargo' => {
+                'config_class_name' => 'TestIndex',
+                'type' => 'node'
+            },
+        },
     ]
 );
 
@@ -295,7 +339,8 @@ my $root = $inst -> config_root ;
 eq_or_diff([$root->get_element_name()],
           [qw/av bv compute_int sav sbv one_var one_wrong_var 
               meet_test compute_with_override compute_with_upstream compute_no_var bar 
-              foo2 url host with_tmp_var Upstream-Contact Source Source2 Licenses/],
+              foo2 url host with_tmp_var Upstream-Contact Source Source2 Licenses 
+              index_function_target test_index_function/],
          "check available elements");
 
 my ( $av, $bv, $compute_int );
@@ -485,5 +530,8 @@ is($root->grab_value('Licenses:PsF text'), "","check missing replacement with &i
 is($root->grab_value('Licenses:"MPL-1.1" text'), "","check missing replacement with &index()");
 
 is($root->grab_value('Licenses:"MPL-1.1" short_name_from_index'), "MPL-1.1",'evaled &index($holder)');
+
+$root->load('index_function_target:foo name=Bond007');
+is($root->grab_value('test_index_function:foo name'), "Bond007 is my name",'variable with &index(-)');
 
 memory_cycle_ok($model,"test memory cycles");
