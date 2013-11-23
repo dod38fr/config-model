@@ -640,6 +640,13 @@ An optional parameter to force a Perl eval of a string.
 
 =back
 
+B<Note>: A variable must point to a valid location in the configuration
+tree. Even when C<&index()> or C<$replace{}> is used. After substitution
+of these functions, the string is used as a path (See
+L<grab()|Config::Model::AnyThing/"grab(...)">) starting from the
+computed value. Hence the path must begin with C<!> to go back to root
+node, or C<-> to go up a level.
+
 =head2 Compute formula
 
 The first element of the C<compute> array ref must be a string that
