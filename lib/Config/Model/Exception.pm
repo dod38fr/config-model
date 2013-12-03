@@ -99,6 +99,17 @@ use Exception::Class (
         description => 'configuration model declaration error',
     },
 
+    'Config::Model::Exception::ConfigFile' => {
+        isa         => 'Config::Model::Exception::User',
+        description => 'error in configuration file',
+    },
+
+    'Config::Model::Exception::ConfigFile::Missing' => {
+        isa         => 'Config::Model::Exception::ConfigFile',
+        description => 'missing configuration file',
+        fields      => [qw/tried_files/]
+    },
+
     'Config::Model::Exception::Xml' => {
         isa         => 'Config::Model::Exception::User',
         description => 'error in XML data',
@@ -404,6 +415,16 @@ sub full_message {
       . $self->info . "\n";
 
     return $msg;
+}
+
+package Config::Model::Exception::ConfigFile::Missing ;
+
+sub full_message {
+    my $self = shift;
+
+    my $msg = "Error: cannot find configuration file ". join ' or ', @{$self->tried_files};
+
+    return $msg . "\n";
 }
 
 package Config::Model::Exception::Xml;
