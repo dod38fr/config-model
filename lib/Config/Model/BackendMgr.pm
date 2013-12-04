@@ -626,7 +626,7 @@ sub open_file_to_write {
 
     my $file_path = $self->get_cfg_file_path(%args);
     if (defined $file_path) {
-        if ($do_backup) {
+        if ($do_backup and -r $file_path) {
             copy($file_path, $file_path.$backup) or die "Backup copy failed: $!";
         }
         $logger->debug("$backend backend opened file $file_path to write");
