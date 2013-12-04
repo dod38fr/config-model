@@ -378,7 +378,7 @@ sub read_config_data {
         check           => $args{check},
         read_config_dir => $model->{read_config_dir},
         config_file     => $args{config_file} || $self->{config_file},
-        auto_create     => $args{auto_create} ,
+        auto_create     => $args{auto_create} // $self->instance->auto_create,
     );
 }
 

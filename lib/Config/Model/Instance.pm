@@ -43,6 +43,12 @@ has check => (
     reader => 'read_check' ,
 ) ;
 
+has auto_create => (
+    is => 'ro',
+    isa => 'Bool',
+    default => 0,
+);
+
 # a unique (instance wise) placeholder for various tree objects
 # to store information
 has _safe => (

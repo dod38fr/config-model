@@ -58,6 +58,7 @@ my $search_type = 'all';
 my $dir_char_mockup ;
 my $try_application_as_model = 0; # means search a model instead of an application name
 my $backup ;
+my $auto_create ;
 
 
 my %command_option = (
@@ -91,6 +92,7 @@ my @global_options = (
     "experience=s"                  => \$experience,
     "dev!"                          => \$dev,
     "force_load|force-load!"        => \$force_load,
+    "create!"                       => \$auto_create,
     "root_dir|root-dir=s"           => \$root_dir,
     "backend=s"                     => \$backend,
     "stack-trace|trace!"            => \$trace,
@@ -186,6 +188,7 @@ my $inst = $model->instance(
     instance_name   => $application,
     root_dir        => $root_dir,
     check           => $force_load ? 'no' : 'yes',
+    auto_create     => $auto_create ,
     skip_read       => $load ? 1 : 0,
     backend         => $backend,
     backup          => $backup ,
@@ -642,6 +645,13 @@ Change the experience level. By default only parameters with "beginner" experien
 are shown or modifiable. You can choose C<advanced> or C<master> level to get 
 access to more parameters. Note that experience level can be changed in the GUI with the 
 I<options> menu.
+
+=item -create
+
+Perform the operation even if the configuration file is missing. This
+may be used to create a minimal configuration file. This option is
+disabled by default as a missing configuration file often indicates an
+error during the installation of the application.
 
 =item -force-load
 
