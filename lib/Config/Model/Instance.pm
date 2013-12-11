@@ -368,7 +368,7 @@ sub list_changes {
         # don't list change without further info (like nodes)
         next unless keys %$c > 1 ;
         my $vt = $c->{value_type} || '' ;
-        my ($o,$n) =  map { $_ || '<undef>' ;} ($c->{old},$c->{new}) ;
+        my ($o,$n) =  map { $_ // '<undef>' ;} ($c->{old},$c->{new}) ;
         
         if ($vt eq 'string' and ($o =~ /\n/ or $n =~ /\n/) ) {
             # append \n if needed so diff works as expected
