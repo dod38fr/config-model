@@ -31,7 +31,7 @@ my $perl_cmd = $path . ' -Ilib ' .join(' ',map { "-I$_" } Probe::Perl->perl_inc(
 my $oops = Test::Command->new( cmd => "$perl_cmd config-edit -root_dir $wr_dir -appli popcon -ui none PARITICIPATE=yes");
 
 exit_cmp_ok($oops, '>',0,'missing config file detected');
-stderr_like($oops, qr/could not read config file/, 'check auto_read_error') ;
+stderr_like($oops, qr/cannot find configuration file/, 'check auto_read_error') ;
 
 # put popcon data in place
 my @orig = <DATA> ;

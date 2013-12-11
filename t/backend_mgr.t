@@ -257,7 +257,7 @@ my $i_fail = $model->instance(
 );
 throws_ok {
     $i_fail->config_root->init ;
-} qr/'perl_file' backend/,  "read with forced perl_file backend fails (normal: no perl file)"  ;
+} qr/failed_inst.pl/,  "read with forced perl_file backend fails (normal: no perl file)"  ;
 
 my $i_no_read = $model->instance(instance_name    => 'no_read_inst',
 				 root_class_name  => 'Master',

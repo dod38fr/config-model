@@ -62,14 +62,14 @@ sub get_cfg_dir_path {
     }
 
     unless (-d $dir) { 
-        $logger->info( "get_cfg_file_path: auto_". ($w ? 'write' : 'read') 
+        $logger->info( "auto_". ($w ? 'write' : 'read')
                       ." $args{backend} no directory $dir" );
-        return;
+        return (0, $dir);
     }
 
     $logger->debug("dir: ". $dir // '<undef>') ;
 
-    return $dir;
+    return (1, $dir);
 }
 
 sub get_cfg_file_path {
@@ -83,7 +83,7 @@ sub get_cfg_file_path {
         my $override = $args{root}.$args{config_file}  ;
          $logger->trace("auto_". ($w ? 'write' : 'read')
                   ." $args{backend} override target file is $override" );
-        return $args{root}.$args{config_file}
+        return (1, $args{root}.$args{config_file});
     }
 
     Config::Model::Exception::Model -> throw (
@@ -91,21 +91,17 @@ sub get_cfg_file_path {
          object => $self->node
     ) unless $args{config_dir};
 
-    my $dir = $self->get_cfg_dir_path (%args);
-    if (not defined $dir) {
-        $logger->trace("no config dir: returns undef");
-        return ;
-    }
+    my ($dir_ok,$dir) = $self->get_cfg_dir_path (%args);
 
     if (defined $args{file}) {
         my $res = $dir.$args{file} ;
         $logger->trace("get_cfg_file_path: returns $res");
-        return $res ;
+        return ($dir_ok, $res) ;
     }
 
     if (not defined $args{suffix}) {
         $logger->trace("get_cfg_file_path: returns undef (no suffix, no file argument)");
-        return ;
+        return (0);
     }
 
     my $i = $self->node->instance ;
@@ -127,31 +123,31 @@ sub get_cfg_file_path {
     $logger->trace("get_cfg_file_path: auto_". ($w ? 'write' : 'read')
                   ." $args{backend} target file is $name" );
 
-    return $name;
+    return (1,$name);
 }
 
 sub open_read_file {
     my $self = shift ;
     my %args = @_ ;
 
-    my $file_path = $self->get_cfg_file_path(%args);
+    my ($file_ok,$file_path) = $self->get_cfg_file_path(%args);
 
     # not very clean
-    return if $args{backend} =~ /_file$/
-        and (not defined $file_path or not -r $file_path) ;
+    return (0, $file_path) if $args{backend} =~ /_file$/
+        and (not $file_ok or not -r $file_path) ;
 
     my $fh = new IO::File;
-    if (defined $file_path and -e $file_path) {
+    if ($file_ok and -e $file_path) {
         $logger->debug("open_read_file: open $file_path for read");
         $fh->open($file_path);
         $fh->binmode(":utf8");
         # store a backup in memory in case there's a problem
         $self->file_backup( [ $fh-> getlines ] ) ;
         $fh->seek(0,0) ; # go back to beginning of file
-        return ($file_path,$fh) ;
+        return (1,$file_path,$fh) ;
     }
     else {
-        return $file_path ;
+        return (0,$file_path) ;
     }
 }
 
@@ -244,6 +240,7 @@ sub read_config_data {
     my $pref_backend = $instance->backend || '' ;
     my $read_done = 0;
     my $auto_create = 0;
+    my @tried;
 
     foreach my $read (@list) {
         warn $self->config_class_name,
@@ -268,7 +265,8 @@ sub read_config_data {
             $self->read_config_sub_layer($read, $root_dir, $config_file_override, $check, $backend);
         }
 
-        my $res = $self->try_read_backend ($read, $root_dir, $config_file_override, $check, $backend);
+        my ($res, $file) = $self->try_read_backend ($read, $root_dir, $config_file_override, $check, $backend);
+        push @tried, $file;
 
         if ($res) { 
             $read_done = 1 ;
@@ -276,22 +274,10 @@ sub read_config_data {
         }
     }
 
-    if (not $read_done) {
-        my $msg = "could not read config file " ;
-        $msg .= $config_file_override.' ' if defined $config_file_override ;
-        $msg .= "with ";
-        $msg .= $pref_backend ? "'$pref_backend'" : 'any' ;
-        $msg .= " backend";
-
-        Config::Model::Exception::Model -> throw
-            (
-             error => "backend error: $msg. May be add "
-                    . "'auto_create' parameter in configuration model" ,
-             object => $self->node,
-            ) unless (defined $auto_create_override ? $auto_create_override : $auto_create );
-
-        $logger->warn("Warning: node '".$self->node->name."' $msg");
-    }
+    Config::Model::Exception::ConfigFile::Missing -> throw (
+         tried_files => \@tried,
+         object => $self->node,
+    ) unless $read_done or $auto_create_override or $auto_create;
 
 }
 
@@ -351,7 +337,7 @@ sub try_read_backend {
         config_file => $config_file_override
     );
 
-    my ( $res, $fh, $file_path );
+    my ( $file_ok, $res, $fh, $file_path );
 
     if ( $backend eq 'custom' ) {
         my $c = my $file = delete $read->{class};
@@ -362,7 +348,7 @@ sub try_read_backend {
 
         $logger->info("Read with custom backend $ {c}::$f in dir $read_dir");
 
-        ( $file_path, $fh ) = $self->open_read_file(@read_args);
+        ( $file_ok, $file_path, $fh ) = $self->open_read_file(@read_args);
         eval {
             $res = &{ $c . '::' . $f }(
                 @read_args,
@@ -373,13 +359,13 @@ sub try_read_backend {
         };
     }
     elsif ( $backend eq 'perl_file' ) {
-        ( $file_path, $fh ) = $self->open_read_file( @read_args, suffix => '.pl' );
-        return unless defined $file_path;
+        ( $file_ok, $file_path, $fh ) = $self->open_read_file( @read_args, suffix => '.pl' );
+        return (0, $file_path) unless $file_ok;
         eval { $res = $self->read_perl( @read_args, file_path => $file_path, io_handle => $fh ); };
     }
     elsif ( $backend eq 'cds_file' ) {
-        ( $file_path, $fh ) = $self->open_read_file( @read_args, suffix => '.cds' );
-        return unless defined $file_path;
+        ( $file_ok, $file_path, $fh ) = $self->open_read_file( @read_args, suffix => '.cds' );
+        return (0, $file_path) unless $file_ok;
         eval {
             $res = $self->read_cds_file(
                 @read_args,
@@ -392,15 +378,15 @@ sub try_read_backend {
         # try to load a specific Backend class
         my $f = delete $read->{function} || 'read';
         my $c = load_backend_class( $backend, $f ) ;
-        return unless defined $c;
+        return (0,'unknown') unless defined $c;
 
         no strict 'refs';
         my $backend_obj = $c->new( node => $self->node, name => $backend );
         $self->set_backend( $backend => $backend_obj );
         my $suffix;
         $suffix = $backend_obj->suffix if $backend_obj->can('suffix');
-        ( $file_path, $fh ) = $self->open_read_file( @read_args, suffix => $suffix );
-        $logger->info( "Read with $backend " . $c . "::$f" );
+        ( $file_ok, $file_path, $fh ) = $self->open_read_file( @read_args, suffix => $suffix );
+        $logger->info( "Read with $backend " . $c . "::$f on $file_path"  );
 
         eval {
             $res = $backend_obj->$f(
@@ -424,7 +410,7 @@ sub try_read_backend {
         ref $e ? $e->rethrow : die $e;
     }
 
-    return $res;
+    return ($res, $file_path);
 }
 
 sub auto_write_init {
@@ -472,7 +458,7 @@ sub auto_write_init {
         my $write_dir =  $write->{os_config_dir}{$^O} || $write->{config_dir} || '';
         $write_dir .= '/' if $write_dir and $write_dir !~ m(/$) ; 
 
-        my $fh ;
+        my ($fh, $file_ok) ;
         $fh = new IO::File ; # opened in write callback
 
         $logger->debug("auto_write_init creating write cb ($backend) for ",$self->node->name);
@@ -497,7 +483,7 @@ sub auto_write_init {
                 no strict 'refs';
                 my $file_path ;
                 $logger->debug("write cb ($backend) called for ",$self->node->name);
-                $file_path = $self-> open_file_to_write($backend,$fh,@wr_args,@_) 
+                ($file_ok, $file_path) = $self-> open_file_to_write($backend,$fh,@wr_args,@_)
                     unless ($c->can('skip_open') and $c->skip_open) ;
                 my $res ;
                 $res = eval {
@@ -518,7 +504,7 @@ sub auto_write_init {
         elsif ($backend eq 'perl_file') {
             $wb = sub {
                 $logger->debug("write cb ($backend) called for ",$self->node->name);
-                my $file_path 
+                my ($file_ok, $file_path)
                     = $self-> open_file_to_write($backend,$fh,
                                                 suffix => '.pl',@wr_args,@_) ;
                 my $res ;
@@ -534,7 +520,7 @@ sub auto_write_init {
         elsif ($backend eq 'cds_file') {
             $wb = sub {
                 $logger->debug("write cb ($backend) called for ",$self->node->name);
-                my $file_path 
+                my ($file_ok, $file_path)
                    = $self-> open_file_to_write($backend,$fh,
                                                 suffix => '.cds',@wr_args,@_) ;
                 my $res ;
@@ -559,9 +545,8 @@ sub auto_write_init {
                 my $file_path ;
                 my $suffix ;
                 $suffix = $backend_obj->suffix if $backend_obj->can('suffix');
-                $file_path = $self-> open_file_to_write($backend,$fh,
-                                                         suffix => $suffix,
-                                                         @wr_args,@_) 
+                ($file_ok, $file_path)
+                    = $self-> open_file_to_write($backend,$fh, suffix => $suffix, @wr_args,@_)
                     unless ($c->can('skip_open') and $c->skip_open) ;
                 my $res ;
                 $res = eval {
@@ -624,8 +609,8 @@ sub open_file_to_write {
     $backup ||= 'old'; # use old only if defined
     $backup = '.'.$backup unless $backup =~ /^\./;
 
-    my $file_path = $self->get_cfg_file_path(%args);
-    if (defined $file_path) {
+    my ($file_ok, $file_path) = $self->get_cfg_file_path(%args);
+    if ($file_ok) {
         if ($do_backup and -r $file_path) {
             copy($file_path, $file_path.$backup) or die "Backup copy failed: $!";
         }
@@ -634,7 +619,7 @@ sub open_file_to_write {
         $fh->binmode(':utf8');
     }
 
-    return $file_path ;
+    return ($file_ok, $file_path) ;
 }
 
 sub close_file_to_write {

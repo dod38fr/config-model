@@ -33,7 +33,7 @@ my $oops = Test::Command->new(
 );
 
 exit_cmp_ok($oops, '>',0,'missing config file detected');
-stderr_like($oops, qr/could not read config file/, 'check auto_read_error') ;
+stderr_like($oops, qr/cannot find configuration file/, 'check auto_read_error') ;
 
 # put popcon data in place
 my @orig = <DATA> ;
