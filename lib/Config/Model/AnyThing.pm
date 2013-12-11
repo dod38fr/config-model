@@ -58,7 +58,8 @@ sub notify_change {
 
     return if $self->instance->initial_load  and not $args{really};
 
-    $change_logger->debug("called for ",$self->name, " from ", join(' ',caller) ) 
+    $change_logger->debug("called for ",$self->name, " from ", join(' ',caller),
+        " with ", join( ' ',%args))
         if $change_logger->is_debug ;
 
     # needs_save may be overridden by caller
@@ -67,7 +68,7 @@ sub notify_change {
     $args{name} //= $self->element_name if $self->element_name ;
     $args{index} //= $self->index_value if $self->index_value ;
     
-    # beter use %args instead of @_ to forward arguments. %args eliminates duplicated keys
+    # better use %args instead of @_ to forward arguments. %args eliminates duplicated keys
     $self->container->notify_change(%args);
 }
 

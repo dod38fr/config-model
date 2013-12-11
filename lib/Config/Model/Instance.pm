@@ -350,7 +350,7 @@ sub notify_change {
     my $self = shift ;
     my %args = @_ ;
     if ($change_logger->is_debug) {
-        $change_logger->debug("in instance ",$self->name, 'for path ',$args{path}) ;
+        $change_logger->debug("in instance ",$self->name, ' for path ',$args{path}) ;
     }
     $self->add_change( \%args ) ;
     my $cb = $self->on_change_cb ;
