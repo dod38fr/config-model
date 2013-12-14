@@ -5,8 +5,10 @@ use Probe::Perl ;
 
 use Test::Command 0.08 ;
 use Test::More;
+use Test::File::Contents;
+
 if ( $^O =~ /linux|bsd|solaris|sunos/ ) {
-    plan tests => 8;
+    plan tests => 10;
 }
 else {
     plan skip_all => "Test with system() in build systems don't work well on this OS ($^O)";
@@ -50,11 +52,14 @@ $oops = Test::Command->new(
 exit_cmp_ok($oops, '>',0,'wrong parameter detected');
 stderr_like($oops, qr/unknown element/, 'check unknown element') ;
 
-
+# use -force-load to force a file save to update file header
 my $ok = Test::Command->new( 
-  cmd => "$perl_cmd script/cme modify popcon -root_dir $wr_dir PARTICIPATE=yes"
+  cmd => "$perl_cmd script/cme modify popcon -force-load -root_dir $wr_dir PARTICIPATE=yes"
 );
 exit_is_num($ok, 0,'all went well');
+
+file_contents_like $conf_file, qr/popcon/, "updated header";
+file_contents_unlike $conf_file, qr/removed`/, "double comment is removed";
 
 my $search = Test::Command->new( 
   cmd => "$perl_cmd script/cme search popcon -root_dir $wr_dir -search y -narrow value");
