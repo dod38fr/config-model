@@ -107,10 +107,10 @@ sub associates_comments_with_data {
 sub write_global_comment {
     my ($self,$ioh,$cc) = @_ ;
 
-    my $res = "$cc$cc This file was written by Config::Model\n"
-            . "$cc$cc You may modify the content of this file. Configuration \n"
-            . "$cc$cc modifications will be preserved. Modifications in\n"
-            . "$cc$cc comments may be mangled.\n\n" ;
+    my $app = $self->node->instance->application ;
+    my $res = "$cc$cc This file was written by cme command.\n" ;
+    $res .= "$cc$cc You can run 'cme edit $app' to modify this file\n" if $app;
+    $res .= "$cc$cc You may also modify the content of this file with your favorite editor.\n\n" ;
 
     # write global comment
     my $global_note = $self->node->annotation ;

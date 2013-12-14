@@ -2,10 +2,8 @@
 $model_to_test = "Multistrap";
 
 $from_scratch_file = <<'EOF' ,
-## This file was written by Config::Model
-## You may modify the content of this file. Configuration 
-## modifications will be preserved. Modifications in
-## comments may be mangled.
+## This file was written by cme command.
+## You may also modify the content of this file with your favorite editor.
 
 [general]
 include=/usr/share/multistrap/crosschroot.conf

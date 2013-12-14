@@ -38,10 +38,8 @@ ok( 1, "compiled" );
 my $wr_root = 'wr_root/';
 
 my $head = << 'EOH';
-## This file was written by Config::Model
-## You may modify the content of this file. Configuration 
-## modifications will be preserved. Modifications in
-## comments may be mangled.
+## This file was written by cme command.
+## You may also modify the content of this file with your favorite editor.
 EOH
 
 my @below_data = split /\n/, << 'EOD2' ;

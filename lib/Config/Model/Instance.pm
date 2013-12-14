@@ -160,7 +160,7 @@ has _write_back => (
 );
 
 # used for auto_read auto_write feature
-has [qw/name root_dir config_file backend backup/] => (
+has [qw/name application root_dir config_file backend backup/] => (
     is => 'ro',
     isa => 'Maybe[Str]' ,
 );

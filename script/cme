@@ -186,6 +186,7 @@ $config_file = shift @ARGV if $appli_info->{$application}{require_config_file} ;
 my $inst = $model->instance(
     root_class_name => $root_model,
     instance_name   => $application,
+    application     => $application,
     root_dir        => $root_dir,
     check           => $force_load ? 'no' : 'yes',
     auto_create     => $auto_create ,
