@@ -1,5 +1,25 @@
 {{$NEXT}}
 
+2.046 2013-12-15
+
+    * cme:
+      + added -create option to force creation of missing configuration
+        file
+      * improved message about applied changes and don't show '0' as <undef>
+      * added examples in pod doc
+    * BackendMgr:
+      + add note about cme in header of saved file (if comments
+         are supported in the configuration file format)
+      * Improved error message when no config file is found
+      * skip backup copy if no original file is found
+    * Node: avoid unknown element failure when check is 'no'
+    * ValueComputer:
+      * added note in doc about compute variable usage
+      * correctly handles &index(-x) where x is a number > 1
+      * improved error message if 'follow' parameter does not point to
+        a leaf in configuration tree
+    * overdue doc changes: s/WarpedThing/Warper/g in pod docs
+
 2.045 2013-10-18
 
   * Manually restored dep on MouseX::NativeTraits
