@@ -39,6 +39,8 @@ my $wr_root = 'wr_root/';
 
 my $head = << 'EOH';
 ## This file was written by cme command.
+## You can run 'cme edit <application>' to modify this file.
+## Run 'cme list' to get the list of applications available on your system
 ## You may also modify the content of this file with your favorite editor.
 EOH
 

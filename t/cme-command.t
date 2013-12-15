@@ -58,7 +58,7 @@ my $ok = Test::Command->new(
 );
 exit_is_num($ok, 0,'all went well');
 
-file_contents_like $conf_file, qr/popcon/, "updated header";
+file_contents_like $conf_file, qr/cme/, "updated header";
 file_contents_unlike $conf_file, qr/removed`/, "double comment is removed";
 
 my $search = Test::Command->new( 
