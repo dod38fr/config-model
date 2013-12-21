@@ -1370,9 +1370,14 @@ sub generate_doc {
             $pod_dir =~ s!/[^/]+$!!;
             make_path($pod_dir,{ mode => 0755} ) unless -d $pod_dir ;
             # -M returns age of file, not date or epoch. hence greater is older
-            if (not -e $pod_file or not -e $pl_file or (-M $pl_file < -M $pod_file) ) {
-                #print "-M $pl_file: ", -M $pl_file, "-M $pod_file: ". -M $pod_file ,"\n";
-                my $fh = IO::File->new($pod_file,'>') || die "Can't open $pod_file: $!";
+            my $old = '';
+            if (-e $pod_file) {
+                my $fh = IO::File->new($pod_file,'r') || die "Can't open $pod_file: $!";
+                $old = join('', $fh->getlines);
+                $fh->close;
+            }
+            if ($old ne $res->{$class_name} ) {
+                my $fh = IO::File->new($pod_file,'w') || die "Can't open $pod_file: $!";
                 $fh->binmode(":utf8");
                 $fh->print($res->{$class_name});
                 $fh->close ;
