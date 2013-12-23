@@ -192,6 +192,16 @@ sub run_loop {
 	print $self->prompt ;
     }
     print "\n";
+
+    my $instance = $self->{root}->instance ;
+    if ($instance->c_count) {
+        print "Unsaved changes:\n", $instance->list_changes,"\n" ;
+        print "write back data before exit ? (Y/n)";
+        $user_cmd = <STDIN> ;
+        $instance->write_back unless $user_cmd =~ /n/i;
+        print "\n";
+    }
+
 }
 
 sub prompt {
