@@ -96,7 +96,10 @@ my %run_dispatch =
    help => sub{ return $syntax; } ,
    set  => sub {
        my $self = shift ;
-       $self->{current_node}->load(@_) ;
+       my $cmd = shift;
+       $cmd =~ s/\s*=\s*/=/;
+       $cmd =~ s/\s*:\s*/:/;
+       $self->{current_node}->load($cmd) ;
        return "" ;
    },
    display => sub {
