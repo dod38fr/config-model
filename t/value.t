@@ -265,14 +265,11 @@ my $inst = $model->instance(
 ok( $inst, "created dummy instance" );
 $inst->initial_load_stop ;
 
-my %error_stash ;
-
 sub check_store_error {
     my ($obj, $v, $qr) = @_ ;
     my $path = $obj->location ;
-    $error_stash{$path} = '' ;
     $obj->store(value => $v, silent => 1);
-    is_deeply( $inst->errors, \%error_stash,"store error in $path is tracked") ;
+    is( $inst->errors->{$path}, '',"store error in $path is tracked") ;
     like( scalar $inst->error_messages,$qr,"check $path error message") ;
 }
 
@@ -492,6 +489,8 @@ check_error($uni,  "foo\nbar", qr/value must not contain embedded newlines/) ;
 
 $uni->store("foo bar");
 is( $uni->fetch, "foo bar", "tested uniline value" );
+
+is ($inst->errors()->{'a_uniline'}, undef,"check that error was deleted by correct store");
 
 $uni->store('') ;
 is( $uni->fetch, '', "tested empty value" );

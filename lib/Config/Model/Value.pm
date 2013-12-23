@@ -1335,6 +1335,7 @@ sub store_cb {
     # FIXME: storing wrong value does not make sense
     # we let store the value even if wrong when check is disabled
     if ($ok or $check eq 'no') {
+        $self->instance->cancel_error($self->location) ;
         $self-> _store_value ( $value,$notify_change) ;
     }
     else {

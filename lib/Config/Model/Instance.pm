@@ -105,6 +105,7 @@ has errors => (
     default => sub { {} },
     handles => {
         _set_error => 'set',
+        cancel_error => 'delete',
         has_error => 'count' ,
         clear_errors => 'clear' ,
         error_paths => 'keys'
