@@ -13,6 +13,8 @@ reset elt
    -> reset a value (set to undef)
 delete elt:key
    -> delete a value from a list or hash element
+delete elt
+   -> like reset, delete a value (set to undef)
 display elt elt:key
    -> display a value
 ls -> show elements of current node
@@ -123,8 +125,14 @@ my %run_dispatch =
    },
    delete => sub {
        my $self = shift ;
-       my ($elt,$key) = split /:/,$_[0] ;
-       $self->{current_node}->fetch_element($elt)->delete($key);
+       my ($elt_name,$key) = split /\s*:\s*/,$_[0] ;
+       my $elt = $self->{current_node}->fetch_element($elt_name);
+       if (length($key)) {
+            $elt->delete($key);
+       }
+       else {
+            $elt->store(undef);
+       }
        return '' ;
    },
    reset => sub {
@@ -351,6 +359,14 @@ Set a leaf value locate in a hash or list element.
 =item reset elt
 
 Delete leaf value (set to C<undef>).
+
+=item delete elt
+
+Delete leaf value.
+
+=item delete elt:key
+
+Delete a list or hash element
 
 =item display node_name elt:key
 
