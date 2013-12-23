@@ -30,7 +30,6 @@ my $desc_sub = sub {
     if (@_) {
 	my $item ;
 	while ($item = shift) {
-	    print "DEBUG: desc on $item\n" if $::debug;
 	    if ($obj->isa('Config::Model::Node')) {
 		my $type = $obj->element_type($item) ;
 		my $elt = $obj->fetch_element($item);
@@ -189,8 +188,6 @@ sub run {
 
     my ($action,$args) = split (m/\s+/,$user_cmd, 2)  ;
     $args =~ s/\s+$//g if defined $args ; #cleanup
-
-    print "DEBUG: run '$action' with '$args'\n" if $::debug;
 
     if (defined $run_dispatch{$action}) {
 	my $res = eval { $run_dispatch{$action}->($self,$args) ; } ;
