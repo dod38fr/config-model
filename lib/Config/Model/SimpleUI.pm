@@ -142,8 +142,8 @@ my %run_dispatch =
        return '' ;
    },
    save => sub {
-       my ($self,$dir) = @_ ;
-       $self->{root}->instance->write_back($dir);
+       my ($self) = @_ ;
+       $self->{root}->instance->write_back();
        return "done";
    },
    changes => sub {
