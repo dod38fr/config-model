@@ -23,6 +23,7 @@ help -> show available command
 desc[ription] -> show class desc of current node
 desc <element>   -> show desc of element from current node
 desc <value> -> show effect of value (for enum)
+changes -> list unsaved changes
 exit -> exit shell
 ';
 
@@ -144,6 +145,10 @@ my %run_dispatch =
        my ($self,$dir) = @_ ;
        $self->{root}->instance->write_back($dir);
        return "done";
+   },
+   changes => sub {
+       my ($self,$dir) = @_ ;
+       return $self->{root}->instance->list_changes;
    },
    ll => $ll_sub,
    cd => $cd_sub,
@@ -391,6 +396,10 @@ Show description of element from current node.
 =item desc(value)
 
 Show effect of value (for enum)
+
+=item changes
+
+Show unsaved changes
 
 =back
 
