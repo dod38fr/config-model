@@ -78,7 +78,7 @@ my $term_ui = Config::Model::TermUI->new( root => $root ,
 
 my @test 
   = ( # text line start ## expected completions
-     [ [ '', '',0 ], [ qw/cd changes delete desc description display dump help ll ls save set/] ],
+     [ [ '', '',0 ], [ qw/cd changes delete desc description display dump help ll ls reset save set/] ],
      [ [ '', 'cd ',3 ], ['!', '-', 'std_id:', 'olist:', 'warp ', 'slave_y '] ],
      [ [ 's', 'cd s',3 ], ['std_id:', 'slave_y '] ],
      [ [ 'sl', 'cd sl',3 ], [ 'slave_y '] ],
