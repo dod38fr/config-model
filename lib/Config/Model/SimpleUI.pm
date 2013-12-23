@@ -9,6 +9,8 @@ cd <elt> cd <elt:key>, cd - , cd !
    -> jump into node
 set elt=value, elt:key=value
    -> set a value
+reset elt
+   -> reset a value (set to undef)
 delete elt:key
    -> delete a value from a list or hash element
 display elt elt:key
@@ -123,6 +125,11 @@ my %run_dispatch =
        my $self = shift ;
        my ($elt,$key) = split /:/,$_[0] ;
        $self->{current_node}->fetch_element($elt)->delete($key);
+       return '' ;
+   },
+   reset => sub {
+       my ($self, $elt_name) = @_ ;
+       $self->{current_node}->fetch_element($elt_name)->store(undef);
        return '' ;
    },
    save => sub {
@@ -340,6 +347,10 @@ Set a leaf value.
 =item set elt:key=value
 
 Set a leaf value locate in a hash or list element.
+
+=item reset elt
+
+Delete leaf value (set to C<undef>).
 
 =item display node_name elt:key
 
