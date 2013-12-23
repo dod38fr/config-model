@@ -24,6 +24,7 @@ desc[ription] -> show class desc of current node
 desc <element>   -> show desc of element from current node
 desc <value> -> show effect of value (for enum)
 changes -> list unsaved changes
+save -> save current changes
 exit -> exit shell
 ';
 
@@ -400,6 +401,10 @@ Show effect of value (for enum)
 =item changes
 
 Show unsaved changes
+
+=item exit
+
+Exit shell
 
 =back
 
