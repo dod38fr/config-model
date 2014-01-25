@@ -1,5 +1,19 @@
 {{$NEXT}}
 
+2.047 2014-01-25
+
+    * Value: store a good value cancels the error stored in Instance
+    * Term UI:
+      * list unsaved changes and propose to save on exit or quit
+      * fixed "save" command
+      * added 'changes' command to list unsaved changes
+      * allow also delete command on leaf element
+      * added reset command to set a leaf element to undef
+      * allow spaces around '=' and ':'
+    * tweak cme-gen-class-pod so it can be run without cme (handy for tests)
+    * Model generate_doc: write file if new doc is different from old
+      (don't try to be smart with timestamps)
+
 2.046 2013-12-15
 
     * cme:
