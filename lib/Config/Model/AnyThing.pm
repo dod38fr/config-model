@@ -730,6 +730,51 @@ Returns the root of the configuration tree.
 Go up the configuration tree until the C<Foo> configuration class is found. Returns 
 the found node or undef.
 
+=head2 notify_change(...)
+
+Notify the instance of semantic changes. Parameters are:
+
+=over 8
+
+=item old
+
+old value.
+
+=item new
+
+new value
+
+=item path
+
+Location of the changed parameter starting from root node. Default to C<$self->location>.
+
+=item name
+
+element name. Default to C<$self->element_name>
+
+=item index
+
+If the changed parameter is part of a hash or an array, C<index>
+contains the key or the index to get the changed parameter.
+
+=item msg
+
+change message. When not empty, old and new values are not shown.
+
+=item note
+
+note displayed along the changed values (or message)
+
+=item really
+
+When set to 1, force recording of change even if in initial load phase.
+
+=item needs_save
+
+internal parameter.
+
+=back
+
 =head2 model_searcher ()
 
 Returns an object dedicated to search an element in the configuration
