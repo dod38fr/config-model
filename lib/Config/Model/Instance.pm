@@ -366,8 +366,14 @@ sub list_changes {
     foreach my $c (@$l) {
         my $path = $c->{path} ;
         
+        if (my $m = delete $c->{msg}) {
+            push @all, "$path : $m" . ($c->{note} ? " # $c->{note}" : '');
+            next;
+        }
+
         # don't list change without further info (like nodes)
         next unless keys %$c > 1 ;
+
         my $vt = $c->{value_type} || '' ;
         my ($o,$n) =  map { $_ // '<undef>' ;} ($c->{old},$c->{new}) ;
         
