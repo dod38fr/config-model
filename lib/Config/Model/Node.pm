@@ -744,6 +744,14 @@ sub fetch_element {
         # FIXME elaborate more ? or include parameter description ??
         warn "Element '$element_name' of node '",$self->name,
           "' is deprecated\n";
+
+        # this will also force a rewrite of the file even if no other
+        # semantic change was done
+        $self->notify_change(
+            msg => 'dropping deprecated parameter',
+            path => $self->location. ' '. $element_name,
+            really => 1,
+       ) ;
     }
 
     # check experience
