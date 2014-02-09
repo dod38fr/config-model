@@ -457,7 +457,7 @@ Set the privilege level used for the scan (default 'beginner').
 
 =item auto_vivify
 
-Whether to create the configuration items while scan (default is 1).
+Whether to create configuration objects while scanning (default is 1).
 
 =item check
 
@@ -532,7 +532,7 @@ Example:
 
 =head2 List element hook
 
-C<hash_element_hook>: Works like the list element callback. Except that the calls to
+C<list_element_hook>: Works like the list element callback. Except that the calls to
 C<scan_list> are not required. This will be done once the hook returns.
 
 =head2 Check list element callback
