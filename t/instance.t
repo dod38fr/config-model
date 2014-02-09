@@ -61,8 +61,10 @@ my $wip = $root->fetch_element('warn_if') ;
 my $wup = $root->fetch_element('warn_unless') ;
 warning_like {$wip->store('foobar');} qr/should not match/, "test warn_if condition (instance test)" ;
 warning_like {$wup->store('bar');} qr/should match/, "test warn_unless condition (instance test)" ;
+is($inst->has_warning, 2, "check warning count at instance level");
 $inst->apply_fixes ;
 is($wup -> fetch,'foobar',"test if fixes were applied (instance test)") ;
 is($wup -> fetch,'foobar',"test if fixes were applied (instance test)") ;
+is($inst->has_warning, 0, "check cleared warning count at instance level");
 
 memory_cycle_ok($model);
