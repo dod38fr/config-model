@@ -943,6 +943,12 @@ sub warning_msg {
     }
 }
 
+sub has_warning {
+    my $self = shift;
+
+    return @{$self->{content_warning_list}} + keys %{$self->{content_warning_hash}} ;
+}
+
 
 
 sub error_msg {
@@ -1485,6 +1491,10 @@ Delete all values (without deleting underlying value objects).
 Returns warnings concerning indexes of this hash. 
 Without parameter, returns a string containing all warnings or undef. With an index, return the warnings
 concerning this index or undef.
+
+=head2 has_warning
+
+Returns the current number of warning.
 
 =head2 error_msg 
 

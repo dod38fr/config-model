@@ -1,6 +1,7 @@
 package Config::Model::Instance;
 #use Scalar::Util qw(weaken) ;
 
+use 5.10.1;
 use Mouse ;
 use namespace::autoclean;
 use Mouse::Util::TypeConstraints;
@@ -122,6 +123,32 @@ sub error_messages {
     my @errs = map {"$_: " . $self->config_root->grab($_)->error_msg} $self->error_paths ;
     return wantarray ? @errs : join("\n", @errs) ;
 }
+
+sub has_warning {
+    my $self = shift;
+
+    my $count_leaf_warnings = sub {
+        my ($scanner, $data_ref, $node,$element_name,$index, $leaf_object) = @_ ;
+        $$data_ref += $leaf_object->has_warning ;
+    } ;
+
+    my $count_list_warnings = sub {
+        my ($scanner, $data_ref, $node,$element_name,$index, $leaf_object) = @_ ;
+        $$data_ref += $node->fetch_element($element_name)->has_warning ;
+    } ;
+
+    my $scan = Config::Model::ObjTreeScanner-> new (
+        leaf_cb => $count_leaf_warnings,
+        list_element_hook => $count_list_warnings,
+        hash_element_hook => $count_list_warnings,
+    ) ;
+
+    my $result = 0 ;
+    $scan->scan_node(\$result, $self->config_root) ;
+
+    return $result;
+}
+
 
 has on_change_cb => (
     is => 'rw',
@@ -698,6 +725,10 @@ Returns 1 (or more) if the instance contains data that needs to be saved.
 
 In list context, returns a array ref of strings describing the changes. 
 In scalar context, returns a big string. Useful to print.
+
+=head2 has_warning
+
+Returns the number of warning found in the elements of this configuration instance.
 
 =head1 AUTHOR
 
