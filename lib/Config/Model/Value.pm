@@ -1080,7 +1080,10 @@ sub apply_fixes {
     $check_fix = sub {
         $new = $self->{nb_of_fixes} ;
         $self->check_value(value => $self->{data}); # this is synchronous
-        if ($i++ > 100) {
+        # if fix fails, try and check_fix call each other until this limit is found
+        # or until perl bails out on deep recursion. Limit above 50 does trigger deep recursion failure.
+        # let's be conservative and limit to 20.
+        if ($i++ > 20) {
             Config::Model::Exception::Model->throw(
                 object => $self,
                 error  => "Too many fix loops: check with fix code or regexp"
