@@ -59,6 +59,7 @@ my $dir_char_mockup ;
 my $try_application_as_model = 0; # means search a model instead of an application name
 my $backup ;
 my $auto_create ;
+my $strict = 0;
 
 
 my %command_option = (
@@ -98,6 +99,7 @@ my @global_options = (
     "stack-trace|trace!"            => \$trace,
     "backup:s"                      => \$backup,
     "save!"                         => \$request_save,
+    "strict!"                       => \$strict,
     );
 
 # retrieve the main command, i.e. the first arg without leading dash
@@ -400,6 +402,12 @@ if ($request_save) {
     # at semantic level, i.e. removed unnecessary stuff)
     $inst->write_back(force => $force_load)  ;
 }
+
+my $ouch = $inst->has_warning ;
+if ($strict and $ouch) {
+    die "Found $ouch warnings in strict mode\n";
+}
+
 exit 0;
 
 __END__
@@ -669,6 +677,10 @@ You can specify an alternate suffix. For instance C<-backup dpkg-old>.
 
 Force a save even if no change was done. Useful to reformat the configuration file.
 
+=item -strict
+
+When set, cme will exit 1 if warnings are found during check (of left after fix)
+
 =back
 
 =head1 Advanced options
@@ -819,6 +831,12 @@ Trace change notification through configuration tree and instance.
 =back
 
 More categories will come.
+
+=head1 EXIT CODE
+
+cme exits 0 when no errors are found. Exit 1 otherwise.
+
+If C<-strict> option is set, cme will exit 1 when warnings are still present when the program ends.
 
 =head1 BUGS
 
