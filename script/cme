@@ -97,6 +97,7 @@ my @global_options = (
     "backend=s"                     => \$backend,
     "stack-trace|trace!"            => \$trace,
     "backup:s"                      => \$backup,
+    "save!"                         => \$request_save,
     );
 
 # retrieve the main command, i.e. the first arg without leading dash
@@ -663,6 +664,10 @@ Load file even if error are found in data. Bad data are discarded
 Create a backup of configuration files before saving. By default, C<old> will
 be appended to the backup file. I.e. C<foo.conf> will be backed up as C<foo.conf.old>.
 You can specify an alternate suffix. For instance C<-backup dpkg-old>.
+
+=item -save
+
+Force a save even if no change was done. Useful to reformat the configuration file.
 
 =back
 
