@@ -1,4 +1,5 @@
 package Config::Model::WarpedNode ;
+
 use Mouse ;
 
 use Carp qw(cluck croak);

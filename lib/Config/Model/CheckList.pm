@@ -1,4 +1,5 @@
 package Config::Model::CheckList ;
+
 use Mouse ;
 use 5.010 ;
 

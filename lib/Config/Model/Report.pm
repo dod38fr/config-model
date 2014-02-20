@@ -1,4 +1,5 @@
 package Config::Model::Report;
+
 use Carp;
 use strict;
 use warnings ;

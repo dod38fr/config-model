@@ -1,4 +1,5 @@
 package Config::Model::Exception;
+
 use warnings;
 use strict;
 use Data::Dumper;
@@ -134,6 +135,7 @@ Config::Model::Exception::Internal->Trace(1);
 
 package Config::Model::Exception::Syntax;
 
+
 sub full_message {
     my $self = shift;
 
@@ -147,6 +149,7 @@ sub full_message {
 }
 
 package Config::Model::Exception::Any;
+
 
 sub full_message {
     my $self = shift;
@@ -177,6 +180,7 @@ sub xpath_message {
 
 package Config::Model::Exception::LoadData;
 
+
 sub full_message {
     my $self = shift;
 
@@ -193,6 +197,7 @@ sub full_message {
 }
 
 package Config::Model::Exception::Model;
+
 
 sub full_message {
     my $self = shift;
@@ -221,6 +226,7 @@ sub full_message {
 
 package Config::Model::Exception::Load;
 
+
 sub full_message {
     my $self = shift;
 
@@ -241,6 +247,7 @@ sub full_message {
 
 package Config::Model::Exception::RestrictedElement;
 
+
 sub full_message {
     my $self = shift;
 
@@ -255,6 +262,7 @@ sub full_message {
 }
 
 package Config::Model::Exception::UnavailableElement;
+
 
 sub full_message {
     my $self = shift;
@@ -280,6 +288,7 @@ sub full_message {
 
 package Config::Model::Exception::ObsoleteElement;
 
+
 sub full_message {
     my $self = shift;
 
@@ -297,6 +306,7 @@ sub full_message {
 }
 
 package Config::Model::Exception::UnknownElement;
+
 use Carp;
 
 sub full_message {
@@ -367,6 +377,7 @@ sub full_message {
 
 package Config::Model::Exception::UnknownId;
 
+
 sub full_message {
     my $self = shift;
 
@@ -395,6 +406,7 @@ sub full_message {
 
 package Config::Model::Exception::WrongType;
 
+
 sub full_message {
     my $self = shift;
 
@@ -419,6 +431,7 @@ sub full_message {
 
 package Config::Model::Exception::ConfigFile::Missing ;
 
+
 sub full_message {
     my $self = shift;
 
@@ -428,6 +441,7 @@ sub full_message {
 }
 
 package Config::Model::Exception::Xml;
+
 
 sub full_message {
     my $self = shift;

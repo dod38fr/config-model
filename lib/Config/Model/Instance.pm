@@ -1,4 +1,5 @@
 package Config::Model::Instance;
+
 #use Scalar::Util qw(weaken) ;
 
 use 5.10.1;

@@ -1,4 +1,5 @@
 package Config::Model::Dumper;
+
 use Carp;
 use strict;
 use warnings ;

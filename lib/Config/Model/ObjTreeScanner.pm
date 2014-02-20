@@ -1,4 +1,5 @@
 package Config::Model::ObjTreeScanner ;
+
 use strict ;
 use Config::Model::Exception ;
 use Scalar::Util qw/blessed/ ;

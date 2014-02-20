@@ -1,4 +1,5 @@
 package Config::Model::SearchElement;
+
 use Log::Log4perl qw(get_logger :levels);
 use Carp;
 use strict;

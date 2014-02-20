@@ -1,4 +1,5 @@
 package Config::Model::DumpAsData;
+
 use Carp;
 use strict;
 use warnings ;

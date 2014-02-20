@@ -1,4 +1,5 @@
 package Config::Model;
+
 use Mouse ;
 use namespace::autoclean;
 use Mouse::Util::TypeConstraints;
