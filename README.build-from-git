@@ -44,6 +44,8 @@ or
 
 dzil test
 
+If dzil complains about missing EmailNotify or Twitter plugin, edit dist.ini and comment out
+the last 2 sections. They are useful only to the author.
 
 If dzil returns an error like "Cannot determine local time zone", you should
 specify explicitely your timezone in TZ environement variable. E.g.
