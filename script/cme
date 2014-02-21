@@ -144,7 +144,8 @@ my $result = GetOptions( @global_options, @$cmd_options);
 
 pod2usage(-verbose => 0) if not $result;
 
-# now @ARGV should be $command, $application, [ $config_file ]
+# @ARGV should be $command, $application, [ $config_file ] [ -- ] [ arguments ]
+
 shift @ARGV;
 my $application = shift @ARGV ;
 
@@ -185,8 +186,27 @@ if (not defined $root_model) {
     die "Unknown application: $application. Run 'cme list' to list available applications\n";
 }
 
+# @ARGV should be [ $config_file ] [ -- ] [ arguments ]
 my $config_file ;
-$config_file = shift @ARGV if $appli_info->{$application}{require_config_file} ;
+if ($appli_info->{$application}{require_config_file}) {
+    $config_file = shift @ARGV ;
+    pod2usage(-message => "no config file specified. Command should be cme $command $application file", -verbose => 0) 
+        unless defined $config_file ;
+}
+elsif ( $appli_info->{$application}{allow_config_file_override} and $ARGV[0] and $ARGV[0] ne '--') {
+    $config_file = shift @ARGV ;
+}
+# else cannot distinguish between bogus config_file and arguments
+
+# slurp any '--'
+if ($ARGV[0] and $ARGV[0] eq '--') {
+    shift @ARGV;
+}
+
+# now @ARGV contains arguments (or bogus config_file) which can only be used by command modify
+if (@ARGV and $command ne 'modify') {
+    pod2usage(-message => "cannot specify config modification with command $command", -verbose => 0) ;
+}
 
 my $inst = $model->instance(
     root_class_name => $root_model,
@@ -387,7 +407,7 @@ elsif ( $command eq 'edit' ) {
 
         # trigger a dump to load all sub-models
         my $dump = $root->dump_tree;
-        $request_save = 1 if $apply_fixes or $load or @ARGV;
+        $request_save = 1 if $apply_fixes or $load ;
     }
     else {
         die "Unsupported user interface: $ui_type";
@@ -423,10 +443,16 @@ cme - Edit data of configuration managed by Config::Model
 =head1 SYNOPSIS
 
   # general synopsis
-  cme [ global_options ] command application [ options ] arguments
+  cme [ global_options ] command application [ options ] [ file ] [ -- ] [ arguments ]
 
-  # edit dpkg config with GUI
+  # edit dpkg config with GUI (requires Config::Model::Dpkg)
   cme edit dpkg 
+
+  # force usage of simple shell like interface
+  cme edit dpkg-copyright --ui shell
+
+  # read data from arbitrary file
+  cme check dpkg-copyright path/to/file
 
   # edit /etc/sshd_config (requires Config::Model::OpenSsh)
   sudo cme edit sshd
@@ -435,7 +461,7 @@ cme - Edit data of configuration managed by Config::Model
   cme edit ssh
   
   # just check the validity of a file 
-  cme check multistrap file.conf 
+  cme check multistrap file.conf
   
   # check dpkg files, update deprecated parameters and save
   cme migrate dpkg 
@@ -445,6 +471,9 @@ cme - Edit data of configuration managed by Config::Model
   
   # modify configuration with command line
   cme modify dpkg source 'format="quilt (3.0)"'
+
+  # likewise with an application that accepts file override
+  cme modify dpkg-copyright -- 'Comment="Modified with cme"'
 
   # edit a file (file name specification is mandatory here)
   cme edit multistrap my.conf 
@@ -503,6 +532,11 @@ and errors on STDOUT.
 Example:
 
  cme check fstab
+
+Some applications will allow to override the default configuration file. For instance:
+
+  curl http://metadata.ftp-master.debian.org/changelogs/main/f/frozen-bubble/unstable_copyright \
+  | cme check dpkg-copyright -
 
 =head2 migrate
 
