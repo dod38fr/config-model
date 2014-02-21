@@ -72,14 +72,16 @@ my %command_option = (
     ],
     modify  => [],
     search  => [ 
-        "search=s"                      => \$search,
-        "narrow-search=s"               => \$search_type, 
+        "search=s"         => \$search,
+        "narrow-search=s"  => \$search_type,
     ],
     edit    => [
         "ui|if=s"               => \$ui_type,
         "open_item|open-item=s" => \$open_item,
     ],
-    dump   => [ "dumptype:s" => \$dumptype, ],
+    dump   => [
+        "dumptype:s" => \$dumptype,
+    ],
     fusefs => [
         "fuse_dir|fuse-dir=s" => \$fuse_dir,
         "dfuse!"              => \$fuse_debug,
