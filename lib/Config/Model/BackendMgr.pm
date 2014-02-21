@@ -79,7 +79,14 @@ sub get_cfg_file_path {
     my $w = $args{write} || 0 ;
 
     # config file override
-    if (defined $args{config_file}) {
+    my $cfo = $args{config_file} ;
+
+    if (defined $cfo and $cfo eq '-' and $w == 0) {
+         $logger->trace("auto_read: $args{backend} override target file is STDIN" );
+        return (1, '-');
+    }
+
+    if (defined $cfo) {
         my $override = $args{root}.$args{config_file}  ;
          $logger->trace("auto_". ($w ? 'write' : 'read')
                   ." $args{backend} override target file is $override" );
@@ -131,6 +138,16 @@ sub open_read_file {
     my %args = @_ ;
 
     my ($file_ok,$file_path) = $self->get_cfg_file_path(%args);
+
+    if ($file_ok and $file_path eq '-') {
+        my $io = IO::Handle->new();
+        if ($io->fdopen(fileno(STDIN),"r")) {
+            return (1, '-', $io) ;
+        }
+        else {
+            return (0, '-') ;
+        }
+    }
 
     # not very clean
     return (0, $file_path) if $args{backend} =~ /_file$/
