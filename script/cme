@@ -144,7 +144,7 @@ my $result = GetOptions( @global_options, @$cmd_options);
 
 pod2usage(-verbose => 0) if not $result;
 
-# @ARGV should be $command, $application, [ $config_file ] [ -- ] [ modification_instructions ]
+# @ARGV should be $command, $application, [ $config_file ] [ ~~ ] [ modification_instructions ]
 
 shift @ARGV;
 my $application = shift @ARGV ;
@@ -186,7 +186,7 @@ if (not defined $root_model) {
     die "Unknown application: $application. Run 'cme list' to list available applications\n";
 }
 
-# @ARGV should be [ $config_file ] [ -- ] [ modification_instructions ]
+# @ARGV should be [ $config_file ] [ ~~ ] [ modification_instructions ]
 my $config_file ;
 if ($appli_info->{$application}{require_config_file}) {
     $config_file = shift @ARGV ;
@@ -198,8 +198,8 @@ elsif ( $appli_info->{$application}{allow_config_file_override} and $ARGV[0] and
 }
 # else cannot distinguish between bogus config_file and modification_instructions
 
-# slurp any '--'
-if ($ARGV[0] and $ARGV[0] eq '--') {
+# slurp any '~~'
+if ($ARGV[0] and $ARGV[0] eq '~~') {
     shift @ARGV;
 }
 
@@ -448,7 +448,7 @@ cme - Edit data of configuration managed by Config::Model
 =head1 SYNOPSIS
 
   # general synopsis
-  cme [ global_options ] command application [ options ] [ file ] [ -- ] [ modification_instructions ]
+  cme [ global_options ] command application [ options ] [ file ] [ ~~ ] [ modification_instructions ]
 
   # edit dpkg config with GUI (requires Config::Model::Dpkg)
   cme edit dpkg 
@@ -478,7 +478,7 @@ cme - Edit data of configuration managed by Config::Model
   cme modify dpkg source 'format="quilt (3.0)"'
 
   # likewise with an application that accepts file override
-  cme modify dpkg-copyright -- 'Comment="Modified with cme"'
+  cme modify dpkg-copyright ~~ 'Comment="Modified with cme"'
 
   # edit a file (file name specification is mandatory here)
   cme edit multistrap my.conf 
