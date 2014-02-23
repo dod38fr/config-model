@@ -144,7 +144,7 @@ my $result = GetOptions( @global_options, @$cmd_options);
 
 pod2usage(-verbose => 0) if not $result;
 
-# @ARGV should be $command, $application, [ $config_file ] [ -- ] [ arguments ]
+# @ARGV should be $command, $application, [ $config_file ] [ -- ] [ modification_instructions ]
 
 shift @ARGV;
 my $application = shift @ARGV ;
@@ -186,7 +186,7 @@ if (not defined $root_model) {
     die "Unknown application: $application. Run 'cme list' to list available applications\n";
 }
 
-# @ARGV should be [ $config_file ] [ -- ] [ arguments ]
+# @ARGV should be [ $config_file ] [ -- ] [ modification_instructions ]
 my $config_file ;
 if ($appli_info->{$application}{require_config_file}) {
     $config_file = shift @ARGV ;
@@ -196,14 +196,14 @@ if ($appli_info->{$application}{require_config_file}) {
 elsif ( $appli_info->{$application}{allow_config_file_override} and $ARGV[0] and $ARGV[0] ne '--') {
     $config_file = shift @ARGV ;
 }
-# else cannot distinguish between bogus config_file and arguments
+# else cannot distinguish between bogus config_file and modification_instructions
 
 # slurp any '--'
 if ($ARGV[0] and $ARGV[0] eq '--') {
     shift @ARGV;
 }
 
-# now @ARGV contains arguments (or bogus config_file) which can only be used by command modify
+# now @ARGV contains modification_instructions (or bogus config_file) which can only be used by command modify
 if (@ARGV and $command ne 'modify') {
     pod2usage(-message => "cannot specify config modification with command $command", -verbose => 0) ;
 }
@@ -263,7 +263,12 @@ elsif ($command eq 'fix') {
     $request_save = 1;
 }
 elsif ( $command eq 'modify' ) {
-    $root->load("@ARGV");
+    if (@ARGV) {
+        $root->load("@ARGV");
+    }
+    else {
+         pod2usage(-message => "No modification instructions given on command line", verbose => 0 );
+    }
     $request_save = 1;
 }
 elsif ( $command =~ /^fuse/ ) {
@@ -443,7 +448,7 @@ cme - Edit data of configuration managed by Config::Model
 =head1 SYNOPSIS
 
   # general synopsis
-  cme [ global_options ] command application [ options ] [ file ] [ -- ] [ arguments ]
+  cme [ global_options ] command application [ options ] [ file ] [ -- ] [ modification_instructions ]
 
   # edit dpkg config with GUI (requires Config::Model::Dpkg)
   cme edit dpkg 
