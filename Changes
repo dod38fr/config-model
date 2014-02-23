@@ -1,5 +1,33 @@
 {{$NEXT}}
 
+2.048 2014-02-23
+
+    The main changes of this release are the new features of cme
+    command:
+
+      * add possibility to override config file (for appli with
+        allow_config_file_override) (part of Debian #739387) if config
+        file override is '-', open STDIN to read and STDOUT to write.
+        This way, cme can be used as a filter.
+      * added -strict option so cme exits 1 when warnings are found
+        (Closes Debian #736972)
+      * added -save option to force save. Useful when just reformatting
+        is desired
+      * modify command can apply Perl substitution (s/foo/bar) to
+        configuration values
+
+    Other changes:
+
+    * C::M::Loader:
+      * changed hash selection =~ sub-command to :~
+      + added =~ subcommand to apply Perl substitution to values
+    * Config::Model: load EV at compile time (Debian #738975)
+    * C::M::Value: limit the number of re-try when applying fix to
+      avoid deep recursion errors
+    * C::M::Node: force a save when reading a deprecated parameter (RT 92639)
+    * C::M::Instance: use msg parameter when listing changes
+    * C::M::AnyThing: added doc for notify_change
+
 2.047 2014-01-25
 
     * Value: store a good value cancels the error stored in Instance
