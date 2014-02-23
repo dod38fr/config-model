@@ -475,16 +475,12 @@ sub auto_write_init {
         my $write_dir =  $write->{os_config_dir}{$^O} || $write->{config_dir} || '';
         $write_dir .= '/' if $write_dir and $write_dir !~ m(/$) ; 
 
-        my ($fh, $file_ok) ;
-        $fh = new IO::File ; # opened in write callback
-
         $logger->debug("auto_write_init creating write cb ($backend) for ",$self->node->name);
 
         my @wr_args = (%$write,                  # model data
                        auto_create => $auto_create,
                        backend     => $backend,
                        config_dir  => $write_dir, # override from instance
-                       io_handle   => $fh,
                        write       => 1,          # for get_cfg_file_path
                        root        => $root_dir,  # override from instance
                       );
@@ -498,14 +494,14 @@ sub auto_write_init {
 
             $wb = sub  {  
                 no strict 'refs';
-                my $file_path ;
                 $logger->debug("write cb ($backend) called for ",$self->node->name);
-                ($file_ok, $file_path) = $self-> open_file_to_write($backend,$fh,@wr_args,@_)
+                my ($file_ok, $file_path, $fh) = $self-> open_file_to_write($backend,@wr_args,@_)
                     unless ($c->can('skip_open') and $c->skip_open) ;
                 my $res ;
                 $res = eval {
                     # override needed for "save as" button
                     &{$c.'::'.$f}(@wr_args,
+                                  io_handle   => $fh,
                                   file_path => $file_path,
                                   conf_dir => $write_dir, # legacy FIXME
                                   object => $self->node, 
@@ -521,12 +517,11 @@ sub auto_write_init {
         elsif ($backend eq 'perl_file') {
             $wb = sub {
                 $logger->debug("write cb ($backend) called for ",$self->node->name);
-                my ($file_ok, $file_path)
-                    = $self-> open_file_to_write($backend,$fh,
-                                                suffix => '.pl',@wr_args,@_) ;
+                my ($file_ok, $file_path, $fh)
+                    = $self-> open_file_to_write($backend, suffix => '.pl', @wr_args, @_) ;
                 my $res ;
                 $res = eval {
-                    $self->write_perl(@wr_args, file_path => $file_path,  @_) ;
+                    $self->write_perl(@wr_args, io_handle => $fh, file_path => $file_path,  @_) ;
                 };
                 $self->close_file_to_write($@,$fh,$file_path) ;
                 $logger->warn("write backend $backend failed: $@") if $@;
@@ -537,12 +532,11 @@ sub auto_write_init {
         elsif ($backend eq 'cds_file') {
             $wb = sub {
                 $logger->debug("write cb ($backend) called for ",$self->node->name);
-                my ($file_ok, $file_path)
-                   = $self-> open_file_to_write($backend,$fh,
-                                                suffix => '.cds',@wr_args,@_) ;
+                my ($file_ok, $file_path, $fh)
+                   = $self-> open_file_to_write($backend, suffix => '.cds', @wr_args, @_) ;
                 my $res ;
                 $res = eval {
-                    $self->write_cds_file(@wr_args, file_path => $file_path, @_) ;
+                    $self->write_cds_file(@wr_args, io_handle => $fh, file_path => $file_path, @_) ;
                 };
                 $logger->warn("write backend $backend failed: $@") if $@;
                 $self->close_file_to_write($@,$fh,$file_path) ;
@@ -559,16 +553,14 @@ sub auto_write_init {
                 $logger->debug("write cb ($backend) called for ",$self->node->name);
                 my $backend_obj =  $self->get_backend($backend)
                                 || $c->new(node => $self->node, name => $backend) ;
-                my $file_path ;
-                my $suffix ;
-                $suffix = $backend_obj->suffix if $backend_obj->can('suffix');
-                ($file_ok, $file_path)
-                    = $self-> open_file_to_write($backend,$fh, suffix => $suffix, @wr_args,@_)
+                my $suffix = $backend_obj->suffix if $backend_obj->can('suffix');
+                my ($file_ok, $file_path, $fh)
+                    = $self-> open_file_to_write($backend, suffix => $suffix, @wr_args, @_)
                     unless ($c->can('skip_open') and $c->skip_open) ;
-                my $res ;
-                $res = eval {
+                my $res = eval {
                     # override needed for "save as" button
                     $backend_obj->$f( @wr_args, 
+                                      io_handle   => $fh,
                                       file_path => $file_path,
                                       object => $self->node, 
                                       @_                      # override from user
@@ -619,7 +611,7 @@ sub write_back {
 }
 
 sub open_file_to_write {
-    my ($self, $backend, $fh, %args) = @_ ;
+    my ($self, $backend, %args) = @_ ;
 
     my $backup = delete $args{backup};
     my $do_backup = defined $backup;
@@ -627,16 +619,29 @@ sub open_file_to_write {
     $backup = '.'.$backup unless $backup =~ /^\./;
 
     my ($file_ok, $file_path) = $self->get_cfg_file_path(%args);
-    if ($file_ok) {
+
+    if ($file_ok and $file_path eq '-') {
+        my $io = IO::Handle->new();
+        if ($io->fdopen(fileno(STDOUT),"w")) {
+            return (1, '-', $io) ;
+        }
+        else {
+            return (0, '-') ;
+        }
+    }
+    elsif ($file_ok) {
         if ($do_backup and -r $file_path) {
             copy($file_path, $file_path.$backup) or die "Backup copy failed: $!";
         }
         $logger->debug("$backend backend opened file $file_path to write");
+        my $fh = new IO::File ;
         $fh ->open("> $file_path") || die "Cannot open $file_path:$!";
         $fh->binmode(':utf8');
+        return ($file_ok, $file_path, $fh) ;
     }
-
-    return ($file_ok, $file_path) ;
+    else {
+        return (0, $file_path) ;
+    }
 }
 
 sub close_file_to_write {
