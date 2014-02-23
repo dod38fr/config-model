@@ -495,8 +495,40 @@ cme - Edit data of configuration managed by Config::Model
 
 =head1 DESCRIPTION
 
-C<cme> program will use Config::Model configuration
-descriptions to check or modify or fix configuration files.
+Depending on the commmand described below, C<cme> program will use
+Config::Model configuration descriptions to check or modify or fix
+configuration files.
+
+The 3rd parameter specify the application you want to work on. Most of
+the time, the relevant configuration file(s) will be found by cme. This
+is the most simple case. For instance:
+
+  sudo cme check popcon
+
+Some application like C<multistrap> have no constraint on the
+configuration file name and will require you to specify your
+configuration file name:
+
+  cme check multistrap raspbian.conf
+
+=head1 Configuration file specification
+
+The configuration of an application can take different forms. Either
+several files (like debian packages), a single file with a predefined
+file (popcon), or a single file with an arbitrary file name
+(multistrap).
+
+When needed the configuration file name is specified as the 3rd command
+argument, i.e. C<cme command application file_name>. This applies if the
+application requires a configuration file name (like multistrap), or if
+the application allows configuration file override.
+
+When the overridden file is C<-> (a single dash), the configuration is
+read from STDIN. The resulting file may be written on STDOUT. I.e.
+
+  cat debian/confrol | cme migrate dpkg-control -save -
+
+will output a fixed control file on STDOUT.
 
 =head1 Commands
 
@@ -554,7 +586,8 @@ For more details, see L<Config::Model::Value/Upgrade>
 =head2 fix
 
 A bit like C<migrate> command, except that warnings are fixed. The configuration
-is saved if anything was changed. Options are:
+is saved if anything was changed. If no changes are done, the file is not saved.
+Options are:
 
 =over 
 
@@ -587,15 +620,31 @@ Modify a configuration file with the values passed on the command line.
 These command must follow the syntax defined in L<Config::Model::Loader>
 (which is similar to the output of L<cme dump|"/dump"> command)
 
-
 Example:
 
    cme modify dpkg source format="quilt (3.0)"
    cme modify multistrap my_mstrap.conf sections:base source="http://ftp.fr.debian.org"
 
-This example restores the default value of the text of all GPL like licenses:
+Some application like dpkg-copyright allows you to override the
+configuration file name. The problem is to make the difference between
+the overridden file name and the modification instruction you want to
+apply.
 
-   cme modify dpkg-copyright 'License=~/GPL/ text~'
+Either you specify both overridden file name modifications:
+
+   cme modify dpkg-copyright ubuntu/copyright 'Comment="Silly example"
+
+Or you use C<~~> to use the default file name:
+
+    cme modify dpkg-copyright ~~ 'Comment="Another silly example"
+
+Another example which restores the default value of the text of all GPL like licenses :
+
+   cme modify dpkg-copyright ~~ 'License=~/GPL/ text~'
+
+Or update the copyright years of the package maintainer's file:
+
+   cme modify dpkg-copyright ~~ 'File=debian/* Copyright=~s/2013/2014/'
 
 =head2 search
 
