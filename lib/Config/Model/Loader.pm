@@ -115,7 +115,7 @@ sub _split_cmd {
        m!^
 	 (\w[\w-]*)? # element name can be alone
 	 (?:
-            (:|=~|~)       # action
+            (:~|:|~)       # action
             ( /[^/]+/      # regexp
 	      |            # or
 		$quoted_regexp
@@ -428,7 +428,7 @@ sub _load_hash {
         );
     }
     
-    if ($action eq '=~') {
+    if ($action eq ':~') {
 	my @keys = $element->fetch_all_indexes;
 	my $ret ;
 	$logger->debug("_load_hash: looping with regex $id on keys @keys");
