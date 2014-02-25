@@ -522,6 +522,11 @@ sub has_fixes {
     return 0;
 }
 
+sub has_warning {
+    my $self = shift ;
+    $logger->debug("dummy has_warning called on ".$self->name);
+    return 0;
+}
 
 sub warp_error {
     my $self = shift ;
