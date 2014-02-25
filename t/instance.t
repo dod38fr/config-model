@@ -8,7 +8,7 @@ use Test::Warn ;
 use Test::Memory::Cycle;
 use Config::Model;
 
-BEGIN { plan tests => 14; }
+BEGIN { plan tests => 17; }
 
 use strict;
 
@@ -25,7 +25,7 @@ ok(1,"Compilation done");
 
 my $model = Config::Model->new(legacy => 'ignore',) ;
 $model->create_config_class(
-    name    => "Master",
+    name    => "WarnMaster",
     element => [
         warn_if => {
             type          => 'leaf',
@@ -41,7 +41,7 @@ $model->create_config_class(
     ]
 );
 
-my $inst = $model->instance (root_class_name => 'Master', 
+my $inst = $model->instance (root_class_name => 'WarnMaster',
 			     instance_name   => 'test1',
 			     root_dir        => 'foobar' );
 ok($inst,"created dummy instance") ;
@@ -66,5 +66,24 @@ $inst->apply_fixes ;
 is($wup -> fetch,'foobar',"test if fixes were applied (instance test)") ;
 is($wup -> fetch,'foobar',"test if fixes were applied (instance test)") ;
 is($inst->has_warning, 0, "check cleared warning count at instance level");
+
+my $binst = $model->instance (root_class_name => 'Master',
+			     model_file => 't/big_model.pm',
+			     instance_name => 'test2');
+ok($binst,"created dummy instance") ;
+
+my $root2 = $binst -> config_root ;
+
+my $step = 'std_id:ab X=Bv - std_id:bc X=Av - a_string="toto tata" '
+  .'lista=a,b,c,d olist:0 X=Av - olist:1 X=Bv - listb=b,c,d '
+    . '! hash_a:X2=x hash_a:Y2=xy  hash_b:X3=xy my_check_list=X2,X3' ;
+
+ok( $root2->load( step => $step, experience => 'advanced' ),
+  "set up data in tree with '$step'");
+
+is($binst->has_warning,0,"test has_warning with big model");
+
+Config::Model::Exception::Any->Trace(1) if $trace =~ /e/;
+
 
 memory_cycle_ok($model);
