@@ -1,7 +1,7 @@
 # -*- cperl -*-
 
 use ExtUtils::testlib;
-use Test::More tests => 17;
+use Test::More tests => 19;
 use Test::Memory::Cycle;
 use Config::Model;
 use Config::Model::Annotation;
@@ -64,6 +64,11 @@ foreach (@annotate) {
     $root->grab($l)->annotation($a) ;
     ok(1,"set annotation of $l") ;
 }
+
+
+is($root->grab("std_id:ab X")->annotation('to delete'),'to delete',"test clear annotation") ;
+
+is($root->grab("std_id:ab X")->clear_annotation,'',"test clear annotation") ;
 
 my $annotate_saver = Config::Model::Annotation
   -> new (
@@ -128,4 +133,5 @@ delete $expect3{'olist:2'} ;
 my $h3_ref = $saver2->get_annotation_hash() ;
 print Dumper ( $h3_ref ) if $trace ;
 is_deeply ($h3_ref,\%expect3 ,"check loaded annotation data with non-empty tree") ;
+
 memory_cycle_ok($model);
