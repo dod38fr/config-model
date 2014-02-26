@@ -1,5 +1,12 @@
 {{$NEXT}}
 
+2.049 2014-02-26
+
+    Bug fix and minor new feature release:
+    * C::M::AnyThing: added has_warning fallback method (always return 0)
+	  (RT 93329)
+    * C::M::Anything: added clear_annotation method
+
 2.048 2014-02-23
 
     The main changes of this release are the new features of cme
