@@ -130,6 +130,10 @@ sub annotation {
     return $self->{annotation} || '';
 }
 
+sub clear_annotation {
+    my $self = shift;
+    $self->{annotation} = '';
+}
 
 sub load_pod_annotation {
     my $self = shift ;
@@ -634,6 +638,9 @@ be in the form:
  
  =back
  
+=head2 clear_annotation
+
+Clear the annotation of an element
 
 =head1 Information management
 
