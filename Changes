@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+2.050 2014-02-27
+
+	* Restore NAME section in Config::Model::Manual::* man pages
+
 2.049 2014-02-26
 
     Bug fix and minor new feature release:
