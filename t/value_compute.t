@@ -10,7 +10,7 @@ use Test::Memory::Cycle;
 use Config::Model ;
 use Log::Log4perl qw(:easy) ;
 
-BEGIN { plan tests => 55; }
+BEGIN { plan tests => 57; }
 
 use strict;
 
@@ -265,7 +265,6 @@ $model->create_config_class(
                 'value_type' => 'uniline',
                 'type'       => 'leaf'
             },
-            'status' => 'deprecated',
             'type'   => 'list',
         },
         'Source' => {
@@ -325,6 +324,20 @@ $model->create_config_class(
                 'type' => 'node'
             },
         },
+        'OtherMaintainer' => { type => 'leaf', value_type => 'uniline'},
+        'Vcs-Browser' => {
+            'type' => 'leaf',
+            'value_type' => 'uniline',
+            'compute' => {
+                'allow_override' => '1',
+                'formula' => '$maintainer =~ /pkg-(perl|ruby-extras)/p ? "http://anonscm.debian.org/gitweb/?p=${^MATCH}/packages/$pkgname.git" : undef ;',
+                'use_eval' => '1',
+                'variables' => {
+                    'maintainer' => '- OtherMaintainer',
+                    'pkgname' => '- Source'
+                }
+            }
+        },
     ]
 );
 
@@ -337,10 +350,10 @@ my $root = $inst -> config_root ;
 
 # order is important. Do no use sort.
 eq_or_diff([$root->get_element_name()],
-          [qw/av bv compute_int sav sbv one_var one_wrong_var 
-              meet_test compute_with_override compute_with_upstream compute_no_var bar 
-              foo2 url host with_tmp_var Upstream-Contact Source Source2 Licenses 
-              index_function_target test_index_function/],
+          [qw/av bv compute_int sav sbv one_var one_wrong_var
+              meet_test compute_with_override compute_with_upstream compute_no_var bar
+              foo2 url host with_tmp_var Upstream-Contact Maintainer Source Source2 Licenses
+              index_function_target test_index_function OtherMaintainer Vcs-Browser/],
          "check available elements");
 
 my ( $av, $bv, $compute_int );
@@ -533,5 +546,11 @@ is($root->grab_value('Licenses:"MPL-1.1" short_name_from_index'), "MPL-1.1",'eva
 
 $root->load('index_function_target:foo name=Bond007');
 is($root->grab_value('test_index_function:foo name'), "Bond007 is my name",'variable with &index(-)');
+
+$root->load('OtherMaintainer="Debian Ruby Extras Maintainers <pkg-ruby-extras-maintainers@lists.alioth.debian.org>" Source=ruby-pygments.rb' );
+is($root->grab_value("Vcs-Browser") ,'http://anonscm.debian.org/gitweb/?p=pkg-ruby-extras/packages/ruby-pygments.rb.git','test compute with complex regexp formula') ;
+
+$root->load('OtherMaintainer="Debian Perl Group <pkg-perl-maintainers@lists.alioth.debian.org>" Source=libconfig-model-perl' );
+is($root->grab_value("Vcs-Browser") ,'http://anonscm.debian.org/gitweb/?p=pkg-perl/packages/libconfig-model-perl.git','test compute with complex regexp formula') ;
 
 memory_cycle_ok($model,"test memory cycles");
