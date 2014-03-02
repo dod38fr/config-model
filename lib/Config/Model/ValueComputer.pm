@@ -497,7 +497,7 @@ pre_value:
   | <skip:''> '&' /\w+/ func_param(?) {
     $return = Config::Model::ValueComputer::_function_alone($item[3],$return,@arg ) ;
   }
-  |  <skip:''> /\$(\d+|_)\b/ {
+  |  <skip:''> /\$(\d+|_|&|{\^[A-Z]+})/ {
      my $result = $item[-1] ;
      $return = \$result ;
   }
