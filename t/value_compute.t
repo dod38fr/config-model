@@ -108,9 +108,9 @@ $model->create_config_class(
             'value_type' => 'string',
             'type'       => 'leaf',
             'compute'    => {
-                'replace' => { 
-                    'GPL-1+' => "yada yada GPL-1+\nyada yada", 
-                    'Artistic' => "yada yada Artistic\nyada yada", 
+                'replace' => {
+                    'GPL-1+' => "yada yada GPL-1+\nyada yada",
+                    'Artistic' => "yada yada Artistic\nyada yada",
                 },
                 'formula'        => '$replace{&index(-)}',
                 'allow_override' => '1',
@@ -301,10 +301,10 @@ $model->create_config_class(
             'status'     => 'deprecated',
             'type'       => 'leaf'
         },
-        Licenses => { 
+        Licenses => {
             type => 'hash',
             index_type => 'string',
-            cargo => { 
+            cargo => {
                 type => 'node',
                 config_class_name => 'LicenseSpec'
             }
@@ -328,7 +328,7 @@ $model->create_config_class(
     ]
 );
 
-my $inst = $model->instance (root_class_name => 'Master', 
+my $inst = $model->instance (root_class_name => 'Master',
                              instance_name => 'test1');
 ok($inst,"created dummy instance") ;
 $inst->initial_load_stop ;
@@ -365,11 +365,11 @@ use warnings 'once';
 }
 
 my $object = $root->fetch_element('one_var') ;
-my $rules =  { 
+my $rules =  {
               bar => '- sbv',
              } ;
 my $srules = {
-               bv => 'rbv' 
+               bv => 'rbv'
              };
 
 my $ref = $parser->pre_value( '$bar', 1, $object, $rules , $srules );
@@ -407,7 +407,7 @@ is( $$ref, $txt,
     "test compute parser with function (&element)");
 
 ## test integer formula
-my $result = $compute_int->fetch; 
+my $result = $compute_int->fetch;
 is ($result, undef,"test that compute returns undef with undefined variables" );
 
 $av->store(1) ;
@@ -434,7 +434,7 @@ eval { $result = $compute_int->fetch; };
 ok($@,"computed integer: computed value error");
 print "normal error:\n", $@, "\n" if $trace;
 
-is($compute_int->fetch(check => 0), undef, 
+is($compute_int->fetch(check => 0), undef,
    "test result :  computed integer is undef (a: 1, b: -2)");
 
 my $s = $root->fetch_element('meet_test') ;
@@ -509,7 +509,7 @@ $root->fetch_element(name => 'Original-Source-Location', check => 'no')->store('
 is($root->grab_value(step => 'Source'   ),'foobar',"check migrate_from with undef_is");
 
 my $v ;
-warning_like {$v = $root->grab_value(step => 'Source2'   );} 
+warning_like {$v = $root->grab_value(step => 'Source2'   );}
     [ (qr/deprecated/) x 4 ], "check Source2 compute with undef_is" ;
 is($v ,'foobar',"check result of compute with undef_is");
 
