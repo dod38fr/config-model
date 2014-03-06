@@ -1,5 +1,11 @@
 {{$NEXT}}
 
+2.051 2014-03-06
+
+    * cme: fix command like "cme modify foo ~~ <load_instructions>"
+    * ValueComputer: formula with eval no longer mess with $& and ${^MATCH}
+      variables used in regexp
+
 2.050 2014-02-27
 
 	* Restore NAME section in Config::Model::Manual::* man pages
