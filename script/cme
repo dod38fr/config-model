@@ -193,7 +193,7 @@ if ($appli_info->{$application}{require_config_file}) {
     pod2usage(-message => "no config file specified. Command should be cme $command $application file", -verbose => 0) 
         unless defined $config_file ;
 }
-elsif ( $appli_info->{$application}{allow_config_file_override} and $ARGV[0] and $ARGV[0] ne '--') {
+elsif ( $appli_info->{$application}{allow_config_file_override} and $ARGV[0] and $ARGV[0] ne '~~') {
     $config_file = shift @ARGV ;
 }
 # else cannot distinguish between bogus config_file and modification_instructions
