@@ -105,7 +105,7 @@ sub load {
 sub _split_cmd {
     my $cmd = shift ;
 
-    my $quoted_regexp = qr/"(?: \\" | [^"] )* "/x;  # quoted string
+    my $quoted_string = qr/"(?: \\" | [^"] )* "/x;  # quoted string
 
 
     # do a split on ' ' but take quoted string into account
@@ -118,7 +118,7 @@ sub _split_cmd {
             (:~|:|~)       # action
             ( /[^/]+/      # regexp
 	      |            # or
-		$quoted_regexp
+		$quoted_string
               |
 	      [^"#=\.~]+    # non action chars
             )?
@@ -127,7 +127,7 @@ sub _split_cmd {
             (=~|.=|=)          # apply regexp or assign or append
 	    (
               (?:
-                $quoted_regexp
+                $quoted_string
                 | [^#\s]                # or non whitespace
               )+                       # many
             )
@@ -136,7 +136,7 @@ sub _split_cmd {
             \#              # optional annotation
 	    (
               (?:
-                 $quoted_regexp
+                 $quoted_string
                 | [^\s]                # or non whitespace
               )+                       # many
             )
