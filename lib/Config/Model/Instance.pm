@@ -420,6 +420,13 @@ sub list_changes {
     return wantarray ? @all : join("\n",@all) ;
 }
 
+sub say_changes {
+    my $self = shift;
+    my @changes = $self->list_changes ;
+    say "\n",join( "\n- ","Changes applied to ".$self->application." configuration:", @changes ),"\n" if @changes;
+    return @changes;
+}
+
 
 sub write_back {
     my $self = shift ;
@@ -726,6 +733,10 @@ Returns 1 (or more) if the instance contains data that needs to be saved.
 
 In list context, returns a array ref of strings describing the changes. 
 In scalar context, returns a big string. Useful to print.
+
+=head2 say_changes
+
+Print all changes on STDOUT and return the list of changes.
 
 =head2 has_warning
 
