@@ -423,8 +423,7 @@ else {
 }
 
 if ($request_save) {
-    my @changes = $inst->list_changes ;
-    say "\n",join( "\n- ","Changes applied to $application configuration:", @changes ) if @changes;
+    $inst->say_changes;
     # if load was forced, must write back to clean up errors (even if they are not changes
     # at semantic level, i.e. removed unnecessary stuff)
     $inst->write_back(force => $force_load)  ;

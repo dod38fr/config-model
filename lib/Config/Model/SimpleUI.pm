@@ -195,11 +195,13 @@ sub run_loop {
 
     my $instance = $self->{root}->instance ;
     if ($instance->c_count) {
-        print "Unsaved changes:\n", $instance->list_changes,"\n" ;
-        print "write back data before exit ? (Y/n)";
-        $user_cmd = <STDIN> ;
-        $instance->write_back unless $user_cmd =~ /n/i;
-        print "\n";
+        my @changes = $instance->say_changes ;
+        if (@changes) {
+            print "write back data before exit ? (Y/n)";
+            $user_cmd = <STDIN> ;
+            $instance->write_back unless $user_cmd =~ /n/i;
+            print "\n";
+        }
     }
 
 }
