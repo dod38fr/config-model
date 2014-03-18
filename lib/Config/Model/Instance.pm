@@ -411,7 +411,7 @@ sub list_changes {
             my $diff = diff \$o, \$n ;
             push @all, "$path :" . ($c->{note} ? " # $c->{note}" : ''). "\n". $diff;
         }
-        elsif (exists $c->{old} or exists $c->{new}) {
+        elsif (defined $c->{old} or defined $c->{new}) {
             map { s/\n.*/.../s; } ($o,$n) ;
             push @all, "$path: '$o' -> '$n'" . ($c->{note} ? " # $c->{note}" : '');
         }
