@@ -303,6 +303,12 @@ sub swap {
 sub remove {
     my $self = shift ;
     my $idx  = shift ;
+
+    Config::Model::Exception::User ->throw (
+        object => $self,
+        error => "Non numeric index for list: $idx"
+    ) unless $idx =~ /^\d+$/;
+
     $self->delete_data_mode(index => $idx) ;
     $self->notify_change ;
     splice @{$self->{data}}, $idx , 1 ;

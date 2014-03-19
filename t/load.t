@@ -271,6 +271,11 @@ is($root->fetch_element('lista')->fetch_with_id(1)->fetch ,
    'a "b" ',
    "test value loaded by '$step'");
 
+# test that lista~a complains about non numeric index
+$step = 'lista~a' ;
+throws_ok {$root->load( step => $step );}
+  "Config::Model::Exception::User", "load wrong '$step'";
+
 $step = 'lista~1 hash_a~"a b "' ;
 ok( $root->load( step => $step, ), "load : '$step'");
 is($root->fetch_element('lista')->fetch_with_id(1)->fetch ,
