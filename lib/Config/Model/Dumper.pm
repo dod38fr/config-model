@@ -135,7 +135,7 @@ sub dump_tree {
 	    my @val = quote( grep (defined $_, 
 				   $list_obj->fetch_all_values(mode => $fetch_mode, 
 							       check => $check))) ;
-            $$data_r .= "\n$pad$element=" . join( ',', @val ) if @val;
+            $$data_r .= "\n$pad$element:=" . join( ',', @val ) if @val;
         }
     };
 
