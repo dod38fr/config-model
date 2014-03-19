@@ -115,16 +115,18 @@ sub _split_cmd {
        m!^
 	 (\w[\w-]*)? # element name can be alone
 	 (?:
-            (:~|:|~)       # action
-            ( /[^/]+/      # regexp
-	      |            # or
-		$quoted_string
-              |
-	      [^"#=\.~]+    # non action chars
+            (:~|:-[=~]?|:\.\w+|:[=<>@]?|~)       # action
+            (?:
+                  (?: \( ([^)]+)  \) )  # capture parameters between braces
+                | (
+                    /[^/]+/      # regexp
+                    | $quoted_string
+                    | [^#=\.<>]+    # non action chars
+                  )
             )?
          )?
 	 (?:
-            (=~|.=|=)          # apply regexp or assign or append
+            (=~|.=|[=<>])          # apply regexp or assign or append
 	    (
               (?:
                 $quoted_string
@@ -152,7 +154,7 @@ my %load_dispatch = (
 		     node        => \&_walk_node,
 		     warped_node => \&_walk_node,
 		     hash        => \&_load_hash,
-		     check_list  => \&_load_list,
+		     check_list  => \&_load_check_list,
 		     list        => \&_load_list,
 		     leaf        => \&_load_leaf,
 		    ) ;
@@ -188,7 +190,7 @@ sub _load {
 	}
 
 	my @instructions = _split_cmd($cmd);
-	my ($element_name,$action,$id,$subaction,$value,$note) = @instructions ;
+	my ($element_name,$action,$function_param,$id,$subaction,$value,$note) = @instructions ;
 
 	if ($logger->is_debug) {
 	    my @disp = map { defined $_ ? "'$_'" : '<undef>'} @instructions;
@@ -332,10 +334,47 @@ sub unquote {
     map { s/^"// && s/"$// && s!\\"!"!g if defined $_;  } @_ ;
 }
 
-# used for list and check lists
+sub _load_check_list {
+    my ($self,$node, $check,$experience,$inst,$cmdref) = @_ ;
+    my ($element_name,$action,$f_arg,$id,$subaction,$value,$note) = @$inst ;
+
+    my $element = $node -> fetch_element(name => $element_name, check => $check) ;
+
+    if (defined $note and not defined $action and not defined $subaction) {
+        $self->_load_note($element, $note, $inst, $cmdref);
+	return 'ok';
+    }
+
+    if (defined $subaction and $subaction eq '=') {
+	$logger->debug("_load_check_list: set whole list");
+	# valid for check_list or list
+	$logger->info("Setting check_list element ",$element->name, " with value ",$value );
+	$element->load( $value , check => $check) ;
+        $self->_load_note($element, $note, $inst, $cmdref);
+	return 'ok';
+    }
+
+    if (not defined $action and defined $subaction ) {
+	Config::Model::Exception::Load -> throw (
+            object => $element,
+            command => join('',grep (defined $_,@$inst)) ,
+            error => "Wrong assignment with '$subaction' on check_list"
+        ) ;
+    }
+
+    my $a_str = defined $action ? $action : '<undef>' ;
+
+    Config::Model::Exception::Load -> throw (
+        object => $element,
+	command =>  join ( '', map { $_ || '' } @$inst ),
+	error => "Wrong assignment with '$a_str' on check_list"
+    ) ;
+
+}
+
 sub _load_list {
     my ($self,$node, $check,$experience,$inst,$cmdref) = @_ ;
-    my ($element_name,$action,$id,$subaction,$value,$note) = @$inst ;
+    my ($element_name,$action,$f_arg,$id,$subaction,$value,$note) = @$inst ;
 
     my $element = $node -> fetch_element(name => $element_name, check => $check) ;
 
@@ -347,26 +386,31 @@ sub _load_list {
 	return 'ok';
     }
 
-    if (not defined $action and defined $subaction and $subaction eq '='
-	and $cargo_type eq 'leaf'
-       ) {
-	$logger->debug("_load_list: set whole list");
+    if (defined $action and $action eq ':=' and $cargo_type eq 'leaf' ) {
+	$logger->debug("_load_list: set whole list with ':=' action");
 	# valid for check_list or list
-	$logger->info("Setting $elt_type element ",$element->name,
-		      " with '$value'");
+	$logger->info("Setting $elt_type element ",$element->name, " with '$id'");
+	$element->load( $id , check => $check) ;
+        $self->_load_note($element, $note, $inst, $cmdref);
+	return 'ok';
+    }
+
+    if (defined $subaction and $subaction eq '=' and $cargo_type eq 'leaf' ) {
+	$logger->debug("_load_list: set whole list with '=' subaction'" );
+	# valid for check_list or list
+	$logger->info("Setting $elt_type element ",$element->name, " with '$value'");
 	$element->load( $value , check => $check) ;
         $self->_load_note($element, $note, $inst, $cmdref);
 	return 'ok';
     }
 
-    if (not defined $action and defined $subaction ) {
-	Config::Model::Exception::Load
-	-> throw (
-		  object => $element,
-		  command => join('',grep (defined $_,@$inst)) ,
-		  error => "Wrong assignment with '$subaction' on "
-		  ."element type: $elt_type, cargo_type: $cargo_type"
-		 ) ;
+    if ( not defined $action and defined $subaction ) {
+        Config::Model::Exception::Load->throw(
+            object  => $element,
+            command => join( '', grep ( defined $_, @$inst ) ),
+            error   => "Wrong assignment with '$subaction' on "
+              . "element type: $elt_type, cargo_type: $cargo_type"
+        );
     }
 
     if ($elt_type eq 'list' and defined $action and $action eq '~') {
@@ -409,7 +453,7 @@ sub _load_list {
 
 sub _load_hash {
     my ($self,$node,$check,$experience,$inst,$cmdref) = @_ ;
-    my ($element_name,$action,$id,$subaction,$value,$note) = @$inst ;
+    my ($element_name,$action,$f_arg,$id,$subaction,$value,$note) = @$inst ;
 
     my $element = $node -> fetch_element(name => $element_name, check => $check ) ;
     my $cargo_type = $element->cargo_type ;
@@ -507,7 +551,7 @@ sub _load_hash {
 
 sub _load_leaf {
     my ($self,$node,$check,$experience,$inst,$cmdref) = @_ ;
-    my ($element_name,$action,$id,$subaction,$value,$note) = @$inst ;
+    my ($element_name,$action,$f_arg,$id,$subaction,$value,$note) = @$inst ;
 
     my $element = $node -> fetch_element(name => $element_name, check => $check) ;
     $self->_load_note($element, $note, $inst, $cmdref);

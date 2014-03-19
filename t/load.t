@@ -1,7 +1,7 @@
 # -*- cperl -*-
 
 use ExtUtils::testlib;
-use Test::More tests => 121;
+use Test::More ;
 use Test::Exception ;
 use Test::Differences ;
 use Test::Memory::Cycle;
@@ -47,32 +47,46 @@ ok(1,"compiled");
 # test mega regexp, 'x' means undef
 my @regexp_test 
   = (
-     [ 'a'               , ['a', 'x' ,  'x'    ,'x' , 'x'     , 'x'  ]],
-     [ '#C'              , ['x', 'x' ,  'x'    ,'x' , 'x'     , 'C'  ]],
-     [ '#"m C"'          , ['x', 'x' ,  'x'    ,'x' , 'x'     , 'm C']],
-     [ 'a=b'             , ['a', 'x' ,  'x'    ,'=' , 'b'     , 'x'  ]],
-     [ 'a-z=b'           , ['a-z','x' , 'x'    ,'=' , 'b'     , 'x'  ]],
-     [ "a=\x{263A}"      , ['a', 'x' ,  'x'    ,'=' , "\x{263A}" , 'x'  ]], # utf8 smiley
-     [ 'a.=b'            , ['a', 'x' ,  'x'    ,'.=','b'      , 'x'  ]],
-     [ "a.=\x{263A}"     , ['a', 'x' ,  'x'    ,'.=', "\x{263A}" , 'x'  ]], # utf8 smiley
-     [ 'a="b=c"'         , ['a', 'x' ,  'x'    ,'=' , 'b=c'   , 'x'  ]],
-     [ 'a="b=\"c\""'     , ['a', 'x' ,  'x'    ,'=' , 'b="c"' , 'x'  ]],
-     [ 'a:b=c'           , ['a', ':' ,  'b'    ,'=' , 'c'     , 'x'  ]],
-     [ 'a:"b\""="\"c"'   , ['a', ':' ,  'b"'   ,'=' ,'"c'     , 'x'  ]],
-     [ 'a:~/b.*/'        , ['a', ':~', '/b.*/' ,'x' , 'x'     , 'x'  ]],
-     [ 'a:~/b.*/.="\"a"' , ['a', ':~', '/b.*/' ,'.=','"a'     , 'x'  ]],
-     [ 'a:~/^\w+$/'      , ['a', ':~', '/^\w+$/' ,'x','x'     , 'x'  ]],
-     [ 'a=b,c,d'         , ['a', 'x' ,  'x'    ,'=' , 'b,c,d' , 'x'  ]],
-     [ 'm=a,"a b "'      , ['m', 'x' ,  'x'    ,'=' , 'a,"a b "', 'x'  ]],
-     [ 'a#B'             , ['a', 'x' ,  'x'    ,'x' , 'x'     , 'B'  ]],
-     [ 'a#"b=c"'         , ['a', 'x' ,  'x'    ,'x' , 'x'     , 'b=c']],
-     [ 'a:"b\""#"\"c"'   , ['a', ':' ,  'b"'   ,'x' , 'x'     ,'"c'  ]],
-     [ 'a=b#B'           , ['a', 'x' ,  'x'    ,'=' , 'b'     , 'B'  ]],
-     [ 'a:b=c#C'         , ['a', ':' ,  'b'    ,'=' , 'c'     , 'C'  ]],
-     [ 'a:b#C'           , ['a', ':' ,  'b'    ,'x' , 'x'     , 'C'  ]],
-     [ 'a~b'             , ['a', '~' ,  'b'    ,'x' , 'x'     , 'x'  ]],
-     [ 'a~'              , ['a', '~' ,  'x'    ,'x' , 'x'     , 'x'  ]],
-     [ 'a=~/a/A/'        , ['a', 'x' ,  'x'    ,'=~', '/a/A/' , 'x'  ]],
+     #                           id_operation  leaf_operation
+     # string         elt_name   op   (param) id     op     val      note
+     [ 'a'               , ['a', 'x' ,   'x', 'x'    ,'x' , 'x'     , 'x'  ]],
+     [ '#C'              , ['x', 'x' ,   'x', 'x'    ,'x' , 'x'     , 'C'  ]],
+     [ '#"m C"'          , ['x', 'x' ,   'x', 'x'    ,'x' , 'x'     , 'm C']],
+     [ 'a=b'             , ['a', 'x' ,   'x', 'x'    ,'=' , 'b'     , 'x'  ]],
+     [ 'a-z=b'           , ['a-z','x' ,  'x', 'x'    ,'=' , 'b'     , 'x'  ]],
+     [ "a=\x{263A}"      , ['a', 'x' ,   'x', 'x'    ,'=' , "\x{263A}" , 'x'  ]], # utf8 smiley
+     [ 'a.=b'            , ['a', 'x' ,   'x', 'x'    ,'.=','b'      , 'x'  ]],
+     [ "a.=\x{263A}"     , ['a', 'x' ,   'x', 'x'    ,'.=', "\x{263A}" , 'x'  ]], # utf8 smiley
+     [ 'a="b=c"'         , ['a', 'x' ,   'x', 'x'    ,'=' , 'b=c'   , 'x'  ]],
+     [ 'a="b=\"c\""'     , ['a', 'x' ,   'x', 'x'    ,'=' , 'b="c"' , 'x'  ]],
+     [ 'a=~/a/A/'        , ['a', 'x' ,   'x', 'x'    ,'=~', '/a/A/' , 'x'  ]], # subst on value
+     [ 'a=b#B'           , ['a', 'x' ,   'x', 'x'    ,'=' , 'b'     , 'B'  ]],
+     [ 'a#B'             , ['a', 'x' ,   'x', 'x'    ,'x' , 'x'     , 'B'  ]],
+     [ 'a#"b=c"'         , ['a', 'x' ,   'x', 'x'    ,'x' , 'x'     , 'b=c']],
+
+     [ 'a:b=c'           , ['a', ':' ,   'x', 'b'    ,'=' , 'c'     , 'x'  ]], # fetch and assign elt
+     [ 'a:"b\""="\"c"'   , ['a', ':' ,   'x', 'b"'   ,'=' ,'"c'     , 'x'  ]], # fetch and assign elt qith quotes
+     [ 'a:~/b.*/'        , ['a', ':~',   'x','/b.*/' ,'x' , 'x'     , 'x'  ]], # loop on matched value
+     [ 'a:~/b.*/.="\"a"' , ['a', ':~',   'x','/b.*/' ,'.=','"a'     , 'x'  ]], # loop on matched value and append
+     [ 'a:~/^\w+$/'      , ['a', ':~',   'x','/^\w+$/','x','x'     , 'x'  ]],  # loop on matched value
+     [ 'a:=b,c,d'        , ['a', ':=' ,  'x','b,c,d', 'x' , 'x',     'x'  ]],  # set list
+     [ 'a=b,c,d'        , ['a',  'x' ,   'x',  'x',   '=', 'b,c,d',  'x'  ]],  # set list old style
+     [ 'm:=a,"a b "'     , ['m', ':=' ,  'x','a,"a b "','x','x'    , 'x'  ]],  # set list with quotes
+     [ 'm=a,"a b "'      , ['m', 'x' ,   'x', 'x',   '=', 'a,"a b "','x'  ]],  # set list with quotes, old style
+     [ 'a:b#C'           , ['a', ':' ,   'x', 'b'    ,'x' , 'x'     , 'C'  ]], # fetch elt and add comment
+     [ 'a:"b\""#"\"c"'   , ['a', ':' ,   'x', 'b"'   ,'x' , 'x'     ,'"c'  ]], # fetch elt and add comment with quotes
+     [ 'a:b=c#C'         , ['a', ':' ,   'x', 'b'    ,'=' , 'c'     , 'C'  ]], # fetch and assign elt and add comment
+     [ 'a:-'             , ['a', ':-',   'x', 'x'    ,'x' , 'x'     , 'x'  ]], # empty list
+     [ 'a:-b'            , ['a', ':-',   'x', 'b'    ,'x' , 'x'     , 'x'  ]], # remove id b
+     [ 'a:-=b'           , ['a', ':-=',  'x', 'b'    ,'x' , 'x'     , 'x'  ]], # remove value b from list or hash
+     [ 'a:@'             , ['a', ':@',   'x', 'x'    ,'x' , 'x'     , 'x'  ]], # sort list
+     [ 'a:.b'            , ['a', ':.b',  'x', 'x'    ,'x' , 'x'     , 'x'  ]], # function called on elt
+     [ 'a:.b(foo)'       , ['a', ':.b','foo', 'x'    ,'x' , 'x'     , 'x'  ]], # idem with param
+     [ 'a:b<c'           , ['a', ':',    'x', 'b'    ,'<' , 'c'     , 'x'  ]], # push value
+     [ 'a:b>c'           , ['a', ':',    'x', 'b'    ,'>' , 'c'     , 'x'  ]], # unshift value
+     [ 'a:=b<c'           , ['a', ':=',   'x', 'b'   ,'<' , 'c'     , 'x'  ]], # insert at index
+     [ 'a:~/b/<c'         , ['a', ':~',   'x', '/b/' ,'<' , 'c'     , 'x'  ]], # insert at value
+     [ 'a:-~/b/'          , ['a', ':-~',  'x', '/b/', 'x' , 'x'     , 'x'  ]], # remove value matching stuff
     ) ;
 
 foreach my $subtest (@regexp_test) {
@@ -164,11 +178,11 @@ $step = 'std_id:ab ZZX=Bv - std_id:bc X=Bv';
 throws_ok {$root->load( step => $step, experience => 'advanced' );}
   "Config::Model::Exception::UnknownElement", "load wrong '$step'";
 
-$step = 'lista=a,b,c,d olist:0 X=Av - olist:1 X=Bv - listb=b,c,d,,f,"",h,0';
+$step = 'lista:=a,b,c,d olist:0 X=Av - olist:1 X=Bv - listb:=b,c,d,,f,"",h,0';
 throws_ok { $root->load( step => $step, experience => 'advanced');} 
   qr/comma/, "load wrong '$step'";
 
-$step = 'listb=b,c,d,f,"",h,0';
+$step = 'listb:=b,c,d,f,"",h,0';
 ok ( $root->load( step => $step, experience => 'advanced'),
      "load '$step'");
 
@@ -212,7 +226,7 @@ is( $root->fetch_element('a_string')->fetch, "foo bar",
   'check result');
 
 
-$step = 'a_string="foo bar baz" lista=a,b,c,d,e';
+$step = 'a_string="foo bar baz" lista:=a,b,c,d,e';
 ok( $root->load( step => $step, ), "load : '$step'");
 is( $root->fetch_element('a_string')->fetch, "foo bar baz",
   'check result' );
@@ -251,7 +265,7 @@ ok( $root->load( step => $step, ), "load : '$step'");
 is($root->fetch_element('a_string')->fetch , 'a "b" ',
   "test value loaded by '$step'");
 
-$step = 'lista=a,"a \"b\" "' ;
+$step = 'lista:=a,"a \"b\" "' ;
 ok( $root->load( step => $step, ), "load : '$step'");
 is($root->fetch_element('lista')->fetch_with_id(1)->fetch ,
    'a "b" ',
@@ -264,6 +278,7 @@ is($root->fetch_element('lista')->fetch_with_id(1)->fetch ,
    "test list value loaded by '$step'");
 $elt = $root->fetch_element('hash_a')->fetch_with_id('a b ');
 is($elt->fetch,undef, "test hash value loaded by '$step'");
+
 
 # test append mode
 $root->load('a_string.=c');
@@ -303,7 +318,7 @@ foreach my $path (@anno_test) {
 $step = 'std_id#std_id_note ! std_id:ab#std_id_ab_note X=Bv X#X_note 
       - std_id:bc X=Av X#X2_note '
   . '- a_string="toto \"titi\" tata" a_string#string_note '
-  . 'lista=a,b,c,d olist:0 - olist:0#olist0_note X=Av - olist:1 X=Bv - listb=b,"c c2",d '
+  . 'lista:=a,b,c,d olist:0 - olist:0#olist0_note X=Av - olist:1 X=Bv - listb:=b,"c c2",d '
   . '! hash_a:X2=x#x_note hash_a:Y2=xy  hash_b:X3=xy my_check_list=X2,X3 '
   . 'plain_object#"plain comment" aa2="aa2_value '."\x{263A}\"" ;
 
@@ -359,3 +374,5 @@ foreach my $bad (sort keys %errors) {
 }
 
 memory_cycle_ok($model);
+
+done_testing;
