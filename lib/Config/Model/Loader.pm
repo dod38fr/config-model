@@ -714,7 +714,29 @@ L<Config::Model::Node>.
 =head1 load string syntax
 
 The string is made of the following items (also called C<actions>)
-separated by spaces:
+separated by spaces. These actions can be divided in 4 groups:
+
+=over
+
+=item navigation
+
+Moving up and down the configuration tree.
+
+=item list and hash operation
+
+select, add or delete hash or list item (also known as C<id> items)
+
+=item leaf operation
+
+select, modify or delecte leaf value
+
+=item annotation
+
+modify or delete configuration annotation (aka comment)
+
+=back
+
+=head2 navigation
 
 =over 8
 
@@ -729,6 +751,13 @@ Go to the root node of the configuration tree.
 =item xxx
 
 Go down using C<xxx> element. (For C<node> type element)
+
+=back
+
+=head2 list and hash operation
+
+=over
+
 
 =item xxx:yy
 
