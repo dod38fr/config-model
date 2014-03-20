@@ -3,6 +3,7 @@ package Config::Model::Loader;
 use Carp;
 use strict;
 use warnings ;
+use 5.10.1;
 
 use Config::Model::Exception ;
 use Log::Log4perl qw(get_logger :levels);
@@ -404,6 +405,10 @@ sub _load_list {
 	return 'ok';
     }
 
+    if ($action =~ /:-(=|~)/ and $cargo_type eq 'leaf') {
+        return $self->_remove_by_value($element,$action,$id) ;
+    }
+
     if ( not defined $action and defined $subaction ) {
         Config::Model::Exception::Load->throw(
             object  => $element,
@@ -462,7 +467,7 @@ sub _load_hash {
         $self->_load_note($element, $note, $inst, $cmdref);
 	return 'ok';
     }
-    
+
     if ( not defined $action ) {
         Config::Model::Exception::Load->throw(
             object  => $element,
@@ -471,7 +476,7 @@ sub _load_hash {
               . "element type: hash, cargo_type: $cargo_type"
         );
     }
-    
+
     if ($action eq ':~') {
 	my @keys = $element->fetch_all_indexes;
 	my $ret ;
@@ -505,12 +510,15 @@ sub _load_hash {
 	return $ret ;
     }
 
-
     if ($action =~ /~|:-/) {
 	# remove possible leading or trailing quote
 	$logger->debug("_load_hash: deleting $id");
 	$element->delete($id) ;
 	return 'ok' ;
+    }
+
+    if ($action =~ /:-(=|~)/ and $cargo_type eq 'leaf') {
+        return $self->_remove_by_value($element,$action,$id) ;
     }
 
     my $obj = $element->fetch_with_id( index => $id , check => $check) ;
@@ -547,6 +555,25 @@ sub _load_hash {
 		      ."cargo_type: $cargo_type"
 		     ) ;
     }
+}
+
+sub _remove_by_value {
+    my ($self,$element,$action,$rm_val) = @_ ;
+
+    $rm_val =~ s!^/|/$!!g if $action eq ':-~';
+
+    $logger->debug("_remove_by_value: leaf $action $rm_val");
+
+    my $match
+        = $action eq ':-=' ? sub { $rm_val eq $_[0] }
+        :                    sub { $_[0] =~ /$rm_val/ } ;
+
+    foreach my $idx ($element->fetch_all_indexes) {
+        my $v = $element->fetch_with_id($idx)->fetch ;
+        $element->delete($idx) if defined $v and $match->($v);
+    }
+
+    return 'ok';
 }
 
 sub _load_leaf {
@@ -781,6 +808,16 @@ Delete item referenced by C<xxx> element and id C<yy>. For a list,
 this is equivalent to C<splice xxx,yy,1>. This command does not go
 down in the tree (since it has just deleted the element). I.e. a
 'C<->' is generally not needed afterwards.
+
+=item xxx:-=yy
+
+Remove the element whose value is C<yy>. For list or hash of leaves.
+Will not complain if the value to delete is not found.
+
+=item xxx-~/yy/
+
+Remove the element whose value matches C<yy>. For list or hash of leaves.
+Will not complain if no value were deleted.
 
 =item xxx=zz
 

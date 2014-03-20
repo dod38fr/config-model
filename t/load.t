@@ -320,6 +320,10 @@ foreach my $path (@anno_test) {
        "fetch $path annotation") ;
 }
 
+# test remove by value and remove by matched value
+$root->load('lista:=a,b,c,d,foo lista:-=b lista:-~/oo/');
+is_deeply([$root->fetch_element('lista')->fetch_all_values],[qw/a c d/],"removed value from list") ;
+
 # test combination of annotation plus load and some utf8
 $step = 'std_id#std_id_note ! std_id:ab#std_id_ab_note X=Bv X#X_note 
       - std_id:bc X=Av X#X2_note '
