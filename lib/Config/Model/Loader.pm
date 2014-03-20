@@ -413,7 +413,7 @@ sub _load_list {
         );
     }
 
-    if ($elt_type eq 'list' and defined $action and $action eq '~') {
+    if ($elt_type eq 'list' and defined $action and $action =~ /~|:-/) {
 	# remove possible leading or trailing quote
 	$logger->debug("_load_list: removing id $id");
 	$element->remove($id) ;
@@ -506,7 +506,7 @@ sub _load_hash {
     }
 
 
-    if ($action eq '~') {
+    if ($action =~ /~|:-/) {
 	# remove possible leading or trailing quote
 	$logger->debug("_load_hash: deleting $id");
 	$element->delete($id) ;
@@ -775,7 +775,7 @@ For instance, with C<OpenSsh> model, you could do
 
 to set "foo-user" users for all your debian accounts.
 
-=item xxx~yy
+=item xxx:-yy
 
 Delete item referenced by C<xxx> element and id C<yy>. For a list,
 this is equivalent to C<splice xxx,yy,1>. This command does not go
