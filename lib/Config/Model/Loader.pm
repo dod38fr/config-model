@@ -116,7 +116,7 @@ sub _split_cmd {
        m!^
 	 (\w[\w-]*)? # element name can be alone
 	 (?:
-            (:~|:-[=~]?|:\.\w+|:[=<>@]?|~)       # action
+            (:~|:-[=~]?|:=~|:\.\w+|:[=<>@]?|~)       # action
             (?:
                   (?: \( ([^)]+)  \) )  # capture parameters between braces
                 | (
@@ -373,6 +373,39 @@ sub _load_check_list {
 
 }
 
+my %dispatch_action = (
+    ':-=' => \&_remove_by_value,
+    ':-~' => \&_remove_matched_value,
+) ;
+
+sub _remove_by_value {
+    my ($element, $rm_val) = @_ ;
+
+    $logger->debug("_remove_by_value value $rm_val");
+    foreach my $idx ($element->fetch_all_indexes) {
+        my $v = $element->fetch_with_id($idx)->fetch ;
+        $element->delete($idx) if defined $v and $v eq $rm_val;
+    }
+
+    return 'ok';
+}
+
+sub _remove_matched_value {
+    my ($element,$rm_val) = @_ ;
+
+    $logger->debug("_remove_matched_value $rm_val");
+
+    $rm_val =~ s!^/|/$!!g ;
+
+    foreach my $idx ($element->fetch_all_indexes) {
+        my $v = $element->fetch_with_id($idx)->fetch ;
+        $element->delete($idx) if defined $v and $v =~ /$rm_val/;
+    }
+
+    return 'ok';
+}
+
+
 sub _load_list {
     my ($self,$node, $check,$experience,$inst,$cmdref) = @_ ;
     my ($element_name,$action,$f_arg,$id,$subaction,$value,$note) = @$inst ;
@@ -405,8 +438,8 @@ sub _load_list {
 	return 'ok';
     }
 
-    if ($action =~ /:-(=|~)/ and $cargo_type eq 'leaf') {
-        return $self->_remove_by_value($element,$action,$id) ;
+    if (defined $action and $dispatch_action{$action} and $cargo_type eq 'leaf') {
+        return $dispatch_action{$action}->($element,$id) ;
     }
 
     if ( not defined $action and defined $subaction ) {
@@ -455,6 +488,7 @@ sub _load_list {
 		 ) ;
 
 }
+
 
 sub _load_hash {
     my ($self,$node,$check,$experience,$inst,$cmdref) = @_ ;
@@ -517,8 +551,8 @@ sub _load_hash {
 	return 'ok' ;
     }
 
-    if ($action =~ /:-(=|~)/ and $cargo_type eq 'leaf') {
-        return $self->_remove_by_value($element,$action,$id) ;
+    if (defined $action and $dispatch_action{$action} and $cargo_type eq 'leaf') {
+        return $dispatch_action{$action}->($element,$id) ;
     }
 
     my $obj = $element->fetch_with_id( index => $id , check => $check) ;
@@ -555,25 +589,6 @@ sub _load_hash {
 		      ."cargo_type: $cargo_type"
 		     ) ;
     }
-}
-
-sub _remove_by_value {
-    my ($self,$element,$action,$rm_val) = @_ ;
-
-    $rm_val =~ s!^/|/$!!g if $action eq ':-~';
-
-    $logger->debug("_remove_by_value: leaf $action $rm_val");
-
-    my $match
-        = $action eq ':-=' ? sub { $rm_val eq $_[0] }
-        :                    sub { $_[0] =~ /$rm_val/ } ;
-
-    foreach my $idx ($element->fetch_all_indexes) {
-        my $v = $element->fetch_with_id($idx)->fetch ;
-        $element->delete($idx) if defined $v and $match->($v);
-    }
-
-    return 'ok';
 }
 
 sub _load_leaf {
