@@ -68,25 +68,27 @@ my @regexp_test
      [ 'a:"b\""="\"c"'   , ['a', ':' ,   'x', 'b"'   ,'=' ,'"c'     , 'x'  ]], # fetch and assign elt qith quotes
      [ 'a:~/b.*/'        , ['a', ':~',   'x','/b.*/' ,'x' , 'x'     , 'x'  ]], # loop on matched value
      [ 'a:~/b.*/.="\"a"' , ['a', ':~',   'x','/b.*/' ,'.=','"a'     , 'x'  ]], # loop on matched value and append
-     [ 'a:~/^\w+$/'      , ['a', ':~',   'x','/^\w+$/','x','x'     , 'x'  ]],  # loop on matched value
-     [ 'a:=b,c,d'        , ['a', ':=' ,  'x','b,c,d', 'x' , 'x',     'x'  ]],  # set list
-     [ 'a=b,c,d'        , ['a',  'x' ,   'x',  'x',   '=', 'b,c,d',  'x'  ]],  # set list old style
-     [ 'm:=a,"a b "'     , ['m', ':=' ,  'x','a,"a b "','x','x'    , 'x'  ]],  # set list with quotes
-     [ 'm=a,"a b "'      , ['m', 'x' ,   'x', 'x',   '=', 'a,"a b "','x'  ]],  # set list with quotes, old style
+     [ 'a:~/^\w+$/'      , ['a', ':~',   'x','/^\w+$/','x','x'     ,  'x'  ]], # loop on matched value
+     [ 'a:=b,c,d'        , ['a', ':=' ,  'x','b,c,d', 'x' , 'x',      'x'  ]], # set list
+     [ 'a=b,c,d'         , ['a',  'x' ,  'x',  'x',   '=', 'b,c,d',   'x'  ]], # set list old style
+     [ 'm:=a,"a b "'     , ['m', ':=' ,  'x','a,"a b "','x','x'    ,  'x'  ]], # set list with quotes
+     [ 'm=a,"a b "'      , ['m', 'x' ,   'x', 'x',   '=', 'a,"a b "' ,'x'  ]], # set list with quotes, old style
      [ 'a:b#C'           , ['a', ':' ,   'x', 'b'    ,'x' , 'x'     , 'C'  ]], # fetch elt and add comment
      [ 'a:"b\""#"\"c"'   , ['a', ':' ,   'x', 'b"'   ,'x' , 'x'     ,'"c'  ]], # fetch elt and add comment with quotes
      [ 'a:b=c#C'         , ['a', ':' ,   'x', 'b'    ,'=' , 'c'     , 'C'  ]], # fetch and assign elt and add comment
      [ 'a:-'             , ['a', ':-',   'x', 'x'    ,'x' , 'x'     , 'x'  ]], # empty list
      [ 'a:-b'            , ['a', ':-',   'x', 'b'    ,'x' , 'x'     , 'x'  ]], # remove id b
      [ 'a:-=b'           , ['a', ':-=',  'x', 'b'    ,'x' , 'x'     , 'x'  ]], # remove value b from list or hash
+     [ 'a:-~/b/'         , ['a', ':-~',  'x', '/b/',  'x' , 'x'     , 'x'  ]], # remove value matching stuff
+     [ 'a:=~s/b/c/g'     , ['a', ':=~',  'x', 's/b/c/g','x','x'     , 'x'  ]], # subsitute value value matching stuff
      [ 'a:@'             , ['a', ':@',   'x', 'x'    ,'x' , 'x'     , 'x'  ]], # sort list
      [ 'a:.b'            , ['a', ':.b',  'x', 'x'    ,'x' , 'x'     , 'x'  ]], # function called on elt
      [ 'a:.b(foo)'       , ['a', ':.b','foo', 'x'    ,'x' , 'x'     , 'x'  ]], # idem with param
-     [ 'a:b<c'           , ['a', ':',    'x', 'b'    ,'<' , 'c'     , 'x'  ]], # push value
-     [ 'a:b>c'           , ['a', ':',    'x', 'b'    ,'>' , 'c'     , 'x'  ]], # unshift value
-     [ 'a:=b<c'           , ['a', ':=',   'x', 'b'   ,'<' , 'c'     , 'x'  ]], # insert at index
-     [ 'a:~/b/<c'         , ['a', ':~',   'x', '/b/' ,'<' , 'c'     , 'x'  ]], # insert at value
-     [ 'a:-~/b/'          , ['a', ':-~',  'x', '/b/', 'x' , 'x'     , 'x'  ]], # remove value matching stuff
+     [ 'a:<c'            , ['a', ':<',   'x', 'c'    ,'x' , 'x'     , 'x'  ]], # push value
+     [ 'a:>c'            , ['a', ':>',   'x', 'c'    ,'x' , 'x'     , 'x'  ]], # unshift value
+     [ 'a:b<c'           , ['a', ':',    'x', 'b'    ,'<' , 'c'     , 'x'  ]], # insert at index
+     [ 'a:=b<c'          , ['a', ':=',   'x', 'b'    ,'<' , 'c'     , 'x'  ]], # insert at value
+     [ 'a:~/b/<c'        , ['a', ':~',   'x', '/b/'  ,'<' , 'c'     , 'x'  ]], # insert at matching value
     ) ;
 
 foreach my $subtest (@regexp_test) {
