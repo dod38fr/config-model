@@ -437,6 +437,13 @@ eq_or_diff( [ $pl->fetch_all_values ], [qw/foo bar1 bar2 baz/] ,"check insert_be
 $pl->insert_before( qr/z/ , qw/bar3 bar4/);
 eq_or_diff( [ $pl->fetch_all_values ], [qw/foo bar1 bar2 bar3 bar4 baz/] ,"check insert_before with regexp result");
 
+# test insort
+my @set1 = qw/c1 e i1 j1 p1/ ;
+my @set2 = qw/a2 z2 d2 e b2 k2/ ;
+$pl->store_set(@set1);
+$pl->sort;
+$pl->insort( @set2 );
+eq_or_diff( [ $pl->fetch_all_values ], [sort(@set1, @set2)] ,"check insort result");
 
 memory_cycle_ok($model,"memory cycles");
 

@@ -324,6 +324,21 @@ sub insert_before {
     $self->insert_at($point,@_) ;
 }
 
+sub insort {
+    my $self = shift;
+    $self->_assert_leaf_cargo;
+    my @insert = sort @_ ;
+
+    my $point = 0;
+    foreach my $v ( $self->fetch_all_values) {
+        while (@insert and $insert[0] lt $v ) {
+            $self->insert_at($point++,shift @insert) ;
+        }
+        $point++;
+    }
+    $self->push(@insert) if @insert;
+}
+
 
 sub store {
     my $self = shift;
@@ -554,6 +569,11 @@ unshift some values at index idx in the list.
 =head2 insert_before( ( val | qr/stuff/ ) , value1, [ value2 ... ] )
 
 unshift some values before value equal to C<val> or before value matching C<stuff>.
+
+=head2 insort( value1, [ value2 ... ] )
+
+Insert C<zz> value on C<xxx> list so that existing alphanumeric order is preserved.
+Will yield unpexpected results if call on an unsorted list.
 
 =head2 store
 
