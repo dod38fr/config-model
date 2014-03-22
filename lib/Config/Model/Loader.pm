@@ -377,6 +377,7 @@ my %dispatch_action = (
     leaf => {
         ':-=' => \&_remove_by_value,
         ':-~' => \&_remove_matched_value,
+        ':=~' => \&_substitute_value,
     },
     fallback => {
         ':-' => \&_remove_by_id,
@@ -414,6 +415,19 @@ sub _remove_matched_value {
     foreach my $idx ($element->fetch_all_indexes) {
         my $v = $element->fetch_with_id($idx)->fetch ;
         $element->delete($idx) if defined $v and $v =~ /$rm_val/;
+    }
+
+    return 'ok';
+}
+
+sub _substitute_value {
+    my ($self,$element,$check,$subaction,$s_val, $inst) = @_ ;
+
+    $logger->debug("_substitute_value $s_val");
+
+    foreach my $idx ($element->fetch_all_indexes) {
+        my $l = $element->fetch_with_id($idx) ;
+        $self->_load_value($l,$check,'=~',$s_val,$inst) ;
     }
 
     return 'ok';
@@ -842,6 +856,10 @@ Will not complain if the value to delete is not found.
 
 Remove the element whose value matches C<yy>. For list or hash of leaves.
 Will not complain if no value were deleted.
+
+=item xxx:=~s/yy/zz/
+
+Substitute a value with another
 
 =item xxx=zz
 

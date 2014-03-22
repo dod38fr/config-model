@@ -324,7 +324,15 @@ foreach my $path (@anno_test) {
 
 # test remove by value and remove by matched value
 $root->load('lista:=a,b,c,d,foo lista:-=b lista:-~/oo/');
-is_deeply([$root->fetch_element('lista')->fetch_all_values],[qw/a c d/],"removed value from list") ;
+eq_or_diff([$root->fetch_element('lista')->fetch_all_values],[qw/a c d/],"removed value from list") ;
+
+# test remove by value and remove by matched value
+$root->load('lista:=Foo1,foo2,bar lista:=~s/foo/doh/i');
+eq_or_diff([$root->fetch_element('lista')->fetch_all_values],[qw/doh1 doh2 bar/],"test :=~ on list") ;
+
+$root->load('hash_a:a=Foo3 hash_a:b=foo4 hash_a:c=bar hash_a:=~s/foo/doh/i');
+eq_or_diff([ sort $root->fetch_element('hash_a')->fetch_all_values],[qw/bar doh3 doh4/],"test :=~ on hash") ;
+
 
 # test combination of annotation plus load and some utf8
 $step = 'std_id#std_id_note ! std_id:ab#std_id_ab_note X=Bv X#X_note 
