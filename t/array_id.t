@@ -12,7 +12,7 @@ use Config::Model;
 use Config::Model::AnyId;
 use Log::Log4perl qw(:easy :levels) ;
 
-BEGIN { plan tests => 108; }
+BEGIN { plan tests => 110; }
 
 use strict;
 
@@ -417,6 +417,13 @@ $pl->clear ;
 $pl->store_set(@set);
 $pl->sort;
 eq_or_diff( [ $pl->fetch_all_values ], [sort @set] ,"check sort result");
+
+# test unshift
+@set = qw/j h g f/ ;
+$pl->store_set(qw/a b/);
+$pl->unshift(qw/1 2 3 4/);
+eq_or_diff( [ $pl->fetch_all_values ], [qw/1 2 3 4 a b/] ,"check unshift_value result");
+eq_or_diff( [ $pl->fetch_all_indexes ], [(0..5)] ,"check that indexes are reset correctly");
 
 
 

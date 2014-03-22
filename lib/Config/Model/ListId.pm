@@ -20,6 +20,7 @@ has data => (
     handles => {
         _sort_data => 'sort_in_place',
         _all_data => 'elements',
+        _unshift_data => 'unshift',
     }
 ) ;
 
@@ -256,6 +257,7 @@ sub move {
 # list only methods
 sub push {
     my $self = shift ;
+    $self->_assert_leaf_cargo;
     my $idx   = $self->fetch_size ;
     map { $self->fetch_with_id( $idx++ )->store( $_ ) ; } @_ ;
 }
@@ -265,6 +267,7 @@ sub push {
 sub push_x {
     my $self = shift ;
     my %args = @_ ;
+    $self->_assert_leaf_cargo;
     my $check = delete $args{check} || 'yes'; 
     my $v_arg = delete $args{values} || delete $args{value};
     my @v = ref ($v_arg) ? @$v_arg : ($v_arg)  ;
@@ -282,25 +285,52 @@ sub push_x {
     }
 }
 
+sub unshift {
+    my $self = shift;
+
+    $self->_assert_leaf_cargo;
+    # check if max_idx is respected
+    $self->check_idx($self->fetch_size + scalar @_) ;
+
+    # make room at the beginning of the array
+    $self->_unshift_data( (undef) x scalar @_ );
+    my $i = 0 ;
+    map { $self->fetch_with_id($i++)->store($_) ; } @_ ;
+
+    $self->_reindex;
+}
+
+
 sub store {
     my $self = shift;
     $self->push_x(@_) ;
 }
 
-sub sort {
+sub _assert_leaf_cargo {
     my $self = shift;
+
     my $ct = $self->cargo_type;
 
     Config::Model::Exception::User ->throw (
         object => $self,
         error => "Cannot call sort on list of $ct"
     ) unless $ct eq 'leaf';
+}
 
+sub sort {
+    my $self = shift;
+
+    $self->_assert_leaf_cargo;
     $self->_sort_data(sub{$_[0]->fetch cmp $_[1]->fetch});
+    $self->_reindex;
+}
+
+sub _reindex {
+    my $self = shift;
 
     my $i = 0;
     foreach my $o ($self->_all_data) {
-        $o->index_value($i++);
+        $o->index_value($i++) if defined $o;
     }
 }
 
@@ -488,6 +518,10 @@ Single value to push
 =item annotation
 
 =back
+
+=head2 unshift( value1, [ value2 ... ] )
+
+unshift some values at the end of the list.
 
 =head2 store
 
