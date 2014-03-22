@@ -422,8 +422,15 @@ eq_or_diff( [ $pl->fetch_all_values ], [sort @set] ,"check sort result");
 @set = qw/j h g f/ ;
 $pl->store_set(qw/a b/);
 $pl->unshift(qw/1 2 3 4/);
-eq_or_diff( [ $pl->fetch_all_values ], [qw/1 2 3 4 a b/] ,"check unshift_value result");
+eq_or_diff( [ $pl->fetch_all_values ], [qw/1 2 3 4 a b/] ,"check unshift result");
 eq_or_diff( [ $pl->fetch_all_indexes ], [(0..5)] ,"check that indexes are reset correctly");
+
+# test insert_at
+@set = qw/j h g f/ ;
+$pl->store_set(qw/a b/);
+$pl->insert_at(qw/1 d e/);
+eq_or_diff( [ $pl->fetch_all_values ], [qw/a d e b/] ,"check insert_at result");
+eq_or_diff( [ $pl->fetch_all_indexes ], [(0..3)] ,"check that indexes are reset correctly");
 
 
 

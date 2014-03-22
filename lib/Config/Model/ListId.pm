@@ -20,7 +20,7 @@ has data => (
     handles => {
         _sort_data => 'sort_in_place',
         _all_data => 'elements',
-        _unshift_data => 'unshift',
+        _splice_data => 'splice',
     }
 ) ;
 
@@ -287,14 +287,20 @@ sub push_x {
 
 sub unshift {
     my $self = shift;
+    $self->insert_at(0,@_) ;
+}
+
+sub insert_at {
+    my $self = shift;
+    my $idx = shift;
 
     $self->_assert_leaf_cargo;
     # check if max_idx is respected
     $self->check_idx($self->fetch_size + scalar @_) ;
 
     # make room at the beginning of the array
-    $self->_unshift_data( (undef) x scalar @_ );
-    my $i = 0 ;
+    $self->_splice_data( $idx, 0, (undef) x scalar @_ );
+    my $i = $idx ;
     map { $self->fetch_with_id($i++)->store($_) ; } @_ ;
 
     $self->_reindex;
@@ -522,6 +528,10 @@ Single value to push
 =head2 unshift( value1, [ value2 ... ] )
 
 unshift some values at the end of the list.
+
+=head2 insert_at( idx, value1, [ value2 ... ] )
+
+unshift some values at index idx in the list.
 
 =head2 store
 
