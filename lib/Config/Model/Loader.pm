@@ -633,18 +633,19 @@ sub _load_value {
 	my $orig = $element->fetch(check => $check) ;
 	$element->store(value => $orig.$value, check => $check) ;
     }
-    elsif ($subaction eq '=~' and $element->isa('Config::Model::Value')) {
-	my $orig = $element->fetch(check => $check) ;
-	eval ( "\$orig =~ $value;" ) ;
-	if ($@) {
-             Config::Model::Exception::Load -> throw (
-		  object => $element,
-		  command => $inst ,
-		  error => "Failed regexp '$value' on "
-		  ."element '".$element->name."' : $@"
-            ) ;
-	}
-	$element->store(value => $orig , check => $check) ;
+    elsif ( $subaction eq '=~' and $element->isa('Config::Model::Value') ) {
+        my $orig = $element->fetch( check => $check );
+        if ( defined $orig ) {
+            eval("\$orig =~ $value;");
+            if ($@) {
+                Config::Model::Exception::Load->throw(
+                    object  => $element,
+                    command => $inst,
+                    error => "Failed regexp '$value' on " . "element '" . $element->name . "' : $@"
+                );
+            }
+            $element->store( value => $orig, check => $check );
+        }
     }
     else {
 	return undef ;
