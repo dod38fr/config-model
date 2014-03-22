@@ -339,6 +339,9 @@ eq_or_diff([$root->fetch_element('lista')->fetch_all_values],[qw/f g h j/],"test
 $root->load('lista:=j,h,g,f lista:.sort');
 eq_or_diff([$root->fetch_element('lista')->fetch_all_values],[qw/f g h j/],"test :.sort on list") ;
 
+$root->load('lista:=a,b lista:.push(c) lista:<d');
+eq_or_diff([$root->fetch_element('lista')->fetch_all_values],[qw/a b c d/],"test push on list") ;
+
 exit;
 
 # test combination of annotation plus load and some utf8

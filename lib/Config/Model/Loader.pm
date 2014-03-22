@@ -376,6 +376,7 @@ sub _load_check_list {
 my %dispatch_action = (
     list_leaf => {
         ':.sort'    => sub{$_[1]->sort;},
+        ':.push'    => sub{$_[1]->push($_[4]);},
     },
     leaf => {
         ':-=' => \&_remove_by_value,
@@ -388,7 +389,11 @@ my %dispatch_action = (
     }
 ) ;
 
-$dispatch_action{list_leaf}{':@'} = $dispatch_action{list_leaf}{':.sort'} ;
+my @equiv = qw/:@ :.sort :< :.push/;
+while (@equiv) {
+    my ($to,$from) = splice @equiv,0,2;
+    $dispatch_action{list_leaf}{$to} = $dispatch_action{list_leaf}{$from} ;
+}
 
 
 sub _remove_by_id {
@@ -478,7 +483,7 @@ sub _load_list {
             || $dispatch_action{$cargo_type}{$action}
             || $dispatch_action{'fallback'}{$action};
         if ($dispatch) {
-            return $dispatch->($self,$element,$check,$action,$id,$inst) ;
+            return $dispatch->($self,$element,$check,$action,$f_arg // $id,$inst) ;
         }
     }
 
@@ -870,6 +875,10 @@ Will not complain if no value were deleted.
 =item xxx:=~s/yy/zz/
 
 Substitute a value with another
+
+=item xxx:<yy or xxx.push(yy)
+
+Push C<yy> value on C<xxx> list
 
 =item xxx:@ or xxx.sort
 
