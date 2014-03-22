@@ -333,6 +333,13 @@ eq_or_diff([$root->fetch_element('lista')->fetch_all_values],[qw/doh1 doh2 bar/]
 $root->load('hash_a:a=Foo3 hash_a:b=foo4 hash_a:c=bar hash_a:=~s/foo/doh/i');
 eq_or_diff([ sort $root->fetch_element('hash_a')->fetch_all_values],[qw/bar doh3 doh4/],"test :=~ on hash") ;
 
+$root->load('lista:=j,h,g,f lista:@');
+eq_or_diff([$root->fetch_element('lista')->fetch_all_values],[qw/f g h j/],"test :@ on list") ;
+
+$root->load('lista:=j,h,g,f lista:.sort');
+eq_or_diff([$root->fetch_element('lista')->fetch_all_values],[qw/f g h j/],"test :.sort on list") ;
+
+exit;
 
 # test combination of annotation plus load and some utf8
 $step = 'std_id#std_id_note ! std_id:ab#std_id_ab_note X=Bv X#X_note 
@@ -388,6 +395,7 @@ my %errors = (
     'std_id', qr/Missing assignment/ ,
     'olist', qr/Wrong assignment/,
 );
+
 
 foreach my $bad (sort keys %errors) {
     throws_ok { $root->load($bad) }  $errors{$bad}, "Check error for load('$bad')" ;

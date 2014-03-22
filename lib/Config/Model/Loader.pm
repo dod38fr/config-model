@@ -374,6 +374,9 @@ sub _load_check_list {
 }
 
 my %dispatch_action = (
+    list_leaf => {
+        ':.sort'    => sub{$_[1]->sort;},
+    },
     leaf => {
         ':-=' => \&_remove_by_value,
         ':-~' => \&_remove_matched_value,
@@ -384,6 +387,9 @@ my %dispatch_action = (
         '~' => \&_remove_by_id,
     }
 ) ;
+
+$dispatch_action{list_leaf}{':@'} = $dispatch_action{list_leaf}{':.sort'} ;
+
 
 sub _remove_by_id {
     my ($self,$element,$check,$subaction,$id, $inst) = @_ ;
@@ -467,7 +473,9 @@ sub _load_list {
     }
 
     if (defined $action) {
-        my $dispatch = $dispatch_action{$cargo_type}{$action}
+        my $dispatch
+            = $dispatch_action{'list_'.$cargo_type}{$action}
+            || $dispatch_action{$cargo_type}{$action}
             || $dispatch_action{'fallback'}{$action};
         if ($dispatch) {
             return $dispatch->($self,$element,$check,$action,$id,$inst) ;
@@ -570,7 +578,9 @@ sub _load_hash {
     }
 
     if (defined $action) {
-        my $dispatch = $dispatch_action{$cargo_type}{$action}
+        my $dispatch
+            = $dispatch_action{'hash_'.$cargo_type}{$action}
+            || $dispatch_action{$cargo_type}{$action}
             || $dispatch_action{'fallback'}{$action};
         if ($dispatch) {
             return $dispatch->($self,$element,$check,$action,$id,$inst) ;
@@ -860,6 +870,10 @@ Will not complain if no value were deleted.
 =item xxx:=~s/yy/zz/
 
 Substitute a value with another
+
+=item xxx:@ or xxx.sort
+
+Sort the list
 
 =item xxx=zz
 
