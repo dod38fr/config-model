@@ -12,7 +12,7 @@ use Config::Model;
 use Config::Model::AnyId;
 use Log::Log4perl qw(:easy :levels) ;
 
-BEGIN { plan tests => 107; }
+BEGIN { plan tests => 108; }
 
 use strict;
 
@@ -411,4 +411,13 @@ $inst->layered_clear ;
 eq_or_diff( [ $pl->fetch_all_indexes ], [0] ,"check that only layered stuff was cleared");
 is($pl->fetch_with_id(0)->fetch,'bar',"check that bar was moved from 1 to 0");
 $pl->clear ;
+
+# test sort
+@set = qw/j h g f/ ;
+$pl->store_set(@set);
+$pl->sort;
+eq_or_diff( [ $pl->fetch_all_values ], [sort @set] ,"check sort result");
+
+
+
 memory_cycle_ok($model,"memory cycles");

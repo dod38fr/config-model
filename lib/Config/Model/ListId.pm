@@ -1,5 +1,6 @@
 package Config::Model::ListId ;
 
+use 5.10.1;
 use Mouse ;
 use namespace::autoclean;
 
@@ -11,7 +12,18 @@ extends qw/Config::Model::AnyId/ ;
 
 my $logger = get_logger("Tree::Element::Id::List") ;
 
-has data => ( is => 'rw', isa => 'ArrayRef' , default => sub { [] ;} ) ;
+has data => (
+    is => 'rw',
+    isa => 'ArrayRef',
+    default => sub { [] ;},
+    traits => ['Array'],
+    handles => {
+        _sort_data => 'sort_in_place',
+        _all_data => 'elements',
+    }
+) ;
+
+
 
 # compatibility with HashId
 has index_type => ( is => 'ro', isa => 'Str', default => 'integer' ) ;
@@ -275,7 +287,22 @@ sub store {
     $self->push_x(@_) ;
 }
 
+sub sort {
+    my $self = shift;
+    my $ct = $self->cargo_type;
 
+    Config::Model::Exception::User ->throw (
+        object => $self,
+        error => "Cannot call sort on list of $ct"
+    ) unless $ct eq 'leaf';
+
+    $self->_sort_data(sub{$_[0]->fetch cmp $_[1]->fetch});
+
+    my $i = 0;
+    foreach my $o ($self->_all_data) {
+        $o->index_value($i++);
+    }
+}
 
 sub swap {
     my $self = shift ;
@@ -487,6 +514,10 @@ Example:
     annotation => [ 'v1 comment', 'v2 comment' ],
     check => 'skip'
  );
+
+=head2 sort()
+
+Sort the content of the list. Can only be called on list of leaf.
 
 =head2 swap ( C<ida> , C<idb> )
 
