@@ -374,12 +374,26 @@ sub _load_check_list {
 }
 
 my %dispatch_action = (
-    ':-=' => \&_remove_by_value,
-    ':-~' => \&_remove_matched_value,
+    leaf => {
+        ':-=' => \&_remove_by_value,
+        ':-~' => \&_remove_matched_value,
+    },
+    fallback => {
+        ':-' => \&_remove_by_id,
+        '~' => \&_remove_by_id,
+    }
 ) ;
 
+sub _remove_by_id {
+    my ($self,$element,$check,$subaction,$id, $inst) = @_ ;
+    $logger->debug("_remove_by_id: removing id $id");
+    $element->remove($id) ;
+    return 'ok' ;
+}
+
+
 sub _remove_by_value {
-    my ($element, $rm_val) = @_ ;
+    my ($self,$element,$check,$subaction,$rm_val, $inst) = @_ ;
 
     $logger->debug("_remove_by_value value $rm_val");
     foreach my $idx ($element->fetch_all_indexes) {
@@ -391,7 +405,7 @@ sub _remove_by_value {
 }
 
 sub _remove_matched_value {
-    my ($element,$rm_val) = @_ ;
+    my ($self,$element,$check,$subaction,$rm_val, $inst) = @_ ;
 
     $logger->debug("_remove_matched_value $rm_val");
 
@@ -438,8 +452,12 @@ sub _load_list {
 	return 'ok';
     }
 
-    if (defined $action and $dispatch_action{$action} and $cargo_type eq 'leaf') {
-        return $dispatch_action{$action}->($element,$id) ;
+    if (defined $action) {
+        my $dispatch = $dispatch_action{$cargo_type}{$action}
+            || $dispatch_action{'fallback'}{$action};
+        if ($dispatch) {
+            return $dispatch->($self,$element,$check,$action,$id,$inst) ;
+        }
     }
 
     if ( not defined $action and defined $subaction ) {
@@ -451,14 +469,7 @@ sub _load_list {
         );
     }
 
-    if ($elt_type eq 'list' and defined $action and $action =~ /~|:-/) {
-	# remove possible leading or trailing quote
-	$logger->debug("_load_list: removing id $id");
-	$element->remove($id) ;
-	return 'ok' ;
-    }
-
-    if ($elt_type eq 'list' and defined $action and $action eq ':') {
+    if (defined $action and $action eq ':') {
 	my $obj = $element->fetch_with_id(index => $id, check => $check) ;
         $self->_load_note($obj, $note, $inst, $cmdref);
 
@@ -544,15 +555,12 @@ sub _load_hash {
 	return $ret ;
     }
 
-    if ($action =~ /~|:-/) {
-	# remove possible leading or trailing quote
-	$logger->debug("_load_hash: deleting $id");
-	$element->delete($id) ;
-	return 'ok' ;
-    }
-
-    if (defined $action and $dispatch_action{$action} and $cargo_type eq 'leaf') {
-        return $dispatch_action{$action}->($element,$id) ;
+    if (defined $action) {
+        my $dispatch = $dispatch_action{$cargo_type}{$action}
+            || $dispatch_action{'fallback'}{$action};
+        if ($dispatch) {
+            return $dispatch->($self,$element,$check,$action,$id,$inst) ;
+        }
     }
 
     my $obj = $element->fetch_with_id( index => $id , check => $check) ;
@@ -584,7 +592,7 @@ sub _load_hash {
 	Config::Model::Exception::Load
 	    -> throw (
 		      object => $element,
-                      command => join('',@$inst) ,
+                      command => join('', grep { defined $_ } @$inst) ,
 		      error => "Hash assignment with '$action' on unexpected "
 		      ."cargo_type: $cargo_type"
 		     ) ;
