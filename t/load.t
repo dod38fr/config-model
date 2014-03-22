@@ -342,7 +342,8 @@ eq_or_diff([$root->fetch_element('lista')->fetch_all_values],[qw/f g h j/],"test
 $root->load('lista:=a,b lista:.push(c) lista:<d');
 eq_or_diff([$root->fetch_element('lista')->fetch_all_values],[qw/a b c d/],"test push on list") ;
 
-exit;
+$root->load('lista:=a,b lista:.unshift(1) lista:>2');
+eq_or_diff([$root->fetch_element('lista')->fetch_all_values],[qw/2 1 a b/],"test unshift on list") ;
 
 # test combination of annotation plus load and some utf8
 $step = 'std_id#std_id_note ! std_id:ab#std_id_ab_note X=Bv X#X_note 

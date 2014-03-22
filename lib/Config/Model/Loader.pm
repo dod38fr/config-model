@@ -377,6 +377,7 @@ my %dispatch_action = (
     list_leaf => {
         ':.sort'    => sub{$_[1]->sort;},
         ':.push'    => sub{$_[1]->push($_[4]);},
+        ':.unshift' => sub{$_[1]->unshift($_[4]);},
     },
     leaf => {
         ':-=' => \&_remove_by_value,
@@ -389,7 +390,7 @@ my %dispatch_action = (
     }
 ) ;
 
-my @equiv = qw/:@ :.sort :< :.push/;
+my @equiv = qw/:@ :.sort :< :.push :> :.unshift/;
 while (@equiv) {
     my ($to,$from) = splice @equiv,0,2;
     $dispatch_action{list_leaf}{$to} = $dispatch_action{list_leaf}{$from} ;
@@ -879,6 +880,10 @@ Substitute a value with another
 =item xxx:<yy or xxx.push(yy)
 
 Push C<yy> value on C<xxx> list
+
+=item xxx:>yy or xxx.unshift(yy)
+
+Unshift C<yy> value on C<xxx> list
 
 =item xxx:@ or xxx.sort
 
