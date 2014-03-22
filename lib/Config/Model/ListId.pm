@@ -306,6 +306,24 @@ sub insert_at {
     $self->_reindex;
 }
 
+sub insert_before {
+    my $self = shift;
+    my $val  = shift;
+    my $test
+        = ref($val) eq 'Regexp' ? sub { $_[0] =~ /$val/ }
+        :                         sub { $_[0] eq $val } ;
+
+    $self->_assert_leaf_cargo;
+
+    my $point = 0;
+    foreach my $v ($self->fetch_all_values) {
+        last if $test->($v) ;
+        $point++;
+    }
+
+    $self->insert_at($point,@_) ;
+}
+
 
 sub store {
     my $self = shift;
@@ -532,6 +550,10 @@ unshift some values at the end of the list.
 =head2 insert_at( idx, value1, [ value2 ... ] )
 
 unshift some values at index idx in the list.
+
+=head2 insert_before( ( val | qr/stuff/ ) , value1, [ value2 ... ] )
+
+unshift some values before value equal to C<val> or before value matching C<stuff>.
 
 =head2 store
 
