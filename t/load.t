@@ -269,7 +269,7 @@ is($root->fetch_element('a_string')->fetch , 'a "b" ',
 
 $step = 'lista:=a,"a \"b\" "' ;
 ok( $root->load( step => $step, ), "load : '$step'");
-is($root->fetch_element('lista')->fetch_with_id(1)->fetch ,
+is($lista->fetch_with_id(1)->fetch ,
    'a "b" ',
    "test value loaded by '$step'");
 
@@ -281,7 +281,7 @@ throws_ok {$root->load( step => $step );}
 # use new and old notation
 $step = 'lista:-1 hash_a~"a b "' ;
 ok( $root->load( step => $step, ), "load : '$step'");
-is($root->fetch_element('lista')->fetch_with_id(1)->fetch ,
+is($lista->fetch_with_id(1)->fetch ,
    undef,
    "test list value loaded by '$step'");
 $elt = $root->fetch_element('hash_a')->fetch_with_id('a b ');
@@ -296,7 +296,7 @@ $root->load("a_string.=\x{263A}");
 is($root->fetch_element_value('a_string'), 'a "b" c'."\x{263A}", "test append on list with utf8");
 
 $root->load('lista:0.=" b c"');
-is($root->fetch_element('lista')->fetch_with_id(0)->fetch ,
+is($lista->fetch_with_id(0)->fetch ,
    , 'a b c', "test append on leaf");
 
 $root->load('hash_a:b.=" z3"');
@@ -324,42 +324,42 @@ foreach my $path (@anno_test) {
 
 # test remove by value and remove by matched value
 $root->load('lista:=a,b,c,d,foo lista:-=b lista:-~/oo/');
-eq_or_diff([$root->fetch_element('lista')->fetch_all_values],[qw/a c d/],"removed value from list") ;
+eq_or_diff([$lista->fetch_all_values],[qw/a c d/],"removed value from list") ;
 
 # test remove by value and remove by matched value
 $root->load('lista:=Foo1,foo2,bar lista:=~s/foo/doh/i');
-eq_or_diff([$root->fetch_element('lista')->fetch_all_values],[qw/doh1 doh2 bar/],"test :=~ on list") ;
+eq_or_diff([$lista->fetch_all_values],[qw/doh1 doh2 bar/],"test :=~ on list") ;
 
 $root->load('hash_a:a=Foo3 hash_a:b=foo4 hash_a:c=bar hash_a:=~s/foo/doh/i');
 eq_or_diff([ sort $root->fetch_element('hash_a')->fetch_all_values],[qw/bar doh3 doh4/],"test :=~ on hash") ;
 
 $root->load('lista:=j,h,g,f lista:@');
-eq_or_diff([$root->fetch_element('lista')->fetch_all_values],[qw/f g h j/],"test :@ on list") ;
+eq_or_diff([$lista->fetch_all_values],[qw/f g h j/],"test :@ on list") ;
 
 $root->load('lista:=j,h,g,f lista:.sort');
-eq_or_diff([$root->fetch_element('lista')->fetch_all_values],[qw/f g h j/],"test :.sort on list") ;
+eq_or_diff([$lista->fetch_all_values],[qw/f g h j/],"test :.sort on list") ;
 
 $root->load('lista:=a,b lista:.push(c) lista:<d');
-eq_or_diff([$root->fetch_element('lista')->fetch_all_values],[qw/a b c d/],"test push on list") ;
+eq_or_diff([$lista->fetch_all_values],[qw/a b c d/],"test push on list") ;
 
 $root->load('lista:=a,b lista:.unshift(1) lista:>2');
-eq_or_diff([$root->fetch_element('lista')->fetch_all_values],[qw/2 1 a b/],"test unshift on list") ;
+eq_or_diff([$lista->fetch_all_values],[qw/2 1 a b/],"test unshift on list") ;
 
 # test insert_before
 $root->load('lista=foo,baz lista:.insert_before(baz,bar1,bar2)');
-eq_or_diff([$root->fetch_element('lista')->fetch_all_values], [qw/foo bar1 bar2 baz/] ,"check insert_before result");
+eq_or_diff([$lista->fetch_all_values], [qw/foo bar1 bar2 baz/] ,"check insert_before result");
 
 $root->load('lista:.insert_before(/z/,bar3,bar4)');
-eq_or_diff([$root->fetch_element('lista')->fetch_all_values], [qw/foo bar1 bar2 bar3 bar4 baz/] ,"check insert_before with regexp result");
+eq_or_diff([$lista->fetch_all_values], [qw/foo bar1 bar2 bar3 bar4 baz/] ,"check insert_before with regexp result");
 
 $root->load('lista:.insert_before(/1/,"bar0a bar0b, bar0c")');
-eq_or_diff([$root->fetch_element('lista')->fetch_all_values], [foo => "bar0a bar0b, bar0c", qw/bar1 bar2 bar3 bar4 baz/] ,"check insert_before with regexp result");
+eq_or_diff([$lista->fetch_all_values], [foo => "bar0a bar0b, bar0c", qw/bar1 bar2 bar3 bar4 baz/] ,"check insert_before with regexp result");
 
 # test insort
 my @set1 = qw/c1 e i1 j1 p1/ ;
 my @set2 = qw/a2 z2 d2 e b2 k2/ ;
 $root->load('lista='. join(',',@set1).' lista:.sort lista:.insort('. join(',',@set2).')');
-eq_or_diff([$root->fetch_element('lista')->fetch_all_values], [sort(@set1, @set2)] ,"check insort result");
+eq_or_diff([$lista->fetch_all_values], [sort(@set1, @set2)] ,"check insort result");
 
 # test combination of annotation plus load and some utf8
 $step = 'std_id#std_id_note ! std_id:ab#std_id_ab_note X=Bv X#X_note 
@@ -421,6 +421,6 @@ foreach my $bad (sort keys %errors) {
     throws_ok { $root->load($bad) }  $errors{$bad}, "Check error for load('$bad')" ;
 }
 
-memory_cycle_ok($model);
+memory_cycle_ok($model, "check memory cycles");
 
 done_testing;
