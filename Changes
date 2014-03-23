@@ -1,5 +1,25 @@
 {{$NEXT}}
 
+2.052 2014-03-23
+
+    This release provides new functionalities to 'cme modify stuff'
+    and to the shell like interface ('cme edit -ui shell stuff). See
+    Config::Model::Loader doc for details:
+
+      + added remove by value on list and hash ( :-= and :-~ )
+        (Closes Debian #741453)
+	  + added lots of list and hash operator usable on 'cme modify stuff'.
+        E.g. :.insort :.insert_before :.insert_at :.unshift  :.push :.sort
+      + handle list/hash value substitution ( e.g. list:=~s/foo/bar/ )
+      * warn when trying to remove a list element with a non numeric index
+      * rationalize list and hash commands: list assignment is now
+        list:=a,b,c instead of list=a,b,c
+
+	Other changes:
+
+    * Dumper: use new syntax when dumping a list of value (i.e. list:=a,b,c)
+    * Instance: don't print change if old and new value are undef
+
 2.051 2014-03-06
 
     * cme: fix command like "cme modify foo ~~ <load_instructions>"
