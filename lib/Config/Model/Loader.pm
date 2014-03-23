@@ -379,6 +379,7 @@ my %dispatch_action = (
         ':.push'    => sub{$_[1]->push(@_[4 .. $#_]);},
         ':.unshift' => sub{$_[1]->unshift(@_[4 .. $#_]);},
         ':.insert_at' => sub{$_[1]->insert_at(@_[4 .. $#_]);},
+        ':.insert_before' => \&_insert_before,
     },
     leaf => {
         ':-=' => \&_remove_by_value,
@@ -395,6 +396,12 @@ my @equiv = qw/:@ :.sort :< :.push :> :.unshift/;
 while (@equiv) {
     my ($to,$from) = splice @equiv,0,2;
     $dispatch_action{list_leaf}{$to} = $dispatch_action{list_leaf}{$from} ;
+}
+
+sub _insert_before {
+    my ($self,$element,$check, $inst,$before_str, @values) = @_ ;
+    my $before = $before_str =~ m!^/! ? eval "qr$before_str" : $before_str ;
+    $element->insert_before($before, @values) ;
 }
 
 
@@ -453,7 +460,7 @@ sub _load_list {
 
     my $element = $node -> fetch_element(name => $element_name, check => $check) ;
 
-    my @f_args = (($f_arg // $id // '') =~ /([^,"]+|"[^"]+")/g );
+    my @f_args = grep { defined } (($f_arg // $id // '') =~ /([^,"]+)|"([^"]+)"/g );
 
     my $elt_type   = $node -> element_type( $element_name ) ;
     my $cargo_type = $element->cargo_type ;
@@ -895,6 +902,14 @@ Sort the list
 =item xxx.insert_at(yy,zz)
 
 Insert C<zz> value on C<xxx> list before B<index> C<yy>.
+
+=item  xxx.insert_before(yy,zz)
+
+Insert C<zz> value on C<xxx> list before B<value> C<yy>.
+
+=item xxx.insert_before(/yy/,zz)
+
+Insert C<zz> value on C<xxx> list before B<value> matching C<yy>.
 
 =item xxx=zz
 
