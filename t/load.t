@@ -355,6 +355,12 @@ eq_or_diff([$root->fetch_element('lista')->fetch_all_values], [qw/foo bar1 bar2 
 $root->load('lista:.insert_before(/1/,"bar0a bar0b, bar0c")');
 eq_or_diff([$root->fetch_element('lista')->fetch_all_values], [foo => "bar0a bar0b, bar0c", qw/bar1 bar2 bar3 bar4 baz/] ,"check insert_before with regexp result");
 
+# test insort
+my @set1 = qw/c1 e i1 j1 p1/ ;
+my @set2 = qw/a2 z2 d2 e b2 k2/ ;
+$root->load('lista='. join(',',@set1).' lista:.sort lista:.insort('. join(',',@set2).')');
+eq_or_diff([$root->fetch_element('lista')->fetch_all_values], [sort(@set1, @set2)] ,"check insort result");
+
 # test combination of annotation plus load and some utf8
 $step = 'std_id#std_id_note ! std_id:ab#std_id_ab_note X=Bv X#X_note 
       - std_id:bc X=Av X#X2_note '

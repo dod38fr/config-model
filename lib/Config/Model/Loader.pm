@@ -379,6 +379,7 @@ my %dispatch_action = (
         ':.push'    => sub{$_[1]->push(@_[4 .. $#_]);},
         ':.unshift' => sub{$_[1]->unshift(@_[4 .. $#_]);},
         ':.insert_at' => sub{$_[1]->insert_at(@_[4 .. $#_]);},
+        ':.insort' => sub{$_[1]->insort(@_[4 .. $#_]);},
         ':.insert_before' => \&_insert_before,
     },
     leaf => {
@@ -910,6 +911,10 @@ Insert C<zz> value on C<xxx> list before B<value> C<yy>.
 =item xxx.insert_before(/yy/,zz)
 
 Insert C<zz> value on C<xxx> list before B<value> matching C<yy>.
+
+=item xxx.insort(zz)
+
+Insert C<zz> value on C<xxx> list so that existing alphanumeric order is preserved.
 
 =item xxx=zz
 
