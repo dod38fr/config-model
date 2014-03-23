@@ -376,8 +376,8 @@ sub _load_check_list {
 my %dispatch_action = (
     list_leaf => {
         ':.sort'    => sub{$_[1]->sort;},
-        ':.push'    => sub{$_[1]->push($_[4]);},
-        ':.unshift' => sub{$_[1]->unshift($_[4]);},
+        ':.push'    => sub{$_[1]->push(@_[4 .. $#_]);},
+        ':.unshift' => sub{$_[1]->unshift(@_[4 .. $#_]);},
     },
     leaf => {
         ':-=' => \&_remove_by_value,
@@ -398,7 +398,7 @@ while (@equiv) {
 
 
 sub _remove_by_id {
-    my ($self,$element,$check,$subaction,$id, $inst) = @_ ;
+    my ($self,$element,$check, $inst,$id) = @_ ;
     $logger->debug("_remove_by_id: removing id $id");
     $element->remove($id) ;
     return 'ok' ;
@@ -406,7 +406,7 @@ sub _remove_by_id {
 
 
 sub _remove_by_value {
-    my ($self,$element,$check,$subaction,$rm_val, $inst) = @_ ;
+    my ($self,$element,$check,$inst,$rm_val) = @_ ;
 
     $logger->debug("_remove_by_value value $rm_val");
     foreach my $idx ($element->fetch_all_indexes) {
@@ -418,7 +418,7 @@ sub _remove_by_value {
 }
 
 sub _remove_matched_value {
-    my ($self,$element,$check,$subaction,$rm_val, $inst) = @_ ;
+    my ($self,$element,$check,$inst,$rm_val) = @_ ;
 
     $logger->debug("_remove_matched_value $rm_val");
 
@@ -433,7 +433,7 @@ sub _remove_matched_value {
 }
 
 sub _substitute_value {
-    my ($self,$element,$check,$subaction,$s_val, $inst) = @_ ;
+    my ($self,$element,$check,$inst,$s_val) = @_ ;
 
     $logger->debug("_substitute_value $s_val");
 
@@ -451,6 +451,8 @@ sub _load_list {
     my ($element_name,$action,$f_arg,$id,$subaction,$value,$note) = @$inst ;
 
     my $element = $node -> fetch_element(name => $element_name, check => $check) ;
+
+    my @f_args = (($f_arg // $id // '') =~ /([^,"]+|"[^"]+")/g );
 
     my $elt_type   = $node -> element_type( $element_name ) ;
     my $cargo_type = $element->cargo_type ;
@@ -484,7 +486,7 @@ sub _load_list {
             || $dispatch_action{$cargo_type}{$action}
             || $dispatch_action{'fallback'}{$action};
         if ($dispatch) {
-            return $dispatch->($self,$element,$check,$action,$f_arg // $id,$inst) ;
+            return $dispatch->($self,$element,$check, $inst, @f_args) ;
         }
     }
 
@@ -589,7 +591,7 @@ sub _load_hash {
             || $dispatch_action{$cargo_type}{$action}
             || $dispatch_action{'fallback'}{$action};
         if ($dispatch) {
-            return $dispatch->($self,$element,$check,$action,$id,$inst) ;
+            return $dispatch->($self,$element,$check,$inst,$id) ;
         }
     }
 
