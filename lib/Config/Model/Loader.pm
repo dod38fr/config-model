@@ -378,6 +378,7 @@ my %dispatch_action = (
         ':.sort'    => sub{$_[1]->sort;},
         ':.push'    => sub{$_[1]->push(@_[4 .. $#_]);},
         ':.unshift' => sub{$_[1]->unshift(@_[4 .. $#_]);},
+        ':.insert_at' => sub{$_[1]->insert_at(@_[4 .. $#_]);},
     },
     leaf => {
         ':-=' => \&_remove_by_value,
@@ -890,6 +891,10 @@ Unshift C<yy> value on C<xxx> list
 =item xxx:@ or xxx.sort
 
 Sort the list
+
+=item xxx.insert_at(yy,zz)
+
+Insert C<zz> value on C<xxx> list before B<index> C<yy>.
 
 =item xxx=zz
 
