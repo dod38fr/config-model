@@ -916,6 +916,26 @@ Insert C<zz> value on C<xxx> list before B<value> matching C<yy>.
 
 Insert C<zz> value on C<xxx> list so that existing alphanumeric order is preserved.
 
+=item xxx=z1,z2,z3
+
+Set list element C<xxx> to list C<z1,z2,z3>. Use C<,,> for undef
+values, and C<""> for empty values.
+
+I.e, for a list C<('a',undef,'','c')>, use C<a,,"",c>.
+
+=item xxx:yy=zz
+
+For C<hash> element containing C<leaf> cargo_type. Set the leaf
+identified by key C<yy> to value C<zz>.
+
+Using C<xxx:~/yy/=zz> is also possible.
+
+=back
+
+=head2 leaf operation
+
+=over
+
 =item xxx=zz
 
 Set element C<xxx> to value C<yy>. load also accepts to set elements
@@ -927,7 +947,7 @@ fail.
 
 =item xxx=~s/foo/bar/
 
-Applyt the substitution to the value of xxx. C<s/foo/bar/> is the standard Perl C<s>
+Apply the substitution to the value of xxx. C<s/foo/bar/> is the standard Perl C<s>
 substitution pattern.
 
 If your patten needs white spaces, you will need to surround the pattern with quotes:
@@ -942,23 +962,15 @@ Perl pattern modifiers are accepted
 
 Undef element C<xxx>
 
-=item xxx=z1,z2,z3
-
-Set list element C<xxx> to list C<z1,z2,z3>. Use C<,,> for undef
-values, and C<""> for empty values.
-
-I.e, for a list C<('a',undef,'','c')>, use C<a,,"",c>.
-
-=item xxx:yy=zz
-
-For C<hash> element containing C<leaf> cargo_type. Set the leaf
-identified by key C<yy> to value C<zz>.
-
-Using C<xxx=~/yy/=zz> is also possible.
-
 =item xxx.=zzz
 
 Will append C<zzz> value to current values (valid for C<leaf> elements).
+
+=back
+
+=head2 annotation
+
+=over
 
 =item xxx#zzz or xxx:yyy#zzz
 
