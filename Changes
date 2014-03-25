@@ -1,5 +1,10 @@
 {{$NEXT}}
 
+2.053 2014-03-25
+
+   Bug fix release:
+   * Loader: fix broken list leaf assignment (like 'list:4=foo')
+
 2.052 2014-03-23
 
     This release provides new functionalities to 'cme modify stuff'
