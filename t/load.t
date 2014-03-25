@@ -180,7 +180,7 @@ $step = 'std_id:ab ZZX=Bv - std_id:bc X=Bv';
 throws_ok {$root->load( step => $step, experience => 'advanced' );}
   "Config::Model::Exception::UnknownElement", "load wrong '$step'";
 
-$step = 'lista:=a,b,c,d olist:0 X=Av - olist:1 X=Bv - listb:=b,c,d,,f,"",h,0';
+$step = 'lista:=a,b,c,d lista:4=e olist:0 X=Av - olist:1 X=Bv - listb:=b,c,d,,f,"",h,0';
 throws_ok { $root->load( step => $step, experience => 'advanced');} 
   qr/comma/, "load wrong '$step'";
 
@@ -209,7 +209,7 @@ is($olist->fetch_with_id(0)->fetch_element('X')->fetch, 'Av',
 is($olist->fetch_with_id(1)->fetch_element('X')->fetch, 'Bv', 
    "check list element 1 content") ;
 
-my @expect = qw/a b c d/;
+my @expect = qw/a b c d e/;
 map {
     is($lista->fetch_with_id($_)->fetch, $expect[$_], 
        "check lista element $_ content") ;
