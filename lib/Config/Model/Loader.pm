@@ -480,7 +480,8 @@ sub _load_list {
 	return 'ok';
     }
 
-    if (defined $subaction and $subaction eq '=' and $cargo_type eq 'leaf' ) {
+    # compat mode for list=a,b,c,d commands
+    if (not defined $action and defined $subaction and $subaction eq '=' and $cargo_type eq 'leaf' ) {
 	$logger->debug("_load_list: set whole list with '=' subaction'" );
 	# valid for check_list or list
 	$logger->info("Setting $elt_type element ",$element->name, " with '$value'");
