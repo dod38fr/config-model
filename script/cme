@@ -48,7 +48,7 @@ my $dumptype;
 my $load;
 my @fix_from;
 my $fix_filter ;
-my $request_save  = 0;
+my $force_save  = 0;
 my $open_item   = '';
 my $fuse_dir;
 my $fuse_debug  = 0;
@@ -100,7 +100,7 @@ my @global_options = (
     "backend=s"                     => \$backend,
     "stack-trace|trace!"            => \$trace,
     "backup:s"                      => \$backup,
-    "save!"                         => \$request_save,
+    "save!"                         => \$force_save,
     "strict!"                       => \$strict,
     );
 
@@ -222,6 +222,7 @@ my $inst = $model->instance(
 );
 
 my $root = $inst->config_root;
+my $request_save  = 0;
 
 if ( $command eq  'dump' ) {
     my $dump_string = $root->dump_tree( mode => $dumptype || 'custom' );
@@ -426,7 +427,7 @@ if ($request_save) {
     $inst->say_changes;
     # if load was forced, must write back to clean up errors (even if they are not changes
     # at semantic level, i.e. removed unnecessary stuff)
-    $inst->write_back(force => $force_load)  ;
+    $inst->write_back(force => $force_load || $force_save)  ;
 }
 
 my $ouch = $inst->has_warning ;
