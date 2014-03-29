@@ -413,8 +413,12 @@ $pl->clear ;
 # test sort
 @set = qw/j h g f/ ;
 $pl->store_set(@set);
+$inst->clear_changes ;
 $pl->sort;
 eq_or_diff( [ $pl->fetch_all_values ], [sort @set] ,"check sort result");
+is($inst->c_count, 1, "check that sort has triggered a change") ;
+$pl->sort;
+is($inst->c_count, 1, "check that redundant sort has not triggered a change") ;
 
 # test unshift
 @set = qw/j h g f/ ;
