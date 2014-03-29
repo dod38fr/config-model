@@ -360,17 +360,24 @@ sub sort {
     my $self = shift;
 
     $self->_assert_leaf_cargo;
-    $self->_sort_data(sub{$_[0]->fetch cmp $_[1]->fetch});
-    $self->_reindex;
+     ;
+    $self->_sort_data( sub { $_[0]->fetch cmp $_[1]->fetch; });
+
+    my $has_changed = $self->_reindex;
+    $self->notify_change(note => "sorted") if $has_changed ;
 }
 
 sub _reindex {
     my $self = shift;
 
     my $i = 0;
+    my $has_changed = 0;
     foreach my $o ($self->_all_data) {
-        $o->index_value($i++) if defined $o;
+        next unless defined $o;
+        $has_changed =1 if $o->index_value != $i;
+        $o->index_value($i++);
     }
+    return $has_changed;
 }
 
 sub swap {
