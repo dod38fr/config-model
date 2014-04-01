@@ -1,5 +1,16 @@
 {{$NEXT}}
 
+2.054 2014-04-01
+
+  Bug fix release:
+    * Loader Dumper: fix quote handling (Closes Debian 743097)
+    * Loader: return 'ok' after dispatching an action (avoid undef warning
+      during tests)
+    * cme: -save options force a save even if no semantic change was done
+    * ListId: sort may trigger notify_change is elements are actually
+      moved around, so 'cme modify stuff list:.sort' will save the file
+      as expected.
+
 2.053 2014-03-25
 
    Bug fix release:
