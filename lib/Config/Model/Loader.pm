@@ -274,6 +274,7 @@ sub _load {
 
 	$logger->debug("_load: calling $element_type loader on element $element_name") ;
 	my $ret = $self->$method($node, $check,$experience, \@instructions,$cmdref) ;
+        die "Internal error: method dispatched for $element_type returned an undefined value " unless defined $ret;
 
 	if ($ret eq 'error' or $ret eq 'done') { 
 	    $logger->debug("_load return: $node_name got $ret");
@@ -496,7 +497,8 @@ sub _load_list {
             || $dispatch_action{$cargo_type}{$action}
             || $dispatch_action{'fallback'}{$action};
         if ($dispatch) {
-            return $dispatch->($self,$element,$check, $inst, @f_args) ;
+            $dispatch->($self,$element,$check, $inst, @f_args) ;
+            return 'ok';
         }
     }
 
@@ -564,7 +566,7 @@ sub _load_hash {
 
     if ($action eq ':~') {
 	my @keys = $element->fetch_all_indexes;
-	my $ret ;
+	my $ret = 'ok';
 	$logger->debug("_load_hash: looping with regex $id on keys @keys");
 	$id =~ s!^/!!;
 	$id =~ s!/$!! ;
@@ -601,7 +603,8 @@ sub _load_hash {
             || $dispatch_action{$cargo_type}{$action}
             || $dispatch_action{'fallback'}{$action};
         if ($dispatch) {
-            return $dispatch->($self,$element,$check,$inst,$id) ;
+            $dispatch->($self,$element,$check,$inst,$id) ;
+            return 'ok';
         }
     }
 
