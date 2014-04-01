@@ -13,9 +13,18 @@ sub new {
 }
 
 sub quote {
-    my @res = @_ ;
+    _quote(qr/(\s|"|\*)/,@_) ;
+}
+
+sub id_quote {
+    _quote(qr/[\s"\*<>.=#]/,@_) ;
+}
+
+
+sub _quote {
+    my ($re,@res) = @_ ;
     foreach (@res) {
-	if ( defined $_ and ( /(\s|"|\*)/ or $_ eq '') ) {
+	if ( defined $_ and ( /$re/ or $_ eq '') ) {
 	    s/"/\\"/g ; # escape present quotes
 	    $_ = '"' . $_ . '"' ; # add my quotes
 	}
@@ -77,7 +86,7 @@ sub dump_tree {
 
 	# get value or only customized value
 	my $value = quote($value_obj->fetch (mode => $fetch_mode, check => $check)) ;
-	$index = quote($index) ;
+	$index = id_quote($index) ;
 
         my $pad = $compute_pad->($node);
 
@@ -97,7 +106,7 @@ sub dump_tree {
 	# get value or only customized value
 	my $value = $value_obj->fetch (mode => $fetch_mode, check => $check) ;
 	my $qvalue = quote($value) ;
-	$index = quote($index) ;
+	$index = id_quote($index) ;
         my $pad = $compute_pad->($node);
 
         my $name = defined $index ? "$element:$index" 
@@ -132,7 +141,7 @@ sub dump_tree {
                 $$data_r .= "\n$pad$element:$idx#".note_quote($note) if $note ;
             }
 	    # skip undef values
-	    my @val = quote( grep (defined $_, 
+	    my @val = id_quote( grep (defined $_,
 				   $list_obj->fetch_all_values(mode => $fetch_mode, 
 							       check => $check))) ;
             $$data_r .= "\n$pad$element:=" . join( ',', @val ) if @val;
@@ -174,7 +183,7 @@ sub dump_tree {
         my $node_note = note_quote($contained_node->annotation) ;
 	
 	if ($type eq 'list' or $type eq 'hash') {
-	    $head .= ':'.quote($key) ;
+	    $head .= ':'.id_quote($key) ;
 	    $head .= '#'.$node_note if $node_note ;
             my $sub_data = '';
             $scanner->scan_node(\$sub_data, $contained_node);

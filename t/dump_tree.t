@@ -1,8 +1,9 @@
 # -*- cperl -*-
 
 use ExtUtils::testlib;
-use Test::More tests => 22;
+use Test::More;
 use Test::Memory::Cycle;
+use Test::Differences;
 use Config::Model;
 
 use warnings;
@@ -45,23 +46,23 @@ ok( $root->load( step => $step, experience => 'advanced' ),
 $inst->preset_stop ;
 
 $step = 'std_id:ab X=Bv - std_id:bc X=Av - std_id:"b d " X=Av '
-  .'- a_string="toto \"titi\" tata" another_string="foobar" '
-  .'lista:=a,b,c,d olist:0 X=Av - olist:1 X=Bv - listb:=b,"c c2",d '
+  .'- a_string="toto \"titi\" tata" another_string="foobar" a_string2=dod@foo.com '
+  .'lista:=a,b,c,d olist:0 X=Av - olist:1 X=Bv - listb:=b,"c c2",d listc:="dod@foo.com" '
   . '! hash_a:X2=x hash_a:Y2=xy  hash_b:X3=xy my_check_list=X2,X3' ;
 ok( $root->load( step => $step, experience => 'advanced' ),
   "set up data in tree");
 
-is_deeply([ sort $root->fetch_element('std_id')->fetch_all_indexes ],
+eq_or_diff([ sort $root->fetch_element('std_id')->fetch_all_indexes ],
 	  ['ab','b d ','bc'], "check std_id keys" ) ;
 
-is_deeply([ sort $root->fetch_element('lista')->fetch_all_values(mode => 'custom') ],
+eq_or_diff([ sort $root->fetch_element('lista')->fetch_all_values(mode => 'custom') ],
 	  [qw/c d/], "check lista custom values" ) ;
 
 my $cds = $root->dump_tree;
 
 print "cds string:\n$cds" if $trace ;
 
-my $expect = <<'EOF' ;
+my $orig_expect = <<'EOF' ;
 std_id:ab -
 std_id:"b d "
   X=Av -
@@ -69,6 +70,7 @@ std_id:bc
   X=Av -
 lista:=c,d
 listb:="c c2",d
+listc:="dod@foo.com"
 hash_a:X2=x
 hash_a:Y2=xy
 hash_b:X3=xy
@@ -77,18 +79,19 @@ olist:0
 olist:1
   X=Bv -
 a_string="toto \"titi\" tata"
+a_string2=dod@foo.com
 another_string=foobar
 my_check_list=X2,X3 -
 EOF
 
 $cds =~ s/\s+\n/\n/g;
-is_deeply( [split /\n/,$cds], [split /\n/,$expect], 
+eq_or_diff( [split /\n/,$cds], [split /\n/,$orig_expect], 
 	   "check dump of only customized values ") ;
 
 $cds = $root->dump_tree( full_dump => 1 );
 print "cds string:\n$cds" if $trace  ;
 
-$expect = <<'EOF' ;
+my $expect = <<'EOF' ;
 std_id:ab
   X=Bv
   DX=Dv -
@@ -100,6 +103,7 @@ std_id:bc
   DX=Dv -
 lista:=a,b,c,d
 listb:=b,"c c2",d
+listc:="dod@foo.com"
 hash_a:X2=x
 hash_a:Y2=xy
 hash_b:X3=xy
@@ -112,13 +116,14 @@ olist:1
 string_with_def="yada yada"
 a_uniline="yada yada"
 a_string="toto \"titi\" tata"
+a_string2=dod@foo.com
 another_string=foobar
 int_v=10
 my_check_list=X2,X3 -
 EOF
 
 $cds =~ s/\s+\n/\n/g;
-is_deeply( [split /\n/,$cds], [split /\n/,$expect], 
+eq_or_diff( [split /\n/,$cds], [split /\n/,$expect], 
 	   "check dump of all values ") ;
 
 my $listb = $root->fetch_element('listb');
@@ -138,6 +143,7 @@ std_id:bc
   X=Av
   DX=Dv -
 lista:=a,b,c,d
+listc:="dod@foo.com"
 hash_a:X2=x
 hash_a:Y2=xy
 hash_b:X3=xy
@@ -150,13 +156,14 @@ olist:1
 string_with_def="yada yada"
 a_uniline="yada yada"
 a_string="toto \"titi\" tata"
+a_string2=dod@foo.com
 another_string=foobar
 int_v=10
 my_check_list=X2,X3 -
 EOF
 
 $cds =~ s/\s+\n/\n/g;
-is_deeply( [split /\n/,$cds], [split /\n/,$expect], 
+eq_or_diff( [split /\n/,$cds], [split /\n/,$expect], 
 	   "check dump of all values after listb is cleared") ;
 
 
@@ -176,6 +183,7 @@ std_id:bc
   X=Av
   DX=Dv -
 lista:=a,b,c,d
+listc:="dod@foo.com"
 hash_a:X2=x
 hash_a:Y2=xy
 hash_b:X3=xy
@@ -188,6 +196,7 @@ olist:1
 string_with_def="yada yada"
 a_uniline="yada yada"
 a_string=""
+a_string2=dod@foo.com
 another_string=foobar
 int_v=10
 my_check_list=X2,X3 -
@@ -197,7 +206,7 @@ $cds = $root->dump_tree( full_dump => 1 );
 print "cds string:\n$cds" if $trace  ;
 
 $cds =~ s/\s+\n/\n/g;
-is_deeply( [split /\n/,$cds], [split /\n/,$expect], 
+eq_or_diff( [split /\n/,$cds], [split /\n/,$expect], 
 	   "check dump of all values after a_string is set to ''") ;
 
 # check preset values
@@ -216,7 +225,7 @@ olist:1 - -
 EOF
 
 $cds =~ s/\s+\n/\n/g;
-is_deeply( [split /\n/,$cds], [split /\n/,$expect], 
+eq_or_diff( [split /\n/,$cds], [split /\n/,$expect], 
 	   "check dump of all preset values") ;
 
 # shake warp stuff
@@ -236,6 +245,17 @@ $cds = $root->dump_tree( full_dump => 1 );
 print "Empty listb dump:\n$cds" if $trace  ;
 
 unlike($cds,qr/listb/,"check that listb containing undef values is not shown") ;
+
+# reload test
+
+my $reload_root = $model->instance (root_class_name => 'Master', 
+                                    instance_name => 'reload_test') -> config_root ;
+
+$reload_root->load($orig_expect);
+my $reloaded_dump = $reload_root -> dump_tree;
+eq_or_diff( [split /\n/,$reloaded_dump], [split /\n/,$orig_expect], 
+	   "check dump of tree load with dump result") ;
+
 
 # annotation tests
 
@@ -275,4 +295,8 @@ my $cds2 = $root3->dump_tree( full_dump => 1 );
 print "Dump second instance with annotations:\n$cds2" if $trace  ;
 
 is($cds2,$cds,"check both dumps") ;
-memory_cycle_ok($model);
+
+
+memory_cycle_ok($model,"memory cycles");
+
+done_testing;

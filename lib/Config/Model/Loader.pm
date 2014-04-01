@@ -121,8 +121,10 @@ sub _split_cmd {
                   (?: \( ([^)]+)  \) )  # capture parameters between braces
                 | (
                     /[^/]+/      # regexp
-                    | $quoted_string
-                    | [^#=\.<>]+    # non action chars
+                    | (?:
+                       $quoted_string
+                       | [^#=\.<>]+    # non action chars
+                      )+
                   )
             )?
          )?
@@ -146,7 +148,6 @@ sub _split_cmd {
 	 )?
          !gx
        ) ;
-    unquote (@command) ;
 
     return wantarray ? @command : \@command ;
 }
@@ -292,6 +293,8 @@ sub _load {
 
 sub _load_note {
     my ( $self, $target_obj, $note, $instructions, $cmdref) = @_;
+
+    unquote($note);
 
     # apply note on target object
     if ( defined $note ) {
@@ -491,6 +494,8 @@ sub _load_list {
 	return 'ok';
     }
 
+    unquote($id,$value,$note);
+
     if (defined $action) {
         my $dispatch
             = $dispatch_action{'list_'.$cargo_type}{$action}
@@ -512,6 +517,7 @@ sub _load_list {
     }
 
     if (defined $action and $action eq ':') {
+        unquote($id);
 	my $obj = $element->fetch_with_id(index => $id, check => $check) ;
         $self->_load_note($obj, $note, $inst, $cmdref);
 
@@ -546,6 +552,8 @@ sub _load_list {
 sub _load_hash {
     my ($self,$node,$check,$experience,$inst,$cmdref) = @_ ;
     my ($element_name,$action,$f_arg,$id,$subaction,$value,$note) = @$inst ;
+
+    unquote($id,$value,$note);
 
     my $element = $node -> fetch_element(name => $element_name, check => $check ) ;
     my $cargo_type = $element->cargo_type ;
@@ -647,6 +655,8 @@ sub _load_hash {
 sub _load_leaf {
     my ($self,$node,$check,$experience,$inst,$cmdref) = @_ ;
     my ($element_name,$action,$f_arg,$id,$subaction,$value,$note) = @$inst ;
+
+    unquote($id,$value);
 
     my $element = $node -> fetch_element(name => $element_name, check => $check) ;
     $self->_load_note($element, $note, $inst, $cmdref);
