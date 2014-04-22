@@ -1160,20 +1160,13 @@ sub check_fetched_value {
 	}
 
 	if ($self->needs_check) {
-		my $w = AnyEvent->condvar ;
-		my $cb = sub { $w->send } ;
-
-		$self->check_value(%args, callback => $cb );
-
-		$async_logger->debug("blocks on check_value");
-		$w->recv ;
-		$async_logger->debug("unblocked after check_value");
+		$self->check_value(%args);
 
 		my $err_count = $self->has_error;
 		my $warn_count = $self->has_warning;
 		$logger->debug("done with $err_count errors and $warn_count warnings");
 
-		# some se case like idElementReference are too complex to propagate
+		# some items like idElementReference are too complex to propagate
 		# a change notification back to the value using them. So an error or
 		# warning must always be rechecked.
 		$self->needs_check(0) unless $err_count or $warn_count ;
