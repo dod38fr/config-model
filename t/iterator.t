@@ -4,8 +4,8 @@ use ExtUtils::testlib;
 use Test::More tests => 33;
 use Test::Memory::Cycle;
 use Config::Model;
-use Config::Model::Value ;
-use Log::Log4perl qw(get_logger :levels) ;
+use Config::Model::Value;
+use Log::Log4perl qw(get_logger :levels);
 
 use warnings;
 no warnings qw(once);
@@ -13,61 +13,64 @@ no warnings qw(once);
 use strict;
 
 use Data::Dumper;
+
 # use Config::Model::ObjTreeScanner;
 
 use vars qw/$model/;
 
-$model = Config::Model -> new (legacy => 'ignore',) ;
+$model = Config::Model->new( legacy => 'ignore', );
 
 my $arg = shift || '';
 
-my $trace = $arg =~ /t/ ? 1 : 0 ;
-my $log   = $arg =~ /l/ ? 1 : 0 ;
-$::verbose          = 1 if $arg =~ /v/;
-$::debug            = 1 if $arg =~ /d/;
+my $trace = $arg =~ /t/ ? 1 : 0;
+my $log   = $arg =~ /l/ ? 1 : 0;
+$::verbose = 1 if $arg =~ /v/;
+$::debug   = 1 if $arg =~ /d/;
 Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 
 my $home = $ENV{HOME} || "";
 my $log4perl_user_conf_file = "$home/.log4config-model";
-if ($log and -r $log4perl_user_conf_file) {
+if ( $log and -r $log4perl_user_conf_file ) {
     Log::Log4perl::init($log4perl_user_conf_file);
 }
 else {
     Log::Log4perl->easy_init($WARN);
 }
 
-ok(1,"compiled");
+ok( 1, "compiled" );
 
-my @models = $model->load(Master => 't/big_model.pm') ;
+my @models = $model->load( Master => 't/big_model.pm' );
 
-is_deeply(\@models,
+is_deeply(
+    \@models,
     [qw/SubSlave2 SubSlave X_base_class2 X_base_class SlaveZ SlaveY Master/],
-    "check list of model declared in t/big_model.pm (taking order into account)") ;
-
-$model->augment_config_class(
-    name => 'Master' ,
-    element => [ 
-        warn_if => { 
-            type => 'leaf',
-            value_type => 'string',
-            warn_if_match => { 'foo' => { fix =>'$_ = uc;' }},
-        },
-	warn_unless => { 
-	    type => 'leaf',
-            value_type => 'string',
-            warn_unless_match => { foo => { msg => '', fix =>'$_ = "foo".$_;' }},
-        },
-    ]
+    "check list of model declared in t/big_model.pm (taking order into account)"
 );
 
-my $inst = $model->instance (root_class_name => 'Master', 
-			     instance_name => 'test1');
-ok($inst,"created dummy instance") ;
+$model->augment_config_class(
+    name    => 'Master',
+    element => [
+        warn_if => {
+            type          => 'leaf',
+            value_type    => 'string',
+            warn_if_match => { 'foo' => { fix => '$_ = uc;' } },
+        },
+        warn_unless => {
+            type              => 'leaf',
+            value_type        => 'string',
+            warn_unless_match => { foo => { msg => '', fix => '$_ = "foo".$_;' } },
+        },
+    ] );
 
-my $root = $inst -> config_root ;
+my $inst = $model->instance(
+    root_class_name => 'Master',
+    instance_name   => 'test1'
+);
+ok( $inst, "created dummy instance" );
+
+my $root = $inst->config_root;
 
 Config::Model::Exception::Any->Trace(1) if $trace =~ /e/;
-
 
 my $step = qq!
 warn_if=foobar
@@ -90,80 +93,79 @@ my_reference="titi"
 warp warp2 aa2="foo bar"
 !;
 
-$Config::Model::Value::nowarning=1;
-ok( $root->load( step => $step, experience => 'advanced' ),
-  "set up data in tree");
+$Config::Model::Value::nowarning = 1;
+ok( $root->load( step => $step, experience => 'advanced' ), "set up data in tree" );
 
 my @expected = (
-		[ ''    , 'lista'],
-		[ ''    , 'lista:0'],
-		[ 'back', 'lista:1'],
-		[ ''    , 'lista:0'],
-		[ 'for' , 'lista'],
-		[ ''    , 'lista:0'],
-		[ ''    , 'lista:1'],
-		[ ''    , 'lista:2'],
-		[ ''    , 'lista:3'],
-		[ ''    , 'hash_a'],
-		[ ''    , 'hash_a:"ti ti"'],
-		[ ''    , 'hash_a:titi'],
-		[ ''    , 'hash_a:toto'],
-		[ ''    , 'tree_macro' ],
-		[ ''    , 'a_string' ] ,
-		[ 'back', 'int_v' ] ,
-		[ ''    , 'a_string' ] ,
-		[ ''    , 'tree_macro' ],
-		[ ''    , 'hash_a:toto'],
-		[ 'for' , 'hash_a:titi'],
-		[ ''    , 'hash_a:toto'],
-		[ ''    , 'tree_macro' ],
-		[ ''    , 'a_string' ] ,
-		[ ''    , 'int_v' ] ,
-		[ 'back'    , 'warn_if' ],
-		[ 'bail' , 'int_v' ], 
-	       ) ;
+    [ '',     'lista' ],
+    [ '',     'lista:0' ],
+    [ 'back', 'lista:1' ],
+    [ '',     'lista:0' ],
+    [ 'for',  'lista' ],
+    [ '',     'lista:0' ],
+    [ '',     'lista:1' ],
+    [ '',     'lista:2' ],
+    [ '',     'lista:3' ],
+    [ '',     'hash_a' ],
+    [ '',     'hash_a:"ti ti"' ],
+    [ '',     'hash_a:titi' ],
+    [ '',     'hash_a:toto' ],
+    [ '',     'tree_macro' ],
+    [ '',     'a_string' ],
+    [ 'back', 'int_v' ],
+    [ '',     'a_string' ],
+    [ '',     'tree_macro' ],
+    [ '',     'hash_a:toto' ],
+    [ 'for',  'hash_a:titi' ],
+    [ '',     'hash_a:toto' ],
+    [ '',     'tree_macro' ],
+    [ '',     'a_string' ],
+    [ '',     'int_v' ],
+    [ 'back', 'warn_if' ],
+    [ 'bail', 'int_v' ],
+);
 
 my $steer = sub {
-    my ($iter, $item) = @_;
-    my ($dir,$expect) = @$item ;
-    $iter->bail_out    if $dir eq 'bail' ;
-    $iter->go_forward  if $dir eq 'for' ;
-    $iter->go_backward if $dir eq 'back' ;
-    return @$item ;
-} ;
+    my ( $iter, $item )   = @_;
+    my ( $dir,  $expect ) = @$item;
+    $iter->bail_out    if $dir eq 'bail';
+    $iter->go_forward  if $dir eq 'for';
+    $iter->go_backward if $dir eq 'back';
+    return @$item;
+};
 
 my $leaf_element_cb = sub {
-    my ($iter, $data_r,$node,$element,$index, $leaf_object) = @_ ;
-    print "test: leaf_element_cb called for ",$leaf_object->location,"\n" 
-      if $trace ;
-    my ($dir, $expect) = $steer->($iter,shift @expected) ;
-    is( $leaf_object->location, $expect, "leaf_element_cb got $expect and '$dir'" ) ;
+    my ( $iter, $data_r, $node, $element, $index, $leaf_object ) = @_;
+    print "test: leaf_element_cb called for ", $leaf_object->location, "\n"
+        if $trace;
+    my ( $dir, $expect ) = $steer->( $iter, shift @expected );
+    is( $leaf_object->location, $expect, "leaf_element_cb got $expect and '$dir'" );
 };
 
 my $int_cb = sub {
-    my ($iter, $data_r,$node,$element,$index, $leaf_object) = @_ ;
-    print "test: int_cb called for ",$leaf_object->location,"\n" 
-      if $trace ;
-    my ($dir, $expect) = $steer->($iter,shift @expected) ;
-    is( $leaf_object->location, $expect, "int_cb got $expect and '$dir'" ) ;
+    my ( $iter, $data_r, $node, $element, $index, $leaf_object ) = @_;
+    print "test: int_cb called for ", $leaf_object->location, "\n"
+        if $trace;
+    my ( $dir, $expect ) = $steer->( $iter, shift @expected );
+    is( $leaf_object->location, $expect, "int_cb got $expect and '$dir'" );
 };
 
 my $hash_element_cb = sub {
-    my ($iter, $data_r,$node,$element,@keys) = @_ ;
-    print "test: hash_element_cb called for ",$node->location," element $element\n" 
-      if $trace ;
-    my $obj = $node->fetch_element($element) ;
-    my ($dir, $expect) = $steer->($iter,shift @expected) ;
-    is( $obj->location, $expect, "hash_element_cb got $expect and '$dir'" ) ;
+    my ( $iter, $data_r, $node, $element, @keys ) = @_;
+    print "test: hash_element_cb called for ", $node->location, " element $element\n"
+        if $trace;
+    my $obj = $node->fetch_element($element);
+    my ( $dir, $expect ) = $steer->( $iter, shift @expected );
+    is( $obj->location, $expect, "hash_element_cb got $expect and '$dir'" );
 };
 
 my $list_element_cb = sub {
-    my ($iter, $data_r,$node,$element,@idx) = @_ ;
-    print "test: list_element_cb called for ",$node->location," element $element\n" 
-      if $trace ;
-    my $obj = $node->fetch_element($element) ;
-    my ($dir, $expect) = $steer->($iter,shift @expected) ;
-    is( $obj->location, $expect, "list_element_cb got $expect and '$dir'" ) ;
+    my ( $iter, $data_r, $node, $element, @idx ) = @_;
+    print "test: list_element_cb called for ", $node->location, " element $element\n"
+        if $trace;
+    my $obj = $node->fetch_element($element);
+    my ( $dir, $expect ) = $steer->( $iter, shift @expected );
+    is( $obj->location, $expect, "list_element_cb got $expect and '$dir'" );
 };
 
 my $iterator = $inst->iterator(
@@ -177,9 +179,8 @@ my $iterator = $inst->iterator(
 );
 ok( $iterator, "created iterator helper" );
 
-$iterator->start ;
+$iterator->start;
 
-is_deeply(\@expected,[],"iterator explored all items") ;
-
+is_deeply( \@expected, [], "iterator explored all items" );
 
 memory_cycle_ok($model);

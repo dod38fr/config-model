@@ -2,60 +2,57 @@ package Config::Model::Report;
 
 use Carp;
 use strict;
-use warnings ;
+use warnings;
 
-use Config::Model::Exception ;
-use Config::Model::ObjTreeScanner ;
-use Text::Wrap ;
-
-
+use Config::Model::Exception;
+use Config::Model::ObjTreeScanner;
+use Text::Wrap;
 
 sub new {
-    bless {}, shift ;
+    bless {}, shift;
 }
-
 
 sub report {
     my $self = shift;
 
-    my %args = @_;
+    my %args  = @_;
     my $audit = delete $args{audit} || 0;
-    my $node = delete $args{node} 
-      || croak "dump_tree: missing 'node' parameter";
+    my $node  = delete $args{node}
+        || croak "dump_tree: missing 'node' parameter";
 
     my $std_cb = sub {
         my ( $scanner, $data_r, $obj, $element, $index, $value_obj ) = @_;
 
-	# if element is a collection, get the value pointed by $index
-	$value_obj = $obj->fetch_element($element)->fetch_with_id($index) 
-	  if defined $index ;
+        # if element is a collection, get the value pointed by $index
+        $value_obj = $obj->fetch_element($element)->fetch_with_id($index)
+            if defined $index;
 
-	# get value or only customized value
-	my $value = $audit ? $value_obj->fetch_custom : $value_obj->fetch ;
+        # get value or only customized value
+        my $value = $audit ? $value_obj->fetch_custom : $value_obj->fetch;
 
         $value = '"' . $value . '"' if defined $value and $value =~ /\s/;
 
-	if (defined $value) {
-	    my $name = defined $index ? " $element:$index" : $element;
-	    push @$data_r , $obj->location." $name = $value";
-	    my $desc = $obj->get_help($element) ;
-	    if (defined $desc and $desc) {
-		push @$data_r , wrap ("\t","\t\t", "DESCRIPTION: $desc" ) ;
-	    }
-	    my $effect = $value_obj->get_help($value) ;
-	    if (defined $effect and $effect) {
-		push @$data_r, wrap ("\t","\t\t", "SELECTED: $effect" ) ;
-	    }
-	    push @$data_r , '' ; # to get empty line in report
-	}
+        if ( defined $value ) {
+            my $name = defined $index ? " $element:$index" : $element;
+            push @$data_r, $obj->location . " $name = $value";
+            my $desc = $obj->get_help($element);
+            if ( defined $desc and $desc ) {
+                push @$data_r, wrap( "\t", "\t\t", "DESCRIPTION: $desc" );
+            }
+            my $effect = $value_obj->get_help($value);
+            if ( defined $effect and $effect ) {
+                push @$data_r, wrap( "\t", "\t\t", "SELECTED: $effect" );
+            }
+            push @$data_r, '';    # to get empty line in report
+        }
     };
 
     my @scan_args = (
-		     experience  => delete $args{experience} || 'master',
-		     fallback    => 'all',
-		     auto_vivify => 0,
-		     leaf_cb     => $std_cb,
-		    );
+        experience => delete $args{experience} || 'master',
+        fallback => 'all',
+        auto_vivify => 0,
+        leaf_cb     => $std_cb,
+    );
 
     my @left = keys %args;
     croak "Report: unknown parameter:@left" if @left;
@@ -63,10 +60,10 @@ sub report {
     # perform the scan
     my $view_scanner = Config::Model::ObjTreeScanner->new(@scan_args);
 
-    my @ret ;
-    $view_scanner->scan_node(\@ret ,$node);
+    my @ret;
+    $view_scanner->scan_node( \@ret, $node );
 
-    return join ("\n", @ret);
+    return join( "\n", @ret );
 }
 
 1;

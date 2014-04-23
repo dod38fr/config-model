@@ -1,101 +1,99 @@
-package Config::Model::Iterator ;
+package Config::Model::Iterator;
 
 use Carp;
 use strict;
-use warnings ;
-use Config::Model::ObjTreeScanner ;
+use warnings;
+use Config::Model::ObjTreeScanner;
 use Log::Log4perl qw(get_logger :levels);
 
-use Config::Model::Exception ;
+use Config::Model::Exception;
 
-
-
-my $logger = get_logger("Wizard::Helper") ;
+my $logger = get_logger("Wizard::Helper");
 
 sub new {
-    my $type = shift; 
-    my %args = @_ ;
+    my $type = shift;
+    my %args = @_;
 
     my $self = {
-		call_back_on_important => 0,
-		forward                => 1 ,
-		status                 => 'standard',
-	       } ;
+        call_back_on_important => 0,
+        forward                => 1,
+        status                 => 'standard',
+    };
 
     foreach my $p (qw/root/) {
-	$self->{$p} = delete $args{$p} or
-	  croak "Iterator->new: Missing $p parameter" ;
+        $self->{$p} = delete $args{$p}
+            or croak "Iterator->new: Missing $p parameter";
     }
 
     foreach my $p (qw/call_back_on_important call_back_on_warning status/) {
-	$self->{$p} = delete $args{$p} if defined $args{$p} ;
+        $self->{$p} = delete $args{$p} if defined $args{$p};
     }
 
-    bless $self, $type ;
+    bless $self, $type;
 
-    my %user_scan_args = ( experience => 'intermediate',) ;
+    my %user_scan_args = ( experience => 'intermediate', );
 
     foreach my $p (qw/experience/) {
-	$user_scan_args{$p} = delete $args{$p};
+        $user_scan_args{$p} = delete $args{$p};
     }
 
-    my %cb_hash ;
-    # mandatory call-back parameters 
+    my %cb_hash;
+
+    # mandatory call-back parameters
     foreach my $item (qw/leaf_cb hash_element_cb/) {
-	$cb_hash{$item} = delete $args{$item} or
-	  croak "Iterator->new: Missing $item parameter" ;
+        $cb_hash{$item} = delete $args{$item}
+            or croak "Iterator->new: Missing $item parameter";
     }
 
     # handle optional list_element_cb parameter
-    $cb_hash{list_element_cb} =  delete $args{list_element_cb} 
-                              || $cb_hash{hash_element_cb} ;
+    $cb_hash{list_element_cb} = delete $args{list_element_cb}
+        || $cb_hash{hash_element_cb};
 
     # optional call-back parameter
-    $cb_hash{check_list_element_cb} 
-      = delete $args{check_list_element_cb} || $cb_hash{leaf_cb};
+    $cb_hash{check_list_element_cb} =
+        delete $args{check_list_element_cb} || $cb_hash{leaf_cb};
 
-    # optional call-back parameters 
-    foreach my $p (qw/enum_value reference_value
-                      integer_value number_value
-                      boolean_value string_value uniline_value/
-		  ) {
-	my $item = $p.'_cb' ;
-	$cb_hash{$item} = delete $args{$item} || $cb_hash{leaf_cb};
+    # optional call-back parameters
+    foreach my $p (
+        qw/enum_value reference_value
+        integer_value number_value
+        boolean_value string_value uniline_value/
+        ) {
+        my $item = $p . '_cb';
+        $cb_hash{$item} = delete $args{$item} || $cb_hash{leaf_cb};
     }
 
-    $self->{dispatch_cb}    = \%cb_hash ;
-    $self->{user_scan_args} = \%user_scan_args ;
-    
+    $self->{dispatch_cb}    = \%cb_hash;
+    $self->{user_scan_args} = \%user_scan_args;
+
     if (%args) {
-        die "Iterator->new: unexpected parameters: ",join(' ', keys %args),"\n";
+        die "Iterator->new: unexpected parameters: ", join( ' ', keys %args ), "\n";
     }
 
     # user call-back are *not* passed to ObjTreeScanner. They will be
     # called indirectly through wizard-helper own call-backs
 
-    $self->{scanner} = Config::Model::ObjTreeScanner
-      -> new ( fallback        => 'all' ,
-	       experience      => $user_scan_args{experience} ,
-	       hash_element_cb => sub { $self -> hash_element_cb (@_) },
-	       list_element_cb => sub { $self -> hash_element_cb (@_) },
-	       node_content_cb => sub { $self -> node_content_cb (@_) },
-	       leaf_cb         => sub { $self -> leaf_cb (@_) },
-	     );
+    $self->{scanner} = Config::Model::ObjTreeScanner->new(
+        fallback        => 'all',
+        experience      => $user_scan_args{experience},
+        hash_element_cb => sub { $self->hash_element_cb(@_) },
+        list_element_cb => sub { $self->hash_element_cb(@_) },
+        node_content_cb => sub { $self->node_content_cb(@_) },
+        leaf_cb         => sub { $self->leaf_cb(@_) },
+    );
 
-    return $self ;
+    return $self;
 }
-
 
 sub start {
-    my $self = shift ;
-    $self->{bail_out} = 0 ;
-    $self->{scanner}->scan_node(undef, $self->{root}) ;
+    my $self = shift;
+    $self->{bail_out} = 0;
+    $self->{scanner}->scan_node( undef, $self->{root} );
 }
 
-
 sub bail_out {
-    my $self = shift ;
-    $self->{bail_out} = 1 ;
+    my $self = shift;
+    $self->{bail_out} = 1;
 }
 
 # internal. This call-back is passed to ObjTreeScanner. It will call
@@ -103,26 +101,24 @@ sub bail_out {
 sub node_content_cb {
     my ( $self, $scanner, $data_r, $node, @element ) = @_;
 
-    $logger->info( "node_content_cb called on '",
-        $node->name, "' element: @element" );
+    $logger->info( "node_content_cb called on '", $node->name, "' element: @element" );
 
     my $experience = $self->{user_scan_args}{experience};
     my $element;
 
     while (1) {
-        # @element from ObjTreeScanner is not used as user actions may 
+
+        # @element from ObjTreeScanner is not used as user actions may
         # change the element list due to warping
         $element = $node->next_element(
             name       => $element,
             experience => $experience,
             status     => $self->{status},
-            reverse    => 1 - $self->{forward}
-        );
+            reverse    => 1 - $self->{forward} );
 
         last unless defined $element;
 
-        $logger->info( "node_content_cb calls scan_element ",
-            "on element $element" );
+        $logger->info( "node_content_cb calls scan_element ", "on element $element" );
 
         $self->{scanner}->scan_element( $data_r, $node, $element );
         return if $self->{bail_out};
@@ -132,10 +128,10 @@ sub node_content_cb {
 # internal. Used to find which user call-back to use for a given
 # element type.
 sub get_cb {
-    my $self = shift;
-    my $elt_type = shift ;
-    return $self->{dispatch_cb}{$elt_type.'_cb'}
-      || croak "wizard get_cb: unexpected type $elt_type" ;
+    my $self     = shift;
+    my $elt_type = shift;
+    return $self->{dispatch_cb}{ $elt_type . '_cb' }
+        || croak "wizard get_cb: unexpected type $elt_type";
 }
 
 # internal. This call-back is passed to ObjTreeScanner. It will call
@@ -143,41 +139,39 @@ sub get_cb {
 # also check if the hash (or list) element is flagged as 'important'
 # and call user's hash or list call-back if needed
 sub hash_element_cb {
-    my ($self,$scanner, $data_r,$node,$element) = splice @_,0,5 ;
-    my @keys = sort @_ ;
+    my ( $self, $scanner, $data_r, $node, $element ) = splice @_, 0, 5;
+    my @keys = sort @_;
 
-    my $level 
-      = $node->get_element_property(element => $element, property => 'level');
+    my $level = $node->get_element_property( element => $element, property => 'level' );
 
-    $logger->info( "hash_element_cb (element $element) called on '", 
-		   $node->location, "' level $level, keys: '@keys'");
+    $logger->info( "hash_element_cb (element $element) called on '",
+        $node->location, "' level $level, keys: '@keys'" );
 
     # get the call-back to use
-    my $cb = $self->get_cb( $node -> element_type($element) . '_element') ;
+    my $cb = $self->get_cb( $node->element_type($element) . '_element' );
 
     # use the same algorithm for check_important and
     # scan_element pseudo elements
-    my $i = $self->{forward} == 1 ? 0 : 1 ;
+    my $i = $self->{forward} == 1 ? 0 : 1;
 
-    while ($i >= 0 and $i < 2) {
-	if ($self->{call_back_on_important} and $i == 0 and $level eq 'important') {
-	    $cb->($self,$data_r,$node,$element,@keys) ;
-            return if $self->{bail_out} ; # may be modified in callback
-	    # recompute keys as they may have been modified during call-back
-	    @keys = $self->{scanner}->get_keys($node,$element) ;
-	}
+    while ( $i >= 0 and $i < 2 ) {
+        if ( $self->{call_back_on_important} and $i == 0 and $level eq 'important' ) {
+            $cb->( $self, $data_r, $node, $element, @keys );
+            return if $self->{bail_out};    # may be modified in callback
+                 # recompute keys as they may have been modified during call-back
+            @keys = $self->{scanner}->get_keys( $node, $element );
+        }
 
-	if ($i == 1) {
-	    my $j = $self->{forward} == 1 ? 0 : $#keys ;
-	    while ($j >= 0 and $j < @keys) {
-		my $k = $keys[$j] ;
-		$logger->info( "hash_element_cb (element $element) calls ",
-			       "scan_hash on key $k");
-		$self->{scanner}->scan_hash($data_r,$node,$element,$k) ;
-		$j += $self->{forward} ;
-	    }
-	}
-	$i += $self->{forward} ;
+        if ( $i == 1 ) {
+            my $j = $self->{forward} == 1 ? 0 : $#keys;
+            while ( $j >= 0 and $j < @keys ) {
+                my $k = $keys[$j];
+                $logger->info( "hash_element_cb (element $element) calls ", "scan_hash on key $k" );
+                $self->{scanner}->scan_hash( $data_r, $node, $element, $k );
+                $j += $self->{forward};
+            }
+        }
+        $i += $self->{forward};
     }
 }
 
@@ -187,68 +181,80 @@ sub hash_element_cb {
 # call user's call-back if needed
 
 sub leaf_cb {
-    my ($self,$scanner, $data_r,$node,$element,$index,$value_obj) = @_ ;
+    my ( $self, $scanner, $data_r, $node, $element, $index, $value_obj ) = @_;
 
-    $logger->info( "leaf_cb called on '", $node->name,
-		   "' element '$element'", 
-		   defined $index ? ", index $index":'');
+    $logger->info(
+        "leaf_cb called on '",
+        $node->name,
+        "' element '$element'",
+        defined $index ? ", index $index" : ''
+    );
 
-    my $elt_type = $node -> element_type($element) ;
-    my $key = $elt_type eq 'check_list' ? 'check_list_element' 
-            :                             $value_obj -> value_type . '_value';
+    my $elt_type = $node->element_type($element);
+    my $key =
+        $elt_type eq 'check_list'
+        ? 'check_list_element'
+        : $value_obj->value_type . '_value';
 
-    my $user_leaf_cb = $self->get_cb( $key) ;
+    my $user_leaf_cb = $self->get_cb($key);
 
-    my $level 
-      = $node->get_element_property(element => $element, property => 'level');
+    my $level = $node->get_element_property( element => $element, property => 'level' );
 
-    if ($self->{call_back_on_important} and $level eq 'important') {
-	$logger->info( "leaf_cb found important elt: '", $node->name,
-		       "' element $element", 
-		       defined $index ? ", index $index":'');
-	$user_leaf_cb->($self,$data_r,$node,$element,$index,$value_obj) ;
+    if ( $self->{call_back_on_important} and $level eq 'important' ) {
+        $logger->info(
+            "leaf_cb found important elt: '",
+            $node->name,
+            "' element $element",
+            defined $index ? ", index $index" : ''
+        );
+        $user_leaf_cb->( $self, $data_r, $node, $element, $index, $value_obj );
     }
 
-    if ($self->{call_back_on_warning} and $value_obj->warning_msg) {
-	$logger->info( "leaf_cb found elt with warning: '", $node->name,
-		       "' element $element", 
-		       defined $index ? ", index $index":'');
-	$user_leaf_cb->($self,$data_r,$node,$element,$index,$value_obj) ;
+    if ( $self->{call_back_on_warning} and $value_obj->warning_msg ) {
+        $logger->info(
+            "leaf_cb found elt with warning: '",
+            $node->name,
+            "' element $element",
+            defined $index ? ", index $index" : ''
+        );
+        $user_leaf_cb->( $self, $data_r, $node, $element, $index, $value_obj );
     }
 
     # now need to check for errors...
     my $result;
-    eval { $result = $value_obj->fetch();};
+    eval { $result = $value_obj->fetch(); };
 
-    my $e ;
-    if ($e = Exception::Class->caught('Config::Model::Exception::User')) {
-	# ignore errors that has just been catched and call user call-back
-	$logger->info( "leaf_cb oopsed on '", $node->name, "' element $element", 
-		       defined $index ? ", index $index":'');
-	$user_leaf_cb->($self,$data_r,$node,$element,$index,$value_obj , 
-			$e->error) ;
+    my $e;
+    if ( $e = Exception::Class->caught('Config::Model::Exception::User') ) {
+
+        # ignore errors that has just been catched and call user call-back
+        $logger->info(
+            "leaf_cb oopsed on '",
+            $node->name,
+            "' element $element",
+            defined $index ? ", index $index" : ''
+        );
+        $user_leaf_cb->( $self, $data_r, $node, $element, $index, $value_obj, $e->error );
     }
-    elsif ($e = Exception::Class->caught()) {
-	$e->rethrow;
+    elsif ( $e = Exception::Class->caught() ) {
+        $e->rethrow;
+
         # does not return ...
-    } ;
+    }
 
 }
-
 
 sub go_forward {
-    my $self = shift ;
-    $logger->info("Going forward") if $self ->{forward} == -1 ;
-    $self ->{forward} = 1 ; 
+    my $self = shift;
+    $logger->info("Going forward") if $self->{forward} == -1;
+    $self->{forward} = 1;
 }
-
 
 sub go_backward {
-    my $self = shift ;
-    $logger->info("Going backward") if $self ->{forward} == 1 ;
-    $self ->{forward} = -1 ; 
+    my $self = shift;
+    $logger->info("Going backward") if $self->{forward} == 1;
+    $self->{forward} = -1;
 }
-
 
 1;
 

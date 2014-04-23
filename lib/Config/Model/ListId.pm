@@ -1,71 +1,67 @@
-package Config::Model::ListId ;
+package Config::Model::ListId;
 
 use 5.10.1;
-use Mouse ;
+use Mouse;
 use namespace::autoclean;
 
-use Config::Model::Exception ;
+use Config::Model::Exception;
 use Log::Log4perl qw(get_logger :levels);
 
 use Carp;
-extends qw/Config::Model::AnyId/ ;
+extends qw/Config::Model::AnyId/;
 
-my $logger = get_logger("Tree::Element::Id::List") ;
+my $logger = get_logger("Tree::Element::Id::List");
 
 has data => (
-    is => 'rw',
-    isa => 'ArrayRef',
-    default => sub { [] ;},
-    traits => ['Array'],
+    is      => 'rw',
+    isa     => 'ArrayRef',
+    default => sub { []; },
+    traits  => ['Array'],
     handles => {
-        _sort_data => 'sort_in_place',
-        _all_data => 'elements',
+        _sort_data   => 'sort_in_place',
+        _all_data    => 'elements',
         _splice_data => 'splice',
-    }
-) ;
-
-
+    } );
 
 # compatibility with HashId
-has index_type => ( is => 'ro', isa => 'Str', default => 'integer' ) ;
-has auto_create_ids => ( is => 'rw' ) ;
+has index_type => ( is => 'ro', isa => 'Str', default => 'integer' );
+has auto_create_ids => ( is => 'rw' );
 
 sub BUILD {
     my $self = shift;
 
     foreach my $wrong (qw/max_nb min_index default_keys/) {
-        Config::Model::Exception::Model->throw (
+        Config::Model::Exception::Model->throw(
             object => $self,
-            error =>  "Cannot use $wrong with ".$self->get_type." element"
+            error  => "Cannot use $wrong with " . $self->get_type . " element"
         ) if defined $self->{$wrong};
     }
 
-    if (defined $self->{migrate_keys_from}) {
+    if ( defined $self->{migrate_keys_from} ) {
         warn $self->name, "Using migrate_keys_from with list element is deprecated.",
-            " Use migrate_values_from\n" ;
+            " Use migrate_values_from\n";
     }
 
     # Supply the mandatory parameter
     return $self;
 }
 
-
 sub set_properties {
-    my $self = shift ;
+    my $self = shift;
 
-    $self->SUPER::set_properties(@_) ;
+    $self->SUPER::set_properties(@_);
 
     # remove unwanted items
-    my $data = $self->{data} ;
+    my $data = $self->{data};
 
-    return unless defined $self->{max_index} ;
+    return unless defined $self->{max_index};
 
     # delete entries that no longer fit the constraints imposed by the
     # warp mechanism
-    foreach my $k (0 .. $#{$data}) {
-        next unless  $k >  $self->{max_index};
-        $logger->debug("set_properties: ",$self->name," deleting index $k") ;
-        delete $data->[$k] ;
+    foreach my $k ( 0 .. $#{$data} ) {
+        next unless $k > $self->{max_index};
+        $logger->debug( "set_properties: ", $self->name, " deleting index $k" );
+        delete $data->[$k];
     }
 }
 
@@ -73,61 +69,61 @@ sub _migrate {
     my $self = shift;
 
     return if $self->{migration_done};
-    
+
     # migration must be done *after* initial load to make sure that all data
-    # were retrieved from the file before migration. 
-    return if $self->instance->initial_load ;
-    
+    # were retrieved from the file before migration.
+    return if $self->instance->initial_load;
+
     $self->{migration_done} = 1;
-    
-    if ( $self->{migrate_values_from}) {
-        my $followed = $self->safe_typed_grab(param => 'migrate_values_from', check => 'no') ;
-        $logger ->debug($self->name," migrate values from ",$followed->name) if $logger->is_debug;
-        my $idx   = $self->fetch_size ;
-        foreach my $item ( $followed -> fetch_all_indexes ) {
-            my $data = $followed->fetch_with_id($item) -> dump_as_data(check => 'no') ;
-            $self->fetch_with_id( $idx++ )->load_data($data) ;
+
+    if ( $self->{migrate_values_from} ) {
+        my $followed = $self->safe_typed_grab( param => 'migrate_values_from', check => 'no' );
+        $logger->debug( $self->name, " migrate values from ", $followed->name )
+            if $logger->is_debug;
+        my $idx = $self->fetch_size;
+        foreach my $item ( $followed->fetch_all_indexes ) {
+            my $data = $followed->fetch_with_id($item)->dump_as_data( check => 'no' );
+            $self->fetch_with_id( $idx++ )->load_data($data);
         }
     }
-    elsif ($self->{migrate_keys_from}) {
-        # FIXME: remove this deprecated stuff
-        my $followed = $self->safe_typed_grab(param => 'migrate_keys_from', check => 'no') ;
-        map { $self->_store($_, undef) unless $self->_defined($_) } $followed -> fetch_all_indexes ;
-    }
+    elsif ( $self->{migrate_keys_from} ) {
 
+        # FIXME: remove this deprecated stuff
+        my $followed = $self->safe_typed_grab( param => 'migrate_keys_from', check => 'no' );
+        map { $self->_store( $_, undef ) unless $self->_defined($_) } $followed->fetch_all_indexes;
+    }
 
 }
 
 sub get_type {
     my $self = shift;
-    return 'list' ;
+    return 'list';
 }
 
 # important: return the actual size (not taking into account auto-created stuff)
 sub fetch_size {
-    my $self =shift ;
-    return scalar @{$self->{data}} ;
+    my $self = shift;
+    return scalar @{ $self->{data} };
 }
 
 sub _fetch_all_indexes {
-    my $self = shift ;
-    my $data = $self->{data} ;
-    return scalar @$data ? (0 .. $#$data ) : () ;
+    my $self = shift;
+    my $data = $self->{data};
+    return scalar @$data ? ( 0 .. $#$data ) : ();
 }
 
-# fetch without any check 
+# fetch without any check
 sub _fetch_with_id {
-    my ($self, $idx) = @_ ;
+    my ( $self, $idx ) = @_;
     return $self->{data}[$idx];
 }
 
-
 sub load {
-    my ($self, $string, %args) = @_ ;
-    my $check = $self->_check_check($args{check}) ; # I write too many checks.
-    
-    my @set ;
-    my $cmd = $string ;
+    my ( $self, $string, %args ) = @_;
+    my $check = $self->_check_check( $args{check} );    # I write too many checks.
+
+    my @set;
+    my $cmd   = $string;
     my $regex = qr/^(
                     (?:
                              "
@@ -139,169 +135,167 @@ sub load {
                    )
                   /x;
 
-    
-    while (length($string)) {
+    while ( length($string) ) {
+
         #print "string: $string\n";
         $string =~ s/$regex// or last;
-        my $tmp = $1 ;
-        #print "tmp: $tmp\n";
-        $tmp =~ s/^"|"$//g if defined $tmp; 
-        $tmp =~ s/\\"/"/g  if defined $tmp; 
-        push @set,$tmp ;
+        my $tmp = $1;
 
-        last unless length($string) ;
+        #print "tmp: $tmp\n";
+        $tmp =~ s/^"|"$//g if defined $tmp;
+        $tmp =~ s/\\"/"/g  if defined $tmp;
+        push @set, $tmp;
+
+        last unless length($string);
     }
     continue {
-        $string =~ s/^,// or last ;
+        $string =~ s/^,// or last;
     }
 
-    if (length($string)) {
-        Config::Model::Exception::Load
-            -> throw ( object => $self, 
-                       command => $cmd,
-                       message => "unexpected load command '$cmd', left '$cmd'" ) ;
+    if ( length($string) ) {
+        Config::Model::Exception::Load->throw(
+            object  => $self,
+            command => $cmd,
+            message => "unexpected load command '$cmd', left '$cmd'"
+        );
     }
 
-    $self->store_set(@set ) ;
+    $self->store_set(@set);
 }
-
 
 sub store_set {
-    my $self = shift ;
-    my @v = @_ ;
-    my $r = shift ;
-    my %args = (check => 'yes');
-    
-    if (ref $r eq 'ARRAY') {
-        @v = @$r ;
-        %args = @_; # note that $r was shifted out of @_
+    my $self = shift;
+    my @v    = @_;
+    my $r    = shift;
+    my %args = ( check => 'yes' );
+
+    if ( ref $r eq 'ARRAY' ) {
+        @v    = @$r;
+        %args = @_;    # note that $r was shifted out of @_
     }
 
-    my @comments = @{ $args{comment} || [] } ;
+    my @comments = @{ $args{comment} || [] };
 
-    my $idx = 0 ;
-    foreach (@v) { 
-        if (defined $_) {
-            my $v_obj = $self->fetch_with_id( $idx++ ) ;
-            $v_obj -> store(%args, value => $_);
-            $v_obj->annotation(shift @comments) if @comments ;
+    my $idx = 0;
+    foreach (@v) {
+        if ( defined $_ ) {
+            my $v_obj = $self->fetch_with_id( $idx++ );
+            $v_obj->store( %args, value => $_ );
+            $v_obj->annotation( shift @comments ) if @comments;
         }
         else {
-            $self->{data}[$idx] = undef ; # detruit l'objet pas bon!
+            $self->{data}[$idx] = undef;    # detruit l'objet pas bon!
         }
-    } ;
+    }
 
     # and delete unused items
-    my $max = scalar @{$self->{data}} ;
-    splice @{$self->{data}}, $idx, $max - $idx ;
+    my $max = scalar @{ $self->{data} };
+    splice @{ $self->{data} }, $idx, $max - $idx;
 }
 
-# store without any check 
+# store without any check
 sub _store {
-    my ($self, $idx, $value) =  @_ ;
-    return $self->{data}[$idx] = $value ;
+    my ( $self, $idx, $value ) = @_;
+    return $self->{data}[$idx] = $value;
 }
 
 sub _defined {
-    my ($self,$key) = @_ ;
+    my ( $self, $key ) = @_;
     croak "argument '$key' is not numeric" unless $key =~ /^\d+$/;
     return defined $self->{data}[$key];
 }
 
 sub _exists {
-    my ($self, $idx) = @_ ;
+    my ( $self, $idx ) = @_;
     return exists $self->{data}[$idx];
 }
 
 sub _delete {
-    my ($self,$idx) = @_ ;
+    my ( $self, $idx ) = @_;
     return delete $self->{data}[$idx];
 }
 
 sub _clear {
-    my ($self)= @_ ;
-    $self->{data} = [] ;
+    my ($self) = @_;
+    $self->{data} = [];
 }
 
-
 sub move {
-    my ($self,$from, $to,%args) = @_ ;
-    my $check = $self->_check_check($args{check}) ;
+    my ( $self, $from, $to, %args ) = @_;
+    my $check = $self->_check_check( $args{check} );
 
-    my $moved = $self->fetch_with_id($from) ;
+    my $moved = $self->fetch_with_id($from);
     $self->_delete($from);
-    delete $self->{warning_hash}{$from} ;
+    delete $self->{warning_hash}{$from};
 
-    my $ok = $self->check_idx($to) ;
-    if ($ok or $check eq 'no') {
-        $self->_store($to, $moved) ;
-        $moved->index_value($to) ;
-        $self->notify_change(note => "moved from index $from to $to") ;
-        my $imode = $self->instance->get_data_mode ;
-        $self->set_data_mode( $to, $imode ) ;
+    my $ok = $self->check_idx($to);
+    if ( $ok or $check eq 'no' ) {
+        $self->_store( $to, $moved );
+        $moved->index_value($to);
+        $self->notify_change( note => "moved from index $from to $to" );
+        my $imode = $self->instance->get_data_mode;
+        $self->set_data_mode( $to, $imode );
     }
     else {
         # restore moved item where it came from
-        $self->_store($from, $moved) ;
-        if ($check ne 'skip') {
-            Config::Model::Exception::WrongValue 
-                -> throw (
-                          error => join("\n\t",@{$self->{error}}),
-                          object => $self
-                         ) ;
+        $self->_store( $from, $moved );
+        if ( $check ne 'skip' ) {
+            Config::Model::Exception::WrongValue->throw(
+                error  => join( "\n\t", @{ $self->{error} } ),
+                object => $self
+            );
         }
     }
 }
 
-
 # list only methods
 sub push {
-    my $self = shift ;
+    my $self = shift;
     $self->_assert_leaf_cargo;
-    my $idx   = $self->fetch_size ;
-    map { $self->fetch_with_id( $idx++ )->store( $_ ) ; } @_ ;
+    my $idx = $self->fetch_size;
+    map { $self->fetch_with_id( $idx++ )->store($_); } @_;
 }
-
 
 # list only methods
 sub push_x {
-    my $self = shift ;
-    my %args = @_ ;
+    my $self = shift;
+    my %args = @_;
     $self->_assert_leaf_cargo;
-    my $check = delete $args{check} || 'yes'; 
+    my $check = delete $args{check}  || 'yes';
     my $v_arg = delete $args{values} || delete $args{value};
-    my @v = ref ($v_arg) ? @$v_arg : ($v_arg)  ;
-    my $anno = delete $args{annotation} ;
-    my @a = ref ($anno) ? @$anno : $anno ? ($anno) : () ;
-    
-    croak("push_x: unexpected parameter ",join(' ',keys %args)) if %args ;
-    
-    my $idx   = $self->fetch_size ;
+    my @v    = ref($v_arg) ? @$v_arg : ($v_arg);
+    my $anno = delete $args{annotation};
+    my @a    = ref($anno) ? @$anno : $anno ? ($anno) : ();
+
+    croak( "push_x: unexpected parameter ", join( ' ', keys %args ) ) if %args;
+
+    my $idx = $self->fetch_size;
     while (@v) {
-        my $val = shift @v ;
+        my $val = shift @v;
         my $obj = $self->fetch_with_id( $idx++ );
-        $obj->store( $val ) ;
-        $obj->annotation(shift @a) if @a ;
+        $obj->store($val);
+        $obj->annotation( shift @a ) if @a;
     }
 }
 
 sub unshift {
     my $self = shift;
-    $self->insert_at(0,@_) ;
+    $self->insert_at( 0, @_ );
 }
 
 sub insert_at {
     my $self = shift;
-    my $idx = shift;
+    my $idx  = shift;
 
     $self->_assert_leaf_cargo;
+
     # check if max_idx is respected
-    $self->check_idx($self->fetch_size + scalar @_) ;
+    $self->check_idx( $self->fetch_size + scalar @_ );
 
     # make room at the beginning of the array
     $self->_splice_data( $idx, 0, (undef) x scalar @_ );
-    my $i = $idx ;
-    map { $self->fetch_with_id($i++)->store($_) ; } @_ ;
+    my $i = $idx;
+    map { $self->fetch_with_id( $i++ )->store($_); } @_;
 
     $self->_reindex;
 }
@@ -309,40 +303,40 @@ sub insert_at {
 sub insert_before {
     my $self = shift;
     my $val  = shift;
-    my $test
-        = ref($val) eq 'Regexp' ? sub { $_[0] =~ /$val/ }
-        :                         sub { $_[0] eq $val } ;
+    my $test =
+        ref($val) eq 'Regexp'
+        ? sub { $_[0] =~ /$val/ }
+        : sub { $_[0] eq $val };
 
     $self->_assert_leaf_cargo;
 
     my $point = 0;
-    foreach my $v ($self->fetch_all_values) {
-        last if $test->($v) ;
+    foreach my $v ( $self->fetch_all_values ) {
+        last if $test->($v);
         $point++;
     }
 
-    $self->insert_at($point,@_) ;
+    $self->insert_at( $point, @_ );
 }
 
 sub insort {
     my $self = shift;
     $self->_assert_leaf_cargo;
-    my @insert = sort @_ ;
+    my @insert = sort @_;
 
     my $point = 0;
-    foreach my $v ( $self->fetch_all_values) {
-        while (@insert and $insert[0] lt $v ) {
-            $self->insert_at($point++,shift @insert) ;
+    foreach my $v ( $self->fetch_all_values ) {
+        while ( @insert and $insert[0] lt $v ) {
+            $self->insert_at( $point++, shift @insert );
         }
         $point++;
     }
     $self->push(@insert) if @insert;
 }
 
-
 sub store {
     my $self = shift;
-    $self->push_x(@_) ;
+    $self->push_x(@_);
 }
 
 sub _assert_leaf_cargo {
@@ -350,9 +344,9 @@ sub _assert_leaf_cargo {
 
     my $ct = $self->cargo_type;
 
-    Config::Model::Exception::User ->throw (
+    Config::Model::Exception::User->throw(
         object => $self,
-        error => "Cannot call sort on list of $ct"
+        error  => "Cannot call sort on list of $ct"
     ) unless $ct eq 'leaf';
 }
 
@@ -360,127 +354,121 @@ sub sort {
     my $self = shift;
 
     $self->_assert_leaf_cargo;
-     ;
-    $self->_sort_data( sub { $_[0]->fetch cmp $_[1]->fetch; });
+    $self->_sort_data( sub { $_[0]->fetch cmp $_[1]->fetch; } );
 
     my $has_changed = $self->_reindex;
-    $self->notify_change(note => "sorted") if $has_changed ;
+    $self->notify_change( note => "sorted" ) if $has_changed;
 }
 
 sub _reindex {
     my $self = shift;
 
-    my $i = 0;
+    my $i           = 0;
     my $has_changed = 0;
-    foreach my $o ($self->_all_data) {
+    foreach my $o ( $self->_all_data ) {
         next unless defined $o;
-        $has_changed =1 if $o->index_value != $i;
-        $o->index_value($i++);
+        $has_changed = 1 if $o->index_value != $i;
+        $o->index_value( $i++ );
     }
     return $has_changed;
 }
 
 sub swap {
-    my $self = shift ;
-    my $ida  = shift ;
-    my $idb  = shift ;
+    my $self = shift;
+    my $ida  = shift;
+    my $idb  = shift;
 
-    my $obja = $self->{data}[$ida] ;
-    my $objb = $self->{data}[$idb] ;
+    my $obja = $self->{data}[$ida];
+    my $objb = $self->{data}[$idb];
 
     # swap the index values contained in the objects
-    my $obja_index = $obja->index_value ;
-    $obja->index_value( $objb->index_value ) ;
-    $objb->index_value( $obja_index ) ;
+    my $obja_index = $obja->index_value;
+    $obja->index_value( $objb->index_value );
+    $objb->index_value($obja_index);
 
     # then swap the objects
-    $self->{data}[$ida] = $objb ;
-    $self->{data}[$idb] = $obja ;
-    
-    $self->notify_change(note => "swapped index $ida and $idb") ;
+    $self->{data}[$ida] = $objb;
+    $self->{data}[$idb] = $obja;
+
+    $self->notify_change( note => "swapped index $ida and $idb" );
 }
 
 #die "check index number after wap";
 
-
 sub remove {
-    my $self = shift ;
-    my $idx  = shift ;
+    my $self = shift;
+    my $idx  = shift;
 
-    Config::Model::Exception::User ->throw (
+    Config::Model::Exception::User->throw(
         object => $self,
-        error => "Non numeric index for list: $idx"
+        error  => "Non numeric index for list: $idx"
     ) unless $idx =~ /^\d+$/;
 
-    $self->delete_data_mode(index => $idx) ;
-    $self->notify_change ;
-    splice @{$self->{data}}, $idx , 1 ;
+    $self->delete_data_mode( index => $idx );
+    $self->notify_change;
+    splice @{ $self->{data} }, $idx, 1;
 }
 
 #internal
 sub auto_create_elements {
-    my $self = shift ;
+    my $self = shift;
 
-    my $auto_nb = $self->auto_create_ids ;
-    return unless defined $auto_nb ;
-    
-    $logger->debug($self->name," auto-creating $auto_nb elements");
+    my $auto_nb = $self->auto_create_ids;
+    return unless defined $auto_nb;
 
-    Config::Model::Exception::Model
-        ->throw (
-                 object => $self,
-                 error => "Wrong auto_create argument for list: $auto_nb"
-                ) unless $auto_nb =~ /^\d+$/;
+    $logger->debug( $self->name, " auto-creating $auto_nb elements" );
+
+    Config::Model::Exception::Model->throw(
+        object => $self,
+        error  => "Wrong auto_create argument for list: $auto_nb"
+    ) unless $auto_nb =~ /^\d+$/;
 
     my $auto_p = $auto_nb - 1;
 
     # create empty slots
-    map {
-        $self->{data}[$_] = undef unless defined $self->{data}[$_];
-    }  (0 .. $auto_p ) ;
+    map { $self->{data}[$_] = undef unless defined $self->{data}[$_]; } ( 0 .. $auto_p );
 }
 
 # internal
 sub create_default {
-    my $self = shift ;
+    my $self = shift;
 
-    return if @{$self->{data}} ;
+    return if @{ $self->{data} };
 
     # list is empty so create empty element for default keys
-    my $def = $self->get_default_keys ;
+    my $def = $self->get_default_keys;
 
-    map {$self->{data}[$_] = undef } @$def ;
+    map { $self->{data}[$_] = undef } @$def;
 
-    $self->create_default_with_init ;
+    $self->create_default_with_init;
 }
 
-
 sub load_data {
-    my $self = shift ;
-    my %args = @_ > 1 ? @_ : ( data => shift) ;
-    my $raw_data    = delete $args{data};
-    my $check = $self->_check_check($args{check}) ;
+    my $self     = shift;
+    my %args     = @_ > 1 ? @_ : ( data => shift );
+    my $raw_data = delete $args{data};
+    my $check    = $self->_check_check( $args{check} );
 
-    my $data = ref($raw_data) eq 'ARRAY' ? $raw_data 
-             : $args{split_reg}          ? [ split $args{split_reg}, $raw_data ]
-             : defined $raw_data         ? [ $raw_data ] 
-             :                             undef; 
+    my $data =
+          ref($raw_data) eq 'ARRAY' ? $raw_data
+        : $args{split_reg} ? [ split $args{split_reg}, $raw_data ]
+        : defined $raw_data ? [$raw_data]
+        :                     undef;
 
-    Config::Model::Exception::LoadData -> throw (
-        object => $self,
-        message => "load_data called with non expected data. Expected array ref or scalar",
-        wrong_data => $raw_data ,
+    Config::Model::Exception::LoadData->throw(
+        object     => $self,
+        message    => "load_data called with non expected data. Expected array ref or scalar",
+        wrong_data => $raw_data,
     ) unless defined $data;
 
-    $self->clear ;
+    $self->clear;
 
     my $idx = 0;
-    $logger->info("ListId load_data (",$self->location,") will load idx ",
-        "0..$#$data");
-    foreach my $item (@$data ) {
-        my $obj = $self->fetch_with_id($idx++) ;
-        $obj -> load_data(%args, data => $item) ;
-    }   
+    $logger->info( "ListId load_data (", $self->location, ") will load idx ", "0..$#$data" );
+    foreach my $item (@$data) {
+        my $obj = $self->fetch_with_id( $idx++ );
+        $obj->load_data( %args, data => $item );
+    }
 }
 
 __PACKAGE__->meta->make_immutable;

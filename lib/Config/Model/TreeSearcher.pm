@@ -1,124 +1,124 @@
-package Config::Model::TreeSearcher ;
+package Config::Model::TreeSearcher;
 
-use Mouse ;
+use Mouse;
 use Mouse::Util::TypeConstraints;
 use namespace::autoclean;
 
 use Log::Log4perl qw(get_logger :levels);
-use Config::Model::Exception ;
-use Config::Model::ObjTreeScanner ;
+use Config::Model::Exception;
+use Config::Model::ObjTreeScanner;
 use Carp;
 
 my @search_types = qw/element value key summary description help/;
-enum ('SearchType' =>  [ @search_types, 'all' ]);
+enum( 'SearchType' => [ @search_types, 'all' ] );
 
 # clean up namespace to avoid clash between MUTC keywords and
 # my functions
 # See http://www.nntp.perl.org/group/perl.moose/2010/10/msg1935.html
 no Mouse::Util::TypeConstraints;
 
-has 'node'  => ( is => 'ro', isa => 'Config::Model::Node' , 
-                  weak_ref => 1, required => 1 );
+has 'node' => (
+    is       => 'ro',
+    isa      => 'Config::Model::Node',
+    weak_ref => 1,
+    required => 1
+);
 
-has 'type' => ( is => 'ro', isa => 'SearchType' ) ;
+has 'type' => ( is => 'ro', isa => 'SearchType' );
 
 has '_type_hash' => (
-    is =>'rw',
-    isa => 'HashRef[Bool]',
+    is      => 'rw',
+    isa     => 'HashRef[Bool]',
     builder => '_build_type_hash',
-    lazy => 1,
-) ;
+    lazy    => 1,
+);
 
-my $logger = get_logger("TreeSearcher") ;
+my $logger = get_logger("TreeSearcher");
 
 sub _build_type_hash {
-    my $self = shift ;
-    my $t = $self->type ;
-    my $def = $t eq 'all' ? 1 : 0 ;
-    my %res=  map { $_ => $def ;} @search_types ;
-    $res{$t} = 1 unless $t eq 'all' ;
-    return \%res ;
+    my $self = shift;
+    my $t    = $self->type;
+    my $def  = $t eq 'all' ? 1 : 0;
+    my %res  = map { $_ => $def; } @search_types;
+    $res{$t} = 1 unless $t eq 'all';
+    return \%res;
 }
 
 sub search {
-    my $self = shift ;
-    my $string = shift ; # string to search, can be a regexp 
-    
-    $logger->debug( "TreeSearcher: creating scanner for ".$self->node->name);
-    my $reg = qr/$string/i ;
+    my $self   = shift;
+    my $string = shift;    # string to search, can be a regexp
 
-    my @scanner_args ;
-    my $need_search =  $self->_build_type_hash ;
-     
-    push @scanner_args, leaf_cb => sub { 
-        my ($scanner, $data_ref, $node,$element_name,$index, $leaf_object) = @_ ;
+    $logger->debug( "TreeSearcher: creating scanner for " . $self->node->name );
+    my $reg = qr/$string/i;
 
-        my $loc = $leaf_object->location ;
-        $logger->debug( "TreeSearcher: scanning leaf $loc");
-            
-        my $v = $leaf_object->fetch(check => 'no') ;
-        if ($need_search->{value} and defined $v and $v =~ $reg ) {
-            $data_ref->($loc) ;
+    my @scanner_args;
+    my $need_search = $self->_build_type_hash;
+
+    push @scanner_args, leaf_cb => sub {
+        my ( $scanner, $data_ref, $node, $element_name, $index, $leaf_object ) = @_;
+
+        my $loc = $leaf_object->location;
+        $logger->debug("TreeSearcher: scanning leaf $loc");
+
+        my $v = $leaf_object->fetch( check => 'no' );
+        if ( $need_search->{value} and defined $v and $v =~ $reg ) {
+            $data_ref->($loc);
         }
-        if ($need_search->{help}) {
-            my $help_ref = $leaf_object->get_help ;
+        if ( $need_search->{help} ) {
+            my $help_ref = $leaf_object->get_help;
             $data_ref->($loc)
-                if grep { $_ =~ $reg ; } values %$help_ref ;
+                if grep { $_ =~ $reg; } values %$help_ref;
         }
-    } ;
+    };
 
-    push @scanner_args, hash_element_cb => sub { 
-        my  ($scanner, $data_ref,$node,$element_name,@keys) = @_ ;
-        my $loc = $node->location ;
-        $loc .= ' ' if $loc ;
-        $loc .= $element_name ;
+    push @scanner_args, hash_element_cb => sub {
+        my ( $scanner, $data_ref, $node, $element_name, @keys ) = @_;
+        my $loc = $node->location;
+        $loc .= ' ' if $loc;
+        $loc .= $element_name;
 
-        $logger->debug( "TreeSearcher: scanning hash $loc");
+        $logger->debug("TreeSearcher: scanning hash $loc");
 
         foreach my $k (@keys) {
-            if ($need_search->{key} and $k =~ $reg) {
-                my $hloc= $node->fetch_element($element_name)->fetch_with_id($k)->location;
-                $data_ref->($hloc) ;
+            if ( $need_search->{key} and $k =~ $reg ) {
+                my $hloc = $node->fetch_element($element_name)->fetch_with_id($k)->location;
+                $data_ref->($hloc);
             }
-            $scanner->scan_hash($data_ref,$node,$element_name,$k) ;
+            $scanner->scan_hash( $data_ref, $node, $element_name, $k );
         }
-     } ;
+    };
 
-    push @scanner_args,  node_content_cb => sub { 
-        my ($scanner, $data_ref,$node,@element) = @_ ;
-        my $loc = $node->location ;
-        $logger->debug( "TreeSearcher: scanning node $loc");
+    push @scanner_args, node_content_cb => sub {
+        my ( $scanner, $data_ref, $node, @element ) = @_;
+        my $loc = $node->location;
+        $logger->debug("TreeSearcher: scanning node $loc");
 
         foreach my $e (@element) {
             my $store = 0;
-            
-            map { $store = 1 if $need_search->{$_} and 
-                  $node->get_help($_ => $e) =~ $reg 
-            } qw/description summary/;
-            $store = 1 if $need_search->{element} and $e =~ $reg ;
-            
-            $data_ref->( $loc ? $loc.' '.$e : $e )  if $store ;
 
-            $scanner->scan_element($data_ref, $node,$e);
+            map { $store = 1 if $need_search->{$_} and $node->get_help( $_ => $e ) =~ $reg }
+                qw/description summary/;
+            $store = 1 if $need_search->{element} and $e =~ $reg;
+
+            $data_ref->( $loc ? $loc . ' ' . $e : $e ) if $store;
+
+            $scanner->scan_element( $data_ref, $node, $e );
         }
-    } ;
+    };
 
-    
-    my $scan = Config::Model::ObjTreeScanner-> new (
-        @scanner_args ,
-    ) ;
+    my $scan = Config::Model::ObjTreeScanner->new( @scanner_args, );
 
     # use hash to avoid duplication of path
-    my @loc ;
+    my @loc;
     my $store_sub = sub {
-        my $p = shift ;
-        return if @loc and $loc[$#loc] eq $p ;
-        $logger->debug( "TreeSearcher: storing location '$p'");
-        push @loc,$p ;
-    } ;
-    $scan->scan_node($store_sub, $self->node) ;
-    
-    return @loc ;
+        my $p = shift;
+        return if @loc and $loc[$#loc] eq $p;
+        $logger->debug("TreeSearcher: storing location '$p'");
+        push @loc, $p;
+    };
+    $scan->scan_node( $store_sub, $self->node );
+
+    return @loc;
 }
 
 __PACKAGE__->meta->make_immutable;

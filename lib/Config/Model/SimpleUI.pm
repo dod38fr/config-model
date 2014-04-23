@@ -1,8 +1,8 @@
-package Config::Model::SimpleUI ;
+package Config::Model::SimpleUI;
 
 use Carp;
-use strict ;
-use warnings ;
+use strict;
+use warnings;
 
 my $syntax = '
 cd <elt> cd <elt:key>, cd - , cd !
@@ -29,176 +29,172 @@ exit -> exit shell
 ';
 
 my $desc_sub = sub {
-    my $self = shift ;
-    my $obj = $self->{current_node} ;
-    my $res = '';
+    my $self = shift;
+    my $obj  = $self->{current_node};
+    my $res  = '';
 
     if (@_) {
-	my $item ;
-	while ($item = shift) {
-	    if ($obj->isa('Config::Model::Node')) {
-		my $type = $obj->element_type($item) ;
-		my $elt = $obj->fetch_element($item);
-		$res .= "element $item (type $type): "
-		  . $obj->get_help($item)."\n" ;
-		if ($type eq 'leaf' and $elt->value_type eq 'enum') {
-		    $res .= "  possible values: "
-		      . join(', ',$elt->get_choice) . "\n" ;
-		}
-	    }
-	}
+        my $item;
+        while ( $item = shift ) {
+            if ( $obj->isa('Config::Model::Node') ) {
+                my $type = $obj->element_type($item);
+                my $elt  = $obj->fetch_element($item);
+                $res .= "element $item (type $type): " . $obj->get_help($item) . "\n";
+                if ( $type eq 'leaf' and $elt->value_type eq 'enum' ) {
+                    $res .= "  possible values: " . join( ', ', $elt->get_choice ) . "\n";
+                }
+            }
+        }
     }
     else {
-	$res = $obj->get_help() ;
+        $res = $obj->get_help();
     }
-    return $res ;
-} ;
+    return $res;
+};
 
 my $ll_sub = sub {
-    my $self = shift ;
-    my $elt = shift ;
+    my $self = shift;
+    my $elt  = shift;
 
-    my $obj = $self->{current_node} ;
+    my $obj = $self->{current_node};
 
     my $i = $self->{current_node}->instance;
-    my $res = $obj->describe(element => $elt, check =>'no') ;
-    return $res ;
-} ;
+    my $res = $obj->describe( element => $elt, check => 'no' );
+    return $res;
+};
 
 my $cd_sub = sub {
-    my $self = shift ;
+    my $self = shift;
     my @cmds = @_;
+
     # convert usual cd_ism ( .. /foo) to grab syntax ( - ! foo)
     #map { s(^/)  (! );
-#	  s(\.\.)(-)g;
-#	  s(/)   ( )g;
-#      } @cmds ;
+    #	  s(\.\.)(-)g;
+    #	  s(/)   ( )g;
+    #      } @cmds ;
 
-    my $new_node = $self->{current_node}->grab("@cmds") ;
-    my $type = $new_node -> get_type ;
-    my $name = $new_node -> element_name ;
+    my $new_node = $self->{current_node}->grab("@cmds");
+    my $type     = $new_node->get_type;
+    my $name     = $new_node->element_name;
 
-    if (defined $new_node && $type eq 'node') {
-	$self->{current_node} = $new_node;
+    if ( defined $new_node && $type eq 'node' ) {
+        $self->{current_node} = $new_node;
     }
-    elsif (defined $new_node && $type eq 'list' ) {
-	print "Can't cd in a $type, please add an index (e.g. $name:0)\n" ;
+    elsif ( defined $new_node && $type eq 'list' ) {
+        print "Can't cd in a $type, please add an index (e.g. $name:0)\n";
     }
-    elsif (defined $new_node && $type eq 'hash' ) {
-	print "Can't cd in a $type, please add an index (e.g. $name:foo)\n" ;
+    elsif ( defined $new_node && $type eq 'hash' ) {
+        print "Can't cd in a $type, please add an index (e.g. $name:foo)\n";
     }
-    elsif (defined $new_node && $type eq 'leaf' ) {
-	print "Can't cd in a $type\n" ;
+    elsif ( defined $new_node && $type eq 'leaf' ) {
+        print "Can't cd in a $type\n";
     }
     else {
-	print "Cannot find @_\n" ;
+        print "Cannot find @_\n";
     }
 
-    return "" ;
-} ;
+    return "";
+};
 
-my %run_dispatch =
-  (
-   help => sub{ return $syntax; } ,
-   set  => sub {
-       my $self = shift ;
-       my $cmd = shift;
-       $cmd =~ s/\s*=\s*/=/;
-       $cmd =~ s/\s*:\s*/:/;
-       $self->{current_node}->load($cmd) ;
-       return "" ;
-   },
-   display => sub {
-       my $self = shift ;
-       print "Nothing to display" unless @_ ;
-       return $self->{current_node}->grab_value(@_) ;
-   },
-   ls => sub {
-       my $self = shift ;
-       my $i = $self->{current_node}->instance;
-       my @res = $self->{current_node}->get_element_name ;
-       return join('  ',@res) ;
-   },
-   dump => sub {
-       my $self = shift ;
-       my $i = $self->{current_node}->instance;
-       my @res = $self->{current_node}-> dump_tree(full_dump => 1);
-       return join('  ',@res) ;
-   },
-   delete => sub {
-       my $self = shift ;
-       my ($elt_name,$key) = split /\s*:\s*/,$_[0] ;
-       my $elt = $self->{current_node}->fetch_element($elt_name);
-       if (length($key)) {
+my %run_dispatch = (
+    help => sub { return $syntax; },
+    set  => sub {
+        my $self = shift;
+        my $cmd  = shift;
+        $cmd =~ s/\s*=\s*/=/;
+        $cmd =~ s/\s*:\s*/:/;
+        $self->{current_node}->load($cmd);
+        return "";
+    },
+    display => sub {
+        my $self = shift;
+        print "Nothing to display" unless @_;
+        return $self->{current_node}->grab_value(@_);
+    },
+    ls => sub {
+        my $self = shift;
+        my $i    = $self->{current_node}->instance;
+        my @res  = $self->{current_node}->get_element_name;
+        return join( '  ', @res );
+    },
+    dump => sub {
+        my $self = shift;
+        my $i    = $self->{current_node}->instance;
+        my @res  = $self->{current_node}->dump_tree( full_dump => 1 );
+        return join( '  ', @res );
+    },
+    delete => sub {
+        my $self = shift;
+        my ( $elt_name, $key ) = split /\s*:\s*/, $_[0];
+        my $elt = $self->{current_node}->fetch_element($elt_name);
+        if ( length($key) ) {
             $elt->delete($key);
-       }
-       else {
+        }
+        else {
             $elt->store(undef);
-       }
-       return '' ;
-   },
-   reset => sub {
-       my ($self, $elt_name) = @_ ;
-       $self->{current_node}->fetch_element($elt_name)->store(undef);
-       return '' ;
-   },
-   save => sub {
-       my ($self) = @_ ;
-       $self->{root}->instance->write_back();
-       return "done";
-   },
-   changes => sub {
-       my ($self,$dir) = @_ ;
-       return $self->{root}->instance->list_changes;
-   },
-   ll => $ll_sub,
-   cd => $cd_sub,
-   description => $desc_sub,
-   desc => $desc_sub ,
-  ) ;
+        }
+        return '';
+    },
+    reset => sub {
+        my ( $self, $elt_name ) = @_;
+        $self->{current_node}->fetch_element($elt_name)->store(undef);
+        return '';
+    },
+    save => sub {
+        my ($self) = @_;
+        $self->{root}->instance->write_back();
+        return "done";
+    },
+    changes => sub {
+        my ( $self, $dir ) = @_;
+        return $self->{root}->instance->list_changes;
+    },
+    ll          => $ll_sub,
+    cd          => $cd_sub,
+    description => $desc_sub,
+    desc        => $desc_sub,
+);
 
 sub simple_ui_commands {
-    sort keys %run_dispatch ;
+    sort keys %run_dispatch;
 }
-
 
 sub new {
     my $type = shift;
-    my %args = @_ ;
+    my %args = @_;
 
-    my $self = {} ;
+    my $self = {};
 
     foreach my $p (qw/root title prompt/) {
-	$self->{$p} = delete $args{$p} or
-	  croak "SimpleUI->new: Missing $p parameter" ;
+        $self->{$p} = delete $args{$p}
+            or croak "SimpleUI->new: Missing $p parameter";
     }
 
-    $self->{current_node} = $self->{root} ;
+    $self->{current_node} = $self->{root};
 
-    bless $self, $type ;
+    bless $self, $type;
 }
 
-
 sub run_loop {
-    my $self = shift ;
+    my $self = shift;
 
-    my $user_cmd ;
-    print $self->prompt ;
-    while ( defined ($user_cmd = <STDIN>) ) {
-	chomp $user_cmd ;
-	last if $user_cmd eq 'exit' or $user_cmd eq 'quit' ;
-	my $res = $self->run($user_cmd);
-	print $res, "\n" if defined $res;
-	print $self->prompt ;
+    my $user_cmd;
+    print $self->prompt;
+    while ( defined( $user_cmd = <STDIN> ) ) {
+        chomp $user_cmd;
+        last if $user_cmd eq 'exit' or $user_cmd eq 'quit';
+        my $res = $self->run($user_cmd);
+        print $res, "\n" if defined $res;
+        print $self->prompt;
     }
     print "\n";
 
-    my $instance = $self->{root}->instance ;
-    if ($instance->c_count) {
-        my @changes = $instance->say_changes ;
+    my $instance = $self->{root}->instance;
+    if ( $instance->c_count ) {
+        my @changes = $instance->say_changes;
         if (@changes) {
             print "write back data before exit ? (Y/n)";
-            $user_cmd = <STDIN> ;
+            $user_cmd = <STDIN>;
             $instance->write_back unless $user_cmd =~ /n/i;
             print "\n";
         }
@@ -207,53 +203,51 @@ sub run_loop {
 }
 
 sub prompt {
-     my $self = shift ;
-     my $ret = $self->{prompt}.':' ;
-     my $loc = $self->{current_node}->location ;
-     $ret .= " $loc " if $loc;
-     return $ret . '$ '  ;
+    my $self = shift;
+    my $ret  = $self->{prompt} . ':';
+    my $loc  = $self->{current_node}->location;
+    $ret .= " $loc " if $loc;
+    return $ret . '$ ';
 }
 
-
 sub run {
-    my ($self, $user_cmd ) = @_ ;
+    my ( $self, $user_cmd ) = @_;
 
-    return '' unless $user_cmd =~ /\w/ ;
+    return '' unless $user_cmd =~ /\w/;
 
-    $user_cmd =~ s/^\s+// ;
+    $user_cmd =~ s/^\s+//;
 
-    my ($action,$args) = split (m/\s+/,$user_cmd, 2)  ;
-    $args =~ s/\s+$//g if defined $args ; #cleanup
+    my ( $action, $args ) = split( m/\s+/, $user_cmd, 2 );
+    $args =~ s/\s+$//g if defined $args;    #cleanup
 
-    if (defined $run_dispatch{$action}) {
-	my $res = eval { $run_dispatch{$action}->($self,$args) ; } ;
-	print $@ if $@ ;
-	return $res ;
+    if ( defined $run_dispatch{$action} ) {
+        my $res = eval { $run_dispatch{$action}->( $self, $args ); };
+        print $@ if $@;
+        return $res;
     }
     else {
-	return "Unexpected command '$action'";
+        return "Unexpected command '$action'";
     }
 }
 
 sub list_cd_path {
-    my $self = shift ;
-    my $c_node = $self->{current_node} ;
+    my $self   = shift;
+    my $c_node = $self->{current_node};
 
-    my @result ;
-    foreach my $elt_name ($c_node->get_element_name) {
-	my $t = $c_node->element_type($elt_name) ;
+    my @result;
+    foreach my $elt_name ( $c_node->get_element_name ) {
+        my $t = $c_node->element_type($elt_name);
 
-	if ($t eq 'list' or $t eq 'hash') {
-	    push @result,
-	      map { "$elt_name:$_" }
-		$c_node->fetch_element($elt_name)->fetch_all_indexes ;
-	}
-	else {
-	    push @result, $elt_name ;
-	}
+        if ( $t eq 'list' or $t eq 'hash' ) {
+            push @result,
+                map { "$elt_name:$_" } $c_node->fetch_element($elt_name)->fetch_all_indexes;
+        }
+        else {
+            push @result, $elt_name;
+        }
     }
 
-    return \@result ;
+    return \@result;
 }
 1;
 

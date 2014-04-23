@@ -1,48 +1,54 @@
 package Config::Model::AnyThing;
 
-use Mouse ;
+use Mouse;
 use namespace::autoclean;
 
 # FIXME: must cleanup warp mechanism to implement this
 # use MouseX::StrictConstructor;
 
-use Pod::POM ;
+use Pod::POM;
 use Carp;
 use Log::Log4perl qw(get_logger :levels);
 use 5.10.1;
 
-my $logger = get_logger("Anything") ;
-my $change_logger = get_logger("Anything::Change") ;
+my $logger        = get_logger("Anything");
+my $change_logger = get_logger("Anything::Change");
 
-has element_name => ( is => 'ro', isa => 'Str') ;
-has parent => (is => 'ro', isa => 'Config::Model::Node' , weak_ref => 1);
-has instance => (is => 'ro', isa => 'Config::Model::Instance', weak_ref => 1) ;
+has element_name => ( is => 'ro', isa => 'Str' );
+has parent       => ( is => 'ro', isa => 'Config::Model::Node', weak_ref => 1 );
+has instance     => ( is => 'ro', isa => 'Config::Model::Instance', weak_ref => 1 );
 
 # needs_check defaults to 1 to trap undef mandatory values
-has needs_check => (is => 'rw', isa => 'Bool', default => 1 );
+has needs_check => ( is => 'rw', isa => 'Bool', default => 1 );
 
 # index_value can be written to when move method is called. But let's
 # not advertise this feature.
-has index_value => ( 
-    is => 'rw', 
-    isa => 'Str', 
-    trigger => sub { my $self = shift; $self->{location} = $self->_location; } ,
-) ;
+has index_value => (
+    is      => 'rw',
+    isa     => 'Str',
+    trigger => sub { my $self = shift; $self->{location} = $self->_location; },
+);
 
-has container => (is => 'ro', isa => 'Ref', required => 1, weak_ref => 1 ) ;
+has container => ( is => 'ro', isa => 'Ref', required => 1, weak_ref => 1 );
 
-has container_type => ( is => 'ro', isa => 'Str' , builder => '_container_type', lazy => 1 );
+has container_type => ( is => 'ro', isa => 'Str', builder => '_container_type', lazy => 1 );
 
 sub _container_type {
     my $self = shift;
-    my $p = $self->parent ;
-    return defined $p ? $p->element_type($self->element_name)
-                      : 'node' ; # root node
+    my $p    = $self->parent;
+    return defined $p
+        ? $p->element_type( $self->element_name )
+        : 'node';    # root node
 
 }
 
-has root => (is => 'ro', isa => 'Config::Model::Node' , weak_ref => 1,
-    builder => '_root', lazy => 1);
+has root => (
+    is       => 'ro',
+    isa      => 'Config::Model::Node',
+    weak_ref => 1,
+    builder  => '_root',
+    lazy     => 1
+);
 
 sub _root {
     my $self = shift;
@@ -50,28 +56,27 @@ sub _root {
     return $self->parent || $self;
 }
 
-has location => (is => 'ro', isa => 'Str' , builder => '_location', lazy => 1);
+has location => ( is => 'ro', isa => 'Str', builder => '_location', lazy => 1 );
 
-sub notify_change {	
-    my $self = shift ;
-    my %args =  @_ ;
+sub notify_change {
+    my $self = shift;
+    my %args = @_;
 
-    return if $self->instance->initial_load  and not $args{really};
+    return if $self->instance->initial_load and not $args{really};
 
-    $change_logger->debug("called for ",$self->name, " from ", join(' ',caller),
-        " with ", join( ' ',%args))
-        if $change_logger->is_debug ;
+    $change_logger->debug( "called for ", $self->name, " from ", join( ' ', caller ),
+        " with ", join( ' ', %args ) )
+        if $change_logger->is_debug;
 
     # needs_save may be overridden by caller
-    $args{needs_save} //= 1 ;
-    $args{path} //= $self->location ;
-    $args{name} //= $self->element_name if $self->element_name ;
-    $args{index} //= $self->index_value if $self->index_value ;
-    
+    $args{needs_save} //= 1;
+    $args{path}       //= $self->location;
+    $args{name}       //= $self->element_name if $self->element_name;
+    $args{index}      //= $self->index_value if $self->index_value;
+
     # better use %args instead of @_ to forward arguments. %args eliminates duplicated keys
     $self->container->notify_change(%args);
 }
-
 
 sub _location {
     my $self = shift;
@@ -82,7 +87,7 @@ sub _location {
 
     $str .= ' ' if $str;
 
-    $str .= $self->composite_name ;
+    $str .= $self->composite_name;
 
     return $str;
 }
@@ -96,13 +101,13 @@ sub composite_name {
     $element = '' unless defined $element;
 
     my $idx = $self->index_value;
-    $idx = '"'.$idx.'"' if defined $idx && $idx =~ /\W/ ;
+    $idx = '"' . $idx . '"' if defined $idx && $idx =~ /\W/;
 
     return $element . ( defined $idx ? ':' . $idx : '' );
 }
 
 ## Fixme: not yet tested
-sub xpath { 
+sub xpath {
     my $self = shift;
 
     $logger->debug("xpath called on $self");
@@ -122,11 +127,12 @@ sub xpath {
     return $str;
 }
 
-
 sub annotation {
-    my $self = shift ;
-    $self->{annotation} = join("\n", grep (defined $_,@_)) 
-        if @_ and not $self->instance->preset and not $self->instance->layered;
+    my $self = shift;
+    $self->{annotation} = join( "\n", grep ( defined $_, @_ ) )
+        if @_
+        and not $self->instance->preset
+        and not $self->instance->layered;
     return $self->{annotation} || '';
 }
 
@@ -136,76 +142,69 @@ sub clear_annotation {
 }
 
 sub load_pod_annotation {
-    my $self = shift ;
-    my $pod = shift ;
-    
+    my $self = shift;
+    my $pod  = shift;
+
     my $parser = Pod::POM->new();
-    my $pom = $parser->parse_text($pod) 
+    my $pom    = $parser->parse_text($pod)
         || croak $parser->error();
     my $sections = $pom->head1();
 
-    foreach my $s ( @$sections ) {
-        next unless $s->title eq 'Annotations' ;
-        
+    foreach my $s (@$sections) {
+        next unless $s->title eq 'Annotations';
+
         foreach my $item ( $s->over->[0]->item ) {
-            my $path = $item->title.''; # force string representation. Not understood why...
-            $path =~ s/^[\s\*]+//; 
-            my $note = $item->text.'' ;
+            my $path = $item->title . '';    # force string representation. Not understood why...
+            $path =~ s/^[\s\*]+//;
+            my $note = $item->text . '';
             $note =~ s/\s+$//;
             $logger->debug("load_pod_annotation: '$path' -> '$note'");
-            $self->grab(step => $path )-> annotation($note) ;
+            $self->grab( step => $path )->annotation($note);
         }
     }
 }
-
 
 ## Navigation
 
 # accept commands like
 # item:b -> go down a node, create a new node if necessary
 # - climbs up
-# ! climbs up to the top 
+# ! climbs up to the top
 
 # Now return an object and not a value !
 
 sub grab {
-    my $self = shift ;
-    my ($step,$mode,$autoadd, $type, $grab_non_available,$check)
-      = (undef, 'strict', 1, undef, 0, 'yes' ) ;
+    my $self = shift;
+    my ( $step, $mode, $autoadd, $type, $grab_non_available, $check ) =
+        ( undef, 'strict', 1, undef, 0, 'yes' );
 
-    my %args = @_ > 1 ? @_ : (step => $_[0] );
+    my %args = @_ > 1 ? @_ : ( step => $_[0] );
 
-    $step    = delete $args{step};
-    $mode    = delete $args{mode}  if defined $args{mode};
-    $autoadd = delete $args{autoadd} if defined $args{autoadd};
-    $grab_non_available = delete $args{grab_non_available} 
-	if defined $args{grab_non_available};
-    $type    = delete $args{type} ; # node, leaf or undef
-    $check = $self->_check_check(delete $args{check}) ;
+    $step               = delete $args{step};
+    $mode               = delete $args{mode} if defined $args{mode};
+    $autoadd            = delete $args{autoadd} if defined $args{autoadd};
+    $grab_non_available = delete $args{grab_non_available}
+        if defined $args{grab_non_available};
+    $type  = delete $args{type};                           # node, leaf or undef
+    $check = $self->_check_check( delete $args{check} );
 
-    if (defined $args{strict}) {
+    if ( defined $args{strict} ) {
         carp "grab: deprecated parameter 'strict'. Use mode";
-        $mode = delete $args{strict} ? 'strict' : 'adaptative' ;
+        $mode = delete $args{strict} ? 'strict' : 'adaptative';
     }
 
-    Config::Model::Exception::User -> throw (
-	object => $self,
-	message => "grab: unexpected parameter: ".join(' ',keys %args)
-    ) 
-    if %args;
+    Config::Model::Exception::User->throw(
+        object  => $self,
+        message => "grab: unexpected parameter: " . join( ' ', keys %args ) ) if %args;
 
-    Config::Model::Exception::Internal ->throw (
-        error => "grab: step parameter must be a string ".
-		 "or an array ref"
-    ) 
-    unless ref $step eq 'ARRAY' || not ref $step ;
+    Config::Model::Exception::Internal->throw(
+        error => "grab: step parameter must be a string " . "or an array ref" )
+        unless ref $step eq 'ARRAY' || not ref $step;
 
     # accept commands, grep remove empty items left by spurious spaces
-    my $huge_string = ref $step ? join (' ', @$step) : $step ;
-    my @command = 
-      ( 
-       $huge_string =~ 
-       m/
+    my $huge_string = ref $step ? join( ' ', @$step ) : $step;
+    my @command = (
+        $huge_string =~ m/
          (         # begin of *one* command
           (?:        # group parts of a command (e.g ...:... )
            [^\s"]+  # match anything but a space and a quote
@@ -222,342 +221,350 @@ sub grab {
           )+      # can have several parts in one command
          )        # end of *one* command
         /gx
-      ) ;
+    );
 
-    my @saved = @command ;
+    my @saved = @command;
 
-    $logger->debug( "grab: executing '",join("' '",@command), "' on object '",$self->name, "'");
+    $logger->debug(
+        "grab: executing '",
+        join( "' '", @command ),
+        "' on object '",
+        $self->name, "'"
+    );
 
-    my @found = ($self) ;
+    my @found = ($self);
 
-  COMMAND:
-    while ( @command ) {
-	last if $mode eq 'step_by_step' and @saved > @command;
+COMMAND:
+    while (@command) {
+        last if $mode eq 'step_by_step' and @saved > @command;
 
-	my $cmd = shift @command ;
+        my $cmd = shift @command;
 
-	my $obj = $found[-1] ;
-        $logger->debug( "grab: executing cmd '$cmd' on object '",$obj->name, "($obj)'");
+        my $obj = $found[-1];
+        $logger->debug( "grab: executing cmd '$cmd' on object '", $obj->name, "($obj)'" );
 
-        if ($cmd eq '!') { 
+        if ( $cmd eq '!' ) {
             push @found, $obj->grab_root();
-            next ;
-          }
-          
-        if ($cmd =~ /^!([\w:]*)/) { 
-            my $ancestor = $obj->grab_ancestor($1) ;
-            if (defined $ancestor) {
-                push @found, $ancestor ;
-                next ;
+            next;
+        }
+
+        if ( $cmd =~ /^!([\w:]*)/ ) {
+            my $ancestor = $obj->grab_ancestor($1);
+            if ( defined $ancestor ) {
+                push @found, $ancestor;
+                next;
             }
             else {
-                Config::Model::Exception::AncestorClass -> throw (
+                Config::Model::Exception::AncestorClass->throw(
                     object => $obj,
-                    info => "grab called from '".$self->name.
-                    "' with steps '@saved' looking for class $1"
-		) if $mode eq 'strict' ;
-                return ;
+                    info   => "grab called from '"
+                        . $self->name
+                        . "' with steps '@saved' looking for class $1"
+                ) if $mode eq 'strict';
+                return;
             }
         }
 
-        if ($cmd =~ /^\?(\w[\w-]*)/) {
-	    push @found, $obj->grab_ancestor_with_element_named($1) ;
-	    $cmd =~ s/^\?// ; #remove the go up part
-	    unshift @command, $cmd ;
-	    next ;
-          }
+        if ( $cmd =~ /^\?(\w[\w-]*)/ ) {
+            push @found, $obj->grab_ancestor_with_element_named($1);
+            $cmd =~ s/^\?//;    #remove the go up part
+            unshift @command, $cmd;
+            next;
+        }
 
-        if ($cmd eq '-') { 
-            if (defined $obj->parent) {
-                push @found, $obj->parent ; 
-                next ;
-              } 
+        if ( $cmd eq '-' ) {
+            if ( defined $obj->parent ) {
+                push @found, $obj->parent;
+                next;
+            }
             else {
-                $logger->debug("grab: ",$obj->name," has no parent");
-                return $mode eq 'adaptative' ? $obj : undef ;
-              }
-          }
-
-        unless ($obj->isa('Config::Model::Node') 
-		or $obj->isa('Config::Model::WarpedNode')) {
-            Config::Model::Exception::Model
-		->throw (
-			 object => $obj,
-			 message => "Cannot apply command '$cmd' on leaf item".
-			 " (full command is '@saved')"
-			) ;
-	}
-
-        my ($name, $action, $arg) 
-	  = ($cmd =~ /(\w[\-\w]*)(?:(:)((?:"[^\"]*")|(?:[\w:\/\.\-\+]+)))?/);
-
-	if (defined $arg and $arg =~ /^"/ and $arg =~ /"$/) {
-	    $arg =~ s/^"// ; # remove leading quote
-	    $arg =~ s/"$// ; # remove trailing quote
-	}
-
-	{
-	  no warnings "uninitialized" ;
-	  $logger->debug("grab: cmd '$cmd' -> name '$name', action '$action', arg '$arg'");
-	}
-
-        unless ($obj->has_element($name)) {
-            if ($mode eq 'step_by_step') {
-                return wantarray ? (undef,@command) : undef ;
+                $logger->debug( "grab: ", $obj->name, " has no parent" );
+                return $mode eq 'adaptative' ? $obj : undef;
             }
-            elsif ($mode eq 'loose') {
-                return ;
+        }
+
+        unless ( $obj->isa('Config::Model::Node')
+            or $obj->isa('Config::Model::WarpedNode') ) {
+            Config::Model::Exception::Model->throw(
+                object  => $obj,
+                message => "Cannot apply command '$cmd' on leaf item"
+                    . " (full command is '@saved')"
+            );
+        }
+
+        my ( $name, $action, $arg ) =
+            ( $cmd =~ /(\w[\-\w]*)(?:(:)((?:"[^\"]*")|(?:[\w:\/\.\-\+]+)))?/ );
+
+        if ( defined $arg and $arg =~ /^"/ and $arg =~ /"$/ ) {
+            $arg =~ s/^"//;    # remove leading quote
+            $arg =~ s/"$//;    # remove trailing quote
+        }
+
+        {
+            no warnings "uninitialized";
+            $logger->debug("grab: cmd '$cmd' -> name '$name', action '$action', arg '$arg'");
+        }
+
+        unless ( $obj->has_element($name) ) {
+            if ( $mode eq 'step_by_step' ) {
+                return wantarray ? ( undef, @command ) : undef;
             }
-            elsif ($mode eq 'adaptative') {
+            elsif ( $mode eq 'loose' ) {
+                return;
+            }
+            elsif ( $mode eq 'adaptative' ) {
                 last;
             }
             else {
-                Config::Model::Exception::UnknownElement ->throw (
-                    object => $obj,
-                    element => $name,
+                Config::Model::Exception::UnknownElement->throw(
+                    object   => $obj,
+                    element  => $name,
                     function => 'grab',
-                    info => "grab called from '".$self->name.
-                        "' with steps '@saved'"
-		) ;
-	    }
-	}
+                    info     => "grab called from '" . $self->name . "' with steps '@saved'"
+                );
+            }
+        }
 
-        unless ($grab_non_available 
-		or $obj->is_element_available(name => $name, 
-					      experience => 'master')) {
-            if ($mode eq 'step_by_step') {
-                return wantarray ? (undef,@command) : undef ;
+        unless (
+            $grab_non_available
+            or $obj->is_element_available(
+                name       => $name,
+                experience => 'master'
+            )
+            ) {
+            if ( $mode eq 'step_by_step' ) {
+                return wantarray ? ( undef, @command ) : undef;
             }
-            elsif ($mode eq 'loose') {
-                return ;
+            elsif ( $mode eq 'loose' ) {
+                return;
             }
-            elsif ($mode eq 'adaptative') {
+            elsif ( $mode eq 'adaptative' ) {
                 last;
             }
             else {
-                Config::Model::Exception::UnavailableElement ->throw (
-                    object => $obj,
-                    element => $name,
+                Config::Model::Exception::UnavailableElement->throw(
+                    object   => $obj,
+                    element  => $name,
                     function => 'grab',
-                    info => "grab called from '".$self->name.
-			 "' with steps '@saved'"
-		);
+                    info     => "grab called from '" . $self->name . "' with steps '@saved'"
+                );
             }
-	}
+        }
 
-	my $next_obj = $obj->fetch_element( name => $name,
-	    experience => 'master', check => $check, accept_hidden => $grab_non_available) ;
+        my $next_obj = $obj->fetch_element(
+            name          => $name,
+            experience    => 'master',
+            check         => $check,
+            accept_hidden => $grab_non_available
+        );
 
-	# create list or hash element only if autoadd is true
-        if (defined $action and $autoadd == 0
-	    and not $next_obj->exists($arg)) 
-	  {
-            return if $mode eq 'loose' ;
+        # create list or hash element only if autoadd is true
+        if (    defined $action
+            and $autoadd == 0
+            and not $next_obj->exists($arg) ) {
+            return if $mode eq 'loose';
             Config::Model::Exception::UnknownId->throw(
                 object   => $obj->fetch_element($name),
                 element  => $name,
                 id       => $arg,
                 function => 'grab'
             ) unless $mode eq 'adaptative';
-	    last ;
-	}
+            last;
+        }
 
-        if (defined $action and not $next_obj->isa('Config::Model::AnyId')) {
-            Config::Model::Exception::Model
-		->throw (
-			 object => $obj,
-			 message => "Cannot apply command '$cmd' on non hash or non list item".
-			 " (full command is '@saved'). item is '".$next_obj->name."'"
-			) ;
-	    last ;
-	}
+        if ( defined $action and not $next_obj->isa('Config::Model::AnyId') ) {
+            Config::Model::Exception::Model->throw(
+                object  => $obj,
+                message => "Cannot apply command '$cmd' on non hash or non list item"
+                    . " (full command is '@saved'). item is '"
+                    . $next_obj->name . "'"
+            );
+            last;
+        }
 
-	# action can only be :
-	$next_obj = $next_obj -> fetch_with_id($arg) if defined $action ;
+        # action can only be :
+        $next_obj = $next_obj->fetch_with_id($arg) if defined $action;
 
-	push @found, $next_obj ;
+        push @found, $next_obj;
     }
 
     # check element type
     if ( defined $type ) {
-	while ( @found and $found[-1]-> get_type ne $type ) {
-	    Config::Model::Exception::WrongType
-		->throw (
-			 object => $found[-1],
-			 function => 'grab',
-			 got_type => $found[-1] -> get_type,
-			 expected_type => $type,
-			 info   => "requested with step '$step'"
-			) if $mode ne 'adaptative';
-	    pop @found;
-	}
+        while ( @found and $found[-1]->get_type ne $type ) {
+            Config::Model::Exception::WrongType->throw(
+                object        => $found[-1],
+                function      => 'grab',
+                got_type      => $found[-1]->get_type,
+                expected_type => $type,
+                info          => "requested with step '$step'"
+            ) if $mode ne 'adaptative';
+            pop @found;
+        }
     }
 
-    my $return = $found[-1] ;
-    $logger->debug("grab: returning object '",$return->name, "($return)'");
-    return wantarray ? ($return,@command) : $return ;
+    my $return = $found[-1];
+    $logger->debug( "grab: returning object '", $return->name, "($return)'" );
+    return wantarray ? ( $return, @command ) : $return;
 }
-
 
 sub grab_value {
-    my $self = shift ;
-    my %args = scalar @_ == 1 ? ( step => $_[0] ) : @_ ;
-    
-    my $obj = $self->grab(%args) ;
-    # Pb: may return a node. add another option to grab ?? 
+    my $self = shift;
+    my %args = scalar @_ == 1 ? ( step => $_[0] ) : @_;
+
+    my $obj = $self->grab(%args);
+
+    # Pb: may return a node. add another option to grab ??
     # to get undef value when needed?
 
-    return if ($args{mode} and $args{mode} eq 'loose' and not defined $obj);
+    return if ( $args{mode} and $args{mode} eq 'loose' and not defined $obj );
 
-    Config::Model::Exception::User -> throw (
-		  object => $self,
-		  message => "grab_value: cannot get value of non-leaf or check_list "
-		  ."item with '".join("' '",@_)."'. item is $obj"
-		 ) 
-	  unless ref $obj and ( $obj->isa("Config::Model::Value") or 
-            $obj->isa("Config::Model::CheckList"));
+    Config::Model::Exception::User->throw(
+        object  => $self,
+        message => "grab_value: cannot get value of non-leaf or check_list "
+            . "item with '"
+            . join( "' '", @_ )
+            . "'. item is $obj"
+        )
+        unless ref $obj
+        and ( $obj->isa("Config::Model::Value")
+        or $obj->isa("Config::Model::CheckList") );
 
     my $value = $obj->fetch;
-    if ($logger->is_debug) {
-        my $str = defined $value ? $value : '<undef>' ;
-        $logger->debug("grab_value: returning value $str of object '",$obj->name);
+    if ( $logger->is_debug ) {
+        my $str = defined $value ? $value : '<undef>';
+        $logger->debug( "grab_value: returning value $str of object '", $obj->name );
     }
-    return $value ;
+    return $value;
 }
-
 
 sub grab_annotation {
-    my $self = shift ;
-    my @args = scalar @_ == 1 ? ( step => $_[0] ) : @_ ;
+    my $self = shift;
+    my @args = scalar @_ == 1 ? ( step => $_[0] ) : @_;
 
-    my $obj = $self->grab(@args) ;
+    my $obj = $self->grab(@args);
 
-    return $obj->annotation ;
+    return $obj->annotation;
 }
-
 
 sub grab_root {
     my $self = shift;
-    return defined $self->parent ? $self->parent->grab_root
-      : $self ;
+    return defined $self->parent
+        ? $self->parent->grab_root
+        : $self;
 }
 
-
 sub grab_ancestor {
-    my $self = shift ;
-    my $class = shift || die "grab_ancestor: missing ancestor class" ;
-    
-    return $self if $self->get_type eq 'node' and $self->config_class_name eq $class ;
-	
-    return $self->{parent}->grab_ancestor ($class) if defined $self->{parent} ;
-    return ;
+    my $self = shift;
+    my $class = shift || die "grab_ancestor: missing ancestor class";
+
+    return $self if $self->get_type eq 'node' and $self->config_class_name eq $class;
+
+    return $self->{parent}->grab_ancestor($class) if defined $self->{parent};
+    return;
 }
 
 #internal. Used by grab with '?xxx' steps
 sub grab_ancestor_with_element_named {
-    my ($self, $search, $type) = @_ ;
+    my ( $self, $search, $type ) = @_;
 
-    my $obj = $self ;
+    my $obj = $self;
 
-    while (1) { 
-	$logger->debug("grab_ancestor_with_element_named: executing cmd '?$search' on object "
-	  .$obj->name);
+    while (1) {
+        $logger->debug(
+            "grab_ancestor_with_element_named: executing cmd '?$search' on object " . $obj->name );
 
-	my $obj_element_name = $obj->element_name ;
+        my $obj_element_name = $obj->element_name;
 
-	if ($obj->isa('Config::Model::Node') and $obj->has_element(name => $search, type => $type) ) {
-	    # object contains the search element, we need to grab the
-	    # searched object (i.e. the '?foo' part is done
-	    return $obj ;
-	}
-	elsif (defined $obj->parent) {
-	    # going up
-	    $obj = $obj->parent ;
-	}
-	else {
-	    # there's no more up to go to...
-	    Config::Model::Exception::Model
-		->throw (
-			 object => $self,
-			 error => "Error: cannot grab '?$search'"
-			 ."from ". $self->name
-			) ;
-	}
+        if (    $obj->isa('Config::Model::Node')
+            and $obj->has_element( name => $search, type => $type ) ) {
+
+            # object contains the search element, we need to grab the
+            # searched object (i.e. the '?foo' part is done
+            return $obj;
+        }
+        elsif ( defined $obj->parent ) {
+
+            # going up
+            $obj = $obj->parent;
+        }
+        else {
+            # there's no more up to go to...
+            Config::Model::Exception::Model->throw(
+                object => $self,
+                error  => "Error: cannot grab '?$search'" . "from " . $self->name
+            );
+        }
     }
 }
 
-
 sub model_searcher {
-    my $self = shift ;
-    my %args = @_ ;
+    my $self = shift;
+    my %args = @_;
 
-    my $model = $self->instance->config_model ;
-    return Config::Model::SearchElement
-      -> new(model => $model, node => $self, %args ) ;
+    my $model = $self->instance->config_model;
+    return Config::Model::SearchElement->new( model => $model, node => $self, %args );
 }
 
-sub searcher { 
+sub searcher {
     carp "Config::Model::AnyThing searcher is deprecated";
-    goto &model_searcher ; 
+    goto &model_searcher;
 }
-
 
 sub dump_as_data {
-    my $self = shift ;
-    my $dumper = Config::Model::DumpAsData->new ;
-    $dumper->dump_as_data(node => $self, @_) ;
+    my $self   = shift;
+    my $dumper = Config::Model::DumpAsData->new;
+    $dumper->dump_as_data( node => $self, @_ );
 }
 
 # hum, check if the check information is valid
 sub _check_check {
-    my $self = shift ;
-    my $p = shift ;
+    my $self = shift;
+    my $p    = shift;
 
     return 'yes' if not defined $p or $p eq '1' or $p eq 'yes';
-    return 'no'  if $p eq '0' or $p eq 'no' ;
-    return $p    if $p eq 'skip' ;
+    return 'no'  if $p eq '0'      or $p eq 'no';
+    return $p    if $p eq 'skip';
 
-    croak "Internal error: Unvalid check value: $p" ;
+    croak "Internal error: Unvalid check value: $p";
 }
 
 sub has_fixes {
-    my $self = shift ;
-    $logger->debug("dummy has_fixes called on ".$self->name);
+    my $self = shift;
+    $logger->debug( "dummy has_fixes called on " . $self->name );
     return 0;
 }
 
 sub has_warning {
-    my $self = shift ;
-    $logger->debug("dummy has_warning called on ".$self->name);
+    my $self = shift;
+    $logger->debug( "dummy has_warning called on " . $self->name );
     return 0;
 }
 
 sub warp_error {
-    my $self = shift ;
-    return '' unless defined $self->{warper} ;
-    return $self->{warper} -> warp_error ;
+    my $self = shift;
+    return '' unless defined $self->{warper};
+    return $self->{warper}->warp_error;
 }
 
 # used by Value and AnyId
 sub set_convert {
-    my ($self, $arg_ref) = @_ ;
+    my ( $self, $arg_ref ) = @_;
 
-    my $convert = delete $arg_ref->{convert} ;
+    my $convert = delete $arg_ref->{convert};
+
     # convert_sub keeps a subroutine reference
-    $self->{convert_sub} = $convert eq 'uc' ? sub {uc(shift)} :
-      $convert eq 'lc' ? sub {lc(shift)} : undef;
+    $self->{convert_sub} =
+          $convert eq 'uc' ? sub { uc(shift) }
+        : $convert eq 'lc' ? sub { lc(shift) }
+        :                    undef;
 
-    Config::Model::Exception::Model
-	-> throw (
-		  object => $self,
-		  error => "Unexpected convert value: $convert, "
-		  ."expected lc or uc"
-		 ) 
-	  unless defined $self->{convert_sub};
+    Config::Model::Exception::Model->throw(
+        object => $self,
+        error  => "Unexpected convert value: $convert, " . "expected lc or uc"
+    ) unless defined $self->{convert_sub};
 }
 
 __PACKAGE__->meta->make_immutable;
-
 
 1;
 

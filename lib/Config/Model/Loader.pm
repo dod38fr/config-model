@@ -2,54 +2,50 @@ package Config::Model::Loader;
 
 use Carp;
 use strict;
-use warnings ;
+use warnings;
 use 5.10.1;
 
-use Config::Model::Exception ;
+use Config::Model::Exception;
 use Log::Log4perl qw(get_logger :levels);
 
-my $logger = get_logger("Loader") ;
-
+my $logger = get_logger("Loader");
 
 ## load stuff, similar to grab, but used to set items in the tree
 ## staring from this node
 
 sub new {
-    bless {}, shift ;
+    bless {}, shift;
 }
 
-
 sub load {
-    my $self = shift ;
+    my $self = shift;
 
-    my %args = @_ ;
+    my %args = @_;
 
-    my $node = delete $args{node} ;
+    my $node = delete $args{node};
 
-    croak "load error: missing 'node' parameter" unless defined $node ;
+    croak "load error: missing 'node' parameter" unless defined $node;
 
-    my $step = delete $args{step} ;
-    croak "load error: missing 'step' parameter" unless defined $step ;
+    my $step = delete $args{step};
+    croak "load error: missing 'step' parameter" unless defined $step;
 
-    if (defined $args{permission}) {
-	carp "load: permission parameter is deprecated. Use experience";
+    if ( defined $args{permission} ) {
+        carp "load: permission parameter is deprecated. Use experience";
     }
 
-    my $experience = delete $args{experience} || delete $args{permission} || 'master' ;
-    my $inst = $node->instance ;
+    my $experience = delete $args{experience} || delete $args{permission} || 'master';
+    my $inst = $node->instance;
 
     # tune value checking
     my $check = delete $args{check} || 'yes';
-    croak __PACKAGE__,"load: unexpected check $check" unless $check =~ /yes|no|skip/;
+    croak __PACKAGE__, "load: unexpected check $check" unless $check =~ /yes|no|skip/;
 
     # accept commands
-    my $huge_string = ref $step ? join( ' ', @$step) : $step ;
+    my $huge_string = ref $step ? join( ' ', @$step ) : $step;
 
     # do a split on ' ' but take quoted string into account
-    my @command =
-      (
-       $huge_string =~
-       m/
+    my @command = (
+        $huge_string =~ m/
          (         # begin of *one* command
           (?:        # group parts of a command (e.g ...:...=... )
            [^\s"]+  # match anything but a space and a quote
@@ -65,55 +61,50 @@ sub load {
            ?          # match if I got more than one group
           )+      # can have several parts in one command
          )        # end of *one* command
-        /gx       # 'g' means that all commands are fed into @command array
-       ) ; #"asdf ;
+        /gx    # 'g' means that all commands are fed into @command array
+    );         #"asdf ;
 
     #print "command is ",join('+',@command),"\n" ;
 
-    my $current_node = $node ;
-    my $ret ;
+    my $current_node = $node;
+    my $ret;
     do {
-        $ret = $self->_load($current_node, $check, $experience, \@command,1) ;
-        $logger->debug("_load returned $ret") ;
-        
+        $ret = $self->_load( $current_node, $check, $experience, \@command, 1 );
+        $logger->debug("_load returned $ret");
+
         # found '!' command
-        if ($ret eq 'root') {
-            $logger->debug("Setting current_node to root node") ;
-            $current_node = $current_node->root ;
+        if ( $ret eq 'root' ) {
+            $logger->debug("Setting current_node to root node");
+            $current_node = $current_node->root;
         }
-    } while ($ret eq 'root') ;
+    } while ( $ret eq 'root' );
 
     if (@command) {
-        my $str = "Error: command '@command' was not executed, you may have".
-          " specified too many '-' in your command (ret is $ret)\n" ;
-        Config::Model::Exception::Load
-	    -> throw (
-		      error => $str,
-		      object => $node
-		     ) if $check eq 'yes' ;
+        my $str = "Error: command '@command' was not executed, you may have"
+            . " specified too many '-' in your command (ret is $ret)\n";
+        Config::Model::Exception::Load->throw(
+            error  => $str,
+            object => $node
+        ) if $check eq 'yes';
     }
 
     if (%args) {
-	Config::Model::Exception::Internal->throw (
-	    error => __PACKAGE__." load: unexpected parameters: ".join(', ',keys %args) 
-	);
+        Config::Model::Exception::Internal->throw(
+            error => __PACKAGE__ . " load: unexpected parameters: " . join( ', ', keys %args ) );
     }
 
-    return $ret ;
+    return $ret;
 }
 
 # returns elt action id subaction value
 sub _split_cmd {
-    my $cmd = shift ;
+    my $cmd = shift;
 
-    my $quoted_string = qr/"(?: \\" | [^"] )* "/x;  # quoted string
-
+    my $quoted_string = qr/"(?: \\" | [^"] )* "/x;    # quoted string
 
     # do a split on ' ' but take quoted string into account
-    my @command =
-      (
-       $cmd =~
-       m!^
+    my @command = (
+        $cmd =~ m!^
 	 (\w[\w-]*)? # element name can be alone
 	 (?:
             (:~|:-[=~]?|:=~|:\.\w+|:[=<>@]?|~)       # action
@@ -147,152 +138,157 @@ sub _split_cmd {
             )
 	 )?
          !gx
-       ) ;
+    );
 
-    return wantarray ? @command : \@command ;
+    return wantarray ? @command : \@command;
 }
 
 my %load_dispatch = (
-		     node        => \&_walk_node,
-		     warped_node => \&_walk_node,
-		     hash        => \&_load_hash,
-		     check_list  => \&_load_check_list,
-		     list        => \&_load_list,
-		     leaf        => \&_load_leaf,
-		    ) ;
+    node        => \&_walk_node,
+    warped_node => \&_walk_node,
+    hash        => \&_load_hash,
+    check_list  => \&_load_check_list,
+    list        => \&_load_list,
+    leaf        => \&_load_leaf,
+);
 
 # return 'done', 'root', 'up', 'error'
 sub _load {
-    my ($self, $node, $check, $experience, $cmdref,$at_top_level) = @_ ;
+    my ( $self, $node, $check, $experience, $cmdref, $at_top_level ) = @_;
     $at_top_level ||= 0;
-    my $node_name = "'".$node->name."'" ;
+    my $node_name = "'" . $node->name . "'";
     $logger->debug("_load: called on node $node_name");
 
-    my $inst = $node->instance ;
+    my $inst = $node->instance;
 
-    my $cmd ;
-    while ($cmd = shift @$cmdref) {
-	if ($logger->is_debug) {
-	    my $msg = $cmd ;
-	    $msg =~ s/\n/\\n/g;
-	    $logger->debug("_load: Executing cmd '$msg' on node $node_name");
-	}
+    my $cmd;
+    while ( $cmd = shift @$cmdref ) {
+        if ( $logger->is_debug ) {
+            my $msg = $cmd;
+            $msg =~ s/\n/\\n/g;
+            $logger->debug("_load: Executing cmd '$msg' on node $node_name");
+        }
 
-        next if $cmd =~ /^\s*$/ ;
+        next if $cmd =~ /^\s*$/;
 
-        if ($cmd eq '!') {
-	    $logger->debug("_load: going to root, at_top_level is $at_top_level");
-	    # Do not change current node as we don't want to mess up =~ commands
-	    return 'root' ;
-	}
+        if ( $cmd eq '!' ) {
+            $logger->debug("_load: going to root, at_top_level is $at_top_level");
 
-	if ($cmd eq '-') {
-	    $logger->debug("_load: going up");
-	    return 'up';
-	}
+            # Do not change current node as we don't want to mess up =~ commands
+            return 'root';
+        }
 
-	my @instructions = _split_cmd($cmd);
-	my ($element_name,$action,$function_param,$id,$subaction,$value,$note) = @instructions ;
+        if ( $cmd eq '-' ) {
+            $logger->debug("_load: going up");
+            return 'up';
+        }
 
-	if ($logger->is_debug) {
-	    my @disp = map { defined $_ ? "'$_'" : '<undef>'} @instructions;
-	    $logger->debug("_load instructions: @disp");
-	}
+        my @instructions = _split_cmd($cmd);
+        my ( $element_name, $action, $function_param, $id, $subaction, $value, $note ) =
+            @instructions;
 
-	if (not defined $element_name and not defined $note) {
-	    Config::Model::Exception::Load
-		-> throw (
-			  command => $cmd ,
-			  error => 'Syntax error: cannot find '
-			  .'element in command'
-			 );
-	}
+        if ( $logger->is_debug ) {
+            my @disp = map { defined $_ ? "'$_'" : '<undef>' } @instructions;
+            $logger->debug("_load instructions: @disp");
+        }
 
-        unless (defined $node) {
-	    Config::Model::Exception::Load
-		-> throw (
-			  command => $cmd ,
-			  error => "Error: Got undefined node"
-			 );
-	}
+        if ( not defined $element_name and not defined $note ) {
+            Config::Model::Exception::Load->throw(
+                command => $cmd,
+                error   => 'Syntax error: cannot find ' . 'element in command'
+            );
+        }
 
-        unless (   $node->isa("Config::Model::Node")
-		or $node->isa("Config::Model::WarpedNode")) {
-	    Config::Model::Exception::Load
-		-> throw (
-			  command => $cmd ,
-			  error => "Error: Expected a node (even a warped node), got '"
-			  .$node -> name. "'"
-			 );
-	    # below, has_element method from WarpedNode will raise
-	    # exception if warped_node is not available
-	}
+        unless ( defined $node ) {
+            Config::Model::Exception::Load->throw(
+                command => $cmd,
+                error   => "Error: Got undefined node"
+            );
+        }
 
-	if (not defined $element_name and defined $note) {
-	    $node->annotation($note);
-	    next ;
-	}
+        unless ( $node->isa("Config::Model::Node")
+            or $node->isa("Config::Model::WarpedNode") ) {
+            Config::Model::Exception::Load->throw(
+                command => $cmd,
+                error   => "Error: Expected a node (even a warped node), got '" . $node->name . "'"
+            );
 
-        unless ($node->has_element($element_name)) {
-            Config::Model::Exception::UnknownElement
-		-> throw (
-			  object => $node,
-			  element => $element_name,
-			 ) if $check eq 'yes';
-            unshift @$cmdref,$cmd ;
-            return 'error' ;
-	}
+            # below, has_element method from WarpedNode will raise
+            # exception if warped_node is not available
+        }
 
-        unless ($node->is_element_available(name => $element_name,
-					    experience => 'master')) {
-	    Config::Model::Exception::UnavailableElement
-		-> throw (
-			  object => $node,
-			  element => $element_name
-			 ) if $check eq 'yes';
-            unshift @$cmdref,$cmd ;
+        if ( not defined $element_name and defined $note ) {
+            $node->annotation($note);
+            next;
+        }
+
+        unless ( $node->has_element($element_name) ) {
+            Config::Model::Exception::UnknownElement->throw(
+                object  => $node,
+                element => $element_name,
+            ) if $check eq 'yes';
+            unshift @$cmdref, $cmd;
             return 'error';
-	}
-
-        unless ($node->is_element_available(name => $element_name,
-					    experience => $experience)) {
-            Config::Model::Exception::RestrictedElement
-		-> throw (
-			  object => $node,
-			  element => $element_name,
-			  level => $experience,
-			 ) if $check eq 'yes';
-            unshift @$cmdref,$cmd ;
-            return 'error' ;
-	}
-
-	my $element_type = $node -> element_type($element_name) ;
-
-	my $method = $load_dispatch{$element_type} ;
-
-	croak "_load: unexpected element type '$element_type' for $element_name"
-	  unless defined $method ;
-
-	$logger->debug("_load: calling $element_type loader on element $element_name") ;
-	my $ret = $self->$method($node, $check,$experience, \@instructions,$cmdref) ;
-        die "Internal error: method dispatched for $element_type returned an undefined value " unless defined $ret;
-
-	if ($ret eq 'error' or $ret eq 'done') { 
-	    $logger->debug("_load return: $node_name got $ret");
-            return $ret; 
         }
-	if ($ret eq 'root' and not $at_top_level) {
+
+        unless (
+            $node->is_element_available(
+                name       => $element_name,
+                experience => 'master'
+            )
+            ) {
+            Config::Model::Exception::UnavailableElement->throw(
+                object  => $node,
+                element => $element_name
+            ) if $check eq 'yes';
+            unshift @$cmdref, $cmd;
+            return 'error';
+        }
+
+        unless (
+            $node->is_element_available(
+                name       => $element_name,
+                experience => $experience
+            )
+            ) {
+            Config::Model::Exception::RestrictedElement->throw(
+                object  => $node,
+                element => $element_name,
+                level   => $experience,
+            ) if $check eq 'yes';
+            unshift @$cmdref, $cmd;
+            return 'error';
+        }
+
+        my $element_type = $node->element_type($element_name);
+
+        my $method = $load_dispatch{$element_type};
+
+        croak "_load: unexpected element type '$element_type' for $element_name"
+            unless defined $method;
+
+        $logger->debug("_load: calling $element_type loader on element $element_name");
+        my $ret = $self->$method( $node, $check, $experience, \@instructions, $cmdref );
+        die "Internal error: method dispatched for $element_type returned an undefined value "
+            unless defined $ret;
+
+        if ( $ret eq 'error' or $ret eq 'done' ) {
             $logger->debug("_load return: $node_name got $ret");
-            return 'root' ;
+            return $ret;
         }
-	# ret eq up or ok -> go on with the loop
+        if ( $ret eq 'root' and not $at_top_level ) {
+            $logger->debug("_load return: $node_name got $ret");
+            return 'root';
+        }
+
+        # ret eq up or ok -> go on with the loop
     }
 
-    return 'done' ;
+    return 'done';
 }
 
 sub _load_note {
-    my ( $self, $target_obj, $note, $instructions, $cmdref) = @_;
+    my ( $self, $target_obj, $note, $instructions, $cmdref ) = @_;
 
     unquote($note);
 
@@ -305,85 +301,85 @@ sub _load_note {
             Config::Model::Exception::Load->throw(
                 command => $$cmdref,
                 error   => "Error: cannot set annotation with '"
-                  . join( "','", grep { defined $_ } @$instructions ) . "'"
+                    . join( "','", grep { defined $_ } @$instructions ) . "'"
             );
         }
     }
 }
 
-
 sub _walk_node {
-    my ($self,$node, $check,$experience,$inst,$cmdref) = @_ ;
+    my ( $self, $node, $check, $experience, $inst, $cmdref ) = @_;
 
-    my $element_name = shift @$inst ;
-    my $note = pop @$inst ;
-    my $element = $node -> fetch_element($element_name) ;
-    $self->_load_note($element, $note, $inst, $cmdref);
+    my $element_name = shift @$inst;
+    my $note         = pop @$inst;
+    my $element      = $node->fetch_element($element_name);
+    $self->_load_note( $element, $note, $inst, $cmdref );
 
-    my @left = grep {defined $_} @$inst ;
+    my @left = grep { defined $_ } @$inst;
     if (@left) {
-	Config::Model::Exception::Load
-	    -> throw (
-		      command => $inst,
-		      error => "Don't know what to do with '@left' ".
-		      "for node element " . $element -> element_name
-		     ) ;
+        Config::Model::Exception::Load->throw(
+            command => $inst,
+            error   => "Don't know what to do with '@left' "
+                . "for node element "
+                . $element->element_name
+        );
     }
 
-    $logger->info("Opening node element ", $element->name);
+    $logger->info( "Opening node element ", $element->name );
 
-    return $self->_load($element, $check, $experience, $cmdref);
+    return $self->_load( $element, $check, $experience, $cmdref );
 }
 
 sub unquote {
-    map { s/^"// && s/"$// && s!\\"!"!g if defined $_;  } @_ ;
+    map { s/^"// && s/"$// && s!\\"!"!g if defined $_; } @_;
 }
 
 sub _load_check_list {
-    my ($self,$node, $check,$experience,$inst,$cmdref) = @_ ;
-    my ($element_name,$action,$f_arg,$id,$subaction,$value,$note) = @$inst ;
+    my ( $self, $node, $check, $experience, $inst, $cmdref ) = @_;
+    my ( $element_name, $action, $f_arg, $id, $subaction, $value, $note ) = @$inst;
 
-    my $element = $node -> fetch_element(name => $element_name, check => $check) ;
+    my $element = $node->fetch_element( name => $element_name, check => $check );
 
-    if (defined $note and not defined $action and not defined $subaction) {
-        $self->_load_note($element, $note, $inst, $cmdref);
-	return 'ok';
+    if ( defined $note and not defined $action and not defined $subaction ) {
+        $self->_load_note( $element, $note, $inst, $cmdref );
+        return 'ok';
     }
 
-    if (defined $subaction and $subaction eq '=') {
-	$logger->debug("_load_check_list: set whole list");
-	# valid for check_list or list
-	$logger->info("Setting check_list element ",$element->name, " with value ",$value );
-	$element->load( $value , check => $check) ;
-        $self->_load_note($element, $note, $inst, $cmdref);
-	return 'ok';
+    if ( defined $subaction and $subaction eq '=' ) {
+        $logger->debug("_load_check_list: set whole list");
+
+        # valid for check_list or list
+        $logger->info( "Setting check_list element ", $element->name, " with value ", $value );
+        $element->load( $value, check => $check );
+        $self->_load_note( $element, $note, $inst, $cmdref );
+        return 'ok';
     }
 
-    if (not defined $action and defined $subaction ) {
-	Config::Model::Exception::Load -> throw (
-            object => $element,
-            command => join('',grep (defined $_,@$inst)) ,
-            error => "Wrong assignment with '$subaction' on check_list"
-        ) ;
+    if ( not defined $action and defined $subaction ) {
+        Config::Model::Exception::Load->throw(
+            object  => $element,
+            command => join( '', grep ( defined $_, @$inst ) ),
+            error   => "Wrong assignment with '$subaction' on check_list"
+        );
     }
 
-    my $a_str = defined $action ? $action : '<undef>' ;
+    my $a_str = defined $action ? $action : '<undef>';
 
-    Config::Model::Exception::Load -> throw (
-        object => $element,
-	command =>  join ( '', map { $_ || '' } @$inst ),
-	error => "Wrong assignment with '$a_str' on check_list"
-    ) ;
+    Config::Model::Exception::Load->throw(
+        object  => $element,
+        command => join( '', map { $_ || '' } @$inst ),
+        error   => "Wrong assignment with '$a_str' on check_list"
+    );
 
 }
 
 my %dispatch_action = (
     list_leaf => {
-        ':.sort'    => sub{$_[1]->sort;},
-        ':.push'    => sub{$_[1]->push(@_[4 .. $#_]);},
-        ':.unshift' => sub{$_[1]->unshift(@_[4 .. $#_]);},
-        ':.insert_at' => sub{$_[1]->insert_at(@_[4 .. $#_]);},
-        ':.insort' => sub{$_[1]->insort(@_[4 .. $#_]);},
+        ':.sort'          => sub { $_[1]->sort; },
+        ':.push'          => sub { $_[1]->push( @_[ 4 .. $#_ ] ); },
+        ':.unshift'       => sub { $_[1]->unshift( @_[ 4 .. $#_ ] ); },
+        ':.insert_at'     => sub { $_[1]->insert_at( @_[ 4 .. $#_ ] ); },
+        ':.insort'        => sub { $_[1]->insort( @_[ 4 .. $#_ ] ); },
         ':.insert_before' => \&_insert_before,
     },
     leaf => {
@@ -393,37 +389,34 @@ my %dispatch_action = (
     },
     fallback => {
         ':-' => \&_remove_by_id,
-        '~' => \&_remove_by_id,
-    }
-) ;
+        '~'  => \&_remove_by_id,
+    } );
 
 my @equiv = qw/:@ :.sort :< :.push :> :.unshift/;
 while (@equiv) {
-    my ($to,$from) = splice @equiv,0,2;
-    $dispatch_action{list_leaf}{$to} = $dispatch_action{list_leaf}{$from} ;
+    my ( $to, $from ) = splice @equiv, 0, 2;
+    $dispatch_action{list_leaf}{$to} = $dispatch_action{list_leaf}{$from};
 }
 
 sub _insert_before {
-    my ($self,$element,$check, $inst,$before_str, @values) = @_ ;
-    my $before = $before_str =~ m!^/! ? eval "qr$before_str" : $before_str ;
-    $element->insert_before($before, @values) ;
+    my ( $self, $element, $check, $inst, $before_str, @values ) = @_;
+    my $before = $before_str =~ m!^/! ? eval "qr$before_str" : $before_str;
+    $element->insert_before( $before, @values );
 }
-
 
 sub _remove_by_id {
-    my ($self,$element,$check, $inst,$id) = @_ ;
+    my ( $self, $element, $check, $inst, $id ) = @_;
     $logger->debug("_remove_by_id: removing id $id");
-    $element->remove($id) ;
-    return 'ok' ;
+    $element->remove($id);
+    return 'ok';
 }
 
-
 sub _remove_by_value {
-    my ($self,$element,$check,$inst,$rm_val) = @_ ;
+    my ( $self, $element, $check, $inst, $rm_val ) = @_;
 
     $logger->debug("_remove_by_value value $rm_val");
-    foreach my $idx ($element->fetch_all_indexes) {
-        my $v = $element->fetch_with_id($idx)->fetch ;
+    foreach my $idx ( $element->fetch_all_indexes ) {
+        my $v = $element->fetch_with_id($idx)->fetch;
         $element->delete($idx) if defined $v and $v eq $rm_val;
     }
 
@@ -431,14 +424,14 @@ sub _remove_by_value {
 }
 
 sub _remove_matched_value {
-    my ($self,$element,$check,$inst,$rm_val) = @_ ;
+    my ( $self, $element, $check, $inst, $rm_val ) = @_;
 
     $logger->debug("_remove_matched_value $rm_val");
 
-    $rm_val =~ s!^/|/$!!g ;
+    $rm_val =~ s!^/|/$!!g;
 
-    foreach my $idx ($element->fetch_all_indexes) {
-        my $v = $element->fetch_with_id($idx)->fetch ;
+    foreach my $idx ( $element->fetch_all_indexes ) {
+        my $v = $element->fetch_with_id($idx)->fetch;
         $element->delete($idx) if defined $v and $v =~ /$rm_val/;
     }
 
@@ -446,63 +439,67 @@ sub _remove_matched_value {
 }
 
 sub _substitute_value {
-    my ($self,$element,$check,$inst,$s_val) = @_ ;
+    my ( $self, $element, $check, $inst, $s_val ) = @_;
 
     $logger->debug("_substitute_value $s_val");
 
-    foreach my $idx ($element->fetch_all_indexes) {
-        my $l = $element->fetch_with_id($idx) ;
-        $self->_load_value($l,$check,'=~',$s_val,$inst) ;
+    foreach my $idx ( $element->fetch_all_indexes ) {
+        my $l = $element->fetch_with_id($idx);
+        $self->_load_value( $l, $check, '=~', $s_val, $inst );
     }
 
     return 'ok';
 }
 
-
 sub _load_list {
-    my ($self,$node, $check,$experience,$inst,$cmdref) = @_ ;
-    my ($element_name,$action,$f_arg,$id,$subaction,$value,$note) = @$inst ;
+    my ( $self, $node, $check, $experience, $inst, $cmdref ) = @_;
+    my ( $element_name, $action, $f_arg, $id, $subaction, $value, $note ) = @$inst;
 
-    my $element = $node -> fetch_element(name => $element_name, check => $check) ;
+    my $element = $node->fetch_element( name => $element_name, check => $check );
 
-    my @f_args = grep { defined } (($f_arg // $id // '') =~ /([^,"]+)|"([^"]+)"/g );
+    my @f_args = grep { defined } ( ( $f_arg // $id // '' ) =~ /([^,"]+)|"([^"]+)"/g );
 
-    my $elt_type   = $node -> element_type( $element_name ) ;
-    my $cargo_type = $element->cargo_type ;
+    my $elt_type   = $node->element_type($element_name);
+    my $cargo_type = $element->cargo_type;
 
-    if (defined $note and not defined $action and not defined $subaction) {
-        $self->_load_note($element, $note, $inst, $cmdref);
-	return 'ok';
+    if ( defined $note and not defined $action and not defined $subaction ) {
+        $self->_load_note( $element, $note, $inst, $cmdref );
+        return 'ok';
     }
 
-    if (defined $action and $action eq ':=' and $cargo_type eq 'leaf' ) {
-	$logger->debug("_load_list: set whole list with ':=' action");
-	# valid for check_list or list
-	$logger->info("Setting $elt_type element ",$element->name, " with '$id'");
-	$element->load( $id , check => $check) ;
-        $self->_load_note($element, $note, $inst, $cmdref);
-	return 'ok';
+    if ( defined $action and $action eq ':=' and $cargo_type eq 'leaf' ) {
+        $logger->debug("_load_list: set whole list with ':=' action");
+
+        # valid for check_list or list
+        $logger->info( "Setting $elt_type element ", $element->name, " with '$id'" );
+        $element->load( $id, check => $check );
+        $self->_load_note( $element, $note, $inst, $cmdref );
+        return 'ok';
     }
 
     # compat mode for list=a,b,c,d commands
-    if (not defined $action and defined $subaction and $subaction eq '=' and $cargo_type eq 'leaf' ) {
-	$logger->debug("_load_list: set whole list with '=' subaction'" );
-	# valid for check_list or list
-	$logger->info("Setting $elt_type element ",$element->name, " with '$value'");
-	$element->load( $value , check => $check) ;
-        $self->_load_note($element, $note, $inst, $cmdref);
-	return 'ok';
+    if (    not defined $action
+        and defined $subaction
+        and $subaction eq '='
+        and $cargo_type eq 'leaf' ) {
+        $logger->debug("_load_list: set whole list with '=' subaction'");
+
+        # valid for check_list or list
+        $logger->info( "Setting $elt_type element ", $element->name, " with '$value'" );
+        $element->load( $value, check => $check );
+        $self->_load_note( $element, $note, $inst, $cmdref );
+        return 'ok';
     }
 
-    unquote($id,$value,$note);
+    unquote( $id, $value, $note );
 
-    if (defined $action) {
-        my $dispatch
-            = $dispatch_action{'list_'.$cargo_type}{$action}
+    if ( defined $action ) {
+        my $dispatch =
+               $dispatch_action{ 'list_' . $cargo_type }{$action}
             || $dispatch_action{$cargo_type}{$action}
             || $dispatch_action{'fallback'}{$action};
         if ($dispatch) {
-            $dispatch->($self,$element,$check, $inst, @f_args) ;
+            $dispatch->( $self, $element, $check, $inst, @f_args );
             return 'ok';
         }
     }
@@ -512,189 +509,187 @@ sub _load_list {
             object  => $element,
             command => join( '', grep ( defined $_, @$inst ) ),
             error   => "Wrong assignment with '$subaction' on "
-              . "element type: $elt_type, cargo_type: $cargo_type"
+                . "element type: $elt_type, cargo_type: $cargo_type"
         );
     }
 
-    if (defined $action and $action eq ':') {
+    if ( defined $action and $action eq ':' ) {
         unquote($id);
-	my $obj = $element->fetch_with_id(index => $id, check => $check) ;
-        $self->_load_note($obj, $note, $inst, $cmdref);
+        my $obj = $element->fetch_with_id( index => $id, check => $check );
+        $self->_load_note( $obj, $note, $inst, $cmdref );
 
-	if ($cargo_type =~ /node/) {
-	    # remove possible leading or trailing quote
-	    $logger->debug("_load_list: calling _load on node id $id");
-	    return $self->_load($obj, $check, $experience, $cmdref);
-	}
+        if ( $cargo_type =~ /node/ ) {
 
-	return 'ok' unless defined $subaction ;
+            # remove possible leading or trailing quote
+            $logger->debug("_load_list: calling _load on node id $id");
+            return $self->_load( $obj, $check, $experience, $cmdref );
+        }
 
-	if ($cargo_type =~ /leaf/) {
-	    $logger->debug("_load_list: calling _load_value on $cargo_type id $id");
-	    $self->_load_value($obj,$check,$subaction,$value)
-	      and return 'ok';
-	}
+        return 'ok' unless defined $subaction;
+
+        if ( $cargo_type =~ /leaf/ ) {
+            $logger->debug("_load_list: calling _load_value on $cargo_type id $id");
+            $self->_load_value( $obj, $check, $subaction, $value )
+                and return 'ok';
+        }
     }
 
-    my $a_str = defined $action ? $action : '<undef>' ;
+    my $a_str = defined $action ? $action : '<undef>';
 
-    Config::Model::Exception::Load
-	-> throw (
-		  object => $element,
-		  command =>  join ( '', map { $_ || '' } @$inst ),
-		  error => "Wrong assignment with '$a_str' on "
-		  ."element type: $elt_type, cargo_type: $cargo_type"
-		 ) ;
+    Config::Model::Exception::Load->throw(
+        object  => $element,
+        command => join( '', map { $_ || '' } @$inst ),
+        error   => "Wrong assignment with '$a_str' on "
+            . "element type: $elt_type, cargo_type: $cargo_type"
+    );
 
 }
 
-
 sub _load_hash {
-    my ($self,$node,$check,$experience,$inst,$cmdref) = @_ ;
-    my ($element_name,$action,$f_arg,$id,$subaction,$value,$note) = @$inst ;
+    my ( $self, $node, $check, $experience, $inst, $cmdref ) = @_;
+    my ( $element_name, $action, $f_arg, $id, $subaction, $value, $note ) = @$inst;
 
-    unquote($id,$value,$note);
+    unquote( $id, $value, $note );
 
-    my $element = $node -> fetch_element(name => $element_name, check => $check ) ;
-    my $cargo_type = $element->cargo_type ;
+    my $element = $node->fetch_element( name => $element_name, check => $check );
+    my $cargo_type = $element->cargo_type;
 
-    if (defined $note and not defined $action) {
-        $self->_load_note($element, $note, $inst, $cmdref);
-	return 'ok';
+    if ( defined $note and not defined $action ) {
+        $self->_load_note( $element, $note, $inst, $cmdref );
+        return 'ok';
     }
 
     if ( not defined $action ) {
         Config::Model::Exception::Load->throw(
             object  => $element,
             command => join( '', map { $_ || '' } @$inst ),
-            error   => "Missing assignment on "
-              . "element type: hash, cargo_type: $cargo_type"
+            error   => "Missing assignment on " . "element type: hash, cargo_type: $cargo_type"
         );
     }
 
-    if ($action eq ':~') {
-	my @keys = $element->fetch_all_indexes;
-	my $ret = 'ok';
-	$logger->debug("_load_hash: looping with regex $id on keys @keys");
-	$id =~ s!^/!!;
-	$id =~ s!/$!! ;
-	my @saved_cmd = @$cmdref ;
-	foreach my $loop_id (grep /$id/,@keys) {
-	    @$cmdref = @saved_cmd ; # restore command before loop
-	    $logger->debug("_load_hash: loop on id $loop_id");
-	    my $sub_elt =  $element->fetch_with_id($loop_id) ;
-	    if ($cargo_type =~ /node/) {
-		# remove possible leading or trailing quote
-		$ret = $self->_load($sub_elt, $check,$experience, $cmdref);
-	    }
-	    elsif ($cargo_type =~ /leaf/) {
-		$ret = $self->_load_value($sub_elt,$check,$subaction,$value) ;
-	    }
-	    else {
-		Config::Model::Exception::Load
-		    -> throw (
-			      object => $element,
-			      command => join('',@$inst) ,
-			      error => "Hash assignment with '$action' on unexpected "
-			      ."cargo_type: $cargo_type"
-			     ) ;
-	    }
+    if ( $action eq ':~' ) {
+        my @keys = $element->fetch_all_indexes;
+        my $ret  = 'ok';
+        $logger->debug("_load_hash: looping with regex $id on keys @keys");
+        $id =~ s!^/!!;
+        $id =~ s!/$!!;
+        my @saved_cmd = @$cmdref;
+        foreach my $loop_id ( grep /$id/, @keys ) {
+            @$cmdref = @saved_cmd;    # restore command before loop
+            $logger->debug("_load_hash: loop on id $loop_id");
+            my $sub_elt = $element->fetch_with_id($loop_id);
+            if ( $cargo_type =~ /node/ ) {
 
-	    if ($ret eq 'error' or $ret eq 'root') { return $ret; }
-	}
-	return $ret ;
+                # remove possible leading or trailing quote
+                $ret = $self->_load( $sub_elt, $check, $experience, $cmdref );
+            }
+            elsif ( $cargo_type =~ /leaf/ ) {
+                $ret = $self->_load_value( $sub_elt, $check, $subaction, $value );
+            }
+            else {
+                Config::Model::Exception::Load->throw(
+                    object  => $element,
+                    command => join( '', @$inst ),
+                    error   => "Hash assignment with '$action' on unexpected "
+                        . "cargo_type: $cargo_type"
+                );
+            }
+
+            if ( $ret eq 'error' or $ret eq 'root' ) { return $ret; }
+        }
+        return $ret;
     }
 
-    if (defined $action) {
-        my $dispatch
-            = $dispatch_action{'hash_'.$cargo_type}{$action}
+    if ( defined $action ) {
+        my $dispatch =
+               $dispatch_action{ 'hash_' . $cargo_type }{$action}
             || $dispatch_action{$cargo_type}{$action}
             || $dispatch_action{'fallback'}{$action};
         if ($dispatch) {
-            $dispatch->($self,$element,$check,$inst,$id) ;
+            $dispatch->( $self, $element, $check, $inst, $id );
             return 'ok';
         }
     }
 
-    my $obj = $element->fetch_with_id( index => $id , check => $check) ;
-    $self->_load_note($obj, $note, $inst, $cmdref);
+    my $obj = $element->fetch_with_id( index => $id, check => $check );
+    $self->_load_note( $obj, $note, $inst, $cmdref );
 
-    if ($action eq ':' and $cargo_type =~ /node/) {
-	# remove possible leading or trailing quote
-	$logger->debug("_load_hash: calling _load on node $id");
-	if (defined $subaction) {
-            Config::Model::Exception::Load -> throw (
-		object => $element,
-                command => join('',@$inst) ,
-		error => qq!Hash assignment with '$action"$id"$subaction"$value"' on unexpected !
-		      ."cargo_type: $cargo_type"
-            ) ;
-	}
-	return $self->_load($obj,$check, $experience, $cmdref);
+    if ( $action eq ':' and $cargo_type =~ /node/ ) {
+
+        # remove possible leading or trailing quote
+        $logger->debug("_load_hash: calling _load on node $id");
+        if ( defined $subaction ) {
+            Config::Model::Exception::Load->throw(
+                object  => $element,
+                command => join( '', @$inst ),
+                error   => qq!Hash assignment with '$action"$id"$subaction"$value"' on unexpected !
+                    . "cargo_type: $cargo_type"
+            );
+        }
+        return $self->_load( $obj, $check, $experience, $cmdref );
     }
-    elsif ($action eq ':' and defined $subaction and $cargo_type =~ /leaf/) {
-	$logger->debug("_load_hash: calling _load_value on leaf $id");
-	$self->_load_value($obj,$check,$subaction,$value)
-	  and return 'ok';
+    elsif ( $action eq ':' and defined $subaction and $cargo_type =~ /leaf/ ) {
+        $logger->debug("_load_hash: calling _load_value on leaf $id");
+        $self->_load_value( $obj, $check, $subaction, $value )
+            and return 'ok';
     }
-    elsif ($action eq ':' and defined $note) {
-	# action was just to store annotation
-	return 'ok';
+    elsif ( $action eq ':' and defined $note ) {
+
+        # action was just to store annotation
+        return 'ok';
     }
     elsif ($action) {
-	Config::Model::Exception::Load
-	    -> throw (
-		      object => $element,
-                      command => join('', grep { defined $_ } @$inst) ,
-		      error => "Hash assignment with '$action' on unexpected "
-		      ."cargo_type: $cargo_type"
-		     ) ;
+        Config::Model::Exception::Load->throw(
+            object  => $element,
+            command => join( '', grep { defined $_ } @$inst ),
+            error   => "Hash assignment with '$action' on unexpected " . "cargo_type: $cargo_type"
+        );
     }
 }
 
 sub _load_leaf {
-    my ($self,$node,$check,$experience,$inst,$cmdref) = @_ ;
-    my ($element_name,$action,$f_arg,$id,$subaction,$value,$note) = @$inst ;
+    my ( $self, $node, $check, $experience, $inst, $cmdref ) = @_;
+    my ( $element_name, $action, $f_arg, $id, $subaction, $value, $note ) = @$inst;
 
-    unquote($id,$value);
+    unquote( $id, $value );
 
-    my $element = $node -> fetch_element(name => $element_name, check => $check) ;
-    $self->_load_note($element, $note, $inst, $cmdref);
+    my $element = $node->fetch_element( name => $element_name, check => $check );
+    $self->_load_note( $element, $note, $inst, $cmdref );
 
-    if (defined $action and $action eq '~' and $element->isa('Config::Model::Value')) {
+    if ( defined $action and $action eq '~' and $element->isa('Config::Model::Value') ) {
         $logger->debug("_load_leaf: action '$action' deleting value");
-	$element->store(undef) ;
+        $element->store(undef);
     }
 
-    return 'ok' unless defined $subaction ;
+    return 'ok' unless defined $subaction;
 
-    if ($logger->is_debug) {
+    if ( $logger->is_debug ) {
         my $msg = defined $value ? $value : '<undef>';
         $msg =~ s/\n/\\n/g;
         $logger->debug("_load_leaf: action '$subaction' value '$msg'");
     }
 
-    return $self->_load_value($element,$check,$subaction,$value, $inst)
-      or Config::Model::Exception::Load
-	-> throw (
-		  object => $element,
-		  command => $inst ,
-		  error => "Load error on leaf with "
-		  ."'$element_name$subaction$value' command "
-		  ."(element '".$element->name."')"
-		 ) ;
+    return $self->_load_value( $element, $check, $subaction, $value, $inst )
+        or Config::Model::Exception::Load->throw(
+        object  => $element,
+        command => $inst,
+        error   => "Load error on leaf with "
+            . "'$element_name$subaction$value' command "
+            . "(element '"
+            . $element->name . "')"
+        );
 }
 
 sub _load_value {
-    my ($self,$element,$check,$subaction,$value, $inst) = @_ ;
+    my ( $self, $element, $check, $subaction, $value, $inst ) = @_;
 
     $logger->debug("_load_value: action '$subaction' value '$value' check $check");
-    if ($subaction eq '=' and $element->isa('Config::Model::Value')) {
-	$element->store(value => $value, check => $check) ;
+    if ( $subaction eq '=' and $element->isa('Config::Model::Value') ) {
+        $element->store( value => $value, check => $check );
     }
-    elsif ($subaction eq '.=' and $element->isa('Config::Model::Value')) {
-	my $orig = $element->fetch(check => $check) ;
-	$element->store(value => $orig.$value, check => $check) ;
+    elsif ( $subaction eq '.=' and $element->isa('Config::Model::Value') ) {
+        my $orig = $element->fetch( check => $check );
+        $element->store( value => $orig . $value, check => $check );
     }
     elsif ( $subaction eq '=~' and $element->isa('Config::Model::Value') ) {
         my $orig = $element->fetch( check => $check );
@@ -711,12 +706,11 @@ sub _load_value {
         }
     }
     else {
-	return undef ;
+        return undef;
     }
 
-    return 'ok' ;
+    return 'ok';
 }
-
 
 1;
 

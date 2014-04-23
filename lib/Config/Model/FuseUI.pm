@@ -1,294 +1,303 @@
-package Config::Model::FuseUI ;
+package Config::Model::FuseUI;
 
 # there's no Singleton with Mouse
-use Mouse ;
+use Mouse;
 
 use Fuse qw(fuse_get_context);
 use Fcntl ':mode';
 use POSIX qw(ENOENT EISDIR EINVAL);
 use Log::Log4perl qw(get_logger :levels);
-use English qw( -no_match_vars ) ;
+use English qw( -no_match_vars );
 
-has model         => ( is => 'rw', isa => 'Config::Model');
-has root          => ( is => 'ro', isa => 'Config::Model::Node', required => 1 );
-has mountpoint    => ( is => 'ro', isa => 'Str'          , required => 1 );
+has model      => ( is => 'rw', isa => 'Config::Model' );
+has root       => ( is => 'ro', isa => 'Config::Model::Node', required => 1 );
+has mountpoint => ( is => 'ro', isa => 'Str', required => 1 );
 
-my $logger = get_logger("FuseUI") ;
+my $logger = get_logger("FuseUI");
 
-has dir_char_mockup => ( is => 'ro', isa => 'Str', default => '<slash>') ; 
+has dir_char_mockup => ( is => 'ro', isa => 'Str', default => '<slash>' );
 
-our $fuseui ;
-my $dir_char_mockup ;
+our $fuseui;
+my $dir_char_mockup;
 
 sub BUILD {
-    my $self = shift ;
-    croak (__PACKAGE__," singleton constructed twice" )
+    my $self = shift;
+    croak( __PACKAGE__, " singleton constructed twice" )
         if defined $fuseui and $fuseui ne $self;
-    $fuseui = $self ; # store singleton object in global variable
-    $dir_char_mockup = $self->dir_char_mockup ;
+    $fuseui          = $self;                    # store singleton object in global variable
+    $dir_char_mockup = $self->dir_char_mockup;
 }
 
 # nodes, list and hashes are directories
 sub getdir {
-    my $name = shift ;
+    my $name = shift;
     $logger->debug("FuseUI getdir called with $name");
 
-    my $obj = get_object($name) ;
-    return -EINVAL() unless (ref $obj and $obj->can('children')) ;
-    
-    my @c = ('..','.', $obj->children ) ;
-    map { s(/)($dir_char_mockup)g} @c ;
-    $logger->debug("FuseUI getdir return @c , wantarray is ".(wantarray ? 1 : 0) );
-    return ( @c , 0 ) ;
+    my $obj = get_object($name);
+    return -EINVAL() unless ( ref $obj and $obj->can('children') );
+
+    my @c = ( '..', '.', $obj->children );
+    map { s(/)($dir_char_mockup)g } @c;
+    $logger->debug( "FuseUI getdir return @c , wantarray is " . ( wantarray ? 1 : 0 ) );
+    return ( @c, 0 );
 }
 
-my %files ;
+my %files;
 
 sub fetch_as_line {
-    my $obj = shift ; 
-    my $v = $obj->fetch(check => 'no') ;
-    $v = '' unless defined $v ;
-    # let's append a \n so that returned files always have a line ending
-    $v .= "\n" unless $v =~ /\n$/ ;
+    my $obj = shift;
+    my $v = $obj->fetch( check => 'no' );
+    $v = '' unless defined $v;
 
-    return $v ;
+    # let's append a \n so that returned files always have a line ending
+    $v .= "\n" unless $v =~ /\n$/;
+
+    return $v;
 }
 
 sub get_object {
     my $name = shift;
-    return _get_object($name, 0 ) ;
+    return _get_object( $name, 0 );
 }
 
 sub get_or_create_object {
     my $name = shift;
-    return _get_object($name, 1 ) ;
+    return _get_object( $name, 1 );
 }
 
 sub _get_object {
-    my ($name,$autoadd) = @_ ;
-    
+    my ( $name, $autoadd ) = @_;
+
     my $obj = $fuseui->root->get(
-        path => $name, 
-        check => 'skip', 
-        get_obj => 1, 
-        autoadd => $autoadd, 
+        path            => $name,
+        check           => 'skip',
+        get_obj         => 1,
+        autoadd         => $autoadd,
         dir_char_mockup => $dir_char_mockup
-    ) ;
-    $logger->debug("FuseUI _get_object on $name returns ", (defined $obj ? $obj->name : '<undef>'));
-    return $obj ;
-    
+    );
+    $logger->debug( "FuseUI _get_object on $name returns ",
+        ( defined $obj ? $obj->name : '<undef>' ) );
+    return $obj;
+
 }
 
 sub getattr {
-    my $name = shift ;
+    my $name = shift;
     $logger->debug("FuseUI getattr called with $name");
-    my $obj = get_object($name) ;
+    my $obj = get_object($name);
 
-    return -&ENOENT() unless ref $obj ;
+    return -&ENOENT() unless ref $obj;
 
-    my $type = $obj->get_type ;
+    my $type = $obj->get_type;
 
     # return -ENOENT() unless exists($files{$file});
 
-    my $size ;
-    if ($type eq 'leaf' or $type eq 'check_list') { 
-        $size = length (fetch_as_line($obj)) ;
+    my $size;
+    if ( $type eq 'leaf' or $type eq 'check_list' ) {
+        $size = length( fetch_as_line($obj) );
     }
     else {
-        my @c = $obj->children ; 
-        map { s(/)($dir_char_mockup)g} @c ;
-        $size = @c; 
+        my @c = $obj->children;
+        map { s(/)($dir_char_mockup)g } @c;
+        $size = @c;
     }
-    
-    my $mode ;
-    if ($type eq 'leaf' or $type eq 'check_list') {
-        $mode = S_IFREG | 0644  ;
+
+    my $mode;
+    if ( $type eq 'leaf' or $type eq 'check_list' ) {
+        $mode = S_IFREG | 0644;
     }
     else {
-        $mode = S_IFDIR | 0755 ;
+        $mode = S_IFDIR | 0755;
     }
 
-    my ($dev, $ino, $rdev, $blocks, $gid, $uid, $nlink, $blksize) = (0,0,0,1,$EGID,$EUID,1,1024);
-    my ($atime, $ctime, $mtime);
-    $atime = $ctime = $mtime = time ;
-	# 2 possible types of return values:
-	#return -ENOENT(); # or any other error you care to
-	#print(join(",",($dev,$ino,$modes,$nlink,$uid,$gid,$rdev,$size,$atime,$mtime,$ctime,$blksize,$blocks)),"\n");
-    my @r = ($dev,$ino,$mode,$nlink,$uid,$gid,$rdev,$size,$atime,$mtime,$ctime,$blksize,$blocks);
-    $logger->trace("FuseUI getattr returns '".join("','",@r)."'");
+    my ( $dev, $ino, $rdev, $blocks, $gid, $uid, $nlink, $blksize ) =
+        ( 0, 0, 0, 1, $EGID, $EUID, 1, 1024 );
+    my ( $atime, $ctime, $mtime );
+    $atime = $ctime = $mtime = time;
 
-    return @r ;
+# 2 possible types of return values:
+#return -ENOENT(); # or any other error you care to
+#print(join(",",($dev,$ino,$modes,$nlink,$uid,$gid,$rdev,$size,$atime,$mtime,$ctime,$blksize,$blocks)),"\n");
+    my @r = (
+        $dev,  $ino,   $mode,  $nlink, $uid,     $gid, $rdev,
+        $size, $atime, $mtime, $ctime, $blksize, $blocks
+    );
+    $logger->trace( "FuseUI getattr returns '" . join( "','", @r ) . "'" );
+
+    return @r;
 }
 
-
 sub open {
+
     # VFS sanity check; it keeps all the necessary state, not much to do here.
-    my $name = shift ;
+    my $name = shift;
     $logger->debug("FuseUI open called on $name");
-    my $obj = $fuseui->root->get(path => $name, check => 'skip', get_obj => 1) ;
-    my $type = $obj->get_type ;
-    
+    my $obj = $fuseui->root->get( path => $name, check => 'skip', get_obj => 1 );
+    my $type = $obj->get_type;
+
     return -ENOENT() unless defined $obj;
-    return -EISDIR() unless ($type eq 'leaf' or $type eq 'check_list') ;
+    return -EISDIR() unless ( $type eq 'leaf' or $type eq 'check_list' );
     $logger->debug("FuseUI open on $name ok");
     return 0;
 }
 
 sub read {
+
     # return an error numeric, or binary/text string.  (note: 0 means EOF, "0" will
     # give a byte (ascii "0") to the reading program)
-    my ($name,$buf,$off) = @_;
- 
+    my ( $name, $buf, $off ) = @_;
+
     $logger->debug("FuseUI read called on $name");
-    my $obj = get_or_create_object($name) ;
-    my $type = $obj->get_type ;
+    my $obj  = get_or_create_object($name);
+    my $type = $obj->get_type;
 
     return -ENOENT() unless defined $obj;
-    return -EISDIR() unless ($type eq 'leaf' or $type eq 'check_list') ;
-    my $v = fetch_as_line($obj) ;
+    return -EISDIR() unless ( $type eq 'leaf' or $type eq 'check_list' );
+    my $v = fetch_as_line($obj);
 
-    if(not defined $v) {
-	return -EINVAL() if $off > 0;
-        return '' ;
+    if ( not defined $v ) {
+        return -EINVAL() if $off > 0;
+        return '';
     }
 
     return -EINVAL() if $off > length($v);
     return 0 if $off == length($v);
-    my $ret = substr($v,$off,$buf); 
+    my $ret = substr( $v, $off, $buf );
     $logger->debug("FuseUI read returns '$ret'");
-    return "$ret" ;
+    return "$ret";
 }
 
 sub truncate {
-    my ($name,$off) = @_;
+    my ( $name, $off ) = @_;
 
     $logger->debug("FuseUI truncate called on $name with length $off");
-    my $obj = get_or_create_object($name) ;
-    my $type = $obj->get_type ;
+    my $obj  = get_or_create_object($name);
+    my $type = $obj->get_type;
 
     return -ENOENT() unless defined $obj;
-    return -EISDIR() unless ($type eq 'leaf' or $type eq 'check_list') ;
+    return -EISDIR() unless ( $type eq 'leaf' or $type eq 'check_list' );
 
-    my $v = substr fetch_as_line($obj) , 0, $off ;
+    my $v = substr fetch_as_line($obj), 0, $off;
 
-    $logger->debug("FuseUI truncate stores '$v' of length ",length($v));
+    $logger->debug( "FuseUI truncate stores '$v' of length ", length($v) );
+
     # store the value without any check. Check will be done in write()
     # the second parameter will trigger a notif_change.
-    $obj->_store_value( $v, 1 ) ;
-    return 0 ;
+    $obj->_store_value( $v, 1 );
+    return 0;
 }
 
 sub write {
-    my ($name,$buf,$off) = @_;
+    my ( $name, $buf, $off ) = @_;
 
-    if ($logger->is_debug) {
-        my $str = $buf ;
+    if ( $logger->is_debug ) {
+        my $str = $buf;
         $str =~ s/\n/\\n/g;
         $logger->debug("FuseUI write called on $name with '$str' offset $off");
     }
-    
-    my $obj = get_or_create_object($name) ;
-    my $type = $obj->get_type ;
+
+    my $obj  = get_or_create_object($name);
+    my $type = $obj->get_type;
 
     return -ENOENT() unless defined $obj;
-    return -EISDIR() unless ($type eq 'leaf' or $type eq 'check_list') ;
+    return -EISDIR() unless ( $type eq 'leaf' or $type eq 'check_list' );
 
     my $v = fetch_as_line($obj);
     $logger->debug("FuseUI write starts with '$v'");
 
-    substr $v,$off,length($buf),$buf ;
-    chomp $v unless ($type eq 'leaf' and $obj->value_type eq 'string') ;
+    substr $v, $off, length($buf), $buf;
+    chomp $v unless ( $type eq 'leaf' and $obj->value_type eq 'string' );
     $logger->debug("FuseUI write stores '$v'");
-    $obj->store(value => $v ) ;
-    return length($buf) ;
+    $obj->store( value => $v );
+    return length($buf);
 }
 
 sub mkdir {
+
     # return an error numeric, or binary/text string.  (note: 0 means EOF, "0" will
     # give a byte (ascii "0") to the reading program)
-    my ($name,$mode) = @_;
- 
+    my ( $name, $mode ) = @_;
+
     $logger->debug("FuseUI mkdir called on $name with mode $mode");
-    my $obj = get_or_create_object($name) ;
+    my $obj = get_or_create_object($name);
     return -ENOENT() unless defined $obj;
 
-    my $type = $obj->container_type ;
-    return -ENOENT() unless ($type eq 'list' or $type eq 'hash') ;
+    my $type = $obj->container_type;
+    return -ENOENT() unless ( $type eq 'list' or $type eq 'hash' );
 
-    return 0 ;
+    return 0;
 }
 
 sub rmdir {
+
     # return an error numeric, or binary/text string.  (note: 0 means EOF, "0" will
     # give a byte (ascii "0") to the reading program)
     my ($name) = @_;
- 
+
     $logger->debug("FuseUI rmdir called on $name");
-    my $obj = get_object($name) ;
+    my $obj = get_object($name);
     return -ENOENT() unless defined $obj;
 
-    my $type = $obj->get_type ;
-    return -ENOENT() if ($type eq 'leaf' or $type eq 'check_list') ;
+    my $type = $obj->get_type;
+    return -ENOENT() if ( $type eq 'leaf' or $type eq 'check_list' );
 
-    my $ct = $obj->container_type ;
-    my $elt_name = $obj->element_name ;
-    my $parent = $obj->parent ;
-    
-    if ($ct eq 'list' or $ct eq 'hash') {
-        my $idx = $obj->index_value ;
+    my $ct       = $obj->container_type;
+    my $elt_name = $obj->element_name;
+    my $parent   = $obj->parent;
+
+    if ( $ct eq 'list' or $ct eq 'hash' ) {
+        my $idx = $obj->index_value;
         $logger->debug("FuseUI rmdir actually deletes $idx");
-        $parent->fetch_element($elt_name)->delete($idx) ;
+        $parent->fetch_element($elt_name)->delete($idx);
     }
-    
+
     # ignore deletion request for other "non deletable" elements
 
-    return 0 ;
+    return 0;
 }
 
 sub unlink {
     my ($name) = @_;
 
     $logger->debug("FuseUI unlink called on $name");
-    my $obj = get_object($name) ;
-    my $type = $obj->get_type ;
+    my $obj  = get_object($name);
+    my $type = $obj->get_type;
 
     return -ENOENT() unless defined $obj;
-    return -EISDIR() unless ($type eq 'leaf' or $type eq 'check_list') ;
-    
-    my $ct = $obj->container_type ;
-    my $elt_name = $obj->element_name ;
-    my $parent = $obj->parent ;
-    
-    if ($ct eq 'list' or $ct eq 'hash') {
-        my $idx = $obj->index_value ;
+    return -EISDIR() unless ( $type eq 'leaf' or $type eq 'check_list' );
+
+    my $ct       = $obj->container_type;
+    my $elt_name = $obj->element_name;
+    my $parent   = $obj->parent;
+
+    if ( $ct eq 'list' or $ct eq 'hash' ) {
+        my $idx = $obj->index_value;
         $logger->debug("FuseUI unlink actually deletes $idx");
-        $parent->fetch_element($elt_name)->delete($name) ;
+        $parent->fetch_element($elt_name)->delete($name);
     }
-    
+
     # ignore deletion request for other "non deletable" elements
 
-    return 0 ;
+    return 0;
 }
- 
-
 
 sub statfs { return 255, 1, 1, 1, 1, 2 }
 
-my @methods = map { ( $_ => __PACKAGE__."::$_" ) } 
-    qw/getattr getdir open read write statfs truncate unlink mkdir rmdir/ ;
+my @methods = map { ( $_ => __PACKAGE__ . "::$_" ) }
+    qw/getattr getdir open read write statfs truncate unlink mkdir rmdir/;
 
-# FIXME: flush release 
+# FIXME: flush release
 # maybe also: readlink mknod symlink rename link chmod chown utime
 
 sub run_loop {
-    my ($self,%args) = @_ ;
-    my $debug = $args{debug} || 0 ;
+    my ( $self, %args ) = @_;
+    my $debug = $args{debug} || 0;
 
     Fuse::main(
         mountpoint => $self->mountpoint,
-        @methods ,
-        debug    => $debug || 0,
-        threaded => 0 ,
+        @methods,
+        debug => $debug || 0,
+        threaded => 0,
     );
 }
 

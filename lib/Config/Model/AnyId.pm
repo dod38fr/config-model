@@ -1,10 +1,10 @@
-package Config::Model::AnyId ;
+package Config::Model::AnyId;
 
-use Mouse ;
+use Mouse;
 use namespace::autoclean;
 
-use Config::Model::Exception ;
-use Config::Model::Warper ;
+use Config::Model::Exception;
+use Config::Model::Warper;
 use Carp qw/cluck croak carp/;
 use Log::Log4perl qw(get_logger :levels);
 use Storable qw/dclone/;
@@ -12,139 +12,132 @@ use Mouse::Util::TypeConstraints;
 
 extends qw/Config::Model::AnyThing/;
 
-my $logger = get_logger("Tree::Element::Id") ;
+my $logger = get_logger("Tree::Element::Id");
 
-enum 'DataMode' =>  [qw/preset layered normal/];
+enum 'DataMode' => [qw/preset layered normal/];
 
-has data_mode => ( 
-    is => 'rw', 
-    isa => 'HashRef[DataMode]' , 
-    traits => ['Hash'] ,
+has data_mode => (
+    is      => 'rw',
+    isa     => 'HashRef[DataMode]',
+    traits  => ['Hash'],
     handles => {
-        get_data_mode => 'get' ,
-        set_data_mode => 'set' ,
-        delete_data_mode => 'delete' ,
-        clear_data_mode => 'clear' ,
+        get_data_mode    => 'get',
+        set_data_mode    => 'set',
+        delete_data_mode => 'delete',
+        clear_data_mode  => 'clear',
     },
-    default => sub { {} ;} 
-) ;
+    default => sub { {}; } );
 
 # Some idea for improvement
 
 # suggest => 'foo' or '$bar foo'
 # creates a method analog to next_id (or next_id but I need to change
 # run_user_command) that suggest the next id as foo_<nb> where
-# nb is incremented each time, or compute the passed formula 
+# nb is incremented each time, or compute the passed formula
 # and performs the same
 
-my @common_int_params  = qw/min_index max_index max_nb auto_create_ids/;
-has \@common_int_params => (is => 'ro', isa => 'Maybe[Int]') ;
+my @common_int_params = qw/min_index max_index max_nb auto_create_ids/;
+has \@common_int_params => ( is => 'ro', isa => 'Maybe[Int]' );
 
 my @common_hash_params = qw/default_with_init/;
-has \@common_hash_params => (is => 'ro', isa => 'Maybe[HashRef]') ;
+has \@common_hash_params => ( is => 'ro', isa => 'Maybe[HashRef]' );
 
 my @common_list_params = qw/allow_keys default_keys auto_create_keys/;
-has \@common_list_params => (is => 'ro', isa => 'Maybe[ArrayRef]') ;
+has \@common_list_params => ( is => 'ro', isa => 'Maybe[ArrayRef]' );
 
-my @common_str_params  = qw/allow_keys_from allow_keys_matching follow_keys_from 
-                        migrate_keys_from migrate_values_from
-                            duplicates warn_if_key_match warn_unless_key_match/;
-has \@common_str_params => (is => 'ro', isa => 'Maybe[Str]') ;
+my @common_str_params = qw/allow_keys_from allow_keys_matching follow_keys_from
+    migrate_keys_from migrate_values_from
+    duplicates warn_if_key_match warn_unless_key_match/;
+has \@common_str_params => ( is => 'ro', isa => 'Maybe[Str]' );
 
-
-my @common_params = (@common_int_params,@common_str_params, @common_list_params, @common_hash_params);
-my @allowed_warp_params = (@common_params, qw/experience level convert/) ;
+my @common_params =
+    ( @common_int_params, @common_str_params, @common_list_params, @common_hash_params );
+my @allowed_warp_params = ( @common_params, qw/experience level convert/ );
 
 around BUILDARGS => sub {
-    my $orig = shift ;
-    my $class = shift ;
-    my %args =  @_ ;
-    my %h = map { ( $_ => $args{$_}) ;} grep {defined $args{$_}} @allowed_warp_params;
-    return $class->$orig( backup => dclone (\%h), @_ );
-} ;
+    my $orig  = shift;
+    my $class = shift;
+    my %args  = @_;
+    my %h     = map { ( $_ => $args{$_} ); } grep { defined $args{$_} } @allowed_warp_params;
+    return $class->$orig( backup => dclone( \%h ), @_ );
+};
 
-has [qw/backup cargo/] => (is => 'ro', isa => 'HashRef', required => 1 ) ;
-has warp=> (is => 'ro', isa => 'Maybe[HashRef]') ;
-has [qw/morph/] => (is => 'ro', isa => 'Bool' ) ;
-has content_warning_hash => ( is => 'rw', isa => 'HashRef' , default => sub {{} ;} ) ;
-has content_warning_list => ( is => 'rw', isa => 'ArrayRef', default => sub {[] ;} ) ;
-has [qw/config_class_name cargo_class max_index index_class index_type/] 
-    => ( is => 'rw', isa => 'Maybe[Str]') ;
+has [qw/backup cargo/] => ( is => 'ro', isa => 'HashRef', required => 1 );
+has warp => ( is => 'ro', isa => 'Maybe[HashRef]' );
+has [qw/morph/] => ( is => 'ro', isa => 'Bool' );
+has content_warning_hash => ( is => 'rw', isa => 'HashRef',  default => sub { {}; } );
+has content_warning_list => ( is => 'rw', isa => 'ArrayRef', default => sub { []; } );
+has [qw/config_class_name cargo_class max_index index_class index_type/] =>
+    ( is => 'rw', isa => 'Maybe[Str]' );
 
 sub BUILD {
     my $self = shift;
 
-    croak "Missing cargo->type parameter for element ".
-      $self->{element_name} || 'unknown' 
+    croak "Missing cargo->type parameter for element " . $self->{element_name} || 'unknown'
         unless defined $self->cargo->{type};
 
-    if ($self->cargo->{type} eq 'node') {
-        $self->config_class_name( delete $self->cargo->{config_class_name})
-          or croak  "Missing cargo->config_class_name "
-                  . "parameter for element " 
-                  . $self->element_name || 'unknown' ;
+    if ( $self->cargo->{type} eq 'node' ) {
+        $self->config_class_name( delete $self->cargo->{config_class_name} )
+            or croak "Missing cargo->config_class_name "
+            . "parameter for element "
+            . $self->element_name || 'unknown';
     }
-    elsif ($self->{cargo}{type} eq 'hash' or $self->{cargo}{type} eq 'list') {
+    elsif ( $self->{cargo}{type} eq 'hash' or $self->{cargo}{type} eq 'list' ) {
         die "$self->{element_name}: using $self->{cargo}{type} will probably not work";
     }
 
-  
-     $self->set_properties() ;
+    $self->set_properties();
 
-    if (defined $self->warp) {
-        $self->{warper} = Config::Model::Warper->new (
+    if ( defined $self->warp ) {
+        $self->{warper} = Config::Model::Warper->new(
             warped_object => $self,
-            %{$self->warp} ,
+            %{ $self->warp },
             allowed => \@allowed_warp_params
-        ) ;
+        );
     }
 
-    return $self ;
+    return $self;
 }
-
-
 
 # this method can be called by the warp mechanism to alter (warp) the
 # feature of the Id object.
 sub set_properties {
-    my $self= shift;
+    my $self = shift;
 
     # mega cleanup
-    map(delete $self->{$_}, @allowed_warp_params);
+    map( delete $self->{$_}, @allowed_warp_params );
 
-    my %args = (%{$self->{backup}},@_) ;
+    my %args = ( %{ $self->{backup} }, @_ );
 
     # these are handled by Node or Warper
-    map { delete $args{$_} } qw/level experience/ ;
+    map { delete $args{$_} } qw/level experience/;
 
-    $logger->debug($self->name," set_properties called with @_");
+    $logger->debug( $self->name, " set_properties called with @_" );
 
-    map { $self->{$_} =  delete $args{$_} if defined $args{$_} }
-      @common_params ;
-      
-    $self->set_convert        ( \%args ) if defined $args{convert};
+    map { $self->{$_} = delete $args{$_} if defined $args{$_} } @common_params;
 
-    Config::Model::Exception::Model
-        ->throw (
-                 object => $self,
-                 error => "Undefined index_type"
-                ) unless defined $self->{index_type};
+    $self->set_convert( \%args ) if defined $args{convert};
 
-    Config::Model::Exception::Model
-        ->throw (
-                 object => $self,
-                 error => "Unexpected index_type $self->{index_type}"
-                ) unless ($self->{index_type} eq 'integer' or 
-                          $self->{index_type} eq 'string');
+    Config::Model::Exception::Model->throw(
+        object => $self,
+        error  => "Undefined index_type"
+    ) unless defined $self->{index_type};
 
-    my @current_idx = $self->_fetch_all_indexes( );
+    Config::Model::Exception::Model->throw(
+        object => $self,
+        error  => "Unexpected index_type $self->{index_type}"
+        )
+        unless ( $self->{index_type} eq 'integer'
+        or $self->{index_type} eq 'string' );
+
+    my @current_idx = $self->_fetch_all_indexes();
     if (@current_idx) {
-        my $first_idx = shift @current_idx ;
-        my $last_idx  = pop   @current_idx ;
+        my $first_idx = shift @current_idx;
+        my $last_idx  = pop @current_idx;
 
-        foreach my $idx ( ($first_idx, $last_idx)) {
-            my $ok = $self->check_idx($first_idx) ;
-            next if $ok ;
+        foreach my $idx ( ( $first_idx, $last_idx ) ) {
+            my $ok = $self->check_idx($first_idx);
+            next if $ok;
 
             # here a user input may trigger an exception even if fetch
             # or set value check is disabled. That's mostly because,
@@ -155,24 +148,22 @@ sub set_properties {
 
             # Since we cannot choose, we must raise an exception in
             # all cases.
-            Config::Model::Exception::WrongValue 
-                -> throw (
-                          error => "Error while setting id property:".
-                          join("\n\t",@{$self->{idx_error_list}}),
-                          object => $self
-                         ) ;
+            Config::Model::Exception::WrongValue->throw(
+                error => "Error while setting id property:"
+                    . join( "\n\t", @{ $self->{idx_error_list} } ),
+                object => $self
+            );
         }
     }
 
-    $self->auto_create_elements ;
-    
+    $self->auto_create_elements;
+
     if (    defined $self->{duplicates}
         and defined $self->{cargo}
-        and $self->{cargo}{type} ne 'leaf' )
-    {
+        and $self->{cargo}{type} ne 'leaf' ) {
         Config::Model::Exception::Model->throw(
             object => $self,
-            error => "Cannot specify 'duplicates' with cargo type '$self->{cargo}{type}'",
+            error  => "Cannot specify 'duplicates' with cargo type '$self->{cargo}{type}'",
         );
     }
 
@@ -180,43 +171,42 @@ sub set_properties {
     if ( defined $self->{duplicates} and $self->{duplicates} !~ /^$ok_dup$/ ) {
         Config::Model::Exception::Model->throw(
             object => $self,
-            error => "Unexpected 'duplicates' $self->{duplicates} expected $ok_dup",
+            error  => "Unexpected 'duplicates' $self->{duplicates} expected $ok_dup",
         );
     }
 
     # $self->{current} = { level      => $args{level} ,
-                         # experience => $args{experience}
-                       # } ;
+    # experience => $args{experience}
+    # } ;
     #$self->SUPER::set_parent_element_property(\%args) ;
-    
-    Config::Model::Exception::Model ->throw (
-                 object => $self,
-                 error => "Unexpected parameters: ". join(' ', keys %args)
-                ) if scalar keys %args ;
+
+    Config::Model::Exception::Model->throw(
+        object => $self,
+        error  => "Unexpected parameters: " . join( ' ', keys %args ) ) if scalar keys %args;
 }
 
 # # this method will overide setting comings from a value (or maybe a
 # # warped node) with warped settings coming from this warped id. Only
 # # level hidden is forwarded no matter what
 # sub set_parent_element_property {
-    # my $self = shift;
-    # my $arg_ref = shift ;
-# 
-    # my $cur = $self->{current} ;
-# 
-    # # override if necessary
-    # $arg_ref->{experience} = $cur->{experience} 
-      # if defined $cur->{experience} ;
-# 
-    # if (    defined $cur->{level} 
-        # and ( not defined $arg_ref->{level} 
-              # or $arg_ref->{level} ne 'hidden'
-            # )
-       # ) {
-        # $arg_ref->{level} = $cur->{level} ;
-    # }
-# 
-    # $self->SUPER::set_parent_element_property($arg_ref) ;
+# my $self = shift;
+# my $arg_ref = shift ;
+#
+# my $cur = $self->{current} ;
+#
+# # override if necessary
+# $arg_ref->{experience} = $cur->{experience}
+# if defined $cur->{experience} ;
+#
+# if (    defined $cur->{level}
+# and ( not defined $arg_ref->{level}
+# or $arg_ref->{level} ne 'hidden'
+# )
+# ) {
+# $arg_ref->{level} = $cur->{level} ;
+# }
+#
+# $self->SUPER::set_parent_element_property($arg_ref) ;
 # }
 
 sub create_default_with_init {
@@ -237,172 +227,162 @@ sub create_default_with_init {
 }
 
 sub max {
-    my $self=shift ;
-    carp $self->name,": max param is deprecated, use max_index\n";
-    $self->max_index ;
+    my $self = shift;
+    carp $self->name, ": max param is deprecated, use max_index\n";
+    $self->max_index;
 }
 
 sub min {
-    my $self=shift ;
-    carp $self->name,": min param is deprecated, use min_index\n";
-    $self->min_index ;
+    my $self = shift;
+    carp $self->name, ": min param is deprecated, use min_index\n";
+    $self->min_index;
 }
-
 
 sub cargo_type { goto &get_cargo_type; }
 
 sub get_cargo_type {
-    my $self = shift ;
+    my $self = shift;
+
     #my @ids = $self->fetch_all_indexes ;
     # the returned cargo type might be different from collected type
-    # when collected type is 'warped_node'. 
+    # when collected type is 'warped_node'.
     #return @ids ? $self->fetch_with_id($ids[0])->get_cargo_type
     #  : $self->{cargo_type} ;
-    return $self->{cargo}{type} ;
+    return $self->{cargo}{type};
 }
 
-
 sub get_cargo_info {
-    my $self = shift ;
-    my $what = shift ;
-    return $self->{cargo}{$what} ;
+    my $self = shift;
+    my $what = shift;
+    return $self->{cargo}{$what};
 }
 
 # internal, does a grab with improved error mesage
 sub safe_typed_grab {
-  my $self  = shift ;
-  my %args = @_ ;
-  my $param = $args{param} || croak "safe_typed_grab: missing param" ;
+    my $self  = shift;
+    my %args  = @_;
+    my $param = $args{param} || croak "safe_typed_grab: missing param";
 
-  my $res = eval {
-    $self->grab(step => $self->{$param},
-                type => $self->get_type,
-                check => $args{check} || 'yes' ,
-               ) ;
-  };
+    my $res = eval {
+        $self->grab(
+            step  => $self->{$param},
+            type  => $self->get_type,
+            check => $args{check} || 'yes',
+        );
+    };
 
-  if ($@) {
-    my $e = $@ ;
-    my $msg = $e ? $e->full_message : '' ;
-    Config::Model::Exception::Model
-        -> throw (
-                  object => $self,
-                  error => "'$param' parameter: "
-                  . $msg
-                 ) ;
-  }
-
-  return $res ;
-}
-
-
-sub get_default_keys {
-    my $self = shift ;
-
-    if ($self->{follow_keys_from}) {
-        my $followed = $self->safe_typed_grab(param => 'follow_keys_from') ;
-        my @res = $followed -> fetch_all_indexes ;
-        return wantarray ? @res : \@res ;
+    if ($@) {
+        my $e = $@;
+        my $msg = $e ? $e->full_message : '';
+        Config::Model::Exception::Model->throw(
+            object => $self,
+            error  => "'$param' parameter: " . $msg
+        );
     }
 
-    my @res ;
-
-    push @res , @{ $self->{default_keys} }
-      if defined $self->{default_keys} ;
-
-    push @res , keys %{$self->{default_with_init}}
-      if defined $self->{default_with_init} ;
-
-    return wantarray ? @res : \@res ;
+    return $res;
 }
 
+sub get_default_keys {
+    my $self = shift;
 
-sub name
-  {
-    my $self = shift ;
-    return $self->{parent}->name . ' '.$self->{element_name}.' id' ;
-  }
+    if ( $self->{follow_keys_from} ) {
+        my $followed = $self->safe_typed_grab( param => 'follow_keys_from' );
+        my @res = $followed->fetch_all_indexes;
+        return wantarray ? @res : \@res;
+    }
 
+    my @res;
+
+    push @res, @{ $self->{default_keys} }
+        if defined $self->{default_keys};
+
+    push @res, keys %{ $self->{default_with_init} }
+        if defined $self->{default_with_init};
+
+    return wantarray ? @res : \@res;
+}
+
+sub name {
+    my $self = shift;
+    return $self->{parent}->name . ' ' . $self->{element_name} . ' id';
+}
 
 # internal. Handle model declaration arguments
 sub handle_args {
-    my $self = shift ;
-    my %args = @_ ;
+    my $self = shift;
+    my %args = @_;
 
-    my $warp_info = delete $args{warp} ;
+    my $warp_info = delete $args{warp};
 
-    map { $self->{$_} =  delete $args{$_} if defined $args{$_} }
-         qw/index_class index_type morph ordered/;
+    map { $self->{$_} = delete $args{$_} if defined $args{$_} }
+        qw/index_class index_type morph ordered/;
 
-    $self->{backup}  = dclone (\%args) ;
+    $self->{backup} = dclone( \%args );
 
-    $self->set_properties(%args) if defined $self->{index_type} ;
+    $self->set_properties(%args) if defined $self->{index_type};
 
-    if (defined $warp_info) {
-        $self->{warper} = Config::Model::Warper->new (
+    if ( defined $warp_info ) {
+        $self->{warper} = Config::Model::Warper->new(
             warped_object => $self,
-            %$warp_info ,
+            %$warp_info,
             allowed => \@allowed_warp_params
-        ) ;
+        );
     }
 
-    return $self ;
+    return $self;
 }
 
 sub apply_fixes {
-    my $self = shift ; 
-    $logger->debug( $self->location.": apply_fixes called" ) ;
+    my $self = shift;
+    $logger->debug( $self->location . ": apply_fixes called" );
 
-    $self->check_content(fix => 1) ;
+    $self->check_content( fix => 1 );
 
 }
-
 
 sub has_fixes {
-    my $self = shift; 
-    return $self->{nb_of_content_fixes} ;
+    my $self = shift;
+    return $self->{nb_of_content_fixes};
 }
 
-
-
 my %check_idx_dispatch =
-  map { ( $_ => 'check_' . $_ ); }
-  qw/follow_keys_from allow_keys allow_keys_from allow_keys_matching
-  warn_if_key_match warn_unless_key_match/;
+    map { ( $_ => 'check_' . $_ ); }
+    qw/follow_keys_from allow_keys allow_keys_from allow_keys_matching
+    warn_if_key_match warn_unless_key_match/;
 
-my %check_content_dispatch = map { ($_ => 'check_'.$_) ;}
-    qw/duplicates/;
+my %check_content_dispatch = map { ( $_ => 'check_' . $_ ); } qw/duplicates/;
 
-my %mode_move = ( 
-    layered => { preset => 1, normal => 1} ,
+my %mode_move = (
+    layered => { preset => 1, normal => 1 },
     preset  => { normal => 1 },
-    normal => {} ,
- ) ;
+    normal  => {},
+);
 
 sub notify_change {
-    my $self = shift ;
-    my %args = @_ ;
-    
-    # $idx may be undef if $self has changed, not necessarily its content
-    my $idx = $args{index} ; 
-    if (defined $idx) {
-        # use $idx to trigger move from layered->preset->normal
-        my $imode = $self->instance->get_data_mode ;
-        my $old_mode = $self->get_data_mode($idx) || 'normal' ;
-        $self->set_data_mode($idx,$imode) if $mode_move{$old_mode}{$imode} ; 
-    }
-    
-    return if $self->instance->initial_load  and not $args{really};
+    my $self = shift;
+    my %args = @_;
 
-    $self->needs_check(1) ;
-    $self->SUPER::notify_change(@_) ;
+    # $idx may be undef if $self has changed, not necessarily its content
+    my $idx = $args{index};
+    if ( defined $idx ) {
+
+        # use $idx to trigger move from layered->preset->normal
+        my $imode = $self->instance->get_data_mode;
+        my $old_mode = $self->get_data_mode($idx) || 'normal';
+        $self->set_data_mode( $idx, $imode ) if $mode_move{$old_mode}{$imode};
+    }
+
+    return if $self->instance->initial_load and not $args{really};
+
+    $self->needs_check(1);
+    $self->SUPER::notify_change(@_);
 }
 
 sub check {
     my $self = shift;
-    $self->check_content(@_) ;
+    $self->check_content(@_);
 }
-
 
 # check globally the list or hash
 sub check_content {
@@ -418,6 +398,7 @@ sub check_content {
     ) if defined $args{index};
 
     if ( $self->needs_check ) {
+
         # need to keep track to update GUI
         $self->{nb_of_content_fixes} = 0;    # reset before check
 
@@ -432,21 +413,21 @@ sub check_content {
 
         my $nb = $self->fetch_size;
         push @error, "Too many instances ($nb) limit $self->{max_nb}, "
-          if defined $self->{max_nb} and $nb > $self->{max_nb};
+            if defined $self->{max_nb} and $nb > $self->{max_nb};
 
         map { warn( "Warning in '" . $self->location . "': $_\n" ) } @warn
-          unless $silent;
+            unless $silent;
 
         $self->{content_warning_list} = \@warn;
         $self->{content_error_list}   = \@error;
-        $self->needs_check(0) ;
+        $self->needs_check(0);
 
         return scalar @error ? 0 : 1;
     }
     else {
         $logger->debug( $self->location, " has not changed, actual check skipped" )
-          if $logger->is_debug;
-        my $err = $self->{content_error_list} ;
+            if $logger->is_debug;
+        my $err = $self->{content_error_list};
         return scalar @$err ? 0 : 1;
     }
 }
@@ -454,126 +435,127 @@ sub check_content {
 # internal function to check the validity of the index. Called when creating a new
 # index or when set_properties is called (init or during warp)
 sub check_idx {
-    my $self = shift ;
-    
-    my %args = @_ > 1 ? @_ : (index => $_[0]) ;
-    my $idx = $args{index} ;
-    my $silent = $args{silent} || 0 ;
-    my $check = $args{check} || 'yes' ;
-    my $apply_fix = $check eq 'fix' ? 1 : 0 ;
+    my $self = shift;
 
-    Config::Model::Exception::Internal
-        -> throw (
-                  object => $self,
-                  error => "check_idx method: key or index is not defined"
-                 ) unless defined $idx ;
+    my %args      = @_ > 1 ? @_ : ( index => $_[0] );
+    my $idx       = $args{index};
+    my $silent    = $args{silent} || 0;
+    my $check     = $args{check} || 'yes';
+    my $apply_fix = $check eq 'fix' ? 1 : 0;
 
-    my @error ;
-    my @warn ;
+    Config::Model::Exception::Internal->throw(
+        object => $self,
+        error  => "check_idx method: key or index is not defined"
+    ) unless defined $idx;
 
-    foreach my $key_check_name (keys %check_idx_dispatch) {
-        next unless $self->{$key_check_name} ;
-        my $method = $check_idx_dispatch{$key_check_name} ;
-        $self->$method($idx,\@error,\@warn,$apply_fix) ;
+    my @error;
+    my @warn;
+
+    foreach my $key_check_name ( keys %check_idx_dispatch ) {
+        next unless $self->{$key_check_name};
+        my $method = $check_idx_dispatch{$key_check_name};
+        $self->$method( $idx, \@error, \@warn, $apply_fix );
     }
 
-    my $nb =  $self->fetch_size ;
-    my $new_nb = $nb ;
-    $new_nb++ unless $self->_exists($idx) ;
+    my $nb     = $self->fetch_size;
+    my $new_nb = $nb;
+    $new_nb++ unless $self->_exists($idx);
 
-    if ($idx eq '') {
-        push @error,"Index is empty";
+    if ( $idx eq '' ) {
+        push @error, "Index is empty";
     }
-    elsif ($self->{index_type} eq 'integer' and $idx =~ /\D/) {
-        push @error,"Index is not integer ($idx)";
+    elsif ( $self->{index_type} eq 'integer' and $idx =~ /\D/ ) {
+        push @error, "Index is not integer ($idx)";
     }
-    elsif (defined $self->{max_index} and $idx > $self->{max_index}) {
-        push @error,"Index $idx > max_index limit $self->{max_index}" ;
+    elsif ( defined $self->{max_index} and $idx > $self->{max_index} ) {
+        push @error, "Index $idx > max_index limit $self->{max_index}";
     }
-    elsif ( defined $self->{min_index} and $idx < $self->{min_index}) {
-        push @error,"Index $idx < min_index limit $self->{min_index}";
+    elsif ( defined $self->{min_index} and $idx < $self->{min_index} ) {
+        push @error, "Index $idx < min_index limit $self->{min_index}";
     }
 
-    push @error,"Too many instances ($new_nb) limit $self->{max_nb}, ".
-      "rejected id '$idx'"
+    push @error, "Too many instances ($new_nb) limit $self->{max_nb}, " . "rejected id '$idx'"
         if defined $self->{max_nb} and $new_nb > $self->{max_nb};
 
-    if (scalar @error) {
-        my @a = $self->_fetch_all_indexes ;
-        push @error, "Instance ids are '".join(',', @a)."'" ,
-          $self->warp_error  ;
+    if ( scalar @error ) {
+        my @a = $self->_fetch_all_indexes;
+        push @error, "Instance ids are '" . join( ',', @a ) . "'", $self->warp_error;
     }
 
-    $self->{idx_error_list} = \@error ;
+    $self->{idx_error_list} = \@error;
 
     if (@warn) {
-        $self->{warning_hash}{$idx} = \@warn ;
-        map { warn ("Warning in '".$self->location."': $_\n") } @warn unless $silent;
+        $self->{warning_hash}{$idx} = \@warn;
+        map { warn( "Warning in '" . $self->location . "': $_\n" ) } @warn unless $silent;
     }
     else {
-        delete $self->{warning_hash}{$idx} ;
+        delete $self->{warning_hash}{$idx};
     }
-        
-    return scalar @error ? 0 : 1 ;
+
+    return scalar @error ? 0 : 1;
 }
 
 #internal
 sub check_follow_keys_from {
-    my ($self,$idx,$error) = @_ ; 
+    my ( $self, $idx, $error ) = @_;
 
-    my $followed = $self->safe_typed_grab(param => 'follow_keys_from') ;
-    return if $followed->exists($idx) ;
+    my $followed = $self->safe_typed_grab( param => 'follow_keys_from' );
+    return if $followed->exists($idx);
 
-    push @$error, "key '$idx' does not exists in '".$followed->name 
-              . "'. Expected '" . join("', '", $followed->fetch_all_indexes) . "'" ;
+    push @$error,
+          "key '$idx' does not exists in '"
+        . $followed->name
+        . "'. Expected '"
+        . join( "', '", $followed->fetch_all_indexes ) . "'";
 }
 
 #internal
 sub check_allow_keys {
-    my ($self,$idx,$error) = @_ ; 
+    my ( $self, $idx, $error ) = @_;
 
-    my $ok = grep { $_ eq $idx } @{$self->{allow_keys}} ;
+    my $ok = grep { $_ eq $idx } @{ $self->{allow_keys} };
 
-    push @$error, "Unexpected key '$idx'. Expected '".
-                      join("', '",@{$self->{allow_keys}} ). "'" 
-        unless $ok ;
+    push @$error,
+        "Unexpected key '$idx'. Expected '" . join( "', '", @{ $self->{allow_keys} } ) . "'"
+        unless $ok;
 }
 
 #internal
 sub check_allow_keys_matching {
-    my ($self,$idx,$error) = @_ ; 
-    my $match = $self->{allow_keys_matching} ;
+    my ( $self, $idx, $error ) = @_;
+    my $match = $self->{allow_keys_matching};
 
-    push @$error,"Unexpected key '$idx'. Key must match $match" 
+    push @$error, "Unexpected key '$idx'. Key must match $match"
         unless $idx =~ /$match/;
 }
 
 #internal
 sub check_allow_keys_from {
-    my ($self,$idx,$error) = @_ ; 
+    my ( $self, $idx, $error ) = @_;
 
-    my $from = $self->safe_typed_grab(param => 'allow_keys_from');
-    my $ok = grep { $_ eq $idx } $from->fetch_all_indexes ;
+    my $from = $self->safe_typed_grab( param => 'allow_keys_from' );
+    my $ok = grep { $_ eq $idx } $from->fetch_all_indexes;
 
-    return if $ok ;
+    return if $ok;
 
-    push @$error, "key '$idx' does not exists in '"
-                      . $from->name 
-                      . "'. Expected '"
-                      . join( "', '", $from->fetch_all_indexes). "'"  ;
+    push @$error,
+          "key '$idx' does not exists in '"
+        . $from->name
+        . "'. Expected '"
+        . join( "', '", $from->fetch_all_indexes ) . "'";
 
 }
 
 sub check_warn_if_key_match {
-    my ($self,$idx,$error,$warn) = @_ ; 
-    my $re = $self->{warn_if_key_match} ;
+    my ( $self, $idx, $error, $warn ) = @_;
+    my $re = $self->{warn_if_key_match};
 
-    push @$warn, "key '$idx' should not match $re\n" if $idx =~ /$re/ ;
+    push @$warn, "key '$idx' should not match $re\n" if $idx =~ /$re/;
 }
 
 sub check_warn_unless_key_match {
-    my ($self,$idx,$error,$warn) = @_ ; 
-    my $re = $self->{warn_unless_key_match} ;
+    my ( $self, $idx, $error, $warn ) = @_;
+    my $re = $self->{warn_unless_key_match};
 
     push @$warn, "key '$idx' should match $re\n" unless $idx =~ /$re/;
 }
@@ -581,43 +563,43 @@ sub check_warn_unless_key_match {
 sub check_duplicates {
     my ( $self, $error, $warn, $apply_fix ) = @_;
 
-    my $dup = $self->{duplicates} ;
-    return if $dup eq 'allow' ;
-    
+    my $dup = $self->{duplicates};
+    return if $dup eq 'allow';
+
     $logger->debug("check_duplicates called");
     my %h;
     my @issues;
-    my @to_delete ;
+    my @to_delete;
     foreach my $i ( $self->fetch_all_indexes ) {
-        my $v = $self->fetch_with_id(index => $i, check => 'no')->fetch;
-        next unless $v ;
-        $h{$v} = 0 unless defined $h{$v} ;
+        my $v = $self->fetch_with_id( index => $i, check => 'no' )->fetch;
+        next unless $v;
+        $h{$v} = 0 unless defined $h{$v};
         $h{$v}++;
-        if ($h{$v} > 1) {
+        if ( $h{$v} > 1 ) {
             $logger->debug("got duplicates $i -> $v : $h{$v}");
-            push @to_delete, $i ;
-            push @issues, qq!$i:"$v"! ; 
+            push @to_delete, $i;
+            push @issues,    qq!$i:"$v"!;
         }
     }
 
-    return unless @issues ;
-    
+    return unless @issues;
+
     if ($apply_fix) {
         $logger->debug("Fixing duplicates @issues, removing @to_delete");
-        map { $self->remove($_) } reverse @to_delete ;
+        map { $self->remove($_) } reverse @to_delete;
     }
-    elsif ($dup eq 'forbid') {
+    elsif ( $dup eq 'forbid' ) {
         $logger->debug("Found forbidden duplicates @issues");
         push @$error, "Forbidden duplicates value @issues";
     }
-    elsif ($dup eq 'warn') {
+    elsif ( $dup eq 'warn' ) {
         $logger->debug("warning condition: found duplicate @issues");
         push @$warn, "Duplicated value: @issues";
-        $self->{nb_of_content_fixes} += scalar @issues ;
+        $self->{nb_of_content_fixes} += scalar @issues;
     }
-    elsif ($dup eq 'suppress') {
+    elsif ( $dup eq 'suppress' ) {
         $logger->debug("suppressing duplicates @issues");
-        map { $self->remove($_) } reverse @to_delete ;
+        map { $self->remove($_) } reverse @to_delete;
     }
     else {
         die "Internal error: duplicates is $dup";
@@ -625,131 +607,124 @@ sub check_duplicates {
 }
 
 sub fetch_with_id {
-    my $self = shift ;
-    my %args = @_ > 1 ? @_ : ( index => shift ) ;
-    my $check = $self->_check_check($args{check}) ;    
-    my $idx = $args{index} ;
+    my $self  = shift;
+    my %args  = @_ > 1 ? @_ : ( index => shift );
+    my $check = $self->_check_check( $args{check} );
+    my $idx   = $args{index};
 
-    $logger->debug($self->name," called for idx $idx") if $logger->is_debug ;
-    
-    $idx = $self->{convert_sub}($idx) 
-      if (defined $self->{convert_sub} and defined $idx) ;
+    $logger->debug( $self->name, " called for idx $idx" ) if $logger->is_debug;
+
+    $idx = $self->{convert_sub}($idx)
+        if ( defined $self->{convert_sub} and defined $idx );
 
     # try migration only once
     $self->_migrate unless $self->{migration_done};
 
-    my $ok = 1 ;
-    # check index only if it's unknown
-    $ok = $self->check_idx(index => $idx, check => $check) 
-        unless $self->_defined($idx) or $check eq 'no' ;
+    my $ok = 1;
 
-    if ($ok or $check eq 'no') {
-        $self->auto_vivify($idx) unless $self->_defined($idx) ;
-        return $self->_fetch_with_id($idx) ;
-      }
+    # check index only if it's unknown
+    $ok = $self->check_idx( index => $idx, check => $check )
+        unless $self->_defined($idx)
+        or $check eq 'no';
+
+    if ( $ok or $check eq 'no' ) {
+        $self->auto_vivify($idx) unless $self->_defined($idx);
+        return $self->_fetch_with_id($idx);
+    }
     else {
-        Config::Model::Exception::WrongValue 
-            -> throw (
-                      error => join("\n\t",@{$self->{idx_error_list}}),
-                      object => $self
-                     ) ;
+        Config::Model::Exception::WrongValue->throw(
+            error  => join( "\n\t", @{ $self->{idx_error_list} } ),
+            object => $self
+        );
     }
 
-    return ;
+    return;
 }
 
-
 sub get {
-    my $self = shift ;
-    my %args = @_ > 1 ? @_ : ( path => $_[0] ) ;
-    my $path = delete $args{path} ;
-    my $autoadd = 1 ;
+    my $self    = shift;
+    my %args    = @_ > 1 ? @_ : ( path => $_[0] );
+    my $path    = delete $args{path};
+    my $autoadd = 1;
     $autoadd = $args{autoadd} if defined $args{autoadd};
-    my $get_obj = delete $args{get_obj} || 0 ;
-    $path =~ s!^/!! ;
-    my ($item,$new_path) = split m!/!,$path,2 ;
-    
-    my $dcm = $args{dir_char_mockup} ;
+    my $get_obj = delete $args{get_obj} || 0;
+    $path =~ s!^/!!;
+    my ( $item, $new_path ) = split m!/!, $path, 2;
+
+    my $dcm = $args{dir_char_mockup};
+
     # $item =~ s($dcm)(/)g if $dcm ;
     if ($dcm) {
         while (1) {
-            my $i = index($item,$dcm) ;
-            last if $i == -1 ;
-            substr $item, $i, length ($dcm), '/' ;
+            my $i = index( $item, $dcm );
+            last if $i == -1;
+            substr $item, $i, length($dcm), '/';
         }
     }
 
-    return unless ($self->exists($item) or $autoadd) ;
+    return unless ( $self->exists($item) or $autoadd );
 
     $logger->debug("get: path $path, item $item");
-    
-    my $obj = $self->fetch_with_id(index => $item, %args) ;
-    return $obj if (($get_obj or $obj->get_type ne 'leaf') and not defined $new_path) ;
-    return $obj->get(path => $new_path,get_obj => $get_obj, %args) ;
-}
 
+    my $obj = $self->fetch_with_id( index => $item, %args );
+    return $obj if ( ( $get_obj or $obj->get_type ne 'leaf' ) and not defined $new_path );
+    return $obj->get( path => $new_path, get_obj => $get_obj, %args );
+}
 
 sub set {
-    my $self = shift ;
-    my $path = shift ;
-    $path =~ s!^/!! ;
-    my ($item,$new_path) = split m!/!,$path,2 ;
-    return $self->fetch_with_id($item)->set($new_path,@_) ;
+    my $self = shift;
+    my $path = shift;
+    $path =~ s!^/!!;
+    my ( $item, $new_path ) = split m!/!, $path, 2;
+    return $self->fetch_with_id($item)->set( $new_path, @_ );
 }
-
-
 
 sub copy {
-    my ($self,$from, $to) = @_ ;
+    my ( $self, $from, $to ) = @_;
 
-    my $from_obj = $self->fetch_with_id($from) ;
-    my $ok = $self->check_idx($to) ;
+    my $from_obj = $self->fetch_with_id($from);
+    my $ok       = $self->check_idx($to);
 
-    if ($ok && $self->{cargo}{type} eq 'leaf') {
-        $logger->trace("AnyId: copy leaf value from ".$self->name." $from to $to") ;
-        $self->fetch_with_id($to)->store($from_obj->fetch()) ;
+    if ( $ok && $self->{cargo}{type} eq 'leaf' ) {
+        $logger->trace( "AnyId: copy leaf value from " . $self->name . " $from to $to" );
+        $self->fetch_with_id($to)->store( $from_obj->fetch() );
     }
-    elsif ( $ok ) {
-        # node object 
-        $logger->trace("AnyId: deep copy node from ".$self->name) ;
+    elsif ($ok) {
+
+        # node object
+        $logger->trace( "AnyId: deep copy node from " . $self->name );
         my $target = $self->fetch_with_id($to);
-        $logger->trace("AnyId: deep copy node to ".$target->name) ;
-        $target->copy_from($from_obj) ;
+        $logger->trace( "AnyId: deep copy node to " . $target->name );
+        $target->copy_from($from_obj);
     }
     else {
-        Config::Model::Exception::WrongValue 
-            -> throw (
-                      error => join("\n\t",@{$self->{idx_error_list}}),
-                      object => $self
-                     ) ;
+        Config::Model::Exception::WrongValue->throw(
+            error  => join( "\n\t", @{ $self->{idx_error_list} } ),
+            object => $self
+        );
     }
 }
 
-
 sub fetch_all {
-    my $self = shift ;
-    my @keys  = $self->fetch_all_indexes ;
-    return map { $self->fetch_with_id($_) ;} @keys ;
+    my $self = shift;
+    my @keys = $self->fetch_all_indexes;
+    return map { $self->fetch_with_id($_); } @keys;
 }
 
-
 sub fetch_all_values {
-    my $self = shift ;
-    my %args = @_ > 1 ? @_ : ( mode => shift ) ;
-    my $mode = $args{mode};
-    my $check = $self->_check_check($args{check}) ;
-    
-    my @keys  = $self->fetch_all_indexes ;
+    my $self  = shift;
+    my %args  = @_ > 1 ? @_ : ( mode => shift );
+    my $mode  = $args{mode};
+    my $check = $self->_check_check( $args{check} );
+
+    my @keys = $self->fetch_all_indexes;
 
     if ( $self->{cargo}{type} eq 'leaf' ) {
-        my $ok = $check eq 'no' ? 1 : $self->check_content( );
+        my $ok = $check eq 'no' ? 1 : $self->check_content();
 
         if ( $ok or $check eq 'no' ) {
             return grep { defined $_ }
-              map {
-                $self->fetch_with_id($_)
-                  ->fetch( check => $check, mode => $mode );
-              } @keys;
+                map { $self->fetch_with_id($_)->fetch( check => $check, mode => $mode ); } @keys;
         }
         else {
             Config::Model::Exception::WrongValue->throw(
@@ -762,8 +737,7 @@ sub fetch_all_values {
     else {
         my $info = "current keys are '" . join( "', '", @keys ) . "'.";
         if ( $self->{cargo}{type} eq 'node' ) {
-            $info .= "config class is "
-              . $self->fetch_with_id( $keys[0] )->config_class_name;
+            $info .= "config class is " . $self->fetch_with_id( $keys[0] )->config_class_name;
         }
         Config::Model::Exception::WrongType->throw(
             object        => $self,
@@ -775,45 +749,41 @@ sub fetch_all_values {
     }
 }
 
-
 sub fetch_all_indexes {
     my $self = shift;
-    $self->create_default ; # will check itself if creation is necessary
-    $self->_migrate ;
-    return $self->_fetch_all_indexes ;
+    $self->create_default;    # will check itself if creation is necessary
+    $self->_migrate;
+    return $self->_fetch_all_indexes;
 }
 
 sub get_all_indexes {
     my $self = shift;
-    carp "get_all_indexes is deprecated. use fetch_all_indexes" ;
-    return $self->fetch_all_indexes ;
+    carp "get_all_indexes is deprecated. use fetch_all_indexes";
+    return $self->fetch_all_indexes;
 }
 
 sub children {
-    my $self = shift ;
-    return $self->fetch_all_indexes ;
+    my $self = shift;
+    return $self->fetch_all_indexes;
 }
-
 
 # auto vivify must create according to cargo}{type
 # node -> Node or user class
 # leaf -> Value or user class
 
-# warped node cannot be used. Same effect can be achieved by warping 
-# cargo_args 
+# warped node cannot be used. Same effect can be achieved by warping
+# cargo_args
 
-my %element_default_class 
-  = (
-     warped_node => 'WarpedNode',
-     node        => 'Node',
-     leaf        => 'Value',
-    );
+my %element_default_class = (
+    warped_node => 'WarpedNode',
+    node        => 'Node',
+    leaf        => 'Value',
+);
 
-my %can_override_class 
-  = (
-     node        => 0,
-     leaf        => 1,
-    );
+my %can_override_class = (
+    node => 0,
+    leaf => 1,
+);
 
 #internal
 sub auto_vivify {
@@ -826,8 +796,8 @@ sub auto_vivify {
     Config::Model::Exception::Model->throw(
         object  => $self,
         message => "unknown '$cargo_type' cargo type:  "
-          . "in cargo_args. Expected "
-          . join( ' or ', keys %element_default_class )
+            . "in cargo_args. Expected "
+            . join( ' or ', keys %element_default_class )
     ) unless defined $element_default_class{$cargo_type};
 
     my $el_class = 'Config::Model::' . $element_default_class{$cargo_type};
@@ -864,100 +834,92 @@ sub auto_vivify {
             message => "missing 'cargo->config_class_name' " . "parameter",
         ) unless defined $self->{config_class_name};
 
-        $item = $self->{parent}->new( @common_args,
-            config_class_name => $self->{config_class_name} );
+        $item =
+            $self->{parent}->new( @common_args, config_class_name => $self->{config_class_name} );
     }
     else {
         $item = $el_class->new(@common_args);
     }
-    
-    my $imode = $self->instance->get_data_mode ;
-    $self->set_data_mode( $idx, $imode ) ;
-    
+
+    my $imode = $self->instance->get_data_mode;
+    $self->set_data_mode( $idx, $imode );
+
     $self->_store( $idx, $item );
 }
 
 sub defined {
-    my ($self,$idx) = @_ ;
+    my ( $self, $idx ) = @_;
 
     return $self->_defined($idx);
 }
 
-
 sub exists {
-    my ($self,$idx) = @_ ;
+    my ( $self, $idx ) = @_;
 
     return $self->_exists($idx);
 }
 
-
 sub delete {
-    my ($self,$idx) = @_ ;
+    my ( $self, $idx ) = @_;
 
-    delete $self->{warning_hash}{$idx}  ;
+    delete $self->{warning_hash}{$idx};
     my $ret = $self->_delete($idx);
-    $self->notify_change( note => "deleted entry $idx" ) ;
-    return $ret ;
+    $self->notify_change( note => "deleted entry $idx" );
+    return $ret;
 }
 
-
 sub clear {
-    my ($self) = @_ ;
+    my ($self) = @_;
 
-    $self->{warning_hash} = {} ;
+    $self->{warning_hash} = {};
     $self->_clear;
-    $self->clear_data_mode ;
-    $self->notify_change (note => "cleared all entries") ;
-  }
-
+    $self->clear_data_mode;
+    $self->notify_change( note => "cleared all entries" );
+}
 
 sub clear_values {
-    my ($self) = @_ ;
-    warn "clear_values deprecated" ;
+    my ($self) = @_;
+    warn "clear_values deprecated";
 
-    my $ct = $self->get_cargo_type ;
-    Config::Model::Exception::User
-        -> throw (
-                  object => $self,
-                  message => "clear_values() called on non leaf cargo type: '$ct'"
-                 ) 
-          if $ct ne 'leaf';
-
+    my $ct = $self->get_cargo_type;
+    Config::Model::Exception::User->throw(
+        object  => $self,
+        message => "clear_values() called on non leaf cargo type: '$ct'"
+    ) if $ct ne 'leaf';
 
     # this will trigger a notify_change
-    map {$self->fetch_with_id($_)->store(undef)} $self->fetch_all_indexes ;
-    $self->notify_change (note => "cleared all values");
-  }
-
+    map { $self->fetch_with_id($_)->store(undef) } $self->fetch_all_indexes;
+    $self->notify_change( note => "cleared all values" );
+}
 
 sub warning_msg {
-    my ($self,$idx) = @_ ;
-    
-    if (defined $idx) {
-        return $self->{warning_hash}{$idx} ;
+    my ( $self, $idx ) = @_;
+
+    if ( defined $idx ) {
+        return $self->{warning_hash}{$idx};
     }
-    elsif (scalar %{$self->{content_warning_hash}} or @{$self->{content_warning_list}}) {
-        my @list = @{$self->{content_warning_list}} ;
-        push @list , map ( "key $_: ".$self->{content_warning_hash}{$_}, keys %{$self->{content_warning_hash}}) ;
-        return join("\n",@list) ;
+    elsif ( scalar %{ $self->{content_warning_hash} } or @{ $self->{content_warning_list} } ) {
+        my @list = @{ $self->{content_warning_list} };
+        push @list,
+            map ( "key $_: " . $self->{content_warning_hash}{$_},
+            keys %{ $self->{content_warning_hash} } );
+        return join( "\n", @list );
     }
 }
 
 sub has_warning {
     my $self = shift;
 
-    return @{$self->{content_warning_list}} + keys %{$self->{content_warning_hash}} ;
+    return @{ $self->{content_warning_list} } + keys %{ $self->{content_warning_hash} };
 }
 
-
-
 sub error_msg {
-    my $self = shift ;
-    my @list ;
-    map { push @list, @{$self->{$_}} if $self->{$_} ;} qw/idx_error_list content_error_list/ ;
+    my $self = shift;
+    my @list;
+    map { push @list, @{ $self->{$_} } if $self->{$_}; } qw/idx_error_list content_error_list/;
 
-    return unless @list ;
-    return wantarray ? @list : join("\n\t",@list) ;
+    return unless @list;
+    return wantarray ? @list : join( "\n\t", @list );
 }
 
 __PACKAGE__->meta->make_immutable;

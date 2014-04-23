@@ -2,148 +2,154 @@ package Config::Model::Dumper;
 
 use Carp;
 use strict;
-use warnings ;
+use warnings;
 
-use Config::Model::Exception ;
-use Config::Model::ObjTreeScanner ;
-
+use Config::Model::Exception;
+use Config::Model::ObjTreeScanner;
 
 sub new {
-    bless {}, shift ;
+    bless {}, shift;
 }
 
 sub quote {
-    _quote(qr/(\s|"|\*)/,@_) ;
+    _quote( qr/(\s|"|\*)/, @_ );
 }
 
 sub id_quote {
-    _quote(qr/[\s"\*<>.=#]/,@_) ;
+    _quote( qr/[\s"\*<>.=#]/, @_ );
 }
 
-
 sub _quote {
-    my ($re,@res) = @_ ;
+    my ( $re, @res ) = @_;
     foreach (@res) {
-	if ( defined $_ and ( /$re/ or $_ eq '') ) {
-	    s/"/\\"/g ; # escape present quotes
-	    $_ = '"' . $_ . '"' ; # add my quotes
-	}
+        if ( defined $_ and ( /$re/ or $_ eq '' ) ) {
+            s/"/\\"/g;    # escape present quotes
+            $_ = '"' . $_ . '"';    # add my quotes
+        }
     }
     return wantarray ? @res : $res[0];
 }
 
 sub note_quote {
-    my @res = @_ ;
+    my @res = @_;
     foreach (@res) {
-	if ( defined $_ and $_ and ( /(\s|"|\*)/ ) ) {
-	    s/"/\\"/g ; # escape present quotes
-	    $_ = '"' . $_ . '"' ; # add my quotes
-	}
+        if ( defined $_ and $_ and (/(\s|"|\*)/) ) {
+            s/"/\\"/g;              # escape present quotes
+            $_ = '"' . $_ . '"';    # add my quotes
+        }
     }
     return wantarray ? @res : $res[0];
 }
 
-
 sub dump_tree {
     my $self = shift;
 
-    my %args = @_;
-    my $full = delete $args{full_dump} || 0;
-    my $skip_aw = delete $args{skip_auto_write} || '' ;
-    my $auto_v  = delete $args{auto_vivify}     || 0 ;
-    my $mode = delete $args{mode} || '';
-    
-    if ($mode and $mode !~ /full|preset|custom/) {
-	croak "dump_tree: unexpected 'mode' value: $mode";
+    my %args    = @_;
+    my $full    = delete $args{full_dump} || 0;
+    my $skip_aw = delete $args{skip_auto_write} || '';
+    my $auto_v  = delete $args{auto_vivify} || 0;
+    my $mode    = delete $args{mode} || '';
+
+    if ( $mode and $mode !~ /full|preset|custom/ ) {
+        croak "dump_tree: unexpected 'mode' value: $mode";
     }
 
-    my $check = delete $args{check} || 'yes' ;
-    if ($check !~ /yes|no|skip/) {
-	croak "dump_tree: unexpected 'check' value: $check";
+    my $check = delete $args{check} || 'yes';
+    if ( $check !~ /yes|no|skip/ ) {
+        croak "dump_tree: unexpected 'check' value: $check";
     }
 
     # mode parameter is slightly different from fetch's mode
-    my $fetch_mode = $full             ? ''
-                   : $mode eq 'full'   ? ''
-                   : $mode             ? $mode
-                   :                     'custom';
+    my $fetch_mode =
+          $full           ? ''
+        : $mode eq 'full' ? ''
+        : $mode           ? $mode
+        :                   'custom';
 
-    my $node = delete $args{node} 
-      || croak "dump_tree: missing 'node' parameter";
+    my $node = delete $args{node}
+        || croak "dump_tree: missing 'node' parameter";
 
     my $compute_pad = sub {
-	my $depth = 0 ;
-	my $obj = shift ;
-	while (defined $obj->parent) { 
-	    $depth ++ ;
-	    $obj = $obj->parent ;
-	}
+        my $depth = 0;
+        my $obj   = shift;
+        while ( defined $obj->parent ) {
+            $depth++;
+            $obj = $obj->parent;
+        }
         return '  ' x $depth;
     };
 
-   my $leaf_cb = sub {
+    my $leaf_cb = sub {
         my ( $scanner, $data_r, $node, $element, $index, $value_obj ) = @_;
 
-	# get value or only customized value
-	my $value = quote($value_obj->fetch (mode => $fetch_mode, check => $check)) ;
-	$index = id_quote($index) ;
+        # get value or only customized value
+        my $value = quote( $value_obj->fetch( mode => $fetch_mode, check => $check ) );
+        $index = id_quote($index);
 
         my $pad = $compute_pad->($node);
 
-        my $name = defined $index ? "$element:$index" 
-                 :                   $element;
+        my $name =
+            defined $index
+            ? "$element:$index"
+            : $element;
 
-	# add annotation for obj contained in hash or list
-	my $note = note_quote($value_obj->annotation) ;
-        $$data_r .= "\n" . $pad . $name if defined $value or $note ;
-	$$data_r .= '='  . $value       if defined $value          ;
-	$$data_r .= '#'  . $note        if                   $note ;
+        # add annotation for obj contained in hash or list
+        my $note = note_quote( $value_obj->annotation );
+        $$data_r .= "\n" . $pad . $name if defined $value or $note;
+        $$data_r .= '=' . $value        if defined $value;
+        $$data_r .= '#' . $note         if $note;
     };
 
     my $check_list_cb = sub {
         my ( $scanner, $data_r, $node, $element, $index, $value_obj ) = @_;
 
-	# get value or only customized value
-	my $value = $value_obj->fetch (mode => $fetch_mode, check => $check) ;
-	my $qvalue = quote($value) ;
-	$index = id_quote($index) ;
+        # get value or only customized value
+        my $value = $value_obj->fetch( mode => $fetch_mode, check => $check );
+        my $qvalue = quote($value);
+        $index = id_quote($index);
         my $pad = $compute_pad->($node);
 
-        my $name = defined $index ? "$element:$index" 
-                 :                   $element;
+        my $name =
+            defined $index
+            ? "$element:$index"
+            : $element;
 
-	# add annotation for obj contained in hash or list
-	my $note = note_quote($value_obj->annotation) ;
-        $$data_r .= "\n" . $pad . $name if $value or $note ;
-	$$data_r .= '='  . $qvalue      if $value          ;
-	$$data_r .= '#'  . $note        if           $note ;
+        # add annotation for obj contained in hash or list
+        my $note = note_quote( $value_obj->annotation );
+        $$data_r .= "\n" . $pad . $name if $value or $note;
+        $$data_r .= '=' . $qvalue       if $value;
+        $$data_r .= '#' . $note         if $note;
     };
 
     my $list_element_cb = sub {
         my ( $scanner, $data_r, $node, $element, @keys ) = @_;
 
-	my $pad      = $compute_pad->($node);
-	my $list_obj = $node->fetch_element($element) ;
+        my $pad      = $compute_pad->($node);
+        my $list_obj = $node->fetch_element($element);
 
-	# add annotation for list element
-	my $list_note  = note_quote($list_obj->annotation) ;
-	$$data_r .= "\n$pad$element#$list_note" if $list_note ;
+        # add annotation for list element
+        my $list_note = note_quote( $list_obj->annotation );
+        $$data_r .= "\n$pad$element#$list_note" if $list_note;
 
         if ( $list_obj->cargo_type eq 'node' ) {
-            foreach my $k ( @keys ) {
+            foreach my $k (@keys) {
                 $scanner->scan_list( $data_r, $node, $element, $k );
             }
         }
         else {
             # write value comments
-            foreach my $idx ($list_obj->fetch_all_indexes) {
-                my $note = $list_obj->fetch_with_id($idx)->annotation ;
-                $$data_r .= "\n$pad$element:$idx#".note_quote($note) if $note ;
+            foreach my $idx ( $list_obj->fetch_all_indexes ) {
+                my $note = $list_obj->fetch_with_id($idx)->annotation;
+                $$data_r .= "\n$pad$element:$idx#" . note_quote($note) if $note;
             }
-	    # skip undef values
-	    my @val = id_quote( grep (defined $_,
-				   $list_obj->fetch_all_values(mode => $fetch_mode, 
-							       check => $check))) ;
+
+            # skip undef values
+            my @val = id_quote(
+                grep ( defined $_,
+                    $list_obj->fetch_all_values(
+                        mode  => $fetch_mode,
+                        check => $check
+                    ) ) );
             $$data_r .= "\n$pad$element:=" . join( ',', @val ) if @val;
         }
     };
@@ -151,17 +157,15 @@ sub dump_tree {
     my $hash_element_cb = sub {
         my ( $scanner, $data_r, $node, $element, @keys ) = @_;
 
-	my $pad      = $compute_pad->($node);
-	my $hash_obj = $node->fetch_element($element) ;
+        my $pad      = $compute_pad->($node);
+        my $hash_obj = $node->fetch_element($element);
 
-	# add annotation for list or hash element
-	my $note  = note_quote($hash_obj->annotation) ;
-	$$data_r .= "\n$pad$element#$note" if $note ;
+        # add annotation for list or hash element
+        my $note = note_quote( $hash_obj->annotation );
+        $$data_r .= "\n$pad$element#$note" if $note;
 
-	# resume exploration
-	map {
-	    $scanner->scan_hash($data_r,$node,$element,$_);
-	} @keys ;
+        # resume exploration
+        map { $scanner->scan_hash( $data_r, $node, $element, $_ ); } @keys;
     };
 
     # called for nodes contained in nodes (not root).
@@ -169,46 +173,48 @@ sub dump_tree {
     my $node_element_cb = sub {
         my ( $scanner, $data_r, $node, $element, $key, $contained_node ) = @_;
 
-        my $type = $node -> element_type($element);
+        my $type = $node->element_type($element);
 
-        return if $skip_aw and $contained_node->is_auto_write_for_type($skip_aw) ;
+        return if $skip_aw and $contained_node->is_auto_write_for_type($skip_aw);
 
         my $pad = $compute_pad->($node);
         my $elt = $node->fetch_element($element);
-	# load string can feature only one comment per element_type
-	# ie foo#comment foo:bar#comment foo:bar=val#comment are fine
-	# but foo#comment:bar if not valid -> foo#commaent foo:bar
 
-	my $head = "\n$pad$element";
-        my $node_note = note_quote($contained_node->annotation) ;
-	
-	if ($type eq 'list' or $type eq 'hash') {
-	    $head .= ':'.id_quote($key) ;
-	    $head .= '#'.$node_note if $node_note ;
+        # load string can feature only one comment per element_type
+        # ie foo#comment foo:bar#comment foo:bar=val#comment are fine
+        # but foo#comment:bar if not valid -> foo#commaent foo:bar
+
+        my $head      = "\n$pad$element";
+        my $node_note = note_quote( $contained_node->annotation );
+
+        if ( $type eq 'list' or $type eq 'hash' ) {
+            $head .= ':' . id_quote($key);
+            $head .= '#' . $node_note if $node_note;
             my $sub_data = '';
-            $scanner->scan_node(\$sub_data, $contained_node);
-            $$data_r .= $head.$sub_data.' -';
-	}
+            $scanner->scan_node( \$sub_data, $contained_node );
+            $$data_r .= $head . $sub_data . ' -';
+        }
         else {
-	    $head .= '#'.$node_note if $node_note ;
+            $head .= '#' . $node_note if $node_note;
             my $sub_data = '';
-            $scanner->scan_node(\$sub_data, $contained_node);
+            $scanner->scan_node( \$sub_data, $contained_node );
+
             # skip simple nodes that do not bring data
-	    $$data_r .= $head.$sub_data.' -' if $sub_data;
-	}
+            $$data_r .= $head . $sub_data . ' -' if $sub_data;
+        }
     };
 
     my @scan_args = (
-		     experience      => delete $args{experience} || 'master',
-		     fallback        => 'all',
-		     auto_vivify     => $auto_v,
-		     list_element_cb => $list_element_cb,
-		     hash_element_cb => $hash_element_cb,
-		     leaf_cb         => $leaf_cb,
-		     node_element_cb => $node_element_cb,
-		     check_list_element_cb => $check_list_cb,
-		     check           => $check,
-		    );
+        experience => delete $args{experience} || 'master',
+        fallback => 'all',
+        auto_vivify           => $auto_v,
+        list_element_cb       => $list_element_cb,
+        hash_element_cb       => $hash_element_cb,
+        leaf_cb               => $leaf_cb,
+        node_element_cb       => $node_element_cb,
+        check_list_element_cb => $check_list_cb,
+        check                 => $check,
+    );
 
     my @left = keys %args;
     croak "Dumper: unknown parameter:@left" if @left;
@@ -216,13 +222,13 @@ sub dump_tree {
     # perform the scan
     my $view_scanner = Config::Model::ObjTreeScanner->new(@scan_args);
 
-    my $ret = '';
-    my $root_note = note_quote($node->annotation) ;
-    $ret .="\n#$root_note" if $root_note ;
-    $view_scanner->scan_node(\$ret, $node);
+    my $ret       = '';
+    my $root_note = note_quote( $node->annotation );
+    $ret .= "\n#$root_note" if $root_note;
+    $view_scanner->scan_node( \$ret, $node );
 
     substr( $ret, 0, 1, '' );    # remove leading \n
-    $ret .= ' -' if $ret ;
+    $ret .= ' -' if $ret;
     return $ret . "\n";
 }
 

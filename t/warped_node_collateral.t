@@ -83,8 +83,7 @@ $model->create_config_class(
                     fstyp   => '- fs_vfstype',
                     isbound => '- fs_mntopts bind',
                 },
-                rules => [ '$fstyp eq "none" and $isbound' => { max => 0, } ]
-            }
+                rules => [ '$fstyp eq "none" and $isbound' => { max => 0, } ] }
         },
         type => {
             type       => 'leaf',
@@ -103,8 +102,7 @@ $model->create_config_class(
                 },
             ],
         },
-    ]
-);
+    ] );
 
 ok( 1, "compiled" );
 
@@ -113,8 +111,7 @@ my $inst = $model->instance(
     instance_name   => 'test1'
 );
 ok( $inst, "created dummy instance" );
-$inst->initial_load_stop ;
-
+$inst->initial_load_stop;
 
 my $root = $inst->config_root;
 
@@ -129,7 +126,7 @@ is( $pass->fetch, '2', "check pass nb at 2 after setting fs_vfstype" );
 
 $root->load('fs_mntopts bind=1');
 throws_ok { $pass->fetch; } 'Config::Model::Exception::WrongValue',
-  "check that setting bind detects and error with passno";
+    "check that setting bind detects and error with passno";
 
 # fix issue
 $root->load('fs_mntopts bind=1 - fs_passno=0 fs_mntopts bind=0');
@@ -141,7 +138,7 @@ $root->load('fs_vfstype=auto');
 
 throws_ok { $root->load('fs_mntopts bind=1'); }
 'Config::Model::Exception::UnknownElement',
-  "check that setting bind was warped out";
+    "check that setting bind was warped out";
 
 # fix issue
 $root->load('fs_vfstype=none fs_mntopts bind=0 - fs_passno=3');
@@ -150,11 +147,11 @@ is( $pass->fetch, '3', "check pass nb at 3 " );
 # break again
 $root->load('fs_mntopts bind=1');
 throws_ok { $pass->fetch; } 'Config::Model::Exception::WrongValue',
-  "check that setting bind detects and error with passno again";
+    "check that setting bind detects and error with passno again";
 
 $root->load('fs_passno=0 fs_mntopts bind=1');
 
 is( $pass->fetch, '0', "check pass nb at 2 after setting bind" );
 
-ok($root->load('type=hash cargo atime=1'), "check warping in of a node");
+ok( $root->load('type=hash cargo atime=1'), "check warping in of a node" );
 memory_cycle_ok($model);

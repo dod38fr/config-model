@@ -4,34 +4,34 @@ use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
 use Test::More;
-use Test::Differences ;
+use Test::Differences;
 use Test::Memory::Cycle;
 use Config::Model;
 use Config::Model::ValueComputer;
-use Log::Log4perl qw(:easy) ;
+use Log::Log4perl qw(:easy);
 
 BEGIN { plan tests => 68; }
 
 use strict;
 
-my ($log,$show) = (0) x 3 ;
+my ( $log, $show ) = (0) x 3;
 
 my $arg = shift || '';
 
-my $trace = $arg =~ /t/ ? 1 : 0 ;
-$::debug            = 1 if $arg =~ /d/;
-$log                = 1 if $arg =~ /l/;
-$show               = 1 if $arg =~ /s/;
+my $trace = $arg =~ /t/ ? 1 : 0;
+$::debug = 1 if $arg =~ /d/;
+$log     = 1 if $arg =~ /l/;
+$show    = 1 if $arg =~ /s/;
 Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 
 my $home = $ENV{HOME} || "";
 my $log4perl_user_conf_file = "$home/.log4config-model";
 
-if ($log and -e $log4perl_user_conf_file ) {
+if ( $log and -e $log4perl_user_conf_file ) {
     Log::Log4perl::init($log4perl_user_conf_file);
 }
 else {
-    Log::Log4perl->easy_init($arg =~ /l/ ? $DEBUG: $WARN);
+    Log::Log4perl->easy_init( $arg =~ /l/ ? $DEBUG : $WARN );
 }
 
 ok( 1, "Compilation done" );
@@ -60,9 +60,9 @@ $model->create_config_class(
                         'm' => '!  macro',
                     },
                     formula => 'macro is $m, my idx: &index, '
-                      . 'my element &element, '
-                      . 'upper element &element( - ), '
-                      . 'up idx &index( - )',
+                        . 'my element &element, '
+                        . 'upper element &element( - ), '
+                        . 'up idx &index( - )',
                 }
             },
         },
@@ -70,12 +70,11 @@ $model->create_config_class(
             type       => 'leaf',
             value_type => 'string',
             compute    => {
-                formula   => 'trad idx $replace{&index(-)}',
-                replace   => {
+                formula => 'trad idx $replace{&index(-)}',
+                replace => {
                     l1 => 'level1',
                     l2 => 'level2'
-                }
-            }
+                } }
         },
         [qw/bar foo foo2/] => {
             type              => 'node',
@@ -113,9 +112,7 @@ $model->create_config_class(
                 follow => '- - macro',
                 rules  => {
                     A => { default => 'Av' },
-                    B => { default => 'Bv' }
-                }
-            }
+                    B => { default => 'Bv' } } }
         },
         'recursive_slave' => {
             type       => 'hash',
@@ -142,9 +139,7 @@ $model->create_config_class(
                         default    => 'Bv',
                         level      => 'normal',
                         experience => 'advanced',
-                        choice     => [qw/Av Bv Cv/]
-                    }
-                }
+                        choice     => [qw/Av Bv Cv/] } }
             },
         },
         Comp => {
@@ -160,12 +155,10 @@ $model->create_config_class(
             value_type => 'uniline',
             default    => 'slaved',
             warp       => {
-                rules =>
-                  [ '&location =~ /recursive/', { 'default' => 'rslaved' } ]
+                rules => [ '&location =~ /recursive/', { 'default' => 'rslaved' } ]
             },
         },
-    ]
-);
+    ] );
 
 $model->create_config_class(
     name    => "Master",
@@ -189,24 +182,21 @@ $model->create_config_class(
         m_value_out => {
             type       => 'leaf',
             value_type => 'uniline',
-             warp       => {
+            warp       => {
                 follow  => '- macro',
                 'rules' => [
                     "B" => {
-                        level  => 'hidden',
+                        level => 'hidden',
                     },
-                ]
-            }
+                ] }
         },
         m2_value_out => {
             type       => 'leaf',
             value_type => 'uniline',
             warp       => {
                 follow => { m => '- macro', m2 => '- macro2' },
-                rules =>
-                  [ '$m eq "A" or $m2 eq "A"' => { level => 'hidden', }, ]
-            }
-         },
+                rules => [ '$m eq "A" or $m2 eq "A"' => { level => 'hidden', }, ] }
+        },
         macro2 => {
             type       => 'leaf',
             value_type => 'enum',
@@ -218,8 +208,7 @@ $model->create_config_class(
                         level  => 'normal',
                         choice => [qw/A B C D/]
                     },
-                ]
-            }
+                ] }
         },
         'm_value' => {
             type       => 'leaf',
@@ -242,9 +231,7 @@ $model->create_config_class(
                         choice => [qw/Cv/],
                         level  => 'normal',
                         help   => { Cv => 'Cv help' },
-                    }
-                ]
-            }
+                    } ] }
         },
         'm_value_old' => {
             type       => 'leaf',
@@ -267,9 +254,7 @@ $model->create_config_class(
                         choice => [qw/Cv/],
                         level  => 'normal',
                         help   => { Cv => 'Cv help' },
-                    }
-                ]
-            }
+                    } ] }
         },
         'compute' => {
             type       => 'leaf',
@@ -285,15 +270,13 @@ $model->create_config_class(
             value_type => 'string',
             mandatory  => 1,          # will croak if value cannot be computed
             compute    => {
-                formula =>
-                  'get_element is $replace{$s}, indirect value is \'$v\'',
+                formula   => 'get_element is $replace{$s}, indirect value is \'$v\'',
                 variables => {
                     's'   => '! $where',
                     where => '! where_is_element',
                     v     => '! $replace{$s}',
                 },
-                replace => {qw/m_value_element m_value compute_element compute/}
-            }
+                replace => {qw/m_value_element m_value compute_element compute/} }
         },
 
         'class' => {
@@ -311,9 +294,7 @@ $model->create_config_class(
             level      => 'hidden',
             warp       => {
                 follow => { m => '- macro', m2 => '- macro2' },
-                rules =>
-                  [ '$m eq "A" or $m2 eq "A"' => { level => 'normal', }, ]
-            }
+                rules => [ '$m eq "A" or $m2 eq "A"' => { level => 'normal', }, ] }
         },
 
         [qw/bar foo foo2/] => {
@@ -337,8 +318,7 @@ $model->create_config_class(
             },
             'type' => 'leaf'
         },
-    ]
-);
+    ] );
 
 my $inst = $model->instance(
     root_class_name => 'Master',
@@ -349,41 +329,37 @@ ok( $inst, "created dummy instance" );
 my $root = $inst->config_root;
 
 my $mvo = $root->fetch_element('m_value_out');
-isa_ok($mvo->{warper},'Config::Model::Warper',"check warper object");
+isa_ok( $mvo->{warper}, 'Config::Model::Warper', "check warper object" );
 
 my $macro = $root->fetch_element('macro');
 
 my @macro_slaves = ('Warper of Master m_value_out');
 
-eq_or_diff(
-    [ map { $_->name } $macro->get_depend_slave ] ,
-    \@macro_slaves,
-    "check m_value_out warper"
-    );
+eq_or_diff( [ map { $_->name } $macro->get_depend_slave ],
+    \@macro_slaves, "check m_value_out warper" );
 
 my $mvo2 = $root->fetch_element('m2_value_out');
-isa_ok($mvo2->{warper},'Config::Model::Warper',"check warper object");
+isa_ok( $mvo2->{warper}, 'Config::Model::Warper', "check warper object" );
 
-push @macro_slaves , 'Warper of Master m2_value_out', 'Warper of Master macro2' ;
+push @macro_slaves, 'Warper of Master m2_value_out', 'Warper of Master macro2';
 
 eq_or_diff(
-    [ sort map { $_->name } $macro->get_depend_slave ] ,
+    [ sort map { $_->name } $macro->get_depend_slave ],
     [ sort @macro_slaves ],
     "check m_value_out and m2_value_out warper"
-    );
+);
 
 eq_or_diff(
     [ $root->get_element_name( for => 'beginner' ) ],
     [
         qw'get_element where_is_element macro m_value_out m2_value_out
-        compute var_path class bar foo foo2 ClientAliveCheck'
+            compute var_path class bar foo foo2 ClientAliveCheck'
     ],
     "Elements of Master"
 );
 
 # query the model instead of the instance
-eq_or_diff(
-    [
+eq_or_diff( [
         $model->get_element_name(
             class => 'Slave',
             for   => 'beginner'
@@ -414,21 +390,20 @@ eq_or_diff(
     [ $root->get_element_name( for => 'beginner' ) ],
     [
         qw'get_element where_is_element macro m2_value_out macro2 m_value
-          m_value_old compute var_path class bar foo foo2
-          ClientAliveCheck'
+            m_value_old compute var_path class bar foo foo2
+            ClientAliveCheck'
     ],
     "Elements of Master when macro = B"
 );
 
-is( $root->fetch_element('macro2')->store('A'),
-    1, "setting master->macro2 to A" );
+is( $root->fetch_element('macro2')->store('A'), 1, "setting master->macro2 to A" );
 
 is_deeply(
     [ $root->get_element_name( for => 'beginner' ) ],
     [
         qw'get_element where_is_element macro macro2
-          m_value m_value_old compute var_path class warped_out_ref bar
-          foo foo2 ClientAliveCheck'
+            m_value m_value_old compute var_path class warped_out_ref bar
+            foo foo2 ClientAliveCheck'
     ],
     "Elements of Master when macro = B macro2 = A"
 );
@@ -439,40 +414,31 @@ $root->fetch_element('class')->fetch_with_id('bar')->store('bar_v');
 is( $root->fetch_element('warped_out_ref')->store('foo'),
     1, "setting master->warped_out_ref to foo" );
 
-is( $root->fetch_element('macro')->store('A'),
-    1, "setting master->macro to A" );
+is( $root->fetch_element('macro')->store('A'), 1, "setting master->macro to A" );
 
-map { is( $slave->fetch_element($_)->fetch, 'Av', "reading slave->$_ (Av)" ); }
-  qw/X Y Z/;
+map { is( $slave->fetch_element($_)->fetch, 'Av', "reading slave->$_ (Av)" ); } qw/X Y Z/;
 
-is( $root->fetch_element('macro')->store('C'),
-    1, "setting master->macro to C" );
+is( $root->fetch_element('macro')->store('C'), 1, "setting master->macro to C" );
 
-is( $root->fetch_element('m_value')->get_help('Cv'),
-    'Cv help', 'test m_value help with macro=C' );
+is( $root->fetch_element('m_value')->get_help('Cv'), 'Cv help', 'test m_value help with macro=C' );
 
 is( $slave->fetch_element('X')->fetch, undef, "reading slave->X (undef)" );
 
 $root->fetch_element('macro')->store('A');
 
-is( $root->fetch_element('m_value')->store('Av'),
-    1, 'test m_value with macro=A' );
+is( $root->fetch_element('m_value')->store('Av'), 1, 'test m_value with macro=A' );
 
-is( $root->fetch_element('m_value_old')->store('Av'),
-    1, 'test m_value_old with macro=A' );
+is( $root->fetch_element('m_value_old')->store('Av'), 1, 'test m_value_old with macro=A' );
 
-is( $root->fetch_element('m_value')->get_help('Av'),
-    'Av help', 'test m_value help with macro=A' );
+is( $root->fetch_element('m_value')->get_help('Av'), 'Av help', 'test m_value help with macro=A' );
 
-is( $root->fetch_element('m_value')->get_help('Cv'),
-    undef, 'test m_value help with macro=A' );
+is( $root->fetch_element('m_value')->get_help('Cv'), undef, 'test m_value help with macro=A' );
 
 $root->fetch_element('macro')->store('D');
 
 is( $root->fetch_element('m_value')->fetch, 'Av', 'test m_value with macro=D' );
 
-is( $root->fetch_element('m_value_old')->fetch,
-    'Av', 'test m_value_old with macro=D' );
+is( $root->fetch_element('m_value_old')->fetch, 'Av', 'test m_value_old with macro=D' );
 
 $root->fetch_element('macro')->store('A');
 
@@ -494,8 +460,7 @@ is_deeply(
     "Slave elements from the object for advanced level"
 );
 
-map { is( $slave->fetch_element($_)->fetch, 'Bv', "reading slave->$_ (Bv)" ); }
-  qw/X Y Z/;
+map { is( $slave->fetch_element($_)->fetch, 'Bv', "reading slave->$_ (Bv)" ); } qw/X Y Z/;
 
 is( $slave->fetch_element('Y')->store('Cv'), 1, 'Set slave->Y to Cv' );
 
@@ -509,35 +474,30 @@ is( $slave->is_element_available( name => 'W', experience => 'advanced' ),
 
 $root->fetch_element('macro')->store('C');
 
-map {
-    is( $slave->fetch_element($_)->fetch, undef, "reading slave->$_ (undef)" );
-} qw/X Z/;
+map { is( $slave->fetch_element($_)->fetch, undef, "reading slave->$_ (undef)" ); } qw/X Z/;
 is( $slave->fetch_element('Y')->fetch, 'Cv', "reading slave->Y (Cv)" );
 
 is( $slave->fetch_element('Comp')->fetch, 'macro is C', "reading slave->Comp" );
 
 is( $root->fetch_element('m_value')->store('Cv'), 1, 'set m_value to Cv' );
 
-my $rslave1 = $slave->fetch_element('recursive_slave')->fetch_with_id('l1');
-my $rslave2 = $rslave1->fetch_element('recursive_slave')->fetch_with_id('l2');
-my $big_compute_obj =
-  $rslave2->fetch_element('big_compute')->fetch_with_id('b1');
+my $rslave1         = $slave->fetch_element('recursive_slave')->fetch_with_id('l1');
+my $rslave2         = $rslave1->fetch_element('recursive_slave')->fetch_with_id('l2');
+my $big_compute_obj = $rslave2->fetch_element('big_compute')->fetch_with_id('b1');
 
-isa_ok( $big_compute_obj, 'Config::Model::Value',
-    'Created new big compute object' );
+isa_ok( $big_compute_obj, 'Config::Model::Value', 'Created new big compute object' );
 
-my $bc_val =
-  $rslave2->fetch_element('big_compute')->fetch_with_id("test_1")->fetch;
+my $bc_val = $rslave2->fetch_element('big_compute')->fetch_with_id("test_1")->fetch;
 
 is(
     $bc_val,
-'macro is C, my idx: test_1, my element big_compute, upper element recursive_slave, up idx l2',
+    'macro is C, my idx: test_1, my element big_compute, upper element recursive_slave, up idx l2',
     'reading slave->big_compute(test1)'
 );
 
 is(
     $big_compute_obj->fetch,
-'macro is C, my idx: b1, my element big_compute, upper element recursive_slave, up idx l2',
+    'macro is C, my idx: b1, my element big_compute, upper element recursive_slave, up idx l2',
     'reading slave->big_compute(b1)'
 );
 
@@ -574,7 +534,7 @@ is(
 my @masters = $root->fetch_element('macro')->get_depend_slave();
 my @names = sort map { $_->name } @masters;
 print "macro controls:\n\t", join( "\n\t", @names ), "\n"
-  if $trace;
+    if $trace;
 
 is( scalar @masters, 16, 'reading macro slaves' );
 
@@ -619,11 +579,7 @@ like(
     qr/'! where_is_element' is 'get_element'/,
     'reading var_path while where_is_element is defined'
 );
-like(
-    $@,
-    qr/Undefined mandatory value/,
-    'reading var_path while get_element variable is undef'
-);
+like( $@, qr/Undefined mandatory value/, 'reading var_path while get_element variable is undef' );
 
 # set the other variable of the formula
 $root->fetch_element('get_element')->store('m_value_element');
@@ -639,27 +595,22 @@ $root->fetch_element('get_element')->store('compute_element');
 
 is(
     $root->fetch_element('var_path')->fetch(),
-'get_element is compute, indirect value is \'macro is C, my element is compute\'',
+    'get_element is compute, indirect value is \'macro is C, my element is compute\'',
     "reading var_path through compute element"
 );
 
 $root->fetch_element('ClientAliveCheck')->store(0);
 
 eval { $root->fetch_element('ClientAliveInterval')->fetch; };
-like(
-    $@,
-    qr/unavailable element/,
-    'reading ClientAliveInterval when ClientAliveCheck is 0'
-);
+like( $@, qr/unavailable element/, 'reading ClientAliveInterval when ClientAliveCheck is 0' );
 
 $root->fetch_element('ClientAliveCheck')->store(1);
 $root->fetch_element('ClientAliveInterval')->store(10);
-is( $root->fetch_element('ClientAliveInterval')->fetch,
-    10, "check ClientAliveInterval" );
+is( $root->fetch_element('ClientAliveInterval')->fetch, 10, "check ClientAliveInterval" );
 
 my %loc_h = (
     qw/bar slaved foo2 slaved/,
-    'bar recursive_slave:l1 foo2' => 'rslaved',
+    'bar recursive_slave:l1 foo2'                    => 'rslaved',
     'bar recursive_slave:l1 recursive_slave:l2 foo2' => 'rslaved'
 );
 
@@ -676,16 +627,16 @@ my $layered_i = $model->instance(
 ok( $layered_i, "created layered instance" );
 
 my $l_root = $layered_i->config_root;
-$layered_i->layered_start ;
+$layered_i->layered_start;
 
 my $l_macro = $l_root->fetch_element('macro');
 
-$l_macro->store('D') ;
+$l_macro->store('D');
 
 my $l_mv = $l_root->fetch_element('m_value');
 $layered_i->layered_stop;
 
-$l_mv->store('Av') ;
-is($l_mv->fetch,'Av',"test warp in layered mode") ;
+$l_mv->store('Av');
+is( $l_mv->fetch, 'Av', "test warp in layered mode" );
 
-memory_cycle_ok($model,"test memory cycle");
+memory_cycle_ok( $model, "test memory cycle" );

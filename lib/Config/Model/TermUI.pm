@@ -1,34 +1,32 @@
-package Config::Model::TermUI ;
+package Config::Model::TermUI;
 
 use Carp;
-use strict ;
-use warnings ;
+use strict;
+use warnings;
 
 use Term::ReadLine;
 
-use base qw/Config::Model::SimpleUI/ ;
-
+use base qw/Config::Model::SimpleUI/;
 
 my $completion_sub = sub {
-    my ($self,$text,$line,$start) = @_ ;
+    my ( $self, $text, $line, $start ) = @_;
 
-    my @choice = $self->{current_node} -> get_element_name ;
+    my @choice = $self->{current_node}->get_element_name;
 
-    return () if scalar grep {$text eq $_ } @choice ;
+    return () if scalar grep { $text eq $_ } @choice;
 
-    return @choice ;
-} ;
+    return @choice;
+};
 
 my $leaf_completion_sub = sub {
-    my ($self,$text,$line,$start) = @_ ;
+    my ( $self, $text, $line, $start ) = @_;
 
-    my @choice = $self->{current_node}
-      -> get_element_name (cargo_type => 'leaf');
+    my @choice = $self->{current_node}->get_element_name( cargo_type => 'leaf' );
 
-    return () if scalar grep {$text eq $_ } @choice ;
+    return () if scalar grep { $text eq $_ } @choice;
 
-    return @choice ;
-} ;
+    return @choice;
+};
 
 # BUG: When doing autocompletion on a hash element with an index
 # containing white space (i.e. something like std_id:"abc def",
@@ -38,7 +36,7 @@ my $leaf_completion_sub = sub {
 # rl_completer_word_break_characters, but I do not know which one.
 
 my $cd_completion_sub = sub {
-    my ($self,$text,$line,$start) = @_ ;
+    my ( $self, $text, $line, $start ) = @_;
 
     #print "text '$text' line '$line' start $start\n";
     #print "  cd comp param is ",join('+',@_),"\n";
@@ -53,145 +51,148 @@ my $cd_completion_sub = sub {
     $cmd =~ s/cd\s+//;
 
     my $new_item;
-    while (not defined $new_item) {
-	# grab in tolerant mode
-	#print "Grabbing $cmd\n";
-	eval {$new_item = $self->{current_node}
-		-> grab(step => $cmd, mode => 'strict', autoadd => 0); };
-	chop $cmd ;
+    while ( not defined $new_item ) {
+
+        # grab in tolerant mode
+        #print "Grabbing $cmd\n";
+        eval {
+            $new_item = $self->{current_node}->grab( step => $cmd, mode => 'strict', autoadd => 0 );
+        };
+        chop $cmd;
     }
 
     #print "Grab got ",$new_item->location,"\n";
 
-    my @choice = length($line) > 3 ? () : ('!','-');
-    my $new_type = $new_item->get_type ;
+    my @choice = length($line) > 3 ? () : ( '!', '-' );
+    my $new_type = $new_item->get_type;
 
-    if ($new_type eq 'node') {
-	my @cargo = $new_item -> get_element_name(cargo_type => 'node') ;
-	foreach my $elt_name (@cargo) {
-	    if ($new_item->element_type($elt_name) =~ /hash|list/ ) {
-		push @choice, "$elt_name:" ;
-	    }
-	    else {
-		push @choice, "$elt_name " ;
-	    }
-	}
+    if ( $new_type eq 'node' ) {
+        my @cargo = $new_item->get_element_name( cargo_type => 'node' );
+        foreach my $elt_name (@cargo) {
+            if ( $new_item->element_type($elt_name) =~ /hash|list/ ) {
+                push @choice, "$elt_name:";
+            }
+            else {
+                push @choice, "$elt_name ";
+            }
+        }
     }
-    elsif ($new_type eq 'hash' or $new_type eq 'list') {
-	my @idx = $new_item -> fetch_all_indexes ;
-	if (@idx) {
-	    my $quote = $line =~ /"$/ ? '' : '"';
-	    my @tmp = map { /\s/ ? qq($quote$_" ) : qq($_ ); } @idx ;
-	    #print "tmp @tmp\n";
-	    push @choice, @tmp ;
-	}
-	# skip leaf items
+    elsif ( $new_type eq 'hash' or $new_type eq 'list' ) {
+        my @idx = $new_item->fetch_all_indexes;
+        if (@idx) {
+            my $quote = $line =~ /"$/ ? '' : '"';
+            my @tmp = map { /\s/ ? qq($quote$_" ) : qq($_ ); } @idx;
+
+            #print "tmp @tmp\n";
+            push @choice, @tmp;
+        }
+
+        # skip leaf items
     }
 
     # filter possible choices according to input
-    my @ret = grep(/^$text/, @choice) ;
+    my @ret = grep( /^$text/, @choice );
+
     #print "->choice +",join('+',@ret),"+ text:'$text'<-\n";
 
     # my $name = $new_node -> element_name || '';
     #print "DEBUG:  cd cmd: new_node is ",$new_node->location,", name $name, ",
     #  "choice @choice\n" ;#if $::debug;
 
-    return @ret ;
-} ;
+    return @ret;
+};
 
-
-my %completion_dispatch =
-  (
-   cd => $cd_completion_sub,
-   desc => $completion_sub,
-   ll   => $completion_sub,
-   set => $leaf_completion_sub,
-   delete => $leaf_completion_sub,
-   reset => $leaf_completion_sub,
-  );
+my %completion_dispatch = (
+    cd     => $cd_completion_sub,
+    desc   => $completion_sub,
+    ll     => $completion_sub,
+    set    => $leaf_completion_sub,
+    delete => $leaf_completion_sub,
+    reset  => $leaf_completion_sub,
+);
 
 sub completion {
-    my ($self,$text,$line,$start) = @_ ;
+    my ( $self, $text, $line, $start ) = @_;
 
     #print " comp param is +$text+$line+$start+\n";
-    my $space_idx = index $line,' ' ;
-    my ($main, $cmd) = split m/\s+/, $line, 2; # /;
-    #warn " comp main cmd is '$main' (space_idx $space_idx)\n";
+    my $space_idx = index $line, ' ';
+    my ( $main, $cmd ) = split m/\s+/, $line, 2;    # /;
+            #warn " comp main cmd is '$main' (space_idx $space_idx)\n";
 
-    if ( $space_idx > 0 and defined $completion_dispatch{$main}) {
-	my $i = $self->{current_node}->instance;
-	return $completion_dispatch{$main}->($self,$text,$line,$start) ;
+    if ( $space_idx > 0 and defined $completion_dispatch{$main} ) {
+        my $i = $self->{current_node}->instance;
+        return $completion_dispatch{$main}->( $self, $text, $line, $start );
     }
-    elsif (not $cmd) {
-	return $self->simple_ui_commands() ;
+    elsif ( not $cmd ) {
+        return $self->simple_ui_commands();
     }
 
-    return () ;
+    return ();
 }
-
 
 sub new {
     my $type = shift;
-    my %args = @_ ;
+    my %args = @_;
 
-    my $self = {} ;
+    my $self = {};
 
     foreach my $p (qw/root title prompt/) {
-	$self->{$p} = delete $args{$p} or
-	  croak "WizardHelper->new: Missing $p parameter" ;
+        $self->{$p} = delete $args{$p}
+            or croak "WizardHelper->new: Missing $p parameter";
     }
 
-    $self->{current_node} = $self->{root} ;
+    $self->{current_node} = $self->{root};
 
     my $term = new Term::ReadLine $self->{title};
 
-    my $sub_ref = sub { $self->completion(@_) ;} ;
+    my $sub_ref = sub { $self->completion(@_); };
 
-    my $word_break_string = "\\\t\n' `\@\$><;|&{(" ;
+    my $word_break_string = "\\\t\n' `\@\$><;|&{(";
 
-    if ($term->ReadLine eq "Term::ReadLine::Gnu") {
-	# See Term::ReadLine::Gnu / Custom Completion
-	my $attribs = $term->Attribs ;
-	$attribs->{completion_function} = $sub_ref ;
-	$attribs->{completer_word_break_characters}
-	  = $word_break_string;
+    if ( $term->ReadLine eq "Term::ReadLine::Gnu" ) {
+
+        # See Term::ReadLine::Gnu / Custom Completion
+        my $attribs = $term->Attribs;
+        $attribs->{completion_function}             = $sub_ref;
+        $attribs->{completer_word_break_characters} = $word_break_string;
     }
-    elsif ($term->ReadLine eq "Term::ReadLine::Perl") {
-	no warnings "once" ;
-	$readline::rl_completion_function = $sub_ref ;
-	&readline::rl_set(rl_completer_word_break_characters => $word_break_string) ;
-	# &readline::rl_set('TcshCompleteMode', 'On');
+    elsif ( $term->ReadLine eq "Term::ReadLine::Perl" ) {
+        no warnings "once";
+        $readline::rl_completion_function = $sub_ref;
+        &readline::rl_set( rl_completer_word_break_characters => $word_break_string );
+
+        # &readline::rl_set('TcshCompleteMode', 'On');
     }
 
-    $self->{term} = $term ;
+    $self->{term} = $term;
 
     foreach my $p (qw//) {
-	$self->{$p} = delete $args{$p} if defined $args{$p} ;
+        $self->{$p} = delete $args{$p} if defined $args{$p};
     }
 
-    bless $self, $type ;
+    bless $self, $type;
 }
 
-
 sub run_loop {
-    my $self = shift ;
+    my $self = shift;
 
-    my $term = $self->{term} ;
+    my $term = $self->{term};
 
     my $OUT = $term->OUT || \*STDOUT;
-    my $user_cmd ;
-    while ( defined ($user_cmd = $term->readline($self->prompt)) ) {
-	last if $user_cmd eq 'exit' or $user_cmd eq 'quit' ;
-	#print $OUT "cmd: $user_cmd\n";
-	my $res = $self->run($user_cmd);
-	print $OUT $res, "\n" if defined $res and $res;
-	## $term->addhistory($_) if defined $_ && /\S/;
+    my $user_cmd;
+    while ( defined( $user_cmd = $term->readline( $self->prompt ) ) ) {
+        last if $user_cmd eq 'exit' or $user_cmd eq 'quit';
+
+        #print $OUT "cmd: $user_cmd\n";
+        my $res = $self->run($user_cmd);
+        print $OUT $res, "\n" if defined $res and $res;
+        ## $term->addhistory($_) if defined $_ && /\S/;
     }
     print "\n";
 
-    my $instance = $self->{root}->instance ;
-    if ($instance->c_count) {
-        my @changes = $instance->say_changes ;
+    my $instance = $self->{root}->instance;
+    if ( $instance->c_count ) {
+        my @changes = $instance->say_changes;
         if (@changes) {
             $user_cmd = $term->readline("write back data before exit ? (Y/n)");
             $instance->write_back unless $user_cmd =~ /n/i;

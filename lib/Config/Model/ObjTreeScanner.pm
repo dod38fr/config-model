@@ -1,285 +1,282 @@
-package Config::Model::ObjTreeScanner ;
+package Config::Model::ObjTreeScanner;
 
-use strict ;
-use Config::Model::Exception ;
-use Scalar::Util qw/blessed/ ;
-use Carp::Assert::More ;
+use strict;
+use Config::Model::Exception;
+use Scalar::Util qw/blessed/;
+use Carp::Assert::More;
 use Carp;
-use warnings ;
-
+use warnings;
 
 use Carp qw/croak confess cluck/;
 
-
 sub new {
-    my $type = shift ;
+    my $type = shift;
     my %args = @_;
 
-    my $self = { experience => 'beginner' , auto_vivify => 1, check => 'yes' } ;
-    bless $self,$type ;
+    my $self = { experience => 'beginner', auto_vivify => 1, check => 'yes' };
+    bless $self, $type;
 
-    $self->{leaf_cb} = delete $args{leaf_cb} or
-	croak __PACKAGE__,"->new: missing leaf_cb parameter" ;
+    $self->{leaf_cb} = delete $args{leaf_cb}
+        or croak __PACKAGE__, "->new: missing leaf_cb parameter";
 
     # we may use leaf_cb
-    $self->create_fallback(delete $args{fallback} || 'all') ;
+    $self->create_fallback( delete $args{fallback} || 'all' );
 
-    if (defined $args{permission}) {
-	$args{experience} = delete $args{permission} ;
-	carp "ObjTreeScanner new: permission is deprecated in favor of experience";
+    if ( defined $args{permission} ) {
+        $args{experience} = delete $args{permission};
+        carp "ObjTreeScanner new: permission is deprecated in favor of experience";
     }
 
     # get all call_backs
-    my @value_cb = map {$_.'_value_cb'}
-	qw/boolean enum string uniline integer number reference/;
+    my @value_cb =
+        map { $_ . '_value_cb' } qw/boolean enum string uniline integer number reference/;
 
-    foreach my $param (qw/check node_element_cb hash_element_cb
-                          list_element_cb check_list_element_cb node_content_cb
-                          node_content_hook list_element_hook hash_element_hook
-                          experience auto_vivify up_cb/, @value_cb) {
+    foreach my $param (
+        qw/check node_element_cb hash_element_cb
+        list_element_cb check_list_element_cb node_content_cb
+        node_content_hook list_element_hook hash_element_hook
+        experience auto_vivify up_cb/, @value_cb
+        ) {
         $self->{$param} = $args{$param} if defined $args{$param};
-	delete $args{$param} ; # may exists but be undefined
-        croak __PACKAGE__,"->new: missing $param parameter"
-          unless defined $self->{$param} ;
+        delete $args{$param};    # may exists but be undefined
+        croak __PACKAGE__, "->new: missing $param parameter"
+            unless defined $self->{$param};
     }
 
     # this parameter is optional and does not need a fallback
-    $self->{node_dispatch_cb} = delete $args{node_dispatch_cb} || {} ;
+    $self->{node_dispatch_cb} = delete $args{node_dispatch_cb} || {};
 
-    croak __PACKAGE__,"->new: node_dispatch_cb is not a hash ref"
-	unless ref($self->{node_dispatch_cb}) eq 'HASH';
+    croak __PACKAGE__, "->new: node_dispatch_cb is not a hash ref"
+        unless ref( $self->{node_dispatch_cb} ) eq 'HASH';
 
-    croak __PACKAGE__,"->new: unexpected check: $self->{check}"
-	unless $self->{check} =~ /yes|no|skip/;
+    croak __PACKAGE__, "->new: unexpected check: $self->{check}"
+        unless $self->{check} =~ /yes|no|skip/;
 
-    croak __PACKAGE__,"->new: unexpected parameter: ",join (' ',keys %args)
-      if scalar %args ;
+    croak __PACKAGE__, "->new: unexpected parameter: ", join( ' ', keys %args )
+        if scalar %args;
 
-    return $self ;
+    return $self;
 }
 
 # internal
 sub create_fallback {
-    my $self = shift ;
+    my $self     = shift;
     my $fallback = shift;
 
-    map { $self->{$_} = sub {} } qw/node_content_hook hash_element_hook list_element_hook/;
+    map {
+        $self->{$_} =
+            sub { }
+    } qw/node_content_hook hash_element_hook list_element_hook/;
 
-    return if not defined $fallback or $fallback eq 'none' ;
+    return if not defined $fallback or $fallback eq 'none';
 
-    my $done = 0 ;
+    my $done = 0;
 
-    if ($fallback eq 'node' or $fallback eq 'all') {
-        $done ++ ;
+    if ( $fallback eq 'node' or $fallback eq 'all' ) {
+        $done++;
         my $node_content_cb = sub {
-            my ($scanner, $data_r,$node,@element) = @_ ;
-            map {$scanner->scan_element($data_r,$node,$_)} @element ;
-	} ;
+            my ( $scanner, $data_r, $node, @element ) = @_;
+            map { $scanner->scan_element( $data_r, $node, $_ ) } @element;
+        };
 
         my $node_element_cb = sub {
-            my ($scanner, $data_r,$node,$element_name,$key, $next_node) = @_ ;
-            $scanner->scan_node($data_r,$next_node);
-	} ;
+            my ( $scanner, $data_r, $node, $element_name, $key, $next_node ) = @_;
+            $scanner->scan_node( $data_r, $next_node );
+        };
 
         my $hash_element_cb = sub {
-            my ($scanner, $data_r,$node,$element_name,@keys) = @_ ;
-            map {$scanner->scan_hash($data_r,$node,$element_name,$_)} @keys ;
-	};
+            my ( $scanner, $data_r, $node, $element_name, @keys ) = @_;
+            map { $scanner->scan_hash( $data_r, $node, $element_name, $_ ) } @keys;
+        };
 
-        $self->{list_element_cb}        = $hash_element_cb;
-        $self->{hash_element_cb}        = $hash_element_cb;
-        $self->{node_element_cb}        = $node_element_cb;
-        $self->{node_content_cb}        = $node_content_cb ;
-	$self->{up_cb}          = sub {} ; # do nothing
+        $self->{list_element_cb} = $hash_element_cb;
+        $self->{hash_element_cb} = $hash_element_cb;
+        $self->{node_element_cb} = $node_element_cb;
+        $self->{node_content_cb} = $node_content_cb;
+        $self->{up_cb}           = sub { };            # do nothing
     }
 
-    if ($fallback eq 'leaf' or $fallback eq 'all') {
-        $done ++ ;
-        my $l = $self->{string_value_cb} ||= $self->{leaf_cb} ;
+    if ( $fallback eq 'leaf' or $fallback eq 'all' ) {
+        $done++;
+        my $l = $self->{string_value_cb} ||= $self->{leaf_cb};
 
-        $self->{check_list_element_cb}  ||= $l ;
-        $self->{enum_value_cb}          ||= $l ;
-        $self->{integer_value_cb}       ||= $l ;
-        $self->{number_value_cb}        ||= $l ;
-        $self->{boolean_value_cb}       ||= $l ;
-        $self->{reference_value_cb}     ||= $l ;
-        $self->{uniline_value_cb}       ||= $l ;
-      }
+        $self->{check_list_element_cb} ||= $l;
+        $self->{enum_value_cb}         ||= $l;
+        $self->{integer_value_cb}      ||= $l;
+        $self->{number_value_cb}       ||= $l;
+        $self->{boolean_value_cb}      ||= $l;
+        $self->{reference_value_cb}    ||= $l;
+        $self->{uniline_value_cb}      ||= $l;
+    }
 
-    croak __PACKAGE__,"->new: Unexpected fallback value '$fallback'. ",
-      "Expected 'node', 'leaf', 'all' or 'none'" if not $done;
+    croak __PACKAGE__, "->new: Unexpected fallback value '$fallback'. ",
+        "Expected 'node', 'leaf', 'all' or 'none'"
+        if not $done;
 }
 
-
 sub scan_node {
-    my ($self,$data_r,$node) = @_ ;
+    my ( $self, $data_r, $node ) = @_;
 
     #print "scan_node ",$node->name,"\n";
     # get all elements according to catalog
 
-    Config::Model::Exception::Internal
-	-> throw (
-		  error => "'$node' is not a Config::Model object"
-		 )
-	  unless blessed($node) and $node->isa("Config::Model::AnyThing") ;
+    Config::Model::Exception::Internal->throw( error => "'$node' is not a Config::Model object" )
+        unless blessed($node)
+        and $node->isa("Config::Model::AnyThing");
 
     # skip exploration of warped out node
-    if ($node->isa('Config::Model::WarpedNode')) {
-	$node = $node->get_actual_node ;
-	return unless defined $node ;
+    if ( $node->isa('Config::Model::WarpedNode') ) {
+        $node = $node->get_actual_node;
+        return unless defined $node;
     }
 
-    my $config_class = $node->config_class_name ;
-    my $node_dispatch_cb = $self->{node_dispatch_cb}{$config_class} ;
+    my $config_class     = $node->config_class_name;
+    my $node_dispatch_cb = $self->{node_dispatch_cb}{$config_class};
 
     my $actual_cb = $node_dispatch_cb || $self->{node_content_cb};
 
-    my @element_list= $node->get_element_name(
-        for => $self->{experience},
-        check => $self->{check}
-    ) ;
+    my @element_list = $node->get_element_name(
+        for   => $self->{experience},
+        check => $self->{check} );
 
-    $self->{node_content_hook}->($self, $data_r,$node,@element_list) ;
+    $self->{node_content_hook}->( $self, $data_r, $node, @element_list );
 
     # we could add here a "last element" call-back, but it's not
     # very useful if the last element is a hash.
-    $actual_cb->($self, $data_r,$node,@element_list) ;
+    $actual_cb->( $self, $data_r, $node, @element_list );
 
-    $self->{up_cb}->($self, $data_r,$node) ;
+    $self->{up_cb}->( $self, $data_r, $node );
 }
-
 
 sub scan_element {
-    my ($self,$data_r,$node,$element_name) = @_ ;
+    my ( $self, $data_r, $node, $element_name ) = @_;
 
     my $element_type = $node->element_type($element_name);
 
-    my $autov = $self->{auto_vivify} ;
+    my $autov = $self->{auto_vivify};
 
     #print "scan_element $element_name ";
-    if ($element_type eq 'hash') {
+    if ( $element_type eq 'hash' ) {
+
         #print "type hash\n";
-        my @keys = $self->get_keys($node,$element_name) ;
+        my @keys = $self->get_keys( $node, $element_name );
+
         # if hash element grab keys and perform callback
-        $self->{hash_element_hook}->($self, $data_r,$node,$element_name,@keys);
-        $self->{hash_element_cb}->($self, $data_r,$node,$element_name,@keys);
+        $self->{hash_element_hook}->( $self, $data_r, $node, $element_name, @keys );
+        $self->{hash_element_cb}->( $self, $data_r, $node, $element_name, @keys );
     }
-    elsif ($element_type eq 'list') {
+    elsif ( $element_type eq 'list' ) {
+
         #print "type list\n";
-        my @keys = $self->get_keys($node,$element_name) ;
-        $self->{list_element_hook}->($self, $data_r,$node,$element_name, @keys);
-        $self->{list_element_cb}->($self, $data_r,$node,$element_name, @keys);
+        my @keys = $self->get_keys( $node, $element_name );
+        $self->{list_element_hook}->( $self, $data_r, $node, $element_name, @keys );
+        $self->{list_element_cb}->( $self, $data_r, $node, $element_name, @keys );
     }
-    elsif ($element_type eq 'check_list') {
+    elsif ( $element_type eq 'check_list' ) {
+
         #print "type list\n";
-	my $cl_elt = $node->fetch_element(name => $element_name, check => $self->{check}) ;
-        $self->{check_list_element_cb}->($self, $data_r,$node,$element_name, undef, $cl_elt);
+        my $cl_elt = $node->fetch_element( name => $element_name, check => $self->{check} );
+        $self->{check_list_element_cb}->( $self, $data_r, $node, $element_name, undef, $cl_elt );
     }
-    elsif ($element_type eq 'node') {
+    elsif ( $element_type eq 'node' ) {
+
         #print "type object\n";
-	# avoid auto-vivification
-	my $next_obj = ($autov or $node->is_element_defined($element_name))
-	             ? $node->fetch_element(name => $element_name, check => $self->{check})
-	             : undef ;
+        # avoid auto-vivification
+        my $next_obj =
+            ( $autov or $node->is_element_defined($element_name) )
+            ? $node->fetch_element( name => $element_name, check => $self->{check} )
+            : undef;
 
         # if obj element, cb
-        $self->{node_element_cb}-> ($self, $data_r, $node,
-				    $element_name,undef, $next_obj ) ;
+        $self->{node_element_cb}->( $self, $data_r, $node, $element_name, undef, $next_obj );
     }
-    elsif ($element_type eq 'warped_node') {
+    elsif ( $element_type eq 'warped_node' ) {
+
         #print "type warped\n";
-	my $next_obj = ($autov or $node->is_element_defined($element_name))
-	             ? $node->fetch_element(name => $element_name, check => $self->{check})
-	             : undef ;
-        $self->{node_element_cb}-> ($self, $data_r,$node,
-				    $element_name, undef, $next_obj) ;
+        my $next_obj =
+            ( $autov or $node->is_element_defined($element_name) )
+            ? $node->fetch_element( name => $element_name, check => $self->{check} )
+            : undef;
+        $self->{node_element_cb}->( $self, $data_r, $node, $element_name, undef, $next_obj );
     }
-    elsif ($element_type eq 'leaf') {
-	my $next_obj = $node->fetch_element(name => $element_name, check => $self->{check});
-	my $type = $next_obj->value_type ;
-	return unless $type;
-	my $cb_name = $type.'_value_cb' ;
-	my $cb = $self->{$cb_name};
-	croak "scan_element: No call_back specified for '$cb_name'"
-	  unless defined $cb ;
-	$cb-> ($self, $data_r,$node,$element_name,undef,$next_obj);
+    elsif ( $element_type eq 'leaf' ) {
+        my $next_obj = $node->fetch_element( name => $element_name, check => $self->{check} );
+        my $type = $next_obj->value_type;
+        return unless $type;
+        my $cb_name = $type . '_value_cb';
+        my $cb      = $self->{$cb_name};
+        croak "scan_element: No call_back specified for '$cb_name'"
+            unless defined $cb;
+        $cb->( $self, $data_r, $node, $element_name, undef, $next_obj );
     }
     else {
-	croak "Unexpected element_type: $element_type";
+        croak "Unexpected element_type: $element_type";
     }
 }
-
 
 sub scan_hash {
-    my ($self,$data_r,$node,$element_name,$key) = @_ ;
+    my ( $self, $data_r, $node, $element_name, $key ) = @_;
 
-    assert_like($node->element_type($element_name), qr/(hash|list)/);
+    assert_like( $node->element_type($element_name), qr/(hash|list)/ );
 
     #print "scan_hash ",$node->name," element $element_name key $key ";
-    my $item = $node -> fetch_element(name => $element_name, check => $self->{check}) ;
-
+    my $item = $node->fetch_element( name => $element_name, check => $self->{check} );
 
     my $cargo_type = $item->cargo_type($element_name);
-    my $next_obj = $item->fetch_with_id(index  => $key, check => $self->{check}) ;
+    my $next_obj = $item->fetch_with_id( index => $key, check => $self->{check} );
 
-    if ($cargo_type =~ /node$/) {
+    if ( $cargo_type =~ /node$/ ) {
+
         #print "type object or warped\n";
-        $self->{node_element_cb}-> ($self, $data_r,$node,
-				    $element_name,$key, $next_obj) ;
+        $self->{node_element_cb}->( $self, $data_r, $node, $element_name, $key, $next_obj );
     }
-    elsif ($cargo_type eq 'leaf') {
-	my $cb_name = $next_obj->value_type.'_value_cb' ;
-	my $cb = $self->{$cb_name};
-	croak "scan_hash: No call_back specified for '$cb_name'"
-	  unless defined $cb ;
-	$cb-> ($self, $data_r,$node,$element_name,$key,$next_obj);
+    elsif ( $cargo_type eq 'leaf' ) {
+        my $cb_name = $next_obj->value_type . '_value_cb';
+        my $cb      = $self->{$cb_name};
+        croak "scan_hash: No call_back specified for '$cb_name'"
+            unless defined $cb;
+        $cb->( $self, $data_r, $node, $element_name, $key, $next_obj );
     }
     else {
-	croak "Unexpected cargo_type: $cargo_type";
+        croak "Unexpected cargo_type: $cargo_type";
     }
 }
 
-
 sub scan_list {
-    goto &scan_hash ;
+    goto &scan_hash;
 }
-
 
 sub get_keys {
-    my ($self,$node,$element_name) = @_ ;
+    my ( $self, $node, $element_name ) = @_;
 
     my $element_type = $node->element_type($element_name);
-    my $item = $node->fetch_element(name => $element_name, check => $self->{check}) ;
+    my $item = $node->fetch_element( name => $element_name, check => $self->{check} );
 
     return $item->fetch_all_indexes
-      if    $element_type eq 'hash'
-	 || $element_type eq 'list' ;
+        if $element_type eq 'hash'
+        || $element_type eq 'list';
 
-    Config::Model::Exception::Internal
-	->throw (
-		 error => "called get_keys on non hash or non list"
-		 ." element $element_name",
-		 object => $node
-		) ;
+    Config::Model::Exception::Internal->throw(
+        error  => "called get_keys on non hash or non list" . " element $element_name",
+        object => $node
+    );
 
 }
-
 
 sub experience {
-    my ($self,$new_perm) = @_ ;
-    $self->{experience} = $new_perm if defined $new_perm ;
-    return $self->{experience} ;
+    my ( $self, $new_perm ) = @_;
+    $self->{experience} = $new_perm if defined $new_perm;
+    return $self->{experience};
 }
 
-
 sub get_experience_ref {
-    my $self = shift ;
-    return \$self->{experience} ;
+    my $self = shift;
+    return \$self->{experience};
 }
 
 sub get_permission_ref {
     carp "get_permission_ref: deprecated";
-    goto &get_experience_ref ;
+    goto &get_experience_ref;
 }
 
 1;

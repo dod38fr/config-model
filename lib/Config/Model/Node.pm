@@ -1,9 +1,9 @@
 package Config::Model::Node;
 
-use Mouse ;
+use Mouse;
 use namespace::autoclean;
 
-use Carp ;
+use Carp;
 
 use Config::Model::Exception;
 use Config::Model::Loader;
@@ -14,52 +14,50 @@ use Config::Model::TreeSearcher;
 use Config::Model::Describe;
 use Config::Model::BackendMgr;
 use Log::Log4perl qw(get_logger :levels);
-use Storable qw/dclone/ ;
+use Storable qw/dclone/;
 use List::MoreUtils qw(insert_after_string);
 
 extends qw/Config::Model::AnyThing/;
 
 use vars qw(@status @level
-            @experience_list %experience_index %default_property);
+    @experience_list %experience_index %default_property);
 
-*status           = *Config::Model::status ;
-*level            = *Config::Model::level ;
-*experience_list  = *Config::Model::experience_list ;
-*experience_index = *Config::Model::experience_index ;
-*default_property = *Config::Model::default_property ;
+*status           = *Config::Model::status;
+*level            = *Config::Model::level;
+*experience_list  = *Config::Model::experience_list;
+*experience_index = *Config::Model::experience_index;
+*default_property = *Config::Model::default_property;
 
 my %legal_properties = (
-                        status => {qw/obsolete 1 deprecated 1 standard 1/ },
-                        level  => {qw/important 1 normal 1 hidden 1/},
-                        experience => {qw/master 1 advanced 1 beginner 1/},
-                       ) ;
+    status     => {qw/obsolete 1 deprecated 1 standard 1/},
+    level      => {qw/important 1 normal 1 hidden 1/},
+    experience => {qw/master 1 advanced 1 beginner 1/},
+);
 
-my $logger = get_logger("Tree::Node") ;
-my $fix_logger = get_logger("Anything::Fix") ;
+my $logger     = get_logger("Tree::Node");
+my $fix_logger = get_logger("Anything::Fix");
 
 # Here are the legal element types
-my %create_sub_for = 
-  (
-   node => \&create_node,
-   leaf => \&create_leaf,
-   hash => \&create_id,
-   list => \&create_id,
-   check_list => \&create_id ,
-   warped_node => \&create_warped_node,
-  ) ;
-
+my %create_sub_for = (
+    node        => \&create_node,
+    leaf        => \&create_leaf,
+    hash        => \&create_id,
+    list        => \&create_id,
+    check_list  => \&create_id,
+    warped_node => \&create_warped_node,
+);
 
 # Node internal documentation
 #
 # Since the class holds a significant number of element, here's its
 # main structure.
 #
-# $self 
+# $self
 # = (
 #    config_model      : Weak reference to Config::Model object
 #    config_class_name
 #    model             : model of the config class
-#    instance          : Weak reference to Config::Model::Instance object 
+#    instance          : Weak reference to Config::Model::Instance object
 #    element_name      : Name of the element containing this node
 #                        (undef for root node).
 #    parent            : weak reference of parent node (undef for root node)
@@ -73,64 +71,66 @@ my %create_sub_for =
 #                              }
 #  ) ;
 
-has initialized => (is => 'rw', isa => 'Bool', default => 0 ) ;
+has initialized => ( is => 'rw', isa => 'Bool', default => 0 );
 
-has config_class_name => (is => 'ro', isa => 'Str', required =>1 ) ;
+has config_class_name => ( is => 'ro', isa => 'Str', required => 1 );
 
-has [qw/config_file element_name/] 
-    => (is => 'ro', isa => 'Maybe[Str]', required => 0 ) ;
+has [qw/config_file element_name/] => ( is => 'ro', isa => 'Maybe[Str]', required => 0 );
 
-has instance => ( is => 'ro', isa => 'Config::Model::Instance', weak_ref => 1 ,required =>1 ) ;
-has config_model => ( is => 'ro', isa => 'Config::Model', 
-    weak_ref => 1 , lazy => 1, builder => '_config_model') ;
+has instance => ( is => 'ro', isa => 'Config::Model::Instance', weak_ref => 1, required => 1 );
+has config_model => (
+    is       => 'ro',
+    isa      => 'Config::Model',
+    weak_ref => 1,
+    lazy     => 1,
+    builder  => '_config_model'
+);
 
 sub _config_model {
-    my $self = shift ;
-    my $p = $self->instance->config_model ;
+    my $self = shift;
+    my $p    = $self->instance->config_model;
 }
 
-has skip_read => ( is => 'ro', isa => 'Bool') ;
-has check => ( is => 'ro', isa => 'Str', default => 'yes') ;
-has model => ( is => 'rw' , isa => 'HashRef' ) ;
-has needs_save => ( is => 'rw', isa => 'Bool', default => 0 ) ;
+has skip_read  => ( is => 'ro', isa => 'Bool' );
+has check      => ( is => 'ro', isa => 'Str', default => 'yes' );
+has model      => ( is => 'rw', isa => 'HashRef' );
+has needs_save => ( is => 'rw', isa => 'Bool', default => 0 );
 
-has backend_mgr => ( is => 'ro', isa => 'Maybe[Config::Model::BackendMgr]') ;
+has backend_mgr => ( is => 'ro', isa => 'Maybe[Config::Model::BackendMgr]' );
 
 sub BUILD {
     my $self = shift;
 
     my $read_check = $self->instance->read_check;
-    
-    my $req_check = $self->check ;
-    my $check = $req_check eq 'no'   || $read_check eq 'no'   ? 'no'
-              : $req_check eq 'skip' || $read_check eq 'skip' ? 'skip' 
-              :                                                 'yes' ;
-    
-    
-    my $caller_class = defined $self->parent 
-      ? $self->parent->name : 'user' ;
 
-    my $class_name = $self->config_class_name ;
-    $logger->info( "New $class_name requested by $caller_class");
+    my $req_check = $self->check;
+    my $check =
+          $req_check eq 'no'   || $read_check eq 'no'   ? 'no'
+        : $req_check eq 'skip' || $read_check eq 'skip' ? 'skip'
+        :                                                 'yes';
+
+    my $caller_class = defined $self->parent ? $self->parent->name : 'user';
+
+    my $class_name = $self->config_class_name;
+    $logger->info("New $class_name requested by $caller_class");
 
     # get_model returns a cloned data structure
     $self->model( $self->config_model->get_model($class_name) );
-        
-    $self->check_properties ;
 
-    return $self ;
+    $self->check_properties;
+
+    return $self;
 }
-
 
 ## Create_* methods are all internal and should not be used directly
 
 sub create_element {
-    my $self= shift ;
-    my %args = @_ > 1 ? @_ : ( name => shift ) ;
-    my $element_name = $args{name} ;
-    my $check = $args{check} || 'yes' ;
+    my $self         = shift;
+    my %args         = @_ > 1 ? @_ : ( name => shift );
+    my $element_name = $args{name};
+    my $check        = $args{check} || 'yes';
 
-    my $element_info = $self->{model}{element}{$element_name}  ;
+    my $element_info = $self->{model}{element}{$element_name};
 
     if ( not defined $element_info ) {
         if ( $check eq 'yes' ) {
@@ -146,180 +146,161 @@ sub create_element {
         }
     }
 
-    Config::Model::Exception::Model->throw
-        (
-         error=> "element '$element_name' error: "
-         . "passed information is not a hash ref",
-         object => $self
-        ) 
-          unless ref($element_info) eq 'HASH' ;
+    Config::Model::Exception::Model->throw(
+        error  => "element '$element_name' error: " . "passed information is not a hash ref",
+        object => $self
+    ) unless ref($element_info) eq 'HASH';
 
-    Config::Model::Exception::Model->throw
-        (
-         error=> "create element '$element_name' error: "
-         . "missing 'type' parameter",
-         object => $self
-        )
-          unless defined $element_info->{type} ;
+    Config::Model::Exception::Model->throw(
+        error  => "create element '$element_name' error: " . "missing 'type' parameter",
+        object => $self
+    ) unless defined $element_info->{type};
 
-    my $method = $create_sub_for{$element_info->{type}} ;
+    my $method = $create_sub_for{ $element_info->{type} };
 
     croak $self->{config_class_name},
-      " error: no create method for element type $element_info->{type}"
-        unless defined $method ;
+        " error: no create method for element type $element_info->{type}"
+        unless defined $method;
 
-    $self->$method($element_name, $check) ;
+    $self->$method( $element_name, $check );
 }
-
-
-
 
 sub create_node {
-    my ($self, $element_name, $check)  = @_ ;
+    my ( $self, $element_name, $check ) = @_;
 
-    my $element_info = dclone($self->{model}{element}{$element_name}) ; 
+    my $element_info = dclone( $self->{model}{element}{$element_name} );
 
-    Config::Model::Exception::Model->throw
-        (
-         error=> "create node '$element_name' error: "
-         ."missing config class name parameter",
-         object => $self
-        )
-          unless defined $element_info->{config_class_name} ;
+    Config::Model::Exception::Model->throw(
+        error  => "create node '$element_name' error: " . "missing config class name parameter",
+        object => $self
+    ) unless defined $element_info->{config_class_name};
 
-    my @args = (config_class_name => $element_info->{config_class_name},
-                instance          => $self->{instance},
-                element_name      => $element_name ,
-                check             => $check ,
-                parent            => $self,
-                container         => $self,
-    ) ;
+    my @args = (
+        config_class_name => $element_info->{config_class_name},
+        instance          => $self->{instance},
+        element_name      => $element_name,
+        check             => $check,
+        parent            => $self,
+        container         => $self,
+    );
 
-    $self->{element}{$element_name} = $self->new(@args) ;
+    $self->{element}{$element_name} = $self->new(@args);
 }
-
 
 sub create_warped_node {
-    my ($self, $element_name, $check)  = @_ ;
+    my ( $self, $element_name, $check ) = @_;
 
-    my $element_info = dclone($self->{model}{element}{$element_name}) ; 
+    my $element_info = dclone( $self->{model}{element}{$element_name} );
 
-    my @args = (instance          => $self->{instance},
-                element_name      => $element_name,
-                parent            => $self,
-                check             => $check,
-                container         => $self,
-    ) ;
+    my @args = (
+        instance     => $self->{instance},
+        element_name => $element_name,
+        parent       => $self,
+        check        => $check,
+        container    => $self,
+    );
 
-    require Config::Model::WarpedNode ;
+    require Config::Model::WarpedNode;
 
-    $self->{element}{$element_name} 
-      = Config::Model::WarpedNode->new(%$element_info,@args) ;
+    $self->{element}{$element_name} =
+        Config::Model::WarpedNode->new( %$element_info, @args );
 }
-
 
 sub create_leaf {
-    my ($self, $element_name, $check)  = @_ ;
+    my ( $self, $element_name, $check ) = @_;
 
-    my $element_info = dclone($self->{model}{element}{$element_name}) ; 
+    my $element_info = dclone( $self->{model}{element}{$element_name} );
 
-    delete $element_info->{type} ;
-    my $leaf_class = delete $element_info->{class} || 'Config::Model::Value' ;
+    delete $element_info->{type};
+    my $leaf_class = delete $element_info->{class} || 'Config::Model::Value';
 
-    if (not defined *{$leaf_class.'::'}) {
-        my $file = $leaf_class.'.pm';
+    if ( not defined *{ $leaf_class . '::' } ) {
+        my $file = $leaf_class . '.pm';
         $file =~ s!::!/!g;
-        require $file ;
+        require $file;
     }
 
-    $element_info->{container} = $element_info->{parent} = $self ;
-    $element_info->{element_name} = $element_name ;
-    $element_info->{instance}     = $self->{instance} ;
-    
+    $element_info->{container} = $element_info->{parent} = $self;
+    $element_info->{element_name} = $element_name;
+    $element_info->{instance}     = $self->{instance};
 
-    $self->{element}{$element_name} = $leaf_class->new( %$element_info) ;
+    $self->{element}{$element_name} = $leaf_class->new(%$element_info);
 }
-
 
 my %id_class_hash = (
-                     hash       => 'HashId',
-                     list       => 'ListId',
-                     check_list => 'CheckList' ,
-                    ) ;
+    hash       => 'HashId',
+    list       => 'ListId',
+    check_list => 'CheckList',
+);
 
 sub create_id {
-    my ($self, $element_name, $check)  = @_ ;
+    my ( $self, $element_name, $check ) = @_;
 
-    my $element_info = dclone($self->{model}{element}{$element_name}) ; 
-    my $type = delete $element_info->{type} ;
+    my $element_info = dclone( $self->{model}{element}{$element_name} );
+    my $type         = delete $element_info->{type};
 
-    Config::Model::Exception::Model
-        ->throw (
-                 error=> "create $type element '$element_name' error"
-                 .": missing 'type' parameter",
-                 object => $self
-                )
-          unless defined $type ;
+    Config::Model::Exception::Model->throw(
+        error  => "create $type element '$element_name' error" . ": missing 'type' parameter",
+        object => $self
+    ) unless defined $type;
 
-    croak "Undefined id_class for type '$type'" 
-      unless defined $id_class_hash{$type};
+    croak "Undefined id_class for type '$type'"
+        unless defined $id_class_hash{$type};
 
-    my $id_class = delete $element_info->{$type.'_class'} 
-      || 'Config::Model::'.$id_class_hash{$type} ;
+    my $id_class = delete $element_info->{ $type . '_class' }
+        || 'Config::Model::' . $id_class_hash{$type};
 
-    if (not defined *{$id_class.'::'}) {
-        my $file = $id_class.'.pm';
+    if ( not defined *{ $id_class . '::' } ) {
+        my $file = $id_class . '.pm';
         $file =~ s!::!/!g;
-        require $file ;
+        require $file;
     }
 
-    $element_info->{container} = $element_info->{parent} = $self ;
-    $element_info->{element_name} = $element_name ;
-    $element_info->{instance}     = $self->{instance} ;
+    $element_info->{container} = $element_info->{parent} = $self;
+    $element_info->{element_name} = $element_name;
+    $element_info->{instance}     = $self->{instance};
 
-    $self->{element}{$element_name} = $id_class->new( %$element_info) ;
+    $self->{element}{$element_name} = $id_class->new(%$element_info);
 }
 
-
-# check validity of experience,level and status declaration. 
+# check validity of experience,level and status declaration.
 # create a list to classify elements by experience
 sub check_properties {
-    my $self = shift ;
+    my $self = shift;
 
-    # a model should no longer contain attributes attached to 
+    # a model should no longer contain attributes attached to
     # an element (like description, level ...). There are copied here
     # because Node needs them as hash or lists
     foreach my $bad (qw/description summary level experience status permission/) {
-        die $self->config_class_name,": illegal '$bad' parameter in model ",
-            "(Should be handled by Config::Model directly)" 
-                if defined $self->{model}{$bad};
+        die $self->config_class_name, ": illegal '$bad' parameter in model ",
+            "(Should be handled by Config::Model directly)"
+            if defined $self->{model}{$bad};
     }
 
     # this is a bit convoluted, but the order of element stored with
     # the "push" for each experience must respect the order of the
     # elements declared in the model by the user
 
-    foreach my $elt_name (@{$self->{model}{element_list}}) {
+    foreach my $elt_name ( @{ $self->{model}{element_list} } ) {
 
         foreach my $prop (qw/summary description/) {
-            my $info_to_move = delete $self->{model}{element}{$elt_name}{$prop} ;
-            $self->{$prop}{$elt_name} = $info_to_move 
+            my $info_to_move = delete $self->{model}{element}{$elt_name}{$prop};
+            $self->{$prop}{$elt_name} = $info_to_move
                 if defined $info_to_move;
         }
 
-        foreach my $prop (keys %legal_properties) {
-            my $prop_v =  delete $self->{model}{element}{$elt_name}{$prop} ;
-            $prop_v = $Config::Model::default_property{$prop} 
+        foreach my $prop ( keys %legal_properties ) {
+            my $prop_v = delete $self->{model}{element}{$elt_name}{$prop};
+            $prop_v = $Config::Model::default_property{$prop}
                 unless defined $prop_v;
-            $self->{$prop}{$elt_name} = $prop_v ;
+            $self->{$prop}{$elt_name} = $prop_v;
 
             croak "Config class $self->{config_class_name} error: ",
-              "Unknown $prop: '$prop_v'. Expected ",
-                join(" or ",keys %{$self->{$prop}})
-                  unless defined $legal_properties{$prop}{$prop_v} ;
+                "Unknown $prop: '$prop_v'. Expected ", join( " or ", keys %{ $self->{$prop} } )
+                unless defined $legal_properties{$prop}{$prop_v};
 
-            push @{$self->{element_by_experience}{$prop}}, $elt_name 
-              if $prop eq 'experience' ;
+            push @{ $self->{element_by_experience}{$prop} }, $elt_name
+                if $prop eq 'experience';
         }
     }
 }
@@ -333,21 +314,21 @@ sub init {
     my $model = $self->{model};
 
     return
-      unless defined $model->{read_config}
-          or defined $model->{write_config};
-    
-    my $initial_load_backup = $self->instance->initial_load ;      
+        unless defined $model->{read_config}
+        or defined $model->{write_config};
+
+    my $initial_load_backup = $self->instance->initial_load;
     $self->instance->initial_load_start;
-    
+
     $self->{backend_mgr} ||= Config::Model::BackendMgr->new( node => $self );
 
     if ( defined $model->{read_config} and not $self->skip_read ) {
-        $self->read_config_data(check => $self->check) ;
+        $self->read_config_data( check => $self->check );
     }
 
     # use read_config data if write_config is missing
     $model->{write_config} ||= dclone $model->{read_config}
-      if defined $model->{read_config};
+        if defined $model->{read_config};
 
     if ( $model->{write_config} ) {
 
@@ -358,17 +339,17 @@ sub init {
         );
     }
 
-    $self->instance->initial_load( $initial_load_backup );
+    $self->instance->initial_load($initial_load_backup);
 }
 
 sub read_config_data {
-    my ($self,%args) = @_ ;
-    
+    my ( $self, %args ) = @_;
+
     my $model = $self->{model};
-    
-    if ($self->location and $args{config_file}) {
+
+    if ( $self->location and $args{config_file} ) {
         die "read_config_data: cannot override config_file in non root node (",
-            $self->location,")\n";
+            $self->location, ")\n";
     }
 
     # setup auto_read, read_config_dir is obsolete
@@ -382,59 +363,54 @@ sub read_config_data {
     );
 }
 
-sub notify_change {	
-    my $self = shift ;
-    my %args = @_ ;
+sub notify_change {
+    my $self = shift;
+    my %args = @_;
 
-    return if $self->instance->initial_load  and not $args{really};
+    return if $self->instance->initial_load and not $args{really};
 
-    $logger->debug("called while needs_write is ",$self->needs_save,
-	" for ",$self->name) 
-	if $logger->is_debug ;
+    $logger->debug( "called while needs_write is ", $self->needs_save, " for ", $self->name )
+        if $logger->is_debug;
 
-    if (defined $self->backend_mgr) {
-        $self->needs_save(1) ; # will trigger a save in config_file
-	$self->SUPER::notify_change( @_, needs_save => 0 ) ;
+    if ( defined $self->backend_mgr ) {
+        $self->needs_save(1);    # will trigger a save in config_file
+        $self->SUPER::notify_change( @_, needs_save => 0 );
     }
     else {
         # save config_file will be done by a node above
-	$self->SUPER::notify_change( @_, needs_save => 1 ) ;
+        $self->SUPER::notify_change( @_, needs_save => 1 );
     }
 }
 
-
 sub write_back {
-    my ($self,%args) = @_ ;
+    my ( $self, %args ) = @_;
 
     my $force_write = delete $args{force} || 0;
-    
-    if ($self->location and $args{config_file}) {
-        die "write_back: cannot override config_file in non root node (",
-            $self->location,")\n";
+
+    if ( $self->location and $args{config_file} ) {
+        die "write_back: cannot override config_file in non root node (", $self->location, ")\n";
     }
-    
+
     $self->backend_mgr->write_back(%args) if $self->needs_save or $force_write;
 }
 
 sub is_auto_write_for_type {
-    my $self = shift ;
-    return 0 unless defined $self->backend_mgr ;
-    return $self->backend_mgr->is_auto_write_for_type(@_) ;
+    my $self = shift;
+    return 0 unless defined $self->backend_mgr;
+    return $self->backend_mgr->is_auto_write_for_type(@_);
 }
-
 
 sub name {
     my $self = shift;
     return $self->location() || $self->config_class_name;
 }
 
-
 sub get_type {
-    return 'node' ;
+    return 'node';
 }
 
 sub get_cargo_type {
-    return 'node' ;
+    return 'node';
 }
 
 # always true. this method is required so that WarpedNode and Node
@@ -443,277 +419,258 @@ sub is_accessible {
     return 1;
 }
 
-
 # should I autovivify this element: NO
 sub has_element {
-    my $self = shift ;
-    my %args = ( @_ > 1 ) ? @_ : ( name => shift ) ;
+    my $self = shift;
+    my %args = ( @_ > 1 ) ? @_ : ( name => shift );
     my $name = $args{name};
-    my $type = $args{type} ;
+    my $type = $args{type};
 
-    if (not defined $name) {
+    if ( not defined $name ) {
         Config::Model::Exception::Internal->throw(
-            object   => $self,
-            info     => "has_element: missing element name",
-        ) ;
+            object => $self,
+            info   => "has_element: missing element name",
+        );
     }
 
     $self->accept_element($name);
-    return 0 unless defined $self->{model}{element}{$name} ;
-    return 1 unless defined $type ;
-    return $self->{model}{element}{$name}{type} eq $type ? 1 : 0 ;
+    return 0 unless defined $self->{model}{element}{$name};
+    return 1 unless defined $type;
+    return $self->{model}{element}{$name}{type} eq $type ? 1 : 0;
 }
-
 
 # should I autovivify this element: NO
 sub find_element {
-    my ($self,$name, %args ) = @_ ;
-    croak "find_element: missing element name" unless defined $name ;
+    my ( $self, $name, %args ) = @_;
+    croak "find_element: missing element name" unless defined $name;
 
     # should be the case if people are using cme edit
-    return $name if defined $self->{model}{element}{$name} ;
+    return $name if defined $self->{model}{element}{$name};
 
     # look for a close element playing with cases;
-    if (defined $args{case} and $args{case} eq 'any') {
-        foreach my $elt (keys %{$self->{model}{element}}) {
-            return $elt if lc($elt) eq lc ($name) ;
+    if ( defined $args{case} and $args{case} eq 'any' ) {
+        foreach my $elt ( keys %{ $self->{model}{element} } ) {
+            return $elt if lc($elt) eq lc($name);
         }
     }
 
     # now look if the element can be accepted
     $self->accept_element($name);
-    return $name if defined $self->{model}{element}{$name} ;
+    return $name if defined $self->{model}{element}{$name};
 
-    return ;
+    return;
 }
-
-
 
 sub element_model {
-    my $self= shift ;
-    croak "element_model: missing element name" unless @_ ;
-    return $self->{model}{element}{$_[0]} ;
+    my $self = shift;
+    croak "element_model: missing element name" unless @_;
+    return $self->{model}{element}{ $_[0] };
 }
-
 
 sub element_type {
-    my $self= shift ;
-    croak "element_type: missing element name" unless @_ ;
-    my $element_info = $self->{model}{element}{$_[0]} ;
+    my $self = shift;
+    croak "element_type: missing element name" unless @_;
+    my $element_info = $self->{model}{element}{ $_[0] };
 
     Config::Model::Exception::UnknownElement->throw(
-                                                    object   => $self,
-                                                    function => 'element_type',
-                                                    where    => $self->location || 'configuration root',
-                                                    element     => $_[0],
-                                                   )
-        unless defined $element_info ;
+        object   => $self,
+        function => 'element_type',
+        where    => $self->location || 'configuration root',
+        element  => $_[0],
+    ) unless defined $element_info;
 
-    return $element_info->{type} ;
+    return $element_info->{type};
 }
 
-
 sub get_element_name {
-    my $self      = shift;
-    my %args = @_ ;
+    my $self = shift;
+    my %args = @_;
 
-    my $for  = $args{for} || 'master' ;
-    my $type = $args{type} ;			 # optional
-    my $cargo_type = $args{cargo_type} ; # optional
+    my $for        = $args{for} || 'master';
+    my $type       = $args{type};              # optional
+    my $cargo_type = $args{cargo_type};        # optional
 
-    if ($for eq 'intermediate') {
+    if ( $for eq 'intermediate' ) {
         carp "get_element_name: 'intermediate' is deprecated in favor of beginner";
-        $for = 'beginner' ;
+        $for = 'beginner';
     }
 
-    croak "get_element_name: wrong 'for' parameter. Expected ", 
-      join (' or ', @experience_list) 
-        unless defined $experience_index{$for} ;
+    croak "get_element_name: wrong 'for' parameter. Expected ", join( ' or ', @experience_list )
+        unless defined $experience_index{$for};
 
-    $self->init ;
+    $self->init;
 
-    my $for_idx = $experience_index{$for} ;
+    my $for_idx = $experience_index{$for};
 
-    my @result ;
+    my @result;
 
-    my $info = $self->{model} ;
-    my @element_list = @{$self->{model}{element_list}} ;
+    my $info         = $self->{model};
+    my @element_list = @{ $self->{model}{element_list} };
 
     # this is a bit convoluted, but the order of the returned element
     # must respect the order of the elements declared in the model by
     # the user
     foreach my $elt (@element_list) {
+
         # create element if they don't exist, this enables warp stuff
         # to kick in
-        $self->create_element(name => $elt, check => $args{check} || 'yes') 
+        $self->create_element( name => $elt, check => $args{check} || 'yes' )
             unless defined $self->{element}{$elt};
 
-        next if $self->{level}{$elt} eq 'hidden' ;
+        next if $self->{level}{$elt} eq 'hidden';
 
         my $status = $self->{status}{$elt} || $default_property{status};
-        next if ($status eq 'deprecated' or $status eq 'obsolete') ;
+        next if ( $status eq 'deprecated' or $status eq 'obsolete' );
 
-        my $experience = $self->{experience}{$elt} || $default_property{experience} ;
-        my $elt_idx =  $experience_index{$experience} ;
-        my $elt_type =  $self->{element}{$elt}->get_type ;
-        my $elt_cargo = $self->{element}{$elt}->get_cargo_type ;
-        if ($for_idx >= $elt_idx 
-            and (not defined $type       or $type       eq $elt_type)
-            and (not defined $cargo_type or $cargo_type eq $elt_cargo)
-           ) {
-            push @result, $elt ;
+        my $experience = $self->{experience}{$elt} || $default_property{experience};
+        my $elt_idx    = $experience_index{$experience};
+        my $elt_type   = $self->{element}{$elt}->get_type;
+        my $elt_cargo  = $self->{element}{$elt}->get_cargo_type;
+        if (    $for_idx >= $elt_idx
+            and ( not defined $type or $type eq $elt_type )
+            and ( not defined $cargo_type or $cargo_type eq $elt_cargo ) ) {
+            push @result, $elt;
         }
     }
 
-    $logger->debug( "get_element_name: got @result for level $for");
+    $logger->debug("get_element_name: got @result for level $for");
 
     return wantarray ? @result : join( ' ', @result );
 }
 
-
 sub children {
-    my $self = shift ;
-    return $self-> get_element_name ;
+    my $self = shift;
+    return $self->get_element_name;
 }
 
-
 sub next_element {
-    my $self      = shift;
-    my %args = @_ ;
-    my $element   = $args{name} ;
+    my $self    = shift;
+    my %args    = @_;
+    my $element = $args{name};
 
-    my @elements = @{$self->{model}{element_list}} ;
-    @elements = reverse @elements if $args{reverse} ;
+    my @elements = @{ $self->{model}{element_list} };
+    @elements = reverse @elements if $args{reverse};
 
     # if element is empty, start from first element
-    my $found_elt = (defined $element and $element) ? 0 : 1 ;
+    my $found_elt = ( defined $element and $element ) ? 0 : 1;
 
-    while (my $name = shift @elements) {
+    while ( my $name = shift @elements ) {
         if ($found_elt) {
-            return $name 
-              if $self->is_element_available(name => $name, 
-                                             experience => $args{experience},
-                                             status => $args{status});
+            return $name
+                if $self->is_element_available(
+                name       => $name,
+                experience => $args{experience},
+                status     => $args{status} );
         }
-        $found_elt = 1 if defined $element and $element eq $name ;
+        $found_elt = 1 if defined $element and $element eq $name;
     }
 
-    croak "next_element: element $element is unknown. Expected @elements" 
-      unless $found_elt;
+    croak "next_element: element $element is unknown. Expected @elements"
+        unless $found_elt;
     return;
 }
 
-
 sub previous_element {
-    my $self      = shift;
-    $self->next_element(@_, reverse => 1) ;
+    my $self = shift;
+    $self->next_element( @_, reverse => 1 );
 }
 
-
 sub get_element_property {
-    my $self = shift ;
-    my %args = @_ ;
+    my $self = shift;
+    my %args = @_;
 
-    my ($prop,$elt) 
-      = $self->check_property_args('get_element_property',%args) ;
+    my ( $prop, $elt ) = $self->check_property_args( 'get_element_property', %args );
 
     return $self->{$prop}{$elt} || $default_property{$prop};
 }
 
-
 sub set_element_property {
-    my $self = shift ;
-    my %args = @_ ;
+    my $self = shift;
+    my %args = @_;
 
-    my ($prop,$elt) 
-      = $self->check_property_args('set_element_property',%args) ;
+    my ( $prop, $elt ) = $self->check_property_args( 'set_element_property', %args );
 
-    my $new_value = $args{value} || 
-      croak "set_element_property:: missing 'value' parameter";
+    my $new_value = $args{value}
+        || croak "set_element_property:: missing 'value' parameter";
 
-    $logger->debug("Node ",$self->name,": set $elt property $prop to $new_value");
+    $logger->debug( "Node ", $self->name, ": set $elt property $prop to $new_value" );
 
-    return $self->{$prop}{$elt} = $new_value ;
+    return $self->{$prop}{$elt} = $new_value;
 }
 
-
 sub reset_element_property {
-    my $self = shift ;
-    my %args = @_ ;
+    my $self = shift;
+    my %args = @_;
 
-    my ($prop,$elt) 
-      = $self->check_property_args('reset_element_property',%args) ;
+    my ( $prop, $elt ) = $self->check_property_args( 'reset_element_property', %args );
 
-    my $original_value = $self->{config_model} 
-      -> get_element_property (
-                               class => $self->{config_class_name},
-                               %args
-                              );
+    my $original_value = $self->{config_model}->get_element_property(
+        class => $self->{config_class_name},
+        %args
+    );
 
-    $logger->debug( "Node ",$self->name,
-                    ": reset $elt property $prop to $original_value");
+    $logger->debug( "Node ", $self->name, ": reset $elt property $prop to $original_value" );
 
-    return $self->{$prop}{$elt} = $original_value ;
+    return $self->{$prop}{$elt} = $original_value;
 }
 
 # internal: called by the proterty methods to check their arguments
 sub check_property_args {
-    my $self = shift;
-    my $method_name = shift ;
-    my %args = @_ ;
+    my $self        = shift;
+    my $method_name = shift;
+    my %args        = @_;
 
-    my $elt = $args{element} || 
-      croak "$method_name: missing 'element' parameter";
-    my $prop = $args{property} || 
-      croak "$method_name: missing 'property' parameter";
+    my $elt = $args{element}
+        || croak "$method_name: missing 'element' parameter";
+    my $prop = $args{property}
+        || croak "$method_name: missing 'property' parameter";
 
-    if ($prop eq 'permission') {
+    if ( $prop eq 'permission' ) {
         carp "check_property_args: 'permission' is deprecated in favor of 'experience'";
-        $prop = 'experience' ;
+        $prop = 'experience';
     }
 
-    my $prop_values = $legal_properties{$prop} ;
-    confess "Unknown property in $method_name: $prop, expected status or ",
-      "level or experience"
-        unless defined $prop_values ;
+    my $prop_values = $legal_properties{$prop};
+    confess "Unknown property in $method_name: $prop, expected status or ", "level or experience"
+        unless defined $prop_values;
 
-    return ($prop,$elt) ;
+    return ( $prop, $elt );
 }
 
-
 sub fetch_element {
-    my $self = shift ;
-    my %args = @_ > 1 ? @_ : ( name => shift ) ;
-    my $element_name = $args{name} ;
-    
-    Config::Model::Exception::Internal -> throw (
-        error => "fetch_element: missing name" 
-    ) unless defined $element_name ;
-    
-    my $user = $args{experience} || 'master' ;
-    my $check = $self->_check_check($args{check}) ;
-    my $accept_hidden = $args{accept_hidden} || 0 ;
+    my $self         = shift;
+    my %args         = @_ > 1 ? @_ : ( name => shift );
+    my $element_name = $args{name};
 
-    if ($user eq 'intermediate') {
+    Config::Model::Exception::Internal->throw( error => "fetch_element: missing name" )
+        unless defined $element_name;
+
+    my $user          = $args{experience} || 'master';
+    my $check         = $self->_check_check( $args{check} );
+    my $accept_hidden = $args{accept_hidden} || 0;
+
+    if ( $user eq 'intermediate' ) {
         carp "fetch_element: 'intermediate' is deprecated in favor of 'beginner'";
-        $user = 'beginner' ;
+        $user = 'beginner';
     }
 
     $self->init($check);
 
-    my $model = $self->{model} ;
+    my $model = $self->{model};
 
     # retrieve element (and auto-vivify if needed)
-    if (not defined $self->{element}{$element_name}) {
+    if ( not defined $self->{element}{$element_name} ) {
+
         # We also need to check if element name is matched by any of 'accept' parameters
         $self->accept_element($element_name);
-        $self->create_element(name => $element_name, check => $check ) or return ;
+        $self->create_element( name => $element_name, check => $check ) or return;
     }
 
     # check level
-    my $element_level 
-      = $self->get_element_property(property => 'level',
-                                    element  => $element_name) ;
+    my $element_level = $self->get_element_property(
+        property => 'level',
+        element  => $element_name
+    );
 
     if ( $element_level eq 'hidden' and not $accept_hidden ) {
         return 0 if ( $check eq 'no' or $check eq 'skip' );
@@ -723,7 +680,6 @@ sub fetch_element {
             info    => 'hidden element',
         );
     }
-
 
     # check status
     if ( $self->{status}{$element_name} eq 'obsolete' ) {
@@ -738,493 +694,486 @@ sub fetch_element {
         );
     }
 
-    if ($self->{status}{$element_name} eq 'deprecated' 
-        and $check ne 'no'
-       ) {
+    if (    $self->{status}{$element_name} eq 'deprecated'
+        and $check ne 'no' ) {
+
         # FIXME elaborate more ? or include parameter description ??
-        warn "Element '$element_name' of node '",$self->name,
-          "' is deprecated\n";
+        warn "Element '$element_name' of node '", $self->name, "' is deprecated\n";
 
         # this will also force a rewrite of the file even if no other
         # semantic change was done
         $self->notify_change(
-            msg => 'dropping deprecated parameter',
-            path => $self->location. ' '. $element_name,
+            msg    => 'dropping deprecated parameter',
+            path   => $self->location . ' ' . $element_name,
             really => 1,
-       ) ;
+        );
     }
 
     # check experience
     my $elt_experience = $self->{experience}{$element_name};
-    my $elt_idx   = $experience_index{$elt_experience} ; 
+    my $elt_idx        = $experience_index{$elt_experience};
     croak "Unknown experience '$elt_experience' for element ",
-      "'$element_name'. Expected ",join(' ', keys %experience_index)
-        unless defined $elt_idx ;
-    my $user_idx  = $experience_index{$user} ;
+        "'$element_name'. Expected ", join( ' ', keys %experience_index )
+        unless defined $elt_idx;
+    my $user_idx = $experience_index{$user};
 
-    croak "Unexpected experience '$user'" unless defined $user_idx ;
+    croak "Unexpected experience '$user'" unless defined $user_idx;
 
-    if ($user_idx < $elt_idx and $check eq 'yes') {
-        Config::Model::Exception::RestrictedElement
-            ->throw(
-                    object   => $self,
-                    element  => $element_name,
-                    level    => $user,
-                    req_experience => $elt_experience,
-                   );
+    if ( $user_idx < $elt_idx and $check eq 'yes' ) {
+        Config::Model::Exception::RestrictedElement->throw(
+            object         => $self,
+            element        => $element_name,
+            level          => $user,
+            req_experience => $elt_experience,
+        );
     }
 
-    return $self->fetch_element_no_check($element_name) ;
+    return $self->fetch_element_no_check($element_name);
 }
 
 sub fetch_element_no_check {
-    my ($self,$element_name) = @_ ;
-    return $self->{element}{$element_name} ;
+    my ( $self, $element_name ) = @_;
+    return $self->{element}{$element_name};
 }
-
 
 sub fetch_element_value {
-    my $self = shift ;
-    my %args = @_ > 1 ? @_ : (name => $_[0]) ;
-    my $element_name = $args{name} ;
-    my $user = $args{experience} || 'master' ;
-    my $check = $self->_check_check($args{check}) ;
+    my $self         = shift;
+    my %args         = @_ > 1 ? @_ : ( name => $_[0] );
+    my $element_name = $args{name};
+    my $user         = $args{experience} || 'master';
+    my $check        = $self->_check_check( $args{check} );
 
-    if ($self->element_type($element_name)  ne 'leaf') {
-        Config::Model::Exception::WrongType
-            ->throw(
-                    object   => $self->fetch_element($element_name),
-                    function => 'fetch_element_value',
-                    got_type => $self->element_type($element_name),
-                    expected_type => 'leaf',
-                   );
+    if ( $self->element_type($element_name) ne 'leaf' ) {
+        Config::Model::Exception::WrongType->throw(
+            object        => $self->fetch_element($element_name),
+            function      => 'fetch_element_value',
+            got_type      => $self->element_type($element_name),
+            expected_type => 'leaf',
+        );
     }
 
-    return $self->fetch_element(%args)->fetch( check => $check ) ;
+    return $self->fetch_element(%args)->fetch( check => $check );
 }
-
 
 sub store_element_value {
-    my $self = shift ;
-    my %args = @_ > 2 ? @_ : (name => $_[0] , value => $_[1]) ;
+    my $self = shift;
+    my %args = @_ > 2 ? @_ : ( name => $_[0], value => $_[1] );
 
-    return $self->fetch_element( %args )->store( %args ) ;
+    return $self->fetch_element(%args)->store(%args);
 }
-
 
 sub is_element_available {
     my $self = shift;
-    my ($elt_name, $user_experience,$status) = (undef, 'beginner','deprecated');
-    if (@_ == 1) {
-        $elt_name = shift ;
-    } else {
-        my %args = @_ ;
-        $elt_name = $args{name} ;
-        $user_experience = $args{experience} if defined $args{experience} ;
-        $status = $args{status} if defined $args{status} ;
-        if (defined $args{permission}) {
+    my ( $elt_name, $user_experience, $status ) = ( undef, 'beginner', 'deprecated' );
+    if ( @_ == 1 ) {
+        $elt_name = shift;
+    }
+    else {
+        my %args = @_;
+        $elt_name        = $args{name};
+        $user_experience = $args{experience} if defined $args{experience};
+        $status          = $args{status} if defined $args{status};
+        if ( defined $args{permission} ) {
             $user_experience = $args{permission};
-            carp "is_element_available: permission is deprecated" ;
+            carp "is_element_available: permission is deprecated";
         }
     }
 
-    croak "is_element_available: missing name parameter" 
-      unless defined $elt_name ;
+    croak "is_element_available: missing name parameter"
+        unless defined $elt_name;
 
     # force the warp to be done (if possible) so the catalog name
     # is updated
-    my $element = $self->fetch_element(name => $elt_name,
-        experience => 'master', check => 'no', accept_hidden => 1) ;
+    my $element = $self->fetch_element(
+        name          => $elt_name,
+        experience    => 'master',
+        check         => 'no',
+        accept_hidden => 1
+    );
 
-    my $element_level = $self->get_element_property(property => 'level',
-                                                    element => $elt_name) ;
-    
-    if ($element_level eq 'hidden') {
-        $logger->trace("element $elt_name is level hidden -> return 0") ;
-        return 0 ;
+    my $element_level = $self->get_element_property(
+        property => 'level',
+        element  => $elt_name
+    );
+
+    if ( $element_level eq 'hidden' ) {
+        $logger->trace("element $elt_name is level hidden -> return 0");
+        return 0;
     }
 
-    my $element_status = $self->get_element_property(property => 'status',
-                                                    element => $elt_name) ;
+    my $element_status = $self->get_element_property(
+        property => 'status',
+        element  => $elt_name
+    );
 
-    if ($element_status ne 'standard' and $element_status ne $status) {
-        $logger->trace("element $elt_name is status $element_status -> return 0") ;
-        return 0 ;
+    if ( $element_status ne 'standard' and $element_status ne $status ) {
+        $logger->trace("element $elt_name is status $element_status -> return 0");
+        return 0;
     }
 
-    my $element_exp = $self->get_element_property(property => 'experience',
-                                                  element => $elt_name) ;
+    my $element_exp = $self->get_element_property(
+        property => 'experience',
+        element  => $elt_name
+    );
 
-    croak "is_element_available: unknown experience for ",
-      "user experience: $user_experience"
-        unless defined $experience_index{$user_experience} ;
+    croak "is_element_available: unknown experience for ", "user experience: $user_experience"
+        unless defined $experience_index{$user_experience};
 
-    croak "is_element_available: unknown experience for element",
-      " $elt_name: $$element_exp"
-        unless defined $experience_index{$element_exp} ;
+    croak "is_element_available: unknown experience for element", " $elt_name: $$element_exp"
+        unless defined $experience_index{$element_exp};
 
-    return 
-      $experience_index{$user_experience}
-        >= $experience_index{$element_exp} ? 1 : 0;
+    return $experience_index{$user_experience} >= $experience_index{$element_exp} ? 1 : 0;
 }
-
 
 sub accept_element {
-    my ($self,$name) = @_;
+    my ( $self, $name ) = @_;
 
     my $model_data = $self->{model}{element};
-    
-    return $model_data->{$name} if defined $model_data->{$name} ;
-    
+
+    return $model_data->{$name} if defined $model_data->{$name};
+
     return unless defined $self->{model}{accept};
-    
-    foreach my $accept_regexp ( @{$self->{model}{accept_list}} ) {
-        if ($name =~ /^$accept_regexp$/) {
-            my $acc = $self->{model}{accept}{$accept_regexp} ;
-            return $self->reset_accepted_element_model ($name,$acc);
+
+    foreach my $accept_regexp ( @{ $self->{model}{accept_list} } ) {
+        if ( $name =~ /^$accept_regexp$/ ) {
+            my $acc = $self->{model}{accept}{$accept_regexp};
+            return $self->reset_accepted_element_model( $name, $acc );
         }
     }
-    
+
     return;
 }
-
 
 sub accept_regexp {
     my ($self) = @_;
 
-    return @{$self->{model}{accept_list} || []};
+    return @{ $self->{model}{accept_list} || [] };
 }
 
-
 sub reset_accepted_element_model {
-    my ($self,$element_name,$accept_model) = @_;
+    my ( $self, $element_name, $accept_model ) = @_;
 
     my $model = dclone $accept_model ;
-    delete $model->{name_match} ;
-    my $accept_after = delete $model->{accept_after} ;
-    
+    delete $model->{name_match};
+    my $accept_after = delete $model->{accept_after};
+
     foreach my $info_to_move (qw/description summary/) {
-        my $moved_data = delete $model->{$info_to_move}  ;
-        next unless defined $moved_data ;
-        $self->{$info_to_move}{$element_name} = $moved_data ;
+        my $moved_data = delete $model->{$info_to_move};
+        next unless defined $moved_data;
+        $self->{$info_to_move}{$element_name} = $moved_data;
     }
 
     foreach my $info_to_move (qw/level experience status/) {
-        $self->reset_element_property(element => $element_name, 
-                                      property => $info_to_move) ;
+        $self->reset_element_property(
+            element  => $element_name,
+            property => $info_to_move
+        );
     }
 
-    $self->{model}{element}{$element_name} = $model ;
+    $self->{model}{element}{$element_name} = $model;
 
     #add to element list...
     if ($accept_after) {
-        insert_after_string($accept_after, $element_name, @{$self->{model}{element_list}} );
+        insert_after_string( $accept_after, $element_name, @{ $self->{model}{element_list} } );
     }
     else {
-        push @{$self->{model}{element_list}}, $element_name;
+        push @{ $self->{model}{element_list} }, $element_name;
     }
-    
+
     return ($model);
 }
 
-
 sub element_exists {
-    my $self= shift ;
-    my $element_name = shift ;
+    my $self         = shift;
+    my $element_name = shift;
 
-    return defined $self->{model}{element}{$element_name} ? 1 : 0 ;
+    return defined $self->{model}{element}{$element_name} ? 1 : 0;
 }
-
 
 sub is_element_defined {
-    my $self = shift ;
-    return defined $self->{element}{$_[0]}
+    my $self = shift;
+    return defined $self->{element}{ $_[0] };
 }
-
 
 sub get {
-    my $self = shift ;
-    my %args = @_ > 1 ? @_ : ( path => $_[0] ) ;
-    my $path = delete $args{path} ;
-    my $get_obj = delete $args{get_obj} || 0 ;
-    $path =~ s!^/!! ;
-    return $self unless length($path) ;
-    my ($item,$new_path) = split m!/!,$path,2 ;
+    my $self    = shift;
+    my %args    = @_ > 1 ? @_ : ( path => $_[0] );
+    my $path    = delete $args{path};
+    my $get_obj = delete $args{get_obj} || 0;
+    $path =~ s!^/!!;
+    return $self unless length($path);
+    my ( $item, $new_path ) = split m!/!, $path, 2;
     $logger->debug("get: path $path, item $item");
-    my $elt = $self->fetch_element(name => $item, %args) ;
-    
-    return unless defined $elt ;
-    return $elt if ( ($elt->get_type ne 'leaf' or $get_obj) and not defined $new_path) ;
-    return $elt->get(path => $new_path, get_obj => $get_obj, %args) ;
-}
+    my $elt = $self->fetch_element( name => $item, %args );
 
+    return unless defined $elt;
+    return $elt if ( ( $elt->get_type ne 'leaf' or $get_obj ) and not defined $new_path );
+    return $elt->get( path => $new_path, get_obj => $get_obj, %args );
+}
 
 sub set {
-    my $self = shift ;
-    my $path = shift ;
-    $path =~ s!^/!! ;
-    my ($item,$new_path) = split m!/!,$path,2 ;
-    if ($item =~ /([\w\-]+)\[(\d+)\]/) {
-        return $self->fetch_element($1)->fetch_with_id($2)->set($new_path,@_) ;
-    } else {
-        return $self->fetch_element($item)->set($new_path,@_) ;
+    my $self = shift;
+    my $path = shift;
+    $path =~ s!^/!!;
+    my ( $item, $new_path ) = split m!/!, $path, 2;
+    if ( $item =~ /([\w\-]+)\[(\d+)\]/ ) {
+        return $self->fetch_element($1)->fetch_with_id($2)->set( $new_path, @_ );
+    }
+    else {
+        return $self->fetch_element($item)->set( $new_path, @_ );
     }
 }
 
-
 sub load {
-    my $self = shift ;
-    my $loader = Config::Model::Loader->new ;
+    my $self   = shift;
+    my $loader = Config::Model::Loader->new;
 
-    my %args = @_ eq 1 ? (step => $_[0]) : @_ ;
-    if (defined $args{step}) {
-        $loader->load(node => $self, %args) ;
+    my %args = @_ eq 1 ? ( step => $_[0] ) : @_;
+    if ( defined $args{step} ) {
+        $loader->load( node => $self, %args );
     }
     else {
-        Config::Model::Exception::Load
-            -> throw (
-                      object => $self,
-                      message => "load called with no 'step' parameter",
-                     )  ;
+        Config::Model::Exception::Load->throw(
+            object  => $self,
+            message => "load called with no 'step' parameter",
+        );
     }
 }
 
 sub load_data {
-    my $self = shift ;
+    my $self = shift;
 
-    if (@_ == 3) {
+    if ( @_ == 3 ) {
+
         # kludge to avoid breaking Config::Model::Itself. Should be removed end of 2013
-        carp "load_data called with even number of parameters. Use named parameters" ;
-    } ;
-
-
-    my %args
-        = @_ == 3 ? ( data => $_[0], check => $_[2]) # should also be removed end of 2013
-        : @_ > 1 ? @_
-        : ( data => shift) ;
-
-    my $raw_perl_data       = delete $args{data};
-    my $check = $self->_check_check($args{check}) ;
-
-    if (    not defined $raw_perl_data 
-        or (ref($raw_perl_data) ne 'HASH' 
-            #and not $raw_perl_data->isa( 'HASH' )
-            ) ) {
-        Config::Model::Exception::LoadData
-            -> throw (
-                      object => $self,
-                      message => "load_data called with non hash ref arg",
-                      wrong_data => $raw_perl_data,
-                     )  if $check eq 'yes' ;
-        return ;
+        carp "load_data called with even number of parameters. Use named parameters";
     }
 
+    my %args = @_ == 3
+        ? ( data => $_[0], check => $_[2] )    # should also be removed end of 2013
+        : @_ > 1 ? @_
+        :          ( data => shift );
 
-    my $perl_data       = dclone $raw_perl_data ;
+    my $raw_perl_data = delete $args{data};
+    my $check         = $self->_check_check( $args{check} );
 
-    $logger->info("Node load_data (",$self->location,") will load elt ",
-                  join (' ',keys %$perl_data));
+    if (
+        not defined $raw_perl_data
+        or (
+            ref($raw_perl_data) ne 'HASH'
+
+            #and not $raw_perl_data->isa( 'HASH' )
+        )
+        ) {
+        Config::Model::Exception::LoadData->throw(
+            object     => $self,
+            message    => "load_data called with non hash ref arg",
+            wrong_data => $raw_perl_data,
+        ) if $check eq 'yes';
+        return;
+    }
+
+    my $perl_data = dclone $raw_perl_data ;
+
+    $logger->info(
+        "Node load_data (",
+        $self->location,
+        ") will load elt ",
+        join( ' ', keys %$perl_data ) );
 
     # data must be loaded according to the element order defined by
     # the model. This will not load not yet accepted parameters
-    foreach my $elt ( @{$self->{model}{element_list}} ) {
-        $logger->trace("check element $elt") ;
-        next unless defined $perl_data->{$elt} ;
+    foreach my $elt ( @{ $self->{model}{element_list} } ) {
+        $logger->trace("check element $elt");
+        next unless defined $perl_data->{$elt};
 
-        if ($self->is_element_available(name => $elt, experience => 'master')
-            or $check eq 'no'
-           ) {
-            if ($logger->is_trace) {
-                my $v = defined $perl_data->{$elt} ? $perl_data->{$elt} : '<undef>' ;
+        if (   $self->is_element_available( name => $elt, experience => 'master' )
+            or $check eq 'no' ) {
+            if ( $logger->is_trace ) {
+                my $v = defined $perl_data->{$elt} ? $perl_data->{$elt} : '<undef>';
                 $logger->trace("Node load_data for element $elt -> $v");
             }
-            my $obj = $self->fetch_element(name => $elt, experience => 'master', 
-                                           check => $check) ;
+            my $obj = $self->fetch_element(
+                name       => $elt,
+                experience => 'master',
+                check      => $check
+            );
 
             if ($obj) {
-                $obj -> load_data(%args, data => delete $perl_data->{$elt}) ;
+                $obj->load_data( %args, data => delete $perl_data->{$elt} );
             }
-            elsif (defined $obj) {
+            elsif ( defined $obj ) {
+
                 # skip hidden elements and trash corresponding data
                 $logger->trace("Node load_data drop element $elt");
                 delete $perl_data->{$elt};
             }
 
-        } elsif ($check eq 'skip')  {
+        }
+        elsif ( $check eq 'skip' ) {
             $logger->trace("Node load_data skips element $elt");
         }
         else {
-            Config::Model::Exception::LoadData 
-                -> throw (
-                          message => "load_data: tried to load hidden "
-                          . "element '$elt' with",
-                          wrong_data => $perl_data->{$elt},
-                          object => $self,
-                         ) ;
+            Config::Model::Exception::LoadData->throw(
+                message    => "load_data: tried to load hidden " . "element '$elt' with",
+                wrong_data => $perl_data->{$elt},
+                object     => $self,
+            );
         }
     }
 
-
     # Load elements matched by accept parameter
-    if (defined $self->{model}{accept}) {
+    if ( defined $self->{model}{accept} ) {
+
         # Now, $perl_data contains all elements not yet parsed
         # sort is required to have a predictable order of accepted elements
-        foreach my $elt (sort keys %$perl_data) {
+        foreach my $elt ( sort keys %$perl_data ) {
+
             #load value
             #TODO: annotations
-            my $obj = $self->fetch_element(name => $elt, experience => 'master', check => $check) ;
-            next unless $obj; # in cas of known but unavailable elements
+            my $obj = $self->fetch_element( name => $elt, experience => 'master', check => $check );
+            next unless $obj;    # in cas of known but unavailable elements
             $logger->debug("Node load_data: accepting element $elt");
-            $obj ->load_data(%args, data => delete $perl_data->{$elt}) if defined $obj;
-            }
+            $obj->load_data( %args, data => delete $perl_data->{$elt} ) if defined $obj;
+        }
     }
 
-    if (%$perl_data and $check eq 'yes') {
-        Config::Model::Exception::LoadData 
-            -> throw (
-                      message => "load_data: unknown elements (expected "
-                      . join(' ' ,@{$self->{model}{element_list}} ). ") ",
-                      wrong_data => $perl_data,
-                      object => $self,
-                     ) ;
+    if ( %$perl_data and $check eq 'yes' ) {
+        Config::Model::Exception::LoadData->throw(
+            message => "load_data: unknown elements (expected "
+                . join( ' ', @{ $self->{model}{element_list} } ) . ") ",
+            wrong_data => $perl_data,
+            object     => $self,
+        );
     }
 }
-
 
 # TBD explain full_dump
 
 sub dump_tree {
-    my $self = shift ;
-    $self->init ;
-    my $dumper = Config::Model::Dumper->new ;
-    $dumper->dump_tree(node => $self, @_) ;
+    my $self = shift;
+    $self->init;
+    my $dumper = Config::Model::Dumper->new;
+    $dumper->dump_tree( node => $self, @_ );
 }
 
 sub migrate {
-    my $self = shift ;
-    $self->init ;
-    Config::Model::Dumper->new->dump_tree(node => $self, mode => 'full', @_) ;
+    my $self = shift;
+    $self->init;
+    Config::Model::Dumper->new->dump_tree( node => $self, mode => 'full', @_ );
 
-    return $self->needs_save ;
+    return $self->needs_save;
 }
-    
 
 sub dump_annotations_as_pod {
-    my $self = shift ;
-    $self->init ;
-    my $dumper = Config::Model::DumpAsData->new ;
-    $dumper->dump_annotations_as_pod(node => $self, @_) ;
+    my $self = shift;
+    $self->init;
+    my $dumper = Config::Model::DumpAsData->new;
+    $dumper->dump_annotations_as_pod( node => $self, @_ );
 }
-
-
 
 sub describe {
-    my $self = shift ;
-    $self->init ;
+    my $self = shift;
+    $self->init;
 
-    my $descriptor = Config::Model::Describe->new ;
-    $descriptor->describe(node => $self, @_) ;
+    my $descriptor = Config::Model::Describe->new;
+    $descriptor->describe( node => $self, @_ );
 }
-
 
 sub report {
-    my $self = shift ;
-    $self->init ;
-    my $reporter = Config::Model::Report->new ;
-    $reporter->report(node => $self) ;
+    my $self = shift;
+    $self->init;
+    my $reporter = Config::Model::Report->new;
+    $reporter->report( node => $self );
 }
-
 
 sub audit {
-    my $self = shift ;
-    $self->init ;
-    my $reporter = Config::Model::Report->new ;
-    $reporter->report(node => $self, audit => 1) ;
+    my $self = shift;
+    $self->init;
+    my $reporter = Config::Model::Report->new;
+    $reporter->report( node => $self, audit => 1 );
 }
-
-
 
 sub copy_from {
-    my $self = shift ;
-    my %args = @_ > 1 ? @_ : (from => shift) ;
-    my $from = $args{from} || croak "copy_from: missing from argument";
-    my $check = $args{check} || 'yes' ;
-    $logger->debug("node ".$self->location." copy from ".$from->location);
-    my $dump = $from->dump_tree(check => 'no') ;
-    $self->load( step => $dump, check => $check ) ;
+    my $self  = shift;
+    my %args  = @_ > 1 ? @_ : ( from => shift );
+    my $from  = $args{from} || croak "copy_from: missing from argument";
+    my $check = $args{check} || 'yes';
+    $logger->debug( "node " . $self->location . " copy from " . $from->location );
+    my $dump = $from->dump_tree( check => 'no' );
+    $self->load( step => $dump, check => $check );
 }
 
-
 sub get_help {
-    my $self  = shift;
+    my $self = shift;
 
     my $help;
     if ( scalar @_ > 1 ) {
-        my ($tag,$elt_name) = @_ ;
+        my ( $tag, $elt_name ) = @_;
 
-        if ($tag !~ /summary|description/) {
-            croak "get_help: wrong argument $tag, expected ",
-              "'description' or 'summary'";
+        if ( $tag !~ /summary|description/ ) {
+            croak "get_help: wrong argument $tag, expected ", "'description' or 'summary'";
         }
 
         $help = $self->{$tag}{$elt_name};
-    } elsif ( @_ ) {
-        $help = $self->{description}{$_[0]};
-    } else {
+    }
+    elsif (@_) {
+        $help = $self->{description}{ $_[0] };
+    }
+    else {
         $help = $self->{model}{class_description};
     }
 
     return defined $help ? $help : '';
 }
 
-
 sub tree_searcher {
     my $self = shift;
-    
-    return Config::Model::TreeSearcher->new ( node => $self, @_ );
+
+    return Config::Model::TreeSearcher->new( node => $self, @_ );
 }
 
 sub apply_fixes {
-    my $self = shift ;
+    my $self = shift;
     my $filter = shift || '.';
 
     # define leaf call back
-    my $fix_leaf = sub { 
-      my ($scanner, $data_ref, $node,$element_name,$index, $leaf_object) = @_ ;
-      $leaf_object->apply_fixes if $element_name =~ /$filter/ ;
-    } ;
+    my $fix_leaf = sub {
+        my ( $scanner, $data_ref, $node, $element_name, $index, $leaf_object ) = @_;
+        $leaf_object->apply_fixes if $element_name =~ /$filter/;
+    };
 
     my $fix_hash = sub {
         my ( $scanner, $data_r, $node, $element, @keys ) = @_;
 
         return unless @keys;
 
-        # leaves must be fixed before the hash, hence the 
+        # leaves must be fixed before the hash, hence the
         # calls to scan_hash before apply_fixes
-        map {$scanner->scan_hash($data_r,$node,$element,$_)} @keys ;
+        map { $scanner->scan_hash( $data_r, $node, $element, $_ ) } @keys;
 
-        $node->fetch_element($element)->apply_fixes if $element =~ /$filter/ ;
-    } ;
-    
+        $node->fetch_element($element)->apply_fixes if $element =~ /$filter/;
+    };
+
     my $fix_list = sub {
         my ( $scanner, $data_r, $node, $element, @keys ) = @_;
 
         return unless @keys;
 
-        map {$scanner->scan_list($data_r,$node,$element,$_)} @keys ;
-        $node->fetch_element($element)->apply_fixes if $element =~ /$filter/ ;
-    } ;
-    
-   my $scan = Config::Model::ObjTreeScanner-> new ( 
-        hash_element_cb => $fix_hash ,
-        list_element_cb => $fix_list ,
-        leaf_cb => $fix_leaf ,
-        check => 'no',
-    ) ;
+        map { $scanner->scan_list( $data_r, $node, $element, $_ ) } @keys;
+        $node->fetch_element($element)->apply_fixes if $element =~ /$filter/;
+    };
 
-    $fix_logger->debug("apply fix started from ",$self->name) ;
-    $scan->scan_node(undef, $self) ;
-    $fix_logger->debug("apply fix done") ;
+    my $scan = Config::Model::ObjTreeScanner->new(
+        hash_element_cb => $fix_hash,
+        list_element_cb => $fix_list,
+        leaf_cb         => $fix_leaf,
+        check           => 'no',
+    );
+
+    $fix_logger->debug( "apply fix started from ", $self->name );
+    $scan->scan_node( undef, $self );
+    $fix_logger->debug("apply fix done");
 }
 
 __PACKAGE__->meta->make_immutable;

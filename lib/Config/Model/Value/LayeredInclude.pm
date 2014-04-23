@@ -1,88 +1,87 @@
 package Config::Model::Value::LayeredInclude;
 
-
 use 5.010;
 use strict;
 use warnings;
 use Log::Log4perl qw(get_logger :levels);
 
-use base qw/Config::Model::Value/ ;
+use base qw/Config::Model::Value/;
 
+my $logger = get_logger("Tree::Element::Value::LayeredInclude");
 
-my $logger = get_logger("Tree::Element::Value::LayeredInclude") ;
-
-# should we clear all layered value when include value is changed ? 
+# should we clear all layered value when include value is changed ?
 # If yes, beware of recursive includes. Clear should only be done once.
 
 sub store_cb {
-    my $self = shift ;
-    my %args = @_ ;
+    my $self = shift;
+    my %args = @_;
 
-    my ($value, $check, $silent, $notify_change, $ok, $callback)
-        = @args{qw/value check silent notify_change ok callback/} ;
+    my ( $value, $check, $silent, $notify_change, $ok, $callback ) =
+        @args{qw/value check silent notify_change ok callback/};
 
     my $old_value = $self->_fetch_no_check;
-    
-    $self->SUPER::store_cb(%args) ;
-    {
-        no warnings 'uninitialized' ;
-        return $value if $value eq $old_value;
-    }
-    
-    my $i = $self->instance ;
-    my $already_in_layered = $i->layered ;
-    
-    # layered stuff here
-    if (not $already_in_layered) {
-        $i->layered_clear ;
-        $i->layered_start ;
-    }
-    
+
+    $self->SUPER::store_cb(%args);
     {
         no warnings 'uninitialized';
-        $logger->debug("Loading layered config from $value (old_data is $old_value)") ;
+        return $value if $value eq $old_value;
     }
-    
+
+    my $i                  = $self->instance;
+    my $already_in_layered = $i->layered;
+
+    # layered stuff here
+    if ( not $already_in_layered ) {
+        $i->layered_clear;
+        $i->layered_start;
+    }
+
+    {
+        no warnings 'uninitialized';
+        $logger->debug("Loading layered config from $value (old_data is $old_value)");
+    }
+
     # load included file in layered mode
     $self->root->read_config_data(
+
         # check => 'no',
-        config_file => $value ,
-        auto_create => 0, # included file must exist
+        config_file => $value,
+        auto_create => 0,        # included file must exist
     );
 
-    if (not $already_in_layered) {
-        $i->layered_stop ;
+    if ( not $already_in_layered ) {
+        $i->layered_stop;
     }
-    
-    # test if already in layered mode -> if no, clear layered, 
-    $logger->debug("Done loading layered config from $value") ;
-    
-    return $value ;
+
+    # test if already in layered mode -> if no, clear layered,
+    $logger->debug("Done loading layered config from $value");
+
+    return $value;
 }
 
 sub _check_value {
-    my $self = shift ;
-    my %args = @_ > 1 ? @_ : (value => $_[0]) ;
-    my $value = $args{value} ;
-    my $quiet = $args{quiet} || 0 ;
-    my $check = $args{check} || 'yes' ;
-    my $apply_fix = $args{fix} || 0 ;
-    my $mode = $args{mode} || '' ;
-    
-    $self->SUPER::check_value(@_) ;
+    my $self      = shift;
+    my %args      = @_ > 1 ? @_ : ( value => $_[0] );
+    my $value     = $args{value};
+    my $quiet     = $args{quiet} || 0;
+    my $check     = $args{check} || 'yes';
+    my $apply_fix = $args{fix} || 0;
+    my $mode      = $args{mode} || '';
+
+    $self->SUPER::check_value(@_);
 
     # need to test that prest config file is present as the model
     # may not enforce it (when read_config auto_create is 1)
-    my $layered_file = $self->instance->read_root_dir ;
-    $layered_file .= $value ;
-    
-    my $err = $self->{error_list} ;
-    
-    if (not -r $layered_file) {
-        push @$err,"cannot read include file $$layered_file";
+    my $layered_file = $self->instance->read_root_dir;
+    $layered_file .= $value;
+
+    my $err = $self->{error_list};
+
+    if ( not -r $layered_file ) {
+        push @$err, "cannot read include file $$layered_file";
     }
-    
-    return wantarray ? @$err : scalar @$err ? 0 : 1 ;
+
+    return wantarray ? @$err : scalar @$err ? 0 : 1;
 }
 1;
 

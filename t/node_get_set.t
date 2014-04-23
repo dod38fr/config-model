@@ -10,49 +10,48 @@ no warnings qw(once);
 
 use strict;
 
-my $model = Config::Model -> new(legacy => 'ignore',)  ;
+my $model = Config::Model->new( legacy => 'ignore', );
 
-my $arg = shift || '' ;
-my $trace = $arg =~ /t/ ? 1 : 0 ;
-$::verbose          = 1 if $arg =~ /v/;
-$::debug            = 1 if $arg =~ /d/;
+my $arg = shift || '';
+my $trace = $arg =~ /t/ ? 1 : 0;
+$::verbose = 1 if $arg =~ /v/;
+$::debug   = 1 if $arg =~ /d/;
 Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 
-use Log::Log4perl qw(:easy) ;
-Log::Log4perl->easy_init($arg =~ /l/ ? $TRACE: $WARN);
+use Log::Log4perl qw(:easy);
+Log::Log4perl->easy_init( $arg =~ /l/ ? $TRACE : $WARN );
 
-ok(1,"compiled");
+ok( 1, "compiled" );
 
-my $inst = $model->instance (root_class_name => 'Master', 
-			     model_file => 't/big_model.pm',
-			     instance_name => 'test1');
-ok($inst,"created dummy instance") ;
+my $inst = $model->instance(
+    root_class_name => 'Master',
+    model_file      => 't/big_model.pm',
+    instance_name   => 'test1'
+);
+ok( $inst, "created dummy instance" );
 
-my $root = $inst -> config_root ;
+my $root = $inst->config_root;
 
 # check with embedded \n
 my $step = qq!std_id:ab X=Bv - std_id:bc X=Av - a_string="titi and toto" !;
-ok( $root->load( step => $step, experience => 'advanced' ),
-  "load '$step'");
+ok( $root->load( step => $step, experience => 'advanced' ), "load '$step'" );
 
-foreach (["/std_id/cc/X","Bv" ],
-	) {
-    my ($path,$exp) = @$_ ;
-    is($root->set($path,$exp),1,"Test set $path") ;
+foreach ( [ "/std_id/cc/X", "Bv" ], ) {
+    my ( $path, $exp ) = @$_;
+    is( $root->set( $path, $exp ), 1, "Test set $path" );
 }
 
-foreach (["/std_id/bc/X","Av" ],
-	 ["/std_id/cc/X","Bv" ],
-	) {
-    my ($path,$exp) = @$_ ;
-    is($root->get($path),$exp,"Test get $path") ;
+foreach ( [ "/std_id/bc/X", "Av" ], [ "/std_id/cc/X", "Bv" ], ) {
+    my ( $path, $exp ) = @$_;
+    is( $root->get($path), $exp, "Test get $path" );
 }
 
-is ($root->get(path => "/std_id/bc/X", get_obj => 1),
+is(
+    $root->get( path => "/std_id/bc/X", get_obj => 1 ),
     $root->grab("std_id:bc X"),
     "test get with get_obj"
-    );
+);
 
-is($root->get(path => '/BDMV', check => 'skip'), undef,"get with check skip does not die");
+is( $root->get( path => '/BDMV', check => 'skip' ), undef, "get with check skip does not die" );
 
 memory_cycle_ok($model);

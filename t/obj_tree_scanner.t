@@ -4,8 +4,8 @@ use ExtUtils::testlib;
 use Test::More tests => 11;
 use Test::Memory::Cycle;
 use Config::Model;
-use Config::Model::ObjTreeScanner ;
-use Test::Differences ;
+use Config::Model::ObjTreeScanner;
+use Test::Differences;
 
 use warnings;
 no warnings qw(once);
@@ -13,6 +13,7 @@ no warnings qw(once);
 use strict;
 
 use Data::Dumper;
+
 # use Config::Model::ObjTreeScanner;
 
 sub disp_node_content_hook {
@@ -26,7 +27,7 @@ sub disp_node_content {
 
     $$data_r .= "disp_node_content " . $node->name . " element: @element\n";
 
-    map { $scanner->scan_element(  $data_r, $node, $_ ) } @element;
+    map { $scanner->scan_element( $data_r, $node, $_ ) } @element;
 }
 
 sub disp_dispatch_node_sub_slave2 {
@@ -34,7 +35,7 @@ sub disp_dispatch_node_sub_slave2 {
 
     $$data_r .= "disp_dispatch_node_sub_slave2 " . $node->name . " element: @element\n";
 
-    map { $scanner->scan_element(  $data_r, $node, $_ ) } @element;
+    map { $scanner->scan_element( $data_r, $node, $_ ) } @element;
 }
 
 sub disp_node_elt {
@@ -44,7 +45,7 @@ sub disp_node_elt {
     $$data_r .= " key $key" if defined $key;
     $$data_r .= "\n";
 
-    $scanner->scan_node( $data_r, $next);
+    $scanner->scan_node( $data_r, $next );
 }
 
 sub disp_hash_hook {
@@ -69,75 +70,79 @@ sub disp_list_hook {
     $$data_r .= "disp_list_hook " . $node->name . " element($element): @keys\n";
 }
 
-
 sub disp_check_list {
     my ( $scanner, $data_r, $node, $element, @choices ) = @_;
 
     return unless @choices;
 
-    $$data_r .= "disp_check_list " . $node->name . " element($element): "
-      . join(',',$node->fetch_element($element)->get_checked_list) . " are set\n";
+    $$data_r .=
+          "disp_check_list "
+        . $node->name
+        . " element($element): "
+        . join( ',', $node->fetch_element($element)->get_checked_list )
+        . " are set\n";
 
 }
 
 sub disp_leaf {
     my ( $scanner, $data_r, $node, $element, $index ) = @_;
 
-    my $value = $node->fetch_element($element) ;
-    $value = $value-> fetch_with_id($index) if defined $index ;
+    my $value = $node->fetch_element($element);
+    $value = $value->fetch_with_id($index) if defined $index;
 
     $$data_r .= "disp_leaf " . $node->name . " element $element ";
-    $$data_r .= "value ".$value->fetch  if defined $value->fetch;
+    $$data_r .= "value " . $value->fetch if defined $value->fetch;
     $$data_r .= "\n";
 }
 
 sub disp_up {
-    my ($scanner, $data_r, $node) = @_;
+    my ( $scanner, $data_r, $node ) = @_;
 
     $$data_r .= "disp_up " . $node->name . "\n";
 
 }
 
-use Log::Log4perl qw(:easy) ;
+use Log::Log4perl qw(:easy);
 
-my $arg = shift || '';
+my $arg             = shift || '';
 my $test_only_model = shift || '';
-my $do = shift ;
+my $do              = shift;
 
-my ($log,$show) = (0) x 2 ;
+my ( $log, $show ) = (0) x 2;
 
-my $trace = $arg =~ /t/ ? 1 : 0 ;
-$::debug            = 1 if $arg =~ /d/;
-$log                = 1 if $arg =~ /l/;
-$show               = 1 if $arg =~ /s/;
+my $trace = $arg =~ /t/ ? 1 : 0;
+$::debug = 1 if $arg =~ /d/;
+$log     = 1 if $arg =~ /l/;
+$show    = 1 if $arg =~ /s/;
 
 my $home = $ENV{HOME} || "";
 my $log4perl_user_conf_file = "$home/.log4config-model";
 
-if ($log and -e $log4perl_user_conf_file ) {
+if ( $log and -e $log4perl_user_conf_file ) {
     Log::Log4perl::init($log4perl_user_conf_file);
 }
 else {
-    Log::Log4perl->easy_init($log ? $WARN: $ERROR);
+    Log::Log4perl->easy_init( $log ? $WARN : $ERROR );
 }
 
-my $model = Config::Model -> new ( legacy => 'ignore' ) ;
+my $model = Config::Model->new( legacy => 'ignore' );
 
 Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 
-ok(1,"compiled");
+ok( 1, "compiled" );
 
-my $inst = $model->instance (root_class_name => 'Master', 
-			     model_file => 't/big_model.pm',
-			     instance_name => 'test1');
-ok($inst,"created dummy instance") ;
+my $inst = $model->instance(
+    root_class_name => 'Master',
+    model_file      => 't/big_model.pm',
+    instance_name   => 'test1'
+);
+ok( $inst, "created dummy instance" );
 
-my $root = $inst -> config_root ;
+my $root = $inst->config_root;
 
 my $step = 'std_id:ab X=Bv - std_id:bc X=Av - a_string="toto tata" '
- .'hash_a:X2=x hash_a:Y2=xy  hash_b:X3=xy my_check_list=X2,X3';
-ok( $root->load( step => $step, experience => 'advanced' ),
-  "set up data in tree with '$step'");
+    . 'hash_a:X2=x hash_a:Y2=xy  hash_b:X3=xy my_check_list=X2,X3';
+ok( $root->load( step => $step, experience => 'advanced' ), "set up data in tree with '$step'" );
 
 my $scan = Config::Model::ObjTreeScanner->new(
 
@@ -147,7 +152,7 @@ my $scan = Config::Model::ObjTreeScanner->new(
     hash_element_cb       => \&disp_hash,
     node_element_cb       => \&disp_node_elt,
     node_content_cb       => \&disp_node_content,
-    node_dispatch_cb      => { SubSlave2 => \&disp_dispatch_node_sub_slave2,},
+    node_dispatch_cb      => { SubSlave2 => \&disp_dispatch_node_sub_slave2, },
     leaf_cb               => \&disp_leaf,
     enum_value_cb         => \&disp_leaf,
     integer_value_cb      => \&disp_leaf,
@@ -155,20 +160,20 @@ my $scan = Config::Model::ObjTreeScanner->new(
     boolean_value_cb      => \&disp_leaf,
     string_value_cb       => \&disp_leaf,
     reference_value_cb    => \&disp_leaf,
-    node_content_hook     => \&disp_node_content_hook ,
+    node_content_hook     => \&disp_node_content_hook,
     hash_element_hook     => \&disp_hash_hook,
     list_element_hook     => \&disp_list_hook,
-    
-    up_cb                 => \&disp_up
+
+    up_cb => \&disp_up
 );
 
-ok($scan, 'set up ObjTreeScanner');
+ok( $scan, 'set up ObjTreeScanner' );
 
 my $result = '';
 
-$scan->scan_node(\$result, $root) ;
-ok(1,"performed scan") ;
-print $result if $trace ;
+$scan->scan_node( \$result, $root );
+ok( 1, "performed scan" );
+print $result if $trace;
 
 my $expect = << 'EOF' ;
 disp_node_content_hook Master element: std_id lista listb hash_a hash_b ordered_hash olist slave_y string_with_def a_uniline a_string int_v my_check_list my_reference
@@ -246,20 +251,19 @@ disp_up Master
 EOF
 
 $result =~ s/\s+\n/\n/g;
-eq_or_diff( [split /\n/,$result], [split /\n/,$expect], "check result" );
-
+eq_or_diff( [ split /\n/, $result ], [ split /\n/, $expect ], "check result" );
 
 my $scan2 = Config::Model::ObjTreeScanner->new(
     fallback => 'all',
     leaf_cb  => \&disp_leaf
 );
 
-ok($scan2, 'set up ObjTreeScanner with fallback');
+ok( $scan2, 'set up ObjTreeScanner with fallback' );
 
 $result = '';
-$scan2->scan_node(\$result, $root) ;
-ok(1,'performed scan with fallback');
-print $result if $trace ;
+$scan2->scan_node( \$result, $root );
+ok( 1, 'performed scan with fallback' );
+print $result if $trace;
 
 $expect = << 'EOF' ;
 disp_leaf std_id:ab element Z
@@ -301,28 +305,30 @@ EOF
 
 $result =~ s/\s+\n/\n/g;
 
-eq_or_diff( [split /\n/,$result], [split /\n/,$expect], "check result" );
+eq_or_diff( [ split /\n/, $result ], [ split /\n/, $expect ], "check result" );
 
 # test dump of mandatory values
 
-my $model2 = Config::Model->new(legacy => 'ignore',) ;
-$model2 ->create_config_class 
-  (
-   name => "SomeRootClass",
-   element => [ a_string => { type => 'leaf',
-			     mandatory => 1 ,
-			     value_type => 'string'
-			   },
-	      ],
-  ) ;
+my $model2 = Config::Model->new( legacy => 'ignore', );
+$model2->create_config_class(
+    name    => "SomeRootClass",
+    element => [
+        a_string => {
+            type       => 'leaf',
+            mandatory  => 1,
+            value_type => 'string'
+        },
+    ],
+);
 
-my $inst2 = $model2->instance(root_class_name => 'SomeRootClass',
-			      instance_name => 'test',
-			     );
+my $inst2 = $model2->instance(
+    root_class_name => 'SomeRootClass',
+    instance_name   => 'test',
+);
 
-my $root2 = $inst2->config_root ;
+my $root2 = $inst2->config_root;
 
-eval{ $root2->dump_tree(auto_vivify => 1, mode => 'full') ;};
-ok($@,"expected failure of dump with empty mandatory value") ;
+eval { $root2->dump_tree( auto_vivify => 1, mode => 'full' ); };
+ok( $@, "expected failure of dump with empty mandatory value" );
 print "normal error:", $@, "\n" if $trace;
 memory_cycle_ok($model);

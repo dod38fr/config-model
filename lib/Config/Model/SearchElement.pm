@@ -3,31 +3,29 @@ package Config::Model::SearchElement;
 use Log::Log4perl qw(get_logger :levels);
 use Carp;
 use strict;
-use warnings ;
+use warnings;
 
-use Config::Model::Exception ;
+use Config::Model::Exception;
 
-
-my $logger = get_logger("Model::Searcher") ;
-
+my $logger = get_logger("Model::Searcher");
 
 sub new {
     my $type = shift;
-    my %args = @_ ;
+    my %args = @_;
 
-    my $self = {} ;
+    my $self = {};
     foreach my $p (qw/model node/) {
-	$self->{$p} = delete $args{$p} or
-	  croak "Searcher->new: Missing $p parameter" ;
+        $self->{$p} = delete $args{$p}
+            or croak "Searcher->new: Missing $p parameter";
     }
 
-    bless $self, $type ;
+    bless $self, $type;
 
-    $self->{privilege} = $args{privilege} || 'master' ;
+    $self->{privilege} = $args{privilege} || 'master';
 
-    my $root_class = $self->{node}->config_class_name ;
+    my $root_class = $self->{node}->config_class_name;
 
-    $self->{data} = $self->_sniff_class($root_class, $self->{privilege}, {}) ;
+    $self->{data} = $self->_sniff_class( $root_class, $self->{privilege}, {} );
 
     return $self;
 }
@@ -36,212 +34,200 @@ sub new {
 # either Data::Dumper or Tk::ObjScanner (both are available on CPAN)
 
 sub _sniff_class {
-    my ($self,$class,$privilege, $found_ref) = @_;
+    my ( $self, $class, $privilege, $found_ref ) = @_;
 
-    my @lines ;
-    my %h ;
-    my $model =  $self->{model} ;
-    my $c_model = $model->get_model($class) ;
+    my @lines;
+    my %h;
+    my $model   = $self->{model};
+    my $c_model = $model->get_model($class);
 
-    $logger->debug("sniffing config class $class") ;
+    $logger->debug("sniffing config class $class");
 
     croak "Recursive config class $class detected, aborting..."
-      if defined $found_ref -> {$class} ;
+        if defined $found_ref->{$class};
 
-    $found_ref -> {$class} = 1 ;
+    $found_ref->{$class} = 1;
 
-    my @elements = $model->get_element_name(class => $class,
-					    for => $privilege
-					   ) ;
+    my @elements = $model->get_element_name(
+        class => $class,
+        for   => $privilege
+    );
 
     foreach my $element (@elements) {
-	my $element_model = $c_model->{element}{$element};
-	my $element_type  = $element_model->{type};
-	my $cargo         = $element_model->{cargo} ;
-	my $c_type        = defined $cargo ? $cargo->{type} : '';
-	my $cfg_class_name = defined $cargo ? $cargo->{config_class_name}
-	                   :                  $element_model->{config_class_name};
-	my %local_found = %$found_ref ;
+        my $element_model = $c_model->{element}{$element};
+        my $element_type  = $element_model->{type};
+        my $cargo         = $element_model->{cargo};
+        my $c_type        = defined $cargo ? $cargo->{type} : '';
+        my $cfg_class_name =
+            defined $cargo
+            ? $cargo->{config_class_name}
+            : $element_model->{config_class_name};
+        my %local_found = %$found_ref;
 
-	if (   $element_type =~ /(warped_)?node/
-	    or $c_type       =~ /(warped_)?node/
-	   ) {
-	    my $tmp
-	      = $element_type eq 'node' || $c_type eq 'node'
-		? $self->_sniff_class($cfg_class_name,
-				      $privilege, \%local_found)
-		: $self->_sniff_warped_node($element_model,
-					    $privilege, \%local_found);
+        if (   $element_type =~ /(warped_)?node/
+            or $c_type =~ /(warped_)?node/ ) {
+            my $tmp =
+                  $element_type eq 'node' || $c_type eq 'node'
+                ? $self->_sniff_class( $cfg_class_name, $privilege, \%local_found )
+                : $self->_sniff_warped_node( $element_model, $privilege, \%local_found );
 
-	    # merge all tmp in %h
-	    map { $h{$_}{next_step}{$element} = $tmp->{$_} ; } keys %$tmp ;
-	}
-	else {
-	    $h{$element}{next_step}{$element} = '' ;
-	}
+            # merge all tmp in %h
+            map { $h{$_}{next_step}{$element} = $tmp->{$_}; } keys %$tmp;
+        }
+        else {
+            $h{$element}{next_step}{$element} = '';
+        }
     }
-    $logger->debug("done sniffing config class $class") ;
-    return \%h ;
+    $logger->debug("done sniffing config class $class");
+    return \%h;
 }
 
 sub _sniff_warped_node {
-    my ($self,$element_model,$privilege, $found_ref) = @_;
+    my ( $self, $element_model, $privilege, $found_ref ) = @_;
 
-    my %warp_tmp ;
-    my $ref = $element_model->{rules} ;
-    my @rules = ref $ref eq 'HASH' ? %$ref : @$ref ;
+    my %warp_tmp;
+    my $ref = $element_model->{rules};
+    my @rules = ref $ref eq 'HASH' ? %$ref : @$ref;
 
-    for (my $r_idx = 0; $r_idx < $#rules; $r_idx += 2) {
-	my $res = $rules[$r_idx+1]{config_class_name} ;
-	my $sub_class = ref $res ? $res->[0] : $res ;
+    for ( my $r_idx = 0 ; $r_idx < $#rules ; $r_idx += 2 ) {
+        my $res = $rules[ $r_idx + 1 ]{config_class_name};
+        my $sub_class = ref $res ? $res->[0] : $res;
 
-	# sniff all classes mentionned in warped node rules
-	my %local_found = %$found_ref ;
-	my $tmp = $self->_sniff_class($sub_class, $privilege, \%local_found);
+        # sniff all classes mentionned in warped node rules
+        my %local_found = %$found_ref;
+        my $tmp = $self->_sniff_class( $sub_class, $privilege, \%local_found );
 
-	# merge all tmp in %warp_tmp
-	map { $warp_tmp{$_}{next_class}{$sub_class} = $tmp->{$_} ;} keys %$tmp;
+        # merge all tmp in %warp_tmp
+        map { $warp_tmp{$_}{next_class}{$sub_class} = $tmp->{$_}; } keys %$tmp;
     }
 
-    return \%warp_tmp ;
+    return \%warp_tmp;
 }
-
 
 sub get_searchable_elements {
-    my $self= shift ;
-    sort keys %{$self->{data}} ;
+    my $self = shift;
+    sort keys %{ $self->{data} };
 }
-
 
 sub prepare {
-    my $self =shift ;
-    my %args = @_ ;
+    my $self = shift;
+    my %args = @_;
 
     foreach my $p (qw/element/) {
-	$self->{$p} = delete $args{$p} or
-	  croak "Searcher->prepare: Missing $p parameter" ;
+        $self->{$p} = delete $args{$p}
+            or croak "Searcher->prepare: Missing $p parameter";
     }
 
-    $self->reset ; # initialize the search engine
+    $self->reset;    # initialize the search engine
 
-    unless (defined $self->{search_tree}) {
-	my $searched = $self->{element} ;
-	my $root_class = $self->{node}->config_class_name ;
-	Config::Model::Exception::User
-	    -> throw (
-		      message   => "Searcher cannot find element '$searched' "
-		      . "from $root_class. Found only "
-		      . join (' ', sort keys %{$self->{data}})
-		     );
+    unless ( defined $self->{search_tree} ) {
+        my $searched   = $self->{element};
+        my $root_class = $self->{node}->config_class_name;
+        Config::Model::Exception::User->throw(
+                  message => "Searcher cannot find element '$searched' "
+                . "from $root_class. Found only "
+                . join( ' ', sort keys %{ $self->{data} } ) );
     }
 
-    return $self ;
+    return $self;
 }
-
-
 
 sub reset {
-    my $self = shift ;
+    my $self = shift;
 
-    my $searched = $self->{element} ;
-    $self->{search_tree}      = $self->{data}{$searched} ;
-    $self->{current}{object}    = $self->{node} ;
-    $self->{current}{element_name} = 'Root' ;
-    $self->{current}{element_type} = 'node' ;
+    my $searched = $self->{element};
+    $self->{search_tree}           = $self->{data}{$searched};
+    $self->{current}{object}       = $self->{node};
+    $self->{current}{element_name} = 'Root';
+    $self->{current}{element_type} = 'node';
 }
-
 
 sub searched {
-    return shift->{element} ;
+    return shift->{element};
 }
-
-
 
 sub next_step {
-    my $self = shift ;
+    my $self = shift;
 
-    my $current_obj = $self->{current}{object} ;
+    my $current_obj = $self->{current}{object};
 
-    my @result ;
-    if ($current_obj->get_type =~ /list|hash/) {
-	@result = $current_obj -> fetch_all_indexes ;
+    my @result;
+    if ( $current_obj->get_type =~ /list|hash/ ) {
+        @result = $current_obj->fetch_all_indexes;
     }
     else {
-	my $next_step = $self->{search_tree}{next_step} ;
+        my $next_step = $self->{search_tree}{next_step};
 
-	@result =  ref     $next_step ? sort keys %$next_step
-	        :  defined $next_step ? die "next_step error"
-		:                       ()                    ;
+        @result =
+              ref $next_step     ? sort keys %$next_step
+            : defined $next_step ? die "next_step error"
+            :                      ();
     }
-	#my $name = $self->{current}{element_name} ;
-	#print "From $name, next_step is @result\n";
-    return wantarray ? @result : \@result ;
-}
 
+    #my $name = $self->{current}{element_name} ;
+    #print "From $name, next_step is @result\n";
+    return wantarray ? @result : \@result;
+}
 
 sub next_choice {
-    my $self = shift ;
-    my $result ;
+    my $self = shift;
+    my $result;
 
     while (1) {
-	$result = $self->next_step ;
-	$logger->debug("next_choice: result is @$result") ;
-	return $result if  scalar @$result != 1 ;
+        $result = $self->next_step;
+        $logger->debug("next_choice: result is @$result");
+        return $result if scalar @$result != 1;
 
-	$self->choose(@$result) ;
+        $self->choose(@$result);
     }
 
 }
-
 
 # TBD if choice is an id, Node is a hash...
 
 sub choose {
-    my $self = shift ;
-    my $choice = shift ;
+    my $self   = shift;
+    my $choice = shift;
 
     #print "choose $choice from node\n";
-    my $obj = $self->{current}{object} ;
-    if ($obj->get_type =~ /hash|list/) {
-	$self->choose_from_id_element($choice) ;
+    my $obj = $self->{current}{object};
+    if ( $obj->get_type =~ /hash|list/ ) {
+        $self->choose_from_id_element($choice);
     }
     else {
-	$self->choose_from_node($choice) ;
+        $self->choose_from_node($choice);
     }
 }
 
 sub choose_from_id_element {
-    my $self = shift ;
-    my $choice = shift ;
+    my $self   = shift;
+    my $choice = shift;
 
     #print "choose $choice from id\n";
-    my $id_obj = $self->{current}{object} ;
-    my $class  = $id_obj->config_class_name ;
+    my $id_obj = $self->{current}{object};
+    my $class  = $id_obj->config_class_name;
 
     # the following line may trigger an exception for warped out
     # elements
-    my $next_node = $id_obj->fetch_with_id ($choice);
+    my $next_node = $id_obj->fetch_with_id($choice);
 
-    $self->{current}{object}       = $next_node ;
-    return $next_node ;
+    $self->{current}{object} = $next_node;
+    return $next_node;
 }
 
 sub choose_from_node {
-    my $self = shift ;
-    my $choice = shift ;
+    my $self   = shift;
+    my $choice = shift;
 
     #print "choose $choice from node\n";
-    my $next = $self->{search_tree}{next_step} ;
-    my $node = $self->{current}{object} ;
-    my $node_class = $node->config_class_name ;
+    my $next       = $self->{search_tree}{next_step};
+    my $node       = $self->{current}{object};
+    my $node_class = $node->config_class_name;
 
-    if (ref($next) and not defined $next->{$choice}) {
-	Config::Model::Exception::User
-	    -> throw (
-		      message   => "Searcher: wrong choice '$choice' "
-		      . "from $node_class. expected "
-		      . join (' ', sort keys %$next)
-		     );
+    if ( ref($next) and not defined $next->{$choice} ) {
+        Config::Model::Exception::User->throw( message => "Searcher: wrong choice '$choice' "
+                . "from $node_class. expected "
+                . join( ' ', sort keys %$next ) );
     }
 
     # the following line may trigger an exception for warped out
@@ -249,80 +235,77 @@ sub choose_from_node {
     my $next_node = $node->fetch_element($choice);
 
     # $next is a scalar for leaf element of a ref for node element
-    if ($next->{$choice}) {
-	my $data = $next->{$choice} ;
+    if ( $next->{$choice} ) {
+        my $data = $next->{$choice};
 
-	# gobble next_class for warped_node element
-	if (defined $data->{next_class}) {
-	    my $chosen_class = $next_node->config_class_name ;
-	    $data = $data->{next_class}{$chosen_class} ;
-	    unless (defined $data) {
-		Config::Model::Exception::User
-		    -> throw (
-			      message   => "Searcher: choice '$choice' "
-			      ."from $node_class leads to a warped out node: "
-			      . $next_node->warp_error
-			     );
-	    }
-	}
+        # gobble next_class for warped_node element
+        if ( defined $data->{next_class} ) {
+            my $chosen_class = $next_node->config_class_name;
+            $data = $data->{next_class}{$chosen_class};
+            unless ( defined $data ) {
+                Config::Model::Exception::User->throw( message => "Searcher: choice '$choice' "
+                        . "from $node_class leads to a warped out node: "
+                        . $next_node->warp_error );
+            }
+        }
 
-	$self->{search_tree} = $data ;
+        $self->{search_tree} = $data;
     }
     else {
-	$self->{search_tree}  = {next_step => undef } ;
-	$next_node = $node->fetch_element($choice);
+        $self->{search_tree} = { next_step => undef };
+        $next_node = $node->fetch_element($choice);
     }
 
-    $self->{current}{object}       = $next_node ;
-    $self->{current}{element_type} = $node->element_type($choice) ;
-    $self->{current}{element_name} = $choice ;
-    return $next_node ;
+    $self->{current}{object}       = $next_node;
+    $self->{current}{element_type} = $node->element_type($choice);
+    $self->{current}{element_name} = $choice;
+    return $next_node;
 }
-
 
 sub current_object {
-    my $self = shift ;
-    return $self->{current}{object} ;
+    my $self = shift;
+    return $self->{current}{object};
 }
 
-
 sub auto_choose {
-    my $self = shift ;
+    my $self   = shift;
     my $elt_cb = shift || croak "auto_choose: missing element call back";
     my $id_cb  = shift || croak "auto_choose: missing id call back";
 
-    my $object = $self->{current}{object} ;
+    my $object = $self->{current}{object};
     while (1) {
-	my $next_step = $self->next_step;
-	if (scalar @$next_step == 0) {
-	    # found target
-	    return $self->{current}{object} ;
-	}
+        my $next_step = $self->next_step;
+        if ( scalar @$next_step == 0 ) {
 
-	my $next_choice =  (scalar @$next_step == 1) ?
-	  $next_step->[0] : $elt_cb->($object, @$next_step) ;
+            # found target
+            return $self->{current}{object};
+        }
 
-	$self->_auto_choose_elt($next_choice,$id_cb) ;
+        my $next_choice =
+            ( scalar @$next_step == 1 ) ? $next_step->[0] : $elt_cb->( $object, @$next_step );
+
+        $self->_auto_choose_elt( $next_choice, $id_cb );
     }
 }
 
 sub _auto_choose_elt {
-    my $self = shift ;
-    my $next_choice = shift ;
-    my $id_cb = shift;
+    my $self        = shift;
+    my $next_choice = shift;
+    my $id_cb       = shift;
 
-    $self->choose($next_choice) ;
+    $self->choose($next_choice);
 
+    my $elt_type = $self->{current}{element_type};
+    if ( $elt_type =~ /list|hash/ ) {
+        my $object = $self->{current}{object};
+        my @choice = $object->fetch_all_indexes();
 
-    my $elt_type = $self->{current}{element_type} ;
-    if ($elt_type =~ /list|hash/) {
-	my $object   = $self->{current}{object} ;
-	my @choice = $object->fetch_all_indexes() ;
+        my $id =
+              @choice == 1
+            ? $choice[0]
+            : $id_cb->( $object, @choice );
 
-	my $id = @choice == 1 ? $choice[0]
-	       :                $id_cb->($object, @choice ) ;
-
-	$self->{current}{object} = $object->fetch_with_id($id);
+        $self->{current}{object} = $object->fetch_with_id($id);
     }
 }
 

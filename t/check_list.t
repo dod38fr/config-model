@@ -4,29 +4,29 @@ use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
 use Test::More;
-use Test::Differences ;
+use Test::Differences;
 use Test::Memory::Cycle;
 use Config::Model;
 use Data::Dumper;
-use Log::Log4perl qw(:easy :levels) ;
+use Log::Log4perl qw(:easy :levels);
 
 use strict;
 
 my $arg = shift || '';
-my ($log,$show) = (0) x 2 ;
+my ( $log, $show ) = (0) x 2;
 
-my $trace = $arg =~ /t/ ? 1 : 0 ;
-$log                = 1 if $arg =~ /l/;
-$show               = 1 if $arg =~ /s/;
+my $trace = $arg =~ /t/ ? 1 : 0;
+$log  = 1 if $arg =~ /l/;
+$show = 1 if $arg =~ /s/;
 
 my $home = $ENV{HOME} || "";
 my $log4perl_user_conf_file = "$home/.log4config-model";
 
-if ($log and -e $log4perl_user_conf_file ) {
+if ( $log and -e $log4perl_user_conf_file ) {
     Log::Log4perl::init($log4perl_user_conf_file);
 }
 else {
-    Log::Log4perl->easy_init($log ? $WARN: $ERROR);
+    Log::Log4perl->easy_init( $log ? $WARN : $ERROR );
 }
 
 Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
@@ -106,8 +106,7 @@ $model->create_config_class(
                         choice => [ 'A' .. 'H' ],
                         level  => 'normal',
                     },
-                }
-            }
+                } }
         },
 
         refer_to_list => {
@@ -154,51 +153,33 @@ $model->create_config_class(
             type     => 'check_list',
             refer_to => '- dumb_list + - my_hash',
         },
-              'Ciphers',
-      {
-        'ordered' => '1',
-        'experience' => 'master',
-        'upstream_default_list' => [
-          '3des-cbc',
-          'aes128-cbc',
-          'aes128-ctr',
-          'aes192-cbc',
-          'aes192-ctr',
-          'aes256-cbc',
-          'aes256-ctr',
-          'arcfour',
-          'arcfour128',
-          'arcfour256',
-          'blowfish-cbc',
-          'cast128-cbc'
-        ],
-        'type' => 'check_list',
-        'description' => 'Specifies the ciphers allowed for protocol version 2 in order of preference. By default, all ciphers are allowed.',
-        'choice' => [
-          'aes128-cbc',
-          '3des-cbc',
-          'blowfish-cbc',
-          'cast128-cbc',
-          'arcfour128',
-          'arcfour256',
-          'arcfour',
-          'aes192-cbc',
-          'aes256-cbc',
-          'aes128-ctr',
-          'aes192-ctr',
-          'aes256-ctr'
-        ]
-      },
+        'Ciphers',
+        {
+            'ordered'               => '1',
+            'experience'            => 'master',
+            'upstream_default_list' => [
+                '3des-cbc',   'aes128-cbc', 'aes128-ctr',   'aes192-cbc',
+                'aes192-ctr', 'aes256-cbc', 'aes256-ctr',   'arcfour',
+                'arcfour128', 'arcfour256', 'blowfish-cbc', 'cast128-cbc'
+            ],
+            'type' => 'check_list',
+            'description' =>
+                'Specifies the ciphers allowed for protocol version 2 in order of preference. By default, all ciphers are allowed.',
+            'choice' => [
+                'aes128-cbc', '3des-cbc',   'blowfish-cbc', 'cast128-cbc',
+                'arcfour128', 'arcfour256', 'arcfour',      'aes192-cbc',
+                'aes256-cbc', 'aes128-ctr', 'aes192-ctr',   'aes256-ctr'
+            ]
+        },
 
-    ]
-);
+    ] );
 
 my $inst = $model->instance(
     root_class_name => 'Master',
     instance_name   => 'test1'
 );
 ok( $inst, "created dummy instance" );
-$inst->initial_load_stop ;
+$inst->initial_load_stop;
 
 my $root = $inst->config_root;
 
@@ -207,7 +188,7 @@ my $cl = $root->fetch_element('choice_list');
 # check get_choice
 is_deeply( [ $cl->get_choice ], [ 'A' .. 'Z' ], "check_get_choice" );
 
-is($inst->needs_save,0,"verify instance needs_save status after creation") ;
+is( $inst->needs_save, 0, "verify instance needs_save status after creation" );
 
 ok( 1, "test get_checked_list for empty check_list" );
 my @got = $cl->get_checked_list;
@@ -222,7 +203,7 @@ is_deeply( $hr, \%expect, "test get_checked_list_as_hash for empty checklist" );
 # check help
 is( $cl->get_help('A'), 'A help', "test help" );
 
-is($inst->needs_save,0,"verify instance needs_save status after reading meta data") ;
+is( $inst->needs_save, 0, "verify instance needs_save status after reading meta data" );
 
 # test with the polymorphic 'set' method
 $cl->set( '', 'A,Z,Y,B' );
@@ -231,9 +212,9 @@ ok( 1, "test set method" );
 is( scalar @got, 4, "test nb of elt in check_list after set" );
 is_deeply( \@got, [qw/A B Y Z/], "test get_checked_list after set" );
 
-is($inst->needs_save,1,"verify instance needs_save after set") ;
-print  join("\n", $inst->list_changes("\n")),"\n" if $trace;
-$inst->clear_changes ;
+is( $inst->needs_save, 1, "verify instance needs_save after set" );
+print join( "\n", $inst->list_changes("\n") ), "\n" if $trace;
+$inst->clear_changes;
 
 my @set = sort qw/A C Z V Y/;
 $cl->set_checked_list(@set);
@@ -242,9 +223,9 @@ ok( 1, "test set_checked_list" );
 is( scalar @got, 5, "test nb of elt in check_list after set_checked_list" );
 is_deeply( \@got, \@set, "test get_checked_list after set_checked_list" );
 
-is($inst->needs_save,1,"verify instance needs_save after set_checked_list") ;
-print  join("\n", $inst->list_changes("\n")),"\n" if $trace;
-$inst->clear_changes ;
+is( $inst->needs_save, 1, "verify instance needs_save after set_checked_list" );
+print join( "\n", $inst->list_changes("\n") ), "\n" if $trace;
+$inst->clear_changes;
 
 # test global get and set as hash
 $hr = $cl->get_checked_list_as_hash;
@@ -257,11 +238,7 @@ $expect{W} = 1;
 $cl->set_checked_list_as_hash(%expect);
 ok( 1, "test set_checked_list_as_hash" );
 @got = sort $cl->get_checked_list;
-is_deeply(
-    \@got,
-    [ sort qw/A C Z W Y/ ],
-    "test get_checked_list after set_checked_list_as_hash"
-);
+is_deeply( \@got, [ sort qw/A C Z W Y/ ], "test get_checked_list after set_checked_list_as_hash" );
 
 $cl->clear;
 
@@ -274,24 +251,24 @@ ok( $@, "check 'a': which is an error" );
 print "normal error:\n", $@, "\n" if $trace;
 
 # test layered choice_list
-$inst->layered_start ;
-my @l_set = qw/B M W/ ;
+$inst->layered_start;
+my @l_set = qw/B M W/;
 $cl->set_checked_list(@l_set);
-$inst->layered_stop ;
+$inst->layered_stop;
 
-eq_or_diff( [ $cl->get_checked_list(mode => 'layered') ], \@l_set,"check layered content");
-eq_or_diff( [ $cl->get_checked_list(mode => 'standard') ], \@l_set,"check standard content");
-eq_or_diff( [ $cl->get_checked_list() ], [],"check user content");
+eq_or_diff( [ $cl->get_checked_list( mode => 'layered' ) ],  \@l_set, "check layered content" );
+eq_or_diff( [ $cl->get_checked_list( mode => 'standard' ) ], \@l_set, "check standard content" );
+eq_or_diff( [ $cl->get_checked_list() ], [], "check user content" );
 
-$cl->set_checked_list_as_hash(V => 1, W => 1) ;
-eq_or_diff( [ $cl->get_checked_list(mode => 'layered') ], \@l_set,"check layered content");
-eq_or_diff( [ $cl->get_checked_list(mode => 'standard') ], \@l_set,"check standard content");
-eq_or_diff( [ $cl->get_checked_list(mode => 'user') ], [qw/B M V W/],"check user content");
-eq_or_diff( [ $cl->get_checked_list() ], [qw/V W/],"check content");
+$cl->set_checked_list_as_hash( V => 1, W => 1 );
+eq_or_diff( [ $cl->get_checked_list( mode => 'layered' ) ],  \@l_set, "check layered content" );
+eq_or_diff( [ $cl->get_checked_list( mode => 'standard' ) ], \@l_set, "check standard content" );
+eq_or_diff( [ $cl->get_checked_list( mode => 'user' ) ], [qw/B M V W/], "check user content" );
+eq_or_diff( [ $cl->get_checked_list() ], [qw/V W/], "check content" );
 
-$cl->clear_layered ;
-eq_or_diff( [ $cl->get_checked_list(mode => 'layered') ], [],"check layered content after clear");
-
+$cl->clear_layered;
+eq_or_diff( [ $cl->get_checked_list( mode => 'layered' ) ],
+    [], "check layered content after clear" );
 
 # now test with a refer_to parameter
 
@@ -306,20 +283,17 @@ is_deeply( [ $rflist->get_choice ], [qw/X Y/], 'check simple refer choices' );
 $root->load("my_hash:Z=z");
 ok( 1, "load my_hash:Z=z worked correctly" );
 
-is_deeply( [ $rflist->get_choice ],
-    [qw/X Y Z/], 'check simple refer choices after 2nd load' );
+is_deeply( [ $rflist->get_choice ], [qw/X Y Z/], 'check simple refer choices after 2nd load' );
 
 # load hashes that are used by reference check list
 $root->load("my_hash2:X2=x my_hash2:X=xy");
 
 my $rf2list = $root->fetch_element('refer_to_2_list');
 ok( $rf2list, "created refer_to_2_list" );
-is_deeply( [ sort $rf2list->get_choice ],
-    [qw/X X2 Y Z/], 'check refer_to_2_list choices' );
+is_deeply( [ sort $rf2list->get_choice ], [qw/X X2 Y Z/], 'check refer_to_2_list choices' );
 
 $root->load("my_hash3:Y2=y");
-is_deeply( [ sort $rf2list->get_choice ],
-    [qw/X X2 Y Y2 Z/], 'check refer_to_2_list choices' );
+is_deeply( [ sort $rf2list->get_choice ], [qw/X X2 Y Y2 Z/], 'check refer_to_2_list choices' );
 
 my $rtclac = $root->fetch_element('refer_to_check_list_and_choice');
 ok( $rtclac, "created refer_to_check_list_and_choice" );
@@ -334,8 +308,7 @@ print "normal error:\n", $@, "\n" if $trace;
 $root->fetch_element('indirection')->store('my_hash');
 
 is_deeply( [ sort $rtclac->get_choice ],
-    [qw/A1 A2 A3 X Y Z/],
-    'check refer_to_check_list_and_choice choices with indirection set' );
+    [qw/A1 A2 A3 X Y Z/], 'check refer_to_check_list_and_choice choices with indirection set' );
 
 $rf2list->check('X2');
 is_deeply(
@@ -377,8 +350,7 @@ ok( $@, "fetch_element without warp set (macro=undef): which is an error" );
 print "normal error:\n", $@, "\n" if $trace;
 
 # force read of hidden element
-$warp_list =
-  $root->fetch_element( name => 'warped_choice_list', accept_hidden => 1 );
+$warp_list = $root->fetch_element( name => 'warped_choice_list', accept_hidden => 1 );
 
 ok( $warp_list, "created warped_choice_list" );
 
@@ -406,15 +378,13 @@ is_deeply(
 );
 
 @got = $warp_list->get_checked_list;
-is_deeply( \@got, [],
-    "test default of warped_choice_list after setting macro=AH" );
+is_deeply( \@got, [], "test default of warped_choice_list after setting macro=AH" );
 
 # test reference to list values
 $root->load("dumb_list=a,b,c,d,e");
 
 my $rtl = $root->fetch_element("refer_to_dumb_list");
-is_deeply( [ $rtl->get_choice ],
-    [qw/X Y Z a b c d e/], "check choice of refer_to_dumb_list" );
+is_deeply( [ $rtl->get_choice ], [qw/X Y Z a b c d e/], "check choice of refer_to_dumb_list" );
 
 # test check list with built_in default
 my $wud = $root->fetch_element("choice_list_with_upstream_default");
@@ -422,27 +392,22 @@ my $wud = $root->fetch_element("choice_list_with_upstream_default");
 is_deeply( \@got, [], "test default of choice_list_with_upstream_default" );
 
 @got = $wud->get_checked_list('upstream_default');
-is_deeply( \@got, [qw/A D/],
-    "test upstream_default of choice_list_with_upstream_default" );
+is_deeply( \@got, [qw/A D/], "test upstream_default of choice_list_with_upstream_default" );
 
 # test check list with upstream_default *and* default (should override)
-$inst->clear_changes ;
-my $wudad =
-  $root->fetch_element("choice_list_with_default_and_upstream_default");
-is($inst->needs_save,0,"check needs_save after reading a default value") ;
+$inst->clear_changes;
+my $wudad = $root->fetch_element("choice_list_with_default_and_upstream_default");
+is( $inst->needs_save, 0, "check needs_save after reading a default value" );
 @got = $wudad->get_checked_list('default');
-is_deeply( \@got, [qw/A C/],
-    "test default of choice_list_with_default_and_upstream_default" );
-is($inst->needs_save,0,"check needs_save after reading a default value") ;
+is_deeply( \@got, [qw/A C/], "test default of choice_list_with_default_and_upstream_default" );
+is( $inst->needs_save, 0, "check needs_save after reading a default value" );
 
 @got = $wudad->get_checked_list();
-is_deeply( \@got, [qw/A C/],
-    "test choice_list_with_default_and_upstream_default" );
-is($inst->needs_save,1,"check needs_save after reading a default value") ;
+is_deeply( \@got, [qw/A C/], "test choice_list_with_default_and_upstream_default" );
+is( $inst->needs_save, 1, "check needs_save after reading a default value" );
 
-is_deeply( $wudad->fetch(), 'A,C',
-    "test fetch choice_list_with_default_and_upstream_default" );
-is($inst->needs_save,1,"check needs_save after reading a default value") ;
+is_deeply( $wudad->fetch(), 'A,C', "test fetch choice_list_with_default_and_upstream_default" );
+is( $inst->needs_save, 1, "check needs_save after reading a default value" );
 
 ### test preset feature
 
@@ -466,20 +431,16 @@ is( $pinst->preset, 0, "instance in normal mode" );
 is( $p_cl->fetch, "C,H,L", "choice_list: read preset list" );
 
 $p_cl->check(qw/A S H/);
-is( $p_cl->fetch, "A,C,H,L,S", "choice_list: read completed preset LIST" );
-is( $p_cl->fetch('preset'),
-    "C,H,L", "choice_list: read preset value as preset_value" );
-is( $p_cl->fetch('standard'),
-    "C,H,L", "choice_list: read preset value as standard_value" );
-is( $p_cl->fetch('custom'), "A,C,H,L,S", "choice_list: read custom_value" );
+is( $p_cl->fetch,             "A,C,H,L,S", "choice_list: read completed preset LIST" );
+is( $p_cl->fetch('preset'),   "C,H,L",     "choice_list: read preset value as preset_value" );
+is( $p_cl->fetch('standard'), "C,H,L",     "choice_list: read preset value as standard_value" );
+is( $p_cl->fetch('custom'),   "A,C,H,L,S", "choice_list: read custom_value" );
 
 $p_cl->set_checked_list(qw/A S H E/);
-is( $p_cl->fetch, "A,E,H,S", "choice_list: read overridden preset LIST" );
-is( $p_cl->fetch('custom'),
-    "A,E,H,S", "choice_list: read custom_value after override" );
+is( $p_cl->fetch,           "A,E,H,S", "choice_list: read overridden preset LIST" );
+is( $p_cl->fetch('custom'), "A,E,H,S", "choice_list: read custom_value after override" );
 
-my $wrtl =
-  $p_root->fetch_element( name => 'warped_refer_to_list', accept_hidden => 1 );
+my $wrtl = $p_root->fetch_element( name => 'warped_refer_to_list', accept_hidden => 1 );
 ok( $wrtl, "created warped_refer_to_list (hidden)" );
 
 my $ocl = $root->fetch_element('ordered_checklist');
@@ -518,8 +479,7 @@ is_deeply( \@got, [qw/Y V C Z A B/], "test ordered_checklist after check B" );
 $ocl->move_up(qw/B/);
 $ocl->uncheck('B');
 @got = $ocl->get_checked_list;
-is_deeply( \@got, [qw/Y V C Z A/],
-    "test ordered_checklist after move_up B uncheck B" );
+is_deeply( \@got, [qw/Y V C Z A/], "test ordered_checklist after move_up B uncheck B" );
 
 $ocl->check('B');
 @got = $ocl->get_checked_list;
@@ -529,13 +489,12 @@ is( $root->grab_value( $ocl->location ), "Y,V,C,Z,B,A", "test grab_value" );
 
 my $oclrt = $root->fetch_element('ordered_checklist_refer_to');
 @got = $oclrt->get_choice();
-is_deeply( \@got, [qw/Y V C Z B A/],
-    "test default of ordered_checklist_refer_to" );
+is_deeply( \@got, [qw/Y V C Z B A/], "test default of ordered_checklist_refer_to" );
 
-my $ciphers = $root->fetch_element('Ciphers');
-my @cipher_list = qw/aes192-cbc aes128-cbc 3des-cbc blowfish-cbc aes256-cbc/ ;
-$ciphers->set_checked_list(@cipher_list) ;
-eq_or_diff( [ $ciphers->get_checked_list ], \@cipher_list, "check cipher list");
+my $ciphers     = $root->fetch_element('Ciphers');
+my @cipher_list = qw/aes192-cbc aes128-cbc 3des-cbc blowfish-cbc aes256-cbc/;
+$ciphers->set_checked_list(@cipher_list);
+eq_or_diff( [ $ciphers->get_checked_list ], \@cipher_list, "check cipher list" );
 
 # test warp in layered mode
 my $layered_i = $model->instance(
@@ -544,23 +503,20 @@ my $layered_i = $model->instance(
 );
 ok( $layered_i, "created layered instance" );
 my $l_root = $layered_i->config_root;
-$layered_i->layered_start ;
+$layered_i->layered_start;
 
-my $locl =  $l_root->fetch_element('ordered_checklist') ;
+my $locl = $l_root->fetch_element('ordered_checklist');
 $locl->set_checked_list(@set);
 
 my $loclrt = $root->fetch_element('ordered_checklist_refer_to');
 @got = $loclrt->get_choice();
-is_deeply( \@got, [qw/Y V C Z B A/],
-    "test default of ordered_checklist_refer_to in layered mode" );
+is_deeply( \@got, [qw/Y V C Z B A/], "test default of ordered_checklist_refer_to in layered mode" );
 
-$inst->apply_fixes; 
-ok(1,"apply_fixes works") ;
+$inst->apply_fixes;
+ok( 1, "apply_fixes works" );
 
-print  join("\n", $inst->list_changes("\n")),"\n" if $trace;
+print join( "\n", $inst->list_changes("\n") ), "\n" if $trace;
 
+memory_cycle_ok( $model, "memory cycle" );
 
-
-memory_cycle_ok($model,"memory cycle");
-
-done_testing ;
+done_testing;

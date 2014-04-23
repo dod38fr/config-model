@@ -1,144 +1,150 @@
-package Config::Model::Backend::Any ;
+package Config::Model::Backend::Any;
 
 use Carp;
 use strict;
-use warnings ;
-use Config::Model::Exception ;
-use Mouse ;
+use warnings;
+use Config::Model::Exception;
+use Mouse;
 use namespace::autoclean;
 
 use File::Path;
 use Log::Log4perl qw(get_logger :levels);
 
-my $logger = get_logger("Backend") ;
+my $logger = get_logger("Backend");
 
-has 'name'       => ( is => 'ro', default => 'unknown',) ;
-has 'annotation' => ( is => 'ro', isa => 'Bool', default => 0 ) ;
-has 'node'       => ( is => 'ro', isa => 'Config::Model::Node', 
-		      weak_ref => 1, required => 1 ) ;
+has 'name' => ( is => 'ro', default => 'unknown', );
+has 'annotation' => ( is => 'ro', isa => 'Bool', default => 0 );
+has 'node' => (
+    is       => 'ro',
+    isa      => 'Config::Model::Node',
+    weak_ref => 1,
+    required => 1
+);
 
 sub suffix {
-    my $self = shift ;
-    $logger->info("Internal warning: suffix called for backend $self->{name}.This method can be overloaded") ;
+    my $self = shift;
+    $logger->info(
+        "Internal warning: suffix called for backend $self->{name}.This method can be overloaded");
 }
 
 sub read {
-    my $self = shift ;
-    my $err = "Internal error: read not defined in backend $self->{name}." ;
-    $logger->error($err) ;
+    my $self = shift;
+    my $err  = "Internal error: read not defined in backend $self->{name}.";
+    $logger->error($err);
     croak $err;
 }
 
 sub write {
-    my $self = shift ;
-    my $err = "Internal error: write not defined in backend $self->{name}." ;
-    $logger->error($err) ;
+    my $self = shift;
+    my $err  = "Internal error: write not defined in backend $self->{name}.";
+    $logger->error($err);
     croak $err;
 }
 
 sub read_global_comments {
-    my $self = shift ;
-    my $lines = shift ;
-    my $cc = shift ; # comment character
+    my $self  = shift;
+    my $lines = shift;
+    my $cc    = shift;    # comment character
 
-    my @global_comments ;
+    my @global_comments;
 
-    while (defined ( $_ = shift @$lines ) ) {
-        next if /^$cc$cc/ ; # remove comments added by Config::Model
-        unshift @$lines,$_;
+    while ( defined( $_ = shift @$lines ) ) {
+        next if /^$cc$cc/;    # remove comments added by Config::Model
+        unshift @$lines, $_;
         last;
     }
-    while (defined ( $_ = shift @$lines ) ) {
-        next if /^\s*$/ ; # remove empty lines
-        unshift @$lines,$_;
+    while ( defined( $_ = shift @$lines ) ) {
+        next if /^\s*$/;      # remove empty lines
+        unshift @$lines, $_;
         last;
     }
 
-    while (defined ( $_ = shift @$lines ) ) {
-        chomp ;
+    while ( defined( $_ = shift @$lines ) ) {
+        chomp;
 
-        my ($data,$comment) = split /\s*$cc\s?/ , $_, 2 ;
+        my ( $data, $comment ) = split /\s*$cc\s?/, $_, 2;
 
-        push @global_comments, $comment if defined $comment ;
+        push @global_comments, $comment if defined $comment;
 
-        if (/^\s*$/ or $data) {
+        if ( /^\s*$/ or $data ) {
             if (@global_comments) {
                 $self->node->annotation(@global_comments);
-                $logger->debug("Setting global comment with @global_comments") ;
+                $logger->debug("Setting global comment with @global_comments");
             }
-            unshift @$lines,$_ unless /^\s*$/ ; # put back any data and comment
-            # stop global comment at first blank or non comment line
+            unshift @$lines, $_ unless /^\s*$/;    # put back any data and comment
+                  # stop global comment at first blank or non comment line
             last;
         }
     }
 }
 
 sub associates_comments_with_data {
-    my $self = shift ;
-    my $lines = shift ;
-    my $cc = shift ; # comment character
+    my $self  = shift;
+    my $lines = shift;
+    my $cc    = shift;    # comment character
 
-    my @result ;
-    my @comments ;
+    my @result;
+    my @comments;
     foreach (@$lines) {
-        next if /^$cc$cc/ ;		  # remove comments added by Config::Model
-        chomp ;
+        next if /^$cc$cc/;    # remove comments added by Config::Model
+        chomp;
 
-        my ($data,$comment) = split /\s*$cc\s?/, $_, 2 ;
-        push @comments, $comment        if defined $comment ;
+        my ( $data, $comment ) = split /\s*$cc\s?/, $_, 2;
+        push @comments, $comment if defined $comment;
 
-        next unless defined $data ;
+        next unless defined $data;
         $data =~ s/^\s+//g;
         $data =~ s/\s+$//g;
 
         if ($data) {
             my $note = '';
-            $note = join("\n",@comments) if @comments ;
+            $note = join( "\n", @comments ) if @comments;
             $logger->debug("associates_comments_with_data: '$note' with '$data'");
-            push @result, [  $data , $note ] ;
-            @comments = () ;
+            push @result, [ $data, $note ];
+            @comments = ();
         }
     }
-    
-    return wantarray ? @result : \@result ;
-   
+
+    return wantarray ? @result : \@result;
+
 }
 
 sub write_global_comment {
-    my ($self,$ioh,$cc) = @_ ;
+    my ( $self, $ioh, $cc ) = @_;
 
-    my $res = "$cc$cc This file was written by cme command.\n"
+    my $res =
+          "$cc$cc This file was written by cme command.\n"
         . "$cc$cc You can run 'cme edit <application>' to modify this file.\n"
         . "$cc$cc Run 'cme list' to get the list of applications available on your system\n"
-        . "$cc$cc You may also modify the content of this file with your favorite editor.\n\n" ;
+        . "$cc$cc You may also modify the content of this file with your favorite editor.\n\n";
 
     # write global comment
-    my $global_note = $self->node->annotation ;
+    my $global_note = $self->node->annotation;
     if ($global_note) {
-        map { $res .= "$cc $_\n" } split /\n/,$global_note ;
-        $res .= "\n" ;
+        map { $res .= "$cc $_\n" } split /\n/, $global_note;
+        $res .= "\n";
     }
 
-    $ioh->print ($res) if defined $ioh ;
-    return $res ;
+    $ioh->print($res) if defined $ioh;
+    return $res;
 }
 
 sub write_data_and_comments {
-    my ($self,$ioh,$cc, @data_and_comments) = @_ ;
+    my ( $self, $ioh, $cc, @data_and_comments ) = @_;
 
-    my $res  = '' ;
+    my $res = '';
     while (@data_and_comments) {
-        my ($d,$c) = splice @data_and_comments,0,2;
+        my ( $d, $c ) = splice @data_and_comments, 0, 2;
         if ($c) {
-            map { $res .= "$cc $_\n" } split /\n/,$c ;
+            map { $res .= "$cc $_\n" } split /\n/, $c;
         }
         $res .= "$d\n" if defined $d;
     }
-    $ioh->print ($res) if defined $ioh ;
-    return $res ;
+    $ioh->print($res) if defined $ioh;
+    return $res;
 }
 
-__PACKAGE__->meta->make_immutable ;
+__PACKAGE__->meta->make_immutable;
 
 1;
 

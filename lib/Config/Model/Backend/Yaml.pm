@@ -1,71 +1,70 @@
 
-package Config::Model::Backend::Yaml ;
+package Config::Model::Backend::Yaml;
 
 use Carp;
 use strict;
-use warnings ;
-use Config::Model::Exception ;
+use warnings;
+use Config::Model::Exception;
 use File::Path;
 use Log::Log4perl qw(get_logger :levels);
 
 use base qw/Config::Model::Backend::Any/;
-use YAML::Any 0.303 ;
+use YAML::Any 0.303;
 
+my $logger = get_logger("Backend::Yaml");
 
-my $logger = get_logger("Backend::Yaml") ;
-
-sub suffix { return '.yml' ; }
+sub suffix { return '.yml'; }
 
 sub read {
-    my $self = shift ;
-    my %args = @_ ;
+    my $self = shift;
+    my %args = @_;
 
     # args is:
-    # object     => $obj,         # Config::Model::Node object 
+    # object     => $obj,         # Config::Model::Node object
     # root       => './my_test',  # fake root directory, userd for tests
-    # config_dir => /etc/foo',    # absolute path 
+    # config_dir => /etc/foo',    # absolute path
     # file       => 'foo.conf',   # file name
-    # file_path  => './my_test/etc/foo/foo.conf' 
+    # file_path  => './my_test/etc/foo/foo.conf'
     # io_handle  => $io           # IO::File object
     # check      => yes|no|skip
 
-    return 0 unless defined $args{io_handle} ; # no file to read
+    return 0 unless defined $args{io_handle};    # no file to read
 
     # load yaml file
-    my $yaml = join ('',$args{io_handle}->getlines) ;
+    my $yaml = join( '', $args{io_handle}->getlines );
 
     # convert to perl data
     my $perl_data = Load $yaml ;
-    if (not defined $perl_data) {
+    if ( not defined $perl_data ) {
         $logger->warn("No data found in YAML file $args{file_path}");
         return 1;
     }
 
     # load perl data in tree
-    $self->{node}->load_data(data => $perl_data, check => $args{check} || 'yes' ) ;
-    return 1 ;
+    $self->{node}->load_data( data => $perl_data, check => $args{check} || 'yes' );
+    return 1;
 }
 
 sub write {
-    my $self = shift ;
-    my %args = @_ ;
+    my $self = shift;
+    my %args = @_;
 
     # args is:
-    # object     => $obj,         # Config::Model::Node object 
+    # object     => $obj,         # Config::Model::Node object
     # root       => './my_test',  # fake root directory, userd for tests
-    # config_dir => /etc/foo',    # absolute path 
+    # config_dir => /etc/foo',    # absolute path
     # file       => 'foo.conf',   # file name
-    # file_path  => './my_test/etc/foo/foo.conf' 
+    # file_path  => './my_test/etc/foo/foo.conf'
     # io_handle  => $io           # IO::File object
     # check      => yes|no|skip
 
     croak "Undefined file handle to write"
-      unless defined $args{io_handle} ;
+        unless defined $args{io_handle};
 
-    my $perl_data = $self->{node}->dump_as_data(full_dump => $args{full_dump}) ;
+    my $perl_data = $self->{node}->dump_as_data( full_dump => $args{full_dump} );
     my $yaml = Dump $perl_data ;
 
-    $args{io_handle} -> print ($yaml) ;
+    $args{io_handle}->print($yaml);
 
     return 1;
 }

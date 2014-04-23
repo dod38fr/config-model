@@ -11,9 +11,9 @@ use Getopt::Long;
 use Pod::Usage;
 use Log::Log4perl qw(get_logger :levels);
 use File::Slurp qw/slurp/;
-use Path::Class ;
+use Path::Class;
 use POSIX qw/setsid/;
-use AnyEvent ; # why AnyEvent ? See comment below around Tk UI
+use AnyEvent;    # why AnyEvent ? See comment below around Tk UI
 
 my $log4perl_syst_conf_file = '/etc/log4config-model.conf';
 my $log4perl_user_conf_file = $ENV{HOME} . '/.log4config-model';
@@ -26,9 +26,9 @@ log4perl.appender.Screen.layout.ConversionPattern = %d %m %n
 EOC
 
 my $log4perl_conf =
-    -e $log4perl_user_conf_file ? $log4perl_user_conf_file
-  : -e $log4perl_syst_conf_file ? $log4perl_syst_conf_file
-  :                               \$fallback_conf;
+      -e $log4perl_user_conf_file ? $log4perl_user_conf_file
+    : -e $log4perl_syst_conf_file ? $log4perl_syst_conf_file
+    :                               \$fallback_conf;
 
 Log::Log4perl::init($log4perl_conf);
 
@@ -47,107 +47,106 @@ my $experience = 'beginner';
 my $dumptype;
 my $load;
 my @fix_from;
-my $fix_filter ;
-my $force_save  = 0;
-my $open_item   = '';
+my $fix_filter;
+my $force_save = 0;
+my $open_item  = '';
 my $fuse_dir;
 my $fuse_debug  = 0;
 my $apply_fixes = 0;
 my $search;
 my $search_type = 'all';
-my $dir_char_mockup ;
-my $try_application_as_model = 0; # means search a model instead of an application name
-my $backup ;
-my $auto_create ;
+my $dir_char_mockup;
+my $try_application_as_model = 0;    # means search a model instead of an application name
+my $backup;
+my $auto_create;
 my $strict = 0;
-
 
 my %command_option = (
     list    => [],
     check   => [],
     migrate => [],
     fix     => [
-        "from=s" => \@fix_from ,
-        "filter=s" => \$fix_filter ,
+        "from=s"   => \@fix_from,
+        "filter=s" => \$fix_filter,
     ],
-    modify  => [],
-    search  => [ 
-        "search=s"         => \$search,
-        "narrow-search=s"  => \$search_type,
+    modify => [],
+    search => [
+        "search=s"        => \$search,
+        "narrow-search=s" => \$search_type,
     ],
-    edit    => [
+    edit => [
         "ui|if=s"               => \$ui_type,
         "open_item|open-item=s" => \$open_item,
     ],
-    dump   => [
+    dump => [
         "dumptype:s" => \$dumptype,
     ],
     fusefs => [
         "fuse_dir|fuse-dir=s" => \$fuse_dir,
         "dfuse!"              => \$fuse_debug,
-        "dir-char=s"          => \$dir_char_mockup ,
+        "dir-char=s"          => \$dir_char_mockup,
     ],
 );
 
 my @global_options = (
-    "model_dir|model-dir=s"         => \$model_dir,
-    "try-app-as-model!"             => \$try_application_as_model,
-    "experience=s"                  => \$experience,
-    "dev!"                          => \$dev,
-    "force_load|force-load!"        => \$force_load,
-    "create!"                       => \$auto_create,
-    "root_dir|root-dir=s"           => \$root_dir,
-    "backend=s"                     => \$backend,
-    "stack-trace|trace!"            => \$trace,
-    "backup:s"                      => \$backup,
-    "save!"                         => \$force_save,
-    "strict!"                       => \$strict,
-    );
+    "model_dir|model-dir=s"  => \$model_dir,
+    "try-app-as-model!"      => \$try_application_as_model,
+    "experience=s"           => \$experience,
+    "dev!"                   => \$dev,
+    "force_load|force-load!" => \$force_load,
+    "create!"                => \$auto_create,
+    "root_dir|root-dir=s"    => \$root_dir,
+    "backend=s"              => \$backend,
+    "stack-trace|trace!"     => \$trace,
+    "backup:s"               => \$backup,
+    "save!"                  => \$force_save,
+    "strict!"                => \$strict,
+);
 
 # retrieve the main command, i.e. the first arg without leading dash
-my ($command) = grep { ! /^-/ } @ARGV ;
+my ($command) = grep { !/^-/ } @ARGV;
 
-pod2usage(-message => 'no command specified', -verbose => 0) 
-    unless defined $command ;
+pod2usage( -message => 'no command specified', -verbose => 0 )
+    unless defined $command;
 
 pod2usage( -verbose => 1 ) if $command =~ /help/;
 pod2usage( -verbose => 2 ) if $command =~ /man/;
 
-# scan lib/Config/Model/extensions dir to find cme-* subcommands 
-my @dir_to_scan = @INC ;
+# scan lib/Config/Model/extensions dir to find cme-* subcommands
+my @dir_to_scan = @INC;
 my %extension_path;
-foreach my $inc ( @dir_to_scan ) {
-    my $dir = dir("$inc/Config/Model/extensions/") ;
-    next unless -d $dir ;
-    foreach my $ext ($dir ->children ) {
-        my $cmd = substr $ext->basename, 4 ;
+foreach my $inc (@dir_to_scan) {
+    my $dir = dir("$inc/Config/Model/extensions/");
+    next unless -d $dir;
+    foreach my $ext ( $dir->children ) {
+        my $cmd = substr $ext->basename, 4;
 
         # don't clobber commands found before in @INC
-        next if $extension_path{$cmd} ; 
+        next if $extension_path{$cmd};
 
-        $command_option{$cmd} = [] ;
-        $extension_path{$cmd} = $ext ;
+        $command_option{$cmd} = [];
+        $extension_path{$cmd} = $ext;
     }
 }
 
 # run extention if the command matches one extension
-if (my $path = $extension_path{$command}){
+if ( my $path = $extension_path{$command} ) {
     say "doing $path";
-    do $path; # thus @INC and @ARGV  are still valid
-    exit ;
+    do $path;    # thus @INC and @ARGV  are still valid
+    exit;
 }
 
-my $cmd_options =  $command_option{$command} 
-    || pod2usage(-message => "unknown command: $command", -verbose => 0) ;
+my $cmd_options = $command_option{$command}
+    || pod2usage( -message => "unknown command: $command", -verbose => 0 );
 
-my $result = GetOptions( @global_options, @$cmd_options);
+my $result = GetOptions( @global_options, @$cmd_options );
 
-pod2usage(-verbose => 0) if not $result;
+pod2usage( -verbose => 0 ) if not $result;
 
 # @ARGV should be $command, $application, [ $config_file ] [ ~~ ] [ modification_instructions ]
 
 shift @ARGV;
-my $application = shift @ARGV ;
+my $application = shift @ARGV;
 
 # ignore $dev if run as root
 if ( $> and $dev ) {
@@ -164,12 +163,11 @@ if ( defined $root_dir && !-e $root_dir ) {
 
 my $model = Config::Model->new( model_dir => $model_dir );
 
-my ( $categories, $appli_info, $appli_map ) =
-  Config::Model::Lister::available_models;
+my ( $categories, $appli_info, $appli_map ) = Config::Model::Lister::available_models;
 
-if (not $application or $command eq 'list') {
+if ( not $application or $command eq 'list' ) {
     print "You forgot to specify an application to run cme on. Like 'cme $command stuff'.\n"
-        unless $application ;
+        unless $application;
     print "The following applications are available:\n";
     foreach my $cat ( keys %$categories ) {
         my $names = $categories->{$cat} || [];
@@ -180,32 +178,39 @@ if (not $application or $command eq 'list') {
 }
 
 my $root_model = $appli_map->{$application};
-$root_model ||= $application if $try_application_as_model ;
+$root_model ||= $application if $try_application_as_model;
 
-if (not defined $root_model) {
+if ( not defined $root_model ) {
     die "Unknown application: $application. Run 'cme list' to list available applications\n";
 }
 
 # @ARGV should be [ $config_file ] [ ~~ ] [ modification_instructions ]
-my $config_file ;
-if ($appli_info->{$application}{require_config_file}) {
-    $config_file = shift @ARGV ;
-    pod2usage(-message => "no config file specified. Command should be cme $command $application file", -verbose => 0) 
-        unless defined $config_file ;
+my $config_file;
+if ( $appli_info->{$application}{require_config_file} ) {
+    $config_file = shift @ARGV;
+    pod2usage(
+        -message => "no config file specified. Command should be cme $command $application file",
+        -verbose => 0
+    ) unless defined $config_file;
 }
-elsif ( $appli_info->{$application}{allow_config_file_override} and $ARGV[0] and $ARGV[0] ne '~~') {
-    $config_file = shift @ARGV ;
+elsif ( $appli_info->{$application}{allow_config_file_override} and $ARGV[0] and $ARGV[0] ne '~~' )
+{
+    $config_file = shift @ARGV;
 }
+
 # else cannot distinguish between bogus config_file and modification_instructions
 
 # slurp any '~~'
-if ($ARGV[0] and $ARGV[0] eq '~~') {
+if ( $ARGV[0] and $ARGV[0] eq '~~' ) {
     shift @ARGV;
 }
 
 # now @ARGV contains modification_instructions (or bogus config_file) which can only be used by command modify
-if (@ARGV and $command ne 'modify') {
-    pod2usage(-message => "cannot specify config modification with command $command", -verbose => 0) ;
+if ( @ARGV and $command ne 'modify' ) {
+    pod2usage(
+        -message => "cannot specify config modification with command $command",
+        -verbose => 0
+    );
 }
 
 my $inst = $model->instance(
@@ -214,32 +219,32 @@ my $inst = $model->instance(
     application     => $application,
     root_dir        => $root_dir,
     check           => $force_load ? 'no' : 'yes',
-    auto_create     => $auto_create ,
+    auto_create     => $auto_create,
     skip_read       => $load ? 1 : 0,
     backend         => $backend,
-    backup          => $backup ,
+    backup          => $backup,
     config_file     => $config_file,
 );
 
-my $root = $inst->config_root;
-my $request_save  = 0;
+my $root         = $inst->config_root;
+my $request_save = 0;
 
-if ( $command eq  'dump' ) {
+if ( $command eq 'dump' ) {
     my $dump_string = $root->dump_tree( mode => $dumptype || 'custom' );
     print $dump_string ;
 }
 elsif ( $command eq 'check' ) {
     say "loading data";
-    Config::Model::ObjTreeScanner->new(leaf_cb => sub{})->scan_node(undef, $root) ;
+    Config::Model::ObjTreeScanner->new( leaf_cb => sub { } )->scan_node( undef, $root );
     say "checking data";
     $root->dump_tree( mode => 'full' );
     say "check done";
 }
 elsif ( $command eq 'search' ) {
-    pod2usage(-message => "missing -search option with search command" )
+    pod2usage( -message => "missing -search option with search command" )
         unless defined $search;
     my @res = $root->tree_searcher( type => $search_type )->search($search);
-    foreach my $path ( @res ) {
+    foreach my $path (@res) {
         print "$path";
         my $obj = $root->grab($path);
         if ( $obj->get_type =~ /leaf|check_list/ ) {
@@ -250,15 +255,15 @@ elsif ( $command eq 'search' ) {
         print "\n";
     }
 }
-elsif ($command eq 'migrate') {
+elsif ( $command eq 'migrate' ) {
     $request_save = 1;
     $root->migrate;
 }
-elsif ($command eq 'fix') {
-    @fix_from = ('') unless @fix_from ;
+elsif ( $command eq 'fix' ) {
+    @fix_from = ('') unless @fix_from;
     foreach my $path (@fix_from) {
-        my $node_to_fix = $inst->config_root->grab($path) ;
-        say "Fixing from ",$node_to_fix->name,"..." ;
+        my $node_to_fix = $inst->config_root->grab($path);
+        say "Fixing from ", $node_to_fix->name, "...";
         $node_to_fix->apply_fixes($fix_filter);
     }
     $request_save = 1;
@@ -268,7 +273,7 @@ elsif ( $command eq 'modify' ) {
         $root->load("@ARGV");
     }
     else {
-         pod2usage(-message => "No modification instructions given on command line", verbose => 0 );
+        pod2usage( -message => "No modification instructions given on command line", verbose => 0 );
     }
     $request_save = 1;
 }
@@ -277,16 +282,16 @@ elsif ( $command =~ /^fuse/ ) {
     my $has_fuse = $@ ? 0 : 1;
 
     die "could not load Config::Model::FuseUI. Is Fuse installed ?\n"
-      unless $has_fuse;
+        unless $has_fuse;
     die "Missing -fuse_dir option\n" unless defined $fuse_dir;
     die "Directory $fuse_dir does not exists\n" unless -d $fuse_dir;
 
-    my @extra ;
-    push @extra, dir_char_mockup => $dir_char_mockup if  $dir_char_mockup ;
+    my @extra;
+    push @extra, dir_char_mockup => $dir_char_mockup if $dir_char_mockup;
     my $ui = Config::Model::FuseUI->new(
         root       => $root,
         mountpoint => "$fuse_dir",
-        @extra ,
+        @extra,
     );
 
     print "Mounting config on $fuse_dir in background.\n",
@@ -312,13 +317,12 @@ elsif ( $command eq 'edit' ) {
     eval { require Config::Model::CursesUI; };
     my $has_curses = $@ ? 0 : 1;
 
-    if (not defined $ui_type ) {
+    if ( not defined $ui_type ) {
         if ($has_tk) {
             $ui_type = 'tk';
         }
         elsif ($has_curses) {
-            warn "You should install Config::Model::TkUI for a ",
-                "more friendly user interface\n";
+            warn "You should install Config::Model::TkUI for a ", "more friendly user interface\n";
             $ui_type = 'curses';
         }
         else {
@@ -356,9 +360,8 @@ elsif ( $command eq 'edit' ) {
         $shell_ui->run_loop;
     }
     elsif ( $ui_type eq 'curses' ) {
-        die "cannot run curses interface: ",
-            "Config::Model::CursesUI is not installed\n"
-          unless $has_curses;
+        die "cannot run curses interface: ", "Config::Model::CursesUI is not installed\n"
+            unless $has_curses;
         my $err_file = '/tmp/cme-error.log';
 
         print "In case of error, check $err_file\n";
@@ -375,31 +378,32 @@ elsif ( $command eq 'edit' ) {
     }
     elsif ( $ui_type eq 'tk' ) {
         die "cannot run Tk interface: Config::Model::CursesUI is not installed\n"
-          unless $has_tk;
+            unless $has_tk;
 
         require Tk;
         require Tk::ErrorDialog;
         Tk->import;
-        
-        # BLEEUAARGHHH. 
+
+        # BLEEUAARGHHH.
         # Currently AnyEvent is loaded and called only within Debian::Dpkg backend
         # and C::M::Debian::Dependency. When called in a Tk environment
         # AnyEvent creates its own TK mw which may be along the one created below
-        # this require make sure that AnyEvent Tk mw is created and used for Tk application 
-        require AnyEvent::Impl::Tk ;
-        # without that, C::M::TkUI::quit (which just destroys one $mw, not 2) is not enough
-        # to end the program :-( 
+        # this require make sure that AnyEvent Tk mw is created and used for Tk application
+        require AnyEvent::Impl::Tk;
 
-        no warnings 'once' ;
-        my $mw = $AnyEvent::Impl::Tk::mw ;#|| MainWindow->new;
-        # $mw->withdraw;
+        # without that, C::M::TkUI::quit (which just destroys one $mw, not 2) is not enough
+        # to end the program :-(
+
+        no warnings 'once';
+        my $mw = $AnyEvent::Impl::Tk::mw;    #|| MainWindow->new;
+                                             # $mw->withdraw;
 
         # Thanks to Jerome Quelin for the tip
         $mw->optionAdd( '*BorderWidth' => 1 );
 
-        my $cmu = $mw->ConfigModelUI( 
-            -root => $root, 
-            -experience => $experience 
+        my $cmu = $mw->ConfigModelUI(
+            -root       => $root,
+            -experience => $experience
         );
 
         if ($open_item) {
@@ -413,7 +417,7 @@ elsif ( $command eq 'edit' ) {
 
         # trigger a dump to load all sub-models
         my $dump = $root->dump_tree;
-        $request_save = 1 if $apply_fixes or $load ;
+        $request_save = 1 if $apply_fixes or $load;
     }
     else {
         die "Unsupported user interface: $ui_type";
@@ -425,13 +429,14 @@ else {
 
 if ($request_save) {
     $inst->say_changes;
+
     # if load was forced, must write back to clean up errors (even if they are not changes
     # at semantic level, i.e. removed unnecessary stuff)
-    $inst->write_back(force => $force_load || $force_save)  ;
+    $inst->write_back( force => $force_load || $force_save );
 }
 
-my $ouch = $inst->has_warning ;
-if ($strict and $ouch) {
+my $ouch = $inst->has_warning;
+if ( $strict and $ouch ) {
     die "Found $ouch warnings in strict mode\n";
 }
 

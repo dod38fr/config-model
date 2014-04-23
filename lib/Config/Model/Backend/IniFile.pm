@@ -1,19 +1,19 @@
-package Config::Model::Backend::IniFile ;
+package Config::Model::Backend::IniFile;
 
 use Carp;
-use Mouse ;
+use Mouse;
 use 5.10.0;
-use Config::Model::Exception ;
+use Config::Model::Exception;
 use File::Path;
 use Log::Log4perl qw(get_logger :levels);
 
 use base qw/Config::Model::Backend::Any/;
 
-my $logger = get_logger("Backend::IniFile") ;
+my $logger = get_logger("Backend::IniFile");
 
-sub suffix { return '.ini' ; }
+sub suffix { return '.ini'; }
 
-sub annotation { return 1 ;}
+sub annotation { return 1; }
 
 sub read {
     my $self = shift;
@@ -30,28 +30,29 @@ sub read {
 
     return 0 unless defined $args{io_handle};    # no file to read
 
-    my $section = '<top>'; # dumb value used for logging
+    my $section = '<top>';                       # dumb value used for logging
 
     my $delimiter   = $args{comment_delimiter}   || '#';
-    my $hash_class  = $args{store_class_in_hash} || '' ;
-    my $section_map = $args{section_map}         || {} ;
-    my $split_reg   = $args{split_list_value} ;
+    my $hash_class  = $args{store_class_in_hash} || '';
+    my $section_map = $args{section_map}         || {};
+    my $split_reg   = $args{split_list_value};
     my $check       = $args{check}               || 'yes';
     my $obj         = $self->node;
 
-    my %force_lc ;
-    map { $force_lc{$_} = $args{"force_lc_$_"} ? 1 : 0; } qw/section key value/ ;
+    my %force_lc;
+    map { $force_lc{$_} = $args{"force_lc_$_"} ? 1 : 0; } qw/section key value/;
 
     #FIXME: Is it possible to store the comments with their location
     #in the file?  It would be nice if comments that are after values
     #in input file, would be written in the same way in the output
     #file.  Also, comments at the end of file are being ignored now.
 
-    my @lines = $args{io_handle}->getlines ;
-    # try to get global comments (comments before a blank line)
-    $self->read_global_comments(\@lines,$delimiter) ;
+    my @lines = $args{io_handle}->getlines;
 
-    my @assoc = $self->associates_comments_with_data( \@lines, $delimiter ) ;
+    # try to get global comments (comments before a blank line)
+    $self->read_global_comments( \@lines, $delimiter );
+
+    my @assoc = $self->associates_comments_with_data( \@lines, $delimiter );
 
     # store INI data in a structure:
     # {
@@ -64,65 +65,68 @@ sub read {
     # }
 
     my $ini_data = {};
-    my %ini_comment ;
-    my $section_ref = $ini_data ;
+    my %ini_comment;
+    my $section_ref  = $ini_data;
     my $section_path = '';
 
     foreach my $item (@assoc) {
-        my ($vdata,$comment) = @$item;
+        my ( $vdata, $comment ) = @$item;
         $logger->debug("ini read: reading '$vdata'");
-        my $comment_path ;
+        my $comment_path;
 
         # Update section name
-        if ($vdata =~ /\[(.*)\]/ ) {
+        if ( $vdata =~ /\[(.*)\]/ ) {
             $section = $force_lc{section} ? lc($1) : $1;
-            my $remap = $section_map->{$section} || '' ;
-            if ( $remap eq '!') {
-                $section_ref = $ini_data ;
+            my $remap = $section_map->{$section} || '';
+            if ( $remap eq '!' ) {
+                $section_ref = $ini_data;
                 $comment_path = $section_path = '';
                 $logger->debug("step 1: found node <top> [$section]");
             }
             elsif ($remap) {
-                $section_ref = {} ;
+                $section_ref = {};
                 $logger->debug("step 1: found node $remap [$section]");
-                $section_path = $comment_path = $self->set_or_push($ini_data, $remap, $section_ref);
+                $section_path = $comment_path =
+                    $self->set_or_push( $ini_data, $remap, $section_ref );
             }
             elsif ($hash_class) {
-                $ini_data->{$hash_class}{$section} = $section_ref = { } ;
-                $comment_path = $section_path =  "$hash_class:$section" ;
+                $ini_data->{$hash_class}{$section} = $section_ref = {};
+                $comment_path = $section_path = "$hash_class:$section";
                 $logger->debug("step 1: found node $hash_class and path $comment_path [$section]");
             }
             else {
-                $section_ref = {} ;
+                $section_ref = {};
                 $logger->debug("step 1: found node $section [$section]");
-                $section_path = $comment_path = $self->set_or_push($ini_data, $section, $section_ref);
+                $section_path = $comment_path =
+                    $self->set_or_push( $ini_data, $section, $section_ref );
             }
+
             # for write later, need to store the obj if section map was used
-            if (defined $section_map->{$section}) {
-               $logger->debug("store section_map loc '$section_path' section '$section'");
-               $self->{reverse_section_map}{$section_path} = $section ;
+            if ( defined $section_map->{$section} ) {
+                $logger->debug("store section_map loc '$section_path' section '$section'");
+                $self->{reverse_section_map}{$section_path} = $section;
             }
         }
         else {
             my ( $name, $val ) = split( /\s*=\s*/, $vdata );
-            $name = lc($name) if $force_lc{key} ;
-            $val  = lc($val)  if $force_lc{value} ;
-            $comment_path = $section_path.' '.$self->set_or_push($section_ref, $name, $val);
+            $name = lc($name) if $force_lc{key};
+            $val  = lc($val)  if $force_lc{value};
+            $comment_path = $section_path . ' ' . $self->set_or_push( $section_ref, $name, $val );
             $logger->debug("step 1: found node $comment_path name $name in [$section]");
         }
 
-        $ini_comment{$comment_path} = $comment if $comment ;
+        $ini_comment{$comment_path} = $comment if $comment;
     }
 
-    my @load_args = ( data => $ini_data, check => $check ) ;
-    push @load_args, split_reg => qr/$split_reg/ if $split_reg ;
-    $obj->load_data(@load_args) ;
+    my @load_args = ( data => $ini_data, check => $check );
+    push @load_args, split_reg => qr/$split_reg/ if $split_reg;
+    $obj->load_data(@load_args);
 
-    while (my ($k,$v) = each %ini_comment) {
-        my $item = $obj->grab(step => $k, mode => 'loose') or next;
-        $item= $item->fetch_with_id(0) if $item->get_type eq 'list' ;
-        $item->annotation($v) ;
-    } ;
+    while ( my ( $k, $v ) = each %ini_comment ) {
+        my $item = $obj->grab( step => $k, mode => 'loose' ) or next;
+        $item = $item->fetch_with_id(0) if $item->get_type eq 'list';
+        $item->annotation($v);
+    }
 
     return 1;
 }
@@ -130,106 +134,108 @@ sub read {
 sub set_or_push {
     my ( $self, $ref, $name, $val ) = @_;
     my $cell = $ref->{$name};
-    my $path ;
+    my $path;
     if ( defined $cell and ref($cell) eq 'ARRAY' ) {
         push @$cell, $val;
-        $path = $name.':'. $#$cell
+        $path = $name . ':' . $#$cell;
     }
     elsif ( defined $cell ) {
         $ref->{$name} = [ $cell, $val ];
-        $path = $name.':1' ;
+        $path = $name . ':1';
     }
     else {
-        $ref->{$name} = $val ;
-        $path = $name ; # no way to distinguish between leaf and first value of list
+        $ref->{$name} = $val;
+        $path = $name;    # no way to distinguish between leaf and first value of list
     }
     return $path;
 }
 
 sub write {
     my $self = shift;
-    my %args = @_ ;
+    my %args = @_;
 
     # args is:
-    # object     => $obj,         # Config::Model::Node object 
+    # object     => $obj,         # Config::Model::Node object
     # root       => './my_test',  # fake root directory, userd for tests
-    # config_dir => /etc/foo',    # absolute path 
+    # config_dir => /etc/foo',    # absolute path
     # file       => 'foo.conf',   # file name
-    # file_path  => './my_test/etc/foo/foo.conf' 
+    # file_path  => './my_test/etc/foo/foo.conf'
     # io_handle  => $io           # IO::File object
     # check      => yes|no|skip
 
-    my $ioh = $args{io_handle} ;
-    my $node = $args{object} ;
-    my $delimiter = $args{comment_delimiter} || '#' ;
+    my $ioh       = $args{io_handle};
+    my $node      = $args{object};
+    my $delimiter = $args{comment_delimiter} || '#';
 
     croak "Undefined file handle to write" unless defined $ioh;
-    
-    $self->write_global_comment($ioh,$delimiter) ;
+
+    $self->write_global_comment( $ioh, $delimiter );
 
     # some INI file have a 'General' section mapped in root node
-    my $top_class_name = $self->{reverse_section_map}{''} ;
-    if (defined $top_class_name) {
+    my $top_class_name = $self->{reverse_section_map}{''};
+    if ( defined $top_class_name ) {
         $logger->debug("writing class $top_class_name from reverse_section_map");
-        $self->write_data_and_comments($ioh,$delimiter,"[$top_class_name]") ;
+        $self->write_data_and_comments( $ioh, $delimiter, "[$top_class_name]" );
     }
 
-    my $res = $self->_write(@_) ;
-    $ioh->print($res) ;
+    my $res = $self->_write(@_);
+    $ioh->print($res);
 }
 
 sub _write {
     my $self = shift;
-    my %args = @_ ;
+    my %args = @_;
 
-    my $node = $args{object} ;
-    my $delimiter = $args{comment_delimiter} || '#' ;
-    my $join_list = $args{join_list_value} ;
-    my $write_bool_as = $args{write_boolean_as} ;
+    my $node          = $args{object};
+    my $delimiter     = $args{comment_delimiter} || '#';
+    my $join_list     = $args{join_list_value};
+    my $write_bool_as = $args{write_boolean_as};
 
-    $logger->debug("called on ",$node->name);
+    $logger->debug( "called on ", $node->name );
     my $res = '';
 
     # Using Config::Model::ObjTreeScanner would be overkill
     # first write list and element, then classes
-    foreach my $elt ($node->get_element_name) {
-        my $type = $node->element_type($elt) ;
+    foreach my $elt ( $node->get_element_name ) {
+        my $type = $node->element_type($elt);
         $logger->debug("first loop on elt $elt type $type");
         next if $type =~ /node/ or $type eq 'hash';
-        
-        my $obj =  $node->fetch_element($elt) ;
+
+        my $obj = $node->fetch_element($elt);
 
         my $obj_note = $obj->annotation;
 
-        if ($node->element_type($elt) eq 'list' and $join_list){
-            my @v = grep { length } $obj->fetch_all_values() ;
-            my $v = join( $join_list, @v) ;
-            if (length ($v) ) {
+        if ( $node->element_type($elt) eq 'list' and $join_list ) {
+            my @v = grep { length } $obj->fetch_all_values();
+            my $v = join( $join_list, @v );
+            if ( length($v) ) {
                 $logger->debug("writing list elt $elt -> $v");
-                $res .= $self->write_data_and_comments(undef,$delimiter,"$elt=$v",$obj_note) ;
+                $res .= $self->write_data_and_comments( undef, $delimiter, "$elt=$v", $obj_note );
             }
         }
-        elsif ($node->element_type($elt) eq 'list'){
-            foreach my $item ($obj->fetch_all('custom')) {
-                my $note = $item->annotation ;
-                my $v = $item->fetch ;
-                if (length $v) {
+        elsif ( $node->element_type($elt) eq 'list' ) {
+            foreach my $item ( $obj->fetch_all('custom') ) {
+                my $note = $item->annotation;
+                my $v    = $item->fetch;
+                if ( length $v ) {
                     $logger->debug("writing list elt $elt -> $v");
-                    $res .= $self->write_data_and_comments(undef,$delimiter,"$elt=$v",$obj_note.$note) ;
+                    $res .=
+                        $self->write_data_and_comments( undef, $delimiter, "$elt=$v",
+                        $obj_note . $note );
                 }
                 else {
                     $logger->debug("NOT writing undef or empty list elt");
                 }
             }
         }
-        elsif ($node->element_type($elt) eq 'leaf') {
-            my $v = $obj->fetch ;
-            if ($write_bool_as and defined($v) and length($v) and $obj->value_type eq 'boolean') {
-                $v = $write_bool_as->[$v] ;
+        elsif ( $node->element_type($elt) eq 'leaf' ) {
+            my $v = $obj->fetch;
+            if ( $write_bool_as and defined($v) and length($v) and $obj->value_type eq 'boolean' ) {
+                $v = $write_bool_as->[$v];
             }
-            if (defined $v and length $v) {
+            if ( defined $v and length $v ) {
                 $logger->debug("writing leaf elt $elt -> $v");
-                $res .= $self->write_data_and_comments(undef,$delimiter,"$elt=$v", $obj_note);
+                $res .= $self->write_data_and_comments( undef, $delimiter, "$elt=$v", $obj_note );
             }
             else {
                 $logger->debug("NOT writing undef or empty leaf elt");
@@ -240,52 +246,53 @@ sub _write {
         }
     }
 
-    foreach my $elt ($node->get_element_name) {
-        my $type = $node->element_type($elt) ;
+    foreach my $elt ( $node->get_element_name ) {
+        my $type = $node->element_type($elt);
         $logger->debug("second loop on elt $elt type $type");
         next unless $type =~ /node/ or $type eq 'hash';
-        my $obj =  $node->fetch_element($elt) ;
+        my $obj = $node->fetch_element($elt);
 
-        my $obj_note = $obj->annotation ;
-        
-        if ($type eq 'hash') {
-            foreach my $key ($obj->fetch_all_indexes) {
-                my $hash_obj = $obj->fetch_with_id($key) ;
-                my $note = $hash_obj->annotation;
+        my $obj_note = $obj->annotation;
+
+        if ( $type eq 'hash' ) {
+            foreach my $key ( $obj->fetch_all_indexes ) {
+                my $hash_obj = $obj->fetch_with_id($key);
+                my $note     = $hash_obj->annotation;
                 $logger->debug("writing hash elt $elt key $key");
-                my $subres = $self->_write(%args, object => $hash_obj);
+                my $subres = $self->_write( %args, object => $hash_obj );
                 if ($subres) {
                     $res .= "\n"
-                    . $self->write_data_and_comments(undef,$delimiter,"[$key]",$obj_note.$note) 
-                    .$subres   ;
+                        . $self->write_data_and_comments( undef, $delimiter, "[$key]",
+                        $obj_note . $note )
+                        . $subres;
                 }
             }
         }
         else {
             $logger->debug("writing class $elt");
-            my $subres = $self->_write(%args, object => $obj);
+            my $subres = $self->_write( %args, object => $obj );
             if ($subres) {
+
                 # some INI file may have a section mapped to a node as exception to mapped in a hash
-                my $exception_name = $self->{reverse_section_map}{$obj->location} ;
-                if (defined $exception_name) {
+                my $exception_name = $self->{reverse_section_map}{ $obj->location };
+                if ( defined $exception_name ) {
                     $logger->debug("writing class $exception_name from reverse_section_map");
                 }
-                my $c_name = $exception_name || $elt ;
+                my $c_name = $exception_name || $elt;
                 $res .= "\n"
-                    . $self->write_data_and_comments(undef,$delimiter,"[$c_name]",$obj_note) 
-                    . $subres ;
+                    . $self->write_data_and_comments( undef, $delimiter, "[$c_name]", $obj_note )
+                    . $subres;
             }
         }
-    }   
+    }
 
-    $logger->debug("done on ",$node->name);
+    $logger->debug( "done on ", $node->name );
 
-    return $res ;
+    return $res;
 }
 
-no Mouse ;
-__PACKAGE__->meta->make_immutable ;
-
+no Mouse;
+__PACKAGE__->meta->make_immutable;
 
 1;
 

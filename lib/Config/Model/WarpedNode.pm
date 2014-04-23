@@ -1,19 +1,19 @@
-package Config::Model::WarpedNode ;
+package Config::Model::WarpedNode;
 
-use Mouse ;
+use Mouse;
 
 use Carp qw(cluck croak);
 
-use Config::Model::Exception ;
-use Config::Model::Warper ;
+use Config::Model::Exception;
+use Config::Model::Warper;
 use Data::Dumper ();
 use Log::Log4perl qw(get_logger :levels);
 use Storable qw/dclone/;
 use Scalar::Util qw/weaken/;
 
-extends qw/Config::Model::AnyThing/ ;
+extends qw/Config::Model::AnyThing/;
 
-my $logger = get_logger("Tree::Node::Warped") ;
+my $logger = get_logger("Tree::Node::Warped");
 
 # don't authorize to warp 'morph' parameter as it may lead to
 # difficult maintenance
@@ -21,28 +21,25 @@ my $logger = get_logger("Tree::Node::Warped") ;
 # status is not warpable either as an obsolete parameter must stay
 # obsolete
 
-my @allowed_warp_params = qw/config_class_name experience level/ ;
+my @allowed_warp_params = qw/config_class_name experience level/;
 
-has [qw/backup follow/] 
-    => ( is => 'rw', isa => 'HashRef' , default => sub { {} ;} ) ;
-has [qw/rules/]
-    => ( is => 'rw', isa => 'ArrayRef' , required => 1 ) ;
+has [qw/backup follow/] => ( is => 'rw', isa => 'HashRef', default => sub { {}; } );
+has [qw/rules/] => ( is => 'rw', isa => 'ArrayRef', required => 1 );
 
-has [qw/warp help/]  => (is => 'rw', isa => 'Maybe[HashRef]') ;
-has morph => (is => 'ro', isa => 'Bool', default => 0) ;
+has [qw/warp help/] => ( is => 'rw', isa => 'Maybe[HashRef]' );
+has morph => ( is => 'ro', isa => 'Bool', default => 0 );
 
-has warper => (is => 'rw', isa => 'Config::Model::Warper') ;
+has warper => ( is => 'rw', isa => 'Config::Model::Warper' );
 
-my @backup_list = @allowed_warp_params ;
+my @backup_list = @allowed_warp_params;
 
 around BUILDARGS => sub {
-    my $orig = shift ;
-    my $class = shift ;
-    my %args =  @_ ;
-    my %h = map { ( $_ => $args{$_}) ;} grep {defined $args{$_}} @backup_list;
-    return $class->$orig( backup => dclone (\%h), @_ );
-} ;
-
+    my $orig  = shift;
+    my $class = shift;
+    my %args  = @_;
+    my %h     = map { ( $_ => $args{$_} ); } grep { defined $args{$_} } @backup_list;
+    return $class->$orig( backup => dclone( \%h ), @_ );
+};
 
 sub BUILD {
     my $self = shift;
@@ -51,200 +48,198 @@ sub BUILD {
     # warper).  When the warper gets a new value, it will modify the
     # WarpedNode according to the data passed by the user.
 
-    my $w = Config::Model::Warper->new (
+    my $w = Config::Model::Warper->new(
         warped_object => $self,
-        rules => $self->rules ,
-        follow => $self->follow ,
-        allowed => \@allowed_warp_params
-    ) ;
+        rules         => $self->rules,
+        follow        => $self->follow,
+        allowed       => \@allowed_warp_params
+    );
 
-    $self->warper($w) ;
-    return $self ;
+    $self->warper($w);
+    return $self;
 }
 
 sub config_model {
-    my $self = shift ;
-    return $self->parent->config_model ;
+    my $self = shift;
+    return $self->parent->config_model;
 }
-
-
-
 
 # Forward selected methods (See man perltootc)
-foreach my $method (qw/fetch_element config_class_name copy_from get_element_name
-                       has_element is_element_available element_type load
-		       fetch_element_value get_type get_cargo_type dump_tree
-                       describe get_help children get set accept_regexp/
-		   ) {
+foreach my $method (
+    qw/fetch_element config_class_name copy_from get_element_name
+    has_element is_element_available element_type load
+    fetch_element_value get_type get_cargo_type dump_tree
+    describe get_help children get set accept_regexp/
+    ) {
     # to register new methods in package
-    no strict "refs"; 
+    no strict "refs";
 
     *$method = sub {
-	my $self= shift;
-	# return undef if no class was warped in
-	$self->check or return undef ; 
-	return $self->{data}->$method(@_);
-    } ;
-}
+        my $self = shift;
 
+        # return undef if no class was warped in
+        $self->check or return undef;
+        return $self->{data}->$method(@_);
+    };
+}
 
 sub name {
     my $self = shift;
-    return $self->location ;
+    return $self->location;
 }
-
 
 sub is_accessible {
-    my $self= shift;
-    return defined $self->{data} ? 1 : 0 ;
+    my $self = shift;
+    return defined $self->{data} ? 1 : 0;
 }
 
-
 sub get_actual_node {
-    my $self= shift;
-    $self->check ;
-    return $self->{data} ; # might be undef
+    my $self = shift;
+    $self->check;
+    return $self->{data};    # might be undef
 }
 
 sub check {
-    my $self= shift;
+    my $self = shift;
     my $check = shift || 'yes ';
 
     # must croak if element is not available
-    if (not defined $self->{data}) {
-	# a node can be retrieved either for a store operation or for
-	# a fetch.
-	if ($check eq 'yes') {
-	    Config::Model::Exception::User->throw
-		(
-		 object => $self,
-		 message => "Object '$self->{element_name}' is not accessible.\n\t".
-		 $self->warp_error
-		) ;
-	}
-	else {
-	    return 0;
-	}
+    if ( not defined $self->{data} ) {
+
+        # a node can be retrieved either for a store operation or for
+        # a fetch.
+        if ( $check eq 'yes' ) {
+            Config::Model::Exception::User->throw(
+                object  => $self,
+                message => "Object '$self->{element_name}' is not accessible.\n\t"
+                    . $self->warp_error
+            );
+        }
+        else {
+            return 0;
+        }
     }
-    return 1 ;
+    return 1;
 }
 
 sub set_properties {
-    my $self = shift ;
+    my $self = shift;
 
-    my %args = (%{ $self->backup },@_) ;
+    my %args = ( %{ $self->backup }, @_ );
 
     # mega cleanup
-    map(delete $self->{$_}, @allowed_warp_params) ;
+    map( delete $self->{$_}, @allowed_warp_params );
 
-    $logger->debug($self->name." set_properties called with ", 
-      Data::Dumper->Dump([\%args],['set_properties_args'])) ;
+    $logger->debug( $self->name . " set_properties called with ",
+        Data::Dumper->Dump( [ \%args ], ['set_properties_args'] ) );
 
     my $config_class_name = delete $args{config_class_name};
 
-    my @prop_args = (qw/property level element/, $self->element_name );
-    
-    my $original_level = $self->config_model-> get_element_property (
+    my @prop_args = ( qw/property level element/, $self->element_name );
+
+    my $original_level = $self->config_model->get_element_property(
         class => $self->parent->config_class_name,
         @prop_args,
     );
 
-    my $next_level = defined $args{level}       ? $args{level} 
-                   : defined $config_class_name ? $original_level
-                   :                              'hidden' ;
-    
+    my $next_level =
+          defined $args{level}       ? $args{level}
+        : defined $config_class_name ? $original_level
+        :                              'hidden';
+
     $self->parent->set_element_property( @prop_args, value => $next_level )
         unless defined $self->index_value;
 
-    unless (defined $config_class_name) {
-        $self->clear ;
-        return ;
+    unless ( defined $config_class_name ) {
+        $self->clear;
+        return;
     }
 
-    my @args ;
-    ($config_class_name,@args) = @$config_class_name 
-      if ref $config_class_name ;
+    my @args;
+    ( $config_class_name, @args ) = @$config_class_name
+        if ref $config_class_name;
 
     # check if some action is needed (ie. create or morph node)
-    return if defined $self->{config_class_name} 
-      and $self->{config_class_name} eq $config_class_name ;
+    return
+        if defined $self->{config_class_name}
+        and $self->{config_class_name} eq $config_class_name;
 
-    my $old_object = $self->{data} ;
-    my $old_config_class_name = $self->{config_class_name} ;
+    my $old_object            = $self->{data};
+    my $old_config_class_name = $self->{config_class_name};
 
     # create a new object from scratch
-    my $new_object = $self->create_node($config_class_name,@args) ;
+    my $new_object = $self->create_node( $config_class_name, @args );
 
-    $self->{config_class_name} = $config_class_name ;
-    $self->{data} = $new_object ;
+    $self->{config_class_name} = $config_class_name;
+    $self->{data}              = $new_object;
 
-    if (defined $old_object and $self->{morph}) {
+    if ( defined $old_object and $self->{morph} ) {
+
         # there an old object that we need to translate
-        $logger->debug("WarpedNode: morphing ",$old_object->name," to ",$new_object->name)
-          if $logger->is_debug ;
+        $logger->debug( "WarpedNode: morphing ", $old_object->name, " to ", $new_object->name )
+            if $logger->is_debug;
 
-        $new_object->copy_from(from => $old_object,check => 'skip') ;
+        $new_object->copy_from( from => $old_object, check => 'skip' );
     }
 
     # bringing a new object does not really modify the content of the config tree.
     # only changes underneath will change the tree. And these changes below will trigger
     # their own change notif. SO there's no need to call notify_change when transitioning
-    # from an undef object into a real object. On the other hand, warping out an object will 
+    # from an undef object into a real object. On the other hand, warping out an object will
     # NOT trigger notify_changes from below. So notify_change must be called
-    if (defined $old_object) {  
-        my $from = $old_config_class_name // '<undef>' ;
-        my $to = $config_class_name // '<undef>' ;
-        $self->notify_change( note => "warped node from $from to $to" ) ; 
+    if ( defined $old_object ) {
+        my $from = $old_config_class_name // '<undef>';
+        my $to   = $config_class_name     // '<undef>';
+        $self->notify_change( note => "warped node from $from to $to" );
     }
-    
+
     # need to call trigger on all registered objects only after all is setup
-    $self->trigger_warp ;
+    $self->trigger_warp;
 }
 
 sub create_node {
-    my $self= shift ;
-    my $config_class_name = shift ;
+    my $self              = shift;
+    my $config_class_name = shift;
 
-    my @args = (config_class_name => $config_class_name,
-		instance          => $self->{instance},
-		element_name      => $self->{element_name},
-		parent            => $self->parent ,
-		container         => $self->container ,
-	       ) ;
+    my @args = (
+        config_class_name => $config_class_name,
+        instance          => $self->{instance},
+        element_name      => $self->{element_name},
+        parent            => $self->parent,
+        container         => $self->container,
+    );
 
-    push @args, index_value => $self->index_value if defined $self->index_value ;
+    push @args, index_value => $self->index_value if defined $self->index_value;
 
-    return  $self->parent->new(@args) ;
+    return $self->parent->new(@args);
 }
 
 sub clear {
-    my $self = shift ;
-    delete $self->{data} ;
+    my $self = shift;
+    delete $self->{data};
 }
 
-
 sub load_data {
-    my $self = shift ;
-    my %args = @_ > 1 ? @_ : ( data => shift) ;
-    my $data       = $args{data};
-    my $check = $self->_check_check($args{check}) ;
+    my $self  = shift;
+    my %args  = @_ > 1 ? @_ : ( data => shift );
+    my $data  = $args{data};
+    my $check = $self->_check_check( $args{check} );
 
-    if (ref ($data) ne 'HASH') {
-	Config::Model::Exception::LoadData
-	    -> throw (
-		      object => $self,
-		      message => "load_data called with non hash ref arg",
-		      wrong_data => $data,
-		     ) ;
+    if ( ref($data) ne 'HASH' ) {
+        Config::Model::Exception::LoadData->throw(
+            object     => $self,
+            message    => "load_data called with non hash ref arg",
+            wrong_data => $data,
+        );
     }
 
-    $self->get_actual_node->load_data(%args) ;
+    $self->get_actual_node->load_data(%args);
 
 }
 
 sub is_auto_write_for_type {
-    my $self = shift ;
-    $self->get_actual_node->is_auto_write_for_type(@_) ;
+    my $self = shift;
+    $self->get_actual_node->is_auto_write_for_type(@_);
 }
 
 # register warper that goes through this path when looking for warp master value
@@ -264,7 +259,7 @@ sub register {
 sub trigger_warp {
     my $self = shift;
 
-    # warp_these_objects is modified by the calls below, so this copy 
+    # warp_these_objects is modified by the calls below, so this copy
     # must be done before the loop
     my @list = @{ $self->{warp_these_objects} || [] };
 

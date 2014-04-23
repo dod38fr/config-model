@@ -127,14 +127,13 @@ use Exception::Class (
     },
 
     'Config::Model::Exception::XmlTree' =>
-      { description => 'error while parsing XML dump of a tree' },
+        { description => 'error while parsing XML dump of a tree' },
 
 );
 
 Config::Model::Exception::Internal->Trace(1);
 
 package Config::Model::Exception::Syntax;
-
 
 sub full_message {
     my $self = shift;
@@ -149,7 +148,6 @@ sub full_message {
 }
 
 package Config::Model::Exception::Any;
-
 
 sub full_message {
     my $self = shift;
@@ -180,14 +178,13 @@ sub xpath_message {
 
 package Config::Model::Exception::LoadData;
 
-
 sub full_message {
     my $self = shift;
 
     my $obj      = $self->object;
     my $location = defined $obj ? $obj->name : '';
     my $msg      = "Configuration item ";
-    $msg .= "'$location' " if $location;
+    $msg .= "'$location' "                             if $location;
     $msg .= "(class " . $obj->config_class_name . ") " if $obj->get_type eq 'node';
     $msg .= "has a " . $self->description;
     $msg .= ":\n\t" . $self->message . "\n";
@@ -197,7 +194,6 @@ sub full_message {
 }
 
 package Config::Model::Exception::Model;
-
 
 sub full_message {
     my $self = shift;
@@ -214,9 +210,9 @@ sub full_message {
             property => 'level'
         );
         $msg =
-            "In config class '"
-          . $obj->parent->config_class_name
-          . "', element '$element' (level $level) ";
+              "In config class '"
+            . $obj->parent->config_class_name
+            . "', element '$element' (level $level) ";
     }
     $msg .= "has a " . $self->description;
     $msg .= ":\n\t" . $self->message . "\n";
@@ -226,7 +222,6 @@ sub full_message {
 
 package Config::Model::Exception::Load;
 
-
 sub full_message {
     my $self = shift;
 
@@ -234,9 +229,9 @@ sub full_message {
     my $msg      = $self->description;
     my $cmd      = $self->command;
     my $cmd_str =
-        defined $cmd && $cmd ? "'$cmd'"
-      : defined $cmd ? '<empty>'
-      :                '<undef>';
+          defined $cmd && $cmd ? "'$cmd'"
+        : defined $cmd ? '<empty>'
+        :                '<undef>';
     $msg .= " in node '$location'" if $location;
     $msg .= ':';
     $msg .= "\n\tcommand: $cmd_str";
@@ -246,7 +241,6 @@ sub full_message {
 }
 
 package Config::Model::Exception::RestrictedElement;
-
 
 sub full_message {
     my $self = shift;
@@ -262,7 +256,6 @@ sub full_message {
 }
 
 package Config::Model::Exception::UnavailableElement;
-
 
 sub full_message {
     my $self = shift;
@@ -287,7 +280,6 @@ sub full_message {
 }
 
 package Config::Model::Exception::ObsoleteElement;
-
 
 sub full_message {
     my $self = shift;
@@ -315,8 +307,8 @@ sub full_message {
     my $obj = $self->object;
 
     confess "Exception::UnknownElement: object is ", ref($obj), ". Expected a node"
-      unless $obj->isa('Config::Model::Node')
-      || $obj->isa('Config::Model::WarpedNode');
+        unless $obj->isa('Config::Model::Node')
+        || $obj->isa('Config::Model::WarpedNode');
 
     my $min_experience = $self->min_experience || 'master';
     my $class_name = $obj->config_class_name;
@@ -330,19 +322,19 @@ sub full_message {
 
     my $msg = '';
     $msg .= "In " . $self->where . ": "
-      if defined $self->where;
+        if defined $self->where;
 
     $msg .= "(function '" . $self->function . "') "
-      if defined $self->function;
+        if defined $self->function;
 
     $msg = "object '" . $obj->name . "' error: " unless $msg;
 
     $msg .= $self->description . " '" . $self->element . "'.";
 
     $msg .=
-        " Either your file has an error or $class_name model is lagging behind. "
-      . "In the latter case, please submit a bug report or fix the model. See cme man "
-      . "page for details.\n";
+          " Either your file has an error or $class_name model is lagging behind. "
+        . "In the latter case, please submit a bug report or fix the model. See cme man "
+        . "page for details.\n";
 
     if (@elements) {
         $msg .= "\tExpected elements: '" . join( "','", @elements ) . "'\n";
@@ -363,10 +355,10 @@ sub full_message {
 
         if ( $parent->element_type($element_name) eq 'warped_node' ) {
             $msg .= "\t"
-              . $parent->fetch_element(
+                . $parent->fetch_element(
                 name => $element_name,
                 qw/experience master check no accept_hidden 1/
-              )->warp_error;
+                )->warp_error;
         }
     }
 
@@ -376,7 +368,6 @@ sub full_message {
 }
 
 package Config::Model::Exception::UnknownId;
-
 
 sub full_message {
     my $self = shift;
@@ -389,23 +380,22 @@ sub full_message {
 
     my $msg = '';
     $msg .= "In function " . $self->function . ": "
-      if defined $self->function;
+        if defined $self->function;
 
     $msg .= "In " . $self->where . ": "
-      if defined $self->where;
+        if defined $self->where;
 
     $msg .=
-        $self->description . " '"
-      . $self->id() . "'"
-      . " for element '"
-      . $obj->location
-      . "'\n\texpected: $id_str\n";
+          $self->description . " '"
+        . $self->id() . "'"
+        . " for element '"
+        . $obj->location
+        . "'\n\texpected: $id_str\n";
 
     return $msg;
 }
 
 package Config::Model::Exception::WrongType;
-
 
 sub full_message {
     my $self = shift;
@@ -414,34 +404,32 @@ sub full_message {
 
     my $msg = '';
     $msg .= "In function " . $self->function . ": "
-      if defined $self->function;
+        if defined $self->function;
 
     $msg .=
-        $self->description
-      . " for element '"
-      . $obj->location
-      . "'\n\tgot type '"
-      . $self->got_type
-      . "', expected '"
-      . $self->expected_type . "' "
-      . $self->info . "\n";
+          $self->description
+        . " for element '"
+        . $obj->location
+        . "'\n\tgot type '"
+        . $self->got_type
+        . "', expected '"
+        . $self->expected_type . "' "
+        . $self->info . "\n";
 
     return $msg;
 }
 
-package Config::Model::Exception::ConfigFile::Missing ;
-
+package Config::Model::Exception::ConfigFile::Missing;
 
 sub full_message {
     my $self = shift;
 
-    my $msg = "Error: cannot find configuration file ". join ' or ', @{$self->tried_files};
+    my $msg = "Error: cannot find configuration file " . join ' or ', @{ $self->tried_files };
 
     return $msg . "\n";
 }
 
 package Config::Model::Exception::Xml;
-
 
 sub full_message {
     my $self = shift;
@@ -450,7 +438,7 @@ sub full_message {
     my $msg = $self->message;
 
     $msg .= "\n\t" . join( "\n\t", map ( $_->xpath_message, $self->object->errors ) )
-      if defined $self->object;
+        if defined $self->object;
 
     return $msg . "\n";
 }

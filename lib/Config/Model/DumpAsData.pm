@@ -2,114 +2,116 @@ package Config::Model::DumpAsData;
 
 use Carp;
 use strict;
-use warnings ;
+use warnings;
 
-use Config::Model::Exception ;
-use Config::Model::ObjTreeScanner ;
-
+use Config::Model::Exception;
+use Config::Model::ObjTreeScanner;
 
 sub new {
-    bless {}, shift ;
+    bless {}, shift;
 }
 
-
 sub dump_as_data {
-    my $self = shift ;
+    my $self = shift;
 
-    my %args = @_;
-    my $dump_node = delete $args{node} 
-      || croak "dump_as_data: missing 'node' parameter";
-    my $full = delete $args{full_dump} ;
-    $full = 1 unless defined $full ;
-    my $skip_aw = delete $args{skip_auto_write} || '' ;
-    my $auto_v  = delete $args{auto_vivify}     || 0 ;
-    my $ordered_hash_as_list = delete $args{ordered_hash_as_list} ;
-    $ordered_hash_as_list = 1 unless defined $ordered_hash_as_list ;
+    my %args      = @_;
+    my $dump_node = delete $args{node}
+        || croak "dump_as_data: missing 'node' parameter";
+    my $full = delete $args{full_dump};
+    $full = 1 unless defined $full;
+    my $skip_aw = delete $args{skip_auto_write} || '';
+    my $auto_v  = delete $args{auto_vivify}     || 0;
+    my $ordered_hash_as_list = delete $args{ordered_hash_as_list};
+    $ordered_hash_as_list = 1 unless defined $ordered_hash_as_list;
 
     my $std_cb = sub {
         my ( $scanner, $data_r, $obj, $element, $index, $value_obj ) = @_;
 
-	$$data_r =  $full ? $value_obj->fetch ('non_upstream_default')
-                 :          $value_obj->fetch_custom ;
+        $$data_r =
+              $full
+            ? $value_obj->fetch('non_upstream_default')
+            : $value_obj->fetch_custom;
     };
 
     my $check_list_element_cb = sub {
         my ( $scanner, $data_r, $node, $element_name, @check_items ) = @_;
-	my $a_ref = $node->fetch_element($element_name)->get_checked_list;
-	# don't store empty checklist
-	$$data_r = $a_ref if @$a_ref;
+        my $a_ref = $node->fetch_element($element_name)->get_checked_list;
+
+        # don't store empty checklist
+        $$data_r = $a_ref if @$a_ref;
     };
 
     my $hash_element_cb = sub {
-	my ($scanner, $data_ref,$node,$element_name,@keys) = @_ ;
+        my ( $scanner, $data_ref, $node, $element_name, @keys ) = @_;
 
-	# resume exploration but pass a ref on $data_ref hash element
-	# instead of data_ref
-	my %h ;
-	my @res = map { 
-	    my $v ;
-	    $scanner->scan_hash(\$v,$node,$element_name,$_);
-	    # create the key even if $v is undef 
-	    $h{$_} = $v if defined $v;
-	    defined $v ? ( $_ , $v ) : ();
-	} @keys ;
+        # resume exploration but pass a ref on $data_ref hash element
+        # instead of data_ref
+        my %h;
+        my @res = map {
+            my $v;
+            $scanner->scan_hash( \$v, $node, $element_name, $_ );
 
-	my $ordered_hash = $node->fetch_element($element_name)->ordered ;
+            # create the key even if $v is undef
+            $h{$_} = $v if defined $v;
+            defined $v ? ( $_, $v ) : ();
+        } @keys;
 
-	if ( $ordered_hash and $ordered_hash_as_list ) {
-	    $$data_ref = \@res if @res ;
-	}
-	else {
-	    $h{__order} = \@keys if $ordered_hash and @keys;
-	    $$data_ref = \%h if scalar %h ;
-	}
+        my $ordered_hash = $node->fetch_element($element_name)->ordered;
+
+        if ( $ordered_hash and $ordered_hash_as_list ) {
+            $$data_ref = \@res if @res;
+        }
+        else {
+            $h{__order} = \@keys if $ordered_hash and @keys;
+            $$data_ref = \%h if scalar %h;
+        }
     };
 
     my $list_element_cb = sub {
-	my ($scanner, $data_ref,$node,$element_name,@idx) = @_ ;
+        my ( $scanner, $data_ref, $node, $element_name, @idx ) = @_;
 
-	# resume exploration but pass a ref on $data_ref hash element
-	# instead of data_ref
-	my @a ;
-	map { 
-	    my $v ;
-	    $scanner->scan_hash(\$v,$node,$element_name,$_);
-	    push @a ,$v if defined $v ;
-	} @idx ;
-	$$data_ref = \@a if scalar @a ;
+        # resume exploration but pass a ref on $data_ref hash element
+        # instead of data_ref
+        my @a;
+        map {
+            my $v;
+            $scanner->scan_hash( \$v, $node, $element_name, $_ );
+            push @a, $v if defined $v;
+        } @idx;
+        $$data_ref = \@a if scalar @a;
     };
 
     my $node_content_cb = sub {
-	my ($scanner, $data_ref,$node,@element) = @_ ;
-	my %h ;
-	map { 
-	    my $v ;
-	    $scanner->scan_element(\$v, $node,$_) ;
-	    $h{$_} = $v if defined $v ;
-	} @element ;
-	$$data_ref = \%h  if scalar %h ;
+        my ( $scanner, $data_ref, $node, @element ) = @_;
+        my %h;
+        map {
+            my $v;
+            $scanner->scan_element( \$v, $node, $_ );
+            $h{$_} = $v if defined $v;
+        } @element;
+        $$data_ref = \%h if scalar %h;
     };
 
     my $node_element_cb = sub {
-	my ($scanner, $data_ref,$node,$element_name,$key, $next) = @_ ;
+        my ( $scanner, $data_ref, $node, $element_name, $key, $next ) = @_;
 
-	return if $skip_aw and $next->is_auto_write_for_type($skip_aw) ;
+        return if $skip_aw and $next->is_auto_write_for_type($skip_aw);
 
-	$scanner->scan_node($data_ref,$next);
-    } ;
+        $scanner->scan_node( $data_ref, $next );
+    };
 
     my @scan_args = (
-		     experience            => delete $args{experience} || 'master',
-		     check                 => delete $args{check} || 'yes' ,
-		     fallback              => 'all',
-		     auto_vivify           => $auto_v,
-		     list_element_cb       => $list_element_cb,
-		     check_list_element_cb => $check_list_element_cb,
-		     hash_element_cb       => $hash_element_cb,
-		     leaf_cb               => $std_cb ,
-		     node_element_cb       => $node_element_cb,
-		     node_content_cb       => $node_content_cb,
-		    );
+        experience => delete $args{experience} || 'master',
+        check      => delete $args{check}      || 'yes',
+        fallback   => 'all',
+        auto_vivify           => $auto_v,
+        list_element_cb       => $list_element_cb,
+        check_list_element_cb => $check_list_element_cb,
+        hash_element_cb       => $hash_element_cb,
+        leaf_cb               => $std_cb,
+        node_element_cb       => $node_element_cb,
+        node_content_cb       => $node_content_cb,
+    );
 
     my @left = keys %args;
     croak "DumpAsData: unknown parameter:@left" if @left;
@@ -117,90 +119,88 @@ sub dump_as_data {
     # perform the scan
     my $view_scanner = Config::Model::ObjTreeScanner->new(@scan_args);
 
-    my $obj_type = $dump_node->get_type ;
-    my $result ;
+    my $obj_type = $dump_node->get_type;
+    my $result;
     my $p = $dump_node->parent;
-    my $e = $dump_node->element_name ;
-    my $i = $dump_node->index_value ; # defined only for hash and list
+    my $e = $dump_node->element_name;
+    my $i = $dump_node->index_value;    # defined only for hash and list
 
-    if ($obj_type =~ /node/) {
-	$view_scanner->scan_node(\$result ,$dump_node);
+    if ( $obj_type =~ /node/ ) {
+        $view_scanner->scan_node( \$result, $dump_node );
     }
     elsif ( defined $i ) {
-	$view_scanner->scan_hash(\$result ,$p,$e,$i);
+        $view_scanner->scan_hash( \$result, $p, $e, $i );
     }
-    elsif (   $obj_type eq 'list' or $obj_type eq 'hash' 
-	   or $obj_type eq 'leaf' or $obj_type eq 'check_list') {
-	$view_scanner->scan_element(\$result ,$p,$e);
+    elsif ($obj_type eq 'list'
+        or $obj_type eq 'hash'
+        or $obj_type eq 'leaf'
+        or $obj_type eq 'check_list' ) {
+        $view_scanner->scan_element( \$result, $p, $e );
     }
     else {
-	croak "dump_as_data: unexpected type: $obj_type";
+        croak "dump_as_data: unexpected type: $obj_type";
     }
 
-    return $result ;
+    return $result;
 }
 
-
 sub dump_annotations_as_pod {
-    my $self = shift ;
+    my $self = shift;
 
-    my %args = @_;
-    my $dump_node = delete $args{node} 
-      || croak "dump_annotations_as_pod: missing 'node' parameter";
-   
+    my %args      = @_;
+    my $dump_node = delete $args{node}
+        || croak "dump_annotations_as_pod: missing 'node' parameter";
+
     my $annotation_to_pod = sub {
-        my $obj = shift ;
+        my $obj  = shift;
         my $path = shift || $obj->location;
-	my $a = $obj->annotation ;
-	if ($a) {
-	    chomp $a ;
-	    return "=item $path\n\n$a\n\n" ;
+        my $a    = $obj->annotation;
+        if ($a) {
+            chomp $a;
+            return "=item $path\n\n$a\n\n";
         }
         else {
             return '';
         }
     };
-    
+
     my $std_cb = sub {
         my ( $scanner, $data_r, $obj, $element, $index, $value_obj ) = @_;
-        $$data_r .= $annotation_to_pod->($value_obj) ; 
+        $$data_r .= $annotation_to_pod->($value_obj);
     };
 
     my $hash_element_cb = sub {
-        my ($scanner, $data_ref,$node,$element_name,@keys) = @_ ;
-        my $h = $node->fetch_element($element_name) ;
+        my ( $scanner, $data_ref, $node, $element_name, @keys ) = @_;
+        my $h      = $node->fetch_element($element_name);
         my $h_path = $h->location . ':';
-	foreach (@keys) { 
-	    $$data_ref .= $annotation_to_pod->(
-                $h->fetch_with_id($_),
-                $h_path.$_
-            );
-	    $scanner->scan_hash($data_ref,$node,$element_name,$_) ;
-	}
-    } ;
-    
+        foreach (@keys) {
+            $$data_ref .= $annotation_to_pod->( $h->fetch_with_id($_), $h_path . $_ );
+            $scanner->scan_hash( $data_ref, $node, $element_name, $_ );
+        }
+    };
+
     my $node_content_cb = sub {
-	my ($scanner, $data_ref,$node,@element) = @_ ;
-	my $node_path = $node->location ;
-	$node_path .= ' ' if $node_path ;
-	foreach (@element) { 
-	    $$data_ref .= $annotation_to_pod->(
-                $node->fetch_element(name => $_, check => 'no'),
-                $node_path.$_
+        my ( $scanner, $data_ref, $node, @element ) = @_;
+        my $node_path = $node->location;
+        $node_path .= ' ' if $node_path;
+        foreach (@element) {
+            $$data_ref .= $annotation_to_pod->(
+                $node->fetch_element( name => $_, check => 'no' ),
+                $node_path . $_
             );
-	    $scanner->scan_element($data_ref, $node,$_) ;
-	}
+            $scanner->scan_element( $data_ref, $node, $_ );
+        }
     };
 
     my @scan_args = (
-		     experience            => delete $args{experience} || 'master',
-		     check                 => delete $args{check} || 'yes' ,
-		     fallback              => 'all',
-		     leaf_cb               => $std_cb ,
-		     node_content_cb       => $node_content_cb,
-		     hash_element_cb       => $hash_element_cb ,
-		     list_element_cb       => $hash_element_cb ,
-		    );
+        experience => delete $args{experience} || 'master',
+        check      => delete $args{check}      || 'yes',
+        fallback   => 'all',
+        leaf_cb    => $std_cb,
+        node_content_cb => $node_content_cb,
+        hash_element_cb => $hash_element_cb,
+        list_element_cb => $hash_element_cb,
+    );
 
     my @left = keys %args;
     croak "dump_annotations_as_pod: unknown parameter:@left" if @left;
@@ -208,22 +208,22 @@ sub dump_annotations_as_pod {
     # perform the scan
     my $view_scanner = Config::Model::ObjTreeScanner->new(@scan_args);
 
-    my $obj_type = $dump_node->get_type ;
-    my $result = '' ;
+    my $obj_type = $dump_node->get_type;
+    my $result   = '';
 
-    my $a = $dump_node->annotation ;
-    my $l = $dump_node->location ;
-    $result .= "=item $l\n\n$a\n\n" if $a ;
+    my $a = $dump_node->annotation;
+    my $l = $dump_node->location;
+    $result .= "=item $l\n\n$a\n\n" if $a;
 
-    if ($obj_type =~ /node/) {
-	$view_scanner->scan_node(\$result ,$dump_node);
+    if ( $obj_type =~ /node/ ) {
+        $view_scanner->scan_node( \$result, $dump_node );
     }
     else {
-	croak "dump_annotations_as_pod: unexpected type: $obj_type";
+        croak "dump_annotations_as_pod: unexpected type: $obj_type";
     }
 
-    return '' unless $result ;
-    return "=head1 Annotations\n\n=over\n\n".$result."=back\n\n" ;
+    return '' unless $result;
+    return "=head1 Annotations\n\n=over\n\n" . $result . "=back\n\n";
 }
 
 1;

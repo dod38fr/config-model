@@ -1,64 +1,60 @@
 package Config::Model::Lister;
 
-
 use strict;
 use warnings;
 use Exporter;
 
 use vars qw/@EXPORT/;
 
-@EXPORT = qw(applications models) ;
-
+@EXPORT = qw(applications models);
 
 sub available_models {
-    my $test = shift || 0 ;
-   
-    my (%categories, %appli_info, %applications ) ;
-    my %done_cat ;
-    my @dir_to_scan = $test ? qw/lib/ : @INC ;
+    my $test = shift || 0;
 
-    foreach my $dir (map { glob("$_/Config/Model/*.d") } @dir_to_scan ) {
+    my ( %categories, %appli_info, %applications );
+    my %done_cat;
+    my @dir_to_scan = $test ? qw/lib/ : @INC;
+
+    foreach my $dir ( map { glob("$_/Config/Model/*.d") } @dir_to_scan ) {
         my ($cat) = ( $dir =~ m!.*/([\w\-]+)\.d! );
 
-        if ($cat !~ /^user|system|application$/) {
+        if ( $cat !~ /^user|system|application$/ ) {
             warn "available_models: skipping unexpected category: $cat\n";
             next;
         }
-        
-        foreach my $file (sort glob("$dir/*")) {
-            next if $file =~ m!/README! ;
-            my ($appli) = ($file =~ m!.*/([\w\-]+)! );
-            open (F, $file) || die "Can't open file $file:$!" ;
+
+        foreach my $file ( sort glob("$dir/*") ) {
+            next if $file =~ m!/README!;
+            my ($appli) = ( $file =~ m!.*/([\w\-]+)! );
+            open( F, $file ) || die "Can't open file $file:$!";
             while (<F>) {
-                chomp ;
-                s/^\s+// ;
-                s/\s+$// ;
-                s/#.*// ;
-                my ($k,$v) = split /\s*=\s*/ ;
-                next unless $v ;
-                if ($k =~ /model/i) {
-                    push @{$categories{$cat}} , $appli unless $done_cat{$cat}{$appli} ;
-                    $done_cat{$cat}{$appli} = 1 ;
+                chomp;
+                s/^\s+//;
+                s/\s+$//;
+                s/#.*//;
+                my ( $k, $v ) = split /\s*=\s*/;
+                next unless $v;
+                if ( $k =~ /model/i ) {
+                    push @{ $categories{$cat} }, $appli unless $done_cat{$cat}{$appli};
+                    $done_cat{$cat}{$appli} = 1;
                 }
-                
-                $appli_info{$appli}{$k} = $v ; 
-                $applications{$appli} = $v if $k =~ /model/i; 
+
+                $appli_info{$appli}{$k} = $v;
+                $applications{$appli} = $v if $k =~ /model/i;
             }
         }
     }
-    return \%categories, \%appli_info, \%applications ;
+    return \%categories, \%appli_info, \%applications;
 }
-
 
 sub models {
-    my @i = available_models ;
-    return join( ' ',  sort values %{$i[2]} )."\n"; 
+    my @i = available_models;
+    return join( ' ', sort values %{ $i[2] } ) . "\n";
 }
 
-
 sub applications {
-    my @i = available_models ;
-    return join( ' ',  sort keys   %{$i[2]} )."\n"; 
+    my @i = available_models;
+    return join( ' ', sort keys %{ $i[2] } ) . "\n";
 }
 
 1;

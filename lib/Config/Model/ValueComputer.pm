@@ -1,263 +1,268 @@
-package Config::Model::ValueComputer ;
+package Config::Model::ValueComputer;
 
-use Mouse ;
+use Mouse;
 use MouseX::StrictConstructor;
 use namespace::autoclean;
 
 # use Scalar::Util qw(weaken) ;
-use Carp ;
+use Carp;
 use Parse::RecDescent 1.90.0;
-use Data::Dumper () ;
+use Data::Dumper ();
 use Log::Log4perl qw(get_logger :levels);
 
-use vars qw($compute_grammar $compute_parser) ;
+use vars qw($compute_grammar $compute_parser);
 
-my $logger = get_logger("ValueComputer") ;
-
+my $logger = get_logger("ValueComputer");
 
 # allow_override is intercepted and handled by Value object
 
-has formula => (is => 'ro', isa => 'Str' , required => 1 ) ;
-has value_type => (is => 'ro', isa => 'Str' , required => 1 ) ;
+has formula    => ( is => 'ro', isa => 'Str', required => 1 );
+has value_type => ( is => 'ro', isa => 'Str', required => 1 );
 
 # value_object is mostly used for error messages
-has value_object => (is => 'ro', isa => 'Config::Model::AnyThing' , required => 1, weak_ref => 1 ) ;
+has value_object => ( is => 'ro', isa => 'Config::Model::AnyThing', required => 1, weak_ref => 1 );
 
-has variables => ( is => 'ro', isa => 'HashRef', default => sub {{}}) ;
-has replace   => ( is => 'ro', isa => 'HashRef', default => sub {{}}) ;
-has [qw/use_eval allow_override use_as_upstream_default/]  => (is => 'ro', isa => 'Bool', default => 0 ) ;
+has variables => ( is => 'ro', isa => 'HashRef', default => sub { {} } );
+has replace   => ( is => 'ro', isa => 'HashRef', default => sub { {} } );
+has [qw/use_eval allow_override use_as_upstream_default/] =>
+    ( is => 'ro', isa => 'Bool', default => 0 );
 
-has allow_user_override  => (is => 'ro', isa => 'Bool', lazy => 1 ,
-    builder => sub { my $self = shift; return $self->allow_override || $self->use_as_upstream_default ;} ) ;
+has allow_user_override => (
+    is   => 'ro',
+    isa  => 'Bool',
+    lazy => 1,
+    builder =>
+        sub { my $self = shift; return $self->allow_override || $self->use_as_upstream_default; } );
 
-has need_quote => ( is => 'ro',isa => 'Bool', builder => '_need_quote', lazy => 1 ) ;
+has need_quote => ( is => 'ro', isa => 'Bool', builder => '_need_quote', lazy => 1 );
 
 sub _need_quote {
-    my $self  = shift ;
+    my $self = shift;
 
     my $need_quote = 0;
     $need_quote = 1 if $self->{use_eval} and $self->{value_type} !~ /(integer|number|boolean)/;
-    return $need_quote ;
+    return $need_quote;
 }
 
-has undef_is => (is => 'ro', isa => 'Maybe[Str]' ) ;
+has undef_is => ( is => 'ro', isa => 'Maybe[Str]' );
 
-has undef_replacement => (is => 'ro',  isa => 'Maybe[Str]', builder => '_build_undef_replacement',
-    lazy => 1) ;
+has undef_replacement => (
+    is      => 'ro',
+    isa     => 'Maybe[Str]',
+    builder => '_build_undef_replacement',
+    lazy    => 1
+);
 
 sub _build_undef_replacement {
     my $self = shift;
 
-    my $sui = $self->undef_is ;
-    my $need_quote = $self->need_quote ;
+    my $sui        = $self->undef_is;
+    my $need_quote = $self->need_quote;
 
     return
-        $need_quote && defined $sui && $sui eq "''" ? "''"
-      : $need_quote && defined $sui                 ? "'$sui'"
-      : defined $sui && $sui eq "''"                ? ''
-      : defined $sui                                ? $sui
-      :                                               undef;
-    
+          $need_quote && defined $sui && $sui eq "''" ? "''"
+        : $need_quote  && defined $sui ? "'$sui'"
+        : defined $sui && $sui eq "''" ? ''
+        : defined $sui ? $sui
+        :                undef;
+
 }
 
-
 sub BUILD {
-    my $self = shift ;
+    my $self = shift;
 
-    # create parser if needed 
-    $compute_parser ||= Parse::RecDescent->new($compute_grammar) ;
+    # create parser if needed
+    $compute_parser ||= Parse::RecDescent->new($compute_grammar);
 
     # must make a first pass at computation to subsitute index and
     # element values.  leaves $xxx outside of &index or &element untouched
-    my $result_r = $compute_parser -> pre_compute (
-	$self->{formula},
-	1,
-	$self->{value_object},
-	$self->{variables},
-	$self->{replace},
-	'yes',
-	$self->need_quote,
-    ) ;
+    my $result_r =
+        $compute_parser->pre_compute( $self->{formula}, 1, $self->{value_object},
+        $self->{variables}, $self->{replace}, 'yes', $self->need_quote, );
 
-    $self->{pre_formula} = $$result_r ;
+    $self->{pre_formula} = $$result_r;
 }
 
 sub compute {
-    my $self = shift ;
-    my %args = @_ ;
-    my $check = $args{check} || 'yes' ;
+    my $self  = shift;
+    my %args  = @_;
+    my $check = $args{check} || 'yes';
 
     my $pre_formula = $self->{pre_formula};
     $logger->debug("called with pre_formula: $pre_formula");
-    my $variables = $self->compute_variables(check => $check) ;
+    my $variables = $self->compute_variables( check => $check );
 
-    die "internal error" unless defined $variables ;
+    die "internal error" unless defined $variables;
 
-    my $result ;
-    my @parser_args = ( $self->{value_object},
-            $variables, $self->{replace}, $check, $self->{need_quote},
-            $self->undef_replacement ) ;
+    my $result;
+    my @parser_args = (
+        $self->{value_object}, $variables, $self->{replace}, $check, $self->{need_quote},
+        $self->undef_replacement
+    );
 
     if (   $self->{use_eval}
-        or $self->{value_type} =~ /(integer|number|boolean)/ )
-    {
+        or $self->{value_type} =~ /(integer|number|boolean)/ ) {
         $logger->debug("will use eval");
         my $all_defined = 1;
-        my @init ;
-        foreach my $key (sort keys %$variables) { 
+        my @init;
+        foreach my $key ( sort keys %$variables ) {
+
             # no need to get variable if not used in formula;
-            next unless index ($pre_formula,$key) > 0 ;
-            my $vr = _value_from_object( $key , @parser_args);
-            my $v = $$vr ;
-            $v = $self->undef_replacement unless defined $v ;
-            $logger->debug("compute: var $key -> ", (defined $v ? $v : '<undef>'));
-            if (defined $v) { push @init, "my \$$key = $v ;\n" ; }
-            else {$all_defined = 0 ;}
-        } 
-        
+            next unless index( $pre_formula, $key ) > 0;
+            my $vr = _value_from_object( $key, @parser_args );
+            my $v = $$vr;
+            $v = $self->undef_replacement unless defined $v;
+            $logger->debug( "compute: var $key -> ", ( defined $v ? $v : '<undef>' ) );
+            if ( defined $v ) { push @init, "my \$$key = $v ;\n"; }
+            else              { $all_defined = 0; }
+        }
+
         if ($all_defined) {
-            my $formula = join('', @init) . $pre_formula ;
+            my $formula = join( '', @init ) . $pre_formula;
             $logger->debug("compute: evaluating '$formula'");
             $result = eval $formula;
             if ($@) {
                 Config::Model::Exception::Formula->throw(
                     object => $self->{value_object},
                     error  => "Eval of formula '$formula' failed:\n$@"
-                            . "Make sure that your element is indeed "
-                            . "'$self->{value_type}'"
+                        . "Make sure that your element is indeed "
+                        . "'$self->{value_type}'"
                 );
             }
         }
     }
     else {
-        $logger->debug( "calling parser with compute on pre_formula $pre_formula");
-        my $formula_r = $compute_parser->compute( $pre_formula, 1, @parser_args);
+        $logger->debug("calling parser with compute on pre_formula $pre_formula");
+        my $formula_r = $compute_parser->compute( $pre_formula, 1, @parser_args );
 
         $result = $$formula_r;
 
         #$result = $self->{computed_formula} = $formula;
     }
 
-    $logger->debug("compute result is '". (defined $result ? $result : '<undef>'). "'" );
+    $logger->debug( "compute result is '" . ( defined $result ? $result : '<undef>' ) . "'" );
 
-    return $result ;
+    return $result;
 }
 
 sub compute_info {
-    my $self = shift;
-    my %args = @_ ;
-    my $check = $args{check} || 'yes' ;
-    $logger->debug("compute_info called with $self->{formula}" );
-    
-    my $orig_variables = $self->{variables} ;
-    my $variables = $self->compute_variables ;
-    my $str = "value is computed from '$self->{formula}'";
+    my $self  = shift;
+    my %args  = @_;
+    my $check = $args{check} || 'yes';
+    $logger->debug("compute_info called with $self->{formula}");
 
-    return $str unless defined $variables ;
+    my $orig_variables = $self->{variables};
+    my $variables      = $self->compute_variables;
+    my $str            = "value is computed from '$self->{formula}'";
+
+    return $str unless defined $variables;
 
     #print Dumper $variables ;
 
     if (%$variables) {
-        $str .= ", where " ;
-        foreach my $k (sort keys %$variables) {
-	    my $u_val = $variables->{$k} ;
-	    if (ref($u_val)) {
-		map {
-		    $str.= "\n\t\t'\$$k" . "{$_} is converted to '$orig_variables->{$k}{$_}'";
-		    } sort keys %$u_val ;
- 	    }
-	    else {
-		my $val ;
-		if (defined $u_val) {
-		  my $obj = eval { $self->{value_object} ->grab($u_val) };
-		  if ($@) {
-		    my $e = $@ ;
-		    my $msg = ref($e) ? $e->full_message : $e  ;
-		    Config::Model::Exception::Model
-			-> throw (
-				  object => $self,
-				  error => "Compute variable:\n". $msg
-				 ) ;
-		  }
-		  $val = $obj->get_type eq 'node' ? '<node>' 
-                       : $obj->get_type eq 'hash' ? '<hash>' 
-                       : $obj->get_type eq 'list' ? '<list>' 
-                       :                             $obj->fetch(check => $check) ;
-		}
-		$str.= "\n\t\t'$k' from path '$orig_variables->{$k}' is ";
-		$str.= defined $val ? "'$val'" : 'undef' ;
-	    }
-	}
+        $str .= ", where ";
+        foreach my $k ( sort keys %$variables ) {
+            my $u_val = $variables->{$k};
+            if ( ref($u_val) ) {
+                map { $str .= "\n\t\t'\$$k" . "{$_} is converted to '$orig_variables->{$k}{$_}'"; }
+                    sort keys %$u_val;
+            }
+            else {
+                my $val;
+                if ( defined $u_val ) {
+                    my $obj = eval { $self->{value_object}->grab($u_val) };
+                    if ($@) {
+                        my $e = $@;
+                        my $msg = ref($e) ? $e->full_message : $e;
+                        Config::Model::Exception::Model->throw(
+                            object => $self,
+                            error  => "Compute variable:\n" . $msg
+                        );
+                    }
+                    $val =
+                          $obj->get_type eq 'node' ? '<node>'
+                        : $obj->get_type eq 'hash' ? '<hash>'
+                        : $obj->get_type eq 'list' ? '<list>'
+                        :                            $obj->fetch( check => $check );
+                }
+                $str .= "\n\t\t'$k' from path '$orig_variables->{$k}' is ";
+                $str .= defined $val ? "'$val'" : 'undef';
+            }
+        }
     }
 
     #$str .= " (evaluated as '$self->{computed_formula}')"
     #  if $self->{formula} ne $self->{computed_formula} ;
 
-    return $str ;
+    return $str;
 }
 
 # internal. resolves variables that contains $foo or &bar
 # returns a hash of variable names -> variable path
 sub compute_variables {
-    my $self = shift ;
-    my %args = @_ ;
+    my $self  = shift;
+    my %args  = @_;
     my $check = $args{check} || 'yes';
 
     # a shallow copy should be enough as we don't allow
     # replace in replacement rules
-    my %variables = %{$self->{variables}} ;
-    $logger->debug("called on variables '", 
-        join ("', '",sort keys %variables),"'")  if $logger->is_debug ;
+    my %variables = %{ $self->{variables} };
+    $logger->debug( "called on variables '", join( "', '", sort keys %variables ), "'" )
+        if $logger->is_debug;
 
     # apply a compute on all variables until no $var is left
-    my $var_left = scalar (keys %variables) + 1 ;
+    my $var_left = scalar( keys %variables ) + 1;
 
     while ($var_left) {
-        my $old_var_left = $var_left ;
-        foreach my $key (keys %variables) {
-            my $value = $variables{$key} ; # value may be undef
-            next unless defined $value; 
-            
+        my $old_var_left = $var_left;
+        foreach my $key ( keys %variables ) {
+            my $value = $variables{$key};    # value may be undef
+            next unless defined $value;
+
             #next if ref($value); # skip replacement rules
-            $logger->debug("key '$key', value '$value', left $var_left"); 
-	    next unless $value =~ /\$|&/ ;
-            
-            my $pre_res_r = $compute_parser
-                -> pre_compute ($value, 1,$self->{value_object}, \%variables, $self->{replace},$check);
-            $logger->debug( "key '$key', pre res '$$pre_res_r', left $var_left\n");
-            $variables{$key} = $$pre_res_r ;
-	    $logger->debug("variable after pre_compute: ", join (" ",keys %variables)) if $logger->is_debug ;
+            $logger->debug("key '$key', value '$value', left $var_left");
+            next unless $value =~ /\$|&/;
 
-            if ($$pre_res_r =~ /\$/) { ;
+            my $pre_res_r =
+                $compute_parser->pre_compute( $value, 1, $self->{value_object}, \%variables,
+                $self->{replace}, $check );
+            $logger->debug("key '$key', pre res '$$pre_res_r', left $var_left\n");
+            $variables{$key} = $$pre_res_r;
+            $logger->debug( "variable after pre_compute: ", join( " ", keys %variables ) )
+                if $logger->is_debug;
+
+            if ( $$pre_res_r =~ /\$/ ) {
+                ;
+
                 # variables needs to be evaluated
-                my $res_ref = $compute_parser
-                    -> compute ($$pre_res_r, 1,$self->{value_object}, \%variables, $self->{replace},$check);
+                my $res_ref =
+                    $compute_parser->compute( $$pre_res_r, 1, $self->{value_object}, \%variables,
+                    $self->{replace}, $check );
+
                 #return undef unless defined $res ;
-                $variables{$key} = $$res_ref ;
-                $logger->debug("variable after compute: ", join (" ",keys %variables))  if $logger->is_debug;
+                $variables{$key} = $$res_ref;
+                $logger->debug( "variable after compute: ", join( " ", keys %variables ) )
+                    if $logger->is_debug;
             }
-	    {
-		no warnings "uninitialized" ;
-		$logger->debug("result $key -> '$variables{$key}' left '$var_left'");
-	    }
-	}
+            {
+                no warnings "uninitialized";
+                $logger->debug("result $key -> '$variables{$key}' left '$var_left'");
+            }
+        }
 
-        my @var_left =  grep {defined $variables{$_} && $variables{$_} =~ /[\$&]/} 
-	  sort keys %variables;
+        my @var_left = grep { defined $variables{$_} && $variables{$_} =~ /[\$&]/ }
+            sort keys %variables;
 
-        $var_left = @var_left ;
+        $var_left = @var_left;
 
-        Config::Model::Exception::Formula
-	    -> throw (
-		      object => $self->{value_object},
-		      error => "Can't resolve user variable: '"
-		      . join ("','",@var_left) . "'"
-		     ) 
-	      unless ($var_left < $old_var_left);
+        Config::Model::Exception::Formula->throw(
+            object => $self->{value_object},
+            error  => "Can't resolve user variable: '" . join( "','", @var_left ) . "'"
+        ) unless ( $var_left < $old_var_left );
     }
 
     $logger->debug("done");
-    return \%variables ;
+    return \%variables;
 }
 
 sub _pre_replace {
@@ -265,20 +270,21 @@ sub _pre_replace {
 
     $logger->debug("value: _pre_replace called with value '$pre_value'");
     my $result =
-      exists $replace_h->{$pre_value}
-      ? $replace_h->{$pre_value}
-      : '$replace{' . $pre_value . '}';
+        exists $replace_h->{$pre_value}
+        ? $replace_h->{$pre_value}
+        : '$replace{' . $pre_value . '}';
     return \$result;
 }
 
 sub _replace {
-    my ( $replace_h, $value, $value_object, $variables, $replace, $check, $need_quote, $undef_is) = @_;
+    my ( $replace_h, $value, $value_object, $variables, $replace, $check, $need_quote, $undef_is )
+        = @_;
 
-    if ($logger->is_debug) {
-        my $str = defined $value ? $value : '<undef>' ;
+    if ( $logger->is_debug ) {
+        my $str = defined $value ? $value : '<undef>';
         $logger->debug("value: _replace called with value '$str'");
     }
-    
+
     my $result;
     if ( defined $value and $value =~ /\$/ ) {
 
@@ -293,17 +299,15 @@ sub _replace {
 }
 
 sub _function_on_object {
-    my ( $up, $function, $return, $value_object, $variables_h, $replace_h,
-        $check, $need_quote )
-      = @_;
+    my ( $up, $function, $return, $value_object, $variables_h, $replace_h, $check, $need_quote ) =
+        @_;
 
     $logger->debug("handling &$function($up) ");
 
     # get now the object refered
-    $up =~ s/-(\d+)/'- ' x $1/e ;
+    $up =~ s/-(\d+)/'- ' x $1/e;
 
-    my $target =
-      eval { $value_object->grab( step => $up, check => $check ) };
+    my $target = eval { $value_object->grab( step => $up, check => $check ) };
 
     if ($@) {
         my $e = $@;
@@ -336,36 +340,33 @@ sub _function_on_object {
         Config::Model::Exception::Formula->throw(
             object => $value_object,
             error  => "Unknown computation function &$function, "
-              . "expected &element(...) or &index(...)"
+                . "expected &element(...) or &index(...)"
         );
     }
 
     # print "\&foo(...) result = ",$$return," \n";
 
     # make sure that result of function is quoted (avoid bareword errors)
-    $$return = '"' . $$return . '"' if $need_quote ;
+    $$return = '"' . $$return . '"' if $need_quote;
 
     $logger->debug("&$function(...) returns $$return");
     return $return;
 }
 
 sub _function_alone {
-    my ( $f_name, $return, $value_object, $variables_h, $replace_h, $check,
-        $need_quote )
-      = @_;
+    my ( $f_name, $return, $value_object, $variables_h, $replace_h, $check, $need_quote ) = @_;
 
-    $logger->debug("_function_alone: handling $f_name"); 
+    $logger->debug("_function_alone: handling $f_name");
 
     my $method_name =
-        $f_name eq 'element' ? 'element_name'
-      : $f_name eq 'index'   ? 'index_value'
-      : $f_name eq 'location' ? 'location'
-      :                        undef;
+          $f_name eq 'element'  ? 'element_name'
+        : $f_name eq 'index'    ? 'index_value'
+        : $f_name eq 'location' ? 'location'
+        :                         undef;
 
     Config::Model::Exception::Formula->throw(
         object => $value_object,
-        error  => "Unknown computation function &$f_name, "
-          . "expected &element or &index"
+        error  => "Unknown computation function &$f_name, " . "expected &element or &index"
     ) unless defined $method_name;
 
     my $result = $value_object->$method_name();
@@ -380,7 +381,7 @@ sub _function_alone {
     Config::Model::Exception::Formula->throw(
         object => $value_object,
         error  => "Missing $f_name attribute (method '$method_name' on "
-          . ref($value_object) . ")\n"
+            . ref($value_object) . ")\n"
     ) unless defined $result;
     return $return;
 }
@@ -388,20 +389,20 @@ sub _function_alone {
 sub _compute {
     my ( $value_ref, $return,
         $value_object, $variables_h, $replace_h, $check, $need_quote, $undef_is )
-      = @_;
+        = @_;
 
     my @values = map { $$_ } @{$value_ref};
 
-    if ($logger->is_debug) {
-        my @display = map { defined $_ ? $_ : '<undef>' } @values ;
-        $logger->debug("_compute called with values '",join("','",@display));
+    if ( $logger->is_debug ) {
+        my @display = map { defined $_ ? $_ : '<undef>' } @values;
+        $logger->debug( "_compute called with values '", join( "','", @display ) );
     }
-           
+
     my $result = '';
 
     # return undef if one value is undef
     foreach my $v (@values) {
-        if ( defined $v or defined $undef_is) {
+        if ( defined $v or defined $undef_is ) {
             $result .= defined $v ? $v : $undef_is;
         }
         else {
@@ -414,47 +415,41 @@ sub _compute {
 }
 
 sub _value_from_object {
-    my ( $name, $value_object, $variables_h, $replace_h, $check, $need_quote ) =
-      @_;
+    my ( $name, $value_object, $variables_h, $replace_h, $check, $need_quote ) = @_;
 
-    $logger->warn("Warning: No variable definition found for \$$name") 
+    $logger->warn("Warning: No variable definition found for \$$name")
         unless exists $variables_h->{$name};
 
     # $path can be a ref for test purpose, or can be undef if path is computed from another value
     my $path = $variables_h->{$name};
     my $my_res;
 
-    if ($logger->is_debug) {
-        my $str = defined $path ? $path : '<undef>' ;
-        $logger->debug("replace \$$name with path $str...") ;
+    if ( $logger->is_debug ) {
+        my $str = defined $path ? $path : '<undef>';
+        $logger->debug("replace \$$name with path $str...");
     }
 
     if ( defined $path and $path =~ /[\$&]/ ) {
         $logger->trace("skip name $name path '$path'");
-        $my_res = "\$$name";             # restore name that contain '$var'
+        $my_res = "\$$name";    # restore name that contain '$var'
     }
     elsif ( defined $path ) {
 
         $logger->trace("fetching var object '$name' with '$path'");
-        
-        $my_res = eval { 
-            $value_object->grab_value( step => $path, check => $check ); 
-        };
-        
+
+        $my_res = eval { $value_object->grab_value( step => $path, check => $check ); };
+
         if ($@) {
             my $e = $@;
             my $msg = $e ? $e->full_message : '';
             Config::Model::Exception::Model->throw(
                 object => $value_object,
-                error  => "Compute argument '$name', error with '$path':\n"
-                  . $msg
+                error  => "Compute argument '$name', error with '$path':\n" . $msg
             );
         }
 
-        $logger->trace(
-            "fetched var object '$name' with '$path', result '", 
-            defined $my_res ? $my_res : 'undef',"'"
-        );
+        $logger->trace( "fetched var object '$name' with '$path', result '",
+            defined $my_res ? $my_res : 'undef', "'" );
     }
 
     # my_res stays undef if $path if not defined
@@ -558,7 +553,6 @@ END_OF_GRAMMAR
 __PACKAGE__->meta->make_immutable;
 
 1;
-
 
 # ABSTRACT:  Provides configuration value computation
 

@@ -12,26 +12,28 @@ use strict;
 
 use vars qw/$model/;
 
-$model = Config::Model -> new(legacy => 'ignore',)  ;
+$model = Config::Model->new( legacy => 'ignore', );
 
-my $arg = shift || '' ;
-my $trace = $arg =~ /t/ ? 1 : 0 ;
-$::verbose          = 1 if $arg =~ /v/;
-$::debug            = 1 if $arg =~ /d/;
+my $arg = shift || '';
+my $trace = $arg =~ /t/ ? 1 : 0;
+$::verbose = 1 if $arg =~ /v/;
+$::debug   = 1 if $arg =~ /d/;
 Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 
-use Log::Log4perl qw(:easy) ;
-Log::Log4perl->easy_init($arg =~ /l/ ? $TRACE: $ERROR);
+use Log::Log4perl qw(:easy);
+Log::Log4perl->easy_init( $arg =~ /l/ ? $TRACE : $ERROR );
 
-ok(1,"compiled");
+ok( 1, "compiled" );
 
-my $inst = $model->instance (root_class_name => 'Master', 
-			     model_file => 't/dump_load_model.pm',
-			     instance_name => 'test1');
-ok($inst,"created dummy instance") ;
+my $inst = $model->instance(
+    root_class_name => 'Master',
+    model_file      => 't/dump_load_model.pm',
+    instance_name   => 'test1'
+);
+ok( $inst, "created dummy instance" );
 
-my $root = $inst -> config_root ;
-ok($root,"Config root created") ;
+my $root = $inst->config_root;
+ok( $root, "Config root created" );
 
 my $step = '
 std_id:ab X=Bv -
@@ -52,149 +54,153 @@ warp warp2 aa2="foo bar"
 
 $step =~ s/\n/ /g;
 
-ok( $root->load( step => $step, experience => 'advanced' ),
-  "set up data in tree with '$step'");
+ok( $root->load( step => $step, experience => 'advanced' ), "set up data in tree with '$step'" );
 
 # load some values with undef
-$root->fetch_element('hash_a')->fetch_with_id('undef_val') ;
-$root->fetch_element('lista' )->fetch_with_id(6)->store('g');
+$root->fetch_element('hash_a')->fetch_with_id('undef_val');
+$root->fetch_element('lista')->fetch_with_id(6)->store('g');
 
-$root->load_data({ listb => 'bb'}) ;
-ok (1, "loaded single array element as listb => 'bb'") ;
+$root->load_data( { listb => 'bb' } );
+ok( 1, "loaded single array element as listb => 'bb'" );
 
-my $data = $root->dump_as_data(full_dump => 0) ;
+my $data = $root->dump_as_data( full_dump => 0 );
 
 my $expect = {
-	      'olist' => [{'X' => 'Av'}, {'X' => 'Bv'}],
-	      'my_check_list' => ['toto'],
-	      'tree_macro' => 'mXY',
-	      'ordered_hash' => ['z', '1', 'y', '2', 'x', '3'],
-	      'another_string' => 'toto tata',
-	      'listb' => ['bb'],
-	      'my_reference' => 'titi',
-	      'hash_a' => {
-			   'toto' => 'toto_value',
-			   'titi' => 'titi_value',
-			  },
-	      'std_id' => {
-			   'ab' => {'X' => 'Bv'},
-			   'bc' => {'X' => 'Av'}
-			  },
-	      'lista' => [qw/a b c d g/],
-	      'warp' => {
-			 'warp2' => {
-				     'aa2' => 'foo bar'
-				    }
-			},
-       };
+    'olist'         => [ { 'X' => 'Av' }, { 'X' => 'Bv' } ],
+    'my_check_list' => ['toto'],
+    'tree_macro'    => 'mXY',
+    'ordered_hash'   => [ 'z', '1', 'y', '2', 'x', '3' ],
+    'another_string' => 'toto tata',
+    'listb'          => ['bb'],
+    'my_reference'   => 'titi',
+    'hash_a'         => {
+        'toto' => 'toto_value',
+        'titi' => 'titi_value',
+    },
+    'std_id' => {
+        'ab' => { 'X' => 'Bv' },
+        'bc' => { 'X' => 'Av' }
+    },
+    'lista' => [qw/a b c d g/],
+    'warp'  => {
+        'warp2' => {
+            'aa2' => 'foo bar'
+        }
+    },
+};
 
 #use Data::Dumper; print Dumper $data ;
 
-is_deeply($data, $expect, "check data dump") ;
+is_deeply( $data, $expect, "check data dump" );
 
 # add default information provided by model to check full dump
 $expect->{string_with_def} = 'yada yada';
-$expect->{int_v} = 10 ;
-$expect->{olist}[0]{DX} = 'Dv' ;
-$expect->{olist}[1]{DX} = 'Dv' ;
-$expect->{std_id}{ab}{DX} = 'Dv' ;
-$expect->{std_id}{bc}{DX} = 'Dv' ;
-$expect->{a_uniline} = 'yada yada';
-my $full_data = $root->dump_as_data() ;
+$expect->{int_v}           = 10;
+$expect->{olist}[0]{DX}    = 'Dv';
+$expect->{olist}[1]{DX}    = 'Dv';
+$expect->{std_id}{ab}{DX}  = 'Dv';
+$expect->{std_id}{bc}{DX}  = 'Dv';
+$expect->{a_uniline}       = 'yada yada';
+my $full_data = $root->dump_as_data();
 
-is_deeply($full_data, $expect, "check full data dump") ;
+is_deeply( $full_data, $expect, "check full data dump" );
 
+my $inst2 = $model->instance(
+    root_class_name => 'Master',
+    instance_name   => 'test2'
+);
+ok( $inst, "created 2nd dummy instance" );
 
-my $inst2 = $model->instance (root_class_name => 'Master', 
-			      instance_name => 'test2');
-ok($inst,"created 2nd dummy instance") ;
+my $root2 = $inst2->config_root;
+ok( $root2, "Config root2  created" );
 
-my $root2 = $inst2 -> config_root ;
-ok($root2,"Config root2  created") ;
+$root2->load_data($data);
 
-$root2->load_data($data) ;
+ok( 1, "loaded perl data structure in 2nd instance" );
 
-ok(1,"loaded perl data structure in 2nd instance") ;
+my $dump1 = $root->dump_tree;
+my $dump2 = $root2->dump_tree;
 
-my $dump1 = $root ->dump_tree ;
-my $dump2 = $root2->dump_tree ;
-
-is($dump2, $dump1, 
-   "check that dump of 2nd tree is identical to dump of the first tree") ;
+is( $dump2, $dump1, "check that dump of 2nd tree is identical to dump of the first tree" );
 
 # try partial dumps
 
-my @tries = ( [ 'olist' => $expect->{olist}  ],
-	      [ 'olist:0' => $expect->{olist}[0] ],
-	      [ 'olist:0 DX' => $expect->{olist}[0]{DX} ],
-	      [ 'string_with_def' => $expect->{string_with_def} ],
-	      [ 'ordered_hash' => $expect->{ordered_hash} ],
-	      [ 'hash_a' => $expect->{hash_a} ],
-	      [ 'std_id:ab' => $expect->{std_id}{ab} ],
-	      [ 'my_check_list' => $expect->{my_check_list} ],
-	    );
+my @tries = (
+    [ 'olist'           => $expect->{olist} ],
+    [ 'olist:0'         => $expect->{olist}[0] ],
+    [ 'olist:0 DX'      => $expect->{olist}[0]{DX} ],
+    [ 'string_with_def' => $expect->{string_with_def} ],
+    [ 'ordered_hash'    => $expect->{ordered_hash} ],
+    [ 'hash_a'          => $expect->{hash_a} ],
+    [ 'std_id:ab'       => $expect->{std_id}{ab} ],
+    [ 'my_check_list'   => $expect->{my_check_list} ],
+);
 
-foreach my $test ( @tries ) {
-    my ($path, $expect) = @$test ;
-    my $obj = $root->grab($path) ;
+foreach my $test (@tries) {
+    my ( $path, $expect ) = @$test;
+    my $obj  = $root->grab($path);
     my $dump = $obj->dump_as_data();
-    is_deeply($dump, $expect, "check data dump for '$path'") ; 
+    is_deeply( $dump, $expect, "check data dump for '$path'" );
 }
 
 # try dump of ordered hash as hash
-my $ohah_dump = $root->grab('ordered_hash')
-  -> dump_as_data(ordered_hash_as_list => 0);
-is_deeply($ohah_dump, { __order => [qw/z y x/],'z', '1', 'y', '2', 'x', '3'},
-	  "check dump of ordered hash as hash") ; 
-
+my $ohah_dump = $root->grab('ordered_hash')->dump_as_data( ordered_hash_as_list => 0 );
+is_deeply(
+    $ohah_dump,
+    { __order => [qw/z y x/], 'z', '1', 'y', '2', 'x', '3' },
+    "check dump of ordered hash as hash"
+);
 
 # test ordered hash load with hash ref instead of array ref
-my $inst3 = $model->instance (root_class_name => 'Master', 
-			      instance_name => 'test3');
-ok($inst,"created 3rd dummy instance") ;
-my $root3= $inst3->config_root ;
-$data->{ordered_hash} = { @{$expect->{ordered_hash}}} ;
-$root3->load_data($data); 
+my $inst3 = $model->instance(
+    root_class_name => 'Master',
+    instance_name   => 'test3'
+);
+ok( $inst, "created 3rd dummy instance" );
+my $root3 = $inst3->config_root;
+$data->{ordered_hash} = { @{ $expect->{ordered_hash} } };
+$root3->load_data($data);
 
-@tries    = ( [ 'olist' => $expect->{olist}  ],
-	      [ 'olist:0' => $expect->{olist}[0] ],
-	      [ 'olist:0 DX' => $expect->{olist}[0]{DX} ],
-	      [ 'string_with_def' => $expect->{string_with_def} ],
-	      [ 'ordered_hash' =>  [qw/x 3 y 2 z 1/] ],
-	      [ 'hash_a' => $expect->{hash_a} ],
-	      [ 'std_id:ab' => $expect->{std_id}{ab} ],
-	      [ 'my_check_list' => $expect->{my_check_list} ],
-	    );
+@tries = (
+    [ 'olist'           => $expect->{olist} ],
+    [ 'olist:0'         => $expect->{olist}[0] ],
+    [ 'olist:0 DX'      => $expect->{olist}[0]{DX} ],
+    [ 'string_with_def' => $expect->{string_with_def} ],
+    [ 'ordered_hash'    => [qw/x 3 y 2 z 1/] ],
+    [ 'hash_a'          => $expect->{hash_a} ],
+    [ 'std_id:ab'       => $expect->{std_id}{ab} ],
+    [ 'my_check_list'   => $expect->{my_check_list} ],
+);
 
-foreach my $test ( @tries ) {
-    my ($path, $expect) = @$test ;
-    my $obj = $root3->grab($path) ;
+foreach my $test (@tries) {
+    my ( $path, $expect ) = @$test;
+    my $obj  = $root3->grab($path);
     my $dump = $obj->dump_as_data();
-    is_deeply($dump, $expect, "check data dump for '$path'") ; 
+    is_deeply( $dump, $expect, "check data dump for '$path'" );
 }
 
 # test dump of annotations as pod
-my %notes = 
-    map { ( $_ => $_ ? "$_ annotation\nwith long text" : "root annotation") ;}
-    ( '','olist' , 'olist:0' , 'olist:0 DX' , 'hash_a' , 'std_id:ab' , 'my_check_list' );
-foreach (keys %notes) {
-    $root->grab($_)->annotation($notes{$_}) ;
+my %notes =
+    map { ( $_ => $_ ? "$_ annotation\nwith long text" : "root annotation" ); }
+    ( '', 'olist', 'olist:0', 'olist:0 DX', 'hash_a', 'std_id:ab', 'my_check_list' );
+foreach ( keys %notes ) {
+    $root->grab($_)->annotation( $notes{$_} );
 }
 
-print $root->dump_tree if $trace ;
+print $root->dump_tree if $trace;
 
-my $pod_notes = $root->dump_annotations_as_pod ;
+my $pod_notes = $root->dump_annotations_as_pod;
 
-print $pod_notes if $trace ;
+print $pod_notes if $trace;
 
-foreach (keys %notes) {
-    my $v = $notes{$_} ;
-    like ($pod_notes, qr/$v/, "found note for $_ in pod notes");
+foreach ( keys %notes ) {
+    my $v = $notes{$_};
+    like( $pod_notes, qr/$v/, "found note for $_ in pod notes" );
 }
 
-$root2->load_pod_annotation($pod_notes) ;
-my $pod_notes2 = $root2->dump_annotations_as_pod ;
+$root2->load_pod_annotation($pod_notes);
+my $pod_notes2 = $root2->dump_annotations_as_pod;
 
-is($pod_notes2,$pod_notes,"check 2nd pod notes" );
+is( $pod_notes2, $pod_notes, "check 2nd pod notes" );
 
 memory_cycle_ok($model);

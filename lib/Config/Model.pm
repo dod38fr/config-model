@@ -1,6 +1,6 @@
 package Config::Model;
 
-use Mouse ;
+use Mouse;
 use namespace::autoclean;
 use Mouse::Util::TypeConstraints;
 use MouseX::StrictConstructor;
@@ -13,32 +13,31 @@ use AnyEvent;
 use 5.10.1;
 
 use Carp;
-use Storable ('dclone') ;
+use Storable ('dclone');
 use Data::Dumper ();
 use Log::Log4perl 1.11 qw(get_logger :levels);
-use Config::Model::Instance ;
-use Hash::Merge 0.12 qw/merge/ ;
+use Config::Model::Instance;
+use Hash::Merge 0.12 qw/merge/;
 use File::Path qw/make_path/;
 
 # this class holds the version number of the package
 use vars qw(@status @level @experience_list %experience_index
-    %default_property) ;
+    %default_property);
 
-%default_property =
-  (
-   status      => 'standard',
-   level       => 'normal',
-   experience  => 'beginner',
-   summary     => '',
-   description => '',
-  );
+%default_property = (
+    status      => 'standard',
+    level       => 'normal',
+    experience  => 'beginner',
+    summary     => '',
+    description => '',
+);
 
 enum LegacyTreament => qw/die warn ignore/;
 
-has skip_include => ( isa => 'Bool', is => 'ro', default => 0 ) ;
-has model_dir    => ( isa => 'Str',  is => 'ro', default => 'Config/Model/models' );
-has legacy       => ( isa => 'LegacyTreament', is => 'ro', default => 'warn' ) ;
-has instances    => ( isa => 'HashRef[Config::Model::Instance]', is => 'ro', default => sub { {} } ) ;
+has skip_include => ( isa => 'Bool',           is => 'ro', default => 0 );
+has model_dir    => ( isa => 'Str',            is => 'ro', default => 'Config/Model/models' );
+has legacy       => ( isa => 'LegacyTreament', is => 'ro', default => 'warn' );
+has instances => ( isa => 'HashRef[Config::Model::Instance]', is => 'ro', default => sub { {} } );
 
 # Config::Model stores 3 versions of each model
 
@@ -48,22 +47,22 @@ has instances    => ( isa => 'HashRef[Config::Model::Instance]', is => 'ro', def
 # usable without normalization (done by normalize_class_parameters)
 
 has raw_models => (
-    isa => 'HashRef',
-    is => 'ro' ,
-    default => sub { {} } ,
-    traits  => [ 'Hash' ],
+    isa     => 'HashRef',
+    is      => 'ro',
+    default => sub { {} },
+    traits  => ['Hash'],
     handles => {
-        raw_model_exists => 'exists',
+        raw_model_exists  => 'exists',
         raw_model_defined => 'defined',
-        raw_model => 'get',
-        store_raw_model => 'set',
-        raw_model_names => 'keys',
+        raw_model         => 'get',
+        store_raw_model   => 'set',
+        raw_model_names   => 'keys',
     },
-)  ;
+);
 
 sub get_raw_model {
     my $self = shift;
-    return $self->raw_model(@_) ;
+    return $self->raw_model(@_);
 }
 
 # the result of normalization is stored here. Normalized model aggregate user models and
@@ -71,123 +70,116 @@ sub get_raw_model {
 # yet done. normalized_models are created while loading files (load method) or creating
 # configuration classes (create_config_class)
 has normalized_models => (
-    isa => 'HashRef',
-    is => 'ro' ,
-    default => sub { {} } ,
-    traits  => [ 'Hash' ],
+    isa     => 'HashRef',
+    is      => 'ro',
+    default => sub { {} },
+    traits  => ['Hash'],
     handles => {
-        normalized_model_exists => 'exists',
+        normalized_model_exists  => 'exists',
         normalized_model_defined => 'defined',
-        normalized_model => 'get',
-        store_normalized_model => 'set',
-        normalized_model_names => 'keys',
+        normalized_model         => 'get',
+        store_normalized_model   => 'set',
+        normalized_model_names   => 'keys',
     },
-)  ;
+);
 
 # This attribute contain the model that will be used by Config::Model::Node. They
 # are created on demand when get_model is called. When created the inclusion of
 # other classes is done according to the class 'include' parameter. Note that get_model
 # will try call load if the required normalized_model is not known (lazy loading)
 has models => (
-    isa => 'HashRef',
-    is => 'ro' ,
-    default => sub { {} } ,
-    traits  => [ 'Hash' ],
+    isa     => 'HashRef',
+    is      => 'ro',
+    default => sub { {} },
+    traits  => ['Hash'],
     handles => {
-        model_exists => 'exists',
+        model_exists  => 'exists',
         model_defined => 'defined',
-        model => 'get',
-        _store_model => 'set',
+        model         => 'get',
+        _store_model  => 'set',
     },
-)  ;
-
+);
 
 has skip_inheritance => (
-    isa => 'Bool', is => 'ro', default => 0,
+    isa     => 'Bool',
+    is      => 'ro',
+    default => 0,
     trigger => sub {
-        my $self = shift ;
-        $self->show_legacy_issue("skip_inheritance is deprecated, use skip_include") ;
-        $self->skip_include = $self->skip_inheritance ;
-    }
-) ;
+        my $self = shift;
+        $self->show_legacy_issue("skip_inheritance is deprecated, use skip_include");
+        $self->skip_include = $self->skip_inheritance;
+    } );
 
 around BUILDARGS => sub {
-    my $orig = shift;
+    my $orig  = shift;
     my $class = shift;
 
-    my %args = @_ ;
-    my %new = map { defined $args{$_} ? ( $_ => $args{$_} ) : () } keys %args ;
+    my %args = @_;
+    my %new = map { defined $args{$_} ? ( $_ => $args{$_} ) : () } keys %args;
 
     return $class->$orig(%new);
-  };
-
-
+};
 
 sub show_legacy_issue {
-    my $self = shift ;
-    my $behavior = $self->legacy ;
+    my $self     = shift;
+    my $behavior = $self->legacy;
 
-    if ($behavior eq 'die') {
-        die @_,"\n";
+    if ( $behavior eq 'die' ) {
+        die @_, "\n";
     }
-    elsif ($behavior eq 'warn') {
-        warn @_,"\n";
+    elsif ( $behavior eq 'warn' ) {
+        warn @_, "\n";
     }
 }
 
-
 sub instance {
-    my $self = shift ;
-    my %args = @_ ;
+    my $self = shift;
+    my %args = @_;
 
-    my $instance_name =  delete $args{instance_name} || delete $args{name}
-      || 'default';
+    my $instance_name =
+           delete $args{instance_name}
+        || delete $args{name}
+        || 'default';
 
     # could add more syntactic suger with 'hash' trait
     # see Moose::Meta::Attribute::Native
-    if (defined $self->instances->{$instance_name}) {
-        return $self->instances->{$instance_name} ;
+    if ( defined $self->instances->{$instance_name} ) {
+        return $self->instances->{$instance_name};
     }
 
     my $root_class_name = delete $args{root_class_name}
-      or croak "Model: can't create instance without root_class_name ";
+        or croak "Model: can't create instance without root_class_name ";
 
-
-    if (defined $args{model_file}) {
-        my $file = delete $args{model_file} ;
-        $self->load($root_class_name, $file) ;
+    if ( defined $args{model_file} ) {
+        my $file = delete $args{model_file};
+        $self->load( $root_class_name, $file );
     }
 
-    my $i = Config::Model::Instance
-      -> new (config_model => $self,
-              root_class_name => $root_class_name,
-              name => $instance_name ,
-              %args                 # for optional parameters like *directory
-             ) ;
+    my $i = Config::Model::Instance->new(
+        config_model    => $self,
+        root_class_name => $root_class_name,
+        name            => $instance_name,
+        %args    # for optional parameters like *directory
+    );
 
-    $self->instances->{$instance_name} = $i ;
-    return $i ;
+    $self->instances->{$instance_name} = $i;
+    return $i;
 }
 
 sub instance_names {
-    my $self = shift ;
-    return keys %{$self->instances} ;
+    my $self = shift;
+    return keys %{ $self->instances };
 }
-
 
 @experience_list = qw/beginner advanced master/;
 {
-  my $idx = 0 ;
-  map ($experience_index{$_}=$idx++, @experience_list);
+    my $idx = 0;
+    map ( $experience_index{$_} = $idx++, @experience_list );
 }
-
 
 @level = qw/hidden normal important/;
 
-
 @status = qw/obsolete deprecated standard/;
-
-
 
 # unpacked model is:
 # {
@@ -200,221 +192,206 @@ sub instance_names {
 # description, experience, summary, level, status are moved
 # into element description.
 
-
 my @legal_params = qw/element experience status description summary level
-                      config_dir
-                      read_config read_config_dir write_config
-                      write_config_dir accept/;
-my @static_legal_params = qw/class_description copyright author license generated_by/ ;
+    config_dir
+    read_config read_config_dir write_config
+    write_config_dir accept/;
+my @static_legal_params = qw/class_description copyright author license generated_by/;
 
 # keep as external API. All internal call go through _store_model
 #  See comments around raw_models attribute for explanations
 sub create_config_class {
-    my $self=shift ;
-    my %raw_model = @_ ;
+    my $self      = shift;
+    my %raw_model = @_;
 
-    my $config_class_name = delete $raw_model{name} or
-        croak "create_config_class: no config class name" ;
+    my $config_class_name = delete $raw_model{name}
+        or croak "create_config_class: no config class name";
 
-    get_logger("Model")->info("Creating class $config_class_name") ;
+    get_logger("Model")->info("Creating class $config_class_name");
 
-    if ($self->model_exists($config_class_name)) {
-        Config::Model::Exception::ModelDeclaration->throw
-            (
-             error=> "create_config_class: attempt to clobber $config_class_name".
-             " config class name "
-            );
+    if ( $self->model_exists($config_class_name) ) {
+        Config::Model::Exception::ModelDeclaration->throw(
+            error => "create_config_class: attempt to clobber $config_class_name"
+                . " config class name " );
     }
 
-    $self->store_raw_model($config_class_name, dclone(\%raw_model)) ;
+    $self->store_raw_model( $config_class_name, dclone( \%raw_model ) );
 
-    my $model = $self->normalize_class_parameters($config_class_name, \%raw_model) ;
+    my $model = $self->normalize_class_parameters( $config_class_name, \%raw_model );
 
-    $self->store_normalized_model($config_class_name, $model) ;
+    $self->store_normalized_model( $config_class_name, $model );
 
-    return $config_class_name ;
+    return $config_class_name;
 }
 
 sub merge_included_class {
-    my ($self, $config_class_name) = @_;
+    my ( $self, $config_class_name ) = @_;
 
-    my $normalized_model = $self->normalized_model($config_class_name) ;
-    my $model = dclone $normalized_model ;
+    my $normalized_model = $self->normalized_model($config_class_name);
+    my $model            = dclone $normalized_model ;
 
     # add included items
-    if ($self->skip_include and defined $normalized_model->{include}) {
-        my $inc = $normalized_model->{include} ;
-        $model->{include}       =  ref $inc ? $inc : [ $inc ];
+    if ( $self->skip_include and defined $normalized_model->{include} ) {
+        my $inc = $normalized_model->{include};
+        $model->{include} = ref $inc ? $inc : [$inc];
         $model->{include_after} = $normalized_model->{include_after}
-          if defined $normalized_model->{include_after};
+            if defined $normalized_model->{include_after};
     }
     else {
         # include class in raw_copy, normalized_model is left as is
-        $self->include_class($config_class_name, $model ) ;
+        $self->include_class( $config_class_name, $model );
     }
     return $model;
 }
 
 sub normalize_class_parameters {
-    my $self  = shift;
-    my $config_class_name = shift || die ;
-    my $normalized_model = shift || die ;
+    my $self              = shift;
+    my $config_class_name = shift || die;
+    my $normalized_model  = shift || die;
 
-    my $model = {} ;
+    my $model = {};
 
     # sanity check
-    my $raw_name = delete $normalized_model->{name} ;
-    if (defined $raw_name and $config_class_name ne $raw_name) {
+    my $raw_name = delete $normalized_model->{name};
+    if ( defined $raw_name and $config_class_name ne $raw_name ) {
         my $e = "internal: config_class_name $config_class_name ne model name $raw_name";
-        Config::Model::Exception::ModelDeclaration->throw ( error=> $e ) ;
+        Config::Model::Exception::ModelDeclaration->throw( error => $e );
     }
 
-    my @element_list ;
+    my @element_list;
 
     # first construct the element list
-    my @compact_list = @{$normalized_model->{element} || []} ;
+    my @compact_list = @{ $normalized_model->{element} || [] };
     while (@compact_list) {
-        my ($item,$info) = splice @compact_list,0,2 ;
+        my ( $item, $info ) = splice @compact_list, 0, 2;
+
         # store the order of element as declared in 'element'
-        push @element_list, ref($item) ? @$item : ($item) ;
+        push @element_list, ref($item) ? @$item : ($item);
     }
 
     # optional parameter to force element order. Useful when parameters declarations
     # are grouped. Although interaction with include may be tricky. Let's not advertise it.
     # yet.
 
-    if (defined $normalized_model->{force_element_order}) {
-        my @forced_list = @{delete $normalized_model->{force_element_order}} ;
-        my %forced = map { ($_ => 1 ) } @forced_list ;
+    if ( defined $normalized_model->{force_element_order} ) {
+        my @forced_list = @{ delete $normalized_model->{force_element_order} };
+        my %forced = map { ( $_ => 1 ) } @forced_list;
         foreach (@element_list) {
             next if delete $forced{$_};
-            Config::Model::Exception::ModelDeclaration->throw
-            (
-             error=> "class $config_class_name: element $_ is not in force_element_order list"
-            ) ;
+            Config::Model::Exception::ModelDeclaration->throw( error =>
+                    "class $config_class_name: element $_ is not in force_element_order list" );
         }
         if (%forced) {
-            Config::Model::Exception::ModelDeclaration->throw
-            (
-             error=> "class $config_class_name: force_element_order list has unknown elements "
-                . join(' ',keys %forced)
-            ) ;
+            Config::Model::Exception::ModelDeclaration->throw(
+                error => "class $config_class_name: force_element_order list has unknown elements "
+                    . join( ' ', keys %forced ) );
         }
     }
 
-    if (defined $normalized_model->{inherit_after}) {
-        $self->show_legacy_issue("Model $config_class_name: inherit_after is deprecated ",
-          "in favor of include_after" );
-        $normalized_model->{include_after} = delete $normalized_model->{inherit_after} ;
+    if ( defined $normalized_model->{inherit_after} ) {
+        $self->show_legacy_issue( "Model $config_class_name: inherit_after is deprecated ",
+            "in favor of include_after" );
+        $normalized_model->{include_after} = delete $normalized_model->{inherit_after};
     }
-    if (defined $normalized_model->{inherit}) {
-        $self->show_legacy_issue("Model $config_class_name: inherit is deprecated in favor of include");
-        $normalized_model->{include} = delete $normalized_model->{inherit} ;
+    if ( defined $normalized_model->{inherit} ) {
+        $self->show_legacy_issue(
+            "Model $config_class_name: inherit is deprecated in favor of include");
+        $normalized_model->{include} = delete $normalized_model->{inherit};
     }
-
-
 
     # get data read/write information (if any)
-    $model->{read_config_dir} = $model->{write_config_dir}
-      = delete $normalized_model->{config_dir}
+    $model->{read_config_dir} = $model->{write_config_dir} = delete $normalized_model->{config_dir}
         if defined $normalized_model->{config_dir};
 
     my @info_to_move = (
         qw/read_config  read_config_dir
-           write_config write_config_dir/, # read/write stuff
+            write_config write_config_dir/,    # read/write stuff
 
         # this parameter is filled by class generated by a program. It may
         # be used to avoid interactive edition of a generated model
         'generated_by',
         qw/class_description author copyright license include include_after/
-    ) ;
+    );
 
     foreach my $info (@info_to_move) {
-        next unless defined $normalized_model->{$info} ;
-        $model->{$info} = delete $normalized_model->{$info} ;
+        next unless defined $normalized_model->{$info};
+        $model->{$info} = delete $normalized_model->{$info};
     }
 
     # handle accept parameter
-    my @accept_list ;
-    my %accept_hash ;
-    my $accept_info = delete $normalized_model->{'accept'} || [] ;
+    my @accept_list;
+    my %accept_hash;
+    my $accept_info = delete $normalized_model->{'accept'} || [];
     while (@$accept_info) {
-        my $name_match = shift @$accept_info ; # should be a regexp
+        my $name_match = shift @$accept_info;    # should be a regexp
 
         # handle legacy
-        if (ref $name_match) {
-            my $implicit = defined $name_match->{name_match} ? '' :'implicit ';
-            unshift @$accept_info, $name_match; # put data back in list
-            $name_match  = delete $name_match->{name_match} || '.*' ;
+        if ( ref $name_match ) {
+            my $implicit = defined $name_match->{name_match} ? '' : 'implicit ';
+            unshift @$accept_info, $name_match;    # put data back in list
+            $name_match = delete $name_match->{name_match} || '.*';
             warn "class $config_class_name: name_match ($implicit$name_match)",
-                " in accept is deprecated\n" ;
+                " in accept is deprecated\n";
         }
 
-        push @accept_list, $name_match ;
+        push @accept_list, $name_match;
         $accept_hash{$name_match} = shift @$accept_info;
     }
 
-    $model->{accept}  = \%accept_hash ;
-    $model->{accept_list}  = \@accept_list ;
+    $model->{accept}      = \%accept_hash;
+    $model->{accept_list} = \@accept_list;
 
     # check for duplicate in @element_list.
-    my %check_list ;
-    map { $check_list{$_}++ } @element_list ;
-    my @extra = grep { $check_list{$_} > 1 } keys %check_list ;
+    my %check_list;
+    map { $check_list{$_}++ } @element_list;
+    my @extra = grep { $check_list{$_} > 1 } keys %check_list;
     if (@extra) {
-        Config::Model::Exception::ModelDeclaration->throw
-            (
-             error=> "class $config_class_name: @extra element ".
-                      "is declared more than once. Check the included parts"
-            ) ;
+        Config::Model::Exception::ModelDeclaration->throw(
+            error => "class $config_class_name: @extra element "
+                . "is declared more than once. Check the included parts" );
     }
 
-    $self->translate_legacy_permission($config_class_name, $normalized_model, $normalized_model ) ;
+    $self->translate_legacy_permission( $config_class_name, $normalized_model, $normalized_model );
 
     # element is handled first
     foreach my $info_name (qw/element experience status description summary level/) {
-        my $raw_compact_info = delete $normalized_model->{$info_name} ;
+        my $raw_compact_info = delete $normalized_model->{$info_name};
 
-        next unless defined $raw_compact_info ;
+        next unless defined $raw_compact_info;
 
-        Config::Model::Exception::ModelDeclaration->throw
-            (
-             error=> "Data for parameter $info_name of $config_class_name"
-             ." is not an array ref"
-            ) unless ref($raw_compact_info) eq 'ARRAY' ;
+        Config::Model::Exception::ModelDeclaration->throw(
+            error => "Data for parameter $info_name of $config_class_name"
+                . " is not an array ref" )
+            unless ref($raw_compact_info) eq 'ARRAY';
 
-
-        my @raw_info = @$raw_compact_info ;
+        my @raw_info = @$raw_compact_info;
         while (@raw_info) {
-            my ($item,$info) = splice @raw_info,0,2 ;
-            my @element_names = ref($item) ? @$item : ($item) ;
+            my ( $item, $info ) = splice @raw_info, 0, 2;
+            my @element_names = ref($item) ? @$item : ($item);
 
             # move element informations (handled first)
-            if ($info_name eq 'element') {
+            if ( $info_name eq 'element' ) {
 
                 # warp can be found only in element item
-                $self->translate_legacy_info($config_class_name,
-                                             $element_names[0], $info) ;
+                $self->translate_legacy_info( $config_class_name, $element_names[0], $info );
 
-                if (defined $info->{permission}) {
-                    $self->translate_legacy_permission($config_class_name,
-                                                       $info, $info ) ;
+                if ( defined $info->{permission} ) {
+                    $self->translate_legacy_permission( $config_class_name, $info, $info );
                 }
 
                 # copy in element data *after* legacy translation
-                map {$model->{element}{$_} = dclone($info) ;} @element_names;
+                map { $model->{element}{$_} = dclone($info); } @element_names;
             }
 
             # move some information into element declaration (without clobberring)
-            elsif ($info_name =~ /description|level|summary|experience|status/) {
+            elsif ( $info_name =~ /description|level|summary|experience|status/ ) {
                 foreach (@element_names) {
-                    Config::Model::Exception::ModelDeclaration->throw
-                      (
+                    Config::Model::Exception::ModelDeclaration->throw(
                         error => "create class $config_class_name: '$info_name' "
-                               . "declaration for non declared element '$_'"
-                      ) unless defined $model->{element}{$_} ;
+                            . "declaration for non declared element '$_'" )
+                        unless defined $model->{element}{$_};
 
-                    $model->{element}{$_}{$info_name} ||= $info ;
+                    $model->{element}{$_}{$info_name} ||= $info;
                 }
             }
             else {
@@ -424,377 +401,381 @@ sub normalize_class_parameters {
         }
     }
 
-    Config::Model::Exception::ModelDeclaration->throw
-        (
-         error => "create class $config_class_name: unexpected "
-                . "parameters '". join (', ', keys %$normalized_model) ."' "
-                . "Expected '".join("', '",@legal_params, @static_legal_params)."'"
-        )
-          if keys %$normalized_model ;
+    Config::Model::Exception::ModelDeclaration->throw(
+              error => "create class $config_class_name: unexpected "
+            . "parameters '"
+            . join( ', ', keys %$normalized_model ) . "' "
+            . "Expected '"
+            . join( "', '", @legal_params, @static_legal_params )
+            . "'" )
+        if keys %$normalized_model;
 
     $model->{element_list} = \@element_list;
 
-    return $model ;
+    return $model;
 }
 
 sub translate_legacy_permission {
-    my ($self, $config_class_name, $model, $normalized_model ) = @_  ;
+    my ( $self, $config_class_name, $model, $normalized_model ) = @_;
 
-    my $raw_experience = delete $normalized_model -> {permission} ;
-    return unless defined $raw_experience ;
+    my $raw_experience = delete $normalized_model->{permission};
+    return unless defined $raw_experience;
 
-    print Data::Dumper->Dump([$normalized_model ] , ['permission to translate' ] ) ,"\n"
+    print Data::Dumper->Dump( [$normalized_model], ['permission to translate'] ), "\n"
         if $::debug;
 
-    $self->show_legacy_issue("$config_class_name: parameter permission is deprecated "
-                  ."in favor of 'experience'");
+    $self->show_legacy_issue(
+        "$config_class_name: parameter permission is deprecated " . "in favor of 'experience'" );
 
     # now change intermediate in beginner
-    if (ref $raw_experience eq 'HASH') {
+    if ( ref $raw_experience eq 'HASH' ) {
         map { $_ = 'beginner' if $_ eq 'intermediate' } values %$raw_experience;
     }
-    elsif (ref $raw_experience eq 'ARRAY') {
+    elsif ( ref $raw_experience eq 'ARRAY' ) {
         map { $_ = 'beginner' if $_ eq 'intermediate' } @$raw_experience;
     }
     else {
         $raw_experience = 'beginner' if $raw_experience eq 'intermediate';
     }
 
-    $model -> {experience} = $raw_experience ;
+    $model->{experience} = $raw_experience;
 
-    print Data::Dumper->Dump([$model ] , ['translated_permission' ] ) ,"\n"
+    print Data::Dumper->Dump( [$model], ['translated_permission'] ), "\n"
         if $::debug;
 }
 
 sub translate_legacy_info {
-    my $self = shift ;
-    my $config_class_name = shift || die ;
-    my $elt_name = shift ;
-    my $info = shift ;
+    my $self              = shift;
+    my $config_class_name = shift || die;
+    my $elt_name          = shift;
+    my $info              = shift;
 
     #translate legacy warp information
-    if (defined $info->{warp}) {
-        $self->translate_warp_info($config_class_name,$elt_name, $info->{type}, $info->{warp});
+    if ( defined $info->{warp} ) {
+        $self->translate_warp_info( $config_class_name, $elt_name, $info->{type}, $info->{warp} );
     }
 
-    $self->translate_cargo_info($config_class_name,$elt_name, $info);
+    $self->translate_cargo_info( $config_class_name, $elt_name, $info );
 
     if (    defined $info->{cargo}
-        and defined $info->{cargo}{warp}) {
-        $self->translate_warp_info($config_class_name,$elt_name, $info->{cargo}{type} ,
-                                   $info->{cargo}{warp});
+        and defined $info->{cargo}{warp} ) {
+        $self->translate_warp_info(
+            $config_class_name, $elt_name,
+            $info->{cargo}{type},
+            $info->{cargo}{warp} );
     }
 
     if (   defined $info->{cargo}
         && defined $info->{cargo}{type}
-        && $info->{cargo}{type} eq 'warped_node') {
-        $self->translate_warp_info($config_class_name,$elt_name, 'warped_node',$info->{cargo});
+        && $info->{cargo}{type} eq 'warped_node' ) {
+        $self->translate_warp_info( $config_class_name, $elt_name, 'warped_node', $info->{cargo} );
     }
 
-    if (defined $info->{type} && $info->{type} eq 'warped_node') {
-        $self->translate_warp_info($config_class_name,$elt_name, 'warped_node',$info);
+    if ( defined $info->{type} && $info->{type} eq 'warped_node' ) {
+        $self->translate_warp_info( $config_class_name, $elt_name, 'warped_node', $info );
     }
 
     # compute cannot be warped
-    if (defined $info->{compute}) {
-        $self->translate_compute_info($config_class_name,$elt_name, $info,
-                                      'compute');
-        $self->translate_allow_compute_override($config_class_name,$elt_name,
-                                                $info);
+    if ( defined $info->{compute} ) {
+        $self->translate_compute_info( $config_class_name, $elt_name, $info, 'compute' );
+        $self->translate_allow_compute_override( $config_class_name, $elt_name, $info );
     }
     if (    defined $info->{cargo}
-        and defined $info->{cargo}{compute}) {
-        $self->translate_compute_info($config_class_name,$elt_name,
-                                      $info->{cargo},'compute');
-        $self->translate_allow_compute_override($config_class_name,$elt_name,
-                                                $info->{cargo});
+        and defined $info->{cargo}{compute} ) {
+        $self->translate_compute_info( $config_class_name, $elt_name, $info->{cargo}, 'compute' );
+        $self->translate_allow_compute_override( $config_class_name, $elt_name, $info->{cargo} );
     }
 
     # refer_to cannot be warped
-    if (defined $info->{refer_to}) {
-        $self->translate_compute_info($config_class_name,$elt_name, $info,
-                                      refer_to => 'computed_refer_to');
+    if ( defined $info->{refer_to} ) {
+        $self->translate_compute_info( $config_class_name, $elt_name, $info,
+            refer_to => 'computed_refer_to' );
     }
     if (    defined $info->{cargo}
-        and defined $info->{cargo}{refer_to}) {
-        $self->translate_compute_info($config_class_name,$elt_name,
-                                      $info->{cargo},refer_to => 'computed_refer_to');
+        and defined $info->{cargo}{refer_to} ) {
+        $self->translate_compute_info( $config_class_name, $elt_name,
+            $info->{cargo}, refer_to => 'computed_refer_to' );
     }
 
     # translate id default param
     # default cannot be stored in cargo since is applies to the id itself
     if ( defined $info->{type}
-         and ($info->{type} eq 'list' or $info->{type} eq 'hash')
-       ) {
-        if (defined $info->{default}) {
-            $self->translate_id_default_info($config_class_name,$elt_name, $info);
+        and ( $info->{type} eq 'list' or $info->{type} eq 'hash' ) ) {
+        if ( defined $info->{default} ) {
+            $self->translate_id_default_info( $config_class_name, $elt_name, $info );
         }
-        if (defined $info->{auto_create}) {
-            $self->translate_id_auto_create($config_class_name,$elt_name, $info);
+        if ( defined $info->{auto_create} ) {
+            $self->translate_id_auto_create( $config_class_name, $elt_name, $info );
         }
-        $self->translate_id_min_max($config_class_name,$elt_name, $info);
-        $self->translate_id_names($config_class_name,$elt_name,$info) ;
-        if (defined $info->{warp} ) {
-            my $rules_a = $info->{warp}{rules} ;
-            my %h = @$rules_a ;
-            foreach my $rule_effect (values %h) {
-                $self->translate_id_names($config_class_name,$elt_name, $rule_effect) ;
-        $self->translate_id_min_max($config_class_name,$elt_name, $rule_effect);
-                next unless defined $rule_effect->{default} ;
-                $self->translate_id_default_info($config_class_name,$elt_name, $rule_effect);
+        $self->translate_id_min_max( $config_class_name, $elt_name, $info );
+        $self->translate_id_names( $config_class_name, $elt_name, $info );
+        if ( defined $info->{warp} ) {
+            my $rules_a = $info->{warp}{rules};
+            my %h       = @$rules_a;
+            foreach my $rule_effect ( values %h ) {
+                $self->translate_id_names( $config_class_name, $elt_name, $rule_effect );
+                $self->translate_id_min_max( $config_class_name, $elt_name, $rule_effect );
+                next unless defined $rule_effect->{default};
+                $self->translate_id_default_info( $config_class_name, $elt_name, $rule_effect );
             }
         }
     }
 
-    if ( defined $info->{type} and ($info->{type} eq 'leaf')) {
-        $self->translate_legacy_builtin($config_class_name, $info, $info, );
+    if ( defined $info->{type} and ( $info->{type} eq 'leaf' ) ) {
+        $self->translate_legacy_builtin( $config_class_name, $info, $info, );
     }
 
-    if ( defined $info->{type} and ($info->{type} eq 'check_list')) {
-        $self->translate_legacy_built_in_list($config_class_name, $info, $info, );
+    if ( defined $info->{type} and ( $info->{type} eq 'check_list' ) ) {
+        $self->translate_legacy_built_in_list( $config_class_name, $info, $info, );
     }
 
-    print Data::Dumper->Dump([$info ] , ['translated_'.$elt_name ] ) ,"\n" if $::debug;
+    print Data::Dumper->Dump( [$info], [ 'translated_' . $elt_name ] ), "\n" if $::debug;
 }
 
 sub translate_cargo_info {
-    my $self = shift;
-    my $config_class_name = shift ;
-    my $elt_name = shift ;
-    my $info = shift;
+    my $self              = shift;
+    my $config_class_name = shift;
+    my $elt_name          = shift;
+    my $info              = shift;
 
-    my $c_type = delete $info->{cargo_type} ;
+    my $c_type = delete $info->{cargo_type};
     return unless defined $c_type;
     $self->show_legacy_issue("$config_class_name->$elt_name: parameter cargo_type is deprecated.");
-    my %cargo ;
+    my %cargo;
 
-    if (defined $info->{cargo_args}) {
-       %cargo = %{ delete $info->{cargo_args}} ;
-       $self->show_legacy_issue("$config_class_name->$elt_name: parameter cargo_args is deprecated.");
+    if ( defined $info->{cargo_args} ) {
+        %cargo = %{ delete $info->{cargo_args} };
+        $self->show_legacy_issue(
+            "$config_class_name->$elt_name: parameter cargo_args is deprecated.");
     }
 
     $cargo{type} = $c_type;
 
-    if (defined $info->{config_class_name}) {
-        $cargo{config_class_name} = delete $info->{config_class_name} ;
-        $self->show_legacy_issue("$config_class_name->$elt_name: parameter config_class_name is ",
-             "deprecated. This one must be specified within cargo. ",
-             "Ie. cargo=>{config_class_name => 'FooBar'}");
+    if ( defined $info->{config_class_name} ) {
+        $cargo{config_class_name} = delete $info->{config_class_name};
+        $self->show_legacy_issue(
+            "$config_class_name->$elt_name: parameter config_class_name is ",
+            "deprecated. This one must be specified within cargo. ",
+            "Ie. cargo=>{config_class_name => 'FooBar'}"
+        );
     }
 
-    $info->{cargo} = \%cargo ;
-    print Data::Dumper->Dump([$info ] , ['translated_'.$elt_name ] ) ,"\n" if $::debug;
+    $info->{cargo} = \%cargo;
+    print Data::Dumper->Dump( [$info], [ 'translated_' . $elt_name ] ), "\n" if $::debug;
 }
 
 sub translate_id_names {
-    my $self = shift;
-    my $config_class_name = shift ;
-    my $elt_name = shift ;
-    my $info = shift;
-    $self->translate_name($config_class_name,$elt_name, $info, 'allow',     'allow_keys') ;
-    $self->translate_name($config_class_name,$elt_name, $info, 'allow_from','allow_keys_from') ;
-    $self->translate_name($config_class_name,$elt_name, $info, 'follow',    'follow_keys_from') ;
+    my $self              = shift;
+    my $config_class_name = shift;
+    my $elt_name          = shift;
+    my $info              = shift;
+    $self->translate_name( $config_class_name, $elt_name, $info, 'allow',      'allow_keys' );
+    $self->translate_name( $config_class_name, $elt_name, $info, 'allow_from', 'allow_keys_from' );
+    $self->translate_name( $config_class_name, $elt_name, $info, 'follow',     'follow_keys_from' );
 }
 
 sub translate_name {
-    my $self     = shift;
-    my $config_class_name = shift ;
-    my $elt_name = shift ;
-    my $info     = shift;
-    my $from     = shift ;
-    my $to       = shift ;
+    my $self              = shift;
+    my $config_class_name = shift;
+    my $elt_name          = shift;
+    my $info              = shift;
+    my $from              = shift;
+    my $to                = shift;
 
-    if (defined $info->{$from}) {
-        $self->show_legacy_issue("$config_class_name->$elt_name: parameter $from is deprecated in favor of $to");
-        $info->{$to} = delete $info->{$from}  ;
+    if ( defined $info->{$from} ) {
+        $self->show_legacy_issue(
+            "$config_class_name->$elt_name: parameter $from is deprecated in favor of $to");
+        $info->{$to} = delete $info->{$from};
     }
 }
 
 sub translate_allow_compute_override {
-    my $self = shift ;
-    my $config_class_name = shift ;
-    my $elt_name = shift ;
-    my $info = shift ;
+    my $self              = shift;
+    my $config_class_name = shift;
+    my $elt_name          = shift;
+    my $info              = shift;
 
-    if (defined $info->{allow_compute_override}) {
-        $self->show_legacy_issue("$config_class_name->$elt_name: parameter allow_compute_override is deprecated in favor of compute -> allow_override");
-        $info->{compute}{allow_override} = delete $info->{allow_compute_override}  ;
+    if ( defined $info->{allow_compute_override} ) {
+        $self->show_legacy_issue(
+            "$config_class_name->$elt_name: parameter allow_compute_override is deprecated in favor of compute -> allow_override"
+        );
+        $info->{compute}{allow_override} = delete $info->{allow_compute_override};
     }
 }
 
 sub translate_compute_info {
-    my $self = shift ;
-    my $config_class_name = shift ;
-    my $elt_name = shift ;
-    my $info = shift ;
-    my $old_name = shift ;
-    my $new_name = shift || $old_name ;
+    my $self              = shift;
+    my $config_class_name = shift;
+    my $elt_name          = shift;
+    my $info              = shift;
+    my $old_name          = shift;
+    my $new_name          = shift || $old_name;
 
-    if (ref($info->{$old_name}) eq 'ARRAY') {
-        my $compute_info = delete $info->{$old_name} ;
+    if ( ref( $info->{$old_name} ) eq 'ARRAY' ) {
+        my $compute_info = delete $info->{$old_name};
         print "translate_compute_info $elt_name input:\n",
-          Data::Dumper->Dump( [$compute_info ] , [qw/compute_info/ ]) ,"\n"
-              if $::debug ;
+            Data::Dumper->Dump( [$compute_info], [qw/compute_info/] ), "\n"
+            if $::debug;
 
-        $self->show_legacy_issue("$config_class_name->$elt_name: specifying compute info with ",
-          "an array ref is deprecated");
+        $self->show_legacy_issue( "$config_class_name->$elt_name: specifying compute info with ",
+            "an array ref is deprecated" );
 
-        my ($user_formula,%var) = @$compute_info ;
-        my $replace_h ;
-        map { $replace_h = delete $var{$_} if ref($var{$_})} keys %var ;
+        my ( $user_formula, %var ) = @$compute_info;
+        my $replace_h;
+        map { $replace_h = delete $var{$_} if ref( $var{$_} ) } keys %var;
 
         # cleanup user formula
-        $user_formula =~ s/\$(\w+){/\$replace{/g ;
+        $user_formula =~ s/\$(\w+){/\$replace{/g;
 
         # cleanup variable
-        map { s/\$(\w+){/\$replace{/g } values %var ;
+        map { s/\$(\w+){/\$replace{/g } values %var;
 
         # change the hash *in* the info structure
-        $info->{$new_name} = { formula => $user_formula,
-                               variables => \%var,
-                             } ;
-        $info->{$new_name}{replace} = $replace_h if defined $replace_h ;
+        $info->{$new_name} = {
+            formula   => $user_formula,
+            variables => \%var,
+        };
+        $info->{$new_name}{replace} = $replace_h if defined $replace_h;
 
         print "translate_warp_info $elt_name output:\n",
-          Data::Dumper->Dump([$info->{$new_name} ] , ['new_'.$new_name ] ) ,"\n"
-              if $::debug ;
+            Data::Dumper->Dump( [ $info->{$new_name} ], [ 'new_' . $new_name ] ), "\n"
+            if $::debug;
     }
 }
 
-
 # internal: translate default information for id element
 sub translate_id_default_info {
-    my $self = shift ;
+    my $self              = shift;
     my $config_class_name = shift || die;
-    my $elt_name = shift ;
-    my $info = shift ;
+    my $elt_name          = shift;
+    my $info              = shift;
 
     print "translate_id_default_info $elt_name input:\n",
-      Data::Dumper->Dump( [$info ] , [qw/info/ ]) ,"\n"
-          if $::debug ;
+        Data::Dumper->Dump( [$info], [qw/info/] ), "\n"
+        if $::debug;
 
     my $warn = "$config_class_name->$elt_name: 'default' parameter for list or "
-             . "hash element is deprecated. ";
+        . "hash element is deprecated. ";
 
-    my $def_info = delete $info->{default} ;
-    if (ref($def_info) eq 'HASH') {
-        $info->{default_with_init} = $def_info ;
-        $self->show_legacy_issue($warn,"Use default_with_init") ;
+    my $def_info = delete $info->{default};
+    if ( ref($def_info) eq 'HASH' ) {
+        $info->{default_with_init} = $def_info;
+        $self->show_legacy_issue( $warn, "Use default_with_init" );
     }
-    elsif (ref($def_info) eq 'ARRAY') {
-        $info->{default_keys} = $def_info ;
-        $self->show_legacy_issue($warn,"Use default_keys") ;
+    elsif ( ref($def_info) eq 'ARRAY' ) {
+        $info->{default_keys} = $def_info;
+        $self->show_legacy_issue( $warn, "Use default_keys" );
     }
     else {
-        $info->{default_keys} = [ $def_info ] ;
-        $self->show_legacy_issue($warn,"Use default_keys") ;
+        $info->{default_keys} = [$def_info];
+        $self->show_legacy_issue( $warn, "Use default_keys" );
     }
     print "translate_id_default_info $elt_name output:\n",
-      Data::Dumper->Dump([$info ] , [qw/new_info/ ] ) ,"\n"
-          if $::debug ;
+        Data::Dumper->Dump( [$info], [qw/new_info/] ), "\n"
+        if $::debug;
 }
 
 # internal: translate auto_create information for id element
 sub translate_id_auto_create {
-    my $self = shift ;
+    my $self              = shift;
     my $config_class_name = shift || die;
-    my $elt_name = shift ;
-    my $info = shift ;
+    my $elt_name          = shift;
+    my $info              = shift;
 
     print "translate_id_auto_create $elt_name input:\n",
-      Data::Dumper->Dump( [$info ] , [qw/info/ ]) ,"\n"
-          if $::debug ;
+        Data::Dumper->Dump( [$info], [qw/info/] ), "\n"
+        if $::debug;
 
     my $warn = "$config_class_name->$elt_name: 'auto_create' parameter for list or "
-             . "hash element is deprecated. ";
+        . "hash element is deprecated. ";
 
-    my $ac_info = delete $info->{auto_create} ;
-    if ($info->{type} eq 'hash') {
-        $info->{auto_create_keys}
-          = ref($ac_info) eq 'ARRAY' ? $ac_info : [ $ac_info ] ;
-        $self->show_legacy_issue($warn,"Use auto_create_keys") ;
+    my $ac_info = delete $info->{auto_create};
+    if ( $info->{type} eq 'hash' ) {
+        $info->{auto_create_keys} =
+            ref($ac_info) eq 'ARRAY' ? $ac_info : [$ac_info];
+        $self->show_legacy_issue( $warn, "Use auto_create_keys" );
     }
-    elsif ($info->{type} eq 'list') {
-        $info->{auto_create_ids} = $ac_info ;
-        $self->show_legacy_issue($warn,"Use auto_create_ids") ;
+    elsif ( $info->{type} eq 'list' ) {
+        $info->{auto_create_ids} = $ac_info;
+        $self->show_legacy_issue( $warn, "Use auto_create_ids" );
     }
     else {
-        die "Unexpected element ($elt_name) type $info->{type} ",
-          "for translate_id_auto_create";
+        die "Unexpected element ($elt_name) type $info->{type} ", "for translate_id_auto_create";
     }
 
     print "translate_id_default_info $elt_name output:\n",
-      Data::Dumper->Dump([$info ] , [qw/new_info/ ] ) ,"\n"
-          if $::debug ;
+        Data::Dumper->Dump( [$info], [qw/new_info/] ), "\n"
+        if $::debug;
 }
 
 sub translate_id_min_max {
-    my $self = shift ;
+    my $self              = shift;
     my $config_class_name = shift || die;
-    my $elt_name = shift ;
-    my $info = shift ;
+    my $elt_name          = shift;
+    my $info              = shift;
 
-    foreach my $bad ( qw/min max/) {
-        next unless defined $info->{$bad} ;
+    foreach my $bad (qw/min max/) {
+        next unless defined $info->{$bad};
 
         print "translate_id_min_max $elt_name $bad:\n"
-            if $::debug ;
+            if $::debug;
 
-        my $good = $bad.'_index' ;
+        my $good = $bad . '_index';
         my $warn = "$config_class_name->$elt_name: '$bad' parameter for list or "
             . "hash element is deprecated. Use '$good'";
 
-        $info->{$good} = delete $info->{$bad} ;
+        $info->{$good} = delete $info->{$bad};
     }
 }
 
 # internal: translate warp information into 'boolean expr' => { ... }
 sub translate_warp_info {
-    my ($self,$config_class_name,$elt_name,$type,$warp_info) = @_ ;
+    my ( $self, $config_class_name, $elt_name, $type, $warp_info ) = @_;
 
     print "translate_warp_info $elt_name input:\n",
-      Data::Dumper->Dump( [$warp_info ] , [qw/warp_info/ ]) ,"\n"
-          if $::debug ;
+        Data::Dumper->Dump( [$warp_info], [qw/warp_info/] ), "\n"
+        if $::debug;
 
-    my $follow = $self->translate_follow_arg($config_class_name,$elt_name,$warp_info->{follow}) ;
+    my $follow = $self->translate_follow_arg( $config_class_name, $elt_name, $warp_info->{follow} );
 
     # now, follow is only { w1 => 'warp1', w2 => 'warp2'}
-    my @warper_items = values %$follow ;
+    my @warper_items = values %$follow;
 
-    my $multi_follow =  @warper_items > 1 ? 1 : 0;
+    my $multi_follow = @warper_items > 1 ? 1 : 0;
 
-    my $rules = $self->translate_rules_arg($config_class_name,$elt_name,$type,
-                                           \@warper_items, $warp_info->{rules});
+    my $rules =
+        $self->translate_rules_arg( $config_class_name, $elt_name, $type, \@warper_items,
+        $warp_info->{rules} );
 
     $warp_info->{follow} = $follow;
-    $warp_info->{rules}  = $rules ;
+    $warp_info->{rules}  = $rules;
 
     print "translate_warp_info $elt_name output:\n",
-      Data::Dumper->Dump([$warp_info ] , [qw/new_warp_info/ ] ) ,"\n"
-          if $::debug ;
+        Data::Dumper->Dump( [$warp_info], [qw/new_warp_info/] ), "\n"
+        if $::debug;
 }
 
 # internal
 sub translate_multi_follow_legacy_rules {
-    my ($self, $config_class_name , $elt_name , $warper_items, $raw_rules) = @_ ;
-    my @rules ;
+    my ( $self, $config_class_name, $elt_name, $warper_items, $raw_rules ) = @_;
+    my @rules;
 
     # we have more than one warper_items
 
-    for (my $r_idx = 0; $r_idx < $#$raw_rules; $r_idx  += 2) {
-        my $key_set = $raw_rules->[$r_idx] ;
-        my @keys = ref($key_set) ? @$key_set : ($key_set) ;
+    for ( my $r_idx = 0 ; $r_idx < $#$raw_rules ; $r_idx += 2 ) {
+        my $key_set = $raw_rules->[$r_idx];
+        my @keys = ref($key_set) ? @$key_set : ($key_set);
 
         # legacy: check the number of keys in the @rules set
-        if ( @keys != @$warper_items and $key_set !~ /\$\w+/) {
-            Config::Model::Exception::ModelDeclaration
-                -> throw (
-                          error => "Warp rule error in "
-                                . "'$config_class_name->$elt_name'"
-                                . ": Wrong nb of keys in set '@keys',"
-                                . " Expected " . scalar @$warper_items . " keys"
-                         )  ;
+        if ( @keys != @$warper_items and $key_set !~ /\$\w+/ ) {
+            Config::Model::Exception::ModelDeclaration->throw( error => "Warp rule error in "
+                    . "'$config_class_name->$elt_name'"
+                    . ": Wrong nb of keys in set '@keys',"
+                    . " Expected "
+                    . scalar @$warper_items
+                    . " keys" );
         }
+
         # legacy:
         # if a key of a rule (e.g. f1 or b1) is an array ref, all the
         # values passed in the array are considered as valid.
@@ -804,58 +785,60 @@ sub translate_multi_follow_legacy_rules {
 
         # now translate [ [ f1a, f1b] , b1 ] => { ... }
         # into "( $f1 eq f1a or $f1 eq f1b ) and $f2 eq b1)" => { ... }
-        my @bool_expr ;
+        my @bool_expr;
         my $b_idx = 0;
         foreach my $key (@keys) {
-            if (ref $key ) {
-                my @expr = map { "\$f$b_idx eq '$_'" } @$key ;
-                push @bool_expr , "(" . join (" or ", @expr ). ")" ;
+            if ( ref $key ) {
+                my @expr = map { "\$f$b_idx eq '$_'" } @$key;
+                push @bool_expr, "(" . join( " or ", @expr ) . ")";
             }
-            elsif ($key !~ /\$\w+/) {
-                push @bool_expr, "\$f$b_idx eq '$key'" ;
+            elsif ( $key !~ /\$\w+/ ) {
+                push @bool_expr, "\$f$b_idx eq '$key'";
             }
             else {
-                push @bool_expr, $key ;
+                push @bool_expr, $key;
             }
-            $b_idx ++ ;
+            $b_idx++;
         }
-        push @rules , join ( ' and ', @bool_expr),  $raw_rules->[$r_idx+1] ;
+        push @rules, join( ' and ', @bool_expr ), $raw_rules->[ $r_idx + 1 ];
     }
-    return @rules ;
+    return @rules;
 }
 
 sub translate_follow_arg {
-    my $self = shift ;
-    my $config_class_name = shift ;
-    my $elt_name = shift ;
-    my $raw_follow = shift ;
+    my $self              = shift;
+    my $config_class_name = shift;
+    my $elt_name          = shift;
+    my $raw_follow        = shift;
 
-    if (ref($raw_follow) eq 'HASH') {
+    if ( ref($raw_follow) eq 'HASH' ) {
+
         # follow is { w1 => 'warp1', w2 => 'warp2'}
-        return $raw_follow ;
+        return $raw_follow;
     }
-    elsif (ref($raw_follow) eq 'ARRAY') {
+    elsif ( ref($raw_follow) eq 'ARRAY' ) {
+
         # translate legacy follow arguments ['warp1','warp2',...]
-        my $follow = {} ;
-        my $idx = 0;
-        map { $follow->{'f' . $idx++ } = $_ } @$raw_follow ;
-        return $follow ;
+        my $follow = {};
+        my $idx    = 0;
+        map { $follow->{ 'f' . $idx++ } = $_ } @$raw_follow;
+        return $follow;
     }
-    elsif (defined $raw_follow) {
+    elsif ( defined $raw_follow ) {
+
         # follow is a simple string
-        return { f1 => $raw_follow } ;
+        return { f1 => $raw_follow };
     }
     else {
-        return {} ;
+        return {};
     }
 }
 
 sub translate_rules_arg {
-    my ($self,$config_class_name, $elt_name,$type, $warper_items,
-        $raw_rules) = @_ ;
+    my ( $self, $config_class_name, $elt_name, $type, $warper_items, $raw_rules ) = @_;
 
-    my $multi_follow =  @$warper_items > 1 ? 1 : 0;
-    my $follow = @$warper_items ;
+    my $multi_follow = @$warper_items > 1 ? 1 : 0;
+    my $follow = @$warper_items;
 
     # $rules is either:
     # { f1 => { ... } }  (  may be [ f1 => { ... } ] ?? )
@@ -863,217 +846,213 @@ sub translate_rules_arg {
     # legacy:
     # [ f1, b1 ] => {..} ,[ f1,b2 ] => {...}, [f2,b1] => {...} ...
     # foo => {...} , bar => {...}
-    my @rules ;
-    if (ref($raw_rules) eq 'HASH') {
+    my @rules;
+    if ( ref($raw_rules) eq 'HASH' ) {
+
         # transform the simple hash { foo => { ...} }
         # into array ref [ '$f1 eq foo' => { ... } ]
-        my $h = $raw_rules ;
-        @rules = $follow ? map { ( "\$f1 eq '$_'" , $h->{$_} ) } keys %$h : keys %$h;
+        my $h = $raw_rules;
+        @rules = $follow ? map { ( "\$f1 eq '$_'", $h->{$_} ) } keys %$h : keys %$h;
     }
-    elsif (ref($raw_rules) eq 'ARRAY') {
-        if ( $multi_follow ) {
+    elsif ( ref($raw_rules) eq 'ARRAY' ) {
+        if ($multi_follow) {
             push @rules,
-              $self->translate_multi_follow_legacy_rules( $config_class_name,$elt_name,
-                                                          $warper_items,
-                                                          $raw_rules ) ;
+                $self->translate_multi_follow_legacy_rules( $config_class_name, $elt_name,
+                $warper_items, $raw_rules );
         }
         else {
             # now translate [ f1a, f1b]  => { ... }
             # into "$f1 eq f1a or $f1 eq f1b " => { ... }
-            my @raw_rules = @{$raw_rules} ;
-            for (my $r_idx = 0; $r_idx < $#raw_rules; $r_idx  += 2) {
-                my $key_set = $raw_rules[$r_idx] ;
-                my @keys = ref($key_set) ? @$key_set : ($key_set) ;
-                my @bool_expr = $follow ? map { /\$/ ? $_ : "\$f1 eq '$_'" } @keys : @keys ;
-                push @rules , join ( ' or ', @bool_expr),  $raw_rules[$r_idx+1] ;
+            my @raw_rules = @{$raw_rules};
+            for ( my $r_idx = 0 ; $r_idx < $#raw_rules ; $r_idx += 2 ) {
+                my $key_set   = $raw_rules[$r_idx];
+                my @keys      = ref($key_set) ? @$key_set : ($key_set);
+                my @bool_expr = $follow ? map { /\$/ ? $_ : "\$f1 eq '$_'" } @keys : @keys;
+                push @rules, join( ' or ', @bool_expr ), $raw_rules[ $r_idx + 1 ];
             }
         }
     }
-    elsif (defined $raw_rules) {
-        Config::Model::Exception::ModelDeclaration
-            -> throw (
-                      error => "Warp rule error in element "
-                             . "'$config_class_name->$elt_name': "
-                             . "rules must be a hash ref. Got '$raw_rules'"
-                     ) ;
+    elsif ( defined $raw_rules ) {
+        Config::Model::Exception::ModelDeclaration->throw(
+                  error => "Warp rule error in element "
+                . "'$config_class_name->$elt_name': "
+                . "rules must be a hash ref. Got '$raw_rules'" );
     }
 
-    for (my $idx=1; $idx < @rules ; $idx += 2) {
-        next unless (ref $rules[$idx] eq 'HASH') ; # other cases are illegal and trapped later
-        $self->translate_legacy_permission($config_class_name, $rules[$idx], $rules[$idx]);
+    for ( my $idx = 1 ; $idx < @rules ; $idx += 2 ) {
+        next unless ( ref $rules[$idx] eq 'HASH' );    # other cases are illegal and trapped later
+        $self->translate_legacy_permission( $config_class_name, $rules[$idx], $rules[$idx] );
         next unless defined $type and $type eq 'leaf';
-        $self->translate_legacy_builtin($config_class_name, $rules[$idx], $rules[$idx]);
-     }
+        $self->translate_legacy_builtin( $config_class_name, $rules[$idx], $rules[$idx] );
+    }
 
-    return \@rules ;
+    return \@rules;
 }
 
 sub translate_legacy_builtin {
-    my ($self, $config_class_name, $model, $normalized_model ) = @_  ;
+    my ( $self, $config_class_name, $model, $normalized_model ) = @_;
 
-    my $raw_builtin_default = delete $normalized_model -> {built_in} ;
-    return unless defined $raw_builtin_default ;
+    my $raw_builtin_default = delete $normalized_model->{built_in};
+    return unless defined $raw_builtin_default;
 
-    print Data::Dumper->Dump([$normalized_model ] , ['builtin to translate' ] ) ,"\n"
+    print Data::Dumper->Dump( [$normalized_model], ['builtin to translate'] ), "\n"
         if $::debug;
 
-    $self->show_legacy_issue("$config_class_name: parameter 'built_in' is deprecated "
-                  ."in favor of 'upstream_default'");
+    $self->show_legacy_issue( "$config_class_name: parameter 'built_in' is deprecated "
+            . "in favor of 'upstream_default'" );
 
-    $model -> {upstream_default} = $raw_builtin_default ;
+    $model->{upstream_default} = $raw_builtin_default;
 
-    print Data::Dumper->Dump([$model ] , ['translated_builtin' ] ) ,"\n"
+    print Data::Dumper->Dump( [$model], ['translated_builtin'] ), "\n"
         if $::debug;
 }
 
 sub translate_legacy_built_in_list {
-    my ($self, $config_class_name, $model, $normalized_model ) = @_  ;
+    my ( $self, $config_class_name, $model, $normalized_model ) = @_;
 
-    my $raw_builtin_default = delete $normalized_model -> {built_in_list} ;
-    return unless defined $raw_builtin_default ;
+    my $raw_builtin_default = delete $normalized_model->{built_in_list};
+    return unless defined $raw_builtin_default;
 
-    print Data::Dumper->Dump([$normalized_model ] , ['built_in_list to translate' ] ) ,"\n"
+    print Data::Dumper->Dump( [$normalized_model], ['built_in_list to translate'] ), "\n"
         if $::debug;
 
-    $self->show_legacy_issue("$config_class_name: parameter 'built_in_list' is deprecated "
-                  ."in favor of 'upstream_default_list'");
+    $self->show_legacy_issue( "$config_class_name: parameter 'built_in_list' is deprecated "
+            . "in favor of 'upstream_default_list'" );
 
-    $model -> {upstream_default_list} = $raw_builtin_default ;
+    $model->{upstream_default_list} = $raw_builtin_default;
 
-    print Data::Dumper->Dump([$model ] , ['translated_built_in_list' ] ) ,"\n"
+    print Data::Dumper->Dump( [$model], ['translated_built_in_list'] ), "\n"
         if $::debug;
 }
 
-
 sub include_class {
-    my $self       = shift;
-    my $class_name = shift || croak "include_class: undef includer" ;
-    my $target_model  = shift || die "include_class: undefined target_model";
+    my $self         = shift;
+    my $class_name   = shift || croak "include_class: undef includer";
+    my $target_model = shift || die "include_class: undefined target_model";
 
-    my $include_class = delete $target_model->{include} ;
+    my $include_class = delete $target_model->{include};
 
-    return () unless defined $include_class ;
+    return () unless defined $include_class;
 
-    my $include_after       = delete $target_model->{include_after} ;
+    my $include_after = delete $target_model->{include_after};
 
-    my @includes = ref $include_class ? @$include_class : ($include_class) ;
+    my @includes = ref $include_class ? @$include_class : ($include_class);
 
     # use reverse because included classes are *inserted* in front
     # of the list (or inserted after $include_after
-    foreach my $inc (reverse @includes) {
-        $self->include_one_class($class_name, $target_model, $inc, $include_after) ;
+    foreach my $inc ( reverse @includes ) {
+        $self->include_one_class( $class_name, $target_model, $inc, $include_after );
     }
 }
 
 sub include_one_class {
     my $self          = shift;
-    my $class_name    = shift || croak "include_class: undef includer" ;
+    my $class_name    = shift || croak "include_class: undef includer";
     my $target_model  = shift || croak "include_class: undefined target_model";
-    my $include_class = shift || croak "include_class: undef include_class param" ;;
-    my $include_after = shift ;
+    my $include_class = shift || croak "include_class: undef include_class param";
+    my $include_after = shift;
 
     get_logger('Model')->info("class $class_name includes $include_class");
 
-    if (defined $include_class and
-        defined $self->{included_class}{$class_name}{$include_class}) {
-        Config::Model::Exception::ModelDeclaration
-                -> throw (error => "Recursion error ? $include_class has "
-                                 . "already been included by $class_name.") ;
+    if (    defined $include_class
+        and defined $self->{included_class}{$class_name}{$include_class} ) {
+        Config::Model::Exception::ModelDeclaration->throw(
+            error => "Recursion error ? $include_class has "
+                . "already been included by $class_name." );
     }
     $self->{included_class}{$class_name}{$include_class} = 1;
 
     # takes care of recursive include, because get_model will perform
     # includes (and normalization). Is already a dclone
-    my $included_model = $self->get_model($include_class) ;
+    my $included_model = $self->get_model($include_class);
 
     # now include element in element_list (special treatment because order is
     # important)
-    my $target_list = $target_model->{element_list} ;
-    my $included_list = $included_model->{element_list} ;
-    my $splice_idx = 0 ;
-    if (defined $include_after and defined $included_model->{element}) {
-        my $idx = 0 ;
-        my %elt_idx = map { ( $_ , $idx++ ); } @$target_list ;
+    my $target_list   = $target_model->{element_list};
+    my $included_list = $included_model->{element_list};
+    my $splice_idx    = 0;
+    if ( defined $include_after and defined $included_model->{element} ) {
+        my $idx = 0;
+        my %elt_idx = map { ( $_, $idx++ ); } @$target_list;
 
-        if (not defined $elt_idx{$include_after}) {
-            my $msg =  "Unknown element for 'include_after': "
-                        . "$include_after, expected ". join(' ', keys %elt_idx) ;
-            Config::Model::Exception::ModelDeclaration-> throw (error => $msg) ;
+        if ( not defined $elt_idx{$include_after} ) {
+            my $msg =
+                  "Unknown element for 'include_after': "
+                . "$include_after, expected "
+                . join( ' ', keys %elt_idx );
+            Config::Model::Exception::ModelDeclaration->throw( error => $msg );
         }
 
         # + 1 because we splice *after* $include_after
         $splice_idx = $elt_idx{$include_after} + 1;
     }
 
-    splice ( @$target_list , $splice_idx, 0, @$included_list) ;
+    splice( @$target_list, $splice_idx, 0, @$included_list );
     get_logger('Model')->debug("class $class_name new elt list: @$target_list");
 
     # now actually include all elements
     my $target_element = $target_model->{element} ||= {};
     foreach my $included_elt (@$included_list) {
-        if (not defined $target_element->{$included_elt}) {
+        if ( not defined $target_element->{$included_elt} ) {
             get_logger('Model')->debug("class $class_name includes elt $included_elt");
             $target_element->{$included_elt} = $included_model->{element}{$included_elt};
         }
         else {
-            Config::Model::Exception::ModelDeclaration->throw (
-                 error => "Cannot clobber element '$included_elt' in $class_name"
-                 . " (included from $include_class)"
-            ) ;
+            Config::Model::Exception::ModelDeclaration->throw(
+                error => "Cannot clobber element '$included_elt' in $class_name"
+                    . " (included from $include_class)" );
         }
     }
     get_logger('Model')->info("class $class_name include $include_class done");
 }
 
-
-
 # load a model from file. See comments around raw_models attribute for explanations
 sub load {
-    my $self = shift ;
-    my $model_name = shift ; # model name like Foo::Bar
-    my $load_file = shift ;  # model file (override model name), used for tests
+    my $self       = shift;
+    my $model_name = shift;    # model name like Foo::Bar
+    my $load_file  = shift;    # model file (override model name), used for tests
 
-    my $load_path = $model_name ;
+    my $load_path = $model_name;
     $load_path =~ s/::/\//g;
 
-    $load_file ||=  $self->model_dir . '/' . $load_path  . '.pl';
+    $load_file ||= $self->model_dir . '/' . $load_path . '.pl';
 
     get_logger("Model::Loader")->debug("model $model_name from file $load_file");
 
     # no special treatment, returns an array
-    my %models_by_name ;
-    my @loaded_classes = $self->_load_model_in_hash (\%models_by_name, $load_file);
-    $self->store_raw_model($model_name,dclone(\%models_by_name)) ;
-    foreach my $name (keys %models_by_name) {
-        my $data = $self->normalize_class_parameters($name, $models_by_name{$name}) ;
+    my %models_by_name;
+    my @loaded_classes = $self->_load_model_in_hash( \%models_by_name, $load_file );
+    $self->store_raw_model( $model_name, dclone( \%models_by_name ) );
+    foreach my $name ( keys %models_by_name ) {
+        my $data = $self->normalize_class_parameters( $name, $models_by_name{$name} );
         get_logger("Model::Loader")->debug("Store normalized model $name");
-        $self->store_normalized_model($name, $data) ;
+        $self->store_normalized_model( $name, $data );
     }
 
     # look for additional model information
-    my %model_graft_by_name ;
-    my %done; # avoid loading twice the same snippet (where system version may clobber dev version)
+    my %model_graft_by_name;
+    my %done;  # avoid loading twice the same snippet (where system version may clobber dev version)
     foreach my $inc (@INC) {
-        foreach my $name (keys %models_by_name) {
-            my $snippet_path = $name ;
+        foreach my $name ( keys %models_by_name ) {
+            my $snippet_path = $name;
             $snippet_path =~ s/::/\//g;
-            my $snippet_dir = "$inc/". $self->model_dir.'/'.$snippet_path.'.d' ;
+            my $snippet_dir = "$inc/" . $self->model_dir . '/' . $snippet_path . '.d';
             get_logger("Model::Loader")->trace("looking for snippet in $snippet_dir");
             if ( -d $snippet_dir ) {
                 foreach my $snippet_file ( glob("$snippet_dir/*.pl") ) {
-                    my $done_key = $name.':'.$snippet_file;
-                    next if $done{$done_key} ;
+                    my $done_key = $name . ':' . $snippet_file;
+                    next if $done{$done_key};
                     get_logger("Model::Loader")->info("Found snippet $snippet_file");
-                    $self->_load_model_in_hash (\%model_graft_by_name,$snippet_file);
+                    $self->_load_model_in_hash( \%model_graft_by_name, $snippet_file );
                     $done{$done_key} = 1;
                 }
             }
         }
     }
 
-    foreach my $class_to_merge (keys %model_graft_by_name) {
-        my $data = $model_graft_by_name{$class_to_merge} ;
-        $self->augment_config_class_really($class_to_merge, $data) ;
+    foreach my $class_to_merge ( keys %model_graft_by_name ) {
+        my $data = $model_graft_by_name{$class_to_merge};
+        $self->augment_config_class_really( $class_to_merge, $data );
     }
 
     # return the list of classes found in $load_file. Respecting the order of the class
@@ -1082,123 +1061,118 @@ sub load {
     return @loaded_classes;
 }
 
-
 # New subroutine "_load_model_in_hash" extracted - Fri Apr 12 17:29:56 2013.
 #
 sub _load_model_in_hash {
-    my ($self, $hash_ref, $load_file) = @_;
+    my ( $self, $hash_ref, $load_file ) = @_;
 
-    my $model = $self->_do_model_file ($load_file);
+    my $model = $self->_do_model_file($load_file);
 
-    my @names ;
+    my @names;
     foreach my $config_class_info (@$model) {
-        my %data = ref $config_class_info eq 'HASH' ? %$config_class_info
-                 : ref $config_class_info eq 'ARRAY' ? @$config_class_info
-                 : croak "load $load_file: config_class_info is not a ref" ;
-        my $config_class_name = $data{name} or
-            croak "load: missing config class name in $load_file" ;
+        my %data =
+              ref $config_class_info eq 'HASH'  ? %$config_class_info
+            : ref $config_class_info eq 'ARRAY' ? @$config_class_info
+            :   croak "load $load_file: config_class_info is not a ref";
+        my $config_class_name = $data{name}
+            or croak "load: missing config class name in $load_file";
 
         # check config class parameters and fill %model
-        $hash_ref->{$config_class_name} = \%data ;
-        push @names, $config_class_name ;
+        $hash_ref->{$config_class_name} = \%data;
+        push @names, $config_class_name;
     }
 
-    return @names ;
+    return @names;
 }
 
 #
 # New subroutine "_do_model_file" extracted - Sun Nov 28 17:25:35 2010.
 #
 sub _do_model_file {
-    my ($self,$load_file) = @_ ;
+    my ( $self, $load_file ) = @_;
 
-    get_logger("Model::Loader")-> info("load model $load_file") ;
+    get_logger("Model::Loader")->info("load model $load_file");
 
     my $err_msg = '';
-    my $model = do $load_file ;
+    my $model   = do $load_file;
 
     unless ($model) {
-        if ($@) {$err_msg =  "couldn't parse $load_file: $@"; }
-        elsif (not defined $model) {$err_msg = "couldn't do $load_file: $!"}
-        else {$err_msg = "couldn't run $load_file" ;}
+        if    ($@)                   { $err_msg = "couldn't parse $load_file: $@"; }
+        elsif ( not defined $model ) { $err_msg = "couldn't do $load_file: $!" }
+        else                         { $err_msg = "couldn't run $load_file"; }
     }
-    elsif (ref($model) ne 'ARRAY') {
-        $model = [ $model ];
+    elsif ( ref($model) ne 'ARRAY' ) {
+        $model = [$model];
     }
 
-    Config::Model::Exception::ModelDeclaration
-            -> throw (message => "load error: $err_msg")
-                if $err_msg ;
+    Config::Model::Exception::ModelDeclaration->throw( message => "load error: $err_msg" )
+        if $err_msg;
 
     return $model;
 }
 
-
-
 sub augment_config_class {
-    my ($self, %augment_data) = @_;
+    my ( $self, %augment_data ) = @_;
+
     # %args must contain existing class name to augment
 
     # plus other data to merge to raw model
-    my $config_class_name = delete $augment_data{name} ||
-        croak "augment_config_class: missing class name" ;
+    my $config_class_name = delete $augment_data{name}
+        || croak "augment_config_class: missing class name";
 
-    $self->augment_config_class_really($config_class_name, \%augment_data)
+    $self->augment_config_class_really( $config_class_name, \%augment_data );
 }
 
 sub augment_config_class_really {
-    my ($self,$config_class_name, $augment_data) = @_;
+    my ( $self, $config_class_name, $augment_data ) = @_;
 
-    my $orig_model = $self->normalized_model($config_class_name) ;
-    croak "unknown class to augment: $config_class_name" unless defined $orig_model ;
+    my $orig_model = $self->normalized_model($config_class_name);
+    croak "unknown class to augment: $config_class_name" unless defined $orig_model;
 
-    my $model_addendum = $self->normalize_class_parameters($config_class_name, $augment_data) ;
-    my $new_model = merge ( $orig_model, $model_addendum) ;
+    my $model_addendum = $self->normalize_class_parameters( $config_class_name, $augment_data );
+    my $new_model = merge( $orig_model, $model_addendum );
 
     # remove duplicates in element_list and accept_list while keeping order
     foreach my $list_name (qw/element_list accept_list/) {
-        my %seen ;
-        my @newlist ;
-        foreach (@{$new_model->{$list_name}}) {
-            push @newlist, $_ unless $seen{$_} ;
-            $seen{$_}= 1;
+        my %seen;
+        my @newlist;
+        foreach ( @{ $new_model->{$list_name} } ) {
+            push @newlist, $_ unless $seen{$_};
+            $seen{$_} = 1;
         }
 
         $new_model->{$list_name} = \@newlist;
     }
 
-    $self->store_normalized_model($config_class_name => $new_model) ;
+    $self->store_normalized_model( $config_class_name => $new_model );
 }
-
 
 sub get_model {
-    my $self =shift ;
+    my $self              = shift;
     my $config_class_name = shift
-      || die "Model::get_model: missing config class name argument" ;
+        || die "Model::get_model: missing config class name argument";
 
     $self->load($config_class_name)
-        unless $self->normalized_model_exists($config_class_name) ;
+        unless $self->normalized_model_exists($config_class_name);
 
-    if (not $self->model_defined($config_class_name)) {
+    if ( not $self->model_defined($config_class_name) ) {
         get_logger("Model::Loader")->debug("creating model $config_class_name");
 
-        my $model = $self->merge_included_class ($config_class_name);
-        $self->_store_model ($config_class_name, $model);
+        my $model = $self->merge_included_class($config_class_name);
+        $self->_store_model( $config_class_name, $model );
     }
 
-    my $model = $self->model($config_class_name) ||
-      croak "get_model error: unknown config class name: $config_class_name";
+    my $model = $self->model($config_class_name)
+        || croak "get_model error: unknown config class name: $config_class_name";
 
-    return dclone($model) ;
+    return dclone($model);
 }
-
 
 sub get_model_doc {
     my ( $self, $top_class_name ) = @_;
 
     if ( not defined $self->normalized_model($top_class_name) ) {
-        croak
-          "get_model_doc error : unknown config class name: $top_class_name";
+        croak "get_model_doc error : unknown config class name: $top_class_name";
     }
 
     my @classes = ($top_class_name);
@@ -1207,21 +1181,22 @@ sub get_model_doc {
     while (@classes) {
         my $class_name = shift @classes;
         next if defined $result{$class_name};
-        my $c_model   = $self->get_model($class_name)
-          || croak "get_model_doc model error : unknown config class name: $class_name";
+        my $c_model = $self->get_model($class_name)
+            || croak "get_model_doc model error : unknown config class name: $class_name";
 
-        my $full_name = "Config::Model::models::$class_name" ;
+        my $full_name = "Config::Model::models::$class_name";
 
-        my %see_also ;
+        my %see_also;
 
         my @pod = (
-			# Pod::Weaver compatibility
-			"# PODNAME: $full_name",
-			"# ABSTRACT:  Configuration class " . $class_name,
 
-			# plain old pod compatibility
-            "=head1 NAME",                                    '',
-            "$full_name - Configuration class " . $class_name,                    '',
+            # Pod::Weaver compatibility
+            "# PODNAME: $full_name",
+            "# ABSTRACT:  Configuration class " . $class_name,
+
+            # plain old pod compatibility
+            "=head1 NAME",                                     '',
+            "$full_name - Configuration class " . $class_name, '',
 
             "=head1 DESCRIPTION",                             '',
             "Configuration classes used by L<Config::Model>", ''
@@ -1238,20 +1213,20 @@ sub get_model_doc {
         foreach my $elt_name ( @{ $c_model->{element_list} } ) {
             my $elt_info = $c_model->{element}{$elt_name};
             my $summary = $elt_info->{summary} || '';
-            $summary &&= " - $summary" ;
+            $summary &&= " - $summary";
             push @elt, "=head2 $elt_name$summary", '';
-            push @elt, $self->get_element_description($elt_info) , '' ;
+            push @elt, $self->get_element_description($elt_info), '';
 
-            foreach ($elt_info,$elt_info->{cargo}) {
-                if (my $ccn = $_->{config_class_name}) {
-                    push @classes, $ccn ;
+            foreach ( $elt_info, $elt_info->{cargo} ) {
+                if ( my $ccn = $_->{config_class_name} ) {
+                    push @classes, $ccn;
                     $see_also{$ccn} = 1;
                 }
-                if (my $migr = $_->{migrate_from}) {
-                    push @elt, $self->get_migrate_doc ($elt_name,'is migrated with',$migr);
+                if ( my $migr = $_->{migrate_from} ) {
+                    push @elt, $self->get_migrate_doc( $elt_name, 'is migrated with', $migr );
                 }
-                if (my $migr = $_->{migrate_values_from}) {
-                    push @elt, "Note: $elt_name values are migrated from '$migr'",'';
+                if ( my $migr = $_->{migrate_values_from} ) {
+                    push @elt, "Note: $elt_name values are migrated from '$migr'", '';
                 }
             }
         }
@@ -1265,18 +1240,27 @@ sub get_model_doc {
         foreach my $what (qw/author copyright license/) {
             next unless @{ $legalese{$what} || [] };
             push @end, "=head1 " . uc($what), '', '=over', '',
-              ( map { ( "=item $_", '' ); } map {ref $_ ? @$_ : $_ } @{ $legalese{$what} } ),
-              '', '=back', '';
+                ( map { ( "=item $_", '' ); } map { ref $_ ? @$_ : $_ } @{ $legalese{$what} } ),
+                '', '=back', '';
         }
 
-        my @see_also =  (
-            "=head1 SEE ALSO",'',"=over",'',"=item *",'',"L<cme>",'',
-            ( map { ( "=item *",'',"L<Config::Model::models::$_>",'') ; } sort keys %see_also ),
-            "=back",'') ;
+        my @see_also = (
+            "=head1 SEE ALSO",
+            '',
+            "=over",
+            '',
+            "=item *",
+            '',
+            "L<cme>",
+            '',
+            ( map { ( "=item *", '', "L<Config::Model::models::$_>", '' ); } sort keys %see_also ),
+            "=back",
+            ''
+        );
 
-        $result{$full_name} = join( "\n", @pod, @elt, @see_also, @end,'=cut','' ) . "\n";
+        $result{$full_name} = join( "\n", @pod, @elt, @see_also, @end, '=cut', '' ) . "\n";
     }
-    return \%result ;
+    return \%result;
 }
 
 #
@@ -1292,9 +1276,10 @@ sub get_migrate_doc {
     else                     { $mform = "'C<$mform>' " }
 
     my $mdoc = "Note: $elt_name $desc ${mform}and with "
-      . join( ", ", map { qq!\$$_ => "C<$mv->{$_}>"! } keys %$mv );
-    if (my $rep = $migr->{replace}) {
-        $mdoc .= ' and '.join( ", ", map { qq!'C<\$replace{$_}>' => "C<$rep->{$_}>"! } keys %$rep );
+        . join( ", ", map { qq!\$$_ => "C<$mv->{$_}>"! } keys %$mv );
+    if ( my $rep = $migr->{replace} ) {
+        $mdoc .=
+            ' and ' . join( ", ", map { qq!'C<\$replace{$_}>' => "C<$rep->{$_}>"! } keys %$rep );
     }
 
     return ( $mdoc, '' );
@@ -1305,238 +1290,229 @@ sub get_element_description {
 
     my $type  = $elt_info->{type};
     my $cargo = $elt_info->{cargo};
-    my $vt    = $elt_info->{value_type} ;
+    my $vt    = $elt_info->{value_type};
 
     my $of         = '';
     my $cargo_type = $cargo->{type};
     my $cargo_vt   = $cargo->{value_type};
     $of = " of " . ( $cargo_vt or $cargo_type ) if defined $cargo_type;
 
-    my $ccn = $elt_info->{config_class_name} || $cargo->{config_class_name} ;
-    $of .= " of class L<$ccn|Config::Model::models::$ccn> "if $ccn;
+    my $ccn = $elt_info->{config_class_name} || $cargo->{config_class_name};
+    $of .= " of class L<$ccn|Config::Model::models::$ccn> " if $ccn;
 
     my $desc = $elt_info->{description} || '';
     if ($desc) {
-        $desc .= '. ' if $desc =~ /\w$/ ;
+        $desc .= '. ' if $desc =~ /\w$/;
     }
 
-    if (my $status = $elt_info->{status}) {
-        $desc .= 'B<'.ucfirst($status).'> ';
+    if ( my $status = $elt_info->{status} ) {
+        $desc .= 'B<' . ucfirst($status) . '> ';
     }
 
+    my $info = $elt_info->{mandatory} ? 'Mandatory. ' : 'Optional. ';
 
-    my $info = $elt_info->{mandatory} ? 'Mandatory. ' : 'Optional. ' ;
-
-    $info .= "Type ". ($vt || $type) . $of.'. ';
+    $info .= "Type " . ( $vt || $type ) . $of . '. ';
 
     foreach (qw/choice default upstream_default/) {
-        my $item = $elt_info->{$_} ;
-        next unless defined $item ;
-        my @list = ref($item) ? @$item : ($item) ;
-        $info .= "$_: '". join("', '",@list)."'. " ;
+        my $item = $elt_info->{$_};
+        next unless defined $item;
+        my @list = ref($item) ? @$item : ($item);
+        $info .= "$_: '" . join( "', '", @list ) . "'. ";
     }
 
-    my $elt_help = $self->get_element_value_help ($elt_info) ;
+    my $elt_help = $self->get_element_value_help($elt_info);
 
-    return $desc."I<< $info >> " .$elt_help;
+    return $desc . "I<< $info >> " . $elt_help;
 }
 
 sub get_element_value_help {
     my ( $self, $elt_info ) = @_;
 
-    my $help = $elt_info->{help} ;
-    return '' unless defined $help ;
+    my $help = $elt_info->{help};
+    return '' unless defined $help;
 
-    my $help_text = "\n\nHere are some explanations on the possible values:\n\n=over\n\n" ;
-    foreach my $v (sort keys %$help) {
-        $help_text .= "=item '$v'\n\n$help->{$v}\n\n" ;
+    my $help_text = "\n\nHere are some explanations on the possible values:\n\n=over\n\n";
+    foreach my $v ( sort keys %$help ) {
+        $help_text .= "=item '$v'\n\n$help->{$v}\n\n";
     }
 
-    return $help_text."=back\n\n" ;
+    return $help_text . "=back\n\n";
 }
-
 
 sub generate_doc {
     my ( $self, $top_class_name, $dir ) = @_;
 
-    my $res  = $self->get_model_doc($top_class_name) ;
-    my @wrote ;
+    my $res = $self->get_model_doc($top_class_name);
+    my @wrote;
 
-    if (defined $dir and $dir) {
-        foreach my $class_name (keys %$res) {
+    if ( defined $dir and $dir ) {
+        foreach my $class_name ( keys %$res ) {
             my $file = $class_name;
-            $file =~ s!::!/!g ;
-            my $pl_file   = $dir."/$file.pl";
-            my $pod_file  = $dir."/$file.pod";
-            my $pod_dir = $pod_file ;
+            $file =~ s!::!/!g;
+            my $pl_file  = $dir . "/$file.pl";
+            my $pod_file = $dir . "/$file.pod";
+            my $pod_dir  = $pod_file;
             $pod_dir =~ s!/[^/]+$!!;
-            make_path($pod_dir,{ mode => 0755} ) unless -d $pod_dir ;
+            make_path( $pod_dir, { mode => 0755 } ) unless -d $pod_dir;
+
             # -M returns age of file, not date or epoch. hence greater is older
             my $old = '';
-            if (-e $pod_file) {
-                my $fh = IO::File->new($pod_file,'r') || die "Can't open $pod_file: $!";
-                $old = join('', $fh->getlines);
+            if ( -e $pod_file ) {
+                my $fh = IO::File->new( $pod_file, 'r' ) || die "Can't open $pod_file: $!";
+                $old = join( '', $fh->getlines );
                 $fh->close;
             }
-            if ($old ne $res->{$class_name} ) {
-                my $fh = IO::File->new($pod_file,'w') || die "Can't open $pod_file: $!";
+            if ( $old ne $res->{$class_name} ) {
+                my $fh = IO::File->new( $pod_file, 'w' ) || die "Can't open $pod_file: $!";
                 $fh->binmode(":utf8");
-                $fh->print($res->{$class_name});
-                $fh->close ;
+                $fh->print( $res->{$class_name} );
+                $fh->close;
                 print "Wrote documentation in $pod_file\n";
-                push @wrote, $pod_file ;
+                push @wrote, $pod_file;
             }
         }
     }
     else {
-        foreach my $class_name (keys %$res) {
+        foreach my $class_name ( keys %$res ) {
             print "########## $class_name ############ \n\n";
-            print $res->{$class_name} ;
+            print $res->{$class_name};
         }
     }
-    return @wrote ;
+    return @wrote;
 }
 
-
 sub get_element_model {
-    my $self = shift ;
+    my $self              = shift;
     my $config_class_name = shift
-      || die "Model::get_element_model: missing config class name argument" ;
+        || die "Model::get_element_model: missing config class name argument";
     my $element_name = shift
-      || die "Model::get_element_model: missing element name argument" ;
+        || die "Model::get_element_model: missing element name argument";
 
-    my $model = $self->get_model($config_class_name) ;
+    my $model = $self->get_model($config_class_name);
 
-    my $element_m = $model->{element}{$element_name} ||
-      croak "get_element_model error: unknown element name: $element_name";
+    my $element_m = $model->{element}{$element_name}
+        || croak "get_element_model error: unknown element name: $element_name";
 
-    return dclone($element_m) ;
+    return dclone($element_m);
 }
 
 # returns a hash ref containing the raw model, i.e. before expansion of
 # multiple keys (i.e. [qw/a b c/] => ... )
 # internal. For now ...
 sub get_normalized_model {
-    my $self =shift ;
-    my $config_class_name = shift ;
+    my $self              = shift;
+    my $config_class_name = shift;
 
     $self->load($config_class_name)
-      unless defined $self->normalized_model($config_class_name) ;
+        unless defined $self->normalized_model($config_class_name);
 
-    my $normalized_model = $self->normalized_model($config_class_name) ||
-      croak "get_normalized_model error: unknown config class name: $config_class_name";
+    my $normalized_model = $self->normalized_model($config_class_name)
+        || croak "get_normalized_model error: unknown config class name: $config_class_name";
 
-    return dclone($normalized_model) ;
+    return dclone($normalized_model);
 }
 
-
 sub get_element_name {
-    my $self = shift ;
-    my %args = @_ ;
+    my $self = shift;
+    my %args = @_;
 
-    my $class = $args{class} ||
-      croak "get_element_name: missing 'class' parameter" ;
-    my $for = $args{for} || 'master' ;
+    my $class = $args{class}
+        || croak "get_element_name: missing 'class' parameter";
+    my $for = $args{for} || 'master';
 
-    if ($for eq 'intermediate') {
+    if ( $for eq 'intermediate' ) {
         carp "get_element_name: 'intermediate' is deprecated in favor of beginner";
-        $for = 'beginner' ;
+        $for = 'beginner';
     }
 
-    croak "get_element_name: wrong 'for' parameter. Expected ",
-      join (' or ', @experience_list)
-        unless defined $experience_index{$for} ;
+    croak "get_element_name: wrong 'for' parameter. Expected ", join( ' or ', @experience_list )
+        unless defined $experience_index{$for};
 
-    my @experiences
-      = @experience_list[ 0 .. $experience_index{$for} ] ;
-    my @array
-      = $self->get_element_with_experience($class,@experiences);
+    my @experiences = @experience_list[ 0 .. $experience_index{$for} ];
+    my @array = $self->get_element_with_experience( $class, @experiences );
 
     return wantarray ? @array : join( ' ', @array );
 }
 
 # internal
 sub get_element_with_experience {
-    my $self      = shift ;
-    my $class     = shift ;
+    my $self  = shift;
+    my $class = shift;
 
-    my $model = $self->get_model($class) ;
-    my @result ;
+    my $model = $self->get_model($class);
+    my @result;
 
     # this is a bit convoluted, but the order of the returned element
     # must respect the order of the elements declared in the model by
     # the user
-    foreach my $elt (@{$model->{element_list}}) {
-        my $elt_data = $model->{element}{$elt} ;
-        my $l = $elt_data->{level} || $default_property{level} ;
+    foreach my $elt ( @{ $model->{element_list} } ) {
+        my $elt_data = $model->{element}{$elt};
+        my $l = $elt_data->{level} || $default_property{level};
         foreach my $experience (@_) {
-            my $xp = $elt_data->{experience} || $default_property{experience} ;
-            push @result, $elt if ($l ne 'hidden' and $xp eq $experience );
+            my $xp = $elt_data->{experience} || $default_property{experience};
+            push @result, $elt if ( $l ne 'hidden' and $xp eq $experience );
         }
     }
 
-    return @result ;
+    return @result;
 }
 
-
-
 sub get_element_property {
-    my $self = shift ;
-    my %args = @_ ;
+    my $self = shift;
+    my %args = @_;
 
-    my $elt = $args{element} ||
-      croak "get_element_property: missing 'element' parameter";
-    my $prop = $args{property} ||
-      croak "get_element_property: missing 'property' parameter";
-    my $class = $args{class} ||
-      croak "get_element_property:: missing 'class' parameter";
+    my $elt = $args{element}
+        || croak "get_element_property: missing 'element' parameter";
+    my $prop = $args{property}
+        || croak "get_element_property: missing 'property' parameter";
+    my $class = $args{class}
+        || croak "get_element_property:: missing 'class' parameter";
 
-    my $model = $self->model($class) ;
+    my $model = $self->model($class);
+
     # must take into account 'accept' model parameter
-    if (not defined $model->{element}{$prop} ) {
+    if ( not defined $model->{element}{$prop} ) {
 
-        foreach my $acc_re ( @{$model->{accept_list}} ) {
+        foreach my $acc_re ( @{ $model->{accept_list} } ) {
             return $model->{accept}{$acc_re}{$prop} || $default_property{$prop}
                 if $elt =~ /^$acc_re$/;
         }
     }
 
     return $self->model($class)->{element}{$elt}{$prop}
-        || $default_property{$prop} ;
+        || $default_property{$prop};
 }
 
-
 sub list_class_element {
-    my $self = shift ;
-    my $pad  =  shift || '' ;
+    my $self = shift;
+    my $pad = shift || '';
 
     my $res = '';
-    foreach my $class_name ($self->normalized_model_names) {
-        $res .= $self->list_one_class_element($class_name) ;
+    foreach my $class_name ( $self->normalized_model_names ) {
+        $res .= $self->list_one_class_element($class_name);
     }
-    return $res ;
+    return $res;
 }
 
 sub list_one_class_element {
-    my $self = shift ;
-    my $class_name = shift ;
-    my $pad  =  shift || '' ;
+    my $self       = shift;
+    my $class_name = shift;
+    my $pad        = shift || '';
 
-    my $res = $pad."Class: $class_name\n";
+    my $res     = $pad . "Class: $class_name\n";
     my $c_model = $self->normalized_model($class_name);
-    my $elts = $c_model->{element_list} ; # array ref
+    my $elts    = $c_model->{element_list};               # array ref
 
     return $res unless defined $elts and @$elts;
 
     foreach my $elt_name (@$elts) {
         my $type = $c_model->{element}{$elt_name}{type};
-        $res .= $pad."  - $elt_name ($type)\n";
+        $res .= $pad . "  - $elt_name ($type)\n";
     }
-    return $res ;
+    return $res;
 }
 
-
-__PACKAGE__->meta->make_immutable ;
+__PACKAGE__->meta->make_immutable;
 
 1;
 

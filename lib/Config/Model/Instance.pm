@@ -3,219 +3,214 @@ package Config::Model::Instance;
 #use Scalar::Util qw(weaken) ;
 
 use 5.10.1;
-use Mouse ;
+use Mouse;
 use namespace::autoclean;
 use Mouse::Util::TypeConstraints;
 use MouseX::StrictConstructor;
 
-use Text::Diff ;
+use Text::Diff;
 use File::Path;
 use Log::Log4perl qw(get_logger :levels);
 
 use Config::Model::Annotation;
-use Config::Model::Exception ;
-use Config::Model::Node ;
+use Config::Model::Exception;
+use Config::Model::Node;
 use Config::Model::Loader;
 use Config::Model::SearchElement;
 use Config::Model::Iterator;
 use Config::Model::ObjTreeScanner;
 
 use warnings FATAL => qw(all);
-use warnings::register ;
-
+use warnings::register;
 
 use Carp qw/carp croak confess cluck/;
 
-my $logger = get_logger("Instance") ;
-my $change_logger = get_logger("Anything::Change") ;
+my $logger        = get_logger("Instance");
+my $change_logger = get_logger("Anything::Change");
 
-has [qw/root_class_name/] => (is => 'ro', isa => 'Str', required => 1) ;
+has [qw/root_class_name/] => ( is => 'ro', isa => 'Str', required => 1 );
 
 has config_model => (
-    is => 'ro', 
-    isa => 'Config::Model', 
-    weak_ref => 1 ,
+    is       => 'ro',
+    isa      => 'Config::Model',
+    weak_ref => 1,
     required => 1
-) ;
+);
 
-has check => ( 
-    is => 'ro', 
-    isa => 'Str', 
+has check => (
+    is      => 'ro',
+    isa     => 'Str',
     default => 'yes',
-    reader => 'read_check' ,
-) ;
+    reader  => 'read_check',
+);
 
 has auto_create => (
-    is => 'ro',
-    isa => 'Bool',
+    is      => 'ro',
+    isa     => 'Bool',
     default => 0,
 );
 
 # a unique (instance wise) placeholder for various tree objects
 # to store information
 has _safe => (
-    is => 'rw',
-    isa => 'HashRef',
-    traits => ['Hash'] ,
-    default => sub { {} } ,
+    is      => 'rw',
+    isa     => 'HashRef',
+    traits  => ['Hash'],
+    default => sub { {} },
     handles => {
-        data => 'accessor' ,
+        data => 'accessor',
     },
-) ;
+);
 
 # preset mode:  to load values found by HW scan or other automatic scheme
 # layered mode: to load values found in included files (e.g. a la multistrap)
 has [qw/preset layered/] => (
-    is => 'ro',
-    isa => 'Bool' ,
+    is      => 'ro',
+    isa     => 'Bool',
     default => 0,
 );
 
 has changes => (
-    is =>'ro',
-    isa => 'ArrayRef',
-    traits => ['Array'],
+    is      => 'ro',
+    isa     => 'ArrayRef',
+    traits  => ['Array'],
     default => sub { [] },
     handles => {
         add_change => 'push',
-        c_count => 'count' ,
+        c_count    => 'count',
+
         #needs_save => 'count' ,
-        clear_changes => 'clear' ,
-    }
-);
+        clear_changes => 'clear',
+    } );
 
 sub needs_save {
     my $self = shift;
-    my $arg = shift ;
-    if (defined $arg) {
+    my $arg  = shift;
+    if ( defined $arg ) {
         if ($arg) {
-            carp "replace needs_save(1) call with add_change" ;
-            $self->add_change() ; # may not work
+            carp "replace needs_save(1) call with add_change";
+            $self->add_change();    # may not work
         }
         else {
-            carp "replace needs_save(0) call with clear_changes" ;
-            $self->clear_changes ;
+            carp "replace needs_save(0) call with clear_changes";
+            $self->clear_changes;
         }
     }
-    return $self->c_count ;
+    return $self->c_count;
 }
 
 has errors => (
-    is => 'ro',
-    isa => 'HashRef',
-    traits => ['Hash'],
+    is      => 'ro',
+    isa     => 'HashRef',
+    traits  => ['Hash'],
     default => sub { {} },
     handles => {
-        _set_error => 'set',
+        _set_error   => 'set',
         cancel_error => 'delete',
-        has_error => 'count' ,
-        clear_errors => 'clear' ,
-        error_paths => 'keys'
-    }
-) ;
+        has_error    => 'count',
+        clear_errors => 'clear',
+        error_paths  => 'keys'
+    } );
 
 sub add_error {
     my $self = shift;
-    $self->_set_error(shift, '') ;
+    $self->_set_error( shift, '' );
 }
 
 sub error_messages {
-    my $self = shift ;
-    my @errs = map {"$_: " . $self->config_root->grab($_)->error_msg} $self->error_paths ;
-    return wantarray ? @errs : join("\n", @errs) ;
+    my $self = shift;
+    my @errs = map { "$_: " . $self->config_root->grab($_)->error_msg } $self->error_paths;
+    return wantarray ? @errs : join( "\n", @errs );
 }
 
 sub has_warning {
     my $self = shift;
 
     my $count_leaf_warnings = sub {
-        my ($scanner, $data_ref, $node,$element_name,$index, $leaf_object) = @_ ;
-        $$data_ref += $leaf_object->has_warning ;
-    } ;
+        my ( $scanner, $data_ref, $node, $element_name, $index, $leaf_object ) = @_;
+        $$data_ref += $leaf_object->has_warning;
+    };
 
     my $count_list_warnings = sub {
-        my ($scanner, $data_ref, $node,$element_name,$index, $leaf_object) = @_ ;
-        $$data_ref += $node->fetch_element($element_name)->has_warning ;
-    } ;
+        my ( $scanner, $data_ref, $node, $element_name, $index, $leaf_object ) = @_;
+        $$data_ref += $node->fetch_element($element_name)->has_warning;
+    };
 
-    my $scan = Config::Model::ObjTreeScanner-> new (
-        leaf_cb => $count_leaf_warnings,
+    my $scan = Config::Model::ObjTreeScanner->new(
+        leaf_cb           => $count_leaf_warnings,
         list_element_hook => $count_list_warnings,
         hash_element_hook => $count_list_warnings,
-    ) ;
+    );
 
-    my $result = 0 ;
-    $scan->scan_node(\$result, $self->config_root) ;
+    my $result = 0;
+    $scan->scan_node( \$result, $self->config_root );
 
     return $result;
 }
 
-
 has on_change_cb => (
-    is => 'rw',
+    is  => 'rw',
     isa => 'Maybe[CodeRef]',
 );
 
 # initial_load mode: when data is loaded the first time
-has initial_load => ( 
-    is => 'rw',
-    isa => 'Bool' ,
+has initial_load => (
+    is      => 'rw',
+    isa     => 'Bool',
     default => 0,
     trigger => \&_trace_initial_load,
-    traits => [qw/Bool/],
+    traits  => [qw/Bool/],
     handles => {
         initial_load_start => 'set',
-        initial_load_stop => 'unset',
-    }
-) ;
+        initial_load_stop  => 'unset',
+    } );
 
-sub _trace_initial_load { 
-    my ($self,$n,$o) = @_;
-    $logger->debug("switched to $n") ;
+sub _trace_initial_load {
+    my ( $self, $n, $o ) = @_;
+    $logger->debug("switched to $n");
 }
 
 # This array holds a set of sub ref that will be invoked when
 # the users requires to write all configuration tree in their
 # backend storage.
 has _write_back => (
-    is => 'ro',
-    isa => 'ArrayRef',
-    traits => ['Array'],
+    is      => 'ro',
+    isa     => 'ArrayRef',
+    traits  => ['Array'],
     handles => {
-        register_write_back => 'push' ,
-        count_write_back => 'count' , # mostly for tests
+        register_write_back => 'push',
+        count_write_back    => 'count',    # mostly for tests
     },
-    default => sub { [] } ,
+    default => sub { [] },
 );
 
 # used for auto_read auto_write feature
 has [qw/name application root_dir config_file backend backup/] => (
-    is => 'ro',
-    isa => 'Maybe[Str]' ,
+    is  => 'ro',
+    isa => 'Maybe[Str]',
 );
-has skip_read => (is => 'ro', isa => 'Bool', default => 0) ;
+has skip_read => ( is => 'ro', isa => 'Bool', default => 0 );
 
 sub BUILD {
-    my $self = shift ;
+    my $self = shift;
 
     #carp "instance new: force_load is deprecated" if defined $args{force_load} ;
     #$read_check = 'no' if delete $args{force_load} ;
 
     # cleanup paths
-    map { $self->{$_} .= '/' if defined $self->{$_} and $self->{$_} !~ m!/$!}
-      qw/root_dir/;
+    map { $self->{$_} .= '/' if defined $self->{$_} and $self->{$_} !~ m!/$! } qw/root_dir/;
 }
 
 has tree => (
-    is => 'ro',
-    isa => 'Config::Model::Node',
-    builder => 'reset_config' ,
-    reader => 'config_root' ,
-    handles => [qw/apply_fixes/] ,
+    is      => 'ro',
+    isa     => 'Config::Model::Node',
+    builder => 'reset_config',
+    reader  => 'config_root',
+    handles => [qw/apply_fixes/],
 );
 
 sub reset_config {
-    my $self =shift;
+    my $self = shift;
 
     return Config::Model::Node->new(
         config_class_name => $self->{root_class_name},
@@ -223,248 +218,238 @@ sub reset_config {
         container         => $self,
         skip_read         => $self->skip_read,
         check             => $self->read_check,
-        config_file       => $self->{config_file} ,
+        config_file       => $self->{config_file},
     );
 }
 
 sub preset_start {
-    my $self = shift ;
+    my $self = shift;
     $logger->info("Starting preset mode");
-    carp "Cannot start preset mode during layered mode" 
-        if $self->{layered} ;
+    carp "Cannot start preset mode during layered mode"
+        if $self->{layered};
     $self->{preset} = 1;
 }
 
-
 sub preset_stop {
-    my $self = shift ;
+    my $self = shift;
     $logger->info("Stopping preset mode");
     $self->{preset} = 0;
 }
 
 sub preset_clear {
-    my $self = shift ;
+    my $self = shift;
 
     my $leaf_cb = sub {
-        my ($scanner, $data_ref,$node,$element_name,$index, $leaf_object) = @_ ;
-        $leaf_object->clear_preset ;
-    } ;
-    
-    $self->_stuff_clear($leaf_cb) ;
-}
-
-
-sub layered_start {
-    my $self = shift ;
-    $logger->info("Starting layered mode");
-    carp "Cannot start layered mode during preset mode" 
-        if $self->{preset} ;
-    $self->{layered} = 1;
-}
-
-
-sub layered_stop {
-    my $self = shift ;
-    $logger->info("Stopping layered mode");
-    $self->{layered} = 0;
-}
-
-
-sub layered_clear {
-    my $self = shift ;
-    
-    my $leaf_cb = sub {
-        my ($scanner, $data_ref,$node,$element_name,$index, $leaf_object) = @_ ;
-        $$data_ref ||= $leaf_object->clear_layered ;
+        my ( $scanner, $data_ref, $node, $element_name, $index, $leaf_object ) = @_;
+        $leaf_object->clear_preset;
     };
 
     $self->_stuff_clear($leaf_cb);
 }
 
+sub layered_start {
+    my $self = shift;
+    $logger->info("Starting layered mode");
+    carp "Cannot start layered mode during preset mode"
+        if $self->{preset};
+    $self->{layered} = 1;
+}
+
+sub layered_stop {
+    my $self = shift;
+    $logger->info("Stopping layered mode");
+    $self->{layered} = 0;
+}
+
+sub layered_clear {
+    my $self = shift;
+
+    my $leaf_cb = sub {
+        my ( $scanner, $data_ref, $node, $element_name, $index, $leaf_object ) = @_;
+        $$data_ref ||= $leaf_object->clear_layered;
+    };
+
+    $self->_stuff_clear($leaf_cb);
+}
 
 sub get_data_mode {
     my $self = shift;
     return
-        $self->{layered} ? 'layered'
-      : $self->{preset}  ? 'preset'
-      :                    'normal';
+          $self->{layered} ? 'layered'
+        : $self->{preset}  ? 'preset'
+        :                    'normal';
 }
 
-
 sub _stuff_clear {
-    my ($self,$leaf_cb) = @_ ;
-    
-    # this sub may remove hash keys that were entered by user if the 
-    # corresponding hash value has no data. 
+    my ( $self, $leaf_cb ) = @_;
+
+    # this sub may remove hash keys that were entered by user if the
+    # corresponding hash value has no data.
     # it also clear auto_created ids if there's no data in there
     my $h_cb = sub {
-        my  ($scanner, $data_ref,$node,$element_name,@keys) = @_ ;
-        my $obj = $node->fetch_element($element_name) ;
-        
+        my ( $scanner, $data_ref, $node, $element_name, @keys ) = @_;
+        my $obj = $node->fetch_element($element_name);
+
         foreach my $k (@keys) {
             my $has_data = 0;
-            $scanner->scan_hash(\$has_data,$node,$element_name,$k);
-            $obj->remove($k) unless $has_data ;
-            $$data_ref ||= $has_data ;
+            $scanner->scan_hash( \$has_data, $node, $element_name, $k );
+            $obj->remove($k) unless $has_data;
+            $$data_ref ||= $has_data;
         }
     };
-    
-    my $wiper = Config::Model::ObjTreeScanner->new (
-        fallback => 'all',
-        auto_vivify => 0,
-        check => 'skip' ,
-        leaf_cb => $leaf_cb ,
+
+    my $wiper = Config::Model::ObjTreeScanner->new(
+        fallback        => 'all',
+        auto_vivify     => 0,
+        check           => 'skip',
+        leaf_cb         => $leaf_cb,
         hash_element_cb => $h_cb,
         list_element_cb => $h_cb,
     );
 
-    $wiper->scan_node(undef,$self->config_root) ;
+    $wiper->scan_node( undef, $self->config_root );
 
 }
-
 
 sub load {
-    my $self = shift ;
-    my $loader = Config::Model::Loader->new ;
-    my %args = @_ eq 1 ? (step => $_[0]) : @_ ;
-    $loader->load(node => $self->{tree}, %args) ;
+    my $self   = shift;
+    my $loader = Config::Model::Loader->new;
+    my %args   = @_ eq 1 ? ( step => $_[0] ) : @_;
+    $loader->load( node => $self->{tree}, %args );
 }
-
 
 sub search_element {
-    my $self = shift ;
-    $self->{tree}->search_element(@_) ;
+    my $self = shift;
+    $self->{tree}->search_element(@_);
 }
-
 
 sub wizard_helper {
-    carp __PACKAGE__,"::wizard_helper helped is deprecated. Call iterator instead" ;
-    goto &iterator ;
+    carp __PACKAGE__, "::wizard_helper helped is deprecated. Call iterator instead";
+    goto &iterator;
 }
-
 
 sub iterator {
-    my $self = shift ;
-    my @args = @_ ;
+    my $self = shift;
+    my @args = @_;
 
-    my $tree_root = $self->config_root ;
+    my $tree_root = $self->config_root;
 
-    return Config::Model::Iterator->new ( root => $tree_root, @args) ;
+    return Config::Model::Iterator->new( root => $tree_root, @args );
 }
-
 
 sub read_directory {
     carp "read_directory is deprecated";
-    return shift -> {root_dir} ;
+    return shift->{root_dir};
 }
 
 sub read_root_dir {
-    return shift -> {root_dir} ;
+    return shift->{root_dir};
 }
 
 sub write_directory {
-    my $self = shift ;
+    my $self = shift;
     carp "write_directory is deprecated";
-    return $self -> {root_dir} ;
+    return $self->{root_dir};
 }
 
 sub write_root_dir {
-    my $self = shift ;
-    return $self -> {root_dir} ;
+    my $self = shift;
+    return $self->{root_dir};
 }
-
 
 # FIXME: record changes to implement undo/redo ?
 sub notify_change {
-    my $self = shift ;
-    my %args = @_ ;
-    if ($change_logger->is_debug) {
-        $change_logger->debug("in instance ",$self->name, ' for path ',$args{path}) ;
+    my $self = shift;
+    my %args = @_;
+    if ( $change_logger->is_debug ) {
+        $change_logger->debug( "in instance ", $self->name, ' for path ', $args{path} );
     }
-    $self->add_change( \%args ) ;
-    my $cb = $self->on_change_cb ;
-    $cb->(@_) if $cb ;
+    $self->add_change( \%args );
+    my $cb = $self->on_change_cb;
+    $cb->(@_) if $cb;
 }
 
 sub list_changes {
     my $self = shift;
-    my $l = $self->changes ;
-    my @all ;
+    my $l    = $self->changes;
+    my @all;
 
     foreach my $c (@$l) {
-        my $path = $c->{path} ;
-        
-        if (my $m = delete $c->{msg}) {
-            push @all, "$path : $m" . ($c->{note} ? " # $c->{note}" : '');
+        my $path = $c->{path};
+
+        if ( my $m = delete $c->{msg} ) {
+            push @all, "$path : $m" . ( $c->{note} ? " # $c->{note}" : '' );
             next;
         }
 
         # don't list change without further info (like nodes)
-        next unless keys %$c > 1 ;
+        next unless keys %$c > 1;
 
-        my $vt = $c->{value_type} || '' ;
-        my ($o,$n) =  map { $_ // '<undef>' ;} ($c->{old},$c->{new}) ;
-        
-        if ($vt eq 'string' and ($o =~ /\n/ or $n =~ /\n/) ) {
+        my $vt = $c->{value_type} || '';
+        my ( $o, $n ) = map { $_ // '<undef>'; } ( $c->{old}, $c->{new} );
+
+        if ( $vt eq 'string' and ( $o =~ /\n/ or $n =~ /\n/ ) ) {
+
             # append \n if needed so diff works as expected
-            map { $_ .= "\n" unless /\n$/ ;} ($o,$n) ;
-            my $diff = diff \$o, \$n ;
-            push @all, "$path :" . ($c->{note} ? " # $c->{note}" : ''). "\n". $diff;
+            map { $_ .= "\n" unless /\n$/; } ( $o, $n );
+            my $diff = diff \$o, \$n;
+            push @all, "$path :" . ( $c->{note} ? " # $c->{note}" : '' ) . "\n" . $diff;
         }
-        elsif (defined $c->{old} or defined $c->{new}) {
-            map { s/\n.*/.../s; } ($o,$n) ;
-            push @all, "$path: '$o' -> '$n'" . ($c->{note} ? " # $c->{note}" : '');
+        elsif ( defined $c->{old} or defined $c->{new} ) {
+            map { s/\n.*/.../s; } ( $o, $n );
+            push @all, "$path: '$o' -> '$n'" . ( $c->{note} ? " # $c->{note}" : '' );
         }
     }
 
-    return wantarray ? @all : join("\n",@all) ;
+    return wantarray ? @all : join( "\n", @all );
 }
 
 sub say_changes {
-    my $self = shift;
-    my @changes = $self->list_changes ;
-    say "\n",join( "\n- ","Changes applied to ".$self->application." configuration:", @changes ),"\n" if @changes;
+    my $self    = shift;
+    my @changes = $self->list_changes;
+    say "\n",
+        join( "\n- ", "Changes applied to " . $self->application . " configuration:", @changes ),
+        "\n"
+        if @changes;
     return @changes;
 }
 
-
 sub write_back {
-    my $self = shift ;
-    my %args = scalar @_ > 1  ? @_ 
-             : scalar @_ == 1 ? (config_dir => $_[0]) 
-	     :                  () ; 
+    my $self = shift;
+    my %args =
+          scalar @_ > 1 ? @_
+        : scalar @_ == 1 ? ( config_dir => $_[0] )
+        :                  ();
 
-    my $force_backend = delete $args{backend} || $self->{backend} ;
-    my $force_write = delete $args{force} || 0;
- 
-    foreach (keys %args) {
+    my $force_backend = delete $args{backend} || $self->{backend};
+    my $force_write   = delete $args{force}   || 0;
+
+    foreach ( keys %args ) {
         if (/^(root|config_dir)$/) {
-            $args{$_} ||= '' ;
-            $args{$_} .= '/' if $args{$_} and $args{$_} !~ m(/$) ;
+            $args{$_} ||= '';
+            $args{$_} .= '/' if $args{$_} and $args{$_} !~ m(/$);
         }
-        elsif (not /^config_file$/) {
-            croak "write_back: wrong parameters $_" ;
+        elsif ( not /^config_file$/ ) {
+            croak "write_back: wrong parameters $_";
         }
-     }
+    }
 
-    croak "write_back: no subs registered in instance $self->{name}. cannot save data\n" 
-      unless @{$self->{_write_back}} ;
+    croak "write_back: no subs registered in instance $self->{name}. cannot save data\n"
+        unless @{ $self->{_write_back} };
 
-    foreach my $path (@{$self->{_write_back}}) {
-	$logger->info("write_back called on node $path");
-        my $node = $self->config_root->grab(step => $path, type => 'node');
+    foreach my $path ( @{ $self->{_write_back} } ) {
+        $logger->info("write_back called on node $path");
+        my $node = $self->config_root->grab( step => $path, type => 'node' );
         $node->write_back(
-            %args, 
-            config_file => $self->{config_file} ,
-            backend => $force_backend,
-            force => $force_write,
-            backup => $self->backup,
+            %args,
+            config_file => $self->{config_file},
+            backend     => $force_backend,
+            force       => $force_write,
+            backup      => $self->backup,
         );
     }
-    $self-> clear_changes;
+    $self->clear_changes;
 }
-
-
 
 __PACKAGE__->meta->make_immutable;
 

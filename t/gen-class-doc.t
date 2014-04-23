@@ -10,26 +10,32 @@ use strict;
 
 use vars qw/$model/;
 
-$model = Config::Model -> new(legacy => 'ignore',)  ;
+$model = Config::Model->new( legacy => 'ignore', );
 
-my $arg = shift || '' ;
-my $trace = $arg =~ /t/ ? 1 : 0 ;
-$::verbose          = 1 if $arg =~ /v/;
-$::debug            = 1 if $arg =~ /d/;
+my $arg = shift || '';
+my $trace = $arg =~ /t/ ? 1 : 0;
+$::verbose = 1 if $arg =~ /v/;
+$::debug   = 1 if $arg =~ /d/;
 Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 
-use Log::Log4perl qw(:easy) ;
-Log::Log4perl->easy_init($arg =~ /l/ ? $TRACE: $WARN);
+use Log::Log4perl qw(:easy);
+Log::Log4perl->easy_init( $arg =~ /l/ ? $TRACE : $WARN );
 
-ok(1,"compiled");
+ok( 1, "compiled" );
 
-$model->load('Master', 't/big_model.pm');
-ok(1,"big_model loaded") ;
+$model->load( 'Master', 't/big_model.pm' );
+ok( 1, "big_model loaded" );
 
-my $res = $model->get_model_doc('Master') ;
+my $res = $model->get_model_doc('Master');
 is_deeply(
-    [ sort keys %$res],
-    [ map { "Config::Model::models::$_"} qw/Master SlaveY SlaveZ SubSlave SubSlave2/ ] , "check doc classes" ) ;
-like($res->{'Config::Model::models::Master'}, qr/Configuration class Master/,"check that doc is generated") ;
+    [ sort keys %$res ],
+    [ map { "Config::Model::models::$_" } qw/Master SlaveY SlaveZ SubSlave SubSlave2/ ],
+    "check doc classes"
+);
+like(
+    $res->{'Config::Model::models::Master'},
+    qr/Configuration class Master/,
+    "check that doc is generated"
+);
 
 memory_cycle_ok($model);
