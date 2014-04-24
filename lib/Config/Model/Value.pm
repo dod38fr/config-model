@@ -18,7 +18,6 @@ use Log::Log4perl qw(get_logger :levels);
 use Scalar::Util qw/weaken/;
 use Carp;
 use Storable qw/dclone/;
-use AnyEvent;
 
 extends qw/Config::Model::AnyThing/;
 

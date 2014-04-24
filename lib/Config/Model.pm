@@ -5,11 +5,6 @@ use namespace::autoclean;
 use Mouse::Util::TypeConstraints;
 use MouseX::StrictConstructor;
 
-# load EV and AnyEvent as soon as possible: EV does not like late loading
-# in evals or in require
-use EV;
-use AnyEvent;
-
 use 5.10.1;
 
 use Carp;
