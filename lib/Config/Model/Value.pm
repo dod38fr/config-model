@@ -1201,7 +1201,7 @@ sub store {
         notify_change => $notify_change,
     );
 
-    $self->store_cb( %args, ok => $ok, value => $value, check => $check );
+    $self->_store( %args, ok => $ok, value => $value, check => $check );
 
     my $user_cb = $args{callback} ;
     $user_cb->(%args) if $user_cb;
@@ -1240,7 +1240,7 @@ sub _store_value {
 }
 
 # this method is overriden in layered Value
-sub store_cb {
+sub _store {
     my $self = shift;
     my %args = @_;
 
@@ -1278,7 +1278,7 @@ sub store_cb {
         $self->trigger_warp($value);
     }
 
-    $logger->debug( "store_cb done on ", $self->composite_name ) if $logger->is_debug;
+    $logger->debug( "_store done on ", $self->composite_name ) if $logger->is_debug;
 }
 
 #

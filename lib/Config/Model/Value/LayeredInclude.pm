@@ -12,7 +12,7 @@ my $logger = get_logger("Tree::Element::Value::LayeredInclude");
 # should we clear all layered value when include value is changed ?
 # If yes, beware of recursive includes. Clear should only be done once.
 
-sub store_cb {
+sub _store {
     my $self = shift;
     my %args = @_;
 
@@ -21,7 +21,7 @@ sub store_cb {
 
     my $old_value = $self->_fetch_no_check;
 
-    $self->SUPER::store_cb(%args);
+    $self->SUPER::_store(%args);
     {
         no warnings 'uninitialized';
         return $value if $value eq $old_value;
@@ -109,7 +109,7 @@ __END__
 =head1 DESCRIPTION
 
 This class inherits from L<Config::Model::Value>. It overrides
-L<store_cb> to trigger a refresh of layered value when value is actually
+L<_store> to trigger a refresh of layered value when value is actually
 changed. I.e. changing this value will reload the refered configuration
 file and use its values as default value. This class was designed to
 cope with L<multistrap|http://wiki.debian.org/Multistrap> configuration.
