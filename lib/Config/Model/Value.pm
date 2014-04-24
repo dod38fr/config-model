@@ -21,7 +21,6 @@ use Storable qw/dclone/;
 extends qw/Config::Model::AnyThing/;
 
 my $logger        = get_logger("Tree::Element::Value");
-my $async_logger  = get_logger("Async::Value");
 my $change_logger = get_logger("Anything::Change");
 my $fix_logger    = get_logger("Anything::Fix");
 
@@ -769,7 +768,6 @@ sub enum_error {
     return @error;
 }
 
-# asynchronous if a call-back is passed
 sub check_value {
     my $self = shift;
     croak "check_value needs a value to check" unless @_ > 1;
@@ -1074,7 +1072,6 @@ sub _store_fix {
 }
 
 # read checks should be blocking
-# store checks should be async
 
 sub check {
     goto &check_fetched_value;
@@ -1350,22 +1347,14 @@ sub transform_value {
     return $value;
 }
 
-# store check must be async
 sub check_stored_value {
     my $self = shift;
-
-    $async_logger->debug( "called for " . $self->location . " from " . join( ' ', caller ),
-        " with @_" )
-        if $async_logger->is_debug;
-
     my %args = @_;
 
     my ($ok, $fixed_value) = $self->check_value( %args );
 
     my ( $value, $check, $silent, $notify_change ) =
         @args{qw/value check silent notify_change/};
-
-    $async_logger->debug("check_stored_value_cb called");
 
     # some se case like idElementReference are too complex to propagate
     # a change notification back to the value using them. So an error or
