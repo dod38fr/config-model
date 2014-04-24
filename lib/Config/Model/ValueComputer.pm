@@ -2,7 +2,6 @@ package Config::Model::ValueComputer;
 
 use Mouse;
 use MouseX::StrictConstructor;
-use namespace::autoclean;
 
 # use Scalar::Util qw(weaken) ;
 use Carp;

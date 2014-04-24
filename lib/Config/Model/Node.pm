@@ -1,7 +1,6 @@
 package Config::Model::Node;
 
 use Mouse;
-use namespace::autoclean;
 
 use Carp;
 

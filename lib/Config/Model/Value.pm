@@ -5,7 +5,6 @@ use 5.10.1;
 use Mouse;
 use Mouse::Util::TypeConstraints;
 use MouseX::StrictConstructor;
-use namespace::autoclean;
 
 use Parse::RecDescent 1.90.0;
 

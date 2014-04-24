@@ -1,7 +1,6 @@
 package Config::Model::AnyId;
 
 use Mouse;
-use namespace::autoclean;
 
 use Config::Model::Exception;
 use Config::Model::Warper;

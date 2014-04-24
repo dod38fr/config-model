@@ -2,7 +2,6 @@ package Config::Model::TreeSearcher;
 
 use Mouse;
 use Mouse::Util::TypeConstraints;
-use namespace::autoclean;
 
 use Log::Log4perl qw(get_logger :levels);
 use Config::Model::Exception;

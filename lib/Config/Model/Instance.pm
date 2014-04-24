@@ -4,7 +4,6 @@ package Config::Model::Instance;
 
 use 5.10.1;
 use Mouse;
-use namespace::autoclean;
 use Mouse::Util::TypeConstraints;
 use MouseX::StrictConstructor;
 

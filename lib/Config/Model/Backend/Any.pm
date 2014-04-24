@@ -5,7 +5,6 @@ use strict;
 use warnings;
 use Config::Model::Exception;
 use Mouse;
-use namespace::autoclean;
 
 use File::Path;
 use Log::Log4perl qw(get_logger :levels);

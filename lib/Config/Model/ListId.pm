@@ -2,7 +2,6 @@ package Config::Model::ListId;
 
 use 5.10.1;
 use Mouse;
-use namespace::autoclean;
 
 use Config::Model::Exception;
 use Log::Log4perl qw(get_logger :levels);

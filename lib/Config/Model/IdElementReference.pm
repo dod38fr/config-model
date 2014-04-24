@@ -1,7 +1,6 @@
 package Config::Model::IdElementReference;
 
 use Mouse;
-use namespace::autoclean;
 
 use Carp;
 use Config::Model::ValueComputer;

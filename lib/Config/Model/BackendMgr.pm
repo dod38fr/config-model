@@ -1,7 +1,6 @@
 package Config::Model::BackendMgr;
 
 use Mouse;
-use namespace::autoclean;
 
 use Carp;
 

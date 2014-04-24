@@ -1,7 +1,6 @@
 package Config::Model::HashId;
 
 use Mouse;
-use namespace::autoclean;
 
 use Config::Model::Exception;
 use Carp;

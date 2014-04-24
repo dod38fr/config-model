@@ -1,7 +1,6 @@
 package Config::Model::AnyThing;
 
 use Mouse;
-use namespace::autoclean;
 
 # FIXME: must cleanup warp mechanism to implement this
 # use MouseX::StrictConstructor;
