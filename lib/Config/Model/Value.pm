@@ -1130,14 +1130,6 @@ sub check_fetched_value {
     return wantarray ? $self->all_errors : $self->is_ok;
 }
 
-# callback with ($value, $error_ref, $warning_ref) ?
-
-# create a callback that wraps:
-# actual store in internal structure
-# user callback
-# notify_change
-# call to warp master
-
 sub store {
     my $self = shift;
     my %args =
@@ -2344,13 +2336,12 @@ Without C<value> argument, this method will check the value currently stored.
 
 =head2 store( value )
 
-Can be called as C<< value => ...,	check => yes|no|skip, callback => sub {...} ) >>
+Can be called as C<< value => ...,	check => yes|no|skip ) >>
 
 Store value in leaf element. C<check> parameter can be used to
 skip validation check.
 
-Optional C<callback> is called when store check is done with these named parameters:
-C<value check notify_change ok>.
+Optional C<callback> is now deprecated.
 
 =head2 load_data( scalar_value )
 
