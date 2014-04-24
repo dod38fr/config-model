@@ -961,7 +961,8 @@ sub check_value {
     $logger->debug("done");
 
     $cb->( %args, ok => not @error ) if $cb;
-    return not @error;
+    my $ok = not @error;
+    return wantarray ? ($ok, $value) : $ok;
 }
 
 sub run_code_on_value {
@@ -1209,8 +1210,8 @@ sub store {
 
     my $init_load = $self->instance->initial_load;
     no warnings qw/uninitialized/;
-    my $notify_change = $args{value} ne $value
-        ? 1    # data was transformed by model
+    my $notify_change
+        = $args{value} ne $value               ? 1  # data was transformed by model
         : $value ne $old_value and !$init_load ? 1
         :                                        0;
 
@@ -1415,19 +1416,11 @@ sub check_stored_value {
     my %args = @_;
 
     my $cb = delete $args{callback} || croak "check_stored_value: no callback";
-    my $my_cb = sub {
-        $self->check_stored_value_cb( @_, callback => $cb );
-    };
 
-    $self->check_value( %args, callback => $my_cb );
-}
+    my ($ok, $fixed_value) = $self->check_value( %args );
 
-sub check_stored_value_cb {
-    my $self = shift;
-    my %args = @_;
-
-    my ( $value, $check, $silent, $notify_change, $ok, $callback ) =
-        @args{qw/value check silent notify_change ok callback/};
+    my ( $value, $check, $silent, $notify_change ) =
+        @args{qw/value check silent notify_change/};
 
     $async_logger->debug("check_stored_value_cb called");
 
@@ -1451,7 +1444,10 @@ sub check_stored_value_cb {
     }
     $self->{old_warning_hash} = \%warn_h;
 
-    $callback->(%args);
+    $args{value} = $fixed_value if $args{fix};
+    $args{ok} = $ok;
+    $cb->(%args);
+    return wantarray ? ($ok,$fixed_value) : $ok;
 }
 
 # print a hopefully helpful error message when value_type is not
