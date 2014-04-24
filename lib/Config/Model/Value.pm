@@ -782,6 +782,8 @@ sub check_value {
     my $mode      = $args{mode} || 'backend';
     my $cb        = delete $args{callback};
 
+    carp "callback parameter is deprecated" if defined $cb;
+
     #croak "Cannot specify a value with fix = 1" if $apply_fix and exists $args{value} ;
 
     if ( $logger->is_debug ) {
