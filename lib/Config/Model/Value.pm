@@ -85,29 +85,6 @@ sub _compute_is_default {
     return !$self->compute_obj->use_as_upstream_default;
 }
 
-has _pending_store => (
-    traits  => ['Counter'],
-    is      => 'ro',
-    isa     => 'Int',
-    default => 0,
-    handles => {
-        inc_pending_store => 'inc',
-        dec_pending_store => 'dec',
-    },
-    trigger => sub {
-        my ( $self, $count ) = @_;
-        my $cb = $self->_pending_fetch or return;
-        return if $count;
-        $cb->();
-        $self->_fetch_done;
-    } );
-
-has _pending_fetch => (
-    is      => 'rw',
-    isa     => 'Maybe[CodeRef]',
-    clearer => '_fetch_done'
-);
-
 has error_list => (
     is      => 'ro',
     isa     => 'ArrayRef',
@@ -1136,14 +1113,6 @@ sub check_fetched_value {
     my $silent = $args{silent} || 0;
     my $check  = $args{check}  || 'yes';
 
-    if ( $self->_pending_store ) {
-        my $w = AnyEvent->condvar;
-        $async_logger->debug( "blocks on pending store, count: ", $self->_pending_store );
-        $self->_pending_fetch( sub { $w->send; } );
-        $w->recv;
-        $async_logger->debug("unblocked after pending store");
-    }
-
     if ( $self->needs_check ) {
         $self->check_value(%args);
 
@@ -1224,29 +1193,20 @@ sub store {
     use warnings qw/uninitialized/;
 
     $self->needs_check(1);    # always when storing a value
-    my $user_cb = $args{callback} || sub { };
 
-    # record a "pending_store" status so that fetch blocks until
-    # pending_store is cleared (necessary if warp stuff is read before the store is finished)
-    $async_logger->debug( "incrementing pending store for ", $self->composite_name )
-        if $logger->is_debug;
-    $self->inc_pending_store;
-    my $my_cb = sub {
-
-        # must dec the counter before calling the user's cb. (which may contain a fetch call)
-        $async_logger->debug( "decrementing pending store for ", $self->composite_name )
-            if $logger->is_debug;
-        $self->dec_pending_store;
-        $self->store_cb( @_, callback => $user_cb );
-    };
-
-    $self->check_stored_value(
+    my ($ok, $fixed_value) = $self->check_stored_value(
         value         => $value,
         check         => $check,
         silent        => $silent,
         notify_change => $notify_change,
-        callback      => $my_cb
     );
+
+    $self->store_cb( %args, ok => $ok, value => $value, check => $check );
+
+    my $user_cb = $args{callback} ;
+    $user_cb->(%args) if $user_cb;
+
+    return $ok;
 }
 
 #
@@ -1279,12 +1239,13 @@ sub _store_value {
     return $value;
 }
 
+# this method is overriden in layered Value
 sub store_cb {
     my $self = shift;
     my %args = @_;
 
-    my ( $value, $check, $silent, $notify_change, $ok, $callback ) =
-        @args{qw/value check silent notify_change ok callback/};
+    my ( $value, $check, $silent, $notify_change, $ok ) =
+        @args{qw/value check silent notify_change ok/};
 
     if ( $logger->is_debug ) {
         my $i   = $self->instance;
@@ -1317,7 +1278,6 @@ sub store_cb {
         $self->trigger_warp($value);
     }
 
-    $callback->(%args);
     $logger->debug( "store_cb done on ", $self->composite_name ) if $logger->is_debug;
 }
 
@@ -1415,8 +1375,6 @@ sub check_stored_value {
 
     my %args = @_;
 
-    my $cb = delete $args{callback} || croak "check_stored_value: no callback";
-
     my ($ok, $fixed_value) = $self->check_value( %args );
 
     my ( $value, $check, $silent, $notify_change ) =
@@ -1444,9 +1402,6 @@ sub check_stored_value {
     }
     $self->{old_warning_hash} = \%warn_h;
 
-    $args{value} = $fixed_value if $args{fix};
-    $args{ok} = $ok;
-    $cb->(%args);
     return wantarray ? ($ok,$fixed_value) : $ok;
 }
 
