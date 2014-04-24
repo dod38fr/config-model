@@ -1010,37 +1010,22 @@ sub apply_fixes {
         $fix_logger->debug( "called for " . $self->location );
     }
 
-    # a fix may use async store. So check after fix must be asynchronous
     my ( $old, $new );
     my $i = 0;
-
-    my $check_fix;
-    my $try = sub {
+    do {
         $old = $self->{nb_of_fixes};
-        $self->check_value( value => $self->{data}, fix => 1, callback => $check_fix );
-    };
+        $self->check_value( value => $self->{data}, fix => 1 );
 
-    $check_fix = sub {
         $new = $self->{nb_of_fixes};
-        $self->check_value( value => $self->{data} );    # this is synchronous
-             # if fix fails, try and check_fix call each other until this limit is found
-          # or until perl bails out on deep recursion. Limit above 50 does trigger deep recursion failure.
-          # let's be conservative and limit to 20.
+        $self->check_value( value => $self->{data} );
+        # if fix fails, try and check_fix call each other until this limit is found
         if ( $i++ > 20 ) {
             Config::Model::Exception::Model->throw(
                 object => $self,
                 error  => "Too many fix loops: check with fix code or regexp"
             );
         }
-        elsif ( $self->{nb_of_fixes} and $old > $new ) {
-            $try->();
-        }
-        else {
-            undef $try;    # avoid leak
-        }
-    };
-    $try->();
-
+    } while ( $self->{nb_of_fixes} and $old > $new );
 }
 
 # internal: called by check when a fix is required
