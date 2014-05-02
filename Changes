@@ -1,5 +1,18 @@
 {{$NEXT}}
 
+2.055 2014-05-02
+
+    This release removes all code related to asynchronous stores.  This code was
+    buggy. Making this work correctly would require re-writing most of
+    Config::Model.
+
+    * Config::Model::Value:
+      * added deprecation warning about callback parameter
+      * C::M::Value: removed async code
+    * perltidy run on all files
+    * removed dependency on namepace::autoclean
+    * Removed AnyEvent dependency
+
 2.054 2014-04-01
 
   Bug fix release:
