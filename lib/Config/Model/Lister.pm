@@ -58,6 +58,13 @@ sub applications {
     return join( ' ', sort keys %{ $i[2] } ) . "\n";
 }
 
+sub use_file {
+    my $app = shift;
+    my ($cat, $info_h, $app_h) = available_models ;
+    my $info = $info_h->{$app};
+    return ( $info->{require_config_file} || $info->{allow_config_file_override} || 0). "\n" ;
+}
+
 1;
 
 # ABSTRACT: List available models and applications
@@ -107,6 +114,10 @@ Returns a string with the list of models.
 =head1 applications
 
 Returns a string with the list of editable applications.
+
+=head1 use_file(application)
+
+Returns 1 if the passed application can use a custom configuration file
 
 =head1 SUPPORT
 
