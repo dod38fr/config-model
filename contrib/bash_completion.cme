@@ -40,11 +40,10 @@ _cme()
         _cme_commands
     elif [[ $COMP_CWORD -eq 2 ]] ; then
         _cme_appli
+    elif [[ $COMP_CWORD -eq 3 ]] && perl -MConfig::Model::Lister -e"Config::Model::Lister::use_file('$app') || die" ; then
+        COMPREPLY=( $( compgen -o filenames -G "$cur*" -W '~~ -' -- $cur ) )
     else
         case $prev in
-            multistrap)
-                COMPREPLY=( $( compgen -o filenames -G "$cur*.conf" ) )
-            ;;
             -ui)
                 COMPREPLY=( $( compgen -W 'none tk curses shell fuse' -- $cur ) )
             ;;
