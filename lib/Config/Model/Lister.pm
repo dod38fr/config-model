@@ -25,6 +25,7 @@ sub available_models {
 
         foreach my $file ( sort glob("$dir/*") ) {
             next if $file =~ m!/README!;
+            next if $file =~ /(~|\.bak|\.orig)$/;
             my ($appli) = ( $file =~ m!.*/([\w\-]+)! );
             open( F, $file ) || die "Can't open file $file:$!";
             while (<F>) {
