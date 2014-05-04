@@ -47,7 +47,7 @@ use warnings;
 use strict;
 
 # required to handle warnings in forked process
-local $SIG{__WARN__} = sub { die $_[0] };
+local $SIG{__WARN__} = sub { die $_[0] unless $_[0] =~ /deprecated/ };
 
 use Data::Dumper;
 use POSIX ":sys_wait_h";
