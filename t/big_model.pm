@@ -87,7 +87,7 @@
 
     [
         name              => 'Master',
-        permission        => [ [qw/tree_macro warp/] => 'advanced' ],
+        experience        => [ [qw/tree_macro warp/] => 'advanced' ],
         class_description => "Master configuration class is a wonderful test class\n"
             . "widely used in Config::Model self tests",
         copyright => ["2005-2011, Dominique Dumont"],
