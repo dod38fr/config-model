@@ -367,10 +367,6 @@ Parameters are:
 
 Reference to a L<Config::Model::Node> object. Mandatory
 
-=item experience
-
-master, advanced or beginner
-
 =item check_list
 
 Yes, no or skip

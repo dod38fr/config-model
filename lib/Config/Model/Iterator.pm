@@ -347,9 +347,6 @@ for details.
 
 =back
 
-By default, the iterator will only stop on element with an C<intermediate>
-experience.
-
 The iterator supports going forward and backward
 (to support C<back> and C<next> buttons on a wizard widget).
 
@@ -377,11 +374,6 @@ Whether to call back when an important element is found (default 0).
 =head2 call_back_on_warning
 
 Whether to call back when an item with warnings is found (default 0).
-
-=head2 experience
-
-Specifies the experience of the element scanned by the wizard (default
-'intermediate').
 
 =head2 status
 

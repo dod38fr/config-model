@@ -183,7 +183,7 @@ sub instance_names {
 #   include       => 'class_name',
 #   include_after => 'element_name',
 # }
-# description, experience, summary, level, status are moved
+# description, summary, level, status are moved
 # into element description.
 
 my @legal_params = qw/element experience status description summary level
@@ -2072,12 +2072,6 @@ several other properties:
 
 =over
 
-=item experience
-
-By using the C<experience> parameter, you can change the experience
-level of each element. Possible experience levels are C<master>,
-C<advanced> and C<beginner> (default).
-
 =item level
 
 Level is C<important>, C<normal> or C<hidden>.
@@ -2159,14 +2153,13 @@ Example:
   $model->create_config_class
   (
    config_class_name => 'SomeRootClass',
-   experience        => [ [ qw/tree_macro warp/ ] => 'advanced'] ,
    description       => [ X => 'X-ray' ],
    level             => [ 'tree_macro' => 'important' ] ,
    class_description => "SomeRootClass description",
    element           => [ ... ]
   ) ;
 
-For convenience, C<experience>, C<level> and C<description> parameters
+For convenience, C<level> and C<description> parameters
 can also be declared within the element declaration:
 
   $model->create_config_class
@@ -2175,10 +2168,7 @@ can also be declared within the element declaration:
    class_description => "SomeRootClass description",
    'element'
    => [
-        tree_macro => { level => 'important',
-                        experience => 'advanced',
-                      },
-        warp       => { experience => 'advanced', } ,
+        tree_macro => { level => 'important'},
         X          => { description => 'X-ray', } ,
       ]
   ) ;
@@ -2248,12 +2238,9 @@ Returns a list of written file names.
 Return a hash containing the model declaration for the specified class
 and element.
 
-=head2 get_element_name( class => Foo, for => advanced )
+=head2 get_element_name( class => Foo )
 
-Get all names of the elements of class C<Foo> that are accessible for
-experience level C<advanced>.
-
-Level can be C<master> (default), C<advanced> or C<beginner>.
+Get all names of the elements of class C<Foo>.
 
 =head2 get_element_property
 

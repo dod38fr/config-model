@@ -306,10 +306,9 @@ sub _dclone_key {
     return map { ref $_ ? [@$_] : $_ } @_;
 }
 
-# Internal. This method will change element properties (like level and
-# experience) according to the warp effect.  For instance, if a warp
-# rule make a node no longer available in a model, its level must
-# change to 'hidden'
+# Internal. This method will change element properties (like level) according to the warp effect.
+# For instance, if a warp rule make a node no longer available in a model, its level must change to
+# 'hidden'
 sub set_parent_element_property {
     my ( $self, $arg_ref ) = @_;
 

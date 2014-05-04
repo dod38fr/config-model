@@ -364,7 +364,6 @@ method.
 Warped node can alter the following properties:
 
  config_class_name
- experience
  level
 
 =head1 Constructor
@@ -424,10 +423,6 @@ constructor arguments :
 
   XY  => { config_class_name => ['SlaveY', foo => 'bar' ], },
 
-=item B<experience>
-
-Switch the experience of the slot when the object is warped in.
-
 =back
 
 =head1 Forwarded methods
@@ -464,7 +459,6 @@ the available elements of the node carried by the warped node.
 
  $model ->create_config_class 
   (
-   experience => [ bar => 'advanced'] ,
    element =>
     [
      tree_macro => { type => 'leaf',

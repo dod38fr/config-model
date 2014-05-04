@@ -441,16 +441,6 @@ current node.
 
 Engage in user interaction until user enters '^D' (CTRL-D).
 
-=head1 BUGS
-
-=over
-
-=item *
-
-UI should take into account experience.
-
-=back
-
 =head1 AUTHOR
 
 Dominique Dumont, (ddumont at cpan dot org)

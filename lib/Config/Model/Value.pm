@@ -109,8 +109,8 @@ has warning_list => (
         all_warnings   => 'elements',
     } );
 
-# as some information like experience must be backed up even though they are not
-# attributes, we cannot move below code in BUILD. (experience is actually used by node)
+# as some information must be backed up even though they are not
+# attributes, we cannot move below code in BUILD.
 around BUILDARGS => sub {
     my $orig  = shift;
     my $class = shift;

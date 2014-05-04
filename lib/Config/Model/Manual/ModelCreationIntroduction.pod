@@ -424,7 +424,7 @@ shown on the right with the command C<config-model-edit -model Xorg>
 =head2 Common attributes for all elements
 
 This first set of attributes will help the user by providing guidance
-(with C<level> and C<status> and C<experience>) and documentation
+(with C<level> and C<status>) and documentation
 (C<summary> and C<description>).
 
 All elements (simple or complex) can have the following attributes:
@@ -451,12 +451,6 @@ what. hidden elements will be explained with the warp notion.
 C<status>: is C<obsolete>, C<deprecated> or C<standard>
 (default). Using a deprecated element will issue a warning. Using an
 obsolete element will raise an exception.
-
-=item *
-
-C<experience>: By using the experience parameter, you can change the
-experience level of each element. Possible experience levels are
-C<master>, C<advanced> and C<beginner> (default).
 
 =back
 
@@ -690,20 +684,11 @@ generated from a configuration model.
 
 The wizard works by exploring the configuration tree and stopping on
 each I<important> element and on each error (mostly missing mandatory
-parameter). The exploration will also respect the C<experience>
-parameter. I.e. a wizard run with C<master> experience (see
-Option->Experience menu in the Perl/Tk interface) will show more
-parameters than running the interface with C<beginner> experience.
+parameter).
 
 When designing a model, you will have to think about each element:
 
 =over
-
-=item *
-
-The expertise required to tinker with this parameter and set
-C<experience> to the right level, either master, advanced or beginner
-(default).
 
 =item *
 

@@ -354,10 +354,6 @@ where the index contains a white space. I.e. the correct command is
 C<cd foo:"a b"> instead of C<cd foo: "a b"> as proposed by auto
 completion.
 
-=item *
-
-UI should take into account experience.
-
 =back
 
 =head1 AUTHOR

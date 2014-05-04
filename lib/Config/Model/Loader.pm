@@ -1017,13 +1017,6 @@ node ref of the root of the tree (of sub-root) to start the load from.
 A string or an array ref containing the steps to load. See above for a
 description of the string.
 
-=item experience
-
-Specify the experience level used during the load (default:
-C<master>). The experience can be C<intermediate advanced master>.
-The load will raise an exception if the step of the load string tries
-to access an element with experience higher than user's experience.
-
 =item check
 
 Whether to check values while loading. Either C<yes> (default), C<no> or C<skip>.

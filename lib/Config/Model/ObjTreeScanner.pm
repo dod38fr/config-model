@@ -332,7 +332,7 @@ __END__
 	"' value '".$leaf_object->fetch."'\n";
     } ;
 
- # simple scanner, (print all values with 'beginner' experience
+ # simple scanner, (print all values)
  my $scan = Config::Model::ObjTreeScanner-> new (
    leaf_cb => $disp_leaf, # only mandatory parameter
  ) ;
@@ -448,10 +448,6 @@ user.
 
 If set to 'all', equivalent to 'node' and 'leaf'. By default, no
 fallback is provided.
-
-=item experience
-
-Set the privilege level used for the scan (default 'beginner').
 
 =item auto_vivify
 
@@ -684,14 +680,6 @@ Returns an list containing the sorted keys of a hash element or returns
 an list containing (0.. last_index) of an list element.
 
 Throws an exception if element is not an list or a hash element.
-
-=head2 experience ( [ new_experience ] )
-
-Set or query the experience level of the scanner
-
-=head2 get_experience_ref ( )
-
-Get a SCALAR reference on experience. Use with care.
 
 =head1 AUTHOR
 
