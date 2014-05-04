@@ -1,6 +1,6 @@
 # -*- cperl -*-
 
-use warnings FATAL => qw(all);
+use warnings;
 
 use ExtUtils::testlib;
 use Test::More;
@@ -9,8 +9,6 @@ use Test::Memory::Cycle;
 use Config::Model;
 use Config::Model::ValueComputer;
 use Log::Log4perl qw(:easy);
-
-BEGIN { plan tests => 68; }
 
 use strict;
 
@@ -640,3 +638,5 @@ $l_mv->store('Av');
 is( $l_mv->fetch, 'Av', "test warp in layered mode" );
 
 memory_cycle_ok( $model, "test memory cycle" );
+
+done_testing ;

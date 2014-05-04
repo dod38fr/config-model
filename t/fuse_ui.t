@@ -39,10 +39,11 @@ if ($@) {
     plan skip_all => "Config::Model::FuseUI or Fuse is not installed";
 }
 else {
+    # the forked process prints an ok, hence done_testing cannot be used
     plan tests => 16;
 }
 
-use warnings FATAL => qw(all);
+use warnings;
 use strict;
 
 # required to handle warnings in forked process

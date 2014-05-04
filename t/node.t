@@ -1,7 +1,7 @@
 # -*- cperl -*-
 
 use ExtUtils::testlib;
-use Test::More tests => 54;
+use Test::More ;
 use Test::Exception;
 use Test::Warn;
 use Test::Memory::Cycle;
@@ -230,3 +230,5 @@ map {
     [ undef, 'captain' ], [ '', 'captain' ],
     [qw/captain array_args/], [qw/array_args hash_args/] );
 memory_cycle_ok($model);
+
+done_testing ;

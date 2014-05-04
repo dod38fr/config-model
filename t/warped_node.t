@@ -1,9 +1,9 @@
 # -*- cperl -*-
 
-use warnings FATAL => qw(all);
+use warnings ;
 
 use ExtUtils::testlib;
-use Test::More tests => 38;
+use Test::More;
 use Test::Differences;
 use Test::Memory::Cycle;
 use Config::Model;
@@ -272,3 +272,5 @@ is( $root->fetch_element('bool_object')->config_class_name,
     'SlaveY', 'check theorical bool_object type...' );
 
 memory_cycle_ok( $model, "mem cycle test" );
+
+done_testing;

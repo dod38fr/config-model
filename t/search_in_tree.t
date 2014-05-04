@@ -1,7 +1,7 @@
 # -*- cperl -*-
 
 use ExtUtils::testlib;
-use Test::More tests => 13;
+use Test::More;
 use Test::Differences;
 use Test::Memory::Cycle;
 use Config::Model;
@@ -70,3 +70,4 @@ foreach my $ref (@tests) {
     print "\treturned '", join( "', '", @res ), "'\n" if $trace;
 }
 memory_cycle_ok($model);
+done_testing;

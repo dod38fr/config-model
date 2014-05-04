@@ -1,9 +1,9 @@
 # -*- cperl -*-
 
-use warnings FATAL => qw(all);
+use warnings;
 
 use ExtUtils::testlib;
-use Test::More tests => 21;
+use Test::More;
 use Test::Memory::Cycle;
 use Config::Model;
 
@@ -137,3 +137,5 @@ is( $root->grab('bar:1')->config_class_name,
 is( $root->is_element_available( name => 'bar', experience => 'advanced' ),
     1, 'check element bar experience (back to advanced )' );
 memory_cycle_ok($model);
+
+done_testing;

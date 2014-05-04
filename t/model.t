@@ -1,7 +1,7 @@
 # -*- cperl -*-
 
 use ExtUtils::testlib;
-use Test::More tests => 11;
+use Test::More;
 use Test::Exception;
 use Test::Warn 0.11;
 use Test::Differences;
@@ -148,3 +148,4 @@ $canonical_model = $model->get_model($class_name);
 print "$class_name model:\n", Dumper($canonical_model) if $trace;
 
 memory_cycle_ok( $model, "memory cycles" );
+done_testing;
