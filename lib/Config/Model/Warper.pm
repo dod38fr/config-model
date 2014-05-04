@@ -314,7 +314,7 @@ sub set_parent_element_property {
 
     my $warped_object = $self->warped_object;
 
-    my @properties = qw/level experience/;
+    my @properties = qw/level/;
 
     if ( defined $warped_object->index_value ) {
         $logger->debug("Warper set_parent_element_property: called on hash or list, aborted");

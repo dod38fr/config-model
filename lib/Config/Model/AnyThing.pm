@@ -328,7 +328,6 @@ COMMAND:
             $grab_non_available
             or $obj->is_element_available(
                 name       => $name,
-                experience => 'master'
             )
             ) {
             if ( $mode eq 'step_by_step' ) {
@@ -352,7 +351,6 @@ COMMAND:
 
         my $next_obj = $obj->fetch_element(
             name          => $name,
-            experience    => 'master',
             check         => $check,
             accept_hidden => $grab_non_available
         );

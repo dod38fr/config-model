@@ -108,26 +108,17 @@ print "normal error:\n", $@, "\n" if $trace;
 
 ok( $root->load('macro2=C'), 'set macro2 to C' );
 
-is( $root->is_element_available( name => 'bar' ),
-    0, 'check element bar for beginner user (not available)' );
-
 is( $root->is_element_available( name => 'bar', experience => 'advanced' ),
-    1, 'check element bar for advanced user (now available)' );
+    1, 'check element bar' );
 
 $root->load( step => 'bar:1 X=Av', experience => 'master' );
 
 is( $root->grab('bar:1')->config_class_name, 'SlaveY', 'check bar:1 config class name' );
 
-is( $root->get_element_property( element => 'bar', property => 'experience' ),
-    'advanced', 'check bar experience' );
-
 ok( $root->load('macro2=D'), 'set macro2 to D' );
 
 is( $root->grab('bar:1')->config_class_name, 'SlaveY',
     'check bar:1 config class name (is SlaveY)' );
-
-is( $root->get_element_property( element => 'bar', property => 'experience' ),
-    'beginner', 'check bar experience' );
 
 ok( $root->load('macro1=B'), 'set macro1 to B' );
 

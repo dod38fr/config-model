@@ -101,7 +101,7 @@ ok( $inst, "created dummy instance" );
 my $root = $inst->config_root;
 
 my $step = 'std_id:ab X=Bv - std_id:bc X=Av - std_id:"a/c" X=Av - a_string="toto tata"';
-ok( $root->load( step => $step, experience => 'advanced' ), "set up data in tree with '$step'" );
+ok( $root->load( step => $step ), "set up data in tree with '$step'" );
 
 my $ui = Config::Model::FuseUI->new(
     root            => $root,

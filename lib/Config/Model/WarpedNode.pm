@@ -21,7 +21,7 @@ my $logger = get_logger("Tree::Node::Warped");
 # status is not warpable either as an obsolete parameter must stay
 # obsolete
 
-my @allowed_warp_params = qw/config_class_name experience level/;
+my @allowed_warp_params = qw/config_class_name level/;
 
 has [qw/backup follow/] => ( is => 'rw', isa => 'HashRef', default => sub { {}; } );
 has [qw/rules/] => ( is => 'rw', isa => 'ArrayRef', required => 1 );

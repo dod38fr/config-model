@@ -101,7 +101,6 @@ sub dump_as_data {
     };
 
     my @scan_args = (
-        experience => delete $args{experience} || 'master',
         check      => delete $args{check}      || 'yes',
         fallback   => 'all',
         auto_vivify           => $auto_v,
@@ -193,7 +192,6 @@ sub dump_annotations_as_pod {
     };
 
     my @scan_args = (
-        experience => delete $args{experience} || 'master',
         check      => delete $args{check}      || 'yes',
         fallback   => 'all',
         leaf_cb    => $std_cb,

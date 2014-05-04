@@ -40,12 +40,6 @@ use Exception::Class (
         fields      => [qw/object element info/],
     },
 
-    'Config::Model::Exception::RestrictedElement' => {
-        isa         => 'Config::Model::Exception::User',
-        description => 'restricted element',
-        fields      => [qw/object element level req_experience info/],
-    },
-
     'Config::Model::Exception::WrongType' => {
         isa         => 'Config::Model::Exception::User',
         description => 'wrong element type',
@@ -66,7 +60,7 @@ use Exception::Class (
     'Config::Model::Exception::UnknownElement' => {
         isa         => 'Config::Model::Exception::User',
         description => 'unknown element',
-        fields      => [qw/object min_experience element function where info/],
+        fields      => [qw/object element function where info/],
     },
 
     'Config::Model::Exception::AncestorClass' => {
@@ -77,7 +71,7 @@ use Exception::Class (
     'Config::Model::Exception::UnknownId' => {
         isa         => 'Config::Model::Exception::User',
         description => 'unknown identifier',
-        fields      => [qw/object min_experience element id function where/],
+        fields      => [qw/object element id function where/],
     },
 
     'Config::Model::Exception::WarpError' => {
@@ -240,21 +234,6 @@ sub full_message {
     return $msg;
 }
 
-package Config::Model::Exception::RestrictedElement;
-
-sub full_message {
-    my $self = shift;
-
-    my $location = $self->object->name;
-    my $msg      = $self->description;
-    my $element  = $self->element;
-    my $req = $self->object->get_element_property( element => $element, property => 'experience' );
-    $msg .= " '$element' in node '$location':";
-    $msg .= "\n\tNeed privilege '$req' instead of '" . $self->level . "'\n";
-    $msg .= "\t" . $self->info . "\n" if defined $self->info;
-    return $msg;
-}
-
 package Config::Model::Exception::UnavailableElement;
 
 sub full_message {
@@ -267,7 +246,6 @@ sub full_message {
     my $function = $self->function;
     my $unavail  = $obj->fetch_element(
         name          => $element,
-        experience    => 'master',
         check         => 'no',
         accept_hidden => 1
     );
@@ -310,14 +288,12 @@ sub full_message {
         unless $obj->isa('Config::Model::Node')
         || $obj->isa('Config::Model::WarpedNode');
 
-    my $min_experience = $self->min_experience || 'master';
     my $class_name = $obj->config_class_name;
 
     # class_name is undef if the warped_node is warped out
     my @elements;
     @elements = $obj->get_element_name(
         class => $class_name,
-        for   => $min_experience
     ) if defined $class_name;
 
     my $msg = '';
@@ -357,7 +333,7 @@ sub full_message {
             $msg .= "\t"
                 . $parent->fetch_element(
                 name => $element_name,
-                qw/experience master check no accept_hidden 1/
+                qw/master check no accept_hidden 1/
                 )->warp_error;
         }
     }
@@ -373,7 +349,6 @@ sub full_message {
     my $self = shift;
 
     my $obj = $self->object;
-    my $min_experience = $self->min_experience || 'master';
 
     my $element = $self->element;
     my $id_str = "'" . join( "','", $obj->fetch_all_indexes() ) . "'";

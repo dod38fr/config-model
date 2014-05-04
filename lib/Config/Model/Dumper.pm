@@ -205,7 +205,6 @@ sub dump_tree {
     };
 
     my @scan_args = (
-        experience => delete $args{experience} || 'master',
         fallback => 'all',
         auto_vivify           => $auto_v,
         list_element_cb       => $list_element_cb,

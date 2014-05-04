@@ -88,7 +88,6 @@ eq_or_diff(
         'summary'     => 'X-ray (summary)',
         'type'        => 'leaf',
         'class'       => 'Config::Model::Value',
-        'experience'  => 'master',
         'choice'      => [ 'Av', 'Bv', 'Cv' ],
         'description' => 'X-ray (long description)'
     },
@@ -106,7 +105,7 @@ $class_name = $model->create_config_class(
 
 my @bad_model = (
     name       => "Master",
-    experience => [ [qw/captain many/] => 'beginner' ],
+    level => [ [qw/captain many/] => 'important' ],
     element    => [
         captain => {
             type              => 'node',
@@ -117,7 +116,7 @@ my @bad_model = (
 
 throws_ok { $model->create_config_class(@bad_model) }
 "Config::Model::Exception::ModelDeclaration",
-    "check model with orphan experience";
+    "check model with orphan level";
 
 $class_name = $model->create_config_class(
     name       => "Master",

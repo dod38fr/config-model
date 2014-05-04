@@ -119,41 +119,11 @@ is( $w->location,     'captain', "test captain location" );
 my $b = $w->fetch_element('bar');
 ok( $b, "Created Sarge" );
 
-is( $b->get_element_property( property => 'experience', element => 'Y' ),
-    'beginner', "check Y experience" );
-is( $b->get_element_property( property => 'experience', element => 'Z' ),
-    'beginner', "check Z experience" );
-is( $b->get_element_property( property => 'experience', element => 'X' ),
-    'master', "check X experience" );
-
 is( $b->fetch_element_value('Z'), undef, "test Z value" );
-
-# patch by Niko Tyni tp avoid Carp::Heavy failure. See
-# http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=582915
-eval { $b->fetch_element(qw/name Z experience user/) };
-like( $@, qr/Unexpected experience/, "fetch_element with unexpected experience" );
-
-# translated into beginner
-throws_ok { $b->fetch_element(qw/name X experience beginner/); }
-'Config::Model::Exception::RestrictedElement',
-    'Restricted element error';
 
 warning_like { $b->fetch_element('D'); }
 qr/Element 'D' of node 'captain bar' is deprecated/,
     'Check deprecated element warning';
-
-is(
-    $root->fetch_element('array_args')
-        ->get_element_property( property => 'experience', element => 'bar' ),
-    'beginner',
-    "check 'bar' experience"
-);
-is(
-    $root->fetch_element('array_args')->fetch_element('bar')
-        ->get_element_property( property => 'experience', element => 'X' ),
-    'master',
-    "check 'X' experience"
-);
 
 my $tested = $root->fetch_element('hash_args')->fetch_element('bar');
 
@@ -161,9 +131,6 @@ is( $tested->config_class_name, 'Sarge',         "test bar config_class_name" );
 is( $tested->element_name,      'bar',           "test bar element_name" );
 is( $tested->name,              'hash_args bar', "test bar name" );
 is( $tested->location,          'hash_args bar', "test bar location" );
-
-is( $tested->get_element_property( property => 'experience', element => 'X' ),
-    'master', "checking X experience" );
 
 my $inst2 = $model->instance(
     root_class_name => 'Master',

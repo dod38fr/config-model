@@ -176,8 +176,8 @@ ok( 1, "performed scan" );
 print $result if $trace;
 
 my $expect = << 'EOF' ;
-disp_node_content_hook Master element: std_id lista listb hash_a hash_b ordered_hash olist slave_y string_with_def a_uniline a_string int_v my_check_list my_reference
-disp_node_content Master element: std_id lista listb hash_a hash_b ordered_hash olist slave_y string_with_def a_uniline a_string int_v my_check_list my_reference
+disp_node_content_hook Master element: std_id lista listb hash_a hash_b ordered_hash olist tree_macro warp slave_y string_with_def a_uniline a_string int_v my_check_list my_reference
+disp_node_content Master element: std_id lista listb hash_a hash_b ordered_hash olist tree_macro warp slave_y string_with_def a_uniline a_string int_v my_check_list my_reference
 disp_hash_hook Master element(std_id): ab bc
 disp_hash Master element(std_id): ab bc
 disp_node_elt Master element: std_id key ab
@@ -201,6 +201,47 @@ disp_leaf Master element hash_a value xy
 disp_hash_hook Master element(hash_b): X3
 disp_hash Master element(hash_b): X3
 disp_leaf Master element hash_b value xy
+disp_leaf Master element tree_macro
+disp_node_elt Master element: warp
+disp_node_content_hook warp element: X std_id sub_slave warp2 Y
+disp_node_content warp element: X std_id sub_slave warp2 Y
+disp_leaf warp element X
+disp_node_elt warp element: sub_slave
+disp_node_content_hook warp sub_slave element: aa ab ac ad sub_slave
+disp_node_content warp sub_slave element: aa ab ac ad sub_slave
+disp_leaf warp sub_slave element aa
+disp_leaf warp sub_slave element ab
+disp_leaf warp sub_slave element ac
+disp_leaf warp sub_slave element ad
+disp_node_elt warp sub_slave element: sub_slave
+disp_node_content_hook warp sub_slave sub_slave element: aa2 ab2 ac2 ad2 Z
+disp_dispatch_node_sub_slave2 warp sub_slave sub_slave element: aa2 ab2 ac2 ad2 Z
+disp_leaf warp sub_slave sub_slave element aa2
+disp_leaf warp sub_slave sub_slave element ab2
+disp_leaf warp sub_slave sub_slave element ac2
+disp_leaf warp sub_slave sub_slave element ad2
+disp_leaf warp sub_slave sub_slave element Z
+disp_up warp sub_slave sub_slave
+disp_up warp sub_slave
+disp_node_elt warp element: warp2
+disp_node_content_hook warp warp2 element: aa ab ac ad sub_slave
+disp_node_content warp warp2 element: aa ab ac ad sub_slave
+disp_leaf warp warp2 element aa
+disp_leaf warp warp2 element ab
+disp_leaf warp warp2 element ac
+disp_leaf warp warp2 element ad
+disp_node_elt warp warp2 element: sub_slave
+disp_node_content_hook warp warp2 sub_slave element: aa2 ab2 ac2 ad2 Z
+disp_dispatch_node_sub_slave2 warp warp2 sub_slave element: aa2 ab2 ac2 ad2 Z
+disp_leaf warp warp2 sub_slave element aa2
+disp_leaf warp warp2 sub_slave element ab2
+disp_leaf warp warp2 sub_slave element ac2
+disp_leaf warp warp2 sub_slave element ad2
+disp_leaf warp warp2 sub_slave element Z
+disp_up warp warp2 sub_slave
+disp_up warp warp2
+disp_leaf warp element Y
+disp_up warp
 disp_node_elt Master element: slave_y
 disp_node_content_hook slave_y element: X std_id sub_slave warp2 Y
 disp_node_content slave_y element: X std_id sub_slave warp2 Y
@@ -275,6 +316,27 @@ disp_leaf std_id:bc element DX value Dv
 disp_leaf Master element hash_a value x
 disp_leaf Master element hash_a value xy
 disp_leaf Master element hash_b value xy
+disp_leaf Master element tree_macro
+disp_leaf warp element X
+disp_leaf warp sub_slave element aa
+disp_leaf warp sub_slave element ab
+disp_leaf warp sub_slave element ac
+disp_leaf warp sub_slave element ad
+disp_leaf warp sub_slave sub_slave element aa2
+disp_leaf warp sub_slave sub_slave element ab2
+disp_leaf warp sub_slave sub_slave element ac2
+disp_leaf warp sub_slave sub_slave element ad2
+disp_leaf warp sub_slave sub_slave element Z
+disp_leaf warp warp2 element aa
+disp_leaf warp warp2 element ab
+disp_leaf warp warp2 element ac
+disp_leaf warp warp2 element ad
+disp_leaf warp warp2 sub_slave element aa2
+disp_leaf warp warp2 sub_slave element ab2
+disp_leaf warp warp2 sub_slave element ac2
+disp_leaf warp warp2 sub_slave element ad2
+disp_leaf warp warp2 sub_slave element Z
+disp_leaf warp element Y
 disp_leaf slave_y element X
 disp_leaf slave_y sub_slave element aa
 disp_leaf slave_y sub_slave element ab

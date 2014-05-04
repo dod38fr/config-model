@@ -51,7 +51,7 @@ has \@common_str_params => ( is => 'ro', isa => 'Maybe[Str]' );
 
 my @common_params =
     ( @common_int_params, @common_str_params, @common_list_params, @common_hash_params );
-my @allowed_warp_params = ( @common_params, qw/experience level convert/ );
+my @allowed_warp_params = ( @common_params, qw/level convert/ );
 
 around BUILDARGS => sub {
     my $orig  = shift;
@@ -109,7 +109,7 @@ sub set_properties {
     my %args = ( %{ $self->{backup} }, @_ );
 
     # these are handled by Node or Warper
-    map { delete $args{$_} } qw/level experience/;
+    map { delete $args{$_} } qw/level/;
 
     $logger->debug( $self->name, " set_properties called with @_" );
 

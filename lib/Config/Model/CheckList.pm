@@ -18,7 +18,7 @@ my $logger = get_logger("Tree::Element::CheckList");
 my @introspect_params = qw/refer_to computed_refer_to/;
 
 my @accessible_params = qw/default_list upstream_default_list choice ordered/;
-my @allowed_warp_params = ( @accessible_params, qw/level experience/ );
+my @allowed_warp_params = ( @accessible_params, qw/level/ );
 
 has [qw/backup data preset layered/] => ( is => 'rw', isa => 'HashRef', default => sub { {}; } );
 has computed_refer_to => ( is => 'rw', isa => 'Maybe[HashRef]' );
@@ -101,7 +101,7 @@ sub set_properties {
     my %args = ( %{ $self->{backup} }, @_ );
 
     # these are handled by Node or Warper
-    map { delete $args{$_} } qw/level experience/;
+    map { delete $args{$_} } qw/level/;
 
     $self->{ordered} = delete $args{ordered} || 0;
 

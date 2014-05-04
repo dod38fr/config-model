@@ -448,11 +448,6 @@ is_deeply(
 $root->fetch_element('macro')->store('B');
 
 is_deeply(
-    [ $slave->get_element_name( for => 'beginner' ) ],
-    [qw/X Y Z recursive_slave Comp warped_by_location/],
-    "Slave elements from the object (W's out when macro is set to B)"
-);
-is_deeply(
     [ $slave->get_element_name( for => 'advanced' ) ],
     [qw/X Y Z recursive_slave W Comp warped_by_location/],
     "Slave elements from the object for advanced level"

@@ -217,12 +217,6 @@ is( $ahown->fetch_with_id(234)->index_value,
     '234', 'Check index value of actual node below warped node' );
 
 eq_or_diff(
-    [ $root->get_element_name( for => 'beginner' ) ],
-    [qw/v_macro b_macro tree_macro a_hash_of_warped_nodes/],
-    'reading elements of root for experience beginner'
-);
-
-eq_or_diff(
     [ $root->get_element_name( for => 'advanced' ) ],
     [
         qw/v_macro b_macro tree_macro a_hash_of_warped_nodes

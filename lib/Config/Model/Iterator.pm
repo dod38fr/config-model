@@ -20,6 +20,10 @@ sub new {
         status                 => 'standard',
     };
 
+    if (delete $args{experience}) {
+        carp "experience parameter is deprecated";
+    }
+
     foreach my $p (qw/root/) {
         $self->{$p} = delete $args{$p}
             or croak "Iterator->new: Missing $p parameter";
@@ -30,12 +34,6 @@ sub new {
     }
 
     bless $self, $type;
-
-    my %user_scan_args = ( experience => 'intermediate', );
-
-    foreach my $p (qw/experience/) {
-        $user_scan_args{$p} = delete $args{$p};
-    }
 
     my %cb_hash;
 
@@ -64,7 +62,6 @@ sub new {
     }
 
     $self->{dispatch_cb}    = \%cb_hash;
-    $self->{user_scan_args} = \%user_scan_args;
 
     if (%args) {
         die "Iterator->new: unexpected parameters: ", join( ' ', keys %args ), "\n";
@@ -75,7 +72,6 @@ sub new {
 
     $self->{scanner} = Config::Model::ObjTreeScanner->new(
         fallback        => 'all',
-        experience      => $user_scan_args{experience},
         hash_element_cb => sub { $self->hash_element_cb(@_) },
         list_element_cb => sub { $self->hash_element_cb(@_) },
         node_content_cb => sub { $self->node_content_cb(@_) },
@@ -103,7 +99,6 @@ sub node_content_cb {
 
     $logger->info( "node_content_cb called on '", $node->name, "' element: @element" );
 
-    my $experience = $self->{user_scan_args}{experience};
     my $element;
 
     while (1) {
@@ -112,7 +107,6 @@ sub node_content_cb {
         # change the element list due to warping
         $element = $node->next_element(
             name       => $element,
-            experience => $experience,
             status     => $self->{status},
             reverse    => 1 - $self->{forward} );
 

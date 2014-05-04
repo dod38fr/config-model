@@ -102,7 +102,6 @@ sub describe {
     };
 
     my @scan_args = (
-        experience => delete $args{experience} || 'master',
         fallback => 'all',
         auto_vivify           => 0,
         list_element_cb       => $list_element_cb,

@@ -61,7 +61,7 @@ has \@common_str_params => ( is => 'ro', isa => 'Maybe[Str]' );
 my @warp_accessible_params =
     ( @common_int_params, @common_str_params, @common_list_params, @common_hash_params );
 
-my @allowed_warp_params = ( @warp_accessible_params, qw/level experience help/ );
+my @allowed_warp_params = ( @warp_accessible_params, qw/level help/ );
 my @backup_list         = ( @allowed_warp_params,    qw/migrate_from/ );
 
 has compute_is_upstream_default =>
@@ -481,7 +481,7 @@ sub set_properties {
     my %args = ( %{ $self->{backup} }, @_ );
 
     # these are handled by Node or Warper
-    map { delete $args{$_} } qw/level experience/;
+    map { delete $args{$_} } qw/level/;
 
     my $logger = $logger;
     if ( $logger->is_debug ) {

@@ -29,11 +29,10 @@ sub load {
     my $step = delete $args{step};
     croak "load error: missing 'step' parameter" unless defined $step;
 
-    if ( defined $args{permission} ) {
-        carp "load: permission parameter is deprecated. Use experience";
+    if (delete $args{experience}) {
+        carp "load: experience parameter is deprecated";
     }
 
-    my $experience = delete $args{experience} || delete $args{permission} || 'master';
     my $inst = $node->instance;
 
     # tune value checking
@@ -69,7 +68,7 @@ sub load {
     my $current_node = $node;
     my $ret;
     do {
-        $ret = $self->_load( $current_node, $check, $experience, \@command, 1 );
+        $ret = $self->_load( $current_node, $check, \@command, 1 );
         $logger->debug("_load returned $ret");
 
         # found '!' command
@@ -154,7 +153,7 @@ my %load_dispatch = (
 
 # return 'done', 'root', 'up', 'error'
 sub _load {
-    my ( $self, $node, $check, $experience, $cmdref, $at_top_level ) = @_;
+    my ( $self, $node, $check, $cmdref, $at_top_level ) = @_;
     $at_top_level ||= 0;
     my $node_name = "'" . $node->name . "'";
     $logger->debug("_load: called on node $node_name");
@@ -231,12 +230,7 @@ sub _load {
             return 'error';
         }
 
-        unless (
-            $node->is_element_available(
-                name       => $element_name,
-                experience => 'master'
-            )
-            ) {
+        unless ( $node->is_element_available( name => $element_name ) ) {
             Config::Model::Exception::UnavailableElement->throw(
                 object  => $node,
                 element => $element_name
@@ -245,16 +239,10 @@ sub _load {
             return 'error';
         }
 
-        unless (
-            $node->is_element_available(
-                name       => $element_name,
-                experience => $experience
-            )
-            ) {
+        unless ( $node->is_element_available( name => $element_name ) ) {
             Config::Model::Exception::RestrictedElement->throw(
                 object  => $node,
                 element => $element_name,
-                level   => $experience,
             ) if $check eq 'yes';
             unshift @$cmdref, $cmd;
             return 'error';
@@ -268,7 +256,7 @@ sub _load {
             unless defined $method;
 
         $logger->debug("_load: calling $element_type loader on element $element_name");
-        my $ret = $self->$method( $node, $check, $experience, \@instructions, $cmdref );
+        my $ret = $self->$method( $node, $check, \@instructions, $cmdref );
         die "Internal error: method dispatched for $element_type returned an undefined value "
             unless defined $ret;
 
@@ -308,7 +296,7 @@ sub _load_note {
 }
 
 sub _walk_node {
-    my ( $self, $node, $check, $experience, $inst, $cmdref ) = @_;
+    my ( $self, $node, $check, $inst, $cmdref ) = @_;
 
     my $element_name = shift @$inst;
     my $note         = pop @$inst;
@@ -327,7 +315,7 @@ sub _walk_node {
 
     $logger->info( "Opening node element ", $element->name );
 
-    return $self->_load( $element, $check, $experience, $cmdref );
+    return $self->_load( $element, $check, $cmdref );
 }
 
 sub unquote {
@@ -335,7 +323,7 @@ sub unquote {
 }
 
 sub _load_check_list {
-    my ( $self, $node, $check, $experience, $inst, $cmdref ) = @_;
+    my ( $self, $node, $check, $inst, $cmdref ) = @_;
     my ( $element_name, $action, $f_arg, $id, $subaction, $value, $note ) = @$inst;
 
     my $element = $node->fetch_element( name => $element_name, check => $check );
@@ -452,7 +440,7 @@ sub _substitute_value {
 }
 
 sub _load_list {
-    my ( $self, $node, $check, $experience, $inst, $cmdref ) = @_;
+    my ( $self, $node, $check, $inst, $cmdref ) = @_;
     my ( $element_name, $action, $f_arg, $id, $subaction, $value, $note ) = @$inst;
 
     my $element = $node->fetch_element( name => $element_name, check => $check );
@@ -522,7 +510,7 @@ sub _load_list {
 
             # remove possible leading or trailing quote
             $logger->debug("_load_list: calling _load on node id $id");
-            return $self->_load( $obj, $check, $experience, $cmdref );
+            return $self->_load( $obj, $check, $cmdref );
         }
 
         return 'ok' unless defined $subaction;
@@ -546,7 +534,7 @@ sub _load_list {
 }
 
 sub _load_hash {
-    my ( $self, $node, $check, $experience, $inst, $cmdref ) = @_;
+    my ( $self, $node, $check, $inst, $cmdref ) = @_;
     my ( $element_name, $action, $f_arg, $id, $subaction, $value, $note ) = @$inst;
 
     unquote( $id, $value, $note );
@@ -581,7 +569,7 @@ sub _load_hash {
             if ( $cargo_type =~ /node/ ) {
 
                 # remove possible leading or trailing quote
-                $ret = $self->_load( $sub_elt, $check, $experience, $cmdref );
+                $ret = $self->_load( $sub_elt, $check, $cmdref );
             }
             elsif ( $cargo_type =~ /leaf/ ) {
                 $ret = $self->_load_value( $sub_elt, $check, $subaction, $value );
@@ -626,7 +614,7 @@ sub _load_hash {
                     . "cargo_type: $cargo_type"
             );
         }
-        return $self->_load( $obj, $check, $experience, $cmdref );
+        return $self->_load( $obj, $check, $cmdref );
     }
     elsif ( $action eq ':' and defined $subaction and $cargo_type =~ /leaf/ ) {
         $logger->debug("_load_hash: calling _load_value on leaf $id");
@@ -648,7 +636,7 @@ sub _load_hash {
 }
 
 sub _load_leaf {
-    my ( $self, $node, $check, $experience, $inst, $cmdref ) = @_;
+    my ( $self, $node, $check, $inst, $cmdref ) = @_;
     my ( $element_name, $action, $f_arg, $id, $subaction, $value, $note ) = @$inst;
 
     unquote( $id, $value );
