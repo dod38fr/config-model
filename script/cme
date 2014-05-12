@@ -42,7 +42,6 @@ my $help       = 0;
 my $force_load = 0;
 my $dev        = 0;
 my $backend;
-my $experience = 'beginner';
 my $dumptype;
 my $load;
 my @fix_from;
@@ -90,7 +89,6 @@ my %command_option = (
 my @global_options = (
     "model_dir|model-dir=s"  => \$model_dir,
     "try-app-as-model!"      => \$try_application_as_model,
-    "experience=s"           => \$experience,
     "dev!"                   => \$dev,
     "force_load|force-load!" => \$force_load,
     "create!"                => \$auto_create,
@@ -334,7 +332,6 @@ elsif ( $command eq 'edit' ) {
 
     if ( $ui_type eq 'simple' ) {
 
-        # experience not yet implemented
         require Config::Model::SimpleUI;
         my $shell_ui = Config::Model::SimpleUI->new(
             root   => $root,
@@ -347,7 +344,6 @@ elsif ( $command eq 'edit' ) {
     }
     elsif ( $ui_type eq 'shell' ) {
 
-        # experience not yet implemented
         require Config::Model::TermUI;
         my $shell_ui = Config::Model::TermUI->new(
             root   => $root,
@@ -368,7 +364,7 @@ elsif ( $command eq 'edit' ) {
         open( FH, "> $err_file" ) || die "Can't open $err_file: $!";
         open STDERR, ">&FH";
 
-        my $dialog = Config::Model::CursesUI->new( experience => $experience, );
+        my $dialog = Config::Model::CursesUI->new();
 
         # engage in user interaction
         $dialog->start($model);
@@ -392,7 +388,6 @@ elsif ( $command eq 'edit' ) {
 
         my $cmu = $mw->ConfigModelUI(
             -root       => $root,
-            -experience => $experience
         );
 
         if ($open_item) {
@@ -732,13 +727,6 @@ subsitution string to replace '/' in the fused dir. Default is C<< <slash> >>.
 The following options are available for all commands:
 
 =over
-
-=item -experience
-
-Change the experience level. By default only parameters with "beginner" experience
-are shown or modifiable. You can choose C<advanced> or C<master> level to get 
-access to more parameters. Note that experience level can be changed in the GUI with the 
-I<options> menu.
 
 =item -create
 

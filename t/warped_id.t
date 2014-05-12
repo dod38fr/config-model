@@ -81,7 +81,7 @@ $model->create_config_class(
             type       => 'hash',
             index_type => 'string',
             cargo_type => 'leaf',
-            level      => 'hidden',    # must also accept level experience and description here
+            level      => 'hidden',    # must also accept level and description here
             warp       => {
                 follow  => '- macro',
                 'rules' => {

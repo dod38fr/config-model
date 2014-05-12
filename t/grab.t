@@ -50,7 +50,7 @@ my $root = $inst->config_root;
 Config::Model::Exception::Any->Trace(1) if $trace =~ /e/;
 
 my $step = 'std_id:ab X=Bv - std_id:bc X=Av - std_id:"b c" X=Av - a_string="titi , toto" ';
-ok( $root->load( step => $step, experience => 'advanced' ), "load '$step'" );
+ok( $root->load( step => $step ), "load '$step'" );
 
 my $grabbed = $root->grab('olist:0');
 is( $grabbed->location,                  'olist:0', 'test grab olist:0 (obj)' );

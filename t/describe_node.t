@@ -44,7 +44,7 @@ my $step =
     . 'lista=a,b,c,d olist:0 X=Av - olist:1 X=Bv - listb=b,c,d '
     . 'my_check_list=toto my_reference="titi"';
 
-ok( $root->load( step => $step, experience => 'advanced' ), "set up data in tree with '$step'" );
+ok( $root->load( step => $step ), "set up data in tree with '$step'" );
 
 my $description = $root->describe;
 $description =~ s/\s*\n/\n/g;

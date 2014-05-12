@@ -34,7 +34,7 @@ my $root = $inst->config_root;
 
 # check with embedded \n
 my $step = qq!std_id:ab X=Bv - std_id:bc X=Av - a_string="titi and toto" !;
-ok( $root->load( step => $step, experience => 'advanced' ), "load '$step'" );
+ok( $root->load( step => $step ), "load '$step'" );
 
 foreach ( [ "/std_id/cc/X", "Bv" ], ) {
     my ( $path, $exp ) = @$_;

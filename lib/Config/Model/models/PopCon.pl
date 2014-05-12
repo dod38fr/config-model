@@ -89,7 +89,6 @@ If your MTA is misconfigured or impossible to configure correctly, and it always
       'MY_HOSTID',
       {
         'value_type' => 'uniline',
-        'experience' => 'master',
         'type' => 'leaf',
         'description' => 'Secret number that the popularity-contest receiver uses to keep track of your submissions. Whenever you send in a new entry, it overwrites the last one that had the same HOSTID.
 

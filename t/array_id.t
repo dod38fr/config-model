@@ -253,11 +253,11 @@ is( $ol->fetch_with_id(2)->fetch_element('Y')->fetch, undef, "check after move" 
 is( $ol->fetch_with_id(2)->fetch_element('X')->fetch, 'Av',  "check after move" );
 
 map { is( $ol->fetch_with_id($_)->index_value, $_, "Check moved index value $_" ); } ( 0 .. 4 );
-print $root->dump_tree( experience => 'beginner' ) if $trace;
+print $root->dump_tree( ) if $trace;
 
 is( $ol->fetch_with_id(0)->fetch_element('X')->fetch, undef, "check before move" );
 $ol->remove(0);
-print $root->dump_tree( experience => 'beginner' ) if $trace;
+print $root->dump_tree( ) if $trace;
 is( $ol->fetch_with_id(0)->fetch_element('X')->fetch, 'Bv', "check after move" );
 
 # test store

@@ -54,7 +54,7 @@ warp warp2 aa2="foo bar"
 
 $step =~ s/\n/ /g;
 
-ok( $root->load( step => $step, experience => 'advanced' ), "set up data in tree with '$step'" );
+ok( $root->load( step => $step ), "set up data in tree with '$step'" );
 
 # load some values with undef
 $root->fetch_element('hash_a')->fetch_with_id('undef_val');

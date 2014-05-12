@@ -156,7 +156,6 @@ $model->create_config_class(
         'Ciphers',
         {
             'ordered'               => '1',
-            'experience'            => 'master',
             'upstream_default_list' => [
                 '3des-cbc',   'aes128-cbc', 'aes128-ctr',   'aes192-cbc',
                 'aes192-ctr', 'aes256-cbc', 'aes256-ctr',   'arcfour',

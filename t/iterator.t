@@ -94,7 +94,7 @@ warp warp2 aa2="foo bar"
 !;
 
 $Config::Model::Value::nowarning = 1;
-ok( $root->load( step => $step, experience => 'advanced' ), "set up data in tree" );
+ok( $root->load( step => $step ), "set up data in tree" );
 
 my @expected = (
     [ '',     'lista' ],
@@ -173,7 +173,6 @@ my $iterator = $inst->iterator(
     integer_value_cb       => $int_cb,
     hash_element_cb        => $hash_element_cb,
     list_element_cb        => $list_element_cb,
-    experience             => 'advanced',
     call_back_on_warning   => 1,
     call_back_on_important => 1,
 );

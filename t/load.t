@@ -118,18 +118,18 @@ my $root = $inst->config_root;
 
 # check with embedded \n
 my $step = qq!#"root cooment " std_id:ab X=Bv -\na_string="titi and\ntoto" !;
-ok( $root->load( step => $step, experience => 'advanced' ), "load steps with embedded \\n" );
+ok( $root->load( step => $step ), "load steps with embedded \\n" );
 is( $root->fetch_element('a_string')->fetch, "titi and\ntoto", "check a_string" );
 
 # test apply regexp
 $step = qq!a_string=~s/TOTO/tata/i!;
-ok( $root->load( step => $step, experience => 'advanced' ), "load steps with apply regexp" );
+ok( $root->load( step => $step ), "load steps with apply regexp" );
 is( $root->fetch_element('a_string')->fetch, qq!titi and\ntata!, "check a_string after regexp" );
 
 # test apply regexp with embedded spaces
 $step = qq!a_string=~"s/titi and\n//""!;
 ok(
-    $root->load( step => $step, experience => 'advanced' ),
+    $root->load( step => $step ),
     "load steps with apply regexp with embedded spaces"
 );
 is( $root->fetch_element('a_string')->fetch,
@@ -137,7 +137,7 @@ is( $root->fetch_element('a_string')->fetch,
 
 # check with embedded quotes
 $step = qq!std_id:ab X=Bv -\na_string="\"titi\" and \"toto\"" std_id:bc X=Av!;
-ok( $root->load( step => $step, experience => 'advanced' ), "load steps with embedded quotes" );
+ok( $root->load( step => $step ), "load steps with embedded quotes" );
 is(
     $root->fetch_element('a_string')->fetch,
     qq!"titi" and "toto"!,
@@ -147,13 +147,13 @@ is(
 # check with embedded utf8
 $step =
     qq!#"root cooment \x{263A} " std_id:\x{263A} X=Bv -\na_string="titi and\ntoto and \x{263A}" !;
-ok( $root->load( step => $step, experience => 'advanced' ), "load steps with embedded \x{263A}" );
+ok( $root->load( step => $step ), "load steps with embedded \x{263A}" );
 is( $root->fetch_element('a_string')->fetch, "titi and\ntoto and \x{263A}", "check a_string" );
 is( $root->fetch_element('std_id')->fetch_with_id("\x{263A}")->fetch_element_value('X'),
     'Bv', "check hash with utf8 index" );
 
 $step = 'std_id:ab X=Bv - std_id:bc X=Av - a_string="titi , toto" ';
-ok( $root->load( step => $step, experience => 'advanced' ), "load '$step'" );
+ok( $root->load( step => $step ), "load '$step'" );
 is( $root->fetch_element('a_string')->fetch, 'titi , toto', "check a_string" );
 
 # check that we can go to root node starting from below
@@ -161,19 +161,19 @@ my $stdab = $root->grab("std_id:ab");
 $stdab->load("! a_string=titi");
 ok( 1, "go to root node starting from below" );
 
-ok( $root->load( step => 'tree_macro=XZ', experience => 'advanced' ), "Set tree_macro to XZ" );
+ok( $root->load( step => 'tree_macro=XZ' ), "Set tree_macro to XZ" );
 
 # test load with warped_node below root (used to fail)
 $step = 'slave_y warp2 aa2="foo bar baz"';
-ok( $root->load( step => $step, experience => 'advanced' ), "load '$step'" );
+ok( $root->load( step => $step ), "load '$step'" );
 
 # this will warp out slave_y warp2
-ok( $root->load( step => 'tree_macro=XY', experience => 'advanced' ), "Set tree_macro to XY" );
+ok( $root->load( step => 'tree_macro=XY' ), "Set tree_macro to XY" );
 
 # use indexes with white spaces
 
 $step = 'std_id:"a b" X=Bv - std_id:" b  c " X=Av " ';
-ok( $root->load( step => $step, experience => 'advanced' ), "load '$step'" );
+ok( $root->load( step => $step ), "load '$step'" );
 
 is_deeply(
     [ $root->fetch_element('std_id')->fetch_all_indexes ],
@@ -182,15 +182,15 @@ is_deeply(
 );
 
 $step = 'std_id:ab ZZX=Bv - std_id:bc X=Bv';
-throws_ok { $root->load( step => $step, experience => 'advanced' ); }
+throws_ok { $root->load( step => $step ); }
 "Config::Model::Exception::UnknownElement", "load wrong '$step'";
 
 $step = 'lista:=a,b,c,d lista:4=e olist:0 X=Av - olist:1 X=Bv - listb:=b,c,d,,f,"",h,0';
-throws_ok { $root->load( step => $step, experience => 'advanced' ); } qr/comma/,
+throws_ok { $root->load( step => $step ); } qr/comma/,
     "load wrong '$step'";
 
 $step = 'listb:=b,c,d,f,"",h,0 listc:="dod@foo.com"';
-ok( $root->load( step => $step, experience => 'advanced' ), "load '$step'" );
+ok( $root->load( step => $step ), "load '$step'" );
 
 # perform some checks
 my $olist = $root->fetch_element('olist');
@@ -371,7 +371,7 @@ my $inst2 = $model->instance(
 my $root2 = $inst2->config_root;
 
 ok(
-    $root2->load( step => $step, experience => 'advanced' ),
+    $root2->load( step => $step ),
     "set up data in tree with combination of load and annotations"
 );
 
@@ -394,7 +394,7 @@ is( $root2->grab_value('plain_object aa2'), "aa2_value \x{263A}", "utf8 value" )
 
 # test deletion of leaf items
 $step = 'a_string=foobar a_string~';
-ok( $root2->load( step => $step, experience => 'advanced' ), "set up data then delete it" );
+ok( $root2->load( step => $step ), "set up data then delete it" );
 
 is( $root2->grab_value('a_string'), undef, "check that another_string was undef'ed" );
 

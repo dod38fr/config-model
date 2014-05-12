@@ -48,10 +48,6 @@ eq_or_diff( $cat->{application}, [qw/multistrap/], "check available application 
 
 my $class_name = $model->create_config_class(
     name       => 'Sarge',
-    experience => [
-        [qw/Y/] => 'beginner',    # default
-        X       => 'master'
-    ],
     status      => [ D => 'deprecated' ],                 #could be obsolete, standard
     description => [ X => 'X-ray (long description)' ],
     summary     => [ X => 'X-ray (summary)' ],
@@ -96,7 +92,6 @@ eq_or_diff(
 
 $class_name = $model->create_config_class(
     name       => 'Captain',
-    experience => [ bar => 'beginner' ],
     element    => [
         bar => {
             type              => 'node',
@@ -120,7 +115,6 @@ throws_ok { $model->create_config_class(@bad_model) }
 
 $class_name = $model->create_config_class(
     name       => "Master",
-    experience => [ [qw/captain array_args hash_args/] => 'beginner' ],
     level               => [ qw/captain/ => 'important' ],
     force_element_order => [qw/captain array_args hash_args/],
     element             => [

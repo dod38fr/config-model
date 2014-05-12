@@ -28,10 +28,6 @@ my $model = Config::Model->new();
 
 $model->create_config_class(
     name       => 'Sarge',
-    experience => [
-        [qw/Y/] => 'beginner',    # default
-        X       => 'master'
-    ],
     status      => [ D => 'deprecated' ],                 #could be obsolete, standard
     description => [ X => 'X-ray (long description)' ],
     summary     => [ X => 'X-ray (summary)' ],
@@ -47,7 +43,6 @@ $model->create_config_class(
 
 $model->create_config_class(
     name       => 'Captain',
-    experience => [ bar => 'beginner' ],
     element    => [
         bar => {
             type              => 'node',
@@ -56,7 +51,6 @@ $model->create_config_class(
 
 $model->create_config_class(
     name       => "Master",
-    experience => [ [qw/captain array_args hash_args/] => 'beginner' ],
     level   => [ qw/captain/ => 'important' ],
     element => [
         captain => {
@@ -90,19 +84,19 @@ ok( $root, "Config root created" );
 is( $root->config_class_name, 'Master', "Created Master" );
 
 is_deeply(
-    [ sort $root->get_element_name( for => 'beginner' ) ],
+    [ sort $root->get_element_name( ) ],
     [qw/array_args captain hash_args/],
     "check Master elements"
 );
 
 is_deeply(
-    [ sort $root->get_element_name( for => 'advanced' ) ],
+    [ sort $root->get_element_name( ) ],
     [qw/array_args captain hash_args/],
     "check Master elements"
 );
 
 is_deeply(
-    [ sort $root->get_element_name( for => 'master' ) ],
+    [ sort $root->get_element_name( ) ],
     [qw/array_args captain hash_args/],
     "check Master elements"
 );

@@ -53,7 +53,7 @@ my $step =
     . 'lista=a,b,c,d olist:0 X=Av - olist:1#olist1_comment X=Bv - listb=b,c,d '
     . '! hash_a:X2=x hash_a:Y2=xy hash_a:toto#"index comment"
         hash_b:X3=xy my_check_list=X2,X3';
-ok( $root->load( step => $step, experience => 'advanced' ), "set up data in tree with '$step'" );
+ok( $root->load( step => $step ), "set up data in tree with '$step'" );
 
 my @annotate = map { [ $_ => "$_ annotation" ] }
     ( 'std_id', 'std_id:bc X', 'my_check_list', 'olist:0', 'olist:2' );
@@ -122,7 +122,7 @@ delete $expect2{'olist:2'};
 
 is_deeply( $h2_ref, \%expect2, "check loaded annotation data with empty tree" );
 
-$root2->load( step => $step, experience => 'advanced' );
+$root2->load( step => $step );
 $saver2->load;
 
 my %expect3 = %expect;

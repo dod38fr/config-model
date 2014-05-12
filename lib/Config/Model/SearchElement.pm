@@ -50,7 +50,6 @@ sub _sniff_class {
 
     my @elements = $model->get_element_name(
         class => $class,
-        for   => $privilege
     );
 
     foreach my $element (@elements) {

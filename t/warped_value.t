@@ -130,13 +130,11 @@ $model->create_config_class(
                     A => {
                         default    => 'Av',
                         level      => 'normal',
-                        experience => 'beginner',
                         choice     => [qw/Av Bv Cv/],
                     },
                     B => {
                         default    => 'Bv',
                         level      => 'normal',
-                        experience => 'advanced',
                         choice     => [qw/Av Bv Cv/] } }
             },
         },
@@ -348,7 +346,7 @@ eq_or_diff(
 );
 
 eq_or_diff(
-    [ $root->get_element_name( for => 'beginner' ) ],
+    [ $root->get_element_name() ],
     [
         qw'get_element where_is_element macro m_value_out m2_value_out
             compute var_path class bar foo foo2 ClientAliveCheck'
@@ -360,7 +358,6 @@ eq_or_diff(
 eq_or_diff( [
         $model->get_element_name(
             class => 'Slave',
-            for   => 'beginner'
         )
     ],
     [qw'X Y Z recursive_slave Comp warped_by_location'],
@@ -371,7 +368,7 @@ my $slave = $root->fetch_element('bar');
 ok( $slave, "Created slave(bar)" );
 
 eq_or_diff(
-    [ $slave->get_element_name( for => 'beginner' ) ],
+    [ $slave->get_element_name() ],
     [qw'X Y Z recursive_slave Comp warped_by_location'],
     "Elements of Slave from the object"
 );
@@ -385,7 +382,7 @@ is( $slave->fetch_element('X')->fetch, undef, "reading slave->X (undef)" );
 is( $macro->store('B'), 1, "setting master->macro to B" );
 
 eq_or_diff(
-    [ $root->get_element_name( for => 'beginner' ) ],
+    [ $root->get_element_name() ],
     [
         qw'get_element where_is_element macro m2_value_out macro2 m_value
             m_value_old compute var_path class bar foo foo2
@@ -397,7 +394,7 @@ eq_or_diff(
 is( $root->fetch_element('macro2')->store('A'), 1, "setting master->macro2 to A" );
 
 is_deeply(
-    [ $root->get_element_name( for => 'beginner' ) ],
+    [ $root->get_element_name() ],
     [
         qw'get_element where_is_element macro macro2
             m_value m_value_old compute var_path class warped_out_ref bar
@@ -441,16 +438,16 @@ is( $root->fetch_element('m_value_old')->fetch, 'Av', 'test m_value_old with mac
 $root->fetch_element('macro')->store('A');
 
 is_deeply(
-    [ $slave->get_element_name( for => 'beginner' ) ],
+    [ $slave->get_element_name() ],
     [qw/X Y Z recursive_slave W Comp warped_by_location/],
     "Slave elements from the object (W pops in when macro is set to A)"
 );
 $root->fetch_element('macro')->store('B');
 
 is_deeply(
-    [ $slave->get_element_name( for => 'advanced' ) ],
+    [ $slave->get_element_name() ],
     [qw/X Y Z recursive_slave W Comp warped_by_location/],
-    "Slave elements from the object for advanced level"
+    "Slave elements from the object"
 );
 
 map { is( $slave->fetch_element($_)->fetch, 'Bv', "reading slave->$_ (Bv)" ); } qw/X Y Z/;
@@ -459,10 +456,10 @@ is( $slave->fetch_element('Y')->store('Cv'), 1, 'Set slave->Y to Cv' );
 
 # testing warp in warp out
 $root->fetch_element('macro')->store('C');
-is( $slave->is_element_available( name => 'W', experience => 'advanced' ),
+is( $slave->is_element_available( name => 'W' ),
     0, " test W is not available" );
 $root->fetch_element('macro')->store('B');
-is( $slave->is_element_available( name => 'W', experience => 'advanced' ),
+is( $slave->is_element_available( name => 'W' ),
     1, " test W is available" );
 
 $root->fetch_element('macro')->store('C');

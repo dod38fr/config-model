@@ -48,7 +48,7 @@ my $step =
       'std_id:ab X=Bv - std_id:bc X=Av - a_string="toto tata" '
     . 'hash_a:X2=x hash_a:Y2=xy  hash_b:X3=xy my_check_list=X2,X3 '
     . 'olist:0 DX=Dv';
-ok( $root->load( step => $step, experience => 'advanced' ), "set up data in tree with '$step'" );
+ok( $root->load( step => $step ), "set up data in tree with '$step'" );
 
 my @tests = (
     [qw/value toto a_string/],

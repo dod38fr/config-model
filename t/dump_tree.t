@@ -41,7 +41,7 @@ $inst->preset_start;
 $root->fetch_element( name => 'hidden_string', accept_hidden => 1 )->store('hidden value');
 
 my $step = 'std_id:ab X=Bv ' . '! lista:=a,b listb:=b ';
-ok( $root->load( step => $step, experience => 'advanced' ), "preset data in tree with '$step'" );
+ok( $root->load( step => $step ), "preset data in tree with '$step'" );
 
 $inst->preset_stop;
 
@@ -50,7 +50,7 @@ $step =
     . '- a_string="toto \"titi\" tata" another_string="foobar" a_string2=dod@foo.com '
     . 'lista:=a,b,c,d olist:0 X=Av - olist:1 X=Bv - listb:=b,"c c2",d listc:="dod@foo.com" '
     . '! hash_a:X2=x hash_a:Y2=xy  hash_b:X3=xy my_check_list=X2,X3';
-ok( $root->load( step => $step, experience => 'advanced' ), "set up data in tree" );
+ok( $root->load( step => $step ), "set up data in tree" );
 
 eq_or_diff(
     [ sort $root->fetch_element('std_id')->fetch_all_indexes ],
@@ -283,7 +283,7 @@ $step = ' std_id:ab#std_id_ab_note
     . 'lista#lista_note lista:=a,b,c,d lista:1#lista_1_note olist#o_list_note olist:0#olist_0_note X=Av - olist:1#olist1_c X=Bv - listb:=b,"c c2",d '
     . '! hash_a:X2=x#hash_a_X2 hash_a:Y2=xy#"hash_a Y2 note"  hash_b:X3=xy#hash_b_X3
      my_check_list=X2,X3 plain_object#"plain comment" aa2=aa2_value';
-ok( $root2->load( step => $step, experience => 'advanced' ), "set up data in tree annotation" );
+ok( $root2->load( step => $step ), "set up data in tree annotation" );
 
 is( $root2->fetch_element('std_id')->annotation, 'std_id_note', "check annotation for std_id" );
 is( $root2->grab('std_id:ab')->annotation, 'std_id_ab_note', "check annotation for std_id:ab" );
@@ -303,7 +303,7 @@ my $root3 = $model->instance(
 )->config_root;
 
 ok(
-    $root3->load( step => $cds, experience => 'advanced' ),
+    $root3->load( step => $cds ),
     "set up data in tree with dumped data+annotation"
 );
 

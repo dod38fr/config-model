@@ -94,7 +94,6 @@ $model->create_config_class(
                     XY  => { level => 'normal', },
                     mXY => {
                         level      => 'normal',
-                        experience => 'beginner'
                     },
                     XZ => { level => 'normal', },
                 }
@@ -119,7 +118,6 @@ $model->create_config_class(
                 XY  => { config_class_name => ['SlaveY'], },
                 mXY => {
                     config_class_name => 'SlaveY',
-                    experience        => 'advanced'
                 },
                 XZ => { config_class_name => 'SlaveZ' } }
         },
@@ -216,24 +214,6 @@ is( $ahown->fetch_with_id(234)->element_name,
 is( $ahown->fetch_with_id(234)->index_value,
     '234', 'Check index value of actual node below warped node' );
 
-eq_or_diff(
-    [ $root->get_element_name( for => 'advanced' ) ],
-    [
-        qw/v_macro b_macro tree_macro a_hash_of_warped_nodes
-            a_warped_node/
-    ],
-    'reading elements of root for experience advanced'
-);
-
-eq_or_diff(
-    [ $root->get_element_name( for => 'master' ) ],
-    [
-        qw/v_macro b_macro tree_macro a_hash_of_warped_nodes
-            a_warped_node/
-    ],
-    'reading elements of root for experience master'
-);
-
 $ahown->copy( 234, 2345 );
 print $root->dump_tree( check => 'no' ) if $trace;
 is(
@@ -246,13 +226,13 @@ is( $root->fetch_element('tree_macro')->store('W'), 1,
     'set master->tree_macro to W (warp out)...' );
 
 eq_or_diff(
-    [ $root->get_element_name( for => 'beginner' ) ],
+    [ $root->get_element_name() ],
     [qw/v_macro b_macro tree_macro/],
     'reading elements of root after warp out'
 );
 
 eq_or_diff(
-    [ $root->get_element_name( for => 'advanced' ) ],
+    [ $root->get_element_name() ],
     [qw/v_macro b_macro tree_macro/],
     'reading elements of root after warp out'
 );
