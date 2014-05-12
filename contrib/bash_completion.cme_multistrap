@@ -1,0 +1,4 @@
+_cme_multistrap()
+{
+    COMPREPLY=( $( compgen -o filenames -G "$cur*" -W '~~ -' -- $cur ) )
+}

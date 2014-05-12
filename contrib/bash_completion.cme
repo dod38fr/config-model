@@ -27,6 +27,11 @@ _cme_commands()
     COMPREPLY=( $( compgen -W 'list check migrate fix modify search edit dump fusefs' -- $cur ) )
 }    
 
+_cme_handle_app_arg()
+{
+	[[ $COMP_CWORD -eq 3 ]] && _cme_${COMP_WORDS[2]} 2> /dev/null ;
+}
+
 _cme()
 {
     local cur
@@ -40,12 +45,10 @@ _cme()
         _cme_commands
     elif [[ $COMP_CWORD -eq 2 ]] ; then
         _cme_appli
-    elif [[ $COMP_CWORD -eq 3 ]] && perl -MConfig::Model::Lister -e"Config::Model::Lister::use_file('$app') || die" ; then
-        COMPREPLY=( $( compgen -o filenames -G "$cur*" -W '~~ -' -- $cur ) )
-    else
+    elif ! _cme_handle_app_arg; then
         case $prev in
             -ui)
-                COMPREPLY=( $( compgen -W 'none tk curses shell fuse' -- $cur ) )
+                COMPREPLY=( $( compgen -W 'none tk curses shell' -- $cur ) )
             ;;
            -dumptype)
                 COMPREPLY=( $( compgen -W 'full preset custom' -- $cur ) )
