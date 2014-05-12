@@ -1,3 +1,15 @@
+# cme(1) completion for multistrap model
+#
+#
+# This file is part of Config-Model
+#
+# This software is Copyright (c) 2014 by Dominique Dumont
+#
+# This is free software, licensed under:
+#
+#   The GNU Lesser General Public License, Version 2.1, February 1999
+#
+
 _cme_multistrap()
 {
     COMPREPLY=( $( compgen -o filenames -G "$cur*" -W '~~ -' -- $cur ) )
