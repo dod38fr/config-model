@@ -10,7 +10,6 @@ use Config::Model::ObjTreeScanner;
 use Getopt::Long;
 use Pod::Usage;
 use Log::Log4perl qw(get_logger :levels);
-use File::Slurp qw/slurp/;
 use Path::Class;
 use POSIX qw/setsid/;
 
