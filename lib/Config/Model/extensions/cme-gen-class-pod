@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-#    Copyright (c) 2011 Dominique Dumont.
+#    Copyright (c) 2011-2014 Dominique Dumont.
 #
 #    This file is part of Config-Model.
 #
@@ -19,17 +19,14 @@
 #    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 #    02110-1301 USA
 
-use warnings FATAL => qw(all);
 use lib qw/lib/ ;
 use strict;
-use File::Slurp qw/slurp/;
+use Path::Tiny ;
 use Config::Model ; # to generate doc
 use Log::Log4perl qw(:easy) ;
 
 Log::Log4perl->easy_init($WARN);
 
-
-my %appli_files = map { ( $_, $_ ) } glob("lib/Config/Model/*.d/*");
 
 my $model = Config::Model -> new(model_dir => "lib/Config/Model/models") ;
 
@@ -40,7 +37,9 @@ shift @ARGV if $ARGV[0] and $ARGV[0] eq 'gen-class-pod' ;
 my @models = @ARGV ? @ARGV : 
   map { /model\s*=\s*([\w:-]+)/; $1; }
   grep { /^\s*model/; }
-  map  { slurp($_); } glob("lib/Config/Model/*.d/*");
+  map  { $_->lines; }
+  map  { $_->children; }
+  path ("lib/Config/Model/")->children(qr/\.d$/);
 
 map {
     # this test avoid generating doc several times (generate_doc scan docs for
