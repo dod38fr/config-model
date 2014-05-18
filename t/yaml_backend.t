@@ -6,7 +6,7 @@ use Test::Memory::Cycle;
 use Config::Model;
 use File::Path;
 use File::Copy;
-use File::Slurp qw/slurp/;
+use Path::Tiny;
 use Data::Dumper;
 use YAML::Any 0.303;
 
@@ -82,7 +82,7 @@ my $p2_dump = $i2_root->dump_tree;
 is( $p2_dump, $load, "compare original data with 2nd instance data" );
 
 # since full_dump is null, check that dummy param is not written in yaml files
-my $yaml = slurp($yaml_file) || die "can't open $yaml_file:$!";
+my $yaml = path($yaml_file)->slurp || die "can't open $yaml_file:$!";
 
 unlike( $yaml, qr/dummy/, "check yaml dump content" );
 
