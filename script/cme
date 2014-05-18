@@ -10,7 +10,7 @@ use Config::Model::ObjTreeScanner;
 use Getopt::Long;
 use Pod::Usage;
 use Log::Log4perl qw(get_logger :levels);
-use Path::Class;
+use Path::Tiny;
 use POSIX qw/setsid/;
 
 my $log4perl_syst_conf_file = '/etc/log4config-model.conf';
@@ -112,7 +112,7 @@ pod2usage( -verbose => 2 ) if $command =~ /man/;
 my @dir_to_scan = @INC;
 my %extension_path;
 foreach my $inc (@dir_to_scan) {
-    my $dir = dir("$inc/Config/Model/extensions/");
+    my $dir = path("$inc/Config/Model/extensions/");
     next unless -d $dir;
     foreach my $ext ( $dir->children ) {
         my $cmd = substr $ext->basename, 4;
