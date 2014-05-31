@@ -1252,7 +1252,7 @@ You can force to use all backend to write the files by specifying
 C<< backend => 'all' >>.
 
 You can force a specific config file to write with
-C<<config_file => 'foo/bar.conf' >>
+C<< config_file => 'foo/bar.conf' >>
 
 C<write_back> will croak if no write call-back are known for this node.
 
