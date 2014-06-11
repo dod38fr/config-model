@@ -10,8 +10,6 @@ use Test::Memory::Cycle;
 use Config::Model;
 use Log::Log4perl qw(:easy);
 
-BEGIN { plan tests => 57; }
-
 use strict;
 
 my $arg = shift || '';
@@ -182,7 +180,23 @@ $model->create_config_class(
             min => -4,
             max => 4,
         },
-        compute_with_upstream => {
+        compute_with_override_and_fix => {
+            type       => 'leaf',
+            class      => 'Config::Model::Value',
+            value_type => 'uniline',
+            compute    => {
+                formula        => 'def value',
+                allow_override => 1,
+            },
+            warn_unless => {
+                device_file => {
+                    code => 'm/def/;',
+                    msg => "not default value",
+                    fix => '$_ = undef;'
+                }
+            }
+       },
+       compute_with_upstream => {
             type       => 'leaf',
             class      => 'Config::Model::Value',
             value_type => 'integer',
@@ -345,7 +359,7 @@ eq_or_diff(
     [ $root->get_element_name() ],
     [
         qw/av bv compute_int sav sbv one_var one_wrong_var
-            meet_test compute_with_override compute_with_upstream compute_no_var bar
+            meet_test compute_with_override compute_with_override_and_fix compute_with_upstream compute_no_var bar
             foo2 url host with_tmp_var Upstream-Contact Maintainer Source Source2 Licenses
             index_function_target test_index_function OtherMaintainer Vcs-Browser/
     ],
@@ -560,4 +574,15 @@ is(
     'test compute with complex regexp formula'
 );
 
+my $cwoaf = $root->fetch_element('compute_with_override_and_fix');
+is($cwoaf->fetch, 'def value', "test compute_with_override_and_fix default value");
+warning_like {$cwoaf->store('oops') ; }[ qr/not default value/],
+    "check warning with modified compute_with_override_and_fix";
+$cwoaf->apply_fixes;
+is($cwoaf->fetch, 'def value', "test compute_with_override_and_fix value after fix");
+
+
+
 memory_cycle_ok( $model, "test memory cycles" );
+
+done_testing;

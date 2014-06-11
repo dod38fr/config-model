@@ -255,12 +255,10 @@ sub perform_compute {
 
     my $result = $self->compute_obj->compute;
 
-    #print "compute: result $result\n" ;
     # check if the computed result fits with the constraints of the
     # Value object
     my $ok = $self->check_fetched_value($result);
 
-    #print "check result: $ok\n";
     if ( not $ok ) {
         my $error = $self->error_msg . "\n\t" . $self->compute_info;
 
@@ -1014,10 +1012,10 @@ sub apply_fixes {
     my $i = 0;
     do {
         $old = $self->{nb_of_fixes};
-        $self->check_value( value => $self->{data}, fix => 1 );
+        $self->check_value( value => $self->_fetch_no_check, fix => 1 );
 
         $new = $self->{nb_of_fixes};
-        $self->check_value( value => $self->{data} );
+        $self->check_value( value => $self->_fetch_no_check );
         # if fix fails, try and check_fix call each other until this limit is found
         if ( $i++ > 20 ) {
             Config::Model::Exception::Model->throw(
