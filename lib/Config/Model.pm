@@ -112,6 +112,34 @@ around BUILDARGS => sub {
     return $class->$orig(%new);
 };
 
+# keep this as a separate sub from BUILD. So user can call it before
+# creating Config::Model object
+sub initialize_log4perl {
+    my $log4perl_syst_conf_file = '/etc/log4config-model.conf';
+    my $log4perl_user_conf_file = $ENV{HOME} . '/.log4config-model';
+
+    my $fallback_conf           = << 'EOC';
+log4perl.logger=WARN, Screen
+log4perl.appender.Screen        = Log::Log4perl::Appender::Screen
+log4perl.appender.Screen.stderr = 0
+log4perl.appender.Screen.layout = Log::Log4perl::Layout::PatternLayout
+log4perl.appender.Screen.layout.ConversionPattern = %d %m %n
+EOC
+
+    my $log4perl_conf =
+        -e $log4perl_user_conf_file ? $log4perl_user_conf_file
+      : -e $log4perl_syst_conf_file ? $log4perl_syst_conf_file
+      :                               \$fallback_conf;
+
+    Log::Log4perl::init_once($log4perl_conf);
+
+}
+
+sub BUILD {
+    my $self = shift;
+    $self->initialize_log4perl ;
+}
+
 sub show_legacy_issue {
     my $self     = shift;
     my $behavior = $self->legacy;
