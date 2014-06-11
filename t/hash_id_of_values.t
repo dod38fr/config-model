@@ -3,7 +3,7 @@
 use warnings FATAL => qw(all);
 
 use ExtUtils::testlib;
-use Test::More tests => 94;
+use Test::More ;
 use Test::Memory::Cycle;
 use Config::Model;
 use Test::Exception;
@@ -426,6 +426,11 @@ my $hwwikm = $root->fetch_element('hash_with_warn_if_key_match');
 warning_like { $hwwikm->fetch_with_id('foo2'); } qr/key 'foo2' should not match/,
     "warn if matching key";
 
+warning_like {
+ $hwwikm->fetch_with_id("foo2 multi\nline\nid");
+} qr/key 'foo2 multi\[truncated\.\.\.\]' should not match/,
+    "warn if matching multi_line key";
+
 my $hwwukm = $root->fetch_element('hash_with_warn_unless_key_match');
 warning_like { $hwwukm->fetch_with_id('bar2'); } qr/key 'bar2' should match foo/,
     "warn unless matching key";
@@ -450,3 +455,5 @@ $hwclc->fetch_with_id('Grip')->store('GripV');
 eq_or_diff( [ $hwclc->fetch_all_indexes ], [qw/debian grip/], "check converted ids" );
 
 memory_cycle_ok( $model, "check memory cycles" );
+
+done_testing;

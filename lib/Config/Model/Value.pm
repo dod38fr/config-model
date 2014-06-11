@@ -1120,7 +1120,7 @@ sub check_fetched_value {
             $warn_h{$w} = 1;
             next if $old_warn->{$w};
             my $str = defined $value ? "'$value'" : '<undef>';
-            warn "Warning in '" . $self->location . "' value $str: $w\n";
+            warn "Warning in '" . $self->location_short . "' value $str: $w\n";
         }
     }
     $self->{old_warning_hash} = \%warn_h;
@@ -1361,7 +1361,7 @@ sub check_stored_value {
             $warn_h{$w} = 1;
             next if $old_warn->{$w};
             my $str = defined $value ? "'$value'" : '<undef>';
-            warn "Warning in '" . $self->location . "' value $str: $w\n";
+            warn "Warning in '" . $self->location_short . "' value $str: $w\n";
         }
     }
     $self->{old_warning_hash} = \%warn_h;
