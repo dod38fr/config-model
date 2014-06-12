@@ -237,6 +237,14 @@ $model->create_config_class(
             'default' => '3.9.2',
             'type'    => 'leaf',
         },
+        t_file => {
+            type => 'leaf',
+            value_type => 'file'
+        },
+        t_dir => {
+            type => 'leaf',
+            value_type => 'dir'
+        }
     ],    # dummy class
 );
 
@@ -685,6 +693,19 @@ warning_like { $warn_unless->fetch(); } qr/should not be empty/, "check warn_unl
 $warn_unless->apply_fixes;
 ok( 1, "warn_unless apply_fixes called" );
 is( $warn_unless->fetch, 'foobar', "check fixed warn_unless pb" );
+
+### test file and dir
+my $t_file = $root->fetch_element('t_file');
+my $t_dir  = $root->fetch_element('t_dir');
+warning_like {$t_file->store('toto')} qr/not exist/, "test non existent file" ;
+warning_like {$t_file->store('t')} qr/not a file/, "test not a file" ;
+warning_like {$t_dir->store('t/value.t')} qr/not a dir/, "test not a dir" ;
+
+$t_file->store('t/value.t') ;
+is($t_file->has_warning, 0, "test a file");
+
+$t_dir->store('t/') ;
+is($t_dir->has_warning, 0, "test a dir");
 
 memory_cycle_ok( $model, "check memory cycles" );
 
