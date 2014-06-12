@@ -17,6 +17,8 @@ use Log::Log4perl qw(get_logger :levels);
 use Scalar::Util qw/weaken/;
 use Carp;
 use Storable qw/dclone/;
+use Path::Tiny;
+use List::MoreUtils qw(any) ;
 
 extends qw/Config::Model::AnyThing/;
 
@@ -26,7 +28,7 @@ my $fix_logger    = get_logger("Anything::Fix");
 
 our $nowarning = 0;    # global variable to silence warnings. Only used for tests
 
-enum ValueType => qw/boolean enum uniline string integer number reference/;
+enum ValueType => qw/boolean enum uniline string integer number reference file dir/;
 
 has fixes => ( is => 'rw', isa => 'ArrayRef', default => sub { [] } );
 
@@ -568,10 +570,7 @@ sub set_value_type {
         my $choice = delete $arg_ref->{choice};
         $self->setup_enum_choice($choice) if defined $choice;
     }
-    elsif ($value_type eq 'string'
-        or $value_type eq 'integer'
-        or $value_type eq 'number'
-        or $value_type eq 'uniline' ) {
+    elsif (any {$value_type eq $_} qw/string integer number uniline file dir/ ) {
         Config::Model::Exception::Model->throw(
             object => $self,
             error  => "'choice' parameter forbidden with type " . $value_type
@@ -818,6 +817,18 @@ sub check_value {
     }
     elsif ( $vt =~ /integer/ and $value =~ /^-?\d+(\.\d+)?$/ ) {
         push @error, "Type $vt: value $value is a number " . "but not an integer";
+    }
+    elsif ( $vt eq 'file' or $vt eq 'dir' ) {
+        if (defined $value) {
+            my $path = path($value);
+            if ($path->exists) {
+                my $check = 'is_'.$vt ;
+                push @warn, "$value is not a $vt" if not path($value)->$check;
+            }
+            else {
+                push @warn, "$vt $value does not exists" ;
+            }
+        }
     }
     elsif ( $vt eq 'reference' ) {
 
@@ -1908,7 +1919,7 @@ A leaf element must be declared with the following parameters:
 =item value_type
 
 Either C<boolean>, C<enum>, C<integer>, C<number>,
-C<uniline>, C<string>. Mandatory. See L</"Value types">.
+C<uniline>, C<string>, C<file>, C<dir>. Mandatory. See L</"Value types">.
 
 =item default
 
@@ -2116,6 +2127,16 @@ Actually, no check is performed with this type.
 
 Like an C<enum> where the possible values (aka choice) is defined by
 another location if the configuration tree. See L</Value Reference>.
+
+=item C<file>
+
+A file name or path. A warning will be issued if the file does not
+exists (or is a directory)
+
+=item C<dir>
+
+A directory name or path. A warning will be issued if the directory
+does not exists (or is a plain file)
 
 =back
 
