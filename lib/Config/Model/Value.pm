@@ -1758,46 +1758,46 @@ __END__
 
 =head1 SYNOPSIS
 
-use Config::Model;
-use Log::Log4perl qw(:easy);
-Log::Log4perl->easy_init($WARN);
+ use Config::Model;
+ use Log::Log4perl qw(:easy);
+ Log::Log4perl->easy_init($WARN);
 
-# define configuration tree object
-my $model = Config::Model->new;
-$model ->create_config_class (
-name => "MyClass",
+ # define configuration tree object
+ my $model = Config::Model->new;
+ $model ->create_config_class (
+    name => "MyClass",
 
-element => [
+    element => [
 
-[qw/foo bar/] => {
-type	   => 'leaf',
-value_type => 'string',
-description => 'foobar',
-}
-,
-country => {
-type =>		  'leaf',
-value_type => 'enum',
-choice =>	   [qw/France US/],
-description => 'big countries',
-}
-,
-],
-) ;
+        [qw/foo bar/] => {
+            type	   => 'leaf',
+            value_type => 'string',
+            description => 'foobar',
+        }
+        ,
+        country => {
+            type =>		  'leaf',
+            value_type => 'enum',
+            choice =>	   [qw/France US/],
+            description => 'big countries',
+        }
+    ,
+    ],
+ ) ;
 
-my $inst = $model->instance(root_class_name => 'MyClass' );
+ my $inst = $model->instance(root_class_name => 'MyClass' );
 
-my $root = $inst->config_root ;
+ my $root = $inst->config_root ;
 
-# put data
-$root->load( step => 'foo=FOO country=US' );
+ # put data
+ $root->load( step => 'foo=FOO country=US' );
 
-print $root->report ;
-#  foo = FOO
-#		  DESCRIPTION: foobar
-#
-#  country = US
-#		  DESCRIPTION: big countries
+ print $root->report ;
+ #  foo = FOO
+ #		  DESCRIPTION: foobar
+ #
+ #  country = US
+ #		  DESCRIPTION: big countries
 
 =head1 DESCRIPTION
 
@@ -2129,32 +2129,30 @@ explanation on warp mechanism).
 
 For instance if you declare 2 C<Value> element this way:
 
-$model ->create_config_class (
-name => "TV_config_class",
-element => [
-country => {
-type => 'leaf',
-value_type => 'enum',
-choice => [qw/US Europe Japan/]
-}
-,
-tv_standard => {
-type => 'leaf',
-value_type => 'enum',
-choice => [qw/PAL NTSC SECAM/]
-warp => {
-follow => { c => '- country' }, # this points to the warp master
-rules => {
-'$c eq "US"'	 => { default => 'NTSC'	 },
-'$c eq "France"' => { default => 'SECAM' },
-'$c eq "Japan"'	 => { default => 'NTSC'	 },
-'$c eq "Europe"' => { default => 'PAL'	 },
-}
-}
-}
-,
-]
-);
+ $model ->create_config_class (
+     name => "TV_config_class",
+     element => [
+         country => {
+             type => 'leaf',
+             value_type => 'enum',
+             choice => [qw/US Europe Japan/]
+         } ,
+         tv_standard => {
+             type => 'leaf',
+             value_type => 'enum',
+             choice => [qw/PAL NTSC SECAM/]
+             warp => {
+                 follow => { c => '- country' }, # this points to the warp master
+                 rules => {
+                     '$c eq "US"'	 => { default => 'NTSC'	 },
+                     '$c eq "France"' => { default => 'SECAM' },
+                     '$c eq "Japan"'	 => { default => 'NTSC'	 },
+                     '$c eq "Europe"' => { default => 'PAL'	 },
+                 }
+             }
+         } ,
+     ]
+ );
 
 Setting C<country> element to C<US> will mean that C<tv_standard> has
 a default value set to C<NTSC> by the warp mechanism.
@@ -2162,18 +2160,18 @@ a default value set to C<NTSC> by the warp mechanism.
 Likewise, the warp mechanism enables you to dynamically change the
 possible values of an enum element:
 
-state => {
-type => 'leaf',
-value_type => 'enum',			# example is admittedly silly
-warp =>{
-follow => { c => '- country' },
-rules => {
-'$c eq "US"'	 => { choice => ['Kansas', 'Texas'	  ]},
-'$c eq "Europe"' => { choice => ['France', 'Spain'	  ]},
-'$c eq "Japan"'	 => { choice => ['Honshu', 'Hokkaido' ]}
-}
-}
-}
+ state => {
+     type => 'leaf',
+     value_type => 'enum',			# example is admittedly silly
+     warp =>{
+         follow => { c => '- country' },
+         rules => {
+             '$c eq "US"'	 => { choice => ['Kansas', 'Texas'	  ]},
+             '$c eq "Europe"' => { choice => ['France', 'Spain'	  ]},
+             '$c eq "Japan"'	 => { choice => ['Honshu', 'Hokkaido' ]}
+         }
+     }
+ }
 
 =head2 Cascaded warping
 
