@@ -9,26 +9,8 @@ use Config::Model::Lister;
 use Config::Model::ObjTreeScanner;
 use Getopt::Long;
 use Pod::Usage;
-use Log::Log4perl qw(get_logger :levels);
 use Path::Tiny;
 use POSIX qw/setsid/;
-
-my $log4perl_syst_conf_file = '/etc/log4config-model.conf';
-my $log4perl_user_conf_file = $ENV{HOME} . '/.log4config-model';
-my $fallback_conf           = << 'EOC';
-log4perl.logger=WARN, Screen
-log4perl.appender.Screen        = Log::Log4perl::Appender::Screen
-log4perl.appender.Screen.stderr = 0
-log4perl.appender.Screen.layout = Log::Log4perl::Layout::PatternLayout
-log4perl.appender.Screen.layout.ConversionPattern = %d %m %n
-EOC
-
-my $log4perl_conf =
-      -e $log4perl_user_conf_file ? $log4perl_user_conf_file
-    : -e $log4perl_syst_conf_file ? $log4perl_syst_conf_file
-    :                               \$fallback_conf;
-
-Log::Log4perl::init($log4perl_conf);
 
 my $ui_type;
 
@@ -53,7 +35,7 @@ my $apply_fixes = 0;
 my $search;
 my $search_type = 'all';
 my $dir_char_mockup;
-my $try_application_as_model = 0;    # means search a model instead of an application name
+my $try_application_as_model = 0; # means search a model instead of an application name
 my $backup;
 my $auto_create;
 my $strict = 0;

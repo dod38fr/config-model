@@ -23,10 +23,6 @@ use lib qw/lib/ ;
 use strict;
 use Path::Tiny ;
 use Config::Model ; # to generate doc
-use Log::Log4perl qw(:easy) ;
-
-Log::Log4perl->easy_init($WARN);
-
 
 my $model = Config::Model -> new(model_dir => "lib/Config/Model/models") ;
 
