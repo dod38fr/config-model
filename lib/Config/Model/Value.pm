@@ -798,16 +798,17 @@ sub check_value {
 
     my @error;
     my @warn;
+    my $vt = $self->value_type ;
 
     if ( not defined $value ) {
 
         # accept with no other check
     }
-    elsif ( not defined $self->{value_type} ) {
+    elsif ( not defined $vt ) {
         push @error, "Undefined value_type";
     }
-    elsif (( $self->{value_type} =~ /integer/ and $value =~ /^-?\d+$/ )
-        or ( $self->{value_type} =~ /number/ and $value =~ /^-?\d+(\.\d+)?$/ ) ) {
+    elsif (( $vt =~ /integer/ and $value =~ /^-?\d+$/ )
+        or ( $vt =~ /number/ and $value =~ /^-?\d+(\.\d+)?$/ ) ) {
 
         # correct number or integer. check min max
         push @error, "value $value > max limit $self->{max}"
@@ -815,10 +816,10 @@ sub check_value {
         push @error, "value $value < min limit $self->{min}"
             if defined $self->{min} and $value < $self->{min};
     }
-    elsif ( $self->{value_type} =~ /integer/ and $value =~ /^-?\d+(\.\d+)?$/ ) {
-        push @error, "Type $self->{value_type}: value $value is a number " . "but not an integer";
+    elsif ( $vt =~ /integer/ and $value =~ /^-?\d+(\.\d+)?$/ ) {
+        push @error, "Type $vt: value $value is a number " . "but not an integer";
     }
-    elsif ( $self->{value_type} eq 'reference' ) {
+    elsif ( $vt eq 'reference' ) {
 
         # just in case the reference_object has been changed
         if ( defined $self->{refer_to} or defined $self->{computed_refer_to} ) {
@@ -831,26 +832,26 @@ sub check_value {
             push @error, ( $quiet ? 'reference error' : $self->enum_error($value) );
         }
     }
-    elsif ( $self->{value_type} eq 'enum' ) {
+    elsif ( $vt eq 'enum' ) {
         if (    length($value)
             and defined $self->{choice_hash}
             and not defined $self->{choice_hash}{$value} ) {
             push @error, ( $quiet ? 'enum error' : $self->enum_error($value) );
         }
     }
-    elsif ( $self->{value_type} eq 'boolean' ) {
+    elsif ( $vt eq 'boolean' ) {
         push @error, "boolean error: '$value' is not '1' or '0'"
             unless $value =~ /^[01]$/;
     }
-    elsif ($self->{value_type} =~ /integer/
-        or $self->{value_type} =~ /number/ ) {
-        push @error, "Value '$value' is not of type " . $self->{value_type};
+    elsif ($vt =~ /integer/
+        or $vt =~ /number/ ) {
+        push @error, "Value '$value' is not of type " . $vt;
     }
-    elsif ( $self->{value_type} eq 'uniline' ) {
+    elsif ( $vt eq 'uniline' ) {
         push @error, '"uniline" value must not contain embedded newlines (\n)'
             if $value =~ /\n/;
     }
-    elsif ( $self->{value_type} eq 'string' ) {
+    elsif ( $vt eq 'string' ) {
 
         # accepted, no more check
     }
@@ -860,7 +861,7 @@ sub check_value {
             if defined $self->{choice};
 
         my $msg =
-            "Cannot check value_type '" . $self->{value_type} . "' (value '$value'$choice_msg)";
+            "Cannot check value_type '$vt' (value '$value'$choice_msg)";
         Config::Model::Exception::Model->throw( object => $self, message => $msg );
     }
 
