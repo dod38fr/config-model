@@ -1,5 +1,19 @@
 {{$NEXT}}
 
+2.057 2014-06-12
+
+  New features:
+
+    * Config::Model: initialise log4perl during construction
+    * Value: added file and dir value type. A warning is issued when file
+      or dir is not found.
+
+  Other bug fixes:
+
+    * Shortens long index to limit the length of warning and error messages
+    * Value: fix check done during apply_fixes...
+    * ObjTreeScanner: tolerate deprecated experience parameter.
+
 2.056 2014-05-18
 
 	This release deprecates experience associated with configuration element.
