@@ -241,7 +241,9 @@ elsif ( $command eq 'fix' ) {
     @fix_from = ('') unless @fix_from;
     foreach my $path (@fix_from) {
         my $node_to_fix = $inst->config_root->grab($path);
-        say "Fixing from ", $node_to_fix->name, "...";
+        my $msg = "Fixing $application configuration";
+        $msg .= "from node", $node_to_fix->name if $path;
+        say $msg. "...";
         $node_to_fix->apply_fixes($fix_filter);
     }
     $request_save = 1;
