@@ -140,7 +140,7 @@ sub shorten_idx {
     my $idx = shift @idx;
     $idx .= '[truncated...]' if @idx;
 
-    return $idx ;
+    return $idx // ''; # may be undef on freebsd with perl 5.10.1 ...
 }
 
 
