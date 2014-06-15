@@ -875,7 +875,7 @@ down in the tree (since it has just deleted the element). I.e. a
 Remove the element whose value is C<yy>. For list or hash of leaves.
 Will not complain if the value to delete is not found.
 
-=item xxx-~/yy/
+=item xxx:-~/yy/
 
 Remove the element whose value matches C<yy>. For list or hash of leaves.
 Will not complain if no value were deleted.
@@ -884,35 +884,35 @@ Will not complain if no value were deleted.
 
 Substitute a value with another
 
-=item xxx:<yy or xxx.push(yy)
+=item xxx:<yy or xxx:.push(yy)
 
 Push C<yy> value on C<xxx> list
 
-=item xxx:>yy or xxx.unshift(yy)
+=item xxx:>yy or xxx:.unshift(yy)
 
 Unshift C<yy> value on C<xxx> list
 
-=item xxx:@ or xxx.sort
+=item xxx:@ or xxx:.sort
 
 Sort the list
 
-=item xxx.insert_at(yy,zz)
+=item xxx:.insert_at(yy,zz)
 
 Insert C<zz> value on C<xxx> list before B<index> C<yy>.
 
-=item  xxx.insert_before(yy,zz)
+=item  xxx:.insert_before(yy,zz)
 
 Insert C<zz> value on C<xxx> list before B<value> C<yy>.
 
-=item xxx.insert_before(/yy/,zz)
+=item xxx:.insert_before(/yy/,zz)
 
 Insert C<zz> value on C<xxx> list before B<value> matching C<yy>.
 
-=item xxx.insort(zz)
+=item xxx:.insort(zz)
 
 Insert C<zz> value on C<xxx> list so that existing alphanumeric order is preserved.
 
-=item xxx=z1,z2,z3
+=item xxx:=z1,z2,z3
 
 Set list element C<xxx> to list C<z1,z2,z3>. Use C<,,> for undef
 values, and C<""> for empty values.
