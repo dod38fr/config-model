@@ -612,21 +612,6 @@ sub unregister {
     $self->{warp_these_objects} = \@new;
 }
 
-sub check_warp_keys {
-    my ( $self, @warp_keys ) = @_;
-
-    # check the warping rules keys (which must be valid values for
-    # this object) (cannot check rules if we are also warped by
-    # another object ...
-    return 1 if defined $self->{warp};
-
-    my $ok = 1;
-
-    map { $ok = 0 unless $self->check_value($_); } @warp_keys;
-
-    return $ok;
-}
-
 # And I'm going to warp them ...
 sub trigger_warp {
     my $self = shift;
