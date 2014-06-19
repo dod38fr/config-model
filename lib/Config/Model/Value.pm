@@ -313,8 +313,8 @@ sub set_migrate_from {
 sub migrate_value {
     my $self = shift;
 
-    return if $self->{migration_done};
-    return if $self->instance->initial_load;
+    return undef if $self->{migration_done};
+    return undef if $self->instance->initial_load;
     $self->{migration_done} = 1;
 
     # avoid warning when reading deprecated values
