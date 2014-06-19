@@ -1,5 +1,15 @@
 {{$NEXT}}
 
+2.058 2014-06-19
+
+    Bug fix release
+
+    * cme: modify cryptic user message about "Fixing stuff"
+    * Value: tweak migrate_value to always return something, even undef.
+      This fixes 'cme check dpkg-copyright' crash (thanks gregoa)
+    * Loader: fix pod doc about list operators
+    * AnyThing: avoid undef warning that breaks test on freebsd perl 5.10.1
+
 2.057 2014-06-12
 
   New features:
