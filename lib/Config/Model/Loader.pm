@@ -370,6 +370,10 @@ my %dispatch_action = (
         ':.insort'        => sub { $_[1]->insort( @_[ 4 .. $#_ ] ); },
         ':.insert_before' => \&_insert_before,
     },
+    hash_leaf => {
+        ':.sort'          => sub { $_[1]->sort; },
+        ':@'              => sub { $_[1]->sort; },
+    },
     leaf => {
         ':-=' => \&_remove_by_value,
         ':-~' => \&_remove_matched_value,
