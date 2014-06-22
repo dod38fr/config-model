@@ -2498,81 +2498,73 @@ Set a value from a directory like path.
 =head2 Number with min and max values
 
 bounded_number => {
-type	   => 'leaf',
-value_type => 'number',
-min		   => 1,
-max		   => 4,
-}
-,
+    type       => 'leaf',
+    value_type => 'number',
+    min        => 1,
+    max        => 4,
+    },
 
 =head2 Mandatory value
 
-mandatory_string => {
-type	   => 'leaf',
-value_type => 'string',
-mandatory  => 1,
-}
-,
+ mandatory_string => {
+    type       => 'leaf',
+    value_type => 'string',
+    mandatory  => 1,
+    },
 
-mandatory_boolean => {
-type	   => 'leaf',
-value_type => 'boolean',
-}
-,
+ mandatory_boolean => {
+    type       => 'leaf',
+    value_type => 'boolean',
+    },
 
 =head2 Enum with help associated with each value
 
 Note that the help specification is optional.
 
 enum_with_help => {
-type	   => 'leaf',
-value_type => 'enum',
-choice	   => [qw/a b c/],
-help	   => { a => 'a help' }
-}
-,
+    type       => 'leaf',
+    value_type => 'enum',
+    choice     => [qw/a b c/],
+    help       => { a => 'a help' }
+    },
 
 =head2 Migrate old obsolete enum value
 
 Legacy values C<a1>, C<c1> and C<foo/.*> are replaced with C<a>, C<c> and C<foo/>.
 
-with_replace => {
-type	   => 'leaf',
-value_type => 'enum',
-choice	   => [qw/a b c/],
-replace	   => {
-a1		 => 'a',
-c1		 => 'c',
-'foo/.*' => 'foo',
-}
-,
-}
-,
+ with_replace => {
+    type       => 'leaf',
+    value_type => 'enum',
+    choice     => [qw/a b c/],
+    replace    => {
+        a1       => 'a',
+        c1       => 'c',
+        'foo/.*' => 'foo',
+    },
+    },
 
 =head2 Enforce value to match a regexp
 
 An exception will be triggered if the value does not match the C<match>
 regular expression.
 
-match => {
-type	   => 'leaf',
-value_type => 'string',
-match	   => '^foo\d{2}$',
-}
-,
+ match => {
+    type       => 'leaf',
+    value_type => 'string',
+    match      => '^foo\d{2}$',
+    },
 
 =head2 Enforce value to match a L<Parse::RecDescent> grammar
 
-match_with_parse_recdescent => {
-type	   => 'leaf',
-value_type => 'string',
-grammar	   => q{
-token (oper token)(s?)
-oper: 'and' | 'or'
-token: 'Apache' | 'CC-BY' | 'Perl'
-},
-}
-,
+ match_with_parse_recdescent => {
+    type       => 'leaf',
+    value_type => 'string',
+    grammar    => q{
+        token (oper token)(s?)
+        oper: 'and' | 'or'
+        token: 'Apache' | 'CC-BY' | 'Perl'
+    },
+ },
 
 =head2 Issue a warning if a value matches a regexp
 
@@ -2580,44 +2572,39 @@ Issue a warning if the string contains upper case letters. Propose a fix that
 translate all capital letters to lower case.
 
 warn_if_capital => {
-type		  => 'leaf',
-value_type	  => 'string',
-warn_if_match => { '/A-Z/' => { fix => '$_ = lc;' } },
-}
-,
+    type          => 'leaf',
+    value_type    => 'string',
+    warn_if_match => { '/A-Z/' => { fix => '$_ = lc;' } },
+    },
 
 A specific warning can be specified:
 
 warn_if_capital => {
-type		  => 'leaf',
-value_type	  => 'string',
-warn_if_match => {
-'/A-Z/' => {
-fix => '$_ = lc;' ,
-mesg =>'NO UPPER CASE PLEASE'
-}
-}
-,
-}
-,
+    type          => 'leaf',
+    value_type    => 'string',
+    warn_if_match => {
+        '/A-Z/' => {
+            fix  => '$_ = lc;',
+            mesg => 'NO UPPER CASE PLEASE'
+        }
+    },
+    },
 
 =head2 Issue a warning if a value does NOT match a regexp
 
 warn_unless => {
-type			  => 'leaf',
-value_type		  => 'string',
-warn_unless_match => { foo => { msg => '', fix => '$_ = "foo".$_;' } },
-}
-,
+    type              => 'leaf',
+    value_type        => 'string',
+    warn_unless_match => { foo => { msg => '', fix => '$_ = "foo".$_;' } },
+    },
 
 =head2 Always issue a warning
 
-always_warn => {
-type	   => 'leaf',
-value_type => 'string',
-warn	   => 'Always warn whenever used',
-}
-,
+ always_warn => {
+    type       => 'leaf',
+    value_type => 'string',
+    warn       => 'Always warn whenever used',
+    },
 
 =head2 Computed values
 
@@ -2651,32 +2638,32 @@ parameter)
 Here an example where a URL parameter is changed to a set of 2
 parameters (host and path):
 
-'old_url' => { type => 'leaf',
-value_type => 'uniline',
-status => 'deprecated',
-}
-,
-'host'
-=> { type => 'leaf',
-value_type => 'uniline',
-# the formula must end with '$1' so the result of the capture is used
-# as the host value
-migrate_from => { formula => '$old =~ m!http://([\w\.]+)!; $1 ;' ,
-variables => { old => '- old_url' } ,
-use_eval => 1 ,
-}
-,
-}
-,
-'path' => { type => 'leaf',
-value_type => 'uniline',
-migrate_from => { formula => '$old =~ m!http://[\w\.]+(/.*)!; $1 ;',
-variables => { old => '- old_url' } ,
-use_eval => 1 ,
-}
-,
-}
-,
+ 'old_url' => {
+    type       => 'leaf',
+    value_type => 'uniline',
+    status     => 'deprecated',
+    },
+    'host' => {
+    type       => 'leaf',
+    value_type => 'uniline',
+
+    # the formula must end with '$1' so the result of the capture is used
+    # as the host value
+    migrate_from => {
+        formula   => '$old =~ m!http://([\w\.]+)!; $1 ;',
+        variables => { old => '- old_url' },
+        use_eval  => 1,
+    },
+    },
+    'path' => {
+    type         => 'leaf',
+    value_type   => 'uniline',
+    migrate_from => {
+        formula   => '$old =~ m!http://[\w\.]+(/.*)!; $1 ;',
+        variables => { old => '- old_url' },
+        use_eval  => 1,
+    },
+    },
 
 
 =head1 EXCEPTION HANDLING
