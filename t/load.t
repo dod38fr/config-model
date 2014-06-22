@@ -354,6 +354,13 @@ $root->load(
     'lista=' . join( ',', @set1 ) . ' lista:.sort lista:.insort(' . join( ',', @set2 ) . ')' );
 eq_or_diff( [ $lista->fetch_all_values ], [ sort( @set1, @set2 ) ], "check insort result" );
 
+# test sort on ordered hash
+my $oh = $root->fetch_element('ordered_hash');
+$root->load('ordered_hash:b=bv ordered_hash:a=av');
+eq_or_diff( [$oh->fetch_all_indexes()],[qw/b a/], "check unsorted keys") ;
+$root->load('ordered_hash:.sort') ;
+eq_or_diff( [$oh->fetch_all_indexes()],[qw/a b/], "check sorted keys") ;
+
 # test combination of annotation plus load and some utf8
 $step = 'std_id#std_id_note ! std_id:ab#std_id_ab_note X=Bv X#X_note 
       - std_id:bc X=Av X#X2_note '
