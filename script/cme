@@ -12,6 +12,20 @@ use Pod::Usage;
 use Path::Tiny;
 use POSIX qw/setsid/;
 
+sub run_shell_ui ($$) {
+    my ($root, $root_model) = @_;
+
+    require Config::Model::TermUI;
+    my $shell_ui = Config::Model::TermUI->new(
+        root   => $root,
+        title  => $root_model . ' configuration',
+        prompt => ' >',
+    );
+
+    # engage in user interaction
+    $shell_ui->run_loop;
+}
+
 my $ui_type;
 
 my $model_dir;
@@ -55,6 +69,9 @@ my %command_option = (
     ],
     edit => [
         "ui|if=s"               => \$ui_type,
+        "open_item|open-item=s" => \$open_item,
+    ],
+    shell => [
         "open_item|open-item=s" => \$open_item,
     ],
     dump => [
@@ -290,6 +307,9 @@ elsif ( $command =~ /^fuse/ ) {
         exit;    # don't save data in parent process
     }
 }
+elsif ( $command eq 'shell' ) {
+    run_shell_ui($root, $root_model) ;
+}
 elsif ( $command eq 'edit' ) {
     eval { require Config::Model::TkUI; };
     my $has_tk = $@ ? 0 : 1;
@@ -326,16 +346,7 @@ elsif ( $command eq 'edit' ) {
         $shell_ui->run_loop;
     }
     elsif ( $ui_type eq 'shell' ) {
-
-        require Config::Model::TermUI;
-        my $shell_ui = Config::Model::TermUI->new(
-            root   => $root,
-            title  => $root_model . ' configuration',
-            prompt => ' >',
-        );
-
-        # engage in user interaction
-        $shell_ui->run_loop;
+        run_shell_ui($root, $root_model) ;
     }
     elsif ( $ui_type eq 'curses' ) {
         die "cannot run curses interface: ", "Config::Model::CursesUI is not installed\n"
@@ -532,6 +543,11 @@ C<shell>: provides a shell like interface.  See L<Config::Model::TermUI>
 for details.
 
 =back
+
+=head2 shell
+
+Edit the configuration with a shell like interface.  See L<Config::Model::TermUI>
+for details. This is a shortcut for C<edit -ui shell>.
 
 =head2 check
 
