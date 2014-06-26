@@ -209,6 +209,17 @@ $model->create_config_class(
                 }
             },
         },
+        warn_if_number => {
+            type        => 'leaf',
+            value_type  => 'string',
+            warn_if => {
+                warn_test => {
+                    code => 'defined $_ && /\d/;',
+                    msg  => 'should not have numbers',
+                    fix  => 's/\d//g;'
+                }
+            },
+        },
         warn_unless => {
             type        => 'leaf',
             value_type  => 'string',
@@ -614,6 +625,14 @@ is( $wip->has_fixes, 1, "test has_fixes after fetch with mode = standard" );
 ### test fix included in model
 $wip->apply_fixes;
 is( $wip->fetch, 'FOOBAR', "test if fixes were applied" );
+
+### test warn_if_number parameter
+my $win = $root->fetch_element('warn_if_number');
+warning_like { $win->store('bar51'); } qr//, "test warn_if condition";
+
+is( $win->has_fixes, 1, "test has_fixes" );
+$win->apply_fixes;
+is( $win->fetch, 'bar', "test if fixes were applied" );
 
 ### test warn_unless parameter
 my $wup = $root->fetch_element('warn_unless_match');
