@@ -51,7 +51,7 @@ has value_type => ( is => 'rw', isa => 'ValueType' );
 my @common_int_params = qw/min max mandatory /;
 has \@common_int_params => ( is => 'ro', isa => 'Maybe[Int]' );
 
-my @common_hash_params = qw/replace assert warn_if_match warn_unless_match warn_unless help/;
+my @common_hash_params = qw/replace assert warn_if_match warn_unless_match warn_if warn_unless help/;
 has \@common_hash_params => ( is => 'ro', isa => 'Maybe[HashRef]' );
 
 my @common_list_params = qw/choice/;
@@ -501,7 +501,7 @@ sub set_properties {
     }
 
     map { $self->{$_} = delete $args{$_} if defined $args{$_} }
-        qw/min max mandatory replace warn replace_follow assert warn_unless
+        qw/min max mandatory replace warn replace_follow assert warn_if warn_unless
         write_as/;
 
     $self->set_help( \%args );
@@ -895,10 +895,11 @@ sub check_value {
             $self->{assert} )
             if $self->{assert};
         $self->run_code_set_on_value( \$value, $apply_fix, \@warn,
-            "warn_unless code check returned false",
-            $self->{warn_unless} )
+            "warn_unless code check returned false", $self->{warn_unless} )
             if $self->{warn_unless};
-
+        $self->run_code_set_on_value( \$value, $apply_fix, \@warn,
+            "warn_if code check returned true", $self->{warn_if}, 1 )
+            if $self->{warn_if};
     }
 
     # unconditional warn
@@ -955,7 +956,7 @@ sub run_code_on_value {
 }
 
 sub run_code_set_on_value {
-    my ( $self, $value_r, $apply_fix, $array, $msg, $w_info ) = @_;
+    my ( $self, $value_r, $apply_fix, $array, $msg, $w_info, $invert ) = @_;
 
     foreach my $label ( keys %$w_info ) {
         my $code = $w_info->{$label}{code};
@@ -965,6 +966,7 @@ sub run_code_set_on_value {
 
         my $sub = sub {
             local $_ = shift;
+            no warnings "uninitialized";
             my $ret = eval($code);
             if ($@) {
                 Config::Model::Exception::Model->throw(
@@ -972,7 +974,7 @@ sub run_code_set_on_value {
                     message => "Eval of code failed : $@"
                 );
             }
-            return $ret;
+            return $invert ^ $ret;
         };
 
         $self->run_code_on_value( $value_r, $apply_fix, $array, $label, $sub, $msg, $fix );
@@ -1017,7 +1019,7 @@ sub apply_fixes {
         if ( $i++ > 20 ) {
             Config::Model::Exception::Model->throw(
                 object => $self,
-                error  => "Too many fix loops: check with fix code or regexp"
+                error  => "Too many fix loops: check code used to fix value or the check"
             );
         }
     } while ( $self->{nb_of_fixes} and $old > $new );
@@ -1057,11 +1059,13 @@ sub _store_fix {
             "fix change: '" . ( $old // '<undef>' ) . "' -> '" . ( $new // '<undef>' ) . "'" );
     }
 
-    $self->notify_change(
+    my %args = (
         old => $old // $self->_fetch_std,
         new => $new // $self->_fetch_std,
         note => 'applied fix'
-    );
+    ) ;
+    no warnings "uninitialized";
+    $self->notify_change( %args );# if $args{old} ne $args{new};
 
     # $self->store(value => $_, check => 'no');	 # will update $self->{fixes}
 }
@@ -1989,17 +1993,36 @@ C<uniline> values.
 
 String. Issue a warning to user with the specified string any time a value is set or read.
 
-=item warn_unless
+=item warn_if
 
 A bit like C<warn_if_match>. The hash key is not a regexp but a label to
 help users. The hash ref contains some Perl code that is evaluated to
-perform the test. A warning will be issued if the code returns false.
+perform the test. A warning will be issued if the code returns true.
 
 C<$_> will contains the value to check. C<$self> will contain the C<Config::Model::Value> object.
 
-The example below will warn if a directory is missing:
+The example below will warn if value contaims a number:
 
-warn_unless => { 'dir' => { code => '-d' , msg => 'missing dir', fix => "system(mkdir $_);" }}
+ warn_if => {
+                warn_test => {
+                    code => 'defined $_ && /\d/;',
+                    msg  => 'should not have numbers',
+                    fix  => 's/\d//g;'
+                }
+            },
+
+=item warn_unless
+
+Like C<warn_if>, but issue a warning when the C<code> returns false.
+
+The example below will warn unless the value points to an existing directory:
+
+ warn_unless => {
+     'dir' => {
+          code => '-d',
+          msg => 'missing dir',
+          fix => "system(mkdir $_);" }
+ }
 
 
 =item assert
