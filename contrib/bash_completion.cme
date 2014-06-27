@@ -24,7 +24,7 @@ _cme_appli()
 
 _cme_commands()
 {
-    COMPREPLY=( $( compgen -W 'list check migrate fix modify search edit dump fusefs' -- $cur ) )
+    COMPREPLY=( $( compgen -W 'list check migrate fix modify search edit shell dump fusefs' -- $cur ) )
 }    
 
 _cme_handle_app_arg()
