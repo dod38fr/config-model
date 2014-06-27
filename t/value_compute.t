@@ -195,6 +195,31 @@ $model->create_config_class(
                     fix => '$_ = undef;'
                 }
             }
+        },
+        # emulate imon problem where /dev/lcd0 is the default value and may not be found
+        compute_with_override_and_powerless_fix => {
+            type       => 'leaf',
+            class      => 'Config::Model::Value',
+            value_type => 'uniline',
+            compute    => {
+                formula        => q"my $l = '/dev/lcd-imon'; -e $l ? $l : '/dev/lcd0';",
+                use_eval => 1,
+                allow_override => 1,
+            },
+            warn_if => {
+                not_lcd_imon => {
+                    code => q!my $l = '/dev/lcd-imon';defined $_ and -e $l and $_ ne $l ;!,
+                    msg => "not lcd-foo.txt",
+                    fix => '$_ = undef;'
+                },
+            },
+            warn_unless => {
+                good_value => {
+                    code => 'defined $_ ? -e : 1;',
+                    msg => "not good value",
+                    fix => '$_ = undef;'
+                }
+            }
        },
        compute_with_upstream => {
             type       => 'leaf',
@@ -359,7 +384,8 @@ eq_or_diff(
     [ $root->get_element_name() ],
     [
         qw/av bv compute_int sav sbv one_var one_wrong_var
-            meet_test compute_with_override compute_with_override_and_fix compute_with_upstream compute_no_var bar
+            meet_test compute_with_override compute_with_override_and_fix compute_with_override_and_powerless_fix
+            compute_with_upstream compute_no_var bar
             foo2 url host with_tmp_var Upstream-Contact Maintainer Source Source2 Licenses
             index_function_target test_index_function OtherMaintainer Vcs-Browser/
     ],
@@ -581,7 +607,10 @@ warning_like {$cwoaf->store('oops') ; }[ qr/not default value/],
 $cwoaf->apply_fixes;
 is($cwoaf->fetch, 'def value', "test compute_with_override_and_fix value after fix");
 
-
+my $cwoapf = $root->fetch_element('compute_with_override_and_powerless_fix');
+warning_like { $cwoapf->apply_fixes;} [ qr/not good value/],
+    "check warning when applying powerless fix";
+is($cwoapf->fetch, '/dev/lcd0', "test default value after powerless fix");
 
 memory_cycle_ok( $model, "test memory cycles" );
 

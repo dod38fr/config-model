@@ -1010,7 +1010,7 @@ sub apply_fixes {
     my ( $old, $new );
     my $i = 0;
     do {
-        $old = $self->{nb_of_fixes};
+        $old = $self->{nb_of_fixes} // 0;
         $self->check_value( value => $self->_fetch_no_check, fix => 1 );
 
         $new = $self->{nb_of_fixes};
@@ -1041,7 +1041,7 @@ sub apply_fix {
     if ($@) {
         Config::Model::Exception::Model->throw(
             object  => $self,
-            message => "Eval of fix	 $fix failed : $@"
+            message => "Eval of fix $fix failed : $@"
         );
     }
 
@@ -1065,9 +1065,8 @@ sub _store_fix {
         note => 'applied fix'
     ) ;
     no warnings "uninitialized";
-    $self->notify_change( %args );# if $args{old} ne $args{new};
-
-    # $self->store(value => $_, check => 'no');	 # will update $self->{fixes}
+    # in case $old is the default value and $new is undef
+    $self->notify_change( %args ) if $args{old} ne $args{new};
 }
 
 # read checks should be blocking
