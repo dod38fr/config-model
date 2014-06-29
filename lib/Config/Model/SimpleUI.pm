@@ -118,13 +118,13 @@ my %run_dispatch = (
 
         my $i    = $self->{current_node}->instance;
         my @res  = grep {/^$pattern$/} $self->{current_node}->get_element_name;
-        return join( '  ', @res );
+        return join( ' ', @res );
     },
     dump => sub {
         my $self = shift;
         my $i    = $self->{current_node}->instance;
         my @res  = $self->{current_node}->dump_tree( full_dump => 1 );
-        return join( '  ', @res );
+        return join( ' ', @res );
     },
     delete => sub {
         my $self = shift;

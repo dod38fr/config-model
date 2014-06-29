@@ -77,7 +77,7 @@ my @test = (
     [ 'vf std_id:ab', "Unexpected command 'vf'", $expected_prompt ],
     [
         'ls',
-        'std_id  lista  listb  hash_a  hash_b  ordered_hash  olist  tree_macro  warp  slave_y  string_with_def  a_uniline  a_string  int_v  my_check_list  my_reference',
+        'std_id lista listb hash_a hash_b ordered_hash olist tree_macro warp slave_y string_with_def a_uniline a_string int_v my_check_list my_reference',
         $expected_prompt
     ],
     [ 'set a_string="some value with space"', "",   $expected_prompt ],
