@@ -8,7 +8,7 @@ use File::Path;
 use File::Copy;
 use Path::Tiny;
 use Data::Dumper;
-use YAML::Any 0.303;
+use YAML::Any;
 
 use warnings;
 no warnings qw(once);
