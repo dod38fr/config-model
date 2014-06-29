@@ -370,7 +370,7 @@ my %dispatch_action = (
         ':.insort'        => sub { $_[1]->insort( @_[ 4 .. $#_ ] ); },
         ':.insert_before' => \&_insert_before,
     },
-    hash_leaf => {
+    'hash_*' => {
         ':.sort'          => sub { $_[1]->sort; },
         ':@'              => sub { $_[1]->sort; },
     },
@@ -488,6 +488,7 @@ sub _load_list {
     if ( defined $action ) {
         my $dispatch =
                $dispatch_action{ 'list_' . $cargo_type }{$action}
+            || $dispatch_action{ 'list_*'}{$action}
             || $dispatch_action{$cargo_type}{$action}
             || $dispatch_action{'fallback'}{$action};
         if ($dispatch) {
@@ -595,6 +596,7 @@ sub _load_hash {
     if ( defined $action ) {
         my $dispatch =
                $dispatch_action{ 'hash_' . $cargo_type }{$action}
+            || $dispatch_action{ 'hash_*'}{$action}
             || $dispatch_action{$cargo_type}{$action}
             || $dispatch_action{'fallback'}{$action};
         if ($dispatch) {
