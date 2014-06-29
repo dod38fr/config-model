@@ -57,9 +57,14 @@ my $ll_sub = sub {
     my $elt  = shift;
 
     my $obj = $self->{current_node};
-
-    my $i = $self->{current_node}->instance;
-    my $res = $obj->describe( element => $elt, check => 'no' );
+    my $res ;
+    if ($elt =~ /\*/) {
+        $elt =~ s/\*/.*/g;
+        $res = $obj->describe( pattern => qr/^$elt$/, check => 'no' );
+    }
+    else {
+        $res = $obj->describe( element => $elt, check => 'no' );
+    }
     return $res;
 };
 
@@ -390,6 +395,10 @@ Display a value
 =item ls | ls foo*
 
 Show elements of current node. Can be used with a shell pattern.
+
+=item ll | ll foo*
+
+Describe elements of current node. Can be used with a shell pattern.
 
 =item help
 

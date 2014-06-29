@@ -1,10 +1,5 @@
-# -*- cperl -*-
-# $Author$
-# $Date$
-# $Revision$
-
 use ExtUtils::testlib;
-use Test::More tests => 23;
+use Test::More tests => 27;
 
 use Test::Memory::Cycle;
 use Config::Model;
@@ -81,6 +76,13 @@ my @test = (
         $expected_prompt
     ],
     [ 'ls hash*', 'hash_a hash_b', $expected_prompt],
+    [
+        'll hash*',
+        "name value type comment \n"
+        ."hash_a [empty hash] value hash \n"
+        ."hash_b [empty hash] value hash \n",
+        $expected_prompt
+    ],
     [ 'set a_string="some value with space"', "",   $expected_prompt ],
     [ 'cd std_id:ab',                         "",   $prompt . ': std_id:ab $ ' ],
     [ 'set X=Av',                             "",   $prompt . ': std_id:ab $ ' ],
@@ -92,7 +94,9 @@ my @test = (
 foreach my $a_test (@test) {
     my ( $cmd, $expect, $expect_prompt ) = @$a_test;
 
-    is( $ui->run($cmd), $expect, "exec $cmd, expect $expect" );
+    my $res = $ui->run($cmd);
+    $res =~ s/ +/ /g;
+    is($res , $expect, "exec $cmd" );
 
     is( $ui->prompt, $expect_prompt, "test prompt is $expect_prompt" );
 }
