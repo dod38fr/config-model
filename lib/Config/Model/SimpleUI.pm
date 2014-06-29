@@ -213,7 +213,7 @@ sub run_loop {
 sub prompt {
     my $self = shift;
     my $ret  = $self->{prompt} . ':';
-    my $loc  = $self->{current_node}->location;
+    my $loc  = $self->{current_node}->composite_name_short;
     $ret .= " $loc " if $loc;
     return $ret . '$ ';
 }
