@@ -113,8 +113,11 @@ my %run_dispatch = (
     },
     ls => sub {
         my $self = shift;
+        my $pattern = shift || '*';
+        $pattern =~ s/\*/.*/g;
+
         my $i    = $self->{current_node}->instance;
-        my @res  = $self->{current_node}->get_element_name;
+        my @res  = grep {/^$pattern$/} $self->{current_node}->get_element_name;
         return join( '  ', @res );
     },
     dump => sub {
@@ -384,9 +387,9 @@ Delete a list or hash element
 
 Display a value
 
-=item ls
+=item ls | ls foo*
 
-Show elements of current node
+Show elements of current node. Can be used with a shell pattern.
 
 =item help
 
