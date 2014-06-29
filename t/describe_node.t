@@ -1,10 +1,5 @@
-# -*- cperl -*-
-# $Author$
-# $Date$
-# $Revision$
-
 use ExtUtils::testlib;
-use Test::More tests => 8;
+use Test::More tests => 9;
 use Test::Memory::Cycle;
 use Config::Model;
 
@@ -95,4 +90,17 @@ $description = $root->describe( element => 'std_id' );
 $description =~ s/\s*\n/\n/g;
 print "description string:\n$description" if $trace;
 is( $description, $expect, "check root description of std_id" );
+
+$expect = <<'EOF' ;
+name         value        type         comment
+hash_a:titi  titi_value   string
+hash_a:toto  toto_value   string
+hash_b       [empty hash] value hash
+EOF
+
+$description = $root->describe( pattern => qr/^hash_/ );
+$description =~ s/\s*\n/\n/g;
+print "description string:\n$description" if $trace;
+is( $description, $expect, "check root description of std_id" );
+
 memory_cycle_ok($model);

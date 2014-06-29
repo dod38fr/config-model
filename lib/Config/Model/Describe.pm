@@ -18,8 +18,17 @@ sub describe {
     my %args      = @_;
     my $desc_node = delete $args{node}
         || croak "describe: missing 'node' parameter";
-    my $element = delete $args{element};        # optional
     my $check = delete $args{check} || 'yes';
+
+    my $element = delete $args{element} ;        # optional
+    my $pattern = delete $args{pattern} ;        # optional
+
+    my $my_content_cb = sub {
+        my ( $scanner, $data_ref, $node, @element ) = @_;
+        # filter elements according to pattern
+        my @scan = $pattern ? grep { $_ =~ $pattern } @element : @element;
+        map { $scanner->scan_element( $data_ref, $node, $_ ) } @scan;
+    };
 
     my $std_cb = sub {
         my ( $scanner, $data_r, $obj, $element, $index, $value_obj ) = @_;
@@ -109,6 +118,7 @@ sub describe {
         hash_element_cb       => $hash_element_cb,
         leaf_cb               => $std_cb,
         node_element_cb       => $node_element_cb,
+        node_content_cb       => $my_content_cb,
     );
 
     my @left = keys %args;
@@ -241,6 +251,12 @@ Reference to a L<Config::Model::Node> object. Mandatory
 
 Describe only this element from the node. Optional. All elements are
 described if omitted.
+
+=item pattern
+
+Describe the element matching the regexp ref. Example:
+
+ describe => ( pattern => qr/^foo/ )
 
 =back
 
