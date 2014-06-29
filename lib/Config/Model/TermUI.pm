@@ -20,10 +20,8 @@ my $leaf_completion_sub = sub {
     my ( $self, $text, $line, $start ) = @_;
 
     my @choice = $self->{current_node}->get_element_name( cargo_type => 'leaf' );
-
-    return () if scalar grep { $text eq $_ } @choice;
-
-    return @choice;
+    my @ret = grep( /^$text/, @choice );
+    return @ret;
 };
 
 # BUG: When doing autocompletion on a hash element with an index
