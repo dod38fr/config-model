@@ -37,14 +37,14 @@ my $cd_completion_sub = sub {
     #print "text '$text' line '$line' start $start\n";
     #print "  cd comp param is ",join('+',@_),"\n";
 
-    # convert usual cd_ism ( '..' '/foo') to grab syntax ( '-' '! foo')
-    #$text =~ s(^/)  (! );
-    #$text =~ s(\.\.)(-)g;
-    #$text =~ s(/)   ( )g;
-
     # we know that text begins with 'cd '
     my $cmd = $line;
     $cmd =~ s/cd\s+//;
+
+    # convert usual cd_ism ( '..' '/foo') to grab syntax ( '-' '! foo')
+    #$text =~ s(^/)  (! );
+    $cmd =~ s(^\.\.$)(-)g;
+    #$text =~ s(/)   ( )g;
 
     my $new_item;
     while ( not defined $new_item ) {
@@ -52,7 +52,7 @@ my $cd_completion_sub = sub {
         # grab in tolerant mode
         #print "Grabbing $cmd\n";
         eval {
-            $new_item = $self->{current_node}->grab( step => $cmd, mode => 'strict', autoadd => 0 );
+            $new_item = $self->{current_node}->grab( step => $cmd, type => 'node', mode => 'strict', autoadd => 0 );
         };
         chop $cmd;
     }
@@ -62,38 +62,25 @@ my $cd_completion_sub = sub {
     my @choice = length($line) > 3 ? () : ( '!', '-' );
     my $new_type = $new_item->get_type;
 
-    if ( $new_type eq 'node' ) {
-        my @cargo = $new_item->get_element_name( cargo_type => 'node' );
-        foreach my $elt_name (@cargo) {
-            if ( $new_item->element_type($elt_name) =~ /hash|list/ ) {
-                push @choice, "$elt_name:";
-            }
-            else {
-                push @choice, "$elt_name ";
+    my @cargo = $new_item->get_element_name( cargo_type => 'node' );
+    foreach my $elt_name (@cargo) {
+        if ( $new_item->element_type($elt_name) =~ /hash|list/ ) {
+            push @choice, "$elt_name:";
+            foreach my $idx ( $new_item->fetch_element($elt_name)->fetch_all_indexes ) {
+                # my ($idx) = ($raw_idx =~ /([^\n]{1,40})/ );
+                # $idx .= '...' unless $raw_idx eq $idx ;
+                push @choice, "$elt_name:" . ($idx =~ /[^\w._-]/ ? qq("$idx") : $idx ). ' ';
             }
         }
-    }
-    elsif ( $new_type eq 'hash' or $new_type eq 'list' ) {
-        my @idx = $new_item->fetch_all_indexes;
-        if (@idx) {
-            my $quote = $line =~ /"$/ ? '' : '"';
-            my @tmp = map { /\s/ ? qq($quote$_" ) : qq($_ ); } @idx;
-
-            #print "tmp @tmp\n";
-            push @choice, @tmp;
+        else {
+            push @choice, "$elt_name ";
         }
-
-        # skip leaf items
     }
 
     # filter possible choices according to input
     my @ret = grep( /^$text/, @choice );
 
     #print "->choice +",join('+',@ret),"+ text:'$text'<-\n";
-
-    # my $name = $new_node -> element_name || '';
-    #print "DEBUG:  cd cmd: new_node is ",$new_node->location,", name $name, ",
-    #  "choice @choice\n" ;#if $::debug;
 
     return @ret;
 };

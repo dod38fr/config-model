@@ -1,3 +1,4 @@
+# -*- cperl -*-
 use ExtUtils::testlib;
 use Test::More;
 use Test::Differences;
@@ -14,7 +15,7 @@ BEGIN {
         or eval { require Term::ReadLine::Perl; 1; } );
 
     if ($ok) {
-        plan tests => 11;
+        plan tests => 12;
     }
     else {
         plan skip_all => "Cannot load Term::ReadLine";
@@ -76,19 +77,20 @@ my $term_ui = Config::Model::TermUI->new(
     prompt => $prompt,
 );
 
+my @std_id_list = ('std_id:','std_id:ab ','std_id:"abc def" ' ,'std_id:"abc hij" ', 'std_id:bc ') ;
 my @test = (    # text line start ## expected completions
     [
         [ '', '', 0 ],
         [qw/cd changes delete desc description display dump help ll ls reset save set/]
     ],
-    [ [ '', 'cd ', 3 ], [ '!', '-', 'std_id:', 'olist:', 'warp ', 'slave_y ' ] ],
-    [ [ 's', 'cd s', 3 ], [ 'std_id:', 'slave_y ' ] ],
+    [ [ '', 'cd ', 3 ], [ '!', '-', @std_id_list , 'olist:', 'warp ', 'slave_y ' ] ],
+    [ [ 's', 'cd s', 3 ], [  @std_id_list, 'slave_y ' ] ],
     [ [ 'sl', 'cd sl',       3 ],  ['slave_y '] ],
-    [ [ '',   'cd std_id:',  10 ], [ 'ab ', '"abc def" ', '"abc hij" ', 'bc ' ] ],
-    [ [ '',   'cd std_id:"', 11 ], [ 'ab ', 'abc def" ', 'abc hij" ', 'bc ' ] ],
+    [ [ 'std_id:',   'cd std_id:',  10 ], \@std_id_list ],
+    [ [ 'std_id:"',   'cd std_id:"', 11 ], ['std_id:"abc def" ' ,'std_id:"abc hij" '  ] ],
 
-    #     [ [ '"abc', 'cd std_id:"abc',14 ], [ ' def" ', ' hij" ' ] ],
-    [ [ 'a', 'cd std_id:a', 3 ], ['ab '] ],
+    [ [ 'std_id:"abc', 'cd std_id:"abc',14 ], ['std_id:"abc def" ' ,'std_id:"abc hij" ' ] ],
+    [ [ 'std_id:a', 'cd std_id:a', 3 ], ['std_id:ab '] ],
 );
 
 foreach my $a_test (@test) {
