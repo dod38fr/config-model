@@ -555,7 +555,7 @@ C<@element_list> contains all the element names of the node.
 
 Example:
 
-  sub my_content_cb = {
+  sub my_content_cb {
      my ($scanner, $data_ref,$node,@element) = @_ ;
 
      # custom code using $data_ref
