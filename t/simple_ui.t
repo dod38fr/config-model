@@ -80,6 +80,7 @@ my @test = (
         'std_id lista listb hash_a hash_b ordered_hash olist tree_macro warp slave_y string_with_def a_uniline a_string int_v my_check_list my_reference',
         $expected_prompt
     ],
+    [ 'ls hash*', 'hash_a hash_b', $expected_prompt],
     [ 'set a_string="some value with space"', "",   $expected_prompt ],
     [ 'cd std_id:ab',                         "",   $prompt . ': std_id:ab $ ' ],
     [ 'set X=Av',                             "",   $prompt . ': std_id:ab $ ' ],
