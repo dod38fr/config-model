@@ -104,6 +104,7 @@ my %completion_dispatch = (
     cd     => $cd_completion_sub,
     desc   => $completion_sub,
     ll     => $completion_sub,
+    ls     => $completion_sub,
     set    => $leaf_completion_sub,
     delete => $leaf_completion_sub,
     reset  => $leaf_completion_sub,
