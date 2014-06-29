@@ -1,5 +1,27 @@
 {{$NEXT}}
 
+2.059 2014-06-29
+
+  New features:
+
+    * cme:
+      + added shell command as a shortcut to 'cme edit -ui shell'.
+	    E.g 'cme shell ssh' to edit ssh_config through a shell like UI
+      + add :@ and :.sort sub command for ordered hash.
+        E.g.: "cme modify  dpkg-control ~~ 'binary:~/.*/ Depends:.sort' -save"
+        or "cme modify dpkg-copyright ~~ 'Files:.sort' -save "
+    * Config::Model::Value: added warn_if parameter
+
+  Bug fixes:
+
+    * cme shell mode:
+      * fix or add completion for several commands
+      * added shell style pattern match to ll and ls command (e.g 'ls foo*')
+    * remove version req from use YAML::Any 0.303 (resolve issues with
+      Debian FTBS)
+    * Value: fix crash when default value raises a warning and code fix
+      returns undef.
+
 2.058 2014-06-19
 
     Bug fix release
