@@ -184,10 +184,15 @@ has _write_back => (
 );
 
 # used for auto_read auto_write feature
-has [qw/name application root_dir config_file backend backup/] => (
+has [qw/name application root_dir backend backup/] => (
     is  => 'ro',
     isa => 'Maybe[Str]',
 );
+# config_file cannot be a Path::Tiny object: it may be a file name
+# relative to a directory only known by a backend (e.g. a patch in
+# debian/patches directory)
+has config_file => (is  => 'ro', isa => 'Maybe[Str]');
+
 has skip_read => ( is => 'ro', isa => 'Bool', default => 0 );
 
 sub BUILD {
