@@ -458,7 +458,7 @@ cme - Edit data of configuration managed by Config::Model
   cme fix dpkg 
   
   # modify configuration with command line
-  cme modify dpkg source 'format="quilt (3.0)"'
+  cme modify dpkg source 'format="(3.0) quilt"'
 
   # likewise with an application that accepts file override
   cme modify dpkg-copyright ~~ 'Comment="Modified with cme"'
@@ -610,7 +610,7 @@ These command must follow the syntax defined in L<Config::Model::Loader>
 
 Example:
 
-   cme modify dpkg source format="quilt (3.0)"
+   cme modify dpkg source format="(3.0) quilt"
    cme modify multistrap my_mstrap.conf sections:base source="http://ftp.fr.debian.org"
 
 Some application like dpkg-copyright allows you to override the
