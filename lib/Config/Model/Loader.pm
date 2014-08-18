@@ -663,15 +663,18 @@ sub _load_leaf {
         $logger->debug("_load_leaf: action '$subaction' value '$msg'");
     }
 
-    return $self->_load_value( $element, $check, $subaction, $value, $inst )
-        or Config::Model::Exception::Load->throw(
+    my $res = $self->_load_value( $element, $check, $subaction, $value, $inst );
+
+    return $res if $res ;
+
+    Config::Model::Exception::Load->throw(
         object  => $element,
         command => $inst,
         error   => "Load error on leaf with "
             . "'$element_name$subaction$value' command "
             . "(element '"
             . $element->name . "')"
-        );
+    );
 }
 
 sub _load_value {
