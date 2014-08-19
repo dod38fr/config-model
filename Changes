@@ -1,5 +1,15 @@
 {{$NEXT}}
 
+2.060 2014-08-19
+
+  Bug fix release:
+
+    * value.t: avoid smoke test failures
+    * Avoid new perl 5.20 warning (Debian #758320)
+    * Value: improved notify change message (computed vs preset vs default)
+    * fix pod doc in cme (RT 97605, Debian #756433)
+    * depends directly on YAML, not YAML::Any which will be deprecated
+
 2.059 2014-06-29
 
   New features:
