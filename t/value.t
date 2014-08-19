@@ -628,7 +628,7 @@ is( $wip->fetch, 'FOOBAR', "test if fixes were applied" );
 
 ### test warn_if_number parameter
 my $win = $root->fetch_element('warn_if_number');
-warning_like { $win->store('bar51'); } qr//, "test warn_if condition";
+warning_like { $win->store('bar51'); } qr/should not have numbers/, "test warn_if condition";
 
 is( $win->has_fixes, 1, "test has_fixes" );
 $win->apply_fixes;
