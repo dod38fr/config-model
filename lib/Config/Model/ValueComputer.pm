@@ -73,12 +73,14 @@ sub BUILD {
     # create parser if needed
     $compute_parser ||= Parse::RecDescent->new($compute_grammar);
 
+    $logger->debug("called with formula: $self->{formula}");
     # must make a first pass at computation to subsitute index and
     # element values.  leaves $xxx outside of &index or &element untouched
     my $result_r =
         $compute_parser->pre_compute( $self->{formula}, 1, $self->{value_object},
         $self->{variables}, $self->{replace}, 'yes', $self->need_quote, );
 
+    $logger->debug("pre_formula: $$result_r");
     $self->{pre_formula} = $$result_r;
 }
 
@@ -491,7 +493,7 @@ pre_value:
   | <skip:''> '&' /\w+/ func_param(?) {
     $return = Config::Model::ValueComputer::_function_alone($item[3],$return,@arg ) ;
   }
-  |  <skip:''> /\$(\d+|_|&|{\^[A-Z]+})/ {
+  |  <skip:''> /\$( |\d+|_|!|&|@|{\^[A-Z]+})/ {
      my $result = $item[-1] ;
      $return = \$result ;
   }
