@@ -1,5 +1,12 @@
 {{$NEXT}}
 
+2.061 2014-09-23
+
+  Bug fix release:
+
+  * ValueComputer: leave $@ and $! alone in formula.
+    Also skip variables like '$ foo'
+
 2.060 2014-08-19
 
   Bug fix release:
