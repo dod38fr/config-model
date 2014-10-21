@@ -54,7 +54,7 @@ my $desc_sub = sub {
 
 my $ll_sub = sub {
     my $self = shift;
-    my $elt  = shift;
+    my $elt  = shift // '';
 
     my $obj = $self->{current_node};
     my $res ;
