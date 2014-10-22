@@ -17,6 +17,8 @@ use File::Path qw/make_path/;
 # this class holds the version number of the package
 use vars qw(@status @level %default_property);
 
+my $legacy_logger = get_logger("Model::Legacy") ;
+
 %default_property = (
     status      => 'standard',
     level       => 'normal',
@@ -523,7 +525,9 @@ sub translate_legacy_info {
         $self->translate_legacy_built_in_list( $config_class_name, $info, $info, );
     }
 
-    print Data::Dumper->Dump( [$info], [ 'translated_' . $elt_name ] ), "\n" if $::debug;
+    $legacy_logger->debug(
+        Data::Dumper->Dump( [$info], [ 'translated_' . $elt_name ] ) 
+    ) if $legacy_logger->is_debug;
 }
 
 sub translate_cargo_info {
@@ -555,7 +559,9 @@ sub translate_cargo_info {
     }
 
     $info->{cargo} = \%cargo;
-    print Data::Dumper->Dump( [$info], [ 'translated_' . $elt_name ] ), "\n" if $::debug;
+    $legacy_logger->debug( 
+        Data::Dumper->Dump( [$info], [ 'translated_' . $elt_name ] ) 
+    ) if $legacy_logger->is_debug;
 }
 
 sub translate_id_names {
@@ -607,9 +613,10 @@ sub translate_compute_info {
 
     if ( ref( $info->{$old_name} ) eq 'ARRAY' ) {
         my $compute_info = delete $info->{$old_name};
-        print "translate_compute_info $elt_name input:\n",
-            Data::Dumper->Dump( [$compute_info], [qw/compute_info/] ), "\n"
-            if $::debug;
+        $legacy_logger->debug(
+            "translate_compute_info $elt_name input:\n",
+            Data::Dumper->Dump( [$compute_info], [qw/compute_info/] )
+        ) if $legacy_logger->is_debug;
 
         $self->show_legacy_issue( "$config_class_name->$elt_name: specifying compute info with ",
             "an array ref is deprecated" );
@@ -631,9 +638,10 @@ sub translate_compute_info {
         };
         $info->{$new_name}{replace} = $replace_h if defined $replace_h;
 
-        print "translate_warp_info $elt_name output:\n",
-            Data::Dumper->Dump( [ $info->{$new_name} ], [ 'new_' . $new_name ] ), "\n"
-            if $::debug;
+        $legacy_logger->debug(
+            "translate_warp_info $elt_name output:\n",
+            Data::Dumper->Dump( [ $info->{$new_name} ], [ 'new_' . $new_name ] )
+        ) if $legacy_logger->is_debug;
     }
 }
 
@@ -644,9 +652,10 @@ sub translate_id_default_info {
     my $elt_name          = shift;
     my $info              = shift;
 
-    print "translate_id_default_info $elt_name input:\n",
-        Data::Dumper->Dump( [$info], [qw/info/] ), "\n"
-        if $::debug;
+    $legacy_logger->debug(
+        "translate_id_default_info $elt_name input:\n",
+        Data::Dumper->Dump( [$info], [qw/info/] )
+    ) if $legacy_logger->is_debug;
 
     my $warn = "$config_class_name->$elt_name: 'default' parameter for list or "
         . "hash element is deprecated. ";
@@ -664,9 +673,11 @@ sub translate_id_default_info {
         $info->{default_keys} = [$def_info];
         $self->show_legacy_issue( $warn, "Use default_keys" );
     }
-    print "translate_id_default_info $elt_name output:\n",
-        Data::Dumper->Dump( [$info], [qw/new_info/] ), "\n"
-        if $::debug;
+
+    $legacy_logger->debug( 
+        "translate_id_default_info $elt_name output:",
+        Data::Dumper->Dump( [$info], [qw/new_info/])
+    ) if $legacy_logger->is_debug;
 }
 
 # internal: translate auto_create information for id element
@@ -676,9 +687,10 @@ sub translate_id_auto_create {
     my $elt_name          = shift;
     my $info              = shift;
 
-    print "translate_id_auto_create $elt_name input:\n",
-        Data::Dumper->Dump( [$info], [qw/info/] ), "\n"
-        if $::debug;
+    $legacy_logger->debug(
+        "translate_id_auto_create $elt_name input:",
+        Data::Dumper->Dump( [$info], [qw/info/] )
+    ) if $legacy_logger->is_debug;
 
     my $warn = "$config_class_name->$elt_name: 'auto_create' parameter for list or "
         . "hash element is deprecated. ";
@@ -697,9 +709,10 @@ sub translate_id_auto_create {
         die "Unexpected element ($elt_name) type $info->{type} ", "for translate_id_auto_create";
     }
 
-    print "translate_id_default_info $elt_name output:\n",
-        Data::Dumper->Dump( [$info], [qw/new_info/] ), "\n"
-        if $::debug;
+    $legacy_logger->debug(
+        "translate_id_default_info $elt_name output:\n",
+        Data::Dumper->Dump( [$info], [qw/new_info/] )
+    ) if $legacy_logger->is_debug;
 }
 
 sub translate_id_min_max {
@@ -711,8 +724,8 @@ sub translate_id_min_max {
     foreach my $bad (qw/min max/) {
         next unless defined $info->{$bad};
 
-        print "translate_id_min_max $elt_name $bad:\n"
-            if $::debug;
+        $legacy_logger->debug( "translate_id_min_max $elt_name $bad:")
+            if $legacy_logger->is_debug;
 
         my $good = $bad . '_index';
         my $warn = "$config_class_name->$elt_name: '$bad' parameter for list or "
@@ -726,9 +739,10 @@ sub translate_id_min_max {
 sub translate_warp_info {
     my ( $self, $config_class_name, $elt_name, $type, $warp_info ) = @_;
 
-    print "translate_warp_info $elt_name input:\n",
-        Data::Dumper->Dump( [$warp_info], [qw/warp_info/] ), "\n"
-        if $::debug;
+    $legacy_logger->debug(
+        "translate_warp_info $elt_name input:\n",
+        Data::Dumper->Dump( [$warp_info], [qw/warp_info/] )
+    ) if $legacy_logger->is_debug;
 
     my $follow = $self->translate_follow_arg( $config_class_name, $elt_name, $warp_info->{follow} );
 
@@ -744,9 +758,10 @@ sub translate_warp_info {
     $warp_info->{follow} = $follow;
     $warp_info->{rules}  = $rules;
 
-    print "translate_warp_info $elt_name output:\n",
-        Data::Dumper->Dump( [$warp_info], [qw/new_warp_info/] ), "\n"
-        if $::debug;
+    $legacy_logger->debug(
+        "translate_warp_info $elt_name output:\n",
+        Data::Dumper->Dump( [$warp_info], [qw/new_warp_info/] )
+    ) if $legacy_logger->is_debug;
 }
 
 # internal
@@ -889,16 +904,17 @@ sub translate_legacy_builtin {
     my $raw_builtin_default = delete $normalized_model->{built_in};
     return unless defined $raw_builtin_default;
 
-    print Data::Dumper->Dump( [$normalized_model], ['builtin to translate'] ), "\n"
-        if $::debug;
+    $legacy_logger->debug( 
+        Data::Dumper->Dump( [$normalized_model], ['builtin to translate'] )
+    ) if $legacy_logger->is_debug;
 
     $self->show_legacy_issue( "$config_class_name: parameter 'built_in' is deprecated "
             . "in favor of 'upstream_default'" );
 
     $model->{upstream_default} = $raw_builtin_default;
 
-    print Data::Dumper->Dump( [$model], ['translated_builtin'] ), "\n"
-        if $::debug;
+    $legacy_logger->debug( Data::Dumper->Dump( [$model], ['translated_builtin'] )) 
+        if $legacy_logger->is_debug;
 }
 
 sub translate_legacy_built_in_list {
@@ -907,16 +923,17 @@ sub translate_legacy_built_in_list {
     my $raw_builtin_default = delete $normalized_model->{built_in_list};
     return unless defined $raw_builtin_default;
 
-    print Data::Dumper->Dump( [$normalized_model], ['built_in_list to translate'] ), "\n"
-        if $::debug;
+    $legacy_logger->debug( 
+        Data::Dumper->Dump( [$normalized_model], ['built_in_list to translate'] )
+    ) if $legacy_logger->is_debug;
 
     $self->show_legacy_issue( "$config_class_name: parameter 'built_in_list' is deprecated "
             . "in favor of 'upstream_default_list'" );
 
     $model->{upstream_default_list} = $raw_builtin_default;
 
-    print Data::Dumper->Dump( [$model], ['translated_built_in_list'] ), "\n"
-        if $::debug;
+    $legacy_logger->debug( Data::Dumper->Dump( [$model], ['translated_built_in_list'] ))
+        if $legacy_logger->is_debug;
 }
 
 sub include_class {
