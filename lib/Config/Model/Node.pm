@@ -159,6 +159,8 @@ sub create_node {
 
     my $element_info = dclone( $self->{model}{element}{$element_name} );
 
+    my $node_class = delete $element_info->{class} || 'Config::Model::Node';
+
     Config::Model::Exception::Model->throw(
         error  => "create node '$element_name' error: " . "missing config class name parameter",
         object => $self
@@ -173,7 +175,7 @@ sub create_node {
         container         => $self,
     );
 
-    $self->{element}{$element_name} = $self->new(@args);
+    $self->{element}{$element_name} = $node_class->new(@args);
 }
 
 sub create_warped_node {
@@ -1392,6 +1394,9 @@ C<config_class_name> parameter. For instance:
                             },
               ]
    ) ;
+
+You may specify a Perl class to implement the above config class. This
+Perl Class B<must> inherit L<Config::Model::Node>.
 
 =head2 Leaf element
 
