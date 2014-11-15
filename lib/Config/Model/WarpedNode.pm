@@ -134,6 +134,7 @@ sub set_properties {
         Data::Dumper->Dump( [ \%args ], ['set_properties_args'] ) );
 
     my $config_class_name = delete $args{config_class_name};
+    my $node_class = delete $args{class} || 'Config::Model::Node';
 
     my @prop_args = ( qw/property level element/, $self->element_name );
 
@@ -168,7 +169,7 @@ sub set_properties {
     my $old_config_class_name = $self->{config_class_name};
 
     # create a new object from scratch
-    my $new_object = $self->create_node( $config_class_name, @args );
+    my $new_object = $self->create_node( $config_class_name, $node_class, @args );
 
     $self->{config_class_name} = $config_class_name;
     $self->{data}              = $new_object;
@@ -200,6 +201,7 @@ sub set_properties {
 sub create_node {
     my $self              = shift;
     my $config_class_name = shift;
+    my $node_class        = shift;
 
     my @args = (
         config_class_name => $config_class_name,
@@ -211,7 +213,7 @@ sub create_node {
 
     push @args, index_value => $self->index_value if defined $self->index_value;
 
-    return $self->parent->new(@args);
+    return $node_class->new(@args);
 }
 
 sub clear {
@@ -422,6 +424,11 @@ If you pass an array ref, the array will contain the class name and
 constructor arguments :
 
   XY  => { config_class_name => ['SlaveY', foo => 'bar' ], },
+
+=item B<class>
+
+Specify a Perl class to implement the above config class. This Perl Class B<must> inherit
+L<Config::Model::Node>.
 
 =back
 
