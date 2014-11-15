@@ -17,7 +17,6 @@ my ( $log, $show ) = (0) x 3;
 my $arg = shift || '';
 
 my $trace = $arg =~ /t/ ? 1 : 0;
-$::debug = 1 if $arg =~ /d/;
 $log     = 1 if $arg =~ /l/;
 $show    = 1 if $arg =~ /s/;
 Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
