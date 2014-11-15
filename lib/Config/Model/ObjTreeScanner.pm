@@ -421,14 +421,14 @@ Optional parameter:
 
 =item fallback
 
-If set to 'node', the scanner will provide default call-back for node
-items. If set to 'leaf', the scanner will set all leaf callback (like
+If set to C<node>, the scanner will provide default call-back for node
+items. If set to C<leaf>, the scanner will set all leaf callback (like
 enum_value_cb ...) to string_value_cb or to the mandatory leaf_cb
 value. "fallback" callback will not override callbacks provided by the
 user.
 
-If set to 'all', equivalent to 'node' and 'leaf'. By default, no
-fallback is provided.
+If set to C<all> , the scanner provides fallbacks for leaf and node. 
+By default, all fallback are provided.
 
 =item auto_vivify
 
