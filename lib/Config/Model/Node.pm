@@ -236,7 +236,7 @@ sub create_id {
     croak "Undefined id_class for type '$type'"
         unless defined $id_class_hash{$type};
 
-    my $id_class = delete $element_info->{ $type . '_class' }
+    my $id_class = delete $element_info->{class}
         || 'Config::Model::' . $id_class_hash{$type};
 
     if ( not defined *{ $id_class . '::' } ) {
@@ -1367,6 +1367,13 @@ L</"List element">
 
 The element is a collection of values which are unique in the
 check_list. See L<CheckList>.
+
+=item C<class>
+
+Override the default class for leaf, list and hash elements. The override
+class be inherit L<Config::Model::Value> for leaf element,
+L<Config::Model::HashId> for hash element and
+L<Config::Model::ListId> for list element.
 
 =back
 

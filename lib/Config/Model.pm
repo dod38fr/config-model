@@ -515,6 +515,7 @@ sub translate_legacy_info {
                 $self->translate_id_default_info( $config_class_name, $elt_name, $rule_effect );
             }
         }
+        $self->translate_id_class($config_class_name, $elt_name, $info );
     }
 
     if ( defined $info->{type} and ( $info->{type} eq 'leaf' ) ) {
@@ -643,6 +644,34 @@ sub translate_compute_info {
             Data::Dumper->Dump( [ $info->{$new_name} ], [ 'new_' . $new_name ] )
         ) if $legacy_logger->is_debug;
     }
+}
+
+sub translate_id_class {
+    my $self              = shift;
+    my $config_class_name = shift || die;
+    my $elt_name          = shift;
+    my $info              = shift;
+
+
+    $legacy_logger->debug(
+        "translate_id_class $elt_name input:\n",
+        Data::Dumper->Dump( [$info], [qw/info/] )
+    ) if $legacy_logger->is_debug;
+
+    my $class_overide_param = $info->{type}.'_class';
+    my $class_overide = $info->{$class_overide_param};
+    if ($class_overide) {
+        $info->{class} = $class_overide;
+        $self->show_legacy_issue(
+            "$config_class_name->$elt_name: '$class_overide_param' is deprecated, ",
+            "Use 'class' instead."
+        );
+    }
+
+    $legacy_logger->debug(
+        "translate_id_class $elt_name output:",
+        Data::Dumper->Dump( [$info], [qw/new_info/])
+    ) if $legacy_logger->is_debug;
 }
 
 # internal: translate default information for id element
