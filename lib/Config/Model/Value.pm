@@ -337,7 +337,8 @@ sub migrate_value {
     }
 
     # old value is always undef when this method is called
-    $self->notify_change( note => 'migrated value', new => $result );
+    $self->notify_change( note => 'migrated value', new => $result )
+        if length($result); # skip empty value (i.e. '')
     $self->{data} = $result;
 
     return $ok ? $result : undef;
