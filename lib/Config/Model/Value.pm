@@ -962,8 +962,9 @@ sub run_code_set_on_value {
     foreach my $label ( keys %$w_info ) {
         my $code = $w_info->{$label}{code};
         my $msg = $w_info->{$label}{msg} || $msg;
-        $msg .= " (code is: '$code')";
+        $logger->trace("eval'ed code is: '$code'");
         my $fix = $w_info->{$label}{fix};
+        $msg .= " (this can be fixed with 'cme fix' command)" if $fix;
 
         my $sub = sub {
             local $_ = shift;
