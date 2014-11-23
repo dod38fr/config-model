@@ -426,9 +426,11 @@ __END__
 
 =head1 NAME
 
-cme - Edit data of configuration managed by Config::Model
+cme-old - Edit data of configuration managed by Config::Model (deprecated implementation of cme)
 
 =head1 SYNOPSIS
+
+  # this command is deprecated and replaced by cme delivered by App::Cmd
 
   # general synopsis
   cme [ global_options ] command application [ options ] [ file ] [ ~~ ] [ modification_instructions ]
