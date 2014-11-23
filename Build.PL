@@ -37,8 +37,8 @@ my $class = Module::Build->subclass(
 
 sub ACTION_build {
     my $self = shift;
-    # below requires Config::Model 2.026
-    system ($^X, qw!-Ilib script/cme gen-class-pod!) ;
+    # below requires Config::Model 2.062
+    system ($^X, qw!-I lib -MConfig::Model::Utils::GenClassPod -e 'gen_class_pod();'!) ;
     $self->SUPER::ACTION_build;
 }
 SUBCLASS
@@ -47,9 +47,6 @@ SUBCLASS
 my @version_info = @ARGV ? ( dist_version => $ARGV[0] ) : ();
 
 my %appli_files = map { ( $_, $_ ) } glob("lib/Config/Model/*.d/*");
-
-# add extensions
-do { $appli_files{$_}=$_ ;} for glob("lib/Config/Model/extensions/cme-*") ;
 
 my $build = $class->new(
     module_name => 'Config::Model',
