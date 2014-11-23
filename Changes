@@ -1,5 +1,30 @@
 {{$NEXT}}
 
+2.062 2014-11-23
+
+  Big change for this release:
+    * cme command is no longer delivered with this distribution. cme
+      is now delivered by App::Cme distribution.
+
+  To help the transition, this distribution delivers cme-old. You can
+  use this command until App::Cme is available in CPAN (next few days)
+  or if you find bugs in the new cme command (which now uses App::Cmd).
+
+  Other incompatible changes:
+	* old config-edit command is now really gone
+	* cme extensions are obsolete. Extension mechanism is now provided
+	  by App::Cmd
+
+  New feature:
+    * The Perl class used to implement node, list and hash
+	  configuration element can be overridden using a new 'class'
+	  parameter. The Perl class passed to this parameter must inherit
+	  Config::Model::Node, or Config::Model::HashId or Config::Model::ListId.
+
+  Bug fixes:
+    * Value: skip notification if migrate yields an empty value
+    * Model: use logger for tracing legacy translation
+
 2.061 2014-09-23
 
   Bug fix release:
