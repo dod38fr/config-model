@@ -1,48 +1,51 @@
-#!/usr/bin/perl
+package Config::Model::Utils::GenClassPod;
 
-#    Copyright (c) 2011-2014 Dominique Dumont.
-#
-#    This file is part of Config-Model.
-#
-#    Config-Model is free software; you can redistribute it and/or
-#    modify it under the terms of the GNU Lesser Public License as
-#    published by the Free Software Foundation; either version 2.1 of
-#    the License, or (at your option) any later version.
-#
-#    Config-Model is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#    Lesser Public License for more details.
-#
-#    You should have received a copy of the GNU Lesser Public License
-#    along with Config-Model; if not, write to the Free Software
-#    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-#    02110-1301 USA
+# ABSTRACT: generate pod documentation from configuration models
 
-use lib qw/lib/ ;
 use strict;
+use warnings;
+use Exporter::Lite;
+our @EXPORT = qw(gen_class_pod);
+
+use lib qw/lib/;
 use Path::Tiny ;
-use Config::Model ; # to generate doc
+use Config::Model ;             # to generate doc
 
-my $model = Config::Model -> new(model_dir => "lib/Config/Model/models") ;
+sub gen_class_pod {
+    my $cm = Config::Model -> new(model_dir => "lib/Config/Model/models") ;
 
-# this extension is run with 'cme gen-classpod'. cme will run 'do gen-class-pod'
-# to keep @INC and @ARGV around. Hence @ARGV contains 'gen-class-pod'
-shift @ARGV if $ARGV[0] and $ARGV[0] eq 'gen-class-pod' ;
+    my @models = @_ ? @_ :
+        map { /model\s*=\s*([\w:-]+)/; $1; }
+        grep { /^\s*model/; }
+        map  { $_->lines; }
+        map  { $_->children; }
+        path ("lib/Config/Model/")->children(qr/\.d$/);
 
-my @models = @ARGV ? @ARGV : 
-  map { /model\s*=\s*([\w:-]+)/; $1; }
-  grep { /^\s*model/; }
-  map  { $_->lines; }
-  map  { $_->children; }
-  path ("lib/Config/Model/")->children(qr/\.d$/);
-
-map {
-    # this test avoid generating doc several times (generate_doc scan docs for
-    # classes referenced by the model with config_class_name paremeter)
-    if (not $model->model_exists($_)) {
-        print "Checking doc for model $_\n";
-        $model->load($_) ;
-        $model->generate_doc ($_,'lib') ;
+    foreach my $model (@models) {
+        # this test avoid generating doc several times (generate_doc scan docs for
+        # classes referenced by the model with config_class_name parameter)
+        if (not $cm->model_exists($model)) {
+            print "Checking doc for model $model\n";
+            $cm->load($model) ;
+            $cm->generate_doc ($model,'lib') ;
+        }
     }
-  } @models ;
+}
+
+1;
+
+__END__
+
+=head1 SYNOPSIS
+
+ use Config::Model::Utils::GenClassPod;
+ gen_class_pod;
+
+=head1 DESCRIPTION
+
+This module provides a single exported function:
+C<gen_class_pod>. This function will scan C<./lib/Config/Model/models>
+and generate a pod documentation for each C<.pl> found there using
+L<Config::Model::generate_doc|Config::Model/"generate_doc ( top_class_name , [ directory ] )">
+
+=cut
