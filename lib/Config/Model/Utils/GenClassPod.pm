@@ -4,7 +4,7 @@ package Config::Model::Utils::GenClassPod;
 
 use strict;
 use warnings;
-use Exporter::Lite;
+use parent qw(Exporter);
 our @EXPORT = qw(gen_class_pod);
 
 use lib qw/lib/;
