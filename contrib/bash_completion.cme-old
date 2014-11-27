@@ -1,4 +1,4 @@
-# cme(1) completion
+# cme-old(1) completion
 #
 #
 # This file is part of Config-Model
@@ -10,29 +10,29 @@
 #   The GNU Lesser General Public License, Version 2.1, February 1999
 #
 
-_cme_models()
+_cme_old_models()
 {
    MODELS=$(perl -MConfig::Model::Lister -e'print Config::Model::Lister::models;')
    COMPREPLY=( $( compgen -W "$MODELS" -- $cur ) )
 }
 
-_cme_appli()
+_cme_old_appli()
 {
    MODELS=$(perl -MConfig::Model::Lister -e'print Config::Model::Lister::applications;')
    COMPREPLY=( $( compgen -W "$MODELS" -- $cur ) )
 }
 
-_cme_commands()
+_cme_old_commands()
 {
     COMPREPLY=( $( compgen -W 'list check migrate fix modify search edit shell dump fusefs' -- $cur ) )
 }    
 
-_cme_handle_app_arg()
+_cme_old_handle_app_arg()
 {
 	[[ $COMP_CWORD -eq 3 ]] && _cme_${COMP_WORDS[2]} 2> /dev/null ;
 }
 
-_cme()
+_cme_old()
 {
     local cur
 
@@ -42,10 +42,10 @@ _cme()
     global_options='-application -model -ui -dev -model-dir -root-dir -force-load -backend -dump -dumptype -load -save -fuse-dir -search -narrow-search'
     
     if [[ $COMP_CWORD -eq 1 ]] ; then
-        _cme_commands
+        _cme_old_commands
     elif [[ $COMP_CWORD -eq 2 ]] ; then
-        _cme_appli
-    elif ! _cme_handle_app_arg; then
+        _cme_old_appli
+    elif ! _cme_old_handle_app_arg; then
         case $prev in
             -ui)
                 COMPREPLY=( $( compgen -W 'none tk curses shell' -- $cur ) )
@@ -81,4 +81,4 @@ _cme()
         esac
     fi
 }
-complete -F _cme cme
+complete -F _cme_old cme-old
