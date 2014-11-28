@@ -28,23 +28,23 @@ my @element = (
     # Value constructor args are passed in their specific array ref
     cargo => {
         type       => 'leaf',
-        value_type => 'string'
+        value_type => 'string',
+        class => 'Config::Model::Value',
     },
 );
 
 # minimal set up to get things working
-my $model = Config::Model->new( legacy => 'ignore' );
+my $model = Config::Model->new( );
 $model->create_config_class(
     name    => "Master",
     element => [
         plain_hash => {
             type => 'hash',
-
-            # hash_class constructor args are all keys of this hash
-            # except type and class
             index_type => 'integer',
-            cargo_type => 'leaf',
-            cargo_args => { value_type => 'string' },
+            cargo => {
+                type => 'leaf',
+                value_type => 'string'
+            },
         },
         bounded_hash => {
             type => 'hash',
@@ -55,50 +55,49 @@ $model->create_config_class(
             min         => 1,
             max         => 123,
             max_nb      => 2,
-            cargo_class => 'Config::Model::Value',
             @element
         },
         hash_with_auto_created_id => {
             type        => 'hash',
             index_type  => 'string',
-            auto_create => 'yada',
+            auto_create_keys => ['yada'],
             @element
         },
         hash_with_several_auto_created_id => {
             type        => 'hash',
             index_type  => 'string',
-            auto_create => [qw/x y z/],
+            auto_create_keys => [qw/x y z/],
             @element
         },
         [qw/hash_with_default_id hash_with_default_id_2/] => {
             type       => 'hash',
             index_type => 'string',
-            default    => 'yada',
+            default_keys    => ['yada'],
             @element
         },
         hash_with_several_default_keys => {
             type       => 'hash',
             index_type => 'string',
-            default    => [qw/x y z/],
+            default_keys    => [qw/x y z/],
             @element
         },
         hash_follower => {
             type       => 'hash',
             index_type => 'string',
             @element,
-            follow => '- hash_with_several_auto_created_id',
+            follow_keys_from => '- hash_with_several_auto_created_id',
         },
         hash_with_allow => {
             type       => 'hash',
             index_type => 'string',
             @element,
-            allow => [qw/foo bar baz/],
+            allow_keys => [qw/foo bar baz/],
         },
         hash_with_allow_from => {
             type       => 'hash',
             index_type => 'string',
             @element,
-            allow_from => '- hash_with_several_auto_created_id',
+            allow_keys_from => '- hash_with_several_auto_created_id',
         },
         hash_with_allow_keys_matching => {
             type       => 'hash',
