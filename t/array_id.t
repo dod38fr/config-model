@@ -52,7 +52,7 @@ $model->create_config_class(
     element => [
         bounded_list => {
             type       => 'list',
-            list_class => 'Config::Model::ListId',    # default
+            class => 'Config::Model::ListId',    # default
 
             max   => 123,
             cargo => {
