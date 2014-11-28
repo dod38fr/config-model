@@ -37,20 +37,14 @@ $model->create_config_class(
     element => [
         'plain_hash' => {
             type => 'hash',
-
-            # hash_class constructor args are all keys of this hash
-            # except type and class
-            hash_class => 'Config::Model::HashId',    # default
+            class => 'Config::Model::HashId',    # default
             index_type => 'integer',
 
             @element
         },
         'bounded_hash' => {
             type => 'hash',
-
-            # hash_class constructor args are all keys of this hash
-            # except type and class
-            hash_class => 'Config::Model::HashId',    # default
+            class => 'Config::Model::HashId',    # default
             index_type => 'integer',
 
             # hash boundaries
