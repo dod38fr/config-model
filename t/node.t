@@ -29,6 +29,7 @@ $model->create_config_class(
     status      => [ D => 'deprecated' ],                 #could be obsolete, standard
     description => [ X => 'X-ray (long description)' ],
     summary     => [ X => 'X-ray (summary)' ],
+    class => 'Config::Model::Node',
 
     element => [
         [qw/D X Y Z/] => {
