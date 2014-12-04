@@ -1,8 +1,17 @@
 {{$NEXT}}
 
+2.064 2014-12-04
+
+  A small change for this release:
+  
+    * Version 2.062 added the possibility to override the Perl class
+      implementing a configuration node by adding a class parameter in a
+      place that is confusing. This release fix this bug: this optional
+      override class is now declared at the top of a configuration class.
+
 2.063 2014-11-28
 
-Bug fix release:
+  Bug fix release:
     * GenClassPod: use Exporter instead of Exporter::Lite.
     * adapted contrib/bash_completion for cme-old
 
