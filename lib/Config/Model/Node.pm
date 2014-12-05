@@ -162,6 +162,7 @@ sub create_node {
 
     my $config_class =  $self->config_model->get_model($config_class_name) ;
     my $node_class = $config_class->{class} || 'Config::Model::Node';
+    Mouse::Util::load_class($node_class);
 
     Config::Model::Exception::Model->throw(
         error  => "create node '$element_name' error: " . "missing config class name parameter",
