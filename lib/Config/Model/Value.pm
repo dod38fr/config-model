@@ -964,6 +964,7 @@ sub run_code_set_on_value {
         my $msg = $w_info->{$label}{msg} || $msg;
         $logger->trace("eval'ed code is: '$code'");
         my $fix = $w_info->{$label}{fix};
+        $msg =~ s/\$_/$$value_r/g;
         $msg .= " (this can be fixed with 'cme fix' command)" if $fix;
 
         my $sub = sub {
@@ -1986,12 +1987,14 @@ C<$self> will contain the value object. Use with care.
 In the example below, any value matching 'foo' will be converted in uppercase:
 
  warn_if_match => {
-   'foo' => { fix =>'uc;', msg =>  'value contains foo'}
-   'BAR' => { fix =>'lc;', msg =>  'value contains BAR'}
+   'foo' => { fix =>'uc;', msg =>  'value $_ contains foo'}
+   'BAR' => { fix =>'lc;', msg =>  'value $_ contains BAR'}
  },
 
 The tests will be done in alphabetical order. In the example above, C<BAR> test will
 be done before C<foo> test.
+
+C<$_> will be substituted with the bad value when the message is generated.
 
 =item warn_unless_match
 
@@ -2016,7 +2019,7 @@ The example below will warn if value contaims a number:
  warn_if => {
                 warn_test => {
                     code => 'defined $_ && /\d/;',
-                    msg  => 'should not have numbers',
+                    msg  => 'value $_ should not have numbers',
                     fix  => 's/\d//g;'
                 }
             },
