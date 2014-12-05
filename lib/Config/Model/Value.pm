@@ -959,7 +959,7 @@ sub run_code_on_value {
 sub run_code_set_on_value {
     my ( $self, $value_r, $apply_fix, $array, $msg, $w_info, $invert ) = @_;
 
-    foreach my $label ( keys %$w_info ) {
+    foreach my $label ( sort keys %$w_info ) {
         my $code = $w_info->{$label}{code};
         my $msg = $w_info->{$label}{msg} || $msg;
         $logger->trace("eval'ed code is: '$code'");
@@ -1985,7 +1985,13 @@ C<$self> will contain the value object. Use with care.
 
 In the example below, any value matching 'foo' will be converted in uppercase:
 
-warn_if_match => { 'foo' => { fix =>'uc;', msg =>  'lower foo is not good'}},
+ warn_if_match => {
+   'foo' => { fix =>'uc;', msg =>  'value contains foo'}
+   'BAR' => { fix =>'lc;', msg =>  'value contains BAR'}
+ },
+
+The tests will be done in alphabetical order. In the example above, C<BAR> test will
+be done before C<foo> test.
 
 =item warn_unless_match
 
@@ -2031,7 +2037,16 @@ The example below will warn unless the value points to an existing directory:
 
 =item assert
 
-Like C<warn_if_match>. Except that returned value will trigger an error if false.
+Like C<warn_if>. Except that returned value will trigger an error if false:
+
+  assert => {
+                test_nb => {
+                    code => 'defined $_ && /\d/;',
+                    msg  => 'should not have numbers',
+                    fix  => 's/\d//g;'
+                }
+            },
+
 
 =item grammar
 
