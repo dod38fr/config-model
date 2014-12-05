@@ -92,7 +92,7 @@ has error_list => (
     handles => {
         add_error    => 'push',
         clear_errors => 'clear',
-        error_msg    => [ join => "\n\t" ],
+        error_msg    => [ join => "\n" ],
         has_error    => 'count',
         all_errors   => 'elements',
         is_ok        => 'is_empty'
