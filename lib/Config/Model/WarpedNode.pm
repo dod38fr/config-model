@@ -1,6 +1,7 @@
 package Config::Model::WarpedNode;
 
 use Mouse;
+with "Config::Model::Role::NodeLoader";
 
 use Carp qw(cluck croak);
 
@@ -169,7 +170,7 @@ sub set_properties {
     my $old_config_class_name = $self->{config_class_name};
 
     # create a new object from scratch
-    my $new_object = $self->create_node( $config_class_name, $node_class, @args );
+    my $new_object = $self->create_node( $config_class_name, @args );
 
     $self->{config_class_name} = $config_class_name;
     $self->{data}              = $new_object;
@@ -201,7 +202,6 @@ sub set_properties {
 sub create_node {
     my $self              = shift;
     my $config_class_name = shift;
-    my $node_class        = shift;
 
     my @args = (
         config_class_name => $config_class_name,
@@ -213,7 +213,7 @@ sub create_node {
 
     push @args, index_value => $self->index_value if defined $self->index_value;
 
-    return $node_class->new(@args);
+    return $self->load_node(@args);
 }
 
 sub clear {

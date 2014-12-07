@@ -1,8 +1,10 @@
 package Config::Model::Node;
 
 use Mouse;
+with "Config::Model::Role::NodeLoader";
 
 use Carp;
+use 5.010;
 
 use Config::Model::Exception;
 use Config::Model::Loader;
@@ -160,10 +162,6 @@ sub create_node {
     my $element_info = dclone( $self->{model}{element}{$element_name} );
     my $config_class_name = $element_info->{config_class_name};
 
-    my $config_class =  $self->config_model->get_model($config_class_name) ;
-    my $node_class = $config_class->{class} || 'Config::Model::Node';
-    Mouse::Util::load_class($node_class);
-
     Config::Model::Exception::Model->throw(
         error  => "create node '$element_name' error: " . "missing config class name parameter",
         object => $self
@@ -178,7 +176,7 @@ sub create_node {
         container         => $self,
     );
 
-    $self->{element}{$element_name} = $node_class->new(@args);
+    $self->{element}{$element_name} = $self->load_node(@args);
 }
 
 sub create_warped_node {

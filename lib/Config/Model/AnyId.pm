@@ -1,6 +1,9 @@
 package Config::Model::AnyId;
 
+use 5.010;
+
 use Mouse;
+with "Config::Model::Role::NodeLoader";
 
 use Config::Model::Exception;
 use Config::Model::Warper;
@@ -66,8 +69,26 @@ has warp => ( is => 'ro', isa => 'Maybe[HashRef]' );
 has [qw/morph/] => ( is => 'ro', isa => 'Bool' );
 has content_warning_hash => ( is => 'rw', isa => 'HashRef',  default => sub { {}; } );
 has content_warning_list => ( is => 'rw', isa => 'ArrayRef', default => sub { []; } );
-has [qw/config_class_name cargo_class max_index index_class index_type/] =>
+has [qw/cargo_class max_index index_class index_type/] =>
     ( is => 'rw', isa => 'Maybe[Str]' );
+
+has config_model => (
+    is       => 'ro',
+    isa      => 'Config::Model',
+    weak_ref => 1,
+    lazy     => 1,
+    builder  => '_config_model'
+);
+
+sub _config_model {
+    my $self = shift;
+    my $p    = $self->instance->config_model;
+}
+
+sub config_class_name {
+    my $self = shift;
+    return $self->cargo->{config_class_name};
+}
 
 sub BUILD {
     my $self = shift;
@@ -75,13 +96,12 @@ sub BUILD {
     croak "Missing cargo->type parameter for element " . $self->{element_name} || 'unknown'
         unless defined $self->cargo->{type};
 
-    if ( $self->cargo->{type} eq 'node' ) {
-        $self->config_class_name( delete $self->cargo->{config_class_name} )
-            or croak "Missing cargo->config_class_name "
-            . "parameter for element "
-            . $self->element_name || 'unknown';
+    if ( $self->cargo->{type} eq 'node' and not $self->cargo->{config_class_name} ) {
+        croak "Missing cargo->config_class_name parameter for element "
+        . $self->element_name || 'unknown';
     }
-    elsif ( $self->{cargo}{type} eq 'hash' or $self->{cargo}{type} eq 'list' ) {
+
+    if ( $self->{cargo}{type} eq 'hash' or $self->{cargo}{type} eq 'list' ) {
         die "$self->{element_name}: using $self->{cargo}{type} will probably not work";
     }
 
@@ -780,11 +800,6 @@ sub auto_vivify {
         $el_class = $class;
     }
 
-    if ( not defined *{ $el_class . '::new' } ) {
-        my $file = $el_class . '.pm';
-        $file =~ s!::!/!g;
-        require $file;
-    }
 
     my @common_args = (
         element_name => $self->{element_name},
@@ -799,15 +814,10 @@ sub auto_vivify {
 
     # check parameters passed by the user
     if ( $cargo_type eq 'node' ) {
-        Config::Model::Exception::Model->throw(
-            object  => $self,
-            message => "missing 'cargo->config_class_name' " . "parameter",
-        ) unless defined $self->{config_class_name};
-
-        $item =
-            $self->{parent}->new( @common_args, config_class_name => $self->{config_class_name} );
+        $item = $self->load_node( @common_args, config_class_name => $self->config_class_name );
     }
     else {
+        Mouse::Util::load_class($el_class);
         $item = $el_class->new(@common_args);
     }
 
