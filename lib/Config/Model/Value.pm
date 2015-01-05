@@ -964,7 +964,7 @@ sub run_code_set_on_value {
         my $msg = $w_info->{$label}{msg} || $msg;
         $logger->trace("eval'ed code is: '$code'");
         my $fix = $w_info->{$label}{fix};
-        $msg =~ s/\$_/$$value_r/g;
+        $msg =~ s/\$_/$$value_r/g if defined $$value_r;
         $msg .= " (this can be fixed with 'cme fix' command)" if $fix;
 
         my $sub = sub {
