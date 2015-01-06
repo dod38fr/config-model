@@ -1,5 +1,15 @@
 {{$NEXT}}
 
+2.065 2015-01-06
+
+  Bug fixes:
+    * Value: avoid undef warning when creating error message
+    * Node: Must load override class to be able to use it...
+
+  New (small) feature:
+    * Value: warning or error message defined in a model can contain
+	  a $_ to show the bad value to user
+
 2.064 2014-12-04
 
   A small change for this release:
