@@ -1312,10 +1312,10 @@ sub get_migrate_doc {
     else                     { $mform = "'C<$mform>' " }
 
     my $mdoc = "Note: $elt_name $desc ${mform}and with "
-        . join( ", ", map { qq!\$$_ => "C<$mv->{$_}>"! } keys %$mv );
+        . join( ", ", map { qq!\$$_ => "C<$mv->{$_}>"! } sort keys %$mv );
     if ( my $rep = $migr->{replace} ) {
         $mdoc .=
-            ' and ' . join( ", ", map { qq!'C<\$replace{$_}>' => "C<$rep->{$_}>"! } keys %$rep );
+            ' and ' . join( ", ", map { qq!'C<\$replace{$_}>' => "C<$rep->{$_}>"! } sort keys %$rep );
     }
 
     return ( $mdoc, '' );
@@ -1382,7 +1382,7 @@ sub generate_doc {
     my @wrote;
 
     if ( defined $dir and $dir ) {
-        foreach my $class_name ( keys %$res ) {
+        foreach my $class_name ( sort keys %$res ) {
             my $file = $class_name;
             $file =~ s!::!/!g;
             my $pl_file  = $dir . "/$file.pl";
@@ -1409,7 +1409,7 @@ sub generate_doc {
         }
     }
     else {
-        foreach my $class_name ( keys %$res ) {
+        foreach my $class_name ( sort keys %$res ) {
             print "########## $class_name ############ \n\n";
             print $res->{$class_name};
         }
