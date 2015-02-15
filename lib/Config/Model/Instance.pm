@@ -151,8 +151,10 @@ sub has_warning {
 }
 
 has on_change_cb => (
-    is  => 'rw',
-    isa => 'Maybe[CodeRef]',
+    is  => 'ro',
+    traits    => ['Code'],
+    isa       => 'CodeRef',
+    default   => sub { sub { } },
 );
 
 # initial_load mode: when data is loaded the first time
@@ -372,8 +374,7 @@ sub notify_change {
         $change_logger->debug( "in instance ", $self->name, ' for path ', $args{path} );
     }
     $self->add_change( \%args );
-    my $cb = $self->on_change_cb;
-    $cb->(@_) if $cb;
+    $self->on_change_cb->(@_);
 }
 
 sub list_changes {
