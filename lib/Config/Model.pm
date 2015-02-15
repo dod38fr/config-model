@@ -2251,8 +2251,9 @@ Generate POD document for configuration class.
 
 =head2 generate_doc ( top_class_name , [ directory ] )
 
-Generate POD document for configuration class top_class_name
-and write them on STDOUT or in specified directory.
+Generate POD document for configuration class top_class_name and all
+classes used by top_class_name, and write them on STDOUT or in
+specified directory.
 
 Returns a list of written file names.
 
