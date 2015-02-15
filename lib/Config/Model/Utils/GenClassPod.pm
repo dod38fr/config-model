@@ -4,6 +4,7 @@ package Config::Model::Utils::GenClassPod;
 
 use strict;
 use warnings;
+use 5.010;
 use parent qw(Exporter);
 our @EXPORT = qw(gen_class_pod);
 
@@ -41,11 +42,20 @@ __END__
  use Config::Model::Utils::GenClassPod;
  gen_class_pod;
 
+ # or
+
+ gen_class_pod('Foo','Bar',...)
+
 =head1 DESCRIPTION
 
-This module provides a single exported function:
-C<gen_class_pod>. This function will scan C<./lib/Config/Model/models>
-and generate a pod documentation for each C<.pl> found there using
+This module provides a single exported function: C<gen_class_pod>.
+
+This function will scan C<./lib/Config/Model/models/*.d>
+and generate pod documentation for each file found there using
 L<Config::Model::generate_doc|Config::Model/"generate_doc ( top_class_name , [ directory ] )">
+
+You can also pass one or more class names. C<gen_class_pod> will write
+the documentation for each passed class and all other classes used by
+the passed classes.
 
 =cut
