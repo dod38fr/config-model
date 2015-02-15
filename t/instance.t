@@ -8,8 +8,6 @@ use Test::Warn;
 use Test::Memory::Cycle;
 use Config::Model;
 
-BEGIN { plan tests => 17; }
-
 use strict;
 
 my $arg = shift || '';
@@ -38,12 +36,17 @@ $model->create_config_class(
         },
     ] );
 
+my $messager ;
 my $inst = $model->instance(
     root_class_name => 'WarnMaster',
     instance_name   => 'test1',
-    root_dir        => 'foobar'
+    root_dir        => 'foobar',
+    on_message_cb   => sub { $messager = shift;},
 );
 ok( $inst, "created dummy instance" );
+
+$inst->show_message('hello');
+is($messager,'hello',"test show_message_cb");
 
 isa_ok( $inst->config_root, 'Config::Model::Node', "test config root class" );
 
@@ -88,3 +91,5 @@ is( $binst->has_warning, 0, "test has_warning with big model" );
 Config::Model::Exception::Any->Trace(1) if $trace =~ /e/;
 
 memory_cycle_ok($model);
+
+done_testing;
