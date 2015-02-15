@@ -1,5 +1,17 @@
 {{$NEXT}}
 
+2.066 2015-02-15
+
+    * C::M::Instance:
+      + added on_message_cb and show_message parameters
+    * C::M::GenClassPod:
+      * added missing doc for gen_class_pod parameters
+      * generate doc in a reproducible way by using "sort keys". This should
+        fix Debian problem with unreproducible build found on libconfig-model-dpkg-perl
+        and libconfig-model-itself-perl
+    * dist.ini: use free.fr address instead of cpan.org to avoid problems with
+      automated release e-mail
+
 2.065 2015-01-06
 
   Bug fixes:
