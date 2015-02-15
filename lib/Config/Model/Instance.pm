@@ -157,6 +157,16 @@ has on_change_cb => (
     default   => sub { sub { } },
 );
 
+has on_message_cb => (
+    traits    => ['Code'],
+    is        => 'ro',
+    isa       => 'CodeRef',
+    default   => sub { sub { say @_; } },
+    handles   => {
+        show_message => 'execute',
+    },
+);
+
 # initial_load mode: when data is loaded the first time
 has initial_load => (
     is      => 'rw',
@@ -542,6 +552,11 @@ configuration tree.
 Call back this function whenever C<notify_change> is called. Called with
 arguments: C<< name => <root node element name>, index => <index_value> >>
 
+=item on_message_cb
+
+Call back this function when L<show_message> is called. By default,
+messages will be displayed on STDOUT.
+
 =item error_paths
 
 Returns a list of tree items that currently have an error.
@@ -572,6 +587,11 @@ Returns the root object of the configuration tree.
 =head2 read_check()
 
 Returns how to check read files.
+
+=head2 show_message( string )
+
+Display the message on STDOUT unless a custom function was passed to
+C<on_message_cb> parameter.
 
 =head2 reset_config
 
