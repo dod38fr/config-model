@@ -190,7 +190,7 @@ sub instance {
 
 sub instance_names {
     my $self = shift;
-    return keys %{ $self->instances };
+    return sort keys %{ $self->instances };
 }
 
 @level = qw/hidden normal important/;
@@ -414,7 +414,7 @@ sub normalize_class_parameters {
     Config::Model::Exception::ModelDeclaration->throw(
               error => "create class $config_class_name: unexpected "
             . "parameters '"
-            . join( ', ', keys %$normalized_model ) . "' "
+            . join( ', ', sort keys %$normalized_model ) . "' "
             . "Expected '"
             . join( "', '", @legal_params_to_move, @other_legal_params )
             . "'" )
@@ -1015,7 +1015,7 @@ sub include_one_class {
             my $msg =
                   "Unknown element for 'include_after': "
                 . "$include_after, expected "
-                . join( ' ', keys %elt_idx );
+                . join( ' ', sort keys %elt_idx );
             Config::Model::Exception::ModelDeclaration->throw( error => $msg );
         }
 
