@@ -151,7 +151,7 @@ sub has_warning {
 }
 
 has on_change_cb => (
-    is  => 'ro',
+    is  => 'rw',
     traits    => ['Code'],
     isa       => 'CodeRef',
     default   => sub { sub { } },
@@ -159,7 +159,7 @@ has on_change_cb => (
 
 has on_message_cb => (
     traits    => ['Code'],
-    is        => 'ro',
+    is        => 'rw',
     isa       => 'CodeRef',
     default   => sub { sub { say @_; } },
     handles   => {
