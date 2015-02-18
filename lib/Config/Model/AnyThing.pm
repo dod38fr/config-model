@@ -15,7 +15,13 @@ my $change_logger = get_logger("Anything::Change");
 
 has element_name => ( is => 'ro', isa => 'Str' );
 has parent       => ( is => 'ro', isa => 'Config::Model::Node', weak_ref => 1 );
-has instance     => ( is => 'ro', isa => 'Config::Model::Instance', weak_ref => 1 );
+
+has instance     => (
+    is => 'ro',
+    isa => 'Config::Model::Instance',
+    weak_ref => 1,
+    handles => [qw/show_message/]
+);
 
 # needs_check defaults to 1 to trap undef mandatory values
 has needs_check => ( is => 'rw', isa => 'Bool', default => 1 );
@@ -829,6 +835,10 @@ When set to 1, force recording of change even if in initial load phase.
 internal parameter.
 
 =back
+
+=head2 show_message( string )
+
+Forwarded to L<Config::Model::Instance/"show_message( string )">.
 
 =head2 model_searcher ()
 
