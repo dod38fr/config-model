@@ -54,11 +54,11 @@ my $desc_sub = sub {
 
 my $ll_sub = sub {
     my $self = shift;
-    my $elt  = shift // '';
+    my $elt  = shift ;
 
     my $obj = $self->{current_node};
     my $res ;
-    if ($elt =~ /\*/) {
+    if (defined $elt and $elt =~ /\*/) {
         $elt =~ s/\*/.*/g;
         $res = $obj->describe( pattern => qr/^$elt$/, check => 'no' );
     }
