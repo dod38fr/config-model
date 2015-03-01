@@ -1,5 +1,16 @@
 {{$NEXT}}
 
+2.067 2015-03-01
+
+  Bug fix release:
+    * SimpleUI: fix 'll' command (failed without argument)
+    * C::M::Backend::Any:
+      + added show_message method (delegated to node)
+      * added missing doc for node attribute
+    * C::M::Instance: callback attributes are now rw
+      (should fix test failures of Config::Model::Itself)
+    * C::M::AnyThing: delegates show_message to instance
+
 2.066 2015-02-15
 
     * C::M::Instance:
