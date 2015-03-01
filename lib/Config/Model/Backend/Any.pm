@@ -17,7 +17,8 @@ has 'node' => (
     is       => 'ro',
     isa      => 'Config::Model::Node',
     weak_ref => 1,
-    required => 1
+    required => 1,
+    handles => ['show_message'],
 );
 
 sub suffix {
@@ -247,6 +248,10 @@ Whether the backend supports to read and write annotation. Default is
 =head2 node
 
 Return the node (a L<Config::Model::Node>) holding this backend.
+
+=head2 show_message( string )
+
+Show a message to STDOUT (unless overridden). Delegated to L<Config::Model::Instance/"show_message( string )">.
 
 =head2 read_global_comments( lines , comment_char)
 
