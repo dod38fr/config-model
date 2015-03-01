@@ -244,6 +244,10 @@ Whether the backend supports to read and write annotation. Default is
 
 =head1 Methods
 
+=head2 node
+
+Return the node (a L<Config::Model::Node>) holding this backend.
+
 =head2 read_global_comments( lines , comment_char)
 
 Read the global comments (i.e. the first block of comments until the first blank or non comment line) and
