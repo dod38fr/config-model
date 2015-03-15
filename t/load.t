@@ -121,6 +121,10 @@ my $step = qq!#"root cooment " std_id:ab X=Bv -\na_string="titi and\ntoto" !;
 ok( $root->load( step => $step ), "load steps with embedded \\n" );
 is( $root->fetch_element('a_string')->fetch, "titi and\ntoto", "check a_string" );
 
+$step = qq!a_string:toto!; # should blow up
+throws_ok { $root->load( step => $step ) ; }
+    qr/f/, "use ':' on a leaf";
+
 # test apply regexp
 $step = qq!a_string=~s/TOTO/tata/i!;
 ok( $root->load( step => $step ), "load steps with apply regexp" );

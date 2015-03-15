@@ -650,9 +650,20 @@ sub _load_leaf {
     my $element = $node->fetch_element( name => $element_name, check => $check );
     $self->_load_note( $element, $note, $inst, $cmdref );
 
-    if ( defined $action and $action eq '~' and $element->isa('Config::Model::Value') ) {
-        $logger->debug("_load_leaf: action '$action' deleting value");
-        $element->store(undef);
+    if ( defined $action and $element->isa('Config::Model::Value')) {
+        if ($action eq '~') {
+            $logger->debug("_load_leaf: action '$action' deleting value");
+            $element->store(undef);
+        }
+        else {
+            Config::Model::Exception::Load->throw(
+                object  => $element,
+                command => $inst,
+                error   => "Load error on leaf with "
+                . "'$element_name$action$id' command "
+                . "(element '" . $element->name . "')"
+            );
+        }
     }
 
     return 'ok' unless defined $subaction;
