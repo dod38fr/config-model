@@ -341,14 +341,14 @@ $root->load('lista:.insert_before(/z/,bar3,bar4)');
 eq_or_diff(
     [ $lista->fetch_all_values ],
     [qw/foo bar1 bar2 bar3 bar4 baz/],
-    "check insert_before with regexp result"
+    "check insert_before with regexp /z/"
 );
 
 $root->load('lista:.insert_before(/1/,"bar0a bar0b, bar0c")');
 eq_or_diff(
     [ $lista->fetch_all_values ],
     [ foo => "bar0a bar0b, bar0c", qw/bar1 bar2 bar3 bar4 baz/ ],
-    "check insert_before with regexp result"
+    "check insert_before with regexp /1/"
 );
 
 # test insort
