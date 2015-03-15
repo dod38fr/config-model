@@ -469,6 +469,29 @@ sub write_back {
     $self->clear_changes;
 }
 
+sub update {
+    my ($self, %args) = @_;
+
+    my @msgs ;
+    my $hook = sub {
+        my ($scanner, $data_ref,$node,@element_list) = @_;
+        if ($node->can('update')) {
+            say "Calling update on ",$node->name, ' ',$node->config_class_name, " $node"
+                unless $args{quiet};
+            push (@msgs, $node->update(%args))
+        } ;
+    };
+
+    my $root = $self->config_root ;
+
+    Config::Model::ObjTreeScanner->new(
+        node_content_hook => $hook,
+        leaf_cb => sub { }
+    )->scan_node( \@msgs, $root );
+
+    return @msgs;
+}
+
 __PACKAGE__->meta->make_immutable;
 
 1;
@@ -754,6 +777,12 @@ Print all changes on STDOUT and return the list of changes.
 =head2 has_warning
 
 Returns the number of warning found in the elements of this configuration instance.
+
+=head2 update( quiet => (0|1), %args )
+
+Try to run update command on all nodes of the configuration tree. Node
+without C<update> method are ignored. C<update> will C<say> a message
+otherwise (unless C<quiet> is true).
 
 =head1 AUTHOR
 
