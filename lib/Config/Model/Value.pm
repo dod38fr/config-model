@@ -1173,7 +1173,6 @@ sub store {
         value         => $value,
         check         => $check,
         silent        => $silent,
-        notify_change => $notify_change,
     );
 
     $self->_store( %args, ok => $ok, value => $value, check => $check );
@@ -1346,8 +1345,8 @@ sub check_stored_value {
 
     my ($ok, $fixed_value) = $self->check_value( %args );
 
-    my ( $value, $check, $silent, $notify_change ) =
-        @args{qw/value check silent notify_change/};
+    my ( $value, $check, $silent ) =
+        @args{qw/value check silent/};
 
     # some se case like idElementReference are too complex to propagate
     # a change notification back to the value using them. So an error or
