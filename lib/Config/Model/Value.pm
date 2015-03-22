@@ -1152,12 +1152,20 @@ sub store {
 
     my $value = $self->transform_value( value => $args{value}, check => $check );
 
-    my $init_load = $self->instance->initial_load;
     no warnings qw/uninitialized/;
-    my $notify_change
-        = $args{value} ne $value               ? 1  # data was transformed by model
-        : $value ne $old_value and !$init_load ? 1
-        :                                        0;
+    if ($self->instance->initial_load) {
+        # may send more than one notification
+        if ( $args{value} ne $value ) {
+            # data was transformed by model
+            $self->notify_change(really => 1, old => $args{value} , new => $value, note =>"initial value changed by model");
+        }
+        if (defined $old_value and $old_value ne $value) {
+            $self->notify_change(really => 1, old => $old_value , new => $value, note =>"conflicting initial values");
+        }
+        if (defined $old_value and $old_value eq $value) {
+            $self->notify_change(really => 1, note_only =>"removed redundant initial value");
+        }
+    }
 
     if ( defined $old_value and $value eq $old_value ) {
         $logger->info( "skip storage of ", $self->composite_name, " unchanged value: $value" )
