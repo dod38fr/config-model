@@ -826,6 +826,10 @@ change message. When not empty, old and new values are not shown.
 
 note displayed along the changed values (or message)
 
+=item note_only
+
+Display a note even if values are not changed
+
 =item really
 
 When set to 1, force recording of change even if in initial load phase.

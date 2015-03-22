@@ -384,7 +384,7 @@ sub notify_change {
         $change_logger->debug( "in instance ", $self->name, ' for path ', $args{path} );
     }
     $self->add_change( \%args );
-    $self->on_change_cb->(@_);
+    $self->on_change_cb->( %args );
 }
 
 sub list_changes {
@@ -406,7 +406,10 @@ sub list_changes {
         my $vt = $c->{value_type} || '';
         my ( $o, $n ) = map { $_ // '<undef>'; } ( $c->{old}, $c->{new} );
 
-        if ( $vt eq 'string' and ( $o =~ /\n/ or $n =~ /\n/ ) ) {
+        if ($c->{note_only}) {
+            push @all, "$path: ".$c->{note_only};
+        }
+        elsif ( $vt eq 'string' and ( $o =~ /\n/ or $n =~ /\n/ ) ) {
 
             # append \n if needed so diff works as expected
             map { $_ .= "\n" unless /\n$/; } ( $o, $n );
@@ -426,7 +429,7 @@ sub say_changes {
     my $self    = shift;
     my @changes = $self->list_changes;
     say "\n",
-        join( "\n- ", "Changes applied to " . $self->application . " configuration:", @changes ),
+        join( "\n- ", "Changes applied to " . ($self->application // $self->name) . " configuration:", @changes ),
         "\n"
         if @changes;
     return @changes;
@@ -736,7 +739,8 @@ C<write_back> method.
 
 =head2 notify_change
 
-Notify that some data has changed in the tree. 
+Notify that some data has changed in the tree. See
+L<Config::Model::AnyThing/notify_change(...)> for more details.
 
 =head2 write_back ( ... )
 
@@ -763,7 +767,8 @@ See C<warn_if_match> or C<warn_unless_match> in L<Config::Model::Value/>.
 
 =head2 needs_save
 
-Returns 1 (or more) if the instance contains data that needs to be saved.
+Returns 1 (or more) if the instance contains data that needs to be
+saved. I.e some change were done in the tree that needs to be saved.
 
 =head2 list_changes
 
