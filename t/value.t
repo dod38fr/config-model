@@ -1,6 +1,7 @@
 # -*- cperl -*-
 
 use warnings FATAL => qw(all);
+use 5.010;
 
 use ExtUtils::testlib;
 use Test::More;
@@ -64,6 +65,11 @@ $model->create_config_class(
             value_type => 'integer',
             min        => 1,
             max        => 4,
+        },
+        string => {
+            type       => 'leaf',
+            class      => 'Config::Model::Value',
+            value_type => 'string',
         },
         bounded_number => {
             type       => 'leaf',
@@ -725,6 +731,40 @@ is($t_file->has_warning, 0, "test a file");
 
 $t_dir->store('t/') ;
 is($t_dir->has_warning, 0, "test a dir");
+
+
+### test problems during initial load
+my $inst2 = $model->instance(
+    root_class_name => 'Master',
+    instance_name   => 'initial_test'
+);
+ok( $inst2, "created initial_test inst2ance" );
+
+# is triggered internally only when at least one node has a RW backend
+$inst2->initial_load_start;
+
+my $s = $inst2->config_root->fetch_element('string');
+$s->store('foo');
+$s->store('foo');
+
+is( $inst2->needs_save, 1, "verify instance needs_save status after redundant data" );
+
+eq_or_diff([$inst2->list_changes],['string: removed redundant initial value'],"check change message for redundant data");
+$inst2->clear_changes;
+is( $inst2->needs_save, 0, "needs_save after clearing changes" );
+
+$s->store('bar');
+eq_or_diff([$inst2->list_changes],['string: \'foo\' -> \'bar\' # conflicting initial values'],"check change message for redundant data");
+is( $inst2->needs_save, 1, "verify instance needs_save status after conflicting data" );
+
+$inst2->clear_changes;
+$s->parent->fetch_element('uc_convert')->store('foo');
+eq_or_diff([$inst2->list_changes],['uc_convert: \'foo\' -> \'FOO\' # initial value changed by model'],
+           "check change message when model changes data coming from config file");
+
+$inst2->initial_load_stop;
+
+
 
 memory_cycle_ok( $model, "check memory cycles" );
 
