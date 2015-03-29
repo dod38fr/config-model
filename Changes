@@ -1,5 +1,16 @@
 {{$NEXT}}
 
+2.068 2015-03-29
+
+  Small improvements:
+    * Value: request configuration save when initial load
+      detects problem like duplicated or mismatched values in config file
+    * Loader: raise an exception when ':' action is used with a value element
+
+  New features:
+    * C::M::Anything::grab: type param can also be an array ref
+    * Instance: added 'update' method
+
 2.067 2015-03-01
 
   Bug fix release:
