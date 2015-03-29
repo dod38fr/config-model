@@ -223,10 +223,11 @@ sub full_message {
     my $msg      = $self->description;
     my $cmd      = $self->command;
     my $cmd_str =
-          defined $cmd && $cmd ? "'$cmd'"
+           ref($cmd)   ? join('',@$cmd)
+        : $cmd         ? "'$cmd'"
         : defined $cmd ? '<empty>'
         :                '<undef>';
-    $msg .= " in node '$location'" if $location;
+    $msg .= " in node '$location' ".ref($cmd) if $location;
     $msg .= ':';
     $msg .= "\n\tcommand: $cmd_str";
     $msg .= "\n\t" . $self->message . "\n";

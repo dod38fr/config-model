@@ -655,6 +655,14 @@ sub _load_leaf {
             $logger->debug("_load_leaf: action '$action' deleting value");
             $element->store(undef);
         }
+        elsif ($action eq ':') {
+            Config::Model::Exception::Load->throw(
+                object  => $element,
+                command => $inst,
+                error   => "Error: list or hash command (':') detected on a leaf."
+                . "(element '" . $element->name . "')"
+            );
+        }
         else {
             Config::Model::Exception::Load->throw(
                 object  => $element,
