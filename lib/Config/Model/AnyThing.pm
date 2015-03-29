@@ -432,7 +432,8 @@ COMMAND:
 
     # check element type
     if ( defined $type ) {
-        while ( @found and $found[-1]->get_type ne $type ) {
+        my @allowed = ref $type ? @$type : ($type);
+        while ( @found and not grep {$found[-1]->get_type eq $_} @allowed ) {
             Config::Model::Exception::WrongType->throw(
                 object        => $found[-1],
                 function      => 'grab',
@@ -716,10 +717,16 @@ will return undef in case of problem. (default is C<strict>)
 
 =item C<type>
 
-Either C<node>, C<leaf>, C<hash> or C<list>. Returns only an object of
+Either C<node>, C<leaf>, C<hash> or C<list> or an array ref containing these
+values. Returns only an object of
 requested type. Depending on C<strict> value, C<grab> will either
 throw an exception or return the last found object of requested type.
 (optional, default to C<undef>, which means any type of object)
+
+Examples:
+
+ $root->grep(step => 'foo:2 bar', type => 'leaf')
+ $root->grep(step => 'foo:2 bar', type => ['leaf','check_list'])
 
 =item C<autoadd>
 
