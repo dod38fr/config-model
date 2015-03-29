@@ -222,12 +222,13 @@ sub full_message {
     my $location = defined $self->object ? $self->object->name : '';
     my $msg      = $self->description;
     my $cmd      = $self->command;
+    no warnings 'uninitialized';
     my $cmd_str =
            ref($cmd)   ? join('',@$cmd)
         : $cmd         ? "'$cmd'"
         : defined $cmd ? '<empty>'
         :                '<undef>';
-    $msg .= " in node '$location' ".ref($cmd) if $location;
+    $msg .= " in node '$location' " if $location;
     $msg .= ':';
     $msg .= "\n\tcommand: $cmd_str";
     $msg .= "\n\t" . $self->message . "\n";
