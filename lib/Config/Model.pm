@@ -80,7 +80,7 @@ has normalized_models => (
 # This attribute contain the model that will be used by Config::Model::Node. They
 # are created on demand when get_model is called. When created the inclusion of
 # other classes is done according to the class 'include' parameter. Note that get_model
-# will try call load if the required normalized_model is not known (lazy loading)
+# will try to call load if the required normalized_model is not known (lazy loading)
 has models => (
     isa     => 'HashRef',
     is      => 'ro',
@@ -1001,6 +1001,18 @@ sub include_one_class {
     # takes care of recursive include, because get_model will perform
     # includes (and normalization). Is already a dclone
     my $included_model = $self->get_model($include_class);
+
+    # include read/write config specifications
+    foreach my $rw (qw/read_config write_config config_dir/) {
+        if ($target_model->{$rw} and $included_model->{$rw}) {
+            my $msg = "Included $rw from $include_class cannot clobber "
+                . "existing data in $class_name";
+            Config::Model::Exception::ModelDeclaration->throw( error => $msg );
+        }
+        elsif ($included_model->{$rw}) {
+            $target_model->{$rw} = $included_model->{$rw};
+        }
+    }
 
     # now include element in element_list (special treatment because order is
     # important)
@@ -2135,7 +2147,7 @@ L<Config::Model::Itself> model editor.
 
 =item include
 
-Include element description from another class.
+Include element description and read/write specification from another class.
 
   include => 'AnotherClass' ,
 
@@ -2158,6 +2170,8 @@ elements after a specific element of your including class:
 Now the element of your class will be:
 
   ( bar , foo , xyz , baz )
+
+Note that include may not clobber an existing element or read/write specification.
 
 =back
 
