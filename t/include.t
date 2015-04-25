@@ -5,11 +5,10 @@ use warnings FATAL => qw(all);
 use ExtUtils::testlib;
 use Test::More;
 use Test::Exception;
+use Test::Differences;
 use Test::Memory::Cycle;
 use Config::Model;
 use Data::Dumper;
-
-BEGIN { plan tests => 5; }
 
 use strict;
 
@@ -95,4 +94,40 @@ $model->create_config_class(@bad_class);
 
 throws_ok { $model->get_model('EvilMaster'); } qr/cannot clobber/i,
     "Check that include does not clobber elements";
-memory_cycle_ok($model);
+
+# test include of read/write spec
+$model->create_config_class(
+    name => 'LikeXorg',
+    'include' => [
+      'Xorg::ConfigDir'
+    ],
+    element => [
+        one => {
+            type       => 'leaf',
+            value_type => 'string',
+        },
+
+    ],
+);
+
+my $read_config = [{
+    'auto_create' => 1,
+    'backend' => 'Xorg',
+    'config_dir' => '/etc/X11',
+    'file' => 'xorg.conf'
+}] ;
+
+$model->create_config_class(
+    'name' => 'Xorg::ConfigDir',
+    'read_config' => $read_config
+);
+
+
+my $xorg_model = $model->get_model('LikeXorg');
+
+eq_or_diff($xorg_model->{read_config}, $read_config,"check included read specification");
+
+
+memory_cycle_ok($model, "memory cycles");
+
+done_testing;
