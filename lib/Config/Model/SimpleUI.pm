@@ -24,6 +24,7 @@ desc[ription] -> show class desc of current node
 desc <element>   -> show desc of element from current node
 desc <value> -> show effect of value (for enum)
 changes -> list unsaved changes
+fix -> fix most warnings (called on all elements)
 save -> save current changes
 exit -> exit shell
 ';
@@ -147,6 +148,10 @@ my %run_dispatch = (
         my ( $self, $elt_name ) = @_;
         $self->{current_node}->fetch_element($elt_name)->clear();
         return '';
+    },
+    fix => sub {
+        my ( $self, $dir ) = @_;
+        return $self->{root}->instance->apply_fixes;
     },
     save => sub {
         my ($self) = @_;
@@ -421,6 +426,11 @@ Show effect of value (for enum)
 =item changes
 
 Show unsaved changes
+
+=item fix
+
+Fix most warnings by calling
+L<apply_fixes|Config::Model::Instance/apply_fixes> on instance.
 
 =item exit
 
