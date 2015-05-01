@@ -844,7 +844,7 @@ sub delete {
 
     delete $self->{warning_hash}{$idx};
     my $ret = $self->_delete($idx);
-    $self->notify_change( note => "deleted entry $idx" );
+    $self->notify_change( note_only => "deleted entry $idx" );
     return $ret;
 }
 
@@ -854,7 +854,7 @@ sub clear {
     $self->{warning_hash} = {};
     $self->_clear;
     $self->clear_data_mode;
-    $self->notify_change( note => "cleared all entries" );
+    $self->notify_change( note_only => "cleared all entries" );
 }
 
 sub clear_values {
@@ -869,7 +869,7 @@ sub clear_values {
 
     # this will trigger a notify_change
     map { $self->fetch_with_id($_)->store(undef) } $self->fetch_all_indexes;
-    $self->notify_change( note => "cleared all values" );
+    $self->notify_change( note_only => "cleared all values" );
 }
 
 sub warning_msg {
