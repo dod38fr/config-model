@@ -9,8 +9,8 @@ cd <elt> cd <elt:key>, cd - , cd !
    -> jump into node
 set elt=value, elt:key=value
    -> set a value
-reset elt
-   -> reset a value (set to undef)
+clear elt
+   -> clear value or list or hash
 delete elt:key
    -> delete a value from a list or hash element
 delete elt
@@ -143,9 +143,9 @@ my %run_dispatch = (
         }
         return '';
     },
-    reset => sub {
+    clear => sub {
         my ( $self, $elt_name ) = @_;
-        $self->{current_node}->fetch_element($elt_name)->store(undef);
+        $self->{current_node}->fetch_element($elt_name)->clear();
         return '';
     },
     save => sub {
@@ -162,6 +162,8 @@ my %run_dispatch = (
     description => $desc_sub,
     desc        => $desc_sub,
 );
+
+$run_dispatch{reset} = $run_dispatch{clear};
 
 sub simple_ui_commands {
     sort keys %run_dispatch;
@@ -376,9 +378,9 @@ Set a leaf value.
 
 Set a leaf value locate in a hash or list element.
 
-=item reset elt
+=item clear elt
 
-Delete leaf value (set to C<undef>).
+Clear leaf value (set to C<undef>) or removed all elements of hash or list.
 
 =item delete elt
 
