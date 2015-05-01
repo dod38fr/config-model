@@ -394,10 +394,18 @@ while (@bool_test) {
     is( $mb->fetch, $read, "mandatory boolean: store $store and read $read value" );
 }
 
+$inst->clear_changes;
 my $bwwa = $root->fetch_element('boolean_with_write_as');
 is( $bwwa->fetch, undef, "boolean_with_write_as reads undef" );
 $bwwa->store('no');
 is( $bwwa->fetch, 'false', "boolean_with_write_as returns 'false'" );
+is( $inst->needs_save, 1, "check needs_save after writing 'boolean_with_write_as'" );
+eq_or_diff([$inst->list_changes],["boolean_with_write_as: '<undef>' -> '0'"],
+           "check change message after writing 'boolean_with_write_as'");
+
+$bwwa->store('false');
+is( $inst->needs_save, 1, "check needs_save after writing twice 'boolean_with_write_as'" );
+
 $bwwa->store(1);
 is( $bwwa->fetch, 'true', "boolean_with_write_as returns 'true'" );
 
@@ -761,6 +769,11 @@ $inst2->clear_changes;
 $s->parent->fetch_element('uc_convert')->store('foo');
 eq_or_diff([$inst2->list_changes],['uc_convert: \'foo\' -> \'FOO\' # initial value changed by model'],
            "check change message when model changes data coming from config file");
+
+$inst2->clear_changes;
+$s->parent->fetch_element('boolean_with_write_as')->store('true');
+is( $inst2->needs_save, 0, "verify instance needs_save status after writing 'boolean_with_write_as'" );
+
 
 $inst2->initial_load_stop;
 

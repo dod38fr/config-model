@@ -1150,14 +1150,17 @@ sub store {
     # $self->{data} represents what written in the file
     my $old_value = $self->{data};
 
-    my $value = $self->transform_value( value => $args{value}, check => $check );
+    my $incoming_value = $args{value};
+    $self->transform_boolean( \$incoming_value ) if $self->value_type eq 'boolean';
+
+    my $value = $self->transform_value( value => $incoming_value, check => $check );
 
     no warnings qw/uninitialized/;
     if ($self->instance->initial_load) {
         # may send more than one notification
-        if ( $args{value} ne $value ) {
+        if ( $incoming_value ne $value ) {
             # data was transformed by model
-            $self->notify_change(really => 1, old => $args{value} , new => $value, note =>"initial value changed by model");
+            $self->notify_change(really => 1, old => $incoming_value , new => $value, note =>"initial value changed by model");
         }
         if (defined $old_value and $old_value ne $value) {
             $self->notify_change(really => 1, old => $old_value , new => $value, note =>"conflicting initial values");
@@ -1312,8 +1315,6 @@ sub transform_value {
     if ( defined $self->{refer_to} or defined $self->{computed_refer_to} ) {
         $self->{ref_object}->get_choice_from_refered_to;
     }
-
-    $self->transform_boolean( \$value ) if $self->value_type eq 'boolean';
 
     $value = $self->{convert_sub}($value)
         if ( defined $self->{convert_sub} and defined $value );
@@ -1685,6 +1686,11 @@ sub user_value {
 sub fetch_preset {
     my $self = shift;
     return $self->map_write_as( $self->{preset} );
+}
+
+sub clear {
+    my $self = shift;
+    $self->store(undef);
 }
 
 sub clear_preset {
@@ -2397,6 +2403,11 @@ Store value in leaf element. C<check> parameter can be used to
 skip validation check.
 
 Optional C<callback> is now deprecated.
+
+=head2 clear
+
+Clear the stored value. Further read will return the default value (or
+computed or migrated value).
 
 =head2 load_data( scalar_value )
 
