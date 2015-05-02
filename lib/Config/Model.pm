@@ -1,10 +1,12 @@
 package Config::Model;
 
+use strict ;
+use warnings;
+use 5.10.1;
+
 use Mouse;
 use Mouse::Util::TypeConstraints;
 use MouseX::StrictConstructor;
-
-use 5.10.1;
 
 use Carp;
 use Storable ('dclone');
