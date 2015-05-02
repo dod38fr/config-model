@@ -98,7 +98,7 @@ throws_ok { $model->get_model('EvilMaster'); } qr/cannot clobber/i,
 # test include of read/write spec
 $model->create_config_class(
     name => 'LikeXorg',
-    'include' => [
+    'include_backend' => [
       'Xorg::ConfigDir'
     ],
     element => [
