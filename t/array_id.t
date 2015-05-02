@@ -350,12 +350,15 @@ foreach my $what (qw/forbid warn suppress/) {
         'string1', "check that original values is untouched after $what duplicates" );
 }
 
+$inst->clear_changes;
+$pl->clear;
+is( $inst->needs_save, 1, "verify instance needs_save status after clear array" );
+eq_or_diff( [ $pl->fetch_all_indexes ], [], "check that array was cleared" );
+eq_or_diff([$inst->list_changes],['plain_list: cleared all entries'],"check change message after clear");
+
 # test preset clear stuff
 # done after auto_create_ids tests, because preset_clear or layered_clear
 # also clean up auto_create_ids (if there's no data in there)
-$pl->clear;
-eq_or_diff( [ $pl->fetch_all_indexes ], [], "check that preset stuff was cleared" );
-
 $inst->preset_start;
 $pl->fetch_with_id(0)->store('prefoo');
 $pl->fetch_with_id(1)->store('prebar');

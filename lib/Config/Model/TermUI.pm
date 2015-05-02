@@ -90,9 +90,10 @@ my %completion_dispatch = (
     desc   => $completion_sub,
     ll     => $completion_sub,
     ls     => $completion_sub,
+    clear  => $completion_sub,
     set    => $leaf_completion_sub,
     delete => $leaf_completion_sub,
-    reset  => $leaf_completion_sub,
+    reset  => $completion_sub,
 );
 
 sub completion {
