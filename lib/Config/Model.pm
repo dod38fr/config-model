@@ -254,7 +254,7 @@ sub merge_included_class {
     my $normalized_model = $self->normalized_model($config_class_name);
     my $model            = dclone $normalized_model ;
 
-    # add included items
+    # add included elements
     if ( $self->skip_include and defined $normalized_model->{include} ) {
         my $inc = $normalized_model->{include};
         $model->{include} = ref $inc ? $inc : [$inc];
@@ -1003,18 +1003,6 @@ sub include_one_class {
     # takes care of recursive include, because get_model will perform
     # includes (and normalization). Is already a dclone
     my $included_model = $self->get_model($include_class);
-
-    # include read/write config specifications
-    foreach my $rw (qw/read_config write_config config_dir/) {
-        if ($target_model->{$rw} and $included_model->{$rw}) {
-            my $msg = "Included $rw from $include_class cannot clobber "
-                . "existing data in $class_name";
-            Config::Model::Exception::ModelDeclaration->throw( error => $msg );
-        }
-        elsif ($included_model->{$rw}) {
-            $target_model->{$rw} = $included_model->{$rw};
-        }
-    }
 
     # now include element in element_list (special treatment because order is
     # important)
@@ -2149,7 +2137,7 @@ L<Config::Model::Itself> model editor.
 
 =item include
 
-Include element description and read/write specification from another class.
+Include element description from another class.
 
   include => 'AnotherClass' ,
 
@@ -2173,7 +2161,7 @@ Now the element of your class will be:
 
   ( bar , foo , xyz , baz )
 
-Note that include may not clobber an existing element or read/write specification.
+Note that include may not clobber an existing element.
 
 =back
 
