@@ -1,5 +1,18 @@
 {{$NEXT}}
 
+2.070 2015-05-03
+
+  Added minor features and bug fixes:
+    * Model:
+      + added include_backend model parameter for xorg
+      * include no longer include read/write spec... (Debian #783952)
+    * Hash and Array: clear now triggers notify_change
+    * Value: boolean conversion (e.g yes/no to 1/0) during initial load
+      must not trigger a change notification...
+    * shell UI:
+      + added fix command
+      * added clear command for list hash and value...
+
 2.069 2015-04-25
 
   * Model: Allow inclusion of read/write specification
