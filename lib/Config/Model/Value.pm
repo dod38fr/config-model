@@ -1896,7 +1896,6 @@ application. This value must be written in the configuration file.
 C<computed>: The value is computed from other configuration
 elements. This value must be written in the configuration file.
 
-
 =item *
 
 C<preset>: The value is not known by the model or by the
@@ -1977,7 +1976,7 @@ configuration user (default: 0)
 
 Array ref of the possible value of an enum. Example :
 
-choice => [ qw/foo bar/]
+ choice => [ qw/foo bar/]
 
 =item match
 
@@ -2000,8 +1999,14 @@ C<$self> will contain the value object. Use with care.
 In the example below, any value matching 'foo' will be converted in uppercase:
 
  warn_if_match => {
-   'foo' => { fix =>'uc;', msg =>  'value $_ contains foo'}
-   'BAR' => { fix =>'lc;', msg =>  'value $_ contains BAR'}
+   'foo' => {
+        fix => 'uc;',
+        msg =>  'value $_ contains foo'
+   },
+   'BAR' => {
+        fix =>'lc;',
+        msg =>  'value $_ contains BAR'
+   }
  },
 
 The tests will be done in alphabetical order. In the example above, C<BAR> test will
@@ -2030,12 +2035,12 @@ C<$_> will contains the value to check. C<$self> will contain the C<Config::Mode
 The example below will warn if value contaims a number:
 
  warn_if => {
-                warn_test => {
-                    code => 'defined $_ && /\d/;',
-                    msg  => 'value $_ should not have numbers',
-                    fix  => 's/\d//g;'
-                }
-            },
+    warn_test => {
+        code => 'defined $_ && /\d/;',
+        msg  => 'value $_ should not have numbers',
+        fix  => 's/\d//g;'
+    }
+ },
 
 =item warn_unless
 
@@ -2050,19 +2055,17 @@ The example below will warn unless the value points to an existing directory:
           fix => "system(mkdir $_);" }
  }
 
-
 =item assert
 
 Like C<warn_if>. Except that returned value will trigger an error if false:
 
-  assert => {
-                test_nb => {
-                    code => 'defined $_ && /\d/;',
-                    msg  => 'should not have numbers',
-                    fix  => 's/\d//g;'
-                }
-            },
-
+ assert => {
+    test_nb => {
+        code => 'defined $_ && /\d/;',
+        msg  => 'should not have numbers',
+        fix  => 's/\d//g;'
+    }
+ },
 
 =item grammar
 
@@ -2074,15 +2077,15 @@ the entire value must match the passed grammar.
 
 I.e. the grammar:
 
-token (oper token)(s?)
-oper: 'and' | 'or'
-token: 'Apache' | 'CC-BY' | 'Perl'
+ token (oper token)(s?)
+ oper: 'and' | 'or'
+ token: 'Apache' | 'CC-BY' | 'Perl'
 
 will be changed to
 
-check: token (oper token)(s?) /^\Z/ {$return = 1;}
-oper: 'and' | 'or'
-token: 'Apache' | 'CC-BY' | 'Perl'
+ check: token (oper token)(s?) /^\Z/ {$return = 1;}
+ oper: 'and' | 'or'
+ token: 'Apache' | 'CC-BY' | 'Perl'
 
 The rule is called with Value object and a string reference. So, in the
 actions you may need to define, you can call the value object as
@@ -2201,17 +2204,28 @@ For instance if you declare 2 C<Value> element this way:
              value_type => 'enum',
              choice => [qw/US Europe Japan/]
          } ,
-         tv_standard => {
+         tv_standard => { # this example is getting old...
              type => 'leaf',
              value_type => 'enum',
-             choice => [qw/PAL NTSC SECAM/]
+             choice => [ qw/PAL NTSC SECAM/ ]
              warp => {
-                 follow => { c => '- country' }, # this points to the warp master
+                 follow => {
+                     # this points to the warp master
+                     c => '- country'
+                 },
                  rules => {
-                     '$c eq "US"'	 => { default => 'NTSC'	 },
-                     '$c eq "France"' => { default => 'SECAM' },
-                     '$c eq "Japan"'	 => { default => 'NTSC'	 },
-                     '$c eq "Europe"' => { default => 'PAL'	 },
+                     '$c eq "US"' => {
+                          default => 'NTSC'
+                      },
+                     '$c eq "France"' => {
+                          default => 'SECAM'
+                      },
+                     '$c eq "Japan"' => {
+                          default => 'NTSC'
+                      },
+                     '$c eq "Europe"' => {
+                          default => 'PAL'
+                     },
                  }
              }
          } ,
@@ -2226,13 +2240,21 @@ possible values of an enum element:
 
  state => {
      type => 'leaf',
-     value_type => 'enum',			# example is admittedly silly
-     warp =>{
-         follow => { c => '- country' },
+     value_type => 'enum', # example is admittedly silly
+     warp => {
+         follow => {
+             c => '- country'
+         },
          rules => {
-             '$c eq "US"'	 => { choice => ['Kansas', 'Texas'	  ]},
-             '$c eq "Europe"' => { choice => ['France', 'Spain'	  ]},
-             '$c eq "Japan"'	 => { choice => ['Honshu', 'Hokkaido' ]}
+             '$c eq "US"'	 => {
+                  choice => ['Kansas', 'Texas' ]
+              },
+             '$c eq "Europe"' => {
+                  choice => ['France', 'Spain' ]
+             },
+             '$c eq "Japan"' => {
+                  choice => ['Honshu', 'Hokkaido' ]
+             }
          }
      }
  }
@@ -2560,12 +2582,12 @@ Set a value from a directory like path.
 
 =head2 Number with min and max values
 
-bounded_number => {
+ bounded_number => {
     type       => 'leaf',
     value_type => 'number',
     min        => 1,
     max        => 4,
-    },
+ },
 
 =head2 Mandatory value
 
@@ -2573,7 +2595,7 @@ bounded_number => {
     type       => 'leaf',
     value_type => 'string',
     mandatory  => 1,
-    },
+ },
 
  mandatory_boolean => {
     type       => 'leaf',
@@ -2585,12 +2607,14 @@ bounded_number => {
 
 Note that the help specification is optional.
 
-enum_with_help => {
+ enum_with_help => {
     type       => 'leaf',
     value_type => 'enum',
     choice     => [qw/a b c/],
-    help       => { a => 'a help' }
-    },
+    help       => {
+        a => 'a help'
+    }
+ },
 
 =head2 Migrate old obsolete enum value
 
@@ -2605,7 +2629,7 @@ Legacy values C<a1>, C<c1> and C<foo/.*> are replaced with C<a>, C<c> and C<foo/
         c1       => 'c',
         'foo/.*' => 'foo',
     },
-    },
+ },
 
 =head2 Enforce value to match a regexp
 
@@ -2616,7 +2640,7 @@ regular expression.
     type       => 'leaf',
     value_type => 'string',
     match      => '^foo\d{2}$',
-    },
+ },
 
 =head2 Enforce value to match a L<Parse::RecDescent> grammar
 
@@ -2635,15 +2659,19 @@ regular expression.
 Issue a warning if the string contains upper case letters. Propose a fix that
 translate all capital letters to lower case.
 
-warn_if_capital => {
+ warn_if_capital => {
     type          => 'leaf',
     value_type    => 'string',
-    warn_if_match => { '/A-Z/' => { fix => '$_ = lc;' } },
+    warn_if_match => {
+        '/A-Z/' => {
+            fix => '$_ = lc;'
+        }
     },
+ },
 
 A specific warning can be specified:
 
-warn_if_capital => {
+ warn_if_capital => {
     type          => 'leaf',
     value_type    => 'string',
     warn_if_match => {
@@ -2652,15 +2680,20 @@ warn_if_capital => {
             mesg => 'NO UPPER CASE PLEASE'
         }
     },
-    },
+ },
 
 =head2 Issue a warning if a value does NOT match a regexp
 
-warn_unless => {
+ warn_unless => {
     type              => 'leaf',
     value_type        => 'string',
-    warn_unless_match => { foo => { msg => '', fix => '$_ = "foo".$_;' } },
+    warn_unless_match => {
+        foo => {
+            msg => '',
+            fix => '$_ = "foo".$_;'
+        }
     },
+ },
 
 =head2 Always issue a warning
 
@@ -2668,7 +2701,7 @@ warn_unless => {
     type       => 'leaf',
     value_type => 'string',
     warn       => 'Always warn whenever used',
-    },
+ },
 
 =head2 Computed values
 
@@ -2706,8 +2739,8 @@ parameters (host and path):
     type       => 'leaf',
     value_type => 'uniline',
     status     => 'deprecated',
-    },
-    'host' => {
+ },
+ 'host' => {
     type       => 'leaf',
     value_type => 'uniline',
 
@@ -2715,19 +2748,23 @@ parameters (host and path):
     # as the host value
     migrate_from => {
         formula   => '$old =~ m!http://([\w\.]+)!; $1 ;',
-        variables => { old => '- old_url' },
+        variables => {
+             old => '- old_url'
+        },
         use_eval  => 1,
     },
-    },
-    'path' => {
+ },
+ 'path' => {
     type         => 'leaf',
     value_type   => 'uniline',
     migrate_from => {
         formula   => '$old =~ m!http://[\w\.]+(/.*)!; $1 ;',
-        variables => { old => '- old_url' },
+        variables => {
+             old => '- old_url'
+        },
         use_eval  => 1,
     },
-    },
+ },
 
 
 =head1 EXCEPTION HANDLING
