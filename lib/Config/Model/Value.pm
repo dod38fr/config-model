@@ -2578,7 +2578,8 @@ bounded_number => {
  mandatory_boolean => {
     type       => 'leaf',
     value_type => 'boolean',
-    },
+    mandatory  => 1,
+ },
 
 =head2 Enum with help associated with each value
 
