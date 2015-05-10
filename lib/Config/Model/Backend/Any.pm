@@ -112,10 +112,18 @@ sub associates_comments_with_data {
 sub write_global_comment {
     my ( $self, $ioh, $cc ) = @_;
 
-    my $res =
-          "$cc$cc This file was written by cme command.\n"
-        . "$cc$cc You can run 'cme edit <application>' to modify this file.\n"
-        . "$cc$cc Run 'cme list' to get the list of applications available on your system\n"
+    # no need to mention 'cme list' if current application is found
+    my $app = $self->node->instance->application ;
+    my $extra = '' ;
+    if (not $app) {
+        $extra = "$cc$cc Run 'cme list' to get the list of applications"
+            . " available on your system\n";
+        $app = '<application>';
+    }
+
+    my $res = "$cc$cc This file was written by cme command.\n"
+        . "$cc$cc You can run 'cme edit $app' to modify this file.\n"
+        . $extra
         . "$cc$cc You may also modify the content of this file with your favorite editor.\n\n";
 
     # write global comment
