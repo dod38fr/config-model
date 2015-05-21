@@ -96,6 +96,7 @@ my @regexp_test = (
     [ 'a:b<c',     [ 'a', ':',   'x',   'b',   '<', 'c', 'x' ] ],    # insert at index
     [ 'a:=b<c',    [ 'a', ':=',  'x',   'b',   '<', 'c', 'x' ] ],    # insert at value
     [ 'a:~/b/<c',  [ 'a', ':~',  'x',   '/b/', '<', 'c', 'x' ] ],    # insert at matching value
+    [ 'a:.b("foo(a > b)")', [ 'a', ':.b', '"foo(a > b)"', 'x',   'x', 'x', 'x' ] ],    # tricky value with ()
 );
 
 foreach my $subtest (@regexp_test) {
@@ -357,6 +358,11 @@ my @set2 = qw/a2 z2 d2 e b2 k2/;
 $root->load(
     'lista=' . join( ',', @set1 ) . ' lista:.sort lista:.insort(' . join( ',', @set2 ) . ')' );
 eq_or_diff( [ $lista->fetch_all_values ], [ sort( @set1, @set2 ) ], "check insort result" );
+
+# test insort with a tricky value
+my $tricky = q!libmodule-build-perl (>= 0.421100-2)!;
+$root->load( qq!lista:.insort("$tricky")! );
+eq_or_diff( [ $lista->fetch_all_values ], [ sort( @set1, @set2, $tricky ) ], "check insort result" );
 
 # test sort on ordered hash
 my $oh = $root->fetch_element('ordered_hash');

@@ -108,7 +108,7 @@ sub _split_cmd {
 	 (?:
             (:~|:-[=~]?|:=~|:\.\w+|:[=<>@]?|~)       # action
             (?:
-                  (?: \( ([^)]+)  \) )  # capture parameters between braces
+                  (?: \( ( $quoted_string | [^)]+ ) \) )  # capture parameters between braces
                 | (
                     /[^/]+/      # regexp
                     | (?:
