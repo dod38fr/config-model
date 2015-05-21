@@ -108,14 +108,18 @@ my %run_dispatch = (
     set  => sub {
         my $self = shift;
         my $cmd  = shift;
-        $cmd =~ s/\s*=\s*/=/;
-        $cmd =~ s/\s*:\s*/:/;
-        $self->{current_node}->load($cmd);
+        if ($cmd) {
+            $cmd =~ s/\s*([=:])\s*/$1/;
+            $self->{current_node}->load($cmd);
+        }
+        else {
+            say "No command given.";
+        }
         return "";
     },
     display => sub {
         my $self = shift;
-        print "Nothing to display" unless @_;
+        say "Nothing to display" unless @_;
         return $self->{current_node}->grab_value(@_);
     },
     ls => sub {
@@ -135,23 +139,34 @@ my %run_dispatch = (
     },
     delete => sub {
         my $self = shift;
-        my ( $elt_name, $key ) = split /\s*:\s*/, $_[0];
-        my $elt = $self->{current_node}->fetch_element($elt_name);
-        if ( length($key) ) {
-            $elt->delete($key);
+        if ($_[0]) {
+            my ( $elt_name, $key ) = split /\s*:\s*/, $_[0];
+            my $elt = $self->{current_node}->fetch_element($elt_name);
+            if ( length($key) ) {
+                $elt->delete($key);
+            }
+            else {
+                $elt->store(undef);
+            }
         }
         else {
-            $elt->store(undef);
+            say "delete what ?";
         }
         return '';
     },
     clear => sub {
         my ( $self, $elt_name ) = @_;
-        $self->{current_node}->fetch_element($elt_name)->clear();
+        if ($elt_name) {
+            $self->{current_node}->fetch_element($elt_name)->clear();
+        }
+        else {
+            say "Expected element name for clear command. I.e. one of ",
+                join(' ',$self->{current_node}->get_element_name);
+        }
         return '';
     },
     fix => sub {
-        my ( $self, $dir ) = @_;
+        my ( $self ) = @_;
         return $self->{root}->instance->apply_fixes;
     },
     save => sub {
@@ -160,7 +175,7 @@ my %run_dispatch = (
         return "done";
     },
     changes => sub {
-        my ( $self, $dir ) = @_;
+        my ( $self ) = @_;
         return $self->{root}->instance->list_changes;
     },
     ll          => $ll_sub,
@@ -172,7 +187,7 @@ my %run_dispatch = (
 $run_dispatch{reset} = $run_dispatch{clear};
 
 sub simple_ui_commands {
-    sort keys %run_dispatch;
+    return sort keys %run_dispatch;
 }
 
 sub new {
