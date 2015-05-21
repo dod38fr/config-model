@@ -1,6 +1,7 @@
 package Config::Model::SimpleUI;
 
 use Carp;
+use 5.010;
 use strict;
 use warnings;
 
@@ -220,7 +221,7 @@ sub run_loop {
 sub prompt {
     my $self = shift;
     my $ret  = $self->{prompt} . ':';
-    my $loc  = $self->{current_node}->composite_name_short;
+    my $loc  = $self->{current_node}->location_short;
     $ret .= " $loc " if $loc;
     return $ret . '$ ';
 }
