@@ -109,7 +109,7 @@ sub completion {
         return $completion_dispatch{$main}->( $self, $text, $line, $start );
     }
     elsif ( not $cmd ) {
-        return $self->simple_ui_commands();
+        return grep ( /^$text/, $self->simple_ui_commands() );
     }
 
     return ();
