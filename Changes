@@ -1,5 +1,20 @@
 {{$NEXT}}
 
+2.071 2015-05-23
+
+  Bug and doc fix release:
+    * shell like user interface:
+      * fixed completion of commands (like set, clear...)
+      * improved error message sent when command is wrong
+      * use item location as prompt
+    * Loader: fixed parding of command like foo:.insort("bar( stuff )")
+      which are also used in shell UI.
+    * Backend::Any: mention cme command used to edit config file in
+      comment header when writing back files. (e.g. "You can run 
+      'cme edit lcdproc' to modify this file" is written in header
+      of /etc/LCDd.conf)
+    * Value: fixed formatting and errors in pod doc
+
 2.070 2015-05-03
 
   Added minor features and bug fixes:
