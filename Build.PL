@@ -52,7 +52,6 @@ my $build = $class->new(
     module_name => 'Config::Model',
     @version_info,
     license       => 'lgpl',
-    script_files  => ['script/cme-old'],
     appli_files   => \%appli_files,
     dist_abstract => 'Describe, edit and validate configuration data',
     dist_author   => 'Dominique Dumont (ddumont at cpan dot org)',

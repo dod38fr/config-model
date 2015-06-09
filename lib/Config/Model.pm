@@ -2438,7 +2438,7 @@ L<Config::Model::WarpedNode> <- L<Config::Model::AnyThing>
 
 =head2 command line
 
-L<cme>. L<config-edit> is now deprecated.
+L<cme>.
 
 =head2 Read and write backends
 
