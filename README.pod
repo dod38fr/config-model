@@ -36,7 +36,7 @@ To manage your configuration files with existing modules, see L<Using cme wiki p
 
 =item *
 
-To create configuration tools for your favorite project, see this L<indtroduction to model creation|Config::Model::Manual::ModelCreationIntroduction>
+To create configuration tools for your favorite project, see this L<introduction to model creation|Config::Model::Manual::ModelCreationIntroduction>
 
 =back
 
@@ -57,7 +57,7 @@ program and some other optional modules)
 The validation engine which is in charge of validating all the
 configuration information provided by the user. This engine is
 made of the framework provided by this module and the
-configuration description (often refered as "configuration model",
+configuration description (often referred as "configuration model",
 this could also be known as a schema).
 
 =item 3.
@@ -219,7 +219,7 @@ the L<config-model wiki|https://github.com/dod38fr/config-model/wiki> (i.e. the 
 
 =item *
 
-L<http://ddumont.wordpress.com/> 
+L<https://ddumont.wordpress.com/category/perl/configmodel/>
 
 =back
 
