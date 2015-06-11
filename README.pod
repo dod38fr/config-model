@@ -2,13 +2,13 @@
 
 L<Config::Model> enables a project developer to provide an interactive
 configuration editor (graphical, curses based or plain terminal) to
-his users. For this he must:
+his users. For this, he must:
 
 =over
 
 =item *
 
-describe the structure and constraints of his project's configuration
+describe the structure and constraints of his project's configuration. (this is called a model, but could also be called a schema)
 
 =item *
 
@@ -20,7 +20,7 @@ by L<Config::Model> backends or by custom code
 With the elements above, L<Config::Model> will generate interactive
 configuration editors (with integrated help and data validation).
 These editors can be graphical (with L<Config::Model::TkUI>), curses
-based (with L<Config::Model::CursesUI>) or based on ReadLine.
+based (with L<Config::Model::CursesUI>) or based on ReadLine (with L<Config::Model::TermUI>).
 
 =head2 Installation
 
@@ -32,11 +32,11 @@ See L<installation instructions|https://github.com/dod38fr/config-model/blob/mas
 
 =item *
 
-To manage your configuration files with existing modules, see L<Using cme wiki pacge|https://github.com/dod38fr/config-model/wiki/Using-cme>
+To manage your configuration files with existing modules, see L<Using cme wiki page|https://github.com/dod38fr/config-model/wiki/Using-cme>
 
 =item *
 
-To create configuration tools for your favorite project, see L<Config::Model::Manual::ModelCreationIntroduction>
+To create configuration tools for your favorite project, see this L<indtroduction to model creation|Config::Model::Manual::ModelCreationIntroduction>
 
 =back
 
@@ -57,7 +57,8 @@ program and some other optional modules)
 The validation engine which is in charge of validating all the
 configuration information provided by the user. This engine is
 made of the framework provided by this module and the
-configuration description (often refered as "configuration model").
+configuration description (often refered as "configuration model",
+this could also be known as a schema).
 
 =item 3.
 
@@ -70,7 +71,7 @@ and Augeas)
 The important part is the configuration model used by the validation
 engine. This model can be created or modified with a graphical editor
 (L<config-model-edit|http://search.cpan.org/dist/Config-Model-Itself/config-model-edit>
-provided by L<Config::Model::Iself>).
+provided by L<Config::Model::Itself>).
 
 
 =head2 Don't we already have some configuration validation tools ?
@@ -167,7 +168,7 @@ L<Config::Model> interface can be:
 
 =item *
 
-a shell-like interface (plain or based on L<Term::ReadLine>).
+a shell-like interface (plain or based on L<Term::ReadLine> with L<Config::Model::TermUI>).
 
 =item *
 
@@ -196,7 +197,7 @@ Nevertheless, this project provides a writer/parser for some common
 format: ini style file and perl file. 
 
 With the additional
-Config::Model::Backend::Augeas, L<Augeas|http://augeas.net> library can be used to read and
+L<Config::Model::Backend::Augeas>, L<Augeas|http://augeas.net> library can be used to read and
 write some configuration files. 
 
 
