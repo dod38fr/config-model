@@ -28,7 +28,17 @@ See L<installation instructions|https://github.com/dod38fr/config-model/blob/mas
 
 =head2 Getting started
 
-See L<Config::Model::Manual::ModelCreationIntroduction>
+=over
+
+=item *
+
+To manage your configuration files with existing modules, see L<Using cme wiki pacge|https://github.com/dod38fr/config-model/wiki/Using-cme>
+
+=item *
+
+To create configuration tools for your favorite project, see L<Config::Model::Manual::ModelCreationIntroduction>
+
+=back
 
 =head2 How does this work ?
 
