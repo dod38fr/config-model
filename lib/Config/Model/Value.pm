@@ -1166,7 +1166,7 @@ sub store {
             $self->notify_change(really => 1, old => $old_value , new => $value, note =>"conflicting initial values");
         }
         if (defined $old_value and $old_value eq $value) {
-            $self->notify_change(really => 1, note_only =>"removed redundant initial value");
+            $self->notify_change(really => 1, note =>"removed redundant initial value");
         }
     }
 

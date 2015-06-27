@@ -806,11 +806,11 @@ Notify the instance of semantic changes. Parameters are:
 
 =item old
 
-old value.
+old value. (optional)
 
 =item new
 
-new value
+new value (optional)
 
 =item path
 
@@ -825,17 +825,9 @@ element name. Default to C<$self->element_name>
 If the changed parameter is part of a hash or an array, C<index>
 contains the key or the index to get the changed parameter.
 
-=item msg
-
-change message. When not empty, old and new values are not shown.
-
 =item note
 
-note displayed along the changed values (or message)
-
-=item note_only
-
-Display a note even if values are not changed
+information about the change. Mandatory of neither old or new value are defined.
 
 =item really
 

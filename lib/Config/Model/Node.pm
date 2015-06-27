@@ -665,7 +665,7 @@ sub fetch_element {
         # this will also force a rewrite of the file even if no other
         # semantic change was done
         $self->notify_change(
-            msg    => 'dropping deprecated parameter',
+            note   => 'dropping deprecated parameter',
             path   => $self->location . ' ' . $element_name,
             really => 1,
         );

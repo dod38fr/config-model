@@ -383,6 +383,15 @@ sub notify_change {
     if ( $change_logger->is_debug ) {
         $change_logger->debug( "in instance ", $self->name, ' for path ', $args{path} );
     }
+
+    foreach my $obsolete (qw/note_only msg/) {
+        if ( my $m = delete $args{$obsolete} ) {
+            carp "notify_change: param $obsolete is obsolete ($m)";
+            $args{note} //='';
+            $args{note} .= $m;
+        }
+    }
+
     $self->add_change( \%args );
     $self->on_change_cb->( %args );
 }
@@ -395,22 +404,10 @@ sub list_changes {
     foreach my $c (@$l) {
         my $path = $c->{path};
 
-        if ( my $m = delete $c->{msg} ) {
-            push @all, "$path : $m" . ( $c->{note} ? " # $c->{note}" : '' );
-            next;
-        }
-
-        # don't list change without further info (like nodes)
-        next unless keys %$c > 1;
-
         my $vt = $c->{value_type} || '';
         my ( $o, $n ) = map { $_ // '<undef>'; } ( $c->{old}, $c->{new} );
 
-        if ($c->{note_only}) {
-            push @all, "$path: ".$c->{note_only};
-        }
-        elsif ( $vt eq 'string' and ( $o =~ /\n/ or $n =~ /\n/ ) ) {
-
+        if ( $vt eq 'string' and ( $o =~ /\n/ or $n =~ /\n/ ) ) {
             # append \n if needed so diff works as expected
             map { $_ .= "\n" unless /\n$/; } ( $o, $n );
             my $diff = diff \$o, \$n;
@@ -419,6 +416,13 @@ sub list_changes {
         elsif ( defined $c->{old} or defined $c->{new} ) {
             map { s/\n.*/.../s; } ( $o, $n );
             push @all, "$path: '$o' -> '$n'" . ( $c->{note} ? " # $c->{note}" : '' );
+        }
+        elsif (defined $c->{note}){
+            push @all, "$path: ".$c->{note};
+        }
+        else {
+            # something's unexpected with the call to notify_change
+            push @all, "changed ".join(' ', each %$c);
         }
     }
 
