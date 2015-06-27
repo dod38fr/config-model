@@ -20,6 +20,7 @@ display elt elt:key
    -> display a value
 ls -> show elements of current node
 ll -> show elements of current node and their value
+tree -> show configuration tree from current node
 help -> show available command
 desc[ription] -> show class desc of current node
 desc <element>   -> show desc of element from current node
@@ -131,7 +132,7 @@ my %run_dispatch = (
         my @res  = grep {/^$pattern$/} $self->{current_node}->get_element_name;
         return join( ' ', @res );
     },
-    dump => sub {
+    tree => sub {
         my $self = shift;
         my $i    = $self->{current_node}->instance;
         my @res  = $self->{current_node}->dump_tree( full_dump => 1 );
@@ -185,6 +186,7 @@ my %run_dispatch = (
 );
 
 $run_dispatch{reset} = $run_dispatch{clear};
+$run_dispatch{dump}  = $run_dispatch{tree};
 
 sub simple_ui_commands {
     return sort keys %run_dispatch;
@@ -422,6 +424,10 @@ Show elements of current node. Can be used with a shell pattern.
 =item ll | ll foo*
 
 Describe elements of current node. Can be used with a shell pattern.
+
+=item tree
+
+Show configuration tree from current node.
 
 =item help
 

@@ -79,7 +79,7 @@ my @std_id_list = ('std_id:','std_id:ab ','std_id:"abc def" ' ,'std_id:"abc hij"
 my @test = (    # text line start ## expected completions
     [
         [ '', '', 0 ],
-        [qw/cd changes clear delete desc description display dump fix help ll ls reset save set/]
+        [qw/cd changes clear delete desc description display dump fix help ll ls reset save set tree/]
     ],
     [ [ '', 'cd ', 3 ], [ '!', '-', @std_id_list , 'olist:', 'warp ', 'slave_y ' ] ],
     [ [ 's', 'cd s', 3 ], [  @std_id_list, 'slave_y ' ] ],
