@@ -262,7 +262,7 @@ sub swap {
         }
     }
 
-    $self->notify_change( note => "swap ordered hash keys $key1 and $key2" );
+    $self->notify_change( note => "swap ordered hash keys '$key1' and '$key2'" );
 }
 
 sub move {
@@ -285,7 +285,7 @@ sub move {
         # update index_value attribute in moved objects
         $self->{data}{$to}->index_value($to);
 
-        $self->notify_change( note => "rename key from $from to $to" );
+        $self->notify_change( note => "rename key from '$from' to '$to'" );
 
         # data_mode is preset or layered or user. Actually only user
         # mode makes sense here
@@ -352,11 +352,11 @@ sub move_after {
             }
         }
 
-        $msg = "moved key $key_to_move after $ref_key";
+        $msg = "moved key '$key_to_move' after '$ref_key'";
     }
     else {
         unshift @$list, $key_to_move;
-        $msg = "moved key $key_to_move at beginning";
+        $msg = "moved key '$key_to_move' at beginning";
     }
 
     $self->notify_change( note => $msg );
@@ -384,7 +384,7 @@ sub move_up {
         if ( $list->[$idx] eq $key ) {
             $list->[$idx] = $list->[ $idx - 1 ];
             $list->[ $idx - 1 ] = $key;
-            $self->notify_change( note => "moved up key $key" );
+            $self->notify_change( note => "moved up key '$key'" );
             last;
         }
     }

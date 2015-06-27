@@ -404,7 +404,7 @@ sub remove {
     ) unless $idx =~ /^\d+$/;
 
     $self->delete_data_mode( index => $idx );
-    $self->notify_change;
+    $self->notify_change(note => "removed idx $idx");
     splice @{ $self->{data} }, $idx, 1;
 }
 
