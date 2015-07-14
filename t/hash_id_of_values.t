@@ -426,7 +426,7 @@ warning_like { $hwwikm->fetch_with_id('foo2'); } qr/key 'foo2' should not match/
 
 warning_like {
  $hwwikm->fetch_with_id("foo2 multi\nline\nid");
-} qr/key 'foo2 multi\[truncated\.\.\.\]' should not match/,
+} qr/key 'foo2 multi\[\.\.\.\]' should not match/,
     "warn if matching multi_line key";
 
 my $hwwukm = $root->fetch_element('hash_with_warn_unless_key_match');
