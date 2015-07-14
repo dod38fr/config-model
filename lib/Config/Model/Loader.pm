@@ -11,7 +11,7 @@ use Log::Log4perl qw(get_logger :levels);
 my $logger = get_logger("Loader");
 
 ## load stuff, similar to grab, but used to set items in the tree
-## staring from this node
+## starting from this node
 
 sub new {
     bless {}, shift;
