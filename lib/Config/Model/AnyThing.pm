@@ -656,10 +656,20 @@ Returns the root node of the configuration tree.
 Returns the node location in the configuration tree. This location
 conforms with the syntax defined by L</grab()> method.
 
+=head2 location_short()
+
+Returns the node location in the configuration tree. This location truncates long
+indexes to be readable. It cannot be used by L</grab()> method.
+
 =head2 composite_name
 
 Return the element name with its index (if any). I.e. returns C<foo:bar> or
 C<foo>.
+
+=head2 composite_name_short
+
+Return the element name with its index (if any). Too long indexes are
+truncated to be readable.
 
 =head1 Annotation
 
