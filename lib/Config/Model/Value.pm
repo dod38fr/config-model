@@ -2411,7 +2411,7 @@ Like L</check_value>.
 
 Will also display warnings on STDOUT unless C<silent> parameter is set to 1.
 In this case,user is expected to retrieve them with
-L<warning_msg>.
+L</warning_msg>.
 
 Without C<value> argument, this method will check the value currently stored.
 
