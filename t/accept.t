@@ -1,5 +1,4 @@
 # -*- cperl -*-
-# $Author: ddumont, random_nick $
 
 use ExtUtils::testlib;
 use Test::More;
@@ -28,8 +27,6 @@ Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 use Log::Log4perl qw(:easy);
 Log::Log4perl->easy_init( $arg =~ /l/ ? $TRACE : $ERROR );
 
-plan tests => 12;
-
 ok( 1, "compiled" );
 
 $model->create_config_class(
@@ -52,6 +49,10 @@ $model->create_config_class(
             type       => 'leaf',
             value_type => 'uniline',
             warn       => 'gotcha',
+        },
+        'ot.*' => {
+            type       => 'leaf',
+            value_type => 'uniline',
         },
 
         #TODO: Some advanced structures, hashes, etc.
@@ -76,7 +77,7 @@ ok( $i_hosts, "Created instance" );
 
 my $i_root = $i_hosts->config_root;
 
-is_deeply( [ $i_root->accept_regexp ], [qw/list.* str.* bad.*/], "check accept_regexp" );
+is_deeply( [ $i_root->accept_regexp ], [qw/list.* str.* bad.* ot.*/], "check accept_regexp" );
 
 is_deeply( [ $i_root->get_element_name ], [qw/id other/], "check explicit element list" );
 
@@ -110,4 +111,26 @@ foreach my $oops (qw/foo=bar vlistB=test/) {
 ### test always_warn parameter
 my $bad = $i_root->fetch_element('badbad');
 warning_like { $bad->store('whatever'); } qr/gotcha/, "test unconditional warn";
+
+eval {require Text::Levenshtein::Dramerau} ;
+my $has_tld = ! $@ ;
+
+SKIP: {
+    skip "Text::Levenshtein::Damerau is not installed", 5 unless $has_tld;
+
+    ### test user typo: accepted element is too close to real element
+    my @shaves = qw/oter 1 other2 1 otehr 1 other23 1 oterh23 0/;
+    while ( my $close_shave = shift @shaves) {
+        my $expect = shift @shaves;
+        if ($expect) {
+            warning_like { $i_root->fetch_element($close_shave); } qr/distance/, "test $close_shave too close to 'other'";
+        }
+        else {
+            warnings_are  { $i_root->fetch_element($close_shave); } [], "test accept $close_shave, is not too close to 'other'";
+        }
+    }
+}
+
 memory_cycle_ok($model);
+
+done_testing;

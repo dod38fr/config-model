@@ -296,6 +296,7 @@ sub init {
     $self->{initialized} = 1;    # avoid recursions
 
     my $model = $self->{model};
+    $self->{original_model} = dclone($model);
 
     return
         unless defined $model->{read_config}
@@ -759,11 +760,23 @@ sub accept_element {
 
     return unless defined $self->{model}{accept};
 
+    eval {require Text::Levenshtein::Damerau} ;
+    my $has_tld = ! $@ ;
     foreach my $accept_regexp ( @{ $self->{model}{accept_list} } ) {
-        if ( $name =~ /^$accept_regexp$/ ) {
-            my $acc = $self->{model}{accept}{$accept_regexp};
-            return $self->reset_accepted_element_model( $name, $acc );
+        next unless  $name =~ /^$accept_regexp$/;
+
+        if ($has_tld) {
+            my $tld = Text::Levenshtein::Damerau->new($name);
+            my $tld_arg = {list => $self->{original_model}{element_list} };
+            my $dist = $tld->dld_best_distance($tld_arg);
+            if ($dist < 3) {
+                my $best = $tld->dld_best_match($tld_arg);
+                warn "Warning: $name is confusingly close to $best (edit distance is $dist). Is there a typo ?\n";
+            }
+
         }
+        my $acc = $self->{model}{accept}{$accept_regexp};
+        return $self->reset_accepted_element_model( $name, $acc );
     }
 
     return;
@@ -1278,7 +1291,7 @@ See L<Config::Model::BackendMgr> for details.
 =item B<accept>
 
 Optional list of criteria (i.e. a regular expression to match ) to
-accept unknown parameters. Each criteria will have a list of
+accept unknown elements. Each criteria will have a list of
 specification that will enable C<Config::Model> to create a model
 snippet for the unknown element.
 
@@ -1298,7 +1311,10 @@ Example:
     },
   ]
 
-All C<element> parameters can be used in specifying accepted parameters.
+All C<element> parameters can be used in specifying accepted elements.
+
+If L<Text::Levenshtein::Damerau> is installed, a warning will be issued if an accepted
+element is too close to an existing element.
 
 The parameter C<accept_after> to specify where to insert the accepted element.
 This will not change much the behavior of the tree, but it will help generate
