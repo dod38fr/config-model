@@ -157,6 +157,16 @@ is( $root->fetch_element('a_string')->fetch, "titi and\ntoto and \x{263A}", "che
 is( $root->fetch_element('std_id')->fetch_with_id("\x{263A}")->fetch_element_value('X'),
     'Bv', "check hash with utf8 index" );
 
+# check with embedded literal \n that are switched with real \n
+# note: using q and not qq
+$step = q!std_id:"long\nkey" X=Bv - a_string="titi and\ntoto" !;
+ok( $root->load( step => $step ), 'load steps with embedded \n' );
+
+# now double quote for real \n
+is( $root->fetch_element('a_string')->fetch, "titi and\ntoto", 'check a_string with embedded \n' );
+is( $root->fetch_element('std_id')->fetch_with_id("long\nkey")->fetch_element_value('X'),
+    'Bv', 'check hash with index with embedded \n' );
+
 $step = 'std_id:ab X=Bv - std_id:bc X=Av - a_string="titi , toto" ';
 ok( $root->load( step => $step ), "load '$step'" );
 is( $root->fetch_element('a_string')->fetch, 'titi , toto', "check a_string" );
@@ -182,7 +192,7 @@ ok( $root->load( step => $step ), "load '$step'" );
 
 is_deeply(
     [ $root->fetch_element('std_id')->fetch_all_indexes ],
-    [ ' b  c ', 'a b', 'ab', 'bc', "\x{263A}" ],
+    [ ' b  c ', 'a b', 'ab', 'bc', "long\nkey", "\x{263A}" ],
     "check indexes"
 );
 
@@ -236,9 +246,9 @@ map { is( $lista->fetch_with_id($_)->fetch, $expect[$_], "check lista element $_
 # set the value of the previous object
 $step = 'std_id:"f/o/o:b.ar" X=Bv';
 ok( $root->load( step => $step, ), "load : '$step'" );
-is_deeply(
+eq_or_diff(
     [ sort $root->fetch_element('std_id')->fetch_all_indexes ],
-    [ ' b  c ', 'a b', qw!ab bc f/o/o:b.ar!, "\x{263A}" ],
+    [ ' b  c ', 'a b', qw!ab bc f/o/o:b.ar!, "long\nkey", "\x{263A}" ],
     "check result after load '$step'"
 );
 

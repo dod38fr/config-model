@@ -319,7 +319,12 @@ sub _walk_node {
 }
 
 sub unquote {
-    map { s/^"// && s/"$// && s!\\"!"!g if defined $_; } @_;
+    map {
+        if (defined $_) {
+            s/\\n/\n/g;
+            s/^"// && s/"$// && s!\\"!"!g;
+        }
+    } @_;
 }
 
 sub _load_check_list {
@@ -878,7 +883,8 @@ Go down using C<xxx> element. (For C<node> type element)
 =item xxx:yy
 
 Go down using C<xxx> element and id C<yy> (For C<hash> or C<list>
-element with C<node> cargo_type)
+element with C<node> cargo_type). Literal C<\n> will be replaced by
+real C<\n> (LF in Unix).
 
 =item xxx:~/yy/
 
@@ -963,7 +969,9 @@ Using C<xxx:~/yy/=zz> is also possible.
 =item xxx=zz
 
 Set element C<xxx> to value C<yy>. load also accepts to set elements
-with a quoted string. (For C<leaf> element)
+with a quoted string. (For C<leaf> element) Literal C<\n> will be replaced by
+real C<\n> (LF in Unix).
+
 
 For instance C<foo="a quoted string">. Note that you cannot embed
 double quote in this string. I.e C<foo="a \"quoted\" string"> will
