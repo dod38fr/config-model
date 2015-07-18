@@ -1018,7 +1018,39 @@ C<foo#comment:bar> is B<not> valid.
 
 You can surround indexes and values with double quotes. E.g.:
 
-  a_string="\"titi\" and \"toto\""
+  a_string="\"foo\" and \"bar\""
+
+=head1 Examples
+
+You can use L<cme> to modify configuration with C<cme modify> command.
+
+For instance, if L<Config::Model::Ssh> is installed, you can run:
+
+ cme modify ssh 'ControlMaster=auto ControlPath="~/.ssh/master-%r@%n:%p"'
+
+To delete C<Host *> entry:
+
+ cme modify ssh 'Host:-"*"'
+
+To specify 2 C<Host> with a single command:
+
+ cme modify ssh 'Host:"foo* bar*" ForwardX11=yes HostName="foo.com" - Host:baz HostName="baz.com"'
+
+Note the 'C<->' used to go up one node before "C<Host:baz>". In this
+case, "up one node" leads to the "root node", so "C<!>" could also be
+used instead of "C<->":
+
+ cme modify ssh 'Host:"foo* bar*" ForwardX11=yes HostName="foo.com" ! Host:baz HostName="baz.com"'
+
+Let's modify now the host name of using a C<.org> domain instead of
+C<.com>. The C<:~> operator uses a regexp to loop over several Host
+entries:
+
+ cme modify ssh 'Host:~/ba[rz]/ HostName=~s/.com$/.org/'
+
+Now that ssh config is mucked up with dummy entries, let's clean up:
+
+ cme modify ssh 'Host:-"baz" Host:-"foo* bar*"'
 
 =head1 Methods
 
