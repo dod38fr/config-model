@@ -1,5 +1,27 @@
 {{$NEXT}}
 
+2.072 2015-07-18
+
+  Functionality improvements:
+    * Loader: convert literal "\n" into real \n
+    * shell UI: added 'tree' command to show config tree from current node
+
+  Improvement of messages shown to user:
+    * Node: Warn if an accepted element is likely a typo (Debian #789568)
+      (this feature requires recommended module Text::Levenshtein::Damerau
+      to be installed)
+    * All: improved location_short output (truncates long path with '[...]'
+      instead of '[truncated...]')
+    * All: improved change summary message
+
+  Documentation improvements:
+    * Loader: Added examples using cme modify in pod doc
+    * AnyThing: Added missing doc for location_short and composite_name_short
+    * Updated wordpress link to use config-model tag
+
+  Cruft cleanup:
+    * removed cme-old command
+
 2.071 2015-05-23
 
   Bug and doc fix release:
