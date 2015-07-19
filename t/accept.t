@@ -112,7 +112,7 @@ foreach my $oops (qw/foo=bar vlistB=test/) {
 my $bad = $i_root->fetch_element('badbad');
 warning_like { $bad->store('whatever'); } qr/gotcha/, "test unconditional warn";
 
-eval {require Text::Levenshtein::Dramerau} ;
+eval {require Text::Levenshtein::Damerau} ;
 my $has_tld = ! $@ ;
 
 SKIP: {
