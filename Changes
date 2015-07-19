@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+2.073 2015-07-19
+
   Bug fix:
     * Fix typo in module name loaded in tests that led to
       impossible build requirement (RT #105938)
