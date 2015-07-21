@@ -991,6 +991,7 @@ sub run_regexp_set_on_value {
     return unless defined $$value_r;
 
     foreach my $rxp ( keys %$w_info ) {
+        # $_[0] is set to $$value_r when $sub is called
         my $sub = sub { $test_sub->( $_[0], $rxp ) };
         my $msg = $w_info->{$rxp}{msg} || "value '$$value_r' should $msg" . "match regexp $rxp";
         my $fix = $w_info->{$rxp}{fix};
