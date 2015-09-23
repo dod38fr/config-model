@@ -839,21 +839,22 @@ separated by spaces. These actions can be divided in 4 groups:
 
 =over
 
-=item navigation
+=item *
 
-Moving up and down the configuration tree.
+navigation: moving up and down the configuration tree.
 
-=item list and hash operation
+=item *
 
-select, add or delete hash or list item (also known as C<id> items)
+list and hash operation: select, add or delete hash or list item (also
+known as C<id> items)
 
-=item leaf operation
+=item *
 
-select, modify or delecte leaf value
+leaf operation: select, modify or delecte leaf value
 
-=item annotation
+=item *
 
-modify or delete configuration annotation (aka comment)
+annotation: modify or delete configuration annotation (aka comment)
 
 =back
 
