@@ -89,6 +89,14 @@ has needs_save => ( is => 'rw', isa => 'Bool', default => 0 );
 
 has backend_mgr => ( is => 'ro', isa => 'Maybe[Config::Model::BackendMgr]' );
 
+# attribute is defined in Config::Model::Anythin
+sub _backend_support_annotation {
+    my $self = shift;
+    return $self->backend_mgr ? $self->backend_mgr->support_annotation
+        :  $self->parent      ? $self->parent->backend_support_annotation
+        :                       undef ; # no backend at all. test only
+}
+
 sub BUILD {
     my $self = shift;
 
@@ -1525,6 +1533,12 @@ See L<Config::Model::AnyThing/"root()">
 =head2 location()
 
 See L<Config::Model::AnyThing/"location()">
+
+=head2 backend_support_annotation
+
+Returns 1 if at least one of the backends attached to self or a parent
+node support to read and write annotations (aka comments) in the
+configuration file.
 
 =head1 Element property management
 
