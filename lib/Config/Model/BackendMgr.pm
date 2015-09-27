@@ -3,6 +3,7 @@ package Config::Model::BackendMgr;
 use Mouse;
 
 use Carp;
+use 5.10.1;
 
 use Config::Model::Exception;
 use Data::Dumper;
@@ -35,6 +36,12 @@ has 'backend' => (
     traits  => ['Hash'],
     default => sub { {} },
     handles => { set_backend => 'set', get_backend => 'get' } );
+
+has support_annotation => (
+    is => 'ro',
+    isa => 'Bool',
+    default => 0,
+);
 
 #
 # New subroutine "get_cfg_dir_path" extracted - Thu Jul 11 13:47:22 2013.
@@ -416,6 +423,12 @@ sub try_read_backend {
                 object    => $self->node,
             );
         };
+
+        # only backend based on C::M::Backend::Any can support annotations
+        if ($backend_obj->can('annotation')) {
+            $self->{support_annotation} ||= $backend_obj->annotation ;
+        }
+
     }
 
     # catch eval errors done in the if-then-else block before
@@ -1255,6 +1268,11 @@ You can force a specific config file to write with
 C<< config_file => 'foo/bar.conf' >>
 
 C<write_back> will croak if no write call-back are known for this node.
+
+=head2 support_annotation
+
+Returns 1 if at least one of the backends support to read and write annotations
+(aka comments) in the configuration file.
 
 =head1 AUTHOR
 
