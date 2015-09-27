@@ -1,7 +1,7 @@
 # -*- cperl -*-
 
 use ExtUtils::testlib;
-use Test::More tests => 12;
+use Test::More ;
 use Test::Memory::Cycle;
 use Config::Model;
 use File::Path;
@@ -90,6 +90,8 @@ ok( 1, "plain file write back done" );
 my $new_file = $wr_root . 'plain/new';
 ok( -e $new_file, "check that config file $new_file was written" );
 
+is($root->grab('source')->backend_support_annotation(), 0, "check backend annotation support");
+
 # create another instance to read the yaml that was just written
 my $i2_plain = $model->instance(
     instance_name   => 'inst2',
@@ -104,4 +106,6 @@ my $i2_root = $i2_plain->config_root;
 my $p2_dump = $i2_root->dump_tree;
 
 is( $p2_dump, $root->dump_tree, "compare original data with 2nd instance data" );
-memory_cycle_ok($model);
+memory_cycle_ok($model, "memory cycles");
+
+done_testing;
