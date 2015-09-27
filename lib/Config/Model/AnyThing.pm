@@ -64,6 +64,19 @@ sub _root {
 has location       => ( is => 'ro', isa => 'Str', builder => '_location', lazy => 1 );
 has location_short => ( is => 'ro', isa => 'Str', builder => '_location_short', lazy => 1 );
 
+has backend_support_annotation => (
+    is => 'ro',
+    isa => 'Bool',
+    builder  => '_backend_support_annotation',
+    lazy     => 1
+);
+
+sub _backend_support_annotation {
+    my $self = shift;
+    # this method is overridden in Config::Model::Node
+    return $self->parent->backend_support_annotation;
+};
+
 sub notify_change {
     my $self = shift;
     my %args = @_;
@@ -674,8 +687,20 @@ truncated to be readable.
 =head1 Annotation
 
 Annotation is a way to store miscellaneous information associated to
-each node. (Yeah... comments) These comments will be saved outside of
-the configuration file and restored the next time the command is run.
+each node. (Yeah... comments). Reading and writing annotation makes
+sense only if they can be read from and written to the configuration
+file, hence the need for the following method:
+
+=head2 backend_support_annotation
+
+Returns 1 if at least one of the backends attached to a parent node
+support to read and write annotations (aka comments) in the
+configuration file.
+
+=head2 support_annotation
+
+Returns 1 if at least one of the backends support to read and write annotations
+(aka comments) in the configuration file.
 
 =head2 annotation( [ note1, [ note2 , ... ] ] )
 
