@@ -24,7 +24,9 @@ has 'node' => (
 sub suffix {
     my $self = shift;
     $logger->info(
-        "Internal warning: suffix called for backend $self->{name}.This method can be overloaded");
+        "Internal warning: suffix called for backend $self->{name}.This method can be overloaded"
+    );
+    return undef;
 }
 
 sub read {
@@ -248,8 +250,21 @@ L<Config::Model::Node>.
 
 =head2 annotation
 
-Whether the backend supports to read and write annotation. Default is
-0. Override if your backend supports annotations
+Whether the backend supports reading and writing annotation (a.k.a
+comments). Default is 0. Override this method to return 1 if your
+backend supports annotations.
+
+=head2 suffix
+
+Suffix of the configuration file. This method returns C<undef>
+
+=head2 read
+
+Read the configuration file. This method must be overridden.
+
+=head2 write
+
+Write the configuration file. This method must be overridden.
 
 =head1 Methods
 
