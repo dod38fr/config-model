@@ -79,9 +79,15 @@ sub load {
     } while ( $ret eq 'root' );
 
     if (@command) {
-        my $str = "Error: command '@command' was not executed, you may have"
-            . " specified too many '-' in your command (ret is $ret)\n";
+        my $str = "Error: could not execute the required command, ";
+        if ($command[0] =~ m!^/([\w-]+)!) {
+            $str .=  "the searched item '$1' was not found" ;
+        }
+        else {
+            $str .= "you may have specified too many '-' in your command";
+        }
         Config::Model::Exception::Load->throw(
+            command => $command[0],
             error  => $str,
             object => $node
         ) if $check eq 'yes';
@@ -180,6 +186,18 @@ sub _load {
         if ( $cmd eq '-' ) {
             $logger->debug("_load: going up");
             return 'up';
+        }
+
+        if ( $cmd =~ m!^/([\w-]+)! ) {
+            my $search = $1;
+            if ($node->has_element($search)) {
+                $logger->debug("_load: search found node with element $search");
+                $cmd =~ s!^/!! ;
+            } else {
+                $logger->debug("_load: searching node with element $search, going up");
+                unshift @$cmdref, $cmd;
+                return 'up';
+            }
         }
 
         my @instructions = _split_cmd($cmd);
@@ -873,6 +891,11 @@ Go to the root node of the configuration tree.
 =item xxx
 
 Go down using C<xxx> element. (For C<node> type element)
+
+=item /xxx
+
+Go up until the element C<xxx> is found. This search can be combined with one of the
+command specified below, e.g C</a_string="foo bar">
 
 =back
 
