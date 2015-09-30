@@ -1,5 +1,19 @@
 {{$NEXT}}
 
+2.074 2015-09-30
+
+  Functionality improvements:
+    * Loader: added navigation with upward search. E.g. with a
+      command like '/foo', the loader will go up the tree until
+      a node containing a 'foo' element is found.
+    * C::M::Node: added backend_support_annotation method. This will
+      ne used by the Tk GUI to decide whether to display a widget to
+      edit annotation (aka comments)
+
+  Doc improvements:
+    * Backend::Any: added missing doc about method that can or must
+      be overloaded by a read/write backend.
+
 2.073 2015-07-19
 
   Bug fix:
