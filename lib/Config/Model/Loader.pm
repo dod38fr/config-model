@@ -917,7 +917,7 @@ Will not complain if no value were deleted.
 
 =item xxx:=~s/yy/zz/
 
-Substitute a value with another
+Substitute a value with another. Perl switches can be used(e.g. C<xxx:=~s/yy/zz/gi>)
 
 =item xxx:<yy or xxx:.push(yy)
 
