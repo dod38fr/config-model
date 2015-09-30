@@ -118,9 +118,14 @@ ok( $inst, "created dummy instance" );
 my $root = $inst->config_root;
 
 # check with embedded \n
-my $step = qq!#"root cooment " std_id:ab X=Bv -\na_string="titi and\ntoto" !;
+my $step = qq!#"root cooment " std_id:ab X=Bv -\na_string="titi and\nfoo" !;
 ok( $root->load( step => $step ), "load steps with embedded \\n" );
-is( $root->fetch_element('a_string')->fetch, "titi and\ntoto", "check a_string" );
+is( $root->fetch_element('a_string')->fetch, "titi and\nfoo", "check a_string" );
+
+# check search up for element
+my $step = qq!std_id:ab X=Bv /a_string="titi and\ntoto" !;
+ok( $root->load( step => $step ), "load steps with /a_string" );
+is( $root->fetch_element('a_string')->fetch, "titi and\ntoto", "check a_string found with search" );
 
 $step = qq!a_string:toto!; # should blow up
 throws_ok { $root->load( step => $step ) ; }
