@@ -411,7 +411,7 @@ sub check_validation_regexp {
     }
 
     if ( not ref $regexp_info and $what ne 'warn' ) {
-        warn $self->name, ": depreceated $what style. Use a hash ref\n";
+        warn $self->name, ": deprecated $what style. Use a hash ref\n";
     }
 
     my $h = ref $regexp_info ? $regexp_info : { $regexp_info => '' };
