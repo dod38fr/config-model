@@ -2359,9 +2359,8 @@ See L<config-edit/Logging>
 =head1 BUGS
 
 Given Murphy's law, the author is fairly confident that you will find
-bugs or miss some features. Please report them to config-model at
-rt.cpan.org, or through the web interface at
-https://rt.cpan.org/Public/Bug/Report.html?Queue=config-model .
+bugs or miss some features. Please report them to
+https://github.com/dod38fr/config-model/issues
 The author will be notified, and then you'll automatically be
 notified of progress on your bug.
 
