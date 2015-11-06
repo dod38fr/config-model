@@ -1591,8 +1591,7 @@ __END__
  my $model = Config::Model->new() ; # Config::Model object
 
  # create config model. Most users will want to store the model
- # in lib/Config/Model/models and run "config-edit -model MiniModel"
- # See below for details
+ # in lib/Config/Model/models and run cme as explained below
  $model ->create_config_class (
    name => "MiniModel",
    element => [ [qw/foo bar baz/ ] => { type => 'leaf', value_type => 'uniline' }, ],
@@ -1618,14 +1617,14 @@ __END__
 =head2 More convenient
 
  $ mkdir -p lib/Config/Model/models/
- $ echo "[ { name => 'MiniModel',
-             element => [ [qw/foo bar baz/ ] => { type => 'leaf', value_type => 'uniline' }, ],
-             read_config => { backend => 'IniFile', auto_create => 1,
-                              config_dir => '.', file => 'mini.ini',
-                            }
-           }
+ $ echo "[ { name => 'MiniModel', \
+             element => [ [qw/foo bar baz/ ] => { type => 'leaf', value_type => 'uniline' }, ], \
+             read_config => { backend => 'IniFile', auto_create => 1, \
+                              config_dir => '.', file => 'mini.ini', \
+                            } \
+           } \
          ] ; " > lib/Config/Model/models/MiniModel.pl
- $ config-edit -model MiniModel -model_dir lib/Config/Model/models/ -ui none bar=BARV foo=FOOV baz=BAZV
+ $ cme modify -try MiniModel -dev bar=BARV foo=FOOV baz=BAZV
  $ cat mini.ini
 
 =head2 Look Ma, no Perl
@@ -1637,7 +1636,7 @@ __END__
                    element:bar type=leaf value_type=uniline - \
                    element:baz type=leaf value_type=uniline - \
    read_config:0 backend=IniFile file=mini.ini config_dir=. auto_create=1 - - -
- $ config-edit -model MiniModel -model_dir lib/Config/Model/models/ -ui none bar=BARV foo=FOOV baz=BAZV
+ $ cme modify -try MiniModel -dev bar=BARV foo=FOOV baz=BAZV
  $ cat mini.ini
 
 =head1 DESCRIPTION
@@ -2354,7 +2353,7 @@ the various exception classes provided with C<Config::Model>.
 
 =head1 Logging
 
-See L<config-edit/Logging>
+See L<cme/Logging>
 
 =head1 BUGS
 

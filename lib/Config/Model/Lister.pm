@@ -73,8 +73,8 @@ __END__
 =head1 DESCRIPTION
 
 Small modules to list available models or applications whose config
-can be edited by L<config-edit>. This module is designed to be used
-by bash completion.
+can be edited by L<cme>. This module is designed to be used by bash
+completion.
 
 =head1 FUNCTIONS
 

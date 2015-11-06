@@ -270,7 +270,7 @@ The model you have just created is stored in C<lib/Config/Model/models/Popcon.pl
 
 You can test directly this model with :
 
-  config-edit -dev -model Popcon
+  cme edit -dev -try Popcon
 
 =head1 Feedback welcome
 
