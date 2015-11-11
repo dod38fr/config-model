@@ -49,12 +49,12 @@ sub available_models {
 }
 
 sub models {
-    my @i = available_models;
+    my @i = available_models(@_);
     return join( ' ', sort values %{ $i[2] } ) . "\n";
 }
 
 sub applications {
-    my @i = available_models;
+    my @i = available_models(@_);
     return join( ' ', sort keys %{ $i[2] } ) . "\n";
 }
 
@@ -75,6 +75,9 @@ __END__
 Small modules to list available models or applications whose config
 can be edited by L<cme>. This module is designed to be used by bash
 completion.
+
+All functions accept an optional boolean parameter. When true, only
+the local C<lib> dir is scanned.
 
 =head1 FUNCTIONS
 
