@@ -108,12 +108,4 @@ Returns a string with the list of models.
 
 Returns a string with the list of editable applications.
 
-=head1 SUPPORT
-
-CPAN RT system, Debian BTS or mailing list.
-
-=head1 AUTHOR
-
-Copyright 2011 Dominique Dumont
-
 =cut
