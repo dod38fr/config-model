@@ -1,5 +1,14 @@
 {{$NEXT}}
 
+2.075 2015-11-22
+
+  
+  Functionality improvements:
+    * Lister: can list local (dev) application
+
+  Support:
+    * changed bugtracker to github's
+
 2.074 2015-09-30
 
   Functionality improvements:
