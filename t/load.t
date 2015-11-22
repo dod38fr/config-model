@@ -123,7 +123,7 @@ ok( $root->load( step => $step ), "load steps with embedded \\n" );
 is( $root->fetch_element('a_string')->fetch, "titi and\nfoo", "check a_string" );
 
 # check search up for element
-my $step = qq!std_id:ab X=Bv /a_string="titi and\ntoto" !;
+$step = qq!std_id:ab X=Bv /a_string="titi and\ntoto" !;
 ok( $root->load( step => $step ), "load steps with /a_string" );
 is( $root->fetch_element('a_string')->fetch, "titi and\ntoto", "check a_string found with search" );
 
