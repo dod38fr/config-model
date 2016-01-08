@@ -22,6 +22,8 @@ use List::MoreUtils qw(any) ;
 
 extends qw/Config::Model::AnyThing/;
 
+with "Config::Model::Role::WarpMaster";
+
 my $logger        = get_logger("Tree::Element::Value");
 my $change_logger = get_logger("Anything::Change");
 my $fix_logger    = get_logger("Anything::Fix");
@@ -587,56 +589,6 @@ sub set_value_type {
     }
 }
 
-# Now I'm a warper !
-sub register {
-    my ( $self, $warped, $w_idx ) = @_;
-
-    my $w_name = $warped->name;
-    $logger->debug( "Value: " . $self->name, " registered $w_name ($w_idx)" );
-
-    # weaken only applies to the passed reference, and there's no way
-    # to duplicate a weak ref. Only a strong ref is created. See
-    #  qw(weaken) module for weaken()
-    my @tmp = ( $warped, $w_name, $w_idx );
-    weaken( $tmp[0] );
-    push @{ $self->{warp_these_objects} }, \@tmp;
-
-    return defined $self->{compute} ? 'computed' : 'regular';
-}
-
-sub unregister {
-    my ( $self, $w_name ) = @_;
-    $logger->debug( "Value: " . $self->name, " unregister $w_name" );
-
-    my @new = grep { $_->[1] ne $w_name; } @{ $self->{warp_these_objects} };
-
-    $self->{warp_these_objects} = \@new;
-}
-
-# And I'm going to warp them ...
-sub trigger_warp {
-    my $self = shift;
-
-    # retrieve current value if not provided
-    my $value =
-          @_
-        ? $_[0]
-        : $self->fetch_no_check;
-
-    foreach my $ref ( @{ $self->{warp_these_objects} } ) {
-        my ( $warped, $w_name, $warp_index ) = @$ref;
-        next unless defined $warped;    # $warped is a weak ref and may vanish
-
-        # pure warp of object
-        $logger->debug(
-            "trigger_warp: from ",
-            $self->name, " (value ",
-            ( defined $value ? $value : 'undefined' ),
-            ") warping '$w_name'"
-        );
-        $warped->trigger( $value, $warp_index );
-    }
-}
 
 sub submit_to_refer_to {
     my $self = shift;
