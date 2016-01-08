@@ -1316,8 +1316,8 @@ If L<Text::Levenshtein::Damerau> is installed, a warning will be issued if an ac
 element is too close to an existing element.
 
 The parameter C<accept_after> to specify where to insert the accepted element.
-This will not change much the behavior of the tree, but it will help generate
-user interface easier to use.
+This will not change much the behavior of the tree, but will help generate
+more usable user interfaces.
 
 Example:
 
