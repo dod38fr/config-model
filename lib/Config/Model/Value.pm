@@ -529,7 +529,7 @@ sub set_properties {
         object => $self,
         error  => "Unexpected parameters: " . join( ' ', each %args ) ) if scalar keys %args;
 
-    if ( defined $self->{warp_these_objects} ) {
+    if ( $self->has_warped_slaves ) {
         my $value = $self->_fetch_no_check;
         $self->trigger_warp($value);
     }
@@ -1210,7 +1210,7 @@ sub _store {
 
     if (    $ok
         and defined $value
-        and defined $self->{warp_these_objects}
+        and $self->has_warped_slaves
         and ( not defined $old_value or $value ne $old_value )
         and not( $self->instance->layered or $self->instance->preset ) ) {
         $self->trigger_warp($value);
@@ -1711,9 +1711,7 @@ sub get_depend_slave {
     push @result, @{ $self->{depend_on_me} }
         if defined $self->{depend_on_me};
 
-    if ( defined $self->{warp_these_objects} ) {
-        push @result, map ( $_->[0], @{ $self->{warp_these_objects} } );
-    }
+    push @result, $self->get_warped_slaves;
 
     # needs to clean up weak ref to object that were destroyed
     return grep { defined $_ } @result;
