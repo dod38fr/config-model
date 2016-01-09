@@ -158,7 +158,8 @@ sub create_element {
     my $method = $create_sub_for{ $element_info->{type} };
 
     croak $self->{config_class_name},
-        " error: no create method for element type $element_info->{type}"
+        " error: unknown element type $element_info->{type}, expected ",
+        join(' ', sort keys %create_sub_for)
         unless defined $method;
 
     $self->$method( $element_name, $check );
