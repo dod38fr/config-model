@@ -13,6 +13,8 @@ use Storable qw/dclone/;
 
 extends qw/Config::Model::AnyThing/;
 
+with "Config::Model::Role::WarpMaster";
+
 my $logger = get_logger("Tree::Element::CheckList");
 
 my @introspect_params = qw/refer_to computed_refer_to/;
@@ -134,6 +136,11 @@ sub set_properties {
     Config::Model::Exception::Model->throw(
         object => $self,
         error  => "Unexpected parameters :" . join( ' ', keys %args ) ) if scalar keys %args;
+
+    if ( $self->has_warped_slaves ) {
+        my $hash = $self->get_checked_list_as_hash; # force scalar context
+        $self->trigger_warp($hash, $self->fetch);
+    }
 }
 
 sub setup_choice {
@@ -215,6 +222,23 @@ sub apply_fixes {
     # no operation. THere's no check_value method because a check list
     # supposed to be always correct. Hence apply_fixes is empty.
 }
+
+sub notify_change {
+    my $self       = shift;
+    my %args       = @_;
+
+    return if $self->instance->initial_load and not $args{really};
+
+    $self->SUPER::notify_change( %args, value_type => $self->value_type );
+
+    # notify all warped or computed objects that depends on me
+    foreach my $s ( $self->get_warped_slaves ) {
+        $logger->debug( "calling notify_change on slave ", $s->name )
+            if $logger->is_debug;
+        $s->notify_change( note => 'checklist master triggered changed' );
+    }
+}
+
 
 # does not check the validity, but check the item of the check_list
 sub check {
@@ -298,6 +322,15 @@ sub store {
         $err_str .= "\n\t" . $self->{ref_object}->reference_info
             if defined $self->{ref_object};
         Config::Model::Exception::WrongValue->throw( error => $err_str, object => $self );
+    }
+
+    if (    $ok
+        and $changed
+        and $self->has_warped_slaves
+        and not( $self->instance->layered or $self->instance->preset ) ) {
+        my $h = $self->get_checked_list_as_hash;
+        my $str = $self->fetch;
+        $self->trigger_warp($h , $str);
     }
 
     return $changed;
