@@ -89,14 +89,41 @@ __END__
 
 =head1 SYNOPSIS
 
- $self->load_node( config_class_name => "...", %other_args);
+ package Config::Model::Stuff;
+ use Mouse;
+ with Config::Model::Role::WarpMaster
 
 =head1 DESCRIPTION
 
+This role enable a configuration element to become a warp maser, i.e. a parameter
+whose value can change the features of the configuration tree (by controlling a
+warped_node) or the feature of various elements like leaf, hash ...
 
 =head1 METHODS
 
+=head2 register ( $warped_object, warper_name )
 
+Register a new warped object. Called by an element which has a C<warp> parameter.
+This method is calling on the object pointed by C<follow> value.
+
+=head2 unregister ( warper_name )
+
+Remove a warped object from the object controlled by this warp master.
+
+=head2 trigger_warp ( value, stringified_value )
+
+Called by the object using this role when the value held by this object is changed (i.e.
+something like store was called). The passed value can be a plain scalar (from a value
+object) or a hash (from a check_list object). The stringified_value is a string shown
+in debug log.
+
+-head2 has_warped_slaves
+
+Return the number of object controlled by this master.
+
+=head2 get_warped_slaves
+
+Return a list of object controlled by this master.
 
 =cut
 
