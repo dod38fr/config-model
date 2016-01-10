@@ -22,7 +22,7 @@ has 'warped_object' => (
 has '_values' => (
     traits  => ['Hash'],
     is      => 'ro',
-    isa     => 'HashRef[Str | Undef ]',
+    isa     => 'HashRef[HashRef | Str | Undef ]',
     default => sub { {} },
     handles => {
         _set_value  => 'set',
@@ -30,6 +30,14 @@ has '_values' => (
         _value_keys => 'keys',
     },
 );
+
+sub _get_value_gist {
+    my $self = shift;
+    my $warper_name  = shift;
+    my $item = $self->_get_value($warper_name);
+
+    return ref($item) eq 'HASH' ? join(',', each %$item) : $item;
+}
 
 has _computed_masters => ( is => 'rw', isa => 'HashRef', init_arg => undef );
 
@@ -101,7 +109,7 @@ sub register_to_one_warp_master {
 
         $logger->debug("Warper register_to_one_warp_master: step to master $obj_loc");
 
-        if ( $obj->isa('Config::Model::Value') ) {
+        if ( $obj->isa('Config::Model::Value') or $obj->isa('Config::Model::CheckList')) {
             $warper = $obj;
             if ( defined $warped_node ) {
 
@@ -142,7 +150,7 @@ sub register_to_one_warp_master {
     Config::Model::Exception::Model->throw(
         object => $self->warped_object,
         error  => "warper $warper_name => '$warper_path' is not a leaf"
-    ) unless $warper->isa('Config::Model::Value');
+    ) unless $warper->isa('Config::Model::Value') or $obj->isa('Config::Model::CheckList');
 
     # warp will register this value object in another value object
     # (the warper).  When the warper gets a new value, it will
@@ -208,14 +216,19 @@ sub refresh_values_from_master {
         );
 
         if ( defined $warper and $warper->get_type eq 'leaf' ) {
-
-            # read the warp master values, so I can warp myself just
-            # after.
+            # read the warp master values, so I can warp myself just after.
             my $warper_value = $warper->fetch('allow_undef');
-            $logger->debug( "Warper: '$warper_name' value is: '"
-                    . ( defined $warper_value ? $warper_value : '<undef>' )
-                    . "'" );
+            my $str = $warper_value // '<undef>';
+            $logger->debug( "Warper: '$warper_name' value is: '$str'" );
             $self->_set_value( $warper_name => $warper_value );
+        }
+        elsif ( defined $warper and $warper->get_type eq 'check_list' ) {
+            if ($logger->is_debug) {
+                my $warper_value = $warper->fetch();
+                $logger->debug( "Warper: '$warper_name' checked values are: '$warper_value'" );
+            }
+            # store checked values are data structure, not as string
+            $self->_set_value( $warper_name => $warper->get_checked_list_as_hash() );
         }
         elsif ( defined $warper ) {
             Config::Model::Exception::Model->throw(
@@ -374,7 +387,7 @@ sub trigger {
     my $same = 1;
     foreach my $name ( $self->_value_keys ) {
         my $old = $old_value_set{$name};
-        my $new = $self->_get_value($name);
+        my $new = $self->_get_value_gist($name);
         $same = 0
             if ( $old ? 1 : 0 xor $new ? 1 : 0 )
             or ( $old and $new and $new ne $old );
@@ -407,18 +420,18 @@ sub compute_bool {
     $logger->debug( "Warper compute_bool: data:\n",
         Data::Dumper->Dump( [ $self->_values ], ['data'] ) );
 
-    $expr =~ s/&(\w+)/\$self->warped_object->$1/g;
+    # checklist: $stuff.is_set(&index)
+    # get_value of a checklist gives { 'val1' => 1, 'val2' => 0,...}
+    $expr =~ s/(\$\w+)\.is_set\(([&$"'\w]+)\)/$1.'->{'.$2.'}'/eg;
+
+    $expr =~ s/&(\w+)/\$warped_obj->$1/g;
+
 
     my @init_code;
+    my %eval_data ;
     foreach my $warper_name ( $self->_value_keys ) {
-        my $v = $self->_get_value($warper_name);
-
-        my $code_v =
-              ( defined $v and $v =~ m/^[\d\.]$/ ) ? "$v"
-            : defined $v ? "'$v'"
-            :              'undef';
-
-        push @init_code, "my \$$warper_name = $code_v ;";
+        $eval_data{$warper_name} = $self->_get_value($warper_name) ;
+        push @init_code, "my \$$warper_name = \$eval_data{'$warper_name'} ;";
     }
 
     my $perl_code = join( "\n", @init_code, $expr );
@@ -426,6 +439,7 @@ sub compute_bool {
 
     my $ret;
     {
+        my $warped_obj = $self->warped_object ;
         no warnings "uninitialized";
         $ret = eval($perl_code);
     }
@@ -594,7 +608,7 @@ __END__
 
 =head1 DESCRIPTION
 
-Depending on the value of a warp master (In fact a L<Config::Model::Value> object),
+Depending on the value of a warp master (In fact a L<Config::Model::Value> or a L<Config::Model::CheckList> object),
 this class will change the properties of a node (L<Config::Model::WarpedNode>),
 a hash (L<Config::Model::HashId>), a list (L<Config::Model::ListId>), 
 a checklist (L<Config::Model::CheckList>) or another value.
@@ -621,7 +635,7 @@ and C<rules>:
 =head2 Warp follow argument
 
 L<Grab string|Config::Model::AnyThing/"grab(...)"> leading to the
-C<Config::Model::Value> warp master. E.g.: 
+C<Config::Model::Value> or L<Config::Model::CheckList> warp master. E.g.:
 
  follow => '! tree_macro' 
 
@@ -643,8 +657,8 @@ warped object depending on the value(s) of the warp master(s).
 E.g. for a simple case (rules is a hash ref) :
 
  follow => '! macro1' ,
- rules => { A => { <effect for macro1 == A> },
-            B => { <effect for macro1 == B> }
+ rules => { A => { <effect when macro1 is A> },
+            B => { <effect when macro1 is B> }
           }
 
 In case of similar effects, you can use named parameters and
@@ -691,10 +705,63 @@ In this case, you can use different boolean expression to save typing:
 Note that the boolean expression will be sanitized and used in a Perl
 eval, so you can use most Perl syntax and regular expressions.
 
-Function (like C<&foo>) will be called like C<< $self->foo >> before evaluation\
+Function (like C<&foo>) will be called like C<< $self->foo >> before evaluation
 of the boolean expression.
 
-=cut
+The rules must be declared with a slightly different way when a
+check_list is used as a warp master: a check_list has not a simple
+value. The rule must check whether a value is checked or not amongs
+all the possible items of a check list.
+
+For example, let's say that C<$cl> in the rule below point to a check list whose
+items are C<A> and C<B>. The rule must verify if the item is set or not:
+
+  rules => [
+       '$cl.is_set(A)' =>  { <effect when A is set> },
+       '$cl.is_set(B)' =>  { <effect when B is set> },
+       # can be combined
+       '$cl.is_set(B) and $cl.is_set(A)' =>  { <effect when A and B are set> },
+   ],
+
+With this feature, you can control with a check list whether some element must
+be shown or not (assuming C<FooClass> and C<BarClass> classes are declared):
+
+    element => [
+        # warp master
+        my_check_list => {
+            type       => 'check_list',
+            choice     => ['has_foo','has_bar']
+        },
+        # controlled element that show up only when has_foo is set
+        foo => {
+            type => 'warped_node',
+            level => 'hidden',
+            config_class_name => 'FooClass',
+            follow => {
+                selected => '- my_check_list'
+            },
+            'rules' => [
+                '$selected.is_set(has_foo)' => {
+                    level => 'normal'
+                }
+            ]
+        },
+        # controlled element that show up only when has_bar is set
+        bar => {
+            type => 'warped_node',
+            level => 'hidden',
+            config_class_name => 'BarClass',
+            follow => {
+                selected => '- my_check_list'
+            },
+            'rules' => [
+                '$selected.is_set(has_bar)' => {
+                    level => 'normal'
+                }
+            ]
+        }
+    ]
+
 
 =head1 Methods
 
