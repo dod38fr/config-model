@@ -629,10 +629,14 @@ sub load_data {
     elsif ( ref($data) eq 'HASH' ) {
         $self->set_checked_list_as_hash($data);
     }
+    elsif ( not ref($data) ) {
+        $self->set_checked_list($data);
+    }
     else {
         Config::Model::Exception::LoadData->throw(
             object     => $self,
-            message    => "load_data called with non array ref arg",
+            message    => "check_list load_data called with unexpected type. ".
+                          "Expected plain scalar, array or hash ref",
             wrong_data => $data,
         );
     }
