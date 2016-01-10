@@ -80,7 +80,7 @@ sub register_to_one_warp_master {
 
     my $follow      = $self->follow;
     my $warper_path = $follow->{$warper_name};
-    $logger->debug( "Warper register_to_one_warp_master: ", $self->name, " follows $warper_name" );
+    $logger->debug( "Warper register_to_one_warp_master: '", $self->name, "' follows '$warper_name'" );
 
     # need to register also to all warped_nodes found on the path
     my @command = ($warper_path);
@@ -228,7 +228,7 @@ sub refresh_values_from_master {
                 $logger->debug( "Warper: '$warper_name' checked values are: '$warper_value'" );
             }
             # store checked values are data structure, not as string
-            $self->_set_value( $warper_name => $warper->get_checked_list_as_hash() );
+            $self->_set_value( $warper_name => scalar $warper->get_checked_list_as_hash() );
         }
         elsif ( defined $warper ) {
             Config::Model::Exception::Model->throw(
@@ -425,7 +425,6 @@ sub compute_bool {
     $expr =~ s/(\$\w+)\.is_set\(([&$"'\w]+)\)/$1.'->{'.$2.'}'/eg;
 
     $expr =~ s/&(\w+)/\$warped_obj->$1/g;
-
 
     my @init_code;
     my %eval_data ;
