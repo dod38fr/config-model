@@ -128,6 +128,7 @@ sub BUILD {
 
     $self->set_properties();    # set will use backup data
 
+    # used when self is a warped slave
     if ( my $warp_info = $self->warp ) {
         $self->{warper} = Config::Model::Warper->new(
             warped_object => $self,
