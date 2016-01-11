@@ -428,6 +428,7 @@ COMMAND:
         }
 
         if ( defined $action and not $next_obj->isa('Config::Model::AnyId') ) {
+            return if $mode eq 'loose';
             Config::Model::Exception::Model->throw(
                 object  => $obj,
                 message => "Cannot apply command '$cmd' on non hash or non list item"
