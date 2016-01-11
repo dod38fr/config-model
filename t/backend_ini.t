@@ -40,16 +40,12 @@ my @with_semi_column_comment = my @with_hash_comment = <DATA>;
 
 # change delimiter comments
 map { s/#/;/; } @with_semi_column_comment;
-my %test_setup = (
-    IniTest  => [ \@with_hash_comment,        'class1' ],
-    IniTest2 => [ \@with_semi_column_comment, 'class1' ],
-    AutoIni  => [ \@with_hash_comment,        'class1' ],
-    MyClass  => [ \@with_hash_comment,        'any_ini_class:class1' ] );
 
-foreach my $test_class ( sort keys %test_setup ) {
+sub init_test {
+    my ($test_class, $test_data) = @_;
+
     my $model     = Config::Model->new();
-    my @orig      = @{ $test_setup{$test_class}[0] };
-    my $test_path = $test_setup{$test_class}[1];
+    my @orig      = @$test_data ;
 
     # cleanup before tests
     rmtree($wr_root);
@@ -80,6 +76,57 @@ foreach my $test_class ( sort keys %test_setup ) {
     $i_root->init;
     ok( 1, "$test_class root init done" );
 
+    return ($model, $i_test, $wr_dir);
+}
+
+sub finish {
+    my ($test_class, $wr_dir, $model,$i_test) = @_;
+
+    my $orig = $i_test->config_root->dump_tree;
+    print $orig if $trace;
+
+    $i_test->write_back;
+    ok( 1, "IniFile write back done" );
+
+    my $ini_file = $wr_dir . '/etc/test.ini';
+    ok( -e $ini_file, "check that config file $ini_file was written" );
+    # create another instance to read the IniFile that was just written
+    my $wr_dir2 = $wr_root . '/ini2';
+    mkpath( $wr_dir2 . '/etc', { mode => 0755 } ) || die "can't mkpath: $!";
+    copy( $wr_dir . '/etc/test.ini', $wr_dir2 . '/etc/' )
+        or die "can't copy from test1 to test2: $!";
+
+    my $i2_test = $model->instance(
+        instance_name   => 'test_inst2',
+        root_class_name => $test_class,
+        root_dir        => $wr_dir2,
+    );
+
+    ok( $i2_test, "Created instance" );
+
+    my $i2_root = $i2_test->config_root;
+
+    my $p2_dump = $i2_root->dump_tree;
+    print "2nd dump:\n",$p2_dump if $trace;
+
+    is( $p2_dump, $orig, "compare original data with 2nd instance data" );
+
+}
+
+my %test_setup = (
+    IniTest  => [ \@with_hash_comment,        'class1' ],
+    IniTest2 => [ \@with_semi_column_comment, 'class1' ],
+    AutoIni  => [ \@with_hash_comment,        'class1' ],
+    MyClass  => [ \@with_hash_comment,        'any_ini_class:class1' ]
+);
+
+foreach my $test_class ( sort keys %test_setup ) {
+    my ($model, $i_test, $wr_dir) = init_test($test_class,  $test_setup{$test_class}[0]);
+
+    my $test_path = $test_setup{$test_class}[1];
+
+    my $i_root = $i_test->config_root;
+
     $i_root->load("bar:0=\x{263A}");    # utf8 smiley
     is(
         $i_root->annotation,
@@ -98,34 +145,8 @@ foreach my $test_class ( sort keys %test_setup ) {
         is( $elt->annotation, "lista$i comment", "check lista[$i] comment" );
     }
 
-    my $orig = $i_root->dump_tree;
-    print $orig if $trace;
+    finish ($test_class, $wr_dir, $model,$i_test);
 
-    $i_test->write_back;
-    ok( 1, "IniFile write back done" );
-
-    my $ini_file = $wr_dir . '/etc/test.ini';
-    ok( -e $ini_file, "check that config file $ini_file was written" );
-
-    # create another instance to read the IniFile that was just written
-    my $wr_dir2 = $wr_root . '/ini2';
-    mkpath( $wr_dir2 . '/etc', { mode => 0755 } ) || die "can't mkpath: $!";
-    copy( $wr_dir . '/etc/test.ini', $wr_dir2 . '/etc/' )
-        or die "can't copy from test1 to test2: $!";
-
-    my $i2_test = $model->instance(
-        instance_name   => 'test_inst2',
-        root_class_name => $test_class,
-        root_dir        => $wr_dir2,
-    );
-
-    ok( $i2_test, "Created instance" );
-
-    my $i2_root = $i2_test->config_root;
-
-    my $p2_dump = $i2_root->dump_tree;
-
-    is( $p2_dump, $orig, "compare original data with 2nd instance data" );
 
     memory_cycle_ok( $model, "memory cycle test" );
 
