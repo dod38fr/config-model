@@ -911,7 +911,8 @@ verbatim to C<Config::Model::Backend::Foo> methods:
                     } 
                   ]
 
-This C<Config::Model::Backend::Foo> class is expected to provide the
+This C<Config::Model::Backend::Foo> class must inherit
+L<Config::Model::Backend::Any> and is expected to provide the
 following methods:
 
 =over
@@ -967,6 +968,9 @@ requested by user.
 =back
 
 =head2 Custom backend
+
+Custom backend is provided to be backward compatible but should not be used
+for new project. Using a plugin backend as described above is preferred.
 
 Custom backend must be specified with a class name that will features
 the methods used to write and read the configuration files:

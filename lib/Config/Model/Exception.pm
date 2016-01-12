@@ -428,7 +428,15 @@ __END__
 
 =head1 SYNOPSIS
 
- # internal
+  use  Config::Model::Exception;
+
+  # later
+  my $kaboom = 1;
+  Config::Model::Exception::Model->throw(
+      error  => "Went kaboom",
+      object => $self
+  ) if $kaboom;
+
 
 =head1 DESCRIPTION
 
