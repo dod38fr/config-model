@@ -218,6 +218,32 @@ sub _write_list{
     return $res;
 }
 
+sub _write_check_list{
+    my ($self, $args, $node, $elt)  = @_ ;
+    my $res = '';
+
+    my $join_check_list = $args->{join_check_list_value};
+    my $delimiter = $args->{comment_delimiter} || '#';
+    my $obj = $node->fetch_element($elt);
+
+    my $obj_note = $obj->annotation;
+
+    if ($join_check_list ) {
+        my $v = join( $join_check_list, $obj->get_checked_list() );
+        if ( length($v) ) {
+            $logger->debug("writing check_list elt $elt -> $v");
+            $res .= $self->write_data_and_comments( undef, $delimiter, "$elt=$v", $obj_note );
+        }
+    }
+    else {
+        foreach my $v ( $obj->get_checked_list() ) {
+            $logger->debug("writing joined check_list elt $elt -> $v");
+            $res .= $self->write_data_and_comments( undef, $delimiter, "$elt=$v", $obj_note );
+        }
+    }
+    return $res;
+}
+
 sub _write_leaf{
     my ($self, $args, $node, $elt)  = @_ ;
     my $res = '';
@@ -309,6 +335,9 @@ sub _write {
 
         if ( $type eq 'list' ) {
             $res .= $self->_write_list (\%args, $node, $elt) ;
+        }
+        elsif ( $type eq 'check_list') {
+            $res .= $self->_write_check_list (\%args, $node, $elt) ;
         }
         elsif ( $type eq 'leaf' ) {
             $res .= $self->_write_leaf (\%args, $node, $elt) ;
@@ -482,6 +511,18 @@ applies only to C<list> elements.
 Conversely, the list element split with C<split_list_value> needs to be written
 back with a string to join them. Specify this string (usually ' ' or ', ')
 with C<join_list_value>.
+
+=item split_check_list_value
+
+Some INI values are in fact a check list of items separated by a space or a comma.
+This parameter specifies the regex to use to split the value read from the file
+into a list of items to check. This applies only to C<check_list> elements.
+
+=item join_check_list_value
+
+Conversely, the check_list element split with C<split_list_value> needs to be written
+back with a string to join them. Specify this string (usually ' ' or ', ')
+with C<join_check_list_value>.
 
 =item write_boolean_as
 
