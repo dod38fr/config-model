@@ -134,5 +134,40 @@
                 auto_create => 1,
             }
         ],
-    }
+    },
+    {
+        name => 'IniCheck',
+        read_config => [
+            {
+                backend           => 'IniFile',
+                config_dir        => '/etc/',
+                file              => 'test.ini',
+                auto_create       => 1,
+            },
+        ],
+
+        element => [
+            [qw/foo bar/] => {
+                type  => 'check_list',
+                choice => [qw/foo1 foo2 bar1/],
+            },
+
+            [qw/baz/] => {
+                qw/type leaf value_type uniline/,
+            },
+            [qw/class1 class2/] => {
+                type              => 'node',
+                config_class_name => 'IniCheckList::Class'
+            }
+        ]
+    },
+    {
+        name    => 'IniCheckList::Class',
+        element => [
+            [qw/lista/] => {
+                type  => 'check_list',
+                choice => [qw/lista1 lista2 lista3 nolist/],
+            },
+        ]
+    },
 ];

@@ -152,6 +152,29 @@ foreach my $test_class ( sort keys %test_setup ) {
 
 }
 
+# test ini file using a check list
+
+{
+    #    IniCheck
+    my ($model, $i_test, $wr_dir) = init_test(IniCheck => \@with_hash_comment);
+
+    my $i_root = $i_test->config_root;
+
+    ok($i_root->grab('foo')->is_checked('foo1'),"foo foo1 choice is set");
+    ok($i_root->grab('foo')->is_checked('bar1') == 0,"foo bar1 choice is not set");
+    ok($i_root->grab('bar')->is_checked('bar1'),"bar bar1 choice is set");
+
+    # I'm cheating. To reuse test data, list is actually a check_list in test model
+    ok($i_root->grab('class1 lista')->is_checked('nolist') == 0,"class1 lista nolist choice is not set");
+    ok($i_root->grab('class1 lista')->is_checked('lista2'),"class1 lista lista1 choice is set");
+
+    $i_root->grab('class1 lista')->check('nolist');
+
+    finish ('IniCheck', $wr_dir, $model,$i_test);
+
+    memory_cycle_ok( $model, "memory cycle test" );
+}
+
 done_testing;
 
 __DATA__
