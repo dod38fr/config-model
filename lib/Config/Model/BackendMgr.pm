@@ -853,7 +853,7 @@ Config dump string (cds) in a file. I.e. a string that describes the
 content of a configuration tree is loaded from or saved in a text
 file. See L<Config::Model::Dumper>.
 
-=item ini_file
+=item IniFile
 
 INI files (written with L<Config::Model::Backend::IniFile>. See limitations in 
 L</"Limitations depending on storage">.
@@ -877,7 +877,7 @@ information back.
 
 =head2 Built-in backend
 
-C<cds_file>, C<ini_file> and C<perl_file> backend must be specified with
+C<cds_file>, C<IniFile> and C<perl_file> backend must be specified with
 mandatory C<config_dir> parameter. For instance:
 
    read_config  => { backend    => 'cds_file' , 
