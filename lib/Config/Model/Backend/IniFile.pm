@@ -182,14 +182,120 @@ sub write {
     $ioh->print($res);
 }
 
+sub _write_list{
+    my ($self, $args, $node, $elt)  = @_ ;
+    my $res = '';
+
+    my $join_list = $args->{join_list_value};
+    my $delimiter = $args->{comment_delimiter} || '#';
+    my $obj = $node->fetch_element($elt);
+
+    my $obj_note = $obj->annotation;
+
+    if ( $join_list ) {
+        my @v = grep { length } $obj->fetch_all_values();
+        my $v = join( $join_list, @v );
+        if ( length($v) ) {
+            $logger->debug("writing joined list elt $elt -> $v");
+            $res .= $self->write_data_and_comments( undef, $delimiter, "$elt=$v", $obj_note );
+        }
+    }
+    else {
+        foreach my $item ( $obj->fetch_all('custom') ) {
+            my $note = $item->annotation;
+            my $v    = $item->fetch;
+            if ( length $v ) {
+                $logger->debug("writing list elt $elt -> $v");
+                $res .=
+                    $self->write_data_and_comments( undef, $delimiter, "$elt=$v",
+                                                    $obj_note . $note );
+            }
+            else {
+                $logger->debug("NOT writing undef or empty list elt");
+            }
+        }
+    }
+    return $res;
+}
+
+sub _write_leaf{
+    my ($self, $args, $node, $elt)  = @_ ;
+    my $res = '';
+
+    my $write_bool_as = $args->{write_boolean_as};
+    my $delimiter = $args->{comment_delimiter} || '#';
+    my $obj = $node->fetch_element($elt);
+
+    my $obj_note = $obj->annotation;
+
+    my $v = $obj->fetch;
+    if ( $write_bool_as and defined($v) and length($v) and $obj->value_type eq 'boolean' ) {
+        $v = $write_bool_as->[$v];
+    }
+    if ( defined $v and length $v ) {
+        $logger->debug("writing leaf elt $elt -> $v");
+        $res .= $self->write_data_and_comments( undef, $delimiter, "$elt=$v", $obj_note );
+    }
+    else {
+        $logger->debug("NOT writing undef or empty leaf elt");
+    }
+    return $res;
+}
+
+sub _write_hash {
+    my ($self, $args, $node, $elt)  = @_ ;
+    my $res = '';
+
+    my $delimiter = $args->{comment_delimiter} || '#';
+    my $obj = $node->fetch_element($elt);
+    my $obj_note = $obj->annotation;
+
+    foreach my $key ( $obj->fetch_all_indexes ) {
+        my $hash_obj = $obj->fetch_with_id($key);
+        my $note     = $hash_obj->annotation;
+        $logger->debug("writing hash elt $elt key $key");
+        my $subres = $self->_write( %$args, object => $hash_obj );
+        if ($subres) {
+            $res .= "\n"
+                . $self->write_data_and_comments( undef, $delimiter, "[$key]",
+                                                  $obj_note . $note )
+                . $subres;
+        }
+    }
+    return $res;
+}
+
+sub _write_node {
+    my ($self, $args, $node, $elt)  = @_ ;
+    my $res = '';
+
+    my $delimiter = $args->{comment_delimiter} || '#';
+    my $obj = $node->fetch_element($elt);
+    my $obj_note = $obj->annotation;
+
+    $logger->debug("writing class $elt");
+    my $subres = $self->_write( %$args, object => $obj );
+    if ($subres) {
+
+        # some INI file may have a section mapped to a node as exception to mapped in a hash
+        my $exception_name = $self->{reverse_section_map}{ $obj->location };
+        if ( defined $exception_name ) {
+            $logger->debug("writing class $exception_name from reverse_section_map");
+        }
+        my $c_name = $exception_name || $elt;
+        $res .= "\n"
+            . $self->write_data_and_comments( undef, $delimiter, "[$c_name]", $obj_note )
+            . $subres;
+    }
+    return $res;
+}
+
 sub _write {
     my $self = shift;
     my %args = @_;
 
     my $node          = $args{object};
     my $delimiter     = $args{comment_delimiter} || '#';
-    my $join_list     = $args{join_list_value};
-    my $write_bool_as = $args{write_boolean_as};
 
     $logger->debug( "called on ", $node->name );
     my $res = '';
@@ -201,48 +307,17 @@ sub _write {
         $logger->debug("first loop on elt $elt type $type");
         next if $type =~ /node/ or $type eq 'hash';
 
-        my $obj = $node->fetch_element($elt);
-
-        my $obj_note = $obj->annotation;
-
-        if ( $node->element_type($elt) eq 'list' and $join_list ) {
-            my @v = grep { length } $obj->fetch_all_values();
-            my $v = join( $join_list, @v );
-            if ( length($v) ) {
-                $logger->debug("writing list elt $elt -> $v");
-                $res .= $self->write_data_and_comments( undef, $delimiter, "$elt=$v", $obj_note );
-            }
+        if ( $type eq 'list' ) {
+            $res .= $self->_write_list (\%args, $node, $elt) ;
         }
-        elsif ( $node->element_type($elt) eq 'list' ) {
-            foreach my $item ( $obj->fetch_all('custom') ) {
-                my $note = $item->annotation;
-                my $v    = $item->fetch;
-                if ( length $v ) {
-                    $logger->debug("writing list elt $elt -> $v");
-                    $res .=
-                        $self->write_data_and_comments( undef, $delimiter, "$elt=$v",
-                        $obj_note . $note );
-                }
-                else {
-                    $logger->debug("NOT writing undef or empty list elt");
-                }
-            }
-        }
-        elsif ( $node->element_type($elt) eq 'leaf' ) {
-            my $v = $obj->fetch;
-            if ( $write_bool_as and defined($v) and length($v) and $obj->value_type eq 'boolean' ) {
-                $v = $write_bool_as->[$v];
-            }
-            if ( defined $v and length $v ) {
-                $logger->debug("writing leaf elt $elt -> $v");
-                $res .= $self->write_data_and_comments( undef, $delimiter, "$elt=$v", $obj_note );
-            }
-            else {
-                $logger->debug("NOT writing undef or empty leaf elt");
-            }
+        elsif ( $type eq 'leaf' ) {
+            $res .= $self->_write_leaf (\%args, $node, $elt) ;
         }
         else {
-            $logger->error("unexpected type $type for leaf elt $elt");
+            Config::Model::Exception::Model->throw(
+                error  => "unexpected type $type for leaf elt $elt",
+                object => $node
+            );
         }
     }
 
@@ -255,34 +330,10 @@ sub _write {
         my $obj_note = $obj->annotation;
 
         if ( $type eq 'hash' ) {
-            foreach my $key ( $obj->fetch_all_indexes ) {
-                my $hash_obj = $obj->fetch_with_id($key);
-                my $note     = $hash_obj->annotation;
-                $logger->debug("writing hash elt $elt key $key");
-                my $subres = $self->_write( %args, object => $hash_obj );
-                if ($subres) {
-                    $res .= "\n"
-                        . $self->write_data_and_comments( undef, $delimiter, "[$key]",
-                        $obj_note . $note )
-                        . $subres;
-                }
-            }
+            $res .= $self->_write_hash (\%args, $node, $elt) ;
         }
         else {
-            $logger->debug("writing class $elt");
-            my $subres = $self->_write( %args, object => $obj );
-            if ($subres) {
-
-                # some INI file may have a section mapped to a node as exception to mapped in a hash
-                my $exception_name = $self->{reverse_section_map}{ $obj->location };
-                if ( defined $exception_name ) {
-                    $logger->debug("writing class $exception_name from reverse_section_map");
-                }
-                my $c_name = $exception_name || $elt;
-                $res .= "\n"
-                    . $self->write_data_and_comments( undef, $delimiter, "[$c_name]", $obj_note )
-                    . $subres;
-            }
+            $res .= $self->_write_node (\%args, $node, $elt) ;
         }
     }
 
@@ -422,14 +473,14 @@ Idem for all values.
 
 =item split_list_value
 
-Some INI values are in fact a list of items separated by a space or a comma. 
+Some INI values are in fact a list of items separated by a space or a comma.
 This parameter specifies the regex  to use to split the value into a list. This
 applies only to C<list> elements.
 
 =item join_list_value
 
 Conversely, the list element split with C<split_list_value> needs to be written
-back with a string to join them. Specify this string (usually ' ' or ', ') 
+back with a string to join them. Specify this string (usually ' ' or ', ')
 with C<join_list_value>.
 
 =item write_boolean_as
