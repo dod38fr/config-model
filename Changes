@@ -1,7 +1,24 @@
 {{$NEXT}}
 
-2.075 2015-11-22
+2.076 2016-01-14
 
+  One major feature of Config::Model is the possibility to change the
+  structure of the tree depending on a configuration paramater value.
+  This "warp" feature is used in lcdproc model: when a driver is
+  choosen by user, the configuration parameter of this driver are
+  shown and parameters for other drivers are hidden. Up to now, only
+  one driver could be selected at a time because the warp mechanism
+  could be driven only by a leaf value.
+
+  Now this warp feature can be driven by a check list. So lcdproc
+  model can now select more that one driver at a time.
+
+  Other functionality improvements:
+    * Ini backend: doc mentions "IniFile" instead of ini_file to match
+      Config::Model::Backend::IniFile class name.
+    * IniFile backend can read/write check list
+
+2.075 2015-11-22
   
   Functionality improvements:
     * Lister: can list local (dev) application
