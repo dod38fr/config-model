@@ -106,6 +106,11 @@ $model->create_config_class(
             cargo_type        => 'node',
             config_class_name => 'Lan'
         },
+        host_reference => {
+            type       => 'leaf',
+            value_type => 'reference',
+            refer_to   => ['! host '],
+        },
         host_and_choice => {
             type       => 'leaf',
             value_type => 'reference',
@@ -209,11 +214,19 @@ $root->load("dumb_list=a,b,c,d,e");
 my $rtle = $root->fetch_element("refer_to_list_enum");
 is_deeply( [ $rtle->get_choice ], [qw/a b c d e/], "check choice of refer_to_list_enum" );
 
-eval { $root->fetch_element("refer_to_wrong_path"); };
-ok( $@, "fetching refer_to_wrong_path" );
-print "normal error: $@" if $trace;
+throws_ok { $root->fetch_element("refer_to_wrong_path"); } 'Config::Model::Exception::Model',"fetching refer_to_wrong_path" ;
 
-eval { $root->fetch_element("refer_to_unknown_elt") };
-ok( $@, "fetching refer_to_unknown_elt" );
-print "normal error: $@" if $trace;
-memory_cycle_ok($model);
+throws_ok { $root->fetch_element("refer_to_unknown_elt") } 'Config::Model::Exception::Model',"fetching refer_to_unknown_elt" ;
+
+warning_like { $root->fetch_element("host_reference")->store('Foo') } qr/skipping value/,"store unknown host";
+
+$root->load("host:Foo");
+$root->fetch_element("host_reference")->store('Foo');
+ok(scalar $root->fetch_element("host_reference")->check, "check reference to Foo host");
+
+$root->load("host~Foo");
+ok( !$root->fetch_element("host_reference")->check, "check reference to removed Foo host");
+
+memory_cycle_ok($model,"test memory cycle");
+
+done_testing;
