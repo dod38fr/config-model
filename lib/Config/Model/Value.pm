@@ -142,6 +142,20 @@ sub BUILD {
     return $self;
 }
 
+override 'needs_check' => sub {
+    my $self = shift;
+
+    if (@_) {
+        return super();
+    }
+    else {
+        # some items like idElementReference are too complex to propagate
+        # a change notification back to the value using them. So an error or
+        # warning must always be rechecked.
+        return ($self->value_type eq 'reference' or super()) ;
+    }
+};
+
 sub notify_change {
     my $self       = shift;
     my %args       = @_;
@@ -1057,9 +1071,6 @@ sub check_fetched_value {
         my $warn_count = $self->has_warning;
         $logger->debug("done with $err_count errors and $warn_count warnings");
 
-        # some items like idElementReference are too complex to propagate
-        # a change notification back to the value using them. So an error or
-        # warning must always be rechecked.
         $self->needs_check(0) unless $err_count or $warn_count;
     }
     else {
@@ -1311,9 +1322,6 @@ sub check_stored_value {
     my ( $value, $check, $silent ) =
         @args{qw/value check silent/};
 
-    # some se case like idElementReference are too complex to propagate
-    # a change notification back to the value using them. So an error or
-    # warning must always be rechecked.
     $self->needs_check(0) unless $self->has_error or $self->has_warning;
 
     # old_warn is used to avoid warning the user several times for the
