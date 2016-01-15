@@ -117,6 +117,12 @@ $model->create_config_class(
             refer_to   => ['! host '],
             choice     => [qw/foo bar/]
         },
+        host_and_replace => {
+            type       => 'leaf',
+            value_type => 'reference',
+            refer_to   => ['! host '],
+            replace => { 'fou' => 'Foo', 'barre' => 'Bar' },
+        },
         dumb_list => {
             type       => 'list',
             cargo_type => 'leaf',
@@ -220,12 +226,17 @@ throws_ok { $root->fetch_element("refer_to_unknown_elt") } 'Config::Model::Excep
 
 warning_like { $root->fetch_element("host_reference")->store('Foo') } qr/skipping value/,"store unknown host";
 
-$root->load("host:Foo");
+$root->load("host:Foo - host:Bar");
 $root->fetch_element("host_reference")->store('Foo');
 ok(scalar $root->fetch_element("host_reference")->check, "check reference to Foo host");
 
+$root->load("host_and_replace=fou");
+is($root->grab_value("host_and_replace"),'Foo',"check replaced host fou->Foo");
+
 $root->load("host~Foo");
 ok( !$root->fetch_element("host_reference")->check, "check reference to removed Foo host");
+
+# todo: need an exclude parameter (to avoid cycle in config_class_name)
 
 memory_cycle_ok($model,"test memory cycle");
 
