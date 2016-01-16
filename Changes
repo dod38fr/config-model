@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+  Bug fix:
+    * ValueComputer: escape variables containing a quote (Debian #810768)
+    * Value: fix check of reference values
+
 2.076 2016-01-14
 
   One major feature of Config::Model is the possibility to change the
