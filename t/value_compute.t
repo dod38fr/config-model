@@ -599,6 +599,16 @@ is(
     'test compute with complex regexp formula'
 );
 
+# Debian #810768, test a variable containing quote
+$root->load(
+    q!OtherMaintainer="Bla Bla O'bla <pkg-perl-maintainers@lists.alioth.debian.org>" Source=libconfig-model-perl!
+);
+is(
+    $root->grab_value("Vcs-Browser"),
+    'http://anonscm.debian.org/gitweb/?p=pkg-perl/packages/libconfig-model-perl.git',
+    'test compute with complex regexp formula'
+);
+
 my $cwoaf = $root->fetch_element('compute_with_override_and_fix');
 is($cwoaf->fetch, 'def value', "test compute_with_override_and_fix default value");
 warning_like {$cwoaf->store('oops') ; }[ qr/not default value/],
