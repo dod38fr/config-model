@@ -208,6 +208,8 @@ has [qw/name application root_dir backend backup/] => (
 # debian/patches directory)
 has config_file => (is  => 'ro', isa => 'Maybe[Str]');
 
+has config_dir => (is  => 'ro', isa => 'Maybe[Str]');
+
 has skip_read => ( is => 'ro', isa => 'Bool', default => 0 );
 
 sub BUILD {
@@ -562,7 +564,14 @@ change the "root" directory with C<root_dir> parameter:
 
 =item root_dir
 
-Pseudo root directory where to read I<and> write configuration files
+Pseudo root directory where to read I<and> write configuration
+files. Configuration directory specified in model or with
+C<config_dir> option is appended to this root directory
+
+=item config_dir
+
+Directory to read or write configuration file. This paramter must be
+supplied if not provided by the configuration model.
 
 =item backend
 

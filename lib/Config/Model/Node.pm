@@ -314,7 +314,11 @@ sub init {
     my $initial_load_backup = $self->instance->initial_load;
     $self->instance->initial_load_start;
 
-    $self->{backend_mgr} ||= Config::Model::BackendMgr->new( node => $self );
+    $self->{backend_mgr} ||= Config::Model::BackendMgr->new(
+        # config_dir spec given by application info
+        config_dir      => $self->instance->config_dir,
+        node => $self,
+    );
 
     if ( defined $model->{read_config} and not $self->skip_read ) {
         $self->read_config_data( check => $self->check );

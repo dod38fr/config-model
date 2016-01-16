@@ -37,6 +37,11 @@ has 'backend' => (
     default => sub { {} },
     handles => { set_backend => 'set', get_backend => 'get' } );
 
+# Configuration directory where to read and write files. This value
+# does not override the configuration directory specified in the model
+# data passed to read and write functions.
+has config_dir => ( is => 'ro', isa => 'Maybe[Str]', required => 0 );
+
 has support_annotation => (
     is => 'ro',
     isa => 'Bool',
@@ -51,7 +56,7 @@ sub get_cfg_dir_path {
     my %args = @_;
 
     my $w = $args{write} || 0;
-    my $dir = $args{os_config_dir}{$^O} || $args{config_dir};
+    my $dir = $args{os_config_dir}{$^O} || $args{config_dir} || $self->config_dir;
     if ( $dir =~ /^~/ ) {
         my $home = $__test_home || File::HomeDir->my_home;
         $dir =~ s/^~/$home/;
@@ -100,12 +105,14 @@ sub get_cfg_file_path {
     Config::Model::Exception::Model->throw(
         error  => "backend error: empty 'config_dir' parameter (and no config_file override)",
         object => $self->node
-    ) unless $args{config_dir};
+    ) unless $args{config_dir} or $self->config_dir;
 
     my ( $dir_ok, $dir ) = $self->get_cfg_dir_path(%args);
 
     if ( defined $args{file} ) {
-        my $res = $dir . $args{file};
+        my $file = $args{file};
+        $file =~ s/&index/$self->node->index_value/eg;
+        my $res = $dir . $file;
         $logger->trace("get_cfg_file_path: returns $res");
         return ( $dir_ok, $res );
     }
@@ -352,7 +359,7 @@ sub try_read_backend {
     my $check                = shift;
     my $backend              = shift;
 
-    my $read_dir = $read->{os_config_dir}{$^O} || $read->{config_dir} || '';
+    my $read_dir = $read->{os_config_dir}{$^O} || $read->{config_dir} || $self->config_dir || '';
     $read_dir .= '/' if $read_dir and $read_dir !~ m(/$);
 
     my @read_args = (
@@ -488,7 +495,7 @@ sub auto_write_init {
             $backend .= "_file";
         }
 
-        my $write_dir = $write->{os_config_dir}{$^O} || $write->{config_dir} || '';
+        my $write_dir = $write->{os_config_dir}{$^O} || $write->{config_dir} || $self->config_dir || '';
         $write_dir .= '/' if $write_dir and $write_dir !~ m(/$);
 
         $logger->debug( "auto_write_init creating write cb ($backend) for ", $self->node->name );
@@ -919,7 +926,7 @@ following methods:
 
 =item new
 
-with parameters:
+Mandatory parameters:
 
  node => ref_to_config_model_node
 
