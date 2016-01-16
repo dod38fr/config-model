@@ -457,7 +457,10 @@ sub _value_from_object {
 
     # quote result if asked when calling compute
     my $quote = $need_quote || 0;
-    $my_res = "'$my_res'" if $quote && $my_res;
+    if ($quote && $my_res) {
+        $my_res =~ s/'/\\'/g;
+        $my_res = "'$my_res'";
+    }
 
     return \$my_res;    # So I can return undef ... or a ref to undef
 }
