@@ -1442,6 +1442,20 @@ C<leaf> (default).
 See L<Config::Model::ListId> and L<Config::Model::AnyId> for more
 details.
 
+=head1 Constructor
+
+The C<new> constructor accepts the following parameters:
+
+=over
+
+=item config_file
+
+Specify configuration file to be used by backend. This parameter may
+override a file declared in the model. Note that this parameter is not
+propagated in children nodes.
+
+=back
+
 =head1 Introspection methods
 
 =head2 name
