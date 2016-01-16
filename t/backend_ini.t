@@ -42,7 +42,7 @@ my @with_semi_column_comment = my @with_hash_comment = <DATA>;
 map { s/#/;/; } @with_semi_column_comment;
 
 sub init_test {
-    my ($test_class, $test_data) = @_;
+    my ($test_class, $test_data, $config_dir) = @_;
 
     my $model     = Config::Model->new();
     my @orig      = @$test_data ;
@@ -67,6 +67,7 @@ sub init_test {
         root_class_name => $test_class,
         root_dir        => $wr_dir,
         model_file      => 't/test_ini_backend_model.pl',
+        config_dir      => $config_dir, # optional
     );
 
     ok( $i_test, "Created $test_class instance" );
@@ -100,6 +101,7 @@ sub finish {
         instance_name   => 'test_inst2',
         root_class_name => $test_class,
         root_dir        => $wr_dir2,
+        config_dir      => $i_test->config_dir, # propagate from first test instance
     );
 
     ok( $i2_test, "Created instance" );
@@ -156,7 +158,7 @@ foreach my $test_class ( sort keys %test_setup ) {
 
 {
     #    IniCheck
-    my ($model, $i_test, $wr_dir) = init_test(IniCheck => \@with_hash_comment);
+    my ($model, $i_test, $wr_dir) = init_test(IniCheck => \@with_hash_comment, '/etc/');
 
     my $i_root = $i_test->config_root;
 

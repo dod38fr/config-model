@@ -140,7 +140,6 @@
         read_config => [
             {
                 backend           => 'IniFile',
-                config_dir        => '/etc/',
                 file              => 'test.ini',
                 auto_create       => 1,
             },
