@@ -437,6 +437,11 @@ is( $root2->grab_value('lista:0'), "a\x{263A}", "check that list append work" );
 $root->load("std_id:ab X-Y-Z=Av");
 is( $root->grab_value('std_id:ab X-Y-Z'), "Av", "check load grab of X-Y-Z" );
 
+# test deep copy
+$root->load("std_id:.copy(ab,copy)");
+is( $root->grab_value('std_id:copy X-Y-Z'), "Av", "check hash copy" );
+
+
 # test some errors cases
 my %errors = ( 'std_id', qr/Missing assignment/, 'olist', qr/Wrong assignment/, );
 
