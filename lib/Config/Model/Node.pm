@@ -777,10 +777,10 @@ sub accept_element {
     my $has_tld = ! $@ ;
     foreach my $accept_regexp ( @{ $self->{model}{accept_list} } ) {
         next unless  $name =~ /^$accept_regexp$/;
-
-        if ($has_tld) {
+        my $element_list = $self->{original_model}{element_list} ;
+        if ($has_tld and $element_list and @$element_list) {
             my $tld = Text::Levenshtein::Damerau->new($name);
-            my $tld_arg = {list => $self->{original_model}{element_list} };
+            my $tld_arg = {list => $element_list };
             my $dist = $tld->dld_best_distance($tld_arg);
             if ($dist < 3) {
                 my $best = $tld->dld_best_match($tld_arg);
