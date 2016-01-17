@@ -384,6 +384,8 @@ sub _load_check_list {
 
 }
 
+# sub is called with  ( $self, $element, $check, $instance, @function_args )
+# function_args are the arguments passed to the load command
 my %dispatch_action = (
     list_leaf => {
         ':.sort'          => sub { $_[1]->sort; },
@@ -396,6 +398,7 @@ my %dispatch_action = (
     'hash_*' => {
         ':.sort'          => sub { $_[1]->sort; },
         ':@'              => sub { $_[1]->sort; },
+        ':.copy'          => sub { $_[1]->copy( $_[4], $_[5] ); },
     },
     leaf => {
         ':-=' => \&_remove_by_value,
@@ -616,6 +619,8 @@ sub _load_hash {
         return $ret;
     }
 
+    my @f_args = grep { defined } ( ( $f_arg // $id // '' ) =~ /([^,"]+)|"([^"]+)"/g );
+
     if ( defined $action ) {
         my $dispatch =
                $dispatch_action{ 'hash_' . $cargo_type }{$action}
@@ -623,7 +628,8 @@ sub _load_hash {
             || $dispatch_action{$cargo_type}{$action}
             || $dispatch_action{'fallback'}{$action};
         if ($dispatch) {
-            $dispatch->( $self, $element, $check, $inst, $id );
+            # todo missing arguments
+            $dispatch->( $self, $element, $check, $inst, @f_args );
             return 'ok';
         }
     }
@@ -983,6 +989,10 @@ For C<hash> element containing C<leaf> cargo_type. Set the leaf
 identified by key C<yy> to value C<zz>.
 
 Using C<xxx:~/yy/=zz> is also possible.
+
+=item xxx:.copy(yy,zz)
+
+copy item C<yy> in C<zz>
 
 =back
 
