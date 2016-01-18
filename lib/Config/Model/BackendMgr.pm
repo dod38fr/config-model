@@ -420,7 +420,10 @@ sub try_read_backend {
         my $suffix;
         $suffix = $backend_obj->suffix if $backend_obj->can('suffix');
         ( $file_ok, $file_path, $fh ) = $self->open_read_file( @read_args, suffix => $suffix );
-        $logger->info( "Read with $backend " . $c . "::$f on $file_path" );
+        if ($logger->is_info) {
+            my $fp = defined $file_path ? " on $file_path":'' ;
+            $logger->info( "Read with $backend " . $c . "::$f".$fp);
+        }
 
         eval {
             $res = $backend_obj->$f(
