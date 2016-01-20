@@ -1,8 +1,17 @@
 {{$NEXT}}
 
+2.077 2016-01-20
+
+  New features:
+    * Loader: added hash copy command. This new command can be used with
+      something like: "cme modify stuff some_hash:.copy(from,to)"
+    * Instance: added config_dir (used when provided by application info
+      and not by model)
+
   Bug fix:
     * ValueComputer: escape variables containing a quote (Debian #810768)
     * Value: fix check of reference values
+
 
 2.076 2016-01-14
 
