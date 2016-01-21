@@ -145,7 +145,11 @@ sub BUILD {
 override 'needs_check' => sub {
     my $self = shift;
 
-    if (@_) {
+    if ($self->instance->layered) {
+        # don't check value and don't store value in layered mode
+        return 0;
+    }
+    elsif (@_) {
         return super();
     }
     else {
