@@ -833,11 +833,13 @@ sub check_value {
         Config::Model::Exception::Model->throw( object => $self, message => $msg );
     }
 
-    if (    $self->{mandatory}
-        and $check eq 'yes'
-        and ( $mode =~ /backend|user/ )
-        and ( not defined $value or not length($value) ) ) {
-
+    # a value may be mandatory and have a default value with layers
+    if ( $self->{mandatory}
+         and $check eq 'yes'
+         and ( $mode =~ /backend|user/ )
+         and ( not defined $value or not length($value) )
+         and ( not defined $self->{layered} or not length($self->{layered}))
+        ) {
         # check only "empty" mode.
         my $msg = "Undefined mandatory value.";
         $msg .= $self->warp_error
