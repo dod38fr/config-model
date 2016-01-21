@@ -105,11 +105,6 @@ use Exception::Class (
         fields      => [qw/tried_files/]
     },
 
-    'Config::Model::Exception::Xml' => {
-        isa         => 'Config::Model::Exception::User',
-        description => 'error in XML data',
-    },
-
     'Config::Model::Exception::Formula' => {
         isa         => 'Config::Model::Exception::Model',
         description => 'error in computation formula of the ' . 'configuration model',
@@ -119,9 +114,6 @@ use Exception::Class (
         isa         => 'Config::Model::Exception::Fatal',
         description => 'internal error',
     },
-
-    'Config::Model::Exception::XmlTree' =>
-        { description => 'error while parsing XML dump of a tree' },
 
 );
 
@@ -153,19 +145,6 @@ sub full_message {
     $msg .= "has a " . $self->description;
     $msg .= ":\n\t" . $self->message . "\n";
     $msg .= $self->info . "\n" if defined $self->info;
-
-    return $msg;
-}
-
-sub xpath_message {
-    my $self = shift;
-
-    my $location = defined $self->object ? $self->object->xpath : '';
-
-    my $msg = "Configuration item ";
-    $msg .= "'$location' " if $location;
-    $msg .= "has a " . $self->description;
-    $msg .= ":\n\t" . $self->message . "\n";
 
     return $msg;
 }
@@ -402,20 +381,6 @@ sub full_message {
     my $self = shift;
 
     my $msg = "Error: cannot find configuration file " . join ' or ', @{ $self->tried_files };
-
-    return $msg . "\n";
-}
-
-package Config::Model::Exception::Xml;
-
-sub full_message {
-    my $self = shift;
-
-    my $obj = $self->object;
-    my $msg = $self->message;
-
-    $msg .= "\n\t" . join( "\n\t", map ( $_->xpath_message, $self->object->errors ) )
-        if defined $self->object;
 
     return $msg . "\n";
 }
