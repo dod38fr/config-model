@@ -570,7 +570,7 @@ C<config_dir> option is appended to this root directory
 
 =item config_dir
 
-Directory to read or write configuration file. This paramter must be
+Directory to read or write configuration file. This parameter must be
 supplied if not provided by the configuration model.
 
 =item backend
