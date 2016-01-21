@@ -585,6 +585,9 @@ $l_scalar->store(3);
 my $l_enum = $l_root->fetch_element('bare_enum');
 $l_enum->store('B');
 
+my $msl = $l_root->fetch_element('mandatory_string');
+$msl->store('plop');
+
 $layer_inst->layered_stop;
 is( $layer_inst->layered, 0, "instance in normal mode" );
 
@@ -603,6 +606,10 @@ is( $l_enum->fetch,            'C', "enum: read overridden layered value as valu
 is( $l_enum->fetch('layered'), 'B', "enum: read layered value as layered_value" );
 is( $l_enum->fetch_standard,   'B', "enum: read layered value as standard_value" );
 is( $l_enum->fetch_custom,     'C', "enum: read custom_value" );
+
+is($msl->fetch('layered'), 'plop',"check mandatory value in layer");
+is($msl->fetch, undef,"check mandatory value backend mode");
+is($msl->fetch('user'), 'plop',"check mandatory value user mode with layer");
 
 ### test match regexp
 my $match = $root->fetch_element('match');
@@ -755,6 +762,7 @@ my $s = $inst2->config_root->fetch_element('string');
 $s->store('foo');
 $s->store('foo');
 
+
 is( $inst2->needs_save, 1, "verify instance needs_save status after redundant data" );
 
 eq_or_diff([$inst2->list_changes],['string: removed redundant initial value'],"check change message for redundant data");
@@ -774,9 +782,7 @@ $inst2->clear_changes;
 $s->parent->fetch_element('boolean_with_write_as')->store('true');
 is( $inst2->needs_save, 0, "verify instance needs_save status after writing 'boolean_with_write_as'" );
 
-
 $inst2->initial_load_stop;
-
 
 
 memory_cycle_ok( $model, "check memory cycles" );
