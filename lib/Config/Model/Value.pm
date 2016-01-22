@@ -1443,15 +1443,17 @@ sub _fetch_std {
             :                             $self->{default};
     };
 
-    my $e;
-    if ( $e = Exception::Class->caught('Config::Model::Exception::User') ) {
+    my $e = $@;;
+    if ( ref($e) and $e->isa('Config::Model::Exception::User') ) {
         if ( $check eq 'yes' ) {
             $e->throw;
         }
         $std_value = undef;
     }
-    elsif ( $e = Exception::Class->caught() ) {
-        $e->rethrow if ref($e);
+    elsif ( ref($e) ) {
+        $e->rethrow ;
+    }
+    elsif ($e) {
         die $e;
     }
 

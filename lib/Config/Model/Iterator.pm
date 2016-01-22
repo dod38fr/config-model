@@ -218,8 +218,8 @@ sub leaf_cb {
     my $result;
     eval { $result = $value_obj->fetch(); };
 
-    my $e;
-    if ( $e = Exception::Class->caught('Config::Model::Exception::User') ) {
+    my $e =  $@;
+    if ( ref $e and $e->isa('Config::Model::Exception::User') ) {
 
         # ignore errors that has just been catched and call user call-back
         $logger->info(
@@ -230,12 +230,13 @@ sub leaf_cb {
         );
         $user_leaf_cb->( $self, $data_r, $node, $element, $index, $value_obj, $e->error );
     }
-    elsif ( $e = Exception::Class->caught() ) {
+    elsif ( ref $e ) {
         $e->rethrow;
-
         # does not return ...
     }
-
+    elsif ($e) {
+        die "Iterator failed on value object: $e";
+    }
 }
 
 sub go_forward {

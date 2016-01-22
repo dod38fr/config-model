@@ -3,137 +3,69 @@ package Config::Model::Exception;
 use warnings;
 use strict;
 use Data::Dumper;
+use Mouse;
+use 5.10.1;
+use Carp;
 
-use Exception::Class (
-    'Config::Model::Exception::Syntax' => {
-        isa         => 'Config::Model::Exception::Any',
-        description => 'config error',
-        fields      => [qw/object parsed_file parsed_line/],
-        description => 'syntax error',
-    },
+@Carp::CARP_NOT=qw/Config::Model::Exception Config::Model::Exception::Any/;
 
-    'Config::Model::Exception::Any' => {
-        description => 'config error',
-        fields      => [qw/object info/],
-    },
+our $trace = 0;
 
-    'Config::Model::Exception::User' => {
-        isa         => 'Config::Model::Exception::Any',
-        description => 'user error',
-    },
 
-    'Config::Model::Exception::LoadData' => {
-        isa         => 'Config::Model::Exception::User',
-        description => 'Load data structure (perl) error',
-        fields      => [qw/wrong_data/],
-    },
+use Carp qw/longmess shortmess croak/;
 
-    'Config::Model::Exception::UnavailableElement' => {
-        isa         => 'Config::Model::Exception::User',
-        description => 'unavailable element',
-        fields      => [qw/object element info function/],
-    },
+use overload
+    '""' => \&full_msg_and_trace,
+    'bool' => \&is_error;
 
-    'Config::Model::Exception::ObsoleteElement' => {
-        isa         => 'Config::Model::Exception::User',
-        description => 'Obsolete element',
-        fields      => [qw/object element info/],
-    },
-
-    'Config::Model::Exception::WrongType' => {
-        isa         => 'Config::Model::Exception::User',
-        description => 'wrong element type',
-        fields      => [qw/object function got_type expected_type info/],
-    },
-
-    'Config::Model::Exception::WrongValue' => {
-        isa         => 'Config::Model::Exception::User',
-        description => 'wrong value',
-    },
-
-    'Config::Model::Exception::Load' => {
-        isa         => 'Config::Model::Exception::User',
-        description => 'Load command error',
-        fields      => [qw/object command/],
-    },
-
-    'Config::Model::Exception::UnknownElement' => {
-        isa         => 'Config::Model::Exception::User',
-        description => 'unknown element',
-        fields      => [qw/object element function where info/],
-    },
-
-    'Config::Model::Exception::AncestorClass' => {
-        isa         => 'Config::Model::Exception::User',
-        description => 'unknown ancestor class',
-    },
-
-    'Config::Model::Exception::UnknownId' => {
-        isa         => 'Config::Model::Exception::User',
-        description => 'unknown identifier',
-        fields      => [qw/object element id function where/],
-    },
-
-    'Config::Model::Exception::WarpError' => {
-        isa         => 'Config::Model::Exception::User',
-        description => 'warp error',
-    },
-
-    'Config::Model::Exception::Fatal' => {
-        isa         => 'Config::Model::Exception::Any',
-        description => 'fatal error',
-    },
-
-    'Config::Model::Exception::Model' => {
-        isa         => 'Config::Model::Exception::Fatal',
-        description => 'configuration model error',
-    },
-
-    'Config::Model::Exception::ModelDeclaration' => {
-        isa         => 'Config::Model::Exception::Fatal',
-        description => 'configuration model declaration error',
-    },
-
-    'Config::Model::Exception::ConfigFile' => {
-        isa         => 'Config::Model::Exception::User',
-        description => 'error in configuration file',
-    },
-
-    'Config::Model::Exception::ConfigFile::Missing' => {
-        isa         => 'Config::Model::Exception::ConfigFile',
-        description => 'missing configuration file',
-        fields      => [qw/tried_files/]
-    },
-
-    'Config::Model::Exception::Formula' => {
-        isa         => 'Config::Model::Exception::Model',
-        description => 'error in computation formula of the ' . 'configuration model',
-    },
-
-    'Config::Model::Exception::Internal' => {
-        isa         => 'Config::Model::Exception::Fatal',
-        description => 'internal error',
-    },
-
+has description => (
+    is => 'ro',
+    isa => 'Str',
+    lazy_build => 1
 );
 
-Config::Model::Exception::Internal->Trace(1);
-
-package Config::Model::Exception::Syntax;
-
-sub full_message {
+sub _build_description {
     my $self = shift;
-
-    my $fn   = $self->parsed_file || '?';
-    my $line = $self->parsed_line || '?';
-    my $msg  = "File $fn line $line ";
-    $msg .= "has a " . $self->description;
-    $msg .= ":\n\t" . $self->message . "\n";
-
-    return $msg;
+    return $self->_desc;
 }
 
-package Config::Model::Exception::Any;
+sub _desc { 'config error' }
+
+has  object => ( is => 'rw', isa => 'Ref') ;
+has  info => (is => 'rw', isa =>'Str', default => '');
+has  message => (is => 'rw', isa =>'Str', default => '');
+has  error => (is => 'rw', isa =>'Str', default => '');
+
+# without this overload, a test like if ($@) invokes '""' overload
+sub is_error { return ref ($_[0])}
+
+
+sub Trace {
+    say "trace setup";
+    $trace = shift;
+}
+
+sub error_or_msg {
+    my $self = shift;
+    return $self->error  || $self->message;
+}
+
+sub throw {
+    my $class = shift;
+    my $self = $class->new(@_);
+    $self->rethrow;
+}
+
+sub rethrow {
+    my $self = shift;
+    die $self;
+}
+
+sub full_msg_and_trace {
+    my $msg = shift->full_message;
+    $msg .= "Exception thrown ".longmess if $trace;
+    return $msg;
+}
 
 sub full_message {
     my $self = shift;
@@ -143,13 +75,55 @@ sub full_message {
     my $msg      = "Configuration item ";
     $msg .= "'$location' "     if $location;
     $msg .= "has a " . $self->description;
-    $msg .= ":\n\t" . $self->message . "\n";
-    $msg .= $self->info . "\n" if defined $self->info;
+    $msg .= ":\n\t" . ($self->error || $self->message) . "\n";
+    $msg .= $self->info . "\n" if $self->info;
+    return $msg;
+}
+
+package Config::Model::Exception::Any;
+use Mouse;
+extends 'Config::Model::Exception';
+
+package Config::Model::Exception::ModelDeclaration;
+use Mouse;
+extends 'Config::Model::Exception::Fatal';
+
+sub _desc {'configuration model declaration error' }
+
+package Config::Model::Exception::User ;
+use Mouse;
+extends 'Config::Model::Exception::Any';
+sub _desc {'user error' }
+
+
+## old classes below
+package Config::Model::Exception::Syntax;
+use Mouse;
+extends 'Config::Model::Exception::Any';
+
+sub _desc { 'syntax error' }
+
+has [qw/parsed_file parsed_line/] => (is => 'rw', isa => 'Str');
+
+sub full_message {
+    my $self = shift;
+
+    my $fn   = $self->parsed_file || '?';
+    my $line = $self->parsed_line || '?';
+    my $msg  = "File $fn line $line ";
+    $msg .= "has a " . $self->description;
+    $msg .= ":\n\t" . $self->error_or_msg . "\n";
 
     return $msg;
 }
 
 package Config::Model::Exception::LoadData;
+use Mouse;
+extends 'Config::Model::Exception::User';
+
+sub _desc { 'Load data structure (perl) error' };
+
+has wrong_data => (is => 'rw', isa => 'Ref');
 
 sub full_message {
     my $self = shift;
@@ -160,13 +134,18 @@ sub full_message {
     $msg .= "'$location' "                             if $location;
     $msg .= "(class " . $obj->config_class_name . ") " if $obj->get_type eq 'node';
     $msg .= "has a " . $self->description;
-    $msg .= ":\n\t" . $self->message . "\n";
+    $msg .= ":\n\t" . $self->error_or_msg . "\n";
     $msg .= Data::Dumper->Dump( [ $self->wrong_data ], ['wrong data'] );
 
     return $msg;
 }
 
 package Config::Model::Exception::Model;
+use Mouse;
+extends 'Config::Model::Exception::Fatal';
+
+sub _desc { 'configuration model error'}
+
 
 sub full_message {
     my $self = shift;
@@ -188,12 +167,18 @@ sub full_message {
             . "', element '$element' (level $level) ";
     }
     $msg .= "has a " . $self->description;
-    $msg .= ":\n\t" . $self->message . "\n";
+    $msg .= ":\n\t" . $self->error_or_msg . "\n";
 
     return $msg;
 }
 
 package Config::Model::Exception::Load;
+use Mouse;
+extends 'Config::Model::Exception::User';
+
+sub _desc { 'Load command error'}
+
+has command => (is => 'rw', isa => 'Str');
 
 sub full_message {
     my $self = shift;
@@ -210,12 +195,19 @@ sub full_message {
     $msg .= " in node '$location' " if $location;
     $msg .= ':';
     $msg .= "\n\tcommand: $cmd_str";
-    $msg .= "\n\t" . $self->message . "\n";
+    $msg .= "\n\t" . $self->error_or_msg . "\n";
 
     return $msg;
 }
 
 package Config::Model::Exception::UnavailableElement;
+use Mouse;
+extends 'Config::Model::Exception::User';
+
+sub _desc { 'unavailable element'}
+
+has [qw/element function/] => (is => 'rw', isa => 'Str');
+
 
 sub full_message {
     my $self = shift;
@@ -238,7 +230,20 @@ sub full_message {
     return $msg;
 }
 
+package Config::Model::Exception::AncestorClass;
+use Mouse;
+extends 'Config::Model::Exception::User';
+
+sub _desc { 'unknown ancestor class'}
+
+
 package Config::Model::Exception::ObsoleteElement;
+use Mouse;
+extends 'Config::Model::Exception::User';
+
+sub _desc { 'Obsolete element' }
+
+has element => (is => 'rw', isa => 'Str');
 
 sub full_message {
     my $self = shift;
@@ -260,14 +265,21 @@ package Config::Model::Exception::UnknownElement;
 
 use Carp;
 
+use Mouse;
+extends 'Config::Model::Exception::User';
+
+sub _desc { 'unknown element' }
+
+has [qw/element function where/] => (is => 'rw');
+
 sub full_message {
     my $self = shift;
 
     my $obj = $self->object;
 
     confess "Exception::UnknownElement: object is ", ref($obj), ". Expected a node"
-        unless $obj->isa('Config::Model::Node')
-        || $obj->isa('Config::Model::WarpedNode');
+        unless ref($obj) && ($obj->isa('Config::Model::Node')
+        || $obj->isa('Config::Model::WarpedNode'));
 
     my $class_name = $obj->config_class_name;
 
@@ -324,7 +336,26 @@ sub full_message {
     return $msg;
 }
 
+package Config::Model::Exception::WarpError;
+use Mouse;
+extends 'Config::Model::Exception::User';
+
+sub _desc { 'warp error'}
+
+package Config::Model::Exception::Fatal;
+use Mouse;
+extends 'Config::Model::Exception::Any';
+
+sub _desc { 'fatal error' }
+
+
 package Config::Model::Exception::UnknownId;
+use Mouse;
+extends 'Config::Model::Exception::User';
+
+sub _desc { 'unknown identifier'}
+
+has [qw/element id function where/] => (is => 'rw', isa => 'Str');
 
 sub full_message {
     my $self = shift;
@@ -351,7 +382,20 @@ sub full_message {
     return $msg;
 }
 
+package Config::Model::Exception::WrongValue;
+use Mouse;
+extends 'Config::Model::Exception::User';
+
+sub _desc { 'wrong value'};
+
+
 package Config::Model::Exception::WrongType;
+use Mouse;
+extends 'Config::Model::Exception::User';
+
+sub _desc { 'wrong element type' };
+
+has [qw/function got_type expected_type/] => (is => 'rw', isa => 'Str');
 
 sub full_message {
     my $self = shift;
@@ -375,15 +419,39 @@ sub full_message {
     return $msg;
 }
 
+package Config::Model::Exception::ConfigFile;
+use Mouse;
+extends 'Config::Model::Exception::User';
+
+sub _desc { 'error in configuration file' }
+
 package Config::Model::Exception::ConfigFile::Missing;
+use Mouse;
+extends 'Config::Model::Exception::ConfigFile';
+
+sub _desc { 'missing configuration file'}
+
+has tried_files => (is => 'rw', isa => 'ArrayRef');
 
 sub full_message {
     my $self = shift;
 
-    my $msg = "Error: cannot find configuration file " . join ' or ', @{ $self->tried_files };
+    my $msg = "Error: cannot find configuration file " . join (' or ', @{ $self->tried_files });
 
     return $msg . "\n";
 }
+
+package Config::Model::Exception::Formula;
+use Mouse;
+extends 'Config::Model::Exception::Model';
+
+sub _desc { 'error in computation formula of the configuration model'}
+
+package Config::Model::Exception::Internal;
+use Mouse;
+extends 'Config::Model::Exception::Fatal';
+
+sub _desc { 'internal error' }
 
 1;
 

@@ -442,15 +442,17 @@ sub try_read_backend {
     }
 
     # catch eval errors done in the if-then-else block before
-    my $e;
-    if ( $e = Exception::Class->caught('Config::Model::Exception::Syntax') ) {
+    my $e = $@;
+    if ( ref($e) and $e->isa('Config::Model::Exception::Syntax') ) {
 
-        # FIXME: this is naughty. Should file a bug to add info in rethrow
-        $e->{parsed_file} = $file_path unless $e->parsed_file;
+        $e->parsed_file( $file_path) unless $e->parsed_file;
         $e->rethrow;
     }
-    elsif ( $e = Exception::Class->caught() ) {
-        ref $e ? $e->rethrow : die $e;
+    elsif ( ref $e ) {
+        $e->rethrow ;
+    }
+    elsif ( $e ) {
+        die "Backend error: $e";
     }
 
     return ( $res, $file_path );

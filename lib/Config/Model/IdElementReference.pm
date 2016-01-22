@@ -77,14 +77,12 @@ sub get_choice_from_refered_to {
 
         my $refered_to = eval { $config_elt->grab("@path"); };
 
-        if ($@) {
+        if (ref $@) {
             my $e = $@;
-
             # don't use $e->full_description as it will recurse badly
-            my $msg = $e ? $e->description : '';
             Config::Model::Exception::Model->throw(
                 object => $config_elt,
-                error  => "'refer_to' parameter with path '@path': " . $msg
+                error  => "'refer_to' parameter with path '@path': " .$e->description
             );
         }
 
