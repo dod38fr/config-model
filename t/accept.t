@@ -62,6 +62,11 @@ $model->create_config_class(
             type       => 'leaf',
             value_type => 'uniline',
         },
+        'strhidden' => {
+            type       => 'leaf',
+            value_type => 'uniline',
+            level => 'hidden',
+        },
     ] );
 
 ok( 1, "Created new class with accept parameter" );
@@ -72,6 +77,18 @@ my $i_hosts = $model->instance(
     instance_name   => 'hosts_inst',
     root_class_name => 'Host',
 );
+
+is($model->get_element_property(qw/class Host element otary property value_type/),'uniline',
+   "get_element_property on accepted element" );
+
+is($model->get_element_property(qw/class Host element other property value_type/),'uniline',
+   "get_element_property on a predefined element matching an accepted one" );
+
+# Test fix where XS-Autobuild did show up with cme edit dpkg-control
+is($model->get_element_property(qw/class Host element strhidden property level/),'hidden',
+   "get_element_property on hidden accepted element" );
+is($model->get_element_property(qw/class Host element strok property level/),'normal',
+   "get_element_property on a predefined hidden element matching an accepted one" );
 
 ok( $i_hosts, "Created instance" );
 
