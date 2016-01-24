@@ -630,7 +630,7 @@ sub fetch_element {
     my $check         = $self->_check_check( $args{check} );
     my $accept_hidden = $args{accept_hidden} || 0;
 
-    $self->init($check);
+    $self->init();
 
     my $model = $self->{model};
 
