@@ -81,16 +81,19 @@ sub full_message {
 }
 
 package Config::Model::Exception::Any;
+
 use Mouse;
 extends 'Config::Model::Exception';
 
 package Config::Model::Exception::ModelDeclaration;
+
 use Mouse;
 extends 'Config::Model::Exception::Fatal';
 
 sub _desc {'configuration model declaration error' }
 
 package Config::Model::Exception::User ;
+
 use Mouse;
 extends 'Config::Model::Exception::Any';
 sub _desc {'user error' }
@@ -98,6 +101,7 @@ sub _desc {'user error' }
 
 ## old classes below
 package Config::Model::Exception::Syntax;
+
 use Mouse;
 extends 'Config::Model::Exception::Any';
 
@@ -118,6 +122,7 @@ sub full_message {
 }
 
 package Config::Model::Exception::LoadData;
+
 use Mouse;
 extends 'Config::Model::Exception::User';
 
@@ -141,6 +146,7 @@ sub full_message {
 }
 
 package Config::Model::Exception::Model;
+
 use Mouse;
 extends 'Config::Model::Exception::Fatal';
 
@@ -173,6 +179,7 @@ sub full_message {
 }
 
 package Config::Model::Exception::Load;
+
 use Mouse;
 extends 'Config::Model::Exception::User';
 
@@ -201,6 +208,7 @@ sub full_message {
 }
 
 package Config::Model::Exception::UnavailableElement;
+
 use Mouse;
 extends 'Config::Model::Exception::User';
 
@@ -231,6 +239,7 @@ sub full_message {
 }
 
 package Config::Model::Exception::AncestorClass;
+
 use Mouse;
 extends 'Config::Model::Exception::User';
 
@@ -238,6 +247,7 @@ sub _desc { 'unknown ancestor class'}
 
 
 package Config::Model::Exception::ObsoleteElement;
+
 use Mouse;
 extends 'Config::Model::Exception::User';
 
@@ -337,12 +347,14 @@ sub full_message {
 }
 
 package Config::Model::Exception::WarpError;
+
 use Mouse;
 extends 'Config::Model::Exception::User';
 
 sub _desc { 'warp error'}
 
 package Config::Model::Exception::Fatal;
+
 use Mouse;
 extends 'Config::Model::Exception::Any';
 
@@ -350,6 +362,7 @@ sub _desc { 'fatal error' }
 
 
 package Config::Model::Exception::UnknownId;
+
 use Mouse;
 extends 'Config::Model::Exception::User';
 
@@ -383,6 +396,7 @@ sub full_message {
 }
 
 package Config::Model::Exception::WrongValue;
+
 use Mouse;
 extends 'Config::Model::Exception::User';
 
@@ -390,6 +404,7 @@ sub _desc { 'wrong value'};
 
 
 package Config::Model::Exception::WrongType;
+
 use Mouse;
 extends 'Config::Model::Exception::User';
 
@@ -420,12 +435,14 @@ sub full_message {
 }
 
 package Config::Model::Exception::ConfigFile;
+
 use Mouse;
 extends 'Config::Model::Exception::User';
 
 sub _desc { 'error in configuration file' }
 
 package Config::Model::Exception::ConfigFile::Missing;
+
 use Mouse;
 extends 'Config::Model::Exception::ConfigFile';
 
@@ -442,12 +459,14 @@ sub full_message {
 }
 
 package Config::Model::Exception::Formula;
+
 use Mouse;
 extends 'Config::Model::Exception::Model';
 
 sub _desc { 'error in computation formula of the configuration model'}
 
 package Config::Model::Exception::Internal;
+
 use Mouse;
 extends 'Config::Model::Exception::Fatal';
 
