@@ -473,17 +473,15 @@ __END__
 
 =head1 DESCRIPTION
 
-You must read L<Exception::Class> before reading on.
+This module creates exception classes used by L<Config::Model>.
 
-This module creates all the exception class used by L<Config::Model>.
-
-All exception class name begins with C<Config::Model::Exception::>
+All exception class name begins with C<Config::Model::Exception>
 
 The exception classes are:
 
 =over
 
-=item C<Any>
+=item C<Config::Model::Exception>
 
 Base class. It accepts an C<object> argument. The user must pass the
 reference of the object where the exception occurred. The object name
@@ -496,17 +494,10 @@ will be used to generate the error message.
 =head1 How to get trace
 
 By default, most of the exceptions will not print out the stack
-trace. For debug purpose, you can force a stack trace.
+trace. For debug purpose, you can force a stack trace for all
+exception classes:
 
-For instance, if you want a stack trace for an "unknown element"
-error, you must add this line in your script:
-
-  Config::Model::Exception::UnknownElement->Trace(1) ;
-
-If you're not sure which class to trace, add this line in your
-script:
-
-  Config::Model::Exception::Any->Trace(1) ;
+  Config::Model::Exception->Trace(1) ;
 
 =head1 AUTHOR
 
@@ -518,6 +509,5 @@ L<Config::Model>,
 L<Config::Model::Instance>, 
 L<Config::Model::Node>,
 L<Config::Model::Value>
-L<Exception::Class>
 
 =cut
