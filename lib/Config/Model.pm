@@ -20,6 +20,7 @@ use File::Path qw/make_path/;
 use vars qw(@status @level %default_property);
 
 my $legacy_logger = get_logger("Model::Legacy") ;
+my $logger = get_logger("Model") ;
 
 %default_property = (
     status      => 'standard',
@@ -1528,8 +1529,8 @@ sub get_element_property {
     my $model = $self->model($class);
 
     # must take into account 'accept' model parameter
-    if ( not defined $model->{element}{$prop} ) {
-
+    if ( not defined $model->{element}{$elt} ) {
+        $logger->debug("test accept for class $class elt $elt prop $prop");
         foreach my $acc_re ( @{ $model->{accept_list} } ) {
             return $model->{accept}{$acc_re}{$prop} || $default_property{$prop}
                 if $elt =~ /^$acc_re$/;
