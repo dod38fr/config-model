@@ -775,9 +775,11 @@ sub accept_element {
 
     eval {require Text::Levenshtein::Damerau} ;
     my $has_tld = ! $@ ;
+
     foreach my $accept_regexp ( @{ $self->{model}{accept_list} } ) {
         next unless  $name =~ /^$accept_regexp$/;
         my $element_list = $self->{original_model}{element_list} ;
+
         if ($has_tld and $element_list and @$element_list) {
             my $tld = Text::Levenshtein::Damerau->new($name);
             my $tld_arg = {list => $element_list };
@@ -788,10 +790,10 @@ sub accept_element {
             }
 
         }
+
         my $acc = $self->{model}{accept}{$accept_regexp};
         return $self->reset_accepted_element_model( $name, $acc );
     }
-
     return;
 }
 
