@@ -116,6 +116,8 @@ sub BUILD {
     # get_model returns a cloned data structure
     $self->model( $self->config_model->get_model($class_name) );
 
+    $self->{original_model} = dclone($self->model);
+
     $self->check_properties;
 
     return $self;
@@ -305,7 +307,6 @@ sub init {
     $self->{initialized} = 1;    # avoid recursions
 
     my $model = $self->{model};
-    $self->{original_model} = dclone($model);
 
     return
         unless defined $model->{read_config}
