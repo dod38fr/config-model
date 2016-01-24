@@ -1,5 +1,21 @@
 {{$NEXT}}
 
+2.078 2016-01-24
+
+ A cleanup (and breaking) release: Error handling no longer uses
+ Exception::Class. Config::Model::Exception was re-written to emulate
+ most of Exception::Class behavior. This will break modules which
+ traps or throw exceptions using Exception::Class (at least
+ Config::Model::CursesUI will break).
+
+ * Config::Model: fix get_element_property (fix a bug with cme dpkg where
+   XS-Autobuild is wrongly added to debian/control file)
+ * Config::Model::Value:
+   * don't check value when loading layered config (aka system
+     default values). These values are assumed to be correct.
+   * accept when a mandatory value is set by a layered value.
+     (this fixes hangs in Config::Model::Itself tests)
+
 2.077 2016-01-20
 
   New features:
