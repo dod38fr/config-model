@@ -1628,7 +1628,8 @@ sub fetch {
     }
     elsif ( $check eq 'skip' ) {
         my $msg = $self->error_msg;
-        warn "Warning: skipping value $value because of the following errors:\n$msg\n\n"
+        my $str = $value // '<undef>';
+        warn "Warning: fetch [".$self->name,"] skipping value $str because of the following errors:\n$msg\n\n"
             if not $silent and $msg;
         return undef;
     }
@@ -2440,7 +2441,8 @@ Perform check and raise an exception for bad values
 
 =item skip
 
-Perform check and return undef for bad values
+Perform check and return undef for bad values. A warning is issued when a bad value is skipped.
+Set C<check> to C<no> to avoid warnings.
 
 =item no
 
