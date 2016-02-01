@@ -6,6 +6,7 @@ use ExtUtils::testlib;
 use Test::More;
 use Test::Differences;
 use Test::Memory::Cycle;
+use Test::Exception;
 use Config::Model;
 use Config::Model::ValueComputer;
 use Log::Log4perl qw(:easy);
@@ -371,10 +372,9 @@ eq_or_diff(
     [qw'X Y Z recursive_slave Comp warped_by_location'],
     "Elements of Slave from the object"
 );
-my $result;
-eval { $result = $slave->fetch_element('W')->fetch; };
-ok( $@, "reading slave->W (undef value_type error)" );
-print "normal error: $@" if $trace;
+
+throws_ok { $slave->fetch_element('W')->fetch; }
+    qr/unavailable/, "reading slave->W (undef value_type error)";
 
 is( $slave->fetch_element('X')->fetch, undef, "reading slave->X (undef)" );
 
@@ -552,23 +552,18 @@ eq_or_diff(
 
 Config::Model::Exception::Any->Trace(1);
 
-eval { $root->fetch_element('var_path')->fetch; };
-like(
-    $@,
+throws_ok { $root->fetch_element('var_path')->fetch; }
     qr/'! where_is_element' is undef/,
-    'reading var_path while where_is_element variable is undef'
-);
+    'reading var_path while where_is_element variable is undef';
 
 # set one variable of the formula
 $root->fetch_element('where_is_element')->store('get_element');
 
-eval { $root->fetch_element('var_path')->fetch; };
-like(
-    $@,
+throws_ok { $root->fetch_element('var_path')->fetch; }
     qr/'! where_is_element' is 'get_element'/,
-    'reading var_path while where_is_element is defined'
-);
-like( $@, qr/Undefined mandatory value/, 'reading var_path while get_element variable is undef' );
+    'reading var_path while where_is_element is defined' ;
+throws_ok { $root->fetch_element('var_path')->fetch; }
+    qr/Undefined mandatory value/, 'reading var_path while get_element variable is undef';
 
 # set the other variable of the formula
 $root->fetch_element('get_element')->store('m_value_element');
@@ -590,8 +585,8 @@ is(
 
 $root->fetch_element('ClientAliveCheck')->store(0);
 
-eval { $root->fetch_element('ClientAliveInterval')->fetch; };
-like( $@, qr/unavailable element/, 'reading ClientAliveInterval when ClientAliveCheck is 0' );
+throws_ok { $root->fetch_element('ClientAliveInterval')->fetch; }
+    qr/unavailable element/, 'reading ClientAliveInterval when ClientAliveCheck is 0';
 
 $root->fetch_element('ClientAliveCheck')->store(1);
 $root->fetch_element('ClientAliveInterval')->store(10);
