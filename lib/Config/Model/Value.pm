@@ -1023,7 +1023,12 @@ sub apply_fix {
     }
 
     no warnings "uninitialized";
-    $self->_store_fix( $$value_r, $_ ) if ( $_ ne $$value_r );
+    if ( $_ ne $$value_r ) {
+        $self->_store_fix( $$value_r, $_ );
+    }
+    else {
+        $fix_logger->info( $self->location . ": fix did not change value '$$value_r'" );
+    }
 }
 
 sub _store_fix {
