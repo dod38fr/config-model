@@ -41,7 +41,6 @@ sub is_error { return ref ($_[0])}
 
 
 sub Trace {
-    say "trace setup";
     $trace = shift;
 }
 
