@@ -165,6 +165,10 @@
                 type       => 'leaf',
                 value_type => 'string'
             },
+            a_string_to_test_newline => {
+                type       => 'leaf',
+                value_type => 'string'
+            },
             another_string => {
                 type       => 'leaf',
                 mandatory  => 1,

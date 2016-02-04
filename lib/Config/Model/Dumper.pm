@@ -96,7 +96,10 @@ sub dump_tree {
         # add annotation for obj contained in hash or list
         my $note = note_quote( $value_obj->annotation );
         $$data_r .= "\n" . $pad . $name if defined $value or $note;
-        $$data_r .= '=' . $value        if defined $value;
+        if (defined $value) {
+            $value =~ s/\\n/\\\\n/g;
+            $$data_r .= '=' . $value;
+        }
         $$data_r .= '#' . $note         if $note;
     };
 

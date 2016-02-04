@@ -46,6 +46,7 @@ $inst->preset_stop;
 $step =
       'std_id:ab X=Bv - std_id:bc X=Av - std_id:"b d " X=Av '
     . '- a_string="toto \"titi\" tata" another_string="foobar" a_string2=dod@foo.com '
+    . 'a_string_to_test_newline="foo\nbar\\\\nbaz" '
     . 'lista:=a,b,c,d olist:0 X=Av - olist:1 X=Bv - listb:=b,"c c2",d listc:="dod@foo.com" '
     . '! hash_a:X2=x hash_a:Y2=xy  hash_b:X3=xy my_check_list=X2,X3';
 ok( $root->load( step => $step ), "set up data in tree" );
@@ -81,6 +82,8 @@ olist:1
   X=Bv -
 a_string="toto \"titi\" tata"
 a_string2=dod@foo.com
+a_string_to_test_newline="foo
+bar\\nbaz"
 another_string=foobar
 my_check_list=X2,X3 -
 EOF
@@ -121,6 +124,8 @@ string_with_def="yada yada"
 a_uniline="yada yada"
 a_string="toto \"titi\" tata"
 a_string2=dod@foo.com
+a_string_to_test_newline="foo
+bar\\nbaz"
 another_string=foobar
 int_v=10
 my_check_list=X2,X3 -
@@ -160,6 +165,8 @@ string_with_def="yada yada"
 a_uniline="yada yada"
 a_string="toto \"titi\" tata"
 a_string2=dod@foo.com
+a_string_to_test_newline="foo
+bar\\nbaz"
 another_string=foobar
 int_v=10
 my_check_list=X2,X3 -
@@ -202,6 +209,8 @@ string_with_def="yada yada"
 a_uniline="yada yada"
 a_string=""
 a_string2=dod@foo.com
+a_string_to_test_newline="foo
+bar\\nbaz"
 another_string=foobar
 int_v=10
 my_check_list=X2,X3 -
