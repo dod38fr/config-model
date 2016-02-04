@@ -1007,9 +1007,7 @@ with a quoted string. (For C<leaf> element) Literal C<\n> will be replaced by
 real C<\n> (LF in Unix).
 
 
-For instance C<foo="a quoted string">. Note that you cannot embed
-double quote in this string. I.e C<foo="a \"quoted\" string"> will
-fail.
+For instance C<foo="a quoted string"> or C<foo="\"bar\" and \"baz\"">.
 
 =item xxx=~s/foo/bar/
 
