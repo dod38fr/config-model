@@ -339,7 +339,8 @@ sub _walk_node {
 sub unquote {
     map {
         if (defined $_) {
-            s/\\n/\n/g;
+            s/(?<!\\)\\n/\n/g;
+            s/\\\\/\\/g;
             s/^"// && s/"$// && s!\\"!"!g;
         }
     } @_;
@@ -1004,8 +1005,7 @@ copy item C<yy> in C<zz>
 
 Set element C<xxx> to value C<yy>. load also accepts to set elements
 with a quoted string. (For C<leaf> element) Literal C<\n> will be replaced by
-real C<\n> (LF in Unix).
-
+real C<\n> (LF in Unix). Literal C<\\> will be replaced by C<\>.
 
 For instance C<foo="a quoted string"> or C<foo="\"bar\" and \"baz\"">.
 
