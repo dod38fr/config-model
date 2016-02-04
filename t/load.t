@@ -122,6 +122,11 @@ my $step = qq!#"root cooment " std_id:ab X=Bv -\na_string="titi and\nfoo" !;
 ok( $root->load( step => $step ), "load steps with embedded \\n" );
 is( $root->fetch_element('a_string')->fetch, "titi and\nfoo", "check a_string" );
 
+# check with embedded \n and \\n
+$step = q!a_string="titi and\nfoo and \\\\n literal" !;
+ok( $root->load( step => $step ), 'load steps with embedded \n and \\n' );
+is( $root->fetch_element('a_string')->fetch, "titi and\nfoo and \\n literal", "check a_string" );
+
 # check search up for element
 $step = qq!std_id:ab X=Bv /a_string="titi and\ntoto" !;
 ok( $root->load( step => $step ), "load steps with /a_string" );
