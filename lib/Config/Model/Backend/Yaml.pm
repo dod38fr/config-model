@@ -15,6 +15,17 @@ my $logger = get_logger("Backend::Yaml");
 
 sub suffix { return '.yml'; }
 
+sub single_element {
+    my $self = shift;
+
+    my @elts = $self->node->children;
+    return undef if @elts != 1;
+
+    my $obj = $self->node->fetch_element($elts[0]);
+    my $type = $obj->get_type;
+    return $type =~ /^(list|hash)$/ ? $obj : undef ;
+}
+
 sub read {
     my $self = shift;
     my %args = @_;
@@ -40,8 +51,10 @@ sub read {
         return 1;
     }
 
+    my $target = $self->single_element // $self->node ;
+
     # load perl data in tree
-    $self->{node}->load_data( data => $perl_data, check => $args{check} || 'yes' );
+    $target->load_data( data => $perl_data, check => $args{check} || 'yes' );
     return 1;
 }
 
@@ -61,7 +74,11 @@ sub write {
     croak "Undefined file handle to write"
         unless defined $args{io_handle};
 
-    my $perl_data = $self->{node}->dump_as_data( full_dump => $args{full_dump} );
+    my $single = $self->single_element ;
+    my $target = $single // $self->node ;
+
+    my $perl_data = $target->dump_as_data( full_dump => $args{full_dump} );
+
     my $yaml = Dump $perl_data ;
 
     $args{io_handle}->print($yaml);
@@ -139,6 +156,39 @@ Note that undefined values are skipped for list element. I.e. if a
 list element contains C<('a',undef,'b')>, the data structure will
 contain C<'a','b'>.
 
+=head2 Class with only one hash element
+
+If the root node contains a single hash or list element, only the
+content of this hash will be written in YAML file.
+
+For example, if a class contains:
+
+      element => [
+        baz => {
+            type => 'hash',
+            index_type => 'string' ,
+            cargo => {
+                type => 'leaf',
+                value_type => 'string',
+            },
+        },
+
+If the congiguration is loaded with:
+
+ $root->load("baz:one=un baz:two=deux")
+
+Then the written YAML file will B<not> show C<baz>:
+
+ ---
+ one: un
+ two: deux
+
+Likewise, a YAML file for a class with a single list C<baz> element
+would be written with:
+
+ ---
+ - un
+ - deux
 
 =head1 CONSTRUCTOR
 
