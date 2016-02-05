@@ -1,5 +1,15 @@
 # test model used by t/*.t
 
+my @backend_config = (
+    read_config => [{
+        backend     => 'yaml',
+        config_dir  => '/yaml/',
+        file        => 'hosts.yml',
+        auto_create => 1,
+        full_dump => 0,
+    }],
+);
+
 [
     {
         name => 'Host',
@@ -15,16 +25,7 @@
     {
         name => 'Hosts',
 
-        read_config => [
-            {
-                backend     => 'yaml',
-                config_dir  => '/yaml/',
-                file        => 'hosts.yml',
-                auto_create => 1,
-                full_dump => 0,
-            },
-        ],
-
+        @backend_config,
         element => [
             record => {
                 type  => 'list',
@@ -33,6 +34,33 @@
                     config_class_name => 'Host',
                 },
             },
+        ]
+    },
+    {
+        name => 'SingleHashElement',
+
+        @backend_config,
+
+        element => [
+            record => {
+                type  => 'hash',
+                index_type => 'string',
+                cargo => {
+                    type              => 'node',
+                    config_class_name => 'Host',
+                },
+            },
+        ]
+    },
+    {
+        name => 'TwoElements',
+        include => 'SingleHashElement',
+        @backend_config,
+        element => [
+            foo => {
+                type => 'leaf',
+                value_type => 'uniline',
+            }
         ]
     }
 ];
