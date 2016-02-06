@@ -117,7 +117,10 @@ $yaml = $yaml_file->slurp || die "can't open $yaml_file:$!";
 
 unlike( $yaml, qr/record/, "check single_hash yaml content" );
 
-$yaml_file->remove;
+# test that yaml file is removed when no data is left
+$i_single_hash->config_root->fetch_element("record")->clear;
+$i_single_hash->write_back;
+ok( ! $yaml_file->exists, "check that config file $yaml_file was removed by clearing content" );
 
 # idem for more complex class defined in model
 my $i_2_elements = $model->instance(
@@ -138,6 +141,10 @@ $yaml = $yaml_file->slurp || die "can't open $yaml_file:$!";
 
 like( $yaml, qr/record/, "check 2 elements yaml content" );
 
+$i_2_elements->config_root->fetch_element("record")->clear;
+$i_2_elements->write_back;
+
+ok( ! $yaml_file->exists, "check that config file $yaml_file was removed by clearing content" );
 
 memory_cycle_ok( $model, "check model mem cycles" );
 
