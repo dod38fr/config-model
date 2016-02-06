@@ -74,10 +74,14 @@ sub write {
     croak "Undefined file handle to write"
         unless defined $args{io_handle};
 
-    my $single = $self->single_element ;
-    my $target = $single // $self->node ;
+    my $target = $self->single_element // $self->node ;
 
-    my $perl_data = $target->dump_as_data( full_dump => $args{full_dump} );
+    my $perl_data = $target->dump_as_data( full_dump => $args{full_dump} // 0);
+
+    my $size = ref($perl_data) eq 'HASH'  ? scalar keys %$perl_data
+             : ref($perl_data) eq 'ARRAY' ? scalar @$perl_data
+             :                              $perl_data ;
+    return 2 unless $size ;
 
     my $yaml = Dump $perl_data ;
 
@@ -152,9 +156,22 @@ This module is used directly by L<Config::Model> to read or write the
 content of a configuration tree written with YAML syntax in
 C<Config::Model> configuration tree.
 
-Note that undefined values are skipped for list element. I.e. if a
+Note:
+
+=over 4
+
+=item *
+
+Undefined values are skipped for list element. I.e. if a
 list element contains C<('a',undef,'b')>, the data structure will
 contain C<'a','b'>.
+
+=item *
+
+YAML file is not created (and may be deleted) when no data is to be
+written.
+
+=back
 
 =head2 Class with only one hash element
 
@@ -173,7 +190,7 @@ For example, if a class contains:
             },
         },
 
-If the congiguration is loaded with:
+If the configuration is loaded with:
 
  $root->load("baz:one=un baz:two=deux")
 

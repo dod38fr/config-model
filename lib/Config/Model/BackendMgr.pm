@@ -607,6 +607,11 @@ sub auto_write_init {
                 };
                 $logger->warn( "write backend $backend $c" . '::' . "$f failed: $@" ) if $@;
                 $self->close_file_to_write( $@, $fh, $file_path );
+
+                if (defined $res and $res == 2) {
+                    unlink($file_path);
+                    return 1;
+                }
                 return defined $res ? $res : $@ ? 0 : 1;
             };
         }
@@ -1184,6 +1189,8 @@ Write callback function will be called with these parameters:
 The L<IO::File> object is undef if the file cannot be written to.
 
 The callback must return 0 on failure and 1 on successful write.
+
+Configuration file will be deleted if callback returns 2.
 
 =head1 CAVEATS
 
