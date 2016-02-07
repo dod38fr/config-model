@@ -11,7 +11,7 @@ use Log::Log4perl qw(get_logger :levels);
 use 5.10.1;
 
 my $logger        = get_logger("Anything");
-my $change_logger = get_logger("Anything::Change");
+my $change_logger = get_logger("ChangeTracker");
 
 has element_name => ( is => 'ro', isa => 'Str' );
 has parent       => ( is => 'ro', isa => 'Config::Model::Node', weak_ref => 1 );

@@ -33,6 +33,7 @@ my %legal_properties = (
 
 my $logger     = get_logger("Tree::Node");
 my $fix_logger = get_logger("Anything::Fix");
+my $change_logger = get_logger("ChangeTracker");
 
 # Here are the legal element types
 my %create_sub_for = (
@@ -365,6 +366,10 @@ sub read_config_data {
 sub notify_change {
     my $self = shift;
     my %args = @_;
+
+    $change_logger->debug( "called for ", $self->name, " from ", join( ' ', caller ),
+        " with ", join( ' ', %args ) )
+        if $change_logger->is_debug;
 
     return if $self->instance->initial_load and not $args{really};
 

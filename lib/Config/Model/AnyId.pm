@@ -15,6 +15,7 @@ use Mouse::Util::TypeConstraints;
 extends qw/Config::Model::AnyThing/;
 
 my $logger = get_logger("Tree::Element::Id");
+my $change_logger = get_logger("ChangeTracker");
 
 enum 'DataMode' => [qw/preset layered normal/];
 
@@ -352,6 +353,10 @@ my %mode_move = (
 sub notify_change {
     my $self = shift;
     my %args = @_;
+
+    $change_logger->debug( "called for ", $self->name, " from ", join( ' ', caller ),
+        " with ", join( ' ', %args ) )
+        if $change_logger->is_debug;
 
     # $idx may be undef if $self has changed, not necessarily its content
     my $idx = $args{index};
