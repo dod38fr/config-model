@@ -378,11 +378,11 @@ sub notify_change {
 
     if ( defined $self->backend_mgr ) {
         $self->needs_save(1);    # will trigger a save in config_file
-        $self->SUPER::notify_change( @_, needs_save => 0 );
+        $self->SUPER::notify_change( %args, needs_save => 0 );
     }
     else {
         # save config_file will be done by a node above
-        $self->SUPER::notify_change( @_, needs_save => 1 );
+        $self->SUPER::notify_change( %args, needs_save => 1 );
     }
 }
 

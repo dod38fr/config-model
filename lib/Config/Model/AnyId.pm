@@ -371,7 +371,7 @@ sub notify_change {
     return if $self->instance->initial_load and not $args{really};
 
     $self->needs_check(1);
-    $self->SUPER::notify_change(@_);
+    $self->SUPER::notify_change(%args);
 }
 
 sub check {
