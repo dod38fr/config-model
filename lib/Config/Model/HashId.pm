@@ -457,9 +457,10 @@ sub load_data {
             $obj->load_data( %args, data => $data->{$elt} );
         }
     }
-    elsif ( $self->{ordered} and ref($data) eq 'ARRAY' ) {
+    elsif ( ref($data) eq 'ARRAY' ) {
         $logger->info(
             "HashId load_data (" . $self->location . ") will load idx 0..$#$data from array ref" );
+        $self->notify_change( note => "Converted ordered data to non ordered", really => 1) unless $self->ordered;
         my $idx = 0;
         while ( $idx < @$data ) {
             my $elt = $data->[ $idx++ ];
