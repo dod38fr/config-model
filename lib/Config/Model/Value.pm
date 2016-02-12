@@ -2761,7 +2761,7 @@ Dominique Dumont, (ddumont at cpan dot org)
 =head1 SEE ALSO
 
 L<Config::Model>, L<Config::Model::Node>,
-L<Config::Model::AnyId>, L<Config::Model::Warper>, L<Exception::Class>
+L<Config::Model::AnyId>, L<Config::Model::Warper>, L<Config::Model::Exception>
 L<Config::Model::ValueComputer>,
 
 =cut

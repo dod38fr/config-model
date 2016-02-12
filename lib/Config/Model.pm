@@ -2343,8 +2343,7 @@ debugging your configuration model.
 
 =head1 Error handling
 
-Errors are handled with an exception mechanism (See
-L<Exception::Class>).
+Errors are handled with an exception mechanism.
 
 When a strongly typed Value object gets an authorized value, it raises
 an exception. If this exception is not caught, the programs exits.
