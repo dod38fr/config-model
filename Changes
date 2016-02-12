@@ -1,5 +1,22 @@
 {{$NEXT}}
 
+2.079 2016-02-12
+
+  YAML backend changes:
+    * Remove YAML file when no data is left
+    * When a root class has only one element, the backend
+      write (and read) only the content of that element (this
+      reduce the depth of the written data structure by one).
+
+  Functional improvements:
+    * Added "ChangeTracker" log class and traces (Log::Log4Perl)
+    * HashId: load_data can load ordered data in non-ordered hash
+
+  Bug fixes: 
+    * Removed Exception::Class from warper error handler
+      (gh #5, Thanks jplesnik)
+    * Dumper/Loader: handle literal \\n
+
 2.078 2016-01-24
 
  A cleanup (and breaking) release: Error handling no longer uses
