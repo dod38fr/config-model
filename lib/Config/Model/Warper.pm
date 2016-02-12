@@ -555,9 +555,9 @@ sub warp_error {
             $warper       = $self->get_warper_object($warper_path);
             $warper_value = $warper->fetch;
         };
-
+        my $e = $@;
         # catch
-        if ( my $e = Exception::Class->caught($expected_error) ) {
+        if ( ref($e) eq $expected_error ) {
             $str .= "\t'$warper_path' which is unavailable\n";
             next;
         }
