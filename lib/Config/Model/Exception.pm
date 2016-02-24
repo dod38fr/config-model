@@ -184,7 +184,7 @@ extends 'Config::Model::Exception::User';
 
 sub _desc { 'Load command error'}
 
-has command => (is => 'rw', isa => 'Str');
+has command => (is => 'rw', isa => 'ArrayRef|Str');
 
 sub full_message {
     my $self = shift;
