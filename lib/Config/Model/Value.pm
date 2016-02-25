@@ -2391,12 +2391,12 @@ Without C<value> argument, this method will check the value currently stored.
 
 =head1 Information management
 
-=head2 store( value )
+=head2 store( $value )
 
-Can be called as C<< value => ...,	check => yes|no|skip ) >>
+Can be called as C<< value => ...,	check => yes|no|skip ), silent => 0|1 >>
 
 Store value in leaf element. C<check> parameter can be used to
-skip validation check.
+skip validation check. C<silent> cane be used to suppress warnings.
 
 Optional C<callback> is now deprecated.
 
@@ -2405,9 +2405,12 @@ Optional C<callback> is now deprecated.
 Clear the stored value. Further read will return the default value (or
 computed or migrated value).
 
-=head2 load_data( scalar_value )
+=head2 load_data( $value )
 
-Load scalar data. Data is simply forwarded to L<store>.
+Load scalar data. Data is forwarded to L</"store( $value )">.
+
+Called with C<load_data( $value )> or C<load_data( data => $value )> or
+with the same parameters are C<store> method.
 
 =head2 fetch_custom
 
