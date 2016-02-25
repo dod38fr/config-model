@@ -884,10 +884,8 @@ sub check_value {
         my ( $err_msg, $warn_msg ) = ( '', '' );
         my $prd_check = $prd->check( $value, 1, $self, \$err_msg, \$warn_msg );
         my $prd_result = defined $prd_check ? 1 : 0;
-        $logger->debug( "grammar check on $value returned ",
-            defined $prd_check ? $prd_check : '<undef>' );
-        push @error, $err_msg || "value '$value' does not match grammar:\n" . $self->{grammar}
-            unless $prd_result;
+        $logger->debug( "grammar check on $value returned ", defined $prd_check ? $prd_check : '<undef>' );
+        push @error, $err_msg || "value '$value' does not match grammar from model" unless $prd_result;
         push @warn, $warn_msg if $warn_msg;
     }
 
