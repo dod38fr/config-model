@@ -1372,8 +1372,7 @@ sub load_data {
     my $self = shift;
 
     my %args  = @_ > 1 ? @_ : ( data => shift );
-    my $data  = $args{data};
-    my $check = $self->_check_check( $args{check} );
+    my $data  = delete $args{data} // delete $args{value};
 
     if ( ref $data ) {
         Config::Model::Exception::LoadData->throw(
@@ -1386,7 +1385,7 @@ sub load_data {
         if ( $logger->is_info ) {
             $logger->info( "Value load_data (", $self->location, ") will store value $data" );
         }
-        $self->store($data);
+        $self->store(%args, value => $data);
     }
 }
 
