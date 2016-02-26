@@ -1,3 +1,4 @@
+# -*- cperl -*-
 use ExtUtils::testlib;
 use Test::More tests => 27;
 
@@ -23,6 +24,8 @@ Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 
 use Log::Log4perl qw(:easy);
 Log::Log4perl->easy_init( $arg =~ /l/ ? $TRACE : $WARN );
+
+note("you can run the test in interactive mode by passing 'i' argument, i.e. perl -Ilib t/simple_ui.t i");
 
 ok( 1, "compiled" );
 
@@ -51,6 +54,11 @@ my $ui = Config::Model::SimpleUI->new(
 my $expected_prompt = $prompt . ':$ ';
 
 ok( $ui, "Created ui" );
+
+if ($arg =~ /i/) {
+    $ui->run_loop;
+    exit;
+}
 
 my $path = $ui->list_cd_path;
 

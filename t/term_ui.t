@@ -45,6 +45,8 @@ Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 use Log::Log4perl qw(:easy);
 Log::Log4perl->easy_init( $arg =~ /l/ ? $TRACE : $WARN );
 
+note("you can run the test in interactive mode by passing 'i' argument, i.e. perl -Ilib t/term_ui.t i");
+
 ok( 1, "compiled" );
 
 my $inst = $model->instance(
@@ -74,6 +76,11 @@ my $term_ui = Config::Model::TermUI->new(
     title  => 'Test Title',
     prompt => $prompt,
 );
+
+if ($arg =~ /i/) {
+    $term_ui->run_loop;
+    exit;
+}
 
 my @std_id_list = ('std_id:','std_id:ab ','std_id:"abc def" ' ,'std_id:"abc hij" ', 'std_id:bc ') ;
 my @test = (    # text line start ## expected completions
