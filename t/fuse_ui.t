@@ -40,7 +40,7 @@ if ($@) {
 }
 else {
     # the forked process prints an ok, hence done_testing cannot be used
-    plan tests => 16;
+    plan tests => 17;
 }
 
 use warnings;
@@ -163,6 +163,11 @@ my $a_boolean_fhw = $fused->child('a_boolean')->openw;
 $a_boolean_fhw->print("1");
 $a_boolean_fhw->close;
 is( $fused->child('a_boolean')->slurp, "1\n", "check new a_boolean content (set to 1)" );
+
+$a_boolean_fhw = $fused->child('a_boolean')->openw;
+$a_boolean_fhw->print("a");
+$a_boolean_fhw->close;
+is( $fused->child('a_boolean')->slurp, "\n", "check new a_boolean content (blank after error)" );
 
 END {
     if ($pid) {
