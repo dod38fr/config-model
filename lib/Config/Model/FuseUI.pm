@@ -208,7 +208,8 @@ sub write {
     substr $v, $off, length($buf), $buf;
     chomp $v unless ( $type eq 'leaf' and $obj->value_type eq 'string' );
     $logger->debug("FuseUI write stores '$v'");
-    $obj->store( value => $v );
+    $obj->store( value => $v, check => 'skip', say_dont_warn => 1 );
+
     return length($buf);
 }
 
@@ -353,7 +354,19 @@ parameter of your configuration file is mapped to a file.
 
 =head1 BUGS
 
+=over
+
+=item *
+
 For some configuration, mapping each parameter to a file may lead to a high number of files.
+
+=item *
+
+The content of a file is when writing a wrong value. I.e. the files is
+empty and the old value is lost.
+
+=back
+
 
 =head1 constructor
 

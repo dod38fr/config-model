@@ -1223,10 +1223,21 @@ sub _store {
     }
     else {
         $self->instance->add_error( $self->location );
-        my $msg = $self->error_msg;
-        no warnings 'uninitialized';
-        warn "Warning: skipping value $value because of the following errors:\n$msg\n\n"
-            if not $silent and $msg;
+        if ($check eq 'skip') {
+            no warnings 'uninitialized';
+            my $msg = "Warning: ".$self->location." skipping value $value because of the following errors:\n"
+                . $self->error_msg . "\n\n";
+            if (not $silent and $msg) {
+                print $msg if $args{say_dont_warn};
+                warn $msg unless $args{say_dont_warn};
+            }
+        }
+        else {
+            Config::Model::Exception::WrongValue->throw(
+                object => $self,
+                error  => $self->error_msg
+            );
+        }
     }
 
     if (    $ok

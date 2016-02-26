@@ -291,7 +291,7 @@ $inst->initial_load_stop;
 sub check_store_error {
     my ( $obj, $v, $qr ) = @_;
     my $path = $obj->location;
-    $obj->store( value => $v, silent => 1 );
+    $obj->store( value => $v, silent => 1, check => 'skip' );
     is( $inst->errors->{$path}, '', "store error in $path is tracked" );
     like( scalar $inst->error_messages, $qr, "check $path error message" );
 }
@@ -323,12 +323,13 @@ is( $inst->needs_save, 1, "verify instance needs_save status after fetch" );
 
 check_error( $i, 5, qr/max limit/ );
 
-# FIXME: dying during a callback is not a good idea
-# FIXME: may need to change the treatment of user errors
-
 check_error( $i, 'toto', qr/not of type/ );
 
 check_error( $i, 1.5, qr/number but not an integer/ );
+
+# test that bad storage triggers an error
+throws_ok { $i->store(5); } 'Config::Model::Exception::WrongValue', "test max nb expected failure";
+print "normal error:\n", $@, "\n" if $trace;
 
 my $nb = $root->fetch_element('bounded_number');
 ok( $nb, "created " . $nb->name );

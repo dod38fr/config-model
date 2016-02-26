@@ -224,7 +224,9 @@ throws_ok { $root->fetch_element("refer_to_wrong_path"); } 'Config::Model::Excep
 
 throws_ok { $root->fetch_element("refer_to_unknown_elt") } 'Config::Model::Exception::Model',"fetching refer_to_unknown_elt" ;
 
-warning_like { $root->fetch_element("host_reference")->store('Foo') } qr/skipping value/,"store unknown host";
+warning_like { $root->fetch_element("host_reference")->store(value => 'Foo', check => 'skip') } qr/skipping value/,"store unknown host (skip mode)";
+
+throws_ok { $root->fetch_element("host_reference")->store('Foo') } "Config::Model::Exception::WrongValue","store unknown host (failure mode)";
 
 $root->load("host:Foo - host:Bar");
 $root->fetch_element("host_reference")->store('Foo');

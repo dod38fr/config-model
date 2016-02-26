@@ -683,7 +683,7 @@ sub _load_leaf {
     if ( defined $action and $element->isa('Config::Model::Value')) {
         if ($action eq '~') {
             $logger->debug("_load_leaf: action '$action' deleting value");
-            $element->store(undef);
+            $element->store(value => undef, check => $check);
         }
         elsif ($action eq ':') {
             Config::Model::Exception::Load->throw(
