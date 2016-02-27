@@ -1,5 +1,17 @@
 {{$NEXT}}
 
+2.080 2016-02-27
+
+  Functional improvements:
+    * storing a wrong value is no longer ignored but now
+      triggers an exception. 
+
+  Other bug fixes:
+    * Trigger change notif when store_set reduces the nb of items
+      (closes gh #4)
+    * Improved change message shown to user
+    * Value: don't display grammar in case of error
+
 2.079 2016-02-12
 
   YAML backend changes:
