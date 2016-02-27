@@ -1228,6 +1228,7 @@ sub _store {
             my $msg = "Warning: ".$self->location." skipping value $value because of the following errors:\n"
                 . $self->error_msg . "\n\n";
             if (not $silent and $msg) {
+                # fuse UI exits when a warning is issued. No other need to advertise this option
                 print $msg if $args{say_dont_warn};
                 warn $msg unless $args{say_dont_warn};
             }
@@ -2404,7 +2405,8 @@ Without C<value> argument, this method will check the value currently stored.
 Can be called as C<< value => ...,	check => yes|no|skip ), silent => 0|1 >>
 
 Store value in leaf element. C<check> parameter can be used to
-skip validation check. C<silent> cane be used to suppress warnings.
+skip validation check (default ies 'yes').
+C<silent> cane be used to suppress warnings.
 
 Optional C<callback> is now deprecated.
 
