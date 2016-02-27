@@ -404,7 +404,8 @@ sub list_changes {
     my @all;
 
     foreach my $c (@$l) {
-        my $path = $c->{path};
+        my $path = $c->{path} ;
+        $path .= ': ' if $path;
 
         my $vt = $c->{value_type} || '';
         my ( $o, $n ) = map { $_ // '<undef>'; } ( $c->{old}, $c->{new} );
@@ -413,14 +414,14 @@ sub list_changes {
             # append \n if needed so diff works as expected
             map { $_ .= "\n" unless /\n$/; } ( $o, $n );
             my $diff = diff \$o, \$n;
-            push @all, "$path :" . ( $c->{note} ? " # $c->{note}" : '' ) . "\n" . $diff;
+            push @all, $path . ( $c->{note} ? " # $c->{note}" : '' ) . "\n" . $diff;
         }
         elsif ( defined $c->{old} or defined $c->{new} ) {
             map { s/\n.*/.../s; } ( $o, $n );
-            push @all, "$path: '$o' -> '$n'" . ( $c->{note} ? " # $c->{note}" : '' );
+            push @all, $path."'$o' -> '$n'" . ( $c->{note} ? " # $c->{note}" : '' );
         }
         elsif (defined $c->{note}){
-            push @all, "$path: ".$c->{note};
+            push @all, $path.$c->{note};
         }
         else {
             # something's unexpected with the call to notify_change
