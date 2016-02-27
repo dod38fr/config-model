@@ -382,10 +382,16 @@ eq_or_diff( [ $pl->fetch_all_indexes ], [0], "check that only layered stuff was 
 is( $pl->fetch_with_id(0)->fetch, 'bar', "check that bar was moved from 1 to 0" );
 $pl->clear;
 
-# test sort
+# test notify change after implicit deletion (github #4)
+$pl->store_set(qw/j h g f k l/);
+$inst->clear_changes;
 @set = qw/j h g f/;
 $pl->store_set(@set);
+is( $inst->c_count, 2, "check that store smaller set triggered a change" );
+
 $inst->clear_changes;
+
+# test sort
 $pl->sort;
 eq_or_diff( [ $pl->fetch_all_values ], [ sort @set ], "check sort result" );
 is( $inst->c_count, 1, "check that sort has triggered a change" );
