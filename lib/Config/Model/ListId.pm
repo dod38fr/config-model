@@ -188,8 +188,10 @@ sub store_set {
     }
 
     # and delete unused items
-    my $max = scalar @{ $self->{data} };
-    splice @{ $self->{data} }, $idx, $max - $idx;
+    my $ref = $self->{data};
+    while (scalar @$ref > $idx) {
+        $self->delete($#$ref);
+    }
 }
 
 # store without any check
