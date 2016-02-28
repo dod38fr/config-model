@@ -1460,7 +1460,7 @@ sub _fetch_std {
     my $e = $@;;
     if ( ref($e) and $e->isa('Config::Model::Exception::User') ) {
         if ( $check eq 'yes' ) {
-            $e->throw;
+            $e->rethrow;
         }
         $std_value = undef;
     }
