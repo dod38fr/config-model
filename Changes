@@ -1,5 +1,11 @@
 {{$NEXT}}
 
+2.081 2016-02-29
+
+  Bug fixes: 
+    * Fix error handling in Value. This should fix freebsd smoke tests.
+      The weird thing is that these tests should have failed in all arch...
+
 2.080 2016-02-27
 
   Functional improvements:
