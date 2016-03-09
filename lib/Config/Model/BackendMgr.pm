@@ -1161,7 +1161,7 @@ C<root> directory for test.
 Read callback function will be called with these parameters:
 
   object     => $obj,         # Config::Model::Node object 
-  root       => './my_test',  # fake root directory, userd for tests
+  root       => './my_test',  # fake root directory, used for tests
   config_dir => /etc/foo',    # absolute path 
   file       => 'foo.conf',   # file name
   file_path  => './my_test/etc/foo/foo.conf' 
@@ -1177,8 +1177,8 @@ The callback must return 0 on failure and 1 on successful read.
 Write callback function will be called with these parameters:
 
   object      => $obj,         # Config::Model::Node object 
-  root        => './my_test',  # fake root directory, userd for tests
-  config_dir  => /etc/foo',    # absolute path 
+  root        => './my_test',  # fake root directory, used for tests
+  config_dir  => /etc/foo',    # absolute path
   file        => 'foo.conf',   # file name
   file_path  => './my_test/etc/foo/foo.conf' 
   io_handle   => $io           # IO::File object opened in write mode 
