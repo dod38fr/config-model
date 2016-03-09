@@ -95,11 +95,15 @@ category (system or user or application) => application list. E.g.
 
 =item *
 
-application => { model => 'model_name', ... }
+application name to model information. E.g.
+
+ { 'multistrap' => { model => 'Multistrap', require_config_file => 1 }
 
 =item *
 
-application => model_name
+application name to model name. E.g.
+
+ { popcon => 'Popcon', 'multistrap' => 'Multistrap' }
 
 =back
 
