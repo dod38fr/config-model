@@ -48,23 +48,29 @@ has support_annotation => (
     default => 0,
 );
 
-#
-# New subroutine "get_cfg_dir_path" extracted - Thu Jul 11 13:47:22 2013.
-#
-sub get_cfg_dir_path {
-    my $self = shift;
-    my %args = @_;
+sub get_tuned_config_dir {
+    my ($self, %args) = @_;
 
-    my $w = $args{write} || 0;
-    my $dir = $args{os_config_dir}{$^O} || $args{config_dir} || $self->config_dir;
+    my $dir = $args{os_config_dir}{$^O} || $args{config_dir} || $self->config_dir || '';
     if ( $dir =~ /^~/ ) {
         my $home = $__test_home || File::HomeDir->my_home;
         $dir =~ s/^~/$home/;
     }
 
+    $dir .= '/' if $dir and $dir !~ m(/$);
+
+    return $dir;
+}
+
+sub get_cfg_dir_path {
+    my $self = shift;
+    my %args = @_;
+
+    my $w = $args{write} || 0;
+    my $dir = $self->get_tuned_config_dir(%args);
+
     $dir = $args{root} . $dir;
 
-    $dir .= '/' unless $dir =~ m!/$!;
     if ( not -d $dir and $w and $args{auto_create} ) {
         $logger->info("creating directory $dir");
         mkpath( $dir, 0, 0755 );
@@ -359,8 +365,7 @@ sub try_read_backend {
     my $check                = shift;
     my $backend              = shift;
 
-    my $read_dir = $read->{os_config_dir}{$^O} || $read->{config_dir} || $self->config_dir || '';
-    $read_dir .= '/' if $read_dir and $read_dir !~ m(/$);
+    my $read_dir = $self->get_tuned_config_dir(%$read);
 
     my @read_args = (
         %$read,
@@ -500,8 +505,7 @@ sub auto_write_init {
             $backend .= "_file";
         }
 
-        my $write_dir = $write->{os_config_dir}{$^O} || $write->{config_dir} || $self->config_dir || '';
-        $write_dir .= '/' if $write_dir and $write_dir !~ m(/$);
+        my $write_dir = $self->get_tuned_config_dir(%$write);
 
         $logger->debug( "auto_write_init creating write cb ($backend) for ", $self->node->name );
 
