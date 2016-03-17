@@ -433,9 +433,10 @@ sub load_data {
         my @load_keys;
         my $from = '';
 
-        if ( $self->{ordered} and defined $data->{__order} ) {
-            @load_keys = @{ delete $data->{__order} };
-            $from      = ' with __order';
+        my $order_key = '__'.$self->element_name.'_order';
+        if ( $self->{ordered} and (defined $data->{$order_key} or defined $data->{__order} )) {
+            @load_keys = @{ delete $data->{$order_key} or delete $data->{__order} };
+            $from      = ' with '.$order_key;
         }
         elsif ( $self->{ordered} ) {
             $logger->warn( "HashId "
@@ -443,7 +444,7 @@ sub load_data {
                     . ": loading ordered "
                     . "hash from hash ref without special key '__order'. Element "
                     . "order is not defined" );
-            $from = ' without __order';
+            $from = ' without '.$order_key;
         }
 
         @load_keys = sort keys %$data unless @load_keys;
