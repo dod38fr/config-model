@@ -3,6 +3,7 @@ package Config::Model::DumpAsData;
 use Carp;
 use strict;
 use warnings;
+use 5.10.1;
 
 use Config::Model::Exception;
 use Config::Model::ObjTreeScanner;
@@ -47,14 +48,15 @@ sub dump_as_data {
         # resume exploration but pass a ref on $data_ref hash element
         # instead of data_ref
         my %h;
-        my @res = map {
+        my @res;
+        foreach my $k (@keys) {
             my $v;
-            $scanner->scan_hash( \$v, $node, $element_name, $_ );
+            $scanner->scan_hash( \$v, $node, $element_name, $k );
 
-            # create the key even if $v is undef
-            $h{$_} = $v if defined $v;
-            defined $v ? ( $_, $v ) : ();
-        } @keys;
+            # don't create the key if $v is undef
+            $h{$k} = $v if defined $v;
+            push @res , $k, $v if defined $v;
+        } ;
 
         my $ordered_hash = $node->fetch_element($element_name)->ordered;
 
@@ -73,22 +75,22 @@ sub dump_as_data {
         # resume exploration but pass a ref on $data_ref hash element
         # instead of data_ref
         my @a;
-        map {
+        foreach my $i (@idx) {
             my $v;
-            $scanner->scan_hash( \$v, $node, $element_name, $_ );
+            $scanner->scan_hash( \$v, $node, $element_name, $i );
             push @a, $v if defined $v;
-        } @idx;
+        }
         $$data_ref = \@a if scalar @a;
     };
 
     my $node_content_cb = sub {
         my ( $scanner, $data_ref, $node, @element ) = @_;
         my %h;
-        map {
+        foreach my $e (@element) {
             my $v;
-            $scanner->scan_element( \$v, $node, $_ );
-            $h{$_} = $v if defined $v;
-        } @element;
+            $scanner->scan_element( \$v, $node, $e );
+            $h{$e} = $v if defined $v;
+        }
         $$data_ref = \%h if scalar %h;
     };
 
