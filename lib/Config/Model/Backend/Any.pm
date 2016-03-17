@@ -50,31 +50,33 @@ sub read_global_comments {
 
     my @global_comments;
 
-    while ( defined( $_ = shift @$lines ) ) {
-        next if /^$cc$cc/;    # remove comments added by Config::Model
-        unshift @$lines, $_;
+    while ( defined( my $l = shift @$lines ) ) {
+        next if $l =~ /^$cc$cc/;    # remove comments added by Config::Model
+        unshift @$lines, $l;
         last;
     }
-    while ( defined( $_ = shift @$lines ) ) {
-        next if /^\s*$/;      # remove empty lines
-        unshift @$lines, $_;
+    while ( defined( my $l = shift @$lines ) ) {
+        next if $l =~ /^\s*$/;      # remove empty lines
+        unshift @$lines, $l;
         last;
     }
 
-    while ( defined( $_ = shift @$lines ) ) {
-        chomp;
+    while ( defined( my $l = shift @$lines ) ) {
+        chomp $l;
 
-        my ( $data, $comment ) = split /\s*$cc\s?/, $_, 2;
+        my ( $data, $comment ) = split /\s*$cc\s?/, $l, 2;
 
         push @global_comments, $comment if defined $comment;
 
-        if ( /^\s*$/ or $data ) {
+        if ( $l =~ /^\s*$/ or $data ) {
             if (@global_comments) {
                 $self->node->annotation(@global_comments);
                 $logger->debug("Setting global comment with @global_comments");
             }
-            unshift @$lines, $_ unless /^\s*$/;    # put back any data and comment
-                  # stop global comment at first blank or non comment line
+            # put back any data and comment
+            unshift @$lines, $l unless $l =~ /^\s*$/;
+
+            # stop global comment at first blank or non comment line
             last;
         }
     }
@@ -87,11 +89,11 @@ sub associates_comments_with_data {
 
     my @result;
     my @comments;
-    foreach (@$lines) {
-        next if /^$cc$cc/;    # remove comments added by Config::Model
-        chomp;
+    foreach my $l (@$lines) {
+        next if $l =~ /^$cc$cc/;    # remove comments added by Config::Model
+        chomp $l;
 
-        my ( $data, $comment ) = split /\s*$cc\s?/, $_, 2;
+        my ( $data, $comment ) = split /\s*$cc\s?/, $l, 2;
         push @comments, $comment if defined $comment;
 
         next unless defined $data;
