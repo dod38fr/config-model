@@ -145,7 +145,7 @@ foreach my $test (@tries) {
 my $ohah_dump = $root->grab('ordered_hash')->dump_as_data( ordered_hash_as_list => 0 );
 is_deeply(
     $ohah_dump,
-    { __order => [qw/z y x/], 'z', '1', 'y', '2', 'x', '3' },
+    { __ordered_hash_order => [qw/z y x/], 'z', '1', 'y', '2', 'x', '3' },
     "check dump of ordered hash as hash"
 );
 

@@ -64,7 +64,7 @@ sub dump_as_data {
             $$data_ref = \@res if @res;
         }
         else {
-            $h{__order} = \@keys if $ordered_hash and @keys;
+            $h{'__'.$element_name.'_order'} = \@keys if $ordered_hash and @keys;
             $$data_ref = \%h if scalar %h;
         }
     };
@@ -342,13 +342,14 @@ while keeping the key order. But it's the less readable way.
 When this parameter is 1 (default), the ordered hash is dumped as a
 list:
 
-  [ A => 'foo', B => 'bar', C => 'baz' ]
+  my_hash => [ A => 'foo', B => 'bar', C => 'baz' ]
 
 When this parameter is set as 0, the ordered hash is dumped with a
 special key that specifies the order of keys. E.g.:
 
-  { __order => [ 'A', 'B', 'C' ] ,
-    B => 'bar', A => 'foo', C => 'baz'
+  my_hash => {
+   __my_hash_order => [ 'A', 'B', 'C' ] ,
+   B => 'bar', A => 'foo', C => 'baz'
   }
 
 =back
