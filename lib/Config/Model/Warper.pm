@@ -647,6 +647,11 @@ You can also use named parameters:
 
  follow => { m1 => '! macro1', m2 => '- macro2' }
 
+Note: By design C<follow> argument of warper module is a plain path to keep
+warp mechanism (relatively) simple. C<follow> argument
+of L<Config::Model::ValueComputer> has more features and is documented
+L<there|Config::Model::ValueComputer/"Compute variables">
+
 =head2 Warp rules argument
 
 String, hash ref or array ref that specify the warped object property
