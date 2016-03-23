@@ -203,6 +203,21 @@ has [qw/name application root_dir backend backup/] => (
     is  => 'ro',
     isa => 'Maybe[Str]',
 );
+
+has read_root_dir => (
+    is  => 'ro',
+    isa => 'Str',
+    lazy_build => 1,
+);
+
+sub _build_read_root_dir {
+    my $self = shift;
+    my $root_dir = $self->root_dir // '';
+    # cleanup paths
+    $root_dir .= '/' if $root_dir and $root_dir !~ m!/$! ;
+    return $root_dir;
+}
+
 # config_file cannot be a Path::Tiny object: it may be a file name
 # relative to a directory only known by a backend (e.g. a patch in
 # debian/patches directory)
@@ -211,16 +226,6 @@ has config_file => (is  => 'ro', isa => 'Maybe[Str]');
 has config_dir => (is  => 'ro', isa => 'Maybe[Str]');
 
 has skip_read => ( is => 'ro', isa => 'Bool', default => 0 );
-
-sub BUILD {
-    my $self = shift;
-
-    #carp "instance new: force_load is deprecated" if defined $args{force_load} ;
-    #$read_check = 'no' if delete $args{force_load} ;
-
-    # cleanup paths
-    map { $self->{$_} .= '/' if defined $self->{$_} and $self->{$_} !~ m!/$! } qw/root_dir/;
-}
 
 has tree => (
     is      => 'ro',
@@ -360,22 +365,18 @@ sub iterator {
 
 sub read_directory {
     carp "read_directory is deprecated";
-    return shift->{root_dir};
-}
-
-sub read_root_dir {
-    return shift->{root_dir};
+    return shift->read_root_dir;
 }
 
 sub write_directory {
     my $self = shift;
     carp "write_directory is deprecated";
-    return $self->{root_dir};
+    return $self->read_root_dir;
 }
 
 sub write_root_dir {
     my $self = shift;
-    return $self->{root_dir};
+    return $self->read_root_dir;
 }
 
 # FIXME: record changes to implement undo/redo ?
