@@ -267,7 +267,6 @@ sub read_config_data {
 
     # root override is passed by the instance
     my $root_dir = $instance->read_root_dir || '';
-    $root_dir .= '/' if ( $root_dir and $root_dir !~ m(/$) );
 
     croak "readlist must be array or hash ref\n"
         unless ref $readlist;
