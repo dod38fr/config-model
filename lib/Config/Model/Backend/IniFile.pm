@@ -120,7 +120,7 @@ sub read {
 
     my @load_args = ( data => $ini_data, check => $check );
     push @load_args, split_reg => qr/$split_reg/ if $split_reg;
-    $obj->load_data(@load_args);
+    $self->load_data(@load_args);
 
     while ( my ( $k, $v ) = each %ini_comment ) {
         my $item = $obj->grab( step => $k, mode => 'loose' ) or next;
@@ -129,6 +129,12 @@ sub read {
     }
 
     return 1;
+}
+
+sub load_data {
+    my $self = shift;
+    say "calling load_data on ". ref($self);
+    $self->node->load_data(@_);
 }
 
 sub set_or_push {
