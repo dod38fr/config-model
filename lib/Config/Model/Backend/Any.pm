@@ -18,7 +18,7 @@ has 'node' => (
     isa      => 'Config::Model::Node',
     weak_ref => 1,
     required => 1,
-    handles => ['show_message'],
+    handles => ['show_message', 'instance'],
 );
 
 sub suffix {
@@ -273,6 +273,10 @@ Write the configuration file. This method must be overridden.
 =head2 node
 
 Return the node (a L<Config::Model::Node>) holding this backend.
+
+=head2 instance
+
+Return the instance (a L<Config::Model::Instance>) holding this configuration.
 
 =head2 show_message( string )
 
