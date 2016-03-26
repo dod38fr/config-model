@@ -275,6 +275,7 @@ sub _load {
 
         $logger->debug("_load: calling $element_type loader on element $element_name");
         my $ret = $self->$method( $node, $check, \@instructions, $cmdref );
+        $logger->debug("_load: $element_type loader on element $element_name returned $ret");
         die "Internal error: method dispatched for $element_type returned an undefined value "
             unless defined $ret;
 
@@ -590,11 +591,13 @@ sub _load_hash {
     if ( $action eq ':~' ) {
         my @keys = $element->fetch_all_indexes;
         my $ret  = 'ok';
-        $logger->debug("_load_hash: looping with regex $id on keys @keys");
+        $id =~ s!^/|/$!!g;
+        my @loop_on = grep { /$id/ } @keys ;
+        $logger->debug("_load_hash: looping with regex /$id/ on keys @loop_on from @keys");
         $id =~ s!^/!!;
         $id =~ s!/$!!;
         my @saved_cmd = @$cmdref;
-        foreach my $loop_id ( grep /$id/, @keys ) {
+        foreach my $loop_id ( @loop_on ) {
             @$cmdref = @saved_cmd;    # restore command before loop
             $logger->debug("_load_hash: loop on id $loop_id");
             my $sub_elt = $element->fetch_with_id($loop_id);
@@ -615,7 +618,8 @@ sub _load_hash {
                 );
             }
 
-            if ( $ret eq 'error' or $ret eq 'root' ) { return $ret; }
+            $logger->debug("_load_hash: loop on id $loop_id returned $ret (left cmd: @$cmdref)");
+            if ( $ret eq 'error') { return $ret; }
         }
         return $ret;
     }
@@ -755,6 +759,7 @@ sub _load_value {
         return undef;
     }
 
+    $logger->debug("_load_value: done returns ok");
     return 'ok';
 }
 
@@ -917,16 +922,30 @@ Go down using C<xxx> element and id C<yy> (For C<hash> or C<list>
 element with C<node> cargo_type). Literal C<\n> will be replaced by
 real C<\n> (LF in Unix).
 
-=item xxx:~/yy/
+=item xxx:~yy
 
 Go down using C<xxx> element and loop over the ids that match the regex.
-(For C<hash>)
+(For C<hash>).
 
 For instance, with C<OpenSsh> model, you could do
 
- Host:~/.*.debian.org/ user='foo-guest'
+ Host:~"/.*.debian.org/" user='foo-guest'
 
 to set "foo-user" users for all your debian accounts.
+
+The leading and trailing '/' may be omitted. Be sure to surround the
+regexp with double quote if space are embedded in the regex.
+
+Note that the loop ends when the load command goes above the element
+where the loop is executed. For instance, the instruction below will
+try to execute C<DX=BV> and C<int_v=9> for all elements of C<std_id> hash:
+
+ std_id:~/^\w+$/ DX=Bv int_v=9
+
+In the examples below only C<DX=BV> is executed by the loop:
+
+ std_id:~/^\w+$/ DX=Bv - int_v=9
+ std_id:~/^\w+$/ DX=Bv ! int_v=9
 
 =item xxx:-yy
 
