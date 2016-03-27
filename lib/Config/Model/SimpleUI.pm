@@ -290,8 +290,6 @@ sub list_cd_path {
 
  use Config::Model;
  use Config::Model::SimpleUI ;
- use Log::Log4perl qw(:easy);
- Log::Log4perl->easy_init($WARN);
 
  # define configuration tree object
  my $model = Config::Model->new;

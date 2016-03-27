@@ -315,20 +315,17 @@ __END__
  cme fusefs popcon -fuse-dir mydir
  ll mydir
  fusermount -u mydir
- 
+
  # programmatic
  use Config::Model ;
  use Config::Model::FuseUI ;
- use Log::Log4perl qw(:easy) ; 
- 
- Log::Log4perl->easy_init($WARN); 
+
  my $model = Config::Model -> new; 
  my $root = $model -> instance (root_class_name => "PopCon") -> config_root ; 
  my $ui = Config::Model::FuseUI->new( root => $root, mountpoint => "mydir" ); 
  $ui -> run_loop ;  # blocking call
- 
+
  # explore mydir in another terminal then umount mydir directory
- 
 
 =head1 DESCRIPTION
 

@@ -514,9 +514,7 @@ __END__
 =head1 SYNOPSIS
 
  use Config::Model;
- use Log::Log4perl qw(:easy);
  use File::Path ;
- Log::Log4perl->easy_init($WARN);
 
  # setup a dummy popcon conf file
  my $wr_dir = '/tmp/etc/';

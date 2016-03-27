@@ -1760,8 +1760,6 @@ __END__
 =head1 SYNOPSIS
 
  use Config::Model;
- use Log::Log4perl qw(:easy);
- Log::Log4perl->easy_init($WARN);
 
  # define configuration tree object
  my $model = Config::Model->new;

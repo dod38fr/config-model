@@ -174,10 +174,8 @@ __END__
 =head1 SYNOPSIS
 
  # synopsis shows an example of model of a network to use references
- 
+
  use Config::Model;
- use Log::Log4perl qw(:easy);
- Log::Log4perl->easy_init($WARN);
 
  my $model = Config::Model->new;
 

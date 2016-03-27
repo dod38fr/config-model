@@ -98,8 +98,6 @@ __END__
 =head1 SYNOPSIS
 
  use Config::Model;
- use Log::Log4perl qw(:easy);
- Log::Log4perl->easy_init($WARN);
 
  my $model = Config::Model->new;
  $model->create_config_class (

@@ -168,7 +168,6 @@ __END__
 
  package Config::Model::Backend::Foo ;
  use Mouse ;
- use Log::Log4perl qw(get_logger :levels);
 
  extends 'Config::Model::Backend::Any';
 
