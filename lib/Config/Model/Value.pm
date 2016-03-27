@@ -1401,23 +1401,12 @@ sub load_data {
 
 sub fetch_custom {
     my $self      = shift;
-    my $std_value = $self->fetch_standard;
-
-    no warnings "uninitialized";
-    my $data = $self->_fetch_no_check;
-    my $v = ( $data ne $std_value ) ? $data : undef;
-    return $self->map_write_as($v);
+    return $self->fetch(mode => 'custom');
 }
 
 sub fetch_standard {
     my $self      = shift;
-    my $pre_fetch = $self->_fetch_std;
-    my $v =
-          defined $pre_fetch                 ? $pre_fetch
-        : defined $self->{layered}           ? $self->{layered}
-        : $self->compute_is_upstream_default ? $self->perform_compute
-        :                                      $self->{upstream_default};
-    return $self->map_write_as($v);
+    return $self->fetch(mode => 'standard');
 }
 
 sub _init {
@@ -2433,7 +2422,7 @@ Returns the standard value as defined by the configuration model. The
 standard value can be either a preset value, a layered value, a computed value, a
 default value or a built-in default value.
 
-=head2 fetch( ... )
+=head2 fetch(...)
 
 Check and fetch value from leaf element. The method can have one parameter (the fetch mode)
 or several pairs:
