@@ -1437,7 +1437,7 @@ sub _init {
 # returns something that needs to be written to config file
 # unless overridden by user data
 sub _fetch_std {
-    my ( $self, $mode, $check ) = @_;
+    my ( $self, $check ) = @_;
 
     #$self->_init ;
 
@@ -1487,7 +1487,7 @@ sub _fetch {
     $logger->debug( "called for " . $self->location ) if $logger->is_debug;
 
     # always call to perform submit_to_warp
-    my $pref = $self->_fetch_std( $mode, $check );
+    my $pref = $self->_fetch_std( $check );
 
     my $data = $self->{data};
     if ( defined $pref and not $self->{notified_change_for_default} and not defined $data ) {
