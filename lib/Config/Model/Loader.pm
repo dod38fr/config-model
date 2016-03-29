@@ -591,11 +591,13 @@ sub _load_hash {
     if ( $action eq ':~' ) {
         my @keys = $element->fetch_all_indexes;
         my $ret  = 'ok';
-        $id =~ s!^/|/$!!g;
-        my @loop_on = grep { /$id/ } @keys ;
-        $logger->debug("_load_hash: looping with regex /$id/ on keys @loop_on from @keys");
-        $id =~ s!^/!!;
-        $id =~ s!/$!!;
+        $id =~ s!^/|/$!!g if $id;
+        my @loop_on = $id ? grep { /$id/ } @keys : @keys;
+        if ($logger->is_debug) {
+            my $str = $id ? " with regex /$id/" : '';
+            $logger->debug("_load_hash: looping$str on keys @loop_on");
+        }
+
         my @saved_cmd = @$cmdref;
         foreach my $loop_id ( @loop_on ) {
             @$cmdref = @saved_cmd;    # restore command before loop
@@ -922,8 +924,8 @@ real C<\n> (LF in Unix).
 
 =item xxx:~yy
 
-Go down using C<xxx> element and loop over the ids that match the regex.
-(For C<hash>).
+Go down using C<xxx> element and loop over the ids that match the regex
+specified by C<yy>. (For C<hash>).
 
 For instance, with C<OpenSsh> model, you could do
 
@@ -944,6 +946,9 @@ In the examples below only C<DX=BV> is executed by the loop:
 
  std_id:~/^\w+$/ DX=Bv - int_v=9
  std_id:~/^\w+$/ DX=Bv ! int_v=9
+
+The loop is done on all elements of the hash when no value is passed
+after "C<:~>" (mnemonic: an empty regexp matches any value).
 
 =item xxx:-yy
 

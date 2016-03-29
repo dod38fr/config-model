@@ -47,7 +47,7 @@ ok( 1, "compiled" );
 my @regexp_test = (
 
     #                           id_operation  leaf_operation
-    # string         elt_name   op   (param) id     op     val      note
+    # string           elt   op   (param) id     op     val      note
     [ 'a',           [ 'a',   'x', 'x', 'x', 'x',  'x',         'x' ] ],
     [ '#C',          [ 'x',   'x', 'x', 'x', 'x',  'x',         'C' ] ],
     [ '#"m C"',      [ 'x',   'x', 'x', 'x', 'x',  'x',         '"m C"' ] ],
@@ -63,12 +63,16 @@ my @regexp_test = (
     [ 'a#B',         [ 'a',   'x', 'x', 'x', 'x',  'x',         'B' ] ],
     [ 'a#"b=c"',     [ 'a',   'x', 'x', 'x', 'x',  'x',         '"b=c"' ] ],
 
-    [ 'a:b=c',         [ 'a', ':', 'x', 'b',     '=', 'c',     'x' ] ],    # fetch and assign elt
-    [ 'a:"b\""="\"c"', [ 'a', ':', 'x', '"b\""', '=', '"\"c"', 'x' ] ]
+    # string             elt    op   (param) id     op     val      note
+    [ 'a:b=c',           [ 'a', ':', 'x',    'b',  '=', 'c',     'x' ] ],    # fetch and assign elt
+    [ 'a:"b\""="\"c"',   [ 'a', ':', 'x', '"b\""', '=', '"\"c"', 'x' ] ]
     ,    # fetch and assign elt qith quotes
+    [ 'a:~',             [ 'a', ':~', 'x',   'x', 'x',    'x',     'x' ] ],  # loop on matched value
+    [ 'a:~.=b',          [ 'a', ':~', 'x',   'x', '.=',   'b',     'x' ] ],  # loop on matched value
     [ 'a:~/b.*/',        [ 'a', ':~', 'x', '/b.*/', 'x',  'x',     'x' ] ],  # loop on matched value
-    [ 'a:~/b.*/.="\"a"', [ 'a', ':~', 'x', '/b.*/', '.=', '"\"a"', 'x' ] ]
-    ,    # loop on matched value and append
+    [ 'a:~"b.*"',        [ 'a', ':~', 'x', '"b.*"', 'x',  'x',     'x' ] ],  # loop on matched value
+    [ 'a:~/b.*/.="\"a"', [ 'a', ':~', 'x', '/b.*/', '.=', '"\"a"', 'x' ] ],  # loop on matched value and append
+    [ 'a:~"b.*".="\"a"', [ 'a', ':~', 'x', '"b.*"', '.=', '"\"a"', 'x' ] ],  # loop on matched value and append
     [ 'a:~/^\w+$/', [ 'a', ':~', 'x', '/^\w+$/', 'x', 'x', 'x' ] ],    # loop on matched value
     [ 'a:="dod@foo.com"', [ 'a', ':=', 'x', '"dod@foo.com"', 'x', 'x', 'x' ] ],    # set list
     [ 'a:=b,c,d',         [ 'a', ':=', 'x', 'b,c,d',         'x', 'x', 'x' ] ],    # set list
@@ -318,10 +322,15 @@ is( $root->fetch_element('hash_a')->fetch_with_id('b')->fetch,, 'z2 z3', "test a
 
 # test loop mode
 
+$root->load('std_id:~ DX=Av - int_v=9');
+is( $root->grab_value('std_id:ab DX'), 'Av', "check looped assign 1" );
+is( $root->grab_value('std_id:bc DX'), 'Av', "check looped assign 2" );
+is( $root->grab_value('std_id:"a b" DX'), 'Av', "check looped assign 3" );
+
 $root->load('std_id:~/^\w+$/ DX=Bv - int_v=9');
 is( $root->grab_value('std_id:ab DX'), 'Bv', "check looped assign 1" );
 is( $root->grab_value('std_id:bc DX'), 'Bv', "check looped assign 2" );
-isnt( $root->grab_value('std_id:"a b" DX'), 'Bv', "check out of loop left alone" );
+is( $root->grab_value('std_id:"a b" DX'), 'Av', "check out of loop left alone" );
 
 # test annotation setting
 my @anno_test = ( 'std_id', 'std_id:ab', 'lista', 'lista:0', );
