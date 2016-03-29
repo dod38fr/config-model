@@ -1213,9 +1213,9 @@ sub augment_config_class_really {
     foreach my $list_name (qw/element_list accept_list/) {
         my %seen;
         my @newlist;
-        foreach ( @{ $new_model->{$list_name} } ) {
-            push @newlist, $_ unless $seen{$_};
-            $seen{$_} = 1;
+        foreach my $elt ( @{ $new_model->{$list_name} } ) {
+            push @newlist, $elt unless $seen{$elt};
+            $seen{$elt} = 1;
         }
 
         $new_model->{$list_name} = \@newlist;
