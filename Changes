@@ -1,5 +1,29 @@
 {{$NEXT}}
 
+2.082 2016-03-29
+
+  No big change this time, but a lot of small improvements
+  required by the systemd model I'm working on...
+
+  Functional improvements:
+    * Loader: list operator :~ with no argument loops
+      over all values of a hash element
+    * DumpAsData: also accepts 'mode' param like fetch from
+      Config::Model::Value
+
+  Bug fixes:
+    * Fix tests broken by C::M::Tester 2.053 (required)
+    * Loader: fix loop bug which exited too soon
+    * Improve hash dump readability ...
+    * DumpAsData: Fix corrupted output...
+    * BackendMgr: always translate dir with ~/
+
+  Doc updates:
+    * removed Log4Perl instructions from synopsis.
+      Log4Perl initialisation is handled by Config::Model
+      constructor since v2.057
+    * Improved C::M::Warper and C::M:Lister docs
+
 2.081 2016-02-29
 
   Bug fixes: 
