@@ -3,8 +3,7 @@ $model_to_test = "Multistrap";
 
 $from_scratch_file = <<'EOF' ,
 ## This file was written by cme command.
-## You can run 'cme edit <application>' to modify this file.
-## Run 'cme list' to get the list of applications available on your system
+## You can run 'cme edit multistrap' to modify this file.
 ## You may also modify the content of this file with your favorite editor.
 
 [general]
