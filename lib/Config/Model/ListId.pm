@@ -123,6 +123,8 @@ sub load {
 
     my @set;
     my $cmd   = $string;
+    $logger->debug( "load: ", $self->name, " called with ->$string<-" );
+
     my $regex = qr/^(
                     (?:
                              "
@@ -173,6 +175,7 @@ sub store_set {
         %args = @_;    # note that $r was shifted out of @_
     }
 
+    $logger->debug(  $self->name, " called with <".join('><',@v).'>' );
     my @comments = @{ $args{comment} || [] };
 
     my $idx = 0;
