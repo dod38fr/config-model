@@ -11,8 +11,6 @@ use Config::Model;
 use Data::Dumper;
 use Log::Log4perl qw(:easy :levels);
 
-BEGIN { plan tests => 8; }
-
 use strict;
 
 my $arg = shift || '';
@@ -54,6 +52,10 @@ $model->create_config_class(
             type       => 'leaf',
             value_type => 'string',
         },
+        override_vtype => {
+            type       => 'leaf',
+            value_type => 'uniline',
+        },
         fs_vfstype => {
             type       => 'leaf',
             value_type => 'enum',
@@ -90,6 +92,11 @@ $model->augment_config_class(
     ],
 
     element => [
+        override_vtype => {
+            type       => 'leaf',
+            value_type => 'integer',
+            min => 1,
+        },
         three => {
             type       => 'leaf',
             value_type => 'string',
@@ -120,7 +127,7 @@ print Dumper ($augmented_model) if $trace;
 
 my @elt = $root->get_element_name();
 print "element list: @elt\n" if $trace;
-eq_or_diff( \@elt, [qw/one fs_vfstype two two_and_a_half three/], "check augmented class" );
+eq_or_diff( \@elt, [qw/one override_vtype fs_vfstype two two_and_a_half three/], "check augmented class" );
 
 my $fstype     = $root->fetch_element('fs_vfstype');
 my @fs_choices = $fstype->get_choice;
@@ -141,6 +148,12 @@ eq_or_diff(
     "test augmented rules"
 );
 
+is( $augmented_model->{element}{override_vtype}{value_type}, 'integer', "test value type override" );
+is( $augmented_model->{element}{override_vtype}{min}, 1, "test min setup" );
+
 eq_or_diff( $augmented_model->{accept_list}, [ '.*', 'ip.*' ], "test accept_list" );
 is( $augmented_model->{accept}{'.*'}{description}, 'catchall', "test augmented rules" );
-memory_cycle_ok($model);
+
+memory_cycle_ok($model,"check memory cycles");
+
+done_testing;

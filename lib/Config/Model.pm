@@ -1207,7 +1207,9 @@ sub augment_config_class_really {
     croak "unknown class to augment: $config_class_name" unless defined $orig_model;
 
     my $model_addendum = $self->normalize_class_parameters( $config_class_name, $augment_data );
-    my $new_model = merge( $orig_model, $model_addendum );
+
+    my $merge = Hash::Merge->new('RIGHT_PRECEDENT');
+    my $new_model = $merge->merge( $orig_model, $model_addendum );
 
     # remove duplicates in element_list and accept_list while keeping order
     foreach my $list_name (qw/element_list accept_list/) {
