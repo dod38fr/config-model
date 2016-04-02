@@ -26,8 +26,8 @@ sub load {
 
     croak "load error: missing 'node' parameter" unless defined $node;
 
-    my $step = delete $args{step};
-    croak "load error: missing 'step' parameter" unless defined $step;
+    my $steps = delete $args{steps} // delete $args{step};
+    croak "load error: missing 'steps' parameter" unless defined $steps;
 
     if (delete $args{experience}) {
         carp "load: experience parameter is deprecated";
@@ -40,7 +40,7 @@ sub load {
     croak __PACKAGE__, "load: unexpected check $check" unless $check =~ /yes|no|skip/;
 
     # accept commands
-    my $huge_string = ref $step ? join( ' ', @$step ) : $step;
+    my $huge_string = ref $steps ? join( ' ', @$steps ) : $steps;
 
     # do a split on ' ' but take quoted string into account
     my @command = (
@@ -818,11 +818,11 @@ __END__
  my $root = $inst->config_root ;
 
  # put data
- my $step = 'foo=FOO hash_of_nodes:fr foo=bonjour -
+ my $steps = 'foo=FOO hash_of_nodes:fr foo=bonjour -
    hash_of_nodes:en foo=hello
    ! lista=foo,bar lista:2=baz
      listb:0=foo listb:1=baz';
- $root->load( step => $step );
+ $root->load( steps => $steps );
 
  print $root->describe,"\n" ;
  # name         value        type         comment
@@ -834,14 +834,14 @@ __END__
 
 
  # delete some data
- $root->load( step => 'lista~2' );
+ $root->load( steps => 'lista~2' );
 
  print $root->describe(element => 'lista'),"\n" ;
  # name         value        type         comment
  # lista        foo,bar      list
 
  # append some data
- $root->load( step => q!hash_of_nodes:en foo.=" world"! );
+ $root->load( steps => q!hash_of_nodes:en foo.=" world"! );
 
  print $root->grab('hash_of_nodes:en')->describe(element => 'foo'),"\n" ;
  # name         value        type         comment
@@ -1112,7 +1112,7 @@ Now that ssh config is mucked up with dummy entries, let's clean up:
 
 Load data into the node tree (from the node passed with C<node>)
 and fill values as we go following the instructions passed with
-C<step>.  (C<step> can also be an array ref).
+C<steps>.  (C<steps> can also be an array ref).
 
 Parameters are:
 
@@ -1122,7 +1122,7 @@ Parameters are:
 
 node ref of the root of the tree (of sub-root) to start the load from.
 
-=item step
+=item steps (or step)
 
 A string or an array ref containing the steps to load. See above for a
 description of the string.
