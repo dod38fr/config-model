@@ -202,8 +202,8 @@ __END__
  $root->fetch_element('baz')->fetch_with_id('en')->annotation('also english') ;
 
  # put more data the easy way
- my $step = 'baz:fr=bonjour#french baz:hr="dobar dan"#croatian';
- $root->load( step => $step ) ;
+ my $steps = 'baz:fr=bonjour#french baz:hr="dobar dan"#croatian';
+ $root->load( steps => $steps ) ;
 
  # dump resulting tree with annotations
  print $root->dump_tree;

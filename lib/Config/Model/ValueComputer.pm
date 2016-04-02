@@ -592,7 +592,7 @@ __END__
  my $root = $inst->config_root ;
 
  # put data
- $root->load( step => 'av=33 bv=9' );
+ $root->load( steps => 'av=33 bv=9' );
 
  print "Computed value is ",$root->grab_value('compute_int'),"\n";
  # Computed value is 42

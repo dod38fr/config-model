@@ -195,9 +195,9 @@ __END__
  my $root = $inst->config_root ;
 
  # put data
- my $step = 'foo=FOO hash_of_nodes:fr foo=bonjour -
+ my $steps = 'foo=FOO hash_of_nodes:fr foo=bonjour -
    hash_of_nodes:en foo=hello ';
- $root->load( step => $step );
+ $root->load( steps => $steps );
 
  print $root->describe ;
 

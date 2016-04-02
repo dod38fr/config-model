@@ -894,7 +894,7 @@ sub load {
     else {
         Config::Model::Exception::Load->throw(
             object  => $self,
-            message => "load called with no 'step' parameter",
+            message => "load called with no 'steps' parameter",
         );
     }
 }
@@ -1173,10 +1173,10 @@ __END__
  # Z            [undef]      enum         choice: Av Bv Cv
 
  # add some data
- $root->load( step => 'Y=Av' );
+ $root->load( steps => 'Y=Av' );
 
  # add some accepted element, ipA and ipB are created on the fly
- $root->load( step => q!ipA=192.168.1.0 ipB=192.168.1.1"! );
+ $root->load( steps => q!ipA=192.168.1.0 ipB=192.168.1.1"! );
 
  # show also ip* element created in the last "load" call
  print $root->describe,"\n" ;

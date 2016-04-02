@@ -330,7 +330,7 @@ __END__
  print "Visible elements: ",join(' ',$root->get_element_name),"\n" ;
  # Visible elements: master_switch
 
- $root->load( step => 'master_switch=cX' );
+ $root->load( steps => 'master_switch=cX' );
  print "Visible elements: ",join(' ',$root->get_element_name),"\n" ;
  # Visible elements: master_switch a_warped_node
 
@@ -338,7 +338,7 @@ __END__
  print "a_warped_node class: ",$node->config_class_name,"\n" ;
  # a_warped_node class: ClassX
 
- $root->load( step => 'master_switch=cY' );
+ $root->load( steps => 'master_switch=cY' );
  print "a_warped_node class: ",$node->config_class_name,"\n" ;
  # a_warped_node class: ClassY
 

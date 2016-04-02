@@ -269,8 +269,8 @@ __END__
  $root->fetch_element('baz')->fetch_with_id('en')->store('hello') ;
 
  # put more data the easy way
- my $step = 'baz:fr=bonjour baz:hr="dobar dan"';
- $root->load( step => $step ) ;
+ my $steps = 'baz:fr=bonjour baz:hr="dobar dan"';
+ $root->load( steps => $steps ) ;
 
  print Dumper($root->dump_as_data);
  # $VAR1 = {

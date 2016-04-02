@@ -132,9 +132,9 @@ __END__
 
  my $root = $inst->config_root ;
 
- my $step = 'foo=yada bar="bla bla" baz:en=hello
+ my $steps = 'foo=yada bar="bla bla" baz:en=hello
              baz:fr=bonjour baz:hr="dobar dan"';
- $root->load( step => $step ) ;
+ $root->load( steps => $steps ) ;
  $inst->write_back ;
 
 Now, C</tmp/foo.yml> contains:

@@ -747,7 +747,7 @@ __END__
  my $root = $inst->config_root;
 
  # put data
- $root->load( step => 'my_check_list=A' ); 
+ $root->load( steps => 'my_check_list=A' );
 
  my $obj = $root->grab('my_check_list');
 
@@ -904,7 +904,7 @@ checklist will be available.
 
 This other hash or other checklist is indicated by the C<refer_to> or
 C<computed_refer_to> parameter. C<refer_to> uses the syntax of the
-C<step> parameter of L<grab(...)|Config::AnyThing/"grab(...)">
+C<steps> parameter of L<grab(...)|Config::AnyThing/"grab(...)">
 
 See L<refer_to parameter|Config::Model::IdElementReference/"refer_to parameter">.
 

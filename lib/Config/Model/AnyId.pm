@@ -980,11 +980,11 @@ __END__
  my $root = $inst->config_root;
 
  # put data
- my $step = 'plain_hash:foo=boo bounded_list=foo,bar,baz
+ my $steps = 'plain_hash:foo=boo bounded_list=foo,bar,baz
    bounded_hash:3=foo bounded_hash:30=baz 
    hash_of_nodes:"foo node" foo="in foo node" -
    hash_of_nodes:"bar node" bar="in bar node" ';
- $root->load( step => $step );
+ $root->load( steps => $steps );
 
  # dump resulting tree
  print $root->dump_tree;

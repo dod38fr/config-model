@@ -157,8 +157,8 @@ __END__
 
  my $root = $inst->config_root ;
 
- my $step = 'baz:fr=bonjour baz:hr="dobar dan" foo="journalled"';
- $root->load( step => $step ) ;
+ my $steps = 'baz:fr=bonjour baz:hr="dobar dan" foo="journalled"';
+ $root->load( steps => $steps ) ;
 
  my @result = $root->tree_searcher(type => 'value')->search('jour');
  print join("\n",@result),"\n" ;

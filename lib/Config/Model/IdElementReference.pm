@@ -250,10 +250,10 @@ __END__
  my $root = $inst->config_root ;
 
  # configure hosts on my network
- my $step = 'host:foo ip_nic:eth0=192.168.0.1 ip_nic:eth1=192.168.1.1 -
+ my $steps = 'host:foo ip_nic:eth0=192.168.0.1 ip_nic:eth1=192.168.1.1 -
              host:bar ip_nic:eth0=192.168.0.2 ip_nic:eth1=192.168.1.2 -
              host:baz ip_nic:eth0=192.168.0.3 ip_nic:eth1=192.168.1.3 ';
- $root->load( step => $step );
+ $root->load( steps => $steps );
 
  print "master host can be one of ",
    join(' ',$root->fetch_element('master_host')->get_choice),"\n" ; 

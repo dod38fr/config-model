@@ -327,9 +327,9 @@ sub list_cd_path {
  my $root = $inst->config_root ;
 
  # put data
- my $step = 'foo=FOO hash_of_nodes:fr foo=bonjour -
+ my $steps = 'foo=FOO hash_of_nodes:fr foo=bonjour -
    hash_of_nodes:en foo=hello ';
- $root->load( step => $step );
+ $root->load( steps => $steps );
 
  my $ui = Config::Model::SimpleUI->new( root => $root ,
   	               		        title => 'My class ui',

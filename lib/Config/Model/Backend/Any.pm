@@ -197,7 +197,7 @@ __END__
         next unless /\S/; # skip blank line
 
         # $data is 'foo=bar' which is compatible with load 
-        $self->node->load(step => $_, check => $args{check} ) ;
+        $self->node->load(steps => $_, check => $args{check} ) ;
     }
     return 1 ;
  }

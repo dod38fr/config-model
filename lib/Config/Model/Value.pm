@@ -1778,7 +1778,7 @@ __END__
  my $root = $inst->config_root ;
 
  # put data
- $root->load( step => 'foo=FOO country=US' );
+ $root->load( steps => 'foo=FOO country=US' );
 
  print $root->report ;
  #  foo = FOO
