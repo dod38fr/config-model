@@ -887,8 +887,8 @@ sub load {
     my $self   = shift;
     my $loader = Config::Model::Loader->new;
 
-    my %args = @_ eq 1 ? ( step => $_[0] ) : @_;
-    if ( defined $args{step} ) {
+    my %args = @_ eq 1 ? ( steps => $_[0] ) : @_;
+    if ( defined $args{step} || defined $args{steps}) {
         $loader->load( node => $self, %args );
     }
     else {
@@ -1710,7 +1710,7 @@ deprecated elements or values. Return 1 if data needs to be saved.
 Scan the tree from this node and apply fixes that are attached to warning specifications.
 See C<warn_if_match> or C<warn_unless_match> in L<Config::Model::Value/>.
 
-=head2 load ( step => string [ ... ])
+=head2 load ( steps => string [ ... ])
 
 Load configuration data from the string into the node and its siblings.
 
