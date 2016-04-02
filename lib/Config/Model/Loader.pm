@@ -584,7 +584,7 @@ sub _load_hash {
         Config::Model::Exception::Load->throw(
             object  => $element,
             command => join( '', map { $_ || '' } @$inst ),
-            error   => "Missing assignment on " . "element type: hash, cargo_type: $cargo_type"
+            error   => "Missing key (e.g. '$element_name:some_key') on hash element, cargo_type: $cargo_type"
         );
     }
 

@@ -457,7 +457,7 @@ is( $root->grab_value('std_id:copy X-Y-Z'), "Av", "check hash copy" );
 
 
 # test some errors cases
-my %errors = ( 'std_id', qr/Missing assignment/, 'olist', qr/Wrong assignment/, );
+my %errors = ( 'std_id', qr/Missing key/, 'olist', qr/Wrong assignment/, );
 
 foreach my $bad ( sort keys %errors ) {
     throws_ok { $root->load($bad) } $errors{$bad}, "Check error for load('$bad')";
