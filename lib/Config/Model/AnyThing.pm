@@ -216,7 +216,7 @@ sub load_pod_annotation {
             my $note = $item->text . '';
             $note =~ s/\s+$//;
             $logger->debug("load_pod_annotation: '$path' -> '$note'");
-            $self->grab( step => $path )->annotation($note);
+            $self->grab( steps => $path )->annotation($note);
         }
     }
 }
@@ -232,12 +232,12 @@ sub load_pod_annotation {
 
 sub grab {
     my $self = shift;
-    my ( $step, $mode, $autoadd, $type, $grab_non_available, $check ) =
+    my ( $steps, $mode, $autoadd, $type, $grab_non_available, $check ) =
         ( undef, 'strict', 1, undef, 0, 'yes' );
 
-    my %args = @_ > 1 ? @_ : ( step => $_[0] );
+    my %args = @_ > 1 ? @_ : ( steps => $_[0] );
 
-    $step               = delete $args{step};
+    $steps               = delete $args{steps} // delete $args{step};
     $mode               = delete $args{mode} if defined $args{mode};
     $autoadd            = delete $args{autoadd} if defined $args{autoadd};
     $grab_non_available = delete $args{grab_non_available}
@@ -255,11 +255,11 @@ sub grab {
         message => "grab: unexpected parameter: " . join( ' ', keys %args ) ) if %args;
 
     Config::Model::Exception::Internal->throw(
-        error => "grab: step parameter must be a string " . "or an array ref" )
-        unless ref $step eq 'ARRAY' || not ref $step;
+        error => "grab: steps parameter must be a string " . "or an array ref" )
+        unless ref $steps eq 'ARRAY' || not ref $steps;
 
     # accept commands, grep remove empty items left by spurious spaces
-    my $huge_string = ref $step ? join( ' ', @$step ) : $step;
+    my $huge_string = ref $steps ? join( ' ', @$steps ) : $steps;
     my @command = (
         $huge_string =~ m/
          (         # begin of *one* command
@@ -453,7 +453,7 @@ COMMAND:
                 function      => 'grab',
                 got_type      => $found[-1]->get_type,
                 expected_type => $type,
-                info          => "requested with step '$step'"
+                info          => "requested with steps '$steps'"
             ) if $mode ne 'adaptative';
             pop @found;
         }
@@ -466,7 +466,7 @@ COMMAND:
 
 sub grab_value {
     my $self = shift;
-    my %args = scalar @_ == 1 ? ( step => $_[0] ) : @_;
+    my %args = scalar @_ == 1 ? ( steps => $_[0] ) : @_;
 
     my $obj = $self->grab(%args);
 
@@ -496,7 +496,7 @@ sub grab_value {
 
 sub grab_annotation {
     my $self = shift;
-    my @args = scalar @_ == 1 ? ( step => $_[0] ) : @_;
+    my @args = scalar @_ == 1 ? ( steps => $_[0] ) : @_;
 
     my $obj = $self->grab(@args);
 
@@ -738,7 +738,7 @@ Parameters are:
 
 =over
 
-=item C<step>
+=item C<steps> (or C<step>)
 
 A string indicating the steps to follow in the tree to find the
 required item. (mandatory)
@@ -747,7 +747,7 @@ required item. (mandatory)
 
 When set to C<strict>, C<grab> will throw an exception if no object is found
 using the passed string. When set to C<adaptative>, the object found at last will
-be returned. For instance, for the step C<good_step wrong_step>, only
+be returned. For instance, for the steps C<good_step wrong_step>, only
 the object held by C<good_step> will be returned. When set to C<loose>, grab 
 will return undef in case of problem. (default is C<strict>)
 
@@ -761,8 +761,8 @@ throw an exception or return the last found object of requested type.
 
 Examples:
 
- $root->grep(step => 'foo:2 bar', type => 'leaf')
- $root->grep(step => 'foo:2 bar', type => ['leaf','check_list'])
+ $root->grep(steps => 'foo:2 bar', type => 'leaf')
+ $root->grep(steps => 'foo:2 bar', type => ['leaf','check_list'])
 
 =item C<autoadd>
 
@@ -776,7 +776,7 @@ available. I.e. even if this element was warped out. (default is 0).
 
 =back
 
-The C<step> parameters is made of the following items separated by
+The C<steps> parameters is made of the following items separated by
 spaces:
 
 =over 8
