@@ -78,11 +78,6 @@ sub write {
 
     my $perl_data = $target->dump_as_data( full_dump => $args{full_dump} // 0);
 
-    my $size = ref($perl_data) eq 'HASH'  ? scalar keys %$perl_data
-             : ref($perl_data) eq 'ARRAY' ? scalar @$perl_data
-             :                              $perl_data ;
-    return 2 unless $size ;
-
     my $yaml = Dump $perl_data ;
 
     $args{io_handle}->print($yaml);

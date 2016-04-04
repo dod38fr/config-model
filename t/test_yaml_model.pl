@@ -7,6 +7,7 @@ my @backend_config = (
         file        => 'hosts.yml',
         auto_create => 1,
         full_dump => 0,
+        auto_delete => 1,
     }],
 );
 

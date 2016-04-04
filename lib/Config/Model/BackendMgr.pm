@@ -610,10 +610,8 @@ sub auto_write_init {
                 $logger->warn( "write backend $backend $c" . '::' . "$f failed: $@" ) if $@;
                 $self->close_file_to_write( $@, $fh, $file_path );
 
-                if (defined $res and $res == 2) {
-                    unlink($file_path);
-                    return 1;
-                }
+                $self->auto_delete($file_path, \%backend_args) if $write->{auto_delete};
+
                 return defined $res ? $res : $@ ? 0 : 1;
             };
         }
@@ -624,6 +622,17 @@ sub auto_write_init {
         push @{ $self->{write_back} }, [ $backend, $wb ];
         $instance->register_write_back( $self->node->location );
     }
+}
+
+sub auto_delete {
+    my ($self, $file_path, $args) = @_;
+
+    my $perl_data = $self->node->dump_as_data( full_dump => $args->{full_dump} // 0);
+
+    my $size = ref($perl_data) eq 'HASH'  ? scalar keys %$perl_data
+             : ref($perl_data) eq 'ARRAY' ? scalar @$perl_data
+             :                              $perl_data ;
+    unlink($file_path) unless $size;
 }
 
 sub write_back {
@@ -1067,6 +1076,10 @@ This feature is necessary to create a configuration from scratch
 When set in write backend, missing directory and files will be created
 with current umask. Default is false.
 
+=item auto_delete
+
+Delete configuration files that contains no data. (default is to leave an empty file)
+
 =back
 
 Write specification is similar to read_specification. Except that the
@@ -1189,8 +1202,6 @@ Write callback function will be called with these parameters:
 The L<IO::File> object is undef if the file cannot be written to.
 
 The callback must return 0 on failure and 1 on successful write.
-
-Configuration file will be deleted if callback returns 2.
 
 =head1 CAVEATS
 
