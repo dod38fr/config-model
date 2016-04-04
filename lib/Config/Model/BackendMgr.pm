@@ -597,17 +597,16 @@ sub auto_write_init {
                 my ( $file_ok, $file_path, $fh ) =
                     $self->open_file_to_write( $backend, suffix => $suffix, @wr_args, @_ )
                     unless ( $c->can('skip_open') and $c->skip_open );
-                my $res = eval {
 
-                    # override needed for "save as" button
-                    $backend_obj->$f(
+                # override needed for "save as" button
+                my %backend_args = (
                         @wr_args,
                         io_handle => $fh,
                         file_path => $file_path,
                         object    => $self->node,
                         @_    # override from user
                     );
-                };
+                my $res = eval { $backend_obj->$f( %backend_args ); };
                 $logger->warn( "write backend $backend $c" . '::' . "$f failed: $@" ) if $@;
                 $self->close_file_to_write( $@, $fh, $file_path );
 
@@ -619,7 +618,7 @@ sub auto_write_init {
             };
         }
 
-        # FIXME: enhance write back mechanism so that different backend *and* different nodse
+        # FIXME: enhance write back mechanism so that different backend *and* different nodes
         # work as expected
         $logger->debug( "registering write $backend in node " . $self->node->name );
         push @{ $self->{write_back} }, [ $backend, $wb ];
