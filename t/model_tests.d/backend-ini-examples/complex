@@ -1,0 +1,6 @@
+foo = foo2 # foo2 comment
+
+baz = /bin/sh -c '[ "$(cat /etc/X11/default-display-manager 2>/dev/null)" = "/usr/bin/sddm" ]''
+
+[class1]
+lista=lista1 #lista1 comment

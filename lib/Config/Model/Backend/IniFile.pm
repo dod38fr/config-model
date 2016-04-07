@@ -75,7 +75,7 @@ sub read {
         my $comment_path;
 
         # Update section name
-        if ( $vdata =~ /\[(.*)\]/ ) {
+        if ( $vdata =~ /^\s*\[(.*)\]/ ) {
             $section = $force_lc{section} ? lc($1) : $1;
             my $remap = $section_map->{$section} || '';
             if ( $remap eq '!' ) {
@@ -108,7 +108,7 @@ sub read {
             }
         }
         else {
-            my ( $name, $val ) = split( /\s*=\s*/, $vdata );
+            my ( $name, $val ) = split( /\s*=\s*/, $vdata, 2 );
             $name = lc($name) if $force_lc{key};
             $val  = lc($val)  if $force_lc{value};
             $comment_path = $section_path . ' ' . $self->set_or_push( $section_ref, $name, $val );
