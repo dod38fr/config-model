@@ -487,11 +487,15 @@ sub element_type {
 }
 
 sub get_element_name {
+    goto &get_element_names;
+}
+
+sub get_element_names {
     my $self = shift;
     my %args = @_;
 
     if (delete $args{for}) {
-        carp "get_element_name arg 'for' is deprecated";
+        carp "get_element_names arg 'for' is deprecated";
     }
 
     my $type       = $args{type};              # optional
@@ -527,14 +531,14 @@ sub get_element_name {
         }
     }
 
-    $logger->debug("get_element_name: got @result");
+    $logger->debug("got @result");
 
     return wantarray ? @result : join( ' ', @result );
 }
 
 sub children {
     my $self = shift;
-    return $self->get_element_name;
+    return $self->get_element_names;
 }
 
 sub next_element {
@@ -1558,7 +1562,7 @@ configuration file.
 
 =head1 Element property management
 
-=head2 get_element_name (  ...  )
+=head2 get_element_names (  ...  )
 
 Return all elements names available.
 
@@ -1574,8 +1578,8 @@ C<hash>, C<leaf>,...). By default return elements of any type.
 =item *
 
 B<cargo_type>: Returns only element which contain requested type.
-E.g. if C<get_element_name> is called with C<< cargo_type => leaf >>,
-C<get_element_name> will return simple leaf elements, but also hash
+E.g. if C<get_element_names> is called with C<< cargo_type => leaf >>,
+C<get_element_names> will return simple leaf elements, but also hash
 or list element that contain L<leaf|Config::Model::Value> object. By
 default return elements of any type.
 
@@ -1590,7 +1594,7 @@ Returns an array in array context, and a string
 
 =head2 children
 
-Like get_element_name without parameters. Returns the list of elements. This method is
+Like C<get_element_names> without parameters. Returns the list of elements. This method is
 polymorphic for all non-leaf objects of the configuration tree.
 
 =head2 next_element ( ... )
