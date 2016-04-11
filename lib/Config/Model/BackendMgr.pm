@@ -632,7 +632,10 @@ sub auto_delete {
     my $size = ref($perl_data) eq 'HASH'  ? scalar keys %$perl_data
              : ref($perl_data) eq 'ARRAY' ? scalar @$perl_data
              :                              $perl_data ;
-    unlink($file_path) unless $size;
+    if (not $size) {
+        $logger->info( "Removing $file_path (no data to store)" );
+        unlink($file_path);
+    }
 }
 
 sub write_back {
