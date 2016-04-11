@@ -1836,7 +1836,8 @@ Through a virtual file system where every configuration parameter is mapped to a
 All these interfaces are generated from the configuration model.
 
 And configuration model can be created or modified with a graphical
-user interface (with Config::Model::Itself)
+user interface (with C<cme meta edit> once L<Config::Model::Itself> is
+installed)
 
 =head2 What about configuration data storage ?
 

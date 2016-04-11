@@ -7,9 +7,6 @@ This page describes how to write a simple configuration
 model. Creation of more complex models are described in 
 L<Creating a model with advanced features|Config::Model::Manual::ModelCreationAdvanced>.
 
-A tutorial is available in 
-L<Creating a model from config file documentation|Config::Model::Tutorial>.
-
 Note that this document will show a lot of Perl data structure to
 highlight the content of a model. A Perl data structure is very
 similar to a JSON structure. The only thing you need to know are:
@@ -49,7 +46,11 @@ the configuration tree
 
 =item target application
 
-The application that will use the configuration file
+The application that will use the configuration file. The application
+can be of type C<system> (i.e. the configuration file is located in
+C</etc>), C<user> (i.e. the configuration file is located in a user
+directory like C<~/.config>) or C<application> (the configuration file
+is in or below the current directory)
 
 =item end user
 
@@ -215,15 +216,27 @@ A hash of string leaves for C<distrib> (no default).
 In terms of models, the model will be stored this way by Config::Model:
 
  {
-  'name' => 'Approx',
-  'element' 
-  => [
-      'pdiffs'       , { type => 'leaf', value_type => 'boolean', upstream_default => '1'      },
-      'max_wait'     , { type => 'leaf', value_type => 'integer', upstream_default => '10'     },
-      'distributions', { type => 'hash', index_type => 'string' ,
-                         cargo => { value_type => 'uniline', type => 'leaf',},
-                       }
-      ]
+  name => 'Approx',
+  element => [
+      pdiffs => {
+          type => 'leaf',
+          value_type => 'boolean',
+          upstream_default => '1'
+      },
+      max_wait => {
+          type => 'leaf',
+          value_type => 'integer',
+          upstream_default => '10'
+      },
+      distributions'=> {
+          type => 'hash',
+          index_type => 'string' ,
+          cargo => {
+              value_type => 'uniline',
+              type => 'leaf',
+          },
+      }
+   ]
  }
 
 The C<Xorg> example will lead to a slightly more complex model with several classes:
@@ -327,7 +340,7 @@ that the documentation was understood.
 
 =head1 Model declaration
 
-=head2 Configuration class declaration
+=head2 Configuration class declaration (the hard way)
 
 In summary, configuration documentation is translated in a format
 usable by Config::Model:

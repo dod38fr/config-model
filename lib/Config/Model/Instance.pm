@@ -551,10 +551,19 @@ This module provides an object that holds a configuration tree.
 
 An instance object is created by calling 
 L<instance method|Config::Model/"Configuration instance"> on 
-an existing model:
+an existing model. This model can be specified by its application name
+(the app):
 
- my $inst = $model->instance (root_class_name => 'SomeRootClass', 
-                              instance_name => 'test1');
+ my $inst = $model->instance (
+   application => 'foo', # as stored in lib/
+   instance_name => 'test1'
+ );
+
+
+ my $inst = $model->instance (
+   root_class_name => 'SomeRootClass',
+   instance_name => 'test1'
+ );
 
 The directory (or directories) holding configuration files is
 specified within the configuration model. For test purpose you can
