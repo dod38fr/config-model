@@ -340,6 +340,15 @@ that the documentation was understood.
 
 =head1 Model declaration
 
+=head2 Configuration class declaration
+
+Since writing the data structure shown below is not fun (even with
+Perl), you are encouraged to use the model editor provided by L<cme>
+using C<cme meta edit> command (provided by L<Config::Model::Itself>).
+You will get a GUI to create or update your model.
+
+C<cme> will write the data structure in the correct directory.
+
 =head2 Configuration class declaration (the hard way)
 
 In summary, configuration documentation is translated in a format
@@ -426,13 +435,6 @@ For instance:
                 ]
    }
  ];
-
-=head2 Configuration class declaration (easier way)
-
-Since writing a data structure is not fun (even with Perl), you are
-encouraged to use the model editor provided by L<config-model-edit>
-from L<Config::Model::Itself> module. You will get this type of GUI
-shown on the right with the command C<config-model-edit -model Xorg>
 
 =head2 Common attributes for all elements
 
