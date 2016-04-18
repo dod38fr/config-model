@@ -1886,6 +1886,12 @@ L<Config::Model::Cookbook::CreateModelFromDoc>
 
 =item *
 
+L<Config::Model::models::Itself::Class>: This doc and its siblings
+describes all parameters available to create a model. These are the
+parameters available in the GUI launched by C<cme meta edit> command.
+
+=item *
+
 L<Config::Model::Manual::ModelCreationAdvanced>
 
 =back
