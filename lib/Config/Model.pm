@@ -1381,7 +1381,8 @@ sub get_element_description {
 
     my $desc = $elt_info->{description} || '';
     if ($desc) {
-        $desc .= '. ' if $desc =~ /\w$/;
+        $desc .= '.' if $desc =~ /\w$/;
+        $desc .= ' ' unless $desc =~ /\s$/;
     }
 
     if ( my $status = $elt_info->{status} ) {
