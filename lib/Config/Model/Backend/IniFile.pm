@@ -133,7 +133,6 @@ sub read {
 
 sub load_data {
     my $self = shift;
-    say "calling load_data on ". ref($self);
     $self->node->load_data(@_);
 }
 
