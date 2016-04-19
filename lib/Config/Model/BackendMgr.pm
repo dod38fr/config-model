@@ -795,7 +795,7 @@ __END__
 
 =head1 SYNOPSIS
 
- # Use BackendMgr to write data in perl data file
+ # Use BackendMgr to write data in Yaml file
  use Config::Model;
 
  # define configuration tree object
@@ -808,7 +808,7 @@ __END__
             value_type => 'string'
         },
     ]
- ); 
+ );
 
  $model->create_config_class(
     name => "MyClass",
@@ -816,13 +816,13 @@ __END__
     # read_config spec is used by Config::Model::BackendMgr
     read_config => [
         {
-            backend     => 'perl_file',
+            backend     => 'yaml',
             config_dir  => '/tmp/',
-            file        => 'my_class.pl',
+            file        => 'my_class.yml',
             auto_create => 1,
         },
     ],
-    
+
     element => [
         [qw/foo bar/] => {
             type       => 'leaf',
@@ -839,7 +839,7 @@ __END__
     ],
  );
 
- my $inst = $model->node->instance( root_class_name => 'MyClass' );
+ my $inst = $model->instance( root_class_name => 'MyClass' );
 
  my $root = $inst->config_root;
 
@@ -850,13 +850,12 @@ __END__
 
  $inst->write_back;
 
- # now look at file /tmp/my_class.pl
+ # now look at file /tmp/my_class.yml
 
 =head1 DESCRIPTION
 
 This class provides a way to specify how to load or store
-configuration data within the model (instead of writing dedicated perl
-code).
+configuration data within the model.
 
 With these specifications, all the configuration information is read
 during creation of a node.
