@@ -459,12 +459,31 @@ Note that undefined values are skipped for list element. I.e. if a
 list element contains C<('a',undef,'b')>, the data structure will
 contain C<'a','b'>.
 
-=head1 Comments
+=head1 Limitations
 
-This backend tries to read and write comments from configuration file. The
-comments are stored as annotation within the configuration tree. Bear in mind
-that comments extraction is based on best estimation as to which parameter the 
-comment may apply. Wrong estimations are possible.
+=head2 Structure
+
+Structure of the Config::Model must be very simple. Either:
+
+=over
+
+=item *
+
+A single class with hash of leaves elements.
+
+=item *
+
+2 levels of classes. The top level has nodes elements. All other
+classes have only leaf elements.
+
+=back
+
+=head1 Comments in Ini file
+
+This backend tries to read and write comments from configuration
+file. The comments are stored as annotation within the configuration
+tree. Comments extraction is based on best estimation as to which
+parameter the comment may apply. Wrong estimations are possible.
 
 =head1 CONSTRUCTOR
 
