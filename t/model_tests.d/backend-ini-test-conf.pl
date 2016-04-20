@@ -1,9 +1,16 @@
-use Config::Model::BackendMgr;
 
-# test shellvar backend
+# test inifile backend
+
+# specify where is the example file
 $conf_file_name = 'test.ini';
 $conf_dir = '/etc';
 
+# specify the name of the class to test
+$model_to_test = "MiniIni";
+
+# create minimal model to test ini file backend.
+
+# this class is used by MiniIni class below
 $model->create_config_class(
     name    => 'IniTest::Class',
     element => [
@@ -28,7 +35,7 @@ $model->create_config_class(
                 }
             },
 
-            [qw/baz/] => {
+            baz => {
                 qw/type leaf value_type uniline/,
             },
             [qw/class1 class2/] => {
@@ -38,18 +45,21 @@ $model->create_config_class(
         ],
     read_config => [{
         backend     => 'IniFile',
+        # specify where is the config file. this must match
+        # the $conf_file_name and $conf_dir variable above
         config_dir  => '/etc/',
         file        => 'test.ini',
         auto_create => 1,
     }],
 );
 
-$model_to_test = "MiniIni";
 
+# the test suite
 @tests = (
     {   # test complex parameters
         name  => 'complex',
         check => [
+            # check a specific value stored in example file
             baz => q!/bin/sh -c '[ "$(cat /etc/X11/default-display-manager 2>/dev/null)" = "/usr/bin/sddm" ]''!
         ]
     },
