@@ -1,5 +1,27 @@
 {{$NEXT}}
 
+2.083 2016-04-20
+
+  Functional improvements:
+    * backend parameters: added auto_delete parameter so
+      that a config file can be removed when it no longer
+      contains data
+    * attributes specified in a model plugin can override
+      attributes of the base model.
+
+  Bug fixes:
+    * BackendMgr: do not remove links to config files
+    * Fix ini backend to parse values that contain '='
+
+  Doc updates:
+    * Improved instructions to specify a backend in
+      Config::Model::BackendMgr doc
+    * Added instructions to create your own backend in
+      Config::Model::Backend::Any doc
+    * updated model creation intro doc
+    * Mentions Itself generated doc as reference doc
+    * update  CreateModelFromDoc to use cme meta edit
+
 2.082 2016-03-29
 
   No big change this time, but a lot of small improvements
