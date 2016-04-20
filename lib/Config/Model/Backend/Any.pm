@@ -172,8 +172,8 @@ __END__
  extends 'Config::Model::Backend::Any';
 
  # optional
- sub suffix { 
-   return '.foo';
+ sub suffix {
+   return '.conf';
  }
 
  # mandatory
@@ -182,18 +182,20 @@ __END__
     my %args = @_ ;
 
     # args are:
-    # root       => './my_test',  # fake root directory, userd for tests
-    # config_dir => /etc/foo',    # absolute path 
+    # root       => './my_test',  # fake root directory, used for tests
+    # config_dir => /etc/foo',    # absolute path
     # file       => 'foo.conf',   # file name
-    # file_path  => './my_test/etc/foo/foo.conf' 
-    # io_handle  => $io           # IO::File object
+    # file_path  => './my_test/etc/foo/foo.conf'
+    # io_handle  => $io           # IO::File object opened for read
     # check      => yes|no|skip
 
-    return 0 unless defined $args{io_handle} ; # or die?
+    return 0 unless defined $args{io_handle} ; # or die, your choice
 
+    # read the file line by line
+    # we assume the file contain lines like 'key=value'
     foreach ($args{io_handle}->getlines) {
-        chomp ;
-        s/#.*// ;
+        chomp ;   # remove trailing \n
+        s/#.*// ; # remove any comment
         next unless /\S/; # skip blank line
 
         # $data is 'foo=bar' which is compatible with load 
@@ -208,37 +210,150 @@ __END__
     my %args = @_ ;
 
     # args are:
-    # root       => './my_test',  # fake root directory, userd for tests
+    # root       => './my_test',  # fake root directory, used for tests
     # config_dir => /etc/foo',    # absolute path 
     # file       => 'foo.conf',   # file name
-    # file_path  => './my_test/etc/foo/foo.conf' 
-    # io_handle  => $io           # IO::File object
+    # file_path  => './my_test/etc/foo/foo.conf'
+    # io_handle  => $io           # IO::File object opened for write
     # check      => yes|no|skip
 
     my $ioh = $args{io_handle} ;
 
-    foreach my $elt ($self->node->get_element_name) {
-        my $obj =  $self->node->fetch_element($elt) ;
-        my $v   = $self->node->grab_value($elt) ;
+    # read the content of the configuration tree
+    foreach my $elt ($self->node->children) {
+        # read the value from element $elt
+        my $v = $self->node->grab_value($elt) ;
 
-        # write value
+        # write value in file
         $ioh->print(qq!$elt="$v"\n!) if defined $v ;
-        $ioh->print("\n")            if defined $v ;
     }
 
     return 1;
  }
 
- no Mouse ;
- __PACKAGE__->meta->make_immutable ;
 
 =head1 DESCRIPTION
 
-This L<Mouse> class is to be inherited by other backend plugin classes
+Some application have configuration files with a syntax which is not
+supported by existing C<Config::Model::Backend::*> classes.
 
-See L<Config::Model::BackendMgr/"read callback"> and
-L<Config::Model::BackendMgr/"write callback"> for more details on the
-method that must be provided by any backend classes.
+In this case a new backend must be
+written. C<Config::Model::Backend::Any> was created to facilitate this
+task.
+
+The new backend class must use L<Mouse> and must extends (inherit)
+C<Config::Model::Backend::Any>.
+
+=head1 How to write your own backend
+
+=head2 Declare the new backend in a node of the model
+
+As explained in L<Config::Model::BackendMgr/"Backend specification">, the
+new backend must be declared as an attribute of a
+L<Config::Model::Node> specification.
+
+Let's say your new backend is C<Config::Model::Backend::Foo>. This new backend
+can be specified with:
+
+ read_config  => [ {
+    backend    => 'Foo' , # can also be 'foo'
+    config_dir => '/etc/cfg_dir'
+    file       => 'foo.conf', # optional
+ }]
+
+(The backend class name is constructed with C<ucfirst($backend_name)>)
+
+C<read_config> can also have custom parameters that will passed
+verbatim to C<Config::Model::Backend::Foo> methods:
+
+ read_config  => [ {
+    backend    => 'Foo' , # can also be 'foo'
+    config_dir => '/etc/cfg_dir'
+    file       => 'foo.conf', # optional
+    my_param   => 'my_value',
+ } ]
+
+C<Config::Model::Backend::Foo> class must inherit (extend)
+L<Config::Model::Backend::Any> and is expected to provide the
+following methods:
+
+=over
+
+=item read
+
+C<read()> is called with the following parameters:
+
+ %custom_parameters,       # e.g. my_param   => 'my_value' in the example above
+ object     => $obj,         # Config::Model::Node object
+ root       => $root_dir,  # fake root directory, used for tests
+ backend    => $backend,   # backend name
+ config_dir => $read_dir,  # path below root
+ file       => 'foo.conf',   # file name
+ file_path  => $full_name, # full file name (root+path+file)
+ io_handle  => $io_file    # IO::File object opened for read
+ check      => [yes|no|skip]
+
+The L<IO::File> object is undef if the file cannot be read.
+
+This method must return 1 if the read was successful, 0 otherwise.
+
+Following the C<my_param> example above, C<%custom_parameters> contains
+C< ( 'my_param' , 'my_value' ) >, so C<read()> will also be called with
+C<root>, C<config_dir>, C<file_path>, C<io_handle> B<and>
+C<<  my_param   => 'my_value' >>.
+
+=item write
+
+C<write()> is called with the following parameters:
+
+ %$custom_parameters,         # e.g. my_param   => 'my_value' in the example above
+ object      => $obj,         # Config::Model::Node object
+ root        => $root_dir,    # fake root directory, used for tests
+ auto_create => $auto_create, # boolean specified in backend declaration
+ backend     => $backend,     # backend name
+ config_dir  => $write_dir,   # override from instance
+ file       => 'foo.conf',   # file name
+ file_path  => $full_name, # full file name (root+path+file)
+ io_handle   => $fh,          # IO::File object
+ write       => 1,            # always
+ check       => [ yes|no|skip] ,
+ backup      => [ undef || '' || suffix ] # backup strategy required by user
+
+The L<IO::File> object is undef if the file cannot be written to.
+
+This method must return 1 if the write was successful, 0 otherwise
+
+If C<io_handle> is defined, the backup has already been done before
+opening the config file. If C<io_handle> is not defined, there's not
+enough information in the model to read the configuration file and
+create the backup. Your C<write()> method will have to do the backup
+requested by user.
+
+When both C<config_dir> and C<file> are specified,
+L<the backend manager|Config::Model::BackendMgr> will
+write-open the configuration file (and thus clobber it) before calling
+the C<write> call-back and pass the file handle with C<io_handle>
+parameter. C<write> should use this handle to write data in the target
+configuration file.
+
+If this behavior causes problem, the solution is either to override
+C<skip_open> method in your backend that returns C<1>.
+
+=back
+
+
+=head2 How to test your new backend
+
+Using L<Config::Model::Tester>, you can test your model with your
+backend following the instructions given in L<Config::Model::Tester>.
+
+You can also test your backend with a minimal model (and
+L<Config::Model::Tester>). In this case, you need to specify
+a small model to test in a C<*-test-conf.pl> file.
+See the
+L<IniFile backend test|https://github.com/dod38fr/config-model/blob/master/t/model_tests.d/backend-ini-test-conf.pl>
+for an example and its
+L<examples files|https://github.com/dod38fr/config-model/tree/master/t/model_tests.d/backend-ini-examples>.
 
 =head1 CONSTRUCTOR
 
@@ -257,7 +372,7 @@ backend supports annotations.
 
 =head2 suffix
 
-Suffix of the configuration file. This method returns C<undef>
+Suffix of the configuration file. This method returns C<undef> by default.
 
 =head2 read
 
