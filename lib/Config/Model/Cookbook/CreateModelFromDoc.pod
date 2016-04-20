@@ -108,11 +108,11 @@ Default values
 =back
 
 Now, we will use our favorite editor to edit this file and add YAML
-tags that can be understood by C<config-model-edit>
+tags that can be understood by C<cme meta edit>
 
 =head1 Creating the YAML skeleton
 
-C<config-model-edit> is able to load a model described in
+C<cme meta edit> is able to load a model described in
 YAML. To do this the above file needs to be translated in YAML. That's
 not as complicated as it may sound.
 
@@ -192,7 +192,7 @@ keep paragraph formatting in the help.
          http_proxy.
         
       MY_HOSTID:
-        description: >
+        description: >-
          secret number that the popularity-contest receiver uses to 
          keep track of your submissions.  Whenever you send in a new 
          entry, it overwrites the last one that had the same HOSTID.
@@ -205,7 +205,7 @@ keep paragraph formatting in the help.
 Now that the YAML file was created, you can turn it into a model and
 load it in the model editor GUI with the following command:
 
- config-model-edit -model PopCon -load_yaml popcon.yml -force
+ cme meta edit popcon -load-yaml popcon.yml -force
 
 Note that the model is incomplete: some mandatory parameters are
 missing from the YAML file so the I<-force> option must be used. These
@@ -238,11 +238,17 @@ C<Popcon> class specification:
 
 =over
 
-=item * right-click on I<read_config>
+=item *
 
-=item * click on I<push new node> to create a new read specification
+right-click on I<read_config>
 
-=item * right-click on the created item (shown at index "I<0>")
+=item *
+
+click on I<push new node> to create a new read specification
+
+=item *
+
+right-click on the created item (shown at index "I<0>")
 
 =back
 
@@ -254,7 +260,7 @@ C<ShellVar> since I<popularity-contest.conf> is made of shell
 variables.
 
 Since the write specification is identical, there's no need to specify
-it. Config::Model will do the right thing.
+it. L<Config::Model> will do the right thing.
 
 =head1 Testing the model
 
