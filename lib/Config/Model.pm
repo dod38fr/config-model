@@ -1273,6 +1273,9 @@ sub get_model_doc {
             "# PODNAME: $full_name",
             "# ABSTRACT:  Configuration class " . $class_name,
 
+            # assume utf8 for all docs
+            "=encoding utf8",
+
             # plain old pod compatibility
             "=head1 NAME",                                     '',
             "$full_name - Configuration class " . $class_name, '',
