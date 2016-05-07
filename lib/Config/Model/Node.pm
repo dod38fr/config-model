@@ -1284,14 +1284,13 @@ element will raise an exception (See L<Config::Model::Exception>.
 
 =item B<description>
 
-Optional C<list ref> of element description. These descriptions will
-be used when generating user interfaces.
+Optional C<list ref> of element summaries. These summaries may be used
+when generating user interfaces.
 
 =item B<description>
 
-Optional C<list ref> of element summary. These descriptions will be
-used when generating user interfaces or as comment when writing
-configuration files.
+Optional C<list ref> of element descriptions. These descriptions may be
+used when generating user interfaces.
 
 =item B<read_config>
 
