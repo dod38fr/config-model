@@ -1,26 +1,44 @@
-=head1 Config::Model - Describe and edit configuration data
+=head1 What is Config-Model project
 
-L<Config::Model> enables a project developer to provide an interactive
-configuration editor (graphical, curses based or plain terminal) to
-his users. For this, he must:
+L<Config::Model> is:
 
 =over
 
 =item *
 
-describe the structure and constraints of his project's configuration. (this is called a model, but could also be called a schema)
+A set of configuration editor and validator for several projects like
+L<OpenSSH|http://www.openssh.com/>, L<Systemd|https://freedesktop.org/wiki/Software/systemd/>
+or L<LcdProc|http://www.lcdproc.org/>.
+See L<full list of Configuration editors|https://github.com/dod38fr/config-model/wiki/Available-models-and-backends#Available_models_and_configuration_editors>
 
 =item *
 
-find a way to read and write configuration data. This can be provided 
-by L<Config::Model> backends or by custom code
+A framework that enables a project developer (or any advance user) to
+provide a configuration editor and validator to his users.
+
+=over
+
+
+To generate a configuration editor and validator for a project, L<Config::Model> needs:
+
+=item *
+
+a description of the structure and constraints of a project
+configuration. (this is called a model, but could also be called a
+schema)
+
+=item *
+
+a way to read and write configuration data. This can be provided 
+by L<built-in read/write backends|https://github.com/dod38fr/config-model/wiki/Available-models-and-backends#Available_backend>
+or by a L<new read/write backend|http://search.cpan.org/~ddumont/Config-Model-2.083/lib/Config/Model/Backend/Any.pm#How_to_write_your_own_backend>.
 
 =back
 
-With the elements above, L<Config::Model> will generate interactive
-configuration editors (with integrated help and data validation).
-These editors can be graphical (with L<Config::Model::TkUI>), curses
-based (with L<Config::Model::CursesUI>) or based on ReadLine (with L<Config::Model::TermUI>).
+With the elements above, L<Config::Model> generates interactive
+configuration editors (with integrated help and data validation)
+and support several kinds of user interface, e.g. graphical, interactive
+command line. See the L<list of available user interfaces|https://github.com/dod38fr/config-model/wiki/Available-models-and-backends#Available_user_interfaces>
 
 =head2 Installation
 
