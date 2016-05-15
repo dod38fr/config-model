@@ -6,14 +6,14 @@ L<Config::Model> is:
 
 =item *
 
-A set of configuration editor and validator for several projects like
-L<OpenSSH|http://www.openssh.com/>, L<Systemd|https://freedesktop.org/wiki/Software/systemd/>
-or L<LcdProc|http://www.lcdproc.org/>.
+a set of configuration editor and validator for several projects like
+L<OpenSSH|http://www.openssh.com/>, L<Systemd|https://freedesktop.org/wiki/Software/systemd/>,
+L<LcdProc|http://www.lcdproc.org/>...
 See L<full list of Configuration editors|https://github.com/dod38fr/config-model/wiki/Available-models-and-backends#Available_models_and_configuration_editors>
 
 =item *
 
-A framework that enables a project developer (or any advance user) to
+a framework that enables a project developer (or any advance user) to
 provide a configuration editor and validator to his users.
 
 =back
