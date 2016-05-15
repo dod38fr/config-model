@@ -16,10 +16,11 @@ See L<full list of Configuration editors|https://github.com/dod38fr/config-model
 A framework that enables a project developer (or any advance user) to
 provide a configuration editor and validator to his users.
 
-=over
-
+=back
 
 To generate a configuration editor and validator for a project, L<Config::Model> needs:
+
+=over
 
 =item *
 
