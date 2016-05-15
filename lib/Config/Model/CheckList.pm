@@ -1039,7 +1039,10 @@ With a parameter, this method will return either:
 
 =item custom
 
-The list entered by the user
+The list entered by the user. An empty list is returned if the list of
+checked items is identical to the list of items checked by default. The
+whole list of checked items is returned as soon as B<one> item is different
+from standard value.
 
 =item preset
 

@@ -188,7 +188,7 @@ sub run_loop {
 
 1;
 
-# ABSTRACT: Provides Config::Model UI with Term::ReadLine
+# ABSTRACT: Interactive command line interface for cme
 
 __END__
 
@@ -288,8 +288,8 @@ on top of L<Term::ReadLine>. To get better interaction you must
 install either L<Term::ReadLine::Gnu> or L<Term::ReadLine::Perl>.
 
 Depending on your installation, either L<Term::ReadLine::Gnu> or
-L<Term::ReadLine::Perl>. See L<Term::ReadLine> to override default
-choice.
+L<Term::ReadLine::Perl> will be used. See L<Term::ReadLine> to
+override default choice.
 
 =head1 USER COMMAND SYNTAX
 
