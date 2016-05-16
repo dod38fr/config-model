@@ -14,6 +14,7 @@ use Config::Model ;             # to generate doc
 
 sub gen_class_pod {
     my $cm = Config::Model -> new(model_dir => "lib/Config/Model/models") ;
+    my %done;
 
     my @models = @_ ? @_ :
         map { /model\s*=\s*([\w:-]+)/; $1; }
@@ -23,13 +24,11 @@ sub gen_class_pod {
         path ("lib/Config/Model/")->children(qr/\.d$/);
 
     foreach my $model (@models) {
-        # this test avoid generating doc several times (generate_doc scan docs for
+        # %done avoid generating doc several times (generate_doc scan docs for
         # classes referenced by the model with config_class_name parameter)
-        if (not $cm->model_exists($model)) {
-            print "Checking doc for model $model\n";
-            $cm->load($model) ;
-            $cm->generate_doc ($model,'lib') ;
-        }
+        print "Checking doc for model $model\n";
+        $cm->load($model) ;
+        $cm->generate_doc ($model,'lib', \%done) ;
     }
 }
 
@@ -52,7 +51,7 @@ This module provides a single exported function: C<gen_class_pod>.
 
 This function will scan C<./lib/Config/Model/models/*.d>
 and generate pod documentation for each file found there using
-L<Config::Model::generate_doc|Config::Model/"generate_doc ( top_class_name , [ directory ] )">
+L<Config::Model::generate_doc|Config::Model/"generate_doc ( top_class_name , directory , [ \%done ] )">
 
 You can also pass one or more class names. C<gen_class_pod> will write
 the documentation for each passed class and all other classes used by

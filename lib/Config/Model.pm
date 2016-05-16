@@ -1247,9 +1247,11 @@ sub get_model {
     return dclone($model);
 }
 
+# internal
 sub get_model_doc {
-    my ( $self, $top_class_name ) = @_;
+    my ( $self, $top_class_name, $done ) = @_;
 
+    $done //= {};
     if ( not defined $self->normalized_model($top_class_name) ) {
         croak "get_model_doc error : unknown config class name: $top_class_name";
     }
@@ -1259,7 +1261,8 @@ sub get_model_doc {
 
     while (@classes) {
         my $class_name = shift @classes;
-        next if defined $result{$class_name};
+        next if $done->{$class_name} ;
+
         my $c_model = $self->get_model($class_name)
             || croak "get_model_doc model error : unknown config class name: $class_name";
 
@@ -1341,6 +1344,7 @@ sub get_model_doc {
         );
 
         $result{$full_name} = join( "\n", @pod, @elt, @see_also, @end, '=cut', '' ) . "\n";
+        $done->{$class_name} = 1;
     }
     return \%result;
 }
@@ -1423,10 +1427,10 @@ sub get_element_value_help {
 }
 
 sub generate_doc {
-    my ( $self, $top_class_name, $dir ) = @_;
+    my ( $self, $top_class_name, $dir, $done ) = @_;
 
-    my $res = $self->get_model_doc($top_class_name);
-    my @wrote;
+    $done //= {} ;
+    my $res = $self->get_model_doc($top_class_name, $done);
 
     if ( defined $dir and $dir ) {
         foreach my $class_name ( sort keys %$res ) {
@@ -1451,7 +1455,6 @@ sub generate_doc {
                 $fh->print( $res->{$class_name} );
                 $fh->close;
                 print "Wrote documentation in $pod_file\n";
-                push @wrote, $pod_file;
             }
         }
     }
@@ -1461,7 +1464,6 @@ sub generate_doc {
             print $res->{$class_name};
         }
     }
-    return @wrote;
 }
 
 sub get_element_model {
@@ -2312,17 +2314,13 @@ for more details on creating model plugins.
 Return a hash containing the model declaration (in a deep clone copy of the hash).
 You may modify the hash at leisure.
 
-=head2 get_model_doc
-
-Generate POD document for configuration class.
-
-=head2 generate_doc ( top_class_name , [ directory ] )
+=head2 generate_doc ( top_class_name , directory , [ \%done ] )
 
 Generate POD document for configuration class top_class_name and all
-classes used by top_class_name, and write them on STDOUT or in
-specified directory.
+classes used by top_class_name, and write them in specified directory.
 
-Returns a list of written file names.
+C<\%done> is an optional reference to a hash used to avoid writing
+twice the same documentation when this method is called several times.
 
 =head2 get_element_model( config_class_name , element)
 
