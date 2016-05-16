@@ -2,11 +2,11 @@
 
 =head2 Debian or Ubuntu
 
-L<Config::Model> is provided as Debian package. Just type
+L<cme> and most L<Config::Model> modules are provided as Debian package. The following
+command will install the framework and all available models and UIs:
 
-  sudo apt-get install libconfig-model-perl
+  sudo apt-get install --install-recommends --install-suggests cme
 
-Or use your favorite installer
 
 =head2 Mac OSX
 
@@ -42,4 +42,5 @@ on Fedora is severely oudated. See below for installation.
 
 For other systems, you should install L<Config::Model> from CPAN:
 
+  cpanp install App::Cme
   cpanp install Config::Model
