@@ -495,7 +495,7 @@ C<uniline> (i.e. a string without "\n") (mandatory)
 
 Minimum value (for C<integer> or C<number>)
 
-=item <max
+=item max
 
 Maximum value (for C<integer> or C<number>)
 
