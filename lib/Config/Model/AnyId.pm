@@ -762,6 +762,11 @@ sub children {
     return $self->fetch_all_indexes;
 }
 
+sub has_data {
+    my $self = shift;
+    return $self->fetch_size ;
+}
+
 # auto vivify must create according to cargo}{type
 # node -> Node or user class
 # leaf -> Value or user class
@@ -1418,6 +1423,10 @@ Returns true if the value held at C<index> is defined.
 Returns true if the value held at C<index> exists (i.e the key exists
 but the value may be undefined). This method may not make sense for
 list element.
+
+=head2 has_data
+
+Return true if the array or hash is not empty.
 
 =head2 delete ( index )
 
