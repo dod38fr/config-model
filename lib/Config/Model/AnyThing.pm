@@ -554,6 +554,13 @@ sub grab_ancestor_with_element_named {
     }
 }
 
+# fallback method for object that don't implement has_data
+sub has_data {
+    my $self= shift;
+    $logger->debug("called fall-back has_data for element", $self->name) if $logger->is_debug;
+    return 1;
+}
+
 sub model_searcher {
     my $self = shift;
     my %args = @_;
