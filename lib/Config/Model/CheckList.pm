@@ -353,6 +353,12 @@ sub uncheck {
         unless $self->instance->initial_load;
 }
 
+sub has_data {
+    my $self = shift;
+    my @set = $self->get_checked_list(qw/mode custom/) ;
+    return scalar @set;
+}
+
 my %accept_mode =
     map { ( $_ => 1 ) } qw/custom standard preset default layered upstream_default user/;
 
@@ -1002,6 +1008,11 @@ C<check> parameter decide on behavior in case of invalid
 choice value: either die (if yes) or discard bad value (if skip)
 
 C<mode> is either: custom standard preset default layered upstream_default
+
+=head2 has_data
+
+Return true if the check_list contains a set of checks different from default
+or upstream default set of check.
 
 =head2 get_choice
 

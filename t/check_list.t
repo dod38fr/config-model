@@ -331,11 +331,15 @@ my $dflist = $root->fetch_element('choice_list_with_default');
 ok( $dflist, "created choice_list_with_default" );
 @got = $dflist->get_checked_list;
 is_deeply( \@got, [ 'A', 'D' ], "test default of choice_list_with_default" );
+@got = $dflist->get_checked_list(mode =>'custom');
+is_deeply( \@got, [  ], "test custom data  of choice_list_with_default" );
+is($dflist->has_data, 0, "choice_list_with_default has no data");
 
 $dflist->check('C');
 $dflist->uncheck('D');
 @got = $dflist->get_checked_list;
 is_deeply( \@got, [ 'A', 'C' ], "test default of choice_list_with_default" );
+is($dflist->has_data, 1, "choice_list_with_default has data");
 
 @got = $dflist->get_checked_list('custom');
 is_deeply( \@got, ['C'], "test custom of choice_list_with_default" );
