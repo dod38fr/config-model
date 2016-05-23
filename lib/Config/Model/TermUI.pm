@@ -291,6 +291,13 @@ Depending on your installation, either L<Term::ReadLine::Gnu> or
 L<Term::ReadLine::Perl> will be used. See L<Term::ReadLine> to
 override default choice.
 
+=head1 Dependencies
+
+This module is optional and depends on L<Term::ReadLine> to work. To
+reduce the dependency list of L<Config::Model>, C<Term::ReadLine> is
+only recommended. L<cme> will handle a graceful degradation to
+L<Config::Model::SimpleUI> when necessary.
+
 =head1 USER COMMAND SYNTAX
 
 See L<Config::Model::SimpleUI/"USER COMMAND SYNTAX">.
