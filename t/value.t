@@ -312,10 +312,13 @@ is( $inst->needs_save, 0, "verify instance needs_save status after creation" );
 
 is( $i->needs_check, 1, "verify check status after creation" );
 
+is( $i->has_data, 0, "check has_data on empty scalar" );
+
 $i->store(1);
 ok( 1, "store test done" );
 is( $i->needs_check,   0, "store does not trigger a check (check done during store)" );
 is( $inst->needs_save, 1, "verify instance needs_save status after store" );
+is( $i->has_data, 1, "check has_data after store" );
 
 is( $i->fetch,         1, "fetch test" );
 is( $i->needs_check,   0, "check was done during fetch" );
@@ -357,8 +360,12 @@ $ms->store($toto_str);
 print join( "\n", $inst->list_changes("\n") ), "\n" if $trace;
 $inst->clear_changes;
 
+
 my $mwdv = $root->fetch_element('mandatory_with_default_value');
+# note: calling fetch before store triggers a "notify_change" to
+# let user know that his file was changed by model
 $mwdv->store('booya');    # emulate reading a file containing default value
+is( $mwdv->has_data, 0, "check has_data after storing default value" );
 is( $mwdv->fetch,      'booya', "status quo" );
 is( $inst->needs_save, 0,       "verify instance needs_save status after storing default value" );
 
@@ -502,12 +509,14 @@ is( $up_def->fetch,                         undef,    "upstream actual value" );
 is( $up_def->fetch_standard,                'up_def', "upstream standard value" );
 is( $up_def->fetch('upstream_default'),     'up_def', "upstream actual value" );
 is( $up_def->fetch('non_upstream_default'), undef,    "non_upstream value" );
+is( $up_def->has_data, 0, "does not have data");
 
 $up_def->store('yada');
 is( $up_def->fetch('upstream_default'),     'up_def', "after store: upstream actual value" );
 is( $up_def->fetch('non_upstream_default'), 'yada',   "after store: non_upstream value" );
 is( $up_def->fetch,                         'yada',   "after store: upstream actual value" );
 is( $up_def->fetch('standard'),             'up_def', "after store: upstream standard value" );
+is( $up_def->has_data, 1, "has data");
 
 ###
 
@@ -594,19 +603,23 @@ is( $layer_inst->layered, 0, "instance in normal mode" );
 
 is( $l_scalar->fetch, undef, "scalar: read layered value as backend value" );
 is( $l_scalar->fetch( mode => 'user' ), 3, "scalar: read layered value as user value" );
+is( $l_scalar->has_data, 0, "scalar: has no data" );
 $l_scalar->store(4);
 is( $l_scalar->fetch,            4, "scalar: read overridden layered value as value" );
 is( $l_scalar->fetch('layered'), 3, "scalar: read layered value as layered_value" );
 is( $l_scalar->fetch_standard,   3, "scalar: read standard_value" );
 is( $l_scalar->fetch_custom,     4, "scalar: read custom_value" );
+is( $l_scalar->has_data,         1, "scalar: has data" );
 
 is( $l_enum->fetch, undef, "enum: read layered value as backend value" );
 is( $l_enum->fetch( mode => 'user' ), 'B', "enum: read layered value as user value" );
+is( $l_enum->has_data, 0, "enum: has no data" );
 $l_enum->store('C');
 is( $l_enum->fetch,            'C', "enum: read overridden layered value as value" );
 is( $l_enum->fetch('layered'), 'B', "enum: read layered value as layered_value" );
 is( $l_enum->fetch_standard,   'B', "enum: read layered value as standard_value" );
 is( $l_enum->fetch_custom,     'C', "enum: read custom_value" );
+is( $l_enum->has_data, 1, "enum: has data" );
 
 is($msl->fetch('layered'), 'plop',"check mandatory value in layer");
 is($msl->fetch, undef,"check mandatory value backend mode");

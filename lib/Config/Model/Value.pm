@@ -1409,6 +1409,11 @@ sub fetch_standard {
     return $self->fetch(mode => 'standard');
 }
 
+sub has_data {
+    my $self = shift;
+    return (defined $self->fetch(qw/mode custom check no silent 1/)) ? 1 : 0 ;
+}
+
 sub _init {
     my $self = shift;
 
@@ -1516,7 +1521,7 @@ sub _fetch {
             if $data ne $pref
             and $data ne $self->{upstream_default}
             and $data ne $self->{layered};
-        $logger->debug( "done in custom mode for " . $self->location )
+        $logger->debug( "custom mode result '$cust' for " . $self->location )
             if $logger->is_debug;
         return $cust;
     }
@@ -2421,6 +2426,11 @@ or the built in value.
 Returns the standard value as defined by the configuration model. The
 standard value can be either a preset value, a layered value, a computed value, a
 default value or a built-in default value.
+
+=head2 has_data
+
+Return true if the value contains information different from default
+or upstream default value.
 
 =head2 fetch(...)
 
