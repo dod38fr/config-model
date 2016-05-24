@@ -7,16 +7,12 @@ use File::Path;
 use IO::File;
 use Data::Dumper;
 
-#use Log::Log4perl qw(get_logger :levels);
-
 use Config::Model::Exception;
 use Config::Model::Node;
 use Config::Model::ObjTreeScanner;
 
-#use strict ;
-use Carp;
-
-#use warnings FATAL => qw(all);
+use strict ;
+use warnings;
 
 use Carp qw/croak confess cluck/;
 
@@ -42,21 +38,6 @@ sub _set_dir {
     $dir .= "config-model/";
     return $dir;
 }
-
-#sub new {
-#    my $proto = shift ;
-#    my $class = ref($proto) || $proto ;
-#    my $instance = shift ;
-#
-#    my $self
-#      = {
-#	 instance => $instance ,
-#	};
-#
-#    bless $self, $class;
-#
-#}
-#
 
 sub save {
     my $self = shift;
