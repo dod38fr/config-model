@@ -1,6 +1,6 @@
 # -*- cperl -*-
 
-use warnings FATAL => qw(all);
+use warnings;
 use 5.010;
 
 use ExtUtils::testlib;

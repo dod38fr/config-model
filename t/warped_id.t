@@ -3,7 +3,7 @@
 # $Date$
 # $Revision$
 
-use warnings FATAL => qw(all);
+use warnings;
 
 use ExtUtils::testlib;
 use Test::More tests => 37;
