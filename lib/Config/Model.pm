@@ -2120,16 +2120,34 @@ Example:
 
 =head1 Configuration instance
 
-A configuration instance if the staring point of a configuration tree.
-When creating a model instance, you must specify the root class name, I.e. the
-configuration class that is used by the root node of the tree.
+A configuration instance is created from a model and is the starting
+point of a configuration tree.
+
+=head2 instance(...)
+
+An instance must be created with a model name (using the root class
+name) or an application name (as shown by "L<cme> C<list>" command).
+
+For example:
 
  my $model = Config::Model->new() ;
- $model ->create_config_class
-  (
+ $model->instance( application => 'approx');
+
+Or:
+
+ my $model = Config::Model->new() ;
+ # note that the model class is slightly different compared to
+ # application name
+ $model->instance( root_class_name => 'Approx');
+
+A custom configuration class can also be used with C<root_class_name> parameter:
+
+ my $model = Config::Model->new() ;
+ # create_config_class is described below
+ $model ->create_config_class (
    name => "SomeRootClass",
    element => [ ...  ]
-  ) ;
+ ) ;
 
  # instance name is 'default'
  my $inst = $model->instance (root_class_name => 'SomeRootClass');
@@ -2138,9 +2156,10 @@ You can create several separated instances from a model using
 C<name> option:
 
  # instance name is 'default'
- my $inst = $model->instance (root_class_name => 'SomeRootClass',
-                              name            => 'test1');
-
+ my $inst = $model->instance (
+   root_class_name => 'SomeRootClass',
+   name            => 'test1'
+ );
 
 Usually, model files will be loaded automatically depending on
 C<root_class_name>. But you can choose to specify the file containing
