@@ -16,6 +16,8 @@ use Config::Model::Instance;
 use Hash::Merge 0.12 qw/merge/;
 use File::Path qw/make_path/;
 
+use Config::Model::Lister;
+
 # this class holds the version number of the package
 use vars qw(@status @level %default_property);
 
@@ -159,7 +161,16 @@ sub show_legacy_issue {
 
 sub instance {
     my $self = shift;
-    my %args = @_;
+    my %args = @_ == 1 ? ( application => $_[0]) : @_ ;
+
+    my $application = $args{application} ;
+    if (defined $application) {
+        my ( $categories, $appli_info, $appli_map ) = Config::Model::Lister::available_models;
+        $args{root_class_name} ||= $appli_map->{$application} ;
+    }
+
+    croak "Model: can't create instance without application or root_class_name "
+        unless $args{root_class_name};
 
     my $instance_name =
            delete $args{instance_name}
@@ -172,17 +183,13 @@ sub instance {
         return $self->instances->{$instance_name};
     }
 
-    my $root_class_name = delete $args{root_class_name}
-        or croak "Model: can't create instance without root_class_name ";
-
     if ( defined $args{model_file} ) {
         my $file = delete $args{model_file};
-        $self->load( $root_class_name, $file );
+        $self->load( $args{root_class_name}, $file );
     }
 
     my $i = Config::Model::Instance->new(
         config_model    => $self,
-        root_class_name => $root_class_name,
         name            => $instance_name,
         %args    # for optional parameters like *directory
     );
