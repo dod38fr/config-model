@@ -544,20 +544,20 @@ __END__
 
 =head1 DESCRIPTION
 
-This module provides an object that holds a configuration tree. 
+This module provides an object that holds a configuration tree.
 
 =head1 CONSTRUCTOR
 
-An instance object is created by calling 
-L<instance method|Config::Model/"Configuration instance"> on 
-an existing model. This model can be specified by its application name
-(the app):
+An instance object is created by calling L<instance
+method|Config::Model/"Configuration instance"> on an existing
+model. This model can be specified by its application name:
 
  my $inst = $model->instance (
-   application => 'foo', # as stored in lib/
+   # run 'cme list' to get list of applications
+   application => 'foo',
+   # optional
    instance_name => 'test1'
  );
-
 
  my $inst = $model->instance (
    root_class_name => 'SomeRootClass',
