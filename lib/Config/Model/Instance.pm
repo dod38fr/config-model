@@ -20,8 +20,7 @@ use Config::Model::SearchElement;
 use Config::Model::Iterator;
 use Config::Model::ObjTreeScanner;
 
-use warnings FATAL => qw(all);
-use warnings::register;
+use warnings ;
 
 use Carp qw/carp croak confess cluck/;
 
