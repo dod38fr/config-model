@@ -1645,7 +1645,7 @@ __END__
 
  $ echo "Make sure that Config::Model::Itself is installed"
  $ mkdir -p lib/Config/Model/models/
- $ config-model-edit -model MiniModel -save \
+ $ cme meta config-model-edit -model MiniModel -save \
    class:MiniModel element:foo type=leaf value_type=uniline - \
                    element:bar type=leaf value_type=uniline - \
                    element:baz type=leaf value_type=uniline - \
