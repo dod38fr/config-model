@@ -1606,8 +1606,8 @@ __END__
  # create new Model object
  my $model = Config::Model->new() ; # Config::Model object
 
- # create config model. Most users will want to store the model
- # in lib/Config/Model/models and run cme as explained below
+ # create config model. Most users will want to store the model in a
+ # file in lib/Config/Model/models and run cme as explained below
  $model ->create_config_class (
    name => "MiniModel",
    element => [ [qw/foo bar baz/ ] => { type => 'leaf', value_type => 'uniline' }, ],

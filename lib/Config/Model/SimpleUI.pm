@@ -331,10 +331,11 @@ sub list_cd_path {
    hash_of_nodes:en foo=hello ';
  $root->load( steps => $steps );
 
- my $ui = Config::Model::SimpleUI->new( root => $root ,
-  	               		        title => 'My class ui',
-					prompt => 'class ui',
-				      );
+ my $ui = Config::Model::SimpleUI->new(
+    root => $root ,
+    title => 'My class ui',
+    prompt => 'class ui',
+ );
 
  # engage in user interaction
  $ui -> run_loop ;
