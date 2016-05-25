@@ -1600,8 +1600,6 @@ __END__
 =head2 Perl program
 
  use Config::Model;
- use Log::Log4perl qw(:easy) ;
- Log::Log4perl->easy_init($WARN);
 
  # create new Model object
  my $model = Config::Model->new() ; # Config::Model object
