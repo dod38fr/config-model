@@ -1,5 +1,28 @@
 {{$NEXT}}
 
+2.084 2016-05-26
+
+  Doc updates:
+    * Model doc:
+      * use cme meta instead of config-model-edit
+      * removed Log4Perl init for synopsis..
+      * improved instance method doc
+    * removed obsolete (and broken) example directory
+    * Instance: clarified constructor doc
+
+  Dependencies changes:
+    * TermUI is now optional (like FuseUI).
+      So Term::ReadLine dependency is now recommended
+      instead of required.
+
+  Bug fixes:
+    * Fix gen_class_pod which skipped some classes
+      (fix reproducible build of libconfig-model-openssh-perl)
+    * Model: instance() accepts application param
+    * Removed FATAL warnings from Instance
+    * all tree elements: added has_data method
+    * read model files (and doc) as utf8
+
 2.083 2016-04-20
 
   Functional improvements:
