@@ -479,6 +479,10 @@ sub write_back {
     $self->clear_changes;
 }
 
+sub save {
+    goto &write_back;
+}
+
 sub update {
     my ($self, %args) = @_;
 
@@ -763,11 +767,20 @@ C<write_back> method.
 Notify that some data has changed in the tree. See
 L<Config::Model::AnyThing/notify_change(...)> for more details.
 
+=head2 save ( ... )
+
+Save the content of the configuration tree to
+configuration files. (alias to C<write_back>)
+
 =head2 write_back ( ... )
 
-Try to run all subroutines registered with C<register_write_back> to
-write the configuration information until one succeeds (returns
-true). (See L<Config::Model::BackendMgr> for details).
+In summary, save the content of the configuration tree to
+configuration files.
+
+In more details, C<write_back> trie to run all subroutines registered
+with C<register_write_back> to write the configuration information
+until one succeeds (returns true). (See L<Config::Model::BackendMgr>
+for details).
 
 You can specify here a pseudo root directory or another config
 directory to write configuration data back with C<root> and
