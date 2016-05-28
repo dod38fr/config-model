@@ -336,11 +336,20 @@ sub _stuff_clear {
 
 }
 
+sub modify {
+    my $self = shift ;
+    my %args   = @_ eq 1 ? ( step => $_[0] ) : @_;
+    my $force = delete $args{force_save} || delete $args{force};
+    $self->load(%args)->write_back( force => $force );
+    return $self;
+}
+
 sub load {
     my $self   = shift;
     my $loader = Config::Model::Loader->new;
     my %args   = @_ eq 1 ? ( step => $_[0] ) : @_;
     $loader->load( node => $self->{tree}, %args );
+    return $self;
 }
 
 sub search_element {
@@ -725,7 +734,14 @@ Get initial_load mode
 The data method provide a way to store some arbitrary data in the
 instance object.
 
-=head2 load( "..." )
+=head2 modify(...)
+
+Calls L</"load(...)"> and then L</save>.
+
+Takes the same parameter as C<load> plus C<force_write> to force
+saving configuration file even if no value was modified (default is 0)
+
+=head2 load(...)
 
 Load configuration tree with configuration data. See
 L<Config::Model::Loader> for more details
