@@ -1633,7 +1633,18 @@ __END__
 
 =head1 SYNOPSIS
 
-=head2 Perl program
+=head2 Perl program to use an existing model
+
+ use Config::Model qw(cme);
+ # load, modify and save popcon configuration file
+ cme('popcon')->modify("PARTICIPATE=yes");
+
+=head2 Command line to use an existing model
+
+ # with App::Cme
+ cme modify popcon 'PARTICIPATE=yes'
+
+=head2 Perl program with a custom model
 
  use Config::Model;
 
@@ -1664,7 +1675,7 @@ __END__
 
  # now look for new mini.ini file un current directory
 
-=head2 More convenient
+=head2 Create a new model file and use it
 
  $ mkdir -p lib/Config/Model/models/
  $ echo "[ { name => 'MiniModel', \
@@ -1674,38 +1685,32 @@ __END__
                             } \
            } \
          ] ; " > lib/Config/Model/models/MiniModel.pl
+ # require App::Cme
  $ cme modify -try MiniModel -dev bar=BARV foo=FOOV baz=BAZV
  $ cat mini.ini
 
-=head2 Look Ma, no Perl
-
- $ echo "Make sure that Config::Model::Itself is installed"
- $ mkdir -p lib/Config/Model/models/
- $ cme meta config-model-edit -model MiniModel -save \
-   class:MiniModel element:foo type=leaf value_type=uniline - \
-                   element:bar type=leaf value_type=uniline - \
-                   element:baz type=leaf value_type=uniline - \
-   read_config:0 backend=IniFile file=mini.ini config_dir=. auto_create=1 - - -
- $ cme modify -try MiniModel -dev bar=BARV foo=FOOV baz=BAZV
- $ cat mini.ini
+Note that model creation is easier running C<cme meta edit> with
+L<App::Cme> and L<Config::Model::Itself>.
 
 =head1 DESCRIPTION
 
 Config::Model enables a project developer to provide an interactive
 configuration editor (graphical, curses based or plain terminal) to
-his users. For this he must:
+users.
+
+To provide these tools, Config::Model needs:
 
 =over
 
 =item *
 
-Describe the structure and constraints of his project's configuration
-(fear not, a GUI is available)
+A description of the structure and constraints of the project's configuration
+(fear not, a GUI is available with L<App::Cme>)
 
 =item *
 
-Find a way to read and write configuration data using read/write backend
-provided by Config::Model or other Perl modules.
+A module to read and write configuration data. This can be one of the
+read/write backends provided by Config::Model or a custom backend.
 
 =back
 
