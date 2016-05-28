@@ -159,24 +159,32 @@ sub show_legacy_issue {
     }
 }
 
+sub _tweak_instance_args {
+    my ($args) = @_  ;
+
+    my $application = $args->{application} ;
+    if (defined $application) {
+        my ( $categories, $appli_info, $appli_map ) = Config::Model::Lister::available_models;
+        $args->{root_class_name} ||= $appli_map->{$application} ;
+    }
+
+    $args->{name}
+        =  delete $args->{instance_name}
+        || delete $args->{name}
+        || $application
+        || 'default';
+}
+
 sub instance {
     my $self = shift;
     my %args = @_ == 1 ? ( application => $_[0]) : @_ ;
 
-    my $application = $args{application} ;
-    if (defined $application) {
-        my ( $categories, $appli_info, $appli_map ) = Config::Model::Lister::available_models;
-        $args{root_class_name} ||= $appli_map->{$application} ;
-    }
+    _tweak_instance_args(\%args);
 
     croak "Model: can't create instance without application or root_class_name "
         unless $args{root_class_name};
 
-    my $instance_name =
-           delete $args{instance_name}
-        || delete $args{name}
-        || 'default';
-
+    my $instance_name = $args{name};
     # could add more syntactic suger with 'hash' trait
     # see Moose::Meta::Attribute::Native
     if ( defined $self->instances->{$instance_name} ) {
@@ -190,7 +198,6 @@ sub instance {
 
     my $i = Config::Model::Instance->new(
         config_model    => $self,
-        name            => $instance_name,
         %args    # for optional parameters like *directory
     );
 
