@@ -2029,12 +2029,8 @@ with classes. The classes themselves have relations that closely match
 the relation of the object of the configuration tree. But the class
 need not to be declared in a tree structure (always better to reuse
 classes). But they must be declared as a DAG (directed acyclic graph).
-
-=begin html
-
-<a href="http://en.wikipedia.org/wiki/Directed_acyclic_graph">More on DAGs</a>
-
-=end html
+See also
+L<Directed acyclic graph on Wikipedia|http://en.wikipedia.org/wiki/Directed_acyclic_graph">More on DAGs>
 
 Each configuration class declaration specifies:
 
