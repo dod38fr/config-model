@@ -455,6 +455,11 @@ sub write_back {
     # make sure that root node is loaded
     $self->config_root->init;
 
+    if ($force_write) {
+        # make sure that the whole tree is loaded
+        my $dump = $self->config_root->dump_tree;
+    }
+
     foreach ( keys %args ) {
         if (/^(root|config_dir)$/) {
             $args{$_} ||= '';
