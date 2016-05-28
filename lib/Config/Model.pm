@@ -16,13 +16,21 @@ use Config::Model::Instance;
 use Hash::Merge 0.12 qw/merge/;
 use File::Path qw/make_path/;
 
+use Cwd;
 use Config::Model::Lister;
+
+use parent qw/Exporter/;
+our @EXPORT_OK = qw/cme/;
 
 # this class holds the version number of the package
 use vars qw(@status @level %default_property);
 
 my $legacy_logger = get_logger("Model::Legacy") ;
 my $logger = get_logger("Model") ;
+
+# used to keep one Config::Model object to simplify programs based on
+# cme function
+my $model_storage;
 
 %default_property = (
     status      => 'standard',
@@ -163,16 +171,37 @@ sub _tweak_instance_args {
     my ($args) = @_  ;
 
     my $application = $args->{application} ;
+    my $cat = '';
     if (defined $application) {
         my ( $categories, $appli_info, $appli_map ) = Config::Model::Lister::available_models;
         $args->{root_class_name} ||= $appli_map->{$application} ;
+        $cat = $appli_info->{_category} //  ''; # may be empty in tests
     }
 
+    my $app_name = $application;
+    if ($cat eq 'application') {
+        # store dir in name to distinguish different runs of the same
+        # app in different directories.
+        $application .= " in " . cwd;
+    }
     $args->{name}
         =  delete $args->{instance_name}
         || delete $args->{name}
-        || $application
+        || $app_name
         || 'default';
+}
+
+sub cme {
+    my %args = @_ == 1 ? ( application => $_[0]) : @_ ;
+
+    my $cat =_tweak_instance_args(\%args);
+
+    my $m_args = delete $args{model_args} // {} ; # used for tests
+    # model_storage is used to keep Config::Model object alive
+    $model_storage //= Config::Model->new(%$m_args);
+
+    my $app = $args{application};
+    return $model_storage->instance(@_);
 }
 
 sub instance {
@@ -2166,6 +2195,12 @@ Usually, model files will be loaded automatically depending on
 C<root_class_name>. But you can choose to specify the file containing
 the model with C<model_file> parameter. This is mostly useful for
 tests.
+
+=head2 cme(...)
+
+This method is syntactic sugar for short program. It creates a new
+C<Config::Model> object and returns a new instance. See L</instance(...)>
+for the parameters.
 
 =head1 Configuration class
 

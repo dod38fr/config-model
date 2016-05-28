@@ -28,6 +28,7 @@ sub available_models {
             next if $file =~ /(~|\.bak|\.orig)$/;
             my ($appli) = ( $file =~ m!.*/([\w\-]+)! );
             $appli_info{$appli}{_file} = $file;
+            $appli_info{$appli}{_category} = $cat;
             open( F, $file ) || die "Can't open file $file:$!";
             while (<F>) {
                 chomp;
