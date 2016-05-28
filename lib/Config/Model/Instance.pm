@@ -452,6 +452,9 @@ sub write_back {
     my $force_backend = delete $args{backend} || $self->{backend};
     my $force_write   = delete $args{force}   || 0;
 
+    # make sure that root node is loaded
+    $self->config_root->init;
+
     foreach ( keys %args ) {
         if (/^(root|config_dir)$/) {
             $args{$_} ||= '';
@@ -462,8 +465,13 @@ sub write_back {
         }
     }
 
-    croak "write_back: no subs registered in instance $self->{name}. cannot save data\n"
-        unless @{ $self->{_write_back} };
+    if (not @{ $self->{_write_back} }) {
+        my $info = $self->application ? "the model of application ".$self->application
+            : "model ".$self->root_cladd_name ;
+        croak "Don't know how to save data of $self->{name} instance. Either $info has no configured ",
+            "read/write backend or no node containing a backend was loaded. ",
+            "Try with -force option or add read/write backend to $info\n";
+    }
 
     foreach my $path ( @{ $self->{_write_back} } ) {
         $logger->info("write_back called on node $path");
