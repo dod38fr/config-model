@@ -1,5 +1,22 @@
 {{$NEXT}}
 
+2.085 2016-05-29
+
+  The new releases brings new functions to simplify script that modify
+  configuration files. For instance, the following line is enough to
+  update popcon's configuration file:
+    cme('popcon')->modify("PARTICIPATE=yes");
+
+  In more details:
+    * Config::Model provides a 'cme' exported function
+      (see also the SYNOPSIS of Config::Model doc)
+    * Instance: added modify and save() methods
+
+  Other changes:
+    * Term::ReadLine is not required for build or tests
+    * Instance skip_read parameter is deprecated
+
+
 2.084 2016-05-26
 
   Doc updates:
