@@ -272,14 +272,6 @@ throws_ok {
 }
 qr/failed_inst.pl/, "read with forced perl_file backend fails (normal: no perl file)";
 
-my $i_no_read = $model->instance(
-    instance_name   => 'no_read_inst',
-    root_class_name => 'Master',
-    root_dir        => $root1,
-    skip_read       => 1,
-);
-ok( $i_no_read, "Created instance (from scratch without read)-> no warning" );
-
 # check that conf dir was NOT read when instance was created
 is( $result{master_read}, undef, "Master read conf dir" );
 

@@ -237,6 +237,8 @@ has tree => (
 sub reset_config {
     my $self = shift;
 
+    warn "skip_read is deprecated" if $self->skip_read;
+
     return $self->load_node (
         config_class_name => $self->{root_class_name},
         instance          => $self,
@@ -613,8 +615,8 @@ Specify which backend to use. See L</write_back ( ... )> for details
 
 =item skip_read
 
-When set, configuration files will not be read when creating
-configuration tree.
+DEPRECATED. When set, configuration files will not be read when
+creating configuration tree.
 
 =item check
 
