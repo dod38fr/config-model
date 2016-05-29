@@ -342,6 +342,12 @@ nodes and leaves attached to this node are also dumped.
 Skip node that have a write capability matching C<backend_name> in
 their model. See L<Config::Model::BackendMgr>.
 
+This option must be used when using Dumper to write back configuration
+data. When a configuration model contains several backends (one at the
+tree root and others in tree nodes), setting this option ensure that
+the "root" configuration file does not contain data duplicated in
+configuration file of others tree nodes.
+
 =item auto_vivify
 
 Scan and create data for nodes elements even if no actual data was
