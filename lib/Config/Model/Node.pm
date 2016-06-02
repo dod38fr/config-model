@@ -781,6 +781,17 @@ sub accept_element {
 
     return $model_data->{$name} if defined $model_data->{$name};
 
+    my $acc = $self-> _get_accepted_data($name);
+
+    return $self->reset_accepted_element_model( $name, $acc ) if $acc;
+
+    return;
+}
+
+# return accepted model data or undef
+sub _get_accepted_data {
+    my ( $self, $name ) = @_;
+
     return unless defined $self->{model}{accept};
 
     eval {require Text::Levenshtein::Damerau} ;
@@ -801,10 +812,10 @@ sub accept_element {
 
         }
 
-        my $acc = $self->{model}{accept}{$accept_regexp};
-        return $self->reset_accepted_element_model( $name, $acc );
+        return $self->{model}{accept}{$accept_regexp};
     }
-    return;
+
+    return ;
 }
 
 sub accept_regexp {
