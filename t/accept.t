@@ -98,6 +98,8 @@ is_deeply( [ $i_root->accept_regexp ], [qw/list.* str.* bad.* ot.*/], "check acc
 
 is_deeply( [ $i_root->get_element_name ], [qw/id other/], "check explicit element list" );
 
+is( $i_root->element_type('otary'),'leaf',"check element_type on accepted element");
+
 my $load = "listA=one,two,three,four
 listB=1,2,3,4
 listC=a,b,c,d
