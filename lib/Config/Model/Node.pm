@@ -472,15 +472,16 @@ sub element_model {
 }
 
 sub element_type {
-    my $self = shift;
-    croak "element_type: missing element name" unless @_;
-    my $element_info = $self->{model}{element}{ $_[0] };
+    my ($self, $name) = @_;
+    croak "element_type: missing element name" unless $name;
+
+    my $element_info = $self->{model}{element}{$name} // $self-> _get_accepted_data($name);
 
     Config::Model::Exception::UnknownElement->throw(
         object   => $self,
         function => 'element_type',
         where    => $self->location || 'configuration root',
-        element  => $_[0],
+        element  => $name,
     ) unless defined $element_info;
 
     return $element_info->{type};
@@ -1541,7 +1542,8 @@ Returns model of the element.
 =head2 element_type ( element_name )
 
 Returns the type (e.g. leaf, hash, list, checklist or node) of the
-element.
+element. Also returns the type of a potentially accepted element.
+Dies if the element is not known or cannot be accepted.
 
 =head2 element_name()
 
