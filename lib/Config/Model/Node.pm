@@ -1663,7 +1663,7 @@ As a syntactic sugar, this method can be called with only one parameter:
 =head2 accept_element( name )
 
 Checks and returns the appropriate model of an acceptable element
-(be it explicitly declared, or part of an C<accept> declaration).
+(i.e. declared as a model C<element> or part of an C<accept> declaration).
 Returns undef if the element cannot be accepted.
 
 =head2 accept_regexp( name )
