@@ -2201,7 +2201,7 @@ C<root_class_name>. But you can choose to specify the file containing
 the model with C<model_file> parameter. This is mostly useful for
 tests.
 
-=head2 cme(...)
+=head2 cme ( ... )
 
 This method is syntactic sugar for short program. It creates a new
 C<Config::Model> object and returns a new instance. See L</instance(...)>
