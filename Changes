@@ -1,5 +1,12 @@
 {{$NEXT}}
 
+2.086 2016-06-04
+
+   Fixed some bugs so that cme() works with new Systemd model:  
+    * cme() uses config_dir from app file
+    * Node: element_type works on not yet accepted element
+    * Node: improved doc of accept_element()
+
 2.085 2016-05-29
 
   The new releases brings new functions to simplify script that modify
