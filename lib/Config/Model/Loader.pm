@@ -1124,8 +1124,8 @@ node ref of the root of the tree (of sub-root) to start the load from.
 
 =item steps (or step)
 
-A string or an array ref containing the steps to load. See above for a
-description of the string.
+A string or an array ref containing the steps to load. See
+L<above/"load string syntax"> for a description of the string.
 
 =item check
 

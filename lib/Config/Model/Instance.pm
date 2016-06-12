@@ -1,6 +1,7 @@
 package Config::Model::Instance;
 
 #use Scalar::Util qw(weaken) ;
+use strict;
 
 use 5.10.1;
 use Mouse;
@@ -620,7 +621,23 @@ creating configuration tree.
 
 =item check
 
-'yes', 'skip' or 'no'
+Specify whether to check value while reading config files. Either:
+
+=over
+
+=item yes
+
+Check value and throws an error for bad values.
+
+=item skip
+
+Check value and skip bad value.
+
+=item no
+
+Do not check.
+
+=back
 
 =item on_change_cb
 
@@ -661,7 +678,8 @@ Returns the root object of the configuration tree.
 
 =head2 read_check()
 
-Returns how to check read files.
+Returns which kind of check is performed while reading configuration
+files. (see C<check> parameter in L</CONSTRUCTOR> section)
 
 =head2 show_message( string )
 
@@ -746,7 +764,7 @@ saving configuration file even if no value was modified (default is 0)
 =head2 load ( ... )
 
 Load configuration tree with configuration data. See
-L<Config::Model::Loader> for more details
+L<Config::Model::Loader/"load ( ... )"> for parameters.
 
 =head2 searcher ( )
 
