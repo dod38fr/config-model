@@ -668,13 +668,83 @@ C<check => 'no'> ).
 
 =head1 METHODS
 
-=head2 name()
+=head2 Manage configuration data
 
-Returns the instance name.
+=head2 modify ( ... )
+
+Calls L</"load(...)"> and then L</save>.
+
+Takes the same parameter as C<load> plus C<force_write> to force
+saving configuration file even if no value was modified (default is 0)
+
+=head2 load ( ... )
+
+Load configuration tree with configuration data. See
+L<Config::Model::Loader/"load ( ... )"> for parameters.
+
+=head2 save ( ... )
+
+Save the content of the configuration tree to
+configuration files. (alias to C<write_back>)
 
 =head2 config_root()
 
-Returns the root object of the configuration tree.
+Returns the L<root object|Config::Model::Node> of the configuration tree.
+
+=head2 apply_fixes
+
+Scan the tree and apply fixes that are attached to warning specifications. 
+See C<warn_if_match> or C<warn_unless_match> in L<Config::Model::Value/>.
+
+=head2 needs_save
+
+Returns 1 (or more) if the instance contains data that needs to be
+saved. I.e some change were done in the tree that needs to be saved.
+
+=head2 list_changes
+
+In list context, returns a array ref of strings describing the changes. 
+In scalar context, returns a big string. Useful to print.
+
+=head2 say_changes
+
+Print all changes on STDOUT and return the list of changes.
+
+=head2 has_warning
+
+Returns the number of warning found in the elements of this configuration instance.
+
+=head2 update( quiet => (0|1), %args )
+
+Try to run update command on all nodes of the configuration tree. Node
+without C<update> method are ignored. C<update> will C<say> a message
+otherwise (unless C<quiet> is true).
+
+=head2 searcher ( )
+
+Returns an object dedicated to search an element in the configuration
+model (respecting privilege level).
+
+This method returns a L<Config::Model::Searcher> object. See
+L<Config::Model::Searcher> for details on how to handle a search.
+
+=head2 iterator 
+
+This method returns a L<Config::Model::Iterator> object. See
+L<Config::Model::Iterator> for details.
+
+Arguments are explained in  L<Config::Model::Iterator>
+L<constructor arguments|Config::Model::Iterator/"Creating an iterator">.
+
+=head2 wizard_helper ( ... )
+
+Deprecated. Call L</iterator> instead.
+
+=head2 Internal
+
+=head2 name()
+
+Returns the instance name.
 
 =head2 read_check()
 
@@ -754,39 +824,6 @@ Get initial_load mode
 The data method provide a way to store some arbitrary data in the
 instance object.
 
-=head2 modify ( ... )
-
-Calls L</"load(...)"> and then L</save>.
-
-Takes the same parameter as C<load> plus C<force_write> to force
-saving configuration file even if no value was modified (default is 0)
-
-=head2 load ( ... )
-
-Load configuration tree with configuration data. See
-L<Config::Model::Loader/"load ( ... )"> for parameters.
-
-=head2 searcher ( )
-
-Returns an object dedicated to search an element in the configuration
-model (respecting privilege level).
-
-This method returns a L<Config::Model::Searcher> object. See
-L<Config::Model::Searcher> for details on how to handle a search.
-
-=head2 wizard_helper ( ... )
-
-Deprecated. Call L</iterator> instead.
-
-=head2 iterator 
-
-This method returns a L<Config::Model::Iterator> object. See
-L<Config::Model::Iterator> for details.
-
-Arguments are explained in  L<Config::Model::Iterator>
-L<constructor arguments|Config::Model::Iterator/"Creating an iterator">.
-
-=head2 
 
 =head1 Auto read and write feature
 
@@ -816,11 +853,6 @@ C<write_back> method.
 Notify that some data has changed in the tree. See
 L<Config::Model::AnyThing/notify_change(...)> for more details.
 
-=head2 save ( ... )
-
-Save the content of the configuration tree to
-configuration files. (alias to C<write_back>)
-
 =head2 write_back ( ... )
 
 In summary, save the content of the configuration tree to
@@ -841,36 +873,7 @@ For instance, C<< backend => 'augeas' >> or C<< backend => 'custom' >>.
 You can force to use all backend to write the files by specifying 
 C<< backend => 'all' >>.
 
-C<write_back> will croak if no write call-back are known.
-
-=head2 apply_fixes
-
-Scan the tree and apply fixes that are attached to warning specifications. 
-See C<warn_if_match> or C<warn_unless_match> in L<Config::Model::Value/>.
-
-=head2 needs_save
-
-Returns 1 (or more) if the instance contains data that needs to be
-saved. I.e some change were done in the tree that needs to be saved.
-
-=head2 list_changes
-
-In list context, returns a array ref of strings describing the changes. 
-In scalar context, returns a big string. Useful to print.
-
-=head2 say_changes
-
-Print all changes on STDOUT and return the list of changes.
-
-=head2 has_warning
-
-Returns the number of warning found in the elements of this configuration instance.
-
-=head2 update( quiet => (0|1), %args )
-
-Try to run update command on all nodes of the configuration tree. Node
-without C<update> method are ignored. C<update> will C<say> a message
-otherwise (unless C<quiet> is true).
+C<write_back> croaks if no write call-back are known.
 
 =head1 AUTHOR
 
