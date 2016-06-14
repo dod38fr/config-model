@@ -400,9 +400,9 @@ note "test mandatory boolean";
         "mandatory bounded: undef error";
     print "normal error:\n", $@, "\n" if $trace;
 
-    check_store_error( $mb, 'toto', qr/boolean error/ );
+    check_store_error( $mb, 'toto', qr/is not boolean/ );
 
-    check_store_error( $mb, 2, qr/boolean error/ );
+    check_store_error( $mb, 2, qr/is not boolean/ );
 
     my @bool_test = ( 1, 1, yes => 1, Yes => 1, no => 0, Nope => 0, true => 1, False => 0 );
 

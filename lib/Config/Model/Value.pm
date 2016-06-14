@@ -809,7 +809,8 @@ sub check_value {
         }
     }
     elsif ( $vt eq 'boolean' ) {
-        push @error, "boolean error: '$value' is not '1' or '0'"
+        push @error, "error: '$value' is not boolean, i.e. not  "
+            . join ( ' or ', map { "'$_'"} $self->map_write_as(qw/0 1/))
             unless $value =~ /^[01]$/;
     }
     elsif ($vt =~ /integer/
@@ -1652,11 +1653,12 @@ sub fetch {
 }
 
 sub map_write_as {
-    my ( $self, $v ) = @_;
-    return    unless defined $v;
-    return $v unless $self->{write_as};
-    return $v unless $self->value_type eq 'boolean';
-    return $self->{write_as}[$v];
+    my $self = shift;
+    my @res = map {
+        my $do_map = (defined $_ and $self->{write_as} and $self->value_type eq 'boolean');
+        $do_map ? $self->{write_as}[$_] : $_;
+    } @_ ;
+    return wantarray ? @res : $res[0];
 }
 
 # modifies in place the passed values (which are also returned)
