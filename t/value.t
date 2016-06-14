@@ -425,7 +425,9 @@ note "test boolean where values are translated to true/false";
     $bwwa->store('no');
     is( $bwwa->fetch, 'false', "boolean_with_write_as returns 'false'" );
     is( $inst->needs_save, 1, "check needs_save after writing 'boolean_with_write_as'" );
-    eq_or_diff([$inst->list_changes],["boolean_with_write_as: '<undef>' -> '0'"],
+
+    my @changes = "boolean_with_write_as: '<undef>' -> 'false'";
+    eq_or_diff([$inst->list_changes],\@changes,
                "check change message after writing 'boolean_with_write_as'");
 
     $bwwa->store('false');
@@ -433,6 +435,12 @@ note "test boolean where values are translated to true/false";
 
     $bwwa->store(1);
     is( $bwwa->fetch, 'true', "boolean_with_write_as returns 'true'" );
+
+    push @changes, "boolean_with_write_as: 'false' -> 'true'";
+    eq_or_diff([$inst->list_changes], \@changes,
+               "check change message after writing 'boolean_with_write_as'");
+    my $bwwaad = $root->fetch_element('boolean_with_write_as_and_default');
+    is( $bwwa->fetch, 'true', "boolean_with_write_as_and_default reads true" );
 }
 
 {

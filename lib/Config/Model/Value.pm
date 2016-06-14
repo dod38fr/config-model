@@ -178,6 +178,7 @@ sub notify_change {
             and defined $args{new}
             and $args{old} eq $args{new};
     }
+    $self->map_write_as_inplace( @args{qw/old new/} );
     $self->SUPER::notify_change( %args, value_type => $self->value_type );
 
     # notify all warped or computed objects that depends on me
@@ -1656,6 +1657,15 @@ sub map_write_as {
     return $v unless $self->{write_as};
     return $v unless $self->value_type eq 'boolean';
     return $self->{write_as}[$v];
+}
+
+# modifies in place the passed values (which are also returned)
+sub map_write_as_inplace {
+    my $self = shift;
+    map {
+        $_ = $self->{write_as}[$_]
+            if defined $_ and $self->{write_as} and $self->value_type eq 'boolean';
+    } @_;
 }
 
 sub user_value {
