@@ -681,6 +681,7 @@ saving configuration file even if no value was modified (default is 0)
 
 Load configuration tree with configuration data. See
 L<Config::Model::Loader/"load ( ... )"> for parameters.
+Returns <$self>.
 
 =head2 save ( ... )
 
