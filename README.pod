@@ -32,7 +32,7 @@ schema)
 
 a way to read and write configuration data. This can be provided 
 by L<built-in read/write backends|https://github.com/dod38fr/config-model/wiki/Available-models-and-backends#Available_backend>
-or by a L<new read/write backend|http://search.cpan.org/~ddumont/Config-Model-2.083/lib/Config/Model/Backend/Any.pm#How_to_write_your_own_backend>.
+or by a L<new read/write backend|http://search.cpan.org/dist/Config-Model/lib/Config/Model/Backend/Any.pm#How_to_write_your_own_backend>.
 
 =back
 
@@ -89,7 +89,7 @@ and Augeas)
 
 The important part is the configuration model used by the validation
 engine. This model can be created or modified with a graphical editor
-(L<config-model-edit|http://search.cpan.org/dist/Config-Model-Itself/config-model-edit>
+(L<cme meta edit|http://search.cpan.org/dist/Config-Model-Itself/lib/App/Cme/Command/meta.pm>
 provided by L<Config::Model::Itself>).
 
 
@@ -115,7 +115,7 @@ the configuration model is completely separated from the actual
 processing instructions.
 
 A configuration model can be created and modified with the graphical
-interface provided by L<config-model-edit> distributed with
+interface provided by L<cme meta edit> distributed with
 L<Config::Model::Itself>. The model is saved in a
 declarative form (currently, a Perl data structure). Such a model is
 easier to maintain than a lot of code.
@@ -203,7 +203,7 @@ based on curses with L<Config::Model::CursesUI>.
 All these interfaces are generated from the configuration model.
 
 And configuration model can be created or modified with a graphical
-user interface (L<config-model-edit>)
+user interface (L<cme meta edit>)
 
 
 =head2 What about configuration data storage ?
