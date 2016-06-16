@@ -49,7 +49,7 @@ For instance:
 * download and unpack `apt-get source libconfig-model-perl`
 * jump in `cd libconfig-model-perl-2.086`
 * optional but useful to create a patch later: `git init`
-* commit all files: `git add -A ; git commit -m"commited all"`
+* commit all files: `git add -A ; git commit -m"committed all"`
 * edit files
 * run `prove -l t` to run non-regression tests
 * run `git diff` and send the output on [config-model-user mailing list](mailto:config-model-users@lists.sourceforge.net)
@@ -63,7 +63,15 @@ Non Debian users can also prepare a patch using CPAN tarball:
 * unpack tar file with something like `tar axvf Config-Model-2.086.tar.gz`
 * jump in `cd Config-Model-2.086`
 * optional but useful to create a patch later: `git init`
-* commit all files: `git add -A ; git commit -m"commited all"`
+* commit all files: `git add -A ; git commit -m"committed all"`
 * edit files
 * run `prove -l t` to run non-regression tests
 * run `git diff` and send the output on [config-model-user mailing list](mailto:config-model-users@lists.sourceforge.net)
+
+## Provide feedback ##
+
+Feedback is important. Please take a moment to rate, comment or add
+stars to this project:
+
+* [cme github](https://github.com/dod38fr/cme-perl) or [cme cpan ratings](http://cpanratings.perl.org/rate/?distribution=App-Cme)
+* [config-model github](https://github.com/dod38fr/config-model) or [config-model cpan ratings](http://cpanratings.perl.org/rate/?distribution=Config::Model)
