@@ -48,7 +48,7 @@ For instance:
 
 * download and unpack `apt-get source libconfig-model-perl`
 * jump in `cd libconfig-model-perl-2.086`
-* optional but useful to create a patch later: `git init`
+* useful to create a patch later: `git init`
 * commit all files: `git add -A ; git commit -m"committed all"`
 * edit files
 * run `prove -l t` to run non-regression tests
@@ -62,7 +62,7 @@ Non Debian users can also prepare a patch using CPAN tarball:
 * Download tar file from http://search.cpan.org
 * unpack tar file with something like `tar axvf Config-Model-2.086.tar.gz`
 * jump in `cd Config-Model-2.086`
-* optional but useful to create a patch later: `git init`
+* useful to create a patch later: `git init`
 * commit all files: `git add -A ; git commit -m"committed all"`
 * edit files
 * run `prove -l t` to run non-regression tests
