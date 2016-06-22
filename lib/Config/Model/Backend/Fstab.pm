@@ -153,8 +153,8 @@ No synopsis. This class is dedicated to configuration class C<Fstab>
 
 This module is used directly by L<Config::Model> to read or write the
 content of a configuration tree written with C<fstab> syntax in
-C<Config::Model> configuration tree. Typically this backend will 
-be used to read and write C</etc/fstab>.
+C<Config::Model> configuration tree. Typically this backend is
+used to read and write C</etc/fstab>.
 
 =head1 Comments in file_path
 
@@ -169,7 +169,7 @@ L<Config::Model>. You don't need to read it to write a model.
 
 =head2 new ( node => $node_obj, name => 'fstab' ) ;
 
-Inherited from L<Config::Model::Backend::Any>. The constructor will be
+Inherited from L<Config::Model::Backend::Any>. The constructor is
 called by L<Config::Model::BackendMgr>.
 
 =head2 read ( io_handle => ... )
@@ -178,9 +178,9 @@ Of all parameters passed to this read call-back, only C<io_handle> is
 used. This parameter must be L<IO::File> object already opened for
 read. 
 
-It can also be undef. In this case, C<read()> will return 0.
+It can also be undef. In this case, C<read()> returns 0.
 
-When a file is read,  C<read()> will return 1.
+When a file is read,  C<read()> returns 1.
 
 =head2 write ( io_handle => ... )
 
@@ -188,7 +188,7 @@ Of all parameters passed to this write call-back, only C<io_handle> is
 used. This parameter must be L<IO::File> object already opened for
 write. 
 
-C<write()> will return 1.
+C<write()> returns 1.
 
 =head1 AUTHOR
 

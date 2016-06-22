@@ -49,11 +49,11 @@ __END__
 
 This module provides a single exported function: C<gen_class_pod>.
 
-This function will scan C<./lib/Config/Model/models/*.d>
+This function scans C<./lib/Config/Model/models/*.d>
 and generate pod documentation for each file found there using
 L<Config::Model::generate_doc|Config::Model/"generate_doc ( top_class_name , directory , [ \%done ] )">
 
-You can also pass one or more class names. C<gen_class_pod> will write
+You can also pass one or more class names. C<gen_class_pod> writes
 the documentation for each passed class and all other classes used by
 the passed classes.
 

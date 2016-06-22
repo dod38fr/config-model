@@ -45,8 +45,8 @@ around BUILDARGS => sub {
 sub BUILD {
     my $self = shift;
 
-    # WarpedNode will register this object in a Value object (the
-    # warper).  When the warper gets a new value, it will modify the
+    # WarpedNode registers this object in a Value object (the
+    # warper).  When the warper gets a new value, it modifies the
     # WarpedNode according to the data passed by the user.
 
     my $w = Config::Model::Warper->new(
@@ -185,9 +185,9 @@ sub set_properties {
     }
 
     # bringing a new object does not really modify the content of the config tree.
-    # only changes underneath will change the tree. And these changes below will trigger
+    # only changes underneath changes the tree. And these changes below triggers
     # their own change notif. SO there's no need to call notify_change when transitioning
-    # from an undef object into a real object. On the other hand, warping out an object will
+    # from an undef object into a real object. On the other hand, warping out an object does
     # NOT trigger notify_changes from below. So notify_change must be called
     if ( defined $old_object ) {
         my $from = $old_config_class_name // '<undef>';
@@ -349,11 +349,11 @@ This class provides a way to change dynamically the configuration
 class (or some other properties) of a node. The changes are done
 according to the model declaration. 
 
-This declaration will specify one (or several) leaf in the
-configuration tree that will trigger the actual property change of the
+This declaration specifies one (or several) leaf in the
+configuration tree that triggers the actual property change of the
 warped node. This leaf is also referred as I<warp master>.
 
-When the warp master(s) value(s) changes, C<WarpedNode> will create an instance
+When the warp master(s) value(s) changes, C<WarpedNode> creates an instance
 of the new class required by the warp master. 
 
 If the morph parameter is set, the values held by the old object are
@@ -390,11 +390,11 @@ See L<Config::Model::Warper/"Warp follow argument"> for details.
 
 =item morph
 
-boolean. If 1, C<WarpedNode> will try to recursively copy the value from
+boolean. If 1, C<WarpedNode> tries to recursively copy the value from
 the old object to the new object using 
 L<copy_from method|Config::Model::Node/"copy_from ( another_node_object )">.
 When a copy is not possible, undef values
-will be assigned to object elements.
+are assigned to object elements.
 
 =item rules
 
@@ -413,13 +413,13 @@ For a warped node, the effects are declared with these parameters:
 
 =item B<config_class_name>
 
-When requested by the warp master,the C<WarpedNode> will create a new
+When requested by the warp master,the C<WarpedNode> creates a new
 object of the type specified by this parameter:
 
   XZ => { config_class_name => 'SlaveZ' }
 
-If you pass an array ref, the array will contain the class name and
-constructor arguments :
+Instead of a string, you can an array ref which contains the class
+name and constructor arguments :
 
   XY  => { config_class_name => ['SlaveY', foo => 'bar' ], },
 
@@ -499,21 +499,21 @@ object tree.
 
 =item *
 
-When C<tree_macro> is set to C<ZZ>, C<bar> will not be available. Trying to
-access bar will raise an exception.
+When C<tree_macro> is set to C<ZZ>, C<bar> is not available. Trying to
+access C<bar> raises an exception.
 
 =item *
 
 When C<tree_macro> is changed from C<ZZ> to C<XX>, 
-C<bar> will refer to a brand new C<ClassX> 
+C<bar> refers to a brand new C<ClassX>
 object constructed with C<< ClassX->new(foo => 'bar') >>
 
 =item *
 
-Then, if C<tree_macro> is changed from C<XX> to C<XY>, C<bar> will
-refer to a brand new C<ClassY> object. But in this case, the object will be
+Then, if C<tree_macro> is changed from C<XX> to C<XY>, C<bar>
+refers to a brand new C<ClassY> object. But in this case, the object is
 initialized with most if not all the attributes of C<ClassX>. This copy
-will be done whenever C<tree_macro> is changed.
+is done whenever C<tree_macro> is changed.
 
 =back
 

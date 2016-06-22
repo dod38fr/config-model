@@ -322,14 +322,14 @@ __END__
 
 =head1 DESCRIPTION
 
-This module creates an object that will explore (depth first) a
+This module creates an object that explores (depth first) a
 configuration tree.
 
-For each part of the configuration tree, ObjTreeScanner object will call
+For each part of the configuration tree, ObjTreeScanner object calls
 one of the subroutine reference passed during construction. (a call-back
 or a hook)
 
-Call-back and hook routines will be called:
+Call-back and hook routines are called:
 
 =over
 
@@ -340,12 +340,12 @@ For each node containing elements (including root node)
 =item *
 
 For each element of a node. This element can be a list, hash, node or
-simple leaf element.
+leaf element.
 
 =item *
 
 For each item contained in a node, hash or list. This item can be a
-simple leaf or another node.
+leaf or another node.
 
 =back
 
@@ -355,7 +355,7 @@ subroutine and the scanner play a game of ping-pong until the tree is
 completely explored.
 
 Hooks routines are not required to resume the exploration, i.e. to call
-the scanner. This will be done after the hook routine has returned.
+the scanner. This is done once the hook routine has returned.
 
 The scanner provides a set of default callback for the nodes. This
 way, the user only have to provide call-backs for the leaves.
@@ -419,10 +419,10 @@ Optional parameter:
 
 =item fallback
 
-If set to C<node>, the scanner will provide default call-back for node
-items. If set to C<leaf>, the scanner will set all leaf callback (like
+If set to C<node>, the scanner provides default call-back for node
+items. If set to C<leaf>, the scanner sets all leaf callback (like
 enum_value_cb ...) to string_value_cb or to the mandatory leaf_cb
-value. "fallback" callback will not override callbacks provided by the
+value. "fallback" callback does not override callbacks provided by the
 user.
 
 If set to C<all> , the scanner provides fallbacks for leaf and node. 
@@ -442,8 +442,8 @@ C<yes>, C<no> or C<skip>.
 
 =head2 Leaf callback
 
-C<leaf_cb> is called for each leaf of the tree. The leaf callback will
-be called with the following parameters:
+C<leaf_cb> is called for each leaf of the tree. The leaf callback is
+called with the following parameters:
 
  ($scanner, $data_ref,$node,$element_name,$index, $leaf_object)
 
@@ -506,7 +506,7 @@ Example:
 =head2 List element hook
 
 C<list_element_hook>: Works like the list element callback. Except that the calls to
-C<scan_list> are not required. This will be done once the hook returns.
+C<scan_list> are not required. This is done once the hook returns.
 
 =head2 Check list element callback
 
@@ -540,7 +540,7 @@ Example:
 =head2 Hash element hook
 
 C<hash_element_hook>: Works like the hash element callback. Except that the calls to
-C<scan_hash> are not required. This will be done once the hook returns.
+C<scan_hash> are not required. This is done once the hook returns.
 
 =head2 Node content callback
 
@@ -566,11 +566,11 @@ Example:
 
 C<node_content_hook>: This hook is called foreach node (including
 root node). Works like the node content call-back. Except that the calls to
-C<scan_element> are not required. This will be done once the hook returns.
+C<scan_element> are not required. This is done once the hook returns.
 
 =head2 Dispatch node callback
 
-C<node_dispatch_cb>: Any callback specified in the hash will be called for
+C<node_dispatch_cb>: Any callback specified in the hash is called for
 each instance of the specified configuration class.
 (this may include the  root node).
 
@@ -581,10 +581,10 @@ For instance, if you have:
     ClassB => \&my_class_b_dispatch_cb,
   }
 
-C<&my_class_a_dispatch_cb> will be called for each instance of C<ClassA> and
-C<&my_class_b_dispatch_cb> will be called for each instance of C<ClassB>.
+C<&my_class_a_dispatch_cb> is called for each instance of C<ClassA> and
+C<&my_class_b_dispatch_cb> is called for each instance of C<ClassB>.
 
-They will be called with the following parameters:
+They is called with the following parameters:
 
  ($scanner, $data_ref,$node,@element_list)
 
@@ -634,7 +634,7 @@ Explore the node and call either C<node_dispatch_cb> (if the node class
 name matches the dispatch_node hash) B<or> (e.g. xor) C<node_element_cb> passing
 all element names.
 
-After the first callback has returned, C<up_cb> will be called.
+C<up_cb> is called once the first callback returns.
 
 =head2 scan_element($data_r,$node,$element_name)
 

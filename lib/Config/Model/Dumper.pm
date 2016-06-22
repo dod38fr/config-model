@@ -298,7 +298,7 @@ The serialized string can be used by L<Config::Model::Loader> to store
 the data back into a configuration tree.
 
 Note that undefined values are skipped for list element. I.e. if a list
-element contains C<('a',undef,'b')>, the dump will contain C<'a','b'>.
+element contains C<('a',undef,'b')>, the dump then contains C<'a','b'>.
 
 =head1 CONSTRUCTOR
 
@@ -324,10 +324,10 @@ Parameters are:
 
 =item mode ( full | preset | custom )
 
-C<full> will dump all configuration data including default
+C<full> dumps all configuration data including default
 values.
 
-C<preset> will dump only value entered in preset mode.
+C<preset> dumps only value entered in preset mode.
 
 By default, the dump contains only data modified by the user
 (i.e. C<custom> data that differ from default or preset values).

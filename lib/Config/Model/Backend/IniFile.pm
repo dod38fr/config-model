@@ -434,7 +434,7 @@ __END__
 
  $inst->write_back ;
 
-Now C</tmp/foo.conf> will contain:
+Now C</tmp/foo.conf> contains:
 
  ## file written by Config::Model
  [ONE]
@@ -455,9 +455,9 @@ This INI file can have arbitrary comment delimiter. See the example
 in the SYNOPSIS that sets a semi-column as comment delimiter. 
 By default the comment delimiter is '#' like in Shell or Perl.
 
-Note that undefined values are skipped for list element. I.e. if a
-list element contains C<('a',undef,'b')>, the data structure will
-contain C<'a','b'>.
+Note that undefined values are skipped for list element. I.e. when a
+list element contains C<('a',undef,'b')>, the data structure
+contains C<'a','b'>.
 
 =head1 Limitations
 
@@ -489,7 +489,7 @@ parameter the comment may apply. Wrong estimations are possible.
 
 =head2 new ( node => $node_obj, name => 'inifile' ) ;
 
-Inherited from L<Config::Model::Backend::Any>. The constructor will be
+Inherited from L<Config::Model::Backend::Any>. The constructor is
 called by L<Config::Model::BackendMgr>.
 
 =head1 Parameters
@@ -570,20 +570,20 @@ The elements of each class can be different. For instance:
   [ B ]
   baz = baz_v
 
-In this case, class C<A> and class C<B> will not use the same configuration class.
+In this case, class C<A> and class C<B> do not use the same configuration class.
 
-The model will have this structure:
-   
+The model has this structure:
+
  Root class 
  |- leaf element foo
  |- node element A of class_A
  |  \- leaf element bar
  \- node element B of class_B
     \-  leaf element baz
-    
+
 =head2 Arbitrary class name
 
-In this case, the class names can be chosen by the end user. Each class will have the same 
+In this case, the class names can be chosen by the end user. Each class has the same
 elements. For instance:
 
   foo = foo_v
@@ -592,8 +592,8 @@ elements. For instance:
   [ B ]
   bar = bar_v2
 
-In this case, class C<A> and class C<B> will not use the same configuration class.
-The model will have this structure:
+In this case, class C<A> and class C<B> do not use the same configuration class.
+The model has this structure:
    
  Root class 
  |- leaf foo
@@ -652,9 +652,9 @@ Of all parameters passed to this read call-back, only C<io_handle> is
 used. This parameter must be L<IO::File> object already opened for
 read. 
 
-It can also be undef. In this case, C<read()> will return 0.
+It can also be undef. In this case, C<read()> returns 0.
 
-When a file is read,  C<read()> will return 1.
+When a file is read,  C<read()> returns 1.
 
 =head2 write ( io_handle => ... )
 
@@ -662,7 +662,7 @@ Of all parameters passed to this write call-back, only C<io_handle> is
 used. This parameter must be L<IO::File> object already opened for
 write. 
 
-C<write()> will return 1.
+C<write()> returns 1.
 
 =head1 AUTHOR
 

@@ -7,7 +7,7 @@ This page describes how to write a simple configuration
 model. Creation of more complex models are described in 
 L<Creating a model with advanced features|Config::Model::Manual::ModelCreationAdvanced>.
 
-Note that this document will show a lot of Perl data structure to
+Note that this document shows a lot of Perl data structure to
 highlight the content of a model. A Perl data structure is very
 similar to a JSON structure. The only thing you need to know are:
 
@@ -32,7 +32,7 @@ C<list> in Perl land)
 =item configuration file
 
 Text file where configuration data are stored. This configuration file
-will be used by an application -- the I<target application>
+is used by an application -- the I<target application>
 
 =item configuration tree
 
@@ -46,7 +46,7 @@ the configuration tree
 
 =item target application
 
-The application that will use the configuration file. The application
+The application that uses the configuration file. The application
 can be of type C<system> (i.e. the configuration file is located in
 C</etc>), C<user> (i.e. the configuration file is located in a user
 directory like C<~/.config>) or C<application> (the configuration file
@@ -127,7 +127,7 @@ represented in this tree as:
     `--Display
        `--Depth=24
 
-Some will argue that some C<Xorg> parameter refer to others
+One may argue that some C<Xorg> parameter refer to others
 (i.e.C<Device> and C<Monitor> value in C<Screen> section) and so they
 cannot be represented as a tree. That's right, there are some more
 complex relations that are added to the tree structure. This will be
@@ -193,7 +193,7 @@ These basic relations enable to define the main parts of a
 configuration tree.
 
 If we refer to the C<approx.conf> example mentioned above, one only
-class is required (let's say the C<Approx> class). This class will
+class is required (let's say the C<Approx> class). This class must
 contain (see approx.conf man page): 
 
 =over
@@ -213,7 +213,7 @@ A hash of string leaves for C<distrib> (no default).
 
 =back
 
-In terms of models, the model will be stored this way by Config::Model:
+A configuration model is stored this way by Config::Model:
 
  {
   name => 'Approx',
@@ -239,7 +239,7 @@ In terms of models, the model will be stored this way by Config::Model:
    ]
  }
 
-The C<Xorg> example will lead to a slightly more complex model with several classes:
+The C<Xorg> example leads to a slightly more complex model with several classes:
 
 =over
 
@@ -265,7 +265,7 @@ C<Xorg::Screen::Display> for theC<Display> subsection
 
 =back
 
-The root class will be declared this way:
+The root class is declared this way:
 
  {
   name => 'Xorg',
@@ -289,7 +289,7 @@ The root class will be declared this way:
            ]
  }
 
-TheC<Xorg::Screen> class will be:
+TheC<Xorg::Screen> class is:
 
  {
   name => 'Xorg::Screen',
@@ -318,8 +318,8 @@ It's now time to detail how the elements of a class are constructed.
 
 =head1 Model analysis
 
-To define the configuration classes that will be required, you will
-have to read the documentation of the target application to :
+To define the required configuration classes, you should
+read the documentation of the target application to :
 
 =over
 
@@ -334,9 +334,10 @@ Identify configuration parameters, their constraints and relations
 
 =back
 
-Last but not least, you will also have to find several valid
-examples. These examples be used as non-regression tests and verify
-that the documentation was understood.
+Last but not least, you should also find several valid examples of
+your application configuration. These examples can be used as
+non-regression tests and to verify that the application documentation
+was understood.
 
 =head1 Model declaration
 
@@ -345,9 +346,9 @@ that the documentation was understood.
 Since writing the data structure shown below is not fun (even with
 Perl), you are encouraged to use the model editor provided by L<cme>
 using C<cme meta edit> command (provided by L<Config::Model::Itself>).
-You will get a GUI to create or update your model.
+This commands provides a GUI to create or update your model.
 
-C<cme> will write the data structure in the correct directory.
+When saving, C<cme> writes the data structure in the correct directory.
 
 =head2 Configuration class declaration (the hard way)
 
@@ -438,7 +439,7 @@ For instance:
 
 =head2 Common attributes for all elements
 
-This first set of attributes will help the user by providing guidance
+This first set of attributes helps the user by providing guidance
 (with C<level> and C<status>) and documentation
 (C<summary> and C<description>).
 
@@ -458,24 +459,23 @@ C<summary>: one line summary of the above description
 
 C<level>: is C<important>, C<normal> or C<hidden>. The level is used
 to set how configuration data is presented to the user in browsing
-mode. Important elements will be shown to the user no matter
-what. hidden elements will be explained with the warp notion.
+mode. Important elements are shown to the user no matter
+what. hidden elements are explained with the warp notion.
 
 =item *
 
 C<status>: is C<obsolete>, C<deprecated> or C<standard>
-(default). Using a deprecated element will issue a warning. Using an
-obsolete element will raise an exception.
+(default). Warnings are shown when using a deprecated element and an exception
+is raised when an obsolete element is used.
 
 =back
 
 See L<Config::Model/Configuration_class> for details.
 
-=head2 Simple leaf elements
+=head2 Leaf elements
 
-Simple leaf elements will be used most often for configuration
-files. A leaf element will represent a specific configuration
-parameter.
+Leaf element is the most common type to represent configuration data.
+A leaf element represents a specific configuration parameter.
 
 In more details, a leaf element have the following attributes (See 
 L<Config::Model::Value/Value_model_declaration> doc):
@@ -518,7 +518,7 @@ not need to be written in the configuration file.
 
 =back
 
-To know which attributes to use, you will have to read the
+To know which attributes to use, you should read the
 documentation of the target application.
 
 For instance, C<AddressFamily> parameter (sshd_config(5)) is specified
@@ -527,10 +527,10 @@ Valid arguments are "any", "inet" (use IPv4 only), or "inet6" (use
 IPv6 only).  The default is "any".>
 
 For Config::Model, C<AddressFamily> is a type C<leaf> element,
-value_type C<enum> and the application will use C<any> if this
+value_type C<enum> and the application falls back to C<any> if this
 parameter is left blank in C<sshd_config> file.
 
-Thus the model of this element will be :
+Thus the model of this element is :
 
  AddressFamily => {
    type             => 'leaf',
@@ -550,20 +550,20 @@ repositories:
  debian     http://ftp.fr.debian.org/debian
  multimedia http://www.debian-multimedia.org
 
-These repositories must be stored as a hash where the key will be
-I<debian> or I<multimedia> and the associated value will a URL. But
+These repositorie URLs must be stored as a hash where the key is
+I<debian> or I<multimedia> and the associated value is a URL. But
 this hash must have something which is not explicit in C<approx.conf>
 file: a parameter name. Approx man page mentions that:
 I<The name/value pairs [not beginning with '$' are used to map distribution names to remote repositories.>.
 So let's use C<distribution> as a parameter name.
 
-The example will be stored this way in the configuration tree:
+The example is stored this way in the configuration tree:
 
  root
- |--distrib(debian)=http://ftp.fr.debian.org/debian
- `--distrib(multimedia)=http://www.debian-multimedia.org
+ |--distribution(debian)=http://ftp.fr.debian.org/debian
+ `--distribution(multimedia)=http://www.debian-multimedia.org
 
-The model will need to declare that C<distrib> is:
+The model needs to declare that C<distribution> is:
 
 =over
 
@@ -653,8 +653,8 @@ C<Identifier> parameter:
    DefaultDepth    24
  EndSection
 
-The Xorg configuration tree will feature 2 elements (Screen and
-Device) that will use the Identifier parameters as hash keys:
+The Xorg configuration tree features 2 elements (Screen and
+Device) that use the Identifier parameters as hash keys:
 
  root
  |--Device(Device0)
@@ -665,7 +665,7 @@ Device) that will use the Identifier parameters as hash keys:
     `--DefaultDepth=24
 
 And the Xorg model must define these 2 parameters as C<hash>. The
-cargo of this hash will of type C<node> and will refer to 2 different
+cargo of this hash is of type C<node> and refers to 2 different
 configuration classes, one for C<Device> (C<Xorg::Device>) and one for
 C<Screen> (C<Xorg::Screen>):
 
@@ -701,7 +701,7 @@ The wizard works by exploring the configuration tree and stopping on
 each I<important> element and on each error (mostly missing mandatory
 parameter).
 
-When designing a model, you will have to think about each element:
+When designing a model, you have to ponder for each element:
 
 =over
 
@@ -709,8 +709,8 @@ When designing a model, you will have to think about each element:
 
 The importance level of the parameter (important, normal or
 hidden). C<level> is used to set how configuration data is presented
-to the user in wizard and browsing mode. Important elements will be
-shown in the wizard. hidden elements will be explained with the warp
+to the user in wizard and browsing mode. Important elements are
+shown in the wizard. hidden elements are explained with the warp
 notion in L<Creating a model with advanced features|Config::Model::Manual::ModelCreationAdvanced>.
 
 =back
@@ -800,10 +800,10 @@ A plugin backend class can also be specified with:
                       config_dir => '/etc/cfg_dir'
                   } ]
 
-In this case, Config::Model will try to load C<Config::Model::Backend::Foo>.
+In this case, Config::Model tries to load C<Config::Model::Backend::Foo>.
 (The class name is constructed with C<ucfirst($backend_name)>)
 
-C<read_config> can also have custom parameters that will passed
+C<read_config> can also have custom parameters that are passed
 verbatim to C<Config::Model::Backend::Foo> methods:
 
   read_config  => [ { backend    => 'foo' , 
@@ -876,12 +876,12 @@ For instance, to try Augeas and fall back on a custom class in case of problem, 
 
 
 Both specifications are tried in order. If Augeas backend fails
-(e.g. Augeas is not installed), the custom backend will be used.
+(e.g. Augeas is not installed), the custom backend is used.
 
-An exception will be raised if both methods fails. This behavior is
+An exception is raised if both methods fails. This behavior is
 correct for C<OpenSsh>, but it can be a problem if you want to use
 Config::Model to create a configuration file from scratch. In this
-case you will also have to specify the C<auto_create> parameter:
+case you should also specify the C<auto_create> parameter:
 
  read_config => [ { backend => 'custom' , 
                     class => 'ProcessRead' ,
@@ -893,9 +893,9 @@ case you will also have to specify the C<auto_create> parameter:
 =head1 Writing configuration files
 
 Read and write specifications were designed to be very similar. Most
-of the times, the C<read> and C<write> specification will be
+of the times, the C<read> and C<write> specification are
 identical. In this case, there's no need to enter them: the data
-specified in the C<read> specification will be used to write the
+specified in the C<read> specification is used to write the
 configuration file.
 
 Here's an example:
@@ -917,7 +917,7 @@ L<write specification doc|Config::Model::BackendMgr.pm/write_specification>
 
 By combining multiple read specification with C<'one>' write
 specification, a configuration file can be migrated from old to new
-syntax. The following example will migrate a configuration file from a
+syntax. The following example migrates a configuration file from a
 custom syntax to a perl data file:
 
  { 

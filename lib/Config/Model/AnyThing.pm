@@ -752,18 +752,18 @@ required item. (mandatory)
 
 =item C<mode>
 
-When set to C<strict>, C<grab> will throw an exception if no object is found
-using the passed string. When set to C<adaptative>, the object found at last will
-be returned. For instance, for the steps C<good_step wrong_step>, only
-the object held by C<good_step> will be returned. When set to C<loose>, grab 
-will return undef in case of problem. (default is C<strict>)
+When set to C<strict>, C<grab> throws an exception if no object is found
+using the passed string. When set to C<adaptative>, the object found last is
+returned. For instance, for the steps C<good_step wrong_step>, only
+the object held by C<good_step> is returned. When set to C<loose>, grab
+returns undef in case of problem. (default is C<strict>)
 
 =item C<type>
 
 Either C<node>, C<leaf>, C<hash> or C<list> or an array ref containing these
 values. Returns only an object of
-requested type. Depending on C<strict> value, C<grab> will either
-throw an exception or return the last found object of requested type.
+requested type. Depending on C<strict> value, C<grab> either
+throws an exception or returns the last object found with the requested type.
 (optional, default to C<undef>, which means any type of object)
 
 Examples:
@@ -778,7 +778,7 @@ when requested by the passed steps. (default is 1).
 
 =item grab_non_available
 
-When set to 1, grab will return an object even if this one is not
+When set to 1, grab returns an object even if this one is not
 available. I.e. even if this element was warped out. (default is 0).
 
 =back
@@ -822,15 +822,15 @@ considered when going up the tree.
 
 =head2 grab_value(...)
 
-Like L</grab(...)>, but will return the value of a leaf or check_list object, not
+Like L</grab(...)>, but returns the value of a leaf or check_list object, not
 just the leaf object.
 
-Will raise an exception if following the steps ends on anything but a
+C<grab_value> raises an exception if following the steps ends on anything but a
 leaf or a check_list.
 
 =head2 grab_annotation(...)
 
-Like L</grab(...)>, but will return the annotation of an object.
+Like L</grab(...)>, but returns the annotation of an object.
 
 =head2 grab_root()
 

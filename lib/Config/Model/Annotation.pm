@@ -207,7 +207,7 @@ This module provides an object that read and write annotations (a bit
 like comments) to and from a configuration tree and save them in a file (not
 configuration file)
 
-Depending on the effective id of the process, the annotation will be
+Depending on the effective id of the process, the annotation is
 saved in:
 
 =over

@@ -155,8 +155,8 @@ Note:
 =item *
 
 Undefined values are skipped for list element. I.e. if a
-list element contains C<('a',undef,'b')>, the data structure will
-contain C<'a','b'>.
+list element contains C<('a',undef,'b')>, the data structure
+contains C<'a','b'>.
 
 =item *
 
@@ -168,7 +168,7 @@ written.
 =head2 Class with only one hash element
 
 If the root node contains a single hash or list element, only the
-content of this hash will be written in YAML file.
+content of this hash is written in a YAML file.
 
 For example, if a class contains:
 
@@ -186,7 +186,7 @@ If the configuration is loaded with:
 
  $root->load("baz:one=un baz:two=deux")
 
-Then the written YAML file will B<not> show C<baz>:
+Then the written YAML file does B<not> show C<baz>:
 
  ---
  one: un
@@ -203,7 +203,7 @@ would be written with:
 
 =head2 new ( node => $node_obj, name => 'yaml' ) ;
 
-Inherited from L<Config::Model::Backend::Any>. The constructor will be
+Inherited from L<Config::Model::Backend::Any>. The constructor is
 called by L<Config::Model::BackendMgr>.
 
 =head2 read ( io_handle => ... )
@@ -212,9 +212,9 @@ Of all parameters passed to this read call-back, only C<io_handle> is
 used. This parameter must be L<IO::File> object already opened for
 read. 
 
-It can also be undef. In this case, C<read()> will return 0.
+It can also be undef. In which case C<read()> returns 0.
 
-When a file is read,  C<read()> will return 1.
+When a file is read,  C<read()> returns 1.
 
 =head2 write ( io_handle => ... )
 
@@ -222,7 +222,7 @@ Of all parameters passed to this write call-back, only C<io_handle> is
 used. This parameter must be L<IO::File> object already opened for
 write. 
 
-C<write()> will return 1.
+C<write()> returns 1.
 
 =head1 AUTHOR
 

@@ -272,7 +272,7 @@ TAB completion:
 
  class ui: hash_of_nodes:en $ ^D
 
-At the end, the test script will dump the configuration tree. The modified
+At the end, the test script dumps the configuration tree. The modified
 C<bar> value can be found in there:
 
  foo=FOO
@@ -289,14 +289,14 @@ on top of L<Term::ReadLine>. To get better interaction you must
 install either L<Term::ReadLine::Gnu> or L<Term::ReadLine::Perl>.
 
 Depending on your installation, either L<Term::ReadLine::Gnu> or
-L<Term::ReadLine::Perl> will be used. See L<Term::ReadLine> to
+L<Term::ReadLine::Perl> is used. See L<Term::ReadLine> to
 override default choice.
 
 =head1 Dependencies
 
 This module is optional and depends on L<Term::ReadLine> to work. To
 reduce the dependency list of L<Config::Model>, C<Term::ReadLine> is
-only recommended. L<cme> will handle a graceful degradation to
+only recommended. L<cme> gracefully degrades to
 L<Config::Model::SimpleUI> when necessary.
 
 =head1 USER COMMAND SYNTAX

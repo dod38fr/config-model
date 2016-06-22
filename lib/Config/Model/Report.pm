@@ -151,8 +151,8 @@ a human readable report of the configuration. This report includes
 the configuration values and (if provided by the model) the description
 of the configuration item and their effect.
 
-A C<report> will show C<all> configuration items. An C<audit> will
-show only configuration items which are different from their default
+A C<report> shows C<all> configuration items. An C<audit>
+shows only configuration items which are different from their default
 value.
 
 =head1 CONSTRUCTOR

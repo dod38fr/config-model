@@ -196,7 +196,7 @@ __END__
 
  $inst->write_back ;
 
-Now C</tmp> directory will contain 2 files: C<source> and C<new> 
+Now C</tmp> directory contains 2 files: C<source> and C<new>
 with C<foo> and C<yes> inside.
 
 =head1 DESCRIPTION
@@ -226,7 +226,7 @@ Like L<read_leaf> for list elements.
 
 =head2 write ( )
 
-C<write()> will write a file for each element of the calling class. Works only for 
+C<write()> writes a file for each element of the calling class. Works only for
 leaf and list elements. Other element type are skipped. Always return 1 (unless it died before).
 
 =head1 AUTHOR

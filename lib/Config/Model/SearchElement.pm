@@ -407,7 +407,7 @@ configuration tree by exploring the configuration model.
 For instance, suppose that you have a xorg.conf model and you know
 that you need to tune the C<MergedXinerama> parameter, but you don't
 remember where is this parameter in the configuration tree. This module
-will guide you through the tree to the(s) node(s) that contain this
+guides you through the tree to the(s) node(s) that contain this
 parameter.
 
 This class should be invaluable to construct interactive user interfaces.
@@ -419,16 +419,16 @@ This module provides 2 search modes:
 =item *
 
 A manual search where you are guided step by step to the element
-you're looking for. At each step, the module will return you the
-possible paths to choose from. The user will have to choose the
+you're looking for. At each step, the module returns you the
+possible paths to choose from. The user has to choose the
 correct path from the available paths. Most of the time, only one
-possibility will be returned, so the user choice should be
-straightforward. In other case (more that one choice), the user will
-have to decide the next step.
+possibility is returned, so the user choice should be
+straightforward. In other case (more that one choice), the user
+has to decide the next step.
 
 =item *
 
-An automatic search where you provide call-back that will resolve the
+An automatic search where you provide call-back that resolves the
 ambiguities in case of multiple paths.
 
 =back
@@ -496,15 +496,15 @@ a L<leaf element|Config::Model::Value>.
 
 Finds the searched element with minimal user interaction.
 
-C<element_callback> will be called when the search engine finds a node
+C<element_callback> is called when the search engine finds a node
 where more than one element can lead to the searched item.
 
-C<id_call_back> will be called when the search engine finds a hash
+C<id_call_back> is called when the search engine finds a hash
 element or a list element which contain B<no> or B<more than 1>
-elements. In this case the call-back will have return an id that will
-be used by the search engine to get the target element.
+elements. In this case the call-back returns an id that is
+used by the search engine to get the target element.
 
-Both call-back arguments will be:
+Both call-back arguments are:
 
 =over
 
@@ -518,7 +518,7 @@ A list of possible choices
 
 =back
 
-For instances, your callback will be :
+For instance, your callback can be :
 
  my $id_cb = sub {
     my ($object,@choices) = @_ ;

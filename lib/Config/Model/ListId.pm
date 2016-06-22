@@ -514,7 +514,7 @@ Returns the number of elements of the list.
 =head2 load(string, [ check => 'no' ] )
 
 Store a set of values passed as a comma separated list of values. 
-Values can be quoted strings. (i.e C<"a,a",b> will yield
+Values can be quoted strings. (i.e C<"a,a",b> yields
 C<('a,a', 'b')> list). 
 
 C<check> can be yes, no or skip
@@ -572,7 +572,7 @@ unshift some values before value equal to C<val> or before value matching C<stuf
 =head2 insort( value1, [ value2 ... ] )
 
 Insert C<zz> value on C<xxx> list so that existing alphanumeric order is preserved.
-Will yield unpexpected results if call on an unsorted list.
+C<insort> yields unpexpected results when called on an unsorted list.
 
 =head2 store
 
@@ -616,14 +616,14 @@ Remove an element from the list. Equivalent to C<splice @list,$idx,1>
 
 Clear and load list from data contained in the C<data> array ref. If a scalar or a hash ref
 is passed, the list is cleared and the data is stored in
-the first element of the list. If split_reg is specified, the scalar will be split
+the first element of the list. If split_reg is specified, the scalar is split
 to load the array.
 
 For instance
 
    $elt->load_data( data => 'foo,bar', split_reg => qr(,) ) ;
 
-will load C< [ 'foo','bar']> in C<$elt>
+loads C< [ 'foo','bar']> in C<$elt>
 
 =head1 AUTHOR
 

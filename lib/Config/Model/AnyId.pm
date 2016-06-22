@@ -1117,8 +1117,8 @@ initial load (i.e. once the configuration files are completely read).
 =item follow_keys_from
 
 Specifies that the keys of the hash follow the keys of another hash in
-the configuration tree. In other words, the hash you're creating will
-always have the same keys as the other hash.
+the configuration tree. In other words, the created hash
+always has the same keys as the other hash.
 
    follow_keys_from => '- another_hash'
 
@@ -1160,12 +1160,12 @@ Issue a warning unless the key matches the specified regular expression
 =item auto_create_ids
 
 Specifies the number of elements to create automatically. E.g.  C<<
-auto_create_ids => 4 >> will initialize the list with 4 undef elements.
+auto_create_ids => 4 >> initializes the list with 4 undef elements.
 (valid only for list elements)
 
 =item convert => [uc | lc ]
 
-The hash key will be converted to uppercase (uc) or lowercase (lc).
+The hash key are converted to uppercase (uc) or lowercase (lc).
 
 =item warp
 
@@ -1209,10 +1209,10 @@ For instance, with this model:
      ]
   );
 
-Setting C<macro> to C<A> will mean that C<warped_hash> can only accept
+Setting C<macro> to C<A> means that C<warped_hash> can only accept
 one instance of C<Dummy>.
 
-Setting C<macro> to C<B> will mean that C<warped_hash> will accept two
+Setting C<macro> to C<B> means that C<warped_hash> accepts two
 instances of C<Dummy>.
 
 Like other warped class, a HashId or ListId can have multiple warp
@@ -1230,14 +1230,14 @@ masters (See L<Config::Model::Warper/"Warp follow argument">:
 
 When a warp is applied with C<auto_create_keys> or C<auto_create_ids>
 parameter, the auto_created items are created if they are not already
-present. But this warp will never remove items that were previously
+present. But this warp never removes items that were previously
 auto created.
 
-For instance, if a tied hash is created with 
+For instance, when a tied hash is created with
 C<< auto_create => [a,b,c] >>, the hash contains C<(a,b,c)>.
 
-Then if a warp is applied with C<< auto_create_keys => [c,d,e] >>, the hash
-will contain C<(a,b,c,d,e)>. The items created by the first
+Then, once a warp with C<< auto_create_keys => [c,d,e] >> is applied,
+the hash then contains C<(a,b,c,d,e)>. The items created by the first
 auto_create_keys are not removed.
 
 =head2 Warp and max_nb
@@ -1245,7 +1245,7 @@ auto_create_keys are not removed.
 When a warp is applied, the items that do not fit the constraint
 (e.g. min_index, max_index) are removed.
 
-For the max_nb constraint, an exception will be raised if a warp 
+For the max_nb constraint, an exception is raised if a warp
 leads to a number of items greater than the max_nb constraint.
 
 =head1 Introspection methods
@@ -1289,8 +1289,8 @@ C<< cargo -> type >>).
 =head2 get_cargo_info( < what > )
 
 Returns more info on the cargo contained by the hash or list. C<what>
-may be C<value_type> or any other cargo info stored in the model. Will
-return undef if the requested info was not provided in the model.
+may be C<value_type> or any other cargo info stored in the model.
+Returns undef if the requested info is not provided in the model.
 
 =head2 get_default_keys
 
@@ -1307,7 +1307,7 @@ Returns the object name. The name finishes with ' id'.
 Returns the config_class_name of collected elements. Valid only
 for collection of nodes.
 
-This method will return undef if C<cargo> C<type> is not C<node>.
+This method returns undef if C<cargo> C<type> is not C<node>.
 
 =head2 has_fixes
 
@@ -1318,7 +1318,7 @@ Returns the number of fixes that can be applied to the current value.
 =head2 fetch_with_id ( index => $idx , [ check => 'no' ])
 
 Fetch the collected element held by the hash or list. Index check is 'yes' by default.
-Can be called with one parameter which will be used as index.
+Can be called with one parameter which is used as index.
 
 =head2 get(...)
 
@@ -1382,7 +1382,7 @@ Returns an array containing all defined values held by the hash or
 list. (undefined values are simply discarded). This method is only 
 valid for hash or list containing leaves.
 
-With C<mode> parameter, this method will return either:
+With C<mode> parameter, this method returns either:
 
 =over
 

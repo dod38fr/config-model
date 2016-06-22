@@ -616,7 +616,7 @@ Specify which backend to use. See L</write_back ( ... )> for details
 
 =item skip_read
 
-DEPRECATED. When set, configuration files will not be read when
+DEPRECATED. When set, configuration files are not read when
 creating configuration tree.
 
 =item check
@@ -647,7 +647,7 @@ arguments: C<< name => <root node element name>, index => <index_value> >>
 =item on_message_cb
 
 Call back this function when L<show_message> is called. By default,
-messages will be displayed on STDOUT.
+messages are displayed on STDOUT.
 
 =item error_paths
 
@@ -660,10 +660,10 @@ Returns a list of error messages from the tree content.
 =back
 
 Note that the root directory specified within the configuration model
-will be overridden by C<root_dir> parameter.
+is overridden by C<root_dir> parameter.
 
 If you need to load configuration data that are not correct, you can
-use C<< force_load => 1 >>. Then, wrong data will be discarded (equivalent to 
+use C<< force_load => 1 >>. Then, wrong data are discarded (equivalent to
 C<check => 'no'> ).
 
 =head1 METHODS
@@ -718,7 +718,7 @@ Returns the number of warning found in the elements of this configuration instan
 =head2 update( quiet => (0|1), %args )
 
 Try to run update command on all nodes of the configuration tree. Node
-without C<update> method are ignored. C<update> will C<say> a message
+without C<update> method are ignored. C<update> prints a message
 otherwise (unless C<quiet> is true).
 
 =head2 searcher ( )
@@ -814,7 +814,7 @@ Returns 'normal' or 'preset' or 'layered'. Does not take into account initial_lo
 =head2 initial_load_stop ()
 
 Stop initial_load mode. Instance is built with initial_load as 1. Read backend
-will clear this value once the first read is done.
+clears this value once the first read is done.
 
 =head2 initial_load ()
 
@@ -846,7 +846,7 @@ Returns root directory where configuration data is read from or written to.
 
 =head2 register_write_back ( node_location )
 
-Register a node path that will be called back with
+Register a node path that is called back with
 C<write_back> method.
 
 =head2 notify_change
@@ -866,7 +866,7 @@ for details).
 
 You can specify here a pseudo root directory or another config
 directory to write configuration data back with C<root> and
-C<config_dir> parameters. This will override the model specifications.
+C<config_dir> parameters. This overrides the model specifications.
 
 You can force to use a backend by specifying C<< backend => xxx >>. 
 For instance, C<< backend => 'augeas' >> or C<< backend => 'custom' >>.

@@ -919,7 +919,7 @@ command specified below, e.g C</a_string="foo bar">
 =item xxx:yy
 
 Go down using C<xxx> element and id C<yy> (For C<hash> or C<list>
-element with C<node> cargo_type). Literal C<\n> will be replaced by
+element with C<node> cargo_type). Literal C<\n> are replaced by
 real C<\n> (LF in Unix).
 
 =item xxx:~yy
@@ -937,8 +937,8 @@ The leading and trailing '/' may be omitted. Be sure to surround the
 regexp with double quote if space are embedded in the regex.
 
 Note that the loop ends when the load command goes above the element
-where the loop is executed. For instance, the instruction below will
-try to execute C<DX=BV> and C<int_v=9> for all elements of C<std_id> hash:
+where the loop is executed. For instance, the instruction below
+tries to execute C<DX=BV> and C<int_v=9> for all elements of C<std_id> hash:
 
  std_id:~/^\w+$/ DX=Bv int_v=9
 
@@ -960,12 +960,12 @@ down in the tree (since it has just deleted the element). I.e. a
 =item xxx:-=yy
 
 Remove the element whose value is C<yy>. For list or hash of leaves.
-Will not complain if the value to delete is not found.
+Does not not complain if the value to delete is not found.
 
 =item xxx:-~/yy/
 
 Remove the element whose value matches C<yy>. For list or hash of leaves.
-Will not complain if no value were deleted.
+Does not not complain if no value were deleted.
 
 =item xxx:=~s/yy/zz/
 
@@ -1026,8 +1026,8 @@ copy item C<yy> in C<zz>
 =item xxx=zz
 
 Set element C<xxx> to value C<yy>. load also accepts to set elements
-with a quoted string. (For C<leaf> element) Literal C<\n> will be replaced by
-real C<\n> (LF in Unix). Literal C<\\> will be replaced by C<\>.
+with a quoted string. (For C<leaf> element) Literal C<\n> are replaced by
+real C<\n> (LF in Unix). Literal C<\\> are replaced by C<\>.
 
 For instance C<foo="a quoted string"> or C<foo="\"bar\" and \"baz\"">.
 
@@ -1036,7 +1036,7 @@ For instance C<foo="a quoted string"> or C<foo="\"bar\" and \"baz\"">.
 Apply the substitution to the value of xxx. C<s/foo/bar/> is the standard Perl C<s>
 substitution pattern.
 
-If your patten needs white spaces, you will need to surround the pattern with quotes:
+Patterns with white spaces must be surrounded by quotes:
 
   xxx=~"s/foo bar/bar baz/"
 
@@ -1050,7 +1050,7 @@ Undef element C<xxx>
 
 =item xxx.=zzz
 
-Will append C<zzz> value to current values (valid for C<leaf> elements).
+Appends C<zzz> value to current value (valid for C<leaf> elements).
 
 =back
 
@@ -1130,7 +1130,7 @@ L<above/"load string syntax"> for a description of the string.
 =item check
 
 Whether to check values while loading. Either C<yes> (default), C<no> or C<skip>.
-Loading with C<skip> will discard bad values.
+Bad values are discarded when C<check> is set to C<skip>.
 
 =back
 

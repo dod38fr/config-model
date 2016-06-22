@@ -141,15 +141,15 @@ content of a configuration tree written with C<SHELLVAR> syntax in
 C<Config::Model> configuration tree.
 
 Note that undefined values are skipped for list element. I.e. if a
-list element contains C<('a',undef,'b')>, the data structure will
-contain C<'a','b'>.
+list element contains C<('a',undef,'b')>, the data structure
+contains C<'a','b'>.
 
 
 =head1 CONSTRUCTOR
 
 =head2 new ( node => $node_obj, name => 'shellvar' ) ;
 
-Inherited from L<Config::Model::Backend::Any>. The constructor will be
+Inherited from L<Config::Model::Backend::Any>. The constructor is
 called by L<Config::Model::BackendMgr>.
 
 =head2 read ( io_handle => ... )
@@ -158,9 +158,9 @@ Of all parameters passed to this read call-back, only C<io_handle> is
 used. This parameter must be L<IO::File> object already opened for
 read. 
 
-It can also be undef. In this case, C<read()> will return 0.
+It can also be undef. In which case C<read()> returns 0.
 
-When a file is read,  C<read()> will return 1.
+When a file is read,  C<read()> returns 1.
 
 =head2 write ( io_handle => ... )
 
@@ -168,7 +168,7 @@ Of all parameters passed to this write call-back, only C<io_handle> is
 used. This parameter must be L<IO::File> object already opened for
 write. 
 
-C<write()> will return 1.
+C<write()> returns 1.
 
 =head1 AUTHOR
 

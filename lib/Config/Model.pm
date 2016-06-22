@@ -1653,8 +1653,8 @@ __END__
  # create new Model object
  my $model = Config::Model->new() ; # Config::Model object
 
- # create config model. Most users will want to store the model in a
- # file in lib/Config/Model/models and run cme as explained below
+ # create config model. A more complex model should be stored in a
+ # file in lib/Config/Model/models. Then, run cme as explained below
  $model ->create_config_class (
    name => "MiniModel",
    element => [ [qw/foo bar baz/ ] => { type => 'leaf', value_type => 'uniline' }, ],
@@ -1716,7 +1716,7 @@ read/write backends provided by Config::Model or a custom backend.
 
 =back
 
-With the elements above, Config::Model will generate interactive
+With the elements above, Config::Model generates interactive
 configuration editors (with integrated help and data validation).
 These editors can be graphical (with L<Config::Model::TkUI>), curses
 based (with L<Config::Model::CursesUI>) or based on ReadLine.
@@ -1741,7 +1741,7 @@ single command.
 =head2 How does this work ?
 
 Using this project, a typical configuration editor/validator/upgrader
-will be made of 3 parts :
+is made of 3 parts :
 
 
 
@@ -1757,22 +1757,22 @@ will be made of 3 parts :
 
 =item 1.
 
-A reader and writer that will parse the configuration file and transform
-in a tree representation within Config::Model. The values contained in this
+A reader and writer that parse the configuration file and transform its data
+into a tree representation within Config::Model. The values contained in this
 configuration tree can be written back in the configuration file(s).
 
 =item 2.
 
 A validation engine which is in charge of validating the content and
 structure of configuration stored in the configuration tree. This
-validation engine will follow the structure and constraint declared in
+validation engine follows the structure and constraint declared in
 a configuration model. This model is a kind of schema for the
 configuration tree.
 
 =item 3.
 
 A user interface to modify the content of the configuration tree. A
-modification will be validated instantly by the validation engine.
+modification is validated immediately by the validation engine.
 
 =back
 
@@ -1841,7 +1841,7 @@ Maintenance and evolution of the configuration content is easier
 
 =item *
 
-User will see a *common* interface for *all* programs using this
+User sees a *common* interface for *all* programs using this
 project.
 
 =item *
@@ -1974,12 +1974,12 @@ of rules. This set of rules is called the configuration model.
 
 =head1 User interface
 
-The user interface will use some parts of the API to set and get
-configuration values. More importantly, a generic user interface will
-need to explore the configuration model to be able to generate at
+The user interface uses some parts of the API to set and get
+configuration values. More importantly, a generic user interface
+needs to analyze the configuration model to be able to generate at
 run-time relevant configuration screens.
 
-Simple text interface if provided in this module. Curses and Tk
+A command line interface is provided in this module. Curses and Tk
 interfaces are provided by L<Config::Model::CursesUI> and
 L<Config::Model::TkUI>.
 
@@ -1989,38 +1989,38 @@ Simply call new without parameters:
 
  my $model = Config::Model -> new ;
 
-This will create an empty shell for your model.
+This creates an object to host your model.
 
 =head1 Configuration Model
 
 To validate a configuration tree, we must create a configuration model
-that will set all the properties of the validation engine you want to
+that defines all the properties of the validation engine you want to
 create.
 
 The configuration model is expressed in a declarative form (i.e. a
-Perl data structure which is always easier to maintain than a lot of
+Perl data structure which should be easier to maintain than a lot of
 code)
 
-Each configuration class contains a set of:
+Each configuration class may contain a set of:
 
 =over
 
 =item *
 
-node element that will refer to another configuration class
+node elements that refer to another configuration class
 
 =item *
 
-value element that will contains actual configuration data
+value elements that contain actual configuration data
 
 =item *
 
-List or hash of node or value elements
+list or hash elements that also contain several node or value elements
 
 =back
 
-By declaring a set of configuration classes and referring them in node
-element, you will shape the structure of your configuration tree.
+The structure of your configuration tree is shaped by the a set of
+configuration classes that are used in node elements,
 
 The structure of the configuration data must be based on a tree
 structure. This structure has several advantages:
@@ -2053,10 +2053,11 @@ relation between nodes and leaves must be added.
 
 =item *
 
-Some configuration part are actually graph instead of a tree (for
-instance, any configuration that will map a service to a
+A configuration may actually be structured as a graph instead as a tree (for
+instance, any configuration that maps a service to a
 resource). The graph relation must be decomposed in a tree with
-special I<reference> relation. See L<Config::Model::Value/Value Reference>
+special I<reference> relations that complete the tree to form a graph.
+See L<Config::Model::Value/Value Reference>
 
 =back
 
@@ -2090,7 +2091,7 @@ The class elements
 
 =back
 
-Each element will specify:
+Each element specifies:
 
 =over
 
@@ -2198,8 +2199,9 @@ C<name> option:
    name            => 'test1'
  );
 
-Usually, model files will be loaded automatically depending on
-C<root_class_name>. But you can choose to specify the file containing
+Usually, model files are loaded automatically using a path matching
+C<root_class_name> (e.g. configuration class C<Foo::Bar> is stored in
+C<Foo/Bar.pl>. You can choose to specify the file containing
 the model with C<model_file> parameter. This is mostly useful for
 tests.
 
@@ -2224,32 +2226,32 @@ several other properties:
 Level is C<important>, C<normal> or C<hidden>.
 
 The level is used to set how configuration data is presented to the
-user in browsing mode. C<Important> elements will be shown to the user
-no matter what. C<hidden> elements will be explained with the I<warp>
-notion.
+user in browsing mode. C<Important> elements are shown to the user no
+matter what. C<hidden> elements are well, hidden. Their purpose is
+explained with the I<warp> notion.
 
 =item status
 
 Status is C<obsolete>, C<deprecated> or C<standard> (default).
 
-Using a deprecated element will issue a warning. Using an obsolete
-element will raise an exception.
+Using a deprecated element raises a warning. Using an obsolete
+element raises an exception.
 
 =item description
 
-Description of the element. This description will be used when
+Description of the element. This description is used while
 generating user interfaces.
 
 =item summary
 
-Summary of the element. This description will be used when generating
-user interfaces and may be used in comments when writing the
+Summary of the element. This description is used while generating
+a user interfaces and may be used in comments when writing the
 configuration file.
 
 =item class_description
 
-Description of the configuration class. This description will be used
-when generating user interfaces.
+Description of the configuration class. This description is used
+while generating user interfaces.
 
 =item generated_by
 
@@ -2279,7 +2281,7 @@ elements after a specific element of your including class:
   include_after => "foo" ,
   element => [ bar => ... , foo => ... , baz => ... ]
 
-Now the element of your class will be:
+Now the element of your class are:
 
   ( bar , foo , xyz , baz )
 
@@ -2341,7 +2343,7 @@ You can also load predeclared model.
 
 =head2 load( <model_name> )
 
-This method will open the model directory and execute a C<.pl>
+This method opens the model directory and execute a C<.pl>
 file containing the model declaration,
 
 This perl file must return an array ref to declare models. E.g.:
@@ -2359,15 +2361,15 @@ This perl file must return an array ref to declare models. E.g.:
 
 do not put C<1;> at the end or C<load> will not work
 
-If a model name contain a C<::> (e.g C<Foo::Bar>), C<load> will look for
+When a model name contain a C<::> (e.g C<Foo::Bar>), C<load> looks for
 a file named C<Foo/Bar.pl>.
 
-This method will also look in C<Foo/Bar.d> directory for additional model information.
-Model snippet found there will be loaded with L<augment_config_class>.
+This method also searches in C<Foo/Bar.d> directory for additional model information.
+Model snippet found there are loaded with L<augment_config_class>.
 
 Returns a list containing the names of the loaded classes. For instance, if
 C<Foo/Bar.pl> contains a model for C<Foo::Bar> and C<Foo::Bar2>, C<load>
-will return C<( 'Foo::Bar' , 'Foo::Bar2' )>.
+returns C<( 'Foo::Bar' , 'Foo::Bar2' )>.
 
 =head2 augment_config_class (name => '...', class_data )
 

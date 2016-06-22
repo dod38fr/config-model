@@ -390,12 +390,12 @@ Root of the configuration tree (C<Config::Model::Node> object )
 =head2 run_loop( fork_in_loop => 1|0, debug => 1|0)
 
 Mount the file system either in the current process or fork a new process before mounting the file system.
-In the former case, the call is blocking. In the latter, the call will return after forking a process that
-will perform the mount. Debug parameter is passed to Fuse system to get Fuse traces.
+In the former case, the call is blocking. In the latter case, the call returns after forking a process that
+performs the mount. Debug parameter is passed to Fuse system to get traces from Fuse.
 
 =head2 fuse_mount
 
-Mount the fuse file system. This method will block until the file system is 
+Mount the fuse file system. This method blocks until the file system is
 unmounted (with C<fusermount -u mount_point> command)
 
 =cut

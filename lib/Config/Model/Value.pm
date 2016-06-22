@@ -1819,22 +1819,22 @@ a number, an integer or a string
 =item *
 
 default parameter: a value can have a default value specified during
-the construction. This default value will be written in the target
+the construction. This default value is written in the target
 configuration file. (C<default> parameter)
 
 =item *
 
-upstream default parameter: specifies a default value that will be
+upstream default parameter: specifies a default value that is
 used by the application when no information is provided in the
-configuration file. This upstream_default value will not written in
-the configuration files. Only the C<fetch_standard> method will return
+configuration file. This upstream_default value is not written in
+the configuration files. Only the C<fetch_standard> method returns
 the builtin value. This parameter was previously referred as
 C<built_in> value. This may be used for audit
 purpose. (C<upstream_default> parameter)
 
 =item *
 
-mandatory value: reading a mandatory value will raise an exception if the
+mandatory value: reading a mandatory value raises an exception if the
 value is not specified and has no default value.
 
 =item *
@@ -1892,11 +1892,11 @@ L<preset mode|Config::Model::Instance/"preset_start ()">
 
 =back
 
-Then there is the value entered by the user. This will override all
+Then there is the value entered by the user. This overrides all
 kind of "default" value.
 
-The L<fetch_standard> function will return the "highest" level of
-default value, but will not return a custom value, i.e. a value
+The L<fetch_standard> function returns the "highest" level of
+default value, but does not return a custom value, i.e. a value
 entered by the user.
 
 =head1 Constructor
@@ -1931,7 +1931,7 @@ specified as C<['false','true']> or C<['no','yes']>.
 
 =item compute
 
-Will compute a value according to a formula and other values. By default
+Computes a value according to a formula and other values. By default
 a computed value cannot be set. See L<Config::Model::ValueComputer> for
 computed value declaration.
 
@@ -1943,7 +1943,7 @@ parameter to its replacement. See L</Upgrade> for details.
 
 =item convert => [uc | lc ]
 
-When stored, the value will be converted to uppercase (uc) or
+When stored, the value is converted to uppercase (uc) or
 lowercase (lc).
 
 =item min
@@ -1967,7 +1967,7 @@ Array ref of the possible value of an enum. Example :
 
 =item match
 
-Perl regular expression. The value will be match with the regex to
+Perl regular expression. The value is matched with the regex to
 assert its validity. Example C<< match => '^foo' >> means that the
 parameter value must begin with "foo". Valid only for C<string> or
 C<uniline> values.
@@ -1976,14 +1976,14 @@ C<uniline> values.
 
 Hash ref. Keys are made of Perl regular expression. The value can
 specify a warning message (leave empty or undefined for default warning
-message) and instructions to fix the value. A warning will be issued
+message) and instructions to fix the value. A warning is issued
 when the value match the passed regular expression. Valid only for
-C<string> or C<uniline> values. The fix instructions will be evaluated
-when L<apply_fixes> is called. C<$_> will contain the value to fix.
-C<$_> will be stored as the new value once the instructions are done.
-C<$self> will contain the value object. Use with care.
+C<string> or C<uniline> values. The fix instructions is evaluated
+when L<apply_fixes> is called. C<$_> contains the value to fix.
+C<$_> is stored as the new value once the instructions are done.
+C<$self> contains the value object. Use with care.
 
-In the example below, any value matching 'foo' will be converted in uppercase:
+In the example below, any value matching 'foo' is converted in uppercase:
 
  warn_if_match => {
    'foo' => {
@@ -1996,14 +1996,14 @@ In the example below, any value matching 'foo' will be converted in uppercase:
    }
  },
 
-The tests will be done in alphabetical order. In the example above, C<BAR> test will
-be done before C<foo> test.
+The tests are done in alphabetical order. In the example above, C<BAR> test is
+done before C<foo> test.
 
-C<$_> will be substituted with the bad value when the message is generated.
+C<$_> is substituted with the bad value when the message is generated.
 
 =item warn_unless_match
 
-Hash ref like above. A warning will be issued when the value does not
+Hash ref like above. A warning is issued when the value does not
 match the passed regular expression. Valid only for C<string> or
 C<uniline> values.
 
@@ -2015,11 +2015,12 @@ String. Issue a warning to user with the specified string any time a value is se
 
 A bit like C<warn_if_match>. The hash key is not a regexp but a label to
 help users. The hash ref contains some Perl code that is evaluated to
-perform the test. A warning will be issued if the code returns true.
+perform the test. A warning is issued if the given code returns true.
 
-C<$_> will contains the value to check. C<$self> will contain the C<Config::Model::Value> object.
+C<$_> contains the value to check. C<$self> contains the
+C<Config::Model::Value> object (use with care).
 
-The example below will warn if value contaims a number:
+The example below warns if value contaims a number:
 
  warn_if => {
     warn_test => {
@@ -2031,9 +2032,9 @@ The example below will warn if value contaims a number:
 
 =item warn_unless
 
-Like C<warn_if>, but issue a warning when the C<code> returns false.
+Like C<warn_if>, but issue a warning when the given C<code> returns false.
 
-The example below will warn unless the value points to an existing directory:
+The example below warns unless the value points to an existing directory:
 
  warn_unless => {
      'dir' => {
@@ -2044,7 +2045,8 @@ The example below will warn unless the value points to an existing directory:
 
 =item assert
 
-Like C<warn_if>. Except that returned value will trigger an error if false:
+Like C<warn_if>. Except that returned value triggers an error when the
+given code returns false:
 
  assert => {
     test_nb => {
@@ -2059,7 +2061,7 @@ Like C<warn_if>. Except that returned value will trigger an error if false:
 Setup a L<Parse::RecDescent> grammar to perform validation.
 
 If the grammar does not start with a "check" rule (i.e does not start with "check: "),
-the first line of the grammar will be modified to add "check" rule and set up this rules so
+the first line of the grammar is modified to add "check" rule and this rules is set up so
 the entire value must match the passed grammar.
 
 I.e. the grammar:
@@ -2068,7 +2070,7 @@ I.e. the grammar:
  oper: 'and' | 'or'
  token: 'Apache' | 'CC-BY' | 'Perl'
 
-will be changed to
+is changed to
 
  check: token (oper token)(s?) /^\Z/ {$return = 1;}
  oper: 'and' | 'or'
@@ -2084,16 +2086,16 @@ C<${$arg[2]}}>.
 Hash ref. Used for enum to substitute one value with another. This
 parameter must be used to enable user to upgrade a configuration with
 obsolete values. For instance, if the value C<foo> is obsolete and
-replaced by C<foo_better>, you will need to declare:
+replaced by C<foo_better>, you must declare:
 
-replace => { foo => 'foo_better' }
+ replace => { foo => 'foo_better' }
 
 The hash key can also be a regular expression for wider range replacement.
 The regexp must match the whole value:
 
-replace => ( 'foo.*' => 'better_foo' }
+ replace => ( 'foo.*' => 'better_foo' }
 
-In this case, a value will be replaced by C<better_foo> if the
+In this case, a value is replaced by C<better_foo> when the
 C</^foo.*$/> regexp matches.
 
 =item replace_follow
@@ -2163,12 +2165,12 @@ another location if the configuration tree. See L</Value Reference>.
 
 =item C<file>
 
-A file name or path. A warning will be issued if the file does not
+A file name or path. A warning is issued if the file does not
 exists (or is a directory)
 
 =item C<dir>
 
-A directory name or path. A warning will be issued if the directory
+A directory name or path. A warning is issued if the directory
 does not exists (or is a plain file)
 
 =back
@@ -2219,7 +2221,7 @@ For instance if you declare 2 C<Value> element this way:
      ]
  );
 
-Setting C<country> element to C<US> will mean that C<tv_standard> has
+Setting C<country> element to C<US> means that C<tv_standard> has
 a default value set to C<NTSC> by the warp mechanism.
 
 Likewise, the warp mechanism enables you to dynamically change the
@@ -2256,20 +2258,20 @@ to a model very hard to debug. Bear in mind that:
 
 =item *
 
-Warp loop are not detected and will end up in "deep recursion
+Warp loops are not detected and end up in "deep recursion
 subroutine" failures.
 
 =item *
 
-If you declare "diamond" shaped warp dependencies, the results will
-depend on the order of the warp algorithm and can be unpredictable.
+avoid "diamond" shaped warp dependencies: the results depends on the
+order of the warp algorithm which can be unpredictable in this case
 
 =item *
 
 The keys declared in the warp rules (C<US>, C<Europe> and C<Japan> in
 the example above) cannot be checked at start time against the warp
-master C<Value>. So a wrong warp rule key will be silently ignored
-during start up and will fail at run time.
+master C<Value>. So a wrong warp rule key is silently ignored
+during start up and fails at run time.
 
 =back
 
@@ -2372,7 +2374,7 @@ C<check_value> also accepts named parameters:
 
 =item quiet
 
-When non null, check will not try to get extra
+When non null, check does not try to get extra
 information from the tree. This is required in some cases to avoid
 loops in check, get_info, get_warp_info, re-check ...
 
@@ -2396,11 +2398,11 @@ Applies the fixes to suppress the current warnings.
 
 Like L</check_value>.
 
-Will also display warnings on STDOUT unless C<silent> parameter is set to 1.
+Also displays warnings on STDOUT unless C<silent> parameter is set to 1.
 In this case,user is expected to retrieve them with
 L</warning_msg>.
 
-Without C<value> argument, this method will check the value currently stored.
+Without C<value> argument, this method checks the value currently stored.
 
 =head1 Information management
 
@@ -2416,7 +2418,7 @@ Optional C<callback> is now deprecated.
 
 =head2 clear
 
-Clear the stored value. Further read will return the default value (or
+Clear the stored value. Further read returns the default value (or
 computed or migrated value).
 
 =head2 load_data( $value )
@@ -2484,14 +2486,14 @@ with L<warning_msg> method.
 
 =back
 
-According to the C<mode> parameter, this method will return either:
+According to the C<mode> parameter, this method returns either:
 
 =over
 
 =item empty mode parameter (default)
 
 Value entered by user or default value if the value is different from upstream_default or
-layered value. Typically this value will be written in a configuration file.
+layered value. Typically this value is written in a configuration file.
 
 =item backend
 
@@ -2504,7 +2506,7 @@ computed or default value)
 
 =item user
 
-The value most useful to user: the value that will be used by the application.
+The value most useful to user: the value that is used by the application.
 
 =item preset
 
@@ -2529,13 +2531,13 @@ The upstream_default value. (defined by the configuration model)
 
 =item non_upstream_default
 
-The custom or preset or computed or default value. Will return undef
+The custom or preset or computed or default value. Returns undef
 if either of this value is identical to the upstream_default value. This
 feature is useful to reduce data to write in configuration file.
 
 =item allow_undef
 
-This mode will accept to return undef for mandatory values. Normally,
+With this mode, C<fetch()> returns undef for mandatory values. Normally,
 trying to fetch an undefined mandatory value leads to an exception.
 
 =back
@@ -2630,7 +2632,7 @@ Legacy values C<a1>, C<c1> and C<foo/.*> are replaced with C<a>, C<c> and C<foo/
 
 =head2 Enforce value to match a regexp
 
-An exception will be triggered if the value does not match the C<match>
+An exception is triggered when the value does not match the C<match>
 regular expression.
 
  match => {

@@ -1205,7 +1205,7 @@ __END__
 =head1 DESCRIPTION
 
 This class provides the nodes of a configuration tree. When created, a
-node object will get a set of rules that will define its properties
+node object gets a set of rules that defines its properties
 within the configuration tree.
 
 Each node contain a set of elements. An element can contain:
@@ -1247,7 +1247,7 @@ element in another configuration class.
 
 =item B<class_description>
 
-Optional C<string> parameter. This description will be used when
+Optional C<string> parameter. This description is used while
 generating user interfaces.
 
 =item B<class>
@@ -1277,8 +1277,8 @@ default value (C<normal>). Possible values are C<important>, C<normal>
 or C<hidden>.
 
 The level is used to set how configuration data is presented to the
-user in browsing mode. C<Important> elements will be shown to the user
-no matter what. C<hidden> elements will be explained with the I<warp>
+user in browsing mode. C<Important> elements are shown to the user
+no matter what. C<hidden> elements are explained with the I<warp>
 notion.
 
   level  => [ [qw/X Y/] => 'important' ]
@@ -1289,8 +1289,8 @@ Optional C<list ref> of the elements whose status are different from
 default value (C<standard>). Possible values are C<obsolete>,
 C<deprecated> or C<standard>.
 
-Using a deprecated element will issue a warning. Using an obsolete
-element will raise an exception (See L<Config::Model::Exception>.
+Using a deprecated element issues a warning. Using an obsolete
+element raises an exception (See L<Config::Model::Exception>.
 
   status  => [ [qw/X Y/] => 'obsolete' ]
 
@@ -1316,8 +1316,8 @@ See L<Config::Model::BackendMgr> for details.
 =item B<accept>
 
 Optional list of criteria (i.e. a regular expression to match ) to
-accept unknown elements. Each criteria will have a list of
-specification that will enable C<Config::Model> to create a model
+accept unknown elements. Each criteria has a list of
+specification that enable C<Config::Model> to create a model
 snippet for the unknown element.
 
 Example:
@@ -1338,12 +1338,12 @@ Example:
 
 All C<element> parameters can be used in specifying accepted elements.
 
-If L<Text::Levenshtein::Damerau> is installed, a warning will be issued if an accepted
+If L<Text::Levenshtein::Damerau> is installed, a warning is issued if an accepted
 element is too close to an existing element.
 
 The parameter C<accept_after> to specify where to insert the accepted element.
-This will not change much the behavior of the tree, but will help generate
-more usable user interfaces.
+This does not change much the behavior of the tree, but helps generate
+a more usable user interface.
 
 Example:
 
@@ -1358,7 +1358,7 @@ Example:
     }
  ]
 
-The model snippet above will ensure that C<Bug-Debian> will be shown right after C<bug>.
+The model snippet above ensures that C<Bug-Debian> is shown right after C<bug>.
 
 =for html
 <p>For more information, see <a href="http://ddumont.wordpress.com/2010/05/19/improve-config-upgrade-ep-02-minimal-model-for-opensshs-sshd_config/">this blog</a>.</p>
@@ -1517,10 +1517,10 @@ element name must also match the type.
 
 =head2 find_element ( element_name , [ case => any ])
 
-Returns $name if the class model has the element declared or if the element
+Returns C<$name> if the class model has the element declared or if the element
 name is matched by the optional C<accept> parameter.
 
-If case is set to any, has_element will return the element name who match the passed
+If C<case> is set to any, C<has_element> returns the element name who match the passed
 name in a case-insensitive manner.
 
 Returns empty if no matching element is found.
@@ -1589,11 +1589,11 @@ C<hash>, C<leaf>,...). By default return elements of any type.
 
 =item *
 
-B<cargo_type>: Returns only element which contain requested type.
-E.g. if C<get_element_names> is called with C<< cargo_type => leaf >>,
-C<get_element_names> will return simple leaf elements, but also hash
-or list element that contain L<leaf|Config::Model::Value> object. By
-default return elements of any type.
+B<cargo_type>: Returns only hash or list elements that contain
+the requested cargo type.
+E.g. if C<get_element_names> is called with C<< cargo_type => 'leaf' >>,
+then C<get_element_names> returns hash
+or list elements that contain a L<leaf|Config::Model::Value> object.
 
 =item *
 
@@ -1601,7 +1601,12 @@ B<check>: C<yes>, C<no> or C<skip>
 
 =back
 
-Returns an array in array context, and a string
+C<type> and C<cargo_type> parameters can be specified together. In
+this case, this method returns parameters that satisfy B<both>
+conditions. I.e. with C<< type =>'hash', cargo_type => 'leaf' >>, this
+method returns only hash elements that contain leaf objects.
+
+Returns a list in array context, and a string
 (e.g. C<join(' ',@array)>) in scalar context.
 
 =head2 children
@@ -1632,7 +1637,7 @@ I.e. for a model :
   status     => [ X => 'deprecated' ]
   element    => [ X => { ... } ]
 
-This call will return C<deprecated>:
+This call returns C<deprecated>:
 
   $node->get_element_property ( element => 'X', property => 'status' )
 
@@ -1707,8 +1712,8 @@ See L<Config::Model::AnyThing/"grab_root()">.
 
 =head2 get( path => ..., mode => ... ,  check => ... , get_obj => 1|0, autoadd => 1|0)
 
-Get a value from a directory like path. If C<get_obj> is 1, C<get> will return leaf object
-instead of returning their value.
+Get a value from a directory like path. If C<get_obj> is 1, C<get> returns a leaf object
+instead of returning its value.
 
 =head2 set( path  , value)
 
@@ -1743,7 +1748,7 @@ Load configuration data with a hash ref. The hash ref key must match
 the available elements of the node (or accepted element). The hash ref structure must match
 the structure of the configuration model.
 
-Use C<< check => skip >> to make data loading more tolerant: bad data will be discarded.
+Use C<< check => skip >> to make data loading more tolerant: bad data are discarded.
 
 C<load_data> can be called with a single hash ref parameter.
 
@@ -1779,7 +1784,7 @@ node.
 =head2 audit ()
 
 Provides a text audit on the content of the configuration below this
-node. This audit will show only value different from their default
+node. This audit shows only value different from their default
 value.
 
 =head2 copy_from ( from => another_node_object, [ check => ... ] )
@@ -1818,7 +1823,8 @@ C<key>, C<summary>, C<description>, C<help> or C<all>.
 
 =back
 
-Typically, you will have to call C<search> on this object.
+Then, C<search> method must then be called on the object returned
+by C<tree_searcher>.
 
 Returns a L<Config::Model::TreeSearcher> object.
 

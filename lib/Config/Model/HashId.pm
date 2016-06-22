@@ -551,12 +551,12 @@ ordered hash.
 =head2 move_up ( key )
 
 Move the key up in a ordered hash. Attempt to move up the first key of
-an ordered hash will be ignored. Ignored for non ordered hash.
+an ordered hash is ignored. Ignored for non ordered hash.
 
 =head2 move_down ( key )
 
 Move the key down in a ordered hash. Attempt to move up the last key of
-an ordered hash will be ignored. Ignored for non ordered hash.
+an ordered hash is ignored. Ignored for non ordered hash.
 
 =head2 load_data ( data => ( hash_ref | array_ref ) [ , check => ... , ... ])
 

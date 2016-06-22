@@ -294,7 +294,7 @@ Construction is handled by the calling object (L<Config::Model::Node>).
 
 =item refer_to
 
-C<refer_to> is used to specify a hash element that will be used as a
+C<refer_to> is used to specify a hash element that is used as a
 reference. C<refer_to> points to an array or hash element in the
 configuration tree using the path syntax (See
 L<Config::Model::Node/grab> for details).

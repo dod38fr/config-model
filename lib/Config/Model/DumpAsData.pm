@@ -289,11 +289,11 @@ This module is used directly by L<Config::Model::Node> to dump the content
 of a configuration tree in perl data structure.
 
 The perl data structure is a hash of hash. Only
-L<CheckList|Config::Model::CheckList> content will be stored in an array ref.
+L<CheckList|Config::Model::CheckList> content is stored in an array ref.
 
 Note that undefined values are skipped for list element. I.e. if a
-list element contains C<('a',undef,'b')>, the data structure will
-contain C<'a','b'>.
+list element contains C<('a',undef,'b')>, the data structure then
+contains C<'a','b'>.
 
 =head1 CONSTRUCTOR
 
@@ -319,7 +319,7 @@ Reference to a L<Config::Model::Node> object. Mandatory
 =item full_dump
 
 Also dump default values in the data structure. Useful if the dumped
-configuration data will be used by the application. (default is yes)
+configuration data is used by the application. (default is yes)
 
 Note that C<mode> parameter is also accepted and overrides
 C<full_dump> parameter. See L<Config::Model::Value/fetch(...)> for

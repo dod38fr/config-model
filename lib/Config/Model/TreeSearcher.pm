@@ -169,7 +169,7 @@ __END__
 =head1 DESCRIPTION
 
 This class provides a way to search the content of a configuration tree. 
-Given a keyword or a pattern, the search method will scan the tree to find
+Given a keyword or a pattern, the search method scans the tree to find
 a value, a description or anything that match the given pattern (or keyword).
 
 =head1 Constructor

@@ -503,7 +503,7 @@ The exception classes are:
 
 Base class. It accepts an C<object> argument. The user must pass the
 reference of the object where the exception occurred. The object name
-will be used to generate the error message.
+is used to generate the error message.
 
 =back
 
@@ -511,7 +511,7 @@ will be used to generate the error message.
 
 =head1 How to get trace
 
-By default, most of the exceptions will not print out the stack
+By default, most of the exceptions do not print out the stack
 trace. For debug purpose, you can force a stack trace for all
 exception classes:
 

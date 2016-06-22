@@ -34,7 +34,7 @@ Xorg 1.5 or 1.6
 =head1 Model plugin
 
 Config::Model can also use model plugins. Each model can be augmented by model snippets
-stored into directory C<< <model_name>.d >>. All files found there will be merged to existing model.
+stored into directory C<< <model_name>.d >>. All files found there are merged to existing model.
 
 For instance, this model in file C<.../Config/Model/models/Fstab/Fsline.pl>:
 
@@ -78,11 +78,11 @@ Under the hood, L<Config::Model/augment_config_class> method is used to load mod
 
 =head1 Model warp
 
-From a user's point of view, model warp will look like the structure
+From a user's point of view, model warp looks like the structure
 or properties of the configuration is changing (or adapting)
 dynamically depending on the values being entered. For instance, when
-changing a driver name from C<fglrx> to C<radeon>, some options will
-disappear from the GUI and some other options will pop-in.
+changing a driver name from C<fglrx> to C<radeon>, some options
+disappear from the GUI and some other options pop-in.
 
 Model warping need not be that spectacular and can have more subtle
 effect like changing a default value.
@@ -98,7 +98,7 @@ values: I<size> which can be set to I<big> or I<small> and I<length>
 whose maximum value is 10 when size is small and 50 when size is
 big. (this may be dumb, but it's for the sake of the example).
 
-So the basic model without warp will be
+So the basic model without warp is
 
  element => [
               size => { type => 'leaf',
@@ -120,7 +120,7 @@ This setup is made of 2 specifications:
 
 =item *
 
-what is the element that will trigger the change (called I<warp master>
+what is the element that triggers the change (called I<warp master>
 in the doc)
 
 =item *
@@ -183,7 +183,7 @@ Here's the recipe. First create a boolean element for C<GatewayPorts>:
     upstream_default => 0,
  },
 
-And C<LocalForward> that will provide I<bind_address> parameter:
+And C<LocalForward> that provides I<bind_address> parameter:
 
  LocalForward => {
    type => 'list',
@@ -235,7 +235,7 @@ Here's how this can be done. First declare the C<fstype> parameter:
  }
 
 Then declare C<mntopts> as a B<warped_node> (not a simple C<node>))
-that will use C<fs_vfstype> to swap one config class with another:
+that uses C<fs_vfstype> to swap one config class with another:
 
  fs_mntopts => {
    type => 'warped_node', # a shape-shifting node

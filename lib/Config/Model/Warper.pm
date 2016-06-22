@@ -608,13 +608,13 @@ __END__
 =head1 DESCRIPTION
 
 Depending on the value of a warp master (In fact a L<Config::Model::Value> or a L<Config::Model::CheckList> object),
-this class will change the properties of a node (L<Config::Model::WarpedNode>),
+this class changes the properties of a node (L<Config::Model::WarpedNode>),
 a hash (L<Config::Model::HashId>), a list (L<Config::Model::ListId>), 
 a checklist (L<Config::Model::CheckList>) or another value.
 
 =head1 Warper and warped
 
-Warping an object means that the properties of the object will be
+Warping an object means that the properties of the object is
 changed depending on the value of another object.
 
 The changed object is referred as the I<warped> object.
@@ -623,7 +623,7 @@ The other object that holds the important value is referred as the
 I<warp master> or the I<warper> object.
 
 You can also set up several warp master for one warped object. This
-means that the properties of the warped object will be changed
+means that the properties of the warped object is changed
 according to a combination of values of the warp masters.
 
 =head1 Warp arguments
@@ -638,7 +638,7 @@ C<Config::Model::Value> or L<Config::Model::CheckList> warp master. E.g.:
 
  follow => '! tree_macro' 
 
-In case of several warp master, C<follow> will be set to an array ref 
+In case of several warp master, C<follow> is set to an array ref
 of several L<grab string|Config::Model::AnyThing/"grab(...)">:
 
  follow => [ '! macro1', '- macro2' ]
@@ -666,8 +666,8 @@ E.g. for a simple case (rules is a hash ref) :
           }
 
 In case of similar effects, you can use named parameters and
-a boolean expression to specify the effect. The first match will
-be applied. In this case, rules is a list ref:
+a boolean expression to specify the effect. The first match
+is applied. In this case, rules is a list ref:
 
   follow => { m => '! macro1' } ,
   rules => [ '$m eq "A"'               => { <effect for macro1 == A> },
@@ -706,10 +706,10 @@ In this case, you can use different boolean expression to save typing:
            '$m1 eq "B" && ( $m2 eq "C" or $m2 eq "D") ' => { <effect Y> },
           ]
 
-Note that the boolean expression will be sanitized and used in a Perl
+Note that the boolean expression is sanitized and used in a Perl
 eval, so you can use most Perl syntax and regular expressions.
 
-Function (like C<&foo>) will be called like C<< $self->foo >> before evaluation
+Functions (like C<&foo>) are called like C<< $self->foo >> before evaluation
 of the boolean expression.
 
 The rules must be declared with a slightly different way when a
@@ -803,7 +803,7 @@ warp master is an enumerated type)
 
 =item *
 
-When a warped object is created, the constructor will register to the
+When a warped object is created, the constructor registers to the
 warp masters. The warp master are found by using the special string
 passed to the C<follow> parameter. As explained in 
 L<grab method|Config::Model::AnyThing/"grab(...)">,
@@ -818,7 +818,7 @@ Then the warped object retrieve the value(s) of the warp master(s)
 
 Then the warped object warps itself using the above
 value(s). Depending on these value(s), the properties of the warped
-object will be modified.
+object are modified.
 
 =back
 
@@ -828,12 +828,12 @@ object will be modified.
 
 =item *
 
-When a warp master value is updated, the warp master will call I<all>
+When a warp master value is updated, the warp master calls I<all>
 its warped object and pass them the new master value.
 
 =item *
 
-Then each warped object will modify its properties according to the
+Then each warped object modifies properties according to the
 new warp master value.
 
 =back

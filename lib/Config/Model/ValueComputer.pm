@@ -475,7 +475,7 @@ use warnings ;
 
 # computed value may return undef even if parsing is done right. To
 # avoid getting problems with Parse::RecDescent (where undef means
-# that the parsing did not match), we will always return a scalar
+# that the parsing did not match), we always return a scalar
 # reference to the actual returned value
 
 # @arg is value_object, $variables_h,  $replace_h, $check,$need_quote
@@ -694,7 +694,7 @@ For instance, you could have this template string:
 If you need to perform more complex operations than substitution, like
 extraction with regular expressions, you can force an eval done by
 Perl with C<< use_eval => 1 >>. In this case, the result of the eval
-will be used as the computed value.
+is used as the computed value.
 
 For instance:
 
@@ -712,10 +712,10 @@ For instance:
 
 =head2 Compute variables
 
-The following arguments will be a set of C<< key => value >> to define
-the variables used in the formula. The key is a variable name used in
-the computation string. The value is a string that will be used to get
-the correct Value object.
+Compute variables are a set of C<< key => value >> pairs that define
+the variables used in the specified formula. The key is a variable name used in
+the string that represents the formula. The value is a string that is used to get
+the correct L<Value|Config::Model::Value> object.
 
 In this numeric example, C<result> default value is C<av + bv>:
 
@@ -811,7 +811,7 @@ compute parameter:
                }
    }
 
-This computed default value will be written to the configuration file.
+This computed default value is written to the configuration file.
 
 This default value may be already known by the application so the computed value
 should B<not> be written to the configuration file. The computed value is interesting 
@@ -832,14 +832,14 @@ C<use_as_upstream_default> implies C<allow_override>.
 =head2 Undefined variables
 
 You may need to compute value where one of the variables (i.e. other configuration
-parameter) is undefined. By default, any formula will yield an undefined value if one 
+parameter) is undefined. By default, any formula yields an undefined value if one
 variable is undefined.
 
-You may change this behavior with C<undef_is> parameter. Depending on your formula and 
-whether C<use_eval> is true or not, you may specify a "fallback" value that will be 
-used in your formula.
+You may change this behavior with C<undef_is> parameter. With this
+parameter, you can specify a "fallback" value that is used in your
+formula instead of an undefined variable.
 
-The most useful will probably be: 
+The most useful fallback values are:
 
  undef_is => "''", # for string values
  undef_is => 0   , # for integers, boolean values

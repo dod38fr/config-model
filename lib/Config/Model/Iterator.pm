@@ -317,7 +317,7 @@ __END__
 =head1 DESCRIPTION
 
 This module provides a class that is able to iterate forward or backward a configuration tree.
-The iterator will stop and call back user defined subroutines on one of the following condition:
+The iterator stops and calls back user defined subroutines on one of the following condition:
 
 =over
 
@@ -353,7 +353,7 @@ method.
 
 A iterator requires at least two kind of call-back:
 a call-back for leaf elements and a call-back
-for hash elements (which will be also used for list elements).
+for hash elements (which is also used for list elements).
 
 These call-back must be passed when creating the iterator (the
 parameters are named C<leaf_cb> and C<hash_element_cb>)
@@ -387,7 +387,7 @@ and details. (mandatory)
 
 =head1 Custom callbacks
 
-By default, C<leaf_cb> will be called for all types of leaf elements
+By default, C<leaf_cb> is called for all types of leaf elements
 (i.e enum. integer, strings, ...). But you can provide dedicated
 call-back for each type of leaf:
 
@@ -401,12 +401,12 @@ C<list_element_cb>
 
 =head2 start
 
-Start the scan and perform call-back when needed. This function will return
+Start the scan and perform call-back when needed. This function returns
 when the scan is completely done.
 
 =head2 bail_out
 
-When called, a variable is set so that all call_backs will return as soon as possible. Used to
+When called, a variable is set so that all call_backs returns as soon as possible. Used to
 abort wizard.
 
 =head2 go_forward

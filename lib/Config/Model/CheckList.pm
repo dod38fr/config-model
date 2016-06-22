@@ -736,7 +736,7 @@ __END__
 
     element => [
 
-        # type check_list will use Config::Model::CheckList
+        # type check_list uses Config::Model::CheckList
         my_check_list => {
             type   => 'check_list',
             choice => [ 'A', 'B', 'C', 'D' ],
@@ -904,7 +904,7 @@ The keys of a hash
 =item *
 
 Another checklist. In this case only the checked items of the other
-checklist will be available.
+checklist are available.
 
 =back
 
@@ -1041,10 +1041,10 @@ Example:
  { A => 0, B => 1, C => 0 , D => 1}
 
 
-By default, this method will return all items set by the user, or
+By default, this method returns all items set by the user, or
 items set in preset mode or checked by default.
 
-With a parameter, this method will return either:
+With a parameter, this method returns either:
 
 =over
 
@@ -1078,7 +1078,7 @@ model)
 
 =item user
 
-The list set that will be active in the application. (ie. set by user or
+The set that is active in the application. (ie. set by user or
 by layered data or preset or default)
 
 =back

@@ -109,9 +109,9 @@ __END__
 =head1 DESCRIPTION
 
 This class inherits from L<Config::Model::Value>. It overrides
-L<_store> to trigger a refresh of layered value when value is actually
-changed. I.e. changing this value will reload the refered configuration
-file and use its values as default value. This class was designed to
+L<_store> to trigger a refresh of layered value when a value is
+changed. I.e. changing this value trigger a reload of the refered configuration
+file which values are used as default value. This class was designed to
 cope with L<multistrap|http://wiki.debian.org/Multistrap> configuration.
 
 

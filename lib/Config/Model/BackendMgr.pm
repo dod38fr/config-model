@@ -926,7 +926,7 @@ The following parameters are accepted by all backends:
 
 Specify configuration directory. This parameter is optional as the
 directory can be hardcoded in the custom class. C<config_dir> beginning
-with 'C<~>' will be munged so C<~> is replaced by C<< File::HomeDir->my_data >>.
+with 'C<~>' is munged so C<~> is replaced by C<< File::HomeDir->my_data >>.
 See L<File::HomeDir> for details.
 
 =item os_config_dir
@@ -969,8 +969,8 @@ C<< auto_create => 1 >> in one of the backend specification. For instance:
 Setting C<auto_create> to 1 is necessary to create a configuration
 from scratch
 
-When set in write backend, missing directory and files will be created
-with current umask. Default is false.
+When C<auto_create> is set in write backend, missing directory and
+files are created with current umask. Default is false.
 
 =item auto_delete
 
@@ -1010,7 +1010,7 @@ mandatory C<config_dir> parameter. For instance:
        file       => 'cfg_file.cds', #optional
    },
 
-If C<file> is not specified, a file name will be constructed with
+When C<file> is not specified, a file name is constructed with
 C<< <config_class_name>.<suffix> >> where suffix is C<pl> or C<cds>.
 
 =head2 Custom backend
@@ -1041,7 +1041,7 @@ Specify the class that contains the read methods
 
 =item function
 
-Function name that will be called back to read the file. 
+Function name that is called back to read the file.
 See L</"read callback"> for details. (default is C<read>)
 
 =item file
@@ -1103,7 +1103,7 @@ The callback must return 0 on failure and 1 on successful write.
 C<read_config> tries all the specified backends. This feature 
 can be used to migrate from one syntax to another.
 
-In this example, backend manager will first try to read an INI file
+In this example, backend manager first tries to read an INI file
 and then to read a YAML file:
 
   read_config  => [ 
@@ -1111,8 +1111,8 @@ and then to read a YAML file:
     { backend => 'yaml',    ... },
   ],
 
-When a read operation is successful, the remaining read methods will
-be skipped.
+When a read operation is successful, the remaining read methods are
+skipped.
 
 Likewise, the C<write_config> specification accepts several backends.
 By default, the specifications are tried in order, until the first succeeds.
@@ -1132,8 +1132,8 @@ C<root> directory for test.
 
 =head1 CAVEATS
 
-When both C<config_dir> and C<file> are specified, this class will
-write-open the configuration file (and thus clobber it) before calling
+When both C<config_dir> and C<file> are specified, this class
+write-opens the configuration file (and thus clobber it) before calling
 the C<write> call-back and pass the file handle with C<io_handle>
 parameter. C<write> should use this handle to write data in the target
 configuration file.
@@ -1152,7 +1152,7 @@ true).
 
 You can specify here a pseudo root directory or another config
 directory to write configuration data back with C<root> and
-C<config_dir> parameters. This will override the model specifications.
+C<config_dir> parameters. This overrides the model specifications.
 
 You can force to use a backend by specifying C<< backend => xxx >>.
 For instance, C<< backend => 'perl_file' >> or C<< backend => 'custom' >>.
@@ -1163,7 +1163,7 @@ C<< backend => 'all' >>.
 You can force a specific config file to write with
 C<< config_file => 'foo/bar.conf' >>
 
-C<write_back> will croak if no write call-back are known for this node.
+C<write_back> croaks if no write call-back are known for this node.
 
 =head2 support_annotation
 

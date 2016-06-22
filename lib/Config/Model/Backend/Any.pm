@@ -263,7 +263,7 @@ can be specified with:
 
 (The backend class name is constructed with C<ucfirst($backend_name)>)
 
-C<read_config> can also have custom parameters that will passed
+C<read_config> can also have custom parameters that are passed
 verbatim to C<Config::Model::Backend::Foo> methods:
 
  read_config  => [ {
@@ -298,7 +298,7 @@ The L<IO::File> object is undef if the file cannot be read.
 This method must return 1 if the read was successful, 0 otherwise.
 
 Following the C<my_param> example above, C<%custom_parameters> contains
-C< ( 'my_param' , 'my_value' ) >, so C<read()> will also be called with
+C< ( 'my_param' , 'my_value' ) >, so C<read()> is called with
 C<root>, C<config_dir>, C<file_path>, C<io_handle> B<and>
 C<<  my_param   => 'my_value' >>.
 
@@ -330,9 +330,9 @@ create the backup. Your C<write()> method will have to do the backup
 requested by user.
 
 When both C<config_dir> and C<file> are specified,
-L<the backend manager|Config::Model::BackendMgr> will
-write-open the configuration file (and thus clobber it) before calling
-the C<write> call-back and pass the file handle with C<io_handle>
+the L<backend manager|Config::Model::BackendMgr>
+opens the configuration file for write (and thus clobbers it) before calling
+the C<write> call-back with the file handle with C<io_handle>
 parameter. C<write> should use this handle to write data in the target
 configuration file.
 
@@ -404,8 +404,8 @@ store them as root node annotation. The first parameter (C<lines>)
 
 =head2 associates_comments_with_data ( lines , comment_char)
 
-This method will extract comments from the passed lines and associate 
-them with actual data found in the file lines. Data is associated with 
+This method extracts comments from the passed lines and associate
+them with actual data found in the file lines. Data is associated with
 comments preceding or on the same line as the data. Returns a list of
 [ data, comment ] .
 
@@ -415,7 +415,7 @@ Example:
   foo= 1
   Baz = 0 # Baz comments
 
-will return 
+returns
 
   ( [  'foo= 1', 'Foo comments'  ] , [ 'Baz = 0' , 'Baz comments' ] )
 
@@ -427,7 +427,7 @@ Returns the string written to the io_handle.
 =head2 write_data_and_comments( io_handle , comment_char , data1, comment1, data2, comment2 ...)
 
 Write data and comments in the C<io_handle> (if defined). Comments are written before the data.
-Returns the string written to the io_handle. If a data is undef, the comment will be written on its own
+Returns the string written to the io_handle. If a data is undef, the comment is written on its own
 line.
 
 =head1 AUTHOR

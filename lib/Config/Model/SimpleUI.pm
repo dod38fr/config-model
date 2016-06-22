@@ -367,7 +367,7 @@ Once the synopsis above has been saved in C<my_test.pl>, you can do:
 
  class ui: hash_of_nodes:en $ ^D
 
-At the end, the test script will dump the configuration tree. The modified
+At the end, the test script dumps the configuration tree. The modified
 C<bar> value can be found in there:
 
  foo=FOO
