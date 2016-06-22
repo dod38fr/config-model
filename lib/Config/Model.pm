@@ -1846,11 +1846,6 @@ project.
 
 =item *
 
-Beginners will not see advanced parameters (advanced and master
-parameters are hidden from beginners)
-
-=item *
-
 Upgrade of configuration data is easier and sanity check is
 performed during the upgrade.
 
@@ -1960,8 +1955,6 @@ C<Config::Model> class.
 
 For an introduction to model creation, please check:
 L<Config::Model::Manual::ModelCreationIntroduction>
-
-Dedicated Config::Model::Manual pages will follow soon.
 
 =head1 Storage backend, configuration reader and writer
 
