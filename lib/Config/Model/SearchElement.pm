@@ -85,7 +85,7 @@ sub _sniff_warped_node {
     my ( $self, $element_model, $privilege, $found_ref ) = @_;
 
     my %warp_tmp;
-    my $ref = $element_model->{rules};
+    my $ref = $element_model->{warp}{rules};
     my @rules = ref $ref eq 'HASH' ? %$ref : @$ref;
 
     for ( my $r_idx = 0 ; $r_idx < $#rules ; $r_idx += 2 ) {

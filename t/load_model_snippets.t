@@ -172,7 +172,7 @@ my @fs_choices = $fstype->get_choice;
 eq_or_diff( \@fs_choices, [qw/auto ext2 ext3 ext4/], "check augmented choices" );
 
 eq_or_diff(
-    $augmented_model->{element}{fs_mntopts}{rules},
+    $augmented_model->{element}{fs_mntopts}{warp}{rules},
     [
         '$f1 eq \'auto\'',
         { 'config_class_name' => 'Fstab::CommonOptions' },

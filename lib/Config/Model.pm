@@ -528,6 +528,8 @@ sub translate_legacy_info {
     my $elt_name          = shift;
     my $info              = shift;
 
+    $self->translate_warped_node_info( $config_class_name, $elt_name, 'warped_node', $info );
+
     #translate legacy warp information
     if ( defined $info->{warp} ) {
         $self->translate_warp_info( $config_class_name, $elt_name, $info->{type}, $info->{warp} );
@@ -535,22 +537,18 @@ sub translate_legacy_info {
 
     $self->translate_cargo_info( $config_class_name, $elt_name, $info );
 
+    if (   defined $info->{cargo}
+        && defined $info->{cargo}{type}
+        && $info->{cargo}{type} eq 'warped_node' ) {
+        $self->translate_warped_node_info( $config_class_name, $elt_name, 'warped_node', $info->{cargo} );
+    }
+
     if (    defined $info->{cargo}
         and defined $info->{cargo}{warp} ) {
         $self->translate_warp_info(
             $config_class_name, $elt_name,
             $info->{cargo}{type},
             $info->{cargo}{warp} );
-    }
-
-    if (   defined $info->{cargo}
-        && defined $info->{cargo}{type}
-        && $info->{cargo}{type} eq 'warped_node' ) {
-        $self->translate_warp_info( $config_class_name, $elt_name, 'warped_node', $info->{cargo} );
-    }
-
-    if ( defined $info->{type} && $info->{type} eq 'warped_node' ) {
-        $self->translate_warp_info( $config_class_name, $elt_name, 'warped_node', $info );
     }
 
     # compute cannot be warped
@@ -844,6 +842,31 @@ sub translate_id_min_max {
 
         $info->{$good} = delete $info->{$bad};
     }
+}
+
+sub translate_warped_node_info {
+    my ( $self, $config_class_name, $elt_name, $type, $info ) = @_;
+
+    $legacy_logger->debug(
+        "translate_warped_node_info $elt_name input:\n",
+        Data::Dumper->Dump( [$info], [qw/info/] )
+    ) if $legacy_logger->is_debug;
+
+    # type may not be defined when translating class snippet used to augment a class
+    my $elt_type = $info->{type} ;
+    foreach my $parm (qw/follow rules/) {
+        next unless $info->{$parm};
+        next if defined $elt_type and $elt_type ne 'warped_node';
+        # TODO later, fall 2016 : $self->show_legacy_issue( $self->legacy,
+        say "$config_class_name->$elt_name: using $parm parameter in "
+            ."warped node is deprecated. $parm must be specified in a warp parameter.";
+        $info->{warp}{$parm} = delete $info->{$parm};
+    }
+
+    $legacy_logger->debug(
+        "translate_warped_node_info $elt_name output:\n",
+        Data::Dumper->Dump( [$info], [qw/new_info/] )
+    ) if $legacy_logger->is_debug;
 }
 
 # internal: translate warp information into 'boolean expr' => { ... }

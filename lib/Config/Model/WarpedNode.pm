@@ -24,11 +24,10 @@ my $logger = get_logger("Tree::Node::Warped");
 
 my @allowed_warp_params = qw/config_class_name level/;
 
-has [qw/backup follow/] => ( is => 'rw', isa => 'HashRef', default => sub { {}; } );
-has [qw/rules/] => ( is => 'rw', isa => 'ArrayRef', required => 1 );
+has 'backup' => ( is => 'rw', isa => 'HashRef', default => sub { {}; } );
 
-has [qw/warp help/] => ( is => 'rw', isa => 'Maybe[HashRef]' );
-has morph => ( is => 'ro', isa => 'Bool', default => 0 );
+has 'warp'  => ( is => 'rw', isa => 'HashRef', default => sub { {}; });
+has 'morph' => ( is => 'ro', isa => 'Bool', default => 0 );
 
 has warper => ( is => 'rw', isa => 'Config::Model::Warper' );
 
@@ -49,10 +48,12 @@ sub BUILD {
     # warper).  When the warper gets a new value, it modifies the
     # WarpedNode according to the data passed by the user.
 
+    my $warp_info = $self->warp;
+    $warp_info->{follow} //= {};
+    $warp_info->{rules}  //= [];
     my $w = Config::Model::Warper->new(
         warped_object => $self,
-        rules         => $self->rules,
-        follow        => $self->follow,
+        %$warp_info,
         allowed       => \@allowed_warp_params
     );
 
