@@ -66,6 +66,10 @@ sub full_msg_and_trace {
     return $msg;
 }
 
+sub as_string {
+    goto &full_msg_and_trace;
+}
+
 sub full_message {
     my $self = shift;
 
