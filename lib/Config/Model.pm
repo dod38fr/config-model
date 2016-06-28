@@ -157,13 +157,17 @@ sub BUILD {
 
 sub show_legacy_issue {
     my $self     = shift;
-    my $behavior = $self->legacy;
+    my $ref      = shift;
+    my $behavior = shift || $self->legacy;
 
+    my @msg = ref $ref ? @$ref : $ref;
     if ( $behavior eq 'die' ) {
-        die @_, "\n";
+        die @msg, "\n";
     }
     elsif ( $behavior eq 'warn' ) {
-        warn @_, "\n";
+        warn @msg, "\n";
+    } elsif ( $behavior eq 'note' ) {
+        say @msg;
     }
 }
 
@@ -397,8 +401,8 @@ sub normalize_class_parameters {
     }
 
     if ( defined $normalized_model->{inherit_after} ) {
-        $self->show_legacy_issue( "Model $config_class_name: inherit_after is deprecated ",
-            "in favor of include_after" );
+        $self->show_legacy_issue([ "Model $config_class_name: inherit_after is deprecated ",
+            "in favor of include_after" ]);
         $normalized_model->{include_after} = delete $normalized_model->{inherit_after};
     }
     if ( defined $normalized_model->{inherit} ) {
@@ -632,11 +636,11 @@ sub translate_cargo_info {
 
     if ( defined $info->{config_class_name} ) {
         $cargo{config_class_name} = delete $info->{config_class_name};
-        $self->show_legacy_issue(
+        $self->show_legacy_issue([
             "$config_class_name->$elt_name: parameter config_class_name is ",
             "deprecated. This one must be specified within cargo. ",
             "Ie. cargo=>{config_class_name => 'FooBar'}"
-        );
+        ]);
     }
 
     $info->{cargo} = \%cargo;
@@ -699,8 +703,8 @@ sub translate_compute_info {
             Data::Dumper->Dump( [$compute_info], [qw/compute_info/] )
         ) if $legacy_logger->is_debug;
 
-        $self->show_legacy_issue( "$config_class_name->$elt_name: specifying compute info with ",
-            "an array ref is deprecated" );
+        $self->show_legacy_issue([ "$config_class_name->$elt_name: specifying compute info with ",
+            "an array ref is deprecated" ]);
 
         my ( $user_formula, %var ) = @$compute_info;
         my $replace_h;
@@ -742,10 +746,10 @@ sub translate_id_class {
     my $class_overide = $info->{$class_overide_param};
     if ($class_overide) {
         $info->{class} = $class_overide;
-        $self->show_legacy_issue(
+        $self->show_legacy_issue([
             "$config_class_name->$elt_name: '$class_overide_param' is deprecated, ",
             "Use 'class' instead."
-        );
+        ]);
     }
 
     $legacy_logger->debug(
@@ -772,15 +776,15 @@ sub translate_id_default_info {
     my $def_info = delete $info->{default};
     if ( ref($def_info) eq 'HASH' ) {
         $info->{default_with_init} = $def_info;
-        $self->show_legacy_issue( $warn, "Use default_with_init" );
+        $self->show_legacy_issue([ $warn, "Use default_with_init" ]);
     }
     elsif ( ref($def_info) eq 'ARRAY' ) {
         $info->{default_keys} = $def_info;
-        $self->show_legacy_issue( $warn, "Use default_keys" );
+        $self->show_legacy_issue([ $warn, "Use default_keys" ]);
     }
     else {
         $info->{default_keys} = [$def_info];
-        $self->show_legacy_issue( $warn, "Use default_keys" );
+        $self->show_legacy_issue([ $warn, "Use default_keys" ]);
     }
 
     $legacy_logger->debug( 
@@ -808,11 +812,11 @@ sub translate_id_auto_create {
     if ( $info->{type} eq 'hash' ) {
         $info->{auto_create_keys} =
             ref($ac_info) eq 'ARRAY' ? $ac_info : [$ac_info];
-        $self->show_legacy_issue( $warn, "Use auto_create_keys" );
+        $self->show_legacy_issue([ $warn, "Use auto_create_keys" ]);
     }
     elsif ( $info->{type} eq 'list' ) {
         $info->{auto_create_ids} = $ac_info;
-        $self->show_legacy_issue( $warn, "Use auto_create_ids" );
+        $self->show_legacy_issue([ $warn, "Use auto_create_ids" ]);
     }
     else {
         die "Unexpected element ($elt_name) type $info->{type} ", "for translate_id_auto_create";
@@ -1042,8 +1046,8 @@ sub translate_legacy_builtin {
         Data::Dumper->Dump( [$normalized_model], ['builtin to translate'] )
     ) if $legacy_logger->is_debug;
 
-    $self->show_legacy_issue( "$config_class_name: parameter 'built_in' is deprecated "
-            . "in favor of 'upstream_default'" );
+    $self->show_legacy_issue([ "$config_class_name: parameter 'built_in' is deprecated "
+            . "in favor of 'upstream_default'" ]);
 
     $model->{upstream_default} = $raw_builtin_default;
 
@@ -1061,8 +1065,8 @@ sub translate_legacy_built_in_list {
         Data::Dumper->Dump( [$normalized_model], ['built_in_list to translate'] )
     ) if $legacy_logger->is_debug;
 
-    $self->show_legacy_issue( "$config_class_name: parameter 'built_in_list' is deprecated "
-            . "in favor of 'upstream_default_list'" );
+    $self->show_legacy_issue([ "$config_class_name: parameter 'built_in_list' is deprecated "
+            . "in favor of 'upstream_default_list'" ]);
 
     $model->{upstream_default_list} = $raw_builtin_default;
 
