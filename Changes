@@ -1,5 +1,29 @@
 {{$NEXT}}
 
+2.087 2016-06-29
+
+  A release with mostly documentation improvements:
+    * Fixed many grammatical issues in all pod docs
+    * Added CONTRIBUTE.md 
+    * Instance doc:
+      * separate data change methods from internal methods
+      * specify value returned by load()
+
+  Model specification change
+    * move warp info in warp param in WarpedNode.
+      The change is backward compatible and will show a
+      notification on STDOUT. This notification will
+      become later a warning.
+    * always show a message when using some parameters that were
+      deprecated in 2007. This may break tests.
+      It's time to fix them.
+
+  Bug fixes:
+    * add as_string method to all exception classes
+    * BackendMgr: correctly handle Path::Tiny exceptions
+    * Value: show changes of boolean values as they are
+      written in configuration file
+
 2.086 2016-06-04
 
    Fixed some bugs so that cme() works with new Systemd model:  
