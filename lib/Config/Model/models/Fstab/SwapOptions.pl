@@ -1,21 +1,21 @@
 [
   {
-    'class_description' => 'Swap options',
-    'name' => 'Fstab::SwapOptions',
-    'copyright' => [
-      '2010,2011 Dominique Dumont'
-    ],
     'author' => [
       'Dominique Dumont'
     ],
-    'license' => 'LGPL2',
+    'class_description' => 'Swap options',
+    'copyright' => [
+      '2010,2011 Dominique Dumont'
+    ],
     'element' => [
       'sw',
       {
-        'value_type' => 'boolean',
-        'type' => 'leaf'
+        'type' => 'leaf',
+        'value_type' => 'boolean'
       }
-    ]
+    ],
+    'license' => 'LGPL2',
+    'name' => 'Fstab::SwapOptions'
   }
 ]
 ;

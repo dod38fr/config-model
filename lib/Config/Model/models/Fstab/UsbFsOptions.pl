@@ -1,73 +1,73 @@
 [
   {
-    'class_description' => 'usbfs options',
-    'name' => 'Fstab::UsbFsOptions',
-    'include' => [
-      'Fstab::CommonOptions'
-    ],
-    'copyright' => [
-      '2010,2011 Dominique Dumont'
-    ],
     'author' => [
       'Dominique Dumont'
     ],
-    'license' => 'LGPL2',
+    'class_description' => 'usbfs options',
+    'copyright' => [
+      '2010,2011 Dominique Dumont'
+    ],
     'element' => [
       'devuid',
       {
-        'value_type' => 'integer',
+        'type' => 'leaf',
         'upstream_default' => '0',
-        'type' => 'leaf'
+        'value_type' => 'integer'
       },
       'devgid',
       {
-        'value_type' => 'integer',
+        'type' => 'leaf',
         'upstream_default' => '0',
-        'type' => 'leaf'
+        'value_type' => 'integer'
       },
       'busuid',
       {
-        'value_type' => 'integer',
+        'type' => 'leaf',
         'upstream_default' => '0',
-        'type' => 'leaf'
+        'value_type' => 'integer'
       },
       'budgid',
       {
-        'value_type' => 'integer',
+        'type' => 'leaf',
         'upstream_default' => '0',
-        'type' => 'leaf'
+        'value_type' => 'integer'
       },
       'listuid',
       {
-        'value_type' => 'integer',
+        'type' => 'leaf',
         'upstream_default' => '0',
-        'type' => 'leaf'
+        'value_type' => 'integer'
       },
       'listgid',
       {
-        'value_type' => 'integer',
+        'type' => 'leaf',
         'upstream_default' => '0',
-        'type' => 'leaf'
+        'value_type' => 'integer'
       },
       'devmode',
       {
-        'value_type' => 'integer',
+        'type' => 'leaf',
         'upstream_default' => '0644',
-        'type' => 'leaf'
+        'value_type' => 'integer'
       },
       'busmode',
       {
-        'value_type' => 'integer',
+        'type' => 'leaf',
         'upstream_default' => '0555',
-        'type' => 'leaf'
+        'value_type' => 'integer'
       },
       'listmode',
       {
-        'value_type' => 'integer',
+        'type' => 'leaf',
         'upstream_default' => '0444',
-        'type' => 'leaf'
+        'value_type' => 'integer'
       }
-    ]
+    ],
+    'include' => [
+      'Fstab::CommonOptions'
+    ],
+    'license' => 'LGPL2',
+    'name' => 'Fstab::UsbFsOptions'
   }
 ]
 ;

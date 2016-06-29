@@ -3,50 +3,50 @@
     'accept' => [
       '\\w+',
       {
+        'type' => 'leaf',
         'value_type' => 'uniline',
-        'warn' => 'Handling unknown parameter as unlinie value.',
-        'type' => 'leaf'
+        'warn' => 'Handling unknown parameter as unlinie value.'
       }
     ],
-    'name' => 'Multistrap::Section',
     'element' => [
       'packages',
       {
         'cargo' => {
-          'value_type' => 'uniline',
-          'type' => 'leaf'
+          'type' => 'leaf',
+          'value_type' => 'uniline'
         },
         'type' => 'list'
       },
       'components',
       {
         'cargo' => {
-          'value_type' => 'uniline',
-          'type' => 'leaf'
+          'type' => 'leaf',
+          'value_type' => 'uniline'
         },
         'type' => 'list'
       },
       'source',
       {
-        'value_type' => 'uniline',
-        'type' => 'leaf'
+        'type' => 'leaf',
+        'value_type' => 'uniline'
       },
       'keyring',
       {
-        'value_type' => 'uniline',
-        'type' => 'leaf'
+        'type' => 'leaf',
+        'value_type' => 'uniline'
       },
       'suite',
       {
-        'value_type' => 'uniline',
-        'type' => 'leaf'
+        'type' => 'leaf',
+        'value_type' => 'uniline'
       },
       'omitdebsrc',
       {
-        'value_type' => 'boolean',
-        'type' => 'leaf'
+        'type' => 'leaf',
+        'value_type' => 'boolean'
       }
-    ]
+    ],
+    'name' => 'Multistrap::Section'
   }
 ]
 ;

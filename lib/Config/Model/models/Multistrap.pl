@@ -1,172 +1,172 @@
 [
   {
-    'class_description' => 'Class for multistrap configuration files. Note that multistrap is based on INI where section and keys are case insensitive. Hence all sections and keys are converted to lower case and written back as lower case. Most values (but not all) are also case-insensitive. These values will also be written back as lowercase.',
     'accept' => [
       '\\w+',
       {
+        'type' => 'leaf',
         'value_type' => 'uniline',
-        'warn' => 'Handling unknown parameter as uniline value.',
-        'type' => 'leaf'
+        'warn' => 'Handling unknown parameter as uniline value.'
       }
     ],
-    'read_config' => [
-      {
-        'force_lc_section' => '1',
-        'join_list_value' => ' ',
-        'backend' => 'ini_file',
-        'force_lc_key' => '1',
-        'auto_create' => '1',
-        'section_map' => {
-          'general' => '!'
-        },
-        'split_list_value' => '\\s+',
-        'write_boolean_as' => [
-          'false',
-          'true'
-        ],
-        'store_class_in_hash' => 'sections'
-      }
-    ],
-    'name' => 'Multistrap',
+    'class_description' => 'Class for multistrap configuration files. Note that multistrap is based on INI where section and keys are case insensitive. Hence all sections and keys are converted to lower case and written back as lower case. Most values (but not all) are also case-insensitive. These values will also be written back as lowercase.',
     'element' => [
       'include',
       {
-        'convert' => 'lc',
-        'value_type' => 'uniline',
-        'summary' => 'Include file for cascaded configuration',
         'class' => 'Config::Model::Value::LayeredInclude',
+        'convert' => 'lc',
+        'description' => 'To support multiple variants of a basic (common) configuration, "multistrap" allows configuration files to include other (more general) configuration files. i.e. the most detailed / specific configuration file is specified on the command line and that file includes another file which is shared by other configurations.',
+        'summary' => 'Include file for cascaded configuration',
         'type' => 'leaf',
-        'description' => 'To support multiple variants of a basic (common) configuration, "multistrap" allows configuration files to include other (more general) configuration files. i.e. the most detailed / specific configuration file is specified on the command line and that file includes another file which is shared by other configurations.'
+        'value_type' => 'uniline'
       },
       'arch',
       {
-        'value_type' => 'enum',
-        'type' => 'leaf',
         'choice' => [
           'alpha',
           'arm',
           'armel',
           'powerpc'
-        ]
+        ],
+        'type' => 'leaf',
+        'value_type' => 'enum'
       },
       'directory',
       {
-        'value_type' => 'uniline',
+        'description' => 'top level directory where the bootstrap will be created',
         'summary' => 'target directory',
         'type' => 'leaf',
-        'description' => 'top level directory where the bootstrap will be created'
+        'value_type' => 'uniline'
       },
       'aptsources',
       {
         'cargo' => {
           'convert' => 'lc',
-          'value_type' => 'reference',
+          'refer_to' => '- sections',
           'type' => 'leaf',
-          'refer_to' => '- sections'
+          'value_type' => 'reference'
         },
+        'description' => 'aptsources is a list of sections to be used in the /etc/apt/sources.list.d/multistrap.sources.list of the target. Order is not important.',
         'duplicates' => 'forbid',
-        'type' => 'list',
-        'description' => 'aptsources is a list of sections to be used in the /etc/apt/sources.list.d/multistrap.sources.list of the target. Order is not important.'
+        'type' => 'list'
       },
       'bootstrap',
       {
         'cargo' => {
           'convert' => 'lc',
-          'value_type' => 'reference',
+          'refer_to' => '- sections',
           'type' => 'leaf',
-          'refer_to' => '- sections'
+          'value_type' => 'reference'
         },
+        'description' => 'the bootstrap option determines which repository is used to calculate the list of Priority: required packages and which packages go into the rootfs. The order of sections is not important.',
         'duplicates' => 'forbid',
-        'type' => 'list',
-        'description' => 'the bootstrap option determines which repository is used to calculate the list of Priority: required packages and which packages go into the rootfs. The order of sections is not important.'
+        'type' => 'list'
       },
       'debootstrap',
       {
         'cargo' => {
           'convert' => 'lc',
-          'value_type' => 'reference',
+          'refer_to' => '- sections',
           'type' => 'leaf',
-          'refer_to' => '- sections'
+          'value_type' => 'reference'
         },
-        'status' => 'deprecated',
+        'description' => 'Replaced by bootstrap parameter',
         'duplicates' => 'forbid',
-        'type' => 'list',
-        'description' => 'Replaced by bootstrap parameter'
+        'status' => 'deprecated',
+        'type' => 'list'
       },
       'omitrequired',
       {
-        'value_type' => 'boolean',
-        'type' => 'leaf'
+        'type' => 'leaf',
+        'value_type' => 'boolean'
       },
       'addimportant',
       {
-        'value_type' => 'boolean',
-        'type' => 'leaf'
+        'type' => 'leaf',
+        'value_type' => 'boolean'
       },
       'configscript',
       {
         'convert' => 'lc',
-        'value_type' => 'uniline',
-        'type' => 'leaf'
+        'type' => 'leaf',
+        'value_type' => 'uniline'
       },
       'setupscript',
       {
         'convert' => 'lc',
-        'value_type' => 'uniline',
-        'type' => 'leaf'
+        'type' => 'leaf',
+        'value_type' => 'uniline'
       },
       'cleanup',
       {
-        'value_type' => 'boolean',
+        'description' => 'remove apt cache data, downloaded Packages files and the apt package cache.',
         'type' => 'leaf',
-        'description' => 'remove apt cache data, downloaded Packages files and the apt package cache.'
+        'value_type' => 'boolean'
       },
       'noauth',
       {
-        'value_type' => 'boolean',
+        'description' => 'allow the use of unauthenticated repositories',
         'type' => 'leaf',
-        'description' => 'allow the use of unauthenticated repositories'
+        'value_type' => 'boolean'
       },
       'explicitsuite',
       {
-        'value_type' => 'boolean',
-        'upstream_default' => '0',
+        'description' => 'whether to add the /suite to be explicit about where apt needs to look for packages.',
         'type' => 'leaf',
-        'description' => 'whether to add the /suite to be explicit about where apt needs to look for packages.'
+        'upstream_default' => '0',
+        'value_type' => 'boolean'
       },
       'unpack',
       {
         'convert' => 'lc',
-        'value_type' => 'boolean',
-        'summary' => 'extract all downloaded archives',
-        'upstream_default' => '1',
         'migrate_from' => {
           'formula' => '$old',
           'variables' => {
             'old' => '- forceunpack'
           }
         },
-        'type' => 'leaf'
+        'summary' => 'extract all downloaded archives',
+        'type' => 'leaf',
+        'upstream_default' => '1',
+        'value_type' => 'boolean'
       },
       'sections',
       {
-        'convert' => 'lc',
         'cargo' => {
-          'type' => 'node',
-          'config_class_name' => 'Multistrap::Section'
+          'config_class_name' => 'Multistrap::Section',
+          'type' => 'node'
         },
-        'type' => 'hash',
-        'index_type' => 'string'
+        'convert' => 'lc',
+        'index_type' => 'string',
+        'type' => 'hash'
       },
       'forceunpack',
       {
         'convert' => 'lc',
-        'value_type' => 'boolean',
-        'summary' => 'extract all downloaded archives',
+        'description' => 'deprecated. Replaced by unpack',
         'status' => 'deprecated',
-        'upstream_default' => '1',
+        'summary' => 'extract all downloaded archives',
         'type' => 'leaf',
-        'description' => 'deprecated. Replaced by unpack'
+        'upstream_default' => '1',
+        'value_type' => 'boolean'
+      }
+    ],
+    'name' => 'Multistrap',
+    'read_config' => [
+      {
+        'auto_create' => '1',
+        'backend' => 'IniFile',
+        'force_lc_key' => '1',
+        'force_lc_section' => '1',
+        'join_list_value' => ' ',
+        'section_map' => {
+          'general' => '!'
+        },
+        'split_list_value' => '\\s+',
+        'store_class_in_hash' => 'sections',
+        'write_boolean_as' => [
+          'false',
+          'true'
+        ]
       }
     ]
   }

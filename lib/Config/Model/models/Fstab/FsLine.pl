@@ -1,17 +1,18 @@
 [
   {
-    'class_description' => 'data of one /etc/fstab line',
-    'name' => 'Fstab::FsLine',
-    'copyright' => [
-      '2010,2011 Dominique Dumont'
-    ],
     'author' => [
       'Dominique Dumont'
     ],
-    'license' => 'LGPL2',
+    'class_description' => 'data of one /etc/fstab line',
+    'copyright' => [
+      '2010,2011 Dominique Dumont'
+    ],
     'element' => [
       'fs_spec',
       {
+        'description' => 'block special device or remote filesystem to be mounted',
+        'mandatory' => 1,
+        'type' => 'leaf',
         'value_type' => 'uniline',
         'warp' => {
           'follow' => {
@@ -23,13 +24,13 @@
               'default' => 'proc'
             }
           ]
-        },
-        'mandatory' => 1,
-        'type' => 'leaf',
-        'description' => 'block special device or remote filesystem to be mounted'
+        }
       },
       'fs_file',
       {
+        'description' => 'mount point for the filesystem',
+        'mandatory' => 1,
+        'type' => 'leaf',
         'value_type' => 'uniline',
         'warp' => {
           'follow' => {
@@ -45,28 +46,10 @@
               'default' => 'none'
             }
           ]
-        },
-        'mandatory' => 1,
-        'type' => 'leaf',
-        'description' => 'mount point for the filesystem'
+        }
       },
       'fs_vfstype',
       {
-        'value_type' => 'enum',
-        'help' => {
-          'proc' => 'Kernel info through a special file system',
-          'auto' => 'file system type is probed by the kernel when mounting the device',
-          'vfat' => 'Older Windows file system often used on removable media',
-          'ext3' => 'Common Linux file system with journaling ',
-          'usbfs' => 'USB pseudo file system. Gives a file system view of kernel data related to usb',
-          'iso9660' => 'CD-ROM or DVD file system',
-          'ignore' => 'unused disk partition',
-          'ext2' => 'Common Linux file system.',
-          'davfs' => 'WebDav access'
-        },
-        'mandatory' => 1,
-        'type' => 'leaf',
-        'description' => 'file system type',
         'choice' => [
           'auto',
           'davfs',
@@ -84,81 +67,105 @@
           'none',
           'ignore',
           'debugfs'
-        ]
+        ],
+        'description' => 'file system type',
+        'help' => {
+          'auto' => 'file system type is probed by the kernel when mounting the device',
+          'davfs' => 'WebDav access',
+          'ext2' => 'Common Linux file system.',
+          'ext3' => 'Common Linux file system with journaling ',
+          'ignore' => 'unused disk partition',
+          'iso9660' => 'CD-ROM or DVD file system',
+          'proc' => 'Kernel info through a special file system',
+          'usbfs' => 'USB pseudo file system. Gives a file system view of kernel data related to usb',
+          'vfat' => 'Older Windows file system often used on removable media'
+        },
+        'mandatory' => 1,
+        'type' => 'leaf',
+        'value_type' => 'enum'
       },
       'fs_mntopts',
       {
-        'follow' => {
-          'f1' => '- fs_vfstype'
-        },
+        'description' => 'mount options associated with the filesystem',
         'type' => 'warped_node',
-        'rules' => [
-          '$f1 eq \'proc\'',
-          {
-            'config_class_name' => 'Fstab::CommonOptions'
+        'warp' => {
+          'follow' => {
+            'f1' => '- fs_vfstype'
           },
-          '$f1 eq \'auto\'',
-          {
-            'config_class_name' => 'Fstab::CommonOptions'
-          },
-          '$f1 eq \'vfat\'',
-          {
-            'config_class_name' => 'Fstab::CommonOptions'
-          },
-          '$f1 eq \'swap\'',
-          {
-            'config_class_name' => 'Fstab::SwapOptions'
-          },
-          '$f1 eq \'ext2\'',
-          {
-            'config_class_name' => 'Fstab::Ext2FsOpt'
-          },
-          '$f1 eq \'ext3\'',
-          {
-            'config_class_name' => 'Fstab::Ext3FsOpt'
-          },
-          '$f1 eq \'ext4\'',
-          {
-            'config_class_name' => 'Fstab::Ext4FsOpt'
-          },
-          '$f1 eq \'usbfs\'',
-          {
-            'config_class_name' => 'Fstab::UsbFsOptions'
-          },
-          '$f1 eq \'davfs\'',
-          {
-            'config_class_name' => 'Fstab::CommonOptions'
-          },
-          '$f1 eq \'iso9660\'',
-          {
-            'config_class_name' => 'Fstab::Iso9660_Opt'
-          },
-          '$f1 eq \'nfs\'',
-          {
-            'config_class_name' => 'Fstab::CommonOptions'
-          },
-          '$f1 eq \'nfs4\'',
-          {
-            'config_class_name' => 'Fstab::CommonOptions'
-          },
-          '$f1 eq \'none\'',
-          {
-            'config_class_name' => 'Fstab::NoneOptions'
-          },
-          '$f1 eq \'debugfs\'',
-          {
-            'config_class_name' => 'Fstab::CommonOptions'
-          }
-        ],
-        'description' => 'mount options associated with the filesystem'
+          'rules' => [
+            '$f1 eq \'proc\'',
+            {
+              'config_class_name' => 'Fstab::CommonOptions'
+            },
+            '$f1 eq \'auto\'',
+            {
+              'config_class_name' => 'Fstab::CommonOptions'
+            },
+            '$f1 eq \'vfat\'',
+            {
+              'config_class_name' => 'Fstab::CommonOptions'
+            },
+            '$f1 eq \'swap\'',
+            {
+              'config_class_name' => 'Fstab::SwapOptions'
+            },
+            '$f1 eq \'ext2\'',
+            {
+              'config_class_name' => 'Fstab::Ext2FsOpt'
+            },
+            '$f1 eq \'ext3\'',
+            {
+              'config_class_name' => 'Fstab::Ext3FsOpt'
+            },
+            '$f1 eq \'ext4\'',
+            {
+              'config_class_name' => 'Fstab::Ext4FsOpt'
+            },
+            '$f1 eq \'usbfs\'',
+            {
+              'config_class_name' => 'Fstab::UsbFsOptions'
+            },
+            '$f1 eq \'davfs\'',
+            {
+              'config_class_name' => 'Fstab::CommonOptions'
+            },
+            '$f1 eq \'iso9660\'',
+            {
+              'config_class_name' => 'Fstab::Iso9660_Opt'
+            },
+            '$f1 eq \'nfs\'',
+            {
+              'config_class_name' => 'Fstab::CommonOptions'
+            },
+            '$f1 eq \'nfs4\'',
+            {
+              'config_class_name' => 'Fstab::CommonOptions'
+            },
+            '$f1 eq \'none\'',
+            {
+              'config_class_name' => 'Fstab::NoneOptions'
+            },
+            '$f1 eq \'debugfs\'',
+            {
+              'config_class_name' => 'Fstab::CommonOptions'
+            }
+          ]
+        }
       },
       'fs_freq',
       {
+        'choice' => [
+          '0',
+          '1'
+        ],
+        'default' => '0',
+        'description' => 'Specifies if the file system needs to be dumped',
+        'type' => 'leaf',
         'value_type' => 'enum',
         'warp' => {
           'follow' => {
-            'isbound' => '- fs_mntopts bind',
-            'fstyp' => '- fs_vfstype'
+            'fstyp' => '- fs_vfstype',
+            'isbound' => '- fs_mntopts bind'
           },
           'rules' => [
             '$fstyp eq "none" and $isbound',
@@ -168,23 +175,19 @@
               ]
             }
           ]
-        },
-        'default' => '0',
-        'type' => 'leaf',
-        'description' => 'Specifies if the file system needs to be dumped',
-        'choice' => [
-          '0',
-          '1'
-        ]
+        }
       },
       'fs_passno',
       {
-        'value_type' => 'integer',
+        'default' => 0,
+        'description' => 'used by the fsck(8) program to determine the order in which filesystem checks are done at reboot time',
         'summary' => 'fsck pass number',
+        'type' => 'leaf',
+        'value_type' => 'integer',
         'warp' => {
           'follow' => {
-            'isbound' => '- fs_mntopts bind',
-            'fstyp' => '- fs_vfstype'
+            'fstyp' => '- fs_vfstype',
+            'isbound' => '- fs_mntopts bind'
           },
           'rules' => [
             '$fstyp eq "none" and $isbound',
@@ -192,12 +195,11 @@
               'max' => '0'
             }
           ]
-        },
-        'default' => 0,
-        'type' => 'leaf',
-        'description' => 'used by the fsck(8) program to determine the order in which filesystem checks are done at reboot time'
+        }
       }
-    ]
+    ],
+    'license' => 'LGPL2',
+    'name' => 'Fstab::FsLine'
   }
 ]
 ;

@@ -1,21 +1,21 @@
 [
   {
-    'class_description' => 'Options for special file system like \'bind\'',
-    'name' => 'Fstab::NoneOptions',
-    'copyright' => [
-      '2010,2011 Dominique Dumont'
-    ],
     'author' => [
       'Dominique Dumont'
     ],
-    'license' => 'LGPL2',
+    'class_description' => 'Options for special file system like \'bind\'',
+    'copyright' => [
+      '2010,2011 Dominique Dumont'
+    ],
     'element' => [
       'bind',
       {
-        'value_type' => 'boolean',
-        'type' => 'leaf'
+        'type' => 'leaf',
+        'value_type' => 'boolean'
       }
-    ]
+    ],
+    'license' => 'LGPL2',
+    'name' => 'Fstab::NoneOptions'
   }
 ]
 ;

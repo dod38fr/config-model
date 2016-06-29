@@ -1,81 +1,81 @@
 [
   {
-    'class_description' => 'options valid for all types of file systems.',
-    'name' => 'Fstab::CommonOptions',
-    'copyright' => [
-      '2010,2011 Dominique Dumont'
-    ],
     'author' => [
       'Dominique Dumont'
     ],
-    'license' => 'LGPL2',
+    'class_description' => 'options valid for all types of file systems.',
+    'copyright' => [
+      '2010,2011 Dominique Dumont'
+    ],
     'element' => [
       'async',
       {
-        'value_type' => 'boolean',
-        'type' => 'leaf'
+        'type' => 'leaf',
+        'value_type' => 'boolean'
       },
       'atime',
       {
-        'value_type' => 'boolean',
-        'type' => 'leaf'
+        'type' => 'leaf',
+        'value_type' => 'boolean'
       },
       'auto',
       {
-        'value_type' => 'boolean',
-        'type' => 'leaf'
+        'type' => 'leaf',
+        'value_type' => 'boolean'
       },
       'dev',
       {
-        'value_type' => 'boolean',
-        'type' => 'leaf'
+        'type' => 'leaf',
+        'value_type' => 'boolean'
       },
       'exec',
       {
-        'value_type' => 'boolean',
-        'type' => 'leaf'
+        'type' => 'leaf',
+        'value_type' => 'boolean'
       },
       'group',
       {
-        'value_type' => 'boolean',
-        'type' => 'leaf'
+        'type' => 'leaf',
+        'value_type' => 'boolean'
       },
       'mand',
       {
-        'value_type' => 'boolean',
-        'type' => 'leaf'
+        'type' => 'leaf',
+        'value_type' => 'boolean'
       },
       'user',
       {
-        'value_type' => 'boolean',
         'help' => {
-          '1' => 'user can mount the file system',
-          '0' => 'Only root can mount the file system'
+          '0' => 'Only root can mount the file system',
+          '1' => 'user can mount the file system'
         },
-        'type' => 'leaf'
+        'type' => 'leaf',
+        'value_type' => 'boolean'
       },
       'defaults',
       {
-        'value_type' => 'boolean',
         'help' => {
           '1' => 'option equivalent to rw, suid, dev, exec, auto, nouser, and async'
         },
-        'type' => 'leaf'
+        'type' => 'leaf',
+        'value_type' => 'boolean'
       },
       'rw',
       {
-        'value_type' => 'boolean',
         'help' => {
           '0' => 'read-only file system'
         },
-        'type' => 'leaf'
+        'type' => 'leaf',
+        'value_type' => 'boolean'
       },
       'relatime',
       {
-        'value_type' => 'boolean',
-        'type' => 'leaf'
+        'type' => 'leaf',
+        'value_type' => 'boolean'
       }
-    ]
+    ],
+    'license' => 'LGPL2',
+    'name' => 'Fstab::CommonOptions'
   }
 ]
 ;

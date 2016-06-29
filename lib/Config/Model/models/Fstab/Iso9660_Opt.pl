@@ -1,28 +1,28 @@
 [
   {
-    'name' => 'Fstab::Iso9660_Opt',
-    'include' => [
-      'Fstab::CommonOptions'
+    'author' => [
+      'Dominique Dumont'
     ],
     'copyright' => [
       '2010,2011 Dominique Dumont'
     ],
-    'author' => [
-      'Dominique Dumont'
-    ],
-    'license' => 'LGPL2',
     'element' => [
       'rock',
       {
-        'value_type' => 'boolean',
-        'type' => 'leaf'
+        'type' => 'leaf',
+        'value_type' => 'boolean'
       },
       'joliet',
       {
-        'value_type' => 'boolean',
-        'type' => 'leaf'
+        'type' => 'leaf',
+        'value_type' => 'boolean'
       }
-    ]
+    ],
+    'include' => [
+      'Fstab::CommonOptions'
+    ],
+    'license' => 'LGPL2',
+    'name' => 'Fstab::Iso9660_Opt'
   }
 ]
 ;
