@@ -99,33 +99,40 @@ $model->create_config_class(
             },
             cargo => {
                 type   => 'warped_node',
-                follow => '! tree_macro',
                 morph  => 1,
-                rules  => {
-                    XY  => { config_class_name => 'SlaveY', },
-                    mXY => {
-                        config_class_name => 'SlaveY',
-                    },
-                    XZ => { config_class_name => 'SlaveZ' } }
+                warp => {
+                    follow => '! tree_macro',
+                    rules  => {
+                        XY  => { config_class_name => 'SlaveY', },
+                        mXY => {
+                            config_class_name => 'SlaveY',
+                        },
+                        XZ => { config_class_name => 'SlaveZ' }
+                    }
+                }
             },
         },
         'a_warped_node' => {
             type   => 'warped_node',
-            follow => '! tree_macro',
             morph  => 1,
-            rules  => {
-                XY  => { config_class_name => ['SlaveY'], },
-                mXY => {
-                    config_class_name => 'SlaveY',
-                },
-                XZ => { config_class_name => 'SlaveZ' } }
+            warp => {
+                follow => '! tree_macro',
+                rules  => {
+                    XY  => { config_class_name => ['SlaveY'] },
+                    mXY => { config_class_name =>  'SlaveY'  },
+                    XZ  => { config_class_name =>  'SlaveZ'  }
+                }
+            }
         },
         bool_object => {
             type   => 'warped_node',
-            follow => '! b_macro',
-            rules  => { 1 => { config_class_name => 'SlaveY' }, }
+            warp => {
+                follow => '! b_macro',
+                rules  => { 1 => { config_class_name => 'SlaveY' }, }
+            }
         },
-    ] );
+    ]
+);
 
 ok( 1, "compiled" );
 

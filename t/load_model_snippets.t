@@ -74,15 +74,17 @@ my $str = << 'EOF' ;
             },
             fs_mntopts => {
                 type   => 'warped_node',
-                follow => { 'f1' => '- fs_vfstype' },
-                rules  => [
-                    '$f1 eq \'auto\'',
-                    { 'config_class_name' => 'Fstab::CommonOptions' },
-                    '$f1 eq \'ext2\'',
-                    { 'config_class_name' => 'Fstab::Ext2FsOpt' },
-                    '$f1 eq \'ext3\'',
-                    { 'config_class_name' => 'Fstab::Ext3FsOpt' },
-                ],
+                warp => {
+                    follow => { 'f1' => '- fs_vfstype' },
+                    rules  => [
+                        '$f1 eq \'auto\'',
+                        { 'config_class_name' => 'Fstab::CommonOptions' },
+                        '$f1 eq \'ext2\'',
+                        { 'config_class_name' => 'Fstab::Ext2FsOpt' },
+                        '$f1 eq \'ext3\'',
+                        { 'config_class_name' => 'Fstab::Ext3FsOpt' },
+                    ]
+                },
             }
         ]
     }
@@ -133,10 +135,12 @@ $str = << 'EOF' ;
         },
         fs_vfstype => { choice => [qw/ext4/], },
         fs_mntopts => {
-            rules => [
-                q!$f1 eq 'ext4'!,
-                { 'config_class_name' => 'Fstab::Ext4FsOpt' },
-            ],
+            warp => {
+                rules => [
+                    q!$f1 eq 'ext4'!,
+                    { 'config_class_name' => 'Fstab::Ext4FsOpt' },
+                ]
+            },
         },
     ]
 };

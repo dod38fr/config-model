@@ -82,7 +82,8 @@ $model->create_config_class(
                     fstyp   => '- fs_vfstype',
                     isbound => '- fs_mntopts bind',
                 },
-                rules => [ '$fstyp eq "none" and $isbound' => { max => 0, } ] }
+                rules => [ '$fstyp eq "none" and $isbound' => { max => 0, } ]
+            }
         },
         type => {
             type       => 'leaf',
@@ -93,15 +94,18 @@ $model->create_config_class(
         cargo => {
             type    => 'warped_node',
             level   => 'hidden',
-            follow  => { 't' => '- type' },
-            'rules' => [
-                '$t eq "list" or $t eq "hash"' => {
-                    level             => 'normal',
-                    config_class_name => 'CommonOptions',
-                },
-            ],
+            warp => {
+                follow  => { 't' => '- type' },
+                'rules' => [
+                    '$t eq "list" or $t eq "hash"' => {
+                        level             => 'normal',
+                        config_class_name => 'CommonOptions',
+                    }
+                ]
+            }
         },
-    ] );
+    ]
+);
 
 ok( 1, "compiled" );
 

@@ -69,14 +69,20 @@ $model->create_config_class(
             },
             cargo => {
                 type    => 'warped_node',
-                follow  => [ '! macro1', '- macro2' ],
                 morph   => 1,
-                'rules' => [
-                    [qw/A C/] => { 'config_class_name' => 'SlaveY' },
-                    [qw/A D/] => { 'config_class_name' => 'SlaveY' },
-                    [qw/B C/] => { 'config_class_name' => 'SlaveZ' },
-                    [qw/B D/] => { 'config_class_name' => 'SlaveZ' },
-                ] } } ] );
+                warp => {
+                    follow  => [ '! macro1', '- macro2' ],
+                    'rules' => [
+                        [qw/A C/] => { 'config_class_name' => 'SlaveY' },
+                        [qw/A D/] => { 'config_class_name' => 'SlaveY' },
+                        [qw/B C/] => { 'config_class_name' => 'SlaveZ' },
+                        [qw/B D/] => { 'config_class_name' => 'SlaveZ' },
+                    ]
+                }
+            }
+        }
+    ]
+);
 
 my $inst = $model->instance(
     root_class_name => 'Master',

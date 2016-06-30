@@ -54,11 +54,13 @@ $model->create_config_class (
 
         'a_warped_node' => {
             type   => 'warped_node',
-            follow => { ms => '! master_switch' },
-            rules  => [
-                '$ms eq "plain"' => { config_class_name => 'PlainNode' },
-                '$ms eq "dummy"' => { config_class_name => 'OverriddenNode' },
-            ]
+            warp => {
+                follow => { ms => '! master_switch' },
+                rules  => [
+                    '$ms eq "plain"' => { config_class_name => 'PlainNode' },
+                    '$ms eq "dummy"' => { config_class_name => 'OverriddenNode' },
+                ]
+            }
         },
     ],
 ) ;

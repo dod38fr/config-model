@@ -53,14 +53,14 @@ foreach my $slave_class (@slave_classes) {
         type => 'warped_node',
         level => 'hidden',
         config_class_name => $slave_class,
-        follow => {
-            selected => '- macro1'
+        warp => {
+            follow => { selected => '- macro1' },
+            'rules' => [
+                '$selected.is_set(&element_name)' => {
+                    level => 'normal'
+                }
+            ]
         },
-        'rules' => [
-            '$selected.is_set(&element_name)' => {
-                level => 'normal'
-            }
-        ],
     };
 }
 
