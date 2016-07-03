@@ -2516,7 +2516,7 @@ L<https://github.com/dod38fr/config-model/wiki/Creating-models>
 
 =head2 Model elements
 
-The arrow shows the inheritance of the classes
+The arrow shows inheritance between classes
 
 =over
 
