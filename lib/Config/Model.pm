@@ -2471,9 +2471,18 @@ Feedback from users are highly desired. If you find this module useful, please
 share your use cases, success stories with the author or with the config-model-
 users mailing list.
 
-=head1 AUTHOR
+=head1 PROJECT FOUNDER
 
-Dominique Dumont, (ddumont at cpan dot org)
+Dominique Dumont, "ddumont@cpan.org"
+
+=head1 CREDITS
+
+In alphabetical order:
+
+  Harley Pig
+
+  Krzysztof Tyszecki
+
 
 =head1 LICENSE
 
