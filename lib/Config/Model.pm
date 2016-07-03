@@ -2487,9 +2487,7 @@ In alphabetical order:
 
 =head1 LICENSE
 
-    Copyright (c) 2005-2012 Dominique Dumont.
-
-    This file is part of Config-Model.
+    Copyright (c) 2005-2016 Dominique Dumont.
 
     Config-Model is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public License as
