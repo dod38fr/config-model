@@ -709,10 +709,10 @@ sub translate_compute_info {
         map { $replace_h = delete $var{$_} if ref( $var{$_} ) } keys %var;
 
         # cleanup user formula
-        $user_formula =~ s/\$(\w+){/\$replace{/g;
+        $user_formula =~ s/\$(\w+)\{/\$replace{/g;
 
         # cleanup variable
-        map { s/\$(\w+){/\$replace{/g } values %var;
+        map { s/\$(\w+)\{/\$replace{/g } values %var;
 
         # change the hash *in* the info structure
         $info->{$new_name} = {
@@ -2483,6 +2483,7 @@ In alphabetical order:
 
   Krzysztof Tyszecki
 
+  Mathieu Arnold
 
 =head1 LICENSE
 
