@@ -310,10 +310,11 @@ C<write()> is called with the following parameters:
  object      => $obj,         # Config::Model::Node object
  root        => $root_dir,    # fake root directory, used for tests
  auto_create => $auto_create, # boolean specified in backend declaration
+ auto_delete => $auto_delete, # boolean specified in backend declaration
  backend     => $backend,     # backend name
  config_dir  => $write_dir,   # override from instance
- file       => 'foo.conf',   # file name
- file_path  => $full_name, # full file name (root+path+file)
+ file        => 'foo.conf',   # file name
+ file_path   => $full_name, # full file name (root+path+file)
  io_handle   => $fh,          # IO::File object
  write       => 1,            # always
  check       => [ yes|no|skip] ,
