@@ -455,6 +455,10 @@ is( $root->grab_value('std_id:ab X-Y-Z'), "Av", "check load grab of X-Y-Z" );
 $root->load("std_id:.copy(ab,copy)");
 is( $root->grab_value('std_id:copy X-Y-Z'), "Av", "check hash copy" );
 
+is( $root->grab_value('lista:5'), 'e' , "list copy" );
+$root->load("lista:.copy(1,5)");
+is( $root->grab_value('lista:5'), 'b2' , "list copy" );
+
 $root->load("hash_a:.clear");
 is( $root->grab('hash_a')->has_data, 0 , "cleared hash" );
 
