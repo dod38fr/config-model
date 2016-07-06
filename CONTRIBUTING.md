@@ -27,6 +27,17 @@ Here are the dedicated trackers:
 * problem with `cme meta edit`: https://github.com/dod38fr/config-model-itself/issues
 * problem with cme GUI: https://github.com/dod38fr/config-model-tkui/issues
 
+## Source code structure ##
+
+The main parts of this modules are:
+
+* `lib/Config/Model/**.pm`: the core framework files
+* `lib/Config/Model/Backend/**.pm`: classes used to read and write configuration files
+* `lib/Config/Model/models/**.pl`: the model of the applications delivered with this module. These files can be modified with `cme meta edit` command. Their structure can be viewed with `cme meta gen-dot` and `dot -Tps model.dot > model.ps`
+* `lib/Config/Model/models/**.pod`: the doc of the above models. Can be re-generated with `cme gen_class_pod`
+* `t`: test files. Run the tests with `prove -l t`
+* `t/model_tests.d` test the application delivered with this module using [Config::Model::Tester](http://search.cpan.org/dist/Config-Model-Tester/lib/Config/Model/Tester.pm). Use `prove -l t/model_test.t` command to run only model tests.
+
 ## Edit source code from github ##
 
 If you have a github account, you can clone a repo and prepare a pull-request.
