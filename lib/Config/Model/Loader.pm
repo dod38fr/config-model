@@ -398,6 +398,7 @@ my %dispatch_action = (
         ':.insert_before' => \&_insert_before,
     },
     'list_*' => {
+        ':.copy'          => sub { $_[1]->copy( $_[4], $_[5] ); },
         ':.clear'         => sub { $_[1]->clear;},
     },
     'hash_*' => {
@@ -1019,7 +1020,7 @@ Using C<xxx:~/yy/=zz> is also possible.
 
 =item xxx:.copy(yy,zz)
 
-copy item C<yy> in C<zz>
+copy item C<yy> in C<zz> (hash or list).
 
 =item xxx:.clear
 
