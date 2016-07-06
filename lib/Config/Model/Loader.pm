@@ -397,10 +397,14 @@ my %dispatch_action = (
         ':.insort'        => sub { $_[1]->insort( @_[ 4 .. $#_ ] ); },
         ':.insert_before' => \&_insert_before,
     },
+    'list_*' => {
+        ':.clear'         => sub { $_[1]->clear;},
+    },
     'hash_*' => {
         ':.sort'          => sub { $_[1]->sort; },
         ':@'              => sub { $_[1]->sort; },
         ':.copy'          => sub { $_[1]->copy( $_[4], $_[5] ); },
+        ':.clear'         => sub { $_[1]->clear;},
     },
     leaf => {
         ':-=' => \&_remove_by_value,
@@ -1016,6 +1020,10 @@ Using C<xxx:~/yy/=zz> is also possible.
 =item xxx:.copy(yy,zz)
 
 copy item C<yy> in C<zz>
+
+=item xxx:.clear
+
+Clear the hash or list.
 
 =back
 
