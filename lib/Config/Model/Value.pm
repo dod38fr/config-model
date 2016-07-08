@@ -963,7 +963,7 @@ sub run_regexp_set_on_value {
     # no need to check default or computed values
     return unless defined $$value_r;
 
-    foreach my $rxp ( keys %$w_info ) {
+    foreach my $rxp ( sort keys %$w_info ) {
         # $_[0] is set to $$value_r when $sub is called
         my $sub = sub { $test_sub->( $_[0], $rxp ) };
         my $msg = $w_info->{$rxp}{msg} || "value '$$value_r' should $msg" . "match regexp $rxp";
@@ -1512,7 +1512,7 @@ sub _fetch {
 
     if ( $mode and not defined $accept_mode{$mode} ) {
         croak "fetch_no_check: expected ",
-            join( ' or ', keys %accept_mode ),
+            join( ' or ', sort keys %accept_mode ),
             " parameter, not $mode";
     }
 
@@ -1605,7 +1605,7 @@ sub fetch {
     }
 
     if ( $mode and not defined $accept_mode{$mode} ) {
-        croak "fetch: expected ", not scalar join( ' or ', keys %accept_mode ),
+        croak "fetch: expected ", not scalar join( ' or ', sort keys %accept_mode ),
             " parameter, not $mode";
     }
 
