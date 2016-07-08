@@ -737,11 +737,15 @@ L<Config::Model::Iterator> for details.
 Arguments are explained in  L<Config::Model::Iterator>
 L<constructor arguments|Config::Model::Iterator/"Creating an iterator">.
 
+=head2 application
+
+Returns the application name of the instance. (E.g C<popcon>, C<dpkg> ...)
+
 =head2 wizard_helper ( ... )
 
 Deprecated. Call L</iterator> instead.
 
-=head2 Internal
+=head1 Internal methods
 
 =head2 name()
 
