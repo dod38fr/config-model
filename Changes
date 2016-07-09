@@ -1,5 +1,22 @@
 {{$NEXT}}
 
+2.088 2016-07-09
+
+  Documentation improvements:
+    * document repo structure in CONTRIBUTE file
+    * document Instance application method
+    * add auto_delete param in pod doc
+    * add CREDITS section in main doc
+
+  New instructions for 'cme modify' (in Config::Model::Loader):
+    * add copy command for list
+    * add clear command for list and hash
+
+  Bug fix:
+    * use sort keys to get consistent warning order
+      (which is important for non-regression tests)
+    * fix regexps for Perl 5.22 (gh #6) Tx mat813
+
 2.087 2016-06-29
 
   A release with mostly documentation improvements:
