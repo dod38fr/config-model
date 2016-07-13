@@ -1,5 +1,11 @@
 =head1 What is Config-Model project
 
+=begin HTML
+
+<p><a href="https://gitter.im/dod38fr/config-model?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge"><img src="https://badges.gitter.im/dod38fr/config-model.svg" alt="Join the chat at https://gitter.im/dod38fr/config-model"></a></p>
+
+=end HTML
+
 L<Config::Model> is:
 
 =over
