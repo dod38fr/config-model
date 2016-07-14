@@ -104,6 +104,7 @@ sub load {
 # returns elt action id subaction value
 sub _split_cmd {
     my $cmd = shift;
+    $logger->debug("split on: ->$cmd<-");
 
     my $quoted_string = qr/"(?: \\" | [^"] )* "/x;    # quoted string
 
@@ -142,9 +143,18 @@ sub _split_cmd {
               )+                       # many
             )
 	 )?
-         !gx
+     (.*)    # leftover
+    !gx
     );
 
+    my $leftout = pop @command;
+
+    if ($leftout) {
+        Config::Model::Exception::Load->throw(
+            command => $cmd,
+            error   => "Syntax error: spurious char at command end: '$leftout'. Did you forget double quotes ?"
+        );
+    }
     return wantarray ? @command : \@command;
 }
 
@@ -206,7 +216,7 @@ sub _load {
 
         if ( $logger->is_debug ) {
             my @disp = map { defined $_ ? "'$_'" : '<undef>' } @instructions;
-            $logger->debug("_load instructions: @disp");
+            $logger->debug("_load instructions: @disp (left: $cmd)");
         }
 
         if ( not defined $element_name and not defined $note ) {
