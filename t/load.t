@@ -466,7 +466,12 @@ $root->load("lista:.clear");
 is( $root->grab('lista')->has_data, 0 , "cleared list" );
 
 # test some errors cases
-my %errors = ( 'std_id', qr/Missing key/, 'olist', qr/Wrong assignment/, );
+my %errors = (
+    'std_id'                  => qr/Missing key/,
+    'olist'                   => qr/Wrong assignment/,
+    'std_id:Apache-2.0 X=Av'  => qr/spurious char/,
+    'std_id:-Apache-2.0 X=Av' => qr/spurious char/,
+);
 
 foreach my $bad ( sort keys %errors ) {
     throws_ok { $root->load($bad) } $errors{$bad}, "Check error for load('$bad')";
