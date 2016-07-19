@@ -68,7 +68,6 @@ around BUILDARGS => sub {
 has [qw/backup cargo/] => ( is => 'ro', isa => 'HashRef', required => 1 );
 has warp => ( is => 'ro', isa => 'Maybe[HashRef]' );
 has [qw/morph/] => ( is => 'ro', isa => 'Bool' );
-has content_warning_hash => ( is => 'rw', isa => 'HashRef',  default => sub { {}; } );
 has content_warning_list => ( is => 'rw', isa => 'ArrayRef', default => sub { []; } );
 has [qw/cargo_class max_index index_class index_type/] =>
     ( is => 'rw', isa => 'Maybe[Str]' );
@@ -888,11 +887,8 @@ sub warning_msg {
     if ( defined $idx ) {
         return $self->{warning_hash}{$idx};
     }
-    elsif ( scalar %{ $self->{content_warning_hash} } or @{ $self->{content_warning_list} } ) {
+    elsif ( @{ $self->{content_warning_list} } ) {
         my @list = @{ $self->{content_warning_list} };
-        push @list,
-            map ( "key $_: " . $self->{content_warning_hash}{$_},
-            keys %{ $self->{content_warning_hash} } );
         return join( "\n", @list );
     }
 }
@@ -900,7 +896,7 @@ sub warning_msg {
 sub has_warning {
     my $self = shift;
 
-    return @{ $self->{content_warning_list} } + keys %{ $self->{content_warning_hash} };
+    return @{ $self->{content_warning_list} };
 }
 
 sub error_msg {
