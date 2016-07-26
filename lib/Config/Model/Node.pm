@@ -34,6 +34,7 @@ my %legal_properties = (
 my $logger     = get_logger("Tree::Node");
 my $fix_logger = get_logger("Anything::Fix");
 my $change_logger = get_logger("ChangeTracker");
+my $deep_check_logger = get_logger('DeepCheck');
 
 # Here are the legal element types
 my %create_sub_for = (
@@ -1141,6 +1142,34 @@ sub apply_fixes {
     $fix_logger->debug("apply fix done");
 }
 
+sub deep_check {
+    my $self = shift;
+
+    $deep_check_logger->("called on ".$self->name);
+
+    # no deep_check defined (yet)
+    my $check_leaf = sub { };
+
+    my $check_id = sub {
+        my ( $scanner, $data_r, $node, $element, @keys ) = @_;
+
+        return unless @keys;
+        $self->check_content;
+
+    };
+
+    my $scan = Config::Model::ObjTreeScanner->new(
+        hash_element_hook => $check_id,
+        list_element_hook => $check_id,
+        leaf_cb         => $check_leaf,
+        check           => 'no',
+    );
+
+    $deep_check_logger->debug( "deep check started from ", $self->name );
+    $scan->scan_node( undef, $self );
+    $deep_check_logger->debug("deep check done");
+}
+
 __PACKAGE__->meta->make_immutable;
 
 1;
@@ -1718,6 +1747,13 @@ instead of returning its value.
 =head2 set( path  , value)
 
 Set a value from a directory like path.
+
+=head1 Validation
+
+=head2 deep_check
+
+Scan the tree and deep check on all elements that support this. Currently only hash or
+list element have this feature.
 
 =head1 data modification
 

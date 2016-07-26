@@ -15,6 +15,7 @@ use Mouse::Util::TypeConstraints;
 extends qw/Config::Model::AnyThing/;
 
 my $logger = get_logger("Tree::Element::Id");
+my $deep_check_logger = get_logger('DeepCheck');
 my $change_logger = get_logger("ChangeTracker");
 
 enum 'DataMode' => [qw/preset layered normal/];
@@ -373,8 +374,10 @@ sub notify_change {
     $self->SUPER::notify_change(%args);
 }
 
-sub check {
+sub deep_check {
     my $self = shift;
+
+    $deep_check_logger->("called on ".$self->name);
     $self->check_content(@_);
 }
 
@@ -382,14 +385,9 @@ sub check {
 sub check_content {
     my $self = shift;
 
-    my %args = @_ > 1 ? @_ : ( index => $_[0] );
+    my %args = @_ ;
     my $silent    = $args{silent} || 0;
     my $apply_fix = $args{fix}    || 0;
-
-    Config::Model::Exception::Internal->throw(
-        object => $self,
-        error  => "check method: index or key should not be defined"
-    ) if defined $args{index};
 
     if ( $self->needs_check ) {
 
@@ -419,7 +417,7 @@ sub check_content {
         return scalar @error ? 0 : 1;
     }
     else {
-        $logger->debug( $self->location, " has not changed, actual check skipped" )
+        $deep_check_logger->debug( $self->location, " has not changed, actual check skipped" )
             if $logger->is_debug;
         my $err = $self->{content_error_list};
         return scalar @$err ? 0 : 1;
@@ -477,13 +475,10 @@ sub check_idx {
     }
 
     $self->{idx_error_list} = \@error;
+    $self->{warning_hash}{$idx} = \@warn;
 
     if (@warn) {
-        $self->{warning_hash}{$idx} = \@warn;
         map { warn( "Warning in '" . $self->location_short . "': $_\n" ) } @warn unless $silent;
-    }
-    else {
-        delete $self->{warning_hash}{$idx};
     }
 
     return scalar @error ? 0 : 1;

@@ -232,7 +232,7 @@ has tree => (
     isa     => 'Config::Model::Node',
     builder => 'reset_config',
     reader  => 'config_root',
-    handles => [qw/apply_fixes/],
+    handles => [qw/apply_fixes deep_check/],
 );
 
 sub reset_config {
@@ -696,6 +696,11 @@ Returns the L<root object|Config::Model::Node> of the configuration tree.
 
 Scan the tree and apply fixes that are attached to warning specifications. 
 See C<warn_if_match> or C<warn_unless_match> in L<Config::Model::Value/>.
+
+=head2 deep_check
+
+Scan the tree and deep check on all elements that support this. Currently only hash or
+list element have this feature.
 
 =head2 needs_save
 
