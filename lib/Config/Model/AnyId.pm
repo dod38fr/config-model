@@ -11,11 +11,13 @@ use Carp qw/cluck croak carp/;
 use Log::Log4perl qw(get_logger :levels);
 use Storable qw/dclone/;
 use Mouse::Util::TypeConstraints;
+use Scalar::Util qw/weaken/;
 
 extends qw/Config::Model::AnyThing/;
 
 my $logger = get_logger("Tree::Element::Id");
 my $deep_check_logger = get_logger('DeepCheck');
+my $fix_logger = get_logger("Anything::Fix");
 my $change_logger = get_logger("ChangeTracker");
 
 enum 'DataMode' => [qw/preset layered normal/];
@@ -30,7 +32,32 @@ has data_mode => (
         delete_data_mode => 'delete',
         clear_data_mode  => 'clear',
     },
-    default => sub { {}; } );
+    default => sub { {}; }
+);
+
+# this is cleared and set by set_properties
+has _warpable_check_content_actions => (
+    is      => 'bare', # no direct accessor
+    isa     => 'ArrayRef[CodeRef]',
+    traits  => ['Array'],
+    handles => {
+        add_warpable_check_content   => 'push',
+        clear_warpable_check_content => 'clear',
+        get_all_warpable_content_checks => 'elements',
+    },
+    default => sub { []; }
+);
+
+has _check_content_actions => (
+    is      => 'bare', # no direct accessor
+    isa     => 'ArrayRef[CodeRef]',
+    traits  => ['Array'],
+    handles => {
+        add_check_content   => 'push',
+        get_all_content_checks => 'elements',
+    },
+    default => sub { []; }
+);
 
 # Some idea for improvement
 
@@ -137,6 +164,15 @@ sub set_properties {
     map { $self->{$_} = delete $args{$_} if defined $args{$_} } @common_params;
 
     $self->set_convert( \%args ) if defined $args{convert};
+
+    $self-> clear_warpable_check_content;
+    map { $self-> add_warpable_check_content($_) } $self-> get_all_content_checks;
+    map {
+        my $method = "check_$_";
+        my $weak_self = $self;
+        weaken($weak_self); # weaken reference loop ($self - check_content - closure - self)
+        $self-> add_check_content( sub { $weak_self->$method(@_);} ) if  $self->{$_};
+    } qw/duplicates/;
 
     Config::Model::Exception::Model->throw(
         object => $self,
@@ -342,8 +378,6 @@ my %check_idx_dispatch =
     qw/follow_keys_from allow_keys allow_keys_from allow_keys_matching
     warn_if_key_match warn_unless_key_match/;
 
-my %check_content_dispatch = map { ( $_ => 'check_' . $_ ); } qw/duplicates/;
-
 my %mode_move = (
     layered => { preset => 1, normal => 1 },
     preset  => { normal => 1 },
@@ -397,10 +431,8 @@ sub check_content {
         my @error;
         my @warn;
 
-        foreach my $key_check_name ( keys %check_content_dispatch ) {
-            next unless $self->{$key_check_name};
-            my $method = $check_content_dispatch{$key_check_name};
-            $self->$method( \@error, \@warn, $apply_fix );
+        foreach my $sub ( $self-> get_all_content_checks ) {
+            $sub->( \@error, \@warn, $apply_fix, $silent );
         }
 
         my $nb = $self->fetch_size;
@@ -1238,6 +1270,34 @@ When a warp is applied, the items that do not fit the constraint
 
 For the max_nb constraint, an exception is raised if a warp
 leads to a number of items greater than the max_nb constraint.
+
+=head1 Content check
+
+By default, this class provides an optional content check that checks
+for duplicated values (when C<duplicates> parameter is set).
+
+Derived classes can register more global checker with the following method.
+
+=head2 add_check_content
+
+This method expects a sub ref with signature C<( $self, $error, $warn,
+$apply_fix )>.  Where C<$error> and C<$warn> are array ref. You can
+push error or warning messages there.  C<$apply_fix> is a
+boolean. When set to 1, the passed method can fix the warning or the
+error. Please make sure to weaken C<$self> to avoid memory cycles.
+
+Example:
+
+ package MyId;
+ use Mouse;
+ extends qw/Config::Model::HashId/;
+ use Scalar::Util qw/weaken/;
+
+ sub setup {
+    my $self = shift;
+    weaken($self);
+    $self-> add_check_content( sub { $self->check_usused_licenses(@_);} )
+}
 
 =head1 Introspection methods
 
