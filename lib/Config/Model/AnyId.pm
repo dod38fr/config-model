@@ -362,9 +362,9 @@ sub handle_args {
 
 sub apply_fixes {
     my $self = shift;
-    $logger->debug( $self->location . ": apply_fixes called" );
+    $fix_logger->debug( $self->location . ": apply_fixes called" );
 
-    $self->check_content( fix => 1 );
+    $self->check_content( fix => 1, logger => $fix_logger );
 
 }
 
@@ -412,16 +412,17 @@ sub deep_check {
     my $self = shift;
 
     $deep_check_logger->("called on ".$self->name);
-    $self->check_content(@_);
+    $self->check_content(@_, logger => $deep_check_logger);
 }
 
-# check globally the list or hash
+# check globally the list or hash, called by apply_fix or deep_check
 sub check_content {
     my $self = shift;
 
     my %args = @_ ;
     my $silent    = $args{silent} || 0;
     my $apply_fix = $args{fix}    || 0;
+    my $local_logger = $args{logger} || $logger;
 
     if ( $self->needs_check ) {
 
@@ -449,7 +450,7 @@ sub check_content {
         return scalar @error ? 0 : 1;
     }
     else {
-        $deep_check_logger->debug( $self->location, " has not changed, actual check skipped" )
+        $local_logger->debug( $self->location, " has not changed, actual check skipped" )
             if $logger->is_debug;
         my $err = $self->{content_error_list};
         return scalar @$err ? 0 : 1;
@@ -582,7 +583,7 @@ sub check_warn_unless_key_match {
 }
 
 sub check_duplicates {
-    my ( $self, $error, $warn, $apply_fix ) = @_;
+    my ( $self, $error, $warn, $apply_fix, $silent ) = @_;
 
     my $dup = $self->{duplicates};
     return if $dup eq 'allow';
