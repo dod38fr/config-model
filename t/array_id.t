@@ -142,10 +142,12 @@ $inst->initial_load_stop;
 
 my $root = $inst->config_root;
 
+is( $inst->needs_save, 0, "verify instance needs_save status after creation" );
+
 eq_or_diff( [ $root->fetch_element('olist')->fetch_all_indexes ],
     [], "check index list of empty list" );
 
-is( $inst->needs_save, 0, "verify instance needs_save status after creation" );
+is( $inst->needs_save, 0, "verify instance needs_save status after olist creation" );
 
 my $b = $root->fetch_element('bounded_list');
 ok( $b, "bounded list created" );
