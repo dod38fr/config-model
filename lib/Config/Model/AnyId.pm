@@ -59,6 +59,9 @@ has _check_content_actions => (
     default => sub { []; }
 );
 
+# needs_check defaults to 1 to trap bad data right after loading
+has needs_content_check => ( is => 'rw', isa => 'Bool', default => 1 );
+
 # Some idea for improvement
 
 # suggest => 'foo' or '$bar foo'
@@ -404,7 +407,7 @@ sub notify_change {
 
     return if $self->instance->initial_load and not $args{really};
 
-    $self->needs_check(1);
+    $self-> needs_content_check(1);
     $self->SUPER::notify_change(%args);
 }
 
@@ -424,7 +427,7 @@ sub check_content {
     my $apply_fix = $args{fix}    || 0;
     my $local_logger = $args{logger} || $logger;
 
-    if ( $self->needs_check ) {
+    if ( $self-> needs_content_check ) {
 
         # need to keep track to update GUI
         $self->{nb_of_content_fixes} = 0;    # reset before check
@@ -445,7 +448,7 @@ sub check_content {
 
         $self->{content_warning_list} = \@warn;
         $self->{content_error_list}   = \@error;
-        $self->needs_check(0);
+        $self-> needs_content_check(0);
 
         return scalar @error ? 0 : 1;
     }

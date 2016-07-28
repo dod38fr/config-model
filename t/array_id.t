@@ -326,15 +326,15 @@ foreach my $what (qw/forbid warn suppress/) {
 
     # there we go
     if ( $what eq 'forbid' ) {
-        is( $lwd->needs_check, 1, "verify needs_check is true" );
+        is( $lwd->needs_content_check, 1, "verify needs_content_check is true" );
         throws_ok { $lwd->fetch_all_values; } "Config::Model::Exception::WrongValue",
             "fails forbidden duplicates";
-        is( $lwd->needs_check, 0, "verify needs_check after fetch_all_values" );
+        is( $lwd->needs_content_check, 0, "verify needs_content_check after fetch_all_values" );
         throws_ok { $lwd->fetch_all_values; } "Config::Model::Exception::WrongValue",
-            "fails forbidden duplicates even if needs_check is false";
-        is( $lwd->needs_check, 0, "verify again needs_check after fetch_all_values" );
+            "fails forbidden duplicates even if needs_content_check is false";
+        is( $lwd->needs_content_check, 0, "verify again needs_content_check after fetch_all_values" );
         $lwd->delete(2);
-        is( $lwd->needs_check, 1, "verify needs_check after list content modif" );
+        is( $lwd->needs_content_check, 1, "verify needs_content_check after list content modif" );
     }
     elsif ( $what eq 'warn' ) {
         warnings_like { $lwd->fetch_all_values; } qr/Duplicated/, "warns with duplicated values";
