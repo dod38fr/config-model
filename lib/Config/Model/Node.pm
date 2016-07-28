@@ -362,6 +362,9 @@ sub read_config_data {
         config_file     => $args{config_file} || $self->{config_file},
         auto_create     => $args{auto_create} || $self->instance->auto_create,
     );
+
+    # avoid loading data that is not explicitly required
+    $self-> deep_check(auto_vivify => 0) if $model->{read_config};
 }
 
 sub notify_change {
@@ -1144,17 +1147,20 @@ sub apply_fixes {
 
 sub deep_check {
     my $self = shift;
+    my %args = @_;
 
-    $deep_check_logger->("called on ".$self->name);
+    $deep_check_logger->debug("called on ".$self->name);
 
-    # no deep_check defined (yet)
+    # no deep_check defined (yet). Note that value check is done when
+    # storing value (even during initial load, so there's no need to
+    # force a check.
     my $check_leaf = sub { };
 
     my $check_id = sub {
         my ( $scanner, $data_r, $node, $element, @keys ) = @_;
 
         return unless @keys;
-        $self->check_content;
+        $node->fetch_element($element)->check_content;
 
     };
 
@@ -1162,6 +1168,7 @@ sub deep_check {
         hash_element_hook => $check_id,
         list_element_hook => $check_id,
         leaf_cb         => $check_leaf,
+        auto_vivify     => $args{auto_vivify},
         check           => 'no',
     );
 

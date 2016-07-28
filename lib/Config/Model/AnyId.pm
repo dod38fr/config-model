@@ -415,6 +415,9 @@ sub deep_check {
     my $self = shift;
 
     $deep_check_logger->("called on ".$self->name);
+
+    map { $self->check_idx($_); } $self->fetch_all_indexes();
+
     $self->check_content(@_, logger => $deep_check_logger);
 }
 
