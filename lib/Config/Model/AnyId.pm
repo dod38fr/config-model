@@ -367,7 +367,7 @@ sub apply_fixes {
     my $self = shift;
     $fix_logger->debug( $self->location . ": apply_fixes called" );
 
-    $self->check_content( fix => 1, logger => $fix_logger );
+    $self->deep_check( fix => 1, logger => $fix_logger );
 
 }
 
@@ -413,12 +413,13 @@ sub notify_change {
 
 sub deep_check {
     my $self = shift;
+    my @args = @_;
 
-    $deep_check_logger->("called on ".$self->name);
+    $deep_check_logger->debug("called on ".$self->name);
 
-    map { $self->check_idx($_); } $self->fetch_all_indexes();
+    map { $self->check_idx(@args, index => $_); } $self->fetch_all_indexes();
 
-    $self->check_content(@_, logger => $deep_check_logger);
+    $self->check_content(@args, logger => $deep_check_logger);
 }
 
 # check globally the list or hash, called by apply_fix or deep_check
@@ -432,6 +433,7 @@ sub check_content {
 
     if ( $self-> needs_content_check ) {
 
+        $local_logger->debug( "Running check_content on ",$self->location );
         # need to keep track to update GUI
         $self->{nb_of_content_fixes} = 0;    # reset before check
 
@@ -472,7 +474,7 @@ sub check_idx {
     my $idx       = $args{index};
     my $silent    = $args{silent} || 0;
     my $check     = $args{check} || 'yes';
-    my $apply_fix = $check eq 'fix' ? 1 : 0;
+    my $apply_fix = $args{fix} // ($check eq 'fix' ? 1 : 0);
 
     Config::Model::Exception::Internal->throw(
         object => $self,
@@ -917,14 +919,14 @@ sub clear_values {
 
 sub warning_msg {
     my ( $self, $idx ) = @_;
-
+    my $list ;
     if ( defined $idx ) {
-        return $self->{warning_hash}{$idx};
+        $list = $self->{warning_hash}{$idx} ;
     }
     elsif ( @{ $self->{content_warning_list} } ) {
-        my @list = @{ $self->{content_warning_list} };
-        return join( "\n", @list );
+        $list = $self->{content_warning_list} ;
     }
+    return $list ? join( "\n", @$list ) : '';
 }
 
 sub has_warning {

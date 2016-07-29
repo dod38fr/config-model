@@ -1159,6 +1159,7 @@ sub deep_check {
     my $check_id = sub {
         my ( $scanner, $data_r, $node, $element, @keys ) = @_;
 
+        $deep_check_logger->debug( "deep check called on from ", $node->name, " elt $element  keys @keys" );
         return unless @keys;
         $node->fetch_element($element)->check_content;
 
