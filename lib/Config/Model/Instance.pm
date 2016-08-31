@@ -525,6 +525,7 @@ sub update {
 
     Config::Model::ObjTreeScanner->new(
         node_content_hook => $hook,
+        check => ($args{quiet} ? 'no' : 'yes'),
         leaf_cb => sub { }
     )->scan_node( \@msgs, $root );
 
