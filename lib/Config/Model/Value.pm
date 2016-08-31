@@ -1024,6 +1024,7 @@ sub apply_fix {
 
     no warnings "uninitialized";
     if ( $_ ne $$value_r ) {
+        $fix_logger->info( $self->location . ": fix changed value from '$$value_r' to '$_'" );
         $self->_store_fix( $$value_r, $_ );
     }
     else {
