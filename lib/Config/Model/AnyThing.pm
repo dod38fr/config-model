@@ -439,7 +439,7 @@ COMMAND:
         }
 
         # action can only be :
-        $next_obj = $next_obj->fetch_with_id($arg) if defined $action;
+        $next_obj = $next_obj->fetch_with_id(index => $arg, check => $check) if defined $action;
 
         push @found, $next_obj;
     }
