@@ -518,8 +518,8 @@ sub check_idx {
     $self->{idx_error_list} = \@error;
     $self->{warning_hash}{$idx} = \@warn;
 
-    if (@warn) {
-        map { warn( "Warning in '" . $self->location_short . "': $_\n" ) } @warn unless $silent;
+    if (@warn and not $silent and $check ne 'no') {
+        map { warn( "Warning in '" . $self->location_short . "': $_\n" ) } @warn;
     }
 
     return scalar @error ? 0 : 1;
