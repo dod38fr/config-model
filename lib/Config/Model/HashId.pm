@@ -267,7 +267,7 @@ sub swap {
 
 sub move {
     my $self = shift;
-    my ( $from, $to ) = @_;
+    my ( $from, $to, %args ) = @_;
 
     Config::Model::Exception::User->throw(
         object  => $self,
@@ -276,7 +276,8 @@ sub move {
 
     my $ok = $self->check_idx($to);
 
-    if ($ok) {
+    my $check = $args{check};
+    if ($ok or $check eq 'no') {
 
         # this may clobber the old content of $self->{data}{$to}
         $self->{data}{$to} = delete $self->{data}{$from};
@@ -314,12 +315,14 @@ sub move {
             $list->[$from_idx] = $to;
         }
     }
-    else {
+    elsif ($check eq 'yes') {
         Config::Model::Exception::WrongValue->throw(
             error  => join( "\n\t", @{ $self->{error} } ),
             object => $self
         );
     }
+    $logger->debug("Skipped move $from -> $to");
+    return $ok;
 }
 
 sub move_after {
@@ -541,6 +544,10 @@ Swap the order of the 2 keys. Ignored for non ordered hash.
 =head2 move ( key1 , key2 )
 
 Rename key1 in key2. 
+
+Also also optional check parameter to disable warning:
+
+ move ('foo','bar', check => 'no')
 
 =head2 move_after ( key_to_move [ , after_this_key ] )
 
