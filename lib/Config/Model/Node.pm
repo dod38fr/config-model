@@ -362,9 +362,6 @@ sub read_config_data {
         config_file     => $args{config_file} || $self->{config_file},
         auto_create     => $args{auto_create} || $self->instance->auto_create,
     );
-
-    # avoid loading data that is not explicitly required
-    $self-> deep_check(auto_vivify => 0) if $model->{read_config};
 }
 
 sub notify_change {
