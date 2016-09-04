@@ -411,6 +411,24 @@ sub notify_change {
     $self->SUPER::notify_change(%args);
 }
 
+# the number of checks is becoming confusing. We have
+# - check_idx to check whether an index is fine. This is called when creating
+#   a new index
+# - check_content: a more expensive check that runs all content checker registered
+#   in this object. By default, none. A plain AnyId can contains a duplicated_content
+#   checker if configured
+# - a deep_check (for lack of a better name): a also expensive check that involve index
+#   versus other part of the config tree. By default, no check is done. This is currently
+#   used only by DPkg model which check if the index value is used elsewhere
+
+# Using plain check in this class is avoided because it's too generic, but a polymorphic
+# entry point is still needed, oh well...
+sub check {
+    # since check is not used when creating an index, but called explicitly
+    # so it can be forwarded to deep_check.
+    goto &deep_check; # backward compat
+}
+
 sub deep_check {
     my $self = shift;
     my @args = @_;
