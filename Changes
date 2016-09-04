@@ -1,5 +1,24 @@
 {{$NEXT}}
 
+2.089 2016-09-04
+
+  New feature:
+    Now 3 types of check can be used on hash or array elements:
+    content check, id check (as usual) and deep_check (should be used
+    to check between if value and other part of config tree). Only the
+    index check is run whenever an element of the hash/array is
+    read. The other are used when check() or apply_fixes methods are
+    called.
+
+  Documentation:
+    * converted README.pod to markdown
+
+  Bug fix:
+    * load perl data file even if @INC does not contain '.' (required
+      for perl 5.14 or Debian perl 5.22.2-4)
+    * Loader: trap another syntax error in load steps. This may breaks existing
+      tests or cme scripts that contain such an error.
+
 2.088 2016-07-09
 
   Documentation improvements:
