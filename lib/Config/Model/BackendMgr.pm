@@ -764,6 +764,7 @@ sub read_perl {
     my %args = @_;
 
     my $file_path = $args{file_path};
+    $file_path = "./$file_path" unless $file_path =~ m!^\.?/!;
     $logger->info("Read Perl data from $file_path");
 
     my $pdata = do $file_path || die "Cannot open $file_path:$!";
