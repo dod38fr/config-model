@@ -1243,6 +1243,7 @@ sub _do_model_file {
     get_logger("Model::Loader")->info("load model $load_file");
 
     my $err_msg = '';
+    $load_file = "./$load_file" if $load_file =~ m!^lib/!;
     my $model   = do $load_file;
 
     unless ($model) {
