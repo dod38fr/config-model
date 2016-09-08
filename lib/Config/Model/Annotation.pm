@@ -125,7 +125,7 @@ sub load {
     my $self = shift;
     my $f    = $self->file;
     return unless -e $f;
-    my $hash = do $f || croak "can't do $f:$!";
+    my $hash = do "./$f" || croak "can't do $f:$!";
     my $root = $self->instance->config_root;
 
     foreach my $path ( keys %$hash ) {
