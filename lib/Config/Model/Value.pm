@@ -923,6 +923,8 @@ sub run_code_on_value {
 
     unless ($ret) {
         $logger->debug("run_code_on_value sub returned false");
+        $msg =~ s/\$_/$$value_r/g if defined $$value_r;
+        $msg .= " (this can be fixed with 'cme fix' command)" if $fix;
         push @$array, $msg unless $apply_fix;
         $self->{nb_of_fixes}++ if ( defined $fix and not $apply_fix );
         $self->apply_fix( $fix, $value_r ) if ( defined $fix and $apply_fix );
@@ -937,8 +939,6 @@ sub run_code_set_on_value {
         my $msg = $w_info->{$label}{msg} || $msg;
         $logger->trace("eval'ed code is: '$code'");
         my $fix = $w_info->{$label}{fix};
-        $msg =~ s/\$_/$$value_r/g if defined $$value_r;
-        $msg .= " (this can be fixed with 'cme fix' command)" if $fix;
 
         my $sub = sub {
             local $_ = shift;
