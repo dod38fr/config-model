@@ -924,7 +924,11 @@ sub run_code_on_value {
     unless ($ret) {
         $logger->debug("run_code_on_value sub returned false");
         $msg =~ s/\$_/$$value_r/g if defined $$value_r;
-        $msg .= " (this can be fixed with 'cme fix' command)" if $fix;
+        if ($msg =~ /\$std_value/) {
+            my $std = $self->_fetch_std_no_check ;
+            $msg =~ s/\$std_value/$std/g if defined $std;
+        }
+        $msg .= " (this cannot be fixed with 'cme fix' command)" unless $fix;
         push @$array, $msg unless $apply_fix;
         $self->{nb_of_fixes}++ if ( defined $fix and not $apply_fix );
         $self->apply_fix( $fix, $value_r ) if ( defined $fix and $apply_fix );
@@ -1467,6 +1471,28 @@ sub _fetch_std {
     return $std_value;
 }
 
+# use when std_value is needed to create error or warning message
+# within a check sub. Using _fetch_std leads to deep recursions
+sub _fetch_std_no_check {
+    my ( $self, $check ) = @_;
+
+    # get stored value or computed value or default value
+    my $std_value;
+
+    eval {
+        $std_value =
+              defined $self->{preset}   ? $self->{preset}
+            : $self->compute_is_default ? $self->compute_obj->compute
+            :                             $self->{default};
+    };
+
+    if ($@) {
+        $logger->debug("eval got error: $@");
+    }
+
+    return $std_value;
+}
+
 my %old_mode = (
     built_in     => 'upstream_default',
     non_built_in => 'non_upstream_default',
@@ -1996,7 +2022,8 @@ In the example below, any value matching 'foo' is converted in uppercase:
 The tests are done in alphabetical order. In the example above, C<BAR> test is
 done before C<foo> test.
 
-C<$_> is substituted with the bad value when the message is generated.
+C<$_> is substituted with the bad value when the message is generated. C<$std_value>
+is substituted with the standard value (i.e the preset, computed or default value).
 
 =item warn_unless_match
 
