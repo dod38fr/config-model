@@ -12,11 +12,11 @@ sub new {
 }
 
 sub quote {
-    _quote( qr/(\s|"|\*)/, @_ );
+    _quote( qr/[\s"#*]/, @_ );
 }
 
 sub id_quote {
-    _quote( qr/[\s"\*<>.=#]/, @_ );
+    _quote( qr/[\s"*<>.=#]/, @_ );
 }
 
 sub _quote {
