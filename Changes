@@ -1,5 +1,22 @@
 {{$NEXT}}
 
+2.090 2016-09-10
+
+  New feature:
+    * Model developer can use $std_value in warning messages tp
+      provide better feedback to user. This variable is substituted
+      with preset, computed or default value when the message is
+      generated.
+
+  Cleanup:
+    * remove obsolete skip_read parameter
+      (breaks App::Cme older than v1.011)
+
+  Bug fix:
+    * Add double quote when dumping value that contain '#' 
+    * Value: generates same error messages for warn_if, warn_if_match
+    * fix other collaterals of '.' removal from @INC
+
 2.089 2016-09-04
 
   New feature:
