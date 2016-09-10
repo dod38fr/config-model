@@ -1972,9 +1972,9 @@ C<uniline> values.
 =item warn_if_match
 
 Hash ref. Keys are made of Perl regular expression. The value can
-specify a warning message (leave empty or undefined for default warning
+specify a warning message (leave empty or undefined for a default warning
 message) and instructions to fix the value. A warning is issued
-when the value match the passed regular expression. Valid only for
+when the value matches the passed regular expression. Valid only for
 C<string> or C<uniline> values. The fix instructions is evaluated
 when L<apply_fixes> is called. C<$_> contains the value to fix.
 C<$_> is stored as the new value once the instructions are done.
