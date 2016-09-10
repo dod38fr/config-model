@@ -1436,10 +1436,6 @@ sub _init {
 sub _fetch_std {
     my ( $self, $check ) = @_;
 
-    #$self->_init ;
-
-    my $inst = $self->instance;
-
     if ( not defined $self->{value_type} and $check eq 'yes' ) {
         $self->_value_type_error;
     }
