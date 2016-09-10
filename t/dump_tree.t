@@ -48,7 +48,7 @@ $step =
     . '- a_string="toto \"titi\" tata" another_string="foobar" a_string2=dod@foo.com '
     . 'a_string_to_test_newline="foo\nbar\\\\nbaz" '
     . 'lista:=a,b,c,d olist:0 X=Av - olist:1 X=Bv - listb:=b,"c c2",d listc:="dod@foo.com" '
-    . '! hash_a:X2=x hash_a:Y2=xy  hash_b:X3=xy my_check_list=X2,X3';
+    . '! hash_a:X2=x hash_a:Y2=xy  hash_b:X3=xy my_check_list=X2,X3 hash_b:comment_test="#"';
 ok( $root->load( step => $step ), "set up data in tree" );
 
 eq_or_diff(
@@ -76,6 +76,7 @@ listc:="dod@foo.com"
 hash_a:X2=x
 hash_a:Y2=xy
 hash_b:X3=xy
+hash_b:comment_test="#"
 olist:0
   X=Av -
 olist:1
@@ -114,6 +115,7 @@ listc:="dod@foo.com"
 hash_a:X2=x
 hash_a:Y2=xy
 hash_b:X3=xy
+hash_b:comment_test="#"
 olist:0
   X=Av
   DX=Dv -
@@ -155,6 +157,7 @@ listc:="dod@foo.com"
 hash_a:X2=x
 hash_a:Y2=xy
 hash_b:X3=xy
+hash_b:comment_test="#"
 olist:0
   X=Av
   DX=Dv -
@@ -199,6 +202,7 @@ listc:="dod@foo.com"
 hash_a:X2=x
 hash_a:Y2=xy
 hash_b:X3=xy
+hash_b:comment_test="#"
 olist:0
   X=Av
   DX=Dv -
