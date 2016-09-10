@@ -84,7 +84,6 @@ sub _config_model {
     my $p    = $self->instance->config_model;
 }
 
-has skip_read  => ( is => 'ro', isa => 'Bool' );
 has check      => ( is => 'ro', isa => 'Str', default => 'yes' );
 has model      => ( is => 'rw', isa => 'HashRef' );
 has needs_save => ( is => 'rw', isa => 'Bool', default => 0 );
@@ -323,7 +322,7 @@ sub init {
         node => $self,
     );
 
-    if ( defined $model->{read_config} and not $self->skip_read ) {
+    if ( defined $model->{read_config} ) {
         $self->read_config_data( check => $self->check );
     }
 

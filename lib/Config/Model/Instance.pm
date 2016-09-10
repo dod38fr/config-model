@@ -225,8 +225,6 @@ has config_file => (is  => 'ro', isa => 'Maybe[Str]');
 
 has config_dir => (is  => 'ro', isa => 'Maybe[Str]');
 
-has skip_read => ( is => 'ro', isa => 'Bool', default => 0 );
-
 has tree => (
     is      => 'ro',
     isa     => 'Config::Model::Node',
@@ -238,13 +236,10 @@ has tree => (
 sub reset_config {
     my $self = shift;
 
-    warn "skip_read is deprecated" if $self->skip_read;
-
     return $self->load_node (
         config_class_name => $self->{root_class_name},
         instance          => $self,
         container         => $self,
-        skip_read         => $self->skip_read,
         check             => $self->read_check,
         config_file       => $self->{config_file},
     );
@@ -614,11 +609,6 @@ supplied if not provided by the configuration model.
 =item backend
 
 Specify which backend to use. See L</write_back ( ... )> for details
-
-=item skip_read
-
-DEPRECATED. When set, configuration files are not read when
-creating configuration tree.
 
 =item check
 
