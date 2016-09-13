@@ -1,5 +1,11 @@
 {{$NEXT}}
 
+2.091 2016-09-13
+
+  Bug fix:
+    * really fix issue with '.' removal from @INC
+      (needed to close Debian #837682)
+
 2.090 2016-09-10
 
   New feature:
