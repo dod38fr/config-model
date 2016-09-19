@@ -123,7 +123,7 @@ sub new {
 
     foreach my $p (qw/root title prompt/) {
         $self->{$p} = delete $args{$p}
-            or croak "WizardHelper->new: Missing $p parameter";
+            or croak "TermUI->new: Missing $p parameter";
     }
 
     $self->{current_node} = $self->{root};
