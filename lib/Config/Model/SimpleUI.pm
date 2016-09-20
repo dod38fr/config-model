@@ -26,7 +26,8 @@ desc[ription] -> show class desc of current node
 desc <element>   -> show desc of element from current node
 desc <value> -> show effect of value (for enum)
 changes -> list unsaved changes
-fix -> fix most warnings (called on all elements)
+fix [ ! | elt ]
+  -> fix warnings in current node or of specified element or on all tree (with ! arg)
 save -> save current changes
 exit -> exit shell
 ';
@@ -167,9 +168,18 @@ my %run_dispatch = (
         return '';
     },
     fix => sub {
-        my ( $self ) = @_;
-        return $self->{root}->instance->apply_fixes;
-    },
+        my ( $self, $elt_name ) = @_;
+        if ($elt_name eq '!') {
+            $self->{root}->instance->apply_fixes;
+        }
+        elsif ($elt_name) {
+            $self->{current_node}->fetch_element($elt_name)->apply_fixes;
+        }
+        else {
+            $self->{current_node}->apply_fixes;
+        }
+        return '';
+     },
     save => sub {
         my ($self) = @_;
         $self->{root}->instance->write_back();
@@ -450,8 +460,9 @@ Show unsaved changes
 
 =item fix
 
-Fix most warnings by calling
-L<apply_fixes|Config::Model::Instance/apply_fixes> on instance.
+Try to fix warning starting from current node. With an element name as parameter,
+do the same on the element. With "C<!>" as parameter, try to fix warnings starting
+from root node by calling L<apply_fixes|Config::Model::Instance/apply_fixes> there.
 
 =item exit
 
