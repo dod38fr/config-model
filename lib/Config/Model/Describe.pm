@@ -23,6 +23,10 @@ sub describe {
     my $element = delete $args{element} ;        # optional
     my $pattern = delete $args{pattern} ;        # optional
 
+    my $tag_name = sub {
+        $_[1] .= ' /!\\' if $_[0]->has_warning;
+    };
+
     my $my_content_cb = sub {
         my ( $scanner, $data_ref, $node, @element ) = @_;
         # filter elements according to pattern
@@ -47,6 +51,7 @@ sub describe {
             if $type eq 'enum';
         push @comment, 'mandatory' if $value_obj->mandatory;
 
+        $tag_name->($value_obj,$element);
         push @$data_r, [ $name, $value, $type, join( ', ', @comment ) ];
     };
 
@@ -57,6 +62,7 @@ sub describe {
         my $list_obj = $obj->fetch_element($element);
         my $elt_type = $list_obj->cargo_type;
 
+        $tag_name->($list_obj,$element);
         if ( $elt_type eq 'node' ) {
             my $class_name = $list_obj->config_class_name;
             my @show_keys = @keys ? @keys : ('<empty>');
@@ -72,6 +78,7 @@ sub describe {
         my ( $scanner, $data_r, $obj, $element, @choices ) = @_;
 
         my $list_obj = $obj->fetch_element($element);
+        $tag_name->($list_obj,$element);
         push @$data_r, [ $element, join( ',', $list_obj->get_checked_list ), 'check_list', '' ];
     };
 
@@ -82,6 +89,7 @@ sub describe {
         my $hash_obj = $obj->fetch_element($element);
         my $elt_type = $hash_obj->cargo_type;
 
+        $tag_name->($hash_obj,$element);
         if ( $elt_type eq 'node' ) {
             my $class_name = $hash_obj->config_class_name;
             my @show_keys  = @keys ? map { qq("$_") } @keys : ('<empty>');
