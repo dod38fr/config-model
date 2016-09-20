@@ -340,6 +340,7 @@ foreach my $what (qw/forbid warn suppress/) {
     }
     elsif ( $what eq 'warn' ) {
         warnings_like { $lwd->fetch_all_values; } qr/Duplicated/, "warns with duplicated values";
+        is ( $lwd->has_warning, 1, "detected duplicated values");
         is( $lwd->has_fixes, 2, "check nb of fixes" );
         $inst->apply_fixes;
         warnings_like { $lwd->fetch_all_values; }[],    # no warning accepted
