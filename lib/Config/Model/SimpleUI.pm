@@ -26,6 +26,7 @@ desc[ription] -> show class desc of current node
 desc <element>   -> show desc of element from current node
 desc <value> -> show effect of value (for enum)
 changes -> list unsaved changes
+check [elt] -> run check current on current node or elt
 fix [ ! | elt ]
   -> fix warnings in current node or of specified element or on all tree (with ! arg)
 save -> save current changes
@@ -164,6 +165,16 @@ my %run_dispatch = (
         else {
             say "Expected element name for clear command. I.e. one of ",
                 join(' ',$self->{current_node}->get_element_name);
+        }
+        return '';
+    },
+    check => sub {
+        my ( $self, $elt_name ) = @_;
+        if ($elt_name) {
+            $self->{current_node}->fetch_element($elt_name)->check();
+        }
+        else {
+            $self->{current_node}->check;
         }
         return '';
     },
@@ -457,6 +468,11 @@ Show effect of value (for enum)
 =item changes
 
 Show unsaved changes
+
+=item check
+
+Without parameter, show warnings starting from current node. With an
+element name as parameter, do the same on the element.
 
 =item fix
 
