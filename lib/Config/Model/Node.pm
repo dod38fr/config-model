@@ -1157,7 +1157,7 @@ sub deep_check {
 
         $deep_check_logger->debug( "deep check called on from ", $node->name, " elt $element  keys @keys" );
         return unless @keys;
-        $node->fetch_element($element)->check_content;
+        $node->fetch_element($element)->deep_check;
 
     };
 
