@@ -8,7 +8,7 @@ use Log::Log4perl qw(get_logger :levels);
 
 use Config::Model::Exception;
 
-my $logger = get_logger("Wizard::Helper");
+my $logger = get_logger("Iterator");
 
 sub new {
     my $type = shift;
