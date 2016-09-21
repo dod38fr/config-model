@@ -156,6 +156,11 @@ sub hash_element_cb {
             @keys = $self->{scanner}->get_keys( $node, $element );
         }
 
+        if ( $self->{call_back_on_warning} and $i == 0 and $node->fetch_element($element)->has_warning ) {
+            $logger->info("hash_element_cb found elt with warning: '", $node->name, "' element $element");
+            $cb->( $self, $data_r, $node, $element, @keys );
+        }
+
         if ( $i == 1 ) {
             my $j = $self->{forward} == 1 ? 0 : $#keys;
             while ( $j >= 0 and $j < @keys ) {
