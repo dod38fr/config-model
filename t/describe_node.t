@@ -1,6 +1,9 @@
+# -*- cperl -*-
+
 use ExtUtils::testlib;
-use Test::More tests => 9;
+use Test::More;
 use Test::Memory::Cycle;
+use Test::Warn;
 use Config::Model;
 
 use warnings;
@@ -21,9 +24,23 @@ Log::Log4perl->easy_init( $arg =~ /l/ ? $TRACE : $WARN );
 
 ok( 1, "compiled" );
 
+$model->load(Master => 't/big_model.pm');
+ok( 1, "loaded big_model" );
+
+$model->augment_config_class(
+    name => 'Master',
+    element => [
+        "list_with_warn_duplicates" => {
+            type => 'list',
+            duplicates => 'warn',
+            cargo => { type => 'leaf', value_type => 'string'}
+        }
+    ],
+);
+ok( 1, "augmented big_model" );
+
 my $inst = $model->instance(
     root_class_name => 'Master',
-    model_file      => 't/big_model.pm',
     instance_name   => 'test1'
 );
 ok( $inst, "created dummy instance" );
@@ -35,9 +52,13 @@ my $step =
       'std_id:ab X=Bv - std_id:bc X=Av - a_string="toto tata" '
     . 'hash_a:toto=toto_value hash_a:titi=titi_value '
     . 'lista=a,b,c,d olist:0 X=Av - olist:1 X=Bv - listb=b,c,d '
+    . 'list_with_warn_duplicates=foo,bar,foo '
     . 'my_check_list=toto my_reference="titi"';
 
 ok( $root->load( step => $step ), "set up data in tree with '$step'" );
+
+# so that list_with_warn_duplicates comes with '/!\'
+warning_like {$root->deep_check;} qr/Duplicated value/,"Found duplicated value";
 
 my $description = $root->describe;
 $description =~ s/\s*\n/\n/g;
@@ -62,6 +83,7 @@ a_string     "toto tata"  string       mandatory
 int_v        10           integer
 my_check_list toto         check_list
 my_reference titi         reference
+list_with_warn_duplicates /!\ foo,bar,foo  list
 EOF
 
 is( $description, $expect, "check root description " );
@@ -101,4 +123,6 @@ $description =~ s/\s*\n/\n/g;
 print "description string:\n$description" if $trace;
 is( $description, $expect, "check root description of std_id" );
 
-memory_cycle_ok($model);
+memory_cycle_ok($model, "check memory cycles");
+
+done_testing;
