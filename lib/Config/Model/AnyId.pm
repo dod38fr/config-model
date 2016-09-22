@@ -62,6 +62,23 @@ has _check_content_actions => (
 # needs_check defaults to 1 to trap bad data right after loading
 has needs_content_check => ( is => 'rw', isa => 'Bool', default => 1 );
 
+has has_fixes => (
+    is => 'ro',
+    isa => 'Num',
+    default => 0,
+    traits => ['Number'],
+    handles => {
+        inc_fixes =>   [ add => 1 ],
+        dec_fixes =>   [ sub => 1 ],
+        add_fixes => 'add',
+    }
+);
+
+# work-around because 'set' does work with Mouse Number trait
+sub flush_fixes {
+    $_[0]->{has_fixes} = 0;
+}
+
 # Some idea for improvement
 
 # suggest => 'foo' or '$bar foo'
@@ -371,11 +388,6 @@ sub apply_fixes {
 
 }
 
-sub has_fixes {
-    my $self = shift;
-    return $self->{nb_of_content_fixes};
-}
-
 my %check_idx_dispatch =
     map { ( $_ => 'check_' . $_ ); }
     qw/follow_keys_from allow_keys allow_keys_from allow_keys_matching
@@ -453,7 +465,7 @@ sub check_content {
 
         $local_logger->debug( "Running check_content on ",$self->location );
         # need to keep track to update GUI
-        $self->{nb_of_content_fixes} = 0;    # reset before check
+        $self-> flush_fixes;    # reset before check
 
         my @error;
         my @warn;
@@ -643,7 +655,7 @@ sub check_duplicates {
     elsif ( $dup eq 'warn' ) {
         $logger->debug("warning condition: found duplicate @issues");
         push @$warn, "Duplicated value: @issues";
-        $self->{nb_of_content_fixes} += scalar @issues;
+        $self->add_fixes( scalar @issues);
     }
     elsif ( $dup eq 'suppress' ) {
         $logger->debug("suppressing duplicates @issues");
