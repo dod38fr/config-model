@@ -1,5 +1,20 @@
 {{$NEXT}}
 
+2.092 2016-09-23
+
+  * New feature in shell UI:
+    * 'll' command shows a warning sign when an element
+      has a warning that may be fixed
+    * added 'check' command
+    * 'fix' command can be applied to selected element instead
+      on the whole config.
+
+  Other bug fixes:
+    * Node: fix deep_check propagation
+    * Iterator triggers a call_back if a hash element has a warning
+      (required to fix the wizard of the graphical interface which
+      did not stop on a hash element when needed)
+
 2.091 2016-09-13
 
   Bug fix:
