@@ -1,8 +1,12 @@
 package Config::Model::TermUI;
 
 use Carp;
+use utf8;      # so literals and identifiers can be in UTF-8
+use v5.12;     # or later to get "unicode_strings" feature
 use strict;
 use warnings;
+use open      qw(:std :utf8);    # undeclared streams in UTF-8
+use Encode qw(decode_utf8);
 
 use Term::ReadLine;
 
@@ -151,6 +155,7 @@ sub new {
         my $attribs = $term->Attribs;
         $attribs->{completion_function}             = $sub_ref;
         $attribs->{completer_word_break_characters} = $word_break_string;
+        $term->enableUTF8;
     }
     elsif ( $term->ReadLine eq "Term::ReadLine::Perl" ) {
         no warnings "once";
@@ -178,7 +183,7 @@ sub run_loop {
     my $user_cmd;
     while ( defined( $user_cmd = $term->readline( $self->prompt ) ) ) {
         last if $user_cmd eq 'exit' or $user_cmd eq 'quit';
-
+        $user_cmd = decode_utf8($user_cmd,1);
         #print $OUT "cmd: $user_cmd\n";
         my $res = $self->run($user_cmd);
         print $OUT $res, "\n" if defined $res and $res;

@@ -4,6 +4,8 @@ use Carp;
 use 5.010;
 use strict;
 use warnings;
+use open      qw(:std :utf8);    # undeclared streams in UTF-8
+use Encode qw(decode_utf8);
 
 my $syntax = '
 cd <elt> cd <elt:key>, cd - , cd !
