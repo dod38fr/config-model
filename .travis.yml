@@ -14,6 +14,7 @@ install:
    - cpanm --quiet --notest --skip-satisfied Config::Model::Tester 
    - cpanm --quiet --notest --skip-satisfied MouseX::NativeTraits
    - cpanm --quiet --notest --skip-satisfied Carp::Assert::More
+   - cpanm --quiet --notest --skip-satisfied Pod::POM Pod::Elemental::Transformer::List
    - "dzil authordeps | grep -vP '[^\\w:]' | cpanm --verbose --notest --skip-satisfied"
    - "dzil listdeps   | grep -vP '[^\\w:]' | cpanm --verbose --skip-satisfied"
 
