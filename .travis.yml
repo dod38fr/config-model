@@ -17,6 +17,7 @@ install:
    - cpanm --quiet --notest Carp::Assert::More
    - cpanm --quiet --notest Pod::POM
    - cpanm --quiet --notest Pod::Elemental::Transformer::List
+   - cpanm --quiet --notest Dist::Zilla::Plugin::Run::BeforeBuild
    - "dzil authordeps | cpanm --verbose --notest"
    - "dzil listdeps   | cpanm --verbose"
 
