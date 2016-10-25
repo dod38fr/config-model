@@ -11,12 +11,12 @@ perl:
  
 install:
    - cpanm --quiet --notest --skip-satisfied Dist::Zilla 
-   - cpanm --quiet --notest --skip-satisfied Config::Model::Tester 
-   - cpanm --quiet --notest --skip-satisfied MouseX::NativeTraits MouseX::StrictConstructor
-   - cpanm --quiet --notest --skip-satisfied Carp::Assert::More
-   - cpanm --quiet --notest --skip-satisfied Pod::POM Pod::Elemental::Transformer::List
-   - "dzil authordeps | grep -vP '[^\\w:]' | cpanm --verbose --notest --skip-satisfied"
-   - "dzil listdeps   | grep -vP '[^\\w:]' | cpanm --verbose --skip-satisfied"
+   - cpanm --notest --skip-satisfied Config::Model::Tester 
+   - cpanm --notest --skip-satisfied MouseX::NativeTraits MouseX::StrictConstructor
+   - cpanm --notest --skip-satisfied Carp::Assert::More
+   - cpanm --notest --skip-satisfied Pod::POM Pod::Elemental::Transformer::List
+   - "dzil authordeps | cpanm --verbose --notest --skip-satisfied"
+   - "dzil listdeps   | cpanm --verbose"
 
 script:
   - dzil smoke --release --author
