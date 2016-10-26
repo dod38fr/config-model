@@ -9,7 +9,6 @@ perl:
 #  - "5.12"
 #  - "5.10"
 
-sudo: required
 
 install:
    - cpanm --quiet --notest Dist::Zilla 
@@ -24,8 +23,6 @@ install:
    - cpanm --quiet --notest --skip-satisfied File::Copy
    - cpanm --quiet --notest --skip-satisfied File::HomeDir
    - cpanm --quiet --notest --skip-satisfied File::Path
-   - sudo apt-get install -y libfuse-dev
-   - cpanm --quiet --notest --skip-satisfied Fuse
    - cpanm --quiet --notest --skip-satisfied Hash::Merge
    - cpanm --quiet --notest --skip-satisfied IO::File
    - cpanm --quiet --notest --skip-satisfied JSON
