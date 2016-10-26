@@ -6,8 +6,6 @@ perl:
   - "5.18"
   - "5.16"
   - "5.14"
-#  - "5.12"
-#  - "5.10"
 
 
 install:
@@ -59,10 +57,3 @@ install:
 
 script:
   - dzil smoke --release --author
-
-notifications:
-  email:
-    recipients:
-      - jluis@cpan.org
-    on_success: change
-    on_failure: always
