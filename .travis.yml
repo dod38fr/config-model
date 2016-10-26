@@ -58,6 +58,7 @@ install:
    - cpanm --quiet --notest --skip-satisfied Pod::Elemental::Transformer::List
    - cpanm --quiet --notest Dist::Zilla::Plugin::Run::BeforeBuild
    - "dzil authordeps --missing | cpanm --notest "
+   - cpanm --quiet --notest --skip-satisfied Pod::Weaver::Section::Support
 
 script:
   - dzil smoke --release --author
