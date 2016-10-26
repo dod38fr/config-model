@@ -12,7 +12,7 @@ perl:
 sudo: required
 
 install:
-   - cpanm --quiet --notest --skip-satisfied Dist::Zilla 
+   - cpanm --quiet --notest Dist::Zilla 
    - cpanm --quiet --notest --skip-satisfied Config::Model::Tester 
    - cpanm --quiet --notest --skip-satisfied Mouse
    - cpanm --quiet --notest --skip-satisfied MouseX::NativeTraits 
@@ -22,7 +22,7 @@ install:
    - cpanm --quiet --notest --skip-satisfied Pod::POM
    - cpanm --quiet --notest --skip-satisfied Pod::Elemental::Transformer::List
    - cpanm --quiet --notest --skip-satisfied Log::Log4perl
-   - cpanm --quiet --notest --skip-satisfied Dist::Zilla::Plugin::Run::BeforeBuild
+   - cpanm --quiet --notest Dist::Zilla::Plugin::Run::BeforeBuild
    - sudo apt-get install -y libfuse-dev
    - cpanm --quiet --notest --skip-satisfied Fuse
    - "dzil authordeps --missing | cpanm --notest "
