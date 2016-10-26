@@ -13,20 +13,52 @@ sudo: required
 
 install:
    - cpanm --quiet --notest Dist::Zilla 
-   - cpanm --quiet --notest --skip-satisfied Config::Model::Tester 
-   - cpanm --quiet --notest --skip-satisfied Mouse
-   - cpanm --quiet --notest --skip-satisfied MouseX::NativeTraits 
-   - cpanm --quiet --notest --skip-satisfied MouseX::StrictConstructor
+   - cpanm --quiet --notest --skip-satisfied Carp
    - cpanm --quiet --notest --skip-satisfied Carp::Assert
    - cpanm --quiet --notest --skip-satisfied Carp::Assert::More
-   - cpanm --quiet --notest --skip-satisfied Pod::POM
-   - cpanm --quiet --notest --skip-satisfied Pod::Elemental::Transformer::List
-   - cpanm --quiet --notest --skip-satisfied Log::Log4perl
-   - cpanm --quiet --notest Dist::Zilla::Plugin::Run::BeforeBuild
+   - cpanm --quiet --notest --skip-satisfied Config::Model::Tester
+   - cpanm --quiet --notest --skip-satisfied Cwd
+   - cpanm --quiet --notest --skip-satisfied Data::Dumper
+   - cpanm --quiet --notest --skip-satisfied English
+   - cpanm --quiet --notest --skip-satisfied Fcntl
+   - cpanm --quiet --notest --skip-satisfied File::Copy
+   - cpanm --quiet --notest --skip-satisfied File::HomeDir
+   - cpanm --quiet --notest --skip-satisfied File::Path
    - sudo apt-get install -y libfuse-dev
    - cpanm --quiet --notest --skip-satisfied Fuse
+   - cpanm --quiet --notest --skip-satisfied Hash::Merge
+   - cpanm --quiet --notest --skip-satisfied IO::File
+   - cpanm --quiet --notest --skip-satisfied JSON
+   - cpanm --quiet --notest --skip-satisfied List::MoreUtils
+   - cpanm --quiet --notest --skip-satisfied Log::Log4perl
+   - cpanm --quiet --notest --skip-satisfied Module::Build
+   - cpanm --quiet --notest --skip-satisfied Mouse
+   - cpanm --quiet --notest --skip-satisfied Mouse::Role
+   - cpanm --quiet --notest --skip-satisfied Mouse::Util
+   - cpanm --quiet --notest --skip-satisfied Mouse::Util::TypeConstraints
+   - cpanm --quiet --notest --skip-satisfied MouseX::NativeTraits
+   - cpanm --quiet --notest --skip-satisfied MouseX::StrictConstructor
+   - cpanm --quiet --notest --skip-satisfied Parse::RecDescent
+   - cpanm --quiet --notest --skip-satisfied Path::Tiny
+   - cpanm --quiet --notest --skip-satisfied Pod::POM
+   - cpanm --quiet --notest --skip-satisfied POSIX
+   - cpanm --quiet --notest --skip-satisfied Scalar::Util
+   - cpanm --quiet --notest --skip-satisfied Storable
+   - cpanm --quiet --notest --skip-satisfied Term::ReadLine
+   - cpanm --quiet --notest --skip-satisfied Test::Differences
+   - cpanm --quiet --notest --skip-satisfied Test::Exception
+   - cpanm --quiet --notest --skip-satisfied Test::File::Contents
+   - cpanm --quiet --notest --skip-satisfied Test::Memory::Cycle
+   - cpanm --quiet --notest --skip-satisfied Test::More
+   - cpanm --quiet --notest --skip-satisfied Test::Warn
+   - cpanm --quiet --notest --skip-satisfied Text::Diff
+   - cpanm --quiet --notest --skip-satisfied Text::Levenshtein::Damerau
+   - cpanm --quiet --notest --skip-satisfied Text::Wrap
+   - cpanm --quiet --notest --skip-satisfied YAML
+   - cpanm --quiet --notest --skip-satisfied
+   - cpanm --quiet --notest --skip-satisfied Pod::Elemental::Transformer::List
+   - cpanm --quiet --notest Dist::Zilla::Plugin::Run::BeforeBuild
    - "dzil authordeps --missing | cpanm --notest "
-   - "dzil listdeps   --missing | cpanm --notest "
 
 script:
   - dzil smoke --release --author
