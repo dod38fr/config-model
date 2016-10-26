@@ -8,7 +8,9 @@ perl:
   - "5.14"
 #  - "5.12"
 #  - "5.10"
- 
+
+sudo: required
+
 install:
    - cpanm --quiet --notest --skip-satisfied Dist::Zilla 
    - cpanm --quiet --notest --skip-satisfied Config::Model::Tester 
@@ -21,6 +23,7 @@ install:
    - cpanm --quiet --notest --skip-satisfied Pod::Elemental::Transformer::List
    - cpanm --quiet --notest --skip-satisfied Log::Log4perl
    - cpanm --quiet --notest --skip-satisfied Dist::Zilla::Plugin::Run::BeforeBuild
+   - sudo apt install -y libfuse-dev
    - cpanm --quiet --notest --skip-satisfied Fuse
    - "dzil authordeps --missing | cpanm --notest "
    - "dzil listdeps   --missing | cpanm --notest "
