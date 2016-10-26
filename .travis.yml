@@ -21,7 +21,8 @@ install:
    - cpanm --quiet --notest --skip-satisfied Pod::Elemental::Transformer::List
    - cpanm --quiet --notest --skip-satisfied Log::Log4perl
    - cpanm --quiet --notest --skip-satisfied Dist::Zilla::Plugin::Run::BeforeBuild
-   - "dzil authordeps --missing | cpanm --notest --skip-satisfied "
+   - cpanm --quiet --notest --skip-satisfied Fuse
+   - "dzil authordeps --missing | cpanm --notest "
    - "dzil listdeps   --missing | cpanm --notest "
 
 script:
