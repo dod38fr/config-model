@@ -55,7 +55,6 @@ install:
    - cpanm --quiet --notest --skip-satisfied Text::Levenshtein::Damerau
    - cpanm --quiet --notest --skip-satisfied Text::Wrap
    - cpanm --quiet --notest --skip-satisfied YAML
-   - cpanm --quiet --notest --skip-satisfied
    - cpanm --quiet --notest --skip-satisfied Pod::Elemental::Transformer::List
    - cpanm --quiet --notest Dist::Zilla::Plugin::Run::BeforeBuild
    - "dzil authordeps --missing | cpanm --notest "
