@@ -10,18 +10,19 @@ perl:
 #  - "5.10"
  
 install:
-   - cpanm --quiet --notest Dist::Zilla 
-   - cpanm --quiet --notest Config::Model::Tester 
-   - cpanm --quiet --notest Mouse
-   - cpanm --quiet --notest MouseX::NativeTraits 
-   - cpanm --quiet --notest MouseX::StrictConstructor
-   - cpanm --quiet --notest Carp::Assert
-   - cpanm --quiet --notest Carp::Assert::More
-   - cpanm --quiet --notest Pod::POM
-   - cpanm --quiet --notest Pod::Elemental::Transformer::List
-   - cpanm --quiet --notest Log::Log4perl
-   - "dzil authordeps --missing | cpanm --verbose --notest"
-   - "dzil listdeps --missing | cpanm --verbose"
+   - cpanm --quiet --notest --skip-satisfied Dist::Zilla 
+   - cpanm --quiet --notest --skip-satisfied Config::Model::Tester 
+   - cpanm --quiet --notest --skip-satisfied Mouse
+   - cpanm --quiet --notest --skip-satisfied MouseX::NativeTraits 
+   - cpanm --quiet --notest --skip-satisfied MouseX::StrictConstructor
+   - cpanm --quiet --notest --skip-satisfied Carp::Assert
+   - cpanm --quiet --notest --skip-satisfied Carp::Assert::More
+   - cpanm --quiet --notest --skip-satisfied Pod::POM
+   - cpanm --quiet --notest --skip-satisfied Pod::Elemental::Transformer::List
+   - cpanm --quiet --notest --skip-satisfied Log::Log4perl
+   - cpanm --quiet --notest --skip-satisfied Dist::Zilla::Plugin::Run::BeforeBuild
+   - "dzil authordeps --missing | cpanm --notest --skip-satisfied "
+   - "dzil listdeps   --missing | cpanm --notest "
 
 script:
   - dzil smoke --release --author
