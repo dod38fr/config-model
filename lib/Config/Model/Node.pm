@@ -808,7 +808,9 @@ sub _get_accepted_data {
             my $dist = $tld->dld_best_distance($tld_arg);
             if ($dist < 3) {
                 my $best = $tld->dld_best_match($tld_arg);
-                warn "Warning: $name is confusingly close to $best (edit distance is $dist). Is there a typo ?\n";
+                warn "Warning: ".$self->location
+                    ." '$name' is confusingly close to '$best' (edit distance is $dist)."
+                    ." Is there a typo ?\n";
             }
 
         }
