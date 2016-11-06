@@ -46,12 +46,13 @@ sub write {
 sub read_global_comments {
     my $self  = shift;
     my $lines = shift;
-    my $cc    = shift;    # comment character
+    my $cc    = shift;    # comment character(s)
 
+    my $cc_re = length $cc > 1 ? "[$cc]" : $cc;
     my @global_comments;
 
     while ( defined( my $l = shift @$lines ) ) {
-        next if $l =~ /^$cc$cc/;    # remove comments added by Config::Model
+        next if $l =~ /^$cc_re{2}/;    # remove comments added by Config::Model
         unshift @$lines, $l;
         last;
     }
@@ -64,7 +65,7 @@ sub read_global_comments {
     while ( defined( my $l = shift @$lines ) ) {
         chomp $l;
 
-        my ( $data, $comment ) = split /\s*$cc\s?/, $l, 2;
+        my ( $data, $comment ) = split /\s*$cc_re\s?/, $l, 2;
 
         push @global_comments, $comment if defined $comment;
 
@@ -85,15 +86,16 @@ sub read_global_comments {
 sub associates_comments_with_data {
     my $self  = shift;
     my $lines = shift;
-    my $cc    = shift;    # comment character
+    my $cc    = shift;    # comment character(s)
 
+    my $cc_re = length $cc > 1 ? "[$cc]" : $cc;
     my @result;
     my @comments;
     foreach my $l (@$lines) {
-        next if $l =~ /^$cc$cc/;    # remove comments added by Config::Model
+        next if $l =~ /^$cc_re{2}/;    # remove comments added by Config::Model
         chomp $l;
 
-        my ( $data, $comment ) = split /\s*$cc\s?/, $l, 2;
+        my ( $data, $comment ) = split /\s*$cc_re\s?/, $l, 2;
         push @comments, $comment if defined $comment;
 
         next unless defined $data;
@@ -397,28 +399,66 @@ Return the instance (a L<Config::Model::Instance>) holding this configuration.
 
 Show a message to STDOUT (unless overridden). Delegated to L<Config::Model::Instance/"show_message( string )">.
 
-=head2 read_global_comments( lines , comment_char)
+=head2 read_global_comments
 
-Read the global comments (i.e. the first block of comments until the first blank or non comment line) and
-store them as root node annotation. The first parameter (C<lines>)
- is an array ref containing file lines.
+Parameters:
 
-=head2 associates_comments_with_data ( lines , comment_char)
+=over
+
+=item *
+
+array ref of string containing the lines to be parsed
+
+=item *
+
+A string to specify how a comment is started. Each
+character is recognized as a comment starter (e.g 'C<#;>' allow a
+comment to begin with 'C<#>' or 'C<;>')
+
+=back
+
+Read the global comments (i.e. the first block of comments until the
+first blank or non comment line) and store them as root node
+annotation.
+
+Example:
+
+ $self->read_global_comments( \@lines, ';');
+ $self->read_global_comments( \@lines, '#;');
+
+=head2 associates_comments_with_data
+
+Parameters:
+
+=over
+
+=item *
+
+array ref of string containing the lines to be parsed
+
+=item *
+
+A string to specify how a comment is started. Each
+character is recognized as a comment starter (e.g 'C<#;>' allow a
+comment to begin with 'C<#>' or 'C<;>')
+
+=back
 
 This method extracts comments from the passed lines and associate
 them with actual data found in the file lines. Data is associated with
 comments preceding or on the same line as the data. Returns a list of
-[ data, comment ] .
+[ data, comment ].
 
 Example:
 
-  # Foo comments
-  foo= 1
-  Baz = 0 # Baz comments
-
-returns
-
-  ( [  'foo= 1', 'Foo comments'  ] , [ 'Baz = 0' , 'Baz comments' ] )
+  my @lines = (
+    '# Foo comments',
+    'foo= 1',
+    'Baz = 0 # Baz comments'
+  );
+  my @res = $self->associates_comments_with_data( \@lines, '#')
+  # @res is:
+  # ( [ 'foo= 1', 'Foo comments' ] , [ 'Baz = 0' , 'Baz comments' ] )
 
 =head2 write_global_comments( io_handle , comment_char)
 
