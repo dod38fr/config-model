@@ -38,10 +38,11 @@ ok( 1, "compiled" );
 my $wr_root = 'wr_root/';
 
 # set_up data
-my @with_semi_column_comment = my @with_hash_comment = <DATA>;
+my @with_semicolon_comment = my @with_one_semicolon_comment = my @with_hash_comment = <DATA>;
 
 # change delimiter comments
-map { s/#/;/; } @with_semi_column_comment;
+map { s/#/;/; } @with_semicolon_comment;
+map { s/# foo2/; foo2/; } @with_one_semicolon_comment;
 
 sub init_test {
     my ($test_class, $test_data, $config_dir) = @_;
@@ -118,14 +119,15 @@ sub finish {
 }
 
 my %test_setup = (
-    IniTest  => [ \@with_hash_comment,        'class1' ],
-    IniTest2 => [ \@with_semi_column_comment, 'class1' ],
-    AutoIni  => [ \@with_hash_comment,        'class1' ],
-    MyClass  => [ \@with_hash_comment,        'any_ini_class:class1' ]
+    IniTest  => [ \@with_hash_comment,          'class1' ],
+    IniTest2 => [ \@with_semicolon_comment,     'class1' ],
+    IniTest3 => [ \@with_one_semicolon_comment, 'class1' ],
+    AutoIni  => [ \@with_hash_comment,          'class1' ],
+    MyClass  => [ \@with_hash_comment,          'any_ini_class:class1' ]
 );
 
 foreach my $test_class ( sort keys %test_setup ) {
-    my ($model, $i_test, $wr_dir) = init_test($test_class,  $test_setup{$test_class}[0]);
+    my ($model, $i_test, $wr_dir) = init_test($test_class, $test_setup{$test_class}[0]);
 
     my $test_path = $test_setup{$test_class}[1];
 
