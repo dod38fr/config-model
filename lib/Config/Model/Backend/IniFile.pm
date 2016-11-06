@@ -174,16 +174,20 @@ sub write {
 
     croak "Undefined file handle to write" unless defined $ioh;
 
-    $self->write_global_comment( $ioh, $delimiter );
+    # use the first char of the list as a comment delimeter
+    my $cc = substr($delimiter,0,1);
+    $args{comment_delimiter} = $cc;
+
+    $self->write_global_comment( $ioh, $cc );
 
     # some INI file have a 'General' section mapped in root node
     my $top_class_name = $self->{reverse_section_map}{''};
     if ( defined $top_class_name ) {
         $logger->debug("writing class $top_class_name from reverse_section_map");
-        $self->write_data_and_comments( $ioh, $delimiter, "[$top_class_name]" );
+        $self->write_data_and_comments( $ioh, $cc, "[$top_class_name]" );
     }
 
-    my $res = $self->_write(@_);
+    my $res = $self->_write(%args);
     $ioh->print($res);
 }
 
@@ -392,11 +396,11 @@ __END__
  my $model = Config::Model->new;
  $model->create_config_class (
     name    => "IniClass",
-    element => [ 
+    element => [
         [qw/foo bar/] => {
             type => 'list',
             cargo => {qw/type leaf value_type string/}
-        } 
+        }
     ]
  );
 
@@ -405,18 +409,18 @@ __END__
     name => "MyClass",
 
     element => [
-        'ini_class' => {
+        ini_class => {
             type   => 'hash',
-	    index_type => 'string',
-	    cargo => { 
-		type => 'node',
-		config_class_name => 'IniClass' 
-		},
-	    },
+            index_type => 'string',
+            cargo => {
+                type => 'node',
+                config_class_name => 'IniClass'
+            },
+        },
     ],
 
    read_config  => [
-        { 
+        {
             backend => 'IniFile',
             config_dir => '/tmp',
             file  => 'foo.conf',
@@ -501,6 +505,12 @@ Optional parameters declared in the model:
 =item comment_delimiter
 
 Change the character that starts comments in the INI file. Default is 'C<#>'.
+
+Some Ini files allows comments to begin with several characters
+(e.g. C<#> or C<;>). In this case, set C<comment_delimiter> to the
+possible characters (e.g "C<#;>"). The first character is used to
+write back comments. (In the example above, comment C<; blah> is
+written back as C<# blah>.
 
 =item store_class_in_hash
 
