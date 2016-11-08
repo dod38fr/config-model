@@ -1,5 +1,17 @@
 {{$NEXT}}
 
+2.093 2016-11-08
+
+  Hygiene:
+    * Add Travis CI file (Thanks Jose Luis Perez Diez)
+
+  New feature in read/write backend:
+    * Allow alternate comment char in INI config file (gh #10)
+      required to support Systemd config files
+
+  Bug fix:
+    * Better support of utf8 in term UI
+
 2.092 2016-09-23
 
   * New feature in shell UI:
