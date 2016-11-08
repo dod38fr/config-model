@@ -2482,6 +2482,8 @@ In alphabetical order:
 
   Harley Pig
 
+  Jose Luis Perez Diez
+
   Krzysztof Tyszecki
 
   Mathieu Arnold
