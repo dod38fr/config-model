@@ -155,7 +155,8 @@ sub new {
         my $attribs = $term->Attribs;
         $attribs->{completion_function}             = $sub_ref;
         $attribs->{completer_word_break_characters} = $word_break_string;
-        $term->enableUTF8;
+        # this method is available only on Term::ReadLine::Gnu > 1.32
+        $term->enableUTF8 if $term->can('enableUTF8');
     }
     elsif ( $term->ReadLine eq "Term::ReadLine::Perl" ) {
         no warnings "once";
