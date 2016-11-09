@@ -1,5 +1,11 @@
 {{$NEXT}}
 
+2.094 2016-11-09
+
+  Fix compatibility with older Term::ReadLine::Gnu:
+    * TermUI: skip call to enableUTF8 if not available
+      (gh #11)
+    
 2.093 2016-11-08
 
   Hygiene:
