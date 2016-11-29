@@ -43,7 +43,7 @@ my $desc_sub = sub {
     if (@_) {
         my $item;
         while ( $item = shift ) {
-            if ( $obj->isa('Config::Model::Node') ) {
+            if ( $obj->get_type() eq 'node' ) {
                 my $type = $obj->element_type($item);
                 my $elt  = $obj->fetch_element($item);
                 $res .= "element $item (type $type): " . $obj->get_help($item) . "\n";
