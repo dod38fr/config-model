@@ -303,6 +303,7 @@ sub check_properties {
 
 sub init {
     my $self = shift;
+    my %args = @_;
 
     return if $self->{initialized};
     $self->{initialized} = 1;    # avoid recursions
@@ -323,7 +324,7 @@ sub init {
     );
 
     if ( defined $model->{read_config} ) {
-        $self->read_config_data( check => $self->check );
+        $self->read_config_data( check => $args{check} // $self->check );
     }
 
     # use read_config data if write_config is missing
@@ -641,7 +642,7 @@ sub fetch_element {
     my $check         = $self->_check_check( $args{check} );
     my $accept_hidden = $args{accept_hidden} || 0;
 
-    $self->init();
+    $self->init(check => $check);
 
     my $model = $self->{model};
 
