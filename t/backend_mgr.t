@@ -4,15 +4,14 @@ use ExtUtils::testlib;
 use Test::More;
 use Test::Memory::Cycle;
 use Config::Model;
-use File::Path;
-use File::Copy;
+use Path::Tiny 0.070;
 use Test::Warn;
 use Test::Exception;
 use Test::File::Contents;
 
 use warnings;
 no warnings qw(once);
-
+use 5.10.1;
 use strict;
 
 use vars qw/$model/;
@@ -40,15 +39,15 @@ else {
 ok( 1, "compiled" );
 
 # pseudo root for config files
-my $wr_root = 'wr_root';
-my $root1   = "$wr_root/test1/";
-my $root2   = "$wr_root/test2/";
-my $root3   = "$wr_root/test3/";
+my $wr_root = path('wr_root');
+my $root1   = $wr_root->child('test1');
+my $root2   = $wr_root->child('test2');
+my $root3   = $wr_root->child('test3');
 
 my $conf_dir = '/etc/test/';
 
 # cleanup before tests
-rmtree($wr_root);
+$wr_root->remove_tree;
 
 # model declaration
 $model->create_config_class(
@@ -277,7 +276,7 @@ package main;
 my $i_fail = $model->instance(
     instance_name   => 'failed_inst',
     root_class_name => 'Master',
-    root_dir        => $root1,
+    root_dir        => $root1->stringify,
     backend         => 'perl_file',
 );
 throws_ok {
@@ -291,7 +290,7 @@ is( $result{master_read}, undef, "Master read conf dir" );
 my $i_zero = $model->instance(
     instance_name   => 'zero_inst',
     root_class_name => 'Master',
-    root_dir        => $root1,
+    root_dir        => $root1->stringify,
 );
 
 ok( $i_zero, "Created instance (from scratch)" );
@@ -333,15 +332,15 @@ $i_zero->write_back( backend => 'all', force => 1 );
 # check written files
 foreach my $suffix (qw/cds ini/) {
     map {
-        my $f = "$root1$conf_dir/$_.$suffix";
-        ok( -e $f, "check written file $f" );
+        my $f = $root1->child("$conf_dir/$_.$suffix");
+        ok(  $f->is_file, "check written file $f" );
     } ( 'zero_inst', 'zero_inst/level1', 'zero_inst/samerw' );
 }
 
 foreach my $suffix (qw/pl/) {
     map {
-        my $f = "$root1$conf_dir/$_.$suffix";
-        ok( -e "$f", "check written file $f" );
+        my $f = $root1->child("$conf_dir/$_.$suffix");
+        ok( $f->is_file, "check written file $f" );
     } ( 'zero_inst', 'zero_inst/level1' );
 }
 
@@ -355,12 +354,15 @@ $i_zero->write_back( backend => 'all', config_dir => $override, force => 1 );
 
 # check written files
 foreach my $suffix (qw/cds ini/) {
-    map { ok( -e "$root1$override$_.$suffix", "check written file $root1$override$_.$suffix" ); }
-        ( 'zero_inst', 'zero_inst/level1', 'zero_inst/samerw' );
+    map {
+        ok( $root1->child("$override$_.$suffix")->is_file,
+            "check written file ".$root1->child("$override$_.$suffix") );
+    } ( 'zero_inst', 'zero_inst/level1', 'zero_inst/samerw' );
 }
 foreach my $suffix (qw/pl/) {
-    map { ok( -e "$root1$override$_.$suffix", "check written file $root1$override$_.$suffix" ); }
-        ( 'zero_inst', 'zero_inst/level1' );
+    map { ok( $root1->child("$override$_.$suffix")->is_file,
+              "check written file ".$root1->child("$override$_.$suffix") ); 
+      } ( 'zero_inst', 'zero_inst/level1' );
 }
 
 is( $result{wr_stuff}, $override, 'check custom overridden write dir' );
@@ -381,24 +383,22 @@ my %cds = (
     "$inst2/level1" => 'bar X=Av Y=Bv - '
 );
 
-my $dir2 = "$root2/etc/test/";
-mkpath( $dir2 . $inst2, 0, 0755 ) || die "Can't mkpath $dir2.$inst2:$!";
+my $dir2 = $root2->child("etc/test/");
+$dir2->child($inst2)->mkpath();
 
 # write input config files
 foreach my $f ( keys %cds ) {
-    my $fout = "$dir2/$f.cds";
+    my $fout = $dir2->child($f.'.cds');
     next if -r $fout;
 
-    open( FOUT, ">$fout" ) or die "can't open $fout:$!";
-    print FOUT $cds{$f};
-    close FOUT;
+    $fout->spew($cds{$f});
 }
 
 # create another instance
 my $test2_inst = $model->instance(
     root_class_name => 'Master',
     instance_name   => $inst2,
-    root_dir        => $root2,
+    root_dir        => $root2->stringify,
 );
 
 ok( $test2_inst, "created second instance" );
@@ -470,7 +470,7 @@ is( $dump, $expect_custom, "pl_test: check dump" );
 my $scratch_i = $model->instance(
     root_class_name => 'FromScratch',
     instance_name   => 'scratch_inst',
-    root_dir        => $root3,
+    root_dir        => $root3->stringify,
 );
 
 ok( $scratch_i, "Created instance from scratch to load cds files" );
@@ -484,7 +484,7 @@ ok( -e "$root3/$conf_dir/scratch_inst.cds", "wrote cds config file" );
 my $cdswf = $model->instance(
     root_class_name => 'CdsWithFile',
     instance_name   => 'cds_with_file_inst',
-    root_dir        => $root3,
+    root_dir        => $root3->stringify,
 );
 ok( $cdswf, "Created instance to load custom cds file" );
 
@@ -495,14 +495,13 @@ is( $cdswf->config_root->dump_tree, $expect, "check dump" );
 
 $cdswf->write_back;
 
-my $toto_conf = "$root3/$conf_dir/toto.conf";
-copy( "$root3/$conf_dir/scratch_inst.cds", $toto_conf )
+my $toto_conf = $root3->child("$conf_dir/scratch_inst.cds")->copy( $root3->child("$conf_dir/toto.conf"))
     or die "can't copy scratch_inst.cds to toto.conf:$!";
 
 my $ctoto = $model->instance(
     root_class_name => 'SimpleRW',
     instance_name   => 'custom_toto',
-    root_dir        => $root3,
+    root_dir        => $root3->stringify,
 );
 ok( $ctoto, "Created instance to load custom custom toto file" );
 
@@ -526,7 +525,7 @@ my $scratch_conf = 'etc/test/scratch_inst.cds';
 my $cdswnf       = $model->instance(
     root_class_name => 'CdsWithNoFile',
     instance_name   => 'cds_with_no_file_inst',
-    root_dir        => $root3,
+    root_dir        => $root3->stringify,
     config_file     => $scratch_conf,
 );
 ok( $cdswnf, "Created instance to load overridden cds config file" );
