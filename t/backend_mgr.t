@@ -425,13 +425,6 @@ samerw
 ';
 is( $dump2, $expect2, "$inst2: check dump" );
 
-# test loading with ini files
-map {
-    my $o = $_;
-    s!$root1/zero!ini!;
-    copy( $o, "$root2/$_" ) or die "can't copy $o $_:$!"
-} glob("$root1/*.ini");
-
 # create another instance to load ini files
 my $ini_inst = $model->instance(
     root_class_name => 'Master',
