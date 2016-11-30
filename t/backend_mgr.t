@@ -57,7 +57,10 @@ $model->create_config_class(
         [qw/X Y Z/] => {
             type       => 'leaf',
             value_type => 'enum',
-            choice     => [qw/Av Bv Cv/] } ] );
+            choice     => [qw/Av Bv Cv/]
+        }
+    ]
+);
 
 $model->create_config_class(
     name => 'Level1',
@@ -86,7 +89,9 @@ $model->create_config_class(
         bar => {
             type              => 'node',
             config_class_name => 'Level2',
-        } ] );
+        }
+    ]
+);
 
 $model->create_config_class(
     name => 'SameReadWriteSpec',
@@ -106,7 +111,10 @@ $model->create_config_class(
         bar => {
             type              => 'node',
             config_class_name => 'Level2',
-        } ] );
+        },
+        int_with_max => {qw/type leaf value_type integer max 10/},
+    ]
+);
 
 $model->create_config_class(
     name => 'Master',
@@ -144,7 +152,8 @@ $model->create_config_class(
             type              => 'node',
             config_class_name => 'SameReadWriteSpec',
         },
-    ] );
+    ]
+);
 
 $model->create_config_class(
     name => 'FromScratch',
@@ -158,7 +167,8 @@ $model->create_config_class(
 
     element => [
         aa => { type => 'leaf', value_type => 'string' },
-    ] );
+    ]
+);
 
 $model->create_config_class(
     name => 'CdsWithFile',
@@ -172,7 +182,8 @@ $model->create_config_class(
 
     element => [
         aa => { type => 'leaf', value_type => 'string' },
-    ] );
+    ]
+);
 
 $model->create_config_class(
     name => 'CdsWithNoFile',
@@ -181,7 +192,8 @@ $model->create_config_class(
 
     element => [
         aa => { type => 'leaf', value_type => 'string' },
-    ] );
+    ]
+);
 
 $model->create_config_class(
     name => 'SimpleRW',
@@ -196,7 +208,8 @@ $model->create_config_class(
 
     element => [
         aa => { type => 'leaf', value_type => 'string' },
-    ] );
+    ]
+);
 
 #global variable to snoop on read config action
 my %result;
