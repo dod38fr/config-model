@@ -446,15 +446,6 @@ $dump = $ini_inst->config_root->dump_tree;
 
 is( $dump, $expect_custom, "ini_test: check dump" );
 
-unlink( glob("$root2/*.ini") );
-
-# test loading with pl files
-map {
-    my $o = $_;
-    s!$root1/zero!pl!;
-    copy( $o, "$root2/$_" ) or die "can't copy $o $_:$!"
-} glob("$root1/*.pl");
-
 # create another instance to load pl files
 my $pl_inst = $model->instance(
     root_class_name => 'Master',
