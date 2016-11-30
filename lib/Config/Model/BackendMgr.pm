@@ -930,6 +930,24 @@ directory can be hardcoded in the custom class. C<config_dir> beginning
 with 'C<~>' is munged so C<~> is replaced by C<< File::HomeDir->my_data >>.
 See L<File::HomeDir> for details.
 
+=item file
+
+Specify configuration file name (without the path). This parameter is
+optional as the file name can be hardcoded in the custom class.
+
+The configuration file name can be specified with C<&index> keyword
+when a backend is associated to a node contained in a hash. For instance,
+with C<file> set to C<index.conf>:
+
+ service    # hash element
+   foo      # hash index
+     nodeA  # values of nodeA are stored in foo.conf
+   bar      # hash index
+     nodeB  # values of nodeB are  stored in bar.conf
+
+Alternatively, C<file> can be set to C<->, in which case, the
+configuration is read from STDIN.
+
 =item os_config_dir
 
 Specify alternate location of a configuration directory depending on the OS
