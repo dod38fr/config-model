@@ -27,7 +27,7 @@ $model->create_config_class(
             type  => 'hash',
             index_type => 'string',
             # require to trigger load of bar.conf
-            default_keys => ['bar'],
+            default_keys => 'bar',
             cargo => {
                 type       => 'node',
                 config_class_name => 'MultiIniTest::Class'

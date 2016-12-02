@@ -1,9 +1,15 @@
 package Config::Model::HashId;
 
 use Mouse;
+use 5.10.1;
 
 use Config::Model::Exception;
 use Carp;
+
+use Mouse::Util::TypeConstraints;
+
+subtype 'HaskKeyArray' => as 'ArrayRef' ;
+coerce 'HaskKeyArray' => from 'Str' => via { [$_] } ;
 
 use Log::Log4perl qw(get_logger :levels);
 
@@ -22,8 +28,12 @@ has list => (
     }
 );
 
-has [qw/default_keys auto_create_keys/] =>
-    ( is => 'rw', isa => 'ArrayRef', default => sub { []; } );
+has [qw/default_keys auto_create_keys/] => (
+    is => 'rw',
+    isa => 'HaskKeyArray',
+    coerce => 1,
+    default => sub { []; }
+);
 has [qw/morph ordered/] => ( is => 'ro', isa => 'Bool' );
 
 sub BUILD {
