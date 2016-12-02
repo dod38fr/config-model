@@ -1142,7 +1142,7 @@ be used with string index type)
 
 When set, the default parameter (or set of parameters) are used as
 default keys hashes and created automatically when the C<keys> or C<exists>
-functions are used on an I<empty> hash..
+functions are used on an I<empty> hash.
 
 You can use C<< default_keys => 'foo' >>, 
 or C<< default_keys => ['foo', 'bar'] >>.
