@@ -15,6 +15,11 @@ use Scalar::Util qw/weaken/;
 
 extends qw/Config::Model::AnyThing/;
 
+use Mouse::Util::TypeConstraints;
+
+subtype 'KeyArray' => as 'ArrayRef' ;
+coerce 'KeyArray' => from 'Str' => via { [$_] } ;
+
 my $logger = get_logger("Tree::Element::Id");
 my $deep_check_logger = get_logger('DeepCheck');
 my $fix_logger = get_logger("Anything::Fix");
@@ -94,7 +99,12 @@ my @common_hash_params = qw/default_with_init/;
 has \@common_hash_params => ( is => 'ro', isa => 'Maybe[HashRef]' );
 
 my @common_list_params = qw/allow_keys default_keys auto_create_keys/;
-has \@common_list_params => ( is => 'ro', isa => 'Maybe[ArrayRef]' );
+has \@common_list_params => (
+    is => 'ro',
+    isa => 'KeyArray',
+    coerce => 1,
+    default => sub { []; }
+);
 
 my @common_str_params = qw/allow_keys_from allow_keys_matching follow_keys_from
     migrate_keys_from migrate_values_from
