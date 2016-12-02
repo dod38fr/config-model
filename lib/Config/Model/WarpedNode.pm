@@ -1,7 +1,6 @@
 package Config::Model::WarpedNode;
 
 use Mouse;
-with "Config::Model::Role::NodeLoader";
 
 use Carp qw(cluck croak);
 
@@ -13,6 +12,9 @@ use Storable qw/dclone/;
 use Scalar::Util qw/weaken/;
 
 extends qw/Config::Model::AnyThing/;
+
+with "Config::Model::Role::NodeLoader";
+with "Config::Model::Role::Grab";
 
 my $logger = get_logger("Tree::Node::Warped");
 
@@ -385,7 +387,7 @@ Always set to C<warped_node>.
 
 =item follow
 
-L<Grab string|Config::Model::AnyThing/"grab(...)"> leading to the
+L<Grab string|Config::Model::Role::Grab/grab"> leading to the
 C<Config::Model::Value> warp master.
 See L<Config::Model::Warper/"Warp follow argument"> for details.
 

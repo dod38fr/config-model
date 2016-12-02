@@ -14,6 +14,7 @@ use Storable qw/dclone/;
 extends qw/Config::Model::AnyThing/;
 
 with "Config::Model::Role::WarpMaster";
+with "Config::Model::Role::Grab";
 
 my $logger = get_logger("Tree::Element::CheckList");
 
@@ -910,7 +911,7 @@ checklist are available.
 
 This other hash or other checklist is indicated by the C<refer_to> or
 C<computed_refer_to> parameter. C<refer_to> uses the syntax of the
-C<steps> parameter of L<grab(...)|Config::AnyThing/"grab(...)">
+C<steps> parameter of L<grab(...)|Config::Role::Grab/grab">
 
 See L<refer_to parameter|Config::Model::IdElementReference/"refer_to parameter">.
 

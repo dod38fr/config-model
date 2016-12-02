@@ -633,13 +633,13 @@ and C<rules>:
 
 =head2 Warp follow argument
 
-L<Grab string|Config::Model::AnyThing/"grab(...)"> leading to the
+L<Grab string|Config::Model::Role::Grab/grab> leading to the
 C<Config::Model::Value> or L<Config::Model::CheckList> warp master. E.g.:
 
  follow => '! tree_macro' 
 
 In case of several warp master, C<follow> is set to an array ref
-of several L<grab string|Config::Model::AnyThing/"grab(...)">:
+of several L<grab string|Config::Model::Role::Grab/grab>:
 
  follow => [ '! macro1', '- macro2' ]
 
@@ -806,7 +806,7 @@ warp master is an enumerated type)
 When a warped object is created, the constructor registers to the
 warp masters. The warp master are found by using the special string
 passed to the C<follow> parameter. As explained in 
-L<grab method|Config::Model::AnyThing/"grab(...)">,
+L<grab method|Config::Model::Role::Grab/grab>,
 the string provides the location of the warp master in the
 configuration tree using a symbolic form. 
 

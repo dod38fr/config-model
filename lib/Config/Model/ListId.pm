@@ -9,6 +9,8 @@ use Log::Log4perl qw(get_logger :levels);
 use Carp;
 extends qw/Config::Model::AnyId/;
 
+with "Config::Model::Role::Grab";
+
 my $logger = get_logger("Tree::Element::Id::List");
 
 has data => (

@@ -297,7 +297,7 @@ Construction is handled by the calling object (L<Config::Model::Node>).
 C<refer_to> is used to specify a hash element that is used as a
 reference. C<refer_to> points to an array or hash element in the
 configuration tree using the path syntax (See
-L<Config::Model::Node/grab> for details).
+L<Config::Model::Role::Grab/grab> for details).
 
 =item computed_refer_to
 

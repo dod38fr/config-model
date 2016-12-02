@@ -20,6 +20,8 @@ use List::MoreUtils qw(insert_after_string);
 
 extends qw/Config::Model::AnyThing/;
 
+with "Config::Model::Role::Grab";
+
 use vars qw(@status @level %default_property);
 
 *status           = *Config::Model::status;
@@ -1733,18 +1735,17 @@ Returns 1 if the element is known in the model.
 
 Returns 1 if the element is defined.
 
-=head2 grab(...)
+=head2 grab
 
-See L<Config::Model::AnyThing/"grab(...)">.
+See L<Config::Model::Role::Grab/grab">.
 
-=head2 grab_value(...)
+=head2 grab_value
 
-See L<Config::Model::AnyThing/"grab_value(...)">.
+See L<Config::Model::Role::Grab/grab_value">.
 
+=head2 grab_root
 
-=head2 grab_root()
-
-See L<Config::Model::AnyThing/"grab_root()">.
+See L<Config::Model::Role::Grab/"grab_root">.
 
 =head2 get( path => ..., mode => ... ,  check => ... , get_obj => 1|0, autoadd => 1|0)
 

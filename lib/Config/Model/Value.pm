@@ -23,6 +23,7 @@ use List::MoreUtils qw(any) ;
 extends qw/Config::Model::AnyThing/;
 
 with "Config::Model::Role::WarpMaster";
+with "Config::Model::Role::Grab";
 
 my $logger        = get_logger("Tree::Element::Value");
 my $change_logger = get_logger("Anything::Change");
