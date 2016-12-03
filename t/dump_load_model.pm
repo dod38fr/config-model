@@ -118,6 +118,13 @@
                 cargo_type => 'leaf',
                 cargo_args => { value_type => 'string' },
             },
+            ordered_hash_of_node => {
+                type       => 'hash',
+                index_type => 'string',
+                ordered    => 1,
+                cargo_type => 'node',
+                config_class_name => 'SubSlave2',
+            },
             olist => {
                 type              => 'list',
                 cargo_type        => 'node',

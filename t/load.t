@@ -400,6 +400,15 @@ eq_or_diff( [$oh->fetch_all_indexes()],[qw/b a/], "check unsorted keys") ;
 $root->load('ordered_hash:.sort') ;
 eq_or_diff( [$oh->fetch_all_indexes()],[qw/a b/], "check sorted keys") ;
 
+# test insort on ordered hash
+$root->load('ordered_hash:.insort(d,"dv")') ;
+eq_or_diff( [$oh->fetch_all_indexes()],[qw/a b d/], "check sorted keys after insort") ;
+
+# test insort on ordered hash of node
+my $ohon = $root->fetch_element('ordered_hash_of_node');
+$root->load('ordered_hash_of_node:g aa2="g aa2 val" - ordered_hash_of_node:.insort(d) aa2="d aa2 val"');
+eq_or_diff( [$ohon->fetch_all_indexes()],[qw/d g/], "check sorted keys") ;
+
 # test combination of annotation plus load and some utf8
 $step = 'std_id#std_id_note ! std_id:ab#std_id_ab_note X=Bv X#X_note 
       - std_id:bc X=Av X#X2_note '
