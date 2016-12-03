@@ -204,8 +204,12 @@ __END__
 =head1 DESCRIPTION
 
 This module provides an object that read and write annotations (a bit
-like comments) to and from a configuration tree and save them in a file (not
-configuration file)
+like comments) to and from a configuration tree and save them in a
+file (not configuration file). This module can be used to save
+annotation for configuration files that do not support comments.
+
+THis module should not be used for configuration files that support
+comments.
 
 Depending on the effective id of the process, the annotation is
 saved in:
@@ -236,6 +240,10 @@ Save annotations in a file (See L<DESCRIPTION>)
 =head2 load()
 
 Loads annotations from a file (See L<DESCRIPTION>)
+
+=head1 CAVEATS
+
+This module is currently not used.
 
 =head1 AUTHOR
 
