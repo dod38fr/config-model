@@ -368,8 +368,18 @@ $oh->move_after( 'd', 'e' );
 eq_or_diff( [ $oh->fetch_all_indexes ],
     [qw/a z x e d/], "check index order of ordered_hash after move_after(d e)" );
 
+$oh->sort;
+eq_or_diff( [ $oh->fetch_all_indexes ],
+    [qw/a d e x z/], "check index order of ordered_hash after sort" );
+
+$oh->insort('v')->store('v val');
+eq_or_diff( [ $oh->fetch_all_indexes ],
+    [qw/a d e v x z/], "check index order of ordered_hash after insort" );
+is($oh->fetch_with_id('v')->fetch,'v val',"check value entered with insort");
+
 $inst->clear_changes;
 $oh->clear;
+
 is( $inst->needs_save, 1, "verify instance needs_save status after clear" );
 eq_or_diff([$inst->list_changes],['ordered_hash: cleared all entries'],"check change message after clear");
 eq_or_diff( [ $oh->fetch_all_indexes ], [], "check index order of ordered_hash after clear" );
