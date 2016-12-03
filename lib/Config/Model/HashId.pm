@@ -220,6 +220,21 @@ sub sort {
     }
 }
 
+sub insort {
+    my ($self, $id) = @_;
+
+    if ($self->ordered) {
+        my $elt = $self->fetch_with_id($id);
+        $self->_sort;
+        return $elt;
+    }
+    else {
+        Config::Model::Exception::User->throw(
+            object  => $self,
+            message => "cannot call insort on non ordered hash"
+        );
+    }
+}
 
 # hash only method
 sub firstkey {
@@ -538,6 +553,16 @@ Returns the number of elements of the hash.
 =head2 sort
 
 Sort an ordered hash. Throws an error if called on a non ordered hash.
+
+=head2 insort
+
+Parameters: key
+
+Create a new element in the ordered hash while keeping alphabetical order of the keys
+
+Returns the newly created element.
+
+Throws an error if called on a non ordered hash.
 
 =head2 firstkey
 
