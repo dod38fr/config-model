@@ -411,6 +411,12 @@ my %dispatch_action = (
         ':.copy'          => sub { $_[1]->copy( $_[5], $_[6] ); },
         ':.clear'         => sub { $_[1]->clear;},
     },
+    hash_leaf => {
+        ':.insort'        => sub { $_[1]->insort($_[5])->store($_[6]); },
+    },
+    hash_node =>  => {
+        ':.insort'        => \&_insort_hash_of_node,
+    },
     'hash_*' => {
         ':.sort'          => sub { $_[1]->sort; },
         ':@'              => sub { $_[1]->sort; },
@@ -485,6 +491,13 @@ sub _substitute_value {
     }
 
     return 'ok';
+}
+
+sub _insort_hash_of_node {
+    my ( $self, $element, $check, $inst, $cmdref, $id ) = @_;
+    my $node = $element->insort($_[5]);
+    $logger->debug("_insort_hash_of_node: calling _load on node id $id");
+    return $self->_load( $node, $check, $cmdref );
 }
 
 sub _load_list {
@@ -1014,6 +1027,23 @@ Insert C<zz> value on C<xxx> list before B<value> matching C<yy>.
 =item xxx:.insort(zz)
 
 Insert C<zz> value on C<xxx> list so that existing alphanumeric order is preserved.
+
+=item xxx:.insort(zz)
+
+For hash element containing nodes: creates a new hash element with
+C<zz> key on C<xxx> hash so that existing alphanumeric order of keys
+is preserved. Note that all keys are sorted once this instruction is
+called. Following instructions are applied on the created
+element. I.e. putting key order aside, C<xxx:.insort(zz)> has the
+same effect as C<xxx:zz> instruction.
+
+=item xxx:.insort(zz,vv)
+
+For hash element containing leaves: creates a new hash element with
+C<zz> key and assing value C<vv> so that existing alphanumeric order of keys
+is preserved. Note that all keys are sorted once this instruction is
+called. Putting key order aside, C<xxx:.insort(zz,vv)> has the
+same effect as C<xxx:zz=vv> instruction.
 
 =item xxx:=z1,z2,z3
 
