@@ -46,7 +46,11 @@ my $desc_sub = sub {
             if ( $obj->get_type() eq 'node' ) {
                 my $type = $obj->element_type($item);
                 my $elt  = $obj->fetch_element($item);
-                $res .= "element $item (type $type): " . $obj->get_help_as_text($item) . "\n";
+                my $help = $obj->get_help_as_text($item);
+                $res .= "element $item (type $type)";
+                $res .= ": " if $help;
+                $res .= "\n" if $help =~ /\n/ or length($help) > 40 ;
+                $res .= $help  . "\n" if $help;
                 if ( $type eq 'leaf' and $elt->value_type eq 'enum' ) {
                     $res .= "  possible values: " . join( ', ', $elt->get_choice ) . "\n";
                 }
