@@ -401,20 +401,20 @@ sub _load_check_list {
 my %dispatch_action = (
     list_leaf => {
         ':.sort'          => sub { $_[1]->sort; },
-        ':.push'          => sub { $_[1]->push( @_[ 4 .. $#_ ] ); },
-        ':.unshift'       => sub { $_[1]->unshift( @_[ 4 .. $#_ ] ); },
-        ':.insert_at'     => sub { $_[1]->insert_at( @_[ 4 .. $#_ ] ); },
-        ':.insort'        => sub { $_[1]->insort( @_[ 4 .. $#_ ] ); },
+        ':.push'          => sub { $_[1]->push( @_[ 5 .. $#_ ] ); },
+        ':.unshift'       => sub { $_[1]->unshift( @_[ 5 .. $#_ ] ); },
+        ':.insert_at'     => sub { $_[1]->insert_at( @_[ 5 .. $#_ ] ); },
+        ':.insort'        => sub { $_[1]->insort( @_[ 5 .. $#_ ] ); },
         ':.insert_before' => \&_insert_before,
     },
     'list_*' => {
-        ':.copy'          => sub { $_[1]->copy( $_[4], $_[5] ); },
+        ':.copy'          => sub { $_[1]->copy( $_[5], $_[6] ); },
         ':.clear'         => sub { $_[1]->clear;},
     },
     'hash_*' => {
         ':.sort'          => sub { $_[1]->sort; },
         ':@'              => sub { $_[1]->sort; },
-        ':.copy'          => sub { $_[1]->copy( $_[4], $_[5] ); },
+        ':.copy'          => sub { $_[1]->copy( $_[5], $_[6] ); },
         ':.clear'         => sub { $_[1]->clear;},
     },
     leaf => {
@@ -425,7 +425,8 @@ my %dispatch_action = (
     fallback => {
         ':-' => \&_remove_by_id,
         '~'  => \&_remove_by_id,
-    } );
+    }
+);
 
 my @equiv = qw/:@ :.sort :< :.push :> :.unshift/;
 while (@equiv) {
@@ -434,20 +435,20 @@ while (@equiv) {
 }
 
 sub _insert_before {
-    my ( $self, $element, $check, $inst, $before_str, @values ) = @_;
+    my ( $self, $element, $check, $inst, $cmdref, $before_str, @values ) = @_;
     my $before = $before_str =~ m!^/! ? eval "qr$before_str" : $before_str;
     $element->insert_before( $before, @values );
 }
 
 sub _remove_by_id {
-    my ( $self, $element, $check, $inst, $id ) = @_;
-    $logger->debug("_remove_by_id: removing id $id");
+    my ( $self, $element, $check, $inst, $cmdref, $id ) = @_;
+    $logger->debug("_remove_by_id: removing id '$id'");
     $element->remove($id);
     return 'ok';
 }
 
 sub _remove_by_value {
-    my ( $self, $element, $check, $inst, $rm_val ) = @_;
+    my ( $self, $element, $check, $inst, $cmdref, $rm_val ) = @_;
 
     $logger->debug("_remove_by_value value $rm_val");
     foreach my $idx ( $element->fetch_all_indexes ) {
@@ -459,7 +460,7 @@ sub _remove_by_value {
 }
 
 sub _remove_matched_value {
-    my ( $self, $element, $check, $inst, $rm_val ) = @_;
+    my ( $self, $element, $check, $inst, $cmdref, $rm_val ) = @_;
 
     $logger->debug("_remove_matched_value $rm_val");
 
@@ -474,7 +475,7 @@ sub _remove_matched_value {
 }
 
 sub _substitute_value {
-    my ( $self, $element, $check, $inst, $s_val ) = @_;
+    my ( $self, $element, $check, $inst, $cmdref, $s_val ) = @_;
 
     $logger->debug("_substitute_value $s_val");
 
@@ -535,7 +536,7 @@ sub _load_list {
             || $dispatch_action{$cargo_type}{$action}
             || $dispatch_action{'fallback'}{$action};
         if ($dispatch) {
-            $dispatch->( $self, $element, $check, $inst, @f_args );
+            $dispatch->( $self, $element, $check, $inst, $cmdref, @f_args );
             return 'ok';
         }
     }
@@ -651,7 +652,7 @@ sub _load_hash {
             || $dispatch_action{'fallback'}{$action};
         if ($dispatch) {
             # todo missing arguments
-            $dispatch->( $self, $element, $check, $inst, @f_args );
+            $dispatch->( $self, $element, $check, $inst, $cmdref, @f_args );
             return 'ok';
         }
     }
