@@ -73,7 +73,7 @@ foreach my $method (
     qw/fetch_element config_class_name copy_from get_element_name
     has_element is_element_available element_type load
     fetch_element_value get_type get_cargo_type dump_tree
-    describe get_help children get set accept_regexp/
+    describe get_help get_help_as_text children get set accept_regexp/
     ) {
     # to register new methods in package
     no strict "refs";

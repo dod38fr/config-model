@@ -46,7 +46,7 @@ my $desc_sub = sub {
             if ( $obj->get_type() eq 'node' ) {
                 my $type = $obj->element_type($item);
                 my $elt  = $obj->fetch_element($item);
-                $res .= "element $item (type $type): " . $obj->get_help($item) . "\n";
+                $res .= "element $item (type $type): " . $obj->get_help_as_text($item) . "\n";
                 if ( $type eq 'leaf' and $elt->value_type eq 'enum' ) {
                     $res .= "  possible values: " . join( ', ', $elt->get_choice ) . "\n";
                 }
@@ -54,7 +54,7 @@ my $desc_sub = sub {
         }
     }
     else {
-        $res = $obj->get_help();
+        $res = $obj->get_help_as_text();
     }
     return $res;
 };

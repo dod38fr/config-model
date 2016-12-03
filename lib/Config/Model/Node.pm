@@ -21,6 +21,7 @@ use List::MoreUtils qw(insert_after_string);
 extends qw/Config::Model::AnyThing/;
 
 with "Config::Model::Role::Grab";
+with "Config::Model::Role::HelpAsText";
 
 use vars qw(@status @level %default_property);
 
@@ -1074,6 +1075,8 @@ sub copy_from {
     $self->load( step => $dump, check => $check );
 }
 
+# TODO: need Pod::Text attribute -> move that to a role ?
+# to translate Pod description to plain text when help is displayed
 sub get_help {
     my $self = shift;
 

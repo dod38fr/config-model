@@ -35,11 +35,11 @@ sub report {
         if ( defined $value ) {
             my $name = defined $index ? " $element:$index" : $element;
             push @$data_r, $obj->location . " $name = $value";
-            my $desc = $obj->get_help($element);
+            my $desc = $obj->get_help_as_text($element);
             if ( defined $desc and $desc ) {
                 push @$data_r, wrap( "\t", "\t\t", "DESCRIPTION: $desc" );
             }
-            my $effect = $value_obj->get_help($value);
+            my $effect = $value_obj->get_help_as_text($value);
             if ( defined $effect and $effect ) {
                 push @$data_r, wrap( "\t", "\t\t", "SELECTED: $effect" );
             }

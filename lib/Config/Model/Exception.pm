@@ -266,7 +266,7 @@ sub full_message {
     my $msg     = $self->description;
 
     my $location = $obj->name;
-    my $help = $obj->get_help($element) || '';
+    my $help = $obj->get_help_as_text($element) || '';
 
     $msg .= " '$element' in node '$location'.\n";
     $msg .= "\t$help\n";
