@@ -13,7 +13,6 @@ use Text::Diff;
 use File::Path;
 use Log::Log4perl qw(get_logger :levels);
 
-use Config::Model::Annotation;
 use Config::Model::Exception;
 use Config::Model::Node;
 use Config::Model::Loader;
