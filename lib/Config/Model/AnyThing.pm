@@ -198,6 +198,7 @@ sub clear_annotation {
     $self->{annotation} = '';
 }
 
+# may be used (but not yet) to load annotation from perl data file
 sub load_pod_annotation {
     my $self = shift;
     my $pod  = shift;
