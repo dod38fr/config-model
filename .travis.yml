@@ -11,7 +11,9 @@ perl:
 install:
    - cpanm --quiet --notest Dist::Zilla 
    - cpanm --quiet --notest --skip-satisfied MouseX::NativeTraits
+   - cpanm --quiet --notest --skip-satisfied Pod::POM
    - cpanm --quiet --notest --skip-satisfied Pod::Weaver::Section::Support
+   - cpanm --quiet --notest --skip-satisfied Pod::Elemental::Transformer::List
    - "dzil authordeps --missing | cpanm --notest "
    - "dzil listdeps --missing | cpanm --notest "
 
