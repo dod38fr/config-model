@@ -670,6 +670,14 @@ sub _load_hash {
         }
     }
 
+    if (not defined $id) {
+        Config::Model::Exception::Load->throw(
+            object  => $element,
+            command => join( '', @$inst ),
+            error   => qq!Unexpected hash instruction: '$action' or missing id!
+        );
+    }
+
     my $obj = $element->fetch_with_id( index => $id, check => $check );
     $self->_load_note( $obj, $note, $inst, $cmdref );
 
