@@ -186,15 +186,18 @@ sub xpath {
 
 sub annotation {
     my $self = shift;
-    $self->{annotation} = join( "\n", grep ( defined $_, @_ ) )
-        if @_
-        and not $self->instance->preset
-        and not $self->instance->layered;
+    my $old_note = $self->{annotation} || '';
+    if (@_ and not $self->instance->preset and not $self->instance->layered) {
+        my $new = $self->{annotation} = join( "\n", grep ( defined $_, @_ ) );
+        $self->notify_change(note => 'updated annotation') unless $new eq $old_note;
+    }
+
     return $self->{annotation} || '';
 }
 
 sub clear_annotation {
     my $self = shift;
+    $self->notify_change(note => 'deleted annotation') if $self->{annotation};
     $self->{annotation} = '';
 }
 
