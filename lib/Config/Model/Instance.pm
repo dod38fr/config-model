@@ -706,6 +706,12 @@ In scalar context, returns a big string. Useful to print.
 
 Print all changes on STDOUT and return the list of changes.
 
+=head2 clear_changes
+
+Clear list of changes. Note that changes pending in the configuration
+tree is not affected. This clears only the list shown to user. Use
+only for tests.
+
 =head2 has_warning
 
 Returns the number of warning found in the elements of this configuration instance.
