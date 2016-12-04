@@ -15,7 +15,7 @@ install:
    - cpanm --quiet --notest --skip-satisfied Pod::Weaver::Section::Support
    - cpanm --quiet --notest --skip-satisfied Pod::Elemental::Transformer::List
    - "dzil authordeps --missing | cpanm --notest "
-   - "dzil listdeps --missing | cpanm --notest "
+   - "dzil listdeps --missing | grep -v Fuse | cpanm --notest "
 
 script:
   - dzil smoke --release --author
