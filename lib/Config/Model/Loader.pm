@@ -400,28 +400,28 @@ sub _load_check_list {
 # function_args are the arguments passed to the load command
 my %dispatch_action = (
     list_leaf => {
-        ':.sort'          => sub { $_[1]->sort; },
-        ':.push'          => sub { $_[1]->push( @_[ 5 .. $#_ ] ); },
-        ':.unshift'       => sub { $_[1]->unshift( @_[ 5 .. $#_ ] ); },
-        ':.insert_at'     => sub { $_[1]->insert_at( @_[ 5 .. $#_ ] ); },
-        ':.insort'        => sub { $_[1]->insort( @_[ 5 .. $#_ ] ); },
+        ':.sort'          => sub { $_[1]->sort;  return 'ok';},
+        ':.push'          => sub { $_[1]->push( @_[ 5 .. $#_ ] ); return 'ok'; },
+        ':.unshift'       => sub { $_[1]->unshift( @_[ 5 .. $#_ ] ); return 'ok'; },
+        ':.insert_at'     => sub { $_[1]->insert_at( @_[ 5 .. $#_ ] ); return 'ok'; },
+        ':.insort'        => sub { $_[1]->insort( @_[ 5 .. $#_ ] ); return 'ok'; },
         ':.insert_before' => \&_insert_before,
     },
     'list_*' => {
-        ':.copy'          => sub { $_[1]->copy( $_[5], $_[6] ); },
-        ':.clear'         => sub { $_[1]->clear;},
+        ':.copy'          => sub { $_[1]->copy( $_[5], $_[6] ); return 'ok'; },
+        ':.clear'         => sub { $_[1]->clear; return 'ok'; },
     },
     hash_leaf => {
-        ':.insort'        => sub { $_[1]->insort($_[5])->store($_[6]); },
+        ':.insort'        => sub { $_[1]->insort($_[5])->store($_[6]); return 'ok'; },
     },
     hash_node =>  => {
         ':.insort'        => \&_insort_hash_of_node,
     },
     'hash_*' => {
-        ':.sort'          => sub { $_[1]->sort; },
-        ':@'              => sub { $_[1]->sort; },
-        ':.copy'          => sub { $_[1]->copy( $_[5], $_[6] ); },
-        ':.clear'         => sub { $_[1]->clear;},
+        ':.sort'          => sub { $_[1]->sort; return 'ok'; },
+        ':@'              => sub { $_[1]->sort; return 'ok'; },
+        ':.copy'          => sub { $_[1]->copy( $_[5], $_[6] ); return 'ok'; },
+        ':.clear'         => sub { $_[1]->clear; return 'ok';},
     },
     leaf => {
         ':-=' => \&_remove_by_value,
@@ -444,6 +444,7 @@ sub _insert_before {
     my ( $self, $element, $check, $inst, $cmdref, $before_str, @values ) = @_;
     my $before = $before_str =~ m!^/! ? eval "qr$before_str" : $before_str;
     $element->insert_before( $before, @values );
+    return 'ok';
 }
 
 sub _remove_by_id {
@@ -549,8 +550,7 @@ sub _load_list {
             || $dispatch_action{$cargo_type}{$action}
             || $dispatch_action{'fallback'}{$action};
         if ($dispatch) {
-            $dispatch->( $self, $element, $check, $inst, $cmdref, @f_args );
-            return 'ok';
+            return $dispatch->( $self, $element, $check, $inst, $cmdref, @f_args );
         }
     }
 
@@ -665,8 +665,7 @@ sub _load_hash {
             || $dispatch_action{'fallback'}{$action};
         if ($dispatch) {
             # todo missing arguments
-            $dispatch->( $self, $element, $check, $inst, $cmdref, @f_args );
-            return 'ok';
+            return $dispatch->( $self, $element, $check, $inst, $cmdref, @f_args );
         }
     }
 
