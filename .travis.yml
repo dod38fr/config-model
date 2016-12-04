@@ -10,9 +10,10 @@ perl:
 
 install:
    - cpanm --quiet --notest Dist::Zilla 
+   - cpanm --quiet --notest --skip-satisfied MouseX::NativeTraits
+   - cpanm --quiet --notest --skip-satisfied Pod::Weaver::Section::Support
    - "dzil authordeps --missing | cpanm --notest "
    - "dzil listdeps --missing | cpanm --notest "
-   - cpanm --quiet --notest --skip-satisfied MouseX::NativeTraits
 
 script:
   - dzil smoke --release --author
