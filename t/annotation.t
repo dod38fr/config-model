@@ -1,12 +1,13 @@
 # -*- cperl -*-
 
 use ExtUtils::testlib;
-use Test::More tests => 19;
+use Test::More ;
 use Test::Memory::Cycle;
 use Config::Model;
 use Config::Model::Annotation;
 use File::Path;
 use Data::Dumper;
+use 5.10.0;
 
 use warnings;
 no warnings qw(once);
@@ -52,9 +53,14 @@ my $step =
     . '! hash_a:X2=x hash_a:Y2=xy hash_a:toto#"index comment"
         hash_b:X3=xy my_check_list=X2,X3';
 ok( $root->load( step => $step ), "set up data in tree with '$step'" );
+$inst->clear_changes;
 
-my @annotate = map { [ $_ => "$_ annotation" ] }
-    ( 'std_id', 'std_id:bc X', 'my_check_list', 'olist:0', 'olist:2' );
+my @annotate = map
+    { [ $_ => "$_ annotation" ] }
+    (
+        'std_id', 'std_id', # test that 2 saves of same value is tracked once
+        'std_id:bc X', 'my_check_list', 'olist:0', 'olist:2'
+    );
 my %expect = ( 'hash_a:toto' => "index comment", 'olist:1' => 'olist1_comment' );
 
 foreach (@annotate) {
@@ -64,9 +70,17 @@ foreach (@annotate) {
     ok( 1, "set annotation of $l" );
 }
 
+say "pending changes:\n".$inst->list_changes if $trace;
+is( $inst->needs_save, 5, "verify instance needs_save status after storing only annotations" );
+$inst->clear_changes;
+
 is( $root->grab("std_id:ab X")->annotation('to delete'), 'to delete', "test clear annotation" );
 
 is( $root->grab("std_id:ab X")->clear_annotation, '', "test clear annotation" );
+
+say "pending changes:\n".$inst->list_changes if $trace;
+is( $inst->needs_save, 2, "verify instance needs_save status after store/delete annotations" );
+$inst->clear_changes;
 
 my $annotate_saver = Config::Model::Annotation->new(
     config_class_name => 'Master',
@@ -132,4 +146,6 @@ my $h3_ref = $saver2->get_annotation_hash();
 print Dumper ($h3_ref) if $trace;
 is_deeply( $h3_ref, \%expect3, "check loaded annotation data with non-empty tree" );
 
-memory_cycle_ok($model);
+memory_cycle_ok($model, "memory cycles");
+
+done_testing;
