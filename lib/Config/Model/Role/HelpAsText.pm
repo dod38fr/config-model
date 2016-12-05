@@ -6,6 +6,7 @@ use Mouse::Role;
 use strict;
 use warnings;
 use Pod::Text;
+use Pod::Simple 3.23;
 use 5.10.1;
 
 requires('get_help');
@@ -21,6 +22,7 @@ sub get_help_as_text {
         nourls => 1,
     );
 
+    # require Pod::Simple 3.23
     $parser->parse_characters('utf8');
 
     my $output = '';
