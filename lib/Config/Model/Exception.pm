@@ -35,6 +35,7 @@ has  object => ( is => 'rw', isa => 'Ref') ;
 has  info => (is => 'rw', isa =>'Str', default => '');
 has  message => (is => 'rw', isa =>'Str', default => '');
 has  error => (is => 'rw', isa =>'Str', default => '');
+has  trace => (is => 'rw', isa =>'Str', default => '');
 
 # without this overload, a test like if ($@) invokes '""' overload
 sub is_error { return ref ($_[0])}
@@ -52,7 +53,12 @@ sub error_or_msg {
 sub throw {
     my $class = shift;
     my $self = $class->new(@_);
-    $self->rethrow;
+    # when an exception is thrown, caught and rethrown, the first full
+    # trace (provided by longmess) is clobbered by a second, shorter
+    # trace (also provided by longmess). To avoid that, the first
+    # trace must be  stored.
+    $self->trace($trace ? longmess : '') ;
+    die $self;
 }
 
 sub rethrow {
@@ -61,8 +67,9 @@ sub rethrow {
 }
 
 sub full_msg_and_trace {
-    my $msg = shift->full_message;
-    $msg .= "Exception thrown ".longmess if $trace;
+    my $self = shift;
+    my $msg = $self->full_message;
+    $msg .= $self->trace;
     return $msg;
 }
 
