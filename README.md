@@ -1,3 +1,9 @@
+# Config-Model
+
+Configuration schema on steroids.
+
+[![](https://travis-ci.org/dod38fr/config-model.svg?branch=master)](https://travis-ci.org/dod38fr/config-model)
+
 # What is Config-Model project
 
 [Config::Model](https://metacpan.org/pod/Config::Model) is:
