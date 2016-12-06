@@ -1,5 +1,21 @@
 {{$NEXT}}
 
+2.095 2016-12-06
+
+  New feature usable by cme:
+    * loader: add .insort() command for hash element
+    * Hash element: add insort method
+
+  Term UI improvement
+    * better format the output of 'desc' command (transform
+      pod doc to text). This requires Pod::Text and
+      Pod::Simple 3.23
+
+  Bug fix:
+    * track and save annotation changes (gh #12)
+    * Node: propagate check override in init() (which fixes
+      loading of a systemd config that contains an error)
+
 2.094 2016-11-09
 
   Fix compatibility with older Term::ReadLine::Gnu:
