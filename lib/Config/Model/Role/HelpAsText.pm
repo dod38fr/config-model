@@ -44,7 +44,7 @@ __END__
 
 =head1 DESCRIPTION
 
-Role used to translate Config::Model help text or description from pod
+Role used to transform Config::Model help text or description from pod
 to text. The provided method should be used when the help text should
 be displayed on STDOUT.
 
@@ -55,7 +55,7 @@ L<Pod::Text> is not so easy.
 
 =head2 get_help_as_text
 
-Calls C<get_help> and tranlate the output to text.
+Calls C<get_help> and transform the Pod output to text.
 
 =head2 SEE ALSO
 
