@@ -3,6 +3,7 @@
 Configuration schema on steroids.
 
 [![](https://travis-ci.org/dod38fr/config-model.svg?branch=master)](https://travis-ci.org/dod38fr/config-model)
+[![](https://badges.gitter.im/dod38fr/config-model.svg)](https://gitter.im/dod38fr/config-model?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 # What is Config-Model project
 
