@@ -2488,6 +2488,8 @@ In alphabetical order:
 
   Mathieu Arnold
 
+  Mohammad S Anwar
+
 =head1 LICENSE
 
     Copyright (c) 2005-2016 Dominique Dumont.
