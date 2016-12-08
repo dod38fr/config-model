@@ -506,7 +506,7 @@ sub get_element_names {
     my $type       = $args{type};              # optional
     my $cargo_type = $args{cargo_type};        # optional
 
-    $self->init;
+    $self->init(check => $args{check});
 
     my @result;
 
@@ -1023,14 +1023,16 @@ sub load_data {
 
 sub dump_tree {
     my $self = shift;
-    $self->init;
+    my %args = @_;
+    $self->init(check => $args{check});
     my $dumper = Config::Model::Dumper->new;
     $dumper->dump_tree( node => $self, @_ );
 }
 
 sub migrate {
     my $self = shift;
-    $self->init;
+    my %args = @_;
+    $self->init(check => $args{check});
     Config::Model::Dumper->new->dump_tree( node => $self, mode => 'full', @_ );
 
     return $self->needs_save;
@@ -1038,14 +1040,16 @@ sub migrate {
 
 sub dump_annotations_as_pod {
     my $self = shift;
-    $self->init;
+    my %args = @_;
+    $self->init(check => $args{check});
     my $dumper = Config::Model::DumpAsData->new;
     $dumper->dump_annotations_as_pod( node => $self, @_ );
 }
 
 sub describe {
     my $self = shift;
-    $self->init;
+    my %args = @_;
+    $self->init(check => $args{check});
 
     my $descriptor = Config::Model::Describe->new;
     $descriptor->describe( node => $self, @_ );
@@ -1053,14 +1057,16 @@ sub describe {
 
 sub report {
     my $self = shift;
-    $self->init;
+    my %args = @_;
+    $self->init(check => $args{check});
     my $reporter = Config::Model::Report->new;
     $reporter->report( node => $self );
 }
 
 sub audit {
     my $self = shift;
-    $self->init;
+    my %args = @_;
+    $self->init(check => $args{check});
     my $reporter = Config::Model::Report->new;
     $reporter->report( node => $self, audit => 1 );
 }
