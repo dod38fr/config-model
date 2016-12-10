@@ -22,6 +22,9 @@ sub describe {
 
     my $element = delete $args{element} ;        # optional
     my $pattern = delete $args{pattern} ;        # optional
+    my $hide_empty = delete $args{hide_empty} // 0 ; # optional
+
+    my $show_empty = ! $hide_empty ;
 
     my $tag_name = sub {
         $_[1] .= ' /!\\' if $_[0]->has_warning;
@@ -38,6 +41,9 @@ sub describe {
         my ( $scanner, $data_r, $obj, $element, $index, $value_obj ) = @_;
 
         my $value = $value_obj->fetch( check => $check );
+
+        return unless $show_empty or (defined $value and length($value));
+
         $value = '"' . $value . '"' if defined $value and $value =~ /\s/;
 
         #print "DEBUG: std_cb on $element, idx $index, value $value\n";
@@ -69,8 +75,9 @@ sub describe {
             push @$data_r, [ $element, "<$class_name>", 'node list', "indexes: @show_keys" ];
         }
         else {
+            my @values = grep {  $show_empty or length } $list_obj->fetch_all_values( check => 'no' ) ;
             push @$data_r,
-                [ $element, 'list', join( ',', $list_obj->fetch_all_values( check => 'no' ) ), '' ];
+                [ $element, 'list', join( ',', @values ), '' ] if ($show_empty or @values);
         }
     };
 
@@ -79,7 +86,8 @@ sub describe {
 
         my $list_obj = $obj->fetch_element($element);
         $tag_name->($list_obj,$element);
-        push @$data_r, [ $element, 'check_list', join( ',', $list_obj->get_checked_list ), '' ];
+        my @checked = $list_obj->get_checked_list;
+        push @$data_r, [ $element, 'check_list', join( ',', @checked ), '' ] if $show_empty or @checked;
     };
 
     my $hash_element_cb = sub {
@@ -100,7 +108,7 @@ sub describe {
             map { $scanner->scan_hash( $data_r, $obj, $element, $_ ) } @keys;
         }
         else {
-            push @$data_r, [ $element, 'value hash', "[empty hash]",  "" ];
+            push @$data_r, [ $element, 'value hash', "[empty hash]",  "" ] if $show_empty;
         }
     };
 
@@ -247,7 +255,7 @@ L<Config::Model::Node>.
 
 =head1 Methods
 
-=head2 describe(...)
+=head2 describe
 
 Return a description string.
 
@@ -269,6 +277,10 @@ described if omitted.
 Describe the element matching the regexp ref. Example:
 
  describe => ( pattern => qr/^foo/ )
+
+=item hide_empty
+
+Boolean. Whether to hide empty value (i.e. C<undef> or C<''>) or not. Default is false.
 
 =back
 
