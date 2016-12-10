@@ -51,7 +51,7 @@ ok( $root, "Config root created" );
 my $step =
       'std_id:ab X=Bv - std_id:bc X=Av - a_string="toto tata" '
     . 'hash_a:toto=toto_value hash_a:titi=titi_value '
-    . 'lista=a,b,c,d olist:0 X=Av - olist:1 X=Bv - listb=b,c,d '
+    . 'lista=a,b,c,d olist:0 X=Av - olist:1 X=Bv - '
     . 'list_with_warn_duplicates=foo,bar,foo '
     . 'my_check_list=toto my_reference="titi"';
 
@@ -69,7 +69,7 @@ name             type         value                comment
 ----------------------------------------------------------------------------------
 std_id           node hash    <SlaveZ>             keys: "ab" "bc"
 lista            list         a,b,c,d
-listb            list         b,c,d
+listb            list
 hash_a:titi      string       titi_value
 hash_a:toto      string       toto_value
 hash_b           value hash   [empty hash]
@@ -88,6 +88,30 @@ list_with_warn_duplicates /!\ list         foo,bar,foo
 EOF
 
 is( $description, $expect, "check root description " );
+$description = $root->describe(hide_empty => 1);
+$description =~ s/\s*\n/\n/g;
+print "description string:\n$description" if $trace;
+
+$expect = <<'EOF' ;
+name             type         value                comment
+----------------------------------------------------------------------------------
+std_id           node hash    <SlaveZ>             keys: "ab" "bc"
+lista            list         a,b,c,d
+hash_a:titi      string       titi_value
+hash_a:toto      string       toto_value
+olist            <SlaveZ>     node list            indexes: 0 1
+warp             node         <SlaveY>
+slave_y          node         <SlaveY>
+string_with_def  string       "yada yada"
+a_uniline        uniline      "yada yada"
+a_string         string       "toto tata"          mandatory
+int_v            integer      10
+my_check_list    check_list   toto
+my_reference     reference    titi
+list_with_warn_duplicates /!\ list         foo,bar,foo
+EOF
+
+is( $description, $expect, "check root description without empty values" );
 
 $description = $root->grab('std_id:ab')->describe();
 $description =~ s/\s*\n/\n/g;
@@ -102,6 +126,19 @@ DX               enum         Dv                   choice: Av Bv Cv Dv
 EOF
 
 is( $description, $expect, "check std_id:ab description " );
+
+$description = $root->grab('std_id:ab')->describe(hide_empty => 1);
+$description =~ s/\s*\n/\n/g;
+print "description string:\n$description" if $trace;
+
+$expect = <<'EOF' ;
+name             type         value                comment
+----------------------------------------------------------------------------------
+X                enum         Bv                   choice: Av Bv Cv
+DX               enum         Dv                   choice: Av Bv Cv Dv
+EOF
+
+is( $description, $expect, "check std_id:ab description without empty values" );
 
 $expect = <<'EOF' ;
 name             type         value                comment
