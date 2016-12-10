@@ -84,9 +84,10 @@ my @test = (
     [ 'ls hash*', 'hash_a hash_b', $expected_prompt],
     [
         'll hash*',
-        "name value type comment \n"
-        ."hash_a [empty hash] value hash \n"
-        ."hash_b [empty hash] value hash \n",
+        "name type value comment \n"
+        . '-' x 82 . "\n"
+        ."hash_a value hash [empty hash] \n"
+        ."hash_b value hash [empty hash] \n",
         $expected_prompt
     ],
     [ 'set a_string="some value with space"', "",   $expected_prompt ],

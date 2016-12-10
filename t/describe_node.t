@@ -65,25 +65,26 @@ $description =~ s/\s*\n/\n/g;
 print "description string:\n$description" if $trace;
 
 my $expect = <<'EOF' ;
-name         value        type         comment
-std_id       <SlaveZ>     node hash    keys: "ab" "bc"
-lista        a,b,c,d      list
-listb        b,c,d        list
-hash_a:titi  titi_value   string
-hash_a:toto  toto_value   string
-hash_b       [empty hash] value hash
-ordered_hash [empty hash] value hash
-olist        <SlaveZ>     node list    indexes: 0 1
-tree_macro   [undef]      enum         choice: XY XZ mXY
-warp         <SlaveY>     node
-slave_y      <SlaveY>     node
-string_with_def "yada yada"  string
-a_uniline    "yada yada"  uniline
-a_string     "toto tata"  string       mandatory
-int_v        10           integer
-my_check_list toto         check_list
-my_reference titi         reference
-list_with_warn_duplicates /!\ foo,bar,foo  list
+name             type         value                comment
+----------------------------------------------------------------------------------
+std_id           node hash    <SlaveZ>             keys: "ab" "bc"
+lista            list         a,b,c,d
+listb            list         b,c,d
+hash_a:titi      string       titi_value
+hash_a:toto      string       toto_value
+hash_b           value hash   [empty hash]
+ordered_hash     value hash   [empty hash]
+olist            <SlaveZ>     node list            indexes: 0 1
+tree_macro       enum         [undef]              choice: XY XZ mXY
+warp             node         <SlaveY>
+slave_y          node         <SlaveY>
+string_with_def  string       "yada yada"
+a_uniline        uniline      "yada yada"
+a_string         string       "toto tata"          mandatory
+int_v            integer      10
+my_check_list    check_list   toto
+my_reference     reference    titi
+list_with_warn_duplicates /!\ list         foo,bar,foo
 EOF
 
 is( $description, $expect, "check root description " );
@@ -93,17 +94,19 @@ $description =~ s/\s*\n/\n/g;
 print "description string:\n$description" if $trace;
 
 $expect = <<'EOF' ;
-name         value        type         comment
-Z            [undef]      enum         choice: Av Bv Cv
-X            Bv           enum         choice: Av Bv Cv
-DX           Dv           enum         choice: Av Bv Cv Dv
+name             type         value                comment
+----------------------------------------------------------------------------------
+Z                enum         [undef]              choice: Av Bv Cv
+X                enum         Bv                   choice: Av Bv Cv
+DX               enum         Dv                   choice: Av Bv Cv Dv
 EOF
 
 is( $description, $expect, "check std_id:ab description " );
 
 $expect = <<'EOF' ;
-name         value        type         comment
-std_id       <SlaveZ>     node hash    keys: "ab" "bc"
+name             type         value                comment
+----------------------------------------------------------------------------------
+std_id           node hash    <SlaveZ>             keys: "ab" "bc"
 EOF
 
 $description = $root->describe( element => 'std_id' );
@@ -112,10 +115,11 @@ print "description string:\n$description" if $trace;
 is( $description, $expect, "check root description of std_id" );
 
 $expect = <<'EOF' ;
-name         value        type         comment
-hash_a:titi  titi_value   string
-hash_a:toto  toto_value   string
-hash_b       [empty hash] value hash
+name             type         value                comment
+----------------------------------------------------------------------------------
+hash_a:titi      string       titi_value
+hash_a:toto      string       toto_value
+hash_b           value hash   [empty hash]
 EOF
 
 $description = $root->describe( pattern => qr/^hash_/ );

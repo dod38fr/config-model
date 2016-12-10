@@ -52,7 +52,7 @@ sub describe {
         push @comment, 'mandatory' if $value_obj->mandatory;
 
         $tag_name->($value_obj,$element);
-        push @$data_r, [ $name, $value, $type, join( ', ', @comment ) ];
+        push @$data_r, [ $name, $type, $value, join( ', ', @comment ) ];
     };
 
     my $list_element_cb = sub {
@@ -70,7 +70,7 @@ sub describe {
         }
         else {
             push @$data_r,
-                [ $element, join( ',', $list_obj->fetch_all_values( check => 'no' ) ), 'list', '' ];
+                [ $element, 'list', join( ',', $list_obj->fetch_all_values( check => 'no' ) ), '' ];
         }
     };
 
@@ -79,7 +79,7 @@ sub describe {
 
         my $list_obj = $obj->fetch_element($element);
         $tag_name->($list_obj,$element);
-        push @$data_r, [ $element, join( ',', $list_obj->get_checked_list ), 'check_list', '' ];
+        push @$data_r, [ $element, 'check_list', join( ',', $list_obj->get_checked_list ), '' ];
     };
 
     my $hash_element_cb = sub {
@@ -94,13 +94,13 @@ sub describe {
             my $class_name = $hash_obj->config_class_name;
             my @show_keys  = @keys ? map { qq("$_") } @keys : ('<empty>');
             my $show_str   = "keys: @show_keys";
-            push @$data_r, [ $element, "<$class_name>", 'node hash', $show_str ];
+            push @$data_r, [ $element, 'node hash', "<$class_name>", $show_str ];
         }
         elsif (@keys) {
             map { $scanner->scan_hash( $data_r, $obj, $element, $_ ) } @keys;
         }
         else {
-            push @$data_r, [ $element, "[empty hash]", 'value hash', "" ];
+            push @$data_r, [ $element, 'value hash', "[empty hash]",  "" ];
         }
     };
 
@@ -111,7 +111,7 @@ sub describe {
         my $type = $obj->element_type($element);
 
         my $class_name = $next->config_class_name;
-        push @$data_r, [ $element, "<$class_name>", 'node', '' ];
+        push @$data_r, [ $element, 'node', "<$class_name>", '' ];
 
         #$ret .= ":$key" if $type eq 'list' or $type eq 'hash';
 
@@ -135,10 +135,7 @@ sub describe {
     # perform the scan
     my $view_scanner = Config::Model::ObjTreeScanner->new(@scan_args);
 
-    my $format = "%-12s %-12s %-12s %-35s\n";
-
-    my @ret = [qw/name value type comment/];
-
+    my @ret;
     if ( defined $element and $desc_node->has_element($element) ) {
         $view_scanner->scan_element( \@ret, $desc_node, $element );
     }
@@ -154,7 +151,16 @@ sub describe {
         $view_scanner->scan_node( \@ret, $desc_node );
     }
 
-    return join '', map { sprintf( $format, @$_ ) } @ret;
+    my $format = "%-16s %-12s %-20s %-35s\n";
+
+    my @header = [];
+    my @show = (
+        sprintf( $format, qw/name type value comment/ ) ,
+        '-' x 82 . "\n",
+        map { sprintf( $format, @$_ ) } @ret
+    );
+
+    return join ('', @show );
 }
 
 1;
@@ -210,10 +216,10 @@ __END__
  print $root->describe ;
 
  ### prints
- # name         value        type         comment
- # foo          FOO          string
- # bar          [undef]      string
- # hash_of_nodes <Foo>        node hash    keys: "en" "fr"
+ # name          type       value          comment
+ # foo           string     FOO
+ # bar           string     [undef]
+ # hash_of_nodes node hash  <Foo>          keys: "en" "fr"
 
 =head1 DESCRIPTION
 
@@ -223,12 +229,12 @@ shows the content of a configuration node.
 
 For instance (as shown by C<fstab> example:
 
- name         value        type         comment
- fs_spec      [undef]      string       mandatory
- fs_vfstype   [undef]      enum         choice: auto davfs ext2 ext3 swap proc iso9660 vfat ignore, mandatory
- fs_file      [undef]      string       mandatory
- fs_freq      0            boolean
- fs_passno    0            integer
+ name         type         value        comment
+ fs_spec      string       [undef]      mandatory
+ fs_vfstype   enum         [undef]      choice: auto davfs ext2 ext3 swap proc iso9660 vfat ignore, mandatory
+ fs_file      string       [undef]      mandatory
+ fs_freq      boolean      0
+ fs_passno    integer      0
 
 This module is also used by the C<ll> command of L<Config::Model::TermUI>.
 
