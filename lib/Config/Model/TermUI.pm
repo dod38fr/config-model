@@ -37,6 +37,15 @@ my $fix_completion_sub = sub {
     return @ret;
 };
 
+my $ll_completion_sub = sub {
+    my ( $self, $text, $line, $start ) = @_;
+
+    my @choice = $self->{current_node}->get_element_name;
+    push @choice, '-nz';
+    my @ret = grep( /^$text/, @choice );
+    return @ret;
+};
+
 # BUG: When doing autocompletion on a hash element with an index
 # containing white space (i.e. something like std_id:"abc def",
 # readline's completion insists on adding a white space after :
@@ -101,7 +110,7 @@ my $cd_completion_sub = sub {
 my %completion_dispatch = (
     cd     => $cd_completion_sub,
     desc   => $completion_sub,
-    ll     => $completion_sub,
+    ll     => $ll_completion_sub,
     ls     => $completion_sub,
     check  => $completion_sub,
     fix    => $fix_completion_sub,
