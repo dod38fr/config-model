@@ -6,6 +6,7 @@ use strict;
 use warnings;
 use open      qw(:std :utf8);    # undeclared streams in UTF-8
 use Encode qw(decode_utf8);
+use Regexp::Common qw/delimited/;
 
 my $syntax = '
 cd <elt> cd <elt:key>, cd - , cd !
@@ -20,8 +21,11 @@ delete elt
    -> like reset, delete a value (set to undef)
 display elt elt:key
    -> display a value
-ls -> show elements of current node
-ll -> show elements of current node and their value
+ls -> show elements of current node (args: filter pattern)
+ll [-nz] [ element | pattern ]
+   -> show elements of current node and their value
+     (option -nz: hide empty value)
+     (args: element name or filter pattern)
 tree -> show configuration tree from current node
 help -> show available command
 desc[ription] -> show class desc of current node
@@ -65,19 +69,21 @@ my $desc_sub = sub {
 
 my $ll_sub = sub {
     my $self = shift;
-    my $elt  = shift ;
-    my $opt  = shift;
+    my @raw_args = @_;
+
+    my @desc_opt = qw/check no/;
+
+    my @opt = grep {/^-/} @raw_args;
+    push @desc_opt, hide_empty => 1 if ( @opt and $opt[0] eq '-nz' );
+
+    my @args = grep {! /^-/ } @raw_args;
+    push @args, '*' unless @args; # default action is to list all elements
 
     my $obj = $self->{current_node};
-    my $res ;
-    if (defined $elt and $elt =~ /\*/) {
-        $elt =~ s/\*/.*/g;
-        $res = $obj->describe( pattern => qr/^$elt$/, check => 'no' );
-    }
-    else {
-        $res = $obj->describe( element => $elt, check => 'no' );
-    }
-    return $res;
+    map {s/\*/.*/g;} @args ;
+    my $pattern = join ('|',@args);
+
+    return $obj->describe( pattern => qr/^$pattern$/, @desc_opt );
 };
 
 my $cd_sub = sub {
@@ -276,13 +282,11 @@ sub run {
 
     return '' unless $user_cmd =~ /\w/;
 
-    $user_cmd =~ s/^\s+//;
-
-    my ( $action, $args ) = split( m/\s+/, $user_cmd, 2 );
-    $args =~ s/\s+$//g if defined $args;    #cleanup
+    my $re = $RE{delimited}{-delim=>q{'"}};
+    my ( $action, @args ) = ( $user_cmd =~ /((?:[^\s"']|$re)+)/g );
 
     if ( defined $run_dispatch{$action} ) {
-        my $res = eval { $run_dispatch{$action}->( $self, $args ); };
+        my $res = eval { $run_dispatch{$action}->( $self, @args ); };
         print $@ if $@;
         return $res;
     }
@@ -444,13 +448,14 @@ Delete a list or hash element
 
 Display a value
 
-=item ls | ls foo*
+=item ls [ pattern ]
 
 Show elements of current node. Can be used with a shell pattern.
 
-=item ll | ll foo*
+=item ll [ -nz ] [ pattern ... ]
 
-Describe elements of current node. Can be used with a shell pattern.
+Describe elements of current node. Can be used with shell patterns or element names.
+Skip empty element with C<-nz> option.
 
 =item tree
 
