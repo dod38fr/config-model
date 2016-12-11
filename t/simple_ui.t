@@ -10,6 +10,8 @@ use warnings;
 no warnings qw(once);
 
 use strict;
+use utf8;
+use open      qw(:std :utf8);    # undeclared streams in UTF-8
 
 use Data::Dumper;
 
@@ -84,10 +86,10 @@ my @test = (
     [ 'ls hash*', 'hash_a hash_b', $expected_prompt],
     [
         'll hash*',
-        "name type value comment \n"
-        . '-' x 82 . "\n"
-        ."hash_a value hash [empty hash] \n"
-        ."hash_b value hash [empty hash] \n",
+        "name   │ type       │ value       \n".
+        "───────┼────────────┼─────────────\n".
+        "hash_a │ value hash │ [empty hash]\n".
+        "hash_b │ value hash │ [empty hash]\n",
         $expected_prompt
     ],
     [ 'set a_string="some value with space"', "",   $expected_prompt ],
@@ -102,7 +104,6 @@ foreach my $a_test (@test) {
     my ( $cmd, $expect, $expect_prompt ) = @$a_test;
 
     my $res = $ui->run($cmd);
-    $res =~ s/ +/ /g;
     is($res , $expect, "exec $cmd" );
 
     is( $ui->prompt, $expect_prompt, "test prompt is $expect_prompt" );

@@ -7,6 +7,8 @@ use warnings;
 
 use Config::Model::Exception;
 use Config::Model::ObjTreeScanner;
+use List::Util qw/max/;
+use utf8;
 
 sub new {
     bless {}, shift;
@@ -20,14 +22,15 @@ sub describe {
         || croak "describe: missing 'node' parameter";
     my $check = delete $args{check} || 'yes';
 
-    my $element = delete $args{element} ;        # optional
-    my $pattern = delete $args{pattern} ;        # optional
+    my $element    = delete $args{element} ;        # optional
+    my $pattern    = delete $args{pattern} ;        # optional
     my $hide_empty = delete $args{hide_empty} // 0 ; # optional
+    my $verbose    = delete $args{verbose}    // 0 ; # optional
 
     my $show_empty = ! $hide_empty ;
 
     my $tag_name = sub {
-        $_[1] .= ' /!\\' if $_[0]->has_warning;
+        $_[1] .= ' ⚠' if $_[0]->has_warning;
     };
 
     my $my_content_cb = sub {
@@ -159,14 +162,29 @@ sub describe {
         $view_scanner->scan_node( \@ret, $desc_node );
     }
 
-    my $format = "%-16s %-12s %-20s %-35s\n";
+    my @header = qw/name type value/;
+    my $name_length  = max map { length($_->[0]) } (@ret, \@header );
+    my $type_length  = max map { length($_->[1]) } (@ret, \@header );
+    my $value_length = max map { length($_->[2]) } (@ret, \@header );
+    my $sep_length = $name_length + $type_length + $value_length + 4 ;
+    my @format = ("%-${name_length}s", "%-${type_length}s", "%-${value_length}s") ;
 
-    my @header = [];
-    my @show = (
-        sprintf( $format, qw/name type value comment/ ) ,
-        '-' x 82 . "\n",
-        map { sprintf( $format, @$_ ) } @ret
-    );
+    my @show ;
+    if ($verbose) {
+        push @format, "%-35s";
+        @show = (
+            sprintf( join(" │ ", @format)."\n", qw/name type value comment/) ,
+            sprintf( join("─┼─", @format)."\n", '─' x $name_length,'─' x $type_length,'─' x $value_length,'─' x 20, ) ,
+            map { sprintf( join(" │ ", @format)."\n", @$_ ) } @ret
+        );
+    }
+    else {
+        @show = (
+            sprintf( join(" │ ", @format)."\n", qw/name type value/) ,
+            sprintf( join("─┼─", @format)."\n", '─' x $name_length,'─' x $type_length,'─' x $value_length ) ,
+            map { sprintf( join(" │ ", @format)."\n", @$_[0,1,2] ) } @ret
+        );
+    }
 
     return join ('', @show );
 }
@@ -281,6 +299,10 @@ Describe the element matching the regexp ref. Example:
 =item hide_empty
 
 Boolean. Whether to hide empty value (i.e. C<undef> or C<''>) or not. Default is false.
+
+=item verbose
+
+Boolean. Display more information with each element. Default is false.
 
 =back
 
