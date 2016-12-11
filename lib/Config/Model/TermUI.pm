@@ -46,12 +46,8 @@ my $ll_completion_sub = sub {
     return @ret;
 };
 
-# BUG: When doing autocompletion on a hash element with an index
+# BUG: autocompletion does not really on a hash element with an index
 # containing white space (i.e. something like std_id:"abc def",
-# readline's completion insists on adding a white space after :
-# i.e. the run command tries 'std_id: "abd def"' . This fails.  The
-# problem probably revolves around setting a readline variable like
-# rl_completer_word_break_characters, but I do not know which one.
 
 my $cd_completion_sub = sub {
     my ( $self, $text, $line, $start ) = @_;
@@ -91,11 +87,11 @@ my $cd_completion_sub = sub {
             foreach my $idx ( $new_item->fetch_element($elt_name)->fetch_all_indexes ) {
                 # my ($idx) = ($raw_idx =~ /([^\n]{1,40})/ );
                 # $idx .= '...' unless $raw_idx eq $idx ;
-                push @choice, "$elt_name:" . ($idx =~ /[^\w._-]/ ? qq("$idx") : $idx ). ' ';
+                push @choice, "$elt_name:" . ($idx =~ /[^\w._-]/ ? qq("$idx") : $idx );
             }
         }
         else {
-            push @choice, "$elt_name ";
+            push @choice, $elt_name;
         }
     }
 

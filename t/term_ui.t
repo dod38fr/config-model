@@ -82,20 +82,20 @@ if ($arg =~ /i/) {
     exit;
 }
 
-my @std_id_list = ('std_id:','std_id:ab ','std_id:"abc def" ' ,'std_id:"abc hij" ', 'std_id:bc ') ;
+my @std_id_list = ('std_id:','std_id:ab','std_id:"abc def"' ,'std_id:"abc hij"', 'std_id:bc') ;
 my @test = (    # text line start ## expected completions
     [
         [ '', '', 0 ],
         [qw/cd changes check clear delete desc description display dump fix help ll ls reset save set tree/]
     ],
-    [ [ '', 'cd ', 3 ], [ '!', '-', @std_id_list , 'olist:', 'warp ', 'slave_y ' ] ],
-    [ [ 's', 'cd s', 3 ], [  @std_id_list, 'slave_y ' ] ],
-    [ [ 'sl', 'cd sl',       3 ],  ['slave_y '] ],
+    [ [ '', 'cd ', 3 ], [ '!', '-', @std_id_list , 'olist:', 'warp','slave_y' ] ],
+    [ [ 's', 'cd s', 3 ], [  @std_id_list, 'slave_y' ] ],
+    [ [ 'sl', 'cd sl',       3 ],  ['slave_y'] ],
     [ [ 'std_id:',   'cd std_id:',  10 ], \@std_id_list ],
-    [ [ 'std_id:"',   'cd std_id:"', 11 ], ['std_id:"abc def" ' ,'std_id:"abc hij" '  ] ],
+    [ [ 'std_id:"',   'cd std_id:"', 11 ], ['std_id:"abc def"' ,'std_id:"abc hij"'  ] ],
 
-    [ [ 'std_id:"abc', 'cd std_id:"abc',14 ], ['std_id:"abc def" ' ,'std_id:"abc hij" ' ] ],
-    [ [ 'std_id:a', 'cd std_id:a', 3 ], ['std_id:ab '] ],
+    [ [ 'std_id:"abc', 'cd std_id:"abc',14 ], ['std_id:"abc def"' ,'std_id:"abc hij"' ] ],
+    [ [ 'std_id:a', 'cd std_id:a', 3 ], ['std_id:ab'] ],
     [ [ '', 'fix ', 4 ], ['std_id', 'lista', 'listb', 'hash_a', 'hash_b', 'ordered_hash', 'olist', 'tree_macro', 'warp', 'slave_y', 'string_with_def', 'a_uniline', 'a_string', 'int_v', 'my_check_list', 'my_reference', '!']
   ],
 );
