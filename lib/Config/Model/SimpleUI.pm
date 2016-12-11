@@ -22,9 +22,9 @@ delete elt
 display elt elt:key
    -> display a value
 ls -> show elements of current node (args: filter pattern)
-ll [-nz] [ element | pattern ]
+ll [-nz] [-v] [ element | pattern ]
    -> show elements of current node and their value
-     (option -nz: hide empty value)
+     (options: -nz → hides empty value, -v → verbose)
      (args: element name or filter pattern)
 tree -> show configuration tree from current node
 help -> show available command
@@ -73,8 +73,9 @@ my $ll_sub = sub {
 
     my @desc_opt = qw/check no/;
 
-    my @opt = grep {/^-/} @raw_args;
-    push @desc_opt, hide_empty => 1 if ( @opt and $opt[0] eq '-nz' );
+    my %opt = map { /^-(\w+)/; $1 => 1 } grep { /^-/ } @raw_args;
+    push @desc_opt, hide_empty => 1 if $opt{nz} ;
+    push @desc_opt, verbose    => 1 if $opt{v} ;
 
     my @args = grep {! /^-/ } @raw_args;
     push @args, '*' unless @args; # default action is to list all elements
@@ -452,10 +453,10 @@ Display a value
 
 Show elements of current node. Can be used with a shell pattern.
 
-=item ll [ -nz ] [ pattern ... ]
+=item ll [-nz] [-v] [ pattern ... ]
 
 Describe elements of current node. Can be used with shell patterns or element names.
-Skip empty element with C<-nz> option.
+Skip empty element with C<-nz> option. Display more information with C<-v> option
 
 =item tree
 
