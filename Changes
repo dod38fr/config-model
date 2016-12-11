@@ -1,5 +1,23 @@
 {{$NEXT}}
 
+2.096 2016-12-11
+
+  Term UI improvement
+    * fix  autocompletion of 'cd' command
+    * add -nz and -v option to ll command
+    * ll command accept several patterns
+    * improved ll output
+
+  Bug fix:
+    * show complete stack trace of rethrown exceptions
+    * Node: propagate check param when calling init
+      (which fix cme's -force option)
+
+  Build:
+    * dist.ini Add missing prereq 'parent' as plugin
+      [AutoPrereqs] missed it (Mohammad S Anwar++)
+    * new dependencies: List::Util Regexp::Common
+
 2.095 2016-12-06
 
   New feature usable by cme:
