@@ -26,7 +26,8 @@ command line. See the [list of available user interfaces](https://github.com/dod
 
 ## Installation
 
-See [installation instructions](https://github.com/dod38fr/config-model/blob/master/README.install.pod)
+See [installation instructions](https://github.com/dod38fr/config-model/blob/master/README.install.pod). 
+Perl developers can also [build Config::Model from git](build-from-git.md)
 
 ## Getting started
 
