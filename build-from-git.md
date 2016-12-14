@@ -10,12 +10,12 @@ build this module.
 
 Run
 
-    $ sudo apt install libdist-zilla-perl libdist-zilla-app-command-authordebs
+    $ sudo apt install libdist-zilla-perl libdist-zilla-app-command-authordebs-perl
     $ dzil authordebs --install
     $ sudo apt build-dep libconfig-model-perl
 
-The latter package is quite recent (uploaded on Dec 2016 in Debian/unstable) 
-and may not be available yet on your favorite distribution
+The [libdist-zilla-app-command-authordebs-perl package](https://tracker.debian.org/pkg/libdist-zilla-app-command-authordebs-perl) is quite recent (uploaded on Dec 2016 in Debian/unstable) 
+and may not be available yet on your favorite distribution.
 
 ### Other systems
 
