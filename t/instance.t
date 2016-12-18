@@ -45,6 +45,8 @@ my $inst = $model->instance(
 );
 ok( $inst, "created dummy instance" );
 
+ok( $model->instance(name => 'test1'), "check that instance can be retrieved by name");
+
 $inst->show_message('hello');
 is($messager,'hello',"test show_message_cb");
 
