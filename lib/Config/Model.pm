@@ -44,7 +44,17 @@ enum LegacyTreament => qw/die warn ignore/;
 has skip_include => ( isa => 'Bool',           is => 'ro', default => 0 );
 has model_dir    => ( isa => 'Str',            is => 'ro', default => 'Config/Model/models' );
 has legacy       => ( isa => 'LegacyTreament', is => 'ro', default => 'warn' );
-has instances => ( isa => 'HashRef[Config::Model::Instance]', is => 'ro', default => sub { {} } );
+has instances => (
+    isa => 'HashRef[Config::Model::Instance]',
+    is => 'ro',
+    default => sub { {} },
+    traits => ['Hash'],
+    handles => {
+        store_instance => 'set',
+        get_instance   => 'get',
+        has_instance   => 'defined',
+    },
+);
 
 # Config::Model stores 3 versions of each model
 
@@ -214,17 +224,15 @@ sub instance {
     my $self = shift;
     my %args = @_ == 1 ? ( application => $_[0]) : @_ ;
 
+    # also creates a default name
     _tweak_instance_args(\%args);
+
+    if ( $args{name} and $self->has_instance($args{name}) ) {
+        return $self->get_instance($args{name});
+    }
 
     croak "Model: can't create instance without application or root_class_name "
         unless $args{root_class_name};
-
-    my $instance_name = $args{name};
-    # could add more syntactic suger with 'hash' trait
-    # see Moose::Meta::Attribute::Native
-    if ( defined $self->instances->{$instance_name} ) {
-        return $self->instances->{$instance_name};
-    }
 
     if ( defined $args{model_file} ) {
         my $file = delete $args{model_file};
@@ -236,7 +244,7 @@ sub instance {
         %args    # for optional parameters like *directory
     );
 
-    $self->instances->{$instance_name} = $i;
+    $self->store_instance($args{name}, $i);
     return $i;
 }
 
@@ -2225,6 +2233,11 @@ C<root_class_name> (e.g. configuration class C<Foo::Bar> is stored in
 C<Foo/Bar.pl>. You can choose to specify the file containing
 the model with C<model_file> parameter. This is mostly useful for
 tests.
+
+The C<instance> method can also retrieve an instance that has already
+been created:
+
+ my $inst = $model->instance( name => 'test1' );
 
 =head2 cme ( ... )
 
