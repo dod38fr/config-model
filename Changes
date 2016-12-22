@@ -1,5 +1,11 @@
 {{$NEXT}}
 
+2.097 2016-12-22
+
+  Bug fix:
+    * fix a regression seen when starting curses interface
+      (fix retrieval of an instance using an instance name)
+      
 2.096 2016-12-11
 
   Term UI improvement
