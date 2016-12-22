@@ -201,10 +201,10 @@ sub _tweak_instance_args {
         $application .= " in " . cwd;
     }
     $args->{name}
-        =  delete $args->{instance_name}
-        || delete $args->{name}
-        || $app_name
-        || 'default';
+        =  delete $args->{instance_name} # backward compat with test
+        || delete $args->{name}          # preferred parameter
+        || $app_name                     # fallback in most cases
+        || 'default';                    # fallback mostly in tests
 }
 
 sub cme {
