@@ -452,7 +452,7 @@ sub try_read_backend {
         $e->parsed_file( $file_path) unless $e->parsed_file;
         $e->rethrow;
     }
-    elsif ( ref $e ) {
+    elsif ( ref $e and $e->isa('Config::Model::Exception') ) {
         $e->rethrow ;
     }
     elsif ( $e ) {
