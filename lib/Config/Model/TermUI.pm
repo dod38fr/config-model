@@ -165,10 +165,15 @@ sub new {
     }
     elsif ( $term->ReadLine eq "Term::ReadLine::Perl" ) {
         no warnings "once";
+        warn "utf-8 support has not beed tested with Term::ReadLine::Perl. ",
+            "You should install Term::ReadLine::Gnu.\n";
         $readline::rl_completion_function = $sub_ref;
         &readline::rl_set( rl_completer_word_break_characters => $word_break_string );
 
         # &readline::rl_set('TcshCompleteMode', 'On');
+    }
+    else {
+        warn "You should install Term::ReadLine::Gnu for autocompletion and utf-8 support.\n";
     }
 
     $self->{term} = $term;
