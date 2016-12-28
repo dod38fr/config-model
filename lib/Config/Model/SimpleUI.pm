@@ -124,10 +124,8 @@ my %run_dispatch = (
     help => sub { return $syntax; },
     set  => sub {
         my $self = shift;
-        my $cmd  = shift;
-        if ($cmd) {
-            $cmd =~ s/\s*([=:])\s*/$1/;
-            $self->{current_node}->load($cmd);
+        if (@_) {
+            $self->{current_node}->load(join('',@_));
         }
         else {
             say "No command given.";
