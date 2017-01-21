@@ -509,8 +509,8 @@ sub update {
     my $hook = sub {
         my ($scanner, $data_ref,$node,@element_list) = @_;
         if ($node->can('update')) {
-            say "Calling update on ",$node->name, ' ',$node->config_class_name, " $node"
-                unless $args{quiet};
+            my $loc = $node->location;
+            say "Calling update on node '$loc'" if $loc and not $args{quiet};
             push (@msgs, $node->update(%args))
         } ;
     };
