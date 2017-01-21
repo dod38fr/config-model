@@ -216,7 +216,6 @@ sub cme {
     # model_storage is used to keep Config::Model object alive
     $model_storage //= Config::Model->new(%$m_args);
 
-    my $app = $args{application};
     return $model_storage->instance(@_);
 }
 
