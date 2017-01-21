@@ -29,6 +29,8 @@ sub load {
     my $steps = delete $args{steps} // delete $args{step};
     croak "load error: missing 'steps' parameter" unless defined $steps;
 
+    my $caller_is_root = delete $args{caller_is_root};
+
     if (delete $args{experience}) {
         carp "load: experience parameter is deprecated";
     }
@@ -73,8 +75,10 @@ sub load {
 
         # found '!' command
         if ( $ret eq 'root' ) {
-            $logger->debug("Setting current_node to root node");
-            $current_node = $current_node->root;
+            $current_node = $caller_is_root ? $node : $current_node->root;
+            if ($logger->debug) {
+                $logger->debug("Setting current_node to root node: ".$current_node->name);
+            }
         }
     } while ( $ret eq 'root' );
 
@@ -1188,6 +1192,11 @@ L<above/"load string syntax"> for a description of the string.
 
 Whether to check values while loading. Either C<yes> (default), C<no> or C<skip>.
 Bad values are discarded when C<check> is set to C<skip>.
+
+=item caller_is_root
+
+Change the target of the C<!> command: when set, the C<!> command go
+to caller node instead of going to root node. (default is false)
 
 =back
 
