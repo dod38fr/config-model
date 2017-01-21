@@ -190,6 +190,15 @@ my $stdab = $root->grab("std_id:ab");
 $stdab->load("! a_string=titi");
 ok( 1, "go to root node starting from below" );
 
+# check that we can put an pseudo root
+$stdab->load(steps => "! X=Bv", caller_is_root => 1);
+ok( 1, "go to pseudo root node" );
+
+throws_ok {
+    $stdab->load(steps => "- std_id:fg X=Bv", caller_is_root => 1);
+}
+    qr/too many '-'/, "cannot exit pseudo root with '-'";
+
 ok( $root->load( step => 'tree_macro=XZ' ), "Set tree_macro to XZ" );
 
 # test load with warped_node below root (used to fail)
