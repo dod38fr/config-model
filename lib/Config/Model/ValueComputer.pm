@@ -80,8 +80,8 @@ sub BUILD {
         $compute_parser->pre_compute( $self->{formula}, 1, $self->{value_object},
         $self->{variables}, $self->{replace}, 'yes', $self->need_quote, );
 
-    $logger->debug("pre_formula: $$result_r");
-    $self->{pre_formula} = $$result_r;
+    $logger->debug("pre_formula: ". ($result_r ? $$result_r : ' pre_compute failed, using original formula'));
+    $self->{pre_formula} = $result_r ? $$result_r : $self->{formula};
 }
 
 sub compute {
