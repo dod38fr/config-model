@@ -11,6 +11,7 @@ use Config::Model;
 use Log::Log4perl qw(:easy);
 
 use strict;
+use 5.10.1;
 
 my $arg = shift || '';
 
@@ -65,6 +66,14 @@ $model->create_config_class(
                 formula   => '$p',
             },
         },
+        Licenses => {
+            type       => 'hash',
+            index_type => 'string',
+            cargo      => {
+                type              => 'node',
+                config_class_name => 'LicenseSpec'
+            }
+        },
     ] );
 
 # Tx to Ilya Arosov
@@ -114,7 +123,30 @@ $model->create_config_class(
                 'formula'  => '&index( - );',
                 'use_eval' => 1,
             },
-        } ] );
+        },
+        short_name_from_above1 => {
+            'type'       => 'leaf',
+            'value_type' => 'uniline',
+            compute      => {
+                'formula'  => '&element( - - )',
+            },
+        },
+        short_name_from_above2 => {
+            'type'       => 'leaf',
+            'value_type' => 'uniline',
+            compute      => {
+                'formula'  => '&element( -- )',
+            },
+        },
+        short_name_from_above3 => {
+            'type'       => 'leaf',
+            'value_type' => 'uniline',
+            compute      => {
+                'formula'  => '&element( -2 )',
+            },
+        },
+    ]
+);
 
 $model->create_config_class(
     name    => "Master",
@@ -625,6 +657,14 @@ my $cwoapf = $root->fetch_element('compute_with_override_and_powerless_fix');
 warning_like { $cwoapf->apply_fixes;} [ qr/not good value/],
     "check warning when applying powerless fix";
 is($cwoapf->fetch, '/dev/lcd0', "test default value after powerless fix");
+
+foreach my $elem (qw/foo2 bar/) {
+    foreach my $i (1..3) {
+        my $step = $elem.' Licenses:booya short_name_from_above'.$i;
+        my $v1 = $root->grab_value($step);
+        is($v1,$elem,"test short_name with '$step'");
+    }
+}
 
 memory_cycle_ok( $model, "test memory cycles" );
 
