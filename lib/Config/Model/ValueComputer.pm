@@ -699,16 +699,18 @@ is used as the computed value.
 For instance:
 
   # extract host from url
-  compute => { formula => '$old =~ m!http://[\w\.]+(?::\d+)?(/.*)!; $1 ;', 
-	       variables => { old => '- url' } ,
-	       use_eval => 1 ,
-	     },
+  compute => {
+      formula => '$old =~ m!http://[\w\.]+(?::\d+)?(/.*)!; $1 ;',
+      variables => { old => '- url' } ,
+	  use_eval => 1 ,
+  },
 
   # capitalize
-  compute => { formula => 'uc($old)',
-	       variables => { old => '- small_caps' } ,
-	       use_eval => 1 
-             }
+  compute => {
+      formula => 'uc($old)',
+	  variables => { old => '- small_caps' } ,
+	  use_eval => 1
+  }
 
 =head2 Compute variables
 
