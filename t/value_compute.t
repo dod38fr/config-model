@@ -435,6 +435,11 @@ my $txt = 'my stuff is  $bar, indeed';
 $ref = $parser->pre_compute( $txt, 1, $object, $rules, $srules );
 is( $$ref, $txt, "test pre_compute parser with a string" );
 
+my $code = q{&location() =~ /^copyright/ ? $self->grab_value('! control source Source') : '''};
+$ref = $parser->pre_compute( $code, 1, $object, $rules, $srules );
+$code =~ s/&location\(\)/$object->location/e;
+is( $$ref, $code, "test pre_compute parser with code" );
+
 $ref = $parser->compute( $txt, 1, $object, $rules, $srules );
 is( $$ref, 'my stuff is  bv, indeed', "test compute parser with a string" );
 

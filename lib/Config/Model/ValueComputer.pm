@@ -490,7 +490,7 @@ pre_value:
   <skip:''> '$replace' '{' /\s*/ pre_value[@arg] /\s*/ '}' {
     $return = Config::Model::ValueComputer::_pre_replace($arg[2], ${ $item{pre_value} } ) ;
   }
-  | <skip:''> function '(' <commit> /\s*/ up /\s*/ ')' {
+  | <skip:''> function '(' /\s*/ up /\s*/ ')' {
     $return = Config::Model::ValueComputer::_function_on_object($item{up},$item{function},$return,@arg ) ;
   }
   | <skip:''> '&' /\w+/ func_param(?) {
