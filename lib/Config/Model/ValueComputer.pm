@@ -798,6 +798,8 @@ Compute variables can themselves be computed :
 
 Be sure not to specify a loop when doing recursive computation.
 
+The function C<&index> C<&element> and C<&location> are also allowed.
+
 =head2 compute override
 
 In some case, a computed value must be interpreted as a default value
