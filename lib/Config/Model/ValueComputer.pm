@@ -306,7 +306,8 @@ sub _function_on_object {
     $logger->debug("handling &$function($up) ");
 
     # get now the object refered
-    $up =~ s/-(\d+)/'- ' x $1/e;
+    $up =~ s/-(\d+)/'- ' x $1/e;        # change  -3 -> - - -
+    $up =~ s/(-+)/'- ' x length($1)/e;  # change --- -> - - -
 
     my $target = eval { $value_object->grab( step => $up, check => $check ) };
 
@@ -514,7 +515,7 @@ pre_value:
 
 func_param: /\(\s*\)/
 
-up: /-?\d*/
+up: /-\d+|-( ?-)*/
 
 compute:  <skip:''> value[@arg](s) { 
     # if one value is undef, return undef;
@@ -669,7 +670,7 @@ The index value of the current object : C<&index> or C<&index()>.
 =item *
 
 The index value of a parent object: C<&index(-)>. Ancestor index value can be retrieved
-with C<&index(-2)> or C<&index(-3)>.
+with C<&index(-2)> or C<&index(-3)> or C<&index(- -)> or C<&index(- - -)>
 
 =item *
 
