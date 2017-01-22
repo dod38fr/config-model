@@ -19,7 +19,13 @@ has formula    => ( is => 'ro', isa => 'Str', required => 1 );
 has value_type => ( is => 'ro', isa => 'Str', required => 1 );
 
 # value_object is mostly used for error messages
-has value_object => ( is => 'ro', isa => 'Config::Model::AnyThing', required => 1, weak_ref => 1 );
+has value_object => (
+    is => 'ro',
+    isa => 'Config::Model::AnyThing',
+    required => 1,
+    weak_ref => 1,
+    handles => [qw/grab grab_value location index element/],
+);
 
 has variables => ( is => 'ro', isa => 'HashRef', default => sub { {} } );
 has replace   => ( is => 'ro', isa => 'HashRef', default => sub { {} } );
