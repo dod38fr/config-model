@@ -350,7 +350,10 @@ __END__
 
 =head1 SYNOPSIS
 
- $self->load_node( config_class_name => "...", %other_args);
+  $root->grab('foo:2 bar');
+  $root->grab(steps => 'foo:2 bar');
+  $root->grab(steps => 'foo:2 bar', type => 'leaf');
+  $root->grab_value(steps => 'foo:2 bar');
 
 =head1 DESCRIPTION
 
@@ -392,8 +395,8 @@ throws an exception or returns the last object found with the requested type.
 
 Examples:
 
- $root->grep(steps => 'foo:2 bar', type => 'leaf')
- $root->grep(steps => 'foo:2 bar', type => ['leaf','check_list'])
+ $root->grab(steps => 'foo:2 bar', type => 'leaf')
+ $root->grab(steps => 'foo:2 bar', type => ['leaf','check_list'])
 
 =item C<autoadd>
 
