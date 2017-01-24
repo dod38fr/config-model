@@ -579,20 +579,21 @@ __END__
  $model ->create_config_class (
     name => "MyClass",
 
-    element => [ 
-
-       [qw/av bv/] => {type => 'leaf',
-                       value_type => 'integer',
-                      },
-       compute_int => { 
-	    type => 'leaf',
-            value_type => 'integer',
-            compute    => { formula   => '$a + $b', 
-                            variables => { a => '- av', b => '- bv'}
-                          },
-          },
-   ],
- ) ;
+    element => [
+       [qw/av bv/] => {
+           type => 'leaf',
+           value_type => 'integer',
+       },
+       compute_int => {
+	       type => 'leaf',
+               value_type => 'integer',
+               compute    => {
+                   formula   => '$a + $b',
+                   variables => { a => '- av', b => '- bv'}
+               },
+       },
+    ],
+ );
 
  my $inst = $model->instance(root_class_name => 'MyClass' );
 
@@ -729,33 +730,36 @@ the correct L<Value|Config::Model::Value> object.
 In this numeric example, C<result> default value is C<av + bv>:
 
  element => [
-  av => { 
-    type => 'leaf',
-    value_type => 'integer'
-  },
-  bv => { 
-    type => 'leaf',
-    value_type => 'integer'
-  },
-  result => { 
-    type => 'leaf',
-    value_type => 'integer', 
-    compute => { formula => '$a + $b' , 
-                 variables => { a => '- av', b => '- bv' },
-               }
-  }
+    av => {
+        type => 'leaf',
+        value_type => 'integer'
+    },
+    bv => {
+        type => 'leaf',
+        value_type => 'integer'
+    },
+    result => {
+        type => 'leaf',
+        value_type => 'integer',
+        compute => {
+            formula => '$a + $b' ,
+            variables => { a => '- av', b => '- bv' },
+        }
+    }
+ ]
 
 In this string example, the default value of the C<Comp> element is
 actually a string made of "C<macro is >" and the value of the
 "C<macro>" element of the object located 2 nodes above:
 
-   comp => { 
+ comp => {
     type => 'leaf',
-    value_type => 'string', 
-    compute => { formula => '"macro is $m"' ,
-                 variables => { m => '- - macro' }
-               }
-   }
+    value_type => 'string',
+    compute => {
+        formula => '"macro is $m"' ,
+        variables => { m => '- - macro' }
+    }
+ }
 
 =head2 Compute replace
 
@@ -766,17 +770,18 @@ C<%replace> hash.
 
 For instance, if you want to display a summary of a config, you can do :
 
-       compute_with_replace 
-       => {
-            formula => '$replace{$who} is the $replace{$what} of $replace{$country}',
-            variables => {
-                           who   => '! who' ,
-                           what  => '! what' ,
-                           country => '- country',
-                         },
-            replace => {  chief => 'president', 
-                          America => 'USA'
-                       },
+ compute_with_replace => {
+     formula => '$replace{$who} is the $replace{$what} of $replace{$country}',
+     variables => {
+         who   => '! who' ,
+         what  => '! what' ,
+         country => '- country',
+     },
+     replace => {
+         chief => 'president',
+         America => 'USA'
+     }
+ }
 
 =head2 Complex formula
 
@@ -791,16 +796,18 @@ I.e. C<&element($foo)> is ok, but C<&element(&index($foo))> is not allowed.
 
 Compute variables can themselves be computed :
 
-   compute => {
-     formula => 'get_element is $replace{$s}, indirect value is \'$v\'',
-     variables => { 's' => '! $where',
-                     where => '! where_is_element',
-                     v => '! $replace{$s}',
-                  }
-     replace   => { m_value_element => 'm_value',
-                    compute_element => 'compute' 
-                  }
+ compute => {
+    formula => 'get_element is $replace{$s}, indirect value is \'$v\'',
+    variables => {
+        s => '! $where',
+        where => '! where_is_element',
+        v => '! $replace{$s}',
     }
+    replace => {
+        m_value_element => 'm_value',
+        compute_element => 'compute'
+    }
+ }
 
 Be sure not to specify a loop when doing recursive computation.
 
@@ -813,30 +820,32 @@ and the user must be able to override this computed default value.  In
 this case, you must use C<< allow_override => 1 >> with the
 compute parameter:
 
-   computed_value_with_override => { 
+ computed_value_with_override => {
     type => 'leaf',
-    value_type => 'string', 
-    compute => { formula => '"macro is $m"' , 
-                 variables => { m => '- - macro' } ,
-                 allow_override => 1,
-               }
-   }
+    value_type => 'string',
+    compute => {
+        formula => '"macro is $m"' ,
+        variables => { m => '- - macro' } ,
+        allow_override => 1,
+    }
+ }
 
 This computed default value is written to the configuration file.
 
 This default value may be already known by the application so the computed value
-should B<not> be written to the configuration file. The computed value is interesting 
+should B<not> be written to the configuration file. The computed value is interesting
 because it cab be shown to the user. In this case, use the C<use_as_upstream_default>
-parameter: 
+parameter:
 
-   compute_known_upstream => { 
+ compute_known_upstream => {
     type => 'leaf',
-    value_type => 'string', 
-    compute => { formula => '"macro is $m"' , 
-                 variables => { m => '- - macro' } ,
-                 use_as_upstream_default => 1,
-               }
-   }
+    value_type => 'string',
+    compute => {
+        formula => '"macro is $m"' ,
+        variables => { m => '- - macro' } ,
+        use_as_upstream_default => 1,
+    }
+ }
 
 C<use_as_upstream_default> implies C<allow_override>.
 
@@ -857,80 +866,80 @@ The most useful fallback values are:
 
 Example:
 
-        Source => {
-            value_type   => 'string',
-            mandatory    => 1,
-            migrate_from => {
-                use_eval  => 1,
-                formula   => '$old || $older ;',
-                undef_is => "''",
-                variables => {
-                    older => '- Original-Source-Location',
-                    old   => '- Upstream-Source'
-                }
-            },
-            type => 'leaf',
-        },
-        [qw/Upstream-Source Original-Source-Location/] => {
-            value_type => 'string',
-            status     => 'deprecated',
-            type       => 'leaf'
+ Source => {
+    type => 'leaf',
+    value_type   => 'string',
+    mandatory    => 1,
+    migrate_from => {
+        use_eval  => 1,
+        formula   => '$old || $older ;',
+        undef_is => "''",
+        variables => {
+            older => '- Original-Source-Location',
+            old   => '- Upstream-Source'
         }
+    },
+ },
+ [qw/Upstream-Source Original-Source-Location/] => {
+    value_type => 'string',
+    status     => 'deprecated',
+    type       => 'leaf'
+ }
 
 =head1 Examples
 
 =head2 String substitution
 
-    [qw/sav sbv/] => {
-        type       => 'leaf',
-        value_type => 'string',
-      },
-    compute_string => {
-        type       => 'leaf',
-        value_type => 'string',
-        compute    => {
-            formula   => 'meet $a and $b',
-            variables => { '- sav', b => '- sbv' }
-        },
-    },
+ [qw/sav sbv/] => {
+     type       => 'leaf',
+     value_type => 'string',
+   },
+ compute_string => {
+     type       => 'leaf',
+     value_type => 'string',
+     compute    => {
+         formula   => 'meet $a and $b',
+         variables => { '- sav', b => '- sbv' }
+     },
+ },
 
 =head2 Computation with on-the-fly replacement
 
-    compute_with_replace => {
-        type       => 'leaf',
-        value_type => 'string',
-        compute    => {
-            formula =>
-              '$replace{$who} is the $replace{$what} of $replace{$country}',
-            variables => {
-                who     => '! who',
-                what    => '! what',
-                country => '- country',
-            },
-            replace => {
-                chief   => 'president',
-                America => 'USA'
-            },
-        },
-      },
+ compute_with_replace => {
+     type       => 'leaf',
+     value_type => 'string',
+     compute    => {
+         formula =>
+           '$replace{$who} is the $replace{$what} of $replace{$country}',
+         variables => {
+             who     => '! who',
+             what    => '! what',
+             country => '- country',
+         },
+         replace => {
+             chief   => 'president',
+             America => 'USA'
+         },
+     },
+   },
 
 =head2 Extract data from a value using a Perl regexp
 
 Extract the host name from an URL:
 
-    url => {
-        type       => 'leaf',
-        value_type => 'uniline'
-    },
-    extract_host_from_url => {
-        type       => 'leaf',
-        value_type => 'uniline',
-        compute    => {
-            formula   => '$old =~ m!http://([\w\.]+)!; $1 ;',
-            variables => { old => '- url' },
-            use_eval  => 1,
-        },
-    },
+ url => {
+     type       => 'leaf',
+     value_type => 'uniline'
+ },
+ extract_host_from_url => {
+     type       => 'leaf',
+     value_type => 'uniline',
+     compute    => {
+         formula   => '$old =~ m!http://([\w\.]+)!; $1 ;',
+         variables => { old => '- url' },
+         use_eval  => 1,
+     },
+ },
 
 =head2 simple copy hash example
 
