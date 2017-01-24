@@ -443,44 +443,63 @@ use warnings 'once';
     $::RD_TRACE = 1 if $arg =~ /rdh?t/;
 }
 
-my $object = $root->fetch_element('one_var');
-my $rules  = { bar => '- sbv', };
-my $srules = { bv => 'rbv' };
+package DummyComputer;
+use Mouse;
 
-my $ref = $parser->pre_value( '$bar', 1, $object, $rules, $srules );
+has value_object => => (
+    is => 'ro',
+    isa => 'Config::Model::AnyThing',
+    required => 1,
+    weak_ref => 1,
+    handles => [qw/grab grab_value location index element/],
+);
+
+has replace   => ( is => 'ro', isa => 'HashRef', default => sub { {} } );
+has need_quote => ( is => 'ro', isa => 'Bool',default => 0 );
+
+package main ;
+
+my $test_object = DummyComputer-> new(
+    value_object => $root->fetch_element('one_var'),
+    replace => { bv => 'rbv' },
+);
+
+my $variables  = { bar => '- sbv', };
+
+my $ref = $parser->pre_value( '$bar', 1, $test_object, $variables, 'yes' );
 is( $$ref, '$bar', "test pre_compute parser on a very small formula: '\$bar'" );
 
-$ref = $parser->value( '$bar', 1, $object, $rules, $srules );
+$ref = $parser->value( '$bar', 1, $test_object, $variables, 'yes' );
 is( $$ref, undef, "test compute parser on a very small formula with undef variable" );
 
 $root->fetch_element('sbv')->store('bv');
-$ref = $parser->value( '$bar', 1, $object, $rules, $srules );
+$ref = $parser->value( '$bar', 1, $test_object, $variables, 'yes' );
 is( $$ref, 'bv', "test compute parser on a very small formula: '\$bar'" );
 
-$ref = $parser->pre_value( '$replace{$bar}', 1, $object, $rules, $srules );
+$ref = $parser->pre_value( '$replace{$bar}', 1, $test_object, $variables, 'yes' );
 is( $$ref, '$replace{$bar}', "test pre-compute parser with substitution" );
 
-$ref = $parser->value( '$replace{$bar}', 1, $object, $rules, $srules );
+$ref = $parser->value( '$replace{$bar}', 1, $test_object, $variables, 'yes' );
 is( $$ref, 'rbv', "test compute parser with substitution" );
 
 my $txt = 'my stuff is  $bar, indeed';
-$ref = $parser->pre_compute( $txt, 1, $object, $rules, $srules );
+$ref = $parser->pre_compute( $txt, 1, $test_object, $variables, 'yes' );
 is( $$ref, $txt, "test pre_compute parser with a string" );
 
 my $code = q{&location() =~ /^copyright/ ? $self->grab_value('! control source Source') : '''};
-$ref = $parser->pre_compute( $code, 1, $object, $rules, $srules );
-$code =~ s/&location\(\)/$object->location/e;
+$ref = $parser->pre_compute( $code, 1, $test_object, $variables, 'yes' );
+$code =~ s/&location\(\)/$test_object->location/e;
 is( $$ref, $code, "test pre_compute parser with code" );
 
-$ref = $parser->compute( $txt, 1, $object, $rules, $srules );
+$ref = $parser->compute( $txt, 1, $test_object, $variables, 'yes' );
 is( $$ref, 'my stuff is  bv, indeed', "test compute parser with a string" );
 
 $txt = 'local stuff is element:&element!';
-$ref = $parser->pre_compute( $txt, 1, $object, $rules, $srules );
+$ref = $parser->pre_compute( $txt, 1, $test_object, $variables, 'yes' );
 is( $$ref, 'local stuff is element:one_var!', "test pre_compute parser with function (&element)" );
 
 # In fact, function is formula is handled only by pre_compute.
-$ref = $parser->compute( $txt, 1, $object, $rules, $srules );
+$ref = $parser->compute( $txt, 1, $test_object, $variables, 'yes' );
 is( $$ref, $txt, "test compute parser with function (&element)" );
 
 ## test integer formula
