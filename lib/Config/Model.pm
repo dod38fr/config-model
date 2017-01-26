@@ -118,6 +118,20 @@ has models => (
     },
 );
 
+# model snippet may be loaded when the target class is not available
+# so they must be stored before being used.
+has model_snippets => (
+    isa     => 'ArrayRef',
+    is      => 'ro',
+    default => sub { [] },
+    traits  => ['Array'],
+    handles => {
+        add_snippet => 'push',
+        all_snippets => 'elements',
+    },
+);
+
+
 has skip_inheritance => (
     isa     => 'Bool',
     is      => 'ro',
@@ -1169,6 +1183,8 @@ sub load {
     my $model_name = shift;    # model name like Foo::Bar
     my $load_file  = shift;    # model file (override model name), used for tests
 
+    $loader_logger->debug("called on model $model_name");
+
     my $load_path = $model_name;
     $load_path =~ s/::/\//g;
 
@@ -1207,9 +1223,18 @@ sub load {
         }
     }
 
-    foreach my $class_to_merge ( keys %model_graft_by_name ) {
-        my $data = $model_graft_by_name{$class_to_merge};
-        $self->augment_config_class_really( $class_to_merge, $data );
+    # store snippet. May be used later
+    foreach my $name (keys %model_graft_by_name) {
+        # store snippet for later usage
+        $loader_logger->trace("storing snippet for model $name");
+        $self->add_snippet($model_graft_by_name{$name});
+    }
+
+    # check if a snippet is available for this class
+    foreach my $snippet ( $self->all_snippets ) {
+        my $class_to_merge = $snippet->{name};
+        next unless $models_by_name{$class_to_merge};
+        $self->augment_config_class_really( $class_to_merge, $snippet );
     }
 
     # return the list of classes found in $load_file. Respecting the order of the class
