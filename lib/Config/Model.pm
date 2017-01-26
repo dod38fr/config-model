@@ -1287,7 +1287,7 @@ sub augment_config_class_really {
     my $orig_model = $self->normalized_model($config_class_name);
     croak "unknown class to augment: $config_class_name" unless defined $orig_model;
 
-    my $model_addendum = $self->normalize_class_parameters( $config_class_name, $augment_data );
+    my $model_addendum = $self->normalize_class_parameters( $config_class_name, dclone($augment_data) );
 
     my $merge = Hash::Merge->new('RIGHT_PRECEDENT');
     my $new_model = $merge->merge( $orig_model, $model_addendum );
