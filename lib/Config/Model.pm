@@ -14,7 +14,7 @@ use Data::Dumper ();
 use Log::Log4perl 1.11 qw(get_logger :levels);
 use Config::Model::Instance;
 use Hash::Merge 0.12 qw/merge/;
-use File::Path qw/make_path/;
+use Path::Tiny 0.053;
 
 use Cwd;
 use Config::Model::Lister;
@@ -1508,34 +1508,28 @@ sub get_element_value_help {
 }
 
 sub generate_doc {
-    my ( $self, $top_class_name, $dir, $done ) = @_;
+    my ( $self, $top_class_name, $dir_str, $done ) = @_;
 
     $done //= {} ;
     my $res = $self->get_model_doc($top_class_name, $done);
 
-    if ( defined $dir and $dir ) {
+    if ( defined $dir_str and $dir_str ) {
         foreach my $class_name ( sort keys %$res ) {
-            my $file = $class_name;
-            $file =~ s!::!/!g;
-            my $pl_file  = $dir . "/$file.pl";
-            my $pod_file = $dir . "/$file.pod";
-            my $pod_dir  = $pod_file;
-            $pod_dir =~ s!/[^/]+$!!;
-            make_path( $pod_dir, { mode => 0755 } ) unless -d $pod_dir;
+            my $dir = path($dir_str);
+            $dir->mkpath() unless $dir->exists;
+            my $file_path = $class_name;
+            $file_path =~ s!::!/!g;
+            my $pl_file  = $dir->child("$file_path.pl");
+            $pl_file->parent->mkpath unless $pl_file->parent->exists;
+            my $pod_file = $dir->child("$file_path.pod");
 
-            # -M returns age of file, not date or epoch. hence greater is older
             my $old = '';
-            if ( -e $pod_file ) {
-                my $fh = IO::File->new( $pod_file, 'r' ) || die "Can't open $pod_file: $!";
-                $old = join( '', $fh->getlines );
-                $fh->close;
+            if ($pod_file->exists ) {
+                $old = $pod_file->slurp_utf8;
             }
             if ( $old ne $res->{$class_name} ) {
-                my $fh = IO::File->new( $pod_file, 'w' ) || die "Can't open $pod_file: $!";
-                $fh->binmode(":utf8");
-                $fh->print( $res->{$class_name} );
-                $fh->close;
-                print "Wrote documentation in $pod_file\n";
+                $pod_file->spew_utf8( $res->{$class_name} );
+                say "Wrote documentation in $pod_file";
             }
         }
     }
