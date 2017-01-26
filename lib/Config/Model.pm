@@ -26,6 +26,7 @@ our @EXPORT_OK = qw/cme/;
 use vars qw(@status @level %default_property);
 
 my $legacy_logger = get_logger("Model::Legacy") ;
+my $loader_logger = get_logger("Model::Loader") ;
 my $logger = get_logger("Model") ;
 
 # used to keep one Config::Model object to simplify programs based on
@@ -1173,7 +1174,7 @@ sub load {
 
     $load_file ||= $self->model_dir . '/' . $load_path . '.pl';
 
-    get_logger("Model::Loader")->debug("model $model_name from file $load_file");
+    $loader_logger->debug("model $model_name from file $load_file");
 
     # no special treatment, returns an array
     my %models_by_name;
@@ -1181,7 +1182,7 @@ sub load {
     $self->store_raw_model( $model_name, dclone( \%models_by_name ) );
     foreach my $name ( keys %models_by_name ) {
         my $data = $self->normalize_class_parameters( $name, $models_by_name{$name} );
-        get_logger("Model::Loader")->debug("Store normalized model $name");
+        $loader_logger->debug("Store normalized model $name");
         $self->store_normalized_model( $name, $data );
     }
 
@@ -1193,12 +1194,12 @@ sub load {
             my $snippet_path = $name;
             $snippet_path =~ s/::/\//g;
             my $snippet_dir = "$inc/" . $self->model_dir . '/' . $snippet_path . '.d';
-            get_logger("Model::Loader")->trace("looking for snippet in $snippet_dir");
+            $loader_logger->trace("looking for snippet in $snippet_dir");
             if ( -d $snippet_dir ) {
                 foreach my $snippet_file ( glob("$snippet_dir/*.pl") ) {
                     my $done_key = $name . ':' . $snippet_file;
                     next if $done{$done_key};
-                    get_logger("Model::Loader")->info("Found snippet $snippet_file");
+                    $loader_logger->info("Found snippet $snippet_file");
                     $self->_load_model_in_hash( \%model_graft_by_name, $snippet_file );
                     $done{$done_key} = 1;
                 }
@@ -1247,7 +1248,7 @@ sub _load_model_in_hash {
 sub _do_model_file {
     my ( $self, $load_file ) = @_;
 
-    get_logger("Model::Loader")->info("load model $load_file");
+    $loader_logger->info("load model $load_file");
 
     my $err_msg = '';
     $load_file = "./$load_file" if $load_file !~ m!^/! and -e $load_file ;
@@ -1315,7 +1316,7 @@ sub get_model {
         unless $self->normalized_model_exists($config_class_name);
 
     if ( not $self->model_defined($config_class_name) ) {
-        get_logger("Model::Loader")->debug("creating model $config_class_name");
+        $loader_logger->debug("creating model $config_class_name");
 
         my $model = $self->merge_included_class($config_class_name);
         $self->_store_model( $config_class_name, $model );
