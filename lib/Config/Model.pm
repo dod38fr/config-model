@@ -1212,7 +1212,10 @@ sub load {
             my $snippet_dir = path($inc_str)->child($self->model_dir)->child($snippet_path . '.d');
             $loader_logger->trace("looking for snippet in $snippet_dir");
             if ( $snippet_dir->is_dir ) {
-                foreach my $snippet_file ( $snippet_dir->children(qr/\.pl$/) ) {
+                my $iter = $snippet_dir->iterator({ recurse => 1 });
+
+                while ( my $snippet_file = $iter->() ) {
+                    next unless $snippet_file =~ /\.pl$/;
                     my $done_key = $name . ':' . $snippet_file;
                     next if $done{$done_key};
                     $loader_logger->info("Found snippet $snippet_file");
