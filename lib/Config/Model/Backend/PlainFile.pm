@@ -32,7 +32,7 @@ sub read {
     my $check = $args{check} || 'yes';
     my $dir   = $args{config_dir};
     my $node  = $args{object};
-    $logger->debug( "called on node", $node->name );
+    $logger->debug( "called on node ", $node->name );
 
     # read data from leaf element from the node
     foreach my $elt ( $node->get_element_name() ) {
@@ -52,7 +52,7 @@ sub read {
             $self->read_hash( $obj, $elt, $check, $file, \%args );
         }
         else {
-            $logger->debug("PlainFile read skiped $type $elt");
+            $logger->debug("PlainFile read skipped $type $elt");
         }
 
     }
