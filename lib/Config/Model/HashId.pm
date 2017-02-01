@@ -140,7 +140,6 @@ sub _fetch_all_indexes {
 # fetch without any check
 sub _fetch_with_id {
     my ( $self, $key ) = @_;
-    my $i = $self->instance;
     return $self->{data}{$key};
 }
 
