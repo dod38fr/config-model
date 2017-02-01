@@ -452,8 +452,8 @@ eq_or_diff( [ $hwmkf->fetch_all_indexes ],
 my $hwdai = $root->fetch_element('hash_with_default_and_init');
 
 # calling fetch_all_indexes will trigger the creation of the default_with_init keys
-foreach ( $hwdai->fetch_all_indexes ) {
-    is( $hwdai->fetch_with_id($_)->fetch, "$_ stuff", "check default_with_init with $_" );
+foreach my $idx ( $hwdai->fetch_all_indexes ) {
+    is( $hwdai->fetch_with_id($idx)->fetch, "$idx stuff", "check default_with_init with '$idx'" );
 }
 
 # test convert lc
