@@ -329,7 +329,7 @@ Returns the element name that contain this object.
 For object stored in an array or hash element, returns the index (or key)
 containing this object.
 
-=head2 parent()
+=head2 parent
 
 Returns the node containing this object. May return undef if C<parent()> 
 is called on the root of the tree.

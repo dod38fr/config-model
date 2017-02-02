@@ -1601,9 +1601,9 @@ L<Config::Model::AnyThing>
 
 See L<Config::Model::AnyThing/"index_value()">
 
-=head2 parent()
+=head2 parent
 
-See L<Config::Model::AnyThing/"parent()">
+See L<Config::Model::AnyThing/"parent">
 
 =head2 root()
 
