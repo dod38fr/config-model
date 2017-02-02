@@ -311,46 +311,8 @@ sub _function_on_object {
 
     $logger->debug("handling &$function($up) ");
 
-    # get now the object refered
-    $up =~ s/-(\d+)/'- ' x $1/e;        # change  -3 -> - - -
-    $up =~ s/(-+)/'- ' x length($1)/e;  # change --- -> - - -
-
-    my $target = eval { $value_object->grab( step => $up, check => $check ) };
-
-    if ($@) {
-        my $e = $@;
-        my $msg = $e ? $e->full_message : '';
-        Config::Model::Exception::Model->throw(
-            object => $value_object,
-            error  => "Compute function argument '$up':\n" . $msg
-        );
-    }
-
-    if ( $function eq 'element' ) {
-        my $result = $target->element_name;
-        Config::Model::Exception::Model->throw(
-            object => $value_object,
-            error  => "'",
-            $target->name, "' has no element name"
-        ) unless defined $result;
-        $return = \$result;
-    }
-    elsif ( $function eq 'index' ) {
-        my $result = $target->index_value;
-        Config::Model::Exception::Formula->throw(
-            object => $value_object,
-            error  => "'",
-            $target->name, "' has no index value"
-        ) unless defined $result;
-        $return = \$result;
-    }
-    else {
-        Config::Model::Exception::Formula->throw(
-            object => $value_object,
-            error  => "Unknown computation function &$function, "
-                . "expected &element(...) or &index(...)"
-        );
-    }
+    my $target = $value_object->eval_function($function, $up, $check);
+    $return = \$target ;
 
     # print "\&foo(...) result = ",$$return," \n";
 
