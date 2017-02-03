@@ -1,6 +1,6 @@
 package Config::Model::Role::ComputeFunction;
 
-# ABSTRACT: compute &index or &element funcions
+# ABSTRACT: compute &index or &element functions
 
 use Mouse::Role;
 use strict;
@@ -12,11 +12,18 @@ use Log::Log4perl qw(get_logger :levels);
 
 my $logger = get_logger("ComputeFunction");
 
+sub compute_string {
+    my ($self, $string, $check) = @_;
+    $string =~ s/&(index|element)(?:\(([- \d])\))?/$self->eval_function($1,$2,$check)/eg;
+    return $string;
+}
+
 sub eval_function {
     my ($self, $function, $up, $check) = @_;
 
     if (defined $up) {
         # get now the object refered
+        $up =~ s/\s//g;
         $up =~ s/-(\d+)/'- ' x $1/e;        # change  -3 -> - - -
         $up =~ s/(-+)/'- ' x length($1)/e;  # change --- -> - - -
     }
@@ -71,6 +78,9 @@ __END__
  $value->eval_function('index','- -');
  $value->eval_function('index','-3');
 
+ $value->compute_string('&element(-)')
+ $value->compute_string('&index(- -)');
+
 =head1 DESCRIPTION
 
 Role used to let a value object get the index or the element name of
@@ -97,10 +107,16 @@ retrieving the index or element name. Each C<-> is equivalent to a
 call to C<parent|Config::Model::Node/parent>. Can be repeated dashes
 ("C<->", "C<- ->", ...)
 or a dash with a multiplier 
-("C<->", "C<-2>", ...).
+("C<->", "C<-2>", ...). White spaces are ignored.
 
 =back
 
+=head2 compute_string
+
+Perform a similar function as C<eval_function> using a string where
+function names are extracted.
+
+E.g. C<compute_string('&element(-)')> calls C<eval_function('element','-')>
 
 
 =cut
