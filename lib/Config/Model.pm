@@ -2261,6 +2261,18 @@ been created:
 
  my $inst = $model->instance( name => 'test1' );
 
+=head2 get_instance
+
+Retrieve an existing instance using its name.
+
+ my $inst = $model->get_instance('test1' );
+
+=head2 has_instance
+
+Check if an instance name already exists
+
+  my $maybe = $model->has_instance('test1');
+
 =head2 cme ( ... )
 
 This method is syntactic sugar for short program. It creates a new
