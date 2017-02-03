@@ -18,7 +18,7 @@ sub annotation { return 0; }
 
 # remember that a read backend (and its config file(s)) is attached to a node
 # OTOH, PlainFile backend deal with files that are attached to elements of a node.
-# Hence the files must not be managed by backend manager except for deletion.
+# Hence the files must not be managed by backend manager.
 
 # file not opened by BackendMgr
 # file_path, io_handle are undef

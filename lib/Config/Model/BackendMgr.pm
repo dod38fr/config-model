@@ -386,7 +386,8 @@ sub try_read_backend {
 
         $logger->info("Read with custom backend $ {c}::$f in dir $read_dir");
 
-        ( $file_ok, $file_path, $fh ) = $self->open_read_file(@read_args);
+        ( $file_ok, $file_path, $fh ) = $self->open_read_file(@read_args)
+            unless ($c->can('skip_open') and $c->skip_open);
         eval {
             $res = &{ $c . '::' . $f }(
                 @read_args,
@@ -423,7 +424,8 @@ sub try_read_backend {
         $self->set_backend( $backend => $backend_obj );
         my $suffix;
         $suffix = $backend_obj->suffix if $backend_obj->can('suffix');
-        ( $file_ok, $file_path, $fh ) = $self->open_read_file( @read_args, suffix => $suffix );
+        ( $file_ok, $file_path, $fh ) = $self->open_read_file( @read_args, suffix => $suffix )
+            unless $c->skip_open;
         if ($logger->is_info) {
             my $fp = defined $file_path ? " on $file_path":'' ;
             $logger->info( "Read with $backend " . $c . "::$f".$fp);
@@ -609,6 +611,7 @@ sub auto_write_init {
                         object    => $node,
                         %cb_args    # override from user
                     );
+
                 my $res;
                 if ($force_delete) {
                     $backend_obj->delete(%backend_args);
