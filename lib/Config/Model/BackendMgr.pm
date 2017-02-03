@@ -1,6 +1,8 @@
 package Config::Model::BackendMgr;
 
 use Mouse;
+use strict;
+use warnings;
 
 use Carp;
 use 5.10.1;
@@ -14,6 +16,8 @@ use IO::File;
 use Storable qw/dclone/;
 use Scalar::Util qw/weaken/;
 use Log::Log4perl qw(get_logger :levels);
+
+with "Config::Model::Role::ComputeFunction";
 
 my $logger = get_logger('BackendMgr');
 
@@ -116,8 +120,7 @@ sub get_cfg_file_path {
     my ( $dir_ok, $dir ) = $self->get_cfg_dir_path(%args);
 
     if ( defined $args{file} ) {
-        my $file = $args{file};
-        $file =~ s/&index/$self->node->index_value/eg;
+        my $file = $self->node->compute_string($args{file});
         my $res = $dir . $file;
         $logger->trace("get_cfg_file_path: returns $res");
         return ( $dir_ok, $res );

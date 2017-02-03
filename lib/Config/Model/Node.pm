@@ -22,6 +22,7 @@ extends qw/Config::Model::AnyThing/;
 
 with "Config::Model::Role::Grab";
 with "Config::Model::Role::HelpAsText";
+with "Config::Model::Role::ComputeFunction";
 
 use vars qw(@status @level %default_property);
 
