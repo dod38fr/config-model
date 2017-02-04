@@ -339,8 +339,8 @@ the C<write> call-back with the file handle with C<io_handle>
 parameter. C<write> should use this handle to write data in the target
 configuration file.
 
-If this behavior causes problem, the solution is either to override
-C<skip_open> method in your backend that returns C<1>.
+If this behavior causes problem, the solution is to override
+C<skip_open> method in your backend to return C<1>.
 
 =back
 
