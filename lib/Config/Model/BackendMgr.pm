@@ -530,8 +530,8 @@ sub auto_write_init {
             $wb = sub {
                 no strict 'refs';
                 $logger->debug( "write cb ($backend) called for ", $self->node->name );
-                my ( $file_ok, $file_path, $fh ) =
-                    $self->open_file_to_write( $backend, @wr_args, @_ )
+                my ( $file_ok, $file_path, $fh );
+                ( $file_ok, $file_path, $fh ) = $self->open_file_to_write( $backend, @wr_args, @_ )
                     unless ( $c->can('skip_open') and $c->skip_open );
                 my $res;
                 $res = eval {
@@ -597,7 +597,8 @@ sub auto_write_init {
                 my $backend_obj = $self->get_backend($backend)
                     || $c->new( node => $self->node, name => $backend );
                 my $suffix = $backend_obj->suffix if $backend_obj->can('suffix');
-                my ( $file_ok, $file_path, $fh ) =
+                my ( $file_ok, $file_path, $fh );
+                ( $file_ok, $file_path, $fh ) =
                     $self->open_file_to_write( $backend, suffix => $suffix, @wr_args, @_ )
                     unless ( $c->can('skip_open') and $c->skip_open );
 
