@@ -246,10 +246,7 @@ sub load_backend_class {
 sub read_config_data {
     my ( $self, %args ) = @_;
 
-    {
-        no warnings 'uninitialized';
-        $logger->debug( "called with ", join( ' ', %args ) );
-    }
+    $logger->debug( "called for node ", $self->node->location );
 
     my $readlist_orig        = delete $args{read_config};
     my $check                = delete $args{check};
