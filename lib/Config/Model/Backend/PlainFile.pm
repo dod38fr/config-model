@@ -159,6 +159,7 @@ sub write {
         }
         else {
             $logger->debug("PlainFile write skipped $type $elt");
+            next;
         }
 
         if (@v) {
@@ -169,9 +170,41 @@ sub write {
             $fh->print(@v);
             $fh->close;
         }
+        elsif (-e $file) {
+            $logger->trace("PlainFile delete $file");
+            unlink($file);
+        }
     }
 
     return 1;
+}
+
+sub delete {
+    my $self = shift;
+    my %args = @_;
+
+    # args are:
+    # object     => $obj,         # Config::Model::Node object
+    # root       => './my_test',  # fake root directory, userd for tests
+    # config_dir => /etc/foo',    # absolute path read
+    # file       => 'foo.conf',   # file name
+    # file_path  => './my_test/etc/foo/foo.conf'
+    # io_handle  => $io           # IO::File object
+    # check      => yes|no|skip
+
+    my $dir = $args{root} . $args{config_dir};
+    my $node = $args{object};
+    $logger->debug( "PlainFile delete called on deleted node");
+
+    # write data from leaf element from the node
+    foreach my $elt ( $node->get_element_name() ) {
+        my $obj = $args{object}->fetch_element( name => $elt );
+
+        my $file = $dir;
+        $file .= $args{file} ? $node->compute_string($args{file}) : $elt;
+        $logger->info( "Removing $file (deleted node)" );
+        unlink($file);
+    }
 }
 
 no Mouse;
