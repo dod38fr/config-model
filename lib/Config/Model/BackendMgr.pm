@@ -597,7 +597,7 @@ sub auto_write_init {
                 my ( $file_ok, $file_path, $fh );
                 ( $file_ok, $file_path, $fh ) =
                     $self->open_file_to_write( $backend, suffix => $suffix, @wr_args, @_ )
-                    unless ( $c->can('skip_open') and $c->skip_open );
+                    unless $c->skip_open;
 
                 # override needed for "save as" button
                 my %backend_args = (

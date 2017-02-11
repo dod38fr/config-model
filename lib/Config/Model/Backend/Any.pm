@@ -21,6 +21,8 @@ has 'node' => (
     handles => ['show_message', 'instance'],
 );
 
+sub skip_open { return 0; }
+
 sub suffix {
     my $self = shift;
     $logger->info(
