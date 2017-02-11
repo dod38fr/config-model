@@ -184,18 +184,27 @@ sub _trace_initial_load {
 }
 
 # This array holds a set of sub ref that will be invoked when
-# the users requires to write all configuration tree in their
+# the user requires to write all configuration tree in their
 # backend storage.
 has _write_back => (
     is      => 'ro',
-    isa     => 'ArrayRef',
-    traits  => ['Array'],
+    isa     => 'HashRef',
+    traits  => ['Hash'],
     handles => {
-        register_write_back => 'push',
-        count_write_back    => 'count',    # mostly for tests
+        count_write_back     => 'count',    # mostly for tests
+        has_no_write_back    => 'is_empty',
+        nodes_to_write_back  => 'keys',
+        write_back_node_info => 'get',
+        delete_write_back    => 'delete',
+        clear_write_back     => 'clear',
     },
-    default => sub { [] },
+    default => sub { {} },
 );
+
+sub register_write_back {
+    my ($self, $path, $backend, $wb) = @_;
+    push @{ $self->_write_back->{$path} //= [] }, [$backend, $wb];
+}
 
 # used for auto_read auto_write feature
 has [qw/name application root_dir backend backup/] => (
@@ -455,7 +464,6 @@ sub write_back {
         : scalar @_ == 1 ? ( config_dir => $_[0] )
         :                  ();
 
-    my $force_backend = delete $args{backend} || $self->{backend};
     my $force_write   = delete $args{force}   || 0;
 
     # make sure that root node is loaded
@@ -471,31 +479,83 @@ sub write_back {
             $args{$_} ||= '';
             $args{$_} .= '/' if $args{$_} and $args{$_} !~ m(/$);
         }
-        elsif ( not /^config_file$/ ) {
+        elsif ( not /^(config_file|backend)$/ ) {
             croak "write_back: wrong parameters $_";
         }
     }
 
-    if (not @{ $self->{_write_back} }) {
+    if ($self->has_no_write_back ) {
         my $info = $self->application ? "the model of application ".$self->application
             : "model ".$self->root_cladd_name ;
-        croak "Don't know how to save data of $self->{name} instance. Either $info has no configured ",
+        croak "Don't know how to save data of $self->{name} instance. ",
+            "Either $info has no configured ",
             "read/write backend or no node containing a backend was loaded. ",
             "Try with -force option or add read/write backend to $info\n";
     }
 
-    foreach my $path ( @{ $self->{_write_back} } ) {
+    foreach my $path ( $self->nodes_to_write_back ) {
         $logger->info("write_back called on node $path");
-        my $node = $self->config_root->grab( step => $path, type => 'node' );
-        $node->write_back(
-            %args,
-            config_file => $self->{config_file},
-            backend     => $force_backend,
-            force       => $force_write,
-            backup      => $self->backup,
-        );
+
+        if ( $path and $self->{config_file} ) {
+            die "write_back: cannot override config_file in non root node ($path)\n";
+        }
+
+        $self->_write_back_node(%args, path => $path, force_write => $force_write) ;
     }
     $self->clear_changes;
+}
+
+sub _write_back_node {
+    my $self = shift;
+    my %args = @_;
+
+    my $path = delete $args{path};
+    my $force_backend = delete $args{backend} || $self->{backend};
+    my $force_write   = delete $args{force_write};
+
+    my $node = $self->config_root->grab(
+        step => $path,
+        type => 'node',
+        mode => 'loose',
+        autoadd => 0,
+    );
+
+    foreach my $wb_info (@{ $self->write_back_node_info($path) }) {
+        my ($backend, $cb) = @$wb_info;
+
+        my @wb_args = (
+            %args,
+            config_file   => $self->{config_file},
+            force_backend => $force_backend,
+            force         => $force_write,
+            backup        => $self->backup,
+        );
+
+        if (defined $node and ($node->needs_save or $force_write)) {
+            my $dir = $args{config_dir};
+            mkpath( $dir, 0, 0755 ) if $dir and not -d $dir;
+
+            my $res ;
+            if (not $force_backend
+                or $force_backend eq $backend
+                or $force_backend eq 'all' ) {
+
+                # exit when write is successfull
+                my $res = $cb->(@wb_args);
+                $logger->info( "write_back called with $backend backend, result is ",
+                               defined $res ? $res : '<undef>' );
+                last if ( $res and not $force_backend );
+            }
+        }
+
+        if (not defined $node) {
+            $logger->debug("deleting file for deleted node $path");
+            $cb->(@wb_args, force_delete => 1);
+            $self->delete_write_back($path);
+        }
+    }
+
+    $logger->debug( "write_back on node '$path' done" );
 }
 
 sub save {
@@ -524,6 +584,11 @@ sub update {
     )->scan_node( \@msgs, $root );
 
     return @msgs;
+}
+
+sub DEMOLISH {
+    my $self = shift;
+    $self->clear_write_back; # avoid reference loops
 }
 
 __PACKAGE__->meta->make_immutable;
@@ -865,8 +930,8 @@ In summary, save the content of the configuration tree to
 configuration files.
 
 In more details, C<write_back> trie to run all subroutines registered
-with C<register_write_back> to write the configuration information
-until one succeeds (returns true). (See L<Config::Model::BackendMgr>
+with C<register_write_back> to write the configuration information.
+(See L<Config::Model::BackendMgr>
 for details).
 
 You can specify here a pseudo root directory or another config

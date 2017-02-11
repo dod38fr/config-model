@@ -391,18 +391,6 @@ sub notify_change {
     }
 }
 
-sub write_back {
-    my ( $self, %args ) = @_;
-
-    my $force_write = delete $args{force} || 0;
-
-    if ( $self->location and $args{config_file} ) {
-        die "write_back: cannot override config_file in non root node (", $self->location, ")\n";
-    }
-
-    $self->backend_mgr->write_back(%args) if $self->needs_save or $force_write;
-}
-
 sub is_auto_write_for_type {
     my $self = shift;
     return 0 unless defined $self->backend_mgr;

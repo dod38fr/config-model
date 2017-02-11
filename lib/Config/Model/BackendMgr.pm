@@ -467,8 +467,6 @@ sub auto_write_init {
     my $wrlist_orig = delete $args{write_config};
     my $w_dir       = delete $args{write_config_dir};
 
-    weaken($self);    # avoid leak: $self is stored in write_back closure
-
     croak "auto_write_init: unexpected args " . join( ' ', keys %args ) . "\n"
         if %args;
 
@@ -587,16 +585,20 @@ sub auto_write_init {
         else {
             my $f = $write->{function} || 'write';
             my $c = load_backend_class( $backend, $f );
+            my $location = $self->node->name;
+            my $node = $self->node; # closure
 
             $wb = sub {
-                no strict 'refs';
-                $logger->debug( "write cb ($backend) called for ", $self->node->name );
+                my %cb_args = @_;
+
+                my $force_delete = delete $cb_args{force_delete} ;
+                $logger->debug( "write cb ($backend) called for $location ", $force_delete ? '' : ' (deleted)' );
                 my $backend_obj = $self->get_backend($backend)
                     || $c->new( node => $self->node, name => $backend );
                 my $suffix = $backend_obj->suffix if $backend_obj->can('suffix');
                 my ( $file_ok, $file_path, $fh );
                 ( $file_ok, $file_path, $fh ) =
-                    $self->open_file_to_write( $backend, suffix => $suffix, @wr_args, @_ )
+                    $self->open_file_to_write( $backend, suffix => $suffix, @wr_args, %cb_args )
                     unless $c->skip_open;
 
                 # override needed for "save as" button
@@ -604,14 +606,21 @@ sub auto_write_init {
                         @wr_args,
                         io_handle => $fh,
                         file_path => $file_path,
-                        object    => $self->node,
-                        @_    # override from user
+                        object    => $node,
+                        %cb_args    # override from user
                     );
-                my $res = eval { $backend_obj->$f( %backend_args ); };
-                $logger->warn( "write backend $backend $c" . '::' . "$f failed: $@" ) if $@;
-                $self->close_file_to_write( $@, $fh, $file_path );
+                my $res;
+                if ($force_delete) {
+                    $backend_obj->delete(%backend_args);
+                }
+                else {
+                    $res = eval { $backend_obj->$f( %backend_args ); };
+                    $logger->warn( "write backend $backend $c" . '::' . "$f failed: $@" ) if $@;
+                    $self->close_file_to_write( $@, $fh, $file_path );
 
-                $self->auto_delete($file_path, \%backend_args) if $write->{auto_delete};
+                    $self->auto_delete($file_path, \%backend_args)
+                        if $write->{auto_delete} and not $c->skip_open ;
+                }
 
                 return defined $res ? $res : $@ ? 0 : 1;
             };
@@ -620,15 +629,17 @@ sub auto_write_init {
         # FIXME: enhance write back mechanism so that different backend *and* different nodes
         # work as expected
         $logger->debug( "registering write $backend in node " . $self->node->name );
-        push @{ $self->{write_back} }, [ $backend, $wb ];
-        $instance->register_write_back( $self->node->location );
+
+        $instance->register_write_back(  $self->node->location, $backend, $wb  );
     }
 }
 
 sub auto_delete {
     my ($self, $file_path, $args) = @_;
 
-    my $perl_data = $self->node->dump_as_data( full_dump => $args->{full_dump} // 0);
+    my $perl_data;
+    $perl_data = $self->node->dump_as_data( full_dump => $args->{full_dump} // 0)
+        if defined $self->node;
 
     my $size = ref($perl_data) eq 'HASH'  ? scalar keys %$perl_data
              : ref($perl_data) eq 'ARRAY' ? scalar @$perl_data
@@ -639,40 +650,6 @@ sub auto_delete {
     }
 }
 
-sub write_back {
-    my $self = shift;
-    my %args = @_;
-
-    my $force_backend = delete $args{backend} || '';
-
-    croak "write_back: no subs registered in node", $self->node->location, ". cannot save data\n"
-        unless @{ $self->{write_back} };
-
-    my @backends = @{ $self->{write_back} };
-    $logger->debug(
-        "write_back called on node '",
-        $self->node->name, "' for ", scalar @backends,
-        " backends"
-    );
-
-    my $dir = $args{config_dir};
-    mkpath( $dir, 0, 0755 ) if $dir and not -d $dir;
-
-    foreach my $wb_info (@backends) {
-        my ( $backend, $wb ) = @$wb_info;
-        if (   not $force_backend
-            or $force_backend eq $backend
-            or $force_backend eq 'all' ) {
-
-            # exit when write is successfull
-            my $res = $wb->(%args);
-            $logger->info( "write_back called with $backend backend, result is ",
-                defined $res ? $res : '<undef>' );
-            last if ( $res and not $force_backend );
-        }
-    }
-    $logger->debug( "write_back on node '", $self->node->name, "' done" );
-}
 
 sub open_file_to_write {
     my ( $self, $backend, %args ) = @_;
@@ -1163,27 +1140,6 @@ solution is either to set C<file> to undef or an empty string in the
 C<write_config> specification.
 
 =head1 Methods
-
-=head2 write_back ( ... )
-
-Try to run all subroutines registered by L<auto_write_init>
-write the configuration information until one succeeds (returns
-true).
-
-You can specify here a pseudo root directory or another config
-directory to write configuration data back with C<root> and
-C<config_dir> parameters. This overrides the model specifications.
-
-You can force to use a backend by specifying C<< backend => xxx >>.
-For instance, C<< backend => 'perl_file' >> or C<< backend => 'custom' >>.
-
-You can force to use all backend to write the files by specifying
-C<< backend => 'all' >>.
-
-You can force a specific config file to write with
-C<< config_file => 'foo/bar.conf' >>
-
-C<write_back> croaks if no write call-back are known for this node.
 
 =head2 support_annotation
 
