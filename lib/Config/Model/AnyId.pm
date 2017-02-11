@@ -268,18 +268,35 @@ sub set_properties {
 
 sub create_default_with_init {
     my $self = shift;
+    my $idx = shift;
 
     return unless defined $self->{default_with_init};
 
     my $h = $self->{default_with_init};
     foreach my $def_key ( keys %$h ) {
-        my $v_obj = $self->fetch_with_id($def_key);
-        if ( $v_obj->get_type eq 'leaf' ) {
-            $v_obj->store( $h->{$def_key} );
-        }
-        else {
-            $v_obj->load( $h->{$def_key} );
-        }
+        $self->create_default_content($def_key);
+    }
+}
+
+sub create_default_content {
+    my $self = shift;
+    my $idx = shift //  die "missing index";
+
+    return unless defined $self->{default_with_init};
+
+    my $def = $self->{default_with_init}{$idx};
+    return unless defined $def; # no default content to create for $idx
+
+    return if $self->_defined($idx) ; # object already created
+
+    $self->auto_vivify($idx);
+
+    my $v_obj = $self->_fetch_with_id($idx);
+    if ( $v_obj->get_type eq 'leaf' ) {
+        $v_obj->store( $def );
+    }
+    else {
+        $v_obj->load( $def );
     }
 }
 
@@ -698,6 +715,9 @@ sub fetch_with_id {
         or $check eq 'no';
 
     if ( $ok or $check eq 'no' ) {
+        # create another method
+        $self->create_default_content($idx); # no-op if idx exists
+
         $self->auto_vivify($idx) unless $self->_defined($idx);
         return $self->_fetch_with_id($idx);
     }
