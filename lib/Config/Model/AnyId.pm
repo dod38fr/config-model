@@ -1161,14 +1161,17 @@ or C<< default_keys => ['foo', 'bar'] >>.
 
 To perform special set-up on children nodes you can also use 
 
-   default_with_init =>  { 'foo' => 'X=Av Y=Bv' ,
-                           'bar' => 'Y=Av Z=Cv' }
-                           
+   default_with_init =>  {
+      foo => 'X=Av Y=Bv',
+      bar => 'Y=Av Z=Cv'
+   }
+
 When the hash contains leaves, you can also use:
 
-   default_with_init => { 'def_1' => 'def_1 stuff' ,
-                          'def_2' => 'def_2 stuff' }
-
+   default_with_init => {
+       def_1 => 'def_1 stuff',
+       def_2 => 'def_2 stuff'
+   }
 
 =item migrate_keys_from
 
