@@ -8,6 +8,8 @@ use Log::Log4perl qw(get_logger :levels);
 
 extends 'Config::Model::Backend::Any';
 
+with "Config::Model::Role::ComputeFunction";
+
 my $logger = get_logger("Backend::PlainFile");
 
 sub suffix { return ''; }
@@ -16,7 +18,7 @@ sub annotation { return 0; }
 
 # remember that a read backend (and its config file(s)) is attached to a node
 # OTOH, PlainFile backend deal with files that are attached to elements of a node.
-# Hence the files must not be managed by backend manager.
+# Hence the files must not be managed by backend manager except for deletion.
 
 # file not opened by BackendMgr
 # file_path, io_handle are undef
@@ -42,10 +44,13 @@ sub read {
 
     # read data from leaf element from the node
     foreach my $elt ( $node->get_element_name() ) {
-        my $file = $args{root} . $dir . $elt;
-        $logger->trace("looking for plainfile $file");
-
         my $obj = $args{object}->fetch_element( name => $elt );
+
+        my $file = $args{root} . $dir;
+        $file .= $args{file} ? $node->compute_string($args{file}) : $elt;
+
+        $logger->trace("looking for plainfile $file ");
+
         my $type = $obj->get_type;
 
         if ( $type eq 'leaf' ) {
@@ -137,9 +142,11 @@ sub write {
 
     # write data from leaf element from the node
     foreach my $elt ( $node->get_element_name() ) {
-        my $file = $dir . $elt;
-
         my $obj = $args{object}->fetch_element( name => $elt );
+
+        my $file = $dir;
+        $file .= $args{file} ? $node->compute_string($args{file}) : $elt;
+
         my $type = $obj->get_type;
         my @v;
 
@@ -155,7 +162,7 @@ sub write {
         }
 
         if (@v) {
-            $logger->trace("PlainFile write opening $file to write");
+            $logger->trace("PlainFile write opening $file to write $elt");
             my $fh = new IO::File;
             $fh->open( $file, '>' ) or die "Cannot open $file:$!";
             $fh->binmode(":utf8");
