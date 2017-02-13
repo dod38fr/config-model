@@ -11,19 +11,28 @@ $model_to_test = "MiniPlain";
     package MyReader;
     use Path::Tiny;
 
+    sub my_log {
+        print "plainfile backend test: @_\n";
+    }
+
     sub read {
         my %args = @_;
         my $dir = $args{root}.$args{config_dir};
         foreach my $file (path($dir)->children()) {
-            print "dummy read file $file\n";
+            my_log("dummy read file $file");
             my ($key,$elt) = split /\./,$file->basename;
-            $args{object}->load("$elt:$key");
+            if ($elt =~ /postinst|prerm/) {
+                $args{object}->load("package-scripts $elt:$key");
+            }
+            else {
+                $args{object}->load("$elt:$key");
+            }
         }
         return 1;
     }
 
     sub write {
-        print "dummy write called\n";
+        mylog("dummy write called");
         return 1;
     }
 }
