@@ -915,13 +915,22 @@ optional as the file name can be hardcoded in the custom class.
 
 The configuration file name can be specified with C<&index> keyword
 when a backend is associated to a node contained in a hash. For instance,
-with C<file> set to C<index.conf>:
+with C<file> set to C<&index.conf>:
 
  service    # hash element
    foo      # hash index
      nodeA  # values of nodeA are stored in foo.conf
    bar      # hash index
      nodeB  # values of nodeB are  stored in bar.conf
+
+Likewise, the keyword C<&element> can be used to specify the file
+name. For instance, with C<file> set to C<&element-&index.conf>:
+
+ service    # hash element
+   foo      # hash index
+     nodeA  # values of nodeA are stored in service.foo.conf
+   bar      # hash index
+     nodeB  # values of nodeB are  stored in service.bar.conf
 
 Alternatively, C<file> can be set to C<->, in which case, the
 configuration is read from STDIN.
