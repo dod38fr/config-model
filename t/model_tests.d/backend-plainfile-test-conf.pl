@@ -81,7 +81,9 @@ $model->create_config_class(
         name  => 'with-index',
         check => [
             # check a specific value stored in example file
-            #baz => q!/bin/sh -c '[ "$(cat /etc/X11/default-display-manager 2>/dev/null)" = "/usr/bin/sddm" ]''!
+            'install:foo list:0' => "foo val1",
+            'move:bar list:0' => "bar val1",
+            'move:bar list:2' => "bar val3",
         ]
     },
     {   # test file removal
@@ -90,10 +92,6 @@ $model->create_config_class(
         load => 'install:bar list:.clear',
         file_check_sub => sub { shift @{$_[0]}; },
         load2 => 'install:bar',
-        check => [
-            # check a specific value stored in example file
-            #baz => q!/bin/sh -c '[ "$(cat /etc/X11/default-display-manager 2>/dev/null)" = "/usr/bin/sddm" ]''!
-        ]
     },
     {   # test file removal
         name  => 'with-index-and-removal',
@@ -101,10 +99,6 @@ $model->create_config_class(
         # push a value to force loading of install.bar file
         load => 'install:bar list:.push(pushed) - install~bar',
         file_check_sub => sub { shift @{$_[0]}; },
-        check => [
-            # check a specific value stored in example file
-            #baz => q!/bin/sh -c '[ "$(cat /etc/X11/default-display-manager 2>/dev/null)" = "/usr/bin/sddm" ]''!
-        ]
     },
 
 );
