@@ -34,7 +34,7 @@ sub eval_function {
 
     if ($@) {
         my $e = $@;
-        my $msg = $e ? $e->full_message : '';
+        my $msg = ref($e) && $e->can('full_message')  ? $e->full_message : $e;
         Config::Model::Exception::Model->throw(
             object => $self,
             error  => "Compute function argument '$up':\n" . $msg
