@@ -66,6 +66,7 @@ sub get_tuned_config_dir {
     return $dir;
 }
 
+# check if dir is present. May create it in auto_create write mode
 sub get_cfg_dir_path {
     my $self = shift;
     my %args = @_;
@@ -90,6 +91,8 @@ sub get_cfg_dir_path {
     return ( 1, $dir );
 }
 
+# return (1, config file path) constructed from arguments or return
+# (0). May create directory in auto_create write mode.
 sub get_cfg_file_path {
     my $self = shift;
     my %args = @_;
