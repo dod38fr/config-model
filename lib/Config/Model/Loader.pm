@@ -709,10 +709,11 @@ sub _load_hash {
         return 'ok';
     }
     elsif ($action) {
+        $logger->debug("_load_hash: giving up");
         Config::Model::Exception::Load->throw(
             object  => $element,
             command => join( '', grep { defined $_ } @$inst ),
-            error   => "Hash assignment with '$action' on unexpected " . "cargo_type: $cargo_type"
+            error   => "Hash load with '$action' on unexpected " . "cargo_type: $cargo_type"
         );
     }
 }
