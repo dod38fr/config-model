@@ -370,7 +370,7 @@ sub try_read_backend {
         config_file => $config_file_override
     );
 
-    my ( $res, $file_path );
+    my ( $res, $file_path, $error );
 
     if ( $backend eq 'custom' ) {
         my $c = my $file = delete $read->{class};
@@ -395,6 +395,7 @@ sub try_read_backend {
                 object    => $self->node
             );
         };
+        $error = $@;
     }
     elsif ( $backend eq 'perl_file' ) {
         my ($file_ok, $fh);
@@ -402,6 +403,7 @@ sub try_read_backend {
         return ( 0, $file_path ) if not $file_ok or not -r $file_path;
         $fh = $self->open_read_file($backend, $file_path);
         eval { $res = $self->read_perl( @read_args, file_path => $file_path, io_handle => $fh ); };
+        $error = $@;
     }
     elsif ( $backend eq 'cds_file' ) {
         my ($file_ok, $fh);
@@ -415,6 +417,7 @@ sub try_read_backend {
                 io_handle => $fh,
             );
         };
+        $error = $@;
     }
     else {
         # try to load a specific Backend class
@@ -444,6 +447,7 @@ sub try_read_backend {
                 object    => $self->node,
             );
         };
+        $error = $@;
 
         # only backend based on C::M::Backend::Any can support annotations
         if ($backend_obj->can('annotation')) {
@@ -453,17 +457,19 @@ sub try_read_backend {
     }
 
     # catch eval errors done in the if-then-else block before
-    my $e = $@;
-    if ( ref($e) and $e->isa('Config::Model::Exception::Syntax') ) {
+    if ( ref($error) and $error->isa('Config::Model::Exception::Syntax') ) {
 
-        $e->parsed_file( $file_path) unless $e->parsed_file;
-        $e->rethrow;
+        $error->parsed_file( $file_path) unless $error->parsed_file;
+        $error->rethrow;
     }
-    elsif ( ref $e and $e->isa('Config::Model::Exception') ) {
-        $e->rethrow ;
+    elsif ( ref $error and $error->isa('Config::Model::Exception') ) {
+        $error->rethrow ;
     }
-    elsif ( $e ) {
-        die "Backend error: $e";
+    elsif ( ref $error ) {
+        die $error ;
+    }
+    elsif ( $error ) {
+        die "Backend error: $error";
     }
 
     return ( $res, $file_path );
