@@ -10,6 +10,7 @@ use Carp;
 extends qw/Config::Model::AnyId/;
 
 with "Config::Model::Role::Grab";
+with "Config::Model::Role::ComputeFunction";
 
 my $logger = get_logger("Tree::Element::Id::List");
 

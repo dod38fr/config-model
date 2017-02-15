@@ -18,6 +18,7 @@ my $logger = get_logger("Tree::Element::Id::Hash");
 extends qw/Config::Model::AnyId/;
 
 with "Config::Model::Role::Grab";
+with "Config::Model::Role::ComputeFunction";
 
 has data => ( is => 'rw', isa => 'HashRef',  default => sub { {}; } );
 has list => (

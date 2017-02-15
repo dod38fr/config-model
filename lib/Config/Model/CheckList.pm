@@ -16,6 +16,7 @@ extends qw/Config::Model::AnyThing/;
 with "Config::Model::Role::WarpMaster";
 with "Config::Model::Role::Grab";
 with "Config::Model::Role::HelpAsText";
+with "Config::Model::Role::ComputeFunction";
 
 my $logger = get_logger("Tree::Element::CheckList");
 
