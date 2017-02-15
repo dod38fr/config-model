@@ -158,28 +158,20 @@ sub get_cfg_file_path {
 }
 
 sub open_read_file {
-    my $self = shift;
-    my %args = @_;
+    my ($self, $backend, $file_path) = @_;
 
-    my ( $file_ok, $file_path ) = $self->get_cfg_file_path(%args);
-
-    if ( $file_ok and $file_path eq '-' ) {
+    if ( $file_path eq '-' ) {
         my $io = IO::Handle->new();
         if ( $io->fdopen( fileno(STDIN), "r" ) ) {
-            return ( 1, '-', $io );
+            return $io;
         }
         else {
-            return ( 0, '-' );
+            return;
         }
     }
 
-    # not very clean
-    return ( 0, $file_path )
-        if $args{backend} =~ /_file$/
-        and ( not $file_ok or not -r $file_path );
-
     my $fh = new IO::File;
-    if ( $file_ok and -e $file_path ) {
+    if ( -e $file_path ) {
         $logger->debug("open_read_file: open $file_path for read");
         $fh->open($file_path);
         $fh->binmode(":utf8");
@@ -187,10 +179,10 @@ sub open_read_file {
         # store a backup in memory in case there's a problem
         $self->file_backup( [ $fh->getlines ] );
         $fh->seek( 0, 0 );    # go back to beginning of file
-        return ( 1, $file_path, $fh );
+        return $fh;
     }
     else {
-        return ( 0, $file_path );
+        return;
     }
 }
 
@@ -378,20 +370,24 @@ sub try_read_backend {
         config_file => $config_file_override
     );
 
-    my ( $file_ok, $res, $fh, $file_path );
+    my ( $res, $file_path );
 
     if ( $backend eq 'custom' ) {
         my $c = my $file = delete $read->{class};
         $file =~ s!::!/!g;
         my $f = delete $read->{function} || 'read';
         require $file . '.pm' unless $c->can($f);
-        no strict 'refs';
 
         $logger->info("Read with custom backend $ {c}::$f in dir $read_dir");
+        my ($file_ok, $fh);
+        ( $file_ok, $file_path ) = $self->get_cfg_file_path(@read_args);
 
-        ( $file_ok, $file_path, $fh ) = $self->open_read_file(@read_args)
-            unless ($c->can('skip_open') and $c->skip_open);
+        if ($file_ok and not ($c->can('skip_open') and $c->skip_open)) {
+            $fh = $self->open_read_file($backend, $file_path);
+        }
+
         eval {
+            no strict 'refs';
             $res = &{ $c . '::' . $f }(
                 @read_args,
                 file_path => $file_path,
@@ -401,13 +397,17 @@ sub try_read_backend {
         };
     }
     elsif ( $backend eq 'perl_file' ) {
-        ( $file_ok, $file_path, $fh ) = $self->open_read_file( @read_args, suffix => '.pl' );
-        return ( 0, $file_path ) unless $file_ok;
+        my ($file_ok, $fh);
+        ( $file_ok, $file_path ) = $self->get_cfg_file_path(@read_args, suffix => '.pl' );
+        return ( 0, $file_path ) if not $file_ok or not -r $file_path;
+        $fh = $self->open_read_file($backend, $file_path);
         eval { $res = $self->read_perl( @read_args, file_path => $file_path, io_handle => $fh ); };
     }
     elsif ( $backend eq 'cds_file' ) {
-        ( $file_ok, $file_path, $fh ) = $self->open_read_file( @read_args, suffix => '.cds' );
-        return ( 0, $file_path ) unless $file_ok;
+        my ($file_ok, $fh);
+        ( $file_ok, $file_path ) = $self->get_cfg_file_path(@read_args, suffix => '.cds' );
+        return ( 0, $file_path ) if not $file_ok or not -r $file_path;
+        $fh = $self->open_read_file($backend, $file_path);
         eval {
             $res = $self->read_cds_file(
                 @read_args,
@@ -425,10 +425,12 @@ sub try_read_backend {
         no strict 'refs';
         my $backend_obj = $c->new( node => $self->node, name => $backend );
         $self->set_backend( $backend => $backend_obj );
-        my $suffix;
+        my ($file_ok, $fh, $suffix);
         $suffix = $backend_obj->suffix if $backend_obj->can('suffix');
-        ( $file_ok, $file_path, $fh ) = $self->open_read_file( @read_args, suffix => $suffix )
-            unless $c->skip_open;
+        ( $file_ok, $file_path ) = $self->get_cfg_file_path(@read_args, suffix => $suffix );
+        $fh = $self->open_read_file($backend, $file_path)
+            if $file_ok and not $c->skip_open;
+
         if ($logger->is_info) {
             my $fp = defined $file_path ? " on $file_path":'' ;
             $logger->info( "Read with $backend " . $c . "::$f".$fp);
