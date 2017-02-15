@@ -703,9 +703,8 @@ sub _load_hash {
         $self->_load_value( $obj, $check, $subaction, $value )
             and return 'ok';
     }
-    elsif ( $action eq ':' and defined $note ) {
-
-        # action was just to store annotation
+    elsif ( $action eq ':' ) {
+        $logger->debug("_load_hash: created empty element of type $cargo_type");
         return 'ok';
     }
     elsif ($action) {
