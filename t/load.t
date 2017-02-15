@@ -275,11 +275,11 @@ eq_or_diff(
     "check result after load '$step'"
 );
 
-$step = 'hash_a:a=z hash_a:b=z2 hash_a:"a b "="z 1"';
+$step = 'hash_a:a=z hash_a:b=z2 hash_a:"a b "="z 1" hash_a:empty';
 ok( $root->load( step => $step, ), "load : '$step'" );
 is_deeply(
     [ sort $root->fetch_element('hash_a')->fetch_all_indexes ],
-    [ 'a', 'a b ', 'b' ],
+    [ 'a', 'a b ', 'b', 'empty' ],
     "check result after load '$step'"
 );
 is( $root->fetch_element('hash_a')->fetch_with_id('a')->fetch, 'z', 'check result' );
