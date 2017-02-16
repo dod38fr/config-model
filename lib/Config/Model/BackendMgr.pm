@@ -123,7 +123,7 @@ sub get_cfg_file_path {
     my ( $dir_ok, $dir ) = $self->get_cfg_dir_path(%args);
 
     if ( defined $args{file} ) {
-        my $file = $self->node->compute_string($args{file});
+        my $file = $args{skip_compute} ? $args{file} : $self->node->compute_string($args{file});
         my $res = $dir . $file;
         $logger->trace("get_cfg_file_path: returns $res");
         return ( $dir_ok, $res );
@@ -430,7 +430,11 @@ sub try_read_backend {
         $self->set_backend( $backend => $backend_obj );
         my ($file_ok, $fh, $suffix);
         $suffix = $backend_obj->suffix if $backend_obj->can('suffix');
-        ( $file_ok, $file_path ) = $self->get_cfg_file_path(@read_args, suffix => $suffix );
+        ( $file_ok, $file_path ) = $self->get_cfg_file_path(
+            @read_args,
+            suffix => $suffix,
+            skip_compute => $c->skip_open,
+        );
         $fh = $self->open_read_file($backend, $file_path)
             if $file_ok and not $c->skip_open;
 

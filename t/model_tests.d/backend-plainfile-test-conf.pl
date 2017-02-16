@@ -22,12 +22,7 @@ $model_to_test = "MiniPlain";
         foreach my $file (path($dir)->children()) {
             my_log("dummy read file $file");
             my ($key,$elt) = split /\./,$file->basename;
-            if ($elt =~ /postinst|prerm/) {
-                $args{object}->load("package-scripts $elt:$key");
-            }
-            else {
-                $args{object}->load("$elt:$key");
-            }
+            $args{object}->load("$elt:$key");
         }
         return 1;
     }
@@ -43,13 +38,17 @@ $model_to_test = "MiniPlain";
 # this class is used by MiniPlain class below
 $model->create_config_class(
     element => [
-      list => {
-        cargo => {
-          type => 'leaf',
-          value_type => 'uniline'
+        list => {
+            cargo => {
+                type => 'leaf',
+                value_type => 'uniline'
+            },
+            type => 'list'
         },
-        type => 'list'
-      }
+        a_string => {
+            type => 'leaf',
+            value_type => 'string'
+        }
     ],
     name => 'PlainTest::Class',
     read_config => [{
@@ -57,7 +56,7 @@ $model->create_config_class(
         auto_delete => '1',
         backend => 'PlainFile',
         config_dir => 'debian',
-        file => '&index.&element'
+        file => '&index(-).&element(-).&element'
     }]
 );
 

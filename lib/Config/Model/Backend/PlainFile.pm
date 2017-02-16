@@ -47,7 +47,7 @@ sub read {
         my $obj = $args{object}->fetch_element( name => $elt );
 
         my $file = $args{root} . $dir;
-        $file .= $args{file} ? $node->compute_string($args{file}) : $elt;
+        $file .= $args{file} ? $obj->compute_string($args{file}) : $elt;
 
         $logger->trace("looking for plainfile $file ");
 
@@ -145,14 +145,15 @@ sub write {
         my $obj = $args{object}->fetch_element( name => $elt );
 
         my $file = $dir;
-        $file .= $args{file} ? $node->compute_string($args{file}) : $elt;
+        $file .= $args{file} ? $obj->compute_string($args{file}) : $elt;
 
         my $type = $obj->get_type;
         my @v;
 
         if ( $type eq 'leaf' ) {
-            $v[0] = $obj->fetch( check => $args{check} );
-            $v[0] .= "\n" unless $obj->value_type eq 'string';
+            my $v = $obj->fetch( check => $args{check} );
+            $v .= "\n" if defined $v and $obj->value_type ne 'string';
+            push @v, $v if defined $v;
         }
         elsif ( $type eq 'list' ) {
             @v = map { "$_\n" } $obj->fetch_all_values;
@@ -201,7 +202,7 @@ sub delete {
         my $obj = $args{object}->fetch_element( name => $elt );
 
         my $file = $dir;
-        $file .= $args{file} ? $node->compute_string($args{file}) : $elt;
+        $file .= $args{file} ? $obj->compute_string($args{file}) : $elt;
         $logger->info( "Removing $file (deleted node)" );
         unlink($file);
     }
@@ -273,6 +274,31 @@ Not supported
 
 =back
 
+=head1 File mapping
+
+By default, the configuration file is named after the element name
+(like in synopsis above).
+
+The C<file> parameter can also be used to specify a file name that
+take into account the path in the tree using C<&index()> and
+C<&element()> functions from L<Config::Model::Role::ComputeFunction>.
+
+For instance, with the following model:
+
+    class_name => "Foo",
+    element => [
+        string_a => { type => 'leaf', value_type => 'string'}
+        string_b => { type => 'leaf', value_type => 'string'}
+    ],
+    read_config => [{
+        backend => 'PlainFile',
+        config_dir => 'foo',
+        file => '&element(-).&element'
+    }]
+
+If the configuration is loaded with C<example string_a=something
+string_b=else>, this backend writes "C<something>" in file
+C<example.string_a> and C<else> in file C<example.string_b>.
 
 =head1 Methods
 
