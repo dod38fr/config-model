@@ -248,11 +248,30 @@ with C<foo> and C<yes> inside.
 =head1 DESCRIPTION
 
 This module is used directly by L<Config::Model> to read or write the
-content of a configuration tree written in several files. 
+content of a configuration tree written in several files.
 Each element of the node is written in a plain file.
 
-This module supports currently only leaf and list elements.  
-In the case of C<list> element, each line of the file is a value of the list.
+=head1 Element type and file mapping
+
+Element values are written in one or several files depending on their type.
+
+=over
+
+=item leaf
+
+The leaf value is written in one file. This file can have several lines if the leaf
+type is C<string>
+
+=item list
+
+The list content is written in one file. Each line of the file is a
+value of the list.
+
+=item hash
+
+Not supported
+
+=back
 
 
 =head1 Methods
