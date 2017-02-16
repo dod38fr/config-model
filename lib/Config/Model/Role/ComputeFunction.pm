@@ -46,14 +46,14 @@ sub eval_function {
         $result = $target->element_name;
         Config::Model::Exception::Model->throw(
             object => $self,
-            error  => "Compute function '". $target->name. "' has no element name"
+            error  => "Compute function error: '". $target->name. "' has no element name"
         ) unless defined $result;
     }
     elsif ( $function eq 'index' ) {
         $result = $target->index_value;
         Config::Model::Exception::Model->throw(
             object => $self,
-            error  => "Compute function '". $target->name. "' has no index value"
+            error  => "Compute function error: '". $target->name. "' has no index value"
         ) unless defined $result;
     }
     else {
