@@ -10,9 +10,10 @@ $model_to_test = "MiniPlain";
 {
     package MyReader;
     use Path::Tiny;
+    use Test::More;
 
     sub my_log {
-        print "plainfile backend test: @_\n";
+        note("plainfile backend test: @_");
     }
 
     sub read {
