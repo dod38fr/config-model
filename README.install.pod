@@ -35,8 +35,11 @@ instructions for Mac OSX for details.
 
 =head2 Fedora
 
-L<Config::Model rpm|https://apps.fedoraproject.org/packages/perl-Config-Model>
-on Fedora is severely oudated. See below for installation.
+Run:
+
+ yum install perl-Config-Model perl-App-Cme perl-Config-Model-TkUI
+
+See L<Config::Model rpm|https://apps.fedoraproject.org/packages/perl-Config-Model>
 
 =head2 Other systems
 
