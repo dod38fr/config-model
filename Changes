@@ -1,5 +1,38 @@
 {{$NEXT}}
 
+2.098 2017-02-26
+
+  This release bring some improvements to enable more feature on
+  Debian Dpkg model.
+
+  Build:
+    * build depends on Config::Model::Tester 2.059
+    * bump © year in dist.ini
+
+  Model improvements:
+    * allow injection of model snippet in another configuration class.
+      This is used by dpkg model: a dpkg-control default value is
+      computed from a value in dpkg model only when dpkg-control model
+      is loaded with dpkg model,
+    * add doc for has_instance and get_instance methods
+
+  Plainfile backend improvements:
+    * handle deletion of file managed by Plainfile backend
+    * plainfile backend can handle file named with &element and &index
+      functions, i.e the config file name can depend on the location
+      of the value in the configuration tree. (used by dpkg model for
+      debian/<pkg>.install files)
+
+  Value computer improvements:
+    * doc: mention that functions are allowed in variable definition
+    * allow '- -' or '--' param to &index
+
+  Bug fix:
+    * fix error forwarding in BackendMgr
+    * warn when Term::ReadLine::Gnu is not installed
+    * fix term UI  set command to accept white spaces
+    * Loader: allow creation of empty hash leaf
+
 2.097 2016-12-22
 
   Bug fix:
