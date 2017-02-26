@@ -17,11 +17,11 @@ if ( $Config{osname} ne 'linux' ) {
 my @lsmod = eval { `lsmod`; };
 
 if ($@) {
-    plan skip_all => "Cannot check is fuse module is loaded: $@";
+    plan skip_all => "Cannot check is fuse kernel module is loaded: $@";
 }
 
 if ( not grep ( /fuse/, @lsmod ) ) {
-    plan skip_all => "fuse module is not loaded";
+    plan skip_all => "fuse kernel module is not loaded";
 }
 
 if ( not grep ( m!/!, `bash -c 'type fusermount'` ) ) {
