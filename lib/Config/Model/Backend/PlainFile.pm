@@ -142,6 +142,7 @@ sub write {
         if (@v) {
             $logger->trace("PlainFile write opening $file to write $elt");
             $file->spew_utf8(@v);
+            $file->chmod($args{file_mode}) if $args{file_mode};
         }
         elsif ($file->exists) {
             $logger->trace("PlainFile delete $file");
@@ -265,12 +266,17 @@ For instance, with the following model:
     read_config => [{
         backend => 'PlainFile',
         config_dir => 'foo',
-        file => '&element(-).&element'
+        file => '&element(-).&element',
+        file_mode => 0644,  # optional
     }]
 
 If the configuration is loaded with C<example string_a=something
 string_b=else>, this backend writes "C<something>" in file
 C<example.string_a> and C<else> in file C<example.string_b>.
+
+C<file_mode> parameter can be used to set the mode of the written
+file. C<file_mode> value can be in any form suppported by
+L<Path::Tiny/chmod>.
 
 =head1 Methods
 
