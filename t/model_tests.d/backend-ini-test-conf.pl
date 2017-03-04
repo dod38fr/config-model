@@ -49,6 +49,7 @@ $model->create_config_class(
         # the $conf_file_name and $conf_dir variable above
         config_dir  => '/etc/',
         file        => 'test.ini',
+        file_mode   => 'g+w',
         auto_create => 1,
     }],
 );
@@ -61,7 +62,10 @@ $model->create_config_class(
         check => [
             # check a specific value stored in example file
             baz => q!/bin/sh -c '[ "$(cat /etc/X11/default-display-manager 2>/dev/null)" = "/usr/bin/sddm" ]''!
-        ]
+        ],
+        file_mode => {
+            '/etc/test.ini' => 0664
+        }
     },
 );
 
