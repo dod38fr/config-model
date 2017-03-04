@@ -3,7 +3,7 @@ package Config::Model::Backend::PlainFile;
 use Carp;
 use Mouse;
 use Config::Model::Exception;
-use File::Path;
+use Path::Tiny;
 use Log::Log4perl qw(get_logger :levels);
 
 extends 'Config::Model::Backend::Any';
@@ -46,8 +46,9 @@ sub read {
     foreach my $elt ( $node->get_element_name() ) {
         my $obj = $args{object}->fetch_element( name => $elt );
 
-        my $file = $args{root} . $dir;
-        $file .= $args{file} ? $obj->compute_string($args{file}) : $elt;
+        my $dir = path($args{root} . $dir);
+        my $file_name = $args{file} ? $obj->compute_string($args{file}) : $elt;
+        my $file = $dir->child($file_name);
 
         $logger->trace("looking for plainfile $file ");
 
@@ -72,30 +73,14 @@ sub read {
 }
 
 #
-# New subroutine "open_for_read" extracted - Thu Jul 21 13:36:52 2011.
-#
-sub open_for_read {
-    my ( $self, $file, $elt ) = @_;
-
-    return unless -e $file;
-
-    my $fh = new IO::File;
-    $fh->open($file) or die "Cannot open $file:$!";
-    $fh->binmode(":utf8");
-    $logger->trace("found file $file for element $elt");
-
-    return ($fh);
-}
-
-#
 # New subroutine "read_leaf" extracted - Thu Jul 21 12:58:06 2011.
 #
 sub read_leaf {
     my ( $self, $obj, $elt, $check, $file, $args ) = @_;
 
-    my $fh = $self->open_for_read( $file, $elt ) or return;
+    return unless $file->exists;
 
-    my $v = join( '', $fh->getlines );
+    my $v = $file->slurp_utf8;
     chomp $v unless $obj->value_type eq 'string';
     $obj->store( value => $v, check => $check );
 }
@@ -106,10 +91,10 @@ sub read_leaf {
 sub read_list {
     my ( $self, $obj, $elt, $check, $file, $args ) = @_;
 
-    my $fh = $self->open_for_read( $file, $elt ) or return;
+    return unless $file->exists;
 
-    my @v = $fh->getlines;
-    chomp @v;
+    my @v = $file->lines_utf8({ chomp => 1});
+
     $obj->store_set(@v);
 }
 
@@ -135,8 +120,8 @@ sub write {
     # check      => yes|no|skip
 
     my $check = $args{check} || 'yes';
-    my $dir = $args{root} . $args{config_dir};
-    mkpath( $dir, { mode => 0755 } ) unless -d $dir;
+    my $dir = path($args{root} . $args{config_dir});
+    $dir->mkpath({ mode => 0755 } ) unless -d $dir;
     my $node = $args{object};
     $logger->debug( "PlainFile write called on node ", $node->name );
 
@@ -144,8 +129,8 @@ sub write {
     foreach my $elt ( $node->get_element_name() ) {
         my $obj = $args{object}->fetch_element( name => $elt );
 
-        my $file = $dir;
-        $file .= $args{file} ? $obj->compute_string($args{file}) : $elt;
+        my $file_name = $args{file} ? $obj->compute_string($args{file}) : $elt;
+        my $file = $dir->child($file_name);
 
         my $type = $obj->get_type;
         my @v;
@@ -165,15 +150,11 @@ sub write {
 
         if (@v) {
             $logger->trace("PlainFile write opening $file to write $elt");
-            my $fh = new IO::File;
-            $fh->open( $file, '>' ) or die "Cannot open $file:$!";
-            $fh->binmode(":utf8");
-            $fh->print(@v);
-            $fh->close;
+            $file->spew_utf8(@v);
         }
-        elsif (-e $file) {
+        elsif ($file->exists) {
             $logger->trace("PlainFile delete $file");
-            unlink($file);
+            $file->remove;
         }
     }
 
