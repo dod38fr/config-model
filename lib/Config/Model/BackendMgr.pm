@@ -558,9 +558,10 @@ sub auto_write_init {
                         @_                          # override from user
                     );
                 };
-                $logger->warn( "write backend $c" . '::' . "$f failed: $@" ) if $@;
-                $self->close_file_to_write( $@, $fh, $file_path );
-                return defined $res ? $res : $@ ? 0 : 1;
+                my $error = $@;
+                $logger->warn( "write backend $c" . '::' . "$f failed: $error" ) if $error;
+                $self->close_file_to_write( $error, $fh, $file_path );
+                return defined $res ? $res : $error ? 0 : 1;
             };
             $self->{auto_write}{custom} = 1;
         }
@@ -573,9 +574,10 @@ sub auto_write_init {
                 $res = eval {
                     $self->write_perl( @wr_args, io_handle => $fh, file_path => $file_path, @_ );
                 };
-                $self->close_file_to_write( $@, $fh, $file_path );
-                $logger->warn("write backend $backend failed: $@") if $@;
-                return defined $res ? $res : $@ ? 0 : 1;
+                my $error = $@;
+                $logger->warn("write backend $backend failed: $error") if $error;
+                $self->close_file_to_write( $error, $fh, $file_path );
+                return defined $res ? $res : $error ? 0 : 1;
             };
             $self->{auto_write}{perl_file} = 1;
         }
@@ -593,9 +595,10 @@ sub auto_write_init {
                         @_
                     );
                 };
-                $logger->warn("write backend $backend failed: $@") if $@;
-                $self->close_file_to_write( $@, $fh, $file_path );
-                return defined $res ? $res : $@ ? 0 : 1;
+                my $error = $@;
+                $logger->warn("write backend $backend failed: $error") if $error;
+                $self->close_file_to_write( $error, $fh, $file_path );
+                return defined $res ? $res : $error ? 0 : 1;
             };
             $self->{auto_write}{cds_file} = 1;
         }
@@ -633,8 +636,9 @@ sub auto_write_init {
                 }
                 else {
                     $res = eval { $backend_obj->$f( %backend_args ); };
-                    $logger->warn( "write backend $backend $c" . '::' . "$f failed: $@" ) if $@;
-                    $self->close_file_to_write( $@, $fh, $file_path );
+                    my $error = $@;
+                    $logger->warn( "write backend $backend $c" . '::' . "$f failed: $error" ) if $error;
+                    $self->close_file_to_write( $error, $fh, $file_path );
 
                     $self->auto_delete($file_path, \%backend_args)
                         if $write->{auto_delete} and not $c->skip_open ;
