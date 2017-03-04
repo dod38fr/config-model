@@ -561,7 +561,7 @@ sub auto_write_init {
                 };
                 my $error = $@;
                 $logger->warn( "write backend $c" . '::' . "$f failed: $error" ) if $error;
-                $self->close_file_to_write( $error, $fh, $file_path );
+                $self->close_file_to_write( $error, $fh, $file_path, $write->{file_mode} );
                 return defined $res ? $res : $error ? 0 : 1;
             };
             $self->{auto_write}{custom} = 1;
@@ -577,7 +577,7 @@ sub auto_write_init {
                 };
                 my $error = $@;
                 $logger->warn("write backend $backend failed: $error") if $error;
-                $self->close_file_to_write( $error, $fh, $file_path );
+                $self->close_file_to_write( $error, $fh, $file_path, $write->{file_mode} );
                 return defined $res ? $res : $error ? 0 : 1;
             };
             $self->{auto_write}{perl_file} = 1;
@@ -598,7 +598,7 @@ sub auto_write_init {
                 };
                 my $error = $@;
                 $logger->warn("write backend $backend failed: $error") if $error;
-                $self->close_file_to_write( $error, $fh, $file_path );
+                $self->close_file_to_write( $error, $fh, $file_path, $write->{file_mode} );
                 return defined $res ? $res : $error ? 0 : 1;
             };
             $self->{auto_write}{cds_file} = 1;
@@ -639,7 +639,7 @@ sub auto_write_init {
                     $res = eval { $backend_obj->$f( %backend_args ); };
                     my $error = $@;
                     $logger->warn( "write backend $backend $c" . '::' . "$f failed: $error" ) if $error;
-                    $self->close_file_to_write( $error, $fh, $file_path );
+                    $self->close_file_to_write( $error, $fh, $file_path, $write->{file_mode} );
 
                     $self->auto_delete($file_path, \%backend_args)
                         if $write->{auto_delete} and not $c->skip_open ;
@@ -708,7 +708,7 @@ sub open_file_to_write {
 }
 
 sub close_file_to_write {
-    my ( $self, $error, $fh, $file_path ) = @_;
+    my ( $self, $error, $fh, $file_path, $file_mode ) = @_;
 
     return unless defined $file_path;
 
@@ -726,6 +726,7 @@ sub close_file_to_write {
     }
 
     $fh->close;
+    path($file_path)->chmod($file_mode) if $file_mode;
 
     # check file size and remove empty files
     unlink($file_path) if -z $file_path and not -l $file_path;
@@ -956,6 +957,16 @@ name. For instance, with C<file> set to C<&element-&index.conf>:
 
 Alternatively, C<file> can be set to C<->, in which case, the
 configuration is read from STDIN.
+
+=item file_mode
+
+C<file_mode> parameter can be used to set the mode of the written
+file(s). C<file_mode> value can be in any form suppported by
+L<Path::Tiny/chmod>. Example:
+
+  file_mode => 0664,
+  file_mode => '0664',
+  file_mode => 'g+w'
 
 =item os_config_dir
 
