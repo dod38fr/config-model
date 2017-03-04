@@ -16,6 +16,7 @@ use IO::File;
 use Storable qw/dclone/;
 use Scalar::Util qw/weaken/;
 use Log::Log4perl qw(get_logger :levels);
+use Path::Tiny 0.070;
 
 with "Config::Model::Role::ComputeFunction";
 
@@ -693,13 +694,12 @@ sub open_file_to_write {
         }
     }
     elsif ($file_ok) {
-        if ( $do_backup and -r $file_path ) {
-            copy( $file_path, $file_path . $backup ) or die "Backup copy failed: $!";
+        my $file = path($file_path);
+        if ( $do_backup and $file->is_file ) {
+            $file->copy( $file_path . $backup ) or die "Backup copy failed: $!";
         }
         $logger->debug("$backend backend opened file $file_path to write");
-        my $fh = new IO::File;
-        $fh->open("> $file_path") || die "Cannot open $file_path:$!";
-        $fh->binmode(':utf8');
+        my $fh = $file->openw_utf8;
         return ( $file_ok, $file_path, $fh );
     }
     else {
