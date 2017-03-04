@@ -56,6 +56,7 @@ $model->create_config_class(
         auto_delete => '1',
         backend => 'PlainFile',
         config_dir => 'debian',
+        file_mode => 'a+x',
         file => '&index(-).&element(-).&element'
     }]
 );
@@ -93,7 +94,12 @@ $model->create_config_class(
             'install:foo list:0' => "foo val1",
             'move:bar list:0' => "bar val1",
             'move:bar list:2' => "bar val3",
-        ]
+        ],
+        file_mode => {
+            'debian/bar.install.list' => 0755,
+            'debian/bar.move.list' => 0755,
+            'debian/foo.install.list' => 0755,
+        }
     },
     {   # test file removal
         name  => 'with-index-and-content-removal',
