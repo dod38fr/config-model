@@ -72,9 +72,6 @@ sub read {
     return 1;
 }
 
-#
-# New subroutine "read_leaf" extracted - Thu Jul 21 12:58:06 2011.
-#
 sub read_leaf {
     my ( $self, $obj, $elt, $check, $file, $args ) = @_;
 
@@ -85,9 +82,6 @@ sub read_leaf {
     $obj->store( value => $v, check => $check );
 }
 
-#
-# New subroutine "read_list" extracted - Thu Jul 21 12:58:36 2011.
-#
 sub read_list {
     my ( $self, $obj, $elt, $check, $file, $args ) = @_;
 
@@ -98,9 +92,6 @@ sub read_list {
     $obj->store_set(@v);
 }
 
-#
-# New subroutine "read_hash" extracted - Thu Jul 21 12:58:50 2011.
-#
 sub read_hash {
     my ( $self, $obj, $elt, $check, $file, $args ) = @_;
     $logger->debug("PlainFile read skipped hash $elt");
