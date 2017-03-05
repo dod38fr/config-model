@@ -1,5 +1,12 @@
 {{$NEXT}}
 
+2.099 2017-03-05
+
+  Model improvement:
+  * add file_mode parameter to backend specification. This
+    parameter sets the permission (mode) of written configuration
+    files (need Config::Model::Tester 2.059 to test)
+
 2.098 2017-02-26
 
   This release bring some improvements to enable more feature on
