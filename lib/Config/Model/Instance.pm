@@ -63,6 +63,19 @@ has _safe => (
     },
 );
 
+has appli_info => (
+    is      => 'rw',
+    isa     => 'HashRef',
+    traits  => ['Hash'],
+    default => sub { {} },
+    handles => {
+        get_appli_info => 'get',
+        # currying See Moose::Manual::Delegation
+        get_support_info => [qw/get support_info/],
+    },
+);
+
+
 # preset mode:  to load values found by HW scan or other automatic scheme
 # layered mode: to load values found in included files (e.g. a la multistrap)
 has [qw/preset layered/] => (

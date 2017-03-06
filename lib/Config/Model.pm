@@ -207,6 +207,7 @@ sub _tweak_instance_args {
         $cat = $appli_info->{_category} //  ''; # may be empty in tests
         # config_dir may be specified in application file
         $args->{config_dir} //= $appli_info->{$application}{config_dir};
+        $args->{appli_info} = $appli_info->{$application} // {};
     }
 
     my $app_name = $application;

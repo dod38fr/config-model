@@ -320,9 +320,11 @@ sub full_message {
 
     $msg .= $self->description . " '" . $self->element . "'.";
 
+    # retrieve a support url from application info to guide user toward the right bug tracker
+    my $info = $obj->instance->get_support_info // 'to https://github.com/dod38fr/config-model/issues';
     $msg .=
           " Either your file has an error or $class_name model is lagging behind. "
-        . "In the latter case, please submit a bug report or fix the model. See cme man "
+        . "In the latter case, please submit a bug report $info. See cme man "
         . "page for details.\n";
 
     if (@elements) {
