@@ -275,7 +275,7 @@ string_b=else>, this backend writes "C<something>" in file
 C<example.string_a> and C<else> in file C<example.string_b>.
 
 C<file_mode> parameter can be used to set the mode of the written
-file. C<file_mode> value can be in any form suppported by
+file. C<file_mode> value can be in any form supported by
 L<Path::Tiny/chmod>.
 
 =head1 Methods
