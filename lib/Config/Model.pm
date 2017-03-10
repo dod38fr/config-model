@@ -1468,15 +1468,16 @@ sub get_migrate_doc {
     my $mv    = $migr->{variables};
     my $mform = $migr->{formula};
 
-    if ( $migr->{use_eval} ) { $mform =~ s/^/ /mg; $mform = "\n\n$mform\n\n"; }
-    else                     { $mform = "'C<$mform>' " }
+    if ( $mform =~ /\n/) { $mform =~ s/^/ /mg; $mform = "\n\n$mform\n\n"; }
+    else                 { $mform = "'C<$mform>' " }
 
-    my $mdoc = "Note: $elt_name $desc ${mform}and with "
-        . join( ", ", map { qq!\$$_ => "C<$mv->{$_}>"! } sort keys %$mv );
+    my $mdoc = "Note: $elt_name $desc ${mform}and with: \n\n=over\n\n=item *\n\n"
+        . join( "\n\n=item *\n\n", map { qq!C<\$$_> => C<$mv->{$_}>! } sort keys %$mv );
     if ( my $rep = $migr->{replace} ) {
-        $mdoc .=
-            ' and ' . join( ", ", map { qq!'C<\$replace{$_}>' => "C<$rep->{$_}>"! } sort keys %$rep );
+        $mdoc .= "\n\n=item *\n\n"
+            . join( "\n\n=item *\n\n", map { qq!C<\$replace{$_}> => C<$rep->{$_}>! } sort keys %$rep );
     }
+    $mdoc .= "\n\n=back\n\n";
 
     return ( $mdoc, '' );
 }
