@@ -1510,16 +1510,33 @@ sub get_element_description {
 
     $info .= "Type " . ( $vt || $type ) . $of . '. ';
 
-    foreach (qw/choice default upstream_default/) {
-        my $item = $elt_info->{$_};
+    foreach my $name (qw/choice/) {
+        my $item = $elt_info->{$name};
         next unless defined $item;
-        my @list = ref($item) ? @$item : ($item);
-        $info .= "$_: '" . join( "', '", @list ) . "'. ";
+        $info .= "$name: '" . join( "', '", @$item ) . "'. ";
+    }
+
+    my @default_info = ();
+    # assemble in over item for string value_type
+    foreach my $name (qw/default upstream_default/) {
+        my $item = $elt_info->{$name};
+        next unless defined $item;
+        push @default_info, [$name, $item] ;
     }
 
     my $elt_help = $self->get_element_value_help($elt_info);
 
-    return $desc . "I<< $info >> " . $elt_help;
+    # breaks pod if $info is multiline
+    my $ret = $desc . "I< $info > ";
+
+    if (@default_info) {
+        $ret .= "\n\n=over 4\n\n";
+        map { $ret .= "=item $_->[0] value :\n\n$_->[1]\n\n"; } @default_info;
+        $ret .= "=back\n\n";
+    }
+
+    $ret.= $elt_help;
+    return $ret;
 }
 
 sub get_element_value_help {
