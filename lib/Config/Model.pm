@@ -1423,6 +1423,9 @@ sub get_model_doc {
                 if ( my $migr = $_->{migrate_values_from} ) {
                     push @elt, "Note: $elt_name values are migrated from '$migr'", '';
                 }
+                if ( my $comp = $_->{compute} ) {
+                    push @elt, $self->get_migrate_doc( $elt_name, 'is computed with', $comp );
+                }
             }
         }
 
