@@ -1384,7 +1384,7 @@ sub get_model_doc {
 
             # Pod::Weaver compatibility
             "# PODNAME: $full_name",
-            "# ABSTRACT:  Configuration class " . $class_name,
+            "# ABSTRACT:  Configuration class " . $class_name, '',
 
             # assume utf8 for all docs
             "=encoding utf8", '',
