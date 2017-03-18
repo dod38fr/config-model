@@ -1,5 +1,17 @@
 {{$NEXT}}
 
+2.100 2017-03-18
+
+  Usability improvement:
+    * Unknown element excetption show instructions to report a bug.
+
+  Improvement of doc generated from model:
+    * add compute information in generated doc
+    * pod generator: show default values in item list
+
+  Bug fix:
+    * Fix file mode test (fix CPAN smoke tests)
+
 2.099 2017-03-05
 
   Model improvement:
