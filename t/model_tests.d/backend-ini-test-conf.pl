@@ -49,7 +49,7 @@ $model->create_config_class(
         # the $conf_file_name and $conf_dir variable above
         config_dir  => '/etc/',
         file        => 'test.ini',
-        file_mode   => 'g+w',
+        file_mode   => 'a=r,ug+w',
         auto_create => 1,
     }],
 );

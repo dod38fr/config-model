@@ -56,7 +56,7 @@ $model->create_config_class(
         auto_delete => '1',
         backend => 'PlainFile',
         config_dir => 'debian',
-        file_mode => 'a+x',
+        file_mode => '0755',
         file => '&index(-).&element(-).&element'
     }]
 );
