@@ -961,7 +961,7 @@ configuration is read from STDIN.
 =item file_mode
 
 C<file_mode> parameter can be used to set the mode of the written
-file(s). C<file_mode> value can be in any form suppported by
+file(s). C<file_mode> value can be in any form supported by
 L<Path::Tiny/chmod>. Example:
 
   file_mode => 0664,
