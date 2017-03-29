@@ -15,6 +15,7 @@ use Log::Log4perl 1.11 qw(get_logger :levels);
 use Config::Model::Instance;
 use Hash::Merge 0.12 qw/merge/;
 use Path::Tiny 0.053;
+use File::HomeDir;
 
 use Cwd;
 use Config::Model::Lister;
@@ -156,7 +157,7 @@ around BUILDARGS => sub {
 # creating Config::Model object
 sub initialize_log4perl {
     my $log4perl_syst_conf_file = '/etc/log4config-model.conf';
-    my $log4perl_user_conf_file = $ENV{HOME} . '/.log4config-model';
+    my $log4perl_user_conf_file = File::HomeDir->my_home . '/.log4config-model';
 
     my $fallback_conf           = << 'EOC';
 log4perl.logger=WARN, Screen
