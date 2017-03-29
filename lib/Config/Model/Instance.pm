@@ -251,7 +251,7 @@ has tree => (
     isa     => 'Config::Model::Node',
     builder => 'reset_config',
     reader  => 'config_root',
-    handles => [qw/apply_fixes deep_check/],
+    handles => [qw/apply_fixes deep_check grab grab_value/],
 );
 
 sub reset_config {
@@ -799,6 +799,17 @@ Returns the number of warning found in the elements of this configuration instan
 Try to run update command on all nodes of the configuration tree. Node
 without C<update> method are ignored. C<update> prints a message
 otherwise (unless C<quiet> is true).
+
+=head2 grab
+
+Use the steps parameter to retrieve and returns an object from the
+configuration tree.  Forwarded to L<Config::Model::Role::Grab/grab>
+
+=head2 grab_value
+
+Use the steps parameter to retrieve and returns the value of a leaf
+object from the configuration tree.  Forwarded to
+L<Config::Model::Role::Grab/grab_value>
 
 =head2 searcher ( )
 
