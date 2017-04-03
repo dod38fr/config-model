@@ -1,0 +1,8 @@
+---
+localhost:
+  ipaddr: 127.0.0.1
+  alias: localhost
+bilbo:
+  ipaddr: 192.168.0.1
+yada:
+
