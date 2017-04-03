@@ -1,6 +1,5 @@
 use Config::Model::BackendMgr;
 
-# test shellvar backend
 $conf_dir = '/etc';
 $conf_file_name = 'hosts.json';
 
