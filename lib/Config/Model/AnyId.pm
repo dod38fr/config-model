@@ -125,7 +125,7 @@ around BUILDARGS => sub {
 
 has [qw/backup cargo/] => ( is => 'ro', isa => 'HashRef', required => 1 );
 has warp => ( is => 'ro', isa => 'Maybe[HashRef]' );
-has [qw/morph/] => ( is => 'ro', isa => 'Bool' );
+has [qw/morph/] => ( is => 'ro', isa => 'Bool', default => 0 );
 has content_warning_list => ( is => 'rw', isa => 'ArrayRef', default => sub { []; } );
 has [qw/cargo_class max_index index_class index_type/] =>
     ( is => 'rw', isa => 'Maybe[Str]' );
@@ -1129,6 +1129,18 @@ C<allow> (default), C<suppress>, C<warn> (which offers the possibility
 to apply a fix), C<forbid>. Note that duplicates I<check cannot be
 performed when the duplicated value is stored>: this happens outside of
 this object. Duplicates can be check only after when the value is read.
+
+=item write_empty_value
+
+By default, hash entries without data are not saved in configuration
+files. Without data means the cargo of the hash key is empty: either
+its value is undef or all the values of the contained node are also empty.
+
+Set this parameter to 1 if the key must be saved in the configuration
+file even if the hash contains no value for that key.
+
+Note that writing hash entries without value may not be supported by
+all backends. Use with care. Supported only for hash elements.
 
 =item cargo
 

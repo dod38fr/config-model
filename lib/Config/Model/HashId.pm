@@ -37,7 +37,7 @@ has [qw/default_keys auto_create_keys/] => (
     coerce => 1,
     default => sub { []; }
 );
-has [qw/morph ordered/] => ( is => 'ro', isa => 'Bool' );
+has [qw/ordered write_empty_value/] => ( is => 'ro', isa => 'Bool', default => 0 );
 
 sub BUILD {
     my $self = shift;
@@ -485,7 +485,7 @@ sub load_data {
                 . $from );
         foreach my $elt (@load_keys) {
             my $obj = $self->fetch_with_id($elt);
-            $obj->load_data( %args, data => $data->{$elt} );
+            $obj->load_data( %args, data => $data->{$elt} ) if defined $data->{$elt};
         }
     }
     elsif ( ref($data) eq 'ARRAY' ) {

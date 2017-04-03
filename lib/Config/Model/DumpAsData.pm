@@ -46,6 +46,8 @@ sub dump_as_data {
     my $hash_element_cb = sub {
         my ( $scanner, $data_ref, $node, $element_name, @keys ) = @_;
 
+        my $force_write = $node->fetch_element($element_name)->write_empty_value;
+
         # resume exploration but pass a ref on $data_ref hash element
         # instead of data_ref
         my %h;
@@ -55,8 +57,10 @@ sub dump_as_data {
             $scanner->scan_hash( \$v, $node, $element_name, $k );
 
             # don't create the key if $v is undef
-            $h{$k} = $v if defined $v;
-            push @res , $k, $v if defined $v;
+            if (defined $v or $force_write) {
+                $h{$k} = $v;
+                push @res , $k, $v;
+            }
         } ;
 
         my $ordered_hash = $node->fetch_element($element_name)->ordered;
