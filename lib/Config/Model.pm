@@ -2230,12 +2230,12 @@ Example:
    }
  ];
 
-=head1 Configuration instance
+=head1 Configuration instance methods
 
 A configuration instance is created from a model and is the starting
 point of a configuration tree.
 
-=head2 instance(...)
+=head2 instance
 
 An instance must be created with a model name (using the root class
 name) or an application name (as shown by "L<cme> C<list>" command).
@@ -2296,10 +2296,10 @@ Check if an instance name already exists
 
   my $maybe = $model->has_instance('test1');
 
-=head2 cme ( ... )
+=head2 cme
 
 This method is syntactic sugar for short program. It creates a new
-C<Config::Model> object and returns a new instance. See L</instance(...)>
+C<Config::Model> object and returns a new instance. See L</instance>
 for the parameters.
 
 =head1 Configuration class
