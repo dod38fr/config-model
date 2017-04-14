@@ -1156,7 +1156,7 @@ sub store {
 
     if ( defined $old_value and $value eq $old_value ) {
         $logger->info( "skip storage of ", $self->composite_name, " unchanged value: $value" )
-            if $logger->is_debug;
+            if $logger->is_info;
         return 1;
     }
 

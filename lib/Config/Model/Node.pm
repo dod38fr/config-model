@@ -993,7 +993,7 @@ sub load_data {
             #TODO: annotations
             my $obj = $self->fetch_element( name => $elt, check => $check );
             next unless $obj;    # in cas of known but unavailable elements
-            $logger->debug("Node load_data: accepting element $elt");
+            $logger->info("Node load_data: accepting element $elt");
             $obj->load_data( %args, data => delete $perl_data->{$elt} ) if defined $obj;
         }
     }
