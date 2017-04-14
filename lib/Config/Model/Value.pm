@@ -170,9 +170,9 @@ sub notify_change {
 
     return if $self->instance->initial_load and not $args{really};
 
-    $change_logger->debug( "called while needs_check is ",
+    $change_logger->trace( "called while needs_check is ",
         $self->needs_check, " for ", $self->name, " with ", join( ' ', %args ) )
-        if $change_logger->is_debug;
+        if $change_logger->is_trace;
     $self->needs_check(1) unless $check_done;
     {
         no warnings 'uninitialized';
@@ -232,7 +232,7 @@ sub set_default {
 sub _build_compute_obj {
     my $self = shift;
 
-    $logger->debug("called");
+    $logger->trace("called");
 
     my $c_info = $self->compute;
     return unless $c_info;
@@ -252,7 +252,7 @@ sub _build_compute_obj {
     my $v = $ret->compute_variables;
 
     $self->register_in_other_value($v);
-    $logger->debug("done");
+    $logger->trace("done");
     return $ret;
 }
 
@@ -278,7 +278,7 @@ sub register_in_other_value {
 # internal
 sub perform_compute {
     my $self = shift;
-    $logger->debug("called");
+    $logger->trace("called");
 
     my $result = $self->compute_obj->compute;
 
@@ -295,7 +295,7 @@ sub perform_compute {
         );
     }
 
-    $logger->debug("done");
+    $logger->trace("done");
     return $ok ? $result : undef;
 }
 
@@ -510,8 +510,8 @@ sub set_properties {
     map { delete $args{$_} } qw/level/;
 
     my $logger = $logger;
-    if ( $logger->is_debug ) {
-        $logger->debug( "Leaf '" . $self->name . "' set_properties called with '",
+    if ( $logger->is_trace ) {
+        $logger->trace( "Leaf '" . $self->name . "' set_properties called with '",
             join( "','", sort keys %args ), "'" );
     }
 
@@ -906,7 +906,7 @@ sub check_value {
 
     $args{value} = $value;    # may be updated by apply_fix
 
-    $logger->debug("done");
+    $logger->trace("done");
 
     $cb->( %args, ok => not @error ) if $cb;
     my $ok = not @error;
@@ -987,8 +987,8 @@ sub has_fixes {
 sub apply_fixes {
     my $self = shift;
 
-    if ( $logger->is_debug ) {
-        $fix_logger->debug( "called for " . $self->location );
+    if ( $logger->is_trace ) {
+        $fix_logger->trace( "called for " . $self->location );
     }
 
     my ( $old, $new );
@@ -1015,7 +1015,7 @@ sub apply_fix {
 
     local $_ = $$value_r;    # used inside $fix sub ref
 
-    if ( $fix_logger->is_debug ) {
+    if ( $fix_logger->is_info ) {
         my $str = $fix;
         $str =~ s/\n/ /g;
         $fix_logger->info( $self->location . ": Applying fix '$str'" );
@@ -1259,7 +1259,7 @@ sub _store {
         $self->trigger_warp($value);
     }
 
-    $logger->debug( "_store done on ", $self->composite_name ) if $logger->is_debug;
+    $logger->trace( "_store done on ", $self->composite_name ) if $logger->is_trace;
 }
 
 #
@@ -1506,7 +1506,7 @@ my %accept_mode = map { ( $_ => 1 ) } qw/custom standard preset default upstream
 
 sub _fetch {
     my ( $self, $mode, $check ) = @_;
-    $logger->debug( "called for " . $self->location ) if $logger->is_debug;
+    $logger->trace( "called for " . $self->location ) if $logger->is_trace;
 
     # always call to perform submit_to_warp
     my $pref = $self->_fetch_std( $check );
@@ -1614,8 +1614,8 @@ sub fetch {
     my $silent = $args{silent} || 0;
     my $check  = $self->_check_check( $args{check} );
 
-    if ( $logger->is_debug ) {
-        $logger->debug( "called for "
+    if ( $logger->is_trace ) {
+        $logger->trace( "called for "
                 . $self->location
                 . " check $check mode $mode"
                 . " needs_check "
@@ -1655,8 +1655,8 @@ sub fetch {
     $ok = $self->check( value => $value, silent => $silent, mode => $mode )
         if $mode =~ /backend|custom|user/;
 
-    $logger->debug( "$mode fetch (almost) done for " . $self->location )
-        if $logger->is_debug;
+    $logger->trace( "$mode fetch (almost) done for " . $self->location )
+        if $logger->is_trace;
 
     # check validity (all modes)
     if ( $ok or $check eq 'no' ) {

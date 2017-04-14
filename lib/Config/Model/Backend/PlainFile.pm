@@ -40,7 +40,7 @@ sub read {
     my $check = $args{check} || 'yes';
     my $dir   = $args{config_dir};
     my $node  = $args{object};
-    $logger->debug( "called on node ", $node->name );
+    $logger->trace( "called on node ", $node->name );
 
     # read data from leaf element from the node
     foreach my $elt ( $node->get_element_name() ) {

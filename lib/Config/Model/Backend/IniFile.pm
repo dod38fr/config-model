@@ -332,14 +332,14 @@ sub _write {
     my $node          = $args{object};
     my $delimiter     = $args{comment_delimiter} || '#';
 
-    $logger->debug( "called on ", $node->name );
+    $logger->trace( "called on ", $node->name );
     my $res = '';
 
     # Using Config::Model::ObjTreeScanner would be overkill
     # first write list and element, then classes
     foreach my $elt ( $node->get_element_name ) {
         my $type = $node->element_type($elt);
-        $logger->debug("first loop on elt $elt type $type");
+        $logger->trace("first loop on elt $elt type $type");
         next if $type =~ /node/ or $type eq 'hash';
 
         if ( $type eq 'list' ) {
@@ -361,7 +361,7 @@ sub _write {
 
     foreach my $elt ( $node->get_element_name ) {
         my $type = $node->element_type($elt);
-        $logger->debug("second loop on elt $elt type $type");
+        $logger->trace("second loop on elt $elt type $type");
         next unless $type =~ /node/ or $type eq 'hash';
         my $obj = $node->fetch_element($elt);
 
@@ -375,7 +375,7 @@ sub _write {
         }
     }
 
-    $logger->debug( "done on ", $node->name );
+    $logger->trace( "done on ", $node->name );
 
     return $res;
 }

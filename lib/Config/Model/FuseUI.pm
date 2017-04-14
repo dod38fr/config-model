@@ -31,7 +31,7 @@ sub BUILD {
 # nodes, list and hashes are directories
 sub getdir {
     my $name = shift;
-    $logger->debug("FuseUI getdir called with $name");
+    $logger->trace("FuseUI getdir called with $name");
 
     my $obj = get_object($name);
     return -EINVAL() unless ( ref $obj and $obj->can('children') );
@@ -83,7 +83,7 @@ sub _get_object {
 
 sub getattr {
     my $name = shift;
-    $logger->debug("FuseUI getattr called with $name");
+    $logger->trace("FuseUI getattr called with $name");
     my $obj = get_object($name);
 
     return -&ENOENT() unless ref $obj;
@@ -131,7 +131,7 @@ sub open {
 
     # VFS sanity check; it keeps all the necessary state, not much to do here.
     my $name = shift;
-    $logger->debug("FuseUI open called on $name");
+    $logger->trace("FuseUI open called on $name");
     my $obj = $fuseui->root->get( path => $name, check => 'skip', get_obj => 1 );
     my $type = $obj->get_type;
 
@@ -147,7 +147,7 @@ sub read {
     # give a byte (ascii "0") to the reading program)
     my ( $name, $buf, $off ) = @_;
 
-    $logger->debug("FuseUI read called on $name");
+    $logger->trace("FuseUI read called on $name");
     my $obj  = get_or_create_object($name);
     my $type = $obj->get_type;
 
@@ -170,7 +170,7 @@ sub read {
 sub truncate {
     my ( $name, $off ) = @_;
 
-    $logger->debug("FuseUI truncate called on $name with length $off");
+    $logger->trace("FuseUI truncate called on $name with length $off");
     my $obj  = get_or_create_object($name);
     my $type = $obj->get_type;
 
@@ -179,7 +179,7 @@ sub truncate {
 
     my $v = substr fetch_as_line($obj), 0, $off;
 
-    $logger->debug( "FuseUI truncate stores '$v' of length ", length($v) );
+    $logger->trace( "FuseUI truncate stores '$v' of length ", length($v) );
 
     # store the value without any check. Check will be done in write()
     # the second parameter will trigger a notif_change.
@@ -190,10 +190,10 @@ sub truncate {
 sub write {
     my ( $name, $buf, $off ) = @_;
 
-    if ( $logger->is_debug ) {
+    if ( $logger->is_trace ) {
         my $str = $buf;
         $str =~ s/\n/\\n/g;
-        $logger->debug("FuseUI write called on $name with '$str' offset $off");
+        $logger->trace("FuseUI write called on $name with '$str' offset $off");
     }
 
     my $obj  = get_or_create_object($name);
@@ -219,7 +219,7 @@ sub mkdir {
     # give a byte (ascii "0") to the reading program)
     my ( $name, $mode ) = @_;
 
-    $logger->debug("FuseUI mkdir called on $name with mode $mode");
+    $logger->trace("FuseUI mkdir called on $name with mode $mode");
     my $obj = get_or_create_object($name);
     return -ENOENT() unless defined $obj;
 
@@ -235,7 +235,7 @@ sub rmdir {
     # give a byte (ascii "0") to the reading program)
     my ($name) = @_;
 
-    $logger->debug("FuseUI rmdir called on $name");
+    $logger->trace("FuseUI rmdir called on $name");
     my $obj = get_object($name);
     return -ENOENT() unless defined $obj;
 

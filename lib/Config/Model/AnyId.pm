@@ -189,7 +189,7 @@ sub set_properties {
     # these are handled by Node or Warper
     map { delete $args{$_} } qw/level/;
 
-    $logger->debug( $self->name, " set_properties called with @_" );
+    $logger->trace( $self->name, " set_properties called with @_" );
 
     map { $self->{$_} = delete $args{$_} if defined $args{$_} } @common_params;
 
@@ -409,7 +409,7 @@ sub handle_args {
 
 sub apply_fixes {
     my $self = shift;
-    $fix_logger->debug( $self->location . ": apply_fixes called" );
+    $fix_logger->trace( $self->location . ": apply_fixes called" );
 
     $self->deep_check( fix => 1, logger => $fix_logger );
 
@@ -430,9 +430,9 @@ sub notify_change {
     my $self = shift;
     my %args = @_;
 
-    $change_logger->debug( "called for ", $self->name, " from ", join( ' ', caller ),
+    $change_logger->trace( "called for ", $self->name, " from ", join( ' ', caller ),
         " with ", join( ' ', %args ) )
-        if $change_logger->is_debug;
+        if $change_logger->is_trace;
 
     # $idx may be undef if $self has changed, not necessarily its content
     my $idx = $args{index};
@@ -472,7 +472,7 @@ sub deep_check {
     my $self = shift;
     my @args = @_;
 
-    $deep_check_logger->debug("called on ".$self->name);
+    $deep_check_logger->trace("called on ".$self->name);
 
     map { $self->check_idx(@args, index => $_); } $self->fetch_all_indexes();
 
@@ -490,7 +490,7 @@ sub check_content {
 
     if ( $self-> needs_content_check ) {
 
-        $local_logger->debug( "Running check_content on ",$self->location );
+        $local_logger->trace( "Running check_content on ",$self->location );
         # need to keep track to update GUI
         $self-> flush_fixes;    # reset before check
 
@@ -653,7 +653,7 @@ sub check_duplicates {
     my $dup = $self->{duplicates};
     return if $dup eq 'allow';
 
-    $logger->debug("check_duplicates called");
+    $logger->trace("check_duplicates called");
     my %h;
     my @issues;
     my @to_delete;
@@ -699,7 +699,7 @@ sub fetch_with_id {
     my $check = $self->_check_check( $args{check} );
     my $idx   = $args{index};
 
-    $logger->debug( $self->name, " called for idx $idx" ) if $logger->is_debug;
+    $logger->trace( $self->name, " called for idx $idx" ) if $logger->is_trace;
 
     $idx = $self->{convert_sub}($idx)
         if ( defined $self->{convert_sub} and defined $idx );
@@ -754,7 +754,7 @@ sub get {
 
     return unless ( $self->exists($item) or $autoadd );
 
-    $logger->debug("get: path $path, item $item");
+    $logger->trace("get: path $path, item $item");
 
     my $obj = $self->fetch_with_id( index => $item, %args );
     return $obj if ( ( $get_obj or $obj->get_type ne 'leaf' ) and not defined $new_path );

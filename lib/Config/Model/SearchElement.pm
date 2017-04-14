@@ -41,7 +41,7 @@ sub _sniff_class {
     my $model   = $self->{model};
     my $c_model = $model->get_model($class);
 
-    $logger->debug("sniffing config class $class");
+    $logger->trace("sniffing config class $class");
 
     croak "Recursive config class $class detected, aborting..."
         if defined $found_ref->{$class};
@@ -77,7 +77,7 @@ sub _sniff_class {
             $h{$element}{next_step}{$element} = '';
         }
     }
-    $logger->debug("done sniffing config class $class");
+    $logger->trace("done sniffing config class $class");
     return \%h;
 }
 
@@ -174,7 +174,7 @@ sub next_choice {
 
     while (1) {
         $result = $self->next_step;
-        $logger->debug("next_choice: result is @$result");
+        $logger->trace("next_choice: result is @$result");
         return $result if scalar @$result != 1;
 
         $self->choose(@$result);

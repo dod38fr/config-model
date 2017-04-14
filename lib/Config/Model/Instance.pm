@@ -568,7 +568,7 @@ sub _write_back_node {
         }
     }
 
-    $logger->debug( "write_back on node '$path' done" );
+    $logger->trace( "write_back on node '$path' done" );
 }
 
 sub save {

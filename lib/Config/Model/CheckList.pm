@@ -96,10 +96,10 @@ sub set_properties {
     # cleanup all parameters that are handled by warp
     map( delete $self->{$_}, @allowed_warp_params );
 
-    if ( $logger->is_debug() ) {
+    if ( $logger->is_trace() ) {
         my %h = @_;
         my $keys = join( ',', keys %h );
-        $logger->debug("set_properties called on $self->{element_name} with $keys");
+        $logger->trace("set_properties called on $self->{element_name} with $keys");
     }
 
     # merge data passed to the constructor with data passed to set
@@ -150,7 +150,7 @@ sub setup_choice {
     my $self = shift;
     my @choice = ref $_[0] ? @{ $_[0] } : @_;
 
-    $logger->debug("CheckList $self->{element_name}: setup_choice with @choice");
+    $logger->trace("CheckList $self->{element_name}: setup_choice with @choice");
 
     # store all enum values in a hash. This way, checking
     # whether a value is present in the enum set is easier
@@ -597,7 +597,7 @@ sub store_set { goto &set_checked_list }
 
 sub set_checked_list {
     my $self = shift;
-    $logger->debug("called with @_");
+    $logger->trace("called with @_");
     my %set = map { $_ => 1 } @_;
     my @changed;
 

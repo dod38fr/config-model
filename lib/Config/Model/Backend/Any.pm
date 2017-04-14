@@ -107,7 +107,7 @@ sub associates_comments_with_data {
         if ($data) {
             my $note = '';
             $note = join( "\n", @comments ) if @comments;
-            $logger->debug("associates_comments_with_data: '$note' with '$data'");
+            $logger->trace("associates_comments_with_data: '$note' with '$data'");
             push @result, [ $data, $note ];
             @comments = ();
         }

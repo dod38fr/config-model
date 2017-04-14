@@ -56,7 +56,7 @@ sub read {
         my $fs_obj = $self->node->fetch_element('fs')->fetch_with_id($label);
 
         if ($comment) {
-            $logger->debug("Annotation: $comment\n");
+            $logger->trace("Annotation: $comment\n");
             $fs_obj->annotation($comment);
         }
 

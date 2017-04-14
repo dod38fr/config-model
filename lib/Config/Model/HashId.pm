@@ -84,7 +84,7 @@ sub set_properties {
     # warp mechanism
     foreach my $k ( sort keys %$data ) {
         next unless $wrong->($k);
-        $logger->debug( "set_properties: ", $self->name, " deleting id $k" );
+        $logger->trace( "set_properties: ", $self->name, " deleting id $k" );
         delete $data->{$k};
     }
 }

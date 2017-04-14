@@ -87,7 +87,7 @@ sub get_cfg_dir_path {
         return ( 0, $dir );
     }
 
-    $logger->debug( "dir: " . $dir // '<undef>' );
+    $logger->trace( "dir: " . $dir // '<undef>' );
 
     return ( 1, $dir );
 }
@@ -195,7 +195,7 @@ sub load_backend_class {
     my $backend  = shift;
     my $function = shift;
 
-    $logger->debug("load_backend_class: called with backend $backend, function $function");
+    $logger->trace("load_backend_class: called with backend $backend, function $function");
     my %c;
 
     my $k = "Config::Model::Backend::" . ucfirst($backend);
@@ -220,7 +220,7 @@ sub load_backend_class {
     # look for file to load
     my $class_to_load;
     foreach my $c ( keys %c ) {
-        $logger->debug("load_backend_class: looking to load class $c");
+        $logger->trace("load_backend_class: looking to load class $c");
         foreach my $prefix (@INC) {
             my $realfilename = "$prefix/$c{$c}";
             $class_to_load = $c if -f $realfilename;
@@ -230,7 +230,7 @@ sub load_backend_class {
     return unless defined $class_to_load;
     my $file_to_load = $c{$class_to_load};
 
-    $logger->debug("load_backend_class: loading class $class_to_load, $file_to_load");
+    $logger->trace("load_backend_class: loading class $class_to_load, $file_to_load");
     eval { require $file_to_load; };
 
     if ($@) {
@@ -242,7 +242,7 @@ sub load_backend_class {
 sub read_config_data {
     my ( $self, %args ) = @_;
 
-    $logger->debug( "called for node ", $self->node->location );
+    $logger->trace( "called for node ", $self->node->location );
 
     my $readlist_orig        = delete $args{read_config};
     my $check                = delete $args{check};
@@ -522,7 +522,7 @@ sub auto_write_init {
 
         my $write_dir = $self->get_tuned_config_dir(%$write);
 
-        $logger->debug( "auto_write_init creating write cb ($backend) for ", $self->node->name );
+        $logger->trace( "auto_write_init creating write cb ($backend) for ", $self->node->name );
 
         my @wr_args = (
             %$write,    # model data
@@ -651,7 +651,7 @@ sub auto_write_init {
 
         # FIXME: enhance write back mechanism so that different backend *and* different nodes
         # work as expected
-        $logger->debug( "registering write $backend in node " . $self->node->name );
+        $logger->trace( "registering write $backend in node " . $self->node->name );
 
         $instance->register_write_back(  $self->node->location, $backend, $wb  );
     }

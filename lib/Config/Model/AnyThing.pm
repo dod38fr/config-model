@@ -83,9 +83,9 @@ sub notify_change {
 
     return if $self->instance->initial_load and not $args{really};
 
-    $change_logger->debug( "called for ", $self->name, " from ", join( ' ', caller ),
+    $change_logger->trace( "called for ", $self->name, " from ", join( ' ', caller ),
         " with ", join( ' ', %args ) )
-        if $change_logger->is_debug;
+        if $change_logger->is_trace;
 
     # needs_save may be overridden by caller
     $args{needs_save} //= 1;
@@ -167,7 +167,7 @@ sub shorten_idx {
 sub xpath {
     my $self = shift;
 
-    $logger->debug("xpath called on $self");
+    $logger->trace("xpath called on $self");
 
     my $element = $self->element_name;
     $element = '' unless defined $element;
@@ -219,7 +219,7 @@ sub load_pod_annotation {
             $path =~ s/^[\s\*]+//;
             my $note = $item->text . '';
             $note =~ s/\s+$//;
-            $logger->debug("load_pod_annotation: '$path' -> '$note'");
+            $logger->trace("load_pod_annotation: '$path' -> '$note'");
             $self->grab( steps => $path )->annotation($note);
         }
     }
@@ -228,7 +228,7 @@ sub load_pod_annotation {
 # fallback method for object that don't implement has_data
 sub has_data {
     my $self= shift;
-    $logger->debug("called fall-back has_data for element", $self->name) if $logger->is_debug;
+    $logger->trace("called fall-back has_data for element", $self->name) if $logger->is_trace;
     return 1;
 }
 
@@ -265,13 +265,13 @@ sub _check_check {
 
 sub has_fixes {
     my $self = shift;
-    $logger->debug( "dummy has_fixes called on " . $self->name );
+    $logger->trace( "dummy has_fixes called on " . $self->name );
     return 0;
 }
 
 sub has_warning {
     my $self = shift;
-    $logger->debug( "dummy has_warning called on " . $self->name );
+    $logger->trace( "dummy has_warning called on " . $self->name );
     return 0;
 }
 

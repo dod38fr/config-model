@@ -62,7 +62,7 @@ sub set_properties {
     # warp mechanism
     foreach my $k ( 0 .. $#{$data} ) {
         next unless $k > $self->{max_index};
-        $logger->debug( "set_properties: ", $self->name, " deleting index $k" );
+        $logger->trace( "set_properties: ", $self->name, " deleting index $k" );
         delete $data->[$k];
     }
 }

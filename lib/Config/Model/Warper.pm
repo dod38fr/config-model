@@ -53,7 +53,7 @@ my $logger = get_logger("Warper");
 sub BUILD {
     my $self = shift;
 
-    $logger->debug( "Warper new: created for " . $self->name );
+    $logger->trace( "Warper new: created for " . $self->name );
     $self->check_warp_args;
 
     $self->register_to_all_warp_masters;
@@ -414,7 +414,7 @@ sub compute_bool {
     my $self = shift;
     my $expr = shift;
 
-    $logger->debug("Warper compute_bool: called for '$expr'");
+    $logger->trace("Warper compute_bool: called for '$expr'");
 
     #    my $warp_value_set = $self->_values   ;
     $logger->debug( "Warper compute_bool: data:\n",
@@ -434,7 +434,7 @@ sub compute_bool {
     }
 
     my $perl_code = join( "\n", @init_code, $expr );
-    $logger->debug("Warper compute_bool: eval code '$perl_code'");
+    $logger->trace("Warper compute_bool: eval code '$perl_code'");
 
     my $ret;
     {
@@ -473,7 +473,7 @@ sub do_warp {
         next unless $res;
         $found_bool = $bool_expr;
         $found_rule = $rule_hash{$bool_expr} || {};
-        $logger->debug(
+        $logger->trace(
             "do_warp found rule for '$bool_expr':\n",
             Data::Dumper->Dump( [$found_rule], ['found_rule'] ) );
         last;
@@ -493,7 +493,7 @@ sub do_warp {
         );
     }
 
-    $logger->debug( "do_warp: call set_parent_element_property on '",
+    $logger->trace( "do_warp: call set_parent_element_property on '",
         $self->name, "' with ", Data::Dumper->Dump( [$found_rule], ['found_rule'] ) );
 
     $self->set_parent_element_property($found_rule);

@@ -71,7 +71,7 @@ sub load {
     my $ret;
     do {
         $ret = $self->_load( $current_node, $check, \@command, 1 );
-        $logger->debug("_load returned $ret");
+        $logger->trace("_load returned $ret");
 
         # found '!' command
         if ( $ret eq 'root' ) {
@@ -108,7 +108,7 @@ sub load {
 # returns elt action id subaction value
 sub _split_cmd {
     my $cmd = shift;
-    $logger->debug("split on: ->$cmd<-");
+    $logger->trace("split on: ->$cmd<-");
 
     my $quoted_string = qr/"(?: \\" | [^"] )* "/x;    # quoted string
 
@@ -176,7 +176,7 @@ sub _load {
     my ( $self, $node, $check, $cmdref, $at_top_level ) = @_;
     $at_top_level ||= 0;
     my $node_name = "'" . $node->name . "'";
-    $logger->debug("_load: called on node $node_name");
+    $logger->trace("_load: called on node $node_name");
 
     my $inst = $node->instance;
 

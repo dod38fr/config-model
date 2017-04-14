@@ -79,14 +79,14 @@ sub BUILD {
     # create parser if needed
     $compute_parser ||= Parse::RecDescent->new($compute_grammar);
 
-    $logger->debug("called with formula: $self->{formula}");
+    $logger->trace("called with formula: $self->{formula}");
     # must make a first pass at computation to subsitute index and
     # element values.  leaves $xxx outside of &index or &element untouched
     my $result_r =
         $compute_parser->pre_compute( $self->{formula}, 1, $self->{value_object},
         $self->{variables}, $self->{replace}, 'yes', $self->need_quote, );
 
-    $logger->debug("pre_formula: ". ($result_r ? $$result_r : ' pre_compute failed, using original formula'));
+    $logger->trace("pre_formula: ". ($result_r ? $$result_r : ' pre_compute failed, using original formula'));
     $self->{pre_formula} = $result_r ? $$result_r : $self->{formula};
 }
 
@@ -96,7 +96,7 @@ sub compute {
     my $check = $args{check} || 'yes';
 
     my $pre_formula = $self->{pre_formula};
-    $logger->debug("called with pre_formula: $pre_formula");
+    $logger->trace("called with pre_formula: $pre_formula");
     my $variables = $self->compute_variables( check => $check );
 
     die "internal error" unless defined $variables;
@@ -109,7 +109,7 @@ sub compute {
 
     if (   $self->{use_eval}
         or $self->{value_type} =~ /(integer|number|boolean)/ ) {
-        $logger->debug("will use eval");
+        $logger->trace("will use eval");
         my $all_defined = 1;
         my @init;
         foreach my $key ( sort keys %$variables ) {
@@ -139,7 +139,7 @@ sub compute {
         }
     }
     else {
-        $logger->debug("calling parser with compute on pre_formula $pre_formula");
+        $logger->trace("calling parser with compute on pre_formula $pre_formula");
         my $formula_r = $compute_parser->compute( $pre_formula, 1, @parser_args );
 
         $result = $$formula_r;
@@ -156,7 +156,7 @@ sub compute_info {
     my $self  = shift;
     my %args  = @_;
     my $check = $args{check} || 'yes';
-    $logger->debug("compute_info called with $self->{formula}");
+    $logger->trace("compute_info called with $self->{formula}");
 
     my $orig_variables = $self->{variables};
     my $variables      = $self->compute_variables;
@@ -214,8 +214,8 @@ sub compute_variables {
     # a shallow copy should be enough as we don't allow
     # replace in replacement rules
     my %variables = %{ $self->{variables} };
-    $logger->debug( "called on variables '", join( "', '", sort keys %variables ), "'" )
-        if $logger->is_debug;
+    $logger->trace( "called on variables '", join( "', '", sort keys %variables ), "'" )
+        if $logger->is_trace;
 
     # apply a compute on all variables until no $var is left
     my $var_left = scalar( keys %variables ) + 1;
@@ -227,16 +227,16 @@ sub compute_variables {
             next unless defined $value;
 
             #next if ref($value); # skip replacement rules
-            $logger->debug("key '$key', value '$value', left $var_left");
+            $logger->trace("key '$key', value '$value', left $var_left");
             next unless $value =~ /\$|&/;
 
             my $pre_res_r =
                 $compute_parser->pre_compute( $value, 1, $self->{value_object}, \%variables,
                 $self->{replace}, $check );
-            $logger->debug("key '$key', pre res '$$pre_res_r', left $var_left\n");
+            $logger->trace("key '$key', pre res '$$pre_res_r', left $var_left\n");
             $variables{$key} = $$pre_res_r;
-            $logger->debug( "variable after pre_compute: ", join( " ", keys %variables ) )
-                if $logger->is_debug;
+            $logger->trace( "variable after pre_compute: ", join( " ", keys %variables ) )
+                if $logger->is_trace;
 
             if ( $$pre_res_r =~ /\$/ ) {
                 ;
@@ -248,12 +248,12 @@ sub compute_variables {
 
                 #return undef unless defined $res ;
                 $variables{$key} = $$res_ref;
-                $logger->debug( "variable after compute: ", join( " ", keys %variables ) )
-                    if $logger->is_debug;
+                $logger->trace( "variable after compute: ", join( " ", keys %variables ) )
+                    if $logger->is_trace;
             }
             {
                 no warnings "uninitialized";
-                $logger->debug("result $key -> '$variables{$key}' left '$var_left'");
+                $logger->trace("result $key -> '$variables{$key}' left '$var_left'");
             }
         }
 
@@ -268,14 +268,14 @@ sub compute_variables {
         ) unless ( $var_left < $old_var_left );
     }
 
-    $logger->debug("done");
+    $logger->trace("done");
     return \%variables;
 }
 
 sub _pre_replace {
     my ( $replace_h, $pre_value ) = @_;
 
-    $logger->debug("value: _pre_replace called with value '$pre_value'");
+    $logger->trace("value: _pre_replace called with value '$pre_value'");
     my $result =
         exists $replace_h->{$pre_value}
         ? $replace_h->{$pre_value}
@@ -287,9 +287,9 @@ sub _replace {
     my ( $replace_h, $value, $value_object, $variables, $replace, $check, $need_quote, $undef_is )
         = @_;
 
-    if ( $logger->is_debug ) {
+    if ( $logger->is_trace ) {
         my $str = defined $value ? $value : '<undef>';
-        $logger->debug("value: _replace called with value '$str'");
+        $logger->trace("value: _replace called with value '$str'");
     }
 
     my $result;
@@ -309,7 +309,7 @@ sub _function_on_object {
     my ( $up, $function, $return, $value_object, $variables_h, $replace_h, $check, $need_quote ) =
         @_;
 
-    $logger->debug("handling &$function($up) ");
+    $logger->trace("handling &$function($up) ");
 
     my $target = $value_object->eval_function($function, $up, $check);
     $return = \$target ;
@@ -326,7 +326,7 @@ sub _function_on_object {
 sub _function_alone {
     my ( $f_name, $return, $value_object, $variables_h, $replace_h, $check, $need_quote ) = @_;
 
-    $logger->debug("_function_alone: handling $f_name");
+    $logger->trace("_function_alone: handling $f_name");
 
     my $method_name =
           $f_name eq 'element'  ? 'element_name'

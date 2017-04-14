@@ -134,7 +134,7 @@ sub set_properties {
     # mega cleanup
     map( delete $self->{$_}, @allowed_warp_params );
 
-    $logger->debug( $self->name . " set_properties called with ",
+    $logger->trace( $self->name . " set_properties called with ",
         Data::Dumper->Dump( [ \%args ], ['set_properties_args'] ) );
 
     my $config_class_name = delete $args{config_class_name};

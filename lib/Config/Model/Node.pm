@@ -372,14 +372,14 @@ sub notify_change {
     my $self = shift;
     my %args = @_;
 
-    $change_logger->debug( "called for ", $self->name, " from ", join( ' ', caller ),
+    $change_logger->trace( "called for ", $self->name, " from ", join( ' ', caller ),
         " with ", join( ' ', %args ) )
-        if $change_logger->is_debug;
+        if $change_logger->is_trace;
 
     return if $self->instance->initial_load and not $args{really};
 
-    $logger->debug( "called while needs_write is ", $self->needs_save, " for ", $self->name )
-        if $logger->is_debug;
+    $logger->trace( "called while needs_write is ", $self->needs_save, " for ", $self->name )
+        if $logger->is_trace;
 
     if ( defined $self->backend_mgr ) {
         $self->needs_save(1);    # will trigger a save in config_file
@@ -525,7 +525,7 @@ sub get_element_names {
         }
     }
 
-    $logger->debug("got @result");
+    $logger->trace("got @result");
 
     return wantarray ? @result : join( ' ', @result );
 }
@@ -873,7 +873,7 @@ sub get {
     $path =~ s!^/!!;
     return $self unless length($path);
     my ( $item, $new_path ) = split m!/!, $path, 2;
-    $logger->debug("get: path $path, item $item");
+    $logger->trace("get: path $path, item $item");
     my $elt = $self->fetch_element( name => $item, %args );
 
     return unless defined $elt;
@@ -1141,14 +1141,14 @@ sub apply_fixes {
 
     $fix_logger->debug( "apply fix started from ", $self->name );
     $scan->scan_node( undef, $self );
-    $fix_logger->debug("apply fix done");
+    $fix_logger->trace("apply fix done");
 }
 
 sub deep_check {
     my $self = shift;
     my %args = @_;
 
-    $deep_check_logger->debug("called on ".$self->name);
+    $deep_check_logger->trace("called on ".$self->name);
 
     # no deep_check defined (yet). Note that value check is done when
     # storing value (even during initial load, so there's no need to
@@ -1158,7 +1158,7 @@ sub deep_check {
     my $check_id = sub {
         my ( $scanner, $data_r, $node, $element, @keys ) = @_;
 
-        $deep_check_logger->debug( "deep check called on from ", $node->name, " elt $element  keys @keys" );
+        $deep_check_logger->trace( "deep check called on from ", $node->name, " elt $element  keys @keys" );
         return unless @keys;
         $node->fetch_element($element)->deep_check;
 
@@ -1174,7 +1174,7 @@ sub deep_check {
 
     $deep_check_logger->debug( "deep check started from ", $self->name );
     $scan->scan_node( undef, $self );
-    $deep_check_logger->debug("deep check done");
+    $deep_check_logger->trace("deep check done");
 }
 
 __PACKAGE__->meta->make_immutable;

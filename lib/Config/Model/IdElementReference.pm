@@ -73,7 +73,7 @@ sub get_choice_from_refered_to {
 
         my @path = split( /\s+/, $user_spec );
 
-        $logger->debug("path: @path");
+        $logger->trace("path: @path");
 
         my $refered_to = eval { $config_elt->grab("@path"); };
 

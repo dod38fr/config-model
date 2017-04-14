@@ -47,7 +47,7 @@ sub search {
     my $self   = shift;
     my $string = shift;    # string to search, can be a regexp
 
-    $logger->debug( "TreeSearcher: creating scanner for " . $self->node->name );
+    $logger->trace( "TreeSearcher: creating scanner for " . $self->node->name );
     my $reg = qr/$string/i;
 
     my @scanner_args;
@@ -112,7 +112,7 @@ sub search {
     my $store_sub = sub {
         my $p = shift;
         return if @loc and $loc[$#loc] eq $p;
-        $logger->debug("TreeSearcher: storing location '$p'");
+        $logger->trace("TreeSearcher: storing location '$p'");
         push @loc, $p;
     };
     $scan->scan_node( $store_sub, $self->node );

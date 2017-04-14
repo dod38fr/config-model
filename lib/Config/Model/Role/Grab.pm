@@ -73,7 +73,7 @@ sub grab {
 
     my @saved = @command;
 
-    $logger->debug(
+    $logger->trace(
         "grab: executing '",
         join( "' '", @command ),
         "' on object '",
@@ -89,7 +89,7 @@ COMMAND:
         my $cmd = shift @command;
 
         my $obj = $found[-1];
-        $logger->debug( "grab: executing cmd '$cmd' on object '", $obj->name, "($obj)'" );
+        $logger->trace( "grab: executing cmd '$cmd' on object '", $obj->name, "($obj)'" );
 
         if ( $cmd eq '!' ) {
             push @found, $obj->grab_root();
