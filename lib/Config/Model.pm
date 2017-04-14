@@ -133,6 +133,13 @@ has model_snippets => (
 );
 
 
+enum 'LOG_LEVELS', [ qw/ERROR WARN INFO DEBUG TRACE/ ];
+
+has log_level => (
+    isa => 'LOG_LEVELS',
+    is => 'ro',
+);
+
 has skip_inheritance => (
     isa     => 'Bool',
     is      => 'ro',
@@ -156,29 +163,38 @@ around BUILDARGS => sub {
 # keep this as a separate sub from BUILD. So user can call it before
 # creating Config::Model object
 sub initialize_log4perl {
-    my $log4perl_syst_conf_file = '/etc/log4config-model.conf';
-    my $log4perl_user_conf_file = File::HomeDir->my_home . '/.log4config-model';
+    my $self = shift;
+    my $args = shift;
+
+    my $log4perl_syst_conf_file = path('/etc/log4config-model.conf');
+    my $log4perl_user_conf_file = path( File::HomeDir->my_home . '/.log4config-model' );
 
     my $fallback_conf           = << 'EOC';
 log4perl.logger=WARN, Screen
+
 log4perl.appender.Screen        = Log::Log4perl::Appender::Screen
 log4perl.appender.Screen.stderr = 0
 log4perl.appender.Screen.layout = Log::Log4perl::Layout::PatternLayout
-log4perl.appender.Screen.layout.ConversionPattern = %d %m %n
+log4perl.appender.Screen.layout.ConversionPattern = %M %m (line %L)%n
 EOC
 
-    my $log4perl_conf =
-        -e $log4perl_user_conf_file ? $log4perl_user_conf_file
-      : -e $log4perl_syst_conf_file ? $log4perl_syst_conf_file
-      :                               \$fallback_conf;
+    my @log4perl_conf_lines =
+        $log4perl_user_conf_file->is_file ? $log4perl_user_conf_file->lines
+      : $log4perl_syst_conf_file->is_file ? $log4perl_syst_conf_file->lines
+      :                                     split /\n/, $fallback_conf;
+    my %log4perl_conf = map { split /\s*=\s*/,$_,2; } @log4perl_conf_lines;
 
-    Log::Log4perl::init_once($log4perl_conf);
+    if (defined $args->{log_level}) {
+        $log4perl_conf{'log4perl.logger'} = $args->{log_level}.', Screen';
+    }
+
+    Log::Log4perl::init_once(\%log4perl_conf);
 
 }
 
 sub BUILD {
     my $self = shift;
-    $self->initialize_log4perl ;
+    $self->initialize_log4perl(shift) ;
 }
 
 sub show_legacy_issue {
@@ -2059,11 +2075,24 @@ L<Config::Model::TkUI>.
 
 =head1 Constructor
 
-Simply call new without parameters:
-
  my $model = Config::Model -> new ;
 
-This creates an object to host your model.
+creates an object to host your model.
+
+=head2 Constructor parameters
+
+=over
+
+=item log_level
+
+Specify minimal log level. Default is C<WARN>. Can be C<INFO>,
+C<DEBUG> or C<TRACE> to get more logs. Can also be C<ERROR> to get
+less traces.
+
+This parameter is used to override the log level specified in log
+configuration file.
+
+=back
 
 =head1 Configuration Model
 
