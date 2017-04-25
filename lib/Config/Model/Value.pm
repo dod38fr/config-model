@@ -934,7 +934,7 @@ sub run_code_on_value {
         $msg .= " (this cannot be fixed with 'cme fix' command)" unless $fix;
         push @$array, $msg unless $apply_fix;
         $self->{nb_of_fixes}++ if ( defined $fix and not $apply_fix );
-        $self->apply_fix( $fix, $value_r ) if ( defined $fix and $apply_fix );
+        $self->apply_fix( $fix, $value_r, $msg ) if ( defined $fix and $apply_fix );
     }
 }
 
@@ -1011,7 +1011,7 @@ sub apply_fixes {
 
 # internal: called by check when a fix is required
 sub apply_fix {
-    my ( $self, $fix, $value_r ) = @_;
+    my ( $self, $fix, $value_r, $msg ) = @_;
 
     local $_ = $$value_r;    # used inside $fix sub ref
 
@@ -1032,7 +1032,7 @@ sub apply_fix {
     no warnings "uninitialized";
     if ( $_ ne $$value_r ) {
         $fix_logger->info( $self->location . ": fix changed value from '$$value_r' to '$_'" );
-        $self->_store_fix( $$value_r, $_ );
+        $self->_store_fix( $$value_r, $_, $msg );
     }
     else {
         $fix_logger->info( $self->location . ": fix did not change value '$$value_r'" );
@@ -1040,7 +1040,7 @@ sub apply_fix {
 }
 
 sub _store_fix {
-    my ( $self, $old, $new ) = @_;
+    my ( $self, $old, $new, $msg ) = @_;
 
     $self->{data} = $new;
 
@@ -1052,7 +1052,7 @@ sub _store_fix {
     my %args = (
         old => $old // $self->_fetch_std,
         new => $new // $self->_fetch_std,
-        note => 'applied fix'
+        note => 'applied fix for :'. $msg,
     ) ;
     no warnings "uninitialized";
     # in case $old is the default value and $new is undef
