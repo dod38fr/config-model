@@ -150,6 +150,16 @@ has skip_inheritance => (
         $self->skip_include = $self->skip_inheritance;
     } );
 
+around BUILDARGS => sub {
+    my $orig  = shift;
+    my $class = shift;
+
+    my %args = @_;
+    my %new = map { defined $args{$_} ? ( $_ => $args{$_} ) : () } keys %args;
+
+    return $class->$orig(%new);
+};
+
 # keep this as a separate sub from BUILD. So user can call it before
 # creating Config::Model object
 sub initialize_log4perl {
