@@ -155,7 +155,17 @@ around BUILDARGS => sub {
     my $class = shift;
 
     my %args = @_;
-    my %new = map { defined $args{$_} ? ( $_ => $args{$_} ) : () } keys %args;
+    my %new;
+    foreach my $k (keys %args) {
+        if (defined $args{$k}) {
+            $new{$k} = $args{$k};
+        }
+        else {
+            # this warning should be changed to an error end of 2017
+            # cannot use logger, it's not initialised yet
+            warn("Config::Model new: passing undefined constructor argument is deprecated ($k argument)\n");
+        }
+    }
 
     return $class->$orig(%new);
 };
