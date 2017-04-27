@@ -1052,7 +1052,7 @@ sub _store_fix {
     my %args = (
         old => $old // $self->_fetch_std,
         new => $new // $self->_fetch_std,
-        note => 'applied fix for :'. $msg,
+        note => 'applied fix'. ( $msg ? ' for :'. $msg : ''),
     ) ;
     no warnings "uninitialized";
     # in case $old is the default value and $new is undef
