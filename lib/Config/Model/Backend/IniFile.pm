@@ -37,6 +37,7 @@ sub read {
     my $section_map = $args{section_map}         || {};
     my $split_reg   = $args{split_list_value};
     my $check       = $args{check}               || 'yes';
+    my $assign_char = $args{assign_char}         || '=';
     my $obj         = $self->node;
 
     my %force_lc;
@@ -108,7 +109,7 @@ sub read {
             }
         }
         else {
-            my ( $name, $val ) = split( /\s*=\s*/, $vdata, 2 );
+            my ( $name, $val ) = split( /\s*$assign_char\s*/, $vdata, 2 );
             $name = lc($name) if $force_lc{key};
             $val  = lc($val)  if $force_lc{value};
             $comment_path = $section_path . ' ' . $self->set_or_push( $section_ref, $name, $val );
@@ -197,6 +198,7 @@ sub _write_list{
 
     my $join_list = $args->{join_list_value};
     my $delimiter = $args->{comment_delimiter} || '#';
+    my $assign_with = $args->{assign_with} // $args->{assign_char} // ' = ';
     my $obj = $node->fetch_element($elt);
 
     my $obj_note = $obj->annotation;
@@ -206,7 +208,7 @@ sub _write_list{
         my $v = join( $join_list, @v );
         if ( length($v) ) {
             $logger->debug("writing joined list elt $elt -> $v");
-            $res .= $self->write_data_and_comments( undef, $delimiter, "$elt=$v", $obj_note );
+            $res .= $self->write_data_and_comments( undef, $delimiter, "$elt$assign_with$v", $obj_note );
         }
     }
     else {
@@ -216,7 +218,7 @@ sub _write_list{
             if ( length $v ) {
                 $logger->debug("writing list elt $elt -> $v");
                 $res .=
-                    $self->write_data_and_comments( undef, $delimiter, "$elt=$v",
+                    $self->write_data_and_comments( undef, $delimiter, "$elt$assign_with$v",
                                                     $obj_note . $note );
             }
             else {
@@ -233,6 +235,7 @@ sub _write_check_list{
 
     my $join_check_list = $args->{join_check_list_value};
     my $delimiter = $args->{comment_delimiter} || '#';
+    my $assign_with = $args->{assign_with} // $args->{assign_char} // ' = ';
     my $obj = $node->fetch_element($elt);
 
     my $obj_note = $obj->annotation;
@@ -241,13 +244,13 @@ sub _write_check_list{
         my $v = join( $join_check_list, $obj->get_checked_list() );
         if ( length($v) ) {
             $logger->debug("writing check_list elt $elt -> $v");
-            $res .= $self->write_data_and_comments( undef, $delimiter, "$elt=$v", $obj_note );
+            $res .= $self->write_data_and_comments( undef, $delimiter, "$elt$assign_with$v", $obj_note );
         }
     }
     else {
         foreach my $v ( $obj->get_checked_list() ) {
             $logger->debug("writing joined check_list elt $elt -> $v");
-            $res .= $self->write_data_and_comments( undef, $delimiter, "$elt=$v", $obj_note );
+            $res .= $self->write_data_and_comments( undef, $delimiter, "$elt$assign_with$v", $obj_note );
         }
     }
     return $res;
@@ -259,6 +262,7 @@ sub _write_leaf{
 
     my $write_bool_as = $args->{write_boolean_as};
     my $delimiter = $args->{comment_delimiter} || '#';
+    my $assign_with = $args->{assign_with} // $args->{assign_char} // ' = ';
     my $obj = $node->fetch_element($elt);
 
     my $obj_note = $obj->annotation;
@@ -269,7 +273,7 @@ sub _write_leaf{
     }
     if ( defined $v and length $v ) {
         $logger->debug("writing leaf elt $elt -> $v");
-        $res .= $self->write_data_and_comments( undef, $delimiter, "$elt=$v", $obj_note );
+        $res .= $self->write_data_and_comments( undef, $delimiter, "$elt$assign_with$v", $obj_note );
     }
     else {
         $logger->debug("NOT writing undef or empty leaf elt");
@@ -562,6 +566,14 @@ Array ref. Reserved for boolean value. Specify how to write a boolean value.
 Default is C<[0,1]> which may not be the most readable. C<write_boolean_as> can be 
 specified as C<['false','true']> or C<['no','yes']>. 
 
+=item assign_char
+
+Character used to assign value in INI file. Default is C<=>.
+
+=item assign_with
+
+String used write assignment in INI file. Default is "C< = >".
+
 =back
 
 =head1 Mapping between INI structure and model
@@ -653,6 +665,30 @@ C<section_map> can also map an INI class to the root node:
         }
     ],
 
+=head1 Handle key value files
+
+This backend is able to handle simple configuration files where the
+values are written as key value pairs like:
+
+ foo = bar
+
+or
+
+ foo: bar
+
+The option C<assign_char> is used to specify which character is used
+to assign a value in the file (white spaces are ignored).
+C<assign_char> is "C<=>" (the default) in the first example, and
+"C<:>" in the second.
+
+The C<assign_with> is used to control how the file is written back. E.g:
+
+ foo=bar   # the default
+ foo= bar  # assign_with is "= "
+ foo = bar # assign_with is " = "
+ foo:bar   # assign_char is ':', assign_with is the default
+ foo: bar  # assign_char is ':', assign_with is ": "
+ foo : bar # assign_char is ':', assign_with is " : "
 
 =head1 Methods
 

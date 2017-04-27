@@ -7,7 +7,7 @@ $from_scratch_file = <<'EOF' ;
 ## You may also modify the content of this file with your favorite editor.
 
 [general]
-include=/usr/share/multistrap/crosschroot.conf
+include = /usr/share/multistrap/crosschroot.conf
 EOF
 
 @tests = (

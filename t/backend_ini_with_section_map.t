@@ -48,14 +48,14 @@ EOH
 
 my @below_data = split /\n/, << 'EOD2' ;
 [Low]
-foo=bar
+foo = bar
 
 [Section1]
-source=1
+source = 1
 
 [Section2]
-source=2
-packages=g++-4.2-arm-linux-gnu linux-libc-dev-arm-cross
+source = 2
+packages = g++-4.2-arm-linux-gnu linux-libc-dev-arm-cross
 
 [Empty]
 EOD2
@@ -65,14 +65,14 @@ my $w_file_below = join( "\n", $head, '', map { lc } @below_data[ 3 .. 9, 0 .. 2
 # set_up data
 my @general_data = split /\n/, << 'EOD1' ;
 [General]
-foo=bar
+foo = bar
 
 [Section1]
-source=1
+source = 1
 
 [Section2]
-source=2
-packages=g++-4.2-arm-linux-gnu linux-libc-dev-arm-cross
+source = 2
+packages = g++-4.2-arm-linux-gnu linux-libc-dev-arm-cross
 
 [Empty]
 EOD1
