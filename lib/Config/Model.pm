@@ -192,7 +192,7 @@ EOC
         $log4perl_user_conf_file->is_file ? $log4perl_user_conf_file->lines
       : $log4perl_syst_conf_file->is_file ? $log4perl_syst_conf_file->lines
       :                                     split /\n/, $fallback_conf;
-    my %log4perl_conf = map { split /\s*=\s*/,$_,2; } @log4perl_conf_lines;
+    my %log4perl_conf = map { split /\s*=\s*/,$_,2; } grep { chomp; ! /^\s*#/ } @log4perl_conf_lines;
 
     if (defined $args->{log_level}) {
         $log4perl_conf{'log4perl.logger'} = $args->{log_level}.', Screen';
