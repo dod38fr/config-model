@@ -12,10 +12,6 @@ no warnings qw(once);
 
 use strict;
 
-use vars qw/$model/;
-
-$model = Config::Model->new();
-
 my $arg = shift || '';
 
 my $trace = $arg =~ /t/ ? 1 : 0;
@@ -23,6 +19,8 @@ Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 
 use Log::Log4perl qw(:easy);
 Log::Log4perl->easy_init( $arg =~ /l/ ? $TRACE : $ERROR );
+
+my $model = Config::Model->new();
 
 ok( 1, "compiled" );
 

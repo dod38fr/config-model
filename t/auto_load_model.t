@@ -10,14 +10,14 @@ no warnings qw(once);
 
 use strict;
 
-my $model = Config::Model->new( legacy => 'ignore', );
-
 my $arg = shift || '';
 my $trace = $arg =~ /t/ ? 1 : 0;
 Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 
 use Log::Log4perl qw(:easy);
 Log::Log4perl->easy_init( $arg =~ /l/ ? $TRACE : $WARN );
+
+my $model = Config::Model->new( legacy => 'ignore', );
 
 ok( 1, "compiled" );
 

@@ -14,10 +14,6 @@ no warnings qw(once);
 
 use strict;
 
-use vars qw/$model/;
-
-$model = Config::Model->new();
-
 my $arg = shift || '';
 
 my $trace = $arg =~ /t/ ? 1 : 0;
@@ -34,7 +30,10 @@ else {
     Log::Log4perl->easy_init( $arg =~ /l/ ? $DEBUG : $WARN );
 }
 
+my $model = Config::Model->new();
+
 ok( 1, "compiled" );
+
 my $subdir = 'plain/';
 
 $model->create_config_class(

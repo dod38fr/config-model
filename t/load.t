@@ -14,8 +14,6 @@ no warnings qw(once);
 
 use strict;
 
-my $model = Config::Model->new( legacy => 'ignore', );
-
 my $arg = shift || '';
 my ( $log, $show ) = (0) x 2;
 
@@ -40,6 +38,8 @@ my $builder = Test::More->builder;
 binmode $builder->output,         ":utf8";
 binmode $builder->failure_output, ":utf8";
 binmode $builder->todo_output,    ":utf8";
+
+my $model = Config::Model->new( legacy => 'ignore', );
 
 ok( 1, "compiled" );
 

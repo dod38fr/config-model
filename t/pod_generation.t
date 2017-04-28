@@ -19,8 +19,6 @@ my $wr_root = 'wr_root';
 rmtree($wr_root);
 mkpath( $wr_root, { mode => 0755 } );
 
-my $model = Config::Model->new( legacy => 'ignore', );
-
 my $arg = shift || '';
 my $trace = $arg =~ /t/ ? 1 : 0;
 my $log   = $arg =~ /l/ ? 1 : 0;
@@ -35,6 +33,8 @@ if ( $log and -e $log4perl_user_conf_file ) {
 else {
     Log::Log4perl->easy_init( $arg =~ /l/ ? $DEBUG : $WARN );
 }
+
+my $model = Config::Model->new( legacy => 'ignore', );
 
 ok( 1, "compiled" );
 

@@ -14,10 +14,6 @@ no warnings qw(once);
 use 5.10.1;
 use strict;
 
-use vars qw/$model/;
-
-$model = Config::Model->new();
-
 my $arg = shift || '';
 my $log = 0;
 
@@ -35,6 +31,8 @@ if ( $log and -e $log4perl_user_conf_file ) {
 else {
     Log::Log4perl->easy_init($ERROR);
 }
+
+my $model = Config::Model->new();
 
 ok( 1, "compiled" );
 

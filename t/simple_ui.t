@@ -15,10 +15,6 @@ use open      qw(:std :utf8);    # undeclared streams in UTF-8
 
 use Data::Dumper;
 
-use vars qw/$model/;
-
-$model = Config::Model->new( legacy => 'ignore', );
-
 my $arg = shift || '';
 
 my $trace = $arg =~ /t/ ? 1 : 0;
@@ -28,6 +24,8 @@ use Log::Log4perl qw(:easy);
 Log::Log4perl->easy_init( $arg =~ /l/ ? $TRACE : $WARN );
 
 note("you can run the test in interactive mode by passing 'i' argument, i.e. perl -Ilib t/simple_ui.t i");
+
+my $model = Config::Model->new( legacy => 'ignore', );
 
 ok( 1, "compiled" );
 

@@ -14,10 +14,6 @@ use Data::Dumper;
 
 # use Config::Model::ObjTreeScanner;
 
-use vars qw/$model/;
-
-$model = Config::Model->new( legacy => 'ignore', );
-
 my $arg = shift || '';
 
 my $trace = $arg =~ /t/ ? 1 : 0;
@@ -27,6 +23,8 @@ $Data::Dumper::Indent = 1;
 
 use Log::Log4perl qw(:easy);
 Log::Log4perl->easy_init( $arg =~ /l/ ? $TRACE : $WARN );
+
+my $model = Config::Model->new( legacy => 'ignore', );
 
 ok( 1, "compiled" );
 
