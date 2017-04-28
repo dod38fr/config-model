@@ -1,5 +1,26 @@
 {{$NEXT}}
 
+2.101 2017-04-28
+
+  Model improvement:
+    * Add assign_char and assign_with to IniFile backend. So it can
+      be used for files with "key: value" lines.
+    * add option to write hash key with empty values. By default empty
+      hash values are dropped and the hash keys of these values are lost.
+
+  Usability improvement:
+    * Value: if possible show why a fix is applied, i.e. show the warning
+      that triggered the fix
+    * improved log levels (i.e. move some log from debug to info or trace)
+
+  Improvement:
+    * Model: add log_level parameter, so logs can be shown with a cme
+      command line option
+    * prevent undef warnings on Windows
+
+  Deprecation warning:
+    * Model: warn in case of undef constructor argument
+
 2.100 2017-03-18
 
   Usability improvement:
