@@ -39,6 +39,8 @@ Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 
 ok( 1, "Compilation done" );
 
+use lib 'wr_root';
+
 # pseudo root where config files are written by config-model
 my $wr_root = path('wr_root');
 
@@ -140,7 +142,7 @@ $snippet_dir->mkpath();
 $snippet_dir->child('Three.pl')->spew($str);
 
 # minimal set up to get things working
-my $model = Config::Model->new( model_dir => $model_dir->stringify, );
+my $model = Config::Model->new();
 
 # use Tk::ObjScanner; Tk::ObjScanner::scan_object($model) ;
 

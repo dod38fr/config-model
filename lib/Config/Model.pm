@@ -1233,7 +1233,8 @@ sub load {
     # look for additional model information
     my %model_graft_by_name;
     my %done;  # avoid loading twice the same snippet (where system version may clobber dev version)
-    foreach my $inc_str (@INC,'.') {
+
+    foreach my $inc_str (@INC) {
         foreach my $name ( keys %models_by_name ) {
             my $snippet_path = $name;
             $snippet_path =~ s/::/\//g;
