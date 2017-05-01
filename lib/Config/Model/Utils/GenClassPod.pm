@@ -8,7 +8,6 @@ use 5.010;
 use parent qw(Exporter);
 our @EXPORT = qw(gen_class_pod);
 
-use lib qw/lib/;
 use Path::Tiny ;
 use Config::Model ;             # to generate doc
 
