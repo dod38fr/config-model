@@ -46,6 +46,9 @@ my $wr_root = path('wr_root');
 $wr_root->remove_tree;
 $wr_root->mkpath();
 
+my $model_dir = $wr_root->child('Config/Model/models');
+$model_dir->mkpath;
+
 my $str = << 'EOF' ;
 [
     {
@@ -87,7 +90,7 @@ my $str = << 'EOF' ;
 ];
 EOF
 
-$wr_root->child('Master.pl')->spew($str);
+$model_dir->child('Master.pl')->spew($str);
 
 $str = << 'EOF' ;
 [{
@@ -96,7 +99,7 @@ $str = << 'EOF' ;
 }] ;
 EOF
 
-$wr_root->child('Two.pl')->spew($str);
+$model_dir->child('Two.pl')->spew($str);
 
 
 $str = << 'EOF' ;
@@ -131,13 +134,13 @@ $str = << 'EOF' ;
 };
 EOF
 
-my $snippet_dir = $wr_root->child('Master.d');
+my $snippet_dir = $model_dir->child('Master.d');
 $snippet_dir->mkpath();
 
 $snippet_dir->child('Three.pl')->spew($str);
 
 # minimal set up to get things working
-my $model = Config::Model->new( model_dir => $wr_root->stringify, );
+my $model = Config::Model->new( model_dir => $model_dir->stringify, );
 
 # use Tk::ObjScanner; Tk::ObjScanner::scan_object($model) ;
 
