@@ -11,6 +11,7 @@ use warnings;
 no warnings qw(once);
 
 use strict;
+use lib "t/lib";
 
 my $arg = shift || '';
 
@@ -36,7 +37,7 @@ my $i_hosts = $model->instance(
     instance_name   => 'hosts_inst',
     root_class_name => 'Hosts',
     root_dir        => $wr_root->stringify,
-    model_file      => 't/test_yaml_model.pl',
+    model_file      => 'test_yaml_model.pl',
 );
 
 ok( $i_hosts, "Created instance" );

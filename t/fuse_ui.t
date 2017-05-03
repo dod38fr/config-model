@@ -45,6 +45,7 @@ else {
 
 use warnings;
 use strict;
+use lib "t/lib";
 
 # required to handle warnings in forked process
 local $SIG{__WARN__} = sub { die $_[0] unless $_[0] =~ /deprecated/ };
@@ -85,7 +86,7 @@ $fused->mkpath( { mode => 0755 } );
 
 my $model = Config::Model->new( legacy => 'ignore' );
 
-$model->load( Master => 't/big_model.pm' );
+$model->load( Master => 'Config/Model/models/Master.pl' );
 
 $model->augment_config_class(
     name    => 'Master',

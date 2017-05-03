@@ -9,6 +9,7 @@ use Test::Memory::Cycle;
 use Config::Model;
 
 use strict;
+use lib "t/lib";
 
 my $arg = shift || '';
 
@@ -74,7 +75,6 @@ is( $inst->has_warning, 0,        "check cleared warning count at instance level
 
 my $binst = $model->instance(
     root_class_name => 'Master',
-    model_file      => 't/big_model.pm',
     instance_name   => 'test2'
 );
 ok( $binst, "created dummy instance" );

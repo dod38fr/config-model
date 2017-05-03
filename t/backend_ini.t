@@ -15,6 +15,7 @@ use warnings;
 no warnings qw(once);
 
 use strict;
+use lib "t/lib";
 
 my $arg = shift || '';
 
@@ -69,7 +70,7 @@ sub init_test {
         instance_name   => 'test_inst',
         root_class_name => $test_class,
         root_dir        => $wr_dir,
-        model_file      => 't/test_ini_backend_model.pl',
+        model_file      => 'test_ini_backend_model.pl',
         config_dir      => $config_dir, # optional
     );
 

@@ -11,6 +11,7 @@ use warnings;
 no warnings qw(once);
 
 use strict;
+use lib "t/lib";
 
 use Data::Dumper;
 
@@ -35,7 +36,7 @@ my $model = Config::Model->new( legacy => 'ignore', );
 
 ok( 1, "compiled" );
 
-my @models = $model->load( Master => 't/big_model.pm' );
+my @models = $model->load( Master => 'Config/Model/models/Master.pl' );
 
 is_deeply(
     \@models,

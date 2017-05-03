@@ -30,6 +30,7 @@ use warnings;
 no warnings qw(once);
 
 use strict;
+use lib "t/lib";
 
 use Data::Dumper;
 
@@ -49,7 +50,6 @@ ok( 1, "compiled" );
 
 my $inst = $model->instance(
     root_class_name => 'Master',
-    model_file      => 't/big_model.pm',
     instance_name   => 'test1'
 );
 ok( $inst, "created dummy instance" );

@@ -16,7 +16,7 @@ BEGIN { plan tests => 8; }
 
 use strict;
 
-use strict;
+use lib 'wr_root';
 
 my $arg = shift || '';
 my ( $log, $show ) = (0) x 2;
@@ -38,8 +38,6 @@ else {
 Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 
 ok( 1, "Compilation done" );
-
-use lib 'wr_root';
 
 # pseudo root where config files are written by config-model
 my $wr_root = path('wr_root');

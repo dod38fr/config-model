@@ -9,6 +9,7 @@ use warnings;
 no warnings qw(once);
 
 use strict;
+use lib "t/lib";
 
 my $arg = shift || '';
 my $trace = $arg =~ /t/ ? 1 : 0;
@@ -23,7 +24,6 @@ ok( 1, "compiled" );
 
 my $inst = $model->instance(
     root_class_name => 'Master',
-    model_file      => 't/big_model.pm',
     instance_name   => 'test1'
 );
 
@@ -44,7 +44,6 @@ ok( $root->load( step => $step ), "set up data in tree with '$step'" );
 my $model2 = Config::Model->new( legacy => 'ignore', skip_include => 1 );
 my $inst2 = $model2->instance(
     root_class_name => 'Master',
-    model_file      => 't/big_model.pm',
     instance_name   => 'test1'
 );
 ok( $inst2, "created dummy instance 2" );

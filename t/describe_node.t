@@ -10,6 +10,8 @@ use warnings;
 no warnings qw(once);
 
 use strict;
+use lib "t/lib";
+
 use utf8;
 use open      qw(:std :utf8);    # undeclared streams in UTF-8
 
@@ -24,7 +26,7 @@ my $model = Config::Model->new( legacy => 'ignore', );
 
 ok( 1, "compiled" );
 
-$model->load(Master => 't/big_model.pm');
+$model->load(Master => 'Config/Model/models/Master.pl');
 ok( 1, "loaded big_model" );
 
 $model->augment_config_class(

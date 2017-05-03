@@ -13,6 +13,7 @@ use warnings;
 no warnings qw(once);
 
 use strict;
+use lib "t/lib";
 
 my $arg = shift || '';
 my ( $log, $show ) = (0) x 2;
@@ -114,7 +115,7 @@ foreach my $subtest (@regexp_test) {
 
 my $inst = $model->instance(
     root_class_name => 'Master',
-    model_file      => 't/dump_load_model.pm',
+    model_file      => 'dump_load_model.pm',
     instance_name   => 'test1'
 );
 ok( $inst, "created dummy instance" );

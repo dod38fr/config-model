@@ -9,6 +9,7 @@ no warnings qw(once);
 use 5.10.1;
 
 use strict;
+use lib "t/lib";
 
 my $arg = shift || '';
 my $trace = $arg =~ /t/ ? 1 : 0;
@@ -21,7 +22,7 @@ my $model = Config::Model->new( legacy => 'ignore', );
 
 ok( 1, "compiled" );
 
-$model->load( 'Master', 't/big_model.pm' );
+$model->load( 'Master', 'Config/Model/models/Master.pl' );
 ok( 1, "big_model loaded" );
 
 $model->augment_config_class(
