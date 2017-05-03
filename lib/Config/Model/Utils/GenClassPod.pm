@@ -12,7 +12,10 @@ use Path::Tiny ;
 use Config::Model ;             # to generate doc
 
 sub gen_class_pod {
-    my $cm = Config::Model -> new(model_dir => "lib/Config/Model/models") ;
+    # make sure that doc is generated from models from ./lib and not
+    # installed models
+    my $local_model_dir = path("lib/Config/Model/models") -> absolute;
+    my $cm = Config::Model -> new(model_dir => $local_model_dir->stringify ) ;
     my %done;
 
     my @models = @_ ? @_ :
