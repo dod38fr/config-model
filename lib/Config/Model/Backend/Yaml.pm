@@ -9,7 +9,7 @@ use File::Path;
 use Log::Log4perl qw(get_logger :levels);
 
 use base qw/Config::Model::Backend::Any/;
-use YAML::Any;
+use YAML::Tiny;
 
 my $logger = get_logger("Backend::Yaml");
 

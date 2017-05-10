@@ -5,7 +5,7 @@ use Test::More;
 use Test::Memory::Cycle;
 use Config::Model;
 use Path::Tiny;
-use YAML::Any;
+use YAML::Tiny;
 
 use warnings;
 no warnings qw(once);
