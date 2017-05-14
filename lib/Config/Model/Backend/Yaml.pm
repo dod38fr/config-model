@@ -1,6 +1,6 @@
-
 package Config::Model::Backend::Yaml;
 
+use 5.10.1;
 use Carp;
 use strict;
 use warnings;
@@ -9,9 +9,17 @@ use File::Path;
 use Log::Log4perl qw(get_logger :levels);
 
 use base qw/Config::Model::Backend::Any/;
-use YAML::Tiny;
 
 my $logger = get_logger("Backend::Yaml");
+
+sub load_yaml_parser {
+    my $self = shift;
+    my $file = my $class = shift // 'YAML::Tiny';
+    $file =~ s!::!/!g;
+    say "loading $file.pm";
+    require "$file.pm" || die "cannot load YAML parser $class";
+    import $class;
+}
 
 sub suffix { return '.yml'; }
 
@@ -41,11 +49,14 @@ sub read {
 
     return 0 unless defined $args{io_handle};    # no file to read
 
+    # load YAML parser and import Load and Dump
+    $self->load_yaml_parser($args{yaml_class});
+
     # load yaml file
     my $yaml = join( '', $args{io_handle}->getlines );
 
     # convert to perl data
-    my $perl_data = Load $yaml ;
+    my $perl_data = Load($yaml) ;
     if ( not defined $perl_data ) {
         $logger->warn("No data found in YAML file $args{file_path}");
         return 1;
@@ -71,6 +82,9 @@ sub write {
     # io_handle  => $io           # IO::File object
     # check      => yes|no|skip
 
+    # load YAML parser and import Load and Dump
+    $self->load_yaml_parser($args{yaml_class});
+
     croak "Undefined file handle to write"
         unless defined $args{io_handle};
 
@@ -78,7 +92,7 @@ sub write {
 
     my $perl_data = $target->dump_as_data( full_dump => $args{full_dump} // 0);
 
-    my $yaml = Dump $perl_data ;
+    my $yaml = Dump( $perl_data );
 
     $args{io_handle}->print($yaml);
 
@@ -199,6 +213,23 @@ would be written with:
  - un
  - deux
 
+=head1 backend parameter
+
+=head2 yaml_class
+
+By default, this module uses L<YAML::Tiny>. This module has the
+advantage of being light and
+L<secure|https://github.com/ingydotnet/yaml-libyaml-pm/issues/45>.  No
+Perl object can be created with YAML tags so L<YAML::Tiny> can be
+used with YAML files coming from unutrusted sources.
+
+On the other hand, L<YAML::Tiny> does not support boolean values: it
+cannot write C<true> and C<false> as plain scalar. C<true> and
+C<false> are quoted and are not of type boolean from YAML point of view.
+
+If this is a problem for your configuration files, you can use L<YAML>
+module which writes C<true> and C<false> without quotes.
+
 =head1 CONSTRUCTOR
 
 =head2 new ( node => $node_obj, name => 'yaml' ) ;
@@ -210,7 +241,7 @@ called by L<Config::Model::BackendMgr>.
 
 Of all parameters passed to this read call-back, only C<io_handle> is
 used. This parameter must be L<IO::File> object already opened for
-read. 
+read.
 
 It can also be undef. In which case C<read()> returns 0.
 
