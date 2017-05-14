@@ -1,5 +1,20 @@
 {{$NEXT}}
 
+2.102 2017-05-14
+
+  Fix security issues:
+    * do not rely on '.' in @INC to load snippet model files
+      (CVE-2017-0374)
+    * genclasspod: remove use lib (CVE-2017-0373)
+    * avoid possible creation of Perl object through hostile
+      YAML file: use YAML::Tiny in YAML backend instead of YAML::Any
+
+  Model improvement
+    * model can choose YAML parser (default YAML::Tiny)
+
+  Bug fix:
+    * boolean value: accept empty string as false value
+
 2.101 2017-04-28
 
   Model improvement:
