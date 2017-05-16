@@ -138,7 +138,7 @@ extends 'Config::Model::Exception::User';
 
 sub _desc { 'Load data structure (perl) error' };
 
-has wrong_data => (is => 'rw', isa => 'Ref');
+has wrong_data => (is => 'rw');
 
 sub full_message {
     my $self = shift;
