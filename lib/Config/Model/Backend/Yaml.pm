@@ -16,7 +16,6 @@ sub load_yaml_parser {
     my $self = shift;
     my $file = my $class = shift // 'YAML::Tiny';
     $file =~ s!::!/!g;
-    say "loading $file.pm";
     require "$file.pm" || die "cannot load YAML parser $class";
     import $class;
 }
