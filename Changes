@@ -1,5 +1,12 @@
 {{$NEXT}}
 
+2.103 2017-05-25
+
+  Bug fix release:
+    * dist.ini: put back YAML build dep which is used for tests
+    * remove debug trace about YAML class
+    * fix exception message to show any kind of data.
+
 2.102 2017-05-14
 
   Fix security issues:
