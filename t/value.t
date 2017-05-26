@@ -645,10 +645,14 @@ note "test layered feature";
     is( $l_scalar->fetch, undef, "scalar: read layered value as backend value" );
     is( $l_scalar->fetch( mode => 'user' ), 3, "scalar: read layered value as user value" );
     is( $l_scalar->has_data, 0, "scalar: has no data" );
+    is( $l_scalar->fetch(mode => 'non_upstream_default'), 3,
+        "scalar: read non upstream default value before store" );
     $l_scalar->store(4);
     is( $l_scalar->fetch,            4, "scalar: read overridden layered value as value" );
     is( $l_scalar->fetch('layered'), 3, "scalar: read layered value as layered_value" );
     is( $l_scalar->fetch_standard,   3, "scalar: read standard_value" );
+    is( $l_scalar->fetch(mode => 'non_upstream_default'), 4,
+        "scalar: read non upstream default value after store" );
     is( $l_scalar->fetch_custom,     4, "scalar: read custom_value" );
     is( $l_scalar->has_data,         1, "scalar: has data" );
 
