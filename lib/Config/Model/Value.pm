@@ -1558,7 +1558,7 @@ sub _fetch {
         no warnings "uninitialized";
         my $nbu =
               defined $data && $data ne $self->{upstream_default} ? $data
-            : defined $pref && $pref ne $self->{upstream_default} ? $pref
+            : defined $std  && $std  ne $self->{upstream_default} ? $std
             :                                                       undef;
 
         $logger->debug( "done in non_upstream_default mode for " . $self->location )
