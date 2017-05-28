@@ -222,7 +222,7 @@ sub _write_list{
                                                     $obj_note . $note );
             }
             else {
-                $logger->debug("NOT writing undef or empty list elt");
+                $logger->trace("NOT writing undef or empty list elt");
             }
         }
     }
