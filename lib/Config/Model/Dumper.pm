@@ -50,7 +50,7 @@ sub dump_tree {
     my $auto_v  = delete $args{auto_vivify} || 0;
     my $mode    = delete $args{mode} || '';
 
-    if ( $mode and $mode !~ /full|preset|custom/ ) {
+    if ( $mode and $mode !~ /full|preset|custom|non_upstream_default/ ) {
         croak "dump_tree: unexpected 'mode' value: $mode";
     }
 
@@ -322,7 +322,7 @@ Parameters are:
 
 =over
 
-=item mode ( full | preset | custom )
+=item mode ( full | preset | custom | non_upstream_default )
 
 C<full> dumps all configuration data including default
 values.
