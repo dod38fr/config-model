@@ -220,7 +220,7 @@ sub register_write_back {
 }
 
 # used for auto_read auto_write feature
-has [qw/name application root_dir backend backup/] => (
+has [qw/name application root_dir backend backend_arg backup/] => (
     is  => 'ro',
     isa => 'Maybe[Str]',
 );
@@ -686,6 +686,11 @@ supplied if not provided by the configuration model.
 =item backend
 
 Specify which backend to use. See L</write_back ( ... )> for details
+
+=item backend_arg
+
+Specify a backend argument that may be retrieved by some
+backend. Instance is used as a relay and does not use this data.
 
 =item check
 
