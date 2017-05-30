@@ -119,7 +119,7 @@ sub get_cfg_file_path {
     Config::Model::Exception::Model->throw(
         error  => "backend error: empty 'config_dir' parameter (and no config_file override)",
         object => $self->node
-    ) unless $args{config_dir} or $self->config_dir;
+    ) unless defined $args{config_dir} or defined $self->config_dir;
 
     my ( $dir_ok, $dir ) = $self->get_cfg_dir_path(%args);
 
