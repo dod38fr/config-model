@@ -16,7 +16,7 @@ sub quote {
 }
 
 sub id_quote {
-    _quote( qr/[\s"*<>.=#]/, @_ );
+    _quote( qr/[\s"@*<>.=#]/, @_ );
 }
 
 sub _quote {
