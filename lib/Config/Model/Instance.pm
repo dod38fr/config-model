@@ -242,6 +242,7 @@ sub _build_read_root_dir {
 # config_file cannot be a Path::Tiny object: it may be a file name
 # relative to a directory only known by a backend (e.g. a patch in
 # debian/patches directory)
+# TODO: the above argument goes down if debian/patch uses backend_arg
 has config_file => (is  => 'ro', isa => 'Maybe[Str]');
 
 has config_dir => (is  => 'ro', isa => 'Maybe[Str]');
