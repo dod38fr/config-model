@@ -276,7 +276,7 @@ sub _write_leaf{
         $res .= $self->write_data_and_comments( undef, $delimiter, "$elt$assign_with$v", $obj_note );
     }
     else {
-        $logger->debug("NOT writing undef or empty leaf elt");
+        $logger->trace("NOT writing undef or empty leaf elt");
     }
     return $res;
 }
