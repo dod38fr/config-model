@@ -511,7 +511,8 @@ sub write_back {
         $logger->info("write_back called on node $path");
 
         if ( $path and $self->{config_file} ) {
-            die "write_back: cannot override config_file in non root node ($path)\n";
+            $logger->warn("write_back: cannot override config_file in non root node ($path)");
+            delete  $self->{config_file}
         }
 
         $self->_write_back_node(%args, path => $path, force_write => $force_write) ;
