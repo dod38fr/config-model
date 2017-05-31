@@ -7,3 +7,16 @@ o [domi] Filter element according to element in SimpleUI and TERMUI
 
 
 
+* Rework backends:
+
+- obsolete custom backend
+
+- move cds backend in C::M::Backend::Any child class
+
+- move perl backend in C::M::Backend::Any child class
+
+- Use the same backend object to read and write files
+   This need to move most parameters of read/write to object attributes
+
+- Migrate file handling to Path::Tiny
+
