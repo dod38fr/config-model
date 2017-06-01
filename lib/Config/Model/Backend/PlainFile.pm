@@ -1,5 +1,6 @@
 package Config::Model::Backend::PlainFile;
 
+use 5.10.1;
 use Carp;
 use Mouse;
 use Config::Model::Exception;
@@ -78,7 +79,7 @@ sub read_leaf {
     return unless $file->exists;
 
     my $v = $file->slurp_utf8;
-    chomp $v unless $obj->value_type eq 'string';
+    chomp($v) unless $obj->value_type eq 'string';
     $obj->store( value => $v, check => $check );
 }
 
