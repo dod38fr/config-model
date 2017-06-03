@@ -1,5 +1,23 @@
 {{$NEXT}}
 
+2.104 2017-06-03
+
+  Improvements:
+    * Instance: add backend_arg to enable misc parameter for cme command
+      (e.g a systemd service name for systemd model or a patch name for
+       Dpkg patch model). (Build require Config::Model::Tester 2.062)
+
+  Bug fixes:
+    * BackendMgr:
+      * allow empty but defined config_dir
+      * ignore config_file in non-root node (do not die anymore)
+    * Plainfile backend: try to fix a windows bug showing up on smoke tests
+    * Dumper:
+      * hash id containing @ must be quoted
+      * accept non_upstream_default mode
+    * Value: fix fetch in non_upstream_default mode
+
+
 2.103 2017-05-25
 
   Bug fix release:
