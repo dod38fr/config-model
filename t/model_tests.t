@@ -3,7 +3,7 @@ use warnings;
 
 use strict;
 
-use Config::Model::Tester 2.059;
+use Config::Model::Tester 2.062;
 use ExtUtils::testlib;
 
 my $arg             = shift || '';
