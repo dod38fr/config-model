@@ -1520,8 +1520,9 @@ sub _fetch {
         $self->notify_change( old => undef, new => $pref, note => "use $info value" );
     }
 
+    my $layer_data = $self->{layered};
     my $known_upstream =
-          defined $self->{layered}           ? $self->{layered}
+          defined $layer_data                ? $layer_data
         : $self->compute_is_upstream_default ? $self->perform_compute
         :                                      $self->{upstream_default};
     my $std = defined $pref ? $pref : $known_upstream;
@@ -1548,7 +1549,7 @@ sub _fetch {
         $cust = $data
             if $data ne $pref
             and $data ne $self->{upstream_default}
-            and $data ne $self->{layered};
+            and $data ne $layer_data;
         $logger->debug( "custom mode result '$cust' for " . $self->location )
             if $logger->is_debug;
         return $cust;
@@ -1556,10 +1557,13 @@ sub _fetch {
 
     if ( $mode eq 'non_upstream_default' ) {
         no warnings "uninitialized";
-        my $nbu =
-              defined $data && $data ne $self->{upstream_default} ? $data
-            : defined $std  && $std  ne $self->{upstream_default} ? $std
-            :                                                       undef;
+        my $nbu;
+        foreach my $d ($data, $layer_data, $pref) {
+            if ( defined $d and $d ne $self->{upstream_default} ) {
+                $nbu = $d;
+                last;
+            }
+        }
 
         $logger->debug( "done in non_upstream_default mode for " . $self->location )
             if $logger->is_debug;
