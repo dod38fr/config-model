@@ -1,5 +1,11 @@
 {{$NEXT}}
 
+2.105 2017-06-09
+
+  Bug fixes:
+    * Value: fix fetch in non_upstream_default mode to avoid breaking
+      'cme meta plugin' command 
+
 2.104 2017-06-03
 
   Improvements:
