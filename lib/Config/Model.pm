@@ -230,7 +230,14 @@ sub _tweak_instance_args {
     my $cat = '';
     if (defined $application) {
         my ( $categories, $appli_info, $appli_map ) = Config::Model::Lister::available_models;
-        $args->{root_class_name} ||= $appli_map->{$application} ;
+
+        # root_class_name may override class found (or not) by appli in tests
+        if (not $args->{root_class_name}) {
+            $args->{root_class_name} = $appli_map->{$application} ||
+                die "Unknown application $application. Expected one of "
+                . join(' ',sort keys %$appli_map)."\n";
+        }
+
         $cat = $appli_info->{_category} //  ''; # may be empty in tests
         # config_dir may be specified in application file
         $args->{config_dir} //= $appli_info->{$application}{config_dir};
