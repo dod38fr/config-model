@@ -135,6 +135,7 @@ sub get_cfg_file_path {
         return (0);
     }
 
+    # constructing config file name with >instance name>.<suffix>
     my $i    = $self->node->instance;
     my $name = $dir . $i->name;
 
@@ -1053,7 +1054,7 @@ mandatory C<config_dir> parameter. For instance:
    },
 
 When C<file> is not specified, a file name is constructed with
-C<< <config_class_name>.<suffix> >> where suffix is C<pl> or C<cds>.
+C<< <instance_name>.<suffix> >> where suffix is C<pl> or C<cds>.
 
 =head2 Custom backend
 
