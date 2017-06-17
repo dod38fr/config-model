@@ -500,7 +500,7 @@ sub write_back {
 
     if ($self->has_no_write_back ) {
         my $info = $self->application ? "the model of application ".$self->application
-            : "model ".$self->root_cladd_name ;
+            : "model ".$self->root_class_name ;
         croak "Don't know how to save data of $self->{name} instance. ",
             "Either $info has no configured ",
             "read/write backend or no node containing a backend was loaded. ",
