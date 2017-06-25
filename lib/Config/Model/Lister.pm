@@ -51,6 +51,7 @@ sub available_models {
                 $appli_info{$appli}{$k} = $v;
                 $applications{$appli} = $v if $k =~ /model/i;
             }
+            die "Missing model line in file $file\n" unless $done_cat{$cat}{$appli};
         }
     }
     return \%categories, \%appli_info, \%applications;
