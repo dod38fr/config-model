@@ -27,6 +27,12 @@ sub available_models {
             next if $file =~ m!/README!;
             next if $file =~ /(~|\.bak|\.orig)$/;
             my ($appli) = ( $file =~ m!.*/([\w\-]+)! );
+
+            # ensure that an appli file of a cat is not parsed twice
+            # (useful in dev, where system appli file may clobber
+            # appli file in dvelopment
+            next if $done_cat{$cat}{$appli};
+
             $appli_info{$appli}{_file} = $file;
             $appli_info{$appli}{_category} = $cat;
             open( F, $file ) || die "Can't open file $file:$!";
