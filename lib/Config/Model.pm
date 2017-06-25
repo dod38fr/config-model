@@ -177,6 +177,8 @@ sub initialize_log4perl {
     my $args = shift;
 
     my $log4perl_syst_conf_file = path('/etc/log4config-model.conf');
+    # avoid undef warning when homedir is not defined (e.g. with Debian cowbuilder)
+    my $home = File::HomeDir->my_home // '';
     my $log4perl_user_conf_file = path( File::HomeDir->my_home . '/.log4config-model' );
 
     my $fallback_conf           = << 'EOC';
