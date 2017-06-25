@@ -670,7 +670,9 @@ model. This model can be specified by its application name:
 
 The directory (or directories) holding configuration files is
 specified within the configuration model. For test purpose you can
-change the "root" directory with C<root_dir> parameter:
+change the "root" directory with C<root_dir> parameter.
+
+Constructor parameters are:
 
 =over
 
