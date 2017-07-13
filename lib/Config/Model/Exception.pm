@@ -422,7 +422,8 @@ extends 'Config::Model::Exception::User';
 
 sub _desc { 'wrong element type' };
 
-has [qw/function got_type expected_type/] => (is => 'rw', isa => 'Str');
+has [qw/function got_type/] => (is => 'rw', isa => 'Str');
+has [qw/expected_type/] => (is => 'rw');
 
 sub full_message {
     my $self = shift;
@@ -433,6 +434,8 @@ sub full_message {
     $msg .= "In function " . $self->function . ": "
         if defined $self->function;
 
+    my $type = $self->expected_type;
+
     $msg .=
           $self->description
         . " for element '"
@@ -440,7 +443,7 @@ sub full_message {
         . "'\n\tgot type '"
         . $self->got_type
         . "', expected '"
-        . $self->expected_type . "' "
+        .  (ref $type ? join("' or '",@$type) : $type) . "' "
         . $self->info . "\n";
 
     return $msg;
