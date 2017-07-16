@@ -130,7 +130,7 @@ sub get_cfg_file_path {
         return ( $dir_ok, $res );
     }
 
-    if ( not defined $args{suffix} ) {
+    if ( not defined $args{suffix} or not $args{suffix} ) {
         $logger->trace("get_cfg_file_path: returns undef (no suffix, no file argument)");
         return (0);
     }
