@@ -1,5 +1,17 @@
 {{$NEXT}}
 
+2.106 2017-07-16
+
+  Doc updates:
+    * BackendMgr: update doc of config_file_name
+
+  Improvement on error behavior:
+    * Fix message of WrongType Exception
+    * die if model line is missing from application file
+    * ensure that an application file is not parsed twice
+    * avoid undef warning when homedir is not defined
+    * cme function: improve error msg for unknown application
+
 2.105 2017-06-09
 
   Bug fixes:
