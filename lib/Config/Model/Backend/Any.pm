@@ -473,6 +473,30 @@ Write data and comments in the C<io_handle> (if defined). Comments are written b
 Returns the string written to the io_handle. If a data is undef, the comment is written on its own
 line.
 
+=head1 Replacing a custom backend
+
+Custom backend are now deprecated and must be replaced with a class inheriting this module.
+
+Please:
+
+=over
+
+=item *
+
+Rename your class to begin with C<Config::Model::Backend::>
+
+=item *
+
+Add C<use Mouse ;> and C<extends 'Config::Model::Backend::Any';> in the header of your custom class.
+
+=item *
+
+Add C<my $self = shift;> as the beginning of C<read> and C<write> functions... well... methods.
+
+=back
+
+Here's an L<example of such a change|https://github.com/dod38fr/config-model/commit/c3b7007ad386cb2356c5ac1499fe51bdf492b19a>.
+
 =head1 AUTHOR
 
 Dominique Dumont, (ddumont at cpan dot org)

@@ -902,9 +902,10 @@ for details on the data structure.
 
 =item * 
 
-C<custom>: specifies a dedicated class and function to read and load the
-configuration tree. This is provided for backward compatibility and
-should not be used for new projects.
+C<custom>: specifies a dedicated class and function to read and load
+the configuration tree. This backend is now deprecated. See
+L<Config::Model::Backend::Any/Replacing a custom backend>
+for instructions to migrate to a class based on C<Config::Model::Backend::Any>
 
 =back
 
