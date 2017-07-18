@@ -8,16 +8,21 @@ $conf_dir = '';
 $model_to_test = "MiniPlain";
 
 {
-    package MyReader;
+    package Config::Model::Backend::MyReader;
     use Path::Tiny;
     use Test::More;
+    use Mouse ;
+
+    extends 'Config::Model::Backend::Any';
 
     sub my_log {
         note("plainfile backend test: @_");
     }
 
     sub read {
+        my $self = shift;
         my %args = @_;
+
         my $dir = $args{root}.$args{config_dir};
         foreach my $file (path($dir)->children()) {
             my_log("dummy read file $file");
@@ -28,6 +33,7 @@ $model_to_test = "MiniPlain";
     }
 
     sub write {
+        my $self = shift;
         mylog("dummy write called");
         return 1;
     }
@@ -77,9 +83,8 @@ $model->create_config_class(
     ],
 
     read_config => [{
-        backend    => 'custom',
+        backend    => 'MyReader',
         config_dir => 'debian',
-        class      => 'MyReader',
         auto_delete => '1',
     }],
 );
