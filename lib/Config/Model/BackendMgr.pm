@@ -375,7 +375,7 @@ sub try_read_backend {
     my ( $res, $file_path, $error );
 
     if ( $backend eq 'custom' ) {
-        #$logger->warn("custom read/write backend is deprecated. Please replace with a backend inheriting Config::Model::Backend::Any");
+        warn("custom read/write backend is deprecated. Please replace with a backend inheriting Config::Model::Backend::Any\n");
         my $c = my $file = delete $read->{class};
         $file =~ s!::!/!g;
         my $f = delete $read->{function} || 'read';
