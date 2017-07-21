@@ -372,10 +372,10 @@ sub notify_change {
     my $self = shift;
     my %args = @_;
 
-    $change_logger->trace( "called for ", $self->name, " from ", join( ' ', caller ),
-        " with ", join( ' ', %args ) )
-        if $change_logger->is_trace;
-
+    if ($change_logger->is_trace) {
+        my @with = map { "'$_' -> '". ($args{$_} // '<undef>') ."'"  } sort keys %args;
+        $change_logger->trace("called for ", $self->name, " from ", join( ' ', caller ), " with ", join( ' ', @with ));
+    }
     return if $self->instance->initial_load and not $args{really};
 
     $logger->trace( "called while needs_write is ", $self->needs_save, " for ", $self->name )

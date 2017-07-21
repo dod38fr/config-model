@@ -83,9 +83,10 @@ sub notify_change {
 
     return if $self->instance->initial_load and not $args{really};
 
-    $change_logger->trace( "called for ", $self->name, " from ", join( ' ', caller ),
-        " with ", join( ' ', %args ) )
-        if $change_logger->is_trace;
+    if ($change_logger->is_trace) {
+        my @with = map { "'$_' -> '". ($args{$_} // '<undef>') ."'"  } sort keys %args;
+        $change_logger->trace("called for ", $self->name, " from ", join( ' ', caller ), " with ", join( ' ', @with ));
+    }
 
     # needs_save may be overridden by caller
     $args{needs_save} //= 1;
