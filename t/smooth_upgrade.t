@@ -23,7 +23,8 @@ Log::Log4perl->easy_init( $arg =~ /l/ ? $TRACE : $WARN );
 ok( 1, "Compilation done" );
 
 # minimal set up to get things working
-my $model = Config::Model->new( legacy => 'ignore', );
+my $model = Config::Model->new();
+
 $model->create_config_class(
     name      => "Master",
     'element' => [
