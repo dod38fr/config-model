@@ -62,14 +62,10 @@ sub _build_undef_replacement {
     my $self = shift;
 
     my $sui        = $self->undef_is;
-    my $need_quote = $self->need_quote;
 
-    return
-          $need_quote && defined $sui && $sui eq "''" ? "''"
-        : $need_quote  && defined $sui ? "'$sui'"
-        : defined $sui && $sui eq "''" ? ''
-        : defined $sui ? $sui
-        :                undef;
+    return defined $sui && $sui eq "''" ? ''
+         : defined $sui ? $sui
+         :                undef;
 
 }
 
@@ -111,7 +107,7 @@ sub compute {
         or $self->{value_type} =~ /(integer|number|boolean)/ ) {
         $logger->trace("will use eval");
         my $all_defined = 1;
-        my @init;
+        my %__vars;
         foreach my $key ( sort keys %$variables ) {
 
             # no need to get variable if not used in formula;
@@ -120,12 +116,15 @@ sub compute {
             my $v = $$vr;
             $v = $self->undef_replacement unless defined $v;
             $logger->debug( "compute: var $key -> ", ( defined $v ? $v : '<undef>' ) );
-            if ( defined $v ) { push @init, "my \$$key = $v ;\n"; }
+            # security: $v are stored in %__vars hash, so they are
+            # used by eval'ed code, but not directly eval'ed
+            if ( defined $v ) { $__vars{$key} = $v }
             else              { $all_defined = 0; }
         }
 
         if ($all_defined) {
-            my $formula = join( '', @init ) . $pre_formula;
+            my $formula = $pre_formula;
+            $formula =~ s/\$([_a-zA-Z]\w*)/defined $__vars{$1} ? "\$__vars{$1}" : "\$$1" /eg;
             $logger->debug("compute: evaluating '$formula'");
             $result = eval $formula;
             if ($@) {
@@ -419,17 +418,17 @@ sub _value_from_object {
         }
 
         $logger->trace( "fetched var object '$name' with '$path', result '",
-            defined $my_res ? $my_res : 'undef', "'" );
+            defined $my_res ? $my_res : '<undef>', "'" );
     }
 
     # my_res stays undef if $path if not defined
 
     # quote result if asked when calling compute
-    my $quote = $need_quote || 0;
-    if ($quote && $my_res) {
-        $my_res =~ s/'/\\'/g;
-        $my_res = "'$my_res'";
-    }
+    #my $quote = $need_quote || 0;
+    #if ($quote && $my_res) {
+    #    $my_res =~ s/'/\\'/g;
+    #    $my_res = "'$my_res'";
+    #}
 
     return \$my_res;    # So I can return undef ... or a ref to undef
 }
