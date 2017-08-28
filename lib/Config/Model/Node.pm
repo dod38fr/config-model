@@ -674,11 +674,10 @@ sub fetch_element {
         );
     }
 
-    if (    $self->{status}{$element_name} eq 'deprecated'
-        and $check ne 'no' ) {
-
+    # do not warn when when is skip or "no"
+    if ($self->{status}{$element_name} eq 'deprecated' and $check eq 'yes' ) {
         # FIXME elaborate more ? or include parameter description ??
-        warn "Element '$element_name' of node '", $self->name, "' is deprecated\n";
+        warn "Element '$element_name' of node '", $self->name, "' is deprecated\n" if $check eq 'yes';
 
         # this will also force a rewrite of the file even if no other
         # semantic change was done
@@ -739,9 +738,14 @@ sub is_element_available {
 
     # force the warp to be done (if possible) so the catalog name
     # is updated
+    # retrieve element (and auto-vivify if needed)
     my $element = $self->fetch_element(
         name          => $elt_name,
-        check         => 'no',
+        # check => 'no' causes problem because elements below (when
+        # loaded by another backend also below) are initialised with
+        # check 'no'. Deprecated elements are loaded but changes are
+        # not notified because of check/no.
+        check => 'skip',
         accept_hidden => 1
     );
 

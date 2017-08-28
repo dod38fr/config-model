@@ -343,7 +343,7 @@ sub migrate_value {
     $self->{migration_done} = 1;
 
     # avoid warning when reading deprecated values
-    my $result = $self->{_migrate_from}->compute( check => 'no' );
+    my $result = $self->{_migrate_from}->compute( check => 'skip' );
 
     return undef unless defined $result;
 
