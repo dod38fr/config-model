@@ -66,10 +66,8 @@ $model->create_config_class(
     read_config => [
         { backend => 'cds_file', config_dir => $conf_dir },
         {
-            backend    => 'custom',
+            backend    => 'Level1Read',
             config_dir => $conf_dir,
-            class      => 'Level1Read',
-            function   => 'read_it'
         }
     ],
     write_config => [
@@ -96,7 +94,7 @@ $model->create_config_class(
     # try first to read with cds string and then custom class
     read_config => [
         { backend => 'cds_file', config_dir => $conf_dir },
-        { backend => 'custom',   class      => 'SameRWSpec', config_dir => $conf_dir },
+        { backend => 'SameRWSpec', config_dir => $conf_dir },
         {
             backend     => 'ini_file',
             config_dir  => $conf_dir,
@@ -121,10 +119,9 @@ $model->create_config_class(
         { backend => 'perl_file', config_dir => $conf_dir },
         { backend => 'ini_file',  config_dir => $conf_dir },
         {
-            backend    => 'custom',
-            class      => 'MasterRead',
+            backend    => 'MasterRead',
             config_dir => $conf_dir,
-            function   => 'read_it'
+            auto_create => 1
         }
     ],
     write_config => [
@@ -132,10 +129,8 @@ $model->create_config_class(
         { backend => 'perl_file', config_dir => $conf_dir },
         { backend => 'ini_file',  config_dir => $conf_dir },
         {
-            class       => 'MasterRead',
-            function    => 'wr_stuff',
-            config_dir  => $conf_dir,
-            auto_create => 1
+            backend     => 'MasterRead',
+            config_dir  => $conf_dir
         }
     ],
 
@@ -196,9 +191,8 @@ $model->create_config_class(
     name => 'SimpleRW',
 
     read_config => [ {
-            backend    => 'custom',
+            backend    => 'SimpleRW',
             config_dir => $conf_dir,
-            class      => 'SimpleRW',
             file       => 'toto.conf'
         },
     ],
@@ -211,47 +205,55 @@ $model->create_config_class(
 #global variable to snoop on read config action
 my %result;
 
-package MasterRead;
+package Config::Model::Backend::MasterRead;
+
+use base qw/Config::Model::Backend::Any/;
 
 my $custom_aa = 'aa was set (custom mode)';
 
-sub read_it {
-    my %args = @_;
+sub read {
+    my ($self, %args) = @_;
     $result{master_read} = $args{config_dir};
     $args{object}->store_element_value( 'aa', $custom_aa );
 }
 
-sub wr_stuff {
-    my %args = @_;
+sub write {
+    my ($self, %args) = @_;
     $result{wr_stuff}     = $args{config_dir};
     $result{wr_root_name} = $args{object}->name;
 }
 
-package Level1Read;
+package Config::Model::Backend::Level1Read;
 
-sub read_it {
-    my %args = @_;
+use base qw/Config::Model::Backend::Any/;
+
+sub read {
+    my ($self, %args) = @_;
     $result{level1_read} = $args{config_dir};
     $args{object}->load('bar X=Cv');
 }
 
-package SameRWSpec;
+package Config::Model::Backend::SameRWSpec;
+
+use base qw/Config::Model::Backend::Any/;
 
 sub read {
-    my %args = @_;
+    my ($self, %args) = @_;
     $result{same_rw_read} = $args{config_dir};
     $args{object}->load('bar Y=Cv');
 }
 
 sub write {
-    my %args = @_;
+    my ($self, %args) = @_;
     $result{same_rw_write} = $args{config_dir};
 }
 
-package SimpleRW;
+package Config::Model::Backend::SimpleRW;
+
+use base qw/Config::Model::Backend::Any/;
 
 sub read {
-    my %args = @_;
+    my ($self, %args) = @_;
     $result{simple_rw}{rfile} = $args{file_path};
     my $io = $args{io_handle};
     return 0 unless defined $io;
@@ -260,7 +262,7 @@ sub read {
 }
 
 sub write {
-    my %args = @_;
+    my ($self, %args) = @_;
     $result{simple_rw}{wfile} = $args{file_path};
 
     my $io = $args{io_handle};
@@ -527,6 +529,6 @@ $cdswnf->write_back( config_file => $scratch_conf );
 
 file_contents_eq( "$root3/$scratch_conf", "aa=toto4 -\n", "checked file written by simpleRW" );
 
-memory_cycle_ok($model);
+memory_cycle_ok($model, "check memory cycles");
 
 done_testing;
