@@ -1355,15 +1355,12 @@ sub check_stored_value {
 
     $self->needs_check(0) unless $self->has_error or $self->has_warning;
 
-    # old_warn is used to avoid warning the user several times for the
-    # same reason. We take care to clean up this hash each time this routine
-    # is run
-    my $old_warn = $self->{old_warning_hash} || {};
+    # avoid warning the user several times for the same value (at
+    # store time and then at fetch time).
     my %warn_h;
     if ( $self->has_warning and not $nowarning and not $silent ) {
         foreach my $w ( $self->all_warnings ) {
             $warn_h{$w} = 1;
-            next if $old_warn->{$w};
             my $str = defined $value ? "'$value'" : '<undef>';
             warn "Warning in '" . $self->location_short . "' value $str: $w\n";
         }
