@@ -739,6 +739,14 @@ note "test unconditional feature";
     warning_like { $aw->store('whatever'); } qr/always/i, "got unconditional warning";
 }
 
+note "test warning and repeated storage in same element";
+{
+    my $aw = $root->fetch_element('always_warn');
+    warning_like { $aw->store('what ?'); } qr/always/i, "got unconditional warning";
+    warning_is { $aw->store('what ?'); } undef, "no warning when repeating a store with same value";
+    warning_like { $aw->store('what never'); } qr/always/i, "got unconditional warning when storing a changed value";
+}
+
 note "test unicode";
 {
     my $wip = $root->fetch_element('warn_if_match');
