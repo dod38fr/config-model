@@ -1,5 +1,26 @@
 {{$NEXT}}
 
+2.107 2017-08-30
+
+  Deprecation: read/write backends have many complex features to read
+    and write configuration files that are not used. This is the first
+    step to deprecate and remove these features:
+    * custom backends are deprecated
+    * add doc that show how to replace a custom backend with a backend based
+      on Config::Model::Backend::Any
+
+  Security improvements:
+    * ValueComputer: safer use of variables in eval: variables are
+      passed to the eval'ed code in a hash insted of being inserted
+      *in* the code to eval.
+  
+  Bug fixes:
+    * value: fix mechanism to avoid repetitive warnings (Thanks Tincho)
+    * use check => skip when fetching a value from
+      is_element_available method. This avoid missing warnings when
+      is_element_available function triggers a read of a configuration
+      file (like debian/control)
+
 2.106 2017-07-16
 
   Doc updates:
