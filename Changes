@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+2.108 2017-08-31
+
+  Fix random failure in non-regression tests
+
 2.107 2017-08-30
 
   Deprecation: read/write backends have many complex features to read
