@@ -125,7 +125,7 @@ $model->create_config_class(
         }
     ],
     write_config => [
-        { backend => 'cds_file',  config_dir => $conf_dir },
+        { backend => 'cds_file',  config_dir => $conf_dir, auto_create => 1 },
         { backend => 'perl_file', config_dir => $conf_dir },
         { backend => 'ini_file',  config_dir => $conf_dir },
         {
