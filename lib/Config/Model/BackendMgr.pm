@@ -209,7 +209,7 @@ sub load_backend_class {
     $f =~ s/_(\w)/uc($1)/ge;
     $c{$k} = $f;
 
-    foreach my $c ( keys %c ) {
+    foreach my $c ( sort keys %c ) {
         if ( $c->can($function) ) {
 
             # no need to load class
@@ -220,7 +220,7 @@ sub load_backend_class {
 
     # look for file to load
     my $class_to_load;
-    foreach my $c ( keys %c ) {
+    foreach my $c ( sort keys %c ) {
         $logger->trace("load_backend_class: looking to load class $c");
         foreach my $prefix (@INC) {
             my $realfilename = "$prefix/$c{$c}";
@@ -329,7 +329,7 @@ sub read_config_sub_layer {
 
     Config::Model::Exception::Model->throw(
         error => "backend error: unexpected default_layer parameters: "
-            . join( ' ', keys %$layered_config ),
+            . join( ' ', sort keys %$layered_config ),
         object => $self->node,
     ) if %$layered_config;
 
@@ -487,7 +487,7 @@ sub auto_write_init {
     my $wrlist_orig = delete $args{write_config};
     my $w_dir       = delete $args{write_config_dir};
 
-    croak "auto_write_init: unexpected args " . join( ' ', keys %args ) . "\n"
+    croak "auto_write_init: unexpected args " . join( ' ', sort keys %args ) . "\n"
         if %args;
 
     # w_dir is obsolete

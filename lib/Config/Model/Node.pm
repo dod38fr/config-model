@@ -944,7 +944,7 @@ sub load_data {
         "Node load_data (",
         $self->location,
         ") will load elt ",
-        join( ' ', keys %$perl_data ) );
+        join( ' ', sort keys %$perl_data ) );
 
     # data must be loaded according to the element order defined by
     # the model. This will not load not yet accepted parameters
