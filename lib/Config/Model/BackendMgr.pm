@@ -277,7 +277,7 @@ sub read_config_data {
     foreach my $read (@list) {
         warn $self->config_class_name, " deprecated 'syntax' parameter in backend\n"
             if defined $read->{syntax};
-        my $backend = delete $read->{backend} || delete $read->{syntax} || 'custom';
+        my $backend = delete $read->{backend} || delete $read->{syntax} || die "undefined read backend\n";
         if ( $backend =~ /^(perl|ini|cds)$/ ) {
             warn $self->config_class_name,
                 " deprecated  backend $backend. Should be '$ {backend}_file'\n";
@@ -515,7 +515,8 @@ sub auto_write_init {
     foreach my $write (@array) {
         warn $self->config_class_name, " deprecated 'syntax' parameter in auto_write\n"
             if defined $write->{syntax};
-        my $backend = delete $write->{backend} || delete $write->{syntax} || 'custom';
+        my $backend = delete $write->{backend} || delete $write->{syntax} || die "undefined write backend\n";;
+
         if ( $backend =~ /^(perl|ini|cds)$/ ) {
             warn $self->config_class_name,
                 " deprecated backend $backend. Should be '$ {backend}_file'\n";
