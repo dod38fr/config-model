@@ -507,7 +507,7 @@ sub write_back {
             "Try with -force option or add read/write backend to $info\n";
     }
 
-    foreach my $path ( $self->nodes_to_write_back ) {
+    foreach my $path ( sort $self->nodes_to_write_back ) {
         $logger->info("write_back called on node $path");
 
         if ( $path and $self->{config_file} ) {
