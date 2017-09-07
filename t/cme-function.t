@@ -7,7 +7,7 @@ use Test::More;
 use Config::Model qw/cme/;
 
 # pseudo root where config files are written by config-model
-my $wr_root = path('wr_root');
+my $wr_root = path('wr_root_p/cme');
 
 # cleanup before tests
 $wr_root->remove_tree;

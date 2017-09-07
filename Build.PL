@@ -61,7 +61,7 @@ my $build = $class->new(
 
     # cleanup required by t/auto_read.t
     # PreGrammar.pm is created by t/value_computer.t
-    add_to_cleanup => [ qw/PreGrammar.pm wr_root/ ],
+    add_to_cleanup => [ qw/PreGrammar.pm wr_root wr_root_p/ ],
 );
 
 $build->add_build_element('pl');

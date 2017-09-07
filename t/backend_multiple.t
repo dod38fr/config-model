@@ -36,7 +36,7 @@ my $model = Config::Model->new( legacy => 'ignore', );
 ok( 1, "compiled" );
 
 # pseudo root where config files are written by config-model
-my $wr_root = 'wr_root/';
+my $wr_root = 'wr_root_p/backend-multiple/';
 
 # cleanup before tests
 rmtree($wr_root);

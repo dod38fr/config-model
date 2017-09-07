@@ -36,7 +36,7 @@ Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 ok( 1, "compiled" );
 
 # pseudo root where config files are written by config-model
-my $wr_root = 'wr_root/';
+my $wr_root = 'wr_root_p/backend-ini/';
 
 # set_up data
 my @with_semicolon_comment = my @with_one_semicolon_comment = my @with_hash_comment = <DATA>;

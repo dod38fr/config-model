@@ -16,7 +16,7 @@ BEGIN { plan tests => 8; }
 
 use strict;
 
-use lib 'wr_root';
+use lib 'wr_root_p/snippet';
 
 my $arg = shift || '';
 my ( $log, $show ) = (0) x 2;
@@ -40,7 +40,7 @@ Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 ok( 1, "Compilation done" );
 
 # pseudo root where config files are written by config-model
-my $wr_root = path('wr_root');
+my $wr_root = path('wr_root_p/snippet');
 
 # cleanup before tests
 $wr_root->remove_tree;

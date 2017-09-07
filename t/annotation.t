@@ -21,7 +21,7 @@ my $trace = $arg =~ /t/ ? 1 : 0;
 Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 
 # pseudo root where config files are written by config-model
-my $wr_root = 'wr_root/';
+my $wr_root = 'wr_root_p/annotation/';
 
 # cleanup before tests
 rmtree($wr_root);
@@ -89,10 +89,10 @@ my $annotate_saver = Config::Model::Annotation->new(
 ok( $annotate_saver, "created annotation read/write object" );
 
 my $yaml_dir = $annotate_saver->dir;
-is( $yaml_dir, 'wr_root/config-model/', "check saved dir" );
+is( $yaml_dir, $wr_root.'config-model/', "check saved dir" );
 
 my $yaml_file = $annotate_saver->file;
-is( $yaml_file, 'wr_root/config-model/Master-note.pl', "check saved file" );
+is( $yaml_file, $wr_root.'config-model/Master-note.pl', "check saved file" );
 
 my $h_ref = $annotate_saver->get_annotation_hash();
 

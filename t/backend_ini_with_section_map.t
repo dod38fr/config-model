@@ -37,7 +37,7 @@ Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 ok( 1, "compiled" );
 
 # pseudo root where config files are written by config-model
-my $wr_root = 'wr_root/';
+my $wr_root = 'wr_root_p/backend-ini-section-map';
 
 my $head = << 'EOH';
 ## This file was written by cme command.

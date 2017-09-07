@@ -14,7 +14,7 @@ use strict;
 use lib "t/lib";
 
 # pseudo root where config files are written by config-model
-my $wr_root = 'wr_root';
+my $wr_root = 'wr_root_p/pog-gen/';
 
 # cleanup before tests
 rmtree($wr_root);
@@ -49,6 +49,6 @@ $model->generate_doc('Master') if $trace;
 
 $model->generate_doc( 'Master', $wr_root );
 
-map { ok( -r "wr_root/Config/Model/models/$_", "Found doc $_" ); }
+map { ok( -r "$wr_root/Config/Model/models/$_", "Found doc $_" ); }
     qw /Master.pod  SlaveY.pod  SlaveZ.pod  SubSlave2.pod  SubSlave.pod/;
 memory_cycle_ok($model);

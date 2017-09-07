@@ -26,7 +26,7 @@ my $model = Config::Model->new();
 ok( 1, "compiled" );
 
 # pseudo root where config files are written by config-model
-my $wr_root = path('wr_root');
+my $wr_root = path('wr_root_p/backend-yaml');
 
 # cleanup before tests
 $wr_root->remove_tree;

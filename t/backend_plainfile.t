@@ -50,7 +50,7 @@ $model->create_config_class(
 );
 
 # pseudo root where config files are written by config-model
-my $wr_root = 'wr_root/';
+my $wr_root = 'wr_root_p/backend-plain-file/';
 
 # cleanup before tests
 rmtree($wr_root);

@@ -37,7 +37,7 @@ my $model = Config::Model->new();
 ok( 1, "compiled" );
 
 # pseudo root for config files
-my $wr_root = path('wr_root');
+my $wr_root = path('wr_root_p/backend-mgr');
 my $root1   = $wr_root->child('test1');
 my $root2   = $wr_root->child('test2');
 my $root3   = $wr_root->child('test3');
@@ -504,7 +504,7 @@ $ctoto->write_back;
 map {
     is(
         $result{simple_rw}{$_},
-        'wr_root/test3//etc/test/toto.conf',
+        $wr_root.'/test3//etc/test/toto.conf',
         "Check Simple_Rw cb file argument ($_)"
         )
 } qw/rfile wfile/;
