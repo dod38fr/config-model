@@ -708,15 +708,14 @@ sub translate_cargo_info {
     ) if $legacy_logger->is_debug;
 }
 
-# TODO: set to die In September 2016
 sub translate_id_names {
     my $self              = shift;
     my $config_class_name = shift;
     my $elt_name          = shift;
     my $info              = shift;
-    $self->translate_name( $config_class_name, $elt_name, $info, 'allow',      'allow_keys',       'warn' );
-    $self->translate_name( $config_class_name, $elt_name, $info, 'allow_from', 'allow_keys_from',  'warn' );
-    $self->translate_name( $config_class_name, $elt_name, $info, 'follow',     'follow_keys_from', 'warn' );
+    $self->translate_name( $config_class_name, $elt_name, $info, 'allow',      'allow_keys',       'die' );
+    $self->translate_name( $config_class_name, $elt_name, $info, 'allow_from', 'allow_keys_from',  'die' );
+    $self->translate_name( $config_class_name, $elt_name, $info, 'follow',     'follow_keys_from', 'die' );
 }
 
 sub translate_name {
