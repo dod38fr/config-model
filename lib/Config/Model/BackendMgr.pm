@@ -400,14 +400,6 @@ sub try_read_backend {
         };
         $error = $@;
     }
-    elsif ( $backend eq 'perl_file' ) {
-        my ($file_ok, $fh);
-        ( $file_ok, $file_path ) = $self->get_cfg_file_path(@read_args, suffix => '.pl' );
-        return ( 0, $file_path ) if not $file_ok or not -r $file_path;
-        $fh = $self->open_read_file($backend, $file_path);
-        eval { $res = $self->read_perl( @read_args, file_path => $file_path, io_handle => $fh ); };
-        $error = $@;
-    }
     elsif ( $backend eq 'cds_file' ) {
         my ($file_ok, $fh);
         ( $file_ok, $file_path ) = $self->get_cfg_file_path(@read_args, suffix => '.cds' );
@@ -536,6 +528,10 @@ sub auto_write_init {
             root        => $root_dir,      # override from instance
         );
 
+        # used bby C::M::Dumper and C::M::DumpAsData
+        # TODO: is this needed once multi backend are removed
+        $self->{auto_write}{$backend} = 1;
+
         my $wb;
         if ( $backend eq 'custom' ) {
             my $c = my $file = $write->{class};
@@ -568,22 +564,6 @@ sub auto_write_init {
                 return defined $res ? $res : $error ? 0 : 1;
             };
             $self->{auto_write}{custom} = 1;
-        }
-        elsif ( $backend eq 'perl_file' ) {
-            $wb = sub {
-                $logger->debug( "write cb ($backend) called for ", $self->node->name );
-                my ( $file_ok, $file_path, $fh ) =
-                    $self->open_file_to_write( $backend, suffix => '.pl', @wr_args, @_ );
-                my $res;
-                $res = eval {
-                    $self->write_perl( @wr_args, io_handle => $fh, file_path => $file_path, @_ );
-                };
-                my $error = $@;
-                $logger->warn("write backend $backend failed: $error") if $error;
-                $self->close_file_to_write( $error, $fh, $file_path, $write->{file_mode} );
-                return defined $res ? $res : $error ? 0 : 1;
-            };
-            $self->{auto_write}{perl_file} = 1;
         }
         elsif ( $backend eq 'cds_file' ) {
             $wb = sub {
@@ -764,34 +744,6 @@ sub write_cds_file {
     return 1;
 }
 
-# TODO: replace with class based on Config::Model::Backend::Any
-sub read_perl {
-    my $self = shift;
-    my %args = @_;
-
-    my $file_path = $args{file_path};
-    $file_path = "./$file_path" unless $file_path =~ m!^\.?/!;
-    $logger->info("Read Perl data from $file_path");
-
-    my $pdata = do $file_path || die "Cannot open $file_path:$!";
-    $self->node->load_data($pdata);
-    return 1;
-}
-
-sub write_perl {
-    my $self      = shift;
-    my %args      = @_;
-    my $file_path = $args{file_path};
-    $logger->info("Write perl data to $file_path");
-
-    my $p_data = $self->node->dump_as_data( skip_auto_write => 'perl_file', check => $args{check} );
-    my $dumper = Data::Dumper->new( [$p_data] );
-    $dumper->Terse(1);
-
-    $args{io_handle}->print( $dumper->Dump, ";\n" );
-    return 1;
-}
-
 __PACKAGE__->meta->make_immutable;
 
 1;
@@ -899,7 +851,7 @@ L<Config::Model::Loader/"load string syntax">.
 =item *
 
 C<perl_file>: Perl data structure (perl) in a file. See L<Config::Model::DumpAsData>
-for details on the data structure.
+for details on the data structure. Now handled by L<Config::Model::Backend::PerlFile>
 
 =item * 
 
@@ -1046,7 +998,7 @@ for details.
 
 =head2 Built-in backend
 
-C<cds_file> and C<perl_file> backend must be specified with
+C<cds_file> backend must be specified with
 mandatory C<config_dir> parameter. For instance:
 
    read_config  => { 
