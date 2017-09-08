@@ -47,6 +47,8 @@ my $conf_dir = '/etc/test/';
 # cleanup before tests
 $wr_root->remove_tree;
 
+map { $_->mkpath } ($root1, $root2, $root3);
+
 # model declaration
 $model->create_config_class(
     name    => 'Level2',
