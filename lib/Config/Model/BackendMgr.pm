@@ -400,20 +400,6 @@ sub try_read_backend {
         };
         $error = $@;
     }
-    elsif ( $backend eq 'cds_file' ) {
-        my ($file_ok, $fh);
-        ( $file_ok, $file_path ) = $self->get_cfg_file_path(@read_args, suffix => '.cds' );
-        return ( 0, $file_path ) if not $file_ok or not -r $file_path;
-        $fh = $self->open_read_file($backend, $file_path);
-        eval {
-            $res = $self->read_cds_file(
-                @read_args,
-                file_path => $file_path,
-                io_handle => $fh,
-            );
-        };
-        $error = $@;
-    }
     else {
         # try to load a specific Backend class
         my $f = delete $read->{function} || 'read';
@@ -563,28 +549,6 @@ sub auto_write_init {
                 $self->close_file_to_write( $error, $fh, $file_path, $write->{file_mode} );
                 return defined $res ? $res : $error ? 0 : 1;
             };
-            $self->{auto_write}{custom} = 1;
-        }
-        elsif ( $backend eq 'cds_file' ) {
-            $wb = sub {
-                $logger->debug( "write cb ($backend) called for ", $self->node->name );
-                my ( $file_ok, $file_path, $fh ) =
-                    $self->open_file_to_write( $backend, suffix => '.cds', @wr_args, @_ );
-                my $res;
-                $res = eval {
-                    $self->write_cds_file(
-                        @wr_args,
-                        io_handle => $fh,
-                        file_path => $file_path,
-                        @_
-                    );
-                };
-                my $error = $@;
-                $logger->warn("write backend $backend failed: $error") if $error;
-                $self->close_file_to_write( $error, $fh, $file_path, $write->{file_mode} );
-                return defined $res ? $res : $error ? 0 : 1;
-            };
-            $self->{auto_write}{cds_file} = 1;
         }
         else {
             my $f = $write->{function} || 'write';
@@ -719,29 +683,6 @@ sub is_auto_write_for_type {
     my $self = shift;
     my $type = shift;
     return $self->{auto_write}{$type} || 0;
-}
-
-sub read_cds_file {
-    my $self = shift;
-    my %args = @_;
-
-    my $file_path = $args{file_path};
-    $logger->info("Read cds data from $file_path");
-
-    $self->node->load( step => [ $args{io_handle}->getlines ] );
-    return 1;
-}
-
-# TODO: replace with class based on Config::Model::Backend::Any
-sub write_cds_file {
-    my $self      = shift;
-    my %args      = @_;
-    my $file_path = $args{file_path};
-    $logger->info("Write cds data to $file_path");
-
-    my $dump = $self->node->dump_tree( skip_auto_write => 'cds_file', check => $args{check} );
-    $args{io_handle}->print($dump);
-    return 1;
 }
 
 __PACKAGE__->meta->make_immutable;
