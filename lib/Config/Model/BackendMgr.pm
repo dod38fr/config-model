@@ -247,16 +247,10 @@ sub read_config_data {
 
     my $readlist_orig        = delete $args{read_config};
     my $check                = delete $args{check};
-    my $r_dir                = delete $args{read_config_dir};
     my $config_file_override = delete $args{config_file};
     my $auto_create_override = delete $args{auto_create};
 
     croak "unexpected args " . join( ' ', keys %args ) . "\n" if %args;
-
-    # r_dir is obsolete
-    if ( defined $r_dir ) {
-        die $self->node->config_class_name, " : read_config_dir is obsolete\n";
-    }
 
     my $readlist = dclone $readlist_orig ;
 

@@ -356,12 +356,11 @@ sub read_config_data {
             $self->location, ")\n";
     }
 
-    # setup auto_read, read_config_dir is obsolete
+    # setup auto_read
     # may use an overridden config file
     $self->backend_mgr->read_config_data(
         read_config     => $model->{read_config},
         check           => $args{check},
-        read_config_dir => $model->{read_config_dir},
         config_file     => $args{config_file} || $self->{config_file},
         auto_create     => $args{auto_create} || $self->instance->auto_create,
     );
