@@ -337,10 +337,9 @@ sub init {
 
     if ( $model->{write_config} ) {
 
-        # setup auto_write, write_config_dir is obsolete
+        # setup auto_write
         $self->backend_mgr->auto_write_init(
             write_config     => $model->{write_config},
-            write_config_dir => $model->{write_config_dir},
         );
     }
 

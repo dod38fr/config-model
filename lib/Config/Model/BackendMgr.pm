@@ -463,15 +463,9 @@ sub try_read_backend {
 sub auto_write_init {
     my ( $self, %args ) = @_;
     my $wrlist_orig = delete $args{write_config};
-    my $w_dir       = delete $args{write_config_dir};
 
     croak "auto_write_init: unexpected args " . join( ' ', sort keys %args ) . "\n"
         if %args;
-
-    # w_dir is obsolete
-    if ( defined $w_dir ) {
-        die $self->config_class_name, " : write_config_dir is obsolete\n";
-    }
 
     my $wrlist = dclone $wrlist_orig ;
 
