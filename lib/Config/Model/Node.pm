@@ -331,12 +331,16 @@ sub init {
         $self->read_config_data( check => $args{check} // $self->check );
     }
 
+    if (defined $model->{write_config}) {
+        warn "write_config parameter for backend is deprecated. ",
+            "Please use only read_config to specify both read and write parameters.\n";
+    }
+
     # use read_config data if write_config is missing
     $model->{write_config} ||= dclone $model->{read_config}
         if defined $model->{read_config};
 
     if ( $model->{write_config} ) {
-
         # setup auto_write
         $self->backend_mgr->auto_write_init(
             write_config     => $model->{write_config},
