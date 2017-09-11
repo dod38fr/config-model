@@ -1349,9 +1349,7 @@ when generating user interfaces.
 Optional C<list ref> of element descriptions. These descriptions may be
 used when generating user interfaces.
 
-=item B<read_config>
-
-=item B<write_config>
+=item B<rw_config>
 
 =item B<config_dir>
 

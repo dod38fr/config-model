@@ -717,56 +717,27 @@ notion in L<Creating a model with advanced features|Config::Model::Manual::Model
 
 =head1 Reading configuration files
 
-Once the model is specified, Config::Model can generate a nice user
+Once the model is specified, L<Config::Model> can generate a nice user
 interface, but there's still no way to load or write the configuration
 file.
 
 For Config::Model to read the file, the model designer must declare in
-the model how to read the file (the read backend).
+the model how to read and write the file (the read/write backend).
 
-The read method can use one or more of the following mechanisms:
+The read/write functionality is provided by a class inheriting
+C<Config::Model::Backend::Any> class like
+C<Config::Model::Backend::IniFile>
 
-=over
+The name of the backend parameter must match the backend class name
+without C<Config::Model::Backend>. As syntactic sugar, lower case
+backend name are transformed into upper case to match the backend
+class name.
 
-=item *
+E.g.
 
-Built-in, e.g Perl file, INI file...
-
-=item *
-
-A plugin, i.e. a Perl C<Config::Model::Backend::*> class like C<Config::Model::Backend::Augeas>
-
-=item *
-
-A custom class where a read call-back must be provided
-
-=back
-
-For more details, see L<Config::Model::BackendMgr>.
-
-The name of the backend parameter must be specified in all cases.
-
-=head2 Using built-in read mechanism
-
-C<Config::Model> comes with 3 read/write built in mechanisms:
-
-=over
-
-=item perl_file
-
-A perl data structure (like the ones produced by L<Data::Dumper>). 
-See L<Config::Model::DumpAsData> for details.
-
-=item ini_file
-
-Windows INI file (note that only simple tree structure can use this backend)
-
-=item cds_file
-
-Config::Model own serialization format (a bit like YAML). 
-See L<Config::Model::Dumper> for details.
-
-=back
+ Yaml -> Config::Model::Backend::Yaml
+ plain_file -> Config::Model::Backend::PlainFile
+ ini_file -> Config::Model::Backend::IniFile
 
 With the backend name, the following parameters must be defined:
 
@@ -782,36 +753,27 @@ Config file name (optional). defaults to C<< <config_class_name>.[pl|ini|cds] >>
 
 =back
 
-   read_config  => [ { backend    => 'cds_file' , 
-                       config_dir => '/etc/cfg_dir',
-                       file       => 'cfg_file.cds', # optional
-                   } ],
+   rw_config  => { backend    => 'ini_file' ,
+                   config_dir => '/etc/cfg_dir',
+                   file       => 'cfg_file.ini',
+                 },
 
-See L<Config::Model::BackendMgr.pm/Built-in_backend> for details
+See L<Config::Model::Backend::IniFile> for details
 
 Note that these parameters can also be set with the graphical
-configuration model editor.
+configuration model editor (C<cme meta edit>).
 
-=head2 Using a plugin read mechanism
-
-A plugin backend class can also be specified with:
-
-  read_config  => [ { backend    => 'foo' , 
-                      config_dir => '/etc/cfg_dir'
-                  } ]
-
-In this case, Config::Model tries to load C<Config::Model::Backend::Foo>.
-(The class name is constructed with C<ucfirst($backend_name)>)
-
-C<read_config> can also have custom parameters that are passed
+C<rw_config> can also have custom parameters that are passed
 verbatim to C<Config::Model::Backend::Foo> methods:
 
-  read_config  => [ { backend    => 'foo' , 
-                      config_dir => '/etc/cfg_dir',
-                      my_param   => 'my_value',
-                  } ]
+  rw_config  => {
+     backend    => 'my_backend',
+     config_dir => '/etc/cfg_dir',
+     my_param   => 'my_value',
+  }
 
-This C<Config::Model::Backend::Foo> class is expected to provide the following methods:
+This C<Config::Model::Backend::MyBackend> class is expected to inherit
+L<Config::Model::Backend::Any> and provide the following methods:
 
 =over
 

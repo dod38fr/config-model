@@ -97,13 +97,12 @@ __END__
             },
         },
     ],
-  read_config  => [
-                    { backend => 'Json' ,
-                      config_dir => '/tmp',
-                      file  => 'foo.json',
-                      auto_create => 1,
-                    }
-                  ],
+  rw_config  => {
+    backend => 'Json' ,
+    config_dir => '/tmp',
+    file  => 'foo.json',
+    auto_create => 1,
+  }
  ) ;
 
  my $inst = $model->instance(root_class_name => 'MyClass' );

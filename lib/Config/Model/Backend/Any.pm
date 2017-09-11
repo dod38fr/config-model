@@ -259,23 +259,23 @@ L<Config::Model::Node> specification.
 Let's say your new backend is C<Config::Model::Backend::Foo>. This new backend
 can be specified with:
 
- read_config  => [ {
+ rw_config  => {
     backend    => 'Foo' , # can also be 'foo'
     config_dir => '/etc/cfg_dir'
     file       => 'foo.conf', # optional
- }]
+ }
 
 (The backend class name is constructed with C<ucfirst($backend_name)>)
 
-C<read_config> can also have custom parameters that are passed
+C<rw_config> can also have custom parameters that are passed
 verbatim to C<Config::Model::Backend::Foo> methods:
 
- read_config  => [ {
+ rw_config  => {
     backend    => 'Foo' , # can also be 'foo'
     config_dir => '/etc/cfg_dir'
     file       => 'foo.conf', # optional
     my_param   => 'my_value',
- } ]
+ }
 
 C<Config::Model::Backend::Foo> class must inherit (extend)
 L<Config::Model::Backend::Any> and is expected to provide the

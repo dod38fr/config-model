@@ -715,8 +715,8 @@ __END__
  $model->create_config_class(
     name => "MyClass",
 
-    # read_config spec is used by Config::Model::BackendMgr
-    read_config => [
+    # rw_config spec is used by Config::Model::BackendMgr
+    rw_config => [
         {
             backend     => 'yaml',
             config_dir  => '/tmp/',
@@ -812,12 +812,12 @@ L<Config::Model::Instance>) to store back all configuration information.
 
 The backend specification is provided as an attribute of a
 L<Config::Model::Node> specification. These attributes are optional:
-A node without C<read_config> attribute must rely on another node for
-its data to be read and saved.
+A node without C<rw_config> attribute must rely on another node to
+read or save its data.
 
 When needed (usually for the root node), the configuration class is
-declared with a C<read_config> parameter. This parameter is a list
-of possible backend. Usually, only one read backend is needed.
+declared with a C<rw_config> parameter which specifies the read/write
+backend configuration.
 
 =head2 Parameters available for all backends
 
@@ -899,18 +899,15 @@ By default, an exception is thrown if no read was
 successful. This behavior can be overridden by specifying
 C<< auto_create => 1 >> in one of the backend specification. For instance:
 
-    read_config  => [ {
+    rw_config  => {
         backend => 'IniFile',
         config_dir => '/tmp',
         file  => 'foo.conf',
         auto_create => 1
-    } ],
+    },
 
 Setting C<auto_create> to 1 is necessary to create a configuration
 from scratch
-
-When C<auto_create> is set in write backend, missing directory and
-files are created with current umask. Default is false.
 
 =item auto_delete
 
@@ -925,11 +922,11 @@ in their documentation.
 
 For instance:
 
-   read_config => [{
+   rw_config => {
        backend     => 'yaml',
        config_dir  => '/tmp/',
        file        => 'my_class.yml',
-   }],
+   },
 
 See L<Config::Model::Backend::Yaml> for more details for this backend.
 
@@ -959,7 +956,7 @@ configuration file.
 
 If this behavior causes problem (e.g. with augeas backend), the
 solution is either to set C<file> to undef or an empty string in the
-C<write_config> specification.
+C<rw_config> specification.
 
 =head1 Methods
 

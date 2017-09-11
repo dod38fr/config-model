@@ -423,15 +423,13 @@ __END__
         },
     ],
 
-   read_config  => [
-        {
-            backend => 'IniFile',
-            config_dir => '/tmp',
-            file  => 'foo.conf',
-            store_class_in_hash => 'ini_class',
-            auto_create => 1,
-        }
-    ],
+   rw_config  => {
+     backend => 'IniFile',
+     config_dir => '/tmp',
+     file  => 'foo.conf',
+     store_class_in_hash => 'ini_class',
+     auto_create => 1,
+   }
  );
 
  my $inst = $model->instance(root_class_name => 'MyClass' );
@@ -625,45 +623,39 @@ The model has this structure:
     \- key B (value is node of class_A)
        \- element-bar
 
-In this case, the C<my_class_holder> name is specified in C<read_config> with C<store_class_in_hash> 
+In this case, the C<my_class_holder> name is specified in C<rw_config> with C<store_class_in_hash> 
 parameter:
 
-    read_config  => [
-        { 
-            backend => 'IniFile',
-            config_dir => '/tmp',
-            file  => 'foo.ini',
-            store_class_in_hash => 'my_class_holder',
-        }
-    ],
-    
+    rw_config  => {
+      backend => 'IniFile',
+      config_dir => '/tmp',
+      file  => 'foo.ini',
+      store_class_in_hash => 'my_class_holder',
+    }
+
 Of course they are exceptions. For instance, in C<Multistrap>, the C<[General]> 
 INI class must be mapped to a specific node object. This can be specified
 with the C<section_map> parameter: 
 
-    read_config  => [
-        { 
-            backend => 'IniFile',
-            config_dir => '/tmp',
-            file  => 'foo.ini',
-            store_class_in_hash => 'my_class_holder',
-            section_map => { 
-                General => 'general_node',
-            }
-        }
-    ],
+    rw_config  => }
+       backend => 'IniFile',
+       config_dir => '/tmp',
+       file  => 'foo.ini',
+       store_class_in_hash => 'my_class_holder',
+       section_map => {
+           General => 'general_node',
+       }
+    }
 
 C<section_map> can also map an INI class to the root node:
 
-    read_config => [
-        {
-            backend => 'ini_file',
-            store_class_in_hash => 'sections',
-            section_map => {
-                General => '!'
-            },
-        }
-    ],
+    rw_config => {
+      backend => 'ini_file',
+      store_class_in_hash => 'sections',
+      section_map => {
+          General => '!'
+      },
+    }
 
 =head1 Handle key value files
 

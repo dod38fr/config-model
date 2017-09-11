@@ -1817,9 +1817,9 @@ __END__
  $model ->create_config_class (
    name => "MiniModel",
    element => [ [qw/foo bar baz/ ] => { type => 'leaf', value_type => 'uniline' }, ],
-   read_config => { backend => 'IniFile', auto_create => 1,
-                    config_dir => '.', file => 'mini.ini',
-                  }
+   rw_config => { backend => 'IniFile', auto_create => 1,
+                  config_dir => '.', file => 'mini.ini',
+                }
  ) ;
 
  # create instance (Config::Model::Instance object)
@@ -1841,9 +1841,9 @@ __END__
  $ mkdir -p lib/Config/Model/models/
  $ echo "[ { name => 'MiniModel', \
              element => [ [qw/foo bar baz/ ] => { type => 'leaf', value_type => 'uniline' }, ], \
-             read_config => { backend => 'IniFile', auto_create => 1, \
-                              config_dir => '.', file => 'mini.ini', \
-                            } \
+             rw_config => { backend => 'IniFile', auto_create => 1, \
+                            config_dir => '.', file => 'mini.ini', \
+                          } \
            } \
          ] ; " > lib/Config/Model/models/MiniModel.pl
  # require App::Cme

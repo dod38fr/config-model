@@ -202,12 +202,10 @@ __END__
     element => [ 
         [qw/source new/] => { qw/type leaf value_type uniline/ },
     ],
-    read_config  => [ 
-        { 
-            backend => 'plain_file', 
-            config_dir => '/tmp',
-        },
-    ],
+    rw_config  => {
+      backend => 'plain_file',
+      config_dir => '/tmp',
+    },
  );
  
  my $inst = $model->instance(root_class_name => 'WithPlainFile' );
@@ -264,12 +262,12 @@ For instance, with the following model:
         string_a => { type => 'leaf', value_type => 'string'}
         string_b => { type => 'leaf', value_type => 'string'}
     ],
-    read_config => [{
+    rw_config => {
         backend => 'PlainFile',
         config_dir => 'foo',
         file => '&element(-).&element',
         file_mode => 0644,  # optional
-    }]
+    }
 
 If the configuration is loaded with C<example string_a=something
 string_b=else>, this backend writes "C<something>" in file

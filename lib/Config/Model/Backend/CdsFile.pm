@@ -85,13 +85,12 @@ __END__
             },
         },
     ],
-  read_config  => [
-                    { backend => 'cds_file' ,
-                      config_dir => '/tmp',
-                      file  => 'foo.pl',
-                      auto_create => 1,
-                    }
-                  ],
+  rw_config  => {
+     backend => 'cds_file' ,
+     config_dir => '/tmp',
+     file  => 'foo.pl',
+     auto_create => 1,
+  }
  ) ;
 
  my $inst = $model->instance(root_class_name => 'MyClass' );

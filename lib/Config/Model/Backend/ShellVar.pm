@@ -106,14 +106,12 @@ __END__
         [qw/foo bar/] => {qw/type leaf value_type string/}
     ],
 
-   read_config  => [
-        { 
-            backend => 'ShellVar',
-            config_dir => '/tmp',
-            file  => 'foo.conf',
-            auto_create => 1,
-        }
-    ],
+   rw_config  => {
+     backend => 'ShellVar',
+     config_dir => '/tmp',
+     file  => 'foo.conf',
+     auto_create => 1,
+   }
  );
 
  my $inst = $model->instance(root_class_name => 'MyClass' );
