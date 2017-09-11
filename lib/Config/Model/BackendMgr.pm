@@ -245,7 +245,7 @@ sub read_config_data {
 
     $logger->trace( "called for node ", $self->node->location );
 
-    my $readlist_orig        = delete $args{read_config};
+    my $readlist_orig        = delete $args{rw_config};
     my $check                = delete $args{check};
     my $config_file_override = delete $args{config_file};
     my $auto_create_override = delete $args{auto_create};
@@ -259,10 +259,18 @@ sub read_config_data {
     # root override is passed by the instance
     my $root_dir = $instance->read_root_dir || '';
 
-    croak "readlist must be array or hash ref\n"
-        unless ref $readlist;
+    my @list;
+    if (ref  $readlist eq 'ARRAY') {
+        warn "Multiple backends are deprecated (read_config)" if @$readlist > 1;
+        @list = @$readlist ;
+    }
+    elsif (ref  $readlist eq 'HASH') {
+        @list = ($readlist);
+    }
+    else {
+        croak "readlist must be a hash ref\n" unless ref $readlist;
+    }
 
-    my @list = ref $readlist eq 'ARRAY' ? @$readlist : ($readlist);
     my $pref_backend = $instance->backend || '';
     my $read_done    = 0;
     my $auto_create  = 0;
@@ -454,7 +462,7 @@ sub try_read_backend {
 
 sub auto_write_init {
     my ( $self, %args ) = @_;
-    my $wrlist_orig = delete $args{write_config};
+    my $wrlist_orig = delete $args{rw_config};
 
     croak "auto_write_init: unexpected args " . join( ' ', sort keys %args ) . "\n"
         if %args;
@@ -466,7 +474,17 @@ sub auto_write_init {
     # root override is passed by the instance
     my $root_dir = $instance->write_root_dir || '';
 
-    my @array = ref $wrlist eq 'ARRAY' ? @$wrlist : ($wrlist);
+    my @array;
+    if (ref  $wrlist eq 'ARRAY') {
+        warn "Multiple backends are deprecated (write_config)" if @$wrlist > 1;
+        @array = @$wrlist ;
+    }
+    elsif (ref  $wrlist eq 'HASH') {
+        @array = ($wrlist);
+    }
+    else {
+        croak "wrlist must be a hash ref\n" unless ref $wrlist;
+    }
 
     # ensure that one auto_create specified applies to all wr backends
     my $auto_create = 0;

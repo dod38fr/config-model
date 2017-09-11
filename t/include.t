@@ -122,10 +122,10 @@ $model->create_config_class(
     'read_config' => $read_config
 );
 
-
 my $xorg_model = $model->get_model('LikeXorg');
 
-eq_or_diff($xorg_model->{read_config}, $read_config,"check included read specification");
+# use because of legacy translation from read_config array to rw_config
+eq_or_diff($xorg_model->{rw_config}, $read_config->[0],"check included read specification");
 
 
 memory_cycle_ok($model, "memory cycles");
