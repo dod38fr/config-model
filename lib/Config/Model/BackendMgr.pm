@@ -921,20 +921,6 @@ You can also write a dedicated backend. See
 L<How to write your own backend|Config::Model::Backend::Any/"How to write your own backend">
 for details.
 
-=head2 Built-in backend
-
-C<cds_file> backend must be specified with
-mandatory C<config_dir> parameter. For instance:
-
-   read_config  => { 
-       backend    => 'cds_file' , 
-       config_dir => '/etc/cfg_dir',
-       file       => 'cfg_file.cds', #optional
-   },
-
-When C<file> is not specified, a file name is constructed with
-C<< <instance_name>.<suffix> >> where suffix is C<pl> or C<cds>.
-
 =head2 Custom backend
 
 Custom backend is now deprecated and will soon be removed.
