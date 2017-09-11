@@ -925,32 +925,6 @@ for details.
 
 Custom backend is now deprecated and will soon be removed.
 
-=head1 Using backend to change configuration file syntax
-
-C<read_config> tries all the specified backends. This feature 
-can be used to migrate from one syntax to another.
-
-In this example, backend manager first tries to read an INI file
-and then to read a YAML file:
-
-  read_config  => [ 
-    { backend => 'IniFile', ... },
-    { backend => 'yaml',    ... },
-  ],
-
-When a read operation is successful, the remaining read methods are
-skipped.
-
-Likewise, the C<write_config> specification accepts several backends.
-By default, the specifications are tried in order, until the first succeeds.
-
-In the example above, the migration from INI to YAML can be achieved
-by specifying only the YAML backend:
-
-  write_config => [
-    { backend => 'yaml',    ... },
-  ],
-
 =head1 Test setup
 
 By default, configurations files are read from the directory specified
