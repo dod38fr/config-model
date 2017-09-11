@@ -826,23 +826,6 @@ This C<Config::Model::Backend::Foo> class is expected to provide the following m
 Their signatures are explained in 
 L<Config::Model::BackendMgr doc on plugin backends|Config::Model::BackendMgr/Plugin_backend_classes>
 
-=head2 Using a custom class
-
-In case the plugin mechanism is not possible, a class with an
-arbitrary name can be specified:
-
-    read_config  => [ { backend => 'custom' , 
-                        class => 'MyRead',
-                        config_dir => '/etc/foo', # optional
-                        file => 'foo.conf',       # optional
-                    } ]
-
-Even the read method can have an arbitrary name by specifying a
-C<function> parameters.
-
-For more details on available parameters on custom backends, see 
-L<Config::Model::BackendMgr doc on custom backends|Config::Model::BackendMgr/Custom_backend>
-
 =head2 Using several read mechanisms
 
 Several read mechanism can be specified to enable:
