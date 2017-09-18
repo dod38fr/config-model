@@ -1,5 +1,28 @@
 {{$NEXT}}
 
+2.109 2017-09-18
+
+  Deprecation and updates as announced in http://wp.me/pFBZb-f5 :
+    * the model parameters read_config and write_config that are used
+      to specify different read and write backends are deprecated
+      in favor of rw_config to specify *one* r/w backend
+    * multiple backends are deprecated.
+    * update doc for these deprecations
+    * Dump string backend (cds_file) is now handled by its own class
+      (Config::Model::Backend::CdsFile)
+    * Perl backend (perl_file) is now handled by its own class
+      (Config::Model::Backend::PerlFile)
+    * Model: die when model parameters allow, allow_from, follow are
+      used. These parameters were deprecated several years ago.
+
+  Other changes:
+    * update backend parameters of FsTab, Multitstrap, PopCon models
+    * Value: allow regexp and code test for enum (like warn_if_match)
+
+  Test improvements
+    * can run tests concurrently: prove -j8 runs all tests in 4s
+      (16s without -j8)
+
 2.108 2017-08-31
 
   Fix random failure in non-regression tests
