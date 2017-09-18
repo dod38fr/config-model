@@ -401,6 +401,8 @@ sub try_read_backend {
         $error = $@;
     }
     else {
+        warn("function parameter for a backend is deprecated. Please implement 'read' method in backend $backend")
+            if $read->{function};
         # try to load a specific Backend class
         my $f = delete $read->{function} || 'read';
         my $c = load_backend_class( $backend, $f );
