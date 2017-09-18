@@ -400,10 +400,10 @@ sub setup_match_regexp {
     return unless defined $str;
     my $vt = $self->{value_type};
 
-    if ( $vt ne 'uniline' and $vt ne 'string' ) {
+    if ( $vt ne 'uniline' and $vt ne 'string' and $vt ne 'enum') {
         Config::Model::Exception::Model->throw(
             object => $self,
-            error  => "Can't use $what regexp with $vt, " . "expected 'uniline' or 'string'"
+            error  => "Can't use $what regexp with $vt, expected 'enum', 'uniline' or 'string'"
         );
     }
 
@@ -428,10 +428,10 @@ sub check_validation_regexp {
 
     my $vt = $self->{value_type};
 
-    if ( $vt ne 'uniline' and $vt ne 'string' ) {
+    if ( $vt ne 'uniline' and $vt ne 'string' and $vt ne 'enum') {
         Config::Model::Exception::Model->throw(
             object => $self,
-            error  => "Can't use $what regexp with $vt, " . "expected 'uniline' or 'string'"
+            error  => "Can't use $what regexp with $vt, expected 'enum', 'uniline' or 'string'"
         );
     }
 
