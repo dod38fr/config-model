@@ -47,61 +47,68 @@ ok( 1, "compiled" );
 # test mega regexp, 'x' means undef
 my @regexp_test = (
 
-    #                           id_operation  leaf_operation
-    # string           elt   op   (param) id     op     val      note
-    [ 'a',           [ 'a',   'x', 'x', 'x', 'x',  'x',         'x' ] ],
-    [ '#C',          [ 'x',   'x', 'x', 'x', 'x',  'x',         'C' ] ],
-    [ '#"m C"',      [ 'x',   'x', 'x', 'x', 'x',  'x',         '"m C"' ] ],
-    [ 'a=b',         [ 'a',   'x', 'x', 'x', '=',  'b',         'x' ] ],
-    [ 'a-z=b',       [ 'a-z', 'x', 'x', 'x', '=',  'b',         'x' ] ],
-    [ "a=\x{263A}",  [ 'a',   'x', 'x', 'x', '=',  "\x{263A}",  'x' ] ],       # utf8 smiley
-    [ 'a.=b',        [ 'a',   'x', 'x', 'x', '.=', 'b',         'x' ] ],
-    [ "a.=\x{263A}", [ 'a',   'x', 'x', 'x', '.=', "\x{263A}",  'x' ] ],       # utf8 smiley
-    [ 'a="b=c"',     [ 'a',   'x', 'x', 'x', '=',  '"b=c"',     'x' ] ],
-    [ 'a="b=\"c\""', [ 'a',   'x', 'x', 'x', '=',  '"b=\"c\""', 'x' ] ],
-    [ 'a=~/a/A/',    [ 'a',   'x', 'x', 'x', '=~', '/a/A/',     'x' ] ],       # subst on value
-    [ 'a=b#B',       [ 'a',   'x', 'x', 'x', '=',  'b',         'B' ] ],
-    [ 'a#B',         [ 'a',   'x', 'x', 'x', 'x',  'x',         'B' ] ],
-    [ 'a#"b=c"',     [ 'a',   'x', 'x', 'x', 'x',  'x',         '"b=c"' ] ],
+    #                              id_operation                        leaf_operation
+    # string                 elt   op   (param)          id             op   val        note
+    [ 'a',                 [ 'a',  'x',  'x',           'x',            'x', 'x',        'x' ] ],
+    [ '#C',                [ 'x',  'x',  'x',           'x',            'x', 'x',        'C' ] ],
+    [ '#"m C"',            [ 'x',  'x',  'x',           'x',            'x', 'x',        '"m C"' ] ],
+    [ 'a=b',               [ 'a',  'x',  'x',           'x',            '=', 'b',        'x' ] ],
+    [ 'a-z=b',             [ 'a-z','x',  'x',           'x',            '=', 'b',        'x' ] ],
+    [ "a=\x{263A}",        [ 'a',  'x',  'x',           'x',            '=', "\x{263A}", 'x' ] ],# utf8 smiley
+    [ 'a.=b',              [ 'a',  'x',  'x',           'x',            '.=','b',        'x' ] ],
+    [ "a.=\x{263A}",       [ 'a',  'x',  'x',           'x',            '.=',"\x{263A}", 'x' ] ],# utf8 smiley
+    [ 'a="b=c"',           [ 'a',  'x',  'x',           'x',            '=', '"b=c"',    'x' ] ],
+    [ 'a="b=\"c\""',       [ 'a',  'x',  'x',           'x',            '=', '"b=\"c\""','x' ] ],
+    [ 'a=~/a/A/',          [ 'a',  'x',  'x',           'x',            '=~','/a/A/',    'x' ] ],# subst on value
+    [ 'a=b#B',             [ 'a',  'x',  'x',           'x',            '=', 'b',        'B' ] ],
+    [ 'a#B',               [ 'a',  'x',  'x',           'x',            'x', 'x',        'B' ] ],
+    [ 'a#"b=c"',           [ 'a',  'x',  'x',           'x',            'x', 'x',        '"b=c"' ] ],
 
-    # string             elt    op   (param) id     op     val      note
-    [ 'a:b=c',           [ 'a', ':', 'x',    'b',  '=', 'c',     'x' ] ],    # fetch and assign elt
-    [ 'a:"b\""="\"c"',   [ 'a', ':', 'x', '"b\""', '=', '"\"c"', 'x' ] ]
-    ,    # fetch and assign elt qith quotes
-    [ 'a:~',             [ 'a', ':~', 'x',   'x', 'x',    'x',     'x' ] ],  # loop on matched value
-    [ 'a:~.=b',          [ 'a', ':~', 'x',   'x', '.=',   'b',     'x' ] ],  # loop on matched value
-    [ 'a:~/b.*/',        [ 'a', ':~', 'x', '/b.*/', 'x',  'x',     'x' ] ],  # loop on matched value
-    [ 'a:~"b.*"',        [ 'a', ':~', 'x', '"b.*"', 'x',  'x',     'x' ] ],  # loop on matched value
-    [ 'a:~/b.*/.="\"a"', [ 'a', ':~', 'x', '/b.*/', '.=', '"\"a"', 'x' ] ],  # loop on matched value and append
-    [ 'a:~"b.*".="\"a"', [ 'a', ':~', 'x', '"b.*"', '.=', '"\"a"', 'x' ] ],  # loop on matched value and append
-    [ 'a:~/^\w+$/', [ 'a', ':~', 'x', '/^\w+$/', 'x', 'x', 'x' ] ],    # loop on matched value
-    [ 'a:="dod@foo.com"', [ 'a', ':=', 'x', '"dod@foo.com"', 'x', 'x', 'x' ] ],    # set list
-    [ 'a:=b,c,d',         [ 'a', ':=', 'x', 'b,c,d',         'x', 'x', 'x' ] ],    # set list
-    [ 'a=b,c,d',     [ 'a', 'x',  'x', 'x',        '=', 'b,c,d', 'x' ] ],    # set list old style
-    [ 'm:=a,"a b "', [ 'm', ':=', 'x', 'a,"a b "', 'x', 'x',     'x' ] ],    # set list with quotes
-    [ 'm:="a b ",c', [ 'm', ':=', 'x', '"a b ",c', 'x', 'x',     'x' ] ],    # set list with quotes
-    [ 'm:="a b","c d"', [ 'm', ':=', 'x', '"a b","c d"', 'x', 'x', 'x' ] ],  # set list with quotes
-    [ 'm=a,"a b "', [ 'm', 'x', 'x', 'x', '=', 'a,"a b "', 'x' ] ]
-    ,    # set list with quotes, old style
-    [ 'a:b#C',         [ 'a', ':', 'x', 'b',     'x', 'x', 'C' ] ],      # fetch elt and add comment
-    [ 'a:"b\""#"\"c"', [ 'a', ':', 'x', '"b\""', 'x', 'x', '"\"c"' ] ]
-    ,    # fetch elt and add comment with quotes
-    [ 'a:b=c#C', [ 'a', ':',   'x', 'b',   '=', 'c', 'C' ] ], # fetch and assign elt and add comment
-    [ 'a:-',     [ 'a', ':-',  'x', 'x',   'x', 'x', 'x' ] ], # empty list
-    [ 'a:-b',    [ 'a', ':-',  'x', 'b',   'x', 'x', 'x' ] ], # remove id b
-    [ 'a:-=b',   [ 'a', ':-=', 'x', 'b',   'x', 'x', 'x' ] ], # remove value b from list or hash
-    [ 'a:-~/b/', [ 'a', ':-~', 'x', '/b/', 'x', 'x', 'x' ] ], # remove value matching stuff
-    [ 'a:=~s/b/c/g', [ 'a', ':=~', 'x', 's/b/c/g', 'x', 'x', 'x' ] ]
-    ,                                                         # subsitute value value matching stuff
-    [ 'a:@',       [ 'a', ':@',  'x',   'x',   'x', 'x', 'x' ] ],    # sort list
-    [ 'a:.b',      [ 'a', ':.b', 'x',   'x',   'x', 'x', 'x' ] ],    # function called on elt
-    [ 'a:.b(foo)', [ 'a', ':.b', 'foo', 'x',   'x', 'x', 'x' ] ],    # idem with param
-    [ 'a:<c',      [ 'a', ':<',  'x',   'c',   'x', 'x', 'x' ] ],    # push value
-    [ 'a:>c',      [ 'a', ':>',  'x',   'c',   'x', 'x', 'x' ] ],    # unshift value
-    [ 'a:b<c',     [ 'a', ':',   'x',   'b',   '<', 'c', 'x' ] ],    # insert at index
-    [ 'a:=b<c',    [ 'a', ':=',  'x',   'b',   '<', 'c', 'x' ] ],    # insert at value
-    [ 'a:~/b/<c',  [ 'a', ':~',  'x',   '/b/', '<', 'c', 'x' ] ],    # insert at matching value
-    [ 'a:.b("foo(a > b)")', [ 'a', ':.b', '"foo(a > b)"', 'x',   'x', 'x', 'x' ] ],    # tricky value with ()
+    #                              id_operation                        leaf_operation
+    # string                 elt   op   (param)          id             op   val        note
+    [ 'a:b=c',             [ 'a',  ':',  'x',           'b',            '=', 'c',        'x' ] ],# fetch and assign elt
+    [ 'a:"b\""="\"c"',     [ 'a',  ':',  'x',           '"b\""',        '=', '"\"c"',    'x' ] ],
+    # fetch and assign elt qith quotes
+    [ 'a:~',               [ 'a',  ':~', 'x',           'x',            'x', 'x',        'x' ] ],# loop on matched value
+    [ 'a:~.=b',            [ 'a',  ':~', 'x',           'x',            '.=','b',        'x' ] ],# loop on matched value
+    [ 'a:~/b.*/',          [ 'a',  ':~', 'x',           '/b.*/',        'x', 'x',        'x' ] ],# loop on matched value
+    [ 'a:~"b.*"',          [ 'a',  ':~', 'x',           '"b.*"',        'x', 'x',        'x' ] ],# loop on matched value
+    [ 'a:~/b.*/.="\"a"',   [ 'a',  ':~', 'x',           '/b.*/',        '.=','"\"a"',    'x' ] ],# loop on matched value and append
+    [ 'a:~"b.*".="\"a"',   [ 'a',  ':~', 'x',           '"b.*"',        '.=','"\"a"',    'x' ] ],# loop on matched value and append
+    [ 'a:~/^\w+$/',        [ 'a',  ':~', 'x',           '/^\w+$/',      'x', 'x',        'x' ] ],# loop on matched value
+    [ 'a:="dod@foo.com"',  [ 'a',  ':=', 'x',           '"dod@foo.com"','x', 'x',        'x' ] ],# set list
+    [ 'a:=b,c,d',          [ 'a',  ':=', 'x',           'b,c,d',        'x', 'x',        'x' ] ],# set list
+    [ 'a=b,c,d',           [ 'a',  'x',  'x',           'x',            '=', 'b,c,d',    'x' ] ],# set list old style
+    [ 'm:=a,"a b "',       [ 'm',  ':=', 'x',           'a,"a b "',     'x', 'x',        'x' ] ],# set list with quotes
+    [ 'm:="a b ",c',       [ 'm',  ':=', 'x',           '"a b ",c',     'x', 'x',        'x' ] ],# set list with quotes
+    [ 'm:="a b","c d"',    [ 'm',  ':=', 'x',           '"a b","c d"',  'x', 'x',        'x' ] ],# set list with quotes
+    [ 'm=a,"a b "',        [ 'm',  'x',  'x',           'x',            '=', 'a,"a b "', 'x' ] ],
+
+    # set list with quotes,old style
+    #                              id_operation                        leaf_operation
+    # string                 elt   op   (param)          id             op   val        note
+    [ 'a:b#C',             [ 'a',  ':',  'x',           'b',            'x', 'x',        'C' ] ],# fetch elt and add comment
+    [ 'a:"b\""#"\"c"',     [ 'a',  ':',  'x',           '"b\""',        'x', 'x',        '"\"c"' ] ] ,
+    # fetch elt and add comment with quotes
+    [ 'a:b=c#C',           [ 'a',  ':',  'x',           'b',            '=', 'c',        'C' ] ],# fetch and assign elt and add comment
+    [ 'a:-',               [ 'a',  ':-', 'x',           'x',            'x', 'x',        'x' ] ],# empty list
+    [ 'a:-b',              [ 'a',  ':-', 'x',           'b',            'x', 'x',        'x' ] ],# remove id b
+    [ 'a:-=b',             [ 'a',  ':-=','x',           'b',            'x', 'x',        'x' ] ],# remove value b from list or hash
+    [ 'a:-~/b/',           [ 'a',  ':-~','x',           '/b/',          'x', 'x',        'x' ] ],# remove value matching stuff
+    [ 'a:=~s/b/c/g',       [ 'a',  ':=~','x',           's/b/c/g',      'x', 'x',        'x' ] ] ,
+
+    # subsitute value value matching stuff
+    #                              id_operation                        leaf_operation
+    # string                 elt   op   (param)          id             op   val        note
+    [ 'a:@',               [ 'a',  ':@', 'x',           'x',            'x', 'x',        'x' ] ],# sort list
+    [ 'a:.b',              [ 'a',  ':.b','x',           'x',            'x', 'x',        'x' ] ],# function called on elt
+    [ 'a:.b(foo)',         [ 'a',  ':.b','foo',         'x',            'x', 'x',        'x' ] ],# idem with param
+    [ 'a:<c',              [ 'a',  ':<', 'x',           'c',            'x', 'x',        'x' ] ],# push value
+    [ 'a:>c',              [ 'a',  ':>', 'x',           'c',            'x', 'x',        'x' ] ],# unshift value
+    [ 'a:b<c',             [ 'a',  ':',  'x',           'b',            '<', 'c',        'x' ] ],# insert at index
+    [ 'a:=b<c',            [ 'a',  ':=', 'x',           'b',            '<', 'c',        'x' ] ],# insert at value
+    [ 'a:~/b/<c',          [ 'a',  ':~', 'x',           '/b/',          '<', 'c',        'x' ] ],# insert at matching value
+    [ 'a:.b("foo(a > b)")',[ 'a',  ':.b','"foo(a > b)"','x',            'x', 'x',        'x' ] ],# tricky value with ()
 );
 
 foreach my $subtest (@regexp_test) {
