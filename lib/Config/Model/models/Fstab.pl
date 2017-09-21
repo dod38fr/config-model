@@ -23,11 +23,13 @@
     ],
     'license' => 'LGPL2',
     'name' => 'Fstab',
-    'rw_config' => {
-      'backend' => 'Fstab',
-      'config_dir' => '/etc',
-      'file' => 'fstab'
-    }
+    'read_config' => [
+      {
+        'backend' => 'Fstab',
+        'config_dir' => '/etc',
+        'file' => 'fstab'
+      }
+    ]
   }
 ]
 ;
