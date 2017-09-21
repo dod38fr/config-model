@@ -693,15 +693,17 @@ sub translate_legacy_backend_info {
 
     if ($model->{read_config}) {
         $self->show_legacy_issue("$config_class_name: read_config specification is deprecated, please move in rw_config", 'note');
-        $model->{rw_config} = delete $model->{read_config} unless $multi_backend;
+        # TODO: enable once COnfig::Model::Itself is ready
+        # $model->{rw_config} = delete $model->{read_config} unless $multi_backend;
     }
 
     if ($model->{write_config}) {
         $self->show_legacy_issue("$config_class_name: write_config specification is deprecated, please merge with read_config and move in rw_config", 'note');
-        if (not $multi_backend) {
-            map {$model->{rw_config}{$_} = $model->{write_config}{$_} } keys %{$model->{write_config}} ;
-            delete $model->{write_config};
-        }
+        # TODO: enable once Config::Model::Itself is ready
+        #if (not $multi_backend) {
+        #    map {$model->{rw_config}{$_} = $model->{write_config}{$_} } keys %{$model->{write_config}} ;
+        #    delete $model->{write_config};
+        #}
     }
 }
 
