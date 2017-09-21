@@ -261,7 +261,7 @@ sub read_config_data {
 
     my @list;
     if (ref  $readlist eq 'ARRAY') {
-        warn "Multiple backends are deprecated (read_config)" if @$readlist > 1;
+        say "Multiple backends are deprecated (read_config)" if @$readlist > 1;
         @list = @$readlist ;
     }
     elsif (ref  $readlist eq 'HASH') {
@@ -478,7 +478,7 @@ sub auto_write_init {
 
     my @array;
     if (ref  $wrlist eq 'ARRAY') {
-        warn "Multiple backends are deprecated (write_config)" if @$wrlist > 1;
+        say "Multiple backends are deprecated (write_config)\n" if @$wrlist > 1;
         @array = @$wrlist ;
     }
     elsif (ref  $wrlist eq 'HASH') {
