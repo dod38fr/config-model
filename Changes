@@ -1,5 +1,14 @@
 {{$NEXT}}
 
+2.110 2017-09-21
+
+  Unfortunately the deprecations and updates done last release broke
+  Config::Model::Itself. This release fixes these problems:
+    * disable translation of read_config to rw_config
+    * change deprecation messages from warn to say
+    * put back old backend parameters for FsTab, Multistrap
+      and PopCon models
+
 2.109 2017-09-18
 
   Deprecation and updates as announced in http://wp.me/pFBZb-f5 :
@@ -16,7 +25,7 @@
       used. These parameters were deprecated several years ago.
 
   Other changes:
-    * update backend parameters of FsTab, Multitstrap, PopCon models
+    * update backend parameters of FsTab, Multistrap, PopCon models
     * Value: allow regexp and code test for enum (like warn_if_match)
 
   Test improvements
