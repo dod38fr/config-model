@@ -331,14 +331,14 @@ sub init {
     if ( $model->{rw_config} or $model->{read_config} ) {
         # TODO: change to warn
         $self->read_config_data( check => $args{check} // $self->check );
-        say "read_config parameter for backend is deprecated. ",
-            "Please use rw_config to specify both read and write parameters.\n" if $model->{read_config};
+        $logger->info("read_config parameter for backend is deprecated. ",
+            "Please use rw_config to specify both read and write parameters.") if $model->{read_config};
     }
 
     if (defined $model->{write_config}) {
         # TODO: change to warn
-        say "write_config parameter for backend is deprecated. ",
-            "Please use only rw_config to specify both read and write parameters.\n";
+        $logger->info("write_config parameter for backend is deprecated. ",
+            "Please use only rw_config to specify both read and write parameters.");
     }
 
     # use read_config data if write_config is missing
