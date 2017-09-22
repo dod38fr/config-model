@@ -182,12 +182,21 @@ sub initialize_log4perl {
     my $log4perl_user_conf_file = path( File::HomeDir->my_home . '/.log4config-model' );
 
     my $fallback_conf           = << 'EOC';
-log4perl.logger=WARN, Screen
+log4perl.rootLogger=WARN, Screen
+log4perl.logger.Model.Legacy = INFO, SimpleScreen
+log4perl.additivity.Model.Legacy = 0
 
 log4perl.appender.Screen        = Log::Log4perl::Appender::Screen
 log4perl.appender.Screen.stderr = 0
 log4perl.appender.Screen.layout = Log::Log4perl::Layout::PatternLayout
 log4perl.appender.Screen.layout.ConversionPattern = %M %m (line %L)%n
+
+log4perl.appender.SimpleScreen        = Log::Log4perl::Appender::Screen
+log4perl.appender.SimpleScreen.stderr = 0
+log4perl.appender.SimpleScreen.layout = Log::Log4perl::Layout::PatternLayout
+log4perl.appender.SimpleScreen.layout.ConversionPattern = %p: %m%n
+
+log4perl.oneMessagePerAppender = 1
 EOC
 
     my @log4perl_conf_lines =
