@@ -224,6 +224,7 @@ sub show_legacy_issue {
     my $behavior = shift || $self->legacy;
 
     my @msg = ref $ref ? @$ref : $ref;
+    unshift @msg, "Model ";
     if ( $behavior eq 'die' ) {
         die @msg, "\n";
     }
