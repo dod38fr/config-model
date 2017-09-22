@@ -229,9 +229,9 @@ sub show_legacy_issue {
         die @msg, "\n";
     }
     elsif ( $behavior eq 'warn' ) {
-        warn @msg, "\n";
+        $legacy_logger->warn(@msg);
     } elsif ( $behavior eq 'note' ) {
-        say @msg;
+        $legacy_logger->info( @msg);
     }
 }
 
