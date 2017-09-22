@@ -200,7 +200,7 @@ EOC
         $log4perl_conf{'log4perl.logger'} = $args->{log_level}.', Screen';
     }
 
-    Log::Log4perl::init_once(\%log4perl_conf);
+    Log::Log4perl::init(\%log4perl_conf);
 
 }
 
