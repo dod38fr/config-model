@@ -57,7 +57,13 @@ sub read {
     # convert to perl data
     my $perl_data = Load($yaml) ;
     if ( not defined $perl_data ) {
-        $logger->warn("No data found in YAML file $args{file_path}");
+        my $msg = "No data found in YAML file $args{file_path}";
+        if ($args{auto_create}) {
+            $logger->info($msg);
+        }
+        else {
+            $logger->warn($msg);
+        }
         return 1;
     }
 

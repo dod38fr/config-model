@@ -291,7 +291,7 @@ sub read_config_data {
             $auto_create ||= delete $read->{allow_empty};
         }
 
-        $auto_create ||= delete $read->{auto_create} if defined $read->{auto_create};
+        $auto_create ||= $read->{auto_create} if defined $read->{auto_create};
 
         if ( $read->{default_layer} ) {
             $self->read_config_sub_layer( $read, $root_dir, $config_file_override, $check,
