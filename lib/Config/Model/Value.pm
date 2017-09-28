@@ -1058,14 +1058,19 @@ sub _store_fix {
             "fix change: '" . ( $old // '<undef>' ) . "' -> '" . ( $new // '<undef>' ) . "'" );
     }
 
-    my %args = (
-        old => $old // $self->_fetch_std,
-        new => $new // $self->_fetch_std,
-        note => 'applied fix'. ( $msg ? ' for :'. $msg : ''),
-    ) ;
+    my $new_v = $new // $self->_fetch_std ;
+    my $old_v => $old // $self->_fetch_std;
+
     no warnings "uninitialized";
     # in case $old is the default value and $new is undef
-    $self->notify_change( %args ) if $args{old} ne $args{new};
+    if ($old_v ne $new_v) {
+        $self->notify_change(
+            old => $old_v,
+            new => $new_v,
+            note => 'applied fix'. ( $msg ? ' for :'. $msg : '')
+        );
+        $self->trigger_warp($new_v) if defined $new_v and $self->has_warped_slaves;
+    }
 }
 
 # read checks should be blocking
