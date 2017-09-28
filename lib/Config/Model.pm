@@ -215,7 +215,7 @@ EOC
 
 sub BUILD {
     my $self = shift;
-    $self->initialize_log4perl(shift) ;
+    $self->initialize_log4perl(shift) unless Log::Log4perl->initialized();
 }
 
 sub show_legacy_issue {
