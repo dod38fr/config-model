@@ -74,6 +74,13 @@ $model->create_config_class(
             'default' => '4.1.0',
             'type' => 'leaf',
             'value_type' => 'uniline',
+            'warn_unless' => {
+                'current' => {
+                    'code' => '$_ eq $self->_fetch_std;',
+                    'fix' => '$_ = undef; # restore default value',
+                    'msg' => q!Current standards version is '$std_value'!
+                }
+            }
         },
         Priority => {
             'choice' => ['required', 'important', 'standard', 'optional', 'extra'],
@@ -182,9 +189,19 @@ $stdv->store('3.9.8');
 $prio->store('extra');
 is($prio->fetch, 'extra', "check value with old std_version");
 
-$stdv->store('4.1.0');
-$prio->store('extra');
+$stdv->apply_fixes;
 is($prio->fetch, 'optional', "check value with new std_version");
+is($stdv->fetch, '4.1.0', "check std_v default value");
+
+$stdv->store('3.9.8');
+$prio->store('extra');
+is($prio->fetch, 'extra', "check value with old std_version (2)");
+
+$stdv->store('4.0.2');
+is($prio->fetch, 'optional', "check value with new std_version (2)");
+
+$stdv->apply_fixes;
+is($prio->fetch, 'optional', "check value with new std_version (2)");
 
 memory_cycle_ok($model, "check memory cycles");
 
