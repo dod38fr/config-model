@@ -527,8 +527,17 @@ sub set_properties {
     }
 
     map { $self->{$_} = delete $args{$_} if defined $args{$_} }
-        qw/min max mandatory replace warn replace_follow assert warn_if warn_unless
+        qw/min max mandatory warn replace_follow assert warn_if warn_unless
         write_as/;
+
+    if ($args{replace}) {
+        $self->{replace} = delete $args{replace};
+        my $old = $self->_fetch_no_check;
+        if (defined $old) {
+            my $new = $self->apply_replace($old);
+            $self->_store_value($new);
+        }
+    }
 
     $self->set_help( \%args );
     $self->set_value_type( \%args );
@@ -1315,22 +1324,9 @@ sub transform_value {
     $value = $self->{convert_sub}($value)
         if ( defined $self->{convert_sub} and defined $value );
 
-    if ( defined $self->{replace} ) {
-        if ( defined $self->{replace}{$value} ) {
-            $logger->debug("store replacing value $value with $self->{replace}{$value}");
-            $value = $self->{replace}{$value};
-        }
-        else {
-            foreach my $k ( keys %{ $self->{replace} } ) {
-                if ( $value =~ /^$k$/ ) {
-                    $logger->debug(
-                        "store replacing value $value (matched /$k/) with $self->{replace}{$k}");
-                    $value = $self->{replace}{$k};
-                    last;
-                }
-            }
-        }
-    }
+    # apply replace on store *before* check is done, so a bad value
+    # can be replaced with a good one
+    $value = $self->apply_replace($value) if ($self->{replace} and defined $value);
 
     # using default or computed value is normally done on fetch. Except that an undefined
     # value cannot be stored in a mandatory value. Storing undef is used when resetting a
@@ -1341,6 +1337,26 @@ sub transform_value {
         $value = $self->_fetch_no_check;
     }
 
+    return $value;
+}
+
+sub apply_replace {
+    my ($self, $value) = @_;
+
+    if ( defined $self->{replace}{$value} ) {
+        $logger->debug("store replacing value $value with $self->{replace}{$value}");
+        $value = $self->{replace}{$value};
+    }
+    else {
+        foreach my $k ( keys %{ $self->{replace} } ) {
+            if ( $value =~ /^$k$/ ) {
+                $logger->debug(
+                    "store replacing value $value (matched /$k/) with $self->{replace}{$k}");
+                $value = $self->{replace}{$k};
+                last;
+            }
+        }
+    }
     return $value;
 }
 
@@ -1645,6 +1661,7 @@ sub fetch {
 
         # store replaced value to trigger notify_change
         if ( defined $rep and $rep ne $value ) {
+            $logger->debug( "fetch replace_follow $value with $rep from ".$self->{replace_follow});
             $value = $self->_store_value($rep);
         }
     }
