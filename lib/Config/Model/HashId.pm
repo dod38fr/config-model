@@ -468,7 +468,7 @@ sub load_data {
             @load_keys = @{ delete $data->{$order_key} or delete $data->{__order} };
             $from      = ' with '.$order_key;
         }
-        elsif ( $self->{ordered} ) {
+        elsif ( $self->{ordered} and (keys %$data > 1)) {
             $logger->warn( "HashId "
                     . $self->location
                     . ": loading ordered "
