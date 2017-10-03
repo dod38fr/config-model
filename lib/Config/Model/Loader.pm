@@ -778,6 +778,12 @@ sub _load_leaf {
     );
 }
 
+# sub is called with  ( $self, $element, $value, $check, $instructions )
+# function_args are the arguments passed to the load command
+my %load_value_dispatch = (
+    '=' => sub { $_[1]->store( value => $_[2], check => $_[3] ); return 'ok'; },
+);
+
 sub _load_value {
     my ( $self, $element, $check, $subaction, $value, $inst ) = @_;
 
@@ -791,8 +797,9 @@ sub _load_value {
     }
 
     $logger->debug("_load_value: action '$subaction' value '$value' check $check");
-    if ( $subaction eq '=' ) {
-        $element->store( value => $value, check => $check );
+    my $dispatch = $load_value_dispatch{$subaction};
+    if ($dispatch) {
+        return $dispatch->( $self, $element, $value, $check, $inst );
     }
     elsif ( $subaction eq '.=' ) {
         my $orig = $element->fetch( check => $check );
