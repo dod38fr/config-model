@@ -781,15 +781,24 @@ sub _load_leaf {
 sub _load_value {
     my ( $self, $element, $check, $subaction, $value, $inst ) = @_;
 
+    if (not $element->isa('Config::Model::Value')) {
+        my $class = ref($element);
+        Config::Model::Exception::Load->throw(
+            object  => $element,
+            command => $inst,
+            error   => "Load error: _load_value called on non Value object. ($class)"
+        );
+    }
+
     $logger->debug("_load_value: action '$subaction' value '$value' check $check");
-    if ( $subaction eq '=' and $element->isa('Config::Model::Value') ) {
+    if ( $subaction eq '=' ) {
         $element->store( value => $value, check => $check );
     }
-    elsif ( $subaction eq '.=' and $element->isa('Config::Model::Value') ) {
+    elsif ( $subaction eq '.=' ) {
         my $orig = $element->fetch( check => $check );
         $element->store( value => $orig . $value, check => $check );
     }
-    elsif ( $subaction eq '=~' and $element->isa('Config::Model::Value') ) {
+    elsif ( $subaction eq '=~' ) {
         my $orig = $element->fetch( check => $check );
         if ( defined $orig ) {
             eval("\$orig =~ $value;");
