@@ -217,9 +217,12 @@ sub _load {
             }
         }
 
-        my @instructions = _split_cmd($cmd);
-        my ( $element_name, $action, $function_param, $id, $subaction, $value_function_param, $value, $note ) =
-            @instructions;
+        my ( $element_name, $action, $function_param, $id, $subaction, $value_function_param2, $value_param, $note ) =
+            _split_cmd($cmd);
+
+        # regexp ensure that only $value_function_param  $value_param is set
+        my $value = $value_function_param2 // $value_param ;
+        my @instructions = ( $element_name, $action, $function_param, $id, $subaction, $value, $note );
 
         if ( $logger->is_debug ) {
             my @disp = map { defined $_ ? "'$_'" : '<undef>' } @instructions;
@@ -366,7 +369,7 @@ sub unquote {
 
 sub _load_check_list {
     my ( $self, $node, $check, $inst, $cmdref ) = @_;
-    my ( $element_name, $action, $f_arg, $id, $subaction, $f2_arg, $value, $note ) = @$inst;
+    my ( $element_name, $action, $f_arg, $id, $subaction, $value, $note ) = @$inst;
 
     my $element = $node->fetch_element( name => $element_name, check => $check );
 
@@ -510,7 +513,7 @@ sub _insort_hash_of_node {
 
 sub _load_list {
     my ( $self, $node, $check, $inst, $cmdref ) = @_;
-    my ( $element_name, $action, $f_arg, $id, $subaction, $f2_arg, $value, $note ) = @$inst;
+    my ( $element_name, $action, $f_arg, $id, $subaction, $value, $note ) = @$inst;
 
     my $element = $node->fetch_element( name => $element_name, check => $check );
 
@@ -604,7 +607,7 @@ sub _load_list {
 
 sub _load_hash {
     my ( $self, $node, $check, $inst, $cmdref ) = @_;
-    my ( $element_name, $action, $f_arg, $id, $subaction, $f2_arg, $value, $note ) = @$inst;
+    my ( $element_name, $action, $f_arg, $id, $subaction, $value, $note ) = @$inst;
 
     unquote( $id, $value, $note );
 
@@ -722,7 +725,7 @@ sub _load_hash {
 
 sub _load_leaf {
     my ( $self, $node, $check, $inst, $cmdref ) = @_;
-    my ( $element_name, $action, $f_arg, $id, $subaction, $f2_arg, $value, $note ) = @$inst;
+    my ( $element_name, $action, $f_arg, $id, $subaction, $value, $note ) = @$inst;
 
     unquote( $id, $value );
 
