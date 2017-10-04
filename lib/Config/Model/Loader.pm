@@ -782,7 +782,14 @@ sub _load_leaf {
 # function_args are the arguments passed to the load command
 my %load_value_dispatch = (
     '=' => sub { $_[1]->store( value => $_[2], check => $_[3] ); return 'ok'; },
+    '.=' => \&_append_value,
 );
+
+sub _append_value {
+    my ( $self, $element, $value, $check, $instructions ) = @_;
+    my $orig = $element->fetch( check => $check );
+    $element->store( value => $orig . $value, check => $check );
+}
 
 sub _load_value {
     my ( $self, $element, $check, $subaction, $value, $inst ) = @_;
@@ -800,10 +807,6 @@ sub _load_value {
     my $dispatch = $load_value_dispatch{$subaction};
     if ($dispatch) {
         return $dispatch->( $self, $element, $value, $check, $inst );
-    }
-    elsif ( $subaction eq '.=' ) {
-        my $orig = $element->fetch( check => $check );
-        $element->store( value => $orig . $value, check => $check );
     }
     elsif ( $subaction eq '=~' ) {
         my $orig = $element->fetch( check => $check );
