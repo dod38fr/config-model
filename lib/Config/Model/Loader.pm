@@ -783,7 +783,8 @@ sub _load_leaf {
 my %load_value_dispatch = (
     '=' => sub { $_[1]->store( value => $_[2], check => $_[3] ); return 'ok'; },
     '.=' => \&_append_value,
-    '=~' => \&_apply_regexp_on_value
+    '=~' => \&_apply_regexp_on_value,
+    '=.file' => \&_store_file_in_value,
 );
 
 sub _append_value {
@@ -808,6 +809,27 @@ sub _apply_regexp_on_value {
         );
     }
     $element->store( value => $orig, check => $check );
+}
+
+sub _store_file_in_value {
+    my ( $self, $element, $value, $check, $instructions ) = @_;
+
+    if ($value eq '-') {
+        $element->store( value => join('',<STDIN>), check => $check );
+        return;
+    }
+
+    my $path = $element->root_path->child($value);
+    if ($path->is_file) {
+        $element->store( value => $path->slurp_utf8, check => $check );
+    }
+    else {
+        Config::Model::Exception::Load->throw(
+            object  => $element,
+            command => $instructions,
+            error => "cannot read file $value"
+        );
+    }
 }
 
 sub _load_value {
@@ -1146,6 +1168,12 @@ Undef element C<xxx>
 =item xxx.=zzz
 
 Appends C<zzz> value to current value (valid for C<leaf> elements).
+
+=item xxx=.file(yyy)
+
+Store the content of file C<yyy> in element C<xxx>.
+
+Store STDIn in value xxx when C<yyy> is '-'.
 
 =back
 
