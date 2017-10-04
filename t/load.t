@@ -493,6 +493,10 @@ is( $root->grab('hash_a')->has_data, 0 , "cleared hash" );
 $root->load("lista:.clear");
 is( $root->grab('lista')->has_data, 0 , "cleared list" );
 
+$root->load("a_string=.file(README.md)");
+like( $root->grab_value('a_string'), qr/# What is Config-Model project/,
+  "slurp README.md file");
+
 # test some errors cases
 my %errors = (
     'std_id'                  => qr/Missing key/,
