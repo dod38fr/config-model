@@ -947,8 +947,29 @@ sub run_code_on_value {
     }
 }
 
+# function that may be used in eval'ed code to use file in there (in
+# run_code_set_on_value and apply_fix). Using this function is
+# mandatory for tests that are done in pseudo root
+# directory. Necessary for relative path (although chdir in and out of
+# root_dir could work) and for absolute path (where chdir in and out
+# of root_dir would not work without using chroot)
+
+{
+    # val is a value object. Use this trick so eval'ed code can
+    # use file() function instead of $file->() sub ref
+    my $val ;
+    sub set_val {
+        $val = shift;
+    }
+    sub file {
+        return $val->root_path->child(shift);
+    }
+}
+
 sub run_code_set_on_value {
     my ( $self, $value_r, $apply_fix, $array, $msg, $w_info, $invert ) = @_;
+
+    $self->set_val;
 
     foreach my $label ( sort keys %$w_info ) {
         my $code = $w_info->{$label}{code};
@@ -1029,6 +1050,8 @@ sub apply_fix {
         $str =~ s/\n/ /g;
         $fix_logger->info( $self->location . ": Applying fix '$str'" );
     }
+
+    $self->set_val;
 
     eval($fix);
     if ($@) {
@@ -2079,6 +2102,16 @@ The example below warns if value contaims a number:
         fix  => 's/\d//g;'
     }
  },
+
+Any operation or check on file must be done with C<file> sub
+(otherwise tests will break). This sub returns a L<Path::Tiny>
+object that can be used to perform checks. For instance:
+
+  warn_if => {
+     warn_test => {
+         code => 'not file($_)->exists',
+         msg  => 'file $_ should exist'
+     }
 
 =item warn_unless
 
