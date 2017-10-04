@@ -20,7 +20,7 @@ has instance     => (
     is => 'ro',
     isa => 'Config::Model::Instance',
     weak_ref => 1,
-    handles => [qw/show_message/]
+    handles => [qw/show_message root_path/]
 );
 
 # needs_check defaults to 1 to trap undef mandatory values
@@ -453,6 +453,10 @@ internal parameter.
 =head2 show_message( string )
 
 Forwarded to L<Config::Model::Instance/"show_message( string )">.
+
+=head2 root_path
+
+Forwarded to L<Config::Model::Instance/"root_path">.
 
 =head2 model_searcher ()
 
