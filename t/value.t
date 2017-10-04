@@ -237,6 +237,17 @@ $failed++ unless $v =~ /$item[1]/ ;
                 }
             },
         },
+        warn_unless_file => {
+            type        => 'leaf',
+            value_type  => 'string',
+            warn_unless => {
+                warn_test => {
+                    code => 'file($_)->exists',
+                    msg  => 'file $_ should exist',
+                    fix  => '$_ = "value.t";'
+                }
+            },
+        },
         always_warn => {
             type       => 'leaf',
             value_type => 'string',
@@ -283,6 +294,8 @@ print "normal error:\n", $@, "\n" if $trace;
 
 my $inst = $model->instance(
     root_class_name => 'Master',
+    # root_dir is used to test warn_unless_file
+    root_dir => 't',
     instance_name   => 'test1'
 );
 ok( $inst, "created dummy instance" );
@@ -823,6 +836,17 @@ note "test warn_unless";
     $warn_unless->apply_fixes;
     ok( 1, "warn_unless apply_fixes called" );
     is( $warn_unless->fetch, 'foobar', "check fixed warn_unless pb" );
+}
+
+note "test warn_unless_file";
+{
+    my $warn_unless_file = $root->fetch_element('warn_unless_file');
+
+    warning_like { $warn_unless_file->store('not-value.t'); } qr/file not-value.t should exist/, "check warn_unless_file";
+
+    $warn_unless_file->apply_fixes;
+    ok( 1, "warn_unless_file apply_fixes called" );
+    is( $warn_unless_file->fetch, 'value.t', "check fixed warn_unless_file" );
 }
 
 note "test file and dir value types" ;
