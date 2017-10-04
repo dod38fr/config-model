@@ -811,13 +811,13 @@ sub _apply_regexp_on_value {
 }
 
 sub _load_value {
-    my ( $self, $element, $check, $subaction, $value, $inst ) = @_;
+    my ( $self, $element, $check, $subaction, $value, $instructions ) = @_;
 
     if (not $element->isa('Config::Model::Value')) {
         my $class = ref($element);
         Config::Model::Exception::Load->throw(
             object  => $element,
-            command => $inst,
+            command => $instructions,
             error   => "Load error: _load_value called on non Value object. ($class)"
         );
     }
@@ -825,10 +825,14 @@ sub _load_value {
     $logger->debug("_load_value: action '$subaction' value '$value' check $check");
     my $dispatch = $load_value_dispatch{$subaction};
     if ($dispatch) {
-        return $dispatch->( $self, $element, $value, $check, $inst );
+        return $dispatch->( $self, $element, $value, $check, $instructions );
     }
     else {
-        return undef;
+        Config::Model::Exception::Load->throw(
+            object  => $element,
+            command => $instructions,
+            error => "Unexpected operator or function on value: $subaction"
+            );
     }
 
     $logger->debug("_load_value: done returns ok");
