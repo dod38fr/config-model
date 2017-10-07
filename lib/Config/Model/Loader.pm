@@ -785,6 +785,7 @@ my %load_value_dispatch = (
     '.=' => \&_append_value,
     '=~' => \&_apply_regexp_on_value,
     '=.file' => \&_store_file_in_value,
+    '=.env' => sub { $_[1]->store( value => $ENV{$_[2]}, check => $_[3] ); return 'ok'; },
 );
 
 sub _append_value {
@@ -1174,6 +1175,10 @@ Appends C<zzz> value to current value (valid for C<leaf> elements).
 Store the content of file C<yyy> in element C<xxx>.
 
 Store STDIn in value xxx when C<yyy> is '-'.
+
+=item xxx=.env(yyy)
+
+Store the content of environment variable C<yyy> in element C<xxx>.
 
 =back
 
