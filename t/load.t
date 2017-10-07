@@ -497,6 +497,10 @@ $root->load("a_string=.file(README.md)");
 like( $root->grab_value('a_string'), qr/# What is Config-Model project/,
   "slurp README.md file");
 
+my $expect = $ENV{TEST_CONFIG_MODEL_LOADER} = 'plop';
+$root->load("a_string=.env(TEST_CONFIG_MODEL_LOADER)");
+is( $root->grab_value('a_string'), 'plop', "set value from environment");
+
 # test some errors cases
 my %errors = (
     'std_id'                  => qr/Missing key/,
