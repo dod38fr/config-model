@@ -151,24 +151,22 @@
       }
     ],
     'name' => 'Multistrap',
-    'read_config' => [
-      {
-        'auto_create' => '1',
-        'backend' => 'IniFile',
-        'force_lc_key' => '1',
-        'force_lc_section' => '1',
-        'join_list_value' => ' ',
-        'section_map' => {
-          'general' => '!'
-        },
-        'split_list_value' => '\\s+',
-        'store_class_in_hash' => 'sections',
-        'write_boolean_as' => [
-          'false',
-          'true'
-        ]
-      }
-    ]
+    'rw_config' => {
+      'auto_create' => '1',
+      'backend' => 'IniFile',
+      'force_lc_key' => '1',
+      'force_lc_section' => '1',
+      'join_list_value' => ' ',
+      'section_map' => {
+        'general' => '!'
+      },
+      'split_list_value' => '\\s+',
+      'store_class_in_hash' => 'sections',
+      'write_boolean_as' => [
+        'false',
+        'true'
+      ]
+    }
   }
 ]
 ;
