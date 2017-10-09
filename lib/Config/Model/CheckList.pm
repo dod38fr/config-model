@@ -234,11 +234,11 @@ sub notify_change {
 
     $self->SUPER::notify_change( %args, value_type => $self->value_type );
 
-    # notify all warped or computed objects that depends on me
+    # shake all warped or computed objects that depends on me
     foreach my $s ( $self->get_warped_slaves ) {
         $logger->debug( "calling notify_change on slave ", $s->name )
             if $logger->is_debug;
-        $s->notify_change( note => 'checklist master triggered changed' );
+        $s->needs_check(1);
     }
 }
 

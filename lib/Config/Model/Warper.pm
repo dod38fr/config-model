@@ -14,7 +14,7 @@ has 'rules'  => ( is => 'ro', isa => 'ArrayRef',     required => 1 );
 has 'warped_object' => (
     is       => 'ro',
     isa      => 'Config::Model::AnyThing',
-    handles  => ['notify_change'],
+    handles  => ['needs_check'],
     weak_ref => 1,
     required => 1
 );

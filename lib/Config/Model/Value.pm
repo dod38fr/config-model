@@ -184,11 +184,11 @@ sub notify_change {
     $self->map_write_as_inplace( @args{qw/old new/} );
     $self->SUPER::notify_change( %args, value_type => $self->value_type );
 
-    # notify all warped or computed objects that depends on me
+    # shake all warped or computed objects that depends on me
     foreach my $s ( $self->get_depend_slave ) {
-        $change_logger->debug( "calling notify_change on slave ", $s->name )
+        $change_logger->debug( "calling needs_check on slave ", $s->name )
             if $change_logger->is_debug;
-        $s->notify_change( note => 'master triggered changed' );
+        $s->needs_check(1);
     }
 }
 
