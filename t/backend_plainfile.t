@@ -9,32 +9,19 @@ use File::Copy;
 use Data::Dumper;
 use IO::File;
 
-use warnings;
-no warnings qw(once);
+use lib -d 't' ? 't/lib' : 'lib';
+use MyTestLib qw/init_test setup_test_dir/;
 
+use warnings;
 use strict;
 
-my $arg = shift || '';
+my ($model, $trace) = init_test(shift);
 
-my $trace = $arg =~ /t/ ? 1 : 0;
-Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
-
-use Log::Log4perl qw(:easy);
-my $home = $ENV{HOME} || "";
-my $log4perl_user_conf_file = "$home/.log4config-model";
-
-if ( -e $log4perl_user_conf_file ) {
-    Log::Log4perl::init($log4perl_user_conf_file);
-}
-else {
-    Log::Log4perl->easy_init( $arg =~ /l/ ? $DEBUG : $WARN );
-}
-
-my $model = Config::Model->new();
-
-ok( 1, "compiled" );
+# pseudo root where config files are written by config-model
+my $wr_root = setup_test_dir();
 
 my $subdir = 'plain/';
+mkpath( $wr_root . $subdir, { mode => 0755 } );
 
 $model->create_config_class(
     name    => "WithPlainFile",
@@ -49,12 +36,6 @@ $model->create_config_class(
     ],
 );
 
-# pseudo root where config files are written by config-model
-my $wr_root = 'wr_root_p/backend-plain-file/';
-
-# cleanup before tests
-rmtree($wr_root);
-mkpath( $wr_root . $subdir, { mode => 0755 } );
 my $fh = IO::File->new;
 $fh->open( $wr_root . $subdir . 'source', ">" );
 $fh->print("2.0\n");
