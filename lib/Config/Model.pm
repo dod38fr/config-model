@@ -183,8 +183,14 @@ sub initialize_log4perl {
 
     my $fallback_conf           = << 'EOC';
 log4perl.rootLogger=WARN, Screen
+
+# user message about deprecation issues
 log4perl.logger.Model.Legacy = INFO, SimpleScreen
 log4perl.additivity.Model.Legacy = 0
+
+# messages for users, aims to replace calls to warn for warnings or fix messages
+log4perl.logger.User = WARN, SimpleScreen
+log4perl.additivity.User = 0
 
 log4perl.appender.Screen        = Log::Log4perl::Appender::Screen
 log4perl.appender.Screen.stderr = 0
@@ -192,7 +198,7 @@ log4perl.appender.Screen.layout = Log::Log4perl::Layout::PatternLayout
 log4perl.appender.Screen.layout.ConversionPattern = %M %m (line %L)%n
 
 log4perl.appender.SimpleScreen        = Log::Log4perl::Appender::Screen
-log4perl.appender.SimpleScreen.stderr = 0
+log4perl.appender.SimpleScreen.stderr = 1
 log4perl.appender.SimpleScreen.layout = Log::Log4perl::Layout::PatternLayout
 log4perl.appender.SimpleScreen.layout.ConversionPattern = %p: %m%n
 
