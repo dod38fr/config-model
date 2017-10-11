@@ -29,11 +29,10 @@ $model->create_config_class(
         [qw/source new/] => {qw/type leaf value_type uniline/},
         clean => { qw/type list/, cargo => {qw/type leaf value_type uniline/} },
     ],
-    read_config => [ {
-            backend    => 'plain_file',
-            config_dir => $subdir,
-        },
-    ],
+    rw_config => {
+        backend    => 'plain_file',
+        config_dir => $subdir,
+    },
 );
 
 my $fh = IO::File->new;
