@@ -701,7 +701,7 @@ sub translate_legacy_backend_info {
                 $model->{$config} = $ref->[0];
             }
             elsif (@$ref > 1){
-                $self->show_legacy_issue("$config_class_name $config: multiple backends are deprecated", 'note');
+                $self->show_legacy_issue("$config_class_name $config: multiple backends are deprecated", 'warn');
                 $multi_backend++;
             }
         }
