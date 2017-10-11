@@ -1,6 +1,6 @@
 package Config::Model::Role::HelpAsText;
 
-# ABSTRACT: Transalet element help from pod to text
+# ABSTRACT: Translate element help from pod to text
 
 use Mouse::Role;
 use strict;
