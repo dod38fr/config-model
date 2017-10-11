@@ -1902,8 +1902,7 @@ A description of the structure and constraints of the project's configuration
 
 =item *
 
-A module to read and write configuration data. This can be one of the
-read/write backends provided by Config::Model or a custom backend.
+A module to read and write configuration data (aka a backend class).
 
 =back
 

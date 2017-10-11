@@ -375,33 +375,6 @@ sub try_read_backend {
 
     my ( $res, $file_path, $error );
 
-    if ( $backend eq 'custom' ) {
-        warn("custom read/write backend is deprecated. Please replace with a backend inheriting Config::Model::Backend::Any\n");
-        my $c = my $file = delete $read->{class};
-        $file =~ s!::!/!g;
-        my $f = delete $read->{function} || 'read';
-        require $file . '.pm' unless $c->can($f);
-
-        $logger->info("Read with custom backend $ {c}::$f in dir $read_dir");
-        my ($file_ok, $fh);
-        ( $file_ok, $file_path ) = $self->get_cfg_file_path(@read_args);
-
-        if ($file_ok and not ($c->can('skip_open') and $c->skip_open)) {
-            $fh = $self->open_read_file($backend, $file_path);
-        }
-
-        eval {
-            no strict 'refs';
-            $res = &{ $c . '::' . $f }(
-                @read_args,
-                file_path => $file_path,
-                io_handle => $fh,
-                object    => $self->node
-            );
-        };
-        $error = $@;
-    }
-    else {
         warn("function parameter for a backend is deprecated. Please implement 'read' method in backend $backend")
             if $read->{function};
         # try to load a specific Backend class
@@ -441,8 +414,6 @@ sub try_read_backend {
         if ($backend_obj->can('annotation')) {
             $self->{support_annotation} ||= $backend_obj->annotation ;
         }
-
-    }
 
     # catch eval errors done in the if-then-else block before
     if ( ref($error) and $error->isa('Config::Model::Exception::Syntax') ) {
@@ -524,38 +495,6 @@ sub auto_write_init {
         $self->{auto_write}{$backend} = 1;
 
         my $wb;
-        if ( $backend eq 'custom' ) {
-            my $c = my $file = $write->{class};
-            $file =~ s!::!/!g;
-            my $f = $write->{function} || 'write';
-            require $file . '.pm' unless $c->can($f);
-
-            $wb = sub {
-                no strict 'refs';
-                $logger->debug( "write cb ($backend) called for ", $self->node->name );
-                my ( $file_ok, $file_path, $fh );
-                ( $file_ok, $file_path, $fh ) = $self->open_file_to_write( $backend, @wr_args, @_ )
-                    unless ( $c->can('skip_open') and $c->skip_open );
-                my $res;
-                $res = eval {
-
-                    # override needed for "save as" button
-                    &{ $c . '::' . $f }(
-                        @wr_args,
-                        io_handle => $fh,
-                        file_path => $file_path,
-                        conf_dir  => $write_dir,    # legacy FIXME
-                        object    => $self->node,
-                        @_                          # override from user
-                    );
-                };
-                my $error = $@;
-                $logger->warn( "write backend $c" . '::' . "$f failed: $error" ) if $error;
-                $self->close_file_to_write( $error, $fh, $file_path, $write->{file_mode} );
-                return defined $res ? $res : $error ? 0 : 1;
-            };
-        }
-        else {
             my $f = $write->{function} || 'write';
             my $c = load_backend_class( $backend, $f );
             my $location = $self->node->name;
@@ -599,7 +538,6 @@ sub auto_write_init {
 
                 return defined $res ? $res : $@ ? 0 : 1;
             };
-        }
 
         # FIXME: enhance write back mechanism so that different backend *and* different nodes
         # work as expected
@@ -799,13 +737,6 @@ L<Config::Model::Loader/"load string syntax">.
 C<perl_file>: Perl data structure (perl) in a file. See L<Config::Model::DumpAsData>
 for details on the data structure. Now handled by L<Config::Model::Backend::PerlFile>
 
-=item * 
-
-C<custom>: specifies a dedicated class and function to read and load
-the configuration tree. This backend is now deprecated. See
-L<Config::Model::Backend::Any/Replacing a custom backend>
-for instructions to migrate to a class based on C<Config::Model::Backend::Any>
-
 =back
 
 When needed, C<write_back> method can be called on the instance (See
@@ -831,14 +762,14 @@ The following parameters are accepted by all backends:
 =item config_dir
 
 Specify configuration directory. This parameter is optional as the
-directory can be hardcoded in the custom class. C<config_dir> beginning
+directory can be hardcoded in the backend class. C<config_dir> beginning
 with 'C<~>' is munged so C<~> is replaced by C<< File::HomeDir->my_data >>.
 See L<File::HomeDir> for details.
 
 =item file
 
 Specify configuration file name (without the path). This parameter is
-optional as the file name can be hardcoded in the custom class.
+optional as the file name can be hardcoded in the backend class.
 
 The configuration file name can be specified with C<&index> keyword
 when a backend is associated to a node contained in a hash. For instance,
@@ -938,10 +869,6 @@ See L<Config::Model::Backend::Yaml> for more details for this backend.
 You can also write a dedicated backend. See
 L<How to write your own backend|Config::Model::Backend::Any/"How to write your own backend">
 for details.
-
-=head2 Custom backend
-
-Custom backend is now deprecated and will soon be removed.
 
 =head1 Test setup
 
