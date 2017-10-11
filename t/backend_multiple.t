@@ -43,34 +43,31 @@ rmtree($wr_root);
 mkpath( $wr_root, { mode => 0755 } );
 
 $model->create_config_class(
-    'read_config' => [ {
-            'auto_create' => '1',
-            'file'        => 'control.pl',
-            'backend'     => 'perl_file',
-            'config_dir'  => 'debian'
-        }
-    ],
+    'rw_config' => {
+        'auto_create' => '1',
+        'file'        => 'control.pl',
+        'backend'     => 'perl_file',
+        'config_dir'  => 'debian'
+    },
     'name'    => 'Test::Control',
     'element' => [ 'source' => { 'type' => 'leaf', value_type => 'string', } ] );
 
 $model->create_config_class(
-    'read_config' => [ {
-            'auto_create' => '1',
-            'file'        => 'copyright.pl',
-            'backend'     => 'perl_file',
-            'config_dir'  => 'debian'
-        }
-    ],
+    'rw_config' => {
+        'auto_create' => '1',
+        'file'        => 'copyright.pl',
+        'backend'     => 'perl_file',
+        'config_dir'  => 'debian'
+    },
     'name'    => 'Test::Copyright',
     'element' => [ 'Format', { 'value_type' => 'uniline', 'type' => 'leaf', }, ] );
 
 $model->create_config_class(
-    'read_config' => [ {
-            'auto_create' => '1',
-            'backend'     => 'PlainFile',
-            'config_dir'  => 'debian/source'
-        }
-    ],
+    'rw_config' => {
+        'auto_create' => '1',
+        'backend'     => 'PlainFile',
+        'config_dir'  => 'debian/source'
+    },
     'name'    => 'Test::Source',
     'element' => [ 'format', { 'value_type' => 'uniline', 'type' => 'leaf', } ] );
 
