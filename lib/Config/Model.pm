@@ -694,9 +694,11 @@ sub translate_legacy_backend_info {
     my ( $self, $config_class_name, $model ) = @_;
 
     my $multi_backend = 0;
+    my $has_custom = 0;
     foreach my $config (qw/read_config write_config/) {
         my $ref = $model->{$config};
         if ($ref and ref($ref) eq 'ARRAY') {
+            map { $has_custom++ if $_->{backend} eq 'custom' } @$ref;
             if (@$ref == 1) {
                 $model->{$config} = $ref->[0];
             }
@@ -705,6 +707,17 @@ sub translate_legacy_backend_info {
                 $multi_backend++;
             }
         }
+    }
+
+    my $ref = $model->{'rw_config'};
+    if ($ref and $ref->{backend} eq 'custom') {
+        $has_custom++;
+    }
+
+    if ($has_custom) {
+        my $msg = "$config_class_name: custom read/write backend is obsolete."
+            ." Please replace with a backend inheriting Config::Model::Backend::Any";
+        $self->show_legacy_issue( $msg, 'die');
     }
 
     if ($model->{read_config}) {
