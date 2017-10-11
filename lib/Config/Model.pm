@@ -688,7 +688,6 @@ sub translate_legacy_info {
     ) if $legacy_logger->is_debug;
 }
 
-# TODO: use 'warn' for show_legacy_issue once all models are updated (mid October 2017 ?)
 # TODO: use 'die' mid November 2017
 sub translate_legacy_backend_info {
     my ( $self, $config_class_name, $model ) = @_;

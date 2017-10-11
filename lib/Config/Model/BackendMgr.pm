@@ -21,6 +21,7 @@ use Path::Tiny 0.070;
 with "Config::Model::Role::ComputeFunction";
 
 my $logger = get_logger('BackendMgr');
+my $user_logger = get_logger('User');
 
 # used only for tests
 my $__test_home = '';
@@ -261,7 +262,7 @@ sub read_config_data {
 
     my @list;
     if (ref  $readlist eq 'ARRAY') {
-        say "Multiple backends are deprecated (read_config)" if @$readlist > 1;
+        $user_logger->warn("Multiple backends are deprecated (read_config)") if @$readlist > 1;
         @list = @$readlist ;
     }
     elsif (ref  $readlist eq 'HASH') {
@@ -478,7 +479,7 @@ sub auto_write_init {
 
     my @array;
     if (ref  $wrlist eq 'ARRAY') {
-        say "Multiple backends are deprecated (write_config)\n" if @$wrlist > 1;
+        $user_logger->warn("Multiple backends are deprecated (write_config)") if @$wrlist > 1;
         @array = @$wrlist ;
     }
     elsif (ref  $wrlist eq 'HASH') {
