@@ -1,6 +1,5 @@
 # -*- cperl -*-
 
-use ExtUtils::testlib;
 use Test::More tests => 7;
 use Test::Memory::Cycle;
 use Config::Model;
@@ -9,38 +8,16 @@ use File::Copy;
 use Test::Warn;
 use Test::Exception;
 
+use lib -d 't' ? 't/lib' : 'lib';
+use MyTestLib qw/init_test setup_test_dir/;
+
 use warnings;
-
-#no warnings qw(once);
-
 use strict;
 
-my $arg = shift || '';
-
-my $trace = $arg =~ /t/ ? 1 : 0;
-Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
-
-use Log::Log4perl qw(:easy);
-my $home = $ENV{HOME} || "";
-my $log4perl_user_conf_file = "$home/.log4config-model";
-
-if ( -e $log4perl_user_conf_file ) {
-    Log::Log4perl::init($log4perl_user_conf_file);
-}
-else {
-    Log::Log4perl->easy_init( $arg =~ /l/ ? $DEBUG : $WARN );
-}
-
-my $model = Config::Model->new( legacy => 'ignore', );
-
-ok( 1, "compiled" );
+my ($model, $trace) = init_test(shift);
 
 # pseudo root where config files are written by config-model
-my $wr_root = 'wr_root_p/backend-multiple/';
-
-# cleanup before tests
-rmtree($wr_root);
-mkpath( $wr_root, { mode => 0755 } );
+my $wr_root = setup_test_dir();
 
 $model->create_config_class(
     'rw_config' => {
