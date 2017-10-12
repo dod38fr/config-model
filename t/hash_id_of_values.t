@@ -207,6 +207,9 @@ is( $inst->needs_save, 1,  "verify instance needs_save status after delete" );
 print scalar $inst->list_changes, "\n" if $trace;
 $inst->clear_changes;
 
+is( $b->delete(2), undef, "delete id 2 again even if already deleted" );
+is( $inst->needs_save, 0,  "verify instance needs_save status after duplicate delete -> no need to save again" );
+
 is( $b->index_type, 'integer', "reading value_type" );
 is( $b->max_index,  123,       "reading max boundary" );
 
