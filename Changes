@@ -1,5 +1,28 @@
 {{$NEXT}}
 
+2.113 2017-10-12
+
+  On-going backend deprecations:
+    * using "custom" backend is now fatal
+    * warn when more than one backend is declared in a model class.
+      This soon will be fatal
+    * udpated models (Fstab Multistrap PopCon) to use new rw_config parameter
+
+  Bug fixes:
+    * HashId: do not notify when deleting an undef value (Debian #876967)
+    * Value: support file test in code eval done by warn_if and similar tests
+    * remove confusing "master triggered changed" message
+    * really avoid undef warning when homedir is not defined
+    * avoid "unordered data" warning when loading one item in an ordered hash
+
+  New features usable with 'cme modify' or in a cme script (used by 'cme run'):
+    * add "=.env(...)" instruction to store the content of an environment
+      variable in a value
+    * add "=.file(...)" instruction to store a file in a value.
+      ".file(-)" reads from STDIN.
+    * add a User logger category to log messages to user. Direct calls to warn
+      will be removed to make test output cleaner
+
 2.112 2017-10-01
 
   Fix bugs to make warp mechanism more consistent:
