@@ -375,45 +375,45 @@ sub try_read_backend {
 
     my ( $res, $file_path, $error );
 
-        warn("function parameter for a backend is deprecated. Please implement 'read' method in backend $backend")
-            if $read->{function};
-        # try to load a specific Backend class
-        my $f = delete $read->{function} || 'read';
-        my $c = load_backend_class( $backend, $f );
-        return ( 0, 'unknown' ) unless defined $c;
+    warn("function parameter for a backend is deprecated. Please implement 'read' method in backend $backend")
+        if $read->{function};
+    # try to load a specific Backend class
+    my $f = delete $read->{function} || 'read';
+    my $c = load_backend_class( $backend, $f );
+    return ( 0, 'unknown' ) unless defined $c;
 
-        no strict 'refs';
-        my $backend_obj = $c->new( node => $self->node, name => $backend );
-        $self->set_backend( $backend => $backend_obj );
-        my ($file_ok, $fh, $suffix);
-        $suffix = $backend_obj->suffix if $backend_obj->can('suffix');
-        ( $file_ok, $file_path ) = $self->get_cfg_file_path(
+    no strict 'refs';
+    my $backend_obj = $c->new( node => $self->node, name => $backend );
+    $self->set_backend( $backend => $backend_obj );
+    my ($file_ok, $fh, $suffix);
+    $suffix = $backend_obj->suffix if $backend_obj->can('suffix');
+    ( $file_ok, $file_path ) = $self->get_cfg_file_path(
+        @read_args,
+        suffix => $suffix,
+        skip_compute => $c->skip_open,
+    );
+    $fh = $self->open_read_file($backend, $file_path)
+        if $file_ok and not $c->skip_open;
+
+    if ($logger->is_info) {
+        my $fp = defined $file_path ? " on $file_path":'' ;
+        $logger->info( "Read with $backend " . $c . "::$f".$fp);
+    }
+
+    eval {
+        $res = $backend_obj->$f(
             @read_args,
-            suffix => $suffix,
-            skip_compute => $c->skip_open,
+            file_path => $file_path,
+            io_handle => $fh,
+            object    => $self->node,
         );
-        $fh = $self->open_read_file($backend, $file_path)
-            if $file_ok and not $c->skip_open;
+    };
+    $error = $@;
 
-        if ($logger->is_info) {
-            my $fp = defined $file_path ? " on $file_path":'' ;
-            $logger->info( "Read with $backend " . $c . "::$f".$fp);
-        }
-
-        eval {
-            $res = $backend_obj->$f(
-                @read_args,
-                file_path => $file_path,
-                io_handle => $fh,
-                object    => $self->node,
-            );
-        };
-        $error = $@;
-
-        # only backend based on C::M::Backend::Any can support annotations
-        if ($backend_obj->can('annotation')) {
-            $self->{support_annotation} ||= $backend_obj->annotation ;
-        }
+    # only backend based on C::M::Backend::Any can support annotations
+    if ($backend_obj->can('annotation')) {
+        $self->{support_annotation} ||= $backend_obj->annotation ;
+    }
 
     # catch eval errors done in the if-then-else block before
     if ( ref($error) and $error->isa('Config::Model::Exception::Syntax') ) {
@@ -495,49 +495,49 @@ sub auto_write_init {
         $self->{auto_write}{$backend} = 1;
 
         my $wb;
-            my $f = $write->{function} || 'write';
-            my $c = load_backend_class( $backend, $f );
-            my $location = $self->node->name;
-            my $node = $self->node; # closure
+        my $f = $write->{function} || 'write';
+        my $c = load_backend_class( $backend, $f );
+        my $location = $self->node->name;
+        my $node = $self->node; # closure
 
-            $wb = sub {
-                my %cb_args = @_;
+        $wb = sub {
+            my %cb_args = @_;
 
-                my $force_delete = delete $cb_args{force_delete} ;
-                $logger->debug( "write cb ($backend) called for $location ", $force_delete ? '' : ' (deleted)' );
-                my $backend_obj = $self->get_backend($backend)
-                    || $c->new( node => $self->node, name => $backend );
-                my $suffix = $backend_obj->suffix if $backend_obj->can('suffix');
-                my ( $file_ok, $file_path, $fh );
-                ( $file_ok, $file_path, $fh ) =
-                    $self->open_file_to_write( $backend, suffix => $suffix, @wr_args, %cb_args )
-                    unless $c->skip_open;
+            my $force_delete = delete $cb_args{force_delete} ;
+            $logger->debug( "write cb ($backend) called for $location ", $force_delete ? '' : ' (deleted)' );
+            my $backend_obj = $self->get_backend($backend)
+                || $c->new( node => $self->node, name => $backend );
+            my $suffix = $backend_obj->suffix if $backend_obj->can('suffix');
+            my ( $file_ok, $file_path, $fh );
+            ( $file_ok, $file_path, $fh ) =
+                $self->open_file_to_write( $backend, suffix => $suffix, @wr_args, %cb_args )
+                unless $c->skip_open;
 
-                # override needed for "save as" button
-                my %backend_args = (
-                        @wr_args,
-                        io_handle => $fh,
-                        file_path => $file_path,
-                        object    => $node,
-                        %cb_args    # override from user
-                    );
+            # override needed for "save as" button
+            my %backend_args = (
+                @wr_args,
+                io_handle => $fh,
+                file_path => $file_path,
+                object    => $node,
+                %cb_args        # override from user
+            );
 
-                my $res;
-                if ($force_delete) {
-                    $backend_obj->delete(%backend_args);
-                }
-                else {
-                    $res = eval { $backend_obj->$f( %backend_args ); };
-                    my $error = $@;
-                    $logger->warn( "write backend $backend $c" . '::' . "$f failed: $error" ) if $error;
-                    $self->close_file_to_write( $error, $fh, $file_path, $write->{file_mode} );
+            my $res;
+            if ($force_delete) {
+                $backend_obj->delete(%backend_args);
+            }
+            else {
+                $res = eval { $backend_obj->$f( %backend_args ); };
+                my $error = $@;
+                $logger->warn( "write backend $backend $c" . '::' . "$f failed: $error" ) if $error;
+                $self->close_file_to_write( $error, $fh, $file_path, $write->{file_mode} );
 
-                    $self->auto_delete($file_path, \%backend_args)
-                        if $write->{auto_delete} and not $c->skip_open ;
-                }
+                $self->auto_delete($file_path, \%backend_args)
+                    if $write->{auto_delete} and not $c->skip_open ;
+            }
 
-                return defined $res ? $res : $@ ? 0 : 1;
-            };
+            return defined $res ? $res : $@ ? 0 : 1;
+        };
 
         # FIXME: enhance write back mechanism so that different backend *and* different nodes
         # work as expected
