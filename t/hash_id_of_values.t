@@ -1,7 +1,5 @@
 # -*- cperl -*-
 
-use warnings;
-
 use ExtUtils::testlib;
 use Test::More ;
 use Test::Memory::Cycle;
@@ -10,17 +8,13 @@ use Test::Exception;
 use Test::Warn;
 use Test::Differences;
 
+use lib -d 't' ? 't/lib' : 'lib';
+use MyTestLib qw/init_test/;
+
 use strict;
+use warnings;
 
-my $arg = shift || '';
-
-my $trace = $arg =~ /t/ ? 1 : 0;
-Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
-
-use Log::Log4perl qw(:easy);
-Log::Log4perl->easy_init( $arg =~ /l/ ? $TRACE : $WARN );
-
-ok( 1, "Compilation done" );
+my ($model, $trace) = init_test(shift);
 
 # new parameter style
 my @element = (
@@ -34,7 +28,6 @@ my @element = (
 );
 
 # minimal set up to get things working
-my $model = Config::Model->new( );
 $model->create_config_class(
     name    => "Master",
     element => [
