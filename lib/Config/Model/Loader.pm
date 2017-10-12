@@ -817,7 +817,7 @@ sub _store_file_in_value {
 
     if ($value eq '-') {
         $element->store( value => join('',<STDIN>), check => $check );
-        return;
+        return 'ok';
     }
 
     my $path = $element->root_path->child($value);
