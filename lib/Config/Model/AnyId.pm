@@ -949,7 +949,8 @@ sub delete {
 
     delete $self->{warning_hash}{$idx};
     my $ret = $self->_delete($idx);
-    $self->notify_change( note => "deleted entry $idx" );
+    # notification is not needed if the value was already delete or missing
+    $self->notify_change( note => "deleted entry $idx" ) if defined $ret;
     return $ret;
 }
 
