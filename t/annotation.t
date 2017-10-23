@@ -58,7 +58,9 @@ my @annotate = map
     { [ $_ => "$_ annotation" ] }
     (
         'std_id', 'std_id', # test that 2 saves of same value is tracked once
-        'std_id:bc X', 'my_check_list', 'olist:0', 'olist:2'
+        'std_id:bc X', 'my_check_list',
+        'olist:0',
+        'olist:2', # this element is created, so 2 notifs are generated for this
     );
 my %expect = ( 'hash_a:toto' => "index comment", 'olist:1' => 'olist1_comment' );
 
@@ -70,7 +72,7 @@ foreach (@annotate) {
 }
 
 say "pending changes:\n".$inst->list_changes if $trace;
-is( $inst->needs_save, 5, "verify instance needs_save status after storing only annotations" );
+is( $inst->needs_save, 6, "verify instance needs_save status after storing only annotations" );
 $inst->clear_changes;
 
 is( $root->grab("std_id:ab X")->annotation('to delete'), 'to delete', "test clear annotation" );

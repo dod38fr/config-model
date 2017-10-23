@@ -172,13 +172,13 @@ is( $b->name, 'Master bounded_hash id', "check hash id name" );
 
 my $b1 = $b->fetch_with_id(1);
 isa_ok( $b1, 'Config::Model::Value', "fetched element id 1" );
-is( $inst->needs_save, 0, "verify instance needs_save status after element creation" );
+is( $inst->needs_save, 1, "verify instance needs_save status after element creation" );
 
 is( $b1->store('foo'), 1, "Storing in id 1" );
-is( $inst->needs_save, 1, "verify instance needs_save status after storing into element" );
+is( $inst->needs_save, 2, "verify instance needs_save status after storing into element" );
 
 is( $b->fetch_with_id(2)->store('bar'), 1, "Storing in id 2" );
-is( $inst->needs_save, 2, "verify instance needs_save status after storing into another element" );
+is( $inst->needs_save, 4, "verify instance needs_save status after storing into another element" );
 print scalar $inst->list_changes, "\n" if $trace;
 
 eval { $b->fetch_with_id('')->store('foo'); };
@@ -197,7 +197,7 @@ eval { $b->fetch_with_id(40)->store('foo'); };
 ok( $@, "max nb error" );
 print "normal error: ", $@ if $trace;
 
-is( $inst->needs_save, 2, "verify instance needs_save status after store errors" );
+is( $inst->needs_save, 4, "verify instance needs_save status after store errors" );
 print scalar $inst->list_changes, "\n" if $trace;
 $inst->clear_changes;
 
@@ -332,7 +332,7 @@ eq_or_diff( [ $oh->fetch_all_indexes ],
 is( $oh->fetch_with_id('x')->fetch, '2x', "Check copied value" );
 
 $oh->copy(qw/x d/);
-is( $inst->needs_save, 1, "verify instance needs_save status after copy" );
+is( $inst->needs_save, 2, "verify instance needs_save status after copy" );
 print scalar $inst->list_changes, "\n" if $trace;
 $inst->clear_changes;
 

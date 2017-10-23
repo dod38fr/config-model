@@ -784,7 +784,7 @@ note "test replace_follow";
     is( $inst->needs_save, 0,     "check needs_save after simple fetch" );
 
     $root->load('replacement_hash:foo=repfoo replacement_hash:bar=repbar');
-    is( $inst->needs_save, 2, "check needs_save after load" );
+    is( $inst->needs_save, 4, "check needs_save after load" );
     $inst->clear_changes;
 
     is( $wrf->fetch,       'repfoo', "check replacement_hash with foo (after replacement)" );

@@ -580,7 +580,7 @@ is( $inst->needs_save, 0, "check needs save before migrate" );
 is( $root->grab_value( step => 'Upstream-Maintainer:0', check => 'no' ),
     'foo', "check migrate_from first stage" );
 is( $root->grab_value( step => 'Upstream-Contact:0' ), 'foo', "check migrate_from second stage" );
-is( $inst->needs_save, 2, "check needs save before migrate" );
+is( $inst->needs_save, 4, "check needs save before migrate" );
 print join( "\n", $inst->list_changes("\n") ), "\n" if $trace;
 
 $root->fetch_element( name => 'Original-Source-Location', check => 'no' )->store('foobar');
