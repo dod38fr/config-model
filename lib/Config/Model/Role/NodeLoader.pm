@@ -5,6 +5,8 @@ package Config::Model::Role::NodeLoader;
 use Mouse::Role;
 use strict;
 use warnings;
+use Carp;
+use 5.10.0;
 
 use Mouse::Util;
 use Log::Log4perl qw(get_logger :levels);
@@ -20,6 +22,9 @@ sub load_node {
     $load_logger->info("Loading $config_class_name ". $self->location . " with $node_class");
     Mouse::Util::load_class($node_class);
 
+    if (delete $params{check}) {
+        carp "load_node; drop check param. Better let node query the instance";
+    }
     return $node_class->new(%params) ;
 }
 

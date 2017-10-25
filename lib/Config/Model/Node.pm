@@ -75,7 +75,14 @@ has config_class_name => ( is => 'ro', isa => 'Str', required => 1 );
 
 has [qw/config_file element_name/] => ( is => 'ro', isa => 'Maybe[Str]', required => 0 );
 
-has instance => ( is => 'ro', isa => 'Config::Model::Instance', weak_ref => 1, required => 1 );
+has instance => (
+    is => 'ro',
+    isa => 'Config::Model::Instance',
+    weak_ref => 1,
+    required => 1,
+    handles => [qw/read_check/],
+);
+
 has config_model => (
     is       => 'ro',
     isa      => 'Config::Model',
@@ -89,7 +96,6 @@ sub _config_model {
     my $p    = $self->instance->config_model;
 }
 
-has check      => ( is => 'ro', isa => 'Str', default => 'yes' );
 has model      => ( is => 'rw', isa => 'HashRef' );
 has needs_save => ( is => 'rw', isa => 'Bool', default => 0 );
 
@@ -105,14 +111,6 @@ sub _backend_support_annotation {
 
 sub BUILD {
     my $self = shift;
-
-    my $read_check = $self->instance->read_check;
-
-    my $req_check = $self->check;
-    my $check =
-          $req_check eq 'no'   || $read_check eq 'no'   ? 'no'
-        : $req_check eq 'skip' || $read_check eq 'skip' ? 'skip'
-        :                                                 'yes';
 
     my $caller_class = defined $self->parent ? $self->parent->name : 'user';
 
@@ -188,7 +186,6 @@ sub create_node {
         config_class_name => $config_class_name,
         instance          => $self->{instance},
         element_name      => $element_name,
-        check             => $check,
         parent            => $self,
         container         => $self,
     );
@@ -330,7 +327,7 @@ sub init {
     );
 
     if ( $model->{rw_config} or $model->{read_config} ) {
-        $self->read_config_data( check => $args{check} // $self->check );
+        $self->read_config_data( check => $self->read_check );
         $user_logger->warn("read_config parameter for backend is deprecated. ",
             "Please use rw_config to specify both read and write parameters.") if $model->{read_config};
     }
@@ -501,7 +498,7 @@ sub get_element_names {
     my $type       = $args{type};              # optional
     my $cargo_type = $args{cargo_type};        # optional
 
-    $self->init(check => $args{check});
+    $self->init();
 
     my @result;
 
@@ -640,7 +637,7 @@ sub fetch_element {
     my $check         = $self->_check_check( $args{check} );
     my $accept_hidden = $args{accept_hidden} || 0;
 
-    $self->init(check => $check);
+    $self->init();
 
     my $model = $self->{model};
 
@@ -1023,7 +1020,7 @@ sub load_data {
 sub dump_tree {
     my $self = shift;
     my %args = @_;
-    $self->init(check => $args{check});
+    $self->init();
     my $dumper = Config::Model::Dumper->new;
     $dumper->dump_tree( node => $self, @_ );
 }
@@ -1031,7 +1028,7 @@ sub dump_tree {
 sub migrate {
     my $self = shift;
     my %args = @_;
-    $self->init(check => $args{check});
+    $self->init();
     Config::Model::Dumper->new->dump_tree( node => $self, mode => 'full', @_ );
 
     return $self->needs_save;
@@ -1040,7 +1037,7 @@ sub migrate {
 sub dump_annotations_as_pod {
     my $self = shift;
     my %args = @_;
-    $self->init(check => $args{check});
+    $self->init();
     my $dumper = Config::Model::DumpAsData->new;
     $dumper->dump_annotations_as_pod( node => $self, @_ );
 }
@@ -1048,7 +1045,7 @@ sub dump_annotations_as_pod {
 sub describe {
     my $self = shift;
     my %args = @_;
-    $self->init(check => $args{check});
+    $self->init();
 
     my $descriptor = Config::Model::Describe->new;
     $descriptor->describe( node => $self, @_ );
@@ -1057,7 +1054,7 @@ sub describe {
 sub report {
     my $self = shift;
     my %args = @_;
-    $self->init(check => $args{check});
+    $self->init();
     my $reporter = Config::Model::Report->new;
     $reporter->report( node => $self );
 }
@@ -1065,7 +1062,7 @@ sub report {
 sub audit {
     my $self = shift;
     my %args = @_;
-    $self->init(check => $args{check});
+    $self->init();
     my $reporter = Config::Model::Report->new;
     $reporter->report( node => $self, audit => 1 );
 }

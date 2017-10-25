@@ -275,7 +275,6 @@ sub reset_config {
         config_class_name => $self->{root_class_name},
         instance          => $self,
         container         => $self,
-        check             => $self->read_check,
         config_file       => $self->{config_file},
     );
 }

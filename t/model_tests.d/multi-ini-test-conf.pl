@@ -47,6 +47,7 @@ $model->create_config_class(
 @tests = (
     {
         name  => 'max-overflow',
+        load_check => 'no',
         # work only with Config::Model > 2.094 because of an obscure
         # initialisation bug occuring while loading a bad value in
         # a sub-node (thanks systemd)
