@@ -439,7 +439,7 @@ note "test boolean where values are translated to true/false";
     is( $bwwa->fetch, 'false', "boolean_with_write_as returns 'false'" );
     is( $inst->needs_save, 1, "check needs_save after writing 'boolean_with_write_as'" );
 
-    my @changes = "boolean_with_write_as: '<undef>' -> 'false'";
+    my @changes = "boolean_with_write_as has new value: 'false'";
     eq_or_diff([$inst->list_changes],\@changes,
                "check change message after writing 'boolean_with_write_as'");
 
