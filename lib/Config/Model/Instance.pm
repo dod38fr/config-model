@@ -9,7 +9,6 @@ use Mouse::Util::TypeConstraints;
 use MouseX::StrictConstructor;
 with "Config::Model::Role::NodeLoader";
 
-use Text::Diff;
 use File::Path;
 use Path::Tiny;
 use Log::Log4perl qw(get_logger :levels);
