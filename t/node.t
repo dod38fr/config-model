@@ -88,18 +88,6 @@ is_deeply(
     "check Master elements"
 );
 
-is_deeply(
-    [ sort $root->get_element_name( ) ],
-    [qw/array_args captain hash_args/],
-    "check Master elements"
-);
-
-is_deeply(
-    [ sort $root->get_element_name( ) ],
-    [qw/array_args captain hash_args/],
-    "check Master elements"
-);
-
 my $w = $root->fetch_element('captain');
 ok( $w, "Created Captain" );
 
