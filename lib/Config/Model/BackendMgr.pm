@@ -395,39 +395,21 @@ sub try_read_backend {
 
 sub auto_write_init {
     my ( $self, %args ) = @_;
-    my $wrlist_orig = delete $args{rw_config};
+    my $rw_config_orig = delete $args{rw_config};
 
     croak "auto_write_init: unexpected args " . join( ' ', sort keys %args ) . "\n"
         if %args;
 
-    my $wrlist = dclone $wrlist_orig ;
+    my $rw_config = dclone $rw_config_orig ;
 
     my $instance = $self->node->instance();
 
     # root override is passed by the instance
     my $root_dir = $instance->write_root_dir || '';
 
-    my @array;
-    if (ref  $wrlist eq 'ARRAY') {
-        $user_logger->warn("Multiple backends are deprecated (write_config)") if @$wrlist > 1;
-        @array = @$wrlist ;
-    }
-    elsif (ref  $wrlist eq 'HASH') {
-        @array = ($wrlist);
-    }
-    else {
-        croak "wrlist must be a hash ref\n" unless ref $wrlist;
-    }
-
-    # ensure that one auto_create specified applies to all wr backends
-    my $auto_create = 0;
-    foreach my $rw_config (@array) {
-        $auto_create ||= delete $rw_config->{auto_create}
-            if defined $rw_config->{auto_create};
-    }
+    my $auto_create = $rw_config->{auto_create};
 
     # provide a proper write back function
-    foreach my $rw_config (@array) {
         my $backend = delete $rw_config->{backend} || die "undefined write backend\n";;
 
         if ( $backend =~ /^(perl|ini|cds)$/ ) {
@@ -503,7 +485,6 @@ sub auto_write_init {
         $logger->trace( "registering write $backend in node " . $self->node->name );
 
         $instance->register_write_back(  $self->node->location, $backend, $wb  );
-    }
 }
 
 sub auto_delete {
