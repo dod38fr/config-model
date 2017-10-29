@@ -261,19 +261,7 @@ sub read_config_data {
     my $root_dir = $instance->read_root_dir || '';
 
     my $auto_create  = $rw_config->{auto_create};
-    my @tried;
-
-    my $backend = delete $rw_config->{backend} || die "undefined read backend\n";
-    if ( $backend =~ /^(perl|ini|cds)$/ ) {
-        warn $self->config_class_name,
-            " deprecated  backend $backend. Should be '$ {backend}_file'\n";
-        $backend .= "_file";
-    }
-
-    if ( defined $rw_config->{allow_empty} ) {
-        warn "backend $backend: allow_empty is deprecated. Use auto_create";
-        $auto_create ||= delete $rw_config->{allow_empty};
-    }
+    my $backend = delete $rw_config->{backend};
 
     if ( $rw_config->{default_layer} ) {
         $self->read_config_sub_layer( $rw_config, $root_dir, $config_file_override, $check,
@@ -282,16 +270,11 @@ sub read_config_data {
 
     my ( $res, $file ) =
         $self->try_read_backend( $rw_config, $root_dir, $config_file_override, $check, $backend );
-    push @tried, $file;
 
-
-    Config::Model::Exception::ConfigFile::Missing->throw(
-        tried_files => \@tried,
-        object      => $self->node,
-        )
-        unless $res
-        or $auto_create_override
-        or $auto_create;
+    Config::Model::Exception::ConfigFile::Missing->throw (
+        file   => $file,
+        object => $self->node,
+    ) unless $res or $auto_create_override or $auto_create;
 
 }
 

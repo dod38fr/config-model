@@ -463,14 +463,12 @@ extends 'Config::Model::Exception::ConfigFile';
 
 sub _desc { 'missing configuration file'}
 
-has tried_files => (is => 'rw', isa => 'ArrayRef');
+has file => (is => 'rw', isa => 'Str');
 
 sub full_message {
     my $self = shift;
 
-    my $msg = "Error: cannot find configuration file " . join (' or ', @{ $self->tried_files });
-
-    return $msg . "\n";
+    return "Error: cannot find configuration file " . $self->file . "\n";
 }
 
 package Config::Model::Exception::Formula;
