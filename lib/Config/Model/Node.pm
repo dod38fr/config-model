@@ -313,9 +313,7 @@ sub init {
     my $model = $self->{model};
 
     return
-        unless defined $model->{rw_config}
-        or defined $model->{read_config}
-        or defined $model->{write_config};
+        unless defined $model->{rw_config};
 
     my $initial_load_backup = $self->instance->initial_load;
     $self->instance->initial_load_start;
@@ -326,26 +324,10 @@ sub init {
         node => $self,
     );
 
-    if ( $model->{rw_config} or $model->{read_config} ) {
+    if ( $model->{rw_config} ) {
         $self->read_config_data( check => $self->read_check );
-        $user_logger->warn("read_config parameter for backend is deprecated. ",
-            "Please use rw_config to specify both read and write parameters.") if $model->{read_config};
-    }
-
-    if (defined $model->{write_config}) {
-        $user_logger->warn("write_config parameter for backend is deprecated. ",
-            "Please use only rw_config to specify both read and write parameters.");
-    }
-
-    # use read_config data if write_config is missing
-    $model->{write_config} ||= dclone $model->{read_config}
-        if defined $model->{read_config};
-
-    if ( $model->{rw_config} || $model->{write_config} ) {
         # setup auto_write
-        $self->backend_mgr->auto_write_init(
-            rw_config     => $model->{rw_config} || $model->{write_config},
-        );
+        $self->backend_mgr->auto_write_init(rw_config => $model->{rw_config});
     }
 
     $self->instance->initial_load($initial_load_backup);
@@ -364,7 +346,7 @@ sub read_config_data {
     # setup auto_read
     # may use an overridden config file
     $self->backend_mgr->read_config_data(
-        rw_config       => $model->{rw_config} || $model->{read_config},
+        rw_config       => $model->{rw_config},
         check           => $args{check},
         config_file     => $args{config_file} || $self->{config_file},
         auto_create     => $args{auto_create} || $self->instance->auto_create,
