@@ -421,14 +421,14 @@ sub auto_write_init {
 
     # ensure that one auto_create specified applies to all wr backends
     my $auto_create = 0;
-    foreach my $write (@array) {
-        $auto_create ||= delete $write->{auto_create}
-            if defined $write->{auto_create};
+    foreach my $rw_config (@array) {
+        $auto_create ||= delete $rw_config->{auto_create}
+            if defined $rw_config->{auto_create};
     }
 
     # provide a proper write back function
-    foreach my $write (@array) {
-        my $backend = delete $write->{backend} || die "undefined write backend\n";;
+    foreach my $rw_config (@array) {
+        my $backend = delete $rw_config->{backend} || die "undefined write backend\n";;
 
         if ( $backend =~ /^(perl|ini|cds)$/ ) {
             warn $self->config_class_name,
@@ -436,12 +436,12 @@ sub auto_write_init {
             $backend .= "_file";
         }
 
-        my $write_dir = $self->get_tuned_config_dir(%$write);
+        my $write_dir = $self->get_tuned_config_dir(%$rw_config);
 
         $logger->trace( "auto_write_init creating write cb ($backend) for ", $self->node->name );
 
         my @wr_args = (
-            %$write,    # model data
+            %$rw_config,    # model data
             auto_create => $auto_create,
             backend     => $backend,
             config_dir  => $write_dir,     # override from instance
@@ -454,7 +454,7 @@ sub auto_write_init {
         $self->{auto_write}{$backend} = 1;
 
         my $wb;
-        my $f = $write->{function} || 'write';
+        my $f = $rw_config->{function} || 'write';
         my $c = load_backend_class( $backend, $f );
         my $location = $self->node->name;
         my $node = $self->node; # closure
@@ -489,10 +489,10 @@ sub auto_write_init {
                 $res = eval { $backend_obj->$f( %backend_args ); };
                 my $error = $@;
                 $logger->warn( "write backend $backend $c" . '::' . "$f failed: $error" ) if $error;
-                $self->close_file_to_write( $error, $fh, $file_path, $write->{file_mode} );
+                $self->close_file_to_write( $error, $fh, $file_path, $rw_config->{file_mode} );
 
                 $self->auto_delete($file_path, \%backend_args)
-                    if $write->{auto_delete} and not $c->skip_open ;
+                    if $rw_config->{auto_delete} and not $c->skip_open ;
             }
 
             return defined $res ? $res : $@ ? 0 : 1;
