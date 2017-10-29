@@ -246,84 +246,60 @@ sub read_config_data {
 
     $logger->trace( "called for node ", $self->node->location );
 
-    my $readlist_orig        = delete $args{rw_config};
+    my $rw_config_orig       = delete $args{rw_config};
     my $check                = delete $args{check};
     my $config_file_override = delete $args{config_file};
     my $auto_create_override = delete $args{auto_create};
 
     croak "unexpected args " . join( ' ', keys %args ) . "\n" if %args;
 
-    my $readlist = dclone $readlist_orig ;
+    my $rw_config = dclone $rw_config_orig ;
 
     my $instance = $self->node->instance();
 
     # root override is passed by the instance
     my $root_dir = $instance->read_root_dir || '';
 
-    my @list;
-    if (ref  $readlist eq 'ARRAY') {
-        $user_logger->warn("Multiple backends are deprecated (read_config)") if @$readlist > 1;
-        @list = @$readlist ;
-    }
-    elsif (ref  $readlist eq 'HASH') {
-        @list = ($readlist);
-    }
-    else {
-        croak "readlist must be a hash ref\n" unless ref $readlist;
-    }
-
-    my $pref_backend = $instance->backend || '';
-    my $read_done    = 0;
-    my $auto_create  = 0;
+    my $auto_create  = $rw_config->{auto_create};
     my @tried;
 
-    foreach my $read (@list) {
-        my $backend = delete $read->{backend} || die "undefined read backend\n";
+        my $backend = delete $rw_config->{backend} || die "undefined read backend\n";
         if ( $backend =~ /^(perl|ini|cds)$/ ) {
             warn $self->config_class_name,
                 " deprecated  backend $backend. Should be '$ {backend}_file'\n";
             $backend .= "_file";
         }
 
-        next if ( $pref_backend and $backend ne $pref_backend );
-
-        if ( defined $read->{allow_empty} ) {
+        if ( defined $rw_config->{allow_empty} ) {
             warn "backend $backend: allow_empty is deprecated. Use auto_create";
-            $auto_create ||= delete $read->{allow_empty};
+            $auto_create ||= delete $rw_config->{allow_empty};
         }
 
-        $auto_create ||= $read->{auto_create} if defined $read->{auto_create};
-
-        if ( $read->{default_layer} ) {
-            $self->read_config_sub_layer( $read, $root_dir, $config_file_override, $check,
+        if ( $rw_config->{default_layer} ) {
+            $self->read_config_sub_layer( $rw_config, $root_dir, $config_file_override, $check,
                 $backend );
         }
 
         my ( $res, $file ) =
-            $self->try_read_backend( $read, $root_dir, $config_file_override, $check, $backend );
+            $self->try_read_backend( $rw_config, $root_dir, $config_file_override, $check, $backend );
         push @tried, $file;
 
-        if ($res) {
-            $read_done = 1;
-            last;
-        }
-    }
 
     Config::Model::Exception::ConfigFile::Missing->throw(
         tried_files => \@tried,
         object      => $self->node,
         )
-        unless $read_done
+        unless $res
         or $auto_create_override
         or $auto_create;
 
 }
 
 sub read_config_sub_layer {
-    my ( $self, $read, $root_dir, $config_file_override, $check, $backend ) = @_;
+    my ( $self, $rw_config, $root_dir, $config_file_override, $check, $backend ) = @_;
 
-    my $layered_config = delete $read->{default_layer};
-    my $layered_read   = dclone $read ;
+    my $layered_config = delete $rw_config->{default_layer};
+    my $layered_read   = dclone $rw_config ;
 
     map { my $lc = delete $layered_config->{$_}; $layered_read->{$_} = $lc if $lc; }
         qw/file config_dir os_config_dir/;
@@ -356,16 +332,16 @@ sub read_config_sub_layer {
 #
 sub try_read_backend {
     my $self                 = shift;
-    my $read                 = shift;
+    my $rw_config            = shift;
     my $root_dir             = shift;
     my $config_file_override = shift;
     my $check                = shift;
     my $backend              = shift;
 
-    my $read_dir = $self->get_tuned_config_dir(%$read);
+    my $read_dir = $self->get_tuned_config_dir(%$rw_config);
 
     my @read_args = (
-        %$read,
+        %$rw_config,
         root        => $root_dir,
         config_dir  => $read_dir,
         backend     => $backend,
@@ -376,9 +352,9 @@ sub try_read_backend {
     my ( $res, $file_path, $error );
 
     warn("function parameter for a backend is deprecated. Please implement 'read' method in backend $backend")
-        if $read->{function};
+        if $rw_config->{function};
     # try to load a specific Backend class
-    my $f = delete $read->{function} || 'read';
+    my $f = delete $rw_config->{function} || 'read';
     my $c = load_backend_class( $backend, $f );
     return ( 0, 'unknown' ) unless defined $c;
 
