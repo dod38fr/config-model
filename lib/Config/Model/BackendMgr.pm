@@ -410,81 +410,81 @@ sub auto_write_init {
     my $auto_create = $rw_config->{auto_create};
 
     # provide a proper write back function
-        my $backend = delete $rw_config->{backend} || die "undefined write backend\n";;
+    my $backend = delete $rw_config->{backend} || die "undefined write backend\n";;
 
-        if ( $backend =~ /^(perl|ini|cds)$/ ) {
-            warn $self->config_class_name,
-                " deprecated backend $backend. Should be '$ {backend}_file'\n";
-            $backend .= "_file";
-        }
+    if ( $backend =~ /^(perl|ini|cds)$/ ) {
+        warn $self->config_class_name,
+            " deprecated backend $backend. Should be '$ {backend}_file'\n";
+        $backend .= "_file";
+    }
 
-        my $write_dir = $self->get_tuned_config_dir(%$rw_config);
+    my $write_dir = $self->get_tuned_config_dir(%$rw_config);
 
-        $logger->trace( "auto_write_init creating write cb ($backend) for ", $self->node->name );
+    $logger->trace( "auto_write_init creating write cb ($backend) for ", $self->node->name );
 
-        my @wr_args = (
-            %$rw_config,    # model data
-            auto_create => $auto_create,
-            backend     => $backend,
-            config_dir  => $write_dir,     # override from instance
-            write       => 1,              # for get_cfg_file_path
-            root        => $root_dir,      # override from instance
+    my @wr_args = (
+        %$rw_config,            # model data
+        auto_create => $auto_create,
+        backend     => $backend,
+        config_dir  => $write_dir,    # override from instance
+        write       => 1,             # for get_cfg_file_path
+        root        => $root_dir,     # override from instance
+    );
+
+    # used bby C::M::Dumper and C::M::DumpAsData
+    # TODO: is this needed once multi backend are removed
+    $self->{auto_write}{$backend} = 1;
+
+    my $wb;
+    my $f = $rw_config->{function} || 'write';
+    my $c = load_backend_class( $backend, $f );
+    my $location = $self->node->name;
+    my $node = $self->node;     # closure
+
+    $wb = sub {
+        my %cb_args = @_;
+
+        my $force_delete = delete $cb_args{force_delete} ;
+        $logger->debug( "write cb ($backend) called for $location ", $force_delete ? '' : ' (deleted)' );
+        my $backend_obj = $self->get_backend($backend)
+            || $c->new( node => $self->node, name => $backend );
+        my $suffix = $backend_obj->suffix if $backend_obj->can('suffix');
+        my ( $file_ok, $file_path, $fh );
+        ( $file_ok, $file_path, $fh ) =
+            $self->open_file_to_write( $backend, suffix => $suffix, @wr_args, %cb_args )
+            unless $c->skip_open;
+
+        # override needed for "save as" button
+        my %backend_args = (
+            @wr_args,
+            io_handle => $fh,
+            file_path => $file_path,
+            object    => $node,
+            %cb_args            # override from user
         );
 
-        # used bby C::M::Dumper and C::M::DumpAsData
-        # TODO: is this needed once multi backend are removed
-        $self->{auto_write}{$backend} = 1;
+        my $res;
+        if ($force_delete) {
+            $backend_obj->delete(%backend_args);
+        }
+        else {
+            $res = eval { $backend_obj->$f( %backend_args ); };
+            my $error = $@;
+            $logger->warn( "write backend $backend $c" . '::' . "$f failed: $error" ) if $error;
+            $self->close_file_to_write( $error, $fh, $file_path, $rw_config->{file_mode} );
 
-        my $wb;
-        my $f = $rw_config->{function} || 'write';
-        my $c = load_backend_class( $backend, $f );
-        my $location = $self->node->name;
-        my $node = $self->node; # closure
+            $self->auto_delete($file_path, \%backend_args)
+                if $rw_config->{auto_delete} and not $c->skip_open ;
+        }
 
-        $wb = sub {
-            my %cb_args = @_;
+        return defined $res ? $res : $@ ? 0 : 1;
+    };
 
-            my $force_delete = delete $cb_args{force_delete} ;
-            $logger->debug( "write cb ($backend) called for $location ", $force_delete ? '' : ' (deleted)' );
-            my $backend_obj = $self->get_backend($backend)
-                || $c->new( node => $self->node, name => $backend );
-            my $suffix = $backend_obj->suffix if $backend_obj->can('suffix');
-            my ( $file_ok, $file_path, $fh );
-            ( $file_ok, $file_path, $fh ) =
-                $self->open_file_to_write( $backend, suffix => $suffix, @wr_args, %cb_args )
-                unless $c->skip_open;
+    # FIXME: enhance write back mechanism so that different backend *and* different nodes
+    # work as expected
+    $logger->trace( "registering write $backend in node " . $self->node->name );
 
-            # override needed for "save as" button
-            my %backend_args = (
-                @wr_args,
-                io_handle => $fh,
-                file_path => $file_path,
-                object    => $node,
-                %cb_args        # override from user
-            );
-
-            my $res;
-            if ($force_delete) {
-                $backend_obj->delete(%backend_args);
-            }
-            else {
-                $res = eval { $backend_obj->$f( %backend_args ); };
-                my $error = $@;
-                $logger->warn( "write backend $backend $c" . '::' . "$f failed: $error" ) if $error;
-                $self->close_file_to_write( $error, $fh, $file_path, $rw_config->{file_mode} );
-
-                $self->auto_delete($file_path, \%backend_args)
-                    if $rw_config->{auto_delete} and not $c->skip_open ;
-            }
-
-            return defined $res ? $res : $@ ? 0 : 1;
-        };
-
-        # FIXME: enhance write back mechanism so that different backend *and* different nodes
-        # work as expected
-        $logger->trace( "registering write $backend in node " . $self->node->name );
-
-        $instance->register_write_back(  $self->node->location, $backend, $wb  );
+    $instance->register_write_back(  $self->node->location, $backend, $wb  );
 }
 
 sub auto_delete {
