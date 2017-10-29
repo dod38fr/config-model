@@ -407,9 +407,7 @@ sub auto_write_init {
     # root override is passed by the instance
     my $root_dir = $instance->write_root_dir || '';
 
-    my $auto_create = $rw_config->{auto_create};
-
-    my $backend = delete $rw_config->{backend};
+    my $backend = $rw_config->{backend};
 
     my $write_dir = $self->get_tuned_config_dir(%$rw_config);
 
@@ -417,8 +415,6 @@ sub auto_write_init {
 
     my @wr_args = (
         %$rw_config,            # model data
-        auto_create => $auto_create,
-        backend     => $backend,
         config_dir  => $write_dir,    # override from instance
         write       => 1,             # for get_cfg_file_path
         root        => $root_dir,     # override from instance
