@@ -688,11 +688,9 @@ sub translate_legacy_info {
     ) if $legacy_logger->is_debug;
 }
 
-# TODO: use 'die' mid November 2017
 sub translate_legacy_backend_info {
     my ( $self, $config_class_name, $model ) = @_;
 
-    my $multi_backend = 0;
     my $has_custom = 0;
     foreach my $config (qw/read_config write_config/) {
         my $ref = $model->{$config};
@@ -702,8 +700,7 @@ sub translate_legacy_backend_info {
                 $model->{$config} = $ref->[0];
             }
             elsif (@$ref > 1){
-                $self->show_legacy_issue("$config_class_name $config: multiple backends are deprecated", 'warn');
-                $multi_backend++;
+                $self->show_legacy_issue("$config_class_name $config: multiple backends are obsolete. You now must use only one backend.", 'die');
             }
         }
     }
@@ -721,15 +718,13 @@ sub translate_legacy_backend_info {
 
     if ($model->{read_config}) {
         $self->show_legacy_issue("$config_class_name: read_config specification is deprecated, please move in rw_config", 'warn');
-        $model->{rw_config} = delete $model->{read_config} unless $multi_backend;
+        $model->{rw_config} = delete $model->{read_config};
     }
 
     if ($model->{write_config}) {
         $self->show_legacy_issue("$config_class_name: write_config specification is deprecated, please merge with read_config and move in rw_config", 'warn');
-        if (not $multi_backend) {
-            map {$model->{rw_config}{$_} = $model->{write_config}{$_} } keys %{$model->{write_config}} ;
-            delete $model->{write_config};
-        }
+        map {$model->{rw_config}{$_} = $model->{write_config}{$_} } keys %{$model->{write_config}} ;
+        delete $model->{write_config};
     }
 }
 
