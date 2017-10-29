@@ -691,11 +691,10 @@ sub translate_legacy_info {
 sub translate_legacy_backend_info {
     my ( $self, $config_class_name, $model ) = @_;
 
-    my $has_custom = 0;
+    # trap multi backend and change array spec into single spec
     foreach my $config (qw/read_config write_config/) {
         my $ref = $model->{$config};
         if ($ref and ref($ref) eq 'ARRAY') {
-            map { $has_custom++ if $_->{backend} eq 'custom' } @$ref;
             if (@$ref == 1) {
                 $model->{$config} = $ref->[0];
             }
@@ -705,27 +704,40 @@ sub translate_legacy_backend_info {
         }
     }
 
-    my $ref = $model->{'rw_config'};
-    if ($ref and $ref->{backend} eq 'custom') {
-        $has_custom++;
-    }
-
-    if ($has_custom) {
-        my $msg = "$config_class_name: custom read/write backend is obsolete."
-            ." Please replace with a backend inheriting Config::Model::Backend::Any";
-        $self->show_legacy_issue( $msg, 'die');
-    }
-
+    # move read_config spec in re_config
     if ($model->{read_config}) {
         $self->show_legacy_issue("$config_class_name: read_config specification is deprecated, please move in rw_config", 'warn');
         $model->{rw_config} = delete $model->{read_config};
     }
 
+    # merge write_config spec in rw_config
     if ($model->{write_config}) {
         $self->show_legacy_issue("$config_class_name: write_config specification is deprecated, please merge with read_config and move in rw_config", 'warn');
         map {$model->{rw_config}{$_} = $model->{write_config}{$_} } keys %{$model->{write_config}} ;
         delete $model->{write_config};
     }
+
+    my $ref = $model->{'rw_config'} || return;
+
+    die "undefined backend in rw_config spec of class $config_class_name\n" unless $ref->{backend} ;
+
+    if ($ref->{backend} eq 'custom') {
+        my $msg = "$config_class_name: custom read/write backend is obsolete."
+            ." Please replace with a backend inheriting Config::Model::Backend::Any";
+        $self->show_legacy_issue( $msg, 'die');
+    }
+
+    if ( $ref->{backend} =~ /^(perl|ini|cds)$/ ) {
+        my $backend = $ref->{backend};
+        $self->show_legacy_issue("$config_class_name: deprecated backend '$backend'. Should be '$ {backend}_file'", 'warn');
+        $ref->{backend} .= "_file";
+    }
+
+    if ( defined $ref->{allow_empty} ) {
+        $self->show_legacy_issue("$config_class_name: backend $ref->{backend}: allow_empty is deprecated. Use auto_create", 'warn');
+        $ref->{auto_create} = delete $ref->{allow_empty};
+    }
+
 }
 
 sub translate_cargo_info {
