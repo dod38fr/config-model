@@ -409,14 +409,7 @@ sub auto_write_init {
 
     my $auto_create = $rw_config->{auto_create};
 
-    # provide a proper write back function
-    my $backend = delete $rw_config->{backend} || die "undefined write backend\n";;
-
-    if ( $backend =~ /^(perl|ini|cds)$/ ) {
-        warn $self->config_class_name,
-            " deprecated backend $backend. Should be '$ {backend}_file'\n";
-        $backend .= "_file";
-    }
+    my $backend = delete $rw_config->{backend};
 
     my $write_dir = $self->get_tuned_config_dir(%$rw_config);
 
@@ -441,6 +434,7 @@ sub auto_write_init {
     my $location = $self->node->name;
     my $node = $self->node;     # closure
 
+    # provide a proper write back function
     $wb = sub {
         my %cb_args = @_;
 
