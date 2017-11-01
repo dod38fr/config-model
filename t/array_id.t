@@ -104,6 +104,7 @@ $model->create_config_class(
 
 $model->create_config_class(
     name    => "Slave",
+    gist => '{X} and {Y}',
     element => [
         [qw/X Y Z/] => {
             type       => 'leaf',
@@ -244,6 +245,13 @@ is( $ol->fetch_with_id(0)->fetch_element('X')->fetch, undef, "check before move"
 $ol->remove(0);
 print $root->dump_tree( ) if $trace;
 is( $ol->fetch_with_id(0)->fetch_element('X')->fetch, 'Bv', "check after move" );
+
+# test node gist in an array display
+my $olgist = $ol->fetch_with_id(5);
+$olgist->fetch_element('X')->store('Av');
+$olgist->fetch_element('Y')->store('Bv');
+
+is($olgist->fetch_gist,'Av and Bv', "check get_display_key");
 
 # test store
 my @test = (
