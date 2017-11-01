@@ -25,6 +25,7 @@ sub load_node {
     if (delete $params{check}) {
         carp "load_node; drop check param. Better let node query the instance";
     }
+    $params{gist} //=  $config_class->{gist} if $config_class->{gist};
     return $node_class->new(%params) ;
 }
 

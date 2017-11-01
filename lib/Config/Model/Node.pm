@@ -73,6 +73,19 @@ has initialized => ( is => 'rw', isa => 'Bool', default => 0 );
 
 has config_class_name => ( is => 'ro', isa => 'Str', required => 1 );
 
+has gist => (
+    is => 'rw',
+    isa => 'Str',
+    default => '',
+);
+
+sub fetch_gist {
+    my $self = shift;
+    my $gist = $self->gist // '';
+    $gist =~ s!{([\w -]+)}!$self->grab_value($1) // '<undef>'!ge;
+    return $gist;
+}
+
 has [qw/config_file element_name/] => ( is => 'ro', isa => 'Maybe[Str]', required => 0 );
 
 has instance => (
@@ -1295,6 +1308,15 @@ Element names can be grouped to save typing:
 
 See below for details on element declaration.
 
+=item B<gist>
+
+String used to construct a summary of the content of a node. This
+parameter is used by user interface to show users the gist of the
+content of this node. This parameter has no other effect. This string
+may contain element values in the form "C<{foo} or {bar}>". When
+constructing the gist, C<{foo}> is replaced by the value of element
+C<foo>. Likewise for C<{bar}>.
+
 =item B<level>
 
 Optional C<list ref> of the elements whose level are different from
@@ -1684,6 +1706,10 @@ element is unknown, or 0 if the element is not available (hidden).
 =head2 fetch_element_value ( name => ... [ check => ...] )
 
 Fetch and returns the I<value> of a leaf element from a node.
+
+=head2 fetch_gist
+
+Return the gist of the node. See description of C<gist> parameter above.
 
 =head2 store_element_value ( name, value )
 
