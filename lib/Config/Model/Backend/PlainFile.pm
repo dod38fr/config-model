@@ -80,6 +80,10 @@ sub read_leaf {
 
     my $v = $file->slurp_utf8;
     chomp($v) unless $obj->value_type eq 'string';
+    if ($logger->is_trace) {
+        (my $str = $v) =~ s/\n.*/[...]/s;
+        $logger->trace("storing leaf value '$str' from $file ");
+    }
     $obj->store( value => $v, check => $check );
 }
 
@@ -89,6 +93,7 @@ sub read_list {
     return unless $file->exists;
 
     my @v = $file->lines_utf8({ chomp => 1});
+    $logger->trace("storing list value @v from $file ");
 
     $obj->store_set(@v);
 }
