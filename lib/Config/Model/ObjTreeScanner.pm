@@ -194,7 +194,7 @@ sub scan_element {
             ( $autov or $node->is_element_defined($element_name) )
             ? $node->fetch_element( name => $element_name, check => $self->{check} )
             : undef;
-        $self->{node_element_cb}->( $self, $data_r, $node, $element_name, undef, $next_obj );
+        $self->{node_element_cb}->( $self, $data_r, $node, $element_name, undef, $next_obj ) if $next_obj;
     }
     elsif ( $element_type eq 'leaf' ) {
         my $next_obj = $node->fetch_element( name => $element_name, check => $self->{check} );
