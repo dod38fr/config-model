@@ -500,6 +500,11 @@ sub get_element_names {
     my $info         = $self->{model};
     my @element_list = @{ $self->{model}{element_list} };
 
+    if ($args{all}) {
+        my @res = grep { $self->{level}{$_} ne 'hidden' } @element_list;
+        return wantarray ? @res : "@res";
+    }
+
     # this is a bit convoluted, but the order of the returned element
     # must respect the order of the elements declared in the model by
     # the user
@@ -1619,13 +1624,20 @@ configuration file.
 
 =head1 Element property management
 
-=head2 get_element_names (  ...  )
+=head2 get_element_names
 
-Return all elements names available.
+Return all available element names, including the element that were accepted.
 
 Optional parameters are:
 
 =over
+
+=item *
+
+B<all>: Boolean. When set return all element names, even the hidden
+ones and does not trigger warp mechanism. Defaults to 0. This option
+should be set to 1 when this method is needed to read configuration data from a
+backend.
 
 =item *
 

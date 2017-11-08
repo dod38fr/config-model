@@ -44,7 +44,8 @@ sub read {
     $logger->trace( "called on node ", $node->name );
 
     # read data from leaf element from the node
-    foreach my $elt ( $node->get_element_name() ) {
+    # do not trigger warp when getting element names
+    foreach my $elt ( $node->get_element_names(all => 1) ) {
         my $obj = $args{object}->fetch_element( name => $elt );
 
         my $dir = path($args{root} . $dir);
