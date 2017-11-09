@@ -348,7 +348,7 @@ sub full_message {
             $msg .= "\t"
                 . $parent->fetch_element(
                 name => $element_name,
-                qw/master check no accept_hidden 1/
+                qw/check no accept_hidden 1/
                 )->warp_error;
         }
     }
