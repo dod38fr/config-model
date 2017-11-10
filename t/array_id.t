@@ -183,6 +183,8 @@ is( $b->fetch_with_id(7)->annotation,
 my @all = $b->fetch_all_values;
 eq_or_diff( \@all, [qw/baz bar toto titi toto titi toto2/], "check fetch_all_values" );
 
+is( $b->fetch, 'baz,bar,toto,titi,toto,titi,toto2', "check fetch" );
+
 my $lac = $root->fetch_element('list_with_auto_created_id');
 eq_or_diff( [ $lac->fetch_all_indexes ], [ 0 .. 3 ], "check list_with_auto_created_id" );
 
