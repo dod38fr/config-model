@@ -255,7 +255,7 @@ sub check {
     }
 
     my @changed;
-    map { push @changed, $_ if $self->store( $_, 1, $check ) } @list;
+    map { push @changed, $_ if $self->_store( $_, 1, $check ) } @list;
 
     $self->notify_change( note => "check @changed" )
         unless $self->instance->initial_load;
@@ -286,7 +286,7 @@ sub clear_item {
 }
 
 # internal
-sub store {
+sub _store {
     my ( $self, $choice, $value, $check ) = @_;
 
     my $inst = $self->instance;
@@ -350,7 +350,7 @@ sub uncheck {
     }
 
     my @changed;
-    map { push @changed, $_ if $self->store( $_, 0, $check ) } @list;
+    map { push @changed, $_ if $self->_store( $_, 0, $check ) } @list;
 
     $self->notify_change( note => "uncheck @changed" )
         unless $self->instance->initial_load;
@@ -602,7 +602,7 @@ sub set_checked_list {
     my @changed;
 
     foreach my $c ( $self->get_choice ) {
-        push @changed, $c if $self->store( $c, $set{$c} // 0 );
+        push @changed, $c if $self->_store( $c, $set{$c} // 0 );
     }
 
     $self->{ordered_data} = [@_];    # copy list
@@ -617,7 +617,7 @@ sub set_checked_list_as_hash {
 
     foreach my $c ( $self->get_choice ) {
         if ( defined $check{$c} ) {
-            $self->store( $c, $check{$c} );
+            $self->_store( $c, $check{$c} );
         }
         else {
             $self->clear_item($c);
