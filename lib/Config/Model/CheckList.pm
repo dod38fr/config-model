@@ -587,8 +587,16 @@ sub set {
 }
 
 sub load {
-    my ( $self, $string ) = @_;
-    my @set = split /,/, $string;
+    goto &store;
+}
+
+sub store     {
+    my $self = shift;
+     my %args =
+          @_ == 1 ? ( value => $_[0] )
+        : @_ == 3 ? ( 'value', @_ )
+        :           @_;
+    my @set = split /\s*,\s*/, $args{value};
     foreach (@set) { s/^"|"$//g; s/\\"/"/g; }
     $self->set_checked_list(@set);
 }
@@ -1106,7 +1114,7 @@ should be empty. The values are a comma separated list of checked items.
 
 Example : C<< $leaf->set('','A,C,Z') ; >>
 
-=head2 set_checked_list ( item1, item2, ..)
+=head2 set_checked_list
 
 Set all passed items to checked (1). All other available items
 in the check list are set to 0.
@@ -1115,6 +1123,25 @@ Example:
 
   # set cl to A=0 B=1 C=0 D=1
   $cl->set_checked_list('B','D')
+
+=head2 store_set
+
+Alias to L</set_checked_list>, so a list and a check_list can use the same store method
+
+=head2 store
+
+Set all items listed in a string to checked. The items must be
+separated by commas. All other available items in the check list are
+set to 0.
+
+Example:
+
+  $cl->store('B, D')
+  $cl->store( value => 'B,C' )
+
+=head2 load
+
+Alias to L</store>.
 
 =head2 set_checked_list_as_hash ()
 

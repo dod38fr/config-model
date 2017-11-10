@@ -204,6 +204,14 @@ is( $cl->get_help('A'), 'A help', "test help" );
 
 is( $inst->needs_save, 0, "verify instance needs_save status after reading meta data" );
 
+# test with the polymorphic 'store' method
+$cl->store( value => 'S,T ,  O, R, E' );
+ok( 1, "test store method" );
+@got = $cl->get_checked_list;
+is( scalar @got, 5, "test nb of elt in check_list after set" );
+is_deeply( \@got, [sort qw/S T O R E/], "test get_checked_list after set" );
+$inst->clear_changes;
+
 # test with the polymorphic 'set' method
 $cl->set( '', 'A,Z,Y,B' );
 ok( 1, "test set method" );
