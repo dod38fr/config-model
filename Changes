@@ -1,5 +1,34 @@
 {{$NEXT}}
 
+2.114 2017-11-11
+
+  On-going backend deprecation (which might be breaking):
+    * support for multiple backends is now removed. Attempting to
+      configure multiple backend leads to an error message with
+      explanations.
+    * when possible (i.e. when only one backend is specified),
+      translate read_config and write_config in new rw_config. This
+      should limit breakage to the minimum as multiple backends are
+      seldom (if ever) used.
+
+  New features:
+    * AnyId: add fetch method
+    * CheckList: add store method
+    * Node: add gist parameter and fetch_gist method to get a summary
+      of node content to be shown in user interface.
+
+  Bug fixes:
+    * Exception: fix call to fetch_element
+    * ObjTreeScanner: Don't try to scan warped out node elements
+    * Instance: no longer show diff-like changes
+    * clean up check on node init (gh #15)
+    * AnyId: add notification triggered by adding a new element to a
+      hash or array.
+
+  Build changes:
+    * no longer use Text::Diff
+
+
 2.113 2017-10-12
 
   On-going backend deprecations:
