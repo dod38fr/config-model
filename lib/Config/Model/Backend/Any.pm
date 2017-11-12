@@ -24,10 +24,6 @@ has 'node' => (
 sub skip_open { return 0; }
 
 sub suffix {
-    my $self = shift;
-    $logger->info(
-        "Internal warning: suffix called for backend $self->{name}.This method can be overloaded"
-    );
     return undef;
 }
 
@@ -174,11 +170,6 @@ __END__
  use Mouse ;
 
  extends 'Config::Model::Backend::Any';
-
- # optional
- sub suffix {
-   return '.conf';
- }
 
  # mandatory
  sub read {
@@ -374,10 +365,6 @@ L<Config::Model::Node>.
 Whether the backend supports reading and writing annotation (a.k.a
 comments). Default is 0. Override this method to return 1 if your
 backend supports annotations.
-
-=head2 suffix
-
-Suffix of the configuration file. This method returns C<undef> by default.
 
 =head2 read
 
