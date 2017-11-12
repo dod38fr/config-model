@@ -140,6 +140,8 @@ sub get_cfg_file_path {
     my $i    = $self->node->instance;
     my $name = $dir . $i->name;
 
+    warn "constructing config file name with instance name (",$i->name,") is deprecated.\n";
+
     # append ":foo bar" if not root object
     my $loc = $self->node->location;    # not very good
     if ($loc) {
