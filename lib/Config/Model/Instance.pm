@@ -45,6 +45,7 @@ has check => (
     reader  => 'read_check',
 );
 
+# used by cme -create option
 has auto_create => (
     is      => 'ro',
     isa     => 'Bool',
