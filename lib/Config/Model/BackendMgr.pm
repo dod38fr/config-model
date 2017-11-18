@@ -36,12 +36,11 @@ has 'node' => (
     required => 1
 );
 has 'file_backup' => ( is => 'rw', isa => 'ArrayRef', default => sub { [] } );
+
 has 'backend' => (
     is      => 'rw',
-    isa     => 'HashRef[Config::Model::Backend::Any]',
-    traits  => ['Hash'],
-    default => sub { {} },
-    handles => { set_backend => 'set', get_backend => 'get' } );
+    isa     => 'Config::Model::Backend::Any',
+);
 
 # Configuration directory where to read and write files. This value
 # does not override the configuration directory specified in the model
@@ -348,7 +347,7 @@ sub try_read_backend {
 
     no strict 'refs';
     my $backend_obj = $c->new( node => $self->node, name => $backend );
-    $self->set_backend( $backend => $backend_obj );
+    $self->backend($backend_obj);
     my ($file_ok, $fh, $suffix);
     $suffix = $backend_obj->suffix if $backend_obj->can('suffix');
     ( $file_ok, $file_path ) = $self->get_cfg_file_path(
@@ -441,7 +440,7 @@ sub auto_write_init {
 
         my $force_delete = delete $cb_args{force_delete} ;
         $logger->debug( "write cb ($backend) called for $location ", $force_delete ? '' : ' (deleted)' );
-        my $backend_obj = $self->get_backend($backend)
+        my $backend_obj = $self->backend()
             || $c->new( node => $self->node, name => $backend );
         my $suffix = $backend_obj->suffix if $backend_obj->can('suffix');
         my ( $file_ok, $file_path, $fh );
