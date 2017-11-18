@@ -334,11 +334,12 @@ sub init {
         # config_dir spec given by application info
         config_dir      => $self->instance->config_dir,
         node => $self,
+        rw_config => $model->{rw_config}
     );
 
     $self->read_config_data( check => $self->read_check );
     # setup auto_write
-    $self->backend_mgr->auto_write_init(rw_config => $model->{rw_config});
+    $self->backend_mgr->auto_write_init();
 
     $self->instance->initial_load($initial_load_backup);
 }
@@ -356,7 +357,6 @@ sub read_config_data {
     # setup auto_read
     # may use an overridden config file
     $self->backend_mgr->read_config_data(
-        rw_config       => $model->{rw_config},
         check           => $args{check},
         config_file     => $args{config_file} || $self->{config_file},
         auto_create     => $args{auto_create} || $self->instance->auto_create,

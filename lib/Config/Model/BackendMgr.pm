@@ -37,6 +37,12 @@ has 'node' => (
 );
 has 'file_backup' => ( is => 'rw', isa => 'ArrayRef', default => sub { [] } );
 
+has 'rw_config' => (
+    is => 'ro',
+    isa => 'HashRef',
+    required => 1
+);
+
 has 'backend' => (
     is      => 'rw',
     isa     => 'Config::Model::Backend::Any',
@@ -250,14 +256,13 @@ sub read_config_data {
 
     $logger->trace( "called for node ", $self->node->location );
 
-    my $rw_config_orig       = delete $args{rw_config};
     my $check                = delete $args{check};
     my $config_file_override = delete $args{config_file};
     my $auto_create_override = delete $args{auto_create};
 
     croak "unexpected args " . join( ' ', keys %args ) . "\n" if %args;
 
-    my $rw_config = dclone $rw_config_orig ;
+    my $rw_config = dclone $self->rw_config ;
 
     my $instance = $self->node->instance();
 
@@ -399,12 +404,11 @@ sub try_read_backend {
 
 sub auto_write_init {
     my ( $self, %args ) = @_;
-    my $rw_config_orig = delete $args{rw_config};
 
     croak "auto_write_init: unexpected args " . join( ' ', sort keys %args ) . "\n"
         if %args;
 
-    my $rw_config = dclone $rw_config_orig ;
+    my $rw_config = dclone $self->rw_config ;
 
     my $instance = $self->node->instance();
 
