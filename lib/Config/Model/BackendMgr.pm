@@ -239,14 +239,18 @@ sub load_backend_class {
         }
     }
 
-    return unless defined $class_to_load;
+    if (not defined  $class_to_load) {
+        Config::Model::Exception::Model->throw(
+            error => "backend error: cannot find Perl class for backend $backend ",
+        );
+    };
     my $file_to_load = $c{$class_to_load};
 
     $logger->trace("load_backend_class: loading class $class_to_load, $file_to_load");
     eval { require $file_to_load; };
 
     if ($@) {
-        die "Could not parse $file_to_load: $@\n";
+        die "Error with backend $backend: could not parse $file_to_load: $@\n";
     }
     return $class_to_load;
 }
@@ -348,7 +352,6 @@ sub try_read_backend {
     # try to load a specific Backend class
     my $f = delete $rw_config->{function} || 'read';
     my $c = load_backend_class( $backend, $f );
-    return ( 0, 'unknown' ) unless defined $c;
 
     no strict 'refs';
     my $backend_obj = $c->new( node => $self->node, name => $backend );
