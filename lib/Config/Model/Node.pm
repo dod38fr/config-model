@@ -325,8 +325,7 @@ sub init {
 
     my $model = $self->{model};
 
-    return
-        unless defined $model->{rw_config};
+    return unless defined $model->{rw_config};
 
     my $initial_load_backup = $self->instance->initial_load;
     $self->instance->initial_load_start;
@@ -337,11 +336,9 @@ sub init {
         node => $self,
     );
 
-    if ( $model->{rw_config} ) {
-        $self->read_config_data( check => $self->read_check );
-        # setup auto_write
-        $self->backend_mgr->auto_write_init(rw_config => $model->{rw_config});
-    }
+    $self->read_config_data( check => $self->read_check );
+    # setup auto_write
+    $self->backend_mgr->auto_write_init(rw_config => $model->{rw_config});
 
     $self->instance->initial_load($initial_load_backup);
 }
