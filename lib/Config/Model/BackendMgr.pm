@@ -14,7 +14,7 @@ use File::Copy;
 use File::HomeDir;
 use IO::File;
 use Storable qw/dclone/;
-use Scalar::Util qw/weaken/;
+use Scalar::Util qw/weaken reftype/;
 use Log::Log4perl qw(get_logger :levels);
 use Path::Tiny 0.070;
 
@@ -46,7 +46,23 @@ has 'rw_config' => (
 has 'backend' => (
     is      => 'rw',
     isa     => 'Config::Model::Backend::Any',
+    lazy    => 1 ,
+    builder => '_build_backend',
 );
+
+sub _build_backend {
+    my $self = shift;
+
+    my $backend = $self->rw_config->{backend};
+    warn("function parameter for a backend is deprecated. Please implement 'read' method in backend $backend")
+        if $self->rw_config->{function};
+    # try to load a specific Backend class
+    my $f = $self->rw_config->{function} || 'read';
+    my $c = load_backend_class( $backend, $f );
+
+    no strict 'refs';
+    return $c->new( node => $self->node, name => $backend );
+}
 
 # Configuration directory where to read and write files. This value
 # does not override the configuration directory specified in the model
@@ -347,28 +363,22 @@ sub try_read_backend {
 
     my ( $res, $file_path, $error );
 
-    warn("function parameter for a backend is deprecated. Please implement 'read' method in backend $backend")
-        if $rw_config->{function};
-    # try to load a specific Backend class
-    my $f = delete $rw_config->{function} || 'read';
-    my $c = load_backend_class( $backend, $f );
+    my $backend_obj = $self->backend();
 
-    no strict 'refs';
-    my $backend_obj = $c->new( node => $self->node, name => $backend );
-    $self->backend($backend_obj);
     my ($file_ok, $fh, $suffix);
     $suffix = $backend_obj->suffix if $backend_obj->can('suffix');
     ( $file_ok, $file_path ) = $self->get_cfg_file_path(
         @read_args,
         suffix => $suffix,
-        skip_compute => $c->skip_open,
+        skip_compute => $backend_obj->skip_open,
     );
     $fh = $self->open_read_file($file_path)
-        if $file_ok and not $c->skip_open;
+        if $file_ok and not $backend_obj->skip_open;
 
+    my $f = $self->rw_config->{function} || 'read';
     if ($logger->is_info) {
         my $fp = defined $file_path ? " on $file_path":'' ;
-        $logger->info( "Read with $backend " . $c . "::$f".$fp);
+        $logger->info( "Read with $backend " . reftype($backend_obj) . "::$f".$fp);
     }
 
     eval {
@@ -447,8 +457,7 @@ sub auto_write_init {
 
         my $force_delete = delete $cb_args{force_delete} ;
         $logger->debug( "write cb ($backend) called for $location ", $force_delete ? '' : ' (deleted)' );
-        my $backend_obj = $self->backend()
-            || $c->new( node => $self->node, name => $backend );
+        my $backend_obj = $self->backend();
         my $suffix = $backend_obj->suffix if $backend_obj->can('suffix');
         my ( $file_ok, $file_path, $fh );
         ( $file_ok, $file_path, $fh ) =
