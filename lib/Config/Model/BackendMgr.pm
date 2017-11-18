@@ -171,7 +171,7 @@ sub get_cfg_file_path {
 }
 
 sub open_read_file {
-    my ($self, $backend, $file_path) = @_;
+    my ($self, $file_path) = @_;
 
     if ( $file_path eq '-' ) {
         my $io = IO::Handle->new();
@@ -274,7 +274,7 @@ sub read_config_data {
     my $root_dir = $instance->read_root_dir || '';
 
     my $auto_create  = $rw_config->{auto_create};
-    my $backend = delete $rw_config->{backend};
+    my $backend = $rw_config->{backend};
 
     if ( $rw_config->{default_layer} ) {
         $self->read_config_sub_layer( $rw_config, $root_dir, $config_file_override, $check,
@@ -363,7 +363,7 @@ sub try_read_backend {
         suffix => $suffix,
         skip_compute => $c->skip_open,
     );
-    $fh = $self->open_read_file($backend, $file_path)
+    $fh = $self->open_read_file($file_path)
         if $file_ok and not $c->skip_open;
 
     if ($logger->is_info) {
