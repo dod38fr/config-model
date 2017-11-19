@@ -18,14 +18,8 @@ use Scalar::Util qw/weaken reftype/;
 use Log::Log4perl qw(get_logger :levels);
 use Path::Tiny 0.070;
 
-with "Config::Model::Role::ComputeFunction";
-
 my $logger = get_logger('BackendMgr');
 my $user_logger = get_logger('User');
-
-# used only for tests
-my $__test_home = '';
-sub _set_test_home { $__test_home = shift; }
 
 # one BackendMgr per file
 
@@ -75,19 +69,8 @@ has support_annotation => (
     default => 0,
 );
 
-sub get_tuned_config_dir {
-    my ($self, %args) = @_;
-
-    my $dir = $args{os_config_dir}{$^O} || $args{config_dir} || $self->config_dir || '';
-    if ( $dir =~ /^~/ ) {
-        my $home = $__test_home || File::HomeDir->my_home;
-        $dir =~ s/^~/$home/;
-    }
-
-    $dir .= '/' if $dir and $dir !~ m(/$);
-
-    return $dir;
-}
+with "Config::Model::Role::ComputeFunction";
+with "Config::Model::Role::FileHandler";
 
 # check if dir is present. May create it in auto_create write mode
 sub get_cfg_dir_path {
