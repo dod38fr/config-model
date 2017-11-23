@@ -82,7 +82,7 @@ has gist => (
 sub fetch_gist {
     my $self = shift;
     my $gist = $self->gist // '';
-    $gist =~ s!{([\w -]+)}!$self->grab_value($1) // '<undef>'!ge;
+    $gist =~ s!{([\w -]+)}!$self->grab($1)->fetch // ''!ge;
     return $gist;
 }
 
