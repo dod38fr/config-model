@@ -357,11 +357,15 @@ sub _assert_leaf_cargo {
     ) unless $ct eq 'leaf';
 }
 
+sub sort_algorithm {
+    return sub { $_[0]->fetch cmp $_[1]->fetch; };
+}
+
 sub sort {
     my $self = shift;
 
     $self->_assert_leaf_cargo;
-    $self->_sort_data( sub { $_[0]->fetch cmp $_[1]->fetch; } );
+    $self->_sort_data( $self->sort_algorithm );
 
     my $has_changed = $self->_reindex;
     $self->notify_change( note => "sorted" ) if $has_changed;
@@ -627,6 +631,12 @@ For instance
    $elt->load_data( data => 'foo,bar', split_reg => qr(,) ) ;
 
 loads C< [ 'foo','bar']> in C<$elt>
+
+=head2 sort_algorithm
+
+Returns a sub used to sort the list elements. See
+L<perlfunc/sort>. Used only for list of leaves. This method can be
+overridden to alter sort order.
 
 =head1 AUTHOR
 
