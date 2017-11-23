@@ -71,7 +71,7 @@ sub config_model {
 # Forward selected methods (See man perltootc)
 foreach my $method (
     qw/fetch_element config_class_name copy_from get_element_name
-    gist has_element is_element_available element_type load
+    fetch_gist has_element is_element_available element_type load
     fetch_element_value get_type get_cargo_type dump_tree needs_save
     describe get_help get_help_as_text children get set accept_regexp/
     ) {
