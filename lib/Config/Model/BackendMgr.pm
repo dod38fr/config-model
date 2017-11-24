@@ -37,14 +37,14 @@ has 'rw_config' => (
     required => 1
 );
 
-has 'backend' => (
+has 'backend_obj' => (
     is      => 'rw',
     isa     => 'Config::Model::Backend::Any',
     lazy    => 1 ,
-    builder => '_build_backend',
+    builder => '_build_backend_obj',
 );
 
-sub _build_backend {
+sub _build_backend_obj {
     my $self = shift;
 
     my $backend = $self->rw_config->{backend};
@@ -346,7 +346,7 @@ sub try_read_backend {
 
     my ( $res, $file_path, $error );
 
-    my $backend_obj = $self->backend();
+    my $backend_obj = $self->backend_obj();
 
     my ($file_ok, $fh, $suffix);
     $suffix = $backend_obj->suffix if $backend_obj->can('suffix');
@@ -440,7 +440,7 @@ sub auto_write_init {
 
         my $force_delete = delete $cb_args{force_delete} ;
         $logger->debug( "write cb ($backend) called for $location ", $force_delete ? '' : ' (deleted)' );
-        my $backend_obj = $self->backend();
+        my $backend_obj = $self->backend_obj();
         my $suffix = $backend_obj->suffix if $backend_obj->can('suffix');
         my ( $file_ok, $file_path, $fh );
         ( $file_ok, $file_path, $fh ) =
