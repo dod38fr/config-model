@@ -80,11 +80,13 @@ sub read {
             $section = $force_lc{section} ? lc($1) : $1;
             my $remap = $section_map->{$section} || '';
             if ( $remap eq '!' ) {
+                # section_map maps section to root node
                 $section_ref = $ini_data;
                 $comment_path = $section_path = '';
                 $logger->debug("step 1: found node <top> [$section]");
             }
             elsif ($remap) {
+                # section_map maps section to some node
                 $section_ref = {};
                 $logger->debug("step 1: found node $remap [$section]");
                 $section_path = $comment_path =
