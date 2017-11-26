@@ -38,11 +38,16 @@ sub read {
     my @assoc = $self->associates_comments_with_data( \@lines, '#' );
     foreach my $item (@assoc) {
         my ( $data, $c ) = @$item;
-        $data =~ s/\s*=\s*/=/;                   # make reader quite tolerant
-        my $load = qq!$data!;
-        $load .= qq!#"$c"! if $c;
-        $logger->debug("Loading:$load\n");
-        $self->node->load( step => $load, check => $check );
+        my ($k,$v) = split /\s*=\s*/, $data, 2; # make reader quite tolerant
+        $v =~ s/^["']|["']$//g;
+        if ($logger->is_debug) {
+            my $msg = "Loading key '$k' value '$v'";
+            $msg .= " comment: '$c'" if $c;
+            $logger->debug($msg);
+        }
+        my $obj = $self->node->fetch_element($k);
+        $obj->store( value => $v, check => $check );
+        $obj->annotation($c) if $c;
     }
 
     return 1;
