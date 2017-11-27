@@ -764,7 +764,7 @@ is overridden by C<root_dir> parameter.
 
 If you need to load configuration data that are not correct, you can
 use C<< force_load => 1 >>. Then, wrong data are discarded (equivalent to
-C<check => 'no'> ).
+C<< check => 'no' >> ).
 
 =head1 METHODS
 
