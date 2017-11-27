@@ -935,14 +935,27 @@ Clear all layered values stored.
 
 =head2 get_data_mode 
 
-Returns 'normal' or 'preset' or 'layered'. Does not take into account initial_load.
+Returns 'normal' or 'preset' or 'layered'. Does not take into account
+initial_load.
 
-=head2 initial_load_stop ()
+=head2 initial_load_start
+
+Start initial_load mode. This mode tracks the first modifications of
+the tree done with data read from the configuration file.
+
+Instance is built with initial_load as 1. Read backend clears this
+value once the first read is done.
+
+Other modifications, when initial_load is zero, are assumed to be user
+modifications.
+
+
+=head2 initial_load_stop
 
 Stop initial_load mode. Instance is built with initial_load as 1. Read backend
 clears this value once the first read is done.
 
-=head2 initial_load ()
+=head2 initial_load
 
 Get initial_load mode
 
