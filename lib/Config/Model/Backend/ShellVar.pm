@@ -5,10 +5,26 @@ use Mouse;
 use Config::Model::Exception;
 use File::Path;
 use Log::Log4perl qw(get_logger :levels);
+use Config::Model::BackendTrackOrder;
 
 extends 'Config::Model::Backend::Any';
 
 my $logger = get_logger("Backend::ShellVar");
+
+has tracker => (
+    is => 'ro',
+    isa => 'Config::Model::BackendTrackOrder',
+    lazy_build => 1,
+    handles => [qw/get_ordered_element_names/],
+);
+
+sub _build_tracker {
+    my $self = shift;
+    return Config::Model::BackendTrackOrder->new(
+        backend_obj => $self,
+        node => $self->node,
+    ) ;
+}
 
 sub suffix { return '.conf'; }
 
@@ -45,6 +61,7 @@ sub read {
             $msg .= " comment: '$c'" if $c;
             $logger->debug($msg);
         }
+        $self->tracker->register_element($k);
         my $obj = $self->node->fetch_element($k);
         $obj->store( value => $v, check => $check );
         $obj->annotation($c) if $c;
@@ -74,7 +91,7 @@ sub write {
     my @to_write;
 
     # Using Config::Model::ObjTreeScanner would be overkill
-    foreach my $elt ( $node->get_element_name ) {
+    foreach my $elt ( $self->get_ordered_element_names ) {
         my $obj = $node->fetch_element($elt);
         my $v   = $node->grab_value($elt);
 

@@ -79,7 +79,8 @@ has appli_info => (
 
 # preset mode:  to load values found by HW scan or other automatic scheme
 # layered mode: to load values found in included files (e.g. a la multistrap)
-has [qw/preset layered/] => (
+# canonical mode: write config data back using model order instead of user order
+has [qw/preset layered canonical/] => (
     is      => 'ro',
     isa     => 'Bool',
     default => 0,
@@ -738,6 +739,12 @@ Check value and skip bad value.
 Do not check.
 
 =back
+
+=item canonical
+
+When true: write config data back using model order. By default, write
+items back using the order found in the configuration file. This
+feature is experimental and not supported by all backends.
 
 =item on_change_cb
 

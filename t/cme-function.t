@@ -27,6 +27,7 @@ $conf_file->spew(@orig);
     my $instance = cme(
         application => 'popcon',
         root_dir => $wr_dir->stringify,
+        canonical => 1,
     );
 
     ok($instance,"new instance created");
@@ -34,7 +35,7 @@ $conf_file->spew(@orig);
 
 {
     my $instance = cme('popcon');
-    ok($instance,"instance found");
+    ok($instance,"found instance created above");
 
     # test minimal modif (re-order)
     $instance->save(force => 1);

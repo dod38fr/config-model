@@ -18,7 +18,7 @@ has 'node' => (
     isa      => 'Config::Model::Node',
     weak_ref => 1,
     required => 1,
-    handles => ['show_message', 'instance'],
+    handles => [ qw/show_message instance get_element_names/],
 );
 
 sub skip_open { return 0; }
