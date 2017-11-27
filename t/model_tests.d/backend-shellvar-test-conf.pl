@@ -31,8 +31,15 @@ $model_to_test = "Shelly";
         check => [
             foo => 'ok',
             bar => "with space"
-        ]
+        ],
     },
+    {
+        # data is written in file not using canonical order
+        name => 'keep-order',
+        file_contents_like => {
+            "/etc/foo.conf" => [ qr/bar="with space"\nfoo="ok"/m ] ,
+        }
+    }
 );
 
 1;
