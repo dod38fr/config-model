@@ -437,18 +437,20 @@ my %dispatch_action = (
     # (%load_value_dispatch) because the signture of the sub ref are
     # different between the 2 dispatch tables.
     leaf => {
-        ':-=' => \&_remove_by_value,
-        ':-~' => \&_remove_matched_value,
-        ':=~' => \&_substitute_value,
+        ':.rm_value' => \&_remove_by_value,
+        ':.rm_match' => \&_remove_matched_value,
+        ':.subtitute' => \&_substitute_value,
     },
     fallback => {
-        ':-' => \&_remove_by_id,
-        '~'  => \&_remove_by_id,
+        ':.rm' => \&_remove_by_id,
     }
 );
 
 my %equiv = (
     list_leaf => { qw/:@ :.sort :< :.push :> :.unshift/ },
+    # fix for cme gh#2
+    leaf => { qw/:-= :.rm_value :-~ :.rm_match :=~ :.subtitute/ },
+    fallback => { qw/:- :.rm ~ :.rm/ },
 );
 
 while ( my ($target, $sub_equiv) = each %equiv) {
@@ -1054,24 +1056,24 @@ In the examples below only C<DX=BV> is executed by the loop:
 The loop is done on all elements of the hash when no value is passed
 after "C<:~>" (mnemonic: an empty regexp matches any value).
 
-=item xxx:-yy
+=item xxx:.rm(yy) or xxx:-yy
 
 Delete item referenced by C<xxx> element and id C<yy>. For a list,
 this is equivalent to C<splice xxx,yy,1>. This command does not go
 down in the tree (since it has just deleted the element). I.e. a
 'C<->' is generally not needed afterwards.
 
-=item xxx:-=yy
+=item xxx:.rm_value(yy) or xxx:-=yy
 
 Remove the element whose value is C<yy>. For list or hash of leaves.
 Does not not complain if the value to delete is not found.
 
-=item xxx:-~/yy/
+=item xxx:..rm_match(yy) or xxx:-~/yy/
 
 Remove the element whose value matches C<yy>. For list or hash of leaves.
 Does not not complain if no value were deleted.
 
-=item xxx:=~s/yy/zz/
+=item xxx:.substitute(/yy/zz/) or xxx=~s/yy/zz/
 
 Substitute a value with another. Perl switches can be used(e.g. C<xxx:=~s/yy/zz/gi>)
 
