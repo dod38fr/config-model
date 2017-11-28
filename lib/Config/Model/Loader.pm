@@ -433,6 +433,9 @@ my %dispatch_action = (
         ':.copy'          => sub { $_[1]->copy( $_[5], $_[6] ); return 'ok'; },
         ':.clear'         => sub { $_[1]->clear; return 'ok';},
     },
+    # part of list or hash. leaf element have their own dispatch table
+    # (%load_value_dispatch) because the signture of the sub ref are
+    # different between the 2 dispatch tables.
     leaf => {
         ':-=' => \&_remove_by_value,
         ':-~' => \&_remove_matched_value,
@@ -444,10 +447,14 @@ my %dispatch_action = (
     }
 );
 
-my @equiv = qw/:@ :.sort :< :.push :> :.unshift/;
-while (@equiv) {
-    my ( $to, $from ) = splice @equiv, 0, 2;
-    $dispatch_action{list_leaf}{$to} = $dispatch_action{list_leaf}{$from};
+my %equiv = (
+    list_leaf => { qw/:@ :.sort :< :.push :> :.unshift/ },
+);
+
+while ( my ($target, $sub_equiv) = each %equiv) {
+    while ( my ($new_action, $existing_action) = each %$sub_equiv) {
+        $dispatch_action{$target}{$new_action} = $dispatch_action{$target}{$existing_action};
+    }
 }
 
 sub _insert_before {
