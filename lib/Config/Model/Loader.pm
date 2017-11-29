@@ -636,13 +636,15 @@ sub _load_hash {
         );
     }
 
-    if ( $action eq ':~' ) {
+    # loop requires $subaction so does not fit in the dispath table
+    if ( $action eq ':~' or $action eq ':.foreach_match' ) {
         my @keys = $element->fetch_all_indexes;
         my $ret  = 'ok';
-        $id =~ s!^/|/$!!g if $id;
-        my @loop_on = $id ? grep { /$id/ } @keys : @keys;
+        my $pattern = $id // $f_arg;
+        $pattern =~ s!^/|/$!!g if $pattern;
+        my @loop_on = $pattern ? grep { /$pattern/ } @keys : @keys;
         if ($logger->is_debug) {
-            my $str = $id ? " with regex /$id/" : '';
+            my $str = $pattern ? " with regex /$pattern/" : '';
             $logger->debug("_load_hash: looping$str on keys @loop_on");
         }
 
@@ -1028,7 +1030,7 @@ Go down using C<xxx> element and id C<yy> (For C<hash> or C<list>
 element with C<node> cargo_type). Literal C<\n> are replaced by
 real C<\n> (LF in Unix).
 
-=item xxx:~yy
+=item xxx:.foreach_match(yy) or xxx:~yy
 
 Go down using C<xxx> element and loop over the ids that match the regex
 specified by C<yy>. (For C<hash>).
