@@ -346,6 +346,7 @@ is( $root->grab_value('std_id:ab DX'), 'Av', "check looped assign 1" );
 is( $root->grab_value('std_id:bc DX'), 'Av', "check looped assign 2" );
 is( $root->grab_value('std_id:"a b" DX'), 'Av', "check looped assign 3" );
 
+#$root->load('std_id:.foreach_match("/^\w+$/") DX=Bv - int_v=9');
 $root->load('std_id:~/^\w+$/ DX=Bv - int_v=9');
 is( $root->grab_value('std_id:ab DX'), 'Bv', "check looped assign 1" );
 is( $root->grab_value('std_id:bc DX'), 'Bv', "check looped assign 2" );
