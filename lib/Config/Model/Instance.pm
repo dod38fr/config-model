@@ -504,6 +504,10 @@ sub write_back {
 
     my $force_write   = delete $args{force}   || 0;
 
+    if (delete $args{root}) {
+        say "write_back: root argument is no longer supported";
+    }
+
     # make sure that root node is loaded
     $self->config_root->init;
 
@@ -512,12 +516,12 @@ sub write_back {
         my $dump = $self->config_root->dump_tree;
     }
 
-    foreach ( keys %args ) {
-        if (/^(root|config_dir)$/) {
+    foreach my $k ( keys %args ) {
+        if ($k eq 'config_dir') {
             $args{$_} ||= '';
             $args{$_} .= '/' if $args{$_} and $args{$_} !~ m(/$);
         }
-        elsif ( not /^(config_file|backend)$/ ) {
+        elsif ( $k !~ /^(config_file|backend)$/ ) {
             croak "write_back: wrong parameters $_";
         }
     }
@@ -977,7 +981,7 @@ The data method provide a way to store some arbitrary data in the
 instance object.
 
 
-=head1 Auto read and write feature
+=head1 Read and write backend features
 
 Usually, a program based on config model must first create the
 configuration model, then load all configuration data. 
@@ -1020,10 +1024,9 @@ with C<register_write_back> to write the configuration information.
 (See L<Config::Model::BackendMgr>
 for details).
 
-You can specify here a pseudo root directory or another config
-directory to write configuration data back with C<root> and
-C<config_dir> parameters. This overrides the model specifications.
-
+You can specify here another config directory to write configuration
+data back with C<config_dir> parameter. This overrides the model
+specifications.
 
 C<write_back> croaks if no write call-back are known.
 
