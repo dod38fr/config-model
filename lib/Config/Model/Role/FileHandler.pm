@@ -24,6 +24,7 @@ sub get_tuned_config_dir {
 
     my $dir = $args{os_config_dir}{$^O} || $args{config_dir} || $self->config_dir || '';
     if ( $dir =~ /^~/ ) {
+        # because of tests, we can't rely on Path::Tiny's tilde processing
         my $home = $__test_home || File::HomeDir->my_home;
         $dir =~ s/^~/$home/;
     }
