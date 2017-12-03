@@ -995,6 +995,11 @@ constructor).
 
 Returns root directory where configuration data is read from or written to.
 
+=head2 root_path()
+
+Returns a L<Path::Tiny> object for the root directory where
+configuration data is read from or written to.
+
 =head2 register_write_back ( node_location )
 
 Register a node path that is called back with
