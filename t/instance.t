@@ -57,8 +57,7 @@ is( $inst->data('test'), undef, "test empty private data ..." );
 $inst->data( 'test', 'coucou' );
 is( $inst->data('test'), 'coucou', "retrieve private data" );
 
-is( $inst->read_root_dir,  'foobar/', "test read directory" );
-is( $inst->write_root_dir, 'foobar/', "test write directory" );
+is( $inst->root_dir,  'foobar/', "test config root directory" );
 
 # test if fixes can be applied through the instance
 my $root = $inst->config_root;

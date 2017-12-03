@@ -222,23 +222,27 @@ sub register_write_back {
 }
 
 # used for auto_read auto_write feature
-has [qw/name application root_dir backend backend_arg backup/] => (
+has [qw/name application backend backend_arg backup/] => (
     is  => 'ro',
     isa => 'Maybe[Str]',
 );
 
-has read_root_dir => (
-    is  => 'ro',
+has 'root_dir' => (
+    is => 'bare',
     isa => 'Str',
-    lazy_build => 1,
+    default => ''
 );
 
-sub _build_read_root_dir {
+sub root_dir {
     my $self = shift;
-    my $root_dir = $self->root_dir // '';
-    # cleanup paths
-    $root_dir .= '/' if $root_dir and $root_dir !~ m!/$! ;
-    return $root_dir;
+    my $d = $self->{root_dir};
+    return $d && $d !~ m!/$! ? "$d/" : $d;
+}
+
+sub read_root_dir {
+    my $self = shift;
+    carp "deprecated";
+    return $self->root_dir;
 }
 
 has root_path => (
@@ -406,18 +410,19 @@ sub iterator {
 
 sub read_directory {
     carp "read_directory is deprecated";
-    return shift->read_root_dir;
+    return shift->root_dir;
 }
 
 sub write_directory {
     my $self = shift;
     carp "write_directory is deprecated";
-    return $self->read_root_dir;
+    return $self->root_dir;
 }
 
 sub write_root_dir {
     my $self = shift;
-    return $self->read_root_dir;
+    carp "deprecated";
+    return $self->root_dir;
 }
 
 # FIXME: record changes to implement undo/redo ?

@@ -242,7 +242,7 @@ sub read_config_data {
     my $instance = $self->node->instance();
 
     # root override is passed by the instance
-    my $root_dir = $instance->read_root_dir || '';
+    my $root_dir = $instance->root_dir ;
 
     my $auto_create  = $rw_config->{auto_create};
     my $backend = $rw_config->{backend};
@@ -381,7 +381,7 @@ sub auto_write_init {
     my $instance = $self->node->instance();
 
     # root override is passed by the instance
-    my $root_dir = $instance->write_root_dir || '';
+    my $root_dir = $instance->root_dir;
 
     my $backend = $rw_config->{backend};
 

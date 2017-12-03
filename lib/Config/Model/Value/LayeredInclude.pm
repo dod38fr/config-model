@@ -72,7 +72,7 @@ sub _check_value {
 
     # need to test that prest config file is present as the model
     # may not enforce it (when read_config auto_create is 1)
-    my $layered_file = $self->instance->read_root_dir;
+    my $layered_file = $self->instance->root_dir;
     $layered_file .= $value;
 
     my $err = $self->{error_list};
