@@ -1019,11 +1019,6 @@ You can specify here a pseudo root directory or another config
 directory to write configuration data back with C<root> and
 C<config_dir> parameters. This overrides the model specifications.
 
-You can force to use a backend by specifying C<< backend => xxx >>. 
-For instance, C<< backend => 'augeas' >> or C<< backend => 'custom' >>.
-
-You can force to use all backend to write the files by specifying 
-C<< backend => 'all' >>.
 
 C<write_back> croaks if no write call-back are known.
 
