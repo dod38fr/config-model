@@ -13,8 +13,6 @@ with "Config::Model::Role::ComputeFunction";
 
 my $logger = get_logger("Backend::PlainFile");
 
-sub suffix { return ''; }
-
 sub annotation { return 0; }
 
 # remember that a read backend (and its config file(s)) is attached to a node

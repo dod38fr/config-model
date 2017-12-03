@@ -12,8 +12,6 @@ use base qw/Config::Model::Backend::Any/;
 
 my $logger = get_logger("Backend::CdsFile");
 
-sub suffix { return '.cds'; }
-
 sub read {
     my $self = shift;
     my %args = @_;

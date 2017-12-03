@@ -11,8 +11,6 @@ use base qw/Config::Model::Backend::Any/;
 
 my $logger = get_logger("Backend::IniFile");
 
-sub suffix { return '.ini'; }
-
 sub annotation { return 1; }
 
 sub read {

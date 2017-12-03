@@ -8,8 +8,6 @@ extends 'Config::Model::Backend::Any';
 
 my $logger = get_logger("Backend::Fstab");
 
-sub suffix { return ''; }
-
 sub annotation { return 1; }
 
 my %opt_r_translate = (

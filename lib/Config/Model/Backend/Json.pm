@@ -12,8 +12,6 @@ use JSON;
 
 my $logger = get_logger("Backend::Json");
 
-sub suffix { return '.json'; }
-
 sub read {
     my $self = shift;
     my %args = @_;

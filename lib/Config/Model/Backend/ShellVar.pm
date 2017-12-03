@@ -26,8 +26,6 @@ sub _build_tracker {
     ) ;
 }
 
-sub suffix { return '.conf'; }
-
 sub annotation { return 1; }
 
 sub read {

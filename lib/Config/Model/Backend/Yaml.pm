@@ -20,8 +20,6 @@ sub load_yaml_parser {
     import $class;
 }
 
-sub suffix { return '.yml'; }
-
 sub single_element {
     my $self = shift;
 

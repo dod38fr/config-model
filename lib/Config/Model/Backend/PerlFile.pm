@@ -12,8 +12,6 @@ use base qw/Config::Model::Backend::Any/;
 
 my $logger = get_logger("Backend::PerlFile");
 
-sub suffix { return '.pl'; }
-
 sub read {
     my $self = shift;
     my %args = @_;
