@@ -138,35 +138,7 @@ sub get_cfg_file_path {
     if (defined $args{suffix}) {
         $logger->warn("Suffix method is deprecated. you can remove it from backend  $args{backend}");
     }
-    if ( not defined $args{suffix} or not $args{suffix} ) {
-        $logger->trace("get_cfg_file_path: returns undef (no suffix, no file argument)");
-        return (0);
-    }
-
-    # constructing config file name with >instance name>.<suffix>
-    my $i    = $self->node->instance;
-    my $name = $dir . $i->name;
-
-    warn "constructing config file name with instance name (",$i->name,") is deprecated.\n";
-
-    # append ":foo bar" if not root object
-    my $loc = $self->node->location;    # not very good
-    if ($loc) {
-        if ( ( $w and not -d $name and $args{auto_create} ) ) {
-            $logger->info( "get_cfg_file_path: auto_write create subdirectory ",
-                "$name (location $loc)" );
-            mkpath( $name, 0, 0755 );
-        }
-        $name .= '/' . $loc;
-    }
-
-    $name .= $args{suffix};
-
-    $logger->trace( "get_cfg_file_path: auto_"
-            . ( $w ? 'write' : 'read' )
-            . " $args{backend} target file is $name" );
-
-    return ( 1, $name );
+    return 0;
 }
 
 sub open_read_file {
