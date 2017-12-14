@@ -1,5 +1,25 @@
 {{$NEXT}}
 
+2.115 2017-12-14
+
+  On-going backend deprecation (which might be breaking):
+    * Backend: deprecate using instance name as config file name
+    * All backends: suffix method is deprecated
+
+  Backend:
+    * ShellVar backend: don't reorder when writing back (experimental)
+    * trap when backend class has no implementation
+
+  New features:
+    * Loader: provide "english" operator foreach_match, rm rm_value,
+      rm_match, substitute. These are equivalent to :-~ :- :-= :-~ :=~
+      operators (cme gh#2)
+
+  Bug fixes:
+    * Node gist: no need to show that value is undef
+    * WarpedNode: forward fetch_gist instead of gist
+    * Instance: add doc for root_path parameter
+
 2.114 2017-11-11
 
   On-going backend deprecation (which might be breaking):
