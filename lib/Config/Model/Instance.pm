@@ -229,13 +229,13 @@ has [qw/name application backend backend_arg backup/] => (
 
 has 'root_dir' => (
     is => 'bare',
-    isa => 'Str',
-    default => ''
+    isa => 'Maybe[Str]',
 );
 
 sub root_dir {
     my $self = shift;
-    my $d = $self->{root_dir};
+    my $d = $self->{root_dir} // '';
+    # add trailing '/' if it's missing
     return $d && $d !~ m!/$! ? "$d/" : $d;
 }
 
