@@ -25,7 +25,7 @@
           'maybe',
           'yes'
         ],
-        'description' => 'encrypt popcon submission. Eventually, this feature wil be enabled by default.',
+        'description' => 'encrypt popcon submission. Eventually, this feature will be enabled by default.',
         'help' => {
           'maybe' => 'encrypt if gpg is available',
           'yes' => 'try to encrypt and fail if gpg is not available'
