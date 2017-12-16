@@ -1,5 +1,10 @@
 {{$NEXT}}
 
+2.116 2017-12-15
+
+  Fix broken cme:
+    * Instance: fix regression about root_dir param
+
 2.115 2017-12-14
 
   On-going backend deprecation (which might be breaking):
