@@ -75,8 +75,6 @@ sub get_cfg_dir_path {
     my $w = $args{write} || 0;
     my $dir = $self->get_tuned_config_dir(%args);
 
-    $dir = $args{root} . $dir;
-
     if ( not -d $dir and $w and $args{auto_create} ) {
         $logger->info("creating directory $dir");
         mkpath( $dir, 0, 0755 );
@@ -109,11 +107,10 @@ sub get_cfg_file_path {
     }
 
     if ( defined $cfo ) {
-        my $override = $args{root} . $args{config_file};
-        $logger->trace( "auto_"
-                . ( $w ? 'write' : 'read' )
-                . " $args{backend} override target file is $override" );
-        return ( 1, $args{root} . $args{config_file} );
+        my $override =  $args{root} ? path($args{root})->child($cfo) : path($cfo);
+        my $mode = $w ? 'write' : 'read';
+        $logger->trace("$args{backend} override target file is $override ($mode mode)");
+        return ( 1, $override );
     }
 
     Config::Model::Exception::Model->throw(
@@ -125,7 +122,7 @@ sub get_cfg_file_path {
 
     if ( defined $args{file} ) {
         my $file = $args{skip_compute} ? $args{file} : $self->node->compute_string($args{file});
-        my $res = $dir . $file;
+        my $res = $dir->child($file);
         $logger->trace("get_cfg_file_path: returns $res");
         return ( $dir_ok, $res );
     }

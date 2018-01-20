@@ -9,6 +9,7 @@ use 5.10.0;
 
 use Mouse::Util;
 use Log::Log4perl qw(get_logger :levels);
+use Path::Tiny;
 
 use Mouse::Role;
 
@@ -33,9 +34,9 @@ sub get_tuned_config_dir {
         $dir =~ s/^~/$home/;
     }
 
-    $dir .= '/' if $dir and $dir !~ m(/$);
-
-    return $dir;
+    return $args{root} ? path($args{root})->child($dir)
+        : $dir ?  path($dir)
+        :         path ('.');
 }
 
 1;
