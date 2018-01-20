@@ -58,11 +58,6 @@ sub _build_backend_obj {
     return $c->new( node => $self->node, name => $backend );
 }
 
-# Configuration directory where to read and write files. This value
-# does not override the configuration directory specified in the model
-# data passed to read and write functions.
-has config_dir => ( is => 'ro', isa => 'Maybe[Str]', required => 0 );
-
 has support_annotation => (
     is => 'ro',
     isa => 'Bool',
