@@ -459,11 +459,15 @@ sub _desc { 'error in configuration file' }
 package Config::Model::Exception::ConfigFile::Missing;
 
 use Mouse;
+use Mouse::Util::TypeConstraints;
+
 extends 'Config::Model::Exception::ConfigFile';
 
 sub _desc { 'missing configuration file'}
 
-has file => (is => 'rw', isa => 'Str');
+subtype 'ExcpPathTiny', as 'Object', where {$_->isa('Path::Tiny')} ;
+
+has file => (is => 'rw', isa => 'Str | ExcpPathTiny' );
 
 sub full_message {
     my $self = shift;
