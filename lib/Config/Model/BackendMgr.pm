@@ -356,7 +356,7 @@ sub try_read_backend {
 
     # only backend based on C::M::Backend::Any can support annotations
     if ($backend_obj->can('annotation')) {
-        $self->{support_annotation} ||= $backend_obj->annotation ;
+        $self->{support_annotation} = $backend_obj->annotation ;
     }
 
     return ( $res, $file_path );
@@ -789,7 +789,7 @@ C<rw_config> specification.
 
 =head2 support_annotation
 
-Returns 1 if at least one of the backends support to read and write annotations
+Returns 1 if at least the backend supports read and write annotations
 (aka comments) in the configuration file.
 
 =head1 AUTHOR
