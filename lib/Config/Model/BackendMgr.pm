@@ -338,12 +338,7 @@ sub try_read_backend {
     };
     $error = $@;
 
-    # only backend based on C::M::Backend::Any can support annotations
-    if ($backend_obj->can('annotation')) {
-        $self->{support_annotation} ||= $backend_obj->annotation ;
-    }
-
-    # catch eval errors done in the if-then-else block before
+    # catch eval error
     if ( ref($error) and $error->isa('Config::Model::Exception::Syntax') ) {
 
         $error->parsed_file( $file_path) unless $error->parsed_file;
@@ -357,6 +352,11 @@ sub try_read_backend {
     }
     elsif ( $error ) {
         die "Backend error: $error";
+    }
+
+    # only backend based on C::M::Backend::Any can support annotations
+    if ($backend_obj->can('annotation')) {
+        $self->{support_annotation} ||= $backend_obj->annotation ;
     }
 
     return ( $res, $file_path );
