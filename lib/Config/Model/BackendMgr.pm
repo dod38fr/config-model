@@ -75,13 +75,14 @@ sub get_cfg_dir_path {
     my $w = $args{write} || 0;
     my $dir = $self->get_tuned_config_dir(%args);
 
-    if ( not -d $dir and $w and $args{auto_create} ) {
+    if ( not $dir->is_dir and $w and $args{auto_create} ) {
         $logger->info("creating directory $dir");
-        mkpath( $dir, 0, 0755 );
+        $dir->mkpath;
     }
 
-    unless ( -d $dir ) {
-        $logger->info( "auto_" . ( $w ? 'write' : 'read' ) . " $args{backend} no directory $dir" );
+    unless ( $dir->is_dir ) {
+        my $mode = $w ? 'write' : 'read';
+        $logger->info( "$args{backend}: missing directory $dir ($mode mode)" );
         return ( 0, $dir );
     }
 
