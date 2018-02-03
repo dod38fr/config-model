@@ -1,5 +1,11 @@
 {{$NEXT}}
 
+2.117 2018-02-03
+
+  Bug fixes:
+    * notify about addition of hash key only when needed
+    * fix error message of "missing file" exception
+
 2.116 2017-12-15
 
   Fix broken cme:
