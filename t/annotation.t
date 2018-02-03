@@ -72,7 +72,7 @@ foreach (@annotate) {
 }
 
 say "pending changes:\n".$inst->list_changes if $trace;
-is( $inst->needs_save, 6, "verify instance needs_save status after storing only annotations" );
+is( $inst->needs_save, 5, "verify instance needs_save status after storing only annotations" );
 $inst->clear_changes;
 
 is( $root->grab("std_id:ab X")->annotation('to delete'), 'to delete', "test clear annotation" );

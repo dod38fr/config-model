@@ -43,6 +43,7 @@ $model->create_config_class(
             type => 'hash',
             class => 'Config::Model::HashId',    # default
             index_type => 'integer',
+            write_empty_value => 1,
 
             # hash boundaries
             min         => 1,
@@ -332,7 +333,7 @@ eq_or_diff( [ $oh->fetch_all_indexes ],
 is( $oh->fetch_with_id('x')->fetch, '2x', "Check copied value" );
 
 $oh->copy(qw/x d/);
-is( $inst->needs_save, 2, "verify instance needs_save status after copy" );
+is( $inst->needs_save, 1, "verify instance needs_save status after copy" );
 print scalar $inst->list_changes, "\n" if $trace;
 $inst->clear_changes;
 

@@ -149,6 +149,7 @@ sub _store {
     my ( $self, $key, $value ) = @_;
     push @{ $self->{list} }, $key
         unless exists $self->{data}{$key};
+    $self->notify_change(note => "added entry $key") if $self->write_empty_value;
     return $self->{data}{$key} = $value;
 }
 

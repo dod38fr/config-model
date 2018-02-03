@@ -934,7 +934,6 @@ sub auto_vivify {
     my $imode = $self->instance->get_data_mode;
     $self->set_data_mode( $idx, $imode );
 
-    $self->notify_change(note => "added entry $idx");
     $self->_store( $idx, $item );
 }
 
