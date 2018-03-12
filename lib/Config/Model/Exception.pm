@@ -177,10 +177,10 @@ sub full_message {
             element  => $element,
             property => 'level'
         );
-        $msg =
-              "In config class '"
-            . $obj->parent->config_class_name
-            . "', element '$element' (level $level) ";
+        my $location = $obj->location;
+        $msg = "In config class '" . $obj->parent->config_class_name. "',";
+        $msg .= " (location: $location)" if $location;
+        $msg .= " element '$element' (level $level) ";
     }
     $msg .= "has a " . $self->description;
     $msg .= ":\n\t" . $self->error_or_msg . "\n";
