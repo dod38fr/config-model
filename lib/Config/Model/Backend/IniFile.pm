@@ -126,6 +126,7 @@ sub read {
     while ( my ( $k, $v ) = each %ini_comment ) {
         my $item = $obj->grab( step => $k, mode => 'loose' ) or next;
         $item = $item->fetch_with_id(0) if $item->get_type eq 'list';
+        $logger->debug("annotate '$v' on ", $item->location);
         $item->annotation($v);
     }
 
