@@ -1,6 +1,6 @@
 # -*- cperl -*-
 
-use Test::More tests => 7;
+use Test::More;
 use Test::Memory::Cycle;
 use Config::Model;
 
@@ -50,3 +50,5 @@ is($root->annotation,join("\n", map {s/#\s+//; $_;} @copy[3,4]), "check extracte
 
 
 memory_cycle_ok($model);
+
+done_testing;
