@@ -9,9 +9,6 @@ use 5.10.1;
 
 use Config::Model::Exception;
 use Data::Dumper;
-use File::Path;
-use File::Copy;
-use File::HomeDir;
 use IO::File;
 use Storable qw/dclone/;
 use Scalar::Util qw/weaken reftype/;
