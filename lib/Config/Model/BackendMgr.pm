@@ -134,16 +134,6 @@ sub get_cfg_file_path {
 sub open_read_file {
     my ($self, $file_path) = @_;
 
-    if ( $file_path eq '-' ) {
-        my $io = IO::Handle->new();
-        if ( $io->fdopen( fileno(STDIN), "r" ) ) {
-            return $io;
-        }
-        else {
-            return;
-        }
-    }
-
     my $fh = new IO::File;
     if ( -e $file_path ) {
         $logger->debug("open_read_file: open $file_path for read");
@@ -306,19 +296,33 @@ sub try_read_backend {
         config_file => $config_file_override
     );
 
-    my ( $res, $file_path, $error );
+    my ( $res, $error );
 
     my $backend_obj = $self->backend_obj();
 
-    my ($file_ok, $fh, $suffix);
+    my ( $fh, $suffix);
     $suffix = $backend_obj->suffix if $backend_obj->can('suffix');
-    ( $file_ok, $file_path ) = $self->get_cfg_file_path(
+
+    my ( $file_ok, $file_path ) = $self->get_cfg_file_path(
         @read_args,
         suffix => $suffix,
         skip_compute => $backend_obj->skip_open,
     );
-    $fh = $self->open_read_file($file_path)
-        if $file_ok and not $backend_obj->skip_open;
+
+    if (not $backend_obj->skip_open and $file_ok) {
+        if ($file_path eq '-') {
+            $fh = IO::Handle->new();
+            if ($fh->fdopen( fileno(STDIN), "r" )) {
+                $fh->binmode(":utf8");
+            }
+            else {
+                return ( 0, '-');
+            }
+        }
+        else {
+            $fh = $self->open_read_file($file_path) ;
+        }
+    }
 
     my $f = $self->rw_config->{function} || 'read';
     if ($logger->is_info) {
@@ -403,11 +407,29 @@ sub auto_write_init {
         my $force_delete = delete $cb_args{force_delete} ;
         $logger->debug( "write cb ($backend) called for $location ", $force_delete ? '' : ' (deleted)' );
         my $backend_obj = $self->backend_obj();
-        my $suffix = $backend_obj->suffix if $backend_obj->can('suffix');
-        my ( $file_ok, $file_path, $fh );
-        ( $file_ok, $file_path, $fh ) =
-            $self->open_file_to_write( $backend, suffix => $suffix, @wr_args, %cb_args )
-            unless $c->skip_open;
+
+        my ($fh, $file_ok, $file_path, $suffix );
+        $suffix = $backend_obj->suffix if $backend_obj->can('suffix');
+
+        if (not $c->skip_open) {
+            ( $file_ok, $file_path ) = $self->get_cfg_file_path( suffix => $suffix, @wr_args, %cb_args);
+        }
+
+        if ($file_ok) {
+            if ( $file_path eq '-' ) {
+                my $io = IO::Handle->new();
+                if ( $io->fdopen( fileno(STDOUT), "w" ) ) {
+                    $file_ok = 1;
+                    $io->binmode(':utf8');
+                }
+                else {
+                    return ( 0, '-' );
+                }
+            }
+            else {
+                $fh = $self->open_file_to_write( $backend, $file_path, delete $args{backup} );
+            }
+        }
 
         # override needed for "save as" button
         my %backend_args = (
@@ -460,36 +482,18 @@ sub auto_delete {
 
 
 sub open_file_to_write {
-    my ( $self, $backend, %args ) = @_;
+    my ( $self, $backend, $file_path, $backup ) = @_;
 
-    my $backup    = delete $args{backup};
     my $do_backup = defined $backup;
     $backup ||= 'old';    # use old only if defined
     $backup = '.' . $backup unless $backup =~ /^\./;
 
-    my ( $file_ok, $file_path ) = $self->get_cfg_file_path(%args);
-
-    if ( $file_ok and $file_path eq '-' ) {
-        my $io = IO::Handle->new();
-        if ( $io->fdopen( fileno(STDOUT), "w" ) ) {
-            return ( 1, '-', $io );
-        }
-        else {
-            return ( 0, '-' );
-        }
+    my $file = path($file_path);
+    if ( $do_backup and $file->is_file ) {
+        $file->copy( $file_path . $backup ) or die "Backup copy failed: $!";
     }
-    elsif ($file_ok) {
-        my $file = path($file_path);
-        if ( $do_backup and $file->is_file ) {
-            $file->copy( $file_path . $backup ) or die "Backup copy failed: $!";
-        }
-        $logger->debug("$backend backend opened file $file_path to write");
-        my $fh = $file->openw_utf8;
-        return ( $file_ok, $file_path, $fh );
-    }
-    else {
-        return ( 0, $file_path );
-    }
+    $logger->debug("$backend backend opened file $file_path to write");
+    return $file->openw_utf8;
 }
 
 sub close_file_to_write {
