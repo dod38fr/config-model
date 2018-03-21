@@ -299,6 +299,7 @@ sub try_read_backend {
     if ( defined $config_file_override and $config_file_override eq '-' ) {
         $file_path = $config_file_override; # may be used in error messages
         $logger->trace("auto_read: $backend override target file is STDIN");
+        $logger->warn("Using STDIN to read config (option -file '-') is deprecated and will be removed in June 2018. Please contact the author if you think this is a bad idea.");
         $fh = IO::Handle->new();
         if ($fh->fdopen( fileno(STDIN), "r" )) {
             $fh->binmode(":utf8");
