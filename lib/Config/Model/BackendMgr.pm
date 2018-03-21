@@ -288,8 +288,6 @@ sub try_read_backend {
         config_file => $config_file_override
     );
 
-    my ( $res, $error );
-
     my $backend_obj = $self->backend_obj();
 
     if ($backend_obj->can('suffix')) {
@@ -299,6 +297,7 @@ sub try_read_backend {
     my ($file_path, $fh);
 
     if ( defined $config_file_override and $config_file_override eq '-' ) {
+        $file_path = $config_file_override; # may be used in error messages
         $logger->trace("auto_read: $backend override target file is STDIN");
         $fh = IO::Handle->new();
         if ($fh->fdopen( fileno(STDIN), "r" )) {
@@ -325,6 +324,8 @@ sub try_read_backend {
         $logger->info( "Read with $backend " . reftype($backend_obj) . "::$f".$fp);
     }
 
+    my $res;
+
     eval {
         $res = $backend_obj->$f(
             @read_args,
@@ -333,7 +334,7 @@ sub try_read_backend {
             object    => $self->node,
         );
     };
-    $error = $@;
+    my $error = $@;
 
     # catch eval error
     if ( ref($error) and $error->isa('Config::Model::Exception::Syntax') ) {
