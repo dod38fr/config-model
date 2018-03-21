@@ -99,11 +99,6 @@ sub get_cfg_file_path {
     # config file override
     my $cfo = $args{config_file};
 
-    if ( defined $cfo and $cfo eq '-' and $w == 0 ) {
-        $logger->trace("auto_read: $args{backend} override target file is STDIN");
-        return ( 1, '-' );
-    }
-
     if ( defined $cfo ) {
         my $override =  $args{root} ? path($args{root})->child($cfo) : path($cfo);
         my $mode = $w ? 'write' : 'read';
@@ -300,26 +295,27 @@ sub try_read_backend {
 
     my $backend_obj = $self->backend_obj();
 
-    my ( $fh, $suffix);
+    my ($file_path, $fh, $suffix);
     $suffix = $backend_obj->suffix if $backend_obj->can('suffix');
 
-    my ( $file_ok, $file_path ) = $self->get_cfg_file_path(
-        @read_args,
-        suffix => $suffix,
-        skip_compute => $backend_obj->skip_open,
-    );
-
-    if (not $backend_obj->skip_open and $file_ok) {
-        if ($file_path eq '-') {
-            $fh = IO::Handle->new();
-            if ($fh->fdopen( fileno(STDIN), "r" )) {
-                $fh->binmode(":utf8");
-            }
-            else {
-                return ( 0, '-');
-            }
+    if ( defined $config_file_override and $config_file_override eq '-' ) {
+        $logger->trace("auto_read: $backend override target file is STDIN");
+        $fh = IO::Handle->new();
+        if ($fh->fdopen( fileno(STDIN), "r" )) {
+            $fh->binmode(":utf8");
         }
         else {
+            return ( 0, '-');
+        }
+    }
+    else {
+        ( my $file_ok, $file_path ) = $self->get_cfg_file_path(
+            @read_args,
+            suffix => $suffix,
+            skip_compute => $backend_obj->skip_open,
+        );
+
+        if (not $backend_obj->skip_open and $file_ok) {
             $fh = $self->open_read_file($file_path) ;
         }
     }
@@ -415,20 +411,18 @@ sub auto_write_init {
             ( $file_ok, $file_path ) = $self->get_cfg_file_path( suffix => $suffix, @wr_args, %cb_args);
         }
 
-        if ($file_ok) {
-            if ( $file_path eq '-' ) {
-                my $io = IO::Handle->new();
-                if ( $io->fdopen( fileno(STDOUT), "w" ) ) {
-                    $file_ok = 1;
-                    $io->binmode(':utf8');
-                }
-                else {
-                    return ( 0, '-' );
-                }
+        if ($file_ok and $file_path eq '-' ) {
+            my $io = IO::Handle->new();
+            if ( $io->fdopen( fileno(STDOUT), "w" ) ) {
+                $file_ok = 1;
+                $io->binmode(':utf8');
             }
             else {
-                $fh = $self->open_file_to_write( $backend, $file_path, delete $args{backup} );
+                return ( 0, '-' );
             }
+        }
+        elsif ($file_ok) {
+            $fh = $self->open_file_to_write( $backend, $file_path, delete $args{backup} );
         }
 
         # override needed for "save as" button
