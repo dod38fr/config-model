@@ -120,9 +120,6 @@ sub get_cfg_file_path {
         return ( $dir_ok, $res );
     }
 
-    if (defined $args{suffix}) {
-        $logger->warn("Suffix method is deprecated. you can remove it from backend  $args{backend}");
-    }
     return 0;
 }
 
@@ -295,8 +292,11 @@ sub try_read_backend {
 
     my $backend_obj = $self->backend_obj();
 
-    my ($file_path, $fh, $suffix);
-    $suffix = $backend_obj->suffix if $backend_obj->can('suffix');
+    if ($backend_obj->can('suffix')) {
+        $logger->warn("suffix method is deprecated. you can remove it from backend $backend");
+    }
+
+    my ($file_path, $fh);
 
     if ( defined $config_file_override and $config_file_override eq '-' ) {
         $logger->trace("auto_read: $backend override target file is STDIN");
@@ -311,7 +311,6 @@ sub try_read_backend {
     else {
         ( my $file_ok, $file_path ) = $self->get_cfg_file_path(
             @read_args,
-            suffix => $suffix,
             skip_compute => $backend_obj->skip_open,
         );
 
@@ -404,11 +403,10 @@ sub auto_write_init {
         $logger->debug( "write cb ($backend) called for $location ", $force_delete ? '' : ' (deleted)' );
         my $backend_obj = $self->backend_obj();
 
-        my ($fh, $file_ok, $file_path, $suffix );
-        $suffix = $backend_obj->suffix if $backend_obj->can('suffix');
+        my ($fh, $file_ok, $file_path );
 
         if (not $c->skip_open) {
-            ( $file_ok, $file_path ) = $self->get_cfg_file_path( suffix => $suffix, @wr_args, %cb_args);
+            ( $file_ok, $file_path ) = $self->get_cfg_file_path( @wr_args, %cb_args);
         }
 
         if ($file_ok and $file_path eq '-' ) {
