@@ -392,7 +392,7 @@ sub auto_write_init {
 
     my $wb;
     my $f = $rw_config->{function} || 'write';
-    my $c = load_backend_class( $backend, $f );
+    my $backend_class = load_backend_class( $backend, $f );
     my $location = $self->node->name;
     my $node = $self->node;     # closure
 
@@ -406,7 +406,7 @@ sub auto_write_init {
 
         my ($fh, $file_ok, $file_path );
 
-        if (not $c->skip_open) {
+        if (not $backend_class->skip_open) {
             ( $file_ok, $file_path ) = $self->get_cfg_file_path( @wr_args, %cb_args);
         }
 
@@ -440,11 +440,12 @@ sub auto_write_init {
         else {
             $res = eval { $backend_obj->$f( %backend_args ); };
             my $error = $@;
-            $logger->warn( "write backend $backend $c" . '::' . "$f failed: $error" ) if $error;
+            $logger->warn( "write backend $backend $backend_class" . '::' . "$f failed: $error" )
+                if $error;
             $self->close_file_to_write( $error, $fh, $file_path, $rw_config->{file_mode} );
 
             $self->auto_delete($file_path, \%backend_args)
-                if $rw_config->{auto_delete} and not $c->skip_open ;
+                if $rw_config->{auto_delete} and not $backend_class->skip_open ;
         }
 
         return defined $res ? $res : $@ ? 0 : 1;
