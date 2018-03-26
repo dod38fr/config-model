@@ -1,5 +1,18 @@
 {{$NEXT}}
 
+2.118 2018-03-26
+
+  On-going backend deprecation:
+    * BackendMgr: deprecate using STDIN to load config file. Which
+      means using '-' with cme '-file' option is deprecated.
+
+  Backend:
+    * Improve global comment extraction
+
+  Other changes:
+    * remove unused modules from BackendMgr
+    * Exception: improve Model error message
+
 2.117 2018-02-03
 
   Bug fixes:
