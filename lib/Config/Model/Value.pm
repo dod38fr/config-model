@@ -1255,7 +1255,7 @@ sub _store {
 
     if ( $logger->is_debug ) {
         my $i   = $self->instance;
-        my $msg = "value store $value, ok '$ok', check is $check";
+        my $msg = "value store ". ($value // '<undef>')." ok '$ok', check is $check";
         map { $msg .= " $_" if $i->$_() } qw/layered preset/;
         $logger->debug($msg);
     }
@@ -1443,7 +1443,8 @@ sub load_data {
     }
     else {
         if ( $logger->is_info ) {
-            $logger->info( "Value load_data (", $self->location, ") will store value $data" );
+            my $str = $data // '<undef>';
+            $logger->info( "Value load_data (", $self->location, ") will store value $str" );
         }
         $self->store(%args, value => $data);
     }
