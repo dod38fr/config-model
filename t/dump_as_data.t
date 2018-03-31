@@ -1,8 +1,9 @@
 # -*- cperl -*-
 
 use ExtUtils::testlib;
-use Test::More tests => 38;
+use Test::More tests => 39;
 use Test::Memory::Cycle;
+use Test::Log::Log4perl;
 use Config::Model;
 
 use warnings;
@@ -15,8 +16,8 @@ my $arg = shift || '';
 my $trace = $arg =~ /t/ ? 1 : 0;
 Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 
-use Log::Log4perl qw(:easy);
-Log::Log4perl->easy_init( $arg =~ /l/ ? $TRACE : $ERROR );
+#use Log::Log4perl qw(:easy);
+#Log::Log4perl->easy_init( $arg =~ /l/ ? $TRACE : $WARN );
 
 my $model = Config::Model->new( legacy => 'ignore', );
 
@@ -147,6 +148,18 @@ is_deeply(
     { __ordered_hash_order => [qw/z y x/], 'z', '1', 'y', '2', 'x', '3' },
     "check dump of ordered hash as hash"
 );
+
+{
+    note ("test ordered_hash warnings");
+
+    my $tw = Test::Log::Log4perl->expect( ignore_priority => "info" , ["Tree.Element.Id.Hash", warn => qr/order is not defined/ ]);
+
+    note "load 2 items in ordered_hash without __order produces a warning";
+    $root->load_data( { ordered_hash => { y => '2', 'x' => '3' }});
+
+    note "load one item in ordered_hash without __order produce no warning";
+    $root->load_data( { ordered_hash => { 'x' => '3' }});
+}
 
 # test ordered hash load with hash ref instead of array ref
 my $inst3 = $model->instance(
