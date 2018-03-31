@@ -12,18 +12,10 @@ use Data::Dumper;
 
 use strict;
 
-my $arg = shift || '';
-
-my $trace = $arg =~ /t/ ? 1 : 0;
-Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
-
-use Log::Log4perl qw(:easy);
-Log::Log4perl->easy_init( $arg =~ /l/ ? $TRACE : $WARN );
-
-ok( 1, "Compilation done" );
+use Config::Model::Tester::Setup qw/init_test/;
 
 # minimal set up to get things working
-my $model = Config::Model->new();
+my ($model, $trace) = init_test(shift);
 
 $model->create_config_class(
     name => "Two",
