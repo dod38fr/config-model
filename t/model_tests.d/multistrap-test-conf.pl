@@ -47,7 +47,10 @@ EOF
         name => 'igep0020',
         config_file => '/home/foo/strap-igep0020.conf',
         load_check => 'skip',
-        load_warnings => [ ( qr/deprecated/ ) x2 , ( qr/skipping/) x2 ]
+        log4perl_load_warnings => [
+            [ 'Tree.Node', (warn => qr/deprecated/) x 2 ]  ,
+            [ 'Tree.Element.Value' , ( warn => qr/skipping/) x 2 ]
+        ],
     },
 );
 
