@@ -23,10 +23,6 @@ has 'node' => (
 
 sub skip_open { return 0; }
 
-sub suffix {
-    return undef;
-}
-
 sub read {
     my $self = shift;
     my $err  = "Internal error: read not defined in backend $self->{name}.";
