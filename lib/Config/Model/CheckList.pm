@@ -117,7 +117,7 @@ sub set_properties {
     }
 
     if ( defined $args{default} ) {
-        warn $self->name, ": default param is deprecated, use default_list\n";
+        $logger->warn($self->name, ": default param is deprecated, use default_list");
         $args{default_list} = delete $args{default};
     }
 

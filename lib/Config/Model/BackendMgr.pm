@@ -45,7 +45,7 @@ sub _build_backend_obj {
     my $self = shift;
 
     my $backend = $self->rw_config->{backend};
-    warn("function parameter for a backend is deprecated. Please implement 'read' method in backend $backend")
+    $logger->warn("function parameter for a backend is deprecated. Please implement 'read' method in backend $backend")
         if $self->rw_config->{function};
     # try to load a specific Backend class
     my $f = $self->rw_config->{function} || 'read';

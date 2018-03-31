@@ -505,8 +505,8 @@ sub normalize_class_parameters {
             my $implicit = defined $name_match->{name_match} ? '' : 'implicit ';
             unshift @$accept_info, $name_match;    # put data back in list
             $name_match = delete $name_match->{name_match} || '.*';
-            warn "class $config_class_name: name_match ($implicit$name_match)",
-                " in accept is deprecated\n";
+            $logger->warn("class $config_class_name: name_match ($implicit$name_match)",
+                " in accept is deprecated");
         }
 
         push @accept_list, $name_match;
