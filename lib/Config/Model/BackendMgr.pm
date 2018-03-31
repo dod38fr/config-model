@@ -484,9 +484,14 @@ sub open_file_to_write {
     $backup = '.' . $backup unless $backup =~ /^\./;
 
     my $file = path($file_path);
+
+    # make sure that parent dir exists before creating file
+    $file->parent->mkpath;
+
     if ( $do_backup and $file->is_file ) {
         $file->copy( $file_path . $backup ) or die "Backup copy failed: $!";
     }
+
     $logger->debug("$backend backend opened file $file_path to write");
     return $file->openw_utf8;
 }
