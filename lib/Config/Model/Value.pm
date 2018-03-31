@@ -1144,7 +1144,12 @@ sub check_fetched_value {
             $warn_h{$w} = 1;
             next if $old_warn->{$w};
             my $str = defined $value ? "'$value'" : '<undef>';
-            warn "Warning in '" . $self->location_short . "' value $str: $w\n";
+            if ($::_use_log4perl_to_warn) {
+                $logger->warn("Warning in '" . $self->location_short . "' value $str: $w");
+            }
+            else {
+                warn "Warning in '" . $self->location_short . "' value $str: $w\n";
+            }
         }
     }
     $self->{old_warning_hash} = \%warn_h;
@@ -1276,7 +1281,12 @@ sub _store {
             if (not $silent and $msg) {
                 # fuse UI exits when a warning is issued. No other need to advertise this option
                 print $msg if $args{say_dont_warn};
-                warn $msg unless $args{say_dont_warn};
+                if ($::_use_log4perl_to_warn) {
+                    $logger->warn($msg) unless $args{say_dont_warn};
+                }
+                else {
+                    warn $msg unless $args{say_dont_warn};
+                }
             }
         }
         else {
@@ -1405,7 +1415,12 @@ sub check_stored_value {
         foreach my $w ( $self->all_warnings ) {
             $warn_h{$w} = 1;
             my $str = defined $value ? "'$value'" : '<undef>';
-            warn "Warning in '" . $self->location_short . "' value $str: $w\n";
+            if ($::_use_log4perl_to_warn) {
+                $logger->warn("Warning in '" . $self->location_short . "' value $str: $w");
+            }
+            else {
+                warn "Warning in '" . $self->location_short . "' value $str: $w\n";
+            }
         }
     }
     $self->{old_warning_hash} = \%warn_h;
@@ -1711,8 +1726,14 @@ sub fetch {
     elsif ( $check eq 'skip' ) {
         my $msg = $self->error_msg;
         my $str = $value // '<undef>';
-        warn "Warning: fetch [".$self->name,"] skipping value $str because of the following errors:\n$msg\n\n"
+        if ($::_use_log4perl_to_warn) {
+            $logger->warn("Warning: fetch [".$self->name,"] skipping value $str because of the following errors:\n$msg\n")
             if not $silent and $msg;
+        }
+        else {
+            warn "Warning: fetch [".$self->name,"] skipping value $str because of the following errors:\n$msg\n\n"
+                if not $silent and $msg;
+        }
         return undef;
     }
 

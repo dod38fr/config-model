@@ -505,7 +505,14 @@ sub check_content {
         push @error, "Too many instances ($nb) limit $self->{max_nb}, "
             if defined $self->{max_nb} and $nb > $self->{max_nb};
 
-        map { warn( "Warning in '" . $self->location_short . "': $_\n" ) } @warn
+        map {
+            if ($::_use_log4perl_to_warn) {
+                $logger->warn( "Warning in '" . $self->location_short . "': $_" )
+            }
+            else {
+                warn( "Warning in '" . $self->location_short . "': $_\n" )
+            }
+        } @warn
             unless $silent;
 
         $self->{content_warning_list} = \@warn;
@@ -576,7 +583,14 @@ sub check_idx {
     $self->{warning_hash}{$idx} = \@warn;
 
     if (@warn and not $silent and $check ne 'no') {
-        map { warn( "Warning in '" . $self->location_short . "': $_\n" ) } @warn;
+        map {
+            if ($::_use_log4perl_to_warn) {
+                $logger->warn( "Warning in '" . $self->location_short . "': $_" );
+            }
+            else {
+                warn( "Warning in '" . $self->location_short . "': $_\n" )
+            }
+        } @warn;
     }
 
     return scalar @error ? 0 : 1;

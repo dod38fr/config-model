@@ -40,8 +40,14 @@ sub BUILD {
     }
 
     if ( defined $self->{migrate_keys_from} ) {
-        warn $self->name, "Using migrate_keys_from with list element is deprecated.",
-            " Use migrate_values_from\n";
+        if ($::_use_log4perl_to_warn) {
+            $logger->warn($self->name, "Using migrate_keys_from with list element is deprecated.",
+                          " Use migrate_values_from");
+        }
+        else {
+            warn $self->name, "Using migrate_keys_from with list element is deprecated.",
+                " Use migrate_values_from\n";
+        }
     }
 
     # Supply the mandatory parameter

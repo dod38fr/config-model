@@ -677,7 +677,12 @@ sub fetch_element {
     # do not warn when when is skip or "no"
     if ($self->{status}{$element_name} eq 'deprecated' and $check eq 'yes' ) {
         # FIXME elaborate more ? or include parameter description ??
-        warn "Element '$element_name' of node '", $self->name, "' is deprecated\n" if $check eq 'yes';
+        if ($::_use_log4perl_to_warn) {
+            $logger->warn("Element '$element_name' of node '", $self->name, "' is deprecated") if $check eq 'yes';
+        }
+        else {
+            warn("Element '$element_name' of node '", $self->name, "' is deprecated\n") if $check eq 'yes';
+        }
 
         # this will also force a rewrite of the file even if no other
         # semantic change was done
@@ -805,9 +810,16 @@ sub _get_accepted_data {
             my $dist = $tld->dld_best_distance($tld_arg);
             if ($dist < 3) {
                 my $best = $tld->dld_best_match($tld_arg);
-                warn "Warning: ".$self->location
+                if ($::_use_log4perl_to_warn) {
+                    $logger->warn("Warning: ".$self->location
                     ." '$name' is confusingly close to '$best' (edit distance is $dist)."
-                    ." Is there a typo ?\n";
+                    ." Is there a typo ?");
+                }
+                else {
+                    warn "Warning: ".$self->location
+                        ." '$name' is confusingly close to '$best' (edit distance is $dist)."
+                        ." Is there a typo ?\n";
+                }
             }
 
         }
