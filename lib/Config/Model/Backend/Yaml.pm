@@ -14,10 +14,12 @@ my $logger = get_logger("Backend::Yaml");
 
 sub load_yaml_parser {
     my $self = shift;
-    my $file = my $class = shift // 'YAML::Tiny';
-    $file =~ s!::!/!g;
-    require "$file.pm" || die "cannot load YAML parser $class";
-    import $class;
+    if (not $self->can('Load')) {
+        my $file = my $class = shift // 'YAML::Tiny';
+        $file =~ s!::!/!g;
+        require "$file.pm" || die "cannot load YAML parser $class";
+        import $class;
+    }
 }
 
 sub single_element {
