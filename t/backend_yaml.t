@@ -33,17 +33,6 @@ $wr_root->remove_tree;
 my $yaml_dir = $wr_root->child('yaml');
 $yaml_dir->mkpath();
 
-my $i_hosts = $model->instance(
-    instance_name   => 'hosts_inst',
-    root_class_name => 'Hosts',
-    root_dir        => $wr_root->stringify,
-    model_file      => 'test_yaml_model.pl',
-);
-
-ok( $i_hosts, "Created instance" );
-
-my $i_root = $i_hosts->config_root;
-
 my $load = "record:0
   ipaddr=127.0.0.1
   canonical=localhost
@@ -53,51 +42,68 @@ record:1
   canonical=bilbo - -
 ";
 
-$i_root->load($load);
-
-$i_hosts->write_back;
-ok( 1, "yaml write back done" );
-
-# TODO: test yaml content for skipped element
-
 my $yaml_file = $yaml_dir ->child('hosts.yml');
-ok( $yaml_file->exists, "check that config file $yaml_file was written" );
 
-my $written = $yaml_file->slurp;
-unlike($written, qr/record/, "check that list element name is not written");
+subtest 'Create YAML file from scratch' => sub {
+    my $i_hosts = $model->instance(
+        instance_name   => 'hosts_inst',
+        root_class_name => 'Hosts',
+        root_dir        => $wr_root->stringify,
+        model_file      => 'test_yaml_model.pl',
+    );
 
-# create another instance to read the yaml that was just written
-my $i2_hosts = $model->instance(
-    instance_name   => 'hosts_inst2',
-    root_class_name => 'Hosts',
-    root_dir        => $wr_root->stringify,
-);
+    ok( $i_hosts, "Created instance" );
 
-ok( $i2_hosts, "Created instance" );
+    my $i_root = $i_hosts->config_root;
 
-my $i2_root = $i2_hosts->config_root;
+    $i_root->load($load);
 
-my $p2_dump = $i2_root->dump_tree;
+    $i_hosts->write_back;
+    ok( 1, "yaml write back done" );
+    # TODO: test yaml content for skipped element
 
-is( $p2_dump, $load, "compare original data with 2nd instance data" );
+    ok( $yaml_file->exists, "check that config file $yaml_file was written" );
 
-# since full_dump is null, check that dummy param is not written in yaml files
-my $yaml = $yaml_file->slurp || die "can't open $yaml_file:$!";
+    my $written = $yaml_file->slurp;
+    unlike($written, qr/record/, "check that list element name is not written");
 
-unlike( $yaml, qr/dummy/, "check yaml dump content" );
 
-$yaml_file->remove;
 
-# test yaml content for single hash class
-my $i_single_hash = $model->instance(
-    instance_name   => 'single_hash',
-    root_class_name => 'SingleHashElement',
-    root_dir        => $wr_root->stringify,
-);
+};
 
-ok( $i_single_hash, "Created single hash instance" );
+subtest 'another instance to read the yaml that was just written' => sub {
+    my $i2_hosts = $model->instance(
+        instance_name   => 'hosts_inst2',
+        root_class_name => 'Hosts',
+        root_dir        => $wr_root->stringify,
+    );
 
-$load = "record:foo
+    ok( $i2_hosts, "Created instance" );
+
+    my $i2_root = $i2_hosts->config_root;
+
+    my $p2_dump = $i2_root->dump_tree;
+
+    is( $p2_dump, $load, "compare original data with 2nd instance data" );
+
+    # since full_dump is null, check that dummy param is not written in yaml files
+    my $yaml = $yaml_file->slurp || die "can't open $yaml_file:$!";
+
+    unlike( $yaml, qr/dummy/, "check yaml dump content" );
+
+    $yaml_file->remove;
+};
+
+subtest 'test yaml content for single hash class' => sub {
+    my $i_single_hash = $model->instance(
+        instance_name   => 'single_hash',
+        root_class_name => 'SingleHashElement',
+        root_dir        => $wr_root->stringify,
+    );
+
+    ok( $i_single_hash, "Created single hash instance" );
+
+    $load = "record:foo
   ipaddr=127.0.0.1
   canonical=localhost
   alias=localhost -
@@ -106,44 +112,46 @@ record:bar
   canonical=bilbo - -
 ";
 
-$i_single_hash->config_root->load($load);
+    $i_single_hash->config_root->load($load);
 
-$i_single_hash->write_back;
-ok( 1, "yaml single_hash write back done" );
+    $i_single_hash->write_back;
+    ok( 1, "yaml single_hash write back done" );
 
-ok( $yaml_file->exists, "check that config file $yaml_file was written" );
-$yaml = $yaml_file->slurp || die "can't open $yaml_file:$!";
+    ok( $yaml_file->exists, "check that config file $yaml_file was written" );
+    my $yaml = $yaml_file->slurp || die "can't open $yaml_file:$!";
 
-unlike( $yaml, qr/record/, "check single_hash yaml content" );
+    unlike( $yaml, qr/record/, "check single_hash yaml content" );
 
-# test that yaml file is removed when no data is left
-$i_single_hash->config_root->fetch_element("record")->clear;
-$i_single_hash->write_back;
-ok( ! $yaml_file->exists, "check that config file $yaml_file was removed by clearing content" );
+    # test that yaml file is removed when no data is left
+    $i_single_hash->config_root->fetch_element("record")->clear;
+    $i_single_hash->write_back;
+    ok( ! $yaml_file->exists, "check that config file $yaml_file was removed by clearing content" );
+};
 
-# idem for more complex class defined in model
-my $i_2_elements = $model->instance(
-    instance_name   => '2 elements',
-    root_class_name => 'TwoElements',
-    root_dir        => $wr_root->stringify,
-);
+subtest 'test yaml content for complex class' => sub {
+    my $i_2_elements = $model->instance(
+        instance_name   => '2 elements',
+        root_class_name => 'TwoElements',
+        root_dir        => $wr_root->stringify,
+    );
 
-ok( $i_single_hash, "Created '2 elements' instance" );
+    ok( $i_2_elements, "Created '2 elements' instance" );
 
-$i_2_elements->config_root->load($load);
+    $i_2_elements->config_root->load($load);
 
-$i_2_elements->write_back;
-ok( 1, "yaml 2 elements write back done" );
+    $i_2_elements->write_back;
+    ok( 1, "yaml 2 elements write back done" );
 
-ok( $yaml_file->exists, "check that config file $yaml_file was written" );
-$yaml = $yaml_file->slurp || die "can't open $yaml_file:$!";
+    ok( $yaml_file->exists, "check that config file $yaml_file was written" );
+    my $yaml = $yaml_file->slurp || die "can't open $yaml_file:$!";
 
-like( $yaml, qr/record/, "check 2 elements yaml content" );
+    like( $yaml, qr/record/, "check 2 elements yaml content" );
 
-$i_2_elements->config_root->fetch_element("record")->clear;
-$i_2_elements->write_back;
+    $i_2_elements->config_root->fetch_element("record")->clear;
+    $i_2_elements->write_back;
 
-ok( ! $yaml_file->exists, "check that config file $yaml_file was removed by clearing content" );
+    ok( ! $yaml_file->exists, "check that config file $yaml_file was removed by clearing content" );
+};
 
 memory_cycle_ok( $model, "check model mem cycles" );
 
