@@ -422,7 +422,7 @@ sub auto_write_init {
             }
         }
         elsif ($file_ok) {
-            $fh = $self->open_file_to_write( $backend, $file_path, delete $args{backup} );
+            $fh = $self->open_file_to_write( $backend, $file_path, delete $cb_args{backup} );
         }
 
         # override needed for "save as" button
