@@ -15,8 +15,6 @@ use Scalar::Util qw/weaken/;
 
 extends qw/Config::Model::AnyThing/;
 
-use Mouse::Util::TypeConstraints;
-
 subtype 'KeyArray' => as 'ArrayRef' ;
 coerce 'KeyArray' => from 'Str' => via { [$_] } ;
 
