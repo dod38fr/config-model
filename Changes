@@ -1,5 +1,21 @@
 {{$NEXT}}
 
+2.119 2018-04-02
+
+  Main change:
+    * use logger to warn about issues. By default, logged warnings
+      are shown on STDOUT. These warnings can be suppressed
+      using ~/.log4config-model file.   
+
+  API change:
+    * Instance: root_dir parameter can be a Path::Tiny object
+      or a string
+
+  Bug fixes:
+    * BackendMgr: fix broken file backup
+    * Backend: create dir before creating file
+    * Yaml backend: avoid redefined sub warning
+
 2.118 2018-03-26
 
   On-going backend deprecation:
