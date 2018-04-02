@@ -170,9 +170,12 @@ sub notify_change {
 
     return if $self->instance->initial_load and not $args{really};
 
-    $change_logger->trace( "called while needs_check is ",
-        $self->needs_check, " for ", $self->name, " with ", join( ' ', %args ) )
-        if $change_logger->is_trace;
+    if ($change_logger->is_trace) {
+        my @a = map { ( $_ => $args{$_} // '<undef>' ); } sort keys %args;
+        $change_logger->trace( "called while needs_check is ",
+        $self->needs_check, " for ", $self->name, " with ", join( ' ', @a ) );
+    }
+
     $self->needs_check(1) unless $check_done;
     {
         no warnings 'uninitialized';

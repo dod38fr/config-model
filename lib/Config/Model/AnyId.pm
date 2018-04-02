@@ -428,9 +428,11 @@ sub notify_change {
     my $self = shift;
     my %args = @_;
 
-    $change_logger->trace( "called for ", $self->name, " from ", join( ' ', caller ),
-        " with ", join( ' ', %args ) )
-        if $change_logger->is_trace;
+    if ($change_logger->is_trace) {
+        my @a = map { ( $_ => $args{$_} // '<undef>' ); } sort keys %args;
+        $change_logger->trace( "called for ", $self->name, " from ", join( ' ', caller ),
+        " with ", join( ' ', @a ) );
+    }
 
     # $idx may be undef if $self has changed, not necessarily its content
     my $idx = $args{index};
