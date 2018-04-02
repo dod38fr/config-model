@@ -9,7 +9,6 @@ use 5.10.1;
 
 use Config::Model::Exception;
 use Data::Dumper;
-use IO::File;
 use Storable qw/dclone/;
 use Scalar::Util qw/weaken reftype/;
 use Log::Log4perl qw(get_logger :levels);
@@ -126,11 +125,9 @@ sub get_cfg_file_path {
 sub open_read_file {
     my ($self, $file_path) = @_;
 
-    my $fh = new IO::File;
-    if ( -e $file_path ) {
+    if ( $file_path->is_file ) {
         $logger->debug("open_read_file: open $file_path for read");
-        $fh->open($file_path);
-        $fh->binmode(":utf8");
+        my $fh = $file_path->filehandle("<", ":utf8");
 
         # store a backup in memory in case there's a problem
         $self->file_backup( [ $fh->getlines ] );
