@@ -57,14 +57,14 @@ $model->create_config_class(
         }
     ],
     name => 'PlainTest::Class',
-    read_config => [{
+    rw_config => {
         auto_create => '1',
         auto_delete => '1',
         backend => 'PlainFile',
         config_dir => 'debian',
         file_mode => '0755',
         file => '&index(-).&element(-).&element'
-    }]
+    }
 );
 
 $model->create_config_class(
@@ -82,11 +82,11 @@ $model->create_config_class(
         },
     ],
 
-    read_config => [{
+    rw_config => {
         backend    => 'MyReader',
         config_dir => 'debian',
         auto_delete => '1',
-    }],
+    },
 );
 
 
