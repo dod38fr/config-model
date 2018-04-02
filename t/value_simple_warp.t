@@ -8,17 +8,14 @@ use Test::Memory::Cycle;
 use Config::Model;
 use Data::Dumper;
 
+use Config::Model::Tester::Setup qw/init_test setup_test_dir/;
+
+use warnings;
 use strict;
 
-my $arg = shift || '';
+my ($model, $trace) = init_test(shift);
 
-my $trace = $arg =~ /t/ ? 1 : 0;
-Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
-
-use Log::Log4perl qw(:easy);
-Log::Log4perl->easy_init( $arg =~ /l/ ? $TRACE : $WARN );
-
-ok( 1, "Compilation done" );
+$::_use_log4perl_to_warn = 1;
 
 my @rules = (
     F => { choice => [qw/A B C F F2/], default => 'F' },
@@ -29,7 +26,6 @@ my @args = (
     mandatory  => 1,
     choice     => [qw/A B C/] );
 
-my $model = Config::Model->new( legacy => 'ignore', );
 $model->create_config_class(
     name    => "Master",
     element => [
