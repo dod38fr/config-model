@@ -9,19 +9,18 @@ use File::Copy;
 use Data::Dumper;
 use IO::File;
 
-use lib -d 't' ? 't/lib' : 'lib';
-use MyTestLib qw/init_test setup_test_dir/;
+use Config::Model::Tester::Setup qw/init_test setup_test_dir/;
 
 use warnings;
 use strict;
 
-my ($model, $trace) = init_test(shift);
+my ($model, $trace) = init_test();
 
 # pseudo root where config files are written by config-model
-my $wr_root = setup_test_dir();
+my $wr_root = setup_test_dir( stringify => 0 );
 
-my $subdir = 'plain/';
-mkpath( $wr_root . $subdir, { mode => 0755 } );
+my $subdir = $wr_root->child('plain');
+$subdir->mkpath;
 
 $model->create_config_class(
     name    => "WithPlainFile",
@@ -31,19 +30,14 @@ $model->create_config_class(
     ],
     rw_config => {
         backend    => 'plain_file',
-        config_dir => $subdir,
+        config_dir => $subdir->relative($wr_root),
     },
 );
 
-my $fh = IO::File->new;
-$fh->open( $wr_root . $subdir . 'source', ">" );
-$fh->print("2.0\n");
-$fh->close;
+$subdir->child('source')->spew("2.0\n");
 ok( 1, "wrote source file" );
 
-$fh->open( $wr_root . $subdir . 'clean', ">" );
-$fh->print("foo\n*/*/bar\n");
-$fh->close;
+$subdir->child('clean')->spew("foo\n*/*/bar\n");
 ok( 1, "wrote clean file" );
 
 my $inst = $model->instance(
@@ -66,8 +60,8 @@ $root->load($load);
 $inst->write_back;
 ok( 1, "plain file write back done" );
 
-my $new_file = $wr_root . 'plain/new';
-ok( -e $new_file, "check that config file $new_file was written" );
+my $new_file = $wr_root->child('plain/new');
+ok($new_file->is_file, "check that config file $new_file was written" );
 
 is($root->grab('source')->backend_support_annotation(), 0, "check backend annotation support");
 

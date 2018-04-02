@@ -8,8 +8,7 @@ use File::Copy;
 use Test::Warn;
 use Test::Exception;
 
-use lib -d 't' ? 't/lib' : 'lib';
-use MyTestLib qw/init_test setup_test_dir/;
+use Config::Model::Tester::Setup qw/init_test setup_test_dir/;
 
 use warnings;
 use strict;
@@ -17,7 +16,7 @@ use strict;
 my ($model, $trace) = init_test(shift);
 
 # pseudo root where config files are written by config-model
-my $wr_root = setup_test_dir();
+my $wr_root = setup_test_dir( stringify => 1 );
 
 $model->create_config_class(
     'rw_config' => {

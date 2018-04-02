@@ -72,13 +72,12 @@ sub _check_value {
 
     # need to test that prest config file is present as the model
     # may not enforce it (when read_config auto_create is 1)
-    my $layered_file = $self->instance->root_dir;
-    $layered_file .= $value;
+    my $layered_file = $self->instance->root_dir->child($value);
 
     my $err = $self->{error_list};
 
-    if ( not -r $layered_file ) {
-        push @$err, "cannot read include file $$layered_file";
+    if ( not $layered_file->is_file ) {
+        push @$err, "cannot read include file $layered_file";
     }
 
     return wantarray ? @$err : scalar @$err ? 0 : 1;

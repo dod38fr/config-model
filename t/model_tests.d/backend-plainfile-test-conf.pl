@@ -23,8 +23,8 @@ $model_to_test = "MiniPlain";
         my $self = shift;
         my %args = @_;
 
-        my $dir = $args{root}.$args{config_dir};
-        foreach my $file (path($dir)->children()) {
+        my $dir = $args{root}->child($args{config_dir});
+        foreach my $file ($dir->children()) {
             my_log("dummy read file $file");
             my ($key,$elt) = split /\./,$file->basename;
             $args{object}->load("$elt:$key");

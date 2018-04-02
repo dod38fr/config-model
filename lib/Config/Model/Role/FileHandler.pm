@@ -34,7 +34,7 @@ sub get_tuned_config_dir {
         $dir =~ s/^~/$home/;
     }
 
-    return $args{root} ? path($args{root})->child($dir)
+    return $args{root} ? $args{root}->child($dir)
         : $dir ?  path($dir)
         :         path ('.');
 }
