@@ -66,9 +66,32 @@ subtest 'Create YAML file from scratch' => sub {
 
     my $written = $yaml_file->slurp;
     unlike($written, qr/record/, "check that list element name is not written");
+};
 
+subtest 'test automatic file backup' => sub {
+    my $i_hosts = $model->instance(
+        instance_name   => 'hosts_inst_backup',
+        root_class_name => 'Hosts',
+        root_dir        => $wr_root->stringify,
+        model_file      => 'test_yaml_model.pl',
+        backup => ''
+    );
 
+    ok( $i_hosts, "Created instance" );
 
+    my $i_root = $i_hosts->config_root;
+
+    $i_root->load("record:2 ipaddr=192.168.0.3 canonical=stuff");
+
+    $i_hosts->write_back;
+    ok( 1, "yaml write back done" );
+
+    my $backup = path($yaml_file.'.old');
+    ok ($backup->exists, "backup file was written");
+
+    # restore backup to undo the load done 4 lines ago
+    # so the next subtest tests that the backup content is right
+    $backup->move($yaml_file);
 };
 
 subtest 'another instance to read the yaml that was just written' => sub {
