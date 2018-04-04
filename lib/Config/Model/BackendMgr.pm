@@ -127,12 +127,9 @@ sub open_read_file {
 
     if ( $file_path->is_file ) {
         $logger->debug("open_read_file: open $file_path for read");
-        my $fh = $file_path->filehandle("<", ":utf8");
-
         # store a backup in memory in case there's a problem
-        $self->file_backup( [ $fh->getlines ] );
-        $fh->seek( 0, 0 );    # go back to beginning of file
-        return $fh;
+        $self->file_backup( [ $file_path->lines_utf8 ] );
+        return $file_path->filehandle("<", ":utf8");
     }
     else {
         return;
@@ -496,24 +493,20 @@ sub close_file_to_write {
 
     return unless defined $file_path;
 
-    if ($error) {
+    $fh->close;
 
+    if ($error) {
         # restore backup and display error
-        my $data = $self->file_backup;
-        $logger->debug(
-            "Error during write, restoring backup in $file_path with " . scalar @$data . " lines" );
-        $fh->seek( 0, 0 );    # go back to beginning of file
-        $fh->print(@$data);
-        $fh->close;
+        $logger->debug("Error during write, restoring backup data in $file_path" );
+        $file_path->spew_utf8( $self->file_backup );
         $error->rethrow if ref($error) and $error->can('rethrow');
         die $error;
     }
 
-    $fh->close;
-    path($file_path)->chmod($file_mode) if $file_mode;
+    $file_path->chmod($file_mode) if $file_mode;
 
     # check file size and remove empty files
-    unlink($file_path) if -z $file_path and not -l $file_path;
+    $file_path->remove if -z $file_path and not -l $file_path;
 }
 
 sub is_auto_write_for_type {
