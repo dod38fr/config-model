@@ -30,7 +30,7 @@ subtest "Check reading of global comments" => sub {
     my $root = $inst->config_root;
     $root->init;
 
-    my @lines = (
+    my @copy = my @lines = (
         '## cme comment 1',
         '## cme comment 2',
         '',
@@ -40,8 +40,6 @@ subtest "Check reading of global comments" => sub {
         '# data comment',
         'stuff',
     );
-
-    my @copy = @lines;
 
     $root->backend_mgr->backend_obj->read_global_comments(\@lines, '#');
 
