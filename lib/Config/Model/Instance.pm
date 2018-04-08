@@ -227,14 +227,13 @@ has [qw/name application backend backend_arg backup/] => (
     isa => 'Maybe[Str]',
 );
 
-subtype 'RootPath' => as 'Path::Tiny' ;
-coerce 'RootPath' => from 'Any' => via sub { Path::Tiny::path($_); } ;
+subtype 'RootPath' => as 'Maybe[Path::Tiny]' ;
+coerce 'RootPath' => from 'Str' => via sub { defined ?  Path::Tiny::path($_) : undef ; } ;
 
 has 'root_dir' => (
     is => 'ro',
     isa => 'RootPath',
-    coerce => 1,
-    default => sub { return Path::Tiny->cwd }
+    coerce => 1
 );
 
 sub read_root_dir {
