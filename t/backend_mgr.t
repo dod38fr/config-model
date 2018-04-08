@@ -26,28 +26,30 @@ $model->create_config_class(
     'element' => [ 'source' => { 'type' => 'leaf', value_type => 'string', } ]
 );
 
-my $inst = $model->instance( root_class_name => 'Test', root_dir => $wr_root, );
-my $root = $inst->config_root;
-$root->init;
+subtest "Check reading of global comments" => sub {
+    my $inst = $model->instance( root_class_name => 'Test', root_dir => $wr_root, );
+    my $root = $inst->config_root;
+    $root->init;
 
-my @lines = split /\n/, << 'EOF';
-## cme comment 1
-## cme comment 2
+    my @lines = (
+        '## cme comment 1',
+        '## cme comment 2',
+        '',
+        '# global comment1',
+        '# global comment2',
+        '',
+        '# data comment',
+        'stuff',
+    );
 
-# global comment1
-# global comment2
+    my @copy = @lines;
 
-# data comment
-stuff
-EOF
+    $root->backend_mgr->backend_obj->read_global_comments(\@lines, '#');
 
-my @copy = @lines;
+    is_deeply(\@lines, [ @copy[-2,-1] ], "check untouched lines" );
+    is($root->annotation,join("\n", map {s/#\s+//; $_;} @copy[3,4]), "check extracted global comment");
 
-$root->backend_mgr->backend_obj->read_global_comments(\@lines, '#');
-
-is_deeply(\@lines, [ @copy[-2,-1] ], "check untouched lines" );
-is($root->annotation,join("\n", map {s/#\s+//; $_;} @copy[3,4]), "check extracted global comment");
-
+};
 
 memory_cycle_ok($model);
 
