@@ -4,13 +4,12 @@ use Test::More;
 use Test::Memory::Cycle;
 use Config::Model;
 
-use lib -d 't' ? 't/lib' : 'lib';
-use MyTestLib qw/init_test setup_test_dir/;
+use Config::Model::Tester::Setup qw/init_test setup_test_dir/;
 
 use warnings;
 use strict;
 
-my ($model, $trace) = init_test(shift);
+my ($model, $trace) = init_test();
 
 # pseudo root where config files are written by config-model
 my $wr_root = setup_test_dir();
