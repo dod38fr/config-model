@@ -26,7 +26,11 @@ $model->create_config_class(
 );
 
 subtest "Check reading of global comments" => sub {
-    my $inst = $model->instance( root_class_name => 'Test', root_dir => $wr_root, );
+    my $inst = $model->instance(
+        name => "global-comment",
+        root_class_name => 'Test',
+        root_dir => $wr_root,
+    );
     my $root = $inst->config_root;
     $root->init;
 
