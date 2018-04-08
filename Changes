@@ -1,5 +1,11 @@
 {{$NEXT}}
 
+2.120 2018-04-08
+
+  Bug fix:
+    * fix config file location declared with absolute
+      path (i.e. all system application like ssh, systemd)
+
 2.119 2018-04-02
 
   Main change:
