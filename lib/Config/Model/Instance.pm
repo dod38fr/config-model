@@ -228,7 +228,7 @@ has [qw/name application backend backend_arg backup/] => (
 );
 
 subtype 'RootPath' => as 'Maybe[Path::Tiny]' ;
-coerce 'RootPath' => from 'Str' => via sub { defined ?  Path::Tiny::path($_) : undef ; } ;
+coerce 'RootPath' => from 'Str' => via sub { defined $_ ?  Path::Tiny::path($_) : undef ; } ;
 
 has 'root_dir' => (
     is => 'ro',
