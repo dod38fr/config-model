@@ -181,35 +181,17 @@ sub initialize_log4perl {
     my $home = File::HomeDir->my_home // '';
     my $log4perl_user_conf_file = path( $home . '/.log4config-model' );
 
-    my $fallback_conf           = << 'EOC';
-log4perl.rootLogger=WARN, Screen
+    my $fallback_conf_file = path($INC{"Config/Model.pm"})
+        ->parent->child("Model/log4perl.conf") ;
 
-# user message about deprecation issues
-log4perl.logger.Model.Legacy = INFO, SimpleScreen
-log4perl.additivity.Model.Legacy = 0
 
-# messages for users, aims to replace calls to warn for warnings or fix messages
-log4perl.logger.User = WARN, SimpleScreen
-log4perl.additivity.User = 0
-
-log4perl.appender.Screen        = Log::Log4perl::Appender::Screen
-log4perl.appender.Screen.stderr = 0
-log4perl.appender.Screen.layout = Log::Log4perl::Layout::PatternLayout
-log4perl.appender.Screen.layout.ConversionPattern = %M %m (line %L)%n
-
-log4perl.appender.SimpleScreen        = Log::Log4perl::Appender::Screen
-log4perl.appender.SimpleScreen.stderr = 1
-log4perl.appender.SimpleScreen.layout = Log::Log4perl::Layout::PatternLayout
-log4perl.appender.SimpleScreen.layout.ConversionPattern = %p: %m%n
-
-log4perl.oneMessagePerAppender = 1
-EOC
-
-    my @log4perl_conf_lines =
-        $log4perl_user_conf_file->is_file ? $log4perl_user_conf_file->lines
-      : $log4perl_syst_conf_file->is_file ? $log4perl_syst_conf_file->lines
-      :                                     split /\n/, $fallback_conf;
-    my %log4perl_conf = map { split /\s*=\s*/,$_,2; } grep { chomp; ! /^\s*#/ } @log4perl_conf_lines;
+    my $log4perl_file =
+        $log4perl_user_conf_file->is_file ? $log4perl_user_conf_file
+      : $log4perl_syst_conf_file->is_file ? $log4perl_syst_conf_file
+      :                                     $fallback_conf_file;
+    my %log4perl_conf =
+        map { split /\s*=\s*/,$_,2; }
+        grep { chomp; ! /^\s*#/ } $log4perl_file->lines;
 
     if (defined $args->{log_level}) {
         $log4perl_conf{'log4perl.logger'} = $args->{log_level}.', Screen';
