@@ -19,6 +19,7 @@ subtype 'KeyArray' => as 'ArrayRef' ;
 coerce 'KeyArray' => from 'Str' => via { [$_] } ;
 
 my $logger = get_logger("Tree::Element::Id");
+my $user_logger = get_logger("User");
 my $deep_check_logger = get_logger('DeepCheck');
 my $fix_logger = get_logger("Anything::Fix");
 my $change_logger = get_logger("ChangeTracker");
@@ -507,7 +508,7 @@ sub check_content {
 
         map {
             if ($::_use_log4perl_to_warn) {
-                $logger->warn( "Warning in '" . $self->location_short . "': $_" )
+                $user_logger->warn( "Warning in '" . $self->location_short . "': $_" )
             }
             else {
                 warn( "Warning in '" . $self->location_short . "': $_\n" )
@@ -585,7 +586,7 @@ sub check_idx {
     if (@warn and not $silent and $check ne 'no') {
         map {
             if ($::_use_log4perl_to_warn) {
-                $logger->warn( "Warning in '" . $self->location_short . "': $_" );
+                $user_logger->warn( "Warning in '" . $self->location_short . "': $_" );
             }
             else {
                 warn( "Warning in '" . $self->location_short . "': $_\n" )

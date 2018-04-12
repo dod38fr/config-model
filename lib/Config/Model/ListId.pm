@@ -13,6 +13,7 @@ with "Config::Model::Role::Grab";
 with "Config::Model::Role::ComputeFunction";
 
 my $logger = get_logger("Tree::Element::Id::List");
+my $user_logger = get_logger("User");
 
 has data => (
     is      => 'rw',
@@ -41,8 +42,9 @@ sub BUILD {
 
     if ( defined $self->{migrate_keys_from} ) {
         if ($::_use_log4perl_to_warn) {
-            $logger->warn($self->name, "Using migrate_keys_from with list element is deprecated.",
-                          " Use migrate_values_from");
+            $user_logger->warn(
+                $self->name, "Using migrate_keys_from with ",
+                "list element is deprecated. Use migrate_values_from");
         }
         else {
             warn $self->name, "Using migrate_keys_from with list element is deprecated.",
