@@ -2637,6 +2637,12 @@ the various exception classes provided with C<Config::Model>.
 
 See L<cme/Logging>
 
+=head2 initialize_log4perl
+
+This method can be called to load L<Log::Log4perl> configuration from
+C<~/.log4config-model>, or from L</etc/log4config-model.conf> files or from
+L<default configuration|https://github.com/dod38fr/config-model/blob/master/lib/Config/Model/log4perl.conf>.
+
 =head1 BUGS
 
 Given Murphy's law, the author is fairly confident that you will find
