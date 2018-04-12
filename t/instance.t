@@ -12,6 +12,9 @@ use Config::Model::Tester::Setup qw/init_test/;
 use strict;
 use lib "t/lib";
 
+use Test::Log::Log4perl;
+$::_use_log4perl_to_warn = 1;
+
 my ($model, $trace) = init_test();
 
 $model->create_config_class(
@@ -55,9 +58,15 @@ is( $inst->root_dir->stringify,  'foobar', "test config root directory" );
 my $root = $inst->config_root;
 my $wip  = $root->fetch_element('warn_if');
 my $wup  = $root->fetch_element('warn_unless');
-warning_like { $wip->store('foobar'); } qr/should not match/,
-    "test warn_if condition (instance test)";
-warning_like { $wup->store('bar'); } qr/should match/, "test warn_unless condition (instance test)";
+
+my $wt = Test::Log::Log4perl->get_logger("User");
+Test::Log::Log4perl->start(ignore_priority => "info");
+$wt->warn(qr/should not match/);
+$wt->warn(qr/should match/);
+$wip->store('foobar');
+$wup->store('bar');
+Test::Log::Log4perl->end("test warn_if and warn_unless condition (instance test)");
+
 is( $inst->has_warning, 2, "check warning count at instance level" );
 $inst->apply_fixes;
 is( $wup->fetch,        'foobar', "test if fixes were applied (instance test)" );
