@@ -65,6 +65,7 @@ my $build = $class->new(
 );
 
 $build->add_build_element('pl');
+$build->add_build_element('conf');
 $build->add_build_element('appli');
 
 $build->create_build_script;
