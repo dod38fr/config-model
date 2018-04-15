@@ -1,5 +1,22 @@
 {{$NEXT}}
 
+2.121 2018-04-15
+
+  Bug fix:
+    * BackendMgr: fix handling of file argument
+    * Instance: fix compat with Perl < 5.20
+
+  Log improvements:
+    * use User class to log warning for User
+    * Model: add doc for initialize_log4perl
+    * Model: moved log4perl default conf in a separate file
+      (lib/Config/Model/log4perl.conf)
+
+  Test improvements:
+    * add README for the tests
+    * some tests can be rung with --log, --trace and --error
+      options. See t/README.pod for details
+
 2.120 2018-04-08
 
   Bug fix:
