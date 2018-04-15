@@ -8,8 +8,4 @@ use ExtUtils::testlib;
 
 $::_use_log4perl_to_warn = 1;
 
-my $arg             = shift || '';
-my $test_only_model = shift || '';
-my $do              = shift;
-
-run_tests( $arg, $test_only_model, $do );
+run_tests();
