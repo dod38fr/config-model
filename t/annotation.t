@@ -5,6 +5,7 @@ use Test::More ;
 use Test::Memory::Cycle;
 use Config::Model;
 use Config::Model::Annotation;
+use Config::Model::Tester::Setup qw/init_test setup_test_dir/;
 use File::Path;
 use Data::Dumper;
 use 5.10.0;
@@ -16,23 +17,8 @@ use strict;
 
 use lib 't/lib';
 
-my $arg = shift || '';
-my $trace = $arg =~ /t/ ? 1 : 0;
-Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
-
-# pseudo root where config files are written by config-model
-my $wr_root = 'wr_root_p/annotation/';
-
-# cleanup before tests
-rmtree($wr_root);
-mkpath( $wr_root, { mode => 0755 } );
-
-use Log::Log4perl qw(:easy);
-Log::Log4perl->easy_init( $arg =~ /l/ ? $TRACE : $WARN );
-
-my $model = Config::Model->new( legacy => 'ignore', );
-
-ok( 1, "compiled" );
+my ($model, $trace) = init_test();
+my $wr_root = setup_test_dir();
 
 my $inst = $model->instance(
     root_class_name => 'Master',
