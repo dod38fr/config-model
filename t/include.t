@@ -15,7 +15,7 @@ use strict;
 use Config::Model::Tester::Setup qw/init_test/;
 
 # minimal set up to get things working
-my ($model, $trace) = init_test(shift);
+my ($model, $trace) = init_test();
 
 $model->create_config_class(
     name => "Two",
