@@ -4,40 +4,18 @@ use warnings;
 
 use ExtUtils::testlib;
 use Test::More;
-use Test::Exception;
 use Test::Memory::Cycle;
 use Config::Model;
 use Config::Model::Value;
+use Config::Model::Tester::Setup qw/init_test/;
 use Data::Dumper;
-use Log::Log4perl qw(:easy);
-
-BEGIN { plan tests => 9; }
 
 use strict;
 
-my $arg = shift || '';
-my ( $log, $show ) = (0) x 2;
+my ($model, $trace) = init_test();
 
-my $trace = $arg =~ /t/ ? 1 : 0;
-$log  = 1 if $arg =~ /l/;
-$show = 1 if $arg =~ /s/;
-
-my $home = $ENV{HOME} || "";
-my $log4perl_user_conf_file = "$home/.log4config-model";
-
-if ( $log and -e $log4perl_user_conf_file ) {
-    Log::Log4perl::init($log4perl_user_conf_file);
-}
-else {
-    Log::Log4perl->easy_init( $log ? $WARN : $ERROR );
-}
-
-ok( 1, "Compilation done" );
-
-$Config::Model::Value::nowarning = 1 unless $trace;
-
+$::_use_log4perl_to_warn =1;
 # minimal set up to get things working
-my $model = Config::Model->new();
 
 $model->create_config_class(
     name    => "NodeFix",
@@ -102,4 +80,6 @@ map {
 
 print $root->dump_tree if $trace;
 
-memory_cycle_ok($model);
+memory_cycle_ok($model, "memory cycle");
+
+done_testing;
