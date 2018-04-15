@@ -8,15 +8,12 @@ use Test::Differences;
 use Test::Memory::Cycle;
 use Config::Model;
 use Config::Model::AnyId;
-use Log::Log4perl qw(:easy :levels);
-
-use lib -d 't' ? 't/lib' : 'lib';
-use MyTestLib qw/init_test/;
 
 use strict;
 use warnings;
+use Config::Model::Tester::Setup qw/init_test/;
 
-my ($model, $trace) = init_test(shift);
+my ($model, $trace) = init_test();
 
 my @element = (
 
