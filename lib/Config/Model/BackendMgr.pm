@@ -99,7 +99,8 @@ sub get_cfg_file_path {
     my $cfo = $args{config_file};
 
     if ( defined $cfo ) {
-        my $override =  $args{root}->child($cfo);
+        my $root_path = $args{root} // path('.');
+        my $override =  $root_path->child($cfo);
         my $mode = $w ? 'write' : 'read';
         $logger->trace("$args{backend} override target file is $override ($mode mode)");
         return ( 1, $override );

@@ -85,6 +85,37 @@ subtest "check config file with absolute path" => sub {
 
 };
 
+subtest "check config file override" => sub {
+    my $abs_test_dir = $wr_root->child('cfg_file_override_test');
+    $abs_test_dir->mkpath;
+    my $ini_file = $abs_test_dir->child('test-cfo.ini');
+    $ini_file -> spew( "source =   fine");
+
+    $model->create_config_class(
+        'rw_config' => {
+            'backend'     => 'ini_file',
+        },
+        'name'    => 'TestCfo',
+        'element' => ['source' => { 'type' => 'leaf', value_type => 'string', } ]
+    );
+
+    my $inst = $model->instance(
+        name => 'test-cfo',
+        root_class_name => 'TestCfo',
+        config_file  => $ini_file->stringify
+    );
+
+    my $root = $inst->config_root;
+    $root->init;
+
+    is($root->grab_value('source'),'fine', "check read data");
+    $root->load("source=ok");
+    $inst->write_back;
+
+    file_contents_like( $ini_file->stringify, "source = ok","$ini_file content");
+
+};
+
 memory_cycle_ok($model, "memory cycle");
 
 done_testing;
