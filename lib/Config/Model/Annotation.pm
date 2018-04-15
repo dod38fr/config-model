@@ -2,9 +2,9 @@ package Config::Model::Annotation;
 
 use Mouse;
 use English;
+use Mouse::Util::TypeConstraints;
 
-use File::Path;
-use IO::File;
+use Path::Tiny;
 use Data::Dumper;
 
 use Config::Model::Exception;
@@ -20,36 +20,35 @@ use Carp qw/croak confess cluck/;
 
 has 'instance' => ( is => 'ro', isa => 'Config::Model::Instance', required => 1 );
 has 'config_class_name' => ( is => 'ro', isa => 'Str', required => 1 );
-has 'file' => ( is => 'ro', isa => 'Str', lazy => 1, builder => '_set_file' );
-has 'dir' => ( is => 'ro', isa => 'Str', lazy => 1, builder => '_set_dir' );
-has 'root_dir' => ( is => 'ro', isa => 'Str|Undef', default => '' );
+has 'file' => ( is => 'ro', isa => 'Path::Tiny', lazy => 1, builder => '_set_file' );
+has 'dir' => ( is => 'ro', isa => 'Path::Tiny', lazy => 1, builder => '_set_dir' );
+
+has 'root_dir' => (
+    is => 'ro',
+    isa => 'RootPath', # defined in Instance
+    coerce => 1
+);
 
 sub _set_file {
     my $self = shift;
-    return $self->dir . $self->config_class_name . '-note.pl';
+    return $self->dir->child( $self->config_class_name . '-note.pl');
 }
 
 sub _set_dir {
     my $self = shift;
-    my $dir =
-          $self->root_dir ? $self->root_dir
-        : $EUID           ? "/var/lib/"
-        :                   "~/.";
-    $dir .= "config-model/";
-    return $dir;
+    return
+          $self->root_dir ? $self->root_dir->child('config-model')
+        : $EUID           ? path("/var/lib/config-model")
+        :                   path("~/.config-model");
 }
 
 sub save {
     my $self = shift;
 
     my $dir = $self->dir;
-    mkpath( $dir, { mode => 0755, verbose => 0 } ) unless -d $dir;
+    $dir->mkpath;
     my $h    = $self->get_annotation_hash;
-    my $data = Dumper($h);
-    my $io   = IO::File->new( $self->file, 'w', 0644 )
-        || croak "Can't open $dir" . $self->file . ": $!";
-    print $io $data;
-    $io->close;
+    $self->file->spew_utf8( Dumper($h) );
 }
 
 sub get_annotation_hash {
@@ -124,7 +123,7 @@ sub store_note_in_data {
 sub load {
     my $self = shift;
     my $f    = $self->file;
-    return unless -e $f;
+    return unless $f->exists;
     my $hash = do "./$f" || croak "can't do $f:$!";
     my $root = $self->instance->config_root;
 
