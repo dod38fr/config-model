@@ -3,7 +3,6 @@
 use ExtUtils::testlib;
 use Test::More;
 use Test::Exception;
-use Test::Warn;
 use Test::Memory::Cycle;
 use Config::Model;
 use File::Path;
@@ -15,17 +14,11 @@ no warnings qw(once);
 
 use strict;
 
-my $arg = shift || '';
+use Test::Log::Log4perl;
+$::_use_log4perl_to_warn = 1;
 
-my $trace = $arg =~ /t/ ? 1 : 0;
-Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
-
-use Log::Log4perl qw(:easy);
-Log::Log4perl->easy_init( $arg =~ /l/ ? $TRACE : $ERROR );
-
-my $model = Config::Model->new();
-
-ok( 1, "compiled" );
+use Config::Model::Tester::Setup qw/init_test/;
+my ($model, $trace) = init_test();
 
 $model->create_config_class(
     name => 'Host',
@@ -125,9 +118,14 @@ foreach my $oops (qw/foo=bar vlistB=test/) {
         "caught unacceptable parameter: $oops";
 }
 
+my $wt = Test::Log::Log4perl->get_logger("User");
+
 ### test always_warn parameter
+Test::Log::Log4perl->start(ignore_priority => "info");
 my $bad = $i_root->fetch_element('badbad');
-warning_like { $bad->store('whatever'); } qr/gotcha/, "test unconditional warn";
+$wt->warn(qr/gotcha/);
+$bad->store('whatever');
+Test::Log::Log4perl->end("test unconditional warn");
 
 eval {require Text::Levenshtein::Damerau} ;
 my $has_tld = ! $@ ;
@@ -138,16 +136,21 @@ SKIP: {
     ### test user typo: accepted element is too close to real element
     my @shaves = qw/oter 1 other2 1 otehr 1 other23 1 oterh23 0/;
     while ( my $close_shave = shift @shaves) {
+        Test::Log::Log4perl->start(ignore_priority => "info");
         my $expect = shift @shaves;
+        my $msg ;
         if ($expect) {
-            warning_like { $i_root->fetch_element($close_shave); } qr/distance/, "test $close_shave too close to 'other'";
+            $wt->warn(qr/distance/);
+            $msg = "test $close_shave too close to 'other'";
         }
         else {
-            warnings_are  { $i_root->fetch_element($close_shave); } [], "test accept $close_shave, is not too close to 'other'";
+            $msg = "test accept $close_shave, is not too close to 'other'";
         }
+        $i_root->fetch_element($close_shave);
+        Test::Log::Log4perl->end($msg);
     }
 }
 
-memory_cycle_ok($model);
+memory_cycle_ok($model, "memory cycle");
 
 done_testing;
