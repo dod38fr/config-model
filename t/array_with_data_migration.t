@@ -1,19 +1,15 @@
 # -*- cperl -*-
 
-use warnings;
 
-use ExtUtils::testlib;
 use Test::More;
 use Test::Exception;
-use Test::Warn;
 use Test::Differences;
 use Test::Memory::Cycle;
 use Config::Model;
 use Log::Log4perl qw(:easy :levels);
 
-BEGIN { plan tests => 11; }
-
 use strict;
+use warnings;
 
 my $arg = shift || '';
 
@@ -107,3 +103,5 @@ ok( $lwdm2, "create list2_with_data_migration element" );
 eq_or_diff( [ $lwdm2->fetch_all_values ], [ baz0 => @old ], "list2 data migration (@old)" );
 
 memory_cycle_ok( $model, "test memory cycles" );
+
+done_testing;
