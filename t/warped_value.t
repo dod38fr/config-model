@@ -315,6 +315,24 @@ $model->create_config_class(
             },
             'type' => 'leaf'
         },
+        # a bit dumb, but required to test warp from computed value
+        'compute_simple' => {
+            type       => 'leaf',
+            value_type => 'string',
+            compute    => {
+                formula   => 'my element is &element',
+            },
+        },
+        warped_from_computed_value => {
+            type       => 'leaf',
+            value_type => 'string',
+            level      => 'hidden',
+            default    => 'hello',
+            warp       => {
+                follow => { c => '- compute_simple' },
+                rules  => [ '$c =~ /simple/' => { level => 'normal', }, ]
+            }
+        }
     ] );
 
 my $inst = $model->instance(
@@ -350,7 +368,8 @@ eq_or_diff(
     [ $root->get_element_name() ],
     [
         qw'get_element where_is_element macro m_value_out m2_value_out
-            compute var_path class bar foo foo2 ClientAliveCheck'
+            compute var_path class bar foo foo2 ClientAliveCheck
+            compute_simple warped_from_computed_value'
     ],
     "Elements of Master"
 );
@@ -386,7 +405,7 @@ eq_or_diff(
     [
         qw'get_element where_is_element macro m2_value_out macro2 m_value
             m_value_old compute var_path class bar foo foo2
-            ClientAliveCheck'
+            ClientAliveCheck compute_simple warped_from_computed_value'
     ],
     "Elements of Master when macro = B"
 );
@@ -398,7 +417,7 @@ is_deeply(
     [
         qw'get_element where_is_element macro macro2
             m_value m_value_old compute var_path class warped_out_ref bar
-            foo foo2 ClientAliveCheck'
+            foo foo2 ClientAliveCheck compute_simple warped_from_computed_value'
     ],
     "Elements of Master when macro = B macro2 = A"
 );
@@ -430,6 +449,8 @@ is( $root->fetch_element('m_value')->get_help('Av'), 'Av help', 'test m_value he
 is( $root->fetch_element('m_value')->get_help('Cv'), undef, 'test m_value help with macro=A' );
 
 $root->fetch_element('macro')->store('D');
+
+is( $root->fetch_element('warped_from_computed_value')->fetch, 'hello', "check 'warped_from_computed_value");
 
 is( $root->fetch_element('m_value')->fetch, 'Av', 'test m_value with macro=D' );
 
