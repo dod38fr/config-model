@@ -290,7 +290,8 @@ $model->create_config_class(
             level      => 'hidden',
             warp       => {
                 follow => { m => '- macro', m2 => '- macro2' },
-                rules => [ '$m eq "A" or $m2 eq "A"' => { level => 'normal', }, ] }
+                rules  => [ '$m eq "A" or $m2 eq "A"' => { level => 'normal', }, ]
+            }
         },
 
         [qw/bar foo foo2/] => {
