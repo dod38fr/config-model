@@ -55,7 +55,8 @@ $model->create_config_class(
 
 $model->create_config_class(
     name    => "Two",
-    element => [ two => { type => 'leaf', value_type => 'string', }, ] );
+    element => [ two => { type => 'leaf', value_type => 'string', }, ]
+);
 
 $model->augment_config_class(
     name          => "Master",
@@ -92,7 +93,8 @@ $model->augment_config_class(
 # augment a class which is inherited
 $model->augment_config_class(
     name    => "Two",
-    element => [ two_and_a_half => { type => 'leaf', value_type => 'string', }, ] );
+    element => [ two_and_a_half => { type => 'leaf', value_type => 'string', }, ]
+);
 
 # use Tk::ObjScanner; Tk::ObjScanner::scan_object($model) ;
 
