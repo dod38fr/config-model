@@ -1,10 +1,6 @@
 # -*- cperl -*-
 
-use warnings;
-
-use ExtUtils::testlib;
 use Test::More;
-use Test::Exception;
 use Test::Memory::Cycle;
 use Test::Differences;
 use Config::Model;
@@ -12,6 +8,7 @@ use Data::Dumper;
 use Log::Log4perl qw(:easy :levels);
 
 use strict;
+use warnings;
 
 my $arg = shift || '';
 my ( $log, $show ) = (0) x 2;
