@@ -33,6 +33,7 @@ else {
 }
 Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 
+my $model     = Config::Model->new();
 ok( 1, "compiled" );
 
 # pseudo root where config files are written by config-model
@@ -48,7 +49,6 @@ map { s/# foo2/; foo2/; } @with_one_semicolon_comment;
 sub init_test {
     my ($test_class, $test_data, $config_dir) = @_;
 
-    my $model     = Config::Model->new();
     my @orig      = @$test_data ;
 
     # cleanup before tests
@@ -67,7 +67,7 @@ sub init_test {
     close CONF;
 
     my $i_test = $model->instance(
-        instance_name   => 'test_inst',
+        instance_name   => "test_inst_for_$test_class",
         root_class_name => $test_class,
         root_dir        => $wr_dir,
         model_file      => 'test_ini_backend_model.pl',
@@ -102,7 +102,7 @@ sub finish {
         or die "can't copy from test1 to test2: $!";
 
     my $i2_test = $model->instance(
-        instance_name   => 'test_inst2',
+        instance_name   => "test_inst2_for_$test_class",
         root_class_name => $test_class,
         root_dir        => $wr_dir2,
         config_dir      => $i_test->config_dir, # propagate from first test instance
