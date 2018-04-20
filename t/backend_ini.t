@@ -7,10 +7,6 @@ use Test::More;
 use Test::Memory::Cycle;
 use Config::Model;
 use Config::Model::Tester::Setup qw/init_test  setup_test_dir/;
-use File::Path;
-use File::Copy;
-use Data::Dumper;
-use Log::Log4perl qw(:easy);
 
 use warnings;
 no warnings qw(once);
@@ -21,7 +17,7 @@ use lib "t/lib";
 my ($model, $trace) = init_test();
 
 # pseudo root where config files are written by config-model
-my $wr_root = 'wr_root_p/backend-ini/';
+my $wr_root = setup_test_dir();
 
 # set_up data
 my @with_semicolon_comment = my @with_one_semicolon_comment = my @with_hash_comment = <DATA>;
@@ -35,20 +31,15 @@ sub init_backend_test {
 
     my @orig      = @$test_data ;
 
-    # cleanup before tests
-    rmtree($wr_root);
-
     ok( 1, "Starting $test_class tests" );
 
     my $test1     = 'ini1';
-    my $wr_dir    = $wr_root . '/' . $test1;
-    my $conf_file = "$wr_dir/etc/test.ini";
+    my $wr_dir    = $wr_root->child($test1);
+    my $etc_dir   = $wr_dir->child('etc');
+    $etc_dir->mkpath;
+    my $conf_file = $etc_dir->child("test.ini");
 
-    mkpath( $wr_dir . '/etc', { mode => 0755 } )
-        || die "can't mkpath: $!";
-    open( CONF, "> $conf_file" ) || die "can't open $conf_file: $!";
-    print CONF @orig;
-    close CONF;
+    $conf_file->spew_utf8(@orig);
 
     my $i_test = $model->instance(
         instance_name   => "test_inst_for_$test_class",
@@ -69,7 +60,7 @@ sub init_backend_test {
 }
 
 sub finish {
-    my ($test_class, $wr_dir, $model,$i_test) = @_;
+    my ($test_class, $wr_dir, $model, $i_test) = @_;
 
     my $orig = $i_test->config_root->dump_tree;
     print $orig if $trace;
@@ -77,13 +68,13 @@ sub finish {
     $i_test->write_back;
     ok( 1, "IniFile write back done" );
 
-    my $ini_file = $wr_dir . '/etc/test.ini';
-    ok( -e $ini_file, "check that config file $ini_file was written" );
+    my $ini_file = $wr_dir->child('etc/test.ini');
+    ok( $ini_file->exists, "check that config file $ini_file was written" );
     # create another instance to read the IniFile that was just written
-    my $wr_dir2 = $wr_root . '/ini2';
-    mkpath( $wr_dir2 . '/etc', { mode => 0755 } ) || die "can't mkpath: $!";
-    copy( $wr_dir . '/etc/test.ini', $wr_dir2 . '/etc/' )
-        or die "can't copy from test1 to test2: $!";
+    my $wr_dir2 = $wr_root->child('ini2');
+    my $etc2 = $wr_dir2->child('etc');
+    $etc2->mkpath;
+    $ini_file->copy( $wr_dir2 . '/etc/test.ini' );
 
     my $i2_test = $model->instance(
         instance_name   => "test_inst2_for_$test_class",
@@ -137,10 +128,6 @@ foreach my $test_class ( sort keys %test_setup ) {
     }
 
     finish ($test_class, $wr_dir, $model,$i_test);
-
-
-    memory_cycle_ok( $model, "memory cycle test" );
-
 }
 
 # test ini file using a check list
@@ -163,8 +150,9 @@ foreach my $test_class ( sort keys %test_setup ) {
 
     finish ('IniCheck', $wr_dir, $model,$i_test);
 
-    memory_cycle_ok( $model, "memory cycle test" );
 }
+
+memory_cycle_ok( $model, "memory cycle test" );
 
 done_testing;
 
