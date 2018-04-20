@@ -6,6 +6,7 @@ use ExtUtils::testlib;
 use Test::More;
 use Test::Memory::Cycle;
 use Config::Model;
+use Config::Model::Tester::Setup qw/init_test  setup_test_dir/;
 use File::Path;
 use File::Copy;
 use Data::Dumper;
@@ -17,24 +18,7 @@ no warnings qw(once);
 use strict;
 use lib "t/lib";
 
-my $arg = shift || '';
-
-my $trace = $arg =~ /t/ ? 1 : 0;
-my $log   = $arg =~ /l/ ? 1 : 0;
-
-my $home = $ENV{HOME} || "";
-my $log4perl_user_conf_file = "$home/.log4config-model";
-
-if ( $log and -e $log4perl_user_conf_file ) {
-    Log::Log4perl::init($log4perl_user_conf_file);
-}
-else {
-    Log::Log4perl->easy_init( $log ? $WARN : $ERROR );
-}
-Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
-
-my $model     = Config::Model->new();
-ok( 1, "compiled" );
+my ($model, $trace) = init_test();
 
 # pseudo root where config files are written by config-model
 my $wr_root = 'wr_root_p/backend-ini/';
@@ -46,7 +30,7 @@ my @with_semicolon_comment = my @with_one_semicolon_comment = my @with_hash_comm
 map { s/#/;/; } @with_semicolon_comment;
 map { s/# foo2/; foo2/; } @with_one_semicolon_comment;
 
-sub init_test {
+sub init_backend_test {
     my ($test_class, $test_data, $config_dir) = @_;
 
     my @orig      = @$test_data ;
@@ -128,7 +112,7 @@ my %test_setup = (
 );
 
 foreach my $test_class ( sort keys %test_setup ) {
-    my ($model, $i_test, $wr_dir) = init_test($test_class, $test_setup{$test_class}[0]);
+    my ($model, $i_test, $wr_dir) = init_backend_test($test_class, $test_setup{$test_class}[0]);
 
     my $test_path = $test_setup{$test_class}[1];
 
@@ -163,7 +147,7 @@ foreach my $test_class ( sort keys %test_setup ) {
 
 {
     #    IniCheck
-    my ($model, $i_test, $wr_dir) = init_test(IniCheck => \@with_hash_comment, '/etc/');
+    my ($model, $i_test, $wr_dir) = init_backend_test(IniCheck => \@with_hash_comment, '/etc/');
 
     my $i_root = $i_test->config_root;
 
