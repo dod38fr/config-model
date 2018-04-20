@@ -1,12 +1,11 @@
 # -*- cperl -*-
 
 use ExtUtils::testlib;
-use Test::More tests => 6;
+use Test::More;
 use Test::Memory::Cycle;
 use Config::Model;
 
 use warnings;
-no warnings qw(once);
 
 use strict;
 use lib "t/lib";
@@ -18,7 +17,7 @@ Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
 use Log::Log4perl qw(:easy);
 Log::Log4perl->easy_init( $arg =~ /l/ ? $TRACE : $WARN );
 
-my $model = Config::Model->new( legacy => 'ignore', );
+my $model = Config::Model->new();
 
 ok( 1, "compiled" );
 
@@ -47,4 +46,6 @@ my $inst2 = $model2->instance(
     instance_name   => 'test1'
 );
 ok( $inst2, "created dummy instance 2" );
-memory_cycle_ok($model);
+memory_cycle_ok($model, "memory cycles");
+
+done_testing;
