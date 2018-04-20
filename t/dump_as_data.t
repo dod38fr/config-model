@@ -149,17 +149,18 @@ is_deeply(
     "check dump of ordered hash as hash"
 );
 
-{
-    note ("test ordered_hash warnings");
+subtest "test ordered_hash warnings" => sub {
+    my $tw = Test::Log::Log4perl->get_logger("Tree.Element.Id.Hash");
+    Test::Log::Log4perl->start(ignore_priority => "info");
+    $tw->warn(qr/order is not defined/);
 
-    my $tw = Test::Log::Log4perl->expect( ignore_priority => "info" , ["Tree.Element.Id.Hash", warn => qr/order is not defined/ ]);
-
-    note "load 2 items in ordered_hash without __order produces a warning";
+    # load 2 items in ordered_hash without __order produces a warning";
     $root->load_data( { ordered_hash => { y => '2', 'x' => '3' }});
 
-    note "load one item in ordered_hash without __order produce no warning";
+    # load one item in ordered_hash without __order produce no warning";
     $root->load_data( { ordered_hash => { 'x' => '3' }});
-}
+    Test::Log::Log4perl->end("warnings without __order");
+};
 
 # test ordered hash load with hash ref instead of array ref
 my $inst3 = $model->instance(
