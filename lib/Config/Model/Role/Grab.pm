@@ -345,6 +345,7 @@ sub grab_ancestor_with_element_named {
     }
 }
 
+1;
 
 __END__
 

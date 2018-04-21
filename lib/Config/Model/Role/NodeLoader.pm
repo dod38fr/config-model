@@ -29,6 +29,8 @@ sub load_node {
     return $node_class->new(%params) ;
 }
 
+1;
+
 __END__
 
 =head1 SYNOPSIS

@@ -67,6 +67,8 @@ sub eval_function {
     return $result;
 }
 
+1;
+
 __END__
 
 =head1 SYNOPSIS
