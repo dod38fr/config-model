@@ -7,6 +7,7 @@ use strict;
 use warnings;
 use Carp;
 
+use List::MoreUtils qw/any/;
 use Mouse::Util;
 use Log::Log4perl qw(get_logger :levels);
 
@@ -238,7 +239,7 @@ COMMAND:
     # check element type
     if ( defined $type ) {
         my @allowed = ref $type ? @$type : ($type);
-        while ( @found and not grep {$found[-1]->get_type eq $_} @allowed ) {
+        while ( @found and not any {$found[-1]->get_type eq $_} @allowed ) {
             Config::Model::Exception::WrongType->throw(
                 object        => $found[-1],
                 function      => 'grab',

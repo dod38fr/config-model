@@ -3,6 +3,7 @@ package Config::Model::TreeSearcher;
 use Mouse;
 use Mouse::Util::TypeConstraints;
 
+use List::MoreUtils qw/any/;
 use Log::Log4perl qw(get_logger :levels);
 use Config::Model::Exception;
 use Config::Model::ObjTreeScanner;
@@ -66,7 +67,7 @@ sub search {
         if ( $need_search->{help} ) {
             my $help_ref = $leaf_object->get_help;
             $data_ref->($loc)
-                if grep { $_ =~ $reg; } values %$help_ref;
+                if any { $_ =~ $reg; } values %$help_ref;
         }
     };
 

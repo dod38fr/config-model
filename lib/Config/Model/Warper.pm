@@ -6,6 +6,7 @@ use Log::Log4perl qw(get_logger :levels);
 use Data::Dumper;
 use Storable qw/dclone/;
 use Config::Model::Exception;
+use List::MoreUtils qw/any/;
 use Carp;
 
 has 'follow' => ( is => 'ro', isa => 'HashRef[Str]', required => 1 );
@@ -312,7 +313,7 @@ sub check_warp_args {
                     . "parameter is not allowed, "
                     . "expected '"
                     . join( "' or '", @$allowed ) . "'"
-            ) unless grep( $pkey eq $_, @$allowed );
+            ) unless any {$pkey eq $_}  @$allowed ;
         }
     }
 }

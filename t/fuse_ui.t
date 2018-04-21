@@ -1,6 +1,7 @@
 # -*- cperl -*-
 
 use ExtUtils::testlib;
+use List::MoreUtils qw/any/;
 use Test::More;
 use Path::Tiny;
 
@@ -20,11 +21,11 @@ if ($@) {
     plan skip_all => "Cannot check is fuse kernel module is loaded: $@";
 }
 
-if ( not grep ( /fuse/, @lsmod ) ) {
+if ( not any {/fuse/} @lsmod ) {
     plan skip_all => "fuse kernel module is not loaded";
 }
 
-if ( not grep ( m!/!, `bash -c 'type fusermount'` ) ) {
+if ( `bash -c 'type -p fusermount'` =~ m!/! ) {
     plan skip_all => "fusermount not found";
 }
 
