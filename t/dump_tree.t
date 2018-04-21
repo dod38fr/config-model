@@ -25,7 +25,7 @@ ok( 1, "compiled" );
 
 my $inst = $model->instance(
     root_class_name => 'Master',
-    model_file      => 'dump_load_model.pm',
+    model_file      => 'dump_load_model.pl',
     instance_name   => 'test1'
 );
 ok( $inst, "created dummy instance" );
