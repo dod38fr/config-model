@@ -25,7 +25,7 @@ if ( not any {/fuse/} @lsmod ) {
     plan skip_all => "fuse kernel module is not loaded";
 }
 
-if ( `bash -c 'type -p fusermount'` =~ m!/! ) {
+if ( system(q!bash -c 'type -p fusermount' > /dev/null!) != 0 ) {
     plan skip_all => "fusermount not found";
 }
 
