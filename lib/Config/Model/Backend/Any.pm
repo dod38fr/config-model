@@ -206,15 +206,14 @@ __END__
     # root       => './my_test',  # fake root directory, used for tests
     # config_dir => /etc/foo',    # absolute path
     # file       => 'foo.conf',   # file name
-    # file_path  => './my_test/etc/foo/foo.conf'
-    # io_handle  => $io           # IO::File object opened for read
+    # file_path  => Path::Tiny object for './my_test/etc/foo/foo.conf'
     # check      => yes|no|skip
 
-    return 0 unless defined $args{io_handle} ; # or die, your choice
+    return 0 unless $args{file_path}->exists ; # or die, your choice
 
     # read the file line by line
     # we assume the file contain lines like 'key=value'
-    foreach ($args{io_handle}->getlines) {
+    foreach ($args{file_path}->lines_utf8) {
         chomp ;   # remove trailing \n
         s/#.*// ; # remove any comment
         next unless /\S/; # skip blank line
@@ -234,21 +233,20 @@ __END__
     # root       => './my_test',  # fake root directory, used for tests
     # config_dir => /etc/foo',    # absolute path 
     # file       => 'foo.conf',   # file name
-    # file_path  => './my_test/etc/foo/foo.conf'
-    # io_handle  => $io           # IO::File object opened for write
+    # file_path  => Path::Tiny object for './my_test/etc/foo/foo.conf'
     # check      => yes|no|skip
 
-    my $ioh = $args{io_handle} ;
-
     # read the content of the configuration tree
+    my @lines;
     foreach my $elt ($self->node->children) {
         # read the value from element $elt
         my $v = $self->node->grab_value($elt) ;
 
         # write value in file
-        $ioh->print(qq!$elt="$v"\n!) if defined $v ;
+        push @lines,qq!$elt="$v"\n! if defined $v ;
     }
 
+    $args{file_path}->spew_utf8(@lines);
     return 1;
  }
 
@@ -309,9 +307,8 @@ C<read()> is called with the following parameters:
  root       => $root_dir,  # fake root directory, used for tests
  backend    => $backend,   # backend name
  config_dir => $read_dir,  # path below root
- file       => 'foo.conf',   # file name
- file_path  => $full_name, # full file name (root+path+file)
- io_handle  => $io_file    # IO::File object opened for read
+ file       => 'foo.conf', # file name
+ file_path  => $full_name, # Path::Tiny object
  check      => [yes|no|skip]
 
 The L<IO::File> object is undef if the file cannot be read.
@@ -320,7 +317,7 @@ This method must return 1 if the read was successful, 0 otherwise.
 
 Following the C<my_param> example above, C<%custom_parameters> contains
 C< ( 'my_param' , 'my_value' ) >, so C<read()> is called with
-C<root>, C<config_dir>, C<file_path>, C<io_handle> B<and>
+C<root>, C<config_dir>, C<file_path> B<and>
 C<<  my_param   => 'my_value' >>.
 
 =item write
@@ -336,7 +333,6 @@ C<write()> is called with the following parameters:
  config_dir  => $write_dir,   # override from instance
  file        => 'foo.conf',   # file name
  file_path   => $full_name, # full file name (root+path+file)
- io_handle   => $fh,          # IO::File object
  write       => 1,            # always
  check       => [ yes|no|skip] ,
  backup      => [ undef || '' || suffix ] # backup strategy required by user
@@ -345,24 +341,7 @@ The L<IO::File> object is undef if the file cannot be written to.
 
 This method must return 1 if the write was successful, 0 otherwise
 
-If C<io_handle> is defined, the backup has already been done before
-opening the config file. If C<io_handle> is not defined, there's not
-enough information in the model to read the configuration file and
-create the backup. Your C<write()> method will have to do the backup
-requested by user.
-
-When both C<config_dir> and C<file> are specified,
-the L<backend manager|Config::Model::BackendMgr>
-opens the configuration file for write (and thus clobbers it) before calling
-the C<write> call-back with the file handle with C<io_handle>
-parameter. C<write> should use this handle to write data in the target
-configuration file.
-
-If this behavior causes problem, the solution is to override
-C<skip_open> method in your backend to return C<1>.
-
 =back
-
 
 =head2 How to test your new backend
 

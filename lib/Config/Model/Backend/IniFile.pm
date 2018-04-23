@@ -23,10 +23,9 @@ sub read {
     # config_dir => /etc/foo',    # absolute path
     # file       => 'foo.conf',   # file name
     # file_path  => './my_test/etc/foo/foo.conf'
-    # io_handle  => $io           # IO::File object
     # check      => yes|no|skip
 
-    return 0 unless defined $args{io_handle};    # no file to read
+    return 0 unless $args{file_path}->exists;    # no file to read
 
     my $section = '<top>';                       # dumb value used for logging
 
@@ -46,7 +45,7 @@ sub read {
     #in input file, would be written in the same way in the output
     #file.  Also, comments at the end of file are being ignored now.
 
-    my @lines = $args{io_handle}->getlines;
+    my @lines = $args{file_path}->lines_utf8;
 
     # try to get global comments (comments before a blank line)
     $self->read_global_comments( \@lines, $delimiter );
@@ -169,7 +168,6 @@ sub write {
     # file_path  => './my_test/etc/foo/foo.conf'
     # check      => yes|no|skip
 
-    my $ioh       = $args{io_handle};
     my $node      = $args{object};
     my $delimiter = $args{comment_delimiter} || '#';
 
@@ -684,21 +682,19 @@ The C<assign_with> is used to control how the file is written back. E.g:
 
 =head1 Methods
 
-=head2 read ( io_handle => ... )
+=head2 read
 
-Of all parameters passed to this read call-back, only C<io_handle> is
-used. This parameter must be L<IO::File> object already opened for
-read. 
+Of all parameters passed to this read call-back, only C<file_path> is
+used. This parameter must be L<Path::Tiny> object.
 
 It can also be undef. In this case, C<read()> returns 0.
 
 When a file is read,  C<read()> returns 1.
 
-=head2 write ( io_handle => ... )
+=head2 write
 
-Of all parameters passed to this write call-back, only C<io_handle> is
-used. This parameter must be L<IO::File> object already opened for
-write. 
+Of all parameters passed to this write call-back, only C<file_path> is
+used. This parameter must be a L<Path::Tiny> object.
 
 C<write()> returns 1.
 
