@@ -2,14 +2,12 @@
 
 [
     {
-        read_config => [
-            {
-                backend     => 'IniFile',
-                config_dir  => '/etc/',
-                file        => 'test.ini',
-                auto_create => 1,
-            },
-        ],
+        rw_config => {
+            backend     => 'IniFile',
+            config_dir  => '/etc/',
+            file        => 'test.ini',
+            auto_create => 1,
+        },
 
         name => 'IniTest',
 
@@ -32,15 +30,13 @@
         ]
     },
     {
-        read_config => [
-            {
-                backend           => 'IniFile',
-                config_dir        => '/etc/',
-                file              => 'test.ini',
-                auto_create       => 1,
-                comment_delimiter => ';',
-            },
-        ],
+        rw_config => {
+            backend           => 'IniFile',
+            config_dir        => '/etc/',
+            file              => 'test.ini',
+            auto_create       => 1,
+            comment_delimiter => ';',
+        },
 
         name => 'IniTest2',
 
@@ -65,15 +61,13 @@
     {
         name => 'IniTest3',
 
-        read_config => [
-            {
-                backend           => 'IniFile',
-                config_dir        => '/etc/',
-                file              => 'test.ini',
-                auto_create       => 1,
-                comment_delimiter => '#;',
-            },
-        ],
+        rw_config => {
+            backend           => 'IniFile',
+            config_dir        => '/etc/',
+            file              => 'test.ini',
+            auto_create       => 1,
+            comment_delimiter => '#;',
+        },
 
         element => [
             [qw/foo bar/] => {
@@ -107,14 +101,12 @@
     },
     {
         name        => 'AutoIni',
-        read_config => [
-            {
-                backend     => 'IniFile',
-                config_dir  => '/etc/',
-                file        => 'test.ini',
-                auto_create => 1,
-            },
-        ],
+        rw_config => {
+            backend     => 'IniFile',
+            config_dir  => '/etc/',
+            file        => 'test.ini',
+            auto_create => 1,
+        },
         accept => [
             'class.*' => {
                 'type'              => 'node',
@@ -156,25 +148,21 @@
             },
         ],
 
-        read_config => [
-            {
-                backend     => 'IniFile',
-                config_dir        => '/etc/',
-                file              => 'test.ini',
-                store_class_in_hash => 'any_ini_class',
-                auto_create => 1,
-            }
-        ],
+        rw_config => {
+            backend     => 'IniFile',
+            config_dir        => '/etc/',
+            file              => 'test.ini',
+            store_class_in_hash => 'any_ini_class',
+            auto_create => 1,
+        },
     },
     {
         name => 'IniCheck',
-        read_config => [
-            {
-                backend           => 'IniFile',
-                file              => 'test.ini',
-                auto_create       => 1,
-            },
-        ],
+        rw_config => {
+            backend           => 'IniFile',
+            file              => 'test.ini',
+            auto_create       => 1,
+        },
 
         element => [
             [qw/foo bar/] => {
