@@ -34,6 +34,20 @@ to limit the test to one subtest and one test case:
 
 See L<Config::Model::Tester> for more details.
 
+=head2 Running with prove
+
+You can run all tests with
+
+ prove -j8 t/
+
+To run with local files:
+
+ prove -l -j8 t/
+
+You can pass parameter to test files with:
+
+ prove -l t/ :: --log
+
 =head2 Legacy
 
 Legacy options: Older tests can be run with one argument made of
