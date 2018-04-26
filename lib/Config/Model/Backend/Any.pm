@@ -120,7 +120,17 @@ sub associates_comments_with_data {
 }
 
 sub write_global_comment {
-    my ( $self, $ioh, $cc ) = @_;
+    my $self = shift;
+    my ($ioh, $cc);
+    if (ref($_[0])) {
+        $logger->warn("write_global_comment: io_handle parameter is deprecated");
+        ($ioh, $cc) = @_;
+    }
+    else {
+        ( $cc ) = @_;
+    }
+
+    croak "write_global_comment: no comment char specified" unless $cc;
 
     # no need to mention 'cme list' if current application is found
     my $app = $self->node->instance->application ;
@@ -456,10 +466,17 @@ Example:
   # @res is:
   # ( [ 'foo= 1', 'Foo comments' ] , [ 'Baz = 0' , 'Baz comments' ] )
 
-=head2 write_global_comments( io_handle , comment_char)
+=head2 write_global_comments
 
-Write global comments from configuration root annotation into the io_handle (if defined).
-Returns the string written to the io_handle.
+Return a string containing global comments using data from
+configuration root annotation.
+
+Requires one parameter: comment_char (e.g "#" or '//' )
+
+Example:
+
+  my $str = $self->write_global_comments('#')
+
 
 =head2 write_data_and_comments( io_handle , comment_char , data1, comment1, data2, comment2 ...)
 
