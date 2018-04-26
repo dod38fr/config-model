@@ -167,30 +167,29 @@ sub write {
     # config_dir => /etc/foo',    # absolute path
     # file       => 'foo.conf',   # file name
     # file_path  => './my_test/etc/foo/foo.conf'
-    # io_handle  => $io           # IO::File object
     # check      => yes|no|skip
 
     my $ioh       = $args{io_handle};
     my $node      = $args{object};
     my $delimiter = $args{comment_delimiter} || '#';
 
-    croak "Undefined file handle to write" unless defined $ioh;
+    croak "Undefined file handle to write" unless defined $args{file_path};
 
     # use the first char of the list as a comment delimeter
     my $cc = substr($delimiter,0,1);
     $args{comment_delimiter} = $cc;
 
-    $self->write_global_comment( $ioh, $cc );
+    my $res = $self->write_global_comment( $cc );
 
     # some INI file have a 'General' section mapped in root node
     my $top_class_name = $self->{reverse_section_map}{''};
     if ( defined $top_class_name ) {
         $logger->debug("writing class $top_class_name from reverse_section_map");
-        $self->write_data_and_comments( $ioh, $cc, "[$top_class_name]" );
+        $res .= $self->write_data_and_comments( $cc, "[$top_class_name]" );
     }
 
-    my $res = $self->_write(%args);
-    $ioh->print($res);
+    $res .= $self->_write(%args);
+    $args{file_path}->spew_utf8($res);
 }
 
 sub _write_list{
@@ -209,7 +208,7 @@ sub _write_list{
         my $v = join( $join_list, @v );
         if ( length($v) ) {
             $logger->debug("writing joined list elt $elt -> $v");
-            $res .= $self->write_data_and_comments( undef, $delimiter, "$elt$assign_with$v", $obj_note );
+            $res .= $self->write_data_and_comments( $delimiter, "$elt$assign_with$v", $obj_note );
         }
     }
     else {
@@ -219,7 +218,7 @@ sub _write_list{
             if ( length $v ) {
                 $logger->debug("writing list elt $elt -> $v");
                 $res .=
-                    $self->write_data_and_comments( undef, $delimiter, "$elt$assign_with$v",
+                    $self->write_data_and_comments( $delimiter, "$elt$assign_with$v",
                                                     $obj_note . $note );
             }
             else {
@@ -245,13 +244,13 @@ sub _write_check_list{
         my $v = join( $join_check_list, $obj->get_checked_list() );
         if ( length($v) ) {
             $logger->debug("writing check_list elt $elt -> $v");
-            $res .= $self->write_data_and_comments( undef, $delimiter, "$elt$assign_with$v", $obj_note );
+            $res .= $self->write_data_and_comments( $delimiter, "$elt$assign_with$v", $obj_note );
         }
     }
     else {
         foreach my $v ( $obj->get_checked_list() ) {
             $logger->debug("writing joined check_list elt $elt -> $v");
-            $res .= $self->write_data_and_comments( undef, $delimiter, "$elt$assign_with$v", $obj_note );
+            $res .= $self->write_data_and_comments( $delimiter, "$elt$assign_with$v", $obj_note );
         }
     }
     return $res;
@@ -274,7 +273,7 @@ sub _write_leaf{
     }
     if ( defined $v and length $v ) {
         $logger->debug("writing leaf elt $elt -> $v");
-        $res .= $self->write_data_and_comments( undef, $delimiter, "$elt$assign_with$v", $obj_note );
+        $res .= $self->write_data_and_comments( $delimiter, "$elt$assign_with$v", $obj_note );
     }
     else {
         $logger->trace("NOT writing undef or empty leaf elt");
@@ -297,7 +296,7 @@ sub _write_hash {
         my $subres = $self->_write( %$args, object => $hash_obj );
         if ($subres) {
             $res .= "\n"
-                . $self->write_data_and_comments( undef, $delimiter, "[$key]",
+                . $self->write_data_and_comments( $delimiter, "[$key]",
                                                   $obj_note . $note )
                 . $subres;
         }
@@ -324,7 +323,7 @@ sub _write_node {
         }
         my $c_name = $exception_name || $elt;
         $res .= "\n"
-            . $self->write_data_and_comments( undef, $delimiter, "[$c_name]", $obj_note )
+            . $self->write_data_and_comments( $delimiter, "[$c_name]", $obj_note )
             . $subres;
     }
     return $res;
