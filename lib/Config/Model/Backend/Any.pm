@@ -157,8 +157,17 @@ sub write_global_comment {
     return $res;
 }
 
+# $cc can be undef when writing a list on a single line
 sub write_data_and_comments {
-    my ( $self, $ioh, $cc, @data_and_comments ) = @_;
+    my $self = shift;
+    my ($ioh, $cc, @data_and_comments);
+    if (not defined $_[0] or ref($_[0])) {
+        $logger->warn("write_data_and_comments: io_handle parameter is deprecated");
+        ($ioh, $cc, @data_and_comments) = @_;
+    }
+    else {
+        ( $cc, @data_and_comments ) = @_;
+    }
 
     my $res = '';
     while (@data_and_comments) {
@@ -477,12 +486,21 @@ Example:
 
   my $str = $self->write_global_comments('#')
 
+=head2 write_data_and_comments
 
-=head2 write_data_and_comments( io_handle , comment_char , data1, comment1, data2, comment2 ...)
+Returns a string containing comments (stored in annotation) and
+corresponding data. Comments are written before the data. If a data is
+undef, the comment is written on its own line.
 
-Write data and comments in the C<io_handle> (if defined). Comments are written before the data.
-Returns the string written to the io_handle. If a data is undef, the comment is written on its own
-line.
+Positional parameters are C<( comment_char , data1, comment1, data2, comment2 ...)>
+
+Example:
+
+ print $self->write_data_and_comments('#', 'foo', 'foo comment', undef, 'lone comment','bar')
+ # returns "# foo comment\nfoo\n#lon
+
+Use C<undef> as comment char if comments are not supported by the
+syntax of the configuration file. Comments will then be dropped.
 
 =head1 Replacing a custom backend
 
