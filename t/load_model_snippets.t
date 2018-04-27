@@ -1,50 +1,23 @@
 # -*- cperl -*-
 
-use warnings;
-
 use ExtUtils::testlib;
 use Test::More;
 use Test::Exception;
 use Test::Memory::Cycle;
 use Test::Differences;
-use Config::Model;
 use Data::Dumper;
-use Path::Tiny;
-use Log::Log4perl qw(:easy :levels);
-
-BEGIN { plan tests => 8; }
+use Config::Model;
+use Config::Model::Tester::Setup qw/init_test setup_test_dir/;
 
 use strict;
+use warnings;
 
 use lib 'wr_root_p/snippet';
 
-my $arg = shift || '';
-my ( $log, $show ) = (0) x 2;
-
-my $trace = $arg =~ /t/ ? 1 : 0;
-$log  = 1 if $arg =~ /l/;
-$show = 1 if $arg =~ /s/;
-
-my $home = $ENV{HOME} || "";
-my $log4perl_user_conf_file = "$home/.log4config-model";
-
-if ( $log and -e $log4perl_user_conf_file ) {
-    Log::Log4perl::init($log4perl_user_conf_file);
-}
-else {
-    Log::Log4perl->easy_init( $log ? $WARN : $ERROR );
-}
-
-Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
-
-ok( 1, "Compilation done" );
+my ($model, $trace) = init_test();
 
 # pseudo root where config files are written by config-model
-my $wr_root = path('wr_root_p/snippet');
-
-# cleanup before tests
-$wr_root->remove_tree;
-$wr_root->mkpath();
+my $wr_root = setup_test_dir();
 
 my $model_dir = $wr_root->child('Config/Model/models');
 $model_dir->mkpath;
@@ -139,9 +112,6 @@ $snippet_dir->mkpath();
 
 $snippet_dir->child('Three.pl')->spew($str);
 
-# minimal set up to get things working
-my $model = Config::Model->new();
-
 # use Tk::ObjScanner; Tk::ObjScanner::scan_object($model) ;
 
 my $inst = $model->instance(
@@ -182,3 +152,5 @@ eq_or_diff(
 eq_or_diff( $augmented_model->{accept_list}, [ '.*', 'ip.*' ], "test accept_list" );
 is( $augmented_model->{accept}{'.*'}{description}, 'catchall', "test augmented rules" );
 memory_cycle_ok($model);
+
+done_testing;
