@@ -2,25 +2,16 @@ use ExtUtils::testlib;
 use Test::More;
 use Test::Memory::Cycle;
 use Config::Model;
+use Config::Model::Tester::Setup qw/init_test/;
 use Pod::Simple;
 
 use warnings;
-no warnings qw(once);
 use 5.10.1;
 
 use strict;
 use lib "t/lib";
 
-my $arg = shift || '';
-my $trace = $arg =~ /t/ ? 1 : 0;
-Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
-
-use Log::Log4perl qw(:easy);
-Log::Log4perl->easy_init( $arg =~ /l/ ? $TRACE : $WARN );
-
-my $model = Config::Model->new( legacy => 'ignore', );
-
-ok( 1, "compiled" );
+my ($model, $trace) = init_test();
 
 $model->load( 'Master', 'Config/Model/models/Master.pl' );
 ok( 1, "big_model loaded" );
