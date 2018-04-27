@@ -6,23 +6,12 @@ use Test::Exception;
 use Test::Warn;
 use Test::Memory::Cycle;
 use Config::Model;
-
-use warnings;
-no warnings qw(once);
+use Config::Model::Tester::Setup qw/init_test/;
 
 use strict;
+use warnings;
 
-my $arg = shift || '';
-
-my $trace = $arg =~ /t/ ? 1 : 0;
-Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
-
-use Log::Log4perl qw(:easy);
-Log::Log4perl->easy_init( $arg =~ /l/ ? $TRACE : $WARN );
-
-ok( 1, "compiled" );
-
-my $model = Config::Model->new();
+my ($model, $trace) = init_test();
 
 $model->create_config_class(
     name       => 'Sarge',
@@ -191,6 +180,7 @@ map {
     } (
     [ undef, 'captain' ], [ '', 'captain' ],
     [qw/captain array_args/], [qw/array_args hash_args/] );
-memory_cycle_ok($model);
+
+memory_cycle_ok($model, "memory cycle");
 
 done_testing ;
