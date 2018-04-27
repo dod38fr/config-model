@@ -1,21 +1,17 @@
 # -*- cperl -*-
 
 use ExtUtils::testlib;
-use Test::More tests => 11;
+use Test::More;
 use Test::Memory::Cycle;
 use Config::Model;
+use Config::Model::Tester::Setup qw/init_test/;
 use Config::Model::ObjTreeScanner;
 use Test::Differences;
-
-use warnings;
-no warnings qw(once);
-
-use strict;
-use lib "t/lib";
-
 use Data::Dumper;
 
-# use Config::Model::ObjTreeScanner;
+use warnings;
+use strict;
+use lib "t/lib";
 
 sub disp_node_content_hook {
     my ( $scanner, $data_r, $node, @element ) = @_;
@@ -105,31 +101,7 @@ sub disp_up {
 
 use Log::Log4perl qw(:easy);
 
-my $arg             = shift || '';
-my $test_only_model = shift || '';
-my $do              = shift;
-
-my ( $log, $show ) = (0) x 2;
-
-my $trace = $arg =~ /t/ ? 1 : 0;
-$log     = 1 if $arg =~ /l/;
-$show    = 1 if $arg =~ /s/;
-
-my $home = $ENV{HOME} || "";
-my $log4perl_user_conf_file = "$home/.log4config-model";
-
-if ( $log and -e $log4perl_user_conf_file ) {
-    Log::Log4perl::init($log4perl_user_conf_file);
-}
-else {
-    Log::Log4perl->easy_init( $log ? $WARN : $ERROR );
-}
-
-my $model = Config::Model->new( legacy => 'ignore' );
-
-Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
-
-ok( 1, "compiled" );
+my ($model, $trace) = init_test();
 
 my $inst = $model->instance(
     root_class_name => 'Master',
@@ -392,4 +364,7 @@ my $root2 = $inst2->config_root;
 eval { $root2->dump_tree( auto_vivify => 1, mode => 'full' ); };
 ok( $@, "expected failure of dump with empty mandatory value" );
 print "normal error:", $@, "\n" if $trace;
-memory_cycle_ok($model);
+
+memory_cycle_ok($model, "memory cycle");
+
+done_testing;
