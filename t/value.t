@@ -1,7 +1,5 @@
 # -*- cperl -*-
 
-use warnings;
-use 5.010;
 
 use ExtUtils::testlib;
 use Test::More;
@@ -10,36 +8,18 @@ use Test::Warn;
 use Test::Differences;
 use Test::Memory::Cycle;
 use Config::Model;
+use Config::Model::Tester::Setup qw/init_test/;
 use Config::Model::Value;
-use Log::Log4perl qw(:easy :levels);
 
 use strict;
+use warnings;
+use 5.010;
 
 binmode STDOUT, ':utf8';
 
-my $arg = shift || '';
-my ( $log, $show ) = (0) x 2;
-
-my $trace = $arg =~ /t/ ? 1 : 0;
-$log  = 1 if $arg =~ /l/;
-$show = 1 if $arg =~ /s/;
-
-my $home = $ENV{HOME} || "";
-my $log4perl_user_conf_file = "$home/.log4config-model";
-
-if ( $log and -e $log4perl_user_conf_file ) {
-    Log::Log4perl::init($log4perl_user_conf_file);
-}
-else {
-    Log::Log4perl->easy_init( $log ? $WARN : $ERROR );
-}
-
-Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
-
-ok( 1, "Compilation done" );
+my ($model, $trace) = init_test();
 
 # minimal set up to get things working
-my $model = Config::Model->new();
 $model->create_config_class(
     name    => "BadClass",
     element => [
