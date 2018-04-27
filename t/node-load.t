@@ -1,9 +1,10 @@
 # -*- cperl -*-
 
 use ExtUtils::testlib;
-use Test::More tests => 13;
+use Test::More;
 use Test::Memory::Cycle;
 use Config::Model;
+use Config::Model::Tester::Setup qw/init_test/;
 use 5.010;
 
 use warnings;
@@ -11,14 +12,7 @@ use strict;
 
 use lib 't/lib';
 
-my $arg = shift || '';
-my $trace = $arg =~ /t/ ? 1 : 0;
-Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
-
-use Log::Log4perl qw(:easy);
-Log::Log4perl->easy_init( $arg =~ /l/ ? $TRACE : $WARN );
-
-my $model = Config::Model->new();
+my ($model, $trace) = init_test();
 
 ok( 1, "compiled" );
 
@@ -98,3 +92,4 @@ is($plain->can('dummy'),undef,"plain node is not a dummy");
 
 memory_cycle_ok($model, "check memory cycles");
 
+done_testing;
