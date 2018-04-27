@@ -9,31 +9,9 @@ use Test::More;
 use Test::Memory::Cycle;
 use Test::Differences;
 use Config::Model;
-use Log::Log4perl qw(:easy);
+use Config::Model::Tester::Setup qw/init_test/;
 
-
-my ( $log, $show ) = (0) x 3;
-
-my $arg = shift || '';
-
-my $trace = $arg =~ /t/ ? 1 : 0;
-$log     = 1 if $arg =~ /l/;
-$show    = 1 if $arg =~ /s/;
-Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
-
-my $home = $ENV{HOME} || "";
-my $log4perl_user_conf_file = "$home/.log4config-model";
-
-if ( $log and -e $log4perl_user_conf_file ) {
-    Log::Log4perl::init($log4perl_user_conf_file);
-}
-else {
-    Log::Log4perl->easy_init( $arg =~ /l/ ? $DEBUG : $WARN );
-}
-
-ok( 1, "Compilation done" );
-
-my $model = Config::Model->new();
+my ($model, $trace) = init_test();
 
 my @slave_classes = ('Slave0' .. 'Slave1');
 my @master_elems ;
@@ -105,7 +83,7 @@ eq_or_diff( [$root->get_element_name], ['macro1', $slave_classes[1]],"second sla
 $mac->uncheck($slave_classes[1]);
 eq_or_diff( [$root->get_element_name], ['macro1'],"all slaves are hidden again");
 
-memory_cycle_ok($model);
+memory_cycle_ok($model, "memory cycle");
 
 done_testing;
 
