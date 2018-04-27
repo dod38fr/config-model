@@ -123,7 +123,8 @@ sub write_global_comment {
     my $self = shift;
     my ($ioh, $cc);
     if (ref($_[0])) {
-        $logger->warn("write_global_comment: io_handle parameter is deprecated");
+        my ($package, $filename, $line) = caller;
+        $logger->warn("write_global_comment: io_handle parameter is deprecated ($filename: $line)");
         ($ioh, $cc) = @_;
     }
     else {
