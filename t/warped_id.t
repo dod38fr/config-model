@@ -31,7 +31,9 @@ $model->create_config_class(
             type       => 'leaf',
             value_type => 'enum',
             choice     => [qw/Av Bv Cv/],
-        } ] );
+        }
+    ]
+);
 
 $model->create_config_class(
     name      => 'Master',
@@ -56,31 +58,46 @@ $model->create_config_class(
                     A => { max_nb => 1 },
                     B => { max_nb => 2 } }
             },
-            cargo_type        => 'node',
-            config_class_name => 'Slave'
+            cargo => {
+                type        => 'node',
+                config_class_name => 'Slave'
+            }
         },
         'multi_warp' => {
             type       => 'hash',
             index_type => 'integer',
             min        => 0,
             max        => 3,
-            default    => [ 0 .. 3 ],
+            default_keys => [ 0 .. 3 ],
             warp       => {
                 follow  => [ '- version', '- macro' ],
                 'rules' => [
-                    [ '2', 'C' ] => { max => 7, default => [ 0 .. 7 ] },
-                    [ '2', 'A' ] => { max => 7, default => [ 0 .. 7 ] } ]
+                    [ '2', 'C' ] => { max => 7, default_keys => [ 0 .. 7 ] },
+                    [ '2', 'A' ] => { max => 7, default_keys => [ 0 .. 7 ] } ]
             },
-            cargo_type        => 'node',
-            config_class_name => 'Slave'
+            cargo => {
+                type        => 'node',
+                config_class_name => 'Slave'
+            }
         },
 
         # how to properly hide bar when macro != A ???
         'hash_with_warped_value' => {
             type       => 'hash',
             index_type => 'string',
-            cargo_type => 'leaf',
             level      => 'hidden',    # must also accept level and description here
+            cargo => {
+                type => 'leaf',
+                value_type => 'string',
+                warp       => {
+                    follow  => '- macro',
+                    'rules' => {
+                        'A' => {
+                            default => 'dumb string'
+                        },
+                    }
+                }
+            },
             warp       => {
                 follow  => '- macro',
                 'rules' => {
@@ -89,22 +106,13 @@ $model->create_config_class(
                     },
                 }
             },
-            cargo_args => {
-                value_type => 'string',
-                warp       => {
-                    follow  => '- macro',
-                    'rules' => {
-                        'A' => {
-                            default => 'dumb string'
-                        },
-                    } } }
         },
         'multi_auto_create' => {
             type        => 'hash',
             index_type  => 'integer',
             min         => 0,
             max         => 3,
-            auto_create => [ 0 .. 3 ],
+            auto_create_keys => [ 0 .. 3 ],
             'warp'      => {
                 follow  => [ '- version', '- macro' ],
                 'rules' => [
@@ -112,10 +120,13 @@ $model->create_config_class(
                     [ '2', 'A' ] => { max => 7, auto_create_keys => [ 0 .. 7 ] }
                 ],
             },
-            cargo_type        => 'node',
-            config_class_name => 'Slave'
+            cargo => {
+                type        => 'node',
+                config_class_name => 'Slave'
+            }
         },
-    ] );
+    ]
+);
 
 ok( 1, "compiled" );
 
