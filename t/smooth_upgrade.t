@@ -1,29 +1,18 @@
 # -*- cperl -*-
 
-use warnings;
-
 use ExtUtils::testlib;
-use Test::More tests => 22;
+use Test::More;
 use Test::Exception;
 use Test::Warn;
 use Test::Memory::Cycle;
 use Config::Model;
+use Config::Model::Tester::Setup qw/init_test/;
 use Config::Model::Value;
 
 use strict;
+use warnings;
 
-my $arg = shift || '';
-
-my $trace = $arg =~ /t/ ? 1 : 0;
-Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
-
-use Log::Log4perl qw(:easy);
-Log::Log4perl->easy_init( $arg =~ /l/ ? $TRACE : $WARN );
-
-ok( 1, "Compilation done" );
-
-# minimal set up to get things working
-my $model = Config::Model->new();
+my ($model, $trace) = init_test();
 
 $model->create_config_class(
     name      => "Master",
@@ -199,3 +188,5 @@ is( $uroot->fetch_element('port')->fetch, $port, "check extracted port" );
 is( $uroot->fetch_element('path')->fetch, $path, "check extracted path" );
 
 memory_cycle_ok( $model, "test memory cycles" );
+
+done_testing;
