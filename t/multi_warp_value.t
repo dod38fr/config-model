@@ -1,25 +1,17 @@
 # -*- cperl -*-
 
-use warnings;
-
 use ExtUtils::testlib;
-use Test::More tests => 63;
+use Test::More;
 use Test::Differences;
 use Test::Memory::Cycle;
 use Config::Model;
+use Config::Model::Tester::Setup qw/init_test/;
 use Storable qw/dclone/;
 
 use strict;
+use warnings;
 
-my $arg = shift || '';
-
-my $trace = $arg =~ /t/ ? 1 : 0;
-Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
-
-use Log::Log4perl qw(:easy);
-Log::Log4perl->easy_init( $arg =~ /l/ ? $TRACE : $WARN );
-
-ok( 1, "Compilation done" );
+my ($model, $trace) = init_test();
 
 my @m1 = qw/A1 B1/;
 my @m2 = qw/A2 B2 C2/;
@@ -34,10 +26,7 @@ foreach my $c1 (@m1) {
     }
 }
 
-#use Data::Dumper; print Dumper \@rules ;
-
 # minimal set up to get things working
-my $model = Config::Model->new( legacy => 'ignore', );
 my $model_data = {
     name      => 'Master',
     'element' => [
@@ -158,4 +147,6 @@ foreach my $u_test (@test) {
     is( $root->grab_value('m3'), $exp, "test m3 with $load" );
 }
 
-memory_cycle_ok($model);
+memory_cycle_ok($model, "memory cycle");
+
+done_testing;
