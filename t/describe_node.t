@@ -5,26 +5,17 @@ use Test::More;
 use Test::Memory::Cycle;
 use Test::Warn;
 use Config::Model;
+use Config::Model::Tester::Setup qw/init_test/;
 
 use warnings;
-no warnings qw(once);
-
 use strict;
 use lib "t/lib";
 
 use utf8;
 use open      qw(:std :utf8);    # undeclared streams in UTF-8
 
-my $arg = shift || '';
-my $trace = $arg =~ /t/ ? 1 : 0;
-Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
+my ($model, $trace) = init_test();
 
-use Log::Log4perl qw(:easy);
-Log::Log4perl->easy_init( $arg =~ /l/ ? $TRACE : $WARN );
-
-my $model = Config::Model->new( legacy => 'ignore', );
-
-ok( 1, "compiled" );
 
 $model->load(Master => 'Config/Model/models/Master.pl');
 ok( 1, "loaded big_model" );
