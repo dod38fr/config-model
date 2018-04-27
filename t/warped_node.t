@@ -1,39 +1,17 @@
 # -*- cperl -*-
 
-use warnings ;
-
 use ExtUtils::testlib;
 use Test::More;
 use Test::Differences;
 use Test::Memory::Cycle;
 use Config::Model;
-use Log::Log4perl qw(:easy);
+use Config::Model::Tester::Setup qw/init_test/;
 
 use strict;
+use warnings ;
 
-my ( $log, $show ) = (0) x 3;
+my ($model, $trace) = init_test();
 
-my $arg = shift || '';
-
-my $trace = $arg =~ /t/ ? 1 : 0;
-$log     = 1 if $arg =~ /l/;
-$show    = 1 if $arg =~ /s/;
-Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
-
-my $home = $ENV{HOME} || "";
-my $log4perl_user_conf_file = "$home/.log4config-model";
-
-if ( $log and -e $log4perl_user_conf_file ) {
-    Log::Log4perl::init($log4perl_user_conf_file);
-}
-else {
-    Log::Log4perl->easy_init( $arg =~ /l/ ? $DEBUG : $WARN );
-}
-
-ok( 1, "Compilation done" );
-
-# minimal set up to get things working
-my $model = Config::Model->new( legacy => 'ignore', );
 $model->create_config_class(
     name    => 'SlaveY',
     element => [
@@ -45,15 +23,17 @@ $model->create_config_class(
                 follow => '- - v_macro',
                 rules  => {
                     A => { default => 'Av' },
-                    B => { default => 'Bv' } } }
+                    B => { default => 'Bv' }
+                }
+            }
         },
         [qw/a_string a_long_string another_string/] => {
             type       => 'leaf',
             mandatory  => 1,
             value_type => 'string'
         },
-
-    ] );
+    ]
+);
 
 $model->create_config_class(
     name    => 'SlaveZ',
@@ -66,7 +46,12 @@ $model->create_config_class(
                 follow => '! v_macro',
                 rules  => {
                     A => { default => 'Av' },
-                    B => { default => 'Bv' } } } } ] );
+                    B => { default => 'Bv' }
+                }
+            }
+        }
+    ]
+);
 
 $model->create_config_class(
     name    => 'Master',
