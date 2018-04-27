@@ -317,13 +317,14 @@ __END__
 
         'a_warped_node' => {
             type   => 'warped_node',
-            follow => { ms => '! master_switch' },
-            rules  => [
-                '$ms eq "cX"' => { config_class_name => 'ClassX' },
-                '$ms eq "cY"' => { config_class_name => 'ClassY' },
-            ]
+            warp => }
+               follow => { ms => '! master_switch' },
+               rules  => [
+                   '$ms eq "cX"' => { config_class_name => 'ClassX' },
+                   '$ms eq "cY"' => { config_class_name => 'ClassY' },
+               ]
+            }
         },
-
     ],
  );
 
