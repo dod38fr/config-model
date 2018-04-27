@@ -24,29 +24,18 @@ BEGIN {
 
 use Test::Memory::Cycle;
 use Config::Model;
+use Config::Model::Tester::Setup qw/init_test/;
 use Config::Model::TermUI;
 
 use warnings;
-no warnings qw(once);
-
 use strict;
 use lib "t/lib";
 
 use Data::Dumper;
 
-my $arg = shift || '';
+my ($model, $trace, $args) = init_test('interactive');
 
-my $trace = $arg =~ /t/ ? 1 : 0;
-Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
-
-use Log::Log4perl qw(:easy);
-Log::Log4perl->easy_init( $arg =~ /l/ ? $TRACE : $WARN );
-
-note("you can run the test in interactive mode by passing 'i' argument, i.e. perl -Ilib t/term_ui.t i");
-
-my $model = Config::Model->new( legacy => 'ignore', );
-
-ok( 1, "compiled" );
+note("you can run the test in interactive mode by passing '--interactive' option, e.g. perl -Ilib t/term_ui.t --interactive");
 
 my $inst = $model->instance(
     root_class_name => 'Master',
@@ -75,7 +64,7 @@ my $term_ui = Config::Model::TermUI->new(
     prompt => $prompt,
 );
 
-if ($arg =~ /i/) {
+if ($args->{interactive}) {
     $term_ui->run_loop;
     exit;
 }
