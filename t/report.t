@@ -1,25 +1,15 @@
 # -*- cperl -*-
 use ExtUtils::testlib;
-use Test::More tests => 9;
+use Test::More;
 use Test::Memory::Cycle;
 use Config::Model;
+use Config::Model::Tester::Setup qw/init_test/;
 
 use warnings;
-no warnings qw(once);
-
 use strict;
 use lib "t/lib";
 
-my $arg = shift || '';
-my $trace = $arg =~ /t/ ? 1 : 0;
-Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
-
-use Log::Log4perl qw(:easy);
-Log::Log4perl->easy_init( $arg =~ /l/ ? $TRACE : $WARN );
-
-my $model = Config::Model->new( legacy => 'ignore', );
-
-ok( 1, "compiled" );
+my ($model, $trace) = init_test();
 
 my $inst = $model->instance(
     root_class_name => 'Master',
@@ -149,4 +139,7 @@ ok( $list, "check list_class_element" );
 print $list if $trace;
 
 #use Tk::ObjScanner; Tk::ObjScanner::scan_object($model) ;
-memory_cycle_ok($model);
+memory_cycle_ok($model, "memory cycle");
+
+done_testing;
+
