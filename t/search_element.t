@@ -1,33 +1,19 @@
 # -*- cperl -*-
 
 use ExtUtils::testlib;
-use Test::More tests => 24;
+use Test::More;
 use Test::Memory::Cycle;
 use Config::Model;
+use Config::Model::Tester::Setup qw/init_test/;
 
 use warnings;
-no warnings qw(once);
-
 use strict;
 use lib "t/lib";
 
 use Data::Dumper;
-
-# use Config::Model::ObjTreeScanner;
-
-my $arg = shift || '';
-
-my $trace = $arg =~ /t/ ? 1 : 0;
-Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
-
 $Data::Dumper::Indent = 1;
 
-use Log::Log4perl qw(:easy);
-Log::Log4perl->easy_init( $arg =~ /l/ ? $TRACE : $WARN );
-
-my $model = Config::Model->new( legacy => 'ignore', );
-
-ok( 1, "compiled" );
+my ($model, $trace) = init_test();
 
 my $inst = $model->instance(
     root_class_name => 'Master',
@@ -38,8 +24,6 @@ ok( $inst, "created dummy instance" );
 my $root = $inst->config_root;
 
 ok( $root, "created root" );
-
-Config::Model::Exception::Any->Trace(1) if $trace =~ /e/;
 
 my @data = ( [
         'Z',
@@ -402,4 +386,7 @@ $step = $model_searcher->next_choice();
 is_deeply( $step, [], 'next_choice 2' );
 
 is( $model_searcher->current_object->name, 'std_id:foo DX', 'next_choice target' );
-memory_cycle_ok($model);
+memory_cycle_ok($model, "memory cycle");
+
+done_testing;
+
