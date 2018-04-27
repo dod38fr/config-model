@@ -7,7 +7,12 @@ use Path::Tiny;
 
 use Test::Memory::Cycle;
 use Config::Model;
+use Config::Model::Tester::Setup qw/init_test  setup_test_dir/;
 use Config;
+
+use warnings;
+use strict;
+use lib "t/lib";
 
 # Config::Model::FuseUI is loaded later within an eval
 
@@ -44,48 +49,19 @@ else {
     plan tests => 17;
 }
 
-use warnings;
-use strict;
-use lib "t/lib";
 
 # required to handle warnings in forked process
-local $SIG{__WARN__} = sub { die $_[0] unless $_[0] =~ /deprecated/ };
+#local $SIG{__WARN__} = sub { die $_[0] unless $_[0] =~ /deprecated/ };
 
 use Data::Dumper;
 use POSIX ":sys_wait_h";
 
-my $arg = shift || '';
-my $log = 0;
+my ($model, $trace, $args) = init_test('fuse_debug');
+my $wr_root = setup_test_dir();
 
-my $trace      = $arg =~ /t/ ? 1 : 0;
-my $fuse_debug = $arg =~ /f/ ? 1 : 0;
-$log     = 1 if $arg =~ /l/;
-Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
-
-use Log::Log4perl qw(:easy);
-my $home = $ENV{HOME} || "";
-my $log4perl_user_conf_file = "$home/.log4config-model";
-
-if ( $log and -e $log4perl_user_conf_file ) {
-    Log::Log4perl::init($log4perl_user_conf_file);
-}
-else {
-    Log::Log4perl->easy_init($WARN);
-}
-
-ok( 1, "Compilation done" );
-
-# pseudo root where config files are written by config-model
-my $wr_root = path('wr_root_p/fuse');
-
-# cleanup before tests
-$wr_root->remove_tree;
-$wr_root->mkpath( { mode => 0755 } );
 
 my $fused = $wr_root->child('fused');
 $fused->mkpath( { mode => 0755 } );
-
-my $model = Config::Model->new( legacy => 'ignore' );
 
 $model->load( Master => 'Config/Model/models/Master.pl' );
 
@@ -119,7 +95,7 @@ my $pid = fork;
 if ( defined $pid and $pid == 0 ) {
 
     # child process, just run fuse and wait for exit
-    $ui->run_loop( debug => $fuse_debug );
+    $ui->run_loop( debug => $args->{fuse_debug} );
     exit;
 }
 
