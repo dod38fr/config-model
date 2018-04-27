@@ -9,7 +9,6 @@ use Config::Model;
 use Config::Model::Tester::Setup qw/init_test  setup_test_dir/;
 
 use warnings;
-no warnings qw(once);
 
 use strict;
 use lib "t/lib";
