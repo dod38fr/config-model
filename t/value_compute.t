@@ -1,39 +1,22 @@
 # -*- cperl -*-
 
-use warnings;
-
 use ExtUtils::testlib;
 use Test::More;
 use Test::Warn;
 use Test::Differences;
 use Test::Memory::Cycle;
 use Config::Model;
-use Log::Log4perl qw(:easy);
+use Config::Model::Tester::Setup qw/init_test/;
 
 use strict;
+use warnings;
+
 use 5.10.1;
 
-my $arg = shift || '';
+my ($model, $trace, $args) = init_test('rd-hint','rd-trace');
 
-my $log = 0;
+note("use --rd-hint or --rd-trace options to debug Parse::RecDescent");
 
-my $trace = $arg =~ /t/ ? 1 : 0;
-$log     = 1 if $arg =~ /l/;
-Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
-
-my $home = $ENV{HOME} || "";
-my $log4perl_user_conf_file = "$home/.log4config-model";
-
-if ( $log and -e $log4perl_user_conf_file ) {
-    Log::Log4perl::init($log4perl_user_conf_file);
-}
-else {
-    Log::Log4perl->easy_init( $arg =~ /l/ ? $DEBUG : $WARN );
-}
-
-ok( 1, "Compilation done" );
-
-my $model = Config::Model->new();
 $model->create_config_class(
     name    => "Slave",
     element => [
@@ -439,8 +422,8 @@ use warnings 'once';
 
 {
     no warnings qw/once/;
-    $::RD_HINT  = 1 if $arg =~ /rdt?h/;
-    $::RD_TRACE = 1 if $arg =~ /rdh?t/;
+    $::RD_HINT  = 1 if $args->{'rd-hint'};
+    $::RD_TRACE = 1 if $args->{'rd-trace'};
 }
 
 my $object = $root->fetch_element('one_var');
