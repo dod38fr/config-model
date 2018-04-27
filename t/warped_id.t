@@ -1,29 +1,15 @@
 # -*- cperl -*-
-# $Author$
-# $Date$
-# $Revision$
-
-use warnings;
-
 use ExtUtils::testlib;
-use Test::More tests => 37;
+use Test::More;
 use Test::Memory::Cycle;
 use Config::Model;
+use Config::Model::Tester::Setup qw/init_test/;
 
 use strict;
+use warnings;
 
-my $arg = shift || '';
+my ($model, $trace) = init_test();
 
-my $trace = $arg =~ /t/ ? 1 : 0;
-Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
-
-use Log::Log4perl qw(:easy);
-Log::Log4perl->easy_init( $arg =~ /l/ ? $TRACE : $WARN );
-
-ok( 1, "Compilation done" );
-
-# minimal set up to get things working
-my $model = Config::Model->new( legacy => 'ignore', );
 $model->create_config_class(
     name    => 'Slave',
     element => [
@@ -238,4 +224,6 @@ is( $root->grab_value('hash_with_warped_value:5'), 'dumb string',
 is( $root->grab_value('hash_with_warped_value:6'), 'dumb string',
     "check hash_with_warped_value:6" );
 
-memory_cycle_ok($model);
+memory_cycle_ok($model, "memory cycle");
+
+done_testing;
