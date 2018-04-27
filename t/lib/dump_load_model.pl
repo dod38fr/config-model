@@ -60,8 +60,10 @@
             std_id => {
                 type              => 'hash',
                 index_type        => 'string',
-                cargo_type        => 'node',
-                config_class_name => 'SlaveZ',
+                cargo => {
+                    type        => 'node',
+                    config_class_name => 'SlaveZ'
+                },
             },
             sub_slave => {
                 type              => 'node',
@@ -96,39 +98,51 @@
             std_id => {
                 type              => 'hash',
                 index_type        => 'string',
-                cargo_type        => 'node',
-                config_class_name => 'SlaveZ',
+                cargo => {
+                    type        => 'node',
+                    config_class_name => 'SlaveZ',
+                },
             },
             [qw/lista listb listc/] => {
                 type       => 'list',
-                cargo_type => 'leaf',
-                cargo_args => { value_type => 'string' },
+                cargo => {
+                    type => 'leaf',
+                    value_type => 'string'
+                },
             },
             [qw/hash_a hash_b/] => {
                 type       => 'hash',
                 index_type => 'string',
-                cargo_type => 'leaf',
-                cargo_args => { value_type => 'string' },
+                cargo => {
+                    type => 'leaf',
+                    value_type => 'string'
+                },
                 summary    => "hash_* summary",
             },
             ordered_hash => {
                 type       => 'hash',
                 index_type => 'string',
                 ordered    => 1,
-                cargo_type => 'leaf',
-                cargo_args => { value_type => 'string' },
+                cargo => {
+                    type => 'leaf',
+                    value_type => 'string'
+                },
             },
             ordered_hash_of_node => {
                 type       => 'hash',
                 index_type => 'string',
                 ordered    => 1,
-                cargo_type => 'node',
-                config_class_name => 'SubSlave2',
+                cargo => {
+                    type => 'node',
+                    config_class_name => 'SubSlave2',
+                }
             },
             olist => {
                 type              => 'list',
-                cargo_type        => 'node',
-                config_class_name => 'SlaveZ',
+                cargo => {
+                    type        => 'node',
+                    config_class_name => 'SlaveZ'
+                },
             },
             tree_macro => {
                 type       => 'leaf',
