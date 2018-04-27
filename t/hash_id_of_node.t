@@ -1,37 +1,22 @@
 # -*- cperl -*-
 
-use warnings;
-
 use ExtUtils::testlib;
-use Test::More tests => 18;
+use Test::More;
 use Test::Memory::Cycle;
 use Config::Model;
-use Data::Dumper;
-use Log::Log4perl qw(:easy :levels);
+use Config::Model::Tester::Setup qw/init_test/;
 
+use warnings;
 use strict;
 
-my $arg = shift || '';
-my ( $log, $show ) = (0) x 2;
-
-my $trace = $arg =~ /t/ ? 1 : 0;
-$log     = 1 if $arg =~ /l/;
-$show    = 1 if $arg =~ /s/;
-
-Log::Log4perl->easy_init( $log ? $TRACE : $WARN );
-
-Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
-
-ok( 1, "Compilation done" );
+my ($model, $trace) = init_test();
 
 my @element = (
-
     # Value constructor args are passed in their specific array ref
     cargo => { type => 'node', config_class_name => 'Slave' },
 );
 
 # minimal set up to get things working
-my $model = Config::Model->new();
 $model->create_config_class(
     name    => "Master",
     element => [
@@ -148,4 +133,6 @@ is(
 );
 
 is_deeply( [ $ph->fetch_all_indexes ], [ 3, 4 ], "compare indexes after move" );
-memory_cycle_ok($model);
+
+memory_cycle_ok($model, "memory cycle");
+done_testing;
