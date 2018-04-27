@@ -64,14 +64,16 @@ $model->create_config_class(
             choice     => [ 'auto', 'none', ]
         },
         fs_mntopts => {
-            follow => { fst => '- fs_vfstype' },
             type   => 'warped_node',
-            rules  => [
-                '$fst eq \'auto\'',
-                { config_class_name => 'Fstab::CommonOptions' },
-                '$fst eq \'none\'',
-                { config_class_name => 'Fstab::NoneOptions' },
-            ],
+            warp => {
+                follow => { fst => '- fs_vfstype' },
+                rules  => [
+                    '$fst eq \'auto\'',
+                    { config_class_name => 'Fstab::CommonOptions' },
+                    '$fst eq \'none\'',
+                    { config_class_name => 'Fstab::NoneOptions' },
+                ],
+            }
         },
         fs_passno => {
             value_type => 'integer',
