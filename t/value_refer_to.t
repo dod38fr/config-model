@@ -41,13 +41,17 @@ $model->create_config_class(
         if => {
             type              => 'hash',
             index_type        => 'string',
-            cargo_type        => 'node',
-            config_class_name => 'If',
+            cargo => {
+                type        => 'node',
+                config_class_name => 'If'
+            },
         },
         trap => {
             type       => 'leaf',
             value_type => 'string'
-        } ] );
+        }
+    ]
+);
 
 $model->create_config_class(
     name    => 'If',
@@ -55,7 +59,9 @@ $model->create_config_class(
         ip => {
             type       => 'leaf',
             value_type => 'string'
-        } ] );
+        }
+    ]
+);
 
 $model->create_config_class(
     name    => 'Lan',
@@ -63,10 +69,13 @@ $model->create_config_class(
         node => {
             type              => 'hash',
             index_type        => 'string',
-            cargo_type        => 'node',
-            config_class_name => 'Node',
-        },
-    ] );
+            cargo => {
+                type        => 'node',
+                config_class_name => 'Node',
+            },
+        }
+    ]
+);
 
 $model->create_config_class(
     name    => 'Node',
@@ -79,17 +88,25 @@ $model->create_config_class(
         if => {
             type       => 'leaf',
             value_type => 'reference',
-            refer_to   => [ '  ! host:$h if ', h => '- host' ]
+            computed_refer_to   => {
+                formula => '  ! host:$h if ',
+                variables => { h => '- host' }
+            }
         },
         ip => {
             type       => 'leaf',
             value_type => 'string',
-            compute    => [
-                '$ip',
-                ip   => '! host:$h if:$card ip',
-                h    => '- host',
-                card => '- if'
-            ] } ] );
+            compute    => {
+                formula => '$ip',
+                variables => {
+                    ip   => '! host:$h if:$card ip',
+                    h    => '- host',
+                    card => '- if'
+                }
+            }
+        }
+    ]
+);
 
 $model->create_config_class(
     name    => 'Master',
@@ -97,36 +114,42 @@ $model->create_config_class(
         host => {
             type              => 'hash',
             index_type        => 'string',
-            cargo_type        => 'node',
-            config_class_name => 'Host'
+            cargo => {
+                type        => 'node',
+                config_class_name => 'Host'
+            }
         },
         lan => {
             type              => 'hash',
             index_type        => 'string',
-            cargo_type        => 'node',
-            config_class_name => 'Lan'
+            cargo => {
+                type        => 'node',
+                config_class_name => 'Lan'
+            }
         },
         host_reference => {
             type       => 'leaf',
             value_type => 'reference',
-            refer_to   => ['! host '],
+            refer_to   => '! host ',
         },
         host_and_choice => {
             type       => 'leaf',
             value_type => 'reference',
-            refer_to   => ['! host '],
+            refer_to   => '! host ',
             choice     => [qw/foo bar/]
         },
         host_and_replace => {
             type       => 'leaf',
             value_type => 'reference',
-            refer_to   => ['! host '],
+            refer_to   => '! host ',
             replace => { 'fou' => 'Foo', 'barre' => 'Bar' },
         },
         dumb_list => {
             type       => 'list',
-            cargo_type => 'leaf',
-            cargo_args => { value_type => 'string' }
+            cargo => {
+                type => 'leaf',
+                value_type => 'string'
+            }
         },
         refer_to_list_enum => {
             type       => 'leaf',
