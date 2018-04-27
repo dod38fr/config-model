@@ -1,26 +1,18 @@
 # -*- cperl -*-
 
-use warnings;
 
 use ExtUtils::testlib;
 use Test::More;
 use Test::Memory::Cycle;
 use Config::Model;
+use Config::Model::Tester::Setup qw/init_test/;
 
 use strict;
+use warnings;
 
-my $arg = shift || '';
-
-my $trace = $arg =~ /t/ ? 1 : 0;
-Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
-
-use Log::Log4perl qw(:easy);
-Log::Log4perl->easy_init( $arg =~ /l/ ? $TRACE : $WARN );
-
-ok( 1, "Compilation done" );
+my ($model, $trace) = init_test();
 
 # minimal set up to get things working
-my $model = Config::Model->new( legacy => 'ignore', );
 $model->create_config_class(
     name      => 'SlaveY',
     'element' => [
@@ -131,6 +123,6 @@ is( $root->grab('bar:1')->config_class_name,
 
 is( $root->is_element_available( name => 'bar' ),
     1, 'check element bar' );
-memory_cycle_ok($model);
+memory_cycle_ok($model, "memory cycle");
 
 done_testing;
