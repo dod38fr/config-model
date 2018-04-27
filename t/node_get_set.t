@@ -1,24 +1,17 @@
 # -*- cperl -*-
 
 use ExtUtils::testlib;
-use Test::More tests => 9;
+use Test::More;
 use Test::Memory::Cycle;
 use Config::Model;
+use Config::Model::Tester::Setup qw/init_test/;
 
 use warnings;
-no warnings qw(once);
-
 use strict;
+
 use lib "t/lib";
 
-my $arg = shift || '';
-my $trace = $arg =~ /t/ ? 1 : 0;
-Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
-
-use Log::Log4perl qw(:easy);
-Log::Log4perl->easy_init( $arg =~ /l/ ? $TRACE : $WARN );
-
-my $model = Config::Model->new( legacy => 'ignore', );
+my ($model, $trace) = init_test();
 
 ok( 1, "compiled" );
 
@@ -52,4 +45,6 @@ is(
 
 is( $root->get( path => '/BDMV', check => 'skip' ), undef, "get with check skip does not die" );
 
-memory_cycle_ok($model);
+memory_cycle_ok($model, "memory cycle");
+
+done_testing;
