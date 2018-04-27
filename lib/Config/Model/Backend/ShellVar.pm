@@ -99,8 +99,9 @@ sub write {
     }
 
     if (@to_write) {
-        $self->write_global_comment( $ioh, '#' );
-        map { $self->write_data_and_comments( $ioh, '#', @$_ ); } @to_write;
+        my $res = $self->write_global_comment( '#' );
+        map { $res .= $self->write_data_and_comments( '#', @$_ ); } @to_write;
+        $ioh->print($res);
     }
 
     return 1;

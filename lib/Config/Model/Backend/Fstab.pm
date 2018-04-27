@@ -96,7 +96,7 @@ sub write {
 
     croak "Undefined file handle to write" unless defined $ioh;
 
-    $self->write_global_comment( $ioh, '#' );
+    my $res = $self->write_global_comment( '#' );
 
     # Using Config::Model::ObjTreeScanner would be overkill
     foreach my $line_obj ( $node->fetch_element('fs')->fetch_all ) {
@@ -106,10 +106,11 @@ sub write {
             $self->option_string( $line_obj->fetch_element('fs_mntopts') ),
             map ( $line_obj->fetch_element_value($_), qw/fs_freq fs_passno/ ),
         );
-        $self->write_data_and_comments( $ioh, '#', $d, $line_obj->annotation );
+        $res .= $self->write_data_and_comments( '#', $d, $line_obj->annotation );
 
     }
 
+    $ioh->print($res);
     return 1;
 }
 

@@ -52,7 +52,7 @@ sub read {
     $self->load_yaml_parser($args{yaml_class});
 
     # load yaml file
-    my $yaml = join( '', $args{io_handle}->getlines );
+    my $yaml = $args{file_path}->slurp_utf8;
 
     # convert to perl data
     my $perl_data = Load($yaml) ;
