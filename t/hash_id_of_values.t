@@ -4,17 +4,15 @@ use ExtUtils::testlib;
 use Test::More ;
 use Test::Memory::Cycle;
 use Config::Model;
+use Config::Model::Tester::Setup qw/init_test/;
 use Test::Exception;
 use Test::Warn;
 use Test::Differences;
 
-use lib -d 't' ? 't/lib' : 'lib';
-use MyTestLib qw/init_test/;
-
 use strict;
 use warnings;
 
-my ($model, $trace) = init_test(shift);
+my ($model, $trace) = init_test();
 
 # new parameter style
 my @element = (
