@@ -1,39 +1,16 @@
 # -*- cperl -*-
 
-use warnings;
-
 use ExtUtils::testlib;
-use Test::More tests => 14;
+use Test::More;
 use Test::Exception;
 use Test::Memory::Cycle;
 use Config::Model;
-use Log::Log4perl qw(:easy);
+use Config::Model::Tester::Setup qw/init_test/;
 
 use strict;
+use warnings;
 
-my ( $log, $show ) = (0) x 3;
-
-my $arg = shift || '';
-
-my $trace = $arg =~ /t/ ? 1 : 0;
-$log     = 1 if $arg =~ /l/;
-$show    = 1 if $arg =~ /s/;
-Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
-
-my $home = $ENV{HOME} || "";
-my $log4perl_user_conf_file = "$home/.log4config-model";
-
-if ( $log and -e $log4perl_user_conf_file ) {
-    Log::Log4perl::init($log4perl_user_conf_file);
-}
-else {
-    Log::Log4perl->easy_init( $arg =~ /l/ ? $DEBUG : $WARN );
-}
-
-ok( 1, "Compilation done" );
-
-# minimal set up to get things working
-my $model = Config::Model->new( legacy => 'ignore', );
+my ($model, $trace) = init_test();
 
 $model->create_config_class(
     name    => 'CommonOptions',
@@ -159,4 +136,7 @@ $root->load('fs_passno=0 fs_mntopts bind=1');
 is( $pass->fetch, '0', "check pass nb at 2 after setting bind" );
 
 ok( $root->load('type=hash cargo atime=1'), "check warping in of a node" );
-memory_cycle_ok($model);
+
+memory_cycle_ok($model, "memory cycle");
+
+done_testing;
