@@ -1,18 +1,15 @@
 # -*- cperl -*-
 
-use warnings;
-
 use ExtUtils::testlib;
 use Test::More;
 use Test::Exception;
 use Test::Differences;
 use Test::Memory::Cycle;
 use Config::Model;
-use Data::Dumper;
+use Config::Model::Tester::Setup qw/init_test/;
 
 use strict;
-
-use Config::Model::Tester::Setup qw/init_test/;
+use warnings;
 
 # minimal set up to get things working
 my ($model, $trace) = init_test();
