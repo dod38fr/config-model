@@ -6,30 +6,18 @@ use Test::Memory::Cycle;
 use Config::Model;
 use Path::Tiny;
 use YAML::Tiny;
+use Config::Model::Tester::Setup qw/init_test  setup_test_dir/;
 
 use warnings;
-no warnings qw(once);
 
 use strict;
 use lib "t/lib";
 
-my $arg = shift || '';
-
-my $trace = $arg =~ /t/ ? 1 : 0;
-Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
-
-use Log::Log4perl qw(:easy);
-Log::Log4perl->easy_init( $arg =~ /l/ ? $TRACE : $ERROR );
-
-my $model = Config::Model->new();
-
-ok( 1, "compiled" );
+my ($model, $trace) = init_test();
 
 # pseudo root where config files are written by config-model
-my $wr_root = path('wr_root_p/backend-yaml');
+my $wr_root = setup_test_dir();
 
-# cleanup before tests
-$wr_root->remove_tree;
 my $yaml_dir = $wr_root->child('yaml');
 $yaml_dir->mkpath();
 
