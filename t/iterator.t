@@ -1,40 +1,17 @@
 # -*- cperl -*-
 
 use ExtUtils::testlib;
-use Test::More tests => 33;
+use Test::More;
 use Test::Memory::Cycle;
 use Config::Model;
+use Config::Model::Tester::Setup qw/init_test/;
 use Config::Model::Value;
-use Log::Log4perl qw(get_logger :levels);
-
-use warnings;
-no warnings qw(once);
 
 use strict;
+use warnings;
 use lib "t/lib";
 
-use Data::Dumper;
-
-# use Config::Model::ObjTreeScanner;
-
-my $arg = shift || '';
-
-my $trace = $arg =~ /t/ ? 1 : 0;
-my $log   = $arg =~ /l/ ? 1 : 0;
-Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
-
-my $home = $ENV{HOME} || "";
-my $log4perl_user_conf_file = "$home/.log4config-model";
-if ( $log and -r $log4perl_user_conf_file ) {
-    Log::Log4perl::init($log4perl_user_conf_file);
-}
-else {
-    Log::Log4perl->easy_init($WARN);
-}
-
-my $model = Config::Model->new( legacy => 'ignore', );
-
-ok( 1, "compiled" );
+my ($model, $trace) = init_test();
 
 my @models = $model->load( Master => 'Config/Model/models/Master.pl' );
 
@@ -66,8 +43,6 @@ my $inst = $model->instance(
 ok( $inst, "created dummy instance" );
 
 my $root = $inst->config_root;
-
-Config::Model::Exception::Any->Trace(1) if $trace =~ /e/;
 
 my $step = qq!
 warn_if=foobar
@@ -179,4 +154,7 @@ $iterator->start;
 
 is_deeply( \@expected, [], "iterator explored all items" );
 
-memory_cycle_ok($model);
+memory_cycle_ok($model, "memory cycle");
+
+done_testing;
+
