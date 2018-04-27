@@ -1,40 +1,18 @@
 # -*- cperl -*-
 
 use warnings;
+use strict;
 
 use ExtUtils::testlib;
 use Test::More;
 use Test::Differences;
 use Test::Memory::Cycle;
 use Config::Model;
-use Data::Dumper;
-use Log::Log4perl qw(:easy :levels);
+use Config::Model::Tester::Setup qw/init_test/;
 
-use strict;
-
-my $arg = shift || '';
-my ( $log, $show ) = (0) x 2;
-
-my $trace = $arg =~ /t/ ? 1 : 0;
-$log  = 1 if $arg =~ /l/;
-$show = 1 if $arg =~ /s/;
-
-my $home = $ENV{HOME} || "";
-my $log4perl_user_conf_file = "$home/.log4config-model";
-
-if ( $log and -e $log4perl_user_conf_file ) {
-    Log::Log4perl::init($log4perl_user_conf_file);
-}
-else {
-    Log::Log4perl->easy_init( $log ? $WARN : $ERROR );
-}
-
-Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
-
-ok( 1, "Compilation done" );
+my ($model, $trace) = init_test();
 
 # minimal set up to get things working
-my $model = Config::Model->new();
 $model->create_config_class(
     name    => "Master",
     element => [
