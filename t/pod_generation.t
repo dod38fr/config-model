@@ -1,43 +1,19 @@
 # -*- cperl -*-
 
 use ExtUtils::testlib;
-use Test::More tests => 8;
+use Test::More;
 use Test::Memory::Cycle;
 use Config::Model;
-use Log::Log4perl qw(:easy);
-use File::Path;
+use Config::Model::Tester::Setup qw/init_test setup_test_dir/;
 
 use warnings;
-no warnings qw(once);
-
 use strict;
 use lib "t/lib";
 
+my ($model, $trace) = init_test();
+
 # pseudo root where config files are written by config-model
-my $wr_root = 'wr_root_p/pog-gen/';
-
-# cleanup before tests
-rmtree($wr_root);
-mkpath( $wr_root, { mode => 0755 } );
-
-my $arg = shift || '';
-my $trace = $arg =~ /t/ ? 1 : 0;
-my $log   = $arg =~ /l/ ? 1 : 0;
-Config::Model::Exception::Any->Trace(1) if $arg =~ /e/;
-
-my $home = $ENV{HOME} || "";
-my $log4perl_user_conf_file = "$home/.log4config-model";
-
-if ( $log and -e $log4perl_user_conf_file ) {
-    Log::Log4perl::init($log4perl_user_conf_file);
-}
-else {
-    Log::Log4perl->easy_init( $arg =~ /l/ ? $DEBUG : $WARN );
-}
-
-my $model = Config::Model->new( legacy => 'ignore', );
-
-ok( 1, "compiled" );
+my $wr_root = setup_test_dir();
 
 my $inst = $model->instance(
     root_class_name => 'Master',
@@ -51,4 +27,7 @@ $model->generate_doc( 'Master', $wr_root );
 
 map { ok( -r "$wr_root/Config/Model/models/$_", "Found doc $_" ); }
     qw /Master.pod  SlaveY.pod  SlaveZ.pod  SubSlave2.pod  SubSlave.pod/;
-memory_cycle_ok($model);
+
+memory_cycle_ok($model, "memory cycle");
+
+done_testing;
