@@ -9,6 +9,7 @@ use Config::Model;
 use Config::Model::Value;
 use Config::Model::Tester::Setup qw/init_test/;
 use Data::Dumper;
+use Test::Log::Log4perl;
 
 use strict;
 
@@ -39,8 +40,8 @@ $model->create_config_class(
                     'fix' => '$_ = substr $_,0,8;'
                 },
             },
-        } ]
-
+        }
+    ]
 );
 
 $model->create_config_class(
@@ -50,7 +51,9 @@ $model->create_config_class(
         [ map { "my_broken_node_$_" } (qw/a b c/) ] => {
             type              => 'node',
             config_class_name => 'NodeFix',
-        } ] );
+        }
+    ]
+);
 
 my $inst = $model->instance(
     root_class_name => 'Master',
@@ -61,8 +64,15 @@ ok( $inst, "created dummy instance" );
 my $root = $inst->config_root;
 
 foreach my $w (qw/a b c/) {
-    $root->load(
-        qq!my_broken_node_$w fix-gnu="Debian GNU/Linux for $w" fix-long="$w is way too long"!);
+    my $foo = Test::Log::Log4perl->expect(
+        ignore_priority => info => [
+            'User',
+            warn => qr/deprecated in favor of Debian GNU/,
+            warn => qr/Line too long/
+        ]
+    );
+    $root->load (qq!my_broken_node_$w fix-gnu="Debian GNU/Linux for $w"!
+                     . qq! fix-long="$w is way too long"! );
 }
 
 print $root->dump_tree if $trace;
