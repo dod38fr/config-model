@@ -7,6 +7,7 @@ use Test::More;
 use Test::Memory::Cycle;
 use Config::Model;
 use Data::Dumper;
+use Test::Log::Log4perl;
 
 use Config::Model::Tester::Setup qw/init_test setup_test_dir/;
 
@@ -124,6 +125,8 @@ ok( $inst, "created dummy instance" );
 
 my $root = $inst->config_root;
 
+my $tlogger = Test::Log::Log4perl->get_logger("User");
+
 my ( $w1, $w2, $w3, $bad_w, $rec_wo, $t );
 
 eval { $bad_w = $root->fetch_element('wrong_syntax_rule'); };
@@ -181,7 +184,17 @@ is( $w3->fetch, 'G', "... and w3" );
 
 my $stdv = $root->fetch_element('Standards-Version');
 my $prio = $root->fetch_element('Priority');
-$stdv->store('3.9.8');
+
+my $store_with_log_test = sub {
+    my $v = shift;
+    Test::Log::Log4perl->start(ignore_priority => 'info');
+    $tlogger->warn(qr/Current standards version/);
+    $stdv->store($v);
+    Test::Log::Log4perl->end("Test that store('$v') logs okay");
+};
+
+$store_with_log_test->('3.9.8');
+
 $prio->store('extra');
 is($prio->fetch, 'extra', "check value with old std_version");
 
@@ -189,11 +202,11 @@ $stdv->apply_fixes;
 is($prio->fetch, 'optional', "check value with new std_version");
 is($stdv->fetch, '4.1.0', "check std_v default value");
 
-$stdv->store('3.9.8');
+$store_with_log_test->('3.9.8');
 $prio->store('extra');
 is($prio->fetch, 'extra', "check value with old std_version (2)");
 
-$stdv->store('4.0.2');
+$store_with_log_test->('4.0.2');
 is($prio->fetch, 'optional', "check value with new std_version (2)");
 
 $stdv->apply_fixes;
