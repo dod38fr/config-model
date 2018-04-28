@@ -116,15 +116,14 @@ $model->create_config_class(
 
 $model->create_config_class(
     name          => 'SectionMapTop',
-    'read_config' => [ {
-            'section_map'         => { 'general' => '!' },
-            'backend'             => 'ini_file',
-            'split_list_value'    => '\\s+',
-            'join_list_value'     => ' ',
-            'store_class_in_hash' => 'sections',
-            force_lc_section      => 1,
-        }
-    ],
+    'rw_config' => {
+        'section_map'         => { 'general' => '!' },
+        'backend'             => 'ini_file',
+        'split_list_value'    => '\\s+',
+        'join_list_value'     => ' ',
+        'store_class_in_hash' => 'sections',
+        force_lc_section      => 1,
+    },
 
     element => [
         'sections',
@@ -142,15 +141,14 @@ $model->create_config_class(
 
 $model->create_config_class(
     name          => 'SectionMap',
-    'read_config' => [ {
-            'section_map'         => { 'low' => 'below' },
-            'backend'             => 'ini_file',
-            'split_list_value'    => '\\s+',
-            'join_list_value'     => ' ',
-            'store_class_in_hash' => 'sections',
-            force_lc_section      => 1,
-        }
-    ],
+    'rw_config' => {
+        'section_map'         => { 'low' => 'below' },
+        'backend'             => 'ini_file',
+        'split_list_value'    => '\\s+',
+        'join_list_value'     => ' ',
+        'store_class_in_hash' => 'sections',
+        force_lc_section      => 1,
+    },
 
     element => [
         'sections',
