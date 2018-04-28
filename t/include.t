@@ -99,22 +99,21 @@ $model->create_config_class(
     ],
 );
 
-my $read_config = [{
+my $rw_config = {
     'auto_create' => 1,
     'backend' => 'Xorg',
     'config_dir' => '/etc/X11',
     'file' => 'xorg.conf'
-}] ;
+};
 
 $model->create_config_class(
     'name' => 'Xorg::ConfigDir',
-    'read_config' => $read_config
+    'rw_config' => $rw_config
 );
 
 my $xorg_model = $model->get_model('LikeXorg');
 
-# use $read_config->[0] because of legacy translation from read_config array to rw_config
-eq_or_diff($xorg_model->{rw_config}, $read_config->[0],"check included read specification");
+eq_or_diff($xorg_model->{rw_config}, $rw_config,"check included read specification");
 
 memory_cycle_ok($model, "memory cycles");
 
