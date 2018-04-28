@@ -1,14 +1,14 @@
 # test model used by t/*.t
 
 my @backend_config = (
-    read_config => [{
+    rw_config => {
         backend     => 'yaml',
         config_dir  => '/yaml/',
         file        => 'hosts.yml',
         auto_create => 1,
         full_dump => 0,
         auto_delete => 1,
-    }],
+    }
 );
 
 [
