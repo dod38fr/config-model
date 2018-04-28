@@ -513,7 +513,6 @@ sub set_properties {
     # these are handled by Node or Warper
     map { delete $args{$_} } qw/level/;
 
-    my $logger = $logger;
     if ( $logger->is_trace ) {
         $logger->trace( "Leaf '" . $self->name . "' set_properties called with '",
             join( "','", sort keys %args ), "'" );
