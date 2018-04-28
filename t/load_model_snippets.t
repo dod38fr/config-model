@@ -12,7 +12,7 @@ use Config::Model::Tester::Setup qw/init_test setup_test_dir/;
 use strict;
 use warnings;
 
-use lib 'wr_root_p/snippet';
+use lib 'wr_root/load_model_snippets';
 
 my ($model, $trace) = init_test();
 
