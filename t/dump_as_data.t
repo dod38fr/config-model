@@ -42,7 +42,8 @@ warp warp2 aa2="foo bar"
 
 $step =~ s/\n/ /g;
 
-ok( $root->load( step => $step ), "set up data in tree with '$step'" );
+note("steps are $step") if $trace;
+ok( $root->load( step => $step ), "set up data in tree" );
 
 # load some values with undef
 $root->fetch_element('hash_a')->fetch_with_id('undef_val');
@@ -159,7 +160,7 @@ my $inst3 = $model->instance(
 );
 ok( $inst, "created 3rd dummy instance" );
 my $root3 = $inst3->config_root;
-$data->{ordered_hash} = { @{ $expect->{ordered_hash} } };
+$data->{ordered_hash} = { @{ $expect->{ordered_hash} }, __order => [qw/y x z/] };
 $root3->load_data($data);
 
 @tries = (
@@ -167,7 +168,7 @@ $root3->load_data($data);
     [ 'olist:0'         => $expect->{olist}[0] ],
     [ 'olist:0 DX'      => $expect->{olist}[0]{DX} ],
     [ 'string_with_def' => $expect->{string_with_def} ],
-    [ 'ordered_hash'    => [qw/x 3 y 2 z 1/] ],
+    [ 'ordered_hash'    => [qw/y 2 x 3 z 1/] ],
     [ 'hash_a'          => $expect->{hash_a} ],
     [ 'std_id:ab'       => $expect->{std_id}{ab} ],
     [ 'my_check_list'   => $expect->{my_check_list} ],
