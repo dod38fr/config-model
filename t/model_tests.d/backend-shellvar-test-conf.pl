@@ -14,13 +14,11 @@ $model->create_config_class(
             'type'       => 'leaf',
         },
     ],
-    'read_config' => [
-        {
-            backend    => 'ShellVar',
-            config_dir => '/etc',
-            file       => 'foo.conf',
-        }
-    ]
+    'rw_config' => {
+        backend    => 'ShellVar',
+        config_dir => '/etc',
+        file       => 'foo.conf',
+    }
 );
 
 $model_to_test = "Shelly";

@@ -17,13 +17,11 @@ $model->create_config_class(
 $model->create_config_class(
     name => 'Hosts',
 
-    read_config => [
-        {
-            backend     => 'yaml',
-            config_dir  => '/etc/',
-            file        => 'hosts.yaml',
-        },
-    ],
+    rw_config => {
+        backend     => 'yaml',
+        config_dir  => '/etc/',
+        file        => 'hosts.yaml',
+    },
 
     element => [
         record => {

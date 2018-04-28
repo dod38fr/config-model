@@ -43,7 +43,7 @@ $model->create_config_class(
                 config_class_name => 'IniTest::Class'
             }
         ],
-    read_config => [{
+    rw_config => {
         backend     => 'IniFile',
         # specify where is the config file. this must match
         # the $conf_file_name and $conf_dir variable above
@@ -51,7 +51,7 @@ $model->create_config_class(
         file        => 'test.ini',
         file_mode   => 'a=r,ug+w',
         auto_create => 1,
-    }],
+    },
 );
 
 

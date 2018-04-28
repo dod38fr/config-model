@@ -17,13 +17,11 @@ $model->create_config_class(
 $model->create_config_class(
     name => 'Hosts',
 
-    read_config => [
-        {
-            backend     => 'json',
-            config_dir  => '/etc/',
-            file        => 'hosts.json',
-        },
-    ],
+    rw_config => {
+        backend     => 'json',
+        config_dir  => '/etc/',
+        file        => 'hosts.json',
+    },
 
     element => [
         record => {

@@ -6,15 +6,13 @@ $conf_file_name = 'test.yaml';
 $model->create_config_class(
     name => 'Master',
 
-    read_config => [
-        {
-            backend     => 'yaml',
-            config_dir  => '/etc/',
-            file        => 'test.yaml',
-            # as of 2017, YAML is the only parser that writes back boolean value as unquoted true/false
-            yaml_class  => 'YAML',
-        },
-    ],
+    rw_config => {
+        backend     => 'yaml',
+        config_dir  => '/etc/',
+        file        => 'test.yaml',
+        # as of 2017, YAML is the only parser that writes back boolean value as unquoted true/false
+        yaml_class  => 'YAML',
+    },
 
     element => [
         true_bool  => { qw/type leaf value_type boolean/, write_as => [qw/false true/]},
