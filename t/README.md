@@ -1,65 +1,41 @@
-=head1 Running the tests
+## Running the tests
 
 All tests can be run in parrallel with
 
-  prove -j8 t/
+    prove -j8 t/
 
-=head2 Tests options
+### Test options
 
-Most tests can be run with the options provided by L<Config::Model::Tester::Setup>:
+Most tests can be run with the options provided by
+[Config::Model::Tester::Setup](https://metacpan.org/pod/Config::Model::Tester::Setup):
 
-=over
+* `-trace`: show more information
+* `-error`: show stack stace in case of error
+* `-log`: Enable logs (you may need to tweak `~/.log4config-model` to get more trace.
+   See [cme/Logging](https://metacpan.org/pod/distribution/App-Cme/bin/cme#Logging) for more details.
 
-=item -trace
-
-show more information
-
-=item -error
-
-show stack stace in case of error
-
-=item -log
-
-Enable logs (you may need to tweak C<~/.log4config-model> to get more
-trace. See L<cme/Logging> for more details.
-
-=back
-
-=head2 model_tests.t
+### model_tests.t
 
 This test is set of subtests made of test cases. It accepts arguments
 to limit the test to one subtest and one test case:
 
-  perl t/model_test.t [ --log ] [--error] [--trace] [ subtest [ test_case ] ]
+    perl t/model_test.t [ --log ] [--error] [--trace] [ subtest [ test_case ] ]
 
-See L<Config::Model::Tester> for more details.
+See [Config::Model::Tester](https://metacpan.org/pod/Config::Model::Tester) for more details.
 
-=head2 Running with prove
+### Running with prove
 
 You can run all tests with
 
- prove -j8 t/
+    prove -j8 t/
 
 To run with local files:
 
- prove -l -j8 t/
+    prove -l -j8 t/
 
 You can pass parameter to test files with:
 
- prove -l t/ :: --log
+    prove -l t/ :: --log
 
-=head2 Legacy
-
-Legacy options: Older tests can be run with one argument made of
-several letters: C<l> for logs, C<t> for traces and C<e> for
-errors. These tests are being reworked to use the options shown above.
-
-You can generate the list of tests using the new options with:
-
-  grep -l Setup t/*.t
-
-And the list of tests using the old options with:
-
-  grep -l '\$arg' t/*.t
 
 
