@@ -1,5 +1,24 @@
 {{$NEXT}}
 
+2.123 2018-05-01
+
+  On-going improvements of R/W backends:
+    * io_handle backend parameter is deprecated
+    * use file_path in all backends instead of io_handle
+
+  Test improvements:
+    * build dep on Config::Model::Tester 3.006
+    * document prove command in t/README.pod
+    * tests run without showing any warnings
+    * all tests accept --log --error --trace parameters
+    * all test models are updated to remove all
+      deprecated declarations
+
+  Bug fix:
+    * fix parameter sanitisation in Instance
+    * Value: remove self assignment (tx kritika.io)
+    * update WarpedNode synopsis
+
 2.122 2018-04-17
 
   Bug fix:
