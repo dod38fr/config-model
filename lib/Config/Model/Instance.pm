@@ -515,11 +515,11 @@ sub write_back {
 
     foreach my $k ( keys %args ) {
         if ($k eq 'config_dir') {
-            $args{$_} ||= '';
-            $args{$_} .= '/' if $args{$_} and $args{$_} !~ m(/$);
+            $args{$k} ||= '';
+            $args{$k} .= '/' if $args{$k} and $args{$k} !~ m(/$);
         }
         elsif ( $k !~ /^(config_file|backend)$/ ) {
-            croak "write_back: wrong parameters $_";
+            croak "write_back: wrong parameters $k";
         }
     }
 
