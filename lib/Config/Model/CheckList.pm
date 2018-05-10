@@ -1124,22 +1124,51 @@ Returns a string listing the checked items (i.e. "A,B,C")
 
 Get a value from a directory like path.
 
-=head2 set( path , values )
+=head1 Method to check or clear items in the check list
+
+All these methods accept an optional C<check> parameter that can be:
+
+=over
+
+=item yes
+
+A wrong item to check trigger an exception (default)
+
+=item skip
+
+A wrong item trigger a warning
+
+=item no
+
+A wrong item is ignored
+
+=back
+
+=head2 set
+
+Parameters are: C<( path, items_to_set, [ check => [ yes | no | skip  ] ] )>
 
 Set a checklist with a directory like path. Since a checklist is a leaf, the path
-should be empty. The values are a comma separated list of checked items.
+should be empty.
 
-Example : C<< $leaf->set('','A,C,Z') ; >>
+The values are a comma separated list of items to set in the check list.
+
+Example :
+
+  $leaf->set('','A,C,Z');
+  $leaf->set('','A,C,Z', check => 'skip');
 
 =head2 set_checked_list
 
 Set all passed items to checked (1). All other available items
 in the check list are set to 0.
 
-Example:
+Example, for a check list that contains A B C and D check items:
 
   # set cl to A=0 B=1 C=0 D=1
   $cl->set_checked_list('B','D')
+  $cl->set_checked_list( [ 'B','D' ])
+  $cl->set_checked_list( [ 'B','D' ], check => 'yes')
 
 =head2 store_set
 
@@ -1155,20 +1184,34 @@ Example:
 
   $cl->store('B, D')
   $cl->store( value => 'B,C' )
+  $cl->store( value => 'B,C', check => 'yes' )
 
 =head2 load
 
 Alias to L</store>.
 
-=head2 set_checked_list_as_hash ()
+=head2 set_checked_list_as_hash
 
-Set check_list items. Missing items in the given list of parameters
+Set check_list items. Missing items in the given hash of parameters
 are cleared (i.e. set to undef).
 
-=head2 load_data ( ref )
+Example for a check list containing A B C D
 
-Load check_list as an array or hash ref. Array is forwarded to
+  $cl->set_checked_list_as_hash( { A => 1, B => 0} , check => 'yes' )
+  # result A => 1 B => 0 , C and D are undef
+
+=head2 load_data
+
+Load items as an array or hash ref. Array is forwarded to
 L<set_checked_list> , and hash is forwarded to L<set_checked_list_as_hash>.
+
+Example:
+
+ $cl->load_data(['A','B']) # cannot use check param here
+ $cl->load_data( data => ['A','B'])
+ $cl->load_data( data => ['A','B'], check => 'yes')
+ $cl->load_data( { A => 1, B => 1 } )
+ $cl->load_data( data => { A => 1, B => 1 }, check => 'yes')
 
 =head1 Ordered checklist methods
 
