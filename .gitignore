@@ -8,6 +8,7 @@ lib/Config/Model/models/Multistrap.pod
 lib/Config/Model/models/Multistrap/Section.pod
 lib/Config/Model/models/PopCon.pod
 .build
+*.unison.tmp
 wr_root
 wr_root_p
 *~
