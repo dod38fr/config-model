@@ -7,6 +7,8 @@ use ExtUtils::testlib;
 use Test::More;
 use Test::Differences;
 use Test::Memory::Cycle;
+use Test::Log::Log4perl;
+use Test::Exception;
 use Config::Model;
 use Config::Model::Tester::Setup qw/init_test/;
 
@@ -182,15 +184,56 @@ is( $cl->get_help('A'), 'A help', "test help" );
 
 is( $inst->needs_save, 0, "verify instance needs_save status after reading meta data" );
 
-# test with the polymorphic 'store' method
-$cl->store( value => 'S,T ,  O, R, E' );
-ok( 1, "test store method" );
-@got = $cl->get_checked_list;
-is( scalar @got, 5, "test nb of elt in check_list after set" );
-is_deeply( \@got, [sort qw/S T O R E/], "test get_checked_list after set" );
-$inst->clear_changes;
+subtest 'test _store method' => sub {
+    # test with the polymorphic 'store' method
+    my @test_args = (
+        [ [ 'S', 1, 'yes' ], 1, ['S'] ],
+        [ [ 'A', 1, 'yes' ], 2, ['A','S'] ],
+        [ [ 'A', 0, 'yes' ], 1, ['S'] ],
+        [ [ 'bug', 1, 'skip' ], 1, ['S'] ],
+    );
 
-# test with the polymorphic 'set' method
+    foreach my $test_arg_ref ( @test_args) {
+        my ($args, $nb, $expect) = @$test_arg_ref;
+        $cl->_store( @$args );
+        ok( 1, "test _store method with @$args" );
+        @got = $cl->get_checked_list;
+        is( scalar @got, $nb, "test nb of elt in check_list after _store" );
+        is_deeply( \@got, $expect, "test get_checked_list after _store" );
+        $inst->clear_changes;
+    }
+};
+
+subtest 'test _store warning' => sub {
+    my $foo = Test::Log::Log4perl->expect(
+        ignore_priority => 'info',
+        ['Tree.Element.CheckList', warn => qr/Unknown check_list item/ ]
+        );
+    $cl->_store('bug-skipped', 1, 'skip');
+};
+
+throws_ok { $cl->_store('bug-error', 1, 'yes') } qr/wrong value/, 'test _store error';
+
+subtest 'test store method' => sub {
+    # test with the polymorphic 'store' method
+    my @store_args = (
+        [ 'S,T,O,R,E' ],
+        [ value => 'S,T ,  O, R, E' ],
+        [ 'S,O,T,R,E', check => 'yes' ],
+        [ value => 'S,T ,  O, R, E', check => 'yes' ],
+        [ 'S,T,O,R,E,bug', check => 'yes' ],
+    );
+
+    foreach my $test_arg ( @store_args) {
+        $cl->store( @$test_arg );
+        ok( 1, "test store method with @$test_arg" );
+        @got = $cl->get_checked_list;
+        is( scalar @got, 5, "test nb of elt in check_list after set" );
+        is_deeply( \@got, [sort qw/S T O R E/], "test get_checked_list after set" );
+        $inst->clear_changes;
+    }
+};
+
 $cl->set( '', 'A,Z,Y,B' );
 ok( 1, "test set method" );
 @got = $cl->get_checked_list;
@@ -202,17 +245,30 @@ print join( "\n", $inst->list_changes("\n") ), "\n" if $trace;
 $inst->clear_changes;
 
 my @set = sort qw/A C Z V Y/;
-$cl->set_checked_list(@set);
-ok( 1, "test set_checked_list" );
-@got = $cl->get_checked_list;
-is( scalar @got, 5, "test nb of elt in check_list after set_checked_list" );
-is_deeply( \@got, \@set, "test get_checked_list after set_checked_list" );
+subtest 'test set_checked_list method' => sub {
+    my @set_args = (
+        \@set,
+        [ \@set ],
+        [ \@set , check => 'yes' ],
+        [ [ sort qw/A C Z V Y bug/ ] , check => 'skip' ],
+    );
 
-is( $inst->needs_save, 1, "verify instance needs_save after set_checked_list" );
-print join( "\n", $inst->list_changes("\n") ), "\n" if $trace;
-$inst->clear_changes;
+    foreach my $test_arg ( @set_args) {
+        $cl->set_checked_list(@$test_arg);
+        ok( 1, "test set_checked_list with @$test_arg" );
+        @got = $cl->get_checked_list;
+        is( scalar @got, 5, "test nb of elt in check_list after set_checked_list" );
+        is_deeply( \@got, \@set, "test get_checked_list after set_checked_list" );
+
+        is( $inst->needs_save, 1, "verify instance needs_save after set_checked_list" );
+        print join( "\n", $inst->list_changes("\n") ), "\n" if $trace;
+        $cl->clear;
+        $inst->clear_changes;
+    }
+};
 
 # test global get and set as hash
+$cl->set_checked_list(@set);
 $hr = $cl->get_checked_list_as_hash;
 map { $expect{$_} = 0 } ( 'A' .. 'Z' );
 map { $expect{$_} = 1 } @set;
