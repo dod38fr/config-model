@@ -318,13 +318,18 @@ sub _store {
             push @$ord, $choice unless scalar grep { $choice eq $_ } @$ord;
         }
     }
-    elsif ( $check eq 'yes' ) {
+    else {
         my $err_str =
             "Unknown check_list item '$choice'. Expected '"
             . join( "', '", @{ $self->{choice} } ) . "'";
         $err_str .= "\n\t" . $self->{ref_object}->reference_info
             if defined $self->{ref_object};
-        Config::Model::Exception::WrongValue->throw( error => $err_str, object => $self );
+        if ($check eq 'yes') {
+            Config::Model::Exception::WrongValue->throw( error => $err_str, object => $self );
+        }
+        elsif ($check eq 'skip') {
+            $logger->warn($err_str);
+        }
     }
 
     if (    $ok
@@ -339,18 +344,24 @@ sub _store {
     return $changed;
 }
 
-sub uncheck {
+sub get_arguments {
     my $self  = shift;
     my @list  = ref $_[0] eq 'ARRAY' ? @{ $_[0] } : @_;
     my %args  = ref $_[0] eq 'ARRAY' ? @_[ 1, $#_ ] : ( check => 'yes' );
     my $check = $self->_check_check( $args{check} );
+    return \@list, $check, \%args;
+}
+
+sub uncheck {
+    my $self  = shift;
+    my ($list, $check) = $self->get_arguments(@_);
 
     if ( defined $self->{ref_object} ) {
         $self->{ref_object}->get_choice_from_refered_to;
     }
 
     my @changed;
-    map { push @changed, $_ if $self->_store( $_, 0, $check ) } @list;
+    map { push @changed, $_ if $self->_store( $_, 0, $check ) } @$list;
 
     $self->notify_change( note => "uncheck @changed" )
         unless $self->instance->initial_load;
@@ -572,10 +583,9 @@ sub get {
 }
 
 sub set {
-    my $self = shift;
-    my $path = shift;
-    my $list = shift;
+    my ($self, $path, $list, %args) = @_;
 
+    my $check_validity = $self->_check_check( $args{check} );
     if ($path) {
         Config::Model::Exception::User->throw(
             object  => $self,
@@ -583,7 +593,8 @@ sub set {
         );
     }
 
-    return $self->set_checked_list( split /,/, $list );
+    my @list = split /,/, $list;
+    return $self->set_checked_list( \@list, check => $check_validity );
 }
 
 sub load {
@@ -592,28 +603,32 @@ sub load {
 
 sub store     {
     my $self = shift;
-     my %args =
+    my %args =
           @_ == 1 ? ( value => $_[0] )
         : @_ == 3 ? ( 'value', @_ )
         :           @_;
+    my $check_validity = $self->_check_check( $args{check} );
+
     my @set = split /\s*,\s*/, $args{value};
     foreach (@set) { s/^"|"$//g; s/\\"/"/g; }
-    $self->set_checked_list(@set);
+    $self->set_checked_list(\@set, check => $check_validity);
 }
 
 sub store_set { goto &set_checked_list }
 
 sub set_checked_list {
     my $self = shift;
-    $logger->trace("called with @_");
-    my %set = map { $_ => 1 } @_;
+    my ($list, $check) = $self->get_arguments(@_);
+
+    $logger->trace("called with @$list");
+    my %set = map { $_ => 1 } @$list;
     my @changed;
 
     foreach my $c ( $self->get_choice ) {
-        push @changed, $c if $self->_store( $c, $set{$c} // 0 );
+        push @changed, $c if $self->_store( $c, $set{$c} // 0, $check );
     }
 
-    $self->{ordered_data} = [@_];    # copy list
+    $self->{ordered_data} = $list;
 
     $self->notify_change( note => "set_checked_list @changed" )
         if @changed and not $self->instance->initial_load;
@@ -621,11 +636,13 @@ sub set_checked_list {
 
 sub set_checked_list_as_hash {
     my $self = shift;
-    my %check = ref $_[0] ? %{ $_[0] } : @_;
+    my %check_list = ref $_[0] eq 'HASH' ? %{ $_[0] } : @_;
+    my %args  = ref $_[0] eq 'HASH' ? @_[ 1, $#_ ] : ( check => 'yes' );
+    my $check_validity = $self->_check_check( $args{check} );
 
     foreach my $c ( $self->get_choice ) {
-        if ( defined $check{$c} ) {
-            $self->_store( $c, $check{$c} );
+        if ( defined $check_list{$c} ) {
+            $self->_store( $c, $check_list{$c}, $check_validity );
         }
         else {
             $self->clear_item($c);
@@ -638,16 +655,16 @@ sub load_data {
 
     my %args  = @_ > 1 ? @_ : ( data => shift );
     my $data  = $args{data};
-    my $check = $self->_check_check( $args{check} );
+    my $check_validity = $self->_check_check( $args{check} );
 
     if ( ref($data) eq 'ARRAY' ) {
-        $self->set_checked_list(@$data);
+        $self->set_checked_list($data, check => $check_validity);
     }
     elsif ( ref($data) eq 'HASH' ) {
-        $self->set_checked_list_as_hash($data);
+        $self->set_checked_list_as_hash($data, check => $check_validity);
     }
     elsif ( not ref($data) ) {
-        $self->set_checked_list($data);
+        $self->set_checked_list([$data], check => $check_validity );
     }
     else {
         Config::Model::Exception::LoadData->throw(
