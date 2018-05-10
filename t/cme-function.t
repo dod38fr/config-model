@@ -26,7 +26,7 @@ $conf_file->spew(@orig);
 {
     my $instance = cme(
         application => 'popcon',
-        root_dir => $wr_dir->stringify,
+        root_dir => $wr_dir,
         canonical => 1,
     );
 
