@@ -1750,20 +1750,28 @@ sub fetch {
 
 sub map_write_as {
     my $self = shift;
-    my @res = map {
-        my $do_map = (defined $_ and $self->{write_as} and $self->value_type eq 'boolean');
-        $do_map ? $self->{write_as}[$_] : $_;
-    } @_ ;
+    my @res;
+    if ($self->{write_as} and $self->value_type eq 'boolean') {
+        foreach my $v (@_) {
+            push @res, ( defined $v and $v =~ /^\d+$/ ) ? $self->{write_as}[$v] : $v;
+        }
+    }
+    else {
+        @res = @_;
+    }
     return wantarray ? @res : $res[0];
 }
 
-# modifies in place the passed values (which are also returned)
+# modifies in place the passed values
 sub map_write_as_inplace {
     my $self = shift;
-    map {
-        $_ = $self->{write_as}[$_]
-            if defined $_ and $self->{write_as} and $self->value_type eq 'boolean';
-    } @_;
+    return unless $self->{write_as} and $self->value_type eq 'boolean';
+
+    foreach (@_) {
+        if (defined $_ and /^\d+$/) {
+            $_ = $self->{write_as}[$_];
+        }
+    }
 }
 
 sub user_value {
