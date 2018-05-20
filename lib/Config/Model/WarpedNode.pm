@@ -189,11 +189,11 @@ sub set_properties {
 
     # bringing a new object does not really modify the content of the config tree.
     # only changes underneath changes the tree. And these changes below triggers
-    # their own change notif. SO there's no need to call notify_change when transitioning
+    # their own change notif. So there's no need to call notify_change when transitioning
     # from an undef object into a real object. On the other hand, warping out an object does
     # NOT trigger notify_changes from below. So notify_change must be called
-    if ( defined $old_object ) {
-        my $from = $old_config_class_name // '<undef>';
+    if ( defined $old_object and $old_config_class_name) {
+        my $from = $old_config_class_name ;
         my $to   = $config_class_name     // '<undef>';
         $self->notify_change( note => "warped node from $from to $to" );
     }
