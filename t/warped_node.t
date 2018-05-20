@@ -109,6 +109,17 @@ $model->create_config_class(
                 }
             }
         },
+        'a_hidden_node' => {
+            type   => 'warped_node',
+            config_class_name =>  'SlaveZ',
+            level => 'hidden',
+            warp => {
+                follow => '! tree_macro',
+                rules  => {
+                    XZ  => { level => 'normal' }
+                }
+            }
+        },
         bool_object => {
             type   => 'warped_node',
             warp => {
@@ -126,11 +137,13 @@ my $inst = $model->instance(
     instance_name   => 'test1'
 );
 ok( $inst, "created dummy instance" );
+$inst->initial_load_stop;
 
 my $root = $inst->config_root;
 
 my $tm = $root->fetch_element('tree_macro');
 $tm->store('AR');
+$inst->clear_changes;
 
 is( $root->is_element_available('a_warped_node'), 0, 'check that a_warped_node is not accessible' );
 
@@ -148,6 +161,21 @@ is( $root->fetch_element('tree_macro')->store('XY'), 1, 'set master->tree_macro 
 
 is( $root->fetch_element('a_warped_node')->is_accessible,
     1, 'check that a_warped_node is accessible' );
+eq_or_diff([$inst->list_changes], ["tree_macro: 'AR' -> 'XY'"],
+           "check change message after setting tree_macro to XY");
+print join( "\n", $inst->list_changes("\n") ), "\n" if $trace;
+$inst->clear_changes;
+
+is( $root->fetch_element('tree_macro')->store('XZ'), 1, 'set master->tree_macro to XZ' );
+
+is( $root->fetch_element('a_hidden_node')->is_accessible,
+    1, 'check that a_hidden_node is accessible' );
+eq_or_diff([$inst->list_changes], ["tree_macro: 'XY' -> 'XZ'"],
+           "check change message after setting tree_macro to XY");
+print join( "\n", $inst->list_changes("\n") ), "\n" if $trace;
+$inst->clear_changes;
+
+$root->fetch_element('tree_macro')->store('XY');
 
 my $ahown = $root->fetch_element('a_hash_of_warped_nodes');
 is( $ahown->fetch_with_id(234)->config_class_name,
