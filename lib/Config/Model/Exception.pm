@@ -310,7 +310,7 @@ sub full_message {
     ) if defined $class_name;
 
     my $msg = '';
-    $msg .= "In " . $self->where . ": "
+    $msg .= "Configuration path '" . $self->where . "': "
         if defined $self->where;
 
     $msg .= "(function '" . $self->function . "') "

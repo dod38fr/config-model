@@ -154,7 +154,6 @@ sub create_element {
         if ( $check eq 'yes' ) {
             Config::Model::Exception::UnknownElement->throw(
                 object   => $self,
-                function => 'create_element',
                 where    => $self->location || 'configuration root',
                 element  => $element_name,
             );
