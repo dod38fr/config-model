@@ -307,9 +307,14 @@ sub _store {
               $inst->preset  ? 'preset'
             : $inst->layered ? 'layered'
             :                  'data';
-        my $old_v = $self->{$data_name}{$choice};
+        my $old_v = $self->{$data_name}{$choice} ;
         if ( not defined $old_v or $old_v ne $value ) {
-            $changed = 1;
+            # no change notif when going from undef to 0 as the
+            # logical value does not change
+            {
+                no warnings qw/uninitialized/;
+                $changed = (!$old_v xor !$value);
+            }
             $self->{$data_name}{$choice} = $value;
         }
 
@@ -626,7 +631,8 @@ sub set_checked_list {
     my @changed;
 
     foreach my $c ( $self->get_choice ) {
-        push @changed, $c if $self->_store( $c, $set{$c} // 0, $check );
+        my $v = $set{$c} // 0;
+        push @changed, "$c:$v" if $self->_store( $c, $v, $check );
     }
 
     $self->{ordered_data} = $list;
