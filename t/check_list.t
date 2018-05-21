@@ -245,6 +245,20 @@ print join( "\n", $inst->list_changes("\n") ), "\n" if $trace;
 $inst->clear_changes;
 
 my @set = sort qw/A C Z V Y/;
+subtest "test get_arguments" => sub {
+    my @set_args = (
+        \@set,
+        [ \@set ],
+        [ \@set , check => 'yes' ],
+    );
+
+    foreach my $test_arg ( @set_args) {
+        my ($list, $check, $args) = $cl->get_arguments(@$test_arg);
+        ok( 1, "test set_checked_list" );
+        eq_or_diff($list, \@set, "test passed list");
+    }
+};
+
 subtest 'test set_checked_list method' => sub {
     my @set_args = (
         \@set,
