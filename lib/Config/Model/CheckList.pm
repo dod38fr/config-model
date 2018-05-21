@@ -345,9 +345,10 @@ sub _store {
 }
 
 sub get_arguments {
-    my $self  = shift;
-    my @list  = ref $_[0] eq 'ARRAY' ? @{ $_[0] } : @_;
-    my %args  = ref $_[0] eq 'ARRAY' ? @_[ 1, $#_ ] : ( check => 'yes' );
+    my $self = shift;
+    my $arg  = shift;
+    my @list  = ref $arg eq 'ARRAY' ? @$arg : ($arg, @_);
+    my %args  =  ref $arg eq 'ARRAY' ? ( check => 'yes', @_ ) : (check => 'yes');
     my $check = $self->_check_check( $args{check} );
     return \@list, $check, \%args;
 }
