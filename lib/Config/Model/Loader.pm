@@ -232,7 +232,7 @@ sub _load {
         if ( not defined $element_name and not defined $note ) {
             Config::Model::Exception::Load->throw(
                 command => $cmd,
-                error   => 'Syntax error: cannot find ' . 'element in command'
+                error   => 'Syntax error: cannot find element in command'
             );
         }
 
