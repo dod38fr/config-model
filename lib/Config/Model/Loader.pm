@@ -9,12 +9,32 @@ use Config::Model::Exception;
 use Log::Log4perl qw(get_logger :levels);
 
 my $logger = get_logger("Loader");
+my $verbose_logger = get_logger("Verbose.Logger");
 
 ## load stuff, similar to grab, but used to set items in the tree
 ## starting from this node
 
 sub new {
     bless {}, shift;
+}
+
+my %log_dispatch = (
+    name => sub { my $loc = $_[0]->location; return $loc ? "node '$loc'" : "root node"},
+    s => sub { return "'$_[0]'"},
+);
+
+sub _log_cmd {
+    my ($cmd, $message, @params) = @_;
+
+    return unless $verbose_logger->is_info;
+
+    $cmd =~ s/\n/\\n/g;
+    foreach my $p (@params) {
+        $message =~ s/%(\w+)/$log_dispatch{$1}->($p)/e;
+    }
+    my $str = ref $cmd eq 'ARRAY' ? "@$cmd"
+        : ref $cmd ? $$cmd : $cmd;
+    $verbose_logger->info("command '$str': $message");
 }
 
 sub load {
