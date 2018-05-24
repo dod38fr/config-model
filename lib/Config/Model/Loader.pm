@@ -229,7 +229,7 @@ sub _load {
         if ( $cmd =~ m!^/([\w-]+)! ) {
             my $search = $1;
             if ($node->has_element($search)) {
-                $logger->debug("_load: search found node with element $search");
+                _log_cmd($cmd, 'Element %s found in current node (%name).', $search, $node);
                 $cmd =~ s!^/!! ;
             } else {
                 $logger->debug("_load: searching node with element $search, going up");
