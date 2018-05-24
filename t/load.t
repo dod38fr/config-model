@@ -20,6 +20,8 @@ my $builder = Test::More->builder;
 binmode $builder->output,         ":utf8";
 binmode $builder->failure_output, ":utf8";
 binmode $builder->todo_output,    ":utf8";
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
 
 ok( 1, "compiled" );
 
