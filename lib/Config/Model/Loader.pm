@@ -449,7 +449,6 @@ my %dispatch_action = (
     },
     'hash_*' => {
         ':.sort'          => sub { $_[1]->sort; return 'ok'; },
-        ':@'              => sub { $_[1]->sort; return 'ok'; },
         ':.copy'          => sub { $_[1]->copy( $_[5], $_[6] ); return 'ok'; },
         ':.clear'         => sub { $_[1]->clear; return 'ok';},
     },
@@ -467,6 +466,7 @@ my %dispatch_action = (
 );
 
 my %equiv = (
+    'hash_*' => { qw/:@ :.sort/},
     list_leaf => { qw/:@ :.sort :< :.push :> :.unshift/ },
     # fix for cme gh#2
     leaf => { qw/:-= :.rm_value :-~ :.rm_match :=~ :.subtitute/ },
