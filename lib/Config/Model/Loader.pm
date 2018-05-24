@@ -315,7 +315,8 @@ sub _load {
             unless defined $method;
 
         $logger->debug("_load: calling $element_type loader on element $element_name");
-        my $ret = $self->$method( $node, $check, \@instructions, $cmdref );
+
+        my $ret = $self->$method( $node, $check, \@instructions, $cmdref, $cmd );
         $logger->debug("_load: $element_type loader on element $element_name returned $ret");
         die "Internal error: method dispatched for $element_type returned an undefined value "
             unless defined $ret;
@@ -356,7 +357,7 @@ sub _load_note {
 }
 
 sub _walk_node {
-    my ( $self, $node, $check, $inst, $cmdref ) = @_;
+    my ( $self, $node, $check, $inst, $cmdref, $cmd ) = @_;
 
     my $element_name = shift @$inst;
     my $note         = pop @$inst;
@@ -389,7 +390,7 @@ sub unquote {
 }
 
 sub _load_check_list {
-    my ( $self, $node, $check, $inst, $cmdref ) = @_;
+    my ( $self, $node, $check, $inst, $cmdref, $cmd ) = @_;
     my ( $element_name, $action, $f_arg, $id, $subaction, $value, $note ) = @$inst;
 
     my $element = $node->fetch_element( name => $element_name, check => $check );
@@ -542,7 +543,7 @@ sub _insort_hash_of_node {
 }
 
 sub _load_list {
-    my ( $self, $node, $check, $inst, $cmdref ) = @_;
+    my ( $self, $node, $check, $inst, $cmdref, $cmd ) = @_;
     my ( $element_name, $action, $f_arg, $id, $subaction, $value, $note ) = @$inst;
 
     my $element = $node->fetch_element( name => $element_name, check => $check );
@@ -636,7 +637,7 @@ sub _load_list {
 }
 
 sub _load_hash {
-    my ( $self, $node, $check, $inst, $cmdref ) = @_;
+    my ( $self, $node, $check, $inst, $cmdref, $cmd ) = @_;
     my ( $element_name, $action, $f_arg, $id, $subaction, $value, $note ) = @$inst;
 
     unquote( $id, $value, $note );
@@ -756,7 +757,7 @@ sub _load_hash {
 }
 
 sub _load_leaf {
-    my ( $self, $node, $check, $inst, $cmdref ) = @_;
+    my ( $self, $node, $check, $inst, $cmdref, $cmd ) = @_;
     my ( $element_name, $action, $f_arg, $id, $subaction, $value, $note ) = @$inst;
 
     unquote( $id, $value );
