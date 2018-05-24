@@ -346,9 +346,9 @@ sub _walk_node {
     if (@left) {
         Config::Model::Exception::Load->throw(
             command => $inst,
+            object => $node,
             error   => "Don't know what to do with '@left' "
-                . "for node element "
-                . $element->element_name
+                . "for node element $element_name"
         );
     }
 
