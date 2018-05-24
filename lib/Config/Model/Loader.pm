@@ -222,7 +222,7 @@ sub _load {
         }
 
         if ( $cmd eq '-' ) {
-            $logger->debug("_load: going up");
+            _log_cmd($cmd,'Going up from %name to %name', $node, $node->parent);
             return 'up';
         }
 
