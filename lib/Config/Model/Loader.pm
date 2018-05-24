@@ -361,8 +361,8 @@ sub _walk_node {
 
     my $element_name = shift @$inst;
     my $note         = pop @$inst;
-    my $element      = $node->fetch_element($element_name);
-    $self->_load_note( $element, $note, $inst, $cmdref );
+    my $new_node     = $node->fetch_element($element_name);
+    $self->_load_note( $new_node, $note, $inst, $cmdref );
 
     my @left = grep { defined $_ } @$inst;
     if (@left) {
@@ -374,9 +374,9 @@ sub _walk_node {
         );
     }
 
-    $logger->info( "Opening node element ", $element->name );
+    _log_cmd($cmd, 'Going down from %name to %name', $node, $new_node);
 
-    return $self->_load( $element, $check, $cmdref );
+    return $self->_load( $new_node, $check, $cmdref );
 }
 
 sub unquote {
