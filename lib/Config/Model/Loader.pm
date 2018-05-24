@@ -214,6 +214,7 @@ sub _load {
         next if $cmd =~ /^\s*$/;
 
         if ( $cmd eq '!' ) {
+            _log_cmd(\$cmd,"Going from %name to root node", $node );
             $logger->debug("_load: going to root, at_top_level is $at_top_level");
 
             # Do not change current node as we don't want to mess up =~ commands
