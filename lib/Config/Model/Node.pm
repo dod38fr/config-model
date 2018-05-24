@@ -128,7 +128,7 @@ sub BUILD {
     my $caller_class = defined $self->parent ? $self->parent->name : 'user';
 
     my $class_name = $self->config_class_name;
-    $logger->info("New $class_name requested by $caller_class");
+    $logger->debug("New $class_name requested by $caller_class");
 
     # get_model returns a cloned data structure
     $self->model( $self->config_model->get_model($class_name) );

@@ -19,7 +19,7 @@ sub load_node {
     my $config_class_name = $params{config_class_name};
     my $config_class =  $self->config_model->get_model($config_class_name) ;
     my $node_class = $config_class->{class} || 'Config::Model::Node';
-    $load_logger->info("Loading $config_class_name ". $self->location . " with $node_class");
+    $load_logger->debug("Loading $config_class_name ". $self->location . " with $node_class");
     Mouse::Util::load_class($node_class);
 
     if (delete $params{check}) {
