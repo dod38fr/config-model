@@ -208,7 +208,7 @@ sub _load {
         if ( $logger->is_debug ) {
             my $msg = $cmd;
             $msg =~ s/\n/\\n/g;
-            $logger->debug("_load: Executing cmd '$msg' on node $node_name");
+            $logger->debug("Loader: Executing cmd '$msg' on node $node_name");
         }
 
         next if $cmd =~ /^\s*$/;
