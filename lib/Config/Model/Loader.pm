@@ -20,7 +20,7 @@ sub new {
 
 my %log_dispatch = (
     name => sub { my $loc = $_[0]->location; return $loc ? "node '$loc'" : "root node"},
-    s => sub { return "'$_[0]'"},
+    s => sub { my $s = shift; unquote($s); return "'$s'"},
 );
 
 sub _log_cmd {
@@ -276,7 +276,7 @@ sub _load {
         }
 
         if ( not defined $element_name and defined $note ) {
-            $node->annotation($note);
+            $self->_set_note($node, \$cmd, $note);
             next;
         }
 
@@ -336,15 +336,22 @@ sub _load {
     return 'done';
 }
 
+sub _set_note {
+    my ($self, $target, $cmd, $note) = @_;
+    _log_cmd($cmd, "Setting %name annotation to %s", $target, $note);
+    $target->annotation($note);
+}
+
+
 sub _load_note {
-    my ( $self, $target_obj, $note, $instructions, $cmdref ) = @_;
+    my ( $self, $target_obj, $note, $instructions, $cmdref, $cmd ) = @_;
 
     unquote($note);
 
     # apply note on target object
     if ( defined $note ) {
         if ( defined $target_obj ) {
-            $target_obj->annotation($note);
+            $self->_set_note($target_obj, $cmd,$note);
         }
         else {
             Config::Model::Exception::Load->throw(
@@ -362,7 +369,7 @@ sub _walk_node {
     my $element_name = shift @$inst;
     my $note         = pop @$inst;
     my $new_node     = $node->fetch_element($element_name);
-    $self->_load_note( $new_node, $note, $inst, $cmdref );
+    $self->_load_note( $new_node, $note, $inst, $cmdref, $cmd );
 
     my @left = grep { defined $_ } @$inst;
     if (@left) {
@@ -396,7 +403,7 @@ sub _load_check_list {
     my $element = $node->fetch_element( name => $element_name, check => $check );
 
     if ( defined $note and not defined $action and not defined $subaction ) {
-        $self->_load_note( $element, $note, $inst, $cmdref );
+        $self->_load_note( $element, $note, $inst, $cmdref, $cmd );
         return 'ok';
     }
 
@@ -406,7 +413,7 @@ sub _load_check_list {
         # valid for check_list or list
         $logger->info( "Setting check_list element ", $element->name, " with value ", $value );
         $element->load( $value, check => $check );
-        $self->_load_note( $element, $note, $inst, $cmdref );
+        $self->_load_note( $element, $note, $inst, $cmdref, $cmd );
         return 'ok';
     }
 
@@ -554,7 +561,7 @@ sub _load_list {
     my $cargo_type = $element->cargo_type;
 
     if ( defined $note and not defined $action and not defined $subaction ) {
-        $self->_load_note( $element, $note, $inst, $cmdref );
+        $self->_load_note( $element, $note, $inst, $cmdref, $cmd );
         return 'ok';
     }
 
@@ -564,7 +571,7 @@ sub _load_list {
         # valid for check_list or list
         $logger->info( "Setting $elt_type element ", $element->name, " with '$id'" );
         $element->load( $id, check => $check );
-        $self->_load_note( $element, $note, $inst, $cmdref );
+        $self->_load_note( $element, $note, $inst, $cmdref, $cmd );
         return 'ok';
     }
 
@@ -578,7 +585,7 @@ sub _load_list {
         # valid for check_list or list
         $logger->info( "Setting $elt_type element ", $element->name, " with '$value'" );
         $element->load( $value, check => $check );
-        $self->_load_note( $element, $note, $inst, $cmdref );
+        $self->_load_note( $element, $note, $inst, $cmdref, $cmd );
         return 'ok';
     }
 
@@ -607,7 +614,7 @@ sub _load_list {
     if ( defined $action and $action eq ':' ) {
         unquote($id);
         my $obj = $element->fetch_with_id( index => $id, check => $check );
-        $self->_load_note( $obj, $note, $inst, $cmdref );
+        $self->_load_note( $obj, $note, $inst, $cmdref, $cmd );
 
         if ( $cargo_type =~ /node/ ) {
 
@@ -646,7 +653,7 @@ sub _load_hash {
     my $cargo_type = $element->cargo_type;
 
     if ( defined $note and not defined $action ) {
-        $self->_load_note( $element, $note, $inst, $cmdref );
+        $self->_load_note( $element, $note, $inst, $cmdref, $cmd );
         return 'ok';
     }
 
@@ -721,7 +728,7 @@ sub _load_hash {
     }
 
     my $obj = $element->fetch_with_id( index => $id, check => $check );
-    $self->_load_note( $obj, $note, $inst, $cmdref );
+    $self->_load_note( $obj, $note, $inst, $cmdref, $cmd );
 
     if ( $action eq ':' and $cargo_type =~ /node/ ) {
 
@@ -763,7 +770,7 @@ sub _load_leaf {
     unquote( $id, $value );
 
     my $element = $node->fetch_element( name => $element_name, check => $check );
-    $self->_load_note( $element, $note, $inst, $cmdref );
+    $self->_load_note( $element, $note, $inst, $cmdref, $cmd );
 
     if ( defined $action and $element->isa('Config::Model::Value')) {
         if ($action eq '~') {
