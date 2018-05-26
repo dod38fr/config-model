@@ -1207,7 +1207,7 @@ sub include_one_class {
     my $include_class = shift || croak "include_class: undef include_class param";
     my $include_after = shift;
 
-    get_logger('Model')->info("class $class_name includes $include_class");
+    get_logger('Model')->debug("class $class_name includes $include_class");
 
     if (    defined $include_class
         and defined $self->{included_class}{$class_name}{$include_class} ) {
@@ -1258,7 +1258,7 @@ sub include_one_class {
                     . " (included from $include_class)" );
         }
     }
-    get_logger('Model')->info("class $class_name include $include_class done");
+    get_logger('Model')->debug("class $class_name include $include_class done");
 }
 
 # load a model from file. See comments around raw_models attribute for explanations
