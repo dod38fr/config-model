@@ -852,7 +852,9 @@ sub _apply_regexp_on_value {
     my $orig = $element->fetch( check => $check );
     return unless defined $orig;
 
-    eval("\$orig =~ $value;");
+    # $value may change at each run and is like s/foo/bar/ do block
+    # eval is not possible
+    eval("\$orig =~ $value;"); ## no critic BuiltinFunctions::ProhibitStringyEval
     if ($@) {
         Config::Model::Exception::Load->throw(
             object  => $element,
