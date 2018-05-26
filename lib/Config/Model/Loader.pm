@@ -20,7 +20,7 @@ sub new {
 
 my %log_dispatch = (
     name => sub { my $loc = $_[0]->location; return $loc ? "node '$loc'" : "root node"},
-    s => sub { my $s = shift; unquote($s); return "'$s'"},
+    qs => sub { my $s = shift; unquote($s); return "'$s'"},
 );
 
 sub _log_cmd {
@@ -229,12 +229,12 @@ sub _load {
         if ( $cmd =~ m!^/([\w-]+)! ) {
             my $search = $1;
             if ($node->has_element($search)) {
-                _log_cmd($cmd, 'Element %s found in current node (%name).', $search, $node);
+                _log_cmd($cmd, 'Element %qs found in current node (%name).', $search, $node);
                 $cmd =~ s!^/!! ;
             } else {
                 _log_cmd(
                     $cmd,
-                    'Going up from %name to %name to search for element %s.',
+                    'Going up from %name to %name to search for element %qs.',
                     $node, $node->parent, $search
                 );
                 unshift @$cmdref, $cmd;
@@ -342,7 +342,7 @@ sub _load {
 
 sub _set_note {
     my ($self, $target, $cmd, $note) = @_;
-    _log_cmd($cmd, "Setting %name annotation to %s", $target, $note);
+    _log_cmd($cmd, "Setting %name annotation to %qs", $target, $note);
     $target->annotation($note);
 }
 
