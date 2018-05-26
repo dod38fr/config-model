@@ -232,7 +232,11 @@ sub _load {
                 _log_cmd($cmd, 'Element %s found in current node (%name).', $search, $node);
                 $cmd =~ s!^/!! ;
             } else {
-                $logger->debug("_load: searching node with element $search, going up");
+                _log_cmd(
+                    $cmd,
+                    'Going up from %name to %name to search for element %s.',
+                    $node, $node->parent, $search
+                );
                 unshift @$cmdref, $cmd;
                 return 'up';
             }
