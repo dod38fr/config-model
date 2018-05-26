@@ -19,8 +19,9 @@ sub new {
 }
 
 my %log_dispatch = (
-    name => sub { my $loc = $_[0]->location; return $loc ? "node '$loc'" : "root node"},
+    name => sub { my $loc = $_[0]->location; return $loc ? $_[0]->get_type." '$loc'" : "root node"},
     qs => sub { my $s = shift; unquote($s); return "'$s'"},
+    s => sub { return $_[0] }, # nop
 );
 
 sub _log_cmd {
@@ -825,12 +826,19 @@ sub _load_leaf {
 # sub is called with  ( $self, $element, $value, $check, $instructions )
 # function_args are the arguments passed to the load command
 my %load_value_dispatch = (
-    '=' => sub { $_[1]->store( value => $_[2], check => $_[3] ); return 'ok'; },
+    '=' => \&_store_value ,
     '.=' => \&_append_value,
     '=~' => \&_apply_regexp_on_value,
     '=.file' => \&_store_file_in_value,
     '=.env' => sub { $_[1]->store( value => $ENV{$_[2]}, check => $_[3] ); return 'ok'; },
 );
+
+sub _store_value  {
+    my ( $self, $element, $value, $check, $instructions, $cmd ) = @_;
+    _log_cmd($cmd, 'Setting %name %s to %qs.', $element, $element->value_type, $value);
+    $element->store( value => $value, check => $check );
+    return 'ok';
+}
 
 sub _append_value {
     my ( $self, $element, $value, $check, $instructions, $cmd ) = @_;
