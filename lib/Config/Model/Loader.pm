@@ -631,7 +631,7 @@ sub _load_list {
 
         if ( $cargo_type =~ /leaf/ ) {
             $logger->debug("_load_list: calling _load_value on $cargo_type id $id");
-            $self->_load_value( $obj, $check, $subaction, $value )
+            $self->_load_value( $obj, $check, $subaction, $value, $cmd )
                 and return 'ok';
         }
     }
@@ -692,7 +692,7 @@ sub _load_hash {
                 $ret = $self->_load( $sub_elt, $check, $cmdref );
             }
             elsif ( $cargo_type =~ /leaf/ ) {
-                $ret = $self->_load_value( $sub_elt, $check, $subaction, $value );
+                $ret = $self->_load_value( $sub_elt, $check, $subaction, $value, $cmd );
             }
             else {
                 Config::Model::Exception::Load->throw(
@@ -750,7 +750,7 @@ sub _load_hash {
     }
     elsif ( $action eq ':' and defined $subaction and $cargo_type =~ /leaf/ ) {
         $logger->debug("_load_hash: calling _load_value on leaf $id");
-        $self->_load_value( $obj, $check, $subaction, $value )
+        $self->_load_value( $obj, $check, $subaction, $value, $cmd )
             and return 'ok';
     }
     elsif ( $action eq ':' ) {
@@ -808,7 +808,7 @@ sub _load_leaf {
         $logger->debug("_load_leaf: action '$subaction' value '$msg'");
     }
 
-    my $res = $self->_load_value( $element, $check, $subaction, $value, $inst );
+    my $res = $self->_load_value( $element, $check, $subaction, $value, $inst, $cmd );
 
     return $res if $res ;
 
@@ -833,13 +833,13 @@ my %load_value_dispatch = (
 );
 
 sub _append_value {
-    my ( $self, $element, $value, $check, $instructions ) = @_;
+    my ( $self, $element, $value, $check, $instructions, $cmd ) = @_;
     my $orig = $element->fetch( check => $check );
     $element->store( value => $orig . $value, check => $check );
 }
 
 sub _apply_regexp_on_value {
-    my ( $self, $element, $value, $check, $instructions ) = @_;
+    my ( $self, $element, $value, $check, $instructions, $cmd ) = @_;
 
     my $orig = $element->fetch( check => $check );
     return unless defined $orig;
@@ -857,7 +857,7 @@ sub _apply_regexp_on_value {
 }
 
 sub _store_file_in_value {
-    my ( $self, $element, $value, $check, $instructions ) = @_;
+    my ( $self, $element, $value, $check, $instructions, $cmd ) = @_;
 
     if ($value eq '-') {
         $element->store( value => join('',<STDIN>), check => $check );
@@ -878,7 +878,7 @@ sub _store_file_in_value {
 }
 
 sub _load_value {
-    my ( $self, $element, $check, $subaction, $value, $instructions ) = @_;
+    my ( $self, $element, $check, $subaction, $value, $instructions, $cmd ) = @_;
 
     if (not $element->isa('Config::Model::Value')) {
         my $class = ref($element);
@@ -892,7 +892,7 @@ sub _load_value {
     $logger->debug("_load_value: action '$subaction' value '$value' check $check");
     my $dispatch = $load_value_dispatch{$subaction};
     if ($dispatch) {
-        return $dispatch->( $self, $element, $value, $check, $instructions );
+        return $dispatch->( $self, $element, $value, $check, $instructions, $cmd );
     }
     else {
         Config::Model::Exception::Load->throw(
