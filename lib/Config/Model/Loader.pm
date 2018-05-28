@@ -588,7 +588,7 @@ sub _load_list {
         $logger->debug("_load_list: set whole list with '=' subaction'");
 
         # valid for check_list or list
-        $logger->info( "Setting $elt_type element ", $element->name, " with '$value'" );
+        _log_cmd($cmd, 'Setting %name values to %qs.', $element, $value);
         $element->load( $value, check => $check );
         $self->_load_note( $element, $note, $inst, $cmdref, $cmd );
         return 'ok';
@@ -624,7 +624,7 @@ sub _load_list {
         if ( $cargo_type =~ /node/ ) {
 
             # remove possible leading or trailing quote
-            $logger->debug("_load_list: calling _load on node id $id");
+            _log_cmd($cmd,'Going down from %name to %name', $node, $obj );
             return $self->_load( $obj, $check, $cmdref );
         }
 
@@ -632,7 +632,8 @@ sub _load_list {
 
         if ( $cargo_type =~ /leaf/ ) {
             $logger->debug("_load_list: calling _load_value on $cargo_type id $id");
-            $self->_load_value( $obj, $check, $subaction, $value, $cmd )
+            # _log_cmd done in _load_value
+            $self->_load_value( $obj, $check, $subaction, $value, $cmdref, $cmd )
                 and return 'ok';
         }
     }
@@ -693,7 +694,7 @@ sub _load_hash {
                 $ret = $self->_load( $sub_elt, $check, $cmdref );
             }
             elsif ( $cargo_type =~ /leaf/ ) {
-                $ret = $self->_load_value( $sub_elt, $check, $subaction, $value, $cmd );
+                $ret = $self->_load_value( $sub_elt, $check, $subaction, $value, $cmdref, $cmd );
             }
             else {
                 Config::Model::Exception::Load->throw(
@@ -738,7 +739,7 @@ sub _load_hash {
     if ( $action eq ':' and $cargo_type =~ /node/ ) {
 
         # remove possible leading or trailing quote
-        $logger->debug("_load_hash: calling _load on node $id");
+        _log_cmd($cmd,'Going down from %name to %name', $node, $obj );
         if ( defined $subaction ) {
             Config::Model::Exception::Load->throw(
                 object  => $element,
@@ -750,11 +751,13 @@ sub _load_hash {
         return $self->_load( $obj, $check, $cmdref );
     }
     elsif ( $action eq ':' and defined $subaction and $cargo_type =~ /leaf/ ) {
+        # _log_cmd is done in _load_value
         $logger->debug("_load_hash: calling _load_value on leaf $id");
-        $self->_load_value( $obj, $check, $subaction, $value, $cmd )
+        $self->_load_value( $obj, $check, $subaction, $value, $cmdref, $cmd )
             and return 'ok';
     }
     elsif ( $action eq ':' ) {
+        _log_cmd($cmd,'Creating empty %name.', $obj );
         $logger->debug("_load_hash: created empty element of type $cargo_type");
         return 'ok';
     }
