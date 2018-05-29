@@ -880,36 +880,40 @@ For example:
 
 A simple check list with help:
 
-       choice_list
-       => { type => 'check_list',
-            choice     => ['A' .. 'Z'],
-            help => { A => 'A help', E => 'E help' } ,
-          },
+ choice_list => {
+     type   => 'check_list',
+     choice => ['A' .. 'Z'],
+     help   => { A => 'A help', E => 'E help' } ,
+ },
 
 =item *
 
 A check list with default values:
 
-       choice_list_with_default
-       => { type => 'check_list',
-            choice     => ['A' .. 'Z'],
-            default_list   => [ 'A', 'D' ],
-          },
+ choice_list_with_default => {
+     type => 'check_list',
+     choice     => ['A' .. 'Z'],
+     default_list   => [ 'A', 'D' ],
+ },
 
 =item *
 
 A check list whose available choice and default change depending on
 the value of the C<macro> parameter:
 
-       'warped_choice_list'
-       => { type => 'check_list',
-            warp => { follow => '- macro',
-                      rules  => { AD => { choice => [ 'A' .. 'D' ], 
-                                          default_list => ['A', 'B' ] },
-                                  AH => { choice => [ 'A' .. 'H' ] },
-                                }
-                    }
-          },
+ warped_choice_list => {
+     type => 'check_list',
+     warp => {
+         follow => '- macro',
+         rules  => {
+             AD => {
+                 choice => [ 'A' .. 'D' ],
+                 default_list => ['A', 'B' ]
+             },
+             AH => { choice => [ 'A' .. 'H' ] },
+         }
+     }
+ },
 
 =back
 
@@ -958,23 +962,24 @@ See L<refer_to parameter|Config::Model::IdElementReference/"refer_to parameter">
 A check list where the available choices are the keys of C<my_hash>
 configuration parameter:
 
-       refer_to_list
-       => { type => 'check_list',
-            refer_to => '- my_hash'
-          },
+ refer_to_list => {
+     type => 'check_list',
+     refer_to => '- my_hash'
+ },
 
 =item *
 
 A check list where the available choices are the checked items of
 C<other_check_list> configuration parameter:
 
-       other_check_list => { type => 'check_list', 
-                             choice => [qw/A B C/]
-                           },
-       refer_to_list
-       => { type => 'check_list',
-            refer_to => '- other_check_list'
-          },
+ other_check_list => {
+     type => 'check_list',
+     choice => [qw/A B C/]
+ },
+ refer_to_list => {
+     type => 'check_list',
+     refer_to => '- other_check_list'
+ },
 
 =item *
 
@@ -982,10 +987,10 @@ A check list where the available choices are the keys of C<my_hash>
 and C<my_hash2> and C<my_hash3> configuration parameter:
 
 
-       refer_to_3_lists
-       => { type => 'check_list',
-            refer_to => '- my_hash + - my_hash2   + - my_hash3'
-          },
+ refer_to_3_lists => {
+     type => 'check_list',
+     refer_to => '- my_hash + - my_hash2   + - my_hash3'
+ },
 
 =item *
 
@@ -995,13 +1000,16 @@ by the value of the C<indirection> configuration parameter (this
 example is admittedly convoluted):
 
 
-       refer_to_check_list_and_choice
-       => { type => 'check_list',
-            computed_refer_to => { formula => '- refer_to_2_list + - $var',
-                                   variables { 'var' => '- indirection ' }
-                                 },
-            choice  => [qw/A1 A2 A3/],
-          },
+ refer_to_check_list_and_choice => {
+     type => 'check_list',
+     computed_refer_to => {
+         formula => '- refer_to_2_list + - $var',
+         variables => {
+             var => '- indirection '
+         }
+     },
+     choice  => [qw/A1 A2 A3/],
+ },
 
 =back
 
@@ -1230,11 +1238,11 @@ Swap the 2 given choice in the list. Both choice must be already set.
 
 =head1 move_up ( choice )
 
-Move the choice up in the checklist. 
+Move the choice up in the checklist.
 
 =head1 move_down ( choice )
 
-Move the choice down in the checklist. 
+Move the choice down in the checklist.
 
 =head1 AUTHOR
 
@@ -1242,9 +1250,9 @@ Dominique Dumont, (ddumont at cpan dot org)
 
 =head1 SEE ALSO
 
-L<Config::Model>, 
-L<Config::Model::Instance>, 
-L<Config::Model::Node>, 
+L<Config::Model>,
+L<Config::Model::Instance>,
+L<Config::Model::Node>,
 L<Config::Model::AnyId>,
 L<Config::Model::ListId>,
 L<Config::Model::HashId>,
