@@ -219,6 +219,10 @@
                 min        => 5,
                 max        => 15
             },
+            alpha_check_list => {
+                type => 'check_list',
+                choice     => ['A' .. 'Z'],
+            },
             my_check_list => {
                 type     => 'check_list',
                 refer_to => '- hash_a + ! hash_b',
