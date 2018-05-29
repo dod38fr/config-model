@@ -415,8 +415,8 @@ sub _load_check_list {
     if ( defined $subaction and $subaction eq '=' ) {
         $logger->debug("_load_check_list: set whole list");
 
+        _log_cmd($cmd, 'Setting %name items %qs.', $element, $value);
         # valid for check_list or list
-        $logger->info( "Setting check_list element ", $element->name, " with value ", $value );
         $element->load( $value, check => $check );
         $self->_load_note( $element, $note, $inst, $cmdref, $cmd );
         return 'ok';
@@ -571,10 +571,10 @@ sub _load_list {
     }
 
     if ( defined $action and $action eq ':=' and $cargo_type eq 'leaf' ) {
+        # due to ':=' action, the value is contained in $id
         $logger->debug("_load_list: set whole list with ':=' action");
-
         # valid for check_list or list
-        $logger->info( "Setting $elt_type element ", $element->name, " with '$id'" );
+        _log_cmd($cmd, 'Setting %name values to %qs.', $element, $id);
         $element->load( $id, check => $check );
         $self->_load_note( $element, $note, $inst, $cmdref, $cmd );
         return 'ok';
