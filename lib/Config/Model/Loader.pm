@@ -493,6 +493,14 @@ while ( my ($target, $sub_equiv) = each %equiv) {
     }
 }
 
+sub _get_dispatch {
+    my ($dispatch, $type, $cargo_type, $action) = @_;
+    return   $dispatch->{ $type.'_'.$cargo_type }{$action}
+        || $dispatch->{$type.'_*'}{$action}
+        || $dispatch->{$cargo_type}{$action}
+        || $dispatch->{'fallback'}{$action};
+}
+
 sub _insert_before {
     my ( $self, $element, $check, $inst, $cmdref, $before_str, @values ) = @_;
     my $before = $before_str =~ m!^/! ? eval "qr$before_str" : $before_str;
@@ -597,11 +605,7 @@ sub _load_list {
     unquote( $id, $value, $note );
 
     if ( defined $action ) {
-        my $dispatch =
-               $dispatch_action{ 'list_' . $cargo_type }{$action}
-            || $dispatch_action{ 'list_*'}{$action}
-            || $dispatch_action{$cargo_type}{$action}
-            || $dispatch_action{'fallback'}{$action};
+        my $dispatch = _get_dispatch(\%dispatch_action, list => $cargo_type, $action);
         if ($dispatch) {
             return $dispatch->( $self, $element, $check, $inst, $cmdref, @f_args );
         }
@@ -714,11 +718,7 @@ sub _load_hash {
     my @f_args = grep { defined } ( ( $f_arg // $id // '' ) =~ /([^,"]+)|"([^"]+)"/g );
 
     if ( defined $action ) {
-        my $dispatch =
-               $dispatch_action{ 'hash_' . $cargo_type }{$action}
-            || $dispatch_action{ 'hash_*'}{$action}
-            || $dispatch_action{$cargo_type}{$action}
-            || $dispatch_action{'fallback'}{$action};
+        my $dispatch = _get_dispatch(\%dispatch_action, hash => $cargo_type, $action);
         if ($dispatch) {
             # todo missing arguments
             return $dispatch->( $self, $element, $check, $inst, $cmdref, @f_args );
