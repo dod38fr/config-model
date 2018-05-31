@@ -21,6 +21,7 @@ sub new {
 my %log_dispatch = (
     name => sub { my $loc = $_[0]->location; return $loc ? $_[0]->get_type." '$loc'" : "root node"},
     qs => sub { my $s = shift; unquote($s); return "'$s'"},
+    qa => sub { return '"'.join('", "', @{$_[0]}).'"'},
     s => sub { return $_[0] }, # nop
 );
 
@@ -607,6 +608,8 @@ sub _load_list {
     if ( defined $action ) {
         my $dispatch = _get_dispatch(\%dispatch_action, list => $cargo_type, $action);
         if ($dispatch) {
+            my $real_action = _get_dispatch(\%equiv, list => $cargo_type, $action) // $action;
+            _log_cmd($cmd, 'Running %qs on %name with %qa.', substr($real_action,2), $element, \@f_args);
             return $dispatch->( $self, $element, $check, $inst, $cmdref, @f_args );
         }
     }
