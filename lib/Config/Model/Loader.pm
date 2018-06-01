@@ -441,65 +441,79 @@ sub _load_check_list {
 
 }
 
-# sub is called with  ( $self, $element, $check, $instance, @function_args )
-# function_args are the arguments passed to the load command
-my %dispatch_action = (
-    list_leaf => {
-        ':.sort'          => sub { $_[1]->sort;  return 'ok';},
-        ':.push'          => sub { $_[1]->push( @_[ 5 .. $#_ ] ); return 'ok'; },
-        ':.unshift'       => sub { $_[1]->unshift( @_[ 5 .. $#_ ] ); return 'ok'; },
-        ':.insert_at'     => sub { $_[1]->insert_at( @_[ 5 .. $#_ ] ); return 'ok'; },
-        ':.insort'        => sub { $_[1]->insort( @_[ 5 .. $#_ ] ); return 'ok'; },
-        ':.insert_before' => \&_insert_before,
-    },
-    'list_*' => {
-        ':.copy'          => sub { $_[1]->copy( $_[5], $_[6] ); return 'ok'; },
-        ':.clear'         => sub { $_[1]->clear; return 'ok'; },
-    },
-    hash_leaf => {
-        ':.insort'        => sub { $_[1]->insort($_[5])->store($_[6]); return 'ok'; },
-    },
-    hash_node =>  => {
-        ':.insort'        => \&_insort_hash_of_node,
-    },
-    'hash_*' => {
-        ':.sort'          => sub { $_[1]->sort; return 'ok'; },
-        ':.copy'          => sub { $_[1]->copy( $_[5], $_[6] ); return 'ok'; },
-        ':.clear'         => sub { $_[1]->clear; return 'ok';},
-    },
-    # part of list or hash. leaf element have their own dispatch table
-    # (%load_value_dispatch) because the signture of the sub ref are
-    # different between the 2 dispatch tables.
-    leaf => {
-        ':.rm_value' => \&_remove_by_value,
-        ':.rm_match' => \&_remove_matched_value,
-        ':.subtitute' => \&_substitute_value,
-    },
-    fallback => {
-        ':.rm' => \&_remove_by_id,
+{
+    # sub is called with  ( $self, $element, $check, $instance, @function_args )
+    # function_args are the arguments passed to the load command
+    my %dispatch_action = (
+        list_leaf => {
+            ':.sort'          => sub { $_[1]->sort;  return 'ok';},
+            ':.push'          => sub { $_[1]->push( @_[ 5 .. $#_ ] ); return 'ok'; },
+            ':.unshift'       => sub { $_[1]->unshift( @_[ 5 .. $#_ ] ); return 'ok'; },
+            ':.insert_at'     => sub { $_[1]->insert_at( @_[ 5 .. $#_ ] ); return 'ok'; },
+            ':.insort'        => sub { $_[1]->insort( @_[ 5 .. $#_ ] ); return 'ok'; },
+            ':.insert_before' => \&_insert_before,
+        },
+        'list_*' => {
+            ':.copy'          => sub { $_[1]->copy( $_[5], $_[6] ); return 'ok'; },
+            ':.clear'         => sub { $_[1]->clear; return 'ok'; },
+        },
+        hash_leaf => {
+            ':.insort'        => sub { $_[1]->insort($_[5])->store($_[6]); return 'ok'; },
+        },
+        hash_node =>  => {
+            ':.insort'        => \&_insort_hash_of_node,
+        },
+        'hash_*' => {
+            ':.sort'          => sub { $_[1]->sort; return 'ok'; },
+            ':.copy'          => sub { $_[1]->copy( $_[5], $_[6] ); return 'ok'; },
+            ':.clear'         => sub { $_[1]->clear; return 'ok';},
+        },
+        # part of list or hash. leaf element have their own dispatch table
+        # (%load_value_dispatch) because the signture of the sub ref are
+        # different between the 2 dispatch tables.
+        leaf => {
+            ':.rm_value' => \&_remove_by_value,
+            ':.rm_match' => \&_remove_matched_value,
+            ':.subtitute' => \&_substitute_value,
+        },
+        fallback => {
+            ':.rm' => \&_remove_by_id,
+        }
+    );
+
+    my %equiv = (
+        'hash_*' => { qw/:@ :.sort/},
+        list_leaf => { qw/:@ :.sort :< :.push :> :.unshift/ },
+        # fix for cme gh#2
+        leaf => { qw/:-= :.rm_value :-~ :.rm_match :=~ :.subtitute/ },
+        fallback => { qw/:- :.rm ~ :.rm/ },
+    );
+
+    while ( my ($target, $sub_equiv) = each %equiv) {
+        while ( my ($new_action, $existing_action) = each %$sub_equiv) {
+            $dispatch_action{$target}{$new_action} = $dispatch_action{$target}{$existing_action};
+        }
     }
-);
 
-my %equiv = (
-    'hash_*' => { qw/:@ :.sort/},
-    list_leaf => { qw/:@ :.sort :< :.push :> :.unshift/ },
-    # fix for cme gh#2
-    leaf => { qw/:-= :.rm_value :-~ :.rm_match :=~ :.subtitute/ },
-    fallback => { qw/:- :.rm ~ :.rm/ },
-);
-
-while ( my ($target, $sub_equiv) = each %equiv) {
-    while ( my ($new_action, $existing_action) = each %$sub_equiv) {
-        $dispatch_action{$target}{$new_action} = $dispatch_action{$target}{$existing_action};
+    sub _get_dispatch_data {
+        my ($dispatch, $type, $cargo_type, $action) = @_;
+        return   $dispatch->{ $type.'_'.$cargo_type }{$action}
+            || $dispatch->{$type.'_*'}{$action}
+            || $dispatch->{$cargo_type}{$action}
+            || $dispatch->{'fallback'}{$action};
     }
-}
 
-sub _get_dispatch {
-    my ($dispatch, $type, $cargo_type, $action) = @_;
-    return   $dispatch->{ $type.'_'.$cargo_type }{$action}
-        || $dispatch->{$type.'_*'}{$action}
-        || $dispatch->{$cargo_type}{$action}
-        || $dispatch->{'fallback'}{$action};
+    sub _get_dispatch {
+        my ($self, $element, $type, $cargo_type, $action, $cmd, @f_args, ) = @_;
+        return unless (defined $action and $action ne ':');
+
+        my $dispatch = _get_dispatch_data(\%dispatch_action, $type => $cargo_type, $action);
+        if ($dispatch) {
+            my $real_action = _get_dispatch_data(\%equiv, $type => $cargo_type, $action) // $action;
+            _log_cmd($cmd, 'Running %qs on %name with %qa.', substr($real_action,2), $element, \@f_args);
+        }
+        return $dispatch;
+    }
 }
 
 sub _insert_before {
@@ -605,13 +619,8 @@ sub _load_list {
 
     unquote( $id, $value, $note );
 
-    if ( defined $action ) {
-        my $dispatch = _get_dispatch(\%dispatch_action, list => $cargo_type, $action);
-        if ($dispatch) {
-            my $real_action = _get_dispatch(\%equiv, list => $cargo_type, $action) // $action;
-            _log_cmd($cmd, 'Running %qs on %name with %qa.', substr($real_action,2), $element, \@f_args);
-            return $dispatch->( $self, $element, $check, $inst, $cmdref, @f_args );
-        }
+    if ( my $dispatch = $self->_get_dispatch($element, list => $cargo_type, $action, $cmd, @f_args)) {
+        return $dispatch->( $self, $element, $check, $inst, $cmdref, @f_args );
     }
 
     if ( not defined $action and defined $subaction ) {
@@ -720,12 +729,8 @@ sub _load_hash {
 
     my @f_args = grep { defined } ( ( $f_arg // $id // '' ) =~ /([^,"]+)|"([^"]+)"/g );
 
-    if ( defined $action ) {
-        my $dispatch = _get_dispatch(\%dispatch_action, hash => $cargo_type, $action);
-        if ($dispatch) {
-            # todo missing arguments
-            return $dispatch->( $self, $element, $check, $inst, $cmdref, @f_args );
-        }
+    if ( my $dispatch = $self->_get_dispatch($element, hash => $cargo_type, $action, $cmd, @f_args)) {
+        return $dispatch->( $self, $element, $check, $inst, $cmdref, @f_args );
     }
 
     if (not defined $id) {
