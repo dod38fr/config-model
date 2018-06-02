@@ -703,10 +703,9 @@ sub _load_hash {
         my @saved_cmd = @$cmdref;
         foreach my $loop_id ( @loop_on ) {
             @$cmdref = @saved_cmd;    # restore command before loop
-            $logger->debug("_load_hash: loop on id $loop_id");
             my $sub_elt = $element->fetch_with_id($loop_id);
+            _log_cmd($cmd,'Running foreach_map loop on %name.',$sub_elt);
             if ( $cargo_type =~ /node/ ) {
-
                 # remove possible leading or trailing quote
                 $ret = $self->_load( $sub_elt, $check, $cmdref );
             }
