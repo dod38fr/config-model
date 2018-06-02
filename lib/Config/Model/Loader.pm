@@ -861,27 +861,43 @@ sub _store_value  {
 sub _append_value {
     my ( $self, $element, $value, $check, $instructions, $cmd ) = @_;
     my $orig = $element->fetch( check => $check );
-    $element->store( value => $orig . $value, check => $check );
+    my $next = $orig.$value;
+    _log_cmd(
+        $cmd, 'Appending %qs to %leaf. Result is %qs.',
+        $value, $element, $next
+    );
+    $element->store( value => $next, check => $check );
 }
 
 sub _apply_regexp_on_value {
     my ( $self, $element, $value, $check, $instructions, $cmd ) = @_;
 
     my $orig = $element->fetch( check => $check );
-    return unless defined $orig;
-
-    # $value may change at each run and is like s/foo/bar/ do block
-    # eval is not possible
-    eval("\$orig =~ $value;"); ## no critic BuiltinFunctions::ProhibitStringyEval
-    if ($@) {
-        Config::Model::Exception::Load->throw(
-            object  => $element,
-            command => $instructions,
-            error => "Failed regexp '$value' on " . "element '"
-                . $element->name . "' : $@"
+    if (defined $orig) {
+        # $value may change at each run and is like s/foo/bar/ do block
+        # eval is not possible
+        eval("\$orig =~ $value;"); ## no critic BuiltinFunctions::ProhibitStringyEval
+        my $res = $@;
+        _log_cmd(
+            $cmd, "Applying regexp %qs to %leaf. Result is %qs.",
+            $value, $element, $orig
+        );
+        if ($res) {
+            Config::Model::Exception::Load->throw(
+                object  => $element,
+                command => $instructions,
+                error => "Failed regexp '$value' on " . "element '"
+                    . $element->name . "' : $res"
+                );
+        }
+        $element->store( value => $orig, check => $check );
+    }
+    else {
+        _log_cmd(
+            $cmd, "Not applying regexp %qs on undefined value of %leaf.",
+            $value, $element, $orig
         );
     }
-    $element->store( value => $orig, check => $check );
 }
 
 sub _store_file_in_value {
