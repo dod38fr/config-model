@@ -675,6 +675,7 @@ sub _load_hash {
     my $cargo_type = $element->cargo_type;
 
     if ( defined $note and not defined $action ) {
+        # _log_cmd done in _load_note
         $self->_load_note( $element, $note, $inst, $cmdref, $cmd );
         return 'ok';
     }
@@ -687,7 +688,7 @@ sub _load_hash {
         );
     }
 
-    # loop requires $subaction so does not fit in the dispath table
+    # loop requires $subaction so does not fit in the dispatch table
     if ( $action eq ':~' or $action eq ':.foreach_match' ) {
         my @keys = $element->fetch_all_indexes;
         my $ret  = 'ok';
