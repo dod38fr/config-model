@@ -23,6 +23,7 @@ my %log_dispatch = (
     qs => sub { my $s = shift; unquote($s); return "'$s'"},
     qa => sub { return '"'.join('", "', @{$_[0]}).'"'},
     s => sub { return $_[0] }, # nop
+    leaf => sub { return $_[0]->get_type." '". $_[0]->location."' ".$_[0]->value_type;}
 );
 
 sub _log_cmd {
@@ -790,7 +791,7 @@ sub _load_leaf {
 
     if ( defined $action and $element->isa('Config::Model::Value')) {
         if ($action eq '~') {
-            $logger->debug("_load_leaf: action '$action' deleting value");
+            _log_cmd($cmd, "Deleting %name.", $element );
             $element->store(value => undef, check => $check);
         }
         elsif ($action eq ':') {
@@ -846,7 +847,7 @@ my %load_value_dispatch = (
 
 sub _store_value  {
     my ( $self, $element, $value, $check, $instructions, $cmd ) = @_;
-    _log_cmd($cmd, 'Setting %name %s to %qs.', $element, $element->value_type, $value);
+    _log_cmd($cmd, 'Setting %leaf to %qs.', $element, $value);
     $element->store( value => $value, check => $check );
     return 'ok';
 }
