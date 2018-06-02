@@ -225,7 +225,13 @@ sub _load {
         }
 
         if ( $cmd eq '-' ) {
-            _log_cmd($cmd,'Going up from %name to %name', $node, $node->parent);
+            my $parent = $node->parent;
+            if (defined $parent) {
+                _log_cmd($cmd,'Going up from %name to %name', $node, $node->parent);
+            }
+            else {
+                _log_cmd($cmd,'Going up from %name to exit Loader.', $node);
+            }
             return 'up';
         }
 
