@@ -42,7 +42,7 @@ my %log_dispatch = (
 );
 
 sub _log_cmd {
-    my ($cmd, $message, @params) = @_;
+    my ($self, $cmd, $message, @params) = @_;
 
     return unless $verbose_logger->is_info;
 
@@ -230,7 +230,7 @@ sub _load {
         next if $cmd =~ /^\s*$/;
 
         if ( $cmd eq '!' ) {
-            _log_cmd(\$cmd,"Going from %name to root node", $node );
+            $self->_log_cmd(\$cmd,"Going from %name to root node", $node );
             $logger->debug("_load: going to root, at_top_level is $at_top_level");
 
             # Do not change current node as we don't want to mess up =~ commands
@@ -240,10 +240,10 @@ sub _load {
         if ( $cmd eq '-' ) {
             my $parent = $node->parent;
             if (defined $parent) {
-                _log_cmd($cmd,'Going up from %name to %name', $node, $node->parent);
+                $self->_log_cmd($cmd,'Going up from %name to %name', $node, $node->parent);
             }
             else {
-                _log_cmd($cmd,'Going up from %name to exit Loader.', $node);
+                $self->_log_cmd($cmd,'Going up from %name to exit Loader.', $node);
             }
             return 'up';
         }
@@ -251,10 +251,10 @@ sub _load {
         if ( $cmd =~ m!^/([\w-]+)! ) {
             my $search = $1;
             if ($node->has_element($search)) {
-                _log_cmd($cmd, 'Element %qs found in current node (%name).', $search, $node);
+                $self->_log_cmd($cmd, 'Element %qs found in current node (%name).', $search, $node);
                 $cmd =~ s!^/!! ;
             } else {
-                _log_cmd(
+                $self->_log_cmd(
                     $cmd,
                     'Going up from %name to %name to search for element %qs.',
                     $node, $node->parent, $search
@@ -364,7 +364,7 @@ sub _load {
 
 sub _set_note {
     my ($self, $target, $cmd, $note) = @_;
-    _log_cmd($cmd, "Setting %name annotation to %qs", $target, $note);
+    $self->_log_cmd($cmd, "Setting %name annotation to %qs", $target, $note);
     $target->annotation($note);
 }
 
@@ -407,7 +407,7 @@ sub _walk_node {
         );
     }
 
-    _log_cmd($cmd, 'Going down from %name to %name', $node, $new_node);
+    $self->_log_cmd($cmd, 'Going down from %name to %name', $node, $new_node);
 
     return $self->_load( $new_node, $check, $cmdref );
 }
@@ -436,7 +436,7 @@ sub _load_check_list {
     if ( defined $subaction and $subaction eq '=' ) {
         $logger->debug("_load_check_list: set whole list");
 
-        _log_cmd($cmd, 'Setting %name items %qs.', $element, $value);
+        $self->_log_cmd($cmd, 'Setting %name items %qs.', $element, $value);
         # valid for check_list or list
         $element->load( $value, check => $check );
         $self->_load_note( $element, $note, $inst, $cmdref, $cmd );
@@ -530,7 +530,7 @@ sub _load_check_list {
         my $dispatch = _get_dispatch_data(\%dispatch_action, $type => $cargo_type, $action);
         if ($dispatch) {
             my $real_action = _get_dispatch_data(\%equiv, $type => $cargo_type, $action) // $action;
-            _log_cmd($cmd, 'Running %qs on %name with %qa.', substr($real_action,2), $element, \@f_args);
+            $self->_log_cmd($cmd, 'Running %qs on %name with %qa.', substr($real_action,2), $element, \@f_args);
         }
         return $dispatch;
     }
@@ -617,7 +617,7 @@ sub _load_list {
         # due to ':=' action, the value is contained in $id
         $logger->debug("_load_list: set whole list with ':=' action");
         # valid for check_list or list
-        _log_cmd($cmd, 'Setting %name values to %qs.', $element, $id);
+        $self->_log_cmd($cmd, 'Setting %name values to %qs.', $element, $id);
         $element->load( $id, check => $check );
         $self->_load_note( $element, $note, $inst, $cmdref, $cmd );
         return 'ok';
@@ -631,7 +631,7 @@ sub _load_list {
         $logger->debug("_load_list: set whole list with '=' subaction'");
 
         # valid for check_list or list
-        _log_cmd($cmd, 'Setting %name values to %qs.', $element, $value);
+        $self->_log_cmd($cmd, 'Setting %name values to %qs.', $element, $value);
         $element->load( $value, check => $check );
         $self->_load_note( $element, $note, $inst, $cmdref, $cmd );
         return 'ok';
@@ -660,7 +660,7 @@ sub _load_list {
         if ( $cargo_type =~ /node/ ) {
 
             # remove possible leading or trailing quote
-            _log_cmd($cmd,'Going down from %name to %name', $node, $obj );
+            $self->_log_cmd($cmd,'Going down from %name to %name', $node, $obj );
             return $self->_load( $obj, $check, $cmdref );
         }
 
@@ -724,7 +724,7 @@ sub _load_hash {
         foreach my $loop_id ( @loop_on ) {
             @$cmdref = @saved_cmd;    # restore command before loop
             my $sub_elt = $element->fetch_with_id($loop_id);
-            _log_cmd($cmd,'Running foreach_map loop on %name.',$sub_elt);
+            $self->_log_cmd($cmd,'Running foreach_map loop on %name.',$sub_elt);
             if ( $cargo_type =~ /node/ ) {
                 # remove possible leading or trailing quote
                 $ret = $self->_load( $sub_elt, $check, $cmdref );
@@ -767,7 +767,7 @@ sub _load_hash {
     if ( $action eq ':' and $cargo_type =~ /node/ ) {
 
         # remove possible leading or trailing quote
-        _log_cmd($cmd,'Going down from %name to %name', $node, $obj );
+        $self->_log_cmd($cmd,'Going down from %name to %name', $node, $obj );
         if ( defined $subaction ) {
             Config::Model::Exception::Load->throw(
                 object  => $element,
@@ -785,7 +785,7 @@ sub _load_hash {
             and return 'ok';
     }
     elsif ( $action eq ':' ) {
-        _log_cmd($cmd,'Creating empty %name.', $obj );
+        $self->_log_cmd($cmd,'Creating empty %name.', $obj );
         $logger->debug("_load_hash: created empty element of type $cargo_type");
         return 'ok';
     }
@@ -810,7 +810,7 @@ sub _load_leaf {
 
     if ( defined $action and $element->isa('Config::Model::Value')) {
         if ($action eq '~') {
-            _log_cmd($cmd, "Deleting %name.", $element );
+            $self->_log_cmd($cmd, "Deleting %name.", $element );
             $element->store(value => undef, check => $check);
         }
         elsif ($action eq ':') {
@@ -866,7 +866,7 @@ my %load_value_dispatch = (
 
 sub _store_value  {
     my ( $self, $element, $value, $check, $instructions, $cmd ) = @_;
-    _log_cmd($cmd, 'Setting %leaf to %qs.', $element, $value);
+    $self->_log_cmd($cmd, 'Setting %leaf to %qs.', $element, $value);
     $element->store( value => $value, check => $check );
     return 'ok';
 }
@@ -875,7 +875,7 @@ sub _append_value {
     my ( $self, $element, $value, $check, $instructions, $cmd ) = @_;
     my $orig = $element->fetch( check => $check );
     my $next = $orig.$value;
-    _log_cmd(
+    $self->_log_cmd(
         $cmd, 'Appending %qs to %leaf. Result is %qs.',
         $value, $element, $next
     );
@@ -891,7 +891,7 @@ sub _apply_regexp_on_value {
         # eval is not possible
         eval("\$orig =~ $value;"); ## no critic BuiltinFunctions::ProhibitStringyEval
         my $res = $@;
-        _log_cmd(
+        $self->_log_cmd(
             $cmd, "Applying regexp %qs to %leaf. Result is %qs.",
             $value, $element, $orig
         );
@@ -906,7 +906,7 @@ sub _apply_regexp_on_value {
         $element->store( value => $orig, check => $check );
     }
     else {
-        _log_cmd(
+        $self->_log_cmd(
             $cmd, "Not applying regexp %qs on undefined value of %leaf.",
             $value, $element, $orig
         );
