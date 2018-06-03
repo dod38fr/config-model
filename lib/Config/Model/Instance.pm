@@ -380,9 +380,9 @@ sub modify {
 
 sub load {
     my $self   = shift;
-    my $loader = Config::Model::Loader->new;
+    my $loader = Config::Model::Loader->new( start_node => $self->{tree} );
     my %args   = @_ eq 1 ? ( step => $_[0] ) : @_;
-    $loader->load( node => $self->{tree}, %args );
+    $loader->load( %args );
     return $self;
 }
 

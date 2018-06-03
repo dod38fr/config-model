@@ -4,6 +4,7 @@ use Carp;
 use strict;
 use warnings;
 use 5.10.1;
+use Mouse;
 
 use Config::Model::Exception;
 use Log::Log4perl qw(get_logger :levels);
@@ -14,8 +15,22 @@ my $verbose_logger = get_logger("Verbose.Logger");
 ## load stuff, similar to grab, but used to set items in the tree
 ## starting from this node
 
-sub new {
-    bless {}, shift;
+has start_node => (
+    is => 'ro',
+    isa => 'Config::Model::Node',
+    weak_ref => 1,
+    required => 1,
+);
+
+has instance => (
+    is => 'ro',
+    isa => 'Config::Model::Instance',
+    weak_ref => 1,
+    lazy_build => 1,
+);
+
+sub _build_instance {
+    return $_[0]->start_node->instance;
 }
 
 my %log_dispatch = (
@@ -45,9 +60,7 @@ sub load {
 
     my %args = @_;
 
-    my $node = delete $args{node};
-
-    croak "load error: missing 'node' parameter" unless defined $node;
+    my $node = $self->start_node;
 
     my $steps = delete $args{steps} // delete $args{step};
     croak "load error: missing 'steps' parameter" unless defined $steps;
@@ -1042,10 +1055,20 @@ L<Config::Model::Dumper> while dumping data from a configuration tree.
 
 =head1 CONSTRUCTOR
 
-=head2 new ( )
+=head2 new
 
-No parameter. The constructor should be used only by
-L<Config::Model::Node>.
+The constructor should be used only by L<Config::Model::Node>.
+
+Parameters:
+
+=over
+
+=item start_node
+
+node ref of the root of the tree (of sub-root) to start the load from.
+Stored as a weak reference.
+
+=back
 
 =head1 load string syntax
 
@@ -1333,10 +1356,6 @@ C<steps>.  (C<steps> can also be an array ref).
 Parameters are:
 
 =over
-
-=item node
-
-node ref of the root of the tree (of sub-root) to start the load from.
 
 =item steps (or step)
 

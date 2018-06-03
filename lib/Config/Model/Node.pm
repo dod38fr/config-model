@@ -914,11 +914,11 @@ sub set {
 
 sub load {
     my $self   = shift;
-    my $loader = Config::Model::Loader->new;
+    my $loader = Config::Model::Loader->new( start_node => $self );
 
     my %args = @_ eq 1 ? ( steps => $_[0] ) : @_;
     if ( defined $args{step} || defined $args{steps}) {
-        $loader->load( node => $self, %args );
+        $loader->load( %args );
     }
     else {
         Config::Model::Exception::Load->throw(
