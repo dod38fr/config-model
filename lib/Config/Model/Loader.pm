@@ -45,6 +45,7 @@ sub _log_cmd {
     my ($self, $cmd, $message, @params) = @_;
 
     return unless $verbose_logger->is_info;
+    return if $self->instance->initial_load;
 
     $cmd =~ s/\n/\\n/g;
     foreach my $p (@params) {
