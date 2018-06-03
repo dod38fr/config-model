@@ -48,6 +48,12 @@ sub xlog {
     Test::Log::Log4perl->end("test log of '$cmd'");
 }
 
+subtest "test no logs during initial_load" => sub {
+    $root->instance->initial_load_start;
+    xlog($root, '!');
+    $root->instance->initial_load_stop;
+};
+
 subtest "test navigation logs" => sub {
     xlog($root, '!', "command '!': Going from root node to root node");
     xlog(
