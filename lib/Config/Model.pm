@@ -21,7 +21,7 @@ use Cwd;
 use Config::Model::Lister;
 
 use parent qw/Exporter/;
-our @EXPORT_OK = qw/cme/;
+our @EXPORT_OK = qw/cme initialize_log4perl/;
 
 # this class holds the version number of the package
 use vars qw(@status @level %default_property);
@@ -173,7 +173,6 @@ around BUILDARGS => sub {
 # keep this as a separate sub from BUILD. So user can call it before
 # creating Config::Model object
 sub initialize_log4perl {
-    my $self = shift;
     my $args = shift;
 
     my $log4perl_syst_conf_file = path('/etc/log4config-model.conf');
@@ -203,7 +202,7 @@ sub initialize_log4perl {
 
 sub BUILD {
     my $self = shift;
-    $self->initialize_log4perl(shift) unless Log::Log4perl->initialized();
+    initialize_log4perl(shift) unless Log::Log4perl->initialized();
 }
 
 sub show_legacy_issue {
