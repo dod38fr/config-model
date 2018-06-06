@@ -192,8 +192,12 @@ sub initialize_log4perl {
         map { split /\s*=\s*/,$_,2; }
         grep { chomp; ! /^\s*#/ } $log4perl_file->lines;
 
-    if (defined $args->{log_level}) {
-        $log4perl_conf{'log4perl.logger'} = $args->{log_level}.', Screen';
+    my $verbose = $args->{verbose};
+    if (defined $verbose) {
+        my @loggers = ref $verbose ? @$verbose : $verbose;
+        foreach my $logger (@loggers) {
+            $log4perl_conf{"log4perl.logger.Verbose.$logger"} = "INFO, PlainMsgOnScreen";
+        }
     }
 
     Log::Log4perl::init(\%log4perl_conf);
