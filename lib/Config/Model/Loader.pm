@@ -10,7 +10,7 @@ use Config::Model::Exception;
 use Log::Log4perl qw(get_logger :levels);
 
 my $logger = get_logger("Loader");
-my $verbose_logger = get_logger("Verbose.Logger");
+my $verbose_logger = get_logger("Verbose.Loader");
 
 ## load stuff, similar to grab, but used to set items in the tree
 ## starting from this node

@@ -30,7 +30,7 @@ my $inst = $model->instance(
 ok( $inst, "created dummy instance" );
 
 my $root = $inst->config_root;
-my $t_load = Test::Log::Log4perl->get_logger("Verbose.Logger");
+my $t_load = Test::Log::Log4perl->get_logger("Verbose.Loader");
 my $t_value = Test::Log::Log4perl->get_logger("Tree.Element.Value");
 
 sub xlog {
