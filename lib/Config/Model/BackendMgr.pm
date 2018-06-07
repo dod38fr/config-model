@@ -729,11 +729,11 @@ specifies default values. For instance, this is used by OpenSSH to
 specify a global configuration file (C</etc/ssh/ssh_config>) that is
 overridden by user's file:
 
-	'default_layer' => {
-            os_config_dir => { 'darwin' => '/etc' },
-            config_dir    => '/etc/ssh',
-            file          => 'ssh_config'
-        }
+ default_layer => {
+    os_config_dir => { 'darwin' => '/etc' },
+    config_dir    => '/etc/ssh',
+    file          => 'ssh_config'
+ }
 
 Only the 3 above parameters can be specified in C<default_layer>.
 
@@ -743,12 +743,12 @@ By default, an exception is thrown if no read was
 successful. This behavior can be overridden by specifying
 C<< auto_create => 1 >> in one of the backend specification. For instance:
 
-    rw_config  => {
-        backend => 'IniFile',
-        config_dir => '/tmp',
-        file  => 'foo.conf',
-        auto_create => 1
-    },
+ rw_config  => {
+     backend => 'IniFile',
+     config_dir => '/tmp',
+     file  => 'foo.conf',
+     auto_create => 1
+ },
 
 Setting C<auto_create> to 1 is necessary to create a configuration
 from scratch
@@ -766,11 +766,11 @@ in their documentation.
 
 For instance:
 
-   rw_config => {
-       backend     => 'yaml',
-       config_dir  => '/tmp/',
-       file        => 'my_class.yml',
-   },
+ rw_config => {
+     backend     => 'yaml',
+     config_dir  => '/tmp/',
+     file        => 'my_class.yml',
+ },
 
 See L<Config::Model::Backend::Yaml> for more details for this backend.
 
