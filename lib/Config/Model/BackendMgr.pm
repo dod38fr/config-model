@@ -569,14 +569,12 @@ __END__
     name => "MyClass",
 
     # rw_config spec is used by Config::Model::BackendMgr
-    rw_config => [
-        {
-            backend     => 'yaml',
-            config_dir  => '/tmp/',
-            file        => 'my_class.yml',
-            auto_create => 1,
-        },
-    ],
+    rw_config => {
+        backend     => 'yaml',
+        config_dir  => '/tmp/',
+        file        => 'my_class.yml',
+        auto_create => 1,
+    },
 
     element => [
         [qw/foo bar/] => {
@@ -787,18 +785,6 @@ for details.
 By default, configurations files are read from the directory specified
 by C<config_dir> parameter specified in the model. You may override the
 C<root> directory for test.
-
-=head1 CAVEATS
-
-When both C<config_dir> and C<file> are specified, this class
-write-opens the configuration file (and thus clobber it) before calling
-the C<write> call-back and pass the file handle with C<io_handle>
-parameter. C<write> should use this handle to write data in the target
-configuration file.
-
-If this behavior causes problem (e.g. with augeas backend), the
-solution is either to set C<file> to undef or an empty string in the
-C<rw_config> specification.
 
 =head1 Methods
 
