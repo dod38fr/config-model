@@ -2649,6 +2649,22 @@ This method can be called to load L<Log::Log4perl> configuration from
 C<~/.log4config-model>, or from L</etc/log4config-model.conf> files or from
 L<default configuration|https://github.com/dod38fr/config-model/blob/master/lib/Config/Model/log4perl.conf>.
 
+Accepts C<verbose> parameter with a list of log classes that are added
+to the log4perl configuration read above.
+
+For instance, with C<< verbose => 'Loader' >>, log4perl is initialised with
+
+ log4perl.logger.Verbose.Loader = INFO, PlainMsgOnScreen
+
+Likewise, with C<< verbose => [ 'Loader', 'Foo' ] >>,
+log4perl is initialised with:
+
+ log4perl.logger.Verbose.Loader = INFO, PlainMsgOnScreen
+ log4perl.logger.Verbose.Foo    = INFO, PlainMsgOnScreen
+
+Currently, this module supports only C<Loader> as verbose parameters.
+
+
 =head1 BUGS
 
 Given Murphy's law, the author is fairly confident that you will find
