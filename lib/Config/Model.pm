@@ -24,7 +24,7 @@ use parent qw/Exporter/;
 our @EXPORT_OK = qw/cme initialize_log4perl/;
 
 # this class holds the version number of the package
-use vars qw(@status @level %default_property);
+use vars qw(@status @level %default_property $force_default_log);
 
 my $legacy_logger = get_logger("Model::Legacy") ;
 my $loader_logger = get_logger("Model::Loader") ;
@@ -185,7 +185,8 @@ sub initialize_log4perl {
 
 
     my $log4perl_file =
-        $log4perl_user_conf_file->is_file ? $log4perl_user_conf_file
+        $force_default_log                ? $fallback_conf_file # for tests
+      : $log4perl_user_conf_file->is_file ? $log4perl_user_conf_file
       : $log4perl_syst_conf_file->is_file ? $log4perl_syst_conf_file
       :                                     $fallback_conf_file;
     my %log4perl_conf =
@@ -202,6 +203,7 @@ sub initialize_log4perl {
 
     Log::Log4perl::init(\%log4perl_conf);
 
+    return \%log4perl_conf; # for tests
 }
 
 sub BUILD {
