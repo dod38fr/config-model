@@ -30,6 +30,9 @@ sub get_tuned_config_dir {
     my $dir = $args{os_config_dir}{$^O} || $args{config_dir} || $self->config_dir || '';
     if ( $dir =~ /^~/ ) {
         # because of tests, we can't rely on Path::Tiny's tilde processing
+        # TODO: should this be my_config ? May be once this is done:
+        # https://github.com/perl5-utils/File-HomeDir/pull/5/files
+        # beware of compat and migration issues
         my $home = $__test_home || File::HomeDir->my_home;
         $dir =~ s/^~/$home/;
     }
