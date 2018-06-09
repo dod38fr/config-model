@@ -173,7 +173,7 @@ around BUILDARGS => sub {
 # keep this as a separate sub from BUILD. So user can call it before
 # creating Config::Model object
 sub initialize_log4perl {
-    my $args = shift;
+    my %args = @_;
 
     my $log4perl_syst_conf_file = path('/etc/log4config-model.conf');
     # avoid undef warning when homedir is not defined (e.g. with Debian cowbuilder)
@@ -192,7 +192,7 @@ sub initialize_log4perl {
         map { split /\s*=\s*/,$_,2; }
         grep { chomp; ! /^\s*#/ } $log4perl_file->lines;
 
-    my $verbose = $args->{verbose};
+    my $verbose = $args{verbose};
     if (defined $verbose) {
         my @loggers = ref $verbose ? @$verbose : $verbose;
         foreach my $logger (@loggers) {
@@ -206,7 +206,8 @@ sub initialize_log4perl {
 
 sub BUILD {
     my $self = shift;
-    initialize_log4perl(shift) unless Log::Log4perl->initialized();
+    my $args = shift;
+    initialize_log4perl(verbose => $args->{verbose}) unless Log::Log4perl->initialized();
 }
 
 sub show_legacy_issue {
