@@ -1,5 +1,26 @@
 {{$NEXT}}
 
+2.124 2018-06-09
+
+  The main change of this release should help people see what's going
+  on during 'cme run' or 'cme modify'.
+
+  Config::Model::initialize_log4perl now accepts a verbose parameter
+  to enable verbose message of Loader class (used by cme run and
+  modify). In verbose mode, Loader now shows the effect fi each
+  instruction specify on 'cme modify' command line or specified in the
+  script run by 'cme run'. This feature will be available with the
+  next release of cme.
+
+  Bug fixes:
+    * display USER INFO log as plain message (no need of 'INFO:' prefix)
+    * fix CheckList element handling when cme is run with -force option.
+      (add check param to CheckList)
+    * Value: avoid warning when loading wrong boolean (gh #17)
+    * Avoid unneeded change notif when showing up a node that was
+      previously hidden (gh #17)
+    * improve error message about unknown element (gh #18)
+
 2.123 2018-05-01
 
   On-going improvements of R/W backends:
