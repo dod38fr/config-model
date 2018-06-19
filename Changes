@@ -16,7 +16,7 @@
     * display USER INFO log as plain message (no need of 'INFO:' prefix)
     * fix CheckList element handling when cme is run with -force option.
       (add check param to CheckList)
-    * Value: avoid warning when loading wrong boolean (gh #17)
+    * Value: avoid warning when loading wrong boolean (gh #19)
     * Avoid unneeded change notif when showing up a node that was
       previously hidden (gh #17)
     * improve error message about unknown element (gh #18)
