@@ -534,11 +534,15 @@ sub AUTOLOAD {
     my $f = $AUTOLOAD;
     $f =~ s/.*:://;
     my ($package, $filename, $line) = caller;
-    $logger->warn("io_handle backend parameter is deprecated, please use file_path parameter. ",
-              "($filename:$line)") unless $package eq "Config::Model::BackendMgr";
 
     # $$self may not be defined during destruction
     if ($$self and $self->can($f)) {
+        $logger->warn(
+            "io_handle backend parameter is deprecated, ",
+            "please use file_path parameter. ",
+            "(called $f at $filename:$line)"
+        ) unless $package eq "Config::Model::BackendMgr";
+
         $$self->$f(@_);
     }
 }
