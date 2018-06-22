@@ -289,29 +289,14 @@ sub try_read_backend {
         $logger->warn("suffix method is deprecated. you can remove it from backend $backend");
     }
 
-    my ($file_path, $fh);
+    my ( $file_ok, $file_path ) = $self->get_cfg_file_path(
+        @read_args,
+        skip_compute => $backend_obj->skip_open,
+    );
 
-    if ( defined $config_file_override and $config_file_override eq '-' ) {
-        $file_path = $config_file_override; # may be used in error messages
-        $logger->trace("auto_read: $backend override target file is STDIN");
-        $logger->warn("Using STDIN to read config (option -file '-') is deprecated and will be removed in June 2018. Please contact the author if you think this is a bad idea.");
-        $fh = IO::Handle->new();
-        if ($fh->fdopen( fileno(STDIN), "r" )) {
-            $fh->binmode(":utf8");
-        }
-        else {
-            return ( 0, '-');
-        }
-    }
-    else {
-        ( my $file_ok, $file_path ) = $self->get_cfg_file_path(
-            @read_args,
-            skip_compute => $backend_obj->skip_open,
-        );
-
-        if (not $backend_obj->skip_open and $file_ok) {
-            $fh = $self->open_read_file($file_path) ;
-        }
+    my $fh;
+    if (not $backend_obj->skip_open and $file_ok) {
+        $fh = $self->open_read_file($file_path) ;
     }
 
     my $f = $self->rw_config->{function} || 'read';
@@ -406,17 +391,7 @@ sub auto_write_init {
             ( $file_ok, $file_path ) = $self->get_cfg_file_path( @wr_args, %cb_args);
         }
 
-        if ($file_ok and $file_path eq '-' ) {
-            my $io = IO::Handle->new();
-            if ( $io->fdopen( fileno(STDOUT), "w" ) ) {
-                $file_ok = 1;
-                $io->binmode(':utf8');
-            }
-            else {
-                return ( 0, '-' );
-            }
-        }
-        elsif ($file_ok) {
+        if ($file_ok) {
             $fh = $self->open_file_to_write( $backend, $file_path, delete $cb_args{backup} );
         }
 
@@ -703,9 +678,6 @@ name. For instance, with C<file> set to C<&element-&index.conf>:
      nodeA  # values of nodeA are stored in service.foo.conf
    bar      # hash index
      nodeB  # values of nodeB are  stored in service.bar.conf
-
-Alternatively, C<file> can be set to C<->, in which case, the
-configuration is read from STDIN.
 
 =item file_mode
 
