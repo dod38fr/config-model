@@ -413,7 +413,7 @@ sub auto_write_init {
             my $error = $@;
             $logger->warn( "write backend $backend $backend_class" . '::' . "$f failed: $error" )
                 if $error;
-            $self->close_file_to_write( $error, $fh, $file_path, $rw_config->{file_mode} );
+            $self->close_file_to_write( $error, $file_path, $rw_config->{file_mode} );
 
             $self->auto_delete($file_path, \%backend_args)
                 if $rw_config->{auto_delete} and not $backend_class->skip_open ;
@@ -465,11 +465,9 @@ sub open_file_to_write {
 }
 
 sub close_file_to_write {
-    my ( $self, $error, $fh, $file_path, $file_mode ) = @_;
+    my ( $self, $error, $file_path, $file_mode ) = @_;
 
     return unless defined $file_path;
-
-    $fh->close;
 
     if ($error) {
         # restore backup and display error
