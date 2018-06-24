@@ -1,5 +1,19 @@
 {{$NEXT}}
 
+2.125 2018-06-24
+
+  Bug fix:
+    * BackendMgr: remove close call on fh. This is now
+      handled by Path::Tiny
+
+  Breaking change:
+    * BackendMgr: remove code to read from stdin. This removes
+      the possibility to read a config file from STDIN. This was
+      deprecated since January and nobody complained.
+
+  Doc change:
+    * improve pod doc on Grab.pm
+
 2.124 2018-06-09
 
   The main change of this release should help people see what's going
