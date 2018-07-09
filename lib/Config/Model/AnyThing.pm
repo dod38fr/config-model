@@ -438,7 +438,7 @@ contains the key or the index to get the changed parameter.
 
 =item note
 
-information about the change. Mandatory of neither old or new value are defined.
+information about the change. Mandatory when neither old or new value are defined.
 
 =item really
 
