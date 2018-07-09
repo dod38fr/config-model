@@ -427,6 +427,8 @@ sub auto_write_init {
 sub auto_delete {
     my ($self, $file_path, $args) = @_;
 
+    return unless $file_path;
+
     my $perl_data;
     $perl_data = $self->node->dump_as_data( full_dump => $args->{full_dump} // 0)
         if defined $self->node;
