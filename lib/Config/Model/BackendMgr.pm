@@ -406,7 +406,7 @@ sub auto_write_init {
         else {
             $res = eval { $backend_obj->$f( %backend_args ); };
             my $error = $@;
-            $logger->warn( "write backend $backend $backend_class" . '::' . "$f failed: $error" )
+            $logger->error( "write backend $backend $backend_class" . '::' . "$f failed: $error" )
                 if $error;
             $self->close_file_to_write( $error, $file_path, $rw_config->{file_mode} );
 
