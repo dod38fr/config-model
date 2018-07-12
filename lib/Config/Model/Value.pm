@@ -987,7 +987,7 @@ sub run_code_set_on_value {
             if ($@) {
                 Config::Model::Exception::Model->throw(
                     object  => $self,
-                    message => "Eval of code failed : $@"
+                    message => "Eval of assert or warning code failed : $@"
                 );
             }
             return $invert ^ $ret;

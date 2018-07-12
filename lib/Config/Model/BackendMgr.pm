@@ -218,7 +218,7 @@ sub read_config_data {
         $self->try_read_backend( $rw_config, $root_dir, $config_file_override, $check, $backend );
 
     Config::Model::Exception::ConfigFile::Missing->throw (
-        file   => $file,
+        file   => $file || "<unknown>",
         object => $self->node,
     ) unless $res or $auto_create_override or $auto_create;
 
