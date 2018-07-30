@@ -2,7 +2,6 @@
 
 use warnings;
 
-use ExtUtils::testlib;
 use Test::More;
 use Test::Memory::Cycle;
 use Config::Model;
@@ -40,7 +39,27 @@ $model->create_config_class(
                     'fix' => '$_ = substr $_,0,8;'
                 },
             },
-        }
+        },
+        'chained-fix' => {
+            type            => 'leaf',
+            value_type      => 'uniline',
+            'warn_if_match' => {
+                '^\s' => {
+                    'msg' => 'leading white space',
+                    'fix' => 's/^\s+//;'
+                },
+            },
+            warn_unless_match => {
+                '^https://' => {
+                    msg => 'secure http',
+                    fix => 's!^http://!https://!'
+                },
+                '^https?://bugs\.debian\.org/' => {
+                    msg => 'unknown host',
+                    fix => 's!https?://[^/]*!https://bugs.debian.org!'
+                }
+            },
+        },
     ]
 );
 
@@ -68,11 +87,16 @@ foreach my $w (qw/a b c/) {
         ignore_priority => info => [
             'User',
             warn => qr/deprecated in favor of Debian GNU/,
-            warn => qr/Line too long/
+            warn => qr/Line too long/,
+            warn => qr/leading white space/,
+            warn => qr/secure http/,
+            warn => qr/unknown host/,
         ]
     );
     $root->load (qq!my_broken_node_$w fix-gnu="Debian GNU/Linux for $w"!
-                     . qq! fix-long="$w is way too long"! );
+                     . qq! fix-long="$w is way too long"!
+                     . qq! chained-fix=" http://floc/$w$w$w"!
+                 );
 }
 
 print $root->dump_tree if $trace;
@@ -87,6 +111,12 @@ map {
         "check that $_ gnu stuff was NOT fixed"
     );
 } qw/a b c/;
+
+$root -> apply_fixes;
+map {
+    is( $root->grab_value("my_broken_node_$_ chained-fix"),
+        "https://bugs.debian.org/$_$_$_", "check that $_ secure url was fixed" );
+} qw /a b c/;
 
 print $root->dump_tree if $trace;
 
