@@ -1068,6 +1068,7 @@ sub apply_fix {
     if ( $_ ne $$value_r ) {
         $fix_logger->info( $self->location . ": fix changed value from '$$value_r' to '$_'" );
         $self->_store_fix( $$value_r, $_, $msg );
+        $$value_r = $_; # so chain of fixes work
     }
     else {
         $fix_logger->info( $self->location . ": fix did not change value '$$value_r'" );
