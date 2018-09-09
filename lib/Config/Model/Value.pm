@@ -710,9 +710,16 @@ sub get_help {
     return $help unless @_;
 
     my $on_value = shift;
-    return $help->{$on_value} if defined $help and defined $on_value;
+    return unless defined $on_value;
 
-    return;
+    # TODO: accept [] with patterns [ 'no' => 'yada' , 'y.*' => 'blah', '.*',
+    # or sort all keys and match them '^key1' until '' which match all
+    my $fallback = $help->{''} || $help -> {'.*'};
+    foreach my $k (sort { length($b) cmp length($a) } keys %$help) {
+        next if $k eq '' or $k eq '.*';
+        return $help->{$k} if $on_value =~ /^$k/;
+    }
+    return $fallback;
 }
 
 # construct an error message for enum types
