@@ -518,7 +518,7 @@ note "test lowercase conversion";
     is( $lc_c->fetch(), 'coucou', "lc_convert: testing" );
 }
 
-note "Testing integrated help";
+note "Testing integrated help on enum";
 {
     my $value_with_help = $root->fetch_element('enum_with_help');
     my $full_help       = $value_with_help->get_help;
