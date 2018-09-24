@@ -712,9 +712,7 @@ sub get_help {
     my $on_value = shift;
     return unless defined $on_value;
 
-    # TODO: accept [] with patterns [ 'no' => 'yada' , 'y.*' => 'blah', '.*',
-    # or sort all keys and match them '^key1' until '' which match all
-    my $fallback = $help->{''} || $help -> {'.*'};
+    my $fallback = $help->{'.'} || $help -> {'.*'};
     foreach my $k (sort { length($b) cmp length($a) } keys %$help) {
         next if $k eq '' or $k eq '.*';
         return $help->{$k} if $on_value =~ /^$k/;
@@ -878,13 +876,21 @@ sub check_value {
 
     if ( $mode ne 'custom' ) {
         if ( $self->{warn_if_match} ) {
-            my $test_sub = sub { my ( $v, $r ) = @_; $v =~ /$r/ ? 0 : 1; };
+            my $test_sub = sub {
+                my $v = shift // '';
+                my $r = shift;
+                $v =~ /$r/ ? 0 : 1;
+            };
             $self->run_regexp_set_on_value( \$value, $apply_fix, \@warn, 'not ', $test_sub,
                 $self->{warn_if_match} );
         }
 
         if ( $self->{warn_unless_match} ) {
-            my $test_sub = sub { my ( $v, $r ) = @_; $v =~ /$r/ ? 1 : 0; };
+            my $test_sub = sub {
+                my $v = shift // '';
+                my $r = shift;
+                $v =~ /$r/ ? 1 : 0;
+            };
             $self->run_regexp_set_on_value( \$value, $apply_fix, \@warn, '', $test_sub,
                 $self->{warn_unless_match} );
         }
@@ -2248,6 +2254,19 @@ ref. Example:
 
 help => { oui => "French for 'yes'", non => "French for 'no'"}
 
+The key of help is used as a regular expression to find the help text
+applicable to a value. These regexp are tried from the longest to the
+shortest and are matched from the beginning of the string. The key "C<.>"
+or "C<.*>" are fallback used last.
+
+For instance:
+
+ help => {
+   'foobar' => 'help for values matching /^foobar/',
+   'foo' => 'help for values matching /^foo/ but not /^foobar/ (used above)',
+   '.' => 'help for all other values'
+ }
+
 =back
 
 =head2 Value types
@@ -2467,12 +2486,10 @@ read-only value (i.e. a computed value with no override allowed).
 Query legal values (only for enum types). Return an array (possibly
 empty).
 
-=head2 get_help ( [ on_value ] )
+=head2 get_help
 
-Returns the help strings passed to the constructor.
-
-With C<on_value> parameter, returns the help string dedicated to the
-passed value or undef.
+With a parameter, returns the help string applicable to the passed
+value or undef.
 
 Without parameter returns a hash ref that contains all the help strings.
 
