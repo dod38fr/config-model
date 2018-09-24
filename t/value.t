@@ -51,6 +51,16 @@ $model->create_config_class(
             class      => 'Config::Model::Value',
             value_type => 'string',
         },
+        string_with_help => {
+            type       => 'leaf',
+            class      => 'Config::Model::Value',
+            value_type => 'string',
+            help => {
+                'foob[ao]b' => 'help for foobob* or foobab*  things',
+                'foo' => 'help for foo things',
+                '.' => 'help for non foo things'
+            }
+        },
         bounded_number => {
             type       => 'leaf',
             class      => 'Config::Model::Value',
@@ -528,6 +538,29 @@ note "Testing integrated help on enum";
     is( $value_with_help->get_help('b'), undef,    "test undef help" );
 
     is( $value_with_help->fetch, undef, "test undef enum" );
+}
+
+note "Testing integrated help on string";
+{
+    my $value_with_help = $root->fetch_element('string_with_help');
+
+    my $foo_help = 'help for foo things';
+    my $foob_help = 'help for foobob* or foobab*  things';
+    my $other_help = 'help for non foo things';
+
+    my %test = (
+        fooboba => $foob_help,
+        foobaba => $foob_help,
+        foobbba => $foo_help,
+        foo => $foo_help,
+        foobar => $foo_help,
+        f => $other_help,
+        afoo => $other_help,
+    );
+
+    foreach my $k (sort keys %test) {
+        is( $value_with_help->get_help($k), $test{$k} , "test string help on $k" );
+    }
 }
 
 note "Testing upstream default value";
