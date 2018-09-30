@@ -1,5 +1,13 @@
 {{$NEXT}}
 
+2.127 2018-09-30
+
+  Feature improvement:
+    * Can use regexp in leaf model to specify help on values
+
+  Bug fix:
+    * fix doc of ObjTreeScanner
+
 2.126 2018-08-20
 
   Bug fix:
