@@ -513,9 +513,9 @@ C<scan_list> are not required. This is done once the hook returns.
 C<check_list_element_cb>: Like C<list_element_cb>, but called on a
 check_list element.
 
- ($scanner, $data_ref,$node,$element_name,@check_items)
+ ($scanner, $data_ref,$node,$element_name, index, check_list_obj)
 
-C<@check_items> is a list containing all the items of the check_list.
+C<index> is always undef as a check_list cannot be contained in a hash or list (yet)
 
 =head2 Hash element callback
 
