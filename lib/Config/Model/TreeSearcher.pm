@@ -204,8 +204,8 @@ Search in all the items above
 =head2 search(keyword)
 
 Search the keyword or pattern in the tree. The search is done in a case
-insensitive manner. Returns a list of path pointing 
-to the matching tree element. See L<Config::Model::Role::Grab/grab> for details
+insensitive manner. Returns a list of path pointing
+to the matching tree elements. See L<Config::Model::Role::Grab/grab> for details
 on the path syntax.
 
 =head1 BUGS
