@@ -37,8 +37,8 @@
 
   Config::Model::initialize_log4perl now accepts a verbose parameter
   to enable verbose message of Loader class (used by cme run and
-  modify). In verbose mode, Loader now shows the effect fi each
-  instruction specify on 'cme modify' command line or specified in the
+  modify). In verbose mode, Loader now shows the effect for each
+  instruction specified on 'cme modify' command line or specified in the
   script run by 'cme run'. This feature will be available with the
   next release of cme.
 
