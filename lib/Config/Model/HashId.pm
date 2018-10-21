@@ -105,7 +105,9 @@ sub _migrate {
             $logger->debug( $self->name, " migrate keys from ", $followed->name );
         }
 
-        map { $self->_store( $_, undef ) unless $self->_defined($_) } $followed->fetch_all_indexes;
+        for my $idx ($followed->fetch_all_indexes) {
+            $self->_store( $idx, undef ) unless $self->_defined($idx);
+        }
     }
     elsif ( $self->{migrate_values_from} ) {
         my $followed = $self->safe_typed_grab( param => 'migrate_values_from', check => 'no' );
