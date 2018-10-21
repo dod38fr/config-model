@@ -95,7 +95,9 @@ sub write {
 
     if (@to_write) {
         my $res = $self->write_global_comment( '#' );
-        map { $res .= $self->write_data_and_comments( '#', @$_ ); } @to_write;
+        foreach my $line_ref (@to_write) {
+            $res .= $self->write_data_and_comments( '#', @$line_ref );
+        }
         $args{file_path}->spew_utf8($res);
     }
 
