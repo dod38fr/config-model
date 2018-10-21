@@ -442,6 +442,16 @@ sub notify_change {
     $self->on_change_cb->( %args );
 }
 
+sub _truncate {
+    my @lines = @_;
+    foreach my $l (@lines) {
+        next unless defined $l;
+        $l =~ s/\n/ /g;
+        substr ($l, 60) = '[...]' if length $l > 60; # limit string length
+    }
+    return @lines;
+}
+
 sub list_changes {
     my $self = shift;
     my $l    = $self->changes;
@@ -451,13 +461,7 @@ sub list_changes {
         my $path = $c->{path} ;
 
         my $vt = $c->{value_type} || '';
-        my ( $o, $n ) = map {
-            if (defined $_) {
-                s/\n/ /g;
-                substr ($_, 60) = '[...]' if length $_ > 60; # limit string length
-            }
-            $_;
-        } ( $c->{old}, $c->{new} );
+        my ( $o, $n ) = _truncate( $c->{old}, $c->{new} );
 
         my $note = $c->{note} ? " # $c->{note}" : '';
 
