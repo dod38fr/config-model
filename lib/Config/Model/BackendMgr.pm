@@ -230,8 +230,10 @@ sub read_config_sub_layer {
     my $layered_config = delete $rw_config->{default_layer};
     my $layered_read   = dclone $rw_config ;
 
-    map { my $lc = delete $layered_config->{$_}; $layered_read->{$_} = $lc if $lc; }
-        qw/file config_dir os_config_dir/;
+    foreach my $item ( qw/file config_dir os_config_dir/ ) {
+        my $lc = delete $layered_config->{$item};
+        $layered_read->{$item} = $lc if $lc;
+    }
 
     Config::Model::Exception::Model->throw(
         error => "backend error: unexpected default_layer parameters: "
