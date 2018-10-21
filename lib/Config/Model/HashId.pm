@@ -324,16 +324,13 @@ sub move {
         $self->set_data_mode( $to, $imode );
 
         my ( $to_idx, $from_idx );
-        my $idx  = 0;
         my $list = $self->{list};
-        map {
+        for (my $idx = 0; $idx <= $#$list; $idx++) {
             $to_idx   = $idx if $list->[$idx] eq $to;
             $from_idx = $idx if $list->[$idx] eq $from;
-            $idx++;
-        } @$list;
+        }
 
         if ( defined $to_idx ) {
-
             # Since $to is clobbered, $from takes its place in the list
             $list->[$from_idx] = $to;
 
