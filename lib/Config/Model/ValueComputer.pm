@@ -170,8 +170,9 @@ sub compute_info {
         foreach my $k ( sort keys %$variables ) {
             my $u_val = $variables->{$k};
             if ( ref($u_val) ) {
-                map { $str .= "\n\t\t'\$$k" . "{$_} is converted to '$orig_variables->{$k}{$_}'"; }
-                    sort keys %$u_val;
+                foreach (sort keys %$u_val) {
+                    $str .= "\n\t\t'\$$k" . "{$_} is converted to '$orig_variables->{$k}{$_}'";
+                }
             }
             else {
                 my $val;
