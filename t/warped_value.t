@@ -407,7 +407,7 @@ is( $root->fetch_element('warped_out_ref')->store('foo'),
 
 is( $root->fetch_element('macro')->store('A'), 1, "setting master->macro to A" );
 
-map { is( $slave->fetch_element($_)->fetch, 'Av', "reading slave->$_ (Av)" ); } qw/X Y Z/;
+foreach (qw/X Y Z/) { is( $slave->fetch_element($_)->fetch, 'Av', "reading slave->$_ (Av)" ); }
 
 is( $root->fetch_element('macro')->store('C'), 1, "setting master->macro to C" );
 
@@ -448,7 +448,7 @@ is_deeply(
     "Slave elements from the object"
 );
 
-map { is( $slave->fetch_element($_)->fetch, 'Bv', "reading slave->$_ (Bv)" ); } qw/X Y Z/;
+foreach (qw/X Y Z/) { is( $slave->fetch_element($_)->fetch, 'Bv', "reading slave->$_ (Bv)" ); }
 
 is( $slave->fetch_element('Y')->store('Cv'), 1, 'Set slave->Y to Cv' );
 
@@ -462,7 +462,7 @@ is( $slave->is_element_available( name => 'W' ),
 
 $root->fetch_element('macro')->store('C');
 
-map { is( $slave->fetch_element($_)->fetch, undef, "reading slave->$_ (undef)" ); } qw/X Z/;
+foreach (qw/X Z/) { is( $slave->fetch_element($_)->fetch, undef, "reading slave->$_ (undef)" ); }
 is( $slave->fetch_element('Y')->fetch, 'Cv', "reading slave->Y (Cv)" );
 
 is( $slave->fetch_element('Comp')->fetch, 'macro is C', "reading slave->Comp" );

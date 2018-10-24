@@ -172,14 +172,19 @@ is( $root->get_element_property( property => 'level', element => 'captain' ),
 is( $root->reset_element_property( property => 'level', element => 'captain' ),
     'important', "test importance" );
 
-map {
+my @prev_next_tests = (
+    [ undef, 'captain' ],
+    [ '', 'captain' ],
+    [qw/captain array_args/],
+    [qw/array_args hash_args/]
+);
+
+foreach (@prev_next_tests) {
     my $key_label = defined $_->[0] ? $_->[0] : 'undef';
     is( $root->next_element( name => $_->[0] ), $_->[1], "test next_element ($key_label)" );
     is( $root->previous_element( name => $_->[1] ), $_->[0], "test previous_element ($key_label)" )
         unless ( defined $_->[0] and $_->[0] eq '' );
-    } (
-    [ undef, 'captain' ], [ '', 'captain' ],
-    [qw/captain array_args/], [qw/array_args hash_args/] );
+    };
 
 memory_cycle_ok($model, "memory cycle");
 

@@ -102,7 +102,7 @@ foreach my $w (qw/a b c/) {
 print $root->dump_tree if $trace;
 
 $root->apply_fixes('long');
-map {
+foreach (qw/a b c/)  {
     is( $root->grab_value("my_broken_node_$_ fix-long"),
         "$_ is way", "check that $_ long stuff was fixed" );
     is(
@@ -110,13 +110,13 @@ map {
         "Debian GNU/Linux for $_",
         "check that $_ gnu stuff was NOT fixed"
     );
-} qw/a b c/;
+}
 
 $root -> apply_fixes;
-map {
+foreach (qw/a b c/)  {
     is( $root->grab_value("my_broken_node_$_ chained-fix"),
         "https://bugs.debian.org/$_$_$_", "check that $_ secure url was fixed" );
-} qw /a b c/;
+}
 
 print $root->dump_tree if $trace;
 

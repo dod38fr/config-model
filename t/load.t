@@ -225,25 +225,27 @@ ok( $root->load( step => $step ), "load '$step'" );
 my $olist = $root->fetch_element('olist');
 is( $olist->fetch_with_id(0)->element_name, 'olist', 'check list element_name' );
 
-map { is( $olist->fetch_with_id($_)->config_class_name, 'SlaveZ', "check list element $_ class" ); }
-    ( 0, 1 );
+foreach ( 0, 1 ) {
+    is( $olist->fetch_with_id($_)->config_class_name, 'SlaveZ', "check list element $_ class" );
+}
 
 my $lista = $root->fetch_element('lista');
 isa_ok( $lista, 'Config::Model::ListId', 'check lista class' );
-map { isa_ok( $lista->fetch_with_id($_), 'Config::Model::Value', "check lista element $_ class" ); }
-    ( 0, 1 );
+foreach ( 0, 1 ) { isa_ok( $lista->fetch_with_id($_), 'Config::Model::Value', "check lista element $_ class" ); }
 
 is( $olist->fetch_with_id(0)->fetch_element('X')->fetch, 'Av', "check list element 0 content" );
 is( $olist->fetch_with_id(1)->fetch_element('X')->fetch, 'Bv', "check list element 1 content" );
 
 my @expect = qw/a b c d e/;
-map { is( $lista->fetch_with_id($_)->fetch, $expect[$_], "check lista element $_ content" ); }
-    ( 0 .. $#expect );
+foreach ( 0 .. $#expect ) {
+    is( $lista->fetch_with_id($_)->fetch, $expect[$_], "check lista element $_ content" );
+}
 
 my $listb = $root->fetch_element('listb');
 @expect = ( qw/b c d/, 'f', '', 'h', '0' );
-map { is( $listb->fetch_with_id($_)->fetch, $expect[$_], "check listb element $_ content" ); }
-    ( 0 .. $#expect );
+foreach ( 0 .. $#expect ) {
+    is( $listb->fetch_with_id($_)->fetch, $expect[$_], "check listb element $_ content" );
+}
 
 $step = 'a_string="foo bar"';
 ok( $root->load( step => $step, ), "load quoted string: '$step'" );
@@ -254,8 +256,9 @@ ok( $root->load( step => $step, ), "load : '$step'" );
 is( $root->fetch_element('a_string')->fetch, "foo bar baz", 'check result' );
 
 @expect = qw/a b c d e/;
-map { is( $lista->fetch_with_id($_)->fetch, $expect[$_], "check lista element $_ content" ); }
-    ( 0 .. 4 );
+foreach ( 0 .. 4 ) {
+    is( $lista->fetch_with_id($_)->fetch, $expect[$_], "check lista element $_ content" );
+}
 
 # set the value of the previous object
 $step = 'std_id:"f/o/o:b.ar" X=Bv';
