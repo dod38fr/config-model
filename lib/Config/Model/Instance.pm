@@ -977,11 +977,18 @@ clears this value once the first read is done.
 
 Get initial_load mode
 
-=head2 data( kind, [data] )
+=head2 data
 
-The data method provide a way to store some arbitrary data in the
+This method provides a way to store some arbitrary data in the
 instance object.
 
+E.g:
+
+  $instance->data(foo => 'bar');
+
+Later:
+
+  my $foo = $instance->data('foo'); # $foo contains 'bar'
 
 =head1 Read and write backend features
 
