@@ -2468,7 +2468,7 @@ the value object (as declared in the model unless they were warped):
 
 =back
 
-=head2 name()
+=head2 name
 
 Returns the object name.
 
@@ -2476,12 +2476,12 @@ Returns the object name.
 
 Returns C<leaf>.
 
-=head2 can_store()
+=head2 can_store
 
 Returns true if the value object can be assigned to. Return 0 for a
 read-only value (i.e. a computed value with no override allowed).
 
-=head2 get_choice()
+=head2 get_choice
 
 Query legal values (only for enum types). Return an array (possibly
 empty).
@@ -2502,7 +2502,9 @@ Returns the error messages of this object (if any)
 Returns warning concerning this value. Returns a list in list
 context and a string in scalar context.
 
-=head2 check_value ( value )
+=head2 check_value
+
+Parameters: C<< ( value ) >>
 
 Check the consistency of the value.
 
@@ -2534,7 +2536,9 @@ Returns the number of fixes that can be applied to the current value.
 
 Applies the fixes to suppress the current warnings.
 
-=head2 check( [ value => foo ] )
+=head2 check
+
+Parameters: C<< ( [ value => foo ] ) >>
 
 Like L</check_value>.
 
@@ -2546,9 +2550,10 @@ Without C<value> argument, this method checks the value currently stored.
 
 =head1 Information management
 
-=head2 store( $value )
+=head2 store
 
-Can be called as C<< value => ...,	check => yes|no|skip ), silent => 0|1 >>
+Parameters: C<< ( $value ) >>
+or C<< value => ...,	check => yes|no|skip ), silent => 0|1 >>
 
 Store value in leaf element. C<check> parameter can be used to
 skip validation check (default ies 'yes').
@@ -2561,11 +2566,13 @@ Optional C<callback> is now deprecated.
 Clear the stored value. Further read returns the default value (or
 computed or migrated value).
 
-=head2 load_data( $value )
+=head2 load_data
 
-Load scalar data. Data is forwarded to L</"store( $value )">.
+Parameters: C<< ( $value ) >>
 
-Called with C<load_data( $value )> or C<load_data( data => $value )> or
+Load scalar data. Data is forwarded to L</"store">.
+
+Called with C<load_data> or C<load_data> or
 with the same parameters are C<store> method.
 
 =head2 fetch_custom
@@ -2586,7 +2593,7 @@ default value or a built-in default value.
 Return true if the value contains information different from default
 or upstream default value.
 
-=head2 fetch(...)
+=head2 fetch
 
 Check and fetch value from leaf element. The method can have one parameter (the fetch mode)
 or several pairs:

@@ -444,7 +444,9 @@ The constructor should be used only by L<Config::Model::Node>.
 Return the list of elements found in model that can be searched in the
 configuration tree.
 
-=head2 prepare(element => ...)
+=head2 prepare
+
+Parameters: C<< (element => ...) >>
 
 Prepare the searcher to look for the element passed in the argument.
 Returns the searcher object (i.e. $self).
@@ -459,7 +461,7 @@ Returns the searched element name.
 
 =head1 Manual search
 
-=head2 next_step()
+=head2 next_step
 
 Returns an array (or a ref depending on context)
 containing the next possible step to find the
@@ -467,22 +469,24 @@ element you're looking for. The array ref can contain 1 or more
 elements.
 
 If the array ref is empty, you can get the target element with
-L</"current_object()">.
+L</"current_object">.
 
-=head2 next_choice()
+=head2 next_choice
 
 Returns an array ref containing the next non-obvious choice to find
 the element you're looking for.
 
 If the array ref is empty, you can get the target element with
-L</"current_object()">.
+L</"current_object">.
 
-=head2 choose( <chosen_element_name> )
+=head2 choose
+
+Parameters: C<< ( <chosen_element_name> ) >>
 
 Tell the search engine your choice. The chosen element name must be
-one of the possibilities given by L</"next_step()">.
+one of the possibilities given by L</"next_step">.
 
-=head2 current_object()
+=head2 current_object
 
 Returns the object where the search engine is. It can be
 a L<node|Config::Model::Node>,
@@ -492,7 +496,9 @@ a L<leaf element|Config::Model::Value>.
 
 =head1 Automatic search
 
-=head2 auto_choose ( element_callback, id_call_back)
+=head2 auto_choose
+
+Parameters: C<< ( element_callback, id_call_back) >>
 
 Finds the searched element with minimal user interaction.
 
@@ -510,7 +516,7 @@ Both call-back arguments are:
 
 =item *
 
-The current object (as returned by L</"current_object()">)
+The current object (as returned by L</"current_object">)
 
 =item *
 
@@ -537,7 +543,7 @@ An element name
 
 =item *
 
-An id valid for the list or hash element returned by L</"current_object()">.
+An id valid for the list or hash element returned by L</"current_object">.
 
 =back
 

@@ -232,11 +232,11 @@ object.
 
 =head1 METHODS
 
-=head2 save()
+=head2 save
 
 Save annotations in a file (See L<DESCRIPTION>)
 
-=head2 load()
+=head2 load
 
 Loads annotations from a file (See L<DESCRIPTION>)
 

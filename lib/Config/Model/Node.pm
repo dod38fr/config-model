@@ -1570,13 +1570,17 @@ Returns the configuration class name of this node.
 Returns the instance object containing this node. Inherited from
 L<Config::Model::AnyThing>
 
-=head2 has_element ( name => element_name, [ type => searched_type ] )
+=head2 has_element
+
+Parameters: C<< ( name => element_name, [ type => searched_type ] ) >>
 
 Returns 1 if the class model has the element declared or if the element
 name is matched by the optional C<accept> parameter. If C<type> is specified, the
 element name must also match the type.
 
-=head2 find_element ( element_name , [ case => any ])
+=head2 find_element
+
+Parameters: C<< ( element_name , [ case => any ]) >>
 
 Returns C<$name> if the class model has the element declared or if the element
 name is matched by the optional C<accept> parameter.
@@ -1586,7 +1590,7 @@ name in a case-insensitive manner.
 
 Returns empty if no matching element is found.
 
-=head2 model_searcher ()
+=head2 model_searcher
 
 Returns an object dedicated to search an element in the configuration
 model (respecting privilege level).
@@ -1596,22 +1600,26 @@ L<Config::Model::SearchElement> for details on how to handle a search.
 
 This method is inherited from L<Config::Model::AnyThing>.
 
-=head2 element_model ( element_name )
+=head2 element_model
+
+Parameters: C<< ( element_name ) >>
 
 Returns model of the element.
 
-=head2 element_type ( element_name )
+=head2 element_type
+
+Parameters: C<< ( element_name ) >>
 
 Returns the type (e.g. leaf, hash, list, checklist or node) of the
 element. Also returns the type of a potentially accepted element.
 Dies if the element is not known or cannot be accepted.
 
-=head2 element_name()
+=head2 element_name
 
 Returns the element name that contain this object. Inherited from
 L<Config::Model::AnyThing>
 
-=head2 index_value()
+=head2 index_value
 
 See L<Config::Model::AnyThing/"index_value()">
 
@@ -1619,13 +1627,13 @@ See L<Config::Model::AnyThing/"index_value()">
 
 See L<Config::Model::AnyThing/"parent">
 
-=head2 root()
+=head2 root
 
-See L<Config::Model::AnyThing/"root()">
+See L<Config::Model::AnyThing/"root">
 
-=head2 location()
+=head2 location
 
-See L<Config::Model::AnyThing/"location()">
+See L<Config::Model::AnyThing/"location">
 
 =head2 backend_support_annotation
 
@@ -1682,7 +1690,7 @@ Returns a list in array context, and a string
 Like C<get_element_names> without parameters. Returns the list of elements. This method is
 polymorphic for all non-leaf objects of the configuration tree.
 
-=head2 next_element ( ... )
+=head2 next_element
 
 This method provides a way to iterate through the elements of a node.
 Mandatory parameter is C<name>. Optional parameter: C<status>.
@@ -1690,13 +1698,17 @@ Mandatory parameter is C<name>. Optional parameter: C<status>.
 Returns the next element name for status (default C<normal>).
 Returns undef if no next element is available.
 
-=head2 previous_element ( name => element_name )
+=head2 previous_element
+
+Parameters: C<< ( name => element_name ) >>
 
 This method provides a way to iterate through the elements of a node.
 
 Returns the previous element name. Returns undef if no previous element is available.
 
-=head2 get_element_property ( element => ..., property => ... )
+=head2 get_element_property
+
+Parameters: C<< ( element => ..., property => ... ) >>
 
 Retrieve a property of an element.
 
@@ -1709,24 +1721,32 @@ This call returns C<deprecated>:
 
   $node->get_element_property ( element => 'X', property => 'status' )
 
-=head2 set_element_property ( element => ..., property => ... )
+=head2 set_element_property
+
+Parameters: C<< ( element => ..., property => ... ) >>
 
 Set a property of an element.
 
-=head2 reset_element_property ( element => ... )
+=head2 reset_element_property
+
+Parameters: C<< ( element => ... ) >>
 
 Reset a property of an element according to the original model.
 
 =head1 Information management
 
-=head2 fetch_element ( name => .. , [ check => ..] )
+=head2 fetch_element
+
+Parameters: C<< ( name => .. , [ check => ..] ) >>
 
 Fetch and returns an element from a node.
 
 check can be set to yes, no or skip. When check is C<no> or C<skip>, can return C<undef> when the
 element is unknown, or 0 if the element is not available (hidden).
 
-=head2 fetch_element_value ( name => ... [ check => ...] )
+=head2 fetch_element_value
+
+Parameters: C<< ( name => ... [ check => ...] ) >>
 
 Fetch and returns the I<value> of a leaf element from a node.
 
@@ -1734,14 +1754,17 @@ Fetch and returns the I<value> of a leaf element from a node.
 
 Return the gist of the node. See description of C<gist> parameter above.
 
-=head2 store_element_value ( name, value )
+=head2 store_element_value
+
+Parameters: C<< ( name, value ) >>
 
 Store a I<value> in a leaf element from a node.
 
 Can be invoked with named parameters (name, value, check)
 
-=head2 is_element_available( name => ...,  )
+=head2 is_element_available
 
+Parameters: C<< ( name => ...,  ) >>
 
 Returns 1 if the element C<name> is available and if the element is not "hidden". Returns 0
 otherwise.
@@ -1750,22 +1773,30 @@ As a syntactic sugar, this method can be called with only one parameter:
 
    is_element_available( 'element_name' ) ;
 
-=head2 accept_element( name )
+=head2 accept_element
+
+Parameters: C<< ( name ) >>
 
 Checks and returns the appropriate model of an acceptable element
 (i.e. declared as a model C<element> or part of an C<accept> declaration).
 Returns undef if the element cannot be accepted.
 
-=head2 accept_regexp( name )
+=head2 accept_regexp
+
+Parameters: C<< ( name ) >>
 
 Returns the list of regular expressions used to check for acceptable parameters.
 Useful for diagnostics.
 
-=head2 element_exists( element_name )
+=head2 element_exists
+
+Parameters: C<< ( element_name ) >>
 
 Returns 1 if the element is known in the model.
 
-=head2 is_element_defined( element_name )
+=head2 is_element_defined
+
+Parameters: C<< ( element_name ) >>
 
 Returns 1 if the element is defined.
 
@@ -1781,12 +1812,16 @@ See L<Config::Model::Role::Grab/grab_value">.
 
 See L<Config::Model::Role::Grab/"grab_root">.
 
-=head2 get( path => ..., mode => ... ,  check => ... , get_obj => 1|0, autoadd => 1|0)
+=head2 get
+
+Parameters: C<< ( path => ..., mode => ... ,  check => ... , get_obj => 1|0, autoadd => 1|0) >>
 
 Get a value from a directory like path. If C<get_obj> is 1, C<get> returns a leaf object
 instead of returning its value.
 
-=head2 set( path  , value)
+=head2 set
+
+Parameters: C<< ( path  , value) >>
 
 Set a value from a directory like path.
 
@@ -1809,18 +1844,22 @@ deprecated elements or values. Return 1 if data needs to be saved.
 Scan the tree from this node and apply fixes that are attached to warning specifications.
 See C<warn_if_match> or C<warn_unless_match> in L<Config::Model::Value/>.
 
-=head2 load ( steps => string [ ... ])
+=head2 load
+
+Parameters: C<< ( steps => string [ ... ]) >>
 
 Load configuration data from the string into the node and its siblings.
 
 This string follows the syntax defined in L<Config::Model::Loader>.
-See L<Config::Model::Loader/"load ( ... )"> for details on parameters.
+See L<Config::Model::Loader/"load"> for details on parameters.
 
 This method can also be called with a single parameter:
 
   $node->load("some data:to be=loaded");
 
-=head2 load_data ( data => hash_ref, [ check => $check, ...  ])
+=head2 load_data
+
+Parameters: C<< ( data => hash_ref, [ check => $check, ...  ]) >>
 
 Load configuration data with a hash ref. The hash ref key must match
 the available elements of the node (or accepted element). The hash ref structure must match
@@ -1836,7 +1875,7 @@ return 1 if one of the elements of the node's sub-tree has been modified.
 
 =head1 Serialization
 
-=head2 dump_tree ( ... )
+=head2 dump_tree
 
 Dumps the configuration data of the node and its siblings into a
 string.  See L<Config::Model::Dumper/dump_tree> for parameter details.
@@ -1845,27 +1884,31 @@ This string follows the syntax defined in
 L<Config::Model::Loader>. The string produced by C<dump_tree> can be
 passed to C<load>.
 
-=head2 dump_annotations_as_pod ( ... )
+=head2 dump_annotations_as_pod
 
 Dumps the configuration annotations of the node and its siblings into a
 string.  See L<Config::Model::Dumper/dump_annotations_as_pod> for parameter details.
 
-=head2 describe ( [ element => ... ] )
+=head2 describe
+
+Parameters: C<< ( [ element => ... ] ) >>
 
 Provides a description of the node elements or of one element.
 
-=head2 report ()
+=head2 report
 
 Provides a text report on the content of the configuration below this
 node.
 
-=head2 audit ()
+=head2 audit
 
 Provides a text audit on the content of the configuration below this
 node. This audit shows only value different from their default
 value.
 
-=head2 copy_from ( from => another_node_object, [ check => ... ] )
+=head2 copy_from
+
+Parameters: C<< ( from => another_node_object, [ check => ... ] ) >>
 
 Copy configuration data from another node into this node and its
 siblings. The copy can be made in a I<tolerant> mode where invalid data
@@ -1874,7 +1917,9 @@ a single argument: C<< copy_from($another_node) >>
 
 =head1 Help management
 
-=head2 get_help ( [ [ description | summary ] => element_name ] )
+=head2 get_help
+
+Parameters: C<< ( [ [ description | summary ] => element_name ] ) >>
 
 If called without element, returns the description of the class
 (Stored in C<class_description> attribute of a node declaration).
@@ -1887,7 +1932,9 @@ C<description> of the element.
 
 Returns an empty string if no description was found.
 
-=head2 tree_searcher( type => ... )
+=head2 tree_searcher
+
+Parameters: C<< ( type => ... ) >>
 
 Returns an object able to search the configuration tree.
 Parameters are :

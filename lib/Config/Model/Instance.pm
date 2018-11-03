@@ -788,25 +788,25 @@ C<< check => 'no' >> ).
 
 =head2 Manage configuration data
 
-=head2 modify ( ... )
+=head2 modify
 
-Calls L</"load(...)"> and then L</save>.
+Calls L</"load"> and then L</save>.
 
 Takes the same parameter as C<load> plus C<force_write> to force
 saving configuration file even if no value was modified (default is 0)
 
-=head2 load ( ... )
+=head2 load
 
 Load configuration tree with configuration data. See
-L<Config::Model::Loader/"load ( ... )"> for parameters.
+L<Config::Model::Loader/"load"> for parameters.
 Returns <$self>.
 
-=head2 save ( ... )
+=head2 save
 
 Save the content of the configuration tree to
 configuration files. (alias to C<write_back>)
 
-=head2 config_root()
+=head2 config_root
 
 Returns the L<root object|Config::Model::Node> of the configuration tree.
 
@@ -844,7 +844,9 @@ only for tests.
 
 Returns the number of warning found in the elements of this configuration instance.
 
-=head2 update( quiet => (0|1), %args )
+=head2 update
+
+Parameters: C<< ( quiet => (0|1), %args ) >>
 
 Try to run update command on all nodes of the configuration tree. Node
 without C<update> method are ignored. C<update> prints a message
@@ -861,7 +863,7 @@ Use the steps parameter to retrieve and returns the value of a leaf
 object from the configuration tree.  Forwarded to
 L<Config::Model::Role::Grab/grab_value>
 
-=head2 searcher ( )
+=head2 searcher
 
 Returns an object dedicated to search an element in the configuration
 model (respecting privilege level).
@@ -881,22 +883,24 @@ L<constructor arguments|Config::Model::Iterator/"Creating an iterator">.
 
 Returns the application name of the instance. (E.g C<popcon>, C<dpkg> ...)
 
-=head2 wizard_helper ( ... )
+=head2 wizard_helper
 
 Deprecated. Call L</iterator> instead.
 
 =head1 Internal methods
 
-=head2 name()
+=head2 name
 
 Returns the instance name.
 
-=head2 read_check()
+=head2 read_check
 
 Returns which kind of check is performed while reading configuration
 files. (see C<check> parameter in L</CONSTRUCTOR> section)
 
-=head2 show_message( string )
+=head2 show_message
+
+Parameters: C<( string )>
 
 Display the message on STDOUT unless a custom function was passed to
 C<on_message_cb> parameter.
@@ -906,52 +910,52 @@ C<on_message_cb> parameter.
 Destroy current configuration tree (with data) and returns a new tree with
 data (and annotations) loaded from disk.
 
-=head2 config_model()
+=head2 config_model
 
 Returns the model (L<Config::Model> object) of the configuration tree.
 
-=head2 annotation_saver()
+=head2 annotation_saver
 
 Returns the object loading and saving annotations. See
 L<Config::Model::Annotation> for details.
 
-=head2 preset_start ()
+=head2 preset_start
 
 All values stored in preset mode are shown to the user as default
 values. This feature is useful to enter configuration data entered by
 an automatic process (like hardware scan)
 
-=head2 preset_stop ()
+=head2 preset_stop
 
 Stop preset mode
 
-=head2 preset ()
+=head2 preset
 
 Get preset mode
 
-=head2 preset_clear()
+=head2 preset_clear
 
 Clear all preset values stored.
 
-=head2 layered_start ()
+=head2 layered_start
 
 All values stored in layered mode are shown to the user as default
 values. This feature is useful to enter configuration data entered by
 an automatic process (like hardware scan)
 
-=head2 layered_stop ()
+=head2 layered_stop
 
 Stop layered mode
 
-=head2 layered ()
+=head2 layered
 
 Get layered mode
 
-=head2 layered_clear()
+=head2 layered_clear
 
 Clear all layered values stored.
 
-=head2 get_data_mode 
+=head2 get_data_mode
 
 Returns 'normal' or 'preset' or 'layered'. Does not take into account
 initial_load.
@@ -966,7 +970,6 @@ value once the first read is done.
 
 Other modifications, when initial_load is zero, are assumed to be user
 modifications.
-
 
 =head2 initial_load_stop
 
@@ -999,7 +1002,7 @@ This feature enables you to declare with the model a way to load
 configuration data (and to write it back). See
 L<Config::Model::BackendMgr> for details.
 
-=head2 backend()
+=head2 backend
 
 Get the preferred backend method for this instance (as passed to the
 constructor).
@@ -1011,16 +1014,18 @@ get the configuration file. These method is typically used in the read
 and write method of a backend to know where is the configuration file
 to edit.
 
-=head2 root_dir()
+=head2 root_dir
 
 Returns a L<Path::Tiny> object for the root directory where
 configuration data is read from or written to.
 
-=head2 root_path()
+=head2 root_path
 
 Same as C<root_dir>
 
-=head2 register_write_back ( node_location )
+=head2 register_write_back
+
+Parameters: C<( node_location )>
 
 Register a node path that is called back with
 C<write_back> method.
@@ -1028,17 +1033,16 @@ C<write_back> method.
 =head2 notify_change
 
 Notify that some data has changed in the tree. See
-L<Config::Model::AnyThing/notify_change(...)> for more details.
+L<Config::Model::AnyThing/notify_change> for more details.
 
-=head2 write_back ( ... )
+=head2 write_back
 
 In summary, save the content of the configuration tree to
 configuration files.
 
 In more details, C<write_back> trie to run all subroutines registered
 with C<register_write_back> to write the configuration information.
-(See L<Config::Model::BackendMgr>
-for details).
+(See L<Config::Model::BackendMgr> for details).
 
 You can specify here another config directory to write configuration
 data back with C<config_dir> parameter. This overrides the model

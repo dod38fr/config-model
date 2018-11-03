@@ -491,7 +491,9 @@ parameter the comment may apply. Wrong estimations are possible.
 
 =head1 CONSTRUCTOR
 
-=head2 new ( node => $node_obj, name => 'inifile' ) ;
+=head2 new
+
+Parameters: C<< ( node => $node_obj, name => 'inifile' ) >>
 
 Inherited from L<Config::Model::Backend::Any>. The constructor is
 called by L<Config::Model::BackendMgr>.
@@ -687,16 +689,16 @@ The C<assign_with> is used to control how the file is written back. E.g:
 Of all parameters passed to this read call-back, only C<file_path> is
 used. This parameter must be L<Path::Tiny> object.
 
-It can also be undef. In this case, C<read()> returns 0.
+It can also be undef. In this case, C<read> returns 0.
 
-When a file is read,  C<read()> returns 1.
+When a file is read, C<read> returns 1.
 
 =head2 write
 
 Of all parameters passed to this write call-back, only C<file_path> is
 used. This parameter must be a L<Path::Tiny> object.
 
-C<write()> returns 1.
+C<write> returns 1.
 
 =head1 AUTHOR
 

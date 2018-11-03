@@ -301,14 +301,14 @@ contains C<'a','b'>.
 
 =head1 CONSTRUCTOR
 
-=head2 new ( )
+=head2 new
 
 No parameter. The constructor should be used only by
 L<Config::Model::Node>.
 
 =head1 Methods
 
-=head2 dump_as_data(...)
+=head2 dump_as_data
 
 Return a perl data structure
 
@@ -368,7 +368,7 @@ special key that specifies the order of keys. E.g.:
 
 =head1 Methods
 
-=head2 dump_annotations_as_pod(...)
+=head2 dump_annotations_as_pod
 
 Return a string formatted in pod (See L<perlpod>) with the annotations.
 

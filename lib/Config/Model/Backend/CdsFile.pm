@@ -151,16 +151,16 @@ called by L<Config::Model::BackendMgr>.
 Of all parameters passed to this read call-back, only C<file_path> is
 used.
 
-It can also be undef. In which case C<read()> returns 0.
+It can also be undef. In which case C<read> returns 0.
 
-When a file is read,  C<read()> returns 1.
+When a file is read,  C<read> returns 1.
 
 =head2 write
 
 Of all parameters passed to this write call-back, only C<file_path> is
 used.
 
-C<write()> returns 1.
+C<write> returns 1.
 
 =head1 AUTHOR
 

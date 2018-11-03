@@ -281,7 +281,9 @@ L<Path::Tiny/chmod>.
 
 =head1 Methods
 
-=head2 read_leaf (obj,elt,check,file,args);
+=head2 read_leaf
+
+Parameters: C<(obj, elt, check, file, args)>
 
 Called by L<read> method to read the file of a leaf element. C<args>
 contains the arguments passed to L<read> method.
@@ -290,13 +292,15 @@ contains the arguments passed to L<read> method.
 
 Like L<read_leaf> for hash elements.
 
-=head2 read_list (obj,elt,check,file,args);
+=head2 read_list
+
+Parameters: C<(obj, elt, check, file, args)>
 
 Like L<read_leaf> for list elements.
 
-=head2 write ( )
+=head2 write
 
-C<write()> writes a file for each element of the calling class. Works only for
+C<write> writes a file for each element of the calling class. Works only for
 leaf and list elements. Other element type are skipped. Always return 1 (unless it died before).
 
 =head1 AUTHOR

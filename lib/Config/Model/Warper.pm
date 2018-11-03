@@ -772,7 +772,7 @@ be shown or not (assuming C<FooClass> and C<BarClass> classes are declared):
 
 =head1 Methods
 
-=head2 warp_error()
+=head2 warp_error
 
 This method returns a string describing:
 

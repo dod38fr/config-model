@@ -366,7 +366,7 @@ ref may be used to store whatever result you want.
 
 =head1 CONSTRUCTOR
 
-=head2 new ( ... )
+=head2 new
 
 One way or another, the ObjTreeScanner object must be able to find all
 callback for all the items of the tree. All the possible call-back and
@@ -628,7 +628,9 @@ Example:
 
 =head1 METHODS
 
-=head2 scan_node ($data_r,$node)
+=head2 scan_node
+
+Parameters: C<< ($data_r,$node) >>
 
 Explore the node and call either C<node_dispatch_cb> (if the node class
 name matches the dispatch_node hash) B<or> (e.g. xor) C<node_element_cb> passing
@@ -636,24 +638,32 @@ all element names.
 
 C<up_cb> is called once the first callback returns.
 
-=head2 scan_element($data_r,$node,$element_name)
+=head2 scan_element
+
+Parameters: C<< ($data_r,$node,$element_name) >>
 
 Explore the element and call either C<hash_element_cb>,
 C<list_element_cb>, C<node_content_cb> or a leaf call-back (the leaf
 call-back called depends on the Value object properties: enum, string,
 integer and so on)
 
-=head2 scan_hash ($data_r,$node,$element_name,$key)
+=head2 scan_hash
+
+Parameters: C<< ($data_r,$node,$element_name,$key) >>
 
 Explore the hash member (or hash value) and call either C<node_content_cb> or
 a leaf call-back.
 
-=head2 scan_list ($data_r,$node,$element_name,$index)
+=head2 scan_list
+
+Parameters: C<< ($data_r,$node,$element_name,$index) >>
 
 Just like C<scan_hash>: Explore the list member and call either
 C<node_content_cb> or a leaf call-back.
 
-=head2 get_keys ($node, $element_name)
+=head2 get_keys
+
+Parameters: C<< ($node, $element_name) >>
 
 Returns an list containing the sorted keys of a hash element or returns
 an list containing (0.. last_index) of an list element.

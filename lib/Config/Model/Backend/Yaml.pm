@@ -231,7 +231,9 @@ module which writes C<true> and C<false> without quotes.
 
 =head1 CONSTRUCTOR
 
-=head2 new ( node => $node_obj, name => 'yaml' ) ;
+=head2 new
+
+Parameters: C<< ( node => $node_obj, name => 'yaml' ) >>
 
 Inherited from L<Config::Model::Backend::Any>. The constructor is
 called by L<Config::Model::BackendMgr>.
@@ -240,13 +242,13 @@ called by L<Config::Model::BackendMgr>.
 
 Read YAML file and load into C<$node_obj> tree.
 
-When a file is read,  C<read()> returns 1.
+When a file is read, C<read> returns 1.
 
 =head2 write
 
 Write YAML File using C<$node_obj> data.
 
-C<write()> returns 1.
+C<write> returns 1.
 
 =head1 AUTHOR
 

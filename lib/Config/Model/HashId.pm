@@ -574,11 +574,15 @@ function.
 Returns the next key of the hash. Behaves like C<each> core perl
 function.
 
-=head2 swap ( key1 , key2 )
+=head2 swap
+
+Parameters: C<< ( key1 , key2 ) >>
 
 Swap the order of the 2 keys. Ignored for non ordered hash.
 
-=head2 move ( key1 , key2 )
+=head2 move
+
+Parameters: C<< ( key1 , key2 ) >>
 
 Rename key1 in key2. 
 
@@ -586,23 +590,31 @@ Also also optional check parameter to disable warning:
 
  move ('foo','bar', check => 'no')
 
-=head2 move_after ( key_to_move [ , after_this_key ] )
+=head2 move_after
+
+Parameters: C<< ( key_to_move [ , after_this_key ] ) >>
 
 Move the first key after the second one. If the second parameter is
 omitted, the first key is placed in first position. Ignored for non
 ordered hash.
 
-=head2 move_up ( key )
+=head2 move_up
+
+Parameters: C<< ( key ) >>
 
 Move the key up in a ordered hash. Attempt to move up the first key of
 an ordered hash is ignored. Ignored for non ordered hash.
 
-=head2 move_down ( key )
+=head2 move_down
+
+Parameters: C<< ( key ) >>
 
 Move the key down in a ordered hash. Attempt to move up the last key of
 an ordered hash is ignored. Ignored for non ordered hash.
 
-=head2 load_data ( data => ( hash_ref | array_ref ) [ , check => ... , ... ])
+=head2 load_data
+
+Parameters: C<< ( data => ( hash_ref | array_ref ) [ , check => ... , ... ]) >>
 
 Load check_list as a hash ref for standard hash. 
 

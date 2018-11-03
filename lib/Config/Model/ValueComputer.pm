@@ -594,7 +594,7 @@ A string formula that use variables and replace function.
 
 A set of variable and their relative location in the tree (using the
 notation explained in 
-L<grab() method|Config::Model::Role::Grab/grab">
+L<grab method|Config::Model::Role::Grab/grab">
 
 =item *
 
@@ -609,7 +609,7 @@ An optional parameter to force a Perl eval of a string.
 B<Note>: A variable must point to a valid location in the configuration
 tree. Even when C<&index()> or C<$replace{}> is used. After substitution
 of these functions, the string is used as a path (See
-L<grab()|Config::Model::Role::Grab/grab">) starting from the
+L<grab|Config::Model::Role::Grab/grab">) starting from the
 computed value. Hence the path must begin with C<!> to go back to root
 node, or C<-> to go up a level.
 

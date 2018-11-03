@@ -526,15 +526,17 @@ Returns C<list>.
 
 Returns the number of elements of the list.
 
-=head2 load(string, [ check => 'no' ] )
+=head2 load
+
+Parameters: C<< (string, [ check => 'no' ] ) >>
 
 Store a set of values passed as a comma separated list of values. 
 Values can be quoted strings. (i.e C<"a,a",b> yields
-C<('a,a', 'b')> list). 
+C<('a,a', 'b')> list).
 
 C<check> can be yes, no or skip
 
-=head2 store_set( ... )
+=head2 store_set
 
 Store a set of values (passed as list)
 
@@ -542,15 +544,21 @@ If tinkering with check is required, use the following way :
 
  store_set ( \@v , check => 'skip' );
 
-=head2 move ( from_index, to_index, [ check => 'no' )
+=head2 move
+
+Parameters: C<< ( from_index, to_index, [ check => 'no' ) >>
 
 Move an element within the list. C<check> can be 'yes' 'no' 'skip'
 
-=head2 push( value1, [ value2 ... ] )
+=head2 push
+
+Parameters: C<< ( value1, [ value2 ... ] ) >>
 
 push some values at the end of the list.
 
-=head2 push_x ( values => [ v1','v2', ...] ,  ...  )
+=head2 push_x
+
+Parameters: C<< ( values => [ v1','v2', ...] ,  ...  ) >>
 
 Like push with extended options. Options are:
 
@@ -572,19 +580,27 @@ Single value to push
 
 =back
 
-=head2 unshift( value1, [ value2 ... ] )
+=head2 unshift
+
+Parameters: C<< ( value1, [ value2 ... ] ) >>
 
 unshift some values at the end of the list.
 
-=head2 insert_at( idx, value1, [ value2 ... ] )
+=head2 insert_at
+
+Parameters: C<< ( idx, value1, [ value2 ... ] ) >>
 
 unshift some values at index idx in the list.
 
-=head2 insert_before( ( val | qr/stuff/ ) , value1, [ value2 ... ] )
+=head2 insert_before
+
+Parameters: C<< ( ( val | qr/stuff/ ) , value1, [ value2 ... ] ) >>
 
 unshift some values before value equal to C<val> or before value matching C<stuff>.
 
-=head2 insort( value1, [ value2 ... ] )
+=head2 insort
+
+Parameters: C<< ( value1, [ value2 ... ] ) >>
 
 Insert C<zz> value on C<xxx> list so that existing alphanumeric order is preserved.
 C<insort> yields unpexpected results when called on an unsorted list.
@@ -615,19 +631,25 @@ Example:
     check => 'skip'
  );
 
-=head2 sort()
+=head2 sort
 
 Sort the content of the list. Can only be called on list of leaf.
 
-=head2 swap ( C<ida> , C<idb> )
+=head2 swap
+
+Parameters: C<< ( ida , idb ) >>
 
 Swap 2 elements within the array
 
-=head2 remove ( C<idx> )
+=head2 remove
+
+Parameters: C<< ( idx ) >>
 
 Remove an element from the list. Equivalent to C<splice @list,$idx,1>
 
-=head2 load_data ( data => ( ref | scalar ) [, check => ... ] [ , split_reg => $re ] )
+=head2 load_data
+
+Parameters: C<< ( data => ( ref | scalar ) [, check => ... ] [ , split_reg => $re ] ) >>
 
 Clear and load list from data contained in the C<data> array ref. If a scalar or a hash ref
 is passed, the list is cleared and the data is stored in

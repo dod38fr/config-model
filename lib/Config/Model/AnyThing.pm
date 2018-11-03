@@ -321,35 +321,35 @@ AnyThing provides some methods and no constructor.
 
 =head1 Introspection methods
 
-=head2 element_name()
+=head2 element_name
 
 Returns the element name that contain this object.
 
-=head2 index_value()
+=head2 index_value
 
 For object stored in an array or hash element, returns the index (or key)
 containing this object.
 
 =head2 parent
 
-Returns the node containing this object. May return undef if C<parent()> 
+Returns the node containing this object. May return undef if C<parent>
 is called on the root of the tree.
 
-=head2 container_type()
+=head2 container_type
 
 Returns the type (e.g. C<list> or C<hash> or C<leaf> or C<node> or
 C<warped_node>) of the element containing this object. 
 
-=head2 root()
+=head2 root
 
 Returns the root node of the configuration tree.
 
-=head2 location()
+=head2 location
 
 Returns the node location in the configuration tree. This location
 conforms with the syntax defined by L<grab|Config::Model::Role::Grab/grab> method.
 
-=head2 location_short()
+=head2 location_short
 
 Returns the node location in the configuration tree. This location truncates long
 indexes to be readable. It cannot be used by L<grab|Config::Model::Role::Grab/grab> method.
@@ -382,15 +382,19 @@ configuration file.
 Returns 1 if at least one of the backends support to read and write annotations
 (aka comments) in the configuration file.
 
-=head2 annotation( [ note1, [ note2 , ... ] ] )
+=head2 annotation
 
-Without argument, return a string containing the object's annotation (or 
+Parameters: C<( [ note1, [ note2 , ... ] ] )>
+
+Without argument, return a string containing the object's annotation (or
 an empty string).
 
-With several arguments, join the arguments with "\n", store the annotations 
+With several arguments, join the arguments with "\n", store the annotations
 and return the resulting string.
 
-=head2 load_pod_annotation ( pod_string )
+=head2 load_pod_annotation
+
+Parameters: C<( pod_string )>
 
 Load annotations in configuration tree from a pod document. The pod must
 be in the form:
@@ -409,7 +413,7 @@ Clear the annotation of an element
 
 =head1 Information management
 
-=head2 notify_change(...)
+=head2 notify_change
 
 Notify the instance of semantic changes. Parameters are:
 
@@ -450,15 +454,17 @@ internal parameter.
 
 =back
 
-=head2 show_message( string )
+=head2 show_message
 
-Forwarded to L<Config::Model::Instance/"show_message( string )">.
+Parameters: C<( string )>
+
+Forwarded to L<Config::Model::Instance/show_message>.
 
 =head2 root_path
 
 Forwarded to L<Config::Model::Instance/"root_path">.
 
-=head2 model_searcher ()
+=head2 model_searcher
 
 Returns an object dedicated to search an element in the configuration
 model (respecting privilege level).
@@ -466,7 +472,7 @@ model (respecting privilege level).
 This method returns a L<Config::Model::SearchElement> object. See
 L<Config::Model::Searcher> for details on how to handle a search.
 
-=head2 dump_as_data ( )
+=head2 dump_as_data
 
 Dumps the configuration data of the node and its siblings into a perl
 data structure. 

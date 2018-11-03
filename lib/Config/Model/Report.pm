@@ -157,7 +157,7 @@ value.
 
 =head1 CONSTRUCTOR
 
-=head2 new ( )
+=head2 new
 
 No parameter. The constructor should be used only by
 L<Config::Model::Node>.

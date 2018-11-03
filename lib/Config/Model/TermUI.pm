@@ -353,7 +353,7 @@ current node.
 
 =head1 Methods
 
-=head2 run_loop()
+=head2 run_loop
 
 Engage in user interaction until user enters '^D' (CTRL-D).
 

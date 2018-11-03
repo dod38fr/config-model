@@ -1437,12 +1437,14 @@ object (as declared in the model unless they were warped):
 
 =back
 
-=head2 get_cargo_type()
+=head2 get_cargo_type
 
 Returns the object type contained by the hash or list (i.e. returns
 C<< cargo -> type >>).
 
-=head2 get_cargo_info( < what > )
+=head2 get_cargo_info
+
+Parameters: C<< ( < what > ) >>
 
 Returns more info on the cargo contained by the hash or list. C<what>
 may be C<value_type> or any other cargo info stored in the model.
@@ -1454,11 +1456,11 @@ Returns a list (or a list ref) of the current default keys. These keys
 can be set by the C<default_keys> or C<default_with_init> parameters
 or by the other hash pointed by C<follow_keys_from> parameter.
 
-=head2 name()
+=head2 name
 
 Returns the object name. The name finishes with ' id'.
 
-=head2 config_class_name()
+=head2 config_class_name
 
 Returns the config_class_name of collected elements. Valid only
 for collection of nodes.
@@ -1471,12 +1473,14 @@ Returns the number of fixes that can be applied to the current value.
 
 =head1 Information management
 
-=head2 fetch_with_id ( index => $idx , [ check => 'no' ])
+=head2 fetch_with_id
+
+Parameters: C<< ( index => $idx , [ check => 'no' ]) >>
 
 Fetch the collected element held by the hash or list. Index check is 'yes' by default.
 Can be called with one parameter which is used as index.
 
-=head2 get(...)
+=head2 get
 
 Get a value from a directory like path. Parameters are:
 
@@ -1518,21 +1522,27 @@ L<Config::Model::FuseUI>). This parameter specifies how the forbidden
 
 =back
 
-=head2 set( path, value )
+=head2 set
+
+Parameters: C<( path, value )>
 
 Set a value with a directory like path.
 
-=head2 copy ( from_index, to_index )
+=head2 copy
+
+Parameters: C<( from_index, to_index )>
 
 Deep copy an element within the hash or list. If the element contained
 by the hash or list is a node, all configuration information is
 copied from one node to another.
 
-=head2 fetch_all()
+=head2 fetch_all
 
 Returns an array containing all elements held by the hash or list.
 
-=head2 fetch_all_values( mode => ..., check => ...)
+=head2 fetch_all_values
+
+Parameters: C<< ( mode => ..., check => ...) >>
 
 Returns an array containing all defined values held by the hash or
 list. (undefined values are simply discarded). This method is only 
@@ -1565,21 +1575,25 @@ The default value (defined by the configuration model)
 Similar to L</fetch_all_values>, with the same parameters, Returns the
 result as a string with comma separated list values.
 
-=head2 fetch_all_indexes()
+=head2 fetch_all_indexes
 
 Returns an array containing all indexes of the hash or list. Hash keys
 are sorted alphabetically, except for ordered hashed.
 
-=head2 children 
+=head2 children
 
 Like fetch_all_indexes. This method is
 polymorphic for all non-leaf objects of the configuration tree.
 
-=head2 defined ( index )
+=head2 defined
+
+Parameters: C<( index )>
 
 Returns true if the value held at C<index> is defined.
 
-=head2 exists ( index )
+=head2 exists
+
+Parameters: C<( index )>
 
 Returns true if the value held at C<index> exists (i.e the key exists
 but the value may be undefined). This method may not make sense for
@@ -1589,19 +1603,23 @@ list element.
 
 Return true if the array or hash is not empty.
 
-=head2 delete ( index )
+=head2 delete
+
+Parameters: C<( index )>
 
 Delete the C<index>ed value 
 
-=head2 clear()
+=head2 clear
 
 Delete all values (also delete underlying value or node objects).
 
-=head2 clear_values()
+=head2 clear_values
 
 Delete all values (without deleting underlying value objects).
 
-=head2 warning_msg ( [index] )
+=head2 warning_msg
+
+Parameters: C<( [index] )>
 
 Returns warnings concerning indexes of this hash. 
 Without parameter, returns a string containing all warnings or undef. With an index, return the warnings
@@ -1611,7 +1629,7 @@ concerning this index or undef.
 
 Returns the current number of warning.
 
-=head2 error_msg 
+=head2 error_msg
 
 Returns the error messages of this object (if any)
 

@@ -201,7 +201,9 @@ Search in all the items above
 
 =head1 Methods
 
-=head2 search(keyword)
+=head2 search
+
+Parameters: C<< (keyword) >>
 
 Search the keyword or pattern in the tree. The search is done in a case
 insensitive manner. Returns a list of path pointing

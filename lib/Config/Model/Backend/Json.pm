@@ -132,7 +132,9 @@ contains C<'a','b'>.
 
 =head1 CONSTRUCTOR
 
-=head2 new ( node => $node_obj, name => 'Json' ) ;
+=head2 new
+
+Parameters: C<< ( node => $node_obj, name => 'Json' ) >>
 
 Inherited from L<Config::Model::Backend::Any>. The constructor is
 called by L<Config::Model::BackendMgr>.
@@ -142,14 +144,14 @@ called by L<Config::Model::BackendMgr>.
 Of all parameters passed to this read call-back, only C<file_path> is
 used. This parameter must be a L<Path::Tiny>.
 
-When a file is read,  C<read()> returns 1.
+When a file is read, C<read> returns 1.
 
 =head2 write
 
 Of all parameters passed to this write call-back, only C<file_path> is
 used. This parameter must be L<Path::Tiny> object.
 
-C<write()> returns 1.
+C<write> returns 1.
 
 =head1 AUTHOR
 

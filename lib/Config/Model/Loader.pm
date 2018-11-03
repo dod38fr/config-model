@@ -1348,7 +1348,7 @@ Now that ssh config is mucked up with dummy entries, let's clean up:
 
 =head1 Methods
 
-=head2 load ( ... )
+=head2 load
 
 Load data into the node tree (from the node passed with C<node>)
 and fill values as we go following the instructions passed with
