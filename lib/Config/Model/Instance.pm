@@ -997,6 +997,13 @@ L<Config::Model::BackendMgr> for details.
 Get the preferred backend method for this instance (as passed to the
 constructor).
 
+=head2 backend_arg
+
+Get L<cme> command line argument that may be used by the backend to
+get the configuration file. These method is typically used in the read
+and write method of a backend to know where is the configuration file
+to edit.
+
 =head2 root_dir()
 
 Returns a L<Path::Tiny> object for the root directory where
