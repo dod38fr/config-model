@@ -221,7 +221,7 @@ subtest 'test store method' => sub {
         [ value => 'S,T ,  O, R, E' ],
         [ 'S,O,T,R,E', check => 'yes' ],
         [ value => 'S,T ,  O, R, E', check => 'yes' ],
-        [ 'S,T,O,R,E,bug', check => 'yes' ],
+        [ 'S,T,O,R,E,bug', check => 'skip' ],
     );
 
     foreach my $test_arg ( @store_args) {
