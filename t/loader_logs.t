@@ -141,8 +141,8 @@ subtest "test assignment logs" => sub {
         q!command 'lista:=foo3,bar3': Setting list 'lista' values to 'foo3,bar3'.!,
     );
     xlog(
-        $root, 'alpha_check_list=a,c,f,g',
-        q!command 'alpha_check_list=a,c,f,g': Setting check_list 'alpha_check_list' items 'a,c,f,g'.!,
+        $root, 'alpha_check_list=A,C,F,G',
+        q!command 'alpha_check_list=A,C,F,G': Setting check_list 'alpha_check_list' items 'A,C,F,G'.!,
     );
 };
 
