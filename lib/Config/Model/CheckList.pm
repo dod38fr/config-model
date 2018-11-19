@@ -631,8 +631,13 @@ sub set_checked_list {
     my @changed;
 
     foreach my $c ( $self->get_choice ) {
-        my $v = $set{$c} // 0;
+        my $v = delete $set{$c} // 0;
         push @changed, "$c:$v" if $self->_store( $c, $v, $check );
+    }
+
+    # Items left in %set are unknown. _store will handle the error
+    foreach my $item (keys %set) {
+        $self->_store( $item, 1, $check );
     }
 
     $self->{ordered_data} = $list;
