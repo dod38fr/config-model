@@ -298,6 +298,20 @@ subtest 'test set_checked_list method' => sub {
         $cl->clear;
         $inst->clear_changes;
     }
+
+};
+
+subtest 'test set_checked_list error handling' => sub {
+    # bug is not an allowed value
+    throws_ok { $cl->set_checked_list(qw/A bug/ ) } qr/wrong value/, 'got exception';
+};
+
+subtest 'test behavior when skipping bad value' => sub {
+    my $foo = Test::Log::Log4perl->expect(
+        ignore_priority => 'info',
+        ['Tree.Element.CheckList', warn => qr/Unknown check_list item/ ]
+        );
+    $cl->set_checked_list([qw/A bug/], check => 'skip');
 };
 
 $cl->clear;
