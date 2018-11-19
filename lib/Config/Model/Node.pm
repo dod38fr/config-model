@@ -1760,7 +1760,9 @@ Parameters: C<< ( name, value ) >>
 
 Store a I<value> in a leaf element from a node.
 
-Can be invoked with named parameters (name, value, check)
+Can be invoked with named parameters (name, value, check). E.g.
+
+ ( name => 'foo', value => 'bar', check => 'skip' )
 
 =head2 is_element_available
 
