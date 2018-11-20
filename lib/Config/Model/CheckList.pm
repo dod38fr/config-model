@@ -18,7 +18,8 @@ with "Config::Model::Role::Grab";
 with "Config::Model::Role::HelpAsText";
 with "Config::Model::Role::ComputeFunction";
 
-my $logger = get_logger("Tree::Element::CheckList");
+my $logger = get_logger("Tree.Element.CheckList");
+my $user_logger   = get_logger("User");
 
 my @introspect_params = qw/refer_to computed_refer_to/;
 
@@ -333,7 +334,7 @@ sub _store {
             Config::Model::Exception::WrongValue->throw( error => $err_str, object => $self );
         }
         elsif ($check eq 'skip') {
-            $logger->warn($err_str);
+            $user_logger->warn($err_str);
         }
     }
 
