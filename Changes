@@ -1,5 +1,23 @@
 {{$NEXT}}
 
+2.128 2018-11-21
+
+  
+  Usability improvements:
+    * CheckList: die or warn (with cme -force) when storing unknown item
+      in check list. Bad values used to be silently dropped.
+
+  Test fixes:
+    * add \n at end of yaml test files (gh #22)
+
+  Internal changes:
+    * improve code quality thanks to the feedbacks provided by kritika.io
+
+  Doc change:
+    * Improve navigation in doc: move parameters from header line to paragraph.
+    * Instance: add doc for backend_arg
+    * Instance: improve doc of data method
+
 2.127 2018-09-30
 
   Feature improvement:
