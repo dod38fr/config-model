@@ -7,26 +7,18 @@ use warnings;
 use Config::Model::Exception;
 use File::Path;
 use Log::Log4perl qw(get_logger :levels);
+use boolean;
+use YAML::XS 0.69;
 
 use base qw/Config::Model::Backend::Any/;
 
 my $logger = get_logger("Backend::Yaml");
 
-sub load_yaml_parser {
-    my $self = shift;
-    if (not $self->can('Load')) {
-        my $file = my $class = shift // 'YAML::Tiny';
-        $file =~ s!::!/!g;
-        require "$file.pm" || die "cannot load YAML parser $class";
-        import $class;
-    }
-}
-
 sub single_element {
     my $self = shift;
 
     my @elts = $self->node->children;
-    return undef if @elts != 1;
+    return if @elts != 1;
 
     my $obj = $self->node->fetch_element($elts[0]);
     my $type = $obj->get_type;
@@ -37,6 +29,8 @@ sub read {
     my $self = shift;
     my %args = @_;
 
+    local $YAML::XS::LoadBlessed = 0;
+
     # args is:
     # object     => $obj,         # Config::Model::Node object
     # root       => './my_test',  # fake root directory, userd for tests
@@ -46,9 +40,6 @@ sub read {
     # check      => yes|no|skip
 
     return 0 unless $args{file_path}->exists;    # no file to read
-
-    # load YAML parser and import Load and Dump
-    $self->load_yaml_parser($args{yaml_class});
 
     # load yaml file
     my $yaml = $args{file_path}->slurp_utf8;
@@ -85,12 +76,14 @@ sub write {
     # file_path  => './my_test/etc/foo/foo.conf'
     # check      => yes|no|skip
 
-    # load YAML parser and import Load and Dump
-    $self->load_yaml_parser($args{yaml_class});
+    local $YAML::XS::Boolean = "boolean";
 
     my $target = $self->single_element // $self->node ;
 
-    my $perl_data = $target->dump_as_data( full_dump => $args{full_dump} // 0);
+    my $perl_data = $target->dump_as_data(
+        full_dump => $args{full_dump} // 0,
+        to_boolean => sub { return boolean($_[0]) }
+    );
 
     my $yaml = Dump( $perl_data );
 
@@ -212,22 +205,19 @@ would be written with:
  - un
  - deux
 
+=head1 YAML class
+
+As of v2.129, this backend uses L<YAML::XS> 0.69 or later.
+
+For security reason, loading a Perl blessed object is disabled.
+
+Value of type boolean are written as boolean values in YAML files.
+
 =head1 backend parameter
 
 =head2 yaml_class
 
-By default, this module uses L<YAML::Tiny>. This module has the
-advantage of being light and
-L<secure|https://github.com/ingydotnet/yaml-libyaml-pm/issues/45>.  No
-Perl object can be created with YAML tags so L<YAML::Tiny> can be
-used with YAML files coming from unutrusted sources.
-
-On the other hand, L<YAML::Tiny> does not support boolean values: it
-cannot write C<true> and C<false> as plain scalar. C<true> and
-C<false> are quoted and are not of type boolean from YAML point of view.
-
-If this is a problem for your configuration files, you can use L<YAML>
-module which writes C<true> and C<false> without quotes.
+This parameter is ignored as of version 2.129.
 
 =head1 CONSTRUCTOR
 
@@ -256,8 +246,7 @@ Dominique Dumont, (ddumont at cpan dot org)
 
 =head1 SEE ALSO
 
-L<Config::Model>, 
-L<Config::Model::BackendMgr>, 
-L<Config::Model::Backend::Any>, 
+L<Config::Model>, L<Config::Model::BackendMgr>,
+L<Config::Model::Backend::Any>, L<YAML::XS>
 
 =cut
