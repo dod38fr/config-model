@@ -1466,7 +1466,9 @@ sub load_data {
     my %args  = @_ > 1 ? @_ : ( data => shift );
     my $data  = delete $args{data} // delete $args{value};
 
-    if ( ref $data ) {
+    my $rd = ref $data;
+
+    if ( $rd and grep { $rd eq $_ } qw/ARRAY HASH SCALAR/) {
         Config::Model::Exception::LoadData->throw(
             object     => $self,
             message    => "load_data called with non scalar arg",

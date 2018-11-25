@@ -22,6 +22,7 @@ sub dump_as_data {
     my $skip_aw = delete $args{skip_auto_write} || '';
     my $auto_v  = delete $args{auto_vivify}     || 0;
     my $ordered_hash_as_list = delete $args{ordered_hash_as_list};
+    my $to_boolean = delete $args{to_boolean} // sub {return $_[0] };
     $ordered_hash_as_list = 1 unless defined $ordered_hash_as_list;
 
     # mode and full_dump params are both accepted
@@ -31,8 +32,9 @@ sub dump_as_data {
 
     my $std_cb = sub {
         my ( $scanner, $data_r, $obj, $element, $index, $value_obj ) = @_;
-
-        $$data_r = $value_obj->fetch(mode => $fetch_mode);
+        my $v = $value_obj->fetch(mode => $fetch_mode);
+        # transform boolean type in boolean object
+        $$data_r = $value_obj->value_type eq 'boolean' ? $to_boolean->($v) : $v;
     };
 
     my $check_list_element_cb = sub {
@@ -295,6 +297,10 @@ of a configuration tree in perl data structure.
 The perl data structure is a hash of hash. Only
 L<CheckList|Config::Model::CheckList> content is stored in an array ref.
 
+User can pass a sub reference to apply to values of boolean type. This
+sub can be used to convert the value to an object representing a
+boolean like L<boolean>. (since 2.129)
+
 Note that undefined values are skipped for list element. I.e. if a
 list element contains C<('a',undef,'b')>, the data structure then
 contains C<'a','b'>.
@@ -363,6 +369,15 @@ special key that specifies the order of keys. E.g.:
    __my_hash_order => [ 'A', 'B', 'C' ] ,
    B => 'bar', A => 'foo', C => 'baz'
   }
+
+=item to_boolean
+
+Sub reference to map a value of type boolean to a boolean class (since
+2.129). For instance:
+
+ to_boolean => sub { boolean($_[0]); }
+
+Default is C<sub { return $_[0] }>
 
 =back
 
