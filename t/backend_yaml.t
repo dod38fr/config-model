@@ -5,7 +5,6 @@ use Test::More;
 use Test::Memory::Cycle;
 use Config::Model;
 use Path::Tiny;
-use YAML::Tiny;
 use Config::Model::Tester::Setup qw/init_test  setup_test_dir/;
 
 use warnings;
