@@ -10,6 +10,7 @@ use Config::Model::Tester::Setup qw/init_test/;
 use warnings;
 use strict;
 use lib "t/lib";
+use boolean;
 
 my ($model, $trace) = init_test();
 
@@ -26,6 +27,7 @@ ok( $root, "Config root created" );
 my $step = '
 std_id:ab X=Bv -
 std_id:bc X=Av -
+bool_list=0,1
 tree_macro=mXY
 another_string="toto tata"
 hash_a:toto=toto_value 
@@ -60,6 +62,7 @@ my $expect = {
     'tree_macro'    => 'mXY',
     'ordered_hash'   => [ 'z', '1', 'y', '2', 'x', '3' ],
     'another_string' => 'toto tata',
+    bool_list => [ false, true ],
     'listb'          => ['bb'],
     'my_reference'   => 'titi',
     'hash_a'         => {
@@ -81,6 +84,29 @@ my $expect = {
 #use Data::Dumper; print Dumper $data ;
 
 is_deeply( $data, $expect, "check data dump" );
+
+subtest "check default mapping of boolean value type" => sub {
+    my $data = $root->dump_as_data( full_dump => 0 );
+    map {
+        is($data->{bool_list}[$_], $_, "Perl data value of bool_list:$_ ");
+        is(ref $data->{bool_list}[$_], '', "Perl data of bool_list:$_ is not a ref");
+    } qw/0 1/;
+};
+
+subtest "check mapping of boolean value type to Perl boolean" => sub {
+    my $data = $root->dump_as_data( full_dump => 0, to_boolean => sub { boolean(shift) } );
+    map {
+        isa_ok($data->{bool_list}[$_], "boolean", "Perl data of bool_list:$_ ");
+    } qw/0 1/;
+};
+
+subtest "check mapping of boolean value type to Perl boolean" => sub {
+    plan skip_all => "JSON PP boolean behavior not yet checked";
+    my $data = $root->dump_as_data( full_dump => 0, to_boolean => 'JSON::PP::Boolean' );
+    map {
+        isa_ok($data->{bool_list}[$_], "JSON::PP::Boolean", "Perl data of bool_list:$_ ");
+    } qw/0 1/;
+};
 
 # add default information provided by model to check full dump
 $expect->{string_with_def} = 'yada yada';
