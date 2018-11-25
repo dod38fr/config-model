@@ -144,6 +144,13 @@
                     config_class_name => 'SlaveZ'
                 },
             },
+            bool_list => {
+                type => 'list',
+                cargo => {
+                    type => 'leaf',
+                    value_type => 'boolean'
+                }
+            },
             tree_macro => {
                 type       => 'leaf',
                 value_type => 'enum',

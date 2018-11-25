@@ -10,13 +10,12 @@ $model->create_config_class(
         backend     => 'yaml',
         config_dir  => '/etc/',
         file        => 'test.yaml',
-        # as of 2017, YAML is the only parser that writes back boolean value as unquoted true/false
-        yaml_class  => 'YAML',
     },
 
     element => [
-        true_bool  => { qw/type leaf value_type boolean/, write_as => [qw/false true/]},
-        false_bool => { qw/type leaf value_type boolean/, write_as => [qw/false true/]},
+        true_bool  => { qw/type leaf value_type boolean/},
+        false_bool => { qw/type leaf value_type boolean/},
+        new_bool => { qw/type leaf value_type boolean/},
         null_value => { qw/type leaf value_type uniline/},
     ]
 );
@@ -28,10 +27,15 @@ $model_to_test = "Master";
         name  => 'basic',
         check => [
             # values are translated from whatever YAML lib returns to true and false
-            'true_bool' => 'true',
-            'false_bool' => 'false',
+            true_bool => 1,
+            false_bool => 0,
             null_value => undef
-        ]
+        ],
+        load => 'new_bool=1',
+        file_contents => {
+            # test that file contains real booleans
+            "/etc/test.yaml" => "---\nfalse_bool: false\nnew_bool: true\ntrue_bool: true\n",
+        }
     },
 );
 
