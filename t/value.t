@@ -308,8 +308,7 @@ sub check_error {
 
 my $root = $inst->config_root;
 
-note "test simple scalar";
-{
+subtest "simple scalar" => sub {
     my $i = $root->fetch_element('scalar');
     ok( $i, "test create bounded integer" );
 
@@ -338,10 +337,9 @@ note "test simple scalar";
     # test that bad storage triggers an error
     throws_ok { $i->store(5); } 'Config::Model::Exception::WrongValue', "test max nb expected failure";
     print "normal error:\n", $@, "\n" if $trace;
-}
+};
 
-note "test bounded number";
-{
+subtest "bounded number" => sub {
     my $nb = $root->fetch_element('bounded_number');
     ok( $nb, "created " . $nb->name );
 
@@ -350,10 +348,9 @@ note "test bounded number";
 
     $nb->store(undef);
     ok( defined $nb->fetch() ? 0 : 1, "store undef" );
-}
+};
 
-note "test mandatory string";
-{
+subtest "mandatory string" => sub {
     my $ms = $root->fetch_element('mandatory_string');
     ok( $ms, "created mandatory_string" );
 
@@ -370,10 +367,9 @@ note "test mandatory string";
 
     print join( "\n", $inst->list_changes("\n") ), "\n" if $trace;
     $inst->clear_changes;
-}
+};
 
-note "test mandatory string provided with a default value";
-{
+subtest "mandatory string provided with a default value" => sub {
     my $mwdv = $root->fetch_element('mandatory_with_default_value');
     # note: calling fetch before store triggers a "notify_change" to
     # let user know that his file was changed by model
@@ -392,10 +388,9 @@ note "test mandatory string provided with a default value";
 
     print join( "\n", $inst->list_changes("\n") ), "\n" if $trace;
     $inst->clear_changes;
-}
+};
 
-note "test mandatory boolean";
-{
+subtest "mandatory boolean" => sub {
     my $mb = $root->fetch_element('mandatory_boolean');
     ok( $mb, "created mandatory_boolean" );
 
@@ -417,11 +412,9 @@ note "test mandatory boolean";
 
         is( $mb->fetch, $read, "mandatory boolean: store $store and read $read value" );
     }
-}
+};
 
-note "test boolean where values are translated to true/false";
-
-{
+subtest "boolean where values are translated to true/false" => sub {
     $inst->clear_changes;
     my $bwwa = $root->fetch_element('boolean_with_write_as');
     is( $bwwa->fetch, undef, "boolean_with_write_as reads undef" );
@@ -444,9 +437,9 @@ note "test boolean where values are translated to true/false";
                "check change message after writing 'boolean_with_write_as'");
     my $bwwaad = $root->fetch_element('boolean_with_write_as_and_default');
     is( $bwwa->fetch, 'true', "boolean_with_write_as_and_default reads true" );
-}
+};
 
-{
+subtest "boolean_with_write_as_and_default" => sub {
     my $bwwaad = $root->fetch_element('boolean_with_write_as_and_default');
     is( $bwwaad->fetch, 'true', "boolean_with_write_as_and_default reads true" );
 
@@ -454,10 +447,9 @@ note "test boolean where values are translated to true/false";
         'Config::Model::Exception::Model',
         "test create expected failure with enum with wrong default";
     print "normal error:\n", $@, "\n" if $trace;
-}
+};
 
-note "test enum";
-{
+subtest "enum" => sub {
     my $de = $root->fetch_element('enum');
     ok( $de, "Created enum with correct default" );
 
@@ -510,26 +502,23 @@ note "test enum";
 
     $de->store('H');
     is( $de->fetch(), 'H', "enum: set and read a new value" );
-}
+};
 
-note "test uppercase conversion";
-{
+subtest "uppercase conversion" => sub {
     my $uc_c = $root->fetch_element('uc_convert');
     ok( $uc_c, "testing convert => uc" );
     $uc_c->store('coucou');
     is( $uc_c->fetch(), 'COUCOU', "uc_convert: testing" );
-}
+};
 
-note "test lowercase conversion";
-{
+subtest "lowercase conversion" => sub {
     my $lc_c = $root->fetch_element('lc_convert');
     ok( $lc_c, "testing convert => lc" );
     $lc_c->store('coUcOu');
     is( $lc_c->fetch(), 'coucou', "lc_convert: testing" );
-}
+};
 
-note "Testing integrated help on enum";
-{
+subtest "integrated help on enum" => sub {
     my $value_with_help = $root->fetch_element('enum_with_help');
     my $full_help       = $value_with_help->get_help;
 
@@ -538,10 +527,9 @@ note "Testing integrated help on enum";
     is( $value_with_help->get_help('b'), undef,    "test undef help" );
 
     is( $value_with_help->fetch, undef, "test undef enum" );
-}
+};
 
-note "Testing integrated help on string";
-{
+subtest "integrated help on string" => sub {
     my $value_with_help = $root->fetch_element('string_with_help');
 
     my $foo_help = 'help for foo things';
@@ -561,10 +549,9 @@ note "Testing integrated help on string";
     foreach my $k (sort keys %test) {
         is( $value_with_help->get_help($k), $test{$k} , "test string help on $k" );
     }
-}
+};
 
-note "Testing upstream default value";
-{
+subtest "upstream default value" => sub {
     my $up_def = $root->fetch_element('upstream_default');
 
     is( $up_def->fetch,                         undef,    "upstream actual value" );
@@ -579,10 +566,9 @@ note "Testing upstream default value";
     is( $up_def->fetch,                         'yada',   "after store: upstream actual value" );
     is( $up_def->fetch('standard'),             'up_def', "after store: upstream standard value" );
     is( $up_def->has_data, 1, "has data");
-}
+};
 
-note "test uniline type";
-{
+subtest "uniline type" => sub {
     my $uni = $root->fetch_element('a_uniline');
     check_error( $uni, "foo\nbar", qr/value must not contain embedded newlines/ );
 
@@ -593,20 +579,18 @@ note "test uniline type";
 
     $uni->store('');
     is( $uni->fetch, '', "tested empty value" );
-}
+};
 
-note "testing replace feature";
-{
+subtest "replace feature" => sub {
     my $wrepl = $root->fetch_element('with_replace');
     $wrepl->store('c1');
     is( $wrepl->fetch, "c", "tested replaced value" );
 
     $wrepl->store('foo/bar');
     is( $wrepl->fetch, "b", "tested replaced value with regexp" );
-}
+};
 
-note "test preset feature";
-{
+subtest "preset feature" => sub {
     my $pinst = $model->instance(
         root_class_name => 'Master',
         instance_name   => 'preset_test'
@@ -641,10 +625,9 @@ note "test preset feature";
     is( $p_enum->fetch_standard,  'B', "enum: read preset value as standard_value" );
     is( $p_enum->fetch_custom,    'C', "enum: read custom_value" );
     is( $p_enum->default,         'A', "enum: read default_value" );
-}
+};
 
-note "test layered feature";
-{
+subtest "layered feature" => sub {
     my $layer_inst = $model->instance(
         root_class_name => 'Master',
         instance_name   => 'layered_test'
@@ -695,20 +678,18 @@ note "test layered feature";
     is($msl->fetch('layered'), 'plop',"check mandatory value in layer");
     is($msl->fetch, undef,"check mandatory value backend mode");
     is($msl->fetch('user'), 'plop',"check mandatory value user mode with layer");
-}
+};
 
-note "test match regexp";
-{
+subtest "match regexp" => sub {
     my $match = $root->fetch_element('match');
 
     check_error( $match, 'bar', qr/does not match/ );
 
     $match->store('foo42/');
     is( $match->fetch, 'foo42/', "test stored matching value" );
-}
+};
 
-note "test validation done with a Parse::RecDescent grammar";
-{
+subtest "validation done with a Parse::RecDescent grammar" => sub {
     my $prd_match = $root->fetch_element('prd_match');
 
     check_error( $prd_match, 'bar',  qr/does not match grammar/ );
@@ -719,10 +700,9 @@ note "test validation done with a Parse::RecDescent grammar";
         $prd_match->store($prd_test);
         is( $prd_match->fetch, $prd_test, "test stored prd value $prd_test" );
     }
-}
+};
 
-note "test warn_if_match with a string";
-{
+subtest "warn_if_match with a string" => sub {
     my $wim = $root->fetch_element('warn_if_match');
     warning_like { $wim->store('foobar'); } qr/should not match/, "test warn_if condition";
 
@@ -737,55 +717,49 @@ note "test warn_if_match with a string";
     ### test fix included in model
     $wim->apply_fixes;
     is( $wim->fetch, 'FOOBAR', "test if fixes were applied" );
-}
+};
 
-note "test warn_if_number with a regexp";
-{
+subtest "warn_if_number with a regexp" => sub {
     my $win = $root->fetch_element('warn_if_number');
     warning_like { $win->store('bar51'); } qr/should not have numbers/, "test warn_if condition";
 
     is( $win->has_fixes, 1, "test has_fixes" );
     $win->apply_fixes;
     is( $win->fetch, 'bar', "test if fixes were applied" );
-}
+};
 
-note "test warn_unless_match feature";
-{
+subtest "warn_unless_match feature" => sub {
     my $wup = $root->fetch_element('warn_unless_match');
     warning_like { $wup->store('bar'); } qr/should match/, "test warn_unless_match condition";
 
     is( $wup->has_fixes, 1, "test has_fixes" );
     $wup->apply_fixes;
     is( $wup->fetch, 'foobar', "test if fixes were applied" );
-}
+};
 
-note "test unconditional feature";
-{
+subtest "unconditional feature" => sub {
     my $aw = $root->fetch_element('always_warn');
     warning_like { $aw->store('whatever'); } qr/always/i, "got unconditional warning";
-}
+};
 
-note "test warning and repeated storage in same element";
-{
+subtest "warning and repeated storage in same element" => sub {
     my $aw = $root->fetch_element('always_warn');
     warning_like { $aw->store('what ?'); } qr/always/i, "got unconditional warning";
     warning_is { $aw->store('what ?'); } undef, "no warning when repeating a store with same value";
     warning_like { $aw->store('what never'); } qr/always/i, "got unconditional warning when storing a changed value";
-}
+};
 
-note "test unicode";
-{
+subtest "unicode" => sub {
     my $wip = $root->fetch_element('warn_if_match');
     my $smiley = "\x{263A}";    # See programming perl chapter 15
     $wip->store(':-)');         # to test list_changes just below
     $wip->store($smiley);
     is( $wip->fetch, $smiley, "check utf-8 string" );
-}
+};
 
 print join( "\n", $inst->list_changes("\n") ), "\n" if $trace;
 
-note "test replace_follow";
-{
+subtest "replace_follow" => sub {
     my $wrf = $root->fetch_element('with_replace_follow');
     $inst->clear_changes;
 
@@ -815,9 +789,9 @@ note "test replace_follow";
     );
 
     $inst->clear_changes;
-}
+};
 
-{
+subtest "Standards-Version" => sub {
     my $sv = $root->fetch_element('Standards-Version');
     warning_like { $sv->store('3.9.1'); } qr/Current/, "store old standard version";
     is( $inst->needs_save, 1, "check needs_save after load" );
@@ -828,20 +802,18 @@ note "test replace_follow";
     is( $sv->fetch, '3.9.2', "check fixed standard version" );
 
     is( $sv->fetch( mode => 'custom' ), undef, "check custom standard version" );
-}
+};
 
-note "test assert";
-{
+subtest "assert"  => sub {
     my $assert_elt = $root->fetch_element('assert');
     throws_ok { $assert_elt->fetch(); } 'Config::Model::Exception::WrongValue', "check assert error";
 
     $assert_elt->apply_fixes;
     ok( 1, "assert_elt apply_fixes called" );
     is( $assert_elt->fetch, 'foobar', "check fixed assert pb" );
-}
+};
 
-note "test warn_unless";
-{
+subtest "warn_unless" => sub {
     my $warn_unless = $root->fetch_element('warn_unless');
 
     warning_like { $warn_unless->fetch(); } qr/should not be empty/, "check warn_unless";
@@ -849,10 +821,9 @@ note "test warn_unless";
     $warn_unless->apply_fixes;
     ok( 1, "warn_unless apply_fixes called" );
     is( $warn_unless->fetch, 'foobar', "check fixed warn_unless pb" );
-}
+};
 
-note "test warn_unless_file";
-{
+subtest "warn_unless_file" => sub {
     my $warn_unless_file = $root->fetch_element('warn_unless_file');
 
     warning_like { $warn_unless_file->store('not-value.t'); } qr/file not-value.t should exist/, "check warn_unless_file";
@@ -860,10 +831,9 @@ note "test warn_unless_file";
     $warn_unless_file->apply_fixes;
     ok( 1, "warn_unless_file apply_fixes called" );
     is( $warn_unless_file->fetch, 'value.t', "check fixed warn_unless_file" );
-}
+};
 
-note "test file and dir value types" ;
-{
+subtest "file and dir value types"  => sub {
     my $t_file = $root->fetch_element('t_file');
     my $t_dir  = $root->fetch_element('t_dir');
     warning_like {$t_file->store('toto')} qr/not exist/, "test non existent file" ;
@@ -876,10 +846,9 @@ note "test file and dir value types" ;
     $t_dir->store('t/') ;
     is($t_dir->has_warning, 0, "test a dir");
 
-}
+};
 
-note "test problems during initial load";
-{
+subtest "problems during initial load" => sub {
     my $inst2 = $model->instance(
         root_class_name => 'Master',
         instance_name   => 'initial_test'
@@ -914,7 +883,7 @@ note "test problems during initial load";
     is( $inst2->needs_save, 0, "verify instance needs_save status after writing 'boolean_with_write_as'" );
 
     $inst2->initial_load_stop;
-}
+};
 
 memory_cycle_ok( $model, "check memory cycles" );
 
