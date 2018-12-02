@@ -112,13 +112,6 @@ provide a dedicated parser/writer.
 Nevertheless, this project provides a writer/parser for some common
 format: ini style file and perl file. 
 
-## If you want to discuss Config::Model ?
-
-* Subscribe to the config-model-users list: [http://lists.sourceforge.net/mailman/listinfo/config-model-users](http://lists.sourceforge.net/mailman/listinfo/config-model-users)
-
-* [![Codewake](https://www.codewake.com/badges/ask_question.svg)](https://www.codewake.com/p/config-model)
-
-
 ## More information
 
 See
