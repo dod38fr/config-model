@@ -739,7 +739,7 @@ note "test warn_if_match with a string";
     is( $wim->fetch, 'FOOBAR', "test if fixes were applied" );
 }
 
-note "test warn_if_match with a regexp";
+note "test warn_if_number with a regexp";
 {
     my $win = $root->fetch_element('warn_if_number');
     warning_like { $win->store('bar51'); } qr/should not have numbers/, "test warn_if condition";
