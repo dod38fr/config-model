@@ -1011,7 +1011,7 @@ sub run_code_set_on_value {
 }
 
 sub run_regexp_set_on_value {
-    my ( $self, $value_r, $apply_fix, $array, $msg, $test_sub, $w_info ) = @_;
+    my ( $self, $value_r, $apply_fix, $array, $may_be, $test_sub, $w_info ) = @_;
 
     # no need to check default or computed values
     return unless defined $$value_r;
@@ -1019,7 +1019,7 @@ sub run_regexp_set_on_value {
     foreach my $rxp ( sort keys %$w_info ) {
         # $_[0] is set to $$value_r when $sub is called
         my $sub = sub { $test_sub->( $_[0], $rxp ) };
-        my $msg = $w_info->{$rxp}{msg} || "value '$$value_r' should $msg" . "match regexp $rxp";
+        my $msg = $w_info->{$rxp}{msg} || "value should ${may_be}match regexp '$rxp'";
         my $fix = $w_info->{$rxp}{fix};
         $self->run_code_on_value( $value_r, $apply_fix, $array, 'regexp', $sub, $msg, $fix );
     }
