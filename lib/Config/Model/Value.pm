@@ -1168,12 +1168,14 @@ sub store_warning {
         foreach my $w ( $self->all_warnings ) {
             $warn_h{$w} = 1;
             next if $old_warn->{$w};
-            my $str = defined $value ? "'$value'" : '<undef>';
+            my $str = $value // '<undef>';
+            chomp $str;
+            my $w_str = $str =~ /\n/ ? "\n+++++\n$str\n+++++" : "'$str'";
             if ($::_use_log4perl_to_warn) {
-                $user_logger->warn("Warning in '" . $self->location_short . "' value $str: $w");
+                $user_logger->warn("Warning in '" . $self->location_short . "': $w\nOffending value: $w_str");
             }
             else {
-                warn "Warning in '" . $self->location_short . "' value $str: $w\n";
+                warn "Warning in '" . $self->location_short . "': $w\nOffending value: $w_str\n";
             }
         }
     }

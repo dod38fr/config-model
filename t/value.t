@@ -728,14 +728,20 @@ subtest "warn_if_number with a regexp" => sub {
     is( $win->fetch, 'bar', "test if fixes were applied" );
 };
 
-subtest "warn_unless_match feature" => sub {
+my $warn_unless_test = sub {
     my $wup = $root->fetch_element('warn_unless_match');
-    warning_like { $wup->store('bar'); } qr/should match/, "test warn_unless_match condition";
+    my $v = shift;
+    warning_like {
+        $wup->store($v);
+    } qr/should match/,  "test warn_unless_match condition";
 
     is( $wup->has_fixes, 1, "test has_fixes" );
     $wup->apply_fixes;
-    is( $wup->fetch, 'foobar', "test if fixes were applied" );
+    is( $wup->fetch, "foo$v", "test if fixes were applied" );
 };
+
+subtest "warn_unless_match feature with unline value" => $warn_unless_test, "bar" ;
+subtest "warn_unless_match feature with multiline value" => $warn_unless_test, "bar\nbaz\bazz\n";
 
 subtest "unconditional feature" => sub {
     my $aw = $root->fetch_element('always_warn');
