@@ -1150,9 +1150,17 @@ sub check_fetched_value {
         $logger->debug("is not needed");
     }
 
+    $self->store_warning($value, $silent);
+
+    return wantarray ? $self->all_errors : $self->is_ok;
+}
+
+sub store_warning {
+    my ($self, $value, $silent) = @_ ;
+
     # old_warn is used to avoid warning the user several times for the
-    # same reason. We take care to clean up this hash each time this routine
-    # is run
+    # same reason (i.e. when storing and fetching value). We take care
+    # to clean up this hash each time store is run
     my $old_warn = $self->{old_warning_hash} || {};
     my %warn_h;
 
@@ -1170,8 +1178,6 @@ sub check_fetched_value {
         }
     }
     $self->{old_warning_hash} = \%warn_h;
-
-    return wantarray ? $self->all_errors : $self->is_ok;
 }
 
 sub store {
@@ -1425,22 +1431,10 @@ sub check_stored_value {
 
     $self->needs_check(0) unless $self->has_error or $self->has_warning;
 
-    # avoid warning the user several times for the same value (at
-    # store time and then at fetch time).
-    my %warn_h;
-    if ( $self->has_warning and not $nowarning and not $silent ) {
-        foreach my $w ( $self->all_warnings ) {
-            $warn_h{$w} = 1;
-            my $str = defined $value ? "'$value'" : '<undef>';
-            if ($::_use_log4perl_to_warn) {
-                $user_logger->warn("Warning in '" . $self->location_short . "' value $str: $w");
-            }
-            else {
-                warn "Warning in '" . $self->location_short . "' value $str: $w\n";
-            }
-        }
-    }
-    $self->{old_warning_hash} = \%warn_h;
+    # must always warn when storing a value, hence clearing the list
+    # of already issued warnings
+    $self->{old_warning_hash} = {};
+    $self->store_warning($value, $silent);
 
     return wantarray ? ($ok,$fixed_value) : $ok;
 }
