@@ -1,7 +1,18 @@
 {{$NEXT}}
 
-2.128 2018-11-21
+2.129 2018-12-05
 
+  Usability improvements:
+    * Value" improve warning message about multi line value
+
+  Perl backend improvement:
+    * Convert cme boolean values (i.e. value of value_type boolean) to 
+      Perl boolean values
+
+  Dependency changes:
+    * build require boolean module
+
+2.128 2018-11-21
   
   Usability improvements:
     * CheckList: die or warn (with cme -force) when storing unknown item
