@@ -1,5 +1,10 @@
 {{$NEXT}}
 
+2.130 2018-12-07
+
+  Dependency changes:
+    * require boolean module (really)
+
 2.129 2018-12-05
 
   Usability improvements:
