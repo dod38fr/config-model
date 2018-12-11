@@ -65,7 +65,7 @@ ok($new_file->is_file, "check that config file $new_file was written" );
 
 is($root->grab('source')->backend_support_annotation(), 0, "check backend annotation support");
 
-# create another instance to read the yaml that was just written
+# create another instance to read the file that was just written
 my $i2_plain = $model->instance(
     instance_name   => 'inst2',
     root_class_name => 'WithPlainFile',
