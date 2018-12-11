@@ -76,11 +76,11 @@ my $annotate_saver = Config::Model::Annotation->new(
 );
 ok( $annotate_saver, "created annotation read/write object" );
 
-my $yaml_dir = $annotate_saver->dir;
-is( $yaml_dir, $wr_root.'/config-model', "check saved dir" );
+my $test_dir = $annotate_saver->dir;
+is( $test_dir, $wr_root.'/config-model', "check saved dir" );
 
-my $yaml_file = $annotate_saver->file;
-is( $yaml_file, $wr_root.'/config-model/Master-note.pl', "check saved file" );
+my $test_file = $annotate_saver->file;
+is( $test_file, $wr_root.'/config-model/Master-note.pl', "check saved file" );
 
 my $h_ref = $annotate_saver->get_annotation_hash();
 
@@ -90,7 +90,7 @@ is_deeply( $h_ref, \%expect, "check annotation data" );
 
 $annotate_saver->save;
 
-ok( -e $yaml_file, "check annotation file exists" );
+ok( -e $test_file, "check annotation file exists" );
 
 my $inst2 = $model->instance(
     root_class_name => 'Master',
