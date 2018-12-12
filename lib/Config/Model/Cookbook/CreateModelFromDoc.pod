@@ -280,9 +280,7 @@ You can test directly this model with :
 
 =head1 Feedback welcome
 
-Feel free to send comments and suggestion about this page at
-
- config-model-users at lists dot sourceforge dot net.
+Feel free to send comments and suggestion about this page to the author.
 
 =head1 AUTHORS
 
