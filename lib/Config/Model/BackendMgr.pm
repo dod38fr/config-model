@@ -175,7 +175,8 @@ sub load_backend_class {
 
     if (not defined  $class_to_load) {
         Config::Model::Exception::Model->throw(
-            error => "backend error: cannot find Perl class for backend $backend ",
+            object => $self->node,
+            error => "backend error: cannot find Perl class for backend: '$backend'",
         );
     };
     my $file_to_load = $c{$class_to_load};
