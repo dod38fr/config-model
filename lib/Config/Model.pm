@@ -2787,10 +2787,6 @@ L<Config::Model::Backend::PlainFile> <- L<Config::Model::Backend::Any>
 
 L<Config::Model::Backend::ShellVar> <- L<Config::Model::Backend::Any>
 
-=item *
-
-L<Config::Model::Backend::Yaml> <- L<Config::Model::Backend::Any>
-
 =back
 
 =head2 Model utilities

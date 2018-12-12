@@ -522,6 +522,5 @@ Dominique Dumont, (ddumont at cpan dot org)
 L<Config::Model>, 
 L<Config::Model::BackendMgr>, 
 L<Config::Model::Node>, 
-L<Config::Model::Backend::Yaml>, 
 
 =cut
