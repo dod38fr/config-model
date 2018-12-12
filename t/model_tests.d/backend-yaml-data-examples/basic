@@ -1,5 +1,0 @@
-# -*- yaml -*-
----
-true_bool: true
-false_bool: false
-null_value: ~
