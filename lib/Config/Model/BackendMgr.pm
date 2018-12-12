@@ -48,7 +48,7 @@ sub _build_backend_obj {
         if $self->rw_config->{function};
     # try to load a specific Backend class
     my $f = $self->rw_config->{function} || 'read';
-    my $c = load_backend_class( $backend, $f );
+    my $c = $self->load_backend_class( $backend, $f );
 
     no strict 'refs';
     return $c->new( node => $self->node, name => $backend );
@@ -137,6 +137,7 @@ sub open_read_file {
 # New subroutine "load_backend_class" extracted - Thu Aug 12 18:32:37 2010.
 #
 sub load_backend_class {
+    my $self = shift;
     my $backend  = shift;
     my $function = shift;
 
@@ -370,7 +371,7 @@ sub auto_write_init {
 
     my $wb;
     my $f = $rw_config->{function} || 'write';
-    my $backend_class = load_backend_class( $backend, $f );
+    my $backend_class = $self->load_backend_class( $backend, $f );
     my $location = $self->node->name;
     my $node = $self->node;     # closure
 
