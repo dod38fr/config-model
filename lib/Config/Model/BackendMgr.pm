@@ -529,6 +529,8 @@ __END__
 =head1 SYNOPSIS
 
  # Use BackendMgr to write data in Yaml file
+ # This example requires Config::Model::Backend::Yaml which is now
+ # shipped outside of Config::Model. Please get it on CPAN
  use Config::Model;
 
  # define configuration tree object
