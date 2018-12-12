@@ -157,6 +157,7 @@ sub full_message {
 
 package Config::Model::Exception::Model;
 
+use Carp;
 use Mouse;
 extends 'Config::Model::Exception::Fatal';
 
@@ -166,7 +167,8 @@ sub _desc { 'configuration model error'}
 sub full_message {
     my $self = shift;
 
-    my $obj = $self->object;
+    my $obj = $self->object
+        || croak "Internal error: no object parameter passed while throwing exception";
     my $msg;
     if ( $obj->isa('Config::Model::Node') ) {
         $msg = "Node '" . $obj->name . "' of class " . $obj->config_class_name . ' ';
