@@ -895,14 +895,11 @@ sub check_value {
                 $self->{warn_unless_match} );
         }
 
-        $self->run_code_set_on_value( \$value, $apply_fix, \@error, "assert failure",
-            $self->{assert} )
+        $self->run_code_set_on_value( \$value, $apply_fix, \@error, $self->{assert} )
             if $self->{assert};
-        $self->run_code_set_on_value( \$value, $apply_fix, \@warn,
-            "warn_unless code check returned false", $self->{warn_unless} )
+        $self->run_code_set_on_value( \$value, $apply_fix, \@warn, $self->{warn_unless} )
             if $self->{warn_unless};
-        $self->run_code_set_on_value( \$value, $apply_fix, \@warn,
-            "warn_if code check returned true", $self->{warn_if}, 1 )
+        $self->run_code_set_on_value( \$value, $apply_fix, \@warn, $self->{warn_if}, 1 )
             if $self->{warn_if};
     }
 
@@ -983,13 +980,13 @@ sub run_code_on_value {
 }
 
 sub run_code_set_on_value {
-    my ( $self, $value_r, $apply_fix, $array, $msg, $w_info, $invert ) = @_;
+    my ( $self, $value_r, $apply_fix, $array, $w_info, $invert ) = @_;
 
     $self->set_val;
 
     foreach my $label ( sort keys %$w_info ) {
         my $code = $w_info->{$label}{code};
-        my $msg = $w_info->{$label}{msg} || $msg;
+        my $msg = $w_info->{$label}{msg} || $label;
         $logger->trace("eval'ed code is: '$code'");
         my $fix = $w_info->{$label}{fix};
 
@@ -2137,7 +2134,7 @@ perform the test. A warning is issued if the given code returns true.
 C<$_> contains the value to check. C<$self> contains the
 C<Config::Model::Value> object (use with care).
 
-The example below warns if value contaims a number:
+The example below warns if value contains a number:
 
  warn_if => {
     warn_test => {
@@ -2146,6 +2143,14 @@ The example below warns if value contaims a number:
         fix  => 's/\d//g;'
     }
  },
+
+Hash key is used in warning message when C<msg> is not set:
+
+ warn_if => {
+   'should begin with foo' => {
+        code => 'defined && /^foo/'
+   }
+ }
 
 Any operation or check on file must be done with C<file> sub
 (otherwise tests will break). This sub returns a L<Path::Tiny>
@@ -2164,9 +2169,8 @@ Like C<warn_if>, but issue a warning when the given C<code> returns false.
 The example below warns unless the value points to an existing directory:
 
  warn_unless => {
-     'dir' => {
+     'missing dir' => {
           code => '-d',
-          msg => 'missing dir',
           fix => "system(mkdir $_);" }
  }
 
@@ -2182,6 +2186,8 @@ given code returns false:
         fix  => 's/\d//g;'
     }
  },
+
+hash key can also be used to generate error message when C<msg> parameter is not set.
 
 =item grammar
 
