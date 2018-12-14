@@ -216,6 +216,17 @@ $failed++ unless $v =~ /$item[1]/ ;
                 }
             },
         },
+        integer_with_warn_if => {
+            type        => 'leaf',
+            value_type  => 'integer',
+            warn_if => {
+                warn_test => {
+                    code => 'defined $_ && $_ < 9;',
+                    msg  => 'should be greater than 9',
+                    fix  => '$_ = 10;'
+                }
+            },
+        },
         warn_unless => {
             type        => 'leaf',
             value_type  => 'string',
@@ -726,6 +737,15 @@ subtest "warn_if_number with a regexp" => sub {
     is( $win->has_fixes, 1, "test has_fixes" );
     $win->apply_fixes;
     is( $win->fetch, 'bar', "test if fixes were applied" );
+};
+
+subtest "integer_with_warn_if" => sub {
+    my $iwwi = $root->fetch_element('integer_with_warn_if');
+    warning_like { $iwwi->store('5'); } qr/should be greater than 9/, "test warn_if condition";
+
+    is( $iwwi->has_fixes, 1, "test has_fixes" );
+    $iwwi->apply_fixes;
+    is( $iwwi->fetch, 10, "test if fixes were applied" );
 };
 
 my $warn_unless_test = sub {
