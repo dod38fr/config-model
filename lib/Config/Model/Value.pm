@@ -996,7 +996,7 @@ sub run_code_set_on_value {
         my $sub = sub {
             local $_ = shift;
             no warnings "uninitialized";
-            my $ret = eval($code);
+            my $ret = eval($code); ## no critic (ProhibitStringyEval)
             if ($@) {
                 Config::Model::Exception::Model->throw(
                     object  => $self,
@@ -1069,7 +1069,7 @@ sub apply_fix {
 
     $self->set_val;
 
-    eval($fix);
+    eval($fix); ## no critic (ProhibitStringyEval)
     if ($@) {
         Config::Model::Exception::Model->throw(
             object  => $self,
