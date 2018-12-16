@@ -1,5 +1,21 @@
 {{$NEXT}}
 
+2.131 2018-12-16
+
+  With this release, this distribution no longer provides YAML
+  backend. The YAML backend is now delivered in its own
+  distribution. Look for Config::Model::Backend::Yaml on CPAN.
+
+  Other changes:
+    * Value: use warn_if warn_unless label in warning message shown to user.
+    * BackendMgr: throw correctly "unknown backend" exception
+    * Exception: trap missing object parameter
+
+
+  Doc update
+    * remove mention of old config-model-users mailing list (dead)
+    * BackendMgr: mention that Yaml backend is now external
+
 2.130 2018-12-07
 
   Dependency changes:
