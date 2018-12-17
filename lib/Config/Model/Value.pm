@@ -342,14 +342,14 @@ sub set_migrate_from {
 sub migrate_value {
     my $self = shift;
 
-    return if $self->{migration_done};
-    return if $self->instance->initial_load;
+    return undef if $self->{migration_done};
+    return undef if $self->instance->initial_load;
     $self->{migration_done} = 1;
 
     # avoid warning when reading deprecated values
     my $result = $self->{_migrate_from}->compute( check => 'skip' );
 
-    return unless defined $result;
+    return undef unless defined $result;
 
     # check if the migrated result fits with the constraints of the
     # Value object
@@ -1746,7 +1746,7 @@ sub fetch {
             warn "Warning: fetch [".$self->name,"] skipping value $str because of the following errors:\n$msg\n\n"
                 if not $silent and $msg;
         }
-        return;
+        return undef;
     }
 
     Config::Model::Exception::WrongValue->throw(
