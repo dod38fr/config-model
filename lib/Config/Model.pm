@@ -2696,6 +2696,8 @@ In alphabetical order:
 
   Harley Pig
 
+  Ilya Arosov
+
   Jose Luis Perez Diez
 
   Krzysztof Tyszecki
