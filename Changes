@@ -1,5 +1,14 @@
 {{$NEXT}}
 
+2.132 2018-12-22
+
+  Bug fix:
+    * Value: really use old_value to track changes
+    * restore "return undef" in Value.pm to avoid breaking apply_fix
+
+  Add long forgotten credit (sorry):
+    * add Ylya Arosov to credit
+
 2.131 2018-12-16
 
   With this release, this distribution no longer provides YAML
@@ -10,7 +19,6 @@
     * Value: use warn_if warn_unless label in warning message shown to user.
     * BackendMgr: throw correctly "unknown backend" exception
     * Exception: trap missing object parameter
-
 
   Doc update
     * remove mention of old config-model-users mailing list (dead)
