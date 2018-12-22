@@ -1100,7 +1100,8 @@ sub _store_fix {
 
     if ( $fix_logger->is_trace ) {
         $fix_logger->trace(
-            "fix change: '" . ( $old // '<undef>' ) . "' -> '" . ( $new // '<undef>' ) . "'" );
+            "fix change: '" . ( $old // '<undef>' ) . "' -> '" . ( $new // '<undef>' ) . "'"
+        );
     }
 
     my $new_v = $new // $self->_fetch_std ;
