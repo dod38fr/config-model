@@ -1108,7 +1108,7 @@ sub _store_fix {
     }
 
     my $new_v = $new // $self->_fetch_std ;
-    my $old_v => $old // $self->_fetch_std;
+    my $old_v = $old // $self->_fetch_std;
 
     if ( $fix_logger->is_trace ) {
         $fix_logger->trace(
