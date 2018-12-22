@@ -2,6 +2,9 @@ package Config::Model::Value;
 
 use 5.10.1;
 
+use strict;
+use warnings;
+
 use Mouse;
 use Mouse::Util::TypeConstraints;
 use MouseX::StrictConstructor;
