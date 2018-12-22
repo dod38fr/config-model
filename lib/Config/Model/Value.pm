@@ -1107,6 +1107,12 @@ sub _store_fix {
     my $new_v = $new // $self->_fetch_std ;
     my $old_v => $old // $self->_fetch_std;
 
+    if ( $fix_logger->is_trace ) {
+        $fix_logger->trace(
+            "fix change (with std value)): '" . ( $old // '<undef>' ) . "' -> '" . ( $new // '<undef>' ) . "'"
+        );
+    }
+
     no warnings "uninitialized";
     # in case $old is the default value and $new is undef
     if ($old_v ne $new_v) {
