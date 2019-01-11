@@ -329,7 +329,7 @@ sub try_read_backend {
         die $error ;
     }
     elsif ( $error ) {
-        die "Backend error: $error";
+        die "Backend $backend failed to read $file_path: $error";
     }
 
     # only backend based on C::M::Backend::Any can support annotations
