@@ -177,7 +177,7 @@ sub write {
     my $cc = substr($delimiter,0,1);
     $args{comment_delimiter} = $cc;
 
-    my $res = $self->write_global_comment( $cc );
+    my $res = '';
 
     # some INI file have a 'General' section mapped in root node
     my $top_class_name = $self->{reverse_section_map}{''};
@@ -187,7 +187,9 @@ sub write {
     }
 
     $res .= $self->_write(%args);
-    $args{file_path}->spew_utf8($res);
+    if ($res) {
+        $args{file_path}->spew_utf8($self->write_global_comment( $cc ) . $res);
+    }
 }
 
 sub _write_list{
