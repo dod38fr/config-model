@@ -472,7 +472,7 @@ sub close_file_to_write {
 
     if ($error) {
         # restore backup and display error
-        $logger->debug("Error during write, restoring backup data in $file_path" );
+        $logger->warn("Error during write, restoring backup data in $file_path" );
         $file_path->spew_utf8( $self->file_backup );
         $error->rethrow if ref($error) and $error->can('rethrow');
         die $error;
