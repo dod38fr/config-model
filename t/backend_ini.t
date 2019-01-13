@@ -176,6 +176,36 @@ subtest "Test with empty ini file and no ini data" => sub {
     isnt($conf_file->exists, 1, "no file was written");
 
 };
+
+# test start with small ini file, delete all data so no file should be
+# left
+subtest "Test with small ini file and delete data" => sub {
+    $wr_root->remove_tree;
+
+    my ($model, $i_test, $wr_dir, $conf_file) = init_backend_test(
+        IniTest => ["\n","baz = blork\n"],
+        "test_inst_for_one_data", '/etc/'
+    );
+    is($conf_file->exists, 1, "ini file was written");
+
+    my $i_root = $i_test->config_root;
+    is($i_root->grab_value("baz"), 'blork', "check load of small data");
+
+    my $orig = $i_test->config_root->dump_tree;
+    print $orig if $trace;
+
+    # delete data and go back to default values, hence the
+    # configuration no longer contains valid data
+    $i_root->load("baz~");
+
+    print $i_test->config_root->dump_tree if $trace;
+
+    $i_test->write_back;
+    ok( 1, "Empty IniFile write back done" );
+    isnt($conf_file->exists, 1, "file is gone");
+
+};
+
 memory_cycle_ok( $model, "memory cycle test" );
 
 done_testing;
