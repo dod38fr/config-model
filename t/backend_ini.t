@@ -152,6 +152,30 @@ foreach my $test_class ( sort keys %test_setup ) {
 
 }
 
+# test start with no ini file and should not write any after
+subtest "Test with empty ini file and no ini data" => sub {
+    $wr_root->remove_tree;
+
+    my ($model, $i_test, $wr_dir, $conf_file) = init_backend_test(IniTest => [], "test_inst_for_no_data", '/etc/');
+
+    my $i_root = $i_test->config_root;
+    # load some data so change notif is triggered
+    $i_root->load("baz=blork");
+
+    my $orig = $i_test->config_root->dump_tree;
+    print $orig if $trace;
+
+    # delete data and go back to default values, hence the
+    # configuration no longer contains valid data
+    $i_root->load("baz~");
+
+    print $i_test->config_root->dump_tree if $trace;
+
+    $i_test->write_back;
+    ok( 1, "Empty IniFile write back done" );
+    isnt($conf_file->exists, 1, "no file was written");
+
+};
 memory_cycle_ok( $model, "memory cycle test" );
 
 done_testing;
