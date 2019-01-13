@@ -1,5 +1,13 @@
 {{$NEXT}}
 
+2.133 2019-01-13
+
+  Read/write backend improvements:
+    * Backend::Any: add auto_delete and auto_create
+    * IniFile: delete empty file when auto_delete is set
+      and config file contains no data
+    * warn when restoring backup file
+
 2.132 2018-12-22
 
   Bug fix:
