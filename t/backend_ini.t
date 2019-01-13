@@ -26,7 +26,7 @@ map { s/#/;/; } @with_semicolon_comment;
 map { s/# foo2/; foo2/; } @with_one_semicolon_comment;
 
 sub init_backend_test {
-    my ($test_class, $test_data, $config_dir) = @_;
+    my ($test_class, $test_data, $instance_name, $config_dir) = @_;
 
     my @orig      = @$test_data ;
 
@@ -37,11 +37,12 @@ sub init_backend_test {
     my $etc_dir   = $wr_dir->child('etc');
     $etc_dir->mkpath;
     my $conf_file = $etc_dir->child("test.ini");
+    $conf_file->remove;
 
-    $conf_file->spew_utf8(@orig);
+    $conf_file->spew_utf8(@orig) if @orig;
 
     my $i_test = $model->instance(
-        instance_name   => "test_inst_for_$test_class",
+        instance_name   => $instance_name,
         root_class_name => $test_class,
         root_dir        => $wr_dir,
         model_file      => 'test_ini_backend_model.pl',
@@ -59,7 +60,7 @@ sub init_backend_test {
 }
 
 sub finish {
-    my ($test_class, $wr_dir, $model, $i_test) = @_;
+    my ($test_class, $instance_name, $wr_dir, $model, $i_test) = @_;
 
     my $orig = $i_test->config_root->dump_tree;
     print $orig if $trace;
@@ -76,7 +77,7 @@ sub finish {
     $ini_file->copy( $wr_dir2 . '/etc/test.ini' );
 
     my $i2_test = $model->instance(
-        instance_name   => "test_inst2_for_$test_class",
+        instance_name   =>  $instance_name,
         root_class_name => $test_class,
         root_dir        => $wr_dir2,
         config_dir      => $i_test->config_dir, # propagate from first test instance
@@ -102,7 +103,7 @@ my %test_setup = (
 );
 
 foreach my $test_class ( sort keys %test_setup ) {
-    my ($model, $i_test, $wr_dir) = init_backend_test($test_class, $test_setup{$test_class}[0]);
+    my ($model, $i_test, $wr_dir) = init_backend_test($test_class, $test_setup{$test_class}[0], "test_inst_for_$test_class");
 
     my $test_path = $test_setup{$test_class}[1];
 
@@ -126,14 +127,14 @@ foreach my $test_class ( sort keys %test_setup ) {
         is( $elt->annotation, "lista$i comment", "check lista[$i] comment" );
     }
 
-    finish ($test_class, $wr_dir, $model,$i_test);
+    finish ($test_class, "test_inst2_for_$test_class", $wr_dir, $model,$i_test);
 }
 
 # test ini file using a check list
 
 {
     #    IniCheck
-    my ($model, $i_test, $wr_dir) = init_backend_test(IniCheck => \@with_hash_comment, '/etc/');
+    my ($model, $i_test, $wr_dir) = init_backend_test(IniCheck => \@with_hash_comment, "test_inst_for_check_list", '/etc/');
 
     my $i_root = $i_test->config_root;
 
@@ -147,7 +148,7 @@ foreach my $test_class ( sort keys %test_setup ) {
 
     $i_root->grab('class1 lista')->check('nolist');
 
-    finish ('IniCheck', $wr_dir, $model,$i_test);
+    finish ('IniCheck', "test_inst2_for_check_list", $wr_dir, $model,$i_test);
 
 }
 
