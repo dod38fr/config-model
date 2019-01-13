@@ -50,8 +50,13 @@ sub _build_backend_obj {
     my $f = $self->rw_config->{function} || 'read';
     my $c = $self->load_backend_class( $backend, $f );
 
-    no strict 'refs';
-    return $c->new( node => $self->node, name => $backend );
+    no strict 'refs'; ## no critic (ProhibitNoStrict)
+    return $c->new(
+        node => $self->node,
+        name => $backend,
+        auto_create => $self->rw_config->{auto_create},
+        auto_delete => $self->rw_config->{auto_delete},
+    );
 }
 
 has support_annotation => (

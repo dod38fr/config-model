@@ -12,7 +12,7 @@ use Log::Log4perl qw(get_logger :levels);
 my $logger = get_logger("Backend");
 
 has 'name' => ( is => 'ro', default => 'unknown', );
-has 'annotation' => ( is => 'ro', isa => 'Bool', default => 0 );
+has [qw/annotation auto_create auto_delete/] => ( is => 'ro', isa => 'Bool', default => 0 );
 has 'node' => (
     is       => 'ro',
     isa      => 'Config::Model::Node',
@@ -362,10 +362,34 @@ L<examples files|https://github.com/dod38fr/config-model/tree/master/t/model_tes
 
 =head1 CONSTRUCTOR
 
-=head2 new ( node => $node_obj, name => backend_name )
+=head2 new
 
-The constructor should be used only by
-L<Config::Model::Node>.
+The constructor should be used only by L<Config::Model::Node>.
+
+Parameter:
+
+=over
+
+=item node
+
+Calling node object. Node ref is weakened,
+
+=item name
+
+Backend name
+
+=item auto_create
+
+Boolean. Set to true to create the configuration file if this one is
+missing (default 0)
+
+=item auto_delete
+
+Boolean. Set to true to remove the configuration file if this one no
+longer contain configuration information. (default 0)
+
+
+=back
 
 =head1 Methods to override
 
