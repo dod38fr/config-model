@@ -478,8 +478,10 @@ sub close_file_to_write {
         die $error;
     }
 
+    # TODO: move chmod in a backend role
     $file_path->chmod($file_mode) if $file_mode;
 
+    # TODO: move in a backend role
     # check file size and remove empty files
     $file_path->remove if -z $file_path and not -l $file_path;
 }
