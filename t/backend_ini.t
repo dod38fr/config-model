@@ -2,7 +2,7 @@
 
 # NOTE: backend can also be tested in model_test.d
 
-use ExtUtils::testlib;
+#use ExtUtils::testlib;
 use Test::More;
 use Test::Memory::Cycle;
 use Config::Model;
