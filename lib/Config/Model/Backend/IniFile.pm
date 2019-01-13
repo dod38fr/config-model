@@ -190,6 +190,9 @@ sub write {
     if ($res) {
         $args{file_path}->spew_utf8($self->write_global_comment( $cc ) . $res);
     }
+    elsif ($self->auto_delete) {
+        $args{file_path}->remove;
+    }
 }
 
 sub _write_list{
