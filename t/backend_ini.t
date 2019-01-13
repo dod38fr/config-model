@@ -56,7 +56,7 @@ sub init_backend_test {
     $i_root->init;
     ok( 1, "$test_class root init done" );
 
-    return ($model, $i_test, $wr_dir);
+    return ($model, $i_test, $wr_dir, $conf_file);
 }
 
 sub finish {
