@@ -981,7 +981,6 @@ sub translate_warped_node_info {
         $self->show_legacy_issue(
             "$config_class_name->$elt_name: using $parm parameter in "
             ."warped node is deprecated. $parm must be specified in a warp parameter."
-            ,'note' # TODO later, fall 2016 : issue a warning that may break tests
         );
         $info->{warp}{$parm} = delete $info->{$parm};
     }
