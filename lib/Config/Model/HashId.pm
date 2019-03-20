@@ -616,7 +616,7 @@ an ordered hash is ignored. Ignored for non ordered hash.
 
 Parameters: C<< ( data => ( hash_ref | array_ref ) [ , check => ... , ... ]) >>
 
-Load check_list as a hash ref for standard hash. 
+Load data as a hash ref for standard hash.
 
 Ordered hash should be loaded with an array ref or with a hash
 containing a special C<__order> element. E.g. loaded with either:
