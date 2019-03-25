@@ -453,13 +453,11 @@ sub move_down {
     # is not sent if the user tries to move past last idx
 }
 
-sub load_data {
-    my $self  = shift;
-    my %args  = @_ > 1 ? @_ : ( data => shift );
-    my $data  = delete $args{data};
-    my $check = $self->_check_check( $args{check} );
+sub _load_data_from_hash {
+    my $self = shift;
+    my %args = @_;
+    my $data = $args{data};
 
-    if ( ref($data) eq 'HASH' ) {
         my @load_keys;
         my $from = '';
 
@@ -487,6 +485,16 @@ sub load_data {
             my $obj = $self->fetch_with_id($elt);
             $obj->load_data( %args, data => $data->{$elt} ) if defined $data->{$elt};
         }
+}
+
+sub load_data {
+    my $self  = shift;
+    my %args  = @_ > 1 ? @_ : ( data => shift );
+    my $data  = delete $args{data};
+    my $check = $self->_check_check( $args{check} );
+
+    if ( ref($data) eq 'HASH' ) {
+        $self->_load_data_from_hash(data => $data, %args);
     }
     elsif ( ref($data) eq 'ARRAY' ) {
         $logger->info(
