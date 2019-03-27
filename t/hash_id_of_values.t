@@ -8,6 +8,8 @@ use Config::Model::Tester::Setup qw/init_test/;
 use Test::Exception;
 use Test::Warn;
 use Test::Differences;
+use Test::Log::Log4perl;
+$::_use_log4perl_to_warn = 1;
 
 use strict;
 use warnings;
@@ -156,6 +158,8 @@ my $inst = $model->instance(
     instance_name   => 'test1'
 );
 ok( $inst, "created dummy instance" );
+
+Test::Log::Log4perl-> ignore_priority('INFO');
 
 my $root = $inst->config_root;
 $inst->initial_load_stop;
@@ -383,6 +387,40 @@ $oh->load_data( [qw/a va b vb c vc d vd e ve/] );
 eq_or_diff( [ $oh->fetch_all_indexes ],
     [qw/a b c d e/], "check index order of ordered_hash after clear" );
 
+subtest "check ordered load warnings" => sub {
+    $oh->clear;
+    my $foo = Test::Log::Log4perl->expect(
+        ignore_priority => "info",
+        ['Tree.Element.Id.Hash', warn => qr/Element order is not defined/ ]
+    );
+
+    # this one does not trigger a warning
+    $oh->load_data({__skip_order => 1, qw/a va c vc b vb/});
+    eq_or_diff(
+        [ $oh->fetch_all_indexes ],
+        [qw/a b c/],
+        "check index order of ordered_hash loaded with hash and __skip_order"
+    );
+    # this one does
+    $oh->load_data({ qw/e ve d vd/ });
+    eq_or_diff(
+        [ $oh->fetch_all_indexes ],
+        [qw/a b c d e/],
+        "check index order of ordered_hash loaded with hash and no __skip_order"
+    );
+} ;
+
+subtest "check ordered load mismatch" => sub {
+    throws_ok {
+        $oh->load_data( {
+            __order => [qw/a b c d e/],
+            qw/a va b vb c vc/
+        } );
+    }
+        'Config::Model::Exception::LoadData',
+        "check not matching key";
+};
+
 $oh->clear;
 $oh->load_data( {
     __order => [qw/a b c d e/],
@@ -424,19 +462,23 @@ throws_ok { $hwakm->fetch_with_id('bar2'); } 'Config::Model::Exception::WrongVal
 
 ok( $hwakm->fetch_with_id('foo22'), "check matching key" );
 
-# test warnings with keys
-my $hwwikm = $root->fetch_element('hash_with_warn_if_key_match');
-warning_like { $hwwikm->fetch_with_id('foo2'); } qr/key 'foo2' should not match/,
-    "warn if matching key";
+{
+    my $foo = Test::Log::Log4perl->expect([
+        'User',
+        warn => qr/key 'foo2' should not match/,
+        warn => qr/key 'foo2 multi\[\.\.\.\]' should not match/,
+        warn => qr/key 'bar2' should match foo/,
+    ]);
 
-warning_like {
- $hwwikm->fetch_with_id("foo2 multi\nline\nid");
-} qr/key 'foo2 multi\[\.\.\.\]' should not match/,
-    "warn if matching multi_line key";
+    # test warnings with keys
+    my $hwwikm = $root->fetch_element('hash_with_warn_if_key_match');
+    $hwwikm->fetch_with_id('foo2');
 
-my $hwwukm = $root->fetch_element('hash_with_warn_unless_key_match');
-warning_like { $hwwukm->fetch_with_id('bar2'); } qr/key 'bar2' should match foo/,
-    "warn unless matching key";
+    $hwwikm->fetch_with_id("foo2 multi\nline\nid");
+
+    my $hwwukm = $root->fetch_element('hash_with_warn_unless_key_match');
+    $hwwukm->fetch_with_id('bar2');
+}
 
 # test key migration
 my $hwmkf      = $root->fetch_element('hash_with_migrate_keys_from');
