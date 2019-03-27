@@ -457,13 +457,14 @@ sub _load_data_from_hash {
     my $self = shift;
     my %args = @_;
     my $data = $args{data};
+    my %backup = %$data ;
 
-        my @load_keys;
+        my @ordered_keys;
         my $from = '';
 
         my $order_key = '__'.$self->element_name.'_order';
         if ( $self->{ordered} and (defined $data->{$order_key} or defined $data->{__order} )) {
-            @load_keys = @{ delete $data->{$order_key} or delete $data->{__order} };
+            @ordered_keys = @{ delete $data->{$order_key} or delete $data->{__order} };
             $from      = ' with '.$order_key;
         }
         elsif ( $self->{ordered} and (! $data->{__skip_order} and keys %$data > 1)) {
@@ -476,7 +477,24 @@ sub _load_data_from_hash {
         }
     delete $data->{__skip_order};
 
-        @load_keys = sort keys %$data unless @load_keys;
+    if (@ordered_keys) {
+        my %data_keys = map { $_ => 1 ; } keys %$data;
+        my @left_keys;
+        foreach my $k (@ordered_keys) {
+            push @left_keys, $k unless delete $data_keys{$k};
+        }
+        if ( %data_keys or @left_keys) {
+            my @msg ;
+            push @msg, "Unlisted keys in __order:", keys %data_keys if %data_keys;
+            push @msg, "Extra keys in __order:", @left_keys if @left_keys;
+            Config::Model::Exception::LoadData->throw(
+                object     => $self,
+                message    => "load_data: ordered keys mistmatch: @msg",
+                wrong_data => \%backup,
+            );
+        }
+    }
+    my @load_keys = @ordered_keys ? @ordered_keys : sort keys %$data;
 
         $logger->info( "HashId load_data ("
                 . $self->location
