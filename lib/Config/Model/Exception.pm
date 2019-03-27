@@ -146,11 +146,13 @@ sub full_message {
     my $obj      = $self->object;
     my $location = defined $obj ? $obj->name : '';
     my $msg      = "Configuration item ";
+    my $d = Data::Dumper->new( [ $self->wrong_data ], ['wrong data'] );
+    $d->Sortkeys(1);
     $msg .= "'$location' "                             if $location;
     $msg .= "(class " . $obj->config_class_name . ") " if $obj->get_type eq 'node';
     $msg .= "has a " . $self->description;
     $msg .= ":\n\t" . $self->error_or_msg . "\n";
-    $msg .= Data::Dumper->Dump( [ $self->wrong_data ], ['wrong data'] );
+    $msg .= $d->Dump;
 
     return $msg;
 }
