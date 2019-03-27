@@ -466,7 +466,7 @@ sub _load_data_from_hash {
             @load_keys = @{ delete $data->{$order_key} or delete $data->{__order} };
             $from      = ' with '.$order_key;
         }
-        elsif ( $self->{ordered} and (keys %$data > 1)) {
+        elsif ( $self->{ordered} and (! $data->{__skip_order} and keys %$data > 1)) {
             $logger->warn( "HashId "
                     . $self->location
                     . ": loading ordered "
@@ -474,6 +474,7 @@ sub _load_data_from_hash {
                     . "order is not defined" );
             $from = ' without '.$order_key;
         }
+    delete $data->{__skip_order};
 
         @load_keys = sort keys %$data unless @load_keys;
 
@@ -634,6 +635,11 @@ containing a special C<__order> element. E.g. loaded with either:
 or
 
   { __order => ['a','b'], b => 'bar', a => 'foo' }
+
+C<__skip_order> parameter can be used if loading order is not
+important:
+
+  { __skip_order => 1, b => 'bar', a => 'foo'}
 
 load_data can also be called with a single ref parameter.
 
