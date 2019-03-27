@@ -459,22 +459,22 @@ sub _load_data_from_hash {
     my $data = $args{data};
     my %backup = %$data ;
 
-        my @ordered_keys;
-        my $from = '';
+    my @ordered_keys;
+    my $from = '';
 
-        my $order_key = '__'.$self->element_name.'_order';
-        if ( $self->{ordered} and (defined $data->{$order_key} or defined $data->{__order} )) {
-            @ordered_keys = @{ delete $data->{$order_key} or delete $data->{__order} };
-            $from      = ' with '.$order_key;
-        }
-        elsif ( $self->{ordered} and (! $data->{__skip_order} and keys %$data > 1)) {
-            $logger->warn( "HashId "
-                    . $self->location
-                    . ": loading ordered "
-                    . "hash from hash ref without special key '__order'. Element "
-                    . "order is not defined" );
-            $from = ' without '.$order_key;
-        }
+    my $order_key = '__'.$self->element_name.'_order';
+    if ( $self->{ordered} and (defined $data->{$order_key} or defined $data->{__order} )) {
+        @ordered_keys = @{ delete $data->{$order_key} or delete $data->{__order} };
+        $from      = ' with '.$order_key;
+    }
+    elsif ( $self->{ordered} and (! $data->{__skip_order} and keys %$data > 1)) {
+        $logger->warn(
+            "HashId " . $self->location . ": loading ordered "
+                . "hash from hash ref without special key '__order'. Element "
+                . "order is not defined"
+            );
+        $from = ' without '.$order_key;
+    }
     delete $data->{__skip_order};
 
     if (@ordered_keys) {
@@ -496,14 +496,14 @@ sub _load_data_from_hash {
     }
     my @load_keys = @ordered_keys ? @ordered_keys : sort keys %$data;
 
-        $logger->info( "HashId load_data ("
-                . $self->location
-                . ") will load idx @load_keys from hash ref"
-                . $from );
-        foreach my $elt (@load_keys) {
-            my $obj = $self->fetch_with_id($elt);
-            $obj->load_data( %args, data => $data->{$elt} ) if defined $data->{$elt};
-        }
+    $logger->info(
+        "HashId load_data (" . $self->location .
+            ") will load idx @load_keys from hash ref $from"
+        );
+    foreach my $elt (@load_keys) {
+        my $obj = $self->fetch_with_id($elt);
+        $obj->load_data( %args, data => $data->{$elt} ) if defined $data->{$elt};
+    }
 }
 
 sub load_data {
