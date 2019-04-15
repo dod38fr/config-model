@@ -13,6 +13,8 @@ use Path::Tiny;
 
 use Mouse::Role;
 
+use Config::Model::TypeConstraints;
+
 my $logger = get_logger("FileHandler");
 
 # used only for tests
@@ -22,7 +24,7 @@ sub _set_test_home { $__test_home = shift; }
 # Configuration directory where to read and write files. This value
 # does not override the configuration directory specified in the model
 # data passed to read and write functions.
-has config_dir => ( is => 'ro', isa => 'Maybe[Str]', required => 0 );
+has config_dir => ( is => 'ro', isa => 'Config::Model::TypeContraints::Path', required => 0 );
 
 sub get_tuned_config_dir {
     my ($self, %args) = @_;

@@ -7,6 +7,7 @@ use Mouse::Util::TypeConstraints;
 use Path::Tiny;
 use Data::Dumper;
 
+use Config::Model::TypeConstraints;
 use Config::Model::Exception;
 use Config::Model::Node;
 use Config::Model::ObjTreeScanner;
@@ -25,7 +26,7 @@ has 'dir' => ( is => 'ro', isa => 'Path::Tiny', lazy => 1, builder => '_set_dir'
 
 has 'root_dir' => (
     is => 'ro',
-    isa => 'RootPath', # defined in Instance
+    isa => 'Config::Model::TypeContraints::Path',
     coerce => 1
 );
 

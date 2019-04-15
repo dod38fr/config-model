@@ -13,6 +13,7 @@ use File::Path;
 use Path::Tiny;
 use Log::Log4perl qw(get_logger :levels);
 
+use Config::Model::TypeConstraints;
 use Config::Model::Exception;
 use Config::Model::Node;
 use Config::Model::Loader;
@@ -227,12 +228,9 @@ has [qw/name application backend backend_arg backup/] => (
     isa => 'Maybe[Str]',
 );
 
-subtype 'RootPath' => as 'Maybe[Path::Tiny]' ;
-coerce 'RootPath' => from 'Str' => via sub { defined $_ ?  Path::Tiny::path($_) : undef ; } ;
-
 has 'root_dir' => (
     is => 'ro',
-    isa => 'RootPath',
+    isa => 'Config::Model::TypeContraints::Path',
     coerce => 1
 );
 
@@ -254,13 +252,11 @@ sub _build_root_path {
     return $root_dir ? path($root_dir) : Path::Tiny->cwd;
 }
 
-# config_file cannot be a Path::Tiny object: it may be a file name
-# relative to a directory only known by a backend (e.g. a patch in
-# debian/patches directory)
-# TODO: the above argument goes down if debian/patch uses backend_arg
-has config_file => (is  => 'ro', isa => 'Maybe[Str]');
-
-has config_dir => (is  => 'ro', isa => 'Maybe[Str]');
+has [qw/config_dir config_file/] => (
+    is  => 'ro',
+    isa => 'Config::Model::TypeContraints::Path',
+    coerce => 1
+);
 
 has tree => (
     is      => 'ro',

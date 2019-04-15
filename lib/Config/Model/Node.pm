@@ -6,6 +6,8 @@ with "Config::Model::Role::NodeLoader";
 use Carp;
 use 5.010;
 
+use Config::Model::TypeConstraints;
+use Config::Model::Instance;
 use Config::Model::Exception;
 use Config::Model::Loader;
 use Config::Model::Dumper;
@@ -86,7 +88,8 @@ sub fetch_gist {
     return $gist;
 }
 
-has [qw/config_file element_name/] => ( is => 'ro', isa => 'Maybe[Str]', required => 0 );
+has config_file => ( is => 'ro', isa => 'Config::Model::TypeContraints::Path', required => 0 );
+has element_name => ( is => 'ro', isa => 'Maybe[Str]', required => 0 );
 
 has instance => (
     is => 'ro',
