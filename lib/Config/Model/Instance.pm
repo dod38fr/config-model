@@ -234,12 +234,6 @@ has 'root_dir' => (
     coerce => 1
 );
 
-sub read_root_dir {
-    my $self = shift;
-    carp "deprecated";
-    return $self->root_dir;
-}
-
 has root_path => (
     is  => 'ro',
     isa => 'Path::Tiny',
