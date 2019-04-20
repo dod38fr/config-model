@@ -255,12 +255,20 @@ has [qw/config_dir config_file/] => (
 has tree => (
     is      => 'ro',
     isa     => 'Config::Model::Node',
-    builder => 'reset_config',
+    builder => '_build_tree',
+    lazy    => 1,
+    clearer => '_clear_config',
     reader  => 'config_root',
     handles => [qw/apply_fixes deep_check grab grab_value/],
 );
 
 sub reset_config {
+    my $self = shift;
+    $self->_clear_config;
+    return $self->config_root;
+}
+
+sub _build_tree {
     my $self = shift;
 
     return $self->load_node (
