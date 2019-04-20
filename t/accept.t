@@ -62,13 +62,6 @@ $model->create_config_class(
 
 ok( 1, "Created new class with accept parameter" );
 
-# set_up data
-
-my $i_hosts = $model->instance(
-    instance_name   => 'hosts_inst',
-    root_class_name => 'Host',
-);
-
 is($model->get_element_property(qw/class Host element otary property value_type/),'uniline',
    "get_element_property on accepted element" );
 
@@ -80,6 +73,11 @@ is($model->get_element_property(qw/class Host element strhidden property level/)
    "get_element_property on hidden accepted element" );
 is($model->get_element_property(qw/class Host element strok property level/),'normal',
    "get_element_property on a predefined hidden element matching an accepted one" );
+
+my $i_hosts = $model->instance(
+    instance_name   => 'hosts_inst',
+    root_class_name => 'Host',
+);
 
 ok( $i_hosts, "Created instance" );
 
