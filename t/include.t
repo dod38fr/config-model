@@ -81,7 +81,7 @@ my @bad_class = (
 # failure occurs later
 $model->create_config_class(@bad_class);
 
-throws_ok { $model->get_model('EvilMaster'); } qr/cannot clobber/i,
+throws_ok { $model->get_model_clone('EvilMaster'); } qr/cannot clobber/i,
     "Check that include does not clobber elements";
 
 # test include of read/write spec
@@ -111,7 +111,7 @@ $model->create_config_class(
     'rw_config' => $rw_config
 );
 
-my $xorg_model = $model->get_model('LikeXorg');
+my $xorg_model = $model->get_model_clone('LikeXorg');
 
 eq_or_diff($xorg_model->{rw_config}, $rw_config,"check included read specification");
 

@@ -40,7 +40,7 @@ my $class_name = $model->create_config_class(
 );
 
 is( $class_name, 'Sarge', "check $class_name class name" );
-my $canonical_model = $model->get_model($class_name);
+my $canonical_model = $model->get_model_clone($class_name);
 print "$class_name model:\n", Dumper($canonical_model) if $trace;
 
 eq_or_diff(
@@ -115,7 +115,7 @@ ok( 1, "Model created" );
 
 is( $class_name, 'Master', "check $class_name class name" );
 
-$canonical_model = $model->get_model($class_name);
+$canonical_model = $model->get_model_clone($class_name);
 print "$class_name model:\n", Dumper($canonical_model) if $trace;
 
 memory_cycle_ok( $model, "memory cycles" );

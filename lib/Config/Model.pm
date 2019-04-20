@@ -114,7 +114,7 @@ has models => (
     handles => {
         model_exists  => 'exists',
         model_defined => 'defined',
-        model         => 'get',
+        _get_model    => 'get',
         _store_model  => 'set',
     },
 );
@@ -408,7 +408,7 @@ sub include_backend {
     foreach my $included_class (@$included_classes) {
         # takes care of recursive include, because get_model will perform
         # includes (and normalization). Is already a dclone
-        my $included_model = $self->get_model($included_class);
+        my $included_model = $self->get_model_clone($included_class);
 
         foreach my $rw (qw/rw_config read_config write_config config_dir/) {
             if ($target_model->{$rw} and $included_model->{$rw}) {
@@ -1231,7 +1231,7 @@ sub include_one_class {
 
     # takes care of recursive include, because get_model will perform
     # includes (and normalization). Is already a dclone
-    my $included_model = $self->get_model($include_class);
+    my $included_model = $self->get_model_clone($include_class);
 
     # now include element in element_list (special treatment because order is
     # important)
@@ -1446,7 +1446,7 @@ sub augment_config_class_really {
     $self->store_normalized_model( $config_class_name => $new_model );
 }
 
-sub get_model {
+sub model {
     my $self              = shift;
     my $config_class_name = shift
         || die "Model::get_model: missing config class name argument";
@@ -1461,10 +1461,20 @@ sub get_model {
         $self->_store_model( $config_class_name, $model );
     }
 
-    my $model = $self->model($config_class_name)
+    return $self->_get_model($config_class_name)
         || croak "get_model error: unknown config class name: $config_class_name";
 
-    return dclone($model);
+}
+
+sub get_model {
+    my ($self,$model) = @_;
+    carp "get_model is deprecated in favor of get_model_clone";
+    $self->get_model_clone($model);
+}
+
+sub get_model_clone {
+    my ($self,$model) = @_;
+    return dclone($self->model($model));
 }
 
 # internal
@@ -1483,7 +1493,7 @@ sub get_model_doc {
         my $class_name = shift @classes;
         next if $done->{$class_name} ;
 
-        my $c_model = $self->get_model($class_name)
+        my $c_model = $self->model($class_name)
             || croak "get_model_doc model error : unknown config class name: $class_name";
 
         my $full_name = "Config::Model::models::$class_name";
@@ -1708,7 +1718,7 @@ sub get_element_model {
     my $element_name = shift
         || die "Model::get_element_model: missing element name argument";
 
-    my $model = $self->get_model($config_class_name);
+    my $model = $self->model($config_class_name);
 
     my $element_m = $model->{element}{$element_name}
         || croak "get_element_model error: unknown element name: $element_name";
@@ -1743,7 +1753,7 @@ sub get_element_name {
         carp "get_element_name: 'for' parameter is deprecated";
     }
 
-    my $model = $self->get_model($class);
+    my $model = $self->model($class);
     my @result;
 
     # this is a bit convoluted, but the order of the returned element
@@ -2592,10 +2602,19 @@ for more details on creating model plugins.
 
 =head1 Model query
 
-=head2 get_model( config_class_name )
+=head2 model
 
-Return a hash containing the model declaration (in a deep clone copy of the hash).
-You may modify the hash at leisure.
+Returns a hash containing the model declaration of the passed model
+name. Do not modify the content of the returned data structure.
+
+ my $cloned = $model->model('Foo');
+
+=head2 get_model_clone
+
+Like C<model>, returns a hash containing the model declaration of the passed model
+name, this time in a deep clone of the data structure.
+
+ my $cloned = $model->get_model_clone('Foo');
 
 =head2 generate_doc ( top_class_name , directory , [ \%done ] )
 

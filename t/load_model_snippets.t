@@ -123,7 +123,7 @@ ok( $inst, "created dummy instance" );
 
 my $root = $inst->config_root;
 
-my $augmented_model = $model->get_model('Master');
+my $augmented_model = $model->get_model_clone('Master');
 print Dumper ($augmented_model) if $trace;
 
 my @elt = $root->get_element_name();

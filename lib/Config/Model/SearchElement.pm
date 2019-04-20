@@ -39,7 +39,7 @@ sub _sniff_class {
     my @lines;
     my %h;
     my $model   = $self->{model};
-    my $c_model = $model->get_model($class);
+    my $c_model = $model->get_model_clone($class);
 
     $logger->trace("sniffing config class $class");
 
