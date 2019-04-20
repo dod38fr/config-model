@@ -1486,8 +1486,8 @@ sub get_model_doc {
         eval { $self->model($top_class_name); };
         if ($@) {
             my $e = $@;
-            if ($e->isa('Config::Model::Excepstion::ModelDeclaration')) {
-                Config::Model::Exception::Load->throw(
+            if ($e->isa('Config::Model::Exception::ModelDeclaration')) {
+                Config::Model::Exception::Fatal->throw(
                     message => "Unknown configuration class : $top_class_name ($@)"
                 );
             }
