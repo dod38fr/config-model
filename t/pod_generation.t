@@ -5,6 +5,7 @@ use Test::More;
 use Test::Memory::Cycle;
 use Config::Model;
 use Config::Model::Tester::Setup qw/init_test setup_test_dir/;
+use Test::Exception;
 
 use warnings;
 use strict;
@@ -16,7 +17,9 @@ my ($model, $trace) = init_test();
 my $wr_root = setup_test_dir();
 
 
-$model->generate_doc('Blork');
+throws_ok {
+    $model->generate_doc('Blork');
+} qr/Unknown configuration class/, "test generate_doc error handling";
 
 $model->generate_doc('Master') if $trace;
 
