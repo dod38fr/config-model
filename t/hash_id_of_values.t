@@ -9,10 +9,10 @@ use Test::Exception;
 use Test::Warn;
 use Test::Differences;
 use Test::Log::Log4perl;
-$::_use_log4perl_to_warn = 1;
 
 use strict;
 use warnings;
+$::_use_log4perl_to_warn = 1;
 
 my ($model, $trace) = init_test();
 

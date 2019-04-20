@@ -467,7 +467,7 @@ sub _load_data_from_hash {
         @ordered_keys = @{ delete $data->{$order_key} or delete $data->{__order} };
         $from      = ' with '.$order_key;
     }
-    elsif ( $self->{ordered} and (! $data->{__skip_order} and keys %$data > 1)) {
+    elsif ( $self->{ordered} and (not $data->{__skip_order} and keys %$data > 1)) {
         $logger->warn(
             "HashId " . $self->location . ": loading ordered "
                 . "hash from hash ref without special key '__order'. Element "

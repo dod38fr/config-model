@@ -1,4 +1,6 @@
 package DummyNode;
+use strict;
+use warnings;
 
 use base qw/Config::Model::Node/;
 
