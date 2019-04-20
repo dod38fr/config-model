@@ -1483,7 +1483,18 @@ sub get_model_doc {
 
     $done //= {};
     if ( not defined $self->normalized_model($top_class_name) ) {
-        croak "get_model_doc error : unknown config class name: $top_class_name";
+        eval { $self->model($top_class_name); };
+        if ($@) {
+            my $e = $@;
+            if ($e->isa('Config::Model::Excepstion::ModelDeclaration')) {
+                Config::Model::Exception::Load->throw(
+                    message => "Unknown configuration class : $top_class_name ($@)"
+                );
+            }
+            else {
+                $e->rethrow;
+            }
+        }
     }
 
     my @classes = ($top_class_name);
