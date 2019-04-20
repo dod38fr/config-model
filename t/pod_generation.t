@@ -15,11 +15,8 @@ my ($model, $trace) = init_test();
 # pseudo root where config files are written by config-model
 my $wr_root = setup_test_dir();
 
-my $inst = $model->instance(
-    root_class_name => 'Master',
-    instance_name   => 'test1'
-);
-ok( $inst, "created dummy instance" );
+
+$model->generate_doc('Blork');
 
 $model->generate_doc('Master') if $trace;
 
