@@ -16,11 +16,11 @@ my ($model, $trace) = init_test();
 
 # See caveats in Test::More doc
 my $builder = Test::More->builder;
-binmode $builder->output,         ":utf8";
-binmode $builder->failure_output, ":utf8";
-binmode $builder->todo_output,    ":utf8";
-binmode STDOUT, ':utf8';
-binmode STDERR, ':utf8';
+binmode $builder->output,         ":encoding(UTF-8)";
+binmode $builder->failure_output, ":encoding(UTF-8)";
+binmode $builder->todo_output,    ":encoding(UTF-8)";
+binmode STDOUT, ':encoding(UTF-8)';
+binmode STDERR, ':encoding(UTF-8)';
 
 my $inst = $model->instance(
     root_class_name => 'Master',

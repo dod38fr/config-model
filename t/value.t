@@ -15,7 +15,7 @@ use strict;
 use warnings;
 use 5.010;
 
-binmode STDOUT, ':utf8';
+binmode STDOUT, ':encoding(UTF-8)';
 
 my ($model, $trace) = init_test();
 
