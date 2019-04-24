@@ -722,7 +722,7 @@ supplied if not provided by the configuration model. (string)
 
 =item backend
 
-Specify which backend to use. See L</write_back ( ... )> for details
+Specify which backend to use. See L</write_back> for details
 
 =item backend_arg
 

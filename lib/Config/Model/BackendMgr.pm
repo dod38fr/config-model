@@ -599,8 +599,8 @@ configuration data within the model.
 
 With these specifications, all configuration information is read
 during creation of a node (which triggers the creation of a backend
-manager object) and written back when L<write_back|/"write_back ( ... )">
-method is called (either on the node or on this backend manager).
+manager object) and written back when L<write_back|Config::Model::Instance/write_back>
+method is called either on the instance.
 
 =begin comment
 

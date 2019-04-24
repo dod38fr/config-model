@@ -1128,7 +1128,7 @@ A hash or list element must be declared with the following parameters:
 
 Mandatory element type. Must be C<hash> or C<list> to have a
 collection element.  The actual element type must be specified by
-C<cargo => type> (See L</"CAVEATS">).
+C<< cargo => type >>.
 
 =item index_type
 
