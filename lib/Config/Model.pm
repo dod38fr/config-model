@@ -2,7 +2,7 @@ package Config::Model;
 
 use strict ;
 use warnings;
-use 5.10.1;
+use 5.12.0;
 
 use Mouse;
 use Mouse::Util::TypeConstraints;
