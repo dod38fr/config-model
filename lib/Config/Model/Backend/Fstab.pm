@@ -64,12 +64,12 @@ sub read {
 
         # now load fs options
         $logger->trace("fs_type $type options is $options");
-        my @options = split /,/, $options;
-        map {
-            $_ = $opt_r_translate{$_} if defined $opt_r_translate{$_};
-            s/no(.*)/$1=0/;
-            $_ .= '=1' unless /=/;
-        } @options;
+        my @options = map {
+            my $o = $opt_r_translate{$_} // $_;
+            $o =~ s/no(.*)/$1=0/;
+            $o .= '=1' unless $o =~ /=/;
+            $o;
+        }  split /,/, $options;
 
         $logger->debug("Loading:@options");
         $fs_obj->fetch_element('fs_mntopts')->load( step => "@options", check => $check );
