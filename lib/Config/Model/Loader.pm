@@ -414,13 +414,13 @@ sub _walk_node {
 }
 
 sub unquote {
-    map {
+    for (@_) {
         if (defined $_) {
             s/(?<!\\)\\n/\n/g;
             s/\\\\/\\/g;
             s/^"// && s/"$// && s!\\"!"!g;
         }
-    } @_;
+    }
 }
 
 sub _load_check_list {

@@ -81,7 +81,7 @@ my $ll_sub = sub {
     push @args, '*' unless @args; # default action is to list all elements
 
     my $obj = $self->{current_node};
-    map {s/\*/.*/g;} @args ;
+    for (@args) {s/\*/.*/g;} ;
     my $pattern = join ('|',@args);
 
     return $obj->describe( pattern => qr/^$pattern$/, @desc_opt );

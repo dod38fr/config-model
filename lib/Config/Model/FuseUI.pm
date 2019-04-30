@@ -37,7 +37,7 @@ sub getdir {
     return -EINVAL() unless ( ref $obj and $obj->can('children') );
 
     my @c = ( '..', '.', $obj->children );
-    map { s(/)($dir_char_mockup)g } @c;
+    for (@c) { s(/)($dir_char_mockup)g };
     $logger->debug( "FuseUI getdir return @c , wantarray is " . ( wantarray ? 1 : 0 ) );
     return ( @c, 0 );
 }
@@ -97,8 +97,8 @@ sub getattr {
         $size = length( fetch_as_line($obj) );
     }
     else {
+        # fuseui_obj->children does not return the right data in scalar context
         my @c = $obj->children;
-        map { s(/)($dir_char_mockup)g } @c;
         $size = @c;
     }
 
