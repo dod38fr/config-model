@@ -575,7 +575,7 @@ sub _write_back_node {
 
         if (defined $node and ($node->needs_save or $force_write)) {
             my $dir = $args{config_dir};
-            mkpath( $dir, 0, 0755 ) if $dir and not -d $dir;
+            mkpath( $dir, 0, oct(755) ) if $dir and not -d $dir;
 
             my $res ;
             if (not $force_backend

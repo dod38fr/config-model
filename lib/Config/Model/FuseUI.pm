@@ -104,10 +104,10 @@ sub getattr {
 
     my $mode;
     if ( $type eq 'leaf' or $type eq 'check_list' ) {
-        $mode = S_IFREG | 0644;
+        $mode = S_IFREG | oct(644);
     }
     else {
-        $mode = S_IFDIR | 0755;
+        $mode = S_IFDIR | oct(755);
     }
 
     my ( $dev, $ino, $rdev, $blocks, $gid, $uid, $nlink, $blksize ) =

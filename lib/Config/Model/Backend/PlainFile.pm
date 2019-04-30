@@ -116,7 +116,7 @@ sub write {
     my $check = $args{check} || 'yes';
     my $cfg_dir = $args{config_dir};
     my $dir = $self->get_tuned_config_dir(%args);
-    $dir->mkpath({ mode => 0755 } ) unless $dir->is_dir;
+    $dir->mkpath({ mode => oct(755) } ) unless $dir->is_dir;
 
     my $node = $args{object};
     $logger->debug( "PlainFile write called on node ", $node->name );
