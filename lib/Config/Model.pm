@@ -310,7 +310,8 @@ sub instance {
 
 sub instance_names {
     my $self = shift;
-    return sort keys %{ $self->instances };
+    my @all = sort keys %{ $self->instances };
+    return @all;
 }
 
 @level = qw/hidden normal important/;

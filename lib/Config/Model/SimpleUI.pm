@@ -222,7 +222,8 @@ $run_dispatch{reset} = $run_dispatch{clear};
 $run_dispatch{dump}  = $run_dispatch{tree};
 
 sub simple_ui_commands {
-    return sort keys %run_dispatch;
+    my @cmds = sort keys %run_dispatch;
+    return @cmds;
 }
 
 sub new {
