@@ -81,9 +81,12 @@ foreach my $method (
     *$method = sub {
         my $self = shift;
 
+        if ($self->check) {
+            return $self->{data}->$method(@_);
+        }
+
         # return undef if no class was warped in
-        $self->check or return undef;
-        return $self->{data}->$method(@_);
+        return ;
     };
 }
 

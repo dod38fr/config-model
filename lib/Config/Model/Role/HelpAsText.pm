@@ -15,7 +15,7 @@ sub get_help_as_text {
     my $self = shift;
 
     my $pod = $self->get_help(@_) ;
-    return undef unless defined $pod;
+    return unless defined $pod;
 
     my $parser = Pod::Text->new(
         indent => 0,
