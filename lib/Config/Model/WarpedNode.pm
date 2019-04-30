@@ -76,7 +76,7 @@ foreach my $method (
     describe get_help get_help_as_text children get set accept_regexp/
     ) {
     # to register new methods in package
-    no strict "refs";
+    no strict "refs"; ## no critic TestingAndDebugging::ProhibitNoStrict
 
     *$method = sub {
         my $self = shift;
