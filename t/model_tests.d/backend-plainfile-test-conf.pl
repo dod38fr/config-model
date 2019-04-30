@@ -1,48 +1,41 @@
-
 # test plainfile backend
 
-# specify where is the example file
-$conf_dir = '';
+package Config::Model::Backend::MyReader;
+use Path::Tiny;
+use Test::More;
+use Mouse ;
+use strict;
+use warnings;
 
-# specify the name of the class to test
-$model_to_test = "MiniPlain";
+extends 'Config::Model::Backend::Any';
 
-{
-    package Config::Model::Backend::MyReader;
-    use Path::Tiny;
-    use Test::More;
-    use Mouse ;
+sub my_log {
+    note("plainfile backend test: @_");
+}
 
-    extends 'Config::Model::Backend::Any';
+sub read {
+    my $self = shift;
+    my %args = @_;
 
-    sub my_log {
-        note("plainfile backend test: @_");
+    my $dir = $args{root}->child($args{config_dir});
+    foreach my $file ($dir->children()) {
+        my_log("dummy read file $file");
+        my ($key,$elt) = split /\./,$file->basename;
+        $args{object}->load("$elt:$key");
     }
+    return 1;
+}
 
-    sub read {
-        my $self = shift;
-        my %args = @_;
-
-        my $dir = $args{root}->child($args{config_dir});
-        foreach my $file ($dir->children()) {
-            my_log("dummy read file $file");
-            my ($key,$elt) = split /\./,$file->basename;
-            $args{object}->load("$elt:$key");
-        }
-        return 1;
-    }
-
-    sub write {
-        my $self = shift;
-        my_log("dummy write called");
-        return 1;
-    }
+sub write {
+    my $self = shift;
+    my_log("dummy write called");
+    return 1;
 }
 
 # create minimal model to test plain file backend.
 
 # this class is used by MiniPlain class below
-$model->create_config_class(
+my @config_classes = ({
     element => [
         list => {
             cargo => {
@@ -65,9 +58,9 @@ $model->create_config_class(
         file_mode => '0755',
         file => '&index(-).&element(-).&element'
     }
-);
+});
 
-$model->create_config_class(
+push @config_classes, {
     name => 'MiniPlain',
     element => [
         [qw/install move/] => {
@@ -87,11 +80,11 @@ $model->create_config_class(
         config_dir => 'debian',
         auto_delete => '1',
     },
-);
+};
 
 
 # the test suite
-@tests = (
+my @tests = (
     {
         name  => 'with-index',
         check => [
@@ -101,9 +94,9 @@ $model->create_config_class(
             'move:bar list:2' => "bar val3",
         ],
         file_mode => {
-            'debian/bar.install.list' => 0755,
-            'debian/bar.move.list' => 0755,
-            'debian/foo.install.list' => 0755,
+            'debian/bar.install.list' => oct(755),
+            'debian/bar.move.list' => oct(755),
+            'debian/foo.install.list' => oct(755),
         }
     },
     {   # test file removal
@@ -123,4 +116,12 @@ $model->create_config_class(
 
 );
 
-1;
+return {
+    # specify where is the example file
+    conf_dir => '',
+
+    # specify the name of the class to test
+    model_to_test => "MiniPlain",
+    config_classes => \@config_classes,
+    tests => \@tests
+};

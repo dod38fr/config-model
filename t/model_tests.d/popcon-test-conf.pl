@@ -1,13 +1,13 @@
+use strict;
+use warnings;
 
-$conf_file_name = "popularity-contest.conf" ;
-$conf_dir = "etc" ;
-$model_to_test = "PopCon" ;
-
-@tests = (
-    { # t0
-     check => { 
-     }
-    },
-);
-
-1;
+return {
+    conf_file_name => "popularity-contest.conf" ,
+    conf_dir => "etc" ,
+    model_to_test => "PopCon" ,
+    tests => [
+        { # t0
+            check => { }
+        },
+    ],
+};

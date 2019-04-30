@@ -1,9 +1,8 @@
 use Config::Model::BackendMgr;
+use strict;
+use warnings;
 
-$conf_dir = '/etc';
-$conf_file_name = 'hosts.json';
-
-$model->create_config_class(
+my @config_classes = ({
     name => 'Host',
 
     element => [
@@ -13,8 +12,9 @@ $model->create_config_class(
         },
         dummy => {qw/type leaf value_type uniline default toto/},
     ]
-);
-$model->create_config_class(
+});
+
+push @config_classes, {
     name => 'Hosts',
 
     rw_config => {
@@ -32,11 +32,10 @@ $model->create_config_class(
             },
         },
     ]
-);
+};
 
-$model_to_test = "Hosts";
 
-@tests = (
+my @tests = (
     {
         name  => 'basic',
         check => [
@@ -46,4 +45,10 @@ $model_to_test = "Hosts";
     },
 );
 
-1;
+return {
+    model_to_test => "Hosts",
+    conf_dir => '/etc',
+    conf_file_name => 'hosts.json',
+    config_classes => \@config_classes,
+    tests => \@tests
+};

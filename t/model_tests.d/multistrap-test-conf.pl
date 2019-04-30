@@ -1,7 +1,7 @@
+use strict;
+use warnings;
 
-$model_to_test = "Multistrap";
-
-$from_scratch_file = <<'EOF' ;
+my $from_scratch_file = <<'EOF' ;
 ## This file was written by cme command.
 ## You can run 'cme edit multistrap' to modify this file.
 ## You may also modify the content of this file with your favorite editor.
@@ -10,7 +10,7 @@ $from_scratch_file = <<'EOF' ;
 include = /usr/share/multistrap/crosschroot.conf
 EOF
 
-@tests = (
+my @tests = (
     {
         name        => 'arm',
         config_file => '/home/foo/my_arm.conf',
@@ -54,4 +54,8 @@ EOF
     },
 );
 
-1;
+return {
+    model_to_test => "Multistrap",
+    tests => \@tests
+};
+

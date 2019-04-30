@@ -1,10 +1,12 @@
 use Config::Model::BackendMgr;
 # test loading layered config à la ssh_config
+use strict;
+use warnings;
 
-$home_for_test = '/home/joe' ;
+my $home_for_test = '/home/joe' ;
 Config::Model::BackendMgr::_set_test_home($home_for_test) ;
 
-$model->create_config_class(
+ my @config_classes = ({
     name    => "LayeredClass",
     element => [
       [qw/set_in_etc set_by_user set_in_both/] , {
@@ -26,14 +28,11 @@ $model->create_config_class(
             'file' => 'foo-config.pl'
         }
     }
-);
+});
 
-$model_to_test = "LayeredClass" ;
-
-@tests = (
-    { # t0
-      name => 'mini',
-     check => [
+my @tests = ({
+    name => 'mini',
+    check => [
         set_in_etc => {qw/mode layered value /, 'system value'},
         set_in_both => {qw/mode layered value /, 'system value2'},
         set_in_both => {qw/mode user value /, 'user value2'},
@@ -41,8 +40,12 @@ $model_to_test = "LayeredClass" ;
         a_checklist => {qw/mode layered value /,'c,e'},
         a_checklist => 'f,g',
         a_checklist => {qw/mode user value /,   'c,f,g'},
-     ]
-    },
-);
+    ]
+});
 
-1;
+return {
+    model_to_test => "LayeredClass",
+    config_classes => \@config_classes,
+    home_for_test => $home_for_test,
+    tests => \@tests
+};

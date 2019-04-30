@@ -1,9 +1,7 @@
+use strict;
+use warnings;
 
-$conf_file_name = "fstab" ;
-$conf_dir = "etc" ;
-$model_to_test = "Fstab" ;
-
-@tests = (
+my @tests = (
     { # t0
      check => { 
        'fs:/proc fs_spec',           "proc" ,
@@ -23,4 +21,9 @@ $model_to_test = "Fstab" ;
      },
 );
 
-1;
+return {
+    model_to_test => "Fstab",
+    conf_file_name => "fstab",
+    conf_dir => "etc",
+    tests => \@tests
+};

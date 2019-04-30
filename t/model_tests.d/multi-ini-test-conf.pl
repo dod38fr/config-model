@@ -1,13 +1,12 @@
+use strict;
+use warnings;
 
 # test inifile backend with multiple ini files
-
-# specify the name of the class to test
-$model_to_test = "MultiMiniIni";
 
 # create minimal model to test ini file backend.
 
 # this class is used by MultiMiniIni class below
-$model->create_config_class(
+my @config_classes = ({
     name    => 'MultiIniTest::Class',
     element => [
         int_with_max => {qw/type leaf value_type integer max 10/},
@@ -18,9 +17,9 @@ $model->create_config_class(
         file        => '&index.conf',
         auto_create => 1,
     },
-);
+});
 
-$model->create_config_class(
+push @config_classes, {
     name => 'MultiMiniIni',
     element => [
         service => {
@@ -40,11 +39,11 @@ $model->create_config_class(
         file        => 'service.pl',
         auto_create => 1,
     },
-);
+};
 
 
 # the test suite
-@tests = (
+my @tests = (
     {
         name  => 'max-overflow',
         load_check => 'no',
@@ -60,4 +59,9 @@ $model->create_config_class(
     },
 );
 
-1;
+return {
+    # specify the name of the class to test
+    model_to_test => "MultiMiniIni",
+    config_classes => \@config_classes,
+    tests => \@tests
+};

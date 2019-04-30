@@ -1,17 +1,12 @@
+use strict;
+use warnings;
 
 # test inifile backend
-
-# specify where is the example file
-$conf_file_name = 'test.ini';
-$conf_dir = '/etc';
-
-# specify the name of the class to test
-$model_to_test = "MiniIni";
 
 # create minimal model to test ini file backend.
 
 # this class is used by MiniIni class below
-$model->create_config_class(
+my @config_classes = ({
     name    => 'IniTest::Class',
     element => [
         [qw/lista listb/] => {
@@ -22,9 +17,9 @@ $model->create_config_class(
             },
         },
     ]
-);
+});
 
-$model->create_config_class(
+push @config_classes, {
     name => 'MiniIni',
         element => [
             [qw/foo bar/] => {
@@ -52,11 +47,11 @@ $model->create_config_class(
         file_mode   => 'a=r,ug+w',
         auto_create => 1,
     },
-);
+};
 
 
 # the test suite
-@tests = (
+my @tests = (
     {   # test complex parameters
         name  => 'complex',
         check => [
@@ -64,9 +59,19 @@ $model->create_config_class(
             baz => q!/bin/sh -c '[ "$(cat /etc/X11/default-display-manager 2>/dev/null)" = "/usr/bin/sddm" ]''!
         ],
         file_mode => {
-            '/etc/test.ini' => 0664
+            '/etc/test.ini' => oct(664)
         }
     },
 );
 
-1;
+return {
+    # specify the name of the class to test
+    model_to_test => "MiniIni",
+
+    # specify where is the example file
+    conf_file_name => 'test.ini',
+    conf_dir => '/etc',
+
+    config_classes => \@config_classes,
+    tests => \@tests
+};
