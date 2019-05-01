@@ -35,8 +35,8 @@ sub available_models {
 
             $appli_info{$appli}{_file} = $file;
             $appli_info{$appli}{_category} = $cat;
-            open( F, $file ) || die "Can't open file $file:$!";
-            while (<F>) {
+            open my $fh, '<', $file || die "Can't open file $file:$!";
+            while (<$fh>) {
                 chomp;
                 s/^\s+//;
                 s/\s+$//;
