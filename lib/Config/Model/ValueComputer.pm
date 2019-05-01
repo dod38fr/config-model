@@ -126,7 +126,7 @@ sub compute {
             my $formula = $pre_formula;
             $formula =~ s/\$([_a-zA-Z]\w*)/defined $__vars{$1} ? "\$__vars{$1}" : "\$$1" /eg;
             $logger->debug("compute: evaluating '$formula'");
-            $result = eval $formula;
+            $result = eval $formula; ## no critic (ProhibitStringyEval)
             if ($@) {
                 Config::Model::Exception::Formula->throw(
                     object => $self->{value_object},

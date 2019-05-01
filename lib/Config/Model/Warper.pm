@@ -443,7 +443,7 @@ sub compute_bool {
     {
         my $warped_obj = $self->warped_object ;
         no warnings "uninitialized";
-        $ret = eval($perl_code);
+        $ret = eval($perl_code); ## no critic (ProhibitStringyEval)
     }
 
     if ($@) {
