@@ -667,6 +667,12 @@ subtest "layered feature" => sub {
     is( $l_scalar->has_data, 0, "scalar: has no data" );
     is( $l_scalar->fetch(mode => 'non_upstream_default'), 3,
         "scalar: read non upstream default value before store" );
+
+    # store a value identical to the layered value
+    $l_scalar->store(3);
+    is( $l_scalar->fetch, 3, "scalar: read value as backend value after store" );
+    is( $l_scalar->has_data, 0, "scalar: has no data after store layered value" );
+
     $l_scalar->store(4);
     is( $l_scalar->fetch,            4, "scalar: read overridden layered value as value" );
     is( $l_scalar->fetch('layered'), 3, "scalar: read layered value as layered_value" );
