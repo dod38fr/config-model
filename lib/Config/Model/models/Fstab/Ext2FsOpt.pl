@@ -1,4 +1,7 @@
-[
+use strict;
+use warnings;
+
+return [
   {
     'accept' => [
       '.*',
