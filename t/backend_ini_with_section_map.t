@@ -180,11 +180,11 @@ foreach my $test_class ( sort keys %test_setup ) {
     my $conf_file     = "/etc/test.ini";
     my $abs_conf_file = "$wr_dir$conf_file";
 
-    mkpath( $wr_dir . '/etc', { mode => 0755 } )
+    mkpath( $wr_dir . '/etc', { mode => oct(755) } )
         || die "can't mkpath: $!";
-    open( CONF, "> $abs_conf_file" ) || die "can't open $abs_conf_file: $!";
-    print CONF map { "$_\n" } @orig;
-    close CONF;
+    open my $conf, '>', $abs_conf_file || die "can't open $abs_conf_file: $!";
+    print $conf map { "$_\n" } @orig;
+    close $conf;
 
     my $i_test = $model->instance(
         instance_name   => $test_path,
@@ -219,7 +219,7 @@ foreach my $test_class ( sort keys %test_setup ) {
 
     # create another instance to read the IniFile that was just written
     my $wr_dir2 = "$wr_root/$test_path/ini2";
-    mkpath( $wr_dir2 . '/etc', { mode => 0755 } ) || die "can't mkpath: $!";
+    mkpath( $wr_dir2 . '/etc', { mode => oct(755) } ) || die "can't mkpath: $!";
     copy( $wr_dir . '/etc/test.ini', $wr_dir2 . '/etc/' )
         or die "can't copy from test1 to test2: $!";
 

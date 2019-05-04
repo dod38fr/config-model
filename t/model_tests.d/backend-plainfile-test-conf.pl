@@ -1,6 +1,6 @@
 # test plainfile backend
 
-package Config::Model::Backend::MyReader;
+package Config::Model::Backend::MyReader; ## no critic (Modules::RequireFilenameMatchesPackage)
 use Path::Tiny;
 use Test::More;
 use Mouse ;

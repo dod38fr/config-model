@@ -1,6 +1,9 @@
 # test model used by t/*.t
+use strict;
+use warnings;
 
-[
+
+return [
     {
         rw_config => {
             backend     => 'IniFile',

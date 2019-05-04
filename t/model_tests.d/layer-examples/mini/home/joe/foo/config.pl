@@ -1,3 +1,6 @@
+use strict;
+use warnings;
+
 {
 	set_by_user => 'user value',
 	set_in_both => 'user value2',

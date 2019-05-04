@@ -1,8 +1,11 @@
 # -*- cperl -*-
+use strict;
+use warnings;
 
 # this file is used by test script
 
-[ [
+return [
+    [
         name    => 'SubSlave2',
         element => [ [qw/aa2 ab2 ac2 ad2 Z/] => { type => 'leaf', value_type => 'string' } ],
         description => [ Z => 'Z comme zorro' ],

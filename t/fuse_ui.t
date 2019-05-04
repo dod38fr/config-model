@@ -61,7 +61,7 @@ my $wr_root = setup_test_dir();
 
 
 my $fused = $wr_root->child('fused');
-$fused->mkpath( { mode => 0755 } );
+$fused->mkpath( { mode => oct(755) } );
 
 $model->load( Master => 'Config/Model/models/Master.pl' );
 
@@ -112,7 +112,7 @@ is_deeply( \@content, [ sort $root->get_element_name() ], "check $fused content"
 my $std_id = $fused->child('std_id');
 @content = sort map { $_->relative($std_id); } $std_id->children;
 my @std_id_elements = sort $root->fetch_element('std_id')->fetch_all_indexes();
-map { s(/){$dir_char_mockup}g; } @std_id_elements;
+for ( @std_id_elements ) { s(/){$dir_char_mockup}g; };
 is_deeply( \@content, \@std_id_elements, "check $std_id content (@content)" );
 
 is(

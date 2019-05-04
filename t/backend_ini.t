@@ -22,8 +22,8 @@ my $wr_root = setup_test_dir();
 my @with_semicolon_comment = my @with_one_semicolon_comment = my @with_hash_comment = <DATA>;
 
 # change delimiter comments
-map { s/#/;/; } @with_semicolon_comment;
-map { s/# foo2/; foo2/; } @with_one_semicolon_comment;
+for (@with_semicolon_comment) { s/#/;/; } ;
+for (@with_one_semicolon_comment) { s/# foo2/; foo2/; } ;
 
 sub init_backend_test {
     my ($test_class, $test_data, $instance_name, $config_dir) = @_;

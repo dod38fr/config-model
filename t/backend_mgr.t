@@ -4,6 +4,7 @@ use Test::More;
 use Test::Memory::Cycle;
 use Test::File::Contents;
 use Config::Model;
+use List::MoreUtils qw/apply/;
 
 use Config::Model::Tester::Setup qw/init_test setup_test_dir/;
 
@@ -49,7 +50,7 @@ subtest "Check reading of global comments" => sub {
     $root->backend_mgr->backend_obj->read_global_comments(\@lines, '#');
 
     is_deeply(\@lines, [ @copy[-2,-1] ], "check untouched lines" );
-    is($root->annotation,join("\n", map {s/#\s+//; $_;} @copy[3,4]), "check extracted global comment");
+    is($root->annotation,join("\n", apply {s/#\s+//; $_;} @copy[3,4]), "check extracted global comment");
 
 };
 

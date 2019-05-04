@@ -1,4 +1,7 @@
 # -*- cperl -*-
+use strict;
+use warnings;
+
 use ExtUtils::testlib;
 use Test::More;
 use Test::Differences;
