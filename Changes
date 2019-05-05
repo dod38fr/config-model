@@ -1,5 +1,21 @@
 {{$NEXT}}
 
+2.134 2019-05-05
+
+  Bug fix:
+    * Fix Instance->reset_config method
+    * improve error handling of get_model_doc
+
+  Minor behavior changes:
+    * dump_tree: add quote around value or if that contain '~'
+
+  Deprecation:
+    * Instance: remove deprecated read_root_dir method
+
+  Misc:
+    * update copyright year
+    * Tests require Config::Model::Tester 4.002
+
 2.133 2019-01-13
 
   Read/write backend improvements:
