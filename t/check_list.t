@@ -485,6 +485,7 @@ is_deeply( [ $rtl->get_choice ], [qw/X Y Z a b c d e/], "check choice of refer_t
 my $wud = $root->fetch_element("choice_list_with_upstream_default");
 @got = $wud->get_checked_list();
 is_deeply( \@got, [], "test default of choice_list_with_upstream_default" );
+is($wud->has_data, 0, "test checklist has data");
 
 @got = $wud->get_checked_list('upstream_default');
 is_deeply( \@got, [qw/A D/], "test upstream_default of choice_list_with_upstream_default" );
