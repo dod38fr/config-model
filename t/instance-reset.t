@@ -14,6 +14,7 @@ sub check {
     is($node->grab_value('foo:0'),'foo1',"$msg: foo:0 is set");
     is($node->grab_value('class1 lista:0'),'lista1',"$msg: lista:0 is set");
     is($node->grab_value('class1 listb:0'),undef,"$msg: listb:0 is not set");
+    is($node->instance->needs_save,0, "$msg: instance has no data to save");
 }
 
 my ($model, $trace) = init_test();
@@ -54,6 +55,7 @@ print "Before reset:\n",$dump if $trace;
 
 $i_root->load("foo:=blork1 class1 listb:=blork");
 
+ok($i_root->needs_save, "instance has something to save");
 
 my $new_root = $i_test->reset_config;
 
@@ -62,6 +64,8 @@ ok(1, "config was reset");
 check($new_root, "after reset");
 
 is($new_root->dump_tree, $dump, "check dump tree after reset");
+
+ok($i_root->needs_save, "instance has something to save");
 
 memory_cycle_ok( $model, "memory cycle test" );
 
