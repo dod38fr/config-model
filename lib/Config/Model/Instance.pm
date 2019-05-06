@@ -265,6 +265,7 @@ has tree => (
 sub reset_config {
     my $self = shift;
     $self->_clear_config;
+    $self->clear_changes;
     return $self->config_root;
 }
 
