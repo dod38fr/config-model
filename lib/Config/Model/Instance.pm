@@ -865,7 +865,7 @@ L<Config::Model::Role::Grab/grab_value>
 =head2 searcher
 
 Returns an object dedicated to search an element in the configuration
-model (respecting privilege level).
+model.
 
 This method returns a L<Config::Model::Searcher> object. See
 L<Config::Model::Searcher> for details on how to handle a search.

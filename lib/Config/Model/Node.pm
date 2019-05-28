@@ -1594,7 +1594,7 @@ Returns empty if no matching element is found.
 =head2 model_searcher
 
 Returns an object dedicated to search an element in the configuration
-model (respecting privilege level).
+model.
 
 This method returns a L<Config::Model::SearchElement> object. See
 L<Config::Model::SearchElement> for details on how to handle a search.
