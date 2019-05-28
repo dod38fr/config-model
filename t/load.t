@@ -112,11 +112,11 @@ my $inst = $model->instance(
 );
 ok( $inst, "created dummy instance" );
 
-my $root = $inst->config_root;
-
-# check with embedded \n
+# check with embedded \n, also check that instance can load before config_root is called
 my $step = qq!#"root cooment " std_id:ab X=Bv -\na_string="titi and\nfoo" !;
-ok( $root->load( step => $step ), "load steps with embedded \\n" );
+ok( $inst->load( step => $step ), "load steps with embedded \\n" );
+
+my $root = $inst->config_root;
 is( $root->fetch_element('a_string')->fetch, "titi and\nfoo", "check a_string" );
 
 # check with embedded \n and \\n
