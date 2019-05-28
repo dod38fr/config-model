@@ -379,7 +379,7 @@ sub modify {
 
 sub load {
     my $self   = shift;
-    my $loader = Config::Model::Loader->new( start_node => $self->{tree} );
+    my $loader = Config::Model::Loader->new( start_node => $self->config_root );
     my %args   = @_ eq 1 ? ( step => $_[0] ) : @_;
     $loader->load( %args );
     return $self;
@@ -387,7 +387,7 @@ sub load {
 
 sub search_element {
     my $self = shift;
-    $self->{tree}->search_element(@_);
+    $self->config_root->search_element(@_);
 }
 
 sub wizard_helper {
