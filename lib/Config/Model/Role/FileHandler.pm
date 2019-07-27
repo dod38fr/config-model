@@ -18,8 +18,9 @@ use Config::Model::TypeConstraints;
 my $logger = get_logger("FileHandler");
 
 # used only for tests
-my $__test_home = '';
-sub _set_test_home { $__test_home = shift; }
+sub _set_test_home {
+    Config::Model::TypeConstraints::_set_test_home(shift) ;
+}
 
 # Configuration directory where to read and write files. This value
 # does not override the configuration directory specified in the model
@@ -35,7 +36,7 @@ sub get_tuned_config_dir {
         # TODO: should this be my_config ? May be once this is done:
         # https://github.com/perl5-utils/File-HomeDir/pull/5/files
         # beware of compat and migration issues
-        my $home = $__test_home || File::HomeDir->my_home;
+        my $home =  &Config::Model::TypeConstraints::_get_test_home || File::HomeDir->my_home;
         $dir =~ s/^~/$home/;
     }
 
