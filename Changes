@@ -1,5 +1,15 @@
 {{$NEXT}}
 
+2.136 2019-07-29
+
+  Bug fix:
+    * also tweak ~ dir for tests in Path::Tiny coercion
+      (fixes Config::Model::Systemd tests that was broken with
+      Config::Model 2.134)
+
+  Doc update:
+    * Mention force option in Instance doc
+
 2.135 2019-06-05
 
   Bug fix:
