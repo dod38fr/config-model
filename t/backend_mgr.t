@@ -7,9 +7,11 @@ use Config::Model;
 use List::MoreUtils qw/apply/;
 
 use Config::Model::Tester::Setup qw/init_test setup_test_dir/;
+use Config::Model::Role::FileHandler;
 
 use warnings;
 use strict;
+use 5.12.0;
 
 my ($model, $trace) = init_test();
 
@@ -115,6 +117,42 @@ subtest "check config file override" => sub {
 
     file_contents_like( $ini_file->stringify, "source = ok","$ini_file content");
 
+};
+
+subtest "check string to Path::Tiny coercion" => sub {
+    Config::Model::Role::FileHandler::_set_test_home('/home/joe');
+
+    my $test_root_dir = $wr_root->child('coercion_test');
+    my $joe_conf_dir = $test_root_dir->child('home/joe/conf');
+    $joe_conf_dir->mkpath;
+    my $ini_file = $joe_conf_dir->child('test-coercion.ini');
+    $ini_file -> spew( "source =   fine");
+
+    $model->create_config_class(
+        'name'    => 'TestCoercion',
+        'rw_config' => {
+            'backend'     => 'ini_file',
+            file  => 'test-coercion.ini',
+        },
+        'element' => ['source' => { 'type' => 'leaf', value_type => 'string', } ]
+    );
+
+    my $inst = $model->instance(
+        name => 'test-coercion',
+        root_class_name => 'TestCoercion',
+        root_dir => $test_root_dir->stringify,
+        'config_dir' => '~/conf/',
+    );
+
+    my $root = $inst->config_root;
+    $root->init;
+    is($root->grab_value('source'),'fine', "check read data");
+    $root->load("source=ok");
+    $inst->write_back;
+
+    is($root->backend_mgr->config_dir,'/home/joe/conf',"check that ~ is coerced into /home/joe");
+
+    file_contents_like( $ini_file->stringify, "source = ok","$ini_file content");
 };
 
 memory_cycle_ok($model, "memory cycle");
