@@ -201,6 +201,7 @@ return [
         }
       }
     ],
+    'gist' => '{fs_vfstype}: {fs_file}',
     'license' => 'LGPL2',
     'name' => 'Fstab::FsLine'
   }
