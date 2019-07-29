@@ -122,7 +122,7 @@ sub describe {
         my $type = $obj->element_type($element);
 
         my $class_name = $next->config_class_name;
-        push @$data_r, [ $element, 'node', "<$class_name>", '' ];
+        push @$data_r, [ $element, 'node', "<$class_name>", $obj->gist ];
 
         #$ret .= ":$key" if $type eq 'list' or $type eq 'hash';
 
