@@ -380,8 +380,18 @@ sub has_data {
     return scalar @set;
 }
 
-my %accept_mode = map { ( $_ => 1 ) }
-    qw/custom standard preset default layered upstream_default non_upstream_default user/;
+{
+    my %accept_mode = map { ( $_ => 1 ) }
+        qw/custom standard preset default layered upstream_default non_upstream_default user/;
+
+    sub is_bad_mode {
+        my ($self, $mode) = @_;
+        if ( $mode and not defined $accept_mode{$mode} ) {
+            my $good_ones = join( ' or ', sort keys %accept_mode );
+            return "expected $good_ones as mode parameter, not $mode";
+        }
+    }
+}
 
 sub is_checked {
     my $self   = shift;
@@ -394,9 +404,8 @@ sub is_checked {
 
     if ($ok) {
 
-        if ( $mode and not defined $accept_mode{$mode} ) {
-            croak "is_checked: expected ", join( ' or ', keys %accept_mode ),
-                "parameter, not $mode";
+        if ( my $err = $self->is_bad_mode($mode) ) {
+            croak "is_checked: $err";
         }
 
         my $dat    = $self->{data}{$choice};
@@ -508,10 +517,8 @@ sub get_checked_list_as_hash {
         carp $self->location, " warning: deprecated mode parameter: $k, ", "expected $mode\n";
     }
 
-    if ( $mode and not defined $accept_mode{$mode} ) {
-        croak "get_checked_list_as_hash: expected ",
-            join( ' or ', keys %accept_mode ),
-            " parameter, not $mode";
+    if ( my $err = $self->is_bad_mode($mode)) {
+        croak "get_checked_list_as_hash: $err";
     }
 
     my $dat = $self->{data};
@@ -1255,6 +1262,19 @@ Example:
  $cl->load_data( data => ['A','B'], check => 'yes')
  $cl->load_data( { A => 1, B => 1 } )
  $cl->load_data( data => { A => 1, B => 1 }, check => 'yes')
+
+=head2 is_bad_mode
+
+Accept a mode parameter. This function checks if the mode is accepted
+by L</fetch> method. Returns an error message if not. For instance:
+
+ if (my $err = $val->is_bad_mode('foo')) {
+    croak "my_function: $err";
+ }
+
+This method is intented as a helper ti avoid duplicating the list of
+accepted modes for functions that want to wrap fetch methods (like
+L<Config::Model::Dumper> or L<Config::Model::DumpAsData>)
 
 =head1 Ordered checklist methods
 
