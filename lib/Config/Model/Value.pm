@@ -1591,8 +1591,18 @@ my %old_mode = (
     non_built_in => 'non_upstream_default',
 );
 
-my %accept_mode = map { ( $_ => 1 ) } qw/custom standard preset default upstream_default
-    layered non_upstream_default allow_undef user backend/;
+{
+    my %accept_mode = map { ( $_ => 1 ) } qw/custom standard preset default upstream_default
+                                             layered non_upstream_default allow_undef user backend/;
+
+    sub is_bad_mode {
+        my ($self, $mode) = @_;
+        if ( $mode and not defined $accept_mode{$mode} ) {
+            my $good_ones = join( ' or ', sort keys %accept_mode );
+            return "expected $good_ones as mode parameter, not $mode";
+        }
+    }
+}
 
 sub _fetch {
     my ( $self, $mode, $check ) = @_;
@@ -1627,10 +1637,8 @@ sub _fetch {
         carp $self->location, " warning: deprecated mode parameter: $k, ", "expected $mode\n";
     }
 
-    if ( $mode and not defined $accept_mode{$mode} ) {
-        croak "fetch_no_check: expected ",
-            join( ' or ', sort keys %accept_mode ),
-            " parameter, not $mode";
+    if (my $err = $self->is_bad_mode($mode)) {
+        croak "fetch_no_check: $err";
     }
 
     if ( $mode eq 'custom' ) {
@@ -1724,9 +1732,8 @@ sub fetch {
         $logger->debug( "_fetch returns " . ( defined $value ? $value : '<undef>' ) );
     }
 
-    if ( $mode and not defined $accept_mode{$mode} ) {
-        croak "fetch: expected ", not scalar join( ' or ', sort keys %accept_mode ),
-            " parameter, not $mode";
+    if ( my $err = $self->is_bad_mode($mode) ) {
+        croak "fetch: $err";
     }
 
     if ( defined $self->{replace_follow} and defined $value ) {
@@ -2575,6 +2582,19 @@ In this case,user is expected to retrieve them with
 L</warning_msg>.
 
 Without C<value> argument, this method checks the value currently stored.
+
+=head2 is_bad_mode
+
+Accept a mode parameter. This function checks if the mode is accepted
+by L</fetch> method. Returns an error message if not. For instance:
+
+ if (my $err = $val->is_bad_mode('foo')) {
+    croak "my_function: $err";
+ }
+
+This method is intented as a helper ti avoid duplicating the list of
+accepted modes for functions that want to wrap fetch methods (like
+L<Config::Model::Dumper> or L<Config::Model::DumpAsData>)
 
 =head1 Information management
 
