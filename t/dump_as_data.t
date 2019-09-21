@@ -116,7 +116,7 @@ $expect->{olist}[1]{DX}    = 'Dv';
 $expect->{std_id}{ab}{DX}  = 'Dv';
 $expect->{std_id}{bc}{DX}  = 'Dv';
 $expect->{a_uniline}       = 'yada yada';
-my $full_data = $root->dump_as_data();
+my $full_data = $root->dump_as_data(mode => 'user');
 
 is_deeply( $full_data, $expect, "check full data dump" );
 
@@ -154,7 +154,7 @@ my @tries = (
 foreach my $test (@tries) {
     my ( $path, $expect ) = @$test;
     my $obj  = $root->grab($path);
-    my $dump = $obj->dump_as_data();
+    my $dump = $obj->dump_as_data(mode => 'user');
     is_deeply( $dump, $expect, "check data dump for '$path'" );
 }
 
@@ -203,7 +203,7 @@ $root3->load_data($data);
 foreach my $test (@tries) {
     my ( $path, $expect ) = @$test;
     my $obj  = $root3->grab($path);
-    my $dump = $obj->dump_as_data();
+    my $dump = $obj->dump_as_data(mode => 'user');
     is_deeply( $dump, $expect, "check data dump for '$path'" );
 }
 

@@ -18,7 +18,7 @@ sub dump_as_data {
     my %args      = @_;
     my $dump_node = delete $args{node}
         || croak "dump_as_data: missing 'node' parameter";
-    my $fetch_mode = delete $args{mode} ;
+    my $mode = delete $args{mode} // '';
     my $skip_aw = delete $args{skip_auto_write} || '';
     my $auto_v  = delete $args{auto_vivify}     || 0;
     my $ordered_hash_as_list = delete $args{ordered_hash_as_list};
@@ -26,9 +26,12 @@ sub dump_as_data {
     $ordered_hash_as_list = 1 unless defined $ordered_hash_as_list;
 
     # mode and full_dump params are both accepted
-    my $full = delete $args{full_dump} // 1;
-    $fetch_mode //= 'non_upstream_default' if $full;
-    $fetch_mode //= 'custom';
+    my $full = delete $args{full_dump} || 0;
+    my $fetch_mode =
+          $full           ? 'user'
+        : $mode eq 'full' ? 'user'
+        : $mode           ? $mode
+        :                   'custom';
 
     my $std_cb = sub {
         my ( $scanner, $data_r, $obj, $element, $index, $value_obj ) = @_;
