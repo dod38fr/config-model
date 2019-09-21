@@ -1027,14 +1027,17 @@ sub load_data {
     }
 }
 
-# TBD explain full_dump
-
 sub dump_tree {
     my $self = shift;
     my %args = @_;
     $self->init();
+    my $full = delete $args{full_dump} || 0;
+    if ($full) {
+        carp "dump_tree: full_dump parameter is deprecated. Please use 'mode => user' instead";
+        $args{mode} //= 'user';
+    }
     my $dumper = Config::Model::Dumper->new;
-    $dumper->dump_tree( node => $self, @_ );
+    $dumper->dump_tree( node => $self, %args );
 }
 
 sub migrate {

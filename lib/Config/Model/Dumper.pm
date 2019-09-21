@@ -51,6 +51,10 @@ sub dump_tree {
     my $auto_v  = delete $args{auto_vivify} || 0;
     my $mode    = delete $args{mode} || '';
 
+    if ($full) {
+        carp "dump_tree: full_dump parameter is deprecated, please use mode => 'user'";
+    }
+
     my $check = delete $args{check} || 'yes';
     if ( $check !~ /yes|no|skip/ ) {
         croak "dump_tree: unexpected 'check' value: $check";
@@ -292,9 +296,8 @@ The serialization can be done in standard mode where only customized
 values are dumped in the string. I.e. only data modified by the user
 are dumped.
 
-The other mode is C<full_dump> mode where all all data, including
-default values, are dumped. Under the hood, values are fetched with
-C<mode> set to C<user> when calling L<Config::Model::Value/fetch>.
+All other mode supported by L<Config::Model::Value/fetch> can be used,
+for instance, to get default values.
 
 The serialized string can be used by L<Config::Model::Loader> to store
 the data back into a configuration tree.

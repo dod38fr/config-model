@@ -103,7 +103,7 @@ eq_or_diff(
     "check dump of only customized values "
 );
 
-$cds = $root->dump_tree( full_dump => 1 );
+$cds = $root->dump_tree( mode => 'user' );
 print "cds string:\n$cds" if $trace;
 
 my $expect = <<'EOF' ;
@@ -147,7 +147,7 @@ eq_or_diff( [ split /\n/, $cds ], [ split /\n/, $expect ], "check dump of all va
 my $listb = $root->fetch_element('listb');
 $listb->clear;
 
-$cds = $root->dump_tree( full_dump => 1 );
+$cds = $root->dump_tree( mode => 'user' );
 print "cds string:\n$cds" if $trace;
 
 $expect = <<'EOF' ;
@@ -230,7 +230,7 @@ int_v=10
 my_check_list=X2,X3 -
 EOF
 
-$cds = $root->dump_tree( full_dump => 1 );
+$cds = $root->dump_tree( mode => 'user' );
 print "cds string:\n$cds" if $trace;
 
 $cds =~ s/\s+\n/\n/g;
@@ -262,7 +262,7 @@ eq_or_diff( [ split /\n/, $cds ], [ split /\n/, $expect ], "check dump of all pr
 my $tm = $root->fetch_element('tree_macro');
 map { $tm->store($_); } qw/XY XZ mXY XY mXY XZ/;
 
-$cds = $root->dump_tree( full_dump => 1, skip_auto_write => 'cds_file' );
+$cds = $root->dump_tree( mode => 'user', skip_auto_write => 'cds_file' );
 print "cds string:\n$cds" if $trace;
 
 like( $cds, qr/hidden value/, "check that hidden value is shown (macro=XZ)" );
@@ -270,7 +270,7 @@ like( $cds, qr/hidden value/, "check that hidden value is shown (macro=XZ)" );
 # check that list of undef is not shown
 map { $listb->fetch_with_id($_)->store(undef) } ( 0 .. 3 );
 
-$cds = $root->dump_tree( full_dump => 1 );
+$cds = $root->dump_tree( mode => 'user' );
 print "Empty listb dump:\n$cds" if $trace;
 
 unlike( $cds, qr/listb/, "check that listb containing undef values is not shown" );
@@ -312,7 +312,7 @@ is( $root2->grab('olist:0')->annotation,   'olist_0_note',   "check annotation f
 
 my $expect_count = scalar grep { /#/ } split //, $step;
 
-$cds = $root2->dump_tree( full_dump => 1 );
+$cds = $root2->dump_tree( mode => 'user' );
 print "Dump with annotations:\n$cds" if $trace;
 
 is( ( scalar grep { /#/ } split //, $cds ),
@@ -328,7 +328,7 @@ ok(
     "set up data in tree with dumped data+annotation"
 );
 
-my $cds2 = $root3->dump_tree( full_dump => 1 );
+my $cds2 = $root3->dump_tree( mode => 'user' );
 print "Dump second instance with annotations:\n$cds2" if $trace;
 
 is( $cds2, $cds, "check both dumps" );
