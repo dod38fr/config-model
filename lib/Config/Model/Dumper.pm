@@ -6,6 +6,7 @@ use warnings;
 
 use Config::Model::Exception;
 use Config::Model::ObjTreeScanner;
+use Config::Model::Value;
 
 sub new {
     bless {}, shift;
@@ -50,10 +51,6 @@ sub dump_tree {
     my $auto_v  = delete $args{auto_vivify} || 0;
     my $mode    = delete $args{mode} || '';
 
-    if ( $mode and $mode !~ /full|preset|custom|non_upstream_default/ ) {
-        croak "dump_tree: unexpected 'mode' value: $mode";
-    }
-
     my $check = delete $args{check} || 'yes';
     if ( $check !~ /yes|no|skip/ ) {
         croak "dump_tree: unexpected 'check' value: $check";
@@ -61,10 +58,14 @@ sub dump_tree {
 
     # mode parameter is slightly different from fetch's mode
     my $fetch_mode =
-          $full           ? ''
-        : $mode eq 'full' ? ''
+          $full           ? 'user'
+        : $mode eq 'full' ? 'user'
         : $mode           ? $mode
         :                   'custom';
+
+    if ( my $err = Config::Model::Value->is_bad_mode($fetch_mode) ) {
+        croak "dump_tree: $err";
+    }
 
     my $node = delete $args{node}
         || croak "dump_tree: missing 'node' parameter";
@@ -292,7 +293,8 @@ values are dumped in the string. I.e. only data modified by the user
 are dumped.
 
 The other mode is C<full_dump> mode where all all data, including
-default values, are dumped.
+default values, are dumped. Under the hood, values are fetched with
+C<mode> set to C<user> when calling L<Config::Model::Value/fetch>.
 
 The serialized string can be used by L<Config::Model::Loader> to store
 the data back into a configuration tree.
@@ -322,12 +324,12 @@ Parameters are:
 
 =over
 
-=item mode ( full | preset | custom | non_upstream_default )
+=item mode
 
 C<full> dumps all configuration data including default
 values.
 
-C<preset> dumps only value entered in preset mode.
+All mode values from L<Config::Model::Value/fetch> can be used.
 
 By default, the dump contains only data modified by the user
 (i.e. C<custom> data that differ from default or preset values).
