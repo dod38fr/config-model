@@ -1280,19 +1280,19 @@ L<Config::Model::Dumper> or L<Config::Model::DumpAsData>)
 
 All the methods below are valid only for ordered checklists.
 
-=head1 swap
+=head2 swap
 
 Parameters: C<< ( choice_a, choice_b) >>
 
 Swap the 2 given choice in the list. Both choice must be already set.
 
-=head1 move_up
+=head2 move_up
 
 Parameters: C<< ( choice ) >>
 
 Move the choice up in the checklist.
 
-=head1 move_down
+=head2 move_down
 
 Parameters: C<< ( choice ) >>
 
