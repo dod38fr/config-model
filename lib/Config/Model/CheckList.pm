@@ -380,8 +380,8 @@ sub has_data {
     return scalar @set;
 }
 
-my %accept_mode =
-    map { ( $_ => 1 ) } qw/custom standard preset default layered upstream_default user/;
+my %accept_mode = map { ( $_ => 1 ) }
+    qw/custom standard preset default layered upstream_default non_upstream_default user/;
 
 sub is_checked {
     my $self   = shift;
@@ -405,6 +405,7 @@ sub is_checked {
         my $ud     = $self->{upstream_default_data}{$choice};
         my $lay    = $self->{layered}{$choice};
         my $std_v  = $pre // $def // 0;
+        my $non_up_def = $dat // $pre // $lay // $def // 0;
         my $user_v = $dat // $pre // $lay // $def // $ud // 0;
 
         my $result =
@@ -414,6 +415,7 @@ sub is_checked {
             : $mode eq 'upstream_default' ? $ud
             : $mode eq 'default'          ? $def
             : $mode eq 'standard'         ? $std_v
+            : $mode eq 'non_upstream_default' ? $ud
             : $mode eq 'user'             ? $user_v
             :                               $dat // $std_v;
 
@@ -1088,7 +1090,8 @@ Reset an element of the checklist.
 
 =head2 get_checked_list_as_hash
 
-Parameters: C<< ( [ custom | preset | standard | default ] ) >>
+Accept a parameter (refered below as C<mode> parameter) similar to
+C<mode> in L<Config::Model::Value/fetch>.
 
 Returns a hash (or a hash ref) of all items. The boolean value is the
 value of the hash.
@@ -1101,7 +1104,8 @@ Example:
 By default, this method returns all items set by the user, or
 items set in preset mode or checked by default.
 
-With a parameter, this method returns either:
+With a parameter set to a value from the list below, this method
+returns:
 
 =over
 
@@ -1136,7 +1140,11 @@ model)
 =item user
 
 The set that is active in the application. (ie. set by user or
-by layered data or preset or default)
+by layered data or preset or default or upstream_default)
+
+=item non_upstream_default
+
+The choice set by user or by layered data or preset or default.
 
 =back
 
