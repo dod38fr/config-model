@@ -248,8 +248,14 @@ sub searcher {
 
 sub dump_as_data {
     my $self   = shift;
+    my %args = @_;
+    my $full = delete $args{full_dump} || 0;
+    if ($full) {
+        carp "dump_as_data: full_dump parameter is deprecated. Please use 'mode => user' instead";
+        $args{mode} //= 'user';
+    }
     my $dumper = Config::Model::DumpAsData->new;
-    $dumper->dump_as_data( node => $self, @_ );
+    $dumper->dump_as_data( node => $self, %args );
 }
 
 # hum, check if the check information is valid

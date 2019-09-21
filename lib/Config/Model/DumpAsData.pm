@@ -27,6 +27,9 @@ sub dump_as_data {
 
     # mode and full_dump params are both accepted
     my $full = delete $args{full_dump} || 0;
+    carp "dump_as_data: full_dump parameter is deprecated. Please use 'mode => user' instead"
+        if $full;
+
     my $fetch_mode =
           $full           ? 'user'
         : $mode eq 'full' ? 'user'
@@ -332,10 +335,13 @@ Reference to a L<Config::Model::Node> object. Mandatory
 =item full_dump
 
 Also dump default values in the data structure. Useful if the dumped
-configuration data is used by the application. (default is yes)
+configuration data is used by the application. This parameter is
+deprecated in favor of mode parameter.
+
+=item mode
 
 Note that C<mode> parameter is also accepted and overrides
-C<full_dump> parameter. See L<Config::Model::Value/fetch(...)> for
+C<full_dump> parameter. See L<Config::Model::Value/fetch> for
 details on C<mode>.
 
 =item skip_auto_write
