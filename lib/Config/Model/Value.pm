@@ -2618,10 +2618,10 @@ computed or migrated value).
 
 Parameters: C<< ( $value ) >>
 
-Load scalar data. Data is forwarded to L</"store">.
+Called with the same parameters are C<store> method.
 
-Called with C<load_data> or C<load_data> or
-with the same parameters are C<store> method.
+Load scalar data. Data is forwarded to L</"store"> after checking that
+the passed value is not a reference.
 
 =head2 fetch_custom
 
