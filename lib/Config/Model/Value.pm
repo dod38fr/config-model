@@ -2592,7 +2592,7 @@ by L</fetch> method. Returns an error message if not. For instance:
     croak "my_function: $err";
  }
 
-This method is intented as a helper ti avoid duplicating the list of
+This method is intented as a helper to avoid duplicating the list of
 accepted modes for functions that want to wrap fetch methods (like
 L<Config::Model::Dumper> or L<Config::Model::DumpAsData>)
 
@@ -2604,8 +2604,8 @@ Parameters: C<< ( $value ) >>
 or C<< value => ...,	check => yes|no|skip ), silent => 0|1 >>
 
 Store value in leaf element. C<check> parameter can be used to
-skip validation check (default ies 'yes').
-C<silent> cane be used to suppress warnings.
+skip validation check (default is 'yes').
+C<silent> can be used to suppress warnings.
 
 Optional C<callback> is now deprecated.
 
