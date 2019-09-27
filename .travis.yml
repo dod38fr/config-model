@@ -1,3 +1,5 @@
+# see https://travis-ci.community/t/older-perl-version-stopped-working/4294
+dist: trusty
 language: perl
 perl:
   - "5.24"
