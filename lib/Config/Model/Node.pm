@@ -677,12 +677,9 @@ sub fetch_element {
     # do not warn when when is skip or "no"
     if ($self->{status}{$element_name} eq 'deprecated' and $check eq 'yes' ) {
         # FIXME elaborate more ? or include parameter description ??
-        if ($::_use_log4perl_to_warn) {
-            $user_logger->warn("Element '$element_name' of node '", $self->name, "' is deprecated");
-        }
-        else {
-            warn("Element '$element_name' of node '", $self->name, "' is deprecated\n");
-        }
+        my $msg = "Element '$element_name' of node '". $self->name. "' is deprecated";
+        if ($::_use_log4perl_to_warn) { $user_logger->warn($msg); }
+        else                          { warn("$msg\n"); }
 
         # this will also force a rewrite of the file even if no other
         # semantic change was done
