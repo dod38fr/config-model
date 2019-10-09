@@ -3,13 +3,14 @@
 use ExtUtils::testlib;
 use Test::More ;
 use Test::Exception;
-use Test::Warn;
 use Test::Memory::Cycle;
 use Config::Model;
 use Config::Model::Tester::Setup qw/init_test/;
+use Test::Log::Log4perl;
 
 use strict;
 use warnings;
+$::_use_log4perl_to_warn = 1;
 
 my ($model, $trace) = init_test();
 
@@ -71,6 +72,8 @@ my $instance = $model->instance(
 
 ok( 1, "Instance created" );
 
+Test::Log::Log4perl-> ignore_priority('INFO');
+
 my $root = $instance->config_root;
 
 ok( $root, "Config root created" );
@@ -97,9 +100,13 @@ ok( $b, "Created Sarge" );
 
 is( $b->fetch_element_value('Z'), undef, "test Z value" );
 
-warning_like { $b->fetch_element('D'); }
-qr/Element 'D' of node 'captain bar' is deprecated/,
-    'Check deprecated element warning';
+subtest "check deprecated element warning" => sub{
+    my $xp = Test::Log::Log4perl->expect([
+        'User',
+        warn => qr/Element 'D' of node 'captain bar' is deprecated/
+    ]);
+    $b->fetch_element('D');
+};
 
 
 $b->fetch_element('X')->store('Av');
