@@ -6,7 +6,6 @@ use Test::Memory::Cycle;
 use Config::Model;
 use Config::Model::Tester::Setup qw/init_test/;
 use Test::Exception;
-use Test::Warn;
 use Test::Differences;
 use Test::Log::Log4perl;
 
