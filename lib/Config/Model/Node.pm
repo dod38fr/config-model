@@ -117,7 +117,7 @@ has needs_save => ( is => 'rw', isa => 'Bool', default => 0 );
 
 has backend_mgr => ( is => 'ro', isa => 'Maybe[Config::Model::BackendMgr]' );
 
-# attribute is defined in Config::Model::Anythin
+# attribute is defined in Config::Model::Anything
 sub _backend_support_annotation {
     my $self = shift;
     return $self->backend_mgr ? $self->backend_mgr->support_annotation
