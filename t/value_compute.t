@@ -570,7 +570,7 @@ $root->fetch_element( name => 'Original-Source-Location', check => 'no' )->store
 is( $root->grab_value( step => 'Source' ), 'foobar', "check migrate_from with undef_is" );
 
 my $v;
-warning_like { $v = $root->grab_value( step => 'Source2' ); }[ (qr/deprecated/) x 4 ],
+warning_like { $v = $root->grab_value( step => 'Source2' ); }[ (qr/deprecated/) x 2 ],
     "check Source2 compute with undef_is";
 is( $v, 'foobar', "check result of compute with undef_is" );
 

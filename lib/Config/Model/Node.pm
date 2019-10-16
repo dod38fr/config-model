@@ -117,6 +117,18 @@ has needs_save => ( is => 'rw', isa => 'Bool', default => 0 );
 
 has backend_mgr => ( is => 'ro', isa => 'Maybe[Config::Model::BackendMgr]' );
 
+# used to avoid warning twice about a deprecated element. Internal methods
+has warned_deprecated_element => (
+    is => 'ro',
+    isa => 'HashRef[Str]',
+    traits     => ['Hash'],
+    default => sub { {}; },
+    handles => {
+        warn_element_done => 'set',
+        was_element_warned => 'defined',
+    }
+) ;
+
 # attribute is defined in Config::Model::Anything
 sub _backend_support_annotation {
     my $self = shift;
@@ -678,9 +690,11 @@ sub fetch_element {
     if ($self->{status}{$element_name} eq 'deprecated' and $check eq 'yes' ) {
         # FIXME elaborate more ? or include parameter description ??
         my $msg = "Element '$element_name' of node '". $self->name. "' is deprecated";
-        if ($::_use_log4perl_to_warn) { $user_logger->warn($msg); }
-        else                          { warn("$msg\n"); }
-
+        if (not $self->was_element_warned($element_name)) {
+            if ($::_use_log4perl_to_warn) { $user_logger->warn($msg); }
+            else                          { warn("$msg\n"); }
+            $self->warn_element_done($element_name,1);
+        }
         # this will also force a rewrite of the file even if no other
         # semantic change was done
         $self->notify_change(

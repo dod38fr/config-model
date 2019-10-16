@@ -48,7 +48,7 @@ my @tests = (
         config_file => '/home/foo/strap-igep0020.conf',
         load_check => 'skip',
         log4perl_load_warnings => [
-            [ 'User', (warn => qr/deprecated/) x 2 ]  ,
+            [ 'User', warn => qr/deprecated/ ]  ,
             [ 'User' , ( warn => qr/skipping/) x 2 ]
         ],
     },
