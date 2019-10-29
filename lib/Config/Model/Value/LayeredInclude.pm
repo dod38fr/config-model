@@ -59,29 +59,6 @@ sub _store {
     return $value;
 }
 
-sub _check_value {
-    my $self      = shift;
-    my %args      = @_ > 1 ? @_ : ( value => $_[0] );
-    my $value     = $args{value};
-    my $quiet     = $args{quiet} || 0;
-    my $check     = $args{check} || 'yes';
-    my $apply_fix = $args{fix} || 0;
-    my $mode      = $args{mode} || '';
-
-    $self->SUPER::check_value(@_);
-
-    # need to test that prest config file is present as the model
-    # may not enforce it (when read_config auto_create is 1)
-    my $layered_file = $self->instance->root_dir->child($value);
-
-    my $err = $self->{error_list};
-
-    if ( not $layered_file->is_file ) {
-        push @$err, "cannot read include file $layered_file";
-    }
-
-    return wantarray ? @$err : scalar @$err ? 0 : 1;
-}
 1;
 
 # ABSTRACT: Include a sub layer configuration
