@@ -763,9 +763,6 @@ sub check_value {
     my $check     = $args{check} || 'yes';
     my $apply_fix = $args{fix} || 0;
     my $mode      = $args{mode} || 'backend';
-    my $cb        = delete $args{callback};
-
-    carp "callback parameter is deprecated" if defined $cb;
 
     #croak "Cannot specify a value with fix = 1" if $apply_fix and exists $args{value} ;
 
@@ -944,7 +941,6 @@ sub check_value {
 
     $logger->trace("done");
 
-    $cb->( %args, ok => not @error ) if $cb;
     my $ok = not @error;
     return wantarray ? ($ok, $value) : $ok;
 }
