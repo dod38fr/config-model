@@ -1180,17 +1180,18 @@ sub store_warning {
     my %warn_h;
 
     if ( $self->has_warning and not $nowarning and not $silent ) {
+        my $str = $value // '<undef>';
+        chomp $str;
+        my $w_str = $str =~ /\n/ ? "\n+++++\n$str\n+++++" : "'$str'";
         foreach my $w ( $self->all_warnings ) {
             $warn_h{$w} = 1;
             next if $old_warn->{$w};
-            my $str = $value // '<undef>';
-            chomp $str;
-            my $w_str = $str =~ /\n/ ? "\n+++++\n$str\n+++++" : "'$str'";
+            my $w_msg = "Warning in '" . $self->location_short . "': $w\nOffending value: $w_str";
             if ($::_use_log4perl_to_warn) {
-                $user_logger->warn("Warning in '" . $self->location_short . "': $w\nOffending value: $w_str");
+                $user_logger->warn($w_msg);
             }
             else {
-                warn "Warning in '" . $self->location_short . "': $w\nOffending value: $w_str\n";
+                warn "$w_msg\n";
             }
         }
     }
