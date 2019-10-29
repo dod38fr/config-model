@@ -43,7 +43,6 @@ sub _store {
 
     # load included file in layered mode
     $self->root->read_config_data(
-
         # check => 'no',
         config_file => $value,
         auto_create => 0,        # included file must exist
@@ -81,7 +80,6 @@ __END__
       },
     ]
 
-
 =head1 DESCRIPTION
 
 This class inherits from L<Config::Model::Value>. It overrides
@@ -89,7 +87,6 @@ L<_store> to trigger a refresh of layered value when a value is
 changed. I.e. changing this value trigger a reload of the referred configuration
 file which values are used as default value. This class was designed to
 cope with L<multistrap|http://wiki.debian.org/Multistrap> configuration.
-
 
 =head2 CAUTION
 
