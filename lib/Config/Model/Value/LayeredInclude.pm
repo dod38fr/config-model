@@ -108,8 +108,4 @@ included files.
 
 This class works only with the first type
 
-=head1 AUTHOR
-
-Copyright 2011,2013 Dominique Dumont <ddumont at cpan.org>
-
 =cut
