@@ -1165,12 +1165,12 @@ sub check_fetched_value {
         $logger->debug("is not needed");
     }
 
-    $self->store_warning($value, $silent);
+    $self->show_warnings($value, $silent);
 
     return wantarray ? $self->all_errors : $self->is_ok;
 }
 
-sub store_warning {
+sub show_warnings {
     my ($self, $value, $silent) = @_ ;
 
     # old_warn is used to avoid warning the user several times for the
@@ -1452,7 +1452,7 @@ sub check_stored_value {
     # must always warn when storing a value, hence clearing the list
     # of already issued warnings
     $self->{old_warning_hash} = {};
-    $self->store_warning($value, $silent);
+    $self->show_warnings($value, $silent);
 
     return wantarray ? ($ok,$fixed_value) : $ok;
 }
