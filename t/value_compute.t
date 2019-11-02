@@ -1,21 +1,23 @@
 # -*- cperl -*-
 
-use ExtUtils::testlib;
 use Test::More;
-use Test::Warn;
 use Test::Differences;
 use Test::Memory::Cycle;
 use Config::Model;
 use Config::Model::Tester::Setup qw/init_test/;
+use Test::Log::Log4perl;
 
 use strict;
 use warnings;
+$::_use_log4perl_to_warn = 1;
 
 use 5.10.1;
 
 my ($model, $trace, $args) = init_test('rd-hint','rd-trace');
 
 note("use --rd-hint or --rd-trace options to debug Parse::RecDescent");
+
+Test::Log::Log4perl-> ignore_priority('INFO');
 
 $model->create_config_class(
     name    => "Slave",
@@ -569,10 +571,12 @@ print join( "\n", $inst->list_changes("\n") ), "\n" if $trace;
 $root->fetch_element( name => 'Original-Source-Location', check => 'no' )->store('foobar');
 is( $root->grab_value( step => 'Source' ), 'foobar', "check migrate_from with undef_is" );
 
-my $v;
-warning_like { $v = $root->grab_value( step => 'Source2' ); }[ (qr/deprecated/) x 2 ],
-    "check Source2 compute with undef_is";
-is( $v, 'foobar', "check result of compute with undef_is" );
+subtest "check Source2 compute with undef_is" => sub {
+    my $v;
+    my $xp = Test::Log::Log4perl->expect([ 'User', (warn => qr/deprecated/) x 2]);
+    $v = $root->grab_value( step => 'Source2' );
+    is( $v, 'foobar', "check result of compute with undef_is" );
+};
 
 foreach (qw/bar foo2/) {
     my $path = "$_ location_function_in_formula";
@@ -629,17 +633,27 @@ is(
     'test compute with complex regexp formula'
 );
 
-my $cwoaf = $root->fetch_element('compute_with_override_and_fix');
-is($cwoaf->fetch, 'def value', "test compute_with_override_and_fix default value");
-warning_like {$cwoaf->store('oops') ; }[ qr/not default value/],
-    "check warning with modified compute_with_override_and_fix";
-$cwoaf->apply_fixes;
-is($cwoaf->fetch, 'def value', "test compute_with_override_and_fix value after fix");
+subtest "check warning with modified compute_with_override_and_fix" => sub {
+    my $cwoaf = $root->fetch_element('compute_with_override_and_fix');
+    is($cwoaf->fetch, 'def value', "test compute_with_override_and_fix default value");
+    {
+        my $xp = Test::Log::Log4perl->expect([ 'User', warn => qr/not default value/]);
+        $cwoaf->store('oops') ;
+    }
+    $cwoaf->apply_fixes;
+    is($cwoaf->fetch, 'def value', "test compute_with_override_and_fix value after fix");
+};
 
-my $cwoapf = $root->fetch_element('compute_with_override_and_powerless_fix');
-warning_like { $cwoapf->apply_fixes;} [ qr/not good value/],
-    "check warning when applying powerless fix";
-is($cwoapf->fetch, '/dev/lcd0', "test default value after powerless fix");
+
+subtest "check warning when applying powerless fix" => sub {
+    my $cwoapf = $root->fetch_element('compute_with_override_and_powerless_fix');
+    {
+        my $xp = Test::Log::Log4perl->expect([ 'User', warn => qr/not good value/]);
+        $cwoapf->apply_fixes;
+    }
+
+    is($cwoapf->fetch, '/dev/lcd0', "test default value after powerless fix");
+};
 
 foreach my $elem (qw/foo2 bar/) {
     foreach my $i (1..3) {
