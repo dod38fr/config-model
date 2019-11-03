@@ -753,7 +753,7 @@ sub enum_error {
     return @error;
 }
 
-sub check_value {
+sub _check_value {
     my $self = shift;
     croak "check_value needs a value to check" unless @_ > 1;
 
@@ -932,14 +932,23 @@ sub check_value {
         scalar @error,
         " errors and ", scalar @warn, " warnings"
     );
+
+    my $ok = not @error;
+    return ($ok, $value, \@error, \@warn);
+}
+
+
+sub check_value {
+    my $self = shift;
+
+    my ($ok, $value, $error, $warn) = $self->_check_value(@_);
     $self->clear_errors;
     $self->clear_warnings;
-    $self->add_error(@error)  if @error;
-    $self->add_warning(@warn) if @warn;
+    $self->add_error(@$error)  if @$error;
+    $self->add_warning(@$warn) if @$warn;
 
     $logger->trace("done");
 
-    my $ok = not @error;
     # return $value because it may be updated by apply_fix
     return wantarray ? ($ok, $value) : $ok;
 }
