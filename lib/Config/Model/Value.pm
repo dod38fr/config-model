@@ -290,11 +290,11 @@ sub perform_compute {
     my $result = $self->compute_obj->compute;
 
     # check if the computed result fits with the constraints of the
-    # Value object
-    my $ok = $self->check_fetched_value($result);
+    # Value model
+    my ($ok, $value, $error, $warn) = $self->_check_value(value => $result);
 
     if ( not $ok ) {
-        my $error = $self->error_msg . "\n\t" . $self->compute_info;
+        my $error = join("\n", (@$error, $self->compute_info));
 
         Config::Model::Exception::WrongValue->throw(
             object => $self,
@@ -1068,6 +1068,8 @@ sub apply_fixes {
             );
         }
     } while ( $self->{nb_of_fixes} and $old > $new );
+
+    $self->show_warnings($self->_fetch_no_check);
 }
 
 # internal: called by check when a fix is required

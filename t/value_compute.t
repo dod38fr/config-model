@@ -196,6 +196,25 @@ $model->create_config_class(
             min => -4,
             max => 4,
         },
+        compute_with_warning => {
+            type       => 'leaf',
+            class      => 'Config::Model::Value',
+            value_type => 'integer',
+            compute    => {
+                formula        => '$a + $b',
+                variables      => { a => '- av', b => '- bv' },
+                allow_override => 1,
+            },
+            warn_if => {
+                positive_test => {
+                    code => 'defined $_ && $_ < 0;',
+                    msg  => 'should be positive',
+                    fix  => '$_ = 0;'
+                }
+            },
+            min => -4,
+            max => 4,
+        },
         compute_with_override_and_fix => {
             type       => 'leaf',
             class      => 'Config::Model::Value',
@@ -400,7 +419,8 @@ eq_or_diff(
     [ $root->get_element_name() ],
     [
         qw/av bv compute_int sav sbv one_var one_wrong_var
-            meet_test compute_with_override compute_with_override_and_fix compute_with_override_and_powerless_fix
+            meet_test compute_with_override compute_with_warning
+            compute_with_override_and_fix compute_with_override_and_powerless_fix
             compute_with_upstream compute_no_var bar
             foo2 url host with_tmp_var Upstream-Contact Maintainer Source Source2 Licenses
             index_function_target test_index_function OtherMaintainer Vcs-Browser/
@@ -494,7 +514,10 @@ eval { $result = $compute_int->fetch; };
 ok( $@, "computed integer: computed value error" );
 print "normal error:\n", $@, "\n" if $trace;
 
-is( $compute_int->fetch( check => 0 ),
+is( $compute_int->fetch( check => 'no' ), undef,
+    "returns undef when computed integer is invalid and check is no (a: 1, b: -2)" );
+
+is( $compute_int->fetch( check => 'skip' ),
     undef, "test result :  computed integer is undef (a: 1, b: -2)" );
 
 my $s = $root->fetch_element('meet_test');
@@ -633,17 +656,51 @@ is(
     'test compute with complex regexp formula'
 );
 
-subtest "check warning with modified compute_with_override_and_fix" => sub {
-    my $cwoaf = $root->fetch_element('compute_with_override_and_fix');
-    is($cwoaf->fetch, 'def value', "test compute_with_override_and_fix default value");
-    {
-        my $xp = Test::Log::Log4perl->expect([ 'User', warn => qr/not default value/]);
-        $cwoaf->store('oops') ;
-    }
-    $cwoaf->apply_fixes;
-    is($cwoaf->fetch, 'def value', "test compute_with_override_and_fix value after fix");
+subtest "check warning with computed value and overide" => sub {
+    my $xp = Test::Log::Log4perl->expect([ 'User', warn => qr/should be positive/ ]);
+    my $cww = $root->fetch_element('compute_with_warning');
+    $av->store(-2);
+    $bv->store(-1);
+    $cww->fetch;
+    is($cww->has_warning, 1, "check has_warning after check");
+    is($cww->perform_compute, -3);
+    is($cww->has_warning, 1, "check has_warning after compute");
+    $cww->store(2);
+    is($cww->fetch, 2, "check overridden value");
+    is($cww->has_warning, 0, "check has_warning after fixing with override");
 };
 
+subtest "check warning with overridden computed value" => sub {
+    my $xp = Test::Log::Log4perl->expect([ 'User', warn => qr/should be positive/ ]);
+    my $cww = $root->fetch_element('compute_with_warning');
+    $av->store(2);
+    $bv->store(1);
+    $cww->fetch;
+    is($cww->has_warning, 0, "computed value is fine");
+    $cww->store(-2);
+    is($cww->has_warning, 1, "overridden value trigges a warning");
+    is($cww->fetch_standard, 3, "get standard value (triggers a compute)");
+    is($cww->fetch, -2, "overridden value is still there");
+    is($cww->has_warning, 1, "check that warning is still present");
+    is($cww->perform_compute, 3, "force a compute");
+    is($cww->fetch, -2, "overridden value is still there");
+    is($cww->has_warning, 1, "check that warning is still present");
+};
+
+subtest "check warning with modified compute_with_override_and_fix" => sub {
+    my $xp = Test::Log::Log4perl->expect([ 'User', warn => qr/not default value/]);
+    my $cwoaf = $root->fetch_element('compute_with_override_and_fix');
+    is($cwoaf->fetch, 'def value', "test compute_with_override_and_fix default value");
+
+    # generate the expected warning because value does not match /def/
+    $cwoaf->store('oops') ;
+
+    is($cwoaf->fetch, 'oops', "test compute_with_override_and_fix value after fix");
+    is($cwoaf->has_warning, 1, "check if bad value has warnings");
+    $cwoaf->apply_fixes;
+    is($cwoaf->fetch, 'def value', "test compute_with_override_and_fix value after fix");
+    is($cwoaf->has_warning, 0, "check if apply fix has cleaned up the warnings");
+};
 
 subtest "check warning when applying powerless fix" => sub {
     my $cwoapf = $root->fetch_element('compute_with_override_and_powerless_fix');
