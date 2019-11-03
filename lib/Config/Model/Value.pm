@@ -937,11 +937,10 @@ sub check_value {
     $self->add_error(@error)  if @error;
     $self->add_warning(@warn) if @warn;
 
-    $args{value} = $value;    # may be updated by apply_fix
-
     $logger->trace("done");
 
     my $ok = not @error;
+    # return $value because it may be updated by apply_fix
     return wantarray ? ($ok, $value) : $ok;
 }
 
