@@ -396,15 +396,16 @@ sub setup_enum_choice {
     # whether a value is present in the enum set is easier
     delete $self->{choice_hash} if defined $self->{choice_hash};
 
-    map { $self->{choice_hash}{$_} = 1; } @choice;
+    for ( @choice ) { $self->{choice_hash}{$_} = 1; }
 
     # delete the current value if it does not fit in the new
     # choice
-    map {
+    for ( qw/data preset/ ) {
         my $lv = $self->{$_};
-
-        delete $self->{$_} if ( defined $lv and not defined $self->{choice_hash}{$lv} );
-    } qw/data preset/;
+        if ( defined $lv and not defined $self->{choice_hash}{$lv} ) {
+            delete $self->{$_};
+        }
+    }
 }
 
 sub setup_match_regexp {
@@ -515,13 +516,13 @@ sub set_properties {
     my $self = shift;
 
     # cleanup all parameters that are handled by warp
-    map( delete $self->{$_}, @allowed_warp_params );
+    for ( @allowed_warp_params ) { delete $self->{$_} }
 
     # merge data passed to the constructor with data passed to set_properties
     my %args = ( %{ $self->{backup} }, @_ );
 
     # these are handled by Node or Warper
-    map { delete $args{$_} } qw/level/;
+    for ( qw/level/ ) { delete $args{$_} }
 
     if ( $logger->is_trace ) {
         $logger->trace( "Leaf '" . $self->name . "' set_properties called with '",
@@ -539,9 +540,10 @@ sub set_properties {
         );
     }
 
-    map { $self->{$_} = delete $args{$_} if defined $args{$_} }
-        qw/min max mandatory warn replace_follow assert warn_if warn_unless
-        write_as/;
+    for (qw/min max mandatory warn replace_follow assert warn_if warn_unless
+            write_as/) {
+        $self->{$_} = delete $args{$_} if defined $args{$_};
+    }
 
     if ($args{replace}) {
         $self->{replace} = delete $args{replace};
@@ -1312,7 +1314,7 @@ sub _store {
     if ( $logger->is_debug ) {
         my $i   = $self->instance;
         my $msg = "value store ". ($value // '<undef>')." ok '$ok', check is $check";
-        map { $msg .= " $_" if $i->$_() } qw/layered preset/;
+        for ( qw/layered preset/ ) { $msg .= " $_" if $i->$_() }
         $logger->debug($msg);
     }
 
@@ -1370,10 +1372,10 @@ sub transform_boolean {
 
     if ( my $wa = $self->{write_as} ) {
         my $i = 0;
-        map {
+        for ( @$wa ) {
             $$v_ref = $i if ( $wa->[$i] eq $$v_ref );
             $i++
-        } @$wa;
+        }
     }
 
     # convert yes no to 1 or 0
