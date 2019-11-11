@@ -181,27 +181,31 @@ sub set_properties {
     my $self = shift;
 
     # mega cleanup
-    map( delete $self->{$_}, @allowed_warp_params );
+    for ( @allowed_warp_params ) { delete $self->{$_}; }
 
     my %args = ( %{ $self->{backup} }, @_ );
 
     # these are handled by Node or Warper
-    map { delete $args{$_} } qw/level/;
+    for ( qw/level/ ) { delete $args{$_}; }
 
     $logger->trace( $self->name, " set_properties called with @_" );
 
-    map { $self->{$_} = delete $args{$_} if defined $args{$_} } @common_params;
+    for ( @common_params ) {
+        $self->{$_} = delete $args{$_} if defined $args{$_};
+    }
 
     $self->set_convert( \%args ) if defined $args{convert};
 
     $self-> clear_warpable_check_content;
-    map { $self-> add_warpable_check_content($_) } $self-> get_all_content_checks;
-    map {
+    for ( $self-> get_all_content_checks ) {
+        $self-> add_warpable_check_content($_);
+    }
+    for ( qw/duplicates/ ) {
         my $method = "check_$_";
         my $weak_self = $self;
         weaken($weak_self); # weaken reference loop ($self - check_content - closure - self)
         $self-> add_check_content( sub { $weak_self->$method(@_);} ) if  $self->{$_};
-    } qw/duplicates/;
+    }
 
     Config::Model::Exception::Model->throw(
         object => $self,
@@ -388,8 +392,10 @@ sub handle_args {
 
     my $warp_info = delete $args{warp};
 
-    map { $self->{$_} = delete $args{$_} if defined $args{$_} }
-        qw/index_class index_type morph ordered/;
+    for ( qw/index_class index_type morph ordered/) {
+        $self->{$_} = delete $args{$_} if defined $args{$_};
+    }
+
 
     $self->{backup} = dclone( \%args );
 
@@ -475,7 +481,9 @@ sub deep_check {
 
     $deep_check_logger->trace("called on ".$self->name);
 
-    map { $self->check_idx(@args, index => $_); } $self->fetch_all_indexes();
+    for ( $self->fetch_all_indexes() ) {
+        $self->check_idx(@args, index => $_);
+    }
 
     $self->check_content(@args, logger => $deep_check_logger);
 }
@@ -506,15 +514,17 @@ sub check_content {
         push @error, "Too many instances ($nb) limit $self->{max_nb}, "
             if defined $self->{max_nb} and $nb > $self->{max_nb};
 
-        map {
-            if ($::_use_log4perl_to_warn) {
-                $user_logger->warn( "Warning in '" . $self->location_short . "': $_" )
+        if (not $silent) {
+            for ( @warn ) {
+                if ($::_use_log4perl_to_warn) {
+                    $user_logger->warn( "Warning in '" . $self->location_short . "': $_" )
+                }
+                else {
+                    warn( "Warning in '" . $self->location_short . "': $_\n" )
+                }
             }
-            else {
-                warn( "Warning in '" . $self->location_short . "': $_\n" )
-            }
-        } @warn
-            unless $silent;
+        }
+
 
         $self->{content_warning_list} = \@warn;
         $self->{content_error_list}   = \@error;
@@ -584,14 +594,14 @@ sub check_idx {
     $self->{warning_hash}{$idx} = \@warn;
 
     if (@warn and not $silent and $check ne 'no') {
-        map {
+        for (@warn) {
             if ($::_use_log4perl_to_warn) {
                 $user_logger->warn( "Warning in '" . $self->location_short . "': $_" );
             }
             else {
                 warn( "Warning in '" . $self->location_short . "': $_\n" )
             }
-        } @warn;
+        }
     }
 
     return scalar @error ? 0 : 1;
@@ -688,7 +698,7 @@ sub check_duplicates {
 
     if ($apply_fix) {
         $logger->debug("Fixing duplicates @issues, removing @to_delete");
-        map { $self->remove($_) } reverse @to_delete;
+        for (reverse @to_delete) { $self->remove($_) }
     }
     elsif ( $dup eq 'forbid' ) {
         $logger->debug("Found forbidden duplicates @issues");
@@ -701,7 +711,7 @@ sub check_duplicates {
     }
     elsif ( $dup eq 'suppress' ) {
         $logger->debug("suppressing duplicates @issues");
-        map { $self->remove($_) } reverse @to_delete;
+        for (reverse @to_delete) { $self->remove($_) }
     }
     else {
         die "Internal error: duplicates is $dup";
@@ -994,7 +1004,9 @@ sub clear_values {
     ) if $ct ne 'leaf';
 
     # this will trigger a notify_change
-    map { $self->fetch_with_id($_)->store(undef) } $self->fetch_all_indexes;
+    for ( $self->fetch_all_indexes ) {
+        $self->fetch_with_id($_)->store(undef);
+    }
     $self->notify_change( note => "cleared all values" );
 }
 
@@ -1019,7 +1031,9 @@ sub has_warning {
 sub error_msg {
     my $self = shift;
     my @list;
-    map { push @list, @{ $self->{$_} } if $self->{$_}; } qw/idx_error_list content_error_list/;
+    for (qw/idx_error_list content_error_list/) {
+        push @list, @{ $self->{$_} } if $self->{$_};
+    }
 
     return unless @list;
     return wantarray ? @list : join( "\n\t", @list );
