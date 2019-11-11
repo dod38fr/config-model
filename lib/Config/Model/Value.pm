@@ -695,7 +695,13 @@ sub get_cargo_type {
 sub can_store {
     my $self = shift;
 
-    return not defined $self->compute || $self->compute_obj->allow_user_override;
+    if ( not defined $self->compute ) {
+        return 1;
+    }
+    if ( $self->compute_obj->allow_user_override ) {
+        return 1;
+    }
+    return;
 }
 
 sub get_default_choice {

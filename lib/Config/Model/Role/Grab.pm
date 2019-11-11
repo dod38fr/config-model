@@ -48,7 +48,7 @@ sub grab {
 
     Config::Model::Exception::Internal->throw(
         error => "grab: steps parameter must be a string " . "or an array ref" )
-        unless ref $steps eq 'ARRAY' || not ref $steps;
+        unless ref $steps eq 'ARRAY' || ! ref $steps;
 
     # accept commands, grep remove empty items left by spurious spaces
     my $huge_string = ref $steps ? join( ' ', @$steps ) : $steps;
