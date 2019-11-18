@@ -153,11 +153,9 @@ sub dump_tree {
 
             # skip undef values
             my @val = id_quote(
-                grep ( defined $_,
-                    $list_obj->fetch_all_values(
-                        mode  => $fetch_mode,
-                        check => $check
-                    ) ) );
+                grep { defined $_ }
+                    $list_obj->fetch_all_values(mode  => $fetch_mode, check => $check)
+                );
             $$data_r .= "\n$pad$element:=" . join( ',', @val ) if @val;
         }
     };

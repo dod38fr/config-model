@@ -447,7 +447,7 @@ sub _load_check_list {
     if ( not defined $action and defined $subaction ) {
         Config::Model::Exception::Load->throw(
             object  => $element,
-            command => join( '', grep ( defined $_, @$inst ) ),
+            command => join( '', grep { defined $_} @$inst ),
             error   => "Wrong assignment with '$subaction' on check_list"
         );
     }
@@ -647,7 +647,7 @@ sub _load_list {
     if ( not defined $action and defined $subaction ) {
         Config::Model::Exception::Load->throw(
             object  => $element,
-            command => join( '', grep ( defined $_, @$inst ) ),
+            command => join( '', grep { defined $_} @$inst ),
             error   => "Wrong assignment with '$subaction' on "
                 . "element type: $elt_type, cargo_type: $cargo_type"
         );

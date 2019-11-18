@@ -189,7 +189,7 @@ sub annotation {
     my $self = shift;
     my $old_note = $self->{annotation} || '';
     if (@_ and not $self->instance->preset and not $self->instance->layered) {
-        my $new = $self->{annotation} = join( "\n", grep ( defined $_, @_ ) );
+        my $new = $self->{annotation} = join( "\n", grep { defined $_} @_ );
         $self->notify_change(note => 'updated annotation') unless $new eq $old_note;
     }
 
