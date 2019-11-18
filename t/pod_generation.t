@@ -25,8 +25,9 @@ $model->generate_doc('Master') if $trace;
 
 $model->generate_doc( 'Master', $wr_root );
 
-map { ok( -r "$wr_root/Config/Model/models/$_", "Found doc $_" ); }
-    qw /Master.pod  SlaveY.pod  SlaveZ.pod  SubSlave2.pod  SubSlave.pod/;
+for (qw /Master.pod  SlaveY.pod  SlaveZ.pod  SubSlave2.pod  SubSlave.pod/) {
+    ok( -r "$wr_root/Config/Model/models/$_", "Found doc $_" );
+}
 
 memory_cycle_ok($model, "memory cycle");
 

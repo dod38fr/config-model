@@ -69,7 +69,7 @@ sub _sniff_class {
                 : $self->_sniff_warped_node( $element_model, \%local_found );
 
             # merge all tmp in %h
-            map { $h{$_}{next_step}{$element} = $tmp->{$_}; } keys %$tmp;
+            for (keys %$tmp) { $h{$_}{next_step}{$element} = $tmp->{$_}; }
         }
         else {
             $h{$element}{next_step}{$element} = '';
@@ -95,7 +95,7 @@ sub _sniff_warped_node {
         my $tmp = $self->_sniff_class( $sub_class, \%local_found );
 
         # merge all tmp in %warp_tmp
-        map { $warp_tmp{$_}{next_class}{$sub_class} = $tmp->{$_}; } keys %$tmp;
+        for ( keys %$tmp ) { $warp_tmp{$_}{next_class}{$sub_class} = $tmp->{$_}; }
     }
 
     return \%warp_tmp;

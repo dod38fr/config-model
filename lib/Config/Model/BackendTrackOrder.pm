@@ -112,7 +112,9 @@ sub get_ordered_element_names {
     }
     else {
         # triggers a registration of all remaining elements in _creation_order
-        map { $self->register_element($_);} $self->get_element_names;
+        for ( $self->get_element_names ) {
+            $self->register_element($_);
+        }
         return $self->get_element_names_as_created;
     }
 }

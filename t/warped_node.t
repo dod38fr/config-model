@@ -191,15 +191,15 @@ is( $ahown->fetch_with_id(234)->fetch_element('X')->fetch,
 
 is( $root->fetch_element('v_macro')->store('A'), 1, 'set master v_macro to A' );
 
-map {
+for (qw/X Z/) {
     is( $ahown->fetch_with_id(234)->fetch_element($_)->fetch,
         'Av', "reading master a_hash_of_warped_nodes:234 $_ (default value)" );
-} qw/X Z/;
+}
 
-map {
+for (qw/X Z/) {
     is( $ahown->fetch_with_id(234)->fetch_element($_)->store('Cv'),
         1, "Set master a_hash_of_warped_nodes:234 $_ to Cv" );
-} qw/X Z/;
+}
 
 is( $root->fetch_element('tree_macro')->store('mXY'),
     1, 'set master->tree_macro to mXY (with morphing which looses Z element)...' );

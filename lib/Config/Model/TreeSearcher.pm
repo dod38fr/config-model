@@ -96,9 +96,14 @@ sub search {
         foreach my $e (@element) {
             my $store = 0;
 
-            map { $store = 1 if $need_search->{$_} and $node->get_help_as_text( $_ => $e ) =~ $reg }
-                qw/description summary/;
-            $store = 1 if $need_search->{element} and $e =~ $reg;
+            for ( qw/description summary/ ) {
+                if ($need_search->{$_} and $node->get_help_as_text( $_ => $e ) =~ $reg) {
+                    $store = 1;
+                }
+            }
+            if ($need_search->{element} and $e =~ $reg) {
+                $store = 1;
+            }
 
             $data_ref->( $loc ? $loc . ' ' . $e : $e ) if $store;
 

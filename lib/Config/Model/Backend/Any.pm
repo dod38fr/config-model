@@ -154,7 +154,7 @@ sub write_global_comments {
     # write global comment
     my $global_note = $self->node->annotation;
     if ($global_note) {
-        map { $res .= "$cc $_\n" } split /\n/, $global_note;
+        for ( split /\n/, $global_note ) { $res .= "$cc $_\n" }
         $res .= "\n";
     }
 
@@ -178,7 +178,7 @@ sub write_data_and_comments {
     while (@data_and_comments) {
         my ( $d, $c ) = splice @data_and_comments, 0, 2;
         if ($c) {
-            map { $res .= "$cc $_\n" } split /\n/, $c;
+            for (split /\n/, $c ) { $res .= "$cc $_\n" }
         }
         $res .= "$d\n" if defined $d;
     }

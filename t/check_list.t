@@ -320,8 +320,8 @@ $inst->clear_changes;
 # test global get and set as hash
 $cl->set_checked_list(@set);
 $hr = $cl->get_checked_list_as_hash;
-map { $expect{$_} = 0 } ( 'A' .. 'Z' );
-map { $expect{$_} = 1 } @set;
+for ( 'A' .. 'Z' ) { $expect{$_} = 0 }
+for (@set) { $expect{$_} = 1 }
 eq_or_diff( $hr, \%expect, "test get_checked_list_as_hash" );
 
 $expect{V} = 0;

@@ -260,7 +260,7 @@ eq_or_diff( [ split /\n/, $cds ], [ split /\n/, $expect ], "check dump of all pr
 
 # shake warp stuff
 my $tm = $root->fetch_element('tree_macro');
-map { $tm->store($_); } qw/XY XZ mXY XY mXY XZ/;
+for ( qw/XY XZ mXY XY mXY XZ/ ) { $tm->store($_); }
 
 $cds = $root->dump_tree( mode => 'user', skip_auto_write => 'cds_file' );
 print "cds string:\n$cds" if $trace;
@@ -268,7 +268,7 @@ print "cds string:\n$cds" if $trace;
 like( $cds, qr/hidden value/, "check that hidden value is shown (macro=XZ)" );
 
 # check that list of undef is not shown
-map { $listb->fetch_with_id($_)->store(undef) } ( 0 .. 3 );
+for ( 0 .. 3 ) { $listb->fetch_with_id($_)->store(undef) }
 
 $cds = $root->dump_tree( mode => 'user' );
 print "Empty listb dump:\n$cds" if $trace;

@@ -185,17 +185,17 @@ is( $b->fetch, 'baz,bar,toto,titi,toto,titi,toto2', "check fetch" );
 my $lac = $root->fetch_element('list_with_auto_created_id');
 eq_or_diff( [ $lac->fetch_all_indexes ], [ 0 .. 3 ], "check list_with_auto_created_id" );
 
-map { is( $b->fetch_with_id($_)->index_value, $_, "Check index value $_" ); } ( 0 .. 4 );
+for ( 0 .. 4 ) { is( $b->fetch_with_id($_)->index_value, $_, "Check index value $_" ); };
 
 $b->move( 3, 4 );
 is( $b->fetch_with_id(3)->fetch, undef,  "check after move idx 3 in 4" );
 is( $b->fetch_with_id(4)->fetch, 'toto', "check after move idx 3 in 4" );
-map { is( $b->fetch_with_id($_)->index_value, $_, "Check moved index value $_" ); } ( 0 .. 4 );
+for ( 0 .. 4 ) { is( $b->fetch_with_id($_)->index_value, $_, "Check moved index value $_" ); };
 
 $b->fetch_with_id(3)->store('titi');
 $b->swap( 3, 4 );
 
-map { is( $b->fetch_with_id($_)->index_value, $_, "Check swapped index value $_" ); } ( 0 .. 4 );
+for ( 0 .. 4 ) { is( $b->fetch_with_id($_)->index_value, $_, "Check swapped index value $_" ); };
 
 is( $b->fetch_with_id(3)->fetch, 'toto', "check value after swap" );
 is( $b->fetch_with_id(4)->fetch, 'titi', "check value after swap" );
@@ -223,7 +223,7 @@ $inst->clear_changes;
 
 is( $ol->fetch_with_id(3)->fetch_element('Z')->fetch, undef, "check after move idx 3 in 4" );
 is( $ol->fetch_with_id(4)->fetch_element('Z')->fetch, 'Cv',  "check after move idx 3 in 4" );
-map { is( $ol->fetch_with_id($_)->index_value, $_, "Check moved index value $_" ); } ( 0 .. 4 );
+for ( 0 .. 4 ) { is( $ol->fetch_with_id($_)->index_value, $_, "Check moved index value $_" ); };
 $inst->clear_changes;
 
 $ol->swap( 0, 2 );
@@ -237,7 +237,7 @@ is( $ol->fetch_with_id(0)->fetch_element('Y')->fetch, 'Av',  "check after move" 
 is( $ol->fetch_with_id(2)->fetch_element('Y')->fetch, undef, "check after move" );
 is( $ol->fetch_with_id(2)->fetch_element('X')->fetch, 'Av',  "check after move" );
 
-map { is( $ol->fetch_with_id($_)->index_value, $_, "Check moved index value $_" ); } ( 0 .. 4 );
+for ( 0 .. 4 ) { is( $ol->fetch_with_id($_)->index_value, $_, "Check moved index value $_" ); };
 print $root->dump_tree( ) if $trace;
 
 is( $ol->fetch_with_id(0)->fetch_element('X')->fetch, undef, "check before move" );
