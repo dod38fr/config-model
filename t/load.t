@@ -25,6 +25,8 @@ binmode STDERR, ':encoding(UTF-8)';
 
 ok( 1, "compiled" );
 
+my $big_list = '"dh-autoreconf","pkg-config","debhelper-compat (= 12)","dh-autotools (> 3)"';
+
 # test mega regexp, 'x' means undef
 my @regexp_test = (
 
@@ -67,6 +69,7 @@ my @regexp_test = (
     [ 'm:=a,"a b "',       [ 'm',  ':=', 'x',           'a,"a b "',     'x',  'x',      'x',        'x' ] ],# set list with quotes
     [ 'm:="a b ",c',       [ 'm',  ':=', 'x',           '"a b ",c',     'x',  'x',      'x',        'x' ] ],# set list with quotes
     [ 'm:="a b","c d"',    [ 'm',  ':=', 'x',           '"a b","c d"',  'x',  'x',      'x',        'x' ] ],# set list with quotes
+    [ "m:=$big_list",      [ 'm',  ':=', 'x',           $big_list,      'x',  'x',      'x',        'x' ] ],# set list with quotes
     [ 'm=a,"a b "',        [ 'm',  'x',  'x',           'x',            '=',  'x',      'a,"a b "', 'x' ] ],
 
     # set list with quotes,old style

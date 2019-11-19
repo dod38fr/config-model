@@ -160,7 +160,7 @@ sub _split_cmd {
                 | (
                     /[^/]+/      # regexp
                     | (?:
-                       $quoted_string
+                       $quoted_string (?:,)?
                        | [^#=\.<>]+    # non action chars
                       )+
                   )
