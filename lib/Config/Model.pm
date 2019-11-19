@@ -1839,7 +1839,7 @@ __PACKAGE__->meta->make_immutable;
 
 1;
 
-# ABSTRACT:  Create tools to validate, migrate and edit configuration files
+# ABSTRACT: a framework to validate, migrate and edit configuration files
 
 __END__
 
