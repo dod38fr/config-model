@@ -734,6 +734,12 @@ subtest "warn_if_match with a string" => sub {
 
     is( $wim->has_fixes, 1, "test has_fixes" );
 
+    {
+        # check code is not run when check is 'no'.
+        my $xp = Test::Log::Log4perl->expect(ignore_priority => "debug", []);
+        $wim->fetch(  check => 'no');
+    }
+
     is( $wim->fetch( check => 'no', silent => 1 ), 'foobar', "check warn_if stored value" );
     is( $wim->has_fixes, 1, "test has_fixes after fetch with check=no" );
 

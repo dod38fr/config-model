@@ -1775,7 +1775,7 @@ sub fetch {
     # mode may not trigger the warnings. Hence confusion afterwards)
     my $ok = 1;
     $ok = $self->check( value => $value, silent => $silent, mode => $mode )
-        if $mode =~ /backend|custom|user/;
+        if $mode =~ /backend|custom|user/ and $check ne 'no';
 
     $logger->trace( "$mode fetch (almost) done for " . $self->location )
         if $logger->is_trace;
