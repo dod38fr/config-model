@@ -279,8 +279,6 @@ $failed++ unless $v =~ /$item[1]/ ;
     ],                          # dummy class
 );
 
-Test::Log::Log4perl-> ignore_priority('INFO');
-
 my $bad_inst = $model->instance(
     root_class_name => 'BadClass',
     instance_name   => 'test_bad_class'
@@ -727,7 +725,10 @@ subtest "warn_if_match with a string" => sub {
     my $wim = $root->fetch_element('warn_if_match');
 
     {
-        my $xp = Test::Log::Log4perl->expect(['User', warn =>  qr/should not match/]);
+        my $xp = Test::Log::Log4perl->expect(
+            ignore_priority => "info",
+            ['User', warn =>  qr/should not match/]
+        );
         $wim->store('foobar');
     }
 
@@ -748,7 +749,10 @@ subtest "warn_if_number with a regexp" => sub {
     my $win = $root->fetch_element('warn_if_number');
 
     {
-        my $xp = Test::Log::Log4perl->expect(['User', warn => qr/should not have numbers/]);
+        my $xp = Test::Log::Log4perl->expect(
+            ignore_priority => 'info',
+            ['User', warn => qr/should not have numbers/]
+        );
         $win->store('bar51');
     }
 
@@ -760,7 +764,10 @@ subtest "warn_if_number with a regexp" => sub {
 subtest "integer_with_warn_if" => sub {
     my $iwwi = $root->fetch_element('integer_with_warn_if');
     {
-        my $xp = Test::Log::Log4perl->expect(['User', warn => qr/should be greater than 9/]);
+        my $xp = Test::Log::Log4perl->expect(
+            ignore_priority => 'info',
+            ['User', warn => qr/should be greater than 9/]
+        );
         $iwwi->store('5');
     }
 
@@ -773,7 +780,10 @@ my $warn_unless_test = sub {
     my $wup = $root->fetch_element('warn_unless_match');
     my $v = shift;
     {
-        my $xp = Test::Log::Log4perl->expect(['User', warn => qr/should match/]);
+        my $xp = Test::Log::Log4perl->expect(
+            ignore_priority => 'info',
+            ['User', warn => qr/should match/]
+        );
         $wup->store($v);
     }
 
@@ -787,16 +797,19 @@ subtest "warn_unless_match feature with multiline value" => $warn_unless_test, "
 
 subtest "unconditional feature" => sub {
     my $aw = $root->fetch_element('always_warn');
-    my $xp = Test::Log::Log4perl->expect(['User', warn => qr/always/]);
+    my $xp = Test::Log::Log4perl->expect(
+        ignore_priority => 'info',
+        ['User', warn => qr/always/]
+    );
     $aw->store('whatever');
 };
 
 subtest "warning and repeated storage in same element" => sub {
     my $aw = $root->fetch_element('always_warn');
-    my $xp = Test::Log::Log4perl->expect([
-        'User',
-        ( warn => qr/always/ ) x 2
-    ]);
+    my $xp = Test::Log::Log4perl->expect(
+        ignore_priority => 'info',
+        [ 'User', ( warn => qr/always/ ) x 2 ]
+    );
     $aw->store('what ?'); # warns
     $aw->store('what ?');  # does not warn
     $aw->store('what never'); # warns
@@ -847,7 +860,10 @@ subtest "replace_follow" => sub {
 subtest "Standards-Version" => sub {
     my $sv = $root->fetch_element('Standards-Version');
     {
-        my $xp = Test::Log::Log4perl->expect(['User', warn => qr/Current/]);
+        my $xp = Test::Log::Log4perl->expect(
+            ignore_priority => 'info',
+            ['User', warn => qr/Current/]
+        );
         # store old standard version
         $sv->store('3.9.1');
     }
@@ -873,7 +889,10 @@ subtest "assert"  => sub {
 subtest "warn_unless" => sub {
     my $warn_unless = $root->fetch_element('warn_unless');
 
-    my $xp = Test::Log::Log4perl->expect(['User', warn => qr/should not be empty/]);
+    my $xp = Test::Log::Log4perl->expect(
+        ignore_priority => 'info',
+        ['User', warn => qr/should not be empty/]
+    );
     $warn_unless->fetch();
 
     $warn_unless->apply_fixes;
@@ -884,7 +903,10 @@ subtest "warn_unless" => sub {
 subtest "warn_unless_file" => sub {
     my $warn_unless_file = $root->fetch_element('warn_unless_file');
 
-    my $xp = Test::Log::Log4perl->expect(['User', warn =>  qr/file not-value.t should exist/]);
+    my $xp = Test::Log::Log4perl->expect(
+        ignore_priority => 'info',
+        ['User', warn =>  qr/file not-value.t should exist/]
+    );
     $warn_unless_file->store('not-value.t');
 
     $warn_unless_file->apply_fixes;
@@ -897,12 +919,15 @@ subtest "file and dir value types"  => sub {
     my $t_dir  = $root->fetch_element('t_dir');
 
     {
-        my $xp = Test::Log::Log4perl->expect([
-            'User',
-            warn => qr/not exist/,
-            warn => qr/not a file/,
-            warn => qr/not a dir/,
-        ]);
+        my $xp = Test::Log::Log4perl->expect(
+            ignore_priority => 'info',
+            [
+                'User',
+                warn => qr/not exist/,
+                warn => qr/not a file/,
+                warn => qr/not a dir/,
+            ]
+        );
         $t_file->store('toto');
         $t_file->store('t');
         $t_dir->store('t/value.t');
