@@ -1203,13 +1203,18 @@ sub show_warnings {
         my $w_str = $str =~ /\n/ ? "\n+++++\n$str\n+++++" : "'$str'";
         foreach my $w ( $self->all_warnings ) {
             $warn_h{$w} = 1;
-            next if $old_warn->{$w};
             my $w_msg = "Warning in '" . $self->location_short . "': $w\nOffending value: $w_str";
-            if ($::_use_log4perl_to_warn) {
-                $user_logger->warn($w_msg);
+            if ($old_warn->{$w}) {
+                # user has already seen the warning, let's use info level (required by tests)
+                $user_logger->info($w_msg);
             }
             else {
-                warn "$w_msg\n";
+                if ($::_use_log4perl_to_warn) {
+                    $user_logger->warn($w_msg);
+                }
+                else {
+                    warn "$w_msg\n";
+                }
             }
         }
     }
