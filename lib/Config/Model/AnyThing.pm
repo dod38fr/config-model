@@ -341,6 +341,11 @@ containing this object.
 Returns the node containing this object. May return undef if C<parent>
 is called on the root of the tree.
 
+=head2 container
+
+A bit like parent, this method returns the element containing this
+object. See L</container_type>
+
 =head2 container_type
 
 Returns the type (e.g. C<list> or C<hash> or C<leaf> or C<node> or
