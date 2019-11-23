@@ -1092,7 +1092,7 @@ sub translate_follow_arg {
     }
     elsif ( defined $raw_follow ) {
 
-        # follow is a simple string
+        # follow is a plain string
         return { f1 => $raw_follow };
     }
     else {
@@ -1115,7 +1115,7 @@ sub translate_rules_arg {
     my @rules;
     if ( ref($raw_rules) eq 'HASH' ) {
 
-        # transform the simple hash { foo => { ...} }
+        # transform the hash { foo => { ...} }
         # into array ref [ '$f1 eq foo' => { ... } ]
         my $h = $raw_rules;
         @rules = $follow ? map { ( "\$f1 eq '$_'", $h->{$_} ) } keys %$h : keys %$h;
@@ -2255,7 +2255,7 @@ Simpler exploration and query
 =item *
 
 Simple hierarchy. Deletion of configuration items is simpler to grasp:
-when you cut a branch, all the leaves attaches to that branch go down.
+when you cut a branch, all the leaves attached to that branch go down.
 
 =back
 
@@ -2265,7 +2265,7 @@ But using a tree has also some drawbacks:
 
 =item *
 
-A complex configuration cannot be mapped on a simple tree.  Some more
+A complex configuration cannot be mapped on a tree.  Some more
 relation between nodes and leaves must be added.
 
 =item *

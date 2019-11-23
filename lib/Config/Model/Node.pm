@@ -1456,7 +1456,7 @@ B<type> parameter. The I<type> type can be:
 
 =item C<node>
 
-The element is a simple node of a tree instantiated from a
+The element is a node of a tree instantiated from a
 configuration class (declared with
 L<Config::Model/"create_config_class( ... )">).
 See L</"Node element">.

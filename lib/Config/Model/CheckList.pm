@@ -893,7 +893,7 @@ For example:
 
 =item *
 
-A simple check list with help:
+A check list with help:
 
  choice_list => {
      type   => 'check_list',

@@ -903,7 +903,7 @@ Extract the host name from an URL:
      },
  },
 
-=head2 simple copy hash example
+=head2 copy hash example
 
 Copying a hash may not be useful, but the using C<&index()> in a variable can be. Here's an example
 where the hashes contain leaves.
@@ -955,7 +955,7 @@ the data to be copied is stored within a node. The main class has 2 hash element
             },
         },
 
-The Class to copy from is quite simple:
+The Class to copy from is quite short:
 
     'name' => 'From',
     'element' => [
