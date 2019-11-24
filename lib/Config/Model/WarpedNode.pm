@@ -135,7 +135,7 @@ sub set_properties {
     my %args = ( %{ $self->backup }, @_ );
 
     # mega cleanup
-    map( delete $self->{$_}, @allowed_warp_params );
+    for (@allowed_warp_params) { delete $self->{$_} }
 
     $logger->trace( $self->name . " set_properties called with ",
         Data::Dumper->Dump( [ \%args ], ['set_properties_args'] ) );

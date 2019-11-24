@@ -748,7 +748,7 @@ sub enum_error {
         return @error;
     }
 
-    my @choice    = map( "'$_'", $self->get_choice );
+    my @choice    = map { "'$_'" } $self->get_choice;
     my $var       = $self->{value_type};
     my $str_value = defined $value ? $value : '<undef>';
     push @error,

@@ -95,7 +95,9 @@ sub set_properties {
     my $self = shift;
 
     # cleanup all parameters that are handled by warp
-    map( delete $self->{$_}, @allowed_warp_params );
+    for (@allowed_warp_params) {
+        delete $self->{$_},
+    }
 
     if ( $logger->is_trace() ) {
         my %h = @_;
@@ -107,7 +109,9 @@ sub set_properties {
     my %args = ( %{ $self->{backup} }, @_ );
 
     # these are handled by Node or Warper
-    map { delete $args{$_} } qw/level/;
+    for (qw/level/) {
+        delete $args{$_}
+    }
 
     $self->{ordered} = delete $args{ordered} || 0;
 
@@ -156,7 +160,9 @@ sub setup_choice {
     # store all enum values in a hash. This way, checking
     # whether a value is present in the enum set is easier
     delete $self->{choice_hash} if defined $self->{choice_hash};
-    map { $self->{choice_hash}{$_} = 1; } @choice;
+    for (@choice) {
+        $self->{choice_hash}{$_} = 1;
+    }
 
     $self->{choice} = \@choice;
 
@@ -256,7 +262,9 @@ sub check {
     }
 
     my @changed;
-    map { push @changed, $_ if $self->_store( $_, 1, $check ) } @list;
+    for (@list) {
+        push @changed, $_ if $self->_store( $_, 1, $check )
+    }
 
     $self->notify_change( note => "check @changed" )
         unless $self->instance->initial_load;
@@ -368,7 +376,9 @@ sub uncheck {
     }
 
     my @changed;
-    map { push @changed, $_ if $self->_store( $_, 0, $check ) } @$list;
+    for ( @$list ) {
+        push @changed, $_ if $self->_store( $_, 0, $check )
+    }
 
     $self->notify_change( note => "uncheck @changed" )
         unless $self->instance->initial_load;
@@ -494,7 +504,10 @@ sub get_help {
 
 sub clear {
     my $self = shift;
-    map { $self->clear_item($_) } $self->get_choice;    # also triggers notify changes
+    # also triggers notify changes
+    for ($self->get_choice) {
+        $self->clear_item($_)
+    }
 }
 
 sub clear_values { goto &clear; }
