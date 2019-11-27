@@ -63,7 +63,7 @@ has _check_content_actions => (
     default => sub { []; }
 );
 
-# needs_check defaults to 1 to trap bad data right after loading
+# needs_content_check defaults to 1 to trap bad data right after loading
 has needs_content_check => ( is => 'rw', isa => 'Bool', default => 1 );
 
 has has_fixes => (
