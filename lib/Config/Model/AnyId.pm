@@ -511,7 +511,7 @@ sub check_content {
         }
 
         my $nb = $self->fetch_size;
-        push @error, "Too many instances ($nb) limit $self->{max_nb}, "
+        push @error, "Too many items ($nb) limit $self->{max_nb}, "
             if defined $self->{max_nb} and $nb > $self->{max_nb};
 
         if (not $silent) {
@@ -582,12 +582,12 @@ sub check_idx {
         push @error, "Index $idx < min_index limit $self->{min_index}";
     }
 
-    push @error, "Too many instances ($new_nb) limit $self->{max_nb}, " . "rejected id '$idx'"
+    push @error, "Too many items ($new_nb) limit $self->{max_nb}, " . "rejected id '$idx'"
         if defined $self->{max_nb} and $new_nb > $self->{max_nb};
 
     if ( scalar @error ) {
         my @a = $self->_fetch_all_indexes;
-        push @error, "Instance ids are '" . join( ',', @a ) . "'", $self->warp_error;
+        push @error, "Item ids are '" . join( ',', @a ) . "'", $self->warp_error;
     }
 
     $self->{idx_error_list} = \@error;
@@ -1352,10 +1352,10 @@ For instance, with this model:
   );
 
 Setting C<macro> to C<A> means that C<warped_hash> can only accept
-one instance of C<Dummy>.
+one C<Dummy> class item .
 
 Setting C<macro> to C<B> means that C<warped_hash> accepts two
-instances of C<Dummy>.
+C<Dummy> class items.
 
 Like other warped class, a HashId or ListId can have multiple warp
 masters (See L<Config::Model::Warper/"Warp follow argument">:
