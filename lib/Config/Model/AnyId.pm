@@ -534,8 +534,8 @@ sub check_content {
     }
     else {
         $local_logger->debug( $self->location, " has not changed, actual check skipped" )
-            if $logger->is_debug;
-        my $err = $self->{content_error_list};
+            if $local_logger->is_debug;
+        my $err = $self->{content_error_list} // [];
         return scalar @$err ? 0 : 1;
     }
 }
