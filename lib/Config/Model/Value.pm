@@ -117,6 +117,7 @@ has warning_list => (
         clear_warnings => 'clear',
         warning_msg    => [ join => "\n\t" ],
         has_warning    => 'count',
+        has_warnings    => 'count',
         all_warnings   => 'elements',
     } );
 
