@@ -1,5 +1,26 @@
 {{$NEXT}}
 
+2.137 2019-12-01
+
+  Bug fixes:
+    * AnyId: avoid deref of undef value
+    * Loader: fix parsing of list assignment with quotes
+    * Value: do not store warnings from computed value
+    * Node: warn only once about deprecated elements
+    * CheckList: accept non_upstream_default mode
+
+  Doc improvements:
+    * AnyId: clarify doc and error message
+    * Add doc for container method
+    * Value: clarify load_data doc
+    * Value: fix typos in doc
+
+  API changes:
+    * Value: provide has_warnings along has_warning
+    * DumpAsData, Dumper:
+      * deprecate full_mode parameter
+      * full dump is now mode => user
+
 2.136 2019-07-29
 
   Bug fix:
