@@ -22,7 +22,7 @@ sub eval_function {
     my ($self, $function, $up, $check) = @_;
 
     if (defined $up) {
-        # get now the object refered
+        # get now the object referred
         $up =~ s/\s//g;
         $up =~ s/-(\d+)/'- ' x $1/e;        # change  -3 -> - - -
         $up =~ s/(-+)/'- ' x length($1)/e;  # change --- -> - - -

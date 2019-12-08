@@ -755,8 +755,8 @@ sub enum_error {
     push @error,
         "$self->{value_type} type does not know '$value'. Expected " . join( " or ", @choice );
     push @error,
-        "Expected list is given by '" . join( "', '", @{ $self->{refered_to_path} } ) . "'"
-        if $var eq 'reference' && defined $self->{refered_to_path};
+        "Expected list is given by '" . join( "', '", @{ $self->{referred_to_path} } ) . "'"
+        if $var eq 'reference' && defined $self->{referred_to_path};
     push @error, $self->warp_error if $self->{warp};
 
     return @error;

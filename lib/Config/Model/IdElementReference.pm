@@ -75,7 +75,7 @@ sub get_choice_from_referred_to {
 
         $logger->trace("path: @path");
 
-        my $refered_to = eval { $config_elt->grab("@path"); };
+        my $referred_to = eval { $config_elt->grab("@path"); };
 
         if (ref $@) {
             my $e = $@;
@@ -87,7 +87,7 @@ sub get_choice_from_referred_to {
         }
 
         my $element = pop @path;
-        my $obj     = $refered_to->parent;
+        my $obj     = $referred_to->parent;
         my $type    = $obj->element_type($element);
 
         my @choice;
