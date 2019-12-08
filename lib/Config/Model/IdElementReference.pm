@@ -314,23 +314,25 @@ of the C<referred_to> array element.
 The example means the the value must correspond to an existing host:
 
  value_type => 'reference',
- refer_to => '! host' 
+ refer_to => '! host'
 
 This example means the the value must correspond to an existing lan
 within the host whose Id is specified by hostname:
 
  value_type => 'reference',
- computed_refer_to => { formula => '! host:$a lan', 
-                        variables => { a => '- hostname' }
-                      }
+ computed_refer_to => {
+      formula => '! host:$a lan',
+      variables => { a => '- hostname' }
+ }
 
 If you need to combine possibilities from several hash, use the "C<+>"
 token to separate 2 paths:
 
  value_type => 'reference',
- computed_refer_to => { formula => '! host:$a lan + ! host:foobar lan', 
-                        variables => { a => '- hostname' }
-                      }
+ computed_refer_to => {
+     formula => '! host:$a lan + ! host:foobar lan',
+     variables => { a => '- hostname' }
+ }
 
 You can specify C<refer_to> or C<computed_refer_to> with a C<choice>
 argument so the possible enum value will be the combination of the
