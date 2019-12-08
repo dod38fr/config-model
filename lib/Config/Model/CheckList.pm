@@ -76,7 +76,7 @@ sub cl_init {
             element  => $self->{element_name},
             property => 'level',
         );
-        $self->{ref_object}->get_choice_from_refered_to if $level ne 'hidden';
+        $self->{ref_object}->get_choice_from_referred_to if $level ne 'hidden';
     }
 }
 
@@ -258,7 +258,7 @@ sub check {
     my $check = $self->_check_check( $args{check} );
 
     if ( defined $self->{ref_object} ) {
-        $self->{ref_object}->get_choice_from_refered_to;
+        $self->{ref_object}->get_choice_from_referred_to;
     }
 
     my @changed;
@@ -372,7 +372,7 @@ sub uncheck {
     my ($list, $check) = $self->get_arguments(@_);
 
     if ( defined $self->{ref_object} ) {
-        $self->{ref_object}->get_choice_from_refered_to;
+        $self->{ref_object}->get_choice_from_referred_to;
     }
 
     my @changed;
@@ -460,7 +460,7 @@ sub get_choice {
     my $self = shift;
 
     if ( defined $self->{ref_object} ) {
-        $self->{ref_object}->get_choice_from_refered_to;
+        $self->{ref_object}->get_choice_from_referred_to;
     }
 
     if ( not defined $self->{choice} ) {

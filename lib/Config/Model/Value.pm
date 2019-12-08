@@ -715,7 +715,7 @@ sub get_choice {
 
     # just in case the reference_object has been changed
     if ( defined $self->{refer_to} or defined $self->{computed_refer_to} ) {
-        $self->{ref_object}->get_choice_from_refered_to;
+        $self->{ref_object}->get_choice_from_referred_to;
     }
 
     return @{ $self->{choice} || [] };
@@ -828,7 +828,7 @@ sub _check_value {
 
         # just in case the reference_object has been changed
         if ( defined $self->{refer_to} or defined $self->{computed_refer_to} ) {
-            $self->{ref_object}->get_choice_from_refered_to;
+            $self->{ref_object}->get_choice_from_referred_to;
         }
 
         if (    length($value)
@@ -1420,7 +1420,7 @@ sub transform_value {
     }
 
     if ( defined $self->{refer_to} or defined $self->{computed_refer_to} ) {
-        $self->{ref_object}->get_choice_from_refered_to;
+        $self->{ref_object}->get_choice_from_referred_to;
     }
 
     $value = $self->{convert_sub}($value)
@@ -1545,7 +1545,7 @@ sub _init {
 
     if ( defined $self->{refer_to} or defined $self->{computed_refer_to} ) {
         $self->submit_to_refer_to;
-        $self->{ref_object}->get_choice_from_refered_to;
+        $self->{ref_object}->get_choice_from_referred_to;
     }
 }
 
