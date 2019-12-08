@@ -1110,7 +1110,7 @@ Reset an element of the checklist.
 
 =head2 get_checked_list_as_hash
 
-Accept a parameter (refered below as C<mode> parameter) similar to
+Accept a parameter (referred below as C<mode> parameter) similar to
 C<mode> in L<Config::Model::Value/fetch>.
 
 Returns a hash (or a hash ref) of all items. The boolean value is the
