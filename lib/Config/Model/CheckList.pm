@@ -392,7 +392,7 @@ sub has_data {
 
 {
     my %accept_mode = map { ( $_ => 1 ) }
-        qw/custom standard preset default layered upstream_default non_upstream_default user/;
+        qw/custom standard preset default layered upstream_default non_upstream_default user backend/;
 
     sub is_bad_mode {
         my ($self, $mode) = @_;
@@ -436,6 +436,7 @@ sub is_checked {
             : $mode eq 'standard'         ? $std_v
             : $mode eq 'non_upstream_default' ? $ud
             : $mode eq 'user'             ? $user_v
+            : $mode eq 'backend'          ? $dat // $std_v
             :                               $dat // $std_v;
 
         return $result;
@@ -1124,10 +1125,15 @@ Example:
 By default, this method returns all items set by the user, or
 items set in preset mode or checked by default.
 
-With a parameter set to a value from the list below, this method
+With a C<mode> parameter set to a value from the list below, this method
 returns:
 
 =over
+
+=item backend
+
+The value written in config file, (ie. set by user or by layered data
+or preset or default)
 
 =item custom
 
