@@ -548,9 +548,10 @@ my $cwu = $root->fetch_element('compute_with_upstream');
 is( $cwu->fetch, undef, "test computed with upstream value" );
 is( $cwu->fetch( mode => 'custom' ),   undef, "test computed with upstream value (custom)" );
 is( $cwu->fetch( mode => 'standard' ), 3,     "test computed with upstream value (standard)" );
+is( $cwu->fetch( mode => 'user' ), 3,     "test computed with upstream value (standard)" );
 $cwu->store(4);
 is( $cwu->fetch, 4, "test overridden value" );
-
+is( $cwu->fetch( mode => 'user' ), 4,     "test computed with upstream value (standard)" );
 my $owv = $root->fetch_element('one_wrong_var');
 eval { $owv->fetch; };
 ok( $@, "expected failure with one_wrong_var" );
