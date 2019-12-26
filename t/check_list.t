@@ -439,6 +439,9 @@ is_deeply( \@got, ['C'], "test custom of choice_list_with_default" );
 @got = $dflist->get_checked_list('standard');
 is_deeply( \@got, [ 'A', 'D' ], "test standard of choice_list_with_default" );
 
+@got = $dflist->get_checked_list('backend');
+is_deeply( \@got, [ 'A', 'C' ], "fetch with backend mode for choice_list_with_default" );
+
 my $warp_list;
 eval { $warp_list = $root->fetch_element('warped_choice_list'); };
 ok( $@, "fetch_element without warp set (macro=undef): which is an error" );
