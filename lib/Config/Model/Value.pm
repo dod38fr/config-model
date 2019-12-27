@@ -2753,8 +2753,9 @@ feature is useful to reduce data to write in configuration file.
 
 =item allow_undef
 
-With this mode, C<fetch()> returns undef for mandatory values. Normally,
-trying to fetch an undefined mandatory value leads to an exception.
+With this mode, C<fetch()> behaves like in C<user> mode, but returns
+C<undef> for mandatory values. Normally, trying to fetch an undefined
+mandatory value leads to an exception.
 
 =back
 
