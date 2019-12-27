@@ -1,5 +1,14 @@
 {{$NEXT}}
 
+2.138 2019-12-27
+
+  Bug fix:
+    * CheckList: add missing "backend" fetch mode
+
+  Doc improvements:
+    * Value: update doc of allow_under mode
+    * fix typo in pod doc
+
 2.137 2019-12-01
 
   Bug fixes:
