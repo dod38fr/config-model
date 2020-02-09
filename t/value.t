@@ -191,6 +191,11 @@ $failed++ unless $v =~ /$item[1]/ ;
             value_type    => 'string',
             warn_if_match => { 'foo' => { fix => '$_ = uc;' } },
         },
+        warn_if_match_slashed => {
+            type          => 'leaf',
+            value_type    => 'string',
+            warn_if_match => { 'oo/b' => { fix => 's!oo/b!!;' } },
+        },
         warn_unless_match => {
             type              => 'leaf',
             value_type        => 'string',
@@ -749,6 +754,33 @@ subtest "warn_if_match with a string" => sub {
     ### test fix included in model
     $wim->apply_fixes;
     is( $wim->fetch, 'FOOBAR', "test if fixes were applied" );
+};
+
+subtest "warn_if_match with a slash in regexp" => sub {
+    my $wim = $root->fetch_element('warn_if_match_slashed');
+
+    {
+        my $xp = Test::Log::Log4perl->expect(
+            ignore_priority => "info",
+            ['User', warn =>  qr/should not match/]
+        );
+        $wim->store('foo/bar');
+    }
+
+    is( $wim->has_fixes, 1, "test has_fixes" );
+
+    {
+        # check code is not run when check is 'no'.
+        my $xp = Test::Log::Log4perl->expect(ignore_priority => "debug", []);
+        $wim->fetch(  check => 'no');
+    }
+
+    is( $wim->fetch( check => 'no', silent => 1 ), 'foo/bar', "check warn_if stored value" );
+    is( $wim->has_fixes, 1, "test has_fixes after fetch with check=no" );
+
+    ### test fix included in model
+    $wim->apply_fixes;
+    is( $wim->fetch, 'far', "test if fixes were applied" );
 };
 
 subtest "warn_if_number with a regexp" => sub {
