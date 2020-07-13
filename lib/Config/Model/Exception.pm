@@ -11,7 +11,6 @@ use Carp;
 
 our $trace = 0;
 
-
 use Carp qw/longmess shortmess croak/;
 
 use overload
@@ -117,7 +116,7 @@ extends 'Config::Model::Exception::Any';
 
 sub _desc { 'syntax error' }
 
-has [qw/parsed_file parsed_line/] => (is => 'rw', isa => 'Str');
+has [qw/parsed_file parsed_line/] => (is => 'rw');
 
 sub full_message {
     my $self = shift;
