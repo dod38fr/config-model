@@ -616,6 +616,13 @@ my $lic_gpl = $root->grab('Licenses:"GPL-1+"');
 is( $lic_gpl->grab_value('text'), "yada yada GPL-1+\nyada yada",
     "check replacement with &index()" );
 
+is( $lic_gpl->grab('text')->fetch_custom, undef,
+    "check computed custom value" );
+
+$lic_gpl->grab('text')->store($lic_gpl->grab_value('text'));
+is( $lic_gpl->grab('text')->fetch_custom, undef,
+    "check computed custom value after storing same value" );
+
 is( $root->grab_value('Licenses:PsF text'),       "", "check missing replacement with &index()" );
 is( $root->grab_value('Licenses:"MPL-1.1" text'), "", "check missing replacement with &index()" );
 
