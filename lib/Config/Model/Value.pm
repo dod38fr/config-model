@@ -721,6 +721,48 @@ sub get_choice {
     return @{ $self->{choice} || [] };
 }
 
+sub get_info {
+    my $self = shift;
+
+    my $type       = $self->value_type;
+    my @choice     = $type eq 'enum' ? $self->get_choice : ();
+    my $choice_str = @choice ? ' (' . join( ',', @choice ) . ')' : '';
+
+    my @items = ( 'type: ' . $self->value_type . $choice_str, );
+
+    my $std = $self->fetch(qw/mode standard check no/);
+
+    if ( defined $self->upstream_default ) {
+        push @items, "upstream_default value: " . $self->upstream_default;
+    }
+    elsif ( defined $std ) {
+        push @items, "default value: $std";
+    }
+    elsif ( defined $self->refer_to ) {
+        push @items, "reference to: " . $self->refer_to;
+    }
+    elsif ( defined $self->computed_refer_to ) {
+        push @items, "computed reference to: " . $self->computed_refer_to;
+    }
+
+    my $m = $self->mandatory;
+    push @items, "is mandatory: " . ( $m ? 'yes' : 'no' ) if defined $m;
+
+    foreach my $what (qw/min max warn grammar/) {
+        my $v = $self->$what();
+        push @items, "$what value: $v" if defined $v;
+    }
+
+    foreach my $what (qw/warn_if_match warn_unless_match/) {
+        my $v = $self->$what();
+        foreach my $k ( keys %$v ) {
+            push @items, "$what value: $k";
+        }
+    }
+
+    return @items ;
+}
+
 sub get_help {
     my $self = shift;
 
@@ -2548,6 +2590,16 @@ With a parameter, returns the help string applicable to the passed
 value or undef.
 
 Without parameter returns a hash ref that contains all the help strings.
+
+=head2 get_info
+
+Returns a list of information related to the value, like value type,
+default value. This should be used to provide some debug information
+to the user.
+
+For instance, C<$val->get-info> may return:
+
+ [ 'type: string', 'mandatory: yes' ]
 
 =head2 error_msg
 

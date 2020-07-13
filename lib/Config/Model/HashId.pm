@@ -127,6 +127,29 @@ sub get_type {
     return 'hash';
 }
 
+sub get_info {
+    my $self = shift;
+
+    my @items = (
+        'type: ' . $self->get_type . ( $self->ordered ? '(ordered)' : '' ),
+        'index: ' . $self->index_type,
+        'cargo: ' . $self->cargo_type,
+    );
+
+    if ( $self->cargo_type eq 'node' ) {
+        push @items, "cargo class: " . $self->config_class_name;
+    }
+
+    foreach my $what (qw/min_index max_index max_nb warn_if_key_match warn_unless_key_match/) {
+        my $v   = $self->$what();
+        my $str = $what;
+        $str =~ s/_/ /g;
+        push @items, "$str: $v" if defined $v;
+    }
+
+    return @items;
+}
+
 # important: return the actual size (not taking into account auto-created stuff)
 sub fetch_size {
     my $self = shift;
@@ -660,6 +683,11 @@ important:
   { __skip_order => 1, b => 'bar', a => 'foo'}
 
 load_data can also be called with a single ref parameter.
+
+=head2 get_info
+
+Returns a list of information related to the hash. See
+L<Config::Model::Value/get_info> for more details.
 
 =head1 AUTHOR
 

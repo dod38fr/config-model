@@ -503,6 +503,17 @@ sub get_help {
     return;
 }
 
+sub get_info {
+    my $self = shift;
+
+    my @items = ('type: check_list');
+    if ( defined $self->refer_to ) {
+        push @items, "refer_to: " . $self->refer_to;
+    }
+    push @items, "ordered: " . ( $self->ordered ? 'yes' : 'no' );
+    return @items;
+}
+
 sub clear {
     my $self = shift;
     # also triggers notify changes
@@ -1098,6 +1109,11 @@ that can have value 0 or 1).
 Parameters: C<(choice_value)>
 
 Return the help string on this choice value
+
+=head2 get_info
+
+Returns a list of information related to the check list. See
+L<Config::Model::Value/get_info> for more details.
 
 =head2 clear
 

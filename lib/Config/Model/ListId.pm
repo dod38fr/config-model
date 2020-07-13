@@ -110,6 +110,33 @@ sub get_type {
     return 'list';
 }
 
+sub get_info {
+    my $self         = shift;
+
+    my @items = (
+        'type: ' . $self->get_type,
+        'index: ' . $self->index_type,
+        'cargo: ' . $self->cargo_type,
+    );
+
+    if ( $self->cargo_type eq 'node' ) {
+        push @items, "cargo class: " . $self->config_class_name;
+    }
+
+    if ( $self->cargo_type eq 'leaf' ) {
+        push @items, "leaf value type: " . ( $self->get_cargo_info('value_type') || '' );
+    }
+
+    foreach my $what (qw/min_index max_index/) {
+        my $v   = $self->$what();
+        my $str = $what;
+        $str =~ s/_/ /g;
+        push @items, "$str: $v" if defined $v;
+    }
+
+    return @items;
+}
+
 # important: return the actual size (not taking into account auto-created stuff)
 sub fetch_size {
     my $self = shift;
@@ -667,6 +694,11 @@ loads C< [ 'foo','bar']> in C<$elt>
 Returns a sub used to sort the list elements. See
 L<perlfunc/sort>. Used only for list of leaves. This method can be
 overridden to alter sort order.
+
+=head2 get_info
+
+Returns a list of information related to the list. See
+L<Config::Model::Value/get_info> for more details.
 
 =head1 AUTHOR
 

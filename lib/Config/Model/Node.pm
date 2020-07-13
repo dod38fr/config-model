@@ -1125,6 +1125,19 @@ sub get_help {
     return defined $help ? $help : '';
 }
 
+sub get_info {
+    my $self = shift;
+
+    my @items = ( 'type: ' . $self->get_type, 'class name: ' . $self->config_class_name, );
+
+    my @rexp = $self->accept_regexp;
+    if (@rexp) {
+        push @items, 'accept: /^' . join( '$/, /^', @rexp ) . '$/';
+    }
+
+    return @items;
+}
+
 sub tree_searcher {
     my $self = shift;
 
@@ -1945,6 +1958,11 @@ If called with 2 argument, either return the C<summary> or the
 C<description> of the element.
 
 Returns an empty string if no description was found.
+
+=head2 get_info
+
+Returns a list of information related to the node. See
+L<Config::Model::Value/get_info> for more details.
 
 =head2 tree_searcher
 
