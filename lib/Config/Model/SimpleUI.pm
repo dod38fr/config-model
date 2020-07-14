@@ -149,7 +149,7 @@ my %run_dispatch = (
     tree => sub {
         my $self = shift;
         my $i    = $self->{current_node}->instance;
-        my @res  = $self->{current_node}->dump_tree( full_dump => 1 );
+        my @res  = $self->{current_node}->dump_tree( mode => 'user' );
         return join( ' ', @res );
     },
     delete => sub {
