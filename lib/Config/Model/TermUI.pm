@@ -46,7 +46,7 @@ my $ll_completion_sub = sub {
     return @ret;
 };
 
-# BUG: autocompletion does not really on a hash element with an index
+# BUG: autocompletion does not really work on a hash element with an index
 # containing white space (i.e. something like std_id:"abc def",
 
 my $cd_completion_sub = sub {
