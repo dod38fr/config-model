@@ -89,6 +89,15 @@ is_deeply( [ $i_root->get_element_name ], [qw/id other/], "check explicit elemen
 
 is( $i_root->element_type('otary'),'leaf',"check element_type on accepted element");
 
+is($i_root->has_element(name => 'listA', autoadd => 0), 0, "check autoadd parameter for has_element");
+is($i_root->has_element(name => 'listA'), 1, "check autoadd parameter for has_element");
+
+throws_ok {
+    $i_root->fetch_element(name => 'listB', autoadd => 0);
+}
+    "Config::Model::Exception::UnknownElement",
+    "check autoadd parameter for fetch_element";
+
 my $load = "listA=one,two,three,four
 listB=1,2,3,4
 listC=a,b,c,d
