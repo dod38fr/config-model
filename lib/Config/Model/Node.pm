@@ -646,6 +646,7 @@ sub fetch_element {
 
     my $check         = $self->_check_check( $args{check} );
     my $accept_hidden = $args{accept_hidden} || 0;
+    my $autoadd       = $args{autoadd} // 1;
 
     $self->init();
 
@@ -655,7 +656,7 @@ sub fetch_element {
     if ( not defined $self->{element}{$element_name} ) {
 
         # We also need to check if element name is matched by any of 'accept' parameters
-        $self->accept_element($element_name);
+        $self->accept_element($element_name) if $autoadd;
         $self->create_element( name => $element_name, check => $check ) or return;
     }
 
@@ -1766,12 +1767,21 @@ Reset a property of an element according to the original model.
 
 =head2 fetch_element
 
-Parameters: C<< ( name => .. , [ check => ..] ) >>
+Arguments: C<< ( name => .. , [ check => ..], [ autoadd => 1 ] ) >>
 
-Fetch and returns an element from a node.
+Fetch and returns an element from a node if the class model has the
+element declared.
 
-check can be set to yes, no or skip. When check is C<no> or C<skip>, can return C<undef> when the
+Also fetch and returns an element from a node if C<autoadd> is 1
+(i.e. by default) and the element name is matched by the optional
+C<accept> model parameter.
+
+C<check> can be set to C<yes>, C<no> or C<skip>.
+When C<check> is C<no> or C<skip>, this method returns C<undef> when the
 element is unknown, or 0 if the element is not available (hidden).
+
+By default, "accepted" elements are automatically created. Set
+C<autoadd> to 0 when this behavior is not wanted.
 
 =head2 fetch_element_value
 
