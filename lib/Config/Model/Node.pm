@@ -429,6 +429,7 @@ sub has_element {
     my %args = ( @_ > 1 ) ? @_ : ( name => shift );
     my $name = $args{name};
     my $type = $args{type};
+    my $autoadd = $args{autoadd} // 1;
 
     if ( not defined $name ) {
         Config::Model::Exception::Internal->throw(
@@ -437,7 +438,7 @@ sub has_element {
         );
     }
 
-    $self->accept_element($name);
+    $self->accept_element($name) if $autoadd;
     return 0 unless defined $self->{model}{element}{$name};
     return 1 unless defined $type;
     return $self->{model}{element}{$name}{type} eq $type ? 1 : 0;
@@ -1597,11 +1598,14 @@ L<Config::Model::AnyThing>
 
 =head2 has_element
 
-Parameters: C<< ( name => element_name, [ type => searched_type ] ) >>
+Arguments: C<< ( name => element_name, [ type => searched_type ],  [ autoadd => 1 ] ) >>
 
-Returns 1 if the class model has the element declared or if the element
-name is matched by the optional C<accept> parameter. If C<type> is specified, the
-element name must also match the type.
+Returns 1 if the class model has the element declared.
+
+Returns 1 as well if C<autoadd> is 1 (i.e. by default) and the element
+name is matched by the optional C<accept> model parameter.
+
+If C<type> is specified, the element name must also match the type.
 
 =head2 find_element
 
