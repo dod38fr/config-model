@@ -31,6 +31,8 @@ ll [-nz] [-v] [ element | pattern ]
    -> show elements of current node and their value
      (options: -nz → hides empty value, -v → verbose)
      (args: element name or filter pattern)
+info -> show detailed information on object or current node
+  (args: optional path to object)
 tree -> show configuration tree from an object or current node
   (args: optional path to object)
 help -> show available command
@@ -142,6 +144,12 @@ my %run_dispatch = (
         my $self = shift;
         say "Nothing to display" unless @_;
         return $self->{current_node}->grab_value(@_);
+    },
+    info => sub {
+        my $self = shift;
+        my $cnode = $self->{current_node};
+        my $target = @_ ? $cnode->grab(steps => [@_]) : $cnode;
+        return join("\n", $target->get_info );
     },
     ls => sub {
         my $self = shift;
@@ -477,6 +485,12 @@ Skip empty element with C<-nz> option. Display more information with C<-v> optio
 =item tree [path]
 
 Show configuration tree from current node or of a node pointed by path.
+
+=item info [path]
+
+Show debug information on current node or on the element pointed by
+path. The debug information may show model parametersm default or computed
+values.
 
 =item help
 
