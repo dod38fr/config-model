@@ -164,6 +164,7 @@ my %completion_dispatch = (
     ll     => $ll_completion_sub,
     ls     => $path_completion_sub,
     tree   => $node_completion_sub,
+    info   => $path_completion_sub,
     check  => $completion_sub,
     fix    => $fix_completion_sub,
     clear  => $completion_sub,
