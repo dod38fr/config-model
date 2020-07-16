@@ -21,7 +21,12 @@ delete elt
    -> like reset, delete a value (set to undef)
 display elt elt:key
    -> display a value
-ls -> show elements of current node (args: filter pattern)
+ls -> show content of object (args: path and/or filter pattern)
+   ls -> show elements of current node
+   ls foo* -> shows element matching foo.*
+   ls \'foo*\' -> shows elements of node stored in "foo*"
+   ls aHash -> shows keys of Hash
+   ls \'aHash:"*"\'  -> shows elements of node stored in key "*" of "aHash" hash
 ll [-nz] [-v] [ element | pattern ]
    -> show elements of current node and their value
      (options: -nz → hides empty value, -v → verbose)
@@ -139,11 +144,19 @@ my %run_dispatch = (
     },
     ls => sub {
         my $self = shift;
-        my $pattern = shift || '*';
+        my $target = $self->{current_node};
+        my $pattern = '*';
+        for (@_) {
+            if (/\*/ and not /^["']/) {
+                $pattern = $_;
+                last;
+            }
+            $target = $target->grab(steps => $_);
+        }
         $pattern =~ s/\*/.*/g;
 
         my $i    = $self->{current_node}->instance;
-        my @res  = grep {/^$pattern$/} $self->{current_node}->get_element_name;
+        my @res  = $target->can('children') ? grep {/^$pattern$/} $target->children : ();
         return join( ' ', @res );
     },
     tree => sub {
@@ -448,9 +461,10 @@ Delete a list or hash element
 
 Display a value
 
-=item ls [ pattern ]
+=item ls [path] [ pattern ]
 
-Show elements of current node. Can be used with a shell pattern.
+Show elements of current node or of a node pointed by path. Elements
+can be filtered with a shell pattern. See inline help for more details.
 
 =item ll [-nz] [-v] [ pattern ... ]
 
