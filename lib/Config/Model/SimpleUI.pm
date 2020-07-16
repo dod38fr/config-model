@@ -9,7 +9,7 @@ use Encode qw(decode_utf8);
 use Regexp::Common qw/delimited/;
 
 my $syntax = '
-cd <elt> cd <elt:key>, cd - , cd !
+cd <elt>, cd <elt:key>, cd - , cd !
    -> jump into node
 set elt=value, elt:key=value
    -> set a value
