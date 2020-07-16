@@ -154,7 +154,7 @@ COMMAND:
             $logger->debug("grab: cmd '$cmd' -> name '$name', action '$action', arg '$arg'");
         }
 
-        unless ( $obj->has_element($name) ) {
+        unless ( $obj->has_element(name => $name, autoadd => $autoadd) ) {
             if ( $mode eq 'step_by_step' ) {
                 return wantarray ? ( undef, @command ) : undef;
             }
@@ -202,6 +202,7 @@ COMMAND:
         my $next_obj = $obj->fetch_element(
             name          => $name,
             check         => $check,
+            autoadd       => $autoadd,
             accept_hidden => $grab_non_available
         );
 
