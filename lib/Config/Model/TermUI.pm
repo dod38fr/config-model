@@ -103,6 +103,61 @@ my $cd_completion_sub = sub {
     return @ret;
 };
 
+my $path_completion_sub = sub {
+    my ( $self, $text, $line, $start, $node_only ) = @_;
+
+    # print "text '$text' line '$line' start $start\n";
+    # print "  cd comp param is ",join('+',@_),"\n";
+
+    # we know that text begins with a command
+    my $cmd = $line;
+    $cmd =~ s/^\w+\s+//;
+
+    my $new_item;
+    while ( not defined $new_item ) {
+        # grab in tolerant mode
+        # print "Grabbing $cmd\n";
+        eval {
+            $new_item = $self->{current_node}->grab( step => $cmd, type => 'node', mode => 'strict', autoadd => 0 );
+        };
+        chop $cmd;
+    }
+
+    #print "Grab got ",$new_item->location,"\n";
+
+    my @choice;
+    my $new_type = $new_item->get_type;
+
+    my @children = $node_only ? $new_item->get_element_name( cargo_type => 'node' )
+        : $new_item->get_element_name();
+    # say "Children: @children";
+    foreach my $elt_name (@children) {
+        if ( $new_item->element_type($elt_name) =~ /^(hash|list)$/ ) {
+            push @choice, "$elt_name:" unless $node_only;
+            foreach my $idx ( $new_item->fetch_element($elt_name)->fetch_all_indexes ) {
+                # my ($idx) = ($raw_idx =~ /([^\n]{1,40})/ );
+                # $idx .= '...' unless $raw_idx eq $idx ;
+                push @choice, "$elt_name:" . ($idx =~ /[^\w._-]/ ? qq("$idx") : $idx );
+            }
+        }
+        else {
+            push @choice, $elt_name;
+        }
+    }
+
+    # filter possible choices according to input
+    my @ret = grep { /^$text/ } @choice ;
+
+    # print "->choice +",join('+',@ret),"+ text:'$text'<-\n";
+
+    return @ret;
+};
+
+# like path completion, but allow only completion on a node
+my $node_completion_sub = sub {
+    return $path_completion_sub->(@_, 1);
+};
+
 my %completion_dispatch = (
     cd     => $cd_completion_sub,
     desc   => $completion_sub,
