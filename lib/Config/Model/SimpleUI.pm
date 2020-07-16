@@ -31,7 +31,8 @@ ll [-nz] [-v] [ element | pattern ]
    -> show elements of current node and their value
      (options: -nz → hides empty value, -v → verbose)
      (args: element name or filter pattern)
-tree -> show configuration tree from current node
+tree -> show configuration tree from an object or current node
+  (args: optional path to object)
 help -> show available command
 desc[ription] -> show class desc of current node
 desc <element>   -> show desc of element from current node
@@ -162,7 +163,9 @@ my %run_dispatch = (
     tree => sub {
         my $self = shift;
         my $i    = $self->{current_node}->instance;
-        my @res  = $self->{current_node}->dump_tree( mode => 'user' );
+        my $cnode = $self->{current_node};
+        my $target = @_ ? $cnode->grab(steps => [@_]) : $cnode;
+        my @res  = $target->dump_tree( mode => 'user' );
         return join( ' ', @res );
     },
     delete => sub {
@@ -471,9 +474,9 @@ can be filtered with a shell pattern. See inline help for more details.
 Describe elements of current node. Can be used with shell patterns or element names.
 Skip empty element with C<-nz> option. Display more information with C<-v> option
 
-=item tree
+=item tree [path]
 
-Show configuration tree from current node.
+Show configuration tree from current node or of a node pointed by path.
 
 =item help
 
