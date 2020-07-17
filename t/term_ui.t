@@ -18,7 +18,7 @@ BEGIN {
         or eval { require Term::ReadLine::Perl; 1; } );
 
     if ($ok) {
-        plan tests => 13;
+        plan tests => 18;
     }
     else {
         plan skip_all => "Cannot load Term::ReadLine";
@@ -86,8 +86,12 @@ my @test = (    # text line start ## expected completions
 
     [ [ 'std_id:"abc', 'cd std_id:"abc',14 ], ['std_id:"abc def"' ,'std_id:"abc hij"' ] ],
     [ [ 'std_id:a', 'cd std_id:a', 3 ], ['std_id:ab'] ],
-    [ [ '', 'fix ', 4 ], ['std_id', 'lista', 'listb', 'hash_a', 'hash_b', 'ordered_hash', 'olist', 'tree_macro', 'warp', 'slave_y', 'string_with_def', 'a_uniline', 'a_string', 'int_v', 'my_check_list', 'my_reference', '!']
-  ],
+    [ [ '', 'fix ', 4 ], ['std_id', 'lista', 'listb', 'hash_a', 'hash_b', 'ordered_hash', 'olist', 'tree_macro', 'warp', 'slave_y', 'string_with_def', 'a_uniline', 'a_string', 'int_v', 'my_check_list', 'my_reference', '!'] ],
+    [ [ '','tree ', 5], ['std_id:ab', 'std_id:"abc def"', 'std_id:"abc hij"', 'std_id:bc', 'warp', 'slave_y'] ],
+    [ [ 'std', 'tree std', 5 ], ['std_id:ab', 'std_id:"abc def"', 'std_id:"abc hij"', 'std_id:bc'] ],
+    [ [ 'std', 'ls std', 3], ['std_id:', 'std_id:ab', 'std_id:"abc def"', 'std_id:"abc hij"', 'std_id:bc'] ],
+    [ [ 'std_id:ab', 'ls std_id:ab', 3], [ ] ],
+    [ [ '', 'info std_id:ab ', 15], ['Z', 'X', 'DX']],
 );
 
 foreach my $a_test (@test) {
