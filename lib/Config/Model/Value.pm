@@ -1248,8 +1248,8 @@ sub show_warnings {
             $warn_h{$w} = 1;
             my $w_msg = "Warning in '" . $self->location_short . "': $w\nOffending value: $w_str";
             if ($old_warn->{$w}) {
-                # user has already seen the warning, let's use info level (required by tests)
-                $user_logger->info($w_msg);
+                # user has already seen the warning, let's use debug level (required by tests)
+                $user_logger->debug($w_msg);
             }
             else {
                 if ($::_use_log4perl_to_warn) {
