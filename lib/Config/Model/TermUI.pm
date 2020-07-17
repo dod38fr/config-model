@@ -52,9 +52,6 @@ my $ll_completion_sub = sub {
 my $cd_completion_sub = sub {
     my ( $self, $text, $line, $start ) = @_;
 
-    #print "text '$text' line '$line' start $start\n";
-    #print "  cd comp param is ",join('+',@_),"\n";
-
     # we know that text begins with 'cd '
     my $cmd = $line;
     $cmd =~ s/cd\s+//;
@@ -98,16 +95,11 @@ my $cd_completion_sub = sub {
     # filter possible choices according to input
     my @ret = grep { /^$text/ } @choice ;
 
-    #print "->choice +",join('+',@ret),"+ text:'$text'<-\n";
-
     return @ret;
 };
 
 my $path_completion_sub = sub {
     my ( $self, $text, $line, $start, $node_only ) = @_;
-
-    # print "text '$text' line '$line' start $start\n";
-    # print "  cd comp param is ",join('+',@_),"\n";
 
     # we know that text begins with a command
     my $cmd = $line;
@@ -148,8 +140,6 @@ my $path_completion_sub = sub {
     # filter possible choices according to input
     my @ret = grep { /^$text/ } @choice ;
 
-    # print "->choice +",join('+',@ret),"+ text:'$text'<-\n";
-
     return @ret;
 };
 
@@ -176,7 +166,6 @@ my %completion_dispatch = (
 sub completion {
     my ( $self, $text, $line, $start ) = @_;
 
-    #print " comp param is +$text+$line+$start+\n";
     my $space_idx = index $line, ' ';
     my ( $main, $cmd ) = split m/\s+/, $line, 2;    # /;
             #warn " comp main cmd is '$main' (space_idx $space_idx)\n";
