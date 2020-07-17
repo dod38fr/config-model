@@ -172,7 +172,11 @@ sub completion {
 
     if ( $space_idx > 0 and defined $completion_dispatch{$main} ) {
         my $i = $self->{current_node}->instance;
-        return $completion_dispatch{$main}->( $self, $text, $line, $start );
+        # say "Input: ['$text', '$line', $start], ";
+
+        my @choices = $completion_dispatch{$main}->( $self, $text, $line, $start );
+        # say "Choices: ['", join("', '",@choices),"']";
+        return @choices;
     }
     elsif ( not $cmd ) {
         return grep { /^$text/ } $self->simple_ui_commands() ;
