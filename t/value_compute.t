@@ -438,7 +438,7 @@ ok( $compute_int = $root->fetch_element('compute_int'), "create computed integer
 
 no warnings 'once';
 
-my $parser = new Parse::RecDescent($Config::Model::ValueComputer::compute_grammar);
+my $parser = Parse::RecDescent->new($Config::Model::ValueComputer::compute_grammar);
 
 use warnings 'once';
 

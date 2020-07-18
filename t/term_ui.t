@@ -11,7 +11,7 @@ use Test::Differences;
 BEGIN {
     my $ok = eval {
         require Term::ReadLine;
-        my $test = new Term::ReadLine 'Test';
+        my $test = Term::ReadLine->new( 'Test' );
         1;
     }
         and ( eval { require Term::ReadLine::Gnu; 1; }

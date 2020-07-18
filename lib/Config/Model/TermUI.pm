@@ -198,7 +198,7 @@ sub new {
 
     $self->{current_node} = $self->{root};
 
-    my $term = new Term::ReadLine $self->{title};
+    my $term = Term::ReadLine->new( $self->{title} );
 
     my $sub_ref = sub { $self->completion(@_); };
 
