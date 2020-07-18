@@ -1,5 +1,28 @@
 {{$NEXT}}
 
+2.139 2020-07-18
+
+  UI changes:
+    * Show warnings in blue color (color can be
+      configured using Log4Perl config file)
+    * shell UI:
+      * add info command
+      * improve tree and ls commands
+
+  API changes:
+    * Node: add autoadd argument to fetch_element
+      and has_element methods
+    * add get_info method to most tree classes
+
+  Bug fix:
+    * Exception: drop constraint in parsed_file
+      which avoids a crash when cme should be
+      showing an error message
+
+  Misc:
+    * cleanup code. Thanks kritika.io for the suggestions
+    * updated copyright years
+
 2.138 2019-12-27
 
   Bug fix:
