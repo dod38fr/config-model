@@ -81,7 +81,7 @@ my $ll_sub = sub {
 
     my @desc_opt = qw/check no/;
 
-    my %opt = map { /^-(\w+)/; $1 => 1 } grep { /^-/ } @raw_args;
+    my %opt = map { /^-(\w+)/ ? ($1 => 1) : () } @raw_args;
     push @desc_opt, hide_empty => 1 if $opt{nz} ;
     push @desc_opt, verbose    => 1 if $opt{v} ;
 

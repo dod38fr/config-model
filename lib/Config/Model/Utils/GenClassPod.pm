@@ -19,8 +19,7 @@ sub gen_class_pod {
     my %done;
 
     my @models = @_ ? @_ :
-        map { /model\s*=\s*([\w:-]+)/; $1; }
-        grep { /^\s*model/; }
+        map { /^\s*model\s*=\s*([\w:-]+)/ ? ($1) : (); }
         map  { $_->lines; }
         map  { $_->children; }
         path ("lib/Config/Model/")->children(qr/\.d$/);
