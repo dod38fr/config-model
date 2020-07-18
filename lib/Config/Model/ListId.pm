@@ -100,7 +100,9 @@ sub _migrate {
 
         # FIXME: remove this deprecated stuff
         my $followed = $self->safe_typed_grab( param => 'migrate_keys_from', check => 'no' );
-        map { $self->_store( $_, undef ) unless $self->_defined($_) } $followed->fetch_all_indexes;
+        for ( $followed->fetch_all_indexes ) {
+            $self->_store( $_, undef ) unless $self->_defined($_);
+        }
     }
 
 }

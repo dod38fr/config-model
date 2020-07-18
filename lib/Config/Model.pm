@@ -1667,7 +1667,7 @@ sub get_element_description {
 
     if (@default_info) {
         $ret .= "\n\n=over 4\n\n";
-        map { $ret .= "=item $_->[0] value :\n\n$_->[1]\n\n"; } @default_info;
+        for ( @default_info) { $ret .= "=item $_->[0] value :\n\n$_->[1]\n\n"; }
         $ret .= "=back\n\n";
     }
 
