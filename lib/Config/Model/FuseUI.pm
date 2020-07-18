@@ -42,8 +42,6 @@ sub getdir {
     return ( @c, 0 );
 }
 
-my %files;
-
 sub fetch_as_line {
     my $obj = shift;
     my $v = $obj->fetch( check => 'no' );

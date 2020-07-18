@@ -34,7 +34,6 @@ sub new {
 sub _sniff_class {
     my ( $self, $class, $found_ref ) = @_;
 
-    my @lines;
     my %h;
     my $model   = $self->{model};
     my $c_model = $model->get_model_clone($class);

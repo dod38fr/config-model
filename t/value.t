@@ -293,8 +293,6 @@ $bad_inst->initial_load_stop;
 
 my $bad_root = $bad_inst->config_root;
 
-my $result;
-
 throws_ok { $bad_root->fetch_element('crooked'); }
     'Config::Model::Exception::Model',
     "test create expected failure";
