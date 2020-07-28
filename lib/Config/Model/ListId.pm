@@ -453,7 +453,11 @@ sub remove {
     ) unless $idx =~ /^\d+$/;
 
     $self->delete_data_mode( index => $idx );
-    $self->notify_change(note => "removed idx $idx");
+    my $note = "removed idx $idx";
+    if ( $self->{cargo}{type} eq 'leaf' ) {
+        $note .= ' ("' . $self->fetch_summary($idx) . '")';
+    }
+    $self->notify_change(note => $note);
     splice @{ $self->{data} }, $idx, 1;
 }
 
