@@ -1771,6 +1771,14 @@ sub _fetch_no_check {
         :                                  $self->{default};
 }
 
+sub fetch_summary {
+    my $self = shift;
+    my $value = $self->fetch(@_) // '<undef>';
+    $value =~ s/\n/ /g;
+    $value = substr( $value, 0, 15 ) . '...' if length($value) > 15;
+    return $value;
+}
+
 sub fetch {
     my $self = shift;
 
@@ -2810,6 +2818,11 @@ C<undef> for mandatory values. Normally, trying to fetch an undefined
 mandatory value leads to an exception.
 
 =back
+
+=head2 fetch_summary
+
+Returns a truncated value when the value is a string or uniline that
+is too long to be displayed.
 
 =head2 user_value
 
