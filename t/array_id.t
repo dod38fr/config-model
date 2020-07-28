@@ -200,8 +200,10 @@ for ( 0 .. 4 ) { is( $b->fetch_with_id($_)->index_value, $_, "Check swapped inde
 is( $b->fetch_with_id(3)->fetch, 'toto', "check value after swap" );
 is( $b->fetch_with_id(4)->fetch, 'titi', "check value after swap" );
 
+$inst->clear_changes;
 $b->remove(3);
 is( $b->fetch_with_id(3)->fetch, 'titi', "check after remove" );
+is( scalar $inst->list_changes(), q!bounded_list: removed idx 3 ("toto")!, "check removal message");
 
 # test move swap with node list
 my $ol = $root->fetch_element('olist');
