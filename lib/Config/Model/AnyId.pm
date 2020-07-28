@@ -834,10 +834,23 @@ sub fetch {
 sub fetch_value {
     my $self  = shift;
     my %args  = @_ > 1 ? @_ : ( idx => shift );
+    return $self->_fetch_value(%args, sub => 'fetch');
+}
+
+sub fetch_summary {
+    my $self  = shift;
+    my %args  = @_ > 1 ? @_ : ( idx => shift );
+    return $self->_fetch_value(%args, sub => 'fetch_summary');
+}
+
+sub _fetch_value {
+    my $self  = shift;
+    my %args  = @_ ;
     my $check = $self->_check_check( $args{check} );
+    my $sub = delete $args{sub};
 
     if ( $self->{cargo}{type} eq 'leaf' ) {
-        return  $self->fetch_with_id($args{idx})->fetch( check => $check, mode => $args{mode} );
+        return  $self->fetch_with_id($args{idx})->$sub( check => $check, mode => $args{mode} );
     }
     else {
         Config::Model::Exception::WrongType->throw(
@@ -1567,6 +1580,13 @@ method is only valid for hash or list containing leaves.
 
 See L<fetch_all_values> for C<mode> argument documentation and
 L<Config::Model::Value/fetch> for C<check> argument documentation.
+
+=head2 fetch_summary
+
+Arguments: C<< ( idx => ..., mode => ..., check => ...) >>
+
+Like L</fetch_value>, but returns a truncated value when the value is
+a string or uniline that is too long to be displayed.
 
 =head2 fetch_all_values
 
