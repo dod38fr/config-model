@@ -355,6 +355,19 @@ subtest "simple scalar" => sub {
     print "normal error:\n", $@, "\n" if $trace;
 };
 
+subtest "summary method" => sub {
+    my $i = $root->fetch_element('scalar');
+    $i->store(4);
+    is($i->fetch_summary, 4, "test summary on integer");
+
+    my $s = $root->fetch_element('string');
+    $s->store("Lorem ipsum dolor sit amet, consectetur adipiscing elit,");
+    is($s->fetch_summary, "Lorem ipsum dol...", "test summary on string");
+
+    $s->store("Lorem ipsum\ndolor sit amet, consectetur adipiscing elit,");
+    is($s->fetch_summary, "Lorem ipsum dol...", "test summary on string with \n");
+};
+
 subtest "bounded number" => sub {
     my $nb = $root->fetch_element('bounded_number');
     ok( $nb, "created " . $nb->name );
