@@ -281,6 +281,13 @@ is( $ph->fetch_with_id(3)->fetch, $ph->fetch_with_id(2)->fetch, "compare copied 
 print scalar $inst->list_changes, "\n" if $trace;
 $inst->clear_changes;
 
+subtest "summary method" => sub {
+    my $s = $root->fetch_element('plain_hash')->fetch_with_id(3);
+    $s->store("Lorem ipsum\ndolor sit amet, consectetur adipiscing elit,");
+    is($s->fetch_summary, "Lorem ipsum dol...", "test summary on string");
+    $inst->clear_changes;
+};
+
 my $hwfkf = $root->fetch_element('hash_with_follow_keys_from');
 ok( $hwfkf, "created hash_with_follow_keys_from ..." );
 eq_or_diff( [ $hwfkf->get_default_keys ],
