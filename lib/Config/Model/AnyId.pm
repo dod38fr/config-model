@@ -615,7 +615,7 @@ sub check_follow_keys_from {
     return if $followed->exists($idx);
 
     push @$error,
-          "key '" . $self->shorten_idx($idx) . "' does not exists in '"
+          "key '" . $self->shorten_idx($idx) . "' does not exists in followed object '"
         . $followed->name
         . "'. Expected '"
         . join( "', '", $followed->fetch_all_indexes ) . "'";
