@@ -24,6 +24,13 @@ sub annotation { return 0; }
 # file_path is undef
 sub skip_open { 1; }
 
+sub get_file_name {
+    my ($self, %args) = @_;
+
+    my $obj = $args{object}->fetch_element( name => $args{elt} );
+    return $args{file} ? $obj->compute_string($args{file}) : $args{elt};
+}
+
 sub read {
     my $self = shift;
     my %args = @_;
@@ -45,11 +52,11 @@ sub read {
     foreach my $elt ( $node->get_element_names(all => 1) ) {
         my $obj = $args{object}->fetch_element( name => $elt );
 
-        my $file_name = $args{file} ? $obj->compute_string($args{file}) : $elt;
+        my $file_name = $self->get_file_name(%args, elt => $elt);
         my $dir = $self->get_tuned_config_dir(%args);
         my $file = $dir->child($file_name);
 
-        $logger->trace("looking for plainfile $file ");
+        $logger->trace("looking for plainfile $file for ", $obj->location);
 
         my $type = $obj->get_type;
 
@@ -125,7 +132,7 @@ sub write {
     foreach my $elt ( $node->get_element_name() ) {
         my $obj = $args{object}->fetch_element( name => $elt );
 
-        my $file_name = $args{file} ? $obj->compute_string($args{file}) : $elt;
+        my $file_name = $self->get_file_name(%args, elt => $elt);
         my $file = $dir->child($file_name);
 
         my $type = $obj->get_type;
@@ -178,7 +185,8 @@ sub delete {
     foreach my $elt ( $node->get_element_name() ) {
         my $obj = $node->fetch_element( name => $elt );
 
-        my $file = $dir->child($args{file} ? $obj->compute_string($args{file}) : $elt);
+        my $file_name = $self->get_file_name(%args, elt => $elt);
+        my $file = $dir->child( $file_name );
         $logger->info( "Removing $file (deleted node)" );
         $file->remove;
     }
