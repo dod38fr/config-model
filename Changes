@@ -1,5 +1,15 @@
 {{$NEXT}}
 
+2.140 2020-07-31
+
+  API changes:
+    * PlainFile backend: extract get_file_name method
+    * AnyId: add fetch_value and fetch_summary method
+    * Value: add fetch_summary method
+
+  Bug fix:
+    * fix loader_logs tests broken by Config::Model::Tester 4.006
+
 2.139 2020-07-18
 
   UI changes:
