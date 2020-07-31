@@ -14,6 +14,8 @@ $::_use_log4perl_to_warn = 1;
 
 my ($model, $trace) = init_test();
 
+Test::Log::Log4perl->ignore_priority("debug");
+
 # See caveats in Test::More doc
 my $builder = Test::More->builder;
 binmode $builder->output,         ":encoding(UTF-8)";
