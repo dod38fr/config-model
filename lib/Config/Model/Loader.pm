@@ -1176,7 +1176,7 @@ Does not not complain if the value to delete is not found.
 Remove the element whose value matches C<yy>. For list or hash of leaves.
 Does not not complain if no value were deleted.
 
-=item xxx:.substitute(/yy/zz/) or xxx=~s/yy/zz/
+=item xxx:.substitute(/yy/zz/) or xxx:=~s/yy/zz/
 
 Substitute a value with another. Perl switches can be used(e.g. C<xxx:=~s/yy/zz/gi>)
 
