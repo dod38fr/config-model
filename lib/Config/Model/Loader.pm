@@ -947,7 +947,7 @@ sub __data_from_vector {
 }
 
 sub __get_file_from_vector {
-    my ($self, $value) =  @_;
+    my ($self, $element,$instructions,$value) =  @_;
     my @vector = split m![/]+!m, $value;
     my $cur = path('.');
     my $file;
@@ -961,12 +961,21 @@ sub __get_file_from_vector {
             $cur = $new_path;
         }
     }
+    if (not defined $file) {
+        my ( $element_name, $action, $f_arg, $id, $subaction, $value, $note )
+            = @$instructions;
+        Config::Model::Exception::Load->throw(
+            object  => $element,
+            command => "$element_name$subaction($value)",
+            error   => qq!Load error: Cannot find file in $value!
+        );
+    }
     return ($file, @vector);
 }
 
 sub _store_json_vector_in_value {
     my ( $self, $element, $value, $check, $instructions, $cmd ) = @_;
-    my ($file, @vector) = $self->__get_file_from_vector($value);
+    my ($file, @vector) = $self->__get_file_from_vector($element,$instructions,$value);
     my $data = decode_json($file->slurp_utf8);
     $element->store(
         value => __data_from_vector($data, @vector),
