@@ -96,6 +96,8 @@ my @regexp_test = (
     [ 'a:b<c',             [ 'a',  ':',  'x',           'b',            '<',  'x',      'c',        'x' ] ],# insert at index
     [ 'a:=b<c',            [ 'a',  ':=', 'x',           'b',            '<',  'x',      'c',        'x' ] ],# insert at value
     [ 'a:~/b/<c',          [ 'a',  ':~', 'x',           '/b/',          '<',  'x',      'c',        'x' ] ],# insert at matching value
+
+    # function call
     [ 'a:.b("foo(a > b)")',[ 'a',  ':.b','"foo(a > b)"','x',            'x',  'x',      'x',        'x' ] ],# tricky value with ()
 );
 
