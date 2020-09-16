@@ -491,6 +491,21 @@ $root->load("a_string=.file(README.md)");
 like( $root->grab_value('a_string'), qr/# What is Config-Model project/,
   "slurp README.md file");
 
+$root->load('a_string=.json("t/lib/load-data.json/foo/bar")');
+is( $root->grab_value('a_string'), "bar json value", "extract data from json file");
+
+throws_ok {
+    $root->load('a_string=.json(t/lib/dummy.json/foo/bar)');
+}
+    qr!Cannot find file in t/lib/dummy.json/foo/bar!,
+    "throws error on dummy json file: check error message";
+
+throws_ok {
+    $root->load('a_string=.json(t/lib/dummy.json/foo/bar)');
+}
+    qr!a_string=\.json\(t/lib/dummy\.json/foo/bar\)!,
+    "throws error on dummy json file: check reported command";
+
 my $expect = $ENV{TEST_CONFIG_MODEL_LOADER} = 'plop';
 $root->load("a_string=.env(TEST_CONFIG_MODEL_LOADER)");
 is( $root->grab_value('a_string'), 'plop', "set value from environment");
