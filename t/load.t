@@ -40,6 +40,8 @@ my @regexp_test = (
     [ 'a="~"',             [ 'a',  'x',  'x',           'x',            '=',  'x',      '"~"',      'x' ] ],
     [ 'a=.foo(bar)',       [ 'a',  'x',  'x',           'x',          '=.foo','bar',   'x',        'x' ] ],
     [ 'a=.foo("b r")',     [ 'a',  'x',  'x',           'x',          '=.foo','"b r"', 'x',        'x' ] ],
+    [ 'a=.json(dir/foo.json/b/a)',
+                           [ 'a',  'x',  'x',           'x',          '=.json','dir/foo.json/b/a', 'x',        'x' ] ],# path + vector
     [ 'a-z=b',             [ 'a-z','x',  'x',           'x',            '=',  'x',      'b',        'x' ] ],
     [ "a=\x{263A}",        [ 'a',  'x',  'x',           'x',            '=',  'x',      "\x{263A}", 'x' ] ],# utf8 smiley
     [ 'a.=b',              [ 'a',  'x',  'x',           'x',            '.=', 'x',      'b',        'x' ] ],
