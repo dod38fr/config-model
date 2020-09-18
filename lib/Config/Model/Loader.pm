@@ -10,6 +10,7 @@ use Config::Model::Exception;
 use Log::Log4perl qw(get_logger :levels);
 use JSON;
 use Path::Tiny;
+use YAML::Tiny;
 
 my $logger = get_logger("Loader");
 my $verbose_logger = get_logger("Verbose.Loader");
@@ -865,6 +866,7 @@ my %load_value_dispatch = (
     '=~' => \&_apply_regexp_on_value,
     '=.file' => \&_store_file_in_value,
     '=.json' => \&_store_json_vector_in_value,
+    '=.yaml' => \&_store_yaml_vector_in_value,
     '=.env' => sub { $_[1]->store( value => $ENV{$_[2]}, check => $_[3] ); return 'ok'; },
 );
 
@@ -977,6 +979,16 @@ sub _store_json_vector_in_value {
     my ( $self, $element, $value, $check, $instructions, $cmd ) = @_;
     my ($file, @vector) = $self->__get_file_from_vector($element,$instructions,$value);
     my $data = decode_json($file->slurp_utf8);
+    $element->store(
+        value => __data_from_vector($data, @vector),
+        check => $check
+    );
+}
+
+sub _store_yaml_vector_in_value {
+    my ( $self, $element, $value, $check, $instructions, $cmd ) = @_;
+    my ($file, @vector) = $self->__get_file_from_vector($element,$instructions,$value);
+    my $data = YAML::Tiny->read($file->stringify);
     $element->store(
         value => __data_from_vector($data, @vector),
         check => $check
@@ -1351,6 +1363,24 @@ For instance, if C<data.json> contains:
 
 The instruction C<baz=.json(data.json/foo/bar)> stores C<42> in C<baz>
 element.
+
+=item xxx=.yaml(path/to/data.yaml/0/foo/bar)
+
+Open file C<data.yaml> and store value from YAML data extracted with
+C<0/foo/bar> subpath.
+
+Since a YAML file can contain several documents (separated by C<--->
+lines, the subpath must begin with a number to select the document
+containing the required value.
+
+For instance, if C<data.yaml> contains:
+
+  ---
+  foo:
+    bar: 42
+
+The instruction C<baz=.yaml(data.yaml/0/foo/bar)> stores C<42> in
+C<baz> element.
 
 =item xxx=.env(yyy)
 
