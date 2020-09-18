@@ -506,6 +506,9 @@ throws_ok {
     qr!a_string=\.json\(t/lib/dummy\.json/foo/bar\)!,
     "throws error on dummy json file: check reported command";
 
+$root->load('a_string=.yaml("t/lib/load-data.yaml/0/foo/bar")');
+is( $root->grab_value('a_string'), "bar yaml value", "extract data from yaml file");
+
 my $expect = $ENV{TEST_CONFIG_MODEL_LOADER} = 'plop';
 $root->load("a_string=.env(TEST_CONFIG_MODEL_LOADER)");
 is( $root->grab_value('a_string'), 'plop', "set value from environment");
