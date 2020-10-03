@@ -492,8 +492,9 @@ subtest "load_data method" => sub {
         [ a1         => ['a1'] ],
         [ 'a b x'  => [q/a b x/] ],
         [ 'a b x'  => [qw/a b x/], qr/ / ],
+        [ 'a b'  => [qw/a b/], qr/ / ],
         [ 'a,b,c'      => [qw/a b c/], qr/,/ ],
-        [ [qw/a b c/] => [qw/a b c/] ],
+        [ [qw/a c/] => [qw/a c/] ],
     );
     foreach my $l (@test) {
         $b->load_data( data => $l->[0], split_reg => $l->[2] );
@@ -504,6 +505,23 @@ subtest "load_data method" => sub {
         $b->load_data(plop=>'a,,b');
     } "Config::Model::Exception::LoadData",
         "fails load_data with wrong parameter";
+
+    $b->clear;
+};
+
+subtest "load_data method change tracking" => sub {
+    my $b = $root->fetch_element('bounded_list');
+    $b->load_data([qw/a b c/]);
+    $inst->clear_changes;
+
+    $b->load_data([qw/a b c/]);
+    is( $inst->needs_save, 0, "verify needs_save after loading same data" );
+
+    $b->load_data([qw/a b/]);
+    is( $inst->needs_save, 1, "verify needs_save after loading same data" );
+    print scalar $inst->list_changes, "\n" if $trace;
+    $inst->clear_changes;
+    $b->clear;
 };
 
 memory_cycle_ok( $model, "memory cycles" );
