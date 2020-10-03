@@ -485,6 +485,27 @@ subtest "insort" => sub {
     eq_or_diff( [ $pl->fetch_all_values ], [ sort( @set1, @set2 ) ], "check insort result" );
 };
 
+subtest "load_data method" => sub {
+    my $b = $root->fetch_element('bounded_list');
+    # test store
+    my @test = (
+        [ a1         => ['a1'] ],
+        [ 'a b x'  => [q/a b x/] ],
+        [ 'a b x'  => [qw/a b x/], qr/ / ],
+        [ 'a,b,c'      => [qw/a b c/], qr/,/ ],
+        [ [qw/a b c/] => [qw/a b c/] ],
+    );
+    foreach my $l (@test) {
+        $b->load_data( data => $l->[0], split_reg => $l->[2] );
+        eq_or_diff( [ $b->fetch_all_values ], $l->[1], "test store $l->[0]" );
+    }
+
+    throws_ok {
+        $b->load_data(plop=>'a,,b');
+    } "Config::Model::Exception::LoadData",
+        "fails load_data with wrong parameter";
+};
+
 memory_cycle_ok( $model, "memory cycles" );
 
 done_testing;
