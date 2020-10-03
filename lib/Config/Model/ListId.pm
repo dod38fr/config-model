@@ -206,18 +206,23 @@ sub load {
 
 sub store_set {
     my $self = shift;
-    my @v    = @_;
-    my $r    = shift;
-    my %args = ( check => 'yes' );
+    my (@v, %args);
 
-    if ( ref $r eq 'ARRAY' ) {
-        @v    = @$r;
-        %args = @_;    # note that $r was shifted out of @_
+    if (ref $_[0] eq 'ARRAY') {
+        @v    = @{ shift @_ };
+        %args = @_;
+    }
+    else {
+        %args = ( check => 'yes' );
+        @v = @_;
     }
 
-    $logger->debug(  $self->name, " called with <".join('><',@v).'>' );
-    my @comments = @{ $args{comment} || [] };
+    if ($logger->is_debug) {
+        no warnings "uninitialized";
+        $logger->debug($self->name, " store_set called with ".map {"«$_» "} @v);
+    }
 
+    my @comments = @{ $args{comment} || [] };
     my $idx = 0;
     foreach my $value (@v) {
         my $v_obj = $self->fetch_with_id( $idx++ );
