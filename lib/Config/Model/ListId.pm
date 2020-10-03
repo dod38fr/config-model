@@ -231,8 +231,15 @@ sub store_set {
     }
 
     # and delete unused items
+    $self->_prune_above_idx($idx);
+}
+
+sub _prune_above_idx {
+    my ($self, $idx) = @_;
+    # and delete unused items
     my $ref = $self->{data};
     while (scalar @$ref > $idx) {
+        $logger->debug($self->name, " pruning idx ", $#$ref);
         $self->delete($#$ref);
     }
 }
@@ -513,14 +520,17 @@ sub load_data {
         wrong_data => $raw_data,
     ) unless defined $data;
 
-    $self->clear;
-
     my $idx = 0;
     $logger->info( "ListId load_data (", $self->location, ") will load idx ", "0..$#$data" );
     foreach my $item (@$data) {
-        my $obj = $self->fetch_with_id( $idx++ );
-        $obj->load_data( %args, data => $item );
+        my $obj = $self->fetch_with_id( $idx );
+        # increment idx only if the value was accepted. This allow to
+        # prune the arrau to the right size.
+        $idx += $obj->load_data( %args, data => $item );
     }
+
+    # and delete unused items
+    $self->_prune_above_idx($idx);
 }
 
 __PACKAGE__->meta->make_immutable;
