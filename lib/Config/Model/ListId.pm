@@ -219,15 +219,10 @@ sub store_set {
     my @comments = @{ $args{comment} || [] };
 
     my $idx = 0;
-    foreach (@v) {
-        if ( defined $_ ) {
-            my $v_obj = $self->fetch_with_id( $idx++ );
-            $v_obj->store( %args, value => $_ );
-            $v_obj->annotation( shift @comments ) if @comments;
-        }
-        else {
-            $self->{data}[$idx] = undef;    # detruit l'objet pas bon!
-        }
+    foreach my $value (@v) {
+        my $v_obj = $self->fetch_with_id( $idx++ );
+        $v_obj->store( %args, value => $value );
+        $v_obj->annotation( shift @comments ) if @comments;
     }
 
     # and delete unused items
@@ -573,7 +568,7 @@ C<check> can be yes, no or skip
 
 Store a set of values (passed as list)
 
-If tinkering with check is required, use the following way : 
+If tinkering with check is required, use the following way :
 
  store_set ( \@v , check => 'skip' );
 
