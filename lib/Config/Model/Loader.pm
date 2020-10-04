@@ -949,8 +949,8 @@ sub __data_from_vector {
 }
 
 sub __get_file_from_vector {
-    my ($self, $element,$instructions,$value) =  @_;
-    my @vector = split m![/]+!m, $value;
+    my ($self, $element,$instructions,$raw_vector) =  @_;
+    my @vector = split m![/]+!m, $raw_vector;
     my $cur = path('.');
     my $file;
     while (my $subpath = shift @vector) {
