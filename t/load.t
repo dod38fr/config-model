@@ -550,8 +550,15 @@ subtest "test load data from file" => sub {
 };
 
 subtest "test load data from JSON file" => sub {
+    $inst->clear_changes;
     $root->load('a_string=.json("t/lib/load-data.json/foo/bar")');
     is( $root->grab_value('a_string'), "bar json value", "extract data from json file");
+
+    $root->load('listc:.json("t/lib/load-data.json/foo_array")');
+    is( $root->grab_value('listc:0'), "bar", "extract array data from json file 1/2");
+    is( $root->grab_value('listc:1'), "baz", "extract array data from json file 2/2");
+
+    is( $inst->needs_save, 3,     "verify instance needs_save after storing 3 values" );
 
     throws_ok {
         $root->load('a_string=.json(t/lib/dummy.json/foo/bar)');

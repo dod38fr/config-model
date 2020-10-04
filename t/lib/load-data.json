@@ -1,5 +1,6 @@
 {
     "foo": {
         "bar": "bar json value"
-    }
+    },
+    "foo_array": [ "bar", "baz" ]
 }
