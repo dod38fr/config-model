@@ -502,6 +502,7 @@ sub _load_check_list {
         },
         fallback => {
             ':.rm' => \&_remove_by_id,
+            ':.json' => \&_load_json_vector_data,
         }
     );
 
@@ -551,6 +552,19 @@ sub _remove_by_id {
     my ( $self, $element, $check, $inst, $cmdref, $id ) = @_;
     $logger->debug("_remove_by_id: removing id '$id'");
     $element->remove($id);
+    return 'ok';
+}
+
+sub _load_json_vector_data {
+    my ( $self, $element, $check, $inst, $cmdref, $vector ) = @_;
+    $logger->debug("_load_json_vector_data: loading '$vector'");
+    my ($file, @vector) = $self->__get_file_from_vector($element,$inst,$vector);
+    my $data = decode_json($file->slurp_utf8);
+    # test for diff before clobbering ? What about deep data ???
+    $element->load_data(
+        data => __data_from_vector($data, @vector),
+        check => $check
+    );
     return 'ok';
 }
 
@@ -968,7 +982,9 @@ sub __get_file_from_vector {
             = @$instructions;
         Config::Model::Exception::Load->throw(
             object  => $element,
-            command => "$element_name$subaction($value)",
+            command => "$element_name"
+                . ( $action    ? "$action($f_arg)"    : '' )
+                . ( $subaction ? "$subaction($value)" : '' ),
             error   => qq!Load error: Cannot find file in $value!
         );
     }
@@ -1302,6 +1318,15 @@ Using C<xxx:~/yy/=zz> is also possible.
 =item xxx:.copy(yy,zz)
 
 copy item C<yy> in C<zz> (hash or list).
+
+=item xxx:.json("path/to/file.json/foo/bar")
+
+Store C<bar> content in array or hash. This should be used to store
+hash or list of values.
+
+You may store deep data structure. In this case, make sure that the
+structure of the loaded data matches the structure of the model. This
+won't happen by chance.
 
 =item xxx:.clear
 
