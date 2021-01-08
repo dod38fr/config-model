@@ -1069,7 +1069,7 @@ sub run_code_set_on_value {
                     message => "Eval of assert or warning code failed : $@"
                 );
             }
-            return $invert ^ $ret;
+            return ($invert xor $ret) ;
         };
 
         $self->run_code_on_value( $value_r, $apply_fix, $array, $label, $sub, $msg, $fix );
