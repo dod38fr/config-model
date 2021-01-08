@@ -35,7 +35,8 @@ $model->create_config_class(
             max   => 123,
             cargo => {
                 type       => 'leaf',
-                value_type => 'string'
+                value_type => 'string',
+                match => '^.{1,5}$',
             },
         },
         plain_list                => { type => 'list', @element },
@@ -494,10 +495,11 @@ subtest "load_data method" => sub {
         [ 'a b x'  => [qw/a b x/], qr/ / ],
         [ 'a b'  => [qw/a b/], qr/ / ],
         [ 'a,b,c'      => [qw/a b c/], qr/,/ ],
+        [ 'a,too_long,b,c'      => [qw/a b c/], qr/,/ ],
         [ [qw/a c/] => [qw/a c/] ],
     );
     foreach my $l (@test) {
-        $b->load_data( data => $l->[0], split_reg => $l->[2] );
+        $b->load_data( data => $l->[0], split_reg => $l->[2], check => 'skip', silent => 1 );
         eq_or_diff( [ $b->fetch_all_values ], $l->[1], "test store $l->[0]" );
     }
 
