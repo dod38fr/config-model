@@ -971,6 +971,7 @@ sub load_data {
         ") will load elt ",
         join( ' ', sort keys %$perl_data ) );
 
+    my $has_stored = 0;
     # data must be loaded according to the element order defined by
     # the model. This will not load not yet accepted parameters
     foreach my $elt ( @{ $self->{model}{element_list} } ) {
@@ -989,7 +990,7 @@ sub load_data {
             );
 
             if ($obj) {
-                $obj->load_data( %args, data => delete $perl_data->{$elt} );
+                $has_stored += $obj->load_data( %args, data => delete $perl_data->{$elt} );
             }
             elsif ( defined $obj ) {
 
@@ -1023,7 +1024,7 @@ sub load_data {
             my $obj = $self->fetch_element( name => $elt, check => $check );
             next unless $obj;    # in cas of known but unavailable elements
             $logger->info("Node load_data: accepting element $elt");
-            $obj->load_data( %args, data => delete $perl_data->{$elt} ) if defined $obj;
+            $has_stored += $obj->load_data( %args, data => delete $perl_data->{$elt} ) if defined $obj;
         }
     }
 
@@ -1035,6 +1036,7 @@ sub load_data {
             object     => $self,
         );
     }
+    return !! $has_stored;
 }
 
 sub dump_tree {
@@ -1909,6 +1911,8 @@ the structure of the configuration model.
 Use C<< check => skip >> to make data loading more tolerant: bad data are discarded.
 
 C<load_data> can be called with a single hash ref parameter.
+
+Returns 1 if some data were saved (instead of skipped).
 
 =head2 needs_save
 
