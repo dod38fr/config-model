@@ -526,6 +526,31 @@ subtest "load_data method change tracking" => sub {
     $b->clear;
 };
 
+subtest "test load_data with node list" => sub {
+    my $ol = $root->fetch_element('olist');
+    $ol->clear;
+    $inst->clear_changes;
+
+    my $load_test = sub {
+        $ol->load_data(
+            data => shift,
+            check => 'skip',
+            silent => 1
+        );
+    };
+
+    $load_test->( [ ({X=>'Av',Y=>'Bv'}) x 3]);
+    is($ol->fetch_size,3,"check that 3 nodes was created");
+
+    # node 2 is removed because only 2 nodes are loaded
+    $load_test->( [{X=>'Av',Y=>'Bv'},{X=>'Av',Y=>'Bv'}]);
+    is($ol->fetch_size,2,"check that only 2 elements remain");
+
+    # node 1 is removed because all its data is bogus
+    $load_test->( [{X=>'Av_bogus',Y=>'Bv_bogus'},{X=>'Av',Y=>'Bv'}]);
+    is($ol->fetch_size,1,"check that only one element remains");
+};
+
 memory_cycle_ok( $model, "memory cycles" );
 
 done_testing;
