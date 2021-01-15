@@ -25,6 +25,7 @@ my @with_semicolon_comment = my @with_one_semicolon_comment = my @with_hash_comm
 for (@with_semicolon_comment) { s/#/;/; } ;
 for (@with_one_semicolon_comment) { s/# foo2/; foo2/; } ;
 
+# models are stored in t/lib/test_ini_backend_model.pl
 sub init_backend_test {
     my ($test_class, $test_data, $instance_name, $config_dir) = @_;
 
@@ -130,9 +131,7 @@ foreach my $test_class ( sort keys %test_setup ) {
     finish ($test_class, "test_inst2_for_$test_class", $wr_dir, $model,$i_test);
 }
 
-# test ini file using a check list
-
-{
+subtest "test ini file using a check list" => sub {
     #    IniCheck
     my ($model, $i_test, $wr_dir) = init_backend_test(IniCheck => \@with_hash_comment, "test_inst_for_check_list", '/etc/');
 
@@ -150,7 +149,7 @@ foreach my $test_class ( sort keys %test_setup ) {
 
     finish ('IniCheck', "test_inst2_for_check_list", $wr_dir, $model,$i_test);
 
-}
+};
 
 # test start with no ini file and should not write any after
 subtest "Test with empty ini file and no ini data" => sub {
