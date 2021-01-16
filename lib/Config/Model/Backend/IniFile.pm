@@ -507,9 +507,7 @@ called by L<Config::Model::BackendMgr>.
 
 Optional parameters declared in the model:
 
-=over
-
-=item comment_delimiter
+=head2 comment_delimiter
 
 Change the character that starts comments in the INI file. Default is 'C<#>'.
 
@@ -519,65 +517,64 @@ possible characters (e.g "C<#;>"). The first character is used to
 write back comments. (In the example above, comment C<; blah> is
 written back as C<# blah>.
 
-=item store_class_in_hash
+=head2 store_class_in_hash
 
 See L</"Arbitrary class name">
 
-=item section_map
+=head2 section_map
 
 Is a kind of exception of the above rule. See also L</"Arbitrary class name">
 
-=item force_lc_section
+=head2 force_lc_section
 
 Boolean. When set, sections names are converted to lowercase.
 
-=item force_lc_key
+=head2 force_lc_key
 
 Idem for key name 
 
-=item force_lc_value
+=head2 force_lc_value
 
 Idem for all values.
 
-=item split_list_value
+=head2 split_list_value
 
 Some INI values are in fact a list of items separated by a space or a comma.
 This parameter specifies the regex  to use to split the value into a list. This
 applies only to C<list> elements.
 
-=item join_list_value
+=head2 join_list_value
 
 Conversely, the list element split with C<split_list_value> needs to be written
 back with a string to join them. Specify this string (usually ' ' or ', ')
 with C<join_list_value>.
 
-=item split_check_list_value
+=head2 split_check_list_value
 
 Some INI values are in fact a check list of items separated by a space or a comma.
 This parameter specifies the regex to use to split the value read from the file
 into a list of items to check. This applies only to C<check_list> elements.
 
-=item join_check_list_value
+=head2 join_check_list_value
 
 Conversely, the check_list element split with C<split_list_value> needs to be written
 back with a string to join them. Specify this string (usually ' ' or ', ')
 with C<join_check_list_value>.
 
-=item write_boolean_as
+=head2 write_boolean_as
 
 Array ref. Reserved for boolean value. Specify how to write a boolean value. 
 Default is C<[0,1]> which may not be the most readable. C<write_boolean_as> can be 
 specified as C<['false','true']> or C<['no','yes']>. 
 
-=item assign_char
+=head2 assign_char
 
 Character used to assign value in INI file. Default is C<=>.
 
-=item assign_with
+=head2 assign_with
 
 String used write assignment in INI file. Default is "C< = >".
 
-=back
 
 =head1 Mapping between INI structure and model
 
