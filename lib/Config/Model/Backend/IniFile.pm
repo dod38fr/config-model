@@ -35,6 +35,7 @@ sub read {
     my $split_reg   = $args{split_list_value};
     my $check       = $args{check}               || 'yes';
     my $assign_char = $args{assign_char}         || '=';
+    my $quote_value = $args{quote_value}         || '';
     my $obj         = $self->node;
 
     my %force_lc;
@@ -111,6 +112,7 @@ sub read {
             my ( $name, $val ) = split( /\s*$assign_char\s*/, $vdata, 2 );
             $name = lc($name) if $force_lc{key};
             $val  = lc($val)  if $force_lc{value};
+            $val  =~ s/"([^"]*)"/$1/g if $quote_value eq "shell_style";
             $comment_path = $section_path . ' ' . $self->set_or_push( $section_ref, $name, $val );
             $logger->debug("step 1: found node $comment_path name $name in [$section]");
         }
@@ -215,9 +217,9 @@ sub _write_list{
         }
     }
     else {
-        foreach my $item ( $list_obj->fetch_all('custom') ) {
-            my $note = $item->annotation;
-            my $v    = $item->fetch;
+        foreach my $obj ( $list_obj->fetch_all('custom') ) {
+            my $note = $obj->annotation;
+            my $v = $self->_fetch_obj_value($args, $obj);
             if ( length $v ) {
                 $logger->debug("writing list elt $elt -> $v");
                 $res .=
@@ -259,7 +261,14 @@ sub _write_check_list{
     return $res;
 }
 
-sub _write_leaf{
+sub _fetch_obj_value {
+    my ($self, $args, $obj)  = @_ ;
+    my $v = $obj->fetch;
+    $v = qq!"$v"! if defined $v and $v =~ /\s/ and $args->{quote_value} eq 'shell_style';
+    return $v;
+}
+
+sub _write_leaf {
     my ($self, $args, $node, $elt)  = @_ ;
     my $res = '';
 
@@ -270,7 +279,7 @@ sub _write_leaf{
 
     my $obj_note = $obj->annotation;
 
-    my $v = $obj->fetch;
+    my $v = $self->_fetch_obj_value($args, $obj);
     if ( $write_bool_as and defined($v) and length($v) and $obj->value_type eq 'boolean' ) {
         $v = $write_bool_as->[$v];
     }
@@ -575,6 +584,23 @@ Character used to assign value in INI file. Default is C<=>.
 
 String used write assignment in INI file. Default is "C< = >".
 
+=head2 quote_value
+
+How to quote value in INI file. Currrently only C<shell_style> is
+supported for C<quote_value>.
+
+E.g. INI backend declaration can contain this parameter:
+
+   quote_value => 'shell_style'
+
+Here are some example of quoted values. The 3 columns shows the
+original value in file, how it's stored internally and how it's
+written back:
+
+   # read    => shown   => write
+   "foo"     => foo     => "foo"
+   "foo bar" => foo bar => "foo bar"
+   "20"x"4"  => 20x4    => "20x4"
 
 =head1 Mapping between INI structure and model
 
