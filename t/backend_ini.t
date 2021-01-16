@@ -4,6 +4,7 @@
 
 #use ExtUtils::testlib;
 use Test::More;
+use Test::File::Contents;
 use Test::Memory::Cycle;
 use Config::Model;
 use Config::Model::Tester::Setup qw/init_test  setup_test_dir/;
@@ -75,7 +76,9 @@ sub finish {
     my $wr_dir2 = $wr_root->child('ini2');
     my $etc2 = $wr_dir2->child('etc');
     $etc2->mkpath;
-    $ini_file->copy( $wr_dir2 . '/etc/test.ini' );
+    my $conf_file2 = $etc2->child('test.ini');
+    note "copying $ini_file in $conf_file2";
+    $ini_file->copy( $conf_file2 );
 
     my $i2_test = $model->instance(
         instance_name   =>  $instance_name,
@@ -93,6 +96,7 @@ sub finish {
 
     is( $p2_dump, $orig, "compare original data with 2nd instance data" );
 
+    return ($ini_file,$conf_file2);
 }
 
 my %test_setup = (
@@ -203,6 +207,44 @@ subtest "Test with small ini file and delete data" => sub {
     ok( 1, "Empty IniFile write back done" );
     isnt($conf_file->exists, 1, "file is gone");
 
+};
+
+subtest "Test handling of double quote" => sub {
+    $wr_root->remove_tree;
+    my $test_class = "IniDQuotes";
+
+    # TODO: test also quotes in hash/list like values
+    my ($model, $i_test, $wr_dir, $conf_file) = init_backend_test(
+        $test_class => [
+            q!baz = "blork "glop" blork"!."\n",
+            q!a_list = "blork blork"!."\n",
+            q!a_list = "glop glop"!."\n",
+        ],
+        "test_double_quotes", '/etc/'
+    );
+    is($conf_file->exists, 1, "ini file was written");
+
+    my $i_root = $i_test->config_root;
+    is($i_root->grab_value("baz"), qq!blork glop blork!, "check load of small data");
+    is($i_root->grab_value("a_list:0"), qq!blork blork!, "check load of list 0");
+    is($i_root->grab_value("a_list:1"), qq!glop glop!, "check load of list 1");
+
+    my $orig = $i_test->config_root->dump_tree;
+    print $orig if $trace;
+
+    $i_test->write_back(force => 1);
+
+    foreach my $item  (
+        qq!baz = "blork glop blork"!,
+        q!a_list = "blork blork"!,
+        q!a_list = "glop glop"!
+    ) {
+        file_contents_like(
+            $conf_file->stringify,
+            $item,
+            "check content of written file $conf_file with «$item»"
+        );
+    }
 };
 
 memory_cycle_ok( $model, "memory cycle test" );

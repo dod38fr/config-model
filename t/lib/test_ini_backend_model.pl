@@ -192,4 +192,27 @@ return [
             },
         ]
     },
+    {
+        name => 'IniDQuotes',
+        rw_config => {
+            backend           => 'IniFile',
+            file              => 'test.ini',
+            auto_create       => 1,
+            quote_value       => 'shell_style',
+        },
+
+        element => [
+            baz => {
+                qw/type leaf value_type string/,
+            },
+            a_list => {
+                type  => 'list',
+                cargo => {
+                    type       => 'leaf',
+                    value_type => 'uniline',
+                }
+            },
+
+        ]
+    },
 ];
