@@ -202,27 +202,27 @@ sub _write_list{
     my $join_list = $args->{join_list_value};
     my $delimiter = $args->{comment_delimiter} || '#';
     my $assign_with = $args->{assign_with} // $args->{assign_char} // ' = ';
-    my $obj = $node->fetch_element($elt);
+    my $list_obj = $node->fetch_element($elt);
 
-    my $obj_note = $obj->annotation;
+    my $list_obj_note = $list_obj->annotation;
 
     if ( $join_list ) {
-        my @v = grep { length } $obj->fetch_all_values();
+        my @v = grep { length } $list_obj->fetch_all_values();
         my $v = join( $join_list, @v );
         if ( length($v) ) {
             $logger->debug("writing joined list elt $elt -> $v");
-            $res .= $self->write_data_and_comments( $delimiter, "$elt$assign_with$v", $obj_note );
+            $res .= $self->write_data_and_comments( $delimiter, "$elt$assign_with$v", $list_obj_note );
         }
     }
     else {
-        foreach my $item ( $obj->fetch_all('custom') ) {
+        foreach my $item ( $list_obj->fetch_all('custom') ) {
             my $note = $item->annotation;
             my $v    = $item->fetch;
             if ( length $v ) {
                 $logger->debug("writing list elt $elt -> $v");
                 $res .=
                     $self->write_data_and_comments( $delimiter, "$elt$assign_with$v",
-                                                    $obj_note . $note );
+                                                    $list_obj_note . $note );
             }
             else {
                 $logger->trace("NOT writing undef or empty list elt");
