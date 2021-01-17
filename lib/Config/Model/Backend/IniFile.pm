@@ -264,7 +264,13 @@ sub _write_check_list{
 sub _fetch_obj_value {
     my ($self, $args, $obj)  = @_ ;
     my $v = $obj->fetch;
-    $v = qq!"$v"! if defined $v and $v =~ /\s/ and $args->{quote_value} eq 'shell_style';
+    if (    defined $args->{quote_value}
+        and $args->{quote_value} eq 'shell_style'
+        and defined $v
+        and $v =~ /\s/
+    ) {
+        $v = qq!"$v"!;
+    }
     return $v;
 }
 
