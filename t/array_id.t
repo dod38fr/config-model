@@ -179,8 +179,6 @@ subtest "bounded list" => sub {
 
     my @all = $b->fetch_all_values;
     eq_or_diff( \@all, [qw/baz bar toto titi toto titi toto2/], "check fetch_all_values" );
-    use XXX;
-    YYY $b;
     is( $b->fetch, 'baz,bar,toto,titi,toto,titi,toto2', "check fetch" );
     $b->clear;
 };
