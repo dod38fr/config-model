@@ -1148,7 +1148,6 @@ sub apply_fix {
     no warnings "uninitialized";
     if ( $_ ne $$value_r ) {
         $fix_logger->info( $self->location . ": fix changed value from '$$value_r' to '$_'" );
-        $DB::single =1 if $self-> element_name =~ /undef/;
         $self->_store_fix( $$value_r, $_, $msg );
         $$value_r = $_; # so chain of fixes work
     }
