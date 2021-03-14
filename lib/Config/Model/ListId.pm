@@ -525,7 +525,7 @@ sub load_data {
     foreach my $item (@$data) {
         my $obj = $self->fetch_with_id( $idx );
         # increment idx only if the value was accepted. This allow to
-        # prune the arrau to the right size.
+        # prune the array to the right size.
         $idx += $obj->load_data( %args, data => $item );
     }
 
