@@ -1557,7 +1557,7 @@ sub load_data {
             my $str = $data // '<undef>';
             $logger->info( "Value load_data (", $self->location, ") will store value $str" );
         }
-        $self->store(%args, value => $data);
+        return $self->store(%args, value => $data);
     }
 }
 
