@@ -1323,7 +1323,7 @@ sub store {
     my $user_cb = $args{callback} ;
     $user_cb->(%args) if $user_cb;
 
-    return $ok;
+    return $ok || ($check eq 'no');
 }
 
 #
