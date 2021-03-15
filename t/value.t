@@ -344,6 +344,10 @@ subtest "simple scalar" => sub {
     is( $i->needs_check,   0, "check was done during fetch" );
     is( $inst->needs_save, 1, "verify instance needs_save status after fetch" );
 
+};
+
+subtest "error handling on simple scalar" => sub {
+    my $i = $root->fetch_element('scalar');
     check_error( $i, 5, qr/max limit/ );
 
     check_error( $i, 'toto', qr/not of type/ );
@@ -353,6 +357,18 @@ subtest "simple scalar" => sub {
     # test that bad storage triggers an error
     throws_ok { $i->store(5); } 'Config::Model::Exception::WrongValue', "test max nb expected failure";
     print "normal error:\n", $@, "\n" if $trace;
+
+    ok( ! $i->store(value => 5, check => 'skip'), "bad value was skipped");
+    is($i->fetch,1,"check original value");
+
+    is($i->store(value => 5, check => 'no'),1 ,"bad value was force fed");
+    is($i->fetch(check => 'no'),5,"check stored bad value");
+
+    throws_ok { $i->fetch() } 'Config::Model::Exception::WrongValue', "check that reading a bad value trigges an error";
+    is($i->fetch(check => 'skip'),undef,"check bad read value can be skipped");
+    is($i->fetch(check => 'no'),5,"check stored bad value has not changed");
+
+    $i->store(1); # fix the error condition
 };
 
 subtest "summary method" => sub {
