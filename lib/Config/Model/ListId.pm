@@ -177,12 +177,9 @@ sub load {
                   /x;
 
     while ( length($string) ) {
-
-        #print "string: $string\n";
         $string =~ s/$regex// or last;
         my $tmp = $1;
 
-        #print "tmp: $tmp\n";
         $tmp =~ s/^"|"$//g if defined $tmp;
         $tmp =~ s/\\"/"/g  if defined $tmp;
         push @set, $tmp;
