@@ -154,6 +154,14 @@ return [
                     value_type => 'boolean'
                 }
             },
+            int_list_with_max => {
+                type => 'list',
+                cargo => {
+                    type => 'leaf',
+                    value_type => 'integer',
+                    max => 10,
+                }
+            },
             tree_macro => {
                 type       => 'leaf',
                 value_type => 'enum',

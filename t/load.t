@@ -7,9 +7,11 @@ use Test::Differences;
 use Test::Memory::Cycle;
 use Config::Model;
 use Config::Model::Tester::Setup qw/init_test/;
+use Test::Log::Log4perl;
 
 use strict;
 use warnings;
+$::_use_log4perl_to_warn = 1;
 
 use lib "t/lib";
 
@@ -398,7 +400,7 @@ subtest "test remove by value and remove by matched value" => sub {
     eq_or_diff( [ $lista->fetch_all_values ], [qw/a c d/], "removed value from list" );
 };
 
-subtest "test subsitution" => sub {
+subtest "test substitution" => sub {
     $root->load('lista:=Foo1,foo2,bar lista:=~s/foo/doh/i');
     my $lista = $root->fetch_element('lista');
     eq_or_diff( [ $lista->fetch_all_values ], [qw/doh1 doh2 bar/], "test :=~ on list" );
@@ -421,6 +423,28 @@ subtest "test function call in load string" => sub {
 
     $root->load('lista:=a,b lista:.unshift(1) lista:>2');
     eq_or_diff( [ $lista->fetch_all_values ], [qw/2 1 a b/], "test unshift on list" );
+};
+
+subtest "load with check set to no" => sub {
+    my $list = $root->fetch_element('int_list_with_max');
+    throws_ok {
+        $root->load(steps => 'int_list_with_max:=1,5,12');
+    } qr!max limit!, "cannot load value > max with default check value";
+
+    $root->load(steps => 'int_list_with_max:=1,5,12', check => 'no');
+    eq_or_diff( [ $list->fetch_all_values(check => 'no') ],
+                [qw/1 5 12/], "load without check" );
+
+    $root->load(steps => 'int_list_with_max:.clear');
+
+    {
+        my $xp = Test::Log::Log4perl->expect(
+            ignore_priority => "info",
+            ['User', warn =>  qr/value 12 > max limit/]
+        );
+        $root->load(steps => 'int_list_with_max:=1,5,12', check => 'skip');
+    }
+    eq_or_diff( [ $list->fetch_all_values ], [qw/1 5/], "load with check skip" );
 };
 
 subtest "test insert_before" => sub {
