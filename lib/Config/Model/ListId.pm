@@ -198,7 +198,7 @@ sub load {
         );
     }
 
-    $self->store_set(@set);
+    $self->store_set(\@set, check => $check);
 }
 
 sub store_set {
