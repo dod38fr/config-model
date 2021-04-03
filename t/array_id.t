@@ -422,6 +422,21 @@ subtest "layered stuff" => sub {
     $pl->clear;
 };
 
+subtest "layered stuff " => sub {
+    # test done for https://github.com/dod38fr/config-model/issues/26#issuecomment-810572173
+    my $pl = $root->fetch_element('plain_list');
+    $inst->layered_start;
+    $pl->fetch_with_id(0)->store('prefoo');
+    $pl->fetch_with_id(1)->store('prebar');
+    $inst->layered_stop;
+    eq_or_diff( [ $pl->fetch_all_indexes ], [ 0, 1 ], "check layered indexes" );
+    $pl->fetch_with_id(2)->store('baz');
+    $inst->layered_clear;
+    eq_or_diff( [ $pl->fetch_all_indexes ], [0], "check that only layered stuff was cleared" );
+    is( $pl->fetch_with_id(0)->fetch, 'baz', "check that baz was moved from 2 to 0" );
+    $pl->clear;
+};
+
 subtest "notify change after implicit deletion (github #4)" => sub {
     my $pl = $root->fetch_element('plain_list');
     $pl->store_set(qw/j h g f k l/);
