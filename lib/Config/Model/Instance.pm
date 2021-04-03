@@ -299,7 +299,7 @@ sub preset_clear {
 
     my $leaf_cb = sub {
         my ( $scanner, $data_ref, $node, $element_name, $index, $leaf_object ) = @_;
-        $leaf_object->clear_preset;
+        $$data_ref ||= $leaf_object->clear_preset;
     };
 
     $self->_stuff_clear($leaf_cb);
