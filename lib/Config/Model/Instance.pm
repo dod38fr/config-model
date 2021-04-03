@@ -348,7 +348,11 @@ sub _stuff_clear {
         my ( $scanner, $data_ref, $node, $element_name, @keys ) = @_;
         my $obj = $node->fetch_element($element_name);
 
-        foreach my $k (@keys) {
+        # Since remove method uses splice(array) on list elements, the
+        # removal must be done in reverse order to avoid messing up
+        # the indexes of the array (i.e. the last indexes becomes
+        # greater than the length of the array).
+        foreach my $k (reverse @keys) {
             my $has_data = 0;
             $scanner->scan_hash( \$has_data, $node, $element_name, $k );
             $obj->remove($k) unless $has_data;
