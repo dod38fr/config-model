@@ -271,13 +271,17 @@ sub _tweak_instance_args {
 sub cme {
     my %args = @_ == 1 ? ( application => $_[0]) : @_ ;
 
+    if (my $force = delete $args{'force-load'}) {
+        $args{check} = 'no' if $force;
+    }
+
     my $cat =_tweak_instance_args(\%args);
 
     my $m_args = delete $args{model_args} // {} ; # used for tests
     # model_storage is used to keep Config::Model object alive
     $model_storage //= Config::Model->new(%$m_args);
 
-    return $model_storage->instance(@_);
+    return $model_storage->instance(%args);
 }
 
 sub instance {
@@ -2442,8 +2446,15 @@ Check if an instance name already exists
 =head2 cme
 
 This method is syntactic sugar for short program. It creates a new
-C<Config::Model> object and returns a new instance. See L</instance>
-for the parameters.
+C<Config::Model> object and returns a new instance.
+
+C<cme> arguments are passed to L</instance> method, except
+C<force-load>.
+
+Like L<cme> command, C<cme> functions accepts C<force-load>
+parameters. When this argument is true, the instance is created with
+C<check => 'no'>. Hence bad values are stored in C<cme> and must be
+corrected before saving back the data.
 
 =head1 Configuration class
 
