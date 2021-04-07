@@ -1,5 +1,17 @@
 {{$NEXT}}
 
+2.142 2021-04-07
+
+  New features:
+    * cme function: add force-load parameter to behave like
+      cme command
+
+  Bug fix:
+    * Avoid messing up array indexes when remove list items (gh #26)
+      Thanks Hugo van der Sanden, James E Keenan and Slaven Rezić for
+      the help
+    * load method: forward value of check parameter
+
 2.141 2021-01-17
 
   New features:
