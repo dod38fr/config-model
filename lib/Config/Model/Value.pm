@@ -760,6 +760,11 @@ sub get_info {
         }
     }
 
+    foreach my $what (qw/write_as/) {
+        my $v = $self->$what();
+        push @items, "$what: @$v" if defined $v;
+    }
+
     return @items ;
 }
 
