@@ -57,7 +57,7 @@ is_deeply(
     [
         qw/std_id:ab std_id:bc tree_macro warp slave_y
             string_with_def a_uniline a_string int_v my_check_list
-            my_reference/
+            a_boolean yes_no_boolean my_reference/
     ],
     'check list cd path at root'
 );
@@ -68,7 +68,7 @@ my @test = (
     [ 'vf std_id:ab', "Unexpected command 'vf'", $expected_prompt ],
     [
         'ls',
-        'std_id lista listb hash_a hash_b ordered_hash olist tree_macro warp slave_y string_with_def a_uniline a_string int_v my_check_list my_reference',
+        join(' ', $root->get_element_names() ),
         $expected_prompt
     ],
     [ 'ls hash*', 'hash_a hash_b', $expected_prompt],

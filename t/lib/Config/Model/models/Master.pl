@@ -205,6 +205,16 @@ return [
                 type     => 'check_list',
                 refer_to => '- hash_a + ! hash_b',
             },
+            a_boolean => {
+                type       => 'leaf',
+                value_type => 'boolean',
+            },
+            yes_no_boolean => {
+                type       => 'leaf',
+                value_type => 'boolean',
+                upstream_default => 'yes',
+                write_as => [ 'no', 'yes' ],
+            },
             my_reference => {
                 type       => 'leaf',
                 value_type => 'reference',

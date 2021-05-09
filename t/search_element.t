@@ -260,6 +260,7 @@ my @data = ( [
             },
             'int_v'        => { 'next_step' => { 'int_v'        => '' } },
             'listb'        => { 'next_step' => { 'listb'        => '' } },
+            'yes_no_boolean' => {'next_step' => {'yes_no_boolean' => ''}},
             'my_reference' => { 'next_step' => { 'my_reference' => '' } },
             'X'            => {
                 'next_step' => {
@@ -297,13 +298,14 @@ my @data = ( [
                                 'next_step' => { 'sub_slave' => { 'next_step' => { 'ab' => '' } } }
                             } } } }
             },
+            'a_boolean' => {'next_step' => {'a_boolean' => ''}},
             'my_check_list' => { 'next_step' => { 'my_check_list' => '' } },
             'hash_a'        => { 'next_step' => { 'hash_a'        => '' } } } ] );
 
 my @items    = $root->model_searcher->get_searchable_elements;
-my @expected = qw/DX X Y Z a_string a_uniline aa aa2 ab ab2 ac ac2 ad ad2
+my @expected = qw/DX X Y Z a_boolean a_string a_uniline aa aa2 ab ab2 ac ac2 ad ad2
     hash_a hash_b int_v lista listb my_check_list
-    my_reference ordered_hash string_with_def tree_macro/;
+    my_reference ordered_hash string_with_def tree_macro yes_no_boolean/;
 
 is_deeply( \@items, \@expected, "list of searchable items" );
 

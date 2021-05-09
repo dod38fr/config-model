@@ -147,8 +147,8 @@ ok( 1, "performed scan" );
 print $result if $trace;
 
 my $expect = << 'EOF' ;
-disp_node_content_hook Master element: std_id lista listb hash_a hash_b ordered_hash olist tree_macro warp slave_y string_with_def a_uniline a_string int_v my_check_list my_reference
-disp_node_content Master element: std_id lista listb hash_a hash_b ordered_hash olist tree_macro warp slave_y string_with_def a_uniline a_string int_v my_check_list my_reference
+disp_node_content_hook Master element: std_id lista listb hash_a hash_b ordered_hash olist tree_macro warp slave_y string_with_def a_uniline a_string int_v my_check_list a_boolean yes_no_boolean my_reference
+disp_node_content Master element: std_id lista listb hash_a hash_b ordered_hash olist tree_macro warp slave_y string_with_def a_uniline a_string int_v my_check_list a_boolean yes_no_boolean my_reference
 disp_hash_hook Master element(std_id): ab bc
 disp_hash Master element(std_id): ab bc
 disp_node_elt Master element: std_id key ab
@@ -258,6 +258,8 @@ disp_leaf Master element a_uniline value yada yada
 disp_leaf Master element a_string value toto tata
 disp_leaf Master element int_v value 10
 disp_check_list Master element(my_check_list): X2,X3 are set
+disp_leaf Master element a_boolean
+disp_leaf Master element yes_no_boolean
 disp_leaf Master element my_reference
 disp_up Master
 EOF
@@ -333,6 +335,8 @@ disp_leaf Master element a_uniline value yada yada
 disp_leaf Master element a_string value toto tata
 disp_leaf Master element int_v value 10
 disp_leaf Master element my_check_list value X2,X3
+disp_leaf Master element a_boolean
+disp_leaf Master element yes_no_boolean
 disp_leaf Master element my_reference
 EOF
 

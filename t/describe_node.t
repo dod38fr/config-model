@@ -46,7 +46,7 @@ my $step =
     . 'hash_a:toto=toto_value hash_a:titi=titi_value '
     . 'lista=a,b,c,d olist:0 X=Av - olist:1 X=Bv - '
     . 'list_with_warn_duplicates=foo,bar,foo '
-    . 'my_check_list=toto my_reference="titi"';
+    . 'my_check_list=toto my_reference="titi" yes_no_boolean=1';
 
 ok( $root->load( step => $step ), "set up data in tree with '$step'" );
 
@@ -76,6 +76,8 @@ a_uniline                   │ uniline    │ "yada yada"
 a_string                    │ string     │ "toto tata"
 int_v                       │ integer    │ 10
 my_check_list               │ check_list │ toto
+a_boolean                   │ boolean    │ [undef]
+yes_no_boolean              │ boolean    │ yes
 my_reference                │ reference  │ titi
 list_with_warn_duplicates ⚠ │ list       │ foo,bar,foo
 EOF
@@ -102,6 +104,7 @@ a_uniline                   │ uniline    │ "yada yada" │
 a_string                    │ string     │ "toto tata" │ mandatory
 int_v                       │ integer    │ 10          │
 my_check_list               │ check_list │ toto        │
+yes_no_boolean              │ boolean    │ yes         │
 my_reference                │ reference  │ titi        │
 list_with_warn_duplicates ⚠ │ list       │ foo,bar,foo │
 EOF
@@ -127,6 +130,7 @@ a_uniline                   │ uniline    │ "yada yada"
 a_string                    │ string     │ "toto tata"
 int_v                       │ integer    │ 10
 my_check_list               │ check_list │ toto
+yes_no_boolean              │ boolean    │ yes
 my_reference                │ reference  │ titi
 list_with_warn_duplicates ⚠ │ list       │ foo,bar,foo
 EOF
