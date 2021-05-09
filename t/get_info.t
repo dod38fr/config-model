@@ -45,6 +45,8 @@ my @setup = (
     [ lista => [ 'type: list', 'index: integer','cargo: leaf', 'leaf value type: string' ]],
     [ olist => [ 'type: list','index: integer', 'cargo: node','cargo class: SlaveZ' ]],
     [ my_check_list => ['type: check_list','refer_to: - hash_a + ! hash_b','ordered: no']],
+    [ a_boolean => [ 'type: boolean' ]],
+    [ yes_no_boolean => [ 'type: boolean','upstream_default value: yes', 'write_as: no yes' ]],
     [ my_reference => ['type: reference','reference to: - hash_a + ! hash_b']],
 );
 
