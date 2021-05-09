@@ -733,7 +733,7 @@ sub get_info {
     my $std = $self->fetch(qw/mode standard check no/);
 
     if ( defined $self->upstream_default ) {
-        push @items, "upstream_default value: " . $self->upstream_default;
+        push @items, "upstream_default value: " . $self->map_write_as( $self->upstream_default );
     }
     elsif ( defined $std ) {
         push @items, "default value: $std";
