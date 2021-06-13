@@ -1278,13 +1278,9 @@ sub include_one_class {
     get_logger('Model')->debug("class $class_name include $include_class done");
 }
 
-# load a model from file. See comments around raw_models attribute for explanations
-sub load {
-    my $self       = shift;
-    my $model_name = shift;    # model name like Foo::Bar
-    my $load_file  = shift;    # model file (override model name), used for tests
+sub find_model_file_in_inc {
+    my ($self, $model_name, $load_file) = @_;
 
-    $loader_logger->debug("called on model $model_name");
     my $path_load_file ;
 
     foreach my $inc_str (@INC) {
@@ -1305,10 +1301,22 @@ sub load {
 
     $loader_logger->debug("model $model_name from file $path_load_file");
 
+    return $path_load_file;
+}
+
+# load a model from file. See comments around raw_models attribute for explanations
+sub load {
+    my $self       = shift;
+    my $model_name = shift;    # model name like Foo::Bar
+    my $load_file  = shift;    # model file (override model name), used for tests
+
+    $loader_logger->debug("called on model $model_name");
+    my $path_load_file = $self->find_model_file_in_inc($model_name, $load_file);
+
     my %models_by_name;
 
     # Searches $load_file in @INC and returns an array containing the
-    # names of the loaded clases
+    # names of the loaded classes
     my $model = $self->_load_model_file($path_load_file->absolute);
     my @loaded_classes = $self->_merge_model_in_hash( \%models_by_name, $model, $path_load_file );
 
