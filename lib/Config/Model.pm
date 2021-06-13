@@ -1285,20 +1285,32 @@ sub load {
     my $load_file  = shift;    # model file (override model name), used for tests
 
     $loader_logger->debug("called on model $model_name");
+    my $path_load_file ;
 
-    my $load_path = $model_name;
-    $load_path =~ s/::/\//g;
+    foreach my $inc_str (@INC) {
+        my $inc_path = path($inc_str);
+        if ($load_file) {
+            $path_load_file = $inc_path->child($load_file);
+        }
+        else {
+            my $sub_path = $model_name =~ s!::!/!rg;
+            my $model_path = $inc_path->child($self->model_dir);
+            foreach my $ext (qw/yml yaml pl/) {
+                $path_load_file = $model_path->child($sub_path . '.' . $ext);
+                last if $path_load_file->exists;
+            }
+        }
+        last if $path_load_file->exists;
+    }
 
-    $load_file ||= $self->model_dir . '/' . $load_path . '.pl';
-
-    $loader_logger->debug("model $model_name from file $load_file");
+    $loader_logger->debug("model $model_name from file $path_load_file");
 
     my %models_by_name;
 
     # Searches $load_file in @INC and returns an array containing the
     # names of the loaded clases
-    my $model = $self->_load_model_file($load_file);
-    my @loaded_classes = $self->_merge_model_in_hash( \%models_by_name, $model, $load_file );
+    my $model = $self->_load_model_file($path_load_file->absolute);
+    my @loaded_classes = $self->_merge_model_in_hash( \%models_by_name, $model, $path_load_file );
 
     $self->store_raw_model( $model_name, dclone( \%models_by_name ) );
 
