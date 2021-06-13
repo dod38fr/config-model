@@ -1304,36 +1304,15 @@ sub find_model_file_in_inc {
     return $path_load_file;
 }
 
-# load a model from file. See comments around raw_models attribute for explanations
-sub load {
-    my $self       = shift;
-    my $model_name = shift;    # model name like Foo::Bar
-    my $load_file  = shift;    # model file (override model name), used for tests
-
-    $loader_logger->debug("called on model $model_name");
-    my $path_load_file = $self->find_model_file_in_inc($model_name, $load_file);
-
-    my %models_by_name;
-
-    # Searches $load_file in @INC and returns an array containing the
-    # names of the loaded classes
-    my $model = $self->_load_model_file($path_load_file->absolute);
-    my @loaded_classes = $self->_merge_model_in_hash( \%models_by_name, $model, $path_load_file );
-
-    $self->store_raw_model( $model_name, dclone( \%models_by_name ) );
-
-    foreach my $name ( keys %models_by_name ) {
-        my $data = $self->normalize_class_parameters( $name, $models_by_name{$name} );
-        $loader_logger->debug("Store normalized model $name");
-        $self->store_normalized_model( $name, $data );
-    }
+sub load_model_plugins {
+    my ($self, @model_names) = @_;
 
     # look for additional model information
     my %model_graft_by_name;
     my %done;  # avoid loading twice the same snippet (where system version may clobber dev version)
 
     foreach my $inc_str (@INC) {
-        foreach my $name ( keys %models_by_name ) {
+        foreach my $name ( @model_names ) {
             my $snippet_path = $name;
             $snippet_path =~ s/::/\//g;
             my $snippet_dir = path($inc_str)->child($self->model_dir)->child($snippet_path . '.d');
@@ -1364,6 +1343,34 @@ sub load {
             }
         }
     }
+    return %model_graft_by_name;
+}
+
+# load a model from file. See comments around raw_models attribute for explanations
+sub load {
+    my $self       = shift;
+    my $model_name = shift;    # model name like Foo::Bar
+    my $load_file  = shift;    # model file (override model name), used for tests
+
+    $loader_logger->debug("called on model $model_name");
+    my $path_load_file = $self->find_model_file_in_inc($model_name, $load_file);
+
+    my %models_by_name;
+
+    # Searches $load_file in @INC and returns an array containing the
+    # names of the loaded classes
+    my $model = $self->_load_model_file($path_load_file->absolute);
+    my @loaded_classes = $self->_merge_model_in_hash( \%models_by_name, $model, $path_load_file );
+
+    $self->store_raw_model( $model_name, dclone( \%models_by_name ) );
+
+    foreach my $name ( keys %models_by_name ) {
+        my $data = $self->normalize_class_parameters( $name, $models_by_name{$name} );
+        $loader_logger->debug("Store normalized model $name");
+        $self->store_normalized_model( $name, $data );
+    }
+
+    my %model_graft_by_name = $self->load_model_plugins(sort keys %models_by_name);
 
     # store snippet. May be used later
     foreach my $name (keys %model_graft_by_name) {
