@@ -1297,7 +1297,8 @@ sub load {
 
     # Searches $load_file in @INC and returns an array containing the
     # names of the loaded clases
-    my @loaded_classes = $self->_load_model_in_hash( \%models_by_name, $load_file );
+    my $model = $self->_load_model_file($load_file);
+    my @loaded_classes = $self->_merge_model_in_hash( \%models_by_name, $model, $load_file );
 
     $self->store_raw_model( $model_name, dclone( \%models_by_name ) );
 
@@ -1335,7 +1336,9 @@ sub load {
                     my $done_key = $name . ':' . $snippet_file_rel;
                     next if $done{$done_key};
                     $loader_logger->info("Found snippet $snippet_file_rel in $inc_str dir");
-                    $self->_load_model_in_hash( \%model_graft_by_name, $snippet_file_rel);
+                    my $snippet_model = $self->_load_model_file($snippet_file_rel);
+
+                    $self->_merge_model_in_hash( \%model_graft_by_name, $snippet_model, $snippet_file_rel);
                     $done{$done_key} = 1;
                 }
             }
@@ -1364,10 +1367,8 @@ sub load {
 
 # New subroutine "_load_model_in_hash" extracted - Fri Apr 12 17:29:56 2013.
 #
-sub _load_model_in_hash {
-    my ( $self, $hash_ref, $load_file ) = @_;
-
-    my $model = $self->_do_model_file($load_file);
+sub _merge_model_in_hash {
+    my ( $self, $hash_ref, $model, $load_file ) = @_;
 
     my @names;
     foreach my $config_class_info (@$model) {
@@ -1386,10 +1387,7 @@ sub _load_model_in_hash {
     return @names;
 }
 
-#
-# New subroutine "_do_model_file" extracted - Sun Nov 28 17:25:35 2010.
-#
-sub _do_model_file {
+sub _load_model_file {
     my ( $self, $load_file ) = @_;
 
     $loader_logger->info("load model $load_file");
