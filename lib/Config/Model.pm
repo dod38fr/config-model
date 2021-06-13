@@ -1315,7 +1315,7 @@ sub load_model_plugins {
         foreach my $name ( @model_names ) {
             my $snippet_path = $name;
             $snippet_path =~ s/::/\//g;
-            my $snippet_dir = path($inc_str)->child($self->model_dir)->child($snippet_path . '.d');
+            my $snippet_dir = path($inc_str)->absolute->child($self->model_dir)->child($snippet_path . '.d');
             $loader_logger->trace("looking for snippet in $snippet_dir");
             if ( $snippet_dir->is_dir ) {
                 my $iter = $snippet_dir->iterator({ recurse => 1 });
@@ -1334,8 +1334,8 @@ sub load_model_plugins {
 
                     my $done_key = $name . ':' . $snippet_file_rel;
                     next if $done{$done_key};
-                    $loader_logger->info("Found snippet $snippet_file_rel in $inc_str dir");
-                    my $snippet_model = $self->_load_model_file($snippet_file_rel);
+                    $loader_logger->info("Found snippet $snippet_file in $inc_str dir");
+                    my $snippet_model = $self->_load_model_file($snippet_file);
 
                     $self->_merge_model_in_hash( \%model_graft_by_name, $snippet_model, $snippet_file_rel);
                     $done{$done_key} = 1;
