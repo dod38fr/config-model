@@ -94,7 +94,6 @@ throws_ok { $model->create_config_class(@bad_model) }
 $class_name = $model->create_config_class(
     name       => "Master",
     level               => [ qw/captain/ => 'important' ],
-    force_element_order => [qw/captain array_args hash_args/],
     element             => [
         captain => {
             type              => 'node',
