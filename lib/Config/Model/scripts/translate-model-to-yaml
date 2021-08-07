@@ -1,0 +1,271 @@
+#!/usr/bin/perl
+
+## Translate old model into YAML
+##
+## Usage:
+##
+## cme run translate_model_to_yaml model_file.pl
+## # writes model_file.yml
+##
+## cat t/lib/my_model.pl \
+##   | cme run translate_model_to_yaml > t/lib/my_model.yml
+##
+## Options when used as filter:
+## - pad: <integer> add padding in front of YAML lines
+## - wrap: <string> prefix input with "{ <string> => {" and add " }}" to end of
+##   input before running eval on input Perl structure.
+##
+## Security: This script evaluates the provided input. Run ONLY on TRUSTED code.
+
+use strict;
+use warnings;
+use 5.20.0;
+
+use feature qw/signatures/;
+no warnings qw/experimental::signatures/;
+
+use YAML::PP 0.024;
+use YAML::PP::Common qw/YAML_LITERAL_SCALAR_STYLE
+                        YAML_FLOW_MAPPING_STYLE
+                        YAML_FLOW_SEQUENCE_STYLE
+                        YAML_BLOCK_SEQUENCE_STYLE
+                        PRESERVE_FLOW_STYLE
+                        PRESERVE_ORDER
+                        PRESERVE_SCALAR_STYLE/;
+use Path::Tiny;
+use Config::Model;
+use Getopt::Long;
+
+# list keys that should be listed first on YAML hash.
+my @main_keys = qw/name include include_after pattern element
+                   type value_type index_type
+                   config_class_name backend file when/;
+
+my %main_key = map { ($_ => 1) } @main_keys;
+
+sub sort_element_array ($config_model, $yp, $k, $model_data, $element_as_hash) {
+    # TODO: remove in 2029
+    # useful only on array
+    $model_data = $config_model->translate_packed_element_into_alias(
+        "unknown", $model_data, 'name'
+    );
+
+    if ($element_as_hash) {
+        # convert array to hash and handle data
+        my $new = $yp->preserved_mapping({});
+        my $name; # to convert [ A => info ] in [ A => { info }]
+        foreach my $info ($model_data->@*) {
+            if (ref $info) {
+                $name = $name // delete $info->{name};
+                $new->{$name} = sort_model_data($config_model, $yp, '', $info, $element_as_hash);
+            }
+            else {
+                $name = $info;
+            }
+        }
+        return $new;
+    }
+    else {
+        # keep array but still handle data
+        my $new = [];
+        my $name; # to convert [ A => info ] in [ { name => A, info }]
+        foreach my $info ($model_data->@*) {
+            if (ref $info) {
+                $info->{name} = $name if $name;
+                push $new->@*,sort_model_data($config_model, $yp, '', $info, $element_as_hash);
+            }
+            else {
+                $name = $info;
+            }
+        }
+        return $new;
+    }
+}
+
+sub sort_element_hash ($config_model, $yp, $k, $model_data, $element_as_hash) {
+    if ($element_as_hash) {
+        # keep hash but still handle data
+        my $new = $yp->preserved_mapping({});
+        foreach my $name (keys $model_data->%*) {
+            my $info = $model_data->{$name};
+            $new->{$name} = sort_model_data($config_model, $yp, '', $info, $element_as_hash);
+        }
+        return $new;
+    }
+    else {
+        # convert hash to array and handle data
+        my $new = [];
+        foreach my $name (keys $model_data->%*) {
+            my $info = $model_data->{$name};
+            $info->{name} = $name;
+            push $new->@*,sort_model_data($config_model, $yp, '', $info, $element_as_hash);
+        }
+        return $new;
+    }
+}
+
+sub sort_accept_array ($config_model, $yp, $k, $model_data, $element_as_hash) {
+    my $new_data = $config_model->translate_legacy_accept_info('Dontcare', $model_data);
+    my @new_accept ;
+    foreach my $accept_info ($new_data->@*) {
+        push @new_accept,
+            sort_model_data($config_model, $yp, $k, $accept_info, $element_as_hash);
+    }
+    return \@new_accept;
+}
+
+sub sort_model_data ($config_model, $yp, $k, $model_data, $element_as_hash) {
+    if ($k eq 'element' and ref $model_data eq 'ARRAY') {
+        return sort_element_array($config_model, $yp, $k, $model_data, $element_as_hash);
+    }
+    if ($k eq 'element' and ref $model_data eq 'HASH') {
+        return sort_element_hash($config_model, $yp, $k, $model_data, $element_as_hash);
+    }
+    if ($k eq 'accept' and ref $model_data eq 'ARRAY') {
+        return sort_accept_array($config_model, $yp, $k, $model_data, $element_as_hash);
+    }
+    if ($k eq 'description' and ref $model_data eq 'ARRAY') {
+        return {$model_data->@*};
+    }
+    if ($k eq 'level' and ref $model_data eq 'ARRAY') {
+        return $config_model->translate_legacy_reversed_element_properties("unknown", $model_data, $k);
+    }
+    if ($k =~ /choice|write_as/ and ref $model_data eq 'ARRAY') {
+        # dump values as ["foo","bar"]
+        return $yp->preserved_sequence($model_data, style => YAML_FLOW_SEQUENCE_STYLE);
+    }
+    if (ref $model_data eq 'HASH') {
+        if ($k eq 'warp') {
+            $config_model->translate_warp_info("unknown", "unknown", $model_data);
+        }
+
+        my $new = $yp->preserved_mapping({});
+        foreach my $main_key (@main_keys) {
+            next unless defined $model_data->{$main_key};
+            my $main_data =  $model_data->{$main_key};
+            $new->{$main_key} = sort_model_data($config_model, $yp, $main_key,$main_data, $element_as_hash);
+        }
+        for my $sub_key (sort keys $model_data->%*) {
+            next if $main_key{$sub_key};
+            my $sub_data =  $model_data->{$sub_key};
+            $new->{$sub_key} = sort_model_data($config_model, $yp, $sub_key, $sub_data, $element_as_hash);
+        }
+        return $new;
+    }
+    if (ref $model_data eq 'ARRAY') {
+        my $new = [];
+        foreach my $d ($model_data->@*) {
+            push $new->@*, sort_model_data($config_model, $yp, '', $d, $element_as_hash);
+        }
+        return $new;
+    }
+    return $model_data;
+}
+
+sub translate_model ($yp, $config_model, $model_data, $element_as_hash) {
+    my $config_class_name = $model_data->{name};
+
+    # first deal with perl file and cds_file backend
+    $config_model->translate_legacy_backend_info( $config_class_name, $model_data );
+
+    return sort_model_data($config_model, $yp, 'class', $model_data, $element_as_hash);
+}
+
+sub translate_model_list ($yp, $config_model, $model_list, $element_as_hash) {
+    my @new;
+
+    foreach my $model_data (@$model_list) {
+        my $h;
+        if (ref $model_data eq 'ARRAY') {
+            $h = {$model_data->@*};
+        }
+        else {
+            $h = $model_data
+        }
+        push @new, translate_model($yp, $config_model,$h, $element_as_hash );
+    }
+    return \@new;
+}
+
+sub translate_string($yp, $config_model, $input, $element_as_hash) {
+    ## no critic (BuiltinFunctions::ProhibitStringyEval)
+    my $data;
+    if ($input =~ /---/) {
+        # we may have a YAML input, used for test or re-order some hashes
+        $data =  $yp->load_string($input);
+    } elsif ($input =~ /^\s*[{\[]/) {
+        # Perl code with hash or array
+        $data  = eval ( $input );
+        if ($@) {
+            die "perl code eval failed: $@";
+        }
+    } else {
+        # Probably example code like "follow => {...}"
+        # try to wrap it in a hash ref
+        $data  = eval ( '{ ' . $input .' }');
+        if ($@) {
+            die "eval of perl code with {} wrap failed: $@";
+        }
+    }
+
+    my $new;
+    if (ref($data) eq 'ARRAY') {
+        # model is a list of classes
+        $new = translate_model_list($yp, $config_model, $data, $element_as_hash);
+    }
+    elsif (ref($data) eq 'HASH') {
+        # model is a single class
+        $new = translate_model($yp, $config_model, $data, $element_as_hash)
+    }
+    else {
+        die "translate_string: unexpected non ref data in input:\n$data\n";
+    }
+    return $yp->dump_string($new);
+}
+
+my $config_model = Config::Model->new(log_level => 'ERROR');
+
+my $yp = YAML::PP->new(
+    preserve => PRESERVE_ORDER | PRESERVE_SCALAR_STYLE | PRESERVE_FLOW_STYLE,
+    boolean => 'boolean',
+);
+
+# I'm still not sure whether element info should be written as a hash or an array.
+# I feel a hash is more readable. But external tools like yq may loose the ordering.
+# Writing element as array (with name attribute) is more robust.
+my $element_as_hash;
+my $pad = 0;
+my $wrap ;
+GetOptions (
+    "element-as-hash!" => \$element_as_hash,
+    "pad=s" => \$pad,
+    "wrap=s" => \$wrap,
+) or die("Error in command line arguments\n");
+
+
+if (@ARGV) {
+    foreach my $in_file_str (@ARGV) {
+        my $in_file = path($in_file_str);
+        my $model_str = $in_file->slurp_utf8;
+
+        my $new = translate_string($yp, $config_model, $model_str, $element_as_hash);
+
+        my $out_file_str = $in_file->basename(qr/\.\w+/).'.yml';
+        $in_file->parent->child($out_file_str)->spew_utf8($new);
+    }
+}
+else {
+    local $/; # enable localized slurp mode
+    my $input = <>;
+    if ($wrap) {
+        $input = sprintf("{ '%s' => { %s }}", $wrap, $input);
+    }
+    my $str = translate_string($yp, $config_model, $input, $element_as_hash);
+    # add $pad white spaces at beginning of each line
+    $str =~ s/^/' ' x $pad/meg;
+    # remove blank lines at end of string
+    $str =~ s/\n+$/\n/;
+    # remove first line with ---
+    $str =~ s/^\s*-+\n//;
+    print $str;
+}
