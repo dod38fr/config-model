@@ -16,6 +16,10 @@ use Config::Model::Instance;
 use Hash::Merge 0.12 qw/merge/;
 use Path::Tiny 0.053;
 use File::HomeDir;
+use YAML::PP 0.024;
+use YAML::PP::Common qw/PRESERVE_FLOW_STYLE
+                        PRESERVE_ORDER
+                        PRESERVE_SCALAR_STYLE/;
 
 use Cwd;
 use Config::Model::Lister;
@@ -1540,7 +1544,7 @@ sub load_model_plugins {
                 my $iter = $snippet_dir->iterator({ recurse => 1 });
 
                 while ( my $snippet_file = $iter->() ) {
-                    next unless $snippet_file =~ /\.pl$/;
+                    next unless $snippet_file =~ /\.(?:pl|ya?ml)$/;
 
                     # $snippet_file (Path::Tiny object) was
                     # constructed from @INC content (i.e. $inc_str)
@@ -1641,21 +1645,33 @@ sub _read_model_file {
     $loader_logger->info("read model file $load_file");
 
     my $err_msg = '';
-    # do searches @INC if the file path is not absolute
-    my $model_list   = do $load_file;
 
-    unless ($model_list) {
-        if ($@) {
-            $err_msg = "couldn't parse $load_file: $@";
-        }
-        elsif ( not defined $model_list ) {
-            $err_msg = "couldn't do $load_file: $!"
-        }
-        else {
-            $err_msg = "couldn't run $load_file";
+    my $model_list;
+    if ($load_file =~ /\.ya?ml$/) {
+        my $yp = YAML::PP->new(
+            preserve => PRESERVE_ORDER | PRESERVE_SCALAR_STYLE | PRESERVE_FLOW_STYLE,
+            boolean => 'boolean',
+        );
+        $model_list = $yp->load_file($load_file);
+    }
+    else {
+        # do searches @INC if the file path is not absolute
+        $model_list   = do $load_file;
+
+        unless ($model_list) {
+            if ($@) {
+                $err_msg = "couldn't parse $load_file: $@";
+            }
+            elsif ( not defined $model_list ) {
+                $err_msg = "couldn't do $load_file: $!"
+            }
+            else {
+                $err_msg = "couldn't run $load_file";
+            }
         }
     }
-    elsif ( ref($model_list) ne 'ARRAY' ) {
+
+    if (ref($model_list) ne 'ARRAY') {
         $model_list = [$model_list];
     }
 
