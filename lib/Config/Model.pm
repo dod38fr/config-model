@@ -1382,6 +1382,11 @@ sub find_model_file_in_dir ($model_name, $model_path) {
 sub find_model_file_in_inc {
     my ($self, $model_name, $load_file) = @_;
 
+    if ($load_file and $load_file =~ m!^/!) {
+        # do not seach absolute path in @INC.
+        return $load_file;
+    }
+
     my $path_load_file ;
 
     if ($load_file and $load_file =~ m!^/! ) {
