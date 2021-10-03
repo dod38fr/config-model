@@ -1176,16 +1176,22 @@ __END__
     class_description => "OneConfigClass detailed description",
 
     element => [ # use array ref to keep element ordering
-        X => {
-            type       => 'leaf',
-            value_type => 'enum',
-            choice     => [qw/Av Bv Cv/]
-            status     => 'deprecated',
-            description => 'A description (can be long)',
-            summary     => 'A summary',
-        },
-        Y => '*X', # same properties as X element
-        Z => '*X', # same properties as X element
+      {
+        name => 'X',
+        type => 'leaf',
+        value_type => 'enum',
+        choice     => [qw/Av Bv Cv/],
+        description => 'A description (can be long)',
+        summary => 'A summary',
+      },
+      {
+        name => 'Y',
+        alias => 'X', # same properties as X element
+      },
+      {
+        name => 'Z',
+        alias => 'X', # same properties as X element
+      }
     ],
 
     accept => [
@@ -1290,6 +1296,12 @@ Mandatory C<array ref> of elements of the configuration class :
                bar => { type = 'leaf', ... }
              ]
 
+This can also be declared with C<name> attributes:
+
+  element => [ { name => 'foo', type = 'leaf', ... },
+               { name => 'bar', type = 'leaf', ... }
+             ]
+
 See below for details on element declaration.
 
 =item B<gist>
@@ -1351,7 +1363,7 @@ a more usable user interface.
 Example:
 
  element => [
-    'Bug' => { type => 'leaf', value_type => 'uniline' } ,
+    { name => 'Bug', type => 'leaf', value_type => 'uniline' } ,
  ]
  accept => [{
      pattern => 'Bug-.*',
@@ -1375,7 +1387,7 @@ Each element is declared with an array ref that contains all necessary
 information:
 
   element => [
-               foo => { ... }
+               { name => 'foo', ... }
              ]
 
 This most important information from this hash ref is the mandatory
@@ -1467,16 +1479,14 @@ generating user interfaces.
 When declaring a C<node> element, you must also provide a
 C<config_class_name> parameter. For instance:
 
- $model ->create_config_class
-   (
+ $model ->create_config_class (
    name => "ClassWithOneNode",
-   element => [
-                the_node => {
-                              type => 'node',
-                              config_class_name => 'AnotherClass',
-                            },
-              ]
-   ) ;
+   element => [{
+       name => 'the_node',
+       type => 'node',
+       config_class_name => 'AnotherClass',
+   }]
+ ) ;
 
 =head2 Leaf element
 
@@ -1511,12 +1521,19 @@ Element names can be aliases to save typing:
     bar => '*foo'
   ]
 
+or
+
+  element => [
+    { name => 'foo', type = 'leaf', ... },
+    { name => 'bar', alias => 'foo' },
+  ]
+
 Since each element probably have different purpose, their description
 can be declared outside of the element list using aliases:
 
   element => [
     foo => { type = 'leaf', ... },
-    bar => '*foo',
+    bar => { alias => 'foo' },
   ],
   description => {
     foo => 'foo description'
@@ -1529,8 +1546,8 @@ C<status> and C<level> can be factorized using a different mechanism:
 
   element => [
     foo => { type = 'leaf', ... },
-    bar => '*foo',
-    baz => '*foo',
+    bar => { alias => 'foo' },
+    baz => { alias => 'foo' },
   ],
 
   status => { deprecated => ['bar']}

@@ -2122,15 +2122,15 @@ __END__
  $model ->create_config_class (
    name => "MiniModel",
    element => [
-     foo => { type => 'leaf', value_type => 'uniline' },
-     bar => '*foo',
-     baz => '*foo',
+     { name => 'foo', type => 'leaf', value_type => 'uniline' },
+     { name => 'bar', alias => 'foo' },
+     { name => 'baz', alias => 'foo' },
    ],
    rw_config => {
-     backend => 'IniFile',
-     auto_create => 1,
-     config_dir => '.',
-     file => 'mini.ini',
+       backend => 'IniFile',
+       auto_create => 1,
+       config_dir => '.',
+       file => 'mini.ini',
    }
  ) ;
 
@@ -2151,12 +2151,16 @@ __END__
 =head2 Create a new model file and use it
 
  $ mkdir -p lib/Config/Model/models/
- $ echo "[ { name => 'MiniModel', \
-             element => [ foo => { type => 'leaf', value_type => 'uniline' }, qw/bar *foo baz *foo/], \
-             rw_config => { backend => 'IniFile', auto_create => 1, \
-                            config_dir => '.', file => 'mini.ini', \
-                          } \
-           } \
+ $ echo "[ { name => 'MiniModel',
+              element => [
+               { name => 'foo', type => 'leaf', value_type => 'uniline' },
+               { name => 'bar', alias => 'foo'}
+               { name => 'baz', alias => 'foo'}
+             ],
+             rw_config => { backend => 'IniFile', auto_create => 1,
+                            config_dir => '.', file => 'mini.ini',
+                          }
+           }
          ] ; " > lib/Config/Model/models/MiniModel.pl
  # require App::Cme
  $ cme modify -try MiniModel -dev bar=BARV foo=FOOV baz=BAZV
@@ -2610,16 +2614,16 @@ Example:
      'copyright' => ['2010,2011 Dominique Dumont'],
      'license' => 'LGPL2',
      'element' => [
-       'PARTICIPATE',
        {
+         name => 'PARTICIPATE',
          'description' => 'If you don\'t want to participate [...]',
          'type' => 'leaf',
          'upstream_default' => '0',
          'value_type' => 'boolean',
          'write_as' => ['no', 'yes']
        },
-       'ENCRYPT',
        {
+         name => 'ENCRYPT',
          'choice' => ['no', 'maybe', 'yes'],
          'description' => 'encrypt popcon submission.',
          'help' => {
@@ -2802,8 +2806,8 @@ Example:
   $model->create_config_class
   (
    config_class_name => 'SomeRootClass',
-   description       => [ X => 'X-ray' ],
-   level             => [ 'tree_macro' => 'important' ] ,
+   description       => { X => 'X-ray' },
+   level             => { 'important' => 'tree_macro' } ,
    class_description => "SomeRootClass description",
    element           => [ ... ]
   ) ;
@@ -2816,8 +2820,8 @@ can also be declared within the element declaration:
    config_class_name => 'SomeRootClass',
    class_description => "SomeRootClass description",
    'element' => [
-     tree_macro => { level => 'important'},
-     X          => { description => 'X-ray', } ,
+     { name => 'tree_macro', level => 'important'},
+     { name => 'X', description => 'X-ray', } ,
    ]
   ) ;
 
