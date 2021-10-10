@@ -26,7 +26,7 @@ my @with_semicolon_comment = my @with_one_semicolon_comment = my @with_hash_comm
 for (@with_semicolon_comment) { s/#/;/; } ;
 for (@with_one_semicolon_comment) { s/# foo2/; foo2/; } ;
 
-# models are stored in t/lib/test_ini_backend_model.pl
+# models are stored in t/lib/test_ini_backend_model.yml
 sub init_backend_test {
     my ($test_class, $test_data, $instance_name, $config_dir) = @_;
 
@@ -47,7 +47,7 @@ sub init_backend_test {
         instance_name   => $instance_name,
         root_class_name => $test_class,
         root_dir        => $wr_dir,
-        model_file      => 'test_ini_backend_model.pl',
+        model_file      => 'test_ini_backend_model.yml',
         config_dir      => $config_dir, # optional
     );
 

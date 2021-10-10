@@ -1,0 +1,249 @@
+---
+- name: SubSlave2
+  element:
+    aa2:
+      type: leaf
+      value_type: string
+    ab2:
+      alias: aa2
+    ac2:
+      alias: aa2
+    ad2:
+      alias: aa2
+    Z:
+      alias: aa2
+- name: SubSlave
+  element:
+    aa:
+      type: leaf
+      value_type: string
+    ab:
+      alias: aa
+    ac:
+      alias: aa
+    ad:
+      alias: aa
+    sub_slave:
+      type: node
+      config_class_name: SubSlave2
+- name: X_base_class2
+  class_description: rather dummy class to check include feature
+  element:
+    X:
+      type: leaf
+      value_type: enum
+      choice: [Av, Bv, Cv]
+- name: X_base_class
+  include: X_base_class2
+- name: SlaveZ
+  element:
+    Z:
+      type: leaf
+      value_type: enum
+      choice: [Av, Bv, Cv]
+    X-Y-Z:
+      alias: Z
+    DX:
+      type: leaf
+      value_type: enum
+      choice: [Av, Bv, Cv, Dv]
+      default: Dv
+  include: X_base_class
+  include_after: Z
+- name: SlaveY
+  element:
+    std_id:
+      type: hash
+      index_type: string
+      cargo:
+        type: node
+        config_class_name: SlaveZ
+    sub_slave:
+      type: node
+      config_class_name: SubSlave
+    warp2:
+      type: warped_node
+      config_class_name: SubSlave
+      morph: 1
+      warp:
+        follow:
+          f1: '! tree_macro'
+        rules:
+        - apply:
+            config_class_name: SubSlave2
+          when: $f1 eq 'mXY'
+        - apply:
+            config_class_name: SubSlave2
+          when: $f1 eq 'XZ'
+    Y:
+      type: leaf
+      value_type: enum
+      choice: [Av, Bv, Cv]
+  include: X_base_class
+- name: Master
+  class_description: Master description
+  description:
+    tree_macro: controls behavior of other elements
+  element:
+    std_id:
+      type: hash
+      index_type: string
+      cargo:
+        type: node
+        config_class_name: SlaveZ
+    a.string:
+      type: leaf
+      value_type: uniline
+    lista:
+      type: list
+      cargo:
+        type: leaf
+        value_type: string
+    listb:
+      alias: lista
+    listc:
+      alias: lista
+    list.d:
+      alias: lista
+    hash_a:
+      type: hash
+      index_type: string
+      cargo:
+        type: leaf
+        value_type: string
+      summary: hash_* summary
+    hash_b:
+      alias: hash_a
+    hash.c:
+      alias: hash_a
+    ordered_hash:
+      type: hash
+      index_type: string
+      cargo:
+        type: leaf
+        value_type: string
+      ordered: 1
+    ordered_hash_of_node:
+      type: hash
+      index_type: string
+      cargo:
+        type: node
+        config_class_name: SubSlave2
+      ordered: 1
+    olist:
+      type: list
+      cargo:
+        type: node
+        config_class_name: SlaveZ
+    bool_list:
+      type: list
+      cargo:
+        type: leaf
+        value_type: boolean
+    int_list_with_max:
+      type: list
+      cargo:
+        type: leaf
+        value_type: integer
+        max: 10
+    tree_macro:
+      type: leaf
+      value_type: enum
+      choice: [XY, XZ, mXY]
+      help:
+        XY: XY help
+        XZ: XZ help
+        mXY: mXY help
+    warp:
+      type: warped_node
+      config_class_name: SlaveY
+      morph: 1
+      warp:
+        follow:
+          f1: '! tree_macro'
+        rules:
+        - apply:
+            config_class_name: SlaveY
+          when: $f1 eq 'mXY'
+        - apply:
+            config_class_name: SlaveZ
+          when: $f1 eq 'XZ'
+    slave_y:
+      type: node
+      config_class_name: SlaveY
+    string_with_def:
+      type: leaf
+      value_type: string
+      default: yada yada
+    a_uniline:
+      type: leaf
+      value_type: uniline
+    a_uniline_with_default:
+      type: leaf
+      value_type: uniline
+      default: yada yada
+    a_string:
+      type: leaf
+      value_type: string
+    a_string2:
+      type: leaf
+      value_type: string
+    a_string_to_test_newline:
+      type: leaf
+      value_type: string
+    another_string:
+      type: leaf
+      value_type: string
+      mandatory: 1
+    hidden_string:
+      type: leaf
+      value_type: string
+      level: hidden
+      warp:
+        follow:
+          f1: '! tree_macro'
+        rules:
+        - apply:
+            level: normal
+          when: $f1 eq 'XZ'
+    int_v:
+      type: leaf
+      value_type: integer
+      default: '10'
+      max: 15
+      min: 5
+    alpha_check_list:
+      type: check_list
+      choice: [A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z]
+    my_check_list:
+      type: check_list
+      refer_to: '- hash_a + ! hash_b'
+    my_reference:
+      type: leaf
+      value_type: reference
+      refer_to: '- hash_a + ! hash_b'
+    plain_object:
+      type: node
+      config_class_name: SubSlave2
+    warped_node_list:
+      type: list
+      cargo:
+        type: warped_node
+        config_class_name: SubSlave
+        morph: 1
+        warp:
+          follow:
+            f1: '! tree_macro'
+          rules:
+          - apply:
+              config_class_name: SubSlave2
+            when: $f1 eq 'mXY'
+          - apply:
+              config_class_name: SubSlave2
+            when: $f1 eq 'XZ'
+  level:
+    important:
+    - lista
+    - hash_a
+    - tree_macro
+    - int_v

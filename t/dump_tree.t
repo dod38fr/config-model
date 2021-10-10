@@ -11,11 +11,13 @@ use warnings;
 use strict;
 use lib "t/lib";
 
+my $dump_model_file = 'dump_load_model.yml';
+
 my ($model, $trace) = init_test();
 
 my $inst = $model->instance(
     root_class_name => 'Master',
-    model_file      => 'dump_load_model.pl',
+    model_file      => $dump_model_file,
     instance_name   => 'test1'
 );
 ok( $inst, "created dummy instance" );
@@ -58,7 +60,7 @@ print "cds string:\n$cds" if $trace;
 subtest "test round trip" => sub {
     my $load_inst = $model->instance(
         root_class_name => 'Master',
-        model_file      => 'dump_load_model.pl',
+        model_file      => $dump_model_file,
         instance_name   => 'round_trip'
     );
     my $round_root = $load_inst->config_root;
@@ -352,7 +354,7 @@ is( $cds2, $cds, "check both dumps" );
 subtest "test dump of quoted values" => sub {
     my $inst2 = $model->instance(
         root_class_name => 'Master',
-        model_file      => 'dump_load_model.pl',
+        model_file      => $dump_model_file,
         instance_name   => 'test_quote'
     );
     my $root2 = $inst2->config_root;

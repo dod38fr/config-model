@@ -476,6 +476,11 @@ sub copy_element_information ($self, $model, $raw_model, $config_class_name) {
 # in [ A => <info>, B => {alias => A }, c => { alias => 'A'} ] (with $star = 0)
 # in [ A => <info>, B => '*A' }, c => '*A' ] (with $star = 1)
 sub translate_packed_element_into_alias($self, $config_class_name, $elt_info, $info_name, $star = 0) {
+    if (ref $elt_info eq 'HASH' and tied($elt_info->%*)) {
+        # we already have a hash tied to a class. Let's assume this is right
+        return $elt_info;
+    }
+
     if (ref $elt_info eq 'HASH') {
         Config::Model::Exception::ModelDeclaration->throw(
             error => "Element declaration of $config_class_name is not an array ref"
@@ -652,14 +657,19 @@ sub translate_legacy_reversed_element_properties($self, $cfg_class_name, $proper
 # [ name => { info }, name2 => {info} ]
 # [ [qw/name1 name2/] => { info } ]
 # [ { name => ..., info }, ... ]
+# { name => info, ... } for YAML model where hashes are ordered
 sub extract_element_list ($self, $raw_model) {
-    my $list = $raw_model->{element};
-    return () unless defined $list;
+    my $elt_spec = $raw_model->{element};
+    return () unless defined $elt_spec;
+
+    if (ref $elt_spec eq 'HASH') {
+        return keys $elt_spec->%*;
+    }
 
     my $i = 0;
     my @element_list;
-    while ($i < $list->@*) {
-        my $item = $list->[$i++];
+    while ($i < $elt_spec->@*) {
+        my $item = $elt_spec->[$i++];
         if (ref $item eq 'ARRAY') {
             push @element_list, $item->@*;
             $i++;
@@ -1649,7 +1659,7 @@ sub _read_model_file {
     my $model_list;
     if ($load_file =~ /\.ya?ml$/) {
         my $yp = YAML::PP->new(
-            preserve => PRESERVE_ORDER | PRESERVE_SCALAR_STYLE | PRESERVE_FLOW_STYLE,
+            preserve => PRESERVE_ORDER | PRESERVE_FLOW_STYLE,
             boolean => 'boolean',
         );
         $model_list = $yp->load_file($load_file);

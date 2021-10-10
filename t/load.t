@@ -178,7 +178,7 @@ subtest "mega regexp" => sub {
     }
 };
 
-$model->load('Master' => 'dump_load_model.pl',);
+$model->load('Master' => 'dump_load_model.yml',);
 
 $model->augment_config_class(
     name => 'Master',

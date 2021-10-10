@@ -18,7 +18,7 @@ my ($model, $trace) = init_test();
 
 my $inst = $model->instance(
     root_class_name => 'Master',
-    model_file      => 'dump_load_model.pl',
+    model_file      => 'dump_load_model.yml',
     instance_name   => 'test1'
 );
 ok( $inst, "created dummy instance" );

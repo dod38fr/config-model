@@ -38,7 +38,7 @@ my $i_test = $model->instance(
     instance_name   => 'to_reset',
     root_class_name => 'IniTest',
     root_dir        => $wr_dir,
-    model_file      => 'test_ini_backend_model.pl',
+    model_file      => 'test_ini_backend_model.yml',
 );
 
 ok( $i_test, "Created instance" );
