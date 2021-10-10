@@ -1,6 +1,6 @@
 ## Running the tests
 
-All tests can be run in parrallel with
+All tests can be run in parallel with
 
     prove -j8 t/
 
