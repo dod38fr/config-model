@@ -228,7 +228,7 @@ A configuration model is stored this way by Config::Model:
           value_type => 'integer',
           upstream_default => '10'
       },
-      distributions'=> {
+      distributions => {
           type => 'hash',
           index_type => 'string' ,
           cargo => {
