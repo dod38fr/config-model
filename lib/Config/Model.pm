@@ -1,8 +1,8 @@
 package Config::Model;
 
+use 5.20.0;
 use strict ;
 use warnings;
-use 5.12.0;
 
 use Mouse;
 use Mouse::Util::TypeConstraints;
@@ -22,6 +22,9 @@ use Config::Model::Lister;
 
 use parent qw/Exporter/;
 our @EXPORT_OK = qw/cme initialize_log4perl/;
+
+use feature qw/signatures/;
+no warnings qw/experimental::signatures/;
 
 # this class holds the version number of the package
 use vars qw(@status @level %default_property $force_default_log);
@@ -1259,26 +1262,49 @@ sub include_one_class {
     get_logger('Model')->debug("class $class_name include $include_class done");
 }
 
+sub find_model_file_in_dir ($model_name, $model_path) {
+    foreach my $ext (qw/yml yaml pl/) {
+        my $sub_path = $model_name =~ s!::!/!rg;
+        my $path_load_file = $model_path->child($sub_path . '.' . $ext);
+        return $path_load_file if $path_load_file->exists;
+    }
+    return;
+}
+
 sub find_model_file_in_inc {
     my ($self, $model_name, $load_file) = @_;
 
     my $path_load_file ;
 
-    foreach my $inc_str (@INC) {
-        my $inc_path = path($inc_str);
-        if ($load_file) {
-            $path_load_file = $inc_path->child($load_file);
-        }
-        else {
-            my $sub_path = $model_name =~ s!::!/!rg;
-            my $model_path = $inc_path->child($self->model_dir);
-            foreach my $ext (qw/yml yaml pl/) {
-                $path_load_file = $model_path->child($sub_path . '.' . $ext);
-                last if $path_load_file->exists;
-            }
-        }
-        last if $path_load_file->exists;
+    if ($self->model_dir and $self->model_dir =~ m!^/!) {
+        # model_dir is absolute, do not search in @INC
+        my $model_path = path($self->model_dir);
+        $path_load_file = find_model_file_in_dir ($model_name, $model_path);
+        Config::Model::Exception::ModelDeclaration->throw(
+            error => "Cannot find $model_name file in $model_path"
+        ) unless $path_load_file;
     }
+    else {
+        foreach my $inc_str (@INC) {
+            my $inc_path = path($inc_str);
+            if ($load_file) {
+                $path_load_file = $inc_path->child($load_file);
+            }
+            else {
+                my $sub_path = $model_name =~ s!::!/!rg;
+                my $model_path = $inc_path->child($self->model_dir);
+                foreach my $ext (qw/yml yaml pl/) {
+                    $path_load_file = $model_path->child($sub_path . '.' . $ext);
+                    last if $path_load_file->exists;
+                }
+            }
+            last if $path_load_file->exists;
+        }
+    }
+
+    Config::Model::Exception::ModelDeclaration->throw(
+        error => "Cannot find $model_name file in \@INC"
+    ) unless $path_load_file;
 
     $loader_logger->debug("model $model_name from file $path_load_file");
 
