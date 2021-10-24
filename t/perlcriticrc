@@ -1,0 +1,16 @@
+severity = 4
+
+# remove when https://github.com/Perl-Critic/PPI/issues/194 is fixed
+[-Subroutines::ProhibitSubroutinePrototypes]
+
+[TestingAndDebugging::ProhibitNoWarnings]
+allow = experimental::postderef experimental::signatures
+
+# model files are not modules
+[-Modules::RequireExplicitPackage]
+
+# model files finish with a data structure: the model
+[-Modules::RequireEndWithOne]
+
+[RegularExpressions::RequireExtendedFormatting]
+minimum_regex_length_to_complain_about = 25
