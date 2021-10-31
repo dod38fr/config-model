@@ -905,10 +905,8 @@ sub load ($self, @args) {
     return;
 }
 
-sub load_data {
-    my $self = shift;
-
-    my %args = @_ > 1 ? @_ : ( data => shift );
+sub load_data ($self, @args) {
+    my %args         = _resolve_arg_shortcut(\@args, 'data');
 
     my $raw_perl_data = delete $args{data};
     my $check         = $self->_check_check( $args{check} );
