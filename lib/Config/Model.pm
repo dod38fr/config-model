@@ -28,8 +28,12 @@ our @EXPORT_OK = qw/cme initialize_log4perl/;
 use feature qw/signatures/;
 no warnings qw/experimental::signatures/;
 
-# this class holds the version number of the package
-use vars qw($force_default_log);
+# used in some tests where we don't want to load
+# ~/.log4config-model config
+my $force_default_log;
+sub force_usage_of_default_log_config () {
+    $force_default_log = 1;
+}
 
 my $legacy_logger = get_logger("Model::Legacy") ;
 my $loader_logger = get_logger("Model::Loader") ;

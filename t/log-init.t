@@ -11,7 +11,7 @@ my %specs = (
     'multiple classes' => [ 'Loader', 'Thingy' ],
 );
 
-$Config::Model::force_default_log = 1;
+Config::Model::force_usage_of_default_log_config();
 
 foreach my $test (sort keys %specs) {
     subtest "$test log init" => sub {
