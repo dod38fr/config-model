@@ -4,7 +4,7 @@ use Mouse;
 with "Config::Model::Role::NodeLoader";
 
 use Carp;
-use 5.010;
+use 5.020;
 
 use Config::Model::TypeConstraints;
 use Config::Model::Instance;
@@ -25,10 +25,7 @@ extends qw/Config::Model::AnyThing/;
 with "Config::Model::Role::Grab";
 with "Config::Model::Role::HelpAsText";
 with "Config::Model::Role::ComputeFunction";
-
-use vars qw(%default_property);
-
-*default_property = *Config::Model::default_property;
+with "Config::Model::Role::Constants";
 
 my %legal_properties = (
     status     => {qw/obsolete 1 deprecated 1 standard 1/},
@@ -316,7 +313,7 @@ sub check_properties {
         foreach my $prop ( keys %legal_properties ) {
             my $prop_v
                 = delete $self->{model}{element}{$elt_name}{$prop}
-                //  $Config::Model::default_property{$prop} ;
+                //  get_default_property($prop) ;
             $self->{$prop}{$elt_name} = $prop_v;
 
             croak "Config class $self->{config_class_name} error: ",
@@ -525,7 +522,7 @@ sub get_element_names {
 
         next if $self->{level}{$elt} eq 'hidden';
 
-        my $status = $self->{status}{$elt} || $default_property{status};
+        my $status = $self->{status}{$elt} || get_default_property('status');
         next if ( $status eq 'deprecated' or $status eq 'obsolete' );
 
         my $elt_type   = $self->{element}{$elt}->get_type;
@@ -583,7 +580,7 @@ sub get_element_property {
 
     my ( $prop, $elt ) = $self->check_property_args( 'get_element_property', %args );
 
-    return $self->{$prop}{$elt} || $default_property{$prop};
+    return $self->{$prop}{$elt} || get_default_property($prop);
 }
 
 sub set_element_property {

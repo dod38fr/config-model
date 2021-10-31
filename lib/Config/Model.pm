@@ -20,6 +20,8 @@ use File::HomeDir;
 use Cwd;
 use Config::Model::Lister;
 
+with "Config::Model::Role::Constants";
+
 use parent qw/Exporter/;
 our @EXPORT_OK = qw/cme initialize_log4perl/;
 
@@ -27,7 +29,7 @@ use feature qw/signatures/;
 no warnings qw/experimental::signatures/;
 
 # this class holds the version number of the package
-use vars qw(%default_property $force_default_log);
+use vars qw($force_default_log);
 
 my $legacy_logger = get_logger("Model::Legacy") ;
 my $loader_logger = get_logger("Model::Loader") ;
@@ -36,13 +38,6 @@ my $logger = get_logger("Model") ;
 # used to keep one Config::Model object to simplify programs based on
 # cme function
 my $model_storage;
-
-%default_property = (
-    status      => 'standard',
-    level       => 'normal',
-    summary     => '',
-    description => '',
-);
 
 enum LegacyTreament => qw/die warn ignore/;
 
@@ -1805,7 +1800,7 @@ sub get_element_name {
     # the user
     foreach my $elt ( @{ $model->{element_list} } ) {
         my $elt_data = $model->{element}{$elt};
-        my $l = $elt_data->{level} || $default_property{level};
+        my $l = $elt_data->{level} || get_default_property('level');
         push @result, $elt if $l ne 'hidden' ;
     }
 
@@ -1829,13 +1824,13 @@ sub get_element_property {
     if ( not defined $model->{element}{$elt} ) {
         $logger->debug("test accept for class $class elt $elt prop $prop");
         foreach my $acc_re ( @{ $model->{accept_list} } ) {
-            return $model->{accept}{$acc_re}{$prop} || $default_property{$prop}
+            return $model->{accept}{$acc_re}{$prop} || get_default_property($prop)
                 if $elt =~ /^$acc_re$/;
         }
     }
 
     return $self->model($class)->{element}{$elt}{$prop}
-        || $default_property{$prop};
+        || get_default_property($prop);
 }
 
 sub list_class_element {
