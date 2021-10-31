@@ -1034,12 +1034,10 @@ sub describe ($self, @args) {
     return $descriptor->describe( node => $self, @args );
 }
 
-sub report {
-    my $self = shift;
-    my %args = @_;
+sub report ($self, @args) {
     $self->init();
     my $reporter = Config::Model::Report->new;
-    $reporter->report( node => $self );
+    return $reporter->report( node => $self );
 }
 
 sub audit {
