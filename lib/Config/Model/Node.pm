@@ -376,10 +376,7 @@ sub read_config_data {
     );
 }
 
-sub notify_change {
-    my $self = shift;
-    my %args = @_;
-
+sub notify_change ($self, %args) {
     if ($change_logger->is_trace) {
         my @with = map { "'$_' -> '". ($args{$_} // '<undef>') ."'"  } sort keys %args;
         $change_logger->trace("called for ", $self->name, " from ", join( ' ', caller ), " with ", join( ' ', @with ));
@@ -397,6 +394,7 @@ sub notify_change {
         # save config_file will be done by a node above
         $self->SUPER::notify_change( %args, needs_save => 1 );
     }
+    return;
 }
 
 sub is_auto_write_for_type {
