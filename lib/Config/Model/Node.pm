@@ -397,10 +397,9 @@ sub notify_change ($self, %args) {
     return;
 }
 
-sub is_auto_write_for_type {
-    my $self = shift;
+sub is_auto_write_for_type ($self, @args) {
     return 0 unless defined $self->backend_mgr;
-    return $self->backend_mgr->is_auto_write_for_type(@_);
+    return $self->backend_mgr->is_auto_write_for_type(@args);
 }
 
 sub name {
