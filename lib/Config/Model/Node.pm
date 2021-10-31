@@ -1027,13 +1027,11 @@ sub dump_annotations_as_pod ($self, @args) {
     return $dumper->dump_annotations_as_pod( node => $self, @args );
 }
 
-sub describe {
-    my $self = shift;
-    my %args = @_;
+sub describe ($self, @args) {
     $self->init();
 
     my $descriptor = Config::Model::Describe->new;
-    $descriptor->describe( node => $self, @_ );
+    return $descriptor->describe( node => $self, @args );
 }
 
 sub report {
