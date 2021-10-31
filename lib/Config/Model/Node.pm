@@ -1084,10 +1084,8 @@ sub get_info {
     return @items;
 }
 
-sub tree_searcher {
-    my $self = shift;
-
-    return Config::Model::TreeSearcher->new( node => $self, @_ );
+sub tree_searcher ($self, @args){
+    return Config::Model::TreeSearcher->new( node => $self, @args );
 }
 
 sub apply_fixes {
