@@ -27,6 +27,9 @@ with "Config::Model::Role::HelpAsText";
 with "Config::Model::Role::ComputeFunction";
 with "Config::Model::Role::Constants";
 
+use feature qw/signatures/;
+no warnings qw/experimental::signatures/;
+
 my %legal_properties = (
     status     => {qw/obsolete 1 deprecated 1 standard 1/},
     level      => {qw/important 1 normal 1 hidden 1/},
@@ -148,11 +151,15 @@ sub BUILD {
     return $self;
 }
 
+sub _resolve_arg_shortcut ($args, @param_list) {
+    return $args->@* > @param_list ? $args->@*
+         :                           map { $_ => shift @$args; } @param_list;
+}
+
 ## Create_* methods are all internal and should not be used directly
 
-sub create_element {
-    my $self         = shift;
-    my %args         = @_ > 1 ? @_ : ( name => shift );
+sub create_element ($self, @args) {
+    my %args         = _resolve_arg_shortcut(\@args, 'name');
     my $element_name = $args{name};
     my $check        = $args{check} || 'yes';
 
@@ -188,7 +195,7 @@ sub create_element {
         join(' ', sort keys %create_sub_for)
         unless defined $method;
 
-    $self->$method( $element_name, $check );
+    return $self->$method( $element_name, $check );
 }
 
 sub create_node {
