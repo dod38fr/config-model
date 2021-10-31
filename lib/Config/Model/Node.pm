@@ -376,7 +376,7 @@ sub read_config_data {
     );
 }
 
-sub notify_change ($self, %args) {
+around notify_change => sub ($orig, $self, %args) {
     if ($change_logger->is_trace) {
         my @with = map { "'$_' -> '". ($args{$_} // '<undef>') ."'"  } sort keys %args;
         $change_logger->trace("called for ", $self->name, " from ", join( ' ', caller ), " with ", join( ' ', @with ));
@@ -388,14 +388,14 @@ sub notify_change ($self, %args) {
 
     if ( defined $self->backend_mgr ) {
         $self->needs_save(1);    # will trigger a save in config_file
-        $self->SUPER::notify_change( %args, needs_save => 0 );
+        $self->$orig( %args, needs_save => 0 );
     }
     else {
         # save config_file will be done by a node above
-        $self->SUPER::notify_change( %args, needs_save => 1 );
+        $self->$orig( %args, needs_save => 1 );
     }
     return;
-}
+};
 
 sub is_auto_write_for_type ($self, @args) {
     return 0 unless defined $self->backend_mgr;
