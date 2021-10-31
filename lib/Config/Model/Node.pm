@@ -305,7 +305,7 @@ sub check_properties {
     # because Node needs them as hash or lists
     foreach my $bad (qw/description summary level status/) {
         die $self->config_class_name, ": illegal '$bad' parameter in model ",
-            "(Should be handled by Config::Model directly)"
+            "(Should be handled by Config::Model directly)\n"
             if defined $self->{model}{$bad};
     }
 
@@ -328,6 +328,7 @@ sub check_properties {
                 unless defined $legal_properties{$prop}{$prop_v};
         }
     }
+    return;
 }
 
 sub init {
