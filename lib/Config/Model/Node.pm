@@ -1088,10 +1088,7 @@ sub tree_searcher ($self, @args){
     return Config::Model::TreeSearcher->new( node => $self, @args );
 }
 
-sub apply_fixes {
-    my $self = shift;
-    my $filter = shift || '.';
-
+sub apply_fixes ($self, $filter = '.') {
     # define leaf call back
     my $fix_leaf = sub {
         my ( $scanner, $data_ref, $node, $element_name, $index, $leaf_object ) = @_;
@@ -1129,6 +1126,7 @@ sub apply_fixes {
     $fix_logger->debug( "apply fix started from ", $self->name );
     $scan->scan_node( undef, $self );
     $fix_logger->trace("apply fix done");
+    return;
 }
 
 sub deep_check {
