@@ -463,10 +463,8 @@ sub find_element {
     return;
 }
 
-sub element_model {
-    my $self = shift;
-    croak "element_model: missing element name" unless @_;
-    return $self->{model}{element}{ $_[0] };
+sub element_model ($self, $elt_name) {
+    return $self->{model}{element}{ $elt_name };
 }
 
 sub element_type {
@@ -489,10 +487,7 @@ sub get_element_name {
     goto &get_element_names;
 }
 
-sub get_element_names {
-    my $self = shift;
-    my %args = @_;
-
+sub get_element_names ($self, %args) {
     if (delete $args{for}) {
         carp "get_element_names arg 'for' is deprecated";
     }
@@ -545,9 +540,7 @@ sub children {
     return $self->get_element_names;
 }
 
-sub next_element {
-    my $self    = shift;
-    my %args    = @_;
+sub next_element ($self, %args) {
     my $element = $args{name};
 
     my @elements = @{ $self->{model}{element_list} };
@@ -576,19 +569,13 @@ sub previous_element {
     $self->next_element( @_, reverse => 1 );
 }
 
-sub get_element_property {
-    my $self = shift;
-    my %args = @_;
-
+sub get_element_property ($self, %args) {
     my ( $prop, $elt ) = $self->check_property_args( 'get_element_property', %args );
 
     return $self->{$prop}{$elt} || get_default_property($prop);
 }
 
-sub set_element_property {
-    my $self = shift;
-    my %args = @_;
-
+sub set_element_property ($self, %args) {
     my ( $prop, $elt ) = $self->check_property_args( 'set_element_property', %args );
 
     my $new_value = $args{value}
@@ -599,10 +586,7 @@ sub set_element_property {
     return $self->{$prop}{$elt} = $new_value;
 }
 
-sub reset_element_property {
-    my $self = shift;
-    my %args = @_;
-
+sub reset_element_property ($self, %args) {
     my ( $prop, $elt ) = $self->check_property_args( 'reset_element_property', %args );
 
     my $original_value = $self->{config_model}->get_element_property(
@@ -616,11 +600,7 @@ sub reset_element_property {
 }
 
 # internal: called by the property methods to check their arguments
-sub check_property_args {
-    my $self        = shift;
-    my $method_name = shift;
-    my %args        = @_;
-
+sub check_property_args ($self, $method_name, %args){
     my $elt = $args{element}
         || croak "$method_name: missing 'element' parameter";
     my $prop = $args{property}
@@ -633,9 +613,8 @@ sub check_property_args {
     return ( $prop, $elt );
 }
 
-sub fetch_element {
-    my $self         = shift;
-    my %args         = @_ > 1 ? @_ : ( name => shift );
+sub fetch_element ($self, @args) {
+    my %args         = _resolve_arg_shortcut(\@args, 'name');
     my $element_name = $args{name};
 
     Config::Model::Exception::Internal->throw( error => "fetch_element: missing name" )
@@ -711,9 +690,8 @@ sub fetch_element_no_check {
     return $self->{element}{$element_name};
 }
 
-sub fetch_element_value {
-    my $self         = shift;
-    my %args         = @_ > 1 ? @_ : ( name => $_[0] );
+sub fetch_element_value ($self, @args) {
+    my %args         = @args > 1 ? @args : ( name => $args[0] );
     my $element_name = $args{name};
     my $check        = $self->_check_check( $args{check} );
 
@@ -729,9 +707,8 @@ sub fetch_element_value {
     return $self->fetch_element(%args)->fetch( check => $check );
 }
 
-sub store_element_value {
-    my $self = shift;
-    my %args = @_ > 2 ? @_ : ( name => $_[0], value => $_[1] );
+sub store_element_value ($self, @args) {
+    my %args         = _resolve_arg_shortcut(\@args, 'name', 'value');
 
     return $self->fetch_element(%args)->store(%args);
 }
@@ -1036,9 +1013,7 @@ sub load_data {
     return !! $has_stored;
 }
 
-sub dump_tree {
-    my $self = shift;
-    my %args = @_;
+sub dump_tree ($self, %args) {
     $self->init();
     my $full = delete $args{full_dump} || 0;
     if ($full) {
