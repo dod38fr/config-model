@@ -235,7 +235,7 @@ sub create_warped_node {
 
     require Config::Model::WarpedNode;
 
-    $self->{element}{$element_name} =
+    return $self->{element}{$element_name} =
         Config::Model::WarpedNode->new( %$element_info, @args );
 }
 
