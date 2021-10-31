@@ -27,7 +27,7 @@ use feature qw/signatures/;
 no warnings qw/experimental::signatures/;
 
 # this class holds the version number of the package
-use vars qw(@status @level %default_property $force_default_log);
+use vars qw(%default_property $force_default_log);
 
 my $legacy_logger = get_logger("Model::Legacy") ;
 my $loader_logger = get_logger("Model::Loader") ;
@@ -320,10 +320,6 @@ sub instance_names {
     my @all = sort keys %{ $self->instances };
     return @all;
 }
-
-@level = qw/hidden normal important/;
-
-@status = qw/obsolete deprecated standard/;
 
 # unpacked model is:
 # {

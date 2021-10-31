@@ -26,10 +26,8 @@ with "Config::Model::Role::Grab";
 with "Config::Model::Role::HelpAsText";
 with "Config::Model::Role::ComputeFunction";
 
-use vars qw(@status @level %default_property);
+use vars qw(%default_property);
 
-*status           = *Config::Model::status;
-*level            = *Config::Model::level;
 *default_property = *Config::Model::default_property;
 
 my %legal_properties = (
