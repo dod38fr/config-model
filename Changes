@@ -1,5 +1,17 @@
 {{$NEXT}}
 
+2.143 2021-10-31
+
+  Main change:
+    * requires perl 5.20
+
+  Bug fixes:
+    * fix (Model load): fix load from absolute path
+    * fix (BackEndMgr): crash when calling config_file_override
+      with absolute path
+    * fix (get_info): show upstream_default as written in file
+    * feature (get_info): include write_as values
+
 2.142 2021-04-07
 
   New features:
