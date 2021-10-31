@@ -1021,12 +1021,10 @@ sub migrate ($self, @args) {
     return $self->needs_save;
 }
 
-sub dump_annotations_as_pod {
-    my $self = shift;
-    my %args = @_;
+sub dump_annotations_as_pod ($self, @args) {
     $self->init();
     my $dumper = Config::Model::DumpAsData->new;
-    $dumper->dump_annotations_as_pod( node => $self, @_ );
+    return $dumper->dump_annotations_as_pod( node => $self, @args );
 }
 
 sub describe {
