@@ -104,7 +104,7 @@ has config_model => (
 
 sub _config_model {
     my $self = shift;
-    my $p    = $self->instance->config_model;
+    return $self->instance->config_model;
 }
 
 has model      => ( is => 'rw', isa => 'HashRef' );
