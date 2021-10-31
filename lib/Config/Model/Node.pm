@@ -861,9 +861,8 @@ sub element_exists {
     return defined $self->{model}{element}{$element_name} ? 1 : 0;
 }
 
-sub is_element_defined {
-    my $self = shift;
-    return defined $self->{element}{ $_[0] };
+sub is_element_defined ($self, $elt_name) {
+    return defined $self->{element}{ $elt_name };
 }
 
 sub get {
