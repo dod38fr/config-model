@@ -1014,11 +1014,9 @@ sub dump_tree ($self, %args) {
     return $dumper->dump_tree( node => $self, %args );
 }
 
-sub migrate {
-    my $self = shift;
-    my %args = @_;
+sub migrate ($self, @args) {
     $self->init();
-    Config::Model::Dumper->new->dump_tree( node => $self, mode => 'full', @_ );
+    Config::Model::Dumper->new->dump_tree( node => $self, mode => 'full', @args );
 
     return $self->needs_save;
 }
