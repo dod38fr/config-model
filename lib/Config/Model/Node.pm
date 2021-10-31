@@ -257,7 +257,7 @@ sub create_leaf {
     $element_info->{element_name} = $element_name;
     $element_info->{instance}     = $self->{instance};
 
-    $self->{element}{$element_name} = $leaf_class->new(%$element_info);
+    return $self->{element}{$element_name} = $leaf_class->new(%$element_info);
 }
 
 my %id_class_hash = (
