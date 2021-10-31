@@ -1129,10 +1129,7 @@ sub apply_fixes ($self, $filter = '.') {
     return;
 }
 
-sub deep_check {
-    my $self = shift;
-    my %args = @_;
-
+sub deep_check ($self, %args){
     $deep_check_logger->trace("called on ".$self->name);
 
     # no deep_check defined (yet). Note that value check is done when
@@ -1160,6 +1157,7 @@ sub deep_check {
     $deep_check_logger->debug( "deep check started from ", $self->name );
     $scan->scan_node( undef, $self );
     $deep_check_logger->trace("deep check done");
+    return;
 }
 
 __PACKAGE__->meta->make_immutable;
