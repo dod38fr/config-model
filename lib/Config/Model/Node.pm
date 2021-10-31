@@ -564,9 +564,8 @@ sub next_element ($self, %args) {
     return;
 }
 
-sub previous_element {
-    my $self = shift;
-    $self->next_element( @_, reverse => 1 );
+sub previous_element ($self, @args) {
+    return $self->next_element( @args, reverse => 1 );
 }
 
 sub get_element_property ($self, %args) {
