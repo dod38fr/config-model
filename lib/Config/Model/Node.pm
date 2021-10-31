@@ -1040,12 +1040,10 @@ sub report ($self, @args) {
     return $reporter->report( node => $self );
 }
 
-sub audit {
-    my $self = shift;
-    my %args = @_;
+sub audit ($self, @args) {
     $self->init();
     my $reporter = Config::Model::Report->new;
-    $reporter->report( node => $self, audit => 1 );
+    return $reporter->report( node => $self, audit => 1 );
 }
 
 sub copy_from {
