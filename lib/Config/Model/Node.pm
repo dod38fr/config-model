@@ -1057,27 +1057,18 @@ sub copy_from ($self, @args) {
 
 # TODO: need Pod::Text attribute -> move that to a role ?
 # to translate Pod description to plain text when help is displayed
-sub get_help {
-    my $self = shift;
-
-    my $help;
-    if ( scalar @_ > 1 ) {
-        my ( $tag, $elt_name ) = @_;
-
-        if ( $tag !~ /summary|description/ ) {
+sub get_help ($self, $tag = '', $elt_name = ''){
+    if ($elt_name) {
+        if ( $tag !~ /^(summary|description)$/ ) {
             croak "get_help: wrong argument $tag, expected ", "'description' or 'summary'";
         }
 
-        $help = $self->{$tag}{$elt_name};
+        return $self->{$tag}{$elt_name} // '';
     }
-    elsif (@_) {
-        $help = $self->{description}{ $_[0] };
+    if ($tag) {
+        return $self->{description}{ $tag } // '';
     }
-    else {
-        $help = $self->{model}{class_description};
-    }
-
-    return defined $help ? $help : '';
+    return $self->{model}{class_description} // '';
 }
 
 sub get_info {
