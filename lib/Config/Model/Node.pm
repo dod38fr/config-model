@@ -369,7 +369,7 @@ sub read_config_data {
 
     # setup auto_read
     # may use an overridden config file
-    $self->backend_mgr->read_config_data(
+    return $self->backend_mgr->read_config_data(
         check           => $args{check},
         config_file     => $args{config_file} || $self->{config_file},
         auto_create     => $args{auto_create} || $self->instance->auto_create,
