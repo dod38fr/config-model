@@ -1046,14 +1046,13 @@ sub audit ($self, @args) {
     return $reporter->report( node => $self, audit => 1 );
 }
 
-sub copy_from {
-    my $self  = shift;
-    my %args  = @_ > 1 ? @_ : ( from => shift );
+sub copy_from ($self, @args) {
+    my %args         = _resolve_arg_shortcut(\@args, 'from');
     my $from  = $args{from} || croak "copy_from: missing from argument";
     my $check = $args{check} || 'yes';
     $logger->debug( "node " . $self->location . " copy from " . $from->location );
     my $dump = $from->dump_tree( check => 'no' );
-    $self->load( step => $dump, check => $check );
+    return $self->load( step => $dump, check => $check );
 }
 
 # TODO: need Pod::Text attribute -> move that to a role ?
