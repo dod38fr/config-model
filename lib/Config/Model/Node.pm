@@ -293,7 +293,7 @@ sub create_id {
     $element_info->{element_name} = $element_name;
     $element_info->{instance}     = $self->{instance};
 
-    $self->{element}{$element_name} = $id_class->new(%$element_info);
+    return $self->{element}{$element_name} = $id_class->new(%$element_info);
 }
 
 # check validity of level and status declaration.
