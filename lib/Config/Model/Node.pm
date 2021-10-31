@@ -880,16 +880,14 @@ sub get ($self, @args) {
     return $elt->get( path => $new_path, get_obj => $get_obj, %args );
 }
 
-sub set {
-    my $self = shift;
-    my $path = shift;
+sub set ($self, $path, @args) {
     $path =~ s!^/!!;
     my ( $item, $new_path ) = split m!/!, $path, 2;
     if ( $item =~ /([\w\-]+)\[(\d+)\]/ ) {
-        return $self->fetch_element($1)->fetch_with_id($2)->set( $new_path, @_ );
+        return $self->fetch_element($1)->fetch_with_id($2)->set( $new_path, @args );
     }
     else {
-        return $self->fetch_element($item)->set( $new_path, @_ );
+        return $self->fetch_element($item)->set( $new_path, @args );
     }
 }
 
