@@ -148,6 +148,7 @@ has skip_inheritance => (
         $self->skip_include = $self->skip_inheritance;
     } );
 
+# remove this hack mid 2022
 around BUILDARGS => sub {
     my $orig  = shift;
     my $class = shift;
@@ -159,9 +160,8 @@ around BUILDARGS => sub {
             $new{$k} = $args{$k};
         }
         else {
-            # this warning should be changed to an error end of 2017
             # cannot use logger, it's not initialised yet
-            warn("Config::Model new: passing undefined constructor argument is deprecated ($k argument)\n");
+            croak("Config::Model new: passing undefined constructor argument is deprecated ($k argument)\n");
         }
     }
 
