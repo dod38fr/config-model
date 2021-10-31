@@ -217,7 +217,7 @@ sub create_node {
         container         => $self,
     );
 
-    $self->{element}{$element_name} = $self->load_node(@args);
+    return $self->{element}{$element_name} = $self->load_node(@args);
 }
 
 sub create_warped_node {
