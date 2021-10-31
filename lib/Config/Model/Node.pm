@@ -331,10 +331,7 @@ sub check_properties {
     return;
 }
 
-sub init {
-    my $self = shift;
-    my %args = @_;
-
+sub init ($self, @args) {
     return if $self->{initialized};
     $self->{initialized} = 1;    # avoid recursions
 
@@ -357,6 +354,7 @@ sub init {
     $self->backend_mgr->auto_write_init();
 
     $self->instance->initial_load($initial_load_backup);
+    return;
 }
 
 sub read_config_data {
