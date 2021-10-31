@@ -1011,7 +1011,7 @@ sub dump_tree ($self, %args) {
         $args{mode} //= 'user';
     }
     my $dumper = Config::Model::Dumper->new;
-    $dumper->dump_tree( node => $self, %args );
+    return $dumper->dump_tree( node => $self, %args );
 }
 
 sub migrate {
