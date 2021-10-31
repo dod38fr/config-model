@@ -422,9 +422,8 @@ sub is_accessible {
 }
 
 # should I autovivify this element: NO
-sub has_element {
-    my $self = shift;
-    my %args = ( @_ > 1 ) ? @_ : ( name => shift );
+sub has_element ($self, @args) {
+    my %args         = _resolve_arg_shortcut(\@args, 'name');
     my $name = $args{name};
     my $type = $args{type};
     my $autoadd = $args{autoadd} // 1;
