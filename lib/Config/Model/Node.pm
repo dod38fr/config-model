@@ -891,20 +891,18 @@ sub set ($self, $path, @args) {
     }
 }
 
-sub load {
-    my $self   = shift;
+sub load ($self, @args) {
     my $loader = Config::Model::Loader->new( start_node => $self );
 
-    my %args = @_ eq 1 ? ( steps => $_[0] ) : @_;
+    my %args = _resolve_arg_shortcut(\@args, 'steps');
     if ( defined $args{step} || defined $args{steps}) {
-        $loader->load( %args );
+        return $loader->load( %args );
     }
-    else {
-        Config::Model::Exception::Load->throw(
-            object  => $self,
-            message => "load called with no 'steps' parameter",
-        );
-    }
+    Config::Model::Exception::Load->throw(
+        object  => $self,
+        message => "load called with no 'steps' parameter",
+    );
+    return;
 }
 
 sub load_data {
