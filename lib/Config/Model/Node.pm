@@ -712,14 +712,13 @@ sub store_element_value ($self, @args) {
     return $self->fetch_element(%args)->store(%args);
 }
 
-sub is_element_available {
-    my $self = shift;
+sub is_element_available ($self, @args) {
     my ( $elt_name, $status ) = ( undef, 'deprecated' );
-    if ( @_ == 1 ) {
-        $elt_name = shift;
+    if ( @args == 1 ) {
+        $elt_name = $args[0];
     }
     else {
-        my %args = @_;
+        my %args = @args;
         $elt_name        = $args{name};
         $status          = $args{status} if defined $args{status};
     }
