@@ -783,12 +783,10 @@ sub get ($self, @args) {
     return $obj->get( path => $new_path, get_obj => $get_obj, %args );
 }
 
-sub set {
-    my $self = shift;
-    my $path = shift;
+sub set ($self, $path, @args) {
     $path =~ s!^/!!;
     my ( $item, $new_path ) = split m!/!, $path, 2;
-    return $self->fetch_with_id($item)->set( $new_path, @_ );
+    return $self->fetch_with_id($item)->set( $new_path, @args );
 }
 
 sub copy {
