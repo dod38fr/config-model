@@ -433,10 +433,7 @@ my %mode_move = (
     normal  => {},
 );
 
-sub notify_change {
-    my $self = shift;
-    my %args = @_;
-
+sub notify_change ($self, %args) {
     if ($change_logger->is_trace) {
         my @a = map { ( $_ => $args{$_} // '<undef>' ); } sort keys %args;
         $change_logger->trace( "called for ", $self->name, " from ", join( ' ', caller ),
@@ -457,6 +454,7 @@ sub notify_change {
 
     $self-> needs_content_check(1);
     $self->SUPER::notify_change(%args);
+    return;
 }
 
 # the number of checks is becoming confusing. We have
