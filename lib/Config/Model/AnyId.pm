@@ -972,18 +972,21 @@ sub auto_vivify {
     return;
 }
 
+## no critic (Subroutines::ProhibitBuiltinHomonyms)
 sub defined {
     my ( $self, $idx ) = @_;
 
     return $self->_defined($idx);
 }
 
+## no critic (Subroutines::ProhibitBuiltinHomonyms)
 sub exists {
     my ( $self, $idx ) = @_;
 
     return $self->_exists($idx);
 }
 
+## no critic (Subroutines::ProhibitBuiltinHomonyms)
 sub delete {
     my ( $self, $idx ) = @_;
 
