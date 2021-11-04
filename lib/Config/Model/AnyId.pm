@@ -754,9 +754,8 @@ sub fetch_with_id ($self, @args) {
     return;
 }
 
-sub get {
-    my $self    = shift;
-    my %args    = @_ > 1 ? @_ : ( path => $_[0] );
+sub get ($self, @args) {
+    my %args = _resolve_arg_shortcut(\@args, 'path');
     my $path    = delete $args{path};
     my $autoadd = 1;
     $autoadd = $args{autoadd} if defined $args{autoadd};
