@@ -419,7 +419,7 @@ sub apply_fixes {
     $fix_logger->trace( $self->location . ": apply_fixes called" );
 
     $self->deep_check( fix => 1, logger => $fix_logger );
-
+    return;
 }
 
 my %check_idx_dispatch =
