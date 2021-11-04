@@ -285,6 +285,7 @@ sub create_default_with_init {
     foreach my $def_key ( keys %$h ) {
         $self->create_default_content($def_key);
     }
+    return;
 }
 
 sub create_default_content {
