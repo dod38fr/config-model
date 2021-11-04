@@ -1004,11 +1004,12 @@ sub clear {
     $self->_clear;
     $self->clear_data_mode;
     $self->notify_change( note => "cleared all entries" );
+    return;
 }
 
 sub clear_values {
     my ($self) = @_;
-    warn "clear_values deprecated";
+    carp "clear_values deprecated";
 
     my $ct = $self->get_cargo_type;
     Config::Model::Exception::User->throw(
@@ -1021,6 +1022,7 @@ sub clear_values {
         $self->fetch_with_id($_)->store(undef);
     }
     $self->notify_change( note => "cleared all values" );
+    return;
 }
 
 sub warning_msg {
