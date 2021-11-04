@@ -342,10 +342,8 @@ sub get_cargo_info {
     return $self->{cargo}{$what};
 }
 
-# internal, does a grab with improved error mesage
-sub safe_typed_grab {
-    my $self  = shift;
-    my %args  = @_;
+# internal, does a grab with improved error message
+sub safe_typed_grab ($self, %args) {
     my $param = $args{param} || croak "safe_typed_grab: missing param";
 
     my $res = eval {
