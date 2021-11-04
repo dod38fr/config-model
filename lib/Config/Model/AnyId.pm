@@ -797,7 +797,7 @@ sub copy {
 
     if ( $ok && $self->{cargo}{type} eq 'leaf' ) {
         $logger->trace( "AnyId: copy leaf value from " . $self->name . " $from to $to" );
-        $self->fetch_with_id($to)->store( $from_obj->fetch() );
+        return $self->fetch_with_id($to)->store( $from_obj->fetch() );
     }
     elsif ($ok) {
 
@@ -805,7 +805,7 @@ sub copy {
         $logger->trace( "AnyId: deep copy node from " . $self->name );
         my $target = $self->fetch_with_id($to);
         $logger->trace( "AnyId: deep copy node to " . $target->name );
-        $target->copy_from($from_obj);
+        return $target->copy_from($from_obj);
     }
     else {
         Config::Model::Exception::WrongValue->throw(
@@ -813,6 +813,7 @@ sub copy {
             object => $self
         );
     }
+    return;
 }
 
 sub fetch_all {
