@@ -612,6 +612,7 @@ sub check_follow_keys_from {
         . $followed->name
         . "'. Expected '"
         . join( "', '", $followed->fetch_all_indexes ) . "'";
+    return;
 }
 
 #internal
@@ -623,6 +624,7 @@ sub check_allow_keys {
     push @$error,
         "Unexpected key '" . $self->shorten_idx($idx) . "'. Expected '" . join( "', '", @{ $self->{allow_keys} } ) . "'"
         unless $ok;
+    return;
 }
 
 #internal
@@ -632,6 +634,7 @@ sub check_allow_keys_matching {
 
     push @$error, "Unexpected key '" . $self->shorten_idx($idx) . "'. Key must match $match"
         unless $idx =~ /$match/;
+    return;
 }
 
 #internal
@@ -648,7 +651,7 @@ sub check_allow_keys_from {
         . $from->name
         . "'. Expected '"
         . join( "', '", $from->fetch_all_indexes ) . "'";
-
+    return;
 }
 
 sub check_warn_if_key_match {
@@ -656,6 +659,7 @@ sub check_warn_if_key_match {
     my $re = $self->{warn_if_key_match};
 
     push @$warn, "key '" . $self->shorten_idx($idx) . "' should not match $re\n" if $idx =~ /$re/;
+    return;
 }
 
 sub check_warn_unless_key_match {
@@ -663,6 +667,7 @@ sub check_warn_unless_key_match {
     my $re = $self->{warn_unless_key_match};
 
     push @$warn, "key '" . $self->shorten_idx($idx) . "' should match $re\n" unless $idx =~ /$re/;
+    return;
 }
 
 sub check_duplicates {
@@ -709,6 +714,7 @@ sub check_duplicates {
     else {
         die "Internal error: duplicates is $dup";
     }
+    return;
 }
 
 sub fetch_with_id {
