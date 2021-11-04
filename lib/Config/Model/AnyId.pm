@@ -969,6 +969,7 @@ sub auto_vivify {
     $self->set_data_mode( $idx, $imode );
 
     $self->_store( $idx, $item );
+    return;
 }
 
 sub defined {
