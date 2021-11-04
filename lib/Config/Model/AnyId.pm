@@ -182,18 +182,16 @@ sub BUILD {
 
 # this method can be called by the warp mechanism to alter (warp) the
 # feature of the Id object.
-sub set_properties {
-    my $self = shift;
-
+sub set_properties ($self, @args) {
     # mega cleanup
     for ( @allowed_warp_params ) { delete $self->{$_}; }
 
-    my %args = ( %{ $self->{backup} }, @_ );
+    my %args = ( %{ $self->{backup} }, @args );
 
     # these are handled by Node or Warper
     for ( qw/level/ ) { delete $args{$_}; }
 
-    $logger->trace( $self->name, " set_properties called with @_" );
+    $logger->trace( $self->name, " set_properties called with @args" );
 
     for ( @common_params ) {
         $self->{$_} = delete $args{$_} if defined $args{$_};
@@ -271,7 +269,10 @@ sub set_properties {
 
     Config::Model::Exception::Model->throw(
         object => $self,
-        error  => "Unexpected parameters: " . join( ' ', keys %args ) ) if scalar keys %args;
+        error  => "Unexpected parameters: " . join( ' ', keys %args )
+    ) if scalar keys %args;
+
+    return;
 }
 
 sub create_default_with_init {
