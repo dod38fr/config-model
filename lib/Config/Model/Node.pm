@@ -26,6 +26,7 @@ with "Config::Model::Role::Grab";
 with "Config::Model::Role::HelpAsText";
 with "Config::Model::Role::ComputeFunction";
 with "Config::Model::Role::Constants";
+with "Config::Model::Role::Utils";
 
 use feature qw/signatures/;
 no warnings qw/experimental::signatures/;
@@ -149,11 +150,6 @@ sub BUILD {
     $self->check_properties;
 
     return $self;
-}
-
-sub _resolve_arg_shortcut ($args, @param_list) {
-    return $args->@* > @param_list ? $args->@*
-         :                           map { $_ => shift @$args; } @param_list;
 }
 
 ## Create_* methods are all internal and should not be used directly
