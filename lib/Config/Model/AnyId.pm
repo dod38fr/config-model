@@ -392,16 +392,12 @@ sub name {
 }
 
 # internal. Handle model declaration arguments
-sub handle_args {
-    my $self = shift;
-    my %args = @_;
-
+sub handle_args ($self, %args) {
     my $warp_info = delete $args{warp};
 
-    for ( qw/index_class index_type morph ordered/) {
+    for (qw/index_class index_type morph ordered/) {
         $self->{$_} = delete $args{$_} if defined $args{$_};
     }
-
 
     $self->{backup} = dclone( \%args );
 
