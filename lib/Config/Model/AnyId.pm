@@ -308,6 +308,7 @@ sub create_default_content {
     else {
         $v_obj->load( $def );
     }
+    return;
 }
 
 sub max {
