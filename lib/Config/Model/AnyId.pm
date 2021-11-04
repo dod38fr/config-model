@@ -487,10 +487,7 @@ sub deep_check ($self, @args) {
 }
 
 # check globally the list or hash, called by apply_fix or deep_check
-sub check_content {
-    my $self = shift;
-
-    my %args = @_ ;
+sub check_content ($self, %args) {
     my $silent    = $args{silent} || 0;
     my $apply_fix = $args{fix}    || 0;
     my $local_logger = $args{logger} || $logger;
