@@ -855,27 +855,27 @@ sub _fetch_value ($self, %args) {
     return;
 }
 
-sub fetch_all_values {
-    my $self  = shift;
-    my %args  = @_ > 1 ? @_ : ( mode => shift );
+sub fetch_all_values ($self, @args) {
+    my %args = _resolve_arg_shortcut(\@args, 'mode');
     my $mode  = $args{mode};
     my $check = $self->_check_check( $args{check} );
 
     my @keys = $self->fetch_all_indexes;
 
-        # verify content restrictions applied to List (e.g. no duplicate values)
-        my $ok = $check eq 'no' ? 1 : $self->check_content();
+    # verify content restrictions applied to List (e.g. no duplicate values)
+    my $ok = $check eq 'no' ? 1 : $self->check_content();
 
-        if ( $ok or $check eq 'no' ) {
-            return grep { defined $_ }
-                map { $self->fetch_value(idx => $_, check => $check, mode => $mode ); } @keys;
-        }
-        else {
-            Config::Model::Exception::WrongValue->throw(
-                error  => join( "\n\t", @{ $self->{content_error_list} } ),
-                object => $self
-            );
-        }
+    if ( $ok or $check eq 'no' ) {
+        return grep { defined $_ }
+            map { $self->fetch_value(idx => $_, check => $check, mode => $mode ); } @keys;
+    }
+    else {
+        Config::Model::Exception::WrongValue->throw(
+            error  => join( "\n\t", @{ $self->{content_error_list} } ),
+            object => $self
+        );
+    }
+    return;
 }
 
 sub fetch_all_indexes {
