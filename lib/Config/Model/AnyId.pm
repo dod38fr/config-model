@@ -314,13 +314,13 @@ sub create_default_content {
 sub max {
     my $self = shift;
     carp $self->name, ": max param is deprecated, use max_index\n";
-    $self->max_index;
+    return $self->max_index;
 }
 
 sub min {
     my $self = shift;
     carp $self->name, ": min param is deprecated, use min_index\n";
-    $self->min_index;
+    return $self->min_index;
 }
 
 sub cargo_type { goto &get_cargo_type; }
