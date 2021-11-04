@@ -822,26 +822,21 @@ sub fetch_all {
     return map { $self->fetch_with_id($_); } @keys;
 }
 
-sub fetch {
-    my $self = shift;
-    return join(',', $self->fetch_all_values(@_) );
+sub fetch ($self, @args) {
+    return join(',', $self->fetch_all_values(@args) );
 }
 
-sub fetch_value {
-    my $self  = shift;
-    my %args  = @_ > 1 ? @_ : ( idx => shift );
+sub fetch_value ($self, @args) {
+    my %args = _resolve_arg_shortcut(\@args, 'idx');
     return $self->_fetch_value(%args, sub => 'fetch');
 }
 
-sub fetch_summary {
-    my $self  = shift;
-    my %args  = @_ > 1 ? @_ : ( idx => shift );
+sub fetch_summary ($self, @args) {
+    my %args = _resolve_arg_shortcut(\@args, 'idx');
     return $self->_fetch_value(%args, sub => 'fetch_summary');
 }
 
-sub _fetch_value {
-    my $self  = shift;
-    my %args  = @_ ;
+sub _fetch_value ($self, %args) {
     my $check = $self->_check_check( $args{check} );
     my $sub = delete $args{sub};
 
