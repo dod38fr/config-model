@@ -537,10 +537,8 @@ sub check_content ($self, %args) {
 
 # internal function to check the validity of the index. Called when creating a new
 # index or when set_properties is called (init or during warp)
-sub check_idx {
-    my $self = shift;
-
-    my %args      = @_ > 1 ? @_ : ( index => $_[0] );
+sub check_idx ($self, @args) {
+    my %args = _resolve_arg_shortcut(\@args, 'index');
     my $idx       = $args{index};
     my $silent    = $args{silent} || 0;
     my $check     = $args{check} || 'yes';
