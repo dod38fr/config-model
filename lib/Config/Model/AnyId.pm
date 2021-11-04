@@ -79,14 +79,9 @@ has has_fixes => (
         inc_fixes =>   [ add => 1 ],
         dec_fixes =>   [ sub => 1 ],
         add_fixes => 'add',
+        flush_fixes => [ mul => 0 ],
     }
 );
-
-# work-around because 'set' does work with Mouse Number trait
-sub flush_fixes ($self) {
-    $self->{has_fixes} = 0;
-    return;
-}
 
 # Some idea for improvement
 
