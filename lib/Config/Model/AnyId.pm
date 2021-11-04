@@ -852,6 +852,7 @@ sub _fetch_value ($self, %args) {
             info          => "with index $args{idx}",
         );
     }
+    return;
 }
 
 sub fetch_all_values {
