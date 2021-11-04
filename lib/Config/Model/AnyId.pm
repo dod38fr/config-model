@@ -428,7 +428,7 @@ my %mode_move = (
     normal  => {},
 );
 
-sub notify_change ($self, %args) {
+around notify_change => sub ($orig, $self, %args) {
     if ($change_logger->is_trace) {
         my @a = map { ( $_ => $args{$_} // '<undef>' ); } sort keys %args;
         $change_logger->trace( "called for ", $self->name, " from ", join( ' ', caller ),
@@ -448,9 +448,9 @@ sub notify_change ($self, %args) {
     return if $self->instance->initial_load and not $args{really};
 
     $self-> needs_content_check(1);
-    $self->SUPER::notify_change(%args);
+    $self->$orig(%args);
     return;
-}
+};
 
 # the number of checks is becoming confusing. We have
 # - check_idx to check whether an index is fine. This is called when creating
