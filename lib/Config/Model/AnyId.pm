@@ -717,9 +717,8 @@ sub check_duplicates {
     return;
 }
 
-sub fetch_with_id {
-    my $self  = shift;
-    my %args  = @_ > 1 ? @_ : ( index => shift );
+sub fetch_with_id ($self, @args) {
+    my %args = _resolve_arg_shortcut(\@args, 'index');
     my $check = $self->_check_check( $args{check} );
     my $idx   = $args{index};
 
