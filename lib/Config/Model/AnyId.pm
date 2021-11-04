@@ -475,10 +475,7 @@ sub check {
     goto &deep_check; # backward compat
 }
 
-sub deep_check {
-    my $self = shift;
-    my @args = @_;
-
+sub deep_check ($self, @args) {
     $deep_check_logger->trace("called on ".$self->name);
 
     for ( $self->fetch_all_indexes() ) {
@@ -486,6 +483,7 @@ sub deep_check {
     }
 
     $self->check_content(@args, logger => $deep_check_logger);
+    return;
 }
 
 # check globally the list or hash, called by apply_fix or deep_check
