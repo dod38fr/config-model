@@ -1,9 +1,10 @@
 package Config::Model::AnyId;
 
-use 5.010;
+use 5.020;
 
 use Mouse;
 with "Config::Model::Role::NodeLoader";
+with "Config::Model::Role::Utils";
 
 use Config::Model::Exception;
 use Config::Model::Warper;
@@ -14,6 +15,9 @@ use Mouse::Util::TypeConstraints;
 use Scalar::Util qw/weaken/;
 
 extends qw/Config::Model::AnyThing/;
+
+use feature qw/signatures/;
+no warnings qw/experimental::signatures/;
 
 subtype 'KeyArray' => as 'ArrayRef' ;
 coerce 'KeyArray' => from 'Str' => via { [$_] } ;
@@ -79,8 +83,9 @@ has has_fixes => (
 );
 
 # work-around because 'set' does work with Mouse Number trait
-sub flush_fixes {
-    $_[0]->{has_fixes} = 0;
+sub flush_fixes ($self) {
+    $self->{has_fixes} = 0;
+    return;
 }
 
 # Some idea for improvement
@@ -139,7 +144,7 @@ has config_model => (
 
 sub _config_model {
     my $self = shift;
-    my $p    = $self->instance->config_model;
+    return $self->instance->config_model;
 }
 
 sub config_class_name {
