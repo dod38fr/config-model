@@ -6,10 +6,16 @@ use Mouse::Role;
 use strict;
 use warnings;
 use Carp;
+use 5.20.0;
 
 use List::MoreUtils qw/any/;
 use Mouse::Util;
 use Log::Log4perl qw(get_logger :levels);
+
+with "Config::Model::Role::Utils";
+use feature qw/signatures/;
+no warnings qw/experimental::signatures/;
+
 
 my $logger = get_logger("Grab");
 
@@ -22,14 +28,12 @@ my $logger = get_logger("Grab");
 
 # Now return an object and not a value !
 
-sub grab {
-    my $self = shift;
+sub grab ($self, @args) {
+    my %args = _resolve_arg_shortcut(\@args, 'steps');
     my ( $steps, $mode, $autoadd, $type, $grab_non_available, $check ) =
         ( undef, 'strict', 1, undef, 0, 'yes' );
 
-    my %args = @_ > 1 ? @_ : ( steps => $_[0] );
-
-    $steps               = delete $args{steps} // delete $args{step};
+    $steps              = delete $args{steps} // delete $args{step};
     $mode               = delete $args{mode} if defined $args{mode};
     $autoadd            = delete $args{autoadd} if defined $args{autoadd};
     $grab_non_available = delete $args{grab_non_available}
@@ -150,7 +154,7 @@ COMMAND:
         }
 
         {
-            no warnings "uninitialized";
+            no warnings "uninitialized"; ## no critic (TestingAndDebugging::ProhibitNoWarnings)
             $logger->debug("grab: cmd '$cmd' -> name '$name', action '$action', arg '$arg'");
         }
 
@@ -257,9 +261,8 @@ COMMAND:
     return wantarray ? ( $return, @command ) : $return;
 }
 
-sub grab_value {
-    my $self = shift;
-    my %args = scalar @_ == 1 ? ( steps => $_[0] ) : @_;
+sub grab_value ($self, @args) {
+    my %args = _resolve_arg_shortcut(\@args, 'steps');
 
     my $obj = $self->grab(%args);
 
@@ -272,7 +275,7 @@ sub grab_value {
         object  => $self,
         message => "grab_value: cannot get value of non-leaf or check_list "
             . "item with '"
-            . join( "' '", @_ )
+            . join( "' '", @args )
             . "'. item is $obj"
         )
         unless ref $obj
@@ -287,13 +290,8 @@ sub grab_value {
     return $value;
 }
 
-sub grab_annotation {
-    my $self = shift;
-    my @args = scalar @_ == 1 ? ( steps => $_[0] ) : @_;
-
-    my $obj = $self->grab(@args);
-
-    return $obj->annotation;
+sub grab_annotation ($self, @args) {
+    return $self->grab(@args)->annotation;
 }
 
 sub grab_root {
@@ -345,6 +343,7 @@ sub grab_ancestor_with_element_named {
             );
         }
     }
+    return; # should never be reached...
 }
 
 1;
