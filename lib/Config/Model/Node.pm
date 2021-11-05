@@ -1084,11 +1084,15 @@ sub tree_searcher ($self, @args){
     return Config::Model::TreeSearcher->new( node => $self, @args );
 }
 
-sub apply_fixes ($self, $filter = '.') {
+sub apply_fixes ($self, $filter='' ) {
     # define leaf call back
+    my $do_apply = sub ($name) {
+        return $filter ? $name =~ /$filter/ : 1;
+    };
+
     my $fix_leaf = sub {
         my ( $scanner, $data_ref, $node, $element_name, $index, $leaf_object ) = @_;
-        $leaf_object->apply_fixes if $element_name =~ /$filter/;
+        $leaf_object->apply_fixes if $do_apply->($element_name);
     };
 
     my $fix_hash = sub {
@@ -1100,7 +1104,7 @@ sub apply_fixes ($self, $filter = '.') {
         # calls to scan_hash before apply_fixes
         map { $scanner->scan_hash( $data_r, $node, $element, $_ ) } @keys;
 
-        $node->fetch_element($element)->apply_fixes if $element =~ /$filter/;
+        $node->fetch_element($element)->apply_fixes if $do_apply->($element);
     };
 
     my $fix_list = sub {
@@ -1109,7 +1113,7 @@ sub apply_fixes ($self, $filter = '.') {
         return unless @keys;
 
         map { $scanner->scan_list( $data_r, $node, $element, $_ ) } @keys;
-        $node->fetch_element($element)->apply_fixes if $element =~ /$filter/;
+        $node->fetch_element($element)->apply_fixes if $do_apply->($element);
     };
 
     my $scan = Config::Model::ObjTreeScanner->new(
