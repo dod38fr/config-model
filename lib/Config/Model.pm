@@ -1271,7 +1271,10 @@ sub find_model_file_in_inc {
 
     my $path_load_file ;
 
-    if ($self->model_dir and $self->model_dir =~ m!^/!) {
+    if ($load_file and $load_file =~ m!^/! ) {
+        # load_file is absolute, do not search in @INC
+        $path_load_file = $load_file;
+    } elsif ($self->model_dir and $self->model_dir =~ m!^/!) {
         # model_dir is absolute, do not search in @INC
         my $model_path = path($self->model_dir);
         $path_load_file = find_model_file_in_dir ($model_name, $model_path);
