@@ -1,8 +1,15 @@
 {{$NEXT}}
 
+2.145 2021-11-06
+
+  Bug fixes:
+    * fix: compilation error with perl 5.20 to 5.22
+    * fix (Node): undef warning on $filter value
+    * fix (Model loader): crash with Config::Model::Itself (Debian #998601)
+
 2.144 2021-11-04
 
- Bug fixes:
+  Bug fixes:
     * fix (BackendMgr): try to fix crash on Windows
     * fix (Constants role): fix crash for perl < 5.28
 
