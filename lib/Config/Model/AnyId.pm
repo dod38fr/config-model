@@ -16,8 +16,8 @@ use Scalar::Util qw/weaken/;
 
 extends qw/Config::Model::AnyThing/;
 
-use feature qw/signatures/;
-no warnings qw/experimental::signatures/;
+use feature qw/signatures postderef/;
+no warnings qw/experimental::signatures experimental::postderef/;
 
 subtype 'KeyArray' => as 'ArrayRef' ;
 coerce 'KeyArray' => from 'Str' => via { [$_] } ;

@@ -13,8 +13,8 @@ use Mouse::Util;
 use Log::Log4perl qw(get_logger :levels);
 
 with "Config::Model::Role::Utils";
-use feature qw/signatures/;
-no warnings qw/experimental::signatures/;
+use feature qw/signatures postderef/;
+no warnings qw/experimental::signatures experimental::postderef/;
 
 
 my $logger = get_logger("Grab");

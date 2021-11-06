@@ -7,8 +7,8 @@ use strict;
 use warnings;
 use 5.020;
 
-use feature qw/signatures/;
-no warnings qw/experimental::signatures/;
+use feature qw/signatures postderef/;
+no warnings qw/experimental::signatures experimental::postderef/;
 
 my %all_props = (
     status      => 'standard',

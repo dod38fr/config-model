@@ -28,8 +28,8 @@ with "Config::Model::Role::ComputeFunction";
 with "Config::Model::Role::Constants";
 with "Config::Model::Role::Utils";
 
-use feature qw/signatures/;
-no warnings qw/experimental::signatures/;
+use feature qw/signatures postderef/;
+no warnings qw/experimental::signatures experimental::postderef/;
 
 my %legal_properties = (
     status     => {qw/obsolete 1 deprecated 1 standard 1/},

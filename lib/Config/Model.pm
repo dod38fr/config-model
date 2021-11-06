@@ -25,8 +25,8 @@ with "Config::Model::Role::Constants";
 use parent qw/Exporter/;
 our @EXPORT_OK = qw/cme initialize_log4perl/;
 
-use feature qw/signatures/;
-no warnings qw/experimental::signatures/;
+use feature qw/signatures postderef/;
+no warnings qw/experimental::signatures experimental::postderef/;
 
 # used in some tests where we don't want to load
 # ~/.log4config-model config
