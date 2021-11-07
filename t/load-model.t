@@ -7,6 +7,8 @@ use Config::Model::Tester::Setup qw/init_test setup_test_dir/;
 use strict;
 use warnings;
 use 5.20.0;
+use feature qw/postderef/;
+no warnings qw/experimental::postderef/;
 
 use lib 'wr_root/load_model_snippets';
 
