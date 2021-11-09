@@ -89,6 +89,10 @@ $model->create_config_class(
             mandatory  => 1,
             default    => 'booya',
         },
+        boolean_plain => {
+            type       => 'leaf',
+            value_type => 'boolean',
+        },
         boolean_with_write_as => {
             type       => 'leaf',
             value_type => 'boolean',
@@ -446,20 +450,21 @@ subtest "mandatory boolean" => sub {
     check_store_error( $mb, 'toto', qr/is not boolean/ );
 
     check_store_error( $mb, 2, qr/is not boolean/ );
+};
 
-    my @bool_test = ( 1, 1, yes => 1, Yes => 1, no => 0, Nope => 0, true => 1, False => 0 );
+subtest "boolean where values are translated" => sub {
+    $inst->clear_changes;
+    my %data = ( 0 => 0, 1 => 1, off => 0, on => 1, no => 0, yes => 1, No => 0, Yes => 1,
+                 NO => 0, YES => 1, true => 1, false => 0, True => 1, False => 0, '' => 0);
+    my $bp = $root->fetch_element('boolean_plain');
 
-    while (@bool_test) {
-        my $store = shift @bool_test;
-        my $read  = shift @bool_test;
-
-        $mb->store($store);
-
-        is( $mb->fetch, $read, "mandatory boolean: store $store and read $read value" );
+    while (my ($v,$expect) =  each %data) {
+        $bp->store($v);
+        is( $bp->fetch, $expect, "boolean_plain: '$v'->'$expect'" );
     }
 };
 
-subtest "boolean where values are translated to true/false" => sub {
+subtest "check changes with boolean where values are translated to true/false" => sub {
     $inst->clear_changes;
     my $bwwa = $root->fetch_element('boolean_with_write_as');
     is( $bwwa->fetch, undef, "boolean_with_write_as reads undef" );
