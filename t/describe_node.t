@@ -3,7 +3,7 @@
 use ExtUtils::testlib;
 use Test::More;
 use Test::Memory::Cycle;
-use Test::Warn;
+use Test::Log::Log4perl;
 use Config::Model;
 use Config::Model::Tester::Setup qw/init_test/;
 
@@ -15,7 +15,7 @@ use utf8;
 use open      qw(:std :utf8);    # undeclared streams in UTF-8
 
 my ($model, $trace) = init_test();
-
+$::_use_log4perl_to_warn = 1;
 
 $model->load(Master => 'Config/Model/models/Master.pl');
 ok( 1, "loaded big_model" );
@@ -55,8 +55,14 @@ my $step =
 
 ok( $root->load( step => $step ), "set up data in tree with '$step'" );
 
-# so that list_with_warn_duplicates comes with '/!\'
-warning_like {$root->deep_check;} qr/Duplicated value/,"Found duplicated value";
+{
+    my $xp = Test::Log::Log4perl->expect(
+        ignore_priority => "info",
+        ['User', warn =>  qr/Duplicated value/]
+    );
+    # so that list_with_warn_duplicates comes with '/!\'
+    $root->deep_check;
+}
 
 my $description = $root->describe;
 $description =~ s/\s*\n/\n/g;
