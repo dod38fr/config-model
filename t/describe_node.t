@@ -217,6 +217,27 @@ EOF
     is( $description, $expect, "check root description of std_id" );
 };
 
+subtest "Check std_id:ab verbose description" => sub {
+
+    $root->fetch_element('a_string')->store(<<EOF);
+Long text with several line 1
+Long text with several line 2
+Long text with several line 3
+EOF
+
+    my $expect = <<'EOF' ;
+name     │ type   │ value             │ comment
+─────────┼────────┼───────────────────┼─────────────────────
+a_string │ string │ "Long text wi[…]" │ default: "toto tata", mandatory
+EOF
+
+    my $description = $root->describe(verbose => 1, pattern => qr/^a_string/ );
+    $description =~ s/\s*\n/\n/g;
+    print "description string:\n$description" if $trace;
+    is( $description, $expect, "check root description of std_id" );
+};
+
+
 
 memory_cycle_ok($model, "check memory cycles");
 
