@@ -43,7 +43,7 @@ sub describe {
     my $std_cb = sub {
         my ( $scanner, $data_r, $obj, $element, $index, $value_obj ) = @_;
 
-        my $value = $value_obj->fetch( check => $check );
+        my $value = $value_obj->fetch( check => $check, mode => 'user' );
 
         return unless $show_empty or (defined $value and length($value));
 

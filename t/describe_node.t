@@ -41,8 +41,13 @@ ok( $inst, "created dummy instance" );
 my $root = $inst->config_root;
 ok( $root, "Config root created" );
 
+$inst->layered_start;
+# to be visible with mode => user
+$root->load('a_string="toto tata"');
+$inst->layered_stop;
+
 my $step =
-      'std_id:ab X=Bv - std_id:bc X=Av - a_string="toto tata" '
+      'std_id:ab X=Bv - std_id:bc X=Av - '
     . 'hash_a:toto=toto_value hash_a:titi=titi_value '
     . 'lista=a,b,c,d olist:0 X=Av - olist:1 X=Bv - '
     . 'list_with_warn_duplicates=foo,bar,foo '
