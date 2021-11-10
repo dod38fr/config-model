@@ -49,13 +49,15 @@ sub describe {
 
         $value = '"' . $value . '"' if defined $value and $value =~ /\s/;
 
-        #print "DEBUG: std_cb on $element, idx $index, value $value\n";
-
         my $name = defined $index ? "$element:$index" : $element;
         $value = defined $value ? $value : '[undef]';
 
         my $type = $value_obj->value_type;
         my @comment;
+        if (my $default = $value_obj->fetch(mode => 'standard')) {
+            my $defstr =  $type =~ /uniline|string/ ? qq!"$default"! : $default;
+            push @comment, "default: $defstr";
+        }
         push @comment, "choice: " . join( ' ', @{ $value_obj->choice } )
             if $type eq 'enum';
         push @comment, 'mandatory' if $value_obj->mandatory;

@@ -104,12 +104,12 @@ hash_a:toto                 │ string     │ toto_value  │
 olist                       │ <SlaveZ>   │ node list   │ indexes: 0 1
 warp                        │ node       │ <SlaveY>    │
 slave_y                     │ node       │ <SlaveY>    │
-string_with_def             │ string     │ "yada yada" │
-a_uniline                   │ uniline    │ "yada yada" │
-a_string                    │ string     │ "toto tata" │ mandatory
-int_v                       │ integer    │ 10          │
+string_with_def             │ string     │ "yada yada" │ default: "yada yada"
+a_uniline                   │ uniline    │ "yada yada" │ default: "yada yada"
+a_string                    │ string     │ "toto tata" │ default: "toto tata", mandatory
+int_v                       │ integer    │ 10          │ default: 10
 my_check_list               │ check_list │ toto        │
-yes_no_boolean              │ boolean    │ yes         │
+yes_no_boolean              │ boolean    │ yes         │ default: yes
 my_reference                │ reference  │ titi        │
 list_with_warn_duplicates ⚠ │ list       │ foo,bar,foo │
 EOF
@@ -151,7 +151,7 @@ name │ type │ value   │ comment
 ─────┼──────┼─────────┼─────────────────────
 Z    │ enum │ [undef] │ choice: Av Bv Cv
 X    │ enum │ Bv      │ choice: Av Bv Cv
-DX   │ enum │ Dv      │ choice: Av Bv Cv Dv
+DX   │ enum │ Dv      │ default: Dv, choice: Av Bv Cv Dv
 EOF
 
 is( $description, $expect, "check std_id:ab description " );
@@ -164,7 +164,7 @@ $expect = <<'EOF' ;
 name │ type │ value │ comment
 ─────┼──────┼───────┼─────────────────────
 X    │ enum │ Bv    │ choice: Av Bv Cv
-DX   │ enum │ Dv    │ choice: Av Bv Cv Dv
+DX   │ enum │ Dv    │ default: Dv, choice: Av Bv Cv Dv
 EOF
 
 is( $description, $expect, "check std_id:ab description without empty values" );
