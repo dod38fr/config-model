@@ -47,6 +47,8 @@ sub describe {
 
         return unless $show_empty or (defined $value and length($value));
 
+        $value = substr($value,0,12).'[…]' if $value and length($value) > 12;
+
         $value = '"' . $value . '"' if defined $value and $value =~ /\s/;
 
         my $name = defined $index ? "$element:$index" : $element;
