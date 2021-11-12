@@ -97,6 +97,14 @@ throws_ok {
 } qr/wrong element type for element/, "test strict grab with type node" ;
 print "normal error:\n", $@, "\n" if $trace;
 
+subtest "test grab_value" => sub {
+    is($root->grab_value('std_id:ab X'),'Bv',"grab value");
+
+    throws_ok {
+        my $trash = $root->grab_value('std_id:ab');
+    } qr/Cannot get a value from 'std_id:ab'/, "test grab_value on list item" ;
+};
+
 memory_cycle_ok($model, "memory cycle");
 
 done_testing;
