@@ -315,8 +315,12 @@ sub run {
     my ( $action, @args ) = ( $user_cmd =~ /((?:[^\s"']|$re)+)/g );
 
     if ( defined $run_dispatch{$action} ) {
-        my $res = eval { $run_dispatch{$action}->( $self, @args ); };
-        print $@ if $@;
+        my $res;
+        my $ok = eval {
+            $res = $run_dispatch{$action}->( $self, @args );
+            1;
+        };
+        say $@->message unless $ok;
         return $res;
     }
     else {
