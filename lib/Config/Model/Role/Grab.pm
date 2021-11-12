@@ -56,6 +56,8 @@ sub grab ($self, @args) {
 
     # accept commands, grep remove empty items left by spurious spaces
     my $huge_string = ref $steps ? join( ' ', @$steps ) : $steps;
+    return $self unless $huge_string;
+
     my @command = (
         $huge_string =~ m/
          (         # begin of *one* command
