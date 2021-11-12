@@ -41,6 +41,8 @@ print "normal error:\n", $@, "\n" if $trace;
 
 like( $root->grab('olist')->name, qr/olist/, 'test grab olist' );
 
+like( $root->grab('olist')->grab->name, qr/olist/, 'test grab without argument' );
+
 is( $root->location(), '', 'location test' );
 
 foreach
