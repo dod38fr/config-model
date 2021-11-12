@@ -3,6 +3,7 @@
 use ExtUtils::testlib;
 use Test::More;
 use Test::Memory::Cycle;
+use Test::Exception;
 use Config::Model;
 use Config::Model::Tester::Setup qw/init_test/;
 
@@ -28,12 +29,14 @@ is( $grabbed->location,                  'olist:0', 'test grab olist:0 (obj)' );
 is( $root->grab('olist:0')->index_value, 0,         'test grab olist:0 (index)' );
 
 my $wp = 'olist:0';
-eval { $root->grab( \$wp )->index_value; };
-ok( $@, "Test grab with wrong parameter" );
+throws_ok {
+    $root->grab( \$wp )->index_value;
+} qr/steps parameter must be a string or an array ref/, "Test grab with wrong parameter" ;
 print "normal error:\n", $@, "\n" if $trace;
 
-eval { $root->grab('std_xid:toto')->index_value; };
-ok( $@, "Test grab with wrong element" );
+throws_ok {
+    $root->grab('std_xid:toto')->index_value;
+} qr/unknown element 'std_xid'/, "Test grab with wrong element" ;
 print "normal error:\n", $@, "\n" if $trace;
 
 like( $root->grab('olist')->name, qr/olist/, 'test grab olist' );
@@ -68,12 +71,14 @@ foreach my $unit_test (@tests) {
     isa_ok( $obj, 'Config::Model::' . $unit_test->[2] );
 }
 
-eval { $leaf->grab('?argh'); };
-ok( $@, "test grab with wrong step: '?argh'" );
+throws_ok {
+    $leaf->grab('?argh');
+} qr/cannot grab '\?argh'from warp std_id:toto DX/, "test grab with wrong step: '?argh'" ;
 print "normal error:\n", $@, "\n" if $trace;
 
-eval { $root->grab( step => 'std_id:zzz', autoadd => 0 ); };
-ok( $@, "test autoadd 0 with 'std_id:zzz'" );
+throws_ok {
+    $root->grab( step => 'std_id:zzz', autoadd => 0 );
+} qr/unknown identifier 'zzz'/, "test autoadd 0 with 'std_id:zzz'" ;
 print "normal error:\n", $@, "\n" if $trace;
 
 $root->grab( step => 'std_id:zzz', autoadd => 1 );
@@ -85,8 +90,9 @@ is( $obj->location, "std_id:zzz", "test no strict grab" );
 $obj = $root->grab( step => 'std_id:ab X', type => 'node', mode => 'adaptative' );
 is( $obj->location, "std_id:ab", "test no strict grab with type node" );
 
-eval { $root->grab( step => 'std_id:ab X', type => 'node', mode => 'strict' ); };
-ok( $@, "test strict grab with type node" );
+throws_ok {
+    $root->grab( step => 'std_id:ab X', type => 'node', mode => 'strict' );
+} qr/wrong element type for element/, "test strict grab with type node" ;
 print "normal error:\n", $@, "\n" if $trace;
 
 memory_cycle_ok($model, "memory cycle");
