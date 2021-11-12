@@ -149,18 +149,19 @@ my $node_completion_sub = sub {
 };
 
 my %completion_dispatch = (
-    cd     => $cd_completion_sub,
-    desc   => $completion_sub,
-    ll     => $ll_completion_sub,
-    ls     => $path_completion_sub,
-    tree   => $node_completion_sub,
-    info   => $path_completion_sub,
-    check  => $completion_sub,
-    fix    => $fix_completion_sub,
-    clear  => $completion_sub,
-    set    => $leaf_completion_sub,
-    delete => $leaf_completion_sub,
-    reset  => $completion_sub,
+    cd      => $cd_completion_sub,
+    desc    => $completion_sub,
+    display => $completion_sub,
+    ll      => $ll_completion_sub,
+    ls      => $path_completion_sub,
+    tree    => $node_completion_sub,
+    info    => $path_completion_sub,
+    check   => $completion_sub,
+    fix     => $fix_completion_sub,
+    clear   => $completion_sub,
+    set     => $leaf_completion_sub,
+    delete  => $leaf_completion_sub,
+    reset   => $completion_sub,
 );
 
 sub completion {
