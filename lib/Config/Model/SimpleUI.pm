@@ -143,10 +143,12 @@ my %run_dispatch = (
         }
         return "";
     },
-    display => sub {
-        my $self = shift;
-        say "Nothing to display" unless @_;
-        return $self->{current_node}->grab_value(@_);
+    display => sub ($self, @args) {
+        unless (@args) {
+            say "Nothing to display";
+            return;
+        }
+        return $self->{current_node}->grab_value(@args);
     },
     info => sub {
         my $self = shift;
