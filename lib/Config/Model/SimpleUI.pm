@@ -1,12 +1,15 @@
 package Config::Model::SimpleUI;
 
 use Carp;
-use 5.010;
+use v5.020;
 use strict;
 use warnings;
 use open      qw(:std :utf8);    # undeclared streams in UTF-8
 use Encode qw(decode_utf8);
 use Regexp::Common qw/delimited/;
+
+use feature qw/postderef signatures/;
+no warnings qw/experimental::postderef experimental::signatures/;
 
 my $syntax = '
 cd <elt>, cd <elt:key>, cd - , cd !
