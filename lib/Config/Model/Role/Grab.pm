@@ -273,16 +273,15 @@ sub grab_value ($self, @args) {
 
     return if ( $args{mode} and $args{mode} eq 'loose' and not defined $obj );
 
-    Config::Model::Exception::User->throw(
-        object  => $self,
-        message => "grab_value: cannot get value of non-leaf or check_list "
-            . "item with '"
-            . join( "' '", @args )
-            . "'. item is $obj"
-        )
-        unless ref $obj
-        and ( $obj->isa("Config::Model::Value")
-        or $obj->isa("Config::Model::CheckList") );
+    if (not $obj->isa("Config::Model::Value")
+        and not $obj->isa("Config::Model::CheckList")
+    ) {
+        Config::Model::Exception::User->throw(
+            object  => $self,
+            message => "Cannot get a value from '". $obj->location . "'. ",
+            info    => "grab arguments are '".join( "' '", @args ) . "'."
+        );
+    }
 
     my $value = $obj->fetch;
     if ( $logger->is_debug ) {
