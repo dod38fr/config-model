@@ -506,12 +506,7 @@ sub check_content ($self, %args) {
 
         if (not $silent) {
             for ( @warn ) {
-                if ($::_use_log4perl_to_warn) {
-                    $user_logger->warn( "Warning in '" . $self->location_short . "': $_" )
-                }
-                else {
-                    warn( "Warning in '" . $self->location_short . "': $_\n" )
-                }
+                $user_logger->warn( "Warning in '" . $self->location_short . "': $_" )
             }
         }
 
@@ -583,12 +578,7 @@ sub check_idx ($self, @args) {
 
     if (@warn and not $silent and $check ne 'no') {
         for (@warn) {
-            if ($::_use_log4perl_to_warn) {
-                $user_logger->warn( "Warning in '" . $self->location_short . "': $_" );
-            }
-            else {
-                warn( "Warning in '" . $self->location_short . "': $_\n" )
-            }
+            $user_logger->warn( "Warning in '" . $self->location_short . "': $_" );
         }
     }
 
