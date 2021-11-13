@@ -1256,12 +1256,7 @@ sub show_warnings {
                 $user_logger->debug($w_msg);
             }
             else {
-                if ($::_use_log4perl_to_warn) {
-                    $user_logger->warn($w_msg);
-                }
-                else {
-                    warn "$w_msg\n";
-                }
+                $user_logger->warn($w_msg);
             }
         }
     }
@@ -1392,12 +1387,7 @@ sub _store {
             if (not $silent and $msg) {
                 # fuse UI exits when a warning is issued. No other need to advertise this option
                 print $msg if $args{say_dont_warn};
-                if ($::_use_log4perl_to_warn) {
-                    $user_logger->warn($msg) unless $args{say_dont_warn};
-                }
-                else {
-                    warn $msg unless $args{say_dont_warn};
-                }
+                $user_logger->warn($msg) unless $args{say_dont_warn};
             }
         }
         else {
@@ -1843,14 +1833,8 @@ sub fetch {
     elsif ( $check eq 'skip' ) {
         my $msg = $self->error_msg;
         my $str = $value // '<undef>';
-        if ($::_use_log4perl_to_warn) {
-            $user_logger->warn("Warning: fetch [".$self->name,"] skipping value $str because of the following errors:\n$msg\n")
+        $user_logger->warn("Warning: fetch [".$self->name,"] skipping value $str because of the following errors:\n$msg\n")
             if not $silent and $msg;
-        }
-        else {
-            warn "Warning: fetch [".$self->name,"] skipping value $str because of the following errors:\n$msg\n\n"
-                if not $silent and $msg;
-        }
         # this method is supposed to return a scalar
         return undef; ## no critic(Subroutines::ProhibitExplicitReturnUndef)
 
