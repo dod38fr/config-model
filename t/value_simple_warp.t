@@ -16,7 +16,6 @@ use strict;
 
 my ($model, $trace) = init_test();
 
-$::_use_log4perl_to_warn = 1;
 
 my @rules = (
     F => { choice => [qw/A B C F F2/], default => 'F' },

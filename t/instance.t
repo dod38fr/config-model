@@ -13,7 +13,6 @@ use strict;
 use lib "t/lib";
 
 use Test::Log::Log4perl;
-$::_use_log4perl_to_warn = 1;
 
 my ($model, $trace) = init_test();
 

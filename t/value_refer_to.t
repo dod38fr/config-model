@@ -12,7 +12,6 @@ use strict;
 use warnings;
 
 my ($model, $trace) = init_test();
-$::_use_log4perl_to_warn = 1;
 
 $model->create_config_class(
     name      => 'Host',

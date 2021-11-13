@@ -15,7 +15,6 @@ no warnings qw(once);
 use strict;
 
 use Test::Log::Log4perl;
-$::_use_log4perl_to_warn = 1;
 
 use Config::Model::Tester::Setup qw/init_test/;
 my ($model, $trace) = init_test();

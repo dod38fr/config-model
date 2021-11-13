@@ -14,7 +14,6 @@ use warnings;
 use Config::Model::Tester::Setup qw/init_test/;
 
 my ($model, $trace) = init_test();
-$::_use_log4perl_to_warn = 1;
 
 my @element = (
 

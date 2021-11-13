@@ -15,7 +15,6 @@ use utf8;
 use open      qw(:std :utf8);    # undeclared streams in UTF-8
 
 my ($model, $trace) = init_test();
-$::_use_log4perl_to_warn = 1;
 
 $model->load(Master => 'Config/Model/models/Master.pl');
 ok( 1, "loaded big_model" );

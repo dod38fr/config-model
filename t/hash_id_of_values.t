@@ -11,7 +11,6 @@ use Test::Log::Log4perl;
 
 use strict;
 use warnings;
-$::_use_log4perl_to_warn = 1;
 
 my ($model, $trace) = init_test();
 
