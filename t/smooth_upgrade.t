@@ -3,14 +3,16 @@
 use ExtUtils::testlib;
 use Test::More;
 use Test::Exception;
-use Test::Warn;
 use Test::Memory::Cycle;
+use Test::Log::Log4perl;
 use Config::Model;
 use Config::Model::Tester::Setup qw/init_test/;
 use Config::Model::Value;
 
 use strict;
 use warnings;
+
+$::_use_log4perl_to_warn = 1;
 
 my ($model, $trace) = init_test();
 
@@ -115,9 +117,12 @@ throws_ok { $root->fetch_element('obsolete_p'); }
     'tried to fetch obsolete element';
 
 my $dp;
-warning_like { $dp = $root->fetch_element('deprecated_p'); }
-qr/Element 'deprecated_p' of node 'Master' is deprecated/,
-    "check warning when fetching deprecated element";
+{
+    my $foo = Test::Log::Log4perl->expect([
+        User => warn => qr/Element 'deprecated_p' of node 'Master' is deprecated/
+    ]);
+    $dp = $root->fetch_element('deprecated_p');
+}
 
 my $nfd = $root->fetch_element('new_from_deprecated');
 
@@ -174,9 +179,13 @@ my $url  = "http://$host:$port$path";
 is_deeply( [ $uroot->get_element_name ],
     [qw/host port path/], "check that url deprecated and obsolete parameters are hidden" );
 
-warning_like { $dp = $uroot->fetch_element('old_url')->store($url); }
-qr/Element 'old_url' of node 'UrlMigration' is deprecated/,
-    "check warning when fetching deprecated element";
+{
+    # check warning when fetching deprecated element
+    my $foo = Test::Log::Log4perl->expect([
+        User => warn => qr/Element 'old_url' of node 'UrlMigration' is deprecated/
+    ]);
+    $dp = $uroot->fetch_element('old_url')->store($url);
+}
 
 $uinst->initial_load_stop;
 
