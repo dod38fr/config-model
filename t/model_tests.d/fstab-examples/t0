@@ -19,3 +19,5 @@ gandalf:/mnt/video4/  /mnt/video4 nfs  user,noauto,rw    0    2
 /tmp  /var/chroot/lenny-i386/tmp  none bind 1 0
 /proc /var/chroot/lenny-i386/proc none bind 0 0
 
+# see https://github.com/dod38fr/config-model/issues/30
+UUID=CD5B-99E4  /boot/efi       vfat    ro,nosuid,nodev,noexec,noatime,noauto,umask=0077      0       1
