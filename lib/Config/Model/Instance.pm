@@ -377,7 +377,9 @@ sub modify {
     my $self = shift ;
     my %args   = @_ eq 1 ? ( step => $_[0] ) : @_;
     my $force = delete $args{force_save} || delete $args{force};
+    my $quiet = delete $args{quiet};
     $self->load(%args)->write_back( force => $force );
+    $self->say_changes() unless $quiet;
     return $self;
 }
 
@@ -795,8 +797,20 @@ C<< check => 'no' >> ).
 
 Calls L</"load"> and then L</save>.
 
-Takes the same parameter as C<load> plus C<force_write> to force
-saving configuration file even if no value was modified (default is 0)
+Takes the same parameter as C<load> plus:
+
+=over
+
+=item C<force_write>
+
+Force saving configuration file even if no value was modified
+(default is 0)
+
+=item C<quiet>
+
+Do no display the changes brought by the modification steps
+
+=back
 
 =head2 load
 
