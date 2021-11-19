@@ -36,6 +36,11 @@ return [
         'type' => 'leaf',
         'value_type' => 'boolean'
       },
+      'suid',
+      {
+        'type' => 'leaf',
+        'value_type' => 'boolean'
+      },
       'group',
       {
         'type' => 'leaf',
