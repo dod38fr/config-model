@@ -498,7 +498,7 @@ sub _load_check_list {
         leaf => {
             ':.rm_value' => \&_remove_by_value,
             ':.rm_match' => \&_remove_matched_value,
-            ':.subtitute' => \&_substitute_value,
+            ':.substitute' => \&_substitute_value,
         },
         fallback => {
             ':.rm' => \&_remove_by_id,
@@ -510,7 +510,7 @@ sub _load_check_list {
         'hash_*' => { qw/:@ :.sort/},
         list_leaf => { qw/:@ :.sort :< :.push :> :.unshift/ },
         # fix for cme gh#2
-        leaf => { qw/:-= :.rm_value :-~ :.rm_match :=~ :.subtitute/ },
+        leaf => { qw/:-= :.rm_value :-~ :.rm_match :=~ :.substitute/ },
         fallback => { qw/:- :.rm ~ :.rm/ },
     );
 
