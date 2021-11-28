@@ -1,5 +1,25 @@
 {{$NEXT}}
 
+2.146 2021-11-28
+
+  Model improvements:
+    * fstab: add suid/nosuid (thanks Topi Miettinen)
+    * feat (fstab model): add umask element in common options
+    * feat (fstab model): add description to common options
+  
+  Bug fixes:
+    * feat (Instance): modify methoed displays changes before saving
+    * fix (Loader): typo in .substitute load string command
+    * fix (Grab): improve error message of grab_value
+    * fix (TermUI):  add completion to display command
+    * fix (SimpleUI): simplify error message shown to user
+    * fix (SimpleUI): avoid undef warnings
+    * fix (Describe): truncate long lines
+    * fix (Describe): show default value in comments
+    * fix (Describe): show value in user mode
+    * Value: accept on/off as boolean values
+    * fix: test error with perl 5.20 (Closes gh #32)
+
 2.145 2021-11-06
 
   Bug fixes:
