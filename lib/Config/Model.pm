@@ -2777,6 +2777,8 @@ In alphabetical order:
 
   Mohammad S Anwar
 
+  Topi Miettinen
+
 =head1 LICENSE
 
     Copyright (c) 2005-2016 Dominique Dumont.
