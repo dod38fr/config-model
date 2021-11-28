@@ -2763,7 +2763,7 @@ Dominique Dumont, "ddumont@cpan.org"
 
 =head1 CREDITS
 
-In alphabetical order:
+Contributors to this project are listed in alphabetical order:
 
   Harley Pig
 
@@ -2778,6 +2778,8 @@ In alphabetical order:
   Mohammad S Anwar
 
   Topi Miettinen
+
+Many thanks for your help
 
 =head1 LICENSE
 
