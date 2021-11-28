@@ -95,6 +95,12 @@ Note that the real set of all default mount options depends on the kernel and fi
         'description' => "Update inode access times relative to modify or change time. Access time is only updated if the previous access time was earlier than the current modify or change time. (Similar to noatime, but it doesn\x{2019}t break mutt(1) or other applications that need to know if a file has been read since the last time it was modified.)",
         'type' => 'leaf',
         'value_type' => 'boolean'
+      },
+      'umask',
+      {
+        'description' => 'Set the umask (the bitmask of the permissions that are not present). The default is the umask of the current process. The value is given in octal.',
+        'type' => 'leaf',
+        'value_type' => 'uniline'
       }
     ],
     'license' => 'LGPL2',
