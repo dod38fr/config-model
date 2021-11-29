@@ -1,5 +1,10 @@
 {{$NEXT}}
 
+2.147 2021-11-29
+
+  Bug fixes:
+   * fix (test): ignore info Log.
+
 2.146 2021-11-28
 
   Model improvements:
