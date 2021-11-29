@@ -12,6 +12,8 @@ use Test::Exception;
 use Config::Model;
 use Config::Model::Tester::Setup qw/init_test/;
 
+Test::Log::Log4perl->ignore_priority("info");
+
 my ($model, $trace) = init_test();
 
 # minimal set up to get things working

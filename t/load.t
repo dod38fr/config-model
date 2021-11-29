@@ -12,6 +12,8 @@ use Test::Log::Log4perl;
 use strict;
 use warnings;
 
+Test::Log::Log4perl->ignore_priority("info");
+
 use lib "t/lib";
 
 my ($model, $trace) = init_test();

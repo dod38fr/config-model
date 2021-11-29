@@ -11,6 +11,8 @@ use Config::Model::Tester::Setup qw/init_test/;
 use strict;
 use warnings;
 
+Test::Log::Log4perl->ignore_priority("info");
+
 my ($model, $trace) = init_test();
 
 $model->create_config_class(

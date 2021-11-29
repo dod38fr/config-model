@@ -14,6 +14,8 @@ use lib "t/lib";
 use utf8;
 use open      qw(:std :utf8);    # undeclared streams in UTF-8
 
+Test::Log::Log4perl->ignore_priority("info");
+
 my ($model, $trace) = init_test();
 
 $model->load(Master => 'Config/Model/models/Master.pl');

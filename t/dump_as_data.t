@@ -12,6 +12,8 @@ use strict;
 use lib "t/lib";
 use boolean;
 
+Test::Log::Log4perl->ignore_priority("info");
+
 my ($model, $trace) = init_test();
 
 my $inst = $model->instance(

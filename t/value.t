@@ -16,6 +16,8 @@ use warnings;
 
 use 5.010;
 
+Test::Log::Log4perl->ignore_priority("info");
+
 binmode STDOUT, ':encoding(UTF-8)';
 
 my ($model, $trace) = init_test();

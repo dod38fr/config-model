@@ -12,6 +12,7 @@ use Config::Model::Value;
 use strict;
 use warnings;
 
+Test::Log::Log4perl->ignore_priority("info");
 
 my ($model, $trace) = init_test();
 
