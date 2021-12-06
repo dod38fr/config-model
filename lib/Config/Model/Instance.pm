@@ -497,14 +497,14 @@ sub list_changes {
 sub say_changes {
     my $self    = shift;
     my @changes = $self->list_changes;
-    return unless @changes;
+    return $self unless @changes;
 
     my $msg =  "\n" .
         join( "\n- ", "Changes applied to " . ($self->application // $self->name) . " configuration:", @changes ) .
         "\n";
 
     $user_logger->info($msg);
-    return @changes;
+    return $self;
 }
 
 sub write_back {
@@ -856,12 +856,12 @@ Returns true if the instance contains unsasved changes.
 
 =head2 list_changes
 
-In list context, returns a array ref of strings describing the changes. 
+In list context, returns a array ref of strings describing the changes.
 In scalar context, returns a big string. Useful to print.
 
 =head2 say_changes
 
-Print all changes on STDOUT and return the list of changes.
+Print all changes on STDOUT and return C<$self>.
 
 =head2 clear_changes
 

@@ -255,8 +255,8 @@ sub run_loop {
 
     my $instance = $self->{root}->instance;
     if ( $instance->c_count ) {
-        my @changes = $instance->say_changes;
-        if (@changes) {
+        if ($instance->has_changes) {
+            $instance->say_changes;
             $user_cmd = $term->readline("write back data before exit ? (Y/n)");
             $instance->write_back unless $user_cmd =~ /n/i;
             print "\n";
