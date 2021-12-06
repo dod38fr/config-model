@@ -95,6 +95,7 @@ has changes => (
     handles => {
         add_change => 'push',
         c_count    => 'count',
+        has_changes => 'count',
 
         #needs_save => 'count' ,
         clear_changes => 'clear',
@@ -844,6 +845,10 @@ list element have this feature.
 
 Returns 1 (or more) if the instance contains data that needs to be
 saved. I.e some change were done in the tree that needs to be saved.
+
+=head2 has_changes
+
+Returns true if the instance contains unsasved changes.
 
 =head2 list_changes
 
