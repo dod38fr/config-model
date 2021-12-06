@@ -105,11 +105,11 @@ sub needs_save {
     my $arg  = shift;
     if ( defined $arg ) {
         if ($arg) {
-            carp "replace needs_save(1) call with add_change";
+            croak "replace needs_save(1) call with add_change";
             $self->add_change();    # may not work
         }
         else {
-            carp "replace needs_save(0) call with clear_changes";
+            croak "replace needs_save(0) call with clear_changes";
             $self->clear_changes;
         }
     }
