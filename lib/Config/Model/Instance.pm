@@ -27,6 +27,7 @@ use Carp qw/carp croak confess cluck/;
 
 my $logger        = get_logger("Instance");
 my $change_logger = get_logger("Anything::Change");
+my $user_logger = get_logger("User");
 
 has [qw/root_class_name/] => ( is => 'ro', isa => 'Str', required => 1 );
 
@@ -496,10 +497,13 @@ sub list_changes {
 sub say_changes {
     my $self    = shift;
     my @changes = $self->list_changes;
-    say "\n",
-        join( "\n- ", "Changes applied to " . ($self->application // $self->name) . " configuration:", @changes ),
-        "\n"
-        if @changes;
+    return unless @changes;
+
+    my $msg =  "\n" .
+        join( "\n- ", "Changes applied to " . ($self->application // $self->name) . " configuration:", @changes ) .
+        "\n";
+
+    $user_logger->info($msg);
     return @changes;
 }
 
