@@ -378,8 +378,9 @@ sub modify {
     my %args   = @_ eq 1 ? ( step => $_[0] ) : @_;
     my $force = delete $args{force_save} || delete $args{force};
     my $quiet = delete $args{quiet};
-    $self->load(%args)->write_back( force => $force );
+    $self->load(%args);
     $self->say_changes() unless $quiet;
+    $self->write_back( force => $force );
     return $self;
 }
 
