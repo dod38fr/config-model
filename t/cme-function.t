@@ -5,6 +5,9 @@ use Path::Tiny;
 
 use Test::More;
 use Config::Model qw/cme/;
+use Test::Log::Log4perl;
+
+Test::Log::Log4perl->ignore_priority("debug");
 
 # pseudo root where config files are written by config-model
 my $wr_root = path('wr_root_p/cme');
@@ -47,7 +50,14 @@ like   $new_data, qr/cme/,       "updated header";
 like   $new_data, qr/yes"\nMY/, "reordered file";
 unlike $new_data, qr/removed/,   "double comment is removed";
 
-cme('popcon')->modify("PARTICIPATE=no");
+{
+    my $tlog = Test::Log::Log4perl->expect(
+        ['Verbose.Loader', info => qr/command/],
+        ['User', info => qr/Changes applied/ ],
+        ['Instance', ( info => qr/write_back called/ ) x 2 ],
+    );
+    cme('popcon')->modify("PARTICIPATE=no");
+}
 
 ok(1,"load done and saved");
 
