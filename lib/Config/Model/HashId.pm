@@ -493,9 +493,10 @@ sub _load_data_from_hash {
     elsif ( $self->{ordered} and (not $data->{__skip_order} and keys %$data > 1)) {
         $logger->warn(
             "HashId " . $self->location . ": loading ordered "
-                . "hash from hash ref without special key '__order'. Element "
-                . "order is not defined"
-            );
+            . "hash from hash ref without special key '__order'. Element "
+            . "order is not defined. If needed, this warning can be suppressed by passing "
+            . " key '__skip_order' set to 1."
+        );
         $from = ' without '.$order_key;
     }
     delete $data->{__skip_order};
