@@ -4,8 +4,11 @@ use warnings;
 use strict;
 use Data::Dumper;
 use Mouse;
-use 5.10.1;
+use v5.20;
 use Carp;
+
+use feature qw/postderef signatures/;
+no warnings qw/experimental::postderef experimental::signatures/;
 
 @Carp::CARP_NOT=qw/Config::Model::Exception Config::Model::Exception::Any/;
 
@@ -35,6 +38,17 @@ has  info => (is => 'rw', isa =>'Str', default => '');
 has  message => (is => 'rw', isa =>'Str', default => '');
 has  error => (is => 'rw', isa =>'Str', default => '');
 has  trace => (is => 'rw', isa =>'Str', default => '');
+
+# need to keep these objects around: in some tests the error() method is
+# called after the instance is garbage collected. Instances are kept
+# as weak ref in node (and othe tree objects). When instance is
+# garbage collected, it's destroyed so error() can no longer be invoked.
+# Solution: keep instance as error attributes.
+has  instance => ( is => 'rw', isa => 'Ref') ;
+
+sub BUILD ($self, $) {
+    $self->instance($self->object->instance) if defined $self->object;
+}
 
 # without this overload, a test like if ($@) invokes '""' overload
 sub is_error { return ref ($_[0])}
