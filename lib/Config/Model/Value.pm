@@ -125,13 +125,10 @@ has warning_list => (
     } );
 
 # as some information must be backed up even though they are not
-# attributes, we cannot move below code in BUILD.
-around BUILDARGS => sub {
-    my $orig  = shift;
-    my $class = shift;
-    my %args  = @_;
-    my %h     = map { ( $_ => $args{$_} ); } grep { defined $args{$_} } @backup_list;
-    return $class->$orig( backup => dclone( \%h ), @_ );
+# attributes, we cannot move code below in BUILD.
+around BUILDARGS => sub ($orig, $class, %args) {
+    my %h = map { ( $_ => $args{$_} ); } grep { defined $args{$_} } @backup_list;
+    return $class->$orig( backup => dclone( \%h ), %args );
 };
 
 sub BUILD {
@@ -153,14 +150,12 @@ sub BUILD {
     return $self;
 }
 
-override 'needs_check' => sub {
-    my $self = shift;
-
+override 'needs_check' => sub ($self, @args) {
     if ($self->instance->layered) {
         # don't check value and don't store value in layered mode
         return 0;
     }
-    elsif (@_) {
+    elsif (@args) {
         return super();
     }
     else {
@@ -171,7 +166,7 @@ override 'needs_check' => sub {
     }
 };
 
-sub notify_change ($self, %args) {
+around notify_change => sub ($orig, $self, %args) {
     my $check_done = $args{check_done} || 0;
 
     return if $self->instance->initial_load and not $args{really};
@@ -191,7 +186,7 @@ sub notify_change ($self, %args) {
     }
     $args{new} = $self->map_write_as( $args{new} );
     $args{old} = $self->map_write_as( $args{old} );
-    $self->SUPER::notify_change( %args, value_type => $self->value_type );
+    $self->$orig( %args, value_type => $self->value_type );
 
     # shake all warped or computed objects that depends on me
     foreach my $s ( $self->get_depend_slave ) {
@@ -200,7 +195,7 @@ sub notify_change ($self, %args) {
         $s->needs_check(1);
     }
     return;
-}
+};
 
 # internal method
 sub set_default {
