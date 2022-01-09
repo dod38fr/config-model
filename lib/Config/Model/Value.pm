@@ -1,6 +1,6 @@
 package Config::Model::Value;
 
-use 5.10.1;
+use v5.20;
 
 use strict;
 use warnings;
@@ -29,6 +29,9 @@ with "Config::Model::Role::WarpMaster";
 with "Config::Model::Role::Grab";
 with "Config::Model::Role::HelpAsText";
 with "Config::Model::Role::ComputeFunction";
+
+use feature qw/postderef signatures/;
+no warnings qw/experimental::postderef experimental::signatures/;
 
 my $logger        = get_logger("Tree::Element::Value");
 my $user_logger   = get_logger("User");
@@ -168,9 +171,7 @@ override 'needs_check' => sub {
     }
 };
 
-sub notify_change {
-    my $self       = shift;
-    my %args       = @_;
+sub notify_change ($self, %args) {
     my $check_done = $args{check_done} || 0;
 
     return if $self->instance->initial_load and not $args{really};
@@ -183,13 +184,13 @@ sub notify_change {
 
     $self->needs_check(1) unless $check_done;
     {
-        no warnings 'uninitialized';
         croak "needless change with $args{new}"
             if defined $args{old}
             and defined $args{new}
             and $args{old} eq $args{new};
     }
-    $self->map_write_as_inplace( @args{qw/old new/} );
+    $args{new} = $self->map_write_as( $args{new} );
+    $args{old} = $self->map_write_as( $args{old} );
     $self->SUPER::notify_change( %args, value_type => $self->value_type );
 
     # shake all warped or computed objects that depends on me
@@ -198,6 +199,7 @@ sub notify_change {
             if $change_logger->is_debug;
         $s->needs_check(1);
     }
+    return;
 }
 
 # internal method
@@ -233,6 +235,7 @@ sub set_default {
 
         $self->{$item} = $def;
     }
+    return;
 }
 
 # set up relation between objects required by the compute constructor
@@ -281,6 +284,7 @@ sub register_in_other_value {
             $master->register_dependency($self);
         }
     }
+    return;
 }
 
 # internal
@@ -310,7 +314,7 @@ sub perform_compute {
 # internal, used to generate error messages
 sub compute_info {
     my $self = shift;
-    $self->compute_obj->compute_info;
+    return $self->compute_obj->compute_info;
 }
 
 sub set_migrate_from {
@@ -340,6 +344,7 @@ sub set_migrate_from {
 
     # resolve any recursive variables before registration
     my $v = $self->{_migrate_from}->compute_variables;
+    return;
 }
 
 # FIXME: should it be used only once ???
@@ -384,10 +389,8 @@ sub migrate_value {
     return $ok ? $result : undef;
 }
 
-sub setup_enum_choice {
-    my $self = shift;
-
-    my @choice = ref $_[0] ? @{ $_[0] } : @_;
+sub setup_enum_choice ($self, @args) {
+    my @choice = ref $args[0] ? @{ $args[0] } : @args;
 
     $logger->debug( $self->name, " setup_enum_choice with '", join( "','", @choice ), "'" );
 
@@ -407,6 +410,7 @@ sub setup_enum_choice {
             delete $self->{$_};
         }
     }
+    return;
 }
 
 sub setup_match_regexp {
@@ -432,6 +436,7 @@ sub setup_match_regexp {
             error  => "Unvalid $what regexp for '$str': $@"
         );
     }
+    return;
 }
 
 sub check_validation_regexp {
@@ -476,6 +481,7 @@ sub check_validation_regexp {
         ) unless ref $v eq 'HASH';
 
     }
+    return;
 }
 
 sub setup_grammar_check {
@@ -508,19 +514,18 @@ sub setup_grammar_check {
             error  => "Unvalid grammar for '$str': $@"
         );
     }
+    return;
 }
 
 # warning : call to 'set' are not cumulative. Default value are always
 # restored. Lest keeping track of what was modified with 'set' is
 # too confusing.
-sub set_properties {
-    my $self = shift;
-
+sub set_properties ($self, @args) {
     # cleanup all parameters that are handled by warp
     for ( @allowed_warp_params ) { delete $self->{$_} }
 
     # merge data passed to the constructor with data passed to set_properties
-    my %args = ( %{ $self->{backup} }, @_ );
+    my %args = ( %{ $self->{backup} }, @args );
 
     # these are handled by Node or Warper
     for ( qw/level/ ) { delete $args{$_} }
@@ -593,6 +598,7 @@ sub set_help {
     my ( $self, $args ) = @_;
     return unless defined $args->{help};
     $self->{help} = delete $args->{help};
+    return;
 }
 
 # this code is somewhat dead as warping value_type is no longer supported
@@ -635,6 +641,7 @@ sub set_value_type {
         Config::Model::Exception::Model->throw( object => $self, error => $msg )
             unless defined $self->{warp};
     }
+    return;
 }
 
 
@@ -660,11 +667,11 @@ sub submit_to_refer_to {
     else {
         croak "value's submit_to_refer_to: undefined refer_to or computed_refer_to";
     }
+    return;
 }
 
-sub setup_reference_choice {
-    my $self = shift;
-    $self->setup_enum_choice(@_);
+sub setup_reference_choice ($self, @args) {
+    return $self->setup_enum_choice(@args);
 }
 
 sub reference_object {
@@ -809,11 +816,9 @@ sub enum_error {
     return @error;
 }
 
-sub _check_value {
-    my $self = shift;
-    croak "check_value needs a value to check" unless @_ > 1;
+sub _check_value ($self, %args) {
+    croak "check_value needs a value to check" unless exists $args{value};
 
-    my %args      = @_;
     my $value     = $args{value};
     my $quiet     = $args{quiet} || 0;
     my $check     = $args{check} || 'yes';
@@ -823,7 +828,6 @@ sub _check_value {
     #croak "Cannot specify a value with fix = 1" if $apply_fix and exists $args{value} ;
 
     if ( $logger->is_debug ) {
-        no warnings 'uninitialized';
         my $v = defined $value ? $value : '<undef>';
         my $loc = $self->location;
         my $msg =
@@ -994,10 +998,8 @@ sub _check_value {
 }
 
 
-sub check_value {
-    my $self = shift;
-
-    my ($ok, $value, $error, $warn) = $self->_check_value(@_);
+sub check_value ($self, @args) {
+    my ($ok, $value, $error, $warn) = $self->_check_value(@args);
     $self->clear_errors;
     $self->clear_warnings;
     $self->add_error(@$error)  if @$error;
@@ -1032,6 +1034,7 @@ sub run_code_on_value {
         $self->{nb_of_fixes}++ if ( defined $fix and not $apply_fix );
         $self->apply_fix( $fix, $value_r, $msg ) if ( defined $fix and $apply_fix );
     }
+    return;
 }
 
 # function that may be used in eval'ed code to use file in there (in
@@ -1046,7 +1049,7 @@ sub run_code_on_value {
     # use file() function instead of $file->() sub ref
     my $val ;
     sub set_val {
-        $val = shift;
+        return $val = shift;
     }
     sub file {
         return $val->root_path->child(shift);
@@ -1066,6 +1069,7 @@ sub run_code_set_on_value {
 
         my $sub = sub {
             local $_ = shift;
+            ## no critic (TestingAndDebugging::ProhibitNoWarning)
             no warnings "uninitialized";
             my $ret = eval($code); ## no critic (ProhibitStringyEval)
             if ($@) {
@@ -1079,6 +1083,7 @@ sub run_code_set_on_value {
 
         $self->run_code_on_value( $value_r, $apply_fix, $array, $label, $sub, $msg, $fix );
     }
+    return;
 }
 
 sub run_regexp_set_on_value {
@@ -1094,6 +1099,7 @@ sub run_regexp_set_on_value {
         my $fix = $w_info->{$rxp}{fix};
         $self->run_code_on_value( $value_r, $apply_fix, $array, 'regexp', $sub, $msg, $fix );
     }
+    return
 }
 
 sub has_fixes {
@@ -1126,6 +1132,7 @@ sub apply_fixes {
     } while ( $self->{nb_of_fixes} and $old > $new );
 
     $self->show_warnings($self->_fetch_no_check);
+    return;
 }
 
 # internal: called by check when a fix is required
@@ -1150,6 +1157,7 @@ sub apply_fix {
         );
     }
 
+    ## no critic (TestingAndDebugging::ProhibitNoWarning)
     no warnings "uninitialized";
     if ( $_ ne $$value_r ) {
         $fix_logger->info( $self->location . ": fix changed value from '$$value_r' to '$_'" );
@@ -1159,6 +1167,7 @@ sub apply_fix {
     else {
         $fix_logger->info( $self->location . ": fix did not change value '$$value_r'" );
     }
+    return;
 }
 
 sub _store_fix {
@@ -1181,6 +1190,7 @@ sub _store_fix {
         );
     }
 
+    ## no critic (TestingAndDebugging::ProhibitNoWarning)
     no warnings "uninitialized";
     # in case $old is the default value and $new is undef
     if ($old_v ne $new_v) {
@@ -1191,6 +1201,7 @@ sub _store_fix {
         );
         $self->trigger_warp($new_v) if defined $new_v and $self->has_warped_slaves;
     }
+    return;
 }
 
 # read checks should be blocking
@@ -1199,19 +1210,18 @@ sub check {
     goto &check_fetched_value;
 }
 
-sub check_fetched_value {
-    my $self = shift;
-
+sub check_fetched_value ($self, @args) {
     if ( $logger->is_debug ) {
+        ## no critic (TestingAndDebugging::ProhibitNoWarning)
         no warnings 'uninitialized';
         $logger->debug( "called for " . $self->location . " from " . join( ' ', caller ),
-            " with @_" );
+            " with @args" );
     }
 
     my %args =
-          @_ == 0 ? ( value => $self->{data} )
-        : @_ == 1 ? ( value => $_[0] )
-        :           @_;
+          @args == 0 ? ( value => $self->{data} )
+        : @args == 1 ? ( value => $args[0] )
+        :              @args;
 
     my $value = exists $args{value} ? $args{value} : $self->{data};
     my $silent = $args{silent} || 0;
@@ -1235,9 +1245,7 @@ sub check_fetched_value {
     return wantarray ? $self->all_errors : $self->is_ok;
 }
 
-sub show_warnings {
-    my ($self, $value, $silent) = @_ ;
-
+sub show_warnings ($self, $value, $silent = 0) {
     # old_warn is used to avoid warning the user several times for the
     # same reason (i.e. when storing and fetching value). We take care
     # to clean up this hash each time store is run
@@ -1261,14 +1269,14 @@ sub show_warnings {
         }
     }
     $self->{old_warning_hash} = \%warn_h;
+    return;
 }
 
-sub store {
-    my $self = shift;
+sub store ($self, @args) {
     my %args =
-          @_ == 1 ? ( value => $_[0] )
-        : @_ == 3 ? ( 'value', @_ )
-        :           @_;
+          @args == 1 ? ( value => $args[0] )
+        : @args == 3 ? ( 'value', @args )
+        :              @args;
     my $check = $self->_check_check( $args{check} );
     my $silent = $args{silent} || 0;
 
@@ -1287,6 +1295,7 @@ sub store {
 
     my $value = $self->transform_value( value => $incoming_value, check => $check );
 
+    ## no critic (TestingAndDebugging::ProhibitNoWarning)
     no warnings qw/uninitialized/;
     if ($self->instance->initial_load) {
         # may send more than one notification
@@ -1343,6 +1352,7 @@ sub _store_value {
         $self->{preset} = $value;
     }
     else {
+        ## no critic (TestingAndDebugging::ProhibitNoWarning)
         no warnings 'uninitialized';
         my $old = $self->{data} // $self->_fetch_std;
         my $new = $value        // $self->_fetch_std;
@@ -1357,10 +1367,7 @@ sub _store_value {
 }
 
 # this method is overriden in layered Value
-sub _store {
-    my $self = shift;
-    my %args = @_;
-
+sub _store ($self, %args) {
     my ( $value, $check, $silent, $notify_change, $ok ) =
         @args{qw/value check silent notify_change ok/};
 
@@ -1381,10 +1388,9 @@ sub _store {
     else {
         $self->instance->add_error( $self->location );
         if ($check eq 'skip') {
-            no warnings 'uninitialized';
-            my $msg = "Warning: ".$self->location." skipping value $value because of the following errors:\n"
-                . $self->error_msg . "\n\n";
-            if (not $silent and $msg) {
+            if (not $silent and $self->error_msg) {
+                my $msg = "Warning: ".$self->location." skipping value $value because of the following errors:\n"
+                    . $self->error_msg . "\n\n";
                 # fuse UI exits when a warning is issued. No other need to advertise this option
                 print $msg if $args{say_dont_warn};
                 $user_logger->warn($msg) unless $args{say_dont_warn};
@@ -1407,6 +1413,7 @@ sub _store {
     }
 
     $logger->trace( "_store done on ", $self->composite_name ) if $logger->is_trace;
+    return;
 }
 
 #
@@ -1434,9 +1441,8 @@ sub transform_boolean {
 
 # internal. return ( undef, value)
 # May return an undef value if actual store should be skipped
-sub transform_value {
-    my $self  = shift;
-    my %args  = @_ > 1 ? @_ : ( value => $_[0] );
+sub transform_value ($self, @args) {
+    my %args = @args > 1 ? @args : ( value => $args[0] );
     my $value = $args{value};
     my $check = $args{check} || 'yes';
 
@@ -1499,10 +1505,7 @@ sub apply_replace {
     return $value;
 }
 
-sub check_stored_value {
-    my $self = shift;
-    my %args = @_;
-
+sub check_stored_value ($self, %args) {
     my ($ok, $fixed_value) = $self->check_value( %args );
 
     my ( $value, $check, $silent ) =
@@ -1531,12 +1534,11 @@ sub _value_type_error {
     my $str = "Item " . $self->{element_name} . " is not available. " . $self->warp_error;
 
     Config::Model::Exception::User->throw( object => $self, message => $str );
+    return;
 }
 
-sub load_data {
-    my $self = shift;
-
-    my %args  = @_ > 1 ? @_ : ( data => shift );
+sub load_data ($self, @args) {
+    my %args = @args > 1 ? @args : ( data => $args[0] );
     my $data  = delete $args{data} // delete $args{value};
 
     my $rd = ref $data;
@@ -1555,6 +1557,7 @@ sub load_data {
         }
         return $self->store(%args, value => $data);
     }
+    return;
 }
 
 sub fetch_custom {
@@ -1584,6 +1587,7 @@ sub _init {
         $self->submit_to_refer_to;
         $self->{ref_object}->get_choice_from_referred_to;
     }
+    return;
 }
 
 # returns something that needs to be written to config file
@@ -1700,6 +1704,7 @@ sub _fetch {
     }
 
     if ( $mode eq 'custom' ) {
+        ## no critic (TestingAndDebugging::ProhibitNoWarning)
         no warnings "uninitialized";
         my $cust;
         $cust = $data
@@ -1712,6 +1717,7 @@ sub _fetch {
     }
 
     if ( $mode eq 'non_upstream_default' ) {
+        ## no critic (TestingAndDebugging::ProhibitNoWarning)
         no warnings "uninitialized";
         my $nbu;
         foreach my $d ($data, $layer_data, $pref) {
@@ -1752,7 +1758,7 @@ sub _fetch {
 sub fetch_no_check {
     my $self = shift;
     carp "fetch_no_check is deprecated. Use fetch (check => 'no')";
-    $self->fetch( check => 'no' );
+    return $self->fetch( check => 'no' );
 }
 
 # likewise but without any warp, etc related check
@@ -1766,18 +1772,15 @@ sub _fetch_no_check {
         :                                  $self->{default};
 }
 
-sub fetch_summary {
-    my $self = shift;
-    my $value = $self->fetch(@_) // '<undef>';
+sub fetch_summary ($self, @args) {
+    my $value = $self->fetch(@args) // '<undef>';
     $value =~ s/\n/ /g;
     $value = substr( $value, 0, 15 ) . '...' if length($value) > 15;
     return $value;
 }
 
-sub fetch {
-    my $self = shift;
-
-    my %args = @_ > 1 ? @_ : ( mode => $_[0] );
+sub fetch ($self, @args) {
+    my %args = @args > 1 ? @args : ( mode => $args[0] );
     my $mode   = $args{mode}   || 'backend';
     my $silent = $args{silent} || 0;
     my $check  = $self->_check_check( $args{check} );
@@ -1848,30 +1851,17 @@ sub fetch {
     return;
 }
 
-sub map_write_as {
-    my $self = shift;
+sub map_write_as ($self, @args) {
     my @res;
     if ($self->{write_as} and $self->value_type eq 'boolean') {
-        foreach my $v (@_) {
+        foreach my $v (@args) {
             push @res, ( defined $v and $v =~ /^\d+$/ ) ? $self->{write_as}[$v] : $v;
         }
     }
     else {
-        @res = @_;
+        @res = @args;
     }
     return wantarray ? @res : $res[0];
-}
-
-# modifies in place the passed values
-sub map_write_as_inplace {
-    my $self = shift;
-    return unless $self->{write_as} and $self->value_type eq 'boolean';
-
-    foreach (@_) {
-        if (defined $_ and /^\d+$/) {
-            $_ = $self->{write_as}[$_];
-        }
-    }
 }
 
 sub user_value {
@@ -1886,6 +1876,7 @@ sub fetch_preset {
 sub clear {
     my $self = shift;
     $self->store(undef);
+    return;
 }
 
 sub clear_preset {
@@ -1905,9 +1896,8 @@ sub clear_layered {
     return defined $self->{preset} || defined $self->{data};
 }
 
-sub get {
-    my $self = shift;
-    my %args = @_ > 1 ? @_ : ( path => $_[0] );
+sub get ($self, @args) {
+    my %args = @args > 1 ? @args : ( path => $args[0] );
     my $path = delete $args{path};
     if ($path) {
         Config::Model::Exception::User->throw(
@@ -1918,16 +1908,14 @@ sub get {
     return $self->fetch(%args);
 }
 
-sub set {
-    my $self = shift;
-    my $path = shift;
+sub set ($self, $path, @data) {
     if ($path) {
         Config::Model::Exception::User->throw(
             object  => $self,
             message => "set() called with a value with non-empty path: '$path'"
         );
     }
-    return $self->store(@_);
+    return $self->store(@data);
 }
 
 #These methods are important when this leaf value is used as a warp
@@ -1944,6 +1932,7 @@ sub register_dependency {
     # weaken only applies to the passed reference, and there's no way
     # to duplicate a weak ref. Only a strong ref is created.
     weaken( $self->{depend_on_me}[0] );
+    return;
 }
 
 sub get_depend_slave {
