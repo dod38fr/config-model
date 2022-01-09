@@ -1,5 +1,12 @@
 {{$NEXT}}
 
+2.148 2022-01-09
+
+  Bug fixes:
+    * fix (Exception): keep ref to instance object
+    * fix (Hashid): improve warning message when loading non ordered data
+    * fix (modify instance): show changes before saving
+
 2.147 2021-11-29
 
   Bug fixes:
