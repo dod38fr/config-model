@@ -812,8 +812,6 @@ sub enum_error {
 }
 
 sub _check_value ($self, %args) {
-    croak "check_value needs a value to check" unless exists $args{value};
-
     my $value     = $args{value};
     my $quiet     = $args{quiet} || 0;
     my $check     = $args{check} || 'yes';
