@@ -520,7 +520,7 @@ sub set_properties ($self, @args) {
     for ( @allowed_warp_params ) { delete $self->{$_} }
 
     # merge data passed to the constructor with data passed to set_properties
-    my %args = ( %{ $self->{backup} }, @args );
+    my %args = ( %{ $self->backup // {} }, @args );
 
     # these are handled by Node or Warper
     for ( qw/level/ ) { delete $args{$_} }

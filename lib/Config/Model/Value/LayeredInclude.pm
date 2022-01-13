@@ -1,6 +1,7 @@
 package Config::Model::Value::LayeredInclude;
 
 use v5.20;
+use Mouse;
 use strict;
 use warnings;
 use Log::Log4perl qw(get_logger :levels);
@@ -15,13 +16,13 @@ my $logger = get_logger("Tree::Element::Value::LayeredInclude");
 # should we clear all layered value when include value is changed ?
 # If yes, beware of recursive includes. Clear should only be done once.
 
-sub _store ($self, %args) {
+around _store => sub ($orig, $self, %args) {
     my ( $value, $check, $silent, $notify_change, $ok, $callback ) =
         @args{qw/value check silent notify_change ok callback/};
 
     my $old_value = $self->_fetch_no_check;
 
-    $self->SUPER::_store(%args);
+    $orig->($self, %args);
     {
         ## no critic (TestingAndDebugging::ProhibitNoWarnings)
         no warnings 'uninitialized';
@@ -58,7 +59,7 @@ sub _store ($self, %args) {
     $logger->debug("Done loading layered config from $value");
 
     return $value;
-}
+};
 
 1;
 
