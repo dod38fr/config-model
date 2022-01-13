@@ -1,21 +1,21 @@
 package Config::Model::Value::LayeredInclude;
 
-use 5.010;
+use v5.20;
 use strict;
 use warnings;
 use Log::Log4perl qw(get_logger :levels);
 
 use base qw/Config::Model::Value/;
 
+use feature qw/postderef signatures/;
+no warnings qw/experimental::postderef experimental::signatures/;
+
 my $logger = get_logger("Tree::Element::Value::LayeredInclude");
 
 # should we clear all layered value when include value is changed ?
 # If yes, beware of recursive includes. Clear should only be done once.
 
-sub _store {
-    my $self = shift;
-    my %args = @_;
-
+sub _store ($self, %args) {
     my ( $value, $check, $silent, $notify_change, $ok, $callback ) =
         @args{qw/value check silent notify_change ok callback/};
 
@@ -23,6 +23,7 @@ sub _store {
 
     $self->SUPER::_store(%args);
     {
+        ## no critic (TestingAndDebugging::ProhibitNoWarnings)
         no warnings 'uninitialized';
         return $value if $value eq $old_value;
     }
@@ -37,6 +38,7 @@ sub _store {
     }
 
     {
+        ## no critic (TestingAndDebugging::ProhibitNoWarnings)
         no warnings 'uninitialized';
         $logger->debug("Loading layered config from $value (old_data is $old_value)");
     }
