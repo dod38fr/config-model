@@ -55,6 +55,7 @@ sub unregister {
     }
 
     $self->_delete_slave($idx);
+    return;
 }
 
 # And I'm going to warp them ...
@@ -74,6 +75,7 @@ sub trigger_warp {
         }
         $warped->trigger( $value, $warp_index );
     }
+    return;
 }
 
 sub get_warped_slaves {
