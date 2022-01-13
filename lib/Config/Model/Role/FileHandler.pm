@@ -20,6 +20,7 @@ my $logger = get_logger("FileHandler");
 # used only for tests
 sub _set_test_home {
     Config::Model::TypeConstraints::_set_test_home(shift) ;
+    return;
 }
 
 # Configuration directory where to read and write files. This value
