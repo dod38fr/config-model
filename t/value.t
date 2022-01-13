@@ -349,6 +349,7 @@ subtest "simple scalar" => sub {
     is( $i->needs_check,   0, "check was done during fetch" );
     is( $inst->needs_save, 1, "verify instance needs_save status after fetch" );
 
+    ok($i->check_value(), "call check_value without argument");
 };
 
 subtest "error handling on simple scalar" => sub {
