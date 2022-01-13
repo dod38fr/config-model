@@ -9,14 +9,15 @@ use Log::Log4perl qw(get_logger :levels);
 
 use base qw/Config::Model::Backend::Any/;
 
+use feature qw/postderef signatures/;
+no warnings qw/experimental::postderef experimental::signatures/;
+
 my $logger = get_logger("Backend::IniFile");
 
 sub annotation { return 1; }
 
-sub read {
-    my $self = shift;
-    my %args = @_;
-
+## no critic (Subroutines::ProhibitBuiltinHomonyms)
+sub read ($self, %args) {
     # args is:
     # object     => $obj,         # Config::Model::Node object
     # root       => './my_test',  # fake root directory, userd for tests
@@ -134,9 +135,8 @@ sub read {
     return 1;
 }
 
-sub load_data {
-    my $self = shift;
-    $self->node->load_data(@_);
+sub load_data ($self, @args) {
+    return $self->node->load_data(@args);
 }
 
 sub set_or_push {
@@ -158,10 +158,8 @@ sub set_or_push {
     return $path;
 }
 
-sub write {
-    my $self = shift;
-    my %args = @_;
-
+## no critic (Subroutines::ProhibitBuiltinHomonyms)
+sub write ($self, %args) {
     # args is:
     # object     => $obj,         # Config::Model::Node object
     # root       => './my_test',  # fake root directory, userd for tests
@@ -195,6 +193,7 @@ sub write {
     elsif ($self->auto_delete) {
         $args{file_path}->remove;
     }
+    return;
 }
 
 sub _write_list{
@@ -347,10 +346,7 @@ sub _write_node {
     return $res;
 }
 
-sub _write {
-    my $self = shift;
-    my %args = @_;
-
+sub _write ($self, %args) {
     my $node          = $args{object};
     my $delimiter     = $args{comment_delimiter} || '#';
 
