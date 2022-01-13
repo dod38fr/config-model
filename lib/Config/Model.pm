@@ -32,7 +32,7 @@ no warnings qw/experimental::signatures experimental::postderef/;
 # ~/.log4config-model config
 my $force_default_log;
 sub force_usage_of_default_log_config () {
-    $force_default_log = 1;
+    return $force_default_log = 1;
 }
 
 my $legacy_logger = get_logger("Model::Legacy") ;
@@ -67,6 +67,7 @@ has instances => (
 # element description in class or in element declaration)), this raw format is not
 # usable without normalization (done by normalize_class_parameters)
 
+# the key if this hash is a model name
 has raw_models => (
     isa     => 'HashRef',
     is      => 'ro',
@@ -76,15 +77,11 @@ has raw_models => (
         raw_model_exists  => 'exists',
         raw_model_defined => 'defined',
         raw_model         => 'get',
+        get_raw_model     => 'get',
         store_raw_model   => 'set',
         raw_model_names   => 'keys',
     },
 );
-
-sub get_raw_model {
-    my $self = shift;
-    return $self->raw_model(@_);
-}
 
 # the result of normalization is stored here. Normalized model aggregate user models and
 # augmented features (the one found in Foo.d directory). inclusion of other class is NOT
@@ -153,11 +150,7 @@ has skip_inheritance => (
     } );
 
 # remove this hack mid 2022
-around BUILDARGS => sub {
-    my $orig  = shift;
-    my $class = shift;
-
-    my %args = @_;
+around BUILDARGS => sub ($orig, $class, %args) {
     my %new;
     foreach my $k (keys %args) {
         if (defined $args{$k}) {
@@ -174,13 +167,13 @@ around BUILDARGS => sub {
 
 # keep this as a separate sub from BUILD. So user can call it before
 # creating Config::Model object
-sub initialize_log4perl {
-    if (ref $_[0]) {
+sub initialize_log4perl (@args) {
+    if (ref $args[0]) {
         # may be called as $self-> initialize_log4perl
-        shift;
+        shift @args;
     }
 
-    my %args = @_;
+    my %args = @args;
 
     my $log4perl_syst_conf_file = path('/etc/log4config-model.conf');
     # avoid undef warning when homedir is not defined (e.g. with Debian cowbuilder)
@@ -217,6 +210,7 @@ sub BUILD {
     my $self = shift;
     my $args = shift;
     initialize_log4perl(verbose => $args->{verbose}) unless Log::Log4perl->initialized();
+    return;
 }
 
 sub show_legacy_issue {
@@ -234,6 +228,7 @@ sub show_legacy_issue {
     } elsif ( $behavior eq 'note' ) {
         $legacy_logger->info( @msg);
     }
+    return;
 }
 
 sub _tweak_instance_args {
@@ -268,10 +263,11 @@ sub _tweak_instance_args {
         || delete $args->{name}          # preferred parameter
         || $app_name                     # fallback in most cases
         || 'default';                    # fallback mostly in tests
+    return;
 }
 
-sub cme {
-    my %args = @_ == 1 ? ( application => $_[0]) : @_ ;
+sub cme (@args) {
+    my %args = @args == 1 ? ( application => $args[0]) : @args ;
 
     if (my $force = delete $args{'force-load'}) {
         $args{check} = 'no' if $force;
@@ -286,9 +282,8 @@ sub cme {
     return $model_storage->instance(%args);
 }
 
-sub instance {
-    my $self = shift;
-    my %args = @_ == 1 ? ( application => $_[0]) : @_ ;
+sub instance ($self, @args) {
+    my %args = @args == 1 ? ( application => $args[0]) : @args ;
 
     # also creates a default name
     _tweak_instance_args(\%args);
@@ -344,10 +339,7 @@ my @other_legal_params = qw/ author element status description summary level acc
 
 # keep as external API. All internal call go through _store_model
 #  See comments around raw_models attribute for explanations
-sub create_config_class {
-    my $self      = shift;
-    my %raw_model = @_;
-
+sub create_config_class ($self, %raw_model) {
     my $config_class_name = delete $raw_model{name}
         or croak "create_config_class: no config class name";
 
@@ -424,6 +416,7 @@ sub include_backend {
             }
         }
     }
+    return;
 }
 
 sub normalize_class_parameters {
@@ -574,6 +567,7 @@ sub handle_experience_permission {
     if (delete $model->{experience}) {
         carp "experience parameter is deprecated";
     }
+    return;
 }
 
 sub translate_legacy_info {
@@ -663,6 +657,7 @@ sub translate_legacy_info {
     $legacy_logger->debug(
         Data::Dumper->Dump( [$info], [ 'translated_' . $elt_name ] ) 
     ) if $legacy_logger->is_debug;
+    return;
 }
 
 sub translate_legacy_backend_info {
@@ -716,7 +711,7 @@ sub translate_legacy_backend_info {
         $self->show_legacy_issue("$config_class_name: backend $ref->{backend}: allow_empty is deprecated. Use auto_create", 'warn');
         $ref->{auto_create} = delete $ref->{allow_empty};
     }
-
+    return;
 }
 
 sub translate_cargo_info {
@@ -751,6 +746,7 @@ sub translate_cargo_info {
     $legacy_logger->debug( 
         Data::Dumper->Dump( [$info], [ 'translated_' . $elt_name ] ) 
     ) if $legacy_logger->is_debug;
+    return;
 }
 
 sub translate_id_names {
@@ -761,6 +757,7 @@ sub translate_id_names {
     $self->translate_name( $config_class_name, $elt_name, $info, 'allow',      'allow_keys',       'die' );
     $self->translate_name( $config_class_name, $elt_name, $info, 'allow_from', 'allow_keys_from',  'die' );
     $self->translate_name( $config_class_name, $elt_name, $info, 'follow',     'follow_keys_from', 'die' );
+    return;
 }
 
 sub translate_name {
@@ -773,6 +770,7 @@ sub translate_name {
         );
         $info->{$to} = delete $info->{$from};
     }
+    return;
 }
 
 sub translate_allow_compute_override {
@@ -787,6 +785,7 @@ sub translate_allow_compute_override {
         );
         $info->{compute}{allow_override} = delete $info->{allow_compute_override};
     }
+    return;
 }
 
 sub translate_compute_info {
@@ -829,6 +828,7 @@ sub translate_compute_info {
             Data::Dumper->Dump( [ $info->{$new_name} ], [ 'new_' . $new_name ] )
         ) if $legacy_logger->is_debug;
     }
+    return;
 }
 
 sub translate_id_class {
@@ -857,6 +857,7 @@ sub translate_id_class {
         "translate_id_class $elt_name output:",
         Data::Dumper->Dump( [$info], [qw/new_info/])
     ) if $legacy_logger->is_debug;
+    return;
 }
 
 # internal: translate default information for id element
@@ -892,6 +893,7 @@ sub translate_id_default_info {
         "translate_id_default_info $elt_name output:",
         Data::Dumper->Dump( [$info], [qw/new_info/])
     ) if $legacy_logger->is_debug;
+    return;
 }
 
 # internal: translate auto_create information for id element
@@ -927,6 +929,7 @@ sub translate_id_auto_create {
         "translate_id_default_info $elt_name output:\n",
         Data::Dumper->Dump( [$info], [qw/new_info/] )
     ) if $legacy_logger->is_debug;
+    return;
 }
 
 sub translate_id_min_max {
@@ -947,6 +950,7 @@ sub translate_id_min_max {
 
         $info->{$good} = delete $info->{$bad};
     }
+    return;
 }
 
 sub translate_warped_node_info {
@@ -973,6 +977,7 @@ sub translate_warped_node_info {
         "translate_warped_node_info $elt_name output:\n",
         Data::Dumper->Dump( [$info], [qw/new_info/] )
     ) if $legacy_logger->is_debug;
+    return;
 }
 
 # internal: translate warp information into 'boolean expr' => { ... }
@@ -1002,6 +1007,7 @@ sub translate_warp_info {
         "translate_warp_info $elt_name output:\n",
         Data::Dumper->Dump( [$warp_info], [qw/new_warp_info/] )
     ) if $legacy_logger->is_debug;
+    return;
 }
 
 # internal
@@ -1155,6 +1161,7 @@ sub translate_legacy_builtin {
 
     $legacy_logger->debug( Data::Dumper->Dump( [$model], ['translated_builtin'] )) 
         if $legacy_logger->is_debug;
+    return;
 }
 
 sub translate_legacy_built_in_list {
@@ -1174,6 +1181,7 @@ sub translate_legacy_built_in_list {
 
     $legacy_logger->debug( Data::Dumper->Dump( [$model], ['translated_built_in_list'] ))
         if $legacy_logger->is_debug;
+    return;
 }
 
 sub include_class {
@@ -1194,6 +1202,7 @@ sub include_class {
     foreach my $inc ( reverse @includes ) {
         $self->include_one_class( $class_name, $target_model, $inc, $include_after );
     }
+    return;
 }
 
 sub include_one_class {
@@ -1255,6 +1264,7 @@ sub include_one_class {
         }
     }
     get_logger('Model')->debug("class $class_name include $include_class done");
+    return;
 }
 
 sub find_model_file_in_dir ($model_name, $model_path) {
@@ -1453,6 +1463,7 @@ sub augment_config_class {
         || croak "augment_config_class: missing class name";
 
     $self->augment_config_class_really( $config_class_name, \%augment_data );
+    return;
 }
 
 sub augment_config_class_really {
@@ -1479,6 +1490,7 @@ sub augment_config_class_really {
     }
 
     $self->store_normalized_model( $config_class_name => $new_model );
+    return;
 }
 
 sub model {
@@ -1504,7 +1516,7 @@ sub model {
 sub get_model {
     my ($self,$model) = @_;
     carp "get_model is deprecated in favor of get_model_clone";
-    $self->get_model_clone($model);
+    return $self->get_model_clone($model);
 }
 
 sub get_model_clone {
@@ -1755,6 +1767,7 @@ sub generate_doc {
             print $res->{$class_name};
         }
     }
+    return;
 }
 
 sub get_element_model {
@@ -1788,10 +1801,7 @@ sub get_normalized_model {
     return dclone($normalized_model);
 }
 
-sub get_element_name {
-    my $self = shift;
-    my %args = @_;
-
+sub get_element_name ($self, %args) {
     my $class = $args{class}
         || croak "get_element_name: missing 'class' parameter";
 
@@ -1814,10 +1824,7 @@ sub get_element_name {
     return wantarray ? @result : join( ' ', @result );
 }
 
-sub get_element_property {
-    my $self = shift;
-    my %args = @_;
-
+sub get_element_property ($self, %args) {
     my $elt = $args{element}
         || croak "get_element_property: missing 'element' parameter";
     my $prop = $args{property}
