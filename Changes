@@ -1,5 +1,10 @@
 {{$NEXT}}
 
+2.149 2022-01-13
+
+  Bug fixes:
+    * fix regression with check_value method
+
 2.148 2022-01-09
 
   Bug fixes:
