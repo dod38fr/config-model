@@ -12,6 +12,11 @@ use base qw/Config::Model::Backend::Any/;
 use feature qw/postderef signatures/;
 no warnings qw/experimental::postderef experimental::signatures/;
 
+# change inherited attribute. See Moose::Manual::Attributes
+has '+node' => (
+    handles => ['load_data'],
+);
+
 my $logger = get_logger("Backend::IniFile");
 
 sub annotation { return 1; }
@@ -133,10 +138,6 @@ sub read ($self, %args) {
     }
 
     return 1;
-}
-
-sub load_data ($self, @args) {
-    return $self->node->load_data(@args);
 }
 
 sub set_or_push {
