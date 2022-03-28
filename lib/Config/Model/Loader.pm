@@ -476,6 +476,7 @@ sub _load_check_list {
             ':.insert_at'     => sub { $_[1]->insert_at( @_[ 5 .. $#_ ] ); return 'ok'; },
             ':.insort'        => sub { $_[1]->insort( @_[ 5 .. $#_ ] ); return 'ok'; },
             ':.insert_before' => \&_insert_before,
+            ':.ensure'        => \&_ensure_list_value,
         },
         'list_*' => {
             ':.copy'          => sub { $_[1]->copy( $_[5], $_[6] ); return 'ok'; },
@@ -548,6 +549,17 @@ sub _insert_before {
     return 'ok';
 }
 
+sub _ensure_list_value {
+    my ( $self, $element, $check, $inst, $cmdref, @values ) = @_;
+    my %content = map { $_ => 1 } $element->fetch_all_values;
+    foreach my $one_value (@values) {
+        next if $content{$one_value};
+        $element->insort($one_value);
+        $content{$one_value} = 1;
+    }
+
+    return 'ok';
+}
 sub _remove_by_id {
     my ( $self, $element, $check, $inst, $cmdref, $id ) = @_;
     $logger->debug("_remove_by_id: removing id '$id'");
@@ -1300,6 +1312,12 @@ C<zz> key and assing value C<vv> so that existing alphanumeric order of keys
 is preserved. Note that all keys are sorted once this instruction is
 called. Putting key order aside, C<xxx:.insort(zz,vv)> has the
 same effect as C<xxx:zz=vv> instruction.
+
+=item xxx:.ensure(zz)
+
+Ensure that list C<xxx> contains value C<zz>. If value C<zz> is
+already stored in C<xxx> list, this function does nothing. In the
+other case, value C<zz> is inserted in alphabetical order.
 
 =item xxx:=z1,z2,z3
 
