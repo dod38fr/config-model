@@ -498,6 +498,21 @@ subtest "test sort and insort" => sub {
     eq_or_diff( [$ohon->fetch_all_indexes()],[qw/d g/], "check sorted keys") ;
 };
 
+subtest "test list.ensure" => sub {
+    my $lista = $root->fetch_element('lista');
+    $root->load('lista=a,b,c,d');
+    my @expect = $lista->fetch_all_values;
+
+    $root->load( qq!lista:.ensure(b)! );
+    eq_or_diff( [ $lista->fetch_all_values ], \@expect, "ensure(b) -> no change" );
+
+    $root->load( qq!lista:.ensure(b2)! );
+    eq_or_diff( [ $lista->fetch_all_values ], [qw/a b b2 c d/], "ensure(b2) -> inserted and sorted");
+
+    $root->load( qq!lista:.ensure(c2,f4,b2,c2)! );
+    eq_or_diff( [ $lista->fetch_all_values ], [qw/a b b2 c c2 d f4/], "ensure several values");
+};
+
 subtest "test combination of annotation plus load and some utf8" => sub {
     my $step = 'std_id#std_id_note ! std_id:ab#std_id_ab_note X=Bv X#X_note 
       - std_id:bc X=Av X#X2_note '
