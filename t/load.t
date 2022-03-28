@@ -555,9 +555,10 @@ subtest "test deep copy" => sub {
     $root->load("std_id:.copy(ab,copy)");
     is( $root->grab_value('std_id:copy X-Y-Z'), "Av", "check hash copy" );
 
-    is( $root->grab_value('lista:5'), 'e' , "list copy" );
+    $root->load('lista=a,b,c,d,e,f');
+    is( $root->grab_value('lista:5'), 'f' , "list copy" );
     $root->load("lista:.copy(1,5)");
-    is( $root->grab_value('lista:5'), 'b2' , "list copy" );
+    is( $root->grab_value('lista:5'), 'b' , "list copy" );
 };
 
 subtest "test clear instruction" => sub {
