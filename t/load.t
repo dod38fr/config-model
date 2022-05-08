@@ -15,6 +15,7 @@ use warnings;
 Test::Log::Log4perl->ignore_priority("info");
 
 use lib "t/lib";
+use utf8;
 
 my ($model, $trace) = init_test();
 
@@ -612,6 +613,13 @@ subtest "test load data from JSON file" => sub {
     }
         qr!a_string=\.json\(t/lib/dummy\.json/foo/bar\)!,
         "throws error on dummy json file: check reported command";
+};
+
+subtest "test load data from JSON utf8 file" => sub {
+    $inst->clear_changes;
+
+    $root->load('a_string=.json("t/lib/load-data.json/utf8-value")');
+    is( $root->grab_value('a_string'), "30€ de thé", "extract utf-8 data from json file");
 };
 
 subtest "test load data from YAML file" => sub {

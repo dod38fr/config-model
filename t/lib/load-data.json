@@ -2,5 +2,6 @@
     "foo": {
         "bar": "bar json value"
     },
-    "foo_array": [ "bar", "baz" ]
+    "foo_array": [ "bar", "baz" ],
+    "utf8-value": "30€ de thé"
 }
