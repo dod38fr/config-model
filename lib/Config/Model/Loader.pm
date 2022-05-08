@@ -570,11 +570,18 @@ sub _remove_by_id {
     return 'ok';
 }
 
+sub __load_json_file ($file) {
+    # utf8 decode is done by JSON module, so slurp_raw must be used
+    return decode_json($file->slurp_raw);
+}
+
 sub _load_json_vector_data {
     my ( $self, $element, $check, $inst, $cmdref, $vector ) = @_;
     $logger->debug("_load_json_vector_data: loading '$vector'");
     my ($file, @vector) = $self->__get_file_from_vector($element,$inst,$vector);
-    my $data = decode_json($file->slurp_utf8);
+
+    my $data = __load_json_file($file);
+
     # test for diff before clobbering ? What about deep data ???
     $element->load_data(
         data => __data_from_vector($data, @vector),
@@ -1009,7 +1016,7 @@ sub __get_file_from_vector {
 sub _store_json_vector_in_value {
     my ( $self, $element, $value, $check, $instructions, $cmd ) = @_;
     my ($file, @vector) = $self->__get_file_from_vector($element,$instructions,$value);
-    my $data = decode_json($file->slurp_utf8);
+    my $data = __load_json_file($file);
     $element->store(
         value => __data_from_vector($data, @vector),
         check => $check
