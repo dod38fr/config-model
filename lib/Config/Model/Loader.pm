@@ -12,6 +12,9 @@ use JSON;
 use Path::Tiny;
 use YAML::Tiny;
 
+use feature qw/postderef signatures/;
+no warnings qw/experimental::postderef experimental::signatures/;
+
 my $logger = get_logger("Loader");
 my $verbose_logger = get_logger("Verbose.Loader");
 
