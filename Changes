@@ -1,5 +1,13 @@
 {{$NEXT}}
 
+2.150 2022-05-08
+
+  New features:
+    * Loader: add list:.ensure(value) function
+
+  Bug fixes:
+    * Loader: fix reading JSON file with utf8 characters
+
 2.149 2022-01-13
 
   Bug fixes:
