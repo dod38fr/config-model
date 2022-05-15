@@ -541,6 +541,9 @@ $bv->store(2);
 is( $comp_over->fetch, 3, "test computed value" );
 $comp_over->store(4);
 is( $comp_over->fetch, 4, "test overridden value" );
+$comp_over->clear;
+is( $comp_over->fetch, 3, "test back to computed value" );
+
 
 my $cwu = $root->fetch_element('compute_with_upstream');
 
@@ -643,6 +646,8 @@ is(
     'http://anonscm.debian.org/gitweb/?p=pkg-ruby-extras/packages/ruby-pygments.rb.git',
     'test compute with complex regexp formula'
 );
+
+$root->store_element_value("Vcs-Browser",undef);
 
 $root->load(
     'OtherMaintainer="Debian Perl Group <pkg-perl-maintainers@lists.alioth.debian.org>" Source=libconfig-model-perl'
