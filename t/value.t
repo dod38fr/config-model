@@ -437,6 +437,10 @@ subtest "mandatory string provided with a default value" => sub {
     is( $mwdv->fetch,      'booya', "restore default by writing undef value in mandatory string" );
     is( $inst->needs_save, 1,       "verify instance needs_save status after restoring default value" );
 
+    $mwdv->store('');
+    is( $mwdv->fetch, 'booya', "restore default by writing empty value in mandatory string" );
+    is( $inst->needs_save, 2, "verify instance needs_save status after restoring default value" );
+
     print join( "\n", $inst->list_changes("\n") ), "\n" if $trace;
     $inst->clear_changes;
 };
