@@ -430,7 +430,7 @@ subtest "mandatory string provided with a default value" => sub {
     is( $inst->needs_save, 0,       "verify instance needs_save status after storing default value" );
 
     $mwdv->store('boo');
-    is( $mwdv->fetch,      'boo', "overrode default" );
+    is( $mwdv->fetch,      'boo', "override default" );
     is( $inst->needs_save, 1,     "verify instance needs_save status after storing another value" );
 
     $mwdv->store(undef);
