@@ -657,6 +657,13 @@ is(
     'http://anonscm.debian.org/gitweb/?p=pkg-perl/packages/libconfig-model-perl.git',
     'test compute with complex regexp formula'
 );
+$root->store_element_value("Vcs-Browser",'');
+
+is(
+    $root->grab_value("Vcs-Browser"),
+    'http://anonscm.debian.org/gitweb/?p=pkg-perl/packages/libconfig-model-perl.git',
+    'test compute with complex regexp formula'
+);
 
 # Debian #810768, test a variable containing quote
 $root->load(
